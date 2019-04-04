@@ -27,7 +27,8 @@ mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
 { mODTextTranslationClass(uiZAxisTransform);
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
-	    			const char*,const char*,factory);
+				const char*,const char*,factory);
+				~uiZAxisTransform();
 
     virtual void		enableTargetSampling();
     virtual bool		getTargetSampling(StepInterval<float>&) const;
@@ -48,7 +49,7 @@ public:
 
 protected:
     static bool 		isField(const uiParent*);
-    				uiZAxisTransform(uiParent*);
+				uiZAxisTransform(uiParent*);
     void			rangeChangedCB(CallBacker*);
     void			finalizeDoneCB(CallBacker*);
 
@@ -61,7 +62,7 @@ protected:
 mExpClass(uiTools) uiZAxisTransformSel : public uiDlgGroup
 { mODTextTranslationClass(uiZAxisTransformSel);
 public:
-    				uiZAxisTransformSel(uiParent*, bool withnone,
+				uiZAxisTransformSel(uiParent*, bool withnone,
 						    const char* fromdomain=0,
 						    const char* todomain=0,
 						    bool withsampling=false,

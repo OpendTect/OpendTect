@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 
-static HiddenParam<uiZAxisTransform,char> is2d_(0);
+static HiddenParam<uiZAxisTransform,char> is2dzat_(0);
 
 mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
 		    const char*, uiZAxisTransform::factory );
@@ -36,7 +36,13 @@ bool uiZAxisTransform::isField( const uiParent* p )
 uiZAxisTransform::uiZAxisTransform( uiParent* p )
     : uiDlgGroup( p, uiStrings::sEmptyString() )
 {
-    is2d_.setParam( this, false );
+    is2dzat_.setParam( this, false );
+}
+
+
+uiZAxisTransform::~uiZAxisTransform()
+{
+    is2dzat_.removeParam( this );
 }
 
 
@@ -50,13 +56,13 @@ bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
 
 void uiZAxisTransform::setIs2D( bool yn )
 {
-    is2d_.setParam( this, yn );
+    is2dzat_.setParam( this, yn );
 }
 
 
 bool uiZAxisTransform::is2D() const
 {
-    return is2d_.getParam( this );
+    return is2dzat_.getParam( this );
 }
 
 
@@ -65,8 +71,8 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	const char* fromdomain, const char* todomain, bool withsampling,
 	bool isfield, bool is2d )
     : uiDlgGroup( p, uiStrings::sEmptyString() )
-    , selfld_( 0 )
-    , isfield_( isfield )
+    , isfield_(isfield)
+    , selfld_(nullptr)
 {
     if ( isfield_ && withsampling )
     {
@@ -110,7 +116,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 
     if ( hastransforms && withnone )
     {
-	transflds_.insertAt( 0, 0 );
+	transflds_.insertAt( nullptr, 0 );
 	names.insert( 0, nonestr );
     }
 
@@ -137,7 +143,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	setHAlignObj( transflds_[0] );
     }
 
-    selCB( 0 );
+    selCB( nullptr );
 }
 
 
@@ -183,7 +189,7 @@ int uiZAxisTransformSel::nrTransforms() const
 ZAxisTransform* uiZAxisTransformSel::getSelection()
 {
     const int idx = mGetSel;
-    return transflds_[idx] ? transflds_[idx]->getSelection() : 0;
+    return transflds_[idx] ? transflds_[idx]->getSelection() : nullptr;
 }
 
 

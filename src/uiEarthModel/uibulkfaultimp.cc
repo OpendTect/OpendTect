@@ -76,7 +76,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
 	if ( !getHdrVals(strm_) )
 	    return false;
 
-	udfval_ = getFValue( 0 );
+	udfval_ = getDValue( 0 );
 	finishedreadingheader_ = true;
     }
 
@@ -95,7 +95,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
 }
 
     od_istream&		strm_;
-    float		udfval_;
+    double		udfval_;
     bool		finishedreadingheader_;
     bool		is2d_;
 };
@@ -119,20 +119,23 @@ static const char* sKeyFileOrder()	{ return "File order"; }
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID), mTODOHelpKey )
 
-static HiddenParam<uiBulkFaultImport,char> is2d_(0);
+static HiddenParam<uiBulkFaultImport,char> is2dfss_(0);
 static HiddenParam<uiBulkFaultImport,char> isfltset_(0);
 
-static HiddenParam<uiBulkFaultImport,uiGenInput*> sortsticksfld_(0);
-static HiddenParam<uiBulkFaultImport,uiIOObjSel*> fltsetnmfld_(0);
+static HiddenParam<uiBulkFaultImport,uiGenInput*> sortsticksfld_(nullptr);
+static HiddenParam<uiBulkFaultImport,uiIOObjSel*> fltsetnmfld_(nullptr);
 
 
 uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Multiple Faults"),mNoDlgTitle,
 				 mODHelpKey(mBulkFaultImportHelpID))
 		 .modal(false))
-    , isfss_(false)
     , fd_(BulkFaultAscIO::getDesc(false,false))
+    , isfss_(false)
 {
+    isfltset_.setParam( this, false );
+    is2dfss_.setParam( this, false );
+    fltsetnmfld_.setParam( this, nullptr );
     init();
 }
 
@@ -144,12 +147,12 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
 				tr("Import Multiple Faults"),
 				tr("Import FaultSet")),mNoDlgTitle,
 				mGetHelpKey(type)).modal(false))
-    , isfss_(mGet(type,true,false,false))
     , fd_(BulkFaultAscIO::getDesc(mGet(type,true,false,false),is2d))
+    , isfss_(mGet(type,true,false,false))
 {
     isfltset_.setParam( this, mGet(type,false,false,true) );
-    is2d_.setParam( this, is2d );
-    fltsetnmfld_.setParam( this, 0 );
+    is2dfss_.setParam( this, is2d );
+    fltsetnmfld_.setParam( this, nullptr );
     init();
 }
 
@@ -176,14 +179,13 @@ void uiBulkFaultImport::init()
 		mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, sortsticksfld );
 
-    if ( isfltset_.getParam( this ) )
+    if ( isfltset_.getParam(this) )
     {
 	IOObjContext ctxt = mIOObjContext(EMFaultSet3D);
 	ctxt.forread_ = false;
 	uiIOObjSel* fssetnmfld = new uiIOObjSel( this, ctxt,
 				uiStrings::phrOutput(uiStrings::sFaultSet()) );
 	fssetnmfld->attach( alignedBelow, dataselfld_ );
-
 	fltsetnmfld_.setParam( this, fssetnmfld );
 
 	mAttachCB( inpfld_->valuechanged, uiBulkFaultImport::inpChangedCB );
@@ -193,8 +195,9 @@ void uiBulkFaultImport::init()
 
 uiBulkFaultImport::~uiBulkFaultImport()
 {
+    detachAllNotifiers();
     delete fd_;
-    is2d_.removeParam( this );
+    is2dfss_.removeParam( this );
     isfltset_.removeParam( this );
     sortsticksfld_.removeParam( this );
     fltsetnmfld_.removeParam( this );
@@ -358,7 +361,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	return false;
 
     const bool isfltset = isfltset_.getParam( this );
-    const bool is2d = is2d_.getParam( this );
+    const bool is2d = is2dfss_.getParam( this );
 
     ManagedObjectSet<FaultPars> pars;
     BulkFaultAscIO aio( *fd_, strm, is2d );
@@ -372,7 +375,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     BufferString savernm = isfss_ ? "Saving FaultStickSets" :
 			    isfltset ? "Saving FaultSet" :"Saving Faults";
 
-    EM::FaultSet3D* fltset = 0;
+    EM::FaultSet3D* fltset = nullptr;
 
     if ( isfltset )
     {
@@ -390,7 +393,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     for ( int idx=0; idx<pars.size(); idx++ )
     {
 	EM::EMManager& em = EM::EMM();
-	RefMan<EM::EMObject> emobj = 0;
+	RefMan<EM::EMObject> emobj = nullptr;
 	EM::ObjectID emid;
 	if ( isfltset )
 	    emobj = em.createTempObject( typestr );
