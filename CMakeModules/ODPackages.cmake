@@ -15,6 +15,12 @@ macro( OD_ADD_PACKAGES_TARGET )
     if ( NOT DEFINED PACKAGE_DIR )
 	set( PACKAGE_DIR ${CMAKE_SOURCE_DIR}/packages )
     endif()
+message( "HDF5_CXX_LIBRARY_hdf5: ${HDF5_CXX_LIBRARY_hdf5}")
+    if ( EXISTS ${HDF5_CXX_LIBRARY_hdf5} )
+	set( INCLUDE_ODHDF5 "YES" )
+    else()
+	set( INCLUDE_ODHDF5 "NO" )
+    endif()
 
     add_custom_target( packages  ${CMAKE_COMMAND} 
 	    -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR} 
@@ -35,7 +41,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DBUILD_USERDOC=${BUILD_USERDOC}
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
 	    -DMATLAB_DIR=${MATLAB_DIR}
-	    -DHDF5_ROOT=${HDF5_ROOT}
+	    -DINCLUDE_ODHDF5=${INCLUDE_ODHDF5}
 	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    COMMENT "Creating packages" ) 
 endmacro()
