@@ -23,6 +23,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "progressmeterimpl.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<VolProc::ChainOutput,TrcKeySampling*>
+					volprocouttkscalcscopemgr_(0);
+static HiddenParam<VolProc::ChainOutput,TrcKeySampling*>
+					volprocouttkscalcdonemgr_(0);
+
 
 VolProc::ChainOutput::ChainOutput()
     : Executor("Volume Processing Output")
@@ -39,12 +46,16 @@ VolProc::ChainOutput::ChainOutput()
     , progresskeeper_(*new ProgressRecorder)
     , jobcomm_(0)
 {
+    volprocouttkscalcscopemgr_.setParam( this, new TrcKeySampling(cs_.hsamp_));
+    volprocouttkscalcdonemgr_.setParam( this, new TrcKeySampling );
     progressmeter_ = &progresskeeper_;
 }
 
 
 VolProc::ChainOutput::~ChainOutput()
 {
+    volprocouttkscalcscopemgr_.removeAndDeleteParam( this );
+    volprocouttkscalcdonemgr_.removeAndDeleteParam( this );
     delete wrr_;
     deepErase( storers_ );
 
@@ -188,7 +199,11 @@ int VolProc::ChainOutput::nextStep()
 	return Finished();
 
     if ( nrexecs_<0 )
+    {
+	*volprocouttkscalcscopemgr_.getParam( this ) = cs_.hsamp_;
+	volprocouttkscalcdonemgr_.getParam( this )->init(false);
 	return setupChunking();
+    }
     else if ( neednextchunk_ )
 	return setNextChunk();
 
@@ -288,10 +303,10 @@ int VolProc::ChainOutput::setupChunking()
     /* chain_.zstep_ is not used, but setting it for external plugin builders
        in case they read chain_.getZStep() */
 
+    const TrcKeySampling& tks = *volprocouttkscalcscopemgr_.getParam( this );
     outputzrg_ = StepInterval<int>( 0, cs_.zsamp_.nrSteps(), 1 );
     od_uint64 memusage;
-    if ( !chainexec_->setCalculationScope(cs_.hsamp_,cs_.zsamp_,memusage,
-					  &nrexecs_) )
+    if ( !chainexec_->setCalculationScope(tks,cs_.zsamp_,memusage,&nrexecs_) )
     {
 	NrBytesToStringCreator bytesstrcalc;
 	bytesstrcalc.setUnitFrom( memusage );
@@ -317,9 +332,11 @@ int VolProc::ChainOutput::setNextChunk()
 	    return ErrorOccurred();
     }
 
-    const TrcKeySampling hsamp( cs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
-    od_uint64 memusage;
-    if ( !chainexec_->setCalculationScope(hsamp,cs_.zsamp_,memusage) )
+    TrcKeySampling& scopetks = *volprocouttkscalcscopemgr_.getParam( this );
+    const TrcKeySampling hsamp( scopetks.getLineChunk(nrexecs_,curexecnr_) );
+    od_uint64 memusage; int nrsubexecs;
+    if ( !chainexec_->setCalculationScope(hsamp,cs_.zsamp_,memusage,
+					  &nrsubexecs) )
     {
 	deleteAndZeroPtr( chainexec_ );
 	NrBytesToStringCreator bytesstrcalc;
@@ -328,6 +345,20 @@ int VolProc::ChainOutput::setNextChunk()
 	return retError( tr("Could not set calculation scope."
 		    "\nProbably there is not enough memory available.\n"
 		    "%1 bytes would be required.").arg( memstr ) );
+    }
+    else if ( nrsubexecs > 1 )
+    {
+	scopetks.start_.lineNr() = hsamp.start_.lineNr();
+	return setupChunking();
+    }
+    else
+    {
+	TrcKeySampling& calcdonetks =
+				*volprocouttkscalcdonemgr_.getParam( this );
+	if ( calcdonetks.isEmpty() )
+	    calcdonetks = hsamp;
+	else
+	    calcdonetks.stop_.lineNr() = hsamp.stop_.lineNr();
     }
 
     if ( nrexecs_ < 2 )
