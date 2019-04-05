@@ -44,7 +44,7 @@ if ( ! $?HDIR ) then
 endif
 
 set ROOT_DIR="$1"
-if ( $ROOT_DIR == "" ) then
+if ( $ROOT_DIR == "" || ! -d "$1" ) then
     if ( $?DTECT_APPL ) then
         set ROOT_DIR="$DTECT_APPL"
     endif
