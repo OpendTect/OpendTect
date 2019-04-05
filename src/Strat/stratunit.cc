@@ -132,18 +132,20 @@ void Strat::UnitRef::putPropsTo( IOPar& iop ) const
 Strat::NodeUnitRef* Strat::UnitRef::upNode( int skip )
 {
     if ( !upnode_ )
-	return 0;
+	return nullptr;
 
-    return skip ? upnode_->upNode( skip-1 ) : upnode_;
+    return skip>0 ? upnode_->upNode( skip-1 ) : upnode_;
 }
 
 
 CompoundKey Strat::UnitRef::fullCode() const
 {
     CompoundKey kc;
-
     for ( int idx=treeDepth()-1; idx>=0; idx-- )
-	kc += upNode( idx )->code();
+    {
+	const Strat::NodeUnitRef* ref = upNode( idx );
+	kc += ref ? ref->code() : "";
+    }
     kc += code();
 
     return kc;
