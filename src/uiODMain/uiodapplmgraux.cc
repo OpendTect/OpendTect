@@ -46,7 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicoltabimport.h"
 #include "uicoltabman.h"
 #include "uiconvpos.h"
-#include "uicreate2dgrid.h"
 #include "uicreatelogcubedlg.h"
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -608,11 +607,17 @@ void uiODApplMgrDispatcher::createCubeFromWells()
 void uiODApplMgrDispatcher::process2D3D( int opt )
 {
     if ( opt==0 )
-    { uiCreate2DGrid dlg( par_, 0 ); dlg.go(); }
+	am_.emattrserv_->create2DGrid( nullptr );
     else if ( opt==1 )
-    { uiSeis2DFrom3D dlg( par_ ); dlg.go(); }
+    {
+	uiSeis2DFrom3D dlg( par_ );
+	dlg.go();
+    }
     else if ( opt==2 )
-    { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
+    {
+	uiSeis2DTo3D dlg( par_ );
+	dlg.go();
+    }
     else if ( opt==3 )
     {
 	uiString str = uiStrings::phrCreate(tr("3D cube from 2D DataSet"));

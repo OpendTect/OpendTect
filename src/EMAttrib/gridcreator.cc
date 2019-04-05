@@ -121,6 +121,8 @@ int Seis2DLineCreator::nextStep()
 	return ErrorOccurred();
     }
 
+    trc.info().nr = sCast(int,nrdone_+1);
+    trc.info().refnr = sCast(float,nrdone_+1);
     if ( !wrr_->put(trc) )
     {
 	msg_ = tr("Error writing output trace\n");

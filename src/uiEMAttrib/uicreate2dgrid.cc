@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "uisurvmap.h"
 #include "uitaskrunner.h"
 #include "uiworld2ui.h"
-
+#include "ui2dgeomman.h"
 
 #include "axislayout.h"
 #include "trckeyzsampling.h"
@@ -159,38 +159,40 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 						  const TrcKeySampling& hs )
     : ui2DGridLines(p,hs)
 {
+    CallBack modecb = mCB(this,ui2DGridLinesFromInlCrl,modeChg);
+    CallBack parscb = mCB(this,ui2DGridLinesFromInlCrl,paramsChgCB);
     inlmodefld_ = new uiGenInput( this, uiStrings::sInline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
 				  tr("Loose")) );
-    inlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
+    inlmodefld_->valuechanged.notify( modecb );
+
     inlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, true );
-    inlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
-					paramsChgCB) );
+    inlrgfld_->rangeChanged.notify( parscb );
     inlrgfld_->attach( alignedBelow, inlmodefld_ );
+
     inlsfld_ = new uiGenInput( this, tr("In-lines (comma separated)") );
-    inlsfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
-					paramsChgCB) );
+    inlsfld_->valuechanged.notify( parscb );
     inlsfld_->attach( alignedBelow, inlmodefld_ );
 
     crlmodefld_ = new uiGenInput( this, uiStrings::sCrossline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
 				  tr("Loose")) );
-    crlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
+    crlmodefld_->valuechanged.notify( modecb );
     crlmodefld_->attach( alignedBelow, inlrgfld_ );
+
     crlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Crl, true );
-    crlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
-					paramsChgCB) );
+    crlrgfld_->rangeChanged.notify( parscb );
     crlrgfld_->attach( alignedBelow, crlmodefld_ );
+
     crlsfld_ = new uiGenInput( this, tr("Cross-lines (comma separated)") );
-    crlsfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
-					paramsChgCB) );
+    crlsfld_->valuechanged.notify( parscb );
     crlsfld_->attach( alignedBelow, crlmodefld_ );
+
     inlprefixfld_->attach( alignedBelow, crlsfld_ );
     inlprefixfld_->setText( "INL" );
     crlprefixfld_->setText( "XL" );
 
     setHAlignObj( inlmodefld_ );
-
     modeChg( 0 );
 }
 
@@ -476,6 +478,8 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     , sourceselfld_(0),inlcrlgridgrp_(0)
     , tkzs_(*new TrcKeyZSampling(true))
 {
+    setCtrlStyle( RunAndClose );
+
     uiGroup* seisgrp = createSeisGroup( rdl );
 
     uiGroup* previewgrp = createPreviewGroup();
@@ -516,8 +520,8 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
     bboxfld_->attach( alignedBelow, infld_ );
 
     randlinegrdgrp_ = new ui2DGridLinesFromRandLine( grp, tkzs_.hsamp_, rdl );
-    randlinegrdgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
-					      updatePreview) );
+    randlinegrdgrp_->gridChanged.notify(
+			mCB(this,uiCreate2DGrid,updatePreview) );
     if ( rdl )
 	randlinegrdgrp_->attach( alignedBelow, bboxfld_ );
     else
@@ -528,8 +532,8 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 	sourceselfld_->valuechanged.notify( mCB(this,uiCreate2DGrid,srcSelCB) );
 	sourceselfld_->attach( alignedBelow, bboxfld_ );
 	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, tkzs_.hsamp_ );
-	inlcrlgridgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
-						 updatePreview) );
+	inlcrlgridgrp_->gridChanged.notify(
+			mCB(this,uiCreate2DGrid,updatePreview) );
 	inlcrlgridgrp_->attach( alignedBelow, sourceselfld_ );
 	randlinegrdgrp_->attach( alignedBelow, sourceselfld_ );
     }
@@ -707,11 +711,14 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
     }
 
     BufferStringSet ovwrlinenms;
-    for ( int lidx=0; lidx < linenames.size(); lidx++ )
+    for ( int lidx=0; lidx<linenames.size(); lidx++ )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenames[lidx]->buf() );
+	const char* lnm = linenames.get(lidx).buf();
+	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
 	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
-	    ovwrlinenms.add( linenames.get(lidx) );
+	    ovwrlinenms.add( lnm );
+	else
+	    Geom2DImpHandler::getGeomID( lnm ); // adds to database
     }
 
     if ( ovwrlinenms.isEmpty() )
@@ -754,7 +761,6 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
     }
 
     return true;
-
 }
 
 
@@ -789,5 +795,6 @@ bool uiCreate2DGrid::acceptOK( CallBacker* )
 	return false;
 
     batchfld_->setJobName( outfld_->ioobj()->name() );
-    return batchfld_->start();
+    batchfld_->start();
+    return false;
 }
