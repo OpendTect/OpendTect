@@ -176,6 +176,7 @@ int SeisRandLineTo2D::nextStep()
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT32( vals[3] );
     trc->info().nr = trcnr;
+    trc->info().refnr = trcnr;
     trc->info().coord = coord;
     addTrcToBuffer( trc, buf_ );
 
@@ -191,6 +192,7 @@ int SeisRandLineTo2D::nextStep()
 	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT32( vals[3] );
 	nexttrc->info().nr = nexttrcnr;
+	nexttrc->info().refnr = nexttrcnr;
 	nexttrc->info().coord = nextcoord;
 	addTrcToBuffer( nexttrc, buf_ );
 	nrdone_++;
@@ -249,7 +251,7 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 	mNotOKRet("Error: Grid spacing not specified")
 
     PtrMan<IOPar> randlnpar = par.subselect(
-	    			SeisRandLineTo2DGrid::sKeyRandomLine() );
+				SeisRandLineTo2DGrid::sKeyRandomLine() );
     if ( !randlnpar )
 	mNotOKRet("Error: Base Random line missing")
 
@@ -289,7 +291,7 @@ bool SeisRandLineTo2DGrid::createGrid()
 
 
 bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
-       				      bool parll )
+				      bool parll )
 {
     BufferString strsuffix;
     int numsuffix = 1;
