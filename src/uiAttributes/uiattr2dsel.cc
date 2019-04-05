@@ -55,13 +55,13 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     , descid_(-1,true)
     , curnm_(curnm)
     , seltype_(0)
-    , selgrp_(0)
-    , steerfld_(0)
-    , nlafld_(0)
-    , storoutfld_(0)
-    , steeroutfld_(0)
-    , attroutfld_(0)
-    , nlaoutfld_(0)
+    , selgrp_(nullptr)
+    , steerfld_(nullptr)
+    , nlafld_(nullptr)
+    , storoutfld_(nullptr)
+    , steeroutfld_(nullptr)
+    , attroutfld_(nullptr)
+    , nlaoutfld_(nullptr)
     , compnr_(-1)
     , outputnr_(-1)
 {
@@ -85,6 +85,8 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     }
 
     selgrp_->selectButton( seltype_ );
+    if ( ds )
+	initFields( *ds );
     preFinalise().notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
 }
 
@@ -100,13 +102,13 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     , descid_(-1,true)
     , curnm_(curnm)
     , seltype_(0)
-    , selgrp_(0)
-    , steerfld_(0)
-    , nlafld_(0)
-    , storoutfld_(0)
-    , steeroutfld_(0)
-    , attroutfld_(0)
-    , nlaoutfld_(0)
+    , selgrp_(nullptr)
+    , steerfld_(nullptr)
+    , nlafld_(nullptr)
+    , storoutfld_(nullptr)
+    , steeroutfld_(nullptr)
+    , attroutfld_(nullptr)
+    , nlaoutfld_(nullptr)
     , compnr_(-1)
     , outputnr_(-1)
 {
@@ -130,8 +132,11 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     }
 
     selgrp_->selectButton( seltype_ );
+    if ( ds )
+	initFields( *ds );
     preFinalise().notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
 }
+
 
 uiAttr2DSelDlg::~uiAttr2DSelDlg()
 {
@@ -142,7 +147,42 @@ uiAttr2DSelDlg::~uiAttr2DSelDlg()
 
 void uiAttr2DSelDlg::doFinalise( CallBacker* )
 {
-    selDone(0);
+    selDone( nullptr );
+}
+
+
+void uiAttr2DSelDlg::initFields( const Attrib::DescSet& ds )
+{
+    int seltyp = 0, curitm = -1;
+    if ( nla_ )
+    {
+	seltyp = 3;
+	curitm = 0;
+    }
+    else
+    {
+	for ( int idx=ds.size()-1; idx!=-1; idx-- )
+	{
+	    const DescID attrid = ds.getID( idx );
+	    const Desc* ad = ds.getDesc( attrid );
+	    if ( !ad || ad->isStored() )
+		continue;
+
+	    curitm = attrinf_->attrnms_.indexOf( ad->userRef() );
+	    seltyp = 2;
+	    if ( curitm!=-1 )
+		break;
+	}
+    }
+
+    if ( (seltyp==2 ||seltyp==3) && curitm!=-1 )
+    {
+	selgrp_->selectButton( seltyp );
+	if ( seltyp==2 && attroutfld_ )
+	    attroutfld_->setCurrentItem( curitm );
+	else if ( nlaoutfld_ )
+	    nlaoutfld_->setCurrentItem( curitm );
+    }
 }
 
 
@@ -350,7 +390,7 @@ int uiAttr2DSelDlg::selType() const
 }
 
 
-void uiAttr2DSelDlg::selDone( CallBacker* c )
+void uiAttr2DSelDlg::selDone( CallBacker* )
 {
     const int seltyp = selType();
     if ( storoutfld_ ) storoutfld_->display( seltyp == 0 );
@@ -364,7 +404,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 {
     int selidx = -1;
     const int newseltype = selType();
-    uiListBox* attrfld = 0;
+    uiListBox* attrfld = nullptr;
     if ( newseltype==1 )	attrfld = steeroutfld_;
     else if ( newseltype==2 )	attrfld = attroutfld_;
     else if ( newseltype==3 )	attrfld = nlaoutfld_;
@@ -376,7 +416,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	if ( selnm==curnm_ )
 	{
 	    uiString msg = tr("Do you want to reload the attribute %1?")
-                           .arg(selnm);
+			   .arg(selnm);
 	    if ( !uiMSG().askGoOn(msg) )
 	    {
 		seltype_ = -1;
