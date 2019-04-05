@@ -26,8 +26,8 @@ ___________________________________________________________________
 
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uicreate2dgrid.h"
 #include "uidialog.h"
+#include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uiioobjseldlg.h"
 #include "uilistbox.h"
@@ -207,11 +207,21 @@ bool uiODRandomLineParentTreeItem::addStored( int mnuid )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt_.forread_ = true;
-    uiIOObjSelDlg dlg( getUiParent(), *ctio );
-    if ( !dlg.go() || !dlg.ioObj() ) return false;
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg dlg( getUiParent(), sdsu, *ctio );
+    if ( !dlg.go() )
+	return false;
 
-    const IOObj* ioobj = dlg.ioObj();
-    return load( *ioobj, mnuid );
+    TypeSet<MultiID> keys;
+    dlg.getChosen( keys );
+    for ( int idx=0; idx<keys.size(); idx++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( keys[idx] );
+	if ( ioobj )
+	    load( *ioobj, mnuid );
+    }
+
+    return true;
 }
 
 
@@ -325,7 +335,7 @@ void uiODRandomLineParentTreeItem::genFromPicks()
     addChild( itm, false );
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-        ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+	ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
 
     rdlpolylinedlg_ = new uiRandomLinePolyLineDlg( getUiParent(), rtd );
     rdlpolylinedlg_->windowClosed.notify(
@@ -601,8 +611,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
 	    rln->setName( mFromUiStringTodo(rtd->name()) );
-	    uiCreate2DGrid dlg( ODMainWin(), rln );
-	    dlg.go();
+	    applMgr()->EMAttribServer()->create2DGrid( rln );
 	}
     }
 }
