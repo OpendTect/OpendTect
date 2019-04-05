@@ -28,7 +28,11 @@ public:
 				~ChainExecutor();
 
 				/*!< Mandatory before the execution is started.
-				     The execution can start if success */
+				  The execution can start if success.
+				  However if nrchunks > 1, the execution
+				  will use a smaller sampling than requested
+				  to avoid running short of memory.
+				 */
     bool			setCalculationScope(const TrcKeySampling&,
 						    const ZSampling&,
 						    od_int64& maxmemusage,

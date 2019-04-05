@@ -56,7 +56,7 @@ public:
     virtual void		enableWorkControl(bool yn=true);
     void			setJobCommunicator(JobCommunic*);
 
-protected:
+private:
 
     DBKey			chainid_;
     DBKey			outid_;
@@ -69,6 +69,8 @@ protected:
     bool			neednextchunk_;
     int				nrexecs_;
     int				curexecnr_;
+    TrcKeySampling		scopetks_;
+    TrcKeySampling		scheduledtks_;
     StepInterval<int>		outputzrg_;
     ProgressRecorder&		progresskeeper_;
 

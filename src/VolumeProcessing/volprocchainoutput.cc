@@ -35,6 +35,8 @@ VolProc::ChainOutput::ChainOutput()
     , neednextchunk_(true)
     , nrexecs_(-1)
     , curexecnr_(-1)
+    , scopetks_(true)
+    , scheduledtks_(false)
     , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
     , jobcomm_(0)
@@ -194,7 +196,11 @@ int VolProc::ChainOutput::nextStep()
 	return Finished();
 
     if ( nrexecs_<0 )
+    {
+	scopetks_ = tkzs_.hsamp_;
+	scheduledtks_.init(false);
 	return setupChunking();
+    }
     else if ( neednextchunk_ )
 	return setNextChunk();
 
@@ -299,7 +305,7 @@ int VolProc::ChainOutput::setupChunking()
 	return ErrorOccurred();
 
     od_int64 memusage;
-    if ( !chainexec_->setCalculationScope(tkzs_.hsamp_,tkzs_.zsamp_,memusage,
+    if ( !chainexec_->setCalculationScope(scopetks_,tkzs_.zsamp_,memusage,
 					  &nrexecs_) )
     {
 	NrBytesToStringCreator bytesstrcalc;
@@ -326,9 +332,10 @@ int VolProc::ChainOutput::setNextChunk()
 	    return ErrorOccurred();
     }
 
-    const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_));
-    od_int64 memusage;
-    if ( !chainexec_->setCalculationScope(hsamp,tkzs_.zsamp_,memusage) )
+    const TrcKeySampling hsamp( scopetks_.getLineChunk(nrexecs_,curexecnr_));
+    od_int64 memusage; int nrsubexecs;
+    if ( !chainexec_->setCalculationScope(hsamp,tkzs_.zsamp_,memusage,
+					  &nrsubexecs) )
     {
 	deleteAndZeroPtr( chainexec_ );
 	NrBytesToStringCreator bytesstrcalc;
@@ -337,6 +344,18 @@ int VolProc::ChainOutput::setNextChunk()
 	return retError( tr("Could not set calculation scope."
 		    "\nProbably there is not enough memory available.\n"
 		    "%1 bytes would be required.").arg( memstr ) );
+    }
+    else if ( nrsubexecs > 1 )
+    {
+	scopetks_.start_.lineNr() = hsamp.start_.lineNr();
+	return setupChunking();
+    }
+    else
+    {
+	if ( scheduledtks_.isEmpty() )
+	    scheduledtks_ = hsamp;
+	else
+	    scheduledtks_.stop_.lineNr() = hsamp.stop_.lineNr();
     }
 
     if ( nrexecs_ < 2 )
