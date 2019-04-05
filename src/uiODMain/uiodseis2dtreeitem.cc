@@ -359,6 +359,7 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
     ObjectSet<uiTreeItem> set;
     findChildren( sKeyRightClick(), set );
     {
+	selcomps.erase();
 	for ( int idx=0; idx<set.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
@@ -412,6 +413,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
     const int attrtype = dlg.getSelType();
     if ( attrtype == 0 || attrtype == 1 )
     {
+	selcomps.erase();
 	const char* newattrnm = dlg.getStoredAttrName();
 	for ( int idx=0; idx<set.size(); idx++ )
 	{
@@ -716,6 +718,7 @@ bool uiOD2DLineTreeItem::displayDefaultData()
     if ( !desc )
 	return false;
 
+    selcomps.erase();
     const char* attrnm = desc->userRef();
     uiTaskRunner uitr( ODMainWin() );
     return item->displayStoredData( attrnm, 0, uitr );
@@ -732,6 +735,7 @@ bool uiOD2DLineTreeItem::addStoredData( const char* nm, int component,
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[lastattridx] );
     if ( !lsai ) return false;
 
+    selcomps.erase();
     return lsai->displayStoredData( nm, component, uitr );
 }
 
@@ -1060,7 +1064,11 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
     }
     else
+    {
+	if ( component>=0 )
+	    selcomps.addIfNew( component );
 	attribid = attrserv->getStoredID( key, true, component );
+    }
 
     if ( !attribid.isValid() ) return false;
 
