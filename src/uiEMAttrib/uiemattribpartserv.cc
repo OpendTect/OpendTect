@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
+#include "uicreate2dgrid.h"
 #include "uihorizonshiftdlg.h"
 #include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
@@ -23,10 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "posvecdataset.h"
 #include "typeset.h"
+
+static HiddenParam<uiEMAttribPartServer,uiCreate2DGrid*> crgriddlg_(nullptr);
 
 static const DataColDef	siddef_( "Section ID" );
 
@@ -35,25 +39,28 @@ const DataColDef& uiEMAttribPartServer::sidDef() const
 
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , nlamodel_(0)
-    , descset_(0)
-    , horshiftdlg_(0)
+    , nlamodel_(nullptr)
+    , descset_(nullptr)
+    , horshiftdlg_(nullptr)
     , shiftidx_(10)
     , attribidx_(0)
-    , uiimphor2ddlg_(0)
-    , uiseisevsnapdlg_(0)
-    , aroundhor2ddlg_(0)
-    , aroundhor3ddlg_(0)
-    , betweenhor2ddlg_(0)
-    , betweenhor3ddlg_(0)
-    , surfattr2ddlg_(0)
-    , surfattr3ddlg_(0)
+    , uiimphor2ddlg_(nullptr)
+    , uiseisevsnapdlg_(nullptr)
+    , aroundhor2ddlg_(nullptr)
+    , aroundhor3ddlg_(nullptr)
+    , betweenhor2ddlg_(nullptr)
+    , betweenhor3ddlg_(nullptr)
+    , surfattr2ddlg_(nullptr)
+    , surfattr3ddlg_(nullptr)
 {
+    crgriddlg_.setParam( this, nullptr );
 }
 
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
+    crgriddlg_.removeAndDeleteParam( this );
+
     delete horshiftdlg_;
     delete aroundhor2ddlg_;
     delete aroundhor3ddlg_;
@@ -131,7 +138,7 @@ void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
     PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid) );
     if ( !ioobj ) return;
 
-    if ( uiseisevsnapdlg_ ) delete uiseisevsnapdlg_;
+    delete uiseisevsnapdlg_;
     uiseisevsnapdlg_ = new uiSeisEventSnapper( parent(), ioobj, is2d );
     uiseisevsnapdlg_->readyForDisplay.notify(
 		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
@@ -152,6 +159,16 @@ void uiEMAttribPartServer::import2DHorizon()
     uiimphor2ddlg_->readyForDisplay.notify(
 		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
     uiimphor2ddlg_->show();
+}
+
+
+void uiEMAttribPartServer::create2DGrid( const Geometry::RandomLine* rdl )
+{
+    crgriddlg_.deleteAndZeroPtrParam( this );
+    uiCreate2DGrid* dlg = new uiCreate2DGrid( parent(), rdl );
+    dlg->setModal( false );
+    crgriddlg_.setParam( this, dlg );
+    dlg->show();
 }
 
 
@@ -235,7 +252,7 @@ void uiEMAttribPartServer::shiftDlgClosed( CallBacker* )
 	    mCB(this,uiEMAttribPartServer,horShifted) );
     horshiftdlg_->windowClosed.remove(
 	    mCB(this,uiEMAttribPartServer,shiftDlgClosed) );
-    horshiftdlg_ = 0;
+    horshiftdlg_ = nullptr;
 }
 
 
@@ -251,7 +268,7 @@ const char* uiEMAttribPartServer::getAttribBaseNm() const
 
 
 void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
-       					    TaskRunner* )
+					    TaskRunner* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
@@ -315,11 +332,12 @@ void uiEMAttribPartServer::setAttribIdx( int idx )
 }
 
 
-void uiEMAttribPartServer::horShifted( CallBacker* cb )
+void uiEMAttribPartServer::horShifted( CallBacker* )
 {
     shiftidx_ = horshiftdlg_->curShiftIdx();
     sendEvent( uiEMAttribPartServer::evHorizonShift() );
 }
+
 
 int uiEMAttribPartServer::getShiftedObjectVisID() const
 {

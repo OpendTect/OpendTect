@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 namespace Attrib { class DescSet; }
+namespace Geometry { class RandomLine; }
 class DataPointSet;
 class NLAModel;
 class TaskRunner;
@@ -38,7 +39,7 @@ class uiSeisEventSnapper;
 */
 
 mExpClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
-{mODTextTranslationClass(uiEMAttribPartServer);
+{mODTextTranslationClass(uiEMAttribPartServer)
 public:
 				uiEMAttribPartServer(uiApplService&);
 				~uiEMAttribPartServer();
@@ -69,7 +70,7 @@ public:
 						float initialshift,
 						bool canaddattrib);
     void			fillHorShiftDPS(ObjectSet<DataPointSet>&,
-	    				TaskRunner*);
+					TaskRunner*);
 
     const DataColDef&		sidDef() const;
     const BoolTypeSet&		initialAttribStatus() const
@@ -78,17 +79,18 @@ public:
 
     float			getShift() const;
     void			setAttribID( Attrib::DescID id )
-    				{ attribid_ = id; }
+				{ attribid_ = id; }
     int				getShiftedObjectVisID() const;
     void			setAttribIdx(int);
     Attrib::DescID		attribID() const	{ return attribid_; }
     int				attribIdx() const	{ return attribidx_; }
 					//Works only in case of Shift Dlg
     int				textureIdx() const;
-    					//Works only in case of Shift Dlg
+					//Works only in case of Shift Dlg
     StepInterval<float>		shiftRange() const;
     const char*			getAttribBaseNm() const;
     void			import2DHorizon();
+    void			create2DGrid(const Geometry::RandomLine*);
 
     const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
 
