@@ -10,7 +10,7 @@ def getDBList(translnm,args=None):
   cmd.append( '--json' )
   cmd.append( '--list' )
   cmd.append( translnm )
-  ret = execCommand( cmd, args=args )
+  ret = execCommand( cmd )
   retstr = ret.decode('utf-8')
   if isWin():
     retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
@@ -43,7 +43,7 @@ def getFileLocation( dbentry, args=None ):
   cmd.append( '--json' )
   cmd.append( '--info' )
   cmd.append( dbentry['ID'] )
-  return retFileLoc( execCommand(cmd,args=args) )
+  return retFileLoc( execCommand(cmd) )
 
 def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd = getODCommand(dbmanexe,args)
@@ -54,5 +54,5 @@ def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd.append( trl )
   cmd.append( ext )
   cmd.append( '--json' )
-  return retFileLoc( execCommand(cmd,args=args) )
+  return retFileLoc( execCommand(cmd) )
 

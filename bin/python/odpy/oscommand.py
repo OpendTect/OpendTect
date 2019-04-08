@@ -10,14 +10,13 @@ import sys
 import os
 import signal
 import json
-from time import sleep
-from subprocess import check_output, run, CalledProcessError
+from subprocess import check_output, CalledProcessError
 
-from odpy.common import isWin, getExecPlfDir, log_msg, std_msg
+from odpy.common import isWin, getExecPlfDir, get_std_stream, std_msg
 
 def getODCommand(execnm,args=None):
   cmd = list()
-  cmd.append( path.join(getExecPlfDir(args),execnm) )
+  cmd.append( os.path.join(getExecPlfDir(args),execnm) )
   return appendDtectArgs( cmd, args )
 
 def appendDtectArgs( cmd, args=None ):
@@ -54,54 +53,25 @@ def getPythonCommand(scriptfile,posargs=None,dict=None,args=None):
     cmd.append( json.dumps(dict) )
   return cmd
 
-def execCommand( cmd, background=False, stdout=None, stderr=None, args=None ):
+def execCommand( cmd, background=False ):
   if background:
-    return startDetached( cmd, stdout, stderr )
+    return startDetached( cmd )
   else:
-    return startAndWait( cmd, args )
+    return startAndWait( cmd )
 
 def killproc( pid=None ):
-  if pid == None:
-    return
-  std_msg( 'Killing the process with PID', pid )
-  os.killpg( os.getpgid(pid), signal.SIGTERM )
+  if pid != None:
+    os.kill( pid, signal.SIGTERM )
+  return None
 
 # INTERNAL, you should not need to use those:
-def startAndWait( cmd, args=None ):
-  stderrstrm = sys.stderr
-  if args != None and 'logfile' in args:
-    stderrstrm = args['logfile']
-  ret = None
+def startAndWait( cmd ):
   try:
-    ret = check_output( cmd, stderr=stderrstrm )
-  except CalledProcessError as e:
-    log_msg( 'Failed: ', e )
+    procpid = check_output( cmd, stderr=get_std_stream() )
+  except CalledProcessError as err:
+    std_msg( 'Failed: ', err )
     raise FileNotFoundError
-  return ret
-
-def startDetached( cmd, stdout=None, stderr=None ):
-  procpid = launchDetached( cmd, stdout, stderr )
-  sleep( 0.1 )
   return procpid
 
-def launchDetached( cmd, stdout, stderr ):
-  try:
-    pid = os.fork()
-    if pid > 0:
-      return pid
-  except OSError as err:
-    std_msg( 'fork', err.errno, 'failed:', err.strerror )
-    sys.exit(1)
-  os.setsid()
-  return doDetached( cmd, stdout, stderr )
-
-def doDetached( cmd, stdout, stderr ):
-  forkpid = os.getpid()
-  forkpgid = os.getpgid(forkpid)
-  try:
-    ret = run( cmd, check=True ) #TODO: add stdout, stderr
-  except CalledProcessError as err:
-    std_msg( err )
-    os.setpgid( ret.pid, forkpgid )
-  return forkpid
-  
+def startDetached( cmd ):
+  return os.spawnvp( os.P_NOWAIT, cmd[0], cmd )
