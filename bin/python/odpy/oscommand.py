@@ -9,10 +9,10 @@
 import sys
 import os
 import signal
+import subprocess
 import json
-from subprocess import check_output, CalledProcessError
 
-from odpy.common import isWin, getExecPlfDir, get_std_stream, std_msg
+from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg
 
 def getODCommand(execnm,args=None):
   cmd = list()
@@ -30,12 +30,12 @@ def appendDtectArgs( cmd, args=None ):
     cmd.append( args['survey'][0] )
   return cmd
 
+def getPythonExecNm():
+  return sys.executable
+
 def getPythonCommand(scriptfile,posargs=None,dict=None,args=None):
   cmd = list()
-  if isWin():
-    cmd.append( "python.exe" )
-  else:
-    cmd.append( "python3" )
+  cmd.append( getPythonExecNm() )
   cmd.append( scriptfile )
   cmd = appendDtectArgs( cmd, args )
   cmd.append( '--dtectexec' )
@@ -59,7 +59,20 @@ def execCommand( cmd, background=False ):
   else:
     return startAndWait( cmd )
 
-def killproc( pid=None ):
+def isRunning( proc ):
+  if isinstance(proc,subprocess.Popen):
+    return proc.poll() == None and proc.returncode == None
+  try:
+    os.getpgid(proc)
+  except OSError:
+    return False
+  return True
+
+def killproc( proc=None ):
+  if isinstance(proc,subprocess.Popen):
+    proc.terminate()
+    proc.wait(3)
+    return proc.returncode
   if pid != None:
     os.kill( pid, signal.SIGTERM )
   return None
@@ -67,11 +80,20 @@ def killproc( pid=None ):
 # INTERNAL, you should not need to use those:
 def startAndWait( cmd ):
   try:
-    procpid = check_output( cmd, stderr=get_std_stream() )
-  except CalledProcessError as err:
+    completedproc = subprocess.run( cmd, check=True, stdout=subprocess.PIPE, \
+                                    stderr=get_std_stream() ).stdout
+  except subprocess.CalledProcessError as err:
     std_msg( 'Failed: ', err )
-    raise FileNotFoundError
-  return procpid
+    raise
+  return completedproc
 
 def startDetached( cmd ):
-  return os.spawnvp( os.P_NOWAIT, cmd[0], cmd )
+ try:
+   runningproc = subprocess.Popen( cmd, start_new_session=True, \
+                                   stdout=get_log_stream(), \
+                                   stderr=get_std_stream() )
+ except subprocess.CalledProcessError as err:
+   std_msg( 'Failed: ', err )
+   raise
+ return runningproc
+
