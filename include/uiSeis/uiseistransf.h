@@ -11,8 +11,8 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uigroup.h"
+#include "seisselsetup.h"
 #include "seisioobjinfo.h"
-#include "seisselection.h"
 
 class IOObj;
 class Scaler;

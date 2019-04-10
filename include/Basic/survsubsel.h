@@ -18,6 +18,8 @@ class CubeSubSel;
 class CubeHorSubSel;
 class LineSubSel;
 class LineHorSubSel;
+class TrcKeySampling;
+class TrcKeyZSampling;
 
 
 namespace Survey
@@ -38,6 +40,8 @@ public:
     mUseType( Survey,		Geometry2D );
     mUseType( Survey,		Geometry3D );
     typedef od_int64		totalsz_type;
+
+    virtual			~SubSel()		{}
 
     virtual GeomID		geomID() const		= 0;
     virtual bool		is2D() const		= 0;
@@ -66,6 +70,7 @@ public:
     CubeHorSubSel*		asCubeHorSubSel();
     const CubeHorSubSel*	asCubeHorSubSel() const;
 
+    static HorSubSel*		get(const TrcKeySampling&);
     static HorSubSel*		create(const IOPar&);
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
@@ -110,20 +115,23 @@ public:
 
     HorSubSel&		horSubSel()		{ return gtHorSubSel();}
     const HorSubSel&	horSubSel() const	{ return gtHorSubSel();}
-    const ZSubSelData&	zSubSel() const		{ return zss_.zData(); }
-    ZSubSelData&	zSubSel()		{ return zss_.zData(); }
+    const ZSubSel&	zSubSel() const		{ return zss_; }
+    ZSubSel&		zSubSel()		{ return zss_; }
+    const ZSubSelData&	zSubSelData() const	{ return zss_.zData(); }
+    ZSubSelData&	zSubSelData()		{ return zss_.zData(); }
 
     size_type		nrZ() const
 			{ return zss_.size(); }
     z_steprg_type	zRange() const
-			{ return zSubSel().outputZRange(); }
+			{ return zss_.outputZRange(); }
     void		setZRange( const z_steprg_type& rg )
-			{ zSubSel().setOutputZRange( rg ); }
+			{ zss_.setOutputZRange( rg ); }
     idx_type		idx4Z( z_type z ) const
 			{ return zss_.idx4Z( z ); }
     z_type		z4Idx( idx_type idx ) const
 			{ return zss_.z4Idx( idx ); }
 
+    static FullSubSel*	get(const TrcKeyZSampling&);
     static FullSubSel*	create(const IOPar&);
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;

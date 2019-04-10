@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioobjtags.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrctr.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "seispacketinfo.h"
 #include "sorting.h"
 #include "uistrings.h"
@@ -39,8 +39,8 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     , input_( input.clone() )
     , output_( output.clone() )
     , provider_( 0 )
-    , writer_( 0 )
-    , sequentialwriter_(0)
+    , storer_( 0 )
+    , sequentialstorer_(0)
 {
     uiRetVal uirv;
     provider_ = Seis::Provider::create( *input_, &uirv );
@@ -56,8 +56,8 @@ VolumeConverter::~VolumeConverter()
 {
     delete input_;
     delete output_;
-    delete writer_;
-    delete sequentialwriter_;
+    delete storer_;
+    delete sequentialstorer_;
     delete provider_;
 }
 
@@ -65,11 +65,11 @@ bool VolumeConverter::doFinish( bool res )
 {
     deleteAndZeroPtr(  provider_ );
 
-    if ( !sequentialwriter_->finishWrite() )
+    if ( !sequentialstorer_->finishWrite() )
 	res = false;
 
-    deleteAndZeroPtr( sequentialwriter_ );
-    deleteAndZeroPtr( writer_ );
+    deleteAndZeroPtr( sequentialstorer_ );
+    deleteAndZeroPtr( storer_ );
     return res;
 }
 
@@ -85,8 +85,8 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	return false;
     }
 
-    delete writer_;
-    writer_ = 0;
+    delete storer_;
+    storer_ = 0;
 
     if ( !GetVelocityTag( *input_, velinpdesc_ ) )
     {
@@ -125,8 +125,8 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	provider_->setSelData( new Seis::RangeSelData(tks_) );
     }
 
-    writer_ = new SeisTrcWriter( output_ );
-    sequentialwriter_ = new SeisSequentialWriter( writer_ );
+    storer_ = new Seis::Storer( *output_ );
+    sequentialstorer_ = new Seis::SequentialStorer( *storer_ );
 
     return true;
 }
@@ -206,7 +206,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	delete [] interptr;
 
 	//Process trace
-	sequentialwriter_->submitTrace( outputtrc, true );
+	sequentialstorer_->submitTrace( outputtrc, true );
 	addToNrDone( 1 );
 
 	Threads::MutexLocker lock( lock_ );
@@ -232,7 +232,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	return -1;
     }
 
-    sequentialwriter_->announceTrace( trc.info().binID() );
+    sequentialstorer_->announceTrace( trc.info().binID() );
 
     delete provider_;
     provider_ = 0;

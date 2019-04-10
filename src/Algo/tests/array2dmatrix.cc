@@ -66,7 +66,7 @@ static bool testCholesky()
 
     mat.getCholesky( out );
 
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	ArrayNDDumper<float> matdmpr( mat.a2d_ );
 	od_cout() << "Inp matrix" << od_endl;

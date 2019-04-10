@@ -209,7 +209,7 @@ DataPack::ID PreStackDisplay::preProcess()
 		? relbid
 		: relbid * BinID( s3dgeom_->inlRange().step,
 				  s3dgeom_->crlRange().step );
-	    trckey_.setPosition( trckey_.position() + relpos );
+	    trckey_.setPos( trckey_.position() + relpos );
 	    RefMan<Gather> gather = new Gather;
 	    if ( !gather->readFrom(*ioobj_,*reader_,trckey_) )
 		continue;
@@ -231,7 +231,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
     if ( trckey_.position()==nb )
 	return true;
 
-    trckey_.setPosition( nb );
+    trckey_.setPos( nb );
 
     RefMan<Gather> gather = new Gather;
     if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,trckey_) )
@@ -258,7 +258,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 	    }
 	    else
 	    {
-		trckey_.setPosition( nearbid );
+		trckey_.setPos( nearbid );
 		hasdata = true;
 	    }
         }

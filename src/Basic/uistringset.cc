@@ -478,6 +478,12 @@ bool isFinished( const uiRetVal& uirv )
 }
 
 
+bool isNotPresent( const uiRetVal& uirv )
+{
+    return uirv.isSingleWord( uiStrings::sNotPresent() );
+}
+
+
 bool isCancelled( const uiRetVal& uirv )
 {
     return uirv.isSingleWord( uiStrings::sCancelled() );

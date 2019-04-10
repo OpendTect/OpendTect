@@ -135,7 +135,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 
     const Coord3 sticknormal = surface.getEditPlaneNormal( curstick );
 
-    if ( posnormal && *posnormal!=Coord3::udf() &&
+    if ( posnormal && !posnormal->isUdf() &&
 	 fabs( posnormal->dot(sticknormal) ) < 0.5 )
 	return mUdf(float);
 

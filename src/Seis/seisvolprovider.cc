@@ -9,30 +9,19 @@ ________________________________________________________________________
 -*/
 
 #include "seisvolprovider.h"
-#include "seisfetcher.h"
-#include "seistrctr.h"
-#include "seispreload.h"
-#include "seisdatapack.h"
+#include "cubesubsel.h"
 #include "iostrm.h"
-#include "uistrings.h"
+#include "file.h"
+#include "posinfo.h"
+#include "seisfetcher.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
-#include "posinfo.h"
+#include "seisseldata.h"
+#include "seistrc.h"
+#include "seistrctr.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
-#include "file.h"
-
-
-od_int64 Seis::Provider3D::getTotalNrInInput() const
-{
-    ensureCubeDataFilled();
-    if ( !cubedata_.isEmpty() )
-	return cubedata_.totalSize();
-
-    const od_int64 nrinls = SI().inlRange().nrSteps() + 1;
-    const od_int64 nrcrls = SI().inlRange().nrSteps() + 1;
-    return nrinls * nrcrls;
-}
+#include "uistrings.h"
 
 
 namespace Seis
@@ -41,7 +30,7 @@ namespace Seis
 /*\brief Gets required traces from either DataPack or Translator
 
   Both DataPack and Translator have a natural 'next' postion to go to. What we
-  need to tackle is when the seclection requires reading from both DataPack
+  need to tackle is when the selection requires reading from both DataPack
   and Translator. The strategy is to set up a required area, the boundary
   of the selection. The Translator has its own 'current' position, but we
   have our own 'next BinID' anyway.
@@ -54,6 +43,9 @@ namespace Seis
 class VolFetcher : public Fetcher3D
 { mODTextTranslationClass(Seis::VolFetcher);
 public:
+
+    mUseType( PosInfo::CubeData, pos_type );
+    typedef pos_type	inl_type;
 
 VolFetcher( VolProvider& p )
     : Fetcher3D(p)
@@ -76,300 +68,156 @@ const VolProvider& prov() const
     return static_cast<const VolProvider&>( prov_ );
 }
 
-    void		reset();
-    TrcKeyZSampling	getDefaultCS() const;
+const RegularSeisDataPack& dp() const
+{
+    return *static_cast<const RegularSeisDataPack*>( dp_.ptr() );
+}
 
-    void		findDataPack();
-    void		openCube();
-    bool		advanceTrlToNextSelected(SeisTrcInfo&);
-    Conn*		getConn();
-    void		getNextTranslator();
-    void		getTranslator(Conn*);
+    void		prepWork();
     bool		isMultiConn() const;
-    bool		translatorSelected() const;
+    bool		goTo(const BinID&);
+    void		getAt(const BinID&,TraceData&,SeisTrcInfo&);
+    void		getCur(TraceData&,SeisTrcInfo&);
 
-    void		get(const BinID&,SeisTrc&);
-    void		getNext(SeisTrc&);
-    void		getData(const BinID&,TraceData&,SeisTrcInfo*);
-    void		getNextData(TraceData&,SeisTrcInfo*);
-
-    RefMan<RegularSeisDataPack> dp_;
     SeisTrcTranslator*	trl_;
 
-private:
-
-    void		doGet(const BinID&,SeisTrc*,TraceData&,SeisTrcInfo*);
-    void		doGetNext(SeisTrc*,TraceData&,SeisTrcInfo*);
+    bool		getTranslator(inl_type) const;
+    bool		ensureRightTransl(inl_type i=0) const;
 
 };
 
 } // namespace Seis
 
 
-void Seis::VolFetcher::reset()
+void Seis::VolFetcher::prepWork()
 {
-    delete trl_; trl_ = 0;
-    dp_ = 0;
-    uirv_.setEmpty();
-
-    findDataPack();
-    Fetcher3D::reset();
-
-    if ( dp_ && !dp_->sampling().zsamp_.includes(reqcs_.zsamp_) )
-	dp_ = 0; // too bad but the required Z range is not loaded
-
-    if ( !dp_ || !dp_->sampling().includes(reqcs_) )
-	openCube();
-}
-
-
-TrcKeyZSampling Seis::VolFetcher::getDefaultCS() const
-{
-    return dp_ ? dp_->sampling() : TrcKeyZSampling( true );
-}
-
-
-void Seis::VolFetcher::findDataPack()
-{
-    dp_ = Seis::PLDM().get<RegularSeisDataPack>( prov().dbky_ );
-}
-
-
-void Seis::VolFetcher::openCube()
-{
-    if ( !fillIOObj() )
-	return;
-
-    getNextTranslator();
-
-    if ( !trl_ && uirv_.isEmpty() )
-	uirv_ = tr("No selected data found");
-}
-
-
-void Seis::VolFetcher::getNextTranslator()
-{
-    while ( true )
-    {
-	Conn* conn = getConn();
-	if ( !conn )
-	    return;
-
-	getTranslator( conn );
-	if ( !trl_ )
-	    return;
-
-	if ( translatorSelected() )
-	    break;
-    }
-}
-
-
-Conn* Seis::VolFetcher::getConn()
-{
-    Conn* conn = ioobj_->getConn( Conn::Read );
-    const BufferString fnm = ioobj_->mainFileName();
-    if ( !conn || (conn->isBad() && !File::isDirectory(fnm)) )
-    {
-	delete conn; conn = 0;
-	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	if ( iostrm && iostrm->isMultiConn() )
-	{
-	    while ( !conn || conn->isBad() )
-	    {
-		delete conn; conn = 0;
-		if ( !iostrm->toNextConnIdx() )
-		    break;
-
-		conn = ioobj_->getConn( Conn::Read );
-	    }
-	}
-    }
-
-    if ( !conn )
-	uirv_ = ioobj_->phrCannotOpenObj();
-    return conn;
-}
-
-
-void Seis::VolFetcher::getTranslator( Conn* conn )
-{
-    delete trl_;
-    Translator* trl = ioobj_->createTranslator();
-    mDynamicCast( SeisTrcTranslator*, trl_, trl );
-    if ( !trl_ )
-    {
-	uirv_ = tr("Cannot create appropriate data reader."
-	    "\nThis is an installation problem or a data corruption issue.");
-	return;
-    }
-
-    Seis::SelData* sd = prov().seldata_ ? prov().seldata_->clone() : 0;
-    trl_->setSelData( sd );
-    if ( !trl_->initRead(conn,prov().readmode_) )
-	{ uirv_ = trl_->errMsg(); delete trl_; trl_ = 0; return; }
-
-    if ( prov().haveSelComps() )
-    {
-	for ( int icd=0; icd<trl_->componentInfo().size(); icd++ )
-	{
-	    if ( !prov().selcomps_.isPresent(icd) )
-		trl_->componentInfo()[icd]->selected_ = false;
-	}
-    }
-
-    if ( !trl_->commitSelections() )
-	{ uirv_ = trl_->errMsg(); delete trl_; trl_ = 0; return; }
+    deleteAndZeroPtr( trl_ );
+    getDataPack();
+    if ( haveDP() && !dp().sampling().zsamp_.includes(prov().css_.zRange()) )
+	dp_ = 0;
 }
 
 
 bool Seis::VolFetcher::isMultiConn() const
 {
-    mDynamicCastGet(IOStream*,iostrm,ioobj_)
-    return iostrm && iostrm->isMultiConn();
+    const auto* ioobj = prov().ioObj();
+    return ioobj && ioobj->isStream() && ioobj->asStream()->isMultiConn();
 }
 
 
-bool Seis::VolFetcher::translatorSelected() const
+bool Seis::VolFetcher::getTranslator( inl_type inl ) const
 {
-    if ( !trl_ )
+    const auto* ioobj = prov().ioObj();
+    auto* newtrl = ioobj->createTranslator();
+    mDynamicCastGet( SeisTrcTranslator*, newtransl, newtrl );
+    if ( !newtransl )
+    {
+	uirv_ = tr("Cannot create appropriate data reader."
+	    "\nThis is an installation problem or a data corruption issue.");
 	return false;
-    if ( !prov().seldata_ || !isMultiConn() )
-	return true;
+    }
 
-    BinID bid( trl_->packetInfo().inlrg.start, trl_->packetInfo().crlrg.start );
-    int selres = prov().seldata_->selRes( bid );
-    return selres / 256 == 0;
+    Seis::SelData* sd = prov().seldata_ ? prov().seldata_->clone() : 0;
+    newtransl->setSelData( sd );
+
+    if ( isMultiConn() )
+    {
+	const auto& iostrm = *ioobj->asStream();
+	const auto connidx = iostrm.fileSpec().nrs_.getIndex( inl );
+	iostrm.setConnIdx( connidx );
+    }
+
+    auto* conn = ioobj->getConn( true );
+    if ( !newtransl->initRead(conn,prov().readmode_) )
+	{ uirv_ = newtransl->errMsg(); delete newtransl; return false; }
+
+    if ( prov().haveSelComps() )
+    {
+	for ( auto icd=0; icd<newtransl->componentInfo().size(); icd++ )
+	{
+	    if ( !prov().selcomps_.isPresent(icd) )
+		newtransl->componentInfo()[icd]->selected_ = false;
+	}
+    }
+
+    if ( !newtransl->commitSelections() )
+	{ uirv_ = newtransl->errMsg(); delete newtransl; return false; }
+
+    delete mSelf().trl_;
+    mSelf().trl_ = newtransl;
+    return true;
 }
 
 
-void Seis::VolFetcher::get( const BinID& bid, SeisTrc& trc )
+bool Seis::VolFetcher::ensureRightTransl( inl_type inl ) const
 {
-    doGet( bid, &trc, trc.data(), &trc.info() );
+    if ( trl_ )
+    {
+	if ( !isMultiConn() )
+	    return true;
+	const auto& iostrm = *prov().ioObj()->asStream();
+	const auto connidx = iostrm.curConnIdx();
+	const auto conninl = iostrm.fileSpec().nrs_.atIndex(connidx);
+	if ( conninl == inl )
+	    return true;
+    }
+
+    return getTranslator( inl );
 }
 
 
-void Seis::VolFetcher::getData( const BinID& bid, TraceData& data,
-				SeisTrcInfo* trcinfo )
+bool Seis::VolFetcher::goTo( const BinID& bid )
 {
-    doGet( bid, 0, data, trcinfo );
-}
-
-
-void Seis::VolFetcher::doGet( const BinID& bid, SeisTrc* trc, TraceData& data,
-			      SeisTrcInfo* trcinfo )
-{
-    bool moveok = false;
-    nextbid_ = bid;
-    if ( dp_ && dp_->sampling().hsamp_.includes( nextbid_ ) )
-	moveok = true;
-    else if ( trl_ && trl_->goTo(nextbid_) )
-	moveok = true;
+    bool atpos = false;
+    if ( ensureRightTransl(bid.inl()) )
+    {
+	if ( haveDP() && dp().sampling().hsamp_.includes( bid ) )
+	    atpos = true;
+	else if ( trl_ && trl_->goTo(bid) )
+	    atpos = true;
+    }
 
     uirv_.setEmpty();
-    if ( moveok )
+    if ( !atpos )
+	uirv_.set( tr("Position not present: %1/%2")
+		    .arg( bid.inl() ).arg( bid.crl() ) );
+    else
+	prov().cdp_ = prov().cubedata_.cubeDataPos( bid );
+
+    return atpos;
+}
+
+
+void Seis::VolFetcher::getAt( const BinID& bid, TraceData& data,
+			      SeisTrcInfo& trcinfo )
+{
+    if ( goTo(bid) )
+	getCur( data, trcinfo );
+}
+
+
+void Seis::VolFetcher::getCur( TraceData& data, SeisTrcInfo& info )
+{
+    if ( !prov().cdp_.isValid() )
+	{ uirv_.set( mINTERNAL("Read after end") ); return; }
+
+    const BinID curbid = prov().cubedata_.binID( prov().cdp_ );
+    if ( haveDP() && dp().sampling().hsamp_.includes(curbid) )
     {
-	if ( trc )
-	    getNext( *trc );
-	else
-	    getNextData( data, trcinfo );
+	const TrcKey tk( curbid );
+	dp().fillTraceData( tk, data );
+	dp().fillTraceInfo( tk, info );
     }
     else
-	uirv_.set( tr("Position not present: %1/%2")
-		    .arg( nextbid_.inl() ).arg( nextbid_.crl() ) );
-}
-
-
-bool Seis::VolFetcher::advanceTrlToNextSelected( SeisTrcInfo& ti )
-{
-    while ( true )
     {
-	if ( !trl_->readInfo(ti) )
-	{
-	    if ( !isMultiConn() )
-		uirv_.set( trl_->errMsg() );
-	    else
-	    {
-		getNextTranslator();
-		if ( trl_ )
-		    return advanceTrlToNextSelected( ti );
-	    }
-	    if ( uirv_.isOK() )
-		uirv_.set( uiStrings::sFinished() );
-	    return false;
-	}
-
-	if ( isSelectedBinID(ti.binID()) )
-	    { nextbid_ = ti.binID(); return true; }
-	else
-	    trl_->skip( 1 );
-    }
-    return false;
-}
-
-
-void Seis::VolFetcher::getNext( SeisTrc& trc )
-{
-    doGetNext( &trc, trc.data(), &trc.info() );
-}
-
-
-void Seis::VolFetcher::getNextData( TraceData& data, SeisTrcInfo* trcinfo )
-{
-    doGetNext( 0, data, trcinfo );
-}
-
-
-void Seis::VolFetcher::doGetNext( SeisTrc* trc,
-				  TraceData& data, SeisTrcInfo* trcinfo )
-{
-    bool havefilled = false;
-
-    if ( dp_ )
-    {
-	if ( dp_->sampling().hsamp_.includes(nextbid_) )
-	{
-	    const TrcKey tk( nextbid_ );
-	    dp_->fillTraceData( tk, data );
-	    if ( trcinfo )
-		dp_->fillTraceInfo( tk, *trcinfo );
-	    havefilled = true;
-	}
-	else if ( !trl_ )
-	{
-	    if ( !moveNextBinID() )
-		{ uirv_.set( uiStrings::sFinished() ); return; }
-	    const TrcKey tk( nextbid_ );
-	    dp_->fillTraceData( tk, data );
-	    if ( trcinfo )
-		dp_->fillTraceInfo( tk, *trcinfo );
-	    havefilled = true;
-	}
+	ensureRightTransl( curbid.inl() );
+	if ( !trl_ )
+	    { uirv_.set( mINTERNAL("Read after prepare fail") ); return; }
+	else if ( !trl_->readInfo(info) || !trl_->readData(&data) )
+	    { uirv_.set( trl_->errMsg() ); return; }
     }
 
-    if ( trl_ && !havefilled )
-    {
-	SeisTrcInfo info;
-	SeisTrcInfo& inforet = trcinfo ? *trcinfo : info;
-	if ( !advanceTrlToNextSelected(inforet) )
-	    return;
-
-	if ( (	trc && !trl_->read(*trc) ) ||
-	     ( !trc && !trl_->readData(&data) ) )
-	{
-	    const uiString errmsg = trl_->errMsg();
-	    uirv_.set( errmsg.isEmpty() ? uiStrings::sFinished() : errmsg );
-	    return;
-	}
-
-	havefilled = true;
-    }
-
-    if ( trcinfo )
-	trcinfo->trckey_.setIs2D( false );
-
-    if ( havefilled )
-	moveNextBinID();
+    info.trcKey().setIs2D( false );
 }
 
 
@@ -386,150 +234,103 @@ Seis::VolProvider::~VolProvider()
 }
 
 
-uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
-						DataType& dt ) const
+Seis::Fetcher3D& Seis::VolProvider::fetcher() const
 {
-    if ( fetcher_.dp_ )
-    {
-	for ( int icd=0; icd<fetcher_.dp_->nrComponents(); icd++ )
-	{
-	    nms.add( fetcher_.dp_->getComponentName(icd) );
-	    dt = Seis::UnknownData;
-	}
-    }
-    else
-    {
-	if ( fetcher_.trl_ )
-	{
-	    for ( int icd=0; icd<fetcher_.trl_->componentInfo().size(); icd++ )
-	    {
-		const SeisTrcTranslator::ComponentData& cd
-			    = *fetcher_.trl_->componentInfo()[icd];
-		nms.add( cd.name() );
-		dt = fetcher_.trl_->dataType();
-	    }
-	}
-	else
-	{
-	    SeisIOObjInfo objinf( dbky_ );
-	    objinf.getComponentNames( nms );
-	    if ( nms.isEmpty() )
-		return tr("No data found");
-
-	    dt = Seis::UnknownData;
-	}
-    }
-
-    return uiRetVal::OK();
+    return mNonConst( fetcher_ );
 }
 
 
-bool Seis::VolProvider::getRanges( TrcKeyZSampling& tkzs ) const
-{
-    return fetcher_.gtRanges( tkzs );
-}
-
-
-void Seis::VolProvider::getGeometryInfo( CubeData& cd ) const
-{
-    ensureCubeDataFilled();
-    cd = cubedata_;
-}
-
-
-void Seis::VolProvider::ensureCubeDataFilled() const
-{
-    if ( cubedatafilled_ )
-	return;
-
-    bool cdobtained = true;
-    if ( fetcher_.dp_ )
-	fetcher_.dp_->getTrcPositions( cubedata_ );
-    else
-    {
-	if ( !fetcher_.trl_ )
-	    cubedata_.setEmpty();
-	else if ( fetcher_.isMultiConn() ||
-		 !fetcher_.trl_->getGeometryInfo(cubedata_) )
-	    cdobtained = false;
-    }
-
-    if ( !cdobtained )
-	cubedata_.fillBySI();
-
-    cubedatafilled_ = true;
-}
-
-
-SeisTrcTranslator* Seis::VolProvider::getCurrentTranslator() const
+const SeisTrcTranslator* Seis::VolProvider::curTransl() const
 {
     return fetcher_.trl_;
 }
 
 
-void Seis::VolProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+void Seis::VolProvider::getLocationData( uiRetVal& uirv ) const
 {
-    Seis::Provider3D::doFillPar( iop, uirv );
-
-    IOPar par;
-    fetcher_.doFillPar( iop, uirv );
-    iop.merge( par );
-}
-
-
-void Seis::VolProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
-{
-    Seis::Provider3D::doUsePar( iop, uirv );
-
-    fetcher_.doUsePar( iop, uirv );
-}
-
-
-void Seis::VolProvider::doReset( uiRetVal& uirv ) const
-{
-    Seis::Provider3D::doReset( uirv );
-    if ( uirv.isOK() )
+    if ( !fetcher_.isMultiConn() )
     {
-	fetcher_.reset();
-	uirv = fetcher_.uirv_;
+	if ( !fetcher_.ensureRightTransl() )
+	    { uirv = fetcher_.uirv_; return; }
+	if ( !fetcher_.trl_->getGeometryInfo(cubedata_) )
+	    uirv = fetcher_.trl_->errMsg();
+    }
+    else
+    {
+	const auto fnrs = ioobj_->asStream()->fileSpec().nrs_;
+	const auto nrfiles = fnrs.nrSteps() + 1;
+	for ( auto idx=0; idx<nrfiles; idx++ )
+	{
+	    const auto inl = fnrs.atIndex( idx );
+	    CubeData linecd;
+	    if ( fetcher_.ensureRightTransl(inl)
+	      && fetcher_.trl_->getGeometryInfo(linecd) )
+		cubedata_.merge( linecd, true );
+	}
+
+	if ( cubedata_.isEmpty() )
+	    uirv.set( tr("No data in input") );
+    }
+
+    if ( fetcher_.trl_ )
+	css_.setZRange( fetcher_.trl_->packetInfo().zrg );
+}
+
+
+void Seis::VolProvider::prepWork( uiRetVal& uirv ) const
+{
+    fetcher_.prepWork();
+    uirv = fetcher_.uirv_;
+}
+
+
+void Seis::VolProvider::gtComponentInfo( BufferStringSet& nms,
+					 DataType& dt ) const
+{
+    if ( fetcher_.haveDP() )
+    {
+	for ( auto icd=0; icd<fetcher_.dp().nrComponents(); icd++ )
+	{
+	    nms.add( fetcher_.dp().getComponentName(icd) );
+	    dt = Seis::UnknownData;
+	}
+    }
+    else if ( !fetcher_.trl_ )
+	getFallbackComponentInfo( nms, dt );
+    else
+    {
+	for ( auto icd=0; icd<fetcher_.trl_->componentInfo().size(); icd++ )
+	{
+	    const SeisTrcTranslator::ComponentData& cd
+			= *fetcher_.trl_->componentInfo()[icd];
+	    nms.add( cd.name() );
+	    dt = fetcher_.trl_->dataType();
+	}
     }
 }
 
 
-TrcKey Seis::VolProvider::doGetCurPosition() const
+bool Seis::VolProvider::doGoTo( const BinID& bid, uiRetVal* uirv ) const
 {
-    return TrcKey( fetcher_.nextbid_ );
+    if ( fetcher_.goTo(bid) )
+	return true;
+
+    if ( uirv )
+	*uirv = fetcher_.uirv_;
+    return false;
 }
 
 
-bool Seis::VolProvider::doGoTo( const TrcKey& tk )
+void Seis::VolProvider::gtCur( SeisTrc& trc, uiRetVal& uirv ) const
 {
-    if ( !fetcher_.trl_ || !fetcher_.trl_->goTo(tk.binID()) )
-	return false;
-
-    fetcher_.nextbid_ = tk.binID();
-    return true;
-}
-
-
-void Seis::VolProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
-{
-    fetcher_.getNext( trc );
+    fetcher_.getCur( trc.data(), trc.info() );
     uirv = fetcher_.uirv_;
 }
 
 
-void Seis::VolProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
-				  uiRetVal& uirv ) const
+void Seis::VolProvider::gtAt( const BinID& bid, TraceData& data,
+				   SeisTrcInfo& trcinfo, uiRetVal& uirv ) const
 {
-    fetcher_.get( trcky.binID(), trc );
-    uirv = fetcher_.uirv_;
-}
-
-
-void Seis::VolProvider::doGetData( const TrcKey& trcky, TraceData& data,
-				   SeisTrcInfo* trcinfo, uiRetVal& uirv ) const
-{
-    fetcher_.getData( trcky.binID(), data, trcinfo );
+    fetcher_.getAt( bid, data, trcinfo );
     uirv = fetcher_.uirv_;
 }

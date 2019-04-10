@@ -36,12 +36,11 @@ static const float cMaxUnsnappedZStep = 0.999f;
 
 
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
-			  const char* lbltxt, const char* domky )
-	: mDefConstrList(isrel)
+			  const uiString& lbltxt, const char* domky )
+    : mDefConstrList(isrel)
 {
     const StepInterval<float> limitrg( SI().zRange() );
-    makeInpFields( toUiString(lbltxt), wstep, !othdom_ &&
-						       !isrel_ ? &limitrg : 0 );
+    makeInpFields( lbltxt, wstep, !othdom_ && !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
     else if ( !othdom_ )
@@ -50,10 +49,10 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 
 
 uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
-			  const char* lbltxt, const char* domky )
+			  const uiString& lbltxt, const char* domky )
 	: mDefConstrList(false)
 {
-    makeInpFields( toUiString(lbltxt), wstep, &limitrg );
+    makeInpFields( lbltxt, wstep, &limitrg );
     setRange( limitrg );
 }
 
@@ -79,7 +78,7 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 				  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
-    uiString ltxt( toUiString(lbltxt) );
+    uiString ltxt( lbltxt );
     if ( ltxt.isEmpty() )
 	ltxt = zddef_.getRange();
 
@@ -239,11 +238,11 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, finalised_(false)
 	, checked_(false)
 	, cbox_(0), withchk_(false)
-	, lbltxt_("")
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
     const char* nm = "Number";
+    lbltxt_ = uiStrings::sTraceRange();
     if ( typ != Gen )
     {
 	TrcKeySampling hs( OD::UsrWork ), whs( OD::FullSurvey );
@@ -251,8 +250,10 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
+	lbltxt_ = typ == Inl ? uiStrings::sInlineRange()
+			     : uiStrings::sCrosslineRange();
     }
-    lbltxt_ = nm;
+    fldnm_ = nm;
     makeInpFields( rg, wstep, typ==Gen );
     setRange( wrg );
     preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
@@ -260,8 +261,8 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 
 
 uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
-			    const char* lbltxt )
-	: uiGroup(p,BufferString(lbltxt," range selection"))
+			    const char* fldnm )
+	: uiGroup(p,BufferString(fldnm," range selection"))
 	, stepfld_(0)
 	, defstep_(limitrg.step)
 	, icstopfld_(0)
@@ -272,7 +273,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, withchk_(false)
 	, checked_(false)
 	, cbox_(0)
-	, lbltxt_(lbltxt)
+	, fldnm_(fldnm)
 {
     makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
@@ -284,21 +285,21 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
 				  bool isgen )
 {
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
-    startfld_ = new uiSpinBox( this, 0, BufferString(lbltxt_," start") );
+    startfld_ = new uiSpinBox( this, 0, BufferString(fldnm_," start") );
     startfld_->setInterval( limitrg );
     startfld_->doSnap( true );
     uiObject* stopfld;
     if ( isgen )
     {
 	stopfld = nrstopfld_ = new uiLineEdit( this,
-					       BufferString(lbltxt_," stop") );
+					       BufferString(fldnm_," stop") );
 	nrstopfld_->setHSzPol( uiObject::Small );
 	nrstopfld_->editingFinished.notify( cb );
     }
     else
     {
 	stopfld = icstopfld_ = new uiSpinBox( this, 0,
-					      BufferString(lbltxt_," stop") );
+					      BufferString(fldnm_," stop") );
 	icstopfld_->setInterval( limitrg );
 	icstopfld_->doSnap( true );
 	icstopfld_->valueChanging.notify( cb );
@@ -307,7 +308,7 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
 
     if ( wstep )
     {
-	stepfld_ = new uiSpinBox( this, 0, BufferString(lbltxt_," step") );
+	stepfld_ = new uiSpinBox( this, 0, BufferString(fldnm_," step") );
 	stepfld_->setInterval( StepInterval<int>(limitrg.step,
 			    limitrg.width() ? limitrg.width() : limitrg.step,
 			    limitrg.step) );
@@ -368,16 +369,14 @@ void uiSelNrRange::doFinalise( CallBacker* )
 
     if ( withchk_ )
     {
-	cbox_ = new uiCheckBox( this, toUiString("%1 %2")
-		      .arg(lbltxt_).arg(uiStrings::sRange()) );
+	cbox_ = new uiCheckBox( this, lbltxt_ );
 	cbox_->attach( leftTo, startfld_ );
 	cbox_->activated.notify( mCB(this,uiSelNrRange,checkBoxSel) );
 	setChecked( checked_ );
 	checkBoxSel(0);
     }
     else
-	new uiLabel( this,  toUiString("%1 %2").arg(lbltxt_)
-					.arg(uiStrings::sRange()), startfld_ );
+	new uiLabel( this,  lbltxt_, startfld_ );
 
     finalised_ = true;
 }
@@ -538,7 +537,7 @@ void uiSelHRange::setLimits( const TrcKeySampling& hs )
 uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
     : uiGroup(p,"Sub vol selection")
     , hfld_(new uiSelHRange(this,wstep))
-    , zfld_(new uiSelZRange(this,wstep,false,0,zdomkey))
+    , zfld_(new uiSelZRange(this,wstep,false,uiString(),zdomkey))
 {
     zfld_->attach( alignedBelow, hfld_ );
     setHAlignObj( hfld_ );

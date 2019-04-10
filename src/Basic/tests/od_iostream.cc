@@ -34,7 +34,7 @@ static bool fnnm() \
     decls; \
     act; \
     const bool isok = (cond); \
-    if ( !quiet ) \
+    if ( !quiet_ ) \
     { \
 	od_cout() << #fnnm << "[" << #cond << "]" \
 		  << (isok ? " OK" : " Fail") << od_endl; \
@@ -215,7 +215,7 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     //TODO remove when we understand why the CI crash happens
-    quiet=false;
+    quiet_ = false;
 
     DBG::turnOn( 0 ); //Turn off all debug-stuff as it screws the pipes
 

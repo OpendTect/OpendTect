@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "repos.h"
 #include "seisimporter.h"
 #include "seistrctr.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
+#include "seisrangeseldata.h"
 #include "survgeom.h"
 
 #include "uiimpexp2dgeom.h"
@@ -56,11 +57,10 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 	    continue;
 
 	inioobj->pars() = *iop;
-	DBM().setEntry(*inioobj);
+	DBM().setEntry( *inioobj );
 
-	SeisTrcWriter* writer = new SeisTrcWriter( ctio.ioobj_ );
-	SeisStdImporterReader* rdr =
-				new SeisStdImporterReader( *inioobj, "SEG-Y" );
+	auto* rdr = new SeisStdImporterReader( *inioobj, "SEG-Y" );
+	auto* storer = new Seis::Storer( *ctio.ioobj_ );
 	if ( sd )
 	{
 	    Pos::GeomID geomid = mUdfGeomID;
@@ -68,14 +68,14 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 	    if ( Seis::is2D(gt) )
 		geomid = Geom2DImpHandler::getGeomID( fp.baseName(), true );
 
-	    sd->setGeomID( geomid );
+	    if ( sd->isRange() )
+		sd->asRange()->setGeomID( geomid );
 	    rdr->setSelData( sd->clone() );
-	    writer->setSelData( sd->clone() );
 	}
 
-	SeisImporter* imp = new SeisImporter( rdr, *writer, gt );
+	SeisImporter* imp = new SeisImporter( rdr, *storer, gt );
 
-	seistrcwriters_.add( writer );
+	seistrcstorers_.add( storer );
 	add( imp );
     }
 }
@@ -83,5 +83,5 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 
 SEGY::Vintage::Importer::~Importer()
 {
-    deepErase( seistrcwriters_ );
+    deepErase( seistrcstorers_ );
 }

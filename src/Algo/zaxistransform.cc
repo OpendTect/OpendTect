@@ -237,7 +237,7 @@ ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 					      bool is2d	)
     : transform_(trans)
     , back_(b)
-    , trckey_(BinID(0,0))
+    , trckey_(*new TrcKey(BinID(0,0)))
     , sd_(nsd)
     , is2d_(is2d)
 {
@@ -246,22 +246,37 @@ ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 
 
 ZAxisTransformSampler::~ZAxisTransformSampler()
-{ transform_.unRef(); }
-
-
-void ZAxisTransformSampler::setLineName( const char* lnm )
 {
-    if ( is2d_ )
-	trckey_ = TrcKey( Survey::Geometry::getGeomID(lnm), 0 );
+    transform_.unRef();
+    delete &trckey_;
 }
 
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ trckey_.setTrcNr( trcnr ); }
+{
+    trckey_.setTrcNr( trcnr );
+}
 
 
 void ZAxisTransformSampler::setBinID( const BinID& bid )
-{ trckey_.setBinID( bid ); }
+{
+    if ( is2d_ )
+	trckey_.setPos( Pos::GeomID(bid.inl()), bid.crl() );
+    else
+	trckey_.setPos( bid );
+}
+
+
+void ZAxisTransformSampler::setGeomID( Pos::GeomID geomid )
+{
+    trckey_.setGeomID( geomid );
+}
+
+
+void ZAxisTransformSampler::setTrcKey( const TrcKey& tk )
+{
+    trckey_ = tk;
+}
 
 
 float ZAxisTransformSampler::operator[](int idx) const

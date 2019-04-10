@@ -32,11 +32,12 @@ public:
 
 			SEGYSeisTrcTranslator(const char*,const char*);
 			~SEGYSeisTrcTranslator();
-    virtual const char*	defExtension() const	{ return "sgy"; }
+    const char*	defExtension() const override	{ return "sgy"; }
 
-    virtual bool	readInfo(SeisTrcInfo&);
+    bool		readInfo(SeisTrcInfo&) override;
+    bool		readData(TraceData* externalbuf) override;
 
-    virtual bool	skip(int);
+    bool		skip(int) override;
     bool		goToTrace(int);
     int			traceSizeOnDisk() const;
     bool		getFullTrcAsBuf(unsigned char*);
@@ -46,7 +47,7 @@ public:
     int			estimatedNrTraces() const { return estnrtrcs_; }
 
     void		toSupported(DataCharacteristics&) const;
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
     const SEGY::TxtHeader* txtHeader() const	{ return txthead_; }
     const SEGY::BinHeader& binHeader() const	{ return binhead_; }
@@ -90,21 +91,21 @@ protected:
 
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn_; }
 
-    bool		commitSelections_();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
-    virtual bool	writeTrc_(const SeisTrc&);
+    bool	commitSelections_() override;
+    bool	initRead_() override;
+    bool	initWrite_(const SeisTrc&) override;
+    bool	writeTrc_(const SeisTrc&) override;
 
-    bool		readTraceHeadBuffer();
-    bool		writeData(const SeisTrc&);
-    virtual bool	readTapeHeader();
-    virtual void	updateCDFromBuf();
-    virtual void	interpretBuf(SeisTrcInfo&);
-    virtual bool	writeTapeHeader();
-    virtual void	fillHeaderBuf(const SeisTrc&);
-    void		selectWriteDataChar(DataCharacteristics&) const;
-    void		fillErrMsg(const uiString&, bool);
-    bool		noErrMsg();
+    bool	readTraceHeadBuffer();
+    bool	writeData(const SeisTrc&);
+    bool	readTapeHeader();
+    void	updateCDFromBuf();
+    void	interpretBuf(SeisTrcInfo&);
+    bool	writeTapeHeader();
+    void	fillHeaderBuf(const SeisTrc&);
+    void	selectWriteDataChar(DataCharacteristics&) const;
+    void	fillErrMsg(const uiString&, bool);
+    bool	noErrMsg();
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;
@@ -126,7 +127,5 @@ protected:
 private:
 
     friend class SEGYDirectSeisTrcTranslator;
-
-    virtual bool	readData(TraceData* externalbuf);
 
 };

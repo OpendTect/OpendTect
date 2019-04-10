@@ -43,7 +43,6 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "seisioobjinfo.h"
 #include "seismulticubeps.h"
-#include "seisselection.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "od_helpids.h"

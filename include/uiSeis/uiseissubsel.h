@@ -11,11 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "bufstringset.h"
-#include "dbkey.h"
-#include "seisselection.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "dbkey.h"
+#include "geomid.h"
 #include "ranges.h"
 #include "sets.h"
 #include "uistring.h"
@@ -32,6 +31,7 @@ class uiSeis2DSubSel;
 class uiSelSubline;
 class uiSeis2DMultiLineSel;
 class uiSeis2DLineNameSel;
+namespace Seis { class SelSetup; }
 
 
 mExpClass(uiSeis) uiSeisSubSel : public uiGroup
@@ -88,6 +88,8 @@ public:
 mExpClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
 { mODTextTranslationClass(uiSeis2DSubSel);
 public:
+
+    mUseType( Pos,	GeomID );
 
 			uiSeis2DSubSel(uiParent*,const Seis::SelSetup&);
 			~uiSeis2DSubSel();

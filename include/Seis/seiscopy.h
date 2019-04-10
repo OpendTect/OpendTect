@@ -15,11 +15,9 @@ ________________________________________________________________________
 #include "executor.h"
 #include "geomid.h"
 
-class IOObj;
 class Scaler;
-class SeisTrcWriter;
 class SeisSingleTraceProc;
-namespace Seis { class Provider; class RangeSelData; }
+namespace Seis { class Provider; class Storer; class RangeSelData; }
 
 
 /*!\brief Copies cubes. The IOPar constructor wants an IOPar as you would pass
@@ -73,35 +71,38 @@ mExpClass(Seis) Seis2DCopier : public Executor
 { mODTextTranslationClass(Seis2DCopier);
 public:
 
+    mUseType( Seis,	RangeSelData );
+    mUseType( Seis,	Provider );
+    mUseType( Seis,	Storer );
 
+			Seis2DCopier(const IOObj& inobj,const IOObj& outob);
 			Seis2DCopier(const IOObj& inobj,const IOObj& outob,
 					  const IOPar&);
 
 			~Seis2DCopier();
 
+    RangeSelData&	selData()		{ return seldata_; }
+
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		message() const	{ return msg_; }
+    uiString		message() const;
     uiString		nrDoneText() const;
     int			nextStep();
 
 protected:
 
-    const IOObj&		inioobj_;
-    const IOObj&		outioobj_;
-    Seis::Provider*		prov_;
-    SeisTrcWriter*		wrr_;
-    uiString			msg_;
-    Seis::RangeSelData&		seldata_;
+    Provider*		prov_;
+    Storer&		storer_;
+    uiRetVal		uirv_;
+    RangeSelData&	seldata_;
+    bool		inited_			= false;
 
-    GeomIDSet			selgeomids_;
-    TypeSet<StepInterval<int> > trcrgs_;
-    TypeSet<StepInterval<float> > zrgs_;
-    Scaler*			scaler_;
-    int				lineidx_;
-    od_int64			nrdone_;
-    od_int64			totalnr_;
+    Scaler*		scaler_			= 0;
+    od_int64		nrdone_			= 0;
+    od_int64		totalnr_		= 0;
 
-    bool			initNextLine();
+private:
+
+    bool		init();
 
 };

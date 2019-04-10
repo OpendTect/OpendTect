@@ -11,11 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
-#include "bufstring.h"
 #include "binid.h"
-#include "trckey.h"
+#include "bufstring.h"
+#include "geomid.h"
 #include "uistring.h"
-
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -78,10 +77,8 @@ public:
     Pos::GeomID		geomID() const		{ return geomid_; }
 
 			// Cannot use name overloading: seems gcc prob
-    SeisTrc*		getTrc( int trcnr, int nr=0 ) const
-			{ return getTrace( TrcKey(geomid_,trcnr), nr ); }
-    bool		getGath( int trcnr, SeisTrcBuf& b ) const
-			{ return getGather( TrcKey(geomid_,trcnr), b ); }
+    SeisTrc*		getTrc(int trcnr,int nr=0) const;
+    bool		getGath(int trcnr,SeisTrcBuf&) const;
 
     virtual const PosInfo::Line2DData&	posData() const		= 0;
 

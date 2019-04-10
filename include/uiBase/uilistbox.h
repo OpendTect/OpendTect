@@ -62,9 +62,14 @@ public:
 
     uiListBoxBody&	body()		{ return *body_; }
 
+    bool		isEmpty() const override;
+    void		setEmpty() override;
+
 private:
+
     uiListBoxBody*	body_;
     uiListBoxBody&	mkbody(uiParent*,const char*,OD::ChoiceMode);
+
 };
 
 
@@ -120,7 +125,7 @@ public:
     void		setNotSelectable();
 
     int			size() const;
-    inline bool		isEmpty() const		{ return size() == 0; }
+    bool		isEmpty() const		{ return size() < 1; }
     bool		validIdx(int) const;
     bool		isPresent(const char*) const;
     bool		isPresent(const uiString&) const;

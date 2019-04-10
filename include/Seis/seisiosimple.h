@@ -17,14 +17,16 @@
 class Scaler;
 class SeisTrc;
 class SeisImporter;
-class SeisTrcWriter;
 class SeisResampler;
-namespace Seis { class SelData; class Provider; }
+namespace Seis { class Provider; class Storer; }
 
 
 mExpClass(Seis) SeisIOSimple : public Executor
 { mODTextTranslationClass(SeisIOSimple);
 public:
+
+    mUseType( Seis,	Storer );
+    mUseType( Seis,	Provider );
 
     mExpClass(Seis) Data
     {
@@ -86,7 +88,9 @@ public:
 				    { coordsys_ = crs; }
 
     protected:
+
 	ConstRefMan<Coords::CoordSystem> coordsys_;
+
     };
 
 			SeisIOSimple(const Data&,bool imp);
@@ -105,13 +109,13 @@ protected:
     bool		isps_;
 
     SeisTrc&		trc_;
-    od_stream*		strm_;
-    Seis::Provider*	prov_;
-    SeisTrcWriter*	wrr_;
-    SeisImporter*	importer_;
-    bool		firsttrc_;
-    int			nrdone_;
-    int			offsnr_;
+    od_stream*		strm_			= nullptr;
+    Provider*		prov_			= nullptr;
+    Storer*		storer_			= nullptr;
+    SeisImporter*	importer_		= nullptr;
+    bool		firsttrc_		= true;
+    int			nrdone_			= 0;
+    int			offsnr_			= 0;
     int			prevnr_;
     BinID		prevbid_;
     uiString		errmsg_;

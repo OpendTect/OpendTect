@@ -593,8 +593,9 @@ void MPEClickCatcher::allowPickBasedReselection()
 
 
 MPEClickInfo::MPEClickInfo()
-    : pickednode_(TrcKey::udf())
-{ clear(); }
+{
+    clear();
+}
 
 
 bool MPEClickInfo::isLegalClick() const
@@ -680,17 +681,17 @@ void MPEClickInfo::clear()
     ctrlclicked_ = false;
     shiftclicked_ = false;
     altclicked_ = false;
-    clickednode_ = TrcKey::udf();
-    clickedpos_ = Coord3::udf();
+    clickednode_.setUdf();
+    clickedpos_.setUdf();
     clickedobjid_ = -1;
-    clickedemobjid_ = DBKey::getInvalid();
+    clickedemobjid_.setInvalid();
     clickedemvisid_ = -1;
     clickedcs_.init( false);
     attrsel_ = 0;
     attrdata_ = 0;
     linedata_ = 0;
     linename_ = "";
-    geomid_ = mUdfGeomID;
+    geomid_.setInvalid();
     doubleclicked_ = false;
     rdltkpath_ = 0;
     rdlid_ = -1;

@@ -6,7 +6,7 @@
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seisselectionimpl.h"
+#include "seisseldataimpl.h"
 #include "seisresampler.h"
 #include "cubesampling.h"
 #include "conn.h"
@@ -72,8 +72,7 @@ static int doWork( int argc, char** argv )
     if ( cs.zrg.step < 0 ) cs.zrg.step = -cs.zrg.step;
     cs.normalise();
 
-    Seis::RangeSelData seldata( cs );
-    tri->setSelData( &seldata );
+    tri->setSelData( new Seis::RangeSelData(cs) );
 
     bool haverange = false;
     Interval<float> rg( -mUdf(float), mUdf(float) );

@@ -29,16 +29,16 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 public:
 			~uiStatusBar();
 
-    int		addMsgFld(const uiString& lbltxt=uiString::empty(),
-			  const uiString& tooltip =uiString::empty(),
+    int			addMsgFld(const uiString& lbltxt=uiString::empty(),
+				const uiString& tooltip =uiString::empty(),
 #ifdef __win__
-			  OD::Alignment al=mAlignment(Left,VCenter),
+				OD::Alignment al=mAlignment(Left,VCenter),
 #else
-			  OD::Alignment al=mAlignment(Left,Bottom),
+				OD::Alignment al=mAlignment(Left,Bottom),
 #endif
-			  int stretch=1);
+				int stretch=1);
 
-    int		addMsgFld(const uiString& tooltip,
+    int			addMsgFld(const uiString& tooltip,
 				  OD::Alignment al=mAlignment(Left,Bottom),
 				  int stretch=1);
     bool		addObject(uiObject*);
@@ -49,9 +49,11 @@ public:
 
     int			nrFields() const;
     void		message(const uiString&,int fldidx=0, int msecs=-1);
-    void		setEmpty(int startat=0);
+    void		setPartiallyEmpty(int startat);
     void		setBGColor(int fldidx,const Color&);
     Color		getBGColor(int fldidx) const;
+    bool		isEmpty() const	{ return nrFields() < 1; }
+    void		setEmpty()	{ setPartiallyEmpty(0); }
 
     int			getNrWidgets() const		{ return 1; }
     mQtclass(QWidget)*	getWidget(int);

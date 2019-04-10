@@ -218,8 +218,7 @@ Quaternion Quaternion::inverse() const
 
 Line2::Line2()
 {
-    p0_ = Coord::udf();
-    dir_ = Coord::udf();
+    p0_.setUdf(); dir_.setUdf();
 }
 
 

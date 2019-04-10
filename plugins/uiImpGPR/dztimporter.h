@@ -17,16 +17,16 @@ ________________________________________________________________________
 class IOObj;
 class SeisTrc;
 class SeisTrcInfo;
-class SeisTrcWriter;
+namespace Seis { class Storer; }
 
 
 namespace DZT
-{  
+{
 
 struct FileHeader
-{ 
+{
     struct Date
-    { 
+    {
 	unsigned	sec2:5, min:6, hour:5, day:5, month:4, year:7;
     };
 
@@ -82,7 +82,7 @@ protected:
 
     Pos::GeomID		geomid_;
     SeisTrc&		trc_;
-    SeisTrcWriter*	wrr_;
+    Seis::Storer*	storer_;
     od_istream&		istream_;
 
     char*		databuf_;

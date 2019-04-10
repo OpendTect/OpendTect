@@ -26,33 +26,27 @@ mExpClass(Seis) VolProvider : public Provider3D
 public:
 
 			VolProvider();
-			VolProvider(const DBKey&);
 			~VolProvider();
-    virtual GeomType	geomType() const	{ return Vol; }
 
-    virtual bool	getRanges(TrcKeyZSampling&) const;
-    virtual void	getGeometryInfo(PosInfo::CubeData&) const;
+    virtual GeomType	geomType() const	{ return Vol; }
 
 protected:
 
     friend class	VolFetcher;
     VolFetcher&		fetcher_;
 
-    virtual void	ensureCubeDataFilled() const;
-    virtual void	doFillPar(IOPar&,uiRetVal&) const;
-    virtual void	doUsePar(const IOPar&,uiRetVal&);
-    virtual void	doReset(uiRetVal&) const;
-    virtual TrcKey	doGetCurPosition() const;
-    virtual bool	doGoTo(const TrcKey&);
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-    virtual void	doGetData(const TrcKey&,TraceData&,SeisTrcInfo*,
-				  uiRetVal&) const;
+    Fetcher3D&		fetcher() const override;
+    void		getLocationData(uiRetVal&) const override;
+    void		prepWork(uiRetVal&) const override;
+    bool		doGoTo(const BinID&,uiRetVal*) const override;
+    void		gtCur(SeisTrc&,uiRetVal&) const override;
+    void		gtAt(const BinID&,TraceData&,SeisTrcInfo&,
+				uiRetVal&) const override;
+    void		gtComponentInfo(BufferStringSet&,DataType&) const override;
 
-private:
+public:
 
-    virtual SeisTrcTranslator* getCurrentTranslator() const;
+    virtual const SeisTrcTranslator* curTransl() const override;
 
 };
 

@@ -116,11 +116,11 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const DBKey& muteid )
     mCheckVal(2000,650,1200,1.57068)
     mCheckVal(2500,650,1200,1.9304)
     mCheckVal(3000,650,1200,2.29012)
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	BufferString msg( "Test on mute '", muteobj->name() );
 	msg += "' is OK";
-	strm<<msg.buf()<<od_newline;
+	strm << msg.buf() << od_newline;
     }
 
     return true;

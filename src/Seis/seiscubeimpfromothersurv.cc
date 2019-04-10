@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "survinfo.h"
 #include "survgeom3d.h"
 #include "odcomplex.h"
@@ -25,7 +25,7 @@ ________________________________________________________________________
 SeisCubeImpFromOtherSurvey::SeisCubeImpFromOtherSurvey( const IOObj& inp )
     : Executor("Importing Seismic Data")
     , inioobj_(inp)
-    , wrr_(0)
+    , storer_(0)
     , outioobj_(0)
     , nrdone_(0)
     , rdr_(0)
@@ -44,12 +44,13 @@ SeisCubeImpFromOtherSurvey::~SeisCubeImpFromOtherSurvey()
     deepErase( trcsset_ );
     delete rdr_;
     delete cbvstr_;
-    delete wrr_;
+    delete storer_;
     delete data_.hsit_;
     delete fft_;
     delete arr_;
     delete fftarr_;
     delete taper_;
+    delete outioobj_;
 }
 
 
@@ -60,8 +61,15 @@ static bool isCBVS( const char* fnm )
 }
 
 
+void SeisCubeImpFromOtherSurvey::setOutput( const IOObj& ioobj )
+{
+    delete outioobj_;
+    outioobj_ = ioobj.clone();
+}
+
+
 #define mErrRet( str ) \
-    { errmsg_ = str; return false; }
+    { uirv_ = str; return false; }
 
 bool SeisCubeImpFromOtherSurvey::prepareRead( const char* mainfilenm )
 {
@@ -133,8 +141,8 @@ void SeisCubeImpFromOtherSurvey::setPars( Interpol& interp, int cellsz,
     StepInterval<float> zsi( data_.tkzs_.zsamp_ );
     zsi.step = olddata_.tkzs_.zsamp_.step;
     szz_ = fft_->getFastSize( zsi.nrSteps() );
-    arr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
-    fftarr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
+    arr_ = new CplxArr3D( sz_, sz_, szz_ );
+    fftarr_ = new CplxArr3D( sz_, sz_, szz_ );
     newsz_ = fft_->getFastSize( sz_*padfac_ );
     taper_ = new ArrayNDWindow(Array1DInfoImpl(szz_),false,"CosTaper",0.95);
 }
@@ -156,24 +164,22 @@ bool SeisCubeImpFromOtherSurvey::createReader( const char* mainfilenm )
     BufferString fnm( mainfilenm ? mainfilenm : inioobj_.mainFileName().str() );
     if ( isCBVS(fnm) )
     {
-	cbvstr_ = CBVSSeisTrcTranslator::make( fnm, false,false,&errmsg_,true );
-	if ( !cbvstr_->errMsg().isEmpty() )
-	{
-	    errmsg_ = cbvstr_->errMsg();
-	    delete cbvstr_; cbvstr_ = 0;
-	    return false;
-	}
+	uiString errmsg;
+	cbvstr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg,
+						true );
+	uirv_.add( errmsg );
+	uirv_.add( cbvstr_->errMsg() );
+	if ( !uirv_.isOK() )
+	    { deleteAndZeroPtr( cbvstr_ ); return false; }
     }
     else
     {
 	rdr_ = new Seis::Blocks::Reader( fnm );
-	if ( rdr_->state().isError() )
-	{
-	    errmsg_ = rdr_->state();
-	    delete rdr_; rdr_ = 0;
-	    return false;
-	}
+	uirv_ = rdr_->state();
+	if ( !uirv_.isOK() )
+	    { deleteAndZeroPtr( rdr_ ); return false; }
     }
+
     return true;
 }
 
@@ -181,18 +187,14 @@ bool SeisCubeImpFromOtherSurvey::createReader( const char* mainfilenm )
 
 int SeisCubeImpFromOtherSurvey::nextStep()
 {
-    if ( !data_.hsit_->next() )
-    {
-	delete wrr_; wrr_ = 0; // close stuff asap
-	return Executor::Finished();
-    }
-
     if ( !cbvstr_ && !rdr_ )
 	return Executor::ErrorOccurred();
-    if ( cbvstr_ && !cbvstr_->readMgr() )
-	return Executor::ErrorOccurred();
-    if ( rdr_ && rdr_->state().isError() )
-	return Executor::ErrorOccurred();
+
+    if ( !data_.hsit_->next() )
+    {
+	deleteAndZeroPtr( storer_ ); // close stuff asap
+	return Executor::Finished();
+    }
 
     data_.curbid_ = data_.hsit_->curBinID();
     const Coord curcoord = SI().transform( data_.curbid_ );
@@ -235,18 +237,14 @@ int SeisCubeImpFromOtherSurvey::nextStep()
 	}
 	outtrc = new SeisTrc( *trcsset_[outtrcidx] );
     }
-    outtrc->info().setBinID( data_.curbid_ );
+    outtrc->info().setPos( data_.curbid_ );
 
-    if ( !wrr_ )
-	wrr_ = new SeisTrcWriter(outioobj_);
-    if ( !wrr_->put( *outtrc ) )
-    {
-	errmsg_ = wrr_->errMsg();
-	delete outtrc;
-	return Executor::ErrorOccurred();
-    }
-
+    if ( !storer_ )
+	storer_ = new Seis::Storer( *outioobj_ );
+    uirv_ = storer_->put( *outtrc );
     delete outtrc;
+    if ( !uirv_.isOK() )
+	return Executor::ErrorOccurred();
 
     nrdone_ ++;
     return Executor::MoreToDo();
@@ -345,7 +343,7 @@ void SeisCubeImpFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     }
     taper_->apply( arr_ );
     mDoFFT( true, (*arr_), (*fftarr_), szx, szy, szz_ )
-    Array3DImpl<float_complex> padfftarr( newszx, newszy, szz_ );
+    CplxArr3D padfftarr( newszx, newszy, szz_ );
 
 #define mSetArrVal(xstart,ystart,xstop,ystop,xshift,yshift,z)\
     for ( int idx=xstart; idx<xstop; idx++)\
@@ -365,7 +363,7 @@ void SeisCubeImpFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     mSetVals( 0, szz_, 0 )
     mSetVals( szz_, szz_, 0 )
 
-    Array3DImpl<float_complex> padarr( newszx, newszy, szz_ );
+    CplxArr3D padarr( newszx, newszy, szz_ );
     mDoFFT( false, padfftarr, padarr, newszx, newszy, szz_ )
 
     const Coord startcrd = trcs[0]->info().coord_;

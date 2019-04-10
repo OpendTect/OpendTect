@@ -174,7 +174,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const DBKey* pickeddbkey,
     const Plane3 plane( emfss->getEditPlaneNormal(sticknr),
 			mWorldScale(mousepos), false );
 
-    if ( posnormal && *posnormal!=Coord3::udf() &&
+    if ( posnormal && !posnormal->isUdf() &&
 	 fabs( posnormal->dot(plane.normal()) ) < 0.5 )
 	return mUdf(float);
 

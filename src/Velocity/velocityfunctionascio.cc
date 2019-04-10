@@ -92,8 +92,8 @@ int FunctionAscIO::nextStep()
 	output_->setNrVals( hasanisotropy ? 2 : 3 );
     }
 
-    BinID binid( getBinID(0, 1) );
-    if ( binid == BinID::udf() )
+    BinID binid( getBinID(0,1) );
+    if ( binid.isUdf() )
 	return MoreToDo();
 
     farr[0] = getFValue(2);

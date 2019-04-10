@@ -217,7 +217,7 @@ void SeisVolumeDataPack::fillTraceInfo( const TrcKey& tk,
     const StepInterval<float> zrg = getZRange();
     info.sampling_.start = zrg.start;
     info.sampling_.step = zrg.step;
-    info.trckey_ = tk;
+    info.trcKey() = tk;
     info.coord_ = tk.getCoord();
     info.offset_ = 0.f;
 }

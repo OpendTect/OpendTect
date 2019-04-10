@@ -6,14 +6,14 @@
 
 
 #include "seiscopy.h"
+#include "scaler.h"
 #include "seis2ddata.h"
 #include "seistrc.h"
 #include "seisprovider.h"
-#include "seiswrite.h"
-#include "seistrcprop.h"
+#include "seisrangeseldata.h"
+#include "seisstorer.h"
 #include "seissingtrcproc.h"
-#include "seisselectionimpl.h"
-#include "scaler.h"
+#include "seistrcprop.h"
 #include "survgeom.h"
 #include "ioobj.h"
 #include "veldesc.h"
@@ -68,9 +68,9 @@ void SeisCubeCopier::init()
     if ( !stp_ )
 	return;
 
-    const SeisTrcWriter& wrr = stp_->writer();
-    if ( wrr.ioObj() )
-	veltype_ = getVelType( wrr.ioObj()->pars() );
+    const auto& strr = stp_->storer();
+    if ( strr.ioObj() )
+	veltype_ = getVelType( strr.ioObj()->pars() );
 
     if ( !stp_->provider() )
     {
@@ -180,109 +180,46 @@ void SeisCubeCopier::doProc( CallBacker* )
     }
 }
 
-
 Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 			    const IOPar& par )
-    : Executor("Copying 2D Seismic Data")
-    , inioobj_(*inobj.clone())
-    , outioobj_(*outobj.clone())
-    , prov_(0)
-    , wrr_(0)
-    , seldata_(*new Seis::RangeSelData)
-    , lineidx_(-1)
-    , scaler_(0)
-    , totalnr_(0)
-    , nrdone_(0)
-    , msg_(tr("Copying traces"))
+    : Seis2DCopier(inobj,outobj)
 {
-    PtrMan<IOPar> lspar = par.subselect( sKey::Line() );
-    if ( !lspar || lspar->isEmpty() )
-	{ msg_ = toUiString("Internal: Required data missing"); return; }
-
-    for ( int idx=0; ; idx++ )
-    {
-	PtrMan<IOPar> linepar = lspar->subselect( idx );
-	if ( !linepar || linepar->isEmpty() )
-	    break;
-
-	Pos::GeomID geomid;
-	if ( !linepar->get(sKey::GeomID(),geomid) )
-	    continue;
-
-	selgeomids_ += geomid;
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	if ( !linepar->get(sKey::TrcRange(),trcrg) ||
-		!linepar->get(sKey::ZRange(),zrg))
-	    continue;
-
-	trcrgs_ += trcrg;
-	zrgs_ += zrg;
-    }
-
-    if ( trcrgs_.size() != selgeomids_.size() ) trcrgs_.erase();
-    if ( zrgs_.size() != selgeomids_.size() ) zrgs_.erase();
-
-    FixedString scalestr = par.find( sKey::Scale() );
+    seldata_.usePar( par );
+    const BufferString scalestr = par.find( sKey::Scale() );
     if ( !scalestr.isEmpty() )
 	scaler_ = Scaler::get( scalestr );
+}
 
-    if ( trcrgs_.isEmpty() )
-    {
-	Seis2DDataSet dset( inobj );
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	for ( int idx=0; idx<selgeomids_.size(); idx++ )
-	{
-	    if ( dset.getRanges(selgeomids_[idx],trcrg,zrg) )
-		totalnr_ += ( trcrg.nrSteps() + 1 );
-	}
-    }
-    else
-    {
-	for ( int idx=0; idx<trcrgs_.size(); idx++ )
-	    totalnr_ += ( trcrgs_[idx].nrSteps() + 1 );
-    }
 
-    if ( totalnr_ < 1 )
-	msg_ = tr("No traces to copy");
+Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj )
+    : Executor("Copying 2D Seismic Data")
+    , storer_(*new Seis::Storer(outobj))
+    , seldata_(*new Seis::RangeSelData)
+{
+    prov_ = Seis::Provider::create( inobj, &uirv_ );
+    if ( !storer_.isUsable() )
+	uirv_.add( storer_.errNotUsable() );
 }
 
 
 Seis2DCopier::~Seis2DCopier()
 {
-    delete prov_; delete wrr_;
     delete scaler_;
+    delete prov_;
+    delete &storer_;
     delete &seldata_;
-    delete (IOObj*)(&inioobj_);
-    delete (IOObj*)(&outioobj_);
 }
 
 
-bool Seis2DCopier::initNextLine()
+bool Seis2DCopier::init()
 {
-    uiRetVal uirv;
-    delete prov_; prov_ = Seis::Provider::create( inioobj_, &uirv );
     if ( !prov_ )
-	{ msg_ = uirv; return false; }
-
-    delete wrr_; wrr_ = new SeisTrcWriter( &outioobj_ );
-
-    lineidx_++;
-    if ( lineidx_ >= selgeomids_.size() )
 	return false;
 
-    if ( trcrgs_.isEmpty() )
-	seldata_.setIsAll( true );
-    else
-    {
-	seldata_.cubeSampling().hsamp_.setCrlRange( trcrgs_[lineidx_] );
-	seldata_.cubeSampling().zsamp_ = zrgs_[lineidx_];
-    }
-
-    seldata_.setGeomID( selgeomids_[lineidx_] );
     prov_->setSelData( seldata_.clone() );
-    wrr_->setSelData( seldata_.clone() );
+    totalnr_ = seldata_.expectedNrTraces();
+
+    inited_ = true;
     return true;
 }
 
@@ -293,21 +230,23 @@ uiString Seis2DCopier::nrDoneText() const
 }
 
 
+uiString Seis2DCopier::message() const
+{
+    return uirv_.isOK() ? tr("Copying traces") : uiString( uirv_ );
+}
+
+
 int Seis2DCopier::nextStep()
 {
-    if ( lineidx_ < 0 && !initNextLine() )
+    if ( !uirv_.isOK() )
 	return ErrorOccurred();
+    else if ( !inited_ )
+	return init() ? MoreToDo() : ErrorOccurred();
 
     SeisTrc trc;
-    const uiRetVal uirv = prov_->getNext( trc );
-    if ( !uirv.isOK() )
-    {
-	if ( isFinished(uirv) )
-	    return initNextLine() ? MoreToDo() : Finished();
-
-	msg_ = uirv;
-	return ErrorOccurred();
-    }
+    uirv_ = prov_->getNext( trc );
+    if ( !uirv_.isOK() )
+	return isFinished(uirv_) ? Finished() : ErrorOccurred();
 
     if ( scaler_ )
     {
@@ -315,8 +254,9 @@ int Seis2DCopier::nextStep()
 	stpc.scale( *scaler_ );
     }
 
-    if ( !wrr_->put(trc) )
-	{ msg_ = wrr_->errMsg(); return ErrorOccurred(); }
+    uirv_ = storer_.put( trc );
+    if ( !uirv_.isOK() )
+	return ErrorOccurred();
 
     nrdone_++;
     return MoreToDo();

@@ -12,9 +12,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !quiet )
-	od_cout() << "Exiting with return code 1" << od_endl;
-
+    logStream() << "Exiting with return code 1" << od_endl;
     return ExitProgram( 1 );
 }
 

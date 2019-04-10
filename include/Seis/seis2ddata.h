@@ -16,12 +16,10 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "od_iosfwd.h"
 
-class IOObj;
 class SeisTrcBuf;
 class TrcKeyZSampling;
 class BinIDValueSet;
 class BufferStringSet;
-class SeisTrcWriter;
 class Seis2DLinePutter;
 class Seis2DTraceGetter;
 class Seis2DLineIOProvider;
@@ -35,8 +33,6 @@ static const char* sKeyNoOfLines mUnusedVar = "Number of Lines";
 
 mExpClass(Seis) Seis2DDataSet : public NamedObject
 { mODTextTranslationClass(Seis2DDataSet)
-    friend class SeisTrcWriter;
-
 public:
 
     mUseType( Pos,	GeomID );

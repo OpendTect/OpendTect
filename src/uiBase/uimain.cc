@@ -194,7 +194,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
     // Hack to solve mouse/tablet dragging refresh problem
     if ( evtyp==QEvent::MouseButtonPress )
-	lastdragpos_ = Geom::Point2D<int>::udf();
+	lastdragpos_.setUdf();
 
     if ( evtyp==QEvent::MouseMove && mousepressed_ )
     {
@@ -202,10 +202,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 	if ( !lastdragpos_.isDefined() )
 	    lastdragpos_ = curpos;
 	else if ( lastdragpos_ != curpos )
-	{
-	    lastdragpos_ = Geom::Point2D<int>::udf();
-	    return true;
-	}
+	    { lastdragpos_.setUdf(); return true; }
     }
     // End of hack
 

@@ -53,8 +53,9 @@ public:
     virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase();
-    inline void		erase()
+    inline void		setEmpty()
 			{ if ( owner_ ) deepErase(); else trcs_.erase(); }
+    inline void		erase()			{ setEmpty(); }
 
     inline int		size() const		{ return trcs_.size(); }
     inline bool		isEmpty() const		{ return trcs_.isEmpty(); }

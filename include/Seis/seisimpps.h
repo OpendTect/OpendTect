@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "uistring.h"
 class SeisTrc;
-class SeisTrcWriter;
 class SeisPSImpLineBuf;
+namespace Seis { class Storer; }
 
 
 /*!\brief Manages import of acquisition-sorted PS data.
@@ -36,13 +36,15 @@ mExpClass(Seis) SeisPSImpDataMgr
 { mODTextTranslationClass(SeisPSImpDataMgr);
 public:
 
-			SeisPSImpDataMgr(const DBKey& pswrid);
+    mUseType( Seis,	Storer );
+
+			SeisPSImpDataMgr(const DBKey&);
     virtual		~SeisPSImpDataMgr();
 
     void		add(SeisTrc*);		//!< trc becomes mine
     void		endReached();		//!< call after last 'add'
     bool		needWrite() const	{ return !towrite_.isEmpty(); }
-    bool		writeGather();
+    uiRetVal		writeGather();
 			//!< Write possibly incomplete gather if !needWrite()
     bool		isEmpty() const		{ return lines_.isEmpty(); }
 
@@ -52,14 +54,14 @@ public:
 						{ samplenms_ = bss; }
 
     uiString		errMsg() const		{ return errmsg_; }
-    const SeisTrcWriter* trcWriter() const	{ return wrr_; }
+    const Storer*	storer() const		{ return storer_; }
     bool		constGatherSize() const	{ return gathersize_ > 0; }
 
 protected:
 
     ObjectSet<SeisPSImpLineBuf>	lines_;
     DBKey			wrid_;
-    SeisTrcWriter*		wrr_;
+    Storer*			storer_;
     int				maxinloffs_;
     TypeSet<int>		towrite_;
     BufferStringSet		samplenms_;
@@ -68,4 +70,5 @@ protected:
     mutable uiString		errmsg_;
 
     void			updateStatus(int);
+
 };

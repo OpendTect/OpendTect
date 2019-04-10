@@ -11,18 +11,25 @@ ________________________________________________________________________
 */
 
 #include "dbkey.h"
+#include "geomid.h"
 #include "seistype.h"
-#include "survgeom.h"
 #include "threadlock.h"
-#include "trckeyzsampling.h"
-#include "posinfo.h"
+#include "zsubsel.h"
 
+class CubeHorSubSel;
+class CubeSubSel;
+class LineHorSubSel;
+class LineSubSel;
+class LineSubSelSet;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class SeisTrcTranslator;
 class TraceData;
-namespace PosInfo { class Line2DData; }
+class TrcKey;
+namespace Survey { class FullSubSel; class HorSubSel; }
+namespace PosInfo { class CubeData; class CubeDataPos;
+		    class Line2DData; class Line2DDataSet; }
 
 
 namespace Seis
@@ -63,7 +70,16 @@ mExpClass(Seis) Provider
 { mODTextTranslationClass(Seis::Provider);
 public:
 
-    mUseType( Pos,	GeomID );
+    mUseType( Pos,		GeomID );
+    mUseType( Pos,		ZSubSel );
+    mUseType( Survey,		HorSubSel );
+    mUseType( Survey,		FullSubSel );
+    typedef int			idx_type;
+    typedef int			size_type;
+    typedef float		z_type;
+    typedef od_int64		totsz_type;
+    typedef idx_type		comp_idx_type;
+    typedef TypeSet<comp_idx_type> comp_idx_set_type;
 
     static Provider*	create(GeomType);
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
@@ -77,115 +93,124 @@ public:
     const Provider3D*	as3D() const;
 
     uiRetVal		setInput(const DBKey&);
+    uiRetVal		reset()			{ return setInput(dbky_); }
 
-    virtual GeomType	geomType() const		= 0;
+    virtual GeomType	geomType() const	= 0;
     bool		is2D() const	{ return Seis::is2D(geomType()); }
     bool		isPS() const	{ return Seis::isPS(geomType()); }
-    BufferString	name() const;
-    GeomID		firstGeomID() const	{ return curGeomID(); }
     const DBKey&	dbKey() const		{ return dbky_; }
-    ZSampling		getZRange() const	{ return doGetZRange(); }
-    uiRetVal		getComponentInfo(BufferStringSet&,DataType* dt=0) const;
-    int			nrOffsets() const; //!< at a representative location
-					   //!< always 1 for post-stack data
+    const IOObj*	ioObj() const		{ return ioobj_; }
+    BufferString	name() const		{ return nameOf(dbky_); }
+
+    virtual size_type	nrGeomIDs() const	{ return 1; }
+    virtual GeomID	geomID( idx_type idx=0 ) const
+						{ return GeomID::get3D(); }
+    virtual GeomID	curGeomID() const	{ return geomID(0); }
+    virtual idx_type	indexOf( GeomID ) const	{ return 0; }
+    void		getCurPosition(TrcKey&) const;
+
+    bool		isPresent(const TrcKey&) const;
+    void		getComponentInfo(BufferStringSet&,DataType* dt=0) const;
+    size_type		nrOffsets() const { return gtNrOffsets(); }
+				//!< can vary; returned from a central location
+
+    const HorSubSel&	horSubSel(idx_type idx=0) const;
+    const ZSubSel&	zSubSel(idx_type idx=0) const;
+    ZSampling		zRange(idx_type idx=0) const
+			{ return zSubSel(idx).outputZRange(); }
+    const FullSubSel&	fullSubSel(idx_type idx=0) const;
 
     void		setSelData(SelData*); //!< becomes mine
-    void		setSampleInterval(float);
-    void		selectComponent(int);
-    void		selectComponents(const TypeSet<int>&);
+    void		selectComponent(comp_idx_type);
+    void		selectComponents(const comp_idx_set_type&);
     void		forceFPData(bool yn=true);
     void		setReadMode(ReadMode);
-    uiRetVal		goTo(const TrcKey&);
-    uiRetVal		fillPar(IOPar&) const;
+    void		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
 
-    bool		isPresent( const TrcKey& tk ) const
-			{ return doGetIsPresent( tk ); }
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		getNextGather(SeisTrcBuf&) const;
-    uiRetVal		get(const TrcKey&,SeisTrc&) const;
-    uiRetVal		getData(const TrcKey&,TraceData&,
-				SeisTrcInfo* info=0) const;
-    uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
-    uiRetVal		getSequence(RawTrcsSequence&) const;
+    uiRetVal		getNextSequence(RawTrcsSequence&) const;
 
-    const TypeSet<int>& getSelectedComponents() const	{ return selcomps_;}
+    bool		atValidPos() const;
+    bool		goTo(const TrcKey&,uiRetVal* uirv=0) const;
+    uiRetVal		getCurrent(SeisTrc&) const;
+    uiRetVal		getCurrentGather(SeisTrcBuf&) const;
+
+    uiRetVal		getAt(const TrcKey&,SeisTrc&) const;
+    uiRetVal		getGatherAt(const TrcKey&,SeisTrcBuf&) const;
+
+    const comp_idx_set_type& selectedComponents() const	{ return selcomps_; }
     bool		haveSelComps() const;
 
-    TrcKey		curPosition() const
-			{ return doGetCurPosition(); }
-    GeomID		curGeomID() const	{ return doGetCurGeomID(); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
 
     static const char*	sKeyForceFPData()
 			{ return "Force FPs"; }
-    static const char*	sKeySelectedComponents()
-			{ return "Selected Components"; }
 
     static void		putTraceInGather(const SeisTrc&,SeisTrcBuf&);
 			//!< components become offsets 0, 100, 200, ...
     static void		putGatherInTrace(const SeisTrcBuf&,SeisTrc&);
 			//!< offsets become components
+    static void		getFallbackComponentInfo(BufferStringSet&,DataType&);
 
-    uiRetVal		reset() const; //!< done automatically when needed
     const SelData*	selData() const		{ return seldata_; }
 
 protected:
 
-			Provider();
+    enum WorkState	{ NeedInput, NeedPrep, Active };
+
+			Provider()		{}
 
     mutable Threads::Lock lock_;
+    mutable WorkState	state_			= NeedInput;
     DBKey		dbky_;
-    SelData*		seldata_;
-    float		zstep_;
-    TypeSet<int>	selcomps_;
-    ReadMode		readmode_;
-    bool		forcefpdata_;
-    mutable od_int64	totalnr_;
-    mutable int		nrcomps_;
-    mutable bool	setupchgd_;
+    IOObj*		ioobj_			= nullptr;
+    SelData*		seldata_		= nullptr;
+    comp_idx_set_type	selcomps_;
+    ReadMode		readmode_		= Prod;
+    bool		forcefpdata_		= false;
+    mutable Threads::Atomic<totsz_type> nrdone_	= 0;
 
-    mutable Threads::Atomic<od_int64> nrdone_;
+    size_type		inpnrcomps_		= 1;
+    size_type		inpnroffsets_		= 1;
+    totsz_type		totalnr_		= -1;
 
-    void		ensureRightDataRep(TraceData&) const;
-    void		ensureRightZSampling(SeisTrc&) const;
-    void		ensureRightComponents(TraceData&) const;
-    bool		handleSetupChanges(uiRetVal&) const;
-    void		handleTrace(SeisTrc&) const;
-    void		handleTraces(SeisTrcBuf&) const;
+    virtual void	establishGeometry(uiRetVal&) const	= 0;
+    virtual void	scanPositions() const			= 0;
+    virtual bool	gtAtValidPos() const			= 0;
+    virtual bool	moveToNextPosition(uiRetVal&) const	= 0;
+    virtual void	prepWork(uiRetVal&) const		= 0;
+    virtual size_type	gtNrOffsets() const			{ return 1; }
+    virtual void	gtComponentInfo( BufferStringSet& s, DataType& d ) const
+			{ return getFallbackComponentInfo( s, d ); }
 
-    virtual od_int64	getTotalNrInInput() const			= 0;
-    virtual void	doReset(uiRetVal&) const			= 0;
-    virtual TrcKey	doGetCurPosition() const			= 0;
-    virtual bool	doGoTo(const TrcKey&)				= 0;
-    virtual void	doFillPar(IOPar&,uiRetVal&) const;
-    virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
+    virtual void	gtCur(SeisTrc&,uiRetVal&) const		{}
+    virtual void	gtCurGather(SeisTrcBuf&,uiRetVal&) const {}
 
-    virtual int		gtNrOffsets() const			{ return 1; }
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
-				//!< def impl: { sKey::Data(), UnknownData }
-    virtual GeomID	doGetCurGeomID() const				= 0;
-    virtual ZSampling	doGetZRange() const				= 0;
-    virtual bool	doGetIsPresent(const TrcKey&) const		= 0;
-
-			    // define at least either SeisTrc or SeisTrcBuf fns
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-    virtual void	doGetData(const TrcKey&,TraceData&,SeisTrcInfo*,
-				  uiRetVal&) const;
-    virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetSequence(RawTrcsSequence&,uiRetVal&) const;
+    void		ensurePositionsScanned() const;
+    bool		prepGoTo(uiRetVal*) const;
 
 private:
 
-    virtual SeisTrcTranslator*	getCurrentTranslator() const		= 0;
-
     friend class	Fetcher;
-    friend class	Fetcher2D;
-    friend class	Fetcher3D;
-    friend class	ObjectSummary;
+
+    void		reportSetupChg();
+    bool		prepareAccess(uiRetVal&) const;
+    void		wrapUpGet(TraceData&,uiRetVal&) const;
+    void		wrapUpGet(SeisTrc&,uiRetVal&) const;
+    void		wrapUpGet(SeisTrcBuf&,uiRetVal&) const;
+    void		fillSequence(RawTrcsSequence&,uiRetVal&) const;
+    uiRetVal		getTrc(SeisTrc&,bool) const;
+    uiRetVal		getGath(SeisTrcBuf&,bool) const;
+    void		getSingleAt(const TrcKey&,TraceData&,SeisTrcInfo&,
+				    uiRetVal&) const;
+    Fetcher&		gtFetcher() const;
+
+public:
+
+    virtual const SeisTrcTranslator*	curTransl() const	{ return 0; }
 
 };
 
@@ -199,30 +224,46 @@ mExpClass(Seis) Provider3D : public Provider
 public:
 
     mUseType( PosInfo,	CubeData );
+    mUseType( PosInfo,	CubeDataPos );
 
-    virtual bool	getRanges(TrcKeyZSampling&) const	= 0;
-    virtual void	getGeometryInfo(CubeData&) const	= 0;
+    bool	isPresent(const BinID&) const;
+    void	getGeometryInfo(CubeData&) const;
+    bool	goTo(const BinID&,uiRetVal* uirv=0) const;
+    BinID	curBinID() const;
+
+    const CubeHorSubSel& cubeHorSubSel() const;
+    const CubeSubSel& cubeSubSel() const;
+
+    uiRetVal	getAt(const BinID&,SeisTrc&) const;
+    uiRetVal	getGatherAt(const BinID&,SeisTrcBuf&) const;
 
 protected:
 
-			Provider3D()			{}
+			Provider3D();
+			~Provider3D();
 
-    mutable CubeData	cubedata_;
-    mutable bool	cubedatafilled_;
-    virtual void	ensureCubeDataFilled() const	= 0;
+    CubeData&		cubedata_;
+    CubeSubSel&		css_;
+    CubeDataPos&	cdp_;
 
-    virtual od_int64	getTotalNrInInput() const;
-    virtual void	doFillPar( IOPar& iop, uiRetVal& uirv ) const
-			{ Provider::doFillPar( iop, uirv ); }
-    virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
-			{ Provider::doUsePar( iop, uirv ); }
-    virtual GeomID	doGetCurGeomID() const
-			{ return GeomID::get3D(); }
-    virtual ZSampling	doGetZRange() const;
-    virtual void	doReset(uiRetVal&) const;
-    virtual bool	doGetIsPresent(const TrcKey&) const;
+    void		establishGeometry(uiRetVal&) const override;
+    void		scanPositions() const override;
+    bool		moveToNextPosition(uiRetVal&) const override;
+    bool		gtAtValidPos() const override;
 
-    virtual SeisTrcTranslator*	getCurrentTranslator() const	{ return 0; }
+    virtual Fetcher3D&	fetcher() const				= 0;
+    virtual void	getLocationData(uiRetVal&) const	= 0;
+    virtual bool	doGoTo(const BinID&,uiRetVal*) const	= 0;
+    virtual void	gtAt(const BinID&,TraceData&,
+			     SeisTrcInfo&,uiRetVal&) const	{}
+    virtual void	gtGatherAt(const BinID&,SeisTrcBuf&,
+			      uiRetVal&) const			{}
+	// implement gtCur and gtAt OR gtCurGather and gtGatherAt
+
+    int			gtSelRes(const CubeDataPos&) const;
+
+    friend class	Provider;
+    friend class	Fetcher3D;
 
 };
 
@@ -230,36 +271,66 @@ protected:
 /*!\brief base class for Providers for 2D data. Extends Provider with some
   2D specific services. */
 
-
 mExpClass(Seis) Provider2D : public Provider
 { mODTextTranslationClass(Seis::Provider2D);
 public:
 
     mUseType( PosInfo,	Line2DData );
+    mUseType( PosInfo,	Line2DDataSet );
+    typedef int		trcnr_type;
 
-    virtual int		nrLines() const					= 0;
-    virtual GeomID	geomID(int) const				= 0;
-    virtual BufferString lineName(int) const				= 0;
-    virtual int		lineNr(GeomID) const				= 0;
-    virtual int		curLineIdx() const				= 0;
-    virtual bool	getRanges(int,StepInterval<int>&,ZSampling&) const = 0;
-    virtual void	getGeometryInfo(int,Line2DData&) const		= 0;
+    bool	isPresent(GeomID) const;
+    bool	isPresent(GeomID,trcnr_type) const;
+
+    size_type	nrGeomIDs() const override;
+    GeomID	geomID(idx_type) const override;
+    idx_type	indexOf(GeomID) const override;
+    GeomID	curGeomID() const override	{ return geomID(lineidx_); }
+    trcnr_type	curTrcNr() const;
+
+    size_type	nrLines() const			{ return nrGeomIDs(); }
+    idx_type	curLineIdx() const		{ return lineidx_; }
+    idx_type	lineNr( GeomID gid ) const	{ return indexOf(gid); }
+    void	getGeometryInfo(idx_type,Line2DData&) const;
+    BufferString lineName( idx_type iln ) const	{ return nameOf(geomID(iln)); }
+
+    uiRetVal	getAt(GeomID,trcnr_type,SeisTrc&) const;
+    uiRetVal	getGatherAt(GeomID,trcnr_type,SeisTrcBuf&) const;
+    bool	goTo(GeomID,trcnr_type,uiRetVal* uirv=0) const;
+
+    const LineHorSubSel& lineHorSubSel(idx_type) const;
+    const LineSubSel& lineSubSel(idx_type) const;
+    const LineSubSelSet& lineSubSelSet() const;
 
 protected:
 
-			Provider2D()					{}
+			Provider2D();
+			~Provider2D();
 
-    virtual od_int64	getTotalNrInInput() const;
-    virtual void	doFillPar( IOPar& iop, uiRetVal& uirv ) const
-			{ Provider::doFillPar( iop, uirv ); }
-    virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
-			{ Provider::doUsePar( iop, uirv ); }
-    virtual GeomID	doGetCurGeomID() const
-			{ return geomID( curLineIdx() ); }
-    virtual ZSampling	doGetZRange() const;
-    virtual bool	doGetIsPresent(const TrcKey&) const;
+    Line2DDataSet&	l2dds_;
+    LineSubSelSet&	lsss_;
+    mutable idx_type	lineidx_		= 0;
+    mutable idx_type	trcidx_			= 0;
 
-    virtual SeisTrcTranslator*	getCurrentTranslator() const	{ return 0; }
+    void		establishGeometry(uiRetVal&) const override;
+    void		scanPositions() const override;
+    bool		gtAtValidPos() const override;
+    bool		moveToNextPosition(uiRetVal&) const override;
+
+    virtual Fetcher2D&	fetcher() const				= 0;
+    virtual bool	doGoTo(GeomID,trcnr_type,uiRetVal*) const = 0;
+    virtual void	gtAt(GeomID,trcnr_type,TraceData&,
+			     SeisTrcInfo&,uiRetVal&) const	{}
+    virtual void	gtGatherAt(GeomID,trcnr_type,SeisTrcBuf&,
+				    uiRetVal&) const		{}
+	// implement gtCur and gtAt OR gtCurGather and gtGatherAt
+
+    void		fillLineData(uiRetVal&) const;
+    trcnr_type		trcNrAt(idx_type,idx_type) const;
+    int			gtSelRes(idx_type,idx_type) const;
+
+    friend class	Provider;
+    friend class	Fetcher2D;
 
 };
 

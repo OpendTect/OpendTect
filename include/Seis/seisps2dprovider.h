@@ -11,7 +11,6 @@ ________________________________________________________________________
 */
 
 #include "seisprovider.h"
-class SeisPS2DReader;
 
 
 namespace Seis
@@ -29,35 +28,20 @@ public:
 			PS2DProvider();
 			PS2DProvider(const DBKey&);
 			~PS2DProvider();
-
     virtual GeomType	geomType() const	{ return LinePS; }
-
-    virtual int		curLineIdx() const;
-    virtual int		nrLines() const;
-    virtual int		lineNr(Pos::GeomID) const;
-    virtual BufferString lineName(int) const;
-    virtual Pos::GeomID	geomID(int) const;
-    virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const;
-    virtual bool	getRanges(int,StepInterval<int>&,
-					  ZSampling&) const;
 
 protected:
 
     friend class	PS2DFetcher;
     PS2DFetcher&	fetcher_;
 
-    virtual void	doUsePar(const IOPar&,uiRetVal&);
-    virtual void	doReset(uiRetVal&) const;
-    virtual TrcKey	doGetCurPosition() const;
-    virtual bool	doGoTo(const TrcKey&);
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
-    virtual int		gtNrOffsets() const;
-    virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-
-    SeisPS2DReader*	mkReader(Pos::GeomID) const;
+    Fetcher2D&		fetcher() const override;
+    void		prepWork(uiRetVal&) const override;
+    size_type		gtNrOffsets() const override;
+    bool		doGoTo(GeomID,trcnr_type,uiRetVal*) const override;
+    void		gtCurGather(SeisTrcBuf&,uiRetVal&) const override;
+    void		gtGatherAt(GeomID,trcnr_type,SeisTrcBuf&,
+				    uiRetVal&) const override;
 
 };
 

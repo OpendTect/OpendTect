@@ -104,6 +104,8 @@ public:
     bool		isSensitive() const;
     void		setSensitive(bool yn=true);
     bool		isVisible() const;
+    virtual void	setEmpty()	    {}
+    virtual bool	isEmpty() const	    { return false; }
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);

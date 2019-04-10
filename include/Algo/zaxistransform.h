@@ -143,8 +143,8 @@ public:
     virtual			~ZAxisTransformSampler();
 
     void			setBinID(const BinID& bid);
-    void			setTrcKey( const TrcKey& k ) { trckey_ = k ; }
-    void			setLineName(const char*);
+    void			setTrcKey(const TrcKey&);
+    void			setGeomID(Pos::GeomID);
     void			setTrcNr(int);
 
     float			operator[](int idx) const;
@@ -155,7 +155,7 @@ protected:
     const ZAxisTransform&	transform_;
     bool			back_;
     bool			is2d_;
-    TrcKey			trckey_;
+    TrcKey&			trckey_;
     const SamplingData<double>	sd_;
 
     TypeSet<float>		cache_;

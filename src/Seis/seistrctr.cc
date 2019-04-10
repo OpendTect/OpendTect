@@ -11,7 +11,7 @@
 #include "seistrc.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
+#include "seisrangeseldata.h"
 #include "seisbuf.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -194,7 +194,8 @@ bool SeisTrcTranslator::commitSelections()
 {
     errmsg_ = tr("No selected components found");
     const int sz = tarcds_.size();
-    if ( sz < 1 ) return false;
+    if ( sz < 1 )
+	return false;
 
     outsd_ = insd_; outnrsamples_ = innrsamples_;
     if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
@@ -391,7 +392,7 @@ bool SeisTrcTranslator::writeBlock()
 		filltrc = getFilled( binid );
 	    else
 	    {
-		filltrc->info().setBinID( binid );
+		filltrc->info().setPos( binid );
 		filltrc->info().coord_ = SI().transform(binid);
 	    }
 	    if ( !writeTrc_(*filltrc) )
@@ -531,13 +532,18 @@ void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
 }
 
 
+bool SeisTrcTranslator::ensureSelectionsCommitted()
+{
+    return outnrsamples_ == 0 ? commitSelections() : true;
+}
+
+
 bool SeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !headerdone_ && !readInfo(trc.info()) )
+    if ( !ensureSelectionsCommitted() )
 	return false;
-
-    if ( outnrsamples_ == 0 )
-	commitSelections();
+    else if ( !headerdone_ && !readInfo(trc.info()) )
+	return false;
 
     prepareComponents( trc, outnrsamples_ );
     if ( curtrcscale_ )
@@ -582,7 +588,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 	return 0;
 
     SeisTrc* newtrc = new SeisTrc;
-    newtrc->info().setBinID( binid );
+    newtrc->info().setPos( binid );
     newtrc->info().coord_ = SI().transform( binid );
 
     newtrc->data().delComponent(0);
@@ -611,11 +617,9 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
     PtrMan<Translator> transl = ioobj.createTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
-    PtrMan<Seis::SelData> sd = 0;
     if ( lnm && *lnm )
     {
-	sd = Seis::SelData::get( Seis::Range );
-	sd->setGeomID( Survey::Geometry::getGeomID(lnm) );
+	auto* sd = new Seis::RangeSelData( Survey::Geometry::getGeomID(lnm) );
 	tr->setSelData( sd );
     }
 

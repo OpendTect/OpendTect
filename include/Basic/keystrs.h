@@ -45,7 +45,7 @@ namespace sKey
     inline FixedString Color()		{ return "Color"; }
     inline FixedString ColTab()		{ return "Color Table"; }
     inline FixedString CoordSys()	{ return "Coordinate System"; }
-    inline FixedString Component()	{ return "Component"; }
+    inline FixedString Component(int n=1) {return n<2?"Component":"Components";}
     inline FixedString Content()	{ return "Content"; }
     inline FixedString Crossline()	{ return "Cross-line"; }
     inline FixedString Cube()		{ return "Cube"; }
@@ -71,7 +71,7 @@ namespace sKey
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomSystem()	{ return "GeomSystem"; }
-    inline FixedString GeomID()		{ return "GeomID"; }
+    inline FixedString GeomID(int n=1)	{ return n<2 ? "GeomID" : "GeomIDs"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID(int n=1)	{ return n<2 ? "ID" : "IDs"; }
     inline FixedString Input()		{ return "Input"; }
@@ -82,11 +82,12 @@ namespace sKey
     inline FixedString IsPS()		{ return "IsPS"; }
     inline FixedString Key(int n=1)	{ return n<2 ? "Key" : "Keys"; }
     inline FixedString Level()		{ return "Level"; }
-    inline FixedString Line()		{ return "Line"; }
+    inline FixedString Line(int n=1)	{ return n<2 ? "Line" : "Lines"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
     inline FixedString MD()		{ return "MD"; }
     inline FixedString Marker()		{ return "Marker"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
+    inline FixedString Mode()		{ return "Mode"; }
     inline FixedString Model()		{ return "Model"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
@@ -126,7 +127,6 @@ namespace sKey
     inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
     inline FixedString Setup()		{ return "Setup"; }
-    inline FixedString Subsample()	{ return "Subsample"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
     inline FixedString SpaceString()	{ return " "; }
@@ -135,6 +135,7 @@ namespace sKey
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
     inline FixedString StratRef()	{ return "Strat Level"; }
+    inline FixedString Subsample()	{ return "Subsample"; }
     inline FixedString Subsel()		{ return "Subsel"; }
     inline FixedString Surface()	{ return "Surface"; }
     inline FixedString Survey()		{ return "Survey"; }
@@ -142,6 +143,7 @@ namespace sKey
     inline FixedString Table()		{ return "Table"; }
     inline FixedString Target(int n=1)	{ return n<2 ? "Target" : "Targets"; }
     inline FixedString Time()		{ return "Time"; }
+    inline FixedString TimeSort()	{ return "Time Sort"; }
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TotalNr()	{ return "Total Nr"; }

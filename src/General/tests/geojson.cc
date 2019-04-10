@@ -30,10 +30,10 @@ static bool testParseCollection()
 {
     uiRetVal uirv = collection.parseJSon( workstr.getCStr(), workstr.size() );
     const bool isok = uirv.isOK() && !collection.isEmpty();
-    if ( !uirv.isOK() && !quiet )
-	tstStream() << "\tmsg=" << toString(uirv) << od_endl;
+    if ( !uirv.isOK() )
+	logStream() << "\tmsg=" << toString(uirv) << od_endl;
     else if ( collection.isEmpty() )
-	tstStream() << "\tmsg=Empty FeatureCollection" << od_endl;
+	logStream() << "\tmsg=Empty FeatureCollection" << od_endl;
 
     mRunStandardTest( isok, "GeoJSon parses fine" )
 

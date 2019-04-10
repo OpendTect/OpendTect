@@ -26,9 +26,10 @@ mDefIntegerIDTypeFull( int, GeomID,
 
 	-999,
 
-	inline bool		is2D() const	{ return nr_>=0; }
-	inline IDType		lineNr() const	{ return getI(); }
-	inline static GeomID	get3D()		{ return GeomID(-1); }
+	inline bool		is2D() const		{ return nr_>=0; }
+	inline bool		isSynthetic() const	{ return nr_==-2; }
+	inline IDType		lineNr() const		{ return getI(); }
+	inline static GeomID	get3D()			{ return GeomID(-1); }
 
 );
 
@@ -59,7 +60,7 @@ inline OD::GeomSystem geomSystemOf( Pos::GeomID gid )
 {
     return gid.getI() >= (Pos::GeomID::IDType)OD::LineBasedGeom
 	 ? OD::LineBasedGeom
-	 : (gid.getI() == -2 ? OD::SynthGeom : OD::VolBasedGeom);
+	 : (gid.isSynthetic() ? OD::SynthGeom : OD::VolBasedGeom);
 }
 
 

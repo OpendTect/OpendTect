@@ -8,11 +8,11 @@
 #include "seismscprov.h"
 
 #include "arrayndimpl.h"
-#include "trckeyzsampling.h"
+#include "horsubsel.h"
 #include "posinfo2d.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seistrc.h"
 #include "uistrings.h"
 
@@ -131,43 +131,43 @@ Seis::MSCProvider::AdvanceState Seis::MSCProvider::advance()
 }
 
 
-int Seis::MSCProvider::comparePos( const MSCProvider& mscp ) const
+int Seis::MSCProvider::comparePos( const MSCProvider& oth ) const
 {
-    if ( &mscp == this )
+    if ( &oth == this )
 	return 0;
 
     int startval = tbufs_[bufidx_]->get(0)->info().trcNr();
     int stopval = tbufs_[bufidx_]->get(tbufs_[bufidx_]->size()-1)->info()
 								      .trcNr();
 
-    int bufidx = mscp.bufidx_;
+    int bufidx = oth.bufidx_;
 
-    int startmscpval = mscp.tbufs_[bufidx]->get(0)->info().trcNr();
-    int stopmscpval = mscp.tbufs_[bufidx]->
-			    get(mscp.tbufs_[bufidx]->size()-1)->info().trcNr();
+    int startothval = oth.tbufs_[bufidx]->get(0)->info().trcNr();
+    int stopothval = oth.tbufs_[bufidx]->
+			    get(oth.tbufs_[bufidx]->size()-1)->info().trcNr();
 
     bool arebothreversed = (startval > stopval) &&
-					(startmscpval > stopmscpval);
+					(startothval > stopothval);
 
-    if ( is2D() && mscp.is2D() )
+    if ( is2D() && oth.is2D() )
     {
 	const int mynr = getTrcNr();
-	const int mscpsnr = mscp.getTrcNr();
+	const int othsnr = oth.getTrcNr();
 
-	if ( mynr == mscpsnr )
+	if ( mynr == othsnr )
 	    return 0;
-	return ( (mynr > mscpsnr) && !arebothreversed ) ? 1 : -1;
+	return ( (mynr > othsnr) && !arebothreversed ) ? 1 : -1;
     }
 
     const BinID mybid = getPos();
-    const BinID mscpsbid = mscp.getPos();
-    if ( mybid == mscpsbid )
+    const BinID othbid = oth.getPos();
+    if ( mybid == othbid )
 	return 0;
 
-    if ( mybid.inl() != mscpsbid.inl() )
-	return mybid.inl() > mscpsbid.inl() ? 1 : -1;
+    if ( mybid.inl() != othbid.inl() )
+	return mybid.inl() > othbid.inl() ? 1 : -1;
 
-    return ( mybid.crl() > mscpsbid.crl() ) ? 1 : -1;
+    return ( mybid.crl() > othbid.crl() ) ? 1 : -1;
 }
 
 
@@ -189,17 +189,14 @@ bool Seis::MSCProvider::startWork()
 	return false;
 
     prov_->forceFPData( intofloats_ );
-    if ( prov_->is2D() )
-    {
-	StepInterval<int> trcnrrg; ZSampling zsamp;
-	prov_->as2D()->getRanges( 0, trcnrrg, zsamp );
-	stepoutstep_ = BinID( 1, trcnrrg.step );
-    }
+    const auto& hss = prov_->horSubSel();
+    if ( hss.is2D() )
+	stepoutstep_ = BinID( 1, hss.asLineHorSubSel()->trcNrRange().step );
     else
     {
-	TrcKeyZSampling cs;
-	if ( prov_->as3D()->getRanges(cs) )
-	    stepoutstep_ = cs.hsamp_.step_;
+	auto& chss = *hss.asCubeHorSubSel();
+	stepoutstep_.inl() = chss.inlStep();
+	stepoutstep_.crl() = chss.crlStep();
     }
 
     if ( reqstepout_.row() > desstepout_.row() )
@@ -210,24 +207,18 @@ bool Seis::MSCProvider::startWork()
     const SelData* sd = prov_->selData();
     if ( sd && !sd->isAll() )
     {
-	Seis::SelData* newseldata = sd->clone();
 	BinID so( desstepout_.row(), desstepout_.col() );
 	bool doextend = so.inl() > 0 || so.crl() > 0;
 	if ( is2D() )
-	{
 	    so.inl() = 0;
-	    doextend = doextend && newseldata->type() == Seis::Range;
-	    if ( newseldata->type() == Seis::Table )
-		newseldata->setIsAll( true );
-	}
 
 	if ( doextend )
 	{
+	    auto* newseldata = sd->clone();
 	    const BinID sostep( stepoutstep_.row(), stepoutstep_.col() );
 	    newseldata->extendH( so, &sostep );
+	    prov_->setSelData( newseldata );
 	}
-
-	prov_->setSelData( newseldata );
     }
 
     SeisTrc* trc = new SeisTrc;

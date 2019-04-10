@@ -147,9 +147,9 @@ void uiVisPickRetriever::reset()
 
 void uiVisPickRetriever::resetPickedPos()
 {
-    pickedgeomid_ = Pos::GeomID();
+    pickedgeomid_.setInvalid();
     pickedtrcnr_ = mUdf(int);
-    pickedpos_ = Coord3::udf();
+    pickedpos_.setUdf();
     pickedscene_ = -1;
     pickedobjids_.erase();
 }

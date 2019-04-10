@@ -17,6 +17,7 @@ class HorSampling;
 class CubeSampling;
 class CubeSubSel;
 class LineSubSel;
+namespace Survey { class FullSubSel; }
 
 
 /*!\brief Hor+Vert sampling in 2D and 3D geometries.
@@ -39,14 +40,19 @@ public:
     mUseType( OD,	SliceType );
     mUseType( TrcKey,	linenr_type );
     mUseType( TrcKey,	tracenr_type );
+    mUseType( Survey,	HorSubSel );
+    mUseType( Survey,	FullSubSel );
+    mUseType( Survey,	Geometry );
 
 			TrcKeyZSampling(OD::SurvLimitType slt=OD::FullSurvey);
 			TrcKeyZSampling(GeomID);
-			TrcKeyZSampling(const CubeSampling&);
+			TrcKeyZSampling(const HorSubSel&);
+			TrcKeyZSampling(const FullSubSel&);
 			TrcKeyZSampling(const CubeSubSel&);
 			TrcKeyZSampling(const LineSubSel&);
-			TrcKeyZSampling(const Survey::Geometry&);
+			TrcKeyZSampling(const Geometry&);
 			TrcKeyZSampling(const HorSampling&);
+			TrcKeyZSampling(const CubeSampling&);
 			TrcKeyZSampling(const TrcKeySampling&);
 			TrcKeyZSampling(const TrcKeyZSampling&);
 			TrcKeyZSampling(bool settoSI,
@@ -67,7 +73,7 @@ public:
     void		init(bool settoSI=true,
 			     OD::SurvLimitType slt=OD::FullSurvey);
     void		setTo(GeomID);
-    void		setTo(const Survey::Geometry&);
+    void		setTo(const Geometry&);
     inline void		setEmpty()		{ init(false); }
     void		set2DDef();
     void		normalise();

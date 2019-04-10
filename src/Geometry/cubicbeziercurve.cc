@@ -333,10 +333,7 @@ Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
 {
     const int idx = getIndex( param );
     if ( idx<0||idx>=positions.size() )
-    {
-	pErrMsg("Outside range");
-	return Coord3::udf();
-    }
+	{ pErrMsg("Outside range"); return Coord3::udf(); }
 
     int idx0 = idx-1, idx1 = idx+1;
     int diff = 2;

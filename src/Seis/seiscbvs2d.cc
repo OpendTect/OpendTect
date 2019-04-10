@@ -10,7 +10,7 @@
 #include "cbvsreadmgr.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seisbuf.h"
 #include "posinfo2d.h"
 #include "cbvsio.h"

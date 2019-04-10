@@ -331,6 +331,36 @@ void TraceData::delComponent( int todel )
 }
 
 
+void TraceData::setNrComponents( int newnrcomps, OD::DataRepType datarep )
+{
+    const int oldnrcomps = nrComponents();
+    const bool isautodatarep = datarep == OD::AutoDataRep;
+    if ( oldnrcomps == newnrcomps )
+    {
+	if ( isautodatarep )
+	    return;
+
+	bool isok = true;
+	for ( int icomp=0; icomp<oldnrcomps; icomp++ )
+	    if ( getInterpreter(icomp)->dataChar().userType()!=datarep )
+		{ isok = false; break; }
+	if ( isok )
+	    return;
+    }
+
+    const int sz = size();
+    if ( isautodatarep )
+	datarep = getInterpreter(0)->dataChar().userType();
+
+    while ( nrComponents() > 0 )
+	delComponent( 0 );
+
+    for ( int icomp=0; icomp<newnrcomps; icomp++ )
+	addComponent( sz, DataCharacteristics(datarep) );
+}
+
+
+
 void TraceData::reSize( int n, int compnr, bool copydata )
 {
     for ( int icomp=0; icomp<nrcomp_; icomp++ )

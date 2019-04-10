@@ -151,7 +151,7 @@ void Pick::SetChangeRecorder::handleObjChange( const ChangeData& chgdata )
 	    { pErrMsg("Huh"); return; }
 	mLock2Write();
 	addRec( new SetLocMoveRecord( locid, movestartloc, loc ) );
-	movestartloc = Location::udf();
+	movestartloc.setUdf();
     }
     else
     {

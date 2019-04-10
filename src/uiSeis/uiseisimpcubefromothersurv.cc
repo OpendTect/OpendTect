@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiseisimpcubefromothersurv.h"
 
 #include "ctxtioobj.h"
+#include "seisselsetup.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -41,7 +42,7 @@ uiSeisImpCubeFromOtherSurveyDlg::uiSeisImpCubeFromOtherSurveyDlg( uiParent* p )
     uiButton* selbut = uiButton::getStd( this, OD::Select, cb, true );
     selbut->attach( rightOf, finpfld_ );
 
-    subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup( false ) );
+    subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup(false) );
     subselfld_->attach( alignedBelow, finpfld_ );
 
     uiSeparator* sep1 = new uiSeparator( this, "sep" );

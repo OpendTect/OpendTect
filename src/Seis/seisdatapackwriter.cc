@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
-#include "seisselectionimpl.h"
-#include "seiswrite.h"
+#include "seisrangeseldata.h"
+#include "seisstorer.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survgeom2d.h"
@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 
-SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
+SeisDataPackWriter::SeisDataPackWriter( const DBKey& outid,
 				  const RegularSeisDataPack& dp,
 				  const TypeSet<int>& compidxs )
     : Executor( "Attribute volume writer" )
@@ -39,10 +39,9 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
     , totalnr_( (int) dp.sampling().hsamp_.totalNr() )
     , dp_( &dp )
     , iterator_( dp.sampling().hsamp_ )
-    , mid_( mid )
+    , outid_( outid )
     , posinfo_(0)
     , compidxs_( compidxs )
-    , trc_( 0 )
 {
     compscalers_.setNullAllowed( true );
     getPosInfo();
@@ -61,16 +60,20 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
 	    compscalers_ += 0;
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
-    writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
-    is2d_ = writer_->is2D();
+    PtrMan<IOObj> ioobj = DBM().get( outid_ );
+    storer_ = ioobj ? new Seis::Storer( *ioobj ) : 0;
+    is2d_ = storer_ && storer_->is2D();
+
+    msg_ = storer_ ? uiStrings::sWriting()
+		   : uiStrings::phrCannotWrite( uiStrings::sData() );
 }
 
 
 SeisDataPackWriter::~SeisDataPackWriter()
 {
     delete trc_;
-    delete writer_;
+    delete seldata_;
+    delete storer_;
     deepErase( compscalers_ );
 }
 
@@ -102,11 +105,11 @@ void SeisDataPackWriter::setComponentScaler( const Scaler& scaler, int compidx )
 
 void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 {
-    if ( !writer_ || !dp_ || !dp_->is2D() ||
+    if ( !storer_ || !dp_ || !dp_->is2D() ||
 	 !compscalers_[compidx] || compscalers_[compidx]->isEmpty() )
 	return;
 
-    const SeisIOObjInfo objinfo( mid_ );
+    const SeisIOObjInfo objinfo( outid_ );
     if ( !objinfo.isOK() || !objinfo.is2D() )
 	return;
 
@@ -150,15 +153,6 @@ od_int64 SeisDataPackWriter::nrDone() const
 }
 
 
-uiString SeisDataPackWriter::message() const
-{
-    if ( !writer_ )
-	return uiStrings::phrCannotWrite( uiStrings::sData() );
-
-    return uiStrings::sWriting();
-}
-
-
 void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
@@ -182,19 +176,14 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( CubeHorSubSel(hrg) )
 			: mCast(int,hrg.totalNr());
-    Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
-    if ( writer_ )
-	writer_->setSelData( seldata );
+    delete seldata_;
+    seldata_ = new Seis::RangeSelData( tks_ );
 
     if ( !cubezrgidx )
 	return;
 
     if ( cubezrgidx->stop >= dp_->sampling().nrZ() )
-    {
-	pErrMsg("Invalid selection");
-	cubezrgidx_ = Interval<int>::udf();
-	return;
-    }
+	{ msg_ = mINTERNAL("Invalid selection"); cubezrgidx_.setUdf(); return; }
 
     cubezrgidx_ = *cubezrgidx;
 }
@@ -219,14 +208,11 @@ bool SeisDataPackWriter::goImpl( od_ostream* strm, bool first, bool last,
 
 bool SeisDataPackWriter::setTrc()
 {
-    if ( !writer_ || dp_->isEmpty() )
+    if ( !storer_ || dp_->isEmpty() )
 	return false;
 
-    if ( cubezrgidx_ == Interval<int>::udf() )
-    {
-	pErrMsg("Invalid selection");
-	return false;
-    }
+    if ( cubezrgidx_.isUdf() )
+	{ msg_ = mINTERNAL("No cubezrgidx_"); return false; }
 
     const int trcsz = cubezrgidx_.stop - cubezrgidx_.start + 1;
     delete trc_;
@@ -244,8 +230,9 @@ bool SeisDataPackWriter::setTrc()
 	compnames.add( dp_->getComponentName(idx) );
     }
 
-    SeisTrcTranslator* transl = writer_->seisTranslator();
-    if ( transl ) transl->setComponentNames( compnames );
+    SeisTrcTranslator* transl = storer_->translator();
+    if ( transl )
+	transl->setComponentNames( compnames );
 
     return true;
 }
@@ -264,10 +251,11 @@ int SeisDataPackWriter::nextStep()
 	if ( !posinfo_->isValid(posinfo_->cubeDataPos(bid)) )
 	    return iterator_.next() ? MoreToDo() : Finished();
     }
-
     const TrcKey currentpos( iterator_.curTrcKey() );
+    if ( seldata_ && !seldata_->isOK(currentpos) )
+	return MoreToDo();
 
-    trc_->info().trckey_ = currentpos;
+    trc_->info().trcKey() = currentpos;
     trc_->info().coord_ = currentpos.getCoord();
     const int inlpos = hs.lineIdx( currentpos.inl() );
     const int crlpos = hs.trcIdx( currentpos.crl() );
@@ -295,12 +283,17 @@ int SeisDataPackWriter::nextStep()
 	}
     }
 
-    if ( !writer_->put(*trc_) )
-	return ErrorOccurred();
+    auto uirv = storer_->put( *trc_ );
+    if ( !uirv.isOK() )
+	{ msg_ = uirv; return ErrorOccurred(); }
 
     nrdone_++;
     if ( iterator_.next() )
 	return MoreToDo();
 
-    return writer_->close() ? Finished(): ErrorOccurred();
+    uirv = storer_->close();
+    if ( !uirv.isOK() )
+	{ msg_ = uirv; return ErrorOccurred(); }
+
+    return Finished();
 }

@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 class SeisImporter;
 class SeisStdImporterReader;
-class SeisTrcWriter;
 class uiIOObjSel;
 class uiSeisSel;
 class uiComboBox;
@@ -28,6 +27,7 @@ class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
 class uiSEGYImportResult;
 class uiSeis2DLineNameSel;
+namespace Seis { class Storer; }
 namespace SEGY { class FileIndexer; }
 namespace SEGY { namespace Vintage {class Info; class Importer; }}
 
@@ -98,7 +98,7 @@ protected:
     void		updateResultDlg(const SEGY::Vintage::Importer&,
 					uiSEGYImportResult*);
     void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
-    SeisStdImporterReader* getImpReader(const IOObj&,SeisTrcWriter&,
+    SeisStdImporterReader* getImpReader(const IOObj&,Seis::Storer&,
 					Pos::GeomID);
     bool		exec2Dimp(const IOObj&,const IOObj&,bool,const char*,
 				  const char*,Pos::GeomID);

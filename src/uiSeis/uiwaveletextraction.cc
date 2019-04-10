@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "binidvalset.h"
 #include "bufstring.h"
+#include "cubesubsel.h"
 #include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
@@ -33,7 +34,9 @@ ________________________________________________________________________
 #include "posprovider.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
+#include "seisselsetup.h"
+#include "seistableseldata.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "waveletio.h"
@@ -100,7 +103,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     linesel2dfld_ ? zextraction_->attach( alignedBelow, linesel2dfld_ )
 		  : zextraction_->attach( alignedBelow, subselfld3d_ );
 
-    zrangefld_ = new uiSelZRange( this, false, false, "Z Range " );
+    zrangefld_ = new uiSelZRange( this, false );
     zrangefld_->attach( alignedBelow, zextraction_ );
 
     surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface(), this,
@@ -332,7 +335,8 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	Seis::RangeSelData range;
 	range.setZRange( zrg );
 	Interval<int> inlrg( 0, 0 );
-	range.cubeSampling().hsamp_.setInlRange( inlrg );
+	auto& chss = mNonConst(range.cubeSubSel()).cubeHorSubSel();
+	chss.setInlRange( inlrg );
 
 	ObjectSet<Seis::SelData> sdset;
 	GeomIDSet geomids;
@@ -340,8 +344,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 	{
 	    const Pos::GeomID geomid = geomids[lidx];
-	    range.cubeSampling().hsamp_.setCrlRange(
-					linesel2dfld_->getTrcRange(geomid) );
+	    chss.setCrlRange( linesel2dfld_->getTrcRange(geomid) );
 	    range.setGeomID( geomid );
 	    seldata_ = range.clone();
 	    sdset += seldata_;

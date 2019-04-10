@@ -179,14 +179,10 @@ void Horizon2DLine::removeCols( Pos::GeomID geomid, int col1, int col2 )
 	colsampling_[rowidx].start = col2 + colrg.step;
     }
     else if ( colrg.stop == col2 )
-    {
 	rows_[rowidx]->removeRange( startidx, stopidx );
-    }
     else
-    {
 	for ( int idx=startidx; idx<=stopidx; idx++ )
-	    (*rows_[rowidx])[idx] = Coord3::udf();
-    }
+	    (*rows_[rowidx])[idx].setUdf();
 }
 
 

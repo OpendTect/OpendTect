@@ -8,10 +8,9 @@
 #include "uivolprocbatchsetup.h"
 
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "seisjobexecprov.h"
-#include "seisselection.h"
+#include "seisselsetup.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
 #include "volprocchainoutput.h"

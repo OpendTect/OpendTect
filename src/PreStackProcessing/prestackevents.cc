@@ -737,7 +737,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	}
 
 	SeisTrc diptrc;
-	const uiRetVal uirv = provider->get( TrcKey(bidv), diptrc );
+	const uiRetVal uirv = provider->getAt( TrcKey(bidv), diptrc );
 	if ( !uirv.isOK() || diptrc.nrComponents()<2 )
 	    return false;
 

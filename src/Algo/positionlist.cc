@@ -203,7 +203,7 @@ void Coord3ListImpl::addValue( int idx, const Coord3& co )
 
 bool Coord3ListImpl::isDefined( int idx ) const
 {
-    return idx >= 0 && idx < coords_.size() && coords_[idx] != Coord3::udf();
+    return idx >= 0 && idx < coords_.size() && !coords_[idx].isUdf();
 }
 
 

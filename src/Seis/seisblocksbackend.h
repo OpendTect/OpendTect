@@ -33,11 +33,11 @@ public:
 			StreamReadBackEnd(Reader&,od_istream&);
 			~StreamReadBackEnd();
 
-    virtual void	reset(const char*,uiRetVal&);
-    virtual Column*	createColumn(const HGlobIdx&,uiRetVal&);
-    virtual void	fillTrace(Column&,const BinID&,SeisTrc&,
-				  uiRetVal&) const;
-    virtual void	close();
+    void		reset(const char*,uiRetVal&);
+    Column*		createColumn(const HGlobIdx&,uiRetVal&);
+    void		fillTraceData(Column&,const BinID&,TraceData&,
+				      uiRetVal&) const override;
+    void		close();
 
     void		openStream(const char*,uiRetVal&);
 
@@ -58,11 +58,11 @@ public:
 			HDF5ReadBackEnd(Reader&,const char*,uiRetVal&);
 			~HDF5ReadBackEnd();
 
-    virtual void	reset(const char*,uiRetVal&);
-    virtual Column*	createColumn(const HGlobIdx&,uiRetVal&);
-    virtual void	fillTrace(Column&,const BinID&,SeisTrc&,
-				  uiRetVal&) const;
-    virtual void	close();
+    void		reset(const char*,uiRetVal&) override;
+    Column*		createColumn(const HGlobIdx&,uiRetVal&) override;
+    void		fillTraceData(Column&,const BinID&,TraceData&,
+				      uiRetVal&) const override;
+    void		close() override;
 
     HDF5::Reader*	hdfrdr_;
 

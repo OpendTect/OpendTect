@@ -172,7 +172,7 @@ int uiStatusBar::nrFields() const
 }
 
 
-void uiStatusBar::setEmpty( int startat )
+void uiStatusBar::setPartiallyEmpty( int startat )
 {
     const int nrflds = nrFields();
     for ( int idx=startat; idx<nrflds; idx++ )

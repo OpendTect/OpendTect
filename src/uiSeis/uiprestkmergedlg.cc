@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsmerge.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seissingtrcproc.h"
 #include "survinfo.h"
 #include "transl.h"

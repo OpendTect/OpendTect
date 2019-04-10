@@ -201,7 +201,7 @@ static bool testOccFns()
 
 static bool testLimFToStringFns()
 {
-    if ( quiet ) return true;
+    if ( quiet_ ) return true;
 
     struct floatVarDef { float v_; const char* desc_; };
     struct doubleVarDef { double v_; const char* desc_; };
@@ -291,7 +291,7 @@ int mTestMainFnName( int argc, char** argv )
     strs.setEmpty(); strs.usePar( iop );
     mRunTest( "BufferString use/fillPar test", strs.get(2)=="Str pos 2" );
 
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	FixedString str( 0 );
 	od_cout() << "Should be empty: '" << str << "'" << od_endl;

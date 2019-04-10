@@ -26,7 +26,7 @@
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
 #include "seisrawtrcsseq.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seistrctr.h"
@@ -710,14 +710,14 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     BinID bid;
     while( trcsiterator3d.next(bid) )
     {
-	tk.setPosition( bid );
+	tk.setPos( bid );
 	if ( bid.lineNr() > currentinl )
 	{
 	    addToNrDone( nrdone ); nrdone = 0;
 	    currentinl = bid.lineNr();
 	}
 
-	uirv = prov->getSequence( *rawseq );
+	uirv = prov->getNextSequence( *rawseq );
 	nrdone++;
 	if ( !uirv.isOK() )
 	{
@@ -871,7 +871,7 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     for ( int idx=0; idx<trcnrs.size(); idx++ )
     {
 	tk.setTrcNr( trcnrs[idx] );
-	uirv = prov->getSequence( *rawseq );
+	uirv = prov->getNextSequence( *rawseq );
 	addToNrDone(1);
 	if ( !uirv.isOK() )
 	{
@@ -1129,7 +1129,7 @@ int Seis::SequentialFSLoader::nextStep()
 	return ErrorOccurred();
     }
 
-    const uiRetVal uirv = prov_->getSequence( *rawseq );
+    const uiRetVal uirv = prov_->getNextSequence( *rawseq );
     if ( !uirv.isOK() )
     {
 	delete rawseq;

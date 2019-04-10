@@ -693,11 +693,11 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti, bool is2d ) const
     ti.coord_.y_ = entryVal( EntryYcdp() );
     BinID tibid( entryVal( EntryInline() ), entryVal( EntryCrossline() ) );
     if ( is2d )
-	ti.trckey_ = TrcKey( Pos::GeomID(0), EntryTracr() );
+	ti.setPos( Pos::GeomID(0), EntryTracr() );
     else
     {
 	mPIEPAdj(BinID,tibid,true);
-	ti.trckey_ = TrcKey( tibid );
+	ti.setPos( tibid );
     }
 
     ti.refnr_ = mCast( float, entryVal( EntrySP() ) );
@@ -779,7 +779,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
 	BinID tibid( hdef_.inl_.getValue(buf_,needswap_),
 		     hdef_.crl_.getValue(buf_,needswap_) );
 	mPIEPAdj(BinID,tibid,true);
-	ti.trckey_ = TrcKey( tibid );
+	ti.setPos( tibid );
     }
 
     if ( !isrev0_ )
@@ -806,7 +806,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
 	}
 
 	mPIEPAdj(TrcNr,trcnr,true);
-	ti.trckey_ = TrcKey( Pos::GeomID(0), trcnr );
+	ti.setPos( Pos::GeomID(0), trcnr );
     }
 
     const double scale = getCoordScale( extcoordsc );

@@ -200,7 +200,7 @@ int SeisImpBPSIF::readAscii()
 	float val; strm >> val;
 	tmpltrc.set( idx, val, 0 );
 	if ( idx == 0 )
-	    tmpltrc.info().trckey_.setTrcNr( mNINT32(val) );
+	    tmpltrc.info().setTrcNr( mNINT32(val) );
     }
 
     BufferString rcvdata;
@@ -235,7 +235,7 @@ int SeisImpBPSIF::readBinary()
     tmpltrc.info().coord_.x_ = vbuf[0]; tmpltrc.info().coord_.y_ = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
-    tmpltrc.info().trckey_.setTrcNr( mNINT32(vbuf[0]) );
+    tmpltrc.info().setTrcNr( mNINT32(vbuf[0]) );
 
     if ( !addTrcsBinary(tmpltrc) )
 	return fileEnded();
@@ -343,11 +343,9 @@ int SeisImpBPSIF::writeData()
     if ( !datamgr_.needWrite() )
 	return datamgr_.isEmpty() ? Executor::Finished() : Executor::MoreToDo();
 
-    if ( !datamgr_.writeGather() )
-    {
-	errmsg_ = datamgr_.errMsg();
+    errmsg_ = datamgr_.writeGather();
+    if ( !errmsg_.isEmpty() )
 	return Executor::ErrorOccurred();
-    }
 
     return Executor::MoreToDo();
 }

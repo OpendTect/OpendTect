@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
-#include "seisselection.h"
 #include "seistrctr.h"
 #include "strmprov.h"
 #include "survinfo.h"

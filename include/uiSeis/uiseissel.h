@@ -24,14 +24,16 @@ mExpClass(uiSeis) uiSeisSel : public uiIOObjSel
 { mODTextTranslationClass(uiSeisSel);
 public:
 
+    mUseType( Seis,	GeomType );
+    mUseType( Seis,	SteerPol );
+
     struct Setup : public uiIOObjSel::Setup
     {
-	enum SteerPol	{ NoSteering=0, OnlySteering=1, InclSteer=2 };
 
-			Setup( Seis::GeomType gt )
+			Setup( GeomType gt )
 			    : geom_(gt)
 			    , allowsetdefault_(true)
-			    , steerpol_(NoSteering)
+			    , steerpol_(Seis::NoSteering)
 			    , enabotherdomain_(false)
 			    , isotherdomain_(false)
 			    , survdefsubsel_( 0 )
@@ -41,7 +43,7 @@ public:
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , allowsetdefault_(true)
-			    , steerpol_(NoSteering)
+			    , steerpol_(Seis::NoSteering)
 			    , enabotherdomain_(false)
 			    , isotherdomain_(false)
 			    , survdefsubsel_( 0 )
@@ -49,7 +51,7 @@ public:
 			    , explprepost_(false)
 			    , selectcomp_(false)	{}
 
-	mDefSetupMemb(Seis::GeomType,geom)
+	mDefSetupMemb(GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
 	mDefSetupMemb(bool,isotherdomain)	//!< write only
@@ -62,7 +64,8 @@ public:
 
 	Setup&		wantSteering( bool yn=true )
 			{
-			    steerpol_ = yn ? OnlySteering : NoSteering;
+			    steerpol_ = yn ? Seis::OnlySteering
+					   : Seis::NoSteering;
 			    return *this;
 			}
     };
@@ -73,7 +76,7 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    inline Seis::GeomType geomType() const { return seissetup_.geom_; }
+    inline GeomType	geomType() const { return seissetup_.geom_; }
     inline bool		is2D() const	{ return Seis::is2D(seissetup_.geom_); }
     inline bool		isPS() const	{ return Seis::isPS(seissetup_.geom_); }
 
@@ -83,7 +86,7 @@ public:
     virtual bool	existingTyped() const;
     virtual void	updateInput();
 
-    static IOObjContext	ioContext(Seis::GeomType,bool forread);
+    static IOObjContext	ioContext(GeomType,bool forread);
 
 protected:
 
@@ -103,7 +106,7 @@ protected:
     virtual uiIOObjRetDlg* mkDlg();
     void		mkOthDomBox();
 
-    virtual const char* getDefaultKey(Seis::GeomType) const;
+    virtual const char* getDefaultKey(GeomType) const;
 
 };
 
@@ -112,11 +115,16 @@ mExpClass(uiSeis) uiSeisSelDlg : public uiIOObjSelDlg
 { mODTextTranslationClass(uiSeisSelDlg);
 public:
 
+    mUseType( Seis,	GeomType );
+
 			uiSeisSelDlg(uiParent*,const CtxtIOObj&,
 				     const uiSeisSel::Setup&);
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
+
+    void		setCompNr(int);
+    int			compNr() const;
 
 protected:
 
@@ -129,9 +137,12 @@ protected:
     void		entrySel(CallBacker*);
     const char*		getDataType();
     void		getComponentNames(BufferStringSet&) const;
+
 private:
+
     static uiString	gtSelTxt(const uiSeisSel::Setup& setup,bool forread);
     friend		class uiSeisSel;
+
 };
 
 

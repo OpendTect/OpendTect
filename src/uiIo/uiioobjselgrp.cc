@@ -37,7 +37,8 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
-static const char* sKeySortingDef = "dTect.Disp.Objects.Sorting";
+static const BufferString sKeyTimeSort(
+	IOPar::compKey("dTect.Disp.Objects",sKey::TimeSort()) );
 
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
@@ -184,25 +185,18 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     mAttachCB( filtfld_->editingFinished, uiIOObjSelGrp::orderChgCB );
     mAttachCB( filtfld_->returnPressed, uiIOObjSelGrp::orderChgCB );
 
-    uiStringSet sorts;
-    sorts.add( tr("[A->Z]") )
-	 .add( tr("[Z->A]") )
-	 .add( tr("[Old->New]") )
-	 .add( tr("[New->Old]") );
-    sortfld_ = new uiComboBox( listfld_, "Sorting" );
-    sortfld_->addItems( sorts );
-    sortfld_->setToolTip( uiStrings::sSorting() );
-    int defidx = 0;
-    Settings::common().get( sKeySortingDef, defidx );
-    sortfld_->setCurrentItem( defidx );
-    sortfld_->setHSzPol( uiObject::SmallVar );
-    mAttachCB( sortfld_->selectionChanged, uiIOObjSelGrp::sortChgCB );
+    tsortbox_ = new uiCheckBox( listfld_, uiStrings::sTimeSort() );
+    didtsort_ = false;
+    Settings::common().getYN( sKeyTimeSort, didtsort_ );
+    tsortbox_->setChecked( didtsort_ );
+    tsortbox_->setHSzPol( uiObject::SmallVar );
+    mAttachCB( tsortbox_->activated, uiIOObjSelGrp::sortChgCB );
 
     uiToolButton* refreshbut = new uiToolButton( listfld_,
 		"refresh", tr("Refresh"), mCB(this,uiIOObjSelGrp,refreshCB) );
     refreshbut->attach( rightAlignedAbove, listfld_->box() );
-    sortfld_->attach( leftOf, refreshbut );
-    filtfld_->attach( leftOf, sortfld_ );
+    tsortbox_->attach( leftOf, refreshbut );
+    filtfld_->attach( leftOf, tsortbox_ );
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
@@ -579,17 +573,17 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 }
 
 
-bool uiIOObjSelGrp::needTimes() const
+bool uiIOObjSelGrp::doTimeSort() const
 {
-    return sortfld_->currentItem() > 1;
+    return tsortbox_->isChecked();
 }
 
 
 void uiIOObjSelGrp::addModifTime( const IOObj& ioobj )
 {
     od_int64 modiftm = File::getTimeInSeconds( ioobj.mainFileName() );
-    if ( modiftm < 1 )
-	modiftm = mUdf(od_int64);
+    if ( mIsUdf(modiftm) )
+	modiftm = 0;
     modiftimes_ += modiftm;
 }
 
@@ -600,7 +594,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
     ioobjids_.setEmpty(); modiftimes_.setEmpty();
 
-    const bool needtimes = needTimes();
+    const bool needtimes = doTimeSort();
     DBDirEntryList entrylist( ctio_.ctxt_, false );
     entrylist.fill( filtfld_->text() );
     DBKey selid;
@@ -644,37 +638,26 @@ void uiIOObjSelGrp::fillListBox()
     const BufferString prevsel( listfld_->getText() );
     listfld_->setEmpty();
 
-    const int sorting = sortfld_->currentItem();
+    const bool dotsort = tsortbox_->isChecked();
     const int sz = ioobjids_.size();
-    if ( sz > 1 && sorting > 0 )
+    if ( sz > 1 )
     {
-	if ( sorting == 1 )
+	if ( dotsort )
 	{
-	    ioobjids_.reverse(); modiftimes_.reverse();
-	    ioobjnms_.reverse(); dispnms_.reverse(); iconnms_.reverse();
+	    // make sure undefs are displayed last
+	    for ( int idx=0; idx<sz; idx++ )
+		if ( mIsUdf(modiftimes_[idx]) )
+		    modiftimes_[idx] = 0;
 	}
-	else if ( modiftimes_.size() != sz )
-	    { pErrMsg("Huh"); }
-	else
-	{
-	    // modif time: newest files have largest values
-	    const bool ascending = (sorting == 2);
-	    if ( !ascending )
-	    {
-		// make sure undefs are displayed last
-		for ( int idx=0; idx<sz; idx++ )
-		    if ( mIsUdf(modiftimes_[idx]) )
-			modiftimes_[idx] = 0;
-	    }
-	    int* idxs = getSortIndexes( modiftimes_, ascending );
+	BufferStringSet::idx_type* idxs = dotsort
+	    ? getSortIndexes(modiftimes_,false) : dispnms_.getSortIndexes();
 
-	    ioobjids_.useIndexes( idxs );
-	    ioobjnms_.useIndexes( idxs );
-	    dispnms_.useIndexes( idxs );
-	    modiftimes_.useIndexes( idxs );
-	    iconnms_.useIndexes( idxs );
-	    delete [] idxs;
-	}
+	ioobjids_.useIndexes( idxs );
+	ioobjnms_.useIndexes( idxs );
+	dispnms_.useIndexes( idxs );
+	modiftimes_.useIndexes( idxs );
+	iconnms_.useIndexes( idxs );
+	delete [] idxs;
     }
     listfld_->addItems( dispnms_ );
 
@@ -735,7 +718,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     ioobjnms_.add( ioobj->name() );
     dispnms_.add( ioobj->name() );
     ioobjids_.add( ioobj->key() );
-    if ( needTimes() )
+    if ( doTimeSort() )
 	addModifTime( *ioobj );
 
     fillListBox();
@@ -864,14 +847,12 @@ void uiIOObjSelGrp::orderChgCB( CallBacker* )
 
 void uiIOObjSelGrp::sortChgCB( CallBacker* cb )
 {
-    const int newidx = sortfld_->currentItem();
-    int oldidx = newidx;
-    const bool hadentry = Settings::common().get( sKeySortingDef, oldidx );
-
-    if ( !hadentry || oldidx != newidx )
+    const bool dotsort = doTimeSort();
+    if ( dotsort != didtsort_ )
     {
-	Settings::common().set( sKeySortingDef, newidx );
+	Settings::common().setYN( sKeyTimeSort, dotsort );
 	Settings::common().write();
+	didtsort_ = dotsort;
     }
 
     orderChgCB( cb );

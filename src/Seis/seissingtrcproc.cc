@@ -6,14 +6,14 @@
 
 
 #include "seissingtrcproc.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "seispsioprov.h"
 #include "seispswrite.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisprovider.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seisresampler.h"
 #include "trckeyzsampling.h"
 #include "dbkey.h"
@@ -27,9 +27,8 @@
 #include "uistrings.h"
 #include "keystrs.h"
 
-#define mInitMembers \
+#define mInitMembers(nm) \
 	Executor(nm) \
-	, wrr_(*new SeisTrcWriter(&out)) \
 	, nrskipped_(0) \
 	, intrc_(*new SeisTrc) \
 	, nrwr_(0) \
@@ -49,11 +48,6 @@
 	, totnr_(-1) \
 	, curprovidx_(-1) \
 
-#define mInitVars() \
-    wrrkey_ = out.key(); \
-    worktrc_ = &intrc_; \
-    curmsg_ = msg
-
 #define mHandlePastLastReader(to_do) \
     if ( !provs_.validIdx(curprovidx_) ) \
 	{ wrapUp(); to_do; }
@@ -61,18 +55,22 @@
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
 					  const uiString& msg )
-    : mInitMembers
+    : mInitMembers(nm)
+    , storer_(*new Seis::Storer(out))
 {
-    mInitVars();
+    worktrc_ = &intrc_;
+    curmsg_ = msg;
 }
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 					  const char* nm, const IOPar* iop,
 					  const uiString& msg, int compnr )
-    : mInitMembers
+    : mInitMembers(nm)
+    , storer_(*new Seis::Storer(out))
 {
-    mInitVars();
+    worktrc_ = &intrc_;
+    curmsg_ = msg;
     compnr_ = compnr;
 
     setInput( in, out, nm, iop, msg );
@@ -83,9 +81,11 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj& out, const char* nm,
 					  ObjectSet<IOPar>* iopset,
 					  const uiString& msg, int compnr )
-    : mInitMembers
+    : mInitMembers(nm)
+    , storer_(*new Seis::Storer(out))
 {
-    mInitVars();
+    worktrc_ = &intrc_;
+    curmsg_ = msg;
     compnr_ = compnr;
 
     if ( objset.isEmpty() )
@@ -99,13 +99,35 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 }
 
 
+SeisSingleTraceProc::SeisSingleTraceProc( Provider* prov, Storer* strr )
+    : mInitMembers("Seismic data copier")
+    , storer_(*strr)
+{
+    worktrc_ = &intrc_;
+    addProv( prov, false );
+    curmsg_ = tr("Copying");
+}
+
+
+SeisSingleTraceProc::SeisSingleTraceProc( const ObjectSet<Provider>& provs,
+					  Storer* strr )
+    : mInitMembers("Seismic data concatenator")
+    , storer_(*strr)
+{
+    worktrc_ = &intrc_;
+    for ( auto prov : provs )
+	addProv( prov, false );
+
+    curmsg_ = provs_.size() > 1 ? tr("Concatenating") : tr("Copying");
+}
+
+
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
     delete resampler_;
     deepErase( provs_ );
-    delete &wrr_;
+    delete &storer_;
     delete &intrc_;
-    delete &wrrkey_;
     delete scaler_;
 }
 
@@ -113,11 +135,39 @@ SeisSingleTraceProc::~SeisSingleTraceProc()
 void SeisSingleTraceProc::setInput( const IOObj& in, const IOObj& out,
 			const char* nm, const IOPar* iop, const uiString& msg )
 {
-    wrr_.setIOObj( &out );
+    storer_.setOutput( out );
     deepErase( provs_ );
     curmsg_ = msg;
     setName( nm );
     addReader( in, iop );
+}
+
+
+void SeisSingleTraceProc::addProv( Provider* prov, bool szdone,
+				    const IOPar* storauxiop )
+{
+    if ( totnr_ < 0 )
+	totnr_ = 0;
+
+    if ( !szdone )
+    {
+	const od_int64 totnr = prov->totalNr();
+	if ( totnr > 0 )
+	    { szdone = true; totnr_ += totnr; }
+    }
+    if ( !szdone )
+	allszsfound_ = false;
+
+    provs_ += prov;
+
+    if ( provs_.size() == 1 )
+    {
+	is3d_ = !prov->is2D();
+	storer_.setCrFrom( mainFileOf(prov->dbKey()) );
+	if ( storauxiop )
+	    storer_.auxPars() = *storauxiop;
+	nextReader();
+    }
 }
 
 
@@ -127,21 +177,26 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
     Seis::Provider* prov = Seis::Provider::create( ioobj, &uirv );
     if ( !prov )
 	{ curmsg_ = uirv; delete prov; return false; }
+    prov->selectComponent( compnr_ );
 
     const bool is3d = !prov->is2D();
-    if ( is3d && wrr_.ioObj()->key()==prov->dbKey() )
+    if ( is3d && !storer_.isPS() )
+    {
+	mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+	if ( iostrm )
+	    iostrm->resetConnIdx();
+    }
+
+    if ( is3d && storer_.ioObj()->key()==prov->dbKey() )
 	{ curmsg_ = tr("Input equals output"); delete prov; return false; }
 
     bool szdone = false;
-    if ( totnr_ < 0 )
-	totnr_ = 0;
-
     if ( iop )
     {
 	prov->usePar( *iop );
 	if ( prov->selData() )
 	{
-	    totnr_ += prov->selData()->expectedNrTraces( !is3d );
+	    totnr_ += prov->selData()->expectedNrTraces();
 	    if ( prov->isPS() )
 	    {
 		const int nroffsets = prov->nrOffsets();
@@ -149,8 +204,6 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 		    totnr_ *= nroffsets;
 	    }
 	    szdone = true;
-	    if ( provs_.isEmpty() )
-		wrr_.setSelData( prov->selData()->clone() );
 	}
 	else if ( !is3d )
 	{
@@ -161,37 +214,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 	}
     }
 
-    if ( is3d && !wrr_.isPS() && !szdone )
-    {
-	mDynamicCastGet(const IOStream*,iostrm,&ioobj)
-	if ( iostrm )
-	    iostrm->resetConnIdx();
-
-	totnr_ += prov->totalNr();
-	szdone = true;
-    }
-
-    if ( !szdone )
-    {
-	const od_int64 totnr = prov->totalNr();
-	if ( totnr > 0 )
-	    { szdone = true; totnr_ += totnr; }
-	if ( !szdone )
-	    allszsfound_ = false;
-    }
-
-    prov->selectComponent( compnr_ );
-
-    provs_ += prov;
-
-    if ( provs_.size() == 1 )
-    {
-	is3d_ = !prov->is2D();
-	wrr_.setCrFrom( ioobj.fullUserExpr() );
-	if ( iop )
-	    wrr_.auxPars() = *iop;
-	nextReader();
-    }
+    addProv( prov, szdone, iop );
 
     return true;
 }
@@ -217,18 +240,16 @@ void SeisSingleTraceProc::setScaler( Scaler* newsclr )
 void SeisSingleTraceProc::setResampler( SeisResampler* r )
 {
     delete resampler_; resampler_ = r;
-    if ( resampler_ )
-	resampler_->set2D( !is3d_ );
 }
 
 
-void SeisSingleTraceProc::setProcPars( const IOPar& iop, bool is2d )
+void SeisSingleTraceProc::setProcPars( const IOPar& iop )
 {
     Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
     const int nulltrcpol = toInt( iop.find("Null trace policy") );
     const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
     TrcKeyZSampling cs; cs.usePar( iop );
-    SeisResampler* resmplr = new SeisResampler( cs, is2d );
+    SeisResampler* resmplr = new SeisResampler( cs );
 
     setScaler( sclr );
     skipNullTraces( nulltrcpol < 1 );
@@ -322,7 +343,7 @@ int SeisSingleTraceProc::getNextTrc()
 
 void SeisSingleTraceProc::prepareNullFilling()
 {
-    if ( provs_.isEmpty() || !is3d_ || wrr_.isPS() )
+    if ( provs_.isEmpty() || !is3d_ || storer_.isPS() )
 	{ fillnull_ = false; return; }
 
     const Seis::SelData* sd = provs_[0]->selData();
@@ -385,7 +406,7 @@ int SeisSingleTraceProc::getFillTrc()
     {
 	worktrc_ = &intrc_;
 	*worktrc_ = *filltrc_;
-	worktrc_->info().setBinID( fillbid_ );
+	worktrc_->info().setPos( fillbid_ );
 	worktrc_->info().coord_ = SI().transform( fillbid_ );
     }
 
@@ -431,36 +452,30 @@ bool SeisSingleTraceProc::prepareTrc()
 
 bool SeisSingleTraceProc::writeTrc()
 {
-    if ( nrwr_ < 1 && wrr_.seisTranslator() )
+    if ( nrwr_ < 1 && storer_.translator() )
     {
 	mHandlePastLastReader( curprovidx_-- );
 	const Seis::Provider& curprov = *provs_[curprovidx_];
-	SeisTrcTranslator& wrtr = *wrr_.seisTranslator();
-	wrtr.setCurGeomID( curprov.curGeomID() );
-	if ( curprov.is2D() )
+	SeisTrcTranslator& wrtr = *storer_.translator();
+	if ( !curprov.is2D() )
 	{
-	    mDynamicCastGet(const Seis::Provider2D&,prov2d,curprov);
-	    StepInterval<int> trcnrrg; ZSampling zsamp;
-	    prov2d.getRanges( prov2d.curLineIdx(), trcnrrg, zsamp );
-	    wrtr.packetInfo().crlrg = trcnrrg;
-	}
-	else
-	{
-	    if ( !wrr_.prepareWork(*worktrc_) )
-		{ curmsg_ = wrr_.errMsg(); return false; }
+	    uiRetVal uirv = storer_.prepareWork( *worktrc_ );
+	    if ( !uirv.isOK() )
+		{ curmsg_ = uirv; return false; }
 
 	    BufferStringSet compnms;
-	    const uiRetVal retval = curprov.getComponentInfo( compnms );
-	    if ( !retval.isOK() || compnms.size()!=wrtr.componentInfo().size() )
-		pErrMsg("Invalid component info.");
+	    curprov.getComponentInfo( compnms );
+	    if ( compnms.size() != wrtr.componentInfo().size() )
+		pErrMsg("Invalid component info");
 	    else if ( worktrc_->nrComponents() > 1 )
 		for ( int icomp=0; icomp<wrtr.componentInfo().size();icomp++)
 		    wrtr.componentInfo()[icomp]->setName(compnms.get(icomp));
 	}
     }
 
-    if ( !wrr_.put(*worktrc_) )
-	{ curmsg_ = wrr_.errMsg(); return false; }
+    uiRetVal uirv = storer_.put( *worktrc_ );
+    if ( !uirv.isOK() )
+	{ curmsg_ = uirv; return false; }
 
     nrwr_++;
     return true;
@@ -489,5 +504,5 @@ int SeisSingleTraceProc::nextStep()
 
 void SeisSingleTraceProc::wrapUp()
 {
-    wrr_.close();
+    storer_.close();
 }

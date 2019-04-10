@@ -179,7 +179,7 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 {
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
-	TrcKey hortrc = TrcKey::udf();
+	TrcKey hortrcky;
 	const Coord intersectioncoord = idx>=crds_.size()
 		? pathgeom_->toCoord( path_[idx] )
 		: crds_[idx];
@@ -187,17 +187,17 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( intersectioncoord.isDefined() )
 	{
 	    if ( onthesamegrid_ )
-		hortrc = path_[idx];
+		hortrcky = path_[idx];
 	    else
-		horgeom_->getTracePosition( intersectioncoord, hortrc,
+		horgeom_->getTracePosition( intersectioncoord, hortrcky,
 					     horgeom_->averageTrcDist() );
 
-	    if ( !hor_->range().includes(hortrc) )
+	    if ( !hor_->range().includes(hortrcky) )
 		{ positions_[idx] = skipPos(); continue; }
 
-	    EM::PosID horsubid = hortrc.isUdf()
+	    EM::PosID horsubid = hortrcky.isUdf()
 		    ? EM::PosID::getInvalid()
-		    : EM::PosID::getFromRowCol( hortrc.binID() );
+		    : EM::PosID::getFromRowCol( hortrcky.binID() );
 
 	    if ( hd_.showsPosAttrib(EM::PosAttrib::SeedNode) &&
 		 seedposids_ && !horsubid.isInvalid() &&
@@ -215,7 +215,7 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 		if ( horpos.isDefined() && hd_.zaxistransform_ )
 		{
 		    displayhorpos.z_ =
-			hd_.zaxistransform_->transformTrc( hortrc,
+			hd_.zaxistransform_->transformTrc( hortrcky,
 							   (float) horpos.z_ );
 		}
 

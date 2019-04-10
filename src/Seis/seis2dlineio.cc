@@ -8,7 +8,7 @@
 #include "seis2dlineio.h"
 #include "seis2ddata.h"
 #include "seis2dlinemerge.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
@@ -93,7 +93,7 @@ bool Seis2DTraceGetter::ensureTranslator() const
 void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrcInfo& trcinfo ) const
 {
     const TrcKey tk( geomid_, trcinfo.trcNr() );
-    trcinfo.trckey_ = tk;
+    trcinfo.trcKey() = tk;
 }
 
 
@@ -118,7 +118,7 @@ uiRetVal Seis2DTraceGetter::doGet( TrcNrType tnr, SeisTrc* trc, TraceData& data,
 
     const BinID bid( geomid_.lineNr(), tnr );
     if ( !tr_->goTo(bid) )
-	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
+	return uiRetVal( uiStrings::sNotPresent() );
 
     SeisTrcInfo info;
     SeisTrcInfo& inforet = trcinfo ? *trcinfo : info;
@@ -559,7 +559,7 @@ void Seis2DLineMerger::mergeBufs()
     if ( renumber_ )
     {
 	for ( int idx=0; idx<outbuf_.size(); idx++ )
-	    outbuf_.get( idx )->info().trckey_ =
+	    outbuf_.get( idx )->info().trcKey() =
 				TrcKey( outgeomid_, numbering_.atIndex(idx) );
     }
 }

@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
+#include "seisselsetup.h"
 
 #define mInpPDFsHelpID	mODHelpKey(mSeisBayesPDFInp)
 #define mGetNormHelpID	mODHelpKey(mSeisBayesNorm)

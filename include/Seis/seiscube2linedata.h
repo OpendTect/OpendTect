@@ -15,44 +15,48 @@ ________________________________________________________________________
 #include "geomid.h"
 #include "uistring.h"
 
-class IOObj;
 class Seis2DDataSet;
-class SeisTrcWriter;
-namespace Seis { class Provider; }
+namespace Seis { class Provider; class Storer; }
 namespace Survey { class Geometry2D; }
+
 
 /*!\brief Extracts 2D data from 3D Cube */
 
 mExpClass(Seis) Seis2DFrom3DExtractor : public Executor
 { mODTextTranslationClass(Seis2DFrom3DExtractor);
 public:
+
+    mUseType( Seis,	Provider );
+    mUseType( Seis,	Storer );
+    mUseType( Pos,	GeomID );
+    mUseType( Survey,	Geometry2D );
+
 			Seis2DFrom3DExtractor(const IOObj& cubein,
 					      const IOObj& lsout,
 					      const GeomIDSet&);
 			~Seis2DFrom3DExtractor();
 
-    uiString		message() const	{ return msg_; }
+    uiString		message() const		{ return uiString(uirv_); }
     uiString		nrDoneText() const	{ return tr("Traces written"); }
     od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const	{ return totalnr_; }
-    Pos::GeomID		curGeomID() const;
+    od_int64		totalNr() const		{ return totalnr_; }
+    GeomID		curGeomID() const;
 
-    int		nextStep();
+    int			nextStep();
 
 protected:
 
-    Seis::Provider*	prov_;
-    SeisTrcWriter&	wrr_;
-    uiString		msg_;
+    Provider*		prov_;
+    Storer&		storer_;
+    uiRetVal		uirv_;
 
     od_int64		nrdone_;
     od_int64		totalnr_;
-
     int			curlineidx_;
     int			curtrcidx_;
 
     const GeomIDSet&	geomids_;
-    const Survey::Geometry2D* curgeom2d_;
+    const Geometry2D*	curgeom2d_;
 
     int			goToNextLine();
     int			handleTrace();

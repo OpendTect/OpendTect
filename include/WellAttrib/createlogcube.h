@@ -58,9 +58,9 @@ protected:
 				{}
 
 	const uiString&		errMsg() const { return errmsg_; }
-	bool			doWrite(const SeisTrcBuf&) const;
+	bool			doStore(const SeisTrcBuf&) const;
 
-	bool			makeWriteReady();
+	bool			makeStoreReady();
 	bool			mkIOObj();
 
 	const BufferString&	lognm_;

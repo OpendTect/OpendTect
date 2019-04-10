@@ -77,7 +77,7 @@ public:
     virtual bool	removeSeed(const TrcKey&,
 				   bool enviromment=true,
 				   bool retrack=true)		{ return false;}
-    virtual TrcKey	replaceSeed(const TrcKey&,const TrcKeyValue&)
+    virtual TrcKey	replaceSeed( const TrcKey&, const TrcKeyValue& )
 			{ return TrcKey::udf(); }
 
     virtual void	setSelSpec(const Attrib::SelSpec*);

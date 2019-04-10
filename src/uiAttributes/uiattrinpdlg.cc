@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uisteeringsel.h"
 #include "uitextedit.h"
 #include "seistrctr.h"
-#include "seisselection.h"
 #include "ioobjctxt.h"
 #include "dbman.h"
 #include "uilabel.h"

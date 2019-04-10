@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "seisblocksreader.h"
 #include "seistrc.h"
 #include "seismemblocks.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "od_iostream.h"
 #include "uistrings.h"
 
@@ -142,7 +142,7 @@ public:
 				   uiRetVal&);
 			~FileColumn();
 
-    void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
+    void		fillTraceData(const BinID&,TraceData&,uiRetVal&) const;
 
     const Reader&	rdr_;
     const HGeom&	hgeom_;
@@ -289,8 +289,8 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 }
 
 
-void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
-					  uiRetVal& uirv ) const
+void Seis::Blocks::FileColumn::fillTraceData( const BinID& bid, TraceData& td,
+					      uiRetVal& uirv ) const
 {
     const HLocIdx locidx(
 	Block::locIdx4Inl(hgeom_,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
@@ -305,8 +305,8 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 	return;
     }
 
-    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
-    trc.reSize( nrsamplesintrace_, false );
+    td.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
+    td.reSize( nrsamplesintrace_ );
 
     const int nrtrcs = ((int)locidx.inl()) * dims_.crl() + locidx.crl();
     for ( int idx=0; idx<chunks_.size(); idx++ )
@@ -317,7 +317,8 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{
 	    const float val = rdr_.interp_->get( trcpartbuf_, isamp );
-	    trc.set( chunk.startsamp_+isamp, rdr_.scaledVal(val), chunk.comp_ );
+	    td.setValue( chunk.startsamp_+isamp, rdr_.scaledVal(val),
+			 chunk.comp_ );
 	}
     }
 }
@@ -400,9 +401,9 @@ Seis::Blocks::Column* Seis::Blocks::StreamReadBackEnd::createColumn(
 }
 
 
-void Seis::Blocks::StreamReadBackEnd::fillTrace( Column& column,
-	const BinID& bid, SeisTrc& trc, uiRetVal& uirv ) const
+void Seis::Blocks::StreamReadBackEnd::fillTraceData( Column& column,
+	const BinID& bid, TraceData& td, uiRetVal& uirv ) const
 {
     FileColumn& filecolumn = static_cast<FileColumn&>( column );
-    filecolumn.fillTrace( bid, trc, uirv );
+    filecolumn.fillTraceData( bid, td, uirv );
 }

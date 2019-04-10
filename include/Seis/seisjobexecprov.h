@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "uistring.h"
 #include <iosfwd>
-class IOObj;
 class Executor;
 class CtxtIOObj;
 class JobRunner;

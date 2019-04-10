@@ -11,7 +11,6 @@ ________________________________________________________________________
 */
 
 #include "seisprovider.h"
-class SeisPS3DReader;
 
 
 namespace Seis
@@ -31,27 +30,19 @@ public:
 			~PS3DProvider();
     virtual GeomType	geomType() const	{ return VolPS; }
 
-    virtual bool	getRanges(TrcKeyZSampling&) const;
-    virtual void	getGeometryInfo(PosInfo::CubeData&) const;
-
 protected:
 
     friend class	PS3DFetcher;
     PS3DFetcher&	fetcher_;
 
-    virtual void	ensureCubeDataFilled() const;
-    virtual void	doFillPar(IOPar&,uiRetVal&) const;
-    virtual void	doUsePar(const IOPar&,uiRetVal&);
-    virtual void	doReset(uiRetVal&) const;
-    virtual TrcKey	doGetCurPosition() const;
-    virtual bool	doGoTo(const TrcKey&);
-    virtual int		gtNrOffsets() const;
-    virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-
-    SeisPS3DReader*	mkReader() const;
+    Fetcher3D&		fetcher() const override;
+    void		getLocationData(uiRetVal&) const override;
+    void		prepWork(uiRetVal&) const override;
+    size_type		gtNrOffsets() const override;
+    bool		doGoTo(const BinID&,uiRetVal*) const override;
+    void		gtCurGather(SeisTrcBuf&,uiRetVal&) const override;
+    void		gtGatherAt(const BinID&,SeisTrcBuf&,
+				    uiRetVal&) const override;
 
 };
 

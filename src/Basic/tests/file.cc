@@ -16,12 +16,12 @@
 #define mTest( testname, test ) \
 if ( !(test) ) \
 { \
-    od_cout() << "Test " << testname << " FAILED\n"; \
+    handleTestResult( false, testname ); \
     return false; \
 } \
-else if ( !quiet ) \
+else \
 { \
-    od_cout() << "Test " << testname << " - SUCCESS\n"; \
+    handleTestResult( true, testname ); \
 }
 
 #define mRunTest( test ) \

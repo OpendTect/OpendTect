@@ -250,8 +250,7 @@ bool testLateDetach()
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     delete notified;
 
-    if ( !quiet )
-	od_cout() << "Detaching deleted notifier - SUCCESS\n";
+	logStream() << "Detaching deleted notifier - SUCCESS\n";
 
     return true;
 }
@@ -267,8 +266,7 @@ bool testDetachBeforeRemoval()
     delete notified;
     delete notifier;
 
-    if ( !quiet )
-	od_cout() << "Detach before removal - SUCCESS\n";
+	logStream() << "Detach before removal - SUCCESS\n";
 
     return true;
 }

@@ -16,7 +16,7 @@
 #include "dbman.h"
 #include "keystrs.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seistrc.h"
 #include "separstr.h"
 #include "strmprov.h"
@@ -225,6 +225,15 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 }
 
 
+BinID CBVSSeisTrcTranslator::curMgrBinID() const
+{
+    auto ret = rdmgr_->binID();
+    if ( geomid_.isValid() && geomid_.is2D() )
+	ret.inl() = geomid_.getI();
+    return ret;
+}
+
+
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
     if ( forread_ && !is2d_ && seldata_ && !seldata_->isAll() )
@@ -254,7 +263,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     if ( !forread_ )
 	return startWrite();
 
-    if ( selRes(rdmgr_->binID()) )
+    if ( selRes(curMgrBinID()) )
 	return toNext();
 
     return true;
@@ -263,7 +272,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 bool CBVSSeisTrcTranslator::inactiveSelData() const
 {
-    return isEmpty( seldata_ );
+    return isAll( seldata_ );
 }
 
 
@@ -272,15 +281,8 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
     if ( inactiveSelData() )
 	return 0;
 
-    // Table for 2D: can't select because inl/crl in file is not 'true'
     if ( is2d_ )
-    {
-	if ( seldata_->type() == Seis::Table )
-	    return 0;
-
-	const BinID bid2d( seldata_->geomID().getI(), bid.trcNr() );
-	return seldata_->selRes( bid2d );
-    }
+	return seldata_->selRes( seldata_->geomID(), bid.trcNr() );
 
     return seldata_->selRes( bid );
 }
@@ -296,7 +298,7 @@ bool CBVSSeisTrcTranslator::toNext()
     {
 	if ( !rdmgr_->toNext() )
 	    return false;
-	else if ( !selRes(rdmgr_->binID()) )
+	else if ( !selRes(curMgrBinID()) )
 	    return true;
     }
 
@@ -349,12 +351,15 @@ bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !commitSelections_() ) return false;
-    if ( headerdone_ ) return true;
+    if ( !ensureSelectionsCommitted() )
+	return false;
+    if ( headerdone_ )
+	return true;
 
-    donext_ = donext_ || selRes( rdmgr_->binID() );
+    donext_ = donext_ || selRes(curMgrBinID());
 
-    if ( donext_ && !toNext() ) return false;
+    if ( donext_ && !toNext() )
+	return false;
     donext_ = true;
 
     if ( !rdmgr_->getAuxInfo(auxinf_) )
@@ -365,7 +370,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     ti.sampling_.step = outsd_.step;
 
     if ( ti.lineNr() == 0 && ti.trcNr() == 0 )
-	ti.setBinID( SI().transform(ti.coord_) );
+	ti.setPos( SI().transform(ti.coord_) );
 
     return (headerdone_ = true);
 }
@@ -373,7 +378,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !storbuf_ && !commitSelections() ) return false;
+    if ( !ensureSelectionsCommitted() )
+	return false;
 
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;
     if ( !rdmgr_->fetch(tdata,compsel_,&samprg_) )

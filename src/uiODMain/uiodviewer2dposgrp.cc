@@ -24,10 +24,11 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribprobelayer.h"
 #include "ioobjctxt.h"
+#include "probeimpl.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "randomlineprobe.h"
-#include "probeimpl.h"
+#include "seisselsetup.h"
 #include "zdomain.h"
 
 

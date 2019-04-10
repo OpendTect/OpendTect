@@ -22,7 +22,7 @@
 #include "seisprovider.h"
 #include "seispreload.h"
 #include "seispacketinfo.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -296,7 +296,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id,
     const TrcKeyZSampling& voi( voivols_[idx] );
     TrcKeyZSampling readcs( voi );
 
-    const StepInterval<float> filezrg = velprovider_->getZRange();
+    const StepInterval<float> filezrg = velprovider_->zRange();
     const int nrsamplesinfile = filezrg.nrSteps()+1;
     if ( velintime_ == voiintime_[idx] )
 	readcs.zsamp_.setFrom( filezrg );
@@ -325,7 +325,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id,
 
     if ( velprovider_->is2D() ) // Now geomid is known. Have to recreate reader.
     {
-	Seis::SelData* sd = new Seis::RangeSelData( readcs );
+	auto* sd = new Seis::RangeSelData( readcs );
 	sd->setGeomID( Pos::GeomID(readcs.hsamp_.start_.lineNr()) );
 	velprovider_->setSelData( sd );
     }
@@ -742,9 +742,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     if ( !provider_ )
 	{ msg_ = uirv; return; }
 
-    TrcKeyZSampling tkzs;
-    mDynamicCastGet(const Seis::Provider3D&,prov3d,*provider_);
-    prov3d.getRanges( tkzs );
+    const TrcKeyZSampling tkzs( provider_->as3D()->cubeSubSel() );
     subsel_ = tkzs.hsamp_;
 
     hsiter_.setSampling(  subsel_ );

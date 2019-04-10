@@ -12,12 +12,6 @@ void UserInputObj::setValue( const char* s )
 { setText(s); }
 
 
-void UserInputObj::addItem( const uiString& s )
-{
-    setText( toString(s) );
-}
-
-
 bool UserInputObj::notifyValueChanging( const CallBack& cb )
 { return notifyValueChanging_( cb ); }
 

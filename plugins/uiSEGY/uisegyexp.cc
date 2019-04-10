@@ -43,7 +43,7 @@ ________________________________________________________________________
 #include "segytr.h"
 #include "seisprovider.h"
 #include "seissingtrcproc.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "od_istream.h"
 #include "survgeom.h"
 #include "zdomain.h"
@@ -194,8 +194,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
-    uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
-    sssu.selectcomp(true);
+    uiSeisSel::Setup sssu( geom_ ); sssu.steerpol( Seis::InclSteer );
+    sssu.selectcomp( true );
     seissel_ = new uiSeisSel( this, ctxt, sssu );
     seissel_->selectionDone.notify( inpselcb );
 
@@ -506,9 +506,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
 	{
-	    const SeisTrcWriter& wrr = sstp->writer();
-	    SeisTrcTranslator* transl =
-		    const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
+	    auto& storer = mNonConst( sstp->storer() );
+	    auto* transl = const_cast<SeisTrcTranslator*>(storer.translator());
 	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
 	    if ( segytr )
 	    {

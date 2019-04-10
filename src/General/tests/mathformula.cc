@@ -17,7 +17,7 @@
 	{ od_cout() << "Fail:\n" << #var <<'='<< var << \
 	    ", not " << val << od_endl; return false; }
 #define mTestValSucces(var,val) \
-    if ( !quiet ) od_cout() << "Success: " << #var <<'='<< var << od_endl
+    logStream() << "Success: " << #var <<'='<< var << od_endl
 
 #undef mTestVal
 #define mTestVal(var,val) \
@@ -30,21 +30,19 @@ static bool testSimpleFormula()
 {
      const char* expr = "c0 * x + y - this[-2]";
 
-    if ( !quiet )
-	od_cout() << "Expression: '" << expr << "'\n";
+	logStream() << "Expression: '" << expr << "'\n";
 
     Math::Formula tryform( false, expr );
     if ( tryform.isOK() )
 	{ od_cout() << "Fail:\n" << expr
 	    << " should not parse in single mode" << od_endl; return false; }
-    if ( !quiet )
-	od_cout() << "OK, single mode err msg='"
+	logStream() << "OK, single mode err msg='"
 		  << toString(tryform.errMsg()) << "'\n";
 
     Math::Formula form( true, expr );
 
     if ( !form.isOK() )
-	{ od_cout() << "Fail:\ndata series mode errmsg="
+	{ errStream() << "data series mode errmsg="
 		<< toString(form.errMsg()) << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
@@ -73,7 +71,7 @@ static bool testSimpleFormula()
     val = form.getValue( inpvals, true );
     mTestValF(val,0.00556168);
 
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	IOPar iop;
 	form.fillPar( iop );
@@ -97,8 +95,7 @@ static bool testRepeatingVar()
 {
      const char* expr = "x[-1] + 2*y + out[-1] + x[1] + aap";
 
-    if ( !quiet )
-	od_cout() << "Expression: '" << expr << "'\n";
+	logStream() << "Expression: '" << expr << "'\n";
 
     Math::SpecVarSet svs;
     svs += Math::SpecVar( "Aap", "Dit is aapje", true, PropertyRef::Dist );

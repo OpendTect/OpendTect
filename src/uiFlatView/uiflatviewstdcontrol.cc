@@ -597,7 +597,8 @@ void uiFlatViewStdControl::updateZoomLevel( float x1pospercm, float x2pospercm )
     const bool ispoppedup = vwr_.rgbCanvas().mainwin()->poppedUp();
     const uiWorldRect bb = vwr_.boundingBox();
     uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr_.curView().centre());
-    if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
+    if ( wp.isUdf() )
+	wp = bb.centre();
 
     const uiWorldRect wr( wp.x_-hwdth, wp.y_-hhght, wp.x_+hwdth, wp.y_+hhght );
     vwr_.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );

@@ -12,7 +12,6 @@
 #include "uiveldesc.h"
 #include "velocityfunctionvolume.h"
 #include "seistrctr.h"
-#include "seisselection.h"
 
 
 namespace Vel

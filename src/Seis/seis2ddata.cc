@@ -105,7 +105,11 @@ uiRetVal Seis2DDataSet::getGeometry( GeomID geomid,
     if ( !isPresent(geomid) )
 	return uiRetVal( tr("Requested line not found in Dataset") );
 
-    return liop_->getGeometry( ioobj_, geomid, geom );
+    const uiRetVal uirv = liop_->getGeometry( ioobj_, geomid, geom );
+    if ( uirv.isOK() )
+	geom.setGeomID( geomid );
+
+    return uirv;
 }
 
 

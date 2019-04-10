@@ -724,7 +724,7 @@ void uiODFaultToolMan::editReadyTimerCB( CallBacker* )
 	return;
     }
 
-    lastpos = uiPoint::udf();
+    lastpos.setUdf();
     editreadytimer_.stop();
     processOutputName();
 }

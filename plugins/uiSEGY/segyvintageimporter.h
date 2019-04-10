@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "executor.h"
-
-#include "seisselection.h"
+#include "seistype.h"
 #include "filepath.h"
 
-class SeisTrcWriter;
-namespace SEGY { namespace Vintage {class Info; } }
+namespace Seis { class SelData; class Storer; }
 
 namespace SEGY
 {
@@ -25,24 +23,32 @@ namespace SEGY
 namespace Vintage
 {
 
+class Info;
+
 mExpClass(uiSEGY) Importer : public ExecutorGroup
-{ mODTextTranslationClass(Importer)
+{ mODTextTranslationClass(SEGY::Vintage::Importer)
 public:
-		Importer(const Info&, const OD::String& trnalnm,
-			 const Seis::GeomType gt, Seis::SelData* sd,
+
+		Importer(const Info&,const OD::String& trnalnm,
+			 const Seis::GeomType,Seis::SelData*,
 			 const char* attr2dnm=0);
 		~Importer();
+
 protected:
-    ObjectSet<SeisTrcWriter>	seistrcwriters_;
+
+    ObjectSet<Seis::Storer>	seistrcstorers_;
+
 };
 
 
 mExpClass(uiSEGY) Info
-{ mODTextTranslationClass(Info)
+{ mODTextTranslationClass(SEGY::Vintage::Info)
 public:
+
     BufferString	vintagenm_;
     BufferStringSet	filenms_;
     File::Path		fp_;
+
 };
 
 } //namespace Vintage

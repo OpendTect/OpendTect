@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 #include "od_helpids.h"
 #include "seiscube2linedata.h"
+#include "seisselsetup.h"
 
 
 uiSeis2DFrom3D::uiSeis2DFrom3D( uiParent* p )

@@ -20,6 +20,7 @@ typedef TypeSet<TrcKey> TrcKeyPath;
 namespace Survey { class HorSubSel; class Geometry; }
 class HorSampling;
 class LineHorSubSel;
+class CubeHorSubSel;
 class TrcKeyZSampling;
 
 /*!\brief Horizontal sampling (inline and crossline range and steps).  */
@@ -33,13 +34,16 @@ public:
     mUseType( Survey,	HorSubSel );
     mUseType( TrcKey,	linenr_type );
     mUseType( TrcKey,	tracenr_type );
+    mUseType( Survey,	Geometry );
     typedef Pos::Distance_Type	dist_type;
 
 			TrcKeySampling(OD::SurvLimitType slt=OD::FullSurvey);
 			TrcKeySampling(GeomID);
 			TrcKeySampling(const HorSubSel&);
+			TrcKeySampling(const LineHorSubSel&);
+			TrcKeySampling(const CubeHorSubSel&);
 			TrcKeySampling(const HorSampling&);
-			TrcKeySampling(const Survey::Geometry&);
+			TrcKeySampling(const Geometry&);
 			TrcKeySampling(const TrcKeySampling&);
 			TrcKeySampling(const TrcKeyZSampling&);
 			TrcKeySampling(const TrcKey&);
@@ -121,7 +125,7 @@ public:
     void		init(bool settoSI=true,
 			     OD::SurvLimitType slt=OD::FullSurvey);
     void		setTo(GeomID);
-    void		setTo(const Survey::Geometry&);
+    void		setTo(const Geometry&);
 
     void		set2DDef();
 			    //!< Sets ranges to 0-maxint

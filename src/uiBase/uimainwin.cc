@@ -460,7 +460,7 @@ void uiMainWinBody::popTimTick( CallBacker* )
 // TODO: Remove when we can get rid of the popTimTick
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
 	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
-    if ( prefpos_ != uiPoint::udf() )
+    if ( !prefpos_.isUdf() )
 	move( prefpos_.x_, prefpos_.y_ );
 }
 

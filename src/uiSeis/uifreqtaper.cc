@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "seisprovider.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "od_helpids.h"
 
 

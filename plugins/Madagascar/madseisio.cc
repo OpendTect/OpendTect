@@ -5,7 +5,6 @@
 -*/
 
 #include "madseisio.h"
-#include "seisselection.h"
 
 
 ODMad::SeisSeqIO::SeisSeqIO( Seis::GeomType gt, bool fr )

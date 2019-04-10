@@ -7,7 +7,6 @@
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seisselection.h"
 #include "cubesampling.h"
 #include "conn.h"
 #include "iostrm.h"

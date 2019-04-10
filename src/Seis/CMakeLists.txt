@@ -8,7 +8,7 @@
 set(OD_MODULE_DEPS Geometry MMProc )
 
 # set( OD_NIGHTLY_TEST_PROGS seisprovider.cc )
-set( OD_NIGHTLY_TEST_PROGS seisblocks.cc seisprovider.cc )
+set( OD_NIGHTLY_TEST_PROGS seisblocks.cc seisstorer.cc seisprovider.cc )
 
 set(OD_MODULE_SOURCES
 	initseis.cc
@@ -73,19 +73,19 @@ set(OD_MODULE_SOURCES
 	seispsioprov.cc
 	seispsmerge.cc
 	seisrandlineto2d.cc
+	seisrangeseldata.cc
 	seisrawtrcsseq.cc
-	seisread.cc
 	seisresampler.cc
+	seisseldata.cc
+	seisseldataimpl.cc
+	seissingtrcproc.cc
 	seisstatscalc.cc
 	seisstatscollector.cc
-	seisselection.cc
-	seissingtrcproc.cc
-	seisstor.cc
+	seisstorer.cc
 	seistrc.cc
 	seistrcprop.cc
 	seistrctr.cc
 	seisvolprovider.cc
-	seiswrite.cc
 	seiszaxisstretcher.cc
 	synthseisdataset.cc
 	synthseisgenerator.cc

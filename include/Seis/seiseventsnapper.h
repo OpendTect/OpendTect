@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 
 class BinIDValueSet;
-class IOObj;
 class SeisTrc;
 namespace Seis { class MSCProvider; }
+
 
 mExpClass(Seis) SeisEventSnapper : public Executor
 {

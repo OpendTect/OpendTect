@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "seisimporter.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "survgeom2d.h"
 #include "zdomain.h"
 
@@ -357,23 +357,14 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     SEGY::TxtHeader::info2D() = is2d;
-    PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
+    PtrMan<Seis::Storer> storer = new Seis::Storer( outioobj );
     SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );
-    Seis::SelData* sd = transffld_->getSelData();
-    if ( !sd ) return false;
-    if ( is2d )
-    {
-	if ( linenm && *linenm )
-	    sd->setGeomID( Survey::Geometry::getGeomID(linenm)  );
-	wrr->setSelData( sd->clone() );
-    }
+    rdr->setSelData( transffld_->getSelData() );
 
-    rdr->setSelData( sd );
-
-    PtrMan<SeisImporter> imp = new SeisImporter( rdr, *wrr, setup_.geom_ );
+    PtrMan<SeisImporter> imp = new SeisImporter( rdr, *storer, setup_.geom_ );
     bool rv = false;
     if ( linenm && *linenm )
     {
@@ -384,7 +375,8 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     rv = TaskRunner::execute( &dlg, *imp );
-    imp.erase(); wrr.erase(); // closes output cube
+    imp.erase();
+    storer->close(); // closes output cube
 
     uiStringSet warns;
     uiSEGY::displayWarnings( this, warns, false, imp ? imp->nrSkipped() : 0 );

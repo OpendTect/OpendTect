@@ -16,12 +16,10 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "uistring.h"
 
-class IOObj;
 class od_ostream;
-class SeisTrcWriter;
 class SeisTrcBuf;
 
-namespace Seis { class Provider; class TableSelData; }
+namespace Seis { class Provider; class TableSelData; class Storer; }
 namespace Geometry { class RandomLine; }
 
 mExpClass(Seis) SeisRandLineTo2D : public Executor
@@ -41,7 +39,7 @@ public:
 protected:
 
     Seis::Provider*	prov_;
-    SeisTrcWriter*	wrr_;
+    Seis::Storer*	storer_;
     Pos::GeomID		geomid_;
     uiString		errmsg_;
     int			nrdone_;

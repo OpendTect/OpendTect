@@ -13,10 +13,14 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "survgeom.h"
 
-/*!\brief represents a unique trace position in a survey geometry
+/*!\brief represents a unique trace position coupled to a survey geometry
 
-In 2D surveys, it will contain the GeomID of the line, and the trace number.
-For the 3D survey, it will have a BinID.
+A TrcKey contains the identifying position indices of a seismic trace position.
+For 2D data, it will contain the GeomID of the line and the trace number.
+For 3D data, it will hold the BinID.
+
+Seting the position to a BinID causes the TrcKey to become a 3D TrcKey, setting
+to GeomID and trace number will turn it into a 2D TrcKey.
 
 Note that this class is only needed if you mix 2D and 3D positions; in most
 cases you can keep this issue outside the position identification.
@@ -64,30 +68,32 @@ public:
     pos_type		inl() const			{ return lineNr(); }
     pos_type		crl() const			{ return trcNr(); }
 
+			// These set the GeomSystem of the TrcKey:
     TrcKey&		setGeomID(GeomID);
     TrcKey&		setGeomSystem(GeomSystem);
-    inline TrcKey&	setPosition( const BinID& bid )
-			{ pos_ = bid; return *this; }
+    TrcKey&		setPos(const BinID&);
+    inline TrcKey&	setPos( GeomID gid, tracenr_type trcnr )
+			{ setGeomID( gid ); return setTrcNr( trcnr ); }
+    inline TrcKey&	setIs3D()
+			{ geomsystem_ = OD::VolBasedGeom; return *this; }
+    inline TrcKey&	setIs2D()
+			{ geomsystem_ = OD::LineBasedGeom; return *this; }
+    inline TrcKey&	setIs2D( bool yn )
+			{ yn ? setIs2D() : setIs3D(); return *this; }
+    inline TrcKey&	setIsSynthetic()
+			{ geomsystem_ = OD::SynthGeom; return *this; }
+    inline TrcKey&	setUdf()
+			{ *this = udf(); return *this; }
+
+			// These do not change the GeomSystem of the TrcKey:
     inline TrcKey&	setLineNr( linenr_type nr )
 			{ pos_.row() = nr; return *this; }
-    inline TrcKey&	setLineNr( GeomID gid )
-			{ pos_.row() = gid.lineNr(); return *this; }
     inline TrcKey&	setTrcNr( tracenr_type nr )
 			{ pos_.col() = nr; return *this; }
-    inline TrcKey&	setBinID( const BinID& bid )
-			{ return setPosition(bid); }
     inline TrcKey&	setInl( pos_type nr )
 			{ return setLineNr(nr); }
     inline TrcKey&	setCrl( pos_type nr )
 			{ return setTrcNr(nr); }
-    inline TrcKey&	setIs2D()
-			{ geomsystem_ = OD::LineBasedGeom; return *this; }
-    inline TrcKey&	setIs3D()
-			{ geomsystem_ = OD::VolBasedGeom; return *this; }
-    inline TrcKey&	setIsSynthetic()
-			{ geomsystem_ = OD::SynthGeom; return *this; }
-    inline TrcKey&	setIs2D( bool yn )
-			{ yn ? setIs2D() : setIs3D(); return *this; }
 
     TrcKey&		setFrom(const Coord&);
     Coord		getCoord() const;
@@ -100,6 +106,8 @@ public:
 			{ return getFor(GeomID::get3D()); }
     TrcKey		getFor2D( linenr_type lnr ) const
 			{ return getFor(GeomID(lnr)); }
+
+    BufferString	usrDispStr() const;
 
     static const TrcKey& udf();
 

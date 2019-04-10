@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "dbman.h"
 #include "seistrctr.h"
-#include "seisselection.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"

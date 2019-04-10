@@ -69,7 +69,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	extrazfld_ = new uiSelZRange( this, false, true, "Extra Z" );
+	extrazfld_ = new uiSelZRange( this, false, true, tr("Extra Z") );
 	if ( zstepfld_ )
 	    extrazfld_->attach( alignedBelow, zstepfld_ );
 	else

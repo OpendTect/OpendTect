@@ -20,7 +20,7 @@
 #include "segytr.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seisbuf.h"
 #include "survgeom2d.h"
 #include "survinfo.h"

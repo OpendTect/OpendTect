@@ -57,6 +57,18 @@ TrcKeySampling::TrcKeySampling( const HorSubSel& hss )
 }
 
 
+TrcKeySampling::TrcKeySampling( const LineHorSubSel& lhss )
+    : TrcKeySampling((HorSubSel&)lhss)
+{
+}
+
+
+TrcKeySampling::TrcKeySampling( const CubeHorSubSel& chss )
+    : TrcKeySampling((HorSubSel&)chss)
+{
+}
+
+
 TrcKeySampling::TrcKeySampling( const HorSampling& hs )
 {
     start_ = hs.start_;
@@ -65,7 +77,7 @@ TrcKeySampling::TrcKeySampling( const HorSampling& hs )
 }
 
 
-TrcKeySampling::TrcKeySampling( const Survey::Geometry& geom )
+TrcKeySampling::TrcKeySampling( const Geometry& geom )
 {
     setTo( geom );
 }
@@ -100,11 +112,11 @@ TrcKeySampling::TrcKeySampling( bool inittosi, OD::SurvLimitType slt )
 
 void TrcKeySampling::setTo( GeomID gid )
 {
-    setTo( Survey::Geometry::get(gid) );
+    setTo( Geometry::get(gid) );
 }
 
 
-void TrcKeySampling::setTo( const Survey::Geometry& geom )
+void TrcKeySampling::setTo( const Geometry& geom )
 {
     setGeomID( geom.geomID() );
 
@@ -175,7 +187,7 @@ BinID TrcKeySampling::atIndex( od_int64 globalidx ) const
 
 TrcKey TrcKeySampling::toTrcKey( const Coord& pos, dist_type* distance ) const
 {
-    const auto& geom = Survey::Geometry::get( getGeomID() );
+    const auto& geom = Geometry::get( getGeomID() );
     if ( geom.is2D() )
 	return TrcKey( geom.geomID(),
 		       geom.as2D()->nearestTracePosition( pos, distance ) );
@@ -185,7 +197,7 @@ TrcKey TrcKeySampling::toTrcKey( const Coord& pos, dist_type* distance ) const
 
 Coord TrcKeySampling::toCoord( const BinID& bid ) const
 {
-    const auto& geom = Survey::Geometry::get( getGeomID() );
+    const auto& geom = Geometry::get( getGeomID() );
     if ( geom.is2D() )
 	return geom.as2D()->getCoord( bid.crl() );
     else
@@ -820,7 +832,7 @@ BinID TrcKeySampling::getNearest( const BinID& bid ) const
 TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
 {
     if ( trckey.isUdf() )
-	return TrcKey::udf();
+	return trckey;
 
     if ( trckey.geomSystem() == geomsystem_ )
 	return TrcKey( geomsystem_, getNearest(trckey.position()) );
@@ -1012,33 +1024,33 @@ TrcKeyZSampling::TrcKeyZSampling( GeomID gid )
 }
 
 
-TrcKeyZSampling::TrcKeyZSampling( const CubeSampling& cs )
-    : hsamp_(false)
+TrcKeyZSampling::TrcKeyZSampling( const HorSubSel& hss )
+    : hsamp_(hss)
+    , zsamp_(Survey::Geometry::get(hss.geomID()).zRange())
 {
-    hsamp_ = TrcKeySampling( cs.hsamp_ );
-    zsamp_ = cs.zsamp_;
 }
 
 
-TrcKeyZSampling::TrcKeyZSampling( const CubeSubSel& cs )
-    : hsamp_(false)
+TrcKeyZSampling::TrcKeyZSampling( const FullSubSel& fss )
+    : hsamp_(fss.horSubSel())
+    , zsamp_(fss.zRange())
 {
-    hsamp_.set( cs.inlRange(), cs.crlRange() );
-    zsamp_ = cs.zRange();
 }
 
 
 TrcKeyZSampling::TrcKeyZSampling( const LineSubSel& lss )
-    : hsamp_(false)
+    : TrcKeyZSampling((FullSubSel&)lss)
 {
-    hsamp_.setGeomSystem( OD::LineBasedGeom );
-    const auto lnr = lss.geomID().lineNr();
-    hsamp_.set( StepInterval<linenr_type>(lnr,lnr,1), lss.trcNrRange() );
-    zsamp_ = lss.zRange();
 }
 
 
-TrcKeyZSampling::TrcKeyZSampling( const Survey::Geometry& geom )
+TrcKeyZSampling::TrcKeyZSampling( const CubeSubSel& css )
+    : TrcKeyZSampling((FullSubSel&)css)
+{
+}
+
+
+TrcKeyZSampling::TrcKeyZSampling( const Geometry& geom )
     : hsamp_( geom )
     , zsamp_( geom.zRange() )
 {
@@ -1052,13 +1064,21 @@ TrcKeyZSampling::TrcKeyZSampling( const HorSampling& hs )
 }
 
 
+TrcKeyZSampling::TrcKeyZSampling( const CubeSampling& cs )
+    : hsamp_(false)
+{
+    hsamp_ = TrcKeySampling( cs.hsamp_ );
+    zsamp_ = cs.zsamp_;
+}
+
+
 TrcKeyZSampling::TrcKeyZSampling( const TrcKeySampling& tks )
     : hsamp_(tks)
     , zsamp_( SI().zRange() )
 {
     const auto gid = tks.getGeomID();
     if ( gid.isValid() && gid.is2D() )
-	zsamp_ = Survey::Geometry::get2D(gid).zRange();
+	zsamp_ = Geometry::get2D(gid).zRange();
 }
 
 
@@ -1088,11 +1108,11 @@ void TrcKeyZSampling::init( bool tosi, OD::SurvLimitType slt )
 
 void TrcKeyZSampling::setTo( GeomID gid )
 {
-    setTo( Survey::Geometry::get(gid) );
+    setTo( Geometry::get(gid) );
 }
 
 
-void TrcKeyZSampling::setTo( const Survey::Geometry& geom )
+void TrcKeyZSampling::setTo( const Geometry& geom )
 {
     hsamp_.setTo( geom );
     zsamp_ = geom.zRange();

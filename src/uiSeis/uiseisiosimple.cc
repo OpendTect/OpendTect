@@ -33,7 +33,7 @@
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seisresampler.h"
-#include "seisselection.h"
+#include "seisselsetup.h"
 #include "seistrctr.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
@@ -111,7 +111,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
     else
     {
-	ssu.steerpol(uiSeisSel::Setup::InclSteer);
+	ssu.steerpol( Seis::InclSteer );
 	seisfld_ = new uiSeisSel( this, ctxt_, ssu );
 	seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
 	sep = mkDataManipFlds();
@@ -564,7 +564,7 @@ bool uiSeisIOSimple::acceptOK()
 	    TrcKeyZSampling cs;
 	    subselfld_->getSampling( cs.hsamp_ );
 	    subselfld_->getZRange( cs.zsamp_ );
-	    data().setResampler( new SeisResampler(cs,is2D()) );
+	    data().setResampler( new SeisResampler(cs) );
 	}
     }
 

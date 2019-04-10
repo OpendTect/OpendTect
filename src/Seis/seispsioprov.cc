@@ -9,7 +9,7 @@
 #include "seispswrite.h"
 #include "seispscubetr.h"
 #include "seiscbvsps.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
@@ -495,11 +495,24 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 }
 
 
+bool SeisPSCubeSeisTrcTranslator::readData( TraceData* extbuf )
+{
+    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    if ( !inforead_ && !read(trc_) )
+	return false;
+    tdata = trc_.data();
+    return true;
+}
+
+
 bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 {
-    if ( !outcds_ ) commitSelections();
-    if ( inforead_ ) return true;
-    if ( !doRead(trc_) ) return false;
+    if ( !ensureSelectionsCommitted() )
+	return false;
+    if ( inforead_ )
+	return true;
+    if ( !doRead(trc_) )
+	return false;
     inforead_ = true;
     inf = trc_.info();
     return true;
@@ -508,7 +521,8 @@ bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 
 bool SeisPSCubeSeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !outcds_ ) commitSelections();
+    if ( !ensureSelectionsCommitted() )
+	return false;
     if ( inforead_ )
 	{ inforead_ = false; trc = trc_; return true; }
     inforead_ = false;

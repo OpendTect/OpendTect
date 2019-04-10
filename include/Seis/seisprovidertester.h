@@ -10,18 +10,22 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
+#include "seiscommon.h"
 
 #include "dbkey.h"
 #include "ptrman.h"
-#include "seistrc.h"
+#include "geomid.h"
 
+class SeisTrc;
 class SeisTrcBuf;
-class TrcKeyZSampling;
+class CubeSubSel;
+class LineSubSelSet;
+
 
 namespace Seis
 {
 
+class PreLoader;
 class Provider;
 class SelData;
 
@@ -39,45 +43,56 @@ any of the test case fails, while calls to other functions will still work.
 mExpClass(Seis) ProviderTester
 {
 public:
-				ProviderTester();
-				~ProviderTester()	{}
 
-    uiRetVal			setSurveyName(const char*);
-    uiRetVal			setInput(const char* dbky);
+    mUseType( Pos,	GeomID );
 
-    bool			testGet(const TrcKey&,const char*txt="");
+			ProviderTester(bool bequiet,const char* survnm=0);
+			ProviderTester(GeomType,bool bequiet,
+					const char* survnm=0);
+			~ProviderTester();
+    const uiRetVal&	result() const	    { return uirv_; }
 
-    bool			testGetNext();
-    bool			testSubselection(SelData*,const char* txt,
-						 bool outsidedatarg=false);
-				/*!< Will subselect and checks no. of traces
-				read by iterating through the subselection,
-				after which the subselection will be
-				removed. */
-    bool			testPreLoadTrc(bool currenttrc=true);
-				//!< Will reset if currenttrc is false.
-    bool			testPreLoad(const TrcKeyZSampling&);
-				/*!< Preloads the entire specified
-				volume/line, subselects and iterates through
-				it before unloading it. */
-    bool			testComponentSelection(bool currenttrc=true);
-				//!< Will reset if currenttrc is false.
-    bool			testIOParUsage(bool currenttrc=true);
-				//!< Will reset if currenttrc is false.
+    void		setSurveyName(const char*);
+    void		setInput(const DBKey&);
+
+    bool		testGetAt(const TrcKey&,bool exists);
+    bool		testGetAll();
+    bool		testIOParUsage();
+
+    PreLoader*		preLoad(const CubeSubSel&) const;
+    PreLoader*		preLoad(const LineSubSelSet&) const;
+    void		removePreLoad(PreLoader*) const;
+
+
+    static const char*	survName()		{ return "F3_Test_Survey"; }
+    static DBKey	volDBKey()		{ return DBKey("100010.1010"); }
+    static DBKey	volPSDBKey()		{ return DBKey("100010.1020"); }
+    static DBKey	lineDBKey()		{ return DBKey("100010.1030"); }
+    static DBKey	linePSDBKey()		{ return DBKey("100010.1040"); }
+    static int		nrLineGeometries()	{ return 3; }
+    static GeomID	lineGeomID(int);
+    static BufferString	lineGeomNameBase()	{ return "IOTest Line Geom "; }
+
+    static BinID	existingbid_;
+    static BinID	nonexistingbid_;
+    static GeomID	nonexistinggeomid_;
+    static int		nonexistingtrcnr_;
+    GeomID		existinggeomid_;
+    int			existingTrcNr(GeomID gid=GeomID()) const;
+
+    Provider*		prov_			= 0;
+    SeisTrc&		trc_;
+    SeisTrcBuf&		gath_;
+    TrcKey&		lastgoodtk_;
+    uiRetVal		uirv_;
 
 protected:
 
-    bool			prTrc(const char* start,const uiRetVal&,
-				      bool withcomps=false,
-				      bool withoffs=false,
-				      bool addnewline=true);
-    bool			prBuf(const char* start,const SeisTrcBuf&,
-				      const uiRetVal&,
-				      bool addnewline=true);
+    bool		testGetViaSD(const TrcKey&,bool);
+    void		prTrc(const SeisTrc* trc=0,const char* start=0) const;
+    void		prGath(const SeisTrcBuf* tbuf=0) const;
+    void		prResult(const char*,bool,bool istrc=true) const;
 
-    DBKey			dbky_;
-    SeisTrc			trc_; //!< Current trace.
-    PtrMan<Provider>		prov_;
 };
 
-}
+} // namespace Seis

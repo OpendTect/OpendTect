@@ -55,6 +55,7 @@ public:
 			uiLineEdit(uiParent*,const char* nm);
 			uiLineEdit(uiParent*,const DataInpSpec&,const char* nm);
 
+    void		setEmpty()	{ setText(""); }
     void		setEdited(bool=true);
     bool		isEdited() const;
 

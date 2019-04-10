@@ -15,12 +15,12 @@
 
 #define mPrintTestResult( queuetypename, testname ) \
 {\
-    od_cout() << queuetypename << "\"" testname "\" Failure\n";\
+    errStream() << queuetypename << "\"" testname "\"" << od_endl;\
     return false;\
 }\
-else if ( !quiet )\
+else \
 {\
-    od_cout() << queuetypename << "\"" testname "\" Success\n";\
+    logStream() << queuetypename << "\"" testname "\" Success" << od_endl;\
 }
 
 #define mAddWork( work, queueid ) \
@@ -161,8 +161,7 @@ public:
 
 	    workmanager.emptyQueue( queueid, false );
 	    Threads::sleep( 1 );
-	    if ( !quiet )
-		od_cout() << "testwork.nrfinished=" << testwork.nrfinished_
+		logStream() << "testwork.nrfinished=" << testwork.nrfinished_
 			  << "; worksize=" << worksize << od_endl;
 	    if ( testwork.nrfinished_==worksize )
 		mPrintTestResult( queuetypename,

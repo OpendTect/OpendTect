@@ -488,7 +488,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 	{
 	    GeomIDSet ids;
 	    Survey::Geometry::list2D( ids );
-	    TrcKey ntk = TrcKey::udf();
+	    TrcKey ntk;
 	    double ndist = mUdf(double);
 	    for ( int idx=0; idx<ids.size(); idx++ )
 	    {

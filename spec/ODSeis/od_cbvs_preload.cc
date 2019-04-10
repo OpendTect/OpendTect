@@ -7,7 +7,7 @@
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"

@@ -15,7 +15,7 @@
 #include "iostrm.h"
 #include "ptrman.h"
 #include "dirlist.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seispacketinfo.h"
 #include "uistrings.h"
 
@@ -498,7 +498,7 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
     else if ( ild_ < 0 && !toNextTrace() )
 	return false;
-    else if ( !positionTranslator() )
+    else if ( !positionTranslator() || !ensureSelectionsCommitted() )
 	return false;
 
     if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
@@ -513,6 +513,9 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 bool SEGYDirectSeisTrcTranslator::readData( TraceData* extbuf )
 {
+    if ( !ensureSelectionsCommitted() )
+	return false;
+
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;
     if ( !tr_->readData(&tdata) )
 	return false;

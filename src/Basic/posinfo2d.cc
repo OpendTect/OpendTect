@@ -9,8 +9,8 @@
 #include "posinfo.h"
 #include "math2.h"
 #include "survinfo.h"
-#include "survgeom.h"
-#include "cubesampling.h"
+#include "survgeom2d.h"
+#include "linesubsel.h"
 #include "od_iostream.h"
 
 #define mUseL2DDataType(typ) mUseType( PosInfo::Line2DData, typ )
@@ -129,9 +129,45 @@ idx_type PosInfo::Line2DData::gtIndex( const Coord& coord,
 }
 
 
+void PosInfo::Line2DData::setLineName( const char* lnm )
+{
+    lnm_ = lnm;
+    geomid_.setInvalid();
+    if ( lnm_.isEmpty() )
+	return;
+
+    const auto& g2d = Survey::Geometry2D::get( lnm_ );
+    if ( !g2d.isEmpty() )
+	geomid_ = g2d.geomID();
+}
+
+
 Pos::GeomID PosInfo::Line2DData::geomID() const
 {
-    return Survey::Geometry::getGeomID(lnm_);
+    if ( !geomid_.isValid() && !lnm_.isEmpty() )
+	geomid_ = Survey::Geometry::getGeomID( lnm_ );
+    return geomid_;
+}
+
+
+void PosInfo::Line2DData::setGeomID( GeomID gid ) const
+{
+    geomid_ = gid;
+    if ( lnm_.isEmpty() && geomid_.isValid() )
+	mSelf().lnm_ = nameOf( geomid_ );
+}
+
+
+PosInfo::Line2DData::tracenr_type
+PosInfo::Line2DData::trcNr( idx_type idx ) const
+{
+    return posns_.validIdx(idx) ? posns_.get(idx).nr_ : -1;
+}
+
+
+Coord PosInfo::Line2DData::coord( idx_type idx ) const
+{
+    return posns_.validIdx(idx) ? posns_.get(idx).coord_ : -1;
 }
 
 
@@ -392,7 +428,8 @@ PosInfo::Line2DData::tracenr_steprg_type PosInfo::Line2DData::trcNrRange() const
 Coord PosInfo::Line2DData::getNormal( tracenr_type trcnr ) const
 {
     bool found; const idx_type posidx = gtIndex( trcnr, found );
-    if ( !found ) return Coord::udf();
+    if ( !found )
+	return Coord::udf();
 
     Coord pos = posns_[posidx].coord_;
     Coord v1;
@@ -543,4 +580,53 @@ void PosInfo::Line2DData::getSegments( LineData& ld ) const
 	if ( ipos == nrposns-1 )
 	    ld.segments_ += curseg;
     }
+}
+
+
+LineSubSel* PosInfo::Line2DData::getSubSel() const
+{
+    const auto geomid = geomID();
+    LineSubSel* lss;
+    if ( !geomid.isValid() )
+	lss = new LineSubSel( trcNrRange() );
+    else
+    {
+	lss = new LineSubSel( geomid );
+	lss->lineHorSubSel().setOutputPosRange( trcNrRange() );
+    }
+    lss->zSubSel().setOutputZRange( zRange() );
+    return lss;
+}
+
+
+void PosInfo::Line2DDataSet::getSubSel( LineSubSelSet& lsss ) const
+{
+    lsss.setEmpty();
+    for ( auto l2dd : *this )
+	lsss.add( l2dd->getSubSel() );
+}
+
+
+od_int64 PosInfo::Line2DDataSet::totalNrPositions() const
+{
+    od_int64 ret = 0;
+    for ( auto l2dd : *this )
+	ret += l2dd->size();
+    return ret;
+}
+
+
+idx_type PosInfo::Line2DDataSet::lineIndexOf( GeomID gid ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( get(idx)->geomID() == gid )
+	    return idx;
+    return -1;
+}
+
+
+PosInfo::Line2DData* PosInfo::Line2DDataSet::doFind( GeomID gid ) const
+{
+    const auto idx = lineIndexOf( gid );
+    return idx<0 ? 0 : mNonConst( get(idx) );
 }

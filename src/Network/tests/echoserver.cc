@@ -60,13 +60,11 @@ public:
 
 	    if ( socket->readArray(data,readsize) != Network::Socket::ReadOK )
 	    {
-		if ( !quiet )
-		    od_cout() << "Read error" << od_endl;
+		logStream() << "Read error" << od_endl;
 		break;
 	    }
 
-	    if ( !quiet )
-		od_cout() << "\nEchoing " << readsize << " bytes" << od_endl;
+	    logStream() << "\nEchoing " << readsize << " bytes" << od_endl;
 
 	    const char* writeptr = data;
 	    const FixedString writestr( writeptr+sizeof(int) );
@@ -91,9 +89,7 @@ public:
 	const time_t curtime = time( 0 );
 	if ( curtime-lastactivity_>timeout_ )
 	{
-	    if ( !quiet )
-		od_cout() << "Timeout" << od_endl;
-
+	    logStream() << "Timeout" << od_endl;
 	    CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
 	}
     }
@@ -127,11 +123,8 @@ int mTestMainFnName(int argc, char** argv)
     Network::EchoServer server( mCast(unsigned short,startport),
 				mCast(unsigned short,timeout) );
 
-    if ( !quiet )
-    {
-	od_cout() << "Listening to port " << server.server_.port()
+    logStream() << "Listening to port " << server.server_.port()
 		  << " with a " << server.timeout_ << " second timeout\n";
-    }
 
     return app.exec();
 }

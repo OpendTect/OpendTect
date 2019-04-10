@@ -145,8 +145,12 @@ inline T& getNonConst( const T& t )
 #define mDefSetupClssMemb(clss,typ,memb) \
 	typ	memb##_; \
 	clss&   memb( typ val )		{ memb##_ = val; return *this; }
-
 #define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
+
+#define mDefSetupClssMember(clss,typ,memb,def) \
+	typ	memb##_ = def; \
+	clss&   memb( typ val )		{ memb##_ = val; return *this; }
+#define mDefSetupMember(typ,memb,def) mDefSetupClssMember(Setup,typ,memb,def)
 
 #define mDefNoAssignmentOper(clss) \
     clss& operator =( const clss& ) = delete;

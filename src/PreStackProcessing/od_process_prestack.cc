@@ -334,7 +334,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( reader2d )
 		{
-		    trc.info().trckey_ = TrcKey( Pos::GeomID(curbid.lineNr()),
+		    trc.info().trcKey() = TrcKey( Pos::GeomID(curbid.lineNr()),
 						 curbid.trcNr() );
 		    PosInfo::Line2DPos linepos;
 		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )
@@ -342,7 +342,7 @@ bool BatchProgram::go( od_ostream& strm )
 		}
 		else
 		{
-		    trc.info().trckey_ = TrcKey( curbid );
+		    trc.info().trcKey() = TrcKey( curbid );
 		    trc.info().coord_ = SI().transform( curbid );
 		}
 

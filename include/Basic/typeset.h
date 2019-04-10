@@ -156,8 +156,8 @@ public: \
 		    : OD::ValVec<T,size_type>( nr, typ )	{} \
 		clss( const T* t, size_type nr ) \
 		    : OD::ValVec<T,size_type>( t, nr )		{} \
-		clss( const clss& t ) \
-		    : OD::ValVec<T,size_type>( t )		{} \
+		clss( const clss& oth ) \
+		    : OD::ValVec<T,size_type>( oth )		{} \
     virtual clss* clone() const		{ return new clss(*this); } \
 }; \
  \

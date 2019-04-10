@@ -615,10 +615,7 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 void uiBaseMap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
 				 float& val, BufferString& info ) const
 {
-    nm.setEmpty();
-    tk = TrcKey::udf();
-    val = mUdf(float);
-    info.setEmpty();
+    nm.setEmpty(); info.setEmpty(); tk.setUdf(); val = mUdf(float);
 
     const MouseEvent& ev = view_->getMouseEventHandler().event();
     crd3.setXY( getWorld2Ui().toWorldX(ev.x()),

@@ -268,7 +268,8 @@ LatLong AnchorBasedXY::toGeographic( const Coord& c, bool ) const
 
 Coord AnchorBasedXY::fromGeographic( const LatLong& ll, bool ) const
 {
-    if ( !geographicTransformOK() ) return Coord::udf();
+    if ( !geographicTransformOK() )
+	return Coord::udf();
 
     const double scalefac = isfeet_ ? mFromFeetFactorD : 1;
 

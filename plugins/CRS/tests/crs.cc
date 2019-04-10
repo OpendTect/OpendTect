@@ -65,12 +65,12 @@ static const Coord wgs72xy[] =	{ Coord(468160.7972588778,5698137.987990135),
 #define mRunTest( func ) \
     if ( !(func) ) \
     { \
-	od_cout() << #func "\tfailed!\n"; \
+	handleTestResult( false, #func ); \
 	return false; \
     } \
-    else if ( !quiet ) \
+    else \
     { \
-	od_cout() << #func "\tsuccess!\n"; \
+	handleTestResult( true, #func ); \
     }
 
 

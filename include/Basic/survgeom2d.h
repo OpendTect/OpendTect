@@ -43,14 +43,17 @@ public:
 
 			Geometry2D(const char* lnm);
 			Geometry2D(Line2DData*); //!<Line2DData becomes mine
+			Geometry2D(const Geometry2D&);
+    Geometry2D*		clone() const override	{ return new Geometry2D(*this);}
 
     static bool		isPresent(GeomID);
     static const Geometry2D& get(const char* linenm);
     static const Geometry2D& get(GeomID);
     bool		isEmpty() const;
-    bool		isDummy() const		    { return this == &dummy(); }
+    bool		isDummy() const		{ return this == &dummy(); }
 
-    GeomSystem		geomSystem() const override { return OD::LineBasedGeom;}
+    GeomSystem		geomSystem() const override
+						{ return OD::LineBasedGeom; }
     const name_type&	name() const override;
     size_type		size() const;
     idx_type		indexOf(tracenr_type) const;
@@ -99,9 +102,11 @@ public:
     const SPNrSet&	spNrs() const		{ return spnrs_; }
     SPNrSet&		spNrs()			{ return spnrs_; }
     void		getSampling(TrcKeyZSampling&) const;
+    static Geometry2D&	get4Edit( GeomID gid )	{ return mNonConst(get(gid)); }
 
 			// *you* should probably not be changing line geometries
     void		setEmpty() const;
+    void		setName(const char*);
     void		add(const Coord&,tracenr_type,spnr_type);
     void		commitChanges() const; //!< mandatory after any change
 

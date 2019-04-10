@@ -15,6 +15,7 @@
 #include "datainpspec.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "linesubsel.h"
 #include "linesetposinfo.h"
 #include "seis2ddata.h"
 #include "seisbounds.h"
@@ -27,7 +28,7 @@
 #include "seispacketinfo.h"
 #include "seisprovider.h"
 #include "seistrc.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
@@ -80,9 +81,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	{ desc.setErrMsg( uirv ); return; }
 
     BufferStringSet provcompnms; DataType dtyp;
-    uirv = prov->getComponentInfo( provcompnms, &dtyp );
-    if ( uirv.isError() )
-	{ desc.setErrMsg( uirv ); return; }
+    prov->getComponentInfo( provcompnms, &dtyp );
 
     if ( compnms )
 	*compnms = provcompnms;
@@ -181,13 +180,13 @@ bool StorageProvider::checkInpAndParsAtStart()
 	storedvolume_.hsamp_.include( BinID( 0, SI().maxNrTraces() ) );
 	storedvolume_.hsamp_.step_.crl() = 1; // what else?
 
-	mDynamicCastGet( const Seis::Provider2D&, prov, *mscprov_->provider() );
+	const auto& prov = *mscprov_->provider()->as2D();
 	bool isfirst = false;
 	for ( int iln=0; iln<prov.nrLines(); iln++ )
 	{
-	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !prov.getRanges(iln,trcrg,zrg) )
-		continue;
+	    const auto& lss = prov.lineSubSel( iln );
+	    const auto trcrg = lss.trcNrRange();
+	    const auto zrg = lss.zRange();
 
 	    const Pos::GeomID geomid = prov.geomID( iln );
 	    const auto lnr = geomid.lineNr();
@@ -263,7 +262,8 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 			{ advancefurther = false; continue; }
 
 		    SeisTrc* trc = mscprov_->get( 0, 0 );
-		    if ( !trc ) continue; // should not happen
+		    if ( !trc )
+			{ pErrMsg("should not happen"); continue; }
 
 		    registerNewPosInfo( trc, startpos, firstcheck,
 					advancefurther );
@@ -273,7 +273,8 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	else
 	{
 	    SeisTrc* trc = getTrcFromPack( BinID(0,0), 1 );
-	    if ( !trc ) return 0;
+	    if ( !trc )
+		return 0;
 
 	    status_ = Ready;
 	    registerNewPosInfo( trc, startpos, firstcheck, advancefurther );
@@ -319,10 +320,12 @@ bool StorageProvider::getLine2DStoredVolume()
     if ( mIsUdfGeomID(geomid_) || !mscprov_ || !mscprov_->is2D() )
 	return true;
 
-    mDynamicCastGet( const Seis::Provider2D&, prov, *mscprov_->provider() );
-    StepInterval<int> trcrg; StepInterval<float> zrg;
-    if ( !prov.getRanges(prov.lineNr(geomid_),trcrg,zrg) )
-	mErrRet( tr("Ranges not available for line %2").arg(nameOf(geomid_)) );
+    storedvolume_.hsamp_.setGeomID( geomid_ );
+
+    const auto& prov = *mscprov_->provider()->as2D();
+    const auto& lss = prov.lineSubSel( prov.lineNr(geomid_) );
+    const auto trcrg = lss.trcNrRange();
+    const auto zrg = lss.zRange();
 
     const auto lnr = geomid_.lineNr();
     storedvolume_.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
@@ -334,10 +337,15 @@ bool StorageProvider::getLine2DStoredVolume()
 
 bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 {
-    if ( !possiblevolume_ )
-	possiblevolume_ = new TrcKeyZSampling;
-
     const bool is2d = mscprov_ && mscprov_->is2D();
+    if ( !possiblevolume_ )
+    {
+	if ( is2d && geomid_.isValid() )
+	    possiblevolume_ = new TrcKeyZSampling( geomid_ );
+	else
+	    possiblevolume_ = new TrcKeyZSampling;
+    }
+
     if ( is2d && !getLine2DStoredVolume() )
 	return false;
 
@@ -499,12 +507,11 @@ bool StorageProvider::setTableSelData()
     if ( !mscprov_ )
 	return false;
 
-
     Seis::SelData* seldata = seldata_->clone();
     seldata->extendZ( extraz_ );
     Seis::Provider& prov = *mscprov_->provider();
-    if ( prov.is2D() )
-	seldata->setGeomID( geomid_ );
+    if ( prov.is2D() && seldata->isRange() )
+	seldata->asRange()->setGeomID( geomid_ );
 
     prov.setSelData( seldata );
 
@@ -524,39 +531,40 @@ bool StorageProvider::set2DRangeSelData()
 	return false;
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,seldata_)
-    Seis::RangeSelData* seldata = rsd ? (Seis::RangeSelData*)rsd->clone()
-				      : new Seis::RangeSelData( false );
+    Seis::RangeSelData* seldata = rsd ? rsd->clone()->asRange()
+				      : new Seis::RangeSelData;
 
     Seis::Provider& prov = *mscprov_->provider();
     if ( !prov.is2D() )
 	{ pErrMsg("shld be 2D"); return false; }
-    mDynamicCastGet( Seis::Provider2D&, prov2d, prov );
+    const auto& prov2d = *prov.as2D();
 
-    if ( geomid_.isValid() )
+    if ( geomid_.isValid() && geomid_.is2D() )
     {
 	TrcKeyZSampling tkzs; tkzs.set2DDef();
 	seldata->setGeomID( geomid_ );
-	StepInterval<float> dszrg; StepInterval<int> trcrg;
-	if ( prov2d.getRanges(prov2d.lineNr(geomid_),trcrg,dszrg) )
-	{
-	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
-		return false;
-	    StepInterval<int> rg( geomid_.lineNr(), geomid_.lineNr(), 1 );
-	    tkzs.hsamp_.setLineRange( rg );
-	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
-			trcrg.start : desiredvolume_->hsamp_.start_.crl();
-	    rg.stop = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop ?
-			trcrg.stop : desiredvolume_->hsamp_.stop_.crl();
-	    rg.step = desiredvolume_->hsamp_.step_.crl() > trcrg.step ?
-			desiredvolume_->hsamp_.step_.crl() : trcrg.step;
-	    tkzs.hsamp_.setTrcRange( rg );
-	    tkzs.zsamp_.start = desiredvolume_->zsamp_.start < dszrg.start ?
-			dszrg.start : desiredvolume_->zsamp_.start;
-	    tkzs.zsamp_.stop = desiredvolume_->zsamp_.stop > dszrg.stop ?
-			dszrg.stop : desiredvolume_->zsamp_.stop;
-	}
+	const auto& lss = prov2d.lineSubSel( prov2d.lineNr(geomid_) );
+	const auto trcrg = lss.trcNrRange();
+	const auto dszrg = lss.zRange();
 
-	seldata->cubeSampling() = tkzs;
+	if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
+	    return false;
+
+	StepInterval<int> rg( geomid_.lineNr(), geomid_.lineNr(), 1 );
+	tkzs.hsamp_.setLineRange( rg );
+	rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
+		    trcrg.start : desiredvolume_->hsamp_.start_.crl();
+	rg.stop = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop ?
+		    trcrg.stop : desiredvolume_->hsamp_.stop_.crl();
+	rg.step = desiredvolume_->hsamp_.step_.crl() > trcrg.step ?
+		    desiredvolume_->hsamp_.step_.crl() : trcrg.step;
+	tkzs.hsamp_.setTrcRange( rg );
+	tkzs.zsamp_.start = desiredvolume_->zsamp_.start < dszrg.start ?
+		    dszrg.start : desiredvolume_->zsamp_.start;
+	tkzs.zsamp_.stop = desiredvolume_->zsamp_.stop > dszrg.stop ?
+		    dszrg.stop : desiredvolume_->zsamp_.stop;
+
+	seldata->set( LineSubSel(tkzs) );
 	prov.setSelData( seldata );
     }
     else if ( !rsd && seldata )
@@ -793,19 +801,16 @@ BinID StorageProvider::getStepoutStep() const
 	const Seis::Provider& prov = *mscprov_->provider();
 	if ( prov.is2D() )
 	{
-	    mDynamicCastGet( const Seis::Provider2D&, prov2d, prov );
-
-	    StepInterval<int> tnrrg; ZSampling zsamp;
+	    const auto& prov2d = *prov.as2D();
 	    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
-	    if ( prov2d.getRanges(lnr,tnrrg,zsamp) )
-		sos.crl() = tnrrg.step;
+	    const auto& lss = prov2d.lineSubSel( lnr );
+	    const auto trcrg = lss.trcNrRange();
+	    sos.crl() = trcrg.step;
 	}
 	else
 	{
-	    mDynamicCastGet( const Seis::Provider3D&, prov3d, prov );
-	    TrcKeyZSampling cs;
-	    if ( prov3d.getRanges(cs) )
-		sos = cs.hsamp_.step_;
+	    const TrcKeyZSampling cs( prov.as3D()->cubeSubSel() );
+	    sos = cs.hsamp_.step_;
 	}
     }
 
@@ -821,14 +826,11 @@ void StorageProvider::adjust2DLineStoredVolume()
     if ( !prov.is2D() )
 	return;
 
-    mDynamicCastGet( const Seis::Provider2D&, prov2d, prov );
-    StepInterval<int> trcrg; StepInterval<float> zrg;
+    const auto& prov2d = *prov.as2D();
     int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
-    if ( prov2d.getRanges(lnr,trcrg,zrg) )
-    {
-	storedvolume_.hsamp_.setTrcRange( trcrg );
-	storedvolume_.zsamp_ = zrg;
-    }
+    const auto& lss = prov2d.lineSubSel( lnr );
+    storedvolume_.hsamp_.setTrcRange( lss.trcNrRange() );
+    storedvolume_.zsamp_ = lss.zRange();
 }
 
 
@@ -919,12 +921,10 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
     if ( !prov.is2D() )
 	return false;
 
-    mDynamicCastGet( const Seis::Provider2D&, prov2d, prov );
-    StepInterval<int> trcrg; StepInterval<float> zrg;
-    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
-    if ( prov2d.getRanges(lnr,trcrg,zrg) )
+    const auto& prov2d = *prov.as2D();
 
-    if ( ls2ddata_ ) delete ls2ddata_;
+    if ( ls2ddata_ )
+	delete ls2ddata_;
     ls2ddata_ = new PosInfo::LineSet2DData();
     for ( int idx=0; idx<prov2d.nrLines(); idx++ )
     {

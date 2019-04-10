@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seistableseldata.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "wavelet.h"
@@ -72,21 +72,22 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
 
 void WaveletExtractor::init3D()
 {
-    if ( !seisprov_ ) return;
+    if ( !seisprov_ )
+	return;
+    if ( !sd_ )
+	{ totalnr_ = SI().maxNrTraces(); return; }
+
     seisprov_->setSelData( sd_->clone() );
     isbetweenhor_ = false;
+    totalnr_ = sd_->expectedNrTraces();
 
-    mDynamicCastGet(const Seis::RangeSelData*,rsd,sd_)
-    mDynamicCastGet(const Seis::TableSelData*,tsd,sd_)
-    if ( tsd )
-	isbetweenhor_ = tsd->binidValueSet().hasDuplicateBinIDs();
+    auto* tsd = sd_->asTable();
+    if ( !tsd )
+	return;
 
-    if ( rsd )
-	totalnr_ = rsd->cubeSampling().hsamp_.totalNr();
-    else if ( tsd && isbetweenhor_ )
+    isbetweenhor_ = tsd->binidValueSet().hasDuplicateBinIDs();
+    if ( isbetweenhor_ )
 	totalnr_ = tsd->binidValueSet().nrDuplicateBinIDs();
-    else if ( tsd )
-	totalnr_ = tsd->binidValueSet().totalSize();
 }
 
 

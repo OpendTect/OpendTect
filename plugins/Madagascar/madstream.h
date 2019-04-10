@@ -12,13 +12,11 @@
 #include "od_iosfwd.h"
 #include "uistring.h"
 
-class SeisTrcWriter;
 class SeisTrcBuf;
 class SeisPSReader;
 class SeisPSWriter;
-
-namespace PosInfo { class CubeData; class CubeDataIterator;class Line2DData;}
-namespace Seis { class Provider; class SelData; }
+namespace PosInfo { class CubeData; class CubeDataIterator; class Line2DData; }
+namespace Seis { class Provider; class SelData; class Storer; }
 
 namespace ODMad
 {
@@ -26,7 +24,7 @@ namespace ODMad
 mExpClass(Madagascar) MadStream
 { mODTextTranslationClass(MadStream);
 public:
-    				MadStream(IOPar&);
+				MadStream(IOPar&);
 				~MadStream();
 
     const IOPar*		getHeaderPars()		{ return headerpars_; }
@@ -62,7 +60,7 @@ protected:
     od_ostream*			ostrm_;
 
     Seis::Provider*		seisprov_;
-    SeisTrcWriter*		seiswrr_;
+    Seis::Storer*		seisstorer_;
     SeisPSReader*		psrdr_;
     SeisPSWriter*		pswrr_;
 

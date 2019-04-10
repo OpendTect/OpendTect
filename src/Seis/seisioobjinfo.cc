@@ -10,6 +10,7 @@
 #include "bufstringset.h"
 #include "cbvsio.h"
 #include "conn.h"
+#include "cubesubsel.h"
 #include "genc.h"
 #include "dirlist.h"
 #include "file.h"
@@ -29,7 +30,6 @@
 #include "seisbuf.h"
 #include "seisprovider.h"
 #include "seispsioprov.h"
-#include "seisselectionimpl.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -38,9 +38,9 @@
 #include "zdomain.h"
 
 
-Seis::ObjectSummary::ObjectSummary( const DBKey& dbkey, Pos::GeomID geomid )
+Seis::ObjectSummary::ObjectSummary( const DBKey& dbkey, GeomID geomid )
     : ioobjinfo_(*new SeisIOObjInfo(dbkey))		{ init( geomid ); }
-Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
+Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, GeomID geomid )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))		{ init( geomid ); }
 Seis::ObjectSummary::ObjectSummary( const Seis::ObjectSummary& oth )
     : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))	{ init( oth.geomid_ ); }
@@ -63,7 +63,7 @@ Seis::ObjectSummary& Seis::ObjectSummary::operator =(
 }
 
 
-void Seis::ObjectSummary::init( Pos::GeomID geomid )
+void Seis::ObjectSummary::init( GeomID geomid )
 {
     bad_ = !ioobjinfo_.isOK();
     if ( bad_ )
@@ -71,8 +71,17 @@ void Seis::ObjectSummary::init( Pos::GeomID geomid )
 
     modiftm_ = ioobjinfo_.getFileModifTime();
     geomtype_ = ioobjinfo_.geomType();
-    if (  (is2D() && !geomid.is2D()) ||
-	 (!is2D() && geomid.isValid()) )
+    if ( !is2D() )
+	geomid = GeomID::get3D();
+    else if ( !geomid.isValid() )
+    {
+	Seis2DDataSet dset( *ioobjinfo_.ioObj() );
+	if ( dset.nrLines() > 0 )
+	    geomid = dset.geomID( 0 );
+	if ( !geomid.isValid() )
+	    { bad_ = true; return; }
+    }
+    if ( is2D() != geomid.is2D() )
 	{ pErrMsg("Geometry wrongly set"); bad_ = true; return; }
 
     geomid_ = geomid;
@@ -86,29 +95,25 @@ void Seis::ObjectSummary::init( Pos::GeomID geomid )
     uiRetVal uirv;
     PtrMan<Seis::Provider> prov =
 	       Seis::Provider::create( *ioobjinfo_.ioObj(), &uirv );
-    if ( !prov || !uirv.isEmpty() )
-	{ pErrMsg("uirv"); bad_ = true; return; }
-
-    prov->setSelData( new Seis::RangeSelData(tkzs) );
-    SeisTrcTranslator* trl = prov->getCurrentTranslator();
-    if ( !trl )
+    if ( !prov || !uirv.isOK() )
 	{ bad_ = true; return; }
-    refreshCache( *prov, *trl );
+
+    refreshCache( *prov );
 }
 
 
-void Seis::ObjectSummary::refreshCache( const Seis::Provider& prov,
-					const SeisTrcTranslator& trl )
+void Seis::ObjectSummary::refreshCache( const Seis::Provider& prov )
 {
-    if ( !trl.inputComponentData().isEmpty() )
-	datachar_ = trl.inputComponentData().first()->datachar_;
+    const auto* trl = prov.curTransl();
+    if ( trl && !trl->inputComponentData().isEmpty() )
+	datachar_ = trl->inputComponentData().first()->datachar_;
 
     prov.getComponentInfo( compnms_ );
     nrsamppertrc_ = zsamp_.nrSteps()+1;
     nrbytespersamp_ = datachar_.nrBytes();
     nrdatabytespespercomptrc_ = nrbytespersamp_ * nrsamppertrc_;
     nrdatabytespertrc_ = nrdatabytespespercomptrc_ * compnms_.size();
-    nrbytestrcheader_ = trl.bytesOverheadPerTrace();
+    nrbytestrcheader_ = trl ? trl->bytesOverheadPerTrace() : 48;
     nrbytespertrc_ = nrbytestrcheader_ + nrdatabytespertrc_;
 }
 
@@ -136,15 +141,6 @@ const char* Seis::ObjectSummary::name() const
     return ioObj() ? ioObj()->name() : "";
 }
 
-
-
-#define mGetDataSet(nm,rv) \
-    if ( !isOK() || !is2D() || isPS() ) return rv; \
- \
-    PtrMan<Seis2DDataSet> nm \
-	= new Seis2DDataSet( *ioobj_ ); \
-    if ( nm->nrLines() == 0 ) \
-	return rv
 
 
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
@@ -278,17 +274,20 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 
     if ( is2D() )
     {
-	mGetDataSet(dset,false);
+	Seis2DDataSet ds2d( *ioobj_ );
+	if ( ds2d.nrLines() == 0 )
+	    return false;
+
 	StepInterval<int> trcrg; StepInterval<float> zrg;
 	GeomIDSet seen;
 	spinf.expectednrtrcs = 0;
-	for ( int idx=0; idx<dset->nrLines(); idx++ )
+	for ( int idx=0; idx<ds2d.nrLines(); idx++ )
 	{
-	    const Pos::GeomID geomid = dset->geomID( idx );
+	    const GeomID geomid = ds2d.geomID( idx );
 	    if ( !seen.isPresent(geomid) )
 	    {
 		seen.add( geomid );
-		dset->getRanges( geomid, trcrg, zrg );
+		ds2d.getRanges( geomid, trcrg, zrg );
 		spinf.expectednrtrcs += trcrg.nrSteps() + 1;
 	    }
 	}
@@ -451,6 +450,15 @@ od_int64 SeisIOObjInfo::getFileModifTime() const
 }
 
 
+Survey::FullSubSel* SeisIOObjInfo::getSurvSubSel() const
+{
+    TrcKeyZSampling cs( false );
+    if ( !getRanges(cs) )
+	return new CubeSubSel;
+    return FullSubSel::get( cs );
+}
+
+
 bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 {
     mChk(false);
@@ -599,8 +607,8 @@ void SeisIOObjInfo::getGeomIDs( GeomIDSet& geomids ) const
     if ( !is2D() )
 	return;
 
-    PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj_ );
-    dset->getGeomIDs( geomids );
+    Seis2DDataSet ds2d( *ioobj_ );
+    ds2d.getGeomIDs( geomids );
 }
 
 
@@ -629,16 +637,15 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
    if ( !isOK() || !is2D() || isPS() )
        return;
 
-    PtrMan<Seis2DDataSet> dset
-	= new Seis2DDataSet( *ioobj_ );
-    if ( dset->nrLines() == 0 )
+    Seis2DDataSet ds2d( *ioobj_ );
+    if ( ds2d.nrLines() == 0 )
 	return;
     mGetZDomainGE;
 
     BufferStringSet rejected;
-    for ( int idx=0; idx<dset->nrLines(); idx++ )
+    for ( int idx=0; idx<ds2d.nrLines(); idx++ )
     {
-	const char* nm = dset->lineName(idx);
+	const char* nm = ds2d.lineName(idx);
 	if ( bss.isPresent(nm) )
 	    continue;
 
@@ -655,7 +662,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 }
 
 
-bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
+bool SeisIOObjInfo::getRanges( const GeomID geomid,
 			       StepInterval<int>& trcrg,
 			       StepInterval<float>& zrg ) const
 {
@@ -710,21 +717,20 @@ void SeisIOObjInfo::setDefault( const DBKey& id, const char* typ )
 }
 
 
-int SeisIOObjInfo::nrComponents( Pos::GeomID geomid ) const
+int SeisIOObjInfo::nrComponents( GeomID geomid ) const
 {
     return getComponentInfo( geomid, 0 );
 }
 
 
 void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
-				       Pos::GeomID geomid ) const
+				       GeomID geomid ) const
 {
     getComponentInfo( geomid, &nms );
 }
 
 
-int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
-				     BufferStringSet* nms ) const
+int SeisIOObjInfo::getComponentInfo( GeomID geomid, BufferStringSet* nms ) const
 {
     int ret = 0;
     if ( nms ) nms->erase();
@@ -781,7 +787,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 }
 
 
-bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
+bool SeisIOObjInfo::hasData( GeomID geomid )
 {
     const char* linenm = nameOf( geomid );
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
@@ -819,7 +825,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 					    Opts2D o2d )
 { getDataSetNamesForLine( Survey::Geometry::getGeomID(lnm), datasets, o2d ); }
 
-void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
+void SeisIOObjInfo::getDataSetNamesForLine( GeomID geomid,
 					    BufferStringSet& datasets,
 					    Opts2D o2d )
 {

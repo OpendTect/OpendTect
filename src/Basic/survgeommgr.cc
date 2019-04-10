@@ -228,32 +228,32 @@ Pos::GeomID Survey::GeometryManager::findRelated( const Geometry& ref,
 bool Survey::GeometryManager::save( const Geometry2D& geom, uiString& errmsg,
 				    Geometry2DWriter* wrr ) const
 {
-    if ( !geom.geomID().isValid() )
-	{ errmsg = mINTERNAL( "Save 2D geometry without ID" ); return false; }
-
     PtrMan<Geometry2DWriter> destroyer;
     if ( !wrr )
     {
 	wrr = Geometry2DWriter::factory().create( factorykey_ );
 	destroyer = wrr;
+	if ( !wrr )
+	{
+	    errmsg = mINTERNAL("Geometry2DWriter::factory problem");
+	    return false;
+	}
     }
 
-    return wrr && wrr->write( geom, errmsg );
+    return wrr->write( geom, errmsg );
 }
 
 
 bool Survey::GeometryManager::addEntry( Geometry2D* geom, GeomID& geomid,
 					uiString& errmsg )
 {
+    geomid = GeomID();
     if ( !geom )
-    {
-	geomid = GeomID(); errmsg = mINTERNAL( "Null geometry passed" );
-	return false;
-    }
+	{ GeomID(); errmsg = mINTERNAL( "Null geometry" ); return false; }
 
-    geomid = getGeomID( geom->name() );
-    if ( geomid.isValid() )
-	return true;
+    const auto existgeomid = getGeomID( geom->name() );
+    if ( existgeomid.isValid() )
+	{ geomid = existgeomid; return true; }
 
     PtrMan<Geometry2DWriter> wrr =
 	Geometry2DWriter::factory().create( factorykey_ );
@@ -263,17 +263,19 @@ bool Survey::GeometryManager::addEntry( Geometry2D* geom, GeomID& geomid,
 	return false;
     }
 
-    geomid = wrr->getGeomIDFor( geom->name() );
-    if ( !geomid.isValid() )
+    auto newgeomid = wrr->getGeomIDFor( geom->name() );
+    if ( !newgeomid.isValid() )
     {
 	errmsg = uiStrings::phrCannotCreateDBEntryFor( uiStrings::sGeometry() );
 	return false;
     }
 
-    geom->setGeomID( geomid );
+    geom->setGeomID( newgeomid );
+    geomid = GeomID();
     if ( !save(*geom,errmsg,wrr) )
-	{ geomid = GeomID(); return false; }
+	return false;
 
+    geomid = newgeomid;
     geom->ref();
     Threads::Locker locker( geometrieslock_ );
     geometries_.add( geom );

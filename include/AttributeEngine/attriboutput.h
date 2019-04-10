@@ -25,9 +25,8 @@ class RegularSeisDataPack;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
-class SeisTrcWriter;
 class Scaler;
-namespace Seis { class SelData; }
+namespace Seis { class SelData; class Storer; }
 
 namespace Attrib
 {
@@ -68,7 +67,6 @@ public:
     virtual bool		writeTrc()		{ return true; }
     virtual void		deleteTrc()		{}
     const Seis::SelData&	getSelData()		{ return *seldata_; }
-    Pos::GeomID			curGeomID() const;
     virtual void		setPossibleVolume(const TrcKeyZSampling&) {}
     virtual bool		finishWrite()		{ return false; }
 
@@ -192,14 +190,13 @@ protected:
     uiString			errmsg_;
 
     SeisTrc*			trc_;
-    SeisTrcWriter*		writer_;
+    Seis::Storer*		storer_;
     BinID			prevpos_;
     bool			storinited_;
     BufferString		attribname_;
     Scaler*                     scaler_;
     TypeSet<DataType>		outptypes_;
     bool			growtrctosi_;
-    BufferString		datatype_;
     BufferStringSet		outpnames_;
 
     float			writez0shift_;

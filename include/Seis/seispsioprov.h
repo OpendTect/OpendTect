@@ -18,9 +18,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
-class IOObj;
-
-
 /*!\brief Prestack Seismics objects provider
 
   It is not mandatory to provide both reader and writer.

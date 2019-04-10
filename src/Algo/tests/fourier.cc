@@ -54,16 +54,13 @@ bool checkRMSDifference( float_complex* a, float_complex* b, od_uint64 size,
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
-    if ( !quiet ) \
-    { \
-	Threads::Locker lock( streamlock ); \
-	od_cout() << testname << ": OK\n"; \
-    } \
+    Threads::Locker lock( streamlock ); \
+    handleTestResult( true, testname ); \
 } \
 else \
 { \
     Threads::Locker lock( streamlock ); \
-    od_cout() << testname << ": Failed\n"; \
+    handleTestResult( false, testname ); \
     return false; \
 } \
 

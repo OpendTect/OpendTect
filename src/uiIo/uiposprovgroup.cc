@@ -17,6 +17,10 @@ ________________________________________________________________________
 #include "uipicksetsel.h"
 #include "uipossubsel.h"
 #include "uiselsurvranges.h"
+#include "uimsg.h"
+#include "trckeyzsampling.h"
+#include "posvecdatasettr.h"
+#include "ioobjctxt.h"
 #include "uistrings.h"
 
 #include "file.h"
@@ -63,7 +67,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     if ( setup_.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
-				   nullptr, su.zdomkey_ );
+				   uiString(), su.zdomkey_ );
 	if ( attobj )
 	    zrgfld_->attach( alignedBelow, attobj );
 	attobj = zrgfld_->attachObj();
@@ -195,7 +199,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, true, false, uiString(), su.zdomkey_ );
 	zrgfld_->attach( alignedBelow, attachobj );
     }
 
@@ -328,8 +332,19 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
 {
+    typfld_ = new uiGenInput( this, tr("Get locations from"),
+			      BoolInpSpec( true, uiStrings::sPick(mPlural),
+						 uiStrings::sCrossPlot() ) );
+    typfld_->valuechanged.notify( mCB(this,uiTablePosProvGroup,typSelCB) );
+
     psfld_ = new uiPickSetIOObjSel( this, true );
-    setHAlignObj( psfld_ );
+    psfld_->attach( alignedBelow, typfld_ );
+
+    pvdsfld_ = new uiIOObjSel( this, mIOObjContext(PosVecDataSet),
+			       uiStrings::sCrossPlotData() );
+    pvdsfld_->attach( alignedBelow, typfld_ );
+
+    setHAlignObj( typfld_ );
 }
 
 
@@ -338,15 +353,43 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
     const char* idres = iop.find( mGetTableKey("ID") );
-    psfld_->setInput( DBKey::getFromStr(idres) );
+    const DBKey dbky( idres );
+    PtrMan<IOObj> ioobj = getIOObj( dbky );
+    if ( !ioobj )
+	return;
+
+    const bool isps = ioobj->translator() != mTranslGroupName( PosVecDataSet );
+    typfld_->setValue( isps );
+    if ( isps )
+	psfld_->setInput( dbky );
+    else
+	pvdsfld_->setInput( dbky );
+
+    typSelCB( 0 );
+}
+
+
+void uiTablePosProvGroup::typSelCB( CallBacker* )
+{
+    const bool isps = typfld_->getBoolValue();
+    psfld_->display( isps );
+    pvdsfld_->display( !isps );
 }
 
 
 bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Table() );
-    if ( !psfld_->fillPar(iop,sKey::Table()) )
-	mErrRet(uiStrings::phrSelect(uiStrings::sPointSet()))
+    if ( typfld_->getBoolValue() )
+    {
+	if ( !psfld_->fillPar(iop,sKey::Table()) )
+	    mErrRet(uiStrings::phrSelect(uiStrings::sPointSet()))
+    }
+    else
+    {
+	if ( !pvdsfld_->fillPar(iop,sKey::Table()) )
+	    mErrRet(uiStrings::phrSelect(uiStrings::sCrossPlotData()))
+    }
 
     iop.removeWithKey( mGetTableKey(sKey::FileName()) );
     return true;
@@ -361,7 +404,8 @@ void uiTablePosProvGroup::getSummary( uiString& txt ) const
 
 bool uiTablePosProvGroup::getID( DBKey& ky ) const
 {
-    const IOObj* ioobj = psfld_->ioobj();
+    const bool isps = typfld_->getBoolValue();
+    const IOObj* ioobj = isps ? psfld_->ioobj(true) : pvdsfld_->ioobj(true);
     ky = ioobj ? ioobj->key() : DBKey();
     return ioobj;
 }

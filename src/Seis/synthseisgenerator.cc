@@ -735,9 +735,9 @@ bool SynthSeis::MultiTraceGenerator::doPrepare( int nrthreads )
 	    trc.reSize( trcsz, false );
 	trc.info().sampling_ = outputsampling_;
 	trc.info().offset_ = model_->raytracerdata_->getOffset( idx );
-	trc.info().coord_ = Coord::udf();
+	trc.info().coord_.setUdf();
 	if ( withposition )
-	    trc.info().trckey_ = tk_;
+	    trc.info().trcKey() = tk_;
     }
 
     ReflectivityModelSet& sampledrefs = model_->sampledreflmodels_;

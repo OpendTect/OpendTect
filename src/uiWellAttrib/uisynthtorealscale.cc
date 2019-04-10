@@ -19,7 +19,8 @@
 #include "seisbufadapters.h"
 #include "seiseventsnapper.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisseldata.h"
+#include "seisselsetup.h"
 #include "stratlayermodel.h"
 #include "stratlevel.h"
 #include "stratsynthdatamgr.h"
@@ -421,7 +422,7 @@ uiSynthToRealScaleRealStatCollector(
     , seldata_(d.seldata_)
 {
     if ( seldata_ )
-	totalnr_ = seldata_->expectedNrTraces( dlg_.use2dseis_ );
+	totalnr_ = seldata_->expectedNrTraces();
     else
 	totalnr_ = dlg_.horiter_->approximateSize();
 }
@@ -466,7 +467,7 @@ int getTrc3D()
 	if ( !prov_.isPresent(TrcKey(bid_)) )
 	    continue;
 
-	const uiRetVal uirv = prov_.get( TrcKey(bid_), trc_ );
+	const uiRetVal uirv = prov_.getAt( TrcKey(bid_), trc_ );
 	if ( !uirv.isOK() )
 	    { msg_ = uirv; return ErrorOccurred(); }
 
@@ -477,7 +478,8 @@ int getTrc3D()
 
 int getTrc2D()
 {
-    const uiRetVal uirv = prov_.get( TrcKey(bid_), trc_ );
+    const TrcKey reqtk( prov_.curGeomID(), bid_.crl() );
+    const uiRetVal uirv = prov_.getAt( reqtk, trc_ );
     if ( !uirv.isOK() )
 	{ msg_ = uirv; return ErrorOccurred(); }
 

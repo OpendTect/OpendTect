@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "prestackgather.h"
 #include "seistrc.h"
 #include "seisbufadapters.h"
-#include "seiswrite.h"
-#include "seisselectionimpl.h"
+#include "seisstorer.h"
+#include "seisseldata.h"
 #include "seispsioprov.h"
 #include "seis2dlineio.h"
 #include "stratsynthexp.h"
@@ -39,7 +39,7 @@ StratSynthExporter::StratSynthExporter( const Setup& setup,
     , cursdsidx_(0)
     , posdone_(0)
     , postobedone_(0)
-    , writer_(0)
+    , storer_(0)
 {
     int synthmodelsz = 0;
     ConstRefMan<SynthSeis::DataSet> sd = sds_[0];
@@ -56,7 +56,9 @@ StratSynthExporter::StratSynthExporter( const Setup& setup,
 
 
 StratSynthExporter::~StratSynthExporter()
-{ delete writer_; }
+{
+    delete storer_;
+}
 
 od_int64 StratSynthExporter::nrDone() const
 { return (cursdsidx_*postobedone_) + posdone_; }
@@ -65,9 +67,8 @@ od_int64 StratSynthExporter::totalNr() const
 { return sds_.size()*postobedone_; }
 
 
-bool StratSynthExporter::prepareWriter()
+bool StratSynthExporter::prepareStorer()
 {
-
     BufferString synthnm;
     if ( !setup_.prefix_.isEmpty() )
 	synthnm.add( setup_.prefix_ ).add( "_" );
@@ -90,11 +91,13 @@ bool StratSynthExporter::prepareWriter()
     ctxt->setName( synthnm.buf() );
     NotifyStopper stopaddentrynot( DBM().entryAdded );
     DBM().getEntry( *ctxt, false );
-    delete writer_;
-    writer_ = new SeisTrcWriter( ctxt->ioobj_ );
-    Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    seldata->setGeomID( setup_.geomid_ );
-    writer_->setSelData( seldata );
+    if ( !ctxt->ioobj_ )
+	return false;
+
+    delete storer_;
+    storer_ = new Seis::Storer( *ctxt->ioobj_ );
+    storer_->setFixedGeomID( setup_.geomid_ );
+
     return true;
 }
 
@@ -104,7 +107,7 @@ int StratSynthExporter::nextStep()
     if ( !sds_.validIdx(cursdsidx_) )
 	return Executor::Finished();
 
-    if ( !posdone_ && !prepareWriter() )
+    if ( !posdone_ && !prepareStorer() )
 	return ErrorOccurred();
 
     return !sds_[cursdsidx_]->isPS() ? writePreStackTraces()
@@ -118,7 +121,7 @@ uiString StratSynthExporter::message() const
 }
 
 
-void StratSynthExporter::prepTrc4Write( SeisTrc& trc ) const
+void StratSynthExporter::prepTrc4Store( SeisTrc& trc ) const
 {
     if ( setup_.replaceudfs_ )
 	trc.ensureNoUndefs( mUdf(float) );
@@ -150,11 +153,12 @@ int StratSynthExporter::writePostStackTrace()
 	mErrRetPErr( "Cannot find the trace in the required position" )
 
     SeisTrc trc( *synthrc );
-    trc.info().trckey_ = TrcKey( setup_.geomid_, linepos.nr_ );
+    trc.info().trcKey() = TrcKey( setup_.geomid_, linepos.nr_ );
     trc.info().coord_ = linepos.coord_;
-    prepTrc4Write( trc );
-    if ( !writer_->put(trc) )
-	{ errmsg_ = writer_->errMsg(); return ErrorOccurred(); }
+    prepTrc4Store( trc );
+    errmsg_ = storer_->put( trc );
+    if ( !errmsg_.isEmpty() )
+	return ErrorOccurred();
 
     posdone_++;
     return Executor::MoreToDo();
@@ -188,15 +192,13 @@ int StratSynthExporter::writePreStackTraces()
 	const float offset = gather.getOffset( offsidx );
 	PtrMan<SeisTrc> trc = gsdp.createTrace( posdone_, offsidx );
 	auto& ti = trc->info();
-	ti.trckey_ = TrcKey( setup_.geomid_, linepos.nr_ );
+	ti.trcKey() = TrcKey( setup_.geomid_, linepos.nr_ );
 	ti.coord_ = linepos.coord_;
 	ti.offset_ = offset;
-	prepTrc4Write( *trc );
-	if ( !writer_->put(*trc) )
-	{
-	    errmsg_ = writer_->errMsg();
+	prepTrc4Store( *trc );
+	errmsg_ = storer_->put( *trc );
+	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
-	}
     }
 
     posdone_++;

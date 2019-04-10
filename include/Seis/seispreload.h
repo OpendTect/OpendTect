@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "taskrunner.h"
 
-class IOObj;
 class Scaler;
 class TrcKeyZSampling;
+
 
 namespace Seis
 {
@@ -32,12 +32,14 @@ public:
 
     mUseType( Pos,	GeomID );
 
-			PreLoader(const DBKey&,GeomID gid=GeomID::get3D(),
-				TaskRunner* =0);
+			PreLoader(const DBKey&);
+			PreLoader(const DBKey&,const TaskRunnerProvider&);
 
-    const DBKey&	id() const			{ return dbkey_; }
-    GeomID		geomID() const			{ return geomid_; }
-    void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }
+    const DBKey&	id() const		{ return dbkey_; }
+    void		setTaskRunner( const TaskRunnerProvider& t )
+						{ trprov_ = &t; }
+    void		setDefGeomID( GeomID gid )
+						{ defgeomid_ = gid; }
 
     IOObj*		getIOObj() const;
     Interval<int>	inlRange() const;
@@ -56,11 +58,14 @@ public:
     bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
+    void		unLoad(GeomID) const;
     uiString		errMsg() const			{ return errmsg_; }
 
-    static void		load(const IOPar&,TaskRunner* tskr=0);
+    static void		load(const IOPar&);
+    static void		load(const IOPar&,const TaskRunnerProvider&);
 			//!< Seis.N.[loadObj_fmt]
-    static void		loadObj(const IOPar&,TaskRunner* tskr=0);
+    static void		loadObj(const IOPar&);
+    static void		loadObj(const IOPar&,const TaskRunnerProvider&);
 			//!< sKey::ID() and optional subselections
     void		fillPar(IOPar&) const;
 
@@ -69,14 +74,16 @@ public:
 
 protected:
 
-    DBKey		dbkey_;
-    GeomID		geomid_;
-    TaskRunner*		tr_;
-    SilentTaskRunner	deftr_;
-    mutable uiString	errmsg_;
+    DBKey			dbkey_;
+    GeomID			defgeomid_;
+    const TaskRunnerProvider*	trprov_;
+    mutable uiString		errmsg_;
 
-    TaskRunner&		getTr() const
-			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }
+    bool			runTask(Task&) const;
+    static void			doLoad(const IOPar&,const TaskRunnerProvider*);
+    static void			doLoadObj(const IOPar&,
+					  const TaskRunnerProvider*);
+
 };
 
 
@@ -129,6 +136,7 @@ public:
 					  GeomID gid=GeomID()) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
+    RefMan<DataPack>		getDP(const DBKey&,GeomID gid=GeomID());
 
 protected:
 
@@ -140,7 +148,6 @@ public:
 				PreLoadDataManager();
 				~PreLoadDataManager();
 
-    RefMan<DataPack>		getDP(const DBKey&,GeomID gid=GeomID());
     inline RefMan<DataPack>	getDP( DataPack::ID dpid )
 				{ return dpmgr_.getDP( dpid ); }
     ConstRefMan<DataPack>	getDP(const DBKey&,GeomID gid=GeomID()) const;

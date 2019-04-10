@@ -34,6 +34,8 @@ public:
     mUseType( Pos,	IdxPair2Coord );
 
 			Geometry3D(const char* nm=0);
+			Geometry3D(const Geometry3D&);
+    Geometry3D*		clone() const override	{ return new Geometry3D(*this);}
 
     GeomSystem		geomSystem() const override { return OD::VolBasedGeom; }
     const name_type&	name() const override	{ return name_; }

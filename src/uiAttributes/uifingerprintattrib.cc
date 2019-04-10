@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "picksetmanager.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
-#include "seisselection.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

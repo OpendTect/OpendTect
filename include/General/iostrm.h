@@ -36,6 +36,8 @@ public:
     virtual BufferString mainFileName() const;
     virtual const char*	connType() const;
     virtual bool	isStream() const	{ return true; }
+    virtual IOStream*	asStream()		{ return this; }
+    virtual const IOStream* asStream() const	{ return this; }
     virtual Conn*	getConn(bool) const;
 
     virtual bool	implExists(bool forread) const;

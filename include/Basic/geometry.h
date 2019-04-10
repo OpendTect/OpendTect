@@ -74,6 +74,7 @@ public:
     bool			fromString(const char*);
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
+    void			setUdf() { *this = udf(); }
 
     T				x_;
     T				y_;
@@ -161,6 +162,7 @@ public:
     BufferString		toPrettyString() const	{ return toString(); }
 
     static Point3D<T>		udf();
+    void			setUdf()		{ *this = udf(); }
 
     T				x_;
     T				y_;
@@ -511,7 +513,7 @@ bool Point2D<T>::fromString( const char* s )
 {
     if ( !s || !*s ) return false;
     if ( *s == '<' )
-    { *this = udf(); return true; }
+	{ setUdf(); return true; }
 
     BufferString str( s );
     char* ptrx = str.getCStr(); mSkipBlanks( ptrx );

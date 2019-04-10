@@ -223,11 +223,8 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 	{
 	    for ( int idx=0; idx<nrpos_; idx++ )
 	    {
-		if ( trc.info().trckey_ != (*tks_)[idx] )
-		{
-		    pErrMsg("wrong position");
-		    continue;
-		}
+		if ( trc.info().trcKey() != (*tks_)[idx] )
+		    { pErrMsg("wrong position"); continue; }
 
 		pos = idx;
 		break;
@@ -236,7 +233,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #ifdef __debug__
 	else
 	{
-	    if ( trc.info().trckey_ != (*tks_)[*ipos] )
+	    if ( trc.info().trcKey() != (*tks_)[*ipos] )
 		pErrMsg("wrong position");
 	}
 #endif

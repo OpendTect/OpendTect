@@ -6,11 +6,11 @@
 
 
 #include "madstream.h"
+#include "cubesubsel.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "horsubsel.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -25,11 +25,11 @@
 #include "seispswrite.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seispacketinfo.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -63,7 +63,7 @@ MadStream::MadStream( IOPar& par )
     : pars_(par)
     , is2d_(false),isps_(false),isbinary_(true)
     , istrm_(0),ostrm_(0)
-    , seisprov_(0),seiswrr_(0)
+    , seisprov_(0), seisstorer_(0)
     , psrdr_(0),pswrr_(0)
     , trcbuf_(0),curtrcidx_(-1)
     , stortrcbuf_(0)
@@ -103,7 +103,7 @@ MadStream::~MadStream()
         deleteAndZeroPtr(ostrm_);
     }
 
-    delete seisprov_; delete seiswrr_;
+    delete seisprov_; delete seisstorer_;
     delete psrdr_; delete pswrr_;
     delete trcbuf_; delete iter_; delete cubedata_; delete l2ddata_;
     delete &errmsg_;
@@ -201,12 +201,12 @@ void MadStream::initRead( IOPar* par )
     if ( !par->get(sKey::ID(), inpid) )
 	mErrRet(tr("Input ID missing"));
 
-    PtrMan<IOObj> ioobj = DBM().get( inpid );
+    PtrMan<IOObj> ioobj = getIOObj( inpid );
     if ( !ioobj )
 	mErrRet( uiStrings::phrCannotFindDBEntry(inpid) );
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
-    Seis::SelData* seldata = Seis::SelData::get( *subpar );
+    auto* seldata = Seis::SelData::get( *subpar );
     if ( !isps_ )
     {
 	uiRetVal uirv;
@@ -244,7 +244,7 @@ void MadStream::initWrite( IOPar* par )
     if (!par->get(sKey::ID(), outpid))
 	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
 
-    PtrMan<IOObj> ioobj = DBM().get( outpid );
+    PtrMan<IOObj> ioobj = getIOObj( outpid );
     if ( !ioobj )
 	mErrRet( uiStrings::phrCannotFindDBEntry(outpid) );
 
@@ -252,8 +252,9 @@ void MadStream::initWrite( IOPar* par )
     Seis::SelData* seldata = subpar ? Seis::SelData::get(*subpar) : 0;
     if ( !isps_ )
     {
-	seiswrr_ = new SeisTrcWriter( ioobj );
-	if ( !seiswrr_ ) mErrRet(toUiString("Internal: Cannot create writer"))
+	seisstorer_ = ioobj ? new Seis::Storer( *ioobj ) : 0;
+	if ( !seisstorer_ )
+	    mErrRet(mINTERNAL("Cannot create Storer"))
     }
     else
     {
@@ -263,9 +264,6 @@ void MadStream::initWrite( IOPar* par )
 	if (!pswrr_) mErrRet(tr("Cannot write to output object"));
 	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
-
-    if ( is2d_ && !isps_ )
-	seiswrr_->setSelData(seldata);
 
     fillHeaderParsFromStream();
 }
@@ -340,7 +338,7 @@ void MadStream::fillHeaderParsFromSeis()
     BufferString posfnm = getPosFileName( false );
     if ( is2d_ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( seisprov_->dbKey() );
+	PtrMan<IOObj> ioobj = getIOObj( seisprov_->dbKey() );
 	if (!ioobj) mErrRet(tr("No input object"));
 
 	Seis2DDataSet dset( *ioobj );
@@ -370,13 +368,12 @@ void MadStream::fillHeaderParsFromSeis()
     }
     else
     {
-	TrcKeyZSampling tkzs;
-	mDynamicCastGet(const Seis::Provider3D&,prov3d,*seisprov_);
-	prov3d.getRanges( tkzs );
+	const auto& prov3d = *seisprov_->as3D();
+	const TrcKeyZSampling tkzs( prov3d.cubeSubSel() );
 	zrg = tkzs.zsamp_;
 	trcrg = tkzs.hsamp_.trcRange();
 
-	mDynamicCastGet(const Seis::RangeSelData*,rgsel,seisprov_->selData())
+	auto* rgsel = seisprov_->selData()->asRange();
 	if ( rgsel && !rgsel->isAll() )
 	{
 	    zrg.limitTo( rgsel->zRange() );
@@ -386,7 +383,7 @@ void MadStream::fillHeaderParsFromSeis()
 	PosInfo::CubeData newcd;
 	prov3d.getGeometryInfo( newcd );
 	if ( rgsel && !rgsel->isAll() )
-	    newcd.limitTo( rgsel->cubeSampling().hsamp_ );
+	    newcd.limitTo( rgsel->cubeSubSel().cubeHorSubSel() );
 
 	needposfile = !newcd.isFullyRectAndReg();
 	if ( needposfile )
@@ -399,7 +396,7 @@ void MadStream::fillHeaderParsFromSeis()
 	{
 	    StepInterval<int> inlrg;
 	    if ( rgsel )
-		rgsel->cubeSampling().hsamp_.inlRange();
+		inlrg = rgsel->cubeSubSel().inlRange();
 	    else
 		newcd.getInlRange( inlrg );
 
@@ -709,7 +706,7 @@ uiString MadStream::sNoPositionsInPosFile()
 
 bool MadStream::writeTraces( bool writetofile )
 {
-    if ( writetofile && ( ( isps_ && !pswrr_ ) || ( !isps_ && !seiswrr_ ) ) )
+    if ( writetofile && ( ( isps_ && !pswrr_ ) || ( !isps_ && !seisstorer_ ) ) )
 	mErrBoolRet(tr("Cannot initialize writing"));
 
     if ( is2d_ )
@@ -773,7 +770,7 @@ bool MadStream::writeTraces( bool writetofile )
 		    readRSFTrace( buf, nrsamps );
 		    SeisTrc* trc = new SeisTrc( nrsamps );
 		    trc->info().sampling_ = sd;
-		    trc->info().setBinID( BinID(inl,crl) );
+		    trc->info().setPos( BinID(inl,crl) );
 		    if ( isps_ )
 			trc->info().offset_ = offsetsd.atIndex( trcidx - 1 );
 
@@ -783,7 +780,7 @@ bool MadStream::writeTraces( bool writetofile )
 		    if ( writetofile )
 		    {
 			if ( ( isps_ && !pswrr_->put (*trc) )
-			    || ( !isps_ && !seiswrr_->put(*trc) ) )
+			    || ( !isps_ && !seisstorer_->put(*trc).isOK() ) )
 			{
 			    delete [] buf; delete trc;
 			    mErrBoolRet(tr("Cannot write trace"));
@@ -846,7 +843,7 @@ bool MadStream::write2DTraces( bool writetofile )
 	    SeisTrc* trc = new SeisTrc( nrsamps );
 	    trc->info().sampling_ = sd;
 	    trc->info().coord_ = posns[idx].coord_;
-	    trc->info().trckey_.setTrcNr( trcnr );
+	    trc->info().setTrcNr( trcnr );
 	    if ( isps_ )
 		trc->info().offset_ = offsetsd.atIndex( offidx );
 
@@ -856,7 +853,7 @@ bool MadStream::write2DTraces( bool writetofile )
 	    if ( writetofile )
 	    {
 		if ( ( isps_ && !pswrr_->put (*trc) )
-			|| ( !isps_ && !seiswrr_->put(*trc) ) )
+			|| ( !isps_ && !seisstorer_->put(*trc).isOK() ) )
 		{
 		    delete [] buf; delete trc;
 		    mErrBoolRet(uiStrings::phrErrDuringWrite());

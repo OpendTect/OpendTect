@@ -573,8 +573,7 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     if ( tkzs.hsamp_.is2D() )
     {
 	uiTaskRunner taskrunner( parent() );
-	const Pos::GeomID geomid = tkzs.hsamp_.trcKeyAt(0).geomID();
-	return create2DOutput( tkzs, geomid, taskrunner );
+	return create2DOutput( tkzs, taskrunner );
     }
 
     auto& dpm = DPM(DataPackMgr::SeisID());
@@ -1058,7 +1057,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
 	{
 	    const int trcidx =
-			outputdp_->getGlobalIdx( trcinfoset[tidx]->trckey_ );
+			outputdp_->getGlobalIdx( trcinfoset[tidx]->trcKey() );
 	    if ( trcidx < 0 )
 		continue;
 
@@ -1109,7 +1108,6 @@ protected:
 };
 
 DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
-						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
 {
     if ( targetspecs_.isEmpty() )
@@ -1117,6 +1115,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 
     const DescSet& curds = curDescSet( true );
     const Desc* targetdesc = curds.getDesc( targetID(true) );
+    const auto geomid - tkzs.hsamp_.getGeomID();
     if ( targetdesc )
     {
 	const DBKey dbky( targetdesc->getStoredID() );

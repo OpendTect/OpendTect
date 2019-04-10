@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "nrbytes2string.h"
 #include "odsysmem.h"
 #include "file.h"
+#include "trckey.h"
 
 #define mJoinStr toUiString("%1 %2")
 
@@ -223,6 +224,13 @@ uiPhrase uiStrings::phrInline( const uiWord& string )
 
 uiPhrase uiStrings::phrInput( const uiWord& string )
 { return mJoinStr.arg( sInput() ).arg( string ); }
+
+uiPhrase uiStrings::phrPosNotFound( const TrcKey& tk )
+{
+    return tr("Position not found: %1/%2")
+	.arg( tk.is2D() ? nameOf(tk.geomID()) : toString(tk.inl()) )
+	.arg( tk.trcNr() );
+}
 
 uiPhrase uiStrings::phrParamMissing( const char* pnm )
 { return tr("Parameter '%1' missing").arg( pnm ); }

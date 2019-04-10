@@ -12,8 +12,7 @@
 
 class IOObj;
 class SeisTrc;
-class SeisTrcWriter;
-namespace Seis { class Provider; }
+namespace Seis { class Provider; class Storer; }
 
 
 namespace Tut
@@ -25,7 +24,7 @@ public:
 
     enum Action		{ Scale, Square, Smooth, ChgSD };
 
-    			SeisTools();
+			SeisTools();
     virtual		~SeisTools();
     void		clear();
 
@@ -44,9 +43,9 @@ public:
     inline void		setScale( float f, float s )
 						{ factor_ = f; shift_ = s; }
     void		setSampling( SamplingData<float> sd )
-    						{ newsd_ = sd; }
+						{ newsd_ = sd; }
     inline void		setWeakSmoothing( bool yn )
-    						{ weaksmooth_ = yn; }
+						{ weaksmooth_ = yn; }
 
 			// Executor compliance functions
     uiString		message() const;
@@ -68,7 +67,7 @@ protected:
     bool		weaksmooth_;
 
     Seis::Provider*	prov_;
-    SeisTrcWriter*	wrr_;
+    Seis::Storer*	storer_;
     SeisTrc&		trcin_;
     SeisTrc&            trcout_;
     int			nrdone_;
@@ -76,7 +75,7 @@ protected:
     uiString		errmsg_;
 
     bool		createProvider();
-    bool		createWriter();
+    bool		createStorer();
     void		handleTrace();
 
 };

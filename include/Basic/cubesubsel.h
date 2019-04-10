@@ -57,9 +57,11 @@ public:
 			CubeSubSel(const pos_steprg_type&,
 				   const pos_steprg_type&,
 				   const z_steprg_type&);
+			CubeSubSel(const BinID&);
 			CubeSubSel(const HorSampling&);
 			CubeSubSel(const HorSampling&,const z_steprg_type&);
 			CubeSubSel(const CubeSampling&);
+			CubeSubSel(const TrcKeySampling&);
 			CubeSubSel(const TrcKeyZSampling&);
 			mImplArrRegSubSelClone(CubeSubSel)
 
@@ -93,6 +95,7 @@ public:
     void		setCrlRange( const pos_steprg_type& rg )
 			{ crlSubSel().setOutputPosRange( rg ); }
     void		setRange(const BinID&,const BinID&,const BinID& step);
+    void		merge(const CubeSubSel&);
 
     SliceType		defaultDir() const;
     size_type		size(SliceType) const;
@@ -112,7 +115,7 @@ protected:
 
     Data&	gtData( idx_type idim ) const override
 		{
-		    const Data* ret = &zSubSel();
+		    const Data* ret = &zSubSelData();
 		    if ( idim < 2 )
 			ret = idim ? &crlSubSel() : &inlSubSel();
 		    return const_cast<Data&>( *ret );

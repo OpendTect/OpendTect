@@ -26,6 +26,8 @@ public:
     void		readFromFile(const char*,int linecutlen=0);
     bool		saveToFile(const char*,int linelen=0,bool newlns=true);
 
+    bool		isEmpty() const override
+			{ const auto* t = text(); return !t || !*t; }
     const char*		text() const;
     int			nrLines() const;
     bool		verticalSliderIsDown() const;
@@ -76,7 +78,7 @@ public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
 				   bool readonly=false);
 
-    void		setEmpty()			{ setText(0); }
+    void		setEmpty() override		{ setText(0); }
     void		setText(const char* txt)	{ setText(txt,false); }
 			//!<Does not trigger notification
     void		setText(const OD::String& txt);
@@ -93,6 +95,7 @@ private:
 
     uiTextEditBody*	body_;
     uiTextEditBody&	mkbody(uiParent*,const char*,bool);
+
 };
 
 
@@ -108,7 +111,7 @@ public:
 				      bool logmode=false);
 			~uiTextBrowser();
 
-    void		setEmpty()			{ setText(0); }
+    void		setEmpty() override		{ setText(0); }
     void		setText(const char*);
     void		setHtmlText(const char*);
     void		getHtmlText(BufferString&) const;

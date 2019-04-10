@@ -28,9 +28,9 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "seisrandlineto2d.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "separstr.h"
 #include "survgeom2d.h"
 #include "survgeommgr.h"
@@ -74,7 +74,7 @@ protected:
     uiString		errmsg_;
 
     Seis::Provider*	prov_;
-    SeisTrcWriter*	wrr_;
+    Seis::Storer*	storer_;
 };
 
 
@@ -91,20 +91,15 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
     else
 	errmsg_ = uirv;
 
-    wrr_ = new SeisTrcWriter( &output );
-    Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    if ( seldata )
-    {
-	seldata->setGeomID( geomid );
-	wrr_->setSelData( seldata );
-    }
+    storer_ = new Seis::Storer( output );
+    storer_->setFixedGeomID( geomid );
 }
 
 
 Seis2DLineCreator::~Seis2DLineCreator()
 {
     delete prov_;
-    delete wrr_;
+    delete storer_;
 }
 
 uiString Seis2DLineCreator::message() const
@@ -116,7 +111,8 @@ uiString Seis2DLineCreator::nrDoneText() const
 
 int Seis2DLineCreator::nextStep()
 {
-    if ( !prov_ ) return ErrorOccurred();
+    if ( !prov_ )
+	return ErrorOccurred();
 
     SeisTrc trc;
     const uiRetVal uirv = prov_->getNext( trc );
@@ -129,12 +125,9 @@ int Seis2DLineCreator::nextStep()
 	return ErrorOccurred();
     }
 
-    if ( !wrr_->put(trc) )
-    {
-	errmsg_ = tr("Cannot write output trace");
-	errmsg_.appendPhrase( wrr_->errMsg() );
+    errmsg_ = storer_->put( trc );
+    if ( !errmsg_.isEmpty() )
 	return ErrorOccurred();
-    }
 
     nrdone_++;
     return MoreToDo();

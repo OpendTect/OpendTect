@@ -491,7 +491,6 @@ RefMan<Gather> AngleComputer::computeAngles()
 // VelocityBasedAngleComputer
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
     : AngleComputer()
-    , tk_(TrcKey::udf())
 {}
 
 

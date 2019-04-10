@@ -1,0 +1,348 @@
+/*+
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : Bert
+ * DATE     : 21-1-1998 / Mar 2019
+-*/
+
+
+#include "seispolyseldata.h"
+#include "seisrangeseldata.h"
+#include "seistableseldata.h"
+#include "cubesubsel.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "linesubsel.h"
+#include "picksettr.h"
+#include "posvecdatasettr.h"
+#include "seis2ddata.h"
+#include "seisioobjinfo.h"
+#include "survinfo.h"
+#include "survgeom2d.h"
+#include "trckey.h"
+
+static const char* sKeyBinIDSel = "BinID selection";
+mUseType( Seis::SelData, z_type );
+mUseType( Seis::SelData, z_rg_type );
+mUseType( Seis::SelData, pos_type );
+mUseType( Seis::SelData, pos_rg_type );
+mUseType( Seis::SelData, idx_type );
+mUseType( Seis::SelData, size_type );
+typedef StepInterval<pos_type> pos_steprg_type;
+typedef StepInterval<z_type> z_steprg_type;
+
+
+const char* Seis::SelData::sNrLinesKey()
+{
+    return IOPar::compKey( sKey::Line(mPlural),sKey::Size() );
+}
+
+
+Seis::SelDataPosIter::SelDataPosIter( const SelData& sd )
+    : sd_(sd)
+{
+}
+
+
+Seis::SelDataPosIter::SelDataPosIter( const SelDataPosIter& oth )
+    : sd_(oth.sd_)
+{
+}
+
+
+pos_type Seis::SelDataPosIter::trcNr() const
+{
+    return binID().crl();
+}
+
+
+void Seis::SelDataPosIter::getTrcKey( TrcKey& tk ) const
+{
+    if ( is2D() )
+	tk.setPos( geomID(), trcNr() );
+    else
+	tk.setPos( binID() );
+}
+
+
+void Seis::SelData::copyFrom( const SelData& oth )
+{
+    if ( this != &oth )
+	doCopyFrom( oth );
+}
+
+
+void Seis::SelData::removeFromPar( IOPar& iop, const char* subky )
+{
+    iop.removeWithKey( IOPar::compKey(subky,sKey::Type()) );
+    iop.removeWithKey( IOPar::compKey(subky,sKeyBinIDSel) );
+}
+
+
+void Seis::SelData::extendH( const BinID& so, const BinID* stepoutstep )
+{
+    BinID sos( SI().inlStep(), SI().crlStep() );
+    if ( stepoutstep )
+	sos = *stepoutstep;
+    doExtendH( so, sos );
+}
+
+
+void Seis::SelData::extendZ( const z_rg_type& zrg )
+{
+    doExtendZ( zrg );
+}
+
+
+Seis::SelData* Seis::SelData::get( Type t )
+{
+    switch ( t )
+    {
+    case Table:		return new TableSelData;
+    case Polygon:	return new PolySelData;
+    default:		return new RangeSelData( GeomID::get3D() );
+    }
+}
+
+
+
+Seis::SelData* Seis::SelData::get( const IOPar& iop )
+{
+    const Type t = selTypeOf( iop.find(sKey::Type()) );
+    SelData* sd = get( t );
+    sd->usePar( iop );
+    return sd;
+}
+
+
+Seis::SelData* Seis::SelData::get( const DBKey& dbky )
+{
+    PtrMan<IOObj> ioobj = getIOObj( dbky );
+    if ( !ioobj )
+	return nullptr;
+
+    const SeisIOObjInfo objinf( *ioobj );
+    if ( objinf.isOK() )
+    {
+	if ( !objinf.is2D() )
+	{
+	    PtrMan<Survey::FullSubSel> ss = objinf.getSurvSubSel();
+	    return new RangeSelData( *ss );
+	}
+	Seis2DDataSet ds2d( *objinf.ioObj() );
+	const auto nrlns = ds2d.nrLines();
+	RangeSelData* rsd = nullptr;
+	for ( auto iln=0; iln<nrlns; iln++ )
+	{
+	    if ( rsd )
+		rsd->subSel2D().add( new LineSubSel(ds2d.geomID(iln)) );
+	    else
+		rsd = new RangeSelData( ds2d.geomID(iln) );
+	}
+	return rsd;
+    }
+
+    if ( ioobj->group() == mTranslGroupName(PosVecDataSet) )
+	return new TableSelData( ioobj->key() );
+    else if ( ioobj->group() == mTranslGroupName(PickSet) )
+    {
+	if ( PickSetTranslator::isPolygon(*ioobj) )
+	    return new PolySelData( ioobj->key() );
+	else
+	    return new TableSelData( ioobj->key() );
+    }
+
+    pFreeFnErrMsg( BufferString("No Seis::SelData for ",ioobj->group()) );
+    return nullptr;
+}
+
+
+bool Seis::SelData::isOK( const TrcKey& tk ) const
+{
+    return tk.is2D() ? isOK( tk.geomID(), tk.trcNr() )
+		     : isOK( tk.position() );
+}
+
+
+void Seis::SelData::include( const SelData& oth )
+{
+    if ( oth.type() != type() )
+	{ pErrMsg("Cannot include mixed types"); }
+    else if ( isRange() )
+	asRange()->merge( *oth.asRange() );
+    else if ( isTable() )
+	asTable()->merge( *oth.asTable() );
+    else if ( isRange() )
+	asPoly()->merge( *oth.asPoly() );
+}
+
+
+bool Seis::SelData::hasGeomID( GeomID gid ) const
+{
+    for ( auto igid=0; igid<nrGeomIDs(); igid++ )
+	if ( geomID(igid) == gid )
+	    return true;
+    return false;
+}
+
+
+Seis::RangeSelData* Seis::SelData::asRange()
+{
+    return isRange() ? static_cast<RangeSelData*>( this ) : nullptr;
+}
+
+
+const Seis::RangeSelData* Seis::SelData::asRange() const
+{
+    return isRange() ? static_cast<const RangeSelData*>( this ) : nullptr;
+}
+
+
+Seis::TableSelData* Seis::SelData::asTable()
+{
+    return isTable() ? static_cast<TableSelData*>( this ) : nullptr;
+}
+
+
+const Seis::TableSelData* Seis::SelData::asTable() const
+{
+    return isTable() ? static_cast<const TableSelData*>( this ) : nullptr;
+}
+
+
+Seis::PolySelData* Seis::SelData::asPoly()
+{
+    return isPoly() ? static_cast<PolySelData*>( this ) : nullptr;
+}
+
+
+const Seis::PolySelData* Seis::SelData::asPoly() const
+{
+    return isPoly() ? static_cast<const PolySelData*>( this ) : nullptr;
+}
+
+
+static Seis::SelData::pos_type getInlCrl42D( const Survey::Geometry2D& geom,
+					     bool first, bool inl )
+{
+    const Coord coord( geom.getCoordByIdx(first? 0 : geom.size()-1) );
+    const BinID bid( SI().transform(coord) );
+    return inl ? bid.inl() : bid.crl();
+}
+
+
+static void inclInlCrl42D( const Survey::Geometry2D& geom,
+		    Seis::SelData::pos_rg_type& rg, bool inl )
+{
+    if ( geom.isEmpty() )
+	return;
+
+    auto posidx = getInlCrl42D( geom, true, inl );
+    if ( mIsUdf(rg.start) )
+	rg.start = rg.stop = posidx;
+    else
+	rg.include( posidx, false );
+    posidx = getInlCrl42D( geom, false, inl );
+    rg.include( posidx );
+}
+
+
+Seis::SelData::pos_rg_type Seis::SelData::inlRange() const
+{
+    if ( !is2D() )
+	return SI().inlRange();
+
+    pos_rg_type ret( mUdf(int), mUdf(int) );
+    for ( auto idx=0; idx<nrGeomIDs(); idx++ )
+	inclInlCrl42D( Survey::Geometry2D::get( geomID(idx) ), ret, true );
+
+    return ret;
+}
+
+
+Seis::SelData::pos_rg_type Seis::SelData::crlRange() const
+{
+    if ( !is2D() )
+	return SI().crlRange();
+
+    pos_rg_type ret( mUdf(int), mUdf(int) );
+    for ( auto idx=0; idx<nrGeomIDs(); idx++ )
+	inclInlCrl42D( Survey::Geometry2D::get( geomID(idx) ), ret, false );
+
+    return ret;
+}
+
+
+Seis::SelData::z_rg_type Seis::SelData::zRange( idx_type ) const
+{
+    return SI().zRange();
+}
+
+
+
+void Seis::SelData::fillPar( IOPar& iop ) const
+{
+    const char* typstr = Seis::nameOf(type());
+    iop.set( sKey::Type(), isAll() ? (const char*)sKey::None() : typstr );
+
+    if ( !is2D() )
+	iop.removeWithKey( sNrLinesKey() );
+    const auto nrgeomids = nrGeomIDs();
+    if ( nrgeomids > 1 || !is2D() )
+	iop.removeWithKey( sKey::GeomID() );
+
+    if ( is2D() )
+    {
+	iop.set( sNrLinesKey(), nrgeomids );
+	if ( nrgeomids == 1 )
+	    iop.set( sKey::GeomID(), geomID() );
+	else
+	{
+	    GeomIDSet gids;
+	    for ( auto idx=0; idx<nrgeomids; idx++ )
+		gids += geomID( idx );
+	    iop.set( sKey::GeomID(mPlural), gids );
+	}
+    }
+
+    doFillPar( iop );
+}
+
+
+void Seis::SelData::usePar( const IOPar& iop )
+{
+    doUsePar( iop );
+}
+
+
+size_type Seis::SelData::nrTrcsInSI() const
+{
+    CubeSubSel css;
+    return css.size( OD::InlineSlice ) * css.size( OD::CrosslineSlice );
+}
+
+
+uiString Seis::SelData::usrSummary() const
+{
+    return isAll() ? toUiString( "-" ) : gtUsrSummary();
+}
+
+
+// This default returns selection on base of position
+// It will be called if the class does not support 2D directly
+
+int Seis::SelData::selRes2D( GeomID gid, pos_type trcnr ) const
+{
+    if ( !gid.isValid() || !gid.is2D() )
+	return false;
+
+    auto& geom = Survey::Geometry2D::get( gid );
+    if ( geom.isEmpty() )
+	return false;
+
+    const auto idxof = geom.indexOf( trcnr );
+    if ( idxof < 0 )
+	return false;
+
+    const BinID bid( SI().transform(geom.getCoordByIdx(idxof)) );
+    return selRes3D( bid );
+}

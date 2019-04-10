@@ -18,9 +18,9 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seistableseldata.h"
 #include "seistrc.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "survinfo.h"
 #include "od_ostream.h"
 #include "uistrings.h"
@@ -32,23 +32,23 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     : Executor("Saving 2D Line")
     , geomid_(geomid)
     , prov_(0)
-    , wrr_(0)
+    , storer_(0)
     , nrdone_(0)
     , seldata_(*new Seis::TableSelData)
 {
     uiRetVal uirv;
     prov_ = Seis::Provider::create( inobj, &uirv );
-    if ( !prov_ ) errmsg_ = uirv;
-
-    wrr_ = new SeisTrcWriter( &outobj );
-    Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    if ( seldata )
+    if ( !prov_ )
+	{ errmsg_ = uirv; return; }
+    if ( rln.nrNodes() < 2 )
+	{ errmsg_ = mINTERNAL("Empty random line"); return; }
+    storer_ = new Seis::Storer( outobj );
+    if ( !storer_->isUsable() )
     {
-	seldata->setGeomID( geomid );
-	wrr_->setSelData( seldata );
+	errmsg_ = storer_->errNotUsable();
+	deleteAndZeroPtr(storer_);
+	return;
     }
-
-    if ( rln.nrNodes() < 2 ) return;
 
     SeisIOObjInfo inpsi( inobj );
     TrcKeyZSampling inpcs;
@@ -110,23 +110,21 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 
 SeisRandLineTo2D::~SeisRandLineTo2D()
 {
-    delete prov_; delete wrr_;
+    delete prov_; delete storer_;
     delete &seldata_; delete buf_;
 }
 
 
 static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
 {
-    if ( !trc || !buf ) return;
+    if ( !trc || !buf )
+	return;
 
     for ( int idx=0; idx<buf->size(); idx++ )
     {
 	const SeisTrc* buftrc = buf->get( idx );
 	if ( buftrc->info().trcNr() > trc->info().trcNr() )
-	{
-	    buf->insert( trc, idx );
-	    return;
-	}
+	    { buf->insert( trc, idx ); return; }
     }
 
     buf->add( trc );
@@ -135,14 +133,15 @@ static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
 
 bool SeisRandLineTo2D::writeTraces()
 {
-    if ( !buf_ || !wrr_ ) return false;
+    if ( !buf_ || !storer_ )
+	return false;
 
     bool res = true;
     for ( int idx=0; idx<buf_->size(); idx++ )
     {
-	SeisTrc* trc = buf_->get( idx );
-	if ( !wrr_->put(*trc) )
-	    res = false;
+	const auto uirv = storer_->put( *buf_->get(idx) );
+	if ( !uirv.isOK() )
+	    { errmsg_ = uirv; res = false; break; }
     }
 
     return res;
@@ -151,7 +150,7 @@ bool SeisRandLineTo2D::writeTraces()
 
 int SeisRandLineTo2D::nextStep()
 {
-    if ( !prov_ || !wrr_ || !totnr_ )
+    if ( !prov_ || !storer_ || !totnr_ )
 	return Executor::ErrorOccurred();
 
     SeisTrc* trc = new SeisTrc;
@@ -182,7 +181,7 @@ int SeisRandLineTo2D::nextStep()
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT32( vals[3] );
     TrcKey trckey2d( geomid_, trcnr );
-    trc->info().trckey_ = trckey2d;
+    trc->info().trcKey() = trckey2d;
     trc->info().coord_ = coord;
     addTrcToBuffer( trc, buf_ );
 
@@ -197,7 +196,7 @@ int SeisRandLineTo2D::nextStep()
 	const Coord nextcoord( vals[1], vals[2] );
 	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT32( vals[3] );
-	nexttrc->info().trckey_ = TrcKey( geomid_, nexttrcnr );
+	nexttrc->info().trcKey() = TrcKey( geomid_, nexttrcnr );
 	nexttrc->info().coord_ = nextcoord;
 	addTrcToBuffer( nexttrc, buf_ );
 	nrdone_++;

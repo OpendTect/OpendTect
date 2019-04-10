@@ -13,7 +13,6 @@
 class SeisTrc;
 class SeisTrcBuf;
 class SeisPSReader;
-class SeisTrcWriter;
 class BufferStringSet;
 namespace Seis		{ class SelData; }
 

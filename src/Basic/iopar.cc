@@ -452,26 +452,30 @@ void IOPar::update( const char* keyw, const char* val )
 
 
 #define mDefYNFns(fnnm) \
-void IOPar::fnnm##YN( const char* keyw, bool yn ) \
+void IOPar::fnnm##YN( const char* kw, bool yn ) \
 { \
+    const BufferString keyw( kw ); \
     fnnm( keyw, getYesNoString(yn) ); \
 } \
-void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2 ) \
+void IOPar::fnnm##YN( const char* kw, bool yn1, bool yn2 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms( getYesNoString(yn1) ); \
     fms.add( getYesNoString(yn2) ); \
     fnnm( keyw, fms ); \
 } \
-void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, bool yn3 ) \
+void IOPar::fnnm##YN( const char* kw, bool yn1, bool yn2, bool yn3 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms( getYesNoString(yn1) ); \
     fms.add( getYesNoString(yn2) ); \
     fms.add( getYesNoString(yn3) ); \
     fnnm( keyw, fms ); \
 } \
-void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, \
+void IOPar::fnnm##YN( const char* kw, bool yn1, bool yn2, \
 		      bool yn3, bool yn4 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms( getYesNoString(yn1) ); \
     fms.add( getYesNoString(yn2) ); \
     fms.add( getYesNoString(yn3) ); \
@@ -484,28 +488,32 @@ mDefYNFns(add)
 
 
 #define mDefSet1Val( type ) \
-void IOPar::set( const char* keyw, type val ) \
+void IOPar::set( const char* kw, type val ) \
 {\
+    const BufferString keyw( kw ); \
     set( keyw, toString( val ) );\
 }
 #define mDefSet2Val( type ) \
-void IOPar::set( const char* keyw, type v1, type v2 ) \
+void IOPar::set( const char* kw, type v1, type v2 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     set( keyw, fms ); \
 }
 #define mDefSet3Val( type ) \
-void IOPar::set( const char* keyw, type v1, type v2, type v3 ) \
+void IOPar::set( const char* kw, type v1, type v2, type v3 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
     set( keyw, fms ); \
 }
 #define mDefSet4Val( type ) \
-void IOPar::set( const char* keyw, type v1, type v2, type v3, type v4 ) \
+void IOPar::set( const char* kw, type v1, type v2, type v3, type v4 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
@@ -519,23 +527,26 @@ void IOPar::add( const char* keyw, type val ) \
     add( keyw, toString( val ) ); \
 }
 #define mDefAdd2Val( type ) \
-void IOPar::add( const char* keyw, type v1, type v2 ) \
+void IOPar::add( const char* kw, type v1, type v2 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     add( keyw, fms ); \
 }
 #define mDefAdd3Val( type ) \
-void IOPar::add( const char* keyw, type v1, type v2, type v3 ) \
+void IOPar::add( const char* kw, type v1, type v2, type v3 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
     add( keyw, fms ); \
 }
 #define mDefAdd4Val( type ) \
-void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
+void IOPar::add( const char* kw, type v1, type v2, type v3, type v4 ) \
 { \
+    const BufferString keyw( kw ); \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \

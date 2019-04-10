@@ -260,6 +260,6 @@ protected:
 private:
 
     DataPack::ID		create2DOutput(const TrcKeyZSampling&,
-					       const Pos::GeomID&,TaskRunner&);
+					       TaskRunner&);
 				//!< Use createOutput() instead.
 };

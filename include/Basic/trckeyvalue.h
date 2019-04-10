@@ -48,6 +48,7 @@ public:
     inline bool		isDefined() const;
     inline bool		isUdf() const		{ return !isDefined(); }
     static const TrcKeyValue& udf();
+    inline void		setUdf()		{ *this = udf(); }
 
     TrcKey		tk_;
     float		val_;

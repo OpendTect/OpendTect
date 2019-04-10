@@ -10,6 +10,7 @@
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
 #include "seistrc.h"
+#include "trckeyzsampling.h"
 #include "threadwork.h"
 
 
@@ -82,14 +83,26 @@ SeisStatsCalc::SeisStatsCalc( const IOObj& ioobj, const Stats::CalcSetup& scs,
 
     if ( !posprov_ )
     {
-	TrcKeyZSampling tkzs;
-	info.getRanges( tkzs );
 	if ( info.is2D() )
 	{
+	    //TODO this only does the first line
+	    StepInterval<int> trcrg; StepInterval<float> zrg;
+	    GeomIDSet gids;
+	    info.getGeomIDs( gids );
+	    auto* prov2d = new Pos::RangeProvider2D;
+	    if ( !gids.isEmpty() )
+	    {
+		info.getRanges( gids.first(), trcrg, zrg );
+		prov2d->setTrcRange( trcrg );
+		prov2d->setZRange( zrg );
+		posprov_ = prov2d;
+	    }
 	}
 	else
 	{
-	    Pos::RangeProvider3D* prov3d = new Pos::RangeProvider3D;
+	    TrcKeyZSampling tkzs;
+	    info.getRanges( tkzs );
+	    auto* prov3d = new Pos::RangeProvider3D;
 	    prov3d->setSampling( tkzs );
 	    posprov_ = prov3d;
 	}

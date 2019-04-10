@@ -10,10 +10,10 @@
 #include "envvars.h"
 #include "genc.h"
 #include "seisprovider.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "seisimporter.h"
 #include "seistrc.h"
-#include "seisselection.h"
+#include "seisrangeseldata.h"
 #include "seisresampler.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
@@ -152,51 +152,43 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	, data_(d)
 	, trc_(*new SeisTrc)
 	, isimp_(imp)
-	, strm_(0)
-	, prov_(0)
-	, wrr_(0)
-	, importer_(0)
-	, nrdone_(0)
-	, firsttrc_(true)
-	, offsnr_(0)
 	, prevbid_(mUdf(int),0)
 	, prevnr_(mUdf(int))
 	, zistm_(SI().zIsTime())
 {
     PtrMan<IOObj> ioobj = DBM().get( data_.seiskey_ );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
     const_cast<bool&>(zistm_) = ZDomain::isTime( ioobj->pars() );
-
-    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-    if ( data_.geomid_.isValid() )
-	seldata->setGeomID( data_.geomid_ );
 
     if ( isimp_ )
     {
-	wrr_ = new SeisTrcWriter( ioobj );
-	errmsg_ = wrr_->errMsg();
-	if ( !errmsg_.isEmpty() )
+	storer_ = new Storer( *ioobj );
+	if ( !storer_->isUsable() )
 	    return;
-
-	wrr_->setSelData( seldata );
+	if ( storer_->is2D() && data_.geomid_.isValid() )
+	    storer_->setFixedGeomID( data_.geomid_ );
     }
     else
     {
 	uiRetVal uirv;
-	prov_ = Seis::Provider::create( d.seiskey_, &uirv );
+	prov_ = Provider::create( d.seiskey_, &uirv );
 	if ( !prov_ )
 	    { errmsg_ = uirv; return; }
+
+	auto* seldata = Seis::SelData::get( data_.subselpars_ );
+	if ( seldata && seldata->isAll() )
+	    deleteAndZeroPtr( seldata );
+
+	if ( seldata && data_.geomid_.isValid() && seldata->isRange() )
+	    seldata->asRange()->setGeomID( data_.geomid_ );
 
 	prov_->setSelData( seldata );
     }
 
-    uiString errmsg;
-    strm_ = od_stream::create( data_.fname_, isimp_, errmsg );
+    strm_ = od_stream::create( data_.fname_, isimp_, errmsg_ );
     if ( !strm_ )
-    {
-	errmsg_ = errmsg;
 	return;
-    }
 
     if ( isimp_ )
 	startImpRead();
@@ -207,7 +199,7 @@ SeisIOSimple::~SeisIOSimple()
 {
     delete importer_;
     delete prov_;
-    delete wrr_;
+    delete storer_;
     delete strm_;
     delete &trc_;
 }
@@ -258,14 +250,14 @@ void SeisIOSimple::startImpRead()
 	binstrm.get( data_.sd_.start ).get( data_.sd_.step )
 	       .get( data_.nrsamples_ );
 	if ( !strm_->isOK() )
-	{ errmsg_ = tr("Input file contains no data"); return; }
+	    { errmsg_ = tr("Input file contains no data"); return; }
 	if ( zistm_ )
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
     }
 
     trc_.info().sampling_ = data_.sd_;
     importer_ = new SeisImporter( new SeisIOSimpleImportReader(*this),
-				  *wrr_, data_.geom_ );
+				  *storer_, data_.geom_ );
 }
 
 
@@ -390,7 +382,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
 
-    trc.info().trckey_ = is2d ? TrcKey( Pos::GeomID(0), nr ) : TrcKey( bid );
+    trc.info().trcKey() = is2d ? TrcKey( Pos::GeomID(0), nr ) : TrcKey( bid );
     prevbid_ = bid;
     trc.info().coord_ = coord;
     trc.info().offset_ = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
@@ -437,9 +429,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
 int SeisIOSimple::readExpTrc()
 {
-    if ( !prov_ ) return ErrorOccurred();
+    if ( !prov_ )
+	return ErrorOccurred();
 
-    errmsg_ = uiString::empty();
+    errmsg_.setEmpty();
     prov_->selectComponent( data_.compidx_ );
     const uiRetVal uirv = prov_->getNext( trc_ );
     if ( !uirv.isOK() )
@@ -533,7 +526,8 @@ int SeisIOSimple::writeExpTrc()
     {
 	val = trc_.get( idx, 0 );
 	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
-	if ( isswapped ) SwapBytes( &val, sizeof(float) );
+	if ( isswapped )
+	    SwapBytes( &val, sizeof(float) );
 	binstrm.add( val, idx == data_.nrsamples_-1 ? od_newline : od_tab );
     }
 

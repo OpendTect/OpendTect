@@ -620,7 +620,8 @@ ConstRefMan<ColTab::Mapper> FlatView::Viewer::mapper( bool wva ) const
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
     ConstRefMan<FlatDataPack> fdp = getPack( false, true );
-    if ( !fdp ) return Coord3::udf();
+    if ( !fdp )
+	return Coord3::udf();
 
     const FlatPosData& pd = fdp->posData();
     const IndexInfo ix = pd.indexInfo( true, wp.x_ );

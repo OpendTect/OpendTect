@@ -107,7 +107,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
     dlg.showAlwaysOnTop();
     if ( !dlg.go() ) return false;
 
-    uiTaskRunner uitr( uimain.topLevel() );
+    uiTaskRunnerProvider uitr( uimain.topLevel() );
     int selbutid = grp->selectedId();
     if ( selbutid==0 )
     {

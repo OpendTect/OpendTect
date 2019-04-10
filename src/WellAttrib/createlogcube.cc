@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seiscbvs.h"
 #include "seisbuf.h"
 #include "seistrcprop.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "survinfo.h"
 #include "trckeysampling.h"
 #include "welldata.h"
@@ -36,7 +36,7 @@ ________________________________________________________________________
 }
 
 
-bool LogCubeCreator::LogCube::makeWriteReady()
+bool LogCubeCreator::LogCube::makeStoreReady()
 {
     if ( fnm_.isEmpty() )
 	mErrRet( mINTERNAL("no output file specified"), true, return false )
@@ -64,23 +64,23 @@ bool LogCubeCreator::LogCube::mkIOObj()
 }
 
 
-bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
+bool LogCubeCreator::LogCube::doStore( const SeisTrcBuf& trcs ) const
 {
     if ( !seisioobj_ )
 	mErrRet( mINTERNAL("no ioobj specified"), true, return false )
 
-    SeisTrcWriter writer( seisioobj_ );
+    Seis::Storer storer( *seisioobj_ );
+    delete seisioobj_;
+
     for ( int itrc=0; itrc<trcs.size(); itrc++ )
     {
-	if ( !writer.put(*trcs.get(itrc)) )
-	{
-	    delete seisioobj_;
-	    mErrRet( tr("Cannot write new trace"), true, return false );
-	}
+	auto uirv = storer.put( *trcs.get(itrc) );
+	if ( !uirv.isOK() )
+	    { errmsg_ = uirv; return false; }
     }
 
-    delete seisioobj_;
-    return true;
+    errmsg_ = storer.close();
+    return errmsg_.isEmpty();
 }
 
 
@@ -315,11 +315,11 @@ bool LogCubeCreator::doFinish( bool success )
 	    mErrRet( msg, errmsg_.isEmpty(), continue )
 	}
 
-	if ( !logcube.makeWriteReady() )
+	if ( !logcube.makeStoreReady() )
 	    mErrRet( logcube.errMsg(), errmsg_.isEmpty(), continue )
 
 	trcsbufsout.sortForWrite( false );
-	if ( !logcube.doWrite(trcsbufsout) )
+	if ( !logcube.doStore(trcsbufsout) )
 	    mErrRet( logcube.errMsg(), errmsg_.isEmpty(), ; )
     }
 
@@ -448,7 +448,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 		    if ( trcpos < 0 )
 		    {
 			trcsbufout.add( new SeisTrc(undeftrc) );
-			trcsbufout.last()->info().setBinID( bid );
+			trcsbufout.last()->info().setPos( bid );
 			trcpos = trcsbufout.size() - 1;
 		    }
 

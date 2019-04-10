@@ -81,20 +81,42 @@ Gather::Gather()
     , iscorr_( true )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
+    , trckey_(*new TrcKey)
 {
 }
 
 
 Gather::Gather( const Gather& oth )
     : FlatDataPack( oth )
+    , trckey_(*new TrcKey)
 {
     copyClassData( oth );
+}
+
+
+Gather::Gather( const FlatPosData& fposdata )
+    : FlatDataPack( sDataPackCategory(),
+        new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
+    , type_(Off)
+    , amptype_(Seis::Ampl)
+    , ampunit_(None)
+    , xaxisunit_( SI().zIsTime() || !SI().xyInFeet() ? Meter : Feet )
+    , iscorr_( true )
+    , coord_( 0, 0 )
+    , zit_( SI().zIsTime() )
+    , trckey_(*new TrcKey)
+{
+    posdata_ = fposdata;
+    const StepInterval<double> zsamp = fposdata.range( false );
+    zrg_.set( mCast(float,zsamp.start), mCast(float,zsamp.stop),
+	      mCast(float,zsamp.step) );
 }
 
 
 Gather::~Gather()
 {
     sendDelNotif();
+    delete &trckey_;
 }
 
 
@@ -135,24 +157,6 @@ Monitorable::ChangeType Gather::compareClassData( const Gather& oth ) const
 	storageid_ == oth.storageid_ &&
 	staticsid_ == oth.staticsid_
 	    );
-}
-
-
-Gather::Gather( const FlatPosData& fposdata )
-    : FlatDataPack( sDataPackCategory(),
-        new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
-    , type_(Off)
-    , amptype_(Seis::Ampl)
-    , ampunit_(None)
-    , xaxisunit_( SI().zIsTime() || !SI().xyInFeet() ? Meter : Feet )
-    , iscorr_( true )
-    , coord_( 0, 0 )
-    , zit_( SI().zIsTime() )
-{
-    posdata_ = fposdata;
-    const StepInterval<double> zsamp = fposdata.range( false );
-    zrg_.set( mCast(float,zsamp.start), mCast(float,zsamp.stop),
-	      mCast(float,zsamp.step) );
 }
 
 
@@ -649,19 +653,22 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
 }
 
 
-void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf, const BinID& bid )
+bool GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,
+					const BinID& bid ) const
 {
     const Gather* gather = 0; int gatheridx = -1;
     for ( int idx=0; idx<gathers_.size(); idx++ )
 	if ( gathers_[idx]->getBinID() == bid )
 	    { gather = gathers_[idx]; gatheridx = idx; break; }
-    if ( !gather ) return;
+    if ( !gather )
+	return false;
 
     if ( !seisbuf.isOwner() )
 	pErrMsg("Memory leak");
 
     for ( int offsetidx=0; offsetidx<gather->nrOffsets(); offsetidx++ )
 	seisbuf.add( crTrace(gatheridx,offsetidx) );
+    return true;
 }
 
 
@@ -691,8 +698,9 @@ SeisTrc* GatherSetDataPack::crTrace( int gatheridx, int offsetidx ) const
     const Gather* gather = gathers_[gatheridx];
     const int gathersz = gather->size( false );
     SeisTrc* trc = new SeisTrc( gathersz );
-    trc->info().trckey_ = gather->getTrcKey();
-    trc->info().coord_ = trc->info().trckey_.getCoord();
+    trc->info().trcKey() = gather->getTrcKey();
+    trc->info().offset_ = gather->getOffset( offsetidx );
+    trc->info().coord_ = trc->info().trcKey().getCoord();
     const SamplingData<double>& sd = gather->posData().range( false );
     trc->info().sampling_.set( mCast(float,sd.start), mCast(float,sd.step));
     const Array2D<float>& data = gather->data();

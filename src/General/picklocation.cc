@@ -152,7 +152,7 @@ bool Pick::Location::is2D() const
 
 Pos::GeomID Pick::Location::geomID() const
 {
-    return trckey_ ? trckey_->geomID() : Pos::GeomID::get3D();
+    return trckey_ ? trckey_->geomID() : GeomID::get3D();
 }
 
 
@@ -218,25 +218,36 @@ Pick::Location& Pick::Location::setTrcNr( tracenr_type tnr )
 }
 
 
-Pick::Location& Pick::Location::setGeomID( Pos::GeomID geomid )
+Pick::Location& Pick::Location::setGeomID( GeomID geomid )
 {
-    if ( !trckey_ )
-    {
-	if ( geomid.is2D() )
-	    trckey_ = new TrcKey;
-    }
     if ( trckey_ )
 	trckey_->setGeomID( geomid );
+    else if ( geomid.is2D() )
+	trckey_ = new TrcKey( geomid, 0 );
+
     return *this;
 }
 
 
-Pick::Location& Pick::Location::setBinID( const BinID& bid, bool updcoord )
+Pick::Location& Pick::Location::setPos( const BinID& bid, bool updcoord )
 {
     if ( !trckey_ )
 	trckey_ = new TrcKey( bid );
     else
-	trckey_->setPosition( bid );
+	trckey_->setPos( bid );
+    if ( updcoord )
+	setPos( trckey_->getCoord() );
+    return *this;
+}
+
+
+Pick::Location& Pick::Location::setPos( GeomID gid, tracenr_type tnr,
+					bool updcoord )
+{
+    if ( !trckey_ )
+	trckey_ = new TrcKey( gid, tnr );
+    else
+	trckey_->setPos( gid, tnr );
     if ( updcoord )
 	setPos( trckey_->getCoord() );
     return *this;
@@ -429,7 +440,7 @@ bool Pick::Location::fromString( const char* inp )
     if ( mIsUdf(storedid) || storedid < 0 )
 	geom = &Survey::Geometry::get3D();
     else
-	geom = &Survey::Geometry::get2D( Pos::GeomID(storedid) );
+	geom = &Survey::Geometry::get2D( GeomID(storedid) );
     if ( !trckey_ )
 	trckey_ = new TrcKey;
 

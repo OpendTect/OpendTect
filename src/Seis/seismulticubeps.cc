@@ -215,7 +215,7 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const TrcKey& tk, int nr ) const
 
     Seis::Provider& prov = const_cast<Seis::Provider&>( *provs_[nr] );
     SeisTrc* trc = new SeisTrc;
-    const uiRetVal uirv = prov.get( tk, *trc );
+    const uiRetVal uirv = prov.getAt( tk, *trc );
     if ( !uirv.isOK() )
     {
 	deleteAndZeroPtr( trc );

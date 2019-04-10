@@ -11,7 +11,7 @@
 #include "seistrcprop.h"
 #include "seispacketinfo.h"
 #include "seisprovider.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "ptrman.h"
 #include "sorting.h"
 #include "flatposdata.h"

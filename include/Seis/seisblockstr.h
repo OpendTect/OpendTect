@@ -21,32 +21,34 @@ mExpClass(Seis) BlocksSeisTrcTranslator : public SeisTrcTranslator
 
 public:
 
-      typedef Seis::Blocks::Reader  Reader;
-      typedef Seis::Blocks::Writer  Writer;
+  mUseType( Seis::Blocks,	Reader );
+  mUseType( Seis::Blocks,	Writer );
 
 			BlocksSeisTrcTranslator(const char*,const char*);
 			~BlocksSeisTrcTranslator();
-    virtual const char*	defExtension() const;
-    virtual bool	forRead() const			{ return !wrr_; }
 
-    virtual bool	readInfo(SeisTrcInfo&);
-    virtual bool	read(SeisTrc&);
-    virtual bool	skip(int);
-    virtual bool	supportsGoTo() const		{ return true; }
-    virtual bool	goTo(const BinID&);
-    virtual bool	isUserSelectable(bool) const	{ return true; }
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
+    const char*	defExtension() const override;
+    const char*	iconName() const override		{ return "blockscube"; }
+    bool	forRead() const override		{ return !wrr_; }
 
-    virtual void	usePar(const IOPar&);
+    bool	readInfo(SeisTrcInfo&) override;
+    bool	read(SeisTrc&) override;
+    bool	readData(TraceData*) override;
+    bool	skip(int) override;
+    bool	supportsGoTo() const override		{ return true; }
+    bool	goTo(const BinID&) override;
+    bool	isUserSelectable(bool) const override	{ return true; }
+    bool	getGeometryInfo(PosInfo::CubeData&) const override;
 
-    virtual bool	close();
-    virtual void	cleanUp();
-    virtual const char*	iconName() const		{ return "blockscube"; }
-    virtual void	convToConnExpr(BufferString&) const;
+    void	usePar(const IOPar&) override;
 
-    virtual int		bytesOverheadPerTrace() const	{ return 0; }
-    virtual bool	isSingleComponent() const	{ return false; }
-    virtual int		estimatedNrTraces() const;
+    bool	close() override;
+    void	cleanUp() override;
+    void	convToConnExpr(BufferString&) const;
+
+    int		bytesOverheadPerTrace() const override	{ return 0; }
+    bool	isSingleComponent() const override	{ return false; }
+    int		estimatedNrTraces() const override;
 
     static const char*	sKeyTrName()			{ return "Blocks"; }
 
@@ -58,10 +60,10 @@ protected:
     Writer*		wrr_;
     OD::DataRepType	preseldatarep_;
 
-    virtual bool	commitSelections_();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
-    virtual bool	writeTrc_(const SeisTrc&);
-    virtual bool	wantBuffering() const		{ return false; }
+    bool	commitSelections_() override;
+    bool	initRead_() override;
+    bool	initWrite_(const SeisTrc&) override;
+    bool	writeTrc_(const SeisTrc&) override;
+    bool	wantBuffering() const override		{ return false; }
 
 };

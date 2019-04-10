@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "paramsetget.h"
 #include "survinfo.h"
 #include "keystrs.h"
-#include "seisselection.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "uiattribfactory.h"

@@ -6,16 +6,17 @@
 
 
 #include "seispsmerge.h"
-#include "seisresampler.h"
-#include "seisselectionimpl.h"
+#include "ioobj.h"
 #include "posinfo.h"
 #include "seisbuf.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seiswrite.h"
+#include "seisresampler.h"
+#include "seisseldata.h"
+#include "seisstorer.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "ioobj.h"
+#include "survinfo.h"
 
 
 SeisPSCopier::SeisPSCopier( const IOObj& in, const IOObj& out,
@@ -44,70 +45,39 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 			    const IOObj& out, bool dostack,
 			    const Seis::SelData* sd )
 	: Executor("Merging Prestack data")
-	, writer_(0)
+	, storer_(0)
 	, dostack_(dostack)
-	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
+	, sd_(sd && !sd->is2D() && !sd->isAll() ? sd->clone() : 0)
 	, offsrg_(0,mUdf(float))
 	, msg_(tr("Handling gathers"))
-	, totnr_(-1)
-	, nrdone_(0)
 {
-    TrcKeyZSampling cs; bool havecs = false;
-    if ( sd_ )
-    {
-	mDynamicCastGet(Seis::RangeSelData*,rsd,sd_)
-	if ( rsd )
-	{
-	    cs = rsd->cubeSampling();
-	    havecs = true;
-	}
-	else
-	{
-	    Interval<float> zrg = sd_->zRange();
-	    cs.zsamp_.start = zrg.start;
-	    cs.zsamp_.stop = zrg.stop;
-	}
-    }
-
     for ( int idx=0; idx<inobjs.size(); idx++ )
     {
 	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inobjs[idx] );
-	if ( !rdr ) continue;
-	readers_ += rdr;
-	if ( havecs ) continue;
-
-	Interval<int> inlrg, crlrg; StepInterval<int> rg;
-	rdr->posData().getInlRange( rg ); assign( inlrg, rg );
-	rdr->posData().getCrlRange( rg ); assign( crlrg, rg );
-	if ( idx == 0 )
-	    cs.hsamp_.set( inlrg, crlrg );
-	else
-	{
-	    cs.hsamp_.include( BinID(inlrg.start,crlrg.start) );
-	    cs.hsamp_.include( BinID(inlrg.stop,crlrg.stop) );
-	}
+	if ( rdr )
+	    readers_ += rdr;
     }
     if ( readers_.isEmpty() )
-    { msg_ = tr("No valid inputs specified"); return; }
+	{ msg_ = tr("No valid inputs specified"); return; }
 
-    totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hsamp_.totalNr() );
-    iter_ = new TrcKeySamplingIterator( cs.hsamp_ );
-    resampler_ = new SeisResampler( cs );
+    if ( sd_ )
+	totnr_ = sd_->expectedNrTraces();
+    else
+	totnr_ = SI().maxNrTraces();
 
-    writer_ = new SeisTrcWriter( &out );
-    if ( !writer_ )
-    {
-	deepErase(readers_);
-	msg_ = toUiString("Cannot create output writer");
-	return;
-    }
+    if ( sd_ && sd_->isRange() )
+	resampler_ = new SeisResampler( *sd_->asRange() );
+
+    storer_ = new Seis::Storer( out );
+    if ( storer_->isUsable() )
+	{ deepErase( readers_ ); msg_ = storer_->errNotUsable(); }
 }
 
 
 SeisPSMerger::~SeisPSMerger()
 {
     delete iter_;
-    delete writer_;
+    delete storer_;
     delete sd_;
     delete resampler_;
     deepErase( readers_ );
@@ -157,11 +127,12 @@ int SeisPSMerger::nextStep()
 	  || offs > offsrg_.stop + offseps )
 	    continue;
 
-	const SeisTrc* wrtrc = resampler_->get( gathtrc );
-	if ( wrtrc && !writer_->put(*wrtrc) )
+	const SeisTrc* wrtrc = resampler_ ? resampler_->get(gathtrc) : &gathtrc;
+	if ( wrtrc )
 	{
-	    msg_ = writer_->errMsg();
-	    return ErrorOccurred();
+	    auto uirv = storer_->put( *wrtrc );
+	    if ( !uirv.isOK() )
+		{ msg_ = uirv; return ErrorOccurred(); }
 	}
     }
 

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seis2deventsnapper.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "emhor2dseisiter.h"
 #include "emhorizon2d.h"
 #include "seisprovider.h"
@@ -28,8 +28,7 @@ Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
 {
     if ( !su.ioobj_ ) return;
     geomid_ = su.geomid_;
-    Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
-    seldata->setGeomID( su.geomid_ );
+    auto* seldata = new Seis::RangeSelData( su.geomid_ );
     uiRetVal uirv;
     seisprov_ = Seis::Provider::create( *su.ioobj_, &uirv );
     if ( seisprov_ )
@@ -61,7 +60,8 @@ uiString Seis2DLineEventSnapper::nrDoneText() const
 int Seis2DLineEventSnapper::nextStep()
 {
     //TODO: Support multiple sections
-    if ( !seisprov_ ) return ErrorOccurred();
+    if ( !seisprov_ )
+	return ErrorOccurred();
 
     const uiRetVal uirv = seisprov_->getNext( trc_ );
     if ( !uirv.isOK() )

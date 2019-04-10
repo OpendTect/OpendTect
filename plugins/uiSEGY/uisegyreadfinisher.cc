@@ -43,8 +43,9 @@ ________________________________________________________________________
 #include "segyvintageimporter.h"
 #include "seisimporter.h"
 #include "seisioobjinfo.h"
+#include "seisrangeseldata.h"
+#include "seisstorer.h"
 #include "seistrc.h"
-#include "seiswrite.h"
 #include "survgeom2d.h"
 #include "survgeommgr.h"
 #include "welldata.h"
@@ -414,7 +415,7 @@ void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
 
 
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
-			    SeisTrcWriter& wrr, Pos::GeomID geomid )
+			    Seis::Storer& storer, Pos::GeomID geomid )
 {
     SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
@@ -423,9 +424,9 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
     Seis::SelData* sd = transffld_->getSelData();
     if ( sd )
     {
-	sd->setGeomID( geomid );
+	if ( sd->isRange() )
+	    sd->asRange()->setGeomID( geomid );
 	rdr->setSelData( sd );
-	wrr.setSelData( sd->clone() );
     }
     return rdr;
 }
@@ -548,13 +549,13 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
-    PtrMan<SeisTrcWriter> wrr; PtrMan<SeisImporter> imp;
+    PtrMan<Seis::Storer> storer; PtrMan<SeisImporter> imp;
     PtrMan<SEGY::FileIndexer> indexer;
     if ( doimp )
     {
-	wrr = new SeisTrcWriter( &outioobj );
-	imp = new SeisImporter( getImpReader(inioobj,*wrr,mUdfGeomID),
-				*wrr, gt );
+	storer = new Seis::Storer( outioobj );
+	imp = new SeisImporter( getImpReader(inioobj,*storer,mUdfGeomID),
+				*storer, gt );
 	exec = imp.ptr();
     }
     else
@@ -586,7 +587,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	}
     }
 
-    wrr.erase(); // closes output
+    storer->close(); // closes output
     if ( singlevintage_ && !handleWarnings(!doimp,indexer,imp) )
 	{ DBM().removeEntry( outioobj.key() ); return false; }
 
@@ -742,7 +743,7 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
-    PtrMan<SeisTrcWriter> wrr; PtrMan<SeisImporter> imp;
+    PtrMan<Seis::Storer> storer; PtrMan<SeisImporter> imp;
     PtrMan<SEGY::FileIndexer> indexer; PtrMan<IOStream> iniostrm;
     SEGY::FileSpec fspec( fs_.spec_ );
     fspec.setFileName( fnm );
@@ -750,8 +751,9 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     {
 	iniostrm = static_cast<IOStream*>( fspec.getIOObj( true ) );
 	updateInIOObjPars( *iniostrm, outioobj );
-	wrr = new SeisTrcWriter( &outioobj );
-	imp = new SeisImporter( getImpReader(*iniostrm,*wrr,geomid), *wrr, gt );
+	storer = new Seis::Storer( outioobj );
+	imp = new SeisImporter( getImpReader(*iniostrm,*storer,geomid),
+				*storer, gt );
 	BufferString nm( imp->name() ); nm.add( " (" ).add( lnm ).add( ")" );
 	imp->setName( nm );
 	exec = imp.ptr();
@@ -770,7 +772,10 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     if ( !dlg.execute( *exec ) )
 	return false;
 
-    wrr.erase(); // closes output
+    auto uirv = storer->close();
+    if ( !uirv.isOK() )
+	uiMSG().warning( uirv );
+
     if ( singlevintage_ )
 	handleWarnings( false, indexer, imp );
 

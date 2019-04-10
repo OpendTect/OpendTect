@@ -17,7 +17,7 @@
 #include "timefun.h"
 #include "scaler.h"
 #include "survinfo.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "envvars.h"
 #include "separstr.h"
 #include "keystrs.h"
@@ -642,6 +642,8 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 
 bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
+    if ( !ensureSelectionsCommitted() )
+	return false;
     if ( headerdone_ )
 	return true;
 
@@ -661,7 +663,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    curtrcnr_ = fileopts_.trcnrdef_.start;
 	else
 	    curtrcnr_ = prevtrcnr_ + fileopts_.trcnrdef_.step;
-	ti.trckey_.setTrcNr( curtrcnr_ );
+	ti.setTrcNr( curtrcnr_ );
     }
 
     bool goodpos = true;
@@ -679,7 +681,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadCoord(ti) )
 		mSkipThisTrace()
 	}
-	ti.setBinID( SI().transform(ti.coord_) );
+	ti.setPos( SI().transform(ti.coord_) );
     }
     else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
     {
@@ -701,7 +703,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadBid(ti) && mBadCoord(ti) )
 		mSkipThisTrace()
 	    if ( mBadBid(ti) )
-		ti.setBinID( SI().transform(ti.coord_) );
+		ti.setPos( SI().transform(ti.coord_) );
 	    else if ( mBadCoord(ti) )
 		ti.coord_ = SI().transform( ti.binID() );
 	}
@@ -793,7 +795,7 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 
 bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !storbuf_ && !commitSelections() )
+    if ( !ensureSelectionsCommitted() )
 	return false;
 
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;

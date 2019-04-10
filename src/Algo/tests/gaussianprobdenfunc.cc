@@ -40,7 +40,7 @@ static bool test2DPDF()
     if ( failed )
 	od_cout() << "Failed: ";
 
-    if ( !quiet || failed )
+    if ( !quiet_ || failed )
     {
 	od_cout() << "Corr coeff=" << ls2d.corrcoeff
 		  << ", expected " << mCorrCoeff << " +/- " << cctol << od_endl;

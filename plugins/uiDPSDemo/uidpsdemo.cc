@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "seisprovider.h"
 #include "seistrctr.h"
 #include "seistrcprop.h"
-#include "seisselectionimpl.h"
+#include "seistableseldata.h"
 
 #include "uiseissel.h"
 #include "uigeninput.h"

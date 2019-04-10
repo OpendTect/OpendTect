@@ -23,10 +23,10 @@
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
+#include "seisselsetup.h"
 #include "seispreload.h"
 #include "seispsioprov.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "statrand.h"
 #include "survinfo.h"
@@ -192,7 +192,8 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     TrcKeyZSampling tkzs; dlg.getSampling( tkzs );
     DataCharacteristics dc; dlg.getDataChar( dc );
     PreLoader spl( key );
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    spl.setTaskRunner( trprov );
     if ( !spl.load(tkzs,dc.userType(),dlg.getScaler()) )
     {
 	const uiString emsg = spl.errMsg();
@@ -236,7 +237,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 			  uiString::NoSep, uiString::AfterEmptyLine );
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
     }
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     TypeSet<TrcKeyZSampling> tkzss;
     GeomIDSet loadgeomids;
     for ( int idx=0; idx<geomids.size(); idx++ )
@@ -244,9 +245,10 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	const Pos::GeomID& geomid = geomids[idx];
 	if ( PLDM().isPresent(key,geomid) )
 	{
-	    if ( skiploadedgeomids ) continue;
-	    PreLoader spl( key, geomid );
-	    spl.unLoad();
+	    if ( skiploadedgeomids )
+		continue;
+	    PreLoader spl( key );
+	    spl.unLoad( geomid );
 	}
 
 	dlg.getSampling( tkzs, geomid );
@@ -256,7 +258,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	tkzss += tkzs;
     }
 
-    PreLoader spl( key, Pos::GeomID::get3D(), &taskrunner );
+    PreLoader spl( key, trprov );
     spl.load( tkzss, loadgeomids, dc.userType(), dlg.getScaler() );
 
     fullUpd( 0 );
@@ -278,7 +280,8 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 
     PreLoader spl( dlg.ioObj()->key() );
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    spl.setTaskRunner( trprov );
     if ( !spl.loadPS3D(&inlrg) )
     {
 	const uiString emsg = spl.errMsg();
@@ -353,7 +356,8 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     mCheckIOObjExistance( dlg.ioObj() );
 
     PreLoader spl( dlg.ioObj()->key() );
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    spl.setTaskRunner( trprov );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {
 	const uiString emsg = spl.errMsg();
@@ -378,8 +382,8 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     for ( int idx=selitms.size()-1; idx>=0; idx-- )
     {
 	const int selidx = selitms[idx];
-	PreLoader spl( entries[selidx]->dbkey_, entries[selidx]->geomid_ );
-	spl.unLoad();
+	PreLoader spl( entries[selidx]->dbkey_ );
+	spl.unLoad( entries[selidx]->geomid_ );
     }
 
     fillList();
@@ -408,8 +412,8 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     if ( iop.isEmpty() )
 	mErrRet( tr("No valid objects found") )
 
-    uiTaskRunner taskrunner( this );
-    PreLoader::load( iop, &taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    PreLoader::load( iop, trprov );
     fullUpd( 0 );
 }
 
@@ -434,7 +438,8 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
     for ( int idx=0; idx<entries.size(); idx++ )
     {
 	IOPar iop;
-	PreLoader spl( entries[idx]->dbkey_, entries[idx]->geomid_ );
+	PreLoader spl( entries[idx]->dbkey_ );
+	spl.setDefGeomID( entries[idx]->geomid_ );
 	spl.fillPar( iop );
 	alliop.mergeComp( iop, IOPar::compKey("Seis",idx) );
     }
@@ -461,7 +466,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( Seis::InclSteer );
     seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
     if ( !input.isValid() )
 	seissel_->setInput( input );
@@ -649,7 +654,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 	    continue;
 
 	SeisTrc* trc = new SeisTrc;
-	const uiRetVal retval = prov->get( trckey, *trc );
+	const uiRetVal retval = prov->getAt( trckey, *trc );
 	if ( !retval.isOK() )
 	    { delete trc; continue; }
 

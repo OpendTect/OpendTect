@@ -260,7 +260,7 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 		    crd2 = posns[posidx2].coord_;
 		    Line2 line2( crd1, crd2 );
 		    Coord interpos = curline.intersection( line2 );
-		    if ( interpos == Coord::udf() )
+		    if ( interpos.isUdf() )
 			continue;
 
 		    PosInfo::Line2DPos lpos1, lpos2;

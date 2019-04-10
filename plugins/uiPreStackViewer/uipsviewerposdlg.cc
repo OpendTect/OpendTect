@@ -96,7 +96,7 @@ void uiViewer3DPositionDlg::updateFieldDisplay()
 {
     const StepInterval<int> psdatarg =
 	viewer_.getTraceRange( viewer_.getBinID() );
-    const bool haspsdata = psdatarg!=Interval<int>::udf();
+    const bool haspsdata = !psdatarg.isUdf();
     posfld_->setSensitive( haspsdata );
     stepfld_->setSensitive( haspsdata );
     oobox_->setSensitive( haspsdata );

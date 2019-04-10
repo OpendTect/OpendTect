@@ -8,9 +8,9 @@
 #include "trckeyzsampling.h"
 #include "tutseistools.h"
 #include "seisprovider.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "seisioobjinfo.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "ioobj.h"
@@ -22,7 +22,7 @@
 Tut::SeisTools::SeisTools()
     : Executor("Tutorial tools: Direct Seismic")
     , inioobj_(0), outioobj_(0)
-    , prov_(0), wrr_(0)
+    , prov_(0), storer_(0)
     , trcin_(*new SeisTrc)
     , trcout_(*new SeisTrc)
 {
@@ -43,7 +43,7 @@ void Tut::SeisTools::clear()
     delete inioobj_; inioobj_ = 0;
     delete outioobj_; outioobj_ = 0;
     delete prov_; prov_ = 0;
-    delete wrr_; wrr_ = 0;
+    delete storer_; storer_ = 0;
 
     action_ = Scale;
     factor_ = 1; shift_ = 0;
@@ -91,50 +91,44 @@ bool Tut::SeisTools::createProvider()
     if ( !prov_ )
 	{ errmsg_ = uirv; return false; }
 
-    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
+    auto* sd = new Seis::RangeSelData( tkzs_ );
     prov_->setSelData( sd );
     prov_->forceFPData( action_ != Smooth );
     return true;
 }
 
 
-bool Tut::SeisTools::createWriter()
+bool Tut::SeisTools::createStorer()
 {
-    wrr_ = new SeisTrcWriter( outioobj_ );
-    if ( !wrr_->prepareWork(trcout_) )
-    {
-	errmsg_ = wrr_->errMsg();
-	return false;
-    }
-    return true;
+    storer_ = new Seis::Storer( *outioobj_ );
+    errmsg_ = storer_->prepareWork( trcout_ );
+    return errmsg_.isEmpty();
 }
 
 
 int Tut::SeisTools::nextStep()
 {
     if ( !prov_ )
-	return createProvider() ? Executor::MoreToDo()
-				: Executor::ErrorOccurred();
+	return createProvider() ? MoreToDo() : ErrorOccurred();
 
     const uiRetVal uirv = prov_->getNext( trcin_ );
     if ( !uirv.isOK() )
     {
 	if ( isFinished(uirv) )
-	    return Executor::Finished();
+	    return Finished();
 
 	errmsg_ = uirv;
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
     }
 
     trcout_ = trcin_;
     handleTrace();
 
-    if ( !wrr_ && !createWriter() )
-	return Executor::ErrorOccurred();
-    if ( !wrr_->put(trcout_) )
-	{ errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
+    if ( !storer_ && !createStorer() )
+	return ErrorOccurred();
 
-    return Executor::MoreToDo();
+    errmsg_ = storer_->put( trcout_ );
+    return errmsg_.isEmpty() ? MoreToDo() : ErrorOccurred();
 }
 
 

@@ -11,15 +11,15 @@
 #include "attribdataholder.h"
 #include "convmemvalseries.h"
 #include "datapointset.h"
-#include "dbman.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seisdatapack.h"
+#include "seisrangeseldata.h"
+#include "seistableseldata.h"
 #include "seistrc.h"
-#include "seisselectionimpl.h"
 #include "seistype.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom.h"
@@ -49,9 +49,8 @@ const char* LocationOutput::surfidkey()		{ return "Surface.ID"; }
 
 
 Output::Output()
-    : seldata_(new Seis::RangeSelData(true))
+    : seldata_(new Seis::RangeSelData)
 {
-    seldata_->setIsAll( true );
 }
 
 
@@ -91,8 +90,8 @@ void Output::ensureSelType( Seis::SelType st )
 {
     if ( seldata_->type() != st )
     {
-	Seis::SelData* newseldata = Seis::SelData::get( st );
-	newseldata->setGeomID( seldata_->geomID() );
+	auto* newseldata = Seis::SelData::get( st );
+	newseldata->copyFrom( *seldata_ );
 	delete seldata_; seldata_ = newseldata;
     }
 }
@@ -100,17 +99,8 @@ void Output::ensureSelType( Seis::SelType st )
 
 void Output::doSetGeometry( const TrcKeyZSampling& cs )
 {
-    if ( cs.isEmpty() )
-	return;
-
-    ensureSelType( Seis::Range );
-    ((Seis::RangeSelData*)seldata_)->cubeSampling() = cs;
-}
-
-
-Pos::GeomID Output::curGeomID() const
-{
-    return seldata_->geomID();
+    if ( !cs.isEmpty() )
+	{ delete seldata_; seldata_ = new Seis::RangeSelData( cs ); }
 }
 
 
@@ -250,7 +240,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     : desiredvolume_(cs)
     , auxpars_(0)
     , storid_(*new DBKey)
-    , writer_(0)
+    , storer_(0)
     , trc_(0)
     , prevpos_(-1,-1)
     , storinited_(false)
@@ -259,7 +249,8 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , growtrctosi_(false)
     , writez0shift_(0.f)
 {
-    seldata_->setGeomID( geomid );
+    if ( seldata_ && geomid.isValid() && seldata_->isRange() )
+	seldata_->asRange()->setGeomID( geomid );
 }
 
 
@@ -280,7 +271,7 @@ bool SeisTrcStorOutput::setStorageID( const DBKey& storid )
 {
     if ( storid.isValid() )
     {
-	PtrMan<IOObj> ioseisout = DBM().get( storid );
+	PtrMan<IOObj> ioseisout = getIOObj( storid );
 	if ( !ioseisout )
 	{
 	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid );
@@ -295,21 +286,10 @@ bool SeisTrcStorOutput::setStorageID( const DBKey& storid )
 
 SeisTrcStorOutput::~SeisTrcStorOutput()
 {
-    delete writer_;
+    delete storer_;
     delete &storid_;
     delete auxpars_;
     delete scaler_;
-}
-
-
-static bool isDataType( const char* reqtp )
-{
-    BufferString reqdatatype = reqtp;
-    if ( reqdatatype == sKey::Steering() )
-	reqdatatype = "Dip";
-
-    const BufferStringSet alldatatypes( Seis::dataTypeNames() );
-    return alldatatypes.isPresent( reqdatatype.buf() );
 }
 
 
@@ -337,8 +317,6 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
     {
 	SeparString sepstr( dbky.auxKey(), '|' );
 	attribname_ = sepstr[0];
-	if ( sepstr[1] && *sepstr[1] && isDataType(sepstr[1]) )
-	    datatype_ += sepstr[1];
     }
 
     const char* res = outppar->find( scalekey() );
@@ -360,31 +338,25 @@ bool SeisTrcStorOutput::doInit()
 
     if ( storid_.isValid() )
     {
-	PtrMan<IOObj> ioseisout = DBM().get( storid_ );
+	PtrMan<IOObj> ioseisout = getIOObj( storid_ );
 	if ( !ioseisout )
-	{
-	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid_ );
-	    return false;
-	}
+	    { errmsg_ = uiStrings::phrCannotFindDBEntry(storid_); return false;}
 
-	writer_ = new SeisTrcWriter( ioseisout );
-	is2d_ = writer_->is2D();
-
-	if ( is2d_ && !datatype_.isEmpty() )
-	    writer_->setDataType( datatype_.buf() );
+	storer_ = new Seis::Storer( *ioseisout );
+	is2d_ = storer_->is2D();
 
 	if ( auxpars_ )
 	{
-	    writer_->auxPars().merge( *auxpars_ );
+	    storer_->auxPars().merge( *auxpars_ );
 	    delete auxpars_; auxpars_ = 0;
 	}
     }
 
     desiredvolume_.normalise();
-    if ( !is2d_ )
+    if ( !is2d_ && seldata_->isRange() )
     {
-	TrcKeyZSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
-	desiredvolume_.limitTo( cs );
+	const TrcKeyZSampling tkzs( seldata_->asRange()->subSel3D() );
+	desiredvolume_.limitTo( tkzs );
     }
 
     return true;
@@ -466,7 +438,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 
 bool SeisTrcStorOutput::writeTrc()
 {
-    if ( !writer_ || !trc_ )
+    if ( !storer_ || !trc_ )
 	return true;
 
     SeisTrc* usetrc = trc_;
@@ -480,24 +452,23 @@ bool SeisTrcStorOutput::writeTrc()
     if ( !storinited_ )
     {
 	SeisTrcTranslator* transl = 0;
-	if ( writer_->is2D() && seldata_ )
-	    writer_->setSelData( seldata_->clone() );
-	else
+	if ( !storer_->is2D() )
 	{
-	    transl = writer_->seisTranslator();
+	    transl = storer_->translator();
 	    if ( transl )
 		transl->setComponentNames( outpnames_ );
 	}
 
-	if ( !writer_->prepareWork(*usetrc) )
-	    { errmsg_ = writer_->errMsg(); return false; }
+	auto uirv = storer_->prepareWork( *usetrc );
+	if ( !uirv.isOK() )
+	    { errmsg_ = uirv; return false; }
 
-	if ( writer_->is2D() )
+	if ( storer_->is2D() )
 	{
-	    if ( writer_->linePutter() )
+	    if ( storer_->linePutter() )
 	    {
 		mDynamicCastGet( SeisCBVS2DLinePutter*, lp,
-				 writer_->linePutter() )
+				 storer_->linePutter() )
 		if ( lp && lp->tr_ )
 		    lp->tr_->setComponentNames( outpnames_ );
 	    }
@@ -509,12 +480,9 @@ bool SeisTrcStorOutput::writeTrc()
 	storinited_ = true;
     }
 
-    if ( !writer_->put(*usetrc) )
-	{ errmsg_ = writer_->errMsg(); return false; }
-
-    delete trc_;
-    trc_ = 0;
-    return true;
+    errmsg_ = storer_->put( *usetrc );
+    delete trc_; trc_ = 0;
+    return errmsg_.isEmpty();
 }
 
 
@@ -542,12 +510,8 @@ void SeisTrcStorOutput::deleteTrc()
 
 bool SeisTrcStorOutput::finishWrite()
 {
-    if ( !writer_->close() )
-    {
-	errmsg_ = writer_->errMsg();
-	return false;
-    }
-    return true;
+    errmsg_ = storer_->close();
+    return errmsg_.isEmpty();
 }
 
 
@@ -556,10 +520,18 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
     : errmsg_(uiString::empty())
     , output_( 0 )
 {
-    seldata_->setGeomID( geomid );
-    setGeometry( trg, zrg );
-    const bool undeftrg = trg.start<=0 && Values::isUdf(trg.stop);
-    seldata_->setIsAll( undeftrg );
+
+    if ( seldata_ )
+    {
+	if ( geomid.isValid() && seldata_->isRange() )
+	    seldata_->asRange()->setGeomID( geomid );
+	setGeometry( trg, zrg );
+	const bool undeftrg = trg.start<=0 && Values::isUdf(trg.stop);
+	if ( undeftrg )
+	    deleteAndZeroPtr( seldata_ );
+    }
+    if ( !seldata_ )
+	seldata_ = new Seis::RangeSelData( geomid );
 }
 
 
@@ -579,8 +551,8 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 			      const Interval<float>& zrg )
 {
     ensureSelType( Seis::Range );
-    seldata_->setZRange( zrg );
-    seldata_->setCrlRange( trg );
+    seldata_->asRange()->setZRange( zrg );
+    seldata_->asRange()->setCrlRange( trg );
 }
 
 
@@ -601,7 +573,11 @@ bool TwoDOutput::doInit()
 {
     const Interval<int> rg( seldata_->crlRange() );
     if ( rg.start <= 0 && Values::isUdf(rg.stop) )
-	seldata_->setIsAll( true );
+    {
+	const auto geomid = seldata_->geomID();
+	delete seldata_;
+	seldata_ = new Seis::RangeSelData( geomid );
+    }
 
     return true;
 }
@@ -651,9 +627,9 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
     ensureSelType( Seis::Table );
-    seldata_->setIsAll( false );
-    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBinIDs(true);
-    ((Seis::TableSelData*)seldata_)->binidValueSet() = bidvalset;
+    auto& tsd = *seldata_->asTable();
+    tsd.binidValueSet() = bidvalset;
+    tsd.binidValueSet().allowDuplicateBinIDs(true);
 
     arebiddupl_ = areBIDDuplicated();
 }
@@ -764,9 +740,9 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     , stdtrcsz_(mUdf(float))
 {
     delete seldata_;
-    Seis::TableSelData& sd = *new Seis::TableSelData( bidvalset );
-    seldata_ = &sd;
-    sd.binidValueSet().allowDuplicateBinIDs( true );
+    auto& tsd = *new Seis::TableSelData( bidvalset );
+    seldata_ = &tsd;
+    tsd.binidValueSet().allowDuplicateBinIDs( true );
 
     const int nrinterv = bidvalset.nrVals() / 2;
     float zmin = mUdf(float);
@@ -783,8 +759,8 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     {
 	BinIDValueSet::SPos pos; bidvalset.next( pos );
 	const BinID bid0( bidvalset.getBinID(pos) );
-	sd.binidValueSet().add( bid0, zmin );
-	sd.binidValueSet().add( bid0, zmax );
+	tsd.binidValueSet().add( bid0, zmin );
+	tsd.binidValueSet().add( bid0, zmax );
 
 	stdtrcsz_ = zmax - zmin;
 	stdstarttime_ = zmin;
@@ -869,7 +845,8 @@ void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
 
 void TrcSelectionOutput::setGeomID( Pos::GeomID geomid )
 {
-    seldata_->setGeomID( geomid );
+    if ( seldata_ && geomid.isValid() && seldata_->isRange() )
+	seldata_->asRange()->setGeomID( geomid );
 }
 
 
@@ -967,15 +944,15 @@ bool Trc2DVarZStorOutput::doInit()
     ensureSelType( Seis::Range );
     if ( storid_.isValid() )
     {
-	PtrMan<IOObj> ioseisout = DBM().get( storid_ );
+	PtrMan<IOObj> ioseisout = getIOObj( storid_ );
 	if ( !ioseisout )
 	{
 	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid_ );
 	    return false;
 	}
 
-	writer_ = new SeisTrcWriter( ioseisout );
-	if ( !writer_->is2D() )
+	storer_ = new Seis::Storer( *ioseisout );
+	if ( !storer_->is2D() )
 	{
 	    errmsg_ = tr("Seismic data with ID: %1 is not 2D\n"
 			 "Cannot create 2D output.").arg( storid_ );
@@ -984,7 +961,7 @@ bool Trc2DVarZStorOutput::doInit()
 
 	if ( auxpars_ )
 	{
-	    writer_->auxPars().merge( *auxpars_ );
+	    storer_->auxPars().merge( *auxpars_ );
 	    delete auxpars_; auxpars_ = 0;
 	}
     }
@@ -1120,7 +1097,8 @@ bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 
 bool Trc2DVarZStorOutput::finishWrite()
 {
-    return writer_->close();
+    errmsg_ = storer_->close();
+    return errmsg_.isEmpty();
 }
 
 
@@ -1129,9 +1107,9 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     , firstattrcol_(firstcol)
 {
     ensureSelType( Seis::Table );
-    seldata_->setIsAll( false );
-    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBinIDs(true);
-    ((Seis::TableSelData*)seldata_)->binidValueSet() = datapointset_.bivSet();
+    auto& tsd = *seldata_->asTable();
+    tsd.binidValueSet().allowDuplicateBinIDs(true);
+    tsd.binidValueSet() = datapointset_.bivSet();
 
     arebiddupl_ = areBIDDuplicated();
     distpicktrc_ = TypeSet<float>( datapointset.size(), mUdf(float) );
@@ -1176,7 +1154,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     {
 	BinIDValueSet::SPos spos = datapointset_.bvsPos( rid );
 	float* vals = datapointset_.bivSet().getVals( spos );
-	vals[datapointset_.nrFixedCols()-1] = mCast(float,info.trckey_.trcNr());
+	vals[datapointset_.nrFixedCols()-1] = (float)info.trcKey().trcNr();
     }
 
     const int desnrvals = desoutputs_.size() + firstattrcol_;

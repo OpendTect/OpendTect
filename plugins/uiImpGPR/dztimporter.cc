@@ -7,8 +7,7 @@
 
 #include "dztimporter.h"
 #include "seistrc.h"
-#include "seiswrite.h"
-#include "seisselectionimpl.h"
+#include "seisstorer.h"
 #include "strmprov.h"
 #include "datachar.h"
 #include "survinfo.h"
@@ -95,7 +94,7 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
 void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, Pos::GeomID geomid,
 				int trcidx ) const
 {
-    ti.trckey_ = TrcKey( geomid, traceNr(trcidx) );
+    ti.setPos( geomid, traceNr(trcidx) );
     ti.sampling_.start = position;
     ti.sampling_.step = ((float)range) / (nsamp-1);
     ti.sampling_.scale( cNanoFac );
@@ -108,7 +107,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj, Pos::GeomID gid )
     : Executor("Importing DZT file")
     , nrdone_(0)
     , totalnr_(-1)
-    , wrr_(0)
+    , storer_(0)
     , databuf_(0)
     , geomid_(gid)
     , di_(DataCharacteristics())
@@ -134,13 +133,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj, Pos::GeomID gid )
     for ( int ichan=1; ichan<fh_.nchan; ichan++ )
 	trc_.data().addComponent( fh_.nsamp, DataCharacteristics() );
 
-    wrr_ = new SeisTrcWriter( &ioobj );
-    Seis::RangeSelData* rsd = new Seis::RangeSelData;
-    rsd->setIsAll( true );
-    rsd->setGeomID( gid );
-    wrr_ = new SeisTrcWriter( &ioobj );
-    wrr_->setSelData( rsd );
-
+    storer_ = new Seis::Storer( ioobj );
     databuf_ = new char [ fh_.nrBytesPerTrace() ];
     msg_ = tr("Handling traces");
 }
@@ -159,7 +152,7 @@ int DZT::Importer::closeAll()
 {
     istream_.close();
 
-    deleteAndZeroPtr(wrr_);
+    deleteAndZeroPtr( storer_ );
 
     return Finished();
 }
@@ -194,8 +187,9 @@ int DZT::Importer::nextStep()
 	trc_.set( 1, firstrealval, ichan );
     }
 
-    if ( !wrr_->put(trc_) )
-	mErrRet(wrr_->errMsg())
+    msg_ = storer_->put( trc_ );
+    if ( !msg_.isEmpty() )
+	return ErrorOccurred();
 
     nrdone_++;
     return istream_.isOK() ? MoreToDo() : closeAll();

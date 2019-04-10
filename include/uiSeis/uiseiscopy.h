@@ -11,58 +11,39 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "seistype.h"
 
 class IOObj;
-class uiSeisSel;
-class uiScaler;
-class uiSeis2DMultiLineSel;
-class uiLabeledComboBox;
-class uiSeisTransfer;
+class uiSeisProvider;
+class uiSeisStorer;
 class uiBatchJobDispatcherSel;
 
 
-/*!\brief UI for copying cubes */
+/*!\brief UI for copying seismic data */
 
-mExpClass(uiSeis) uiSeisCopyCube : public uiDialog
-{ mODTextTranslationClass(uiSeisCopyCube);
+mExpClass(uiSeis) uiSeisCopy : public uiDialog
+{ mODTextTranslationClass(uiSeisCopy);
 public:
 
-			uiSeisCopyCube(uiParent*,const IOObj*);
+    mUseType( Seis,	GeomType );
+
+			uiSeisCopy(uiParent*,const IOObj* startobj=nullptr,
+				   const char* allowtransls_fms=nullptr);
+			uiSeisCopy(uiParent*,GeomType,
+				   const char* allowtransls_fms=nullptr);
+
+    DBKey		copiedID() const;
 
 protected:
 
-    uiSeisSel*		inpfld_;
-    uiLabeledComboBox*	compfld_;
-    uiSeisTransfer*	transffld_;
-    uiSeisSel*		outfld_;
+    uiSeisProvider*	provfld_;
+    uiSeisStorer*	storfld_;
     uiBatchJobDispatcherSel* batchfld_;
-
-    bool		ismc_;
-
-    void		inpSel(CallBacker*);
 
     bool		acceptOK();
 
-};
+private:
 
-
-/*!\brief UI for copying 2d Datasets */
-
-mExpClass(uiSeis) uiSeisCopy2DDataSet : public uiDialog
-{ mODTextTranslationClass(uiSeisCopy2DDataSet)
-public:
-
-			uiSeisCopy2DDataSet(uiParent*,const IOObj*,
-					    const char* fixedouttransl=0);
-protected:
-
-    uiSeisSel*		inpfld_;
-    uiSeis2DMultiLineSel* subselfld_;
-    uiScaler*		scalefld_;
-    uiSeisSel*		outpfld_;
-    uiBatchJobDispatcherSel* batchfld_;
-
-    void		inpSel(CallBacker*);
-    bool		acceptOK();
+    void		init(const IOObj*,const char*,GeomType gt=Seis::Vol);
 
 };

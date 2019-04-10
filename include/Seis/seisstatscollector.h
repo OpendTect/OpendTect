@@ -16,15 +16,18 @@ ________________________________________________________________________
 
 class SeisTrc;
 
+namespace Seis
+{
 
-mExpClass(Seis) SeisStatsCollector
+
+mExpClass(Seis) StatsCollector
 {
 public:
 
     typedef DataDistribution<float> DistribType;
 
-			SeisStatsCollector(int icomp=-1);
-			~SeisStatsCollector();
+			StatsCollector(int icomp=-1);
+			~StatsCollector();
 
     void		setEmpty();
 
@@ -58,3 +61,5 @@ protected:
     void		addPosition(const TrcKey&,const Interval<float>&);
 
 };
+
+} // namespace Seis

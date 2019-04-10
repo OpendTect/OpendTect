@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "seiscbvs.h"
 #include "seisblockstr.h"
 #include "seisblocksreader.h"
-#include "seisselection.h"
 #include "seissingtrcproc.h"
 #include "seistrc.h"
 #include "survgeom3d.h"
@@ -82,7 +81,7 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
     transffld_->attach( alignedBelow, modefld_ );
 
     uiSeisSel::Setup sssu( Seis::Vol );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( Seis::InclSteer );
     sssu.enabotherdomain( true );
     sssu.withwriteopts( false );
     IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );

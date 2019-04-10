@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "statruncalc.h"
 
-class IOObj;
 namespace Pos { class Provider; }
 namespace Seis { class Provider; }
 

@@ -28,42 +28,43 @@ public:
 					bool is2d, uiString* errmsg=0,
 					bool forceusecbvsinfo=false);
 			~CBVSSeisTrcTranslator();
+    const char*	iconName() const override	{ return "od6"; }
+    const char*	defExtension() const override	{ return sKeyDefExtension(); }
 
-    bool		readInfo(SeisTrcInfo&);
-    bool		skip(int nrtrcs=1);
+    bool	readInfo(SeisTrcInfo&) override;
+    bool	readData(TraceData* externalbuf) override;
+    bool	skip(int nrtrcs=1) override;
 
-    bool		supportsGoTo() const		{ return true; }
-    bool		goTo(const BinID&);
-    bool		toStart();
-    virtual bool	isSingleComponent() const	{ return false; }
-    virtual int		bytesOverheadPerTrace() const;
-    virtual bool	forRead() const;
+    bool	supportsGoTo() const override		{ return true; }
+    bool	goTo(const BinID&) override;
+    bool	toStart();
+    bool	isSingleComponent() const override	{ return false; }
+    int		bytesOverheadPerTrace() const override;
+    bool	forRead() const override;
 
-    virtual void	usePar(const IOPar&);
+    void	usePar(const IOPar&) override;
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr_; }
     Pos::IdxPair2Coord	getTransform() const;
 
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
+    bool	getGeometryInfo(PosInfo::CubeData&) const override;
 
-    virtual bool	implRemove(const IOObj*) const;
-    virtual bool	implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const;
-    virtual bool	implSetReadOnly(const IOObj*,bool) const;
-    const char*	defExtension() const	{ return sKeyDefExtension(); }
+    bool	implRemove(const IOObj*) const override;
+    bool	implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const override;
+    bool	implSetReadOnly(const IOObj*,bool) const override;
     static const char*	sKeyDefExtension();
 
-    bool		is2D() const			{ return is2d_; }
-    void		set2D(bool yn=true);
-    bool		singleFile() const		{ return single_file_; }
-    void		setSingleFile( bool yn=true )	{ single_file_ = yn; }
-    void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
+    bool	is2D() const			{ return is2d_; }
+    void	set2D(bool yn=true);
+    bool	singleFile() const		{ return single_file_; }
+    void	setSingleFile( bool yn=true )	{ single_file_ = yn; }
+    void	setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
 
-    void		setCoordPol(bool dowrite,bool intrailer);
-    void		setDataRep( OD::DataRepType t )	{ datarep_ = t; }
+    void	setCoordPol(bool dowrite,bool intrailer);
+    void	setDataRep( OD::DataRepType t )	{ datarep_ = t; }
 
-    bool		isUserSelectable(bool) const	{ return true; }
-    virtual const char*	iconName() const		{ return "od6"; }
+    bool	isUserSelectable(bool) const	{ return true; }
 
     static const char*	sKeyOptDir()		{ return "Optimized direction";}
 
@@ -85,24 +86,23 @@ protected:
     bool		is2d_;
     bool		single_file_;
     bool		forceusecbvsinfo_;
+    static const IOPar&	datatypeparspec;
 
-    virtual void	cleanUp();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
-    virtual bool	commitSelections_();
-    virtual bool	writeTrc_(const SeisTrc&);
-    virtual void	blockDumped(int);
-    bool		startWrite();
-    bool		toNext();
-    bool		getFileName(BufferString&);
-    bool		inactiveSelData() const;
-    int			selRes(const BinID&) const;
+    void	cleanUp() override;
+    bool	initRead_() override;
+    bool	initWrite_(const SeisTrc&) override;
+    bool	commitSelections_() override;
+    bool	writeTrc_(const SeisTrc&) override;
+    void	blockDumped(int) override;
+    bool	startWrite();
+    bool	toNext();
+    bool	getFileName(BufferString&);
+    bool	inactiveSelData() const;
+    int		selRes(const BinID&) const;
+    BinID	curMgrBinID() const;
 
 private:
 
-    static const IOPar&	datatypeparspec;
-
-    void		destroyVars();
-    virtual bool	readData(TraceData* externalbuf);
+    void	destroyVars();
 
 };

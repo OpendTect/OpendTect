@@ -52,7 +52,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"", &pars(), uiString::empty() );
-    stp->setProcPars( pars(), false );
+    stp->setProcPars( pars() );
     int compnr = -1; // all components
     inpar->get( sKey::Component(), compnr );
     SeisCubeCopier copier( stp, compnr );

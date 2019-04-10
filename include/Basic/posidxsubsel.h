@@ -67,8 +67,10 @@ public:
     void	setOutputPosRange(pos_type start,pos_type stop,pos_type stp);
     inline void	setOutputPosRange( const pos_steprg_type& rg )
 		{ setOutputPosRange( rg.start, rg.stop, rg.step ); }
+    void	setOutputStep(pos_type step,pos_type existpos=mUdf(pos_type));
 
     void	limitTo(const IdxSubSelData&);
+    void	widenTo(const IdxSubSelData&);
 
 protected:
 

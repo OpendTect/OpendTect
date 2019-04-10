@@ -20,6 +20,7 @@ class IOObj;
 class CtxtIOObj;
 class Translator;
 class IOObjContext;
+class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiLineEdit;
@@ -146,11 +147,12 @@ protected:
     TypeSet<od_int64>	modiftimes_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_;
+    bool		didtsort_;
 
     uiListBox*		listfld_;
     uiGenInput*		nmfld_;
     uiLineEdit*		filtfld_;
-    uiComboBox*		sortfld_;
+    uiCheckBox*		tsortbox_;
     uiIOObjSelGrpManipSubj* manipgrpsubj;
     uiIOObjSelWriteTranslator* wrtrselfld_;
     uiToolButton*	mkdefbut_;
@@ -159,7 +161,7 @@ protected:
     ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
 
-    bool		needTimes() const;
+    bool		doTimeSort() const;
     void		addModifTime(const IOObj&);
     void		fillListBox();
     IOObj*		getIOObj(int);

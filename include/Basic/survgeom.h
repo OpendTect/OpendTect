@@ -62,6 +62,7 @@ public:
     typedef Pos::TraceNr_Type		tracenr_type;
     typedef Pos::Distance_Type		dist_type;
 
+    virtual Geometry*	clone() const			= 0;
     virtual GeomSystem	geomSystem() const		= 0;
     bool		is2D() const
 			{ return geomSystem() != OD::VolBasedGeom; }
@@ -119,6 +120,7 @@ public:
 protected:
 			~Geometry();
 			Geometry(GeomID);
+			Geometry( const Geometry& oth )	{ *this = oth; }
     Geometry&		operator =(const Geometry&);
 
     const GeomID	geomid_;

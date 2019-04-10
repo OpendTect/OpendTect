@@ -153,7 +153,7 @@ const SeisTrc* SynthSeis::PreStackDataSet::addTrcToCache( int seqnr,
     if ( !trccache_.validIdx(seqnr) )
 	return 0;
 
-    trc->info().trckey_ = TrcKey::getSynth( seqnr + 1 );
+    trc->info().trcKey() = TrcKey::getSynth( seqnr + 1 );
     trc->info().offset_ = offsetDef().atIndex( offsnr );
     auto* trcset = trccache_.get( seqnr );
     if ( !trcset )

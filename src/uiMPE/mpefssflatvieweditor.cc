@@ -378,7 +378,7 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
 
 Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
 {
-    Coord3 normal = Coord3( Coord3::udf() );
+    Coord3 normal = Coord3::udf();
     if ( path_ && mousepos )
     {
 	const BinID mousebid = SI().transform( mousepos->getXY() );

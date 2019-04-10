@@ -11,7 +11,7 @@
 #include "seisblockswriter.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "survgeom3d.h"
 #include "ioman.h"
 #include "strmprov.h"
@@ -176,6 +176,9 @@ bool BlocksSeisTrcTranslator::commitSelections_()
 
 bool BlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
+    if ( !ensureSelectionsCommitted() )
+	return false;
+
     uiRetVal uirv = rdr_->getTrcInfo( ti );
     if ( uirv.isError() )
     {
@@ -186,6 +189,25 @@ bool BlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
     }
     headerdone_ = true;
+    return true;
+}
+
+
+bool BlocksSeisTrcTranslator::readData( TraceData* extbuf )
+{
+    if ( !ensureSelectionsCommitted() )
+	return false;
+
+    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    uiRetVal uirv = rdr_->getTrcData( tdata );
+    if ( uirv.isError() )
+    {
+	if ( isFinished(uirv) )
+	    errmsg_.setEmpty();
+	else
+	    errmsg_ = uirv;
+	return false;
+    }
     return true;
 }
 

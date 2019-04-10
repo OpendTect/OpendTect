@@ -50,6 +50,9 @@ public:
     inline void	setOutputZRange( const z_steprg_type& rg )
 		{ setOutputZRange( rg.start, rg.stop, rg.step ); }
 
+    void	limitTo(const ZSubSelData&);
+    void	widenTo(const ZSubSelData&);
+
 protected:
 
     z_steprg_type	inpzrg_;
@@ -86,6 +89,8 @@ public:
 
     bool	isAll() const		{ return data_.isAll(); }
     bool	hasFullRange() const	{ return data_.hasFullRange(); }
+    void	limitTo( const ZSubSel& oth ) { data_.limitTo(oth.data_); }
+    void	merge( const ZSubSel& oth ) { data_.widenTo(oth.data_); }
 
     idx_type	idx4Z( z_type z ) const { return data_.idx4Z( z ); }
     z_type	z4Idx( idx_type idx ) const { return data_.z4Idx( idx ); }

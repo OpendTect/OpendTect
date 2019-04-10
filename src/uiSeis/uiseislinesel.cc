@@ -47,15 +47,9 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
     const int* idxs = lnms_.getSortIndexes( false );
-    const int sz = lnms_.size();
-    BufferStringSet lnmstmp = lnms_;
-    GeomIDSet geomidstmp = geomids_;
-    lnms_.erase(); geomids_.erase();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	lnms_.add( lnmstmp[ idxs[idx] ]->buf() );
-	geomids_.add( geomidstmp[ idxs[idx] ] );
-    }
+    lnms_.useIndexes( idxs );
+    geomids_.useIndexes( idxs );
+    delete [] idxs;
 
     init( cm );
 
@@ -232,23 +226,11 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 {
     txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
-    BufferStringSet lnms; GeomIDSet geomids;
-    SeisIOObjInfo::getLinesWithData( lnms, geomids );
-    const int* idxs = lnms.getSortIndexes( false );
-    if ( !idxs )
-    {
-	lnms_ = lnms;
-	geomids_ = geomids;
-    }
-    else
-    {
-	const int sz = lnms.size();
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    lnms_.add( lnms[ idxs[idx] ]->buf() );
-	    geomids_.add( geomids[ idxs[idx] ] );
-	}
-    }
+    SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
+    const int* idxs = lnms_.getSortIndexes( false );
+    lnms_.useIndexes( idxs );
+    geomids_.useIndexes( idxs );
+    delete [] idxs;
 
     if ( lnms_.size()==1 )
     {
@@ -259,10 +241,14 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 
 
 const char* uiSeis2DLineSel::lineName() const
-{ return selidxs_.isEmpty() ? "" : lnms_.get( selidxs_[0] ).buf(); }
+{
+    return selidxs_.isEmpty() ? "" : lnms_.get( selidxs_[0] ).buf();
+}
 
 int uiSeis2DLineSel::nrSelected() const
-{ return selidxs_.size(); }
+{
+    return selidxs_.size();
+}
 
 Pos::GeomID uiSeis2DLineSel::geomID() const
 {
@@ -488,7 +474,8 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
-    if ( !forread_ ) fld_->addItem( uiString::empty() );
+    if ( !forread_ )
+	fld_->addItem( uiString::empty() );
     setHAlignObj( lcb );
     if ( !forread_ )
 	fillWithAll();
@@ -512,7 +499,8 @@ void uiSeis2DLineNameSel::fillWithAll()
 void uiSeis2DLineNameSel::addLineNames( const DBKey& ky )
 {
     const SeisIOObjInfo oi( ky );
-    if ( !oi.isOK() || !oi.is2D() ) return;
+    if ( !oi.isOK() || !oi.is2D() )
+	return;
 
     BufferStringSet lnms; oi.getLineNames( lnms );
     lnms.sort();
@@ -669,6 +657,7 @@ void uiSeis2DMultiLineSelDlg::setAll( bool yn )
     if ( zrgfld_ )
 	zrgs_ = maxzrgs_;
 }
+
 
 void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
 				const TypeSet<StepInterval<int> >& trcrgs,

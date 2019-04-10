@@ -12,26 +12,12 @@ ________________________________________________________________________
 #include "seisfetcher.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
-#include "seispreload.h"
+#include "seistrc.h"
 #include "seisdatapack.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "uistrings.h"
 #include "posinfo2d.h"
 #include "survgeom.h"
-
-
-od_int64 Seis::Provider2D::getTotalNrInInput() const
-{
-    const int nrlines = nrLines();
-    Line2DData ld;
-    od_int64 ret = 0;
-    for ( int iln=0; iln<nrlines; iln++ )
-    {
-	getGeometryInfo( iln, ld );
-	ret += ld.size();
-    }
-    return ret;
-}
 
 
 namespace Seis
@@ -45,7 +31,6 @@ public:
 
 LineFetcher( LineProvider& p )
     : Fetcher2D(p)
-    , getter_(0)
 {
 }
 
@@ -64,152 +49,89 @@ const LineProvider& prov() const
     return static_cast<const LineProvider&>( prov_ );
 }
 
-    void		reset();
-    void		findDataPack();
-    bool		goTo(const TrcKey&);
-    bool		getNextGetter();
-    bool		readNextTraces();
+const RegularSeisDataPack& dp() const
+{
+    return *static_cast<const RegularSeisDataPack*>( dp_.ptr() );
+}
 
-    void		get(const TrcKey&,SeisTrc&);
-    void		get(const TrcKey&,TraceData&,SeisTrcInfo*);
-    void		getNext(SeisTrc&);
+    void		prepWork();
+    bool		goTo(GeomID,trcnr_type);
+    void		getAt(GeomID,trcnr_type,TraceData&,SeisTrcInfo&);
+    void		getCur(TraceData&,SeisTrcInfo&);
 
-    RefMan<RegularSeisDataPack> dp_;
-    Seis2DTraceGetter*	getter_;
+    Seis2DTraceGetter*	getter_		= nullptr;
 
-private:
+protected:
 
-    void		doGet(const TrcKey&,SeisTrc*,TraceData&,SeisTrcInfo*);
+    bool		ensureGetter();
 
 };
 
 } // namespace Seis
 
 
-void Seis::LineFetcher::reset()
+void Seis::LineFetcher::prepWork()
 {
-    Fetcher2D::reset();
-    delete getter_; getter_ = 0;
-    dp_ = 0;
-
-    if ( uirv_.isOK() )
-    {
-	if ( !getNextGetter() )
-	    uirv_.set( tr("Empty 2D Data set") );
-    }
+    deleteAndZeroPtr( getter_ );
 }
 
 
-void Seis::LineFetcher::findDataPack()
-{
-    dp_ = Seis::PLDM().get<RegularSeisDataPack>( prov().dbky_, curGeomID() );
-}
-
-
-bool Seis::LineFetcher::goTo( const TrcKey& tk )
+bool Seis::LineFetcher::goTo( GeomID gid, trcnr_type tnr )
 {
     uirv_.setEmpty();
-    if ( !tk.geomID().isValid() )
-	{ uirv_.set( tr("Invalid position requested") ); return false; }
 
-    int newlineidx = lineIdxFor( tk.geomID() );
-    if ( newlineidx < 0 )
-	{ uirv_.set(tr("Requested position not available")); return false; }
-
-    if ( !getter_ || curlidx_!=newlineidx )
-    {
-	Seis2DTraceGetter* newgetter =
-		dataset_->traceGetter( tk.geomID(), prov().seldata_, uirv_ );
-	if ( !newgetter )
-	{
-	    if ( uirv_.isEmpty() )
-		uirv_.set( tr("Requested position not available") );
-	    return false;
-	}
-
-	delete getter_;
-	getter_ = newgetter;
-	curlidx_ = newlineidx;
-    }
-
-
-    if ( !iter_ || iter_->geomID()!=curGeomID() )
-    {
-	delete iter_;
-	iter_ = new PosInfo::Line2DDataIterator( *line2ddata_[curlidx_] );
-    }
-
-    nexttrcky_ = tk;
-    iter_->setTrcNr( tk.trcNr() );
-    return true;
-}
-
-
-bool Seis::LineFetcher::getNextGetter()
-{
-    delete getter_; getter_ = 0;
-
-    if ( !toNextLine() )
+    const auto oldlidx = prov2D().curLineIdx();
+    if ( !selectPosition(gid,tnr) )
 	return false;
 
-    getter_ = dataset_->traceGetter( curGeomID(), prov2D().selData(), uirv_ );
-    if ( !getter_ )
-	return getNextGetter();
-
-    findDataPack();
+    if ( oldlidx != prov2D().curLineIdx() )
+	deleteAndZeroPtr( getter_ );
     return true;
 }
 
 
-void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
+bool Seis::LineFetcher::ensureGetter()
 {
-    doGet( tk, &trc, trc.data(), &trc.info() );
-}
-
-
-void Seis::LineFetcher::get( const TrcKey& tk, TraceData& data,
-			     SeisTrcInfo* trcinfo )
-{
-    doGet( tk, 0, data, trcinfo );
-}
-
-
-void Seis::LineFetcher::doGet( const TrcKey& tk, SeisTrc* trc, TraceData& data,
-			       SeisTrcInfo* trcinfo )
-{
-    if ( !goTo(tk) )
-	return;
-
-    if ( dp_ && dp_->sampling().hsamp_.includes(tk) )
-    {
-	if ( trc ) dp_->fillTrace( tk, *trc );
-	else
-	{
-	    if ( trcinfo ) dp_->fillTraceInfo( tk, *trcinfo );
-	    dp_->fillTraceData( tk, data );
-	}
-	return;
-    }
-
-    uirv_ = trc ? getter_->get( tk.trcNr(), *trc )
-		: getter_->get( tk.trcNr(), data, trcinfo );
-}
-
-
-void Seis::LineFetcher::getNext( SeisTrc& trc )
-{
-    if ( !moveNextBinID() && (mIsSingleLine(prov().seldata_) ||
-			     !getNextGetter()) )
-	{ uirv_.set( uiStrings::sFinished() ); return; }
-
-    uirv_.setEmpty();
-    if ( dp_ && dp_->sampling().hsamp_.includes(nexttrcky_.binID()) )
-	{ dp_->fillTrace( nexttrcky_, trc ); return; }
-
     if ( getter_ )
-	uirv_ = getter_->get( nexttrcky_.trcNr(), trc );
-    if ( !getter_ || uirv_.isError() )
-	getNext( trc );
+	return true;
+
+    ensureDataSet();
+    const auto geomid = prov().curGeomID();
+    if ( dataset_ )
+	getter_ = dataset_->traceGetter( geomid, prov().selData(), uirv_ );
+    if ( !getter_ && uirv_.isOK() )
+	uirv_.set( uiStrings::phrCannotLoad( nameOf(geomid) ) );
+
+    getDataPack();
+    return uirv_.isOK();
+}
+
+
+void Seis::LineFetcher::getAt( GeomID gid, trcnr_type tnr, TraceData& data,
+			       SeisTrcInfo& trcinfo )
+{
+    if ( goTo(gid,tnr) )
+	getCur( data, trcinfo );
+}
+
+
+void Seis::LineFetcher::getCur( TraceData& data, SeisTrcInfo& trcinfo )
+{
+
+    const GeomID gid = prov().curGeomID();
+    const auto tnr = prov().curTrcNr();
+    const TrcKey tk( gid, tnr );
+
+    if ( !dp_ || !dp().sampling().hsamp_.includes(tk) )
+    {
+	if ( ensureGetter() )
+	    uirv_ = getter_->get( tnr, data, &trcinfo );
+    }
+    else
+    {
+	dp().fillTraceInfo( tk, trcinfo );
+	dp().fillTraceData( tk, data );
+    }
 }
 
 
@@ -226,122 +148,59 @@ Seis::LineProvider::~LineProvider()
 }
 
 
-int Seis::LineProvider::curLineIdx() const
+Seis::Fetcher2D& Seis::LineProvider::fetcher() const
 {
-    return fetcher_.curlidx_;
+    return mNonConst( fetcher_ );
 }
 
 
-uiRetVal Seis::LineProvider::doGetComponentInfo( BufferStringSet& nms,
-						 DataType& dt ) const
+void Seis::LineProvider::prepWork( uiRetVal& uirv ) const
 {
-    return fetcher_.gtComponentInfo(nms,dt);
+    fetcher_.prepWork();
+    uirv = fetcher_.uirv_;
 }
 
 
-int Seis::LineProvider::nrLines() const
+bool Seis::LineProvider::doGoTo( GeomID gid, trcnr_type tnr,
+				 uiRetVal* uirv ) const
 {
-    return fetcher_.gtNrLines();
+    if ( fetcher_.goTo(gid,tnr) )
+	return true;
+
+    if ( uirv )
+	*uirv = fetcher_.uirv_;
+    return false;
 }
 
 
-Pos::GeomID Seis::LineProvider::geomID( int iln ) const
+void Seis::LineProvider::gtCur( SeisTrc& trc, uiRetVal& uirv ) const
 {
-    return fetcher_.gtGeomID( iln );
+    fetcher_.getCur( trc.data(), trc.info() );
+    uirv = fetcher_.uirv_;
 }
 
 
-int Seis::LineProvider::lineNr( Pos::GeomID geomid ) const
+void Seis::LineProvider::gtAt( GeomID gid, trcnr_type tnr, TraceData& td,
+				  SeisTrcInfo& ti, uiRetVal& uirv ) const
 {
-    return fetcher_.gtLineNr( geomid );
+    fetcher_.getAt( gid, tnr, td, ti );
+    uirv = fetcher_.uirv_;
 }
 
 
-BufferString Seis::LineProvider::lineName( int iln ) const
+void Seis::LineProvider::gtComponentInfo( BufferStringSet& nms,
+					  DataType& dt ) const
 {
-    return fetcher_.gtLineName( iln );
+    fetcher_.getComponentInfo( nms, dt );
 }
 
 
-void Seis::LineProvider::getGeometryInfo( int iln, Line2DData& ld ) const
-{
-    return fetcher_.gtGeometryInfo( iln, ld );
-}
-
-
-bool Seis::LineProvider::getRanges( int iln, StepInterval<int>& trcrg,
-	                                 ZSampling& zsamp ) const
-{
-    return fetcher_.gtRanges( iln, trcrg, zsamp );
-}
-
-
-SeisTrcTranslator* Seis::LineProvider::getCurrentTranslator() const
+const SeisTrcTranslator* Seis::LineProvider::curTransl() const
 {
     const Seis2DTraceGetter* getter2d = fetcher_.getter_;
     if ( !getter2d )
 	return 0;
 
-    return getter2d->tr_ ? getter2d->tr_
-			 : ( getter2d->ensureTranslator() ? getter2d->tr_ : 0 );
-}
-
-
-void Seis::LineProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
-{
-    Seis::Provider2D::doFillPar( iop, uirv );
-
-    IOPar par;
-    fetcher_.doFillPar( par, uirv );
-    iop.merge( par );
-}
-
-
-void Seis::LineProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
-{
-    Seis::Provider2D::doUsePar( iop, uirv );
-
-    fetcher_.doUsePar( iop, uirv );
-}
-
-
-void Seis::LineProvider::doReset( uiRetVal& uirv ) const
-{
-    fetcher_.reset();
-    uirv = fetcher_.uirv_;
-}
-
-
-TrcKey Seis::LineProvider::doGetCurPosition() const
-{
-    return TrcKey( curGeomID(), fetcher_.iter_->trcNr() );
-}
-
-
-bool Seis::LineProvider::doGoTo( const TrcKey& tk )
-{
-    return fetcher_.goTo( tk );
-}
-
-
-void Seis::LineProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
-{
-    fetcher_.getNext( trc );
-    uirv = fetcher_.uirv_;
-}
-
-
-void Seis::LineProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
-				  uiRetVal& uirv ) const
-{
-    fetcher_.get( trcky, trc );
-    uirv = fetcher_.uirv_;
-}
-
-
-void Seis::LineProvider::doGetData( const TrcKey& trcky, TraceData& data,
-				    SeisTrcInfo* trcinfo, uiRetVal& uirv ) const
-{
-    fetcher_.get( trcky, data, trcinfo );
-    uirv = fetcher_.uirv_;
+    getter2d->ensureTranslator();
+    return getter2d->tr_;
 }

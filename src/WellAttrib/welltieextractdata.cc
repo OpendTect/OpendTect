@@ -20,8 +20,8 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
-#include "seisselectionimpl.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 

@@ -186,7 +186,7 @@ public:
 				   uiRetVal&);
 			~HDF5Column();
 
-    void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
+    void		fillTraceData(const BinID&,TraceData&,uiRetVal&) const;
 
     const Reader&	rdr_;
     const HGeom&	hgeom_;
@@ -316,7 +316,7 @@ Seis::Blocks::HDF5Column::~HDF5Column()
 }
 
 
-void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
+void Seis::Blocks::HDF5Column::fillTraceData( const BinID& bid, TraceData& td,
 					  uiRetVal& uirv ) const
 {
     const HLocIdx locidx(
@@ -330,11 +330,11 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
 	return;
     }
 
-    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
-    trc.reSize( nrsamples2read_, false );
+    td.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
+    td.reSize( nrsamples2read_ );
     if ( !isZSlice() )
     {
-	trc.zero();
+	td.zero();
 	slabspec_[0].start_ = locidx.inl();
 	slabspec_[1].start_ = locidx.crl();
     }
@@ -362,14 +362,14 @@ void Seis::Blocks::HDF5Column::fillTrace( const BinID& bid, SeisTrc& trc,
 	{
 	    const int posnr = ((idx_type)dims_.crl()) * locidx.inl()
 			    + locidx.crl();
-	    trc.set( 0, rdr_.interp_->get(buf,posnr), trccompnr );
+	    td.setValue( 0, rdr_.interp_->get(buf,posnr), trccompnr );
 	}
 	else
 	{
 	    for ( int isamp=0; isamp<nrsamples2read_; isamp++ )
 	    {
 		const float val = rdr_.interp_->get( buf, isamp );
-		trc.set( isamp, rdr_.scaledVal(val), trccompnr );
+		td.setValue( isamp, rdr_.scaledVal(val), trccompnr );
 	    }
 	}
 
@@ -428,11 +428,11 @@ Seis::Blocks::Column* Seis::Blocks::HDF5ReadBackEnd::createColumn(
 }
 
 
-void Seis::Blocks::HDF5ReadBackEnd::fillTrace( Column& column, const BinID& bid,
-				SeisTrc& trc, uiRetVal& uirv ) const
+void Seis::Blocks::HDF5ReadBackEnd::fillTraceData( Column& column,
+		    const BinID& bid, TraceData& td, uiRetVal& uirv ) const
 {
     if ( !hdfrdr_ )
 	{ uirv.set( HDF5::Access::sHDF5NotAvailable() ); return; }
     HDF5Column& hdfcolumn = static_cast<HDF5Column&>( column );
-    hdfcolumn.fillTrace( bid, trc, uirv );
+    hdfcolumn.fillTraceData( bid, td, uirv );
 }

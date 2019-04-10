@@ -16,6 +16,7 @@ ________________________________________________________________________
 class TrcKeyZSampling;
 class uiFileSel;
 class uiGenInput;
+class uiIOObjSel;
 class uiPickSetIOObjSel;
 class uiPosSubSel;
 class uiSelSteps;
@@ -111,6 +112,10 @@ public:
 
 protected:
 
+    uiGenInput*		typfld_;
     uiPickSetIOObjSel*	psfld_;
+    uiIOObjSel*		pvdsfld_;
+
+    void		typSelCB(CallBacker*);
 
 };

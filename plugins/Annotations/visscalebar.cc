@@ -32,7 +32,7 @@ ScaleBar::ScaleBar()
     , oninlcrl_(true)
     , orientation_(0)
 {
-    firstloc_.pos_ = Coord3::udf();
+    firstloc_.pos_.setUdf();
     setMaterial( 0 );
 
     linestyle_ = visBase::DrawStyle::create();

@@ -313,24 +313,9 @@ void uiSeisFileMan::man2DPush( CallBacker* )
 
 void uiSeisFileMan::copyPush( CallBacker* )
 {
-    if ( !curioobj_ )
-	return;
-
-    const DBKey key( curioobj_->key() );
-    bool needrefresh = false;
-    if ( is2d_ )
-    {
-	uiSeisCopy2DDataSet dlg2d( this, curioobj_ );
-	needrefresh = dlg2d.go();
-    }
-    else
-    {
-	uiSeisCopyCube dlg( this, curioobj_ );
-	needrefresh = dlg.go();
-    }
-
-    if ( needrefresh )
-	selgrp_->fullUpdate( key );
+    uiSeisCopy dlg( this, curioobj_ );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( dlg.copiedID() );
 }
 
 
@@ -352,13 +337,13 @@ void uiSeisFileMan::showHistogram( CallBacker* )
     statswin->setDeleteOnClose( true );
 
     ConstRefMan<DataDistribution<float> > distrib
-			= SeisStatsCollector::getDistribution( iop );
+			= Seis::StatsCollector::getDistribution( iop );
     if ( !distrib )
 	statswin->statsDisplay()->usePar( iop );
     else
     {
-	const Interval<float> rg = SeisStatsCollector::getExtremes( iop );
-	const od_int64 nrsamples = SeisStatsCollector::getNrSamples( iop );
+	const Interval<float> rg = Seis::StatsCollector::getExtremes( iop );
+	const od_int64 nrsamples = Seis::StatsCollector::getNrSamples( iop );
 	statswin->statsDisplay()->setData( *distrib, nrsamples, rg );
     }
 

@@ -12,6 +12,7 @@
 #include "prestackanglemutecomputer.h"
 #include "prestackmute.h"
 #include "prestackmutedeftransl.h"
+#include "seisselsetup.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uimsg.h"

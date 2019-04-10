@@ -59,6 +59,8 @@ public:
 				 const IdxPairStep&,bool conn8=true) const;
 
     static const IdxPair&	udf();
+    inline void			setUdf()	{ *this = udf(); }
+
 };
 
 

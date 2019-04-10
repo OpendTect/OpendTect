@@ -56,10 +56,18 @@ void uiPickSetIOObjSel::updateCtxt( IOObjContext& ctxt, Type typ, bool forread,
 }
 
 
+#define mSetLabel() \
+    if ( typ == PolygonOnly ) \
+	setLabelText( uiStrings::sPolygon() ); \
+    else \
+	setLabelText( uiStrings::sPickSet() )
+
+
 uiPickSetIOObjSel::uiPickSetIOObjSel( uiParent* p, bool forread, Type typ,
 				      const char* cat )
     : uiIOObjSel(p,getCtxt(typ,forread,cat))
 {
+    mSetLabel();
 }
 
 
@@ -67,6 +75,7 @@ uiPickSetIOObjSel::uiPickSetIOObjSel( uiParent* p, const Setup& su,
 				      bool forread, Type typ, const char* cat )
     : uiIOObjSel(p,getCtxt(typ,forread,cat),su)
 {
+    mSetLabel();
 }
 
 

@@ -18,7 +18,7 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !version || !*version )
     {
-	if ( !quiet )
+	if ( !quiet_ )
 	{
 	    od_cout() << "Invalid vcs revision. "
 		    "Cmake could probably not find svn command-client. "

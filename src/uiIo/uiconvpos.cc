@@ -107,7 +107,7 @@ void uiConvertPos::selChg( CallBacker* )
 void uiConvertPos::getCoord( CallBacker* )
 {
     BinID binid( inlfld->getIntValue(), crlfld->getIntValue() );
-    if ( binid == BinID::udf() )
+    if ( binid.isUdf() )
     {
 	uiMSG().error( tr("Cannot convert this position") );
 	xfld->setText( "" ); yfld->setText( "" );
@@ -125,7 +125,7 @@ void uiConvertPos::getCoord( CallBacker* )
 void uiConvertPos::getBinID( CallBacker* )
 {
     Coord coord( xfld->getDValue(), yfld->getDValue() );
-    if ( coord == Coord::udf() )
+    if ( coord.isUdf() )
     {
 	uiMSG().error( tr("Cannot convert this position") );
 	inlfld->setText( "" ); crlfld->setText( "" );

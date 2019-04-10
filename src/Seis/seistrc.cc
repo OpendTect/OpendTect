@@ -370,30 +370,7 @@ void SeisTrc::convertToFPs( bool pres )
 
 void SeisTrc::setNrComponents( int newnrcomps, OD::DataRepType datarep )
 {
-    const int oldnrcomps = nrComponents();
-    const bool isautodatarep = datarep == OD::AutoDataRep;
-    if ( oldnrcomps == newnrcomps )
-    {
-	if ( isautodatarep )
-	    return;
-
-	bool isok = true;
-	for ( int icomp=0; icomp<oldnrcomps; icomp++ )
-	    if ( data().getInterpreter(icomp)->dataChar().userType()!=datarep )
-		{ isok = false; break; }
-	if ( isok )
-	    return;
-    }
-
-    const int sz = size();
-    if ( isautodatarep )
-	datarep = data().getInterpreter(0)->dataChar().userType();
-
-    while ( nrComponents() > 0 )
-	data().delComponent( 0 );
-
-    for ( int icomp=0; icomp<newnrcomps; icomp++ )
-	data().addComponent( sz, DataCharacteristics(datarep) );
+    data().setNrComponents( newnrcomps, datarep );
 }
 
 

@@ -48,6 +48,7 @@ mExpClass(General) Location
 {
 public:
 
+    mUseType( Pos,		GeomID );
     typedef GroupLabel::ID	GroupLabelID;
     typedef Pos::TraceNr_Type	tracenr_type;
     typedef tracenr_type	linenr_type;
@@ -72,7 +73,7 @@ public:
     inline const Coord3& pos() const		{ return pos_; }
     inline float	z() const		{ return (float)pos_.z_; }
     bool		is2D() const;
-    Pos::GeomID		geomID() const;
+    GeomID		geomID() const;
     const TrcKey&	trcKey() const;
     linenr_type		lineNr() const;
     tracenr_type	trcNr() const;
@@ -100,8 +101,9 @@ public:
     Location&		setDir(const Coord&);
     Location&		setLineNr(linenr_type);
     Location&		setTrcNr(tracenr_type);
-    Location&		setGeomID(Pos::GeomID);
-    Location&		setBinID(const BinID&,bool updcoord=false);
+    Location&		setGeomID(GeomID);
+    Location&		setPos(const BinID&,bool updcoord=false);
+    Location&		setPos(GeomID,tracenr_type,bool updcoord=false);
 
     bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;
@@ -117,6 +119,7 @@ public:
     static const Location& udf();
     static Location&	dummy();
     bool		isUdf() const		{ return *this == udf(); }
+    void		setUdf()		{ *this = udf(); }
 
 protected:
 

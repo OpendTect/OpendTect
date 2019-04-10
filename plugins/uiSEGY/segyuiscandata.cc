@@ -270,7 +270,7 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
 	    ti.coord_ = SI().getCoordSystem()->convertFrom( ti.coord_,
 								   *coordsys_ );
 
-	ti.setBinID( SI().transform(ti.coord_) );
+	ti.setPos( SI().transform(ti.coord_) );
     }
 }
 

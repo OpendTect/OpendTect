@@ -82,6 +82,7 @@ public:
 				     bool cleardata=false);
     void		delComponent(int);
     void		setComponent(const DataCharacteristics&,int icomp=0);
+    void		setNrComponents(int newnrcomps,OD::DataRepType);
 
     void		reSize(int,int icomp=-1,bool copydata=false);
 				//!< -1 = all data buffers

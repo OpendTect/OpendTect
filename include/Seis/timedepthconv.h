@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "veldesc.h"
 
 
-class IOObj;
 class SeisTrc;
 template <class T> class Array3D;
 template <class T> class ValueSeries;

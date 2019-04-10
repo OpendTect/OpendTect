@@ -41,7 +41,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"
 #include "seistrc.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -177,10 +177,10 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
     bool loading = true;
     int nriter = 0;
     int nrdone = 0;
-    SeisTrcWriter* writer( 0 );
+    Seis::Storer* storer = 0;
 
     TextStreamProgressMeter progressmeter(strm);
-    while ( 1 )
+    while ( true )
     {
 	int res = proc->doStep();
 
@@ -192,15 +192,13 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 
 	    if ( !useoutwfunc && tbuf && outid )
 	    {
-		PtrMan<IOObj> ioseisout = DBM().get( *outid );
-		writer = new SeisTrcWriter( ioseisout );
-		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
-		{
-		    BufferString err = !writer->errMsg().isEmpty()
-			? writer->errMsg().getString()
-			: BufferString("ERROR: no trace computed");
-		    mErrRet( err );
-		}
+		PtrMan<IOObj> ioseisout = getIOObj( *outid );
+		storer = new Seis::Storer( *ioseisout );
+		if ( tbuf->isEmpty() )
+		    mErrRet( "ERROR: no trace computed" );
+		auto uirv = storer->prepareWork( *(tbuf->get(0)) );
+		if ( !uirv.isOK() )
+		    mErrRet( toString(uirv) );
 	    }
 	}
 
@@ -227,11 +225,10 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 
 	if ( !useoutwfunc && tbuf && tbuf->get(0) )
 	{
-	    if ( !writer->put(*(tbuf->get(0))) )
-		{ mErrRet( toString(writer->errMsg()) ); }
-
-	    SeisTrc* trc = tbuf->remove(0);
-	    delete trc;
+	    const auto uirv = storer->put( *(tbuf->get(0)) );
+	    if ( !uirv.isOK() )
+		{ mErrRet( toString(uirv) ); }
+	    delete tbuf->remove(0);
 	}
 	else if ( useoutwfunc && res>= 0 )
 	    proc->outputs_[0]->writeTrc();
@@ -242,7 +239,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
     if ( nriter && useoutwfunc )
 	proc->outputs_[0]->finishWrite();
 
-    delete writer;
+    delete storer;
     progressmeter.setFinished();
     mPIDMsg( "Processing done." );
 

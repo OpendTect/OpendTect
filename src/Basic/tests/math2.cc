@@ -16,12 +16,12 @@
 #define mRunTest( func ) \
     if ( (func)==false ) \
     { \
-	od_cout() << #func "\tfailed!\n"; \
+	handleTestResult( false, #func ); \
 	return false; \
     } \
-    else if ( !quiet ) \
+    else \
     { \
-	od_cout() << #func "\tsuccess!\n"; \
+	handleTestResult( true, #func ); \
     }
 
 #define mTestVal 100

@@ -41,8 +41,8 @@ static bool testParseJSON()
 	uiRetVal uirv;
 	ValueSet* tree = ValueSet::getFromJSon( str.getCStr(), str.size(),uirv);
 	const bool isok = uirv.isOK();
-	if ( !quiet && !isok )
-	    tstStream() << "\tmsg=" << toString(uirv) << od_endl;
+	if ( !isok )
+	    logStream() << "\tmsg=" << toString(uirv) << od_endl;
 
 	if ( idx )
 	    mRunStandardTest( !isok, "Parse bad string" )
@@ -200,8 +200,7 @@ static bool testDumpJSON()
 {
     BufferString dumpstr;
     jsontree->dumpJSon( dumpstr );
-    if ( !quiet )
-	tstStream() << "\ndump:\n\n" << dumpstr << '\n' << od_endl;
+	logStream() << "\ndump:\n\n" << dumpstr << '\n' << od_endl;
 
     BufferString orgstr( jsonstrs[0] );
     dumpstr.remove( ' ' ).remove( '\t' ).remove( '\n' );

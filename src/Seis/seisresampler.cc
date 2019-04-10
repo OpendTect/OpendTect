@@ -7,127 +7,133 @@
 
 
 #include "seisresampler.h"
-#include "trckeyzsampling.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
+#include "cubesubsel.h"
+#include "linesubsel.h"
 #include "math2.h"
 
-SeisResampler::SeisResampler( const TrcKeyZSampling& c, bool is2d,
-				const Interval<float>* v )
-	: nrtrcs(0)
-	, worktrc(*new SeisTrc)
-	, valrg(v? new Interval<float>(*v) : 0)
-	, cs(*new TrcKeyZSampling(c))
-	, is3d(!is2d)
-	, dozsubsel(false)
-	, replval(0)
+
+#define mDefConstr(typ) \
+ \
+SeisResampler::SeisResampler( const typ& inp, \
+			      const value_rg_type* vrg ) \
+    : worktrc_(*new SeisTrc) \
+    , rsd_(*new RangeSelData(inp)) \
+{ \
+    init( vrg ); \
+}
+
+mDefConstr(CubeSubSel)
+mDefConstr(LineSubSelSet)
+mDefConstr(TrcKeyZSampling)
+
+
+void SeisResampler::init( const value_rg_type* vrg )
 {
-    cs.normalise();
-    if ( valrg )
+    valrg_ = vrg ? new Interval<float>(*vrg) : 0;
+    if ( valrg_ )
     {
-	valrg->sort();
-	replval = (valrg->start + valrg->stop) * .5f;
+	valrg_->sort();
+	replval_ = (valrg_->start + valrg_->stop) * .5f;
     }
 }
 
 
-SeisResampler::SeisResampler( const SeisResampler& r )
-	: worktrc(*new SeisTrc)
-	, cs(*new TrcKeyZSampling(r.cs))
-	, valrg(0)
+SeisResampler::SeisResampler( const RangeSelData& rsd,
+			      const value_rg_type* vrg )
+    : worktrc_(*new SeisTrc)
+    , rsd_(rsd.isAll() ? *new RangeSelData : *new RangeSelData(rsd))
 {
-    *this = r;
+    init( vrg );
 }
 
 
-SeisResampler& SeisResampler::operator =( const SeisResampler& r )
+SeisResampler::SeisResampler( const SeisResampler& oth )
+    : worktrc_(*new SeisTrc)
+    , rsd_(*new RangeSelData)
 {
-    if ( this == &r ) return *this;
+    *this = oth;
+}
 
-    nrtrcs = r.nrtrcs;
-    is3d = r.is3d;
-    worktrc = r.worktrc;
-    cs = r.cs;
-    delete valrg;
-    valrg = r.valrg ? new Interval<float>(*r.valrg) : 0;
 
-    replval = r.replval;
-    dozsubsel = r.dozsubsel;
+SeisResampler& SeisResampler::operator =( const SeisResampler& oth )
+{
+    if ( this != &oth )
+    {
+	worktrc_ = oth.worktrc_;
+	rsd_ = oth.rsd_;
+	delete valrg_;
+	nrtrcs_ = oth.nrtrcs_;
+	valrg_ = oth.valrg_ ? new value_rg_type(*oth.valrg_) : 0;
+	replval_ = oth.replval_;
+	dozsubsel_ = oth.dozsubsel_;
+    }
+
     return *this;
 }
 
 
 SeisResampler::~SeisResampler()
 {
-    delete &worktrc;
-    delete valrg;
-    delete &cs;
+    delete valrg_;
+    delete &worktrc_;
+    delete &rsd_;
+}
+
+
+bool SeisResampler::is2D() const
+{
+    return rsd_.is2D();
 }
 
 
 SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 {
-    if ( is3d && !cs.hsamp_.includes(intrc.info().binID()) )
+    if ( !rsd_.isOK(intrc.info().trcKey()) )
 	return 0;
 
-    if ( nrtrcs == 0 )
-    {
-	const StepInterval<float> trczrg( intrc.zRange() );
-	StepInterval<float> reqzrg( cs.zsamp_ );
-	if ( mIsUdf(reqzrg.start) )
-	    reqzrg.start = trczrg.start;
-	if ( mIsUdf(reqzrg.stop) )
-	    reqzrg.stop = trczrg.stop;
-	if ( reqzrg.step < 1e-8 )
-	    reqzrg.step = trczrg.step;
+    if ( nrtrcs_ == 0 )
+	worktrc_ = intrc; // set data type and components
 
-	if ( !mIsEqual(reqzrg.start,trczrg.start,1e-8)
-	  || !mIsEqual(reqzrg.stop,trczrg.stop,1e-8) )
-	    dozsubsel = true;
-
-	if ( reqzrg.step > 1.01 * trczrg.step
-	  || reqzrg.step < 0.99 * trczrg.step )
-	    dozsubsel = true;
-	else
-	    reqzrg.step = trczrg.step;
-
-	if ( dozsubsel )
-	{
-	    worktrc = intrc;
-	    worktrc.info() = intrc.info();
-
-	    worktrc.info().sampling_.start = reqzrg.start;
-	    worktrc.info().sampling_.step = reqzrg.step;
-	    int nrsamps = (int)( (reqzrg.stop-reqzrg.start)/reqzrg.step + 1.5 );
-	    for ( int idx=0; idx<intrc.data().nrComponents(); idx++ )
-		worktrc.data().getComponent(idx)->reSize( nrsamps );
-	    worktrc.zero();
-	    cs.zsamp_ = reqzrg;
-	}
-    }
-
-    nrtrcs++;
-    if ( !dozsubsel && !valrg )
+    nrtrcs_++;
+    if ( rsd_.hasFullZRange() && !valrg_ )
 	return const_cast<SeisTrc*>( &intrc );
 
-    const int nrsamps = worktrc.size();
-    worktrc.info() = intrc.info();
-    worktrc.info().sampling_.start = cs.zsamp_.start;
-    worktrc.info().sampling_.step = cs.zsamp_.step;
-    for ( int icomp=0; icomp<worktrc.data().nrComponents(); icomp++ )
+    worktrc_.info() = intrc.info();
+    Pos::GeomID geomid = intrc.info().trcKey().geomID();
+    Pos::ZSubSelData::z_steprg_type zrg;
+    if ( !geomid.is2D() )
+	zrg = rsd_.subSel3D().zSubSel().outputZRange();
+    else
+    {
+	const auto& lss = *rsd_.subSel2D().find( geomid );
+	zrg = lss.zSubSel().outputZRange();
+    }
+
+    const auto nrsamps = zrg.nrSteps() + 1;
+    worktrc_.reSize( nrsamps, false );
+    worktrc_.info().sampling_.start = zrg.start;
+    worktrc_.info().sampling_.step = zrg.step;
+
+    for ( int icomp=0; icomp<worktrc_.data().nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{
-	    float t = cs.zsamp_.start + isamp * cs.zsamp_.step;
+	    const float t = zrg.atIndex( isamp );
 	    float val = intrc.getValue( t, icomp );
-	    if ( valrg )
+	    if ( valrg_ )
 	    {
-		if ( !Math::IsNormalNumber(val) )	val = replval;
-		else if ( val < valrg->start )	val = valrg->start;
-		else if ( val > valrg->stop )	val = valrg->stop;
+		if ( mIsUdf(val) || !Math::IsNormalNumber(val) )
+		    val = replval_;
+		else if ( val < valrg_->start )
+		    val = valrg_->start;
+		else if ( val > valrg_->stop )
+		    val = valrg_->stop;
 	    }
-	    worktrc.set( isamp, val, icomp );
+	    worktrc_.set( isamp, val, icomp );
 	}
     }
 
-    return &worktrc;
+    return &worktrc_;
 }

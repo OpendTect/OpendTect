@@ -15,7 +15,7 @@
 #include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "survgeom2d.h"
 #include "survinfo.h"

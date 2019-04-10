@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uistring.h"
 
 template <class T> class Array2D;
-class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
 

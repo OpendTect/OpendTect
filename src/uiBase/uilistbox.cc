@@ -394,6 +394,16 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     return *body_;
 }
 
+bool uiListBoxObj::isEmpty() const
+{
+    return body_->count() < 1;
+}
+
+void uiListBoxObj::setEmpty()
+{
+    body_->removeAll();
+}
+
 
 // uiListBox
 

@@ -33,7 +33,7 @@ uiSeis2DTo3D::uiSeis2DTo3D(uiParent* p, uiString& titletext)
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
 {
 	uiSeisSel::Setup sssu( Seis::Line );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( Seis::InclSteer );
     sssu.enabotherdomain(true);
     inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
 			     sssu );

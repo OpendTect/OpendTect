@@ -21,11 +21,11 @@
 
 #define mRetResult( funcname ) \
     { \
-	od_cout() << funcname << " failed" << od_endl; \
+	handleTestResult( false, funcname ); \
 	return false; \
     } \
-    else if ( !quiet ) \
-	od_cout() << funcname << " succeeded" << od_endl; \
+    else \
+	handleTestResult( true, funcname ); \
     return true;
 
 

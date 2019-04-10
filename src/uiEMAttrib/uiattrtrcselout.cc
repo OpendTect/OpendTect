@@ -18,14 +18,13 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "dbkey.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
-#include "seisselection.h"
+#include "seisselsetup.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 
@@ -537,7 +536,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    desc = ads_->getFirstStored();
 	if ( desc )
 	{
-	    PtrMan<IOObj> ioobj = DBM().get( DBKey(desc->getStoredID(true)) );
+	    PtrMan<IOObj> ioobj = getIOObj( DBKey(desc->getStoredID(true)) );
 	    if ( ioobj )
 		seissubselfld_->setInput( *ioobj );
 	}

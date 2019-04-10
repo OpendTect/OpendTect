@@ -9,8 +9,8 @@
 
 #include "ioobjctxt.h"
 #include "executor.h"
-#include "dbman.h"
 #include "ioobj.h"
+#include "seisselsetup.h"
 #include "od_ostream.h"
 #include "prestackeventascio.h"
 #include "prestackeventtransl.h"

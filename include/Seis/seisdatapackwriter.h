@@ -18,8 +18,8 @@ ________________________________________________________________________
 namespace PosInfo { class CubeData; }
 class RegularSeisDataPack;
 class Scaler;
-class SeisTrcWriter;
 class SeisTrc;
+namespace Seis { class SelData; class Storer; }
 
 
 mExpClass(Seis) SeisDataPackWriter : public Executor
@@ -39,9 +39,8 @@ public:
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;
-    uiString		message() const;
-    uiString		nrDoneText() const
-			{ return tr("Traces written:"); }
+    uiString		message() const		{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Traces written"); }
     int			nextStep();
 
     TrcKeySampling	hSampling() const	{ return tks_; }
@@ -54,15 +53,17 @@ private:
 
     TypeSet<int>		compidxs_;
     ObjectSet<Scaler>		compscalers_; //Same size as compidxs_
-    DBKey			mid_;
+    DBKey			outid_;
     ConstRefMan<RegularSeisDataPack>	dp_;
 
     int				nrdone_;
     int				totalnr_;
     TrcKeySamplingIterator	iterator_;
     const PosInfo::CubeData*	posinfo_;
-    SeisTrcWriter*		writer_;
-    SeisTrc*			trc_;
+    Seis::Storer*		storer_		= nullptr;
+    Seis::SelData*		seldata_	= nullptr;
+    SeisTrc*			trc_		= nullptr;
+    uiString			msg_;
 
     TrcKeySampling		tks_;
     Interval<int>		cubezrgidx_;

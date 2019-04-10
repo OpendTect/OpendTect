@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "posidxsubsel.h"
 #include "survsubsel.h"
+#include "manobjectset.h"
 class HorSampling;
 namespace Survey { class Geometry; class Geometry2D; class Geometry3D; }
 class TrcKeySampling;
@@ -24,12 +25,14 @@ mExpClass(Basic) LineHorSubSel : public Pos::IdxSubSel1D
 {
 public:
 
-    typedef Pos::IdxSubSelData	TrcNrSubSelData;
+    typedef Pos::IdxSubSelData		TrcNrSubSelData;
+    typedef TrcNrSubSelData::pos_type	trcnr_type;
 
 			LineHorSubSel(GeomID);
 			LineHorSubSel(const Geometry2D&);
 			LineHorSubSel(const pos_steprg_type&);
 			LineHorSubSel(const TrcKeySampling&);
+			LineHorSubSel(GeomID,trcnr_type);
 			mImplArrRegSubSelClone(LineHorSubSel)
 
     bool		is2D() const override	   { return true; }
@@ -57,17 +60,51 @@ public:
     bool		includes( pos_type pos ) const
 			{ return Pos::IdxSubSel1D::includes(pos); }
     bool		includes(const LineHorSubSel&) const;
+    void		merge(const LineHorSubSel&);
 
     void		setGeomID( GeomID gid )	{ geomid_ = gid; }
 
+    static const LineHorSubSel&	empty();
+    static LineHorSubSel&	dummy();
+
 protected:
 
-    GeomID	geomid_;
+    GeomID		geomid_;
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
 
 };
+
+
+mExpClass(Basic) LineHorSubSelSet : public ManagedObjectSet<LineHorSubSel>
+{
+public:
+
+    mUseType( Survey::SubSel,	totalsz_type );
+    mUseType( Pos,		GeomID );
+    mUseType( LineHorSubSel,	trcnr_type );
+
+
+			LineHorSubSelSet()		{}
+			LineHorSubSelSet(GeomID);
+			LineHorSubSelSet(GeomID,trcnr_type);
+
+    bool		isAll() const;
+    totalsz_type	totalSize() const;
+    bool		hasAllLines() const;
+    bool		hasFullRange() const;
+    void		merge(const LineHorSubSelSet&);
+
+    LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
+    const LineHorSubSel* find( GeomID gid ) const { return doFind( gid ); }
+
+protected:
+
+    LineHorSubSel*	doFind(GeomID) const;
+
+};
+
 
 
 /*!\brief Subselection of an existing inline/crossline range. Directly usable
@@ -88,6 +125,7 @@ public:
 			CubeHorSubSel(const HorSampling&);
 			CubeHorSubSel(const pos_steprg_type&,
 				      const pos_steprg_type&);
+			CubeHorSubSel(const BinID&);
 			CubeHorSubSel(const TrcKeySampling&);
 			mImplArrRegSubSelClone(CubeHorSubSel)
 
@@ -100,10 +138,10 @@ public:
 			{ return inlSubSel().hasFullRange()
 			      && crlSubSel().hasFullRange(); }
 
-    const IdxSubSelData& inlSubSel() const	{ return posData(0); }
-    IdxSubSelData&	inlSubSel()		{ return posData(0); }
-    const IdxSubSelData& crlSubSel() const	{ return posData(1); }
-    IdxSubSelData&	crlSubSel()		{ return posData(1); }
+    const IdxSubSelData& inlSubSel() const	{ return data0_; }
+    IdxSubSelData&	inlSubSel()		{ return data0_; }
+    const IdxSubSelData& crlSubSel() const	{ return data1_; }
+    IdxSubSelData&	crlSubSel()		{ return data1_; }
 
     RowCol		arraySize() const
 			{ return RowCol(inlSubSel().size(),crlSubSel().size());}
@@ -140,6 +178,7 @@ public:
     bool		includes( const BinID& bid ) const
 			{ return Pos::IdxSubSel2D::includes( bid ); }
     bool		includes(const CubeHorSubSel&) const;
+    void		merge(const CubeHorSubSel&);
 
     pos_type		inlStart() const { return inlRange().start; }
     pos_type		inlStop() const	{ return inlRange().stop; }

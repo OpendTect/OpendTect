@@ -68,7 +68,7 @@ public:
 						  DataType* dt=0) const;
     virtual od_int64		totalNr() const;
 
-    uiRetVal			fillPar(IOPar&) const;
+    void			fillPar(IOPar&) const;
     uiRetVal			usePar(const IOPar&);
 
     uiRetVal			getNext(SeisTrc&,bool dostack_else_first=false);
@@ -76,8 +76,8 @@ public:
     uiRetVal			getGather(SeisTrcBuf&,
 					  bool dostack_else_first=false)
 				    { return mTODONotImplPhrase(); }
-    uiRetVal			get(const TrcKey&,ObjectSet<SeisTrc>&)const;
-    uiRetVal			getGathers(const TrcKey&,
+    uiRetVal			getAt(const TrcKey&,ObjectSet<SeisTrc>&)const;
+    uiRetVal			getGathersAt(const TrcKey&,
 					   ObjectSet<SeisTrcBuf>&) const
 				    { return mTODONotImplPhrase(); }
     uiRetVal			reset() const;
@@ -96,7 +96,7 @@ protected:
 					ObjectSet<SeisTrc>&) const;
 
     virtual void		doReset(uiRetVal&) const		= 0;
-    virtual void		doFillPar(IOPar&,uiRetVal&) const;
+    virtual void		doFillPar(IOPar&) const;
     virtual void		doUsePar(const IOPar&,uiRetVal&);
     virtual void		doGetNext(SeisTrc&,bool dostack,
 					  uiRetVal&) const		= 0;
@@ -193,7 +193,7 @@ protected:
     bool			doMoveToNext() const;
     bool			doMoveToNextLine() const;
 
-    void			doFillPar(IOPar&,uiRetVal&) const;
+    void			doFillPar(IOPar&) const;
     void			doUsePar(const IOPar&,uiRetVal&);
 
     mutable int			curlidx_;

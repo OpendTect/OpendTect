@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uistring.h"
 
 namespace Fourier { class CC; }
-class IOObj;
 namespace Seis { class Provider; class SelData; }
 class SeisTrc;
 class Wavelet;

@@ -85,7 +85,7 @@ void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
 {
     step_ = newstep / inpposrg_.step;
     if ( step_ < 1 )
-	{ pErrMsg("Bad pos step"); step_ = 1; }
+	step_ = 1;
     newstep = step_ * inpposrg_.step;
 
     auto dstart = newstart - inpposrg_.start;
@@ -111,10 +111,43 @@ void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
 }
 
 
+void Pos::IdxSubSelData::setOutputStep( pos_type newstep, pos_type existingpos )
+{
+    if ( newstep == posStep() )
+	return;
+
+    if ( mIsUdf(existingpos) )
+	existingpos = posStart();
+
+    auto newrg( outputPosRange() );
+    newrg.step = newstep;
+    if ( (existingpos-newrg.start) % newstep )
+    {
+	const auto existingposidx = (existingpos-newrg.start) / newstep;
+	const auto posadd = existingpos - newrg.atIndex( existingposidx );
+	newrg.start += posadd; newrg.stop += posadd;
+    }
+
+    setOutputPosRange( newrg );
+}
+
+
 void Pos::IdxSubSelData::limitTo( const IdxSubSelData& oth )
 {
     auto outrg = outputPosRange();
     outrg.limitTo( oth.outputPosRange() );
+    setOutputPosRange( outrg );
+}
+
+
+void Pos::IdxSubSelData::widenTo( const IdxSubSelData& oth )
+{
+    auto outrg = outputPosRange();
+    const auto othoutrg = oth.outputPosRange();
+    if ( othoutrg.start < outrg.start )
+	outrg.start = outrg.atIndex( outrg.nearestIndex(othoutrg.start) );
+    if ( othoutrg.stop > outrg.stop )
+	outrg.stop = outrg.atIndex( outrg.nearestIndex(othoutrg.stop) );
     setOutputPosRange( outrg );
 }
 
@@ -230,6 +263,26 @@ void Pos::ZSubSelData::ensureSizeOK()
 	z_type fsz = (inpzrg_.stop - zStart()) / zStep() + 1;
 	sz_ = (size_type)(fsz + zEps());
     }
+}
+
+
+void Pos::ZSubSelData::limitTo( const ZSubSelData& oth )
+{
+    auto outrg = outputZRange();
+    outrg.limitTo( oth.outputZRange() );
+    setOutputZRange( outrg );
+}
+
+
+void Pos::ZSubSelData::widenTo( const ZSubSelData& oth )
+{
+    auto outrg = outputZRange();
+    const auto othoutrg = oth.outputZRange();
+    if ( othoutrg.start < outrg.start )
+	outrg.start = outrg.atIndex( outrg.nearestIndex(othoutrg.start) );
+    if ( othoutrg.stop > outrg.stop )
+	outrg.stop = outrg.atIndex( outrg.nearestIndex(othoutrg.stop) );
+    setOutputZRange( outrg );
 }
 
 

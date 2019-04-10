@@ -11,23 +11,25 @@ ________________________________________________________________________
 #include "seisblockswriter.h"
 #include "seisblocksbackend.h"
 #include "seismemblocks.h"
-#include "seistrc.h"
-#include "seisbuf.h"
+
+#include "arrayndimpl.h"
+#include "ascstream.h"
+#include "datachar.h"
+#include "executor.h"
+#include "file.h"
+#include "horsubsel.h"
+#include "keystrs.h"
+#include "odmemory.h"
 #include "posidxpairdataset.h"
 #include "paralleltask.h"
-#include "executor.h"
-#include "uistrings.h"
-#include "scaler.h"
-#include "datachar.h"
-#include "file.h"
-#include "keystrs.h"
 #include "posinfo.h"
+#include "scaler.h"
+#include "seistrc.h"
+#include "seisbuf.h"
+#include "separstr.h"
 #include "survgeom3d.h"
 #include "survinfo.h" // for survey name and zInFeet
-#include "ascstream.h"
-#include "separstr.h"
-#include "arrayndimpl.h"
-#include "odmemory.h"
+#include "uistrings.h"
 #include "zdomain.h"
 
 
@@ -142,10 +144,17 @@ void Seis::Blocks::StepFinder::finish( uiRetVal& uirv )
 	    crlstep = crldiff;
     }
 
+    CubeHorSubSel chss;
     if ( inlstate > 0 )
-	wrr_.hgeom_.inlRange().step = inlstep;
+    {
+	chss.inlSubSel().setOutputStep( inlstep, previnl );
+	wrr_.hgeom_.inlRange() = chss.inlRange();
+    }
     if ( crlstate > 0 )
-	wrr_.hgeom_.crlRange().step = crlstep;
+    {
+	chss.crlSubSel().setOutputStep( crlstep, prevcrl );
+	wrr_.hgeom_.crlRange() = chss.crlRange();
+    }
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
     {
@@ -160,7 +169,7 @@ void Seis::Blocks::StepFinder::finish( uiRetVal& uirv )
 
 
 
-Seis::Blocks::Writer::Writer( const HGeom* geom )
+Seis::Blocks::Writer::Writer( const HGeom* hgeom )
     : specifieddatarep_(OD::AutoDataRep)
     , nrcomps_(1)
     , isfinished_(false)
@@ -168,8 +177,8 @@ Seis::Blocks::Writer::Writer( const HGeom* geom )
     , interp_(new DataInterp(DataCharacteristics()))
     , backend_(0)
 {
-    if ( geom )
-	hgeom_ = *geom;
+    if ( hgeom )
+	hgeom_ = *hgeom;
     else
 	hgeom_ = Survey::Geometry::get3D();
     zgeom_ = hgeom_.zRange();
@@ -732,11 +741,11 @@ bool Seis::Blocks::Writer::writeFullSummary( ascostream& astrm,
 {
     mGetNrInlCrlAndRg();
     const Coord origin(
-	    hgeom_.transform(BinID(finalinlrg_.start,finalcrlrg_.start)) );
+	    SI().transform(BinID(finalinlrg_.start,finalcrlrg_.start)) );
     const Coord endinl0(
-	    hgeom_.transform(BinID(finalinlrg_.start,finalcrlrg_.stop)) );
+	    SI().transform(BinID(finalinlrg_.start,finalcrlrg_.stop)) );
     const Coord endcrl0(
-	    hgeom_.transform(BinID(finalinlrg_.stop,finalcrlrg_.start)) );
+	    SI().transform(BinID(finalinlrg_.stop,finalcrlrg_.start)) );
     const double fullinldist = origin.distTo<double>( endinl0 );
     const double fullcrldist = origin.distTo<double>( endcrl0 );
 
@@ -825,7 +834,7 @@ void Seis::Blocks::Writer::writeLevelSummary( od_ostream& strm,
 	    {
 		const BinID cbid( finalinlrg_.atIndex(center.first,stepinl),
 				  finalcrlrg_.atIndex(center.second,stepcrl) );
-		const Coord centercoord( hgeom_.transform(cbid) );
+		const Coord centercoord( SI().transform(cbid) );
 		strm << centercoord.x_ << '\t' << centercoord.y_ << '\t'
 				<< sumv / nrv << '\n';
 	    }
@@ -869,7 +878,7 @@ void Seis::Blocks::Writer::scanPositions(
 						 globidx.inl(), iinl );
 		const int crl = Block::crl4Idxs( hgeom_, dims_.crl(),
 						 globidx.crl(), icrl );
-		const Coord coord = hgeom_.transform( BinID(inl,crl) );
+		const Coord coord = SI().transform( BinID(inl,crl) );
 		if ( first )
 		{
 		    finalinlrg_.start = finalinlrg_.stop = inl;
@@ -975,8 +984,11 @@ virtual int nextStep()
 int wrapUp()
 {
     wrr_.writeInfoFiles( uirv_ );
-    wrr_.backend_->close( uirv_ );
-    delete wrr_.backend_; wrr_.backend_ = 0;
+    if ( wrr_.backend_ )
+    {
+	wrr_.backend_->close( uirv_ );
+	delete wrr_.backend_; wrr_.backend_ = 0;
+    }
     wrr_.isfinished_ = true;
     return uirv_.isOK() ? Finished() : ErrorOccurred();
 }

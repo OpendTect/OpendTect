@@ -16,10 +16,9 @@ ________________________________________________________________________
 
 class IOObj;
 class SeparString;
-namespace SynthSeis { class DataSet; }
-class SeisTrcWriter;
-
 namespace PosInfo { class Line2DData; }
+namespace SynthSeis { class DataSet; }
+namespace Seis { class Storer; }
 
 
 mExpClass(WellAttrib) StratSynthExporter : public Executor
@@ -57,13 +56,13 @@ protected:
     int			nextStep();
     int			writePostStackTrace();
     int			writePreStackTraces();
-    bool		prepareWriter();
-    void		prepTrc4Write(SeisTrc&) const;
+    bool		prepareStorer();
+    void		prepTrc4Store(SeisTrc&) const;
 
     const Setup		setup_;
     const DataSetSet&	sds_;
     const Line2DData&	linegeom_;
-    SeisTrcWriter*	writer_;
+    Seis::Storer*	storer_;
     BufferString	prefixstr_;
     BufferString	postfixstr_;
     uiString		errmsg_;

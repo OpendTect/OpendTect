@@ -90,12 +90,9 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
     if ( !provider )
 	{ uiMSG().error( uirv ); return; }
 
-    mDynamicCastGet(const Seis::Provider3D*,prov3d,provider.ptr());
-    if ( !prov3d ) return;
-
-    TrcKeyZSampling tkzs;
-    prov3d->getRanges( tkzs );
-    possubsel_->setInputLimit( tkzs );
+    const auto* prov3d = provider->as3D();
+    if ( prov3d )
+	possubsel_->setInputLimit( TrcKeyZSampling(prov3d->cubeSubSel()) );
 }
 
 

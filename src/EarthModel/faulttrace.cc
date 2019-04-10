@@ -136,8 +136,8 @@ bool FaultTrace::getImage( const BinID& bid, float z,
     BinID start( isinl_ ? nr_ : trcrange_.start,
 		 isinl_ ? trcrange_.start : nr_ );
     BinID stop( isinl_ ? nr_ : trcrange_.stop, isinl_ ? trcrange_.stop : nr_ );
-    Coord intsectn = getIntersection( start,zimg, stop, zimg );
-    if ( intsectn == Coord::udf() )
+    const Coord intsectn = getIntersection( start,zimg, stop, zimg );
+    if ( intsectn.isUdf() )
 	return false;
 
     const float fidx = trcrg.getfIndex( intsectn.x_ );
@@ -611,12 +611,12 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	{
 	    stoptopbid = stop;
 	    stoptopz = z1;
-	    Coord intsectn = getIntersection( start, starttopz,
-					      stop, stoptopz );
+	    const Coord intsectn = getIntersection( start, starttopz,
+						    stop, stoptopz );
 	    if ( !tophasisect )
-		tophasisect = intsectn != Coord::udf();
+		tophasisect = !intsectn.isUdf();
 
-	    if ( tophasisect && intsectn == Coord::udf() )
+	    if ( tophasisect && intsectn.isUdf() )
 		foundtop = true;
 	    else
 	    {
@@ -629,13 +629,13 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	{
 	    stopbotbid = stop;
 	    stopbotz = z2;
-	    Coord intsectn = getIntersection( start, startbotz,
+	    const Coord intsectn = getIntersection( start, startbotz,
 					      stop, stopbotz );
 
 	    if ( !bothasisect )
-		bothasisect = intsectn != Coord::udf();
+		bothasisect = !intsectn.isUdf();
 
-	    if ( bothasisect && intsectn == Coord::udf() )
+	    if ( bothasisect && intsectn.isUdf() )
 		foundbot = true;
 	    else
 	    {
@@ -804,7 +804,7 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 	}
 
 	Coord interpos = line.intersection( fltseg );
-	if ( interpos != Coord::udf() )
+	if ( !interpos.isUdf() )
 	{
 	    interpos.y_ /= SI().zDomain().userFactor();
 	    return interpos;

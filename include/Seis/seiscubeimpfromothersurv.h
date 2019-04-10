@@ -19,12 +19,10 @@ ________________________________________________________________________
 
 class ArrayNDWindow;
 class CBVSSeisTrcTranslator;
-class IOObj;
 class SeisTrc;
-class SeisTrcWriter;
 class SeisTrcInfo;
 namespace Pos { class IdxPair2Coord; }
-namespace Seis { namespace Blocks { class Reader; } }
+namespace Seis { class Storer; namespace Blocks { class Reader; } }
 
 
 mExpClass(Seis) SeisCubeImpFromOtherSurvey : public Executor
@@ -44,7 +42,7 @@ public:
 
     bool		prepareRead(const char*);
     void		setPars(Interpol&,int,const TrcKeyZSampling&);
-    inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
+    void		setOutput(const IOObj&);
 
     const TrcKeyZSampling& cubeSampling() const { return data_.tkzs_; }
 
@@ -52,27 +50,27 @@ protected:
 
     const IOObj&	inioobj_;
     IOObj*		outioobj_;
-    SeisTrcWriter*	wrr_;
+    Seis::Storer*	storer_;
     CBVSSeisTrcTranslator* cbvstr_;
     Seis::Blocks::Reader* rdr_;
 
-    od_int64		nrdone_;
-    mutable od_int64	totnr_;
-    uiString		errmsg_;
+    od_int64		nrdone_			= 0;
+    mutable od_int64	totnr_			= -1;
+    uiRetVal		uirv_;
     const char*		fullusrexp_;
 
     Interpol		interpol_;
 
-	mStruct(Seis)	PosData
-	{
-				PosData()
-				    : hsit_(0)
-				    , tkzs_(false) {}
+    mStruct(Seis)	PosData
+    {
+			PosData()
+			    : hsit_(0)
+			    , tkzs_(false) {}
 
-	    BinID		curbid_;
-	    TrcKeyZSampling	tkzs_;
-	    TrcKeySamplingIterator* hsit_;
-	};
+	BinID			curbid_;
+	TrcKeyZSampling		tkzs_;
+	TrcKeySamplingIterator*	hsit_;
+    };
 
     PosData		data_, olddata_;
 
@@ -81,10 +79,11 @@ protected:
     int			newsz_;
     int			szz_;
 
+    typedef Array3DImpl<float_complex>	CplxArr3D;
     Fourier::CC*	fft_;
     ObjectSet<SeisTrc>	trcsset_;
-    Array3DImpl<float_complex>* arr_;
-    Array3DImpl<float_complex>* fftarr_;
+    CplxArr3D*		arr_;
+    CplxArr3D*		fftarr_;
     ArrayNDWindow*	taper_;
 
     bool		createReader(const char*);

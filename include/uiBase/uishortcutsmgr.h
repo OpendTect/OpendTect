@@ -72,8 +72,9 @@ public:
 							{ *this = scl; }
 			~uiShortcutsList()		{ setEmpty(); }
     uiShortcutsList&	operator =(const uiShortcutsList&);
-    bool		write(bool usr=true) const;
+
     void		setEmpty();
+    bool		write(bool usr=true) const;
 
     void		fillPar(IOPar&) const;
 

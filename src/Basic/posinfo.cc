@@ -783,26 +783,40 @@ BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
 
 bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
 {
-    if ( !isValid(cdp) )
+    if ( cdp.lidx_ < 0 || cdp.lidx_ >= size() )
     {
 	cdp.toStart();
 	return isValid(cdp);
     }
+    else if ( cdp.segnr_ < 0 )
+	cdp.segnr_ = cdp.sidx_ = 0;
     else
     {
+	const auto& segset = get(cdp.lidx_)->segments_;
 	cdp.sidx_++;
-	if ( cdp.sidx_ > (*this)[cdp.lidx_]->segments_[cdp.segnr_].nrSteps() )
+	if ( cdp.sidx_ > segset.get(cdp.segnr_).nrSteps() )
 	{
 	    cdp.segnr_++; cdp.sidx_ = 0;
-	    if ( cdp.segnr_ >= (*this)[cdp.lidx_]->segments_.size() )
+	    if ( cdp.segnr_ >= segset.size() )
 	    {
 		cdp.lidx_++; cdp.segnr_ = 0;
 		if ( cdp.lidx_ >= size() )
 		    return false;
 	    }
 	}
-	return true;
     }
+    return true;
+}
+
+
+bool PosInfo::CubeData::toNextLine( PosInfo::CubeDataPos& cdp ) const
+{
+    cdp.lidx_++;
+    if ( cdp.lidx_ >= size() )
+	return false;
+
+    cdp.segnr_ = cdp.sidx_ = 0;
+    return true;
 }
 
 

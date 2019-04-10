@@ -37,10 +37,13 @@ set(OD_MODULE_SOURCES
 	uiseismulticubeps.cc
 	uiseispartserv.cc
 	uiseispreloadmgr.cc
+	uiseisprovider.cc
 	uiseispsman.cc
 	uiseisrandto2dline.cc
 	uiseissel.cc
+	uiseisseldata.cc
 	uiseissingtrcdisp.cc
+	uiseisstorer.cc
 	uiseissubsel.cc
 	uiseistransf.cc
 	uiseistrcbufviewer.cc

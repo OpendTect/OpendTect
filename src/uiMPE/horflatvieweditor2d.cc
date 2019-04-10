@@ -49,7 +49,6 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , seedpickingon_(false)
     , trackersetupactive_(false)
     , dodropnext_(false)
-    , pickedpos_(TrcKey::udf())
     , updseedpkingstatus_(this)
     , patchdata_(0)
     , sowingmode_( false )
@@ -522,10 +521,7 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
 	return;
 
     if ( !dbl && !pickedpos_.isUdf() )
-    {
-	pickedpos_ = TrcKey::udf();
-	return;
-    }
+	{ pickedpos_.setUdf(); return; }
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
     if ( !allowTracking(tracker,emid_) )

@@ -176,6 +176,7 @@ public:
 
     bool		toNext(CubeDataPos&) const;
     bool		toPrev(CubeDataPos&) const;
+    bool		toNextLine(CubeDataPos&) const;
     BinID		binID(const CubeDataPos&) const;
     CubeDataPos		cubeDataPos(const BinID&) const;
 

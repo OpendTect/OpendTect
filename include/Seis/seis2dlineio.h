@@ -153,13 +153,16 @@ public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}
 
-    const char*		defExtension() const		{ return "2ds"; }
-    bool		initRead_();		//!< supporting getRanges()
-    bool		initWrite_(const SeisTrc&)	{ return false; }
+    const char*	defExtension() const override		{ return "2ds"; }
 
-    bool		implRemove(const IOObj*) const;
-    bool		implRename( const IOObj*,const char*,
-				    const CallBack* cb=0) const;
+    bool	readInfo( SeisTrcInfo& ) override	{ return false; }
+    bool	readData(TraceData*) override		{ return false; }
+    bool	initRead_() override;		//!< supporting getRanges()
+    bool	initWrite_(const SeisTrc&) override	{ return false; }
+
+    bool	implRemove(const IOObj*) const override;
+    bool	implRename(const IOObj*,const char*,
+			   const CallBack* cb=0) const override;
 
 };
 
@@ -172,6 +175,9 @@ public:
 			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)      {}
 
+    bool	readInfo( SeisTrcInfo& ) override	{ return false; }
+    bool	readData(TraceData*) override		{ return false; }
+
 };
 
 
@@ -179,17 +185,20 @@ public:
 mExpClass(Seis) SeisTrc2DTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(SeisTrc2DTranslator);
 public:
-			SeisTrc2DTranslator(const char* s1,const char* s2)
-			: SeisTrcTranslator(s1,s2)	{}
 
-    bool		initRead_();		//!< supporting getRanges()
-    bool		initWrite_(const SeisTrc&)	{ return false; }
+		SeisTrc2DTranslator(const char* s1,const char* s2)
+		: SeisTrcTranslator(s1,s2)	{}
 
-    bool		isUserSelectable(bool) const	{ return true; }
+    bool	initRead_() override;		//!< supporting getRanges()
+    bool	initWrite_(const SeisTrc&) override { return false; }
+    bool	readInfo( SeisTrcInfo& ) override	{ return false; }
+    bool	readData(TraceData*) override		{ return false; }
 
-    bool		implRemove(const IOObj*) const;
-    bool		implRename( const IOObj*,const char*,
-				    const CallBack* cb=0) const;
+    bool	isUserSelectable(bool) const override { return true; }
+
+    bool	implRemove(const IOObj*) const override;
+    bool	implRename(const IOObj*,const char*,
+			   const CallBack* cb=0) const override;
 
 };
 
@@ -199,10 +208,12 @@ mExpClass(Seis) CBVSSeisTrc2DTranslator : public SeisTrc2DTranslator
 { mODTextTranslationClass(CBVSSeisTrc2DTranslator);
   isTranslator(CBVS,SeisTrc2D)
 public:
-			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
-			: SeisTrc2DTranslator(s1,s2)	{}
 
-    bool		isUserSelectable(bool) const	{ return true; }
+		CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
+		: SeisTrc2DTranslator(s1,s2)	{}
+
+    bool	isUserSelectable(bool) const override	{ return true; }
+
 };
 
 /*!\brief SEGYDirect translator for 2D Seismics */
@@ -210,10 +221,12 @@ mExpClass(Seis) SEGYDirectSeisTrc2DTranslator : public SeisTrc2DTranslator
 { mODTextTranslationClass(SEGYDirectSeisTrc2DTranslator);
   isTranslator(SEGYDirect,SeisTrc2D)
 public:
-			SEGYDirectSeisTrc2DTranslator(const char* s1,
-						      const char* s2)
+
+		SEGYDirectSeisTrc2DTranslator(const char* s1,
+					      const char* s2)
 			: SeisTrc2DTranslator(s1,s2)	{}
 
-    virtual bool	isUserSelectable(bool fr) const { return fr; }
-    virtual const char* iconName() const		{ return "segy"; }
+    const char* iconName() const override		{ return "segy"; }
+    bool	isUserSelectable( bool fr ) const override { return fr; }
+
 };

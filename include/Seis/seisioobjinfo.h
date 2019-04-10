@@ -17,26 +17,27 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
-
+#include "survsubsel.h"
 
 class BinIDValueSet;
 class BufferStringSet;
-class IOObj;
 class SeisIOObjInfo;
-class SeisTrcTranslator;
 class TrcKeyZSampling;
 namespace ZDomain { class Def; }
 
-namespace Seis {
+namespace Seis
+{
+
 class Provider;
 
 mExpClass(Seis) ObjectSummary
 {
 public:
-			ObjectSummary(const DBKey&,
-				      Pos::GeomID geomid=mUdfGeomID);
-			ObjectSummary(const IOObj&,
-				      Pos::GeomID geomid=mUdfGeomID);
+
+    mUseType( Pos,	GeomID );
+
+			ObjectSummary(const DBKey&,GeomID geomid=mUdfGeomID);
+			ObjectSummary(const IOObj&,GeomID geomid=mUdfGeomID);
 			ObjectSummary(const ObjectSummary&);
 			~ObjectSummary();
 
@@ -65,7 +66,7 @@ public:
 protected:
 
     const SeisIOObjInfo& ioobjinfo_;
-    Pos::GeomID		geomid_;
+    GeomID		geomid_;
 
     DataCharacteristics datachar_;
     ZSampling		zsamp_;
@@ -85,24 +86,29 @@ protected:
 
 private:
 
-    void		init(Pos::GeomID);
-    void		refreshCache(const Seis::Provider&,
-				     const SeisTrcTranslator&);
+    void		init(GeomID);
+    void		refreshCache(const Seis::Provider&);
     friend class RawTrcsSequence;
 
 };
 
 }; //namespace Seis
 
+
 /*!\brief Info on IOObj for seismics */
 
 mExpClass(Seis) SeisIOObjInfo
 { mODTextTranslationClass(SeisIOObjInfo)
 public:
+
+    mUseType( Pos,	GeomID );
+    mUseType( Seis,	GeomType );
+    mUseType( Survey,	FullSubSel );
+
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const DBKey&);
-			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
+			SeisIOObjInfo(const char* ioobjnm,GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
     virtual		~SeisIOObjInfo();
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
@@ -111,7 +117,7 @@ public:
     inline bool		is2D() const	{ return Seis::is2D(geomtype_); }
     inline bool		isPS() const	{ return Seis::isPS(geomtype_); }
 
-    Seis::GeomType	geomType() const	{ return geomtype_; }
+    GeomType		geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
     bool		isTime() const;
     bool		isDepth() const;
@@ -133,6 +139,7 @@ public:
     od_int64		getFileSize() const;
     static od_int64	getFileSize(const char* fnm,int& nrfiles);
     od_int64		getFileModifTime() const;
+    FullSubSel*		getSurvSubSel() const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const;
     bool		getDataChar(DataCharacteristics&) const;
@@ -148,9 +155,9 @@ public:
 
     void		getUserInfo(uiPhraseSet&) const;
 
-    int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
+    int			nrComponents(GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,
-					  Pos::GeomID geomid=mUdfGeomID) const;
+					  GeomID geomid=mUdfGeomID) const;
 
     mStruct(Seis) Opts2D
     {
@@ -160,7 +167,7 @@ public:
 	BufferString		zdomky_;	//!< default=empty=only SI()'s
 				//!< Will be matched as GlobExpr
 	int			steerpol_;	//!< 0=none, 1=only, 2=both
-				//!< Casts into uiSeisSel::Setup::SteerPol
+				//!< Casts into Seis::SteerPol
     };
 
     // 2D only
@@ -168,7 +175,7 @@ public:
     void		getLineNames( BufferStringSet& b,
 				      Opts2D o2d=Opts2D() ) const
 				{ getNms(b,o2d); }
-    bool		getRanges(const Pos::GeomID geomid,
+    bool		getRanges(const GeomID geomid,
 				  StepInterval<int>& trcrg,
 				  StepInterval<float>& zrg) const;
 
@@ -177,28 +184,25 @@ public:
     static DBKey	getDefault(const char* type=0);
     static void		setDefault(const DBKey&,const char* type=0);
 
-    static bool		hasData(Pos::GeomID);
-    static void		getDataSetNamesForLine( Pos::GeomID geomid,
-						BufferStringSet& b,
+    static bool		hasData(GeomID);
+    static void		getDataSetNamesForLine(GeomID,BufferStringSet&,
+						Opts2D o2d=Opts2D());
+    static void		getDataSetNamesForLine(const char* lnm,BufferStringSet&,
 						Opts2D o2d=Opts2D() );
-    static void		getDataSetNamesForLine( const char* nm,
-						BufferStringSet& b,
-						Opts2D o2d=Opts2D() );
-    static void		getLinesWithData(BufferStringSet& lnms,
-					 GeomIDSet& gids);
+    static void		getLinesWithData(BufferStringSet& lnms,GeomIDSet& gids);
     static bool		isCompatibleType(const char* omftypestr1,
 					 const char* omftypestr2);
 
 protected:
 
-    Seis::GeomType	geomtype_;
+    GeomType		geomtype_;
     bool		bad_;
     IOObj*		ioobj_;
 
     void		setType();
 
     void		getNms(BufferStringSet&,const Opts2D&) const;
-    int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
+    int			getComponentInfo(GeomID,BufferStringSet*) const;
     bool		haveAux(const char* ext) const;
     bool		getAux(const char* ext,const char* ftyp,IOPar&) const;
     void		getCommonUserInfo(uiPhraseSet&) const;

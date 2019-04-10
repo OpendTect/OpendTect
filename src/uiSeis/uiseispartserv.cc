@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "posinfo2dsurv.h"
 #include "ptrman.h"
-#include "seisselection.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seis2ddata.h"
@@ -527,7 +526,8 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
     for ( int idx=0; idx<pls.size(); idx++ )
     {
 	IOPar iop;
-	Seis::PreLoader spl( pls[idx]->dbkey_, pls[idx]->geomid_ );
+	Seis::PreLoader spl( pls[idx]->dbkey_ );
+	spl.setDefGeomID( pls[idx]->geomid_ );
 	spl.fillPar( iop );
 	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), idx );
 	par.mergeComp( iop, parkey );
@@ -543,7 +543,7 @@ bool uiSeisPartServer::usePar( const IOPar& par )
     IOPar newpar;
     newpar.mergeComp( *plpar, "Seis" );
 
-    uiTaskRunner uitr( parent() );
-    Seis::PreLoader::load( newpar, &uitr );
+    uiTaskRunnerProvider uitrp( parent() );
+    Seis::PreLoader::load( newpar, uitrp );
     return true;
 }

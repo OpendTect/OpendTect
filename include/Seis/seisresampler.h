@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "gendefs.h"
 class SeisTrc;
 class TrcKeyZSampling;
+class CubeSubSel;
+class LineSubSelSet;
+namespace Seis { class RangeSelData; }
 
 
 /*!\brief will sub-sample in inl and crl, and re-sample in Z
@@ -28,29 +31,42 @@ mExpClass(Seis) SeisResampler
 {
 public:
 
-			SeisResampler(const TrcKeyZSampling&,bool is2d=false,
-				      const Interval<float>* valrange=0);
-			//!< valrange will be copied. null == no checks
+    typedef float			value_type;
+    typedef float			z_type;
+    typedef Interval<value_type>	value_rg_type;
+    mUseType( Seis,			RangeSelData );
+
+			SeisResampler(const CubeSubSel&,
+				      const value_rg_type* rg=0);
+			SeisResampler(const LineSubSelSet&,
+				      const value_rg_type* rg=0);
+			SeisResampler(const RangeSelData&,
+				      const value_rg_type* rg=0);
+			SeisResampler(const TrcKeyZSampling&,
+				      const value_rg_type* rg=0);
 			SeisResampler(const SeisResampler&);
     virtual		~SeisResampler();
     SeisResampler&	operator =(const SeisResampler&);
+    bool		is2D() const;
 
     SeisTrc*		get( SeisTrc& t )	{ return doWork(t); }
     const SeisTrc*	get( const SeisTrc& t )	{ return doWork(t); }
 
-    int			nrPassed() const	{ return nrtrcs; }
-    void		set2D( bool yn )	{ is3d = !yn; }
+    int			nrPassed() const	{ return nrtrcs_; }
 
 protected:
 
     SeisTrc*		doWork(const SeisTrc&);
 
-    int			nrtrcs;
-    float		replval;
-    bool		dozsubsel;
-    SeisTrc&		worktrc;
-    Interval<float>*	valrg;
-    TrcKeyZSampling&	cs;
-    bool		is3d;
+    SeisTrc&		worktrc_;
+    RangeSelData&	rsd_;
+    int			nrtrcs_			= 0;
+    value_type		replval_		= (value_type)0;
+    bool		dozsubsel_		= false;
+    value_rg_type*	valrg_			= nullptr;
+
+private:
+
+    void		init(const value_rg_type*);
 
 };

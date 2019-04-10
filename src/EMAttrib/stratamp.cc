@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "odver.h"
 #include "seisprovider.h"
 #include "statruncalc.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "od_ostream.h"
 
@@ -192,7 +192,7 @@ int StratAmpCalc::nextStep()
     SeisTrc* trc;
     if ( usesstored_ )
     {
-	trc = new SeisTrc();
+	trc = new SeisTrc;
 	const uiRetVal uirv = prov_->getNext( *trc );
 	if ( !uirv.isOK() )
 	{

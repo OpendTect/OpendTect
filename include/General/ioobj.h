@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class Conn;
 class IOObj;
+class IOStream;
 class CallBack;
 class ascistream;
 class ascostream;
@@ -79,6 +80,8 @@ public:
 
     virtual const char*		connType() const		= 0;
     virtual bool		isStream() const		{ return false;}
+    virtual IOStream*		asStream()			{ return 0; }
+    virtual const IOStream*	asStream() const		{ return 0; }
     virtual Conn*		getConn(bool forread) const	= 0;
 
     virtual const OD::String&	translator() const	       {return transl_;}

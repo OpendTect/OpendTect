@@ -144,4 +144,5 @@ private:
 mDefContainerSwapFunction( Basic, uiRetVal )
 
 mGlobal(Basic) bool isFinished(const uiRetVal&);
+mGlobal(Basic) bool isNotPresent(const uiRetVal&);
 mGlobal(Basic) bool isCancelled(const uiRetVal&);

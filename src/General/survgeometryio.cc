@@ -120,22 +120,35 @@ bool ODGeometry2DWriter::write( const Geometry2D& geom, uiString& errmsg,
     if ( !geom2d )
 	return true;
 
+    const BufferString linenm( geom2d->data().lineName() );
+    if ( linenm.isEmpty() )
+	{ errmsg = uiStrings::phrEnterValidName(); return false; }
+    bool needcommit = getGeomIDFor( linenm ).isValid();
+
     PtrMan<IOObj> ioobj = getEntry( geom2d->data().lineName() );
     if ( !ioobj || !ioobj->key().hasValidObjID() )
+    {
+	errmsg = uiStrings::phrCannotWrite( toUiString("%1 [%2]")
+			.arg(uiStrings::sGeometry()).arg(linenm) );
 	return false;
+    }
 
     PtrMan<Translator> transl = ioobj->createTranslator();
     mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
     if ( !geomtransl )
-	return false;
+	{ errmsg = mINTERNAL("Translator is not available"); return false; }
 
     if ( !FixedString(createfromstr).isEmpty() )
     {
 	ioobj->pars().set( sKey::CrFrom(), createfromstr );
-	DBM().setEntry( *ioobj );
+	needcommit = true;
     }
 
-    return geomtransl->writeGeometry( *ioobj, geom, errmsg );
+    const bool isok = geomtransl->writeGeometry( *ioobj, geom, errmsg );
+    if ( isok && needcommit )
+	DBM().setEntry( *ioobj );
+
+    return isok;
 }
 
 

@@ -15,12 +15,10 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 
-class IOObj;
 class Scaler;
 class SeisTrc;
-class SeisTrcWriter;
 class SeisResampler;
-namespace Seis { class Provider; }
+namespace Seis { class Provider; class Storer; }
 
 
 /*!\brief Single trace processing executor
@@ -36,6 +34,9 @@ mExpClass(Seis) SeisSingleTraceProc : public Executor
 { mODTextTranslationClass(SeisSingleTraceProc);
 public:
 
+    mUseType( Seis,	Provider );
+    mUseType( Seis,	Storer );
+
 			SeisSingleTraceProc(const IOObj& in,const IOObj& out,
 				const char* nm="Trace processor",
 				const IOPar* iniopar=0,
@@ -48,6 +49,11 @@ public:
 				int compnr=-1);
 			SeisSingleTraceProc(const IOObj& out,const char* nm,
 					    const uiString& msg);
+
+			// Copiers. Provider(s) and Storers become mine
+			SeisSingleTraceProc(Provider*,Storer*);
+			SeisSingleTraceProc(const ObjectSet<Provider>&,Storer*);
+
     virtual		~SeisSingleTraceProc();
 
     bool		addReader(const IOObj&,const IOPar* iop=0);
@@ -59,9 +65,9 @@ public:
     void		skipCurTrc()		{ skipcurtrc_ = true; }
 			//!< will also be checked after processing CB
 
-    const Seis::Provider* provider(int idx=0) const
-			{ return provs_.size()>idx ? provs_[idx] : 0; }
-    const SeisTrcWriter& writer() const		 { return wrr_; }
+    const Provider*	provider(int idx=0) const
+			{ return provs_.validIdx(idx) ? provs_.get(idx) : 0; }
+    const Storer&	storer() const		 { return storer_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
     const SeisTrc&	getInputTrace()		 { return intrc_; }
 
@@ -83,7 +89,7 @@ public:
     void		fillNullTraces( bool yn=true )	{ fillnull_ = yn; }
 
     void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
-    void		setProcPars(const IOPar&,bool is2d);
+    void		setProcPars(const IOPar&);
 			//!< Sets all above proc pars from IOPar
 
     Notifier<SeisSingleTraceProc> traceselected_;
@@ -93,8 +99,8 @@ public:
 
 protected:
 
-    ObjectSet<Seis::Provider> provs_;
-    SeisTrcWriter&	wrr_;
+    ObjectSet<Provider>	provs_;
+    Storer&		storer_;
     SeisTrc&		intrc_;
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
@@ -117,6 +123,7 @@ protected:
     bool		extendtrctosi_;
     int			compnr_;
 
+    void		addProv(Provider*,bool,const IOPar* iop=0);
     bool		nextReader();
     virtual void	wrapUp();
 
@@ -125,4 +132,5 @@ protected:
     bool		prepareTrc();
     bool		writeTrc();
     void		prepareNullFilling();
+
 };

@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisrangeseldata.h"
 #include "survinfo.h"
 #include "veldesc.h"
 

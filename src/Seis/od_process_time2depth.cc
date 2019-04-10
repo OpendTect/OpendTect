@@ -6,96 +6,47 @@
 
 
 #include "batchprog.h"
-#include "process_time2depth.h"
 
-#include "trckeyzsampling.h"
-#include "dbkey.h"
-#include "dbman.h"
-#include "iopar.h"
 #include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
-#include "progressmeterimpl.h"
-#include "seisioobjinfo.h"
+#include "seisrangeseldata.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "moddepmgr.h"
 
-#include "prog.h"
+#define mErrRet(s) { strm << s << od_endl; return false; }
 
 bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Seis");
     OD::ModDeps().ensureLoaded("Well");
 
-    TrcKeyZSampling outputcs;
-    if ( !outputcs.hsamp_.usePar( pars() ) )
-	{ outputcs.hsamp_.init( true ); }
 
-    if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zsamp_ ) )
-    {
-	strm << "Cannot read output sampling";
-	return false;
-    }
-
-
-    DBKey inputmid;
-    if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
-    {
-	strm << "Cannot read input volume id";
-	return false;
-    }
-
-    PtrMan<IOObj> inputioobj = DBM().get( inputmid );
+    DBKey inpdbky;
+    if ( !pars().get(IOPar::compKey(sKey::Input(),sKey::ID()),inpdbky) )
+	mErrRet( "Cannot find input ID" )
+    PtrMan<IOObj> inputioobj = getIOObj( inpdbky );
     if ( !inputioobj )
-    {
-	strm << "Cannot read input volume object";
-	return false;
-    }
-
-    DBKey outputmid;
-    if ( !pars().get( ProcessTime2Depth::sKeyOutputVolume(), outputmid ) )
-    {
-	strm << "Cannot read output volume id";
-	return false;
-    }
-
-    PtrMan<IOObj> outputioobj = DBM().get( outputmid );
+	mErrRet( "Cannot find input data" )
+    DBKey outputdbky;
+    if ( !pars().get(IOPar::compKey(sKey::Output(),sKey::ID()),outputdbky) )
+	mErrRet( "Cannot find output ID" )
+    PtrMan<IOObj> outputioobj = getIOObj( outputdbky );
     if ( !outputioobj )
-    {
-	strm << "Cannot read output volume object";
-	return false;
-    }
-
-    PtrMan<IOPar> ztranspar =
-	pars().subselect( ProcessTime2Depth::sKeyZTransPar() );
-
-    if ( !ztranspar )
-    {
-	strm << "Cannot find tranformation parameters.";
-	return false;
-    }
-
+	mErrRet( "Cannot find output data" )
+    PtrMan<IOPar> ztranspar = pars().subselect( "ZTrans" );
+    if ( !ztranspar || ztranspar->isEmpty() )
+	mErrRet( "Cannot find Z tranformation parameters" )
     RefMan<ZAxisTransform> ztransform = ZAxisTransform::create( *ztranspar );
     if ( !ztransform )
-    {
-	strm << "Cannot construct transform.";
-	return false;
-    }
-
+	mErrRet( "Cannot construct Z transform" )
     if ( !ztransform->isOK() )
-    {
-	strm << "Velocity model is not usable";
-	return false;
-    }
+	mErrRet( "Velocity model is not usable" )
 
-
-    bool istime2depth;
-    if ( !pars().getYN(ProcessTime2Depth::sKeyIsTimeToDepth(),istime2depth) )
-    {
-	strm << "Cannot read direction";
-	return false;
-    }
+    bool istime2depth = SI().zIsTime();
+    pars().getYN( "Time to depth", istime2depth );
 
     VelocityDesc veldesc;
     const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
@@ -114,72 +65,16 @@ bool BatchProgram::go( od_ostream& strm )
 	}
     }
 
-    TaskGroup taskgrp;
-    const SeisIOObjInfo seisinfo( inputmid );
-    const bool is2d = seisinfo.is2D();
-    if ( is2d )
+    Seis::RangeSelData rsd( pars() );
+    SeisZAxisStretcher stretcher( *inputioobj, *outputioobj, *ztransform,
+				  true, isvel, &rsd );
+    if ( isvel )
     {
-	GeomIDSet geomids;
-	TypeSet< StepInterval<int> > trcrgs;
-	for ( int idx=0; ; idx++ )
-	{
-	    PtrMan<IOPar> linepar =
-		pars().subselect( IOPar::compKey(sKey::Line(),idx) );
-	    if ( !linepar )
-		break;
-
-	    Pos::GeomID geomid;
-	    linepar->get( sKey::GeomID(), geomid );
-	    geomids += geomid;
-
-	    StepInterval<int> trcrg;
-	    linepar->get( sKey::TrcRange(), trcrg );
-	    trcrgs += trcrg;
-	}
-
-	for ( int idx=0; idx<geomids.size(); idx++ )
-	{
-	    outputcs.hsamp_.setTo( geomids[idx] );
-	    outputcs.hsamp_.setTrcRange( trcrgs[idx] );
-	    SeisZAxisStretcher* exec =
-		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-					*ztransform, true, isvel );
-	    exec->setGeomID( geomids[idx] );
-	    exec->setName( BufferString("Time to depth conversion - ",
-					nameOf(geomids[idx])) );
-	    if ( isvel )
-	    {
-		exec->setVelTypeIsVint( veldesc.type_==VelocityDesc::Interval );
-		if ( isvrms )
-		    exec->setVelTypeIsVrms( isvrms );
-	    }
-
-	    taskgrp.addTask( exec );
-	}
-    }
-    else
-    {
-	SeisZAxisStretcher* exec =
-		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-					*ztransform, true, isvel );
-	exec->setName( "Time to depth conversion");
-	if ( !exec->isOK() )
-	{
-	    strm << "Cannot initialize readers/writers";
-	    return false;
-	}
-
-	if ( isvel )
-	{
-	    exec->setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
-	    if ( isvrms )
-		exec->setVelTypeIsVrms( isvrms );
-	}
-
-	taskgrp.addTask( exec );
+	stretcher.setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
+	if ( isvrms )
+	    stretcher.setVelTypeIsVrms( isvrms );
     }
 
-    TextStreamProgressMeter progressmeter( strm );
-    taskgrp.Task::setProgressMeter( &progressmeter );
-    return taskgrp.execute();
+    LoggedTaskRunner taskrunner( strm );
+    return taskrunner.execute( stretcher );
 }

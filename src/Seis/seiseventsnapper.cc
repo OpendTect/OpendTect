@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seismscprov.h"
-#include "seisselectionimpl.h"
+#include "seistableseldata.h"
 #include "ioobj.h"
 #include "uistrings.h"
 #include "trckeyzsampling.h"

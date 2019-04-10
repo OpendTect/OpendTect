@@ -7,13 +7,14 @@
 
 #include "seisimpps.h"
 #include "seispsioprov.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "seispswrite.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "debug.h"
+#include "uistrings.h"
 #include <iostream>
 
 #define mDBGmask 0x1110
@@ -60,7 +61,7 @@ void SeisPSImpLineBuf::add( SeisTrc* trc )
 
 SeisPSImpDataMgr::SeisPSImpDataMgr( const DBKey& pswrid )
     : wrid_(pswrid)
-    , wrr_(0)
+    , storer_(0)
     , maxinloffs_(-1)
     , gathersize_(0)
 {
@@ -69,7 +70,7 @@ SeisPSImpDataMgr::SeisPSImpDataMgr( const DBKey& pswrid )
 
 SeisPSImpDataMgr::~SeisPSImpDataMgr()
 {
-    delete wrr_;
+    delete storer_;
     deepErase( lines_ );
 }
 
@@ -128,25 +129,27 @@ void SeisPSImpDataMgr::updateStatus( int bufidx )
 }
 
 
-bool SeisPSImpDataMgr::writeGather()
+uiRetVal SeisPSImpDataMgr::writeGather()
 {
-    if ( towrite_.isEmpty() ) return true;
+    uiRetVal uirv;
+    if ( towrite_.isEmpty() )
+	return uirv;
 
     bool wrsampnms = false;
-    if ( !wrr_ )
+    if ( !storer_ )
     {
 	IOObj* ioobj = DBM().get( wrid_ );
 	if ( !ioobj )
 	{
-	    errmsg_ = tr("Output data store not in object mgr");
-	    return false;
+	    uirv.add( uiStrings::phrCannotFindDBEntry(wrid_) );
+	    return uirv;
 	}
-	wrr_ = new SeisTrcWriter( ioobj );
+	storer_ = new Storer( *ioobj );
 	delete ioobj;
-	if ( !wrr_ )
+	if ( !storer_->isUsable() )
 	{
-	    errmsg_ = tr("Cannot write to this data store type");
-	    return false;
+	    uirv.add( storer_->errNotUsable() );
+	    return uirv;
 	}
 	wrsampnms = true;
     }
@@ -159,7 +162,7 @@ bool SeisPSImpDataMgr::writeGather()
 	    { lbuf = lines_[idx]; break; }
     }
     if ( !lbuf || lbuf->gathers_.isEmpty() )
-	{ delete lbuf; towrite_.removeSingle(0); return true; }
+	{ delete lbuf; towrite_.removeSingle(0); return uirv; }
 	// shouldn't happen
 
     SeisTrcBuf* gath2write = lbuf->gathers_.removeSingle( 0 );
@@ -175,12 +178,11 @@ bool SeisPSImpDataMgr::writeGather()
 	lines_ -= lbuf;
     }
 
-    bool res = true;
     for ( int idx=0; idx<gath2write->size(); idx++ )
     {
-	res = wrr_->put( *gath2write->get(idx) );
-	if ( !res )
-	    { errmsg_ = wrr_->errMsg(); break; }
+	uirv = storer_->put( *gath2write->get(idx) );
+	if ( !uirv.isOK() )
+	    return uirv;
     }
 
     if ( gathersize_ == 0 )
@@ -189,9 +191,11 @@ bool SeisPSImpDataMgr::writeGather()
 	gathersize_ = -1;
 
     delete gath2write;
-    if ( lbufempty ) delete lbuf;
+    if ( lbufempty )
+	delete lbuf;
 
     if ( wrsampnms )
-	wrr_->psWriter()->setSampleNames( samplenms_ );
-    return res;
+	storer_->psWriter()->setSampleNames( samplenms_ );
+
+    return uirv;
 }

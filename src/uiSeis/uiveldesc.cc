@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "ioobjctxt.h"
 #include "ioobjtags.h"
-#include "seisselection.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"

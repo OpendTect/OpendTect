@@ -6,7 +6,7 @@
 -*/
 
 #include "madio.h"
-#include "seisseqio.h"
+#include "seistype.h"
 
 namespace ODMad
 {
@@ -17,13 +17,13 @@ public:
 
     virtual		~SeisSeqIO();
 
-    ODMad::IOType	getType() const			= 0;
+    ODMad::IOType	getType() const		= 0;
 
     virtual bool	init()			= 0;
 
 protected:
 
-    			SeisSeqIO();
+			SeisSeqIO();
 
     ODMad::IOType	type_;
 
@@ -35,11 +35,8 @@ mClass(Madagascar) SeisSeqInp : public SeisSeqIO
 {
 public:
 
-    			SeisSeqInp();
+			SeisSeqInp();
     virtual		~SeisSeqInp();
-
-    virtual const char*	type() const		{ return getType(); }
-    virtual Seis::GeomType geomType() const	{ return gt_; }
 
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -58,17 +55,13 @@ protected:
 };
 
 
-mClass(Madagascar) SeisSeqOut : public Seis::SeqOut
-		 , public SeisSeqIO
+mClass(Madagascar) SeisSeqOut : public SeisSeqIO
 {
 public:
 
-    			SeisSeqOut(Seis::GeomType gt=Seis::Vol);
-    			SeisSeqOut(Seis::GeomType,const FileSpec&);
+			SeisSeqOut(Seis::GeomType gt=Seis::Vol);
+			SeisSeqOut(Seis::GeomType,const FileSpec&);
     virtual		~SeisSeqOut();
-
-    virtual const char*	type() const		{ return getType(); }
-    virtual Seis::GeomType geomType() const	{ return gt_; }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);

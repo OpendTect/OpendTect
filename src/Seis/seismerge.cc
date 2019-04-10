@@ -8,27 +8,23 @@
 #include "seisprovider.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "scaler.h"
 #include "keystrs.h"
 
 SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 			bool stacktrcs, Seis::MultiProvider::ZPolicy zpol )
-	: Executor(!iops.isEmpty() &&
-		SeisIOObjInfo(Seis::Provider::dbKey(*iops[0])).is2D()
-		? "Merging line parts" : "Merging cubes")
-	, wrr_(0)
-	, multiprov_(0)
-	, nrpos_(0)
-	, totnrpos_(-1)
-	, stacktrcs_(stacktrcs)
-        , scaler_(0)
-	, nrsamps_(-1)
+    : Executor(!iops.isEmpty() &&
+	    SeisIOObjInfo(Seis::Provider::dbKey(*iops[0])).is2D()
+	    ? "Merging line parts" : "Merging cubes")
+    , stacktrcs_(stacktrcs)
+    , totnrpos_(-1)
+    , nrsamps_(-1)
 {
     if ( iops.isEmpty() )
-    { errmsg_ = tr("Nothing to merge"); return; }
+	{ errmsg_ = tr("Nothing to merge"); return; }
     if (iops.size() == 1)
-    { errmsg_ = tr("One single entry to merge: Please use copy"); return; }
+	{ errmsg_ = tr("One single entry to merge: Please use copy"); return; }
 
     const Seis::MultiProvider::Policy policy = stacktrcs_
 				? Seis::MultiProvider::RequireAtLeastOne
@@ -58,22 +54,18 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	nrsamps_ = zrg.nrSteps() + 1;
     }
 
-    wrr_ = new SeisTrcWriter( 0 );
-    wrr_->usePar( outiop );
-    if ( !wrr_->errMsg().isEmpty() )
-    {
-	errmsg_ = wrr_->errMsg();
-	multiprov_->setEmpty();
-	return;
-    }
-
-    totnrpos_ = multiprov_->totalNr();
+    storer_ = new Storer;
+    storer_->usePar( outiop );
+    if ( !storer_->isUsable() )
+	{ errmsg_ = storer_->errNotUsable(); multiprov_->setEmpty(); }
+    else
+	totnrpos_ = multiprov_->totalNr();
 }
 
 
 SeisMerger::~SeisMerger()
 {
-    delete wrr_;
+    delete storer_;
     delete multiprov_;
     delete scaler_;
 }
@@ -103,7 +95,7 @@ int SeisMerger::nextStep()
     if ( isFinished(uirv) )
     {
 	delete newtrc;
-	wrr_->close();
+	storer_->close();
 	return Executor::Finished();
     }
 
@@ -134,14 +126,10 @@ int SeisMerger::writeTrc( SeisTrc* trc )
     }
 
     if ( scaler_ ) trc->data().scale( *scaler_ );
-    bool ret = wrr_->put( *trc );
-    if ( !ret )
-    {
-	delete trc;
-	errmsg_ = wrr_->errMsg();
-	return Executor::ErrorOccurred();
-    }
-
+    auto ret = storer_->put( *trc );
     delete trc;
+    if ( !ret.isOK() )
+	{ errmsg_ = ret; return Executor::ErrorOccurred(); }
+
     return Executor::MoreToDo();
 }

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 #include "uistring.h"
 
-class IOObj;
 namespace Seis { class PosIndexer; }
 namespace PosInfo { class CubeData; class Line2DData; }
 

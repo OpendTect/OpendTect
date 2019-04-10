@@ -20,9 +20,7 @@ ________________________________________________________________________
 
 class IOObj;
 class SeisTrc;
-class SeisTrcWriter;
-class SeisSequentialWriter;
-namespace Seis { class Provider; }
+namespace Seis { class Provider; class Storer; class SequentialStorer; }
 
 namespace Vel
 {
@@ -45,11 +43,12 @@ public:
     static const char*		sKeyOutput();
 
 protected:
+
     od_int64			nrIterations() const { return totalnr_; }
     bool			doPrepare(int);
     bool			doFinish(bool);
     bool			doWork(od_int64,od_int64,int);
-    uiString			nrDoneText() const { 
+    uiString			nrDoneText() const {
 						return tr("Traces written");
 						     }
 
@@ -60,14 +59,15 @@ protected:
     IOObj*			output_;
     VelocityDesc		velinpdesc_;
     VelocityDesc		veloutpdesc_;
-    TrcKeySampling			tks_;
+    TrcKeySampling		tks_;
     uiString			errmsg_;
 
     Seis::Provider*		provider_;
-    SeisTrcWriter*		writer_;
-    SeisSequentialWriter*	sequentialwriter_;
+    Seis::Storer*		storer_;
+    Seis::SequentialStorer*	sequentialstorer_;
 
     Threads::ConditionVar	lock_;
+
 };
 
 } // namespace Vel

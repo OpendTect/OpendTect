@@ -19,7 +19,7 @@ ________________________________________________________________________
 static const int cSampleBufferSize = 1048576;
 
 
-SeisStatsCollector::SeisStatsCollector( int icomp )
+Seis::StatsCollector::StatsCollector( int icomp )
     : vals_(0)
     , selcomp_(icomp)
     , offsrg_(mUdf(float),0.f)
@@ -28,13 +28,13 @@ SeisStatsCollector::SeisStatsCollector( int icomp )
 }
 
 
-SeisStatsCollector::~SeisStatsCollector()
+Seis::StatsCollector::~StatsCollector()
 {
     delete [] vals_;
 }
 
 
-void SeisStatsCollector::setEmpty()
+void Seis::StatsCollector::setEmpty()
 {
     nrtrcshandled_ = nrvalshandled_ = totalnrsamples_ = 0;
     nrvalscollected_ = 0;
@@ -55,7 +55,7 @@ static void updateStepNr( int tksnr, int tknr, int& stepnr )
 }
 
 
-void SeisStatsCollector::addPosition( const TrcKey& tk,
+void Seis::StatsCollector::addPosition( const TrcKey& tk,
 				      const Interval<float>& zrg )
 {
     if ( nrtrcshandled_ < 1 )
@@ -83,14 +83,14 @@ void SeisStatsCollector::addPosition( const TrcKey& tk,
 }
 
 
-void SeisStatsCollector::useTrace( const SeisTrc& trc )
+void Seis::StatsCollector::useTrace( const SeisTrc& trc )
 {
     if ( !vals_ )
 	return;
 
     if ( nrtrcshandled_ < 1 )
 	tkzs_.zsamp_.step = trc.stepPos();
-    addPosition( trc.info().trckey_, trc.zRange() );
+    addPosition( trc.info().trcKey(), trc.zRange() );
 
     const int sz = trc.size();
     for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
@@ -136,14 +136,14 @@ void SeisStatsCollector::useTrace( const SeisTrc& trc )
 }
 
 
-bool SeisStatsCollector::finish() const
+bool Seis::StatsCollector::finish() const
 {
     if ( distrib_ )
 	return true;
     else if ( nrvalscollected_ < 1 )
 	return false;
 
-    SeisStatsCollector& self = *const_cast<SeisStatsCollector*>( this );
+    StatsCollector& self = *const_cast<StatsCollector*>( this );
 
     DeSpiker<float,int> despiker( 10 );
     despiker.deSpike( self.vals_, nrvalscollected_ );
@@ -156,13 +156,14 @@ bool SeisStatsCollector::finish() const
 }
 
 
-const SeisStatsCollector::DistribType& SeisStatsCollector::distribution() const
+const Seis::StatsCollector::DistribType&
+Seis::StatsCollector::distribution() const
 {
     return finish() ? *distrib_ : *new DistribType;
 }
 
 
-bool SeisStatsCollector::fillPar( IOPar& iop ) const
+bool Seis::StatsCollector::fillPar( IOPar& iop ) const
 {
     if ( !finish() )
 	return false;
@@ -188,8 +189,8 @@ bool SeisStatsCollector::fillPar( IOPar& iop ) const
 }
 
 
-RefMan<SeisStatsCollector::DistribType> SeisStatsCollector::getDistribution(
-						const IOPar& iop )
+RefMan<Seis::StatsCollector::DistribType>
+Seis::StatsCollector::getDistribution( const IOPar& iop )
 {
     RefMan<DistribType> ret;
     PtrMan<IOPar> distribpar = iop.subselect( sKey::Distribution() );
@@ -202,7 +203,7 @@ RefMan<SeisStatsCollector::DistribType> SeisStatsCollector::getDistribution(
 }
 
 
-Interval<float> SeisStatsCollector::getExtremes( const IOPar& iop )
+Interval<float> Seis::StatsCollector::getExtremes( const IOPar& iop )
 {
     Interval<float> rg = Interval<float>::udf();
     iop.get( "Extremes", rg );
@@ -210,7 +211,7 @@ Interval<float> SeisStatsCollector::getExtremes( const IOPar& iop )
 }
 
 
-od_int64 SeisStatsCollector::getNrSamples( const IOPar& iop, bool valid )
+od_int64 Seis::StatsCollector::getNrSamples( const IOPar& iop, bool valid )
 {
     od_int64 totalnr = 0; od_int64 nrinvalid = 0;
     iop.get( "Count.Samples", totalnr );
@@ -219,7 +220,7 @@ od_int64 SeisStatsCollector::getNrSamples( const IOPar& iop, bool valid )
 }
 
 
-od_int64 SeisStatsCollector::getNrTraces( const IOPar& iop )
+od_int64 Seis::StatsCollector::getNrTraces( const IOPar& iop )
 {
     od_int64 nrtrcs = 0;
     iop.get( "Count.Traces", nrtrcs );

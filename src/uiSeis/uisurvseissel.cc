@@ -38,8 +38,7 @@ static uiString getLbl( const uiSurvSeisSel::Setup& su )
     if ( su.lbltxt_ == toUiString("-") )
 	return uiString::empty();
     else if ( su.lbltxt_.isEmpty() )
-	return uiStrings::sSeisGeomTypeName( Seis::is2D(su.geomtype_),
-					     Seis::isPS(su.geomtype_) );
+	return Seis::dataName( su.geomtype_ );
     return su.lbltxt_;
 }
 

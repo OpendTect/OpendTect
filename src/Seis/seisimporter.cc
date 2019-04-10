@@ -11,9 +11,9 @@
 #include "seiscbvs.h"
 #include "seisprovider.h"
 #include "seisresampler.h"
-#include "seisselection.h"
+#include "seisseldata.h"
+#include "seisstorer.h"
 #include "seistrc.h"
-#include "seiswrite.h"
 
 #include "thread.h"
 #include "threadwork.h"
@@ -30,11 +30,11 @@
 #include "uistrings.h"
 
 
-SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
+SeisImporter::SeisImporter( SeisImporter::Reader* r, Storer& s,
 			    Seis::GeomType gt )
 	: Executor("Importing seismic data")
 	, rdr_(r)
-	, wrr_(w)
+	, storer_(s)
 	, geomtype_(gt)
 	, buf_(*new SeisTrcBuf(false))
 	, trc_(*new SeisTrc)
@@ -52,7 +52,7 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
 					Threads::WorkManager::SingleThread,
 					"SeisImporter");
     if ( rdr_ )
-	wrr_.setCrFrom( rdr_->implName() );
+	storer_.setCrFrom( rdr_->implName() );
 }
 
 
@@ -183,35 +183,25 @@ int SeisImporter::nextStep()
 class SeisImporterWriterTask : public Task
 {
 public:
-    SeisImporterWriterTask( SeisImporter& imp, SeisTrcWriter& writer,
+    SeisImporterWriterTask( SeisImporter& imp, Seis::Storer& storer,
 			    const SeisTrc& trc )
 	: importer_( imp )
-	, writer_( writer )
+	, storer_( storer )
 	, trc_( trc )
     {}
 
     bool execute()
     {
-	uiString errmsg;
-	if ( !writer_.put( trc_ ) )
-	{
-	    errmsg = writer_.errMsg();
-	    if ( errmsg.isEmpty() )
-	    {
-		pErrMsg( "Need an error message from writer" );
-		errmsg = uiStrings::phrCannotWrite( uiStrings::sTrace() );
-	    }
-	}
-
-	importer_.reportWrite( errmsg );
-	return errmsg.isEmpty();
+	const auto uirv = storer_.put( trc_ );
+	importer_.reportWrite( uirv );
+	return uirv.isOK();
     }
 
 
 protected:
 
     SeisImporter&	importer_;
-    SeisTrcWriter&	writer_;
+    Seis::Storer&	storer_;
     SeisTrc		trc_;
 };
 
@@ -245,7 +235,7 @@ int SeisImporter::doWrite( SeisTrc& trc )
 
     lock.unLock();
 
-    Task* task = new SeisImporterWriterTask( *this, wrr_, trc );
+    Task* task = new SeisImporterWriterTask( *this, storer_, trc );
     Threads::WorkManager::twm().addWork(Threads::Work(*task,true), 0, queueid_,
 				       false );
     return Executor::MoreToDo();

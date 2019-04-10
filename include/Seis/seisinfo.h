@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "enums.h"
 class SeisTrc;
+class TrcKey;
 class PosAuxInfo;
 
 
@@ -27,37 +28,41 @@ public:
 
     mUseType( IdxPair,	pos_type );
     mUseType( OD,	GeomSystem );
+    mUseType( Pos,	GeomID );
     typedef int		idx_type;
     typedef idx_type	size_type;
     typedef Pos::Z_Type	z_type;
 
 			SeisTrcInfo();
+			~SeisTrcInfo();
 			SeisTrcInfo(const SeisTrcInfo&);
     SeisTrcInfo&	operator =(const SeisTrcInfo&);
 
-    TrcKey		trckey_;
     Coord		coord_;
     SamplingData<float>	sampling_;
-    float		offset_;
-    float		azimuth_;
-    float		refnr_;
-    float		pick_;
+    float		offset_			= 0.f;
+    float		azimuth_		= 0.f;
+    float		refnr_			= mUdf(float);
+    float		pick_			= mUdf(float);
 
-    inline bool		is2D() const		{ return trckey_.is2D(); }
-    inline bool		isSynthetic() const	{ return trckey_.isSynthetic();}
-    GeomSystem		geomSystem() const	{ return trckey_.geomSystem(); }
-    inline const BinID&	binID() const		{ return trckey_.binID(); }
-    inline pos_type	lineNr() const		{ return trckey_.lineNr(); }
-    inline pos_type	trcNr() const		{ return trckey_.trcNr(); }
+    bool		is2D() const;
+    bool		isSynthetic() const;
+    GeomSystem		geomSystem() const;
+    const BinID&	binID() const;
+    pos_type		inl() const;
+    pos_type		crl() const;
+    pos_type		lineNr() const;
+    pos_type		trcNr() const;
+    GeomID		geomID() const;
+    TrcKey&		trcKey()		{ return trcky_; }
+    const TrcKey&	trcKey() const		{ return trcky_; }
 
-    inline SeisTrcInfo&	setGeomSystem( GeomSystem gs )
-			{ trckey_.setGeomSystem(gs); return *this; }
-    inline SeisTrcInfo&	setBinID( const BinID& bid )
-			{ trckey_.setBinID(bid); return *this; }
-    inline SeisTrcInfo&	setLineNr( pos_type lnr )
-			{ trckey_.setLineNr(lnr); return *this; }
-    inline SeisTrcInfo&	setTrcNr( pos_type tnr )
-			{ trckey_.setTrcNr(tnr); return *this; }
+    SeisTrcInfo&	setGeomSystem(GeomSystem);
+    SeisTrcInfo&	setPos(const BinID&);
+    SeisTrcInfo&	setPos(GeomID,pos_type);
+    SeisTrcInfo&	setGeomID(GeomID);
+    SeisTrcInfo&	setTrcNr(pos_type);
+    SeisTrcInfo&	setLineNr(pos_type);
 
     idx_type		nearestSample(z_type) const;
     z_type		samplePos( idx_type idx ) const
@@ -88,6 +93,10 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    float		zref_;		// not stored
+    float		zref_			= 0.f;		// not stored
+
+protected:
+
+    TrcKey&		trcky_;
 
 };

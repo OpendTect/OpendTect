@@ -10,7 +10,7 @@
 #include "ioobjctxt.h"
 #include "dbman.h"
 #include "keystrs.h"
-#include "process_time2depth.h"
+#include "seisselsetup.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "zdomain.h"
@@ -188,7 +188,7 @@ bool uiBatchTime2DepthSetup::fillPar()
 	return false;
 
     IOPar& par = batchfld_->jobSpec().pars_;
-    par.set( ProcessTime2Depth::sKeyInputVolume(),  input->key() );
+    par.set( IOPar::compKey(sKey::Input(),sKey::ID()), input->key() );
     subselfld_->fillPar( par );
 
     StepInterval<float> zrange;
@@ -198,10 +198,9 @@ bool uiBatchTime2DepthSetup::fillPar()
 	d2tfld_->getTargetSampling( zrange );
 
     par.set( SurveyInfo::sKeyZRange(), zrange );
-    par.set( ProcessTime2Depth::sKeyOutputVolume(), output->key() );
-    par.mergeComp( ztranspar, ProcessTime2Depth::sKeyZTransPar() );
-    par.setYN( ProcessTime2Depth::sKeyIsTimeToDepth(),
-	       directionsel_->getBoolValue() );
+    par.set( IOPar::compKey(sKey::Output(),sKey::ID()), output->key() );
+    par.mergeComp( ztranspar, "ZTrans" );
+    par.setYN( "Time to depth", directionsel_->getBoolValue() );
 
     return true;
 }

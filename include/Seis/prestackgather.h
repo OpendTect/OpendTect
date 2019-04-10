@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "arrayndimpl.h"
 #include "datapackbase.h"
 #include "dbkey.h"
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 
-class IOObj;
 class SeisPSReader;
 class SeisTrc;
 class SeisTrcBuf;
@@ -138,12 +137,13 @@ public:
     const BinID&		getBinID() const
 				{ return trckey_.position(); }
     void			setBinID( const BinID& bid )
-				{ trckey_.setPosition( bid ); }
+				{ trckey_.setPos( bid ); }
 
 protected:
 
-	virtual			~Gather();
+    virtual			~Gather();
 
+    TrcKey&			trckey_;
     DBKey			velocityid_;
     DBKey			storageid_;
     DBKey			staticsid_;
@@ -154,7 +154,6 @@ protected:
     bool			iscorr_;
 
     bool			zit_;
-    TrcKey			trckey_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
     StepInterval<float>		zrg_;
@@ -185,7 +184,7 @@ public:
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
-    void			fillGatherBuf(SeisTrcBuf&,const BinID&);
+    bool			fillGatherBuf(SeisTrcBuf&,const BinID&) const;
     SeisTrc*			createTrace(int gatheridx,int offsetidx) const;
     SeisTrc*			createTrace(const BinID&,int offsetidx) const;
 

@@ -12,7 +12,6 @@
 #include "uiioobjsel.h"
 #include "velocityfunctionstored.h"
 #include "seistrctr.h"
-#include "seisselection.h"
 #include "uimsg.h"
 #include "survinfo.h"
 

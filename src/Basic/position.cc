@@ -10,14 +10,15 @@
 #include "posidxpair2coord.h"
 
 #include "bufstring.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "math2.h"
 #include "rowcol.h"
 #include "string2.h"
-#include "undefval.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
 #include "trckeyvalue.h"
-#include "iopar.h"
+#include "undefval.h"
 
 #include <ctype.h>
 
@@ -184,6 +185,13 @@ TrcKey& TrcKey::setGeomSystem( GeomSystem gs )
 }
 
 
+TrcKey& TrcKey::setPos( const BinID& bid )
+{
+    geomsystem_ = OD::VolBasedGeom;
+    pos_ = bid; return *this;
+}
+
+
 TrcKey& TrcKey::setGeomID( GeomID geomid )
 {
     geomsystem_ = geomSystemOf( geomid );
@@ -260,7 +268,7 @@ TrcKey& TrcKey::setFrom( const Coord& crd )
 {
     const auto& geom = geometry();
     if ( geom.is3D() )
-	setBinID( geom.as3D()->transform(crd) );
+	setPos( geom.as3D()->transform(crd) );
     else if ( !geom.as2D()->isEmpty() )
 	setTrcNr( geom.as2D()->nearestTracePosition(crd) );
     return *this;
@@ -276,6 +284,27 @@ Coord TrcKey::getCoord() const
     return geom2d.isEmpty() ? Coord::udf() : geom2d.getCoord( trcNr() );
 }
 
+
+BufferString TrcKey::usrDispStr() const
+{
+    if ( isUdf() )
+	return BufferString( sKey::Undef() );
+
+    BufferString ret;
+    switch ( geomsystem_ )
+    {
+    case OD::VolBasedGeom:
+	ret.set( inl() ).add( "/" ).add( crl() );
+    break;
+    case OD::LineBasedGeom:
+	ret.set( nameOf(GeomID(lineNr())) ).add( "@" ).add( trcNr() );
+    break;
+    default:
+	ret.set( "[Synth]@" ).add( trcNr() );
+    break;
+    }
+    return ret;
+}
 
 
 // TrcKeyValue
@@ -374,10 +403,10 @@ Coord Pos::IdxPair2Coord::transform( const Pos::IdxPair& ip ) const
 Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord ) const
 {
     if ( mIsUdf(coord.x_) || mIsUdf(coord.y_) )
-	return Pos::IdxPair::udf();
+	return IdxPair::udf();
     const Coord fip = transformBackNoSnap( coord );
     if ( mIsUdf(fip.x_) || mIsUdf(fip.y_) )
-	return Pos::IdxPair::udf();
+	return IdxPair::udf();
 
     return IdxPair( mRounded(pos_type,fip.x_), mRounded(pos_type,fip.y_) );
 }
@@ -387,10 +416,10 @@ Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
 			const IdxPair& start, const IdxPairStep& step ) const
 {
     if ( mIsUdf(coord.x_) || mIsUdf(coord.y_) )
-	return Pos::IdxPair::udf();
+	return IdxPair::udf();
     const Coord fip = transformBackNoSnap( coord );
     if ( mIsUdf(fip.x_) || mIsUdf(fip.y_) )
-	return Pos::IdxPair::udf();
+	return IdxPair::udf();
 
     Coord frelip( fip.x_ - start.first, fip.y_ - start.second );
     if ( step.first && step.second )

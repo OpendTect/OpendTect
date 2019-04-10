@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 class BinDataDesc;
 class BinIDValueSet;
-class IOObj;
 class RegularSeisDataPack;
 class Scaler;
 

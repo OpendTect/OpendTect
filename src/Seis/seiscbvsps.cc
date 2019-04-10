@@ -41,6 +41,18 @@ SeisPS2DReader::SeisPS2DReader( Pos::GeomID geomid )
 {}
 
 
+SeisTrc* SeisPS2DReader::getTrc( int trcnr, int nr ) const
+{
+    return getTrace( TrcKey(geomid_,trcnr), nr );
+}
+
+
+bool SeisPS2DReader::getGath( int trcnr, SeisTrcBuf& b ) const
+{
+    return getGather( TrcKey(geomid_,trcnr), b );
+}
+
+
 class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
@@ -467,7 +479,7 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 {
     SeisTrc* trc = readNewTrace( bid.crl() );
     if ( !trc ) return 0;
-    trc->info().setBinID( bid ); trc->info().coord_ = coord;
+    trc->info().setPos( bid ); trc->info().coord_ = coord;
     return trc;
 }
 
@@ -591,9 +603,9 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 	nringather_ = 1;
     prevbid_ = trcbid;
 
-    ti.setBinID( BinID(trcbid.crl(),nringather_) );
+    ti.setPos( BinID(trcbid.crl(),nringather_) );
     bool res = tr_->write( trc );
-    ti.setBinID( trcbid );
+    ti.setPos( trcbid );
     if ( !res )
 	errmsg_ = tr_->errMsg();
     else
@@ -665,14 +677,15 @@ SeisCBVSPS2DReader::~SeisCBVSPS2DReader()
 
 SeisTrc* SeisCBVSPS2DReader::getTrace( const TrcKey& tk, int nr ) const
 {
-    if ( !tr_ ) return 0;
+    if ( !tr_ )
+	return 0;
 
     if ( !goTo(tk.trcNr(),nr) )
 	return 0;
 
     SeisTrc* trc = readNewTrace( tk.trcNr() );
-    if ( !trc ) return 0;
-    trc->info().trckey_ = tk;
+    if ( trc )
+	trc->info().trcKey() = tk;
     return trc;
 }
 
@@ -693,7 +706,7 @@ bool SeisCBVSPS2DReader::getGather( const TrcKey& tk, SeisTrcBuf& tbuf ) const
 
     while ( trc )
     {
-	trc->info().trckey_ = tk;
+	trc->info().trcKey() = tk;
 	tbuf.add( trc );
 
 	trc = readNewTrace( tk.trcNr() );
@@ -757,10 +770,10 @@ bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
 	nringather_ = 1;
     prevnr_ = ti.trcNr();
 
-    const BinID trcbid( ti.binID() );
-    ti.setBinID( BinID(ti.trcNr(),nringather_) );
+    const TrcKey trctk( ti.trcKey() );
+    ti.setPos( BinID(ti.trcNr(),nringather_) );
     bool res = tr_->write( trc );
-    ti.setBinID( trcbid );
+    ti.trcKey() = trctk;
     if ( !res )
 	errmsg_ = tr_->errMsg();
     else

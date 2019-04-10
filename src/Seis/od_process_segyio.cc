@@ -85,7 +85,7 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"SEG-Y importer", &iop,
 				tr("Importing traces") );
-    stp->setProcPars( *outpar, is2d );
+    stp->setProcPars( *outpar );
     return stp->go( strm );
 }
 
@@ -123,7 +123,7 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 			    "SEG-Y exporter", outpar,
 			    tr("Exporting traces"), compnr );
-    stp->setProcPars( *outpar, is2d );
+    stp->setProcPars( *outpar );
     return stp->go( strm );
 }
 

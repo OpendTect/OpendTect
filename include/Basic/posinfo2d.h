@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 #include "survgeom.h"
 #include "typeset.h"
+class LineSubSel;
+class LineSubSelSet;
 
 namespace PosInfo
 {
@@ -85,21 +87,25 @@ public:
 
 			Line2DData(const char* lnm=0);
 
-			Line2DData(const Line2DData& l2d)
+			Line2DData( const Line2DData& l2d )
 			: zrg_(l2d.zRange())
 			, lnm_(l2d.lineName())
-			, posns_(l2d.positions()){}
+			, posns_(l2d.positions()) {}
 
-    GeomID		geomID() const;
     const OD::String&	lineName() const	{ return lnm_; }
+    GeomID		geomID() const;
     z_steprg_type&	zRange()		{ return zrg_; }
     const z_steprg_type& zRange() const		{ return zrg_; }
 
     bool		isEmpty() const		{ return posns_.isEmpty(); }
     bool		validIdx( idx_type idx ) const
 						{ return posns_.validIdx(idx); }
-    idx_type		indexOf(tracenr_type) const;
     size_type		size() const		{ return posns_.size();}
+    tracenr_type	trcNr(idx_type) const;
+    Coord		coord(idx_type) const;
+    bool		isPresent( tracenr_type tnr ) const
+						{ return indexOf(tnr) < 0; }
+    idx_type		indexOf(tracenr_type) const;
     const PosSet&	positions() const	{ return posns_; }
 
     const TrcNrSet&	getBendPoints() const;
@@ -120,7 +126,7 @@ public:
     void		remove(tracenr_type);
     void		removeByIdx(idx_type);
     void		setEmpty()			     { posns_.erase(); }
-    void		setLineName( const char* lnm )	     { lnm_ = lnm; }
+    void		setLineName(const char*);
     void		setPositions( const PosSet& posns )  { posns_ = posns; }
     void		setZRange( const z_steprg_type& zr ) { zrg_ = zr; }
     void		limitTo(tracenr_type start,tracenr_type stop);
@@ -139,6 +145,9 @@ public:
 				 and the same trace numbering system? */
 
     void		getSegments(LineData&) const;
+    LineSubSel*		getSubSel() const;
+
+    void		setGeomID(GeomID) const;
 
 protected:
 
@@ -146,6 +155,7 @@ protected:
     z_steprg_type	zrg_;
     PosSet		posns_;
     IdxSet		bendpoints_;
+    mutable GeomID	geomid_;
 
     idx_type		gtIndex(tracenr_type,bool&) const;
     idx_type		gtIndex(const Coord&,dist_type* sqdist=0) const;
@@ -153,6 +163,26 @@ protected:
 				//!< the index of the BP starting the segment
 
     friend class	Line2DDataIterator;
+
+};
+
+
+mExpClass(Basic) Line2DDataSet : public ManagedObjectSet<Line2DData>
+{
+public:
+
+    mUseType( Pos,	GeomID );
+
+    idx_type		lineIndexOf(GeomID) const;
+    Line2DData*		find( GeomID gid )	{ return doFind( gid ); }
+    const Line2DData*	find( GeomID gid ) const { return doFind( gid ); }
+
+    void		getSubSel(LineSubSelSet&) const;
+    od_int64		totalNrPositions() const;
+
+protected:
+
+    Line2DData*		doFind(GeomID) const;
 
 };
 

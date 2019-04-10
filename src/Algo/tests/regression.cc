@@ -19,18 +19,15 @@ static bool test2DRegresson( const float* xvals, const float* yvals, int sz )
                         #val " value", "outside range" )
     LinStats2D ls2d;
     ls2d.use( xvals, yvals, sz );
-    if ( !quiet )
-	od_cout() << "a0=" << ls2d.lp.a0_ << " ax=" << ls2d.lp.ax_ << od_endl;
+	logStream() << "a0=" << ls2d.lp.a0_ << " ax=" << ls2d.lp.ax_ << od_endl;
     mDoCompare( ls2d.lp.a0_, 9.3f, 0.3f );
     mDoCompare( ls2d.lp.ax_, 8.5f, 0.7f );
 
     ls2d.use( yvals, xvals, sz );
-    if ( !quiet )
-	od_cout() << "a0=" << ls2d.lp.a0_ << " ax=" << ls2d.lp.ax_ << od_endl;
+	logStream() << "a0=" << ls2d.lp.a0_ << " ax=" << ls2d.lp.ax_ << od_endl;
     const float ax = 1.0f / ls2d.lp.ax_;
     const float a0 = -ls2d.lp.a0_ / ls2d.lp.ax_;
-    if ( !quiet )
-	od_cout() << "inv a0=" << a0 << " ax=" << ax << od_endl;
+	logStream() << "inv a0=" << a0 << " ax=" << ax << od_endl;
     mDoCompare( a0, 9.3f, 0.3f );
     mDoCompare( ax, 8.5f, 0.7f );
 
@@ -43,8 +40,7 @@ static bool testPlaneFit( const TypeSet<Coord3>& coords )
     Plane3DFit fitter;
     Plane3 plane;
     fitter.compute( coords, plane );
-    if ( !quiet )
-	od_cout() << "Plane: " << plane.A_ << "*X + "
+	logStream() << "Plane: " << plane.A_ << "*X + "
 	          << plane.B_ << "*Y + "
 	          << plane.C_ << "*Z + "
 	          << plane.D_ << od_endl;
@@ -57,14 +53,12 @@ static bool testPolyFits( const float* xarr, const float* yarr, int sz )
     // order 2: 8.89870453 + 11.75393295*X + -3.60866618*X^2
     // order 3: 9.05188751 + 10.3282423*X + -0.35720029*X^2 + -2.07160878*X^3
     const auto res2 = polyFit( xarr, yarr, sz, 2 );
-    if ( !quiet )
-	od_cout() << "Poly Fit order 2: " << res2[0]
+	logStream() << "Poly Fit order 2: " << res2[0]
 		  << " + " << res2[1] << "*X"
 		  << " + " << res2[2] << "*X^2" << od_endl;
     const auto res3 = polyFit( xarr, yarr, sz, 3 );
     const bool isok = res3[2] > -0.36 && res3[2] < -0.35;
-    if ( !quiet || !isok )
-	od_cout() << "Poly Fit order 3: " << res3[0]
+	tstStream(!isok) << "Poly Fit order 3: " << res3[0]
 		  << " + " << res3[1] << "*X"
 		  << " + " << res3[2] << "*X^2"
 		  << " + " << res3[3] << "*X^3" << od_endl;
@@ -74,15 +68,13 @@ static bool testPolyFits( const float* xarr, const float* yarr, int sz )
     float x[4] = { -1, 0, 1, 2 };
     float y[4] = { -4, 2, 4, 8 };
     auto ax = polyFit( x, y, 4, 3 );
-    if ( !quiet )
-	od_cout() << "Exact Fit order 3: " << ax[0]
+	logStream() << "Exact Fit order 3: " << ax[0]
 		  << " + " << ax[1] << "*X"
 		  << " + " << ax[2] << "*X^2"
 		  << " + " << ax[3] << "*X^3" << od_endl;
 
     ax = polyFit( x, y, 4, 4 );
-    if ( !quiet )
-	od_cout() << "Not enough points order 4: " << ax[0]
+	logStream() << "Not enough points order 4: " << ax[0]
 		  << " + " << ax[1] << "*X"
 		  << " + " << ax[2] << "*X^2"
 		  << " + " << ax[3] << "*X^3"

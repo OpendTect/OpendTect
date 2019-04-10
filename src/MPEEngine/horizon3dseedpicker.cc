@@ -99,7 +99,7 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     }
     else
     {
-	lastsowseed_ = TrcKeyValue::udf();
+	lastsowseed_.setUdf();
 	propagatelist_.erase();
 	propagatelist_ += seed.tk_;
 

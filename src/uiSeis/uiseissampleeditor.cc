@@ -41,10 +41,9 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seisinfo.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
 #include "zdomain.h"
@@ -129,17 +128,12 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     if ( !prov_ )
 	mRetNoGo( uirv )
 
-    uirv = prov_->getComponentInfo( compnms_, &datatype_ );
+    prov_->getComponentInfo( compnms_, &datatype_ );
     if ( compnms_.isEmpty() )
-    {
-	if ( uirv.isOK() )
-	    compnms_.add( "Component 1" );
-	else
-	    mRetNoGo( uirv )
-    }
+	compnms_.add( "Component 1" );
 
     is2d_ = prov_->is2D();
-    ZSampling zrg = prov_->getZRange();
+    ZSampling zrg = prov_->zRange();
     sampling_.start = zrg.start;
     sampling_.step = zrg.step;
     nrsamples_ = zrg.nrSteps() + 1;
@@ -241,7 +235,7 @@ TrcKey uiSeisSampleEditor::curPos() const
     if ( !ctrc_ )
 	return TrcKey::udf();
 
-    return ctrc_->info().trckey_;
+    return ctrc_->info().trcKey();
 }
 
 
@@ -375,9 +369,9 @@ void uiSeisSampleEditor::addTrc( const BinID& bid )
     else
     {
 	const TrcKey tk( trcKey4BinID(bid) );
-	if ( !prov_->get(tk,*trc).isOK() )
+	if ( !prov_->getAt(tk,*trc).isOK() )
 	{
-	    trc->info().trckey_ = tk;
+	    trc->info().trcKey() = tk;
 	    trc->info().coord_ = tk.getCoord();
 	    fillUdf( *trc );
 	}
@@ -767,7 +761,7 @@ uiSeisSampleEditorWriter( uiSeisSampleEditor& ed, const DBKey& dbky )
     , ed_(ed)
     , prov_(*ed.prov_)
     , dbky_(dbky)
-    , wrr_(0)
+    , storer_(0)
     , tksampiter_(0)
     , curtrcnr_(mUdf(int))
 {
@@ -778,7 +772,7 @@ uiSeisSampleEditorWriter( uiSeisSampleEditor& ed, const DBKey& dbky )
 
 ~uiSeisSampleEditorWriter()
 {
-    delete wrr_;
+    delete storer_;
     delete tksampiter_;
 }
 
@@ -822,19 +816,9 @@ void createIter3D()
 
 int startWork()
 {
-    wrr_ = new SeisTrcWriter( dbky_ );
+    storer_ = new Seis::Storer( dbky_ );
     if ( ed_.is2D() )
-    {
-	Seis::RangeSelData* seldata2d =
-		    new Seis::RangeSelData( ed_.setup_.geomid_ );
-	wrr_->setSelData( seldata2d );
-    }
-
-    if ( !wrr_->errMsg().isEmpty() )
-    {
-	msg_ = wrr_->errMsg();
-	return ErrorOccurred();
-    }
+	storer_->setFixedGeomID( ed_.setup_.geomid_ );
 
     if ( ed_.is2D() )
 	createIter2D();
@@ -866,7 +850,7 @@ bool toNextPos()
 
 int nextStep()
 {
-    if ( !wrr_ )
+    if ( !storer_ )
 	return startWork();
 
     const SeisTrc* towrite = 0;
@@ -878,18 +862,16 @@ int nextStep()
 	else
 	{
 	    const TrcKey tk( ed_.trcKey4BinID(curbinid_) );
-	    if ( prov_.get(tk,trc_).isOK() )
+	    if ( prov_.getAt(tk,trc_).isOK() )
 		towrite = &trc_;
 	    else if ( !toNextPos() )
 		return Finished();
 	}
     }
 
-    if ( !wrr_->put(*towrite) )
-    {
-	msg_ = wrr_->errMsg();
+    msg_ = storer_->put( *towrite );
+    if ( !msg_.isEmpty() )
 	return ErrorOccurred();
-    }
 
     return toNextPos() ? MoreToDo() : Finished();
 }
@@ -899,7 +881,7 @@ int nextStep()
     uiSeisSampleEditor&	ed_;
     DBKey		dbky_;
     const Seis::Provider& prov_;
-    SeisTrcWriter*	wrr_;
+    Seis::Storer*	storer_;
     TrcKeySamplingIterator* tksampiter_;
     StepInterval<tracenr_type> trcnrrg_;
     tracenr_type	curtrcnr_;

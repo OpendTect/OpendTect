@@ -31,34 +31,22 @@ public:
 
     virtual GeomType	geomType() const	{ return Line; }
 
-    virtual int		nrLines() const;
-    virtual int		curLineIdx() const;
-    virtual BufferString lineName(int) const;
-    virtual Pos::GeomID	geomID(int) const;
-    virtual int		lineNr(Pos::GeomID) const;
-    virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const;
-    virtual bool	getRanges(int,StepInterval<int>&,
-					  ZSampling&) const;
-
 protected:
 
     friend class	LineFetcher;
     LineFetcher&	fetcher_;
 
-    virtual void	doFillPar(IOPar&,uiRetVal&) const;
-    virtual void	doUsePar(const IOPar&,uiRetVal&);
-    virtual void	doReset(uiRetVal&) const;
-    virtual TrcKey	doGetCurPosition() const;
-    virtual bool	doGoTo(const TrcKey&);
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-    virtual void	doGetData(const TrcKey&,TraceData&,SeisTrcInfo*,
-				  uiRetVal&) const;
+    Fetcher2D&	fetcher() const override;
+    void	prepWork(uiRetVal&) const override;
+    bool	doGoTo(GeomID,trcnr_type,uiRetVal*) const override;
+    void	gtCur(SeisTrc&,uiRetVal&) const override;
+    void	gtAt(GeomID,trcnr_type,TraceData&,SeisTrcInfo&,
+			uiRetVal&) const override;
+    void	gtComponentInfo(BufferStringSet&,DataType&) const override;
 
-private:
+public:
 
-    virtual SeisTrcTranslator* getCurrentTranslator() const;
+    virtual const SeisTrcTranslator* curTransl() const override;
 
 };
 

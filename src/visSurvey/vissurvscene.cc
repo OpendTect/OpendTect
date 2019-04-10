@@ -804,10 +804,8 @@ void Scene::mouseCB( CallBacker* cb )
 
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
-    mouseposval_ = "";
-    mouseposstr_ = "";
-    xytmousepos_ = Coord3::udf();
-    mousetrckey_ = TrcKey::udf();
+    mouseposval_.setEmpty(); mouseposstr_.setEmpty();
+    xytmousepos_.setUdf(); mousetrckey_.setUdf();
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     for ( int idx=0; idx<selectedids.size(); idx++ )
@@ -855,7 +853,7 @@ void Scene::mouseCB( CallBacker* cb )
 		    so->getMousePosInfo( eventinfo, infopar );
 
 		    if ( !infopar.get(sKey::TraceKey(),mousetrckey_) )
-			mousetrckey_ = TrcKey::udf();
+			mousetrckey_.setUdf();
 
 		    if ( !newstr.isEmpty() )
 			mouseposstr_ = newstr;
@@ -1010,7 +1008,7 @@ void Scene::setMarkerPos( const TrcKeyValue& trkv, int sceneid )
 {
     Coord3 displaypos( trkv.tk_.getCoord(), trkv.val_ );
     if ( sceneid==id() )
-	displaypos = Coord3::udf();
+	displaypos.setUdf();
 
     if ( datatransform_ && !trkv.tk_.isUdf() && !mIsUdf(trkv.val_) )
 	displaypos.z_ = datatransform_->transformTrc( trkv.tk_, trkv.val_ );

@@ -95,11 +95,8 @@ void uiBouncySettingsDlg::inl_crlChangedCB( CallBacker* )
     }
 
     BinID binid( inlfld_->getIntValue(), crlfld_->getIntValue() );
-    if ( binid == BinID::udf() )
-    {
-	xfld_->setText( "" ); yfld_->setText( "" );
-	return;
-    }
+    if ( binid.isUdf() )
+	{ xfld_->setText( "" ); yfld_->setText( "" ); return; }
 
     Coord coord( SI().transform( binid ) );
     xfld_->setValue( coord.x );
@@ -114,11 +111,8 @@ void uiBouncySettingsDlg::inl_crlChangedCB( CallBacker* )
 void uiBouncySettingsDlg::x_yChangedCB( CallBacker* )
 {
      Coord coord( xfld_->getdValue(), yfld_->getdValue() );
-     if ( coord == Coord::udf() )
-     {
-	 inlfld_->setText( "" ); crlfld_->setText( "" );
-	 return;
-     }
+     if ( coord.isUdf() )
+	 { inlfld_->setText( "" ); crlfld_->setText( "" ); return; }
 
      BinID binid( SI().transform( coord ) );
      inlfld_->setValue( binid.inl() );
@@ -144,10 +138,8 @@ bool uiBouncySettingsDlg::isOK()
 
 bool uiBouncySettingsDlg::binIDOK()
 {
-    BinID binid( inlfld_->getIntValue(), crlfld_->getIntValue() );
-    if ( binid == BinID::udf() )
-	return false;
-    else return true;
+    const BinID binid( inlfld_->getIntValue(), crlfld_->getIntValue() );
+    return !binid.isUdf();
 }
 
 

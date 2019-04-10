@@ -10,7 +10,6 @@
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "idxable.h"
-#include "dbman.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "seisprovider.h"
@@ -179,7 +178,7 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
     deepErase( velprovider_ );
     threads_.erase();
 
-    PtrMan<IOObj> velioobj = DBM().get( velid );
+    PtrMan<IOObj> velioobj = getIOObj( velid );
     if ( !velioobj )
 	{ errmsg_ = uiStrings::phrCannotFindDBEntry( velid ); return false; }
 
@@ -255,7 +254,7 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
 	return false;
 
     SeisTrc velocitytrc;
-    const uiRetVal retval = velprovider->get( TrcKey(bid), velocitytrc );
+    const uiRetVal retval = velprovider->getAt( TrcKey(bid), velocitytrc );
     if ( !retval.isOK() )
 	return false;
 

@@ -22,7 +22,7 @@ if ( !command ) \
     File::removeDir( outputdir.fullPath() ); \
     return 1; \
 } \
-else if ( !quiet ) \
+else if ( !quiet_ ) \
     od_cout() << testname << " Succeeded!\n"; \
 }
 
@@ -45,7 +45,7 @@ else if ( !quiet ) \
 	File::removeDir( outputdir.fullPath() ); \
 	return 1; \
     } \
-    else if ( !quiet ) \
+    else if ( !quiet_ ) \
 	od_cout() << "Data integrety check succeeded!\n"; \
 }
 

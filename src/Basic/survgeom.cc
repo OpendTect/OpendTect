@@ -282,6 +282,15 @@ Survey::Geometry3D::Geometry3D( const char* nm )
 }
 
 
+Survey::Geometry3D::Geometry3D( const Geometry3D& oth )
+    : Geometry(oth)
+    , name_(oth.name_)
+    , inlrg_(oth.inlrg_)
+    , b2c_(oth.b2c_)
+{
+}
+
+
 bool Survey::Geometry3D::includes( const BinID& bid ) const
 {
     return inlrg_.isPresent( bid.inl() ) && trcnrrg_.isPresent( bid.crl() );
@@ -316,7 +325,7 @@ BinID Survey::Geometry3D::tracePosition( const Coord& crd,
     {
 	auto dist = crd.distTo<dist_type>( transform(ret) );
 	if ( dist > maxdist )
-	    ret = BinID::udf();
+	    ret.setUdf();
     }
     return ret;
 }
@@ -528,6 +537,17 @@ Survey::Geometry2D::Geometry2D( Line2DData* l2d )
 }
 
 
+Survey::Geometry2D::Geometry2D( const Geometry2D& oth )
+    : Geometry(oth)
+    , data_(*new Line2DData(oth.data_))
+    , spnrs_(oth.spnrs_)
+    , avgtrcdist_(oth.avgtrcdist_)
+    , linelength_(oth.linelength_)
+    , objectChanged(this)
+{
+}
+
+
 Survey::Geometry2D::~Geometry2D()
 {
     delete &data_;
@@ -564,7 +584,6 @@ void Survey::Geometry2D::setFromLineData()
 {
     trcnrrg_ = data_.trcNrRange();
     zrg_ = data_.zRange();
-    spnrs_.erase();
     spnrs_.setSize( data_.size(), mUdf(spnr_type) );
 
     const auto sz = size();
@@ -661,12 +680,9 @@ void Survey::Geometry2D::getInfo( tracenr_type trcnr, Coord& crd,
 {
     const auto idx = indexOf( trcnr );
     if ( idx < 0 )
-	{ crd = Coord::udf(); mSetUdf(spnr); }
+	{ crd.setUdf(); mSetUdf(spnr); }
     else
-    {
-	crd = mL2DPos( idx ).coord_;
-	spnr = spnrs_.get( idx );
-    }
+	{ crd = mL2DPos( idx ).coord_; spnr = spnrs_.get( idx ); }
 }
 
 
@@ -703,7 +719,14 @@ void Survey::Geometry2D::setEmpty() const
 {
     auto& self = *const_cast<Geometry2D*>( this );
     self.data_.setEmpty();
+    self.spnrs_.erase();
     self.setFromLineData();
+}
+
+
+void Survey::Geometry2D::setName( const char* nm )
+{
+    data_.setLineName( nm );
 }
 
 

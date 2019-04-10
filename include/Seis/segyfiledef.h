@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "filemultispec.h"
 #include "coordsystem.h"
 #include "survinfo.h"
-class IOObj;
 class Scaler;
 class SeisTrcInfo;
 

@@ -17,8 +17,7 @@ ________________________________________________________________________
 
 class Scaler;
 class SeisTrc;
-class SeisTrcWriter;
-namespace Seis { class MultiProvider; }
+namespace Seis { class MultiProvider; class Storer; }
 
 
 /*!\brief Merges 2D and 3D post-stack data */
@@ -26,6 +25,9 @@ namespace Seis { class MultiProvider; }
 mExpClass(Seis) SeisMerger : public Executor
 { mODTextTranslationClass(SeisMerger);
 public:
+
+    mUseType( Seis,	MultiProvider );
+    mUseType( Seis,	Storer );
 
 			SeisMerger(const ObjectSet<IOPar>& in,
 				   const IOPar& out,bool stacktrcs,
@@ -46,16 +48,17 @@ public:
 
 protected:
 
-    bool			stacktrcs_;
-    Seis::MultiProvider*	multiprov_;
-    SeisTrcWriter*		wrr_;
-    int				nrpos_;
-    od_int64			totnrpos_;
-    uiString			errmsg_;
+    bool		stacktrcs_;
+    MultiProvider*	multiprov_		= nullptr;
+    Storer*		storer_			= nullptr;
+    int			nrpos_			= 0;
+    od_int64		totnrpos_;
+    uiString		errmsg_;
 
-    int				nrsamps_;
-    SamplingData<float>		sd_;
-    Scaler*			scaler_;
+    int			nrsamps_;
+    SamplingData<float>	sd_;
+    Scaler*		scaler_			= nullptr;
 
-    int				writeTrc(SeisTrc*);
+    int			writeTrc(SeisTrc*);
+
 };

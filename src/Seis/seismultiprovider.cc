@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "seismultiprovider.h"
 
+#include "cubesubsel.h"
+#include "linesubsel.h"
 #include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -17,7 +19,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -180,7 +182,8 @@ uiRetVal Seis::MultiProvider::getComponentInfo( int iprov,
     if ( !provs_.validIdx(iprov) )
 	return uiRetVal(tr("Internal: Info requested for bad component index"));
 
-    return provs_[iprov]->getComponentInfo( nms, dt );
+    provs_[iprov]->getComponentInfo( nms, dt );
+    return uiRetVal::OK();
 }
 
 
@@ -191,7 +194,7 @@ ZSampling Seis::MultiProvider::getZRange() const
 }
 
 
-uiRetVal Seis::MultiProvider::fillPar( IOPar& iop ) const
+void Seis::MultiProvider::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::TotalNr(), totalnr_ );
     iop.set( sKey::ZRange(), zsampling_ );
@@ -199,9 +202,7 @@ uiRetVal Seis::MultiProvider::fillPar( IOPar& iop ) const
     iop.set( PolicyDef().name(), MultiProvider::toString(policy_) );
     iop.set( ZPolicyDef().name(), MultiProvider::toString(zpolicy_) );
 
-    uiRetVal uirv;
-    doFillPar( iop, uirv );
-    return uirv;
+    doFillPar( iop );
 }
 
 
@@ -265,12 +266,12 @@ void Seis::MultiProvider::ensureRightZSampling(
 }
 
 
-void Seis::MultiProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+void Seis::MultiProvider::doFillPar( IOPar& iop ) const
 {
     IOPar par;
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	uirv.add( provs_[idx]->fillPar(par) );
+	provs_[idx]->fillPar( par );
 	const FixedString key( IOPar::compKey(sKey::Provider(),idx) );
 	iop.mergeComp( par, key );
     }
@@ -355,7 +356,7 @@ uiRetVal Seis::MultiProvider::getNext( ObjectSet<SeisTrc>& trcs )
 }
 
 
-uiRetVal Seis::MultiProvider::get(
+uiRetVal Seis::MultiProvider::getAt(
 	const TrcKey& trcky, ObjectSet<SeisTrc>& trcs ) const
 {
     uiRetVal uirv;
@@ -376,7 +377,7 @@ void Seis::MultiProvider::doGet(
 	{ pErrMsg("Size of providers and traces do not match."); return; }
 
     for ( int idx=0; idx<provs_.size(); idx++ )
-	uirv.add( provs_[idx]->get(tk,*trcs[idx]) );
+	uirv.add( provs_[idx]->getAt(tk,*trcs[idx]) );
 
     if ( uirv.isOK() )
 	handleTraces( trcs );
@@ -392,7 +393,7 @@ void Seis::MultiProvider::doGetNextTrcs(
 	for ( int idx=0; idx<provs_.size(); idx++ )
 	{
 	    SeisTrc* trc = new SeisTrc;
-	    const uiRetVal ret = provs_[idx]->get( iter_.curTrcKey(), *trc);
+	    const uiRetVal ret = provs_[idx]->getAt( iter_.curTrcKey(), *trc);
 	    if ( !ret.isOK() )
 	    {
 		delete trc;
@@ -496,10 +497,7 @@ bool Seis::MultiProvider3D::getRanges( TrcKeyZSampling& sampling ) const
 {
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	TrcKeyZSampling tkzs;
-	mDynamicCastGet(const Provider3D&,prov3d,*provs_[idx]);
-	if ( !prov3d.getRanges(tkzs) )
-	    return false;
+	const TrcKeyZSampling tkzs( *provs_[idx]->fullSubSel().asCubeSubSel() );
 
 	if ( idx == 0 )
 	    sampling.hsamp_ = tkzs.hsamp_;
@@ -598,9 +596,9 @@ bool Seis::MultiProvider2D::doMoveToNextLine() const
 }
 
 
-void Seis::MultiProvider2D::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+void Seis::MultiProvider2D::doFillPar( IOPar& iop ) const
 {
-    MultiProvider::doFillPar( iop, uirv );
+    MultiProvider::doFillPar( iop );
 
     TypeSet<int> gids;
     for ( auto gid : geomids_ )
@@ -637,15 +635,12 @@ bool Seis::MultiProvider2D::getRanges( int iln, StepInterval<int>& trcrg,
     {
 	mDynamicCastGet(const Provider2D&,prov2d,*provs_[idx]);
 	const int linenr = prov2d.lineNr( geomid );
-	if ( linenr == -1 )
+	if ( linenr < 0 )
 	    continue;
 
-	StepInterval<int> tracerg; ZSampling zsamp;
-	if ( !prov2d.getRanges(linenr,tracerg,zsamp) )
-	    return false;
-
-	mUpdateRange( trcrg, tracerg, policy_!=RequireAll );
-	mUpdateRange( zrg, zsamp, zpolicy_==Maximum );
+	const auto& lss = prov2d.lineSubSel( linenr );
+	mUpdateRange( trcrg, lss.trcNrRange(), policy_!=RequireAll );
+	mUpdateRange( zrg, lss.zRange(), zpolicy_==Maximum );
     }
 
     return true;

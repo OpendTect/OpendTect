@@ -27,10 +27,9 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"
 #include "seisprovider.h"
-#include "seisselectionimpl.h"
+#include "seisstorer.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "seiswrite.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -53,8 +52,8 @@ Seis2DTo3D::Seis2DTo3D()
     , read_(false)
     , seisbuf_(*new SeisTrcBuf(true))
     , nrdone_(0)
-    , wrr_(0)
     , prov_(0)
+    , storer_(0)
     , tmpseisbuf_(true)
     , trcarr_(0)
     , butterfly_(0)
@@ -80,7 +79,7 @@ void Seis2DTo3D::setStream(od_ostream& strm)
 Seis2DTo3D::~Seis2DTo3D()
 {
     seisbuf_.erase();
-    delete wrr_;
+    delete storer_;
     delete prov_;
     delete inioobj_;
     delete outioobj_;
@@ -536,8 +535,13 @@ void Seis2DTo3D::smartScale()
 
 bool Seis2DTo3D::writeOutput()
 {
-    delete wrr_;
-    wrr_ = new SeisTrcWriter( outioobj_ );
+    if ( !outioobj_ )
+	mErrRet( mINTERNAL("outioobj_ is null") )
+
+    delete storer_;
+    storer_ = new Seis::Storer( *outioobj_ );
+    if ( !storer_->isUsable() )
+	mErrRet( storer_->errNotUsable() )
 
     if ( nrdone_ != 0 )
     {
@@ -551,7 +555,7 @@ bool Seis2DTo3D::writeOutput()
     const TrcKeySampling& hrg = tkzs_.hsamp_;
     TrcKeySamplingIterator iter( hrg );
     SeisTrc& trc( *seisbuf_.get(0) );
-    trc.info().setBinID( hrg.start_ );
+    trc.info().setPos( hrg.start_ );
     trc.info().sampling_ = tkzs_.zsamp_;
     const int nrz = tkzs_.nrZ();
 
@@ -561,9 +565,10 @@ bool Seis2DTo3D::writeOutput()
 	const int inlpos = hrg.lineIdx( trk.lineNr() );
 	const int crlpos = hrg.trcIdx( trk.trcNr() );
 
+	uiRetVal uirv;
 	if ( nrdone_ != 0 )
 	{
-	    const uiRetVal uirv = prov_->getNext( trc );
+	    uirv = prov_->getNext( trc );
 	    if ( !uirv.isOK() )
 	    {
 		if ( isFinished(uirv) )
@@ -573,14 +578,15 @@ bool Seis2DTo3D::writeOutput()
 	    }
 	}
 
-	trc.info().setBinID( trk.position() );
+	trc.info().setPos( trk.position() );
 	for ( int idz=0; idz<nrz; idz++ )
 	{
 	    const float val = trcarr_->get(inlpos,crlpos,idz).real();
 	    trc.set( idz, val, nrdone_ );
 	}
-	if ( !wrr_->put(trc) )
-	    mErrRet( uiStrings::phrCannotWrite( uiStrings::sTrace(mPlural)));
+	uirv = storer_->put( trc );
+	if ( !uirv.isOK() )
+	    mErrRet( uirv )
 
     } while ( iter.next() );
 

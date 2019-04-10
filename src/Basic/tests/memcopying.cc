@@ -13,7 +13,7 @@ static od_int64 cTotNrOpers = 1000000000;
 
 static bool testSpeed()
 {
-    if ( quiet )
+    if ( quiet_ )
 	return true;
 
     od_cout() << "\nTotal number of floats: " << cTotNrElems << od_newline
@@ -79,13 +79,11 @@ static bool testCopySet()
     for ( int idx=0; idx<cTotNrElems; idx++ )
 	vals[idx] = idx * 0.01f + 1.0f;
 
-    if ( !quiet )
-	od_cout() << "Testing copy size: ";
+	logStream() << "Testing copy size: ";
 
     for ( int arrsz=10; arrsz<=cTotNrElems; arrsz*=10 )
     {
-	if ( !quiet )
-	    { od_cout() << arrsz << ' '; od_cout().flush(); }
+	    logStream() << arrsz << ' '; logStream().flush();
 
 	OD::memCopy( copy, vals, arrsz * sizeof(float) );
 	for ( int idx=0; idx<arrsz; idx++ )

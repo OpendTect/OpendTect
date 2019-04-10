@@ -12,8 +12,8 @@
 #include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
+#include "seistableseldata.h"
 #include "seisinfo.h"
-#include "seisselectionimpl.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "binidvalset.h"
@@ -54,8 +54,7 @@ Processor::~Processor()
     if ( provider_ )
 	{ provider_->unRef(); desc_.unRef(); }
     deepUnRef( outputs_ );
-    if (sd_)
-	delete sd_;
+    delete sd_;
 }
 
 
@@ -129,11 +128,8 @@ void Processor::useFullProcess( int& res )
     {
 	BinID firstpos;
 
-	if ( sd_ && sd_->type() == Seis::Table )
-	{
-	    mDynamicCastGet(Seis::TableSelData*,tsd,sd_)
-	    firstpos = tsd->binidValueSet().firstBinID();
-	}
+	if ( sd_ && sd_->isTable() )
+	    firstpos = sd_->asTable()->binidValueSet().firstBinID();
 	else
 	{
 	    const BinID step = provider_->getStepoutStep();
@@ -148,19 +144,13 @@ void Processor::useFullProcess( int& res )
 	res = provider_->moveToNextTrace( firstpos, true );
 
 	if ( res < 0 )
-	{
-	    errmsg_ = tr("Error during data read");
-	    return;
-	}
+	    { errmsg_ = tr("Error during data read"); return; }
     }
 
     provider_->updateCurrentInfo();
     const SeisTrcInfo* curtrcinfo = provider_->getCurrentTrcInfo();
     if ( !curtrcinfo && provider_->needStoredInput() )
-    {
-	errmsg_ = tr("No trace info available");
-	return;
-    }
+	{ errmsg_ = tr("No trace info available"); return; }
 
     if ( res == 0 && !nrdone_ )
     {
@@ -185,13 +175,13 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	if ( is2d_ )
 	    trckey.setIs2D( true );
 
-	mytrcinfo.trckey_ = trckey;
+	mytrcinfo.trcKey() = trckey;
 	mytrcinfo.coord_ = trckey.getCoord();
 	curtrcinfo = &mytrcinfo;
     }
 
     TypeSet< Interval<int> > localintervals;
-    bool isset = setZIntervals( localintervals, curtrcinfo->trckey_,
+    bool isset = setZIntervals( localintervals, curtrcinfo->trcKey(),
 				curtrcinfo->coord_ );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
@@ -359,18 +349,16 @@ void Processor::computeAndSetRefZStepAndZ0()
 
 void Processor::prepareForTableOutput()
 {
-    if ( outputs_.size() && outputs_[0]->getSelData().type() == Seis::Table )
+    auto* output0 = outputs_.first();
+    if ( output0 && output0->getSelData().isTable() )
     {
-	for ( int idx=0; idx<outputs_.size(); idx++ )
-	{
-	    if ( !idx )
-		sd_ = outputs_[0]->getSelData().clone();
-	    else
-		sd_->include( outputs_[idx]->getSelData() );
-	}
+	delete sd_;
+	sd_ = output0->getSelData().clone();
+	for ( int idx=1; idx<outputs_.size(); idx++ )
+	    sd_->include( outputs_[idx]->getSelData() );
     }
 
-    if ( sd_ && sd_->type() == Seis::Table )
+    if ( sd_ && sd_->isTable() )
     {
 	provider_->setSelData( sd_ );
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );

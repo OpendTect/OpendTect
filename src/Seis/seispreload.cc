@@ -31,9 +31,10 @@ namespace Seis
 const char* PreLoader::sKeyLines()	{ return "Lines"; }
 const char* PreLoader::sKeyUserType()	{ return "User Type"; }
 
-PreLoader::PreLoader( const DBKey& mid, Pos::GeomID geomid, TaskRunner* tskrn )
-    : dbkey_(mid), geomid_(geomid), tr_(tskrn)
-{}
+PreLoader::PreLoader( const DBKey& dbky )
+    : dbkey_(dbky), trprov_(0) {}
+PreLoader::PreLoader( const DBKey& dbky, const TaskRunnerProvider& trprv )
+    : dbkey_(dbky), trprov_(&trprv) {}
 
 
 IOObj* PreLoader::getIOObj() const
@@ -86,12 +87,18 @@ void PreLoader::getLineNames( BufferStringSet& lks ) const
 }
 
 
+bool PreLoader::runTask( Task& tsk ) const
+{
+    if ( trprov_ )
+	return trprov_->execute( tsk );
+    return tsk.execute();
+}
+
+
 #define mPrepIOObj() \
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
-    TaskRunner& trunnr mUnusedVar = getTr()
-
 
 bool PreLoader::load( const TrcKeyZSampling& tkzs,
 			 DataCharacteristics::UserType type,
@@ -103,13 +110,13 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     TrcKeyZSampling tkzstoload( tkzs );
     const SeisIOObjInfo info( dbkey_ );
     if ( !tkzs.hsamp_.isDefined() && info.is2D() )
-	tkzstoload.hsamp_ = TrcKeySampling( geomid_ );
+	tkzstoload.hsamp_ = TrcKeySampling( defgeomid_ );
 
     SequentialFSLoader rdr( *ioobj, tkzstoload.isDefined() ? &tkzstoload : 0 );
     rdr.setName( toString(caption) );
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
-    if ( !trunnr.execute(rdr) )
+    if ( !runTask(rdr) )
     {
 	errmsg_ = rdr.message();
 	return false;
@@ -118,7 +125,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
     if ( !dp ) return false;
 
-    PLDM().add( dbkey_, geomid_, dp.getNonConstPtr() );
+    PLDM().add( dbkey_, defgeomid_, dp.getNonConstPtr() );
 
     return true;
 }
@@ -151,7 +158,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	rdrs.add( rdr );
     }
 
-    TaskRunner::execute( &trunnr, taskgrp );
+    runTask( taskgrp );
 
     for ( int idx=0; idx<rdrs.size(); idx++ )
     {
@@ -171,7 +178,7 @@ bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
     mPrepIOObj();
 
     Seis::SequentialPSLoader psrdr( *ioobj, inlrg );
-    if ( !trunnr.execute(psrdr) )
+    if ( !runTask(psrdr) )
 	return false;
 
     PLDM().add( ioobj->key(), psrdr.getPSDataPack() );
@@ -203,7 +210,7 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
     {
 	const auto geomid = Survey::Geometry::getGeomID( lnms.get(idx) );
 	Seis::SequentialPSLoader psrdr( *ioobj, 0, geomid );
-	if ( !trunnr.execute(psrdr) )
+	if ( !runTask(psrdr) )
 	    return false;
 
 	PLDM().add( ioobj->key(), geomid, psrdr.getPSDataPack() );
@@ -215,11 +222,23 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 
 void PreLoader::unLoad() const
 {
-    PLDM().remove( dbkey_, geomid_ );
+    PLDM().remove( dbkey_, GeomID() );
 }
 
 
-void PreLoader::load( const IOPar& iniop, TaskRunner* tskr )
+void PreLoader::unLoad( GeomID gid ) const
+{
+    PLDM().remove( dbkey_, gid );
+}
+
+
+void PreLoader::load( const IOPar& iop )
+{ doLoad(iop,0); }
+void PreLoader::load( const IOPar& iop, const TaskRunnerProvider& trprov )
+{ doLoad(iop,&trprov); }
+
+
+void PreLoader::doLoad( const IOPar& iniop, const TaskRunnerProvider* trprov )
 {
     PtrMan<IOPar> iop = iniop.subselect( "Seis" );
     if ( !iop || iop->isEmpty() ) return;
@@ -229,12 +248,18 @@ void PreLoader::load( const IOPar& iniop, TaskRunner* tskr )
 	PtrMan<IOPar> objiop = iop->subselect( ipar );
 	if ( !objiop || objiop->isEmpty() )
 	    { if ( ipar ) break; continue; }
-	loadObj( *objiop, tskr );
+	doLoadObj( *objiop, trprov );
     }
 }
 
 
-void PreLoader::loadObj( const IOPar& iop, TaskRunner* tskr )
+void PreLoader::loadObj( const IOPar& iop )
+{ doLoadObj(iop,0); }
+void PreLoader::loadObj( const IOPar& iop, const TaskRunnerProvider& trprov )
+{ doLoadObj(iop,&trprov); }
+
+
+void PreLoader::doLoadObj( const IOPar& iop, const TaskRunnerProvider* trprov )
 {
     DBKey dbky;
     iop.get( sKey::ID(), dbky );
@@ -258,7 +283,9 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tskr )
 
     PLDM().remove( dbky, geomid );
 
-    PreLoader spl( dbky, geomid, tskr );
+    PreLoader spl( dbky );
+    if ( trprov )
+	spl.setTaskRunner( *trprov );
     const GeomType gt = info.geomType();
     switch ( gt )
     {
@@ -295,19 +322,22 @@ void PreLoader::fillPar( IOPar& iop ) const
     if ( !oinf.isOK() ) return;
 
     iop.set( sKey::ID(), dbkey_ );
-    iop.set( sKey::GeomID(), geomid_ );
-    auto regsdp = PLDM().get<RegularSeisDataPack>( dbkey_, geomid_ );
-    if ( regsdp )
+    if ( defgeomid_.isValid() )
     {
-	iop.set( sKeyUserType(), DataCharacteristics::toString(
-		    DataCharacteristics(regsdp->getDataDesc()).userType()) );
-	regsdp->sampling().fillPar( iop );
-	const Scaler* scaler = regsdp->getScaler();
-	if ( scaler )
+	iop.set( sKey::GeomID(), defgeomid_ );
+	auto regsdp = PLDM().get<RegularSeisDataPack>( dbkey_, defgeomid_ );
+	if ( regsdp )
 	{
-	    BufferString info;
-	    scaler->put( info.getCStr() );
-	    iop.set( sKey::Scale(), info.buf() );
+	    iop.set( sKeyUserType(), DataCharacteristics::toString(
+		    DataCharacteristics(regsdp->getDataDesc()).userType()) );
+	    regsdp->sampling().fillPar( iop );
+	    const Scaler* scaler = regsdp->getScaler();
+	    if ( scaler )
+	    {
+		BufferString info;
+		scaler->put( info.getCStr() );
+		iop.set( sKey::Scale(), info.buf() );
+	    }
 	}
     }
 
@@ -393,11 +423,12 @@ void PreLoadDataManager::add( const DBKey& dbky, Pos::GeomID geomid,
 
 void PreLoadDataManager::remove( const DBKey& dbky, Pos::GeomID geomid )
 {
-    for ( int idx=0; idx<entries_.size(); idx++ )
-    {
-	if ( entries_[idx]->equals(dbky,geomid) )
-	    return remove( entries_[idx]->dpid_ );
-    }
+    if ( !geomid.isValid() )
+	removeAll();
+    else
+	for ( int idx=0; idx<entries_.size(); idx++ )
+	    if ( entries_[idx]->equals(dbky,geomid) )
+		remove( entries_[idx]->dpid_ );
 }
 
 

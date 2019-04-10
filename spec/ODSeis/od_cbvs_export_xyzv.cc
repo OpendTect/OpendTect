@@ -6,7 +6,6 @@
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seisselectionimpl.h"
 #include "conn.h"
 #include "iostrm.h"
 #include "file.h"

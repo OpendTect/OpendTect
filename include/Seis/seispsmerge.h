@@ -14,13 +14,11 @@ ________________________________________________________________________
 #include "executor.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
-class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisPSReader;
-class SeisTrcWriter;
 class SeisResampler;
-namespace Seis { class SelData; }
+namespace Seis { class Storer; class SelData; }
 
 
 /*!\brief Prestack seismic data merger
@@ -58,7 +56,7 @@ protected:
 
     TrcKeySamplingIterator*	iter_;
     ObjectSet<SeisPSReader>	readers_;
-    SeisTrcWriter*		writer_;
+    Seis::Storer*		storer_;
 
     bool		dostack_;
     uiString		msg_;

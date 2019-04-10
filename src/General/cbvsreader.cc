@@ -543,7 +543,8 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     od_stream::Pos curfo mUnusedVar = strm_.position();
 #endif
 
-    auxinf.trckey_.setBinID( curbinid_ );
+    auxinf.trckey_.setLineNr( curbinid_.inl() );
+    auxinf.trckey_.setTrcNr( curbinid_.crl() );
     auxinf.coord_ = info_.geom_.b2c.transform( curbinid_ );
     auxinf.startpos_ = info_.sd_.start;
     auxinf.offset_ = auxinf.azimuth_ = 0;
@@ -612,37 +613,43 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 }
 
 
-bool CBVSReader::fetch( TraceData& bufs, const bool* comps,
+bool CBVSReader::fetch( TraceData& trcdata, const bool* comps,
 			const Interval<int>* samps, int offs )
 {
     if ( !hinfofetched_ && auxnrbytes_ )
     {
 	PosAuxInfo dum;
-	if ( !getAuxInfo(dum) ) return false;
+	if ( !getAuxInfo(dum) )
+	    return false;
     }
 
-    if ( !samps ) samps = &samprg_;
+    if ( !samps )
+	samps = &samprg_;
 
+    const auto nrsamps = samps->stop - samps->start + 1;
+    if ( trcdata.size(0) < nrsamps )
+    {
+	trcdata.convertTo( info_.compinfo_[0]->datachar_ );
+	trcdata.reSize( nrsamps );
+    }
+
+    const auto nrsampsleftatend = info_.nrsamples_ - samps->stop - 1;
     int iselc = -1;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	if ( comps && !comps[icomp] )
-	{
-	    strm_.ignore( cnrbytes_[icomp] );
-	    continue;
-	}
+	    { strm_.ignore( cnrbytes_[icomp] ); continue; }
 	iselc++;
 
-	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
-	int bps = compinfo->datachar_.nrBytes();
-	if ( samps->start )
+	const auto bps = info_.compinfo_[icomp]->datachar_.nrBytes();
+	if ( samps->start > 0 )
 	    strm_.ignore( samps->start*bps );
-	if ( !strm_.getBin(((char*)bufs.getComponent(iselc)->data()) + offs*bps,
-				   (samps->stop-samps->start+1) * bps ) )
+	char* bufptr = (char*)trcdata.getComponent(iselc)->data();
+	if ( !strm_.getBin(bufptr+offs*bps,nrsamps*bps) )
 	    break;
 
-	if ( samps->stop < info_.nrsamples_-1 )
-	    strm_.ignore((info_.nrsamples_-samps->stop-1)*bps );
+	if ( nrsampsleftatend > 0 )
+	    strm_.ignore( nrsampsleftatend*bps );
     }
 
     hinfofetched_ = false;

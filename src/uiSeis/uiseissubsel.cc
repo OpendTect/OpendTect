@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uiseisioobjinfo.h"
 #include "uimsg.h"
 #include "seistrctr.h"
+#include "seisselsetup.h"
 #include "survinfo.h"
 #include "iopar.h"
 #include "ioobj.h"

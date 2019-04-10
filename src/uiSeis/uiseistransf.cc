@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "seissingtrcproc.h"
 #include "seiscbvs.h"
 #include "seistrc.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seisresampler.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
@@ -154,12 +154,13 @@ Seis::SelData* uiSeisTransfer::getSelData() const
 
 SeisResampler* uiSeisTransfer::getResampler() const
 {
-    if ( selfld->isAll() ) return 0;
+    if ( selfld->isAll() )
+	return 0;
 
     TrcKeyZSampling cs;
     selfld->getSampling( cs.hsamp_ );
     selfld->getZRange( cs.zsamp_ );
-    return new SeisResampler( cs, Seis::is2D(setup_.geomType()) );
+    return new SeisResampler( cs );
 }
 
 
@@ -173,11 +174,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     IOPar iop;
     iop.set( "ID", inobj.key() );
     if ( seldata )
-    {
-	if ( linenm2d && *linenm2d )
-	    seldata->setGeomID( Survey::Geometry::getGeomID(linenm2d) );
 	seldata->fillPar( iop );
-    }
     else if ( setup_.is2d_ )
     {
 	Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm2d );

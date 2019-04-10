@@ -19,6 +19,7 @@ ________________________________________________________________________
 class od_istream;
 class SeisTrc;
 class SeisTrcInfo;
+class TraceData;
 namespace PosInfo { class CubeData; class CubeDataPos; }
 
 
@@ -70,6 +71,7 @@ public:
     bool		goTo(const BinID&) const;
     uiRetVal		skip(int) const;
     uiRetVal		getTrcInfo(SeisTrcInfo&) const;
+    uiRetVal		getTrcData(TraceData&) const;
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		get(const BinID&,SeisTrc&) const;
 
@@ -98,10 +100,10 @@ protected:
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
     bool		doGoTo(const BinID&,uiRetVal&) const;
-    void		doGet(SeisTrc&,uiRetVal&) const;
+    void		doGet(SeisTrcInfo*,TraceData&,uiRetVal&) const;
     void		fillInfo(const BinID&,SeisTrcInfo&) const;
     Column*		getColumn(const HGlobIdx&,uiRetVal&) const;
-    void		readTrace(SeisTrc&,uiRetVal&) const;
+    void		readTrace(SeisTrcInfo*,TraceData&,uiRetVal&) const;
     float		scaledVal(float) const;
 
     friend class	FileColumn;
@@ -130,8 +132,8 @@ public:
 
     virtual void	reset(const char*,uiRetVal&)			= 0;
     virtual Column*	createColumn(const HGlobIdx&,uiRetVal&)		= 0;
-    virtual void	fillTrace(Column&,const BinID&,
-				  SeisTrc&,uiRetVal&) const		= 0;
+    virtual void	fillTraceData(Column&,const BinID&,
+				      TraceData&,uiRetVal&) const	= 0;
     virtual void	close()						= 0;
 
     Reader&		rdr_;

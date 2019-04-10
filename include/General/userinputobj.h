@@ -46,7 +46,6 @@ public:
     virtual bool	isReadOnly() const		= 0;
 
     virtual void	setEmpty()			= 0;
-    virtual void	addItem(const uiString&);
 
 			/*! \brief intermediate value available
 			    \return true if this notification is supported */

@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "seis2dlineio.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
-#include "seisselection.h"
 #include "seistrctr.h"
 #include "seistype.h"
 #include "separstr.h"
@@ -59,9 +58,9 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
 				const uiSeisSel::Setup& su )
 {
     IOObjContext ctxt( ct );
-    if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
+    if ( su.steerpol_ == Seis::NoSteering )
 	ctxt.toselect_.dontallow_.set( sKey::Type(), sKey::Steering() );
-    else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
+    else if ( su.steerpol_ == Seis::OnlySteering )
     {
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
 	if ( Seis::is2D(su.geom_) )
@@ -138,10 +137,26 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( selgrp_->getCtxtIOObj().ctxt_.forread_ && sssu.selectcomp_ )
     {
 	compfld_ = new uiLabeledComboBox( selgrp_, uiStrings::sComponent(),
-					  "Compfld" );
+					  sKey::Component() );
 	compfld_->attach( alignedBelow, topgrp );
 	entrySel(0);
     }
+}
+
+
+int uiSeisSelDlg::compNr() const
+{
+    return compfld_ ? compfld_->box()->currentItem() : -1;
+}
+
+
+void uiSeisSelDlg::setCompNr( int compnr )
+{
+    if ( !compfld_ || compnr < 0 )
+	return;
+    if ( compnr >= compfld_->box()->size() )
+	{ pErrMsg("Range"); return; }
+    compfld_->box()->setCurrentItem( compnr );
 }
 
 
@@ -176,8 +191,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 const char* uiSeisSelDlg::getDataType()
 {
     if ( steerpol_ )
-	return steerpol_ == uiSeisSel::Setup::NoSteering
-			  ? 0 : sKey::Steering().str();
+	return steerpol_ == Seis::NoSteering ? 0 : sKey::Steering().str();
     const IOObj* ioobj = ioObj();
     if ( !ioobj ) return 0;
     const char* res = ioobj->pars().find( sKey::Type() );
@@ -286,7 +300,7 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
 }
 
 
-const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
+const char* uiSeisSel::getDefaultKey( GeomType gt ) const
 {
     const bool is2d = Seis::is2D( gt );
     return IOPar::compKey( sKey::Default(),
@@ -308,7 +322,7 @@ void uiSeisSel::fillDefault()
 }
 
 
-IOObjContext uiSeisSel::ioContext( Seis::GeomType gt, bool forread )
+IOObjContext uiSeisSel::ioContext( GeomType gt, bool forread )
 {
     PtrMan<IOObjContext> newctxt = Seis::getIOObjContext( gt, forread );
     return IOObjContext( *newctxt );
@@ -442,6 +456,8 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
     uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
     dlg->usePar( dlgiopar_ );
+    if ( !mIsUdf(compnr_) )
+	dlg->setCompNr( compnr_ );
     uiIOObjSelGrp* selgrp = dlg->selGrp();
     if ( selgrp )
     {
@@ -473,7 +489,7 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, bool is2d, bool forread,
 }
 
 
-const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
+const char* uiSteerCubeSel::getDefaultKey( GeomType gt ) const
 {
     BufferString defkey = uiSeisSel::getDefaultKey( gt );
     return IOPar::compKey( defkey, sKey::Steering() );
@@ -491,7 +507,8 @@ uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, su.withstep_, false, 0, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, su.withstep_, false, uiString(),
+				    su.zdomkey_ );
 	zrgfld_->attach( alignedBelow, seissel_ );
     }
 

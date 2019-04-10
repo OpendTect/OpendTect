@@ -38,7 +38,7 @@ static bool testCmds()
 
     OS::MachineCommand machcomm( "ls" );
     machcomm.addFlag( "l", OS::OldStyle );
-    if ( quiet )
+    if ( quiet_ )
 	machcomm.addArg( ">/dev/null" );
     else
 	machcomm.addArg( "|head" ).addArg( "-10" );

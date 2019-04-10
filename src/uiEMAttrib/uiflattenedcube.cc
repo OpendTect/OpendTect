@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seisprovider.h"
-#include "seiswrite.h"
-#include "seisselectionimpl.h"
+#include "seisstorer.h"
+#include "seistableseldata.h"
 #include "survinfo.h"
 #include "executor.h"
 #include "datapointset.h"
@@ -112,11 +112,11 @@ class uiWriteFlattenedCubeMaker : public Executor
 { mODTextTranslationClass(uiWriteFlattenedCubeMaker);
 public:
 
-uiWriteFlattenedCubeMaker( Seis::Provider& prov, SeisTrcWriter& wrr,
+uiWriteFlattenedCubeMaker( Seis::Provider& prov, Seis::Storer& strr,
 			   Pos::Provider3D& pp, Interval<float> hz, float zval )
     : Executor("Create flattened cube")
     , prov_(prov)
-    , wrr_(wrr)
+    , storer_(strr)
     , pp_(pp)
     , msg_(tr("Creating cube"))
     , nrdone_(0)
@@ -156,7 +156,7 @@ int nextStep()
     }
 
     const float horz = pp_.adjustedZ( intrc_.info().coord_, zval_ );
-    outtrc_.info().trckey_ = intrc_.info().trckey_;
+    outtrc_.info().trcKey() = intrc_.info().trcKey();
     outtrc_.info().coord_ = intrc_.info().coord_;
     outtrc_.info().pick_ = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
@@ -168,15 +168,13 @@ int nextStep()
 	}
     }
 
-    if ( !wrr_.put(outtrc_) )
-	{ msg_ = wrr_.errMsg(); return ErrorOccurred(); }
-
+    msg_ = storer_.put( outtrc_ );
     nrdone_++;
-    return MoreToDo();
+    return msg_.isEmpty() ? MoreToDo() : ErrorOccurred();
 }
 
     Seis::Provider&	prov_;
-    SeisTrcWriter&	wrr_;
+    Seis::Storer&	storer_;
     Pos::Provider3D&	pp_;
     const float		zval_;
     Interval<float>	horzrg_;
@@ -199,15 +197,15 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     const float zwdth = SI().zRange().width();
     const Interval<float> maxzrg( -zwdth, zwdth );
-    Seis::TableSelData* tsd = new Seis::TableSelData( dps->bivSet(), &maxzrg);
+    auto* tsd = new Seis::TableSelData( dps->bivSet(), &maxzrg );
     uiRetVal uirv;
     PtrMan<Seis::Provider> prov = Seis::Provider::create( inioobj.key(), &uirv);
     if ( !prov )
 	{ errmsg_ = uirv; return false; }
 
     prov->setSelData( tsd );
-    SeisTrcWriter wrr( &outioobj );
-    uiWriteFlattenedCubeMaker cm( *prov, wrr, pp_, horzrg_, zval );
+    Seis::Storer storer( outioobj );
+    uiWriteFlattenedCubeMaker cm( *prov, storer, pp_, horzrg_, zval );
     MouseCursorManager::restoreOverride();
     return trprov.execute( cm );
 }

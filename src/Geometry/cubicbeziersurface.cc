@@ -247,7 +247,8 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 
     const CubicBezierSurfacePatch* patch = getPatch(RowCol(prevrow,prevcol));
 
-    if ( !patch ) return Coord3::udf();
+    if ( !patch )
+	return Coord3::udf();
     return patch->computePos( (float) ((params.x_ - prevrow)/rowrange.step),
 			     (float) ((params.y_ - prevcol)/colrange.step));
 }
@@ -570,7 +571,8 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
 				    bool estimateifundef ) const
 {
     const int index = getKnotIndex(rc);
-    if ( index==-1 ) return Coord3::udf();
+    if ( index==-1 )
+	return Coord3::udf();
 
     const Coord3* data = positions->getData();
 

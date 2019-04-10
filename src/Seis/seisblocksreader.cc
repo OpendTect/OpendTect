@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "seisblocksreader.h"
 #include "seisblocksbackend.h"
-#include "seisselection.h"
+#include "seisseldata.h"
 #include "seistrc.h"
 #include "uistrings.h"
 #include "posidxpairdataset.h"
@@ -393,6 +393,16 @@ uiRetVal Seis::Blocks::Reader::getTrcInfo( SeisTrcInfo& ti ) const
 }
 
 
+uiRetVal Seis::Blocks::Reader::getTrcData( TraceData& td ) const
+{
+    uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
+
+    doGet( nullptr, td, uirv );
+    return uirv;
+}
+
+
 uiRetVal Seis::Blocks::Reader::get( const BinID& bid, SeisTrc& trc ) const
 {
     uiRetVal uirv;
@@ -401,7 +411,7 @@ uiRetVal Seis::Blocks::Reader::get( const BinID& bid, SeisTrc& trc ) const
     if ( !doGoTo(bid,uirv) )
 	return uirv;
 
-    doGet( trc, uirv );
+    doGet( &trc.info(), trc.data(), uirv );
     return uirv;
 }
 
@@ -411,7 +421,7 @@ uiRetVal Seis::Blocks::Reader::getNext( SeisTrc& trc ) const
     uiRetVal uirv;
     Threads::Locker locker( accesslock_ );
 
-    doGet( trc, uirv );
+    doGet( &trc.info(), trc.data(), uirv );
     return uirv;
 }
 
@@ -442,12 +452,13 @@ void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
     ti.sampling_.start = zrgintrace_.start;
     ti.sampling_.step = zgeom_.step;
-    ti.setBinID( bid );
+    ti.setPos( bid );
     ti.coord_ = hgeom_.transform( bid );
 }
 
 
-void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
+void Seis::Blocks::Reader::doGet( SeisTrcInfo* ti, TraceData& td,
+				  uiRetVal& uirv ) const
 {
     lastopwasgetinfo_ = false;
     if ( needreset_ )
@@ -459,7 +470,7 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
     if ( !curcdpos_.isValid() )
 	{ uirv.set( uiStrings::sFinished() ); return; }
 
-    readTrace( trc, uirv );
+    readTrace( ti, td, uirv );
     if ( !uirv.isError() )
 	advancePos( curcdpos_ );
 }
@@ -481,7 +492,8 @@ Seis::Blocks::Column* Seis::Blocks::Reader::getColumn(
 }
 
 
-void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
+void Seis::Blocks::Reader::readTrace( SeisTrcInfo* ti, TraceData& td,
+				      uiRetVal& uirv ) const
 {
     const BinID bid = cubedata_.binID( curcdpos_ );
     const HGlobIdx globidx( Block::globIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
@@ -490,8 +502,9 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
     Column* column = getColumn( globidx, uirv );
     if ( column )
     {
-	backend_->fillTrace( *column, bid, trc, uirv );
-	fillInfo( bid, trc.info() );
+	backend_->fillTraceData( *column, bid, td, uirv );
+	if ( ti )
+	    fillInfo( bid, *ti );
     }
 }
 

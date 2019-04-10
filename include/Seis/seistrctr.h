@@ -176,9 +176,9 @@ public:
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
 
-    virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
+    virtual bool	readInfo(SeisTrcInfo&)		= 0;
+    virtual bool	readData(TraceData* extbuf=0)	= 0;
     virtual bool	read(SeisTrc&);
-    virtual bool	readData(TraceData* extbuf=0)	{ return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
@@ -300,6 +300,7 @@ protected:
 			// Buffer to be written when writeBlock() is called
     SeisTrcBuf&		trcblock_;
 
+    bool		ensureSelectionsCommitted();
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.

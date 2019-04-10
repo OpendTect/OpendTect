@@ -261,26 +261,26 @@ void uiPosProvider::getSampling( TrcKeyZSampling& tkzs,
 
 void uiPosProvider::usePar( const IOPar& iop )
 {
-    BufferString typ;
-    iop.get( sKey::Type(), typ );
-    for ( int idx=0; idx<grps_.size(); idx++ )
-    {
-	if ( typ == grps_[idx]->name() )
-	{
-	    grps_[idx]->usePar( iop );
-	    if ( selfld_ )
-		selfld_->setValue( idx );
-	    return;
-	}
-    }
-
-    if ( selfld_ )
-	selfld_->setValue( ((int)0) );
-
-    if ( setup_.is2d_ )
+    if ( !selfld_ )
 	return;
 
-    pErrMsg( "Provider from IOPar is not available in the gui" );
+    BufferString typ;
+    iop.get( sKey::Type(), typ );
+    if ( typ.isEmpty() || typ == sKey::None() )
+	selfld_->setValue( ((int)0) );
+    else
+    {
+	for ( int idx=0; idx<grps_.size(); idx++ )
+	{
+	    if ( typ == grps_[idx]->name() )
+	    {
+		grps_[idx]->usePar( iop );
+		selfld_->setValue( idx );
+		return;
+	    }
+	}
+	pErrMsg( BufferString("Provider from IOPar is not available: ",typ) );
+    }
 }
 
 

@@ -73,7 +73,7 @@ protected:
     FileDataSet&	fds_;
     FileSpec		filespec_;
     SEGYSeisTrcTranslator* tr_;
-    SeisStatsCollector	seisstatscollector_;
+    Seis::StatsCollector seisstatscollector_;
     DataClipSampler&	clipsmplr_;
     int			nrtrcs_;
     bool		forcerev0_;

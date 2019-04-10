@@ -56,8 +56,7 @@ public:
 	if ( !newconn )
 	    return;
 
-	if ( !quiet )
-	    od_cout() << "New connection " << newconn->ID()
+	logStream() << "New connection " << newconn->ID()
 		      << " on port " << server_->server()->port() << od_endl;
 
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
@@ -82,8 +81,7 @@ public:
 		return;
 	}
 
-	if ( !quiet )
-	    od_cout() << "Request " << packet->requestID()
+	logStream() << "Request " << packet->requestID()
 		  << " received packet "
 	          << packet->subID() << " size " << packet->payloadSize()
 		  << od_endl;
@@ -94,9 +92,7 @@ public:
 	packet->getStringPayload( packetstring );
 	if ( packetstring==Network::Server::sKeyKillword() )
 	{
-	    if ( !quiet )
-		od_cout() << "Kill requested " << od_endl;
-
+	    logStream() << "Kill requested " << od_endl;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
@@ -127,8 +123,7 @@ public:
     void connClosedCB( CallBacker* cb )
     {
 	RequestConnection* conn = (RequestConnection*) cb;
-	if ( !quiet )
-	    od_cout() << "Connection " << conn->ID() << " closed." << od_endl;
+	logStream() << "Connection " << conn->ID() << " closed." << od_endl;
 	CallBack::addToMainThread(
 		mCB(this,RequestEchoServer,cleanupOldConnections));
     }
@@ -157,9 +152,7 @@ public:
 	const time_t curtime = time( 0 );
 	if ( curtime-lastactivity_>timeout_ )
 	{
-	    if ( !quiet )
-		od_cout() << "Timeout" << od_endl;
-
+	    logStream() << "Timeout" << od_endl;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
@@ -195,11 +188,8 @@ int mTestMainFnName(int argc, char** argv)
     Network::RequestEchoServer server( mCast(unsigned short,startport),
 				       mCast(unsigned short,timeout) );
 
-    if ( !quiet )
-    {
-	od_cout() << "Listening to port " << server.server_->server()->port()
+    logStream() << "Listening to port " << server.server_->server()->port()
 		  << " with a " << server.timeout_ << " second timeout\n";
-    }
 
     return app.exec();
 }

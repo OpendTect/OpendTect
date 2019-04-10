@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 class SeisTrc;
-class IOObj;
 class TaskRunner;
 
 

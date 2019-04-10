@@ -25,10 +25,12 @@ mExpClass(uiIo) uiSelZRange : public uiGroup
 { mODTextTranslationClass(uiSelZRange)
 public:
                         uiSelZRange(uiParent*,bool wstep,
-				    bool isrel=false,const char* lbltxt=0,
+				    bool isrel=false,
+				    const uiString& seltxt=uiString(),
 				    const char* zdomkey=0);
 			uiSelZRange(uiParent* p,StepInterval<float> limitrg,
-				    bool wstep,const char* lbltxt=0,
+				    bool wstep,
+				    const uiString& seltxt=uiString(),
 				    const char* zdomkey=0);
 
     StepInterval<float>	getRange() const;
@@ -51,7 +53,7 @@ protected:
 
     void		valChg(CallBacker*);
     void		makeInpFields(const uiString&,bool,
-	    			      const StepInterval<float>*);
+				      const StepInterval<float>*);
 
 };
 
@@ -65,7 +67,7 @@ public:
 
                         uiSelNrRange(uiParent*,Type,bool wstep);
 			uiSelNrRange(uiParent*,StepInterval<int> limit,
-				     bool wstep,const char*);
+				     bool wstep,const char* fldnm);
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
@@ -75,6 +77,7 @@ public:
     void		setChecked(bool);
     bool		isCheckable()		{ return cbox_; }
     void		setWithCheck( bool yn=true )	{ withchk_ = yn; }
+    void		setLabelText( const uiString& t ) { lbltxt_ = t; }
 
     Notifier<uiSelNrRange>	checked;
     Notifier<uiSelNrRange>	rangeChanged;
@@ -86,7 +89,8 @@ protected:
     uiSpinBox*		icstopfld_;
     uiLineEdit*		nrstopfld_;
     uiSpinBox*		stepfld_;
-    BufferString	lbltxt_;
+    BufferString	fldnm_;
+    uiString		lbltxt_;
     bool		finalised_;
     bool		withchk_;
     int			defstep_;
@@ -100,6 +104,7 @@ protected:
     void		makeInpFields(StepInterval<int>,bool,bool);
 
 private:
+
     bool		checked_;
 
 };

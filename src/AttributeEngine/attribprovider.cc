@@ -24,7 +24,7 @@
 #include "ptrman.h"
 #include "seismscprov.h"
 #include "seisinfo.h"
-#include "seisselectionimpl.h"
+#include "seistableseldata.h"
 #include "statruncalc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -546,25 +546,18 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	pos = BinID(-1,-1);
 	if ( seldata_ && seldata_->type() == Seis::Table )
 	{
-	    Seis::SelData* nonconstsd = const_cast<Seis::SelData*>(seldata_);
-	    mDynamicCastGet( Seis::TableSelData*, tabsel, nonconstsd )
-	    if ( tabsel )
+	    auto& bvs = seldata_->asTable()->binidValueSet();
+	    if ( currentbid_ == BinID(-1,-1) )
+		pos = bvs.firstBinID();
+	    else
 	    {
-		if ( currentbid_ == BinID(-1,-1) )
-		    pos = tabsel->binidValueSet().firstBinID();
-		else
-		{
-		    BinIDValueSet::SPos oldpos =
-			tabsel->binidValueSet().find( currentbid_ );
-		    if ( tabsel->binidValueSet().next( oldpos, true ) )
-			pos = tabsel->binidValueSet().getBinID( oldpos );
-		}
-
-		currentbid_ = pos;
-		alreadymoved_ = true;
-		return currentbid_ == BinID(-1,-1) ? 0 : 1;
-
+		BinIDValueSet::SPos oldpos = bvs.find( currentbid_ );
+		if ( bvs.next(oldpos,true) )
+		    pos = bvs.getBinID( oldpos );
 	    }
+	    currentbid_ = pos;
+	    alreadymoved_ = true;
+	    return currentbid_ == BinID(-1,-1) ? 0 : 1;
 	}
     }
 
@@ -1390,10 +1383,7 @@ const Interval<int>* Provider::reqZSampMargin(int,int) const	{ return 0; }
 int Provider::getTotalNrPos( bool is2d )
 {
     if ( seldata_ && seldata_->type() == Seis::Table )
-    {
-	mDynamicCastGet(const Seis::TableSelData*,tsd,seldata_)
-	return mCast( int, tsd->binidValueSet().totalSize() );
-    }
+	return (int)seldata_->asTable()->binidValueSet().totalSize();
     if ( !possiblevolume_ || !desiredvolume_ )
 	return false;
 

@@ -38,16 +38,16 @@ public:
 				   const char* nm);
 			uiComboBox(uiParent*,const EnumDef&,const char* nm);
 			    /*!<EnumDef is assumed to remain in mem*/
-    virtual		~uiComboBox();
+			~uiComboBox();
 
-    virtual void	setReadOnly(bool yn=true);
-    virtual bool	isReadOnly() const;
+    void		setReadOnly(bool yn=true) override;
+    bool		isReadOnly() const override;
     void		setEditable(bool yn);
     bool		isEditable() const;
 
     int			size() const;
-    inline bool		isEmpty() const		{ return size() == 0; }
-    void		setEmpty();
+    bool		isEmpty() const override	{ return size() == 0; }
+    void		setEmpty() override;
     bool		isPresent(const uiString&) const;
     bool		isPresent(const char*) const;
     int			indexOf(const uiString&) const;
@@ -65,7 +65,7 @@ public:
     void		setCurrentItem(const uiString&);
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
-    virtual void	addItem(const uiString&);
+    void		addItem(const uiString&);
     void		addItem( const char* s ) { addItem(toUiString(s)); }
     void		addItem(const uiString&,int id);
     void		addItems(const uiStringSet&);
@@ -104,6 +104,7 @@ protected:
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
     void		translateText();
+
 private:
 
     int			oldnritems_;

@@ -20,14 +20,12 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "factory.h"
 
-class IOObj;
 class Seis2DDataSet;
 class SeisScaler;
 class SeisTrc;
-class SeisTrcWriter;
 class SeisTrcBuf;
 class od_ostream;
-namespace Seis { class Provider; }
+namespace Seis { class Provider; class Storer; }
 
 mExpClass(Seis) Seis2DTo3D : public Executor
 { mODTextTranslationClass(Seis2DTo3D)
@@ -67,8 +65,8 @@ protected:
 
     SeisTrcBuf&		seisbuf_;
     TrcKeySampling	seisbuftks_;
-    SeisTrcWriter*	wrr_;
     Seis::Provider*	prov_;
+    Seis::Storer*	storer_;
     SeisTrcBuf		tmpseisbuf_;
 
     bool		read_;

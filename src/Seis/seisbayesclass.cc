@@ -7,7 +7,7 @@
 
 #include "seisbayesclass.h"
 #include "seisprovider.h"
-#include "seiswrite.h"
+#include "seisstorer.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seisbuf.h"
@@ -81,7 +81,7 @@ void SeisBayesClass::cleanUp()
     deepErase(pdfs_);
     deepErase(provs_);
     deepErase(approvs_);
-    deepErase(wrrs_);
+    deepErase(storers_);
 }
 
 
@@ -226,18 +226,18 @@ bool SeisBayesClass::getReaders()
 }
 
 
-bool SeisBayesClass::getWriters()
+bool SeisBayesClass::getStorers()
 {
     if ( nrpdfs_ < 1 ) return false;
 
-    wrrs_.setNullAllowed( true ); bool haveoutput = false;
+    storers_.setNullAllowed( true ); bool haveoutput = false;
     for ( int ipdf=0; ipdf<nrpdfs_+3; ipdf++ )
     {
 	outtrcs_.add( new SeisTrc );
 
 	const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(ipdf) );
 	if ( !id || !*id )
-	    { wrrs_ += 0; continue; }
+	    { storers_ += 0; continue; }
 	else
 	    haveoutput = true;
 
@@ -251,13 +251,13 @@ bool SeisBayesClass::getWriters()
 	    return false;
 	}
 
-	wrrs_ += new SeisTrcWriter( ioobj );
+	storers_ += new Seis::Storer( *ioobj );
     }
 
     if ( !haveoutput )
     { msg_ = tr("No output specified in parameters"); return false; }
 
-    const_cast<bool&>(needclass_) = wrrs_[nrpdfs_] || wrrs_[nrpdfs_+1];
+    const_cast<bool&>(needclass_) = storers_[nrpdfs_] || storers_[nrpdfs_+1];
     initstep_ = 0;
     msg_ = uiStrings::sProcessing();
     return true;
@@ -303,7 +303,7 @@ int SeisBayesClass::nextStep()
     if ( initstep_ )
 	return (initstep_ == 1 ? getPDFs()
 	     : (initstep_ == 2 ? getReaders()
-			       : getWriters()))
+			       : getStorers()))
 	     ? MoreToDo() : ErrorOccurred();
 
     int ret = readInpTrcs( true );
@@ -330,7 +330,8 @@ int SeisBayesClass::readInpTrcs( bool inptrcs )
     for ( int idx=0; idx<provs.size(); idx++ )
     {
 	Seis::Provider* prov = provs[idx];
-	if ( !prov ) continue;
+	if ( !prov )
+	    continue;
 
 	const uiRetVal uirv = prov->getNext( *trcs.get(idx) );
 	if ( !uirv.isOK() )
@@ -347,10 +348,15 @@ int SeisBayesClass::readInpTrcs( bool inptrcs )
 }
 
 
+
 #define mWrTrc(nr) { \
-	wrr = wrrs_[nr]; \
-	if ( wrr && !wrr->put(*outtrcs_.get(nr)) ) \
-	    { msg_ = wrr->errMsg(); return ErrorOccurred(); } }
+    auto* strr = storers_[nr]; \
+    if ( strr ) \
+    { \
+	uiRetVal uirv = strr->put( *outtrcs_.get(nr) ); \
+	if ( !uirv.isOK() ) \
+	    { msg_ = uirv; return ErrorOccurred(); } \
+    } }
 
 int SeisBayesClass::createOutput()
 {
@@ -360,18 +366,17 @@ int SeisBayesClass::createOutput()
     if ( nrpdfs_>1 && dopostnorm_ )
 	postScaleProbs();
 
-    SeisTrcWriter* wrr;
-
     for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
 	mWrTrc(ipdf)
 
     if ( needclass_ )
     {
 	calcClass();
-	mWrTrc(nrpdfs_) mWrTrc(nrpdfs_+1)
+	mWrTrc(nrpdfs_)
+	mWrTrc(nrpdfs_+1)
     }
 
-    if ( wrrs_[nrpdfs_+2] )
+    if ( storers_[nrpdfs_+2] )
     {
 	calcDet();
 	mWrTrc(nrpdfs_+2)
