@@ -1115,7 +1115,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 
     const DescSet& curds = curDescSet( true );
     const Desc* targetdesc = curds.getDesc( targetID(true) );
-    const auto geomid - tkzs.hsamp_.getGeomID();
+    const auto geomid = tkzs.hsamp_.getGeomID();
     if ( targetdesc )
     {
 	const DBKey dbky( targetdesc->getStoredID() );
