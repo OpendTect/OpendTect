@@ -174,7 +174,6 @@ protected:
 
     bool		iterateBuffer(bool waitforbuffer);
     void		reportWrite(const uiRetVal&);
-    friend class	SingleTraceStorer;
 
     Storer&		storer_;
     TypeSet<BinID>	announcedtraces_;

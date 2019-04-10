@@ -91,15 +91,15 @@ idx_type PosInfo::Line2DData::getClosestBPSegment( const Coord& pt ) const
 }
 
 
-idx_type PosInfo::Line2DData::gtIndex( const Coord& coord,
+idx_type PosInfo::Line2DData::gtIndex( const Coord& crd,
 				       dist_type* sqdist ) const
 {
     if ( posns_.isEmpty() )
 	return -1;
 
-#   define mSqDist(idx) posns_[idx].coord_.sqDistTo( coord )
+#   define mSqDist(idx) posns_[idx].coord_.sqDistTo( crd )
 
-    const idx_type bpidx = getClosestBPSegment( coord );
+    const idx_type bpidx = getClosestBPSegment( crd );
     if ( bpidx < 0 )
 	return -1;
 
@@ -236,11 +236,11 @@ idx_type PosInfo::Line2DData::nearestIdx( const Coord& pos,
 }
 
 
-bool PosInfo::Line2DData::getPos( const Coord& coord,
+bool PosInfo::Line2DData::getPos( const Coord& crd,
 				  Line2DPos& pos, dist_type* dist ) const
 {
     dist_type sqdist;
-    const idx_type idx = gtIndex( coord, &sqdist );
+    const idx_type idx = gtIndex( crd, &sqdist );
     if ( !posns_.validIdx(idx) )
 	return false;
 
@@ -251,11 +251,11 @@ bool PosInfo::Line2DData::getPos( const Coord& coord,
 }
 
 
-bool PosInfo::Line2DData::getPos( const Coord& coord,
+bool PosInfo::Line2DData::getPos( const Coord& crd,
 				  Line2DPos& pos, dist_type maxdist ) const
 {
     dist_type dist;
-    return getPos(coord,pos,&dist) && dist < maxdist;
+    return getPos(crd,pos,&dist) && dist < maxdist;
 }
 
 
