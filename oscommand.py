@@ -8,6 +8,7 @@
 
 import sys
 import os
+import psutil
 import signal
 import subprocess
 import json
@@ -60,22 +61,13 @@ def execCommand( cmd, background=False ):
     return startAndWait( cmd )
 
 def isRunning( proc ):
-  if isinstance(proc,subprocess.Popen):
-    return proc.poll() == None and proc.returncode == None
-  try:
-    os.getpgid(proc)
-  except OSError:
-    return False
-  return True
+  proc.poll()
+  return proc.is_running()
 
-def killproc( proc=None ):
-  if isinstance(proc,subprocess.Popen):
+def kill( proc ):
+  with proc.oneshot():
     proc.terminate()
     proc.wait(3)
-    return proc.returncode
-  if pid != None:
-    os.kill( pid, signal.SIGTERM )
-  return None
 
 # INTERNAL, you should not need to use those:
 def startAndWait( cmd ):
@@ -89,9 +81,13 @@ def startAndWait( cmd ):
 
 def startDetached( cmd ):
  try:
-   runningproc = subprocess.Popen( cmd, start_new_session=True, \
-                                   stdout=get_log_stream(), \
-                                   stderr=get_std_stream() )
+   if isWin():
+     runningproc = psutil.Popen( cmd, stdout=get_log_stream(), \
+                                      stderr=get_std_stream() )
+   else:
+     runningproc = psutil.Popen( cmd, start_new_session=True, \
+                                     stdout=get_log_stream(), \
+                                     stderr=get_std_stream() )
  except subprocess.CalledProcessError as err:
    std_msg( 'Failed: ', err )
    raise
