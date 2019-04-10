@@ -466,7 +466,6 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     stylefld_->changed.notify( propchgcb );
     logfilltypefld_->box()->selectionChanged.notify( propchgcb );
     sequsefld_->modeChange.notify( propchgcb );
-
     filllogsfld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,updateFillRange) );
     logsfld_->box()->selectionChanged.notify(

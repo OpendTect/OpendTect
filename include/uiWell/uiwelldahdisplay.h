@@ -39,7 +39,7 @@ else if ( !zdata_.zistime_ && track() )\
 #define mDefZPosInLoop(val) \
     float zpos = val;\
     mDefZPos(zpos)\
-    if ( !ld1_->yax_.range().includes( zpos, true ) )\
+    if ( !logsdata_.get(0)->yax_.range().includes( zpos, true ) )\
 	continue;
 
 /*!
@@ -172,14 +172,14 @@ public:
     void			reDraw()	{ gatherInfo(); draw(); }
     void			reDrawAnnots()	{ drawMarkers(); drawZPicks(); }
 
-    DahObjData&                 dahObjData( bool first )
-				{ return first ? *ld1_ : *ld2_; }
+    DahObjData&			dahObjData( int );
     const Well::MarkerSet*	markers() const { return zdata_.mrks(); }
 
 protected:
 
     DahObjData*			ld1_;
     DahObjData*			ld2_;
+    ObjectSet<DahObjData>	logsdata_;
     Data			zdata_;
     Setup                       setup_;
     TypeSet<PickData>           zpicks_;
@@ -210,14 +210,14 @@ protected:
     const Well::Track*		track() const	{ return zdata_.track(); }
 
     virtual void		draw();
-    virtual void		drawCurve(bool);
+    virtual void		drawCurve(int);
     void                        drawMarkers();
     void                        drawZPicks();
 
     void			setAxisRelations();
     virtual void		gatherInfo();
-    virtual void		gatherDataInfo(bool);
-    void			setAxisRanges(bool);
+    virtual void		gatherDataInfo(int);
+    void			setAxisRanges(int);
 
     void			dataChanged();
     void			init(CallBacker*);

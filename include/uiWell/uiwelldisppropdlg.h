@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uitabstack.h"
+#include "welldisp.h"
 
 class uiLabeledComboBox;
 class uiMultiWellDispPropGrp;
@@ -22,31 +23,38 @@ class uiTabStack;
 class uiWellDispPropGrp;
 class uiWellDispProperties;
 
-namespace Well { class Data; };
+namespace Well { class Data; class DisplayProperties2D; };
 
 
 class uiPanelTab : public uiTabStack
 {mODTextTranslationClass(uiPanelTab)
 public:
 		uiPanelTab(uiParent*,Well::Data& welldata,
+			   Well::DisplayProperties2D::LogPanelProps&,
 			   const char* panelnm,const bool is2ddisp);
 		~uiPanelTab();
 
+protected:
+    void		init();
+    void		addLog();
+    void		addLogToPanel();
+    void		removeLogFromPanel(int);
+    uiGroup*		createLogPropertiesGrp();
+
+    Well::DisplayProperties2D::LogPanelProps& logpanel_;
+
 private:
-    Well::Data&		welldata_;
-    const bool		is2ddisp_;
 
     void		logTabSelChgngeCB(CallBacker*);
     void		logTabClosedCB(CallBacker*);
     void		logTabToBeClosedCB(CallBacker*);
     void		logpropChg(CallBacker*);
+    void		logPanelChgCB(CallBacker*);
 
-    void		addLogPanel();
     void		showLogTabCloseButton();
 
-protected:
-    void		init();
-    uiGroup*		createLogPropertiesGrp();
+    Well::Data&		welldata_;
+    const bool		is2ddisp_;
 };
 
 /*!
@@ -105,11 +113,13 @@ protected:
     void			createMultiPanelUI();
     void			createSinglePanelUI();
 
-    void			addPanel();
+    void			addLogPanel();
+    void			addPanelTab();
     void			addMarkersPanel();
     void			updatePanelNames();
     void			showPanelTabCloseButton();
     void			onClose(CallBacker*);
+    void			propChgCB(CallBacker*);
 };
 
 

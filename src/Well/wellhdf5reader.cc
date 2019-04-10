@@ -378,7 +378,7 @@ bool Well::HDF5Reader::getDispProps() const
     IOPar iop;
     uiRetVal uirv = rdr_->getInfo( iop );
     mErrRetIfUiRvNotOK( uirv )
-    wd_.displayProperties(true).usePar( iop );
-    wd_.displayProperties(false).usePar( iop );
+    wd_.displayProperties3d().usePar( iop );
+    wd_.displayProperties2d().usePar( iop );
     return true;
 }

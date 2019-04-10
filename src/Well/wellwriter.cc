@@ -414,8 +414,8 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
 
     ascostream astrm( strm );
     IOPar iop;
-    wd_.displayProperties(true).fillPar( iop );
-    wd_.displayProperties(false).fillPar( iop );
+    wd_.displayProperties3d().fillPar( iop );
+    wd_.displayProperties2d().fillPar( iop );
     iop.putTo( astrm );
     putDepthUnit( astrm );
     if ( !strm.isOK() )

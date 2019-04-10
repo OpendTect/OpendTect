@@ -152,8 +152,8 @@ public:
     static ChangeType   cShapeChg()		{ return 5; }
     static ChangeType   cScaleChg()		{ return 6; }
 
-    virtual void	usePar(const IOPar&,bool isleft);
-    virtual void	fillPar(IOPar&,bool isleft) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
 
     mImplSimpleMonitoredGetSet(inline,logName,setLogName,BufferString,
 				logname_,cNameChg());
@@ -243,15 +243,9 @@ public:
     MarkerDispProps&	markers()		{ return markers_; }
     const MarkerDispProps& markers() const	{ return markers_; }
 
-    int			nrLogPairs() const;
-    LogDispProps&	log(bool first_is_left,LogPairID nr=0);
-    const LogDispProps&	log(bool first_is_left,LogPairID nr=0) const;
-    LogPairID		addLogPair();
-    void		setNrLogPairs(int);
-    bool		removeLogPair(LogPairID); // refuses to remove last one
 
-    void		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
+    virtual void		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
 
     static ChangeType	cLogPairAdded()		{ return 2; }
     static ChangeType	cLogPairRemove()	{ return 3; }
@@ -270,27 +264,92 @@ protected:
 
     TrackDispProps	track_;
     MarkerDispProps	markers_;
-    ManagedObjectSet<LogDispProps> logs_;
-    bool		displaystrat_; //2d only
     bool		isdefaults_;
+    bool		displaystrat_; //2d only
 
-    LogPairID		doAddLogPair();
-    void		copyLogPairsFrom(const DisplayProperties&);
-    void		addCBsToLogPair(LogPairID);
     void		subobjChgCB(CallBacker*);
-    int			idx4PairID( LogPairID id, bool scnd=false ) const
-			{ return scnd ? 2*id + 1 : 2*id; }
-    int			pairID4Idx( int idx ) const
-			{ return idx / 2; }
-    int			nrPairs() const
-			{ return logs_.size() / 2; }
-    bool		isIDAvailable( LogPairID id )
-			{ return logs_.size() > id * 2; }
 
 private:
 
     void		init();
 
+};
+
+
+mExpClass(Well) DisplayProperties3D : public DisplayProperties
+{
+public:
+			DisplayProperties3D();
+			mDeclMonitorableAssignment(DisplayProperties3D);
+
+    enum Position	{ Left=0, Right, Tube };
+    static ChangeType	cLogAdd()	{ return 31; }
+    static ChangeType	cLogRemove()	{ return 32; }
+    static ChangeType	cLogChange()	{ return 33; }
+
+    void		addLog(const Position);
+    void		removeLog(Position);
+    LogDispProps*	leftLog() const
+			{ return leftlog_; }
+    LogDispProps*	rightLog() const
+			{ return rightlog_; }
+    LogDispProps*	logTube() const
+			{ return logtube_; }
+
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+protected:
+    LogDispProps*	leftlog_;
+    LogDispProps*	rightlog_;
+    LogDispProps*	logtube_;
+
+};
+
+mExpClass(Well) DisplayProperties2D : public DisplayProperties
+{
+public:
+
+    class LogPanelProps : public NamedMonitorable
+    {
+	public:
+				LogPanelProps(const char* nm="Panel");
+				LogPanelProps(const LogPanelProps&);
+
+	    static int		maximumNrOfLogs()	{ return 4; }
+	    static ChangeType	cLogAddToPanel()	{ return 20; }
+	    static ChangeType	cLogRemoveFromPanel()	{ return 21; }
+	    static ChangeType	cLogNameChg()		{ return 22; }
+	    static ChangeType	cLogScaleChg()		{ return 23; }
+
+	    bool		addLog();
+	    void		removeLog(int);
+	    LogDispProps*	getLog(int id);
+	    const LogDispProps* getLog(int id) const;
+	    void		logChangeCB(CallBacker*);
+	    void		fillPar(IOPar&) const;
+	    void		usePar(const IOPar&);
+
+	    ManagedObjectSet<LogDispProps> logs_;
+    };
+
+			DisplayProperties2D();
+			mDeclMonitorableAssignment(DisplayProperties2D);
+
+    static int		maximumNrOfLogPanels()	{ return 6; }
+    static ChangeType	cPanelAdded()	{ return 23; }
+    static ChangeType	cPanelRemove()	{ return 24; }
+
+    void			addLogPanel();
+    void			removeLogPanel(int panelid);
+    int				nrPanels() const;
+    const LogPanelProps*	getLogPanel(int panelid) const;
+    LogPanelProps*		getLogPanel(int panelid);
+    void			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+
+protected:
+    ManagedObjectSet<LogPanelProps> logpanels_;
 };
 
 } // namespace

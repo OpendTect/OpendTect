@@ -19,6 +19,8 @@ namespace Well
 {
 
 class DisplayProperties;
+class DisplayProperties3D;
+class DisplayProperties2D;
 
 
 /*!
@@ -59,10 +61,17 @@ public:
     const D2TModel&		checkShotModel() const	{ return gtMdl(true); }
     D2TModel&			checkShotModel()	{ return gtMdl(true); }
 
-    DisplayProperties&		displayProperties( bool for2d=false )
-				    { return for2d ? disp2d_ : disp3d_; }
-    const DisplayProperties&	displayProperties( bool for2d=false ) const
-				    { return for2d ? disp2d_ : disp3d_; }
+    DisplayProperties3D&	displayProperties3d()
+				    { return disp3d_; }
+    const DisplayProperties3D&	displayProperties3d() const
+				    { return disp3d_; }
+    DisplayProperties2D&	displayProperties2d()
+				    { return disp2d_; }
+    const DisplayProperties2D&	displayProperties2d() const
+				    { return disp2d_; }
+    DisplayProperties&	displayProperties( bool for2d=false );
+    const DisplayProperties&	displayProperties( bool for2d=false ) const;
+
 
     void			setEmpty(); //!< removes everything
 
@@ -103,12 +112,11 @@ protected:
     D2TModel&		d2tmodel_;
     D2TModel&		csmodel_;
     MarkerSet&		markers_;
-    DisplayProperties&	disp2d_;
-    DisplayProperties&	disp3d_;
+    DisplayProperties2D&	disp2d_;
+    DisplayProperties3D&	disp3d_;
 
     D2TModel&		gtMdl(bool) const;
     D2TModel*		gtMdlPtr(bool) const;
-
 };
 
 

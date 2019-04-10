@@ -98,8 +98,8 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
     if ( seldisp_ )
     {
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
-	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x_);
-	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y_);
+	xpos_ = seldisp_->dahObjData(0).xax_.getVal(mevh->event().pos().x_);
+	ypos_ = seldisp_->dahObjData(0).yax_.getVal(mevh->event().pos().y_);
 	const Well::Track* tr = zdata.track();
 	if ( zdata.zistime_ )
 	{
@@ -125,8 +125,8 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 {
     info.setEmpty(); if ( !seldisp_ ) return;
-    const uiWellDahDisplay::DahObjData& data1 = seldisp_->dahObjData(true);
-    const uiWellDahDisplay::DahObjData& data2 = seldisp_->dahObjData(false);
+    const uiWellDahDisplay::DahObjData& data1 = seldisp_->dahObjData(0);
+    const uiWellDahDisplay::DahObjData& data2 = seldisp_->dahObjData(1);
     if ( data1.hasData() ) { info += "  "; data1.getInfoForDah(dah_,info); }
     if ( data2.hasData() ) { info += "  "; data2.getInfoForDah(dah_,info); }
     if ( !selmarker_.isUdf() ){info += "  Marker:"; info += selmarker_.name(); }

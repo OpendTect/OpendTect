@@ -55,10 +55,12 @@ bool uiWellDispPropDlg::rejectOK()
 
 //uiPanelTab
 uiPanelTab::uiPanelTab( uiParent* grp, Well::Data& welldata,
+			Well::DisplayProperties2D::LogPanelProps& logpanel,
 			const char* panelnm, const bool is2ddisplay )
     : uiTabStack(grp,panelnm)
     , welldata_(welldata)
     , is2ddisp_(is2ddisplay)
+    , logpanel_(logpanel)
 {
     init();
 }
@@ -72,8 +74,12 @@ uiPanelTab::~uiPanelTab()
 
 void uiPanelTab::init()
 {
+    //TODO: Loop over logs in the panel and addLogToPanel()
     setTabsClosable( true );
-    addLogPanel();
+    for ( int lidx=0; lidx<logpanel_.logs_.size(); lidx++ )
+	addLogToPanel();
+
+    mAttachCB( logpanel_.objectChanged(), uiPanelTab::logPanelChgCB );
     mAttachCB( tabToBeClosed, uiPanelTab::logTabToBeClosedCB );
     mAttachCB( tabClosed, uiPanelTab::logTabClosedCB );
     mAttachCB( selChange(), uiPanelTab::logTabSelChgngeCB );
@@ -86,14 +92,34 @@ void uiPanelTab::init()
 }
 
 
+void uiPanelTab::logPanelChgCB( CallBacker* cb )
+{
+    mGetMonitoredChgData(cb,chgdata);
+    bool isadded = chgdata.includes( Well::DisplayProperties2D::LogPanelProps
+				     ::cLogAddToPanel());
+    if ( isadded )
+	addLogToPanel();
+
+    bool isremove = chgdata.includes( Well::DisplayProperties2D::LogPanelProps
+				      ::cLogRemoveFromPanel() );
+    if ( isremove )
+	removeLogFromPanel( chgdata.ID() ); //TODO implement remove option.
+}
+
+
+void uiPanelTab::addLog()
+{
+    logpanel_.addLog();
+}
+
+
 uiGroup* uiPanelTab::createLogPropertiesGrp()
 {
-    Well::DisplayProperties& props =
-				welldata_.displayProperties( is2ddisp_ );
     uiGroup* logtabgrp = tabGroup();
+    Well::LogDispProps* logprop = logpanel_.logs_.get(logpanel_.logs_.size()-1);
     uiWellLogDispProperties* wlp = new uiWellLogDispProperties( logtabgrp,
     uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color") )
-	.onlyfor2ddisplay(is2ddisp_), props.log(true), &(welldata_.logs()) );
+	.onlyfor2ddisplay(is2ddisp_), *logprop,&(welldata_.logs()) );
     wlp->setName( "Log properties" );
     mAttachCB( wlp->propChanged, uiPanelTab::logpropChg );
     return wlp;
@@ -125,7 +151,7 @@ void uiPanelTab::logTabToBeClosedCB( CallBacker* cb )
 }
 
 
-void uiPanelTab::logTabClosedCB( CallBacker* cb )
+void uiPanelTab::logTabClosedCB( CallBacker* )
 {
     setCurrentPage( 0 );
     showLogTabCloseButton();
@@ -140,7 +166,7 @@ void uiPanelTab::showLogTabCloseButton()
 }
 
 
-void uiPanelTab::addLogPanel()
+void uiPanelTab::addLogToPanel()
 {
     uiGroup* logtabgrp = createLogPropertiesGrp();
     if ( !size() )
@@ -162,12 +188,22 @@ void uiPanelTab::addLogPanel()
 }
 
 
+void uiPanelTab::removeLogFromPanel( int logid )
+{
+    if ( !logpanel_.logs_.validIdx( logid ) )
+	return;
+
+    logpanel_.removeLog( logid );
+    removeTab( page( logid ) );
+}
+
+
 void uiPanelTab::logTabSelChgngeCB( CallBacker* cb )
 {
     const int logtabsz = size();
     const int curtabid = currentPageId();
     if ( curtabid == logtabsz-1 )
-	addLogPanel();
+	addLog();
 
     uiGroup* grp = currentPage();
     mDynamicCastGet(uiWellLogDispProperties*, wlpgrp, grp)
@@ -192,19 +228,30 @@ uiWellDispPropGrp::uiWellDispPropGrp( uiParent* p, Well::Data* wd,
     {
 	ts_->setTabsClosable( true );
 	mAttachCB( ts_->tabClosed, uiWellDispPropGrp::tabRemovedCB );
+	mAttachCB( wd_->displayProperties2d().objectChanged(),
+			   uiWellDispPropGrp::propChgCB );
 	createMultiPanelUI();
     }
     else
 	createSinglePanelUI();
 
     ts_->selChange().notify( mCB(this,uiWellDispPropGrp,tabSel) );
+
+    if ( !is2ddisplay )
+    {
+	mAttachCB( wd_->displayProperties3d().objectChanged(),
+		   uiWellDispPropGrp::propChgCB );
+    }
+
 }
 
 
 //TODO Needs to do changes in case of multipanel_=false;
 void uiWellDispPropGrp::createSinglePanelUI()
 {
+
     Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
+    Well::DisplayProperties3D& props3d = wd_->displayProperties3d();
     ObjectSet<uiGroup> tgs;
     tgs += new uiGroup( ts_->tabGroup(),"Left log properties" );
     tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
@@ -214,10 +261,10 @@ void uiWellDispPropGrp::createSinglePanelUI()
 
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2ddisplay_), props.log(true), &(wd_->logs()) );
+	.onlyfor2ddisplay(is2ddisplay_), *props3d.leftLog(), &(wd_->logs()) );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2ddisplay_), props.log(false), &(wd_->logs()) );
+	.onlyfor2ddisplay(is2ddisplay_), *props3d.rightLog(), &(wd_->logs()) );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
@@ -262,12 +309,25 @@ void uiWellDispPropGrp::createSinglePanelUI()
 
     ts_->selChange().notify( mCB(this,uiWellDispPropGrp,tabSel) );
     tabSel( 0 );
+
 }
 
 
 void uiWellDispPropGrp::createMultiPanelUI()
 {
-    addPanel();
+    //TODO
+//    addLogPanel();
+    Well::DisplayProperties2D& disp2d = wd_->displayProperties2d();
+    const int nrpanels = disp2d.nrPanels();
+    for ( int pidx=0; pidx<nrpanels; pidx++ )
+    {
+	Well::DisplayProperties2D::LogPanelProps* panel =
+						    disp2d.getLogPanel( pidx );
+	if ( !panel )
+	    continue;
+
+	addPanelTab();
+    }
 }
 
 
@@ -276,11 +336,37 @@ uiWellDispPropGrp::~uiWellDispPropGrp()
     detachAllNotifiers();
 }
 
-void uiWellDispPropGrp::addPanel()
+
+void uiWellDispPropGrp::addLogPanel()
 {
+    Well::DisplayProperties2D& dispprops = wd_->displayProperties2d();
+    dispprops.addLogPanel();
+}
+
+
+void uiWellDispPropGrp::propChgCB( CallBacker* cb )
+{
+/*    mGetMonitoredChgData(cb,chgdata);
+    const bool addpanel = chgdata.includes( Well::DisplayProperties2D
+					    ::cLogPanelAdded() );
+    if ( addpanel )
+	addLogPanel();
+    if ( chgtype == DisplayProperties2D::cLogPanelRemove() )
+	removePanelTab(); //TODO
+*/
+}
+
+
+
+void uiWellDispPropGrp::addPanelTab()
+{
+    Well::DisplayProperties2D& dispprops = wd_->displayProperties2d();
+    const int nrlogpanels = dispprops.nrPanels();
+    Well::DisplayProperties2D::LogPanelProps* logpanel =
+				       dispprops.getLogPanel( nrlogpanels - 1 );
     BufferString paneltxt( "Panel", ts_->size() ? ts_->size()-1 : 1 );
-    uiPanelTab* paneltabgrp = new uiPanelTab( ts_->tabGroup(), *wd_,
-					      paneltxt, is2ddisplay_ );
+    uiPanelTab* paneltabgrp = new uiPanelTab( ts_->tabGroup(), *wd_, *logpanel,
+					      paneltxt,is2ddisplay_ );
     if ( !ts_->size() )
     {
 	ts_->addTab( paneltabgrp );
@@ -373,14 +459,17 @@ void uiWellDispPropGrp::markerpropChg( CallBacker* )
 }
 
 
-void uiWellDispPropGrp::tabSel(CallBacker*)
+void uiWellDispPropGrp::tabSel( CallBacker* )
 {
     if ( multipanel_ )
     {
 	const int paneltabsz = ts_->size();
 	const int curtabid = ts_->currentPageId();
 	if ( curtabid == paneltabsz-1 )
-	    addPanel();
+	{
+	    addLogPanel();
+	    addPanelTab();
+	}
 
 	return;
     }

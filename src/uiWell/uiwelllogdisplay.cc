@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "welllog.h"
 
 
+//LogData
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellLogDisplay::Setup& s )
     : uiWellDahDisplay::DahObjData( scn, isfirst, s )
@@ -26,21 +27,14 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 }
 
 
-uiWellLogDisplay::~uiWellLogDisplay()
+void uiWellLogDisplay::gatherDataInfo( int logidx )
 {
-    delete ld1_; ld1_ = 0;
-    delete ld2_; ld2_ = 0;
-}
-
-
-void uiWellLogDisplay::gatherDataInfo( bool first )
-{
-    LogData& ld = logData( first );
+    LogData& ld = logData( logidx );
     ld.xax_.setup().islog( ld.disp_.isLogarithmic() );
     ld.cliprate_ = ld.disp_.clipRate();
     ld.valrg_ = ld.disp_.range();
 
-    uiWellDahDisplay::gatherDataInfo( first );
+    uiWellDahDisplay::gatherDataInfo( logidx );
 }
 
 
@@ -62,7 +56,7 @@ void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 
 
 void uiWellLogDisplay::LogData::getInfoForDah( float dah,
-						BufferString& msg ) const
+					       BufferString& msg ) const
 {
     const Well::Log* wl = log();
     if ( wl )
@@ -74,39 +68,75 @@ void uiWellLogDisplay::LogData::getInfoForDah( float dah,
 }
 
 
+//uiWellLogDisplay
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     : uiWellDahDisplay(p,su)
     , setup_(su)
 {
-    delete ld1_; delete ld2_;
-    ld1_ = new LogData( scene(), true, su );
-    ld2_ = new LogData( scene(), false, su );
+    deepErase( logsdata_ );
+    logsdata_ += new LogData( scene(), true, su );
+    logsdata_ += new LogData( scene(), false, su );
+
     postFinalise().notify( mCB(this,uiWellLogDisplay,init) );
 }
 
 
-void uiWellLogDisplay::draw()
+uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su,
+			   const Well::DisplayProperties2D::LogPanelProps& lp )
+    :uiWellDahDisplay(p,su)
+    , setup_(su)
 {
-    uiWellDahDisplay::draw();
+    deepErase( logsdata_ );
+    //TODO logsdata_ size = lp.logs_.size()
+    logsdata_ += new LogData( scene(), true, su );
+    logsdata_ += new LogData( scene(), true, su );
 
-    int style = logData(true).disp_.style();
-    if ( style==0 || style==2 )
-	drawFilledCurve( true );
-    else
-	drawSeismicCurve( true );
+    mAttachCB(lp.objectChanged(),uiWellLogDisplay::setLogDisplayPorp);
 
-    style = logData(false).disp_.style();
-    if ( style==0 || style==2 )
-	drawFilledCurve( false );
-    else
-	drawSeismicCurve( false );
+    postFinalise().notify( mCB(this,uiWellLogDisplay,init) );
 }
 
 
-void uiWellLogDisplay::drawCurve( bool first )
+uiWellLogDisplay::~uiWellLogDisplay()
 {
-    uiWellDahDisplay::drawCurve( first );
-    LogData& ld = logData( first );
+    deepErase( logsdata_ );
+}
+
+
+void uiWellLogDisplay::drawData( int ldidx )
+{
+    uiWellDahDisplay::draw();//TODO need to change in base class function
+
+    int style = logData(ldidx).disp_.style();
+    if ( style==0 || style==2 )
+	drawFilledCurve( ldidx );
+    else
+	drawSeismicCurve( ldidx );
+
+    style = logData(false).disp_.style();
+    if ( style==0 || style==2 )
+	drawFilledCurve( ldidx );
+    else
+	drawSeismicCurve( ldidx );
+}
+
+
+void uiWellLogDisplay::setLogDisplayPorp( CallBacker* cb )
+{
+    mGetMonitoredChgData(cb,chgdata);
+    if ( !cb )
+	return;
+
+    //const bool changedprop = chgdata.includes( Well::DisplayProperties2D
+//					       ::cLogPanelAdded() );
+}
+
+
+void uiWellLogDisplay::drawCurve( int ldidx )
+{
+    //TODO need to change in base class function
+    uiWellDahDisplay::drawCurve( ldidx );
+    LogData& ld = logData( ldidx );
 
     if ( !ld.curvepolyitm_ ) return;
     OD::LineStyle ls(OD::LineStyle::Solid);
@@ -135,9 +165,9 @@ static const int cMaxNrLogSamples = 2000;
 
 
 
-void uiWellLogDisplay::drawSeismicCurve( bool first )
+void uiWellLogDisplay::drawSeismicCurve( int ldidx )
 {
-    uiWellLogDisplay::LogData& ld = logData(first);
+    uiWellLogDisplay::LogData& ld = logData( ldidx );
     deepErase( ld.curvepolyitms_ );
 
     const float rgstop = ld.xax_.range().stop;
@@ -204,9 +234,9 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 }
 
 
-void uiWellLogDisplay::drawFilledCurve( bool first )
+void uiWellLogDisplay::drawFilledCurve( int ldidx )
 {
-    uiWellLogDisplay::LogData& ld = logData(first);
+    uiWellLogDisplay::LogData& ld = logData( ldidx );
     deepErase( ld.curvepolyitms_ );
 
     const bool fillleft = ld.disp_.fillLeft();
@@ -226,6 +256,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     mGetWLSizeAndStep();
 
     const bool fullpanelfill = fillleft && fillright;
+    const bool first = ldidx==0;
     const bool isfillrev = !fullpanelfill &&
 		 ( ( first && fillleft && !isrev )
 		|| ( first && fillright && isrev )
@@ -238,7 +269,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     const int pixstop = ld.xax_.getPix( rgstop );
     uiPoint closept;
     closept.x_ = ( first ) ? isfillrev ? pixstart : pixstop
-			  : isfillrev ? pixstop  : pixstart;
+			   : isfillrev ? pixstop  : pixstart;
     closept.y_ = ld.yax_.getPix( zfirst );
     float prevcolpos = mUdf(float);
     TypeSet<float> colorposset;
@@ -255,7 +286,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	float dah = wl.dahByIdx( index );
 	if ( index && index < sz-1 )
 	{
-	    if ( dah >= wl.dahByIdx(index+1) || dah <= wl.dahByIdx(index-1))
+	    if ( dah >= wl.dahByIdx(index+1) || dah <= wl.dahByIdx(index-1) )
 		continue;
 	}
 	mDefZPosInLoop( dah )
@@ -312,16 +343,24 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	pli->setPenStyle( OD::LineStyle(OD::LineStyle::None) );
 	pli->setZValue( 1 );
     }
+
     deepErase( pts );
 }
 
 
-uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
+uiWellLogDisplay::LogData& uiWellLogDisplay::logData( int ldidx )
 {
-    return *static_cast<LogData*>( first ? ld1_ : ld2_ );
+    return *static_cast<LogData*>( logsdata_.get(ldidx) );
 }
 
 
+int uiWellLogDisplay::nrLogs() const
+{
+    return logsdata_.size();
+}
+
+
+//uiWellLogDispDlg
 uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 				    const uiWellLogDisplay::Setup& wldsu )
     : uiDialog(p,uiDialog::Setup(uiString::empty(),mNoDlgTitle,mNoHelpKey)
@@ -368,7 +407,7 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     const Well::Log* l2 = getLog( false );
 
     const bool have2wells = !wellnm1_.isEmpty() && !wellnm2_.isEmpty()
-			 && wellnm1_ != wellnm2_;
+			    && wellnm1_ != wellnm2_;
     const bool have2logs = l1 && l2 && l1 != l2;
     const bool samelognm = have2logs && l1->hasName( l2->name() );
 
@@ -390,9 +429,11 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
 	if ( !have2wells )
 	    wellstr = toUiString(wellnm1_.isEmpty() ? wellnm2_ : wellnm1_);
 	else
-	    wellstr = toUiString("%1|%2").arg( wellnm1_ ).arg( wellnm2_ );
+	    wellstr = toUiString( "%1|%2" ).arg( wellnm1_ ).arg( wellnm2_ );
+
 	capt = toUiString("%1 [%2]").arg( wellstr ).arg( logstr );
     }
+
     setCaption( capt );
 
     if ( l1 && !wellnm1_.isEmpty() )

@@ -214,8 +214,8 @@ mDefineInstanceCreatedNotifierAccess(Well::Data)
     , info_(*new Info(nm)) \
     , track_(*new Well::Track) \
     , logs_(*new Well::LogSet) \
-    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp())) \
-    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp())) \
+    , disp2d_(*new Well::DisplayProperties2D()) \
+    , disp3d_(*new Well::DisplayProperties3D()) \
     , d2tmodel_(*new D2TModel) \
     , csmodel_(*new D2TModel) \
     , markers_(*new MarkerSet)
@@ -242,6 +242,20 @@ Well::Data::~Data()
     detachAllNotifiers();
 
     mDoAllSubObjs( delete &, );
+}
+
+
+Well::DisplayProperties& Well::Data::displayProperties( bool for2d )
+{
+    return for2d ? (Well::DisplayProperties&)disp2d_
+		 : (Well::DisplayProperties&)disp3d_;
+}
+
+
+const Well::DisplayProperties& Well::Data::displayProperties( bool for2d ) const
+{
+    return for2d ? (Well::DisplayProperties&)disp2d_
+		 : (Well::DisplayProperties&)disp3d_;
 }
 
 

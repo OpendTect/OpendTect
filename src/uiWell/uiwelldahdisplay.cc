@@ -111,6 +111,9 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
 {
     disableScrollZoom();
     setStretch( 2, 2 );
+    logsdata_ += new DahObjData( scene(),true, su );
+    logsdata_ += new DahObjData( scene(),false, su );
+
     reSize.notify( mCB(this,uiWellDahDisplay,reSized) );
     postFinalise().notify( mCB(this,uiWellDahDisplay,init) );
 }
@@ -119,8 +122,9 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
 uiWellDahDisplay::~uiWellDahDisplay()
 {
     detachAllNotifiers();
-    delete ld1_; delete ld2_;
+    //delete ld1_; delete ld2_;
     deepErase( markerdraws_ );
+    deepErase( logsdata_ );
 }
 
 
@@ -131,71 +135,84 @@ void uiWellDahDisplay::setData( const Data& data )
 }
 
 
+uiWellDahDisplay::DahObjData& uiWellDahDisplay::dahObjData( int idx )
+{
+    return *logsdata_.get( idx );
+}
+
+
 void uiWellDahDisplay::gatherInfo()
 {
+    uiWellDahDisplay::DahObjData* ld1 = logsdata_.get( 0 );
+    uiWellDahDisplay::DahObjData* ld2 = logsdata_.get( 1 );
+
     setAxisRelations();
-    gatherDataInfo( true );
-    gatherDataInfo( false );
+    gatherDataInfo( 0 );
+    gatherDataInfo( 1 );
 
-    if ( !ld1_->dahobj_ && !ld2_->dahobj_ )
-	ld1_->valrg_ = ld2_->valrg_ = Interval<float>(mUdf(float),mUdf(float));
+    if ( !ld1->dahobj_ && !ld2->dahobj_ )
+	ld1->valrg_ = ld2->valrg_ = Interval<float>(mUdf(float),mUdf(float));
 
-    setAxisRanges( true );
-    setAxisRanges( false );
+    setAxisRanges( 0 );
+    setAxisRanges( 1 );
 
-    ld1_->xax_.setup().maxnrchars_ = 8;
-    ld2_->xax_.setup().maxnrchars_ = 8;
-    ld1_->xax_.setup().nmcolor_ = ld1_->dahobj_ ? ld1_->col_
-				: ld2_->dahobj_ ? ld2_->col_ : Color::Black();
-    ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
-				: ld1_->dahobj_ ? ld1_->col_ : Color::Black();
+    ld1->xax_.setup().maxnrchars_ = 8;
+    ld2->xax_.setup().maxnrchars_ = 8;
+    ld1->xax_.setup().nmcolor_ = ld1->dahobj_ ? ld1->col_
+				: ld2->dahobj_ ? ld2->col_ : Color::Black();
+    ld2->xax_.setup().nmcolor_ = ld2->dahobj_ ? ld2->col_
+				: ld1->dahobj_ ? ld1->col_ : Color::Black();
 
-    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name().str()
-			 : ld2_->dahobj_ ? ld2_->dahobj_->name().str() : 0;
-    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name().str()
-			 : ld1_->dahobj_ ? ld1_->dahobj_->name().str() : 0;
+    BufferString axis1nm = ld1->dahobj_ ? ld1->dahobj_->name().str()
+			 : ld2->dahobj_ ? ld2->dahobj_->name().str() : 0;
+    BufferString axis2nm = ld2->dahobj_ ? ld2->dahobj_->name().str()
+			 : ld1->dahobj_ ? ld1->dahobj_->name().str() : 0;
 
-    ld1_->xax_.setCaption( toUiString(axis1nm) );
-    ld2_->xax_.setCaption( toUiString(axis2nm) );
+    ld1->xax_.setCaption( toUiString(axis1nm) );
+    ld2->xax_.setCaption( toUiString(axis2nm) );
 }
 
 
 void uiWellDahDisplay::setAxisRelations()
 {
-    ld1_->xax_.setBegin( &ld1_->yax_ );
-    ld1_->yax_.setBegin( &ld2_->xax_ );
-    ld2_->xax_.setBegin( &ld1_->yax_ );
-    ld2_->yax_.setBegin( &ld2_->xax_ );
-    ld1_->xax_.setEnd( &ld2_->yax_ );
-    ld1_->yax_.setEnd( &ld1_->xax_ );
-    ld2_->xax_.setEnd( &ld2_->yax_ );
-    ld2_->yax_.setEnd( &ld1_->xax_ );
+    uiWellDahDisplay::DahObjData* ld1 = logsdata_.get( 0 );
+    uiWellDahDisplay::DahObjData* ld2 = logsdata_.get( 1 );
 
-    ld1_->xax_.setNewDevSize( viewWidth(), viewHeight() );
-    ld1_->yax_.setNewDevSize( viewHeight(), viewWidth() );
-    ld2_->xax_.setNewDevSize( viewWidth(), viewHeight() );
-    ld2_->yax_.setNewDevSize( viewHeight(), viewWidth() );
+    ld1->xax_.setBegin( &ld1->yax_ );
+    ld1->yax_.setBegin( &ld2->xax_ );
+    ld2->xax_.setBegin( &ld1->yax_ );
+    ld2->yax_.setBegin( &ld2->xax_ );
+    ld1->xax_.setEnd( &ld2->yax_ );
+    ld1->yax_.setEnd( &ld1->xax_ );
+    ld2->xax_.setEnd( &ld2->yax_ );
+    ld2->yax_.setEnd( &ld1->xax_ );
 
-    if ( ld2_->xaxprcts_ )
+    ld1->xax_.setNewDevSize( viewWidth(), viewHeight() );
+    ld1->yax_.setNewDevSize( viewHeight(), viewWidth() );
+    ld2->xax_.setNewDevSize( viewWidth(), viewHeight() );
+    ld2->yax_.setNewDevSize( viewHeight(), viewWidth() );
+
+    if ( ld2->xaxprcts_ )
     {
-	ld2_->xaxprcts_->setBegin( &ld1_->yax_ );
-	ld2_->xaxprcts_->setEnd( &ld2_->yax_ );
-	ld2_->xaxprcts_->setNewDevSize( viewWidth(), viewHeight() );
+	ld2->xaxprcts_->setBegin( &ld1->yax_ );
+	ld2->xaxprcts_->setEnd( &ld2->yax_ );
+	ld2->xaxprcts_->setNewDevSize( viewWidth(), viewHeight() );
     }
-    if ( ld1_->xaxprcts_ )
+    if ( ld1->xaxprcts_ )
     {
-	ld1_->xaxprcts_->setBegin( &ld1_->yax_ );
-	ld1_->xaxprcts_->setEnd( &ld2_->yax_ );
-	ld1_->xaxprcts_->setNewDevSize( viewWidth(), viewHeight() );
+	ld1->xaxprcts_->setBegin( &ld1->yax_ );
+	ld1->xaxprcts_->setEnd( &ld2_->yax_ );
+	ld1->xaxprcts_->setNewDevSize( viewWidth(), viewHeight() );
     }
 }
 
 
-void uiWellDahDisplay::gatherDataInfo( bool first )
+void uiWellDahDisplay::gatherDataInfo( int ldidx )
 {
-    uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
+    uiWellDahDisplay::DahObjData& ld = *logsdata_.get( ldidx );
     if ( !ld.dahobj_ )
 	return;
+
     const Well::DahObj& dahobj = *ld.dahobj_;
     MonitorLock ml( dahobj );
     const int sz = dahobj.size();
@@ -222,22 +239,26 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 	startpos = (float) track()->getPos( startpos ).z_;
 	stoppos = (float) track()->getPos( stoppos ).z_;
     }
+
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
 }
 
 
-void uiWellDahDisplay::setAxisRanges( bool first )
+void uiWellDahDisplay::setAxisRanges( int logidx )
 {
-    uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-    uiWellDahDisplay::DahObjData& otherld = first ? *ld2_ : *ld1_;
+    Interval<float> dispvalrg;
+    uiWellDahDisplay::DahObjData& ld = *logsdata_.get( 0 );
+    dispvalrg =  ld.valrg_;
+    for ( int idx=1; idx<logsdata_.size(); idx++ )
+    {
+	uiWellDahDisplay::DahObjData& otherld = *logsdata_.get( idx );
+	if ( mIsUdf( dispvalrg.start ) )
+	    dispvalrg = otherld.valrg_ ;
 
-    Interval<float> dispvalrg( ld.valrg_ );
-    if ( mIsUdf( dispvalrg.start ) )
-	dispvalrg = otherld.valrg_ ;
-
-    if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start ) )
-	dispvalrg.include( otherld.valrg_ );
+	if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start ) )
+	    dispvalrg.include( otherld.valrg_ );
+    }
 
     if ( setup_.symetricalxaxis_ )
     {
@@ -249,34 +270,38 @@ void uiWellDahDisplay::setAxisRanges( bool first )
     if ( ld.xrev_ )
 	std::swap( dispvalrg.start, dispvalrg.stop );
 
-    ld.xax_.setBounds( dispvalrg );
 
     Interval<float> dispzrg( zdata_.zrg_.stop, zdata_.zrg_.start );
-    if ( mIsUdf(zdata_.zrg_.start) )
+    for ( int idx=0; idx<logsdata_.size(); idx++ )
     {
-	dispzrg = ld1_->zrg_;
-	if ( mIsUdf( dispzrg.start ) )
-	    dispzrg = ld2_->zrg_;
-	if ( !mIsUdf( ld2_->zrg_.start ) )
-	    dispzrg.include( ld2_->zrg_ );
+	uiWellDahDisplay::DahObjData& otherld = *logsdata_.get( idx );
+	if ( mIsUdf(dispzrg.start) )
+	    dispzrg = otherld.zrg_;
+	else
+	    dispzrg.include( otherld.zrg_ );
     }
+
     if ( dispzrg.start < dispzrg.stop )
 	dispzrg.sort( false );
 
-    ld.yax_.setBounds( dispzrg );
+    logsdata_.get(logidx)->xax_.setBounds( dispvalrg );
+    logsdata_.get(logidx)->yax_.setBounds( dispzrg );
 }
 
 
 void uiWellDahDisplay::draw()
 {
+    uiWellDahDisplay::DahObjData* ld1 = logsdata_.get( 0 );
+    uiWellDahDisplay::DahObjData* ld2 = logsdata_.get( 1 );
+
     setAxisRelations();
 
-    ld1_->plotAxis();
-    ld2_->plotAxis();
+    ld1->plotAxis();
+    ld2->plotAxis();
 
     drawMarkers();
-    drawCurve( true );
-    drawCurve( false );
+    drawCurve( 0 );
+    //drawCurve( 1 );
 
     drawZPicks();
 }
@@ -291,9 +316,9 @@ void uiWellDahDisplay::draw()
 	}\
     }
 
-void uiWellDahDisplay::drawCurve( bool first )
+void uiWellDahDisplay::drawCurve( int ldidx )
 {
-    uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
+    uiWellDahDisplay::DahObjData& ld = *logsdata_.get( ldidx );
     deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0;
     if ( !ld.dahobj_ )
 	return;
@@ -307,7 +332,20 @@ void uiWellDahDisplay::drawCurve( bool first )
     pts.setCapacity( sz, false );
     for ( int idx=0; idx<sz; idx++ )
     {
-	mDefZPosInLoop( dahobj.dahByIdx( idx ) );
+//	mDefZPosInLoop( dahobj.dahByIdx( idx ) );
+
+
+	float zpos = dahobj.dahByIdx( idx );
+
+    if ( zdata_.zistime_ && zdata_.d2T() && track() )
+	    zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();
+    else if ( !zdata_.zistime_ && track() )
+	    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z_ : 0;
+
+	if ( !logsdata_.get(0)->yax_.range().includes( zpos, true ) )
+		continue;
+
+
 	float val = dahobj.valueByIdx( idx );
 	int xaxisval = mIsUdf(val) ? mUdf(int) : ld.xax_.getPix(val);
 	pts += uiPoint( xaxisval, ld.yax_.getPix(zpos) );
@@ -357,13 +395,13 @@ void uiWellDahDisplay::drawCurve( bool first )
 
     if ( setup_.drawcurvenames_ )
     {
-	OD::Alignment al( OD::Alignment::HCenter, first ? OD::Alignment::Top
+	OD::Alignment al( OD::Alignment::HCenter, ldidx==0 ? OD::Alignment::Top
 						: OD::Alignment::Bottom );
 	uiTextItem* ti = scene().addItem(new uiTextItem(toUiString(
 						       dahobj.name()),al));
 	ti->setTextColor( ls.color_ );
 	uiPoint txtpt;
-	txtpt = first ? uiPoint( pts[0] ) : pts[pts.size()-1];
+	txtpt = ldidx==0 ? uiPoint( pts[0] ) : pts[pts.size()-1];
 	ti->setPos( txtpt );
 	ld.curveitms_.add( ti );
     }
@@ -371,9 +409,10 @@ void uiWellDahDisplay::drawCurve( bool first )
 
 
 #define mDefHorLineX1X2Y() \
-const int x1 = ld1_->xax_.getRelPosPix( 0 ); \
-const int x2 = ld1_->xax_.getRelPosPix( 1 ); \
-const int y = ld1_->yax_.getPix( zpos )
+uiWellDahDisplay::DahObjData* ld1 = logsdata_.get( 0 ); \
+const int x1 = ld1->xax_.getRelPosPix( 0 ); \
+const int x2 = ld1->xax_.getRelPosPix( 1 ); \
+const int y = ld1->yax_.getPix( zpos )
 
 void uiWellDahDisplay::drawMarkers()
 {
@@ -462,8 +501,9 @@ void uiWellDahDisplay::drawZPicks()
 	}
 	else
 	{
-	    int xpos = ld1_->xax_.getPix(val);
-	    int pos = ld1_->yax_.getPix(zpos);
+	    const uiWellDahDisplay::DahObjData* ld1 = logsdata_.get( 0 );
+	    const int xpos = ld1->xax_.getPix(val);
+	    const int pos = ld1->yax_.getPix(zpos);
 	    li = scene().addItem( new uiCircleItem( uiPoint(xpos,pos), 1 ) );
 	}
 

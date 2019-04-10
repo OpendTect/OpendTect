@@ -47,12 +47,12 @@ void uiWellDisplay::init( const Setup& s )
     {
 	zistime_ = wd_->haveD2TModel() && SI().zIsTime();
 
-	const Well::DisplayProperties& disp
-			    = wd_->displayProperties( !use3ddisp_ );
+	const Well::DisplayProperties2D& disp2d
+			    = wd_->displayProperties2d();
 
-	MonitorLock mldisp( disp );
-	const int nrlogdisps = disp.nrLogPairs();
-	for ( int idx=0; idx<nrlogdisps; idx++ )
+	MonitorLock mldisp( disp2d );
+	const int nrlogpanels = disp2d.nrPanels();
+	for ( int idx=0; idx<nrlogpanels; idx++ )
 	{
 	    uiWellLogDisplay::Setup wlsu;
 	    wlsu.noyannot_ = s.noyannot_;
@@ -63,7 +63,11 @@ void uiWellDisplay::init( const Setup& s )
 		wlsu.border_ = uiBorder(0);
 		wlsu.annotinside_ = true;
 	    }
-	    uiWellLogDisplay* wld = new uiWellLogDisplay( this, wlsu );
+	    uiWellLogDisplay* wld = new uiWellLogDisplay( this, wlsu,
+						*disp2d.getLogPanel(idx) );
+	    mAttachCB( disp2d.getLogPanel(idx)->objectChanged(),
+		       uiWellDisplay::wdChgCB );
+
 	    logdisps_ += wld;
 	    if ( s.nobackground_ )
 		wld->setNoBackGround();
@@ -79,7 +83,7 @@ void uiWellDisplay::init( const Setup& s )
 	    }
 	}
 
-	if ( disp.displayStrat() )
+	if ( disp2d.displayStrat() )
 	{
 	    stratdisp_ = new uiWellStratDisplay( this );
 	    if ( !logdisps_.isEmpty() )
@@ -90,8 +94,6 @@ void uiWellDisplay::init( const Setup& s )
 	mAttachCB( wd_->track().objectChanged(), uiWellDisplay::wdChgCB );
 	mAttachCB( wd_->d2TModel().objectChanged(), uiWellDisplay::wdChgCB );
 	mAttachCB( wd_->displayProperties(!use3ddisp_).objectChanged(),
-		   uiWellDisplay::wdChgCB );
-	mAttachCB( wd_->displayProperties(true).log(true).objectChanged(),
 		   uiWellDisplay::wdChgCB );
 	mAttachCB( wd_->displayProperties(true).markers().objectChanged(),
 		   uiWellDisplay::wdChgCB );
@@ -146,28 +148,30 @@ void uiWellDisplay::setDisplayProperties()
     if ( !wd_ )
 	{ clearLogDisplay(); return; }
 
-    const Well::DisplayProperties& dpp = wd_->displayProperties( !use3ddisp_ );
-    MonitorLock mldisp( dpp );
+    const Well::DisplayProperties2D& disp2d = wd_->displayProperties2d();
+    MonitorLock mldisp( disp2d );
 
     for ( int idx=0; idx<logdisps_.size(); idx ++ )
     {
-	uiWellLogDisplay::LogData& ld1 = logdisps_[idx]->logData(true);
-	uiWellLogDisplay::LogData& ld2 = logdisps_[idx]->logData(false);
-
-	if ( idx >= dpp.nrLogPairs() )
+	const Well::DisplayProperties2D::LogPanelProps* panel =
+						disp2d.getLogPanel( idx );
+	if ( !panel )
 	    continue;
-	const Well::LogDispProps& lp1 = dpp.log( true, idx );
-	const Well::LogDispProps& lp2 = dpp.log( false, idx );
 
-	const Well::Log* l1 = wd_->logs().getLogByName( lp1.logName() );
-	const Well::Log* l2 = wd_->logs().getLogByName( lp2.logName() );
+	uiWellLogDisplay* wldisp = logdisps_.get( idx );
+	for ( int ldidx=0; ldidx<panel->logs_.size(); ldidx++ )
+	{
+	    const Well::LogDispProps& lp = *panel->getLog( ldidx );
+	    const Well::Log* log = wd_->logs().getLogByName( lp.logName() );
+	    uiWellLogDisplay::LogData& logdata = wldisp->logData( ldidx );
 
-	ld1.setLog( l1 );			ld2.setLog( l2 );
-	ld1.xrev_ = false;			ld2.xrev_ = false;
-	ld1.disp_ = lp1;			ld2.disp_ = lp2;
+	    logdata.setLog( log );
+	    logdata.xrev_ = false;
+	    logdata.disp_ = lp;
 
-	logdisps_[idx]->markerDisp() = dpp.markers();
-	logdisps_[idx]->dataChanged();
+	    wldisp->markerDisp() = disp2d.markers();
+	    wldisp->dataChanged();
+	}
     }
 }
 
@@ -183,12 +187,16 @@ void uiWellDisplay::clearLogDisplay()
 {
     int ldsisp = logdisps_.size();
     for ( int ldidx=0; ldidx<ldsisp; ldidx ++ )
-	logdisps_[ldidx]->logData(use3ddisp_).setLog(0);
+    {
+	for ( int idx=0; idx<logdisps_[ldidx]->nrLogs(); idx++ )
+	    logdisps_[ldidx]->logData(idx).setLog(0);
+    }
 }
 
 
 void uiWellDisplay::wdChgCB( CallBacker* )
 {
+    //get ChangeType . based on that update the log
     updateDisplayFromWellData();
 }
 

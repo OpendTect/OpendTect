@@ -35,6 +35,7 @@ namespace Well
 {
     class Data;
     class DisplayProperties;
+    class DisplayProperties3D;
     class Log;
     class LogDisplayPars;
     class Track;
@@ -171,7 +172,7 @@ protected:
     void			markerDispPropsChgCB(CallBacker*);
     void			logDispPropsChgCB(CallBacker*);
 
-    Well::DisplayProperties*	dispprop_;
+    Well::DisplayProperties3D*	dispprop_;
 
     Coord3			mousepressposition_;
     const mVisTrans*		transformation_;

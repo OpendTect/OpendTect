@@ -767,9 +767,9 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
-    ChangeNotifyBlocker nb1( wd_.displayProperties(true) );
-    ChangeNotifyBlocker nb2( wd_.displayProperties(false) );
-    wd_.displayProperties(true).usePar( iop );
-    wd_.displayProperties(false).usePar( iop );
+    ChangeNotifyBlocker nb1( wd_.displayProperties2d() );
+    ChangeNotifyBlocker nb2( wd_.displayProperties3d() );
+    wd_.displayProperties2d().usePar( iop );
+    wd_.displayProperties3d().usePar( iop );
     return true;
 }

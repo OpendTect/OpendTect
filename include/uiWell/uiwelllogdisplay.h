@@ -27,8 +27,10 @@ namespace Well { class Log; }
 mExpClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
 {
 public:
-
-			uiWellLogDisplay(uiParent*,const Setup&);
+			//TODO
+		       uiWellLogDisplay(uiParent* p, const Setup& su);
+			uiWellLogDisplay(uiParent*,const Setup&,
+			       const Well::DisplayProperties2D::LogPanelProps&);
 			~uiWellLogDisplay();
 
     mStruct(uiWell) LogData : public uiWellDahDisplay::DahObjData
@@ -59,22 +61,24 @@ public:
 	friend class	uiWellLogDisplay;
     };
 
-    LogData&		logData(bool first=true);
-    const LogData&	logData(bool first=true) const
+    LogData&		logData(int);
+    const LogData&	logData(int idx) const
 				{ return const_cast<uiWellLogDisplay*>(this)
-							->logData(first); }
+							->logData(idx); }
+    int			nrLogs() const;
 
 protected:
 
     Setup		setup_;
 
-    void		gatherDataInfo(bool);
-    void		draw();
+    void		gatherDataInfo(int);
+    void		drawData(int);
 
-    void		drawCurve(bool);
-    void		drawSeismicCurve(bool);
-    void		drawFilledCurve(bool);
+    void		drawCurve(int);
+    void		drawSeismicCurve(int);
+    void		drawFilledCurve(int);
 
+    void		setLogDisplayPorp(CallBacker*);
 };
 
 
@@ -87,7 +91,7 @@ mExpClass(uiWell) uiWellLogDispDlg : public uiDialog
 public:
 
 				uiWellLogDispDlg(uiParent*,
-						 const uiWellLogDisplay::Setup&);
+						const uiWellLogDisplay::Setup&);
 				~uiWellLogDispDlg();
 
     void			setLog(const Well::Log*,bool first=true,

@@ -43,8 +43,10 @@ static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 static const char* sKeyLogStyle = "Log Style";
 static const char* sKeyLogWidthXY = "Log Width XY";
 
-#define mLog1(id) (*logs_[2*id])
-#define mLog2(id) (*logs_[2*id+1])
+static const char* sKeyNrPanels = "Nr Panels";
+static const char* sKeyNrLogs = "Nr Logs";
+static const char* sKeyFillLeftYN = "Fill Left";
+static const char* sKeyFillRightYN = "Fill right";
 
 
 mDefineInstanceCreatedNotifierAccess(Well::DisplayProperties);
@@ -54,7 +56,6 @@ Well::DisplayProperties::DisplayProperties( const char* nm )
     : NamedMonitorable(nm)
     , displaystrat_(false)
 {
-    doAddLogPair();
     usePar( Settings::fetch("welldisp") );
     isdefaults_ = true;
     init();
@@ -92,59 +93,17 @@ void Well::DisplayProperties::copyClassData( const DisplayProperties& oth )
     markers_ = oth.markers_;
     displaystrat_ = oth.displaystrat_;
     isdefaults_ = oth.isdefaults_;
-    copyLogPairsFrom( oth );
 }
 
 
 Monitorable::ChangeType Well::DisplayProperties::compareClassData(
 					const DisplayProperties& oth ) const
 {
-    if ( logs_.size() != oth.logs_.size()
-	|| track_ != oth.track_ || markers_ != oth.markers_ )
+    if ( track_ != oth.track_ || markers_ != oth.markers_ )
 	return cEntireObjectChange();
-
-    for ( int idx=0; idx<logs_.size(); idx++ )
-	if ( *logs_[idx] != *oth.logs_[idx] )
-	    return cEntireObjectChange();
 
     mDeliverSingCondMonitorableCompare( displaystrat_ == oth.displaystrat_,
 					cDispStratChg() );
-}
-
-
-void Well::DisplayProperties::copyLogPairsFrom( const DisplayProperties& oth )
-{
-    logs_.setEmpty();
-    for ( int idx=0; idx<oth.logs_.size(); idx++ )
-    {
-	logs_ += new LogDispProps( *oth.logs_[idx] );
-	if ( idx%2 == 1 )
-	    addCBsToLogPair( pairID4Idx(idx-1) );
-    }
-}
-
-
-Well::DisplayProperties::LogPairID Well::DisplayProperties::doAddLogPair()
-{
-    LogDispProps* newlog1 = new LogDispProps;
-    LogDispProps* newlog2 = new LogDispProps;
-
-    if ( !logs_.isEmpty() ) // i.e. we are not in the constructor
-    {
-	const DisplayProperties& defs = defaults();
-	if ( defs.nrLogPairs() > 0 )
-	{
-	    *newlog1 = defs.log( true );
-	    *newlog2 = defs.log( false );
-	}
-    }
-    newlog1->setFillLeft( true );
-    newlog2->setFillRight( true );
-    logs_ += newlog1; logs_ += newlog2;
-
-    const LogPairID id = pairID4Idx( logs_.size() - 1 );
-    addCBsToLogPair( id );
-    return id;
 }
 
 
@@ -154,88 +113,461 @@ void Well::DisplayProperties::subobjChgCB( CallBacker* )
 }
 
 
-void Well::DisplayProperties::addCBsToLogPair( LogPairID id )
+void Well::DisplayProperties::usePar( const IOPar& inpiop )
 {
-    mAttachCB( mLog1(id).objectChanged(), DisplayProperties::subobjChgCB );
-    mAttachCB( mLog2(id).objectChanged(), DisplayProperties::subobjChgCB );
+    PtrMan<IOPar> subobjpar = inpiop.subselect( subjectName() );
+    const IOPar& ioptouse = subobjpar ? *subobjpar : inpiop;
+
+    track_.usePar( ioptouse );
+    markers_.usePar( ioptouse );
+    bool dispstrat = displaystrat_;
+    ioptouse.getYN( sKey2DDisplayStrat, dispstrat );
+
+    setDisplayStrat( dispstrat );
+    isdefaults_ = false;
 }
 
 
-int Well::DisplayProperties::nrLogPairs() const
+#define mGetIOPKey(ky) IOPar::compKey( subj, ky )
+
+void Well::DisplayProperties::fillPar( IOPar& iop ) const
 {
     mLock4Read();
-    return nrPairs();
+
+    IOPar subpar;
+    track_.fillPar( subpar );
+    markers_.fillPar( subpar );
+    const char* subj = subjectName();
+    subpar.setYN( mGetIOPKey(sKey2DDisplayStrat), displaystrat_ );
+
+    iop.mergeComp( subpar, subj );
 }
 
 
-Well::LogDispProps& Well::DisplayProperties::log( bool fst, LogPairID id )
+Well::DisplayProperties& Well::DisplayProperties::defaults()
 {
-    mLock4Read();
-    if ( id >= nrPairs() )
-	{ pErrMsg("ID out of bounds"); id = 0; }
-    return fst ? mLog1( id ) : mLog2( id );
-}
+    mDefineStaticLocalObject( PtrMan<Well::DisplayProperties>, ret, = 0 );
 
-
-const Well::LogDispProps& Well::DisplayProperties::log( bool fst,
-							  LogPairID id ) const
-{
-    mLock4Read();
-    if ( id >= nrPairs() )
-	{ pErrMsg("ID out of bounds"); id = 0; }
-    return fst ? mLog1( id ) : mLog2( id );
-}
-
-
-Well::DisplayProperties::LogPairID Well::DisplayProperties::addLogPair()
-{
-    mLock4Write();
-    const LogPairID id = doAddLogPair();
-    mSendChgNotif( cLogPairAdded(), id );
-    return id;
-}
-
-
-void Well::DisplayProperties::setNrLogPairs( int nr )
-{
-    mLock4Read();
-    int nrlps = nrPairs();
-    if ( nr == nrlps )
-	return;
-
-    if ( !mLock2Write() )
+    if ( !ret )
     {
-	nrlps = nrPairs();
-	if ( nr == nrlps )
-	    return;
+	Settings& setts = Settings::fetch( sSettingsKey );
+	Well::DisplayProperties* newret = new DisplayProperties;
+	newret->usePar( setts );
+	newret->isdefaults_ = true;
+
+	ret.setIfNull( newret, true );
     }
 
-    while ( logs_.size() > 2*nr )
-	logs_.removeSingle( logs_.size()-1 );
-    nrlps = nrPairs();
-    for ( LogPairID id=nrlps; id<nr; id++ )
-	doAddLogPair();
-
-    mSendEntireObjChgNotif();
+    return *ret;
 }
 
 
-bool Well::DisplayProperties::removeLogPair( LogPairID id )
+void Well::DisplayProperties::commitDefaults()
 {
-    mLock4Read();
-    if ( !isIDAvailable(id) )
-	return false;
+    Settings& setts = Settings::fetch( sSettingsKey );
+    defaults().fillPar( setts );
+    setts.write();
+}
 
-    if ( !mLock2Write() && !isIDAvailable(id) )
-	return false;
+//DisplayProperties3D
+Well::DisplayProperties3D::DisplayProperties3D()
+    : DisplayProperties( sKey3DDispProp() )
+    , leftlog_(0)
+    , rightlog_(0)
+    , logtube_(0)
+{
+    leftlog_ = new LogDispProps;
+    rightlog_ = new LogDispProps;
+}
 
-    mSendChgNotif( cLogPairRemove(), id );
-    logs_.removeSingle( id*2+1 );
-    logs_.removeSingle( id*2 );
-    return true;
+Well::DisplayProperties3D::DisplayProperties3D( const DisplayProperties3D& oth )
+    :DisplayProperties(oth)
+{
+    copyClassData( oth );
 }
 
 
+void Well::DisplayProperties3D::addLog( const DisplayProperties3D::Position pos)
+{
+    mLock4Write();
+    switch( pos )
+    {
+	case Well::DisplayProperties3D::Left:
+	    leftlog_ = new LogDispProps();
+	    break;
+	case Well::DisplayProperties3D::Right:
+	    rightlog_ = new LogDispProps();
+	    break;
+	case Well::DisplayProperties3D::Tube:
+	    logtube_ = new LogDispProps();
+	    break;
+    }
+
+    mSendChgNotif( cLogAdd(), pos );
+}
+
+
+void Well::DisplayProperties3D::removeLog(
+				const DisplayProperties3D::Position pos )
+{
+    mLock4Write();
+    mSendChgNotif( cLogRemove(), 0 );
+    switch( pos )
+    {
+	case Well::DisplayProperties3D::Left:
+	    deleteAndZeroPtr( leftlog_ );
+	    break;
+	case Well::DisplayProperties3D::Right:
+	    deleteAndZeroPtr( rightlog_ );
+	    break;
+	case Well::DisplayProperties3D::Tube:
+	    deleteAndZeroPtr( logtube_ );
+	    break;
+    }
+}
+
+
+mImplMonitorableAssignment(Well::DisplayProperties3D, Well::DisplayProperties);
+
+void Well::DisplayProperties3D::copyClassData(
+					const Well::DisplayProperties3D& oth )
+{
+    leftlog_ = new LogDispProps( *oth.leftLog() );
+    rightlog_ = new LogDispProps( *oth.rightLog() );
+    logtube_ = new LogDispProps( *oth.logTube() );
+}
+
+
+Monitorable::ChangeType Well::DisplayProperties3D::compareClassData(
+				const Well::DisplayProperties3D& oth ) const
+{
+    if ( leftlog_ != oth.leftLog() )
+	return cLogChange();
+    else if ( rightlog_ != oth.rightLog() )
+	return cLogChange();
+    else if ( logtube_ != oth.logTube() )
+	return cLogChange();
+    else
+	return cNoChange();
+}
+
+
+void Well::DisplayProperties3D::usePar( const IOPar& iop )
+{
+    DisplayProperties::usePar( iop );
+    BufferString commonkey( IOPar::compKey(sKey3DDispProp(),sKey::Log()) );
+    ConstPtrMan<IOPar> logpar = iop.subselect( commonkey );
+    if ( !logpar )
+	return;
+
+//TODO Support old usepar
+    ConstPtrMan<IOPar> lfetlogpar = logpar->subselect( "Left" );
+    if ( lfetlogpar )
+	leftlog_->usePar( *lfetlogpar );
+
+    ConstPtrMan<IOPar> rightlogpar = logpar->subselect( "Right" );
+    if ( rightlogpar )
+	rightlog_->usePar( *rightlogpar );
+
+    ConstPtrMan<IOPar> logtubepar = logpar->subselect( "Tube" );
+    if ( logtubepar )
+	logtube_->usePar( *logtubepar );
+}
+
+
+void Well::DisplayProperties3D::fillPar( IOPar& iop ) const
+{
+    DisplayProperties::fillPar( iop );
+
+    BufferString commonkey = IOPar::compKey( sKey3DDispProp(),
+						   sKey::Log() );
+    if ( leftlog_ )
+    {
+	IOPar leftpar;
+	leftlog_->fillPar( leftpar );
+	BufferString leftlogkey( IOPar::compKey(commonkey, "Left") );
+	iop.mergeComp( leftpar, leftlogkey );
+    }
+
+    if ( rightlog_ )
+    {
+	IOPar rightpar;
+	rightlog_->fillPar( rightpar );
+	BufferString rightlogkey( IOPar::compKey(commonkey, "Right") );
+	iop.mergeComp( rightpar, rightlogkey );
+    }
+
+    if ( logtube_ )
+    {
+	IOPar tubepar;
+	logtube_->fillPar( tubepar );
+	BufferString tubelogkey( IOPar::compKey(commonkey, "Tube") );
+	iop.mergeComp( tubepar, tubelogkey );
+    }
+}
+
+
+//LogPanelProps
+Well::DisplayProperties2D::LogPanelProps::LogPanelProps( const char* nm )
+    : NamedMonitorable( nm )
+{
+    //TODO do we need mLock4Write();?
+     addLog();
+}
+
+
+Well::DisplayProperties2D::LogPanelProps::LogPanelProps(
+						    const LogPanelProps& oth )
+{
+    logs_.setEmpty();
+    for ( int lidx=0; lidx<oth.logs_.size(); lidx++ )
+    {
+	logs_ += new LogDispProps( *oth.logs_[lidx] );
+	mAttachCB( oth.logs_[lidx]->objectChanged(),
+		   Well::DisplayProperties2D::LogPanelProps::logChangeCB );
+    }
+    //mSendChgNotif ?
+}
+
+
+void Well::DisplayProperties2D::LogPanelProps::logChangeCB( CallBacker* cb )
+{
+    mLock4Write();
+    mGetMonitoredChgDataWithCaller(cb,chgdata,caller);
+    mDynamicCastGet(LogDispProps*,lp,caller);
+    if ( !lp )
+	return;
+
+    bool isnmchg = chgdata.includes( Well::LogDispProps::cNameChg() );
+    int logid = logs_.indexOf( lp );
+    if ( isnmchg )
+	mSendChgNotif( Well::DisplayProperties2D::LogPanelProps::cLogNameChg(),
+		       logid );
+
+    touch();
+}
+
+
+bool Well::DisplayProperties2D::LogPanelProps::addLog()
+{
+    mLock4Write();
+    bool logadded = logs_.size() <= maximumNrOfLogs();
+    if ( logadded )
+    {
+	LogDispProps* log = new LogDispProps;
+	log->setLogName( "Density" );
+	logs_ += log;
+	const int logid = logs_.indexOf( log );
+	mSendChgNotif( cLogAddToPanel(), logid );
+	mAttachCB( log->objectChanged(),
+		   Well::DisplayProperties2D::LogPanelProps::logChangeCB );
+    }
+
+    return logadded;
+}
+
+
+void Well::DisplayProperties2D::LogPanelProps::removeLog( int idx )
+{
+    if ( logs_.isEmpty() )
+	return;
+
+    mLock4Write();
+    delete logs_.removeSingle( idx );
+    mSendChgNotif( cLogRemoveFromPanel(), idx );
+}
+
+
+Well::LogDispProps* Well::DisplayProperties2D::LogPanelProps::getLog( int id )
+{
+    if ( logs_.isEmpty() )
+	return 0;
+
+    return logs_.get( id );
+}
+
+
+const Well::LogDispProps* Well::DisplayProperties2D::
+					LogPanelProps::getLog( int id ) const
+{
+    if ( logs_.isEmpty() )
+	return 0;
+
+    return logs_.get( id );
+}
+
+
+void Well::DisplayProperties2D::LogPanelProps::fillPar( IOPar& iop ) const
+{
+    const int nrlogs = logs_.size();
+    for ( int lidx=0; lidx<nrlogs; lidx++ )
+    {
+	iop.set( sKeyNrLogs, nrlogs );
+
+	const BufferString logkey = IOPar::compKey( sKey::Log(), lidx );
+	IOPar logpar;
+	logs_.get( lidx )->fillPar( logpar );
+	iop.mergeComp( logpar, logkey );
+    }
+}
+
+
+void Well::DisplayProperties2D::LogPanelProps::usePar( const IOPar& iop )
+{
+    int nrlogs = 0;
+    iop.get( sKeyNrLogs, nrlogs );
+    logs_.setEmpty();
+    for ( int lidx=0; lidx<nrlogs; lidx++ )
+    {
+	const BufferString logkey = IOPar::compKey( sKey::Log(), lidx );
+	PtrMan<IOPar> logpar = iop.subselect( logkey );
+	if ( !logpar )
+	    continue;
+
+	addLog();
+	logs_.get( lidx )->usePar( iop );
+	//TODO need to call old usepar format
+	//like logs_->get( lidx )->oldusePar();
+    }
+}
+
+
+//DisplayProperties2D
+Well::DisplayProperties2D::DisplayProperties2D()
+    : DisplayProperties( sKey2DDispProp() )
+{
+    addLogPanel();
+}
+
+
+Well::DisplayProperties2D::DisplayProperties2D( const DisplayProperties2D& oth )
+    : DisplayProperties(oth)
+{
+    copyClassData( oth );
+}
+
+
+void Well::DisplayProperties2D::addLogPanel()
+{
+    mLock4Write();
+    const bool addpanel = logpanels_.size() <= maximumNrOfLogPanels();
+    if ( addpanel )
+    {
+	LogPanelProps* panel = new LogPanelProps;
+	logpanels_ += panel;
+	mSendChgNotif( cPanelAdded(), logpanels_.size()-1 );
+    }
+}
+
+
+void Well::DisplayProperties2D::removeLogPanel( int panelid )
+{
+    const bool isvalid = logpanels_.validIdx( panelid );
+    if ( !isvalid )
+	return;
+
+    mLock4Write();
+    mSendChgNotif( cPanelRemove(), panelid );
+    logpanels_.removeSingle( panelid );
+}
+
+
+int Well::DisplayProperties2D::nrPanels() const
+{
+    return logpanels_.size();
+}
+
+
+const Well::DisplayProperties2D::LogPanelProps* Well::DisplayProperties2D::
+						getLogPanel( int panelid ) const
+{
+    const bool isvalid = logpanels_.validIdx( panelid );
+    if ( !isvalid )
+	return 0;
+
+    return logpanels_.get( panelid );
+}
+
+
+Well::DisplayProperties2D::LogPanelProps* Well::DisplayProperties2D::
+						getLogPanel( int panelid )
+{
+    const bool isvalid = logpanels_.validIdx( panelid );
+    if ( !isvalid )
+	return 0;
+
+    return logpanels_.get( panelid );
+}
+
+
+mImplMonitorableAssignment(Well::DisplayProperties2D, Well::DisplayProperties);
+
+void Well::DisplayProperties2D::copyClassData(
+				const Well::DisplayProperties2D& oth )
+{
+    logpanels_.setEmpty();
+    for ( int lpidx=0; lpidx<oth.logpanels_.size(); lpidx++ )
+    {
+	LogPanelProps* logpanel = new LogPanelProps( *oth.getLogPanel(lpidx) );
+	logpanels_ += logpanel;
+    }
+}
+
+
+Monitorable::ChangeType Well::DisplayProperties2D::compareClassData(
+				const Well::DisplayProperties2D& oth ) const
+{
+	return cEntireObjectChange();
+}
+
+
+void Well::DisplayProperties2D::usePar( const IOPar& iop )
+{
+    PtrMan<IOPar> disp2ddisppar = iop.subselect( sKey2DDispProp() );
+    if ( !disp2ddisppar )
+	return;
+
+    PtrMan<IOPar> logsubjnmpar = disp2ddisppar->subselect( sKey::Log() );
+    if ( !logsubjnmpar )
+	return;
+
+    int nrpanels = 0;
+    logsubjnmpar->get( sKeyNrPanels, nrpanels );
+    if ( !nrpanels )
+	return;
+
+    logpanels_.setEmpty();
+    for ( int pidx=0; pidx<nrpanels; pidx++ )
+    {
+	addLogPanel();
+	BufferString panelkey( "Panel", pidx );
+	PtrMan<IOPar> logpar = logsubjnmpar->subselect( panelkey );
+	logpanels_.get( pidx )->usePar( *logpar );
+    }
+}
+
+
+void Well::DisplayProperties2D::fillPar( IOPar& iop ) const
+{
+    DisplayProperties::fillPar( iop );
+
+    IOPar logpars;
+    logpars.set( sKeyNrPanels, logpanels_.size() );
+    for ( int pidx=0; pidx<logpanels_.size(); pidx++ )
+    {
+	const LogPanelProps* panel = logpanels_.get( pidx );
+	if ( !panel || panel->logs_.isEmpty() )
+	    continue;
+
+	IOPar panelpar;
+	panel->fillPar( panelpar );
+	const BufferString panelidxkey = IOPar::compKey( "Panel", pidx );
+	logpars.mergeComp( panelpar, panelidxkey );
+    }
+}
+
+
+//MarkerDispProps
 void Well::MarkerDispProps::addSelMarkerName( const char* nm )
 {
     mLock4Write();
@@ -299,9 +631,6 @@ Monitorable::ChangeType Well::BasicDispProps::compareClassData(
     mHandleMonitorableCompare( font_, cFontChg() );
     mDeliverMonitorableCompare();
 }
-
-
-#define mGetIOPKey(ky) IOPar::compKey( subj, ky )
 
 
 void Well::BasicDispProps::baseUsePar( const IOPar& iop,
@@ -564,7 +893,7 @@ Monitorable::ChangeType Well::LogDispProps::compareClassData(
     mDeliverMonitorableCompare();
 }
 
-
+/* TODO remove
 static BufferString gtLRKy( bool left, const char* ky )
 {
     return BufferString( left ? "Left " : "Right ", ky );
@@ -580,12 +909,13 @@ static const char* gtFillStr( bool isleft, bool isleftfill )
 	str = isleftfill ? "Right Fill Left Log" : "Left Fill Left Log";
     return IOPar::compKey( "Log", str );
 }
+*/
 
 
 #define mGetLRIOpKey(ky) mGetIOPKey( gtLRKy(isleft,ky) )
-
-
-void Well::LogDispProps::usePar( const IOPar& iop, bool isleft )
+/*
+//TODO Need to support old format
+void Well::LogDispProps::oldUsePar( const IOPar& iop, bool isleft )
 {
     mLock4Write();
     baseUsePar( iop, sKeyLogNmFont, "Log Name Size" );
@@ -619,122 +949,75 @@ void Well::LogDispProps::usePar( const IOPar& iop, bool isleft )
 	logwidth *= mToFeetFactorF;
     logwidth_ = mNINT32( logwidth );
 }
+*/
 
 
-void Well::LogDispProps::fillPar( IOPar& iop, bool isleft ) const
+void Well::LogDispProps::usePar( const IOPar& iop )
+{
+    mLock4Write();
+    baseUsePar( iop, sKeyLogNmFont, "Log Name Size" );
+
+    iop.get( sKeyLogName, logname_ );
+    iop.get( sKeyRange, range_ );
+    iop.get( sKeyFillName, fillname_ );
+    iop.get( sKeyFillRange, fillrange_ );
+    iop.getYN( sKeyFillLeftYN, isleftfill_ );
+    iop.getYN( sKeyFillRightYN, isrightfill_ );
+
+    iop.getYN( sKeyRevertRange, islogreverted_);
+    iop.get( sKeyCliprate, cliprate_ );
+    iop.getYN( sKeySingleCol, issinglecol_ );
+    iop.getYN( sKeyDataRange, isdatarange_ );
+    iop.get( sKeyRepeatLog, repeat_ );
+    iop.get( sKeyOverlap, repeatovlap_ );
+    iop.get( sKeySeisColor, seiscolor_ );
+    iop.get( sKeySeqname, seqname_ );
+    iop.getYN( sKeyScale, islogarithmic_ );
+    iop.get( sKeyLogStyle,style_);
+    bool isflipped = ColTab::isFlipped( sequsemode_ );
+    bool iscyclic = ColTab::isCyclic( sequsemode_ );
+    iop.getYN( sKeyColTabFlipped, isflipped );
+    iop.getYN( sKeyColTabCyclic, iscyclic );
+    sequsemode_ = ColTab::getSeqUseMode( isflipped, iscyclic );
+
+    float logwidth = 250.f;
+    iop.get( sKeyLogWidthXY, logwidth );
+    if ( SI().xyInFeet() )
+	logwidth *= mToFeetFactorF;
+
+    logwidth_ = mNINT32( logwidth );
+}
+
+
+//void Well::LogDispProps::fillPar( IOPar& iop, bool isleft ) const
+void Well::LogDispProps::fillPar( IOPar& iop ) const
 {
     mLock4Read();
     baseFillPar( iop, sKeyLogNmFont );
-    const char* subj = subjectName();
 
     float logwidth = (float)logwidth_;
     if ( SI().xyInFeet() )
 	logwidth *= mFromFeetFactorF;
 
-    iop.set( mGetLRIOpKey(sKeyLogName), logname_ );
-    iop.set( mGetLRIOpKey(sKeyRange), range_ );
-    iop.set( mGetLRIOpKey(sKeyFillName), fillname_ );
-    iop.set( mGetLRIOpKey(sKeyFillRange), fillrange_ );
-    iop.setYN( gtFillStr(isleft,true), isleftfill_ );
-    iop.setYN( gtFillStr(isleft,false), isrightfill_ );
-    iop.setYN( mGetLRIOpKey(sKeyRevertRange),islogreverted_);
-    iop.set( mGetLRIOpKey(sKeyCliprate), cliprate_ );
-    iop.setYN( mGetLRIOpKey(sKeySingleCol), issinglecol_ );
-    iop.setYN( mGetLRIOpKey(sKeyDataRange), isdatarange_ );
-    iop.set( mGetLRIOpKey(sKeyRepeatLog), repeat_ );
-    iop.set( mGetLRIOpKey(sKeyOverlap), repeatovlap_ );
-    iop.set( mGetLRIOpKey(sKeySeisColor), seiscolor_ );
-    iop.set( mGetLRIOpKey(sKeySeqname), seqname_ );
-    iop.setYN( mGetLRIOpKey(sKeyScale), islogarithmic_ );
-    iop.setYN( mGetLRIOpKey(sKeyColTabFlipped), ColTab::isFlipped(sequsemode_));
-    iop.setYN( mGetLRIOpKey(sKeyColTabCyclic), ColTab::isCyclic(sequsemode_) );
-    iop.set( mGetLRIOpKey(sKeyLogStyle),style_);
-    iop.set( mGetLRIOpKey(sKeyLogWidthXY),logwidth );
-}
+    iop.set( sKeyLogName, logname_ );
+    iop.set( sKeyRange, range_ );
+    iop.set( sKeyFillName, fillname_ );
+    iop.set( sKeyFillRange, fillrange_ );
 
+    iop.setYN( sKeyFillLeftYN, isleftfill_ );
+    iop.setYN( sKeyFillRightYN, isrightfill_ );
 
-void Well::DisplayProperties::usePar( const IOPar& inpiop )
-{
-    IOPar* iop = inpiop.subselect( subjectName() );
-    if ( !iop )
-	iop = new IOPar( inpiop );
-
-    track_.usePar( *iop );
-    markers_.usePar( *iop );
-
-    mLog1(0).usePar( *iop, true );
-    mLog2(0).usePar( *iop, false );
-
-    int lpidx=1;
-    IOPar* welliop = iop->subselect( toString(lpidx) );
-    if ( welliop || logs_.size() > 2 )
-    {
-	mLock4Write();
-	logs_.setEmpty();
-	for ( int idx=logs_.size()-1; idx>1; idx-- )
-	    logs_.removeSingle( idx );
-	while ( welliop )
-	{
-	    LogPairID lpid = doAddLogPair();
-	    mLog1(lpid).usePar( *welliop, true );
-	    mLog2(lpid).usePar( *welliop, false );
-	    lpid++;
-	    delete welliop;
-	    welliop = iop->subselect( toString(lpid) );
-	}
-	mSendEntireObjChgNotif();
-    }
-
-    bool dispstrat = displaystrat_;
-    iop->getYN( sKey2DDisplayStrat, dispstrat );
-    delete iop;
-    setDisplayStrat( dispstrat );
-    isdefaults_ = false;
-}
-
-
-void Well::DisplayProperties::fillPar( IOPar& iop ) const
-{
-    mLock4Read();
-
-    IOPar subpar;
-    track_.fillPar( subpar );
-    markers_.fillPar( subpar );
-    for ( LogPairID id=0; id<nrPairs(); id++ )
-    {
-	IOPar logpairiop;
-	mLog1(id).fillPar( logpairiop, true );
-	mLog2(id).fillPar( logpairiop, false );
-	subpar.mergeComp( logpairiop, id > 0 ? toString( id ) : "" );
-    }
-    const char* subj = subjectName();
-    subpar.setYN( mGetIOPKey(sKey2DDisplayStrat), displaystrat_ );
-
-    iop.mergeComp( subpar, subj );
-}
-
-
-Well::DisplayProperties& Well::DisplayProperties::defaults()
-{
-    mDefineStaticLocalObject( PtrMan<Well::DisplayProperties>, ret, = 0 );
-
-    if ( !ret )
-    {
-	Settings& setts = Settings::fetch( sSettingsKey );
-	Well::DisplayProperties* newret = new DisplayProperties;
-	newret->usePar( setts );
-	newret->isdefaults_ = true;
-
-	ret.setIfNull( newret, true );
-    }
-
-    return *ret;
-}
-
-
-void Well::DisplayProperties::commitDefaults()
-{
-    Settings& setts = Settings::fetch( sSettingsKey );
-    defaults().fillPar( setts );
-    setts.write();
+    iop.setYN( sKeyRevertRange,islogreverted_);
+    iop.set( sKeyCliprate, cliprate_ );
+    iop.setYN( sKeySingleCol, issinglecol_ );
+    iop.setYN( sKeyDataRange, isdatarange_ );
+    iop.set( sKeyRepeatLog, repeat_ );
+    iop.set( sKeyOverlap, repeatovlap_ );
+    iop.set( sKeySeisColor, seiscolor_ );
+    iop.set( sKeySeqname, seqname_ );
+    iop.setYN( sKeyScale, islogarithmic_ );
+    iop.setYN( sKeyColTabFlipped, ColTab::isFlipped(sequsemode_));
+    iop.setYN( sKeyColTabCyclic, ColTab::isCyclic(sequsemode_) );
+    iop.set( sKeyLogStyle, style_ );
+    iop.set( sKeyLogWidthXY, logwidth );
 }

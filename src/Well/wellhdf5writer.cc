@@ -403,8 +403,8 @@ bool Well::HDF5Writer::putDispProps() const
     mEnsureFileOpen();
 
     IOPar iop;
-    wd_.displayProperties(true).fillPar( iop );
-    wd_.displayProperties(false).fillPar( iop );
+    wd_.displayProperties2d().fillPar( iop );
+    wd_.displayProperties3d().fillPar( iop );
     putDepthUnit( iop );
     const DataSetKey grpdsky( sDispParsGrpName() );
     uiRetVal uirv = wrr_->putInfo( grpdsky, iop );

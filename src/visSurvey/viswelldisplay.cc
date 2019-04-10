@@ -37,10 +37,12 @@
 #define mCheckWD(act) if ( !wd_ ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;
 #define mFeet2Meter(val) val *= mFromFeetFactorF;
-#define mGetDispPar(param) wd_->displayProperties().param
+#define mGetDispPar(param) wd_->displayProperties3d().param
 #define mGetTrackDispPar(fnnm) mGetDispPar( track().fnnm() )
 #define mGetMarkersDispPar(fnnm) mGetDispPar( markers().fnnm() )
-#define mGetLogDispPar(fnnm) mGetDispPar( log(isleft).fnnm() )
+#define mGetLogDispPar(fnnm) \
+    isleft ? mGetDispPar( leftLog()->fnnm() ) \
+	   : mGetDispPar( rightLog()->fnnm() );
 
 
 namespace visSurvey
@@ -109,16 +111,21 @@ uiRetVal WellDisplay::getWD() const
 	    mAttachWDObjCB( logs(), logsChgCB );
 	    mAttachWDObjCB( markers(), markersChgCB );
 #	    define mAttachWDDispPropsCB( obj, fn ) \
-		mAttachWDObjCB( displayProperties(false).obj, fn )
+		mAttachWDObjCB( displayProperties3d().obj, fn )
 	    mAttachWDDispPropsCB( track(), trackDispPropsChgCB );
 	    mAttachWDDispPropsCB( markers(), markerDispPropsChgCB );
-	    mAttachWDDispPropsCB( log(true), logDispPropsChgCB );
-	    mAttachWDDispPropsCB( log(false), logDispPropsChgCB );
+
+
+	    mAttachObjCB( &self,
+			 wd_->displayProperties3d().leftLog()->objectChanged(),
+			 WellDisplay::logDispPropsChgCB,false);
+	    mAttachObjCB( &self,
+			 wd_->displayProperties3d().rightLog()->objectChanged(),
+			 WellDisplay::logDispPropsChgCB,false);
 	}
     }
     return uirv;
 }
-
 
 void WellDisplay::infoChgCB( CallBacker* cb )
 {
@@ -206,14 +213,14 @@ void WellDisplay::logDispPropsChgCB( CallBacker* cb )
 void WellDisplay::saveDispProp( const Well::Data* wd )
 {
     if ( wd )
-	dispprop_ = new Well::DisplayProperties( wd->displayProperties() );
+	dispprop_ = new Well::DisplayProperties3D( wd->displayProperties3d() );
 }
 
 
 void WellDisplay::restoreDispProp()
 {
     if ( dispprop_ && wd_ )
-	wd_->displayProperties() = *dispprop_;
+	wd_->displayProperties3d() = *dispprop_;
 }
 
 
@@ -390,7 +397,7 @@ void WellDisplay::updateMarkers()
     const Well::Track& track = needsConversionToTime() ? *timetrack_
 						       : wd_->track();
     const BufferStringSet selnms(
-		wd_->displayProperties(false).markers().selMarkerNames() );
+		wd_->displayProperties3d().markers().selMarkerNames() );
 
     const Well::MarkerSet& markers = wd_->markers();
     Well::MarkerSetIter miter( markers );
@@ -554,7 +561,8 @@ bool WellDisplay::upscaleLogs( const Well::Track& track,
     const Stats::UpscaleType logdatastats =
 	logdatain->valsAreCodes() ? Stats::UseMostFreq : Stats::UseAvg;
     const Stats::UpscaleType logfillstats =
-	logfillin && logfillin->valsAreCodes() ? Stats::UseMostFreq : Stats::UseAvg;
+	logfillin && logfillin->valsAreCodes() ? Stats::UseMostFreq
+					       : Stats::UseAvg;
     for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
     {
 	const float dah = dahrange.atIndex( idah );
@@ -1075,7 +1083,7 @@ void WellDisplay::fillPar( IOPar& par ) const
     par.set( sKeyEarthModelID, wellid_ );
 
     mCheckWD(return);
-    wd_->displayProperties().fillPar( par );
+    wd_->displayProperties3d().fillPar( par );
 
 }
 
@@ -1094,7 +1102,7 @@ bool WellDisplay::usePar( const IOPar& par )
 	return false;
 
     mCheckWD(return false);
-    wd_->displayProperties().usePar( par );
+    wd_->displayProperties3d().usePar( par );
     displayLeftLog();
     displayRightLog();
 

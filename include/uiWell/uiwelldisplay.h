@@ -101,6 +101,7 @@ protected:
     void			updateDisplayFromWellData();
 
     void			wdChgCB(CallBacker*);
+    void			wdLogChgCB(CallBacker*);
     void			wellReloadCB(CallBacker*);
 
 private:

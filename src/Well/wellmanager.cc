@@ -177,8 +177,8 @@ bool Well::Manager::readReqData( const ObjID& id, Data& wd,
     mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
     if ( lreq.includes(DispProps2D) || lreq.includes(DispProps3D) )
     {
-	ChangeNotifyBlocker nb2d( wd.displayProperties(true) );
-	ChangeNotifyBlocker nb3d( wd.displayProperties(false) );
+	ChangeNotifyBlocker nb2d( wd.displayProperties2d() );
+	ChangeNotifyBlocker nb3d( wd.displayProperties3d() );
 	rdr.getDispProps();
     }
     return true;
@@ -526,8 +526,8 @@ void Well::Saver::updateLastSavedSubObjDirtyCounts( const Well::Data& wd ) const
     mSetFor( CSMdl, checkShotModel() );
     mSetFor( Mrkrs, markers() );
     mSetFor( Logs, logs() );
-    mSetFor( DispProps2D, displayProperties(true) );
-    mSetFor( DispProps3D, displayProperties(false) );
+    mSetFor( DispProps2D, displayProperties2d() );
+    mSetFor( DispProps3D, displayProperties3d() );
 }
 
 
@@ -543,8 +543,8 @@ Well::Saver::StoreReqs Well::Saver::getStoreReqs( const Well::Data& wd ) const
     mUnsetIfUnchanged( CSMdl, checkShotModel() );
     mUnsetIfUnchanged( Mrkrs, markers() );
     mUnsetIfUnchanged( Logs, logs() );
-    mUnsetIfUnchanged( DispProps2D, displayProperties(true) );
-    mUnsetIfUnchanged( DispProps3D, displayProperties(false) );
+    mUnsetIfUnchanged( DispProps2D, displayProperties2d() );
+    mUnsetIfUnchanged( DispProps3D, displayProperties3d() );
 
     return reqs;
 }
