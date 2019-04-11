@@ -501,7 +501,7 @@ void Seis::RangeSelData::doExtendH( BinID so, BinID sos )
     if ( css_ )
     {
 	addHrgStepout( css_->inlSubSel(), so.inl() * sos.inl() );
-	addHrgStepout( css_->inlSubSel(), so.crl() * sos.crl() );
+	addHrgStepout( css_->crlSubSel(), so.crl() * sos.crl() );
     }
     else
     {
