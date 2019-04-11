@@ -13,7 +13,7 @@ import signal
 import subprocess
 import json
 
-from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg
+from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg, sTimeUnitString
 
 def getODCommand(execnm,args=None):
   cmd = list()
