@@ -470,7 +470,7 @@ bool CubeHorSubSel::doUsePar( const IOPar& iop )
     {
 	iop.get( sKey::FirstInl(), rg.start );
 	iop.get( sKey::LastInl(), rg.stop );
-	iop.get( sKey::StepInl(), rg.stop );
+	iop.get( sKey::StepInl(), rg.step );
     }
     setInlRange( rg );
     rg = crlRange();
@@ -478,7 +478,7 @@ bool CubeHorSubSel::doUsePar( const IOPar& iop )
     {
 	iop.get( sKey::FirstCrl(), rg.start );
 	iop.get( sKey::LastCrl(), rg.stop );
-	iop.get( sKey::StepCrl(), rg.stop );
+	iop.get( sKey::StepCrl(), rg.step );
     }
     setCrlRange( rg );
     return true;
