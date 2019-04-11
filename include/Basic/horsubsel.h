@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "posidxsubsel.h"
 #include "survsubsel.h"
 #include "manobjectset.h"
+class Bin2D;
 class HorSampling;
 namespace Survey { class Geometry; class Geometry2D; class Geometry3D; }
 class TrcKeySampling;
@@ -33,6 +34,7 @@ public:
 			LineHorSubSel(const pos_steprg_type&);
 			LineHorSubSel(const TrcKeySampling&);
 			LineHorSubSel(GeomID,trcnr_type);
+			LineHorSubSel(const Bin2D&);
 			mImplArrRegSubSelClone(LineHorSubSel)
 
     bool		is2D() const override	   { return true; }
@@ -57,8 +59,9 @@ public:
 			{ return pos4Idx( idx ); }
     size_type		nrTrcs() const		{ return data_.size(); }
 
-    bool		includes( pos_type pos ) const
-			{ return Pos::IdxSubSel1D::includes(pos); }
+    bool		includes( trcnr_type tnr ) const
+			{ return Pos::IdxSubSel1D::includes(tnr); }
+    bool		includes(const Bin2D&) const;
     bool		includes(const LineHorSubSel&) const;
     void		merge(const LineHorSubSel&);
 

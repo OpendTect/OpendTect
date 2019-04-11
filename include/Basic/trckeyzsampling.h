@@ -39,7 +39,7 @@ public:
     mUseType( OD,	GeomSystem );
     mUseType( OD,	SliceType );
     mUseType( TrcKey,	linenr_type );
-    mUseType( TrcKey,	tracenr_type );
+    mUseType( TrcKey,	trcnr_type );
     mUseType( Survey,	HorSubSel );
     mUseType( Survey,	FullSubSel );
     mUseType( Survey,	Geometry );
@@ -83,7 +83,7 @@ public:
     ZSampling		zsamp_;
 
     int			lineIdx(linenr_type) const;
-    int			trcIdx(tracenr_type) const;
+    int			trcIdx(trcnr_type) const;
     int			zIdx(float z) const;
     int			nrLines() const;
     int			nrTrcs() const;

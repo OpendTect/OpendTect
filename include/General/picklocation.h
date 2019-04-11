@@ -50,8 +50,8 @@ public:
 
     mUseType( Pos,		GeomID );
     typedef GroupLabel::ID	GroupLabelID;
-    typedef Pos::TraceNr_Type	tracenr_type;
-    typedef tracenr_type	linenr_type;
+    typedef Pos::TraceNr_Type	trcnr_type;
+    typedef trcnr_type		linenr_type;
 
 			Location();
 			Location(double x,double y,double z=0);
@@ -76,7 +76,7 @@ public:
     GeomID		geomID() const;
     const TrcKey&	trcKey() const;
     linenr_type		lineNr() const;
-    tracenr_type	trcNr() const;
+    trcnr_type		trcNr() const;
     BinID		binID() const;
     const Sphere&	dir() const;
     const BufferString&	text() const;
@@ -100,10 +100,10 @@ public:
     Location&		setDir(const Sphere&);
     Location&		setDir(const Coord&);
     Location&		setLineNr(linenr_type);
-    Location&		setTrcNr(tracenr_type);
+    Location&		setTrcNr(trcnr_type);
     Location&		setGeomID(GeomID);
     Location&		setPos(const BinID&,bool updcoord=false);
-    Location&		setPos(GeomID,tracenr_type,bool updcoord=false);
+    Location&		setPos(GeomID,trcnr_type,bool updcoord=false);
 
     bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;

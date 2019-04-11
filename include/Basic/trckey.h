@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "survgeom.h"
+#include "bin2d.h"
+
 
 /*!\brief represents a unique trace position coupled to a survey geometry
 
@@ -37,16 +39,18 @@ public:
     mUseType( Survey,	Geometry );
     mUseType( Geometry,	pos_type );
     mUseType( Geometry,	linenr_type );
-    mUseType( Geometry,	tracenr_type );
+    mUseType( Geometry,	trcnr_type );
     mUseType( Geometry,	dist_type );
 
 			TrcKey()		{ *this = udf(); }
 
     explicit		TrcKey(const BinID&);	    //!< The 3D choice
-			TrcKey(GeomID,tracenr_type); //!< The 2D choice
+    explicit		TrcKey( const Bin2D& b2d )
+			    : TrcKey(b2d.geomID(),b2d.trcNr())	{}
+			TrcKey(GeomID,trcnr_type);
 			TrcKey(GeomSystem,const BinID&);
 			TrcKey(const BinID&,bool is2d);
-    static TrcKey	getSynth(tracenr_type);
+    static TrcKey	getSynth(trcnr_type);
 			mImplSimpleEqOpers2Memb(TrcKey,geomsystem_,pos_)
 
     GeomSystem		geomSystem() const	{ return geomsystem_; }
@@ -58,21 +62,22 @@ public:
     bool		isUdf() const;	//!< just examines inl/crl
     bool		exists() const;	//!< checks in geometry
 
-    GeomID		geomID() const	{ return geomID(geomSystem(),pos_); }
-    static GeomID	geomID(GeomSystem,const BinID&);
-
     const BinID&	position() const		{ return pos_; }
-    pos_type		lineNr() const			{ return pos_.row(); }
-    pos_type		trcNr() const			{ return pos_.col(); }
+    GeomID		geomID() const;
+    linenr_type		lineNr() const			{ return pos_.row(); }
+    trcnr_type		trcNr() const			{ return pos_.col(); }
     const BinID&	binID() const			{ return position(); }
-    pos_type		inl() const			{ return lineNr(); }
-    pos_type		crl() const			{ return trcNr(); }
+    Bin2D		bin2D() const;
+    pos_type		inl() const			{ return pos_.row(); }
+    pos_type		crl() const			{ return pos_.col(); }
 
 			// These set the GeomSystem of the TrcKey:
     TrcKey&		setGeomID(GeomID);
     TrcKey&		setGeomSystem(GeomSystem);
     TrcKey&		setPos(const BinID&);
-    inline TrcKey&	setPos( GeomID gid, tracenr_type trcnr )
+    TrcKey&		setPos( const Bin2D& b2d )
+			{ return setPos( b2d.geomID(), b2d.trcNr() ); }
+    inline TrcKey&	setPos( GeomID gid, trcnr_type trcnr )
 			{ setGeomID( gid ); return setTrcNr( trcnr ); }
     inline TrcKey&	setIs3D()
 			{ geomsystem_ = OD::VolBasedGeom; return *this; }
@@ -88,8 +93,8 @@ public:
 			// These do not change the GeomSystem of the TrcKey:
     inline TrcKey&	setLineNr( linenr_type nr )
 			{ pos_.row() = nr; return *this; }
-    inline TrcKey&	setTrcNr( tracenr_type nr )
-			{ pos_.col() = nr; return *this; }
+    inline TrcKey&	setTrcNr( trcnr_type tnr )
+			{ pos_.col() = tnr; return *this; }
     inline TrcKey&	setInl( pos_type nr )
 			{ return setLineNr(nr); }
     inline TrcKey&	setCrl( pos_type nr )
@@ -116,7 +121,8 @@ protected:
     GeomSystem		geomsystem_		= OD::VolBasedGeom;
     BinID		pos_;
 
-};
+public:
 
-template <class T> class TypeSet;
-typedef TypeSet<TrcKey> TrcKeyPath;
+    static GeomID	gtGeomID(GeomSystem,linenr_type);
+
+};

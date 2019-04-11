@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "survgeom.h"
+#include "bin2d.h"
 class TrcKeyZSampling;
 namespace PosInfo { class Line2DData; class Line2DPos; }
 
@@ -56,21 +57,23 @@ public:
 						{ return OD::LineBasedGeom; }
     const name_type&	name() const override;
     size_type		size() const;
-    idx_type		indexOf(tracenr_type) const;
-    tracenr_type	trcNr(idx_type) const;
-    bool		includes(tracenr_type) const;
-    Coord		getCoord(tracenr_type) const;
+    idx_type		indexOf(trcnr_type) const;
+    trcnr_type		trcNr(idx_type) const;
+    Bin2D		bin2D(idx_type) const;
+    bool		includes(trcnr_type) const;
+    bool		includes(const Bin2D&) const;
+    Coord		getCoord(trcnr_type) const;
     Coord		getCoordByIdx(idx_type) const;
-    spnr_type		getSPNr(tracenr_type) const;
-    bool		findSP(spnr_type,tracenr_type&) const;
-    void		getInfo(tracenr_type,Coord&,spnr_type&) const;
+    spnr_type		getSPNr(trcnr_type) const;
+    bool		findSP(spnr_type,trcnr_type&) const;
+    void		getInfo(trcnr_type,Coord&,spnr_type&) const;
 
     dist_type		averageTrcDist() const	    { return avgtrcdist_; }
     dist_type		lineLength() const	    { return linelength_; }
 
-    tracenr_type	nearestTracePosition(const Coord&,
+    trcnr_type		nearestTracePosition(const Coord&,
 					     dist_type* dist_to_line=0) const;
-    tracenr_type	tracePosition(const Coord&,
+    trcnr_type		tracePosition(const Coord&,
 				      dist_type maxdist=mUdf(dist_type)) const;
 
     Notifier<Geometry2D> objectChanged;
@@ -107,7 +110,7 @@ public:
 			// *you* should probably not be changing line geometries
     void		setEmpty() const;
     void		setName(const char*);
-    void		add(const Coord&,tracenr_type,spnr_type);
+    void		add(const Coord&,trcnr_type,spnr_type);
     void		commitChanges() const; //!< mandatory after any change
 
     static Geometry2D&	dummy();

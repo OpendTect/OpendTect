@@ -14,7 +14,7 @@
 #include "od_iostream.h"
 
 #define mUseL2DDataType(typ) mUseType( PosInfo::Line2DData, typ )
-mUseL2DDataType(tracenr_type);
+mUseL2DDataType(trcnr_type);
 mUseL2DDataType(IdxSet);
 mUseL2DDataType(TrcNrSet);
 mUseL2DDataType(PosSet);
@@ -34,14 +34,14 @@ PosInfo::Line2DData::Line2DData( const char* lnm )
 
 // Returns the index, or the index just before if not found
 
-idx_type PosInfo::Line2DData::gtIndex( tracenr_type nr, bool& found ) const
+idx_type PosInfo::Line2DData::gtIndex( trcnr_type nr, bool& found ) const
 {
     const size_type sz = posns_.size();
     if ( sz==0 )
 	{ found = false; return -1; }
 
     idx_type i0 = 0, i1 = sz - 1;
-    tracenr_type nr0 = posns_[i0].nr_; tracenr_type nr1 = posns_[i1].nr_;
+    trcnr_type nr0 = posns_[i0].nr_; trcnr_type nr1 = posns_[i1].nr_;
     if ( nr < nr0 )
 	{ found = false; return -1; }
     if ( nr > nr1 )
@@ -54,7 +54,7 @@ idx_type PosInfo::Line2DData::gtIndex( tracenr_type nr, bool& found ) const
     while ( i1 - i0 > 1 )
     {
 	idx_type newi = (i0 + i1) / 2;
-	tracenr_type newnr = posns_[newi].nr_;
+	trcnr_type newnr = posns_[newi].nr_;
 	if ( newnr == nr )
 	    return newi;
 	if ( newnr > nr )	{ i1 = newi; nr1 = newnr; }
@@ -158,8 +158,13 @@ void PosInfo::Line2DData::setGeomID( GeomID gid ) const
 }
 
 
-PosInfo::Line2DData::tracenr_type
-PosInfo::Line2DData::trcNr( idx_type idx ) const
+Bin2D PosInfo::Line2DData::bin2D( idx_type idx ) const
+{
+    return Bin2D( geomid_, posns_.validIdx(idx) ? posns_.get(idx).nr_ : -1 );
+}
+
+
+trcnr_type PosInfo::Line2DData::trcNr( idx_type idx ) const
 {
     return posns_.validIdx(idx) ? posns_.get(idx).nr_ : -1;
 }
@@ -190,7 +195,7 @@ void PosInfo::Line2DData::removeByIdx( idx_type idx )
 }
 
 
-void PosInfo::Line2DData::remove( tracenr_type nr )
+void PosInfo::Line2DData::remove( trcnr_type nr )
 {
     bool found; int idx = gtIndex( nr, found );
     if ( found )
@@ -198,7 +203,7 @@ void PosInfo::Line2DData::remove( tracenr_type nr )
 }
 
 
-void PosInfo::Line2DData::limitTo( tracenr_type start, tracenr_type stop )
+void PosInfo::Line2DData::limitTo( trcnr_type start, trcnr_type stop )
 {
     if ( start > stop )
 	std::swap( start, stop );
@@ -211,7 +216,7 @@ void PosInfo::Line2DData::limitTo( tracenr_type start, tracenr_type stop )
 }
 
 
-idx_type PosInfo::Line2DData::indexOf( tracenr_type nr ) const
+idx_type PosInfo::Line2DData::indexOf( trcnr_type nr ) const
 {
     bool found; idx_type idx = gtIndex( nr, found );
     return found ? idx : -1;
@@ -219,7 +224,7 @@ idx_type PosInfo::Line2DData::indexOf( tracenr_type nr ) const
 
 
 idx_type PosInfo::Line2DData::nearestIdx( const Coord& pos,
-				     const tracenr_rg_type& nrrg ) const
+				     const trcnr_rg_type& nrrg ) const
 {
     const idx_type posidx = gtIndex( pos );
     if ( !posns_.validIdx(posidx) )
@@ -259,7 +264,7 @@ bool PosInfo::Line2DData::getPos( const Coord& crd,
 }
 
 
-bool PosInfo::Line2DData::getPos( tracenr_type nr, Line2DPos& pos ) const
+bool PosInfo::Line2DData::getPos( trcnr_type nr, Line2DPos& pos ) const
 {
     bool found; idx_type idx = gtIndex( nr, found );
     if ( !found )
@@ -311,7 +316,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
     bendpoints_.erase();
     for ( idx_type idx=0; idx<linesz; idx++ )
     {
-	tracenr_type trcnr = -1;
+	trcnr_type trcnr = -1;
 	if ( asc )
 	    strm >> trcnr;
 	else
@@ -385,10 +390,10 @@ void PosInfo::Line2DData::setBendPoints( const IdxSet& bps )
 }
 
 
-PosInfo::Line2DData::tracenr_steprg_type PosInfo::Line2DData::trcNrRange() const
+PosInfo::Line2DData::trcnr_steprg_type PosInfo::Line2DData::trcNrRange() const
 {
     const size_type sz = posns_.size();
-    tracenr_steprg_type res( -1, -1, 1 );
+    trcnr_steprg_type res( -1, -1, 1 );
     if ( sz < 1 )
 	return res;
     res.start = posns_[0].nr_;
@@ -399,7 +404,7 @@ PosInfo::Line2DData::tracenr_steprg_type PosInfo::Line2DData::trcNrRange() const
     res.step = 0;
     for ( idx_type idx=1; idx<sz; idx++ )
     {
-	const tracenr_type diff = posns_[idx].nr_ - posns_[idx-1].nr_;
+	const trcnr_type diff = posns_[idx].nr_ - posns_[idx-1].nr_;
 	if ( diff == 0 )
 	    continue;
 
@@ -425,7 +430,7 @@ PosInfo::Line2DData::tracenr_steprg_type PosInfo::Line2DData::trcNrRange() const
 }
 
 
-Coord PosInfo::Line2DData::getNormal( tracenr_type trcnr ) const
+Coord PosInfo::Line2DData::getNormal( trcnr_type trcnr ) const
 {
     bool found; const idx_type posidx = gtIndex( trcnr, found );
     if ( !found )
@@ -450,8 +455,8 @@ Coord PosInfo::Line2DData::getNormal( tracenr_type trcnr ) const
 }
 
 
-dist_type PosInfo::Line2DData::distBetween( tracenr_type starttrcnr,
-					tracenr_type stoptrcnr ) const
+dist_type PosInfo::Line2DData::distBetween( trcnr_type starttrcnr,
+					    trcnr_type stoptrcnr ) const
 {
     dist_type ret = mUdf(dist_type);
     if ( stoptrcnr < starttrcnr )
@@ -504,8 +509,8 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
     if ( mypos.isEmpty() || othpos.isEmpty() )
 	return false;
 
-    const tracenr_type startnr = mMAX( mypos.first().nr_, othpos.first().nr_ );
-    const tracenr_type stopnr = mMIN( mypos.last().nr_, othpos.last().nr_ );
+    const trcnr_type startnr = mMAX( mypos.first().nr_, othpos.first().nr_ );
+    const trcnr_type stopnr = mMIN( mypos.last().nr_, othpos.last().nr_ );
     bool found = false;
     const idx_type mystartidx = gtIndex( startnr, found );
     const idx_type mystopidx = gtIndex( stopnr, found );
@@ -518,7 +523,7 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
     bool foundcommon = false;
     while ( myidx <= mystopidx && othidx <= othstopidx )
     {
-	const tracenr_type trcnr = mypos[myidx].nr_;
+	const trcnr_type trcnr = mypos[myidx].nr_;
 	if ( trcnr == othpos[othidx].nr_ )
 	{
 	    foundcommon = true;
@@ -550,18 +555,18 @@ void PosInfo::Line2DData::getSegments( LineData& ld ) const
 	return;
 
     bool havestep = false;
-    tracenr_type prevnr = posns_[0].nr_;
+    trcnr_type prevnr = posns_[0].nr_;
     LineData::Segment curseg( prevnr, prevnr, 1 );
     if ( nrposns < 2 )
 	{ ld.segments_ += curseg; return; }
 
     for ( idx_type ipos=1; ipos<nrposns; ipos++ )
     {
-	const tracenr_type curnr = posns_[ipos].nr_;
+	const trcnr_type curnr = posns_[ipos].nr_;
 	if ( curnr == prevnr )
 	    continue;
 
-	const tracenr_type curstep = curnr - prevnr;
+	const trcnr_type curstep = curnr - prevnr;
 	if ( !havestep )
 	{
 	    curseg.step = curstep;

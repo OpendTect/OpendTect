@@ -35,7 +35,7 @@ mUseType( Seis, Provider );
 mUseType( Seis, Storer );
 mUseType( Seis, ProviderTester );
 mUseType( Survey, Geometry2D );
-mUseType( Geometry2D, tracenr_type );
+mUseType( Geometry2D, trcnr_type );
 mUseType( Geometry2D, spnr_type );
 
 static const DBKey inpdatadbky_( "100010.2" );
@@ -47,7 +47,7 @@ static const char* linepsnm_ = "IOTest PS 2D";
 
 static const int nrlines_ = 5;
 static const int nrtrcsperline_ = 101;
-static const tracenr_type starttrcnr_ = 100;
+static const trcnr_type starttrcnr_ = 100;
 static const float maxoffs_ = 1500.0f;
 #define mLineGeomNm(nr) BufferString(ProviderTester::lineGeomNameBase(),nr)
 
@@ -119,7 +119,7 @@ static bool fillTrcBuf()
 }
 
 
-static tracenr_type getBufTrcNr( idx_type itrc )
+static trcnr_type getBufTrcNr( idx_type itrc )
 {
     return starttrcnr_ + 2*itrc;
 }

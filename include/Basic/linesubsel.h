@@ -42,6 +42,7 @@ public:
 			LineSubSel(const pos_steprg_type&,const ZSubSel&);
 			LineSubSel(const LineHorSubSel&);
 			LineSubSel(GeomID,trcnr_type);
+			LineSubSel(const Bin2D&);
 			LineSubSel(const TrcKeySampling&);
 			LineSubSel(const TrcKeyZSampling&);
 			mImplArrRegSubSelClone(LineSubSel)

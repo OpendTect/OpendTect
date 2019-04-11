@@ -33,7 +33,7 @@ mExpClass(General) PointDataPack : public DataPack
 public:
 
     typedef Pos::Z_Type		z_type;
-    typedef Pos::TraceNr_Type	tracenr_type;
+    typedef Pos::TraceNr_Type	trcnr_type;
 
     mDeclAbstractMonitorableAssignment(PointDataPack);
 
@@ -41,7 +41,7 @@ public:
     virtual BinID		binID(idx_type) const		= 0;
     virtual z_type		z(idx_type) const		= 0;
     virtual Coord		coord(idx_type) const;
-    virtual tracenr_type	trcNr(idx_type) const		{ return 0; }
+    virtual trcnr_type		trcNr(idx_type) const		{ return 0; }
 
     virtual bool		simpleCoords() const		{ return true; }
 				//!< If true, coords are always SI().tranform(b)

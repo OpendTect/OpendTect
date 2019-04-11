@@ -6,6 +6,7 @@
 
 
 #include "position.h"
+#include "bin2d.h"
 #include "binidvalue.h"
 #include "posidxpair2coord.h"
 
@@ -118,6 +119,70 @@ bool Pos::IdxPair::isNeighborTo( const Pos::IdxPair& oth,
 }
 
 
+BufferString BinID::usrDispStr( bool is2d ) const
+{
+    if ( !is2d )
+	return usrDispStr();
+    Bin2D b2d;
+    b2d.decodeFrom( *this );
+    return b2d.usrDispStr();
+}
+
+
+Bin2D Bin2D::first( GeomID gid )
+{
+    const auto& g2d = Survey::Geometry2D::get( gid );
+    return Bin2D( gid, g2d.isEmpty() ? mUdf(trcnr_type) : g2d.trcNr(0) );
+}
+
+
+Bin2D Bin2D::last( GeomID gid )
+{
+    const auto& g2d = Survey::Geometry2D::get( gid );
+    const auto gsz = g2d.size();
+    return Bin2D( gid, gsz<1 ? mUdf(trcnr_type) : g2d.trcNr(gsz-1) );
+}
+
+
+void Bin2D::encodeIn( BinID& bid ) const
+{
+    bid.inl() = geomid_.getI();
+    bid.crl() = trcnr_;
+}
+
+
+void Bin2D::decodeFrom( const BinID& bid )
+{
+    geomid_.setI( bid.inl() );
+    trcnr_ = bid.crl();
+}
+
+
+const char* Bin2D::toString() const
+{
+    BinID bid; encodeIn( bid );
+    return bid.toString();
+}
+
+
+bool Bin2D::fromString( const char* str )
+{
+    BinID bid;
+    if ( bid.fromString(str) )
+	{ decodeFrom( bid ); return true; }
+    return false;
+}
+
+
+BufferString Bin2D::usrDispStr() const
+{
+    BufferString ret;
+    ret.set( trcnr_ ).add( "@'" ).add( nameOf(geomid_) ).add( "." );
+    return ret;
+}
+
+
+
 #define mImplBinIDValueEqOpers(clss) \
 bool clss::operator==( const BinID& bid ) const \
 { return Pos::IdxPair::operator==(bid); } \
@@ -140,7 +205,7 @@ TrcKey::TrcKey( const BinID& bid )
 }
 
 
-TrcKey::TrcKey( GeomID id, tracenr_type tnr )
+TrcKey::TrcKey( GeomID id, trcnr_type tnr )
     : geomsystem_(id.is2D() ? OD::LineBasedGeom : OD::VolBasedGeom)
     , pos_(id.getI(),tnr)
 {
@@ -161,7 +226,7 @@ TrcKey::TrcKey( const BinID& bid, bool is2d )
 }
 
 
-TrcKey TrcKey::getSynth( tracenr_type trcnr )
+TrcKey TrcKey::getSynth( trcnr_type trcnr )
 {
     TrcKey ret;
     ret.geomsystem_ = OD::SynthGeom;
@@ -171,10 +236,16 @@ TrcKey TrcKey::getSynth( tracenr_type trcnr )
 }
 
 
-Pos::GeomID TrcKey::geomID( GeomSystem gs, const BinID& bid )
+Pos::GeomID TrcKey::geomID() const
+{
+    return gtGeomID( geomSystem(), inl() );
+}
+
+
+Pos::GeomID TrcKey::gtGeomID( GeomSystem gs, pos_type lnr )
 {
     return gs < OD::LineBasedGeom ? GeomID( (GeomID::IDType)gs )
-				  : GeomID( bid.lineNr() );
+				  : GeomID( lnr );
 }
 
 
@@ -285,25 +356,29 @@ Coord TrcKey::getCoord() const
 }
 
 
+Bin2D TrcKey::bin2D() const
+{
+    return Bin2D( GeomID(pos_.row()), trcNr() );
+}
+
+
 BufferString TrcKey::usrDispStr() const
 {
     if ( isUdf() )
 	return BufferString( sKey::Undef() );
 
-    BufferString ret;
     switch ( geomsystem_ )
     {
     case OD::VolBasedGeom:
-	ret.set( inl() ).add( "/" ).add( crl() );
+	return binID().usrDispStr();
     break;
     case OD::LineBasedGeom:
-	ret.set( nameOf(GeomID(lineNr())) ).add( "@" ).add( trcNr() );
+	return bin2D().usrDispStr();
     break;
     default:
-	ret.set( "[Synth]@" ).add( trcNr() );
+	return BufferString( "[Synth]@", trcNr() );
     break;
     }
-    return ret;
 }
 
 

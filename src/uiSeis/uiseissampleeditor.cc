@@ -876,15 +876,15 @@ int nextStep()
     return toNextPos() ? MoreToDo() : Finished();
 }
 
-    typedef Pos::TraceNr_Type	tracenr_type;
+    typedef Pos::TraceNr_Type	trcnr_type;
 
     uiSeisSampleEditor&	ed_;
     DBKey		dbky_;
     const Seis::Provider& prov_;
     Seis::Storer*	storer_;
     TrcKeySamplingIterator* tksampiter_;
-    StepInterval<tracenr_type> trcnrrg_;
-    tracenr_type	curtrcnr_;
+    StepInterval<trcnr_type> trcnrrg_;
+    trcnr_type		curtrcnr_;
     od_int64		totalnr_;
     od_int64		nrdone_;
     SeisTrc		trc_;

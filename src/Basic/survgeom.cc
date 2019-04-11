@@ -29,7 +29,7 @@ mUseType( Survey::Geometry,	pos_steprg_type);
 mUseType( Survey::Geometry,	z_type);
 mUseType( Survey::Geometry,	z_steprg_type);
 mUseType( Survey::Geometry,	linenr_type);
-mUseType( Survey::Geometry,	tracenr_type);
+mUseType( Survey::Geometry,	trcnr_type);
 mUseType( Survey::Geometry2D,	spnr_type);
 mUseType( Survey::Geometry2D,	size_type);
 
@@ -226,7 +226,7 @@ bool Survey::Geometry::includes( const TrcKey& tk )
 
 
 Coord Survey::Geometry::toCoord( GeomSystem gs,
-				 linenr_type lnr, tracenr_type tnr )
+				 linenr_type lnr, trcnr_type tnr )
 {
     switch ( gs )
     {
@@ -619,25 +619,37 @@ size_type Survey::Geometry2D::size() const
 }
 
 
-idx_type Survey::Geometry2D::indexOf( tracenr_type trcnr ) const
+idx_type Survey::Geometry2D::indexOf( trcnr_type trcnr ) const
 {
     return data_.indexOf( trcnr );
 }
 
 
-tracenr_type Survey::Geometry2D::trcNr( idx_type idx ) const
+trcnr_type Survey::Geometry2D::trcNr( idx_type idx ) const
 {
-    return data_.validIdx( idx ) ? mL2DPos(idx).nr_ : mUdf(tracenr_type);
+    return data_.validIdx( idx ) ? mL2DPos(idx).nr_ : mUdf(trcnr_type);
 }
 
 
-bool Survey::Geometry2D::includes( tracenr_type trcnr ) const
+Bin2D Survey::Geometry2D::bin2D( idx_type idx ) const
+{
+    return Bin2D( geomID(), trcNr(idx) );
+}
+
+
+bool Survey::Geometry2D::includes( trcnr_type trcnr ) const
 {
     return indexOf(trcnr) >= 0;
 }
 
 
-Coord Survey::Geometry2D::getCoord( tracenr_type trcnr ) const
+bool Survey::Geometry2D::includes( const Bin2D& b2d ) const
+{
+    return b2d.geomID() == geomID() && includes( b2d.trcNr() );
+}
+
+
+Coord Survey::Geometry2D::getCoord( trcnr_type trcnr ) const
 {
     return getCoordByIdx( indexOf(trcnr) );
 }
@@ -649,14 +661,14 @@ Coord Survey::Geometry2D::getCoordByIdx( idx_type idx ) const
 }
 
 
-spnr_type Survey::Geometry2D::getSPNr( tracenr_type trcnr ) const
+spnr_type Survey::Geometry2D::getSPNr( trcnr_type trcnr ) const
 {
     const auto idx = indexOf( trcnr );
     return idx < 0 ? mUdf(spnr_type) : spnrs_.get( idx );
 }
 
 
-bool Survey::Geometry2D::findSP( spnr_type reqspnr, tracenr_type& trcnr ) const
+bool Survey::Geometry2D::findSP( spnr_type reqspnr, trcnr_type& trcnr ) const
 {
     static const spnr_type eps = (spnr_type)0.001;
 
@@ -675,7 +687,7 @@ bool Survey::Geometry2D::findSP( spnr_type reqspnr, tracenr_type& trcnr ) const
 }
 
 
-void Survey::Geometry2D::getInfo( tracenr_type trcnr, Coord& crd,
+void Survey::Geometry2D::getInfo( trcnr_type trcnr, Coord& crd,
 				  spnr_type& spnr ) const
 {
     const auto idx = indexOf( trcnr );
@@ -686,19 +698,19 @@ void Survey::Geometry2D::getInfo( tracenr_type trcnr, Coord& crd,
 }
 
 
-tracenr_type Survey::Geometry2D::nearestTracePosition( const Coord& crd,
+trcnr_type Survey::Geometry2D::nearestTracePosition( const Coord& crd,
 							dist_type* dist ) const
 {
     Line2DPos pos;
-    return data_.getPos(crd,pos,dist) ? pos.nr_ : mUdf(tracenr_type);
+    return data_.getPos(crd,pos,dist) ? pos.nr_ : mUdf(trcnr_type);
 }
 
 
-tracenr_type Survey::Geometry2D::tracePosition( const Coord& crd,
+trcnr_type Survey::Geometry2D::tracePosition( const Coord& crd,
 					    dist_type maxdist ) const
 {
     Line2DPos pos;
-    return data_.getPos(crd,pos,maxdist) ? pos.nr_ : mUdf(tracenr_type);
+    return data_.getPos(crd,pos,maxdist) ? pos.nr_ : mUdf(trcnr_type);
 }
 
 

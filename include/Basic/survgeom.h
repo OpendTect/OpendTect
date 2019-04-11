@@ -59,7 +59,7 @@ public:
     typedef Pos::Z_Type			z_type;
     typedef StepInterval<z_type>	z_steprg_type;
     typedef GeomID::IDType		linenr_type;
-    typedef Pos::TraceNr_Type		tracenr_type;
+    typedef Pos::TraceNr_Type		trcnr_type;
     typedef Pos::Distance_Type		dist_type;
 
     virtual Geometry*	clone() const			= 0;
@@ -113,7 +113,7 @@ public:
 
     static bool		includes(const TrcKey&);
     static Coord	toCoord(const TrcKey&);
-    static Coord	toCoord(GeomSystem,linenr_type,tracenr_type);
+    static Coord	toCoord(GeomSystem,linenr_type,trcnr_type);
     static Coord	toCoord( GeomSystem gs, const BinID& bid )
 			{ return toCoord( gs, bid.lineNr(), bid.trcNr() ); }
 

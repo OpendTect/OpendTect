@@ -6,13 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		21-6-1996
- Contents:	Positions: Inline/crossline and Coordinate
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "posidxpair.h"
+#include "bufstring.h"
 
 
 /*! \brief Positioning in a seismic survey: inline/crossline or lineNr/trcNr. */
@@ -46,6 +45,8 @@ public:
 
     inline const char*		toString(bool is2d=false) const;
     inline bool			fromString(const char*);
+    inline BufferString		usrDispStr() const;
+    BufferString		usrDispStr(bool is2d) const;
 
     static BinID		udf()	{ return BinID(IdxPair::udf()); }
 
@@ -82,6 +83,14 @@ inline BinID BinID::fromInt64( od_int64 i64 )
 inline const char* BinID::toString( bool is2d ) const
 {
     return IdxPair::getUsrStr( "", "/", "", is2d );
+}
+
+
+inline BufferString BinID::usrDispStr() const
+{
+    BufferString ret;
+    ret.set( inl() ).add( "/" ).add( crl() );
+    return ret;
 }
 
 

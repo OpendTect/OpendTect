@@ -150,7 +150,7 @@ void TrcKeySampling::init( bool initsi, OD::SurvLimitType slt )
     {
 	geomsystem_ = OD::VolBasedGeom;
 	start_.lineNr() = stop_.lineNr() = mUdf( linenr_type );
-	start_.trcNr() = stop_.trcNr() = mUdf( tracenr_type );
+	start_.trcNr() = stop_.trcNr() = mUdf( trcnr_type );
 	step_.lineNr() = step_.trcNr() = 1;
     }
 }
@@ -302,7 +302,7 @@ void TrcKeySampling::includeLine( linenr_type lid )
 }
 
 
-void TrcKeySampling::includeTrc( tracenr_type trcid )
+void TrcKeySampling::includeTrc( trcnr_type trcid )
 {
     if ( mIsUdf(start_.trcNr()) || mIsUdf(stop_.trcNr()) || nrTrcs()<1 )
 	start_.trcNr() = stop_.trcNr() = trcid;
@@ -875,7 +875,7 @@ void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
 
 BinID TrcKeySampling::atIndex( int i0, int i1 ) const
 {
-    const tracenr_type trcnr = start_.trcNr() + i1 * step_.trcNr();
+    const trcnr_type trcnr = start_.trcNr() + i1 * step_.trcNr();
     linenr_type linenr = start_.lineNr();
     if ( is3D() )
 	linenr += i0 * step_.lineNr();
@@ -990,7 +990,7 @@ bool TrcKeySampling::lineOK( linenr_type lid, bool ignoresteps ) const
 }
 
 
-bool TrcKeySampling::trcOK( tracenr_type tid, bool ignoresteps ) const
+bool TrcKeySampling::trcOK( trcnr_type tid, bool ignoresteps ) const
 {
     const bool trcnrok = tid >= start_.trcNr() && tid <= stop_.trcNr();
     return ignoresteps ? trcnrok : trcnrok && ( step_.crl() ?

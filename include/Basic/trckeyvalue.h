@@ -25,7 +25,7 @@ mExpClass(Basic) TrcKeyValue
 public:
 
     mUseType( TrcKey,	linenr_type );
-    mUseType( TrcKey,	tracenr_type );
+    mUseType( TrcKey,	trcnr_type );
 
     inline		TrcKeyValue( const TrcKey& tk=TrcKey::udf(),
 				     float v=mUdf(float) )
@@ -34,10 +34,10 @@ public:
 			TrcKeyValue(const BinIDValue&);
 
     linenr_type		lineNr() const		{ return tk_.lineNr(); }
-    tracenr_type	trcNr() const		{ return tk_.trcNr(); }
+    trcnr_type		trcNr() const		{ return tk_.trcNr(); }
     TrcKeyValue&	setLineNr( linenr_type nr )
 			{ tk_.setLineNr(nr); return *this; }
-    TrcKeyValue&	setTrcNr( tracenr_type nr )
+    TrcKeyValue&	setTrcNr( trcnr_type nr )
 			{ tk_.setTrcNr(nr); return *this; }
 
     inline bool		operator==( const TrcKeyValue& oth ) const

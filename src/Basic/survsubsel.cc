@@ -233,6 +233,12 @@ LineHorSubSel::LineHorSubSel( const pos_steprg_type& trcnrrg )
 }
 
 
+LineHorSubSel::LineHorSubSel( const Bin2D& b2d )
+    : LineHorSubSel( b2d.geomID(), b2d.trcNr() )
+{
+}
+
+
 LineHorSubSel::LineHorSubSel( GeomID gid, trcnr_type tnr )
     : LineHorSubSel(gid)
 {
@@ -256,6 +262,12 @@ bool LineHorSubSel::includes( const LineHorSubSel& oth ) const
     return trcnrrg.step == othtrcnrrg.step
 	&& includes( othtrcnrrg.start )
 	&& includes( othtrcnrrg.stop );
+}
+
+
+bool LineHorSubSel::includes( const Bin2D& b2d ) const
+{
+    return b2d.geomID() == geomid_ && includes( b2d.trcNr() );
 }
 
 
@@ -533,6 +545,12 @@ LineSubSel::LineSubSel( GeomID gid, trcnr_type tnr )
     auto trcnrrg = hss_.trcNrRange();
     trcnrrg.start = trcnrrg.stop = tnr;
     hss_.setTrcNrRange( trcnrrg );
+}
+
+
+LineSubSel::LineSubSel( const Bin2D& b2d )
+    : LineSubSel(b2d.geomID(),b2d.trcNr())
+{
 }
 
 

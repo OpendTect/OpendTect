@@ -1096,7 +1096,7 @@ void Seis::Provider2D::scanPositions() const
 	    continue;
 
 	PosInfo::Line2DDataIterator l2diter( *l2dd );
-	Line2DData::tracenr_rg_type nrrg( mUdf(int), 0 );
+	Line2DData::trcnr_rg_type nrrg( mUdf(int), 0 );
 	size_type nrtrcs = 0;
 	while ( l2diter.next() )
 	{
@@ -1116,7 +1116,7 @@ void Seis::Provider2D::scanPositions() const
 	{
 	    totnr += nrtrcs;
 	    const auto l2ddstep = l2dd->trcNrRange().step;
-	    Line2DData::tracenr_steprg_type steprg( nrrg, l2ddstep );
+	    Line2DData::trcnr_steprg_type steprg( nrrg, l2ddstep );
 	    if ( seldata_->isRange() )
 	    {
 		const auto* sdlss

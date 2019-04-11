@@ -33,7 +33,7 @@ public:
     mUseType( Pos,	GeomID );
     mUseType( Survey,	HorSubSel );
     mUseType( TrcKey,	linenr_type );
-    mUseType( TrcKey,	tracenr_type );
+    mUseType( TrcKey,	trcnr_type );
     mUseType( Survey,	Geometry );
     typedef Pos::Distance_Type	dist_type;
 
@@ -85,11 +85,11 @@ public:
 				 bool ignoresteps=false) const;
     bool		includes(const TrcKey&,bool ignoresteps=false) const;
     bool		lineOK(linenr_type,bool ignoresteps=false) const;
-    bool		trcOK(tracenr_type,bool ignoresteps=false) const;
+    bool		trcOK(trcnr_type,bool ignoresteps=false) const;
 
     void		include(const TrcKey&);
     void		includeLine(linenr_type);
-    void		includeTrc(tracenr_type);
+    void		includeTrc(trcnr_type);
     void		include(const TrcKeySampling&, bool ignoresteps=false );
     bool		isDefined() const;
     void		limitTo(const TrcKeySampling&,bool ignoresteps=false);
@@ -101,9 +101,9 @@ public:
     void		expand(int nrlines,int nrtrcs);
 
     inline int		lineIdx(linenr_type) const;
-    inline int		trcIdx(tracenr_type) const;
+    inline int		trcIdx(trcnr_type) const;
     inline linenr_type	lineID(int) const;
-    inline tracenr_type	traceID(int) const;
+    inline trcnr_type	traceID(int) const;
 
     od_int64		globalIdx(const TrcKey&) const;
     od_int64		globalIdx(const BinID&) const;
@@ -169,7 +169,7 @@ public:
     int			nrCrl() const { return nrTrcs(); }
 
     int			inlIdx( linenr_type lid ) const {return lineIdx(lid);}
-    int			crlIdx( tracenr_type tid ) const { return trcIdx(tid); }
+    int			crlIdx( trcnr_type tid ) const { return trcIdx(tid); }
     inline void		include( const BinID& bid )
 			{ includeLine(bid.inl()); includeTrc(bid.crl()); }
     void		includeInl( int inl ) { includeLine(inl); }
@@ -248,7 +248,7 @@ inline int TrcKeySampling::lineIdx( linenr_type line ) const
 }
 
 
-inline int TrcKeySampling::trcIdx( tracenr_type trcid ) const
+inline int TrcKeySampling::trcIdx( trcnr_type trcid ) const
 {
     return step_.trcNr()
 	? (trcid-start_.trcNr()) / step_.trcNr()
@@ -262,7 +262,7 @@ inline TrcKeySampling::linenr_type TrcKeySampling::lineID( int lidx ) const
 }
 
 
-inline TrcKeySampling::tracenr_type TrcKeySampling::traceID( int tidx ) const
+inline TrcKeySampling::trcnr_type TrcKeySampling::traceID( int tidx ) const
 {
     return start_.trcNr() + step_.trcNr() * tidx;
 }

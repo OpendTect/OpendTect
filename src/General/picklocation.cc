@@ -162,7 +162,7 @@ Pick::Location::linenr_type Pick::Location::lineNr() const
 }
 
 
-Pick::Location::tracenr_type Pick::Location::trcNr() const
+Pick::Location::trcnr_type Pick::Location::trcNr() const
 {
     return trckey_ ? trckey_->trcNr() : binID().trcNr();
 }
@@ -209,7 +209,7 @@ Pick::Location& Pick::Location::setLineNr( linenr_type lnr )
 }
 
 
-Pick::Location& Pick::Location::setTrcNr( tracenr_type tnr )
+Pick::Location& Pick::Location::setTrcNr( trcnr_type tnr )
 {
     if ( !trckey_ )
 	trckey_ = new TrcKey;
@@ -241,7 +241,7 @@ Pick::Location& Pick::Location::setPos( const BinID& bid, bool updcoord )
 }
 
 
-Pick::Location& Pick::Location::setPos( GeomID gid, tracenr_type tnr,
+Pick::Location& Pick::Location::setPos( GeomID gid, trcnr_type tnr,
 					bool updcoord )
 {
     if ( !trckey_ )
