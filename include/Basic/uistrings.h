@@ -307,7 +307,10 @@ public:
     static uiWord sCorrelCoeff()	{ return tr("Correlation Coefficient");}
     static uiWord sCorrelation(int n=1)	{ return tr("Correlation",0,n); }
     static uiWord sCount()		{ return tr("Count"); }
+    static uiWord sCrAt()		{ return tr("Created at"); }
+    static uiWord sCrBy()		{ return tr("Created by"); }
     static uiWord sCreate()		{ return tr("Create"); }
+    static uiWord sCrFrom()		{ return tr("Created from"); }
     static uiWord sCreateGroup()	{ return tr("Create Group"); }
     static uiWord sCreateNew()		{ return tr("Create New"); }
     static uiWord sCreateOutput()	{ return tr("Create Output"); }
@@ -403,6 +406,7 @@ public:
     static uiWord sFilters()		{ return sFilter(mPlural); }
     static uiWord sFinish()		{ return tr("Finish"); }
     static uiWord sFinished()		{ return tr("Finished"); }
+    static uiWord sFirst()		{ return tr("First"); }
     static uiWord sFixed()		{ return tr("Fixed"); }
     static uiWord sFlatten()		{ return tr("Flatten"); }
     static uiWord sFlattened()		{ return tr("Flattened"); }
@@ -482,6 +486,7 @@ public:
     static uiWord sLanguage()		{ return tr("Language"); }
     static uiWord sKeep()		{ return tr("Keep"); }
     static uiWord sKeyword()		{ return tr("Keyword"); }
+    static uiWord sLast()		{ return tr("Last"); }
     static uiWord sLatitude(bool abbr)	{ return abbr?tr("Lat"):tr("Latitude");}
     static uiWord sLayer(int n=1)	{ return tr("Layer",0,n); }
     static uiWord sLeft()		{ return tr("Left"); }
@@ -560,6 +565,7 @@ public:
     static uiWord sNrSamples()		{ return tr("Number of Samples"); }
     static uiWord sNumber(int n=1)	{ return tr("Number",0,n); }
     static uiWord sObject()		{ return tr("Object"); }
+    static uiWord sObjectID()		{ return tr("Object ID"); }
     static uiWord sOff()		{ return tr("Off","not in action"); }
     static uiWord sOffset()		{ return tr("Offset"); }
     static uiWord sOffsetRange()	{ return tr("Offset Range"); }
@@ -757,6 +763,7 @@ public:
     static uiWord sStickIndex(int n=1)	{ return tr("Stick Index",0,n); }
     static uiWord sStop()		{ return tr("Stop"); }
     static uiWord sStorage()		{ return tr("Storage"); }
+    static uiWord sStorageType()	{ return tr("Storage type"); }
     static uiWord sStorageDir()		{ return tr("Storage Directory"); }
     static uiWord sStore()		{ return tr("Store"); }
     static uiWord sStored()		{ return tr("Stored" ); }

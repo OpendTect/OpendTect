@@ -344,25 +344,17 @@ bool uiObjFileMan::getFileInfo( const IOObj& ioobj, uiPhraseSet& info ) const
 		   Time::getUsrDateTimeStringFromISOUTC(timestr) );
     }
 
-    BufferString crspec;
-    ioobj.pars().get( sKey::CrBy(), crspec );
-    if ( crspec.isEmpty() )
-	ioobj.pars().get( "User", crspec );
-    if ( !crspec.isEmpty() )
-	addObjInfo( info, tr("Created by"), crspec );
+    BufferString str;
+#   define mAddInfFromPars(ky,fn) \
+    str.setEmpty(); ioobj.pars().get( sKey::ky(), str ); \
+    if ( !str.isEmpty() ) \
+	    addObjInfo( info, uiStrings::s##ky(), str )
+    mAddInfFromPars( CrBy, toString );
+    mAddInfFromPars( CrAt, Time::getUsrDateTimeStringFromISOUTC );
+    mAddInfFromPars( CrFrom, toString );
 
-    crspec.setEmpty();
-    ioobj.pars().get( sKey::CrAt(), crspec );
-    if ( !crspec.isEmpty() )
-	addObjInfo( info, tr("Created at"), crspec );
-
-    crspec.setEmpty();
-    ioobj.pars().get( sKey::CrFrom(), crspec );
-    if ( !crspec.isEmpty() )
-	addObjInfo( info, tr("Created from"), crspec );
-
-    addObjInfo( info, tr("Storage type"), ioobj.translator() );
-    addObjInfo( info, tr("Object ID"), ioobj.key() );
+    addObjInfo( info, uiStrings::sStorageType(), ioobj.translator() );
+    addObjInfo( info, uiStrings::sObjectID(), ioobj.key() );
 
     return true;
 }
