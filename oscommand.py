@@ -64,6 +64,23 @@ def isRunning( proc ):
   proc.poll()
   return proc.is_running()
 
+def pauseProcess( proc ):
+  if isinstance(proc,psutil.Popen):
+    return proc.suspend()
+
+def resumeProcess( proc ):
+  if isinstance(proc,psutil.Popen):
+    return proc.resume()
+
+def printProcessTime(procnm,isstart,print_fn=std_msg):
+  procstr = 'Process: \'' + procnm + '\''
+  print_fn( procstr )
+  if isstart:
+    retstr = 'Started:'
+  else:
+    retstr = 'Finished:'
+  print_fn( retstr, sTimeUnitString() )
+
 def kill( proc ):
   with proc.oneshot():
     proc.terminate()
