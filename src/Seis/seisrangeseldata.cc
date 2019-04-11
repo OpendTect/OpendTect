@@ -256,7 +256,6 @@ bool Seis::RangeSelData::isAll() const
 	return css_->isAll();
     else
 	return lsss_.isAll();
-    return true;
 }
 
 
