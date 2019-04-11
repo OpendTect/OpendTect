@@ -10,6 +10,17 @@ import sys
 import os
 import platform
 import logging
+from datetime import datetime
+
+def sTimeUnitString( ismilli=False, abbr=True ):
+  if abbr:
+    fmt = "%a %d %b"
+  else:
+    fmt = "%A %d %B"
+  fmt += " %Y, %X"
+  if ismilli:
+    fmt += ".%f"
+  return datetime.now().strftime(fmt)
 
 try:
   from bokeh.util import logconfig
