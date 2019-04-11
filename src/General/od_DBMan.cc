@@ -246,6 +246,7 @@ static void createObj( const BufferStringSet& args, const char* filenm )
     else
 	iostrm.genFileName();
 
+    iostrm.updateCreationPars();
     DBDir* dbdirptr = mNonConst( dbdir.ptr() );
     if ( !dbdirptr->commitChanges(iostrm) )
 	mRespondErr( "Cannot commit new entry to data store" )
