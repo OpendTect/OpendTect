@@ -23,6 +23,63 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Geometry
 {
 
+static void joinSegments( TypeSet<Coord3>& res, TypeSet<Coord3>& oth )
+{
+    if ( oth.isEmpty() )
+	return;
+    else if ( res.isEmpty() )
+    {
+	res = oth;
+	return;
+    }
+
+    /* We need to tie the ends that are closest to each other. */
+    bool rev=false, append=true;
+    double mindist = res.last().sqDistTo( oth.first() ); // dist10
+    if ( res.size() > 1 )
+    {
+	const double dist01 = res.first().sqDistTo( oth.last() );
+	if ( dist01 < mindist )
+	{
+	    append = false;
+	    mindist = dist01;
+	}
+
+	if ( oth.size() > 1 )
+	{
+	    const double dist00 = res.first().sqDistTo( oth.first() );
+	    if ( dist00 < mindist )
+	    {
+		rev = true;
+		append = false;
+		mindist = dist00;
+	    }
+	}
+    }
+
+    if ( oth.size() > 1 )
+    {
+	const double dist11 = res.last().sqDistTo( oth.last() );
+	if ( dist11 < mindist )
+	{
+	    rev = append = true;
+	    mindist = dist11;
+	}
+    }
+
+    if ( rev )
+	oth.reverse();
+
+    if ( append )
+	res.append( oth );
+    else // Insert oth at the beginning of res
+    {
+	TypeSet<Coord3> tmp = oth;
+	tmp.append( res );
+	res = tmp;
+    }
+}
+
 class FBIntersectionCalculator : public ParallelTask
 {
 public:
@@ -72,75 +129,9 @@ bool doFinish( bool )
 {
     finalres_.erase();
     for ( int idx=0; idx<stickintersections_.size(); idx++ )
-    {
-	if ( stickintersections_[idx].size()>0 )
-		finalres_.append( stickintersections_[idx] );
-    }
+	joinSegments( finalres_, stickintersections_[idx] );
 
-    if ( finalres_.size()==0 )
-	return false;
-
-    int minidx = -1;
-    if ( !findMin(finalres_, minidx, true) )
-    {
-	if ( !findMin(finalres_,minidx,false) )
-	    return false;
-    }
-
-    if ( minidx> 1 )
-    {
-	const Coord3 mincrd = finalres_[minidx];
-	finalres_.removeSingle( minidx );
-	finalres_.insert( 0, mincrd );
-    }
-
-    return true;
- }
-
-
-bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
-{
-    if ( res.size()==0 ) return false;
-
-    double minval = isx ? res[0].x : res[0].y;
-    minidx = 0;
-    Coord3 mincrd;
-    double deltaval = 0;
-
-    for ( int idx = 1; idx<res.size(); idx++ )
-    {
-	const double val = isx ? res[idx].x : res[idx].y;
-	if ( val < minval )
-	{
-	    minval = val;
-	    minidx = idx;
-	}
-    }
-
-    bool side1 = false;
-    bool side2 = false;
-
-    for ( int idx = 0; idx<res.size(); idx++ )
-    {
-	const double val = isx ? res[idx].x : res[idx].y;
-	deltaval += val - minval;
-
-	if ( side1 && side2 )
-	    break;
-
-	const double anotherval = isx ? res[idx].y : res[idx].x;
-	const double minpairval = isx ? res[minidx].y : res[minidx].x;
-
-	const bool diff = (anotherval - minpairval)>0 ? true : false;
-
-	if ( !side1 && diff )
-	    side1 =  true;
-	else if ( !side2 && !diff )
-	    side2 = true;
-    }
-
-    return (side1 && side2) ? true : ( (deltaval-mDistLimitation)>0 ? true :
-	false );
+    return !finalres_.isEmpty();
 }
 
 
@@ -160,7 +151,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	Geometry::PrimitiveSet* geomps = idxgeom->getCoordsPrimitiveSet();
 
 	TypeSet<Coord3>& res = stickintersections_[idx];
-	for ( int idy=0; idy<geomps->size()-3; idy+=4 )
+	for ( int idy=0; idy<geomps->size()-2; idy+=3 )
 	{
 	    Coord3 v[3];
 	    for ( int k=0; k<3; k++ )
@@ -173,11 +164,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    bool allbelow = true;
 	    for ( int k=0; k<3; k++ )
 	    {
-		BinID bid = SI().transform( v[k] );
-		RowCol rc(surfrrg.snap(bid.inl()),surfcrg.snap(bid.crl()));
+		Coord fbid = SI().getBinID2Coord().transformBackNoSnap( v[k] );
+		RowCol rc(surfrrg.snap(fbid.x),surfcrg.snap(fbid.y));
 
-		const double pz = surf_.getKnot(rc, false).z + zshift_;
-		rcz[k] = Coord3( rc.row(), rc.col(), pz );
+		const double pz = surf_.computePosition(fbid).z + zshift_;
+		rcz[k] = Coord3( fbid, pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
 		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
@@ -280,8 +271,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		if ( isclosed && !mIsUdf(firstpos.z) )
 		    tmp += firstpos;
 	    }
-	    if ( tmp.size()>0 )
-		res.append( tmp );
+
+	    joinSegments( res, tmp );
 	    deepErase( isocontours );
 	}
     }
