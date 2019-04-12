@@ -61,6 +61,8 @@ def execCommand( cmd, background=False ):
     return startAndWait( cmd )
 
 def isRunning( proc ):
+  if proc == None:
+    return
   proc.poll()
   return proc.is_running()
 
