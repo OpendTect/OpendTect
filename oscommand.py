@@ -83,6 +83,7 @@ def printProcessTime(procnm,isstart,print_fn=std_msg):
 
 def kill( proc ):
   with proc.oneshot():
+    proc.resume()
     proc.terminate()
     proc.wait(3)
 
