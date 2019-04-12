@@ -487,6 +487,7 @@ public:
     static uiWord sKeep()		{ return tr("Keep"); }
     static uiWord sKeyword()		{ return tr("Keyword"); }
     static uiWord sLast()		{ return tr("Last"); }
+    static uiWord sLastModified()	{ return tr("Last Modified"); }
     static uiWord sLatitude(bool abbr)	{ return abbr?tr("Lat"):tr("Latitude");}
     static uiWord sLayer(int n=1)	{ return tr("Layer",0,n); }
     static uiWord sLeft()		{ return tr("Left"); }
