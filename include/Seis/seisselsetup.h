@@ -19,7 +19,7 @@ namespace Seis
 
 /*!\brief setup for subselection of seismic data */
 
-mExpClass(Seis) SelSetup
+mClass(Seis) SelSetup
 {
 public:
 

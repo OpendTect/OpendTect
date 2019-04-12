@@ -30,7 +30,7 @@ mExpClass(uiSeis) uiSeisTransfer : public uiGroup
 { mODTextTranslationClass(uiSeisTransfer);
 public:
 
-    mExpClass(uiSeis) Setup : public Seis::SelSetup
+    mClass(uiSeis) Setup : public Seis::SelSetup
     {
     public:
 			Setup( Seis::GeomType gt )

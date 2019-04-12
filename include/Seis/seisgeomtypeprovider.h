@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Seis
 {
 
-mExpClass(Seis) GeomTypeProvider : public CallBacker
+mClass(Seis) GeomTypeProvider : public CallBacker
 {
 public:
 
@@ -35,7 +35,7 @@ public:
 };
 
 
-mExpClass(Seis) SingleGeomTypeProvider : public GeomTypeProvider
+mClass(Seis) SingleGeomTypeProvider : public GeomTypeProvider
 {
 public:
 
