@@ -71,6 +71,23 @@ static bool testSubGeom3D()
 }
 
 
+static bool testZSubSel()
+{
+    mUseType( Pos, ZSubSelData );
+    mUseType( ZSubSelData, z_steprg_type );
+
+    ZSubSelData zssd( z_steprg_type(0.5f,1.5f,0.1f) );
+    zssd.setOutputZRange( 0.7f, 1.1f, 0.2f );
+    mRunStandardTest( zssd.size()==3, "Z Subsel easy" );
+    zssd.setOutputZRange( 0.68f, 1.77f, 0.32f );
+    mRunStandardTest( zssd.size()==3, "Z Subsel hard" );
+    zssd.setOutputZRange( -2000.f, 2000.f, 0.21f );
+    mRunStandardTest( zssd.size()==6, "Z Subsel out-of-bounds" );
+
+    return true;
+}
+
+
 #undef mErrRet
 #define mErrRet(s) { od_cout() << "Err: " << s << od_endl; ExitProgram(0); }
 
@@ -84,6 +101,8 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testSubGeom3D() )
 	return 1;
     if ( !testSubGeom2D() )
+	return 1;
+    if ( !testZSubSel() )
 	return 1;
 
     return 0;
