@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 #include "timedepthconv.h"
-#include "seisseqio.h"
 #include "segytr.h"
 #include "seisblockstr.h"
 #include "seiscbvs.h"
