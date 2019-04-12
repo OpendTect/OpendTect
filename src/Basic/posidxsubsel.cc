@@ -12,6 +12,7 @@
 
 mUseType( Pos::IdxSubSelData, idx_type );
 mUseType( Pos::IdxSubSelData, pos_type );
+mUseType( Pos::IdxSubSelData, pos_steprg_type );
 mUseType( Pos::ZSubSelData, z_type );
 
 
@@ -229,30 +230,12 @@ void Pos::ZSubSelData::setInputZRange( const z_steprg_type& newrg )
 void Pos::ZSubSelData::setOutputZRange( z_type newstart, z_type newstop,
 					z_type newstep )
 {
-    z_type fstep = newstep / inpzrg_.step;
-    step_ = mRounded( idx_type, fstep );
-    if ( step_ < 1 )
-	{ pErrMsg("Bad z step"); step_ = 1; }
-    newstep = step_ * inpzrg_.step;
-
-    z_type dstart = newstart - inpzrg_.start;
-    if ( dstart < zEps() )
-	dstart = (z_type)0;
-
-    z_type foffs = dstart / inpzrg_.step;
-    offs_ = mRounded( idx_type, foffs );
-    dstart = offs_ * inpzrg_.step;
-    newstart = inpzrg_.start + dstart;
-
-    auto dstop = newstop - newstart;
-    if ( dstop < 0 )
-	dstop = (z_type)0;
-    auto stopoffs = dstop / newstep;
-    newstop = newstart + stopoffs * newstep;
-
-    z_type fsz = (newstop - newstart) / newstep + 1.f;
-    sz_ = (size_type)(fsz + zEps());
-    ensureSizeOK();
+    IdxSubSelData newss( pos_steprg_type(0,inpzrg_.nrSteps(),1) );
+    z_type fnewstep = newstep / inpzrg_.step;
+    ZSubSelData cleanzss( inpzrg_ );
+    newss.setOutputPosRange( cleanzss.idx4Z(newstart), cleanzss.idx4Z(newstop),
+			     mRounded(z_type,fnewstep) );
+    ArrRegSubSelData::operator =( newss );
 }
 
 
