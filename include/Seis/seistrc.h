@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "odmemory.h"
 #include "valseriesinterpol.h"
+#include "geomid.h"
 
 template <class T> class ValueSeriesInterpolator;
 template <class T> class Array1D;
@@ -32,6 +33,8 @@ interpreted by DataInterpreters.
 mExpClass(Seis) SeisTrc
 {
 public:
+
+    mUseType( Pos,	GeomID );
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
 					   = DataCharacteristics() )
@@ -99,6 +102,11 @@ public:
     void		setInterpolator(ValueSeriesInterpolator<float>*);
 			//!< becomes mine
 
+			//!, sme convenient shortcuts into info()
+    inline bool		is2D() const
+			{ return info_.is2D(); }
+    inline GeomID	geomID() const
+			{ return info_.geomID(); }
     inline float	startPos() const
 			{ return info_.sampling_.start; }
     inline float	endPos() const
