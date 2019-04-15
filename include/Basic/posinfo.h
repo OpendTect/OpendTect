@@ -68,10 +68,10 @@ mExpClass(Basic) LineData
 public:
 
     mUseType( LineDataPos,	idx_type );
-    typedef idx_type		size_type;
     typedef Pos::Index_Type	pos_type;
-    typedef Interval<pos_type>	pos_rg_type;
-    typedef StepInterval<pos_type> pos_steprg_type;
+    typedef Pos::rg_type	pos_rg_type;
+    typedef Pos::steprg_type	pos_steprg_type;
+    typedef idx_type		size_type;
     typedef pos_steprg_type	Segment;
     typedef TypeSet<Segment>	SegmentSet;
 

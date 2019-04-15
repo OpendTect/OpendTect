@@ -51,16 +51,17 @@ mExpClass(Basic) Geometry : public RefCount::Referenced
 {
 public:
 
-    mUseType( OD,			GeomSystem );
-    mUseType( OD,			SnapDir );
-    mUseType( BinID,			pos_type );
-    mUseType( BinID,			idx_type );
-    typedef StepInterval<pos_type>	pos_steprg_type;
-    typedef Pos::Z_Type			z_type;
-    typedef StepInterval<z_type>	z_steprg_type;
-    typedef GeomID::IDType		linenr_type;
-    typedef Pos::TraceNr_Type		trcnr_type;
-    typedef Pos::Distance_Type		dist_type;
+    mUseType( OD,		GeomSystem );
+    mUseType( OD,		SnapDir );
+    typedef Pos::Index_Type	idx_type;
+    typedef idx_type		pos_type;
+    typedef Pos::rg_type	pos_rg_type;
+    typedef Pos::steprg_type	pos_steprg_type;
+    typedef Pos::Z_Type		z_type;
+    typedef ZSampling		z_steprg_type;
+    typedef GeomID::IDType	linenr_type;
+    typedef Pos::TraceNr_Type	trcnr_type;
+    typedef Pos::Distance_Type	dist_type;
 
     virtual Geometry*	clone() const			= 0;
     virtual GeomSystem	geomSystem() const		= 0;

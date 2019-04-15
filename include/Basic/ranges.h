@@ -206,6 +206,11 @@ public:
 
 
 typedef StepInterval<Pos::Z_Type> ZSampling;
+namespace Pos
+{
+    typedef Interval<Index_Type>        rg_type;
+    typedef StepInterval<Index_Type>    steprg_type;
+};
 
 
 /*!\brief ranges in N dimensions. */

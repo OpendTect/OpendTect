@@ -10,8 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
-#include "survgeom.h"
+#include "ranges.h"
 class CubeHorSubSel;
 class TrcKeySampling;
 class TrcKeyZSampling;
@@ -32,12 +31,11 @@ mExpClass(Basic) HorSampling
 { mODTextTranslationClass(HorSampling)
 public:
 
-    mUseType( Survey::Geometry,		pos_type );
-    mUseType( Survey::Geometry,		idx_type );
-    mUseType( Survey::Geometry,		dist_type );
+    typedef Pos::Index_Type		idx_type;
+    typedef idx_type			pos_type;
+    typedef Pos::rg_type		pos_rg_type;
+    typedef Pos::steprg_type		pos_steprg_type;
     typedef idx_type			size_type;
-    typedef Interval<pos_type>		pos_rg_type;
-    typedef StepInterval<pos_type>	pos_steprg_type;
 
 			HorSampling(bool settosi=false,
 				    OD::SurvLimitType slt=OD::FullSurvey);

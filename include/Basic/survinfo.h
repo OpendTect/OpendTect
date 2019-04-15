@@ -65,18 +65,19 @@ mExpClass(Basic) SurveyInfo : public NamedMonitorable
 
 public:
 
-    typedef BinID::pos_type		pos_type;
-    typedef BinID::idx_type		idx_type;
-    typedef idx_type			size_type;
-    typedef StepInterval<pos_type>	pos_steprg_type;
-    typedef Pos::Z_Type			z_type;
-    typedef StepInterval<z_type>	z_steprg_type;
-    typedef Pos::Distance_Type		dist_type;
-    typedef dist_type			area_type;
-    mUseType( OD,			SurvLimitType );
-    mUseType( Survey,			Geometry3D );
-    mUseType( Coords,			CoordSystem );
-    mUseType( Pos,			IdxPair2Coord );
+    typedef Pos::Index_Type	idx_type;
+    typedef idx_type		pos_type;
+    typedef idx_type		size_type;
+    typedef Pos::rg_type	pos_rg_type;
+    typedef Pos::steprg_type	pos_steprg_type;
+    typedef Pos::Z_Type		z_type;
+    typedef ZSampling		z_steprg_type;
+    typedef Pos::Distance_Type	dist_type;
+    typedef dist_type		area_type;
+    mUseType( OD,		SurvLimitType );
+    mUseType( Survey,		Geometry3D );
+    mUseType( Coords,		CoordSystem );
+    mUseType( Pos,		IdxPair2Coord );
 
     bool		has2D() const;
     bool		has3D() const;
