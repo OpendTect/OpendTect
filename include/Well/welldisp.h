@@ -310,7 +310,7 @@ mExpClass(Well) DisplayProperties2D : public DisplayProperties
 {
 public:
 
-    class LogPanelProps : public NamedMonitorable
+    mExpClass(Well) LogPanelProps : public NamedMonitorable
     {
 	public:
 				LogPanelProps(const char* nm="Panel");
