@@ -22,15 +22,16 @@ mExpClass(uiTools) uiBatchProcDlg : public uiDialog
 { mODTextTranslationClass(uiBatchProcDlg)
 public:
 
+    mUseType( Batch::JobSpec,	ProcType );
+
 				uiBatchProcDlg(uiParent*,const uiString&,
-					       bool optional,
-					       const Batch::JobSpec::ProcType&);
+					       bool optional,ProcType);
 
 protected:
 
     virtual bool		prepareProcessing() { return true; }
-    virtual void		getJobName(BufferString& jobnm) const;
-    virtual bool		fillPar(IOPar&)		=0;
+    virtual void		getJobName(BufferString&) const;
+    virtual bool		fillPar(IOPar&)		= 0;
 
     bool			acceptOK();
     void			setProgName(const char*);

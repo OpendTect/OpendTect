@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
-				bool optional,
-				const Batch::JobSpec::ProcType& pt )
+				bool optional, ProcType pt )
     : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
 {
     setCtrlStyle( RunAndClose );
 
-    pargrp_ = new uiGroup( this, "Parmeters group" );
+    pargrp_ = new uiGroup( this, "Parameters group" );
+
     batchgrp_ = new uiGroup( this, "Batch group" );
     batchgrp_->attach( alignedBelow, pargrp_ );
     batchjobfld_ = new uiBatchJobDispatcherSel( batchgrp_, optional, pt );
