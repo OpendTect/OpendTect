@@ -160,9 +160,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    bool allbelow = true;
 	    for ( int k=0; k<3; k++ )
 	    {
-		Coord fbid =
+		const Coord fbid =
 		    SI().binID2Coord().transformBackNoSnap( v[k].getXY() );
-		RowCol rc(surfrrg.snap(fbid.x_),surfcrg.snap(fbid.y_));
+		const RowCol rc(surfrrg.snap(fbid.x_),surfcrg.snap(fbid.y_));
 
 		const double pz = surf_.computePosition(fbid).z_ + zshift_;
 		rcz[k] = Coord3( fbid, pz );
