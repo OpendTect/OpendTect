@@ -220,6 +220,7 @@ private:
 
 public:
     void			updateSelTreeColumnText(int col);
+    uiTreeItem*			parentTreeItem()	{ return parent_; }
 };
 
 mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
