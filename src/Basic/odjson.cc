@@ -932,7 +932,7 @@ void OD::JSON::Object::setVal( const char* ky, T t )
 {
     if ( !ky || !*ky )
     {
-	pErrMsg(errnoemptykey);
+	pErrMsg(errnoemptykey());
 	return;
     }
     set( new KeyedValue(ky,t) );
