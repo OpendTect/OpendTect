@@ -285,7 +285,9 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtChildByIdx( idx_type idx ) const
 	return 0;
     const Value* val = values_[idx];
     if ( !val->isValSet() )
+    {
 	pErrMsg("Value at idx is not ValSet");
+    }
     return const_cast<ValueSet*>( val->vSet() );
 }
 
@@ -907,7 +909,9 @@ void OD::JSON::Object::setVS( const char* ky, ValueSet* vset )
 	return;
 
     if ( !ky || !*ky )
+    {
 	pErrMsg(errnoemptykey);
+    }
     else
     {
 	vset->setParent( this );
