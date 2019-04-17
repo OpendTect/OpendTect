@@ -2,7 +2,6 @@
 # Description:  CMake script to build a release
 # Author:       K. Tingdahl
 # Date:		August 2012		
-#RCS:           $Id$
 
 
 macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
@@ -15,6 +14,12 @@ endmacro()
 macro( OD_ADD_PACKAGES_TARGET )
     if ( NOT DEFINED PACKAGE_DIR )
 	set( PACKAGE_DIR ${CMAKE_SOURCE_DIR}/packages )
+    endif()
+message( "HDF5_CXX_LIBRARY_hdf5: ${HDF5_CXX_LIBRARY_hdf5}")
+    if ( EXISTS ${HDF5_CXX_LIBRARY_hdf5} )
+	set( INCLUDE_ODHDF5 "YES" )
+    else()
+	set( INCLUDE_ODHDF5 "NO" )
     endif()
 
     add_custom_target( packages  ${CMAKE_COMMAND} 
@@ -37,6 +42,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
 	    -DMATLAB_DIR=${MATLAB_DIR}
 	    -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR}
+	    -DINCLUDE_ODHDF5=${INCLUDE_ODHDF5}
 	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    COMMENT "Creating packages" ) 
 endmacro()
