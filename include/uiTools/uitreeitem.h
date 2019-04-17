@@ -81,6 +81,7 @@ public:
     virtual void		moveItem(uiTreeItem* after);
     virtual void		moveItemToTop();
     uiTreeItem*			lastChild();
+    uiTreeItem*			parentTreeItem()	{ return parent_; }
 
     int				nrChildren() const { return children_.size(); }
     const uiTreeItem*		getChild(int) const;
