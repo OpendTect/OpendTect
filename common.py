@@ -248,3 +248,36 @@ def getODArgs(args=None):
   if has_stdlog_file():
     ret.update({'syslog': args['sysout'].name})
   return ret
+
+def getIconFp(nm,args=None):
+  oddir = getODSoftwareDir(args)
+  ret = os.path.join(oddir,'data','icons.Default',nm)+'.png'
+  if os.path.exists(ret):
+    return ret
+  return None
+
+def tail(fp,lines=1,strip_empty=False,_buffer=4098):
+  lines_found = []
+  block_counter = -1
+  while len(lines_found) < lines:
+    try:
+      fp.seek(block_counter * _buffer, os.SEEK_END)
+    except IOError:
+      fp.seek(0)
+      lines_found = fp.readlines()
+      break
+
+    lines_found = fp.readlines()
+    block_counter -= 1
+
+  ret = lines_found[-lines:]
+  if strip_empty:
+    while '\n' in ret:
+      ret.remove('\n')
+  return ret
+
+def batchIsFinished( logfile ):
+  ret = list()
+  with open(logfile) as fd:
+    ret = tail(fd,10,True)
+  return len(ret) > 0 and 'Finished batch processing' in ret[-1]
