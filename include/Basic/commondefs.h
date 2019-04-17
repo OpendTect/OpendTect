@@ -127,6 +127,7 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 #define rCast(tp,v)		reinterpret_cast< tp >( v )
 #define sCast(tp,v)		static_cast< tp >( v )
 
+#define mUseType(scope,typ)		typedef scope::typ typ
 # define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
 # define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 

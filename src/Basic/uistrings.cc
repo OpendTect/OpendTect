@@ -11,6 +11,8 @@ ________________________________________________________________________
 
 #include "uistrings.h"
 #include "multiid.h"
+#include "nrbytes2string.h"
+#include "odsysmem.h"
 
 static const char* joinstring = "%1 %2";
 
@@ -87,6 +89,16 @@ uiString uiStrings::phrCannotLoad( const uiString& string )
 uiString uiStrings::phrCannotOpen( const uiString& string )
 { return toUiString(joinstring).arg(sCannotOpen()).arg( string ); }
 
+uiString uiStrings::phrCannotOpen( const char* fnm, bool forread )
+{
+    return forread ? phrCannotOpen( toUiString(fnm).quote(true) )
+		   : phrCannotCreate( toUiString(fnm).quote(true) );
+}
+uiString uiStrings::phrCannotOpenForRead( const char* fnm )
+{ return phrCannotOpen( fnm, true ); }
+uiString uiStrings::phrCannotOpenForWrite( const char* fnm )
+{ return phrCannotOpen( fnm, false ); }
+
 uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
 { return phrCannotFind( tr("database entry for %1").arg( string ) ); }
 
@@ -138,12 +150,30 @@ uiString uiStrings::phrData( const uiString& string )
 uiString uiStrings::phrDelete( const uiString& string )
 { return toUiString(joinstring).arg(sDelete()).arg(string); }
 
+uiString uiStrings::phrDiagnostic( const char* msg )
+{ return toUiString("'%1'").arg(msg); }
+
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
 
 uiString uiStrings::phrEnter( const uiString& string )
 { return toUiString(joinstring).arg(sEnter()).arg(string); }
 
+uiString uiStrings::phrErrDuringIO( bool read, const uiString& subj )
+{
+	return (read ? tr("Error during %1 read")
+		     : tr("Error during %1 write")).arg( subj );
+}
+
+uiString uiStrings::phrErrDuringIO( bool read, const char* nm )
+{
+    if ( !nm || !*nm )
+	return read ? tr("Error during data read")
+		    : tr("Error during data write");
+    else
+	return (read ? tr("Error during read of '%1'")
+		     : tr("Error during write of '%1'")).arg( nm );
+}
 uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 {
     return tr( "%1 exists. %2?")
@@ -165,6 +195,10 @@ uiString uiStrings::phrInput( const uiString& string )
 
 uiString uiStrings::phrInsert( const uiString& string )
 { return phrJoinStrings( sInsert(), string ); }
+
+uiString uiStrings::phrInternalErr( const char* string )
+{ return tr("Internal Error (pease contact support@dgbes.com):\n%1")
+	 .arg( string ); }
 
 uiString uiStrings::phrInvalid( const uiString& string )
 { return toUiString(joinstring).arg(sInvalid()).arg(string); }
@@ -466,8 +500,8 @@ uiString uiStrings::sOutputFileExistsOverwrite()
 uiString uiStrings::sProbDensFunc( bool abbrevation, int num )
 {
     return abbrevation
-        ? tr( "PDF", 0, num )
-        : tr("Probability Density Function", 0, num );
+	? tr( "PDF", 0, num )
+	: tr("Probability Density Function", 0, num );
 }
 
 uiString uiStrings::sProperties()
@@ -578,6 +612,71 @@ uiString uiStrings::sXcoordinate()
 uiString uiStrings::sYcoordinate()
 { return tr("Y-coordinate"); }uiString uiStrings::sZRange()
 { return tr("Z Range"); }
+
+
+//--- phrases without 'real' args
+
+uiString uiStrings::phrCannotAllocateMemory( od_int64 szneeded )
+{
+    uiString insuffstr = tr("Insufficient memory available");
+    if ( szneeded <= 0 )
+	return insuffstr;
+
+    od_int64 totmem, freemem;
+    OD::getSystemMemory( totmem, freemem );
+    NrBytesToStringCreator b2s( totmem );
+
+    return toUiString("%1 (%2: %3, %4: %5/%6)")
+	.arg( insuffstr )
+	.arg( sRequired() )
+	.arg( b2s.getString(szneeded) )
+	.arg( sAvailable() )
+	.arg( b2s.getString(freemem) )
+	.arg( b2s.getString(totmem) );
+}
+
+uiString uiStrings::phrCannotFindAttrName()
+{ return phrCannotFind( tr("attribute name") ); }
+
+uiString uiStrings::phrCannotFindObjInDB()
+{ return phrCannotFind( tr("object in data base") ); }
+
+uiString uiStrings::phrCannotOpenInpFile( int num )
+{ return phrCannotOpen( tr("input file",0,num) ); }
+
+uiString uiStrings::phrCannotOpenOutpFile( int num )
+{ return phrCannotOpen(tr("output file",0,num) ); }
+
+uiString uiStrings::phrCannotReadHor()
+{ return phrCannotRead( sHorizon().toLower() ); }
+
+uiString uiStrings::phrCannotReadInp()
+{ return phrCannotRead( sInput().toLower() ); }
+
+uiString uiStrings::phrCannotWriteSettings()
+{ return phrCannotWrite(sSettings());}
+
+uiString uiStrings::phrCheckPermissions()
+{ return tr("You may want to check the access permissions"); }
+
+uiString uiStrings::phrCheckUnits()
+{ return tr("You may want to check the units of measure"); }
+
+uiString uiStrings::phrDBIDNotValid()
+{ return tr("Database ID is not valid"); }
+
+uiString uiStrings::phrEnterValidName()
+{ return uiStrings::phrEnter(tr("a valid name")); }
+
+uiString uiStrings::phrSaveBodyFail()
+{ return tr("Save body failed"); }
+
+uiString uiStrings::phrSelOutpFile()
+{ return uiStrings::phrSelect(tr("output file")); }
+
+uiString uiStrings::phrSpecifyOutput()
+{ return uiStrings::phrSpecify( uiStrings::sOutput() ); }
+
 
 
 uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,

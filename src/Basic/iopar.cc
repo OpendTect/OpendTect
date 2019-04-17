@@ -197,6 +197,12 @@ void IOPar::removeWithKeyPattern( const char* pattern )
 }
 
 
+int IOPar::maxContentSize( bool kys ) const
+{
+    return (kys ? keys_ : vals_).maxLength();
+}
+
+
 void IOPar::merge( const IOPar& iopar )
 {
     if ( &iopar == this ) return;

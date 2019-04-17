@@ -24,6 +24,16 @@ mExpClass(Basic) ArrayNDInfo
 {
 public:
 
+    typedef od_int16	nr_dims_type;	// number of dimensions, rank
+    typedef nr_dims_type dim_idx_type;
+    typedef od_int32	size_type;	// size of a singe dimension
+    typedef size_type	idx_type;
+    typedef od_int64	offset_type;	// offset/total size in/of the array
+    typedef offset_type total_size_type;
+    typedef const size_type* NDSize;	// arr with sizes for each dimension
+    typedef const idx_type* NDPos;
+    typedef TypeSet<idx_type> NDPosBuf; // to put your own ND-indexes
+
     virtual ArrayNDInfo* clone() const					= 0;
     virtual		~ArrayNDInfo()					{}
 
@@ -48,6 +58,22 @@ protected:
     od_uint64		calcTotalSz() const;
 
 };
+
+
+#define mTypeDefArrNDTypes \
+    mUseType( ArrayNDInfo, dim_idx_type ); \
+    mUseType( ArrayNDInfo, nr_dims_type ); \
+    mUseType( ArrayNDInfo, idx_type ); \
+    mUseType( ArrayNDInfo, size_type ); \
+    mUseType( ArrayNDInfo, offset_type ); \
+    mUseType( ArrayNDInfo, total_size_type ); \
+    mUseType( ArrayNDInfo, NDSize ); \
+    mUseType( ArrayNDInfo, NDPos ); \
+    mUseType( ArrayNDInfo, NDPosBuf ); \
+
+#define mDefNDPosBuf(nm,nrdims) ArrayNDInfo::NDPosBuf nm( nrdims, 0 )
+#define mNDPosFromPosBuf(bufnm) bufnm.arr()
+#define mNDPosBufFromPos(pos,nrdims) ArrayNDInfo::NDPosBuf( pos, nrdims )
 
 
 inline bool operator ==( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )

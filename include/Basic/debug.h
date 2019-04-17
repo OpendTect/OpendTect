@@ -42,6 +42,8 @@ namespace DBG
 			//!< one line; more if isOn()
     mGlobal(Basic) void forceCrash(bool withdump);
     mGlobal(Basic) bool crashOnNaN();
+    mGlobal(Basic) bool setCrashOnProgError(bool yn);
+			//!<Returns old status
 };
 
 extern "C" {
@@ -54,8 +56,6 @@ extern "C" {
     mGlobal(Basic) void od_init_test_program(int,char**);
 	/*!<Calls SetProgramArgs, sets crash on programmer error, and installs
 	    signal handling for crashes. */
-
-
 }
 
 

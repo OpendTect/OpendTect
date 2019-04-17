@@ -656,6 +656,100 @@ uiString& uiString::append( const char* newarg, bool withnewline )
 }
 
 
+uiString& uiString::appendPhrase( const uiString& txt,
+				  SeparType septyp, AppendType apptyp )
+{
+    Threads::Locker datalocker( datalock_ );
+    uiString self( *this );
+    self.makeIndependent();
+    mEnsureData;
+
+    //To keep it alive if it is replaced in the operator=
+    RefMan<uiStringData> tmpptr = data_;
+    Threads::Locker contentlocker( tmpptr->contentlock_ );
+
+    if ( isEmpty() )
+	{ septyp = NoSep; apptyp = OnSameLine; }
+
+    const char* tplstr = 0;
+    if ( apptyp == OnNewLine )
+    {
+	switch ( septyp )
+	{
+	    case NoSep:
+	    case Space:
+	    case Tab:		tplstr = "%1\n%2";	break;
+	    case CloseLine:	tplstr = "%1.\n%2";	break;
+	    case Comma:		tplstr = "%1,\n%2";	break;
+	    case MoreInfo:	tplstr = "%1:\n%2";	break;
+	    case SemiColon:	tplstr = "%1;\n%2";	break;
+	}
+    }
+    else if ( apptyp == OnSameLine )
+    {
+	switch ( septyp )
+	{
+	    case NoSep:		tplstr = "%1%2";	break;
+	    case Space:		tplstr = "%1 %2";	break;
+	    case Tab:		tplstr = "%1\t%2";	break;
+	    case CloseLine:	tplstr = "%1. %2";	break;
+	    case Comma:		tplstr = "%1, %2";	break;
+	    case MoreInfo:	tplstr = "%1: %2";	break;
+	    case SemiColon:	tplstr = "%1; %2";	break;
+	}
+    }
+    else
+    {
+	switch ( septyp )
+	{
+	    case NoSep:
+	    case Space:
+	    case Tab:		tplstr = "%1\n\n%2";	break;
+	    case CloseLine:	tplstr = "%1.\n\n%2";	break;
+	    case Comma:		tplstr = "%1,\n\n%2";	break;
+	    case MoreInfo:	tplstr = "%1:\n\n%2";	break;
+	    case SemiColon:	tplstr = "%1;\n\n%2";	break;
+	}
+    }
+
+    *this = toUiString( tplstr ).arg( self ).arg( txt );
+
+    mSetDBGStr;
+    return *this;
+}
+
+
+uiString& uiString::embed( const char* open,const char* close )
+{
+    Threads::Locker datalocker( datalock_ );
+    uiString self( *this );
+    self.makeIndependent();
+    mEnsureData;
+
+    RefMan<uiStringData> tmpptr = data_;
+    Threads::Locker contentlocker( tmpptr->contentlock_ );
+
+    if	( isEmpty() || self.isEmpty() )
+	return *this;
+
+    BufferString fmtstr;
+
+    fmtstr.add(open).add("%1").add(close);
+
+    *this = toUiString( fmtstr ).arg( self );
+
+    mSetDBGStr;
+    return *this;
+}
+
+
+uiString& uiString::quote( bool single )
+{
+    const char* qustr = single ? "'" : "\"";
+    return embed(qustr,qustr);
+}
+
+
 bool uiString::translate( const QTranslator& qtr , QString& res ) const
 {
 #ifndef OD_NO_QT

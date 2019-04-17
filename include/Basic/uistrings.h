@@ -18,6 +18,9 @@ ________________________________________________________________________
 
 #define mPlural 2
 
+#define mDIAGNOSTIC(s) uiStrings::phrDiagnostic(s)
+#define mINTERNAL(s) uiStrings::phrInternalErr(s)
+
 /*!Common strings that are localized. Using these keeps the translation
    at a minimum.
 */
@@ -57,6 +60,9 @@ public:
     //!"Cannot Load <string>"
     static uiString phrCannotOpen(const uiString& string);
     //!<"Cannot open <string>"
+    static uiString phrCannotOpen(const char*,bool forread);
+    static uiString phrCannotOpenForRead(const char*);
+    static uiString phrCannotOpenForWrite(const char*);
     static uiString phrCannotRead(const uiString& string);
     //!<"Cannot read <string>"
     static uiString phrCannotSave(const uiString&);
@@ -91,12 +97,23 @@ public:
     //!<"Data <string>"
     static uiString phrDelete(const uiString&);
     //!<"Delete <string>"
+    static uiString phrDiagnostic(const char*);
     static uiString phrDoesntExist(const uiString& string,int num=1);
     //!<"<string> does/do not exist"
     static uiString phrEdit(const uiString& string);
     //!<"Edit <string>"
     static uiString phrEnter(const uiString&);
     //!<"Enter <string>"
+    static uiString phrErrDuringIO(bool read,const char* objnm=0);
+    static uiString phrErrDuringIO(bool read,const uiString&);
+    static uiString phrErrDuringRead( const char* objnm=0 )
+		    { return phrErrDuringIO( true, objnm ); }
+    static uiString phrErrDuringRead( const uiString& subj )
+		    { return phrErrDuringIO( true, subj ); }
+    static uiString phrErrDuringWrite( const char* objnm=0 )
+		    { return phrErrDuringIO( false, objnm ); }
+    static uiString phrErrDuringWrite( const uiString& subj )
+		    { return phrErrDuringIO( false, subj ); }
     static uiString phrExistsConinue(const uiString&,bool overwrite);
     //!<"<string> exists. Continue?" or "<string> exists. Overwrite?
     static uiString phrExport(const uiString& string);
@@ -113,6 +130,7 @@ public:
     //!<"Input <string>"
     static uiString phrInsert(const uiString&);
     //!<"Insert <string>"
+    static uiString phrInternalErr(const char*);
     static uiString phrInvalid(const uiString& string);
     //!<"Invalid <string>"
     static uiString phrJoinStrings(const uiString& a,const uiString& b);
@@ -175,6 +193,22 @@ public:
     static uiString phrZRange(const uiString&);
     //!<"Z Range <string>"
 
+    //Phrases that don't need specifics, can be used when context is obvious
+    static uiString phrCannotAllocateMemory(od_int64 reqsz=-1);
+    static uiString phrCannotFindAttrName();
+    static uiString phrCannotFindObjInDB();
+    static uiString phrCannotOpenInpFile(int n=1);
+    static uiString phrCannotOpenOutpFile(int n=1);
+    static uiString phrCannotReadHor();
+    static uiString phrCannotReadInp();
+    static uiString phrCannotWriteSettings();
+    static uiString phrCheckPermissions();
+    static uiString phrCheckUnits();
+    static uiString phrDBIDNotValid();
+    static uiString phrEnterValidName();
+    static uiString phrSaveBodyFail();
+    static uiString phrSelOutpFile();
+    static uiString phrSpecifyOutput();
 
 //Words
     static uiString s2D();
@@ -200,6 +234,7 @@ public:
     static uiString sAttributes()	{ return sAttribute(mPlural); }
     static uiString sAttributeSet(int num=1)
 					{ return tr("Attribute Set",0,num); }
+    static uiString sAvailable()	{ return tr("Available"); }
     static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
@@ -417,6 +452,7 @@ public:
     static uiString sRemove();
     static uiString sRemoveSelected();
     static uiString sRename();
+    static uiString sRequired()		{ return tr("Required"); }
     static uiString sReservoir()	{ return tr("Reservoir"); }
     static uiString sReset()		{ return tr("Reset"); }
     static uiString sResume()		{ return tr("Resume"); }
@@ -545,11 +581,25 @@ public:
 };
 
 
-#define m3Dots( txt ) uiStrings::phrThreeDots( txt, false )
-#define mJoinUiStrs( txt1, txt2 )\
+//! Adds '...' to string, usable for menu items
+#define m3Dots( txt ) \
+    uiStrings::phrThreeDots( txt, false )
+
+#define mJoinUiStrs( txt1, txt2 ) \
    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
 
-#define mTODONotImplPhrase() uiStrings::phrTODONotImpl( ::className(*this) )
+//! Shortcut handy macro for during development
+#define mTODONotImplPhrase() \
+    uiStrings::phrTODONotImpl( ::className(*this) )
 
+//! Puts untranslated internal in pErrMsg and in uiRetVal and returns that
+#define mPutInternalInUiRv( uirv, msg, act ) \
+{ \
+    pErrMsg( msg ); uirv.add( mINTERNAL(msg) ); act; \
+}
+
+//! As mPutInternalInUiRv but also returns the uiRetVal
+#define mRetInternalInUiRv( uirv, msg ) \
+    mPutInternalInUiRv( uirv, msg, return uirv )
 
 #endif

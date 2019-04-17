@@ -28,6 +28,7 @@ mClass(Basic) TypeSetBase : public OD::Set
 public:
 
     typedef I			size_type;
+    typedef size_type		idx_type;
     typedef T			object_type;
 
     inline virtual		~TypeSetBase();

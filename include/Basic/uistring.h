@@ -27,11 +27,12 @@ mFDQtclass( QTranslator );
 
 #define mTextTranslationClass(clss,application) \
 private: \
- static inline uiString tr( const char* text, const char* disambiguation = 0,  \
- int pluralnr=-1 ) \
+ static inline uiString tr( const char* text, \
+			    const char* disambiguation=nullptr, \
+			    int pluralnr=-1 ) \
  { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
  static inline uiString legacyTr( const char* text, \
-				  const char* disambiguation = 0,  \
+				  const char* disambiguation=nullptr,  \
 				  int pluralnr=-1 ) \
  { return uiString( text, #clss, application, disambiguation, pluralnr ); }
 
@@ -123,6 +124,21 @@ public:
     uiString&	append(const OD::String&, bool withnewline=false);
     uiString&	append(const uiString&, bool withnewline=false);
 
+    enum SeparType	{ NoSep, CloseLine, Space, Tab, Comma, MoreInfo,
+			  SemiColon };
+    enum AppendType	{ OnSameLine, OnNewLine, AfterEmptyLine };
+
+#   define		muiStringAppendDefArgs \
+			    SeparType septyp=uiString::CloseLine, \
+			    AppendType apptyp=uiString::OnNewLine
+    uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
+    uiString&		embed(const char* open,const char* close);
+    uiString&		quote(bool single);
+    uiString&		addMoreInfo(const uiString&,bool newline=false);
+			//!< will deliver ": the string with more info"
+    uiString&		addMoreInfo(const char*);
+    template <class T>
+    uiString&		addMoreInfo(const T&);
 
     /*! Results: */
     const OD::String&		getFullString(BufferString* = 0) const;
@@ -203,7 +219,7 @@ public:
 			uiString str = tr("New version");
 			str.addLegacyVersion( legacyTr("Old ver") );
 		    \endcode
-                */
+		*/
 
     bool	translate(const mQtclass(QTranslator)&,
 			  mQtclass(QString)&) const;
@@ -299,6 +315,15 @@ mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
 mGlobal(Basic) uiString toUiString(float,char format,int precision);
 mGlobal(Basic) uiString toUiString(double,char format,int precision);
+
+
+inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
+{ return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
+inline uiString& uiString::addMoreInfo( const char* str )
+{ return appendPhrase( toUiString(str), MoreInfo, OnSameLine ); }
+template <class T>
+inline uiString& uiString::addMoreInfo( const T& t )
+{ return appendPhrase( toUiString(t), MoreInfo, OnSameLine ); }
 
 
 //User when string should be revisited later

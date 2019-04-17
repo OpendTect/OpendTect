@@ -154,6 +154,14 @@ namespace DBG
 {
 
 
+bool setCrashOnProgError( bool yn )
+{
+    const bool res = crashonprogerror;
+    crashonprogerror = yn;
+    return res;
+}
+
+
 bool crashOnNaN()
 {
     bool defval = true;

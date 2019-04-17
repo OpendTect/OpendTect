@@ -46,6 +46,7 @@ list ( APPEND OD_MODULE_SOURCES
 	geometryio.cc
 	googlexmlwriter.cc
 	grid2d.cc
+	hdf5access.cc
 	helpview.cc
 	ibmformat.cc
 	initgeneral.cc

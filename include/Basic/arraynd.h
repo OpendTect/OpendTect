@@ -80,6 +80,15 @@ public:
 					    with info().getTotalSz() number
 					    of values. */
 
+					// rank/size info
+    inline int				nrDims() const
+					{ return info().getNDim(); }
+    inline int				getSize( int dim ) const
+					{ return info().getSize(dim); }
+    inline od_uint64			totalSize() const
+					{ return info().getTotalSz(); }
+    inline bool				validPos( int* pos ) const
+					{ return info().validPos(pos); }
 protected:
 
     virtual const ValueSeries<T>*	getStorage_() const { return 0; }
