@@ -27,18 +27,20 @@ mExpClass(uiTools) uiBatchJobDispatcherSel : public uiGroup
 { mODTextTranslationClass(uiBatchJobDispatcherSel)
 public:
 
+    mUseType( Batch,	JobSpec );
+    mUseType( JobSpec,	ProcType );
+
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-					Batch::JobSpec::ProcType pt
-						=Batch::JobSpec::NonODBase);
+					ProcType pt=JobSpec::NonODBase);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-						const Batch::JobSpec&);
+						const JobSpec&);
 
     void		jobSpecUpdated();
-    void		setJobSpec(const Batch::JobSpec&);
+    void		setJobSpec(const JobSpec&);
     void		setJobName(const char*);
     void		setWantBatch(bool);	//! useful if isoptional
 
-    Batch::JobSpec&	jobSpec()		{ return jobspec_; }
+    JobSpec&		jobSpec()		{ return jobspec_; }
     uiString		selected() const;
     const uiString	selectedInfo() const;
     uiBatchJobDispatcherLauncher* selectedLauncher();
@@ -57,7 +59,7 @@ protected:
     uiButton*		optsbut_;
 
     BufferString	jobname_;
-    Batch::JobSpec	jobspec_;
+    JobSpec		jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 
     void		init(bool optional);
@@ -69,4 +71,5 @@ protected:
     void		optsPush(CallBacker*);
 
     bool		noLaunchersAvailable() const	{ return !optsbut_; }
+
 };

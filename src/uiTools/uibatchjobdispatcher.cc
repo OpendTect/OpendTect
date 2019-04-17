@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-						  const Batch::JobSpec& js )
+						  const JobSpec& js )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(js)
     , optsbut_(0)
@@ -43,7 +43,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-					  Batch::JobSpec::ProcType proctyp )
+						  ProcType proctyp )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(proctyp)
     , optsbut_(0)
@@ -59,7 +59,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 void uiBatchJobDispatcherSel::init( bool optional )
 {
-    Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
+    Factory1Param<uiBatchJobDispatcherLauncher,JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
     const BufferStringSet& kys = fact.getKeys();
     for ( int idx=0; idx<kys.size(); idx++ )
@@ -124,7 +124,7 @@ void uiBatchJobDispatcherSel::initFlds( CallBacker* )
 }
 
 
-void uiBatchJobDispatcherSel::setJobSpec( const Batch::JobSpec& js )
+void uiBatchJobDispatcherSel::setJobSpec( const JobSpec& js )
 {
     jobspec_ = js;
     jobSpecUpdated();
