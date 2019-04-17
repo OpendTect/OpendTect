@@ -310,7 +310,6 @@ OD::JSON::Object* OD::JSON::ValueSet::gtObjectByIdx( idx_type idx ) const
 }
 
 
-static const char* gtvalnotplaindatastr = "ValueSet at idx is not plain data";
 
 BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 {
@@ -319,10 +318,7 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 	return ret;
     const Value* val = values_[idx];
     if ( val->isValSet() )
-    {
-	pErrMsg(gtvalnotplaindatastr);
-	return ret;
-    }
+	{ pErrMsg(gtvalnotplaindatastr()); return ret; }
 
     switch ( (DataType)val->type_ )
     {
@@ -343,7 +339,7 @@ od_int64 OD::JSON::ValueSet::getIntValue( idx_type idx ) const
     const Value* val = values_[idx];
     if ( val->isValSet() )
     {
-	pErrMsg(gtvalnotplaindatastr);
+	pErrMsg(gtvalnotplaindatastr());
 	return ret;
     }
 
@@ -366,7 +362,7 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
     const Value* val = values_[idx];
     if ( val->isValSet() )
     {
-	pErrMsg(gtvalnotplaindatastr);
+	pErrMsg(gtvalnotplaindatastr());
 	return ret;
     }
 
@@ -729,13 +725,13 @@ OD::JSON::Object* OD::JSON::Array::add( Object* obj )
 }
 
 
-static const char* addarrnonvalstr = "add value to non-value Array";
+
 
 #define mDefArrayAddVal(inptyp,fn,valtyp) \
 OD::JSON::Array& OD::JSON::Array::add( inptyp val ) \
 { \
     if ( valtype_ != Data ) \
-	{ pErrMsg(addarrnonvalstr); } \
+	{ pErrMsg(addarrnonvalstr()); } \
     else \
 	valarr_->fn().add( (valtyp)val ); \
     return *this; \
@@ -901,7 +897,6 @@ void OD::JSON::Object::set( KeyedValue* val )
 }
 
 
-static const char* errnoemptykey = "Empty key not allowed for Object's";
 
 void OD::JSON::Object::setVS( const char* ky, ValueSet* vset )
 {
@@ -909,9 +904,7 @@ void OD::JSON::Object::setVS( const char* ky, ValueSet* vset )
 	return;
 
     if ( !ky || !*ky )
-    {
-	pErrMsg(errnoemptykey);
-    }
+    { pErrMsg(errnoemptykey()); }
     else
     {
 	vset->setParent( this );

@@ -161,7 +161,8 @@ protected:
     friend class	Array;
     friend class	Object;
     friend class	Value;
-
+    static const char* gtvalnotplaindatastr()
+				{ return "ValueSet at idx is not plain data"; }
 };
 
 
@@ -231,7 +232,8 @@ protected:
     void		addVS(ValueSet*);
 
     friend class	ValueSet;
-
+    static const char* addarrnonvalstr()
+				    { return "add value to non-value Array"; }
 };
 
 
@@ -294,6 +296,8 @@ protected:
 
     friend class	ValueSet;
 
+    static const char* errnoemptykey()
+				{ return "Empty key not allowed for Object's"; }
 };
 
 
