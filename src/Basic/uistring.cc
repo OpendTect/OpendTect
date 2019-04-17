@@ -178,6 +178,13 @@ void uiStringData::getFullString( BufferString& ret ) const
 }
 
 
+void uiString::fillUTF8String( BufferString& res ) const
+{
+    QString qres;
+    fillQString( qres );
+    res.set( qres );
+}
+
 
 bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator,
@@ -1049,11 +1056,17 @@ uiRetVal& uiRetVal::set( const uiStringSet& strs )
 }
 
 
-uiRetVal& uiRetVal::setOK()
+uiRetVal& uiRetVal::setEmpty()
 {
     Threads::Locker locker( lock_ );
     msgs_.setEmpty();
     return *this;
+}
+
+
+uiRetVal& uiRetVal::setOK()
+{
+    return setEmpty();
 }
 
 

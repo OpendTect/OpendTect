@@ -1,0 +1,320 @@
+#pragma once
+/*
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Bert
+ Date:		April 2018
+________________________________________________________________________
+
+*/
+
+#include "bufstringset.h"
+#include "uistring.h"
+#include "typeset.h"
+#include "od_iosfwd.h"
+
+class MultiID;
+class SeparString;
+namespace Gason { struct JsonNode; }
+
+
+namespace OD
+{
+
+namespace JSON
+{
+
+class Array;
+class KeyedValue;
+class Object;
+class Value;
+
+/*! data types you can find in a JSON file */
+
+enum DataType
+{
+    Boolean, Number, String
+};
+
+typedef double NumberType;
+
+
+    /*! holds 'flat' value sets of each of the DataType's */
+
+mExpClass(Basic) ValArr
+{
+public:
+
+    typedef BoolTypeSet::size_type	size_type;
+    typedef size_type			idx_type;
+    typedef BoolTypeSet			BSet;
+    typedef TypeSet<NumberType>		NSet;
+    typedef BufferStringSet		SSet;
+
+    ValArr( DataType );
+    ValArr( const ValArr& );
+    ~ValArr()		{ delete set_; }
+    DataType		dataType() const	{ return type_; }
+
+    size_type		size() const
+			{ return (size_type)set_->nrItems(); }
+    bool		validIdx( idx_type idx ) const
+			{ return set_->validIdx( idx ); }
+    bool		isEmpty() const		{ return set_->isEmpty(); }
+    void		setEmpty()		{ set_->setEmpty(); }
+
+    OD::Set&		odSet()			{ return *set_; }
+    const OD::Set&	odSet() const		{ return *set_; }
+    BSet&		bools()			{ return *((BSet*)set_); }
+    const BSet&		bools() const		{ return *((BSet*)set_); }
+    NSet&		vals()			{ return *((NSet*)set_); }
+    const NSet&		vals() const		{ return *((NSet*)set_); }
+    SSet&		strings()		{ return *((SSet*)set_); }
+    const SSet&		strings() const		{ return *((SSet*)set_); }
+
+    void		dumpJSon( BufferString& ) const;
+
+protected:
+
+    DataType		type_;
+    OD::Set*		set_;
+
+};
+
+
+/*!\brief holds values and sets of values.
+	    Is base class for either Array or Object. */
+
+mExpClass(Basic) ValueSet
+{
+    mODTextTranslationClass(OD::JSON::ValueSet)
+public:
+
+    typedef ValArr::size_type	size_type;
+    typedef size_type		idx_type;
+    enum ValueType		{ Data, SubArray, SubObject };
+    typedef Gason::JsonNode	GasonNode;
+
+    virtual ValueSet*	clone() const = 0;
+    virtual		~ValueSet()			{ setEmpty(); }
+    virtual bool	isArray() const = 0;
+    inline Array&	asArray();
+    inline const Array& asArray() const;
+    inline Object&	asObject();
+    inline const Object& asObject() const;
+
+    virtual size_type	size() const { return (size_type)values_.size(); }
+    virtual bool	isEmpty() const { return values_.isEmpty(); }
+    virtual void	setEmpty();
+
+    virtual ValueType	valueType(idx_type) const;
+    inline bool		isPlainData( idx_type i ) const
+			{ return valueType(i) == Data; }
+    inline bool		isArrayChild( idx_type i ) const
+			{ return valueType(i) == SubArray; }
+    inline bool		isObjectChild( idx_type i ) const
+			{ return valueType(i) == SubObject; }
+
+    bool		isTop() const		{ return !parent_; }
+    ValueSet*		top();
+    const ValueSet*	top() const;
+
+#define mMkGetFns(typ,getfn,implfn) \
+    inline typ&		getfn( idx_type i )		{ return *implfn(i); } \
+    inline const typ&	getfn( idx_type i ) const	{ return *implfn(i); }
+    mMkGetFns( ValueSet, child, gtChildByIdx )
+    mMkGetFns( Array, array, gtArrayByIdx )
+    mMkGetFns( Object, object, gtObjectByIdx )
+#undef mMkSubFn
+
+    od_int64		getIntValue(idx_type) const;
+    double		getDoubleValue(idx_type) const;
+    BufferString	getStringValue(idx_type) const;
+
+    uiRetVal		parseJSon(char* buf,int bufsz);
+    static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
+    void		dumpJSon(BufferString&) const;
+
+    uiRetVal		read(od_istream&);
+    static ValueSet*	read(od_istream&,uiRetVal&);
+    uiRetVal		write(od_ostream&);
+
+protected:
+
+			ValueSet(ValueSet* p)
+			    : parent_(p)	{}
+			ValueSet(const ValueSet&);
+
+    ValueSet*		parent_;
+    ObjectSet<Value>	values_;
+
+    void		setParent(ValueSet* p)	{ parent_ = p; }
+
+    ValueSet*		gtChildByIdx(idx_type) const;
+    Array*		gtArrayByIdx(idx_type) const;
+    Object*		gtObjectByIdx(idx_type) const;
+
+    static ValueSet*	gtByParse(char*,int,uiRetVal&,ValueSet*);
+    void		use(const GasonNode&);
+
+    friend class	Array;
+    friend class	Object;
+    friend class	Value;
+
+};
+
+
+/*!\brief ValueSet where the values and subsets have no key.
+
+    If it holds plain data (valType()==Data), then you can only add
+    plain values or set all at once. Otherwise, you can only add ValueSet's of
+    the same type (either Array or Object).
+    */
+
+mExpClass(Basic) Array : public ValueSet
+{
+public:
+
+			Array(bool objects,ValueSet* p=0);
+			Array(DataType,ValueSet* p=0);
+			Array(const Array&);
+			~Array();
+    virtual Array*	clone() const		{ return new Array(*this); }
+    virtual bool	isArray() const		{ return true; }
+    virtual void	setEmpty();
+
+    virtual ValueType	valueType(idx_type) const { return valtype_; }
+    ValueType		valType() const		{ return valtype_; }
+    virtual size_type	size() const;
+
+			// Only available if valType() == Data
+    inline ValArr&	valArr()		{ return *valarr_; }
+    inline const ValArr& valArr() const		{ return *valarr_; }
+
+    Array*		add(Array*);
+    Object*		add(Object*);
+
+			// only usable if valType() == Data
+    Array&		add(bool);
+    Array&		add(od_int16);
+    Array&		add(od_uint16);
+    Array&		add(od_int32);
+    Array&		add(od_uint32);
+    Array&		add(od_int64);
+    Array&		add(float);
+    Array&		add(double);
+    Array&		add(const char*);
+    Array&		add( const OD::String& odstr )
+			{ return add( odstr.str() ); }
+    Array&		add(const uiString&);
+
+			// also, only usable if valType() == Data
+    void		set(const BoolTypeSet&);
+    void		set(const TypeSet<od_int16>&);
+    void		set(const TypeSet<od_uint16>&);
+    void		set(const TypeSet<od_int32>&);
+    void		set(const TypeSet<od_uint32>&);
+    void		set(const TypeSet<od_int64>&);
+    void		set(const TypeSet<float>&);
+    void		set(const TypeSet<double>&);
+    void		set(const BufferStringSet&);
+    void		set(const uiStringSet&);
+
+protected:
+
+    ValueType		valtype_;
+    ValArr*		valarr_;
+
+    template <class T>
+    void		setVals(const TypeSet<T>&);
+    void		addVS(ValueSet*);
+
+    friend class	ValueSet;
+
+};
+
+
+/*!\brief ValueSet where the values and subsets have a key. */
+
+mExpClass(Basic) Object : public ValueSet
+{
+public:
+
+			Object(ValueSet* p=0)
+			    : ValueSet(p)	{}
+			Object(const Object&);
+    virtual Object*	clone() const		{ return new Object(*this); }
+    virtual bool	isArray() const		{ return false; }
+
+    idx_type		indexOf(const char*) const;
+    bool		isPresent( const char* ky ) const
+						{ return indexOf( ky ) >= 0; }
+
+# define mMkGetFn(typ,getfn,implfn) \
+    inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
+    inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
+    mMkGetFn( ValueSet, getChild, gtChildByKey )
+    mMkGetFn( Array, getArray, gtArrayByKey )
+    mMkGetFn( Object, getObject, gtObjectByKey )
+#undef	mMkGetFn
+
+    od_int64		getIntValue(const char*) const;
+    double		getDoubleValue(const char*) const;
+    BufferString	getStringValue(const char*) const;
+
+    Array*		set(const char* ky,Array*);
+    Object*		set(const char* ky,Object*);
+
+    void		set(const char* ky,bool);
+    void		set(const char* ky,od_int16);
+    void		set(const char* ky,od_uint16);
+    void		set(const char* ky,od_int32);
+    void		set(const char* ky,od_uint32);
+    void		set(const char* ky,od_int64);
+    void		set(const char* ky,float);
+    void		set(const char* ky,double);
+    void		set(const char* ky,const char*);
+    void		set(const char* ky,const OD::String& str)
+			{ set( ky, str.str() ); }
+    void		set( const char* ky,const MultiID& );
+
+    void		remove( const char* );
+
+protected:
+
+    ValueSet*		gtChildByKey(const char*) const;
+    Array*		gtArrayByKey(const char*) const;
+    Object*		gtObjectByKey(const char*) const;
+
+    void		set(KeyedValue*);
+    void		setVS(const char*,ValueSet*);
+    template <class T>
+    void		setVal(const char*,T);
+
+    friend class	ValueSet;
+
+};
+
+
+inline Array& ValueSet::asArray()
+{
+    return *static_cast<Array*>(this);
+}
+inline const Array& ValueSet::asArray() const
+{
+    return *static_cast<const Array*>(this);
+}
+inline Object& ValueSet::asObject()
+{
+    return *static_cast<Object*>(this);
+}
+inline const Object& ValueSet::asObject() const
+{
+    return *static_cast<const Object*>(this);
+}
+
+
+} // namespace JSON
+
+} // namespace OD

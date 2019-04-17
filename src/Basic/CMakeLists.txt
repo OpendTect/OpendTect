@@ -64,6 +64,7 @@ set( OD_MODULE_SOURCES
 	file.cc
 	filepath.cc
 	filespec.cc
+	gason.cpp
 	genc.cc
 	globexpr.cc
 	iopar.cc
@@ -74,6 +75,7 @@ set( OD_MODULE_SOURCES
 	moddepmgr.cc
 	namedobj.cc
 	objdisposer.cc
+	odjson.cc
 	od_iostream.cc
 	oddirs.cc
 	odimage.cc

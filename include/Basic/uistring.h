@@ -139,6 +139,7 @@ public:
 				/*!<Returns reference, so could be unsafe */
     const mQtclass(QString)&	fillQString(QString&) const;
 				/*!<Fully thread-safe. Returns input*/
+    void			fillUTF8String(BufferString&) const;
 
     void			getHexEncoded(BufferString&) const;
 				/*!<Encodes translated string into a const char*
@@ -261,6 +262,7 @@ public:
     bool		isSingleWord(const uiString&) const;
 
     uiRetVal&		setOK();
+    uiRetVal&		setEmpty();
     uiRetVal&		set(const uiRetVal&);
     uiRetVal&		set(const uiString&);
     uiRetVal&		set(const uiStringSet&);
