@@ -398,17 +398,23 @@ const char* GetProcessNameForPID( int pid )
 	procname = procnamebuff;
     }
 #else
-    OS::MachineCommand machcomm( "ps", "-p", toString(pid), "-o command=" );
+    OS::MachineCommand machcomm( "ps" );
+    machcomm.addKeyedArg( "p", toString(pid), OS::OldStyle )
+	    .addKeyedArg( "o", "command=", OS::OldStyle );
     BufferString stdoutput,stderror;
     if ( machcomm.execute(stdoutput,&stderror) )
-	procname = stderror.embed( '<', '>' );
-    else
     {
-	procname = stdoutput;
-	char* ptrfirstspace = procname.find( ' ' );
-	if ( ptrfirstspace )
-	    *ptrfirstspace = '\0';
+	const bool stdout = !stdoutput.isEmpty();
+	BufferString& retstr = stdout ? stdoutput : stderror;
+	if ( !stdout )
+	    retstr.embed( '<', '>' );
+	procname = retstr;
+	char* ptrfirstspace = procname.find(' ');
+	if ( ptrfirstspace ) *ptrfirstspace = '\0';
     }
+    else
+	procname.setEmpty().embed( '<', '>' );
+
 #endif
     const File::Path procpath( procname );
     ret = procpath.fileName();

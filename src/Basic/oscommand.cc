@@ -569,7 +569,7 @@ bool OS::CommandLauncher::execute( BufferString& out, BufferString* err )
 
     getStdOutput()->getAll( out );
     if ( err )
-	getStdOutput()->getAll( *err );
+	getStdError()->getAll( *err );
     return true;
 }
 
