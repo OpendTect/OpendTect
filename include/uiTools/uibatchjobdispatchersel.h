@@ -54,11 +54,11 @@ public:
 
 protected:
 
-    uiGenInput*		selfld_;
-    uiCheckBox*		dobatchbox_;
+    uiGenInput*		selfld_			= nullptr;
+    uiCheckBox*		dobatchbox_		= nullptr;
     uiButton*		optsbut_;
 
-    BufferString	jobname_;
+    BufferString	jobname_		= "batch_processing";
     JobSpec		jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 

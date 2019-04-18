@@ -14,8 +14,7 @@ set( OD_MODULE_SOURCES
 	uiaxisdata.cc
 	uiaxishandler.cc
 	uibasemap.cc
-	uibatchjobdispatcher.cc
-	uibatchprocdlg.cc
+	uibatchjob.cc
 	uibinidtable.cc
 	uibuildlistfromlist.cc
 	uibuttonstateedit.cc

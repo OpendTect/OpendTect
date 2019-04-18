@@ -9,8 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uibatchjobdispatchersel.h"
+#include "uibatchprocdlg.h"
 #include "uibatchjobdispatcherlauncher.h"
 
+#include "batchjobdispatch.h"
+#include "errmsg.h"
 #include "file.h"
 #include "hostdata.h"
 #include "ioobj.h"
@@ -27,16 +30,15 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
+static const char* sGroupName = "Batch job dispatcher selector";
+
+
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 						  const JobSpec& js )
-    : uiGroup(p,"Batch job dispatcher selector")
+    : uiGroup(p,sGroupName)
     , jobspec_(js)
-    , optsbut_(0)
-    , selfld_(0)
-    , dobatchbox_(0)
     , selectionChange(this)
     , checked(this)
-    , jobname_("batch_processing")
 {
     init( optional );
 }
@@ -44,14 +46,10 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 						  ProcType proctyp )
-    : uiGroup(p,"Batch job dispatcher selector")
+    : uiGroup(p,sGroupName)
     , jobspec_(proctyp)
-    , optsbut_(0)
-    , selfld_(0)
-    , dobatchbox_(0)
     , selectionChange(this)
     , checked(this)
-    , jobname_("batch_processing")
 {
     init( optional );
 }
@@ -59,8 +57,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 void uiBatchJobDispatcherSel::init( bool optional )
 {
-    Factory1Param<uiBatchJobDispatcherLauncher,JobSpec&>& fact
-				= uiBatchJobDispatcherLauncher::factory();
+    auto& fact = uiBatchJobDispatcherLauncher::factory();
     const BufferStringSet& kys = fact.getKeys();
     for ( int idx=0; idx<kys.size(); idx++ )
     {
@@ -72,7 +69,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     }
 
     if ( uidispatchers_.isEmpty() )
-	{ pErrMsg("Huh? No dispatcher launchers at all"); return; }
+	{ pErrMsg("No batch dispatcher launchers at all"); return; }
 
     uiString optionsbuttxt = uiStrings::sOptions();
     const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
@@ -86,7 +83,6 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	{
 	    dobatchbox_ = new uiCheckBox( this, tr("Execute in Batch") );
 	    dobatchbox_->activated.notify( fldchkcb );
-	    setHAlignObj( dobatchbox_ );
 	    attachobj = dobatchbox_;
 	}
     }
@@ -95,7 +91,6 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	selfld_ = new uiGenInput( this, tr("Batch execution"),
                                   StringListInpSpec());
 	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
-	setHAlignObj( selfld_ );
 	if ( optional )
 	{
 	    selfld_->setWithCheck( true );
@@ -110,6 +105,9 @@ void uiBatchJobDispatcherSel::init( bool optional )
 		optionsbuttxt );
     if ( attachobj )
 	optsbut_->attach( rightOf, attachobj );
+
+    if ( selfld_ )
+	setHAlignObj( selfld_ );
     else
 	setHAlignObj( optsbut_ );
 
@@ -508,4 +506,52 @@ void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
     hdl_.refresh();
     uiSingleBatchJobDispatcherPars dlg( p, hdl_, sjd_, jobspec_ );
     dlg.go();
+}
+
+
+
+uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
+				bool optional, ProcType pt )
+    : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
+{
+    setCtrlStyle( RunAndClose );
+
+    pargrp_ = new uiGroup( this, "Parameters group" );
+
+    batchgrp_ = new uiGroup( this, "Batch group" );
+    batchgrp_->attach( alignedBelow, pargrp_ );
+    batchjobfld_ = new uiBatchJobDispatcherSel( batchgrp_, optional, pt );
+    batchgrp_->setHAlignObj( batchjobfld_ );
+}
+
+
+void uiBatchProcDlg::getJobName( BufferString& jobnm ) const
+{
+    jobnm = "Batch_processing";
+}
+
+
+bool uiBatchProcDlg::acceptOK()
+{
+    if ( !prepareProcessing() )
+	return false;
+
+    IOPar& par = batchjobfld_->jobSpec().pars_;
+    par.setEmpty();
+    BufferString jobnm;
+    getJobName( jobnm );
+    batchjobfld_->setJobName( jobnm );
+    if ( !fillPar(par) )
+	return false;
+
+    if ( !batchjobfld_->start() )
+	uiMSG().error( tr("Could not start batch program") );
+
+    return false;
+}
+
+
+void uiBatchProcDlg::setProgName( const char* prognm )
+{
+    batchjobfld_->jobSpec().prognm_ = prognm;
 }
