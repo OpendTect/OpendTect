@@ -28,6 +28,7 @@ Contents/
 plugins/lux64
 moc*.cpp*
 moc*.cxx
+__pycache__
 
 lib*.dylib
 Info.plist
