@@ -446,19 +446,17 @@ mExternC(Basic) const char* GetPythonCommand()
 #endif
 }
 
-
-static const char* gtExecScript( const char* basedir, int remote )
+#ifdef __unix__
+static const char* gtUnixExecScript( const char* basedir )
 {
     mDeclStaticString( scriptnm );
-    scriptnm = File::Path(basedir,"bin","od_exec").fullPath();
-    if ( remote ) scriptnm.add( "_rmt" );
+    scriptnm = File::Path( basedir,"bin","exec_prog" ).fullPath();
     return scriptnm;
 }
+#endif
 
-
-mExternC(Basic) const char* GetExecScript( int remote )
+mExternC(Basic) const char* GetUnixExecScript()
 {
-
 #ifdef __msvc__
     return "";
 #else
@@ -466,13 +464,13 @@ mExternC(Basic) const char* GetExecScript( int remote )
     const char* basedir = GetApplSetupDir();
     const char* fnm = 0;
     if ( basedir )
-	fnm = gtExecScript( basedir, remote );
+	fnm = gtUnixExecScript( basedir );
 
     if ( !fnm || !File::exists(fnm) )
-	fnm = gtExecScript( GetSoftwareDir(0), remote );
+	fnm = gtUnixExecScript( GetSoftwareDir(0) );
 
     mDeclStaticString( progname );
-    progname.set( "'" ).add( fnm ).add( "' " );
+    progname.set( fnm );
     return progname.buf();
 #endif
 }

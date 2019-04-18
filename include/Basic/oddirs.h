@@ -132,12 +132,10 @@ mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 #define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
 
 
-mGlobal(Basic) const char* GetExecScript(int remote);
-/*!< Location of launch script for external programs
-
+mGlobal(Basic) const char* GetUnixExecScript();
+/*!< Location of exec_prog script to launch od executables externally
   In GetSiteDataDir() or GetSoftwareDir(): bin/od_exec[_rmt][.bat]
 */
-#define		mGetExecScript()	GetExecScript(0)
 
 mGlobal(Basic) const char* GetSoftwareUser(void);
 /*!< Sub-user of software: $DTECT_USER

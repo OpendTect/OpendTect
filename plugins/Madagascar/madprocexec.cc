@@ -181,7 +181,7 @@ bool ODMad::ProcExec::init()
 	BufferString fname = File::Path::getTempFullPath( "madproc", \
 						sParFileExtension() ); \
 	pars_.write( fname, sKey::Pars() ); \
-	ret += GetExecScript( false ); ret += " "; \
+	ret += GetUnixExecScript(); ret += " "; \
 	ret += "od_madexec"; ret += " "; ret += fname
 #endif
 

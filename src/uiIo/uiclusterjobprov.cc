@@ -107,8 +107,7 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
     strm << "#!/bin/csh -f " << od_endl;
 
     strm << "setenv DTECT_DATA " << GetBaseDataDir() << od_endl;
-    mSetEnvVar("LD_LIBRARY_PATH")
-    strm << GetExecScript(false) << " " << prognm << " \\" << od_endl;
+    strm << GetUnixExecScript() << " " << prognm << " \\" << od_endl;
     File::Path fp( scrfnm );
     fp.setExtension( ".par" );
     strm << fp.fullPath().buf() << od_endl;
@@ -294,7 +293,7 @@ bool uiClusterJobProv::acceptOK()
 		      "have been created successfully. Execute now?");
     if ( uiMSG().askGoOn(msg) )
     {
-	OS::MachineCommand machcomm( GetExecScript(false), "od_ClusterProc" );
+	OS::MachineCommand machcomm( "od_ClusterProc" );
 	machcomm.addKeyedArg( "dosubmit", parfnm );
 	OS::CommandLauncher cl( machcomm );
 	if ( !cl.execute(OS::RunInBG) )
