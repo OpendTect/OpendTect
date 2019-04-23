@@ -322,7 +322,6 @@ static bool createLinePS()
     }
 
     mWrapUp();
-    return true;
 }
 
 
