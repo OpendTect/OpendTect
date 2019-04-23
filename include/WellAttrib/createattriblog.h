@@ -56,8 +56,9 @@ public:
 					const Well::ExtractParams* wep )
 				    : attribdescset_(ads)
 				    , extractparams_(wep)
-				    , nlamodel_(0)
-				    , taskrunner_(0)
+				    , nlamodel_(nullptr)
+				    , selspec_(nullptr)
+				    , taskrunner_(nullptr)
 				    {}
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
