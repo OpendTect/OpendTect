@@ -30,7 +30,7 @@ public:
 				    {}
 
     const TypeSet<BinIDValueSet::SPos>& positions() const { return positions_; }
-    const TypeSet<float>&	depths() const  	{ return depths_; }
+    const TypeSet<float>&	depths() const	{ return depths_; }
     const BinIDValueSet&	bidset() const		{ return bidset_; }
 
     bool                        extractData(Attrib::EngineMan&,TaskRunner* t=0);
@@ -56,11 +56,12 @@ public:
     public:
 				Setup(const Attrib::DescSet* attr,
 					const Well::ExtractParams* wep)
-				    : nlamodel_(0)
+				    : nlamodel_(nullptr)
 				    , attrib_(attr)
-				    , tr_(0)
+				    , selspec_(nullptr)
+				    , tr_(nullptr)
 				    , extractparams_(wep)
-				    {}
+				{}
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
 	mDefSetupMemb(const Attrib::DescSet*,attrib)
