@@ -195,6 +195,52 @@ inline T getAverage( const ArrayND<T>& in )
 }
 
 
+/*!\brief returns the Maximum of all defined values in the ArrrayND.
+   Returns UDF if empty or only udfs encountered. */
+
+template <class T>
+inline T getMax( const ArrayND<T>& in )
+{
+    const int sz = in.info().getTotalSz();
+    const T* data = in.getData();
+    if ( sz < 1 || !data )
+	return mUdf(T);
+
+    T maxval = -mUdf(T);
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const T val = data[idx];
+	if ( !mIsUdf(val) && val > maxval )
+	    maxval = val;
+    }
+
+    return mIsUdf(-maxval) ? mUdf(T) : maxval;
+}
+
+
+/*!\brief returns the Minimum of all defined values in the ArrrayND.
+   Returns UDF if empty or only udfs encountered. */
+
+template <class T>
+inline T getMin( const ArrayND<T>& in )
+{
+    const int sz = in.info().getTotalSz();
+    const T* data = in.getData();
+    if ( sz < 1 || !data )
+	return mUdf(T);
+
+    T minval = mUdf(T);
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const T val = data[idx];
+	if ( !mIsUdf(val) && val < minval )
+	    minval = val;
+    }
+
+    return mIsUdf(minval) ? mUdf(T) : minval;
+}
+
+
 /*!\brief Returns whether there are undefs in the Array1D.  */
 
 template <class fT>
