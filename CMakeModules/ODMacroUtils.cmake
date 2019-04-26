@@ -37,6 +37,9 @@
 # OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library, 
 #					  and all external libraries it is
 #					  dependent on.
+# OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL : List of external DLLs that are 
+#					  required by the plugin at runtime.
+#					  Will be copied into the binaries dir
 # OD_MODULE_NAMES_${OD_SUBSYSTEM}	: A list of all modules
 # OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}  : A list of all non-plugin modules
 #####################################
@@ -526,6 +529,20 @@ endif( OD_USEBATCH )
 #Set current include_path
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
+
+if ( WIN32 AND OD_IS_PLUGIN )
+    list( LENGTH OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL NRDLLS )
+    if ( ${NRDLLS} GREATER 0 )
+        string( TOUPPER ${CMAKE_BUILD_TYPE} OD_BUILD_TYPE )
+        get_target_property( ODEXECPATH ${OD_MODULE_NAME} RUNTIME_OUTPUT_DIRECTORY_${OD_BUILD_TYPE} )
+	if ( ODEXECPATH AND EXISTS ${ODEXECPATH} )
+	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL} ${ODEXECPATH}
+	        COMMENT "Copying external DLLs for ${OD_MODULE_NAME}" 
+	    )
+	endif()
+    endif()
+endif()
 
 endmacro( OD_INIT_MODULE )
 
