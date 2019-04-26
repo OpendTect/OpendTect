@@ -6,6 +6,8 @@
 
 include( ODHDF5Utils )
 
+OD_SETUP_HDF5()
+
 if ( HDF5_FOUND )
     set( OD_PLUGINS ${OD_PLUGINS} ODHDF5 )
 endif()
