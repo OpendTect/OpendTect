@@ -13,7 +13,7 @@ if ( HDF5_FOUND )
   set( OD_IS_PLUGIN TRUE )
   set( OD_MODULE_DEPS General )
 
-  set( OD_TEST_PROGS hdf5.cc hdf5_file.cc )
+  set( OD_TEST_PROGS hdf5.cc )
 
   set( OD_MODULE_SOURCES
       hdf5accessimpl.cc
