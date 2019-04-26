@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id$
 ________________________________________________________________________
 
 */
@@ -16,6 +15,14 @@ ________________________________________________________________________
 #undef private
 #ifdef __win32__
 # define fpos_t od_int64
+#endif
+
+#ifndef _POS_TYPE_FROM_STATE
+//TODO this is a hack for VS >= 15.8.7, try to get rid of this winstreambuf hack altogether
+#  define _POS_TYPE_FROM_STATE(postype, state, position) postype(state, position)
+#  define _POS_TYPE_TO_FPOS_T(pos) pos.seekpos()
+#  define _POS_TYPE_TO_STATE(pos) pos.state()
+#  define _BADOFF -1
 #endif
 
 namespace std
@@ -30,7 +37,7 @@ namespace std
   std::istream strm( &fb );
 
   After C:\Program Files (x86)\Microsoft Visual Studio 8\VC\include\fstream
-  Only change is: feek -> _fseeki64
+  Only change is: fseek -> _fseeki64
 */
 
 mClass(Basic) winfilebuf : public filebuf
