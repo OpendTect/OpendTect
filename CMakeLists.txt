@@ -51,6 +51,9 @@ include( OD_SetupOD )
 #Add osgGeo
 OD_ADD_OSGGEO()
 
+include( ODHDF5Utils )
+OD_FIND_HDF5()
+
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
