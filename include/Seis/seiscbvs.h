@@ -28,7 +28,9 @@ public:
 					bool is2d, uiString* errmsg=0,
 					bool forceusecbvsinfo=false);
 			~CBVSSeisTrcTranslator();
+#ifndef __od6like__
     const char*	iconName() const override	{ return "od6"; }
+#endif
     const char*	defExtension() const override	{ return sKeyDefExtension(); }
 
     bool	readInfo(SeisTrcInfo&) override;

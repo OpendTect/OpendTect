@@ -17,6 +17,8 @@ else()
     set ( OD_DEBUG 1 )
 endif()
 
+OPTION( OD6_TARGET "Set flags to make OD be more OD6-alike" OFF )
+
 set ( SET_SYMBOLS -D__hassymbols__ )
 set ( SET_DEBUG -D__debug__ )
 set ( SHLIB_EXTENSION dll )
@@ -24,7 +26,12 @@ set ( SHLIB_EXTENSION dll )
 set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
+if ( OD6_TARGET )
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__od6like__" )
+endif()
+
 if( UNIX ) #Apple and Linux
+
     if ( CMAKE_COMPILER_IS_GNUCC  )
 	set ( OD_GCC_COMPILER 1 )
 	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
