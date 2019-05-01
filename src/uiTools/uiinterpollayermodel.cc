@@ -44,6 +44,7 @@ bool uiInterpolationLayerModelGrp::usePar( const IOPar& )
 uiZSliceInterpolationModel::uiZSliceInterpolationModel( uiParent* p )
     : uiInterpolationLayerModelGrp(p)
 {
+    new uiLabel( this, uiString::emptyString() );
 }
 
 
@@ -86,7 +87,7 @@ uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
     }
 
     setHAlignObj( layermodelfld_ );
-    selCB( 0 );
+    postFinalise().notify( mCB(this,uiInterpolationLayerModel,selCB) );
 }
 
 
