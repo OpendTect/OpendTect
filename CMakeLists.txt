@@ -5,12 +5,7 @@
 #       SVN:		$Id$
 #_______________________________________________________________________________
 
-cmake_minimum_required ( VERSION 2.8.5 )
-
-if ( CMAKE_VERSION VERSION_LESS 2.8.11 )
-else()
-    cmake_policy( SET CMP0020 NEW )
-endif()
+cmake_minimum_required ( VERSION 2.8.11 )
 
 set( MAIN_GIT_BRANCH master )
 
