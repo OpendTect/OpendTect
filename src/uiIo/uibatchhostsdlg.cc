@@ -48,14 +48,15 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     const BufferString bhfnm = bhfp.fullPath();
     BufferString datadir = bhfp.pathOnly();
 
-    const bool isdirwritable = File::isWritable( datadir );
+    const bool direxists = File::exists( datadir );
+    const bool diriswritable = File::isWritable( datadir );
+    const bool fileexists = File::exists( bhfnm );
+    const bool fileiswritable = File::isWritable( bhfnm );
 
-    bool writeallowed = File::exists( datadir ) && isdirwritable;
-    const bool isfilewritable = File::isWritable( bhfnm );
-    if ( writeallowed && File::exists(bhfnm) )
-	writeallowed = isfilewritable;
+    const bool writeallowed = direxists && diriswritable &&
+				( !fileexists || fileiswritable );
 
-    if ( writeallowed && isfilewritable )
+    if ( writeallowed )
 	setOkText( uiStrings::sSave() );
     else
 	setCtrlStyle( CloseOnly );
@@ -112,15 +113,15 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     buttons->setChildrenSensitive( writeallowed );
     testbut->setSensitive( true );
 
-    if ( !isfilewritable || !isdirwritable )
+    if ( !writeallowed )
     {
 	addbut->setSensitive( false );
 	uiString errmsg = tr("Selected Batch Host %1 is not writable.")
-	    .arg(isdirwritable ? uiStrings::sFile() : uiStrings::sDirectory());
+	    .arg(diriswritable ? uiStrings::sFile() : uiStrings::sDirectory());
 
 #ifdef __win__
 	uiString details;
-	if ( !isdirwritable )
+	if ( !diriswritable )
 	{
 	    errmsg.append( tr("\nIt is advised to launch this process with "
 						    "administrator rights") );
@@ -131,7 +132,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	    details = tr("You can launch the process %1")
 					    .arg(toUiString(fp.fullPath()));
 	}
-	else if ( !isfilewritable )
+	else if ( fileexists && !fileiswritable )
 	{
 	    details = tr("Please change the read-write permissions of %1 "
 		"or move batchhost entry file to new editable location")
