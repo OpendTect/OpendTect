@@ -27,7 +27,6 @@ macro( OD_FIND_HDF5 )
   find_package( HDF5 1.10 QUIET COMPONENTS C CXX )
   if ( NOT HDF5_FOUND )
     HDF5CLEANUP()
-    return()
   endif()
 
 endmacro( OD_FIND_HDF5 )
