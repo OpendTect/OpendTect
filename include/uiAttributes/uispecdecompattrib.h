@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiattribpanel.h"
 #include "iopar.h"
 
-namespace Attrib { class Desc; };
+namespace Attrib { class Desc; }
 
 class uiGenInput;
 class uiImagAttrSel;
@@ -28,10 +28,11 @@ class uiTrcPositionDlg;
 /*! \brief Spectral Decomposition Attribute description editor */
 
 mExpClass(uiAttributes) uiSpecDecompAttrib : public uiAttrDescEd
-{ mODTextTranslationClass(uiSpecDecompAttrib);
+{ mODTextTranslationClass(uiSpecDecompAttrib)
 public:
 
 			uiSpecDecompAttrib(uiParent*,bool);
+			~uiSpecDecompAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const;
     int			getOutputIdx(float) const;
@@ -40,7 +41,7 @@ protected:
 
     uiImagAttrSel*	inpfld_;
     uiGenInput*		typefld_;
-    uiGenInput*         gatefld_;
+    uiGenInput*		gatefld_;
     uiLabeledSpinBox*	outpfld_;
     uiLabeledSpinBox*	stepfld_;
     uiGenInput*		waveletfld_;
@@ -92,14 +93,14 @@ protected:
 
 
 mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
-{ mODTextTranslationClass(uiSpecDecompPanel);
+{ mODTextTranslationClass(uiSpecDecompPanel)
 public:
 				uiSpecDecompPanel( uiParent* p )
-				    : uiAttribPanel( p )		{};
+				    : uiAttribPanel( p )		{}
 
 protected:
-    virtual const char*         getProcName();
-    virtual const char*         getPackName();
-    virtual const char*         getPanelName();
+    virtual const char*		getProcName();
+    virtual const char*		getPackName();
+    virtual const char*		getPanelName();
 
 };

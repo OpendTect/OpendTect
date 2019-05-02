@@ -31,9 +31,9 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
-    : geomid_(mUdfGeomID)
-    , dset_( 0 )
-    , flatvwin_( 0 )
+    : flatvwin_( nullptr )
+    , geomid_(mUdfGeomID)
+    , dset_( nullptr )
     , parent_( p )
 {
 }
@@ -41,13 +41,19 @@ uiAttribPanel::uiAttribPanel( uiParent* p )
 
 uiAttribPanel::~uiAttribPanel()
 {
-    if ( dset_ ) delete dset_;
-    if ( flatvwin_ ) delete flatvwin_;
+    delete dset_;
+    delete flatvwin_;
 }
 
 
 FlatDataPack* uiAttribPanel::computeAttrib()
 {
+    if ( !dset_ )
+    {
+	gUiMsg(parent_).error( tr("No valid AttributeSet found") );
+	return nullptr;
+    }
+
     uiString errmsg;
     RefMan<Data2DHolder> d2dh = new Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
@@ -55,11 +61,11 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     const bool is2d = dset_->is2D();
     PtrMan<Processor> proc =
 		is2d ? aem->createScreenOutput2D( errmsg, *d2dh )
-		     : aem->createDataPackOutput( errmsg, 0  );
+		     : aem->createDataPackOutput( errmsg, nullptr  );
     if ( !proc )
     {
 	gUiMsg(parent_).error( errmsg );
-	return 0;
+	return nullptr;
     }
 
     const bool issingtrc = ( is2d || tkzs_.nrInl()==1 ) && tkzs_.nrCrl()==1;
@@ -69,11 +75,11 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     proc->setName( getProcName() );
     uiTaskRunner dlg( parent_ );
     if ( !TaskRunner::execute( &dlg, *proc ) )
-	return 0;
+	return nullptr;
 
     FlatDataPack* fdpack = is2d ? createFDPack( *d2dh )
 				: createFDPack( aem, proc );
-    if ( !fdpack ) return 0;
+    if ( !fdpack ) return nullptr;
 
     fdpack->setName( getPackName() );
     DPM(DataPackMgr::FlatID()).add( fdpack );
@@ -86,7 +92,7 @@ EngineMan* uiAttribPanel::createEngineMan()
     EngineMan* aem = new EngineMan;
 
     SelSpecList attribspecs;
-    SelSpec sp( 0, attribid_ );
+    SelSpec sp( nullptr, attribid_ );
     attribspecs += sp;
 
     aem->setAttribSet( dset_ );
@@ -100,7 +106,7 @@ EngineMan* uiAttribPanel::createEngineMan()
 RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 {
     if ( d2dh.dataset_.isEmpty() )
-	return 0;
+	return nullptr;
 
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 							d2dh, SI().zDomain() );
@@ -112,19 +118,21 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 					   Processor* proc ) const
 {
     const RegularSeisDataPack* output = aem->getDataPackOutput( *proc );
-    return output ? new RegularFlatDataPack(*output,-1) : 0;
+    return output ? new RegularFlatDataPack(*output,-1) : nullptr;
 }
 
 
 void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 {
+    if ( !fdpack )
+	return;
+
     if ( flatvwin_ )
 	flatvwin_->viewer().setPack( false, fdpack->id() );
     else
     {
-	flatvwin_ =
-	    new uiFlatViewMainWin( 0, uiFlatViewMainWin::Setup(
-						   toUiString(getPanelName())));
+	flatvwin_ = new uiFlatViewMainWin( nullptr,
+			uiFlatViewMainWin::Setup(toUiString(getPanelName())) );
 	uiFlatViewer& vwr = flatvwin_->viewer();
 	vwr.setInitialSize( uiSize(400,600) );
 	FlatView::Appearance& app = vwr.appearance();
@@ -136,7 +144,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	app.ddpars_.show( false, true );
 	vwr.setPack( false, fdpack->id() );
 	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
-			uiFlatViewStdControl::Setup(0).isvertical(true)) );
+		uiFlatViewStdControl::Setup(nullptr).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
     }
 
@@ -152,7 +160,7 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     tkzs_ = cs;
     geomid_ = geomid;
 
-    if ( dset_ ) delete dset_;
+    delete dset_;
     dset_ = dset;
 
     FlatDataPack* fdpack = computeAttrib();

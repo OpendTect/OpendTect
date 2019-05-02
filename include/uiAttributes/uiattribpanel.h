@@ -24,11 +24,12 @@ namespace Attrib { class EngineMan; class DescSet;
 /*! \brief Attribute preview in a 2d viewer */
 
 mExpClass(uiAttributes) uiAttribPanel
-{ mODTextTranslationClass(uiAttribPanel);
+{ mODTextTranslationClass(uiAttribPanel)
 public:
 			uiAttribPanel(uiParent*);
-			~uiAttribPanel();
-    void                compAndDispAttrib(Attrib::DescSet*,
+    virtual		~uiAttribPanel();
+
+    void		compAndDispAttrib(Attrib::DescSet*,
 					  const Attrib::DescID&,
 					  const TrcKeyZSampling&,
 					  const Pos::GeomID&);

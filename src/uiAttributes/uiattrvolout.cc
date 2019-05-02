@@ -327,11 +327,6 @@ bool uiAttrVolOut::prepareProcessing()
 	    return false;
 	}
 
-	IOObj* chioobj = outioobj->clone();
-	chioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	DBM().setEntry( *chioobj );
-	delete chioobj;
-
 	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
 	{
@@ -347,6 +342,24 @@ bool uiAttrVolOut::prepareProcessing()
 		    return false;
 	    }
 	}
+
+	BufferString typestr;
+	if ( seldesc && seldesc->isStored() )
+	{
+	    BufferStringSet availcomps;
+	    uiMultOutSel::fillInAvailOutNames( *seldesc, availcomps );
+	    const bool copyallcomps = availcomps.size() == seloutnms_.size();
+	    if ( copyallcomps )
+		typestr = seldesc->getStoredType();
+	}
+
+	if ( typestr.isEmpty() )
+	    typestr = sKey::Attribute();
+
+	const IOObj* chioobj = outioobj->clone();
+	chioobj->pars().set( sKey::Type(), typestr );
+	DBM().setEntry( *chioobj );
+	delete chioobj;
     }
 
     if ( datastorefld_ && datastorefld_->isSensitive() )
@@ -463,8 +476,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     clonedset->fillPar( attrpar );
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
-        const char* nm = attrpar.getKey(idx);
-        iop.add( IOPar::compKey(Attrib::SeisTrcStorOutput::attribkey(),nm),
+	const char* nm = attrpar.getKey(idx);
+	iop.add( IOPar::compKey(Attrib::SeisTrcStorOutput::attribkey(),nm),
 		 attrpar.getValue(idx) );
     }
 
@@ -529,7 +542,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
 				   nlamodel_, errmsg );
 
     if ( !errmsg.isEmpty() )
-        uiMSG().error( errmsg );
+	uiMSG().error( errmsg );
 }
 
 
