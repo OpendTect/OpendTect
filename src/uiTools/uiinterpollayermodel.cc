@@ -39,10 +39,11 @@ bool uiInterpolationLayerModelGrp::usePar( const IOPar& )
 
 
 // uiZSliceInterpolationModel
+
 uiZSliceInterpolationModel::uiZSliceInterpolationModel( uiParent* p )
     : uiInterpolationLayerModelGrp(p)
 {
-    new uiLabel( this, uiString::emptyString() );
+    new uiLabel( this, uiString::empty() );
 }
 
 
