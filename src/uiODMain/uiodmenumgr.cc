@@ -701,6 +701,8 @@ void uiODMenuMgr::fillProcMenu()
 
     mInsertItem( procmnu_, m3Dots(tr("(Re-)Start Batch Job")),
 		 mStartBatchJobMnuItm );
+
+    procmnu_->insertSeparator();
 }
 
 
