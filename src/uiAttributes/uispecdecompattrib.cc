@@ -100,6 +100,11 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 }
 
 
+uiSpecDecompAttrib::~uiSpecDecompAttrib()
+{
+}
+
+
 void uiSpecDecompAttrib::inputSel( CallBacker* )
 {
     if ( !inpfld_->haveSelection() )
