@@ -909,6 +909,7 @@ void uiODMenuMgr::fillUtilMenu()
 		 mSettShortcutsMnuItm);
     uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
     mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
+    mInsertItem( advmnu, m3Dots(tr("Python Settings")), mSettPython );
     mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
     settmnu_->insertItem( advmnu );
 
@@ -1508,6 +1509,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSettGeneral: {
 	uiSettings dlg( &appl_, "Set Personal Settings" );
 	dlg.go();
+    } break;
+    case mSettPython: {
+	uiDialog* dlg = uiSettings::getPythonDlg(&appl_,"Set Python Settings");
+	dlg->go();
     } break;
     case mSettSurvey: {
 	uiSettings dlg( &appl_, "Set Survey Default Settings",
