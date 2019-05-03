@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "stratmod.h"
 #include "transl.h"
 
 mDeclEmptyTranslatorBundle(Strat,StratTree,od,"sfw")

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "stratmod.h"
 #include "transl.h"
 
 mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceGenDesc,od,"sgd")
