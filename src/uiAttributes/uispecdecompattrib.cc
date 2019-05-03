@@ -55,7 +55,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     , nrsamples_(0)
     , ds_(0)
     , panelview_( new uiSpecDecompPanel(p) )
-    , positiondlg_( 0 )
+    , positiondlg_( nullptr )
 {
     inpfld_ = createImagInpFld( is2d );
     inpfld_->selectionChanged.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
@@ -93,8 +93,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 				 StringListInpSpec(CWT::WaveletTypeDef()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 
-    stepChg(0);
-    typeSel(0);
+    stepChg(nullptr);
+    typeSel(nullptr);
     prevpar_.setEmpty();
     setHAlignObj( inpfld_ );
 }
@@ -102,6 +102,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
 uiSpecDecompAttrib::~uiSpecDecompAttrib()
 {
+    delete positiondlg_;
+    delete panelview_;
 }
 
 
@@ -182,8 +184,8 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
     mIfGetFloat( SpecDecomp::deltafreqStr(), deltafreq,
 		 stepfld_->box()->setValue(deltafreq*freqscale) );
 
-    stepChg(0);
-    typeSel(0);
+    stepChg(nullptr);
+    typeSel(nullptr);
     return true;
 }
 
@@ -191,7 +193,7 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
 bool uiSpecDecompAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
-    inputSel(0);
+    inputSel(nullptr);
     return true;
 }
 
@@ -375,7 +377,7 @@ void uiSpecDecompAttrib::getInputMID( DBKey& mid ) const
 {
     if ( !is2D() ) return;
 
-    Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
+    Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : nullptr;
     if ( !tmpdesc ) return;
 
     mid = tmpdesc->getStoredID();
@@ -407,7 +409,7 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
     DescID inpid;
     Desc* newdesc = 0;
     if ( dpfids_.size() )
-	newdesc = createNewDescFromDP( dset, SpecDecomp::attribName(), 0 );
+	newdesc = createNewDescFromDP( dset, SpecDecomp::attribName(), nullptr);
     else
     {
 	inpid = inpfld_->attribID();
@@ -438,7 +440,7 @@ Desc* uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
     Desc* inpdesc = descset->getDesc( inpid );
     Desc* newdesc = PF().createDescCopy( attribnm );
     if ( !newdesc || !inpdesc )
-	return 0;
+	return nullptr;
 
     newdesc->selectOutput( seloutidx );
     newdesc->setInput( inpidx, inpdesc );
@@ -474,7 +476,7 @@ void uiSpecDecompAttrib::fillInSDDescParams( Desc* newdesc ) const
 void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
 					    DescID& inputid ) const
 {
-    Desc* hilbertdesc = 0;
+    Desc* hilbertdesc = nullptr;
     if ( dpfids_.size() )
 	hilbertdesc = createNewDescFromDP( descset, Hilbert::attribName(),
 					   "_imag" );
