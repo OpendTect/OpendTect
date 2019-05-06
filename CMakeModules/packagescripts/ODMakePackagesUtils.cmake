@@ -594,7 +594,7 @@ elseif( WIN32 )
     set( LIBSBINS ${ALLLIBS} ${EXECS} )
     set( ALLLIBSBINS "" )
     foreach( LIBNM ${LIBSBINS} )
-	if ( ${LIBNM} STREQUAL "lmhostid" )
+	if ( ${LIBNM} STREQUAL "lmutil" )
 	    set( LIBNM "" )
 	endif()
 	set( ALLLIBSBINS ${ALLLIBSBINS} ${LIBNM} )
@@ -631,9 +631,13 @@ endif()
 endmacro() #OD_GENERATE_BREAKPAD_SYMBOLS
 
 macro( create_flexnet_pkg )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E
-		     copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+    file( GLOB FLEXBINS ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/* )
+    foreach( FLEXBIN ${FLEXBINS} )
+	get_filename_component( BINNAME ${FLEXBIN} NAME )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${FLEXBIN}
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/${BINNAME} )
+    endforeach()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( create_flexnet_pkg )

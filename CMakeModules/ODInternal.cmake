@@ -214,7 +214,7 @@ if ( QT_QJPEG_PLUGIN_RELEASE )
     set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 endif()
 
-set( LMHOSTID lmhostid )
+set( LMUTIL lmutil )
 if( WIN32 )
     if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpegd.dll )
@@ -232,23 +232,23 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-    set( LMHOSTID "lmhostid.exe" )
+    set( LMUTIL ${LMUTIL}.exe )
 endif()
 
 install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
 if ( WIN32 )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}/../lm.dgb/.
 	     CONFIGURATIONS Release )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}/../lm.dgb/.
 	     CONFIGURATIONS Debug )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
 	     CONFIGURATIONS Release )
 else()
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/../lm.dgb/. )
 endif()
 
 if( EXISTS ${MSVCPATH} )

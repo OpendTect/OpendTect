@@ -12,8 +12,11 @@ ________________________________________________________________________
 
 #include "ui3dviewer.h"
 #include "uicrdevenv.h"
+#include "uidialog.h"
 #include "uifileselector.h"
 #include "uiglinfo.h"
+#include "uilabel.h"
+#include "uilineedit.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -32,7 +35,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uivispartserv.h"
 #include "uivolprocchain.h"
-#include "visemobjdisplay.h"
 
 #include "dirlist.h"
 #include "envvars.h"
@@ -47,10 +49,13 @@ ________________________________________________________________________
 #include "odver.h"
 #include "settings.h"
 #include "od_ostream.h"
+#include "od_istream.h"
+#include "oscommand.h"
 #include "survinfo.h"
+#include "systeminfo.h"
 #include "texttranslation.h"
 #include "thread.h"
-
+#include "visemobjdisplay.h"
 
 static const char* ascic = "ascii";
 static const char* singic = "single";
@@ -913,6 +918,11 @@ void uiODMenuMgr::fillUtilMenu()
     addAction( installmnu_, tr("Graphics Information"), "info",
 			    mGraphicsInfoItm );
 
+    licensemenu_ = addSubMenu( installmnu_, uiStrings::sLicense(mPlural),
+			       "license" );
+    addAction( licensemenu_, tr("Show this computer's HostID"), "hostid",
+	       mCB(this,uiODMenuMgr,showHostIDCB) );
+
     mmmnu_ = addSubMenu( utilmnu_, tr("Multi-Machine Processing"), "mmproc" );
     addAction( mmmnu_, uiStrings::sSetup(), "settings", mSetupBatchItm );
 
@@ -1579,6 +1589,41 @@ void uiODMenuMgr::toggViewMode( CallBacker* cb )
 
     if ( inviewmode_ )
 	applMgr().visServer()->turnSelectionModeOn( false );
+}
+
+
+void uiODMenuMgr::showHostIDCB( CallBacker* )
+{
+    File::Path lmutilfp( GetSoftwareDir(false), "bin", GetPlfSubDir(),
+			 "lm.dgb", "lmutil" );
+#ifdef __win__
+    lmutilfp.setExtension( "exe" );
+#endif
+    if ( !lmutilfp.exists() ) //To work on dev environment
+    {
+	BufferString path( lmutilfp.dirUpTo(lmutilfp.nrLevels()-3) );
+	lmutilfp.setPath( path );
+    }
+
+    OS::MachineCommand mc( lmutilfp.fullPath() );
+    mc.addArg( "lmhostid" ).addArg( "-n" );
+    OS::CommandLauncher cl( mc );
+    BufferString output;
+    const bool res = cl.execute( output );
+    if ( !res || output.isEmpty() )
+	return;
+
+    uiDialog dlg( &appl_, uiDialog::Setup(tr("HostID information"),
+					  uiString::empty(),mNoHelpKey) );
+    dlg.setCtrlStyle( uiDialog::CloseOnly );
+    uiLabel* lbl = new uiLabel( &dlg, tr("This machine's HostID(s)") );
+    uiLineEdit* hostidfld  = new uiLineEdit( &dlg, "HostID" );
+    hostidfld->setReadOnly();
+    hostidfld->attach( rightOf, lbl );
+    hostidfld->setText( output );
+
+    if ( !dlg.go() )
+	return;
 }
 
 
