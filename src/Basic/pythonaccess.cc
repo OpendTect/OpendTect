@@ -28,7 +28,7 @@ mDefineNameSpaceEnumUtils(OD,PythonSource,"Python Source")
 const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
 {
 #ifdef __win__
-    return "python.exe"
+    return "python.exe";
 #else
     if (v3)
 	return "python3";
@@ -78,6 +78,8 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp )
 	if ( validInternalEnvironment(fp) )
 	    return true;
     }
+
+    //TODO: add read from user-settings
 
     fp.set( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Python_envs.txt",
 				 false) );
