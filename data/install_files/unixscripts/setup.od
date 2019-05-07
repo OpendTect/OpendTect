@@ -59,6 +59,9 @@ if ( ! -w "${instdir}"/bin ) then
     exit 1
 endif
 
+#need to set DTECT_APPL variable for some linux distributions like Ubuntu
+setenv DTECT_APPL "${instdir}" 
+
 set init_dtect_file="${instdir}"/bin/init_dtect
 if ( -w "${init_dtect_file}" ) then
     sed -e "s/__INST_DIR__/${replaceinstdir}/" "${instdir}"/.init_dtect > "${instdir}"/bin/init_dtect
