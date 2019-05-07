@@ -159,7 +159,10 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     BufferStringSet outnms;
     for ( int idx=0; idx<ids.size(); idx++ )
-	outnms += new BufferString( attribset.getDesc( ids[idx] )->userRef() );
+    {
+	const StringPair sp( attribset.getDesc(ids[idx])->userRef() );
+	outnms.add( !sp.second().isEmpty() ? sp.second() : sp.first() );
+    }
 
     storeoutp->setOutpNames( outnms );
     proc->addOutput( storeoutp );
@@ -302,21 +305,21 @@ RefMan<RegularSeisDataPack>
     ObjectSet<const RegularSeisDataPack> packset;
     for ( int idx=0; idx<proc.outputs_.size(); idx++ )
     {
-        ConstRefMan<RegularSeisDataPack> dp =
+	ConstRefMan<RegularSeisDataPack> dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
 	if ( !dp || !dp->sampling().isDefined() )
 	    continue;
 
 	dpm_.add( const_cast<RegularSeisDataPack*>( dp.ptr()) );
 
-        dp->ref();
+	dp->ref();
 	packset += dp;
     }
 
     if ( cache_ )
     {
 	packset += cache_;
-        cache_->ref();
+	cache_->ref();
     }
 
     if ( !packset.isEmpty() )
@@ -382,20 +385,20 @@ bool doPrepare( int nrthreads )
 
     for ( int idc=0; idc<out_.nrComponents(); idc++ )
     {
-	inptr_[idc] = mCast( ConstCompPtr, in_.data(incomp_[idc]).getData() );
+	inptr_[idc] = rCast( ConstCompPtr, in_.data(incomp_[idc]).getData() );
 	mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
 			 in_.data(incomp_[idc]).getStorage() );
 	if ( instorage )
 	{
-	    inptr_[idc] = mCast( ConstCompPtr, instorage->storArr() );
+	    inptr_[idc] = rCast( ConstCompPtr, instorage->storArr() );
 	    samplebytes_ = in_.getDataDesc().nrBytes();
 	}
 
-	outptr_[idc] = mCast( CompPtr, out_.data(idc).getData() );
-	mDynamicCastGet( const ConvMemValueSeries<float>*, outstorage,
+	outptr_[idc] = rCast( CompPtr, out_.data(idc).getData() );
+	mDynamicCastGet( ConvMemValueSeries<float>*, outstorage,
 			 out_.data(idc).getStorage() );
 	if ( outstorage )
-	    outptr_[idc] = mCast( CompPtr, outstorage->storArr() );
+	    outptr_[idc] = rCast( CompPtr, outstorage->storArr() );
 
 	if ( !inptr_[idc] || !outptr_[idc] )
 	    return true;
@@ -841,7 +844,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
     else if ( prev )
     {
 	cache_ = prev;
-        cache_->ref();
+	cache_->ref();
 	const TrcKeyZSampling cachecs = cache_->sampling();
 	if ( (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
 		tkzs_.hsamp_.step_.inl()
@@ -855,8 +858,8 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
 	    // No overlap, gotta crunch all the numbers ...
 	{
-            unRefAndZeroPtr( cache_ );
-        }
+	    unRefAndZeroPtr( cache_ );
+	}
     }
 
 #define mAddAttrOut(todocs) \
@@ -1000,7 +1003,7 @@ uiString message() const
     return !errmsg_.isEmpty()
 	? errmsg_
 	: (proc_ ? proc_->message()
-           : uiStrings::phrCannotCreate(uiStrings::sOutput().toLower()) );
+	   : uiStrings::phrCannotCreate(uiStrings::sOutput().toLower()) );
 }
 
 int errorReturn( const uiString& msg )
@@ -1116,7 +1119,7 @@ Processor* EngineMan::createLocationOutput( uiString& errmsg,
     }
 
     if ( !outputs.size() )
-        return 0;
+	return 0;
 
     for ( int idx=0; idx<outputs.size(); idx++ )
 	proc->addOutput( outputs[idx] );

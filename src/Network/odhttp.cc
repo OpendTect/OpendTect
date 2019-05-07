@@ -325,7 +325,7 @@ HttpRequest& HttpRequest::contentType(const BufferString& type )
 void HttpRequest::setPayloadData( const DataBuffer& data )
 {
     delete payload_;
-    payload_ = new QByteArray(mCast(const char*,data.data()),data.size());
+    payload_ = new QByteArray(rCast(const char*,data.data()),data.size());
 }
 
 
@@ -365,9 +365,8 @@ HttpRequestManager::HttpRequestManager()
 {
     Threads::ConditionVar eventlooplock;
     eventlooplock_ = &eventlooplock;
-    thread_ = new Threads::Thread(
-	    mCB(this,HttpRequestManager,threadFuncCB),
-	    "HttpRequestManager" );
+    thread_ = new Threads::Thread( mCB(this,HttpRequestManager,threadFuncCB),
+				   "HttpRequestManager" );
     eventlooplock.lock();
     while (!eventloop_)
 	eventlooplock.wait();
@@ -413,7 +412,7 @@ RefMan<HttpRequestProcess> HttpRequestManager::head( const char* url )
 
 
 RefMan<HttpRequestProcess>
-HttpRequestManager::request( const HttpRequest* req )
+	HttpRequestManager::request( const HttpRequest* req )
 {
     RefMan<HttpRequestProcess> res = new HttpRequestProcess( req );
     activeeventslock_.lock();
@@ -467,9 +466,9 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
 }
 
 
-void HttpRequestManager::doRequestCB(CallBacker* cb)
+void HttpRequestManager::doRequestCB( CallBacker* cb )
 {
-    RefMan<HttpRequestProcess> reply = (HttpRequestProcess*) cb;
+    RefMan<HttpRequestProcess> reply = sCast(HttpRequestProcess*,cb);
     activeeventslock_.lock();
     if ( !activeevents_.isPresent( reply ) )
     {

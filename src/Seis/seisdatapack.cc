@@ -95,20 +95,20 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( regsdp_.getDataDesc() != ransdp_.getDataDesc() )
 	return true;
 
-    srcptr_ = mCast( const unsigned char*, regsdp_.data(regidx_).getData() );
+    srcptr_ = rCast( const unsigned char*, regsdp_.data(regidx_).getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, regstorage,
 		     regsdp_.data(regidx_).getStorage() );
     if ( regstorage )
     {
-	srcptr_ = mCast( const unsigned char*, regstorage->storArr() );
+	srcptr_ = rCast( const unsigned char*, regstorage->storArr() );
 	samplebytes_ = regsdp_.getDataDesc().nrBytes();
     }
 
-    dstptr_ = mCast( unsigned char*, ransdp_.data(ranidx_).getData() );
-    mDynamicCastGet( const ConvMemValueSeries<float>*, ranstorage,
+    dstptr_ = rCast( unsigned char*, ransdp_.data(ranidx_).getData() );
+    mDynamicCastGet( ConvMemValueSeries<float>*, ranstorage,
 		     ransdp_.data(ranidx_).getStorage() );
     if ( ranstorage )
-	dstptr_ = mCast( unsigned char*, ranstorage->storArr() );
+	dstptr_ = rCast( unsigned char*, ranstorage->storArr() );
 
     if ( !srcptr_ || !dstptr_ )
 	return true;
