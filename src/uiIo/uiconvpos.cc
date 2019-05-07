@@ -309,8 +309,9 @@ void uiConvertPos::convManually()
 	launchSelConv( true, selidx );
     else
     {
-	Coord coord( firstinp_, secondinp_ );
-	Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
+	const Coord coord( firstinp_, secondinp_ );
+	Coord mUnusedVar outcrd =
+			 outcrdsysselfld_->getCoordSystem()->convertFrom(
 				coord, *inpcrdsysselfld_->getCoordSystem() );
     }
 }
