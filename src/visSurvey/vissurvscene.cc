@@ -488,7 +488,7 @@ float Scene::getZScale() const
 float Scene::getApparentVelocity(float zstretch) const
 {
     if ( !zDomainInfo().def_.isTime() )
-        return zstretch;
+	return zstretch;
 
     //The depth when t=1 s
     //in xy units
@@ -496,11 +496,11 @@ float Scene::getApparentVelocity(float zstretch) const
 
     //In meters
     if ( SI().xyInFeet() )
-        depthat1sec *= mFromFeetFactorF;
+	depthat1sec *= mFromFeetFactorF;
 
     //in depth units
     if ( SI().depthsInFeet() )
-        depthat1sec *= mToFeetFactorF;
+	depthat1sec *= mToFeetFactorF;
 
     //compensate for twt
     const float travelleddistance = 2*depthat1sec;
@@ -1339,10 +1339,10 @@ int Scene::getImageFromPar( const IOPar& par, const char* key,
     int imgid;
     if ( par.get(key,imgid) )
     {
-        RefMan<DataObject> dataobj = visBase::DM().getObject( imgid );
-        if ( !dataobj ) return 0;
-        mDynamicCastGet(visBase::TopBotImage*,im,dataobj.ptr())
-        if ( !im ) return -1;
+	RefMan<DataObject> dataobj = visBase::DM().getObject( imgid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(visBase::TopBotImage*,im,dataobj.ptr())
+	if ( !im ) return -1;
 	int objidx = getFirstIdx( image );
 	if ( objidx>=0 ) removeObject( objidx );
 	image = im;
@@ -1552,8 +1552,8 @@ void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
     const mVisTrans* displaytrans = annot_->getDisplayTransformation();
     mVisTrans::transformBack( displaytrans, eye );
     RefObjectSet<visBase::Text> axisnames = annot_->getAxisNames();
-    TypeSet<Coord3> annotnmspos;
 
+    TypeSet<Coord3> annotnmspos;
     for ( int idx=0; idx<axisnames.size(); idx++ )
     {
 	visBase::TextDrawable* txt = axisnames[idx]->text( 0 );
@@ -1581,15 +1581,20 @@ void Scene::updateAnnotationOrientation( const visBase::Camera& cam )
     verticeshown += lastinlon	  != lastzon;	// Crossline	@ max/max
     verticeshown += lastinlon	  != lastcrlon; // Vertical	@ max/max
 
+    RefObjectSet<visBase::Text> axisvals = annot_->getAnnotTexts();
     for ( int idx=0; idx<axisnames.size(); idx++ )
     {
 	if ( verticeshown[idx] )
 	{
 	    axisnames[idx]->turnOn( true );
+	    axisvals[idx]->turnOn( true );
 	    //TODO: set justification
 	}
 	else
+	{
 	    axisnames[idx]->turnOn( false );
+	    axisvals[idx]->turnOn( false );
+	}
     }
 }
 

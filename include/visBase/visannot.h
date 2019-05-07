@@ -52,12 +52,12 @@ mExpClass(visBase) Annotation : public VisualObjectImpl
 public:
     static Annotation*	create()
 			mCreateDataObj(Annotation);
-    void		showText(bool yn);
 
-    bool		isTextShown() const { return textIsShown_;}
+    void		showText(bool yn);
+    bool		isTextShown() const	{ return axisnmison_; }
 
     void		showScale(bool yn);
-    bool		isScaleShown() const;
+    bool		isScaleShown() const	{ return axisvalsison_; }
 
     bool		canShowGridLines() const;
     void		showGridLines(bool yn);
@@ -84,11 +84,12 @@ public:
     const mVisTrans*    getDisplayTransformation() const
 			{ return displaytrans_; }
     virtual void	setPixelDensity(float);
-    const Text*		getAnnotTexts() const { return axisvalues_; }
 
 
     void		setScene(Scene*);
     void		allowShading( bool yn )	{ allowshading_=yn; }
+
+    RefObjectSet<Text>	getAnnotTexts() const	{ return axisvalues_; }
     RefObjectSet<Text>	getAxisNames() const	{ return axisnames_; }
 
 private:
@@ -112,19 +113,20 @@ private:
     osg::Geode*			geode_;
     osgGeo::OneSideRender*	gridlines_;
     RefObjectSet<Text>		axisnames_;
-    RefMan<Text>		axisvalues_;
+    RefObjectSet<Text>		axisvalues_;
     visBase::Scene*		scene_;
 
     const mVisTrans*		displaytrans_;
 
     Color			annotcolor_;
-    bool			allowshading_;
+    bool			allowshading_ = true;
 
     static const char*		textprefixstr();
     static const char*		cornerprefixstr();
     static const char*		showtextstr();
     static const char*		showscalestr();
-    bool			textIsShown_ = true;
+    bool			axisnmison_ = true;
+    bool			axisvalsison_ = true;
 };
 
 } // namespace visBase

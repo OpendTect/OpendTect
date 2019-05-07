@@ -34,10 +34,10 @@ mCreateFactoryEntry( visBase::Annotation )
 namespace visBase
 {
 
-const char* Annotation::textprefixstr()	    { return "Text "; }
-const char* Annotation::cornerprefixstr()   { return "Corner "; }
-const char* Annotation::showtextstr()	    { return "Show Text"; }
-const char* Annotation::showscalestr()	    { return "Show Scale"; }
+const char* Annotation::textprefixstr()		{ return "Text "; }
+const char* Annotation::cornerprefixstr()	{ return "Corner "; }
+const char* Annotation::showtextstr()		{ return "Show Text"; }
+const char* Annotation::showscalestr()		{ return "Show Scale"; }
 
 static const int dim0psindexes[] = { 2, 5, 3, 4 };
 static const int dim0coordindexes[] = { 0, 4, 7, 3 };
@@ -73,19 +73,18 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 }
 
 
-#define nrDims 3
-#define nrVertPerDim 4
+static int nrDims()		{ return 3; }
+static int nrVertPerDim()	{ return 4; }
 
 Annotation::Annotation()
     : VisualObjectImpl(false )
     , geode_(new osg::Geode)
-    , axisvalues_(Text::create())
     , gridlines_(new osgGeo::OneSideRender)
-    , displaytrans_(0)
+    , displaytrans_(nullptr)
     , scale_(false)
     , tkzs_(true)
-    , scene_( 0 )
-    , allowshading_( true )
+    , scene_(nullptr)
+    , annotcolor_(Color::White())
 {
     tkzsdefaultscale_ = getDefaultScale( tkzs_ );
 
@@ -95,12 +94,9 @@ Annotation::Annotation()
 
     scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1;
 
-    annotcolor_ = Color::White();
-
     setPickable( false, false );
 
     osg::Vec3f ptr[8];
-
     ptr[0] = osg::Vec3f( 0, 0, 0 );
     ptr[1] = osg::Vec3f( 0, 0, 1 );
     ptr[2] = osg::Vec3f( 0, 1, 1 );
@@ -118,30 +114,35 @@ Annotation::Annotation()
     box_->setVertexArray( coords );
 
     GLubyte indices[] = { 0, 1, 1, 2, 2, 3, 3, 0,
-			   4, 5, 5, 6, 6, 7, 7, 4,
-			   0, 4, 1, 5, 2, 6, 3, 7 };
+			  4, 5, 5, 6, 6, 7, 7, 4,
+			  0, 4, 1, 5, 2, 6, 3, 7 };
 
-    box_->addPrimitiveSet(
-	    new osg::DrawElementsUByte( GL_LINES, 24, indices  ) );
-
+    box_->addPrimitiveSet( new osg::DrawElementsUByte(GL_LINES,24,indices) );
     geode_->addDrawable( box_ );
 
-    addChild( axisvalues_->osgNode() );
-
-    for ( int ivert=0; ivert<nrVertPerDim; ivert++ )
+    for ( int ivert=0; ivert<nrVertPerDim(); ivert++ )
     {
-	for ( int dim=0; dim<nrDims; dim++ )
+	for ( int dim=0; dim<nrDims(); dim++ )
 	{
 	    const Color& col = dim%3==0 ? Color::Red()
 					: ( dim%3==1 ? Color::Green()
 						     : Color::Blue() );
 
-	    axisnames_.add(Text::create());
-	    const int idx=axisnames_.last()->addText();
-	    axisnames_.last()->text(idx)->setJustification(
-						    TextDrawable::BottomRight);
-	    axisnames_.last()->text(idx)->setColor( col );
-	    addChild(axisnames_.last()->osgNode());
+	    Text* axisnm = Text::create();
+	    axisnames_.add( axisnm );
+	    const int nidx = axisnm->addText();
+	    axisnm->text(nidx)->setJustification(
+					TextDrawable::BottomRight );
+	    axisnm->text(nidx)->setColor( col );
+	    addChild( axisnm->osgNode() );
+
+	    Text* axisvals = Text::create();
+	    axisvalues_.add( axisvals );
+	    const int vidx = axisvals->addText();
+	    axisvals->text(vidx)->setJustification(
+					TextDrawable::BottomRight );
+	    axisvals->text(vidx)->setColor( col );
+	    addChild( axisvals->osgNode() );
 	}
     }
 
@@ -162,7 +163,8 @@ Annotation::~Annotation()
     geode_->unref();
     gridlines_->unref();
 
-    if ( displaytrans_ ) displaytrans_->unRef();
+    if ( displaytrans_ )
+	displaytrans_->unRef();
 }
 
 
@@ -179,7 +181,7 @@ void Annotation::setScene( visBase::Scene* scn )
 }
 
 
-void Annotation::firstTraversal(CallBacker*)
+void Annotation::firstTraversal( CallBacker* )
 {
     if ( allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
     {
@@ -197,8 +199,8 @@ void Annotation::firstTraversal(CallBacker*)
 	program->addShader( vertexShader.get() );
 
 	code =   "void main(void)\n"
-	         "{\n"
-	         "    gl_FragDepth = gl_FragCoord.z * 1.1;\n";
+		 "{\n"
+		 "    gl_FragDepth = gl_FragCoord.z * 1.1;\n";
 	code.add(""
 		 "    if ( gl_FragDepth>0.999999 ) gl_FragDepth = 0.999999; \n"
 		 "    gl_FragColor.a = gl_FrontMaterial.diffuse.a;\n"
@@ -216,10 +218,10 @@ void Annotation::firstTraversal(CallBacker*)
 }
 
 
-void Annotation::setDisplayTransformation(const visBase::Transformation* tr)
+void Annotation::setDisplayTransformation( const visBase::Transformation* vtr )
 {
     if ( displaytrans_ ) displaytrans_->unRef();
-    displaytrans_ = tr;
+    displaytrans_ = vtr;
     if ( displaytrans_ ) displaytrans_->ref();
 
     setTrcKeyZSampling( tkzs_ );
@@ -247,14 +249,22 @@ bool Annotation::is##str##Shown() const \
     return childIndex( node )!=-1; \
 }
 
-void Annotation::showText(bool yn)
+void Annotation::showText( bool yn )
 {
-    textIsShown_ = yn;
-    for(Text *p:axisnames_)
-		p->osgNode(!yn);
+    axisnmison_ = yn;
+    for ( Text *p:axisnames_ )
+	p->turnOn( yn );
 }
 
-mImplSwitches( Scale, axisvalues_->osgNode() )
+
+void Annotation::showScale( bool yn )
+{
+    axisvalsison_ = yn;
+    for ( Text *p:axisvalues_ )
+	p->turnOn( yn );
+}
+
+
 mImplSwitches( GridLines, gridlines_ )
 
 
@@ -271,10 +281,11 @@ const FontData& Annotation::getFont() const
 
 void Annotation::setFont( const FontData& fd )
 {
-    for(Text *p:axisnames_)
+    for ( Text *p:axisnames_ )
 	p->setFontData( fd );
 
-    axisvalues_->setFontData( fd );
+    for ( Text *p:axisvalues_ )
+	p->setFontData( fd );
 }
 
 
@@ -318,17 +329,20 @@ void Annotation::setScale( const TrcKeyZSampling& cs )
 
 
 const TrcKeyZSampling& Annotation::getScale() const
-{ return scale_.isEmpty() ? tkzsdefaultscale_ : scale_; }
+{
+    return scale_.isEmpty() ? tkzsdefaultscale_ : scale_;
+}
 
 
 void Annotation::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
 
-    for(Text *p:axisnames_)
+    for( Text *p:axisnames_ )
 	p->setPixelDensity( dpi );
 
-    axisvalues_->setPixelDensity( dpi );
+    for( Text *p:axisvalues_ )
+	p->setPixelDensity( dpi );
 }
 
 
@@ -343,16 +357,16 @@ void Annotation::setCorner( int idx, float x, float y, float z )
 
 void Annotation::setText( int dim, const uiString& string )
 {
-    for ( int ivert=0; ivert<nrVertPerDim; ivert++ )
+    for ( int ivert=0; ivert<nrVertPerDim(); ivert++ )
     {
-	const int textidx = ivert*nrDims + dim;
+	const int textidx = ivert*nrDims() + dim;
 	axisnames_[textidx]->text(0)->setText( string );
     }
 }
 
 
 static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
-				      int* stopidx=0 )
+				      int* stopidx=nullptr )
 {
     SamplingData<float> sd;
     float stop;
@@ -373,11 +387,23 @@ static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
 	stop = cs.zsamp_.stop;
     }
 
-    const float eps = 1e-6;
+    const float eps = 1e-6f;
     if ( stopidx )
 	*stopidx = (int) sd.getfIndex( stop + eps*sd.step );
 
     return sd;
+}
+
+
+static bool isValidVal( const TrcKeyZSampling& tkzs, int dim, float val )
+{
+    if ( dim==0 )
+	return tkzs.hsamp_.inlRange().includes( val, false );
+
+    if ( dim==1 )
+	return tkzs.hsamp_.crlRange().includes( val, false );
+
+    return tkzs.zsamp_.includes( val, false );
 }
 
 
@@ -411,7 +437,7 @@ void Annotation::updateGridLines()
     const osg::Vec3f* cornercoords = (const osg::Vec3f*)
 	box_->getVertexArray()->getDataPointer();
 
-    for ( int dim=0; dim<nrDims; dim++ )
+    for ( int dim=0; dim<nrDims(); dim++ )
     {
 	osg::Vec3 p0, p1;
 	getAxisCoords( dim, p0, p1 );
@@ -485,11 +511,10 @@ void Annotation::updateGridLines()
 void Annotation::getAxisCoords( int dim, osg::Vec3& p0, osg::Vec3& p1 ) const
 {
     const int pidx0 = 0;
-    const int pidx1 = dim == 0 ? 1
-			       : ( dim == 1 ? 3 : 4 );
+    const int pidx1 = dim == 0 ? 1 : ( dim == 1 ? 3 : 4 );
 
-    const osg::Vec3f* cornercoords = (const osg::Vec3f*)
-				    box_->getVertexArray()->getDataPointer();
+    const osg::Vec3f* cornercoords =
+	(const osg::Vec3f*)box_->getVertexArray()->getDataPointer();
 
     mVisTrans::transformBack( displaytrans_, cornercoords[pidx0], p0 );
     mVisTrans::transformBack( displaytrans_, cornercoords[pidx1], p1 );
@@ -526,68 +551,46 @@ void Annotation::updateTextPos()
     vertcenterpos += osg::Vec3( inlrg[2], crlrg[2], zrg[1] );
     for ( int idx=0; idx<vertcenterpos.size(); idx++ )
     {
-	mVisTrans::transform( displaytrans_, vertcenterpos[idx] );
-	axisnames_[idx]->text(0)->setPosition( vertcenterpos[idx] );
+	osg::Vec3 newpos;
+	mVisTrans::transform( displaytrans_, vertcenterpos[idx], newpos );
+	axisnames_[idx]->text(0)->setPosition( newpos );
     }
 
-    int curscale = 0;
-    osg::Vec3 p0, p1;
-    for ( int dim=0; dim<nrDims; dim++ )
+    int axisidx = 0;
+    for ( int vert=0; vert<nrVertPerDim(); vert++ )
     {
-	getAxisCoords( dim, p0, p1 );
-	const Interval<float> range( p0[dim], p1[dim] );
-
-	int stopidx;
-	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
-
-	for ( int idx=0; idx<=stopidx; idx++ )
+	for ( int dim=0; dim<nrDims(); dim++ )
 	{
-	    const float val = sd.atIndex(idx);
-	    if ( val <= range.start )		continue;
-	    else if ( val > range.stop )	break;
+	    int stopidx;
+	    const SamplingData<float> sd =
+				getAxisSD( getScale(), dim, &stopidx );
 
-	    if ( curscale>=axisvalues_->nrTexts() )
+	    Text* axisvals = axisvalues_[axisidx];
+	    axisvals->removeAll();
+
+	    for ( int idx=0; idx<=stopidx; idx++ )
 	    {
-		axisvalues_->addText();
-		axisvalues_->addText();
+		const float val = sd.atIndex(idx);
+		if ( !isValidVal(tkzs_,dim,val) )
+		    continue;
+
+		const int txtidx = axisvals->addText();
+		TextDrawable* text = axisvals->text( txtidx );
+
+		osg::Vec3 pos = vertcenterpos[axisidx];
+		pos[dim] = val;
+		float displayval = val;
+		displayval *= scalefactor_[dim];
+
+		mVisTrans::transform( displaytrans_, pos );
+		text->setPosition( pos );
+		text->setText( toUiString(displayval) );
+		text->setColor( col );
 	    }
 
-	    TextDrawable* text = axisvalues_->text( curscale );
-	    curscale = curscale+1;
-
-	    TextDrawable* text1 = axisvalues_->text( curscale );
-	    curscale = curscale+1;
-
-	    osg::Vec3 pos( p0 );
-	    pos[dim] = val;
-	    float displayval = val;
-	    displayval *= scalefactor_[dim];
-
-	    mVisTrans::transform( displaytrans_, pos );
-	    text->setPosition( pos );
-	    text->setText( toUiString(displayval) );
-	    text->setColor( col );
-
-	    if ( dim == 0 )
-		getAxisCoords( 1, p0, p1 );
-	    else if ( dim == 1 )
-		getAxisCoords( 2, p0, p1 );
-	    else if ( dim == 2 )
-		getAxisCoords( 0, p0, p1 );
-
-	    pos = p1;
-	    pos[dim] = val;
-	    displayval = val;
-	    displayval *= scalefactor_[dim];
-	    mVisTrans::transform( displaytrans_, pos );
-
-	    text1->setPosition( pos );
-	    text1->setText(toUiString(displayval));
+	    axisidx++;
 	}
     }
-
-    for ( int idx=axisvalues_->nrTexts()-1; idx>=curscale; idx-- )
-	axisvalues_->removeText( axisvalues_->text(idx) );
 
     setFont( fd );
     getMaterial()->setColor( col );
@@ -603,12 +606,13 @@ void Annotation::setScaleFactor( int dim, int nv )
 
 void Annotation::updateTextColor( CallBacker* )
 {
-    for ( int idx=0; idx<axisvalues_->nrTexts(); idx++ )
-	axisvalues_->text(idx)->setColor( getMaterial()->getColor() );
+    const Color col = getMaterial()->getColor();
+    for ( int idx=0; idx<axisvalues_.size(); idx++ )
+	for ( int idt=0; idt<axisvalues_[idx]->nrTexts(); idt++ )
+	    axisvalues_[idx]->text(idt)->setColor( col );
 
     for ( int idx=0; idx<axisnames_.size(); idx++ )
-	axisnames_[idx]->text( 0 )->setColor( getMaterial()->getColor() );
-
+	axisnames_[idx]->text( 0 )->setColor( col );
 }
 
 
