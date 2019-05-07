@@ -169,7 +169,7 @@ void uiConvertPos::inputTypChg( CallBacker* )
 
 void uiConvertPos::outputTypChg( CallBacker* )
 {
-    const int selval = inputypfld_->getIntValue();
+    const int mUnusedVar selval = inputypfld_->getIntValue();
     const int idx = outidxs_[outputtypfld_->getIntValue()];
     leftoutfld_->setTitleText( ConversionTypeDef().getUiStringForIndex(idx) );
 }
