@@ -46,8 +46,9 @@ uiODHorAttribMgr::uiODHorAttribMgr( uiODMain* a )
 	: appl_(a)
 	, dpspickdlg_(0)
 	, isochronmnuitemhndlr_(
-		mMkPars(m3Dots(tr("Calculate Isochron")),doIsochron),
-								    "Workflows")
+		mMkPars(m3Dots(tr("Calculate %1")
+		.arg(uiStrings::sIsoMapType(SI().zIsTime()))),doIsochron),
+		"Workflows")
 	, contourmnuitemhndlr_(
 		mMkPars(tr("Contour Display"),doContours),"Add",995)
 	, horvolmnuitemhndlr_(
@@ -82,7 +83,8 @@ void uiODHorAttribMgr::updateMenu( CallBacker* )
 	mnu->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
 		    mCB(this,uiODHorAttribMgr,makeStratAmp), "stratalampl" ));
 
-    mnu->insertAction( new uiAction(m3Dots(uiStrings::sIsochron()),
+    mnu->insertAction( new uiAction(
+		m3Dots(uiStrings::sIsoMapType(SI().zIsTime())),
 		mCB(this,uiODHorAttribMgr,doIsochronThruMenu), "isochron") );
 }
 

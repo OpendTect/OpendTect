@@ -470,6 +470,10 @@ uiWord uiStrings::sTimeUnitString( bool ismilli, bool abbr )
 		 : sSec(false,mPlural)).toLower());
 }
 
+uiWord uiStrings::sIsoMapType( bool istime )
+{ 
+    return istime ? sIsochron() : sIsochore();
+}
 
 uiWord uiStrings::sSeisObjName( bool is2d, bool is3d, bool isprestack,
 			        bool both_2d_3d_in_context,

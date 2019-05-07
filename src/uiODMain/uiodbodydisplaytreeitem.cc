@@ -566,7 +566,7 @@ void uiODBodyDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_(tr("Z values"))
-    , isochronmnuitem_(tr("Z isochron"))
+    , isochronmnuitem_(tr("Z %1").arg(uiStrings::sIsoMapType(SI().zIsTime())))
 {}
 
 

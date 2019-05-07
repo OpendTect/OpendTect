@@ -197,6 +197,8 @@ public:
 	/*!< returns "m", "ft", or translated "meter", or "feet" */
     static uiWord sTimeUnitString(bool ismilli=false,bool abbr=true);
 	/*!< returns "s", "ms", or translated "seconds" or "milliseconds" */
+    static uiWord sIsoMapType( bool istime );
+	/*!< returns "Isochore" or "Isochron" */
     static uiWord sSeisObjName(bool is2d,bool is3d,bool isprestack,
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);
@@ -463,6 +465,7 @@ public:
     static uiWord sInlineNumber(int num=1) { return tr("Inline Number",0,num); }
     static uiWord sInlineRange()	{ return tr("Inline Range"); }
     static uiWord sInputASCIIFile()	{ return tr("Input ASCII File"); }
+    static uiWord sIsochore()		{ return tr("Isochore"); }
     static uiWord sIsochron()		{ return tr("Isochron"); }
     static uiWord sParsMissing()	{ return tr("Parameters missing"); }
     static uiWord sInput()		{ return tr("Input"); }

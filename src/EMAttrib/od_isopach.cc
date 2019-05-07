@@ -19,6 +19,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "moddepmgr.h"
 
+static const char* getIsoMapType()
+{ return SI().zIsTime() ? "Isochron" : "Isochore"; }
+
 static bool loadHorizon( const DBKey& mid, od_ostream& strm )
 {
     EM::Manager& em = EM::MGR();
@@ -79,7 +82,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( dataidx < 0 )
 	dataidx = horizon1->auxdata.addAuxData( attrnm );
 
-    strm << "Calculating Isochron ..." << od_newline;
+    strm << "Calculating " << getIsoMapType() << " ..." << od_newline;
     IsochronMaker maker( *horizon1, *horizon2, attrnm, dataidx );
     if ( SI().zIsTime() )
     {
@@ -90,23 +93,26 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !maker.go( strm, false, false, 0 ) )
     {
-	strm << "Failed to calculate Isochron" << od_newline;
+	strm << "Failed to calculate " << getIsoMapType() << od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
-    strm << "Isochron '" << attrnm.buf() << "' calculated successfully\n";
-    strm << "Saving Isochron Attribute ..." << od_newline;
+    strm << getIsoMapType() << " '" << attrnm.buf() <<
+					    "' calculated successfully\n";
+    strm << "Saving " << getIsoMapType() << " Attribute ..." << od_newline;
     bool isoverwrite = false;
     pars().getYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite );
     if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
     {
-	strm << "Failed to save Isochron Attribute" << od_newline;
+	strm << "Failed to save " << getIsoMapType() << " Attribute" << 
+							    od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
-    strm << "Isochron '" << attrnm.buf() << "' saved successfully" << od_newline;
+    strm << getIsoMapType() << " '" << attrnm.buf() << "' saved successfully"
+							<< od_newline;
     horizon1->unRef(); horizon2->unRef();
     return true;
 }

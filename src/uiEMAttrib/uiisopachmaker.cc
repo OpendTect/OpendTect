@@ -32,6 +32,8 @@ ________________________________________________________________________
 #include "uitaskrunnerprovider.h"
 #include "od_helpids.h"
 
+#define mIsoMapType uiStrings::sIsoMapType(SI().zIsTime())
+
 uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const EM::ObjID& horid )
 	: uiGroup(p,"Create Isochron")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -138,7 +140,7 @@ const char* uiIsochronMakerGrp::attrName() const
 
 //uiIsochronMakerBatch
 uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
-    : uiDialog(p, Setup(tr("Create Isochron"), mNoDlgTitle,
+    : uiDialog(p, Setup(tr("Create %1").arg(mIsoMapType), mNoDlgTitle,
     mODHelpKey(mIsochronMakerBatchHelpID)))
 {
     grp_ = new uiIsochronMakerGrp( this, EM::ObjID() );
@@ -196,13 +198,14 @@ bool uiIsochronMakerBatch::acceptOK()
 
 //uiIsochronMakerDlg
 uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, const DBKey& emid )
-    : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Create %1").arg(mIsoMapType),mNoDlgTitle,
 			mODHelpKey(mIsopachMakerHelpID)))
     , dps_( new DataPointSet(false,true) )
 {
     dps_->ref();
     grp_ = new uiIsochronMakerGrp( this, emid );
-    uiString title( uiStrings::phrCreate(tr("Isochron for '%1'")
+    uiString title( uiStrings::phrCreate(tr("%1 for '%2'")
+						.arg(mIsoMapType)
 						.arg(grp_->getHorNm(emid))) );
     setTitleText( title );
 }

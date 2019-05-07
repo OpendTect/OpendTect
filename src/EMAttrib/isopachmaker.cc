@@ -39,7 +39,7 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
     : Executor("Creating Isochron")
     , hor1_(hor1)
     , hor2_(hor2)
-    , msg_(tr("Creating Isochron"))
+    , msg_(tr("Creating %1").arg(uiStrings::sIsoMapType(SI().zIsTime())))
     , dataidx_(dataidx)
     , dps_(dps)
     , inmsec_(false)

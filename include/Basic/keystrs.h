@@ -78,6 +78,7 @@ namespace sKey
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Is2D()		{ return "Is2D"; }
+    inline FixedString Isochore()	{ return "Isochore"; }
     inline FixedString Isochron()	{ return "Isochron"; }
     inline FixedString IsPS()		{ return "IsPS"; }
     inline FixedString Key(int n=1)	{ return n<2 ? "Key" : "Keys"; }
