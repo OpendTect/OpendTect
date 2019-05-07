@@ -100,6 +100,7 @@ set( OD_MODULE_SOURCES
 	posinfo2dsurv.cc
 	position.cc
 	progressmeter.cc
+	pythonaccess.cc
 	qstreambuf.cc
 	${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc
 	refcount.cc

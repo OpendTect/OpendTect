@@ -218,7 +218,8 @@ ________________________________________________________________________
 #define mDumpDataPacksMnuItm		(mUtilMnu + 99)
 #define mSettingsMnuItm			(mUtilSettingMnu + 10)
 #define mSettAdvPersonal		(mUtilSettingMnu + 20)
-#define mSettAdvSurvey			(mUtilSettingMnu + 21)
+#define mSettAdvPython			(mUtilSettingMnu + 21)
+#define mSettAdvSurvey			(mUtilSettingMnu + 22)
 #define mSettLanguageMnu		(mUtilSettingMnu + 100)
 
 

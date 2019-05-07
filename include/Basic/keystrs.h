@@ -115,6 +115,7 @@ namespace sKey
     inline FixedString Property()	{ return "Property"; }
     inline FixedString Provider()	{ return "Provider"; }
     inline FixedString Probe()		{ return "Probe"; }
+    inline FixedString Python()		{ return "Python"; }
     inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
     inline FixedString RandomLine()	{ return "RandomLine"; }

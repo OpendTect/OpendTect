@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uisettings.h"
 
+#include "bufstring.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "genc.h"
@@ -18,12 +19,17 @@ ________________________________________________________________________
 #include "odviscommon.h"
 #include "posimpexppars.h"
 #include "ptrman.h"
+#include "pythonaccess.h"
+#include "separstr.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
 
+#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uichecklist.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uifileselector.h"
 #include "uiiconsetsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -45,6 +51,8 @@ static void getGrps( BufferStringSet& grps )
     const char* dtectuser = GetSoftwareUser();
     const bool needdot = dtectuser && *dtectuser;
     if ( needdot ) msk += ".*";
+    BufferString pythonstr(sKey::Python());
+    pythonstr.toLower();
     DirList dl( GetSettingsDir(), File::FilesInDir, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -61,6 +69,9 @@ static void getGrps( BufferStringSet& grps )
 	}
 	const char* underscoreptr = firstOcc( fnm.buf(), '_' );
 	if ( !underscoreptr || !*underscoreptr )
+	    continue;
+	underscoreptr += 1;
+	if ( FixedString(underscoreptr).contains(pythonstr) )
 	    continue;
 	grps.add( underscoreptr + 1 );
     }
@@ -84,7 +95,7 @@ uiAdvSettings::uiAdvSettings( uiParent* p, const uiString& titl,
 	BufferStringSet grps; getGrps( grps );
 	grpfld_ = new uiGenInput( this, tr("Settings Group"),
 				  StringListInpSpec(grps) );
-	grpfld_->valuechanged.notify( mCB(this,uiAdvSettings,grpChg) );
+	mAttachCB( grpfld_->valuechanged, uiAdvSettings::grpChg );
     }
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
@@ -97,12 +108,13 @@ uiAdvSettings::uiAdvSettings( uiParent* p, const uiString& titl,
     if ( grpfld_ )
 	tbl_->attach( ensureBelow, grpfld_ );
 
-    postFinalise().notify( mCB(this,uiAdvSettings,dispNewGrp) );
+    mAttachCB( postFinalise(), uiAdvSettings::dispNewGrp );
 }
 
 
 uiAdvSettings::~uiAdvSettings()
 {
+    detachAllNotifiers();
     deepErase( chgdsetts_ );
 }
 
@@ -120,13 +132,11 @@ int uiAdvSettings::getChgdSettIdx( const char* nm ) const
 
 const IOPar& uiAdvSettings::orgPar() const
 {
-    const IOPar* iop = &sipars_;
-    if ( !issurvdefs_ )
-    {
-	const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
-	iop = grp == sKeyCommon ? &Settings::common() : &Settings::fetch(grp);
-    }
-    return *iop;
+    if ( issurvdefs_ )
+	return sipars_;
+
+    const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
+    return grp == sKeyCommon ? Settings::common() : Settings::fetch( grp );
 }
 
 
@@ -248,6 +258,258 @@ bool uiAdvSettings::acceptOK()
 
     return true;
 }
+
+
+mExpClass(uiTools) uiPythonSettings : public uiDialog
+{ mODTextTranslationClass(uiPythonSettings);
+public:
+
+uiPythonSettings(uiParent* p, const char* nm)
+	: uiDialog(p, uiDialog::Setup(mToUiStringTodo(nm),
+		tr("Set Python default environment"),mTODOHelpKey))
+{
+    pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
+		StringListInpSpec(OD::PythonSourceDef().strings()));
+    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
+
+    custompythongrp_ = new uiGroup(this, "Custom python");
+    uiLabel* customenvlbl = new uiLabel(custompythongrp_,
+				tr("Paths for custom Python environment:"));
+
+    tbl_ = new uiTable(custompythongrp_, uiTable::Setup(5,1)
+		.manualresize(true)
+		.selmode(uiTable::SingleRow),
+		"Settings editor");
+    tbl_->setStretch(2, 2);
+    tbl_->setPrefWidth(400);
+    tbl_->setPrefHeight(300);
+    tbl_->setTopHeaderHidden(true);
+    tbl_->setLeftHeaderHidden(true);
+    tbl_->setSelectionBehavior(uiTable::SelectRows);
+    tbl_->attach(alignedBelow, customenvlbl);
+
+    uiButtonGroup* pythonbuts = new uiButtonGroup(custompythongrp_,
+		"python actions", OD::Vertical);
+
+    uiButton* mUnusedVar newbut = new uiPushButton( pythonbuts,
+		uiStrings::sNew(),
+		mCB(this, uiPythonSettings, newPathCB), true);
+    uiButton* mUnusedVar modifybut = new uiPushButton( pythonbuts,
+		uiStrings::sModify(),
+		mCB(this, uiPythonSettings, modifPathCB), true);
+    uiButton* mUnusedVar browsebut = new uiPushButton( pythonbuts,
+		tr("Browse"),
+		mCB(this, uiPythonSettings, browsePathCB), true);
+    uiButton* mUnusedVar removebut = new uiPushButton( pythonbuts,
+		uiStrings::sRemove(),
+		mCB(this, uiPythonSettings, removePathCB), true);
+    pythonbuts->attach( rightOf, tbl_ );
+
+    custompythongrp_->attach( ensureBelow, pythonsrcfld_ );
+
+    mAttachCB( postFinalise(), uiPythonSettings::initDlg );
+}
+
+virtual ~uiPythonSettings()
+{
+}
+
+private:
+
+void initDlg(CallBacker*)
+{
+    //TODO: handle empty settings (initial state)
+    usePar(curSetts());
+    sourceChgCB(0);
+}
+
+IOPar&	curSetts()
+{
+    BufferString pythonstr( sKey::Python() );
+    return Settings::fetch( pythonstr.toLower() );
+}
+
+void getChanges()
+{
+    IOPar* workpar = 0;
+    if ( chgdsetts_ )
+	workpar = chgdsetts_;
+    const bool alreadyedited = workpar;
+    if ( alreadyedited )
+	workpar->setEmpty();
+    else
+	workpar = new IOPar( curSetts().name() );
+
+    fillPar( *workpar );
+    if (!curSetts().isEqual(*workpar, true))
+    {
+	if ( !alreadyedited )
+	    chgdsetts_ = workpar;
+    }
+    else
+    {
+	if ( alreadyedited )
+	    chgdsetts_ = 0;
+	delete workpar;
+    }
+}
+
+void fillPar( IOPar& par ) const
+{
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+    par.set(OD::PythonAccess::sKeyPythonSrc(),
+		OD::PythonSourceDef().getKey(source));
+    if ( source == OD::PythonSource::Custom )
+    {
+	FileMultiString envpathssep;
+	for ( int irow=0; irow<tbl_->nrRows(); irow++ )
+	{
+	    const BufferString valbuf = tbl_->text(RowCol(irow, 0));
+	    if (valbuf.isEmpty())
+		continue;
+	    envpathssep.add(valbuf);
+	}
+	if (!envpathssep.isEmpty())
+		par.set(OD::PythonAccess::sKeyEnviron(), envpathssep.rep());
+    }
+}
+
+void usePar( const IOPar& par )
+{
+    OD::PythonSource source;
+    if (!OD::PythonSourceDef().parse(par,
+		OD::PythonAccess::sKeyPythonSrc(), source))
+	return;
+
+    pythonsrcfld_->setValue( source );
+    if ( source == OD::PythonSource::Custom )
+    {
+	for (int irow = 0; irow < tbl_->nrRows(); irow++)
+	{
+	    const RowCol rc(irow, 0);
+	    tbl_->setText(rc, uiString::empty());
+	}
+
+	BufferString envpaths;
+	if (par.get(OD::PythonAccess::sKeyEnviron(), envpaths))
+	{
+	    const FileMultiString envpathsep(envpaths);
+	    for (int idx = 0; idx < envpathsep.size(); idx++)
+		tbl_->setText(RowCol(idx, 0), envpathsep[idx]);
+	}
+
+	tbl_->resizeColumnToContents(1);
+    }
+}
+
+bool commitSetts( const IOPar& iop )
+{
+    Settings& setts = Settings::fetch(iop.name());
+    setts.IOPar::operator =(iop);
+    if (!setts.write(false))
+    {
+	uiMSG().error(tr("Cannot write %1").arg(setts.name()));
+	return false;
+    }
+
+    return true;
+}
+
+void sourceChgCB( CallBacker* )
+{
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+
+    custompythongrp_->display( source == OD::PythonSource::Custom );
+}
+
+void newPathCB(CallBacker*)
+{
+    const int nrrows = tbl_->nrRows();
+    for (int irow = 0; irow < nrrows; irow++)
+    {
+	const RowCol rc(irow, 0);
+	const BufferString curtxt(tbl_->text(rc));
+	if (!curtxt.isEmpty())
+	    continue;
+
+	tbl_->editCell(rc, true);
+	if (irow == nrrows - 1)
+	    tbl_->insertRows(RowCol(nrrows, 0), 3);
+	return;
+    }
+}
+
+void modifPathCB(CallBacker*)
+{
+    tbl_->editCell(RowCol(tbl_->currentRow(), 0), true);
+}
+
+void browsePathCB(CallBacker*)
+{
+    uiFileSelector dlg( this, uiFileSelector::Setup(OD::SelectDirectory) );
+    if ( !dlg.go() )
+	return;
+
+    const BufferString outpath(dlg.fileName());
+    const int nrrows = tbl_->nrRows();
+    for (int irow = 0; irow < nrrows; irow++)
+    {
+	const RowCol rc(irow, 0);
+	const BufferString curtxt(tbl_->text(rc));
+	if (!curtxt.isEmpty())
+	    continue;
+
+	tbl_->setText(rc, dlg.fileName());
+	if (irow == nrrows - 1)
+	    tbl_->insertRows(RowCol(nrrows, 0), 3);
+	return;
+    }
+}
+
+void removePathCB(CallBacker*)
+{
+    const int irow = tbl_->currentRow();
+    if (tbl_->isRowSelected(irow))
+	tbl_->setText(RowCol(irow, 0), uiString::empty());
+}
+
+bool acceptOK()
+{
+    getChanges();
+    if ( !chgdsetts_ )
+	return true;
+
+    if ( commitSetts(*chgdsetts_) )
+	deleteAndZeroPtr(chgdsetts_);
+
+    if ( chgdsetts_ )
+	return false;
+
+    return true;
+}
+
+    uiGenInput*     pythonsrcfld_;
+    uiGroup*	    custompythongrp_;
+    uiTable*	    tbl_;
+
+    IOPar*	    chgdsetts_ = nullptr;
+
+};
+
+
+
+uiDialog* uiAdvSettings::getPythonDlg( uiParent* p, const char* nm )
+{
+    uiDialog* ret = new uiPythonSettings( p, nm );
+    ret->setModal( false );
+    ret->setDeleteOnClose( true );
+    return ret;
+}
+
 
 
 static int thetbsz_ = -1;

@@ -880,6 +880,7 @@ void uiODMenuMgr::fillUtilMenu()
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
     addAction( advmnu, tr("Personal Settings"), "unknownperson",
 						mSettAdvPersonal );
+    addAction( advmnu, tr("Python Settings"), "python",	mSettAdvPython );
     addAction( advmnu, tr("Survey Defaults"), "survey", mSettAdvSurvey );
 
     toolsmnu_ = addSubMenu( utilmnu_, uiStrings::sTools(), "tools" );
@@ -1438,6 +1439,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	browser->setText( text.buf() );
 	dlg.setCancelText( uiString::empty() );
 	dlg.go();
+    } break;
+
+    case mSettAdvPython: {
+        uiDialog* dlg = uiAdvSettings::getPythonDlg( &appl_,
+						     "Set Python Settings" );
+	dlg->go();
     } break;
 
     case mSettAdvPersonal:
