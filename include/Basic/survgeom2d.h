@@ -48,6 +48,7 @@ public:
     Geometry2D*		clone() const override	{ return new Geometry2D(*this);}
 
     static bool		isPresent(GeomID);
+    static void		getGeomIDs(GeomIDSet&);
     static const Geometry2D& get(const char* linenm);
     static const Geometry2D& get(GeomID);
     bool		isEmpty() const;

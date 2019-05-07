@@ -566,6 +566,12 @@ bool Survey::Geometry2D::isPresent( GeomID geomid )
 }
 
 
+void Survey::Geometry2D::getGeomIDs( GeomIDSet& gids )
+{
+    GM().list2D( gids );
+}
+
+
 const Survey::Geometry2D& Survey::Geometry2D::get( GeomID geomid )
 {
     const auto* g2d = GM().get2DGeometry( geomid );

@@ -95,6 +95,7 @@ public:
     void		setCrlRange( const pos_steprg_type& rg )
 			{ crlSubSel().setOutputPosRange( rg ); }
     void		setRange(const BinID&,const BinID&,const BinID& step);
+    void		setToAll();
     void		merge(const CubeSubSel&);
 
     SliceType		defaultDir() const;

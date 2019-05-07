@@ -107,6 +107,7 @@ public:
     bool		hasAllLines() const;
     bool		hasFullRange() const;
     bool		hasFullZRange() const;
+    void		setToAll();
     void		merge(const LineSubSelSet&);
 
     LineSubSel*		find( GeomID gid )	{ return doFind( gid ); }

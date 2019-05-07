@@ -78,8 +78,10 @@ public:
     void		setZRange(const z_rg_type&,int i=0) override;
 
     bool		isAll() const override;
+    void		setToAll();
     void		setForceIsAll( bool yn=true )
 						{ forceall_ = true; }
+
     size_type		expectedNrTraces() const override;
     const FullSubSel&	subSel(idx_type i=0) const;
     const CubeSubSel&	cubeSubSel() const	{ return *css_;}

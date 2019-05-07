@@ -259,6 +259,15 @@ bool Seis::RangeSelData::isAll() const
 }
 
 
+void Seis::RangeSelData::setToAll()
+{
+    if ( css_ )
+	css_->setToAll();
+    else
+	lsss_.setToAll();
+}
+
+
 pos_rg_type Seis::RangeSelData::inlRange() const
 {
     if ( css_ )

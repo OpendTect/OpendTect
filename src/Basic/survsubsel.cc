@@ -600,7 +600,7 @@ LineSubSelSet::totalsz_type LineSubSelSet::totalSize() const
 bool LineSubSelSet::hasAllLines() const
 {
     GeomIDSet allgids;
-    Survey::GM().list2D( allgids );
+    Survey::Geometry2D::getGeomIDs( allgids );
     for ( auto gid : allgids )
 	if ( !find(gid) )
 	    return false;
@@ -611,6 +611,16 @@ bool LineSubSelSet::hasAllLines() const
 bool LineSubSelSet::isAll() const
 {
     return hasAllLines() && hasFullRange() && hasFullZRange();
+}
+
+
+void LineSubSelSet::setToAll()
+{
+    setEmpty();
+    GeomIDSet allgids;
+    Survey::Geometry2D::getGeomIDs( allgids );
+    for ( auto gid : allgids )
+	add( new LineSubSel( gid ) );
 }
 
 
@@ -757,6 +767,12 @@ void CubeSubSel::merge( const CubeSubSel& oth )
 {
     hss_.merge( oth.hss_ );
     zss_.merge( oth.zss_ );
+}
+
+
+void CubeSubSel::setToAll()
+{
+    *this = CubeSubSel();
 }
 
 
