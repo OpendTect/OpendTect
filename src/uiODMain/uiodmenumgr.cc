@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "ui3dviewer.h"
 #include "uicrdevenv.h"
-//#include "uidialog.h"
 #include "uifileselector.h"
 #include "uiglinfo.h"
 #include "uilabel.h"
@@ -49,10 +48,8 @@ ________________________________________________________________________
 #include "odver.h"
 #include "settings.h"
 #include "od_ostream.h"
-//#include "od_istream.h"
 #include "oscommand.h"
 #include "survinfo.h"
-//#include "systeminfo.h"
 #include "texttranslation.h"
 #include "thread.h"
 #include "visemobjdisplay.h"
