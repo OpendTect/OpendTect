@@ -169,8 +169,8 @@ void uiConvertPos::inputTypChg( CallBacker* )
 
 void uiConvertPos::outputTypChg( CallBacker* )
 {
-    const int mUnusedVar selval = inputypfld_->getIntValue();
-    const int idx = outidxs_[outputtypfld_->getIntValue()];
+    const int selidx = outputtypfld_->getIntValue();
+    const int idx = outidxs_[selidx];
     leftoutfld_->setTitleText( ConversionTypeDef().getUiStringForIndex(idx) );
 }
 
@@ -309,10 +309,11 @@ void uiConvertPos::convManually()
 	launchSelConv( true, selidx );
     else
     {
-	const Coord coord( firstinp_, secondinp_ );
-	Coord mUnusedVar outcrd =
-			 outcrdsysselfld_->getCoordSystem()->convertFrom(
-				coord, *inpcrdsysselfld_->getCoordSystem() );
+	const Coord incrd( firstinp_, secondinp_ );
+	const Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
+				incrd, *inpcrdsysselfld_->getCoordSystem() );
+	leftoutfld_->setValue( outcrd.x_ );
+	rightoutfld_->setValue( outcrd.y_ );
     }
 }
 
