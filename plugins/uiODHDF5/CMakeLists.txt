@@ -4,9 +4,9 @@
 # 	May 2018	Bert
 #_______________________________________________________________________________
 
-OD_SETUP_HDF5()
+FIND_OD_PLUGIN( "ODHDF5" )
 
-if ( HDF5_FOUND )
+if ( ODHDF5_FOUND )
 
     set( OD_MODULE_DEPS uiTools ODHDF5 )
     set( OD_IS_PLUGIN yes )
