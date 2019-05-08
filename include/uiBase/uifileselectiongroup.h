@@ -44,7 +44,7 @@ protected:
     uiListBox*		leafselfld_;
     uiComboBox*		fsaselfld_;
     uiComboBox*		filtfld_;
-    uiComboBox*		sortfld_;
+    uiComboBox*		sortfld_ = nullptr;
     uiLineEdit*		fnmfld_;
     uiLineEdit*		newfoldernamefld_;
     uiToolButton*	newfolderbut_;

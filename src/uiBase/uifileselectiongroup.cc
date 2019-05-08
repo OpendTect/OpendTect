@@ -114,7 +114,7 @@ uiGroup* uiFileSelectionGroup::createMainGroup()
     leafselfld_ = new uiListBox( maingrp, lbsu, "Selectables" );
     leafselfld_->attach( rightOf, leftgrp );
     leafselfld_->attach( alignedBelow, filtfld_ );
-    sortfld_->attach( rightAlignedAbove, leafselfld_ );
+    //sortfld_->attach( rightAlignedAbove, leafselfld_ );
 
     maingrp->setHAlignObj( leafselfld_ );
     return maingrp;
