@@ -800,6 +800,18 @@ void uiODMenuMgr::insertNewSceneItem( uiAction* action, int id )
 }
 
 
+void uiODMenuMgr::insertNewSceneItem( uiMenu* mnu )
+{
+    if ( !mnu )
+	return;
+
+    uiAction* submenuitem = new uiAction( mnu->text() );
+    submenuitem->setMenu( mnu );
+    scenemnu_->insertItem( submenuitem, -1, lastsceneitm_ );
+    lastsceneitm_ = submenuitem;
+}
+
+
 void uiODMenuMgr::updateSceneMenu()
 {
     uiStringSet scenenms;

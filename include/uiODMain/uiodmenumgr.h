@@ -80,6 +80,7 @@ public:
     void		enableActButton(bool);
     void		setCameraPixmap(bool isperspective);
     void		insertNewSceneItem(uiAction*,int id);
+    void		insertNewSceneItem(uiMenu*);
     void		updateSceneMenu();
 
     static int		ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
