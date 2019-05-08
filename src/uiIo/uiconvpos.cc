@@ -169,8 +169,7 @@ void uiConvertPos::inputTypChg( CallBacker* )
 
 void uiConvertPos::outputTypChg( CallBacker* )
 {
-    const int selidx = outputtypfld_->getIntValue();
-    const int idx = outidxs_[selidx];
+    const int idx = outidxs_[outputtypfld_->getIntValue()];
     leftoutfld_->setTitleText( ConversionTypeDef().getUiStringForIndex(idx) );
 }
 
@@ -312,6 +311,8 @@ void uiConvertPos::convManually()
 	const Coord incrd( firstinp_, secondinp_ );
 	const Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
 				incrd, *inpcrdsysselfld_->getCoordSystem() );
+	leftoutfld_->setValue( outcrd.x_ );
+	rightoutfld_->setValue( outcrd.y_ );
 	leftoutfld_->setValue( outcrd.x_ );
 	rightoutfld_->setValue( outcrd.y_ );
     }
