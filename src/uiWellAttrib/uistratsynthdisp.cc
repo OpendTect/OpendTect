@@ -1108,21 +1108,26 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     if ( !gsetdp || !presd ) return;
 
     const PreStack::GatherSetDataPack& angledp = presd->angleData();
+
     prestackwin_->removeGathers();
+
     TypeSet<PreStackView::GatherInfo> gatherinfos;
     const ObjectSet<PreStack::Gather>& gathers = gsetdp->getGathers();
     const ObjectSet<PreStack::Gather>& anglegathers = angledp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
     {
-	const PreStack::Gather* gather = gathers[idx];
-	const PreStack::Gather* anglegather= anglegathers[idx];
 
+	PreStack::Gather* gather = new PreStack::Gather( *gathers[idx] );
+	PreStack::Gather* anglegather= new PreStack::Gather(
+							*anglegathers[idx] );
 	PreStackView::GatherInfo gatherinfo;
 	gatherinfo.isstored_ = false;
 	gatherinfo.gathernm_ = sd->name();
 	gatherinfo.bid_ = gather->getBinID();
-	gatherinfo.wvadpid_ = gather->id();
-	gatherinfo.vddpid_ = anglegather->id();
+	gatherinfo.wvadpid_ = DPM( DataPackMgr::FlatID() )
+						.addAndObtain( gather )->id();
+	gatherinfo.vddpid_ = DPM( DataPackMgr::FlatID() ).addAndObtain(
+							    anglegather )->id();
 	gatherinfo.isselected_ = true;
 	gatherinfos += gatherinfo;
     }
