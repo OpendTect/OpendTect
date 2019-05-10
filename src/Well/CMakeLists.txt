@@ -30,4 +30,7 @@ set(OD_MODULE_SOURCES
 	welltransl.cc
 	wellwriter.cc
 )
+
+set ( OD_MODULE_PROGS od_WellMan.cc )
+
 OD_INIT_MODULE()
