@@ -456,15 +456,16 @@ static BufferString getUsableWinCmd( const char* fnm )
 static BufferString getUsableUnixCmd( const char* fnm )
 {
     BufferString ret( fnm );
-    if ( File::Path(fnm).isAbsolute() && File::exists(fnm) )
+    if ( File::Path(fnm).isAbsolute() &&
+	 File::exists(fnm) && File::isFile(fnm) )
 	return ret;
 
     ret = GetShellScript( fnm );
-    if ( File::exists(ret) )
+    if ( File::exists(ret) && File::isFile(fnm) )
 	return ret;
 
     ret = GetPythonScript( fnm );
-    if ( File::exists(ret) )
+    if ( File::exists(ret) && File::isFile(fnm) )
 	return ret;
 
     return BufferString( fnm );
