@@ -5,15 +5,21 @@
 -*/
 
 
-#include "wellman.h"
 #include "commandlineparser.h"
 #include "moddepmgr.h"
 #include "od_ostream.h"
+#include "odver.h"
+#include "prog.h"
+#include "wellmanager.h"
+
+static int protocolnr_ = 1;
+static const char* sVersionCmd = "version";
 
 
-static void printUsage()
+static int printUsage()
 {
-    od_cout << "Needs some params" << od_endl;
+    od_cout() << "Needs some params" << od_endl;
+    return ExitProgram( 0 );
 }
 
 
@@ -23,7 +29,7 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "Well" );
     CommandLineParser clp;
-    auto* jobj = &jret_;
+
     if ( clp.nrArgs() < 1 )
 	return printUsage();
     else if ( clp.hasKey( sVersionCmd ) )
