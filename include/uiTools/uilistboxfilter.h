@@ -28,9 +28,13 @@ public:
     void		setItems(const BufferStringSet&);
     void		setItems(const uiStringSet&);
     void		setFilter(const char*);
+    void		setEmpty();
 
     int			getCurrent() const;
     void		getChosen(TypeSet<int>&) const;
+    int			nrChosen() const;
+
+    void		removeItem(int);
 
     Notifier<uiListBoxFilter> newFilter;
 
