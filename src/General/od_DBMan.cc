@@ -5,23 +5,19 @@
 -*/
 
 
-#include "dbman.h"
-#include "ascstream.h"
+#include "serverprogtool.h"
 #include "commandlineparser.h"
 #include "dbdir.h"
+#include "dbman.h"
 #include "filepath.h"
 #include "iostrm.h"
 #include "keystrs.h"
-#include "moddepmgr.h"
-#include "od_ostream.h"
 #include "odjson.h"
-#include "odver.h"
 #include "prog.h"
-#include "survinfo.h"
+#include "surveydisklocation.h"
 
-#include <iostream>
 
-static const int protocolnr_ = 1;
+static const int cProtocolNr = 1;
 
 static const char* sStatusCmd		= "status";
 static const char* sListCmd		= "list";
@@ -29,119 +25,48 @@ static const char* sListSurvCmd		= "list-surveys";
 static const char* sInfoCmd		= "info";
 static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
-static const char* sVersionCmd		= "version";
 static const char* sFileNameCmd		= "filename";
-static const char* sJsonOutput		= "json";
 
-static const char* cmds[] =
+class DBManServerTool : public ServerProgTool
 {
-    sStatusCmd,
-    sListCmd,
-    sListSurvCmd,
-    sInfoCmd,
-    sCreateCmd,
-    sRemoveCmd,
-    sJsonOutput,
-    0
+public:
+		    DBManServerTool(int,char**);
+
+    void	    listSurveys();
+    void	    listObjs(const char* trgrpnm);
+    void	    provideInfo(const DBKey&);
+    void	    removeObj(const DBKey&);
+    void	    createObj(const BufferStringSet&,const char* filenm);
+
+protected:
+
+    BufferString    getSpecificUsage() const override;
+
 };
 
 
-static IOPar ret_;
-static OD::JSON::Object jret_;
-static bool dojson_ = false;
-static const char* sErrKey = "ERR";
-
-
-static od_ostream& strm()
+DBManServerTool::DBManServerTool( int argc, char** argv )
+    : ServerProgTool(argc,argv,"General",false)
 {
-    return od_ostream::logStream();
-}
-
-#define mSet( keywd, res ) \
-{ \
-    if ( dojson_ && jobj ) \
-    { \
-	BufferString keyword( keywd ); \
-	keyword.clean(); \
-	jobj->set( keyword, res ); \
-    } \
-    else \
-	ret_.set( keywd, res ); \
-}
-
-static int respond( bool success )
-{
-    auto* jobj = &jret_;
-    mSet( "Status", success ? "OK" : "Fail" );
-    if ( dojson_ )
-    {
-	od_ostream strm( std::cout );
-	jret_.write( strm );
-    }
-    else
-    {
-	ascostream ascstrm( strm() );
-	ret_.putTo( ascstrm );
-    }
-    return ExitProgram( success ? 0 : 1 );
+    initParsing( cProtocolNr );
 }
 
 
-static int printUsage()
-{
-    BufferString errmsg( "Please specify " );
-    BufferStringSet nms( cmds );
-    for ( auto nm : nms )
-	errmsg.add( "--" ).add( *nm ).add( "," );
-    errmsg.add( "--" ).add( CommandLineParser::sDataRootArg() ).add( "," );
-    errmsg.add( "--" ).add( CommandLineParser::sSurveyArg() ).add( "," );
-    errmsg.add( " or --version" );
-    auto* jobj = &jret_;
-    mSet( sErrKey, errmsg );
-    return respond( false );
-}
-
-
-#define mRespondErr(s) { \
-    auto* jobj = &jret_; \
-    mSet( sErrKey, s ); \
-    respond( false ); \
-}
-
-
-static void listSurveys()
+void DBManServerTool::listSurveys()
 {
     BufferStringSet dirnms;
     const File::Path survfp( DBM().survDir() );
     const BufferString dataroot( survfp.pathOnly() );
     SurveyDiskLocation::listSurveys( dirnms, dataroot );
+    set( sKey::DataRoot(), dataroot );
     if ( !dirnms.isEmpty() )
-    {
-	auto* jobj = &jret_;
-	mSet( sKey::DataRoot(), dataroot );
-	if ( dojson_ )
-	{
-	    auto* arr = new OD::JSON::Array( true );
-	    for ( int idx=0; idx<dirnms.size(); idx++ )
-	    {
-		jobj = new OD::JSON::Object;
-		jobj->set( sKey::Name(), dirnms.get(idx) );
-		arr->add( jobj );
-	    }
-	    jret_.set( "data", arr );
-	}
-	else
-	{
-	    ret_.set( sKey::Size(), dirnms.size() );
-	    ret_.set( sKey::Name(mPlural), dirnms );
-	}
-    }
+	set( sKey::Name(mPlural), dirnms );
 
-    respond( true );
+    respondInfo( true );
 }
 
 
-static void listObjs( const char* trgrpnm )
+void DBManServerTool::listObjs( const char* trgrpnm )
 {
     BufferStringSet nms, types, trls; DBKeySet ids;
     bool havetype = false;
@@ -165,12 +90,21 @@ static void listObjs( const char* trgrpnm )
 	}
     }
 
-    if ( dojson_ )
+    if ( !jsonmode_ )
     {
-	auto* arr = new OD::JSON::Array( true );
+	set( sKey::Size(), ids.size() );
+	set( sKey::ID(mPlural), ids );
+	set( sKey::Name(mPlural), nms );
+	set( sKey::Format(mPlural), trls );
+	if ( havetype )
+	    set( sKey::Type(mPlural), types );
+    }
+    else
+    {
+	auto* arr = new JSONArray( true );
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    auto* jobj = new OD::JSON::Object;
+	    auto* jobj = new JSONObject;
 	    jobj->set( sKey::ID(), ids.get(idx) );
 	    jobj->set( sKey::Name(), nms.get(idx) );
 	    jobj->set( sKey::Format(), trls.get(idx) );
@@ -178,59 +112,47 @@ static void listObjs( const char* trgrpnm )
 		jobj->set( sKey::Type(), types.get(idx) );
 	    arr->add( jobj );
 	}
-	jret_.set( "data", arr );
-    }
-    else
-    {
-	ret_.set( sKey::Size(), ids.size() );
-	if ( !ids.isEmpty() )
-	{
-	    ret_.set( sKey::ID(mPlural), ids );
-	    ret_.set( sKey::Name(mPlural), nms );
-	    ret_.set( sKey::Format(mPlural), trls );
-	    if ( havetype )
-		ret_.set( sKey::Type(mPlural), types );
-	}
+	set( sKey::Data(), arr );
     }
 
-    respond( true );
+    respondInfo( true );
 }
 
 
-static void provideInfo( const DBKey& dbky )
+void DBManServerTool::provideInfo( const DBKey& dbky )
 {
     PtrMan<IOObj> ioobj = getIOObj( dbky );
     if ( !ioobj )
-	mRespondErr( "Input object key not found" )
+	respondError( "Input object key not found" );
 
-    auto* jobj = dojson_ ? new OD::JSON::Object : 0;
-    mSet( sKey::ID(), ioobj->key() );
-    mSet( sKey::Name(), ioobj->name() );
-    mSet( sKey::Format(), ioobj->translator() );
-    mSet( sKey::FileName(), ioobj->mainFileName() );
+    set( sKey::ID(), ioobj->key() );
+    set( sKey::Name(), ioobj->name() );
+    set( sKey::Format(), ioobj->translator() );
+    set( sKey::FileName(), ioobj->mainFileName() );
     const char* typstr = ioobj->pars().find( sKey::Type() );
     if ( typstr && *typstr )
-	mSet( sKey::Type(), typstr );
+	set( sKey::Type(), typstr );
 
-    jret_.set( "data", jobj );
-    respond( true );
+    respondInfo( true );
 }
 
 
-static void removeObj( const DBKey& dbky )
+void DBManServerTool::removeObj( const DBKey& dbky )
 {
-    respond( DBM().removeEntry(dbky) );
+    respondInfo( DBM().removeEntry(dbky) );
 }
 
 
-static void createObj( const BufferStringSet& args, const char* filenm )
+void DBManServerTool::createObj( const BufferStringSet& args,
+				 const char* filenm )
 {
     if ( args.size() < 5 )
-	mRespondErr( "Specify at least name, dirid, trgrp, trl, ext. "
-		     "Optional, type and/or --filename your_file_name." )
+	respondError( "Specify at least name, dirid, trgrp, trl, ext. "
+		      "Optional, type and/or --filename your_file_name." );
+
     auto dbdir = DBM().fetchDir( DBKey::DirID(toInt(args.get(1))) );
     if ( !dbdir )
-	mRespondErr( "Invalid Dir ID specified" )
+	respondError( "Invalid DBDir ID specified" );
 
     IOStream iostrm( args.get(0) );
     iostrm.setKey( dbdir->newKey() );
@@ -249,55 +171,49 @@ static void createObj( const BufferStringSet& args, const char* filenm )
     iostrm.updateCreationPars();
     DBDir* dbdirptr = mNonConst( dbdir.ptr() );
     if ( !dbdirptr->commitChanges(iostrm) )
-	mRespondErr( "Cannot commit new entry to data store" )
+	respondError( "Cannot commit new entry to data store" );
 
-    auto* jobj = dojson_ ? new OD::JSON::Object : 0;
-    mSet( sKey::ID(), iostrm.key() );
-    mSet( sKey::FileName(), iostrm.mainFileName() );
-    jret_.set( "data", jobj );
-    respond( true );
+    set( sKey::ID(), iostrm.key() );
+    set( sKey::FileName(), iostrm.mainFileName() );
+    respondInfo( true );
+}
+
+
+BufferString DBManServerTool::getSpecificUsage() const
+{
+    BufferString ret;
+    addToUsageStr( ret, sStatusCmd, "" );
+    addToUsageStr( ret, sListCmd, "" );
+    addToUsageStr( ret, sListSurvCmd, "" );
+    addToUsageStr( ret, sInfoCmd, "object_id" );
+    addToUsageStr( ret, sFileNameCmd, "object_id" );
+    addToUsageStr( ret, sRemoveCmd, "object_id" );
+    addToUsageStr( ret, sCreateCmd, "obj_name dir_id trl_group_name trl_name "
+			    "extension [Type_in_omf] [--filename file_name]" );
+    return ret;
 }
 
 
 int main( int argc, char** argv )
 {
-    OD::SetRunContext( OD::BatchProgCtxt );
-    SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "General" );
-    CommandLineParser clp;
-    auto* jobj = &jret_;
-    mSet( "Status", "Fail" ); // make sure it will be the first entry
-    if ( clp.nrArgs() < 1 )
-	return printUsage();
-    else if ( clp.hasKey( sVersionCmd ) )
-    {
-	strm() << protocolnr_ << "@" << GetFullODVersion() << od_endl;
-	return ExitProgram( 0 );
-    }
-
-    dojson_ = clp.hasKey( sJsonOutput );
-
-    uiRetVal uirv = DBM().setDataSource( clp );
-    if ( !uirv.isOK() )
-	{ mSet( sErrKey, toString(uirv) ); return respond( false ); }
+    DBManServerTool st( argc, argv );
+    auto& clp = st.clp();
 
     if ( clp.hasKey( sListSurvCmd ) )
-	listSurveys();
+	st.listSurveys();
 
     const bool isbad = DBM().isBad();
     if ( isbad || clp.hasKey( sStatusCmd ) )
     {
 	if ( isbad )
-	{
-	    mSet( sErrKey, "Data Store cannot be initialised" );
-	}
+	    st.respondError( "Data Store cannot be initialised" );
 	else
 	{
 	    File::Path fp( DBM().survDir() );
-	    mSet( sKey::Survey(), fp.fileName() );
-	    mSet( sKey::DataRoot(), fp.pathOnly() );
+	    st.set( sKey::Survey(), fp.fileName() );
+	    st.set( sKey::DataRoot(), fp.pathOnly() );
 	}
-	return respond( !isbad );
+	st.respondInfo( !isbad );
     }
 
     if ( clp.hasKey( sListCmd ) )
@@ -305,26 +221,26 @@ int main( int argc, char** argv )
 	clp.setKeyHasValue( sListCmd, 1 );
 	BufferString trgrpnm;
 	clp.getVal( sListCmd, trgrpnm );
-	listObjs( trgrpnm );
+	st.listObjs( trgrpnm );
     }
     else if ( clp.hasKey( sInfoCmd ) )
     {
 	clp.setKeyHasValue( sInfoCmd, 1 );
-	BufferString dbkystr;
-	clp.getVal( sInfoCmd, dbkystr );
-	provideInfo( DBKey(dbkystr) );
+	DBKey dbky;
+	clp.getDBKey( sInfoCmd, dbky );
+	st.provideInfo( dbky );
     }
     else if ( clp.hasKey( sRemoveCmd ) )
     {
 	clp.setKeyHasValue( sRemoveCmd, 1 );
-	BufferString dbkystr;
-	clp.getVal( sRemoveCmd, dbkystr );
-	removeObj( DBKey(dbkystr) );
+	DBKey dbky;
+	clp.getDBKey( sRemoveCmd, dbky );
+	st.removeObj( dbky );
     }
 
     const int cridx = clp.indexOf( sCreateCmd );
     if ( cridx < 0 )
-	return printUsage();
+	st.exitWithUsage();
 
     clp.setKeyHasValue( sFileNameCmd, 1 );
     BufferString filenm;
@@ -332,7 +248,8 @@ int main( int argc, char** argv )
 
     BufferStringSet normargs;
     clp.getNormalArguments( normargs );
-    createObj( normargs, filenm );
+    st.createObj( normargs, filenm );
 
+    pFreeFnErrMsg( "Should not reach" );
     return ExitProgram( 0 );
 }

@@ -85,6 +85,7 @@ list ( APPEND OD_MODULE_SOURCES
 	raytracerrunner.cc
 	rockphysics.cc
 	saveable.cc
+	serverprogtool.cc
 	stratlevel.cc
 	survgeom2dascio.cc
 	survgeometryio.cc

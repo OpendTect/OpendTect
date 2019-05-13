@@ -90,7 +90,7 @@ uiRetVal DBMan::setDataSource( const CommandLineParser& clp, bool* ischgd )
     const BufferString newpath = clp.getFullSurveyPath( &iscur );
     if ( ischgd )
 	*ischgd = !iscur;
-    return iscur ? uiRetVal() : DBM().setDataSource( newpath );
+    return DBM().setDataSource( newpath );
 }
 
 
