@@ -70,6 +70,8 @@ public:
     bool		hasKey(const char*) const;
     bool		getVal(const char* key,BufferString&,
 				       bool acceptnone=false,int valnr=1) const;
+    bool		getDBKey(const char* key,DBKey&,
+				       bool acceptnone=false,int valnr=1) const;
     template <class T>
     bool		getVal(const char* key,T&,bool acceptnone=false,
 			       int valnr=1) const;

@@ -7,6 +7,7 @@
 
 #include "commandlineparser.h"
 
+#include "dbkey.h"
 #include "oddirs.h"
 #include "filepath.h"
 #include "genc.h"
@@ -310,6 +311,16 @@ char** CommandLineParser::getArgv() const
     for ( int iarg=1; iarg<argc; iarg++ )
 	ret[iarg] = getArgvStr( argv_.get(iarg-1) );
     ret[argc] = 0;
+    return ret;
+}
+
+
+bool CommandLineParser::getDBKey( const char* key, DBKey& dbky,
+				  bool acceptnone, int valnr ) const
+{
+    BufferString dbkystr;
+    bool ret = getVal( key, dbkystr, acceptnone, valnr );
+    dbky = DBKey( dbkystr );
     return ret;
 }
 
