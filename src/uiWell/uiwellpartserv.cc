@@ -283,7 +283,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb )
 
 void uiWellPartServer::saveWellDispProps( const Well::Data* onlywd )
 {
-    DBKeySet kys; Well::MGR().getAllLoaded( kys );
+    DBKeySet kys; Well::MGR().getAll( kys, true );
     for ( int idx=0; idx<kys.size(); idx++ )
     {
 	const DBKey ky = kys[idx];
@@ -302,7 +302,7 @@ void uiWellPartServer::applyAll( CallBacker* cb )
     ConstRefMan<Well::Data> edwd = dlg->welldisppropgrp_->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
-    DBKeySet dbkys; Well::MGR().getAllLoaded( dbkys );
+    DBKeySet dbkys; Well::MGR().getAll( dbkys, true );
     for ( int iwll=0; iwll<dbkys.size(); iwll++ )
     {
 	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbkys[iwll] );

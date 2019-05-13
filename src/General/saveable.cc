@@ -10,6 +10,7 @@
 #include "monitorchangerecorder.h"
 #include "autosaver.h"
 #include "dbman.h"
+#include "dbdir.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "uistrings.h"
@@ -529,11 +530,20 @@ bool SaveableManager::isLoaded( const ObjID& id ) const
 }
 
 
-void SaveableManager::getAllLoaded( DBKeySet& kys ) const
+void SaveableManager::getAll( DBKeySet& kys, bool onlyloaded ) const
 {
-    mLock4Read();
-    for ( idx_type idx=0; idx<savers_.size(); idx++ )
-	kys.add( savers_[idx]->key() );
+    if ( onlyloaded )
+    {
+	mLock4Read();
+	for ( idx_type idx=0; idx<savers_.size(); idx++ )
+	    kys.add( savers_[idx]->key() );
+    }
+    else
+    {
+	DBDirEntryList del( ctxt_ );
+	for ( auto idx=0; idx<del.size(); idx++ )
+	    kys.add( del.key(idx) );
+    }
 }
 
 
