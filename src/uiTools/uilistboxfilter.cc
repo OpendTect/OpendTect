@@ -67,6 +67,14 @@ void uiListBoxFilter::setFilter( const char* newfilt )
 }
 
 
+void uiListBoxFilter::setEmpty()
+{
+    lb_.setEmpty();
+    availitems_.erase();
+    setFilter( "" );
+}
+
+
 void uiListBoxFilter::filtChg( CallBacker* )
 {
     setItems( availitems_ );
@@ -94,4 +102,17 @@ void uiListBoxFilter::getChosen( TypeSet<int>& idxs ) const
 	const int chidx = chidxs[idx];
 	idxs += availitems_.indexOf( lb_.textOfItem(chidx) );
     }
+}
+
+
+int uiListBoxFilter::nrChosen() const
+{
+    return lb_.nrChosen();
+}
+
+
+void uiListBoxFilter::removeItem( int idx )
+{
+    availitems_.removeSingle( idx );
+    setItems( availitems_ );
 }
