@@ -23,25 +23,27 @@ public:
     mUseType( BufferString,	size_type );
 
 			StringBuilder()		    {}
+			StringBuilder( const StringBuilder& oth )
+						    { *this = oth; }
 			StringBuilder(const char*);
     virtual		~StringBuilder()	    { delete [] buf_; }
 
     StringBuilder&	operator=(const StringBuilder&);
     StringBuilder&	operator=(const char*);
 
-    const char*		result() const	{ return buf_; }
+    const char*		result() const		    { return buf_; }
 
     bool		operator==(const StringBuilder&) const;
     bool		operator!=(const StringBuilder&) const;
 
-    bool		isEmpty() const		{ return !buf_; }
+    bool		isEmpty() const		    { return !buf_; }
     StringBuilder&	setEmpty();
     StringBuilder&	set(const char*);
     template <class T>
     StringBuilder&	set(const T&);
 
-    StringBuilder&	add(char,size_type nr=1);
     StringBuilder&	add(const char*);
+    StringBuilder&	add(char,size_type nr=1);
     StringBuilder&	add(const QString&);
     template <class T>	inline
     StringBuilder&	add( const T& t )	{ return add( toString(t) ); }
