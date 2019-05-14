@@ -271,6 +271,7 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     }
 
     inpfld_->setCurrentItem( varnm );
+    inpChg( nullptr );
     if ( subinpfld_ )
 	subinpfld_->setCurrentItem( subnm );
 }
