@@ -6,11 +6,15 @@
 -*/
 
 
-#include "oddirs.h"
 #include "testprog.h"
-#include "oscommand.h"
-#include "od_iostream.h"
+
 #include "genc.h"
+#include "file.h"
+#include "filepath.h"
+#include "od_iostream.h"
+#include "oscommand.h"
+#include "pythonaccess.h"
+
 #include <iostream>
 
 /* TODO activate??
@@ -87,14 +91,17 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    OS::MachineCommand mc( GetPythonCommand() );
+    OS::MachineCommand mc( OD::PythonAccess::sPythonExecNm(true) );
     mc.addArg( "-u" );
     mc.addArg( GetPythonScript("test_ioserv.py") );
     OS::CommandExecPars execpars( OS::RunInBG );
     execpars.createstreams( true );
-    OS::CommandLauncher cl( mc );
-    cl.execute( execpars );
+    File::Path scriptfp;
+    PtrMan<OS::CommandLauncher> cl = OD::PythA().getLauncher( mc, scriptfp );
+    cl->execute( execpars );
     sleepSeconds( 1 );
+    if ( !scriptfp.isEmpty() )
+	File::remove( scriptfp.fullPath() );
 
     if ( !testComm(*cl.getStdInput(),*cl.getStdOutput()) )
 	return 1;
