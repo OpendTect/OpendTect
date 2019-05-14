@@ -105,4 +105,6 @@ set(OD_MODULE_BATCHPROGS
 	    od_process_segyio.cc
 )
 
+set ( OD_MODULE_PROGS od_SeisMan.cc )
+
 OD_INIT_MODULE()
