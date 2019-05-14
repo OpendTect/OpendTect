@@ -160,7 +160,10 @@ public:
 
     bool		get(const char*,int&,int&,float&) const;
 
-    bool		get(const char*,TypeSet<int>&) const;
+    bool		get(const char*,BoolTypeSet&) const;
+    bool		get(const char*,TypeSet<od_int16>&) const;
+    bool		get(const char*,TypeSet<od_uint16>&) const;
+    bool		get(const char*,TypeSet<od_int32>&) const;
     bool		get(const char*,TypeSet<od_uint32>&) const;
     bool		get(const char*,TypeSet<od_int64>&) const;
     bool		get(const char*,TypeSet<od_uint64>&) const;
@@ -289,6 +292,9 @@ public:
     void		set(const char*,const BufferStringSet&);
     void		set(const char*,const DBKeySet&);
 
+    void		set(const char*,const BoolTypeSet&);
+    void		set(const char*,const TypeSet<od_int16>&);
+    void		set(const char*,const TypeSet<od_uint16>&);
     void		set(const char*,const TypeSet<od_int32>&);
     void		set(const char*,const TypeSet<od_uint32>&);
     void		set(const char*,const TypeSet<od_int64>&);

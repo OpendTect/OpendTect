@@ -760,6 +760,8 @@ void IOPar::set( const char* keyw, const TypeSet<typ>& vals ) \
     iopset_typeset( *this, keyw, vals ); \
 }
 
+mDefTSFns(od_int16)
+mDefTSFns(od_uint16)
 mDefTSFns(od_int32)
 mDefTSFns(od_uint32)
 mDefTSFns(od_int64)
@@ -1005,6 +1007,18 @@ bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
 }
 
 
+bool IOPar::get( const char* keyw, BoolTypeSet& bools ) const
+{
+    mGetStartAllowEmpty(pval);
+    bools.erase();
+    FileMultiString fms( pval );
+    const int sz = fms.size();
+    for ( int idx=0; idx<sz; idx++ )
+	bools.add( yesNoFromString(fms[idx]) );
+    return true;
+}
+
+
 bool IOPar::get( const char* keyw, DBKeySet& dbkys ) const
 {
     BufferStringSet strs;
@@ -1054,6 +1068,15 @@ void IOPar::set( const char* keyw, const OD::String& fs1,
 				   const OD::String& fs3 )
 {
     set( keyw, fs1.buf(), fs2.buf(), fs3.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const BoolTypeSet& bools )
+{
+    FileMultiString fms;
+    for ( int idx=0; idx<bools.size(); idx++ )
+	fms += bools.get( idx ) ? "Y" : "N";
+    set( keyw, fms.buf() );
 }
 
 
