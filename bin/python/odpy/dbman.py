@@ -18,7 +18,7 @@ def getDBList(translnm,args=None):
   if db['Status'] != 'OK':
     log_msg( db['Status'] )
     raise FileNotFoundError
-  return db['data']
+  return db['Data']
 
 def getByName( dblist, retname ):
   for entry in dblist:
@@ -36,7 +36,7 @@ def retFileLoc( bstdout ):
   if fileloc['Status'] != 'OK':
     log_msg( fileloc['Status'] )
     raise FileNotFoundError
-  return fileloc['data']['File_name']
+  return fileloc['File_name']
 
 def getFileLocation( dbentry, args=None ):
   cmd = getODCommand(dbmanexe,args)
