@@ -117,7 +117,7 @@ BufferString WellServerTool::getSpecificUsage() const
     BufferString ret;
     addToUsageStr( ret, sListWellsCmd, "" );
     addToUsageStr( ret, sListLogsCmd, "well_id" );
-    BufferString argstr( "well_id log_name [", sNoTVDCmd, "]" );
+    BufferString argstr( "well_id log_name [--", sNoTVDCmd, "]" );
     addToUsageStr( ret, sReadLogCmd, argstr );
     return ret;
 }

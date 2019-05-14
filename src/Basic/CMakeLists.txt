@@ -112,6 +112,7 @@ set( OD_MODULE_SOURCES
 	settingsaccess.cc
 	sighndl.cc
 	string2.cc
+	stringbuilder.cc
 	strmoper.cc
 	strmprov.cc
 	surveydisklocation.cc

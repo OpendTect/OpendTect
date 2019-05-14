@@ -9,12 +9,31 @@
 #include "nrbytes2string.h"
 #include "testprog.h"
 #include "bufstringset.h"
+#include "stringbuilder.h"
 #include "iopar.h"
 #include "dbkey.h"
 
 
 #undef mRunTest
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
+
+
+static bool testBuilder()
+{
+    StringBuilder sb;
+    sb.set( "Apenoot" ).addSpace( 3 ).add( "Yo" );
+    BufferString res( sb.result() );
+    mRunStandardTest( res=="Apenoot   Yo", "StringBuilder result (1)" );
+
+    sb.addNewLine( 300 ).add( "X" );
+    res = sb.result();
+    mRunStandardTest( res[11]=='o' && res[12]=='\n'
+		      && res[300+11]=='\n' && res[301+11]=='X',
+			"StringBuilder result (2)" );
+
+    return true;
+}
+
 
 static bool testTruncate()
 {
@@ -274,7 +293,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testBytes2String()
+    if ( !testBuilder()
+      || !testBytes2String()
       || !testStringPrecisionInAscII()
       || !testTruncate()
       || !testBufferStringFns()

@@ -17,6 +17,7 @@ ________________________________________________________________________
 class DBKey;
 class DBKeySet;
 class SeparString;
+class StringBuilder;
 namespace Gason { struct JsonNode; }
 
 
@@ -75,6 +76,7 @@ public:
     const SSet&		strings() const		{ return *((SSet*)set_); }
 
     void		dumpJSon(BufferString&) const;
+    void		dumpJSon(StringBuilder&) const;
 
 protected:
 
@@ -137,6 +139,7 @@ public:
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
     void		dumpJSon(BufferString&) const;
+    void		dumpJSon(StringBuilder&) const;
 
     uiRetVal		read(od_istream&);
     static ValueSet*	read(od_istream&,uiRetVal&);

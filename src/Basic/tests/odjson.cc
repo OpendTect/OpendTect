@@ -7,6 +7,7 @@
 
 #include "testprog.h"
 #include "odjson.h"
+#include "stringbuilder.h"
 #include "geometry.h"
 
 using namespace OD::JSON;
@@ -198,8 +199,9 @@ static bool testCreateJSON()
 
 static bool testDumpJSON()
 {
-    BufferString dumpstr;
-    jsontree->dumpJSon( dumpstr );
+    StringBuilder sb;
+    jsontree->dumpJSon( sb );
+    BufferString dumpstr( sb.result() );
 	logStream() << "\ndump:\n\n" << dumpstr << '\n' << od_endl;
 
     BufferString orgstr( jsonstrs[0] );
