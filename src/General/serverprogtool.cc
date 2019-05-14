@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "dbkey.h"
 #include "genc.h"
+#include "keystrs.h"
 #include "moddepmgr.h"
 #include "odjson.h"
 #include "odver.h"
@@ -205,7 +206,13 @@ void ServerProgTool::set( const char* keyw, JSONArray* jarr )
 
 void ServerProgTool::setStatus( bool success )
 {
-    set( "Status", success ? "OK" : "Fail" );
+    set( sKey::Status(), success ? "OK" : "Fail" );
+}
+
+
+void ServerProgTool::setSize( size_type sz )
+{
+    set( sKey::Size(), sz );
 }
 
 

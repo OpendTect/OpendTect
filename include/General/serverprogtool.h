@@ -82,6 +82,7 @@ protected:
     static void		addToUsageStr(BufferString&,const char* flg,
 				   const char* args,bool isextra=false);
     void		setStatus(bool);
+    void		setSize(size_type);
 
     template <class T>
     void		setSingle(const char*,T,JSONObject*);

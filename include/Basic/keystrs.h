@@ -134,6 +134,7 @@ namespace sKey
     inline FixedString SpaceString()	{ return " "; }
     inline FixedString StackOrder()	{ return "Stack order"; }
     inline FixedString Stats()		{ return "Stats"; }
+    inline FixedString Status()		{ return "Status"; }
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
     inline FixedString StratRef()	{ return "Strat Level"; }

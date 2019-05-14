@@ -52,6 +52,7 @@ void WellServerTool::listWells()
 {
     DBKeySet wellids;
     Well::MGR().getAll( wellids, false );
+    setSize( wellids.size() );
     set( sKey::ID(mPlural), wellids );
     BufferStringSet nms;
     for ( auto wellid : wellids )
@@ -66,6 +67,7 @@ void WellServerTool::listLogs( const DBKey& wellid )
     BufferStringSet lognms;
     Well::MGR().getLogNames( wellid, lognms );
     set( sKey::ID(), wellid );
+    setSize( lognms.size() );
     set( sKey::Name(mPlural), lognms );
     respondInfo( true );
 }
@@ -95,6 +97,7 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 
     TypeSet<float> mds, vals, tvds;
     const Well::Track* trck = wd ? &wd->track() : nullptr;
+    setSize( sz );
     for ( auto idx=0; idx<sz; idx++ )
     {
 	const auto md = wl->dahByIdx( idx );

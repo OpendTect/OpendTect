@@ -60,7 +60,10 @@ void DBManServerTool::listSurveys()
     SurveyDiskLocation::listSurveys( dirnms, dataroot );
     set( sKey::DataRoot(), dataroot );
     if ( !dirnms.isEmpty() )
+    {
+	setSize( dirnms.size() );
 	set( sKey::Name(mPlural), dirnms );
+    }
 
     respondInfo( true );
 }
@@ -90,6 +93,7 @@ void DBManServerTool::listObjs( const char* trgrpnm )
 	}
     }
 
+    setSize( ids.size() );
     set( sKey::ID(mPlural), ids );
     set( sKey::Name(mPlural), nms );
     set( sKey::Format(mPlural), trls );
