@@ -149,6 +149,7 @@ namespace sKey
     inline FixedString TimeSort()	{ return "Time Sort"; }
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
+    inline FixedString TODO()		{ return "TODO"; }
     inline FixedString TotalNr()	{ return "Total Nr"; }
     inline FixedString Trace()		{ return "Trace"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
