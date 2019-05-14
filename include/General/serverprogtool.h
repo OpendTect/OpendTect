@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+
 #include "commandlineparser.h"
 #include "genc.h"
 #include "iopar.h"
@@ -17,7 +19,7 @@ ________________________________________________________________________
 class CommandLineParser;
 namespace OD { namespace JSON { class Array; class Object; } }
 
-mExpClass(Basic) ServerProgTool
+mExpClass(General) ServerProgTool
 {
 public:
 
