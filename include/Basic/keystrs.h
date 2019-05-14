@@ -152,7 +152,6 @@ namespace sKey
     inline FixedString Trace()		{ return "Trace"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
-    inline FixedString TVD()		{ return "TVD"; }
     inline FixedString TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
     inline FixedString TVDSS()		{ return "TVDSS"; }
     inline FixedString TWT()		{ return "TWT"; }

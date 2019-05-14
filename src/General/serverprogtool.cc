@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include <iostream>
 
 static const char* sVersionCmd = "version";
-static const char* sUseJSONCmd = "json";
 static const char* sDontUseJSONCmd = "nojson";
 static const char* sErrKey = "ERR";
 
@@ -31,11 +30,9 @@ static od_ostream& strm()
 }
 
 
-ServerProgTool::ServerProgTool( int argc, char** argv,
-				const char* moddep, bool jsonmode )
+ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
     : jsonroot_(*new JSONObject)
-    , jsonisdefault_(jsonmode)
-    , jsonmode_(jsonmode)
+    , jsonmode_(true)
 {
     OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
@@ -47,6 +44,7 @@ ServerProgTool::ServerProgTool( int argc, char** argv,
 void ServerProgTool::initParsing( int protnr )
 {
     protocolnr_ = protnr;
+
     if ( clp().nrArgs() < 1 )
 	exitWithUsage();
     else if ( clp().hasKey( sVersionCmd ) )
@@ -55,9 +53,6 @@ void ServerProgTool::initParsing( int protnr )
 		  << od_endl;
 	exitProgram( true );
     }
-
-    if ( clp().hasKey(sUseJSONCmd) )
-	jsonmode_ = true;
     else if ( clp().hasKey(sDontUseJSONCmd) )
 	jsonmode_ = false;
 
@@ -264,10 +259,7 @@ void ServerProgTool::exitWithUsage()
     addToUsageStr( msg, CommandLineParser::sDataRootArg(), "data_root_dir",
 		    true );
     addToUsageStr( msg, CommandLineParser::sSurveyArg(), "survey_dir", true );
-    BufferString jsonmsg( sUseJSONCmd, "|", sDontUseJSONCmd );
-    jsonmsg.add( " (default=" )
-	    .add( jsonisdefault_ ? sUseJSONCmd : sDontUseJSONCmd ).add( ")" );
-    addToUsageStr( msg, jsonmsg, "", true );
+    addToUsageStr( msg, sDontUseJSONCmd, "", true );
     od_cout() << msg << od_endl;
     exitProgram( false );
 }

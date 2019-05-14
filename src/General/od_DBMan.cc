@@ -46,7 +46,7 @@ protected:
 
 
 DBManServerTool::DBManServerTool( int argc, char** argv )
-    : ServerProgTool(argc,argv,"General",false)
+    : ServerProgTool(argc,argv,"General")
 {
     initParsing( cProtocolNr );
 }
@@ -90,30 +90,11 @@ void DBManServerTool::listObjs( const char* trgrpnm )
 	}
     }
 
-    if ( !jsonmode_ )
-    {
-	set( sKey::Size(), ids.size() );
-	set( sKey::ID(mPlural), ids );
-	set( sKey::Name(mPlural), nms );
-	set( sKey::Format(mPlural), trls );
-	if ( havetype )
-	    set( sKey::Type(mPlural), types );
-    }
-    else
-    {
-	auto* arr = new JSONArray( true );
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    auto* jobj = new JSONObject;
-	    jobj->set( sKey::ID(), ids.get(idx) );
-	    jobj->set( sKey::Name(), nms.get(idx) );
-	    jobj->set( sKey::Format(), trls.get(idx) );
-	    if ( havetype )
-		jobj->set( sKey::Type(), types.get(idx) );
-	    arr->add( jobj );
-	}
-	set( sKey::Data(), arr );
-    }
+    set( sKey::ID(mPlural), ids );
+    set( sKey::Name(mPlural), nms );
+    set( sKey::Format(mPlural), trls );
+    if ( havetype )
+	set( sKey::Type(mPlural), types );
 
     respondInfo( true );
 }

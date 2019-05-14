@@ -67,11 +67,9 @@ public:
 
 protected:
 
-			ServerProgTool(int,char**,const char* moddep,
-					bool jsonmodebydefault=true);
+			ServerProgTool(int,char**,const char* moddep);
     void		initParsing(int protocolnr);
 
-    const bool		jsonisdefault_;
     CommandLineParser*	clp_;
     bool		jsonmode_;
     JSONObject&		jsonroot_;

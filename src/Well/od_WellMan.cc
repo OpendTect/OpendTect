@@ -22,6 +22,7 @@ static const int cProtocolNr = 1;
 static const char* sListWellsCmd	= "list";
 static const char* sListLogsCmd		= "list-logs";
 static const char* sReadLogCmd		= "read-log";
+static const char* sNoTVDCmd		= "no-tvd";
 
 class WellServerTool : public ServerProgTool
 {
@@ -31,7 +32,7 @@ public:
 
     void	    listWells();
     void	    listLogs(const DBKey&);
-    void	    readLog(const DBKey&,const char*);
+    void	    readLog(const DBKey&,const char*,bool notvd);
 
 protected:
 
@@ -52,6 +53,10 @@ void WellServerTool::listWells()
     DBKeySet wellids;
     Well::MGR().getAll( wellids, false );
     set( sKey::ID(mPlural), wellids );
+    BufferStringSet nms;
+    for ( auto wellid : wellids )
+	nms.add( nameOf(*wellid) );
+    set( sKey::Name(mPlural), nms );
     respondInfo( true );
 }
 
@@ -60,19 +65,25 @@ void WellServerTool::listLogs( const DBKey& wellid )
 {
     BufferStringSet lognms;
     Well::MGR().getLogNames( wellid, lognms );
+    set( sKey::ID(), wellid );
     set( sKey::Name(mPlural), lognms );
     respondInfo( true );
 }
 
 
-void WellServerTool::readLog( const DBKey& wellid, const char* lognm )
+void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
+			      bool notvd )
 {
     auto wl = Well::MGR().getLog( wellid, lognm );
     if ( !wl )
 	respondError( "Log not found" );
 
-    Well::LoadReqs loadreqs( Well::Inf, Well::Trck );
-    auto wd = Well::MGR().fetch( wellid );
+    ConstRefMan<Well::Data> wd;
+    if ( !notvd )
+    {
+	Well::LoadReqs loadreqs( Well::Inf, Well::Trck );
+	wd = Well::MGR().fetch( wellid );
+    }
 
     const auto sz = wl->size();
     set( sKey::Well(), nameOf(wellid) );
@@ -106,7 +117,8 @@ BufferString WellServerTool::getSpecificUsage() const
     BufferString ret;
     addToUsageStr( ret, sListWellsCmd, "" );
     addToUsageStr( ret, sListLogsCmd, "well_id" );
-    addToUsageStr( ret, sReadLogCmd, "well_id log_name" );
+    BufferString argstr( "well_id log_name [", sNoTVDCmd, "]" );
+    addToUsageStr( ret, sReadLogCmd, argstr );
     return ret;
 }
 
@@ -132,7 +144,8 @@ int main( int argc, char** argv )
 	clp.getDBKey( sReadLogCmd, wellid );
 	BufferString lognm;
 	clp.getVal( sReadLogCmd, lognm, false, 2 );
-	st.readLog( wellid, lognm );
+	const bool notvd = clp.hasKey( sNoTVDCmd );
+	st.readLog( wellid, lognm, notvd );
     }
 
     pFreeFnErrMsg( "Should not reach" );
