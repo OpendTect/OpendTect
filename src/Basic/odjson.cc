@@ -734,6 +734,11 @@ mDefArrayAddVal( float, vals, NumberType )
 mDefArrayAddVal( double, vals, NumberType )
 mDefArrayAddVal( const char*, strings, const char* )
 
+OD::JSON::Array& OD::JSON::Array::add( const DBKey& dbky )
+{
+    return add( dbky.toString() );
+}
+
 OD::JSON::Array& OD::JSON::Array::add( const uiString& val )
 {
     BufferString bs;
@@ -741,19 +746,42 @@ OD::JSON::Array& OD::JSON::Array::add( const uiString& val )
     return add( bs.str() );
 }
 
+OD::JSON::Array& OD::JSON::Array::add( const OD::String& odstr )
+{
+    return add( odstr.str() );
+}
+
 
 template<class T>
-void OD::JSON::Array::setVals( const TypeSet<T>& vals )
+OD::JSON::Array& OD::JSON::Array::setVals( const TypeSet<T>& vals )
 {
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Number );
     copy( valarr_->vals(), vals );
+    return *this;
 }
 
 
-#define mDefArraySetVals( inptyp ) \
-void OD::JSON::Array::set( const TypeSet<inptyp>& vals ) { setVals(vals); }
+template<class T>
+OD::JSON::Array& OD::JSON::Array::setVals( const T* vals, size_type sz )
+{
+    setEmpty();
+    valtype_ = Data;
+    delete valarr_; valarr_ = new ValArr( Number );
+    valarr_->vals().setSize( sz );
+    OD::memCopy( valarr_->vals().arr(), vals, sz*sizeof(T) );
+    return *this;
+}
+
+
+#define mDefArraySetVals( typ ) \
+    OD::JSON::Array& OD::JSON::Array::set( typ val ) \
+	{ return setVals(&val,1); } \
+    OD::JSON::Array& OD::JSON::Array::set( const TypeSet<typ>& vals ) \
+	{ return setVals(vals); } \
+    OD::JSON::Array& OD::JSON::Array::set( const typ* vals, size_type sz ) \
+	{ return setVals(vals,sz); }
 
 mDefArraySetVals( od_int16 )
 mDefArraySetVals( od_uint16 )
@@ -764,25 +792,72 @@ mDefArraySetVals( float )
 mDefArraySetVals( double )
 
 
-void OD::JSON::Array::set( const BoolTypeSet& vals )
+OD::JSON::Array& OD::JSON::Array::set( const char* val )
+{
+    return set( BufferStringSet(val) );
+}
+
+OD::JSON::Array& OD::JSON::Array::set( const DBKey& dbky )
+{
+    return set( DBKeySet(dbky) );
+}
+
+OD::JSON::Array& OD::JSON::Array::set( const uiString& val )
+{
+    return set( uiStringSet(val) );
+}
+
+OD::JSON::Array& OD::JSON::Array::set( const OD::String& val )
+{
+    return set( val.str() );
+}
+
+OD::JSON::Array& OD::JSON::Array::set( bool val )
+{
+    return set( BoolTypeSet(1,val) );
+}
+
+
+OD::JSON::Array& OD::JSON::Array::set( const BoolTypeSet& vals )
 {
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Boolean );
     valarr_->bools() = vals;
+    return *this;
 }
 
 
-void OD::JSON::Array::set( const BufferStringSet& vals )
+OD::JSON::Array& OD::JSON::Array::set( const bool* vals, size_type sz )
+{
+    setEmpty();
+    valtype_ = Data;
+    delete valarr_; valarr_ = new ValArr( Boolean );
+    for ( auto idx=0; idx<sz; idx++ )
+	valarr_->bools().add( vals[idx] );
+    return *this;
+}
+
+
+OD::JSON::Array& OD::JSON::Array::set( const BufferStringSet& vals )
 {
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( String );
     valarr_->strings() = vals;
+    return *this;
 }
 
 
-void OD::JSON::Array::set( const uiStringSet& vals )
+OD::JSON::Array& OD::JSON::Array::set( const DBKeySet& vals )
+{
+    BufferStringSet bss;
+    vals.addTo( bss );
+    return set( bss );
+}
+
+
+OD::JSON::Array& OD::JSON::Array::set( const uiStringSet& vals )
 {
     BufferStringSet bss;
     for ( auto uistrptr : vals )
@@ -791,7 +866,7 @@ void OD::JSON::Array::set( const uiStringSet& vals )
 	uistrptr->fillUTF8String( bs );
 	bss.add( bs );
     }
-    set( bss );
+    return set( bss );
 }
 
 
@@ -929,6 +1004,13 @@ mDefObjectSetVal( const char* )
 void OD::JSON::Object::set( const char* ky, const DBKey& id )
 {
     setVal( ky, id.getString(false) );
+}
+
+void OD::JSON::Object::set( const char* ky, const uiString& str )
+{
+    BufferString bs;
+    str.fillUTF8String( bs );
+    setVal( ky, bs );
 }
 
 

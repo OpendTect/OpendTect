@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class DBKey;
+class DBKeySet;
 class SeparString;
 namespace Gason { struct JsonNode; }
 
@@ -197,30 +198,36 @@ public:
     Object*		add(Object*);
 
 			// only usable if valType() == Data
-    Array&		add(bool);
-    Array&		add(od_int16);
-    Array&		add(od_uint16);
-    Array&		add(od_int32);
-    Array&		add(od_uint32);
-    Array&		add(od_int64);
-    Array&		add(float);
-    Array&		add(double);
-    Array&		add(const char*);
-    Array&		add( const OD::String& odstr )
-			{ return add( odstr.str() ); }
-    Array&		add(const uiString&);
+#   define		mDeclJSONArraySetFn( typ ) \
+    Array&		set(typ)
 
-			// also, only usable if valType() == Data
-    void		set(const BoolTypeSet&);
-    void		set(const TypeSet<od_int16>&);
-    void		set(const TypeSet<od_uint16>&);
-    void		set(const TypeSet<od_int32>&);
-    void		set(const TypeSet<od_uint32>&);
-    void		set(const TypeSet<od_int64>&);
-    void		set(const TypeSet<float>&);
-    void		set(const TypeSet<double>&);
-    void		set(const BufferStringSet&);
-    void		set(const uiStringSet&);
+#   define		mDeclJSONArrayAddAndSetFn( typ ) \
+    Array&		add(typ); \
+			mDeclJSONArraySetFn(typ)
+
+#   define		mDeclJSONArraySetFns( typ ) \
+			mDeclJSONArrayAddAndSetFn(typ); \
+    Array&		set(const typ*,size_type); \
+    Array&		set(const TypeSet<typ>&)
+
+			mDeclJSONArrayAddAndSetFn(const char*);
+			mDeclJSONArrayAddAndSetFn(const DBKey&);
+			mDeclJSONArrayAddAndSetFn(const uiString&);
+			mDeclJSONArrayAddAndSetFn(const OD::String&);
+			mDeclJSONArrayAddAndSetFn(bool);
+
+			mDeclJSONArraySetFn(const BufferStringSet&);
+			mDeclJSONArraySetFn(const DBKeySet&);
+			mDeclJSONArraySetFn(const uiStringSet&);
+			mDeclJSONArraySetFn(const BoolTypeSet&);
+    Array&		set(const bool*,size_type);
+			mDeclJSONArraySetFns(od_int16);
+			mDeclJSONArraySetFns(od_uint16);
+			mDeclJSONArraySetFns(od_int32);
+			mDeclJSONArraySetFns(od_uint32);
+			mDeclJSONArraySetFns(od_int64);
+			mDeclJSONArraySetFns(float);
+			mDeclJSONArraySetFns(double);
 
 protected:
 
@@ -228,7 +235,9 @@ protected:
     ValArr*		valarr_;
 
     template <class T>
-    void		setVals(const TypeSet<T>&);
+    Array&		setVals(const TypeSet<T>&);
+    template <class T>
+    Array&		setVals(const T*,size_type);
     void		addVS(ValueSet*);
 
     friend class	ValueSet;
@@ -279,6 +288,7 @@ public:
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
     void		set(const char* ky,const DBKey&);
+    void		set(const char* ky,const uiString&);
 
     void		remove(const char*);
 
