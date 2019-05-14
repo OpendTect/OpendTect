@@ -201,10 +201,10 @@ OD::JSON::ValArr::ValArr( const ValArr& oth )
 }
 
 
-void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
+void OD::JSON::ValArr::dumpJSon( BufferString& dumpstr ) const
 {
     const int sz = (size_type)set_->nrItems();
-    bs.add( "[" );
+    BufferString bs( "[" );
     for ( int idx=0; idx<sz; idx++ )
     {
 	switch ( type_ )
@@ -229,6 +229,7 @@ void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 	    bs.add( "," );
     }
     bs.add( "]" );
+    dumpstr.add( bs );
 }
 
 
@@ -554,10 +555,11 @@ uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz )
 }
 
 
-void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
+void OD::JSON::ValueSet::dumpJSon( BufferString& dumpstr ) const
 {
     const bool isarr = isArray();
-    str.add( isarr ? "[" : "{" );
+    BufferString str( isarr ? "[" : "{" );
+
     for ( int idx=0; idx<values_.size(); idx++ )
     {
 	const Value& val = *values_[idx];
@@ -596,6 +598,8 @@ void OD::JSON::ValueSet::dumpJSon( BufferString& str ) const
 	str.add( toadd );
     }
     str.add( isarr ? "]" : "}" );
+
+    dumpstr.add( str );
 }
 
 

@@ -33,6 +33,9 @@ public:
 
     Coord3		pos(PointID) const;
     Coord3		posByIdx(idx_type) const;
+    ZType		tvdByIdx( idx_type idx ) const
+			{ return (ZType)posByIdx(idx).z_; }
+
     Coord3		firstPos() const;
     Coord3		lastPos() const;
     Coord3		getPos(ZType d_ah) const;

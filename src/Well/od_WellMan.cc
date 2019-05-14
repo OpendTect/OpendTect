@@ -7,10 +7,14 @@
 
 #include "serverprogtool.h"
 #include "wellmanager.h"
+#include "welltrack.h"
+#include "welllog.h"
 #include "commandlineparser.h"
 #include "keystrs.h"
 #include "odjson.h"
 #include "prog.h"
+#include "scaler.h"
+#include "unitofmeasure.h"
 
 
 static const int cProtocolNr = 1;
@@ -66,6 +70,32 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm )
     auto wl = Well::MGR().getLog( wellid, lognm );
     if ( !wl )
 	respondError( "Log not found" );
+
+    Well::LoadReqs loadreqs( Well::Inf, Well::Trck );
+    auto wd = Well::MGR().fetch( wellid );
+
+    const auto sz = wl->size();
+    set( sKey::Well(), nameOf(wellid) );
+    set( sKey::Name(), wl->name() );
+    set( sKey::Size(), wl->size() );
+    const auto* uom = wl->unitOfMeasure();
+    set( sKey::Unit(), uom ? uom->symbol() : "" );
+    set( sKey::Scale(), uom ? uom->scaler().scale(1) : double(1) );
+
+    TypeSet<float> mds, vals, tvds;
+    const Well::Track* trck = wd ? &wd->track() : nullptr;
+    for ( auto idx=0; idx<sz; idx++ )
+    {
+	const auto md = wl->dahByIdx( idx );
+	mds += md;
+	vals += wl->valueByIdx( idx );
+	if ( trck )
+	    tvds += trck->valueAt( md );
+    }
+    set( sKey::MD(mPlural), mds );
+    set( sKey::Value(mPlural), vals );
+    if ( trck )
+	set( sKey::TVD(mPlural), tvds );
 
     respondInfo( true );
 }

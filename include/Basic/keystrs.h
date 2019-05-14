@@ -85,7 +85,7 @@ namespace sKey
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line(int n=1)	{ return n<2 ? "Line" : "Lines"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
-    inline FixedString MD()		{ return "MD"; }
+    inline FixedString MD(int n=1)	{ return n<2 ? "MD" : "MDs"; }
     inline FixedString Marker()		{ return "Marker"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString Mode()		{ return "Mode"; }
@@ -153,6 +153,7 @@ namespace sKey
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
     inline FixedString TVD()		{ return "TVD"; }
+    inline FixedString TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
     inline FixedString TVDSS()		{ return "TVDSS"; }
     inline FixedString TWT()		{ return "TWT"; }
     inline FixedString Type(int n=1)	{ return n<2 ? "Type" : "Types"; }
@@ -160,9 +161,9 @@ namespace sKey
     inline FixedString Thickness()	{ return "Thickness"; }
     inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
-    inline FixedString Unit()		{ return "Unit"; }
+    inline FixedString Unit(int n=1)	{ return n<2 ? "Unit" : "Units"; }
     inline FixedString User()		{ return "User"; }
-    inline FixedString Value()		{ return "Value"; }
+    inline FixedString Value(int n=1)	{ return n<2 ? "Value" : "Values"; }
     inline FixedString ValueRange()	{ return "Value Range"; }
     inline FixedString Version()	{ return "Version"; }
     inline FixedString Volume()		{ return "Volume"; }
