@@ -91,44 +91,108 @@ void ServerProgTool::setSingle( const char* keyw, T val, JSONObject* jobj )
 }
 
 
-void ServerProgTool::set( const char* keyw, const char* val, JSONObject* jobj )
-{ setSingle( keyw, val, jobj ); }
-void ServerProgTool::set( const char* keyw, const DBKey& val, JSONObject* jobj )
-{ setSingle( keyw, toString(val), jobj ); }
-void ServerProgTool::set( const char* keyw, int val, JSONObject* jobj )
-{ setSingle( keyw, val, jobj ); }
-void ServerProgTool::set( const char* keyw, float val, JSONObject* jobj )
-{ setSingle( keyw, val, jobj ); }
-void ServerProgTool::set( const char* keyw, double val, JSONObject* jobj )
-{ setSingle( keyw, val, jobj ); }
-
-
-void ServerProgTool::set( const char* keyw, const BufferStringSet& vals,
-			  JSONObject* jobj )
+template <class T>
+void ServerProgTool::setArr( const char* keyw, const T* vals, size_type sz,
+			     JSONObject* jobj )
 {
     if ( !jsonmode_ )
-	iop_.set( keyw, vals );
+    {
+	const TypeSet<T> valset( vals, sz );
+	iop_.set( keyw, valset );
+    }
     else
     {
 	if ( !jobj )
 	    jobj = &jsonroot_;
 
-	auto* arr = new JSONArray( false );
-	arr->set( vals );
-
 	BufferString cleankeyw( keyw ); cleankeyw.clean();
-	jobj->set( cleankeyw, arr );
+	auto* arr = jobj->set( cleankeyw, new JSONArray(false) );
+	arr->set( vals, sz );
     }
 }
 
 
-void ServerProgTool::set( const char* keyw, const DBKeySet& ids,
+template <class T>
+void ServerProgTool::setArr( const char* keyw, const T& valset,
+			     JSONObject* jobj )
+{
+    if ( !jsonmode_ )
+	iop_.set( keyw, valset );
+    else
+    {
+	if ( !jobj )
+	    jobj = &jsonroot_;
+
+	BufferString cleankeyw( keyw ); cleankeyw.clean();
+	auto* arr = jobj->set( cleankeyw, new JSONArray(false) );
+	arr->set( valset );
+    }
+}
+
+
+#define mDefServerProgToolSetSingleFn( typ, arg, val ) \
+    void ServerProgTool::set( const char* keyw, typ arg, JSONObject* jobj ) \
+    { setSingle( keyw, val, jobj ); }
+
+mDefServerProgToolSetSingleFn( const char*, str, str )
+mDefServerProgToolSetSingleFn( const DBKey&, dbky, dbky.toString() )
+mDefServerProgToolSetSingleFn( bool, val, val )
+mDefServerProgToolSetSingleFn( od_int16, val, val )
+mDefServerProgToolSetSingleFn( od_uint16, val, val )
+mDefServerProgToolSetSingleFn( od_int32, val, val )
+mDefServerProgToolSetSingleFn( od_uint32, val, val )
+mDefServerProgToolSetSingleFn( od_int64, val, val )
+mDefServerProgToolSetSingleFn( float, val, val )
+mDefServerProgToolSetSingleFn( double, val, val )
+
+
+
+#define mDefServerProgToolSetSetFn( typ ) \
+    void ServerProgTool::set( const char* keyw, const typ& val, \
+			      JSONObject* jobj ) \
+    { setArr( keyw, val, jobj ); }
+
+#define mDefServerProgToolSetArrFn( typ ) \
+    void ServerProgTool::set( const char* keyw, const typ* val, size_type sz, \
+			      JSONObject* jobj ) \
+    { setArr( keyw, val, sz, jobj ); }
+
+#define mDefServerProgToolSetFns( typ ) \
+    mDefServerProgToolSetSetFn( TypeSet<typ> ) \
+    mDefServerProgToolSetArrFn( typ )
+
+
+mDefServerProgToolSetSetFn( BufferStringSet )
+mDefServerProgToolSetSetFn( DBKeySet )
+mDefServerProgToolSetSetFn( BoolTypeSet )
+mDefServerProgToolSetFns( od_int16 )
+mDefServerProgToolSetFns( od_uint16 )
+mDefServerProgToolSetFns( od_int32 )
+mDefServerProgToolSetFns( od_uint32 )
+mDefServerProgToolSetFns( od_int64 )
+mDefServerProgToolSetFns( float )
+mDefServerProgToolSetFns( double )
+
+
+void ServerProgTool::set( const char* keyw, const bool* vals, size_type sz,
 			  JSONObject* jobj )
 {
-    BufferStringSet vals;
-    for ( auto dbky : ids )
-	vals.add( dbky->toString() );
-    set( keyw, vals, jobj );
+    if ( !jsonmode_ )
+    {
+	BoolTypeSet bset;
+	for ( auto idx=0; idx<sz; idx++ )
+	    bset.add( vals[idx] );
+	iop_.set( keyw, bset );
+    }
+    else
+    {
+	if ( !jobj )
+	    jobj = &jsonroot_;
+
+	BufferString cleankeyw( keyw ); cleankeyw.clean();
+	auto* arr = jobj->set( cleankeyw, new JSONArray(false) );
+	arr->set( vals, sz );
+    }
 }
 
 

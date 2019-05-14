@@ -15,7 +15,7 @@
 
 static const int cProtocolNr = 1;
 
-static const char* sListWellsCmd	= "list-wells";
+static const char* sListWellsCmd	= "list";
 static const char* sListLogsCmd		= "list-logs";
 static const char* sReadLogCmd		= "read-log";
 
@@ -63,7 +63,10 @@ void WellServerTool::listLogs( const DBKey& wellid )
 
 void WellServerTool::readLog( const DBKey& wellid, const char* lognm )
 {
-    set( "TODO", "TODO" );
+    auto wl = Well::MGR().getLog( wellid, lognm );
+    if ( !wl )
+	respondError( "Log not found" );
+
     respondInfo( true );
 }
 

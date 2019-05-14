@@ -23,6 +23,7 @@ public:
 
     typedef OD::JSON::Object		JSONObject;
     typedef OD::JSON::Array		JSONArray;
+    typedef int				size_type;
 
     virtual		~ServerProgTool();
 
@@ -31,15 +32,31 @@ public:
     void		exitWithUsage();
     void		exitProgram(bool success);
 
-    void		set(const char* keyw,const char*,JSONObject* jobj=0);
-    void		set(const char* keyw,const DBKey&,JSONObject* jobj=0);
-    void		set(const char* keyw,int,JSONObject* jobj=0);
-    void		set(const char* keyw,float,JSONObject* jobj=0);
-    void		set(const char* keyw,double,JSONObject* jobj=0);
-    void		set(const char* keyw,const BufferStringSet&,
-			    JSONObject* jobj=0);
-    void		set(const char* keyw,const DBKeySet&,
-			    JSONObject* jobj=0);
+#   define		mDeclServerProgToolSetFn( typ ) \
+    void		set(const char* keyw,typ,JSONObject* jobj=0)
+#   define		mDeclServerProgToolSetArrFn( typ ) \
+    void		set(const char* keyw,const typ*,size_type, \
+			    JSONObject* jobj=0)
+
+#   define		mDeclServerProgToolSetFns( typ ) \
+			mDeclServerProgToolSetFn(typ); \
+			mDeclServerProgToolSetFn(const TypeSet<typ>&); \
+			mDeclServerProgToolSetArrFn(typ)
+
+			mDeclServerProgToolSetFn(const char*);
+			mDeclServerProgToolSetFn(const BufferStringSet&);
+			mDeclServerProgToolSetFn(const DBKey&);
+			mDeclServerProgToolSetFn(const DBKeySet&);
+			mDeclServerProgToolSetFn(bool);
+			mDeclServerProgToolSetFn(const BoolTypeSet&);
+    void		set(const char*,const bool*,size_type,JSONObject* o=0);
+			mDeclServerProgToolSetFns(od_int16);
+			mDeclServerProgToolSetFns(od_uint16);
+			mDeclServerProgToolSetFns(od_int32);
+			mDeclServerProgToolSetFns(od_uint32);
+			mDeclServerProgToolSetFns(od_int64);
+			mDeclServerProgToolSetFns(float);
+			mDeclServerProgToolSetFns(double);
 
 			// only in jsonmode_:
     void		set(const char* keyw,JSONObject*);
@@ -68,5 +85,9 @@ protected:
 
     template <class T>
     void		setSingle(const char*,T,JSONObject*);
+    template <class T>
+    void		setArr(const char*,const T&,JSONObject*);
+    template <class T>
+    void		setArr(const char*,const T*,size_type,JSONObject*);
 
 };
