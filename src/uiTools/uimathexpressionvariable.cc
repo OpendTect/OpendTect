@@ -188,6 +188,7 @@ void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
     {
 	inplbl_->setText(tr("'%1' filled with").arg(varnm_));
 	inpfld_->setCurrentItem( specvars_.dispName(specidx_) );
+	inpChg( nullptr );
 	issens = false;
 	if ( unfld_ && specvars_.hasUnits(specidx_) )
 	    unfld_->setPropType( specvars_.propType(specidx_) );
@@ -265,6 +266,7 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     }
 
     inpfld_->setCurrentItem( varnm );
+    inpChg( nullptr );
     if ( subinpfld_ )
 	subinpfld_->setCurrentItem( subnm );
 }
