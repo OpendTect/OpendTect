@@ -38,7 +38,7 @@ namespace Time
     };
 
 
-    mGlobal(Basic) int getMilliSeconds();          //!< From day start
+    mGlobal(Basic) int getMilliSeconds();		//!< From day start
     mGlobal(Basic) int passedSince(int);
 
 
@@ -58,6 +58,8 @@ namespace Time
 			   const char* fmt=defDateTimeFmt());
 			/*! returns true if the first DateTime string is
 			  earlier than the second */
+    mGlobal(Basic) const char*	getTimeString(od_int64 timeins,int precision);
+			/*! returns time as 1d:2h:35m:15s */
 
 
 } // namespace Time

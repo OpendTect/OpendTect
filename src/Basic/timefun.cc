@@ -146,4 +146,48 @@ bool isEarlier(const char* first, const char* second, const char* fmt )
 #endif
 }
 
+
+const char* getTimeString( od_int64 sec, int precision )
+{
+    if ( precision<1 || precision>4 )
+	precision = 4;
+
+    mDeclStaticString( ret );
+    ret.setEmpty();
+    int usedprec = 0;
+    const int daysec = 86400, hoursec = 3600, minsec = 60;
+    const bool adddays = sec>daysec;
+    if ( adddays )
+    {
+	const int days = sCast(int,sec/daysec);
+	ret.add(days).add("d:");
+	sec = sec%daysec;
+	usedprec++;
+    }
+
+    const bool addhours = (adddays || sec>hoursec) && usedprec<precision;
+    if ( addhours )
+    {
+	const int hours = sCast(int,sec/hoursec);
+	ret.add(hours).add("h:");
+	sec = sec%hoursec;
+	usedprec++;
+    }
+
+    const bool addmin = (addhours || sec>minsec) && usedprec<precision;
+    if ( addmin )
+    {
+	const int mins = sCast(int,sec/minsec);
+	ret.add(mins).add("m:");
+	sec = sec%minsec;
+	usedprec++;
+    }
+
+    const bool addsec = usedprec < precision;
+    if ( addsec )
+	ret.add(sec).add("s");
+
+    return ret;
+}
+
 } // namespace Time

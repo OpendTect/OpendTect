@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 
 #include "fixedstring.h"
+#include "hiddenparam.h"
 #include "keystrs.h"
 #include "settings.h"
 #include "thread.h"
@@ -52,20 +53,21 @@ static uiParent* getParent( uiParent* p )
 {
     uiParent* res = uiMainWin::activeWindow();
     if ( res )
-        return res;
+	return res;
 
     return p;
 }
 
+static HiddenParam<uiTaskRunner,int> prevtime_(0);
 
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog( getParent(prnt),
-                uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
+		uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause().addSpace(2))
 	.canceltext(uiStrings::sAbort()) )
-    , task_( 0 )
-    , thread_(0)
+    , task_(nullptr)
+    , thread_(nullptr)
     , tim_(*new Timer("") )
     , execnm_("")
     , statelock_(true)
@@ -84,21 +86,25 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
 
-    tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
-    postFinalise().notify( mCB( this, uiTaskRunner, onFinalise ) );
+    tim_.tick.notify( mCB(this,uiTaskRunner,timerTick) );
+    postFinalise().notify( mCB(this,uiTaskRunner,onFinalise) );
 
-    statusBar()->addMsgFld( tr("Current activity"), Alignment::Left, 2 );
-    statusBar()->addMsgFld( tr("Counted items"), Alignment::Right, 2 );
+    statusBar()->addMsgFld( tr("Current activity"), Alignment::Left, 1 );
+    statusBar()->addMsgFld( tr("Counted items"), Alignment::Right, 1 );
     statusBar()->addMsgFld( tr("Number done"), Alignment::Left, 1 );
+    statusBar()->addMsgFld( tr("ETA"), Alignment::Right, 1 );
 
+    prevtime_.setParam( this, 0 );
     setForceFinalise( true );
 }
 
 
 uiTaskRunner::~uiTaskRunner()
 {
+    prevtime_.removeParam( this );
+
     if ( thread_ )
-	{ thread_->waitForFinish(); delete thread_; thread_ = 0; }
+	{ thread_->waitForFinish(); deleteAndZeroPtr(thread_); }
     delete &tim_;
 }
 
@@ -113,6 +119,7 @@ bool uiTaskRunner::execute( Task& t )
     task_ = &t; state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
     prevmessage_ = uiStrings::sEmptyString();
+    prevtime_.setParam( this, Time::getMilliSeconds() );
     if ( statusBar() )
 	statusBar()->message( prevmessage_, 0 );
     prevnrdonetext_ = prevmessage_;
@@ -134,7 +141,7 @@ void uiTaskRunner::onFinalise( CallBacker* )
     tim_.start( 100, true );
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
     thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork),
-	BufferString("uiTaskRunner ", name() ).buf() );
+	BufferString("uiTaskRunner ",name()).buf() );
 }
 
 
@@ -157,12 +164,13 @@ void uiTaskRunner::updateFields()
     Threads::Locker lckr( dispinfolock_ );
     const int totalnr = mCast( int, task_->totalNr() );
     const int nrdone = mCast( int, task_->nrDone() );
+    const int newtime = Time::getMilliSeconds();
     const uiString nrdonetext = task_->uiNrDoneText();
 #ifdef __debug__
     if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
     {
-        pErrMsg("Nr Done is not an acceptable name in a UI. "
-                "Make class implement uiNrDoneText");
+	pErrMsg("Nr Done is not an acceptable name in a UI. "
+		"Make class implement uiNrDoneText");
     }
 #endif
     const uiString message = task_->uiMessage();
@@ -186,6 +194,7 @@ void uiTaskRunner::updateFields()
 	prevnrdonetext_ = nrdonetext;
     }
 
+    const int curnrdone = nrdone - prevnrdone_;
     const bool nrdonechg = prevnrdone_ != nrdone;
     if ( nrdonechg )
     {
@@ -216,6 +225,15 @@ void uiTaskRunner::updateFields()
 
 	    prevpercentage_ = percentage;
 	}
+
+	if ( curnrdone > 0 )
+	{
+	    const int tdiff = newtime - prevtime_.getParam(this);
+	    const float curtodo = sCast(float,totalnr-nrdone);
+	    od_int64 etasec = mNINT64(tdiff * (curtodo/curnrdone) / 1000.f);
+	    const BufferString eta = Time::getTimeString( etasec, 2 );
+	    sb.message( toUiString(eta), 3 );
+	}
     }
 
     const bool disppb = totalnr > 0;
@@ -233,6 +251,8 @@ void uiTaskRunner::updateFields()
     }
     proglbl_->display( !disppb );
     progbar_->display( disppb );
+
+    prevtime_.setParam( this, newtime );
 }
 
 

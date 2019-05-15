@@ -183,7 +183,7 @@ void TextStreamProgressMeter::setStarted()
 	    strm_ << '\t' << message_.getFullString() << od_endl;
 	}
 
-        oldtime_ = Time::getMilliSeconds();
+	oldtime_ = Time::getMilliSeconds();
 	finished_ = false;
 	inited_ = true;
     }
@@ -288,22 +288,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
 	const float nrdone = (float) nrdone_ - lastannotatednrdone_;
 	const float todo = (float) totalnr_ - nrdone_;
 	od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
-	BufferString eta;
-	if ( etasec > 3600 )
-	{
-	    const int hours = (int) etasec/3600;
-	    eta.add(hours).add("h:");
-	    etasec = etasec%3600;
-	}
-	if ( etasec > 60 )
-	{
-	    const int mins = (int) etasec/60;
-	    eta.add(mins).add("m:");
-	    etasec = etasec%60;
-	}
-
-	eta.add(etasec).add("s");
-
+	const BufferString eta = Time::getTimeString( etasec, 2 );
 	strm_ << " (" << eta << ")";
     }
     strm_ << od_endl;
