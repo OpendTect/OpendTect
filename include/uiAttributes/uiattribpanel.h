@@ -29,7 +29,7 @@ mExpClass(uiAttributes) uiAttribPanel
 { mODTextTranslationClass(uiAttribPanel)
 public:
 			uiAttribPanel(uiParent*);
-			~uiAttribPanel();
+    virtual		~uiAttribPanel();
 
     void		compAndDispAttrib(Attrib::DescSet*,
 					  const Attrib::DescID&,
