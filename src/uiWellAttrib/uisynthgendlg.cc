@@ -45,6 +45,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Synthetics"),
 			 uiListBox::AboveMid );
     synthnmlb_ = new uiListBox( syntlistgrp, su );
+    synthnmlb_->setHSzPol( uiObject::SmallVar );
     synthnmlb_->selectionChanged.notify(
 	    mCB(this,uiSynthGenDlg,changeSyntheticsCB) );
     uiPushButton* rembut =
@@ -353,11 +354,11 @@ bool uiSynthGenDlg::getFromScreen()
 	SynthGenParams::SynthType synthtype = genparams.synthtype_;
 	if ( psselfld_->box()->isEmpty() )
 	    mErrRet( tr("Cannot generate an angle stack synthetics without any "
-		        "NMO corrected Prestack."), return false );
+			"NMO corrected Prestack."), return false );
 
 	if ( !psselfld_->box()->sensitive() )
 	    mErrRet( tr("Cannot change synthetic data as the dependent prestack"
-		        " synthetic data has already been removed"),
+			" synthetic data has already been removed"),
 			return false );
 
 	SyntheticData* inppssd = stratsynth_.getSynthetic(
