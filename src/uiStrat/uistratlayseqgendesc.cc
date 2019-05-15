@@ -180,7 +180,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , zinft_(SI().depthsInFeet())
 {
     setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAsNeeded );
-    border_.setTop( border_.top() + 25 );
+    border_.setTop( border_.top() + 10 );
     border_.setRight( border_.right() + 10 );
     setPrefWidth( 180 );
     setPrefHeight( 500 );
@@ -196,9 +196,11 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 
     const uiString lbltxt =
 	tr("top %1").arg(SI().getUiXYUnitString(true,true));
-    topdepthfld_ = new uiGenInput( parent(), lbltxt, FloatInpSpec(0) );
+    topdepthfld_ = new uiGenInput( p, lbltxt, FloatInpSpec(0) );
     topdepthfld_->setElemSzPol( uiObject::Small );
     topdepthfld_->attach( rightBorder );
+
+    this->attach( ensureBelow, topdepthfld_ );
 }
 
 
@@ -270,7 +272,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     else
     {
-	delete emptyitm_; emptyitm_ = 0;
+	deleteAndZeroPtr( emptyitm_ );
 	doDraw();
     }
 }
@@ -590,7 +592,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     prelbl_ = new uiLabel( this, toUiString(pr.name()), typfld_ );
     valfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec() );
     rgfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec(),
-                             FloatInpSpec() );
+			     FloatInpSpec() );
     uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );
 
@@ -709,7 +711,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun ? tr("Edit layer") : tr("Create layer"),
 				 tr("Define layer generation"),
-                                 mODHelpKey(mSingleLayerGeneratorEdHelpID) ))
+				 mODHelpKey(mSingleLayerGeneratorEdHelpID) ))
     , inpun_(inpun)
     , rt_(rt)
     , anychg_(true) //TODO really keep track of changes
