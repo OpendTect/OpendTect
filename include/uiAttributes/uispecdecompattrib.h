@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uiattribpanel.h"
 #include "iopar.h"
 
-namespace Attrib { class Desc; };
+namespace Attrib { class Desc; }
 
 class uiGenInput;
 class uiImagAttrSel;
@@ -30,10 +30,11 @@ class uiTrcPositionDlg;
 /*! \brief Spectral Decomposition Attribute description editor */
 
 mExpClass(uiAttributes) uiSpecDecompAttrib : public uiAttrDescEd
-{ mODTextTranslationClass(uiSpecDecompAttrib);
+{ mODTextTranslationClass(uiSpecDecompAttrib)
 public:
 
 			uiSpecDecompAttrib(uiParent*,bool);
+			~uiSpecDecompAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const;
     int			getOutputIdx(float) const;
@@ -42,7 +43,7 @@ protected:
 
     uiImagAttrSel*	inpfld_;
     uiGenInput*		typefld_;
-    uiGenInput*         gatefld_;
+    uiGenInput*		gatefld_;
     uiLabeledSpinBox*	outpfld_;
     uiLabeledSpinBox*	stepfld_;
     uiGenInput*		waveletfld_;
@@ -64,14 +65,14 @@ protected:
     void		getInputMID(MultiID&) const;
     Attrib::DescID	createSpecDecompDesc(Attrib::DescSet*) const;
     void		createHilbertDesc(Attrib::DescSet*,
-	    				  Attrib::DescID&) const;
+					  Attrib::DescID&) const;
     Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
-	    			      const char*,int,int,BufferString) const;
+				      const char*,int,int,BufferString) const;
     Attrib::Desc*	createNewDescFromDP(Attrib::DescSet*,const char* atrnm,
 					    const char* userefstr) const;
     void		fillInSDDescParams(Attrib::Desc*) const;
     bool		passStdCheck(const Attrib::Desc*,const char*,
-	    			     int seloutidx,int inpidx,
+				     int seloutidx,int inpidx,
 				     Attrib::DescID inpid) const;
     void		viewPanalCB(CallBacker*);
     void		setPrevSel();
@@ -89,20 +90,20 @@ protected:
     uiTrcPositionDlg*	positiondlg_;
     IOPar		prevpar_;
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 
 mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
-{ mODTextTranslationClass(uiSpecDecompPanel);
+{ mODTextTranslationClass(uiSpecDecompPanel)
 public:
-    				uiSpecDecompPanel( uiParent* p )
-				    : uiAttribPanel( p )		{};
+				uiSpecDecompPanel( uiParent* p )
+				    : uiAttribPanel( p )		{}
 
 protected:
-    virtual const char*         getProcName();
-    virtual const char*         getPackName();
-    virtual const char*         getPanelName();
+    virtual const char*		getProcName();
+    virtual const char*		getPackName();
+    virtual const char*		getPanelName();
 
 };
 

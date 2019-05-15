@@ -21,20 +21,21 @@ class FlatDataPack;
 class uiFlatViewMainWin;
 
 namespace Attrib { class EngineMan; class DescSet;
-    		   class Data2DHolder; class Processor; }
+		   class Data2DHolder; class Processor; }
 
 /*! \brief Attribute preview in a 2d viewer */
 
-mExpClass(uiAttributes) uiAttribPanel 
-{ mODTextTranslationClass(uiAttribPanel);
+mExpClass(uiAttributes) uiAttribPanel
+{ mODTextTranslationClass(uiAttribPanel)
 public:
-    			uiAttribPanel(uiParent*);
-    			~uiAttribPanel();
-    void                compAndDispAttrib(Attrib::DescSet*,
-	    				  const Attrib::DescID&,
+			uiAttribPanel(uiParent*);
+			~uiAttribPanel();
+
+    void		compAndDispAttrib(Attrib::DescSet*,
+					  const Attrib::DescID&,
 					  const TrcKeyZSampling&,
 					  const Pos::GeomID&);
-    			//<! descset becomes mine!
+			//<! descset becomes mine!
 
 protected:
 
@@ -43,7 +44,7 @@ protected:
     virtual void	createAndDisplay2DViewer(FlatDataPack*);
     FlatDataPack*	createFDPack(const Attrib::Data2DHolder&) const;
     FlatDataPack*	createFDPack(Attrib::EngineMan*,
-	    			     Attrib::Processor*) const;
+				     Attrib::Processor*) const;
 
     virtual const char*		getProcName()	{ return "Computing attribute";}
     virtual const char*		getPackName()	{ return "Attribute pack"; }
@@ -53,7 +54,7 @@ protected:
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
-    Attrib::DescSet*    	dset_;
+    Attrib::DescSet*		dset_;
     uiParent*			parent_;
 };
 
