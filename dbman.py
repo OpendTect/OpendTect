@@ -14,17 +14,18 @@ def getDBList(translnm,args=None):
   retstr = ret.decode('utf-8')
   if isWin():
     retstr = retstr.translate(str.maketrans({"\\": r"\\"}))
-  db = json.loads( retstr )
-  if db['Status'] != 'OK':
-    log_msg( db['Status'] )
+  ret = json.loads( retstr )
+  if ret['Status'] != 'OK':
+    log_msg( ret['Status'] )
     raise FileNotFoundError
-  return db['Data']
+  return ret
 
-def getByName( dblist, retname ):
-  for entry in dblist:
-    if entry['Name'] == retname:
-      return entry
-  return None
+def getByName( dblist, retname, keystr ):
+  curentryidx = dblist['Names'].index( retname )
+  return dblist[keystr][curentryidx]
+
+def getDBKeyForName( dblist, retname ):
+  return getByName( dblist, retname, 'IDs' )
 
 def retFileLoc( bstdout ):
   if bstdout == None:
@@ -38,11 +39,11 @@ def retFileLoc( bstdout ):
     raise FileNotFoundError
   return fileloc['File_name']
 
-def getFileLocation( dbentry, args=None ):
+def getFileLocation( dbkey, args=None ):
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--json' )
   cmd.append( '--info' )
-  cmd.append( dbentry['ID'] )
+  cmd.append( dbkey )
   return retFileLoc( execCommand(cmd) )
 
 def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
