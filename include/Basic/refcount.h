@@ -29,14 +29,14 @@ ________________________________________________________________________
    unRef() is called it is decremented. If it then reaches 0, the object is
    deleted.
 
-\section example Example usage       
+\section example Example usage
   A refcount class is set up by:
   \code
   class A
   {
      mRefCountImpl(A);
      public:
-        //Your class stuff
+	//Your class stuff
   };
   \endcode
 
@@ -58,7 +58,7 @@ ________________________________________________________________________
     virtual void		A::unRefNoDeleteNotify() const {}
     mutable ReferenceCounter	A::refcount_;
   protected:
-    				A::~A();
+				A::~A();
   \endcode
 
   The macro will define a protected destructor, so you have to implement one
@@ -72,7 +72,7 @@ ________________________________________________________________________
   {
       mRefCountImplNoDestructor(A);
   public:
-          //Your class stuff
+	  //Your class stuff
   };
   \endcode
 
@@ -80,7 +80,7 @@ ________________________________________________________________________
   The unRefNoDelete() is only used when you want to bring the class back to the
   original state of refcount==0. Such an example may be a static create
   function:
-  
+
   \code
   A* createA()
   {
@@ -92,7 +92,7 @@ ________________________________________________________________________
   }
   \endcode
 
-\section sets ObjectSet with reference counted objects  
+\section sets ObjectSet with reference counted objects
   ObjectSets with ref-counted objects can be modified by either:
   \code
   ObjectSet<RefCountClass> set:
@@ -138,13 +138,13 @@ public: \
 		{ \
 		    unRefNotify(); \
 		    if ( refcount_.unRef() ) \
-		    	delfunc; \
+			delfunc; \
 		    return; \
 		} \
  \
     void	unRefNoDelete() const \
 		{ \
-    		    unRefNoDeleteNotify(); \
+		    unRefNoDeleteNotify(); \
 		    refcount_.unRefDontInvalidate(); \
 		} \
     int		nrRefs() const { return refcount_.count(); } \
@@ -154,20 +154,20 @@ private: \
     virtual void		unRefNoDeleteNotify() const {} \
     mutable ReferenceCounter	refcount_;	\
 protected: \
-    		DestructorImpl; \
+		DestructorImpl; \
 private:
 
 //!\endcond
 
 //!Macro to setup a class with destructor for reference counting
 #define mRefCountImpl(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; )
 
 //!Macro to setup a class without destructor for reference counting
 #define mRefCountImplNoDestructor(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; )
 
-//!Un-reference class pointer, and set it to zero. Works for null-pointers. 
+//!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline
 void unRefAndZeroPtr( T*& ptr )
 {
@@ -219,16 +219,16 @@ public:
     inline bool		unRef();
 			/*!<Unref to zero will set it to an deleted state,
 			 and return true. */
-    
+
     inline void		unRefDontInvalidate();
 			//!<Will allow it to go to zero
-    
+
     od_int32		count() const { return count_.get(); }
     inline bool		refIfReffed();
-    			//!<Don't use in production, for debugging
-    
+			//!<Don't use in production, for debugging
+
 private:
-    
+
     Threads::Atomic<od_int32>	count_;
 };
 
@@ -259,7 +259,7 @@ inline void ReferenceCounter::ref()
 	{
 	    newcount = oldcount+1;
 	}
-	
+
     } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
 }
 
@@ -284,9 +284,9 @@ inline bool ReferenceCounter::unRef()
 	    newcount = mInvalidRefCount;
 	else
 	    newcount = oldcount-1;
-	
+
     } while ( !count_.setIfValueIs(oldcount,newcount, &oldcount ) );
-    
+
     return newcount==mInvalidRefCount;
 }
 
@@ -308,11 +308,11 @@ inline bool ReferenceCounter::refIfReffed()
 	}
 	else if ( !oldcount )
 	    return false;
-	
+
 	newcount = oldcount+1;
-	
+
     } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
-    
+
     return true;
 }
 
@@ -335,7 +335,7 @@ inline void ReferenceCounter::unRefDontInvalidate()
 	}
 	else
 	    newcount = oldcount-1;
-	
+
     } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
 }
 

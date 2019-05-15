@@ -30,12 +30,12 @@ ________________________________________________________________________
 
 template <class T>
 void deleteAndZeroPtr( T*& ptr, bool isowner=true )
-{ if ( isowner ) delete ptr; ptr = 0; }
+{ if ( isowner ) delete ptr; ptr = nullptr; }
 
 
 template <class T>
 void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
-{ if ( isowner ) delete [] ptr; ptr = 0; }
+{ if ( isowner ) delete [] ptr; ptr = nullptr; }
 
 template <class T> T* createSingleObject() { return new T; }
 template <class T> T* createObjectArray(od_int64 sz) { return new T[sz]; }
@@ -59,7 +59,7 @@ public:
 
     typedef T* 		(*PointerCreator)();
     inline T*		createIfNull(PointerCreator=createSingleObject<T>);
-    			/*!<If null, PointerCrator will be called to
+			/*!<If null, PointerCrator will be called to
 			    create new object.  */
 protected:
 

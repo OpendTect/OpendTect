@@ -35,7 +35,7 @@ If you don't want to use the help system, simply pass null ('0').
 
 
 #define mNoDlgTitle	uiString::emptyString()
-#define mTODOHelpKey	HelpKey( 0, ::toString(-1) )
+#define mTODOHelpKey	HelpKey( nullptr, ::toString(-1) )
 #define mNoHelpKey	HelpKey::emptyHelpKey()
 
 
@@ -93,8 +93,8 @@ public:
 			Setup( const char* window_title,
 			       const char* dialog_title,
 			       int help_id )
-                            : helpkey_(mNoHelpKey)
-                        {}
+			    : helpkey_(mNoHelpKey)
+			{}
 			//!< Makes sure you cannot use '0' for help ID.
 			//!< Use mTODOHelpKey or mNoHelpKey instead
 

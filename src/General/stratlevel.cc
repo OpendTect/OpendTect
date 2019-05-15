@@ -29,10 +29,10 @@ namespace Strat
 
 const Level& Level::undef()
 {
-    mDefineStaticLocalObject( PtrMan<Level>, lvl, = 0 );
+    mDefineStaticLocalObject( PtrMan<Level>, lvl, = nullptr );
     if ( !lvl )
     {
-	Level* newlvl = new Level( "Undefined", 0 );
+	Level* newlvl = new Level( "Undefined", nullptr );
 	newlvl->id_ = -1;
 	newlvl->color_ = Color::Black();
 
@@ -65,7 +65,7 @@ void doNull( CallBacker* )
 void createSet()
 {
     Repos::FileProvider rfp( "StratLevels", true );
-    LevelSet* ls = 0;
+    LevelSet* ls = nullptr;
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );
@@ -175,7 +175,7 @@ const char* Level::checkName( const char* nm ) const
 	return "Level names may not be empty";
     if ( lvlset_ && lvlset_->isPresent(nm) )
 	return "Name already in use";
-    return 0;
+    return nullptr;
 }
 
 
@@ -316,7 +316,7 @@ void LevelSet::getNames( BufferStringSet& nms ) const
 
 Level* LevelSet::getNew( const Level* lvl ) const
 {
-    Level* newlvl = 0;
+    Level* newlvl = nullptr;
     const char* newnmbase = lvl ? lvl->name().buf() : "New";
     BufferString newnm( "<", newnmbase, ">" ); int itry = 1;
     while ( isPresent(newnm.buf()) )
@@ -378,7 +378,7 @@ void LevelSet::addLvl( Level* lvl )
 Level* LevelSet::set( const char* nm, const Color& col, int idx )
 {
     int curidx = indexOf( nm );
-    Level* lvl = 0;
+    Level* lvl = nullptr;
     if ( curidx >= 0 )
     {
 	lvl = lvls_[curidx];
@@ -471,7 +471,10 @@ bool LevelSet::readFrom( const char* fnm )
 
     ascistream astrm( sfio.istrm(), true );
     if ( astrm.type() == ascistream::EndOfFile )
-	{ sfio.closeFail(); return false; }
+    {
+	sfio.closeFail();
+	return false;
+    }
 
     setEmpty();
     readPars( astrm, false );
@@ -580,14 +583,18 @@ LevelSet* LevelSet::createStd( const char* nm )
 LevelSet* LevelSet::read( const MultiID& key )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
 
     FilePath fp( ioobj->fullUserExpr() );
     fp.setExtension( sLevelExt );
 
     LevelSet* ret = new LevelSet;
     if ( !ret->readFrom(fp.fullPath()) )
-    { delete ret; ret = 0; }
+    {
+	delete ret;
+	ret = nullptr;
+    }
 
     return ret;
 }
@@ -596,7 +603,8 @@ LevelSet* LevelSet::read( const MultiID& key )
 bool LevelSet::write( const LevelSet& ls, const MultiID& key )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return false;
 
     FilePath fp( ioobj->fullUserExpr() );
     fp.setExtension( sLevelExt );
