@@ -131,8 +131,8 @@ endif
 #
 
 # Remove relicts of previous attempts: links
-if ( -e "${instdir}"/start_dtect ) rm "${instdir}"/start_dtect
-if ( -e "${instdir}"/exec_prog ) rm "${instdir}"/exec_prog
+if ( -l "${instdir}"/start_dtect ) rm "${instdir}"/start_dtect
+if ( -l "${instdir}"/exec_prog ) rm "${instdir}"/exec_prog
 
 foreach fil ( init_dtect start_dtect init_dtect_user exec_prog )
     sed -e "s/__INST_DIR__/$replaceinstdir/" \
