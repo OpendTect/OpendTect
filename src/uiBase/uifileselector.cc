@@ -77,7 +77,7 @@ BufferString uiFileSelTool::joinSelection( const BufferStringSet& bss )
     SeparString sepstr( 0, filesep_[0] );
     for ( int idx=0; idx<bss.size(); idx++ )
 	sepstr.add( bss.get(idx) );
-    return sepstr.rep();
+    return BufferString( sepstr.str() );
 }
 
 

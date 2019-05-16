@@ -501,7 +501,7 @@ bool uiODPreStart::acceptOK()
 
     Settings::common().removeWithKey( sOldKeyDoAtStartup );
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
-    Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
+    Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist );
     Settings::common().write();
 
     return true;

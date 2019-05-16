@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "bufstring.h"
+#include "stringbuilder.h"
 #include "fixedstring.h"
 #include "convert.h"
 
@@ -91,15 +91,14 @@ public:
     inline		operator const char*() const
 						{ return buf(); }
 
-    inline char*	getCStr()		{ return rep_.getCStr(); }
+    inline char*	getCStr()		{ return rep_.getCStr(256); }
 							//!< Output escaped
-    inline const char*	buf() const		{ return rep_.buf(); }
+    inline const char*	str() const		{ return rep_.result(); }
 							//!< Output escaped
-    inline const char*	str() const		{ return rep_.str(); }
+    inline const char*	buf() const
+    { const char* ret = str(); if ( !ret ) ret = ""; return ret; }
 							//!< Output escaped
-    BufferString&	rep()			{ return rep_; }
-							//!< Output escaped
-    const OD::String&	rep() const		{ return rep_; }
+    StringBuilder&	rep()			{ return rep_; }
 							//!< Output escaped
 
     inline const char*	unescapedStr() const	{ return getUnescaped(buf()); }
@@ -113,7 +112,7 @@ public:
 private:
 
     char		sep_[2];
-    BufferString	rep_;
+    StringBuilder	rep_;
 
     void		initRep(const char*);
     inline void		initSep( char s )	{ sep_[0] = s; sep_[1] = '\0'; }

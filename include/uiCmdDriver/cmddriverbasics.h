@@ -93,10 +93,6 @@ public:
 			    : constptr_(bs.buf()), bufstr_(&bs)
 			{}
 
-			StringProcessor(SeparString& ss)
-			    : constptr_(ss.buf()), bufstr_(&ss.rep())
-			{}
-
 			StringProcessor(const char* str)
 			    : constptr_(str), bufstr_(0)
 			{}
@@ -163,6 +159,7 @@ protected:
 
     const char*		constptr_;
     BufferString*	bufstr_;
+
 };
 
 

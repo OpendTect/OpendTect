@@ -25,7 +25,7 @@ SeparString& SeparString::operator =( const SeparString& ss )
 
 SeparString& SeparString::operator =( const char* s )
 {
-    if ( s != rep_.buf() )
+    if ( s != rep_.result() )
 	initRep( s );
 
     return *this;
@@ -95,7 +95,7 @@ const char* SeparString::findSeparator( const char* startptr ) const
 	return 0;
 
     const char* ptr = firstOcc( startptr, sep_[0] );
-    if ( ptr && isEscapedChar(rep_.buf(), ptr)  )
+    if ( ptr && isEscapedChar(rep_.result(), ptr)  )
 	return findSeparator( ptr+1 );
 
     return ptr;
@@ -139,7 +139,7 @@ void SeparString::initRep( const char* string )
 
 int SeparString::size() const
 {
-    const char* ptr = rep_.buf();
+    const char* ptr = rep_.result();
     if ( !*ptr )
 	return 0;
 
@@ -160,7 +160,7 @@ FixedString SeparString::operator[]( int elemnr ) const
     if ( elemnr < 0 )
 	return OD::EmptyString();
 
-    const char* startptr = rep_.buf();
+    const char* startptr = rep_.result();
     while ( *startptr )
     {
 	const char* nextsep = findSeparator( startptr );
@@ -181,7 +181,7 @@ FixedString SeparString::operator[]( int elemnr ) const
 
 FixedString SeparString::from( int idx ) const
 {
-    const char* ptr = rep_.buf();
+    const char* ptr = rep_.result();
     for ( ; idx!=0; idx-- )
     {
 	ptr = findSeparator( ptr );
@@ -209,9 +209,11 @@ SeparString& SeparString::add( const SeparString& ss )
 
 SeparString& SeparString::add( const char* string )
 {
-    if ( *rep_.buf() ) rep_ += sep_;
-    if ( !string || !*string ) string = " ";
-    rep_ += getEscaped( string , sep_[0] );
+    if ( *rep_.result() )
+	rep_.add( sep_ );
+    if ( !string || !*string )
+	string = " ";
+    rep_.add( getEscaped(string ,sep_[0]) );
     return *this;
 }
 
@@ -242,7 +244,7 @@ int SeparString::indexOf( const char* string ) const
 {
     if ( !string ) return -1;
 
-    const char* startptr = rep_.buf();
+    const char* startptr = rep_.result();
     int elemnr = 0;
     while ( *startptr )
     {

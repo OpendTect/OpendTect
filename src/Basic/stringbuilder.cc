@@ -80,18 +80,33 @@ StringBuilder& StringBuilder::add( char ch, size_type nr )
 }
 
 
+bool StringBuilder::setBufSz( size_type newsz, bool cp_old )
+{
+    char* newbuf;
+    mTryAlloc( newbuf, char [newsz] );
+    if ( !newbuf )
+	return false;
+
+    if ( buf_ )
+    {
+	if ( cp_old )
+	    OD::memCopy( newbuf, buf_, curpos_ );
+	delete [] buf_;
+    }
+
+    buf_ = newbuf;
+    bufsz_ = newsz;
+    return true;
+}
+
+
 StringBuilder& StringBuilder::add( const char* str )
 {
     if ( !str || !*str )
 	return *this;
 
-    if ( !buf_ )
-    {
-	mTryAlloc( buf_, char [256] );
-	if ( !buf_ )
-	    return *this;
-	bufsz_ = 256;
-    }
+    if ( !buf_ && !setBufSz(256,false) )
+	return *this;
 
     char* myptr = buf_ + curpos_;
     while ( *str )
@@ -100,16 +115,8 @@ StringBuilder& StringBuilder::add( const char* str )
 	curpos_++;
 	if ( curpos_ >= bufsz_ )
 	{
-	    char* newbuf;
-	    const auto newbufsz = bufsz_ * 2;
-	    mTryAlloc( newbuf, char [newbufsz] );
-	    if ( !newbuf )
+	    if ( !setBufSz(bufsz_*2,true) )
 		return *this;
-	    char* oldbuf = buf_;
-	    buf_ = newbuf;
-	    bufsz_ = newbufsz;
-	    OD::memCopy( buf_, oldbuf, curpos_ );
-	    delete oldbuf;
 	    myptr = buf_ + curpos_;
 	}
     }
@@ -127,4 +134,14 @@ StringBuilder& StringBuilder::add( const mQtclass(QString)& qstr )
     const QByteArray qba = qstr.toUtf8();
     return add( qba.constData() );
 #endif
+}
+
+
+char* StringBuilder::getCStr( int minlen )
+{
+    if ( bufsz_ < minlen )
+	setBufSz( minlen, true );
+    if ( !buf_ )
+	setBufSz( 256, false );
+    return buf_;
 }

@@ -29,9 +29,11 @@ public:
     virtual		~StringBuilder()	    { delete [] buf_; }
 
     StringBuilder&	operator=(const StringBuilder&);
-    StringBuilder&	operator=(const char*);
+    StringBuilder&	operator=( const char* s )  { return set( s ); }
 
-    const char*		result() const		    { return buf_; }
+    const char*		str() const		    { return buf_; }
+    const char*		result() const		    { return buf_ ? buf_ : ""; }
+    char*		getCStr(size_type minlen=-1);
 
     bool		operator==(const StringBuilder&) const;
     bool		operator!=(const StringBuilder&) const;
@@ -57,5 +59,7 @@ protected:
     char*		buf_		= nullptr;
     size_type		bufsz_		= 0;
     size_type		curpos_		= 0;
+
+    bool		setBufSz(size_type,bool cp_old);
 
 };
