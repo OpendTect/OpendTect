@@ -1422,12 +1422,9 @@ void IOPar::dumpPretty( od_ostream& strm ) const
 
 void IOPar::dumpPretty( BufferString& res ) const
 {
+    StringBuilder sb;
     if ( !name().isEmpty() )
-    {
-	res += "> ";
-	res += name();
-	res += " <\n";
-    }
+	sb.add( "> " ).add( name() ).add( " <\n" );
 
     unsigned int maxkeylen = 0;
     bool haveval = false;
@@ -1450,16 +1447,12 @@ void IOPar::dumpPretty( BufferString& res ) const
 	const BufferString& ky = keys_.get( idx );
 	if ( ky == sKeyHdr() )
 	{
-	    res += "\n\n* ";
-	    res += vals_.get(idx);
-	    res += " *\n\n";
+	    sb.add( "\n\n* " ).add( vals_.get(idx) ).add( " *\n\n" );
 	    continue;
 	}
 	else if ( ky == sKeySubHdr() )
 	{
-	    res += "\n  - ";
-	    res += vals_.get(idx);
-	    res += "\n\n";
+	    sb.add( "\n  - " ).add( vals_.get(idx) ).add( "\n\n" );
 	    continue;
 	}
 
@@ -1468,8 +1461,8 @@ void IOPar::dumpPretty( BufferString& res ) const
 	for ( int ispc=0; ispc<extra; ispc++ )
 	    keyprint[ispc] = ' ';
 	keyprint += ky;
-	res += keyprint;
-	res += (haveval ? " : " : "");
+	sb.add( keyprint );
+	sb.add( (haveval ? " : " : "") );
 
 	BufferString valstr( vals_.get(idx) );
 	char* startptr = valstr.getCStr();
@@ -1478,18 +1471,20 @@ void IOPar::dumpPretty( BufferString& res ) const
 	    char* nlptr = firstOcc( startptr, '\n' );
 	    if ( nlptr )
 		*nlptr = '\0';
-	    res += startptr;
+	    sb.add( startptr );
 	    if ( !nlptr ) break;
 
 	    startptr = nlptr + 1;
 	    if ( *startptr )
 	    {
-		res += "\n";
-		res += valposstr;
+		sb.add( "\n" );
+		sb.add( valposstr );
 	    }
 	}
-	res += "\n";
+	sb.add( "\n" );
     }
+
+    res = sb.result();
 }
 
 
