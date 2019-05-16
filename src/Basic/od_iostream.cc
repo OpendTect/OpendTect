@@ -400,6 +400,13 @@ std::ostream& od_ostream::stdStream()
 }
 
 
+od_istream& od_cin()
+{
+    static od_istream ret( std::cin );
+    return ret;
+}
+
+
 bool od_istream::open( const char* fnm )
 {
     sd_ = File::SystemAccess::get( fnm ).createIStream( fnm );

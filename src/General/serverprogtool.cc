@@ -25,12 +25,6 @@ static const char* sDontUseJSONCmd = "nojson";
 static const char* sErrKey = "ERR";
 
 
-static od_ostream& strm()
-{
-    return od_ostream::logStream();
-}
-
-
 ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
     : jsonroot_(*new JSONObject)
     , jsonmode_(true)
@@ -68,6 +62,30 @@ void ServerProgTool::initParsing( int protnr )
 ServerProgTool::~ServerProgTool()
 {
     exitProgram( true );
+}
+
+
+od_istream& ServerProgTool::inStream()
+{
+    return od_cin();
+}
+
+
+od_ostream& ServerProgTool::outStream()
+{
+    return od_cout();
+}
+
+
+BufferString ServerProgTool::getKeyedArgStr( const char* ky,
+					     bool mandatory ) const
+{
+    clp().setKeyHasValue( ky, 1 );
+    BufferString res;
+    if ( !clp().getVal(ky,res) && mandatory )
+	mSelf().respondError(
+		    BufferString("Please provide a value after '",ky,"'") );
+    return res;
 }
 
 
@@ -220,13 +238,10 @@ void ServerProgTool::respondInfo( bool success, bool exit )
 {
     setStatus( success );
     if ( jsonmode_ )
-    {
-	od_ostream strm( std::cout );
-	jsonroot_.write( strm );
-    }
+	jsonroot_.write( outStream() );
     else
     {
-	ascostream ascstrm( strm() );
+	ascostream ascstrm( outStream() );
 	iop_.putTo( ascstrm );
     }
 
@@ -267,7 +282,7 @@ void ServerProgTool::exitWithUsage()
 		    true );
     addToUsageStr( msg, CommandLineParser::sSurveyArg(), "survey_dir", true );
     addToUsageStr( msg, sDontUseJSONCmd, "", true );
-    od_cout() << msg << od_endl;
+    outStream() << msg << od_endl;
     exitProgram( false );
 }
 

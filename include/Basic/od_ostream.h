@@ -91,8 +91,8 @@ public:
 };
 
 
-//!< common access to the user log file, or std::cout in batch progs
-inline mGlobal(Basic) od_ostream& od_cout()
+//!< common access to the user log file, or std::cout in other than od_main
+inline od_ostream& od_cout()
 {
     return od_ostream::logStream();
 }

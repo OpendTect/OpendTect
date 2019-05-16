@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "iopar.h"
 #include "odruncontext.h"
+#include "od_iosfwd.h"
 class CommandLineParser;
 namespace OD { namespace JSON { class Array; class Object; } }
 
@@ -28,8 +29,6 @@ public:
     typedef int				size_type;
 
     virtual		~ServerProgTool();
-
-    CommandLineParser&	clp()		    { return *clp_; }
 
     void		exitWithUsage();
     void		exitProgram(bool success);
@@ -67,6 +66,11 @@ public:
     void		respondInfo(bool success,bool exit=true);
     void		respondError(const char*);
 
+    CommandLineParser&	clp()		    { return *clp_; }
+    const CommandLineParser& clp() const    { return *clp_; }
+    od_istream&		inStream();
+    od_ostream&		outStream();
+
 protected:
 
 			ServerProgTool(int,char**,const char* moddep);
@@ -79,6 +83,9 @@ protected:
     int			protocolnr_		    = 0;
 
     virtual BufferString getSpecificUsage() const   = 0;
+
+    BufferString	getKeyedArgStr(const char* ky,
+				       bool mandatory=true) const;
     static void		addToUsageStr(BufferString&,const char* flg,
 				   const char* args,bool isextra=false);
     void		setStatus(bool);

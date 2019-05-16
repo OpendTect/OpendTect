@@ -50,15 +50,15 @@ bool CommandLineParser::hasKey( const char* key ) const
 }
 
 
-void CommandLineParser::setKeyHasValue( const char* key, int nrvals )
+void CommandLineParser::setKeyHasValue( const char* key, int nrvals ) const
 {
     const int nrvalsidx = keyswithvalue_.indexOf( key );
     if ( nrvalsidx >= 0 )
-	nrvalues_[nrvalsidx] = nrvals;
+	mSelf().nrvalues_[nrvalsidx] = nrvals;
     else
     {
-	keyswithvalue_.add( key );
-	nrvalues_.add( nrvals );
+	mSelf().keyswithvalue_.add( key );
+	mSelf().nrvalues_.add( nrvals );
     }
 }
 

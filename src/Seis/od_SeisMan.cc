@@ -6,12 +6,17 @@
 
 
 #include "serverprogtool.h"
-#include "seisprovider.h"
-#include "seisstorer.h"
+#include "ascbinstream.h"
 #include "commandlineparser.h"
+#include "ctxtioobj.h"
 #include "dbdir.h"
 #include "keystrs.h"
+#include "od_iostream.h"
 #include "prog.h"
+#include "seisprovider.h"
+#include "seisstorer.h"
+#include "seistrc.h"
+#include "survinfo.h"
 
 
 static const int cProtocolNr = 1;
@@ -21,28 +26,48 @@ static const char* sListLinesCmd	= "list-lines";
 static const char* sListPS3DCmd		= "list-ps3d";
 static const char* sListPS2DCmd		= "list-ps2d";
 static const char* sListAttribs2DCmd	= "list-2d-attributes";
+static const char* sWriteCubeCmd	= "write-cube";
+static const char* sWriteLineCmd	= "write-line";
+static const char* sWritePS3DCmd	= "write-ps3d";
+static const char* sWritePS2DCmd	= "write-ps2d";
+static const char* sAsciiCmd		= "ascii";
 
 class SeisServerTool : public ServerProgTool
 {
 public:
 
-    mUseType( Seis, GeomType );
+    mUseType( Pos,	GeomID );
+    mUseType( Seis,	GeomType );
+    mUseType( Seis,	Provider );
+    mUseType( Seis,	Storer );
 
-		    SeisServerTool(int,char**);
+			SeisServerTool(int,char**);
 
-    void	    listCubes();
-    void	    listLines(const char* attr);
-    void	    listPS2D();
-    void	    listPS3D();
-    void	    listAttribs2D();
+    void		listCubes();
+    void		listLines(const char* attr);
+    void		listPS2D();
+    void		listPS3D();
+    void		listAttribs2D();
+    void		writeCube(const char*);
+    void		writeLine(const char*);
+    void		writePS3D(const char*);
+    void		writePS2D(const char*);
 
 protected:
 
-    BufferString    getSpecificUsage() const override;
-    IOObjContext*   ctxt_	    = nullptr;
+    BufferString	getSpecificUsage() const override;
 
-    void	    getCtxt(GeomType,bool forread=true);
-    void	    listObjs(GeomType);
+    IOObjContext*	ctxt_	    = nullptr;
+    Storer*		storer_	    = nullptr;
+    bool		ascii_	    = false;
+    GeomID		geomid_;
+
+    void		getCtxt(GeomType,bool forread=true);
+    void		listObjs(GeomType);
+    BufferString	getObjName(const char*);
+    void		writeObj(GeomType,const char*);
+    void		finishWrite();
+    void		writeData(GeomType);
 
 };
 
@@ -51,12 +76,19 @@ SeisServerTool::SeisServerTool( int argc, char** argv )
     : ServerProgTool(argc,argv,"Seis")
 {
     initParsing( cProtocolNr );
+    ascii_ = clp().hasKey( sAsciiCmd );
 }
 
 
 void SeisServerTool::getCtxt( GeomType gt, bool forread )
 {
     ctxt_ = Seis::getIOObjContext( gt, forread );
+}
+
+
+BufferString SeisServerTool::getObjName( const char* ky )
+{
+    return getKeyedArgStr( ky, true );
 }
 
 
@@ -92,8 +124,7 @@ void SeisServerTool::listCubes()
 
 void SeisServerTool::listLines( const char* attr )
 {
-    set( sKey::TODO(), "TODO" );
-    respondInfo( true );
+    respondError( "TODO" );
 }
 
 
@@ -115,6 +146,111 @@ void SeisServerTool::listAttribs2D()
 }
 
 
+void SeisServerTool::writeObj( GeomType gt, const char* cmd )
+{
+    getCtxt( gt, false );
+    ctxt_->setName( getObjName(cmd) );
+    CtxtIOObj ctio( *ctxt_ );
+    auto res = ctio.fillObj();
+    if ( !res )
+	respondError( "Cannot create entry in Data Store" );
+
+    storer_ = new Storer( *ctio.ioobj_ );
+    ctio.setObj( nullptr );
+    writeData( Seis::Vol );
+}
+
+
+void SeisServerTool::finishWrite()
+{
+    const uiRetVal uirv = storer_->close();
+    if ( !uirv.isOK() )
+	respondError( toString(uirv) );
+    else
+	respondInfo( true );
+}
+
+
+void SeisServerTool::writeData( GeomType gt )
+{
+    respondInfo( true, false );
+
+    ascbinistream strm( inStream(), !ascii_ );
+    SeisTrc trc; SeisTrcInfo& ti = trc.info();
+    int nrsamps;
+    strm.get( ti.sampling_.start ).get( ti.sampling_.step ).get( nrsamps );
+    if ( !strm.isOK() )
+	respondError( "Failed to initialise seimic data slurp" );
+    if ( SI().zIsTime() )
+    {
+	ti.sampling_.start *= 0.001f;
+	ti.sampling_.step *= 0.001f;
+    }
+
+    trc.setSize( nrsamps );
+    const bool is2d = Seis::is2D( gt );
+    const bool isps = Seis::isPS( gt );
+    int inl, crl, trcnr;
+    while ( true )
+    {
+	if ( is2d )
+	    strm.get( trcnr );
+	else
+	    strm.get( inl );
+
+	if ( (is2d && trcnr==0) || (!is2d && inl==0) )
+	    finishWrite();
+
+	if ( !is2d )
+	    strm.get( crl );
+	else if ( !isps )
+	    strm.get( ti.refnr_ ).get( ti.coord_.x_ ).get( ti.coord_.y_ );
+
+	if ( isps )
+	    strm.get( ti.offset_ ).get( ti.azimuth_ );
+
+	if ( is2d )
+	    ti.setPos( geomid_, trcnr );
+	else
+	    ti.setPos( BinID(inl,crl) );
+
+	strm.getArr( trc.data().arr<float>(), nrsamps );
+	if ( strm.isBad() )
+	    finishWrite();
+
+	const uiRetVal uirv = storer_->put( trc );
+	if ( !uirv.isOK() )
+	    respondError( toString(uirv) );
+    }
+}
+
+
+void SeisServerTool::writeCube( const char* cmd )
+{
+    writeObj( Seis::Vol, cmd );
+}
+
+
+void SeisServerTool::writeLine( const char* cmd )
+{
+    // create entry in geometry manager first, obtaining geomid_
+    respondError( "TODO" );
+}
+
+
+void SeisServerTool::writePS3D( const char* cmd )
+{
+    writeObj( Seis::VolPS, cmd );
+}
+
+
+void SeisServerTool::writePS2D( const char* cmd )
+{
+    writeObj( Seis::LinePS, cmd );
+}
+
+
+
 BufferString SeisServerTool::getSpecificUsage() const
 {
     BufferString ret;
@@ -123,6 +259,10 @@ BufferString SeisServerTool::getSpecificUsage() const
     addToUsageStr( ret, sListPS3DCmd, "" );
     addToUsageStr( ret, sListPS2DCmd, "" );
     addToUsageStr( ret, sListAttribs2DCmd, "" );
+    addToUsageStr( ret, sWriteCubeCmd, "cube_name" );
+    addToUsageStr( ret, sWriteLineCmd, "line_name" );
+    addToUsageStr( ret, sWritePS3DCmd, "datastore_name" );
+    addToUsageStr( ret, sWritePS2DCmd, "datastore_name" );
     return ret;
 }
 
@@ -149,6 +289,14 @@ int main( int argc, char** argv )
 	    attrnm.set( normargs.get(0) );
 	st.listLines( attrnm );
     }
+    else if ( clp.hasKey(sWriteCubeCmd) )
+	st.writeCube( sWriteCubeCmd );
+    else if ( clp.hasKey(sWriteLineCmd) )
+	st.writeLine( sWriteLineCmd );
+    else if ( clp.hasKey(sWritePS3DCmd) )
+	st.writePS3D( sWritePS3DCmd );
+    else if ( clp.hasKey(sWritePS2DCmd) )
+	st.writePS2D( sWritePS2DCmd );
 
     pFreeFnErrMsg( "Should not reach" );
     return ExitProgram( 0 );

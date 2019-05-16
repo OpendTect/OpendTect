@@ -146,12 +146,12 @@ static void testServer()
 {
     Threads::sleep( 0.5 );
 
-    od_istream in ( std::cin );
+    od_istream& in = od_cin();
 
     BufferString input;
     in.getWord( input );
 
-    od_ostream out( std::cout );
+    od_ostream& out = od_cout();
     if ( input==mGoodMessage )
     {
 	out << mGoodReply << od_endl;

@@ -58,7 +58,7 @@ public:
 			CommandLineParser();
 				/*!< uses the args set by SetProgramArgs */
 
-    void		setKeyHasValue(const char* key,int nrvals=1);
+    void		setKeyHasValue(const char* key,int nrvals=1) const;
 				/*!<Tell the parser that the nrvals arguments
 				    after key are values. nrvals<1 denotes a
 				    variable number of values, running up to

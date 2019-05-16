@@ -105,6 +105,10 @@ public:
 
 
 
+//!< common access to the std::cin
+mGlobal(Basic) od_istream& od_cin();
+
+
 template <class T> inline od_istream& operator >>( od_istream& s, T& t )
 { return s.get( t ); }
 
