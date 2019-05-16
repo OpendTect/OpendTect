@@ -354,13 +354,13 @@ void fillPar( IOPar& par ) const
     par.set(OD::PythonAccess::sKeyPythonSrc(),
 		OD::PythonSourceDef().getKey(source));
 
-    if ( source == OD::PythonSource::Internal && internalloc_ )
+    if ( source == OD::Internal && internalloc_ )
     {
 	const BufferString envroot( internalloc_->fileName() );
 	if ( !envroot.isEmpty() )
 	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
     }
-    else if ( source == OD::PythonSource::Custom )
+    else if ( source == OD::Custom )
     {
 	const BufferString envroot( customloc_->fileName() );
 	if ( !envroot.isEmpty() )
@@ -382,13 +382,13 @@ void usePar( const IOPar& par )
     }
 
     pythonsrcfld_->setValue( source );
-    if ( source == OD::PythonSource::Internal && internalloc_ )
+    if ( source == OD::Internal && internalloc_ )
     {
 	BufferString envroot;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
 	    internalloc_->setFileName( envroot );
     }
-    else if ( source == OD::PythonSource::Custom )
+    else if ( source == OD::Custom )
     {
 	BufferString envroot;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
@@ -418,10 +418,10 @@ void sourceChgCB( CallBacker* )
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
     if ( internalloc_ )
-	internalloc_->display( source == OD::PythonSource::Internal );
+	internalloc_->display( source == OD::Internal );
 
-    customloc_->display( source == OD::PythonSource::Custom );
-    customenvnmfld_->display( source == OD::PythonSource::Custom );
+    customloc_->display( source == OD::Custom );
+    customenvnmfld_->display( source == OD::Custom );
     parChgCB( nullptr );
 }
 
@@ -523,7 +523,7 @@ bool useScreen()
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
-    if ( source == OD::PythonSource::Internal && internalloc_ )
+    if ( source == OD::Internal && internalloc_ )
     {
 	const BufferString envroot( internalloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
@@ -539,7 +539,23 @@ bool useScreen()
 	    return false;
 	}
     }
-    //TODO: add custom
+    else if ( source == OD::Custom )
+    {
+	const BufferString envroot( customloc_->fileName() );
+	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+	{
+	    gUiMsg(this).error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    return false;
+	}
+
+	const File::Path envrootfp( envroot, "envs" );
+	if ( !envrootfp.exists() )
+	{
+	    gUiMsg(this).error( tr("%1 does not contains a directory called %2")
+				.arg(uiStrings::sDirectory()).arg("envs") );
+	    return false;
+	}
+    }
 
     if ( !chgdsetts_ )
 	return true;
