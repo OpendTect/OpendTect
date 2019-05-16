@@ -91,6 +91,7 @@ namespace OD
 				  BufferString* stderrstr,
 				  const File::Path* activatefp,
 				  const char* envnm,uiString* errmsg);
+	static File::Path*	getActivateScript(const File::Path& root);
 
     public:
 

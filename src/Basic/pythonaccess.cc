@@ -185,6 +185,24 @@ bool OD::PythonAccess::isUsable( bool force )
 }
 
 
+File::Path* OD::PythonAccess::getActivateScript( const File::Path& rootfp )
+{
+	File::Path ret( rootfp.fullPath(), "bin" );
+	if ( !ret.exists() )
+	{
+		ret.set( rootfp.fullPath() ).add( "condabin" );
+		if ( !ret.exists() )
+			return nullptr;
+	}
+	ret.add( "activate" );
+#ifdef __win__
+	ret.setExtension( "bat" );
+#endif
+
+	return ret.exists() ? new File::Path( ret ) : nullptr;
+}
+
+
 bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
 				    bool tensorflowtest )
 {
@@ -198,8 +216,8 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
 	venvnm.set( virtualenvfp->baseName() );
 	const BufferString rootfpstr(
 			    virtualenvfp->dirUpTo(virtualenvfp->nrLevels()-3) );
-	activatefp = new File::Path( rootfpstr, "bin", "activate" );
-	if ( !activatefp->exists() )
+	activatefp = getActivateScript( File::Path(rootfpstr) );
+	if ( !activatefp )
 	    return false;
     }
 
@@ -307,16 +325,25 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	return nullptr;
     }
 
-#ifdef __unix__
+#ifdef __win__
+	strm.add( "@SETLOCAL" ).add( od_newline );
+	strm.add( "@ECHO OFF" ).add( od_newline );
+	strm.add( "@CALL \"" );
+#else
     strm.add( "#!/bin/bash" ).add( "\n\n" );
     strm.add( "source " );
 #endif
     strm.add( activatefp->fullPath() );
+#ifdef __win__
+	strm.add( "\"" );
+#endif
     if ( envnm )
-	strm.add( " " ).add( envnm );
-    strm.add( "\n" );
+	strm.add( " " ).add( envnm ).add( od_newline );
     strm.add( cmd.program() ).add( " " )
-	.add( cmd.args().cat(" ") ).add( "\n" );
+	.add( cmd.args().cat(" ") ).add( od_newline );
+#ifdef __win__
+	strm.add( "conda deactivate" ).add( od_newline );
+#endif
     strm.close();
 #ifdef __unix__
     File::makeExecutable( ret->fullPath(), true );
@@ -424,7 +451,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const BufferString envpath( dl.fullPath(idx) );
-	    const DirList priorityfiles( envpath,File::FilesInDir,"Priority.*");
+	    const DirList priorityfiles( envpath, File::FilesInDir, "Priority.*" );
 	    for ( int idy=0; idy<priorityfiles.size(); idy++ )
 	    {
 		const File::Path priofp( priorityfiles.fullPath(idy) );
@@ -502,9 +529,9 @@ bool OD::PythonAccess::validInternalEnvironment( const File::Path& fp )
     if ( !relinfofp.exists() )
 	return false;
 
-    const File::Path activatefp( fp, "bin", "activate" );
-    if ( !activatefp.exists() )
-	return false;
+	PtrMan<File::Path> activatefp = getActivateScript( fp );
+	if ( !activatefp )
+		return false;
 
     const DirList dl( File::Path(fp,"envs").fullPath().str(), File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++)
