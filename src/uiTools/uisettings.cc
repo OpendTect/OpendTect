@@ -282,44 +282,19 @@ uiPythonSettings(uiParent* p, const char* nm)
 	mAttachCB( internalloc_->newSelection, uiPythonSettings::parChgCB );
     }
 
-    custompythongrp_ = new uiGroup(this, "Custom python");
-    uiLabel* customenvlbl = new uiLabel(custompythongrp_,
-				tr("Paths for custom Python environment:"));
+    customloc_ = new uiFileSel( this,tr("Custom Environment root"));
+    customloc_->setSelectionMode( OD::SelectDirectory );
+    customloc_->attach( alignedBelow, pythonsrcfld_ );
+    mAttachCB( customloc_->newSelection, uiPythonSettings::customEnvChgCB );
 
-    tbl_ = new uiTable(custompythongrp_, uiTable::Setup(5,1)
-		.manualresize(true)
-		.selmode(uiTable::SingleRow),
-		"Settings editor");
-    tbl_->setStretch(2, 2);
-    tbl_->setPrefWidth(400);
-    tbl_->setPrefHeight(300);
-    tbl_->setTopHeaderHidden(true);
-    tbl_->setLeftHeaderHidden(true);
-    tbl_->setSelectionBehavior(uiTable::SelectRows);
-    tbl_->attach(alignedBelow, customenvlbl);
-
-    uiButtonGroup* pythonbuts = new uiButtonGroup(custompythongrp_,
-		"python actions", OD::Vertical);
-
-    uiButton* mUnusedVar newbut = new uiPushButton( pythonbuts,
-		uiStrings::sNew(),
-		mCB(this, uiPythonSettings, newPathCB), true);
-    uiButton* mUnusedVar modifybut = new uiPushButton( pythonbuts,
-		uiStrings::sModify(),
-		mCB(this, uiPythonSettings, modifPathCB), true);
-    uiButton* mUnusedVar browsebut = new uiPushButton( pythonbuts,
-		tr("Browse"),
-		mCB(this, uiPythonSettings, browsePathCB), true);
-    uiButton* mUnusedVar removebut = new uiPushButton( pythonbuts,
-		uiStrings::sRemove(),
-		mCB(this, uiPythonSettings, removePathCB), true);
-    pythonbuts->attach( rightOf, tbl_ );
-
-    custompythongrp_->attach( ensureBelow, pythonsrcfld_ );
+    customenvnmfld_ = new uiGenInput( this, tr("Environment"),
+				      StringListInpSpec() );
+    customenvnmfld_->attach( alignedBelow, customloc_ );
+    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this, uiPythonSettings, testCB), true);
-    testbut->attach( ensureBelow, custompythongrp_ );
+    testbut->attach( ensureBelow, customenvnmfld_ );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
@@ -332,7 +307,6 @@ private:
 
 void initDlg(CallBacker*)
 {
-    //TODO: handle empty settings (initial state)
     usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
     sourceChgCB(0);
@@ -384,29 +358,28 @@ void fillPar( IOPar& par ) const
     {
 	const BufferString envroot( internalloc_->fileName() );
 	if ( !envroot.isEmpty() )
-	    par.set( OD::PythonAccess::sKeyEnviron(), internalloc_->fileName());
+	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
     }
     else if ( source == OD::PythonSource::Custom )
     {
-	FileMultiString envpathssep;
-	for ( int irow=0; irow<tbl_->nrRows(); irow++ )
+	const BufferString envroot( customloc_->fileName() );
+	if ( !envroot.isEmpty() )
 	{
-	    const BufferString valbuf = tbl_->text(RowCol(irow, 0));
-	    if (valbuf.isEmpty())
-		continue;
-	    envpathssep.add(valbuf);
+	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
+	    par.set( sKey::Name(), customenvnmfld_->text() );
 	}
-	if (!envpathssep.isEmpty())
-		par.set(OD::PythonAccess::sKeyEnviron(), envpathssep.rep());
     }
 }
 
 void usePar( const IOPar& par )
 {
     OD::PythonSource source;
-    if (!OD::PythonSourceDef().parse(par,
-		OD::PythonAccess::sKeyPythonSrc(), source))
-	return;
+    if ( !OD::PythonSourceDef().parse(par,
+		OD::PythonAccess::sKeyPythonSrc(), source) )
+    {
+	source = OD::PythonAccess::hasInternalEnvironment(false)
+	       ? OD::Internal : OD::System;
+    }
 
     pythonsrcfld_->setValue( source );
     if ( source == OD::PythonSource::Internal && internalloc_ )
@@ -417,21 +390,11 @@ void usePar( const IOPar& par )
     }
     else if ( source == OD::PythonSource::Custom )
     {
-	for (int irow = 0; irow < tbl_->nrRows(); irow++)
-	{
-	    const RowCol rc(irow, 0);
-	    tbl_->setText(rc, uiString::empty());
-	}
-
-	BufferString envpaths;
-	if (par.get(OD::PythonAccess::sKeyEnviron(), envpaths))
-	{
-	    const FileMultiString envpathsep(envpaths);
-	    for (int idx = 0; idx < envpathsep.size(); idx++)
-		tbl_->setText(RowCol(idx, 0), envpathsep[idx]);
-	}
-
-	tbl_->resizeColumnToContents(1);
+	BufferString envroot;
+	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	    customloc_->setFileName( envroot );
+	if ( par.get(sKey::Name(),envroot) )
+	    customenvnmfld_->setText( envroot );
     }
 }
 
@@ -457,7 +420,14 @@ void sourceChgCB( CallBacker* )
     if ( internalloc_ )
 	internalloc_->display( source == OD::PythonSource::Internal );
 
-    custompythongrp_->display( source == OD::PythonSource::Custom );
+    customloc_->display( source == OD::PythonSource::Custom );
+    customenvnmfld_->display( source == OD::PythonSource::Custom );
+    parChgCB( nullptr );
+}
+
+void customEnvChgCB( CallBacker* )
+{
+    setCustomEnvironmentNames();
     parChgCB( nullptr );
 }
 
@@ -466,55 +436,20 @@ void parChgCB( CallBacker* )
     getChanges();
 }
 
-void newPathCB(CallBacker*)
-{
-    const int nrrows = tbl_->nrRows();
-    for (int irow = 0; irow < nrrows; irow++)
-    {
-	const RowCol rc(irow, 0);
-	const BufferString curtxt(tbl_->text(rc));
-	if (!curtxt.isEmpty())
-	    continue;
 
-	tbl_->editCell(rc, true);
-	if (irow == nrrows - 1)
-	    tbl_->insertRows(RowCol(nrrows, 0), 3);
-	return;
-    }
-}
-
-void modifPathCB(CallBacker*)
+void setCustomEnvironmentNames()
 {
-    tbl_->editCell(RowCol(tbl_->currentRow(), 0), true);
-}
-
-void browsePathCB(CallBacker*)
-{
-    uiFileSelector dlg( this, uiFileSelector::Setup(OD::SelectDirectory) );
-    if ( !dlg.go() )
+    const BufferString envroot( customloc_->fileName() );
+    const File::Path fp( envroot, "envs" );
+    if ( !fp.exists() )
 	return;
 
-    const BufferString outpath(dlg.fileName());
-    const int nrrows = tbl_->nrRows();
-    for (int irow = 0; irow < nrrows; irow++)
-    {
-	const RowCol rc(irow, 0);
-	const BufferString curtxt(tbl_->text(rc));
-	if (!curtxt.isEmpty())
-	    continue;
-
-	tbl_->setText(rc, dlg.fileName());
-	if (irow == nrrows - 1)
-	    tbl_->insertRows(RowCol(nrrows, 0), 3);
-	return;
-    }
-}
-
-void removePathCB(CallBacker*)
-{
-    const int irow = tbl_->currentRow();
-    if (tbl_->isRowSelected(irow))
-	tbl_->setText(RowCol(irow, 0), uiString::empty());
+    BufferStringSet envnames;
+    const DirList dl( fp.fullPath(), File::DirsInDir );
+    for ( int idx=0; idx<dl.size(); idx++ )
+	envnames.add( File::Path(dl.fullPath(idx)).baseName() );
+    customenvnmfld_->setEmpty();
+    customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
 }
 
 void testPythonVersion()
@@ -568,13 +503,17 @@ void testCB(CallBacker*)
     if ( !useScreen() )
 	return;
 
+    uiUserShowWait usw( this, tr("Basing Python testing") );
     if ( !OD::PythA().isUsable(true) )
     {
 	gUiMsg( this ).error( tr("Python environment not usable") );
 	return;
     }
 
+    usw.setMessage( tr("Retrieving Python version") );
     testPythonVersion();
+
+    usw.setMessage( tr("Retrieving list of installed Python modules") );
     testPythonModules( "pip" );
 }
 
@@ -600,6 +539,7 @@ bool useScreen()
 	    return false;
 	}
     }
+    //TODO: add custom
 
     if ( !chgdsetts_ )
 	return true;
@@ -625,9 +565,9 @@ bool acceptOK()
 }
 
     uiGenInput*		pythonsrcfld_;
-    uiGroup*		custompythongrp_;
-    uiTable*		tbl_;
     uiFileSel*		internalloc_ = nullptr;
+    uiFileSel*		customloc_;
+    uiGenInput*		customenvnmfld_;
 
     IOPar*		chgdsetts_ = nullptr;
     bool		needrestore_ = false;

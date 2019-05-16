@@ -158,15 +158,18 @@ bool OD::PythonAccess::isUsable( bool force )
     }
 
     PtrMan<File::Path> externalroot = nullptr;
+    BufferString virtenvnm;
     if ( source == Custom )
     {
 	BufferString virtenvloc;
 	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
 	    externalroot = new File::Path( virtenvloc );
+	pythonsetts.get( sKey::Name(), virtenvnm );
     }
 
     ManagedObjectSet<File::Path> virtualenvsfp;
-    if ( !getSortedVirtualEnvironmentLoc(virtualenvsfp,nullptr,externalroot) )
+    if ( !getSortedVirtualEnvironmentLoc(virtualenvsfp,virtenvnm.buf(),
+					 externalroot) )
 	return false;
 
     BufferString glversion, maxcudaversion;
@@ -187,19 +190,19 @@ bool OD::PythonAccess::isUsable( bool force )
 
 File::Path* OD::PythonAccess::getActivateScript( const File::Path& rootfp )
 {
-	File::Path ret( rootfp.fullPath(), "bin" );
+    File::Path ret( rootfp.fullPath(), "bin" );
+    if ( !ret.exists() )
+    {
+	ret.set( rootfp.fullPath() ).add( "condabin" );
 	if ( !ret.exists() )
-	{
-		ret.set( rootfp.fullPath() ).add( "condabin" );
-		if ( !ret.exists() )
-			return nullptr;
-	}
-	ret.add( "activate" );
+	    return nullptr;
+    }
+    ret.add( "activate" );
 #ifdef __win__
-	ret.setExtension( "bat" );
+    ret.setExtension( "bat" );
 #endif
 
-	return ret.exists() ? new File::Path( ret ) : nullptr;
+    return ret.exists() ? new File::Path( ret ) : nullptr;
 }
 
 
@@ -326,23 +329,23 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     }
 
 #ifdef __win__
-	strm.add( "@SETLOCAL" ).add( od_newline );
-	strm.add( "@ECHO OFF" ).add( od_newline );
-	strm.add( "@CALL \"" );
+    strm.add( "@SETLOCAL" ).add( od_newline );
+    strm.add( "@ECHO OFF" ).add( od_newline );
+    strm.add( "@CALL \"" );
 #else
     strm.add( "#!/bin/bash" ).add( "\n\n" );
     strm.add( "source " );
 #endif
     strm.add( activatefp->fullPath() );
 #ifdef __win__
-	strm.add( "\"" );
+    strm.add( "\"" );
 #endif
     if ( envnm )
 	strm.add( " " ).add( envnm ).add( od_newline );
     strm.add( cmd.program() ).add( " " )
 	.add( cmd.args().cat(" ") ).add( od_newline );
 #ifdef __win__
-	strm.add( "conda deactivate" ).add( od_newline );
+    strm.add( "conda deactivate" ).add( od_newline );
 #endif
     strm.close();
 #ifdef __unix__
@@ -432,17 +435,14 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 
     const DirList dl( File::Path(envsfp,"envs").fullPath().str(),
 		      File::DirsInDir );
-    if ( envnm )
+    if ( envnm && *envnm )
     {
-	for ( int idx=0; idx<dl.size(); idx++ )
-	{
-	    const File::Path fp( dl.fullPath(idx) );
-	    if ( fp.baseName() != FixedString(envnm) )
-		continue;
+	if ( !dl.isPresent(envnm) )
+	    return false;
 
-	    virtualenvfp.add( new File::Path(fp) );
-	    return true;
-	}
+	const File::Path fp( dl.fullPath( dl.indexOf(envnm) ) );
+	virtualenvfp.add( new File::Path(fp) );
+	return true;
     }
     else
     {
@@ -451,7 +451,8 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const BufferString envpath( dl.fullPath(idx) );
-	    const DirList priorityfiles( envpath, File::FilesInDir, "Priority.*" );
+	    const DirList priorityfiles( envpath, File::FilesInDir,
+					 "Priority.*" );
 	    for ( int idy=0; idy<priorityfiles.size(); idy++ )
 	    {
 		const File::Path priofp( priorityfiles.fullPath(idy) );
@@ -460,23 +461,31 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 		break;
 	    }
 	}
-	while( !prioritylist.isEmpty() )
+	if ( prioritylist.isEmpty() )
 	{
-	    int highestprio = -1, prioidx = -1;
-	    for ( int idx=0; idx<prioritylist.size(); idx++ )
+	    for ( int idx=0; idx<dl.size(); idx++ )
+		virtualenvfp.add( new File::Path(dl.fullPath(idx)) );
+	}
+	else
+	{
+	    while( !prioritylist.isEmpty() )
 	    {
-		if ( prioritylist[idx] > highestprio )
+		int highestprio = -1, prioidx = -1;
+		for ( int idx=0; idx<prioritylist.size(); idx++ )
 		{
-		    highestprio = prioritylist[idx];
-		    prioidx = idx;
+		    if ( prioritylist[idx] > highestprio )
+		    {
+			highestprio = prioritylist[idx];
+			prioidx = idx;
+		    }
 		}
-	    }
-	    if ( prioidx == -1 )
-		break;
+		if ( prioidx == -1 )
+		    break;
 
-	    virtualenvfp.add( new File::Path(prioritydirs.get(prioidx)) );
-	    prioritydirs.removeSingle( prioidx );
-	    prioritylist.removeSingle( prioidx );
+		virtualenvfp.add( new File::Path(prioritydirs.get(prioidx)) );
+		prioritydirs.removeSingle( prioidx );
+		prioritylist.removeSingle( prioidx );
+	    }
 	}
     }
 
@@ -529,9 +538,9 @@ bool OD::PythonAccess::validInternalEnvironment( const File::Path& fp )
     if ( !relinfofp.exists() )
 	return false;
 
-	PtrMan<File::Path> activatefp = getActivateScript( fp );
-	if ( !activatefp )
-		return false;
+    PtrMan<File::Path> activatefp = getActivateScript( fp );
+    if ( !activatefp )
+	return false;
 
     const DirList dl( File::Path(fp,"envs").fullPath().str(), File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++)
