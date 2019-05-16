@@ -50,9 +50,8 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 	, coordsys_(0)
 {
     clear(true);
-    isasc_ = havepos_ = true;
-    havenr_ = haverefnr_ = havesd_ = haveoffs_ = haveazim_
-	    = isxy_ = remnull_ = false;
+    isasc_ = havepos_ = havesd_ = true;
+    havenr_ = haverefnr_ = haveoffs_ = haveazim_ = isxy_ = remnull_ = false;
 
     if ( filenm && *filenm )
 	fname_ = filenm;
@@ -305,7 +304,7 @@ int SeisIOSimple::nextStep()
     if ( rv < 0 )
 	return errmsg_.isEmpty() ? Finished() : ErrorOccurred();
 
-    return rv == 0 ? MoreToDo() : writeExpTrc();
+    return rv == Finished() ? Finished() : writeExpTrc();
 }
 
 
