@@ -12,9 +12,9 @@
 #endif
 
 
-StringBuilder::StringBuilder( const char* str )
+StringBuilder::StringBuilder( const char* inpstr )
 {
-    add( str );
+    add( inpstr );
 }
 
 
@@ -60,12 +60,12 @@ StringBuilder& StringBuilder::setEmpty()
 }
 
 
-StringBuilder& StringBuilder::set( const char* str )
+StringBuilder& StringBuilder::set( const char* inpstr )
 {
-    if ( str != buf_ )
+    if ( inpstr != buf_ )
     {
 	setEmpty();
-	add( str );
+	add( inpstr );
     }
     return *this;
 }
@@ -73,9 +73,9 @@ StringBuilder& StringBuilder::set( const char* str )
 
 StringBuilder& StringBuilder::add( char ch, size_type nr )
 {
-    const char str[] = { ch, '\0' };
+    const char chstr[] = { ch, '\0' };
     for ( int idx=0; idx<nr; idx++ )
-	add( str );
+	add( chstr );
     return *this;
 }
 
@@ -100,18 +100,18 @@ bool StringBuilder::setBufSz( size_type newsz, bool cp_old )
 }
 
 
-StringBuilder& StringBuilder::add( const char* str )
+StringBuilder& StringBuilder::add( const char* addstr )
 {
-    if ( !str || !*str )
+    if ( !addstr || !*addstr )
 	return *this;
 
     if ( !buf_ && !setBufSz(256,false) )
 	return *this;
 
     char* myptr = buf_ + curpos_;
-    while ( *str )
+    while ( *addstr )
     {
-	*myptr++ = *str++;
+	*myptr++ = *addstr++;
 	curpos_++;
 	if ( curpos_ >= bufsz_ )
 	{
