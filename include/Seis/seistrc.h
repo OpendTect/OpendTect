@@ -88,6 +88,7 @@ public:
     void		removeComponent( int icomp )
 			{ data_.delComponent( icomp ); }
     bool		reSize(int,bool copydata);
+    bool		setSize( int sz )	{ return reSize( sz, false ); }
     void		erase()			{ reSize( 0, false); }
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
 				     bool forcefloats=false);
