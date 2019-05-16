@@ -10,6 +10,7 @@ SynthRock`dgbstrat
 Velocity Model Building`dgbvmb
 PDF-3D`dgbpdf3d
 Faults and Fractures`dgbflt
+Machine Learning`dgbml
 Workstation Access`arkclswsa
 Open Data Connector`arkclsodc
 Seismic Coloured Inversion`arkclssciplugin
