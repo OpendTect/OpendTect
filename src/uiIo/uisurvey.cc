@@ -53,12 +53,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "latlong.h"
 #include "mousecursor.h"
+#include "nrbytes2string.h"
 #include "oddirs.h"
 #include "odver.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "systeminfo.h"
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
@@ -431,9 +433,13 @@ uiSurvey::uiSurvey( uiParent* p )
     datarootlbl_->setBackgroundColor( backgroundColor() );
     datarootlbl_->attach( rightOf, datarootbut );
 
+    uiToolButton* infobut = new uiToolButton( topgrp, "info",
+	tr("Data Root Information"), mCB(this,uiSurvey,dataRootInfoCB) );
+    infobut->attach( rightTo, datarootlbl_ );
+
     uiToolButton* settbut = new uiToolButton( topgrp, "settings",
 	tr("General Settings"), mCB(this,uiSurvey,odSettsButPush) );
-    settbut->attach( rightOf, datarootlbl_ );
+    settbut->attach( rightOf, infobut );
 
     uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
     sep1->attach( stretchedBelow, datarootbut );
@@ -991,6 +997,30 @@ void uiSurvey::dataRootPushed( CallBacker* )
 	dirfld_->setCurrentItem( GetSurveyName() );
 
     selChange( 0 );
+}
+
+
+static BufferString getSizeStr( od_int64 nrb )
+{
+    NrBytesToStringCreator conv( nrb );
+    return conv.getString( nrb, 3 );
+}
+
+
+void uiSurvey::dataRootInfoCB( CallBacker* )
+{
+    const BufferString fsnm = System::fileSystemName( dataroot_ );
+    const BufferString fstp = System::fileSystemType( dataroot_ );
+    const BufferString totalmem = getSizeStr( System::bytesTotal(dataroot_) );
+    const BufferString freemem = getSizeStr( System::bytesFree(dataroot_) );
+    const BufferString availmem = getSizeStr(System::bytesAvailable(dataroot_));
+    uiString msg = tr("%1: %2\n%3: %4\n%5: %6\n%7: %8\n%9: %10")
+	.arg(sKey::Name()).arg(fsnm)
+	.arg(sKey::Type()).arg(fstp)
+	.arg(tr("Total memory")).arg(totalmem)
+	.arg(tr("Free memory")).arg(freemem)
+	.arg(tr("Available memory")).arg(availmem);
+    uiMSG().message( msg );
 }
 
 

@@ -39,6 +39,12 @@ namespace System
     mGlobal(Network) void		getFreeMBOnDiskMsg(int,uiString&);
     mGlobal(Network) const char*	getFileSystemName(const char* path);
 
+    mGlobal(Network) od_int64		bytesAvailable(const char* path);
+    mGlobal(Network) od_int64		bytesFree(const char* path);
+    mGlobal(Network) od_int64		bytesTotal(const char* path);
+    mGlobal(Network) const char*	fileSystemName(const char* path);
+    mGlobal(Network) const char*	fileSystemType(const char* path);
+
     mGlobal(Network) od_uint64		macAddressHash();
 					/*!<Returns the checksum of the first
 					    'valid' mac address. */

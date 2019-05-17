@@ -99,6 +99,7 @@ protected:
     void		importButPushed(CallBacker*);
     void		exportButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
+    void		dataRootInfoCB(CallBacker*);
     void		odSettsButPush(CallBacker*);
     void		utilButPush(CallBacker*);
     void		selChange(CallBacker*);

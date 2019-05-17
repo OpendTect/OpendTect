@@ -22,11 +22,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "oddirs.h"
 #ifndef OD_NO_QT
-#include "perthreadrepos.h"
+# include "perthreadrepos.h"
 
-#include <QHostAddress>
-#include <QHostInfo>
-#include <QNetworkInterface>
+# include <QHostAddress>
+# include <QHostInfo>
+# include <QNetworkInterface>
+# include <QStorageInfo>
 #endif
 
 #ifdef __lux__
@@ -210,10 +211,76 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 }
 
 
+od_int64 bytesAvailable( const char* path )
+{
+#ifndef OD_NO_QT
+    const QStorageInfo storageinfo( path );
+    return storageinfo.bytesAvailable();
+#else
+    return -1;
+#endif
+}
+
+
+od_int64 bytesFree( const char* path )
+{
+#ifndef OD_NO_QT
+    const QStorageInfo storageinfo( path );
+    return storageinfo.bytesFree();
+#else
+    return -1;
+#endif
+}
+
+
+od_int64 bytesTotal( const char* path )
+{
+#ifndef OD_NO_QT
+    const QStorageInfo storageinfo( path );
+    return storageinfo.bytesTotal();
+#else
+    return -1;
+#endif
+}
+
+
+const char* fileSystemName( const char* path )
+{
+#ifndef OD_NO_QT
+    mDeclStaticString( str );
+    const QStorageInfo storageinfo( path );
+    str = storageinfo.name();
+    if ( str.isEmpty() )
+	str = storageinfo.displayName();
+    return str.buf();
+#else
+    return 0;
+#endif
+}
+
+
+const char* fileSystemType( const char* path )
+{
+#ifndef OD_NO_QT
+    mDeclStaticString( str );
+    const QStorageInfo storageinfo( path );
+    str = storageinfo.fileSystemType().constData();
+    return str.buf();
+#else
+    return 0;
+#endif
+}
+
+
 #define mToKbFac (1.0 / 1024.0)
 
 int getFreeMBOnDisk( const char* path )
 {
+#ifndef OD_NO_QT
+    const QStorageInfo storageinfo( path );
+    const od_int64 bytesavail = storageinfo.bytesAvailable();
+    return (int)(bytesavail/1024/1024);
+#else
     if ( !File::exists(path) )
 	return 0;
 
@@ -241,6 +308,7 @@ int getFreeMBOnDisk( const char* path )
 #endif
 
     return (int)(res + .5);
+#endif
 }
 
 
