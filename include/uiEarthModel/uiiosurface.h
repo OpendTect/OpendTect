@@ -14,8 +14,8 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uicompoundparsel.h"
-#include "uigroup.h"
 #include "uidialog.h"
+#include "uigroup.h"
 
 #include "bufstringset.h"
 #include "faulttrace.h"
@@ -30,11 +30,13 @@ class IOObj;
 class uiCheckBox;
 class uiColorInput;
 class uiFaultOptSel;
+class uiGenInput;
 class uiIOObjSel;
+class uiIOSelect;
 class uiListBox;
 class uiPosSubSel;
-class uiStratLevelSel;
 class uiPushButton;
+class uiStratLevelSel;
 
 namespace EM { class Surface; class SurfaceIODataSelection; }
 
@@ -244,6 +246,47 @@ protected:
     TypeSet<int>		optids_;
     int				defaultoptidx_;
     uiPushButton*		clearbut_;
+};
+
+mExpClass(uiEarthModel) uiAuxDataGrp : public uiGroup
+{ mODTextTranslationClass(uiAuxDataGrp)
+public:
+				uiAuxDataGrp(uiParent*,bool forread);
+				~uiAuxDataGrp();
+
+    void			setKey(const MultiID&);
+    void			setDataName(const char*);
+    const char*			getDataName() const;
+
+protected:
+    void			selChg(CallBacker*);
+
+    uiListBox*			listfld_;
+    uiGenInput*			inpfld_;
+};
+
+
+mExpClass(uiEarthModel) uiAuxDataSel : public uiGroup
+{ mODTextTranslationClass(uiAuxDataSel)
+public:
+				uiAuxDataSel(uiParent*,const char* type,
+					     bool withobjsel);
+				~uiAuxDataSel();
+
+    void			setKey(const MultiID&);
+    void			setDataName(const char*);
+    const MultiID&		getKey() const;
+    const char*			getDataName() const;
+
+protected:
+    uiIOObjSel*			objfld_;
+    uiIOSelect*			auxdatafld_;
+
+    void			objSelCB(CallBacker*);
+    void			auxSelCB(CallBacker*);
+    BufferString		objtype_;
+    MultiID			key_;
+    BufferString		seldatanm_;
 };
 
 #endif
