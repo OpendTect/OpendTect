@@ -64,6 +64,13 @@ void EnumDefImpl<OD::PythonSource>::init()
 
 
 
+OD::PythonAccess::PythonAccess()
+    : envChange(this)
+{
+}
+
+
+
 OD::PythonAccess::~PythonAccess()
 {
     delete activatefp_;
@@ -188,6 +195,7 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
     }
 
     msg_.setEmpty();
+    envChange.trigger();
 
     return true;
 }

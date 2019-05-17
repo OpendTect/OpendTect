@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "enums.h"
+#include "notify.h"
 
 class uiString;
 namespace File { class Path; }
@@ -33,9 +34,10 @@ namespace OD
     };
     mDeclareNameSpaceEnumUtils(Basic,PythonSource);
 
-    mExpClass(Basic) PythonAccess
+    mExpClass(Basic) PythonAccess : public CallBacker
     { mODTextTranslationClass(PythonAccess);
     public:
+			PythonAccess();
 			~PythonAccess();
 
 	bool		isUsable(bool force=false,
@@ -59,6 +61,8 @@ namespace OD
 	static const char*	sPythonExecNm(bool v3=false,bool v2=false);
 	static const char*	sKeyPythonSrc();
 	static const char*	sKeyEnviron();
+
+	Notifier<PythonAccess>	envChange;
 
 	mStruct(Basic) ModuleInfo : NamedObject
 	{
