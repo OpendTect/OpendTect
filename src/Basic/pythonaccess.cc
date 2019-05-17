@@ -568,7 +568,7 @@ OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
 }
 
 
-BufferString OD::PythonAccess::ModuleInfo::displayStr( bool withver )
+BufferString OD::PythonAccess::ModuleInfo::displayStr( bool withver ) const
 {
     BufferString ret( name() );
     if ( withver )

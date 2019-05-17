@@ -65,7 +65,7 @@ namespace OD
 	    public:
 				ModuleInfo(const char*);
 
-	    BufferString	displayStr(bool withver=true);
+	    BufferString	displayStr(bool withver=true) const;
 
 	    BufferString	versionstr_;
 	};
