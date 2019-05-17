@@ -9,6 +9,7 @@
 #include "ascbinstream.h"
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
+#include "dbman.h"
 #include "dbdir.h"
 #include "keystrs.h"
 #include "od_iostream.h"
@@ -158,6 +159,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     getCtxt( gt, false );
 
     int translidx = -1;
+    bool issegy = false;
     if ( clp().hasKey(sFormatCmd) )
     {
 	clp().setKeyHasValue( sFormatCmd );
@@ -165,7 +167,10 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 	clp().getVal( sFormatCmd, trnm );
 	const Translator* transl = ctxt_->trgroup_->getTemplate( trnm, true );
 	if ( transl )
+	{
 	    translidx = ctxt_->trgroup_->templates().indexOf( transl );
+	    issegy = trnm.startsWith( "SEG" );
+	}
     }
 
     ctxt_->setName( getObjName(cmd) );
@@ -174,13 +179,17 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     if ( !res )
 	respondError( "Cannot create entry in Data Store" );
 
+    bool ioobjchgd = false;
     if ( clp().hasKey(sTypeCmd) )
     {
 	clp().setKeyHasValue( sTypeCmd );
 	BufferString typetag;
 	clp().getVal( sTypeCmd, typetag );
 	if ( !typetag.isEmpty() )
+	{
 	    ctio.ioobj_->pars().set( sKey::Type(), typetag );
+	    ioobjchgd = true;
+	}
     }
 
     if ( clp().hasKey(sEncodingCmd) )
@@ -190,12 +199,21 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 	clp().getVal( sEncodingCmd, encnr );
 	if ( encnr > 0 )
 	{
-	    //TODO how?? seems to be specific per translator
+	    if ( issegy )
+		ctio.ioobj_->pars().set( "Number format", encnr );
+	    else
+		DataCharacteristics::putUserTypeToPar( ctio.ioobj_->pars(),
+				(DataCharacteristics::UserType)encnr );
+	    ioobjchgd = true;
 	}
     }
 
+    if ( ioobjchgd )
+	DBM().setEntry( *ctio.ioobj_ );
+
     storer_ = new Storer( *ctio.ioobj_ );
     ctio.setObj( nullptr );
+
     writeData( gt );
 }
 
