@@ -17,6 +17,7 @@
 #include "seisstorer.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "transl.h"
 
 
 static const int cProtocolNr = 1;
@@ -31,6 +32,9 @@ static const char* sWriteLineCmd	= "write-line";
 static const char* sWritePS3DCmd	= "write-ps3d";
 static const char* sWritePS2DCmd	= "write-ps2d";
 static const char* sAsciiCmd		= "ascii";
+static const char* sTypeCmd		= "type";
+static const char* sFormatCmd		= "format";
+static const char* sEncodingCmd		= "encoding";
 
 class SeisServerTool : public ServerProgTool
 {
@@ -60,6 +64,9 @@ protected:
     IOObjContext*	ctxt_	    = nullptr;
     Storer*		storer_	    = nullptr;
     bool		ascii_	    = false;
+    BufferString	translname_;
+    BufferString	typetag_;
+    int			encoding_   = 0;
     GeomID		geomid_;
 
     void		getCtxt(GeomType,bool forread=true);
@@ -149,15 +156,47 @@ void SeisServerTool::listAttribs2D()
 void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 {
     getCtxt( gt, false );
+
+    int translidx = -1;
+    if ( clp().hasKey(sFormatCmd) )
+    {
+	clp().setKeyHasValue( sFormatCmd );
+	BufferString trnm;
+	clp().getVal( sFormatCmd, trnm );
+	const Translator* transl = ctxt_->trgroup_->getTemplate( trnm, true );
+	if ( transl )
+	    translidx = ctxt_->trgroup_->templates().indexOf( transl );
+    }
+
     ctxt_->setName( getObjName(cmd) );
     CtxtIOObj ctio( *ctxt_ );
-    auto res = ctio.fillObj();
+    auto res = ctio.fillObj( false, translidx );
     if ( !res )
 	respondError( "Cannot create entry in Data Store" );
 
+    if ( clp().hasKey(sTypeCmd) )
+    {
+	clp().setKeyHasValue( sTypeCmd );
+	BufferString typetag;
+	clp().getVal( sTypeCmd, typetag );
+	if ( !typetag.isEmpty() )
+	    ctio.ioobj_->pars().set( sKey::Type(), typetag );
+    }
+
+    if ( clp().hasKey(sEncodingCmd) )
+    {
+	clp().setKeyHasValue( sEncodingCmd );
+	int encnr = 0;
+	clp().getVal( sEncodingCmd, encnr );
+	if ( encnr > 0 )
+	{
+	    //TODO how?? seems to be specific per translator
+	}
+    }
+
     storer_ = new Storer( *ctio.ioobj_ );
     ctio.setObj( nullptr );
-    writeData( Seis::Vol );
+    writeData( gt );
 }
 
 
@@ -190,7 +229,7 @@ void SeisServerTool::writeData( GeomType gt )
     trc.setSize( nrsamps );
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    int inl, crl, trcnr;
+    int inl=0, crl=0, trcnr=0;
     while ( true )
     {
 	if ( is2d )
@@ -250,19 +289,21 @@ void SeisServerTool::writePS2D( const char* cmd )
 }
 
 
-
 BufferString SeisServerTool::getSpecificUsage() const
 {
     BufferString ret;
     addToUsageStr( ret, sListCubesCmd, "" );
-    addToUsageStr( ret, sListLinesCmd, "[attrib_name=Seis]" );
+    addToUsageStr( ret, sListLinesCmd, "[attrib_name]" );
     addToUsageStr( ret, sListPS3DCmd, "" );
     addToUsageStr( ret, sListPS2DCmd, "" );
     addToUsageStr( ret, sListAttribs2DCmd, "" );
-    addToUsageStr( ret, sWriteCubeCmd, "cube_name" );
-    addToUsageStr( ret, sWriteLineCmd, "line_name" );
-    addToUsageStr( ret, sWritePS3DCmd, "datastore_name" );
-    addToUsageStr( ret, sWritePS2DCmd, "datastore_name" );
+#   define mAddWriteCmdToUsage( cmd ) \
+	addToUsageStr( ret, cmd, \
+	    "name [--ascii] [--format fmt] [--encoding nr] [--type tag]" )
+    mAddWriteCmdToUsage( sWriteCubeCmd );
+    mAddWriteCmdToUsage( sWriteLineCmd );
+    mAddWriteCmdToUsage( sWritePS3DCmd );
+    mAddWriteCmdToUsage( sWritePS2DCmd );
     return ret;
 }
 
