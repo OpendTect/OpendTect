@@ -1037,3 +1037,134 @@ void uiFaultParSel::setActOptions( const BufferStringSet& opts, int dftoptidx )
     optnms_ = opts;
     defaultoptidx_ = opts.validIdx(dftoptidx) ? dftoptidx : 0;
 }
+
+
+// uiAuxDataGrp
+uiAuxDataGrp::uiAuxDataGrp( uiParent* p, bool forread )
+    : uiGroup(p,"AuxData Group")
+    , inpfld_(nullptr)
+{
+    uiLabeledListBox* llb =
+	new uiLabeledListBox( this, uiStrings::sHorizonData() );
+    listfld_ = llb->box();
+
+    if ( !forread )
+    {
+	mAttachCB( listfld_->selectionChanged, uiAuxDataGrp::selChg );
+
+	inpfld_ = new uiGenInput( this, uiStrings::sName() );
+	inpfld_->attach( alignedBelow, listfld_ );
+    }
+}
+
+
+uiAuxDataGrp::~uiAuxDataGrp()
+{
+    detachAllNotifiers();
+}
+
+
+void uiAuxDataGrp::setKey( const MultiID& key )
+{
+    EM::IOObjInfo info( key );
+    BufferStringSet nms;
+    info.getAttribNames( nms );
+    listfld_->addItems( nms );
+}
+
+
+void uiAuxDataGrp::setDataName( const char* nm )
+{
+    listfld_->setCurrentItem( nm );
+    selChg( nullptr );
+}
+
+
+const char* uiAuxDataGrp::getDataName() const
+{
+    if ( inpfld_ )
+	return inpfld_->text();
+
+    return listfld_->getText();
+}
+
+
+void uiAuxDataGrp::selChg( CallBacker* )
+{
+    if ( inpfld_ )
+	inpfld_->setText( listfld_->getText() );
+}
+
+
+
+// uiAuxDataSel
+uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
+    : uiGroup(p,"AuxDataSel")
+    , objfld_(nullptr)
+    , objtype_(typ)
+    , key_(MultiID::udf())
+{
+    if ( withobjsel )
+    {
+	const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+	objfld_ = new uiIOObjSel( this, ctxt );
+	objfld_->selectionDone.notify( mCB(this,uiAuxDataSel,objSelCB) );
+    }
+
+    auxdatafld_ = new uiIOSelect( this,
+				  uiIOSelect::Setup(uiStrings::sHorizonData()),
+				  mCB(this,uiAuxDataSel,auxSelCB) );
+    if ( objfld_ )
+	auxdatafld_->attach( alignedBelow, objfld_ );
+}
+
+
+uiAuxDataSel::~uiAuxDataSel()
+{
+}
+
+
+void uiAuxDataSel::setKey( const MultiID& key )
+{
+    key_ = key;
+}
+
+
+void uiAuxDataSel::setDataName( const char* nm )
+{
+    auxdatafld_->setInputText( nm );
+}
+
+
+const MultiID& uiAuxDataSel::getKey() const
+{
+    return key_;
+}
+
+
+const char* uiAuxDataSel::getDataName() const
+{
+    return auxdatafld_->getInput();
+}
+
+
+void uiAuxDataSel::objSelCB( CallBacker* )
+{
+    key_ = objfld_ ? objfld_->key() : MultiID::udf();
+}
+
+
+void uiAuxDataSel::auxSelCB( CallBacker* )
+{
+    uiDialog dlg( this,
+	uiDialog::Setup(tr("Select Horizon Data"),mNoDlgTitle,mTODOHelpKey) );
+    uiAuxDataGrp* grp = new uiAuxDataGrp( &dlg, false );
+    grp->setKey( key_ );
+    BufferString datanm = auxdatafld_->getInput();
+    grp->setDataName( datanm );
+    if ( !dlg.go() )
+	return;
+
+    datanm = grp->getDataName();
+    setDataName( datanm );
+}

@@ -13,6 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
+#include "emsurfaceiodata.h"
+#include "emposid.h"
+#include "multiid.h"
 #include "sets.h"
 #include "ranges.h"
 
@@ -21,7 +25,6 @@ class od_ostream;
 class BinIDValueSet;
 class DataPointSet;
 class TrcKeySampling;
-class BufferStringSet;
 namespace Pos { class Provider; }
 
 namespace EM
@@ -71,6 +74,21 @@ public:
 protected:
 
 };
+
+
+mExpClass( EarthModel ) HorizonSelInfo
+{
+public:
+			HorizonSelInfo( const MultiID& key )
+			    : key_(key), emobjid_(-1)	    {}
+    BufferString	name_;
+    MultiID		key_;
+    ObjectID		emobjid_;
+    EM::SurfaceIOData	iodata_;
+
+    static void		getAll(ObjectSet<HorizonSelInfo>&,bool is2d);
+};
+
 
 } // namespace EM
 
