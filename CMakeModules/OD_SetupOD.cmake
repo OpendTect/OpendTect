@@ -7,7 +7,6 @@ SET( INCLUDES
     ODPlatformUtils
     ODUtils
     ODZlibUtils
-    ODOsgUtils
     ODProj4Utils
     ODBreakPadUtils
     ODMacroUtils
@@ -22,6 +21,15 @@ SET( INCLUDES
     ODIttNotifyUtils
 )
 
+if ( NOT OD_NO_OSG )
+    SET( INCLUDES ${INCLUDES} ODOsgUtils )
+endif()
+
 FOREACH( INC ${INCLUDES} )
     INCLUDE( ${OpendTect_DIR}/CMakeModules/${INC}.cmake )
 ENDFOREACH()
+
+
+if ( NOT OD_NO_OSG )
+    OD_ADD_OSGGEO()
+endif()
