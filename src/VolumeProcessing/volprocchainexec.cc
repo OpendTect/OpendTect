@@ -339,31 +339,27 @@ bool VolProc::ChainExecutor::needSplit( od_int64 memusage,
 {
     od_int64 totmem;
     OD::getSystemMemory( totmem, freemem );
+    nrexecs = 1;
     if ( memusage >= freemem )
-    {
 	nrexecs = freemem <= 0 ? 0
 			       : mNINT32( Math::Ceil( mCast(double,memusage) /
 					  mCast(double,freemem) ) );
-	return true;
-    }
 
     //Ensure all datapack arrays have contiguous memory
     const ObjectSet<TrcKeyZSampling>& stepstkzs =
 				*volprocchainexecstepstkzsmgr_.getParam( this );
+    od_int64 maxnrbytesperarray = 0;
     for ( int idx=0; idx<stepstkzs.size(); idx++ )
     {
-	const od_int64 nrsamples = stepstkzs[idx]->totalNr() * sizeof(float);
-	if ( nrsamples < mChunkSize )
-	    continue;
-
-	nrexecs = mNINT32( Math::Ceil(	mCast(double,nrsamples) /
-					mCast(double,mChunkSize) ) );
-	return true;
+	const od_int64 arraynrbytes = stepstkzs[idx]->totalNr() * sizeof(float);
+	if ( arraynrbytes > maxnrbytesperarray )
+	    maxnrbytesperarray = arraynrbytes;
     }
 
-    nrexecs = 1;
+    while ( maxnrbytesperarray/nrexecs > mChunkSize-1 )
+	nrexecs++;
 
-    return false;
+    return nrexecs > 1;
 }
 
 #undef mChunkSize
