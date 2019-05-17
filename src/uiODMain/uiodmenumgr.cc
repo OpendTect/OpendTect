@@ -1442,8 +1442,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     case mSettAdvPython: {
-        uiDialog* dlg = uiAdvSettings::getPythonDlg( &appl_,
-						     "Set Python Settings" );
+        uiDialog* dlg = uiAdvSettings::getPythonDlg( &appl_ );
 	dlg->go();
     } break;
 

@@ -24,12 +24,30 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "uistrings.h"
 
+const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
+const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
+
+
 OD::PythonAccess& OD::PythA()
 {
     static PtrMan<OD::PythonAccess> theinst = nullptr;
     return *theinst.createIfNull();
 }
 
+
+const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
+{
+#ifdef __win__
+    return "python.exe";
+#else
+    if (v3)
+	return "python3";
+    else if (v2)
+	return "python2";
+    else
+	return "python";
+#endif
+}
 
 
 mDefineNameSpaceEnumUtils(OD,PythonSource,"Python Source")
@@ -44,91 +62,6 @@ void EnumDefImpl<OD::PythonSource>::init()
     uistrings_ += tr("Custom");
 }
 
-namespace OD
-{
-
-static const char* sKeyNvidia() { return "NVIDIA"; }
-
-static bool usesNvidiaCard( BufferString* glversionstr )
-{
-    bool ret = false;
-    OS::MachineCommand cmd( "od_glxinfo" );
-    BufferString stdoutstr;
-    if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
-	return false;
-
-    BufferStringSet glxinfostrs;
-    glxinfostrs.unCat( stdoutstr.str() );
-    for ( auto line : glxinfostrs )
-    {
-	if ( !line->startsWith("OpenGL") )
-	    continue;
-
-	if ( line->contains("vendor string:") )
-	    ret = line->contains( sKeyNvidia() );
-	else if ( line->contains("version string:") && glversionstr )
-	{
-	    glversionstr->set( line->find( ':' )+1 );
-	    glversionstr->trimBlanks();
-	}
-    }
-
-    return ret;
-}
-
-
-//from https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
-static const char* cudastrs[] = { "10.1.105", "10.0.130", "9.2.148 update 1",
-    "9.2.88", "9.1.85", "9.0.76", "8.0.61 GA2", "8.0.44", "7.5.16", "7.0.28",
-0 };
-#ifdef __win__
-static const float nvidiavers[] = { 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
-    385.54f, 376.51f, 369.30f, 353.66f, 347.62f };
-#else
-static const float nvidiavers[] = { 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
-    384.81f, 375.26f, 367.48f, 352.31f, 346.46f };
-#endif
-
-static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
-{
-    const FixedString openglstr( glstr );
-    if ( !openglstr.contains(sKeyNvidia()) )
-	return false;
-
-    char valbuf[1024];
-    const char* nextword = getNextWord( openglstr, valbuf );
-    mSkipBlanks( nextword );
-    const char* lastword = nullptr;
-    do
-    {
-	lastword = nextword;
-	nextword = getNextWord( nextword, valbuf );
-	mSkipBlanks( nextword );
-    } while( *nextword );
-
-    const float version = toFloat(lastword);
-    int idx = 0;
-    BufferString tmpcudastr;
-    BufferString& maxcudaversion = maxcudaversionstr ? *maxcudaversionstr
-						     : tmpcudastr;
-    while( true )
-    {
-	const float nvidiaver = nvidiavers[idx];
-	const char* cudastr = cudastrs[idx++];
-	if ( !cudastr )
-	    break;
-
-	if ( version >= nvidiaver )
-	{
-	    maxcudaversion.set( cudastr );
-	    break;
-	}
-    }
-
-    return !maxcudaversion.isEmpty();
-}
-
-};
 
 
 OD::PythonAccess::~PythonAccess()
@@ -137,7 +70,8 @@ OD::PythonAccess::~PythonAccess()
 }
 
 
-bool OD::PythonAccess::isUsable( bool force )
+bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
+				 const char* scriptexpectedout )
 {
     if ( !force )
 	return isusable_;
@@ -153,7 +87,7 @@ bool OD::PythonAccess::isUsable( bool force )
 
     if ( usesystem )
     {
-	isusable_ = isEnvUsable( nullptr );
+	isusable_ = isEnvUsable( nullptr, scriptstr, scriptexpectedout );
 	return isusable_;
     }
 
@@ -172,12 +106,9 @@ bool OD::PythonAccess::isUsable( bool force )
 					 externalroot) )
 	return false;
 
-    BufferString glversion, maxcudaversion;
-    const bool hasnv = usesNvidiaCard( &glversion );
-    const bool candocuda = hasnv && cudaCapable( glversion, &maxcudaversion );
     for ( auto virtualenvfp : virtualenvsfp )
     {
-	if ( isEnvUsable(virtualenvfp,candocuda) )
+	if ( isEnvUsable(virtualenvfp,scriptstr,scriptexpectedout) )
 	{
 	    isusable_ = true;
 	    return true;
@@ -207,9 +138,10 @@ File::Path* OD::PythonAccess::getActivateScript( const File::Path& rootfp )
 
 
 bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
-				    bool tensorflowtest )
+				    const char* scriptstr,
+				    const char* scriptexpectedout )
 {
-    BufferString venvnm, stdoutstr, stderrstr;
+    BufferString venvnm;
     PtrMan<File::Path> activatefp;
     if ( virtualenvfp )
     {
@@ -225,45 +157,45 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
     }
 
     OS::MachineCommand cmd( sPythonExecNm(true) );
-    if ( tensorflowtest )
-    {
-	cmd.addArg( "-c" );
-	BufferStringSet scriptlines;
-	scriptlines.add( "import tensorflow as tf" );
-	scriptlines.add( "hello = tf.constant('hello TensorFlow!')" );
-	scriptlines.add( "sess = tf.Session()" );
-	scriptlines.add( "print( sess.run( hello ) )" );
-	const BufferString scripttext( "\"", scriptlines.cat(";"), "\"" );
-	cmd.addArg( scripttext );
-    }
+    const bool doscript = scriptstr && *scriptstr;
+    if ( doscript )
+	cmd.addArg( "-c" ).addArg( scriptstr );
     else
-    {
 	cmd.addFlag( "version" );
-    }
 
-    bool res = doExecute( cmd, nullptr, nullptr, &stdoutstr, &stderrstr,
-			  activatefp.ptr(), venvnm, nullptr );
+    bool res = doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm );
     if ( !res )
 	return false;
 
-    res = tensorflowtest ? stdoutstr == "b'hello TensorFlow!'"
-			 : !stdoutstr.isEmpty();
-    if ( res )
+    const bool testscriptout = scriptexpectedout && *scriptexpectedout;
+    res = doscript ?  (testscriptout ? laststdout_ ==
+				       FixedString(scriptexpectedout)
+				     : res)
+		   : !laststdout_.isEmpty() || !laststderr_.isEmpty();
+    if ( !res )
+	return false;
+
+    if ( virtualenvfp )
     {
-	if ( virtualenvfp )
-	{
-	    delete activatefp_;
-	    activatefp_ = new File::Path( *activatefp );
-	    virtenvnm_.set( venvnm );
-	}
-	else
-	{
-	    deleteAndZeroPtr( activatefp_ );
-	    virtenvnm_.setEmpty();
-	}
+	delete activatefp_;
+	activatefp_ = new File::Path( *activatefp );
+	virtenvnm_.set( venvnm );
+    }
+    else
+    {
+	deleteAndZeroPtr( activatefp_ );
+	virtenvnm_.setEmpty();
     }
 
-    return res;
+    msg_.setEmpty();
+
+    return true;
+}
+
+
+bool OD::PythonAccess::execute( const OS::MachineCommand& cmd )
+{
+    return execute( cmd, laststdout_, &laststderr_, &msg_ );
 }
 
 
@@ -275,9 +207,15 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
     if ( !isUsable(!istested_) )
 	return false;
 
-    return doExecute( cmd, nullptr, nullptr,
-		      &stdoutstr, stderrstr,
-		      activatefp_, virtenvnm_.buf(), errmsg );
+    const bool res = doExecute( cmd, nullptr, nullptr, activatefp_,
+				virtenvnm_.buf() );
+    stdoutstr = laststdout_;
+    if ( stderrstr )
+	stderrstr->set( laststderr_ );
+    if ( errmsg )
+	errmsg->set( msg_ );
+
+    return res;
 }
 
 
@@ -288,9 +226,19 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
     if ( !isUsable(!istested_) )
 	return false;
 
-    return doExecute( cmd, &pars, pid,
-		      nullptr, nullptr,
-		      activatefp_, virtenvnm_.buf(), errmsg );
+    const bool res = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf());
+    if ( errmsg )
+	errmsg->set( msg_ );
+
+    return res;
+}
+
+
+BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg )
+{
+    if ( msg )
+	msg->set( msg_ );
+    return stderrout ? laststderr_ : laststdout_;
 }
 
 
@@ -376,25 +324,25 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 
 bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 				  const OS::CommandExecPars* execpars, int* pid,
-				  BufferString* stdoutstr,
-				  BufferString* stderrstr,
 				  const File::Path* activatefp,
-				  const char* envnm, uiString* errmsg )
+				  const char* envnm )
 {
+    laststdout_.setEmpty();
+    laststderr_.setEmpty();
+    msg_.setEmpty();
+
     File::Path scriptfp;
     PtrMan<OS::CommandLauncher> cl = getLauncher( cmd, activatefp, envnm,
 						  scriptfp );
     if ( !cl )
     {
-	if ( errmsg )
-	    *errmsg = tr("Cannot create launcher for command '%1'")
-			.arg( cmd.getSingleStringRep() );
+	msg_ = tr("Cannot create launcher for command '%1'")
+		    .arg( cmd.getSingleStringRep() );
 	return false;
     }
 
-    const bool res = stdoutstr ? cl->execute( *stdoutstr, stderrstr )
-			       : ( execpars ? cl->execute( *execpars )
-					    : cl->execute() );
+    const bool res = execpars ? cl->execute( *execpars )
+			      : cl->execute( laststdout_, &laststderr_ );
     if ( pid )
 	*pid = cl->processID();
 
@@ -405,12 +353,20 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 	File::remove( scriptfp.fullPath() );
     }
 
-    if ( !res && errmsg )
+    if ( !res )
     {
 	if ( cl->errorMsg().isEmpty() )
-	    errmsg->set( uiStrings::phrCannotStart(cmd.program()) );
+	    msg_.set( uiStrings::phrCannotStart(cmd.program()) );
 	else
-	    errmsg->set( cl->errorMsg() );
+	    msg_.set( cl->errorMsg() );
+    }
+
+    if ( execpars && execpars->createstreams_ )
+    {
+	if ( cl->getStdOutput() )
+	    cl->getStdOutput()->getAll( laststdout_ );
+	if ( cl->getStdError() )
+	    cl->getStdError()->getAll( laststderr_ );
     }
 
     return res;
@@ -491,41 +447,6 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 
     return !virtualenvfp.isEmpty();
 }
-
-
-const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
-{
-#ifdef __win__
-    return "python.exe";
-#else
-    if (v3)
-	return "python3";
-    else if (v2)
-	return "python2";
-    else
-	return "python";
-#endif
-}
-
-const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
-const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
-
-
-OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
-    : NamedObject("")
-{
-    char valbuf[1024];
-    const char* nextword = getNextWord( modulestr, valbuf );
-    BufferString namestr( valbuf ); namestr.clean( BufferString::NoSpaces );
-    if ( !namestr.isEmpty() )
-	setName( namestr );
-
-    mSkipBlanks( nextword ); if ( !*nextword ) return;
-
-    getNextWord( nextword, valbuf );
-    versionstr_.set( valbuf ).clean( BufferString::NoSpaces );
-}
-
 
 
 bool OD::PythonAccess::validInternalEnvironment( const File::Path& fp )
@@ -609,3 +530,144 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 
     return true;
 }
+
+
+uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
+				       const char* cmd )
+{
+    const OS::MachineCommand mc( cmd );
+    const bool res = execute( mc );
+    if ( !res )
+    {
+	return uiRetVal( tr("Cannot detect list of python modules:\n%1")
+				.arg(laststderr_) );
+    }
+    BufferStringSet modstrs;
+    modstrs.unCat( laststdout_ );
+    for ( int idx=2; idx<modstrs.size(); idx++ )
+	mods.add( new ModuleInfo( modstrs[idx]->buf() ) );
+
+    return uiRetVal::OK();
+}
+
+
+
+OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
+    : NamedObject("")
+{
+    char valbuf[1024];
+    const char* nextword = getNextWord( modulestr, valbuf );
+    BufferString namestr( valbuf ); namestr.clean( BufferString::NoSpaces );
+    if ( !namestr.isEmpty() )
+	setName( namestr );
+
+    mSkipBlanks( nextword ); if ( !*nextword ) return;
+
+    getNextWord( nextword, valbuf );
+    versionstr_.set( valbuf ).clean( BufferString::NoSpaces );
+}
+
+
+BufferString OD::PythonAccess::ModuleInfo::displayStr( bool withver )
+{
+    BufferString ret( name() );
+    if ( withver )
+	ret.add( " " ).add( versionstr_ );
+    return ret;
+}
+
+
+namespace OD
+{
+
+static const char* sKeyNvidia() { return "NVIDIA"; }
+
+static bool usesNvidiaCard( BufferString* glversionstr )
+{
+    bool ret = false;
+    OS::MachineCommand cmd( "od_glxinfo" );
+    BufferString stdoutstr;
+    if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
+	return false;
+
+    BufferStringSet glxinfostrs;
+    glxinfostrs.unCat( stdoutstr.str() );
+    for ( auto line : glxinfostrs )
+    {
+	if ( !line->startsWith("OpenGL") )
+	    continue;
+
+	if ( line->contains("vendor string:") )
+	    ret = line->contains( sKeyNvidia() );
+	else if ( line->contains("version string:") && glversionstr )
+	{
+	    glversionstr->set( line->find( ':' )+1 );
+	    glversionstr->trimBlanks();
+	}
+    }
+
+    return ret;
+}
+
+
+//from https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
+static const char* cudastrs[] = { "10.1.105", "10.0.130", "9.2.148 update 1",
+    "9.2.88", "9.1.85", "9.0.76", "8.0.61 GA2", "8.0.44", "7.5.16", "7.0.28",
+0 };
+#ifdef __win__
+static const float nvidiavers[] = { 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
+    385.54f, 376.51f, 369.30f, 353.66f, 347.62f };
+#else
+static const float nvidiavers[] = { 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
+    384.81f, 375.26f, 367.48f, 352.31f, 346.46f };
+#endif
+
+static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
+{
+    const FixedString openglstr( glstr );
+    if ( !openglstr.contains(sKeyNvidia()) )
+	return false;
+
+    char valbuf[1024];
+    const char* nextword = getNextWord( openglstr, valbuf );
+    mSkipBlanks( nextword );
+    const char* lastword = nullptr;
+    do
+    {
+	lastword = nextword;
+	nextword = getNextWord( nextword, valbuf );
+	mSkipBlanks( nextword );
+    } while( *nextword );
+
+    const float version = toFloat(lastword);
+    int idx = 0;
+    BufferString tmpcudastr;
+    BufferString& maxcudaversion = maxcudaversionstr ? *maxcudaversionstr
+						     : tmpcudastr;
+    while( true )
+    {
+	const float nvidiaver = nvidiavers[idx];
+	const char* cudastr = cudastrs[idx++];
+	if ( !cudastr )
+	    break;
+
+	if ( version >= nvidiaver )
+	{
+	    maxcudaversion.set( cudastr );
+	    break;
+	}
+    }
+
+    return !maxcudaversion.isEmpty();
+}
+
+
+bool canDoCUDA( BufferString& maxverstr )
+{
+    BufferString glversion;
+    const bool hasnv = usesNvidiaCard( &glversion );
+    return hasnv && cudaCapable( glversion, &maxverstr );
+}
+
+};
+

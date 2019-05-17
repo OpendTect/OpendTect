@@ -472,29 +472,22 @@ void testPythonVersion()
     }
 }
 
-void testPythonModules( const char* scriptnm )
+void testPythonModules()
 {
-    OS::MachineCommand mc( scriptnm );
-    mc.addArg( "list" );
-    BufferString modulesstr, errorstr;
-    const bool res = OD::PythA().execute( mc, modulesstr, &errorstr );
-    if ( res )
+    ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
+    const uiRetVal uirv( OD::PythA().getModules(modules) );
+    if ( !uirv.isOK() )
     {
-	BufferStringSet modstrs;
-	modstrs.unCat( modulesstr );
-	TypeSet<OD::PythonAccess::ModuleInfo> modinfos;
-	for ( int idx=2; idx<modstrs.size(); idx++ )
-	    modinfos += OD::PythonAccess::ModuleInfo( modstrs[idx]->buf() );
+	gUiMsg( this ).error( uirv );
+	return;
+    }
 
-	const uiString out = tr("Detected list of Python modules:\n%1")
-					.arg(modulesstr);
-	gUiMsg( this ).message( out );
-    }
-    else
-    {
-	gUiMsg( this ).error( tr("Cannot detect list of python modules:\n%1")
-				  .arg(errorstr) );
-    }
+    BufferStringSet modstrs;
+    for ( auto module : modules )
+	modstrs.add( module->displayStr() );
+
+    gUiMsg( this ).message( tr("Detected list of Python modules:\n%1")
+				.arg( modstrs.cat()) );
 }
 
 void testCB(CallBacker*)
@@ -514,7 +507,7 @@ void testCB(CallBacker*)
     testPythonVersion();
 
     usw.setMessage( tr("Retrieving list of installed Python modules") );
-    testPythonModules( "pip" );
+    testPythonModules();
 }
 
 bool useScreen()
@@ -593,9 +586,9 @@ bool acceptOK()
 
 
 
-uiDialog* uiAdvSettings::getPythonDlg( uiParent* p, const char* nm )
+uiDialog* uiAdvSettings::getPythonDlg( uiParent* p )
 {
-    uiDialog* ret = new uiPythonSettings( p, nm );
+    uiDialog* ret = new uiPythonSettings( p, "Set Python Settings" );
     ret->setModal( false );
     ret->setDeleteOnClose( true );
     return ret;

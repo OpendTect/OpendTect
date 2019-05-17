@@ -38,8 +38,11 @@ namespace OD
     public:
 			~PythonAccess();
 
-	bool		isUsable(bool force=false);
+	bool		isUsable(bool force=false,
+				 const char* scriptstr=nullptr,
+				 const char* scriptexpectedout=nullptr);
 
+	bool		execute(const OS::MachineCommand&);
 	bool		execute(const OS::MachineCommand&,
 				BufferString& stdoutstr,
 				BufferString* stderrstr,
@@ -47,6 +50,8 @@ namespace OD
 	bool		execute(const OS::MachineCommand&,
 				const OS::CommandExecPars&,
 				int* pid=nullptr,uiString* errmsg=nullptr);
+
+	BufferString	lastOutput(bool stderrout,uiString* launchermsg);
 
 	static bool		hasInternalEnvironment(bool allowuserdef=true);
 	static bool		validInternalEnvironment(const File::Path&);
@@ -58,10 +63,15 @@ namespace OD
 	mStruct(Basic) ModuleInfo : NamedObject
 	{
 	    public:
-			    ModuleInfo(const char*);
+				ModuleInfo(const char*);
+
+	    BufferString	displayStr(bool withver=true);
 
 	    BufferString	versionstr_;
 	};
+
+	uiRetVal	getModules(ObjectSet<ModuleInfo>&,
+				   const char* cmd="pip list");
 
     private:
 
@@ -69,6 +79,9 @@ namespace OD
 	bool		isusable_ = false;
 	File::Path*	activatefp_ = nullptr;
 	BufferString	virtenvnm_;
+	BufferString	laststdout_;
+	BufferString	laststderr_;
+	uiString	msg_;
 
 	static bool	getInternalEnvironmentLocation(File::Path&,
 							   bool userdef);
@@ -77,7 +90,8 @@ namespace OD
 				      const char* envnm=nullptr,
 				      const File::Path* extroot=nullptr);
 	bool		isEnvUsable(const File::Path* virtualenvfp,
-					bool tensorflowtest=false);
+				    const char* scriptstr,
+				    const char* scriptexpectedout);
 	static File::Path* getCommand(OS::MachineCommand&,
 				      const File::Path* activatefp,
 				      const char* envnm);
@@ -85,12 +99,10 @@ namespace OD
 				  const File::Path* activatefp,
 				  const char* envnm,
 				  File::Path& scriptfp);
-	static bool	doExecute(const OS::MachineCommand&,
+	bool			doExecute(const OS::MachineCommand&,
 				  const OS::CommandExecPars*,int* pid,
-				  BufferString* stdoutstr,
-				  BufferString* stderrstr,
 				  const File::Path* activatefp,
-				  const char* envnm,uiString* errmsg);
+				  const char* envnm);
 	static File::Path*	getActivateScript(const File::Path& root);
 
     public:
@@ -101,5 +113,7 @@ namespace OD
     };
 
     mGlobal(Basic) PythonAccess& PythA();
+
+    mGlobal(Basic) bool canDoCUDA(BufferString& maxverstr);
 
 } //namespace OD

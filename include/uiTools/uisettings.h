@@ -77,7 +77,7 @@ public:
 			// Specify this to edit the survey defaults
     static const char*	sKeySurveyDefs()	{ return "SurvDefs"; }
 
-    static uiDialog*	getPythonDlg(uiParent*,const char* titl);
+    static uiDialog*	getPythonDlg(uiParent*);
 
 protected:
 
