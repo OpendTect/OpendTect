@@ -182,20 +182,26 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
     if ( !res )
 	return false;
 
+    bool notrigger;
     if ( virtualenvfp )
     {
+	notrigger = activatefp_ &&
+		    activatefp_->fullPath() == activatefp->fullPath() &&
+		    virtenvnm_ == venvnm;
 	delete activatefp_;
 	activatefp_ = new File::Path( *activatefp );
 	virtenvnm_.set( venvnm );
     }
     else
     {
+	notrigger = !activatefp_ && virtenvnm_.isEmpty() && venvnm.isEmpty();
 	deleteAndZeroPtr( activatefp_ );
 	virtenvnm_.setEmpty();
     }
 
     msg_.setEmpty();
-    envChange.trigger();
+    if ( !notrigger )
+	envChange.trigger();
 
     return true;
 }
