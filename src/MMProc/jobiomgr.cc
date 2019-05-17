@@ -233,7 +233,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 
 char JobIOHandler::getRespFor( int descnr, const char* hostnm )
 {
-    char resp = mRSP_STOP;
+    char resp = mRSP_UNDEF;
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
     if ( jhri ) resp = jhri->response_;
     return resp;
@@ -242,7 +242,7 @@ char JobIOHandler::getRespFor( int descnr, const char* hostnm )
 
 void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 {
-    char resp = mRSP_STOP;
+    char resp = mRSP_UNDEF;
 
     switch( mode )
     {
@@ -285,7 +285,7 @@ void JobIOHandler::socketCB( CallBacker* cb )
 	    errmsg = statstr[4];
 
 	    char response = getRespFor( jobid, hostnm );
-	    if ( response != mRSP_STOP )
+	    if ( response != mRSP_UNDEF && response != mRSP_STOP )
 	    {
 		statusqueue_.add( new StatusInfo( tag, jobid, status,
 			procid, errmsg, hostnm, Time::getMilliSeconds()) );
