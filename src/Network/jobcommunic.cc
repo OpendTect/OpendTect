@@ -205,8 +205,9 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     }
     else
     {
-	BufferString emsg( "Master sent an unkown response code: ",
-			    socket_->errMsg().getFullString() );
+	BufferString emsg( "Master sent an unkown response code: '" );
+	emsg.add( masterinfo ).add( "', " )
+	    .add( socket_->errMsg().getFullString() );
 	setErrMsg( emsg );
 	ret = false;
     }
