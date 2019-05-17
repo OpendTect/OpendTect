@@ -45,6 +45,10 @@ option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
 
 include( OD_SetupOD )
 
+if ( NOT OD_NO_OSG )
+    OD_ADD_OSGGEO()
+endif()
+
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
