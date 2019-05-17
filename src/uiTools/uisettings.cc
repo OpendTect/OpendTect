@@ -452,26 +452,6 @@ void setCustomEnvironmentNames()
     customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
 }
 
-void testPythonVersion()
-{
-    OS::MachineCommand mc( OD::PythonAccess::sPythonExecNm(true) );
-    mc.addFlag( "version" );
-    BufferString versionstr, errorstr;
-    const bool res = OD::PythA().execute( mc, versionstr, &errorstr );
-    if ( res )
-    {
-	if ( versionstr.isEmpty() && !errorstr.isEmpty() )
-	    versionstr.set( errorstr );
-	const uiString out = tr("Detected Python version: %1").arg(versionstr);
-	gUiMsg( this ).message( out );
-    }
-    else
-    {
-	gUiMsg( this ).error( tr("Cannot detect python version:\n%1")
-				  .arg(errorstr) );
-    }
-}
-
 void testPythonModules()
 {
     ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
@@ -496,15 +476,22 @@ void testCB(CallBacker*)
     if ( !useScreen() )
 	return;
 
-    uiUserShowWait usw( this, tr("Basing Python testing") );
+    uiUserShowWait usw( this, tr("Retrieving Python testing") );
     if ( !OD::PythA().isUsable(true) )
     {
-	gUiMsg( this ).error( tr("Python environment not usable") );
+	uiString launchermsg;
+	uiRetVal uirv( tr("Cannot detect python version:\n%1")
+			.arg(OD::PythA().lastOutput(true,&launchermsg)) );
+	uirv.add( tr("Python environment not usable") )
+	    .add( launchermsg );
+	gUiMsg( this ).error( uirv );
 	return;
     }
 
-    usw.setMessage( tr("Retrieving Python version") );
-    testPythonVersion();
+    BufferString versionstr( OD::PythA().lastOutput(false,nullptr) );
+    if ( versionstr.isEmpty() )
+	versionstr.set( OD::PythA().lastOutput(true,nullptr) );
+    gUiMsg( this ).message( tr("Detected Python version: %1").arg(versionstr));
 
     usw.setMessage( tr("Retrieving list of installed Python modules") );
     testPythonModules();
