@@ -587,7 +587,8 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	}
     }
 
-    storer->close(); // closes output
+    if ( storer )
+	storer->close();
     if ( singlevintage_ && !handleWarnings(!doimp,indexer,imp) )
 	{ DBM().removeEntry( outioobj.key() ); return false; }
 
