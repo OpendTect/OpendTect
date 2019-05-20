@@ -429,12 +429,11 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	    const BufferString envpath( dl.fullPath(idx) );
 	    const DirList priorityfiles( envpath, File::FilesInDir,
 					 sKeyPriorityGlobExpr() );
-	    for ( int idy=0; idy<priorityfiles.size(); idy++ )
+	    if ( !priorityfiles.isEmpty() )
 	    {
-		const File::Path priofp( priorityfiles.fullPath(idy) );
+		const File::Path priofp( priorityfiles.fullPath(0) );
 		prioritydirs.add( envpath );
 		prioritylist += toInt( priofp.extension() );
-		break;
 	    }
 	}
 	if ( prioritylist.isEmpty() )
