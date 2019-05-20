@@ -387,6 +387,12 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 }
 
 
+namespace OD
+{
+    static const char* sKeyPriorityGlobExpr()	{ return "Priority.*"; }
+} // namespace OD
+
+
 bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 					ObjectSet<File::Path>& virtualenvfp,
 					const char* envnm,
@@ -422,7 +428,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	{
 	    const BufferString envpath( dl.fullPath(idx) );
 	    const DirList priorityfiles( envpath, File::FilesInDir,
-					 "Priority.*" );
+					 sKeyPriorityGlobExpr() );
 	    for ( int idy=0; idy<priorityfiles.size(); idy++ )
 	    {
 		const File::Path priofp( priorityfiles.fullPath(idy) );
