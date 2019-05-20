@@ -31,7 +31,7 @@ StringBuilder& StringBuilder::operator =( const StringBuilder& oth )
 	bufsz_ = curpos_ = 0;
     else
     {
-	OD::memCopy( buf_, oth.buf_, oth.curpos_ );
+	OD::memCopy( buf_, oth.buf_, oth.curpos_+1 );
 	bufsz_ = oth.bufsz_;
 	curpos_ = oth.curpos_;
     }
@@ -90,7 +90,7 @@ bool StringBuilder::setBufSz( size_type newsz, bool cp_old )
     if ( buf_ )
     {
 	if ( cp_old )
-	    OD::memCopy( newbuf, buf_, curpos_ );
+	    OD::memCopy( newbuf, buf_, curpos_+1 );
 	delete [] buf_;
     }
 
