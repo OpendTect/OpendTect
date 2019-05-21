@@ -61,6 +61,9 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     }
 
     toolBars() += this;
+#ifdef __mac__
+    qtoolbar_->setStyleSheet( "background: gray;" );
+#endif
 }
 
 

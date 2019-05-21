@@ -262,6 +262,10 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     setWindowModality( p && modal ? Qt::WindowModal
 				  : Qt::NonModal );
 
+#ifdef __mac__
+    setUnifiedTitleAndToolBarOnMac( true );
+#endif
+
     setDockOptions( VerticalTabs | AnimatedDocks );
 
     deletefrombody_ = deletefromod_ = false;
