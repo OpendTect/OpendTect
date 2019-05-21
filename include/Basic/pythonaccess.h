@@ -43,17 +43,23 @@ namespace OD
 	bool		isUsable(bool force=false,
 				 const char* scriptstr=nullptr,
 				 const char* scriptexpectedout=nullptr);
+	bool		isUsable(bool force=false,
+				 const char* scriptstr=nullptr,
+				 const char* scriptexpectedout=nullptr) const;
 
-	bool		execute(const OS::MachineCommand&);
+	bool		execute(const OS::MachineCommand&) const;
 	bool		execute(const OS::MachineCommand&,
 				BufferString& stdoutstr,
 				BufferString* stderrstr,
-				uiString* errmsg=nullptr);
+				uiString* errmsg=nullptr) const;
 	bool		execute(const OS::MachineCommand&,
 				const OS::CommandExecPars&,
-				int* pid=nullptr,uiString* errmsg=nullptr);
+				int* pid=nullptr,
+				uiString* errmsg=nullptr) const;
 
-	BufferString	lastOutput(bool stderrout,uiString* launchermsg);
+	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
+
+	bool		isModuleUsable(const char* nm) const;
 
 	static bool		hasInternalEnvironment(bool allowuserdef=true);
 	static bool		validInternalEnvironment(const File::Path&);
@@ -83,9 +89,9 @@ namespace OD
 	bool		isusable_ = false;
 	File::Path*	activatefp_ = nullptr;
 	BufferString	virtenvnm_;
-	BufferString	laststdout_;
-	BufferString	laststderr_;
-	uiString	msg_;
+	mutable BufferString	laststdout_;
+	mutable BufferString	laststderr_;
+	mutable uiString	msg_;
 
 	static bool	getInternalEnvironmentLocation(File::Path&,
 							   bool userdef);
@@ -106,13 +112,13 @@ namespace OD
 	bool			doExecute(const OS::MachineCommand&,
 				  const OS::CommandExecPars*,int* pid,
 				  const File::Path* activatefp,
-				  const char* envnm);
+				  const char* envnm) const;
 	static File::Path*	getActivateScript(const File::Path& root);
 
     public:
 
 	OS::CommandLauncher* getLauncher(const OS::MachineCommand&,
-				     File::Path& scriptfp);
+					 File::Path& scriptfp) const;
 
     };
 

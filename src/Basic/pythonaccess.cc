@@ -78,6 +78,17 @@ OD::PythonAccess::~PythonAccess()
 
 
 bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
+				 const char* scriptexpectedout ) const
+{
+    if ( !force )
+	return isusable_;
+
+    OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
+    return pytha.isUsable( force, scriptstr, scriptexpectedout );
+}
+
+
+bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
     if ( !force )
@@ -207,7 +218,7 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
 }
 
 
-bool OD::PythonAccess::execute( const OS::MachineCommand& cmd )
+bool OD::PythonAccess::execute( const OS::MachineCommand& cmd ) const
 {
     return execute( cmd, laststdout_, &laststderr_, &msg_ );
 }
@@ -216,15 +227,16 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd )
 bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString& stdoutstr,
 				BufferString* stderrstr,
-				uiString* errmsg )
+				uiString* errmsg ) const
 {
     if ( !isUsable(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, nullptr, nullptr, activatefp_,
 				virtenvnm_.buf() );
-    stdoutstr = laststdout_;
-    if ( stderrstr )
+    if ( &stdoutstr != &laststdout_ )
+	stdoutstr = laststdout_;
+    if ( stderrstr && &laststderr_ != stderrstr )
 	stderrstr->set( laststderr_ );
     if ( errmsg )
 	errmsg->set( msg_ );
@@ -235,7 +247,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 
 bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				const OS::CommandExecPars& pars,
-				int* pid, uiString* errmsg )
+				int* pid, uiString* errmsg ) const
 {
     if ( !isUsable(!istested_) )
 	return false;
@@ -248,7 +260,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 }
 
 
-BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg )
+BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 {
     if ( msg )
 	msg->set( msg_ );
@@ -256,9 +268,17 @@ BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg )
 }
 
 
+bool OD::PythonAccess::isModuleUsable( const char* nm ) const
+{
+    OS::MachineCommand cmd( sPythonExecNm(true) );
+    cmd.addArg( "-c" ).addArg( BufferString("\"import ",nm,"\"") );
+    return execute( cmd ) && lastOutput(true,nullptr).isEmpty();
+}
+
+
 OS::CommandLauncher* OD::PythonAccess::getLauncher(
 						const OS::MachineCommand& mc,
-						File::Path& scriptfp )
+						File::Path& scriptfp ) const
 {
     if ( !isUsable(!istested_) )
 	return nullptr;
@@ -339,7 +359,7 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 				  const OS::CommandExecPars* execpars, int* pid,
 				  const File::Path* activatefp,
-				  const char* envnm )
+				  const char* envnm ) const
 {
     laststdout_.setEmpty();
     laststderr_.setEmpty();
