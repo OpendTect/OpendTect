@@ -14,6 +14,8 @@
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "prog.h"
+#include "segydirectdef.h"
+#include "segyfiledata.h"
 #include "seisprovider.h"
 #include "seisstorer.h"
 #include "seistrc.h"
@@ -32,10 +34,12 @@ static const char* sWriteCubeCmd	= "write-cube";
 static const char* sWriteLineCmd	= "write-line";
 static const char* sWritePS3DCmd	= "write-ps3d";
 static const char* sWritePS2DCmd	= "write-ps2d";
+static const char* sWriteSEGYDefCmd	= "write-segydef";
 static const char* sAsciiCmd		= "ascii";
 static const char* sTypeCmd		= "type";
 static const char* sFormatCmd		= "format";
 static const char* sEncodingCmd		= "encoding";
+static const char* sGeometryCmd		= "geometry";
 
 class SeisServerTool : public ServerProgTool
 {
@@ -57,6 +61,7 @@ public:
     void		writeLine(const char*);
     void		writePS3D(const char*);
     void		writePS2D(const char*);
+    void		writeSEGYDef(const char*);
 
 protected:
 
@@ -76,6 +81,8 @@ protected:
     void		writeObj(GeomType,const char*);
     void		finishWrite();
     void		writeData(GeomType);
+    int			getTranslIdx(const char*) const;
+    GeomType		getGeomTypeFromCL() const;
 
 };
 
@@ -154,6 +161,16 @@ void SeisServerTool::listAttribs2D()
 }
 
 
+int SeisServerTool::getTranslIdx( const char* trnm ) const
+{
+    int ret = -1;
+    const Translator* transl = ctxt_->trgroup_->getTemplate( trnm, true );
+    if ( transl )
+	ret = ctxt_->trgroup_->templates().indexOf( transl );
+    return ret;
+}
+
+
 void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 {
     getCtxt( gt, false );
@@ -165,12 +182,8 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 	clp().setKeyHasValue( sFormatCmd );
 	BufferString trnm;
 	clp().getVal( sFormatCmd, trnm );
-	const Translator* transl = ctxt_->trgroup_->getTemplate( trnm, true );
-	if ( transl )
-	{
-	    translidx = ctxt_->trgroup_->templates().indexOf( transl );
-	    issegy = trnm.startsWith( "SEG" );
-	}
+	issegy = trnm.startsWith( "SEG" );
+	translidx = getTranslIdx( trnm );
     }
 
     ctxt_->setName( getObjName(cmd) );
@@ -307,6 +320,50 @@ void SeisServerTool::writePS2D( const char* cmd )
 }
 
 
+Seis::GeomType SeisServerTool::getGeomTypeFromCL() const
+{
+    clp().setKeyHasValue( sGeometryCmd );
+    BufferString gtstr;
+    clp().getVal( sGeometryCmd, gtstr );
+    if ( gtstr.isEqual("2d",CaseInsensitive) )
+	return Seis::Line;
+    else if ( gtstr.isEqual("ps3d",CaseInsensitive) )
+	return Seis::VolPS;
+    else if ( gtstr.isEqual("ps2d",CaseInsensitive) )
+	return Seis::LinePS;
+    return Seis::Vol;
+}
+
+
+void SeisServerTool::writeSEGYDef( const char* cmd )
+{
+    const GeomType gt = getGeomTypeFromCL();
+    getCtxt( gt, false );
+    ctxt_->setName( getObjName(cmd) );
+    CtxtIOObj ctio( *ctxt_ );
+    const int translidx = getTranslIdx( "SEGYDirect" );
+    auto res = ctio.fillObj( false, translidx );
+    if ( !res )
+	respondError( "Cannot create SEGYDirect entry in Data Store" );
+
+    SEGY::DirectDef def;
+    const BufferString fnm( ctio.ioobj_->mainFileName() );
+    if ( !def.writeHeadersToFile(fnm) )
+	respondError( BufferString("Cannot open SEGYDirect data file ",fnm) );
+    // IOPar iop;
+    // SEGY::FileDataSet fds( iop );
+    // fds.setOutputStream( def.getOutputStream() );
+
+    //TODO slurp data
+
+
+    if ( !def.writeFootersToFile() )
+	respondError( BufferString("Cannot finish SEGYDirect data file ",fnm) );
+
+    respondInfo( true );
+}
+
+
 BufferString SeisServerTool::getSpecificUsage() const
 {
     BufferString ret;
@@ -322,6 +379,7 @@ BufferString SeisServerTool::getSpecificUsage() const
     mAddWriteCmdToUsage( sWriteLineCmd );
     mAddWriteCmdToUsage( sWritePS3DCmd );
     mAddWriteCmdToUsage( sWritePS2DCmd );
+    addToUsageStr( ret, sWriteSEGYDefCmd, "name --geometry 3D|2D|PS3D|PS3D" );
     return ret;
 }
 
@@ -356,6 +414,8 @@ int main( int argc, char** argv )
 	st.writePS3D( sWritePS3DCmd );
     else if ( clp.hasKey(sWritePS2DCmd) )
 	st.writePS2D( sWritePS2DCmd );
+    else if ( clp.hasKey(sWriteSEGYDefCmd) )
+	st.writeSEGYDef( sWriteSEGYDefCmd );
 
     pFreeFnErrMsg( "Should not reach" );
     return ExitProgram( 0 );
