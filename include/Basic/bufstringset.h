@@ -80,6 +80,7 @@ public:
     bool		addIfNew(const OD::String&);
     void		append( const BufferStringSet& oth )
 			{ strs_.append( oth.strs_ ); }
+    BufferStringSet&	addWordsFrom(const char*);
 
 #   define		mODBSSDefMatchSens CaseSensitivity cs=CaseInsensitive
     idx_type		nearestMatch(const char*,mODBSSDefMatchSens) const;

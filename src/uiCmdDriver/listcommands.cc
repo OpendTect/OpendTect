@@ -917,7 +917,8 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	if ( ev.nraccepts_ )
 	    return true;
 
-	const char* msgnext = getNextWord( ev.msg_, notifiername.getCStr() );
+	const char* msgnext = getNextNonBlanks( ev.msg_,
+						notifiername.getCStr() );
 	itemidx = strtol( msgnext, &msgnexxt, 0 );
 
 	if ( mMatchCI(notifiername, "itemEntered") && !ev.begin_ )

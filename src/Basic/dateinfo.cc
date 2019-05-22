@@ -480,19 +480,19 @@ bool DateInfo::fromStdDateString( const char* inp )
     setUdf(); if ( !inp || !*inp ) return false;
 
     char buf[1024];
-    const char* ptr = getNextWord( inp, buf );
-    if ( !ptr )
+    const char* ptr = getNextNonBlanks( inp, buf );
+    if ( !buf[0] )
 	return false;
-    ptr = getNextWord( ptr, buf );
-    if ( !ptr )
+    ptr = getNextNonBlanks( ptr, buf );
+    if ( !buf[0] )
 	return false;
 
     buf[0] = (char) tolower( buf[0] );
     const Month monthvar = MonthDef().parse( buf );
     months_ = (int) monthvar;
 
-    ptr = getNextWord( ptr, buf );
-    if ( !ptr )
+    ptr = getNextNonBlanks( ptr, buf );
+    if ( !buf[0] )
 	return false;
     days_ = toInt( buf );
     if ( days_ > 0 )

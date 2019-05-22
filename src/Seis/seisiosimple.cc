@@ -416,7 +416,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	char buf[1024]; const char* bufptr = buf;
 	for ( int idx=0; idx<data_.nrsamples_; idx++ )
 	{
-	    ptr = getNextWord( ptr, buf );
+	    ptr = getNextNonBlanks( ptr, buf );
 	    float val = 0; Conv::set( val, bufptr );
 	    mApplyScalerAndSetTrcVal;
 	}

@@ -332,15 +332,17 @@ char* lastOcc( char* str, const char* tofind )
 { return (char*)getLastOcc( str, tofind ); }
 
 
-const char* getNextWord( const char* strptr, char* wordbuf )
+const char* getNextNonBlanks( const char* strptr, char* wordbuf )
 {
     if ( !wordbuf )
-	return nullptr;
+	return strptr;
     *wordbuf = '\0';
     if ( !strptr || !*strptr )
 	return strptr;
-
     mSkipBlanks( strptr );
+    if ( !*strptr )
+	return strptr;
+
     while ( *strptr && !iswspace(*strptr) )
 	*wordbuf++ = *strptr++;
     *wordbuf = '\0';
@@ -349,9 +351,58 @@ const char* getNextWord( const char* strptr, char* wordbuf )
 }
 
 
+const char* getNextWord( const char* strptr, char* wordbuf )
+{
+    return getNextWordElem( strptr, wordbuf );
+}
+
+
+const char* getNextWordElem( const char* strptr, char* wordbuf )
+{
+    if ( !wordbuf )
+	return nullptr;
+    *wordbuf = '\0';
+    if ( !strptr || !*strptr )
+	return nullptr;
+    mSkipBlanks( strptr );
+    if ( !*strptr )
+	return nullptr;
+
+    bool insq = false; bool indq = false;
+    while ( *strptr )
+    {
+	if ( *strptr == '"' )
+	{
+	    if ( indq )
+		{ strptr++; break; }
+	    if ( !insq )
+		{ indq = true; strptr++; continue; }
+	}
+	else if ( *strptr == '\'' )
+	{
+	    if ( insq )
+		{ strptr++; break; }
+	    if ( !indq )
+		{ insq = true; strptr++; continue; }
+	}
+	else if ( iswspace(*strptr) )
+	{
+	    if ( !insq && !indq )
+		break;
+	}
+
+	*wordbuf++ = *strptr++;
+    }
+
+    *wordbuf = '\0';
+    return strptr;
+}
+
+
 const char* getRankPostFix( int nr )
 {
-    if ( nr < 0 ) nr = -nr;
+    if ( nr < 0 )
+	nr = -nr;
 
     if ( nr > 3 && nr < 21 )
 	nr = 0;

@@ -124,7 +124,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     while ( strm.isOK()
     {
 	stdstrm.getline( buf, 1024 );
-	const char* ptr = getNextWord( buf, valbuf );
+	const char* ptr = getNextNonBlanks( buf, valbuf );
 	if ( !ptr || !*ptr )
 	    continue;
 
@@ -145,7 +145,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
 	}
 
-	ptr = getNextWord( ptr, valbuf );
+	ptr = getNextNonBlanks( ptr, valbuf );
 	const int trcnr = toInt( valbuf );
 	Coord xypos;
 	if( !getPos(line2d,trcnr,xypos) )
@@ -157,7 +157,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	linedata->traces_ += trcnr;
 	linedata->pos_ += xypos;
 
-	ptr = getNextWord( ptr, valbuf );
+	ptr = getNextNonBlanks( ptr, valbuf );
 	TypeSet<float> vals;
 	for ( int hdx=0; hdx<nrhors; hdx++ )
 	{
@@ -168,7 +168,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 		vals += SI().zIsTime() ? val/1000 : val;
 	    else
 		vals += mUdf(float);
-	    ptr = getNextWord( ptr, valbuf );
+	    ptr = getNextNonBlanks( ptr, valbuf );
 	}
 	linedata->zvals_ += vals;
     }

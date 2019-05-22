@@ -182,9 +182,9 @@ void CommandLineParser::init( int argc, char** argv )
 	    argv_.setEmpty();
 	    char* buf = new char [argstr.size()+1];
 	    const char* ptr = argstr.buf();
-	    while ( ptr && *ptr )
+	    while ( ptr )
 	    {
-		ptr = getNextWord( ptr, buf );
+		ptr = getNextWordElem( ptr, buf );
 		if ( *buf )
 		    argv_.add( buf );
 	    }

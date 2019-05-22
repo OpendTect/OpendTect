@@ -93,9 +93,18 @@ mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);
 	/*!< tells whether has printable characters only. */
 
-mGlobal(Basic) const char* getNextWord(const char*,char*);
-	/*!< fills a buffer with the next word (delimited by whitespace).
-	     It returns a ptr just after the word. */
+mDeprecated mGlobal(Basic) const char* getNextWord(const char*,char*);
+	/*!< Deprecated: choose between getNextWordElem and getNextNonBlanks. */
+
+mGlobal(Basic) const char* getNextWordElem(const char*,char*);
+	/*!< fills a buffer with the next 'word' (delimited by whitespace
+	     or quotes). It returns a ptr just after the word, or NULL.
+	     Empty words do exist; end is reached if NULL is returned. */
+
+mGlobal(Basic) const char* getNextNonBlanks(const char*,char*);
+	/*!< fills a buffer with the next sequence of nonblanks.
+	     It returns a ptr just after the sequence. Last word reached if
+	     the filled buffer is empty. */
 
 	/*!> Replacement for strlen */
 mGlobal(Basic) int strLength(const char*);

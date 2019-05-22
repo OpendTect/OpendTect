@@ -90,7 +90,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    mSkipBlanks(ptr);
 	    while ( *ptr )
 	    {
-		ptr = getNextWord( ptr, wordbuf );
+		ptr = getNextNonBlanks( ptr, wordbuf );
 		mSkipBlanks(ptr);
 		char* unstr = firstOcc( wordbuf, '(' );
 		if ( unstr )
@@ -139,7 +139,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		{
 		    // Leading curve number. Remove it.
 		    BufferString newnm( lognm );
-		    char* newptr = (char*)getNextWord( newnm.buf(), wordbuf );
+		    char* newptr = (char*)getNextNonBlanks( newnm.getCStr(),
+						    wordbuf );
 		    if ( newptr && *newptr )
 			{ mSkipBlanks(newptr); }
 		    if ( newptr && *newptr )

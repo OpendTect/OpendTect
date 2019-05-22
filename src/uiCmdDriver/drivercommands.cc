@@ -63,7 +63,7 @@ bool IsWindowCmd::act( const char* parstr )
     mParDisambiguator( "window name", wintitle, selnr );
 
     BufferString winprop;
-    const char* partail = getNextWord( parnexxt, winprop.getCStr() );
+    const char* partail = getNextNonBlanks( parnexxt, winprop.getCStr() );
 
     BufferString answer;
     if ( winprop.isEmpty() || mMatchCI(winprop, "Existent") ||
@@ -111,7 +111,7 @@ bool SleepCmd::act( const char* parstr )
     double time = strtod( parstr, &parnext );
 
     BufferString sleeptype;
-    const char* partail = getNextWord( parnext, sleeptype.getCStr() );
+    const char* partail = getNextNonBlanks( parnext, sleeptype.getCStr() );
     bool regular = false;
 
     if ( mMatchCI(sleeptype, "Regular") )
@@ -138,7 +138,7 @@ bool WaitCmd::act( const char* parstr )
     double time = strtod( parstr, &parnext );
 
     BufferString waittype;
-    const char* partail = getNextWord( parnext, waittype.getCStr() );
+    const char* partail = getNextNonBlanks( parnext, waittype.getCStr() );
     bool regular = false;
 
     if ( mMatchCI(waittype, "Regular") )
@@ -162,7 +162,7 @@ bool WaitCmd::act( const char* parstr )
 bool OnErrorCmd::act( const char* parstr )
 {
     BufferString argword;
-    const char* partail = getNextWord( parstr, argword.getCStr() );
+    const char* partail = getNextNonBlanks( parstr, argword.getCStr() );
 
     if ( mMatchCI(argword,"Continue") )
     {
@@ -205,7 +205,7 @@ bool CaseCmd::act( const char* parstr )
 bool GreyOutsCmd::act( const char* parstr )
 {
     BufferString argword;
-    const char* partail = getNextWord( parstr, argword.getCStr() );
+    const char* partail = getNextNonBlanks( parstr, argword.getCStr() );
 
     if ( mMatchCI(argword,"Skip") )
 	skipGreyOuts( true );
@@ -244,7 +244,7 @@ bool IsMatchCmd::act( const char* parstr )
 bool LogModeCmd::act( const char* parstr )
 {
     BufferString argword;
-    const char* partail = getNextWord( parstr, argword.getCStr() );
+    const char* partail = getNextNonBlanks( parstr, argword.getCStr() );
 
     if ( mMatchCI(argword,"Basic") )
 	drv_.setLogMode( CmdDriver::LogBasic );
@@ -313,7 +313,7 @@ bool GuideCmd::act( const char* parstr )
     mParDQuoted( "text", parstr, parnext, txtstr, false, false );
 
     BufferString winstatetag;
-    const char* parnexxt = getNextWord( parnext, winstatetag.getCStr() );
+    const char* parnexxt = getNextNonBlanks( parnext, winstatetag.getCStr() );
 
     WinStateType winstatetyp = NoState;
 
@@ -520,7 +520,7 @@ bool ForCmd::act( const char* parstr )
 
     BufferString tostepword, toexpr, stepexpr, newexpr;
 
-    const char* parnexxt = getNextWord( partail, tostepword.getCStr() );
+    const char* parnexxt = getNextNonBlanks( partail, tostepword.getCStr() );
     if ( mMatchCI(tostepword, "To") )
     {
 	mParExpr( false, "", parnexxt, parnexxxt, todummy, true );
@@ -529,7 +529,7 @@ bool ForCmd::act( const char* parstr )
     }
 
     stepexpr = 1;
-    parnexxt = getNextWord( partail, tostepword.getCStr() );
+    parnexxt = getNextNonBlanks( partail, tostepword.getCStr() );
     if ( mMatchCI(tostepword, "Step") )
     {
 	mParExpr( false, "", parnexxt, parnexxxt, stepdummy, true );
@@ -655,7 +655,7 @@ bool DefCmd::act( const char* parstr )
 	const char* endptr = StringProcessor(param).parseIdentifier( ident );
 	if ( !endptr || *endptr )
 	{
-	    mParseErrStrm << (param.isEmpty() ? "Empty formal parameter" 
+	    mParseErrStrm << (param.isEmpty() ? "Empty formal parameter"
 					      : "Invalid formal parameter: ")
 			  << param << od_endl;
 	    return false;

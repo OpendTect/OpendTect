@@ -180,7 +180,7 @@ RowCol TableCmd::singleSelected( const uiTable* uitable ) const
 \
     TableTag tabletag = RowTag; \
     BufferString tagstr; \
-    const char* parnext = getNextWord( parstr, tagstr.getCStr() ); \
+    const char* parnext = getNextNonBlanks( parstr, tagstr.getCStr() ); \
 \
     if ( mMatchCI(tagstr,"RowHead") || mMatchCI(tagstr,"ColHead") ) \
     { \
@@ -427,7 +427,8 @@ bool TableSelectCmd::act( const char* parstr )
     if ( tag1==RowTag || tag1==CellTag )
     {
 	BufferString argword;
-	const char* extraparstr = getNextWord( parnexxxxt, argword.getCStr() );
+	const char* extraparstr = getNextNonBlanks( parnexxxxt,
+						    argword.getCStr() );
 	if ( mMatchCI(argword,"Cell") )
 	{
 	    newcelltag = true;
@@ -1631,7 +1632,8 @@ bool TableCmdComposer::accept( const CmdRecEvent& ev )
 	if ( ev.nraccepts_ )
 	    return true;
 
-	const char* msgnext = getNextWord( ev.msg_, notifiername.getCStr() );
+	const char* msgnext = getNextNonBlanks( ev.msg_,
+					        notifiername.getCStr() );
 	cellrc.row() = strtol( msgnext, &msgnexxt, 0 );
 	cellrc.col() = strtol( msgnexxt, &msgnexxxt, 0 );
 

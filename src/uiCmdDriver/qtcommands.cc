@@ -89,7 +89,7 @@ bool ColorOkCmd::act( const char* parstr )
     BufferString colorword;
     if ( parnext == parstr )
     {
-	const char* partemp = getNextWord( parstr, colorword.getCStr() );
+	const char* partemp = getNextNonBlanks( parstr, colorword.getCStr() );
 	parnexxxt = const_cast<char*>( partemp );
 	if ( colorword.isEmpty() )
 	{
@@ -201,7 +201,7 @@ bool SnapshotCmd::act( const char* parstr )
     const uiMainWin* grabwin = curWin();
 
     BufferString zoomtag;
-    const char* partail = getNextWord( parnext, zoomtag.getCStr() );
+    const char* partail = getNextNonBlanks( parnext, zoomtag.getCStr() );
 
     if ( mMatchCI(zoomtag,"ODMain") && applWin() )
     {
@@ -254,7 +254,7 @@ bool QColorDlgCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString qcolordlgword;
-    const char* msgnext = getNextWord( ev.msg_, qcolordlgword.getCStr() );
+    const char* msgnext = getNextNonBlanks( ev.msg_, qcolordlgword.getCStr() );
     char* msgnexxt;
     char* msgtail;
 
@@ -290,7 +290,7 @@ bool QFileDlgCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString qfiledlgword;
-    const char* msgnext = getNextWord( ev.msg_, qfiledlgword.getCStr() );
+    const char* msgnext = getNextNonBlanks( ev.msg_, qfiledlgword.getCStr() );
 
     insertWindowCaseExec( ev );
     if ( *msgnext )

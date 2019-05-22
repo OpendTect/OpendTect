@@ -27,7 +27,7 @@ namespace CmdDrive
 #define mParEnterHold( objnm, parstr, parnext, enter, update ) \
 \
     BufferString enterword; \
-    const char* parnext = getNextWord( parstr, enterword.getCStr() ); \
+    const char* parnext = getNextNonBlanks( parstr, enterword.getCStr() ); \
     mSkipBlanks( parnext ); \
 \
     bool enter = true; \

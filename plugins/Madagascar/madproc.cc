@@ -45,7 +45,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
     BufferString str = cmd;
     char* buf = str.getCStr();
     mSkipBlanks( cmd );
-    cmd = getNextWord( cmd, buf );
+    cmd = getNextNonBlanks( cmd, buf );
     if ( !buf || !*buf ) return;
 
     char* ptr = firstOcc( buf, '&' );
@@ -63,7 +63,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 
     while ( cmd && *cmd )
     {
-	cmd = getNextWord( cmd, buf );
+	cmd = getNextNonBlanks( cmd, buf );
 	if ( !buf || !*buf ) break;
 
 	int idx = 0;
@@ -87,7 +87,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		    break;
 		}
 
-		cmd = getNextWord( cmd, newbuf.getCStr() );
+		cmd = getNextNonBlanks( cmd, newbuf.getCStr() );
 		if ( !*newbuf.buf() ) break;
 
 		strcat( buf, " " );

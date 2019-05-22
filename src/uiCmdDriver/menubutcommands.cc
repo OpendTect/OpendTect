@@ -521,7 +521,7 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
 {
     bool closeall = false;
     BufferString closetag;
-    const char* partail = getNextWord( parstr, closetag.getCStr() );
+    const char* partail = getNextNonBlanks( parstr, closetag.getCStr() );
 
     if ( mMatchCI(closetag, "All") )
 	closeall = true;
@@ -621,7 +621,7 @@ void MdiAreaCloseActivator::actCB( CallBacker* cb )
 \
     int minnormmax = 1; \
     BufferString newsize; \
-    const char* parnext = getNextWord( parstr, newsize.getCStr() ); \
+    const char* parnext = getNextNonBlanks( parstr, newsize.getCStr() ); \
 \
     if ( mMatchCI(newsize,"Maximized") ) \
 	minnormmax = 2; \
@@ -990,7 +990,7 @@ bool QMsgBoxButCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString qmsgboxbutword;
-    const char* msgnext = getNextWord( ev.msg_, qmsgboxbutword.getCStr() );
+    const char* msgnext = getNextNonBlanks( ev.msg_, qmsgboxbutword.getCStr() );
     mSkipBlanks ( msgnext );
     mGetAmpFilteredStr( butname, msgnext );
     mDressNameString( butname, sKeyStr );
@@ -1030,7 +1030,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString actword;
-    const char* msgnext = getNextWord( ev.msg_, actword.getCStr() );
+    const char* msgnext = getNextNonBlanks( ev.msg_, actword.getCStr() );
 
     char* msgnexxt;
     const int curwinidx = strtol( msgnext, &msgnexxt, 0 );

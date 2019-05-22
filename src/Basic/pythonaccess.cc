@@ -595,14 +595,14 @@ OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
     : NamedObject("")
 {
     char valbuf[1024];
-    const char* nextword = getNextWord( modulestr, valbuf );
+    const char* nextword = getNextNonBlanks( modulestr, valbuf );
     BufferString namestr( valbuf ); namestr.clean( BufferString::NoSpaces );
     if ( !namestr.isEmpty() )
 	setName( namestr );
 
     mSkipBlanks( nextword ); if ( !*nextword ) return;
 
-    getNextWord( nextword, valbuf );
+    getNextNonBlanks( nextword, valbuf );
     versionstr_.set( valbuf ).clean( BufferString::NoSpaces );
 }
 
@@ -668,15 +668,15 @@ static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
 	return false;
 
     char valbuf[1024];
-    const char* nextword = getNextWord( openglstr, valbuf );
+    const char* nextword = getNextNonBlanks( openglstr, valbuf );
     mSkipBlanks( nextword );
     const char* lastword = nullptr;
     do
     {
 	lastword = nextword;
-	nextword = getNextWord( nextword, valbuf );
+	nextword = getNextNonBlanks( nextword, valbuf );
 	mSkipBlanks( nextword );
-    } while( *nextword );
+    } while ( *nextword );
 
     const float version = toFloat(lastword);
     int idx = 0;

@@ -287,7 +287,7 @@ int CmdComposer::eventNameIdx( const BufferStringSet& eventnames,
     while ( msgptr && *msgptr )
     {
 	BufferString nextword;
-	msgptr = getNextWord( msgptr, nextword.getCStr() );
+	msgptr = getNextNonBlanks( msgptr, nextword.getCStr() );
 	const int idx = eventnames.indexOf(nextword);
 	if ( idx >= 0 )
 	    return idx;

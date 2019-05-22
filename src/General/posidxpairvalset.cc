@@ -108,11 +108,11 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	if ( !*firstchar || (*firstchar != '-' && !iswdigit(*firstchar) ) )
 	    continue;
 
-	const char* nextword = getNextWord( firstchar, valbuf );
+	const char* nextword = getNextNonBlanks( firstchar, valbuf );
 	Coord coord;
 	coord.x_ = toDouble( valbuf );
 	mSkipBlanks( nextword ); if ( !*nextword ) continue;
-	nextword = getNextWord( nextword, valbuf );
+	nextword = getNextNonBlanks( nextword, valbuf );
 	coord.y_ = toInt( valbuf );
 
 	if ( coordindic < 0 )
@@ -124,7 +124,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	    {
 		mSkipBlanks( nextword ); if ( !*nextword ) break;
 		nrvalsfound++;
-		nextword = getNextWord( nextword, valbuf );
+		nextword = getNextNonBlanks( nextword, valbuf );
 	    }
 	    setNrVals( nrvalsfound );
 	    nextword = firstval;
@@ -147,7 +147,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	for ( int idx=0; idx<nrVals(); idx++ )
 	{
 	    mSkipBlanks( nextword ); if ( !*nextword ) break;
-	    nextword = getNextWord( nextword, valbuf );
+	    nextword = getNextNonBlanks( nextword, valbuf );
 	    if ( !valbuf[0] ) break;
 	    vals[idx] = toFloat(valbuf);
 	}

@@ -17,6 +17,27 @@
 #undef mRunTest
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
 
+static bool testWords()
+{
+    const char* inp = "The sentence 'this one' is not \"that one\"";
+    BufferStringSet words;
+    words.addWordsFrom( inp );
+    mRunStandardTest( words.size()==6, "addWordsFrom size" );
+    mRunStandardTest( words.get(2)=="this one", "addWordsFrom part 1" );
+    mRunStandardTest( words.get(5)=="that one", "addWordsFrom part 2" );
+    words.setEmpty();
+    words.addWordsFrom( nullptr );
+    mRunStandardTest( words.isEmpty(), "addWordsFrom null string" );
+    words.addWordsFrom( "" );
+    mRunStandardTest( words.isEmpty(), "addWordsFrom empty string" );
+    words.addWordsFrom( "    " );
+    mRunStandardTest( words.isEmpty(), "addWordsFrom blanks string" );
+    words.addWordsFrom( "''" );
+    mRunStandardTest( words.size()==1, "addWordsFrom empty word size" );
+    mRunStandardTest( words.get(0)=="", "addWordsFrom empty word content" );
+
+    return true;
+}
 
 static bool testBuilder()
 {
@@ -294,6 +315,7 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     if ( !testBuilder()
+      || !testWords()
       || !testBytes2String()
       || !testStringPrecisionInAscII()
       || !testTruncate()

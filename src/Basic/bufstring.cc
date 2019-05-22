@@ -803,6 +803,30 @@ BufferStringSet& BufferStringSet::add( const char* arr[], size_type len )
 }
 
 
+BufferStringSet& BufferStringSet::addWordsFrom( const char* inp )
+{
+    if ( !inp || !*inp )
+	return *this;
+    mSkipBlanks( inp );
+    if ( !*inp )
+	return *this;
+
+    const auto bufsz = FixedString( inp ).size() + 1;
+    char* buf = new char [bufsz];
+
+    while ( true )
+    {
+	inp = getNextWordElem( inp, buf );
+	if ( !inp )
+	    break;
+	add( buf );
+    }
+
+    delete [] buf;
+    return *this;
+}
+
+
 bool BufferStringSet::addIfNew( const char* s )
 {
     if ( !isPresent(s) )
