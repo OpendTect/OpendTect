@@ -16,6 +16,7 @@
 #include "prog.h"
 #include "segydirectdef.h"
 #include "segyfiledata.h"
+#include "segyfiledef.h"
 #include "seisprovider.h"
 #include "seisstorer.h"
 #include "seistrc.h"
@@ -40,6 +41,10 @@ static const char* sTypeCmd		= "type";
 static const char* sFormatCmd		= "format";
 static const char* sEncodingCmd		= "encoding";
 static const char* sGeometryCmd		= "geometry";
+static const char* sNrFilesCmd		= "nrfiles";
+static const char* sFileNameCmd		= "filename";
+static const char* sFileNamesCmd	= "filenames";
+
 
 class SeisServerTool : public ServerProgTool
 {
@@ -83,6 +88,8 @@ protected:
     void		writeData(GeomType);
     int			getTranslIdx(const char*) const;
     GeomType		getGeomTypeFromCL() const;
+    bool		getFileNamesFromCL(BufferStringSet&) const;
+    void		slurpSEGYIndexingData(GeomType,SEGY::FileDataSet&);
 
 };
 
@@ -261,6 +268,7 @@ void SeisServerTool::writeData( GeomType gt )
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
     int inl=0, crl=0, trcnr=0;
+
     while ( true )
     {
 	if ( is2d )
@@ -335,6 +343,32 @@ Seis::GeomType SeisServerTool::getGeomTypeFromCL() const
 }
 
 
+bool SeisServerTool::getFileNamesFromCL( BufferStringSet& fnms ) const
+{
+    clp().setKeyHasValue( sNrFilesCmd );
+    BufferString fnm;
+    if ( clp().hasKey(sFileNameCmd) )
+    {
+	clp().setKeyHasValue( sFileNameCmd );
+	clp().getVal( sFileNameCmd, fnm );
+	fnms.add( fnm );
+    }
+    else if ( clp().hasKey(sFileNamesCmd) )
+    {
+	clp().setKeyHasValue( sNrFilesCmd );
+	int nrfiles = 1;
+	clp().getVal( sFileNameCmd, nrfiles );
+	clp().setKeyHasValue( sFileNamesCmd, nrfiles );
+	for ( int idx=0; idx<nrfiles; idx++ )
+	{
+	    clp().getVal( sFileNamesCmd, fnm, false, idx );
+	    fnms.add( fnm );
+	}
+    }
+    return !fnms.isEmpty();
+}
+
+
 void SeisServerTool::writeSEGYDef( const char* cmd )
 {
     const GeomType gt = getGeomTypeFromCL();
@@ -346,21 +380,71 @@ void SeisServerTool::writeSEGYDef( const char* cmd )
     if ( !res )
 	respondError( "Cannot create SEGYDirect entry in Data Store" );
 
+    IOPar segypars;
+    if ( clp().hasKey("format") )
+    {
+	int fmt = 1;
+	clp().setKeyHasValue( "format" );
+	clp().getVal( "format", fmt );
+	segypars.set( SEGY::FilePars::sKeyNumberFormat(), fmt );
+    }
+
+    SEGY::FileDataSet fds( segypars );
+    BufferStringSet fnms;
+    if ( !getFileNamesFromCL(fnms) )
+	respondError( "Please specify the SEG-Y file name(s)" );
+    for ( int idx=0; idx<fnms.size(); idx++ )
+	fds.addFile( fnms.get(idx) );
+
+    // ns // z0 // dz
+
     SEGY::DirectDef def;
+    def.setData( fds );
     const BufferString fnm( ctio.ioobj_->mainFileName() );
     if ( !def.writeHeadersToFile(fnm) )
 	respondError( BufferString("Cannot open SEGYDirect data file ",fnm) );
-    // IOPar iop;
-    // SEGY::FileDataSet fds( iop );
-    // fds.setOutputStream( def.getOutputStream() );
 
-    //TODO slurp data
-
+    fds.setOutputStream( *def.getOutputStream() );
+    respondInfo( true, false );
+    slurpSEGYIndexingData( gt, fds );
 
     if ( !def.writeFootersToFile() )
 	respondError( BufferString("Cannot finish SEGYDirect data file ",fnm) );
 
     respondInfo( true );
+}
+
+
+void SeisServerTool::slurpSEGYIndexingData( GeomType gt, SEGY::FileDataSet& fds)
+{
+    ascbinistream strm( inStream(), !ascii_ );
+
+    int fileidx;
+    od_int64 fileoffs;
+    Seis::PosKey pk;
+    Coord coord;
+    const bool is2d = Seis::is2D( gt );
+    const bool isps = Seis::isPS( gt );
+
+    while ( true )
+    {
+	strm.get( fileidx );
+	if ( fileidx < 0 )
+	    return;
+
+	strm.get( fileoffs );
+	if ( is2d )
+	    strm.get( pk.trcNr() );
+	else
+	    strm.get( pk.binID().inl() ).get( pk.binID().crl() );
+
+	if ( isps )
+	    strm.get( pk.offset() );
+
+	const bool res = fds.addTrace( fileidx, pk, coord, true );
+	if ( !res )
+	    respondError( "Error during data transfer" );
+    }
 }
 
 
@@ -379,7 +463,8 @@ BufferString SeisServerTool::getSpecificUsage() const
     mAddWriteCmdToUsage( sWriteLineCmd );
     mAddWriteCmdToUsage( sWritePS3DCmd );
     mAddWriteCmdToUsage( sWritePS2DCmd );
-    addToUsageStr( ret, sWriteSEGYDefCmd, "name --geometry 3D|2D|PS3D|PS3D" );
+    addToUsageStr( ret, sWriteSEGYDefCmd,
+		    "name --geometry 3D|2D|PS3D|PS3D more_args" );
     return ret;
 }
 
