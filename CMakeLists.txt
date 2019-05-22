@@ -72,6 +72,7 @@ set( OD_PLUGINS
 	ExpAttribs
 	GLCM
 	GMT
+	ODHDF5
 	Hello
 	HorizonAttrib
 	Madagascar
