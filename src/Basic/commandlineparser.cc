@@ -8,12 +8,13 @@
 #include "commandlineparser.h"
 
 #include "dbkey.h"
-#include "oddirs.h"
+#include "envvars.h"
 #include "filepath.h"
 #include "genc.h"
-#include "varlenarray.h"
-#include "envvars.h"
+#include "oddirs.h"
+#include "od_istream.h"
 #include "survinfo.h"
+#include "varlenarray.h"
 
 
 CommandLineParser::CommandLineParser( const char* fullcommand )
@@ -168,6 +169,27 @@ void CommandLineParser::init( int argc, char** argv )
 
     for ( int idx=1; idx<argc; idx++ )
 	argv_.add( argv[idx] );
+
+    if ( hasKey(sFileForArgs()) )
+    {
+	setKeyHasValue( sFileForArgs() );
+	BufferString fnm;
+	getVal( sFileForArgs(), fnm );
+	od_istream strm( fnm );
+	BufferString argstr;
+	if ( strm.getAll(argstr) )
+	{
+	    argv_.setEmpty();
+	    char* buf = new char [argstr.size()+1];
+	    const char* ptr = argstr.buf();
+	    while ( ptr && *ptr )
+	    {
+		ptr = getNextWord( ptr, buf );
+		if ( *buf )
+		    argv_.add( buf );
+	    }
+	}
+    }
 
     File::Path fp( executable_ );
     BufferString envvarbase( fp.fileName() );

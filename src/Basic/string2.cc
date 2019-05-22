@@ -334,9 +334,11 @@ char* lastOcc( char* str, const char* tofind )
 
 const char* getNextWord( const char* strptr, char* wordbuf )
 {
-    if ( !wordbuf ) return 0;
+    if ( !wordbuf )
+	return nullptr;
     *wordbuf = '\0';
-    if ( !strptr || !*strptr ) return strptr;
+    if ( !strptr || !*strptr )
+	return strptr;
 
     mSkipBlanks( strptr );
     while ( *strptr && !iswspace(*strptr) )

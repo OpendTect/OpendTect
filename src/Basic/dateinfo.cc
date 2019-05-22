@@ -481,21 +481,26 @@ bool DateInfo::fromStdDateString( const char* inp )
 
     char buf[1024];
     const char* ptr = getNextWord( inp, buf );
-    if ( !ptr ) return false;
+    if ( !ptr )
+	return false;
     ptr = getNextWord( ptr, buf );
-    if ( !ptr ) return false;
+    if ( !ptr )
+	return false;
 
     buf[0] = (char) tolower( buf[0] );
     const Month monthvar = MonthDef().parse( buf );
     months_ = (int) monthvar;
 
     ptr = getNextWord( ptr, buf );
-    if ( !ptr ) return false;
+    if ( !ptr )
+	return false;
     days_ = toInt( buf );
-    if ( days_ > 0 ) days_--;
+    if ( days_ > 0 )
+	days_--;
 
     ptr = lastOcc( ptr, ' ' );
-    if ( !ptr ) return false;
+    if ( !ptr )
+	return false;
     days1900_ = 0; setYear( toInt(ptr+1) );
 
     calcDays1900();

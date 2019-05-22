@@ -106,6 +106,7 @@ public:
     char**		getArgv() const;    //!< allocates everything with new
     int			indexOf(const char*) const;
 
+    static const char*	sFileForArgs()	    { return "argsfile"; }
     static const char*	sDataRootArg()	    { return "dataroot"; }
     static const char*	sSurveyArg()	    { return "survey"; }
     BufferString	getFullSurveyPath(bool* iscursurv=0) const;
