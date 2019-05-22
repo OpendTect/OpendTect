@@ -1,10 +1,11 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile :	HDF5 link
-#	May 2018	Bert
+#	Makefile : 	HDF5 link
+# 	May 2018	Bert
 #_______________________________________________________________________________
 
-include ( PreInit.cmake )
+include( ODHDF5Utils )
+OD_SETUP_HDF5()
 
 if ( HDF5_FOUND )
 
@@ -27,5 +28,11 @@ if ( HDF5_FOUND )
 			 ${OD_ZAXISTRANSFORM_EXECS} test_hdf5 )
 
   OD_INIT_MODULE()
+
+else()
+
+  get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
+  list( REMOVE_ITEM OD_PLUGINS ${OD_MODULE_NAME} )
+  set( OD_PLUGINS ${OD_PLUGINS} PARENT_SCOPE )
 
 endif( HDF5_FOUND )

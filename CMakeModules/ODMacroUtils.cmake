@@ -9,13 +9,13 @@
 #		   OpendTect.
 #
 # Input variables:
-#
+# 
 # OD_MODULE_NAME			: Name of the module, or the plugin
 # OD_SUBSYSTEM                          : "od" or "dgb"
 # OD_MODULE_DEPS			: List of other modules that this
 #					  module is dependent on.
 # OD_MODULE_SOURCES			: Sources that should go into the library
-# OD_USEBATCH				: Whether to include include/Batch
+# OD_USEBATCH				: Whether to include include/Batch 
 # OD_USECOIN				: Dependency on Coin is enabled if set.
 # OD_USEQT				: Dependency on Qt is enabled if set.
 #					  value should be either Core, Sql, Gui
@@ -35,9 +35,12 @@
 #					  may have multiple paths in plugins.
 # OD_${OD_MODULE_NAME}_DEPS		: The modules this module is dependent
 #					  on.
-# OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library,
+# OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library, 
 #					  and all external libraries it is
 #					  dependent on.
+# OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL : List of external DLLs that are 
+#					  required by the plugin at runtime.
+#					  Will be copied into the binaries dir
 # OD_MODULE_NAMES_${OD_SUBSYSTEM}	: A list of all modules
 # OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}  : A list of all non-plugin modules
 #####################################
@@ -65,12 +68,12 @@ if ( OD_MODULE_HAS_LIBRARY )
     set( OD_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_MODULE_NAMES_${OD_SUBSYSTEM}}
 					 ${OD_MODULE_NAME} PARENT_SCOPE )
 
-    #Create init-header
+    #Create init-header 
     OD_CREATE_INIT_HEADER()
 endif(  OD_MODULE_HAS_LIBRARY )
 
 #Add all module dependencies
-set( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} )
+set( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} ${OD_EXT_MODULE_DEPS} )
 
 #Setup all deps and set runtime and includepath
 if( OD_MODULE_DEPS )
@@ -85,10 +88,6 @@ if( OD_MODULE_DEPS )
 	list(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 	list(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
     endforeach()
-endif()
-
-if( OD_USEPYTHON )
-    OD_SETUP_PYTHON()
 endif()
 
 if( OD_USEOSG )
@@ -205,7 +204,7 @@ foreach( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
 	file ( MAKE_DIRECTORY ${STATIC_LIB_DIR} )
     endif()
 
-    execute_process(
+    execute_process( 
 	COMMAND ${SHARED_LIB_COMMAND}
 	WORKING_DIRECTORY ${STATIC_LIB_DIR} )
 
@@ -252,10 +251,10 @@ if ( OD_MODULE_HAS_LIBRARY )
 	 )
 
     set ( TARGET_PROPERTIES ${OD_MODULE_NAME}
-	    PROPERTIES
+	    PROPERTIES 
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
-	    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}"
+	    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}" 
 	    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}"
 	    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}"
 	    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_RELEASE}"
@@ -266,7 +265,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OD_LIB_OUTPUT_RELPATH}" )
 
     if ( OD_SET_TARGET_PROPERTIES )
-	list ( APPEND TARGET_PROPERTIES
+	list ( APPEND TARGET_PROPERTIES 
 	    VERSION ${OD_BUILD_VERSION}
 	    SOVERSION ${OD_API_VERSION} )
     endif( OD_SET_TARGET_PROPERTIES )
@@ -339,7 +338,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED_PERMISSIONS_PROGS OR O
 	    set( OD_EXEC_GUI_SYSTEM ${OD_GUI_SYSTEM} )
 	endif()
 
-	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC}
+	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
 			${OD_${TARGET_NAME}_RESOURCE} )
 	if ( OD_EXECUTABLE_COMPILE_FLAGS )
 	    set_source_files_properties( ${EXEC} PROPERTIES COMPILE_FLAGS
@@ -347,7 +346,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED_PERMISSIONS_PROGS OR O
 	endif( OD_EXECUTABLE_COMPILE_FLAGS )
 
 	set ( OD_LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}" )
-
+	
 	#Check if from Elevated permission list
 	if ( WIN32 )
 	    list ( FIND OD_ELEVATED_PERMISSIONS_PROGS ${EXEC} INDEX )
@@ -359,9 +358,9 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED_PERMISSIONS_PROGS OR O
 		set ( OD_LINK_FLAGS "${OD_LINK_FLAGS} ${OD_UAC_LINKFLAGS}" )
 	    endif()
 	endif()
-
+			
 	set( TARGET_PROPERTIES ${TARGET_NAME}
-	    PROPERTIES
+	    PROPERTIES 
 	    LINK_FLAGS "${OD_LINK_FLAGS}"
 	    LABELS ${OD_MODULE_NAME}
 	    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG}"
@@ -369,7 +368,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED_PERMISSIONS_PROGS OR O
 	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OD_EXEC_OUTPUT_RELPATH}" )
 
 	if ( OD_SET_TARGET_PROPERTIES )
-	    list ( APPEND TARGET_PROPERTIES
+	    list ( APPEND TARGET_PROPERTIES 
 		VERSION ${OD_BUILD_VERSION} )
 	endif( OD_SET_TARGET_PROPERTIES )
 	if ( WIN32 AND OD_SET_LINKFLAGS_UAC )
@@ -391,11 +390,11 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED_PERMISSIONS_PROGS OR O
         endif( OD_CREATE_LAUNCHERS )
 	install( TARGETS
 		${TARGET_NAME}
-		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} 
 		CONFIGURATIONS "Debug" )
 	install( TARGETS
 		${TARGET_NAME}
-		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} 
 		CONFIGURATIONS "Release" )
 
 	if( BREAKPAD_DUMPSYMS_EXECUTABLE )
@@ -427,7 +426,7 @@ if(OD_MODULE_BATCHPROGS)
 	    ${PROGRAM_RUNTIMELIBS} )
 
 	set( TARGET_PROPERTIES ${TARGET_NAME}
-	    PROPERTIES
+	    PROPERTIES 
 	    COMPILE_DEFINITIONS __prog__
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
@@ -436,7 +435,7 @@ if(OD_MODULE_BATCHPROGS)
 	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OD_EXEC_OUTPUT_RELPATH}" )
 
 	if ( OD_SET_TARGET_PROPERTIES )
-	    list ( APPEND TARGET_PROPERTIES
+	    list ( APPEND TARGET_PROPERTIES 
 		VERSION ${OD_BUILD_VERSION} )
 	endif( OD_SET_TARGET_PROPERTIES )
 
@@ -449,11 +448,11 @@ if(OD_MODULE_BATCHPROGS)
 	endif( OD_CREATE_LAUNCHERS )
 	install( TARGETS
 		${TARGET_NAME}
-		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} 
 		CONFIGURATIONS "Debug" )
 	install( TARGETS
 		${TARGET_NAME}
-		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} 
 		CONFIGURATIONS "Release" )
 
 	if( BREAKPAD_DUMPSYMS_EXECUTABLE )
@@ -506,7 +505,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
     OD_ADD_SOURCE_FILES( tests/${TEST_FILE} )
 
     set_target_properties( ${TEST_NAME}
-	    PROPERTIES
+	    PROPERTIES 
 	    ${EXTRA_TARGET_PROP}
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
@@ -526,6 +525,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
     endif( OD_CREATE_LAUNCHERS )
 
     ADD_TEST_PROGRAM( ${TEST_NAME} )
+
     set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_NAME} )
 endforeach()
 
@@ -541,6 +541,20 @@ endif( OD_USEBATCH )
 #Set current include_path
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
+
+if ( WIN32 AND OD_IS_PLUGIN )
+    list( LENGTH OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL NRDLLS )
+    if ( ${NRDLLS} GREATER 0 )
+        string( TOUPPER ${CMAKE_BUILD_TYPE} OD_BUILD_TYPE )
+        get_target_property( ODEXECPATH ${OD_MODULE_NAME} RUNTIME_OUTPUT_DIRECTORY_${OD_BUILD_TYPE} )
+	if ( ODEXECPATH AND EXISTS ${ODEXECPATH} )
+	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL} ${ODEXECPATH}
+	        COMMENT "Copying external DLLs for ${OD_MODULE_NAME}" 
+	    )
+	endif()
+    endif()
+endif()
 
 endmacro( OD_INIT_MODULE )
 
@@ -567,7 +581,7 @@ endmacro ( OD_GET_ALL_DEPS_ADD )
 # OD_ADD_PLUGIN_SOURCES(SOURCES) - Adds sources in a submodule of a plugin
 #
 # Input variables:
-#
+# 
 # OD_PLUGINSUBDIR			: Name sub-module of the plugin
 # SOURCES				: List of sources to add
 #
@@ -583,7 +597,7 @@ endmacro()
 # OD_ADD_PLUGIN_EXECS(SOURCES) - Adds sources in a submodule of a plugin
 #
 # Input variables:
-#
+# 
 # OD_PLUGINSUBDIR			: Name sub-module of the plugin
 # SOURCES				: List of sources to add
 #
@@ -600,7 +614,7 @@ endmacro()
 # OD_ADD_PLUGIN_BATCHPROGS(SOURCES) - Adds sources in a submodule of a plugin
 #
 # Input variables:
-#
+# 
 # OD_PLUGINSUBDIR			: Name sub-module of the plugin
 # SOURCES				: List of sources to add
 #
@@ -620,7 +634,7 @@ macro ( OD_CURRENT_YEAR RESULT)
     elseif(UNIX)
         execute_process(COMMAND "date" "+%Y" OUTPUT_VARIABLE ${RESULT})
     endif()
-    string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
+    string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} ) 
 endmacro (OD_CURRENT_YEAR )
 
 macro ( OD_CURRENT_MONTH RESULT )
@@ -638,7 +652,7 @@ macro ( OD_CURRENT_DATE RESULT )
     elseif( UNIX )
 	execute_process(COMMAND "date" "+%c" OUTPUT_VARIABLE ${RESULT})
     endif()
-    string( REPLACE "\n" "" ${RESULT} ${${RESULT}} )
+    string( REPLACE "\n" "" ${RESULT} ${${RESULT}} ) 
 endmacro ( OD_CURRENT_DATE )
 
 
@@ -655,4 +669,11 @@ macro ( OD_ADD_SOURCE_FILES )
 
 	file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
     endforeach()
+endmacro()
+
+macro( FIND_OD_PLUGIN NAME )
+  list( FIND OD_MODULE_NAMES_${OD_SUBSYSTEM} ${NAME} _index )
+  if ( NOT ${_index} EQUAL -1 )
+    set( ${NAME}_FOUND TRUE )
+  endif()
 endmacro()
