@@ -594,16 +594,14 @@ uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
 OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
     : NamedObject("")
 {
-    char valbuf[1024];
-    const char* nextword = getNextNonBlanks( modulestr, valbuf );
-    BufferString namestr( valbuf ); namestr.clean( BufferString::NoSpaces );
-    if ( !namestr.isEmpty() )
-	setName( namestr );
+    BufferStringSet moduledata;
+    moduledata.addWordsFrom( modulestr );
+    if ( moduledata.isEmpty() )
+	return;
 
-    mSkipBlanks( nextword ); if ( !*nextword ) return;
-
-    getNextNonBlanks( nextword, valbuf );
-    versionstr_.set( valbuf ).clean( BufferString::NoSpaces );
+    setName( moduledata.first()->buf() );
+    if ( moduledata.size() > 1 )
+	versionstr_.set( moduledata.last()->buf() );
 }
 
 
