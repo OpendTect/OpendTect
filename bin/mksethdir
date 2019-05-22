@@ -1,91 +1,17 @@
 #!/bin/csh -f
 #_______________________________________________________________________________
-#
-# (C) dGB Beheer B.V.
-# $Id$
-#
-# HDIR variable setup
-# usage from a bash-script:
-#    eval `/__path__/mksethdir <root binary dir>`
-# usage from a csh-script:
-#    source /__path__/mksethdir <root binary dir>
-# if no root binary dir given, $DTECT_APPL is used
+# Sets the HDIR and binsubdir variables for this platform
 #_______________________________________________________________________________
 
-set bashmode=0
-if ( $#argv > 0 ) then
-	if ( $1 == --bash ) then
-		set bashmode=1
-		shift
-	endif
-endif
+setenv HDIR `uname`
 
-set sethdirstr=""
-if ( ! $?HDIR ) then
-    setenv HDIR `uname`
-
-    if ( "$HDIR" == "SunOS" ) then
-	setenv HDIR sun5
-    else if ( "$HDIR" == "Linux" ) then
-	setenv HDIR lux
-    else if ( "$HDIR" == "Darwin" ) then
-	setenv HDIR mac
-    else if ( "$HDIR" == "IRIX" || "$HDIR" == "IRIX64" ) then
-	setenv HDIR sgi
-    else if ( $?COMSPEC ) then
-	setenv HDIR win
-    endif
-
-    if ( $bashmode == 1 ) then
-	set sethdirstr="export HDIR=$HDIR; "
-    else
-	setenv HDIR ${HDIR}
-    endif
-endif
-
-set ROOT_DIR="$1"
-if ( $ROOT_DIR == "" || ! -d "$1" ) then
-    if ( $?DTECT_APPL ) then
-        set ROOT_DIR="$DTECT_APPL"
-    endif
-endif
-
-set binsubdir=$HDIR
-if ( $binsubdir == sun5 ) then
-
-    set binsubdir=sol32
-    if ( -d "$ROOT_DIR"/bin/sol64 ) then
-	set bits=32
-	if ( -x /bin/isainfo ) then
-	    set bits=`isainfo -b`
-	else
-	    which isainfo >&! /dev/null
-	    if ( $status == 0 ) set bits=`isainfo -b`
-	endif
-	if ( $bits == 64 ) set binsubdir=sol64
-    endif
-    if ( -d "$ROOT_DIR"/bin/sol26 ) then
-	set v=`uname -r|sed 's/5\.//'`
-	if ( `uname -r | sed 's/5\.//'` < 8 ) set binsubdir=sol26
-    endif
-
-else if ( $binsubdir == lux ) then
-
-    set binsubdir=lux32
-    if ( -d "$ROOT_DIR"/bin/lux64 ) then
-	if ( `uname -a | grep _64 | wc -l` == 1 ) set binsubdir=lux64
-    endif
-    if ( `uname -a | grep ia64 | wc -l` == 1 ) set binsubdir=luxia64
-
-endif
-
-if ( ! -d "$ROOT_DIR"/bin/$binsubdir ) then
-    set binsubdir=$HDIR
-endif
-
-if ( $bashmode == 1 ) then
-    echo "$sethdirstr export binsubdir=$binsubdir"
+if ( "$HDIR" == "Linux" ) then
+    setenv HDIR lux
+    setenv binsubdir lux64
+else if ( "$HDIR" == "Darwin" ) then
+    setenv HDIR mac
+    setenv binsubdir mac
 else
-    setenv binsubdir $binsubdir
+    echo "This platform is not supported: ${HDIR}"
 endif
 
