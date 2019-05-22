@@ -3,17 +3,15 @@
 # Sets the HDIR and binsubdir variables for this platform
 #_______________________________________________________________________________
 
-if ( ! $?HDIR ) then
-    setenv HDIR `uname`
+setenv HDIR `uname`
 
-    if ( "$HDIR" == "Linux" ) then
-        setenv HDIR lux
-        setenv binsubdir lux64
-    else if ( "$HDIR" == "Darwin" ) then
-        setenv HDIR mac
-        setenv binsubdir mac
-    else
-        echo "This platform is not supported: ${HDIR}"
-    endif
-
+if ( "$HDIR" == "Linux" ) then
+    setenv HDIR lux
+    setenv binsubdir lux64
+else if ( "$HDIR" == "Darwin" ) then
+    setenv HDIR mac
+    setenv binsubdir mac
+else
+    echo "This platform is not supported: ${HDIR}"
 endif
+
