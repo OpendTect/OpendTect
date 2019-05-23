@@ -243,6 +243,8 @@ void uiConvertPos::convFromXY( bool ismanmode )
 	const LatLong ll( LatLong::transform(coord, true,
 				    outcrdsysselfld_->getCoordSystem()) );
 	mSetOutVal( ll.lat_, ll.lng_ )
+	/**ostream_ << ll.lat_ << ' ' << ll.lng_ << ' ' << linebuf_ <<
+	    od_endl;*/
     }
     else
     {
@@ -343,9 +345,7 @@ void uiConvertPos::convFile()
     {
 	istream.get( firstinp_ );
 	istream.get( secondinp_ );
-	if ( !istream.isOK() )
-	    break;
-
+	
 	istream.getLine( linebuf_ );
 	if ( istream.isBad() )
 	    break;
