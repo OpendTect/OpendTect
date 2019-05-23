@@ -412,7 +412,7 @@ Export_Basic od_ostream& logMsgStrm()
 
     if ( !logstrm )
     {
-	logstrm = new od_ostream( std::cerr );
+	logstrm = new od_ostream( std::cout );
 	if ( !errmsg.isEmpty() )
 	    *logstrm << errmsg;
     }
