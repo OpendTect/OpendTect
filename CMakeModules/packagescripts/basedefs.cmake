@@ -23,7 +23,7 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmutil
 	      od_process_2dto3d od_BatchHosts od_copy_seis od_PreStackMMBatch
 	      od_mmptestbatch od_MMPTestLaunch od_Edit_Survey od_Manage_Surveys od_DBMan )
 
-set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
+set( PLUGINS VoxelConnectivityFilter uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
 	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGY uiMMPTest
