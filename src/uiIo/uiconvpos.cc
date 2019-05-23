@@ -243,8 +243,6 @@ void uiConvertPos::convFromXY( bool ismanmode )
 	const LatLong ll( LatLong::transform(coord, true,
 				    outcrdsysselfld_->getCoordSystem()) );
 	mSetOutVal( ll.lat_, ll.lng_ )
-	/**ostream_ << ll.lat_ << ' ' << ll.lng_ << ' ' << linebuf_ <<
-	    od_endl;*/
     }
     else
     {
