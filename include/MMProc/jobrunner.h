@@ -108,6 +108,7 @@ public:
     const JobInfo&		curJobInfo() const	{ return *curjobinfo_; }
     IOPar&			curJobIOPar()		{ return curjobiop_; }
     const File::Path&		curJobFilePath()	{ return curjobfp_; }
+    int				getLastReceivedTime(JobInfo&);
 
     const char*			procDir() const	{ return procdir_.buf(); }
 				// processing directory on local machine
@@ -162,7 +163,7 @@ protected:
 
     enum HostStat		{ OK = 0, SomeFailed = 1, HostFailed = 2 };
     HostStat			hostStatus(const HostNFailInfo*) const;
-
+    void			handleExitStatus(JobInfo&);
 };
 
 mGlobal(MMProc) int& MMJob_getTempFileNr();

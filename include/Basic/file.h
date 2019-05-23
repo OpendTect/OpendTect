@@ -95,6 +95,8 @@ mGlobal(Basic) BufferString	getFileSizeString(const char* fnm);
 mGlobal(Basic) const char*	timeCreated(const char*);	//!< ISO/UTC
 mGlobal(Basic) const char*	timeLastModified(const char*);	//!< ISO/UTC
 mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif=true);
+mGlobal(Basic) od_int64		getTimeInMilliSeconds(const char* fnm,
+					bool lastmodif=true);//since day start
 
 mGlobal(Basic) const char*	getCurrentPath();
 mGlobal(Basic) const char*	getHomePath();

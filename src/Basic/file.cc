@@ -888,6 +888,25 @@ od_int64 File::getTimeInSeconds( const char* fnm, bool lastmodif )
 }
 
 
+od_int64 File::getTimeInMilliSeconds( const char* fnm, bool lastmodif )
+{
+#ifndef OD_NO_QT
+    const QFileInfo qfi( fnm );
+    const QTime qtime = lastmodif ? qfi.lastModified().time()
+	: qfi.created().time();
+    const QTime daystart( 0, 0, 0, 0 );
+    return daystart.msecsTo( qtime );
+#else
+    struct stat st_buf;
+    int status = stat( fnm, &st_buf );
+    if ( status != 0 )
+	return 0;
+
+    return lastmodif ? st_buf.st_mtime * 1000 : st_buf.st_ctime * 1000;
+#endif
+}
+
+
 const char* File::linkValue( const char* linknm )
 {
     if ( !isSane(linknm) )
