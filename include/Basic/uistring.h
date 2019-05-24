@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include "keystrs.h"
 #include "threadlock.h"

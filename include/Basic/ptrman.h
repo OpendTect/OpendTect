@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "basicmod.h"
 #include "gendefs.h"
 #include "atomic.h"
 #include <stdlib.h>
