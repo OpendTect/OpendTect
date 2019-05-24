@@ -357,15 +357,28 @@ bool SeisServerTool::getFileNamesFromCL( BufferStringSet& fnms ) const
     {
 	clp().setKeyHasValue( sNrFilesCmd );
 	int nrfiles = 1;
-	clp().getVal( sFileNameCmd, nrfiles );
+	clp().getVal( sNrFilesCmd, nrfiles );
 	clp().setKeyHasValue( sFileNamesCmd, nrfiles );
 	for ( int idx=0; idx<nrfiles; idx++ )
 	{
-	    clp().getVal( sFileNamesCmd, fnm, false, idx );
+	    clp().getVal( sFileNamesCmd, fnm, false, idx+1 );
 	    fnms.add( fnm );
 	}
     }
     return !fnms.isEmpty();
+}
+
+
+template <class T>
+static T getFromClp( const CommandLineParser& clp, const char* clky, T defltval)
+{
+    T val = defltval;
+    if ( clp.hasKey(clky) )
+    {
+	clp.setKeyHasValue( clky );
+	clp.getVal( clky, val );
+    }
+    return val;
 }
 
 
@@ -380,23 +393,23 @@ void SeisServerTool::writeSEGYDef( const char* cmd )
     if ( !res )
 	respondError( "Cannot create SEGYDirect entry in Data Store" );
 
-    IOPar segypars;
-    if ( clp().hasKey("format") )
-    {
-	int fmt = 1;
-	clp().setKeyHasValue( "format" );
-	clp().getVal( "format", fmt );
-	segypars.set( SEGY::FilePars::sKeyNumberFormat(), fmt );
-    }
+    IOPar fdspar;
+    const int fmt = getFromClp( clp(), "format", 5 );
+    const int ns = getFromClp( clp(), "ns", SI().zRange().nrSteps()+1 );
+    const float z0 = getFromClp( clp(), "z0", SI().zRange().start );
+    const float dz = getFromClp( clp(), "dz", SI().zRange().step );
+    fdspar.set( SEGY::FilePars::sKeyNumberFormat(), fmt );
+    fdspar.set( "Trace size", ns );
+    fdspar.set( "Z sampling", z0, dz );
+    Seis::putInPar( gt, fdspar );
 
-    SEGY::FileDataSet fds( segypars );
+    SEGY::FileDataSet fds( fdspar );
     BufferStringSet fnms;
     if ( !getFileNamesFromCL(fnms) )
 	respondError( "Please specify the SEG-Y file name(s)" );
     for ( int idx=0; idx<fnms.size(); idx++ )
 	fds.addFile( fnms.get(idx) );
-
-    // ns // z0 // dz
+    fds.getBaseDataFromPar( fdspar );
 
     SEGY::DirectDef def;
     def.setData( fds );
@@ -426,20 +439,31 @@ void SeisServerTool::slurpSEGYIndexingData( GeomType gt, SEGY::FileDataSet& fds)
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
 
-    while ( true )
+    // We slurp:
+	// file_number=signed_int32
+	// binID_or_trace_number=signed_int32
+	// [offset=float_32_native only for PreStack]
+	// file_offset=signed_int64
+
+    while ( strm.isOK() )
     {
+	fileidx = -1;
 	strm.get( fileidx );
 	if ( fileidx < 0 )
 	    return;
 
-	strm.get( fileoffs );
 	if ( is2d )
 	    strm.get( pk.trcNr() );
 	else
 	    strm.get( pk.binID().inl() ).get( pk.binID().crl() );
 
+	if ( pk.trcNr() < 1 )
+	    return;
+
 	if ( isps )
 	    strm.get( pk.offset() );
+
+	strm.get( fileoffs );
 
 	const bool res = fds.addTrace( fileidx, pk, coord, true );
 	if ( !res )

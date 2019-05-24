@@ -150,6 +150,14 @@ int CommandLineParser::indexOf( const char* key ) const
 }
 
 
+BufferString CommandLineParser::envVarBase() const
+{
+    File::Path fp( executable_ );
+    BufferString envvarbase( fp.fileName() );
+    envvarbase.replace( ' ', '_' );
+    return envvarbase;
+}
+
 
 void CommandLineParser::init( int argc, char** argv )
 {
@@ -191,9 +199,7 @@ void CommandLineParser::init( int argc, char** argv )
 	}
     }
 
-    File::Path fp( executable_ );
-    BufferString envvarbase( fp.fileName() );
-    envvarbase.replace( ' ', '_' );
+    const BufferString envvarbase( envVarBase() );
     BufferString envvarnm( envvarbase, "_ARGS" );
     overruleArgsIfEnvVarSet( envvarnm );
 

@@ -276,12 +276,18 @@ void ServerProgTool::addToUsageStr( BufferString& str,
 
 void ServerProgTool::exitWithUsage()
 {
-    BufferString msg( "Usage: ", GetExecutableName() );
+    BufferString msg( "* Usage: ", GetExecutableName() );
     msg.add( getSpecificUsage() );
     addToUsageStr( msg, CommandLineParser::sDataRootArg(), "data_root_dir",
 		    true );
     addToUsageStr( msg, CommandLineParser::sSurveyArg(), "survey_dir", true );
     addToUsageStr( msg, sDontUseJSONCmd, "", true );
+    msg.add( "\n\n* You can put all command-line arguments in a file:" );
+    addToUsageStr( msg, "argsfile", "file_with_cmdline_args", false );
+    msg.add( "\n\n* Overrule all arguments using environment variable '" )
+	.add( clp().envVarBase() ).add( "_ARGS" ).add( "'" );
+    msg.add( "\n  Add arguments using environment variable '" )
+	.add( clp().envVarBase() ).add( "_EXTRA_ARGS" ).add( "'" );
     outStream() << msg << od_endl;
     exitProgram( false );
 }

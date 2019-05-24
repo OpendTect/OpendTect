@@ -50,9 +50,9 @@ public:
 	od_int64	trcidx_;
     };
 
-			FileDataSet(const IOPar& iop, ascistream& );
+			FileDataSet(const IOPar&,ascistream&);
 			//!<Reads old version of file into memory
-			FileDataSet(const IOPar& iop);
+			FileDataSet(const IOPar&);
 			/*!<Creates empty set, can later be filled from
 			    scanning. */
 			~FileDataSet();
@@ -104,10 +104,12 @@ public:
     void			getReport(IOPar&) const;
     void			dump(od_ostream&) const;
 
-    bool			usePar(const IOPar& iop);
-				//!<Read auxdata from storage
-    void			fillPar(IOPar& iop) const;
-				//!<Write auxdata
+    bool			usePar(const IOPar&);
+					//!<Read auxdata from storage
+    void			fillPar(IOPar&) const;
+					//!<Write auxdata
+    void			getBaseDataFromPar(const IOPar&);
+				//!< needed when empty FDS is filled
 
 protected:
 
@@ -130,6 +132,8 @@ protected:
 	od_stream_Pos			start_;
 
 	od_ostream*			ostrm_;
+    public:
+	bool				ascii_		= false;
     };
 
     bool			readVersion1( ascistream& );
@@ -143,6 +147,7 @@ protected:
     int				trcsz_;
     int				nrstanzas_;
     BufferStringSet		filenames_;
+    TypeSet<od_int64>		sizes_;
     TypeSet<od_int64>		cumsizes_;
     od_int64			totalsz_;
     int				nrusable_;

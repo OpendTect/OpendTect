@@ -76,11 +76,20 @@ bool SEGY::FileDataSet::StoredData::getKey( od_stream_Pos pos, Seis::PosKey& pk,
 
     BinID bid;
     int offsetazimuth;
-    if ( !DataInterpreter<int>::get( int32di_, *istrm_, bid.inl() ) ||
-	 !DataInterpreter<int>::get( int32di_, *istrm_, bid.crl() ) ||
-	 !DataInterpreter<int>::get( int32di_, *istrm_, offsetazimuth ) ||
-	 istrm_->getBin( usable ).isBad() )
-	 return false;
+    if ( ascii_ )
+    {
+	char ch;
+	*istrm_ >> bid.inl() >> bid.crl() >> offsetazimuth >> ch;
+	usable = ch != 'N';
+    }
+    else
+    {
+	if ( !DataInterpreter<int>::get( int32di_, *istrm_, bid.inl() ) ||
+	     !DataInterpreter<int>::get( int32di_, *istrm_, bid.crl() ) ||
+	     !DataInterpreter<int>::get( int32di_, *istrm_, offsetazimuth ) ||
+	     istrm_->getBin( usable ).isBad() )
+	     return false;
+    }
 
     OffsetAzimuth oa; oa.setFrom( offsetazimuth );
 
@@ -98,14 +107,14 @@ bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable )
 
     const int inl = pk.binID().inl();
     const int crl = pk.binID().crl();
-
-    ostrm_->addBin( inl );
-    ostrm_->addBin( crl );
-
     const OffsetAzimuth oa( pk.offset(), 0 );
     const int oaint = oa.asInt();
-    ostrm_->addBin( oaint );
-    ostrm_->addBin( usable );
+
+    if ( !ascii_ )
+	ostrm_->addBin( inl ).addBin( crl ).addBin( oaint ).addBin( usable );
+    else
+	ostrm_->add( inl ).addTab().add( crl ).addTab()
+		  .add( oaint ).addTab().add( usable ? 'Y' : 'N' ).addNewLine();
 
     return ostrm_->isOK();
 }
@@ -167,7 +176,8 @@ bool SEGY::FileDataSet::setOutputStream( od_ostream& strm )
 bool SEGY::FileDataSet::usePar( const IOPar& par )
 {
     filenames_.erase();
-    cumsizes_.erase();;
+    cumsizes_.erase();
+    sizes_.erase();
 
     totalsz_ = 0;
     int nrfiles = 0;
@@ -200,12 +210,20 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	    return false;
 
 	filenames_.add( filenm );
+	sizes_ += filesz;
 	cumsizes_ += totalsz_;
 	totalsz_ += filesz;
     }
 
-    Seis::getFromPar(par,geom_);
+    getBaseDataFromPar( par );
+    return true;
 
+}
+
+
+void SEGY::FileDataSet::getBaseDataFromPar( const IOPar& par )
+{
+    Seis::getFromPar(par,geom_);
     bool isnotrev0 = !isrev0_;
     par.getYN( sKeyRev1Marked, isnotrev0 );
     isrev0_ = !isnotrev0;
@@ -213,8 +231,8 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
     par.get( sKeyTraceSize, trcsz_ );
     par.get( sKeyNrStanzas, nrstanzas_ );
     par.get( sKeyNrUsable, nrusable_ );
-
-    return true;
+    if ( storeddata_ )
+	par.getYN( sKey::Ascii(), storeddata_->ascii_ );
 }
 
 
@@ -228,18 +246,14 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     par.set( sKeyTraceSize, trcsz_ );
     par.set( sKeyNrStanzas, nrstanzas_ );
     par.set( sKeyNrUsable, nrusable_ );
+    if ( storeddata_ && storeddata_->ascii_ )
     Seis::putInPar( geom_, par );
 
     for ( int ifile=0; ifile<nrfiles; ifile++ )
     {
 	IOPar filepars;
 	filepars.set( sKey::FileName(), fileName( ifile ) );
-	const od_int64 nextsize = ifile<nrfiles-1
-	    ? cumsizes_[ifile+1]
-	    : totalsz_;
-
-	const od_int64 filesz = nextsize-cumsizes_[ifile];
-	filepars.set( sKey::Size(), filesz );
+	filepars.set( sKey::Size(), sizes_[ifile] );
 	SEGY::FileSpec::makePathsRelative( filepars );
 
 	BufferString key("File ");
@@ -266,6 +280,7 @@ int SEGY::FileDataSet::nrFiles() const
 void SEGY::FileDataSet::addFile( const char* file )
 {
     filenames_.add( file );
+    sizes_ += 0;
     cumsizes_ += totalsz_;
 }
 
@@ -287,11 +302,13 @@ bool SEGY::FileDataSet::addTrace( int fileidx, const Seis::PosKey& pk,
 	usable_ += usable;
     }
 
-    if ( indexer_ ) indexer_->add( pk, totalsz_ );
+    if ( indexer_ )
+	indexer_->add( pk, totalsz_ );
     if ( Seis::is2D(geom_) && coords_ )
 	coords_->set( pk.trcNr(), crd );
 
-    totalsz_ ++;
+    sizes_[fileidx]++;
+    totalsz_++;
 
     if ( usable )
 	nrusable_++;
@@ -319,6 +336,7 @@ bool SEGY::FileDataSet::readVersion1( ascistream& astrm )
 {
     totalsz_ = 0;
     cumsizes_.erase();
+    sizes_.erase();
     keys_.erase();
     usable_.erase();
 

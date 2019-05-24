@@ -70,6 +70,8 @@ public:
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);
     od_ostream&		add(const DBKey&);
+    od_ostream&		addTab()		{ return add( "\t" ); }
+    od_ostream&		addNewLine()		{ return add( "\n" ); }
 
     od_ostream&		add(const void*); //!< produces pErrMsg but works
     od_ostream&		addPtr(const void*);

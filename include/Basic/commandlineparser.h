@@ -109,6 +109,7 @@ public:
     static const char*	sFileForArgs()	    { return "argsfile"; }
     static const char*	sDataRootArg()	    { return "dataroot"; }
     static const char*	sSurveyArg()	    { return "survey"; }
+    BufferString	envVarBase() const;
     BufferString	getFullSurveyPath(bool* iscursurv=0) const;
 
 private:
