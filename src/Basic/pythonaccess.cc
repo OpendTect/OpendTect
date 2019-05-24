@@ -124,7 +124,7 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 					 externalroot) )
 	return false;
 
-    for ( auto virtualenvfp : virtualenvsfp )
+    for ( const auto virtualenvfp : virtualenvsfp )
     {
 	if ( isEnvUsable(virtualenvfp,scriptstr,scriptexpectedout) )
 	{
@@ -629,7 +629,7 @@ static bool usesNvidiaCard( BufferString* glversionstr )
 
     BufferStringSet glxinfostrs;
     glxinfostrs.unCat( stdoutstr.str() );
-    for ( auto line : glxinfostrs )
+    for ( const auto line : glxinfostrs )
     {
 	if ( !line->startsWith("OpenGL") )
 	    continue;
