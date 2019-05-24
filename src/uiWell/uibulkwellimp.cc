@@ -373,6 +373,8 @@ bool uiBulkLogImport::acceptOK()
 	    { uirv.add( newuirv ); continue; }
 
 	lasimp.setData( *wd );
+	if ( usecurvenms )
+	    info.lognms = info.logcurves; // Hack
 	errmsg = lasimp.getLogs( fnm, info, zistvd, usecurvenms );
 	SilentTaskRunnerProvider trprov;
 	if ( !errmsg.isEmpty() )
