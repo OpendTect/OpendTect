@@ -559,7 +559,7 @@ void uiWellTrackDlg::updNowCB(CallBacker*)
 bool uiWellTrackDlg::updNow()
 {
     wd_.info().setUWI( uwifld_->text() );
-    wd_.info().setGroundElevation( glfld_->getFValue() );
+    wd_.info().setGroundElevation( mConvertVal(glfld_->getFValue(),false) );
 
     track_.setEmpty();
     const int nrrows = tbl_->nrRows();
