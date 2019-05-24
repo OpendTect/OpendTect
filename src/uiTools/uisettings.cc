@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "dirlist.h"
 #include "envvars.h"
+#include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "posimpexppars.h"
@@ -27,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uifiledlg.h"
+#include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -557,40 +559,27 @@ uiPythonSettings(uiParent* p, const char* nm)
 		StringListInpSpec(OD::PythonSourceDef().strings()));
     mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
 
-    custompythongrp_ = new uiGroup(this, "Custom python");
-    uiLabel* customenvlbl = new uiLabel(custompythongrp_,
-				tr("Paths for custom Python environment:"));
+    if ( !OD::PythonAccess::hasInternalEnvironment(false) )
+    {
+	internalloc_ = new uiFileInput( this, tr("Environment root") );
+	internalloc_->setSelectMode( uiFileDialog::DirectoryOnly );
+	internalloc_->attach( alignedBelow, pythonsrcfld_ );
+	mAttachCB( internalloc_->valuechanged, uiPythonSettings::parChgCB );
+    }
 
-    tbl_ = new uiTable(custompythongrp_, uiTable::Setup(5,1)
-		.manualresize(true)
-		.selmode(uiTable::SingleRow),
-		"Settings editor");
-    tbl_->setStretch(2, 2);
-    tbl_->setPrefWidth(400);
-    tbl_->setPrefHeight(300);
-    tbl_->setTopHeaderHidden(true);
-    tbl_->setLeftHeaderHidden(true);
-    tbl_->setSelectionBehavior(uiTable::SelectRows);
-    tbl_->attach(alignedBelow, customenvlbl);
+    customloc_ = new uiFileInput( this,tr("Custom Environment root"));
+    customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
+    customloc_->attach( alignedBelow, pythonsrcfld_ );
+    mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
 
-    uiButtonGroup* pythonbuts = new uiButtonGroup(custompythongrp_,
-		"python actions", OD::Vertical);
+    customenvnmfld_ = new uiGenInput( this, tr("Environment"),
+				      StringListInpSpec() );
+    customenvnmfld_->attach( alignedBelow, customloc_ );
+    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
 
-    uiButton* mUnusedVar newbut = new uiPushButton( pythonbuts,
-		uiStrings::sNew(),
-		mCB(this, uiPythonSettings, newPathCB), true);
-    uiButton* mUnusedVar modifybut = new uiPushButton( pythonbuts,
-		uiStrings::sModify(),
-		mCB(this, uiPythonSettings, modifPathCB), true);
-    uiButton* mUnusedVar browsebut = new uiPushButton( pythonbuts,
-		tr("Browse"),
-		mCB(this, uiPythonSettings, browsePathCB), true);
-    uiButton* mUnusedVar removebut = new uiPushButton( pythonbuts,
-		uiStrings::sRemove(),
-		mCB(this, uiPythonSettings, removePathCB), true);
-    pythonbuts->attach( rightOf, tbl_ );
-
-    custompythongrp_->attach( ensureBelow, pythonsrcfld_ );
+    uiButton* testbut = new uiPushButton( this, tr("Test"),
+			mCB(this, uiPythonSettings, testCB), true);
+    testbut->attach( ensureBelow, customenvnmfld_ );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
@@ -603,8 +592,8 @@ private:
 
 void initDlg(CallBacker*)
 {
-    //TODO: handle empty settings (initial state)
     usePar(curSetts());
+    fillPar( initialsetts_ ); //Backup for restore
     sourceChgCB(0);
 }
 
@@ -623,10 +612,10 @@ void getChanges()
     if ( alreadyedited )
 	workpar->setEmpty();
     else
-	workpar = new IOPar( curSetts().name() );
+	workpar = new IOPar;
 
     fillPar( *workpar );
-    if (!curSetts().isEqual(*workpar, true))
+    if ( !curSetts().isEqual(*workpar, true) )
     {
 	if ( !alreadyedited )
 	    chgdsetts_ = workpar;
@@ -641,23 +630,29 @@ void getChanges()
 
 void fillPar( IOPar& par ) const
 {
+    BufferString pythonstr( sKey::Python() );
+    par.setName( pythonstr.toLower() );
+
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
     par.set(OD::PythonAccess::sKeyPythonSrc(),
 		OD::PythonSourceDef().getKey(source));
-    if ( source == OD::PythonSource::Custom )
+
+    if ( source == OD::Internal && internalloc_ )
     {
-	FileMultiString envpathssep;
-	for ( int irow=0; irow<tbl_->nrRows(); irow++ )
+	const BufferString envroot( internalloc_->fileName() );
+	if ( !envroot.isEmpty() )
+	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
+    }
+    else if ( source == OD::Custom )
+    {
+	const BufferString envroot( customloc_->fileName() );
+	if ( !envroot.isEmpty() )
 	{
-	    const BufferString valbuf = tbl_->text(RowCol(irow, 0));
-	    if (valbuf.isEmpty())
-		continue;
-	    envpathssep.add(valbuf);
+	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
+	    par.set( sKey::Name(), customenvnmfld_->text() );
 	}
-	if (!envpathssep.isEmpty())
-		par.set(OD::PythonAccess::sKeyEnviron(), envpathssep.rep());
     }
 }
 
@@ -666,34 +661,36 @@ void usePar( const IOPar& par )
     OD::PythonSource source;
     if (!OD::PythonSourceDef().parse(par,
 		OD::PythonAccess::sKeyPythonSrc(), source))
-	return;
+    {
+	source = OD::PythonAccess::hasInternalEnvironment(false)
+	       ? OD::Internal : OD::System;
+    }
 
     pythonsrcfld_->setValue( source );
-    if ( source == OD::PythonSource::Custom )
+    if ( source == OD::Internal && internalloc_ )
     {
-	for (int irow = 0; irow < tbl_->nrRows(); irow++)
+	BufferString envroot;
+	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	    internalloc_->setFileName( envroot );
+    }
+    else if ( source == OD::Custom )
+    {
+	BufferString envroot;
+	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
 	{
-	    const RowCol rc(irow, 0);
-	    tbl_->setText(rc, uiStrings::sEmptyString());
+	    customloc_->setFileName( envroot );
+	    customEnvChgCB( nullptr );
 	}
-
-	BufferString envpaths;
-	if (par.get(OD::PythonAccess::sKeyEnviron(), envpaths))
-	{
-	    const FileMultiString envpathsep(envpaths);
-	    for (int idx = 0; idx < envpathsep.size(); idx++)
-		tbl_->setText(RowCol(idx, 0), envpathsep[idx]);
-	}
-
-	tbl_->resizeColumnToContents(1);
+	if ( par.get(sKey::Name(),envroot) )
+	    customenvnmfld_->setText( envroot );
     }
 }
 
 bool commitSetts( const IOPar& iop )
 {
-    Settings& setts = Settings::fetch(iop.name());
+    Settings& setts = Settings::fetch( iop.name() );
     setts.IOPar::operator =(iop);
-    if (!setts.write(false))
+    if ( !setts.write(false) )
     {
 	uiMSG().error(tr("Cannot write %1").arg(setts.name()));
 	return false;
@@ -708,80 +705,156 @@ void sourceChgCB( CallBacker* )
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
-    custompythongrp_->display( source == OD::PythonSource::Custom );
+    if ( internalloc_ )
+	internalloc_->display( source == OD::Internal );
+
+    customloc_->display( source == OD::Custom );
+    customenvnmfld_->display( source == OD::Custom );
+    parChgCB( nullptr );
 }
 
-void newPathCB(CallBacker*)
+void customEnvChgCB( CallBacker* )
 {
-    const int nrrows = tbl_->nrRows();
-    for (int irow = 0; irow < nrrows; irow++)
-    {
-	const RowCol rc(irow, 0);
-	const BufferString curtxt(tbl_->text(rc));
-	if (!curtxt.isEmpty())
-	    continue;
-
-	tbl_->editCell(rc, true);
-	if (irow == nrrows - 1)
-	    tbl_->insertRows(RowCol(nrrows, 0), 3);
-	return;
-    }
+    setCustomEnvironmentNames();
+    parChgCB( nullptr );
 }
 
-void modifPathCB(CallBacker*)
-{
-    tbl_->editCell(RowCol(tbl_->currentRow(), 0), true);
-}
-
-void browsePathCB(CallBacker*)
-{
-    uiFileDialog dlg(this, uiFileDialog::DirectoryOnly);
-    if ( !dlg.go() )
-	return;
-
-    const BufferString outpath(dlg.fileName());
-    const int nrrows = tbl_->nrRows();
-    for (int irow = 0; irow < nrrows; irow++)
-    {
-	const RowCol rc(irow, 0);
-	const BufferString curtxt(tbl_->text(rc));
-	if (!curtxt.isEmpty())
-	    continue;
-
-	tbl_->setText(rc, dlg.fileName());
-	if (irow == nrrows - 1)
-	    tbl_->insertRows(RowCol(nrrows, 0), 3);
-	return;
-    }
-}
-
-void removePathCB(CallBacker*)
-{
-    const int irow = tbl_->currentRow();
-    if (tbl_->isRowSelected(irow))
-	tbl_->setText(RowCol(irow, 0), uiStrings::sEmptyString());
-}
-
-bool acceptOK(CallBacker*)
+void parChgCB( CallBacker* )
 {
     getChanges();
-    if ( !chgdsetts_ )
-	return true;
+}
+
+void setCustomEnvironmentNames()
+{
+    const BufferString envroot( customloc_->fileName() );
+    const FilePath fp( envroot, "envs" );
+    if ( !fp.exists() )
+        return;
+
+    BufferStringSet envnames;
+    const DirList dl( fp.fullPath(), DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+        envnames.add( FilePath(dl.fullPath(idx)).baseName() );
+    customenvnmfld_->setEmpty();
+    customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
+}
+
+void testPythonModules()
+{
+    ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
+    const uiRetVal uirv( OD::PythA().getModules(modules) );
+    if ( !uirv.isOK() )
+    {
+        uiMSG().error( uirv );
+        return;
+    }
+
+    BufferStringSet modstrs;
+    for ( int idx=0; idx<modules.size(); idx++ )
+        modstrs.add( modules[idx]->displayStr() );
+
+    uiMSG().message( tr("Detected list of Python modules:\n%1")
+                                .arg( modstrs.cat()) );
+}
+
+void testCB(CallBacker*)
+{
+    needrestore_ = chgdsetts_;
+    if ( !useScreen() )
+        return;
+
+    uiUserShowWait usw( this, tr("Retrieving Python testing") );
+    if ( !OD::PythA().isUsable(true) )
+    {
+        uiString launchermsg;
+        uiRetVal uirv( tr("Cannot detect python version:\n%1")
+                        .arg(OD::PythA().lastOutput(true,&launchermsg)) );
+        uirv.add( tr("Python environment not usable") )
+            .add( launchermsg );
+        uiMSG().error( uirv );
+        return;
+    }
+
+    BufferString versionstr( OD::PythA().lastOutput(false,nullptr) );
+    if ( versionstr.isEmpty() )
+        versionstr.set( OD::PythA().lastOutput(true,nullptr) );
+    uiMSG().message( tr("Detected Python version: %1").arg(versionstr));
+
+    usw.setMessage( tr("Retrieving list of installed Python modules") );
+    testPythonModules();
+}
+
+bool useScreen()
+{
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+                OD::PythonSourceDef().getEnumForIndex(sourceidx);
+
+    if ( source == OD::Internal && internalloc_ )
+    {
+        const BufferString envroot( internalloc_->fileName() );
+        if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+        {
+            uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+            return false;
+        }
+
+        const FilePath envrootfp( envroot );
+        if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
+        {
+            uiMSG().error( tr("Invalid environment root") );
+            return false;
+        }
+    }
+    else if ( source == OD::Custom )
+    {
+        const BufferString envroot( customloc_->fileName() );
+        if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+        {
+            uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+            return false;
+        }
+
+        const FilePath envrootfp( envroot, "envs" );
+        if ( !envrootfp.exists() )
+        {
+            uiMSG().error( tr("%1 does not contains a directory called %2")
+                                .arg(uiStrings::sDirectory()).arg("envs") );
+            return false;
+        }
+    }
+
+        if ( !chgdsetts_ )
+        return true;
 
     if ( commitSetts(*chgdsetts_) )
-	deleteAndZeroPtr(chgdsetts_);
+        deleteAndZeroPtr(chgdsetts_);
 
     if ( chgdsetts_ )
-	return false;
+        return false;
 
     return true;
 }
 
-    uiGenInput*     pythonsrcfld_;
-    uiGroup*	    custompythongrp_;
-    uiTable*	    tbl_;
+bool rejectOK( CallBacker* )
+{
+    return needrestore_ ? commitSetts( initialsetts_ ) : true;
+}
 
-    IOPar*	    chgdsetts_ = nullptr;
+bool acceptOK( CallBacker* )
+{
+    needrestore_ = false;
+    return useScreen();
+}
+
+    uiGenInput*		pythonsrcfld_;
+    uiFileInput*	internalloc_ = nullptr;
+    uiFileInput*	customloc_;
+    uiGenInput*		customenvnmfld_;
+
+    IOPar*		chgdsetts_ = nullptr;
+    bool		needrestore_ = false;
+    IOPar		initialsetts_;
 
 };
 
