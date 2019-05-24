@@ -292,7 +292,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     udffld_->attach( alignedBelow, istvdfld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Name log after"),
-		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+		BoolInpSpec(false,tr("Curve"),tr("Description")) );
     lognmfld_->attach( alignedBelow, udffld_ );
 
     BufferStringSet colnms;
@@ -395,6 +395,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	}
 
 	lasimp.setData( wd );
+	if ( usecurvenms )
+	    info.lognms = info.logcurves; // Hack
 	errmsg = lasimp.getLogs( fnm, info, zistvd, usecurvenms );
 	if ( !errmsg.isEmpty() )
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
