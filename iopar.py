@@ -14,4 +14,11 @@ def read_line( fp, bin ):
     words = fp.readline().decode("utf8").split(":")
   else:
     words = fp.readline().split(":")
-  return [x.strip() for x in words]
+  cleanwords = [x.strip() for x in words]
+  nrwords = len(cleanwords)
+  ret = list()
+  if nrwords > 0:
+    ret.append( cleanwords[0] )
+  if nrwords > 1:
+    ret.append( ':'.join(cleanwords[1:nrwords]) )
+  return ret
