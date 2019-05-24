@@ -88,8 +88,8 @@ public:
 
 			 FactoryBase()
 			     : lastcreatedidx_(-1)
-			     , defaultkeyidx_(0)	{}
-    virtual		~FactoryBase()			{}
+			     , defaultkeyidx_(0) {}
+    virtual		~FactoryBase()		{ detachAllNotifiers(); }
 
     int			size() const		{ return keys_.size(); }
     bool		isEmpty() const		{ return keys_.isEmpty();}
