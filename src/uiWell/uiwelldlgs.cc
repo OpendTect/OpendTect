@@ -103,7 +103,7 @@ uiString getDlgTitle( const MultiID& wllky )
 	setbut->attach( rightOf, fld ); \
     }
 
-static HiddenParam<uiWellTrackDlg,uiGenInput*> glflds(0);
+static HiddenParam<uiWellTrackDlg,uiGenInput*> glflds(nullptr);
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,mGetDlgSetup(d,tr("Well Track"),mWellTrackDlgHelpID))
@@ -566,7 +566,8 @@ void uiWellTrackDlg::readNew( CallBacker* )
 bool uiWellTrackDlg::updNow( CallBacker* )
 {
     wd_.info().uwid = uwifld_->text();
-    wd_.info().groundelev = glflds.getParam(this)->getFValue();
+    wd_.info().groundelev =
+	mConvertVal(glflds.getParam(this)->getFValue(),false);
 
     track_.setEmpty();
     const int nrrows = tbl_->nrRows();
