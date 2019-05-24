@@ -663,7 +663,7 @@ static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
 {
     BufferStringSet openglstrset;
     openglstrset.addWordsFrom( glstr );
-    if ( openglstrset.size() < 2 || !openglstrset.isPresent("NVIDIA") )
+    if ( openglstrset.size() < 2 || !openglstrset.isPresent(sKeyNvidia()) )
 	return false;
 
     const float version = toFloat(openglstrset.last()->buf());
