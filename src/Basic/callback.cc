@@ -138,15 +138,22 @@ private:
 };
 
 
-static Threads::Lock callbackeventreceiverslock;
-static ObjectSet<QCallBackEventReceiver> callbackeventreceivers;
+static Threads::Lock cb_rcvrs_lock_;
+
+static ObjectSet<QCallBackEventReceiver>& cbRcvrs()
+{
+    static ObjectSet<QCallBackEventReceiver>* cbrcvrs = nullptr;
+    if ( !cbrcvrs )
+	cbrcvrs = new ObjectSet<QCallBackEventReceiver>;
+    return *cbrcvrs;
+}
 
 static QCallBackEventReceiver* getQCBER( Threads::ThreadID thread )
 {
-    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    for (int idx = 0; idx < cbRcvrs().size(); idx++)
     {
-	if (callbackeventreceivers[idx]->threadID() == thread)
-	    return callbackeventreceivers[idx];
+	if (cbRcvrs()[idx]->threadID() == thread)
+	    return cbRcvrs()[idx];
     }
 
     return 0;
@@ -157,13 +164,13 @@ void CallBacker::createReceiverForCurrentThread()
 {
     const Threads::ThreadID curthread = Threads::currentThread();
 
-    Threads::Locker locker(callbackeventreceiverslock);
+    Threads::Locker locker(cb_rcvrs_lock_);
 
     if ( getQCBER(curthread) )
 	return;
 
     QCallBackEventReceiver* res = new QCallBackEventReceiver(curthread);
-    callbackeventreceivers += res;
+    cbRcvrs() += res;
 }
 
 
@@ -171,12 +178,12 @@ void CallBacker::removeReceiverForCurrentThread()
 {
     const Threads::ThreadID curthread = Threads::currentThread();
 
-    Threads::Locker locker(callbackeventreceiverslock);
-    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    Threads::Locker locker(cb_rcvrs_lock_);
+    for (int idx = 0; idx < cbRcvrs().size(); idx++)
     {
-	if (callbackeventreceivers[idx]->threadID() == curthread)
+	if (cbRcvrs()[idx]->threadID() == curthread)
 	{
-	    delete callbackeventreceivers.removeSingle(idx);
+	    delete cbRcvrs().removeSingle(idx);
 	    break;
 	}
     }
@@ -185,10 +192,10 @@ void CallBacker::removeReceiverForCurrentThread()
 
 static bool isPresent(const CallBacker* cber)
 {
-    Threads::Locker locker(callbackeventreceiverslock);
-    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    Threads::Locker locker(cb_rcvrs_lock_);
+    for (int idx = 0; idx < cbRcvrs().size(); idx++)
     {
-	if (callbackeventreceivers[idx]->isPresent(cber))
+	if (cbRcvrs()[idx]->isPresent(cber))
 	    return true;
     }
     return false;
@@ -422,7 +429,7 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 bool CallBack::addToThread( Threads::ThreadID threadid, const CallBack& cb,
 			    CallBacker* cber)
 {
-    Threads::Locker locker(callbackeventreceiverslock);
+    Threads::Locker locker(cb_rcvrs_lock_);
     QCallBackEventReceiver* rec = getQCBER(threadid);
 
     if (!rec)
@@ -468,11 +475,9 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 void CallBack::removeFromThreadCalls(const CallBacker* cber)
 {
 #ifndef OD_NO_QT
-    Threads::Locker locker(callbackeventreceiverslock);
-    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
-    {
-	callbackeventreceivers[idx]->removeBy(cber);
-    }
+    Threads::Locker locker(cb_rcvrs_lock_);
+    for (int idx = 0; idx < cbRcvrs().size(); idx++)
+	cbRcvrs()[idx]->removeBy(cber);
 #endif
 }
 
