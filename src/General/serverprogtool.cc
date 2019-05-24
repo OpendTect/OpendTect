@@ -244,6 +244,7 @@ void ServerProgTool::respondInfo( bool success, bool exit )
 	ascostream ascstrm( outStream() );
 	iop_.putTo( ascstrm );
     }
+    outStream() <<  od_endl;
 
     if ( exit )
 	exitProgram( success );
