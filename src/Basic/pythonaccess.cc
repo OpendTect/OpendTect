@@ -661,22 +661,12 @@ static const float nvidiavers[] = { 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
 
 static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
 {
-    const FixedString openglstr( glstr );
-    if ( !openglstr.contains(sKeyNvidia()) )
+    BufferStringSet openglstrset;
+    openglstrset.addWordsFrom( glstr );
+    if ( openglstrset.size() < 2 || !openglstrset.isPresent("NVIDIA") )
 	return false;
 
-    char valbuf[1024];
-    const char* nextword = getNextNonBlanks( openglstr, valbuf );
-    mSkipBlanks( nextword );
-    const char* lastword = nullptr;
-    do
-    {
-	lastword = nextword;
-	nextword = getNextNonBlanks( nextword, valbuf );
-	mSkipBlanks( nextword );
-    } while ( *nextword );
-
-    const float version = toFloat(lastword);
+    const float version = toFloat(openglstrset.last()->buf());
     int idx = 0;
     BufferString tmpcudastr;
     BufferString& maxcudaversion = maxcudaversionstr ? *maxcudaversionstr
