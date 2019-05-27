@@ -687,18 +687,19 @@ mExtern(Basic) void SetEnvVarDirList( const char* env,
 }
 
 
-mExtern(Basic) const char* GetPathWoOD()
+mExtern(Basic) const char* GetEnvVarDirListWoOD( const char* ky,
+						 const char* filter )
 {
     mDeclStaticString( ret );
     ret.setEmpty();
 
     BufferStringSet pathdirs;
-    if ( !GetEnvVarDirList("PATH",pathdirs,true) )
+    if ( !GetEnvVarDirList(ky,pathdirs,true) )
         return ret;
 
     BufferString instdir( GetSoftwareDir(false) );
     if ( instdir.isEmpty() )
-        ret.set( GetEnvVar("PATH") );
+        ret.set( GetEnvVar(ky) );
     else
     {
 	File::Path odinstfp( instdir );
@@ -710,6 +711,8 @@ mExtern(Basic) const char* GetPathWoOD()
 	    pathdirfp.makeCanonical();
             if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
 		 pathdir->contains(instdir) )
+		continue;
+	    if ( filter && pathdir->contains(filter) )
 		continue;
 	    accepteddirs.add( pathdir->buf() );
         }
