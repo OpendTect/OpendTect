@@ -34,6 +34,7 @@ set( OD_MODULE_SOURCES
 	uifileinput.cc
 	uifilesel.cc
 	uifillpattern.cc
+	uifirewallprocsetterdlg.cc
 	uifontsel.cc
 	uifreqfilter.cc
 	uifunctiondisplay.cc

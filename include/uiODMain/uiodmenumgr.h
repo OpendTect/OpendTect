@@ -224,6 +224,7 @@ protected:
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
 
     void	showLogFile();
+    void	showFileWallProcDlg();
 
     uiMenu*	addDualAsciiSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,int,bool,
