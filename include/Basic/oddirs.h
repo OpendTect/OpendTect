@@ -136,6 +136,11 @@ mGlobal(Basic) const char* GetExecScript(int remote);
 */
 #define		mGetExecScript()	GetExecScript(0)
 
+mGlobal(Basic) const char* GetODExternalScript();
+/* Location of od_external script to launch commands free of any OpendTect
+   environment
+*/
+
 mGlobal(Basic) const char* GetSoftwareUser(void);
 /*!< Sub-user of software: $DTECT_USER
 

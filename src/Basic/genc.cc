@@ -16,11 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "buildinfo.h"
 #include "bufstring.h"
 #include "ptrman.h"
+#include "file.h"
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "threadlock.h"
 #include "od_iostream.h"
 #include "odmemory.h"
+#include "separstr.h"
 #include "convert.h"
 #include "iopar.h"
 #include <iostream>
@@ -34,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <sys/timeb.h>
 # include <shlobj.h>
 # include <Psapi.h>
+# define mEnvVarDirSep ';'
 #else
 # include <unistd.h>
 # include <errno.h>
@@ -44,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <arpa/inet.h>
 # include <sys/types.h>
 # include <signal.h>
+# define mEnvVarDirSep ':'
 #endif
 
 #ifdef __lux__
@@ -489,6 +493,35 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 }
 
 
+mExtern(Basic) bool GetEnvVarDirList( const char* env, BufferStringSet& ret,
+				      bool checkdirs )
+{
+    if ( !env || !*env )
+	return false;
+
+    Threads::Locker lock( getEnvVarLock() );
+    ret.setEmpty();
+    const BufferString allpaths( GetEnvVar(env) );
+    if ( allpaths.isEmpty() )
+	return false;
+
+    const SeparString allpathssep( allpaths, mEnvVarDirSep );
+    for ( int idx=0; idx<allpathssep.size(); idx++ )
+    {
+	const FixedString curpath( allpathssep[idx] );
+	if ( !checkdirs ||
+	     (File::exists(curpath) && File::isDirectory(curpath)) )
+	{
+	    FilePath curfp( curpath );
+	    curfp.makeCanonical();
+	    ret.addIfNew( curfp.fullPath() );
+	}
+    }
+
+    return !ret.isEmpty();
+}
+
+
 mExtern(Basic) bool GetEnvVarYN( const char* env, bool defaultval )
 {
     const char* s = GetEnvVar( env );
@@ -496,7 +529,7 @@ mExtern(Basic) bool GetEnvVarYN( const char* env, bool defaultval )
 	return defaultval;
 
     return *s == '0' || *s == 'n' || *s == 'N' ||
-	   *s == 'f' || *s == 'F' ? 0 : 1;
+	   *s == 'f' || *s == 'F' ? false : true;
 }
 
 
@@ -532,6 +565,65 @@ mExtern(Basic) void SetEnvVar( const char* env, const char* val )
 #else
     setenv( env, val, 1 );
 #endif
+}
+
+
+mExtern(Basic) void SetEnvVarDirList( const char* env,
+				      const BufferStringSet& dirs,
+				      bool appendnoerase )
+{
+    if ( !env || !*env || dirs.isEmpty() )
+	return;
+
+    Threads::Locker lock( getEnvVarLock() );
+    BufferStringSet dirsedit;
+    if ( appendnoerase )
+    {
+	BufferStringSet existingdirs;
+	if ( GetEnvVarDirList(env,existingdirs,true) )
+	    dirsedit.add( existingdirs, false );
+    }
+    dirsedit.add( dirs, false );
+
+    const BufferString ret( dirsedit.cat( BufferString().add(mEnvVarDirSep) ) );
+    SetEnvVar( env, ret );
+}
+
+
+mExtern(Basic) const char* GetEnvVarDirListWoOD( const char* ky,
+						 const char* filter )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+
+    BufferStringSet pathdirs;
+    if ( !GetEnvVarDirList(ky,pathdirs,true) )
+        return ret;
+
+    BufferString instdir( GetSoftwareDir(false) );
+    if ( instdir.isEmpty() )
+        ret.set( GetEnvVar(ky) );
+    else
+    {
+	FilePath odinstfp( instdir );
+	odinstfp.makeCanonical();
+        BufferStringSet accepteddirs;
+        for ( int idx=0; idx<pathdirs.size(); idx++ )
+        {
+	    const BufferString& pathdir = *pathdirs[idx];
+	    FilePath pathdirfp( pathdir.buf() );
+	    pathdirfp.makeCanonical();
+            if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
+		 pathdir.contains(instdir) )
+		continue;
+	    if ( filter && pathdir.contains(filter) )
+		continue;
+	    accepteddirs.add( pathdir.buf() );
+        }
+	ret.set( accepteddirs.cat( BufferString().add(mEnvVarDirSep) ) );
+    }
+
+    return ret;
 }
 
 

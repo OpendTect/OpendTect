@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "oscommand.h"
 
+#include "envvars.h"
 #include "file.h"
 #include "genc.h"
 #include "commandlineparser.h"
@@ -412,7 +413,7 @@ BufferString OS::MachineCommand::getLocalCommand() const
 
 // OS::CommandLauncher
 
-OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
+OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
     : odprogressviewer_(FilePath(GetExecPlfDir(),sODProgressViewerProgName)
 			    .fullPath())
     , process_( 0 )
@@ -425,6 +426,23 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
     , pid_( 0 )
 {
     set( mc );
+}
+
+
+OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc,
+				      bool isolated )
+    : odprogressviewer_(FilePath(GetExecPlfDir(),sODProgressViewerProgName)
+			    .fullPath())
+    , process_( 0 )
+    , stderror_( 0 )
+    , stdoutput_( 0 )
+    , stdinput_( 0 )
+    , stderrorbuf_( 0 )
+    , stdoutputbuf_( 0 )
+    , stdinputbuf_( 0 )
+    , pid_( 0 )
+{
+    set( mc, isolated );
 }
 
 
@@ -482,6 +500,39 @@ void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 {
     machcmd_ = cmd;
     reset();
+}
+
+
+void OS::CommandLauncher::set( const OS::MachineCommand& cmd, bool isolated )
+{
+    BufferString mc;
+    if ( isolated )
+    {
+	mc.set( GetODExternalScript() );
+	setIsolated();
+    }
+    mc.add( cmd.command() );
+
+    OS::MachineCommand cmded( cmd );
+    cmded.setCommand( mc );
+    set( cmded );
+}
+
+
+void OS::CommandLauncher::setIsolated()
+{
+    const BufferString pathed( GetEnvVarDirListWoOD("PATH") );
+    if ( !pathed.isEmpty() )
+	SetEnvVar( "OD_INTERNAL_CLEANPATH", pathed.buf() );
+
+#ifdef __unix__
+    if ( GetEnvVar("OD_SYSTEM_LIBRARY_PATH") )
+	return;
+
+    const BufferString ldlibpathed( GetEnvVarDirListWoOD("LD_LIBRARY_PATH") );
+    if ( !ldlibpathed.isEmpty() )
+	SetEnvVar( "OD_SYSTEM_LIBRARY_PATH", ldlibpathed.buf() );
+#endif
 }
 
 
