@@ -45,3 +45,6 @@ mGlobal(Basic) void SetEnvVarDirList(const char* env,const BufferStringSet&,
 mGlobal(Basic) bool WriteEnvVar(const char* env,const char* val);
 		/*!< Writes environment variable to .od/envvars for user
 		     or data/Envvars for SysAdm */
+mGlobal(Basic) const char* GetPathWoOD();
+		/*!< Returns the value of PATH environment variable
+		     without any path inside the OpendTect installation */
