@@ -86,7 +86,7 @@ mExpClass(Basic) MachineCommand
 {
 public:
 
-			MachineCommand( const char* prognm=0 )
+			MachineCommand( const char* prognm=nullptr )
 			    : prognm_(prognm)		{}
 			MachineCommand( const char* prognm,
 					const BufferStringSet& arguments )
@@ -95,6 +95,8 @@ public:
 			MachineCommand(const char* prognm,const char* arg1,
 				       const char* arg2=0,const char* arg3=0,
 				       const char* arg4=0,const char* arg5=0);
+			MachineCommand(const char* prognm,bool isolated);
+			MachineCommand(const MachineCommand&,bool isolated);
 
     const char*		program() const			{ return prognm_; }
     void		setProgram( const char* pn )	{ prognm_.set( pn ); }
@@ -143,7 +145,9 @@ public:
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
 
-protected:
+private:
+
+    void		setIsolated(const char* prognm);
 
     BufferString	prognm_;
     BufferStringSet	args_;

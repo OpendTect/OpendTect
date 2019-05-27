@@ -11,13 +11,14 @@
 #include "file.h"
 #include "genc.h"
 #include "commandlineparser.h"
+#include "envvars.h"
+#include "filepath.h"
+#include "fixedstring.h"
+#include "iopar.h"
 #include "oddirs.h"
 #include "od_iostream.h"
-#include "filepath.h"
 #include "staticstring.h"
-#include "fixedstring.h"
 #include "separstr.h"
-#include "iopar.h"
 
 #ifndef OD_NO_QT
 # include "qstreambuf.h"
@@ -167,6 +168,30 @@ OS::MachineCommand::MachineCommand( const char* prognm, const char* arg1,
 }
 
 
+OS::MachineCommand::MachineCommand( const char* prognm, bool isolated )
+{
+    if ( isolated )
+	setIsolated( prognm );
+    else
+	*this = MachineCommand( prognm );
+}
+
+
+OS::MachineCommand::MachineCommand( const MachineCommand& oth, bool isolated )
+{
+    if ( &oth == this )
+	return;
+
+    if ( isolated )
+    {
+	setIsolated( oth.program() );
+	addArgs( oth.args() );
+    }
+    else
+	*this = MachineCommand( oth );
+}
+
+
 OS::MachineCommand& OS::MachineCommand::addArg( const char* str )
 {
     if ( str && *str )
@@ -191,6 +216,25 @@ OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
 	addArg( CommandLineParser::createKey(ky) );
     addArg( str );
     return *this;
+}
+
+
+void OS::MachineCommand::setIsolated( const char* prognm )
+{
+    prognm_.set( GetODExternalScript() );
+    addArg( prognm );
+    const BufferString pathed( GetEnvVarDirListWoOD("PATH") );
+    if ( !pathed.isEmpty() )
+	SetEnvVar( "OD_INTERNAL_CLEANPATH", pathed.buf() );
+
+#ifdef __unix__
+    if ( GetEnvVar("OD_SYSTEM_LIBRARY_PATH") )
+	return;
+
+    const BufferString ldlibpathed( GetEnvVarDirListWoOD("LD_LIBRARY_PATH") );
+    if ( !ldlibpathed.isEmpty() )
+	SetEnvVar( "OD_SYSTEM_LIBRARY_PATH", ldlibpathed.buf() );
+#endif
 }
 
 
@@ -629,6 +673,14 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     reset();
     if ( machcmd_.isBad() )
 	{ errmsg_ = toUiString("Command is invalid"); return false; }
+
+    if ( FixedString(machcmd_.program()).contains("python") )
+    {
+	const File::Path pythfp( machcmd_.program() );
+	if ( pythfp.nrLevels() < 2 ||
+	    (pythfp.exists() && pythfp.fileName().contains("python") ) )
+	    pErrMsg("Python commands should be run using OD::PythA().execute");
+    }
 
     MachineCommand mcmd( machcmd_ );
     BufferString toexec = machcmd_.getExecCommand();

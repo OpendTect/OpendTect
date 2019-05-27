@@ -134,6 +134,11 @@ mGlobal(Basic) const char* GetUnixExecScript();
   In GetSiteDataDir() or GetSoftwareDir(): bin/od_exec[_rmt][.bat]
 */
 
+mGlobal(Basic) const char* GetODExternalScript();
+/* Location of od_external script to launch commands free of any OpendTect
+   environment
+*/
+
 mGlobal(Basic) const char* GetSoftwareUser(void);
 /*!< Sub-user of software: $DTECT_USER
 

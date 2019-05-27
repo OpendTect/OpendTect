@@ -292,7 +292,11 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 					  const char* envnm )
 {
     if ( !activatefp || !envnm )
+    {
+	const OS::MachineCommand cmdret( cmd, true );
+	cmd = cmdret;
 	return nullptr;
+    }
 
     File::Path* ret = new File::Path(
 			  File::Path::getTempFullPath("runpython",nullptr) );
@@ -333,7 +337,8 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #ifdef __unix__
     File::makeExecutable( ret->fullPath(), true );
 #endif
-    cmd = OS::MachineCommand( ret->fullPath() );
+    cmd = OS::MachineCommand( ret->fullPath(), true );
+
     return ret;
 }
 

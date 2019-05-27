@@ -461,6 +461,25 @@ mExternC(Basic) const char* GetUnixExecScript()
 }
 
 
+mExternC(Basic) const char* GetODExternalScript()
+{
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() )
+	return ret;
+
+    File::Path retfp( GetScriptDir(), "od_external" );
+#ifdef __win__
+    retfp.setExtension( "bat" );
+#else
+    retfp.setExtension( "sh" );
+#endif
+    if ( retfp.exists() )
+	ret.set( retfp.fullPath() );
+
+    return ret;
+}
+
+
 mExternC(Basic) const char* GetSoftwareUser()
 {
     mDeclStaticString( bs );
