@@ -10,8 +10,13 @@ if %argC% LSS 1 (
   goto :eof
 )
 if DEFINED OD_INTERNAL_CLEANPATH (
-  Set PATH="%OD_INTERNAL_CLEANPATH%"
+  Set "PATH=%OD_INTERNAL_CLEANPATH%"
 )
 
 Set DTECT_APPL=
+if DEFINED HOMEDRIVE if DEFINED HOMEPATH (
+  chdir /D %HOMEDRIVE%%HOMEPATH%
+) else (
+  chdir /D C:\
+)
 @CALL %*
