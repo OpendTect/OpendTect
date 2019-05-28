@@ -352,7 +352,7 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
     else
 	scriptfpret.set( nullptr );
 
-    OS::CommandLauncher* cl = new OS::CommandLauncher( scriptcmd );
+    OS::CommandLauncher* cl = new OS::CommandLauncher( scriptcmd, true );
     return cl;
 }
 
