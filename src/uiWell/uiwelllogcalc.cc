@@ -106,7 +106,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     if ( wellids_.isEmpty() )
     {
 	new uiLabel( this, tr("No wells.\nPlease import"
-                              " or create a well first.") );
+			      " or create a well first.") );
 	setCtrlStyle( CloseOnly );
 	return;
     }
@@ -164,7 +164,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pols,
 			       tr("Inter/extrapolate input logs?"));
     interppolfld_ = lcb->box();
-    interppolfld_->setCurrentItem( 2 );
+    interppolfld_->setCurrentItem( 0 );
     lcb->attach( alignedBelow, srfld_ );
 
     nmfld_ = new uiGenInput( this, tr("Name for new log") );
@@ -276,7 +276,7 @@ public:
 uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup(uiStrings::sRockPhy(),
 				  tr("Use a rock physics formula"),
-                                  mODHelpKey(mWellLogCalcRockPhysHelpID) ))
+				  mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 { formgrp_ = new uiRockPhysForm( this ); }
 
 bool acceptOK( CallBacker* )
