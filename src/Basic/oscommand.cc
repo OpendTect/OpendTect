@@ -509,9 +509,10 @@ void OS::CommandLauncher::set( const OS::MachineCommand& cmd, bool isolated )
     if ( isolated )
     {
 	mc.set( GetODExternalScript() );
+	addQuotesIfNeeded( mc );
 	setIsolated();
     }
-    mc.add( cmd.command() );
+    mc.addSpace().add( cmd.command() );
 
     OS::MachineCommand cmded( cmd );
     cmded.setCommand( mc );

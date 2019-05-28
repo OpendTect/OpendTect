@@ -334,7 +334,9 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #ifdef __unix__
     File::makeExecutable( ret->fullPath(), true );
 #endif
-    cmd = OS::MachineCommand( ret->fullPath() );
+	BufferString cmdstr( ret->fullPath() );
+	OS::CommandLauncher::addQuotesIfNeeded( cmdstr );
+    cmd = OS::MachineCommand( cmdstr );
     return ret;
 }
 

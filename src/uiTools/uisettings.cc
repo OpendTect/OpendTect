@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "od_helpids.h"
 #include "posimpexppars.h"
 #include "ptrman.h"
@@ -581,6 +582,10 @@ uiPythonSettings(uiParent* p, const char* nm)
 			mCB(this, uiPythonSettings, testCB), true);
     testbut->attach( ensureBelow, customenvnmfld_ );
 
+	uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
+		 mCB(this, uiPythonSettings, promptCB), true );
+	cmdwinbut->attach( rightOf, testbut );
+
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
 
@@ -782,6 +787,17 @@ void testCB(CallBacker*)
 
     usw.setMessage( tr("Retrieving list of installed Python modules") );
     testPythonModules();
+}
+
+void promptCB( CallBacker* )
+{
+#ifdef __win__
+	const BufferString cmdstr( "start cmd.exe" );
+	OS::MachineCommand oscmd( cmdstr );
+	OD::PythA().execute( oscmd, OS::CommandExecPars(OS::RunInBG) );
+#else
+	//TODO: implement
+#endif
 }
 
 bool useScreen()
