@@ -177,7 +177,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const DBKeySet& wllids,
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pols,
 			       tr("Inter/extrapolate input logs?"));
     interppolfld_ = lcb->box();
-    interppolfld_->setCurrentItem( 2 );
+    interppolfld_->setCurrentItem( 0 );
     lcb->attach( alignedBelow, srfld_ );
 
     nmfld_ = new uiGenInput( this, tr("Name for new log") );
