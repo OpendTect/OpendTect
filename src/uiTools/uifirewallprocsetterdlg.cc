@@ -10,6 +10,7 @@
 #include "uimsg.h"
 
 #include "dirlist.h"
+#include "filepath.h"
 #include "pythonaccess.h"
 #include "oscommand.h"
 #include "settings.h"
@@ -79,8 +80,9 @@ BufferString uiFirewallProcSetter::getPythonInstDir()
     const bool pythonsource = OD::PythonSourceDef().parse( pythonsetts,
 			    OD::PythonAccess::sKeyPythonSrc(), source );
     if ( !pythonsource || source != OD::PythonSource::Custom ||
-		!pythonsetts.get(OD::PythonAccess::sKeyEnviron(),pythonloc) )
-	return false;
+	 !pythonsetts.get(OD::PythonAccess::sKeyEnviron(),pythonloc) )
+	return ""; // return default location?
+
     return pythonloc;
 }
 
@@ -95,8 +97,7 @@ bool uiFirewallProcSetter::acceptOK()
 
     if ( odchosenproc.isEmpty() && pythonchosenproc.isEmpty() )
     {
-	uiMSG().error( uiStrings::phrPlsSelectAtLeastOne(
-							uiStrings::sOption()) );
+	uiMSG().error( uiStrings::phrPlsSelectAtLeastOne(uiStrings::sOption()));
 	return false;
     }
 
@@ -111,7 +112,6 @@ bool uiFirewallProcSetter::acceptOK()
 	cmd.addFlag( "remove" );
 
     bool errocc = false;
-
     for ( int idx=0; idx<allprocs.size(); idx++ )
     {
 	OS::MachineCommand fincmd = cmd;
