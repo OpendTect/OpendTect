@@ -25,4 +25,6 @@ protected:
     uiGenInput*		    addremfld_;
 
     bool		    acceptOK();
+    BufferString	    getPythonInstDir();
+    BufferStringSet	    getPythonExecList();
 };
