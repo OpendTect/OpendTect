@@ -595,10 +595,24 @@ virtual ~uiPythonSettings()
 
 private:
 
+void setPythonPath()
+{
+	const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
+	const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
+	if ( pythonmodsfp.exists() )
+	{
+		BufferStringSet pythonpaths;
+		GetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
+		if ( pythonpaths.addIfNew(pythonmodsfp.fullPath()) )
+			SetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
+	}
+}
+
 void initDlg(CallBacker*)
 {
     usePar(curSetts());
     fillPar( initialsetts_ ); //Backup for restore
+	setPythonPath();
     sourceChgCB(0);
 }
 
