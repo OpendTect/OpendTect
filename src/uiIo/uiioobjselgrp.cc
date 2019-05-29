@@ -715,11 +715,20 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 	return false;
     }
 
+    const bool showicons = !Settings::common().isFalse( "Ui.Icons.ObjSel" );
     ioobjnms_.add( ioobj->name() );
     dispnms_.add( ioobj->name() );
     ioobjids_.add( ioobj->key() );
     if ( doTimeSort() )
 	addModifTime( *ioobj );
+    if ( showicons )
+    {
+	PtrMan<Translator> transl = ioobj->createTranslator();
+	BufferString iconnm;
+        if ( transl )
+	    iconnm.set( transl->iconName() );
+	iconnms_.add( iconnm.buf() );
+    }
 
     fillListBox();
 
