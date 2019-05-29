@@ -221,7 +221,9 @@ OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
 
 void OS::MachineCommand::setIsolated( const char* prognm )
 {
-    prognm_.set( GetODExternalScript() );
+    BufferString scriptcmd( GetODExternalScript() );
+    CommandLauncher::addQuotesIfNeeded( scriptcmd );
+    prognm_.set( scriptcmd );
     addArg( prognm );
     const BufferString pathed( GetEnvVarDirListWoOD("PATH") );
     if ( !pathed.isEmpty() )
