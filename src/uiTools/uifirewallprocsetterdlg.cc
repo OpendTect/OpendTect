@@ -24,7 +24,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p )
     su.cm( OD::ChoiceMode::ChooseAtLeastOne );
     odproclistbox_ = new uiListBox( this, su );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    static BufferStringSet odprocnms;
+    BufferStringSet odprocnms;
     odprocnms.add( "od_remoteservice" );
     odprocnms.add( "od_SeisMMBatch" );
     odproclistbox_->addItems( odprocnms );
@@ -93,7 +93,7 @@ bool uiFirewallProcSetter::acceptOK()
     odproclistbox_->getChosen( odchosenproc );
 
     BufferStringSet pythonchosenproc;
-    odproclistbox_->getChosen( pythonchosenproc );
+    pythonproclistbox_->getChosen( pythonchosenproc );
 
     if ( odchosenproc.isEmpty() && pythonchosenproc.isEmpty() )
     {
@@ -101,39 +101,51 @@ bool uiFirewallProcSetter::acceptOK()
 	return false;
     }
 
-    BufferStringSet allprocs;
-    allprocs.add( odchosenproc.getDispString() );
-    allprocs.add( pythonchosenproc.getDispString() );
-
     OS::MachineCommand cmd = "od_Setup_Firewall.exe";
-    if ( addremfld_->getBoolValue() )
+    const bool toadd = addremfld_->getBoolValue();
+    if ( toadd )
 	cmd.addFlag( "add" );
     else
 	cmd.addFlag( "remove" );
 
     bool errocc = false;
-    for ( int idx=0; idx<allprocs.size(); idx++ )
+    for ( int idx=0; idx<2; idx++ ) //idx 0=od, idx1=python
     {
 	OS::MachineCommand fincmd = cmd;
 	if ( idx == 0 )
 	    fincmd.addArg("o");
 	else
 	    fincmd.addArg("p");
-	fincmd.addArg( allprocs.get(idx) );
+	BufferStringSet procset = idx == 0 ? odchosenproc : pythonchosenproc;
+	for ( int procidx=0; procidx<procset.size(); procidx++ )
+	    fincmd.addArg( procset.get(procidx) );
 
-	OS::MachineCommand mchcmd( fincmd );
+	BufferString check = fincmd.getSingleStringRep();
+
+	OS::MachineCommand mchcmd( fincmd.getSingleStringRep() );
 	OS::CommandExecPars pars;
 	pars.launchtype( OS::LaunchType::RunInBG );
 	if ( !mchcmd.execute(pars) )
 	{
-	    uiMSG().error( uiStrings::phrCannotAdd(tr("%1 process")
-		   .arg(idx==0?toUiString("OpendTect"):toUiString("Python"))) );
+	    uiString errmsg;
+	    if ( toadd )
+		errmsg = uiStrings::phrCannotAdd( tr("%1 process") );
+	    else
+		errmsg = uiStrings::phrCannotRemove( tr("%1 process") );
+
+	    uiMSG().error( errmsg.arg( idx == 0 ? toUiString("OpendTect") :
+							toUiString("Python")) );
 	    errocc = true;
 	}
     }
 
     if ( !errocc )
-	uiMSG().message( tr("Selected executables successfully added") );
+    {
+	if ( toadd )
+	    uiMSG().message( tr("Selected executables successfully added") );
+	else
+	    uiMSG().message( tr("Selected executables successfully removed") );
+    }
 
     return true;
 }

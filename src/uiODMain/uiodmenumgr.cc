@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 #include "uicrdevenv.h"
 #include "uifileselector.h"
+#include "uifirewallprocsetterdlg.h"
 #include "uiglinfo.h"
 #include "uilabel.h"
 #include "uilineedit.h"
@@ -915,6 +916,9 @@ void uiODMenuMgr::fillUtilMenu()
 			    mPluginsMnuItm );
     addAction( installmnu_, tr("Graphics Information"), "info",
 			    mGraphicsInfoItm );
+    if ( __iswin__ )
+	addAction( installmnu_, tr("FireWall Add/Remove Process"), "",
+							    mFireWallProcItm );
 
     licensemenu_ = addSubMenu( installmnu_, uiStrings::sLicense(mPlural),
 			       "license" );
@@ -928,6 +932,7 @@ void uiODMenuMgr::fillUtilMenu()
     if ( lmfnm && *lmfnm )
 	addAction( toolsmnu_, tr("Show Log File"), "logfile",
 			      mShwLogFileMnuItm );
+    
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -1400,6 +1405,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm:	showLogFile(); break;
+    case mFireWallProcItm:	showFileWallProcDlg(); break;
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
@@ -1537,6 +1543,13 @@ void uiODMenuMgr::showLogFile()
     uiTextFileDlg* dlg = new uiTextFileDlg( &appl_,
 				od_ostream::logStream().fileName(), true );
     dlg->setDeleteOnClose( true );
+    dlg->go();
+}
+
+
+void uiODMenuMgr::showFileWallProcDlg()
+{
+    uiFirewallProcSetter* dlg = new uiFirewallProcSetter( &appl_ );
     dlg->go();
 }
 

@@ -34,7 +34,6 @@ set( OD_MODULE_SOURCES
 	uifileinput.cc
 	uifilesel.cc
 	uifillpattern.cc
-	uifirewallprocsetterdlg.cc
 	uifontsel.cc
 	uifreqfilter.cc
 	uifunctiondisplay.cc
@@ -105,6 +104,9 @@ set( OD_MODULE_SOURCES
 	uizrangeinput.cc
 	uipolardiagram.cc
 )
+if ( WIN32 )
+	set( OD_MODULE_SOURCES ${OD_MODULE_SOURCES} uifirewallprocsetterdlg.cc )
+endif()
 
 set( OD_MODULE_GUI_PROGS
 	od_FileBrowser.cc
