@@ -932,7 +932,7 @@ void uiODMenuMgr::fillUtilMenu()
     if ( lmfnm && *lmfnm )
 	addAction( toolsmnu_, tr("Show Log File"), "logfile",
 			      mShwLogFileMnuItm );
-    
+
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -1549,8 +1549,11 @@ void uiODMenuMgr::showLogFile()
 
 void uiODMenuMgr::showFileWallProcDlg()
 {
-    uiFirewallProcSetter* dlg = new uiFirewallProcSetter( &appl_ );
-    dlg->go();
+    if ( __iswin__ )
+    {
+	uiFirewallProcSetter* dlg = new uiFirewallProcSetter( &appl_ );
+	dlg->go();
+    }
 }
 
 
