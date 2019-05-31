@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "enums.h"
 
 class FilePath;
+class Timer;
 class uiString;
-namespace OS
-{
+namespace OS {
     class CommandExecPars;
     class CommandLauncher;
     class MachineCommand;
@@ -94,9 +94,12 @@ namespace OD
 	mutable BufferString	laststdout_;
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
+	Timer&		filedeltimer_;
+	mutable ManagedObjectSet<const FilePath> fptodelset_;
 
 	static bool	getInternalEnvironmentLocation(FilePath&,
 							   bool userdef);
+	static FilePath getInternalEnvPath(bool userdef);
 	static bool	getSortedVirtualEnvironmentLoc(
 				      ObjectSet<FilePath>&,
 				      const char* envnm=nullptr,
@@ -116,6 +119,8 @@ namespace OD
 				  const FilePath* activatefp,
 				  const char* envnm) const;
 	static FilePath*	getActivateScript(const FilePath& root);
+
+	void			handleFilesCB(CallBacker*);
 
     public:
 
