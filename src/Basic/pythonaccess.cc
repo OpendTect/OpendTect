@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "dirlist.h"
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -23,10 +24,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include "string2.h"
 #include "uistrings.h"
+#include "timefun.h"
+#include "timer.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 
+#define mFileRetentionTimeInMilliSec 60000
+#define mDelCycleTym                mFileRetentionTimeInMilliSec*5
 
 OD::PythonAccess& OD::PythA()
 {
@@ -66,14 +71,20 @@ void EnumDefImpl<OD::PythonSource>::init()
 
 OD::PythonAccess::PythonAccess()
     : envChange(this)
+    , filedeltimer_(*new Timer( "Delete Files" ))
 {
+    mAttachCB( filedeltimer_.tick, PythonAccess::handleFilesCB );
 }
 
 
 
 OD::PythonAccess::~PythonAccess()
 {
+    detachAllNotifiers();
     delete activatefp_;
+    delete &filedeltimer_;
+    for ( const auto fp : fptodelset_ )
+	File::remove( fp->fullPath() );
 }
 
 
@@ -361,6 +372,34 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 }
 
 
+void OD::PythonAccess::handleFilesCB( CallBacker* )
+{
+    filedeltimer_.stop();
+    for ( int idx=fptodelset_.size()-1; idx>=0; idx-- )
+    {
+	const File::Path& fp = *fptodelset_.get( idx );
+	if ( !fp.exists() )
+	{
+	    fptodelset_.removeSingle( idx );
+	    continue;
+	}
+
+	const BufferString scriptfnm( fp.fullPath() );
+	const od_int64 creationtym = File::getTimeInMilliSeconds( scriptfnm );
+	const od_int64 currtym = Time::getMilliSeconds();
+	const double timediff = creationtym - currtym;
+	if ( timediff < mFileRetentionTimeInMilliSec )
+	    continue;
+
+	File::remove( scriptfnm );
+	fptodelset_.removeSingle( idx );
+    }
+
+    if ( !fptodelset_.isEmpty() && !filedeltimer_.isActive() )
+	filedeltimer_.start( mDelCycleTym );
+}
+
+
 bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 				  const OS::CommandExecPars* execpars, int* pid,
 				  const File::Path* activatefp,
@@ -387,9 +426,14 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 
     if ( !scriptfp.isEmpty() )
     {
-	if ( execpars && (execpars->launchtype_ == OS::RunInBG) )
-	    Threads::sleep( 0.5 );
-	File::remove( scriptfp.fullPath() );
+	if ( res && execpars && (execpars->launchtype_ == OS::RunInBG) )
+	{
+	    fptodelset_.add( new File::Path(scriptfp) );
+	    if ( !filedeltimer_.isActive() )
+		filedeltimer_.start( mDelCycleTym );
+	}
+	else
+	    File::remove( scriptfp.fullPath() );
     }
 
     if ( !res )
@@ -523,6 +567,14 @@ bool OD::PythonAccess::validInternalEnvironment( const File::Path& fp )
 }
 
 
+File::Path OD::PythonAccess::getInternalEnvPath( bool userdef )
+{
+    File::Path fp;
+    getInternalEnvironmentLocation( fp, userdef );
+    return fp;
+}
+
+
 bool OD::PythonAccess::getInternalEnvironmentLocation( File::Path& fp,
 						       bool userdef )
 {
@@ -568,11 +620,8 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( File::Path& fp,
 
 bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 {
-    File::Path fp;
-    if ( !getInternalEnvironmentLocation(fp,userdef) )
-	return false;
-
-    return true;
+    const File::Path fp( getInternalEnvPath( userdef ) );
+    return fp.exists();
 }
 
 

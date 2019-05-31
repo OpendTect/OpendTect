@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "notify.h"
 
+class Timer;
 class uiString;
 namespace File { class Path; }
 namespace OS {
@@ -92,9 +93,12 @@ namespace OD
 	mutable BufferString	laststdout_;
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
+	Timer&		filedeltimer_;
+	mutable ManagedObjectSet<const File::Path> fptodelset_;
 
 	static bool	getInternalEnvironmentLocation(File::Path&,
 							   bool userdef);
+	static File::Path getInternalEnvPath(bool userdef);
 	static bool	getSortedVirtualEnvironmentLoc(
 				      ObjectSet<File::Path>&,
 				      const char* envnm=nullptr,
@@ -114,6 +118,8 @@ namespace OD
 				  const File::Path* activatefp,
 				  const char* envnm) const;
 	static File::Path*	getActivateScript(const File::Path& root);
+
+	void			handleFilesCB(CallBacker*);
 
     public:
 
