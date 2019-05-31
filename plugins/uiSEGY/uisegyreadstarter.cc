@@ -766,6 +766,9 @@ uiSEGYHdrEntrySettings( uiParent* p )
     offsrgfld_ = new uiGenInput( this, tr("Usable Offset value range"),
 				FloatInpIntervalSpec(hec.offsrg_) );
     offsrgfld_->attach( alignedBelow, yrgfld_ );
+    azimuthrgfld_ = new uiGenInput( this, tr("Usable Azimuth value range"),
+				    FloatInpIntervalSpec(hec.azimuthrg_) );
+    azimuthrgfld_->attach( alignedBelow, offsrgfld_ );
 }
 
 bool acceptOK( CallBacker* )
@@ -777,17 +780,19 @@ bool acceptOK( CallBacker* )
     hec.xrg_ = xrgfld_->getDInterval();
     hec.yrg_ = yrgfld_->getDInterval();
     hec.offsrg_ = offsrgfld_->getFInterval();
+    hec.azimuthrg_ = azimuthrgfld_->getFInterval();
     if ( saveButtonChecked() )
 	hec.save2Settings();
     return true;
 }
 
-    uiGenInput*	inlrgfld_;
-    uiGenInput*	crlrgfld_;
-    uiGenInput*	trcnrrgfld_;
-    uiGenInput*	xrgfld_;
-    uiGenInput*	yrgfld_;
-    uiGenInput*	offsrgfld_;
+    uiGenInput*		inlrgfld_;
+    uiGenInput*		crlrgfld_;
+    uiGenInput*		trcnrrgfld_;
+    uiGenInput*		xrgfld_;
+    uiGenInput*		yrgfld_;
+    uiGenInput*		offsrgfld_;
+    uiGenInput*		azimuthrgfld_;
 
 };
 

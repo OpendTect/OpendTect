@@ -56,6 +56,7 @@ void PosInfo::Detector::reInit()
     firstduppos_.binid_.inl() = firstaltnroffs_.binid_.inl() = mUdf(int);
     mSetUdf(distrg_.start); avgdist_ = 0;
     step_.inl() = step_.crl() = 1;
+    azimuthrg_.set( 0, 0 );
 }
 
 
@@ -72,6 +73,7 @@ PosInfo::Detector& PosInfo::Detector::operator =( const PosInfo::Detector& oth )
     mincoord_ = oth.mincoord_;
     maxcoord_ = oth.maxcoord_;
     offsrg_ = oth.offsrg_;
+    azimuthrg_ = oth.azimuthrg_;
     allstd_ = oth.allstd_;
     nroffsperpos_ = oth.nroffsperpos_;
     start_ = oth.start_;
@@ -117,10 +119,16 @@ bool PosInfo::Detector::add( const Coord& c, int nr, float o )
 
 
 bool PosInfo::Detector::add( const Coord& c, const BinID& b, int nr, float o )
+{ return add( c, b, nr, o, 0 ); }
+
+
+bool PosInfo::Detector::add( const Coord& c, const BinID& b, int nr,
+			     float o, float azim )
 {
     CrdBidOffs cbo( c, b, o );
+    cbo.azimuth_ = azim;
     if ( !setup_.isps_ )
-	cbo.offset_ = 0;
+	cbo.offset_ = cbo.azimuth_ = 0;
     if ( setup_.is2d_ )
 	 { cbo.binid_.inl() = 1; cbo.binid_.crl() = nr; }
     return add( cbo );
@@ -208,6 +216,7 @@ void PosInfo::Detector::mergeResults( const PosInfo::Detector& oth )
     mChkMin(mincoord_.x); mChkMin(mincoord_.y);
     mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
     mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
+    mChkMin(azimuthrg_.start); mChkMax(azimuthrg_.stop);
     mChkMin(start_.inl()); mChkMin(start_.crl());
     mChkMax(stop_.inl()); mChkMax(stop_.crl());
     mChkMin(distrg_.start); mChkMax(distrg_.stop);
@@ -246,6 +255,7 @@ void PosInfo::Detector::appendResults( const PosInfo::Detector& oth )
     mChkMin(mincoord_.x); mChkMin(mincoord_.y);
     mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
     mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
+    mChkMin(azimuthrg_.start); mChkMax(azimuthrg_.stop);
     mChkMin(start_.inl()); mChkMin(start_.crl());
     mChkMax(stop_.inl()); mChkMax(stop_.crl());
     mChkMin(distrg_.start); mChkMax(distrg_.stop);
@@ -411,8 +421,8 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
 
     if ( setup_.reqsorting_ && sortanal_->errMsg().isSet() )
     {
-        sortanal_->errMsg();
-        return false;
+	sortanal_->errMsg();
+	return false;
     }
 
     return applySortAnal();
@@ -456,7 +466,11 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
     mincoord_.x = maxcoord_.x = curcbo_.coord_.x;
     mincoord_.y = maxcoord_.y = curcbo_.coord_.y;
     if ( setup_.isps_ )
+    {
 	offsrg_.start = offsrg_.stop = cbo.offset_;
+	azimuthrg_.start = azimuthrg_.stop = cbo.azimuth_;
+    }
+
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
     addLine();
     errmsg_ = uiString::emptyString();
@@ -464,12 +478,12 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 
 
 uiString PosInfo::Detector::createPositionString(
-                        const PosInfo::CrdBidOffs& cbo ) const
+			const PosInfo::CrdBidOffs& cbo ) const
 {
     uiString ret = uiString(tr( "%1 %2%3" ))
-        .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
-        .arg( cbo.binid_.toString(setup_.is2d_) )
-        .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
+	.arg( setup_.is2d_ ? tr("trace number") : tr("position") )
+	.arg( cbo.binid_.toString(setup_.is2d_) )
+	.arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
 			   : uiString::emptyString() );
     return ret;
 }
@@ -483,10 +497,10 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
       && !sorting_.isValid(prevusrcbo_.binid_,cbo.binid_) )
     {
 	errmsg_ = tr("Sorting inconsistency at %1.\nLast valid sorting '%2'"
-                     "\nThe previous position was %3")
-	        .arg( createPositionString( cbo ) )
-                .arg( sorting_.description())
-                .arg( createPositionString( prevusrcbo_ ));
+		     "\nThe previous position was %3")
+		.arg( createPositionString( cbo ) )
+		.arg( sorting_.description())
+		.arg( createPositionString( prevusrcbo_ ));
 	rv = false;
     }
 
@@ -498,7 +512,10 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
     if ( curcbo_.coord_.y < mincoord_.y ) mincoord_.y = curcbo_.coord_.y;
     if ( curcbo_.coord_.y > maxcoord_.y ) maxcoord_.y = curcbo_.coord_.y;
     if ( setup_.isps_ )
-	offsrg_.include( cbo.offset_ );
+    {
+	offsrg_.include( cbo.offset_, false );
+	azimuthrg_.include( cbo.azimuth_, false );
+    }
 
     return rv;
 }
@@ -808,6 +825,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
     if ( setup_.isps_ )
     {
 	iop.set( "Offsets", getRangeStr(offsrg_.start,offsrg_.stop) );
+	iop.set( "Azimuths", getRangeStr(azimuthrg_.start,azimuthrg_.stop) );
 	if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else

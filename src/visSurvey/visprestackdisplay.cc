@@ -925,72 +925,49 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     ConstDataPackRef<FlatDataPack> fdp = flatviewer_->obtainPack( false );
     if ( !fdp ) return;
 
+    const int nrtrcs = fdp->size( true );
     const FlatPosData& posdata = fdp->posData();
 
-    double offset = mUdf(double);
-    const StepInterval<double>& rg = posdata.range( true );
-
+    int trcidx = -1;
+    Coord disppos;
     if ( seis2d_ )
     {
-	info += "   Tracenr: ";
-	info += trcnr_;
 	const double displaywidth = seis2dstoppos_.distTo(seis2dpos_);
 	const double curdist =
 	    SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
-	offset = rg.start + posdata.width(true)*curdist/displaywidth;
-	pos = Coord3( seis2dpos_, pos.z );
+	trcidx = mNINT32( (nrtrcs-1)*curdist/displaywidth );
+	disppos = SI().binID2Coord().transform( seis2dpos_ );
     }
     else if ( section_ )
     {
-	const BinID bid = SI().transform( pos );
-	const float distance = Math::Sqrt((float)bid_.sqDistTo( bid ));
-
-	if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )
+	if ( mIsZero(width_,mDefEpsF) )
 	    return;
 
-	const float cal = posdata.width(true)*distance/width_;
-	if ( section_->getOrientation()==OD::InlineSlice )
-	    offset = cal*SI().inlDistance()+rg.start;
-	else
-	    offset= cal*SI().crlDistance()+rg.start;
-
-	pos = Coord3( SI().transform( bid_ ), pos.z );
+	disppos = SI().transform( bid_ );
+	const double distance = pos.coord().distTo( disppos );
+	trcidx = mNINT32( (nrtrcs-1)*distance/width_ );
     }
 
-    int offsetsample = 0;
-    double traceoffset = 0;
-    if ( posdata.isIrregular() )
-    {
-	float mindist = mUdf(float);
-	for ( int idx=0; idx<posdata.nrPts(true); idx++ )
-	{
-	    const float dist = (float) fabs( posdata.position(true,idx)-offset);
-	    if ( !idx || dist<mindist )
-	    {
-		offsetsample = idx;
-		mindist = dist;
-		traceoffset = posdata.position(true,idx);
-	    }
-	}
-    }
-    else
-    {
-	offsetsample = rg.nearestIndex( offset );
-	if ( offsetsample<0 )
-	    offsetsample = 0;
-	else if ( offsetsample>rg.nrSteps() )
-	    offsetsample = rg.nrSteps();
+    if ( trcidx<0 )
+	trcidx = 0;
+    else if ( trcidx>=nrtrcs )
+	trcidx = nrtrcs-1;
 
-	traceoffset = rg.atIndex( offsetsample );
-    }
+    IOPar ipar; float offset = mUdf(float), azimuth = mUdf(float);
+    fdp->getAuxInfo( trcidx, 0, ipar );
+    ipar.get( sKey::Offset(), offset );
+    ipar.get( sKey::Azimuth(), azimuth );
 
-    info = "Offset: ";
-    info.add( (float)traceoffset );
-    info.add( " " ).add( SI().getXYUnitString(false) );
+    pos = Coord3( disppos, pos.z );
+
+    if ( seis2d_ )
+	info.add( "TrcNr: " ).add( trcnr_ ).addSpace();
+    info.add( "Offset: " ).add( offset ).addSpace();
+    if ( !mIsUdf(azimuth) )
+	info.add( "Azimuth: " ).add(mNINT32(azimuth*360/M_PI));
 
     const int zsample = posdata.range(false).nearestIndex( pos.z );
-    val = fdp->data().get( offsetsample, zsample );
-
+    val = fdp->data().get( trcidx, zsample );
 }
 
 
