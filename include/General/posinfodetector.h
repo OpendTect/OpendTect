@@ -42,6 +42,7 @@ public:
     Coord	coord_;
     BinID	binid_;
     float	offset_;
+    float	azimuth_;
 };
 
 
@@ -77,6 +78,8 @@ public:
     bool		add(const Coord&,int nr);
     bool		add(const Coord&,int nr,float offs);
     bool		add(const Coord&,const BinID&,int nr,float offs);
+    bool		add(const Coord&,const BinID&,int nr,
+			    float offs,float azi);
     bool		add(const CrdBidOffs&);
 
 
@@ -97,6 +100,7 @@ public:
     BinID		step() const		{ return step_; }
     void		getTrcKeySampling(TrcKeySampling&) const;
     Interval<float>	offsRg() const		{ return offsrg_; }
+    Interval<float>	azimuthRg() const	{ return azimuthrg_; }
     float		avgDist() const		{ return avgdist_; }
     CrdBidOffs		firstPosition() const	{ return userCBO(firstcbo_); }
     CrdBidOffs		lastPosition() const	{ return userCBO(lastcbo_); }
@@ -126,6 +130,7 @@ protected:
     Coord		maxcoord_;
     Interval<float>	offsrg_;
     int			nroffsperpos_;
+    Interval<float>	azimuthrg_;
     bool		allstd_;
     BinID		start_;
     BinID		stop_;

@@ -32,6 +32,7 @@ SEGY::HdrEntryConstraints::HdrEntryConstraints()
     , xrg_(.1,1e10)
     , yrg_(.1,1e10)
     , offsrg_(0.f,100000.f)
+    , azimuthrg_(0.f,360.f)
 {
     usePar( Settings::common() );
 }
@@ -54,6 +55,7 @@ void SEGY::HdrEntryConstraints::usePar( const IOPar& iop )
     iop.get( mGetKey(X), xrg_ );
     iop.get( mGetKey(Y), yrg_ );
     iop.get( mGetKey(Offset), offsrg_ );
+    iop.get( mGetKey(Azimuth), azimuthrg_ );
 }
 
 
@@ -65,6 +67,7 @@ void SEGY::HdrEntryConstraints::fillPar( IOPar& iop ) const
     iop.set( mGetKey(X), xrg_ );
     iop.set( mGetKey(Y), yrg_ );
     iop.set( mGetKey(Offset), offsrg_ );
+    iop.set( mGetKey(Azimuth), azimuthrg_ );
 }
 
 
@@ -212,7 +215,8 @@ void SEGY::HdrEntryDataSet::merge( const HdrEntryDataSet& oth )
 
 
 #define mDoAllDSs( oper ) \
-    inl_.oper; crl_.oper; trcnr_.oper; refnr_.oper; offs_.oper; x_.oper; y_.oper
+    inl_.oper; crl_.oper; trcnr_.oper; refnr_.oper;\
+    offs_.oper; azimuth_.oper; x_.oper; y_.oper
 
 #define mHdrEntry(nm) TrcHeader::Entry##nm()
 #define mRejectEntry(set,nm) set.reject( mHdrEntry(nm) )
@@ -288,6 +292,9 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
 	trcnr_.add( ihe, val ); refnr_.add( ihe, val );
 	x_.add( ihe, val ); y_.add( ihe, val );
 
+	mRejectFromRange(azimuth_,val,azimuthrg_);
+	azimuth_.add( ihe, val );
+
 	if ( val < 0 )
 	    val = -val;
 	mRejectFromRange(offs_,val,offsrg_);
@@ -331,6 +338,7 @@ void SEGY::HdrEntryKeyData::merge( const HdrEntryKeyData& oth )
     inl_.merge( oth.inl_ ); crl_.merge( oth.crl_ );
     trcnr_.merge( oth.trcnr_ ); refnr_.merge( oth.refnr_ );
     offs_.merge( oth.offs_ );
+    azimuth_.merge( oth.azimuth_ );
     x_.merge( oth.x_ ); y_.merge( oth.y_ );
 
     const int othnrlns = oth.newfileat_.size();

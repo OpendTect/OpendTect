@@ -378,6 +378,7 @@ void SEGY::ScanRangeInfo::reInit()
     yrg_ = Interval<double>( mUdf(double), 0. );
     refnrs_ = Interval<float>( mUdf(float), 0.f );
     offs_ = Interval<float>( mUdf(float), 0.f );
+    azims_ = Interval<float>( mUdf(float), 0.f );
 }
 
 
@@ -402,6 +403,7 @@ void SEGY::ScanRangeInfo::use( const PosInfo::Detector& dtector )
     inls_.sort(); crls_.sort();
 
     offs_ = dtector.offsRg();
+    azims_ = dtector.azimuthRg();
 }
 
 
@@ -414,6 +416,7 @@ void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
     yrg_.include( si.yrg_, false );
     refnrs_.include( si.refnrs_, false );
     offs_.include( si.offs_, false );
+    azims_.include( si.azims_, false );
 }
 
 
@@ -591,7 +594,7 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
 	ti.nr = def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ );
 
     keydata_.add( thdr, def.hdrsswapped_, isfirst );
-    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
+    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset, ti.azimuth );
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )

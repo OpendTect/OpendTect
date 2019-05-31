@@ -141,6 +141,7 @@ public:
     Interval<int>	trcnrs_;
     Interval<float>	refnrs_;
     Interval<float>	offs_;
+    Interval<float>	azims_;
 
     void		reInit();
     void		use(const PosInfo::Detector&);
@@ -197,10 +198,10 @@ protected:
 				  const LoadDef&,DataClipSampler&,
 				  const OffsetCalculator&);
     bool		addNextTrace(od_istream&,char*,float*,
-				         const LoadDef&,DataClipSampler&,
+					 const LoadDef&,DataClipSampler&,
 					 const OffsetCalculator&);
     void		ensureStepsFound(od_istream&,char*,float*,
-				         const LoadDef&,DataClipSampler&,
+					 const LoadDef&,DataClipSampler&,
 					 const OffsetCalculator&);
     void		addValues(DataClipSampler&,const float*,int);
 

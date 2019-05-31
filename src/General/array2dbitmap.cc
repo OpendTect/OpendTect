@@ -555,7 +555,10 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 	    idim0--;
 	const float v0dim0pos = dim0pos_[idim0];
 	const float v1dim0pos = idim0<szdim0_-1 ? dim0pos_[idim0+1] : dim0pos+1;
-	const float dim0offs = (dim0pos-v0dim0pos) / (v1dim0pos-v0dim0pos);
+	float denom = v1dim0pos-v0dim0pos;
+	if ( mIsZero(denom,mDefEpsF) )
+	    denom = 1;
+	const float dim0offs = (dim0pos-v0dim0pos) / denom;
 
 	for ( int iy=0; iy<setup_.nrYPix(); iy++ )
 	{
