@@ -917,8 +917,8 @@ void uiODMenuMgr::fillUtilMenu()
     addAction( installmnu_, tr("Graphics Information"), "info",
 			    mGraphicsInfoItm );
     if ( __iswin__ )
-	addAction( installmnu_, tr("FireWall Add/Remove Process"), "",
-							    mFireWallProcItm );
+	addAction( installmnu_, tr("Firewall Add/Remove Process"), "",
+							    mFirewallProcItm );
 
     licensemenu_ = addSubMenu( installmnu_, uiStrings::sLicense(mPlural),
 			       "license" );
@@ -1405,7 +1405,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm:	showLogFile(); break;
-    case mFireWallProcItm:	showFileWallProcDlg(); break;
+    case mFirewallProcItm:	showFirewallProcDlg(); break;
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
@@ -1448,7 +1448,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     case mSettAdvPython: {
-        uiDialog* dlg = uiAdvSettings::getPythonDlg( &appl_ );
+	uiDialog* dlg = uiAdvSettings::getPythonDlg( &appl_ );
 	dlg->go();
     } break;
 
@@ -1547,7 +1547,7 @@ void uiODMenuMgr::showLogFile()
 }
 
 
-void uiODMenuMgr::showFileWallProcDlg()
+void uiODMenuMgr::showFirewallProcDlg()
 {
     if ( __iswin__ )
     {

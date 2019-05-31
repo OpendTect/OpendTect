@@ -171,7 +171,7 @@ protected:
 				      const uiString* altascnm=0);
     uiMenu*	add2D3DSingMultAsciiSubMenu(uiMenu*,
 			    const uiString&,const char*,
-		            int,int,int,int,bool always3d=false);
+			    int,int,int,int,bool always3d=false);
 
     void	fillSurveyMenu();
     void	setSurveySubMenus();
@@ -224,7 +224,7 @@ protected:
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
 
     void	showLogFile();
-    void	showFileWallProcDlg();
+    void	showFirewallProcDlg();
 
     uiMenu*	addDualAsciiSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,int,bool,
