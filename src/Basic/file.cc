@@ -460,10 +460,11 @@ bool isWritable( const char* fnm )
 	return iswritable;
     else
     {
-	FilePath fp( fnm ); fp.add( "testfile" );
-	od_ostream strm( fp.fullPath() );
-
-	return strm.isOK();
+	const FilePath fp( fnm, "testfile" );
+	const od_ostream strm( fp.fullPath() );
+	const bool res = strm.isOK();
+	File::remove( fp.fullPath() );
+	return res;
     }
 
 #else
