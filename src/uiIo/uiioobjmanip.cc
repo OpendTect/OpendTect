@@ -49,7 +49,7 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const uiString& tooltip,
     {
 	case FileLocation:	pm = "filelocation";	break;
 	case Rename:		pm = "renameobj";	break;
-	case Remove:		pm = "delete";		break;
+	case Remove:		pm = "trashcan";	break;
 	case ReadOnly:		pm = "readonly";	break;
 	default:		pm = "home";
 				pErrMsg("Unknown toolbut typ");
@@ -360,7 +360,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     const bool readonly = trans ? trans->implReadOnly(&ioobj)
 				: ioobj.implReadOnly();
     bool shldrm = trans ? !trans->implManagesObjects(&ioobj)
-		        : !ioobj.implManagesObjects();
+			: !ioobj.implManagesObjects();
     if ( exists && readonly && shldrm )
     {
 	uiString msg = tr("'%1' is not writable; the actual data "
@@ -477,7 +477,7 @@ bool uiIOObjManipGroup::doReloc(Translator* trans, IOStream& iostrm,
     if ( oldimplexist )
     {
 	const bool newimplexist = trans ? trans->implExists(&chiostrm, true)
-				        : chiostrm.implExists(true);
+					: chiostrm.implExists(true);
 	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false,true) )
 	    return false;
 

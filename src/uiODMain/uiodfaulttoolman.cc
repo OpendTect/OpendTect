@@ -56,9 +56,9 @@ static const char* rcsID mUsedVar = "$Id$";
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  const Setup& su )
     : uiDialog( &appl, uiDialog::Setup(tr("Faultstick transfer"),
-			               tr("Transfer settings"),
-                                      mODHelpKey(mFaultStickTransferDlgHelpID))
-                                        .modal(false) )
+				       tr("Transfer settings"),
+				      mODHelpKey(mFaultStickTransferDlgHelpID))
+					.modal(false) )
     , displayifnot_( su.displayifnot_ )
     , saveifdisplayed_( su.saveifdisplayed_ )
     , colormodechg( this )
@@ -71,7 +71,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     BufferStringSet serialbss; serialbss.add( "Inherit" );
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
     serialcolormodefld_ = new uiGenInput(this,uiString::emptyString(),
-                                         StringListInpSpec(serialbss));
+					 StringListInpSpec(serialbss));
     serialcolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     serialcolormodefld_->attach( alignedBelow, colormodelbl );
@@ -79,14 +79,14 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     BufferStringSet existsbss;
     existsbss.add( "Current" ); existsbss.add( "User-defined" );
     existscolormodefld_ = new uiGenInput(this,uiString::emptyString(),
-                                         StringListInpSpec(existsbss));
+					 StringListInpSpec(existsbss));
     existscolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     existscolormodefld_->attach( alignedBelow, colormodelbl );
 
     BufferStringSet singlebss; singlebss.add( "User-defined" );
     singlecolormodefld_ = new uiGenInput(this,uiString::emptyString(),
-                                         StringListInpSpec(singlebss));
+					 StringListInpSpec(singlebss));
     singlecolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     singlecolormodefld_->attach( alignedBelow, colormodelbl );
@@ -336,13 +336,14 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
 
-    gobutidx_ = toolbar_->addButton( "gobutton", tr("Transfer Selected Sticks"),
+    gobutidx_ = toolbar_->addButton( "ok",
+				tr("Transfer Selected Sticks"),
 				mCB(this,uiODFaultToolMan,transferSticksCB),
 				false );
 
     toolbar_->addSeparator();
 
-    removalbutidx_ = toolbar_->addButton( "removesticks",
+    removalbutidx_ = toolbar_->addButton( "trashcan",
 				tr("Remove Selected Sticks"),
 				mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
@@ -685,7 +686,7 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
     toolbar_->setSensitive(redobutidx_, EM::EMM().undo(emobj->id()).canReDo());
     uiString redotooltip;
     if ( EM::EMM().undo(emobj->id()).canReDo() )
-	redotooltip = 
+	redotooltip =
 	tr( "Redo %1").arg( EM::EMM().undo(emobj->id()).reDoDesc() );
     else
 	redotooltip = uiStrings::sRedo();
@@ -937,9 +938,9 @@ void uiODFaultToolMan::updateColorMode()
 
     if ( settingsdlg_ )
     {
-        NotifyStopper ns( settingsdlg_->colormodechg );
+	NotifyStopper ns( settingsdlg_->colormodechg );
 	settingsdlg_->setColorMode( settingssetup_.colormode_ );
-        settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
+	settingsdlg_->setOutputDisplayed( isOutputDisplayed() );
     }
 }
 
@@ -1094,7 +1095,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     afterTransferUpdate();
 
     UndoEvent* undo = new FaultStickTransferUndoEvent( copy, saved );
-    EM::EMM().undo(destfault->id()).setUserInteractionEnd( 
+    EM::EMM().undo(destfault->id()).setUserInteractionEnd(
 	EM::EMM().undo(destfault->id()).addEvent(undo) );
 
     if ( newnrselected )
@@ -1449,7 +1450,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
 
 static void keyDown( bool yn )
 {
-    if ( uiMain::keyboardEventHandler().hasEvent() && 
+    if ( uiMain::keyboardEventHandler().hasEvent() &&
 	uiMain::keyboardEventHandler().event().key_ == '`' )
 	MPE::ObjectEditor::enableNodeCloning( yn );
 }
