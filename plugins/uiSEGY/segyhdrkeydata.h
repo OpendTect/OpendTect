@@ -37,6 +37,7 @@ public:
     Interval<double>	xrg_;
     Interval<double>	yrg_;
     Interval<float>	offsrg_;
+    Interval<float>	azimuthrg_;
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -85,6 +86,7 @@ public:
     HdrEntryDataSet	trcnr_;
     HdrEntryDataSet	refnr_;
     HdrEntryDataSet	offs_;
+    HdrEntryDataSet	azimuth_;
     HdrEntryDataSet	x_;
     HdrEntryDataSet	y_;
     TypeSet<int>	newfileat_;

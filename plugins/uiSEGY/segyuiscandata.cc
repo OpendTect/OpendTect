@@ -352,6 +352,7 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     iop.get( FilePars::sKeyRevision(), revision_ );
     if ( iop.isTrue(FilePars::sKeyForceRev0()) )
 	revision_ = 0;
+
     FileReadOpts readopts( Seis::Vol ); getFileReadOpts( readopts );
     readopts.usePar( iop );
     *hdrdef_ = readopts.thdef_;
@@ -382,6 +383,7 @@ void SEGY::ScanRangeInfo::reInit()
     yrg_ = Interval<double>( mUdf(double), 0. );
     refnrs_ = Interval<float>( mUdf(float), 0.f );
     offs_ = Interval<float>( mUdf(float), 0.f );
+    azims_ = Interval<float>( mUdf(float), 0.f );
 }
 
 
@@ -401,6 +403,7 @@ void SEGY::ScanRangeInfo::use( const PosInfo::Detector& dtector )
     inls_.sort(); crls_.sort();
 
     offs_ = dtector.offsRg();
+    azims_ = dtector.azimuthRg();
 }
 
 
@@ -413,6 +416,7 @@ void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
     yrg_.include( si.yrg_, false );
     refnrs_.include( si.refnrs_, false );
     offs_.include( si.offs_, false );
+    azims_.include( si.azims_, false );
 }
 
 
@@ -587,7 +591,7 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     def.getTrcInfo( thdr, ti, offscalc );
     const bool isfirst = nrinfile == idxfirstlive_;
     keydata_.add( thdr, def.hdrsswapped_, isfirst );
-    pidetector_->add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_ );
+    pidetector_->add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_, ti.azimuth_ );
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )

@@ -64,6 +64,8 @@ protected:
     uiSEGYByteNr*	trcnrbytefld_;
     uiSEGYByteNr*	refnrbytefld_;
     uiSEGYByteNr*	offsetbytefld_;
+    uiSEGYByteNr*	azimuthbytefld_;
+
     uiComboBox*		trcnrsrcfld_;
     uiGroup*		trcnrgengrp_;
     uiLineEdit*		trcnrgenstartfld_;
@@ -88,6 +90,7 @@ protected:
     uiString		trcnrinfotxt_;
     uiString		refnrinfotxt_;
     uiString		offsetinfotxt_;
+    uiString		azimuthinfotxt_;
 
     void		mkBasicInfoFlds();
     void		manNonBasicRows();

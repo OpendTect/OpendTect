@@ -145,6 +145,7 @@ public:
     Interval<int>	trcnrs_;
     Interval<float>	refnrs_;
     Interval<float>	offs_;
+    Interval<float>	azims_;
 
     void		reInit();
     void		use(const PosInfo::Detector&);
@@ -179,6 +180,7 @@ public:
     const ScanRangeInfo&	ranges() const		{ return rgs_; }
     const PosInfo::Detector&	piDetector() const	{ return *pidetector_; }
     const BasicFileInfo&	basicInfo() const	{ return basicinfo_; }
+
 protected:
 
     BufferString	filenm_;
