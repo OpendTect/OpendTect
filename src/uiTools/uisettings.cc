@@ -277,12 +277,14 @@ uiPythonSettings(uiParent* p, const char* nm)
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
     {
 	internalloc_ = new uiFileSel( this, tr("Environment root") );
+	internalloc_->setup().withexamine(false);
 	internalloc_->setSelectionMode( OD::SelectDirectory );
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
 	mAttachCB( internalloc_->newSelection, uiPythonSettings::parChgCB );
     }
 
     customloc_ = new uiFileSel( this,tr("Custom Environment root"));
+    customloc_->setup().withexamine(false);
     customloc_->setSelectionMode( OD::SelectDirectory );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
     mAttachCB( customloc_->newSelection, uiPythonSettings::customEnvChgCB );
@@ -293,12 +295,12 @@ uiPythonSettings(uiParent* p, const char* nm)
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
-			mCB(this, uiPythonSettings, testCB), true);
+			mCB(this,uiPythonSettings,testCB), true);
     testbut->attach( ensureBelow, customenvnmfld_ );
 	
-	uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
-		 mCB(this, uiPythonSettings, promptCB), true );
-	cmdwinbut->attach( rightOf, testbut );
+    uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
+			mCB(this,uiPythonSettings,promptCB), true );
+    cmdwinbut->attach( rightOf, testbut );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
@@ -509,6 +511,7 @@ void promptCB( CallBacker* )
 	OD::PythA().execute( cmd );
 #else
 	//TODO: implement
+	gUiMsg(this).message( tr("Not implemented yet") );
 #endif
 }
 
@@ -518,19 +521,20 @@ bool useScreen()
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
+    uiString envrootstr = tr("Evironment root" );
     if ( source == OD::Internal && internalloc_ )
     {
 	const BufferString envroot( internalloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
 	{
-	    gUiMsg(this).error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    gUiMsg(this).error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
 	const File::Path envrootfp( envroot );
 	if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
 	{
-	    gUiMsg(this).error( tr("Invalid environment root") );
+	    gUiMsg(this).error( tr("Invalid %1").arg(envrootstr) );
 	    return false;
 	}
     }
@@ -539,15 +543,15 @@ bool useScreen()
 	const BufferString envroot( customloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
 	{
-	    gUiMsg(this).error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    gUiMsg(this).error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
 	const File::Path envrootfp( envroot, "envs" );
 	if ( !envrootfp.exists() )
 	{
-	    gUiMsg(this).error( tr("%1 does not contains a directory called %2")
-				.arg(uiStrings::sDirectory()).arg("envs") );
+	    gUiMsg(this).error( tr("%1 does not contain a folder called %2")
+				.arg(envroot).arg("'envs'") );
 	    return false;
 	}
     }
