@@ -20,9 +20,9 @@
 static const int cProtocolNr = 1;
 
 static const char* sStatusCmd		= "status";
-static const char* sListCmd		= "list";
+static const char* sListCmd		= ServerProgTool::sListUsrCmd();
 static const char* sListSurvCmd		= "list-surveys";
-static const char* sInfoCmd		= "info";
+static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
 static const char* sFileNameCmd		= "filename";
@@ -34,8 +34,8 @@ public:
 
     void	    listSurveys();
     void	    listObjs(const char* trgrpnm);
-    void	    provideInfo(const DBKey&);
-    void	    removeObj(const DBKey&);
+    void	    provideInfo();
+    void	    removeObj();
     void	    createObj(const BufferStringSet&,const char* filenm);
 
 protected:
@@ -104,8 +104,9 @@ void DBManServerTool::listObjs( const char* trgrpnm )
 }
 
 
-void DBManServerTool::provideInfo( const DBKey& dbky )
+void DBManServerTool::provideInfo()
 {
+    const DBKey dbky = getDBKey( sInfoCmd );
     PtrMan<IOObj> ioobj = getIOObj( dbky );
     if ( !ioobj )
 	respondError( "Input object key not found" );
@@ -122,9 +123,10 @@ void DBManServerTool::provideInfo( const DBKey& dbky )
 }
 
 
-void DBManServerTool::removeObj( const DBKey& dbky )
+void DBManServerTool::removeObj()
 {
-    respondInfo( DBM().removeEntry(dbky) );
+    const DBKey torem = getDBKey( sRemoveCmd );
+    respondInfo( DBM().removeEntry(torem) );
 }
 
 
@@ -209,19 +211,9 @@ int main( int argc, char** argv )
 	st.listObjs( trgrpnm );
     }
     else if ( clp.hasKey( sInfoCmd ) )
-    {
-	clp.setKeyHasValue( sInfoCmd, 1 );
-	DBKey dbky;
-	clp.getDBKey( sInfoCmd, dbky );
-	st.provideInfo( dbky );
-    }
+	st.provideInfo();
     else if ( clp.hasKey( sRemoveCmd ) )
-    {
-	clp.setKeyHasValue( sRemoveCmd, 1 );
-	DBKey dbky;
-	clp.getDBKey( sRemoveCmd, dbky );
-	st.removeObj( dbky );
-    }
+	st.removeObj();
 
     const int cridx = clp.indexOf( sCreateCmd );
     if ( cridx < 0 )

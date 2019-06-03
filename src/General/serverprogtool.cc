@@ -89,6 +89,16 @@ BufferString ServerProgTool::getKeyedArgStr( const char* ky,
 }
 
 
+DBKey ServerProgTool::getDBKey( const char* ky, bool mandatory ) const
+{
+    const DBKey ret( getKeyedArgStr(ky,mandatory) );
+    if ( mandatory && !ret.isValid() )
+	mSelf().respondError(
+		    BufferString("Invalid key provided for '",ky,"'") );
+    return ret;
+}
+
+
 template <class T>
 void ServerProgTool::setSingle( const char* keyw, T val, JSONObject* jobj )
 {

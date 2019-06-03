@@ -20,8 +20,8 @@
 
 static const int cProtocolNr = 1;
 
-static const char* sListWellsCmd	= "list";
-static const char* sInfoCmd		= "info";
+static const char* sListWellsCmd	= ServerProgTool::sListUsrCmd();
+static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sListLogsCmd		= "list-logs";
 static const char* sReadTrackCmd	= "read-track";
 static const char* sReadLogCmd		= "read-log";
@@ -41,7 +41,7 @@ public:
     void	    listWells();
     void	    getWellInfo();
     void	    getTrack();
-    void	    listLogs(const DBKey&);
+    void	    listLogs();
     void	    readLog(const DBKey&,const char*,bool notvd);
 
 protected:
@@ -87,10 +87,7 @@ void WellServerTool::getWD( const DBKey& wellid, const LoadReqs& lreqs )
 
 void WellServerTool::getWD( const char* cmd, const LoadReqs& lreqs )
 {
-    clp().setKeyHasValue( cmd, 1 );
-    DBKey wellid;
-    clp().getDBKey( cmd, wellid );
-    getWD( wellid, lreqs );
+    getWD( getDBKey(cmd), lreqs );
 }
 
 
@@ -116,8 +113,9 @@ void WellServerTool::getWellInfo()
 }
 
 
-void WellServerTool::listLogs( const DBKey& wellid )
+void WellServerTool::listLogs()
 {
+    const DBKey wellid = getDBKey( sListLogsCmd );
     BufferStringSet lognms;
     Well::MGR().getLogNames( wellid, lognms );
     set( sKey::ID(), wellid );
@@ -213,20 +211,16 @@ int main( int argc, char** argv )
     if ( clp.hasKey(sListWellsCmd) )
 	st.listWells();
 
-    DBKey wellid;
     if ( clp.hasKey(sInfoCmd) )
 	st.getWellInfo();
     if ( clp.hasKey(sReadTrackCmd) )
 	st.getTrack();
     else if ( clp.hasKey(sListLogsCmd) )
-    {
-	clp.setKeyHasValue( sListLogsCmd, 1 );
-	clp.getDBKey( sListLogsCmd, wellid );
-	st.listLogs( wellid );
-    }
+	st.listLogs();
     else if ( clp.hasKey(sReadLogCmd) )
     {
 	clp.setKeyHasValue( sReadLogCmd, 2 );
+	DBKey wellid;
 	clp.getDBKey( sReadLogCmd, wellid );
 	BufferString lognm;
 	clp.getVal( sReadLogCmd, lognm, false, 2 );

@@ -39,7 +39,7 @@ public:
     bool	operator >=( const Line2DPos& p ) const	{ return nr_>=p.nr_; }
     bool	operator <=( const Line2DPos& p ) const	{ return nr_<=p.nr_; }
 
-    trcnr_type nr_;
+    trcnr_type	nr_;
     Coord	coord_;
 
 };

@@ -73,6 +73,9 @@ public:
     od_istream&		inStream();
     od_ostream&		outStream();
 
+    static const char*	sListUsrCmd()	    { return "list"; }
+    static const char*	sInfoUsrCmd()	    { return "info"; }
+
 protected:
 
 			ServerProgTool(int,char**,const char* moddep);
@@ -88,6 +91,7 @@ protected:
 
     BufferString	getKeyedArgStr(const char* ky,
 				       bool mandatory=true) const;
+    DBKey		getDBKey(const char* ky,bool mandatory=true) const;
     static void		addToUsageStr(BufferString&,const char* flg,
 				   const char* args,bool isextra=false);
     void		setStatus(bool);
