@@ -335,6 +335,7 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	ioobj->setKey( newKey() );
 
     ensureUniqueName( *ioobj );
+    ioobj->name_->clean();
     objs_ += ioobj;
     setDirName( *ioobj, dirName() );
 
