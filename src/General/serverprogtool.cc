@@ -251,6 +251,13 @@ void ServerProgTool::respondInfo( bool success, bool exit )
 }
 
 
+void ServerProgTool::respondError( const uiRetVal& uirv )
+{
+    set( sErrKey, toString(uirv) );
+    respondInfo( false );
+}
+
+
 void ServerProgTool::respondError( const char* msg )
 {
     set( sErrKey, msg );

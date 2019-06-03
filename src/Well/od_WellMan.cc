@@ -7,6 +7,7 @@
 
 #include "serverprogtool.h"
 #include "wellmanager.h"
+#include "wellinfo.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "commandlineparser.h"
@@ -20,7 +21,9 @@
 static const int cProtocolNr = 1;
 
 static const char* sListWellsCmd	= "list";
+static const char* sInfoCmd		= "info";
 static const char* sListLogsCmd		= "list-logs";
+static const char* sReadTrackCmd	= "read-track";
 static const char* sReadLogCmd		= "read-log";
 static const char* sNoTVDCmd		= "no-tvd";
 
@@ -28,15 +31,26 @@ class WellServerTool : public ServerProgTool
 {
 public:
 
+    mUseType( Well, Data );
+    mUseType( Well, Info );
+    mUseType( Well, LoadReqs );
+    mUseType( Well, Track );
+
 		    WellServerTool(int,char**);
 
     void	    listWells();
+    void	    getWellInfo();
+    void	    getTrack();
     void	    listLogs(const DBKey&);
     void	    readLog(const DBKey&,const char*,bool notvd);
 
 protected:
 
+    ConstRefMan<Data>	wd_;
+
     BufferString    getSpecificUsage() const override;
+    void	    getWD(const DBKey&,const LoadReqs&);
+    void	    getWD(const char*,const LoadReqs&);
 
 };
 
@@ -62,6 +76,46 @@ void WellServerTool::listWells()
 }
 
 
+void WellServerTool::getWD( const DBKey& wellid, const LoadReqs& lreqs )
+{
+    uiRetVal uirv;
+    wd_ = Well::MGR().fetch( wellid, lreqs, uirv );
+    if ( !wd_ )
+	respondError( uirv );
+}
+
+
+void WellServerTool::getWD( const char* cmd, const LoadReqs& lreqs )
+{
+    clp().setKeyHasValue( cmd, 1 );
+    DBKey wellid;
+    clp().getDBKey( cmd, wellid );
+    getWD( wellid, lreqs );
+}
+
+
+void WellServerTool::getWellInfo()
+{
+    getWD( sInfoCmd, LoadReqs(Well::Inf) );
+
+    set( sKey::ID(), wd_->dbKey() );
+    set( sKey::Name(), wd_->name() );
+
+    const auto& inf = wd_->info();
+    const BufferString uwi = inf.UWI();
+    if ( !uwi.isEmpty() )
+	set( Info::sKeyUwid(), uwi );
+    const auto wt = inf.wellType();
+    if ( wt != Info::None )
+	set( sKey::Type(), Info::toString(wt) );
+
+    set( sKey::X(), inf.surfaceCoord().x_ );
+    set( sKey::Y(), inf.surfaceCoord().y_ );
+
+    respondInfo( true );
+}
+
+
 void WellServerTool::listLogs( const DBKey& wellid )
 {
     BufferStringSet lognms;
@@ -73,6 +127,33 @@ void WellServerTool::listLogs( const DBKey& wellid )
 }
 
 
+void WellServerTool::getTrack()
+{
+    getWD( sReadTrackCmd, LoadReqs(Well::Trck) );
+
+    const auto& track = wd_->track();
+    TypeSet<float> mds, tvds;
+    TypeSet<double> xs, ys;
+    const auto sz = track.size();
+    for ( auto idx=0; idx<sz; idx++ )
+    {
+	const auto md = track.dahByIdx( idx );
+	const Coord3 pos = track.posByIdx( idx );
+	mds += md;
+	xs += pos.x_;
+	ys += pos.y_;
+	tvds += (float)pos.z_;
+    }
+    setSize( mds.size() );
+    set( sKey::MD(mPlural), mds );
+    set( sKey::TVD(mPlural), tvds );
+    set( sKey::XCoord(mPlural), xs );
+    set( sKey::YCoord(mPlural), ys );
+
+    respondInfo( true );
+}
+
+
 void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 			      bool notvd )
 {
@@ -80,12 +161,8 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
     if ( !wl )
 	respondError( "Log not found" );
 
-    ConstRefMan<Well::Data> wd;
     if ( !notvd )
-    {
-	Well::LoadReqs loadreqs( Well::Inf, Well::Trck );
-	wd = Well::MGR().fetch( wellid );
-    }
+	getWD( wellid, LoadReqs(Well::Inf,Well::Trck) );
 
     const auto sz = wl->size();
     set( sKey::Well(), nameOf(wellid) );
@@ -96,7 +173,7 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
     set( sKey::Scale(), uom ? uom->scaler().scale(1) : double(1) );
 
     TypeSet<float> mds, vals, tvds;
-    const Well::Track* trck = wd ? &wd->track() : nullptr;
+    const Track* trck = wd_ ? &wd_->track() : nullptr;
     setSize( sz );
     for ( auto idx=0; idx<sz; idx++ )
     {
@@ -119,7 +196,9 @@ BufferString WellServerTool::getSpecificUsage() const
 {
     BufferString ret;
     addToUsageStr( ret, sListWellsCmd, "" );
+    addToUsageStr( ret, sInfoCmd, "well_id" );
     addToUsageStr( ret, sListLogsCmd, "well_id" );
+    addToUsageStr( ret, sReadTrackCmd, "well_id" );
     BufferString argstr( "well_id log_name [--", sNoTVDCmd, "]" );
     addToUsageStr( ret, sReadLogCmd, argstr );
     return ret;
@@ -135,7 +214,11 @@ int main( int argc, char** argv )
 	st.listWells();
 
     DBKey wellid;
-    if ( clp.hasKey(sListLogsCmd) )
+    if ( clp.hasKey(sInfoCmd) )
+	st.getWellInfo();
+    if ( clp.hasKey(sReadTrackCmd) )
+	st.getTrack();
+    else if ( clp.hasKey(sListLogsCmd) )
     {
 	clp.setKeyHasValue( sListLogsCmd, 1 );
 	clp.getDBKey( sListLogsCmd, wellid );

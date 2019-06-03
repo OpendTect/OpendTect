@@ -256,7 +256,7 @@ void SeisServerTool::finishWrite()
 {
     const uiRetVal uirv = storer_->close();
     if ( !uirv.isOK() )
-	respondError( toString(uirv) );
+	respondError( uirv );
     else
 	respondInfo( true );
 }
@@ -312,7 +312,7 @@ void SeisServerTool::writeData( GeomType gt )
 
 	const uiRetVal uirv = storer_->put( trc );
 	if ( !uirv.isOK() )
-	    respondError( toString(uirv) );
+	    respondError( uirv );
     }
 }
 

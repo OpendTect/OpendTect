@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "odruncontext.h"
 #include "od_iosfwd.h"
 class CommandLineParser;
+class uiRetVal;
 namespace OD { namespace JSON { class Array; class Object; } }
 
 mExpClass(General) ServerProgTool
@@ -65,6 +66,7 @@ public:
 
     void		respondInfo(bool success,bool exit=true);
     void		respondError(const char*);
+    void		respondError(const uiRetVal&);
 
     CommandLineParser&	clp()		    { return *clp_; }
     const CommandLineParser& clp() const    { return *clp_; }

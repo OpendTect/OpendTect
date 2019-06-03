@@ -44,6 +44,7 @@ namespace sKey
     inline FixedString Chain()		{ return "Chain"; }
     inline FixedString Color()		{ return "Color"; }
     inline FixedString ColTab()		{ return "Color Table"; }
+    inline FixedString Coord()		{ return "Coordinate"; }
     inline FixedString CoordSys()	{ return "Coordinate System"; }
     inline FixedString Component(int n=1) {return n<2?"Component":"Components";}
     inline FixedString Content()	{ return "Content"; }
@@ -172,12 +173,12 @@ namespace sKey
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
     inline FixedString X()		{ return "X"; }
-    inline FixedString XCoord()		{ return "X-Coord"; }
+    inline FixedString XCoord(int n=1)	{ return n<2 ? "X-Coord" : "X-Coords"; }
     inline FixedString XOffset()	{ return "X Offset"; }
     inline FixedString XRange()		{ return "X range"; }
     inline FixedString Y()		{ return "Y"; }
     inline FixedString Y2()		{ return "Y2"; }
-    inline FixedString YCoord()		{ return "Y-Coord"; }
+    inline FixedString YCoord(int n=1)	{ return n<2 ? "Y-Coord" : "Y-Coords"; }
     inline FixedString YOffset()	{ return "Y Offset"; }
     inline FixedString YRange()		{ return "Y range"; }
     inline FixedString Yes()		{ return "Yes"; }
