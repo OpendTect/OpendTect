@@ -17,6 +17,7 @@
 #include "segydirectdef.h"
 #include "segyfiledata.h"
 #include "segyfiledef.h"
+#include "seis2ddata.h"
 #include "seisprovider.h"
 #include "seisstorer.h"
 #include "seistrc.h"
@@ -118,9 +119,7 @@ void SeisServerTool::listObjs( GeomType gt )
 {
     getCtxt( gt );
 
-    DBKeySet ids;
-    BufferStringSet nms;
-    BufferStringSet types;
+    DBKeySet ids; BufferStringSet nms; BufferStringSet types;
     DBDirEntryList del( *ctxt_ );
 
     for ( int idx=0; idx<del.size(); idx++ )
@@ -146,7 +145,22 @@ void SeisServerTool::listCubes()
 
 void SeisServerTool::listLines( const char* attr )
 {
-    respondError( "TODO" );
+    getCtxt( Seis::Line );
+    PtrMan<IOObj> ioobj = DBM().getByName( *ctxt_, attr );
+    if ( !ioobj )
+	respondError( BufferString( "Cannot find attribute '",attr,"'") );
+
+    Seis2DDataSet ds2d( *ioobj );
+    TypeSet<int> gids; BufferStringSet lnms;
+    for ( int idx=0; idx<ds2d.nrLines(); idx++ )
+    {
+	gids.add( ds2d.geomID(idx).getI() );
+	lnms.add( ds2d.lineName(idx) );
+    }
+    setSize( gids.size() );
+    set( sKey::GeomID(mPlural), gids );
+    set( sKey::Name(mPlural), lnms );
+    respondInfo( true );
 }
 
 
