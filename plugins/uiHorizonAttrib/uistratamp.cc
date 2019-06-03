@@ -31,13 +31,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static HiddenParam<uiStratAmpCalc,uiGenInput*> classfld_(0);
+static HiddenParam<uiStratAmpCalc,uiGenInput*> classfld_(nullptr);
 
 static const char* statstrs[] =
 	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup(tr("StratalAmplitude"),mNoDlgTitle,
+    : uiDialog( p, Setup(tr("Stratal Amplitude"),mNoDlgTitle,
 			 mODHelpKey(mStratAmpCalcHelpID)))
     , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
