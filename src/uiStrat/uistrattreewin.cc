@@ -386,6 +386,7 @@ void uiStratTreeWin::newTree()
     Strat::setLVLS( new Strat::LevelSet );
     Strat::setRT( new Strat::RefTree );
     needsave_ = true;
+    treekey_.setUdf();
 
     updateDisplay();
 }
