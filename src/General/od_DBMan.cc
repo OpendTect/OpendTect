@@ -64,7 +64,7 @@ void DBManServerTool::listSurveys()
     set( sKey::DataRoot(), dataroot );
     if ( !dirnms.isEmpty() )
     {
-	setSize( dirnms.size() );
+	set( sKey::Size(), dirnms.size() );
 	set( sKey::Name(mPlural), dirnms );
     }
 
@@ -97,7 +97,7 @@ void DBManServerTool::listObjs()
 	}
     }
 
-    setSize( ids.size() );
+    set( sKey::Size(), ids.size() );
     set( sKey::ID(mPlural), ids );
     set( sKey::Name(mPlural), nms );
     set( sKey::Format(mPlural), trls );

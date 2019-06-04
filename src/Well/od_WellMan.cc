@@ -68,7 +68,7 @@ void WellServerTool::listWells()
 {
     DBKeySet wellids;
     Well::MGR().getAll( wellids, false );
-    setSize( wellids.size() );
+    set( sKey::Size(), wellids.size() );
     set( sKey::ID(mPlural), wellids );
     BufferStringSet nms;
     for ( auto wellid : wellids )
@@ -121,7 +121,7 @@ void WellServerTool::listLogs()
     BufferStringSet lognms;
     Well::MGR().getLogNames( wellid, lognms );
     set( sKey::ID(), wellid );
-    setSize( lognms.size() );
+    set( sKey::Size(), lognms.size() );
     set( sKey::Name(mPlural), lognms );
     respondInfo( true );
 }
@@ -144,7 +144,7 @@ void WellServerTool::getTrack()
 	ys += pos.y_;
 	tvds += (float)pos.z_;
     }
-    setSize( mds.size() );
+    set( sKey::Size(), mds.size() );
     set( sKey::MD(mPlural), mds );
     set( sKey::TVD(mPlural), tvds );
     set( sKey::XCoord(mPlural), xs );
@@ -174,7 +174,7 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 
     TypeSet<float> mds, vals, tvds;
     const Track* trck = wd_ ? &wd_->track() : nullptr;
-    setSize( sz );
+    set( sKey::Size(), sz );
     for ( auto idx=0; idx<sz; idx++ )
     {
 	const auto md = wl->dahByIdx( idx );
@@ -221,11 +221,11 @@ int main( int argc, char** argv )
 	st.listLogs();
     else if ( clp.hasKey(sReadLogCmd) )
     {
-	clp.setKeyHasValue( sReadLogCmd, 2 );
+	clp.setKeyHasValues( sReadLogCmd, 2 );
 	DBKey wellid;
 	clp.getDBKey( sReadLogCmd, wellid );
 	BufferString lognm;
-	clp.getVal( sReadLogCmd, lognm, false, 2 );
+	clp.getString( sReadLogCmd, lognm, false, 1 );
 	const bool notvd = clp.hasKey( sNoTVDArg );
 	st.readLog( wellid, lognm, notvd );
     }

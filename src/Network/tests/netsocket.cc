@@ -164,6 +164,9 @@ int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;
+    clParser().setKeyHasValue( "serverapp" );
+    clParser().setKeyHasValue( "timeout" );
+    clParser().setKeyHasValue( "port" );
 
     PtrMan<TestRunner> runner = new TestRunner;
     runner->prefix_ = "[ No event loop ]\t";
@@ -171,15 +174,15 @@ int mTestMainFnName(int argc, char** argv)
     runner->noeventloop_ = true;
 
     BufferString serverapp = "test_echoserver";
-    clParser().getVal( "serverapp", serverapp, true );
+    clParser().getString( "serverapp", serverapp, true );
     runner->servercmd_.setProgram( serverapp );
 
     runner->port_ = 1025;
-    clParser().getVal( "timeout", runner->timeout_, true );
+    clParser().getValue( "timeout", runner->timeout_, true );
     runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
 
     runner->timeout_ = 600;
-    clParser().getVal( "port", runner->port_, true );
+    clParser().getValue( "port", runner->port_, true );
     runner->servercmd_.addKeyedArg( "port", runner->port_ );
 
     if ( clParser().hasKey("quiet") )

@@ -209,8 +209,8 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	CommandLineParser parser;
 	BufferString oddir;
 
-	//Get explicityly set oddir (normally only in automatic testing)
-	if ( parser.getVal("oddir", oddir ) )
+	parser.setKeyHasValue( "oddir" );
+	if ( parser.getKeyedInfo("oddir",oddir) )
 	    res = GetSoftwareDirFromPath( oddir );
 	else
 	    res = GetSoftwareDirFromPath( GetFullExecutablePath() );

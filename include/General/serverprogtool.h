@@ -27,12 +27,12 @@ public:
 
     typedef OD::JSON::Object		JSONObject;
     typedef OD::JSON::Array		JSONArray;
-    typedef int				size_type;
+    mUseType( TypeSet<int>,		size_type );
 
     virtual		~ServerProgTool();
 
-    void		exitWithUsage();
-    void		exitProgram(bool success);
+    void		exitWithUsage() const;
+    void		exitProgram(bool success) const;
 
 #   define		mDeclServerProgToolSetFn( typ ) \
     void		set(const char* keyw,typ,JSONObject* jobj=0)
@@ -64,14 +64,14 @@ public:
     void		set(const char* keyw,JSONObject*);
     void		set(const char* keyw,JSONArray*);
 
-    void		respondInfo(bool success,bool exit=true);
-    void		respondError(const char*);
-    void		respondError(const uiRetVal&);
+    void		respondInfo(bool success,bool exit=true) const;
+    void		respondError(const char*) const;
+    void		respondError(const uiRetVal&) const;
 
     CommandLineParser&	clp()		    { return *clp_; }
     const CommandLineParser& clp() const    { return *clp_; }
-    od_istream&		inStream();
-    od_ostream&		outStream();
+    od_istream&		inStream() const;
+    od_ostream&		outStream() const;
 
     static const char*	sListUsrCmd()	    { return "list"; }
     static const char*	sInfoUsrCmd()	    { return "info"; }
@@ -94,10 +94,10 @@ protected:
     BufferString	getKeyedArgStr(const char* ky,
 				       bool mandatory=true) const;
     DBKey		getDBKey(const char* ky,bool mandatory=true) const;
+
     static void		addToUsageStr(BufferString&,const char* flg,
 				   const char* args,bool isextra=false);
-    void		setStatus(bool);
-    void		setSize(size_type);
+    void		setStatus(bool) const;
 
     template <class T>
     void		setSingle(const char*,T,JSONObject*);

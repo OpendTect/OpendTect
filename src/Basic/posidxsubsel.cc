@@ -84,6 +84,13 @@ void Pos::IdxSubSelData::setInputPosRange( const pos_steprg_type& newrg )
 void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
 				pos_type newstop, pos_type newstep )
 {
+    if ( newstart <= 0 )
+	newstart = inpposrg_.start;
+    if ( newstop <= 0 )
+	newstop = inpposrg_.stop;
+    if ( newstep <= 0 )
+	newstep = inpposrg_.step;
+
     step_ = newstep / inpposrg_.step;
     if ( step_ < 1 )
 	step_ = 1;
@@ -114,6 +121,8 @@ void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
 
 void Pos::IdxSubSelData::setOutputStep( pos_type newstep, pos_type existingpos )
 {
+    if ( newstep <= 0 )
+	newstep = inpposrg_.step;
     if ( newstep == posStep() )
 	return;
 
@@ -230,6 +239,13 @@ void Pos::ZSubSelData::setInputZRange( const z_steprg_type& newrg )
 void Pos::ZSubSelData::setOutputZRange( z_type newstart, z_type newstop,
 					z_type newstep )
 {
+    if ( mIsUdf(newstart) )
+	newstart = inpzrg_.start;
+    if ( mIsUdf(newstop) )
+	newstop = inpzrg_.stop;
+    if ( mIsUdf(newstep) || newstep <= 0.f )
+	newstep = inpzrg_.step;
+
     IdxSubSelData newss( pos_steprg_type(0,inpzrg_.nrSteps(),1) );
     z_type fnewstep = newstep / inpzrg_.step;
     ZSubSelData cleanzss( inpzrg_ );

@@ -178,8 +178,10 @@ bool System::IssueReporter::parseCommandLine()
 
     const BufferString& filename = normalargs.get( 0 );
 
-    parser.getVal( hostkey, host_ );
-    parser.getVal( pathkey, path_ );
+    parser.setKeyHasValue( hostkey );
+    parser.getString( hostkey, host_ );
+    parser.setKeyHasValue( pathkey );
+    parser.getString( pathkey, path_ );
     const bool binary = parser.hasKey( "binary" );
 
     fillBasicReport( filename );

@@ -639,7 +639,7 @@ size_type Seis::RangeSelData::expectedNrTraces() const
 }
 
 
-const Survey::FullSubSel& Seis::RangeSelData::subSel( idx_type idx ) const
+Survey::FullSubSel& Seis::RangeSelData::subSel( idx_type idx )
 {
     if ( css_ )
 	return *css_;
@@ -651,6 +651,18 @@ const Survey::FullSubSel& Seis::RangeSelData::subSel( idx_type idx ) const
 	static LineSubSel dum = LineSubSel( GeomID() );
 	return dum;
     }
+}
+
+
+const Survey::FullSubSel& Seis::RangeSelData::subSel( idx_type idx ) const
+{
+    return mSelf().subSel( idx );
+}
+
+
+LineSubSel& Seis::RangeSelData::lineSubSel( idx_type idx )
+{
+    return *lsss_.get( idx );
 }
 
 

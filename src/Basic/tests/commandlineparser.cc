@@ -93,30 +93,26 @@ bool testNormalOperation( const CommandLineParser& clparser )
     double createdouble;
     BufferString flagfile;
 
-    mRunStandardTest( testparser.getVal(createstr,createint) && createint==5,
-		 "Int value" );
-    mRunStandardTest( testparser.getVal(createstr,createfloat) &&
-		createfloat==5,
-		"Float value");
-    mRunStandardTest( testparser.getVal(createstr,createdouble) &&
+    testparser.setKeyHasValue( createstr );
+    mRunStandardTest( testparser.getKeyedInfo(createstr,createint)
+			&& createint==5, "Int value" );
+    mRunStandardTest( testparser.getKeyedInfo(createstr,createfloat) &&
+		createfloat==5, "Float value");
+    mRunStandardTest( testparser.getKeyedInfo(createstr,createdouble) &&
 		      createdouble==5, "Double value");
-    mRunStandardTest( testparser.getVal("flag", flagfile) && flagfile==file2str,
-		"String value");
-    mRunStandardTest( testparser.getVal("nonexistingkey", flagfile)==false,
-		"Non-existing string" );
-    mRunStandardTest( testparser.getVal("nonexistingkey", flagfile, true),
-		"Non-existing value - accept none" );
+    testparser.setKeyHasValue( "flag" );
+    mRunStandardTest( testparser.getKeyedInfo("flag", flagfile)
+			&& flagfile==file2str, "String value" );
+    mRunStandardTest( testparser.getKeyedInfo("nonexistingkey",
+		      flagfile)==false, "Non-existing string" );
+    mRunStandardTest( testparser.getKeyedInfo("nonexistingkey", flagfile, true),
+			"Non-existing value - accept none" );
 
     BufferStringSet normalargs;
-    testparser.getNormalArguments(normalargs);
-    mRunStandardTest( normalargs.size()==8, "getNormalArguments()" );
+    testparser.getNormalArguments( normalargs );
+    mRunStandardTest( normalargs.size()==6, "getNormalArguments()" );
 
-    testparser.setKeyHasValue( createstr );
     mRunStandardTest( testparser.isKeyValue(1), "setKeyHasValue" );
-
-    testparser.getNormalArguments(normalargs);
-    mRunStandardTest( normalargs.size()==7,
-	    "getNormalArguments() with 1 key with value" );
 
     return true;
 }

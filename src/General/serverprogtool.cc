@@ -73,13 +73,13 @@ ServerProgTool::~ServerProgTool()
 }
 
 
-od_istream& ServerProgTool::inStream()
+od_istream& ServerProgTool::inStream() const
 {
     return od_cin();
 }
 
 
-od_ostream& ServerProgTool::outStream()
+od_ostream& ServerProgTool::outStream() const
 {
     return od_cout();
 }
@@ -88,11 +88,10 @@ od_ostream& ServerProgTool::outStream()
 BufferString ServerProgTool::getKeyedArgStr( const char* ky,
 					     bool mandatory ) const
 {
-    clp().setKeyHasValue( ky, 1 );
+    clp().setKeyHasValue( ky );
     BufferString res;
-    if ( !clp().getVal(ky,res) && mandatory )
-	mSelf().respondError(
-		    BufferString("Please provide a value after '",ky,"'") );
+    if ( !clp().getKeyedInfo(ky,res) && mandatory )
+	respondError( BufferString("Please provide a value after '",ky,"'") );
     return res;
 }
 
@@ -101,8 +100,7 @@ DBKey ServerProgTool::getDBKey( const char* ky, bool mandatory ) const
 {
     const DBKey ret( getKeyedArgStr(ky,mandatory) );
     if ( mandatory && !ret.isValid() )
-	mSelf().respondError(
-		    BufferString("Invalid key provided for '",ky,"'") );
+	respondError( BufferString("Invalid key provided for '",ky,"'") );
     return ret;
 }
 
@@ -240,21 +238,16 @@ void ServerProgTool::set( const char* keyw, JSONArray* jarr )
 }
 
 
-void ServerProgTool::setStatus( bool success )
+void ServerProgTool::setStatus( bool success ) const
 {
-    set( sKey::Status(), success ? "OK" : "Fail" );
+    mSelf().set( sKey::Status(), success ? "OK" : "Fail" );
 }
 
 
-void ServerProgTool::setSize( size_type sz )
-{
-    set( sKey::Size(), sz );
-}
-
-
-void ServerProgTool::respondInfo( bool success, bool exit )
+void ServerProgTool::respondInfo( bool success, bool exit ) const
 {
     setStatus( success );
+
     if ( jsonmode_ )
 	jsonroot_.write( outStream() );
     else
@@ -262,23 +255,22 @@ void ServerProgTool::respondInfo( bool success, bool exit )
 	ascostream ascstrm( outStream() );
 	iop_.putTo( ascstrm );
     }
-    outStream() <<  od_endl;
+    outStream() << od_endl;
 
     if ( exit )
 	exitProgram( success );
 }
 
 
-void ServerProgTool::respondError( const uiRetVal& uirv )
+void ServerProgTool::respondError( const uiRetVal& uirv ) const
 {
-    set( sErrKey, toString(uirv) );
-    respondInfo( false );
+    mSelf().respondError( toString(uirv) );
 }
 
 
-void ServerProgTool::respondError( const char* msg )
+void ServerProgTool::respondError( const char* msg ) const
 {
-    set( sErrKey, msg );
+    mSelf().set( sErrKey, msg );
     respondInfo( false );
 }
 
@@ -300,7 +292,7 @@ void ServerProgTool::addToUsageStr( BufferString& str,
 }
 
 
-void ServerProgTool::exitWithUsage()
+void ServerProgTool::exitWithUsage() const
 {
     BufferString msg( "* Usage: ", GetExecutableName() );
     msg.add( getSpecificUsage() );
@@ -319,7 +311,7 @@ void ServerProgTool::exitWithUsage()
 }
 
 
-void ServerProgTool::exitProgram( bool success )
+void ServerProgTool::exitProgram( bool success ) const
 {
     ExitProgram( success ? 0 : 1 );
 }

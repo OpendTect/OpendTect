@@ -9,9 +9,11 @@
 #include "ascbinstream.h"
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
+#include "cubesubsel.h"
 #include "dbman.h"
 #include "dbdir.h"
 #include "keystrs.h"
+#include "linesubsel.h"
 #include "od_iostream.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -22,6 +24,7 @@
 #include "seis2ddata.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
+#include "seisrangeseldata.h"
 #include "seisstorer.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -46,7 +49,7 @@ static const char* sWriteSEGYDefCmd	= "write-segydef";
 
 static const char* sAsciiArg		= "ascii";
 static const char* sAllArg		= "all";
-static const char* sTypeArg		= "type";
+static const char* sComponentArg	= "component";
 static const char* sEncodingArg		= "encoding";
 static const char* sFormatArg		= "format";
 static const char* sFileNameArg		= "filename";
@@ -54,6 +57,11 @@ static const char* sFileNamesArg	= "filenames";
 static const char* sGeometryArg		= "geometry";
 static const char* sGeomIDArg		= "geomid";
 static const char* sNrFilesArg		= "nrfiles";
+static const char* sRangeArg		= "range";
+static const char* sTypeArg		= "type";
+
+mUseType( CubeSubSel, pos_steprg_type );
+mUseType( Pos::ZSubSel, z_steprg_type );
 
 
 class SeisServerTool : public ServerProgTool
@@ -110,7 +118,14 @@ protected:
     int			getTranslIdx(const char*) const;
     GeomType		getGeomTypeFromCL() const;
     bool		getFileNamesFromCL(BufferStringSet&) const;
+    pos_steprg_type	getPosRgFromCL(int,const char*) const;
+    z_steprg_type	getZRgFromCL(int) const;
     void		slurpSEGYIndexingData(GeomType,SEGY::FileDataSet&);
+    void		selectComponent();
+    void		setRange();
+    void		pushTrcHeader(ascbinostream&,SeisTrcInfo&);
+    void		pushTrc(ascbinostream&,SeisTrc&);
+    void		getNextTrace(SeisTrc&,ascbinostream&);
 
 };
 
@@ -149,7 +164,7 @@ void SeisServerTool::listObjs( GeomType gt )
 	types.add( del.ioobj(idx).pars().find(sKey::Type()) );
     }
 
-    setSize( ids.size() );
+    set( sKey::Size(), ids.size() );
     set( sKey::ID(mPlural), ids );
     set( sKey::Name(mPlural), nms );
     set( sKey::Type(mPlural), types );
@@ -177,7 +192,7 @@ void SeisServerTool::listLines( const char* attr )
 	gids.add( ds2d.geomID(idx).getI() );
 	lnms.add( ds2d.lineName(idx) );
     }
-    setSize( gids.size() );
+    set( sKey::Size(), gids.size() );
     set( sKey::GeomID(mPlural), gids );
     set( sKey::Name(mPlural), lnms );
     respondInfo( true );
@@ -239,7 +254,6 @@ void SeisServerTool::provideGenInfo()
     {
 	const auto& prov2d = *prov_->as2D();
 	const auto nrlines = prov2d.nrLines();
-	setSize( nrlines );
 	BufferStringSet lnms; TypeSet<int> gids;
 	for ( int iln=0; iln<nrlines; iln++ )
 	{
@@ -247,6 +261,7 @@ void SeisServerTool::provideGenInfo()
 	    lnms.add( nameOf(gid) );
 	    gids += gid.getI();
 	}
+	set( sKey::Size(), lnms.size() );
 	set( sKey::Line(mPlural), lnms );
 	set( sKey::GeomID(mPlural), gids );
     }
@@ -271,7 +286,7 @@ void SeisServerTool::set3DGeomInfo( bool full )
     CubeData cd;
     prov_->as3D()->getGeometryInfo( cd );
     const auto nrtrcs = cd.totalSize();
-    setSize( nrtrcs );
+    set( sKey::Size(), nrtrcs );
     if ( nrtrcs < 1 )
 	return;
 
@@ -305,7 +320,7 @@ void SeisServerTool::set2DGeomInfo( int lidx, bool full )
     Line2DData l2dd;
     prov_->as2D()->getGeometryInfo( lidx, l2dd );
     const auto nrtrcs = l2dd.size();
-    setSize( nrtrcs );
+    set( sKey::Size(), nrtrcs );
     if ( nrtrcs < 1 )
 	return;
 
@@ -373,9 +388,145 @@ void SeisServerTool::provideGeometryInfo()
 }
 
 
+pos_steprg_type SeisServerTool::getPosRgFromCL( int argidx0,
+						const char* what ) const
+{
+    pos_steprg_type ret;
+    if ( !clp().getValue(sRangeArg,ret.start,false,argidx0) )
+	respondError( BufferString("Missing ",what," start") );
+    if ( !clp().getValue(sRangeArg,ret.stop,false,argidx0+1) )
+	respondError( BufferString("Missing ",what," stop") );
+    if ( !clp().getValue(sRangeArg,ret.step,false,argidx0+2) )
+	respondError( BufferString("Missing ",what," step") );
+    if ( ret.start <= 0 ) ret.start = mUdf(Pos::Index_Type);
+    if ( ret.stop <= 0 ) ret.stop = mUdf(Pos::Index_Type);
+    if ( ret.step <= 0 ) ret.step = mUdf(Pos::Index_Type);
+    return ret;
+}
+
+
+z_steprg_type SeisServerTool::getZRgFromCL( int argidx0 ) const
+{
+    z_steprg_type ret;
+    if ( !clp().getValue(sRangeArg,ret.start,false,argidx0) )
+	respondError( "Missing Z start" );
+    if ( !clp().getValue(sRangeArg,ret.stop,false,argidx0+1) )
+	respondError( "Missing Z stop" );
+    if ( !clp().getValue(sRangeArg,ret.step,false,argidx0+2) )
+	respondError( "Missing Z step" );
+    if ( ret.step <= 0.f ) ret.step = mUdf(Pos::Z_Type);
+    return ret;
+}
+
+
+void SeisServerTool::selectComponent()
+{
+    BufferString compstr = getKeyedArgStr( sComponentArg, false );
+    int icomp = 0;
+    if ( !compstr.isEmpty() )
+    {
+	BufferStringSet compnms;
+	prov_->getComponentInfo( compnms );
+	icomp = compstr.isNumber(true) ? compstr.toInt()
+				       : compnms.indexOf( compstr );
+	if ( icomp < 0 || icomp >= compnms.size() )
+	    icomp = 0;
+    }
+    prov_->selectComponent( icomp );
+}
+
+
+void SeisServerTool::setRange()
+{
+    const bool is2d = prov_->is2D();
+    clp().setKeyHasValue( sRangeArg, is2d ? 6 : 9 );
+    auto* rsd = is2d ? new Seis::RangeSelData( prov_->geomID() )
+		     : new Seis::RangeSelData;
+    if ( is2d )
+    {
+	auto& lss = rsd->lineSubSel( 0 );
+	const auto trcrg = getPosRgFromCL( 0, "Trace Number" );
+	lss.lineHorSubSel().setTrcNrRange( trcrg );
+    }
+    else
+    {
+	auto& css = rsd->cubeSubSel();
+	const auto inlrg = getPosRgFromCL( 0, "Inline" );
+	const auto crlrg = getPosRgFromCL( 3, "Crossline" );
+	css.setInlRange( inlrg ); css.setCrlRange( crlrg );
+    }
+    const auto zrg = getZRgFromCL( is2d ? 3 : 6 );
+    rsd->subSel().zSubSel().setOutputZRange( zrg );
+    prov_->setSelData( rsd );
+}
+
+
+void SeisServerTool::pushTrcHeader( ascbinostream& strm, SeisTrcInfo& ti )
+{
+    if ( prov_->is2D() )
+	strm.add( ti.trcNr() ).add( ti.coord_.x_ ).add( ti.coord_.y_ );
+    else
+	strm.add( ti.inl() ).add( ti.crl() );
+    if ( prov_->isPS() )
+	strm.add( ti.offset_ );
+}
+
+
+void SeisServerTool::pushTrc( ascbinostream& strm, SeisTrc& trc )
+{
+    pushTrcHeader( strm, trc.info() );
+    const auto ns = trc.size();
+    for ( auto isamp=0; isamp<ns; isamp++ )
+	strm.add( trc.get(isamp,0), isamp==ns-1 ? od_newline : od_tab );
+    if ( !strm.stream().isOK() )
+    {
+	uiRetVal uirv;
+	strm.stream().addErrMsgTo( uirv );
+	respondError( uirv );
+    }
+}
+
+
+void SeisServerTool::getNextTrace( SeisTrc& trc, ascbinostream& strm )
+{
+    const uiRetVal uirv = prov_->getNext( trc );
+    if ( !uirv.isOK() )
+    {
+	SeisTrcInfo& ti = trc.info();
+	ti.setTrcNr( 0 ); ti.setLineNr( 0 );
+	ti.offset_ = 0.f; ti.coord_ = Coord( 0, 0 );
+	pushTrcHeader( strm, ti );
+	if ( isFinished(uirv) )
+	    respondInfo( true );
+	else
+	    respondError( uirv );
+    }
+}
+
+
 void SeisServerTool::read()
 {
-    respondError( "TODO" );
+    const DBKey dbky = getDBKey( sReadCmd );
+    getProvider( dbky );
+
+    if ( clp().hasKey(sComponentArg) )
+	selectComponent();
+    if ( clp().hasKey(sRangeArg) )
+	setRange();
+
+    ascbinostream strm( outStream(), !ascii_ );
+    SeisTrc trc; bool isfirst = true;
+    while ( true )
+    {
+	getNextTrace( trc, strm );
+	if ( isfirst )
+	{
+	    strm.add( trc.startPos() ).add( trc.stepPos() )
+		.add( trc.size(), od_newline );
+	    isfirst = false;
+	}
+	pushTrc( strm, trc );
+    }
 }
 
 
@@ -397,9 +548,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     bool issegy = false;
     if ( clp().hasKey(sFormatArg) )
     {
-	clp().setKeyHasValue( sFormatArg );
-	BufferString trnm;
-	clp().getVal( sFormatArg, trnm );
+	BufferString trnm = getKeyedArgStr( sFormatArg, true );
 	issegy = trnm.startsWith( "SEG" );
 	translidx = getTranslIdx( trnm );
     }
@@ -414,8 +563,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     if ( clp().hasKey(sTypeArg) )
     {
 	clp().setKeyHasValue( sTypeArg );
-	BufferString typetag;
-	clp().getVal( sTypeArg, typetag );
+	BufferString typetag = getKeyedArgStr( sTypeArg, true );
 	if ( !typetag.isEmpty() )
 	{
 	    ctio.ioobj_->pars().set( sKey::Type(), typetag );
@@ -427,7 +575,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     {
 	clp().setKeyHasValue( sEncodingArg );
 	int encnr = 0;
-	clp().getVal( sEncodingArg, encnr );
+	clp().getValue( sEncodingArg, encnr );
 	if ( encnr > 0 )
 	{
 	    if ( issegy )
@@ -541,9 +689,7 @@ void SeisServerTool::writePS2D( const char* cmd )
 
 Seis::GeomType SeisServerTool::getGeomTypeFromCL() const
 {
-    clp().setKeyHasValue( sGeometryArg );
-    BufferString gtstr;
-    clp().getVal( sGeometryArg, gtstr );
+    BufferString gtstr = getKeyedArgStr( sGeometryArg, false );
     if ( gtstr.isEqual("2d",CaseInsensitive) )
 	return Seis::Line;
     else if ( gtstr.isEqual("ps3d",CaseInsensitive) )
@@ -560,19 +706,18 @@ bool SeisServerTool::getFileNamesFromCL( BufferStringSet& fnms ) const
     BufferString fnm;
     if ( clp().hasKey(sFileNameArg) )
     {
-	clp().setKeyHasValue( sFileNameArg );
-	clp().getVal( sFileNameArg, fnm );
+	fnm = getKeyedArgStr( sFileNameArg, true );
 	fnms.add( fnm );
     }
     else if ( clp().hasKey(sFileNamesArg) )
     {
 	clp().setKeyHasValue( sNrFilesArg );
 	int nrfiles = 1;
-	clp().getVal( sNrFilesArg, nrfiles );
+	clp().getValue( sNrFilesArg, nrfiles );
 	clp().setKeyHasValue( sFileNamesArg, nrfiles );
 	for ( int idx=0; idx<nrfiles; idx++ )
 	{
-	    clp().getVal( sFileNamesArg, fnm, false, idx+1 );
+	    clp().getString( sFileNamesArg, fnm, false, idx+1 );
 	    fnms.add( fnm );
 	}
     }
@@ -587,7 +732,7 @@ static T getFromClp( const CommandLineParser& clp, const char* clky, T defltval)
     if ( clp.hasKey(clky) )
     {
 	clp.setKeyHasValue( clky );
-	clp.getVal( clky, val );
+	clp.getValue( clky, val );
     }
     return val;
 }
@@ -693,8 +838,6 @@ BufferString SeisServerTool::getSpecificUsage() const
     addToUsageStr( ret, sListAttribs2DCmd, "" );
     addToUsageStr( ret, sInfoCmd, "seis_id" );
     addToUsageStr( ret, sGeomInfoCmd, "seis_id [--all] [--geomid geomid]" );
-    addToUsageStr( ret, sReadCmd,
-	    "seis_id [--range trc_start_stop_step [crl_sss] z_sss] [--ascii]" );
 #   define mAddWriteCmdToUsage( cmd ) \
 	addToUsageStr( ret, cmd, \
 	    "name [--ascii] [--format fmt] [--encoding nr] [--type tag]" )
@@ -704,6 +847,9 @@ BufferString SeisServerTool::getSpecificUsage() const
     mAddWriteCmdToUsage( sWritePS2DCmd );
     addToUsageStr( ret, sWriteSEGYDefCmd,
 		    "name --geometry 3D|2D|PS3D|PS3D more_args" );
+    addToUsageStr( ret, sReadCmd,
+	    "seis_id [--component comp_idx_or_name] [--ascii]"
+	    "\n\t\t\t[--range trc_start_stop_step [crl_sss] z_sss]" );
     return ret;
 }
 

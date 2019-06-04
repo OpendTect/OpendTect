@@ -83,8 +83,11 @@ public:
 						{ forceall_ = true; }
 
     size_type		expectedNrTraces() const override;
+    FullSubSel&		subSel(idx_type i=0);
     const FullSubSel&	subSel(idx_type i=0) const;
+    CubeSubSel&		cubeSubSel()		{ return *css_;}
     const CubeSubSel&	cubeSubSel() const	{ return *css_;}
+    LineSubSel&		lineSubSel(idx_type);
     const LineSubSel&	lineSubSel(idx_type) const;
     CubeSubSel&		subSel3D()		{ return *css_; }
     const CubeSubSel&	subSel3D() const	{ return *css_; }

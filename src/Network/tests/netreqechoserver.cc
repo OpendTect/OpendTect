@@ -176,14 +176,15 @@ int mTestMainFnName(int argc, char** argv)
     //Make standard test-runs just work fine.
     if ( !clParser().hasKey(Network::Server::sKeyPort()) )
 	return 0;
+    clParser().setKeyHasValue( Network::Server::sKeyPort() );
+    clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
 
     ApplicationData app;
 
     int startport = 1025;
-    clParser().getVal( Network::Server::sKeyPort(), startport );
-
+    clParser().getValue( Network::Server::sKeyPort(), startport );
     int timeout = 120;
-    clParser().getVal( Network::Server::sKeyTimeout(), timeout );
+    clParser().getValue( Network::Server::sKeyTimeout(), timeout );
 
     Network::RequestEchoServer server( mCast(unsigned short,startport),
 				       mCast(unsigned short,timeout) );

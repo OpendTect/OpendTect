@@ -51,11 +51,15 @@ bool CommandLineParser::hasKey( const char* key ) const
 }
 
 
-void CommandLineParser::setKeyHasValue( const char* key, int nrvals ) const
+void CommandLineParser::ensureNrArgs( const char* key, int nrvals ) const
 {
     const int nrvalsidx = keyswithvalue_.indexOf( key );
     if ( nrvalsidx >= 0 )
-	mSelf().nrvalues_[nrvalsidx] = nrvals;
+    {
+	const auto curnrvals = nrvalues_[nrvalsidx];
+	if ( curnrvals < nrvals )
+	    mSelf().nrvalues_[nrvalsidx] = nrvals;
+    }
     else
     {
 	mSelf().keyswithvalue_.add( key );
@@ -180,9 +184,7 @@ void CommandLineParser::init( int argc, char** argv )
 
     if ( hasKey(sFileForArgs()) )
     {
-	setKeyHasValue( sFileForArgs() );
-	BufferString fnm;
-	getVal( sFileForArgs(), fnm );
+	BufferString fnm = keyedString( sFileForArgs() );
 	od_istream strm( fnm );
 	BufferString argstr;
 	if ( strm.getAll(argstr) )
@@ -343,29 +345,25 @@ char** CommandLineParser::getArgv() const
 }
 
 
-bool CommandLineParser::getDBKey( const char* key, DBKey& dbky,
-				  bool acceptnone, int valnr ) const
-{
-    BufferString dbkystr;
-    bool ret = getVal( key, dbkystr, acceptnone, valnr );
-    dbky = DBKey( dbkystr );
-    return ret;
-}
-
-
-bool CommandLineParser::getVal( const char* key, BufferString& val,
-				bool acceptnone, int valnr ) const
+const char* CommandLineParser::gtVal( const char* key, int valnr,
+				      bool& found ) const
 {
     const int keyidx = indexOf( key );
-    if ( keyidx<0 )
-	return acceptnone;
+    found = keyidx >= 0;
+    if ( !found )
+	return nullptr;
 
-    const int validx = keyidx + mMAX(valnr,1);
-    if ( !argv_.validIdx( validx ) || isKey(validx) )
-	return false;
+    const int nrvalsidx = keyswithvalue_.indexOf( key );
+    if ( nrvalsidx < 0 )
+	{ pErrMsg("Valued key not registered"); }
+    if ( valnr >= nrvalues_[nrvalsidx] )
+	{ pErrMsg("Value number unannounced"); }
 
-    val.set( argv_[validx]->buf() );
-    return true;
+    int validx = keyidx + 1 + valnr;
+    if ( !argv_.validIdx(validx) )
+	{ pErrMsg("Arg index out of bounds"); validx = argv_.size()-1; }
+
+    return argv_.get( validx ).str();
 }
 
 
@@ -392,15 +390,9 @@ BufferString CommandLineParser::getFullSurveyPath( bool* iscur ) const
     BufferString dataroot( orgfp.pathOnly() );
 
     if ( havesurvey )
-    {
-	mSelf().setKeyHasValue( sSurveyArg(), 1 );
-	getVal( sSurveyArg(), survdir );
-    }
+	survdir = keyedString( sSurveyArg() );
     if ( havedataroot )
-    {
-	mSelf().setKeyHasValue( sDataRootArg(), 1 );
-	getVal( sDataRootArg(), dataroot );
-    }
+	dataroot = keyedString( sDataRootArg() );
 
     const File::Path fp( dataroot, survdir );
     if ( iscur )

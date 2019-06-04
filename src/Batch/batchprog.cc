@@ -79,19 +79,21 @@ void BatchProgram::init()
 
     inbg_ = clparser_->hasKey( OS::MachineCommand::sKeyBG() );
 
+    BufferStringSet normalargs;
+    clparser_->getNormalArguments( normalargs );
+
+#   define mGetKeyedVal(ky,fn,val) \
+    clparser_->setKeyHasValue( OS::MachineCommand::ky() ); \
+    clparser_->get##fn( OS::MachineCommand::ky(), val )
+
     BufferString masterhost;
-    clparser_->getVal( OS::MachineCommand::sKeyMasterHost(), masterhost );
-
     int masterport = -1;
-    clparser_->getVal( OS::MachineCommand::sKeyMasterPort(), masterport );
-
-    clparser_->getVal( OS::MachineCommand::sKeyJobID(), jobid_ );
+    mGetKeyedVal( sKeyMasterHost, String, masterhost );
+    mGetKeyedVal( sKeyMasterPort, Value, masterport );
+    mGetKeyedVal( sKeyJobID, Value, jobid_ );
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
 	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
-
-    BufferStringSet normalargs;
-    clparser_->getNormalArguments( normalargs );
 
     BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
@@ -106,7 +108,7 @@ void BatchProgram::init()
 	parfilnm.setEmpty();
     }
 
-    const bool simplebatch = clparser_->hasKey( sKeySimpleBatch()  );
+    const bool simplebatch = clparser_->hasKey( sKeySimpleBatch() );
     if ( parfilnm.isEmpty() && !simplebatch )
     {
 	errorMsg( tr("%1: No existing parameter file name specified")
@@ -156,13 +158,15 @@ void BatchProgram::init()
 #define mSetDataRootVar(str) \
 	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
 
-    if ( clparser_->getVal(sKeyDataDir(),res) && File::isDirectory(res) )
+    clparser_->setKeyHasValue( sKeyDataDir() );
+    clparser_->setKeyHasValue( sKeySurveyDir() );
+    if ( clparser_->getString(sKeyDataDir(),res) && File::isDirectory(res) )
     {
 	mSetDataRootVar( res );
 	iopar_->set( sKey::DataRoot(), res );
     }
 
-    if ( simplebatch && clparser_->getVal(sKeySurveyDir(),res) )
+    if ( simplebatch && clparser_->getString(sKeySurveyDir(),res) )
 	iopar_->set( sKey::Survey(), res );
     else if ( !iopar_->get(sKey::Survey(),res) )
     {

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "convert.h"
 #include "bufstringset.h"
 #include "typeset.h"
+#include "dbkey.h"
 #include "debug.h" // easier for test programs, declares od_init_test_program
 
 /*! takes the argc and argv and makes them queryable. An argument
@@ -48,6 +49,13 @@ ________________________________________________________________________
   overrule any provided args. Further, executablename_EXTRA_ARGS will keep
   the args but adds the specified string to the command line.
 
+  Note 2: From od 7 you can no longer get the value following a key without
+  making the parser aware of it. You can either:
+  * use keyed[String|Value|DBKey] (these will return empty, invalid or Udf if
+	the flag is not there or unparseable)
+  * announce up front using setKeyHasValue(s) and then use getKeyedInfo
+	afterwards.
+
  */
 
 
@@ -57,28 +65,35 @@ public:
 
 			CommandLineParser();
 				/*!< uses the args set by SetProgramArgs */
+    bool		hasKey(const char* ky) const;
 
-    void		setKeyHasValue(const char* key,int nrvals=1) const;
-				/*!<Tell the parser that the nrvals arguments
-				    after key are values. nrvals<1 denotes a
-				    variable number of values, running up to
-				    the next key. */
     void		getNormalArguments(BufferStringSet&) const;
-				/*!<Gets all arguments that are not keys or
-				    key-values. */
+				/*!< all arguments not keys or key-values. */
 
-    bool		hasKey(const char*) const;
-    bool		getVal(const char* key,BufferString&,
-				       bool acceptnone=false,int valnr=1) const;
-    bool		getDBKey(const char* key,DBKey&,
-				       bool acceptnone=false,int valnr=1) const;
+    void		setKeyHasValue( const char* key ) const
+				{ ensureNrArgs( key, 1 ); }
+    void		setKeyHasValues( const char* key, int nrvals ) const
+				{ ensureNrArgs( key, nrvals ); }
+
+    bool		getKeyedInfo(const char* key,BufferString&,
+				       bool acceptnone=false,int argnr=0) const;
+    bool		getKeyedInfo(const char* key,DBKey&,
+				       bool acceptnone=false,int argnr=0) const;
     template <class T>
-    bool		getVal(const char* key,T&,bool acceptnone=false,
-			       int valnr=1) const;
-				/*!<Will parse argument valnr following key.
+    bool		getKeyedInfo(const char* key,T&,bool acceptnone=false,
+				       int argnr=0) const;
+				/*!<Will parse argument argnr following key.
 				    If acceptnone is true, it will only give
 				    error if key is found, but no value can be
 				    parsed. */
+
+			// following return empty string, invalid DBKey or Udf
+			// if the key is not present or carries no value
+    BufferString	keyedString(const char* ky,int argnr=0) const;
+    DBKey		keyedDBKey(const char* ky,int argnr=0) const;
+    template <class T>
+    T			keyedValue(const char* ky,int argnr=0) const;
+
 
     bool		isPresent(const char*) const;
 				//!<Is string present as an argument.
@@ -124,6 +139,9 @@ private:
     BufferStringSet	keyswithvalue_;
     TypeSet<int>	nrvalues_;
 
+    const char*		gtVal(const char*,int,bool&) const;
+    void		ensureNrArgs(const char*,int) const;
+
 public:
 
     explicit		CommandLineParser(const char* fullcommand);
@@ -134,18 +152,56 @@ public:
 };
 
 
-template <class T> inline
-bool CommandLineParser::getVal( const char* key, T& val,
-				bool acceptnone, int valnr ) const
+inline bool CommandLineParser::getKeyedInfo( const char* ky, BufferString& val,
+					     bool acceptnone, int argnr ) const
 {
-    const int keyidx = indexOf( key );
-    if ( keyidx<0 )
-	return acceptnone;
+    bool found;
+    const char* str = gtVal( ky, argnr, found );
+    if ( found )
+	{ val.set( str ); return acceptnone ? !val.isEmpty() : true; }
+    return acceptnone;
+}
 
-    const int validx = keyidx + mMAX(valnr,1);
-    if ( !argv_.validIdx( validx ) || isKey(validx) )
-	return false;
 
-    val = Conv::to<T>( argv_[validx]->str() );
-    return true;
+inline bool CommandLineParser::getKeyedInfo( const char* ky, DBKey& val,
+					     bool acceptnone, int argnr ) const
+{
+    bool found;
+    const char* str = gtVal( ky, argnr, found );
+    if ( found )
+	{ val = DBKey( str ); return acceptnone ? val.isValid() : true; }
+    return acceptnone;
+}
+
+template <class T> inline
+bool CommandLineParser::getKeyedInfo( const char* ky, T& val,
+				      bool acceptnone, int argnr ) const
+{
+    bool found;
+    const char* str = gtVal( ky, argnr, found );
+    if ( found )
+	{ val = Conv::to<T>( str ); return acceptnone ? !mIsUdf(val) : true; }
+    return acceptnone;
+}
+
+
+inline BufferString CommandLineParser::keyedString( const char* ky,
+						       int argnr ) const
+{
+    ensureNrArgs( ky, argnr+1 ); BufferString ret;
+    getKeyedInfo( ky, ret, false, argnr ); return ret;
+}
+
+inline DBKey CommandLineParser::keyedDBKey( const char* ky, int argnr ) const
+{
+    ensureNrArgs( ky, argnr+1 ); BufferString str;
+    getKeyedInfo( ky, str, false, argnr );
+    return DBKey( str );
+}
+
+template <class T> inline
+T CommandLineParser::keyedValue( const char* ky, int argnr ) const
+{
+    ensureNrArgs( ky, argnr+1 ); T ret = mUdf(T);
+    getKeyedInfo( ky, ret, false, argnr ); return ret;
 }
