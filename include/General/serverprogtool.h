@@ -76,10 +76,12 @@ public:
     static const char*	sListUsrCmd()	    { return "list"; }
     static const char*	sInfoUsrCmd()	    { return "info"; }
 
+    void		setDBMDataSource();
+
 protected:
 
 			ServerProgTool(int,char**,const char* moddep);
-    void		initParsing(int protocolnr);
+    void		initParsing(int protocolnr,bool setdatasrc=true);
 
     CommandLineParser*	clp_;
     bool		jsonmode_;

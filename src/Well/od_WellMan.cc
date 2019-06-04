@@ -25,7 +25,9 @@ static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sListLogsCmd		= "list-logs";
 static const char* sReadTrackCmd	= "read-track";
 static const char* sReadLogCmd		= "read-log";
-static const char* sNoTVDCmd		= "no-tvd";
+
+static const char* sNoTVDArg		= "no-tvd";
+
 
 class WellServerTool : public ServerProgTool
 {
@@ -197,7 +199,7 @@ BufferString WellServerTool::getSpecificUsage() const
     addToUsageStr( ret, sInfoCmd, "well_id" );
     addToUsageStr( ret, sListLogsCmd, "well_id" );
     addToUsageStr( ret, sReadTrackCmd, "well_id" );
-    BufferString argstr( "well_id log_name [--", sNoTVDCmd, "]" );
+    BufferString argstr( "well_id log_name [--", sNoTVDArg, "]" );
     addToUsageStr( ret, sReadLogCmd, argstr );
     return ret;
 }
@@ -224,7 +226,7 @@ int main( int argc, char** argv )
 	clp.getDBKey( sReadLogCmd, wellid );
 	BufferString lognm;
 	clp.getVal( sReadLogCmd, lognm, false, 2 );
-	const bool notvd = clp.hasKey( sNoTVDCmd );
+	const bool notvd = clp.hasKey( sNoTVDArg );
 	st.readLog( wellid, lognm, notvd );
     }
 

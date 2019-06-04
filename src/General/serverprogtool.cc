@@ -36,7 +36,7 @@ ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
 }
 
 
-void ServerProgTool::initParsing( int protnr )
+void ServerProgTool::initParsing( int protnr, bool setdatasrc )
 {
     protocolnr_ = protnr;
 
@@ -53,6 +53,14 @@ void ServerProgTool::initParsing( int protnr )
 
     setStatus( false ); // making sure this is the first entry
 
+    if ( setdatasrc )
+	setDBMDataSource();
+}
+
+
+
+void ServerProgTool::setDBMDataSource()
+{
     uiRetVal uirv = DBM().setDataSource( clp() );
     if ( !uirv.isOK() )
 	respondError( toString(uirv) );

@@ -12,6 +12,7 @@
 #include "filepath.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "oddirs.h"
 #include "odjson.h"
 #include "prog.h"
 #include "surveydisklocation.h"
@@ -25,7 +26,7 @@ static const char* sListSurvCmd		= "list-surveys";
 static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
-static const char* sFileNameCmd		= "filename";
+static const char* sFileNameArg		= "filename";
 
 class DBManServerTool : public ServerProgTool
 {
@@ -33,10 +34,10 @@ public:
 		    DBManServerTool(int,char**);
 
     void	    listSurveys();
-    void	    listObjs(const char* trgrpnm);
+    void	    listObjs();
     void	    provideInfo();
     void	    removeObj();
-    void	    createObj(const BufferStringSet&,const char* filenm);
+    void	    createObj();
 
 protected:
 
@@ -48,15 +49,17 @@ protected:
 DBManServerTool::DBManServerTool( int argc, char** argv )
     : ServerProgTool(argc,argv,"General")
 {
-    initParsing( cProtocolNr );
+    initParsing( cProtocolNr, false );
 }
 
 
 void DBManServerTool::listSurveys()
 {
+    BufferString dataroot
+	    = getKeyedArgStr( CommandLineParser::sDataRootArg(), false );
+    if ( dataroot.isEmpty() )
+	dataroot = GetBaseDataDir();
     BufferStringSet dirnms;
-    const File::Path survfp( DBM().survDir() );
-    const BufferString dataroot( survfp.pathOnly() );
     SurveyDiskLocation::listSurveys( dirnms, dataroot );
     set( sKey::DataRoot(), dataroot );
     if ( !dirnms.isEmpty() )
@@ -69,11 +72,12 @@ void DBManServerTool::listSurveys()
 }
 
 
-void DBManServerTool::listObjs( const char* trgrpnm )
+void DBManServerTool::listObjs()
 {
+    const BufferString trgrpnm = getKeyedArgStr( sListCmd );
+    auto dbdir = DBM().findDir( trgrpnm );
     BufferStringSet nms, types, trls; DBKeySet ids;
     bool havetype = false;
-    auto dbdir = DBM().findDir( trgrpnm );
     if ( dbdir )
     {
 	DBDirIter it( *dbdir );
@@ -130,9 +134,12 @@ void DBManServerTool::removeObj()
 }
 
 
-void DBManServerTool::createObj( const BufferStringSet& args,
-				 const char* filenm )
+void DBManServerTool::createObj()
 {
+    const BufferString filenm = getKeyedArgStr( sFileNameArg, false );
+    BufferStringSet args;
+    clp().getNormalArguments( args );
+
     if ( args.size() < 5 )
 	respondError( "Specify at least name, dirid, trgrp, trl, ext. "
 		      "Optional, type and/or --filename your_file_name." );
@@ -150,10 +157,10 @@ void DBManServerTool::createObj( const BufferStringSet& args,
 	iostrm.pars().set( sKey::Type(), args.get(5) );
 
     iostrm.setAbsDirectory( dbdir->dirName() );
-    if ( filenm && *filenm )
-	iostrm.fileSpec().setFileName( filenm );
-    else
+    if ( filenm.isEmpty() )
 	iostrm.genFileName();
+    else
+	iostrm.fileSpec().setFileName( filenm );
 
     iostrm.updateCreationPars();
     DBDir* dbdirptr = mNonConst( dbdir.ptr() );
@@ -170,10 +177,9 @@ BufferString DBManServerTool::getSpecificUsage() const
 {
     BufferString ret;
     addToUsageStr( ret, sStatusCmd, "" );
-    addToUsageStr( ret, sListCmd, "" );
     addToUsageStr( ret, sListSurvCmd, "" );
+    addToUsageStr( ret, sListCmd, "trl_group_name" );
     addToUsageStr( ret, sInfoCmd, "object_id" );
-    addToUsageStr( ret, sFileNameCmd, "object_id" );
     addToUsageStr( ret, sRemoveCmd, "object_id" );
     addToUsageStr( ret, sCreateCmd, "obj_name dir_id trl_group_name trl_name "
 			    "extension [Type_in_omf] [--filename file_name]" );
@@ -188,6 +194,8 @@ int main( int argc, char** argv )
 
     if ( clp.hasKey( sListSurvCmd ) )
 	st.listSurveys();
+
+    st.setDBMDataSource();
 
     const bool isbad = DBM().isBad();
     if ( isbad || clp.hasKey( sStatusCmd ) )
@@ -204,12 +212,7 @@ int main( int argc, char** argv )
     }
 
     if ( clp.hasKey( sListCmd ) )
-    {
-	clp.setKeyHasValue( sListCmd, 1 );
-	BufferString trgrpnm;
-	clp.getVal( sListCmd, trgrpnm );
-	st.listObjs( trgrpnm );
-    }
+	st.listObjs();
     else if ( clp.hasKey( sInfoCmd ) )
 	st.provideInfo();
     else if ( clp.hasKey( sRemoveCmd ) )
@@ -219,13 +222,7 @@ int main( int argc, char** argv )
     if ( cridx < 0 )
 	st.exitWithUsage();
 
-    clp.setKeyHasValue( sFileNameCmd, 1 );
-    BufferString filenm;
-    clp.getVal( sFileNameCmd, filenm );
-
-    BufferStringSet normargs;
-    clp.getNormalArguments( normargs );
-    st.createObj( normargs, filenm );
+    st.createObj();
 
     pFreeFnErrMsg( "Should not reach" );
     return ExitProgram( 0 );

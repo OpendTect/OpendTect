@@ -37,21 +37,23 @@ static const char* sListPS2DCmd		= "list-ps2d";
 static const char* sListAttribs2DCmd	= "list-2d-attributes";
 static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sGeomInfoCmd		= "geometry-info";
+static const char* sReadCmd		= "read";
 static const char* sWriteCubeCmd	= "write-cube";
 static const char* sWriteLineCmd	= "write-line";
 static const char* sWritePS3DCmd	= "write-ps3d";
 static const char* sWritePS2DCmd	= "write-ps2d";
 static const char* sWriteSEGYDefCmd	= "write-segydef";
-static const char* sAsciiCmd		= "ascii";
-static const char* sAllCmd		= "all";
-static const char* sTypeCmd		= "type";
-static const char* sEncodingCmd		= "encoding";
-static const char* sFormatCmd		= "format";
-static const char* sFileNameCmd		= "filename";
-static const char* sFileNamesCmd	= "filenames";
-static const char* sGeometryCmd		= "geometry";
-static const char* sGeomIDCmd		= "geomid";
-static const char* sNrFilesCmd		= "nrfiles";
+
+static const char* sAsciiArg		= "ascii";
+static const char* sAllArg		= "all";
+static const char* sTypeArg		= "type";
+static const char* sEncodingArg		= "encoding";
+static const char* sFormatArg		= "format";
+static const char* sFileNameArg		= "filename";
+static const char* sFileNamesArg	= "filenames";
+static const char* sGeometryArg		= "geometry";
+static const char* sGeomIDArg		= "geomid";
+static const char* sNrFilesArg		= "nrfiles";
 
 
 class SeisServerTool : public ServerProgTool
@@ -74,6 +76,7 @@ public:
     void		listAttribs2D();
     void		provideGenInfo();
     void		provideGeometryInfo();
+    void		read();
     void		writeCube(const char*);
     void		writeLine(const char*);
     void		writePS3D(const char*);
@@ -116,7 +119,7 @@ SeisServerTool::SeisServerTool( int argc, char** argv )
     : ServerProgTool(argc,argv,"Seis")
 {
     initParsing( cProtocolNr );
-    ascii_ = clp().hasKey( sAsciiCmd );
+    ascii_ = clp().hasKey( sAsciiArg );
 }
 
 
@@ -339,13 +342,13 @@ void SeisServerTool::provideGeometryInfo()
 {
     mkGenObjInfo( sGeomInfoCmd );
 
-    const bool full = clp().hasKey( sAllCmd );
+    const bool full = clp().hasKey( sAllArg );
 
     ZSampling zrg;
     if ( prov_->is2D() )
     {
 	const auto& prov2d = *prov_->as2D();
-	BufferString geomidnrstr = getKeyedArgStr( sGeomIDCmd );
+	BufferString geomidnrstr = getKeyedArgStr( sGeomIDArg );
 	const GeomID geomid( geomidnrstr.toInt() );
 	const auto lidx = prov2d.indexOf( geomid );
 	if ( lidx < 0 )
@@ -370,6 +373,12 @@ void SeisServerTool::provideGeometryInfo()
 }
 
 
+void SeisServerTool::read()
+{
+    respondError( "TODO" );
+}
+
+
 int SeisServerTool::getTranslIdx( const char* trnm ) const
 {
     int ret = -1;
@@ -386,11 +395,11 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 
     int translidx = -1;
     bool issegy = false;
-    if ( clp().hasKey(sFormatCmd) )
+    if ( clp().hasKey(sFormatArg) )
     {
-	clp().setKeyHasValue( sFormatCmd );
+	clp().setKeyHasValue( sFormatArg );
 	BufferString trnm;
-	clp().getVal( sFormatCmd, trnm );
+	clp().getVal( sFormatArg, trnm );
 	issegy = trnm.startsWith( "SEG" );
 	translidx = getTranslIdx( trnm );
     }
@@ -402,11 +411,11 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 	respondError( "Cannot create entry in Data Store" );
 
     bool ioobjchgd = false;
-    if ( clp().hasKey(sTypeCmd) )
+    if ( clp().hasKey(sTypeArg) )
     {
-	clp().setKeyHasValue( sTypeCmd );
+	clp().setKeyHasValue( sTypeArg );
 	BufferString typetag;
-	clp().getVal( sTypeCmd, typetag );
+	clp().getVal( sTypeArg, typetag );
 	if ( !typetag.isEmpty() )
 	{
 	    ctio.ioobj_->pars().set( sKey::Type(), typetag );
@@ -414,11 +423,11 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
 	}
     }
 
-    if ( clp().hasKey(sEncodingCmd) )
+    if ( clp().hasKey(sEncodingArg) )
     {
-	clp().setKeyHasValue( sEncodingCmd );
+	clp().setKeyHasValue( sEncodingArg );
 	int encnr = 0;
-	clp().getVal( sEncodingCmd, encnr );
+	clp().getVal( sEncodingArg, encnr );
 	if ( encnr > 0 )
 	{
 	    if ( issegy )
@@ -532,9 +541,9 @@ void SeisServerTool::writePS2D( const char* cmd )
 
 Seis::GeomType SeisServerTool::getGeomTypeFromCL() const
 {
-    clp().setKeyHasValue( sGeometryCmd );
+    clp().setKeyHasValue( sGeometryArg );
     BufferString gtstr;
-    clp().getVal( sGeometryCmd, gtstr );
+    clp().getVal( sGeometryArg, gtstr );
     if ( gtstr.isEqual("2d",CaseInsensitive) )
 	return Seis::Line;
     else if ( gtstr.isEqual("ps3d",CaseInsensitive) )
@@ -547,23 +556,23 @@ Seis::GeomType SeisServerTool::getGeomTypeFromCL() const
 
 bool SeisServerTool::getFileNamesFromCL( BufferStringSet& fnms ) const
 {
-    clp().setKeyHasValue( sNrFilesCmd );
+    clp().setKeyHasValue( sNrFilesArg );
     BufferString fnm;
-    if ( clp().hasKey(sFileNameCmd) )
+    if ( clp().hasKey(sFileNameArg) )
     {
-	clp().setKeyHasValue( sFileNameCmd );
-	clp().getVal( sFileNameCmd, fnm );
+	clp().setKeyHasValue( sFileNameArg );
+	clp().getVal( sFileNameArg, fnm );
 	fnms.add( fnm );
     }
-    else if ( clp().hasKey(sFileNamesCmd) )
+    else if ( clp().hasKey(sFileNamesArg) )
     {
-	clp().setKeyHasValue( sNrFilesCmd );
+	clp().setKeyHasValue( sNrFilesArg );
 	int nrfiles = 1;
-	clp().getVal( sNrFilesCmd, nrfiles );
-	clp().setKeyHasValue( sFileNamesCmd, nrfiles );
+	clp().getVal( sNrFilesArg, nrfiles );
+	clp().setKeyHasValue( sFileNamesArg, nrfiles );
 	for ( int idx=0; idx<nrfiles; idx++ )
 	{
-	    clp().getVal( sFileNamesCmd, fnm, false, idx+1 );
+	    clp().getVal( sFileNamesArg, fnm, false, idx+1 );
 	    fnms.add( fnm );
 	}
     }
@@ -683,7 +692,9 @@ BufferString SeisServerTool::getSpecificUsage() const
     addToUsageStr( ret, sListPS2DCmd, "" );
     addToUsageStr( ret, sListAttribs2DCmd, "" );
     addToUsageStr( ret, sInfoCmd, "seis_id" );
-    addToUsageStr( ret, sGeomInfoCmd, "seis_id  [--all] [--geomid geomid]" );
+    addToUsageStr( ret, sGeomInfoCmd, "seis_id [--all] [--geomid geomid]" );
+    addToUsageStr( ret, sReadCmd,
+	    "seis_id [--range trc_start_stop_step [crl_sss] z_sss] [--ascii]" );
 #   define mAddWriteCmdToUsage( cmd ) \
 	addToUsageStr( ret, cmd, \
 	    "name [--ascii] [--format fmt] [--encoding nr] [--type tag]" )
@@ -723,6 +734,8 @@ int main( int argc, char** argv )
 	st.provideGenInfo();
     else if ( clp.hasKey(sGeomInfoCmd) )
 	st.provideGeometryInfo();
+    else if ( clp.hasKey(sReadCmd) )
+	st.read();
     else if ( clp.hasKey(sWriteCubeCmd) )
 	st.writeCube( sWriteCubeCmd );
     else if ( clp.hasKey(sWriteLineCmd) )
