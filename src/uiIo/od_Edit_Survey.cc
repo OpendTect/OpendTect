@@ -39,15 +39,15 @@ int main( int argc, char ** argv )
     uiMain app;
 
     auto& clp = app.commandLineParser();
-    clp.setKeyHasValue( "dataroot" );
-    BufferStringSet normargs;
-    BufferString dataroot, survdir, fullsurvpath;
-    const bool createmode = clp.hasKey( "create" );
-    const bool altdataroot = clp.getVal( "dataroot", dataroot );
-    clp.getNormalArguments( normargs );
-    if ( !altdataroot || dataroot.isEmpty() )
-	dataroot = GetBaseDataDir();
 
+    BufferString dataroot = clp.keyedString( "dataroot" );
+    if ( dataroot.isEmpty() )
+	dataroot = GetBaseDataDir();
+    BufferStringSet normargs;
+    clp.getNormalArguments( normargs );
+
+    BufferString survdir, fullsurvpath;
+    const bool createmode = clp.hasKey( "create" );
     if ( !createmode )
     {
 	survdir = normargs.size() > 0 ? normargs.get( 0 ) : SI().dirName();

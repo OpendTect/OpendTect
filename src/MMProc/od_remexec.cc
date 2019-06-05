@@ -58,8 +58,8 @@ int main( int argc, char** argv )
     clp.setKeyHasValue( OS::MachineCommand::sKeyJobID() );
 
     BufferString machine, remotecmd;
-    if ( !clp.getString(OS::MachineCommand::sKeyRemoteHost(),machine) ||
-	 !clp.getString(OS::MachineCommand::sKeyRemoteCmd(),remotecmd) )
+    if ( !clp.getKeyedInfo(OS::MachineCommand::sKeyRemoteHost(),machine) ||
+	 !clp.getKeyedInfo(OS::MachineCommand::sKeyRemoteCmd(),remotecmd) )
 	mErrRet()
 
     const HostDataList hdl( false );
@@ -81,11 +81,11 @@ int main( int argc, char** argv )
     BufferString masterhost;
     int masterport, jobid;
     const bool hasmasterhost =
-	clp.getString( OS::MachineCommand::sKeyMasterHost(), masterhost );
+	clp.getKeyedInfo( OS::MachineCommand::sKeyMasterHost(), masterhost );
     const bool hasmasterport =
-	clp.getValue( OS::MachineCommand::sKeyMasterPort(), masterport );
+	clp.getKeyedInfo( OS::MachineCommand::sKeyMasterPort(), masterport );
     const bool hasjobid =
-	clp.getValue( OS::MachineCommand::sKeyJobID(), jobid );
+	clp.getKeyedInfo( OS::MachineCommand::sKeyJobID(), jobid );
     if ( hasmasterhost && hasmasterport && hasjobid )
     {
 	par.set( "Host Name", masterhost );

@@ -54,8 +54,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    BufferString basedir;
-    clParser().getString("datadir", basedir );
+    const BufferString basedir = clParser().keyedString( "datadir" );
     File::Path tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;

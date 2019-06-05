@@ -376,16 +376,11 @@ int main( int argc, char** argv )
     if ( argc < 2 )
 	mErrRet(printBatchUsage( clp.getExecutableName() ))
 
-    clp.setKeyHasValue( uiProgressViewer::sKeyInputFile() );
-    clp.setKeyHasValue( uiProgressViewer::sKeyPID() );
-    clp.setKeyHasValue( uiProgressViewer::sKeyDelay() );
-
-    BufferString inpfile;
-    clp.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
-    int pid = mUdf(int);
-    clp.getVal( uiProgressViewer::sKeyPID(), pid );
-    int delay = cDefDelay;
-    clp.getVal( uiProgressViewer::sKeyDelay(), delay );
+    BufferString inpfile = clp.keyedString( uiProgressViewer::sKeyInputFile() );
+    int pid = clp.keyedValue<int>( uiProgressViewer::sKeyPID() );
+    int delay = clp.keyedValue<int>( uiProgressViewer::sKeyDelay() );
+    if ( mIsUdf(delay) )
+	delay = cDefDelay;
 
     if ( inpfile.isEmpty() )
     {

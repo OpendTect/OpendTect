@@ -114,6 +114,11 @@ bool testNormalOperation( const CommandLineParser& clparser )
 
     mRunStandardTest( testparser.isKeyValue(1), "setKeyHasValue" );
 
+    const CommandLineParser testparsercopy( argv1.size(), (char**)argv1.arr() );
+    BufferStringSet arglist = testparsercopy.keyedList( createstr );
+    mRunStandardTest( arglist.size() == 2, "keyedList size" );
+    mRunStandardTest( arglist.get(1) == file1str, "keyedList last value" );
+
     return true;
 }
 

@@ -392,11 +392,11 @@ pos_steprg_type SeisServerTool::getPosRgFromCL( int argidx0,
 						const char* what ) const
 {
     pos_steprg_type ret;
-    if ( !clp().getValue(sRangeArg,ret.start,false,argidx0) )
+    if ( !clp().getKeyedInfo(sRangeArg,ret.start,false,argidx0) )
 	respondError( BufferString("Missing ",what," start") );
-    if ( !clp().getValue(sRangeArg,ret.stop,false,argidx0+1) )
+    if ( !clp().getKeyedInfo(sRangeArg,ret.stop,false,argidx0+1) )
 	respondError( BufferString("Missing ",what," stop") );
-    if ( !clp().getValue(sRangeArg,ret.step,false,argidx0+2) )
+    if ( !clp().getKeyedInfo(sRangeArg,ret.step,false,argidx0+2) )
 	respondError( BufferString("Missing ",what," step") );
     if ( ret.start <= 0 ) ret.start = mUdf(Pos::Index_Type);
     if ( ret.stop <= 0 ) ret.stop = mUdf(Pos::Index_Type);
@@ -408,11 +408,11 @@ pos_steprg_type SeisServerTool::getPosRgFromCL( int argidx0,
 z_steprg_type SeisServerTool::getZRgFromCL( int argidx0 ) const
 {
     z_steprg_type ret;
-    if ( !clp().getValue(sRangeArg,ret.start,false,argidx0) )
+    if ( !clp().getKeyedInfo(sRangeArg,ret.start,false,argidx0) )
 	respondError( "Missing Z start" );
-    if ( !clp().getValue(sRangeArg,ret.stop,false,argidx0+1) )
+    if ( !clp().getKeyedInfo(sRangeArg,ret.stop,false,argidx0+1) )
 	respondError( "Missing Z stop" );
-    if ( !clp().getValue(sRangeArg,ret.step,false,argidx0+2) )
+    if ( !clp().getKeyedInfo(sRangeArg,ret.step,false,argidx0+2) )
 	respondError( "Missing Z step" );
     if ( ret.step <= 0.f ) ret.step = mUdf(Pos::Z_Type);
     return ret;
@@ -439,7 +439,7 @@ void SeisServerTool::selectComponent()
 void SeisServerTool::setRange()
 {
     const bool is2d = prov_->is2D();
-    clp().setKeyHasValue( sRangeArg, is2d ? 6 : 9 );
+    clp().setKeyHasValues( sRangeArg, is2d ? 6 : 9 );
     auto* rsd = is2d ? new Seis::RangeSelData( prov_->geomID() )
 		     : new Seis::RangeSelData;
     if ( is2d )
@@ -562,8 +562,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     bool ioobjchgd = false;
     if ( clp().hasKey(sTypeArg) )
     {
-	clp().setKeyHasValue( sTypeArg );
-	BufferString typetag = getKeyedArgStr( sTypeArg, true );
+	BufferString typetag = clp().keyedString( sTypeArg, true );
 	if ( !typetag.isEmpty() )
 	{
 	    ctio.ioobj_->pars().set( sKey::Type(), typetag );
@@ -575,7 +574,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     {
 	clp().setKeyHasValue( sEncodingArg );
 	int encnr = 0;
-	clp().getValue( sEncodingArg, encnr );
+	clp().getKeyedInfo( sEncodingArg, encnr );
 	if ( encnr > 0 )
 	{
 	    if ( issegy )
@@ -713,11 +712,11 @@ bool SeisServerTool::getFileNamesFromCL( BufferStringSet& fnms ) const
     {
 	clp().setKeyHasValue( sNrFilesArg );
 	int nrfiles = 1;
-	clp().getValue( sNrFilesArg, nrfiles );
-	clp().setKeyHasValue( sFileNamesArg, nrfiles );
+	clp().getKeyedInfo( sNrFilesArg, nrfiles );
+	clp().setKeyHasValues( sFileNamesArg, nrfiles );
 	for ( int idx=0; idx<nrfiles; idx++ )
 	{
-	    clp().getString( sFileNamesArg, fnm, false, idx+1 );
+	    clp().getKeyedInfo( sFileNamesArg, fnm, false, idx+1 );
 	    fnms.add( fnm );
 	}
     }
@@ -732,7 +731,7 @@ static T getFromClp( const CommandLineParser& clp, const char* clky, T defltval)
     if ( clp.hasKey(clky) )
     {
 	clp.setKeyHasValue( clky );
-	clp.getValue( clky, val );
+	clp.getKeyedInfo( clky, val );
     }
     return val;
 }

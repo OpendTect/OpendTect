@@ -202,17 +202,15 @@ void uiCmdDriverMgr::commandLineParsing()
 	return;
 
     const CommandLineParser clp;
-    BufferString cmdfilename;
-    int valnr=0;
+    cmdlogname_ = clp.keyedString( "cmdlog" );
+    const BufferStringSet cmdscripts = clp.keyedList( "cmd" );
+    for ( auto cmdscript : cmdscripts )
+	addCmdLineScript( cmdscript->str() );
 
-    while ( clp.getVal("cmd", cmdfilename, false, ++valnr) )
-	addCmdLineScript( cmdfilename );
-
-    clp.getVal( "cmdlog", cmdlogname_ );
-
-    if ( clp.hasKey("noautoexec") || clp.hasKey("nosettingsautoexec") )
+    const bool noautoexec = clp.hasKey( "noautoexec" );
+    if ( noautoexec || clp.hasKey("nosettingsautoexec") )
 	settingsautoexec_ = false;
-    if ( clp.hasKey("noautoexec") || clp.hasKey("nosurveyautoexec") )
+    if ( noautoexec || clp.hasKey("nosurveyautoexec") )
 	surveyautoexec_ = false;
 }
 

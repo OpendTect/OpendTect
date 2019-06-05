@@ -56,6 +56,26 @@ ________________________________________________________________________
   * announce up front using setKeyHasValue(s) and then use getKeyedInfo
 	afterwards.
 
+\code
+
+    const BufferString sval = clp.keyedString( "sinp" );
+    if ( sval.isEmpty() )
+	err( "Please provide valid 'sinp' argument" );
+
+    const int ival = clp.keyedValue<int>( "iinp" );
+    if ( mIsUdf(ival) )
+	err( "Please provide valid 'iinp' argument" );
+
+    clp.setKeyHasValue( "iinp" );
+    if ( clp.hasKey("iinp") )
+    {
+	int ival;
+	if ( !clp.getKeyedInfo("iinp",ival) )
+	    err( "Invalid 'iinp' argument" );
+    }
+
+\endcode
+
  */
 
 
@@ -94,6 +114,8 @@ public:
     template <class T>
     T			keyedValue(const char* ky,int argnr=0) const;
 
+			// Variable length: collect all values up to next key
+    BufferStringSet	keyedList(const char* ky) const;
 
     bool		isPresent(const char*) const;
 				//!<Is string present as an argument.

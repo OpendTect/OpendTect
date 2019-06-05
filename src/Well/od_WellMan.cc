@@ -223,9 +223,9 @@ int main( int argc, char** argv )
     {
 	clp.setKeyHasValues( sReadLogCmd, 2 );
 	DBKey wellid;
-	clp.getDBKey( sReadLogCmd, wellid );
+	clp.getKeyedInfo( sReadLogCmd, wellid );
 	BufferString lognm;
-	clp.getString( sReadLogCmd, lognm, false, 1 );
+	clp.getKeyedInfo( sReadLogCmd, lognm, false, 1 );
 	const bool notvd = clp.hasKey( sNoTVDArg );
 	st.readLog( wellid, lognm, notvd );
     }

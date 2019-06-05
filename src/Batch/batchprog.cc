@@ -82,15 +82,15 @@ void BatchProgram::init()
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );
 
-#   define mGetKeyedVal(ky,fn,val) \
+#   define mGetKeyedVal(ky,val) \
     clparser_->setKeyHasValue( OS::MachineCommand::ky() ); \
-    clparser_->get##fn( OS::MachineCommand::ky(), val )
+    clparser_->getKeyedInfo( OS::MachineCommand::ky(), val )
 
     BufferString masterhost;
     int masterport = -1;
-    mGetKeyedVal( sKeyMasterHost, String, masterhost );
-    mGetKeyedVal( sKeyMasterPort, Value, masterport );
-    mGetKeyedVal( sKeyJobID, Value, jobid_ );
+    mGetKeyedVal( sKeyMasterHost, masterhost );
+    mGetKeyedVal( sKeyMasterPort, masterport );
+    mGetKeyedVal( sKeyJobID, jobid_ );
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
 	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
@@ -160,13 +160,13 @@ void BatchProgram::init()
 
     clparser_->setKeyHasValue( sKeyDataDir() );
     clparser_->setKeyHasValue( sKeySurveyDir() );
-    if ( clparser_->getString(sKeyDataDir(),res) && File::isDirectory(res) )
+    if ( clparser_->getKeyedInfo(sKeyDataDir(),res) && File::isDirectory(res) )
     {
 	mSetDataRootVar( res );
 	iopar_->set( sKey::DataRoot(), res );
     }
 
-    if ( simplebatch && clparser_->getString(sKeySurveyDir(),res) )
+    if ( simplebatch && clparser_->getKeyedInfo(sKeySurveyDir(),res) )
 	iopar_->set( sKey::Survey(), res );
     else if ( !iopar_->get(sKey::Survey(),res) )
     {

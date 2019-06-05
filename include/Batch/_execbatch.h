@@ -40,15 +40,12 @@ static void setBatchPriority( int argc, char** argv, int pid )
 #endif
 {
     const CommandLineParser clp( argc, argv );
-    float priority = mUdf(float);
-    clp.setKeyHasValue( "priority" );
-    clp.getValue( "priority", priority );
+    const auto priority = clp.keyedValue<float>( "priority" );
 #ifdef __unix__
     if ( mIsUdf(priority) )
     {
-	int nicelvl = mUdf(int);
-	clp.setKeyHasValue( "nice" );
-	if ( !clp.getValue("nice",nicelvl) )
+	const auto nicelvl = clp.keyedValue<int>( "nice" );
+	if ( mIsUdf(nicelvl) )
 	    return;
 
 	setpriority( PRIO_PROCESS, pid, nicelvl );

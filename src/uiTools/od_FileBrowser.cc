@@ -56,12 +56,9 @@ int main( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded( "Network" );
 
-    BufferString fnm;
-    if ( clp.hasKey(File::ViewPars::sKeyFile()) )
-	clp.getVal( File::ViewPars::sKeyFile(), fnm );
-    else if ( nrargs == 1 )
+    BufferString fnm = clp.keyedString( File::ViewPars::sKeyFile() );
+    if ( fnm.isEmpty() )
 	fnm.set( clp.getArg(0) );
-
     if ( fnm.isEmpty() )
 	mErrRet()
 
@@ -87,11 +84,12 @@ int main( int argc, char** argv )
     }
 
     File::ViewPars vp;
-    clp.getVal( File::ViewPars::sKeyMaxLines(), vp.maxnrlines_ );
+    if ( clp.hasKey(File::ViewPars::sKeyMaxLines()) )
+	vp.maxnrlines_ = clp.keyedValue<int>( File::ViewPars::sKeyMaxLines() );
     vp.editable_ = clp.hasKey( File::ViewPars::sKeyEdit() );
 
-    BufferString stl;
-    if ( clp.getVal(File::ViewPars::sKeyStyle(),stl) )
+    BufferString stl = clp.keyedString( File::ViewPars::sKeyStyle() );
+    if ( !stl.isEmpty() )
 	File::ViewStyleDef().parse( stl.str(), vp.style_ );
 
     OD::ModDeps().ensureLoaded( "uiTools" );

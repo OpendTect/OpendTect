@@ -118,9 +118,9 @@ int mTestMainFnName(int argc, char** argv)
     clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
 
     int startport = 1025;
-    clParser().getValue( Network::Server::sKeyPort(), startport );
+    clParser().getKeyedInfo( Network::Server::sKeyPort(), startport );
     int timeout = 120;
-    clParser().getValue( Network::Server::sKeyTimeout(), timeout );
+    clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
     Network::EchoServer server( mCast(unsigned short,startport),
 				mCast(unsigned short,timeout) );

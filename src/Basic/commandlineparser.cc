@@ -154,6 +154,24 @@ int CommandLineParser::indexOf( const char* key ) const
 }
 
 
+BufferStringSet CommandLineParser::keyedList( const char* ky ) const
+{
+    BufferStringSet ret;
+    const int kyidx = indexOf( ky );
+    if ( kyidx >= 0 )
+    {
+	for ( int iarg=kyidx+1; iarg<nrArgs(); iarg++ )
+	{
+	    if ( isKey(iarg) )
+		break;
+	    else
+		ret.add( keyedString(ky,iarg-kyidx-1) );
+	}
+    }
+    return ret;
+}
+
+
 BufferString CommandLineParser::envVarBase() const
 {
     File::Path fp( executable_ );

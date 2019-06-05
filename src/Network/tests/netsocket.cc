@@ -174,15 +174,15 @@ int mTestMainFnName(int argc, char** argv)
     runner->noeventloop_ = true;
 
     BufferString serverapp = "test_echoserver";
-    clParser().getString( "serverapp", serverapp, true );
+    clParser().getKeyedInfo( "serverapp", serverapp, true );
     runner->servercmd_.setProgram( serverapp );
 
     runner->port_ = 1025;
-    clParser().getValue( "timeout", runner->timeout_, true );
+    clParser().getKeyedInfo( "timeout", runner->timeout_, true );
     runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
 
     runner->timeout_ = 600;
-    clParser().getValue( "port", runner->port_, true );
+    clParser().getKeyedInfo( "port", runner->port_, true );
     runner->servercmd_.addKeyedArg( "port", runner->port_ );
 
     if ( clParser().hasKey("quiet") )

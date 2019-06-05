@@ -59,17 +59,17 @@ int main( int argc, char ** argv )
 
 #define mHaveArg(ky) clp.hasKey( key_##ky )
     if ( mHaveArg(ns) )
-	clp.getVal( key_ns, su.fp_.ns_ );
+	clp.getKeyedInfo( key_ns, su.fp_.ns_ );
     else if ( mHaveArg(fmt) )
-	clp.getVal( key_fmt, su.fp_.fmt_ );
+	clp.getKeyedInfo( key_fmt, su.fp_.fmt_ );
     else if ( mHaveArg(nrtrcs) )
-	clp.getVal( key_nrtrcs, su.nrtrcs_ );
+	clp.getKeyedInfo( key_nrtrcs, su.nrtrcs_ );
     else if ( mHaveArg(swapbytes) )
-	clp.getVal( key_swapbytes, su.fp_.byteswap_ );
+	clp.getKeyedInfo( key_swapbytes, su.fp_.byteswap_ );
     else if ( mHaveArg(filenrs) )
     {
 	BufferString nrstr;
-	clp.getVal( key_filenrs, nrstr );
+	clp.getKeyedInfo( key_filenrs, nrstr );
 	su.fs_.getMultiFromString( nrstr );
     }
 
