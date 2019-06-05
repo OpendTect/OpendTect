@@ -17,7 +17,9 @@ uiApplService::uiApplService( const char* nm )
 
 
 uiApplPartServer::uiApplPartServer( uiApplService& a )
-    : uias_(a)		{}
+    : uias_(a)
+    , parent_(nullptr)
+{}
 
 
 uiApplService& uiApplPartServer::appserv()
@@ -28,8 +30,12 @@ const uiApplService& uiApplPartServer::appserv() const
 { return uias_; }
 
 
+void uiApplPartServer::setParent( uiParent* p )
+{ parent_ = p; }
+
+
 uiParent* uiApplPartServer::parent() const
-{ return uias_.parent(); }
+{ return parent_ ? parent_ : uias_.parent(); }
 
 
 bool uiApplPartServer::sendEvent( int evid ) const
