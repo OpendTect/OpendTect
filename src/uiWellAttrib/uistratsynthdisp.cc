@@ -97,13 +97,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , currentvdsynthetic_(0)
     , autoupdate_(true)
     , forceupdate_(false)
-    , taskrunner_( new uiTaskRunner(this) )
+    , taskrunner_(nullptr)
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
 {
-    stratsynthfrtxtitmmgr_.setParam( this, 0 );
-    stratsynth_->setTaskRunner( taskrunner_ );
-    edstratsynth_->setTaskRunner( taskrunner_ );
+    stratsynthfrtxtitmmgr_.setParam( this, nullptr );
 
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
@@ -1641,6 +1639,10 @@ bool uiStratSynthDisp::prepareElasticModel()
 {
     if ( !forceupdate_ && !autoupdate_ )
 	return false;
+
+    if ( !curSS().hasTaskRunner() )
+	curSS().setTaskRunner( new uiTaskRunner(this) );
+
     return curSS().createElasticModels();
 }
 
