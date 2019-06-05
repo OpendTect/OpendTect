@@ -40,7 +40,7 @@ namespace Seis { class RaySynthGenerator; }
 typedef Seis::RaySynthGenerator::RayModel SynthRayModel;
 typedef ObjectSet<SynthRayModel> RayModelSet;
 
-mExpClass(WellAttrib) SynthRayModelManager 
+mExpClass(WellAttrib) SynthRayModelManager
 { mODTextTranslationClass(SynthRayModelManager);
 public:
     ObjectSet<SynthRayModel>*	getRayModelSet(const IOPar&);
@@ -49,7 +49,7 @@ public:
     void			removeRayModelSet(const IOPar&);
     void			clearRayModels();
     bool			haveSameRM(const IOPar& par1,
-	    				   const IOPar& par2) const;
+					   const IOPar& par2) const;
 protected:
     ObjectSet<RayModelSet>	raymodels_;
     TypeSet<IOPar>		synthraypars_;
@@ -60,24 +60,24 @@ protected:
 mExpClass(WellAttrib) StratSynth
 { mODTextTranslationClass(StratSynth);
 public:
-    				StratSynth(const Strat::LayerModelProvider&,
+				StratSynth(const Strat::LayerModelProvider&,
 					   bool useed);
-    				~StratSynth();
+				~StratSynth();
 
-    int			nrSynthetics() const; 
-    SyntheticData*	addSynthetic(); 
-    SyntheticData*	addSynthetic(const SynthGenParams&); 
+    int			nrSynthetics() const;
+    SyntheticData*	addSynthetic();
+    SyntheticData*	addSynthetic(const SynthGenParams&);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
     SyntheticData*	replaceSynthetic(int id);
-    SyntheticData*	addDefaultSynthetic(); 
+    SyntheticData*	addDefaultSynthetic();
     int			syntheticIdx(const char* nm) const;
     int			syntheticIdx(const PropertyRef&) const;
     SyntheticData* 	getSynthetic(const char* nm);
     inline const SyntheticData* getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-			      				   : 0; }
+							   : 0; }
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
@@ -86,19 +86,19 @@ public:
     inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
 			{ const int idx = syntheticIdx( prf );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-			      				   : 0; }
+							   : 0; }
     SyntheticData* 	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics();
     void		generateOtherQuantities();
     bool		createElasticModels();
     void		clearElasticModels()
-    					{ aimodels_.erase(); }
+					{ aimodels_.erase(); }
     bool		hasElasticModels() const
-    					{ return !aimodels_.isEmpty(); }
+					{ return !aimodels_.isEmpty(); }
 
     const ObjectSet<SyntheticData>& synthetics() const
-    					{ return synthetics_; }
+					{ return synthetics_; }
 
     void		setWavelet(const Wavelet*);
     const Wavelet*	wavelet() const { return wvlt_; }
@@ -110,7 +110,7 @@ public:
     const StratSynthLevel* getLevel() const { return level_; }
 
     void		getLevelDepths(const Strat::Level&,
-	    				TypeSet<float>&) const;
+					TypeSet<float>&) const;
     void		getLevelTimes(const Strat::Level&,
 				const ObjectSet<const TimeDepthModel>&,
 				TypeSet<float>&) const;
@@ -124,13 +124,14 @@ public:
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
     void		clearRayModels()
-    			{ synthrmmgr_.clearRayModels(); }
+			{ synthrmmgr_.clearRayModels(); }
 
-    void		setTaskRunner(TaskRunner* taskr) { taskr_ = taskr; }
+    void		setTaskRunner( TaskRunner* t )	{ taskr_ = t; }
+    bool		hasTaskRunner() const		{ return taskr_; }
     uiString		errMsg() const;
     uiString	 	infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
-    
+
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
 
 protected:
@@ -157,9 +158,9 @@ protected:
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
 					   TypeSet<ElasticModel>&,bool chksvel);
-    void		generateOtherQuantities( 
-	    			const PostStackSyntheticData& sd,
-	    			const Strat::LayerModel&);
+    void		generateOtherQuantities(
+				const PostStackSyntheticData& sd,
+				const Strat::LayerModel&);
     SyntheticData* 	generateSD();
     SyntheticData* 	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
@@ -171,14 +172,14 @@ protected:
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     void		createAngleData(PreStackSyntheticData&,
-	    				const ObjectSet<RayTracer1D>&);
+					const ObjectSet<RayTracer1D>&);
 
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
     void		putD2TModelsInSD(SyntheticData&,
-	    				 ObjectSet<SynthRayModel>&);
+					 ObjectSet<SynthRayModel>&);
 
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
-	    					const IOPar& raypar) const;
+						const IOPar& raypar) const;
 public:
     void		getLevelTimes(SeisTrcBuf&,
 				const ObjectSet<const TimeDepthModel>&,
