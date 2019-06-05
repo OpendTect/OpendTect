@@ -19,7 +19,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class BufferStringSet;
 class DataPackMgr;
-class TrcKeyZSampling;
+class CubeSubSel;
 class DataPointSet;
 class Executor;
 class NLAModel;
@@ -46,7 +46,8 @@ public:
 
     static Processor*	createProcessor(const DescSet&,const char*,
 					const DescID&,uiString& errmsg);
-    static void		getPossibleVolume(DescSet&,TrcKeyZSampling&,
+    static void		getPossibleExtents(DescSet&,CubeSubSel&,const DescID&);
+    static void		getPossibleExtents(DescSet&,LineSubSel&,
 					  const char* linename,const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
@@ -56,7 +57,7 @@ public:
 
     const DescSet*	attribSet() const	{ return attrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
-    const TrcKeyZSampling&	cubeSampling() const	{ return tkzs_; }
+    const GeomSubSel&	getSubSel() const	{ return *subsel_; }
     Pos::GeomID		getGeomID() const	{ return geomid_; }
     float		undefValue() const	{ return udfval_; }
 
@@ -122,7 +123,7 @@ protected:
 
     const DescSet*	attrset_;
     const NLAModel*	nlamodel_;
-    TrcKeyZSampling&	tkzs_;
+    GeomSubSel*		subsel_;
     float		udfval_;
     Pos::GeomID		geomid_;
     DataPackMgr&	dpm_;

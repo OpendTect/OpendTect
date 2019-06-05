@@ -39,7 +39,7 @@ public:
 
     int			moveToNextTrace(BinID startpos=BinID(-1,-1),
 					bool firstcheck=false);
-    bool		getPossibleVolume(int outp,TrcKeyZSampling&);
+    FullSubSel*		calcPossibleExtent(int outp);
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
@@ -75,7 +75,7 @@ protected:
 
     void		setReqBufStepout(const BinID&,bool wait=false);
     void		setDesBufStepout(const BinID&,bool wait=false);
-    bool	computeData(const DataHolder& output,
+    bool		computeData(const DataHolder& output,
 				    const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
 
@@ -104,7 +104,7 @@ protected:
     TypeSet<BinDataDesc> datachar_;
     Seis::MSCProvider*	mscprov_;
     BinID		stepoutstep_;
-    TrcKeyZSampling	storedvolume_;
+    FullSubSel*		storedsubsel_;
     bool		isondisc_;
     bool		useintertrcdist_;
     PosInfo::LineSet2DData*  ls2ddata_;

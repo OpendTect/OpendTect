@@ -450,12 +450,12 @@ od_int64 SeisIOObjInfo::getFileModifTime() const
 }
 
 
-Survey::FullSubSel* SeisIOObjInfo::getSurvSubSel() const
+Survey::GeomSubSel* SeisIOObjInfo::getSurvSubSel() const
 {
     TrcKeyZSampling cs( false );
     if ( !getRanges(cs) )
 	return new CubeSubSel;
-    return FullSubSel::get( cs );
+    return GeomSubSel::get( cs );
 }
 
 

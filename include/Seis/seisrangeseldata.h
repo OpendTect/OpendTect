@@ -11,17 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisseldata.h"
-
-class CubeHorSubSel;
-class CubeSubSel;
-class LineHorSubSel;
-class LineHorSubSelSet;
-class LineSubSel;
-class LineSubSelSet;
-class TrcKeySampling;
-class TrcKeyZSampling;
-namespace Survey { class FullSubSel; }
-
+#include "survsubsel.h"
 
 namespace Seis
 {
@@ -35,13 +25,16 @@ mExpClass(Seis) RangeSelData : public SelData
 {
 public:
 
+    mUseType( Pos,	ZSubSel );
+    mUseType( Survey,	GeomSubSel );
     mUseType( Survey,	FullSubSel );
 
-			RangeSelData();
+			RangeSelData()		    {}
 			RangeSelData(GeomID);
 			RangeSelData(const GeomIDSet&);
 			RangeSelData(const CubeSubSel&);
 			RangeSelData(const LineSubSel&);
+			RangeSelData(const GeomSubSel&);
 			RangeSelData(const FullSubSel&);
 			RangeSelData(const CubeHorSubSel&);
 			RangeSelData(const LineHorSubSel&);
@@ -61,7 +54,7 @@ public:
 					{ return new RangeSelData(*this); }
 
     Type		type() const override	{ return Range; }
-    bool		is2D() const override	{ return !css_; }
+    bool		is2D() const override	{ return fss_.is2D(); }
 
     PosIter*		posIter() const override;
     pos_rg_type		inlRange() const override;
@@ -73,6 +66,7 @@ public:
     void		setCrlRange(const pos_rg_type&);
     void		setGeomID(GeomID);
     void		addGeomID(GeomID);
+    idx_type		indexOf(GeomID) const;
     void		setTrcNrRange(const pos_rg_type&,idx_type i=0);
     void		setTrcNrRange(GeomID,const pos_rg_type&);
     void		setZRange(const z_rg_type&,int i=0) override;
@@ -83,16 +77,20 @@ public:
 						{ forceall_ = true; }
 
     size_type		expectedNrTraces() const override;
-    FullSubSel&		subSel(idx_type i=0);
-    const FullSubSel&	subSel(idx_type i=0) const;
-    CubeSubSel&		cubeSubSel()		{ return *css_;}
-    const CubeSubSel&	cubeSubSel() const	{ return *css_;}
+    FullSubSel&		fullSubSel()		{ return fss_; }
+    const FullSubSel&	fullSubSel() const	{ return fss_; }
+    GeomSubSel&		geomSubSel(idx_type i=0);
+    const GeomSubSel&	geomSubSel(idx_type i=0) const;
+    CubeSubSel&		cubeSubSel()		{ return fss_.cubeSubSel();}
+    const CubeSubSel&	cubeSubSel() const	{ return fss_.cubeSubSel();}
     LineSubSel&		lineSubSel(idx_type);
     const LineSubSel&	lineSubSel(idx_type) const;
-    CubeSubSel&		subSel3D()		{ return *css_; }
-    const CubeSubSel&	subSel3D() const	{ return *css_; }
-    LineSubSelSet&	subSel2D()		{ return lsss_; }
-    const LineSubSelSet& subSel2D() const	{ return lsss_; }
+    CubeSubSel&		subSel3D()		{ return fss_.subSel3D(); }
+    const CubeSubSel&	subSel3D() const	{ return fss_.subSel3D(); }
+    LineSubSelSet&	subSel2D()		{ return fss_.subSel2D(); }
+    const LineSubSelSet& subSel2D() const	{ return fss_.subSel2D(); }
+    ZSubSel&		zSubSel()		{ return fss_.zSubSel(); }
+    const ZSubSel&	zSubSel() const		{ return fss_.zSubSel(); }
     bool		hasFullZRange() const;
     const LineSubSel*	findLineSubSel(GeomID) const;
     void		merge(const RangeSelData&);
@@ -104,10 +102,8 @@ public:
 protected:
 
     bool		forceall_	= false;
-    CubeSubSel*		css_		= 0;
-    LineSubSelSet&	lsss_;
+    FullSubSel		fss_;
 
-    idx_type		indexOf(GeomID) const;
     void		clearContents();
     void		set3D(bool yn=true);
 
@@ -142,18 +138,17 @@ public:
     const RangeSelData&	rangeSelData() const
 			{ return static_cast<const RangeSelData&>( sd_ ); }
 
-    bool		next() override;
-    void		reset() override    { lineidx_ = trcidx_ = -1; }
-    bool		is2D() const override { return rangeSelData().is2D(); }
+    bool		next() override		{ return iter_.next(); }
+    void		reset() override	{ iter_.reset(); }
+    bool		is2D() const override	{ return iter_.is2D(); }
 
-    GeomID		geomID() const override;
-    trcnr_type		trcNr() const override;
-    BinID		binID() const override;
+    GeomID		geomID() const override	{ return iter_.geomID(); }
+    trcnr_type		trcNr() const override	{ return iter_.trcNr(); }
+    BinID		binID() const override	{ return iter_.binID(); }
 
 protected:
 
-    idx_type		lineidx_	    = -1;
-    idx_type		trcidx_		    = -1;
+    Survey::FullSubSelPosIter	iter_;
 
 };
 

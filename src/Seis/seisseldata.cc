@@ -33,7 +33,7 @@ typedef StepInterval<z_type> z_steprg_type;
 
 const char* Seis::SelData::sNrLinesKey()
 {
-    return IOPar::compKey( sKey::Line(mPlural),sKey::Size() );
+    return Survey::FullSubSel::sNrLinesKey();
 }
 
 
@@ -125,7 +125,7 @@ Seis::SelData* Seis::SelData::get( const DBKey& dbky )
     {
 	if ( !objinf.is2D() )
 	{
-	    PtrMan<Survey::FullSubSel> ss = objinf.getSurvSubSel();
+	    PtrMan<Survey::GeomSubSel> ss = objinf.getSurvSubSel();
 	    return new RangeSelData( *ss );
 	}
 	Seis2DDataSet ds2d( *objinf.ioObj() );

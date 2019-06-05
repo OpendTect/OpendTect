@@ -66,10 +66,29 @@ EngineMan::~EngineMan()
 }
 
 
+void EngineMan::getPossibleVolume( DescSet& attribset, CubeSubSel& css,
+				   const DescID& outid )
+{
+    css = CubeSubSel();
+    TypeSet<DescID> desiredids( 1, outid );
+
+    uiString errmsg;
+    DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
+    PtrMan<Processor> proc =
+			createProcessor( attribset, linename, evalid, errmsg );
+    if ( !proc )
+	return;
+
+    proc->computeAndSetRefZStepAndZ0();
+    proc->getProvider()->setDesiredVolume( css );
+    proc->getProvider()->getPossibleVolume( -1, css );
+}
+
+
 void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
 				   const char* linename, const DescID& outid )
 {
-    TypeSet<DescID> desiredids(1,outid);
+    TypeSet<DescID> desiredids( 1, outid );
 
     uiString errmsg;
     DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );

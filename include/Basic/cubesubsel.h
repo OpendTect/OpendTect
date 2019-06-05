@@ -34,7 +34,7 @@ class TrcKeyZSampling;
 */
 
 mExpClass(Basic) CubeSubSel : public ArrRegSubSel3D
-			    , public Survey::FullSubSel
+			    , public Survey::GeomSubSel
 {
 public:
 
@@ -73,7 +73,7 @@ public:
     RowCol		horSizes() const	{ return hss_.arraySize(); }
     BinID		origin() const
 			{ return BinID(inlRange().start,crlRange().start); }
-    bool		isAll() const	{ return Survey::FullSubSel::isAll(); }
+    bool		isAll() const		{ return GeomSubSel::isAll(); }
 
     size_type		nrInl() const		{ return inlSubSel().size(); }
     size_type		nrCrl() const		{ return crlSubSel().size(); }

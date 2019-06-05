@@ -219,8 +219,6 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
 Provider::Provider( Desc& nd )
     : desc_( nd )
-    , desiredvolume_( 0 )
-    , possiblevolume_( 0 )
     , outputinterest_( nd.nrOutputs(), 0 )
     , reqbufferstepout_( 0, 0 )
     , desbufferstepout_( 0, 0 )
@@ -266,8 +264,6 @@ Provider::~Provider()
     delete providertask_;
 
     delete linebuffer_;
-    delete possiblevolume_;
-    delete desiredvolume_;
 }
 
 
@@ -373,39 +369,13 @@ void Provider::setReqBufStepout( const BinID& ns, bool wait )
 }
 
 
-void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
+void Provider::setDesiredSubSel( const FulSubSel& newss )
 {
-    if ( !desiredvolume_ )
-	desiredvolume_ = new TrcKeyZSampling(ndv);
+    if ( !isUsedMultTimes() )
+	desiredsubsel_ = newss;
     else
-    {
-	if ( !isUsedMultTimes() )
-	    *desiredvolume_ = ndv;
-	else
-	{
-	    desiredvolume_->hsamp_.start_.inl() =
-		desiredvolume_->hsamp_.start_.inl() < ndv.hsamp_.start_.inl() ?
-		desiredvolume_->hsamp_.start_.inl() : ndv.hsamp_.start_.inl();
-	    desiredvolume_->hsamp_.stop_.inl() =
-		desiredvolume_->hsamp_.stop_.inl() > ndv.hsamp_.stop_.inl() ?
-		desiredvolume_->hsamp_.stop_.inl() : ndv.hsamp_.stop_.inl();
-	    desiredvolume_->hsamp_.stop_.crl() =
-		desiredvolume_->hsamp_.stop_.crl() > ndv.hsamp_.stop_.crl() ?
-		desiredvolume_->hsamp_.stop_.crl() : ndv.hsamp_.stop_.crl();
-	    desiredvolume_->hsamp_.start_.crl() =
-		desiredvolume_->hsamp_.start_.crl() < ndv.hsamp_.start_.crl() ?
-		desiredvolume_->hsamp_.start_.crl() : ndv.hsamp_.start_.crl();
-	    desiredvolume_->zsamp_.start =
-		desiredvolume_->zsamp_.start < ndv.zsamp_.start?
-		desiredvolume_->zsamp_.start : ndv.zsamp_.start;
-	    desiredvolume_->zsamp_.stop =
-		desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
-				    ? desiredvolume_->zsamp_.stop
-				    : ndv.zsamp_.stop;
-	}
-    }
+	desiredsubsel_.merge( newss );
 
-    TrcKeyZSampling inputcs;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] )
@@ -415,9 +385,10 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	    if ( outputinterest_[idy]<1 || !inputs_[idx] )
 		continue;
 
-	    bool isstored = inputs_[idx]->desc_.isStored();
-	    computeDesInputCube( idx, idy, inputcs, !isstored );
-	    inputs_[idx]->setDesiredVolume( inputcs );
+	    const bool isstored = inputs_[idx]->desc_.isStored();
+	    FullSubSel fss;
+	    computeDesInputSubSel( idx, idy, fss, !isstored );
+	    inputs_[idx]->setDesiredSubSel( fss );
 	}
     }
 }
@@ -434,37 +405,19 @@ type var(0,0); \
 mGetMargin( type, var, des##var, des##funcPost ); \
 mGetMargin( type, var, req##var, req##funcPost )
 
-bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
+bool Provider::calcPossibleSubSel( int output, FullSubSel& fss )
 {
     if ( !getDesc().descSet() )
 	return false;
 
-    TrcKeyZSampling tmpres = res;
     if ( inputs_.isEmpty() )
-    {
-	if ( !is2D() )
-	    res.init( true );
-	if ( !possiblevolume_ )
-	    possiblevolume_ = new TrcKeyZSampling;
-
-	if ( is2D() )
-	    *possiblevolume_ = res;
-	return true;
-    }
-
-    if ( !desiredvolume_ )
-	return false;
+	{ fss.setToAll(); return true; }
 
     TypeSet<int> outputs;
-    if ( output != -1 )
-	outputs += output;
-    else
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	for ( int idx=0; idx<outputinterest_.size(); idx++ )
-	{
-	    if ( outputinterest_[idx] > 0 )
-		outputs += idx;
-	}
+	if ( output < 0 || outputinterest_[idx] > 0 )
+	    outputs += idx;
     }
 
     bool isset = false;
@@ -473,28 +426,26 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 	const int out = outputs[idx];
 	for ( int inp=0; inp<inputs_.size(); inp++ )
 	{
-	    if ( !inputs_[inp] )
+	    const auto* inpprov = inputs_[inp];
+	    if ( !inpprov )
 		continue;
 
-	    TrcKeyZSampling inputcs = tmpres;
 	    TypeSet<int> inputoutput;
 	    if ( !getInputOutput( inp, inputoutput ) )
 		continue;
 
 	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
-		if ( !inputs_[inp] )
-		    continue;
-
-		computeDesInputCube(inp, out, inputcs, true);
-		if ( !inputs_[inp]->getPossibleVolume( idy, inputcs ) )
+		FullSubSel fss;
+		computeDesInputSubSel( inp, out, fss, true );
+		if ( !inputs_[inp]->calcPossibleSubSel( idy, fss ) )
 		    continue;
 
 		const BinID* stepout = reqStepout(inp,out);
 		if ( stepout )
 		{
-		    int inlstepoutfact = desiredvolume_->hsamp_.step_.inl();
-		    int crlstepoutfact = desiredvolume_->hsamp_.step_.crl();
+		    int inlstepoutfact = desiredsubsel_.->hsamp_.step_.inl();
+		    int crlstepoutfact = desiredsubsel_.->hsamp_.step_.crl();
 		    inputcs.hsamp_.start_.inl() +=
 			stepout->inl() * inlstepoutfact;
 		    inputcs.hsamp_.start_.crl() +=
@@ -525,11 +476,11 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 	}
     }
 
-    if ( !possiblevolume_ )
-	possiblevolume_ = new TrcKeyZSampling;
+    if ( !possiblesubsel_ )
+	possiblesubsel_ = new TrcKeyZSampling;
 
-    possiblevolume_->hsamp_ = res.hsamp_;
-    possiblevolume_->zsamp_ = res.zsamp_;
+    possiblesubsel_->hsamp_ = res.hsamp_;
+    possiblesubsel_->zsamp_ = res.zsamp_;
     return isset;
 }
 
@@ -630,19 +581,19 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	if ( inputs_.isEmpty() && !desc_.isStored() )
 	{
 	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
-		currentbid_ = desiredvolume_->hsamp_.start_;
+		currentbid_ = desiredsubsel_->hsamp_.start_;
 	    else
 	    {
 		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
 		if ( prevbid.crl() +step.crl() <=
-		     desiredvolume_->hsamp_.stop_.crl() )
+		     desiredsubsel_->hsamp_.stop_.crl() )
 		    currentbid_.crl() = prevbid.crl() +step.crl();
 		else if ( prevbid.inl() +step.inl() <=
-			  desiredvolume_->hsamp_.stop_.inl())
+			  desiredsubsel_->hsamp_.stop_.inl())
 		{
 		    currentbid_.inl() = prevbid.inl() +step.inl();
-		    currentbid_.crl() = desiredvolume_->hsamp_.start_.crl();
+		    currentbid_.crl() = desiredsubsel_->hsamp_.start_.crl();
 		}
 		else
 		    return 0;
@@ -883,8 +834,8 @@ bool Provider::setCurrentPosition( const BinID& bid )
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
-    const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start/dz),
-				  mNINT32(possiblevolume_->zsamp_.stop/dz) );
+    const Interval<int> possintv( mNINT32(possiblesubsel_->zsamp_.start/dz),
+				  mNINT32(possiblesubsel_->zsamp_.stop/dz) );
 
     const int nrintvs = intvs.size();
     if ( nrintvs < 1 )
@@ -1277,8 +1228,8 @@ void Provider::updateStorageReqs( bool all )
 }
 
 
-void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
-				    bool usestepout ) const
+void Provider::computeDesInputSubSel( int inp, int out, RangeSelData& res,
+					bool usestepout ) const
 {
     //Be careful if usestepout=true with des and req stepouts
     if ( seldata_ && seldata_->type() == Seis::Table )
@@ -1298,15 +1249,15 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 	const_cast<Provider*>(inputs_[inp])->setExtraZ( extraz );
     }
 
-    if ( !desiredvolume_ )
-	const_cast<Provider*>(this)->desiredvolume_ = new TrcKeyZSampling(res);
+    if ( !desiredsubsel_ )
+	const_cast<Provider*>(this)->desiredsubsel_ = new TrcKeyZSampling(res);
 
-    res = *desiredvolume_;
+    res = *desiredsubsel_;
 
     if ( usestepout )
     {
-	int inlstepoutfact = desiredvolume_->hsamp_.step_.inl();
-	int crlstepoutfact = desiredvolume_->hsamp_.step_.crl();
+	int inlstepoutfact = desiredsubsel_->hsamp_.step_.inl();
+	int crlstepoutfact = desiredsubsel_->hsamp_.step_.crl();
 
 	BinID stepout(0,0);
 	const BinID* reqstepout = reqStepout( inp, out );
@@ -1384,24 +1335,24 @@ int Provider::getTotalNrPos( bool is2d )
 {
     if ( seldata_ && seldata_->type() == Seis::Table )
 	return (int)seldata_->asTable()->binidValueSet().totalSize();
-    if ( !possiblevolume_ || !desiredvolume_ )
+    if ( !possiblesubsel_ || !desiredsubsel_ )
 	return false;
 
-    TrcKeyZSampling cs = *desiredvolume_;
+    TrcKeyZSampling cs = *desiredsubsel_;
     if ( getDesc().isStored() )
     {
 	cs.hsamp_.start_.inl() =
-	    desiredvolume_->hsamp_.start_.inl() < cs.hsamp_.start_.inl() ?
-	    cs.hsamp_.start_.inl() : desiredvolume_->hsamp_.start_.inl();
+	    desiredsubsel_->hsamp_.start_.inl() < cs.hsamp_.start_.inl() ?
+	    cs.hsamp_.start_.inl() : desiredsubsel_->hsamp_.start_.inl();
 	cs.hsamp_.stop_.inl() =
-	    desiredvolume_->hsamp_.stop_.inl() > cs.hsamp_.stop_.inl() ?
-	    cs.hsamp_.stop_.inl() : desiredvolume_->hsamp_.stop_.inl();
+	    desiredsubsel_->hsamp_.stop_.inl() > cs.hsamp_.stop_.inl() ?
+	    cs.hsamp_.stop_.inl() : desiredsubsel_->hsamp_.stop_.inl();
 	cs.hsamp_.stop_.crl() =
-	    desiredvolume_->hsamp_.stop_.crl() > cs.hsamp_.stop_.crl() ?
-	    cs.hsamp_.stop_.crl() : desiredvolume_->hsamp_.stop_.crl();
+	    desiredsubsel_->hsamp_.stop_.crl() > cs.hsamp_.stop_.crl() ?
+	    cs.hsamp_.stop_.crl() : desiredsubsel_->hsamp_.stop_.crl();
 	cs.hsamp_.start_.crl() =
-	    desiredvolume_->hsamp_.start_.crl() < cs.hsamp_.start_.crl() ?
-	    cs.hsamp_.start_.crl() : desiredvolume_->hsamp_.start_.crl();
+	    desiredsubsel_->hsamp_.start_.crl() < cs.hsamp_.start_.crl() ?
+	    cs.hsamp_.start_.crl() : desiredsubsel_->hsamp_.start_.crl();
     }
 
     if ( is2d )
@@ -1457,29 +1408,29 @@ void Provider::setRefZ0( float z0 )
 }
 
 
-void Provider::setCurLineName( const char* linename )
+void Provider::setGeomID( GeomID geomid )
 {
-    geomid_ = Survey::Geometry::getGeomID( linename );
+    geomid_ = geomid;
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
-	    inputs_[idx]->setCurLineName( linename );
+	    inputs_[idx]->setGeomID( geomid_ );
 }
 
 
-void Provider::adjust2DLineStoredVolume()
+void Provider::adjust2DLineStoredSubSel()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
-	    inputs_[idx]->adjust2DLineStoredVolume();
+	    inputs_[idx]->adjust2DLineStoredSubSel();
 }
 
 
-Pos::GeomID  Provider::getGeomID() const
+Pos::GeomID Provider::getGeomID() const
 {
-    if ( !mIsUdfGeomID(geomid_) )
+    if ( geomid_.isValid() )
 	return geomid_;
 
-    Pos::GeomID geomid = mUdfGeomID;
+    Pos::GeomID geomid;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
         if ( !inputs_[idx] )
@@ -1518,12 +1469,12 @@ void Provider::setExtraZ( const Interval<float>& extraz )
 }
 
 
-void Provider::setPossibleVolume( const TrcKeyZSampling& cs )
+void Provider::setPossibleSubSel( const TrcKeyZSampling& cs )
 {
-    if ( possiblevolume_ )
-	delete possiblevolume_;
+    if ( possiblesubsel_ )
+	delete possiblesubsel_;
 
-    possiblevolume_ = new TrcKeyZSampling(cs);
+    possiblesubsel_ = new TrcKeyZSampling(cs);
 }
 
 
@@ -1579,16 +1530,12 @@ void Provider::setNeedInterpol( bool yn )
 }
 
 
-void Provider::resetDesiredVolume()
+void Provider::resetDesiredSubSel()
 {
-    if ( desiredvolume_ )
-    {
-	delete desiredvolume_;
-	desiredvolume_ = 0;
-    }
+    deleteAndZeroPtr( desiredsubsel_ );
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
-	    inputs_[idx]->resetDesiredVolume();
+	    inputs_[idx]->resetDesiredSubSel();
 }
 
 

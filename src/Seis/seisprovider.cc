@@ -263,17 +263,17 @@ bool Seis::Provider::haveSelComps() const
 
 const Survey::HorSubSel& Seis::Provider::horSubSel( idx_type idx ) const
 {
-    return fullSubSel( idx ).horSubSel();
+    return geomSubSel( idx ).horSubSel();
 }
 
 
 const Pos::ZSubSel& Seis::Provider::zSubSel( idx_type idx ) const
 {
-    return fullSubSel( idx ).zSubSel();
+    return geomSubSel( idx ).zSubSel();
 }
 
 
-const Survey::FullSubSel& Seis::Provider::fullSubSel( idx_type idx ) const
+const Survey::GeomSubSel& Seis::Provider::geomSubSel( idx_type idx ) const
 {
     if ( is2D() )
 	return as2D()->lineSubSel( idx );

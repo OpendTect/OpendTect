@@ -497,7 +497,7 @@ bool Seis::MultiProvider3D::getRanges( TrcKeyZSampling& sampling ) const
 {
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	const TrcKeyZSampling tkzs( *provs_[idx]->fullSubSel().asCubeSubSel() );
+	const TrcKeyZSampling tkzs( *provs_[idx]->geomSubSel().asCubeSubSel() );
 
 	if ( idx == 0 )
 	    sampling.hsamp_ = tkzs.hsamp_;

@@ -11,15 +11,14 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginecommon.h"
-#include "ranges.h"
 #include "posinfo2dsurv.h"
+#include "survsubsel.h"
 #include "uistring.h"
 
 class BinDataDesc;
 class RegularSeisDataPack;
 class SeisTrcInfo;
-class TrcKeyZSampling;
-namespace Seis { class SelData; class MSCProvider; }
+namespace Seis { class MSCProvider; }
 template <class T> class Array2DImpl;
 
 #define mMAXDIP 300 * 1e-6
@@ -39,8 +38,11 @@ class ProviderTask;
 
 mExpClass(AttributeEngine) Provider : public RefCount::Referenced
 {   mODTextTranslationClass(Attrib::Provider)
-    friend class		ProviderTask;
 public:
+
+    mUseType( Seis,		MSCProvider );
+    mUseType( Seis,		SelData );
+    mUseType( Survey,		FullSubSel );
 
     static Provider*		create(Desc&,uiString& errmsg);
 				/*!< Also creates all inputs, the input's
@@ -71,22 +73,17 @@ public:
 				{ return reqbufferstepout_; }
     const BinID&		getDesBufStepout() const
 				{ return desbufferstepout_; }
-    void			setDesiredVolume(const TrcKeyZSampling&);
-				/*!< The desired volume is the ideal volume
-				  required by the user*/
-    const TrcKeyZSampling*		getDesiredVolume() const
-				{ return desiredvolume_; }
-    void			resetDesiredVolume();
-    void                        setPossibleVolume(const TrcKeyZSampling&);
-				/*!< The possible volume is the volume that can
-				  really be computed taking care of all margins
-				  and stepouts*/
-    virtual bool		getPossibleVolume(int outp,TrcKeyZSampling&);
-    const TrcKeyZSampling*		getPossibleVolume() const
-				{ return possiblevolume_; }
+    void			setDesiredSubSel(const FullSubSel&);
+    const FullSubSel&		getDesiredSubSel() const
+				{ return desiredsubsel_; }
+    void			resetDesiredSubSel();
+    void                        setPossibleSubSel(const FullSubSel&);
+    virtual bool		calcPossibleSubSel(int outp,FullSubSel&);
+    const FullSubSel&		getPossibleSubSel() const
+				{ return possiblesubsel_; }
     int				getTotalNrPos(bool);
-    void			setCurLineName(const char*);
-    virtual void		adjust2DLineStoredVolume();
+    void			setGeomID(GeomID);
+    virtual void		adjust2DLineStoredSubSel();
     virtual Pos::GeomID		getGeomID() const;
     virtual void		setGeomID(Pos::GeomID);
 
@@ -111,12 +108,12 @@ public:
 
     void			addLocalCompZIntervals(
 						const TypeSet<Interval<int> >&);
-    const TypeSet< Interval<int> >&	localCompZIntervals() const;
+    const TypeSet< Interval<int> >& localCompZIntervals() const;
 
-    void		updateInputReqs(int input=-1);
+    void			updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
     void			setUseSC()		{ useshortcuts_ = true;}
-    void			setSelData(const Seis::SelData*);
+    void			setSelData(const SelData*);
     void                        setExtraZ(const Interval<float>&);
     void			setNeedInterpol(bool);
     void			setExactZ(const TypeSet<float>&);
@@ -166,7 +163,7 @@ public:
 				//!<which inputs are not treated as normal
 				//!<input cubes and thus not delivering
 				//!<adequate cs automaticly
-    virtual void		updateCSIfNeeded(TrcKeyZSampling&) const {}
+    virtual void		updateCSIfNeeded(FullSubSel&) const {}
     virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool,
@@ -185,7 +182,7 @@ protected:
 				  are set, for extra checks at other time
 				  use isOK()*/
 
-    virtual Seis::MSCProvider*	getMSCProvider(bool&) const;
+    virtual MSCProvider*	getMSCProvider(bool&) const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
 					       bool& issame,uiString&);
 				/*!< Creates the provider needed and all its
@@ -241,8 +238,8 @@ protected:
     virtual BinDataDesc		getOutputFormat(int output) const;
     virtual bool		doNotReUseDH() const		{ return false;}
 
-    void			computeDesInputCube(int inp,int out,
-						    TrcKeyZSampling&,
+    void			computeDesInputSubSel(int inp,int out,
+						    FullSubSel&,
 						    bool usestepout=true) const;
 				/*!<The system uses the margin and stepout
 				requirements to compute the ideal desired
@@ -361,8 +358,8 @@ protected:
     TypeSet<int>		outputinterest_;
     BinID			desbufferstepout_;
     BinID			reqbufferstepout_;
-    TrcKeyZSampling*		desiredvolume_;
-    TrcKeyZSampling*            possiblevolume_;
+    FullSubSel			desiredsubsel_;
+    FullSubSel			possiblesubsel_;
     TypeSet< Interval<int> >	localcomputezintervals_;
     ObjectSet<Provider>		allexistingprov_;
     TypeSet<float>		exactz_;//only used for outputs which require
@@ -374,7 +371,7 @@ protected:
     BinID			currentbid_;
     int				prevtrcnr_;
     Pos::GeomID			geomid_;
-    const Seis::SelData*	seldata_;
+    const SelData*		seldata_;
     Interval<float>		extraz_;
     const SeisTrcInfo*		curtrcinfo_;
     BinID                       trcinfobid_;
@@ -388,10 +385,13 @@ protected:
     bool			needinterp_;
     uiString			errmsg_;
     bool			dataunavailableflag_;
+
+    friend class		ProviderTask;
+
 };
 
 
-mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
+mGlobal(AttributeEngine) int getSteeringIndex(const BinID&);
 //!< For every position there is a single steering index ...?
 
 

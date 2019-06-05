@@ -19,7 +19,7 @@ class TrcKeyZSampling;
 /*!\brief subselection of a 2D line geometry. */
 
 mExpClass(Basic) LineSubSel : public ArrRegSubSel2D
-			    , public Survey::FullSubSel
+			    , public Survey::GeomSubSel
 {
 public:
 
@@ -30,7 +30,7 @@ public:
     mUseType( IdxSubSelData,	pos_type );
     mUseType( IdxSubSelData,	pos_steprg_type );
     mUseType( Survey,		HorSubSel );
-    mUseType( Survey,		FullSubSel );
+    mUseType( Survey,		GeomSubSel );
     typedef IdxSubSel1D		TrcNrSubSel;
     typedef IdxSubSelData	TrcNrSubSelData;
     typedef pos_type		trcnr_type;
@@ -59,9 +59,8 @@ public:
     size_type		nrTrcs() const		{ return hss_.nrTrcs(); }
     void		setTrcNrRange( const pos_steprg_type& rg )
 			{ hss_.setTrcNrRange( rg ); }
-    bool		isAll() const		{ return FullSubSel::isAll(); }
-    totalsz_type	totalSize() const
-			{ return FullSubSel::totalSize(); }
+    bool		isAll() const		{ return GeomSubSel::isAll(); }
+    totalsz_type	totalSize() const { return GeomSubSel::totalSize(); }
     void		merge(const LineSubSel&);
 
     LineHorSubSel&	lineHorSubSel()		{ return hss_; }
@@ -101,13 +100,13 @@ public:
 
 			LineSubSelSet()		{}
 			LineSubSelSet(const LineHorSubSelSet&);
+    void		setToAll();
 
     bool		isAll() const;
     totalsz_type	totalSize() const;
     bool		hasAllLines() const;
     bool		hasFullRange() const;
     bool		hasFullZRange() const;
-    void		setToAll();
     void		merge(const LineSubSelSet&);
 
     LineSubSel*		find( GeomID gid )	{ return doFind( gid ); }

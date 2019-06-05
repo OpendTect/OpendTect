@@ -126,7 +126,7 @@ class ProviderInfo
 public:
 
     typedef od_int64	alt_sortkey_type;
-    mUseType( Survey,	FullSubSel );
+    mUseType( Survey,	GeomSubSel );
 
     virtual			~ProviderInfo()		{}
 
@@ -224,7 +224,7 @@ bool isDefault() const
 }
 
     const ObjectSummary	summ_;
-    mutable FullSubSel*	survsubsel_	= 0;
+    mutable GeomSubSel*	survsubsel_	= 0;
 
 };
 

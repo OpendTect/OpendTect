@@ -456,7 +456,7 @@ void SeisServerTool::setRange()
 	css.setInlRange( inlrg ); css.setCrlRange( crlrg );
     }
     const auto zrg = getZRgFromCL( is2d ? 3 : 6 );
-    rsd->subSel().zSubSel().setOutputZRange( zrg );
+    rsd->zSubSel().setOutputZRange( zrg );
     prov_->setSelData( rsd );
 }
 

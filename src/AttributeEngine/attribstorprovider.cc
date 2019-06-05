@@ -112,6 +112,8 @@ StorageProvider::StorageProvider( Desc& desc )
     , useintertrcdist_(false)
     , ls2ddata_(0)
 {
+    storedsubsel_.setToAll( desc.is2D() );
+
     const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
     const BufferString storstr = strpair.first();
     if ( storstr.firstChar() == '#' )
@@ -125,8 +127,10 @@ StorageProvider::StorageProvider( Desc& desc )
 
 StorageProvider::~StorageProvider()
 {
-    if ( mscprov_ ) delete mscprov_;
-    if ( ls2ddata_ ) delete ls2ddata_;
+    if ( mscprov_ )
+	delete mscprov_;
+    if ( ls2ddata_ )
+	delete ls2ddata_;
 }
 
 
@@ -135,11 +139,14 @@ StorageProvider::~StorageProvider()
 
 bool StorageProvider::checkInpAndParsAtStart()
 {
-    if ( status_!=None ) return false;
+    if ( status_!=None )
+	return false;
 
     if ( !isondisc_ )
     {
-	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
+	const auto zrg = storedsubsel_.zRange();
+	storedsubsel_.zSubSel().setOutputZRange( 0.f, zrg.stop, zrg.step );
+			// (cover up for synthetics)
 	DataPack::FullID fid( getDPID() );
 	auto stbdtp = DPM(fid).get<SeisTrcBufDataPack>(fid.packID());
 	if ( !stbdtp || stbdtp->trcBuf().isEmpty() )
@@ -147,10 +154,22 @@ bool StorageProvider::checkInpAndParsAtStart()
 
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );
-	storedvolume_.hsamp_.setIs2D( stbdtp->trcBuf().get(0)->info().is2D() );
-	storedvolume_.hsamp_.setInlRange( si.inlrg );
-	storedvolume_.hsamp_.setCrlRange( si.crlrg );
-	storedvolume_.zsamp_ = si.zrg;
+	const GeomID gid = stbdtp->trcBuf().isEmpty() ? GeomID::get3D() :
+				: stbdtp->trcBuf().first()->geomID();
+	deleteAndZeroPtr( storedsubsel_ );
+	if ( is2d )
+	{
+	    storedsubsel_ = new LineSubSel( gid );
+	    storedsubsel_->setTrcNrRange( si.crlrg );
+	}
+	else
+	{
+	    storedsubsel_ = new CubeSubSel;
+	    storedsubsel_->setInlRange( si.inlrg );
+	    storedsubsel_->setCrlRange( si.crlrg );
+	}
+
+	storedsubsel_->setZRange( si.zrg );
 	return true;
     }
 
@@ -165,10 +184,12 @@ bool StorageProvider::checkInpAndParsAtStart()
 
     const bool is2d = mscprov_->is2D();
     desc_.setIs2D( is2d );
+    deleteAndZeroPtr( storedsubsel_ );
     if ( !is2d )
     {
-	SeisTrcTranslator::getRanges( mid, storedvolume_, 0 );
-	storedvolume_.hsamp_.setIs2D( false );
+	TrcKeyZSampling tkzs;
+	SeisTrcTranslator::getRanges( mid, tkzs, 0 );
+	storedsubsel_ = new CubeSubSel( tkzs );
     }
     else
     {
@@ -335,15 +356,15 @@ bool StorageProvider::getLine2DStoredVolume()
 }
 
 
-bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
+Survey::FullSubSel* StorageProvider::getPossibleVolume( int outp )
 {
     const bool is2d = mscprov_ && mscprov_->is2D();
     if ( !possiblevolume_ )
     {
 	if ( is2d && geomid_.isValid() )
-	    possiblevolume_ = new TrcKeyZSampling( geomid_ );
+	    possiblevolume_ = new LineSubSel( geomid_ );
 	else
-	    possiblevolume_ = new TrcKeyZSampling;
+	    possiblevolume_ = new CubeSubSel;
     }
 
     if ( is2d && !getLine2DStoredVolume() )
@@ -963,7 +984,7 @@ bool StorageProvider::useInterTrcDist() const
     {
 	if ( dsc.dataType(0) == Seis::Dip && dsc.dataType(1) == Seis::Dip )
 	{
-	    const_cast<Attrib::StorageProvider*>(this)->useintertrcdist_ = true;
+	    const_cast<StorageProvider*>(this)->useintertrcdist_ = true;
 	    return useintertrcdist_;
 	}
     }

@@ -27,7 +27,7 @@ class SeisTrcInfo;
 class SeisTrcTranslator;
 class TraceData;
 class TrcKey;
-namespace Survey { class FullSubSel; class HorSubSel; }
+namespace Survey { class GeomSubSel; class HorSubSel; }
 namespace PosInfo { class CubeData; class CubeDataPos;
 		    class Line2DData; class Line2DDataSet; }
 
@@ -73,7 +73,7 @@ public:
     mUseType( Pos,		GeomID );
     mUseType( Pos,		ZSubSel );
     mUseType( Survey,		HorSubSel );
-    mUseType( Survey,		FullSubSel );
+    mUseType( Survey,		GeomSubSel );
     typedef int			idx_type;
     typedef int			size_type;
     typedef float		z_type;
@@ -118,7 +118,7 @@ public:
     const ZSubSel&	zSubSel(idx_type idx=0) const;
     ZSampling		zRange(idx_type idx=0) const
 			{ return zSubSel(idx).outputZRange(); }
-    const FullSubSel&	fullSubSel(idx_type idx=0) const;
+    const GeomSubSel&	geomSubSel(idx_type idx=0) const;
 
     void		setSelData(SelData*); //!< becomes mine
     void		selectComponent(comp_idx_type);

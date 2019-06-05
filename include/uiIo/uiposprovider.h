@@ -28,7 +28,7 @@ mExpClass(uiIo) uiPosProvider : public uiGroup
 { mODTextTranslationClass(uiPosProvider);
 public:
 
-    mUseType( Survey,	FullSubSel );
+    mUseType( Survey,	GeomSubSel );
 
     struct Setup : public uiPosProvGroup::Setup
     {

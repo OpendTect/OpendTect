@@ -103,7 +103,7 @@ public:
 
     mUseType( Pos,	GeomID );
     mUseType( Seis,	GeomType );
-    mUseType( Survey,	FullSubSel );
+    mUseType( Survey,	GeomSubSel );
 
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
@@ -139,7 +139,7 @@ public:
     od_int64		getFileSize() const;
     static od_int64	getFileSize(const char* fnm,int& nrfiles);
     od_int64		getFileModifTime() const;
-    FullSubSel*		getSurvSubSel() const;
+    GeomSubSel*		getSurvSubSel() const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const;
     bool		getDataChar(DataCharacteristics&) const;

@@ -1031,21 +1031,21 @@ TrcKeyZSampling::TrcKeyZSampling( const HorSubSel& hss )
 }
 
 
-TrcKeyZSampling::TrcKeyZSampling( const FullSubSel& fss )
-    : hsamp_(fss.horSubSel())
-    , zsamp_(fss.zRange())
+TrcKeyZSampling::TrcKeyZSampling( const GeomSubSel& gss )
+    : hsamp_(gss.horSubSel())
+    , zsamp_(gss.zRange())
 {
 }
 
 
 TrcKeyZSampling::TrcKeyZSampling( const LineSubSel& lss )
-    : TrcKeyZSampling((FullSubSel&)lss)
+    : TrcKeyZSampling((GeomSubSel&)lss)
 {
 }
 
 
 TrcKeyZSampling::TrcKeyZSampling( const CubeSubSel& css )
-    : TrcKeyZSampling((FullSubSel&)css)
+    : TrcKeyZSampling((GeomSubSel&)css)
 {
 }
 
