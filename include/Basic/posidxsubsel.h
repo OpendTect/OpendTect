@@ -71,6 +71,7 @@ public:
 
     void	limitTo(const IdxSubSelData&);
     void	widenTo(const IdxSubSelData&);
+    void	addStepout(pos_type);
 
 protected:
 

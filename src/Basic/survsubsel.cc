@@ -376,6 +376,13 @@ void LineHorSubSelSet::merge( const LineHorSubSelSet& oth )
 }
 
 
+void LineHorSubSelSet::addStepout( trcnr_type so )
+{
+    for ( auto lhss : *this )
+	lhss->addStepout( so );
+}
+
+
 LineHorSubSel* LineHorSubSelSet::doFind( GeomID gid ) const
 {
     for ( auto lhss : *this )
@@ -460,6 +467,13 @@ void CubeHorSubSel::merge( const CubeHorSubSel& oth )
 {
     inlSubSel().widenTo( oth.inlSubSel() );
     crlSubSel().widenTo( oth.crlSubSel() );
+}
+
+
+void CubeHorSubSel::addStepout( pos_type iso, pos_type cso )
+{
+    inlSubSel().addStepout( iso );
+    crlSubSel().addStepout( cso );
 }
 
 

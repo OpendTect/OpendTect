@@ -162,6 +162,16 @@ void Pos::IdxSubSelData::widenTo( const IdxSubSelData& oth )
 }
 
 
+void Pos::IdxSubSelData::addStepout( pos_type so )
+{
+    const auto posdelta = so * posStep();
+    auto posrg = outputPosRange();
+    posrg.start -= posdelta;
+    posrg.stop += posdelta;
+    setOutputPosRange( posrg );
+}
+
+
 void Pos::IdxSubSelData::ensureSizeOK()
 {
     if ( posStop() > inpposrg_.stop )

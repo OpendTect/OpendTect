@@ -53,9 +53,9 @@ public:
 			{ setOutputPosRange( rg ); }
     pos_steprg_type	fullTrcNrRange() const
 			{ return inputPosRange(); }
-    idx_type		idx4TrcNr( pos_type trcnr ) const
+    idx_type		idx4TrcNr( trcnr_type trcnr ) const
 			{ return idx4Pos( trcnr ); }
-    pos_type		trcNr4Idx( idx_type idx ) const
+    trcnr_type		trcNr4Idx( idx_type idx ) const
 			{ return pos4Idx( idx ); }
     size_type		nrTrcs() const		{ return data_.size(); }
 
@@ -64,6 +64,8 @@ public:
     bool		includes(const Bin2D&) const;
     bool		includes(const LineHorSubSel&) const;
     void		merge(const LineHorSubSel&);
+    void		addStepout( trcnr_type so )
+			{ trcNrSubSel().addStepout(so); }
 
     void		setGeomID( GeomID gid )	{ geomid_ = gid; }
 
@@ -98,6 +100,7 @@ public:
     bool		hasAllLines() const;
     bool		hasFullRange() const;
     void		merge(const LineHorSubSelSet&);
+    void		addStepout(trcnr_type);
 
     LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
     const LineHorSubSel* find( GeomID gid ) const { return doFind( gid ); }
@@ -182,6 +185,7 @@ public:
 			{ return Pos::IdxSubSel2D::includes( bid ); }
     bool		includes(const CubeHorSubSel&) const;
     void		merge(const CubeHorSubSel&);
+    void		addStepout(pos_type,pos_type);
 
     pos_type		inlStart() const { return inlRange().start; }
     pos_type		inlStop() const	{ return inlRange().stop; }
