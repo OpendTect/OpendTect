@@ -46,8 +46,6 @@ EngineMan::EngineMan()
     : attrset_(0)
     , procattrset_(0)
     , nlamodel_(0)
-    , tkzs_(*new TrcKeyZSampling)
-    , geomid_(mUdfGeomID)
     , dpm_(DPM(DataPackMgr::SeisID()))
     , cache_(0)
     , udfval_(mUdf(float))
@@ -61,50 +59,69 @@ EngineMan::~EngineMan()
     delete procattrset_;
     delete attrset_;
     delete nlamodel_;
-    delete &tkzs_;
     unRefAndZeroPtr( cache_ );
 }
 
 
-void EngineMan::getPossibleVolume( DescSet& attribset, CubeSubSel& css,
-				   const DescID& outid )
+bool EngineMan::is2D() const
 {
-    css = CubeSubSel();
+    return attrset_ ? attrset_->is2D() : subsel_.is2D();
+}
+
+
+GeomSubSel* EngineMan::getPossibleSubSel( DescSet& attrset, const DescID& outid,
+					  GeomID gid )
+{
+    GeomSubSel* ret = attrset.is2D() ? new LineSubSel(gid) : new CubeSubSel;
     TypeSet<DescID> desiredids( 1, outid );
 
-    uiString errmsg;
-    DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
-    PtrMan<Processor> proc =
-			createProcessor( attribset, linename, evalid, errmsg );
+    uiRetVal uirv;
+    DescID evalid = createEvaluateADS( attrset, desiredids, uirv );
+    PtrMan<Processor> proc = createProcessor( attrset, evalid, uirv, gid );
     if ( !proc )
 	return;
 
     proc->computeAndSetRefZStepAndZ0();
-    proc->getProvider()->setDesiredVolume( css );
-    proc->getProvider()->getPossibleVolume( -1, css );
+    proc->setDesiredSubSel( *ret );
+    return proc->getProvider()->getPossibleSubSel().geomSubSel().clone();
 }
 
 
-void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
-				   const char* linename, const DescID& outid )
+Processor* EngineMan::createProcessor( const DescSet& attrset,
+				       const DescID& outid,
+				       uiRetVal& uirv, GeomID gid )
 {
-    TypeSet<DescID> desiredids( 1, outid );
+    Desc* targetdesc = const_cast<Desc*>(attrset.getDesc(outid));
+    if ( !targetdesc )
+	return 0;
 
-    uiString errmsg;
-    DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
-    PtrMan<Processor> proc =
-			createProcessor( attribset, linename, evalid, errmsg );
-    if ( !proc ) return;
+    targetdesc->updateParams();
+    Processor* processor = new Processor( *targetdesc, uirv, gid );
+    if ( !processor->isOK() )
+	{ delete processor; return 0; }
 
-    proc->computeAndSetRefZStepAndZ0();
-    proc->getProvider()->setDesiredVolume( cs );
-    proc->getProvider()->getPossibleVolume( -1, cs );
+    processor->addOutputInterest( targetdesc->selectedOutput() );
+    return processor;
 }
 
 
-Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
-			      const char* linename, uiString& errmsg,
-			      int outidx )
+GeomID EngineMan::geomID() const
+{
+    return subsel_.geomID();
+}
+
+
+void EngineMan::setGeomID( GeomID gid )
+{
+    if ( attrset_ && attrset_->is2D() != gid.is2D() )
+	{ pErrMsg("2D/3D mismatch"); }
+    if ( subsel_.geomID() != gid )
+	subsel_ = FullSubSel( gid );
+}
+
+
+Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attrset,
+			      uiRetVal& uirv, int outidx, GeomID gid )
 {
     PtrMan<IOPar> outputpar =
 		iopar.subselect( IOPar::compKey(sKey::Output(),outidx) );
@@ -125,49 +142,27 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	attribidx++;
     }
 
-    DescID evalid = createEvaluateADS( attribset, ids, errmsg );
-    Processor* proc = createProcessor( attribset, linename, evalid, errmsg );
-    if ( !proc ) return 0;
+    DescID evalid = createEvaluateADS( attrset, ids, uirv );
+    Processor* proc = createProcessor( attrset, evalid, uirv, gid );
+    if ( !proc )
+	return proc;
 
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest( idx );
 
-    PtrMan<IOPar> outpar =
+    if ( attrset.is2D() )
+	subsel_ = FullSubSel( gid );
+    else
+	subsel_.setToAll( false );
+
+    PtrMan<IOPar> subselpar =
 	iopar.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
-    if ( !outpar || !tkzs_.usePar(*outpar) )
-    {
-	if ( !attribset.is2D() )
-	    tkzs_.init();
-	else
-	{
-	    // doesn't make much sense, but is better than nothing
-	    tkzs_.set2DDef();
+    if ( subselpar )
+       subsel_.usePar( *subselpar );
 
-	    geomid_ = Survey::Geometry::getGeomID( linename );
-	    const auto lnr = geomid_.lineNr();
-	    tkzs_.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
-	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
-	    {
-		StepInterval<int> trcrg( 0, 0, 1 );
-		outpar->get( sKey::TrcRange(), trcrg );
-		tkzs_.hsamp_.setCrlRange( trcrg );
-		outpar->get( sKey::ZRange(), tkzs_.zsamp_ );
-	    }
-	    else
-	    {
-		const auto& geom2d = Survey::Geometry::get2D( geomid_ );
-		if ( !geom2d.isEmpty() )
-		{
-		    tkzs_.hsamp_.setCrlRange( geom2d.data().trcNrRange() );
-		    tkzs_.zsamp_ = geom2d.data().zRange();
-		}
-	    }
-	}
-    }
-
-    SeisTrcStorOutput* storeoutp =
-		createOutput( iopar, geomid_, errmsg, outidx );
-    if ( !storeoutp ) return 0;
+    SeisTrcStorOutput* storeoutp = createOutput( iopar, uirv, outidx );
+    if ( !storeoutp )
+	return nullptr;
 
     bool exttrctosi = false;
     const BufferString basekey = IOPar::compKey( sKey::Output(), outidx );
@@ -179,31 +174,13 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     BufferStringSet outnms;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	const StringPair sp( attribset.getDesc(ids[idx])->userRef() );
+	const StringPair sp( attrset.getDesc(ids[idx])->userRef() );
 	outnms.add( !sp.second().isEmpty() ? sp.second() : sp.first() );
     }
 
     storeoutp->setOutpNames( outnms );
     proc->addOutput( storeoutp );
     return proc;
-}
-
-
-Processor* EngineMan::createProcessor( const DescSet& attribset,
-				       const char* linename,const DescID& outid,
-				       uiString& errmsg )
-{
-    Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outid));
-    if ( !targetdesc )
-	return 0;
-
-    targetdesc->updateParams();
-    Processor* processor = new Processor( *targetdesc, linename, errmsg );
-    if ( !processor->isOK() )
-	{ delete processor; return 0; }
-
-    processor->addOutputInterest( targetdesc->selectedOutput() );
-    return processor;
 }
 
 
@@ -243,27 +220,21 @@ void EngineMan::setExecutorName( Executor* ex )
 }
 
 
-SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
-					    Pos::GeomID geomid,
-					    uiString& errmsg, int outidx )
+SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, uiRetVal& uirv,
+					    int outidx )
 {
     const FixedString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr==sKey::Cube() )
     {
-	SeisTrcStorOutput* outp = new SeisTrcStorOutput( tkzs_, geomid );
-	outp->setGeometry( tkzs_ );
+	SeisTrcStorOutput* outp = new SeisTrcStorOutput( subsel_ );
 	const bool res = outp->doUsePar( pars, outidx );
 	if ( !res )
-	{
-	    errmsg = outp->errMsg();
-	    delete outp; outp = 0;
-	}
-
+	    { uirv = outp->errMsg(); delete outp; outp = nullptr; }
 	return outp;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -604,17 +575,17 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 {
     if ( packset.isEmpty() ) return 0;
     const char* category = VolumeDataPack::categoryStr(
-			tkzs_.defaultDir()!=OD::ZSlice,
-			tkzs_.hsamp_.is2D() );
+				!subsel_.isZSlice(), subsel_.is2D() );
     RegularSeisDataPack* output =
 	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
     DPM(DataPackMgr::SeisID()).add( output );
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
-    if ( cache_ && cache_->sampling().zsamp_.step != tkzs_.zsamp_.step )
+    if ( cache_ && cache_->sampling().zsamp_.step
+			!= subsel_.zSubSel().posStep() )
     {
-	TrcKeyZSampling cswithcachestep = tkzs_;
+	TrcKeyZSampling cswithcachestep( subsel_ );
 	cswithcachestep.zsamp_.step = cache_->sampling().zsamp_.step;
 	output->setSampling( cswithcachestep );
     }
@@ -626,7 +597,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 	for ( int idx=1; idx<packset.size(); idx++ )
 	    availabletkzs.include( packset[idx]->sampling() );
 
-	TrcKeyZSampling outputtkzs = tkzs_;
+	TrcKeyZSampling outputtkzs = TrcKeyZSampling( subsel_ );
 	outputtkzs.adjustTo( availabletkzs, true );
 	output->setSampling( outputtkzs );
     }
@@ -664,28 +635,38 @@ void EngineMan::setAttribSpec( const SelSpec& spec )
 }
 
 
-void EngineMan::setTrcKeyZSampling( const TrcKeyZSampling& newcs )
+void EngineMan::setSubSel( const GeomSubSel& gss )
 {
-    tkzs_ = newcs;
-    tkzs_.normalise();
+    if ( attrset_ && gss.is2D() != attrset_->is2D() )
+	{ pErrMsg("2D/3D mismatch"); return; }
+    subsel_ = FullSubSel( gss );
 }
 
 
-DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
+void EngineMan::setSubSel( const FullSubSel& fss )
+{
+    if ( attrset_ && fss.is2D() != attrset_->is2D() )
+	{ pErrMsg("2D/3D mismatch"); return; }
+    subsel_ = fss;
+}
+
+
+DescSet* EngineMan::createNLAADS( DescID& nladescid, uiRetVal& uirv,
 				  const DescSet* addtoset )
 {
     if ( !nlamodel_ )
-	{ errmsg = toUiString("Internal: No NLA Model"); return 0; }
+	{ uirv = mINTERNAL("No NLA Model"); return 0; }
 
-    if ( attrspecs_.isEmpty() ) return 0;
+    if ( attrspecs_.isEmpty() )
+	return nullptr;
     DescSet* descset = addtoset ? new DescSet( *addtoset )
 				: new DescSet( attrspecs_[0].is2D() );
 
     if ( !addtoset )
     {
-	uiRetVal uirv = descset->usePar( nlamodel_->pars() );
+	uirv = descset->usePar( nlamodel_->pars() );
 	if ( !uirv.isOK() )
-	    { errmsg = uirv; delete descset; return 0; }
+	    { delete descset; return nullptr; }
     }
 
     BufferString s;
@@ -694,7 +675,7 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
     defstr += " specification=\""; defstr += s; defstr += "\"";
 
     addNLADesc( defstr, nladescid, *descset, attrspecs_[0].id().getI(),
-		nlamodel_, errmsg );
+		nlamodel_, uirv );
 
     DescSet* cleanset = descset->optimizeClone( nladescid );
     delete descset;
@@ -704,14 +685,14 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
 
 void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 			    DescSet& descset, int outputnr,
-			    const NLAModel* nlamdl, uiString& errmsg )
+			    const NLAModel* nlamdl, uiRetVal& uirv )
 {
     RefMan<Desc> desc = PF().createDescCopy( "NN" );
     desc->setDescSet( &descset );
 
     if ( !desc->parseDefStr(specstr) )
     {
-	errmsg = tr("Invalid definition string for NLA model:\n%1")
+	uirv = tr("Invalid definition string for NLA model:\n%1")
 		    .arg( specstr );
 	return;
     }
@@ -719,9 +700,9 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     // Need to make a Provider because the inputs and outputs may
     // not be known otherwise
-    errmsg = Provider::prepare( *desc );
-    if ( !errmsg.isEmpty() )
-	{ return; }
+    uirv = Provider::prepare( *desc );
+    if ( !uirv.isOK() )
+	return;
 
     const int nrinputs = desc->nrInputs();
     for ( int idx=0; idx<nrinputs; idx++ )
@@ -763,7 +744,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		    descid = descset.addDesc( stordesc );
 		    if ( !descid.isValid() )
 		    {
-			errmsg = tr("NLA input '%1' cannot be found in "
+			uirv = tr("NLA input '%1' cannot be found in "
 				    "the provided set.").arg( inpname );
 			return;
 		    }
@@ -776,7 +757,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     if ( outputnr > desc->nrOutputs() )
     {
-	errmsg = tr("Output %1 not present.").arg( toString(outputnr) );
+	uirv = tr("Output %1 not present.").arg( toString(outputnr) );
 	return;
     }
 
@@ -786,13 +767,13 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     nladescid = descset.addDesc( desc );
     if ( !nladescid.isValid() )
-	errmsg = tr("Error setting learning attribute");
+	uirv = tr("Error setting learning attribute");
 }
 
 
 DescID EngineMan::createEvaluateADS( DescSet& descset,
 				     const TypeSet<DescID>& outids,
-				     uiString& errmsg )
+				     uiRetVal& uirv )
 {
     if ( outids.isEmpty() )
 	return DescID();
@@ -823,7 +804,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     DescID evaldescid = descset.addDesc( desc );
     if ( !evaldescid.isValid() )
     {
-	errmsg = tr("Cannot set evaluation attribute");
+	uirv = tr("Cannot set evaluation attribute");
 	desc->unRef();
     }
 
@@ -834,17 +815,15 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 #define mStepEps 1e-3
 
 
-Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
+Processor* EngineMan::createScreenOutput2D( uiRetVal& uirv,
 					    Data2DHolder& output )
 {
-    Processor* proc = getProcessor( errmsg );
+    Processor* proc = getProcessor( uirv );
     if ( !proc )
 	return 0;
 
-    Interval<int> trcrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
-    Interval<float> zrg( tkzs_.zsamp_.start, tkzs_.zsamp_.stop );
-
-    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid_ );
+    TwoDOutput* attrout = new TwoDOutput( subsel_.trcNrRange(),
+					  subsel_.zRange(), subsel_.geomID() );
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
@@ -853,14 +832,12 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
 
 #define mRg(dir) (cachecs.dir##samp_)
 
-Processor* EngineMan::createDataPackOutput( uiString& errmsg,
+Processor* EngineMan::createDataPackOutput( uiRetVal& uirv,
 					    const RegularSeisDataPack* prev )
 {
     unRefAndZeroPtr( cache_ );
 
-    if ( tkzs_.isEmpty() )
-	prev = 0;
-    else if ( prev )
+    if ( prev )
     {
 	cache_ = prev;
 	cache_->ref();
@@ -889,92 +866,93 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
     proc->addOutput( attrout ); \
 }
 
-    Processor* proc = getProcessor( errmsg );
+    Processor* proc = getProcessor( uirv );
     if ( !proc )
 	return 0;
 
+    const TrcKeyZsampling tkzs( subsel_ );
     if ( !cache_ )
-	mAddAttrOut( tkzs_ )
+	mAddAttrOut( tkzs )
     else
     {
 	const TrcKeyZSampling cachecs = cache_->sampling();
-	TrcKeyZSampling todocs( tkzs_ );
-	if ( mRg(h).start_.inl() > tkzs_.hsamp_.start_.inl() )
+	TrcKeyZSampling todocs( tkzs );
+	if ( mRg(h).start_.inl() > tkzs.hsamp_.start_.inl() )
 	{
 	    todocs.hsamp_.stop_.inl() =
-		mRg(h).start_.inl() - tkzs_.hsamp_.step_.inl();
+		mRg(h).start_.inl() - tkzs.hsamp_.step_.inl();
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(h).stop_.inl() < tkzs_.hsamp_.stop_.inl() )
+	if ( mRg(h).stop_.inl() < tkzs.hsamp_.stop_.inl() )
 	{
-	    todocs = tkzs_;
+	    todocs = tkzs;
 	    todocs.hsamp_.start_.inl() =
-		mRg(h).stop_.inl() + tkzs_.hsamp_.step_.inl();
+		mRg(h).stop_.inl() + tkzs.hsamp_.step_.inl();
 	    mAddAttrOut( todocs )
 	}
 
 	const int startinl =
-		mMAX(tkzs_.hsamp_.start_.inl(), mRg(h).start_.inl() );
-	const int stopinl = mMIN( tkzs_.hsamp_.stop_.inl(), mRg(h).stop_.inl());
+		mMAX(tkzs.hsamp_.start_.inl(), mRg(h).start_.inl() );
+	const int stopinl = mMIN( tkzs.hsamp_.stop_.inl(), mRg(h).stop_.inl());
 
-	if ( mRg(h).start_.crl() > tkzs_.hsamp_.start_.crl() )
+	if ( mRg(h).start_.crl() > tkzs.hsamp_.start_.crl() )
 	{
-	    todocs = tkzs_;
+	    todocs = tkzs;
 	    todocs.hsamp_.start_.inl() = startinl;
 	    todocs.hsamp_.stop_.inl() = stopinl;
 	    todocs.hsamp_.stop_.crl() =
-		mRg(h).start_.crl() - tkzs_.hsamp_.step_.crl();
+		mRg(h).start_.crl() - tkzs.hsamp_.step_.crl();
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(h).stop_.crl() < tkzs_.hsamp_.stop_.crl() )
+	if ( mRg(h).stop_.crl() < tkzs.hsamp_.stop_.crl() )
 	{
-	    todocs = tkzs_;
+	    todocs = tkzs;
 	    todocs.hsamp_.start_.inl() = startinl;
 	    todocs.hsamp_.stop_.inl() = stopinl;
 	    todocs.hsamp_.start_.crl() =
-		mRg(h).stop_.crl() + tkzs_.hsamp_.step_.crl();
+		mRg(h).stop_.crl() + tkzs.hsamp_.step_.crl();
 	    mAddAttrOut( todocs )
 	}
 
-	todocs = tkzs_;
+	todocs = tkzs;
 	todocs.hsamp_.start_.inl() = startinl;
 	todocs.hsamp_.stop_.inl() = stopinl;
 	todocs.hsamp_.start_.crl() =
-		mMAX( tkzs_.hsamp_.start_.crl(), mRg(h).start_.crl() );
+		mMAX( tkzs.hsamp_.start_.crl(), mRg(h).start_.crl() );
 	todocs.hsamp_.stop_.crl() =
-		mMIN( tkzs_.hsamp_.stop_.crl(), mRg(h).stop_.crl() );
+		mMIN( tkzs.hsamp_.stop_.crl(), mRg(h).stop_.crl() );
 
-	if ( mRg(z).start > tkzs_.zsamp_.start + mStepEps*tkzs_.zsamp_.step )
+	if ( mRg(z).start > tkzs.zsamp_.start + mStepEps*tkzs.zsamp_.step )
 	{
-	    todocs.zsamp_.stop = mMAX( mRg(z).start-tkzs_.zsamp_.step,
+	    todocs.zsamp_.stop = mMAX( mRg(z).start-tkzs.zsamp_.step,
 				       todocs.zsamp_.start );
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(z).stop < tkzs_.zsamp_.stop - mStepEps*tkzs_.zsamp_.step )
+	if ( mRg(z).stop < tkzs.zsamp_.stop - mStepEps*tkzs.zsamp_.step )
 	{
-	    todocs.zsamp_ = tkzs_.zsamp_;
-	    todocs.zsamp_.start = mMIN( mRg(z).stop+tkzs_.zsamp_.step,
+	    todocs.zsamp_ = tkzs.zsamp_;
+	    todocs.zsamp_.start = mMIN( mRg(z).stop+tkzs.zsamp_.step,
 					todocs.zsamp_.stop );
 	    mAddAttrOut( todocs )
 	}
     }
 
-    if ( tkzs_.isFlat() && tkzs_.defaultDir() != OD::ZSlice )
+    if ( tkzs.isFlat() && tkzs.defaultDir() != OD::ZSlice )
     {
 	TypeSet<BinID> positions;
-	if ( tkzs_.defaultDir() == OD::InlineSlice )
-	    for ( int idx=0; idx<tkzs_.nrCrl(); idx++ )
-		positions += BinID( tkzs_.hsamp_.start_.inl(),
-				    tkzs_.hsamp_.start_.crl() +
-					tkzs_.hsamp_.step_.crl()*idx );
-	if ( tkzs_.defaultDir() == OD::CrosslineSlice )
-	    for ( int idx=0; idx<tkzs_.nrInl(); idx++ )
-		positions += BinID( tkzs_.hsamp_.start_.inl() +
-				    tkzs_.hsamp_.step_.inl()*idx,
-				    tkzs_.hsamp_.start_.crl() );
+	if ( tkzs.defaultDir() == OD::InlineSlice )
+	    for ( int idx=0; idx<tkzs.nrCrl(); idx++ )
+		positions += BinID( tkzs.hsamp_.start_.inl(),
+				    tkzs.hsamp_.start_.crl() +
+					tkzs.hsamp_.step_.crl()*idx );
+	if ( tkzs.defaultDir() == OD::CrosslineSlice )
+	    for ( int idx=0; idx<tkzs.nrInl(); idx++ )
+		positions += BinID( tkzs.hsamp_.start_.inl() +
+				    tkzs.hsamp_.step_.inl()*idx,
+				    tkzs.hsamp_.start_.crl() );
 
 	proc->setRdmPaths( positions, positions );
     }
@@ -1005,7 +983,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
     ObjectSet<BinIDValueSet>& bvs =
 	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
 
-    proc_ = aem.createLocationOutput( errmsg_, bvs );
+    proc_ = aem.createLocationOutput( uirv_, bvs );
 }
 
 ~AEMFeatureExtracter()		{ delete proc_; }
@@ -1019,8 +997,8 @@ uiString nrDoneText() const
 
 uiString message() const
 {
-    return !errmsg_.isEmpty()
-	? errmsg_
+    return !uirv_.isOK()
+	? uiString(uirv_)
 	: (proc_ ? proc_->message()
 	   : uiStrings::phrCannotCreate(uiStrings::sOutput().toLower()) );
 }
@@ -1028,21 +1006,21 @@ uiString message() const
 int errorReturn( const uiString& msg )
 {
     if ( !msg.isEmpty() )
-	errmsg_ = msg;
+	uirv_ = msg;
     return -1;
 }
 
 int nextStep()
 {
     if ( !proc_ )
-	return errorReturn( uiString::empty() );
+	return errorReturn( mINTERNAL("General Error") );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
     return errorReturn( proc_->message() );
 }
 
-    uiString			errmsg_;
+    uiRetVal			uirv_;
     Processor*			proc_;
     TypeSet<DescID>		outattribs_;
 };
@@ -1119,12 +1097,12 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 }
 
 
-Processor* EngineMan::createLocationOutput( uiString& errmsg,
+Processor* EngineMan::createLocationOutput( uiRetVal& uirv,
 					    ObjectSet<BinIDValueSet>& bidzvset )
 {
     if ( bidzvset.size() == 0 ) return 0;
 
-    Processor* proc = getProcessor( errmsg );
+    Processor* proc = getProcessor( uirv );
     if ( !proc )
 	return 0;
 
@@ -1170,7 +1148,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	aem.attrspecs_.addIfNew( ss );
     }
 
-    proc_ = aem.getTableOutExecutor( datapointset, errmsg_, firstcol );
+    proc_ = aem.getTableOutExecutor( datapointset, uirv_, firstcol );
 }
 
 ~AEMTableExtractor()		{ delete proc_; }
@@ -1184,8 +1162,8 @@ uiString nrDoneText() const
 
 uiString message() const
 {
-    return !errmsg_.isEmpty()
-	? errmsg_
+    return !uirv_.isEmpty()
+	? uiString(uirv_)
 	: (proc_
 	    ? proc_->Task::message()
 	    : uiStrings::phrCannotCreate(uiStrings::sOutput() ));
@@ -1194,7 +1172,7 @@ uiString message() const
 int errorReturn( const uiString& msg )
 {
     if ( !msg.isEmpty() )
-	errmsg_ = msg;
+	uirv_ = msg;
     return -1;
 }
 
@@ -1208,7 +1186,7 @@ int nextStep()
     return errorReturn( proc_->message() );
 }
 
-    uiString			errmsg_;
+    uiRetVal			uirv_;
     Processor*			proc_;
     TypeSet<DescID>		outattribs_;
 };
@@ -1216,27 +1194,27 @@ int nextStep()
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 					const Attrib::DescSet& descset,
-					uiString& errmsg, int firstcol,
+					uiRetVal& uirv, int firstcol,
 					bool needprep )
 {
-    if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
+    if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, uirv ) )
 	return 0;
 
     setAttribSet( &descset );
     AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
 						      descset, firstcol );
-    if ( tabex && !tabex->errmsg_.isEmpty() )
-	errmsg = tabex->errmsg_;
+    if ( tabex && !tabex->uirv_.isEmpty() )
+	uirv_ = tabex->uirv_;
     return tabex;
 }
 
 
 Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
-					   uiString& errmsg, int firstcol )
+					   uiRetVal& uirv, int firstcol )
 {
     if ( !datapointset.size() ) return 0;
 
-    Processor* proc = getProcessor( errmsg );
+    Processor* proc = getProcessor( uirv );
     if ( !proc )
 	return 0;
 
@@ -1252,9 +1230,9 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 }
 
 
-#define mErrRet(s) { errmsg = s; return 0; }
+#define mErrRet(s) { uirv = s; return 0; }
 
-Processor* EngineMan::getProcessor( uiString& errmsg )
+Processor* EngineMan::getProcessor( uiRetVal& uirv )
 {
     if ( procattrset_ )
 	{ delete procattrset_; procattrset_ = 0; }
@@ -1268,7 +1246,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 
     DescID outid = outattribs[0];
 
-    errmsg = uiString::empty();
+    uirv.setOK();
     bool doeval = false;
     if ( !attrspecs_[0].isNLA() )
     {
@@ -1279,23 +1257,22 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	if ( outattribs.size() > 1 )
 	{
 	    doeval = true;
-	    outid = createEvaluateADS( *procattrset_, outattribs, errmsg);
+	    outid = createEvaluateADS( *procattrset_, outattribs, uirv );
 	}
     }
     else
     {
 	DescID nlaid( SelSpec::cNoAttribID() );
-	procattrset_ = createNLAADS( nlaid, errmsg );
+	procattrset_ = createNLAADS( nlaid, uirv );
 	if ( !procattrset_ )
-	    mErrRet(errmsg)
+	    mErrRet(uirv)
 	outid = nlaid;
     }
 
-    Processor* proc = createProcessor( *procattrset_, nameOf(geomid_),
-					outid, errmsg );
+    Processor* proc = createProcessor( *procattrset_, outid, uirv, geomID() );
     setExecutorName( proc );
     if ( !proc )
-	mErrRet( errmsg )
+	mErrRet( uirv )
 
     if ( doeval )
     {
@@ -1304,20 +1281,20 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     }
 
     if ( proc->getProvider() )
-	proc->getProvider()->setGeomID( geomid_ );
+	proc->getProvider()->setGeomID( geomID() );
 
     return proc;
 }
 
 
-Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
+Processor* EngineMan::createTrcSelOutput( uiRetVal& uirv,
 					  const BinIDValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
 					  const Interval<float>* cubezbounds,
 					  const TypeSet<BinID>* trueknotspos,
 					  const TypeSet<BinID>* snappedpos )
 {
-    Processor* proc = getProcessor(errmsg);
+    Processor* proc = getProcessor( uirv );
     if ( !proc )
 	return 0;
 
@@ -1325,7 +1302,7 @@ Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
     attrout->setOutput( &output );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
-    attrout->setGeomID( geomid_ );
+    attrout->setGeomID( geomID() );
 
     proc->addOutput( attrout );
     if ( trueknotspos && snappedpos )
@@ -1335,16 +1312,16 @@ Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
 }
 
 
-Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
-					  const IOPar& pars,
+Processor* EngineMan::create2DVarZOutput( uiRetVal& uirv, const IOPar& pars,
 					  DataPointSet* datapointset,
 					  float outval,
 					  Interval<float>* cubezbounds )
 {
-    Processor* proc = getProcessor( errmsg );
-    if ( !proc ) return 0;
+    Processor* proc = getProcessor( uirv );
+    if ( !proc )
+	return nullptr;
 
-    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid_,
+    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomID(),
 							datapointset, outval );
     attrout->doUsePar( pars, 0 );
     if ( cubezbounds )
@@ -1362,11 +1339,11 @@ int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { uirv = s; return false; }
 
 bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 					 const Attrib::DescSet& descset,
-					 uiString& errmsg )
+					 uiRetVal& uirv )
 {
     BufferStringSet attrrefs;
     descset.fillInAttribColRefs( attrrefs );

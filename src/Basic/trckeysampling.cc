@@ -1038,6 +1038,13 @@ TrcKeyZSampling::TrcKeyZSampling( const GeomSubSel& gss )
 }
 
 
+TrcKeyZSampling::TrcKeyZSampling( const FullSubSel& fss )
+    : hsamp_(fss.geomSubSel().horSubSel())
+    , zsamp_(fss.zRange())
+{
+}
+
+
 TrcKeyZSampling::TrcKeyZSampling( const LineSubSel& lss )
     : TrcKeyZSampling((GeomSubSel&)lss)
 {

@@ -224,7 +224,6 @@ Provider::Provider( Desc& nd )
     , desbufferstepout_( 0, 0 )
     , providertask_( 0 )
     , currentbid_( -1, -1 )
-    , geomid_(mUdfGeomID)
     , linebuffer_( 0 )
     , refstep_( 0 )
     , alreadymoved_( 0 )
@@ -239,11 +238,12 @@ Provider::Provider( Desc& nd )
     , isusedmulttimes_( false )
     , dataunavailableflag_( false )
 {
+    possiblesubsel_.setToAll( desc_.is2D() );
+    desiredsubsel_.setToAll( desc_.is2D() );
     desc_.ref();
     inputs_.setNullAllowed( true );
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
-
 
     if ( !desc_.descSet() )
 	errmsg_ = tr("No attribute set specified");
@@ -255,27 +255,23 @@ Provider::~Provider()
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	    inputs_[idx]->unRef();
-
     inputs_.erase();
+
     allexistingprov_.erase();
-
     desc_.unRef();
-
     delete providertask_;
-
     delete linebuffer_;
 }
 
 
 bool Provider::is2D() const
 {
-    return getDesc().descSet() ? getDesc().descSet()->is2D()
-			       : getDesc().is2D(); }
+    return desc.descSet() ? desc.descSet()->is2D() : desc.is2D(); }
 
 
 bool Provider::isOK() const
 {
-    return errmsg_.isEmpty(); /* Huh? &parser && parser.isOK(); */
+    return uirv_.isOK();
 }
 
 
@@ -288,18 +284,6 @@ bool Provider::isSingleTrace() const
 bool Provider::usesTracePosition() const
 {
     return desc_.usesTracePosition();
-}
-
-
-Desc& Provider::getDesc()
-{
-    return desc_;
-}
-
-
-const Desc& Provider::getDesc() const
-{
-    return const_cast<Provider*>(this)->getDesc();
 }
 
 
@@ -369,12 +353,29 @@ void Provider::setReqBufStepout( const BinID& ns, bool wait )
 }
 
 
-void Provider::setDesiredSubSel( const FulSubSel& newss )
+void Provider::setDesiredSubSel( const GeomSubSel& gss )
 {
-    if ( !isUsedMultTimes() )
-	desiredsubsel_ = newss;
+    if ( gss.is2D() != is2D() )
+	{ pErrMsg( "Bad 2D vs 3D" ); }
     else
-	desiredsubsel_.merge( newss );
+	setDesiredSubSel( FullSubSel(gss) );
+}
+
+
+void Provider::setDesiredSubSel( const FullSubSel& reqnewss )
+{
+    const FullSubSel* newss = &reqnewss;
+    if ( newss->is2D() != is2D() )
+    {
+	pErrMsg( "Bad 2D vs 3D" );
+	desiredsubsel_.setToAll( is2D() );
+	newss = &desiredsubsel_;
+    }
+
+    if ( !isUsedMultTimes() )
+	desiredsubsel_ = *newss;
+    else
+	desiredsubsel_.merge( *newss );
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
@@ -394,94 +395,91 @@ void Provider::setDesiredSubSel( const FulSubSel& newss )
 }
 
 
-#define mGetMargin( type, var, tmpvar, tmpvarsource ) \
-{ \
-    type* tmpvar = tmpvarsource; \
-    if ( tmpvar ) { var.start += tmpvar->start; var.stop += tmpvar->stop; } \
+void Provider::applyMargins( const Interval<float>* zmargin,
+			 const Interval<int>* zmargininsamps, FullSubSel& fss )
+{
+    Interval<float> relzrg( 0.f, 0.f );
+    if ( zmargin )
+    {
+	relzrg = *zmargin;
+	if ( zmargininsamps )
+	    relzrg.include( zmargininsamps->start*refstep_,
+			    zmargininsamps->stop*refstep_ );
+    }
+    else if ( zmargininsamps )
+	relzrg = Interval<float>( zmargininsamps->start*refstep_,
+				  zmargininsamps->stop*refstep_ );
+
+    if ( zmargin || zmarginsamp )
+    {
+	const auto nrgeomids = inpfss.nrGeomIDs();
+	for ( int igid=0; igid<nrgeomids; igid++ )
+	{
+	    auto zrg = inpfss.zRange( igid );
+	    zrg.start -= relzrg.start;
+	    zrg.stop -= relzrg.stop;
+	    inpfss.setZRange( zrg, igid );
+	}
+    }
 }
 
-#define mGetOverallMargin( type, var, funcPost ) \
-type var(0,0); \
-mGetMargin( type, var, des##var, des##funcPost ); \
-mGetMargin( type, var, req##var, req##funcPost )
 
-bool Provider::calcPossibleSubSel( int output, FullSubSel& fss )
+bool Provider::calcPossibleSubSel( int output, FullSubSel& outfss )
 {
-    if ( !getDesc().descSet() )
-	return false;
-
+    possiblesubsel_.setToAll( is2D() );
     if ( inputs_.isEmpty() )
-	{ fss.setToAll(); return true; }
+	{ outfss = possiblesubsel_; return true; }
 
     TypeSet<int> outputs;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
-    {
 	if ( output < 0 || outputinterest_[idx] > 0 )
 	    outputs += idx;
-    }
 
     bool isset = false;
-    for ( int idx=0; idx<outputs.size(); idx++ )
+    for ( const auto out : outputs )
     {
-	const int out = outputs[idx];
-	for ( int inp=0; inp<inputs_.size(); inp++ )
+	for ( int iinp=0; iinp<inputs_.size(); iinp++ )
 	{
-	    const auto* inpprov = inputs_[inp];
+	    const auto* inpprov = inputs_[iinp];
 	    if ( !inpprov )
 		continue;
-
 	    TypeSet<int> inputoutput;
-	    if ( !getInputOutput( inp, inputoutput ) )
+	    if ( !getInputOutput( iinp, inputoutput ) )
 		continue;
 
-	    for ( int idy=0; idy<inputoutput.size(); idy++ )
+	    for ( int ioutinp=0; ioutinp<inputoutput.size(); ioutinp++ )
 	    {
-		FullSubSel fss;
-		computeDesInputSubSel( inp, out, fss, true );
-		if ( !inputs_[inp]->calcPossibleSubSel( idy, fss ) )
+		FullSubSel inpfss;
+		computeDesInputSubSel( iinp, out, inpfss, true );
+		if ( !inputs_[iinp]->calcPossibleSubSel( ioutinp, inpfss ) )
 		    continue;
 
-		const BinID* stepout = reqStepout(inp,out);
+		const BinID* stepout = reqStepout(iinp,out);
 		if ( stepout )
 		{
-		    int inlstepoutfact = desiredsubsel_.->hsamp_.step_.inl();
-		    int crlstepoutfact = desiredsubsel_.->hsamp_.step_.crl();
-		    inputcs.hsamp_.start_.inl() +=
-			stepout->inl() * inlstepoutfact;
-		    inputcs.hsamp_.start_.crl() +=
-			stepout->crl() * crlstepoutfact;
-		    inputcs.hsamp_.stop_.inl() -=
-			stepout->inl() * inlstepoutfact;
-		    inputcs.hsamp_.stop_.crl() -=
-			stepout->crl() * crlstepoutfact;
+		    if ( inpfss.is2D() )
+			inpfss.subSel2D().addStepOut( -stepout->crl() );
+		    else
+			inpfss.subSel3D().addStepOut( -stepout->inl(),
+						      -stepout->crl() );
 		}
 
-		const Interval<float>* zrg = reqZMargin(inp,out);
-		if ( zrg )
-		{
-		    inputcs.zsamp_.start -= zrg->start;
-		    inputcs.zsamp_.stop -= zrg->stop;
-		}
-
-		const Interval<int>* zrgsamp = reqZSampMargin(inp,out);
-		if ( zrgsamp )
-		{
-		    inputcs.zsamp_.start -= zrgsamp->start*refstep_;
-		    inputcs.zsamp_.stop -= zrgsamp->stop*refstep_;
-		}
-
-		res.limitToWithUdf( inputcs );
+		applyMargins( reqZMargin(iinp,out), reqZSampMargin(iinp,out),
+			      inpfss );
+		outfss.limitTo( inpfss );
 		isset = true;
 	    }
 	}
     }
 
-    if ( !possiblesubsel_ )
-	possiblesubsel_ = new TrcKeyZSampling;
-
-    possiblesubsel_->hsamp_ = res.hsamp_;
-    possiblesubsel_->zsamp_ = res.zsamp_;
+    possiblesubsel_ = outfss;
     return isset;
+}
+
+
+static int subSelExtreme( const FullSubSel& ss, bool min )
+{
+    return min ? ss.trcNrRange().posStart() : ss.trcNrRange().posStop();
 }
 
 
@@ -581,19 +579,25 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	if ( inputs_.isEmpty() && !desc_.isStored() )
 	{
 	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
-		currentbid_ = desiredsubsel_->hsamp_.start_;
+	    {
+		if ( desiredsubsel_.is2D() )
+		    currentbid_.crl() = subSelExtreme( desiredsubsel_, true );
+		else
+		    currentbid_ = desiredsubsel_.cubeSubSel().origin();
+	    }
 	    else
 	    {
 		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
 		if ( prevbid.crl() +step.crl() <=
-		     desiredsubsel_->hsamp_.stop_.crl() )
+		     subSelExtreme(desiredsubsel_,false) )
 		    currentbid_.crl() = prevbid.crl() +step.crl();
-		else if ( prevbid.inl() +step.inl() <=
-			  desiredsubsel_->hsamp_.stop_.inl())
+		else if ( !desiredsubsel_.is2D()
+			&& prevbid.inl()+step.inl() <=
+			  desiredsubsel_.cubeSubSel().inlSubSel().posStop() )
 		{
-		    currentbid_.inl() = prevbid.inl() +step.inl();
-		    currentbid_.crl() = desiredsubsel_->hsamp_.start_.crl();
+		    currentbid_.inl() = prevbid.inl() + step.inl();
+		    currentbid_.crl() = subSelExtreme( desiredsubsel_, true );
 		}
 		else
 		    return 0;
@@ -834,8 +838,8 @@ bool Provider::setCurrentPosition( const BinID& bid )
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
-    const Interval<int> possintv( mNINT32(possiblesubsel_->zsamp_.start/dz),
-				  mNINT32(possiblesubsel_->zsamp_.stop/dz) );
+    const Interval<int> possintv( mNINT32(possiblesubsel_.zRange().start/dz),
+				  mNINT32(possiblesubsel_.zRange().stop/dz) );
 
     const int nrintvs = intvs.size();
     if ( nrintvs < 1 )
@@ -1228,7 +1232,7 @@ void Provider::updateStorageReqs( bool all )
 }
 
 
-void Provider::computeDesInputSubSel( int inp, int out, RangeSelData& res,
+void Provider::computeDesInputSubSel( int inp, int out, FullSubSel& fss,
 					bool usestepout ) const
 {
     //Be careful if usestepout=true with des and req stepouts
@@ -1249,19 +1253,14 @@ void Provider::computeDesInputSubSel( int inp, int out, RangeSelData& res,
 	const_cast<Provider*>(inputs_[inp])->setExtraZ( extraz );
     }
 
-    if ( !desiredsubsel_ )
-	const_cast<Provider*>(this)->desiredsubsel_ = new TrcKeyZSampling(res);
-
-    res = *desiredsubsel_;
+    fss = desiredsubsel_;
 
     if ( usestepout )
     {
-	int inlstepoutfact = desiredsubsel_->hsamp_.step_.inl();
-	int crlstepoutfact = desiredsubsel_->hsamp_.step_.crl();
-
 	BinID stepout(0,0);
 	const BinID* reqstepout = reqStepout( inp, out );
-	if ( reqstepout ) stepout=*reqstepout;
+	if ( reqstepout )
+	    stepout = *reqstepout;
 	const BinID* desstepout = desStepout( inp, out );
 	if ( desstepout )
 	{
@@ -1270,23 +1269,13 @@ void Provider::computeDesInputSubSel( int inp, int out, RangeSelData& res,
 	    if ( stepout.crl() < desstepout->crl() )
 		stepout.crl() = desstepout->crl();
 	}
-
-	res.hsamp_.start_.inl() -= stepout.inl() * inlstepoutfact;
-	res.hsamp_.start_.crl() -= stepout.crl() * crlstepoutfact;
-	res.hsamp_.stop_.inl() += stepout.inl() * inlstepoutfact;
-	res.hsamp_.stop_.crl() += stepout.crl() * crlstepoutfact;
+	if ( is2D() )
+	    fss.subSel2D().addStepout( stepout.crl() );
+	else
+	    fss.subSel3D().addStepout( stepout.inl(), stepout.crl() );
     }
 
-    Interval<float> zrg(0,0);
-    mUseMargins(float,,)
-
-    Interval<int> zrgsamp(0,0);
-    mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep_,
-				 zrgsamp.stop*refstep_ ));
-
-    res.zsamp_.start += zrg.start;
-    res.zsamp_.stop += zrg.stop;
+    applyMargins( reqZMargin(inp,out), reqZSampMargin(inp,out), fss );
 }
 
 
@@ -1331,39 +1320,15 @@ const Interval<int>* Provider::desZSampMargin(int,int) const	{ return 0; }
 const Interval<int>* Provider::reqZSampMargin(int,int) const	{ return 0; }
 
 
-int Provider::getTotalNrPos( bool is2d )
+int Provider::getTotalNrPos()
 {
     if ( seldata_ && seldata_->type() == Seis::Table )
 	return (int)seldata_->asTable()->binidValueSet().totalSize();
-    if ( !possiblesubsel_ || !desiredsubsel_ )
-	return false;
 
-    TrcKeyZSampling cs = *desiredsubsel_;
-    if ( getDesc().isStored() )
-    {
-	cs.hsamp_.start_.inl() =
-	    desiredsubsel_->hsamp_.start_.inl() < cs.hsamp_.start_.inl() ?
-	    cs.hsamp_.start_.inl() : desiredsubsel_->hsamp_.start_.inl();
-	cs.hsamp_.stop_.inl() =
-	    desiredsubsel_->hsamp_.stop_.inl() > cs.hsamp_.stop_.inl() ?
-	    cs.hsamp_.stop_.inl() : desiredsubsel_->hsamp_.stop_.inl();
-	cs.hsamp_.stop_.crl() =
-	    desiredsubsel_->hsamp_.stop_.crl() > cs.hsamp_.stop_.crl() ?
-	    cs.hsamp_.stop_.crl() : desiredsubsel_->hsamp_.stop_.crl();
-	cs.hsamp_.start_.crl() =
-	    desiredsubsel_->hsamp_.start_.crl() < cs.hsamp_.start_.crl() ?
-	    cs.hsamp_.start_.crl() : desiredsubsel_->hsamp_.start_.crl();
-    }
+    FullSubSel fss( desiredsubsel_ );
+    fss.limitTo( possiblesubsel_ );
 
-    if ( is2d )
-    {
-	const Pos::GeomID geomid = getGeomID();
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
-	cs.hsamp_.step_.crl() = geom2d.data().trcNrRange().step;
-	return cs.nrCrl();
-    }
-
-    return cs.nrInl() * cs.nrCrl();
+    return (int)fss.horSubSel().totalSize();
 }
 
 
@@ -1410,10 +1375,15 @@ void Provider::setRefZ0( float z0 )
 
 void Provider::setGeomID( GeomID geomid )
 {
-    geomid_ = geomid;
+    if ( geomID() != geomid )
+    {
+	desiredsubsel_.setGeomID( geomid );
+	possiblesubsel_.setGeomID( geomid );
+    }
+
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
-	    inputs_[idx]->setGeomID( geomid_ );
+	    inputs_[idx]->setGeomID( geomid );
 }
 
 
@@ -1427,10 +1397,10 @@ void Provider::adjust2DLineStoredSubSel()
 
 Pos::GeomID Provider::getGeomID() const
 {
-    if ( geomid_.isValid() )
-	return geomid_;
+    if ( possiblesubsel_.geomID().isValid() )
+	return possiblesubsel_.geomID().isValid();
 
-    Pos::GeomID geomid;
+    GeomID geomid;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
         if ( !inputs_[idx] )
@@ -1442,15 +1412,6 @@ Pos::GeomID Provider::getGeomID() const
     }
 
     return geomid;
-}
-
-
-void Provider::setGeomID( Pos::GeomID geomid )
-{
-    geomid_ = geomid;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] )
-	    inputs_[idx]->setGeomID( geomid );
 }
 
 
@@ -1469,12 +1430,9 @@ void Provider::setExtraZ( const Interval<float>& extraz )
 }
 
 
-void Provider::setPossibleSubSel( const TrcKeyZSampling& cs )
+void Provider::setPossibleSubSel( const FullSubSel& fss )
 {
-    if ( possiblesubsel_ )
-	delete possiblesubsel_;
-
-    possiblesubsel_ = new TrcKeyZSampling(cs);
+    possiblesubsel_ = fss;
 }
 
 
@@ -1498,8 +1456,8 @@ float Provider::lineDist() const
 
 float Provider::trcDist() const
 {
-    return is2D() && useInterTrcDist() ?
-    getDistBetwTrcs(false, nameOf(geomid_)) : SI().crlDistance();
+    return is2D() && useInterTrcDist() ?  getDistBetwTrcs(false)
+				       : SI().crlDistance();
 }
 
 uiString Provider::errMsg() const
@@ -1532,7 +1490,7 @@ void Provider::setNeedInterpol( bool yn )
 
 void Provider::resetDesiredSubSel()
 {
-    deleteAndZeroPtr( desiredsubsel_ );
+    desiredsubsel_.setToAll( is2D() );
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	    inputs_[idx]->resetDesiredSubSel();
@@ -1648,13 +1606,13 @@ void Provider::getCompNames( BufferStringSet& nms ) const
 }
 
 
-float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+float Provider::getDistBetwTrcs( bool ismax ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] )
 	    continue;
-	const float distval = inputs_[idx]->getDistBetwTrcs( ismax, linenm );
+	const float distval = inputs_[idx]->getDistBetwTrcs( ismax );
 	if ( !mIsUdf(distval) )
 	    return distval;
     }
@@ -1716,7 +1674,7 @@ float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
 void Provider::stdPrepSteering( const BinID& so )
 {
     for( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
+	if ( inputs_[idx] && inputs_[idx]->desc_.isSteering() )
 	    inputs_[idx]->prepSteeringForStepout( so );
 }
 
@@ -1734,7 +1692,7 @@ float Provider::dipFactor() const
 
 bool Provider::useInterTrcDist() const
 {
-    if ( inputs_.size() && inputs_[0] && inputs_[0]->getDesc().isStored() )
+    if ( inputs_.size() && inputs_[0] && inputs_[0]->desc_.isStored() )
 	return inputs_[0]->useInterTrcDist();
 
     return false;
@@ -1744,7 +1702,7 @@ bool Provider::useInterTrcDist() const
 float Provider::getApplicableCrlDist( bool dependoninput ) const
 {
     if ( is2D() && ( !dependoninput || useInterTrcDist() ) )
-	return getDistBetwTrcs( false, nameOf(geomid_) );
+	return getDistBetwTrcs( false );
 
     return crlDist();
 }

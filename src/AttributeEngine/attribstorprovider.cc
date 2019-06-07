@@ -108,7 +108,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , mscprov_(0)
     , status_( None )
     , stepoutstep_(-1,0)
-    , isondisc_(true)
+    , isondisk_(true)
     , useintertrcdist_(false)
     , ls2ddata_(0)
 {
@@ -120,7 +120,7 @@ StorageProvider::StorageProvider( Desc& desc )
     {
 	DataPack::FullID fid = DataPack::FullID::getFromString(
 							storstr.buf()+1 );
-	isondisc_ = !DPM(fid).isPresent( fid );
+	isondisk_ = !DPM(fid).isPresent( fid );
     }
 }
 
@@ -135,18 +135,15 @@ StorageProvider::~StorageProvider()
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg_ = s; delete mscprov_; mscprov_= 0; return false; }
+#define mErrRet(s) { uirv_ = s; delete mscprov_; mscprov_= 0; return false; }
 
 bool StorageProvider::checkInpAndParsAtStart()
 {
     if ( status_!=None )
 	return false;
 
-    if ( !isondisc_ )
+    if ( !isondisk_ )
     {
-	const auto zrg = storedsubsel_.zRange();
-	storedsubsel_.zSubSel().setOutputZRange( 0.f, zrg.stop, zrg.step );
-			// (cover up for synthetics)
 	DataPack::FullID fid( getDPID() );
 	auto stbdtp = DPM(fid).get<SeisTrcBufDataPack>(fid.packID());
 	if ( !stbdtp || stbdtp->trcBuf().isEmpty() )
@@ -156,76 +153,45 @@ bool StorageProvider::checkInpAndParsAtStart()
 	stbdtp->trcBuf().fill( si );
 	const GeomID gid = stbdtp->trcBuf().isEmpty() ? GeomID::get3D() :
 				: stbdtp->trcBuf().first()->geomID();
-	deleteAndZeroPtr( storedsubsel_ );
 	if ( is2d )
 	{
-	    storedsubsel_ = new LineSubSel( gid );
-	    storedsubsel_->setTrcNrRange( si.crlrg );
+	    storedsubsel_ = FullSubSel( gid );
+	    storedsubsel_.setTrcNrRange( si.crlrg );
 	}
 	else
 	{
-	    storedsubsel_ = new CubeSubSel;
-	    storedsubsel_->setInlRange( si.inlrg );
-	    storedsubsel_->setCrlRange( si.crlrg );
+	    storedsubsel_.setToAll( false );
+	    storedsubsel_.setInlRange( si.inlrg );
+	    storedsubsel_.setCrlRange( si.crlrg );
 	}
 
-	storedsubsel_->setZRange( si.zrg );
+	storedsubsel_.setZRange( si.zrg );
 	return true;
     }
 
     const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
-    const DBKey mid = DBKey::getFromStr( strpair.first() );
+    const DBKey dbky = DBKey::getFromStr( strpair.first() );
     if ( !isOK() )
 	return false;
 
-    mscprov_ = new Seis::MSCProvider( mid );
+    mscprov_ = new Seis::MSCProvider( dbky );
     if ( !initMSCProvider() )
-	mErrRet( errmsg_ )
+	mErrRet( uirv_ )
 
     const bool is2d = mscprov_->is2D();
     desc_.setIs2D( is2d );
-    deleteAndZeroPtr( storedsubsel_ );
     if ( !is2d )
     {
 	TrcKeyZSampling tkzs;
-	SeisTrcTranslator::getRanges( mid, tkzs, 0 );
-	storedsubsel_ = new CubeSubSel( tkzs );
+	SeisTrcTranslator::getRanges( dbky, tkzs, 0 );
+	storedsubsel_ = FullSubSel( tkzs );
     }
     else
     {
-	storedvolume_.set2DDef();
-	storedvolume_.hsamp_.start_.inl() = 0;
-	storedvolume_.hsamp_.stop_.inl() = 1;
-	storedvolume_.hsamp_.step_.inl() = 1;
-	storedvolume_.hsamp_.include( BinID( 0,0 ) );
-	storedvolume_.hsamp_.include( BinID( 0, SI().maxNrTraces() ) );
-	storedvolume_.hsamp_.step_.crl() = 1; // what else?
-
+	storedsubsel_ = FullSubSel( LineSubSelSet() );
 	const auto& prov = *mscprov_->provider()->as2D();
-	bool isfirst = false;
 	for ( int iln=0; iln<prov.nrLines(); iln++ )
-	{
-	    const auto& lss = prov.lineSubSel( iln );
-	    const auto trcrg = lss.trcNrRange();
-	    const auto zrg = lss.zRange();
-
-	    const Pos::GeomID geomid = prov.geomID( iln );
-	    const auto lnr = geomid.lineNr();
-
-	    if ( !isfirst )
-	    {
-		storedvolume_.hsamp_.include( BinID(lnr,trcrg.start) );
-		storedvolume_.hsamp_.include( BinID(lnr,trcrg.stop) );
-		storedvolume_.zsamp_.include( zrg );
-	    }
-	    else
-	    {
-		storedvolume_.hsamp_.setLineRange(StepInterval<int>(lnr,lnr,1));
-		storedvolume_.hsamp_.setTrcRange( trcrg );
-		storedvolume_.zsamp_ = zrg;
-		isfirst = false;
-	    }
-	}
+	    storedsubsel_.subSel2D().add( new LineSubSel(lss) );
     }
 
     status_ = StorageOpened;
@@ -238,7 +204,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
     if ( alreadymoved_ )
 	return 1;
 
-    if ( status_==None && isondisc_ )
+    if ( status_==None && isondisk_ )
 	return -1;
 
     if ( status_==StorageOpened )
@@ -265,17 +231,16 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
     bool advancefurther = true;
     while ( advancefurther )
     {
-	if ( isondisc_ )
+	if ( isondisk_ )
 	{
-	    Seis::MSCProvider::AdvanceState res = mscprov_ ? mscprov_->advance()
-					     : Seis::MSCProvider::EndReached;
+	    auto res = mscprov_ ? mscprov_->advance()
+				: Seis::MSCProvider::EndReached;
 	    switch ( res )
 	    {
-		case Seis::MSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
-						      return -1; }
+		case Seis::MSCProvider::Error:
+		    { uirv_ = mscprov_->errMsg();	return -1; }
 		case Seis::MSCProvider::EndReached:	return 0;
 		case Seis::MSCProvider::Buffering:	continue;
-						//TODO return 'no new position'
 
 		case Seis::MSCProvider::NewPosition:
 		{
@@ -333,59 +298,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 }
 
 
-bool StorageProvider::getLine2DStoredVolume()
+bool StorageProvider::calcPossibleSubsel( int outp, FullSubSel& outfss )
 {
-    if ( mIsUdfGeomID(geomid_) && desiredvolume_->is2D() )
-	geomid_ = desiredvolume_->hsamp_.getGeomID();
-
-    if ( mIsUdfGeomID(geomid_) || !mscprov_ || !mscprov_->is2D() )
-	return true;
-
-    storedvolume_.hsamp_.setGeomID( geomid_ );
-
-    const auto& prov = *mscprov_->provider()->as2D();
-    const auto& lss = prov.lineSubSel( prov.lineNr(geomid_) );
-    const auto trcrg = lss.trcNrRange();
-    const auto zrg = lss.zRange();
-
-    const auto lnr = geomid_.lineNr();
-    storedvolume_.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
-    storedvolume_.hsamp_.setTrcRange( trcrg );
-    storedvolume_.zsamp_ = zrg;
-    return true;
-}
-
-
-Survey::FullSubSel* StorageProvider::getPossibleVolume( int outp )
-{
-    const bool is2d = mscprov_ && mscprov_->is2D();
-    if ( !possiblevolume_ )
-    {
-	if ( is2d && geomid_.isValid() )
-	    possiblevolume_ = new LineSubSel( geomid_ );
-	else
-	    possiblevolume_ = new CubeSubSel;
-    }
-
-    if ( is2d && !getLine2DStoredVolume() )
-	return false;
-
-    *possiblevolume_ = storedvolume_;
-    if ( is2d == globpv.is2D() )
-	globpv.limitTo( *possiblevolume_ );
-
-    const bool issynthetic = possiblevolume_->hsamp_.isSynthetic();
-    if ( issynthetic )
-	globpv = *possiblevolume_;
-
-    if ( globpv.isEmpty() && !issynthetic )
-    {
-	setDataUnavailableFlag( true );
-	errmsg_ = tr("Stored cube %1 is not available in the desired range")
-		  .arg(mscprov_->name());
-	return false;
-    }
-
+    possiblesubsel_ = storedsubsel_;
+    outfss = possiblesubsel_;
     return true;
 }
 
@@ -395,9 +311,9 @@ bool StorageProvider::initMSCProvider()
     if ( !mscprov_ || !mscprov_->errMsg().isEmpty() )
     {
 	if ( !mscprov_ )
-	    errmsg_ = mINTERNAL( "mscprov_ null" );
+	    uirv_ = mINTERNAL( "mscprov_ null" );
 	else
-	    errmsg_ = mscprov_->errMsg();
+	    uirv_ = mscprov_->errMsg();
 	return false;
     }
 
@@ -448,7 +364,7 @@ void StorageProvider::updateStorageReqs( bool )
 
 Seis::MSCProvider* StorageProvider::getMSCProvider( bool& needmscprov) const
 {
-    needmscprov = isondisc_;
+    needmscprov = isondisk_;
     return mscprov_;
 }
 
@@ -471,23 +387,7 @@ bool StorageProvider::setMSCProvSelData()
     if ( is2d )
 	return set2DRangeSelData();
 
-    if ( !desiredvolume_ )
-    {
-	for ( int idp=0; idp<parents_.size(); idp++ )
-	{
-	    if ( !parents_[idp] ) continue;
-
-	    if ( parents_[idp]->getDesiredVolume() )
-	    {
-		setDesiredVolume( *parents_[idp]->getDesiredVolume() );
-		break;
-	    }
-	}
-	if ( !desiredvolume_ )
-	    return true;
-    }
-
-    if ( !checkDesiredVolumeOK() )
+    if ( !checkDesiredSubSelOK() )
 	return false;
 
     TrcKeyZSampling cs;
@@ -523,7 +423,7 @@ bool StorageProvider::setMSCProvSelData()
 
 bool StorageProvider::setTableSelData()
 {
-    if ( !isondisc_ )
+    if ( !isondisk_ )
 	return false;	//in this case we might not use a table
     if ( !mscprov_ )
 	return false;
@@ -532,7 +432,7 @@ bool StorageProvider::setTableSelData()
     seldata->extendZ( extraz_ );
     Seis::Provider& prov = *mscprov_->provider();
     if ( prov.is2D() && seldata->isRange() )
-	seldata->asRange()->setGeomID( geomid_ );
+	seldata->asRange()->setGeomID( geomID() );
 
     prov.setSelData( seldata );
 
@@ -548,30 +448,30 @@ bool StorageProvider::setTableSelData()
 
 bool StorageProvider::set2DRangeSelData()
 {
-    if ( !isondisc_ )
+    if ( !isondisk_ )
 	return false;
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,seldata_)
     Seis::RangeSelData* seldata = rsd ? rsd->clone()->asRange()
-				      : new Seis::RangeSelData;
+				      : new Seis::RangeSelData( geomID() );
 
     Seis::Provider& prov = *mscprov_->provider();
     if ( !prov.is2D() )
 	{ pErrMsg("shld be 2D"); return false; }
     const auto& prov2d = *prov.as2D();
 
-    if ( geomid_.isValid() && geomid_.is2D() )
+    if ( geomID().isValid() && geomID().is2D() )
     {
 	TrcKeyZSampling tkzs; tkzs.set2DDef();
-	seldata->setGeomID( geomid_ );
-	const auto& lss = prov2d.lineSubSel( prov2d.lineNr(geomid_) );
+	seldata->setGeomID( geomID() );
+	const auto& lss = prov2d.lineSubSel( prov2d.lineNr(geomID()) );
 	const auto trcrg = lss.trcNrRange();
 	const auto dszrg = lss.zRange();
 
 	if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 	    return false;
 
-	StepInterval<int> rg( geomid_.lineNr(), geomid_.lineNr(), 1 );
+	StepInterval<int> rg( geomID().lineNr(), geomID().lineNr(), 1 );
 	tkzs.hsamp_.setLineRange( rg );
 	rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
 		    trcrg.start : desiredvolume_->hsamp_.start_.crl();
@@ -595,7 +495,7 @@ bool StorageProvider::set2DRangeSelData()
 }
 
 
-bool StorageProvider::checkDesiredVolumeOK()
+bool StorageProvider::checkDesiredSubSelOK()
 {
     if ( !desiredvolume_ )
 	return true;
@@ -617,21 +517,21 @@ bool StorageProvider::checkDesiredVolumeOK()
     if ( !inlwrong && !crlwrong && !zwrong && !zstepwrong )
 	return true;
 
-    errmsg_ = tr("'%1' contains no data in selected area:\n")
+    uirv_ = tr("'%1' contains no data in selected area:\n")
 		.arg( desc_.userRef() );
 
     if ( inlwrong )
-	errmsg_.appendPhrase( tr("Inline range is: %1-%2 [%3]\n")
+	uirv_.add( tr("Inline range is: %1-%2 [%3]")
 		      .arg( storedvolume_.hsamp_.start_.inl() )
 		      .arg( storedvolume_.hsamp_.stop_.inl() )
 		      .arg( storedvolume_.hsamp_.step_.inl() ) );
     if ( crlwrong )
-	errmsg_.appendPhrase( tr("Crossline range is: %1-%2 [%3]\n")
+	uirv_.add( tr("Crossline range is: %1-%2 [%3]")
 		      .arg( storedvolume_.hsamp_.start_.crl() )
 		      .arg( storedvolume_.hsamp_.stop_.crl() )
 		      .arg( storedvolume_.hsamp_.step_.crl() ) );
     if ( zwrong )
-	errmsg_.appendPhrase( tr("Z range is: %1-%2\n")
+	uirv_.add( tr("Z range is: %1-%2")
 		      .arg( storedvolume_.zsamp_.start )
 		      .arg( storedvolume_.zsamp_.stop ) );
     if ( inlwrong || crlwrong || zwrong )
@@ -641,9 +541,9 @@ bool StorageProvider::checkDesiredVolumeOK()
     }
 
     if ( zstepwrong )
-	errmsg_ = tr("Z-Step is not correct. The maximum resampling "
+	uirv_.add(  tr("Z-Step is not correct. The maximum resampling "
 		     "allowed is a factor 100.\nProbably the data belongs to a"
-		     " different Z-Domain");
+		     " different Z-Domain" );
     return false;
 }
 
@@ -653,7 +553,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = mINTERNAL("'%1' has no desired volume").arg(desc_.userRef());
+	uirv_ = mINTERNAL("'%1' has no desired volume").arg(desc_.userRef());
 	return false;
     }
 
@@ -668,14 +568,13 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 	return true;
 
     setDataUnavailableFlag( true );
-    errmsg_ = tr("'%1' contains no data in selected area:\n")
+    uirv_ = tr("'%1' contains no data in selected area:\n")
 		.arg( desc_.userRef() );
     if ( trcrgwrong )
-	errmsg_.appendPhrase( tr("Trace range is: %1-%2\n")
+	uirv_.add( tr("Trace range is: %1-%2")
 		      .arg( trcrg.start ).arg( trcrg.stop ) );
     if ( zwrong )
-	errmsg_.appendPhrase( tr("Z range is: %1-%2\n")
-		      .arg( zrg.start ).arg( zrg.stop ) );
+	uirv_.add( tr("Z range is: %1-%2").arg( zrg.start ).arg( zrg.stop ) );
     return false;
 }
 
@@ -687,7 +586,7 @@ bool StorageProvider::computeData( const DataHolder& output,
     const BinID bidstep = getStepoutStep();
     const SeisTrc* trc = 0;
 
-    if ( isondisc_)
+    if ( isondisk_)
 	trc = mscprov_->get( relpos.inl()/bidstep.inl(),
 			     relpos.crl()/bidstep.crl() );
     else
@@ -823,7 +722,7 @@ BinID StorageProvider::getStepoutStep() const
 	if ( prov.is2D() )
 	{
 	    const auto& prov2d = *prov.as2D();
-	    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
+	    int lnr = geomID().isValid() ? prov2d.lineNr(geomID()) : 0;
 	    const auto& lss = prov2d.lineSubSel( lnr );
 	    const auto trcrg = lss.trcNrRange();
 	    sos.crl() = trcrg.step;
@@ -836,28 +735,6 @@ BinID StorageProvider::getStepoutStep() const
     }
 
     return stepoutstep_;
-}
-
-
-void StorageProvider::adjust2DLineStoredVolume()
-{
-    if ( !isondisc_ || !mscprov_ ) return;
-
-    const Seis::Provider& prov = *mscprov_->provider();
-    if ( !prov.is2D() )
-	return;
-
-    const auto& prov2d = *prov.as2D();
-    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
-    const auto& lss = prov2d.lineSubSel( lnr );
-    storedvolume_.hsamp_.setTrcRange( lss.trcNrRange() );
-    storedvolume_.zsamp_ = lss.zRange();
-}
-
-
-Pos::GeomID StorageProvider::getGeomID() const
-{
-    return geomid_;
 }
 
 
@@ -993,12 +870,12 @@ bool StorageProvider::useInterTrcDist() const
 }
 
 
-float StorageProvider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+float StorageProvider::getDistBetwTrcs( bool ismax ) const
 {
     if ( !ls2ddata_ )
 	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
 
-    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, linenm )
+    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, geomID() )
 		     : mUdf(float);
 }
 

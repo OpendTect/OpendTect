@@ -39,16 +39,15 @@ public:
 
     int			moveToNextTrace(BinID startpos=BinID(-1,-1),
 					bool firstcheck=false);
-    FullSubSel*		calcPossibleExtent(int outp);
+    bool		calcPossibleSubsel(int outp,FullSubSel&) override;
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
-    void		adjust2DLineStoredVolume();
-    Pos::GeomID		getGeomID() const;
+    GeomID		getGeomID() const;
 
     void		fillDataPackWithTrc(RegularSeisDataPack*) const;
     bool		needStoredInput() const	{ return true; }
     virtual void	getCompNames(BufferStringSet&) const;
-    virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;
+    float		getDistBetwTrcs(bool,GeomID g=GeomID()) const override;
     virtual bool	compDistBetwTrcsStats(bool force=false);
 
 protected:
@@ -60,7 +59,7 @@ protected:
     static void		updateDesc(Desc&);
     static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
 
-    bool		getLine2DStoredVolume();
+    bool		getLine2DStoredSubSel();
     bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }
 
@@ -90,7 +89,7 @@ protected:
 
     bool		checkDesiredTrcRgOK(StepInterval<int>,
 					    StepInterval<float>);
-    bool		checkDesiredVolumeOK();
+    bool		checkDesiredSubSelOK();
     void		checkClassType(const SeisTrc*,BoolTypeSet&) const;
     bool		setTableSelData();
     bool		set2DRangeSelData();
@@ -104,8 +103,8 @@ protected:
     TypeSet<BinDataDesc> datachar_;
     Seis::MSCProvider*	mscprov_;
     BinID		stepoutstep_;
-    FullSubSel*		storedsubsel_;
-    bool		isondisc_;
+    FullSubSel		storedsubsel_;
+    bool		isondisk_;
     bool		useintertrcdist_;
     PosInfo::LineSet2DData*  ls2ddata_;
 

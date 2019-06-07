@@ -44,6 +44,8 @@ public:
     typedef od_int64		totalsz_type;
 
     virtual			~SubSel()		{}
+    virtual SubSel*		getCopy() const	= 0;
+				    //!< clone() would clash with ArrRegSubSel's
 
     virtual GeomID		geomID() const		= 0;
     virtual bool		is2D() const		= 0;
@@ -72,6 +74,7 @@ public:
     CubeHorSubSel*		asCubeHorSubSel();
     const CubeHorSubSel*	asCubeHorSubSel() const;
 
+    SubSel*			getCopy() const override;
     static HorSubSel*		get(const TrcKeySampling&);
     static HorSubSel*		create(const IOPar&);
     bool			usePar(const IOPar&);
@@ -98,6 +101,7 @@ public:
     mUseType( ZSubSel,	z_type );
     mUseType( ZSubSel,	z_steprg_type );
 
+    SubSel*		getCopy() const override;
     bool		is2D() const override
 			{ return gtHorSubSel().is2D(); }
     GeomID		geomID() const override
@@ -133,6 +137,7 @@ public:
     z_type		z4Idx( idx_type idx ) const
 			{ return zss_.z4Idx( idx ); }
 
+    static GeomSubSel*	get(GeomID);
     static GeomSubSel*	get(const TrcKeyZSampling&);
     static GeomSubSel*	create(const IOPar&);
     virtual bool	usePar(const IOPar&);
@@ -222,6 +227,7 @@ public:
     LineSubSelSet&	subSel2D()		{ return lsss_; }
     const LineSubSelSet& subSel2D() const	{ return lsss_; }
     bool		hasFullZRange() const;
+    bool		isZSlice() const;
     const LineSubSel*	findLineSubSel(GeomID) const;
     void		merge(const FullSubSel&);
 

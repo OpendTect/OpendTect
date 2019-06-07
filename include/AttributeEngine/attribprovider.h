@@ -18,7 +18,7 @@ ________________________________________________________________________
 class BinDataDesc;
 class RegularSeisDataPack;
 class SeisTrcInfo;
-namespace Seis { class MSCProvider; }
+namespace Seis { class MSCProvider; class SelData; }
 template <class T> class Array2DImpl;
 
 #define mMAXDIP 300 * 1e-6
@@ -32,27 +32,27 @@ class DataHolder;
 class DataHolderLineBuffer;
 class ProviderTask;
 
-/*!
-\brief Provides the actual output to ...
-*/
+/*!\brief Provides the actual output to clients */
 
 mExpClass(AttributeEngine) Provider : public RefCount::Referenced
 {   mODTextTranslationClass(Attrib::Provider)
 public:
 
+    mUseType( Pos,		GeomID );
     mUseType( Seis,		MSCProvider );
     mUseType( Seis,		SelData );
     mUseType( Survey,		FullSubSel );
+    mUseType( Survey,		GeomSubSel );
 
     static Provider*		create(Desc&,uiString& errmsg);
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
-    virtual bool		isOK() const;
-    virtual uiRetVal		isActive() const      { return uiRetVal::OK(); }
+    virtual uiRetVal		isOK() const;
+    virtual uiRetVal		isActive() const	{ return uiRetVal(); }
     bool			is2D() const;
 
-    const Desc&			getDesc() const;
-    Desc&			getDesc();
+    const Desc&			getDesc() const		{ return desc_; }
+    Desc&			getDesc()		{ return desc_; }
     const DataHolder*		getData(const BinID& relpos=BinID(0,0),
 					int idx=0);
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
@@ -74,6 +74,8 @@ public:
     const BinID&		getDesBufStepout() const
 				{ return desbufferstepout_; }
     void			setDesiredSubSel(const FullSubSel&);
+    void			setDesiredSubSel(const GeomSubSel&);
+					// provided must be 2D/3D correct
     const FullSubSel&		getDesiredSubSel() const
 				{ return desiredsubsel_; }
     void			resetDesiredSubSel();
@@ -81,11 +83,10 @@ public:
     virtual bool		calcPossibleSubSel(int outp,FullSubSel&);
     const FullSubSel&		getPossibleSubSel() const
 				{ return possiblesubsel_; }
-    int				getTotalNrPos(bool);
-    void			setGeomID(GeomID);
+    int				getTotalNrPos();
     virtual void		adjust2DLineStoredSubSel();
-    virtual Pos::GeomID		getGeomID() const;
-    virtual void		setGeomID(Pos::GeomID);
+    virtual GeomID		getGeomID() const;
+    virtual void		setGeomID(GeomID);
 
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 						bool firstcheck = false);
@@ -166,8 +167,7 @@ public:
     virtual void		updateCSIfNeeded(FullSubSel&) const {}
     virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
-    virtual float		getDistBetwTrcs(bool,
-						const char* linenm =0) const;
+    virtual float		getDistBetwTrcs(bool ismax) const;
 
     void			setDataUnavailableFlag(bool yn);
     bool			getDataUnavailableFlag() const;
@@ -351,6 +351,8 @@ protected:
 				{ return (float) (zIsTime() ? mMAXDIPSECURE
 						   : mMAXDIPSECUREDEPTH); }
     void			stdPrepSteering(const BinID&);
+    void			applyMargins(const Interval<float>*,
+					 const Interval<int>*,FullSubSel&);
 
     ObjectSet<Provider>		inputs_;
     ObjectSet<Provider>		parents_;
@@ -370,7 +372,6 @@ protected:
     DataHolderLineBuffer*	linebuffer_;
     BinID			currentbid_;
     int				prevtrcnr_;
-    Pos::GeomID			geomid_;
     const SelData*		seldata_;
     Interval<float>		extraz_;
     const SeisTrcInfo*		curtrcinfo_;
@@ -383,7 +384,7 @@ protected:
 
     bool			isusedmulttimes_;
     bool			needinterp_;
-    uiString			errmsg_;
+    uiRetVal			uirv_;
     bool			dataunavailableflag_;
 
     friend class		ProviderTask;

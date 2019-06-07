@@ -77,6 +77,16 @@ void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 }
 
 
+Survey::SubSel* Survey::HorSubSel::getCopy() const
+{
+    const auto* lhss = asLineHorSubSel();
+    if ( lhss )
+	return new LineHorSubSel( *lhss );
+    else
+	return new CubeHorSubSel( *asCubeHorSubSel() );
+}
+
+
 LineHorSubSel* Survey::HorSubSel::asLineHorSubSel()
 {
     return mGetDynamicCast( LineHorSubSel*, this );
@@ -147,6 +157,16 @@ Survey::GeomSubSel::GeomSubSel( const z_steprg_type& zrg )
 }
 
 
+Survey::SubSel* Survey::GeomSubSel::getCopy() const
+{
+    const auto* lss = asLineSubSel();
+    if ( lss )
+	return lss->getCopy();
+    else
+	return asCubeSubSel()->getCopy();
+}
+
+
 LineSubSel* Survey::GeomSubSel::asLineSubSel()
 {
     return mGetDynamicCast( LineSubSel*, this );
@@ -168,6 +188,15 @@ CubeSubSel* Survey::GeomSubSel::asCubeSubSel()
 const CubeSubSel* Survey::GeomSubSel::asCubeSubSel() const
 {
     return mGetDynamicCast( const CubeSubSel*, this );
+}
+
+
+Survey::GeomSubSel* Survey::GeomSubSel::get( GeomID gid )
+{
+    if ( gid.is2D() )
+	return new LineSubSel( gid );
+    else
+	return new CubeSubSel;
 }
 
 
@@ -1030,6 +1059,15 @@ bool Survey::FullSubSel::isAll() const
 	return css_->isAll();
     else
 	return lsss_.isAll();
+}
+
+
+bool Survey::FullSubSel::isZSlice() const
+{
+    if ( css_ )
+	return css_->defaultDir() == OD::ZSlice;
+    else
+	return !lsss_.isEmpty() && lsss_.first()->zRange().nrSteps() < 2;
 }
 
 
