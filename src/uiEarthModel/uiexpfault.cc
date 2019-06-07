@@ -72,7 +72,6 @@ ________________________________________________________________________
 			  uiStrings::sFault(mGetObjNr), \
 			  uiStrings::sFaultSet(mGetObjNr) )
 
-
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
@@ -84,6 +83,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     , bulkinfld_(0)
 {
     mGetDispString(typ);
+    isfltset_ = FixedString( typ ) == EMFaultSet3DTranslatorGroup::sGroupName();
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -273,8 +273,17 @@ bool uiExportFault::writeAscii()
     }
 
     uiTaskRunnerProvider trprov( this );
-    RefObjectSet<EM::Object> loadedobjs =
-			EM::MGR().loadObjects( dbkeyset, trprov );
+    RefObjectSet<EM::Object> loadedobjs;
+
+    if ( isfltset_ )
+    {
+	ConstRefMan<EM::Object> obj = EM::FltSetMan().fetch(
+						    dbkeyset.get(0), trprov );
+	loadedobjs.add( const_cast<EM::Object*>( obj.ptr()) );
+    }
+    else
+	loadedobjs = EM::MGR().loadObjects( dbkeyset, trprov );
+
     if ( loadedobjs.isEmpty() )
 	return false;
 
@@ -296,15 +305,18 @@ bool uiExportFault::writeAscii()
 	for ( int oidx=0; oidx<nrobjs; oidx++ )
 	{
 	    EM::Object* fltobj = emobj;
+	    BufferString objnm = fltobj->name();
+
 	    if ( fset )
 	    {
 		EM::FaultID fltid = fset->getFaultID( oidx );
 		fltobj = fset->getFault3D( fltid );
+		objnm = fset->name();
+		objnm.add("_").add( fltid );
 	    }
+	    objnm.quote( '\"' );
 
 	    const int nrsticks = nrSticks( fltobj );
-	    BufferString objnm = f3d ? f3d->name() : fss->name();
-	    objnm.quote('\"');
 
 	    BufferString str;
 
@@ -326,7 +338,8 @@ bool uiExportFault::writeAscii()
 			{
 			    first = false;
 			    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-			    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
+			    bbox.zsamp_.start = bbox.zsamp_.stop =
+								(float) crd.z_;
 			}
 			else
 			{
@@ -359,7 +372,7 @@ bool uiExportFault::writeAscii()
 			crd.setXY(
 				coordsysselfld_->getCoordSystem()->convertFrom(
 					crd.getXY(),*SI().getCoordSystem()));
-		    if ( !issingle_ )
+		    if ( !issingle_ || isfltset_ )
 			ostrm << objnm << "\t";
 		    const BinID bid = SI().transform( crd.getXY() );
 		    if ( zatf )
