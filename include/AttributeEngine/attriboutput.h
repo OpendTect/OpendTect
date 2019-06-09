@@ -12,10 +12,11 @@ ________________________________________________________________________
 
 #include "attributeenginecommon.h"
 #include "bufstringset.h"
-#include "trckeyzsampling.h"
 #include "ranges.h"
 #include "refcount.h"
 #include "seistype.h"
+#include "survsubsel.h"
+#include "binid.h"
 #include "uistrings.h"
 
 class BinDataDesc;
@@ -25,6 +26,7 @@ class RegularSeisDataPack;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
+class TrcKeyZSampling;
 class Scaler;
 namespace Seis { class SelData; class Storer; }
 
@@ -41,9 +43,13 @@ class Processor;
 mExpClass(AttributeEngine) Output : public RefCount::Referenced
 {
 public:
+
+    mUseType( Pos,		GeomID );
+    mUseType( Survey,		FullSubSel );
+
 				Output();
 
-    virtual bool		getDesiredVolume(TrcKeyZSampling&) const
+    virtual bool		getDesiredSubSel(FullSubSel&) const
 				{ return true; }
     virtual bool		useCoords(OD::GeomSystem) const	{ return false;}
     virtual bool		wantsOutput(const BinID&) const; // overrule it
@@ -67,7 +73,7 @@ public:
     virtual bool		writeTrc()		{ return true; }
     virtual void		deleteTrc()		{}
     const Seis::SelData&	getSelData()		{ return *seldata_; }
-    virtual void		setPossibleVolume(const TrcKeyZSampling&) {}
+    virtual void		setPossibleSubSel(const FullSubSel&) {}
     virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
@@ -86,7 +92,7 @@ protected:
     Seis::SelData*		seldata_;
     TypeSet<int>		desoutputs_;
 
-    void			doSetGeometry(const TrcKeyZSampling&);
+    void			doSetGeometry(const FullSubSel&);
     void			ensureSelType(Seis::SelType);
 };
 
@@ -105,15 +111,15 @@ protected:
 mExpClass(AttributeEngine) DataPackOutput : public Output
 {
 public:
-				DataPackOutput(const TrcKeyZSampling&);
+				DataPackOutput(const FullSubSel&);
 
     const RegularSeisDataPack*	getDataPack() const;
     virtual RegularSeisDataPack*getDataPack(float);
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
-    void			setGeometry( const TrcKeyZSampling& cs )
-				{ doSetGeometry(cs); }
-    void	setUndefValue( float v )	{ udfval_ = v; }
+    bool			getDesiredSubSel(FullSubSel&) const;
+    void			setGeometry( const FullSubSel& fss )
+				{ doSetGeometry(fss); }
+    void			setUndefValue( float v )	{ udfval_ = v; }
 
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
@@ -121,11 +127,12 @@ public:
 				mImplDefAttribOutputFns(Coord)
     virtual void		collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&);
-    void			setPossibleVolume(const TrcKeyZSampling&);
+    void			setPossibleSubSel(const FullSubSel&);
 
 protected:
-    TrcKeyZSampling		desiredvolume_;
-    TrcKeyZSampling		dcsampling_;	//can differ from desiredvolume_
+
+    FullSubSel		desiredfss_;
+    FullSubSel		dcfss_;	//can differ from desiredfss_
 				//(special cases with decimated cubes smaller
 				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
@@ -143,21 +150,25 @@ protected:
 mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 { mODTextTranslationClass(Attrib::SeisTrcStorOutput)
 public:
-				SeisTrcStorOutput(const TrcKeyZSampling&,
+
+				SeisTrcStorOutput(const FullSubSel&,
 						  const Pos::GeomID);
 				~SeisTrcStorOutput();
+
+    GeomID			geomID() const
+				{ return desiredfss_.geomID(0); }
 
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
     virtual bool		useCoords(OD::GeomSystem) const	{ return false;}
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
+    bool			getDesiredSubSel(FullSubSel&) const;
     bool			wantsOutput(const BinID&) const;
     virtual TypeSet< Interval<int> > getLocalZRanges(const BinID&,float,
 						     TypeSet<float>&) const;
 				mImplDefAttribOutputFns(Coord)
     bool			setStorageID(const DBKey&);
-    void			setGeometry( const TrcKeyZSampling& cs )
-				{ doSetGeometry(cs); }
+    void			setGeometry( const FullSubSel& fss )
+				{ doSetGeometry(fss); }
 
     bool			doUsePar(const IOPar&,int outidx);
     virtual bool		finishWrite();
@@ -183,7 +194,7 @@ public:
 protected:
 
     DBKey&			storid_;
-    TrcKeyZSampling		desiredvolume_;
+    FullSubSel			desiredfss_;
     TypeSet< Interval<int> >	sampleinterval_;
     IOPar*			auxpars_;
     bool			is2d_;
@@ -236,7 +247,7 @@ public:
 						{ maxdisttrcs_ = maxdist; }
 protected:
 
-    const TrcKeyZSampling		getCS();
+    FullSubSel			getFSS();
 
     DataPointSet*		poszvalues_;
     float			stdtrcsz_;
@@ -265,7 +276,7 @@ public:
 				mImplDefAttribOutputFns(Coord)
     void			setGeometry(const Interval<int>&,
 					    const Interval<float>&);
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
+    bool			getDesiredSubSel(FullSubSel&) const;
     void			setOutput(Data2DHolder&);
 
     void			collectData(const DataHolder&,float step,
@@ -291,7 +302,7 @@ public:
 				LocationOutput(BinIDValueSet&);
 				~LocationOutput() {};
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const
+    bool			getDesiredSubSel(FullSubSel&) const
 				{ return true;}
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
@@ -329,7 +340,7 @@ public:
 						   float outval =0);
 				~TrcSelectionOutput() ;
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
+    bool			getDesiredSubSel(FullSubSel&) const;
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 						TypeSet<float>&) const;
@@ -359,7 +370,7 @@ public:
 				TableOutput(DataPointSet&,int);
 				~TableOutput() {};
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const
+    bool			getDesiredSubSel(FullSubSel&) const
 				{ return true;}
     virtual bool		useCoords(OD::GeomSystem) const;
     bool			wantsOutput(const BinID&) const;

@@ -40,14 +40,37 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 }
 
 
-Provider* ProviderFactory::create( Desc& desc, bool skipchecks ) const
+Provider* ProviderFactory::create( Desc& desc, uiRetVal& uirv,
+				   bool skipchecks ) const
 {
-    if ( !skipchecks && Desc::isError(desc.satisfyLevel()) )
-	return 0;
+    if ( !skipchecks )
+    {
+	const auto lvl = desc.satisfyLevel();
+	if ( Desc::isError(lvl) )
+	{
+	    if ( lvl != Desc::StorNotFound )
+		uirv = tr("Error in definition of %1 attribute.")
+			 .arg( desc.attribName() );
+	    else
+	    {
+		uirv = tr("Impossible to find stored data '%1'\n"
+				 "used as input for other attribute(s). \n"
+				 "Data might have been deleted or corrupted.\n"
+				 "Please check your attribute set \n"
+				 "Please select valid stored data.")
+				.arg( desc.userRef() );
+	    }
+	    return nullptr;
+	}
 
-    const int idx = indexOf(desc.attribName());
+    }
+
+    const int idx = indexOf( desc.attribName() );
     if ( idx < 0 )
-	return 0;
+    {
+	uirv = mINTERNAL( "Attribute not in factory" );
+	return nullptr;
+    }
 
     return creaters_[idx]( desc );
 }

@@ -522,21 +522,20 @@ void PSAttrib::prepPriorToBoundsCalc()
 }
 
 
-void PSAttrib::updateCSIfNeeded( TrcKeyZSampling& cs ) const
+void PSAttrib::updatecSIfNeeded( FullSubSel& fss ) const
 {
     if ( !psrdr_ )
 	return;
 
     mDynamicCastGet( SeisPS3DReader*, reader3d, psrdr_ )
-
     if ( reader3d )
     {
 	const PosInfo::CubeData& cd = reader3d->posData();
 	StepInterval<int> rg;
 	cd.getInlRange( rg );
-	cs.hsamp_.setInlRange( rg );
+	fss.as3D()->setInlRange( rg );
 	cd.getCrlRange( rg );
-	cs.hsamp_.setCrlRange( rg );
+	fss.as3D()->setCrlRange( rg );
     }
 
     //TODO: anything we would need to do in 2D?

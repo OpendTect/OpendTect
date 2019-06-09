@@ -62,6 +62,7 @@ public:
     bool		isAll() const		{ return GeomSubSel::isAll(); }
     totalsz_type	totalSize() const { return GeomSubSel::totalSize(); }
     void		merge(const LineSubSel&);
+    void		limitTo(const LineSubSel&);
 
     LineHorSubSel&	lineHorSubSel()		{ return hss_; }
     const LineHorSubSel& lineHorSubSel() const	{ return hss_; }
@@ -97,6 +98,7 @@ public:
 
     mUseType( Survey::SubSel,	totalsz_type );
     mUseType( Pos,		GeomID );
+    mUseType( LineSubSel,	trcnr_type );
 
 			LineSubSelSet()		{}
 			LineSubSelSet(const LineHorSubSelSet&);
@@ -108,6 +110,8 @@ public:
     bool		hasFullRange() const;
     bool		hasFullZRange() const;
     void		merge(const LineSubSelSet&);
+    void		limitTo(const LineSubSelSet&);
+    void		addStepout(trcnr_type);
 
     LineSubSel*		find( GeomID gid )	{ return doFind( gid ); }
     const LineSubSel*	find( GeomID gid ) const { return doFind( gid ); }

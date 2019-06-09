@@ -97,28 +97,30 @@ void Output::ensureSelType( Seis::SelType st )
 }
 
 
-void Output::doSetGeometry( const TrcKeyZSampling& cs )
+void Output::doSetGeometry( const FullSubSel& fss )
 {
-    if ( !cs.isEmpty() )
-	{ delete seldata_; seldata_ = new Seis::RangeSelData( cs ); }
+    if ( !fss.isAll() )
+	{ delete seldata_; seldata_ = new Seis::RangeSelData( fss ); }
 }
 
 
 DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
-    : desiredvolume_(cs)
-    , dcsampling_(cs)
+    : desiredsubsel_(cs)
+    , dcfss_(cs)
     , output_(0)
     , udfval_(mUdf(float))
 {
 }
 
 
-bool DataPackOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
-{ cs=desiredvolume_; return true; }
+bool DataPackOutput::getDesiredSubSel( FullSubSel& fss ) const
+{ fss = desiredfss_; return true; }
 
 
 bool DataPackOutput::wantsOutput( const BinID& bid ) const
-{ return desiredvolume_.hsamp_.includes(bid); }
+{
+    return desiredfss_.hsamp_.includes(bid);
+}
 
 
 TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
@@ -127,18 +129,19 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 {
     if ( sampleinterval_.size() ==0 )
     {
-	Interval<int> interval( mNINT32( desiredvolume_.zsamp_.start / zstep ),
-				mNINT32( desiredvolume_.zsamp_.stop / zstep ) );
+	const auto zrg = desiredsubsel_.zRange();
+	Interval<int> interval( mNINT32( zrg.start / zstep ),
+				mNINT32( zrg.stop / zstep ) );
 	const_cast<DataPackOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
 }
 
 
-void DataPackOutput::setPossibleVolume( const TrcKeyZSampling& possvol )
+void DataPackOutput::setPossibleSubSel( const FullSubSel& possss )
 {
-    desiredvolume_.adjustTo( possvol );
-    dcsampling_ = desiredvolume_;
+    desiredfss_.limitTo( possss );
+    dcfss_ = desiredfss_;
 }
 
 
@@ -229,15 +232,14 @@ RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
 void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
     output_ = new RegularSeisDataPack( OD::EmptyString(), bdd );
-    output_->setSampling( dcsampling_ );
+    output_->setSampling( TrcKeyZSampling(dcsfss_) );
     DPM(DataPackMgr::SeisID()).add( output_ );
     const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;
 }
 
 
-SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid )
-    : desiredvolume_(cs)
+SeisTrcStorOutput::SeisTrcStorOutput( const FullSubSel& fss )
+    : desiredsubsel_(fss)
     , auxpars_(0)
     , storid_(*new DBKey)
     , storer_(0)
@@ -249,21 +251,23 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , growtrctosi_(false)
     , writez0shift_(0.f)
 {
-    if ( seldata_ && geomid.isValid() && seldata_->isRange() )
-	seldata_->asRange()->setGeomID( geomid );
+    if ( seldata_ && geomID().isValid() && seldata_->isRange() )
+	seldata_->asRange()->setGeomID( geomID() );
 }
 
 
-bool SeisTrcStorOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
+bool SeisTrcStorOutput::getDesiredSubSel( FullSubSel& fss ) const
 {
-    cs = desiredvolume_;
+    fss = desiredsubsel_;
     return true;
 }
 
 
 bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 {
-    return desiredvolume_.hsamp_.includes(bid);
+    return desiredsubsel_.is2D()
+	 ? desiredsubsel_.lineSubSel().trcNrSubSel().includes(bid.crl())
+	 : desiredsubsel_.cubeSubSel().includes(bid);
 }
 
 
@@ -329,7 +333,8 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
 
     auxpars_ = pars.subselect("Aux");
     return doInit();
-} //warning, only a small part of the old taken, see if some more is required
+
+}
 
 
 bool SeisTrcStorOutput::doInit()
@@ -352,12 +357,8 @@ bool SeisTrcStorOutput::doInit()
 	}
     }
 
-    desiredvolume_.normalise();
     if ( !is2d_ && seldata_->isRange() )
-    {
-	const TrcKeyZSampling tkzs( seldata_->asRange()->subSel3D() );
-	desiredvolume_.limitTo( tkzs );
-    }
+	desiredsubsel_.limitTo( seldata_->asRange()->fullSubSel() );
 
     return true;
 }
@@ -416,15 +417,16 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	}
     }
 
-    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling_.step,1e-6))
+    auto reqzrg = desiredsubsel_.zRange();
+    if ( !mIsEqual(reqzrg.step,trc_->info().sampling_.step,1e-6))
     {
-	StepInterval<float> reqzrg = desiredvolume_.zsamp_;
+	auto reqzrg = desiredsubsel_.zRange();
 	reqzrg.limitTo( trc_->zRange() );
 	const int nrsamps = mCast( int, reqzrg.nrfSteps() + 1 );
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
 	{
 	    SeisTrc temptrc( *trc_ );
-	    trc_->info().sampling_.step = desiredvolume_.zsamp_.step;
+	    trc_->info().sampling_.step = reqzrg.step;
 	    trc_->data().getComponent(icomp)->reSize( nrsamps );
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 	    {
@@ -493,8 +495,9 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start/zstep),
-				mNINT32(desiredvolume_.zsamp_.stop/zstep) );
+	const auto zrg = desiredsubsel_.zRange();
+	Interval<int> interval( mNINT32(zrg.start/zstep),
+				mNINT32(zrg.stop/zstep) );
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -516,7 +519,7 @@ bool SeisTrcStorOutput::finishWrite()
 
 
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
-			Pos::GeomID geomid)
+			Pos::GeomID geomid )
     : errmsg_(uiString::empty())
     , output_( 0 )
 {
@@ -556,15 +559,11 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 }
 
 
-bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
+bool TwoDOutput::getDesiredSubSel( FullSubSel& fss ) const
 {
-    const StepInterval<int> rg( seldata_->crlRange() );
-    tkzs.hsamp_.setTrcRange( rg );
-    const Interval<float> zrg( seldata_->zRange() );
-    tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    const auto lnr = seldata_->geomID().lineNr();
-    tkzs.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
-    tkzs.hsamp_.setIs2D( true );
+    fss.setToAll( true );
+    fss.setTrcNrRange( seldata_->crlRange() );
+    fss.setZRange( seldata_->zRange() );
     return true;
 }
 
@@ -880,34 +879,26 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 }
 
 
-bool TrcSelectionOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
+bool TrcSelectionOutput::getDesiredSubSel( FullSubSel& fss ) const
 {
-    Interval<int> inlrg = bidvalset_.inlRange();
-    Interval<int> crlrg = bidvalset_.crlRange();
-    Interval<float> zrg =
-	Interval<float>( stdstarttime_, stdstarttime_ + stdtrcsz_ );
-    TrcKeyZSampling trcselsampling( false );
-    trcselsampling.include ( BinID( inlrg.start, crlrg.start), zrg.start);
-    trcselsampling.include ( BinID( inlrg.stop, crlrg.stop), zrg.stop);
-    if ( !cs.includes( trcselsampling ) )
-	cs = trcselsampling;
+    fss.setToAll( false );
+    StepInterval<int> inlrg( bidvalset_.inlRange(), fss.inlSubSel().posStep() );
+    StepInterval<int> crlrg( bidvalset_.crlRange(), fss.crlSubSel().posStep() );
+    StepInterval<float> zrg( stdstarttime_, stdstarttime_ + stdtrcsz_,
+			     fss.zSubSel().zStep() );
+
+    CubeSubSel& css = fss.cubeSubSel();
+    css.setInlRange( inlrg );
+    css.setCrlRange( crlrg );
+    css.setZRange( zrg );
     return true;
-}
-
-
-const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
-{
-    TrcKeyZSampling cs;
-    cs.hsamp_.start_.inl() = 0; cs.hsamp_.stop_.inl() = mUdf(int);
-    cs.hsamp_.start_.crl() = 1; cs.hsamp_.stop_.crl() = mUdf(int);
-    return cs;
 }
 
 
 Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
 					  DataPointSet* poszvalues,
 					  float outval )
-    : SeisTrcStorOutput( getCS(), geomid )
+    : SeisTrcStorOutput( FullSubSel(geomid) )
     , poszvalues_(poszvalues)
     , outval_(outval)
 {
@@ -925,7 +916,7 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
 	if ( val > zmax ) zmax = val;
     }
 
-    setGeometry( getCS() );
+    setGeometry( desiredfss_ );
     seldata_->setZRange( Interval<float>(zmin,zmax) );
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;
@@ -966,7 +957,6 @@ bool Trc2DVarZStorOutput::doInit()
 	}
     }
 
-    desiredvolume_.normalise();
     return true;
 }
 

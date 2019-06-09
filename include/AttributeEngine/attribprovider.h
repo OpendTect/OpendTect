@@ -44,11 +44,7 @@ public:
     mUseType( Survey,		FullSubSel );
     mUseType( Survey,		GeomSubSel );
 
-    static Provider*		create(Desc&,uiString& errmsg);
-				/*!< Also creates all inputs, the input's
-				     inputs, and so on */
-    virtual uiRetVal		isOK() const;
-    virtual uiRetVal		isActive() const	{ return uiRetVal(); }
+    static Provider*		create(Desc&,uiRetVal&);
     bool			is2D() const;
 
     const Desc&			getDesc() const		{ return desc_; }
@@ -75,17 +71,16 @@ public:
 				{ return desbufferstepout_; }
     void			setDesiredSubSel(const FullSubSel&);
     void			setDesiredSubSel(const GeomSubSel&);
-					// provided must be 2D/3D correct
-    const FullSubSel&		getDesiredSubSel() const
+    const FullSubSel&		desiredSubSel() const
 				{ return desiredsubsel_; }
     void			resetDesiredSubSel();
-    void                        setPossibleSubSel(const FullSubSel&);
+    void			setPossibleSubSel(const FullSubSel&);
     virtual bool		calcPossibleSubSel(int outp,FullSubSel&);
-    const FullSubSel&		getPossibleSubSel() const
+    const FullSubSel&		possibleSubSel() const
 				{ return possiblesubsel_; }
-    int				getTotalNrPos();
+    int				totalNrPos();
     virtual void		adjust2DLineStoredSubSel();
-    virtual GeomID		getGeomID() const;
+    virtual GeomID		geomID() const;
     virtual void		setGeomID(GeomID);
 
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
@@ -124,14 +119,14 @@ public:
 				with a different z step the smallest one will
 				be taken as reference step*/
     void			setRefStep(float step);
-    float                       getRefStep() const;
+    float                       refStep() const;
 
     void			computeRefZ0();
 				/*!<If an attribute uses as inputs stored cubes
 				with a different z0 the smallest one will
 				be taken as reference z0*/
     void			setRefZ0(float z0);
-    float                       getRefZ0() const	{ return refz0_; }
+    float                       refZ0() const	{ return refz0_; }
 
     virtual BinID		getStepoutStep() const;
     ObjectSet<Provider>&	getInputs()		{ return inputs_; }
@@ -164,7 +159,7 @@ public:
 				//!<which inputs are not treated as normal
 				//!<input cubes and thus not delivering
 				//!<adequate cs automaticly
-    virtual void		updateCSIfNeeded(FullSubSel&) const {}
+    virtual void		updateSSIfNeeded(FullSubSel&) const {}
     virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool ismax) const;
@@ -184,7 +179,7 @@ protected:
 
     virtual MSCProvider*	getMSCProvider(bool&) const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
-					       bool& issame,uiString&);
+					       bool& issame,uiRetVal&);
 				/*!< Creates the provider needed and all its
 				  input providers*/
 

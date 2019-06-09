@@ -64,6 +64,7 @@ public:
     bool		includes(const Bin2D&) const;
     bool		includes(const LineHorSubSel&) const;
     void		merge(const LineHorSubSel&);
+    void		limitTo(const LineHorSubSel&);
     void		addStepout( trcnr_type so )
 			{ trcNrSubSel().addStepout(so); }
 
@@ -100,6 +101,7 @@ public:
     bool		hasAllLines() const;
     bool		hasFullRange() const;
     void		merge(const LineHorSubSelSet&);
+    void		limitTo(const LineHorSubSelSet&);
     void		addStepout(trcnr_type);
 
     LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
@@ -185,6 +187,7 @@ public:
 			{ return Pos::IdxSubSel2D::includes( bid ); }
     bool		includes(const CubeHorSubSel&) const;
     void		merge(const CubeHorSubSel&);
+    void		limitTo(const CubeHorSubSel&);
     void		addStepout(pos_type,pos_type);
 
     pos_type		inlStart() const { return inlRange().start; }
@@ -195,8 +198,6 @@ public:
     pos_type		crlStep() const	{ return crlRange().step; }
     size_type		nrInl() const	{ return inlRange().nrSteps()+1; }
     size_type		nrCrl() const	{ return crlRange().nrSteps()+1; }
-
-    void		limitTo(const CubeHorSubSel&);
 
     BinID		atGlobIdx( od_int64 gidx ) const
 			{

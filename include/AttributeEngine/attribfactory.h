@@ -23,7 +23,7 @@ typedef Provider* (*ProviderCreater)(Desc&);
 /*!\brief Factory for attribute providers. */
 
 mExpClass(AttributeEngine) ProviderFactory
-{
+{ mODTextTranslationClass(ProviderFactory)
 public:
 			ProviderFactory();
 			~ProviderFactory();
@@ -35,7 +35,7 @@ public:
     const Desc&		getDesc( int idx ) const	{ return *descs_[idx]; }
     const Desc*		getDesc(const char*) const;
 
-    Provider*		create(Desc&,bool skipchecks=false) const;
+    Provider*		create(Desc&,uiRetVal&,bool skipchecks=false) const;
     Desc*		createDescCopy(const char* nm) const;
     void		updateAllDescsDefaults();
 

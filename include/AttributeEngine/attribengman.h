@@ -60,7 +60,7 @@ public:
     const DescSet*	attribSet() const	{ return attrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
     const FullSubSel&	subSel() const		{ return subsel_; }
-    GeomID		geomID() const		{ return geomid_; }
+    GeomID		geomID() const		{ return subsel_.geomID(0); }
     float		undefValue() const	{ return udfval_; }
 
     void		setAttribSet(const DescSet*);

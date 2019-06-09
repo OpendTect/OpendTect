@@ -17,6 +17,7 @@
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "binidvalset.h"
+#include "cubesubsel.h"
 
 #include <limits.h>
 
@@ -24,10 +25,10 @@
 namespace Attrib
 {
 
-Processor::Processor( Desc& desc , const char* lk, uiString& err )
+Processor::Processor( Desc& desc, uiRetVal& uirv, GeomID gid )
     : Executor("Attribute Processor")
     , desc_(desc)
-    , provider_(Provider::create(desc,err))
+    , provider_(Provider::create(desc,uirv))
     , nriter_(0)
     , nrdone_(0)
     , isinited_(false)
@@ -37,15 +38,14 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     , sd_(0)
     , showdataavailabilityerrors_(true)
 {
-    if ( !provider_ )
-	{ pErrMsg("No Provider for Desc"); return; }
+    if ( provider_ )
+    {
+	provider_->ref();
+	desc_.ref();
 
-    provider_->ref();
-    desc_.ref();
-
-    is2d_ = desc_.is2D();
-    if ( is2d_ )
-	provider_->setCurLineName( lk );
+	if ( is2D() )
+	    provider_->setGeomID( gid );
+    }
 }
 
 
@@ -58,9 +58,15 @@ Processor::~Processor()
 }
 
 
+bool Processor::is2D() const
+{
+    return desc_.is2D();
+}
+
+
 bool Processor::isOK() const
 {
-    return provider_ && provider_->isOK();
+    return provider_;
 }
 
 
@@ -73,10 +79,10 @@ void Processor::addOutput( Output* output )
 }
 
 
-void Processor::setLineName( const char* lnm )
+void Processor::setGeomID( GeomID gid )
 {
-    if ( provider_ && is2d_ )
-	provider_->setCurLineName( lnm );
+    if ( provider_ )
+	provider_->setGeomID( gid );
 }
 
 
@@ -132,13 +138,12 @@ void Processor::useFullProcess( int& res )
 	    firstpos = sd_->asTable()->binidValueSet().firstBinID();
 	else
 	{
-	    const BinID step = provider_->getStepoutStep();
-	    firstpos.inl() = step.inl()/abs(step.inl())>0 ?
-			   provider_->getDesiredVolume()->hsamp_.start_.inl() :
-			   provider_->getDesiredVolume()->hsamp_.stop_.inl();
-	    firstpos.crl() = step.crl()/abs(step.crl())>0
-		? provider_->getDesiredVolume()->hsamp_.start_.crl()
-		: provider_->getDesiredVolume()->hsamp_.stop_.crl();
+	    const auto& desss = provider_->desiredSubSel();
+	    if ( is2D() )
+		firstpos.inl() = desss.geomID(0).getI();
+	    else
+		firstpos.inl() = desss.cubeSubSel().inlSubSel().posStart();
+	    firstpos.crl() = desss.trcNrRange().start;
 	}
 	provider_->resetMoved();
 	res = provider_->moveToNextTrace( firstpos, true );
@@ -156,7 +161,7 @@ void Processor::useFullProcess( int& res )
     {
 	provider_->setDataUnavailableFlag( true );
 	errmsg_ = tr("No positions processed.\n"
-	"Most probably, your input volume(s) are not available in the \n"
+	"Most probably, your input data is not available in the \n"
 	"selected region or the required stepout traces are not available");
 	return;
     }
@@ -172,9 +177,8 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     if ( !curtrcinfo )
     {
 	TrcKey trckey( curbid );
-	if ( is2d_ )
-	    trckey.setIs2D( true );
-
+	if ( is2D() )
+	    trckey.setPos( provider_->geomID(), curbid.crl() );
 	mytrcinfo.trcKey() = trckey;
 	mytrcinfo.coord_ = trckey.getCoord();
 	curtrcinfo = &mytrcinfo;
@@ -203,7 +207,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 		mDynamicCastGet( SeisTrcStorOutput*, trcstoroutp, outp );
 		if ( trcstoroutp )
 		    trcstoroutp->writez0shift_ = outz0shifthack;
-		outputs_[idx]->collectData( *data, provider_->getRefStep(),
+		outputs_[idx]->collectData( *data, provider_->refStep(),
 					    *curtrcinfo );
 	    }
 	}
@@ -231,7 +235,7 @@ void Processor::useSCProcess( int& res )
 
     for ( int idx=0; idx<outputs_.size(); idx++ )
 	provider_->fillDataPackWithTrc(
-			outputs_[idx]->getDataPack(provider_->getRefStep()) );
+			outputs_[idx]->getDataPack(provider_->refStep()) );
 
     nrdone_++;
 }
@@ -240,11 +244,11 @@ void Processor::useSCProcess( int& res )
 void Processor::init()
 {
     TypeSet<int> globaloutputinterest;
-    TrcKeyZSampling globalcs;
-    defineGlobalOutputSpecs( globaloutputinterest, globalcs );
-    if ( is2d_ )
+    FullSubSel globalfss;
+    defineGlobalOutputSpecs( globaloutputinterest, globalfss );
+    if ( is2D() )
     {
-	provider_->adjust2DLineStoredVolume();
+	provider_->adjust2DLineStoredSubSel();
 	provider_->compDistBetwTrcsStats();
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
@@ -266,11 +270,11 @@ void Processor::init()
 
     //Special case for attributes (like PreStack) which inputs are not treated
     //as normal input cubes and thus not delivering adequate cs automaticly
-    provider_->updateCSIfNeeded(globalcs);
+    provider_->updateSSIfNeeded( globalfss );
 
-    computeAndSetPosAndDesVol( globalcs );
+    computeAndSetPosAndDesSubSel( globalfss );
     for ( int idx=0; idx<outputs_.size(); idx++ )
-	outputs_[idx]->setPossibleVolume( *provider_->getPossibleVolume() );
+	outputs_[idx]->setPossibleSubSel( provider_->possibleSubSel() );
 
     mDynamicCastGet(const DataPackOutput*,dpoutput,outputs_[0]);
     if ( dpoutput && provider_->getDesc().isStored() )
@@ -283,7 +287,7 @@ void Processor::init()
 
 
 void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
-					 TrcKeyZSampling& globalcs )
+					 FullSubSel& globalfss )
 {
     bool ovruleoutp = provider_->prepPriorToOutputSetup();
     if ( ovruleoutp )
@@ -295,9 +299,8 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	TrcKeyZSampling cs;
-	cs.zsamp_.start = 0;	//cover up for synthetics
-	if ( !outputs_[idx]->getDesiredVolume(cs) )
+	FullSubSel fss;
+	if ( !outputs_[idx]->getDesiredSubSel(fss) )
 	{
 	    outputs_[idx]->unRef();
 	    outputs_.removeSingle(idx);
@@ -306,13 +309,9 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	}
 
 	if ( !idx )
-	    globalcs = cs;
+	    globalfss = fss;
 	else
-	{
-	    globalcs.hsamp_.include(cs.hsamp_.start_);
-	    globalcs.hsamp_.include(cs.hsamp_.stop_);
-	    globalcs.zsamp_.include(cs.zsamp_);
-	}
+	    globalfss.merge( fss );
 
 	for ( int idy=0; idy<outpinterest_.size(); idy++ )
 	{
@@ -338,11 +337,11 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 void Processor::computeAndSetRefZStepAndZ0()
 {
     provider_->computeRefStep();
-    const float zstep = provider_->getRefStep();
+    const float zstep = provider_->refStep();
     provider_->setRefStep( zstep );
 
     provider_->computeRefZ0();
-    const float z0 = provider_->getRefZ0();
+    const float z0 = provider_->refZ0();
     provider_->setRefZ0( z0 );
 }
 
@@ -365,8 +364,8 @@ void Processor::prepareForTableOutput()
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( locoutp || taboutp )
 	{
-	    Interval<float> extraz( -2*provider_->getRefStep(),
-				    2*provider_->getRefStep() );
+	    Interval<float> extraz( -2*provider_->refStep(),
+				    2*provider_->refStep() );
 	    provider_->setExtraZ( extraz );
 	    provider_->setNeedInterpol( true );
 	}
@@ -390,21 +389,21 @@ void Processor::prepareForTableOutput()
 }
 
 
-void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
+void Processor::computeAndSetPosAndDesSubSel( FullSubSel& globalfss )
 {
     if ( provider_->getInputs().isEmpty() && !provider_->getDesc().isStored() )
     {
-	provider_->setDesiredVolume( globalcs );
-	provider_->setPossibleVolume( globalcs );
+	provider_->setDesiredSubSel( globalfss );
+	provider_->setPossibleSubSel( globalfss );
     }
     else
     {
-	TrcKeyZSampling possvol;
-	if ( is2d_ || !possvol.includes(globalcs) )
-	    possvol = globalcs;
+	FullSubSel posssubsel;
+	if ( is2D() || !posssubsel.includes(globalfss) )
+	    possubsel = globalfss;
 
-	provider_->setDesiredVolume( possvol );
-	if ( !provider_->getPossibleVolume( -1, possvol ) )
+	provider_->setDesiredSubSel( possubsel );
+	if ( !provider_->getPossibleSubSel( -1, possubsel ) )
 	{
 	    errmsg_ = provider_->errMsg();
 	    if ( errmsg_.isEmpty() )
@@ -417,9 +416,9 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	    return;
 	}
 
-	provider_->resetDesiredVolume();
-	globalcs.adjustTo( possvol );
-	provider_->setDesiredVolume( globalcs );
+	provider_->resetDesiredSubSel();
+	globalfss.limitTo( posssubsel );
+	provider_->setDesiredSubSel( globalfss );
     }
 }
 
@@ -439,13 +438,14 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 	bool wantout = usecoords ? outputs_[idx]->wantsOutput(curcoords)
 				 : outputs_[idx]->wantsOutput(curbid);
 
-	if ( trc2dvarzoutp && is2d_ )		//tmp patch
+	if ( trc2dvarzoutp && is2D() )		//tmp patch
 	    wantout = true;
 
-	if ( !wantout || (curbid == prevbid_ && !is2d_) ) //!is2d = tmp patch
+	if ( !wantout || (curbid == prevbid_ && !is2D()) )
+							//!is2d = tmp patch
 	    continue;
 
-	const float refzstep = provider_->getRefStep();
+	const float refzstep = provider_->refStep();
 	TypeSet< Interval<int> > localzrange = usecoords
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
@@ -471,7 +471,7 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 
 od_int64 Processor::totalNr() const
 {
-    return provider_ ? provider_->getTotalNrPos(is2d_) : 0;
+    return provider_ ? provider_->getTotalNrPos() : 0;
 }
 
 

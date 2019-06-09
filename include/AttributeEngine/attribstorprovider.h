@@ -39,7 +39,7 @@ public:
 
     int			moveToNextTrace(BinID startpos=BinID(-1,-1),
 					bool firstcheck=false);
-    bool		calcPossibleSubsel(int outp,FullSubSel&) override;
+    bool		calcPossibleSubSel(int outp,FullSubSel&) override;
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
     GeomID		getGeomID() const;
@@ -47,7 +47,7 @@ public:
     void		fillDataPackWithTrc(RegularSeisDataPack*) const;
     bool		needStoredInput() const	{ return true; }
     virtual void	getCompNames(BufferStringSet&) const;
-    float		getDistBetwTrcs(bool,GeomID g=GeomID()) const override;
+    float		getDistBetwTrcs(bool) const override;
     virtual bool	compDistBetwTrcsStats(bool force=false);
 
 protected:
@@ -80,10 +80,10 @@ protected:
 
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
-    bool		getZStepStoredData(float& step) const
-			{ step = storedvolume_.zsamp_.step; return true; }
-    bool		getZ0StoredData(float& z0) const
-			{ z0 = storedvolume_.zsamp_.start; return true; }
+    float		zStepStoredData() const
+			{ return possiblesubsel_.zSubSel().zStep(); }
+    float		z0StoredData() const
+			{ return possiblesubsel_.zSubSel().zStart(); }
 
     BinDataDesc		getOutputFormat(int output) const;
 

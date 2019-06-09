@@ -87,7 +87,7 @@ public:
     const DBKey&			velocityID() const
 					{ return velocityid_; }
 
-    void		updateCSIfNeeded(TrcKeyZSampling&) const;
+    void		updateSSIfNeeded(FullSubSel&) const override;
     void		setAngleComp(PreStack::AngleComputer*);
     void		setAngleData(DataPack::ID);
 

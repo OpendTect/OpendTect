@@ -13,10 +13,11 @@ ________________________________________________________________________
 #include "attributeenginecommon.h"
 #include "executor.h"
 #include "binid.h"
+#include "geomid.h"
 
-class TrcKeyZSampling;
 class SeisTrcInfo;
 namespace Seis { class SelData; }
+namespace Survey { class FullSubSel; }
 
 namespace Attrib
 {
@@ -29,42 +30,45 @@ class Provider;
 mExpClass(AttributeEngine) Processor : public Executor
 { mODTextTranslationClass(Processor)
 public:
-				Processor(Desc&,const char* linenm,
-					  uiString& errmsg);
-				~Processor();
 
-    virtual bool		isOK() const;
-    void			addOutput(Output*);
-    void			setLineName(const char*);
+    mUseType( Pos,	GeomID );
+    mUseType( Survey,	FullSubSel );
 
-    int				nextStep();
-    void			init();
-    od_int64			totalNr() const;
-    od_int64			nrDone() const;
-    uiString			message() const;
-    uiString			nrDoneText() const
-				{ return tr("Positions processed"); }
+			Processor(Desc&,uiRetVal&,GeomID gid=GeomID());
+			~Processor();
 
-    void			addOutputInterest(int sel);
-    bool			setZIntervals(TypeSet< Interval<int> >&,
-					      const TrcKey&,const Coord&);
-    void			computeAndSetRefZStepAndZ0();
+    bool		isOK() const;
+    bool		is2D() const;
+    void		addOutput(Output*);
+    void		setGeomID(GeomID);
 
-    Notifier<Attrib::Processor>	moveonly;
+    int			nextStep();
+    void		init();
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
+    uiString		message() const;
+    uiString		nrDoneText() const { return tr("Positions processed"); }
+
+    void		addOutputInterest(int sel);
+    bool		setZIntervals(TypeSet< Interval<int> >&,
+				      const TrcKey&,const Coord&);
+    void		computeAndSetRefZStepAndZ0();
+
+    Notifier<Processor>	moveonly;
 				/*!< triggered after a position is reached that
 				     requires no processing, e.g. during initial
 				     buffer fills. */
 
-    const char*			getAttribName() const;
-    const char*			getAttribUserRef() const;
-    Provider*			getProvider()		{ return provider_; }
+    const char*		getAttribName() const;
+    const char*		getAttribUserRef() const;
+    Provider*		getProvider()		{ return provider_; }
     ObjectSet<Output>	outputs_;
 
-    void			setRdmPaths(const TypeSet<BinID>& truepath,
-					    const TypeSet<BinID>& snappedpath);
+    void		setRdmPaths(const TypeSet<BinID>& truepath,
+				    const TypeSet<BinID>& snappedpath);
 				//for directional attributes
 
-    void			showDataAvailabilityErrors(bool yn);
+    void		showDataAvailabilityErrors(bool yn);
 
 protected:
 
@@ -72,9 +76,9 @@ protected:
     void		useSCProcess(int&);
     void		fullProcess(const SeisTrcInfo*);
 
-    void		defineGlobalOutputSpecs(TypeSet<int>&,TrcKeyZSampling&);
+    void		defineGlobalOutputSpecs(TypeSet<int>&,FullSubSel&);
     void		prepareForTableOutput();
-    void		computeAndSetPosAndDesVol(TrcKeyZSampling&);
+    void		computeAndSetPosAndDesSubSel(FullSubSel&);
 
     bool		isHidingDataAvailabilityError() const;
 
@@ -82,7 +86,6 @@ protected:
     Provider*		provider_;
     int			nriter_;
     int			nrdone_;
-    bool		is2d_;
     TypeSet<int>	outpinterest_;
     uiString		errmsg_;
     bool		isinited_;

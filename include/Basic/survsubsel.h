@@ -230,6 +230,7 @@ public:
     bool		isZSlice() const;
     const LineSubSel*	findLineSubSel(GeomID) const;
     void		merge(const FullSubSel&);
+    void		limitTo(const FullSubSel&);
 
     void		set(const CubeSubSel&);
     void		set(const LineSubSel&);

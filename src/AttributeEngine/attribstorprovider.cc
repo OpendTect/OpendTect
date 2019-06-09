@@ -112,7 +112,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , useintertrcdist_(false)
     , ls2ddata_(0)
 {
-    storedsubsel_.setToAll( desc.is2D() );
+    possiblesubsel_.setToAll( desc.is2D() );
 
     const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
     const BufferString storstr = strpair.first();
@@ -155,17 +155,17 @@ bool StorageProvider::checkInpAndParsAtStart()
 				: stbdtp->trcBuf().first()->geomID();
 	if ( is2d )
 	{
-	    storedsubsel_ = FullSubSel( gid );
-	    storedsubsel_.setTrcNrRange( si.crlrg );
+	    possiblesubsel_ = FullSubSel( gid );
+	    possiblesubsel_.setTrcNrRange( si.crlrg );
 	}
 	else
 	{
-	    storedsubsel_.setToAll( false );
-	    storedsubsel_.setInlRange( si.inlrg );
-	    storedsubsel_.setCrlRange( si.crlrg );
+	    possiblesubsel_.setToAll( false );
+	    possiblesubsel_.setInlRange( si.inlrg );
+	    possiblesubsel_.setCrlRange( si.crlrg );
 	}
 
-	storedsubsel_.setZRange( si.zrg );
+	possiblesubsel_.setZRange( si.zrg );
 	return true;
     }
 
@@ -184,14 +184,14 @@ bool StorageProvider::checkInpAndParsAtStart()
     {
 	TrcKeyZSampling tkzs;
 	SeisTrcTranslator::getRanges( dbky, tkzs, 0 );
-	storedsubsel_ = FullSubSel( tkzs );
+	possiblesubsel_ = FullSubSel( tkzs );
     }
     else
     {
-	storedsubsel_ = FullSubSel( LineSubSelSet() );
+	possiblesubsel_ = FullSubSel( LineSubSelSet() );
 	const auto& prov = *mscprov_->provider()->as2D();
 	for ( int iln=0; iln<prov.nrLines(); iln++ )
-	    storedsubsel_.subSel2D().add( new LineSubSel(lss) );
+	    possiblesubsel_.subSel2D().add( new LineSubSel(lss) );
     }
 
     status_ = StorageOpened;
@@ -298,9 +298,8 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 }
 
 
-bool StorageProvider::calcPossibleSubsel( int outp, FullSubSel& outfss )
+bool StorageProvider::calcPossibleSubSel( int outp, FullSubSel& outfss )
 {
-    possiblesubsel_ = storedsubsel_;
     outfss = possiblesubsel_;
     return true;
 }
@@ -390,26 +389,10 @@ bool StorageProvider::setMSCProvSelData()
     if ( !checkDesiredSubSelOK() )
 	return false;
 
-    TrcKeyZSampling cs;
-    cs.hsamp_.start_.inl() =
-	desiredvolume_->hsamp_.start_.inl()<storedvolume_.hsamp_.start_.inl() ?
-	storedvolume_.hsamp_.start_.inl() : desiredvolume_->hsamp_.start_.inl();
-    cs.hsamp_.stop_.inl() =
-	desiredvolume_->hsamp_.stop_.inl() > storedvolume_.hsamp_.stop_.inl() ?
-	storedvolume_.hsamp_.stop_.inl() : desiredvolume_->hsamp_.stop_.inl();
-    cs.hsamp_.stop_.crl() =
-	desiredvolume_->hsamp_.stop_.crl() > storedvolume_.hsamp_.stop_.crl() ?
-	storedvolume_.hsamp_.stop_.crl() : desiredvolume_->hsamp_.stop_.crl();
-    cs.hsamp_.start_.crl() =
-	desiredvolume_->hsamp_.start_.crl()<storedvolume_.hsamp_.start_.crl() ?
-	storedvolume_.hsamp_.start_.crl() : desiredvolume_->hsamp_.start_.crl();
-    cs.zsamp_.start = desiredvolume_->zsamp_.start < storedvolume_.zsamp_.start
-		? storedvolume_.zsamp_.start : desiredvolume_->zsamp_.start;
-    cs.zsamp_.stop = desiredvolume_->zsamp_.stop > storedvolume_.zsamp_.stop ?
-		     storedvolume_.zsamp_.stop : desiredvolume_->zsamp_.stop;
-
+    FullSubSel fss( desiredsubsel_ );
+    fss.limitTo( possiblesubsel_ );
     prov->setSelData( haveseldata ? seldata_->clone()
-				   : new Seis::RangeSelData(cs) );
+				   : new Seis::RangeSelData(fss) );
 
     TypeSet<int> selcomps;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
@@ -875,7 +858,7 @@ float StorageProvider::getDistBetwTrcs( bool ismax ) const
     if ( !ls2ddata_ )
 	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
 
-    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, geomID() )
+    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, nameOf(geomID()) )
 		     : mUdf(float);
 }
 

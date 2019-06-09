@@ -86,11 +86,11 @@ protected:
 };
 
 
-Provider* Provider::create( Desc& desc, uiString& errstr )
+Provider* Provider::create( Desc& desc, uiRetVal& uirv )
 {
     ObjectSet<Provider> existing;
     bool issame = false;
-    Provider* prov = internalCreate( desc, existing, issame, errstr );
+    Provider* prov = internalCreate( desc, existing, issame, uirv );
     if ( !prov ) return 0;
 
     prov->allexistingprov_ = existing;
@@ -99,7 +99,7 @@ Provider* Provider::create( Desc& desc, uiString& errstr )
 
 
 Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
-				    bool& issame, uiString& errstr )
+				    bool& issame, uiRetVal& uirv )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
     {
@@ -116,44 +116,23 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
     Provider* newprov = 0;
     if ( !desc.descSet() )
-	{ errstr = tr("No attribute set specified"); return 0; }
+	{ uirv = tr("No attribute set specified"); return nullptr; }
     else if ( desc.nrInputs() < 1 )
     {
 	if ( !desc.isStored() )
-	    { errstr = tr("Only stored attributes have no inputs"); return 0; }
+	    { uirv = mINTERNAL("All non-stored have inputs"); return nullptr; }
 	newprov = new StorageProvider( desc );
     }
     else
     {
-	newprov = PF().create( desc );
-	if ( !newprov )
+	newprov = PF().create( desc, uirv );
+	if ( !newprov || !uirv.isOK() )
 	{
-	    const Desc::SatisfyLevel lvl = desc.satisfyLevel();
-	    const uiString& errmsg = desc.errMsg();
-
-	    if ( lvl == Desc::StorNotFound )
-	    {
-		errstr = tr("Impossible to find stored data '%1'\n"
-				 "used as input for other attribute(s). \n"
-				 "Data might have been deleted or corrupted.\n"
-				 "Please check your attribute set \n"
-				 "Please select valid stored data.")
-				.arg( desc.userRef() );
-	    }
-	    else if ( errmsg.isEmpty() )
-		errstr = tr("Error in definition of %1 attribute.")
-			 .arg( desc.attribName() );
+	    if ( !newprov )
+		uirv = mINTERNAL("Add error message");
 	    else
-	    {
-		BufferString usrref = desc.userRef();
-		if ( usrref.startsWith("CentralSteering")
-		    || usrref.startsWith("FullSteering") )
-		    return 0;
-
-		errstr = toUiString("%1: %2").arg( desc.userRef() ).arg(errmsg);
-	    }
-
-	    return 0;
+		delete newprov;
+	    return nullptr;
 	}
     }
 
@@ -171,12 +150,11 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    continue;
 
 	Provider* inputprovider =
-			internalCreate( *inputdesc, existing, issame, errstr );
+			internalCreate( *inputdesc, existing, issame, uirv );
 	if ( !inputprovider )
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
-	    errstr.setEmpty(); // avoid cascading errors
 	    return 0;
 	}
 
@@ -184,8 +162,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
-	    errstr = tr("%1: One of the inputs depends on itself")
-		    .arg( desc.userRef() );
+	    uirv = tr("%1: One of the inputs depends on itself")
+			.arg( desc.userRef() );
 	    return 0;
 	}
 
@@ -197,17 +175,17 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( !newprov->checkInpAndParsAtStart() )
     {
 	existing.removeRange( existing.indexOf(newprov), existing.size()-1 );
-	uiString proverrmsg = newprov->errmsg_;
-	if ( proverrmsg.isEmpty() )
+	uiRetVal provuirv = newprov->uirv_;
+	if ( provuirv.isOK() )
 	    { pFreeFnErrMsg("No error message. Hunt this down and add one."); }
 	BufferString attribnm = newprov->desc_.attribName();
 	if ( attribnm == StorageProvider::attribName() )
-	    errstr = tr("Cannot load Stored Cube '%1':\n%2")
-		     .arg( newprov->desc_.userRef() ).arg( proverrmsg );
+	    uirv = tr("Cannot load Stored Cube '%1'")
+		     .arg( newprov->desc_.userRef() );
 	else
-	    errstr = tr("Attribute \"%1\" (%2) cannot be initialized:\n%3")
-		     .arg( newprov->desc_.userRef() ).arg( attribnm )
-		     .arg( proverrmsg );
+	    uirv.set( tr("Attribute \"%1\" (%2) cannot be initialized")
+		     .arg( newprov->desc_.userRef() ).arg( attribnm ) );
+	uirv.add( provprovuirv );
 	newprov->unRef();
 	return 0;
     }
@@ -266,12 +244,7 @@ Provider::~Provider()
 
 bool Provider::is2D() const
 {
-    return desc.descSet() ? desc.descSet()->is2D() : desc.is2D(); }
-
-
-bool Provider::isOK() const
-{
-    return uirv_.isOK();
+    return desc.descSet() ? desc.descSet()->is2D() : desc.is2D();
 }
 
 
@@ -359,6 +332,18 @@ void Provider::setDesiredSubSel( const GeomSubSel& gss )
 	{ pErrMsg( "Bad 2D vs 3D" ); }
     else
 	setDesiredSubSel( FullSubSel(gss) );
+}
+
+
+void Provider::setPossibleSubSel( const FullSubSel& reqnewss )
+{
+    if ( reqnewss.is2D() == is2D() )
+	possiblesubsel_ = *newss;
+    else
+    {
+	pErrMsg( "Bad 2D vs 3D" );
+	possiblesubsel_.setToAll( is2D() );
+    }
 }
 
 
@@ -1096,28 +1081,22 @@ bool Provider::checkInpAndParsAtStart()
 }
 
 
-uiString Provider::prepare( Desc& desc )
+uiRetVal Provider::prepare( Desc& desc )
 {
+    uiRetVal uirv;
     if ( !desc.needProvInit() )
-	return uiString::empty();
+	return uirv;
 
     desc.setNeedProvInit( false );
-
-    uiString errmsg;
-    RefMan<Provider> prov = PF().create( desc );
+    RefMan<Provider> prov = PF().create( desc, uirv );
     if ( prov && prov->isOK() )
-	return uiString::empty();
+	return uirv;
 
-    errmsg = uiString::empty();
-    if ( prov )
-	errmsg = prov->errMsg();
-    if ( errmsg.isEmpty() )
-    {
-	errmsg = tr("Cannot initialize '%1' Attribute properly")
+    if ( uirv.isOK() )
+	uirv = tr("Cannot initialize '%1' Attribute properly")
 		    .arg( desc.attribName() );
-    }
 
-    return errmsg;
+    return uirv;
 }
 
 
@@ -1320,7 +1299,7 @@ const Interval<int>* Provider::desZSampMargin(int,int) const	{ return 0; }
 const Interval<int>* Provider::reqZSampMargin(int,int) const	{ return 0; }
 
 
-int Provider::getTotalNrPos()
+int Provider::totalNrPos()
 {
     if ( seldata_ && seldata_->type() == Seis::Table )
 	return (int)seldata_->asTable()->binidValueSet().totalSize();
@@ -1336,10 +1315,9 @@ void Provider::computeRefStep()
 {
     for( int idx=0; idx<allexistingprov_.size(); idx++ )
     {
-	float step = 0;
-	bool isstored = allexistingprov_[idx]->getZStepStoredData(step);
-	if ( isstored )
-	    refstep_ = ( refstep_ != 0 && refstep_ < step )? refstep_ : step;
+	float step = allexistingprov_[idx]->zStepStoredData();
+	if ( !mIsUdf(step) && step > 0 )
+	    refstep_ = refstep_ != 0 && refstep_ < step ? refstep_ : step;
 
     }
 }
@@ -1357,10 +1335,9 @@ void Provider::computeRefZ0()
 {
     for( int idx=0; idx<allexistingprov_.size(); idx++ )
     {
-	float z0 = 0;
-	bool isstored = allexistingprov_[idx]->getZ0StoredData(z0);
-	if ( isstored )
-	    refz0_ = ( refz0_ < z0 )? refz0_ : z0;
+	float z0 = allexistingprov_[idx]->z0StoredData();
+	if ( !mIsUdf(z0) )
+	    refz0_ = refz0_ < z0 ? refz0_ : z0;
     }
 }
 
@@ -1395,7 +1372,7 @@ void Provider::adjust2DLineStoredSubSel()
 }
 
 
-Pos::GeomID Provider::getGeomID() const
+Pos::GeomID Provider::geomID() const
 {
     if ( possiblesubsel_.geomID().isValid() )
 	return possiblesubsel_.geomID().isValid();
@@ -1406,11 +1383,10 @@ Pos::GeomID Provider::getGeomID() const
         if ( !inputs_[idx] )
             continue;
 
-        geomid = inputs_[idx]->getGeomID();
+        geomid = inputs_[idx]->geomID();
 	if ( geomid.isValid() )
-            return geomid;
+            break;
     }
-
     return geomid;
 }
 
@@ -1427,12 +1403,6 @@ void Provider::setSelData( const Seis::SelData* seldata )
 void Provider::setExtraZ( const Interval<float>& extraz )
 {
     extraz_.include( extraz );
-}
-
-
-void Provider::setPossibleSubSel( const FullSubSel& fss )
-{
-    possiblesubsel_ = fss;
 }
 
 

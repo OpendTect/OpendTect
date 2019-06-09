@@ -308,6 +308,14 @@ void LineHorSubSel::merge( const LineHorSubSel& oth )
 }
 
 
+void LineHorSubSel::limitTo( const LineHorSubSel& oth )
+{
+    if ( geomid_ != oth.geomid_ )
+	{ pErrMsg("Probably error, geomids do not match"); }
+    trcNrSubSel().limitTo( oth.trcNrSubSel() );
+}
+
+
 bool LineHorSubSel::doUsePar( const IOPar& inpiop )
 {
     const IOPar* iop = &inpiop;
@@ -405,6 +413,24 @@ void LineHorSubSelSet::merge( const LineHorSubSelSet& oth )
 }
 
 
+void LineHorSubSelSet::limitTo( const LineHorSubSelSet& oth )
+{
+    ObjectSet<LineHorSubSel> torem;
+
+    for ( auto lhss : *this )
+    {
+	auto* othlhss = oth.doFind( lhss->geomID() );
+	if ( othlhss )
+	    lhss->trcNrSubSel().limitTo( othlhss->trcNrSubSel() );
+	else
+	    torem.add( lhss );
+    }
+
+    for ( auto lhss : torem )
+	removeSingle( indexOf(lhss) );
+}
+
+
 void LineHorSubSelSet::addStepout( trcnr_type so )
 {
     for ( auto lhss : *this )
@@ -474,13 +500,6 @@ CubeHorSubSel::totalsz_type CubeHorSubSel::totalSize() const
 }
 
 
-void CubeHorSubSel::limitTo( const CubeHorSubSel& oth )
-{
-    inlSubSel().limitTo( oth.inlSubSel() );
-    crlSubSel().limitTo( oth.crlSubSel() );
-}
-
-
 bool CubeHorSubSel::includes( const CubeHorSubSel& oth ) const
 {
     const auto inlrg = inlRange();
@@ -496,6 +515,13 @@ void CubeHorSubSel::merge( const CubeHorSubSel& oth )
 {
     inlSubSel().widenTo( oth.inlSubSel() );
     crlSubSel().widenTo( oth.crlSubSel() );
+}
+
+
+void CubeHorSubSel::limitTo( const CubeHorSubSel& oth )
+{
+    inlSubSel().limitTo( oth.inlSubSel() );
+    crlSubSel().limitTo( oth.crlSubSel() );
 }
 
 
@@ -624,6 +650,13 @@ void LineSubSel::merge( const LineSubSel& oth )
 }
 
 
+void LineSubSel::limitTo( const LineSubSel& oth )
+{
+    hss_.limitTo( oth.hss_ );
+    zss_.limitTo( oth.zss_ );
+}
+
+
 LineSubSelSet::LineSubSelSet( const LineHorSubSelSet& lhsss )
 {
     for ( auto lhss : lhsss )
@@ -695,6 +728,34 @@ void LineSubSelSet::merge( const LineSubSelSet& oth )
 	else
 	    add( new LineSubSel(*othlss) );
     }
+}
+
+
+void LineSubSelSet::limitTo( const LineSubSelSet& oth )
+{
+    ObjectSet<LineSubSel> torem;
+
+    for ( auto lss : *this )
+    {
+	auto* othlss = oth.doFind( lss->geomID() );
+	if ( !othlss )
+	    torem.add( lss );
+	else
+	{
+	    lss->trcNrSubSel().limitTo( othlss->trcNrSubSel() );
+	    lss->zSubSel().limitTo( othlss->zSubSel() );
+	}
+    }
+
+    for ( auto lss : torem )
+	removeSingle( indexOf(lss) );
+}
+
+
+void LineSubSelSet::addStepout( trcnr_type so )
+{
+    for ( auto lss : *this )
+	lss->trcNrSubSel().addStepout( so );
 }
 
 
@@ -810,6 +871,13 @@ void CubeSubSel::merge( const CubeSubSel& oth )
 {
     hss_.merge( oth.hss_ );
     zss_.merge( oth.zss_ );
+}
+
+
+void CubeSubSel::limitTo( const CubeSubSel& oth )
+{
+    hss_.limitTo( oth.hss_ );
+    zss_.limitTo( oth.zss_ );
 }
 
 
@@ -1046,10 +1114,23 @@ void Survey::FullSubSel::set3D( bool yn )
 
 void Survey::FullSubSel::merge( const FullSubSel& oth )
 {
+    if ( oth.is2D() != is2D() )
+	{ pErrMsg("2D/3D mismatch"); return; }
     if ( oth.css_ )
 	css_->merge( *oth.css_ );
     else
 	lsss_.merge( oth.lsss_ );
+}
+
+
+void Survey::FullSubSel::limitTo( const FullSubSel& oth )
+{
+    if ( oth.is2D() != is2D() )
+	{ pErrMsg("2D/3D mismatch"); return; }
+    if ( oth.css_ )
+	css_->limitTo( *oth.css_ );
+    else
+	lsss_.limitTo( oth.lsss_ );
 }
 
 

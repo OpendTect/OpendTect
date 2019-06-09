@@ -97,6 +97,9 @@ public:
     void		setRange(const BinID&,const BinID&,const BinID& step);
     void		setToAll();
     void		merge(const CubeSubSel&);
+    void		limitTo(const CubeSubSel&);
+    void		addStepout( pos_type i, pos_type c )
+			{ hss_.addStepout(i,c); }
 
     SliceType		defaultDir() const;
     size_type		size(SliceType) const;
