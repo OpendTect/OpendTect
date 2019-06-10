@@ -37,7 +37,7 @@ mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODAnnotTreeItemFactory);
 public:
     const char*		name() const   { return getName(); }
-    static const char*	getName()      
+    static const char*	getName()
 			{ return typeid(uiODAnnotTreeItemFactory).name();}
     uiTreeItem*		create() const { return new uiODAnnotParentTreeItem; }
     uiTreeItem*		create(int,uiTreeItem*) const;
@@ -49,7 +49,7 @@ mExpClass(uiODMain) uiODAnnotTreeItem : public uiODTreeItem
     typedef uiODTreeItem  inheritedClass;
 public:
 				uiODAnnotTreeItem(const uiString&);
-    				~uiODAnnotTreeItem();
+				~uiODAnnotTreeItem();
 
 				mMenuOnAnyButton;
 
@@ -81,15 +81,15 @@ mExpClass(uiODMain) uiODAnnotSubItem : public uiODDisplayTreeItem
 public:
     static bool		doesNameExist(const char*);
     static char		createIOEntry(const char* nm,bool overwrite,
-	    			    MultiID&,const char* mannm);
-    			/*!<\retval -1 error
+				    MultiID&,const char* mannm);
+			/*!<\retval -1 error
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.
 			*/
     Pick::Set*		getSet() { return set_; }
 
 protected:
-    			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
+			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
 			//!<Pickset becomes mine, if it's not in the mgr
     virtual		~uiODAnnotSubItem();
     void		prepareForShutdown();
@@ -127,7 +127,7 @@ protected:
 mExpClass(uiODMain) ScaleBarSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ScaleBarSubItem);
 public:
-    			ScaleBarSubItem(Pick::Set&,int displayid=-1);
+			ScaleBarSubItem(Pick::Set&,int displayid=-1);
     bool		init();
     static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
 
@@ -151,7 +151,7 @@ mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ArrowSubItem);
 public:
 
-    			ArrowSubItem(Pick::Set& pck,int displayid=-1);
+			ArrowSubItem(Pick::Set& pck,int displayid=-1);
     bool		init();
 
     static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
@@ -180,7 +180,7 @@ protected:
 mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ImageSubItem)
 public:
-    			ImageSubItem(Pick::Set&,int displayid=-1);
+			ImageSubItem(Pick::Set&,int displayid=-1);
     bool		init();
     static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
 
@@ -205,29 +205,30 @@ protected:
 };
 
 
-#define mDefineParentItem(type,typestr,defsz) \
+#define mDefineParentItem(type,typestr,defsz,inm) \
 class type##ParentItem : public uiODAnnotTreeItem \
 { \
 public: \
 		type##ParentItem() \
-    		    : uiODAnnotTreeItem(typestr)\
+		    : uiODAnnotTreeItem(typestr)\
 		{ \
 		 mAttachCB( Pick::Mgr().setToBeRemoved, \
 		 type##ParentItem::setRemovedCB ); \
 		} \
 protected: \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
-    		{ return new type##SubItem(pck,di); } \
+		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
     const char* oldSelKey() const { return typestr.getFullString().buf(); } \
     int		defScale() const 	{ return defsz; } \
     void	setRemovedCB(CallBacker*); \
+    const char*		iconName() const	{ return inm; } \
 }; \
 
 
-mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000);
-mDefineParentItem(Image,mToUiStringTodo("Image"),1000);
-mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000);
+mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000,"tree-arrows");
+mDefineParentItem(Image,mToUiStringTodo("Image"),1000,"tree-image");
+mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000,"tree-scalebar");
 
 
 #endif

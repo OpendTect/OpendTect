@@ -57,7 +57,7 @@ uiODAnnotParentTreeItem::~uiODAnnotParentTreeItem()
 bool uiODAnnotParentTreeItem::rightClick( uiTreeViewItem* itm )
 {
     if ( itm == uitreeviewitem_ && !uitreeviewitem_->isOpen() )
-        uitreeviewitem_->setOpen( true );
+	uitreeviewitem_->setOpen( true );
 
     return uiTreeItem::rightClick( itm );
 }
@@ -145,6 +145,9 @@ const char* uiODAnnotTreeItem::parentType() const
 
 bool uiODAnnotTreeItem::init()
 {
+    if ( !uiODTreeItem::init() )
+	return false;
+
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mAttachCB(mgr.setToBeRemoved,uiODAnnotTreeItem::setRemovedCB);
     return true;
@@ -283,7 +286,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
     ctio->ctxt_.forread_ = true;
     ctio->ctxt_.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
-    dlg.setCaption( uiStrings::phrLoad(typestr_) ); 
+    dlg.setCaption( uiStrings::phrLoad(typestr_) );
     dlg.setTitleText( uiStrings::phrSelect(typestr_) );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
