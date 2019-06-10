@@ -39,8 +39,8 @@ public:
 protected:
 
     od_istream&			strm_;
-    bool			readLine(int startidx,Coord&,int&,int&,
-					 bool,bool) const;
+    bool			readLine(int startidx,Coord&,int& trcnr,
+					 float& spnr,bool isxy,bool conv) const;
 };
 
 #endif

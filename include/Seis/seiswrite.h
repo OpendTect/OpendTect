@@ -105,7 +105,7 @@ protected:
     BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
     PosInfo::Line2DData* linedata_;
-    TypeSet<int>	spnrs_;
+    TypeSet<float>	spnrs_;
     Pos::GeomID		prevgeomid_;
     const GeomIDProvider* gidp_;
     BufferString	datatype_;

@@ -44,9 +44,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 
 
-static HiddenParam<uiExport2DHorizon,Coords::uiCoordSystemSel*> coordsysselfld_(0);
+static HiddenParam<uiExport2DHorizon,Coords::uiCoordSystemSel*>
+						coordsysselfld_(nullptr);
 
-static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
+static const char* hdrtyps[] = { "No", "Single line", "Multi line", nullptr };
 
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
@@ -68,7 +69,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 	horselfld_ = lcbox->box();
 	horselfld_->setHSzPol( uiObject::MedVar );
 	horselfld_->selectionChanged.notify(
-					  mCB(this,uiExport2DHorizon,horChg) );
+					mCB(this,uiExport2DHorizon,horChg) );
 	for ( int idx=0; idx<hinfos_.size(); idx++ )
 	    horselfld_->addItem( mToUiStringTodo(hinfos_[idx]->name) );
 
@@ -113,7 +114,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     outfld_->attach( alignedBelow, coordsysselfld );
 
     if ( !isbulk )
-	horChg( 0 );
+	horChg( nullptr );
 }
 
 
@@ -225,7 +226,7 @@ bool uiExport2DHorizon::doExport()
 	    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step) continue;
 
 	    TrcKey tk( geomid, -1 );
-	    Coord crd; int spnr = mUdf(int);
+	    Coord crd; float spnr = mUdf(float);
 	    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	    {
 		tk.setTrcNr( trcnr );
@@ -344,7 +345,7 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	{
 
 	    headerstr.add( id ).add( ":" )
-                     .add( str ).add( "\n" ).add( "# " );
+		     .add( str ).add( "\n" ).add( "# " );
 	    id++;
 	}
 
@@ -355,7 +356,7 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	    headerstr.add( "# " ).add( ++id )
 		     .add( ": " ).add( "ShotPointNr\n" );
 	    headerstr.add( "# " ).add( ++id )
-                     .add( ": " ).add( "TraceNr\n" );
+		     .add( ": " ).add( "TraceNr\n" );
 	}
 
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
@@ -407,7 +408,7 @@ bool uiExport2DHorizon::getInputMultiIDs( TypeSet<MultiID>& midset )
 }
 
 
-void uiExport2DHorizon::horChg( CallBacker* cb )
+void uiExport2DHorizon::horChg( CallBacker* )
 {
     BufferStringSet sellines;
     linenmfld_->getChosen( sellines );

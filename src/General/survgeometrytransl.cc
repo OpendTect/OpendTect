@@ -27,7 +27,7 @@ mDefSimpleTranslatorSelector(SurvGeom2D)
 mDefSimpleTranslatorioContext(SurvGeom2D,Geom)
 
 uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
-{ return tr( "Geometry", 0, num ); }
+{ return tr( "Geometry", nullptr, num ); }
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
@@ -46,7 +46,7 @@ IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 {
     IOObjContext iocontext( mIOObjContext(SurvGeom2D) );
     if ( !IOM().to(iocontext.getSelKey()) )
-	return 0;
+	return nullptr;
 
     if ( trkey && *trkey )
 	iocontext.fixTranslator( trkey );
@@ -54,7 +54,7 @@ IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
     CtxtIOObj ctio( iocontext );
     ctio.ctxt_.setName( name );
     if ( ctio.fillObj() == 0 )
-	return 0;
+	return nullptr;
 
     return ctio.ioobj_;
 }
@@ -97,7 +97,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 
     PosInfo::Line2DData* data = new PosInfo::Line2DData;
     if ( !data->read(strm,false) )
-	{ delete data; return 0; }
+	{ delete data; return nullptr; }
 
     const Survey::Geometry::ID geomid = ioobj.key().ID( 1 );
     data->setLineName( ioobj.name() );
@@ -112,15 +112,16 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	const bool spstoredasint = version == 2;
 	for ( int idx=0; idx<data->size(); idx++ )
 	{
-	    int spnr = -1;
+	    float spnr = -1;
 	    if ( spstoredasint )
-		strm.getBin( spnr );
-	    else
 	    {
-		float fsp = mUdf(float);
-		strm.getBin( fsp );
-		spnr = mNINT32( fsp );
+		int isp = mUdf(int);
+		strm.getBin( isp );
+		spnr = sCast(float,isp);
 	    }
+	    else
+		strm.getBin( spnr );
+
 	    geom->spnrs()[idx] = spnr;
 	}
     }
@@ -143,7 +144,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     od_ostream strm( ioobj.fullUserExpr() );
     ascostream astream( strm );
     astream.putHeader( sKeyFileType() );
-    astream.put( sKey::Version(), 2 );
+    astream.put( sKey::Version(), 3 );
     astream.put( sKeyAvgTrcDist(), geom2d->averageTrcDist() );
     astream.put( sKeyLineLength(), geom2d->lineLength() );
     astream.newParagraph();
@@ -172,7 +173,7 @@ bool dgbSurvGeom2DTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     Pos::GeomID geomid = ioobj->key().ID(1);
     RefMan<Survey::Geometry> geom = Survey::GMAdmin().getGeometry( geomid );
-    Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
+    Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( geom2d )
 	geom2d->dataAdmin().setLineName( ioobj->name() );
 

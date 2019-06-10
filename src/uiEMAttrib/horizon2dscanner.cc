@@ -30,10 +30,10 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
 				    Table::FormatDesc& fd )
     : Executor("Scan horizon file(s)")
     , fd_(fd)
-    , ascio_(0)
-    , bvalset_(0)
+    , ascio_(nullptr)
+    , bvalset_(nullptr)
     , fileidx_(0)
-    , curlinegeom_(0)
+    , curlinegeom_(nullptr)
     , istracenr_(false)
 {
     filenames_ = fnms;
@@ -179,8 +179,7 @@ int Horizon2DScanner::nextStep()
 	    istracenr_ = ascio_->isTraceNr();
 
 	fileidx_++;
-	delete ascio_;
-	ascio_ = 0;
+	deleteAndZeroPtr( ascio_ );
 	return Executor::MoreToDo();
     }
 
@@ -206,11 +205,11 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     const bool isspnr = !ascio_->isTraceNr();
-    int othernr=0;
+    float spnr=0;
 
     if ( !mIsUdf(nr) && !isspnr )
     {
-	const bool res = curlinegeom_->getPosByTrcNr(nr,crd,othernr);
+	const bool res = curlinegeom_->getPosByTrcNr( nr, crd, spnr );
 	if ( !res )
 	    return Executor::MoreToDo();
     }

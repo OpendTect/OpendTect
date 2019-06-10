@@ -67,11 +67,11 @@ bool Geom2dAscIO::getData( PosInfo::Line2DData& geom )
 
 
 bool Geom2dAscIO::readLine( int startidx, Coord& crd,
-			    int& trcnr, int& spnr,
+			    int& trcnr, float& spnr,
 			    bool isxy, bool needsconv ) const
 {
     trcnr = getIntValue( startidx );
-    spnr = getIntValue( startidx+1 );
+    spnr = getFValue( startidx+1 );
     if ( mIsUdf(trcnr) && mIsUdf(spnr) )
     {
 	errmsg_ = tr("Trace number or Shotpoint number has to be defined.");
@@ -114,7 +114,7 @@ bool Geom2dAscIO::getData( Survey::Geometry2D& geom ) const
 	if ( ret == 0 ) break;
 
 	Coord crd;
-	int trcnr, spnr;
+	int trcnr; float spnr;
 	if ( !readLine(0,crd,trcnr,spnr,isxy,needsconv) )
 	    continue;
 
@@ -165,7 +165,7 @@ bool Geom2dAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
 	}
 
 	Coord crd;
-	int trcnr, spnr;
+	int trcnr; float spnr;
 	if ( !readLine(1,crd,trcnr,spnr,isxy,needsconv) )
 	    continue;
 

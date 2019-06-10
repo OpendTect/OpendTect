@@ -34,14 +34,16 @@ public:
     virtual bool		is2D() const		{ return true; }
     virtual const char*		getName() const;
 
-    void			add(const Coord&,int trcnr,int spnr);
-    void			add(double x,double y,int trcnr,int spnr);
+    void			add(const Coord&,int trcnr,float spnr);
+    void			add(double x,double y,int trcnr,float spnr);
     int				size() const;
     void			setEmpty();
-    bool			getPosByTrcNr(int trcnr,Coord&,int& spnr) const;
-    bool			getPosBySPNr(int spnr,Coord&,int& trcnr) const;
+    bool			getPosByTrcNr(int trcnr,Coord&,
+					      float& spnr) const;
+    bool			getPosBySPNr(float spnr,Coord&,
+					     int& trcnr) const;
     bool			getPosByCoord(const Coord&,
-					      int& trc,int& sp) const;
+					      int& trc,float& sp) const;
 
     virtual Coord		toCoord(int linenr,int tracenr) const;
     virtual TrcKey		nearestTrace(const Coord&,float* dist) const;
@@ -52,8 +54,8 @@ public:
 				//!<If data is changed, call touch afterwards
     void			touch();
     const PosInfo::Line2DData&	data() const		{ return data_; }
-    TypeSet<int>&		spnrs()			{ return spnrs_; }
-    const TypeSet<int>&		spnrs() const		{ return spnrs_; }
+    TypeSet<float>&		spnrs()			{ return spnrs_; }
+    const TypeSet<float>&	spnrs() const		{ return spnrs_; }
 
     StepInterval<float>		zRange() const;
 
@@ -71,7 +73,7 @@ protected:
 				~Geometry2D();
 
     PosInfo::Line2DData&	data_;
-    TypeSet<int>		spnrs_;
+    TypeSet<float>		spnrs_;
     mutable float		trcdist_;
     mutable float		linelength_;
     mutable Threads::Lock	lock_;

@@ -371,7 +371,7 @@ void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
 void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
 {
     const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
-    const TypeSet<int>& spnrs = geom2d.spnrs();
+    const TypeSet<float>& spnrs = geom2d.spnrs();
     table_->setNrRows( positions.size() );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
@@ -400,7 +400,7 @@ bool uiManageLineGeomDlg::acceptOK( CallBacker* )
 	geom2d->add( table_->getDValue(RowCol(idx,2)),
 		     table_->getDValue(RowCol(idx,3)),
 		     table_->getIntValue(RowCol(idx,0)),
-		     table_->getIntValue(RowCol(idx,1)) );
+		     table_->getFValue(RowCol(idx,1)) );
     }
 
     StepInterval<float> newzrg = rgfld_->getFStepInterval();

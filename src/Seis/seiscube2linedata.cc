@@ -116,6 +116,7 @@ int Seis2DFrom3DExtractor::handleTrace()
 	return MoreToDo();
 
     trc.info().nr = curpos.nr_;
+    trc.info().refnr = sCast(float,curpos.nr_);
     trc.info().coord = curpos.coord_;
     if ( !wrr_.put(trc) )
 	mErrRet( wrr_.errMsg() )

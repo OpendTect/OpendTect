@@ -46,13 +46,13 @@ Survey::Geometry2D::~Geometry2D()
 { delete &data_; }
 
 
-void Survey::Geometry2D::add( const Coord& crd, int trcnr, int spnr )
+void Survey::Geometry2D::add( const Coord& crd, int trcnr, float spnr )
 {
     add( crd.x, crd.y, trcnr, spnr );
 }
 
 
-void Survey::Geometry2D::add( double x, double y, int trcnr, int spnr )
+void Survey::Geometry2D::add( double x, double y, int trcnr, float spnr )
 {
     PosInfo::Line2DPos pos( trcnr );
     pos.coord_.x = x;
@@ -75,7 +75,8 @@ void Survey::Geometry2D::setEmpty()
 }
 
 
-bool Survey::Geometry2D::getPosByTrcNr( int trcnr, Coord& crd, int& spnr ) const
+bool Survey::Geometry2D::getPosByTrcNr( int trcnr, Coord& crd,
+					float& spnr ) const
 {
     const int posidx = data_.indexOf( trcnr );
     if ( !data_.positions().validIdx(posidx) )
@@ -87,9 +88,18 @@ bool Survey::Geometry2D::getPosByTrcNr( int trcnr, Coord& crd, int& spnr ) const
 }
 
 
-bool Survey::Geometry2D::getPosBySPNr( int spnr, Coord& crd, int& trcnr ) const
+bool Survey::Geometry2D::getPosBySPNr( float spnr, Coord& crd, int& trcnr) const
 {
-    const int posidx = spnrs_.indexOf( spnr );
+    int posidx=-1;
+    for ( int idx=0; idx<spnrs_.size(); idx++ )
+    {
+	if ( !mIsEqual(spnr,spnrs_[idx],0.001) )
+	    continue;
+
+	posidx = idx;
+	break;
+    }
+
     if ( !data_.positions().validIdx(posidx) )
 	return false;
 
@@ -100,7 +110,7 @@ bool Survey::Geometry2D::getPosBySPNr( int spnr, Coord& crd, int& trcnr ) const
 
 
 bool Survey::Geometry2D::getPosByCoord( const Coord& crd, int& trcnr,
-					int& spnr ) const
+					float& spnr ) const
 {
     const int posidx = data_.nearestIdx( crd );
     if ( !data_.positions().validIdx(posidx) )

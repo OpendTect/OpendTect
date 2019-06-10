@@ -97,9 +97,9 @@ bool SeisTrcWriter::close()
 	}
     }
 
-    delete putter_; putter_ = 0;
-    delete pswriter_; pswriter_ = 0;
-    psioprov_ = 0;
+    deleteAndZeroPtr( putter_ );
+    deleteAndZeroPtr( pswriter_ );
+    psioprov_ = nullptr;
     ret &= SeisStoreAccess::close();
 
     return ret;
@@ -322,7 +322,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
     linedata_->add( pos );
-    spnrs_ += mNINT32(trc.info().refnr);
+    spnrs_ += trc.info().refnr;
 
     return res;
 }
@@ -359,7 +359,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    PosInfo::Line2DPos pos( trc.info().nr );
 	    pos.coord_ = trc.info().coord;
 	    linedata_->add( pos );
-	    spnrs_ += mNINT32(trc.info().refnr);
+	    spnrs_ += trc.info().refnr;
 	}
     }
     else if ( is2d_ )
