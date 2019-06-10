@@ -83,7 +83,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     , bulkinfld_(0)
 {
     mGetDispString(typ);
-    isfltset_ = FixedString( typ ) == EMFaultSet3DTranslatorGroup::sGroupName();
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -273,16 +272,8 @@ bool uiExportFault::writeAscii()
     }
 
     uiTaskRunnerProvider trprov( this );
-    RefObjectSet<EM::Object> loadedobjs;
-
-    if ( isfltset_ )
-    {
-	ConstRefMan<EM::Object> obj = EM::FltSetMan().fetch(
-						    dbkeyset.get(0), trprov );
-	loadedobjs.add( const_cast<EM::Object*>( obj.ptr()) );
-    }
-    else
-	loadedobjs = EM::MGR().loadObjects( dbkeyset, trprov );
+    RefObjectSet<EM::Object> loadedobjs = EM::MGR().loadObjects(
+							    dbkeyset, trprov );
 
     if ( loadedobjs.isEmpty() )
 	return false;
@@ -372,7 +363,7 @@ bool uiExportFault::writeAscii()
 			crd.setXY(
 				coordsysselfld_->getCoordSystem()->convertFrom(
 					crd.getXY(),*SI().getCoordSystem()));
-		    if ( !issingle_ || isfltset_ )
+		    if ( !issingle_ || nrobjs > 1 )
 			ostrm << objnm << "\t";
 		    const BinID bid = SI().transform( crd.getXY() );
 		    if ( zatf )

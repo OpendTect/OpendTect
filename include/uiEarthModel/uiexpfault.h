@@ -62,7 +62,6 @@ protected:
     bool			writeAscii();
     bool			issingle_;
     uiString			dispstr_;
-    bool			isfltset_;
 
     Coord3 getCoord( EM::Object* emobj, int stickidx, int knotidx );
 };

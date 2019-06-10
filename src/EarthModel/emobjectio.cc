@@ -193,6 +193,12 @@ Fault3DLoader::Fault3DLoader( const DBKeySet& keys,
 }
 
 
+FaultSet3DLoader::FaultSet3DLoader( const DBKeySet& keys,
+    const SurfaceIODataSelection* sel )
+    : ObjectLoader(keys,sel)
+{
+}
+
 
 Horizon3DLoader::Horizon3DLoader( const DBKeySet& keys,
 				  const SurfaceIODataSelection* sel )

@@ -110,6 +110,23 @@ public:
 };
 
 
+mExpClass( EarthModel ) FaultSet3DLoader : public ObjectLoader
+{
+public:
+      mDefaultFactoryInstantiation2Param(ObjectLoader,
+				       FaultSet3DLoader,const DBKeySet&,
+				       const SurfaceIODataSelection*,
+				       FaultSet3D::typeStr(),
+				       uiStrings::sFault(mPlural))
+
+			FaultSet3DLoader( const DBKeySet&,
+				      const SurfaceIODataSelection* );
+
+    uiString		userName() { return uiStrings::sFaultSet(); }
+
+};
+
+
 mExpClass(EarthModel) Horizon3DLoader : public ObjectLoader
 {
 public:

@@ -82,6 +82,7 @@ mDefModInitFn(EarthModel)
 
     EM::Fault3DLoader::initClass();
     EM::FaultStickSetLoader::initClass();
+    EM::FaultSet3DLoader::initClass();
     EM::Horizon3DLoader::initClass();
     EM::Horizon2DLoader::initClass();
     EM::BodyLoader::initClass();
