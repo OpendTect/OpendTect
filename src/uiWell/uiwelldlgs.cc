@@ -1921,6 +1921,8 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
 
     wellfld_ = new uiMultiWellSel( this, false );
     wellfld_->attach( alignedBelow, inpwellfld_ );
+    uiLabel* lbl = new uiLabel( this, tr("Apply to") );
+    lbl->attach( centeredLeftOf, wellfld_ );
 }
 
 
