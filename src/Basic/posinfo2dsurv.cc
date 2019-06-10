@@ -117,21 +117,10 @@ PosInfo::Survey2D::Survey2D()
     const BufferString dirnm = basefp_.fullPath();
     if ( File::exists(dirnm) )
     {
-	if ( !File::isDirectory(dirnm) )
-	{
-	    if ( !File::remove(dirnm) )
-		mErrRet("File",dirnm,"exists but is not a directory");
-	}
+	readIdxFiles();
+	if ( isEmpty() )
+	    File::remove( dirnm );
     }
-
-    if ( !File::exists(dirnm) )
-    {
-	if ( !File::createDir(dirnm) )
-	    mErrRet("Cannot create",dirnm,
-		    "for 2D geometries. Check write permissions")
-    }
-
-    readIdxFiles();
 }
 
 

@@ -169,13 +169,13 @@ public:
 
 protected:
 
-    void		    makeListOfLineSets(ObjectSet<IOObj>&);
+    bool		    makeListOfLineSets(ObjectSet<IOObj>&);
     void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
     void		    getCBVSFilePaths(BufferStringSet&);
     bool		    copyData(BufferStringSet&,uiString&,TaskRunner*);
-    bool		    update2DSFilesAndAddToDelList(
-						    ObjectSet<IOObj>& ioobjlist,
-						    BufferStringSet&);
+    bool		    removeLineSetsAndAddFilesToDelList(
+						ObjectSet<IOObj>& ioobjlist,
+						BufferStringSet&);
     void		    removeDuplicateData(BufferStringSet&);
 
 
@@ -217,8 +217,8 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 	return 0;
 
     FilePath geom2dfp( IOM().rootDir(), "2DGeom", "idx.txt" );
-    if ( !has2dps && !File::exists(geom2dfp.fullPath()) )
-	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
+    if ( hasold2d && !File::exists(geom2dfp.fullPath()) )
+	return 3;
 
     IOObjContext newctxt( mIOObjContext(SeisTrc2D) );
     newctxt.toselect_.allowtransls_ = CBVSSeisTrc2DTranslator::translKey();
@@ -248,12 +248,14 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
 {
     convert2DPSData();
     ObjectSet<IOObj> all2dsfiles;
-    makeListOfLineSets( all2dsfiles );
+    if ( !makeListOfLineSets(all2dsfiles) )
+	return; // Nothing left to convert
+
     fillIOParsFrom2DSFile( all2dsfiles );
     BufferStringSet filepathsofold2ddata, filestobedeleted;
     getCBVSFilePaths( filepathsofold2ddata );
     if ( !copyData(filepathsofold2ddata,errmsg,taskrnr) ||
-	    !update2DSFilesAndAddToDelList(all2dsfiles,filestobedeleted) )
+	    !removeLineSetsAndAddFilesToDelList(all2dsfiles,filestobedeleted) )
     {
 	errmsg = tr( "Failed to update 2D database. Most probably"
 		     " the survey or its 'Seismics' folder is not writable" );
@@ -264,7 +266,7 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
 }
 
 
-void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
+bool OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
 						   ObjectSet<IOObj>& ioobjlist )
 {
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
@@ -273,7 +275,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
     const IODir oldiodir( oldctxt.getSelKey() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     if ( olddel.isEmpty() )
-	return;
+	return false;
 
     for ( int idx=0; idx<olddel.size(); idx++ )
     {
@@ -284,7 +286,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
 	all2dseisiopars_ += obset;
     }
 
-    return;
+    return !all2dseisiopars_.isEmpty();
 }
 
 static const char* sKeyLSFileType = "2D Line Group Data";
@@ -450,44 +452,8 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
     return res;
 }
 
-static bool write2DSFile( const IOObj& lsobj, const ObjectSet<IOPar>& pars )
-{
-    SafeFileIO sfio( lsobj.fullUserExpr(), true );
-    if ( !sfio.open(false,true) )
-	return false;
 
-    ascostream astrm( sfio.ostrm() );
-    if ( !astrm.putHeader(sKeyLSFileType) )
-    {
-	sfio.closeSuccess( false );
-	return false;
-    }
-
-    astrm.put( sKey::Name(), lsobj.name() );
-    astrm.put( sKey::Type(), CBVSSeisTrc2DTranslator::translKey() );
-    astrm.put( "Number of lines", pars.size() );
-    astrm.newParagraph();
-
-    for ( int ipar=0; ipar<pars.size(); ipar++ )
-    {
-	const IOPar& iopar = *pars[ipar];
-	astrm.put( sKey::Name(), iopar.name() );
-	for ( int idx=0; idx<iopar.size(); idx++ )
-	{
-	    const char* val = iopar.getValue(idx);
-	    if ( !val || !*val ) continue;
-	    astrm.put( iopar.getKey(idx), iopar.getValue(idx) );
-	}
-
-	astrm.newParagraph();
-    }
-
-    sfio.closeSuccess();
-    return true;
-}
-
-
-bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
+bool OD_2DLineSetTo2DDataSetConverter::removeLineSetsAndAddFilesToDelList(
 		ObjectSet<IOObj>& ioobjlist,BufferStringSet& filestobedeleted )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
@@ -513,19 +479,13 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 			    attrname, newfile );
 	    newfp.setExtension( oldfp.extension(), false );
 	    const BufferString newfullfnm = newfp.fullPath();
-	    if ( newfullfnm == oldfullfnm || !File::exists(newfullfnm.buf()) )
-		continue;
-
-	    FilePath newfnm( attrname );
-	    newfnm.add( newfile );
-	    newfnm.setExtension( oldfp.extension(), false );
-	    iop.set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
-	    if ( File::exists(oldfullfnm) )
+	    if ( newfullfnm != oldfullfnm && File::exists(newfullfnm.buf()) &&
+		    File::exists(oldfullfnm) )
 		filestobedeleted.add( oldfullfnm );
 	}
 
-	if ( !write2DSFile(*ioobjlist[idx],lspars) )
-	    return false;
+	ioobjlist[idx]->implRemove();
+	IOM().permRemove( ioobjlist[idx]->key() );
     }
 
     return true;

@@ -258,6 +258,9 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 {
     fillGeometries(0);
+    if ( nrGeometries() > 1 ) // Already have new 2D geoms
+	return true;
+
     PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
 				       .create(sKey::TwoD());
     BufferStringSet lsnames;

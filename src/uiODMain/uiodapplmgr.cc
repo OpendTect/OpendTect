@@ -221,8 +221,8 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	uiString msg( tr("The database of survey '%1' is still '4.6' or lower. "
 		"It will now be converted. "
 		"This may take some time depending on the amount of data. "
-		"Note that after the conversion you will still be able to use "
-		"this 2D data in older versions of OpendTect.")
+		"Note that after the conversion you will not be able to use "
+		"this 2D data in 5.0 or older versions of OpendTect.")
 		.arg(IOM().surveyName()) );
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
