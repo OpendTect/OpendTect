@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidesktopservices.h"
 #include "uifileinput.h"
+#include "uilabel.h"
 #include "uimain.h"
 #include "uimsg.h"
 
@@ -41,27 +42,19 @@ static void showProgrDoc()
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 			const char* workdirnm )
-	: uiDialog(p,uiDialog::Setup(tr("Create Work Enviroment"),
-				     tr("Specify a work directory"),
-				     mODHelpKey(mSetDataDirHelpID) ))
-	, workdirfld(0)
-	, basedirfld(0)
+    : uiDialog(p,uiDialog::Setup(tr("Create Development Environment"),
+				 mNoDlgTitle,mODHelpKey(mSetDataDirHelpID)))
 {
-    const uiString titltxt = 
-	tr("For OpendTect development you'll need a %1 dir\n"
-        "Please specify where this directory should be created.")
-	.arg(toUiString("$WORK"));
+    uiLabel* lbl = new uiLabel( this,
+	tr("Specify OpendTect plugin development location.\n") );
+    lbl->attach( leftBorder );
 
-    setTitleText( titltxt );
+    workdirfld = new uiGenInput( this, uiStrings::sName(), workdirnm );
+    workdirfld->attach( ensureBelow, lbl );
 
-    basedirfld = new uiFileInput( this, uiStrings::phrJoinStrings(
-			      tr("Parent"),uiStrings::sDirectory()),
-			      uiFileInput::Setup(basedirnm).directories(true) );
-
-    workdirfld = new uiGenInput( this, mJoinUiStrs(sDirectory(),sName()),
-								    workdirnm );
-    workdirfld->attach( alignedBelow, basedirfld );
-
+    basedirfld = new uiFileInput( this, tr("Create in"),
+			uiFileInput::Setup(basedirnm).directories(true) );
+    basedirfld->attach( alignedBelow, workdirfld );
 }
 
 
@@ -106,11 +99,11 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if ( File::exists(oldworkdir.fullPath()) )
     {
-	uiString msg = tr("Your current work directory (%1) %2 to be "
-			  "a valid work directory."
+	uiString msg = tr("Your current development folder (%1) %2 to be "
+			  "a valid environment."
 			  "\n\nDo you want to completely remove "
-			  "the existing directory "
-			  "and create a new work directory there?")
+			  "the existing folder "
+			  "and create a new folder there?")
 		     .arg(oldworkdir.fullPath())
 		     .arg(oldok ? tr("seems")
 				: tr("does not seem"));
@@ -135,7 +128,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	worksubdirm = dlg.workdirfld->text();
 
 	if ( !File::isDirectory(basedirnm) )
-	    mErrRet(tr("Invalid directory selected"))
+	    mErrRet(tr("Invalid folder selected"))
 
 	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
     }
@@ -149,7 +142,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( isdir )
 	{
-	    msg = tr("The directory you selected (%1)\nalready exists.\n\n")
+	    msg = tr("The folder you selected (%1)\nalready exists.\n\n")
 		.arg(workdirnm);
 	}
 	else
@@ -157,9 +150,9 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    msg = tr("You selected a file.\n\n");
 	}
 
-	msg.arg("Do you want to completely remove the existing %1"
-		"and create a new work directory there?")
-	    .arg(isdir ? tr("directory\n") : tr("file\n"));
+	msg.append("Do you want to completely remove the existing %1\n"
+		"and create a new development location there?")
+	    .arg(isdir ? tr("folder") : tr("file"));
 
 	if ( !uiMSG().askRemove(msg) )
 	    return;
@@ -172,10 +165,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(workdirnm)) )
 
     const uiString docmsg =
-      tr("The OpendTect window will FREEZE during this process\n"
-      "- for upto a few minutes.\n\n"
-      "Meanwhile, do you want to take a look at the developers documentation?");
-    
+      tr( "Do you want to take a look at the developers documentation?");
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
@@ -209,7 +199,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 #endif
 
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-    system( cmd );
+    OS::ExecCommand( cmd );
 #endif
 
     BufferString cmakefile =
@@ -235,7 +225,7 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
     {
 	BufferString workdirnm = workdirfld->text();
 	if ( workdirnm.isEmpty() )
-	    mErrRet( tr("Please enter a (sub-)directory name") )
+	    mErrRet( tr("Please enter a (sub-)folder name") )
 
 	workdir = FilePath( workdir ).add( workdirnm ).fullPath();
     }
@@ -247,7 +237,7 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	  || workdir.contains( "program files" )
 	  || workdir.contains( "PROGRAM FILES" ) )
 	  mErrRet(tr("Please do not use 'Program Files'.\n"
-		     "Instead, a directory like 'My Documents' would be OK."))
+		     "Instead, a folder like 'My Documents' would be OK."))
 #endif
     }
 

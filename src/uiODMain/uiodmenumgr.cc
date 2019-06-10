@@ -921,10 +921,19 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu_, m3Dots(tr("Look and Feel")), mSettLkNFlMnuItm );
     mInsertItem( settmnu_, m3Dots(tr("Keyboard Shortcuts")),
 		 mSettShortcutsMnuItm);
+
+#ifdef __debug__
+    const bool enabadvsettings = true;
+#else
+    const bool enabadvsettings = GetEnvVarYN( "OD_ENABLE_ADVANCED_SETTINGS" );
+#endif
     uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
-    mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
     mInsertItem( advmnu, m3Dots(tr("Python Settings")), mSettPython );
-    mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
+    if ( enabadvsettings )
+    {
+	mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
+	mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
+    }
     settmnu_->insertItem( advmnu );
 
     toolsmnu_ = new uiMenu( &appl_, uiStrings::sTools() );
@@ -932,11 +941,6 @@ void uiODMenuMgr::fillUtilMenu()
 
     mInsertItem( toolsmnu_, m3Dots(tr("Batch Programs")), mBatchProgMnuItm );
     mInsertItem( toolsmnu_, m3Dots(tr("Position Conversion")), mPosconvMnuItm );
-    BufferString develverstr;
-    GetSpecificODVersion( "devel", develverstr );
-    if ( !develverstr.isEmpty() )
-	mInsertItem( toolsmnu_, m3Dots(tr("Create Plugin Devel. Env.")),
-		     mCrDevEnvMnuItm );
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
@@ -961,6 +965,12 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( installmnu_, m3Dots(tr("Setup Multi-Machine Processing")),
 		 mSetupBatchItm);
     mInsertItem( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
+
+    BufferString develverstr;
+    GetSpecificODVersion( "devel", develverstr );
+    if ( !develverstr.isEmpty() )
+	mInsertItem( utilmnu_, m3Dots(tr("Plugin Development")),
+		     mCrDevEnvMnuItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
