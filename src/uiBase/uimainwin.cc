@@ -177,6 +177,8 @@ private:
     Qt::WindowFlags	getFlags(bool hasparent,bool modal) const;
 
     void		popTimTick(CallBacker*);
+    void		getPosForScreenMiddle(int& x,int& y);
+    void		getPosForParentMiddle(int& x,int& y);
     Timer		poptimer_;
     bool		poppedup_;
     uiSize		prefsz_;
@@ -223,6 +225,11 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     setIconSize( QSize(sz,sz) );
     setWindowModality( p && modal ? Qt::WindowModal
 				  : Qt::NonModal );
+
+#ifdef __mac__
+    setUnifiedTitleAndToolBarOnMac( true );
+#endif
+
     setDockOptions( VerticalTabs | AnimatedDocks );
 
     poptimer_.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
@@ -337,6 +344,9 @@ void uiMainWinBody::doShow( bool minimized )
 	handle_.afterpopuptimer_->start( 50, true );
     }
 
+    move( handle_.popuparea_ );
+    raise();
+
     if ( modal_ )
 	eventloop_.exec();
 }
@@ -381,26 +391,83 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 }
 
 
+void uiMainWinBody::getPosForScreenMiddle( int& xpos, int& ypos )
+{
+    QDesktopWidget qdw;
+    const int screenwidth = qdw.screen()->width();
+    const int screenheight = qdw.screen()->height();
+    const int mywidth = QMainWindow::width();
+    const int myheight = QMainWindow::height();
+
+    xpos = (screenwidth - mywidth)/2;
+    ypos = (screenheight - myheight)/2;
+}
+
+
+static QWidget* getParentWidget( QWidget* qw )
+{
+    while ( qw && !qw->isWindow() )
+	qw = qw->parentWidget();
+
+    return qw;
+}
+
+
+void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
+{
+    QWidget* parentwidget = getParentWidget( parentWidget() );
+    if ( !parentwidget )
+    {
+	getPosForScreenMiddle( xpos, ypos );
+	return;
+    }
+
+    QDesktopWidget qdw;
+    const QRect screenrect = qdw.availableGeometry( parentwidget );
+    const int mywidth = frameGeometry().width();
+    const int myheight = frameGeometry().height();
+    const QPoint parentcenter = parentwidget->frameGeometry().center();
+    xpos = parentcenter.x() - mywidth/2;
+    ypos = parentcenter.y() - myheight/2;
+    if ( xpos<screenrect.left() ) xpos = screenrect.left();
+    if ( ypos<screenrect.top() ) ypos = screenrect.top();
+    if ( xpos+mywidth > screenrect.right() )
+	xpos = screenrect.right() - mywidth;
+    if ( ypos+myheight > screenrect.bottom() )
+	ypos = screenrect.bottom() - myheight;
+}
+
+
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
-    QDesktopWidget wgt;
-    const int xpos = wgt.screen()->width() - QMainWindow::width();
-    const int ypos = wgt.screen()->height() - QMainWindow::height();
+    QWidget* parentwidget = getParentWidget( parentWidget() );
+    if ( !parentwidget )
+    {
+	uiMainWin* toplevel = uiMain::theMain().topLevel();
+	if ( toplevel )
+	    parentwidget = toplevel->getWidget(0);
+    }
 
+    QDesktopWidget qdw;
+    const QRect screenrect = qdw.availableGeometry( parentwidget );
+    const int mywidth = frameGeometry().width();
+    const int myheight = frameGeometry().height();
+    int xpos = 0, ypos = 0;
     switch( pa )
     {
 	case uiMainWin::TopLeft :
-	    move( 0, 0 ); break;
+	    move( screenrect.left(), screenrect.top() ); break;
 	case uiMainWin::TopRight :
-	    move( xpos, 0 ); break;
+	    move( screenrect.left()-mywidth, screenrect.top() ); break;
 	case uiMainWin::BottomLeft :
-	    move( 0, ypos ); break;
+	    move( screenrect.left(), screenrect.bottom()-myheight ); break;
 	case uiMainWin::BottomRight :
-	    move( xpos, ypos ); break;
-	case uiMainWin::Middle :
-	    move( mNINT32(xpos*.5f), mNINT32(ypos*.5f) ); break;
-	default:
+	    move( screenrect.right()-mywidth, screenrect.bottom()-myheight );
 	    break;
+	case uiMainWin::Middle :
+	    getPosForParentMiddle( xpos, ypos ); move( xpos, ypos ); break;
+	case uiMainWin::Auto :
+	    getPosForScreenMiddle( xpos, ypos ); move( xpos, ypos ); break;
     }
 }
 
@@ -428,7 +495,6 @@ void uiMainWinBody::go( bool showminimized )
     doShow( showminimized );
     for ( int idx=0; idx<toolbars_.size(); idx++ )
 	toolbars_[idx]->handleFinalise( false );
-    move( handle_.popuparea_ );
 }
 
 
@@ -529,6 +595,7 @@ void uiMainWinBody::close()
 
     if ( modal_ )
 	eventloop_.exit();
+
     QMainWindow::hide();
 
     if ( exitapponclose_ )
@@ -796,6 +863,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 		      int nrstatusflds, bool withmenubar, bool modal )
     : uiParent(toString(cpt),0)
     , parent_(parnt)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -816,6 +884,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 uiMainWin::uiMainWin( const uiString& captn, uiParent* parnt )
     : uiParent(toString(captn),0)
     , parent_(parnt)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -1627,6 +1696,10 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     , initchildrendone_(false)
 {
     setContentsMargins( 10, 2, 10, 2 );
+
+    Qt::WindowFlags flags = windowFlags();
+    flags |= Qt::Dialog;
+    setWindowFlags( flags );
 }
 
 
@@ -1649,7 +1722,6 @@ bool uiDialogBody::exec( bool showminimized )
 
     move( handle_.getPopupArea() );
     go( showminimized );
-
     return uiResult();
 }
 

@@ -183,6 +183,7 @@ int ODMain( uiMain& app )
     if ( dodlg && !pimdata.isEmpty() )
     {
 	uiODPreStart dlg( ODMainWin() );
+	dlg.setPopupArea( uiMainWin::Auto );
 	if ( !dlg.go() )
 	    return 1;
     }
@@ -452,7 +453,7 @@ public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
     : uiDialog(p,uiDialog::Setup(tr("Auto-load session"),mNoDlgTitle,
-                                 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
+				 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
     bool douse = false; DBKey id;
     ODSession::getStartupData( douse, id );
@@ -586,7 +587,7 @@ void uiODMain::doRestoreSession()
     {
 	MouseCursorManager::restoreOverride();
 	uiMSG().error( uiStrings::phrErrDuringRead(uiStrings::sSession())
-		          .appendPhrase(tr("A new scene will be launched")) );
+			  .appendPhrase(tr("A new scene will be launched")) );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
@@ -729,7 +730,7 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
     {
 	askedanything = true;
 	int res = uiMSG().askSave( tr("Do you want to save this session?"),
-                                   true );
+				   true );
 	if ( res == 1 )
 	    saveSession();
 	else if ( res == -1 )
