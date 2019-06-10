@@ -345,7 +345,7 @@ bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 					 "Save now?") );
 	if ( !allowcncl && res < 0 )
 	{
-	    uiMSG().error( tr("Sorry, you cannot cancel right now."
+	    uiMSG().error( tr("Sorry, you cannot cancel right now.\n"
 			   "Please save or discard your work") );
 	    continue;
 	}
