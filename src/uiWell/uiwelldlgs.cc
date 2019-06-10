@@ -1926,8 +1926,13 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
 {
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
 
-    wellfld_ = new uiMultiWellSel( this, false );
+    uiIOObjSelGrp::Setup su( OD::ChooseAtLeastOne );
+    su.withinserters(false).withwriteopts(false);
+    wellfld_ = new uiMultiWellSel( this, false, &su );
+    wellfld_->allowIOObjManip( false );
     wellfld_->attach( alignedBelow, inpwellfld_ );
+    uiLabel* lbl = new uiLabel( this, tr("Apply to") );
+    lbl->attach( centeredLeftOf, wellfld_ );
 }
 
 
