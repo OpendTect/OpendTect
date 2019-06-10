@@ -383,6 +383,7 @@ void uiMainWinBody::doShow( bool minimized )
     }
 
     move( handle_.popuparea_ );
+    raise();
 
     if ( modal_ )
 	eventloop_.exec();
