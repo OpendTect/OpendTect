@@ -71,6 +71,7 @@ public:
     void		setSelected(const TypeSet<MultiID>&);
     void		getSelected(TypeSet<MultiID>&) const;
     MultiID		currentID() const;
+    void		allowIOObjManip(bool yn);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

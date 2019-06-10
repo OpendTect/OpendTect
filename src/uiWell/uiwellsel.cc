@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 
 #include "uilistbox.h"
+#include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 
@@ -179,6 +180,13 @@ uiMultiWellSel::uiMultiWellSel( uiParent* p, bool singleline,
 	mAttachCB( multilnfld_->selectionChanged,
 		   uiMultiWellSel::newCurrentCB );
     }
+}
+
+
+void uiMultiWellSel::allowIOObjManip( bool yn )
+{
+    if ( multilnfld_ && multilnfld_->getManipGroup() )
+	multilnfld_->getManipGroup()->display( yn );
 }
 
 
