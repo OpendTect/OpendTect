@@ -638,10 +638,10 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    if ( !tmpprov )
 		mErrRet( errmsg )
 
-	    tmpprov->computeRefStep();
+	    tmpprov->computeRefZStep();
 	    tmpprov->computeRefZ0();
-	    const float floatres = (tkzs.zsamp_.start - tmpprov->getRefZ0()) /
-				    tmpprov->getRefStep();
+	    const float floatres = (tkzs.zsamp_.start - tmpprov->refZ0()) /
+				    tmpprov->refZStep();
 	    const int intres = mNINT32( floatres );
 	    if ( Math::Abs(floatres-intres) > 1e-2 )
 		atsamplepos = false;

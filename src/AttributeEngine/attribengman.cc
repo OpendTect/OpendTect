@@ -69,21 +69,22 @@ bool EngineMan::is2D() const
 }
 
 
-GeomSubSel* EngineMan::getPossibleSubSel( DescSet& attrset, const DescID& outid,
-					  GeomID gid )
+uiRetVal EngineMan::getPossibleSubSel( DescSet& attrset, const DescID& outid,
+					FullSubSel& fss, GeomID gid )
 {
-    GeomSubSel* ret = attrset.is2D() ? new LineSubSel(gid) : new CubeSubSel;
+    fss = attrset.is2D() ? FullSubSel(gid) : FullSubSel();
     TypeSet<DescID> desiredids( 1, outid );
 
     uiRetVal uirv;
     DescID evalid = createEvaluateADS( attrset, desiredids, uirv );
     PtrMan<Processor> proc = createProcessor( attrset, evalid, uirv, gid );
     if ( !proc )
-	return;
+	return uirv;
 
     proc->computeAndSetRefZStepAndZ0();
-    proc->setDesiredSubSel( *ret );
-    return proc->getProvider()->getPossibleSubSel().geomSubSel().clone();
+    proc->setDesiredSubSel( fss );
+    fss = proc->getProvider()->possibleSubSel();
+    return uirv;
 }
 
 
@@ -105,17 +106,11 @@ Processor* EngineMan::createProcessor( const DescSet& attrset,
 }
 
 
-GeomID EngineMan::geomID() const
-{
-    return subsel_.geomID();
-}
-
-
 void EngineMan::setGeomID( GeomID gid )
 {
     if ( attrset_ && attrset_->is2D() != gid.is2D() )
 	{ pErrMsg("2D/3D mismatch"); }
-    if ( subsel_.geomID() != gid )
+    if ( subsel_.geomID(0) != gid )
 	subsel_ = FullSubSel( gid );
 }
 
@@ -582,8 +577,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
-    if ( cache_ && cache_->sampling().zsamp_.step
-			!= subsel_.zSubSel().posStep() )
+    if ( cache_ && cache_->sampling().zsamp_.step != subsel_.zSubSel().zStep() )
     {
 	TrcKeyZSampling cswithcachestep( subsel_ );
 	cswithcachestep.zsamp_.step = cache_->sampling().zsamp_.step;
@@ -632,14 +626,6 @@ void EngineMan::setAttribSpec( const SelSpec& spec )
 {
     attrspecs_.erase();
     attrspecs_ += spec;
-}
-
-
-void EngineMan::setSubSel( const GeomSubSel& gss )
-{
-    if ( attrset_ && gss.is2D() != attrset_->is2D() )
-	{ pErrMsg("2D/3D mismatch"); return; }
-    subsel_ = FullSubSel( gss );
 }
 
 

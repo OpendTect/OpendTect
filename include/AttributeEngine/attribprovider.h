@@ -45,6 +45,8 @@ public:
     mUseType( Survey,		GeomSubSel );
 
     static Provider*		create(Desc&,uiRetVal&);
+    uiRetVal			status() const	{ return uirv_; }
+    inline bool			isOK() const	{ return uirv_.isOK(); }
     bool			is2D() const;
 
     const Desc&			getDesc() const		{ return desc_; }
@@ -114,12 +116,12 @@ public:
     void			setNeedInterpol(bool);
     void			setExactZ(const TypeSet<float>&);
 
-    void			computeRefStep();
+    void			computeRefZStep();
 				/*!<If an attribute uses as inputs stored cubes
 				with a different z step the smallest one will
 				be taken as reference step*/
-    void			setRefStep(float step);
-    float                       refStep() const;
+    void			setRefZStep(float step);
+    float                       refZStep() const;
 
     void			computeRefZ0();
 				/*!<If an attribute uses as inputs stored cubes
@@ -131,7 +133,7 @@ public:
     virtual BinID		getStepoutStep() const;
     ObjectSet<Provider>&	getInputs()		{ return inputs_; }
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
-    uiString			errMsg() const;
+    uiRetVal			errMsg() const;
 
     virtual void		initSteering()				{}
     virtual void		prepSteeringForStepout(const BinID&)	{}
@@ -140,12 +142,12 @@ public:
 				/*!< returns whether the outputs plan acquired
 				  from the parameter file has to be overruled */
     virtual void		prepPriorToBoundsCalc();
-				/*!< Z refstep is known now,
+				/*!< Z refzstep is known now,
 				  this is meant to be used before possible-
 				  and desired- volumes are computed*/
     virtual void		prepareForComputeData();
 				/*!< Everything is known now. */
-    static uiString		prepare(Desc&);
+    static uiRetVal		prepare(Desc&);
 				//!< Must be called before getting
 				//!< inputs/outputs etc. from a Desc
     virtual void		fillDataPackWithTrc(RegularSeisDataPack*) const
@@ -313,10 +315,10 @@ protected:
 				    \a input if \a output is going to be
 				    computed, or NULL if no extra gate
 				    is required. */
-    virtual bool		getZStepStoredData( float& step ) const
-				{ return false; }
-    virtual bool		getZ0StoredData( float& z0 ) const
-				{ return false; }
+    virtual float		zStepStoredData() const
+				{ return mUdf(float); }
+    virtual float		z0StoredData() const
+				{ return mUdf(float); }
 
     float			getInterpolInputValue(const DataHolder&,
 						      int inputidx,
@@ -332,8 +334,8 @@ protected:
     float			getExtraZFromSampPos(float) const;
     float			getExtraZFromSampInterval(int,int) const;
     virtual bool		useInterTrcDist() const;
-    float			getZAtSample(int idx) const
-				{ return refz0_ + idx*refstep_; }
+    float			zAtSample( int idx ) const
+				{ return refz0_ + idx*refzstep_; }
 
     bool                        zIsTime() const;
     float			zFactor() const;
@@ -347,7 +349,7 @@ protected:
 						   : mMAXDIPSECUREDEPTH); }
     void			stdPrepSteering(const BinID&);
     void			applyMargins(const Interval<float>*,
-					 const Interval<int>*,FullSubSel&);
+				     const Interval<int>*,FullSubSel&) const;
 
     ObjectSet<Provider>		inputs_;
     ObjectSet<Provider>		parents_;
@@ -374,12 +376,12 @@ protected:
     bool			useshortcuts_;
 
     float			refz0_;
-    float                       refstep_;
+    float                       refzstep_;
     bool			alreadymoved_;
 
     bool			isusedmulttimes_;
     bool			needinterp_;
-    uiRetVal			uirv_;
+    mutable uiRetVal		uirv_;
     bool			dataunavailableflag_;
 
     friend class		ProviderTask;

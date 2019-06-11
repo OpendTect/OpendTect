@@ -104,14 +104,14 @@ protected:
 						    TypeSet<float>& ts ) const \
 				{ return Output::getLocalZRanges(t,f,ts); }
 
-/*!
-\brief Attribute DataPack Output.
-*/
+/*!\brief Attribute DataPack Output */
 
 mExpClass(AttributeEngine) DataPackOutput : public Output
 {
 public:
 				DataPackOutput(const FullSubSel&);
+				DataPackOutput(const TrcKeyZSampling&);
+    bool			is2D() const;
 
     const RegularSeisDataPack*	getDataPack() const;
     virtual RegularSeisDataPack*getDataPack(float);
@@ -131,8 +131,8 @@ public:
 
 protected:
 
-    FullSubSel		desiredfss_;
-    FullSubSel		dcfss_;	//can differ from desiredfss_
+    FullSubSel		desiredsubsel_;
+    FullSubSel		dcfss_;	//can differ from desiredsubsel_
 				//(special cases with decimated cubes smaller
 				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
@@ -151,12 +151,11 @@ mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 { mODTextTranslationClass(Attrib::SeisTrcStorOutput)
 public:
 
-				SeisTrcStorOutput(const FullSubSel&,
-						  const Pos::GeomID);
+				SeisTrcStorOutput(const FullSubSel&);
 				~SeisTrcStorOutput();
 
     GeomID			geomID() const
-				{ return desiredfss_.geomID(0); }
+				{ return desiredsubsel_.geomID(0); }
 
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
@@ -194,7 +193,7 @@ public:
 protected:
 
     DBKey&			storid_;
-    FullSubSel			desiredfss_;
+    FullSubSel			desiredsubsel_;
     TypeSet< Interval<int> >	sampleinterval_;
     IOPar*			auxpars_;
     bool			is2d_;

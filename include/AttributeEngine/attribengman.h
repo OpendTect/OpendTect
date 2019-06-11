@@ -38,14 +38,13 @@ public:
 
     mUseType( Pos, GeomID );
     mUseType( Survey, FullSubSel );
-    mUseType( Survey, GeomSubSel );
 
 			EngineMan();
     virtual		~EngineMan();
 
     static Processor*	createProcessor(const DescSet&,const DescID&,
 					uiRetVal&,GeomID gid=GeomID());
-    static GeomSubSel*	getPossibleSubSel(DescSet&,const DescID&,
+    static uiRetVal	getPossibleSubSel(DescSet&,const DescID&,FullSubSel&,
 					  GeomID gid=GeomID());
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiRetVal&);
@@ -54,8 +53,7 @@ public:
     Processor*		usePar(const IOPar&,DescSet&,
 			       uiRetVal&,int outputidx,GeomID gid=GeomID());
 
-    SeisTrcStorOutput*	createOutput(const IOPar&,uiRetVal&,GeomID gid=GeomID(),
-				     int outidx=0);
+    SeisTrcStorOutput*	createOutput(const IOPar&,uiRetVal&,int outidx=0);
 
     const DescSet*	attribSet() const	{ return attrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
@@ -67,7 +65,6 @@ public:
     void		setNLAModel(const NLAModel*);
     void		setAttribSpec(const SelSpec&);
     void		setAttribSpecs(const SelSpecList&);
-    void		setSubSel(const GeomSubSel&);
     void		setSubSel(const FullSubSel&);
     void		setGeomID(GeomID);	// only actually useful for 2D
     void		setUndefValue( float v )	 { udfval_ = v; }

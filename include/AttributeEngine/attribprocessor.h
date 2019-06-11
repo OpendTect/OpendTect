@@ -49,6 +49,7 @@ public:
     uiString		message() const;
     uiString		nrDoneText() const { return tr("Positions processed"); }
 
+    void		setDesiredSubSel(const FullSubSel&);
     void		addOutputInterest(int sel);
     bool		setZIntervals(TypeSet< Interval<int> >&,
 				      const TrcKey&,const Coord&);

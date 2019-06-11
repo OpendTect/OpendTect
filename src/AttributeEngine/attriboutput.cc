@@ -10,7 +10,9 @@
 
 #include "attribdataholder.h"
 #include "convmemvalseries.h"
+#include "cubesubsel.h"
 #include "datapointset.h"
+#include "linesubsel.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
@@ -104,6 +106,15 @@ void Output::doSetGeometry( const FullSubSel& fss )
 }
 
 
+DataPackOutput::DataPackOutput( const FullSubSel& fss )
+    : desiredsubsel_(fss)
+    , dcfss_(fss)
+    , output_(0)
+    , udfval_(mUdf(float))
+{
+}
+
+
 DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
     : desiredsubsel_(cs)
     , dcfss_(cs)
@@ -113,13 +124,22 @@ DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
 }
 
 
+bool DataPackOutput::is2D() const
+{
+    return desiredsubsel_.is2D();
+}
+
+
 bool DataPackOutput::getDesiredSubSel( FullSubSel& fss ) const
-{ fss = desiredfss_; return true; }
+{ fss = desiredsubsel_; return true; }
 
 
 bool DataPackOutput::wantsOutput( const BinID& bid ) const
 {
-    return desiredfss_.hsamp_.includes(bid);
+    if ( is2D() )
+	return desiredsubsel_.lineSubSel(0).trcNrSubSel().includes(bid.crl());
+    else
+	return desiredsubsel_.cubeSubSel().includes( bid );
 }
 
 
@@ -140,8 +160,8 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 
 void DataPackOutput::setPossibleSubSel( const FullSubSel& possss )
 {
-    desiredfss_.limitTo( possss );
-    dcfss_ = desiredfss_;
+    desiredsubsel_.limitTo( possss );
+    dcfss_ = desiredsubsel_;
 }
 
 
@@ -232,7 +252,7 @@ RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
 void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
     output_ = new RegularSeisDataPack( OD::EmptyString(), bdd );
-    output_->setSampling( TrcKeyZSampling(dcsfss_) );
+    output_->setSampling( TrcKeyZSampling(dcfss_) );
     DPM(DataPackMgr::SeisID()).add( output_ );
     const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;
 }
@@ -266,7 +286,7 @@ bool SeisTrcStorOutput::getDesiredSubSel( FullSubSel& fss ) const
 bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 {
     return desiredsubsel_.is2D()
-	 ? desiredsubsel_.lineSubSel().trcNrSubSel().includes(bid.crl())
+	 ? desiredsubsel_.lineSubSel(0).trcNrSubSel().includes(bid.crl())
 	 : desiredsubsel_.cubeSubSel().includes(bid);
 }
 
@@ -420,7 +440,6 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     auto reqzrg = desiredsubsel_.zRange();
     if ( !mIsEqual(reqzrg.step,trc_->info().sampling_.step,1e-6))
     {
-	auto reqzrg = desiredsubsel_.zRange();
 	reqzrg.limitTo( trc_->zRange() );
 	const int nrsamps = mCast( int, reqzrg.nrfSteps() + 1 );
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
@@ -882,12 +901,12 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 bool TrcSelectionOutput::getDesiredSubSel( FullSubSel& fss ) const
 {
     fss.setToAll( false );
-    StepInterval<int> inlrg( bidvalset_.inlRange(), fss.inlSubSel().posStep() );
-    StepInterval<int> crlrg( bidvalset_.crlRange(), fss.crlSubSel().posStep() );
-    StepInterval<float> zrg( stdstarttime_, stdstarttime_ + stdtrcsz_,
-			     fss.zSubSel().zStep() );
 
-    CubeSubSel& css = fss.cubeSubSel();
+    auto& css = fss.cubeSubSel();
+    StepInterval<int> inlrg( bidvalset_.inlRange(), css.inlSubSel().posStep() );
+    StepInterval<int> crlrg( bidvalset_.crlRange(), css.crlSubSel().posStep() );
+    StepInterval<float> zrg( stdstarttime_, stdstarttime_ + stdtrcsz_,
+			     css.zSubSel().zStep() );
     css.setInlRange( inlrg );
     css.setCrlRange( crlrg );
     css.setZRange( zrg );
@@ -916,7 +935,7 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
 	if ( val > zmax ) zmax = val;
     }
 
-    setGeometry( desiredfss_ );
+    setGeometry( desiredsubsel_ );
     seldata_->setZRange( Interval<float>(zmin,zmax) );
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;

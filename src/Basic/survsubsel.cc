@@ -859,6 +859,12 @@ CubeSubSel::CubeSubSel( const TrcKeyZSampling& tkzs )
 }
 
 
+bool CubeSubSel::includes( const BinID& bid ) const
+{
+    return hss_.includes( bid );
+}
+
+
 void CubeSubSel::setRange( const BinID& start, const BinID& stop,
 			   const BinID& stp )
 {
@@ -1521,6 +1527,18 @@ size_type Survey::FullSubSel::expectedNrTraces() const
 	for ( auto lss : lsss_ )
 	    ret += lss->nrTrcs();
     return ret;
+}
+
+
+Survey::HorSubSel& Survey::FullSubSel::horSubSel( idx_type idx )
+{
+    return geomSubSel( idx ).horSubSel();
+}
+
+
+const Survey::HorSubSel& Survey::FullSubSel::horSubSel( idx_type idx ) const
+{
+    return geomSubSel( idx ).horSubSel();
 }
 
 

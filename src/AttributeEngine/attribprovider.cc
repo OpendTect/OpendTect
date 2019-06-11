@@ -18,6 +18,8 @@
 
 #include "binidvalset.h"
 #include "convmemvalseries.h"
+#include "cubesubsel.h"
+#include "linesubsel.h"
 #include "trckeyzsampling.h"
 #include "dbman.h"
 #include "ioobj.h"
@@ -185,7 +187,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	else
 	    uirv.set( tr("Attribute \"%1\" (%2) cannot be initialized")
 		     .arg( newprov->desc_.userRef() ).arg( attribnm ) );
-	uirv.add( provprovuirv );
+	uirv.add( provuirv );
 	newprov->unRef();
 	return 0;
     }
@@ -203,7 +205,7 @@ Provider::Provider( Desc& nd )
     , providertask_( 0 )
     , currentbid_( -1, -1 )
     , linebuffer_( 0 )
-    , refstep_( 0 )
+    , refzstep_( 0 )
     , alreadymoved_( 0 )
     , seldata_( 0 )
     , curtrcinfo_( 0 )
@@ -222,9 +224,6 @@ Provider::Provider( Desc& nd )
     inputs_.setNullAllowed( true );
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
-
-    if ( !desc_.descSet() )
-	errmsg_ = tr("No attribute set specified");
 }
 
 
@@ -244,7 +243,7 @@ Provider::~Provider()
 
 bool Provider::is2D() const
 {
-    return desc.descSet() ? desc.descSet()->is2D() : desc.is2D();
+    return desc_.descSet() ? desc_.descSet()->is2D() : desc_.is2D();
 }
 
 
@@ -338,7 +337,7 @@ void Provider::setDesiredSubSel( const GeomSubSel& gss )
 void Provider::setPossibleSubSel( const FullSubSel& reqnewss )
 {
     if ( reqnewss.is2D() == is2D() )
-	possiblesubsel_ = *newss;
+	possiblesubsel_ = reqnewss;
     else
     {
 	pErrMsg( "Bad 2D vs 3D" );
@@ -381,29 +380,29 @@ void Provider::setDesiredSubSel( const FullSubSel& reqnewss )
 
 
 void Provider::applyMargins( const Interval<float>* zmargin,
-			 const Interval<int>* zmargininsamps, FullSubSel& fss )
+		 const Interval<int>* zmargininsamps, FullSubSel& fss ) const
 {
     Interval<float> relzrg( 0.f, 0.f );
     if ( zmargin )
     {
 	relzrg = *zmargin;
 	if ( zmargininsamps )
-	    relzrg.include( zmargininsamps->start*refstep_,
-			    zmargininsamps->stop*refstep_ );
+	    relzrg.include( zmargininsamps->start*refzstep_,
+			    zmargininsamps->stop*refzstep_ );
     }
     else if ( zmargininsamps )
-	relzrg = Interval<float>( zmargininsamps->start*refstep_,
-				  zmargininsamps->stop*refstep_ );
+	relzrg = Interval<float>( zmargininsamps->start*refzstep_,
+				  zmargininsamps->stop*refzstep_ );
 
-    if ( zmargin || zmarginsamp )
+    if ( zmargin || zmargininsamps )
     {
-	const auto nrgeomids = inpfss.nrGeomIDs();
+	const auto nrgeomids = fss.nrGeomIDs();
 	for ( int igid=0; igid<nrgeomids; igid++ )
 	{
-	    auto zrg = inpfss.zRange( igid );
+	    auto zrg = fss.zRange( igid );
 	    zrg.start -= relzrg.start;
 	    zrg.stop -= relzrg.stop;
-	    inpfss.setZRange( zrg, igid );
+	    fss.setZRange( zrg, igid );
 	}
     }
 }
@@ -443,9 +442,9 @@ bool Provider::calcPossibleSubSel( int output, FullSubSel& outfss )
 		if ( stepout )
 		{
 		    if ( inpfss.is2D() )
-			inpfss.subSel2D().addStepOut( -stepout->crl() );
+			inpfss.subSel2D().addStepout( -stepout->crl() );
 		    else
-			inpfss.subSel3D().addStepOut( -stepout->inl(),
+			inpfss.subSel3D().addStepout( -stepout->inl(),
 						      -stepout->crl() );
 		}
 
@@ -462,9 +461,9 @@ bool Provider::calcPossibleSubSel( int output, FullSubSel& outfss )
 }
 
 
-static int subSelExtreme( const FullSubSel& ss, bool min )
+static int subSelExtreme( const Survey::FullSubSel& ss, bool min )
 {
-    return min ? ss.trcNrRange().posStart() : ss.trcNrRange().posStop();
+    return min ? ss.trcNrRange().start : ss.trcNrRange().stop;
 }
 
 
@@ -822,7 +821,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
-    const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
+    const float dz = mIsZero(refzstep_,mDefEps) ? SI().zStep() : refzstep_;
     const Interval<int> possintv( mNINT32(possiblesubsel_.zRange().start/dz),
 				  mNINT32(possiblesubsel_.zRange().stop/dz) );
 
@@ -890,7 +889,7 @@ void Provider::fillInputRangesArray(
 				int idx, const BasicInterval<int>& reqintv )
 {
     const int nrinps = inputs_.size();
-    const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
+    const float dz = mIsZero(refzstep_,mDefEps) ? SI().zStep() : refzstep_;
     for ( int out=0; out<outputinterest_.size(); out++ )
     {
 	if ( !outputinterest_[out] ) continue;
@@ -963,7 +962,7 @@ BinID Provider::getStepoutStep() const
 const DataHolder* Provider::getData( const BinID& relpos, int idi )
 {
     if ( idi < 0 || idi >= localcomputezintervals_.size() )
-	return 0;
+	return nullptr;
 
     const DataHolder* constres = getDataDontCompute(relpos);
     Interval<int> loczinterval( localcomputezintervals_[idi] );
@@ -980,7 +979,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     {
 	if ( outdata )
 	    linebuffer_->removeDataHolder( currentbid_+relpos );
-	return 0;
+	return nullptr;
     }
 
     const int nrsamples = outdata->nrsamples_;
@@ -1012,11 +1011,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 		    new ConvMemValueSeries<float>( nrsamples, outputformat, 0 );
 
 	    if ( !valptr )
-	    {
-		errmsg_ = tr("Failed to allocate memory. "
-			  "Probably the data you are loading is too big.");
-		return 0;
-	    }
+		return nullptr;
 
 	    valptr->setAll( mUdf(float) );
 	    outdata->replace( idx, valptr );
@@ -1047,7 +1042,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     if ( !success )
     {
 	linebuffer_->removeDataHolder( currentbid_+relpos );
-	return 0;
+	return nullptr;
     }
 
     return outdata;
@@ -1089,7 +1084,7 @@ uiRetVal Provider::prepare( Desc& desc )
 
     desc.setNeedProvInit( false );
     RefMan<Provider> prov = PF().create( desc, uirv );
-    if ( prov && prov->isOK() )
+    if ( prov )
 	return uirv;
 
     if ( uirv.isOK() )
@@ -1223,8 +1218,8 @@ void Provider::computeDesInputSubSel( int inp, int out, FullSubSel& fss,
 	Interval<int> zrgsamp(0,0);
 	mUseMargins(int,Samp,samp)
 
-	zrg.include( Interval<float>( zrgsamp.start*refstep_,
-				      zrgsamp.stop*refstep_ ) );
+	zrg.include( Interval<float>( zrgsamp.start*refzstep_,
+				      zrgsamp.stop*refzstep_ ) );
 
 	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
 						 extraz_.stop + zrg.stop);
@@ -1311,23 +1306,22 @@ int Provider::totalNrPos()
 }
 
 
-void Provider::computeRefStep()
+void Provider::computeRefZStep()
 {
     for( int idx=0; idx<allexistingprov_.size(); idx++ )
     {
 	float step = allexistingprov_[idx]->zStepStoredData();
 	if ( !mIsUdf(step) && step > 0 )
-	    refstep_ = refstep_ != 0 && refstep_ < step ? refstep_ : step;
-
+	    refzstep_ = refzstep_ != 0 && refzstep_ < step ? refzstep_ : step;
     }
 }
 
 
-void Provider::setRefStep( float step )
+void Provider::setRefZStep( float step )
 {
-    refstep_ = step;
+    refzstep_ = step;
     for ( int idx=0; idx<allexistingprov_.size(); idx++ )
-	const_cast<Provider*>(allexistingprov_[idx])->refstep_ = refstep_;
+	const_cast<Provider*>(allexistingprov_[idx])->refzstep_ = refzstep_;
 }
 
 
@@ -1374,18 +1368,18 @@ void Provider::adjust2DLineStoredSubSel()
 
 Pos::GeomID Provider::geomID() const
 {
-    if ( possiblesubsel_.geomID().isValid() )
-	return possiblesubsel_.geomID().isValid();
-
-    GeomID geomid;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
+    GeomID geomid( possiblesubsel_.geomID(0) );
+    if ( !geomid.isValid() )
     {
-        if ( !inputs_[idx] )
-            continue;
+	for ( int idx=0; idx<inputs_.size(); idx++ )
+	{
+	    if ( !inputs_[idx] )
+		continue;
 
-        geomid = inputs_[idx]->geomID();
-	if ( geomid.isValid() )
-            break;
+	    geomid = inputs_[idx]->geomID();
+	    if ( geomid.isValid() )
+		break;
+	}
     }
     return geomid;
 }
@@ -1406,9 +1400,9 @@ void Provider::setExtraZ( const Interval<float>& extraz )
 }
 
 
-float Provider::getRefStep() const
+float Provider::refZStep() const
 {
-    return !mIsZero(refstep_,mDefEps) ? refstep_ : SI().zStep();
+    return !mIsZero(refzstep_,mDefEps) ? refzstep_ : SI().zStep();
 }
 
 
@@ -1430,13 +1424,16 @@ float Provider::trcDist() const
 				       : SI().crlDistance();
 }
 
-uiString Provider::errMsg() const
+
+uiRetVal Provider::errMsg() const
 {
+    uiRetVal uirv( uirv_ );
+
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] && !inputs_[idx]->errMsg().isEmpty() )
-	    return inputs_[idx]->errMsg();
+	    uirv.add( inputs_[idx]->errMsg() );
 
-    return errmsg_;
+    return uirv;
 }
 
 
@@ -1471,8 +1468,8 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 				       float zval ) const
 {
     ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
-    const float samplepos = (zval/getRefStep()) - input.z0_
-			    - input.extrazfromsamppos_/getRefStep();
+    const float samplepos = (zval/refZStep()) - input.z0_
+			    - input.extrazfromsamppos_/refZStep();
     return interp.value( *input.series(inputidx), samplepos );
 }
 
@@ -1482,7 +1479,7 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 {
     ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
     const float samplepos = float(z0-input.z0_) + sampleidx
-			    - input.extrazfromsamppos_/getRefStep();
+			    - input.extrazfromsamppos_/refZStep();
     return interp.value( *input.series(inputidx), samplepos );
 }
 
@@ -1510,7 +1507,7 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
 
     if ( needinterp_ && !mIsEqual(extraz,input.extrazfromsamppos_,mDefEps) )
 	return getInterpolInputValue( input, inputidx,
-				   (float)sampleidx + extraz/getRefStep(), z0 );
+				   (float)sampleidx + extraz/refZStep(), z0 );
     else
     {
 	const int sidx = z0 - input.z0_ + sampleidx;
@@ -1624,7 +1621,7 @@ void Provider::setRdmPaths( const TypeSet<BinID>& truepath,
 
 float Provider::getExtraZFromSampPos( float exacttime ) const
 {
-    return DataHolder::getExtraZFromSampPos( exacttime, getRefStep() );
+    return DataHolder::getExtraZFromSampPos( exacttime, refZStep() );
 }
 
 

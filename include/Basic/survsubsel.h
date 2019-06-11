@@ -216,6 +216,8 @@ public:
     bool		isAll() const;
     GeomSubSel&		geomSubSel(idx_type i=0);
     const GeomSubSel&	geomSubSel(idx_type i=0) const;
+    HorSubSel&		horSubSel(idx_type i=0);
+    const HorSubSel&	horSubSel(idx_type i=0) const;
     ZSubSel&		zSubSel(idx_type i=0);
     const ZSubSel&	zSubSel(idx_type i=0) const;
     CubeSubSel&		cubeSubSel()		{ return *css_;}

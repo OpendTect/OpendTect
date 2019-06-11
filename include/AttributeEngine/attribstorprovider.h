@@ -52,6 +52,9 @@ public:
 
 protected:
 
+    mUseType( Pos,	IdxSubSel );
+    mUseType( Pos,	ZSubSel );
+
 			StorageProvider(Desc&);
 			~StorageProvider();
 
@@ -80,19 +83,19 @@ protected:
 
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
-    float		zStepStoredData() const
+    float		zStepStoredData() const override
 			{ return possiblesubsel_.zSubSel().zStep(); }
-    float		z0StoredData() const
+    float		z0StoredData() const override
 			{ return possiblesubsel_.zSubSel().zStart(); }
 
     BinDataDesc		getOutputFormat(int output) const;
 
-    bool		checkDesiredTrcRgOK(StepInterval<int>,
-					    StepInterval<float>);
-    bool		checkDesiredSubSelOK();
+    bool		desiredSubSelOK();
+    void		checkDisjunct(const IdxSubSelData&,const IdxSubSelData&,
+				      const uiString&) const;
+    void		checkZDisjunct(const ZSubSel&,const ZSubSel&) const;
     void		checkClassType(const SeisTrc*,BoolTypeSet&) const;
     bool		setTableSelData();
-    bool		set2DRangeSelData();
 
     void		registerNewPosInfo(SeisTrc*,const BinID&,bool,bool&);
     bool                useInterTrcDist() const;
@@ -103,7 +106,6 @@ protected:
     TypeSet<BinDataDesc> datachar_;
     Seis::MSCProvider*	mscprov_;
     BinID		stepoutstep_;
-    FullSubSel		storedsubsel_;
     bool		isondisk_;
     bool		useintertrcdist_;
     PosInfo::LineSet2DData*  ls2ddata_;

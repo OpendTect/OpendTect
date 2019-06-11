@@ -89,6 +89,7 @@ public:
 			{ return hss_.binID4RowCol( rc ); }
     RowCol		rowCol4BinID( const BinID& bid ) const
 			{ return hss_.rowCol4BinID( bid ); }
+    bool		includes(const BinID&) const;
 
     void		setInlRange( const pos_steprg_type& rg )
 			{ inlSubSel().setOutputPosRange( rg ); }

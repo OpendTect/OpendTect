@@ -70,6 +70,13 @@ bool Processor::isOK() const
 }
 
 
+void Processor::setDesiredSubSel( const FullSubSel& fss )
+{
+    if ( provider_ )
+	provider_->setDesiredSubSel( fss );
+}
+
+
 void Processor::addOutput( Output* output )
 {
     if ( !output )
@@ -100,7 +107,7 @@ int Processor::nextStep()
     if ( !errmsg_.isEmpty() )
 	return mErrorReturnValue();
 
-    if ( !provider_->errMsg().isEmpty() )
+    if ( !provider_->errMsg().isOK() )
     {
 	errmsg_ = provider_->errMsg();
 	return mErrorReturnValue();
@@ -207,7 +214,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 		mDynamicCastGet( SeisTrcStorOutput*, trcstoroutp, outp );
 		if ( trcstoroutp )
 		    trcstoroutp->writez0shift_ = outz0shifthack;
-		outputs_[idx]->collectData( *data, provider_->refStep(),
+		outputs_[idx]->collectData( *data, provider_->refZStep(),
 					    *curtrcinfo );
 	    }
 	}
@@ -235,7 +242,7 @@ void Processor::useSCProcess( int& res )
 
     for ( int idx=0; idx<outputs_.size(); idx++ )
 	provider_->fillDataPackWithTrc(
-			outputs_[idx]->getDataPack(provider_->refStep()) );
+			outputs_[idx]->getDataPack(provider_->refZStep()) );
 
     nrdone_++;
 }
@@ -336,9 +343,9 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 
 void Processor::computeAndSetRefZStepAndZ0()
 {
-    provider_->computeRefStep();
-    const float zstep = provider_->refStep();
-    provider_->setRefStep( zstep );
+    provider_->computeRefZStep();
+    const float zstep = provider_->refZStep();
+    provider_->setRefZStep( zstep );
 
     provider_->computeRefZ0();
     const float z0 = provider_->refZ0();
@@ -364,8 +371,8 @@ void Processor::prepareForTableOutput()
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( locoutp || taboutp )
 	{
-	    Interval<float> extraz( -2*provider_->refStep(),
-				    2*provider_->refStep() );
+	    Interval<float> extraz( -2*provider_->refZStep(),
+				    2*provider_->refZStep() );
 	    provider_->setExtraZ( extraz );
 	    provider_->setNeedInterpol( true );
 	}
@@ -392,18 +399,11 @@ void Processor::prepareForTableOutput()
 void Processor::computeAndSetPosAndDesSubSel( FullSubSel& globalfss )
 {
     if ( provider_->getInputs().isEmpty() && !provider_->getDesc().isStored() )
-    {
-	provider_->setDesiredSubSel( globalfss );
 	provider_->setPossibleSubSel( globalfss );
-    }
     else
     {
-	FullSubSel posssubsel;
-	if ( is2D() || !posssubsel.includes(globalfss) )
-	    possubsel = globalfss;
-
-	provider_->setDesiredSubSel( possubsel );
-	if ( !provider_->getPossibleSubSel( -1, possubsel ) )
+	FullSubSel provposssubsel( globalfss );
+	if ( !provider_->calcPossibleSubSel( -1, provposssubsel ) )
 	{
 	    errmsg_ = provider_->errMsg();
 	    if ( errmsg_.isEmpty() )
@@ -417,9 +417,9 @@ void Processor::computeAndSetPosAndDesSubSel( FullSubSel& globalfss )
 	}
 
 	provider_->resetDesiredSubSel();
-	globalfss.limitTo( posssubsel );
-	provider_->setDesiredSubSel( globalfss );
+	globalfss.limitTo( provposssubsel );
     }
+    provider_->setDesiredSubSel( globalfss );
 }
 
 
@@ -445,7 +445,7 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 							//!is2d = tmp patch
 	    continue;
 
-	const float refzstep = provider_->refStep();
+	const float refzstep = provider_->refZStep();
 	TypeSet< Interval<int> > localzrange = usecoords
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
@@ -471,7 +471,7 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 
 od_int64 Processor::totalNr() const
 {
-    return provider_ ? provider_->getTotalNrPos() : 0;
+    return provider_ ? provider_->totalNrPos() : 0;
 }
 
 
