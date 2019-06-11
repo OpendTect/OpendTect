@@ -871,22 +871,19 @@ template <class T> inline
 void StepInterval<T>::limitTo( const Interval<T>& oth )
 {
     if ( !BasicInterval<T>::overlaps(oth) )
-    {
-	Interval<T>::start = 0; Interval<T>::stop = 0; step = 1;
-	return;
-    }
+	{ Interval<T>::start = Interval<T>::stop = oth.start; return; }
     else if ( !oth.hasStep() )
     {
+	const StepInterval<T> org( *this );
 	Interval<T>::limitTo_( oth );
+	Interval<T>::start = org.snap( Interval<T>::start, OD::SnapUpward );
+	Interval<T>::stop = org.snap( Interval<T>::stop, OD::SnapDownward );
 	return;
     }
 
     mDynamicCastGet(const StepInterval<T>*,othsi,&oth)
     if ( !othsi || isCompatible(*othsi) )
-    {
-	Interval<T>::limitTo( oth );
-	return;
-    }
+	{ limitTo( Interval<T>(oth) ); return; }
 
     if ( BasicInterval<T>::includes(oth.start,true) )
 	Interval<T>::start = snap( oth.start, OD::SnapUpward );
