@@ -296,10 +296,12 @@ uiPythonSettings(uiParent* p, const char* nm)
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
+    testbut->setIcon( "test" );
     testbut->attach( ensureBelow, customenvnmfld_ );
 
     uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
 			mCB(this,uiPythonSettings,promptCB), true );
+    cmdwinbut->setIcon( "launch" );
     cmdwinbut->attach( rightOf, testbut );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
