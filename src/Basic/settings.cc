@@ -91,11 +91,12 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
     Settings* ret = new Settings( fname );
     ret->setName( mGetKey(key) );
     if ( !ret->doRead(ext) )
-	{ delete ret; ret = 0; }
+	{ delete ret; return nullptr; }
 
     if ( ret->name() == sKeyCommon )
     {
-	BufferString termcmd = ret->find( sKey::TermEm() );
+	const BufferString orgtermcmd = ret->find( sKey::TermEm() );
+	BufferString termcmd = orgtermcmd;
 #ifdef __win__
 	if ( termcmd.isEmpty() )
 	    termcmd = "cmd.exe";
@@ -106,6 +107,8 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
 	termcmd = mc.runAndCollectOutput();
 #endif
 	ret->set( sKey::TermEm(), termcmd );
+	if ( termcmd != orgtermcmd )
+	    ret->write( false );
     }
 
     return ret;
@@ -137,7 +140,8 @@ bool Settings::doRead( bool ext )
     SafeFileIO sfio( fname_, false );
     if ( empty_initially || !sfio.open(true) )
     {
-	if ( ext ) return false;
+	if ( ext )
+	    return false;
 
 	BufferString tmplfname( iscommon ? "od" : name().buf() );
 	tmplfname += "Settings";
