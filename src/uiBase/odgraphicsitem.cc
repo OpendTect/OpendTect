@@ -855,7 +855,7 @@ void ODGraphicsPathItem::set( const QPainterPath& ppath )
 {
     setPath( ppath );
 
-    const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
+    const QPolygonF poly = mapFromScene( 0, 0, 1, 1 );
     QPainterPathStroker pps;
     pps.setWidth( poly.boundingRect().width() );
     path_ = pps.createStroke( ppath );

@@ -220,20 +220,20 @@ void uiWorld2Ui::transform( const Geom::Point2D<float>& pt, uiPoint& upt) const
 {  upt.setXY( toUiX( pt.x ), toUiY( pt.y ) ); }
 
 
-int uiWorld2Ui::toUiX ( float wrdx ) const
+int uiWorld2Ui::toUiX( float wrdx ) const
 { return (int)((wrdx-p0.x)/fac.x+uiorigin.x+.5); }
 
 
-int uiWorld2Ui::toUiY ( float wrdy ) const
+int uiWorld2Ui::toUiY( float wrdy ) const
 { return (int)((wrdy-p0.y)/fac.y+uiorigin.y+.5); }
 
 
-float uiWorld2Ui::toWorldX ( int uix ) const
-{ return (float) ( p0.x + (uix-uiorigin.x)*fac.x ); }
+float uiWorld2Ui::toWorldX( int uix ) const
+{ return (float)( p0.x + (uix-uiorigin.x)*fac.x ); }
 
 
-float uiWorld2Ui::toWorldY ( int uiy ) const
-{ return (float) ( p0.y + (uiy-uiorigin.y)*fac.y ); }
+float uiWorld2Ui::toWorldY( int uiy ) const
+{ return (float)( p0.y + (uiy-uiorigin.y)*fac.y ); }
 
 
 uiWorldPoint uiWorld2Ui::origin() const

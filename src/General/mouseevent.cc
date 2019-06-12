@@ -42,8 +42,8 @@ TabletInfo& TabletInfo::latestState()
 
 const TabletInfo* TabletInfo::currentState()
 {
-    return (latestState().eventtype_==None ||
-	    latestState().eventtype_==LeaveProximity) ? 0 : &latestState();
+    return latestState().eventtype_==None ||
+	   latestState().eventtype_==LeaveProximity ? nullptr : &latestState();
 }
 
 
@@ -69,9 +69,8 @@ int TabletInfo::postPressTime() const
 
 float TabletInfo::postPressDist() const
 {
-    return ( float )( globalpresspos_.isDefined() 
-				 	? globalpresspos_.distTo(globalpos_)
-				 	: mUdf(float) );
+    return globalpresspos_.isDefined()
+	? sCast(float,globalpresspos_.distTo(globalpos_)) : mUdf(float);
 }
 
 
@@ -81,7 +80,7 @@ float TabletInfo::maxPostPressDist() const
 
 MouseEvent::~MouseEvent()
 {
-    setTabletInfo( 0 );
+    setTabletInfo( nullptr );
 }
 
 
@@ -93,12 +92,33 @@ MouseEvent& MouseEvent::operator=( const MouseEvent& mouseevent )
      butstate_ = mouseevent.butstate_;
      pressed_ = mouseevent.pressed_;
      pos_ = mouseevent.pos_;
+     dpos_ = mouseevent.dpos_;
      angle_ = mouseevent.angle_;
      setTabletInfo( mouseevent.tabletinfo_ );
 
      return *this;
 }
 
+
+void MouseEvent::setPos( const Geom::Point2D<double>& dpos )
+{
+    dpos_ = dpos;
+    pos_.x = mNINT32( dpos.x );
+    pos_.y = mNINT32( dpos.y );
+}
+
+
+Geom::Point2D<float> MouseEvent::getFPos() const
+{
+    Geom::Point2D<float> pos; pos.setFrom( dpos_ );
+    return pos;
+}
+
+
+const Geom::Point2D<double>& MouseEvent::getDPos() const
+{
+    return dpos_;
+}
 
 void MouseEvent::setButtonState( const OD::ButtonState& bs )
 { butstate_ = bs; }
@@ -113,7 +133,7 @@ bool MouseEvent::shiftStatus() const	{ return butstate_ & OD::ShiftButton; }
 
 
 bool MouseEvent::operator ==( const MouseEvent& ev ) const
-{ return butstate_ == ev.butstate_ && pos_==ev.pos_ && angle_==ev.angle_; } 
+{ return butstate_ == ev.butstate_ && pos_==ev.pos_ && angle_==ev.angle_; }
 
 
 TabletInfo* MouseEvent::tabletInfo()
@@ -135,8 +155,7 @@ void MouseEvent::setTabletInfo( const TabletInfo* newtabinf )
     }
     else if ( tabletinfo_ )
     {
-	delete tabletinfo_;
-	tabletinfo_ = 0;
+	deleteAndZeroPtr( tabletinfo_ );
     }
 }
 
@@ -147,13 +166,13 @@ MouseEventHandler::MouseEventHandler()
     , movement(this)
     , doubleClick(this)
     , wheelMove(this)
-    , event_(0)
+    , event_(nullptr)
 {}
 
 
 MouseEventHandler::~MouseEventHandler()
 {
-    setEvent( 0 );
+    setEvent( nullptr );
 }
 
 
@@ -171,7 +190,7 @@ void MouseEventHandler::setEvent( const MouseEvent* ev )
     else if ( event_ )
     {
 	delete event_;
-	event_ = 0;
+	event_ = nullptr;
     }
 }
 
@@ -180,7 +199,7 @@ void MouseEventHandler::setEvent( const MouseEvent* ev )
 void MouseEventHandler::trigger##fn( const MouseEvent& ev ) \
 { \
     ishandled_ = false; \
-    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : 0; \
+    MouseEvent* parentevent = event_ ? new MouseEvent(*event_) : nullptr; \
     setEvent( &ev ); \
     trig.trigger(); \
     setEvent( parentevent ); \
@@ -200,7 +219,7 @@ MouseCursorExchange::MouseCursorExchange()
 
 MouseCursorExchange::Info::Info( const TrcKeyValue& pos, float offset )
     : trkv_( pos )
-    , offset_( offset ) 
+    , offset_( offset )
 {}
 
 
@@ -220,7 +239,7 @@ void GestureEventHandler::triggerPinchEvent( const GestureEvent& info )
     ishandled_ = false;
     currentevent_ = &info;
     pinchnotifier.trigger();
-    currentevent_ = 0;
+    currentevent_ = nullptr;
 }
 
 

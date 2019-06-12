@@ -26,7 +26,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     , labelitem_(*new uiGraphicsItem)
     , showlabels_(true)
     , changed_(false)
-    , transform_(0)
+    , transform_(nullptr)
 {
     if ( bmobject_ )
     {
@@ -55,7 +55,10 @@ BaseMapObject* uiBaseMapObject::getObject()
 
 
 const char* uiBaseMapObject::name() const
-{ return bmobject_ ? bmobject_->name().buf() : 0; }
+{
+    return bmobject_ ? bmobject_->name().buf() : nullptr;
+}
+
 
 void uiBaseMapObject::show( bool yn )
 {
@@ -64,8 +67,11 @@ void uiBaseMapObject::show( bool yn )
 	labelitem_.setVisible( yn );
 }
 
+
 bool uiBaseMapObject::isShown() const
-{ return graphitem_.isVisible(); }
+{
+    return graphitem_.isVisible();
+}
 
 
 void uiBaseMapObject::showLabels( bool yn )
@@ -114,7 +120,9 @@ void uiBaseMapObject::changedZValueCB( CallBacker* )
 
 
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
-{ transform_ = w2ui; }
+{
+    transform_ = w2ui;
+}
 
 
 void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
@@ -479,7 +487,7 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 
 BaseMapObject* uiBaseMap::getObject( int id )
 {
-    if ( id<0 ) return 0;
+    if ( id<0 ) return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -488,13 +496,13 @@ BaseMapObject* uiBaseMap::getObject( int id )
 	    return bmo;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
 uiBaseMapObject* uiBaseMap::getUiObject( int id )
 {
-    if ( id<0 ) return 0;
+    if ( id<0 ) return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -503,7 +511,7 @@ uiBaseMapObject* uiBaseMap::getUiObject( int id )
 	    return objects_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -597,10 +605,10 @@ const uiBaseMapObject*
 	uiBaseMap::uiObjectAt( const Geom::Point2D<float>& pt ) const
 {
     const uiGraphicsItem* itm = view_.scene().itemAt( pt );
-    if ( !itm ) return 0;
+    if ( !itm ) return nullptr;
 
     mDynamicCastGet(const uiTextItem*,txtitm,itm)
-    if ( txtitm ) return 0;
+    if ( txtitm ) return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -611,14 +619,14 @@ const uiBaseMapObject*
 	return objects_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
 const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 {
     const uiBaseMapObject* uibmobj = uiObjectAt( pt );
-    return uibmobj ? uibmobj->name() : 0;
+    return uibmobj ? uibmobj->name() : nullptr;
 }
 
 
@@ -631,12 +639,11 @@ void uiBaseMap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
     info.setEmpty();
 
     const MouseEvent& ev = view_.getMouseEventHandler().event();
-    crd3.setXY( getWorld2Ui().toWorldX(ev.x()),
-		getWorld2Ui().toWorldY(ev.y()) );
+    const Geom::Point2D<double> pt = ev.getDPos();
+    crd3.setFrom( getWorld2Ui().transform<double,double>(pt,true) );
     crd3.z = mUdf(double);
 
-    const uiBaseMapObject* uibmobj = uiObjectAt(
-	Geom::Point2D<float>(mCast(float,ev.pos().x),mCast(float,ev.pos().y)) );
+    const uiBaseMapObject* uibmobj = uiObjectAt( ev.getFPos() );
     if ( uibmobj )
     {
 	nm = uibmobj->name();

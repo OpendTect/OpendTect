@@ -94,7 +94,7 @@ void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
     if ( !ev ) return;
 
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
-		   (int)ev->pos().x(), (int)ev->pos().y(), ev->delta() );
+		   ev->pos().x(), ev->pos().y(), ev->delta() );
     uiscene_.getMouseEventHandler().triggerWheel( me );
     ev->accept();
 }
@@ -104,8 +104,7 @@ void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 {
     if ( !qev ) return;
 
-    MouseEvent mev( mousepressedbs_, (int)qev->scenePos().x(),
-		    (int)qev->scenePos().y() );
+    MouseEvent mev( mousepressedbs_, qev->scenePos().x(), qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerMovement( mev );
     QGraphicsScene::mouseMoveEvent( qev );
@@ -122,7 +121,7 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 	bs = OD::ButtonState( qev->modifiers() | Qt::MidButton );
 
     mousepressedbs_ = bs;
-    MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
+    MouseEvent mev( bs, qev->scenePos().x(), qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerButtonPressed( mev );
     QGraphicsScene::mousePressEvent( qev );
@@ -138,7 +137,7 @@ void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 	bs = OD::ButtonState( qev->modifiers() | Qt::MidButton );
 
     mousepressedbs_ = OD::NoButton;
-    MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
+    MouseEvent mev( bs, qev->scenePos().x(), qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerButtonReleased( mev );
 
@@ -151,7 +150,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
     if ( !qev ) return;
 
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
-    MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
+    MouseEvent mev( bs, qev->scenePos().x(), qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerDoubleClick( mev );
     QGraphicsScene::mouseDoubleClickEvent( qev );
