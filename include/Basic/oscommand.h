@@ -145,6 +145,9 @@ public:
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
 
+    BufferString	runAndCollectOutput(BufferString* errmsg=nullptr);
+				//!< for quick get-me-the-output-of-this-command
+
 private:
 
     void		setIsolated(const char* prognm);

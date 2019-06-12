@@ -581,6 +581,15 @@ bool OS::MachineCommand::execute( BufferString& out, BufferString* err )
 }
 
 
+BufferString OS::MachineCommand::runAndCollectOutput( BufferString* errmsg )
+{
+    BufferString ret;
+    if ( !CommandLauncher(*this).execute(ret,errmsg) )
+	ret.setEmpty();
+    return ret;
+}
+
+
 // OS::CommandLauncher
 
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )

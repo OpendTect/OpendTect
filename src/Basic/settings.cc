@@ -12,8 +12,10 @@
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "odruncontext.h"
+#include "oscommand.h"
 #include "safefileio.h"
 #include "staticstring.h"
 
@@ -90,6 +92,21 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
     ret->setName( mGetKey(key) );
     if ( !ret->doRead(ext) )
 	{ delete ret; ret = 0; }
+
+    if ( ret->name() == sKeyCommon )
+    {
+	BufferString termcmd = ret->find( sKey::TermEm() );
+#ifdef __win__
+	if ( termcmd.isEmpty() )
+	    termcmd = "cmd.exe";
+#else
+	OS::MachineCommand mc( GetShellScript("find_term.bash") );
+	if ( !termcmd.isEmpty() )
+	    mc.addArg( termcmd );
+	termcmd = mc.runAndCollectOutput();
+#endif
+	ret->set( sKey::TermEm(), termcmd );
+    }
 
     return ret;
 }

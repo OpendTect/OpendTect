@@ -147,6 +147,7 @@ namespace sKey
     inline FixedString SurveyID()	{ return "Survey ID"; }
     inline FixedString Table()		{ return "Table"; }
     inline FixedString Target(int n=1)	{ return n<2 ? "Target" : "Targets"; }
+    inline FixedString TermEm()		{ return "Terminal Emulator"; }
     inline FixedString Time()		{ return "Time"; }
     inline FixedString TimeSort()	{ return "Time Sort"; }
     inline FixedString Title()		{ return "Title"; }
