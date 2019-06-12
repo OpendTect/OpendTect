@@ -547,4 +547,29 @@ void RequestServer::newConnectionCB(CallBacker* cb)
     newConnection.trigger();
 }
 
+
+bool RequestConnection::isPortFree( unsigned short port,
+				    uiRetVal* errmsg )
+{
+    const RequestServer reqserv( port );
+    const bool ret = reqserv.isOK();
+    if ( errmsg && !reqserv.errMsg().isEmpty() )
+	errmsg->set( reqserv.errMsg() );
+
+    return ret;
+}
+
+
+unsigned short RequestConnection::getUsablePort( unsigned short firstport,
+						 uiRetVal* errmsg, int nrtries )
+{
+    for ( int idx=0; idx<nrtries; idx++, firstport++ )
+    {
+	if ( isPortFree(firstport,errmsg) )
+	    return firstport;
+    }
+
+    return 0;
+}
+
 }; //Network

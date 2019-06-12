@@ -9,6 +9,7 @@
 
 #include "applicationdata.h"
 #include "limits.h"
+#include "netreqconnection.h"
 #include "netserver.h"
 #include "odsysmem.h"
 #include "odmemory.h"
@@ -62,7 +63,8 @@ bool TestRunner::testNetSocket( bool closeserver )
     Network::Socket connection( !noeventloop_ );
     connection.setTimeout( 600 );
 
-    if ( !connection.connectToHost("localhost",port_,true) )
+    if ( !connection.connectToHost(Network::RequestConnection::sKeyLocalHost(),
+				   port_,true) )
     {
 	OS::CommandLauncher cl( servercmd_ );
 	if ( !cl.execute(OS::RunInBG) )
@@ -84,8 +86,8 @@ bool TestRunner::testNetSocket( bool closeserver )
 	    "Connect to non-existing host");
 
     mRunSockTest(
-	    connection.connectToHost( "localhost", port_, true ),
-	    "Connect to echo server");
+	   connection.connectToHost(Network::RequestConnection::sKeyLocalHost(),
+				    port_,true), "Connect to echo server");
 
     BufferString writebuf = "Hello world";
     const int writesize = writebuf.size()+1;

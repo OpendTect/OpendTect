@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "jobinfo.h"
 #include "keystrs.h"
+#include "netreqconnection.h"
 #include "oddirs.h"
 #include "queue.h"
 #include "separstr.h"
@@ -85,18 +86,18 @@ public:
 JobIOHandler( int firstport, od_ostream* logstrm )
     : exitreq_(0)
     , firstport_(firstport)
-    , usedport_(firstport)
+    , usedport_(0)
     , ready_(false)
     , logstrm_(logstrm)
 {
-    server_.readyRead.notify( mCB(this,JobIOHandler,socketCB) );
+    mAttachCB( server_.readyRead, JobIOHandler::socketCB );
     listen( firstport_ );
 }
 
 virtual	~JobIOHandler()
 {
+    detachAllNotifiers();
     server_.close();
-    server_.readyRead.remove( mCB(this,JobIOHandler,socketCB) );
 }
 
     bool		ready() const	{ return ready_ && port() > 0; }
@@ -129,29 +130,25 @@ protected:
 
 void JobIOHandler::listen( int firstport, int maxtries )
 {
-    int currentport = firstport;
     mLogMsg("Initializing TCP server")
 
-    for ( int idx=0; idx<maxtries; idx++, currentport++ )
-    {
-	server_.listen( System::localAddress(), currentport );
-	if ( server_.isListening() )
-	{
-	    usedport_ = currentport;
-	    ready_ = true;
-	    break;
-	}
-	else
-	    server_.close();
-    }
+    uiRetVal portmsg;
+    usedport_ = Network::RequestConnection::getUsablePort( firstport, &portmsg,
+							   maxtries );
+    ready_ = usedport_ >= firstport && portmsg.isOK();
+    if ( !ready_ )
+	server_.close();
 
     if ( logstrm_ )
     {
-	if ( server_.isListening() )
+	if ( ready_ )
 	    *logstrm_ << "Listening at port " << usedport_ << od_endl;
 	else
+	{
+	    const int lastport = firstport + maxtries - 1;
 	    *logstrm_ << "Failed to listen at any of the ports from "
-		<< firstport << " to " << (currentport-1) << od_endl;
+		<< firstport << " to " << lastport << od_endl;
+	}
     }
 }
 
@@ -400,7 +397,7 @@ extern const OD::String& getTempBaseNm();
 
 extern int& MMJob_getTempFileNr();
 
-static File::Path getConvertedFilePath( const HostData& hd, const File::Path& fp )
+static File::Path getConvertedFilePath( const HostData& hd,const File::Path& fp)
 {
     File::Path newfp = hd.prefixFilePath( HostData::Data );
     if ( !newfp.nrLevels() ) return fp;

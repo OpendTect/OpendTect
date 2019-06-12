@@ -93,6 +93,15 @@ public:
 
     uiString		errMsg() const		{ return errmsg_; }
 
+    static const char*		sKeyLocalHost() { return "localhost"; }
+
+    static bool			isPortFree(unsigned short port,
+					   uiRetVal* errmsg=nullptr);
+    static unsigned short	getUsablePort(unsigned short firstport=20050,
+					      uiRetVal* errmsg=nullptr,
+					      int nrtries=100);
+				//!<Returns 0 if none found
+
 private:
 
     uiString			errmsg_;
@@ -116,7 +125,7 @@ private:
 
     ObjectSet<PacketSendData>	sendqueue_;
     void			sendQueueCB(CallBacker*);
-    				//Called from socketthread
+				//Called from socketthread
 
     void			socketThreadFunc(CallBacker*);
     void			connectToHost( bool witheventloop );
