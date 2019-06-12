@@ -462,6 +462,7 @@ bool StorageProvider::desiredSubSelOK() const
     {
 	const auto& pcss = possiblesubsel_.subSel3D();
 	const auto& dcss = desiredsubsel_.subSel3D();
+#	undef mCheckDisjunct
 #	define mCheckDisjunct( subsel, uistr ) \
 	checkDisjunct( pcss.subsel(), dcss.subsel(), uiStrings::uistr() );
 	mCheckDisjunct( inlSubSel, sInline );

@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "bindatadesc.h"
 #include "datapack.h"
-#include "trckeyzsampling.h"
+#include "posidxsubsel.h"
+#include "zsubsel.h"
 
 class BufferStringSet;
 class RegularSeisDataPack;
@@ -52,7 +53,7 @@ public:
 
 protected:
 
-    mUseType( Pos,	IdxSubSel );
+    mUseType( Pos,	IdxSubSelData );
     mUseType( Pos,	ZSubSel );
 
 			StorageProvider(Desc&);

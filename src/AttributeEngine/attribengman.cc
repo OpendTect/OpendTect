@@ -809,7 +809,7 @@ Processor* EngineMan::createScreenOutput2D( uiRetVal& uirv,
 	return 0;
 
     TwoDOutput* attrout = new TwoDOutput( subsel_.trcNrRange(),
-					  subsel_.zRange(), subsel_.geomID() );
+					  subsel_.zRange(), subsel_.geomID(0) );
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
