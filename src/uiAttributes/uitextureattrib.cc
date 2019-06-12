@@ -303,7 +303,6 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     if ( !inpdesc )
 	return false;
 
-
     PtrMan<Attrib::DescSet> descset = ads_->optimizeClone(inpfld_->attribID());
     if ( !descset )
 	return false;
@@ -316,23 +315,20 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     if ( inpdesc->is2D() )
 	aem->setGeomID( Pos::GeomID(cs.hsamp_.start_.inl()) );
 
-    aem->setTrcKeyZSampling( cs );
+    aem->setSubSel( Survey::FullSubSel(cs) );
     TypeSet<TrcKey> trckeys;
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
 	bidvals.add( trckeys[idx].binID() );
 
-    uiString errmsg;
+    uiRetVal uirv;
     Interval<float> zrg( cs.zsamp_ );
     PtrMan<Processor> proc =
-	aem->createTrcSelOutput( errmsg, bidvals, buf, 0, &zrg );
+	aem->createTrcSelOutput( uirv, bidvals, buf, 0, &zrg );
 
     if ( !proc )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
+	{ uiMSG().error( uirv ); return false; }
 
     uiTaskRunner dlg( this );
     return dlg.execute( *proc );

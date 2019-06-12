@@ -92,7 +92,7 @@ void SpecDecomp::updateDesc( Desc& desc )
     const bool iscwt = type == transTypeNamesStr( mTransformTypeContinuous );
     desc.setParamEnabled( cwtwaveletStr(), iscwt );
 
-    //HERE see what to do when SI().zStep() != refstep_ !!!
+    //HERE see what to do when SI().zStep() != refzstep_ !!!
     float dfreq;
     mGetFloatFromDesc( desc, dfreq, deltafreqStr() );
     const float nyqfreq = 0.5f / SI().zStep();
@@ -195,18 +195,18 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	if ( transformtype_ == mTransformTypeFourier )
 	{
 	    const_cast<SpecDecomp*>(this)->samplegate_ =
-		     Interval<int>(mNINT32(gate_.start/refstep_),
-				   mNINT32(gate_.stop/refstep_));
+		     Interval<int>(mNINT32(gate_.start/refzstep_),
+				   mNINT32(gate_.stop/refzstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
-	    const float fnyq = 0.5f / refstep_;
+	    const float fnyq = 0.5f / refzstep_;
 	    const int minsz = mNINT32( 2*fnyq/deltafreq_ );
 	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
 			fft_->setInputInfo(Array1DInfoImpl(fftsz_));
 	    const_cast<SpecDecomp*>(this)->fft_->setDir(true);
 	    const_cast<SpecDecomp*>(this)->df_ =
-		Fourier::CC::getDf(refstep_,fftsz_);
+		Fourier::CC::getDf(refzstep_,fftsz_);
 
 	    const_cast<SpecDecomp*>(this)->window_ =
 		new ArrayNDWindow( Array1DInfoImpl(sz_), false,
@@ -368,7 +368,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.setInputInfo( Array1DInfoImpl(nrsamp) );
     cwt.setDir( true );
     cwt.setWavelet( cwtwavelet_ );
-    cwt.setDeltaT( refstep_ );
+    cwt.setDeltaT( refzstep_ );
 
     const float nyqfreq = 0.5f / SI().zStep();
     const int nrattribs = (int)( nyqfreq / deltafreq_ );
@@ -423,7 +423,7 @@ const Interval<int>* SpecDecomp::desZSampMargin( int inp, int ) const
 void SpecDecomp::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
-    const float fnyq = 0.5f / refstep_;
+    const float fnyq = 0.5f / refzstep_;
     const char* basestr = "frequency=";
     BufferString suffixstr = zIsTime() ? "Hz" : "cycles/mm";
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )

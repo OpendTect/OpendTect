@@ -206,11 +206,11 @@ bool GapDecon::getInputData( const BinID& relpos, int zintv )
 
 void GapDecon::prepareForComputeData()
 {
-    ncorr_ = mNINT32( gate_.width() / refstep_ );
+    ncorr_ = mNINT32( gate_.width() / refzstep_ );
     if ( !useonlyacorr_ )
     {
-	nlag_ = mNINT32( lagsize_ / refstep_ / zFactor() );
-	ngap_ = mNINT32( gapsize_ / refstep_ / zFactor() );
+	nlag_ = mNINT32( lagsize_ / refzstep_ / zFactor() );
+	ngap_ = mNINT32( gapsize_ / refzstep_ / zFactor() );
     }
 
     lcorr_ =  nlag_? nlag_+ngap_ : ncorr_;
@@ -259,7 +259,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     float* crosscorr = autocorr + nlag_;//first sample of gap is at
 					//maxlag_+1 = nlag_ because minlag = 0
 
-    int absstartsampidx = mNINT32( gate_.start / refstep_ );
+    int absstartsampidx = mNINT32( gate_.start / refzstep_ );
     int startcorr = absstartsampidx - inputdata_->z0_;
     bool usedmixed = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_);
     int safestartcorr = usedmixed ? absstartsampidx-inputdatamixed_->z0_

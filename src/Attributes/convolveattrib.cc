@@ -392,9 +392,9 @@ Convolve::~Convolve()
 
 void Convolve::prepPriorToBoundsCalc()
 {
-    if ( wavelet_ && !mIsEqual(refstep_, wavelet_->sampleRate(), 1e-4 ) )
+    if ( wavelet_ && !mIsEqual(refzstep_, wavelet_->sampleRate(), 1e-4 ) )
     {
-	wavelet_->reSampleTime( refstep_ );
+	wavelet_->reSampleTime( refzstep_ );
 	int wvletmididx = wavelet_->centerSample();
 	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
     }

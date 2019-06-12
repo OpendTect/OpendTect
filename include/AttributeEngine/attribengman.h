@@ -86,18 +86,17 @@ public:
     Executor*		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
 
-    Processor*		createScreenOutput2D(uiRetVal& errmsg,
-					     Data2DHolder&);
-    Processor*		createLocationOutput(uiRetVal& errmsg,
+    Processor*		createScreenOutput2D(uiRetVal&,Data2DHolder&);
+    Processor*		createLocationOutput(uiRetVal&,
 					     ObjectSet<BinIDValueSet>&);
 
-    Processor*		createTrcSelOutput(uiRetVal& errmsg,
+    Processor*		createTrcSelOutput(uiRetVal&,
 					   const BinIDValueSet& bidvalset,
 					   SeisTrcBuf&, float outval=0,
 					   const Interval<float>* cubezbounds=0,
 					   const TypeSet<BinID>* trueknotspos=0,
 					   const TypeSet<BinID>* path=0);
-    Processor*		create2DVarZOutput(uiRetVal& errmsg,
+    Processor*		create2DVarZOutput(uiRetVal&,
 					   const IOPar& pars,
 					   DataPointSet* bidvalset,
 					   float outval=0,

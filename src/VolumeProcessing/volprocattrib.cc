@@ -69,10 +69,9 @@ void VolProcAttrib::prepareForComputeData()
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = uiStrings::phrCannotRead(tr("processing setup"));
+	uirv_ = uiStrings::phrCannotRead(tr("processing setup"));
 	if ( !errmsg.isEmpty() )
-	    errmsg_.appendPhrase(tr("Reason given: %1").arg( errmsg ),
-							uiString::CloseLine );
+	    uirv_.add( tr("Reason given: %1").arg(errmsg) );
 
 	return;
     }
@@ -80,17 +79,17 @@ void VolProcAttrib::prepareForComputeData()
     chain_->setStorageID( setupmid_ );
 
     executor_ = new VolProc::ChainExecutor( *chain_ );
-    const TrcKeyZSampling tkzs( *getDesiredVolume() );
+    const TrcKeyZSampling tkzs( desiredSubSel() );
     od_int64 memusage;
     if ( !executor_->setCalculationScope(tkzs.hsamp_,tkzs.zsamp_,memusage) )
     {
-	errmsg_ = tr("Cannot calculate at this location");
+	uirv_ = tr("Cannot calculate at this location");
 	return;
     }
 
     if ( !executor_->execute() )
     {
-	errmsg_ = executor_->errMsg().isEmpty()
+	uirv_ = executor_->errMsg().isEmpty()
 		? tr("Error while calculating")
 		: executor_->errMsg();
     }
@@ -185,10 +184,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 	chain_ = 0;
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup") );
 	if ( !errmsg.isEmpty() )
-	{
-	    errmsg_.appendPhrase( tr("Reason given").addMoreInfo(errmsg),
-							uiString::CloseLine );
-	}
+	    errmsg_.appendPhrase( tr("Reason given").addMoreInfo(errmsg) );
 
 	return false;
     }

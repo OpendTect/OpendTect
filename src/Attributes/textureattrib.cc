@@ -88,8 +88,8 @@ Texture::Texture( Desc& desc )
     mGetFloat( globalmax_, globalmaxStr() );
     if ( mIsEqual(globalmin_,globalmax_,1e-3) )
     {
-	errmsg_ = tr("Minimum and Maximum values cannot be the same.\n");
-	errmsg_ = tr("Values represent the clipping range of the input.");
+	uirv_ = tr("Minimum and Maximum values cannot be the same.\n");
+	uirv_.add( tr("Values represent the clipping range of the input.") );
 	return;
     }
 
@@ -255,10 +255,10 @@ void Texture::prepareForComputeData()
     scalingfactor_ = ((float) (glcmsize_-1)) /
 			((float)( globalmax_- globalmin_ ));
     scalingshift_ = -globalmin_*scalingfactor_;
-    sampgate_.start = mNINT32(gate_.start/refstep_);
-    sampgate_.stop = mNINT32(gate_.stop/refstep_);
+    sampgate_.start = mNINT32(gate_.start/refzstep_);
+    sampgate_.stop = mNINT32(gate_.stop/refzstep_);
     const float biggestdist = mMAX (SI().inlDistance(), SI().crlDistance() );
-    const float safeextrasamp = mCast(float, biggestdist * mMAXDIP / refstep_);
+    const float safeextrasamp = mCast(float, biggestdist * mMAXDIP / refzstep_);
     dessampgate_ = Interval<int>( mNINT32(sampgate_.start-safeextrasamp),
 				  mNINT32(sampgate_.stop+safeextrasamp) );
 }

@@ -102,6 +102,7 @@ public:
     void		addStepout( pos_type i, pos_type c )
 			{ hss_.addStepout(i,c); }
 
+    bool		isFlat() const;
     SliceType		defaultDir() const;
     size_type		size(SliceType) const;
     void		getDefaultNormal(Coord3&) const;

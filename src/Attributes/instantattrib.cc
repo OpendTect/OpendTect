@@ -164,7 +164,7 @@ float Instantaneous::calcAmplitude( int cursample, int z0 ) const
     return Math::Sqrt( real*real + imag*imag );
 }
 
-#define mDT ( 2.f * refstep_ )
+#define mDT ( 2.f * refzstep_ )
 
 float Instantaneous::calcAmplitude1Der( int cursample, int z0 ) const
 {

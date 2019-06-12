@@ -229,10 +229,12 @@ public:
     LineSubSelSet&	subSel2D()		{ return lsss_; }
     const LineSubSelSet& subSel2D() const	{ return lsss_; }
     bool		hasFullZRange() const;
-    bool		isZSlice() const;
     const LineSubSel*	findLineSubSel(GeomID) const;
     void		merge(const FullSubSel&);
     void		limitTo(const FullSubSel&);
+
+    bool		isFlat() const;
+    bool		isZSlice() const;
 
     void		set(const CubeSubSel&);
     void		set(const LineSubSel&);

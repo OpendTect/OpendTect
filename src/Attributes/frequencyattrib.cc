@@ -166,10 +166,10 @@ Frequency::~Frequency()
 
 void Frequency::prepPriorToBoundsCalc()
 {
-    if ( !mIsEqual( refstep_, SI().zStep(), 1e-6 ) )
+    if ( !mIsEqual( refzstep_, SI().zStep(), 1e-6 ) )
     {
-	samplegate_ = Interval<int>(mNINT32(gate_.start/refstep_),
-				   mNINT32(gate_.stop/refstep_));
+	samplegate_ = Interval<int>(mNINT32(gate_.start/refzstep_),
+				   mNINT32(gate_.stop/refzstep_));
 
 	if ( !smoothspectrum_ )
 	{
@@ -223,7 +223,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	if ( !myself->fftfilter_ )
 	{
 	    myself->signal_ = new Array1DImpl<float_complex>( sgatesz );
-	    myself->fftfilter_ = new FFTFilter( sgatesz, refstep_);
+	    myself->fftfilter_ = new FFTFilter( sgatesz, refzstep_);
 	    myself->fftfilter_->setLowPass( 80 );
 	    if ( windowtype_ != "None" )
 		if ( !myself->fftfilter_->setTimeTaperWindow(
@@ -297,7 +297,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	if ( !freqdomain ) return false;
 
 	const int fftsz = freqdomain->getSize(0);
-	const float df = 1.f / (refstep_ * fftsz);
+	const float df = 1.f / (refzstep_ * fftsz);
 
 	TypeSet<float> freqdomainpower( fftsz, 0 );
 	int maxnr = -1;
@@ -317,7 +317,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 		BufferString dump;
 		BinID pos = currentbid_;
 		dump += pos.inl(); dump += " "; dump += pos.crl(); dump += " ";
-		dump += cursample*refstep_; dump += " ";
+		dump += cursample*refzstep_; dump += " ";
 		dump += df*idy; dump += " "; dump += val2; dump += "\n";
 		myself->dumpset_.add( dump );
 	    }

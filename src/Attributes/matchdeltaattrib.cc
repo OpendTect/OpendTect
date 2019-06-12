@@ -61,7 +61,7 @@ bool MatchDelta::getInputData( const BinID& relpos, int zintv )
     refintv_.stop = refcubedata_->z0_ + refcubedata_->nrsamples_ - 1;
     mtchintv_.start = mtchcubedata_->z0_;
     mtchintv_.stop = mtchcubedata_->z0_ + mtchcubedata_->nrsamples_ - 1;
-    maxsamps_ = maxshift_ / refstep_;
+    maxsamps_ = maxshift_ / refzstep_;
 
     refseries_ = refcubedata_->series( getDataIndex(0) );
     mtchseries_ = mtchcubedata_->series( getDataIndex(1) );
@@ -134,7 +134,7 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 void MatchDelta::fillOutput( const DataHolder& output,
 			     int z0, int nrsamples ) const
 {
-    const float outfac = refstep_ * SI().zDomain().userFactor();
+    const float outfac = refzstep_ * SI().zDomain().userFactor();
     if ( poss_.size() < 2 )
     {
 	const float deltaval = (deltas_.isEmpty() ? 0 : deltas_[0]) * outfac;

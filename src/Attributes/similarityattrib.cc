@@ -338,8 +338,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+				    mNINT32(gate_.stop/refzstep_) );
 
     const int gatesz = samplegate.width() + 1;
 
@@ -428,14 +428,16 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		}
 
 		if ( dobrowsedip_ )
-		    s1 = bases1 + (curdip * dist)/refstep_;
+		    s1 = bases1 + (curdip * dist)/refzstep_;
 
 
 		//make sure data extracted from input DataHolders is at exact z
 		float extras0 = mIsUdf(extrazfspos) ? 0 :
-		    (extrazfspos-inputdata_[idx0]->extrazfromsamppos_)/refstep_;
+		    (extrazfspos-inputdata_[idx0]->extrazfromsamppos_)
+				/ refzstep_;
 		float extras1 = mIsUdf(extrazfspos) ? 0 :
-		    (extrazfspos-inputdata_[idx1]->extrazfromsamppos_)/refstep_;
+		    (extrazfspos-inputdata_[idx1]->extrazfromsamppos_)
+				/ refzstep_;
 
 		SimiFunc vals0( *(inputdata_[idx0]->series(dataidx_)),
 				inputdata_[idx0]->nrsamples_-1 );
@@ -531,15 +533,15 @@ const BinID* Similarity::desStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep_);\
+	int minbound = (int)(gatebound / refzstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep_;\
+	gatebound = (minbound+incvar) * refzstep_;\
     }\
 }
 
 void Similarity::prepPriorToBoundsCalc()
 {
-     const int truestep = mNINT32( refstep_*zFactor() );
+     const int truestep = mNINT32( refzstep_*zFactor() );
      if ( truestep == 0 )
 	 return Provider::prepPriorToBoundsCalc();
 

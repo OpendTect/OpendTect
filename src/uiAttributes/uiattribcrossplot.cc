@@ -341,11 +341,12 @@ bool uiAttribCrossPlot::acceptOK()
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
     mDPM.add( dps );
 
-    uiString errmsg; Attrib::EngineMan aem;
+    uiRetVal uirv; Attrib::EngineMan aem;
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
+    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, uirv );
     MouseCursorManager::restoreOverride();
-    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
+    if ( !uirv.isOK() )
+	mErrRet(uirv)
 
     if ( !trprov.execute( *tabextr ) )
 	return false;

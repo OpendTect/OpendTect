@@ -115,7 +115,7 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     formula_ = new Math::Formula( true, Attrib::Mathematics::getSpecVars() );
     formula_->setText( form->getStringValue() );
     if ( formula_->isBad() )
-    { errmsg_ = formula_->errMsg(); return; }
+	{ uirv_ = formula_->errMsg(); return; }
 
     int curinpidx = 0;
     TypeSet<int> inputsalreadyused;
@@ -214,13 +214,13 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 	    const int specidx = formula_->specIdx( inpidx );
 	    switch ( formula_->specIdx( inpidx ) )
 	    {
-		case 0 :   inpvals += mCast( double, refstep_ ); break;
+		case 0 :   inpvals += mCast( double, refzstep_ ); break;
 		case 1 :   inpvals += mCast( double, currentbid_.inl() ); break;
 		case 2 :   inpvals += mCast( double, currentbid_.crl() ); break;
 		case 3 :   inpvals += mCast( double, (z0+idx) ); break;
 		case 4 :   inpvals += SI().transform(currentbid_).x_; break;
 		case 5 :   inpvals += SI().transform(currentbid_).y_; break;
-		case 6 :   inpvals += mCast( double,(z0+idx)*refstep_ ); break;
+		case 6 :   inpvals += mCast( double,(z0+idx)*refzstep_ ); break;
 	    }
 	    if ( specidx >=0 )
 	    {

@@ -95,8 +95,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
 	return false;
 
-    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-			      mNINT32(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+			      mNINT32(gate_.stop/refzstep_) );
     const int sz = samplegate.width() + 1;
     Stats::WindowedCalc<float> wcalc(
 	    Stats::CalcSetup().require(Stats::SqSum), sz );

@@ -82,9 +82,9 @@ void WellLog::prepareForComputeData()
 
     uiRetVal uirv;
     ConstRefMan<Well::Data> wd
-	= Well::MGR().fetch( wellid_, Well::LoadReqs(), uirv );
+	= Well::MGR().fetch( wellid_, Well::LoadReqs(), uirv_ );
     if ( !wd )
-	{ errmsg_ = uirv; return; }
+	return;
 
     Well::ExtractParams pars;
     pars.zstep_ = SI().zStep();
@@ -95,10 +95,7 @@ void WellLog::prepareForComputeData()
     BufferStringSet lognms; lognms.add( logname_ );
     Well::LogSampler logsamp( *wd, pars, lognms );
     if ( !logsamp.executeParallel(false) )
-    {
-	errmsg_ = logsamp.errMsg();
-	return;
-    }
+	{ uirv_ = logsamp.errMsg(); return; }
 
     arrzrg_ = logsamp.zRange();
     arrzrg_.step = pars.zstep_;
@@ -116,7 +113,7 @@ bool WellLog::computeData( const DataHolder& output, const BinID& relpos,
     if ( output.isEmpty() || !logvals_ )
 	return false;
 
-    const float step = !mIsZero(refstep_,mDefEps) ? refstep_ : SI().zStep();
+    const float step = !mIsZero(refzstep_,mDefEps) ? refzstep_ : SI().zStep();
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float realz = (z0+idx)*step;

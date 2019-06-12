@@ -233,7 +233,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
 	input.values_[idx] = getInputValue( *inputdata_, dataidx_, idx,z0 );
     }
 
-    bool success = input.doDecompMethod( nrsamples, refstep_,
+    bool success = input.doDecompMethod( nrsamples, refzstep_,
 	decompoutput, attriboutput_, startfreq, endfreq, stepoutfreq,
 	startcomp, endcomp );
     if ( !success ) return false;
@@ -257,7 +257,7 @@ void CEEMD::getCompNames( BufferStringSet& nms ) const
     nms.erase();
     if ( attriboutput_ == 0 ) // frequency output
     {
-	const float fnyq = 0.5f / refstep_;
+	const float fnyq = 0.5f / refzstep_;
 	const char* basestr = "frequency = ";
 	BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
 	int startfreq = usetfpanel_ ? 0 : outputfreq_;

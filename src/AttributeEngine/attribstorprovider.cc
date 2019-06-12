@@ -12,6 +12,7 @@
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribdataholder.h"
+#include "cubesubsel.h"
 #include "datainpspec.h"
 #include "dbman.h"
 #include "ioobj.h"
@@ -369,7 +370,6 @@ bool StorageProvider::setMSCProvSelData()
     if ( !prov || prov->isPS() )
 	return false;
 
-    const bool is2d = prov->is2D();
     const bool haveseldata = seldata_ && !seldata_->isAll();
     if ( haveseldata )
     {
@@ -422,25 +422,55 @@ bool StorageProvider::setTableSelData()
 }
 
 
-void StorageProvider::checkDisjunct( const Pos::IdxSubSel& posss,
-		const Pos::IdxSubSel& desss, const uiString& what ) const
+void StorageProvider::checkZDisjunct( const ZSubSel& posss,
+					const ZSubSel& desss ) const
+{
+    const auto desrg = desss.outputZRange();
+    const auto possrg = posss.outputZRange();
+    static const auto zeps = 1.0e-6f;
+    if ( desrg.start > possrg.stop+zeps || desrg.stop < possrg.start-zeps )
+	uirv_.add( tr("Requested position is outside the Z range (%1 to %2)")
+		.arg( possrg.start ).arg( possrg.stop ) );
+}
+
+
+void StorageProvider::checkDisjunct( const IdxSubSelData& posss,
+		const IdxSubSelData& desss, const uiString& what ) const
 {
     const auto desrg = desss.outputPosRange();
     const auto possrg = posss.outputPosRange();
+    if ( desrg.start > possrg.stop || desrg.stop < possrg.start )
+    {
+	uirv_.add( tr("Requested position is outside the data range: "
+			"%1 range is %2 to %3" ).arg( what )
+		.arg( possrg.start ).arg( possrg.stop ) );
+    }
+    else
+    {
+	const auto nrsteps = desrg.nrSteps();
+	bool foundone = false;
+	for ( auto idx=0; idx<=nrsteps; idx++ )
+	    if ( possrg.isPresent(desrg.atIndex(idx)) )
+		{ foundone = true; break; }
+	if ( !foundone )
+	    uirv_.add( tr("Requested %1 is not in the data grid setup ("
+			"%2 to %3 step %4" ).arg( what )
+		.arg( possrg.start ).arg( possrg.stop ).arg( possrg.step ) );
+    }
 }
 
 
 bool StorageProvider::desiredSubSelOK() const
 {
 #   define mCheckZDisjunct( pobj, dobj ) \
-    checkZDisjunct( pobj.zSubsel(), dobj.zSubSel() )
+    checkZDisjunct( pobj.zSubSel(), dobj.zSubSel() )
     if ( is2D() )
     {
 	const auto& plsss = possiblesubsel_.subSel2D();
 	const auto& dlsss = desiredsubsel_.subSel2D();
 #	define mCheckDisjunct() \
 	checkDisjunct( plss.trcNrSubSel(), dlss.trcNrSubSel(), \
-			uiStrings::sTrcNr() )
+			uiStrings::sTraceNumber() )
 	bool havecommonline = false;
 	for ( auto dlssptr : dlsss )
 	{
@@ -456,7 +486,7 @@ bool StorageProvider::desiredSubSelOK() const
 	    mCheckZDisjunct( plss, dlss );
 	}
 	if ( !havecommonline )
-	    uirv.add( tr("Attribute not available for requested line(s)") );
+	    uirv_.add( tr("Attribute not available for requested line(s)") );
     }
     else
     {
@@ -470,11 +500,8 @@ bool StorageProvider::desiredSubSelOK() const
 	mCheckZDisjunct( pcss, dcss );
     }
 
-    if ( !uirv_.isOK();
-    {
-	setDataUnavailableFlag( true );
-	return false;
-    }
+    if ( !uirv_.isOK() )
+	{ setDataUnavailableFlag( true ); return false; }
 
     return true;
 }
@@ -498,17 +525,17 @@ bool StorageProvider::computeData( const DataHolder& output,
 
     if ( desc_.is2D() && seldata_ && seldata_->type() == Seis::Table )
     {
-	Interval<float> deszrg = desiredvolume_->zsamp_;
-	Interval<float> poszrg = possiblevolume_->zsamp_;
+	const auto deszrg = desiredsubsel_.zRange();
+	const auto poszrg = possiblesubsel_.zRange();
 	const float desonlyzrgstart = deszrg.start - poszrg.start;
 	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
 	Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
-	const float diffstart = z0*refstep_ - trcrange.start;
-	const float diffstop = (z0+nrsamples-1)*refstep_ - trcrange.stop;
+	const float diffstart = z0*refzstep_ - trcrange.start;
+	const float diffstop = (z0+nrsamples-1)*refzstep_ - trcrange.stop;
 	bool isdiffacceptable =
-	    ( (mIsEqual(diffstart,0,refstep_/100) || diffstart>0)
+	    ( (mIsEqual(diffstart,0,refzstep_/100) || diffstart>0)
 	      || diffstart >= desonlyzrgstart )
-	 && ( (mIsEqual(diffstop,0,refstep_/100) || diffstop<0 )
+	 && ( (mIsEqual(diffstop,0,refzstep_/100) || diffstop<0 )
 	      || diffstop<=desonlyzrgstop );
 	if ( !isdiffacceptable )
 	    return false;
@@ -587,7 +614,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	const int compnr = desc_.is2D() ? idx : compidx;
 	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
 	{
-	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
+	    const float curt = (float)(z0+sampidx)*refzstep_ +extrazfromsamppos;
 	    const float val = trcrange.includes(curt,false) ?
 		(isclss ? trc->get(trc->nearestSample(curt),compnr)
 		  : trc->getValue(curt,compnr)) : mUdf(float);

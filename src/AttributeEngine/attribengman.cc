@@ -822,22 +822,23 @@ Processor* EngineMan::createDataPackOutput( uiRetVal& uirv,
 					    const RegularSeisDataPack* prev )
 {
     unRefAndZeroPtr( cache_ );
+    const TrcKeyZSampling tkzs( subsel_ );
 
     if ( prev )
     {
 	cache_ = prev;
 	cache_->ref();
 	const TrcKeyZSampling cachecs = cache_->sampling();
-	if ( (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
-		tkzs_.hsamp_.step_.inl()
-	  || (mRg(h).start_.crl() - tkzs_.hsamp_.start_.crl()) %
-		tkzs_.hsamp_.step_.crl()
-	  || mRg(h).start_.inl() > tkzs_.hsamp_.stop_.inl()
-	  || mRg(h).stop_.inl() < tkzs_.hsamp_.start_.inl()
-	  || mRg(h).start_.crl() > tkzs_.hsamp_.stop_.crl()
-	  || mRg(h).stop_.crl() < tkzs_.hsamp_.start_.crl()
-	  || mRg(z).start > tkzs_.zsamp_.stop + mStepEps*tkzs_.zsamp_.step
-	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
+	if ( (mRg(h).start_.inl() - tkzs.hsamp_.start_.inl()) %
+		tkzs.hsamp_.step_.inl()
+	  || (mRg(h).start_.crl() - tkzs.hsamp_.start_.crl()) %
+		tkzs.hsamp_.step_.crl()
+	  || mRg(h).start_.inl() > tkzs.hsamp_.stop_.inl()
+	  || mRg(h).stop_.inl() < tkzs.hsamp_.start_.inl()
+	  || mRg(h).start_.crl() > tkzs.hsamp_.stop_.crl()
+	  || mRg(h).stop_.crl() < tkzs.hsamp_.start_.crl()
+	  || mRg(z).start > tkzs.zsamp_.stop + mStepEps*tkzs.zsamp_.step
+	  || mRg(z).stop < tkzs.zsamp_.start - mStepEps*tkzs.zsamp_.step )
 	    // No overlap, gotta crunch all the numbers ...
 	{
 	    unRefAndZeroPtr( cache_ );
@@ -856,7 +857,6 @@ Processor* EngineMan::createDataPackOutput( uiRetVal& uirv,
     if ( !proc )
 	return 0;
 
-    const TrcKeyZsampling tkzs( subsel_ );
     if ( !cache_ )
 	mAddAttrOut( tkzs )
     else
@@ -1190,7 +1190,7 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
     AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
 						      descset, firstcol );
     if ( tabex && !tabex->uirv_.isEmpty() )
-	uirv_ = tabex->uirv_;
+	uirv = tabex->uirv_;
     return tabex;
 }
 

@@ -893,6 +893,12 @@ void CubeSubSel::setToAll()
 }
 
 
+bool CubeSubSel::isFlat() const
+{
+    return nrInl() == 1 || nrCrl() == 1 || nrZ() == 1;
+}
+
+
 CubeSubSel::SliceType CubeSubSel::defaultDir() const
 {
     const auto nrinl = nrInl();
@@ -1149,10 +1155,19 @@ bool Survey::FullSubSel::isAll() const
 }
 
 
+bool Survey::FullSubSel::isFlat() const
+{
+    if ( css_ )
+	return css_->isFlat();
+    else
+	return true;
+}
+
+
 bool Survey::FullSubSel::isZSlice() const
 {
     if ( css_ )
-	return css_->defaultDir() == OD::ZSlice;
+	return isFlat() && css_->defaultDir() == OD::ZSlice;
     else
 	return !lsss_.isEmpty() && lsss_.first()->zRange().nrSteps() < 2;
 }

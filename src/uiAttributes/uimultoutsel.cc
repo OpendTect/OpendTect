@@ -25,14 +25,15 @@ using namespace Attrib;
 void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 					BufferStringSet& outnames )
 {
-    uiString errmsg;
     Desc& ds = const_cast<Desc&>(desc);
-    RefMan<Provider> tmpprov = Provider::create( ds, errmsg );
-    if ( !tmpprov ) return;
+    uiRetVal uirv;
+    RefMan<Provider> tmpprov = Provider::create( ds, uirv );
+    if ( !tmpprov )
+	return;
 
     //compute and set refstep, needed to get nr outputs for some attribs
     //( SpecDecomp for ex )
-    tmpprov->computeRefStep();
+    tmpprov->computeRefZStep();
     tmpprov->getCompNames( outnames );
 }
 

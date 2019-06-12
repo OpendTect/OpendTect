@@ -122,7 +122,8 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
     if ( evposns_.size() < 3 )
     {
 	const float val = evposns_.size() < 2 ? mUdf(float)
-			: 1.0f / (2.0f * refstep_ * (evposns_[1] - evposns_[0]));
+			: 1.0f / (2.0f * refzstep_
+				    * (evposns_[1] - evposns_[0]));
 	for ( int idx=0; idx<nrsamples; idx++ )
 	    setOutputValue( output, 0, idx, z0, val );
 	return;
@@ -147,7 +148,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
 
 	float r = (zpos - p1) / dz[1];
 	float t = dz[1] + r * dz[2] + (1-r) * dz[0];
-	float freq = 1.0f / (refstep_ * t);
+	float freq = 1.0f / (refzstep_ * t);
 	setOutputValue( output, 0, idx, z0, freq );
     }
 }

@@ -54,19 +54,16 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 	return nullptr;
     }
 
-    uiString errmsg;
+    uiRetVal uirv;
     RefMan<Data2DHolder> d2dh = new Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
 
     const bool is2d = dset_->is2D();
     PtrMan<Processor> proc =
-		is2d ? aem->createScreenOutput2D( errmsg, *d2dh )
-		     : aem->createDataPackOutput( errmsg, nullptr  );
+		is2d ? aem->createScreenOutput2D( uirv, *d2dh )
+		     : aem->createDataPackOutput( uirv, nullptr  );
     if ( !proc )
-    {
-	gUiMsg(parent_).error( errmsg );
-	return nullptr;
-    }
+	{ gUiMsg(parent_).error( uirv ); return nullptr; }
 
     const bool issingtrc = ( is2d || tkzs_.nrInl()==1 ) && tkzs_.nrCrl()==1;
     if ( issingtrc && proc->getProvider() )
@@ -98,7 +95,7 @@ EngineMan* uiAttribPanel::createEngineMan()
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
     aem->setGeomID( geomid_ );
-    aem->setTrcKeyZSampling( tkzs_ );	//should be only 1 trace
+    aem->setSubSel( Survey::FullSubSel(tkzs_) ); //should be only 1 trace
     return aem;
 }
 

@@ -431,7 +431,7 @@ void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float curt = (idx+z0)*refstep_;
+	const float curt = (idx+z0)*refzstep_;
 	const float result = pow(curt,powerval_) *
 			     getInputValue( *inputdata_, dataidx_, idx, z0 );
 	setOutputValue( output, 0, idx, z0, result );
@@ -449,7 +449,7 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float curt = (idx+z0)*refstep_;
+	const float curt = (idx+z0)*refzstep_;
 
 	if ( curt>gates_[curgateidx].stop && curgateidx<gates_.size()-1 )
 	    curgateidx++;
@@ -473,8 +473,8 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
 {
     Interval<int> samplewindow;
-    samplewindow.start = mNINT32( window_.start/refstep_ );
-    samplewindow.stop = mNINT32( window_.stop/refstep_ );
+    samplewindow.start = mNINT32( window_.start/refzstep_ );
+    samplewindow.stop = mNINT32( window_.stop/refzstep_ );
 
     if ( inputdata_->nrsamples_ <= samplewindow.width() )
     {
@@ -506,8 +506,8 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 {
     for( int idx=0; idx<oldtgs.size(); idx++ )
     {
-	Interval<int> sg( mNINT32(oldtgs[idx].start/refstep_),
-			  mNINT32(oldtgs[idx].stop/refstep_) );
+	Interval<int> sg( mNINT32(oldtgs[idx].start/refzstep_),
+			  mNINT32(oldtgs[idx].stop/refzstep_) );
 	if ( sg.start>nrsamples+z0 || sg.stop<z0 )
 	{
 	    newsampgates += Interval<int>(0,0);

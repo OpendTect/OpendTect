@@ -1675,8 +1675,10 @@ float Provider::getApplicableCrlDist( bool dependoninput ) const
 }
 
 
-void Provider::setDataUnavailableFlag( bool yn )
-{ dataunavailableflag_ = yn; }
+void Provider::setDataUnavailableFlag( bool yn ) const
+{
+    mNonConst(dataunavailableflag_) = yn;
+}
 
 
 bool Provider::getDataUnavailableFlag() const

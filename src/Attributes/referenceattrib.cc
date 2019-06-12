@@ -66,7 +66,7 @@ bool Reference::getInputData( const BinID& relpos, int zintv )
 bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 			     int z0, int nrsamples, int threadid ) const
 {
-    const float step = refstep_ ? refstep_ : SI().zStep();
+    const float step = refzstep_ ? refzstep_ : SI().zStep();
     Coord coord;
     const BinID truepos = currentbid_ + relpos;
     if ( isOutputEnabled(0) || isOutputEnabled(1) )
@@ -124,7 +124,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    setOutputValue( output, 3, idx, z0, mCast(float,truepos.crl()) );
 	    setOutputValue( output, 4, idx, z0, mCast(float,z0+idx+1) );
 	    setOutputValue( output, 5, idx, z0, mCast(float,
-		truepos.crl() - desiredvolume_->hsamp_.start_.crl() + 1) );
+		truepos.crl() - desiredsubsel_.trcNrRange().start + 1) );
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val =

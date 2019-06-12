@@ -277,8 +277,8 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+				    mNINT32(gate_.stop/refzstep_) );
 
     const int gatesz = samplegate.width() + 1;
     const int nrtraces = inputdata_.size();
@@ -341,15 +341,15 @@ const BinID* Semblance::desStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep_);\
+	int minbound = (int)(gatebound / refzstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep_;\
+	gatebound = (minbound+incvar) * refzstep_;\
     }\
 }
 
 void Semblance::prepPriorToBoundsCalc()
 {
-     const int truestep = mNINT32( refstep_*zFactor() );
+     const int truestep = mNINT32( refzstep_*zFactor() );
      if ( truestep == 0 )
 	 return Provider::prepPriorToBoundsCalc();
 

@@ -116,9 +116,9 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !outputinterest_[0] ) return false;
 
-    float sampleshift = time_/(zFactor()*refstep_);
+    float sampleshift = time_/(zFactor()*refzstep_);
     const int sampleidx = mNINT32(sampleshift);
-    const float extrasamp = output.extrazfromsamppos_/refstep_;
+    const float extrasamp = output.extrazfromsamppos_/refzstep_;
     const bool dointerpolate = dosteer_ ||
 			       !mIsEqual(sampleshift,sampleidx,0.001);
 
@@ -149,15 +149,15 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep_);\
+	int minbound = (int)(gatebound / refzstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep_;\
+	gatebound = (minbound+incvar) * refzstep_;\
     }\
 }
 
 void Shift::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT32( refstep_*zFactor() );
+    const int truestep = mNINT32( refzstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 

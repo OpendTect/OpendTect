@@ -91,7 +91,7 @@ protected:
 
     BinDataDesc		getOutputFormat(int output) const;
 
-    bool		desiredSubSelOK();
+    bool		desiredSubSelOK() const;
     void		checkDisjunct(const IdxSubSelData&,const IdxSubSelData&,
 				      const uiString&) const;
     void		checkZDisjunct(const ZSubSel&,const ZSubSel&) const;

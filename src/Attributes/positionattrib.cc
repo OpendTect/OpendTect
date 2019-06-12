@@ -172,14 +172,14 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() || !outdata_ ) return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+				    mNINT32(gate_.stop/refzstep_) );
 
     const Stats::Type statstype =  oper_ == 2 ? Stats::Median
 				: (oper_ == 1 ? Stats::Max
 					      : Stats::Min );
     Stats::RunCalc<float> stats( Stats::CalcSetup().require(statstype) );
-    const float extrasamp = output.extrazfromsamppos_/refstep_;
+    const float extrasamp = output.extrazfromsamppos_/refzstep_;
 
     const int nrpos = positions_.size();
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -233,15 +233,15 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep_);\
+	int minbound = (int)(gatebound / refzstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep_;\
+	gatebound = (minbound+incvar) * refzstep_;\
     }\
 }
 
 void Position::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT32( refstep_*zFactor() );
+    const int truestep = mNINT32( refzstep_*zFactor() );
     if( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 

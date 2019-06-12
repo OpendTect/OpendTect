@@ -132,11 +132,11 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
 				      TaskRunner* taskr )
 {
-    uiString errmsg;
+    uiRetVal uirv;
     ObjectSet<BinIDValueSet> bivsset;
     bivsset += &bidset_;
     PtrMan<Attrib::Processor> process =
-	    aem.createLocationOutput( errmsg, bivsset );
+	    aem.createLocationOutput( uirv, bivsset );
     if ( !process )
 	return false;
     return TaskRunner::execute( taskr, *process );

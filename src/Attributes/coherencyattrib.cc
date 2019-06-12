@@ -171,7 +171,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 		float crlpos = (idz - (crlsz/2)) * distcrl_;
 		float place = s - re.get(idy,idz)->z0_ + idx +
-			 (inlpos*inldip)/refstep_ + (crlpos*crldip)/refstep_;
+			 (inlpos*inldip)/refzstep_ + (crlpos*crldip)/refzstep_;
 
 		float real =
 		    interp.value( *(re.get(idy,idz)->series(realidx_)), place );
@@ -195,7 +195,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 void Coherency::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT32( refstep_*zFactor() );
+    const int truestep = mNINT32( refzstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
@@ -204,13 +204,13 @@ void Coherency::prepPriorToBoundsCalc()
 
     if ( chgstart )
     {
-	int minstart = (int)(desgate_.start / refstep_);
-	desgate_.start = (minstart-1) * refstep_;
+	int minstart = (int)(desgate_.start / refzstep_);
+	desgate_.start = (minstart-1) * refzstep_;
     }
     if ( chgstop )
     {
-	int minstop = (int)(desgate_.stop / refstep_);
-	desgate_.stop = (minstop+1) * refstep_;
+	int minstop = (int)(desgate_.stop / refzstep_);
+	desgate_.stop = (minstop+1) * refzstep_;
     }
 
     Provider::prepPriorToBoundsCalc();
@@ -237,8 +237,8 @@ bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
 bool Coherency::computeData1( const DataHolder& output, int z0,
 			      int nrsamples ) const
 {
-    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				mNINT32(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+				mNINT32(gate_.stop/refzstep_) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursamp = z0 + idx;
@@ -256,19 +256,19 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	{
 	    float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 	    extras0 =
-		(extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep_;
+		(extrazfspos - inputdata_[0]->extrazfromsamppos_)/refzstep_;
 	    if ( !is2d )
 		extras1 =
-		    (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep_;
+		    (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refzstep_;
 	    extras2 =
-		(extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep_;
+		(extrazfspos - inputdata_[2]->extrazfromsamppos_)/refzstep_;
 	}
 
 	while ( curdip <= maxdip_ && !is2d )
 	{
 	    float coh = calc1( cursamp + extras0,
-			       cursamp + extras1 + (curdip * distinl_)/refstep_,
-			       samplegate, *inputdata_[0], *inputdata_[1] );
+			   cursamp + extras1 + (curdip * distinl_)/refzstep_,
+			   samplegate, *inputdata_[0], *inputdata_[1] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
 	    curdip += ddip_;
@@ -284,8 +284,8 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	while ( curdip <= maxdip_ )
 	{
 	    float coh = calc1( cursamp + extras0,
-			       cursamp + extras2 + (curdip * distcrl_)/refstep_,
-			       samplegate, *inputdata_[0], *inputdata_[2] );
+			   cursamp + extras2 + (curdip * distcrl_)/refzstep_,
+			   samplegate, *inputdata_[0], *inputdata_[2] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
 	    curdip += ddip_;
@@ -310,15 +310,15 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 			      int nrsamples ) const
 {
     const bool is2d = is2D();
-    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				mNINT32(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+				mNINT32(gate_.stop/refzstep_) );
 
     float extras = 0;
     //make sure the data extracted from input DataHolders is at exact z pos
     if ( needinterp_ )
     {
 	float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
-	extras = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep_;
+	extras = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refzstep_;
     }
     for ( int idx=0; idx<nrsamples; idx++ )
     {

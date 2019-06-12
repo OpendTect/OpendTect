@@ -177,7 +177,7 @@ bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool DipFilter::initKernel()
 {
-    if ( mIsZero(refstep_,1e-7) || mIsUdf(refstep_) )
+    if ( mIsZero(refzstep_,1e-7) || mIsUdf(refzstep_) )
     {
 	pErrMsg("No reference step" );
 	return false;
@@ -199,7 +199,7 @@ bool DipFilter::initKernel()
 
 	    for ( int kti=-hsz; kti<=hsz; kti++ )
 	    {
-		float kt = kti * refstep_;
+		float kt = kti * refzstep_;
 
                 const float velocity = fabs(spatialdist/kt);
 		const float angle = Math::Atan2( kt, spatialdist );

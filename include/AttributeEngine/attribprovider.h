@@ -47,6 +47,7 @@ public:
     static Provider*		create(Desc&,uiRetVal&);
     uiRetVal			status() const	{ return uirv_; }
     inline bool			isOK() const	{ return uirv_.isOK(); }
+    virtual uiRetVal		isActive() const { return uiRetVal::OK(); }
     bool			is2D() const;
 
     const Desc&			getDesc() const		{ return desc_; }
@@ -166,7 +167,7 @@ public:
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool ismax) const;
 
-    void			setDataUnavailableFlag(bool yn);
+    void			setDataUnavailableFlag(bool yn) const;
     bool			getDataUnavailableFlag() const;
 
 protected:

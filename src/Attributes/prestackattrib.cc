@@ -11,6 +11,7 @@
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "cubesubsel.h"
 #include "datapackbase.h"
 #include "posinfo.h"
 #include "prestackanglecomputer.h"
@@ -158,7 +159,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	uiString errmsg;
 	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
 					       errmsg ) )
-	    { errmsg_ = errmsg; delete preprocessor_; preprocessor_ = 0; }
+	    { uirv_ = errmsg; delete preprocessor_; preprocessor_ = 0; }
     }
 
     mGetInt( component_, componentStr() );
@@ -436,10 +437,7 @@ RefMan<Gather> PSAttrib::getPreProcessed( const BinID& relpos )
     }
 
     if ( !preprocessor_->process() )
-    {
-	errmsg_ = preprocessor_->errMsg();
-	return 0;
-    }
+	{ uirv_ = preprocessor_->errMsg(); return 0; }
 
     return DPM(DataPackMgr::FlatID()).get<Gather>(preprocessor_->getOutput());
 }
@@ -476,7 +474,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     return true;
 }
 
-#define mErrRet(s1) { errmsg_ = s1; return; }
+#define mErrRet(s1) { uirv_ = s1; return; }
 
 void PSAttrib::prepPriorToBoundsCalc()
 {
@@ -503,7 +501,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet( uiStrings::phrCannotFindDBEntry(psid_) )
 
 	if ( is2D() )
-	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, nameOf(geomid_) );
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, nameOf(geomID()) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 
@@ -522,7 +520,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 }
 
 
-void PSAttrib::updatecSIfNeeded( FullSubSel& fss ) const
+void PSAttrib::updateSSIfNeeded( FullSubSel& fss ) const
 {
     if ( !psrdr_ )
 	return;
@@ -533,9 +531,9 @@ void PSAttrib::updatecSIfNeeded( FullSubSel& fss ) const
 	const PosInfo::CubeData& cd = reader3d->posData();
 	StepInterval<int> rg;
 	cd.getInlRange( rg );
-	fss.as3D()->setInlRange( rg );
+	fss.cubeSubSel().setInlRange( rg );
 	cd.getCrlRange( rg );
-	fss.as3D()->setCrlRange( rg );
+	fss.cubeSubSel().setCrlRange( rg );
     }
 
     //TODO: anything we would need to do in 2D?
@@ -554,7 +552,7 @@ bool PSAttrib::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float z = (z0 + idx) * refstep_ + extrazfromsamppos;
+	const float z = (z0 + idx) * refzstep_ + extrazfromsamppos;
 	setOutputValue( output, 0, idx, z0, propcalc_->getVal(z) );
     }
 

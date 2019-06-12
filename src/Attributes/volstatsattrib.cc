@@ -13,6 +13,7 @@
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
+#include "cubesubsel.h"
 #include "statruncalc.h"
 #include "survinfo.h"
 #include "valseriesinterpol.h"
@@ -163,15 +164,15 @@ const BinID* VolStatsBase::desStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep_);\
+	int minbound = (int)(gatebound / refzstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep_;\
+	gatebound = (minbound+incvar) * refzstep_;\
     }\
 }
 
 void VolStatsBase::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT32( refstep_*zFactor() );
+    const int truestep = mNINT32( refzstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
@@ -350,8 +351,8 @@ void VolStats::prepPriorToBoundsCalc()
     if ( shape_ == mShapeOpticalStack
      && (linepath_.isEmpty() || linetruepos_.isEmpty()) )
     {
-	errmsg_ = tr("Optical Stack only works on elements\n"
-		     "which define an horizontal direction:\n"
+	uirv_ = tr("Optical Stack only works on elements "
+		     "that define a horizontal direction:\n"
 		     "inlines, crosslines and random lines.");
 	return;
     }
@@ -386,10 +387,10 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
+				    mNINT32(gate_.stop/refzstep_) );
     const int gatesz = samplegate.width() + 1;
-    const float extrasamp = output.extrazfromsamppos_/refstep_;
+    const float extrasamp = output.extrazfromsamppos_/refzstep_;
 
     Stats::CalcSetup rcsetup;
     for ( int outidx=0; outidx<outputinterest_.size(); outidx++ )
@@ -510,11 +511,13 @@ void VolStats::getIdealStackPos(
 
     bool isinline = false;
     bool iscrossline = false;
-    if ( desiredvolume_->isFlat() )
+    if ( desiredsubsel_.isFlat() )
     {
-	if ( desiredvolume_->defaultDir() == OD::InlineSlice )
+	if ( !desiredsubsel_.is2D()
+	  && desiredsubsel_.cubeSubSel().defaultDir() == OD::InlineSlice )
 	    isinline = true;
-	else if ( desiredvolume_->defaultDir() == OD::CrosslineSlice )
+	if ( desiredsubsel_.is2D()
+	  || desiredsubsel_.cubeSubSel().defaultDir() == OD::CrosslineSlice )
 	    iscrossline = true;
     }
 

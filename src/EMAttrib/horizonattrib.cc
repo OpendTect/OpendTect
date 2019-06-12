@@ -86,10 +86,7 @@ Horizon::Horizon( Desc& dsc )
 	{ mGetBool( relz_, sKeyRelZ() ); }
 
     if ( !isOK() )
-    {
-	errmsg_ = tr("Selected Horizon Data name does not exist");
-	return;
-    }
+	{ uirv_ = tr("Selected Horizon Data name does not exist"); return; }
 }
 
 
@@ -160,9 +157,7 @@ void Horizon::prepareForComputeData()
     PtrMan<Executor> adl = hor3d ? hor3d->auxdata.auxDataLoader(surfdtidx) : 0;
     if ( !adl || !adl->execute() )
     {
-	uiString msg = tr("Loading Horizon Data %1 failed.")
-	             .arg(surfdatanm_);
-	errmsg_ =  msg;
+	uirv_ = tr("Loading Horizon Data %1 failed").arg( surfdatanm_ );
 	horizon_->unRef();
 	mRet
     }
@@ -174,7 +169,7 @@ void Horizon::prepareForComputeData()
 void Horizon::fillLineID()
 {
     mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_);
-    const int lineidx = hor2d->geometry().lineIndex( geomid_ );
+    const int lineidx = hor2d->geometry().lineIndex( geomID() );
     horizon2dlineid_ = lineidx==-1 ? mUdf(int) : lineidx;
 }
 
@@ -201,7 +196,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     {
 	for ( int iz=0; iz<nrsamples; iz++ )
 	{
-	    const float ziz = (z0 + iz) * refstep_;
+	    const float ziz = (z0 + iz) * refzstep_;
 	    setOutputValue( output, 0, iz, z0, ziz - zval );
 	}
     }

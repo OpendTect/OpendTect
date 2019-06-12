@@ -436,11 +436,10 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, dbkys[0], bivs );
-	uiString uierrmsg;
 	mSetEngineMan()
-	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
+	Processor* proc = aem.createLocationOutput( uirv, bivs );
 	if ( !proc )
-	    mErrRet( toString(uierrmsg) );
+	    mErrRet( toString(uirv) );
 
 	if ( !process( strm, proc, false ) ) return false;
 	HorizonUtils::addSurfaceData( dbkys[0], attribrefs, bivs );
@@ -520,13 +519,12 @@ bool BatchProgram::go( od_ostream& strm )
 		HorizonUtils::getWantedPos2D( strm, dbkys, dps,
 					      hsamp, extraz, geomid );
 		SeisTrcBuf seisoutp( false );
-		uiString uierrmsg;
 		mSetEngineMan()
 		aem.setGeomID( geomid );
-		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
+		Processor* proc = aem.create2DVarZOutput( uirv, pars(),
 				dps, outval, zboundsset ? &zbounds : 0 );
 		if ( !proc )
-		    mErrRet( toString(uierrmsg) );
+		    mErrRet( toString(uirv) );
 		if ( !process(strm,proc,is2d,&outpid,&seisoutp) )
 		    return false;
 	    }
@@ -540,12 +538,11 @@ bool BatchProgram::go( od_ostream& strm )
 				hsamp, extraz, nrinterpsamp, mainhoridx,
 				extrawidth, provider );
 	    SeisTrcBuf seisoutp( false );
-	    uiString uierrmsg;
 	    mSetEngineMan()
-	    Processor* proc = aem.createTrcSelOutput( uierrmsg, bivs, seisoutp,
+	    Processor* proc = aem.createTrcSelOutput( uirv, bivs, seisoutp,
 					outval, zboundsset ? &zbounds : 0 );
 	    if ( !proc )
-		mErrRet( toString(uierrmsg) );
+		mErrRet( toString(uirv) );
 	    if ( !process( strm, proc, is2d, &outpid, &seisoutp ) )
 		return false;
 	}

@@ -190,14 +190,11 @@ void calcFingParsObject::findDataSetID( DBKey& linesetid ) const
 
 bool calcFingParsObject::computeValsAndRanges()
 {
-    uiString errmsg;
+    uiRetVal uirv;
     PtrMan<EngineMan> aem = createEngineMan();
-    PtrMan<Processor> proc = aem->createLocationOutput( errmsg, posset_ );
+    PtrMan<Processor> proc = aem->createLocationOutput( uirv, posset_ );
     if ( !proc )
-    {
-	gUiMsg(parent_).error( errmsg );
-	return false;
-    }
+	{ gUiMsg(parent_).error( uirv ); return false; }
 
     proc->setName( "Compute reference values" );
     uiTaskRunner taskrunner( parent_ );

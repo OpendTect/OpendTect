@@ -58,6 +58,9 @@ Seis::RangeSelData::RangeSelData( const LineSubSelSet& lsss )
 Seis::RangeSelData::RangeSelData( const LineHorSubSelSet& lhsss )
     : fss_(lhsss)
 {}
+Seis::RangeSelData::RangeSelData( const FullSubSel& fss )
+    : fss_(fss)
+{}
 Seis::RangeSelData::RangeSelData( const TrcKeySampling& tks )
     : fss_(tks)
 {}

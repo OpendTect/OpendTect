@@ -54,18 +54,15 @@ GapDeconACorrView::~GapDeconACorrView()
 
 bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
-    uiString errmsg;
+    uiRetVal uirv;
     RefMan<Data2DHolder> d2dh = new Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
 
     PtrMan<Processor> proc = dset_->is2D() ?
-			    aem->createScreenOutput2D( errmsg, *d2dh ) :
-			    aem->createDataPackOutput( errmsg, 0  );
+			    aem->createScreenOutput2D( uirv, *d2dh ) :
+			    aem->createDataPackOutput( uirv, 0  );
     if ( !proc )
-    {
-	gUiMsg(parent_).error( errmsg );
-	return false;
-    }
+	{ gUiMsg(parent_).error( uirv ); return false; }
 
     proc->setName( "Compute autocorrelation values" );
     uiTaskRunner dlg( parent_ );
@@ -98,7 +95,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 	cs.zsamp_.start = SI().zRange().start;
 	cs.zsamp_.stop = SI().zRange().stop;
     }
-    aem->setTrcKeyZSampling( cs );
+    aem->setSubSel( Survey::FullSubSel(cs) );
 
     return aem;
 }

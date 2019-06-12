@@ -158,10 +158,7 @@ FreqFilter::FreqFilter( Desc& ds )
     if ( filtertype_ != FFTFilter::HighPass &&
 	 filtertype_ != FFTFilter::LowPass &&
 	 mIsEqual( minfreq_, maxfreq_, 1e-3) )
-    {
-	errmsg_ = tr("Minimum and maximum frequencies are the same.");
-	return;
-    }
+	{ uirv_ = tr("Minimum and maximum frequencies are the same."); return; }
 
     mGetBool( isfftfilter_, isfftfilterStr() );
     if ( isfftfilter_ )
@@ -248,7 +245,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     if ( filtertype_ == FFTFilter::LowPass )
     {
-	float cutoff = refstep_ * maxfreq_;
+	float cutoff = refzstep_ * maxfreq_;
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, outp );
 	reverseArray( outp.ptr(), nrsamp );
 	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
@@ -256,7 +253,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     }
     else if ( filtertype_ == FFTFilter::HighPass )
     {
-	float cutoff = refstep_ * minfreq_;
+	float cutoff = refzstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, data, outp );
 	reverseArray( outp.ptr(), nrsamp );
 	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
@@ -264,15 +261,15 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     }
     else
     {
-	float cutoff = refstep_ * maxfreq_;
+	float cutoff = refzstep_ * maxfreq_;
 	mAllocLargeVarLenArr( float, tmp, nrsamp );
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, tmp );
-	cutoff = refstep_ * minfreq_;
+	cutoff = refzstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, tmp, outp );
 	reverseArray( outp.ptr(), nrsamp );
-	cutoff = refstep_ * maxfreq_;
+	cutoff = refzstep_ * maxfreq_;
 	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
-	cutoff = refstep_ * minfreq_;
+	cutoff = refzstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
 	reverseArray( outp.ptr(), nrsamp );
     }
@@ -307,7 +304,7 @@ void FreqFilter::fftFilter( const DataHolder& output, int z0, int nrsamples )
 	realsignal.set( idx, real );
     }
 
-    FFTFilter filter( nrsamples, refstep_);
+    FFTFilter filter( nrsamples, refzstep_);
     if ( windowtype_ != "None" )
 	if ( !filter.setTimeTaperWindow(nrsamples,windowtype_,variable_) )
 	    return;

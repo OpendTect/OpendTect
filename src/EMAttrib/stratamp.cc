@@ -126,7 +126,7 @@ int StratAmpCalc::init( const IOPar& pars )
     targetdesc->getDefStr( defstring );
     BufferString storstr = Attrib::StorageProvider::attribName();
     usesstored_ = storstr.isStartOf( defstring );
-    if ( usesstored_)
+    if ( usesstored_ )
     {
 	const StringPair strpair( targetdesc->getValParam(
 		Attrib::StorageProvider::keyStr())->getStringValue(0) );
@@ -134,7 +134,7 @@ int StratAmpCalc::init( const IOPar& pars )
 
 	prov_ = Seis::Provider::create( key, &uirv );
 	if ( !prov_ )
-	    errmsg_ = uirv;
+	    errmsg_ =uirv;
 	else
 	{
 	    TrcKeyZSampling tkzs;
@@ -144,9 +144,8 @@ int StratAmpCalc::init( const IOPar& pars )
     }
     else
     {
-	uiString errmsg;
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
-	proc_ = attrengman->usePar( pars, *descset_, 0, errmsg, 0 );
+	proc_ = attrengman->usePar( pars, *descset_, uirv, 0 );
 	if ( !proc_ )
 	    mErrRet( badinp )
     }
@@ -175,8 +174,9 @@ int StratAmpCalc::init( const IOPar& pars )
 
 uiString StratAmpCalc::message() const
 {
-    return !errmsg_.isEmpty() ? errmsg_
-		: uiStrings::phrHandling(uiStrings::sPosition(mPlural));
+    if ( errmsg_.isEmpty() )
+	return uiStrings::phrHandling(uiStrings::sPosition(mPlural));
+    return errmsg_;
 }
 
 

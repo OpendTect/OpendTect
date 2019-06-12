@@ -192,7 +192,6 @@ bool BatchProgram::go( od_ostream& strm )
 	TextStreamProgressMeter progressmeter( strm );
 	for ( int idx=0; idx<alllinenames.size(); idx++ )
 	{
-	    uiString errmsg;
 	    IOPar procpar( pars() );
 	    if ( is2d && subselpar )
 	    {
@@ -211,10 +210,13 @@ bool BatchProgram::go( od_ostream& strm )
 
 	    Attrib::EngineMan attrengman;
 	    Attrib::DescSet attribsetlocal( attribset ); //May change
-	    proc = attrengman.usePar( procpar, attribsetlocal,
-				      alllinenames.get(idx), errmsg, outidx );
+	    const Pos::GeomID geomid = is2d
+			? Survey::Geometry::getGeomID(alllinenames.get(idx))
+			: Pos::GeomID::get3D();
+	    proc = attrengman.usePar( procpar, attribsetlocal, uirv,
+				      outidx, geomid );
 	    if ( !proc )
-		mRetJobErr( toString(errmsg) );
+		mRetJobErr( toString(uirv) );
 
 	    progressmeter.setName( proc->name() );
 	    progressmeter.setMessage( proc->message() );
