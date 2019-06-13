@@ -507,8 +507,13 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
+    const BufferString termem = Settings::common().find( sKey::TermEm() );
+#ifdef __win__
     OS::MachineCommand cmd( "start" );
-    cmd.addArg( Settings::common().find(sKey::TermEm()) );
+    cmd.addArg( termem );
+#else
+    OS::MachineCommand cmd( termem );
+#endif
     OD::PythA().execute( cmd );
 }
 

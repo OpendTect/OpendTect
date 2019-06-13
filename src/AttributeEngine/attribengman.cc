@@ -108,8 +108,12 @@ Processor* EngineMan::createProcessor( const DescSet& attrset,
 
 void EngineMan::setGeomID( GeomID gid )
 {
+    if ( !gid.isValid() )
+	return;
+
     if ( attrset_ && attrset_->is2D() != gid.is2D() )
 	{ pErrMsg("2D/3D mismatch"); }
+
     if ( subsel_.geomID(0) != gid )
 	subsel_ = FullSubSel( gid );
 }
