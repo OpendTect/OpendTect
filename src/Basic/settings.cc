@@ -13,7 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "keystrs.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "safefileio.h"
 #include "perthreadrepos.h"
 
@@ -100,7 +102,27 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
     Settings* ret = new Settings( fname );
     ret->setName( mGetKey(key) );
     if ( !ret->doRead(ext) )
-	{ delete ret; ret = 0; }
+	{ delete ret; return 0; }
+
+    if ( ret->name() == sKeyCommon )
+    {
+	const BufferString orgtermcmd = ret->find( sKey::TermEm() );
+	BufferString termcmd = orgtermcmd;
+#ifdef __win__
+	if ( termcmd.isEmpty() )
+	    termcmd = "cmd.exe";
+#else
+	FilePath fp( GetSoftwareDir(true), "bin", "find_term.bash" );
+	BufferString cmd( fp.fullPath() );
+	if ( !termcmd.isEmpty() )
+	    cmd.add( " " ).add( termcmd );
+	OS::MachineCommand mc( cmd );
+	termcmd = mc.runAndCollectOutput();
+#endif
+	ret->set( sKey::TermEm(), termcmd );
+	if ( termcmd != orgtermcmd )
+	    ret->write( false );
+    }
 
     return ret;
 }

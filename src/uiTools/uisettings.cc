@@ -805,13 +805,14 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
+    const BufferString termem = Settings::common().find( sKey::TermEm() );
+    BufferString cmd;
 #ifdef __win__
-	const BufferString cmdstr( "start cmd.exe" );
-	OS::MachineCommand oscmd( cmdstr );
-	OD::PythA().execute( oscmd, OS::CommandExecPars(OS::RunInBG) );
+    cmd.set( "start " ).add( termem );
 #else
-	//TODO: implement
+    cmd.set( termem );
 #endif
+    OD::PythA().execute( OS::MachineCommand(cmd) );
 }
 
 bool useScreen()

@@ -128,6 +128,7 @@ namespace sKey
     inline FixedString SurveyID()	{ return "Survey ID"; }
     inline FixedString Table()		{ return "Table"; }
     inline FixedString Target()		{ return "Target"; }
+    inline FixedString TermEm()		{ return "Terminal Emulator"; }
     inline FixedString Time()		{ return "Time"; }
     inline FixedString TimeRange()	{ return "Time Range"; }
     inline FixedString Title()		{ return "Title"; }
