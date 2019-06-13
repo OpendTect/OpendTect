@@ -88,9 +88,9 @@ public:
 				    : butstate_(st), pressed_(false)
 				    , angle_(aa), tabletinfo_(nullptr)
 				{
-				    Geom::Point2D<double> pos;
-				    pos.setXY( xx, yy );
-				    setPos( pos );
+				    Geom::Point2D<double> dpos;
+				    dpos.setXY( xx, yy );
+				    setPos( dpos );
 				}
 
 				MouseEvent( OD::ButtonState st,
@@ -98,9 +98,9 @@ public:
 				    : butstate_(st), pressed_(false)
 				    , angle_(aa), tabletinfo_(nullptr)
 				{
-				    Geom::Point2D<double> pos;
-				    pos.setXY( xx, yy );
-				    setPos( pos );
+				    Geom::Point2D<double> dpos;
+				    dpos.setXY( xx, yy );
+				    setPos( dpos );
 				}
 
 				MouseEvent(const MouseEvent& me)

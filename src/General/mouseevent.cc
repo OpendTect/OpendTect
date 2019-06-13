@@ -110,8 +110,8 @@ void MouseEvent::setPos( const Geom::Point2D<double>& dpos )
 
 Geom::Point2D<float> MouseEvent::getFPos() const
 {
-    Geom::Point2D<float> pos; pos.setFrom( dpos_ );
-    return pos;
+    Geom::Point2D<float> fpos; fpos.setFrom( dpos_ );
+    return fpos;
 }
 
 
@@ -217,8 +217,8 @@ MouseCursorExchange::MouseCursorExchange()
 {}
 
 
-MouseCursorExchange::Info::Info( const TrcKeyValue& pos, float offset )
-    : trkv_( pos )
+MouseCursorExchange::Info::Info( const TrcKeyValue& tkv, float offset )
+    : trkv_( tkv )
     , offset_( offset )
 {}
 
