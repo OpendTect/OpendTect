@@ -200,10 +200,10 @@ bool uiAttrEMOut::addNLA( DescID& id )
     defstr += nlaid_;
 
     const int outputnr = attrfld_->outputNr();
-    uiString errmsg;
-    EngineMan::addNLADesc( defstr, id, *ads_, outputnr, nlamodel_, errmsg );
-    if ( !errmsg.isEmpty() )
-	mErrRet( errmsg );
+    uiRetVal uirv;
+    EngineMan::addNLADesc( defstr, id, *ads_, outputnr, nlamodel_, uirv );
+    if ( !uirv.isEmpty() )
+	mErrRet( uirv );
 
     return true;
 }

@@ -969,7 +969,6 @@ void uiAttribDescSetEd::gtDefAttrSetsInDir( const char* dirnm,
 		if ( !desc )
 		    { canuse = false; break; }
 
-		uiRetVal uirv;
 		auto* prov = Attrib::PF().create( *desc, uirv, true );
 		canuse = canuse && prov && prov->isActive().isOK();
 		prov->unRef();

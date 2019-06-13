@@ -40,7 +40,7 @@ public:
 
     int			moveToNextTrace(BinID startpos=BinID(-1,-1),
 					bool firstcheck=false);
-    bool		calcPossibleSubSel(int outp,FullSubSel&) override;
+    bool		calcPossibleSubSel(int,const FullSubSel&) override;
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
     GeomID		getGeomID() const;
@@ -106,6 +106,7 @@ protected:
     Status		status_;
     TypeSet<BinDataDesc> datachar_;
     Seis::MSCProvider*	mscprov_;
+    FullSubSel		storedsubsel_;
     BinID		stepoutstep_;
     bool		isondisk_;
     bool		useintertrcdist_;

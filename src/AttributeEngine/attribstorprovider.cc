@@ -113,7 +113,7 @@ StorageProvider::StorageProvider( Desc& desc )
     , useintertrcdist_(false)
     , ls2ddata_(0)
 {
-    possiblesubsel_.setToAll( desc.is2D() );
+    storedsubsel_.setToAll( desc.is2D() );
 
     const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
     const BufferString storstr = strpair.first();
@@ -140,6 +140,7 @@ StorageProvider::~StorageProvider()
 
 bool StorageProvider::checkInpAndParsAtStart()
 {
+    storedsubsel_.setToAll( is2D() );
     if ( status_!=None )
 	return false;
 
@@ -156,17 +157,16 @@ bool StorageProvider::checkInpAndParsAtStart()
 				: stbdtp->trcBuf().first()->geomID();
 	if ( is2D() )
 	{
-	    possiblesubsel_ = FullSubSel( gid );
-	    possiblesubsel_.setTrcNrRange( si.crlrg );
+	    storedsubsel_ = FullSubSel( gid );
+	    storedsubsel_.setTrcNrRange( si.crlrg );
 	}
 	else
 	{
-	    possiblesubsel_.setToAll( false );
-	    possiblesubsel_.setInlRange( si.inlrg );
-	    possiblesubsel_.setCrlRange( si.crlrg );
+	    storedsubsel_.setInlRange( si.inlrg );
+	    storedsubsel_.setCrlRange( si.crlrg );
 	}
 
-	possiblesubsel_.setZRange( si.zrg );
+	storedsubsel_.setZRange( si.zrg );
 	return true;
     }
 
@@ -183,9 +183,9 @@ bool StorageProvider::checkInpAndParsAtStart()
     desc_.setIs2D( is2d );
     const auto& seisprov = *mscprov_->provider();
     if ( is2d )
-	possiblesubsel_ = seisprov.as2D()->lineSubSelSet();
+	storedsubsel_ = seisprov.as2D()->lineSubSelSet();
     else
-	possiblesubsel_ = FullSubSel( seisprov.as3D()->cubeSubSel() );
+	storedsubsel_ = FullSubSel( seisprov.as3D()->cubeSubSel() );
 
     status_ = StorageOpened;
     return true;
@@ -291,10 +291,11 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 }
 
 
-bool StorageProvider::calcPossibleSubSel( int outp, FullSubSel& outfss )
+bool StorageProvider::calcPossibleSubSel( int outp, const FullSubSel& desss )
 {
-    outfss = possiblesubsel_;
-    return true;
+    possiblesubsel_ = storedsubsel_;
+    possiblesubsel_.limitTo( desss );
+    return status_ != None;
 }
 
 
@@ -383,7 +384,7 @@ bool StorageProvider::setMSCProvSelData()
     {
 
 	FullSubSel fss( desiredsubsel_ );
-	fss.limitTo( possiblesubsel_ );
+	fss.limitTo( storedsubsel_ );
 	prov->setSelData( new Seis::RangeSelData(fss) );
     }
 
@@ -466,7 +467,7 @@ bool StorageProvider::desiredSubSelOK() const
     checkZDisjunct( pobj.zSubSel(), dobj.zSubSel() )
     if ( is2D() )
     {
-	const auto& plsss = possiblesubsel_.subSel2D();
+	const auto& plsss = storedsubsel_.subSel2D();
 	const auto& dlsss = desiredsubsel_.subSel2D();
 #	define mCheckDisjunct() \
 	checkDisjunct( plss.trcNrSubSel(), dlss.trcNrSubSel(), \
@@ -490,7 +491,7 @@ bool StorageProvider::desiredSubSelOK() const
     }
     else
     {
-	const auto& pcss = possiblesubsel_.subSel3D();
+	const auto& pcss = storedsubsel_.subSel3D();
 	const auto& dcss = desiredsubsel_.subSel3D();
 #	undef mCheckDisjunct
 #	define mCheckDisjunct( subsel, uistr ) \
@@ -526,7 +527,7 @@ bool StorageProvider::computeData( const DataHolder& output,
     if ( desc_.is2D() && seldata_ && seldata_->type() == Seis::Table )
     {
 	const auto deszrg = desiredsubsel_.zRange();
-	const auto poszrg = possiblesubsel_.zRange();
+	const auto poszrg = storedsubsel_.zRange();
 	const float desonlyzrgstart = deszrg.start - poszrg.start;
 	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
 	Interval<float> trcrange = trc->info().sampling_.interval(trc->size());

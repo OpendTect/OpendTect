@@ -588,23 +588,20 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     }
 
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
-    aem->setTrcKeyZSampling( cs );
+    aem->setSubSel( Survey::FullSubSel(cs) );
 
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
        bidvals.add( trckeys[idx].binID() );
 
-    uiString errmsg;
+    uiRetVal uirv;
     SeisTrcBuf bufs( true );
     Interval<float> zrg( cs.zsamp_ );
     PtrMan<Processor> proc =
-	aem->createTrcSelOutput( errmsg, bidvals, bufs, 0, &zrg );
+	aem->createTrcSelOutput( uirv, bidvals, bufs, 0, &zrg );
 
     if ( !proc )
-    {
-	uiMSG().error( errmsg );
-	return;
-    }
+	{ uiMSG().error( uirv ); return; }
 
     uiTaskRunner dlg( parent_ );
     if ( !TaskRunner::execute( &dlg, *proc ) )

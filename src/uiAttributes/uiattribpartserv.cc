@@ -560,7 +560,7 @@ Attrib::EngineMan* uiAttribPartServer::createEngMan(
     aem->setNLAModel( getNLAModel(is2d) );
     aem->setAttribSpecs( targetspecs_ );
     if ( tkzs )
-	aem->setTrcKeyZSampling( *tkzs );
+	aem->setSubSel( Survey::FullSubSel(*tkzs) );
     aem->setGeomID( geomid );
 
     return aem;
@@ -631,12 +631,12 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == OD::ZSlice;
 	if ( !preloadeddatapack && isz )
 	{
-	    uiString errmsg;
+	    uiRetVal uirv;
 	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
 	    RefMan<Attrib::Provider> tmpprov =
-			Attrib::Provider::create( *nonconsttargetdesc, errmsg );
+			Attrib::Provider::create( *nonconsttargetdesc, uirv );
 	    if ( !tmpprov )
-		mErrRet( errmsg )
+		mErrRet( uirv )
 
 	    tmpprov->computeRefZStep();
 	    tmpprov->computeRefZ0();
@@ -667,10 +667,10 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 
 	const int firstcolidx = 0;
 
-	uiString errmsg;
-	processor = aem->getTableOutExecutor( *posvals, errmsg, firstcolidx );
+	uiRetVal uirv;
+	processor = aem->getTableOutExecutor( *posvals, uirv, firstcolidx );
 	if ( !processor )
-	    { uimsg().error(errmsg); return 0; }
+	    { uimsg().error(uirv); return 0; }
 
 	if ( !trprov.execute(*processor) )
 	    return 0;
@@ -706,10 +706,10 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    return aem->getDataPackOutput( cubeset );
 	}
 
-	uiString errmsg;
-	processor = aem->createDataPackOutput( errmsg, cache );
+	uiRetVal uirv;
+	processor = aem->createDataPackOutput( uirv, cache );
 	if ( !processor )
-	    { uimsg().error(errmsg); return 0; }
+	    { uimsg().error(uirv); return 0; }
 
 	processor->showDataAvailabilityErrors( !aem->hasCache() );
 
@@ -812,11 +812,11 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     if ( !aem )
 	return false;
 
-    uiString errmsg;
+    uiRetVal uirv;
     PtrMan<Attrib::Processor> processor =
-			aem->getTableOutExecutor( posvals, errmsg, firstcol );
+			aem->getTableOutExecutor( posvals, uirv, firstcol );
     if ( !processor )
-	{ uimsg().error(errmsg); return false; }
+	{ uimsg().error(uirv); return false; }
     else if ( !uiTaskRunner(parent()).execute(*processor) )
 	return false;
 
@@ -829,7 +829,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 				       int firstcol )
 {
     ExecutorGroup execgrp( "Calculating Attribute", true );
-    uiString errmsg;
+    uiRetVal uirv;
 
     ObjectSet<Attrib::EngineMan> aems;
     for ( int idx=0; idx<dpss.size(); idx++ )
@@ -837,7 +837,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 	Attrib::EngineMan* aem = createEngMan();
 	if ( !aem ) continue;
 
-	execgrp.add( aem->getTableOutExecutor(*dpss[idx],errmsg,firstcol) );
+	execgrp.add( aem->getTableOutExecutor(*dpss[idx],uirv,firstcol) );
 	aems += aem;
     }
 
@@ -938,15 +938,16 @@ void uiAttribPartServer::snapToValidRandomTraces( TypeSet<BinID>& path,
     if ( !targetdesc )
 	return;
 
-    uiString errmsg;
+    uiRetVal uirv;
     Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
     RefMan<Attrib::Provider> tmpprov
-	= Attrib::Provider::create( *nonconsttargetdesc, errmsg );
+	= Attrib::Provider::create( *nonconsttargetdesc, uirv );
 
-    TrcKeyZSampling tkzs( true );
-    if ( !tmpprov || !tmpprov->getPossibleVolume(-1,tkzs) )
+    Survey::FullSubSel desiredss;
+    if ( !tmpprov || !tmpprov->calcPossibleSubSel(-1,desiredss) )
 	return;
 
+    TrcKeyZSampling tkzs( tmpprov->possibleSubSel() );
     if ( tkzs.hsamp_.step_.lineNr()==1 && tkzs.hsamp_.step_.trcNr()==1 )
 	return;
 
@@ -976,12 +977,12 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
     if ( !aem )
 	return 0;
 
-    uiString errmsg;
+    uiRetVal uirv;
     PtrMan<Attrib::Processor> processor =
-	aem->createTrcSelOutput( errmsg, bidset, output, mUdf(float), 0,
+	aem->createTrcSelOutput( uirv, bidset, output, mUdf(float), 0,
 				 &trueknotspos, &snappedpos );
     if ( !processor )
-	{ uimsg().error(errmsg); return false; }
+	{ uimsg().error(uirv); return false; }
 
     bool showprogress = true;
     Settings::common().getYN( SettingsAccess::sKeyShowRdlProgress(),
@@ -1129,12 +1130,12 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     if ( !aem )
 	return DataPack::cNoID();
 
-    uiString errmsg;
+    uiRetVal uirv;
     RefMan<Attrib::Data2DHolder> data2d = new Attrib::Data2DHolder;
     PtrMan<Attrib::Processor> processor
-	    = aem->createScreenOutput2D( errmsg, *data2d );
+	    = aem->createScreenOutput2D( uirv, *data2d );
     if ( !processor )
-	{ uimsg().error(errmsg); return DataPack::cNoID(); }
+	{ uimsg().error(uirv); return DataPack::cNoID(); }
 
     if ( !taskrunner.execute(*processor) )
 	return DataPack::cNoID();
@@ -1173,11 +1174,11 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
-	uiString err;
+	uiRetVal uirv;
 	DataPointSet& dps = *dpss[idx];
-	Executor* tabextr = aem.getTableExtractor( dps, ads, err );
+	Executor* tabextr = aem.getTableExtractor( dps, ads, uirv );
 	if ( !tabextr )
-	    { uimsg().error(err); return 0; }
+	    { uimsg().error(uirv); return 0; }
 
 	if ( taskrunner.execute(*tabextr) )
 	    somesuccess = true;

@@ -360,8 +360,8 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	    mDynamicCastGet(Attrib::BoolParam*,useangleparam,
 			    desc.getValParam(Attrib::PSAttrib::useangleStr()))
 	    useangleparam->setValue( true );
-	    uiString errmsg;
-	    Attrib::Provider* attrib = Attrib::Provider::create( desc, errmsg );
+	    uiRetVal uirv;
+	    Attrib::Provider* attrib = Attrib::Provider::create( desc, uirv );
 	    mDynamicCastGet(Attrib::PSAttrib*,psattrib,attrib);
 	    if ( !psattrib )
 		continue;
@@ -388,14 +388,11 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 {
     preparePreStackDescs();
 
-    uiString errmsg;
+    uiRetVal uirv;
     PtrMan<Attrib::EngineMan> aem = createEngineMan( attrs );
-    PtrMan<Executor> exec = aem->getTableExtractor(dps,attrs,errmsg,2,false);
+    PtrMan<Executor> exec = aem->getTableExtractor(dps,attrs,uirv,2,false);
     if ( !exec )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
+	{ uiMSG().error( uirv ); return false; }
 
     exec->setName( "Attributes from Traces" );
     uiTaskRunner dlg( this );

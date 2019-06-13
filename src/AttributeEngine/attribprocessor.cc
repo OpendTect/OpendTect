@@ -402,8 +402,7 @@ void Processor::computeAndSetPosAndDesSubSel( FullSubSel& globalfss )
 	provider_->setPossibleSubSel( globalfss );
     else
     {
-	FullSubSel provposssubsel( globalfss );
-	if ( !provider_->calcPossibleSubSel( -1, provposssubsel ) )
+	if ( !provider_->calcPossibleSubSel( -1, globalfss ) )
 	{
 	    errmsg_ = provider_->errMsg();
 	    if ( errmsg_.isEmpty() )
@@ -417,7 +416,7 @@ void Processor::computeAndSetPosAndDesSubSel( FullSubSel& globalfss )
 	}
 
 	provider_->resetDesiredSubSel();
-	globalfss.limitTo( provposssubsel );
+	globalfss.limitTo( provider_->possibleSubSel() );
     }
     provider_->setDesiredSubSel( globalfss );
 }

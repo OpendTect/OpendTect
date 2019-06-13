@@ -77,8 +77,9 @@ public:
     const FullSubSel&		desiredSubSel() const
 				{ return desiredsubsel_; }
     void			resetDesiredSubSel();
+    virtual bool		calcPossibleSubSel(int outp,
+					const FullSubSel& desiredsubsel);
     void			setPossibleSubSel(const FullSubSel&);
-    virtual bool		calcPossibleSubSel(int outp,FullSubSel&);
     const FullSubSel&		possibleSubSel() const
 				{ return possiblesubsel_; }
     int				totalNrPos();

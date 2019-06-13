@@ -290,10 +290,10 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 	    SelSpec tmpspec( selinfo.nlaoutnms_.get(idx) );
 	    tmpspec.setIDFromRef( *nlamdl_ );
 	    aem.setAttribSpec( tmpspec );
-	    uiString errmsg;
-	    createdset_ = aem.createNLAADS( nlaid, errmsg, ads_ );
-	    if ( !errmsg.isEmpty() )
-		mErrRet( errmsg );
+	    uiRetVal uirv;
+	    createdset_ = aem.createNLAADS( nlaid, uirv, ads_ );
+	    if ( !uirv.isOK() )
+		mErrRet( uirv );
 	}
 	else
 	{
@@ -331,12 +331,13 @@ DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
 
 bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
 {
-    uiString errmsg; Attrib::EngineMan aem;
+    uiRetVal uirv; Attrib::EngineMan aem;
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr =
-		    aem.getTableExtractor( locations, *createdset_, errmsg );
+		    aem.getTableExtractor( locations, *createdset_, uirv );
     MouseCursorManager::restoreOverride();
-    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
+    if ( !uirv.isOK() )
+	mErrRet(uirv)
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *tabextr ) )

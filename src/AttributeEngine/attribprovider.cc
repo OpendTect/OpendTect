@@ -408,11 +408,12 @@ void Provider::applyMargins( const Interval<float>* zmargin,
 }
 
 
-bool Provider::calcPossibleSubSel( int output, FullSubSel& outfss )
+bool Provider::calcPossibleSubSel( int output, const FullSubSel& desss )
 {
+    desiredsubsel_ = desss;
     possiblesubsel_.setToAll( is2D() );
     if ( inputs_.isEmpty() )
-	{ outfss = possiblesubsel_; return true; }
+	{ possiblesubsel_ = desss; return true; }
 
     TypeSet<int> outputs;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
@@ -450,13 +451,12 @@ bool Provider::calcPossibleSubSel( int output, FullSubSel& outfss )
 
 		applyMargins( reqZMargin(iinp,out), reqZSampMargin(iinp,out),
 			      inpfss );
-		outfss.limitTo( inpfss );
+		possiblesubsel_.limitTo( inpfss );
 		isset = true;
 	    }
 	}
     }
 
-    possiblesubsel_ = outfss;
     return isset;
 }
 

@@ -218,11 +218,11 @@ bool uiWellLogExtractGrp::extractAttribData( DataPointSet& dps, int c1 )
     const_cast<PosVecDataSet*>( &(dps.dataSet()) )->pars() = descsetpars;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    Attrib::EngineMan aem; uiString errmsg;
-    PtrMan<Executor> tabextr = aem.getTableExtractor( dps, *ads_, errmsg, c1 );
+    Attrib::EngineMan aem; uiRetVal uirv;
+    PtrMan<Executor> tabextr = aem.getTableExtractor( dps, *ads_, uirv, c1 );
     MouseCursorManager::restoreOverride();
-    if ( !errmsg.isEmpty() )
-	mErrRet(errmsg)
+    if ( !uirv.isOK() )
+	mErrRet(uirv)
     uiTaskRunner taskrunner( this );
     return TaskRunner::execute( &taskrunner, *tabextr );
 }
