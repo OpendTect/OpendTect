@@ -28,6 +28,10 @@ else()
     project( "OpendTect" VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
 
+if( POLICY CMP0074 )
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
 include( CTest )
 
 set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
