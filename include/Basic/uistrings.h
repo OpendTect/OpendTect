@@ -330,9 +330,10 @@ public:
     static uiWord sCurvature()		{ return tr("Curvature"); }
     static uiWord sData()		{ return tr("Data"); }
     static uiWord sDate()		{ return tr("Date"); }
+    static uiWord sDataRange()		{ return tr("Data Range"); }
     static uiWord sDataStore(int n=1)	{ return tr("Data Store",0,n); }
     static uiWord sDataSet()		{ return tr("Data Set"); }
-    static uiWord sDataRange()		{ return tr("Data Range"); }
+    static uiWord sDataType()		{ return tr("Data Type"); }
     static uiWord sDBEntry()		{ return tr("DataBase Entry"); }
     static uiWord sDecimal()		{ return tr("Decimal"); }
     static uiWord sDeg()		{ return tr("deg","unit for angles"); }
