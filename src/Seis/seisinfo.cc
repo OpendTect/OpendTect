@@ -230,8 +230,10 @@ bool Seis::is2DGeom( const IOPar& iop )
 
 uiString Seis::dataName( GeomType tp, bool explprepost )
 {
-    return uiStrings::sSeisObjName( is2D(tp), is3D(tp), isPS(tp),
-		    SI().survDataType() == OD::Both2DAnd3D, explprepost );
+    if ( explprepost )
+	return uiStrings::sSeisObjName( is2D(tp), is3D(tp), isPS(tp),
+			SI().survDataType() == OD::Both2DAnd3D, true );
+    return uiStrings::sSeisGeomTypeName( is2D(tp), isPS(tp) );
 }
 
 bool Seis::isPSGeom( const IOPar& iop )

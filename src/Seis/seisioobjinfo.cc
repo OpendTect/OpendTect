@@ -214,6 +214,7 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 void SeisIOObjInfo::setType()
 {
     bad_ = !ioobj_;
+    geomtype_ = Seis::Vol;
     if ( bad_ )
 	return;
 

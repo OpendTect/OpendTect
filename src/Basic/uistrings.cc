@@ -471,7 +471,7 @@ uiWord uiStrings::sTimeUnitString( bool ismilli, bool abbr )
 }
 
 uiWord uiStrings::sIsoMapType( bool istime )
-{ 
+{
     return istime ? sIsochron() : sIsochore();
 }
 
@@ -534,7 +534,7 @@ uiWord uiStrings::sSeisGeomTypeName( bool is2d, bool isps )
     if ( is2d )
 	return isps ? tr("Line 2D Pre-Stack") : s2DLine();
     else
-	return isps ? tr("3D Volume") : tr("Pre-Stack Volume");
+	return isps ? tr("Pre-Stack Volume") : tr("3D Volume");
 }
 
 
