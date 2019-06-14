@@ -379,7 +379,7 @@ const char* CommandLineParser::gtVal( const char* key, int valnr,
 
     int validx = keyidx + 1 + valnr;
     if ( !argv_.validIdx(validx) )
-	{ pErrMsg("Arg index out of bounds"); validx = argv_.size()-1; }
+	return ""; // this is OK when flags can optionally carry a value
 
     return argv_.get( validx ).str();
 }
