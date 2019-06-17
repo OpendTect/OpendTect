@@ -51,39 +51,48 @@ def getText( infos, ky ):
 def getBoolValue( infos, ky ):
   return getAttr( infos, ky ) == "Yes"
 
-def getIntValue( infos, ky ):
-  valstr = getAttr(infos,ky)
+def getIArray_( valsstr ):
+  if isinstance(valsstr,list) and len(valsstr) > 1:
+    ret = list()
+    for valstr in valsstr:
+      ret.append( int(valstr) )
+    return ret
   try:
-    return int(valstr)
+    return int(valsstr)
   except ValueError:
-    return int(float(valstr))
+    return int(float(valsstr))
 
-def getDValue( infos, ky ):
-  return float(getAttr(infos,ky))
+def getIntValue( infos, ky ):
+  return getIArray_( getText(infos,ky) )
 
 def getIInterval( infos, ky ):
-  ret = getText(infos,ky)
-  if isinstance(ret,list) and len(ret) > 1:
-    return [int(ret[0]), int(ret[1])]
-  return getIntValue( infos, ky )
-
-def getDInterval( infos, ky ):
-  ret = getText(infos,ky)
-  if isinstance(ret,list) and len(ret) > 1:
-    return [float(ret[0]), float(ret[1])]
-  return getDValue( infos, ky )
+  return getIArray_( getText(infos,ky) )
 
 def getIStepInterval( infos, ky ):
-  ret = getText(infos,ky)
-  if isinstance(ret,list) and len(ret) > 2:
-    return [int(ret[0]), int(ret[1]), int(ret[2])]
-  return getIInterval( infos, ky )
+  return getIArray_( getText(infos,ky) )
+
+def getIArray( infos, ky ):
+  return getIArray_( getText(infos,ky) )
+
+def getDArray_( valsstr ):
+  if isinstance(valsstr,list) and len(valsstr) > 1:
+    ret = list()
+    for valstr in valsstr:
+      ret.append( float(valstr) )
+    return ret
+  return float(valsstr)
+  
+def getDValue( infos, ky ):
+  return getDArray_( getText(infos,ky) )
+
+def getDInterval( infos, ky ):
+  return getDArray_( getText(infos,ky) )
 
 def getDStepInterval( infos, ky ):
-  ret = getText(infos,ky)
-  if isinstance(ret,list) and len(ret) > 2:
-    return [float(ret[0]), float(ret[1]), float(ret[2])]
-  return getDInterval( infos, ky )
+  return getDArray_( getText(infos,ky) )
+
+def getDArray( infos, ky ):
+  return getDArray_( getText(infos,ky) )
 
 def getAttribInfo( filenm ):
   h5file = h5py.File( filenm, "r" )
