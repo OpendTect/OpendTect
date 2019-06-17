@@ -84,11 +84,11 @@ void Pos::IdxSubSelData::setInputPosRange( const pos_steprg_type& newrg )
 void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
 				pos_type newstop, pos_type newstep )
 {
-    if ( newstart <= 0 )
+    if ( newstart <= 0 || mIsUdf(newstart) )
 	newstart = inpposrg_.start;
-    if ( newstop <= 0 )
+    if ( newstop <= 0 || mIsUdf(newstop) )
 	newstop = inpposrg_.stop;
-    if ( newstep <= 0 )
+    if ( newstep <= 0 || mIsUdf(newstep) )
 	newstep = inpposrg_.step;
 
     step_ = newstep / inpposrg_.step;
@@ -121,7 +121,7 @@ void Pos::IdxSubSelData::setOutputPosRange( pos_type newstart,
 
 void Pos::IdxSubSelData::setOutputStep( pos_type newstep, pos_type existingpos )
 {
-    if ( newstep <= 0 )
+    if ( newstep <= 0 || mIsUdf(newstep) )
 	newstep = inpposrg_.step;
     if ( newstep == posStep() )
 	return;
