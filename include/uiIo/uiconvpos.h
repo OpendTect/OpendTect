@@ -14,13 +14,15 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uidialog.h"
+#include "tableascio.h"
 
 class uiGenInput;
 class uiFileSel;
 class SurveyInfo;
 class uiPushButton;
 class uiComboBox;
-
+class uiTableImpDataSel;
+namespace Table { class Desc; }
 namespace Coords { class uiCoordSystemSel; }
 
 
@@ -31,8 +33,8 @@ public:
 				uiConvertPos(uiParent*, const SurveyInfo&,
 							    bool modal=true);
 				~uiConvertPos();
-    enum ConversionType		{ CRS, IC, XY, LL };
-				mDeclareEnumUtils( ConversionType );
+    enum DataType		{ LL, IC, XY };
+				mDeclareEnumUtils( DataType );
 
 private:
 
@@ -50,12 +52,15 @@ private:
     uiPushButton*		convertbut_;
     uiFileSel*			inpfilefld_;
     uiFileSel*			outfilefld_;
+    Table::FormatDesc*		fd_;
+    uiTableImpDataSel*		dataselfld_;
 
     TypeSet<int>		outidxs_;
     od_ostream*			ostream_;
     float			firstinp_;
     float			secondinp_;
     BufferString		linebuf_;
+    DataType			datatyp_;
 
     void			selChg(CallBacker*);
     void			getCoord(CallBacker*);
@@ -70,9 +75,30 @@ private:
     void			convFromIC(bool);
     void			convFromXY(bool);
     void			convFromLL(bool);
-
     void			launchSelConv(bool,int);
-
-    ConversionType		getConversionType();
     void			errMsgNEmpFlds();
+    DataType			getConversionType();
+};
+
+
+mExpClass( uiIo ) uiConvPosAscIO : public Table::AscIO
+{
+public:
+				uiConvPosAscIO( const Table::FormatDesc& fd,
+							od_istream& strm )
+				    : Table::AscIO( fd )
+				    , finishedreadingheader_( false )
+				    , strm_( strm ) {}
+    static Table::FormatDesc*	    getDesc();
+    bool			    getData( Coord& );
+    float			    udfval_;
+    od_istream&			    strm_;
+    bool			    finishedreadingheader_;
+    uiConvertPos::DataType	    getConvFromTyp();
+
+protected:
+    bool			    isXY() const;
+    bool			    isLL() const;
+    bool			    isIC() const;
+
 };

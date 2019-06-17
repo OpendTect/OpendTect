@@ -9,11 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiconvpos.h"
-#include "survinfo.h"
-#include "strmprov.h"
+
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "tableascio.h"
+#include "tabledef.h"
+#include "survinfo.h"
+#include "strmprov.h"
 #include "uistrings.h"
 
 #include "uibutton.h"
@@ -24,29 +27,79 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uifilesel.h"
 #include "uiseparator.h"
+#include "uitblimpexpdatasel.h"
 #include "uimsg.h"
 
 
 #define mMaxLineBuf 32000
-static BufferString lastinpfile;
-static BufferString lastoutfile;
 
-mDefineEnumUtils( uiConvertPos, ConversionType, "Conversion Type" )
+mDefineEnumUtils( uiConvertPos, DataType, "Conversion Type" )
 {
-    "CRS",
+    "Lat-Lon",
     "Inl-Crl",
     "X-Y",
-    "Lat-Lon",
     0
 };
 
 template<>
-void EnumDefImpl<uiConvertPos::ConversionType>::init()
+void EnumDefImpl<uiConvertPos::DataType>::init()
 {
-    uistrings_ += mEnumTr("CRS (X-Y)", 0);
+    uistrings_ += mEnumTr("Lat-Lon", 0);
     uistrings_ += mEnumTr("Inl-Crl", 0);
     uistrings_ += mEnumTr("X-Y", 0);
-    uistrings_ += mEnumTr("Lat-Long", 0);
+}
+
+
+Table::FormatDesc* uiConvPosAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "ConvPos" );
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true, true, true,
+									true );
+    return fd;
+}
+
+
+uiConvertPos::DataType uiConvPosAscIO::getConvFromTyp()
+{
+    if ( isXY() )
+	return uiConvertPos::DataType::XY;
+    else if ( isLL() )
+	return uiConvertPos::DataType::LL;
+    else
+	return uiConvertPos::DataType::IC;
+}
+
+
+bool uiConvPosAscIO::isXY() const
+{
+    return formOf( false, 1 ) == 0;
+}
+
+
+bool uiConvPosAscIO::isIC() const
+{
+    return formOf( false, 1 ) == 1;
+}
+
+
+bool uiConvPosAscIO::isLL() const
+{
+    return formOf( false, 1 ) == 2;
+}
+
+
+bool uiConvPosAscIO::getData( Coord& crd )
+{
+    if ( !finishedreadingheader_ )
+    {
+	if (!getHdrVals( strm_ ))
+	    return false;
+
+	udfval_ = getFValue( 0 );
+	finishedreadingheader_ = true;
+    }
+    crd = getPos( 0, 1, udfval_ );
+    return true;
 }
 
 
@@ -55,13 +108,14 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID) ).modal(mod))
 	, survinfo_(si)
 	, ostream_(0)
+	, fd_(uiConvPosAscIO::getDesc())
 {
     manfld_ = new uiGenInput( this, uiStrings::sConversion(),
 	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
     mAttachCB( manfld_->valuechanged, uiConvertPos::selChg );
 
     inputypfld_ = new uiGenInput( this, uiStrings::phrInput(uiStrings::sType()),
-			    StringListInpSpec(ConversionTypeDef().strings()) );
+			    StringListInpSpec(DataTypeDef().strings()) );
     inputypfld_->attach( alignedBelow, manfld_ );
     mAttachCB( inputypfld_->valuechanged, uiConvertPos::inputTypChg );
 
@@ -71,35 +125,39 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     rightinpfld_ = new uiGenInput( this, uiString::empty() );
     rightinpfld_->attach( rightOf, leftinpfld_ );
 
-    uiFileSel::Setup fssu( lastinpfile );
+    uiFileSel::Setup fssu;
     fssu.withexamine( true ).examstyle( File::Table );
     inpfilefld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()),
 									fssu );
-    inpfilefld_->attach( alignedBelow, inputypfld_ );
-    inpfilefld_->display( false );
 
+    inpfilefld_->attach( alignedBelow, manfld_ );
+    inpfilefld_->display( false );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_,
+				mODHelpKey(mTableImpDataSelwellsHelpID) );
+    dataselfld_->attach( alignedBelow, inpfilefld_ );
     inpcrdsysselfld_ = new Coords::uiCoordSystemSel( this, true, true,
 				    SI().getCoordSystem(), tr("Input CRS") );
     inpcrdsysselfld_->attach( alignedBelow, leftinpfld_ );
 
     outputtypfld_ = new uiGenInput( this,
 			uiStrings::phrOutput(uiStrings::sType()),
-			StringListInpSpec(ConversionTypeDef().strings()) );
-    outputtypfld_->attach( alignedBelow, inpcrdsysselfld_ );
+			StringListInpSpec(DataTypeDef().strings()) );
+    outputtypfld_->attach( alignedBelow, dataselfld_ );
     mAttachCB( outputtypfld_->valuechanged, uiConvertPos::outputTypChg );
 
+    outcrdsysselfld_ = new Coords::uiCoordSystemSel( this, true, true,
+							0, tr( "Output CRS" ) );
+    outcrdsysselfld_->attach( alignedBelow, outputtypfld_ );
+
     leftoutfld_ = new uiGenInput( this, ::toUiString("*********************") );
-    leftoutfld_->attach( alignedBelow, outputtypfld_ );
+    leftoutfld_->attach( alignedBelow, outcrdsysselfld_ );
     leftoutfld_->setSensitive( false );
 
     rightoutfld_ = new uiGenInput( this, uiString::empty() );
     rightoutfld_->attach( rightOf, leftoutfld_ );
     rightoutfld_->setSensitive( false );
-    outcrdsysselfld_ = new Coords::uiCoordSystemSel( this, true, true,
-						    0, tr("Output CRS") );
-    outcrdsysselfld_->attach( alignedBelow, leftoutfld_ );
 
-    fssu.setFileName( lastoutfile );
+
     fssu.setForWrite();
     outfilefld_ = new uiFileSel( this, uiStrings::phrOutput(
 						    uiStrings::sFile()), fssu );
@@ -109,7 +167,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     convertbut_->attach( alignedBelow, outfilefld_ );
     mAttachCB( convertbut_->activated, uiConvertPos::convertCB );
 
-    mAttachCB( postFinalise(), uiConvertPos::inputTypChg );
+    mAttachCB( preFinalise(), uiConvertPos::inputTypChg );
     mAttachCB( postFinalise(), uiConvertPos::selChg );
 }
 
@@ -127,6 +185,10 @@ void uiConvertPos::selChg( CallBacker* )
 
     outfilefld_->display( !isman );
     inpfilefld_->display( !isman );
+    dataselfld_->display( !isman );
+    inputypfld_->display( isman );
+    inpcrdsysselfld_->display( isman && (inputypfld_->getIntValue() != IC) );
+    outcrdsysselfld_->display( isman && (inputypfld_->getIntValue() != IC) );
     leftoutfld_->display( isman );
     rightoutfld_->display( isman );
     leftinpfld_->display( isman );
@@ -137,41 +199,33 @@ void uiConvertPos::selChg( CallBacker* )
 void uiConvertPos::inputTypChg( CallBacker* )
 {
     const int selval = inputypfld_->getIntValue();
-    leftinpfld_->setTitleText( ConversionTypeDef().getUiStringForIndex(
+    leftinpfld_->setTitleText( DataTypeDef().getUiStringForIndex(
 								    selval) );
-    outputtypfld_->setSensitive( true );
     uiStringSet outtypstrs;
-
     outidxs_.setEmpty();
 
-    if ( selval == CRS )
+    for ( int idx=0; idx<DataTypeDef().size(); idx++ )
     {
-	outtypstrs.add( ConversionTypeDef().getUiStringForIndex(CRS) );
-	outidxs_ += CRS;
+	if ( selval == IC && idx == IC )
+	    continue;
+	outidxs_ += idx;
+	outtypstrs.add( DataTypeDef().getUiStringForIndex(idx) );
     }
-    else
-    {
-	for ( int idx=0; idx<ConversionTypeDef().size(); idx++ )
-	{
-	    if ( idx == CRS || selval == idx )
-		continue;
-	    outidxs_ += idx;
-	    outtypstrs.add( ConversionTypeDef().getUiStringForIndex(idx) );
-	}
-    }
+    
+    inpcrdsysselfld_->setSensitive( selval != IC );
 
     outputtypfld_->newSpec( StringListInpSpec(outtypstrs), 0 );
     outputtypfld_->updateSpecs();
-    outputtypfld_->setSensitive( selval != CRS );
-    outputTypChg( 0 );
+    outputTypChg(0);
 }
 
 
 void uiConvertPos::outputTypChg( CallBacker* )
 {
     const int idx = outidxs_[outputtypfld_->getIntValue()];
-    leftoutfld_->setTitleText( ConversionTypeDef().getUiStringForIndex(idx) );
+    leftoutfld_->setTitleText( DataTypeDef().getUiStringForIndex( idx ) );
 }
+
 
 #define mSetOutVal( outval1, outval2 ) \
 { \
@@ -186,12 +240,10 @@ void uiConvertPos::outputTypChg( CallBacker* )
 } \
 
 
-uiConvertPos::ConversionType uiConvertPos::getConversionType()
+uiConvertPos::DataType uiConvertPos::getConversionType()
 {
     const int outidx = outputtypfld_->getIntValue();
-    ConversionType convtotyp = ConversionTypeDef().getEnumForIndex(
-	outidxs_[outidx] );
-    return convtotyp;
+    return DataTypeDef().getEnumForIndex( outidxs_[outidx] );
 }
 
 
@@ -204,7 +256,7 @@ void uiConvertPos::errMsgNEmpFlds()
 
 void uiConvertPos::convFromIC( bool ismanmode )
 {
-    ConversionType convtotyp = getConversionType();
+    DataType convtotyp = getConversionType();
 
     BinID bid( firstinp_, secondinp_ );
     if ( bid.isUdf() )
@@ -228,7 +280,7 @@ void uiConvertPos::convFromIC( bool ismanmode )
 
 void uiConvertPos::convFromXY( bool ismanmode )
 {
-    ConversionType convtotyp = getConversionType();
+    DataType convtotyp = getConversionType();
 
     Coord coord( firstinp_, secondinp_ );
 
@@ -244,17 +296,23 @@ void uiConvertPos::convFromXY( bool ismanmode )
 				    outcrdsysselfld_->getCoordSystem()) );
 	mSetOutVal( ll.lat_, ll.lng_ )
     }
-    else
+    else if ( convtotyp == IC )
     {
 	BinID bid( survinfo_.transform(coord) );
 	mSetOutVal( bid.inl(), bid.crl() )
+    }
+    else
+    {
+	Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
+	    coord, *inpcrdsysselfld_->getCoordSystem() );
+	mSetOutVal( outcrd.x_, outcrd.y_ )
     }
 }
 
 
 void uiConvertPos::convFromLL( bool ismanmode )
 {
-    ConversionType convtotyp = getConversionType();
+    DataType convtotyp = getConversionType();
 
     LatLong ll( firstinp_, secondinp_ );
     if ( !ll.isDefined() )
@@ -271,8 +329,14 @@ void uiConvertPos::convFromLL( bool ismanmode )
 	BinID bid( survinfo_.transform(coord) );
 	mSetOutVal( bid.inl(), bid.crl() )
     }
-    else
+    else if ( convtotyp == XY )
 	mSetOutVal( coord.x_, coord.y_ )
+    else
+    {
+	LatLong outll = LatLong::transform( coord );
+	mSetOutVal( outll.lat_, outll.lng_ )
+    }
+
 }
 
 #define mErrRet(s) { uiMSG().error(s); return; }
@@ -288,7 +352,7 @@ void uiConvertPos::convertCB( CallBacker* )
 
 void uiConvertPos::launchSelConv( bool ismanmode, int selidx )
 {
-    if (selidx == XY)
+    if ( selidx == XY )
 	convFromXY( ismanmode );
     else if (selidx == LL)
 	convFromLL( ismanmode );
@@ -304,18 +368,7 @@ void uiConvertPos::convManually()
     firstinp_ = leftinpfld_->getFValue();
     secondinp_ = rightinpfld_->getFValue();
 
-    if ( selidx != CRS )
-	launchSelConv( true, selidx );
-    else
-    {
-	const Coord incrd( firstinp_, secondinp_ );
-	const Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-				incrd, *inpcrdsysselfld_->getCoordSystem() );
-	leftoutfld_->setValue( outcrd.x_ );
-	rightoutfld_->setValue( outcrd.y_ );
-	leftoutfld_->setValue( outcrd.x_ );
-	rightoutfld_->setValue( outcrd.y_ );
-    }
+    launchSelConv( true, selidx );
 }
 
 
@@ -335,30 +388,18 @@ void uiConvertPos::convFile()
 	mErrRet( uiStrings::phrCannotOpenOutpFile() );
     }
 
-    lastinpfile = inpfnm; lastoutfile = outfnm;
-
-    const int selidx = inputypfld_->getIntValue();
     int nrln = 0;
-    while ( istream.isOK() )
+    uiConvPosAscIO aio( *fd_, istream );
+    const int selidx = aio.getConvFromTyp();
+    if ( getConversionType() == IC && selidx == IC )
+	uiMSG().error( tr("Cannot process. Convert to and from are IC") );
+    Coord crd;
+    while ( aio.getData( crd ) )
     {
-	istream.get( firstinp_ );
-	istream.get( secondinp_ );
+	firstinp_ = crd.x_;
+	secondinp_ = crd.y_;
 	
-	istream.getLine( linebuf_ );
-	if ( istream.isBad() )
-	    break;
-	if ( selidx != CRS )
-	    launchSelConv( false, selidx );
-	else
-	{
-	    Coord coord( firstinp_, secondinp_ );
-	    Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-		coord, *inpcrdsysselfld_->getCoordSystem() );
-	    *ostream_ << outcrd.x_ << ' ' << outcrd.y_ << ' ' << linebuf_ <<
-	    od_endl;
-	}
-
-	nrln++;
+	launchSelConv( false, selidx );
     }
 
     uiMSG().message( tr("Total number of converted lines: %1")
