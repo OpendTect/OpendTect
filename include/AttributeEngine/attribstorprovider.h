@@ -92,9 +92,10 @@ protected:
     BinDataDesc		getOutputFormat(int output) const;
 
     bool		desiredSubSelOK() const;
-    void		checkDisjunct(const IdxSubSelData&,const IdxSubSelData&,
-				      const uiString&) const;
-    void		checkZDisjunct(const ZSubSel&,const ZSubSel&) const;
+    void		checkDisjunct(uiRetVal&,const IdxSubSelData&,
+				const IdxSubSelData&,const uiString&) const;
+    void		checkZDisjunct(uiRetVal&,const ZSubSel&,
+				const ZSubSel&) const;
     void		checkClassType(const SeisTrc*,BoolTypeSet&) const;
     bool		setTableSelData();
 

@@ -1270,9 +1270,6 @@ Processor* EngineMan::getProcessor( uiRetVal& uirv )
 	    proc->addOutputInterest(idx);
     }
 
-    if ( proc->getProvider() )
-	proc->getProvider()->setGeomID( geomID() );
-
     return proc;
 }
 

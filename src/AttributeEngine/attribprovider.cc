@@ -1346,11 +1346,8 @@ void Provider::setRefZ0( float z0 )
 
 void Provider::setGeomID( GeomID geomid )
 {
-    if ( geomID() != geomid )
-    {
-	desiredsubsel_.setGeomID( geomid );
-	possiblesubsel_.setGeomID( geomid );
-    }
+    desiredsubsel_.setGeomID( geomid );
+    possiblesubsel_.setGeomID( geomid );
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )

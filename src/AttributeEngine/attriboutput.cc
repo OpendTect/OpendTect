@@ -131,7 +131,10 @@ bool DataPackOutput::is2D() const
 
 
 bool DataPackOutput::getDesiredSubSel( FullSubSel& fss ) const
-{ fss = desiredsubsel_; return true; }
+{
+    fss = desiredsubsel_;
+    return true;
+}
 
 
 bool DataPackOutput::wantsOutput( const BinID& bid ) const
@@ -271,7 +274,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const FullSubSel& fss )
     , growtrctosi_(false)
     , writez0shift_(0.f)
 {
-    if ( seldata_ && geomID().isValid() && seldata_->isRange() )
+    if ( geomID().isValid() && seldata_->isRange() )
 	seldata_->asRange()->setGeomID( geomID() );
 }
 
@@ -542,30 +545,23 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
     : errmsg_(uiString::empty())
     , output_( 0 )
 {
-
-    if ( seldata_ )
-    {
-	if ( geomid.isValid() && seldata_->isRange() )
-	    seldata_->asRange()->setGeomID( geomid );
+    delete seldata_;
+    seldata_ = new Seis::RangeSelData( geomid );
+    if ( trg.start>0 && !mIsUdf(trg.start) && !mIsUdf(trg.stop) )
 	setGeometry( trg, zrg );
-	const bool undeftrg = trg.start<=0 && Values::isUdf(trg.stop);
-	if ( undeftrg )
-	    deleteAndZeroPtr( seldata_ );
-    }
-    if ( !seldata_ )
-	seldata_ = new Seis::RangeSelData( geomid );
 }
 
 
 TwoDOutput::~TwoDOutput()
 {
-    if ( output_ ) output_->unRef();
+    if ( output_ )
+	output_->unRef();
 }
 
 
 bool TwoDOutput::wantsOutput( const BinID& bid ) const
 {
-    return seldata_->crlRange().includes(bid.crl(),true);
+    return seldata_->trcNrRange(0).includes(bid.crl(),true);
 }
 
 
@@ -574,25 +570,25 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 {
     ensureSelType( Seis::Range );
     seldata_->asRange()->setZRange( zrg );
-    seldata_->asRange()->setCrlRange( trg );
+    seldata_->asRange()->setTrcNrRange( trg );
 }
 
 
 bool TwoDOutput::getDesiredSubSel( FullSubSel& fss ) const
 {
-    fss.setToAll( true );
-    fss.setTrcNrRange( seldata_->crlRange() );
-    fss.setZRange( seldata_->zRange() );
+    fss = FullSubSel( seldata_->geomID(0) );
+    fss.setTrcNrRange( seldata_->trcNrRange(0) );
+    fss.setZRange( seldata_->zRange(0) );
     return true;
 }
 
 
 bool TwoDOutput::doInit()
 {
-    const Interval<int> rg( seldata_->crlRange() );
-    if ( rg.start <= 0 && Values::isUdf(rg.stop) )
+    const Interval<int> rg( seldata_->trcNrRange(0) );
+    if ( rg.start <= 0 || Values::isUdf(rg.stop) )
     {
-	const auto geomid = seldata_->geomID();
+	const auto geomid = seldata_->geomID(0);
 	delete seldata_;
 	seldata_ = new Seis::RangeSelData( geomid );
     }
@@ -632,7 +628,7 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<float> zrg( seldata_->zRange() );
+	Interval<float> zrg( seldata_->zRange(0) );
 	Interval<int> interval( mNINT32(zrg.start/zstep),
 				mNINT32(zrg.stop/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;

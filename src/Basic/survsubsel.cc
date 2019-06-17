@@ -1371,7 +1371,13 @@ void Survey::FullSubSel::set( const LineSubSelSet& lsss )
 
 void Survey::FullSubSel::setGeomID( GeomID gid )
 {
-    lsss_.setEmpty();
+    if ( is2D() )
+    {
+	if ( lsss_.size() == 1 && lsss_.get(0)->geomID() == gid )
+	    return;
+	lsss_.setEmpty();
+    }
+
     addGeomID( gid );
 }
 

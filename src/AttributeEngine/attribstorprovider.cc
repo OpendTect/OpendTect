@@ -423,26 +423,26 @@ bool StorageProvider::setTableSelData()
 }
 
 
-void StorageProvider::checkZDisjunct( const ZSubSel& posss,
+void StorageProvider::checkZDisjunct( uiRetVal& uirv, const ZSubSel& posss,
 					const ZSubSel& desss ) const
 {
     const auto desrg = desss.outputZRange();
     const auto possrg = posss.outputZRange();
     static const auto zeps = 1.0e-6f;
     if ( desrg.start > possrg.stop+zeps || desrg.stop < possrg.start-zeps )
-	uirv_.add( tr("Requested position is outside the Z range (%1 to %2)")
+	uirv.add( tr("Requested position is outside the Z range (%1 to %2)")
 		.arg( possrg.start ).arg( possrg.stop ) );
 }
 
 
-void StorageProvider::checkDisjunct( const IdxSubSelData& posss,
+void StorageProvider::checkDisjunct( uiRetVal& uirv, const IdxSubSelData& posss,
 		const IdxSubSelData& desss, const uiString& what ) const
 {
     const auto desrg = desss.outputPosRange();
     const auto possrg = posss.outputPosRange();
     if ( desrg.start > possrg.stop || desrg.stop < possrg.start )
     {
-	uirv_.add( tr("Requested position is outside the data range: "
+	uirv.add( tr("Requested position is outside the data range: "
 			"%1 range is %2 to %3" ).arg( what )
 		.arg( possrg.start ).arg( possrg.stop ) );
     }
@@ -454,8 +454,8 @@ void StorageProvider::checkDisjunct( const IdxSubSelData& posss,
 	    if ( possrg.isPresent(desrg.atIndex(idx)) )
 		{ foundone = true; break; }
 	if ( !foundone )
-	    uirv_.add( tr("Requested %1 is not in the data grid setup ("
-			"%2 to %3 step %4" ).arg( what )
+	    uirv.add( tr("Requested %1 are not in the data grid setup ("
+			"%2 to %3 step %4)" ).arg( what )
 		.arg( possrg.start ).arg( possrg.stop ).arg( possrg.step ) );
     }
 }
@@ -463,16 +463,29 @@ void StorageProvider::checkDisjunct( const IdxSubSelData& posss,
 
 bool StorageProvider::desiredSubSelOK() const
 {
-#   define mCheckZDisjunct( pobj, dobj ) \
-    checkZDisjunct( pobj.zSubSel(), dobj.zSubSel() )
-    if ( is2D() )
+#   define mCheckZDisjunct( uirv, pobj, dobj ) \
+    checkZDisjunct( uirv, pobj.zSubSel(), dobj.zSubSel() )
+    if ( !is2D() )
+    {
+	const auto& pcss = storedsubsel_.subSel3D();
+	const auto& dcss = desiredsubsel_.subSel3D();
+#	undef mCheckDisjunct
+#	define mCheckDisjunct( subsel, uistr ) \
+	checkDisjunct( uirv_, pcss.subsel(), dcss.subsel(), uiStrings::uistr );
+	mCheckDisjunct( inlSubSel, sInline(mPlural) );
+	mCheckDisjunct( crlSubSel, sCrossline(mPlural) );
+	mCheckZDisjunct( uirv_, pcss, dcss );
+    }
+    else
     {
 	const auto& plsss = storedsubsel_.subSel2D();
 	const auto& dlsss = desiredsubsel_.subSel2D();
+#	undef mCheckDisjunct
 #	define mCheckDisjunct() \
-	checkDisjunct( plss.trcNrSubSel(), dlss.trcNrSubSel(), \
-			uiStrings::sTraceNumber() )
+	checkDisjunct( uirv, plss.trcNrSubSel(), dlss.trcNrSubSel(), \
+			uiStrings::sTraceNumber(mPlural) )
 	bool havecommonline = false;
+	bool haveoksel = false;
 	for ( auto dlssptr : dlsss )
 	{
 	    const auto& dlss = *dlssptr;
@@ -483,22 +496,18 @@ bool StorageProvider::desiredSubSelOK() const
 		havecommonline = true;
 	    const auto& plss = *plssptr;
 
+	    uiRetVal uirv;
 	    mCheckDisjunct();
-	    mCheckZDisjunct( plss, dlss );
+	    mCheckZDisjunct( uirv, plss, dlss );
+	    if ( uirv.isOK() )
+		haveoksel = true;
+	    else
+		uirv_.add( uirv );
 	}
 	if ( !havecommonline )
-	    uirv_.add( tr("Attribute not available for requested line(s)") );
-    }
-    else
-    {
-	const auto& pcss = storedsubsel_.subSel3D();
-	const auto& dcss = desiredsubsel_.subSel3D();
-#	undef mCheckDisjunct
-#	define mCheckDisjunct( subsel, uistr ) \
-	checkDisjunct( pcss.subsel(), dcss.subsel(), uiStrings::uistr() );
-	mCheckDisjunct( inlSubSel, sInline );
-	mCheckDisjunct( crlSubSel, sCrossline );
-	mCheckZDisjunct( pcss, dcss );
+	    uirv_.set( tr("Attribute not available for requested line(s)") );
+	else if ( haveoksel )
+	    uirv_.setOK();
     }
 
     if ( !uirv_.isOK() )
