@@ -806,7 +806,7 @@ public:
     static uiWord sTopHor()		{ return tr("Top Horizon"); }
     static uiWord sTrc()		{ return tr("Trc","abbr trace"); }
     static uiWord sTrace(int n=1)	{ return tr("Trace",0,n); }
-    static uiWord sTraceNumber()	{ return tr("Trace number"); }
+    static uiWord sTraceNumber(int n=1)	{ return tr("Trace number",0,n); }
     static uiWord sTraceRange()		{ return tr("Trace Range"); }
     static uiWord sTrack()		{ return tr("Track","verb"); }
     static uiWord sTracking()		{ return tr("Tracking"); }
