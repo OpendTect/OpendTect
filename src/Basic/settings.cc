@@ -12,10 +12,8 @@
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "odruncontext.h"
-#include "oscommand.h"
 #include "safefileio.h"
 #include "staticstring.h"
 
