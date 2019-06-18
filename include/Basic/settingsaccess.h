@@ -36,6 +36,8 @@ public:
     void		setDefaultTexResAsIndex(int idx,int nrres);
 			//!<system default represented by idx==nrres
 
+    BufferString	getTerminalEmulator();
+
     static const char*	sKeyIcons();
     static const char*	sKeyShowInlProgress();
     static const char*	sKeyShowCrlProgress();
