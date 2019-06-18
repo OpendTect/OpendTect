@@ -91,26 +91,7 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
     Settings* ret = new Settings( fname );
     ret->setName( mGetKey(key) );
     if ( !ret->doRead(ext) )
-	{ delete ret; return nullptr; }
-
-    if ( ret->name() == sKeyCommon )
-    {
-	const BufferString orgtermcmd = ret->find( sKey::TermEm() );
-	BufferString termcmd = orgtermcmd;
-#ifdef __win__
-	if ( termcmd.isEmpty() )
-	    termcmd = "cmd.exe";
-#else
-	OS::MachineCommand mc( GetShellScript("find_term.bash") );
-	if ( !termcmd.isEmpty() )
-	    mc.addArg( termcmd );
-	termcmd = mc.runAndCollectOutput();
-#endif
-	ret->set( sKey::TermEm(), termcmd );
-	if ( termcmd != orgtermcmd )
-	    ret->write( false );
-    }
-
+	{ delete ret; ret = nullptr; }
     return ret;
 }
 

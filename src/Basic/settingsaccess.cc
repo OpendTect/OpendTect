@@ -10,6 +10,9 @@ ________________________________________________________________________
 
 #include "settingsaccess.h"
 #include "envvars.h"
+#include "keystrs.h"
+#include "oddirs.h"
+#include "oscommand.h"
 
 
 const char* SettingsAccess::sKeyEnabSharedStor()
@@ -126,3 +129,25 @@ int SettingsAccess::getDefaultTexResFactor( int nrres ) const
     res = defaultTexResFactorFromEnvVar();
     return validResolution( res, nrres );
 }
+
+
+BufferString SettingsAccess::getTerminalEmulator()
+{
+    const BufferString orgtermcmd = settings_.find( sKey::TermEm() );
+    BufferString termcmd = orgtermcmd;
+#ifdef __win__
+    if ( termcmd.isEmpty() )
+	termcmd = "cmd.exe";
+#else
+    OS::MachineCommand mc( GetShellScript("find_term.bash") );
+    if ( !termcmd.isEmpty() )
+	mc.addArg( termcmd );
+    termcmd = mc.runAndCollectOutput();
+#endif
+    settings_.set( sKey::TermEm(), termcmd );
+    if ( termcmd != orgtermcmd )
+	settings_.write( false );
+
+    return termcmd;
+}
+

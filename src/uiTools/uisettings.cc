@@ -507,7 +507,7 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
-    const BufferString termem = Settings::common().find( sKey::TermEm() );
+    const BufferString termem = SettingsAccess().getTerminalEmulator();
 #ifdef __win__
     OS::MachineCommand cmd( "start" );
     cmd.addArg( termem );
