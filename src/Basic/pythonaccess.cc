@@ -229,9 +229,12 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* virtualenvfp,
 }
 
 
-bool OD::PythonAccess::execute( const OS::MachineCommand& cmd ) const
+bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
+				bool wait4finish ) const
 {
-    return execute( cmd, laststdout_, &laststderr_, &msg_ );
+    const OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
+						    : OS::RunInBG );
+    return execute( cmd, execpars );
 }
 
 
