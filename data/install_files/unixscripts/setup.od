@@ -165,5 +165,10 @@ foreach fil ( setup.od.* )
     endif
 end
 
+if ( -d v7 ) then
+  cd v7/
+  ./setup.od
+  cd ..
+endif
 
 exit 0
