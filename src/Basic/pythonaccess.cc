@@ -631,15 +631,31 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
 				       const char* cmd )
 {
-    const OS::MachineCommand mc( cmd );
-    const bool res = execute( mc );
+    BufferStringSet cmdstrs;
+    cmdstrs.unCat( cmd, " " );
+    if ( cmdstrs.isEmpty() )
+	return uiRetVal( tr("Invalid command: %1").arg(cmd) );
+
+    const BufferString prognm( cmdstrs.first()->str() );
+    cmdstrs.removeSingle(0);
+    OS::MachineCommand mc( prognm, cmdstrs );
+    BufferString laststdout, laststderr;
+    bool res = execute( mc, laststdout, &laststderr );
+#ifdef __unix__
+    if ( !res && prognm == FixedString("pip") )
+    {
+	mc.setProgram( "pip3" );
+	res = execute( mc, laststdout, &laststderr );
+    }
+#endif
     if ( !res )
     {
 	return uiRetVal( tr("Cannot detect list of python modules:\n%1")
-				.arg(laststderr_) );
+				.arg(laststderr) );
     }
+
     BufferStringSet modstrs;
-    modstrs.unCat( laststdout_ );
+    modstrs.unCat( laststdout );
     for ( int idx=2; idx<modstrs.size(); idx++ )
 	mods.add( new ModuleInfo( modstrs[idx]->buf() ) );
 
