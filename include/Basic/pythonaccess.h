@@ -49,7 +49,8 @@ namespace OD
 				 const char* scriptstr=nullptr,
 				 const char* scriptexpectedout=nullptr) const;
 
-	bool		execute(const OS::MachineCommand&) const;
+	bool		execute(const OS::MachineCommand&,
+				bool wait4finish=true) const;
 	bool		execute(const OS::MachineCommand&,
 				BufferString& stdoutstr,
 				BufferString* stderrstr,

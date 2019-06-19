@@ -230,9 +230,12 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* virtualenvfp,
 }
 
 
-bool OD::PythonAccess::execute( const OS::MachineCommand& cmd ) const
+bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
+				bool wait4finish ) const
 {
-    return execute( cmd, laststdout_, &laststderr_, &msg_ );
+    const OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
+						    : OS::RunInBG );
+    return execute( cmd, execpars );
 }
 
 
@@ -631,15 +634,30 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
 				       const char* cmd )
 {
-    const OS::MachineCommand mc( cmd );
-    const bool res = execute( mc );
+    OS::MachineCommand mc( cmd );
+    BufferString laststdout, laststderr;
+    bool res = execute( mc, laststdout, &laststderr );
+#ifdef __unix__
+    if ( !res )
+    {
+	BufferStringSet cmdstrs;
+	cmdstrs.unCat( cmd, " " );
+	if ( !cmdstrs.isEmpty() && cmdstrs.get(0) == "pip" )
+	{
+	    cmdstrs.get(0) = "pip3";
+	    mc.setCommand( cmdstrs.cat( " " ) );
+	    res = execute( mc, laststdout, &laststderr );
+	}
+    }
+#endif
     if ( !res )
     {
 	return uiRetVal( tr("Cannot detect list of python modules:\n%1")
-				.arg(laststderr_) );
+				.arg(laststderr) );
     }
+
     BufferStringSet modstrs;
-    modstrs.unCat( laststdout_ );
+    modstrs.unCat( laststdout );
     for ( int idx=2; idx<modstrs.size(); idx++ )
 	mods.add( new ModuleInfo( modstrs[idx]->buf() ) );
 

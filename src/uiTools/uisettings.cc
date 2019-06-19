@@ -812,7 +812,7 @@ void promptCB( CallBacker* )
 #else
     cmd.set( termem );
 #endif
-    OD::PythA().execute( OS::MachineCommand(cmd) );
+    OD::PythA().execute( OS::MachineCommand(cmd), false );
 }
 
 bool useScreen()
