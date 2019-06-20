@@ -51,6 +51,7 @@ public:
 	bool		haverefnr_;
 
 	bool		havesd_;
+	bool		sdzdomscaled_;	    //!< true=legacy data
 	SamplingData<float> sd_;
 	int		nrsamples_;
 	int		compidx_;

@@ -562,12 +562,9 @@ void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
 {
     mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
     if ( !ss2d )
-    {
-	tkzs.setEmpty();
-	return;
-    }
+	{ tkzs.set2DDef(); return; }
 
-    ss2d->getSampling( tkzs, geomid );
+    ss2d->getTKZS( tkzs, geomid );
 }
 
 

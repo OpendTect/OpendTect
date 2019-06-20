@@ -55,6 +55,7 @@ protected:
     uiLabel*			pspposlbl_;
     uiCheckBox*			haveoffsbut_;
     uiCheckBox*			haveazimbut_;
+    uiCheckBox*			sdzdomscbox_;
     uiScaler*			scalefld_;
     uiSeisSel*			seisfld_;
     uiSeisSubSel*		subselfld_;

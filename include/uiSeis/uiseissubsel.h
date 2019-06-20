@@ -42,8 +42,8 @@ public:
     virtual		~uiSeisSubSel();
 
     bool		isAll() const;
-    void		getSampling(TrcKeyZSampling&) const;
-    void		getSampling(TrcKeySampling&) const;
+    virtual void	getSampling(TrcKeyZSampling&) const;
+    virtual void	getSampling(TrcKeySampling&) const;
     void		getZRange(StepInterval<float>&) const;
 
     virtual bool	fillPar(IOPar&) const;
@@ -102,7 +102,7 @@ public:
 
     bool		isSingLine() const;
     const char*		selectedLine() const;
-    Pos::GeomID		selectedGeomID() const;
+    GeomID		selectedGeomID() const;
     void		setSelectedLine(const char*);
 
     void		selectedGeomIDs(GeomIDSet&) const;
@@ -112,10 +112,11 @@ public:
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
 
-    void		getSampling(TrcKeyZSampling&,
-				    Pos::GeomID gid=Pos::GeomID::get3D()) const;
-    StepInterval<int>	getTrcRange(Pos::GeomID gid=Pos::GeomID::get3D()) const;
-    StepInterval<float> getZRange(Pos::GeomID gid=Pos::GeomID::get3D()) const;
+    void		getSampling(TrcKeySampling&) const override;
+    void		getSampling(TrcKeyZSampling&) const override;
+    void		getTKZS(TrcKeyZSampling&,GeomID gid=GeomID()) const;
+    StepInterval<int>	getTrcRange(GeomID gid=GeomID()) const;
+    StepInterval<float> getZRange(GeomID gid=GeomID()) const;
 
 protected:
 

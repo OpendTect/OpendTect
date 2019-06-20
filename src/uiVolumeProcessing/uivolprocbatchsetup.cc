@@ -157,7 +157,7 @@ bool uiBatchSetup::fillPar()
 	for ( int idx=0; idx<geomids.size(); idx++ )
 	{
 	    TrcKeyZSampling tkzs;
-	    subsel2d->getSampling( tkzs, geomids[idx] );
+	    subsel2d->getTKZS( tkzs, geomids[idx] );
 	    IOPar tkzspar;
 	    tkzs.fillPar( tkzspar );
 	    subselpar.mergeComp( tkzspar, toString(idx) );

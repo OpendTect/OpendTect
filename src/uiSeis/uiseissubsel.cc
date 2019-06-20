@@ -390,8 +390,29 @@ StepInterval<float> uiSeis2DSubSel::getZRange( Pos::GeomID geomid ) const
 }
 
 
-void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs,
-				  Pos::GeomID geomid ) const
+void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs ) const
+{
+    if ( !singlelnmsel_ )
+	uiSeisSubSel::getSampling( tkzs );
+    else
+	getTKZS( tkzs );
+}
+
+
+void uiSeis2DSubSel::getSampling( TrcKeySampling& tks ) const
+{
+    if ( !singlelnmsel_ )
+	uiSeisSubSel::getSampling( tks );
+    else
+    {
+	TrcKeyZSampling tkzs( tks );
+	getTKZS( tkzs );
+	tks = tkzs.hsamp_;
+    }
+}
+
+
+void uiSeis2DSubSel::getTKZS( TrcKeyZSampling& tkzs, Pos::GeomID geomid ) const
 {
     if ( singlelnmsel_ && !geomid.isValid() )
 	geomid = singlelnmsel_->getInputGeomID();

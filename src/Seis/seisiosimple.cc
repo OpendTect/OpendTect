@@ -51,7 +51,8 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 {
     clear(true);
     isasc_ = havepos_ = havesd_ = true;
-    havenr_ = haverefnr_ = haveoffs_ = haveazim_ = isxy_ = remnull_ = false;
+    havenr_ = haverefnr_ = haveoffs_ = haveazim_
+	    = isxy_ = remnull_ = sdzdomscaled_ = false;
 
     if ( filenm && *filenm )
 	fname_ = filenm;
@@ -74,7 +75,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
 
     fname_ = d.fname_; seiskey_ = d.seiskey_;
     geom_ = d.geom_; isasc_ = d.isasc_;
-    havesd_ = d.havesd_; sd_ = d.sd_;
+    havesd_ = d.havesd_; sd_ = d.sd_; sdzdomscaled_ = d.sdzdomscaled_;
     nrsamples_ = d.nrsamples_;
     havepos_ = d.havepos_; isxy_ = d.isxy_;
     havenr_ = d.havenr_; haverefnr_ = d.haverefnr_; nrdef_ = d.nrdef_;
@@ -175,11 +176,14 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	if ( !prov_ )
 	    { errmsg_ = uirv; return; }
 
+	const bool havegeomid2d = data_.geomid_.isValid()
+				&& data_.geomid_.is2D();
 	auto* seldata = Seis::SelData::get( data_.subselpars_ );
-	if ( seldata && seldata->isAll() )
+	if ( !seldata && havegeomid2d )
+	    seldata = new Seis::RangeSelData( data_.geomid_ );
+	if ( seldata && !havegeomid2d && seldata->isAll() )
 	    deleteAndZeroPtr( seldata );
-
-	if ( seldata && data_.geomid_.isValid() && seldata->isRange() )
+	if ( seldata && seldata->isRange() && havegeomid2d )
 	    seldata->asRange()->setGeomID( data_.geomid_ );
 
 	prov_->setSelData( seldata );
@@ -250,7 +254,7 @@ void SeisIOSimple::startImpRead()
 	       .get( data_.nrsamples_ );
 	if ( !strm_->isOK() )
 	    { errmsg_ = tr("Input file contains no data"); return; }
-	if ( zistm_ )
+	if ( data_.sdzdomscaled_ && zistm_ )
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
     }
 
@@ -466,9 +470,9 @@ int SeisIOSimple::writeExpTrc()
 	if ( data_.havesd_ )
 	{
 	    SamplingData<float> datasd = trc_.info().sampling_;
-	    if ( zistm_ )
-		{ datasd.start *= 1000; datasd.step *= 1000; }
 	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
+	    if ( data_.sdzdomscaled_ && zistm_ )
+		{ datasd.start *= 1000; datasd.step *= 1000; }
 	    binstrm.add( datasd.start )
 		   .add( datasd.step )
 		   .add( data_.nrsamples_, od_newline );

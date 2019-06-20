@@ -79,6 +79,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	, isxyfld_(0)
 	, lnmfld_(0)
 	, isascfld_(0)
+	, sdzdomscbox_(0)
 	, coordsysselfld_(0)
 	, haveoffsbut_(0)
 	, haveazimbut_(0)
@@ -256,6 +257,12 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     havesdfld_->setValue( data().havesd_ );
     havesdfld_->attach( alignedBelow, attachobj );
     havesdfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havesdSel) );
+    if ( SI().zIsTime() )
+    {
+	sdzdomscbox_ = new uiCheckBox( this, tr("in msecs") );
+	sdzdomscbox_->attach( rightOf, havesdfld_ );
+	sdzdomscbox_->setChecked( data().sdzdomscaled_ );
+    }
 
     if ( isimp_ )
     {
@@ -358,8 +365,13 @@ void uiSeisIOSimple::initFlds( CallBacker* cb )
 
 void uiSeisIOSimple::havesdSel( CallBacker* )
 {
-    if ( sdfld_ )
-	sdfld_->display( !havesdfld_->getBoolValue() );
+    if ( !sdfld_ )
+	return;
+
+    const bool havesd = havesdfld_->getBoolValue();
+    sdfld_->display( !havesd );
+    if ( sdzdomscbox_ )
+	sdzdomscbox_->display( havesd );
 }
 
 
@@ -388,8 +400,10 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
 {
     const bool havenopos = !haveposfld_->getBoolValue();
 
-    if ( havenrfld_ ) havenrfld_->display( !havenopos );
-    if ( isxyfld_ ) isxyfld_->display( !havenopos );
+    if ( havenrfld_ )
+	havenrfld_->display( !havenopos );
+    if ( isxyfld_ )
+	isxyfld_->display( !havenopos );
 
     if ( isimp_ )
     {
@@ -442,7 +456,7 @@ void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
 void uiSeisIOSimple::xyToInlSelCB( CallBacker* )
 {
     if ( !isimp_ )
-	coordsysselfld_->display(isxyfld_->getBoolValue());
+	coordsysselfld_->display( isxyfld_->getBoolValue() );
 }
 
 
@@ -497,14 +511,17 @@ bool uiSeisIOSimple::acceptOK()
 	    { data().sd_.start *= 0.001; data().sd_.step *= 0.001; }
 	data().nrsamples_ = sdfld_->getIntValue(2);
     }
+    else if ( data().havesd_ && sdzdomscbox_ )
+	data().sdzdomscaled_ = sdzdomscbox_->isChecked();
 
     data().havepos_ = haveposfld_->getBoolValue();
     data().havenr_ = data().haverefnr_ = false;
-    if ( coordsysselfld_ && isxyfld_->getBoolValue() )
+    const bool havexy = is2D() || (isxyfld_ && isxyfld_->getBoolValue());
+    if ( coordsysselfld_ && havexy )
 	data().setCoordSys( coordsysselfld_->getCoordSystem() );
     if ( data().havepos_ )
     {
-	data().isxy_ = is2D() || isxyfld_->getBoolValue();
+	data().isxy_ = havexy;
 	data().havenr_ = havenrfld_ && havenrfld_->getBoolValue();
 	data().haverefnr_ = data().havenr_ && haverefnrfld_->getBoolValue();
 	if ( isimp_ && nrdeffld_ && !data().havenr_ )
@@ -562,8 +579,7 @@ bool uiSeisIOSimple::acceptOK()
 	if ( !subselfld_->isAll() )
 	{
 	    TrcKeyZSampling cs;
-	    subselfld_->getSampling( cs.hsamp_ );
-	    subselfld_->getZRange( cs.zsamp_ );
+	    subselfld_->getSampling( cs );
 	    data().setResampler( new SeisResampler(cs) );
 	}
     }
