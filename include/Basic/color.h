@@ -85,6 +85,8 @@ public:
     static Color	White()		{ return Color(255,255,255,0); }
     static Color	Yellow()	{ return Color(255,255,0,0); }
 
+    static Color	interpolate(const Color&,const Color&,float frac=0.5);
+
     static unsigned char getUChar( float v );
     static float	 getFloat(unsigned char);
 

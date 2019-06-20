@@ -139,6 +139,15 @@ Color Color::stdDrawColor( int idx )
 }
 
 
+Color Color::interpolate( const Color& col1, const Color& col2, float frac )
+{
+    return Color( getUChar((col2.r() - col1.r())*frac + col1.r()),
+	    	  getUChar((col2.g() - col1.g())*frac + col1.g()),
+		  getUChar((col2.b() - col1.b())*frac + col1.b()),
+		  getUChar((col2.t() - col1.t())*frac + col1.t()) ); 
+}
+
+
 void Color::fill( BufferString& bs ) const
 {
     FileMultiString fms;

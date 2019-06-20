@@ -85,6 +85,12 @@ public:
     virtual void	setPenStyle(const OD::LineStyle&,bool usetransp=false);
     virtual void	setPenColor(const Color&,bool usetransp=false);
     virtual void	setFillColor(const Color&,bool usetransp=false);
+    virtual void	setGradientFill(int x1,int y1,int x2, int y2,
+	    				const TypeSet<float>& stops,
+					const TypeSet<Color>& colors);
+			/*!< Creates a linear gradient from (x1,y1) to (x2,y2).
+			 stops are values between 0 and 1 on the gradient line
+			 where colors are defined */
     virtual void	setFillPattern(const FillPattern&);
     virtual void	setTransparency(float);
 			/*!< To set the overall transparency of graphics item.

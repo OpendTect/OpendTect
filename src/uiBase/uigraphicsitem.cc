@@ -458,6 +458,26 @@ void uiGraphicsItem::setFillColor( const Color& col, bool usetransparency )
 }
 
 
+void uiGraphicsItem::setGradientFill( int xstart, int ystart,
+				  int xstop, int ystop,
+				  const TypeSet<float>& stops,
+				  const TypeSet<Color>& colors )
+{
+    if ( colors.size() != stops.size() )
+	return;
+
+    mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
+    if ( !agsitm ) return;
+
+    QLinearGradient qgrad( xstart, ystart, xstop, ystop );
+    for ( int idx=0; idx<colors.size(); idx++ )
+	qgrad.setColorAt( stops[idx], QColor( QRgb(colors[idx].rgb()) ) );
+
+    QBrush qbrush( qgrad );
+    agsitm->setBrush( qbrush );
+}
+
+
 void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
