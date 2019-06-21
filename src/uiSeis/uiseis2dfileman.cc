@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "seiscbvs2d.h"
 #include "seis2dlinemerge.h"
 #include "seiscube2linedata.h"
+#include "stringbuilder.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "survgeommgr.h"
@@ -124,7 +125,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     infofld_->setText( "" );
     BufferStringSet linenms;
     linefld_->getChosen( linenms );
-    BufferString txt;
+    StringBuilder sb;
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
 	const auto geomid = Survey::Geometry::getGeomID( linenms.get(idx) );
@@ -140,8 +141,8 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	l2dd = geom2d.data();
 	if ( l2dd.isEmpty() )
 	{
-	    txt.add( "\nAbsent or empty geometry for line " );
-	    txt.add( linenms.get(idx) );
+	    sb.add( "\nAbsent or empty geometry for line " );
+	    sb.add( linenms.get(idx) );
 	    continue;
 	}
 
@@ -150,52 +151,49 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	l2dd.getPos( trcrg.start, firstpos );
 	l2dd.getPos( trcrg.stop, lastpos );
 
-	if ( hasrg )
-	{
-	    if ( idx > 0 )
-		txt += "\n\n";
-	    txt += "Details for line: "; txt += linenms.get(idx);
-	    txt += "\nNumber of traces: "; txt += sz;
-	    txt += "\nFirst trace: ";
-	    if ( l2dd.getPos(trcrg.start,firstpos) )
-		txt.add( firstpos.nr_ )
-		   .add( " " ).add( firstpos.coord_.toString() );
-	    txt += "\nLast trace: ";
-	    if ( l2dd.getPos(trcrg.stop,lastpos) )
-		txt.add( lastpos.nr_ )
-		   .add( " " ).add( lastpos.coord_.toString() );
-
-#define mAddZRangeTxt(memb) txt += zistm ? mNINT32(1000*memb) : memb
-	    txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
-	    mAddZRangeTxt(zrg.stop);
-	    txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";
-	}
+	if ( !hasrg )
+	    sb.add( "\nCannot read ranges for line: " ).add( linenms.get(idx) )
+		.add( "\nCBVS file might be corrupt or missing.\n" );
 	else
 	{
-	    txt += "\nCannot read ranges for line: "; txt += linenms.get(idx);
-	    txt += "\nCBVS file might be corrupt or missing.\n";
+	    if ( idx > 0 )
+		sb.add( "\n\n" );
+	    sb.add( "Line: " ).add( linenms.get(idx) );
+	    sb.add( "\nNumber of traces: " ).add( sz )
+		.add( "\nFirst trace: " );
+	    if ( l2dd.getPos(trcrg.start,firstpos) )
+		sb.add( firstpos.nr_ )
+		   .add( " " ).add( firstpos.coord_.toString() );
+	    sb.add( "\nLast trace: " );
+	    if ( l2dd.getPos(trcrg.stop,lastpos) )
+		sb.add( lastpos.nr_ )
+		   .add( " " ).add( lastpos.coord_.toString() );
+
+#define mAddZRangeTxt(memb) sb.add( zistm ? mNINT32(1000*memb) : memb )
+	    sb.add( "\nZ-range: " ); mAddZRangeTxt(zrg.start); sb.add( " - " );
+	    mAddZRangeTxt(zrg.stop);
+	    sb.add( " [" ); mAddZRangeTxt(zrg.step); sb.add( "]" );
 	}
 
 	const IOObj& ioobj = *objinfo_->ioObj();
 	SeisIOObjInfo sobinf( ioobj );
 	const int nrcomp = sobinf.nrComponents( geomid );
 	if ( nrcomp > 1 )
-	    { txt += "\nNumber of components: "; txt += nrcomp; }
+	    sb.add( "\nNumber of components: " ).add( nrcomp );
 
 	BufferString fname = SeisCBVS2DLineIOProvider::getFileName( ioobj,
 								    geomid );
 	File::Path fp( fname );
 
-	txt += "\nLocation: "; txt += fp.pathOnly();
-	txt += "\nFile name: "; txt += fp.fileName();
-	txt += "\nFile size: ";
-	txt += File::getFileSizeString( fname );
+	sb.add( "\nLocation: " ).add( fp.pathOnly() )
+	    .add( "\nFile name: " ).add( fp.fileName() )
+	    .add( "\nFile size: " ).add( File::getFileSizeString( fname ) );
 	const BufferString timestr = Time::getUsrFileDateTime( fname );
 	if ( !timestr.isEmpty() )
-	    { txt += "\nLast modified: "; txt += timestr; }
+	    { sb.add( "\nLast modified: " ).add( timestr ); }
     }
 
-    infofld_->setText( txt );
+    infofld_->setText( sb.result() );
 }
 
 
