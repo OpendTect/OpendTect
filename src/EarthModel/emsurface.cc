@@ -160,7 +160,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 		continue;
 
 	    geomids += geomid;
-	    linenames.add( nameOf(geomid) );
+	    linenames.add( geomid.name() );
 	    StepInterval<int> trcrange;
 	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		       trcrange );

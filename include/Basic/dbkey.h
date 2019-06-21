@@ -96,6 +96,11 @@ public:
     mDeprecated bool	isUdf() const		{ return isInvalid(); }
     mDeprecated void	setEmpty()		{ setInvalid(); }
 
+    inline BufferString	name() const;
+    inline BufferString	mainFile() const;
+    inline bool		implExists() const;
+    inline IOObj*	getIOObj() const;
+
 protected:
 
 			DBKey( DirNrType dnr, ObjNrType onr=-1 )
@@ -193,3 +198,8 @@ mGlobal(Basic) BufferString	mainFileOf(const DBKey&);
 mGlobal(Basic) bool		implExists(const DBKey&);
 mGlobal(Basic) IOObj*		getIOObj(const DBKey&);
 mGlobal(Basic) void		delIOObj(IOObj*);
+
+inline BufferString	DBKey::name() const	{ return ::nameOf(*this); }
+inline BufferString	DBKey::mainFile() const	{ return ::mainFileOf(*this); }
+inline bool		DBKey::implExists() const { return ::implExists(*this);}
+inline IOObj*		DBKey::getIOObj() const	{ return ::getIOObj(*this); }

@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
@@ -363,7 +362,7 @@ bool uiODVw2DHor2DTreeItem::init()
 
     displayMiniCtab();
 
-    name_ = toUiString( DBM().nameOf(emid_) );
+    name_ = toUiString( emid_.name() );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor2DTreeItem,checkCB) );
@@ -461,7 +460,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	if ( trackerid>= 0 )
 	    renameVisObj();
 
-	name_ = toUiString(DBM().nameOf( emid_ ));
+	name_ = toUiString( emid_.name() );
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 		isRemoveItem(mnuid,false);
 	if ( isRemoveItem(mnuid,true) )

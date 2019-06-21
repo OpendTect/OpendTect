@@ -1452,7 +1452,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	childitemnms.add( toString(subitem.getItem(idx)->text) );
 
     subitem.removeItems();
-    BufferString linenm( nameOf(geomid) );
+    BufferString linenm( geomid.name() );
     BufferStringSet attribnms;
     uiSeisPartServer::get2DStoredAttribs( linenm, attribnms, steerpol );
     for ( int idx=0; idx<childitemnms.size(); idx++ )

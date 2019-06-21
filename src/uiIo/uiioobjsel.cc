@@ -503,7 +503,7 @@ const char* uiIOObjSel::userNameFromKey( const char* kystr ) const
     nm.setEmpty();
     const DBKey dbky = DBKey::getFromStr( kystr );
     if ( dbky.isValid() )
-	nm = DBM().nameOf( dbky );
+	nm = dbky.name();
     return nm.buf();
 }
 

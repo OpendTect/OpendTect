@@ -401,7 +401,7 @@ bool uiExportFault::writeAscii()
 			{
 			    Pos::GeomID geomid =
 					fss->geometry().pickedGeomID( sticknr );
-			    const BufferString linenm = nameOf( geomid );
+			    const BufferString linenm = geomid.name();
 
 			    if ( !linenm.isEmpty() )
 				ostrm << '\t' << linenm;

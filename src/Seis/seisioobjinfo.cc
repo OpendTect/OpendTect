@@ -790,7 +790,7 @@ int SeisIOObjInfo::getComponentInfo( GeomID geomid, BufferStringSet* nms ) const
 
 bool SeisIOObjInfo::hasData( GeomID geomid )
 {
-    const char* linenm = nameOf( geomid );
+    const BufferString linenm = geomid.name();
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
     if ( !dbdir )
 	return false;

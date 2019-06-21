@@ -228,7 +228,8 @@ uiPhrase uiStrings::phrInput( const uiWord& string )
 uiPhrase uiStrings::phrPosNotFound( const TrcKey& tk )
 {
     return tr("Position not found: %1/%2")
-	.arg( tk.is2D() ? nameOf(tk.geomID()) : toString(tk.inl()) )
+	.arg( tk.is2D() ? tk.geomID().name()
+			: BufferString(toString(tk.inl())) )
 	.arg( tk.trcNr() );
 }
 

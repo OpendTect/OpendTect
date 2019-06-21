@@ -100,7 +100,7 @@ bool Seis::LineFetcher::ensureGetter()
     if ( dataset_ )
 	getter_ = dataset_->traceGetter( geomid, prov().selData(), uirv_ );
     if ( !getter_ && uirv_.isOK() )
-	uirv_.set( uiStrings::phrCannotLoad( nameOf(geomid) ) );
+	uirv_.set( uiStrings::phrCannotLoad( geomid.name() ) );
 
     getDataPack();
     return uirv_.isOK();

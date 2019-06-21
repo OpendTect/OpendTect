@@ -501,7 +501,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet( uiStrings::phrCannotFindDBEntry(psid_) )
 
 	if ( is2D() )
-	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, nameOf(geomID()) );
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, geomID().name() );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 

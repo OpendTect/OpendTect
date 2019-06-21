@@ -719,8 +719,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 	viewerpar.set( sKeyBinID(), gather->getBinID() );
 	viewerpar.set( sKeyDBKey(), gather->getStorageID() );
 	viewerpar.set( sKeyTraceNr(), gather->getTrcKey().trcNr() );
-	viewerpar.set( sKeyLineName(),
-			nameOf(gather->getTrcKey().geomID()) );
+	viewerpar.set( sKeyLineName(), gather->getTrcKey().geomID().name() );
 	viewerpar.setYN( sKeyIsVolumeData(), gather->is3D() );
 
 	BufferString key = sKeyViewerPrefix();

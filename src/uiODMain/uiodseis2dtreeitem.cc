@@ -462,7 +462,7 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Probe& probe, int displayid )
 {
     mDynamicCastGet(Line2DProbe*,l2dprobe,getProbe());
     if ( l2dprobe )
-	name_ = toUiString( nameOf(l2dprobe->geomID()) );
+	name_ = toUiString( l2dprobe->geomID().name() );
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";

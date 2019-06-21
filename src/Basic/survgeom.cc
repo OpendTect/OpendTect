@@ -37,9 +37,9 @@ GeomID Survey::Geometry::cSynthGeomID()
 { return GeomID( (GeomID::IDType)OD::SynthGeom ); }
 
 
-const char* nameOf( Pos::GeomID geomid )
+BufferString nameOf( Pos::GeomID geomid )
 {
-    return Survey::Geometry::get( geomid ).name().buf();
+    return Survey::Geometry::get( geomid ).name();
 }
 
 

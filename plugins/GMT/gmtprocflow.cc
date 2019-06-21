@@ -9,7 +9,6 @@
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
 #include "ascstream.h"
-#include "dbman.h"
 #include "uistrings.h"
 
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
@@ -144,7 +143,7 @@ uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return tr("Input file is empty");
 
-    pf.setName( DBM().nameOf(conn.linkedTo()) );
+    pf.setName( conn.linkedTo().name() );
     pf.pars().getFrom( astrm );
     return uiString::empty();
 }

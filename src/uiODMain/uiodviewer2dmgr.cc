@@ -480,7 +480,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    if ( mIsUdfGeomID(intpoint2d.otherid_) )
 	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
-				nameOf(intpoint2d.otherid_) );
+				intpoint2d.otherid_.name() );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
 	}
     }
@@ -824,7 +824,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr_ );
 	    newannot.pos_ = mCast(float,posdata->position(true,posidx));
-	    newannot.txt_ = toUiString( nameOf(intpos.otherid_) );
+	    newannot.txt_ = toUiString( intpos.otherid_.name() );
 	    x1auxannot += newannot;
 	}
     }

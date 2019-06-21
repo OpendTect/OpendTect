@@ -154,7 +154,7 @@ void PosInfo::Line2DData::setGeomID( GeomID gid ) const
 {
     geomid_ = gid;
     if ( lnm_.isEmpty() && geomid_.isValid() )
-	mSelf().lnm_ = nameOf( geomid_ );
+	mSelf().lnm_ = geomid_.name();
 }
 
 

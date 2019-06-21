@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
@@ -306,7 +305,7 @@ void uiWellMan::setLogToolButtonProperties()
 	BufferStringSet wellnms;
 	for ( int iwell=0; iwell<selwellids_.size(); iwell++ )
 	{
-	    IOObj* ioobj = DBM().get( selwellids_[iwell] );
+	    IOObj* ioobj = selwellids_[iwell].getIOObj();
 	    if ( ioobj )
 		wellnms.add( ioobj->name() );
 	    delete ioobj;
@@ -406,7 +405,7 @@ void uiWellMan::logTools( CallBacker* )
     BufferStringSet wellnms, lognms;
     logsfld_->getChosen( lognms );
     for ( int iobj=0; iobj<selwellids_.size(); iobj++ )
-	wellnms.add( DBM().nameOf(selwellids_[iobj]) );
+	wellnms.add( selwellids_[iobj].name() );
 
     uiUserShowWait usw( this, uiStrings::sCollectingData() );
     uiWellLogToolWinMgr tooldlg( this, &wellnms, &lognms );

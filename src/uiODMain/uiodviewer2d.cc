@@ -826,8 +826,7 @@ void uiODViewer2D::setWinTitle()
     }
     else if ( probe_.position().hsamp_.is2D() )
     {
-	info.arg( uiStrings::sLine() )
-	    .arg( toUiString( nameOf(geomID()) ) );
+	info.arg( uiStrings::sLine() ).arg( geomID().name() );
     }
     else if ( probe_.position().defaultDir() == OD::InlineSlice )
     {

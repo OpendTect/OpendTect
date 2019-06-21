@@ -218,7 +218,7 @@ void Seis::Storer::setPrevTrcKey( const SeisTrc& trc )
 
 static BufferString getLineName( Pos::GeomID geomid )
 {
-    BufferString lnm = nameOf( geomid );
+    BufferString lnm = geomid.name();
     if ( lnm.isEmpty() )
 	{ pFreeFnErrMsg("Empty line name"); lnm.set( "ID=" ).add( geomid ); }
     return lnm;

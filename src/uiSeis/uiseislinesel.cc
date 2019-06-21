@@ -341,7 +341,7 @@ void uiSeis2DLineSel::setInput( const GeomIDSet& geomids )
     clearAll();
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	const BufferString linenm = nameOf( geomids[idx] );
+	const BufferString linenm = geomids[idx].name();
 	if ( !linenm.isEmpty() )
 	{
 	    geomids_ += geomids[idx];
@@ -524,7 +524,7 @@ Pos::GeomID uiSeis2DLineNameSel::getInputGeomID() const
 
 void uiSeis2DLineNameSel::setInputGeomID( Pos::GeomID geomid )
 {
-    return setInput( nameOf(geomid) );
+    return setInput( geomid.name() );
 }
 
 

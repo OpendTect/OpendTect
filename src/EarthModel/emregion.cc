@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "faulttrace.h"
-#include "dbman.h"
 #include "uistrings.h"
 
 
@@ -177,10 +176,10 @@ const char* RegionHor3DBoundary::type() const
 { return sKey::Horizon(); }
 
 
-void RegionHor3DBoundary::setKey( const DBKey& mid )
+void RegionHor3DBoundary::setKey( const DBKey& dbky )
 {
-    key_ = mid;
-    setName( DBM().nameOf(key_) );
+    key_ = dbky;
+    setName( key_.name() );
 }
 
 
@@ -253,10 +252,10 @@ const char* RegionFaultBoundary::type() const
 { return sKey::Fault(); }
 
 
-void RegionFaultBoundary::setKey( const DBKey& mid )
+void RegionFaultBoundary::setKey( const DBKey& dbky )
 {
-    key_ = mid;
-    setName( DBM().nameOf(key_) );
+    key_ = dbky;
+    setName( key_.name() );
 }
 
 
@@ -352,7 +351,7 @@ const char* RegionPolygonBoundary::type() const
 void RegionPolygonBoundary::setKey( const DBKey& dbky )
 {
     key_ = dbky;
-    setName( DBM().nameOf(key_) );
+    setName( key_.name() );
 }
 
 

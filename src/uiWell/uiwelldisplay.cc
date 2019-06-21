@@ -10,16 +10,14 @@ ________________________________________________________________________
 
 #include "uiwelldisplay.h"
 
-#include "dbman.h"
 #include "wellmanager.h"
 #include "welllogset.h"
+#include "uimainwin.h"
 #include "uistatusbar.h"
 #include "uiwelldisplaycontrol.h"
 #include "uiwelllogdisplay.h"
 #include "uiwellstratdisplay.h"
 #include "uistrings.h"
-
-#include  "uimainwin.h"
 
 
 uiWellDisplay::uiWellDisplay( uiParent* p, const DBKey& id, const Setup& s )
@@ -234,7 +232,7 @@ uiString uiWellDisplayWin::getWinTitle( const DBKey& id, bool foredit )
 {
     return toUiString( "%1 '%2'" )
 		.arg( foredit ? uiStrings::sEdit() : uiStrings::sDisplay() )
-		.arg( DBM().nameOf(id) );
+		.arg( id.name() );
 }
 
 

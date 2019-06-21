@@ -127,7 +127,7 @@ bool SynthSeis::GenParams::hasOffsets() const
 
 BufferString SynthSeis::GenParams::waveletName() const
 {
-    BufferString dbnm = nameOf( wvltid_ );
+    const BufferString dbnm = wvltid_.name();
     return dbnm.isEmpty() ? fallbackwvltnm_ : dbnm;
 }
 

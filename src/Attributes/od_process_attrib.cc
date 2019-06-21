@@ -159,7 +159,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 			break;
 
-		    const FixedString linename = nameOf( geomid );
+		    const BufferString linename = geomid.name();
 		    if ( linename.isEmpty() )
 			break;
 
@@ -201,7 +201,7 @@ bool BatchProgram::go( od_ostream& strm )
 		if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 		    break;
 
-		const FixedString linename = nameOf( geomid );
+		const BufferString linename = geomid.name();
 		if ( linename.isEmpty() )
 		    break;
 

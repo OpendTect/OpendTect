@@ -20,7 +20,6 @@
 #include "welllogset.h"
 #include "wellmanager.h"
 #include "welltrack.h"
-#include "dbman.h"
 
 
 namespace VolProc
@@ -308,7 +307,7 @@ void WellLogInterpolator::setWellData( const DBKeySet& ids, const char* lognm )
 void WellLogInterpolator::getWellNames( BufferStringSet& res ) const
 {
     for ( int idx=0; idx<wellmids_.size(); idx++ )
-	res.add( DBM().nameOf(wellmids_[idx]) );
+	res.add( wellmids_[idx].name() );
 }
 
 

@@ -467,7 +467,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 	const DBKey dbky = dsc.getStoredID( true );
 	const bool isvaliddbkey = dbky.isValid();
-	PtrMan<IOObj> ioobj = DBM().get( dbky );
+	PtrMan<IOObj> ioobj = dbky.getIOObj();
 	if ( isvaliddbkey && !ioobj )
             continue;
 
@@ -672,7 +672,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
 	const StringPair storkey( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(storkey.first()));
+	PtrMan<IOObj> ioobj = DBKey(storkey.first()).getIOObj();
 	if ( ioobj.ptr() )
 	{
 	    BufferString tentativeuserref = (BufferString)ioobj->name();
@@ -1025,13 +1025,13 @@ CtxtIOObj* DescSet::getCtxtIOObj( bool forread ) const
 
 BufferString DescSet::name() const
 {
-    return DBM().nameOf( dbky_ );
+    return dbky_.name();
 }
 
 
 uiRetVal DescSet::store( const DBKey& dbky ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     uiRetVal uirv;
     if ( !ioobj )
 	uirv.add( uiStrings::phrCannotFindDBEntry(dbky_) );
@@ -1049,7 +1049,7 @@ uiRetVal DescSet::store( const DBKey& dbky ) const
 
 uiRetVal DescSet::load( const DBKey& dbky, uiRetVal* warns )
 {
-    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     if ( !ioobj )
 	return uiRetVal( uiStrings::phrCannotFindDBEntry(dbky) );
 
@@ -1242,7 +1242,7 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     }
     else
     {
-	PtrMan<IOObj> ioobj = DBM().get( dbkey );
+	PtrMan<IOObj> ioobj = dbkey.getIOObj();
 	if ( !ioobj )
 	    return DescID();
 
@@ -1401,7 +1401,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	DBKey storedid = dsc.getStoredID();
 	if ( storedid.isInvalid() ) continue;
 
-	PtrMan<IOObj> ioobj = DBM().get( storedid );
+	PtrMan<IOObj> ioobj = storedid.getIOObj();
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer )
@@ -1433,7 +1433,7 @@ void DescSet::getStoredNames( BufferStringSet& nms ) const
 	if ( !dsc->isStored() )
 	    continue;
 
-	PtrMan<IOObj> ioobj = DBM().get( dsc->getStoredID() );
+	PtrMan<IOObj> ioobj = dsc->getStoredID().getIOObj();
 	if ( !ioobj )
 	{
 	    BufferString usrref = dsc->userRef();
@@ -1531,7 +1531,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	int compnr = 0;
 	if ( !inpstr.second().isEmpty() )
 	{
-	    IOObj* inpobj = DBM().get( dbky );
+	    PtrMan<IOObj> inpobj = dbky.getIOObj();
 	    if ( inpobj )
 	    {
 		SeisIOObjInfo seisinfo( inpobj );

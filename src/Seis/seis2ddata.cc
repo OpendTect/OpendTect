@@ -77,7 +77,7 @@ bool Seis2DDataSet::isEmpty() const
 { return !nrLines(); }
 
 const char* Seis2DDataSet::lineName( int idx ) const
-{ return nameOf( geomID(idx) ); }
+{ return geomID(idx).name(); }
 
 Pos::GeomID Seis2DDataSet::geomID( int idx ) const
 { return geomids_.validIdx(idx) ? geomids_[idx] : mUdfGeomID; }
@@ -162,7 +162,7 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( GeomID geomid,
 	else
 	{
 	    uirv.set( tr("Read-only 2D seismic data set %1: %2 not in set")
-		    .arg( name() ).arg( nameOf(geomid) ) );
+		    .arg( name() ).arg( geomid.name() ) );
 	    return 0;
 	}
     }

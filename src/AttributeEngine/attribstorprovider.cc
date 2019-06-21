@@ -813,7 +813,7 @@ float StorageProvider::getDistBetwTrcs( bool ismax ) const
     if ( !ls2ddata_ )
 	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
 
-    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, nameOf(geomID()) )
+    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, geomID().name() )
 		     : mUdf(float);
 }
 

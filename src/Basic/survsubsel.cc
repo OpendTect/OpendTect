@@ -1516,7 +1516,7 @@ uiString Survey::FullSubSel::getUserSummary() const
 	const auto nrrg = lss.trcNrRange();
 	return toUiString( "%1-%2 [%3]" )
 		    .arg( nrrg.start ).arg( nrrg.stop )
-		    .arg( nameOf(lss.geomID()) );
+		    .arg( lss.geomID().name() );
     }
 
     const auto& inlss = css_->inlSubSel(); const auto inlsz = inlss.size();

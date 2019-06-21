@@ -181,7 +181,7 @@ void RelationTree::removeNode( const DBKey& id, bool dowrite )
 
 static RelationTree::Node* createNewNode( const DBKey& id )
 {
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     if ( !ioobj )
 	return 0;
 
@@ -401,7 +401,7 @@ bool RelationTree::getSorted( bool is2d, BufferStringSet& nms )
 	return false;
 
     for ( int idx=0; idx<ids.size(); idx++ )
-	nms.add( DBM().nameOf(ids[idx]) );
+	nms.add( ids[idx].name() );
 
     return nms.size();
 }

@@ -153,7 +153,7 @@ bool Seis::Fetcher2D::selectPosition( GeomID gid, trcnr_type tnr )
     if ( newlineidx < 0 )
     {
 	uirv_.set( tr("%1 not available on %2")
-		.arg( nameOf(prov2D().dbKey()) ).arg( nameOf(gid) ) );
+		.arg( prov2D().dbKey().name() ).arg( gid.name() ) );
 	return false;
     }
     const auto& l2dd = *prov2D().l2dds_.get( newlineidx );
@@ -161,7 +161,7 @@ bool Seis::Fetcher2D::selectPosition( GeomID gid, trcnr_type tnr )
     if ( newtrcidx < 0 )
     {
 	uirv_.set( tr("No data for trace %1 on %2")
-			.arg( tnr ).arg( nameOf(gid) ) );
+			.arg( tnr ).arg( gid.name() ) );
 	return false;
     }
 

@@ -249,7 +249,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p, Pos::GeomID geomid,
 	setCaption( tr("Browse Line Geometry") );
     }
 
-    const BufferString linenm = nameOf( geomid_ );
+    const BufferString linenm = geomid_.name();
     uiString lbl = tr("%1 : %2").arg(uiStrings::sLineName()).arg(linenm);
 
     uiLabel* titllbl = new uiLabel( this, lbl );
@@ -308,7 +308,7 @@ void uiManageLineGeomDlg::impGeomCB( CallBacker* )
     if ( readonly_ )
 	return;
 
-    const BufferString linenm = nameOf( geomid_ );
+    const BufferString linenm = geomid_.name();
     uiImp2DGeom dlg( this, linenm );
     if ( !dlg.go() ) return;
 

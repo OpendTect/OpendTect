@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "prestackmutedef.h"
 #include "ptrman.h"
-#include "dbman.h"
 #include "odver.h"
 #include "streamconn.h"
 #include "uistrings.h"
@@ -120,14 +119,13 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	return "Input file contains no Mute Definition locations";
 
     while ( md.size() ) md.remove( 0 );
-    md.setName( DBM().nameOf(conn.linkedTo()) );
+    md.setName( conn.linkedTo().name() );
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
     {
 	if ( astrm.hasKeyword(sKeyRefHor()) )
 	{
-	    DBKey horky = DBKey::getFromStr( astrm.value() );
-	    md.setReferenceHorizon( horky );
+	    md.setReferenceHorizon( DBKey(astrm.value()) );
 	    astrm.next();
 	}
 

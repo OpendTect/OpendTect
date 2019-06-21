@@ -319,7 +319,7 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
     {
 	case Viewer2DPosDataSel::Line2D :
 	{
-	    subsel2dfld_->setSelectedLine( nameOf(posdatasel_->geomid_) );
+	    subsel2dfld_->setSelectedLine( posdatasel_->geomid_.name() );
 	    subsel2dfld_->uiSeisSubSel::setInput( tkzs.hsamp_ );
 	    break;
 	}
@@ -341,14 +341,15 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
 
 void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
 {
-    if ( !applmgr_ ) return;
+    if ( !applmgr_ )
+	return;
 
     DBKey newseis2did;
     Pos::GeomID geomid;
     if ( applmgr_->wellAttribServer()->create2DFromWells(newseis2did,geomid) &&
 	 geomid.isValid() )
     {
-	const BufferString sellinenm = nameOf( geomid );
+	const BufferString sellinenm = geomid.name();
 	subsel2dfld_->uiSeisSubSel::setInput( newseis2did );
 	subsel2dfld_->setSelectedLine( sellinenm );
 	inpSelected.trigger();

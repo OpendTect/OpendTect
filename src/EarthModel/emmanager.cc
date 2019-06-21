@@ -104,7 +104,7 @@ void EM::ObjectManager::eraseUndoList()
 
 BufferString EM::ObjectManager::objectName( const ObjID& id ) const
 {
-    return DBM().nameOf( id );
+    return id.name();
 }
 
 

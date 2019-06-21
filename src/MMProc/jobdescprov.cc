@@ -321,5 +321,5 @@ const char* Line2DSubselJobDescProv::objName( int jidx ) const
 
     Pos::GeomID geomid;
     subselpars_[jidx]->get( sKey::GeomID(), geomid );
-    return nameOf( geomid );
+    return geomid.name();
 }

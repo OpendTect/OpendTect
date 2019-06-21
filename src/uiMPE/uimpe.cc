@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seisdatapack.h"
@@ -63,7 +62,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 	return false;
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( key );
+    PtrMan<IOObj> ioobj = key.getIOObj();
     if ( !ioobj )
     {
 	gUiMsg().error( tr("Cannot find picked data in database") );
@@ -86,7 +85,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
     uiDialog dlg( uimain.topLevel(),
 	uiDialog::Setup(tr("Pre-load Data"),mNoDlgTitle,mTODOHelpKey) );
     uiLabel* lbl1 = new uiLabel( &dlg,
-	tr("Seeds have been picked on '%1'.").arg(DBM().nameOf(key)) );
+	tr("Seeds have been picked on '%1'.").arg(key.name()) );
     uiLabel* lbl2 = new uiLabel( &dlg,
 	tr("For Auto Tracking, this volume has to be pre-loaded") );
     lbl2->attach( alignedBelow, lbl1 );

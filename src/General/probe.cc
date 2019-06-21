@@ -713,7 +713,7 @@ uiWord Line2DProbe::usrType() const
 
 uiWord Line2DProbe::displayName() const
 {
-    return toUiString( nameOf(geomid_) );
+    return toUiString( geomid_.name() );
 }
 
 

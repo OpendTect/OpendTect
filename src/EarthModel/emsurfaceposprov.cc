@@ -17,7 +17,6 @@
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -288,12 +287,12 @@ void Pos::EMSurfaceProvider::getSummary( uiString& txt ) const
 	return;
 	case 1:
 	    txt.appendPhrase(tr("On '%1'","xyz lies On abc")
-	       .arg(toUiString(DBM().nameOf(id1_))),
+	       .arg( id1_.name() ),
 	       uiString::Space, uiString::OnSameLine );
 	break;
 	default:
 	    txt.appendPhrase(tr("Between '%1' and '%2'")
-		.arg(toUiString(DBM().nameOf(id1_))).arg(DBM().nameOf(id2_)),
+		.arg(id1_.name()).arg(id2_.name()),
 		uiString::Space, uiString::OnSameLine );
 	break;
     }

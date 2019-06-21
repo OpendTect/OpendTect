@@ -17,7 +17,6 @@ ___________________________________________________________________
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
@@ -312,7 +311,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	ems->storeObject( oldmid, true, storedmid,
 		(float) visserv_->getTranslation(displayID()).z_);
 	applMgr()->visServer()->setObjectName( displayid_,
-						DBM().nameOf(storedmid) );
+						storedmid.name() );
 	mps->saveSetupAs( storedmid );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
@@ -375,7 +374,7 @@ bool uiODEarthModelSurfaceTreeItem::isHorReady( const DBKey& emid )
     if ( !emobj )
 	return false;
 
-    if ( !DBM().get(emid_) )
+    if ( !emid_.isUsable() )
     {
 	uiString msg = tr(" To continue, "
 	    "%1'%2' has to be saved.\n\nDo you want to save it?")
@@ -401,12 +400,12 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     bool savewithname = emid_.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = DBM().get( emid_ );
+	PtrMan<IOObj> ioobj = emid_.getIOObj();
 	savewithname = !ioobj;
     }
 
     const uiString obj = toUiString("%1 \"%2\"")
-	.arg( EM::MGR().objectType( emid_ ) ).arg(DBM().nameOf(emid_));
+	.arg( EM::MGR().objectType( emid_ ) ).arg(emid_.name());
     NotSavedPrompter::NSP().addObject(	obj,
 		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
 	        savewithname, 0 );
@@ -437,15 +436,14 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     bool savewithname = emid_.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = DBM().get( emid_ );
+	PtrMan<IOObj> ioobj = emid_.getIOObj();
 	savewithname = !ioobj;
     }
 
     if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
-    applMgr()->visServer()->setObjectName( displayid_,
-					   DBM().nameOf(emid_) );
+    applMgr()->visServer()->setObjectName( displayid_, emid_.name() );
     mps->saveSetup( emid_ );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }

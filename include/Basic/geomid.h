@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "integerid.h"
 #include "typeset.h"
+#include "bufstring.h"
 class DBKey;
 
 
@@ -30,6 +31,8 @@ mDefIntegerIDTypeFull( int, GeomID,
 	inline bool		isSynthetic() const	{ return nr_==-2; }
 	inline IDType		lineNr() const		{ return getI(); }
 	inline static GeomID	get3D()			{ return GeomID(-1); }
+	inline static GeomID	getDefault2D();
+	inline BufferString	name() const;
 
 );
 
@@ -52,8 +55,11 @@ public:
 };
 
 
-mGlobal(Basic) const char* nameOf(Pos::GeomID);
+mGlobal(Basic) BufferString nameOf(Pos::GeomID);
 mGlobal(Basic) Pos::GeomID geomIDOf(const DBKey&);
+mGlobal(Basic) Pos::GeomID getDefault2DGeomID();
+inline BufferString Pos::GeomID::name() const { return nameOf(*this); }
+inline Pos::GeomID Pos::GeomID::getDefault2D() { return getDefault2DGeomID(); }
 
 
 inline OD::GeomSystem geomSystemOf( Pos::GeomID gid )

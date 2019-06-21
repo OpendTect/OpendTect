@@ -16,7 +16,6 @@ ___________________________________________________________________
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "mpeengine.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "randcolor.h"
 
@@ -373,9 +372,9 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	if ( saveas && faultdisplay_ && DBM().nameOf(emid_).isEmpty() )
+	if ( saveas && faultdisplay_ && !emid_.name().isEmpty() )
 	{
-	    faultdisplay_->setName( DBM().nameOf(emid_) );
+	    faultdisplay_->setName( emid_.name() );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -665,7 +664,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	const BufferString emname = DBM().nameOf( emid_ );
+	const BufferString emname = emid_.name();
 	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
 	    faultsticksetdisplay_->setName( emname );

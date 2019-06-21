@@ -220,7 +220,7 @@ void MadStream::initRead( IOPar* par )
     {
 	const Pos::GeomID geomid = seldata->geomID();
 	if ( is2d_ )
-	    psrdr_ = SPSIOPF().get2DReader( *ioobj, nameOf(geomid) );
+	    psrdr_ = SPSIOPF().get2DReader( *ioobj, geomid.name() );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
 
@@ -259,7 +259,7 @@ void MadStream::initWrite( IOPar* par )
     else
     {
 	const Pos::GeomID geomid = seldata ? seldata->geomID() : mUdfGeomID;
-	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj, nameOf(geomid))
+	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,geomid.name())
 		       : SPSIOPF().get3DWriter(*ioobj);
 	if (!pswrr_) mErrRet(tr("Cannot write to output object"));
 	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );

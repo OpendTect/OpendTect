@@ -279,8 +279,8 @@ bool uiSeisWvltMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 	else
 	{
 	    msg = tr("'%1' scaled to '%2' (along '%3' [%4])")
-	       .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid))
-	       .arg(DBM().nameOf(horid)).arg(lvlnm);
+	       .arg(orgid.name()).arg(seisid.name())
+	       .arg(horid.name()).arg(lvlnm);
 	}
 
 	addObjInfo( inf, tr("Scaled"), msg );

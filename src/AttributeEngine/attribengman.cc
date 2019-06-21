@@ -202,7 +202,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
-	    usernm = nameOf( DBKey::getFromStr(usernm) );
+	    usernm = DBKey(usernm).name();
     }
     else
     {

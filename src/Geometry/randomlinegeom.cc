@@ -54,7 +54,7 @@ void RandomLine::setDBKey( const DBKey& dbky )
 {
     dbky_ = dbky;
     if ( !dbky_.isInvalid() )
-	setName( DBM().nameOf(dbky_) );
+	setName( dbky_.name() );
 }
 
 
@@ -523,7 +523,7 @@ void RandomLineSet::getGeometry( const DBKey& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
     Geometry::RandomLineSet rls; uiString errmsg;
-    ConstPtrMan<IOObj> rdmline = DBM().get( rdlsid );
+    ConstPtrMan<IOObj> rdmline = rdlsid.getIOObj();
     RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
     if ( !errmsg.isEmpty() || rls.isEmpty() )
 	return;
@@ -597,14 +597,15 @@ RandomLine* RandomLineManager::get( const DBKey& dbky )
     if ( rl )
 	return rl;
 
-    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    PtrMan<IOObj> ioobj = dbky .getIOObj();
     if ( !ioobj )
 	return 0;
 
     PtrMan<RandomLineSet> rdlset = new RandomLineSet;
     BufferString msg;
     const bool res = RandomLineSetTranslator::retrieve( *rdlset, ioobj, msg );
-    if ( !res || rdlset->isEmpty() ) return 0;
+    if ( !res || rdlset->isEmpty() )
+	return 0;
 
     rl = rdlset->getRandomLine( 0 );
     rl->ref();

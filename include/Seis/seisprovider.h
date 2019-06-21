@@ -100,7 +100,7 @@ public:
     bool		isPS() const	{ return Seis::isPS(geomType()); }
     const DBKey&	dbKey() const		{ return dbky_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
-    BufferString	name() const		{ return nameOf(dbky_); }
+    BufferString	name() const		{ return dbky_.name(); }
 
     virtual size_type	nrGeomIDs() const	{ return 1; }
     virtual GeomID	geomID( idx_type idx=0 ) const
@@ -292,7 +292,7 @@ public:
     idx_type	curLineIdx() const		{ return lineidx_; }
     idx_type	lineNr( GeomID gid ) const	{ return indexOf(gid); }
     void	getGeometryInfo(idx_type,Line2DData&) const;
-    BufferString lineName( idx_type iln ) const	{ return nameOf(geomID(iln)); }
+    BufferString lineName( idx_type iln ) const	{ return geomID(iln).name(); }
 
     uiRetVal	getAt(GeomID,trcnr_type,SeisTrc&) const;
     uiRetVal	getGatherAt(GeomID,trcnr_type,SeisTrcBuf&) const;

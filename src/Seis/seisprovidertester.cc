@@ -309,7 +309,7 @@ Seis::PreLoader* Seis::ProviderTester::preLoad(
     for ( auto lss : lsss )
     {
 	if ( isps )
-	    pl->loadPS2D( nameOf(lss->geomID()) );
+	    pl->loadPS2D( lss->geomID().name() );
 	else
 	{
 	    tkzss += TrcKeyZSampling( *lss );

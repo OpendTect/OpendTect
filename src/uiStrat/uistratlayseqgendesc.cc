@@ -293,10 +293,11 @@ void uiExtLayerSequenceGenDesc::reDrawCB( CallBacker* )
 void uiExtLayerSequenceGenDesc::putTopInfo()
 {
     float topz = editdesc_.startDepth();
-    if ( zinft_ ) topz *= mToFeetFactorF;
+    if ( zinft_ )
+	topz *= mToFeetFactorF;
     topdepthfld_->setValue( topz );
 
-    BufferString descnm( nameOf(descid_) );
+    BufferString descnm( descid_.name() );
     if ( descnm.isEmpty() )
 	descnm.set( "<new>" );
     nmfld_->setText( descnm );

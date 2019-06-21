@@ -536,7 +536,7 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 
 const char* uiMPEPartServer::get2DLineName() const
 {
-    return nameOf(geomid_);
+    return geomid_.name();
 }
 
 

@@ -375,12 +375,12 @@ PreLoadDataEntry::PreLoadDataEntry( const DBKey& dbky, Pos::GeomID geomid,
 				    DataPack::ID dpid )
     : dbkey_(dbky), geomid_(geomid), dpid_(dpid), is2d_(geomid.is2D())
 {
-    name_ = nameOf( dbky );
+    name_ = dbky.name();
     is2d_ = geomid.is2D();
     if ( is2d_ )
     {
 	name_.add( " - " );
-	name_.add( nameOf(geomid) );
+	name_.add( geomid.name() );
     }
 }
 

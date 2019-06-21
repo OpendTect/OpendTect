@@ -35,6 +35,12 @@ const Survey::GeometryManager& Survey::GM()
 }
 
 
+GeomID getDefault2DGeomID()
+{
+    return Survey::GM().default2DGeomID();
+}
+
+
 Survey::GeometryManager::GeometryManager()
 {
     if ( factorykey_.isEmpty() )
@@ -87,6 +93,13 @@ const Survey::Geometry2D* Survey::GeometryManager::get2DGeometry(
 	if ( geom->hasName(nm) )
 	    return geom;
     return 0;
+}
+
+
+GeomID Survey::GeometryManager::default2DGeomID() const
+{
+    //TODO proper impl
+    return geometries_.isEmpty() ? GeomID(0) : geometries_.first()->geomID();
 }
 
 

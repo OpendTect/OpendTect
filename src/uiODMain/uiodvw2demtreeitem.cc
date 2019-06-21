@@ -80,7 +80,7 @@ void uiODVw2DEMTreeItem::renameVisObj()
 {
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( emid_, visobjids );
-    name_ = ::toUiString( DBM().nameOf(emid_) );
+    name_ = ::toUiString( emid_.name() );
     for ( int idx = 0; idx<visobjids.size(); idx++ )
 	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
@@ -109,7 +109,7 @@ void uiODVw2DEMTreeItem::emobjChangeCB( CallBacker* cb )
 	displayMiniCtab();
     else if ( cbdata.changeType() == EM::Object::cNameChange() )
     {
-	name_ = toUiString(DBM().nameOf( emid_ ));
+	name_ = toUiString( emid_ .name() );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
 }

@@ -18,7 +18,6 @@ ___________________________________________________________________
 #include "emmarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "marchingcubes.h"
 #include "randcolor.h"
@@ -144,7 +143,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	     stype != "MarchingCubesSurface" )
 	    continue;
 
-	PtrMan<IOObj> ioobj = DBM().get( objs[idx]->id() );
+	PtrMan<IOObj> ioobj = objs[idx]->id().getIOObj();
 	PtrMan<Conn> conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
 	if ( !conn )
 	    continue;
@@ -476,22 +475,23 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	bool saveas = mnuid==saveasmnuitem_.id || emid_.isInvalid();
 	if ( !saveas )
 	{
-	    PtrMan<IOObj> ioobj = DBM().get( emid_ );
+	    PtrMan<IOObj> ioobj = emid_.getIOObj();
 	    saveas = !ioobj;
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
-	const bool notempty = !DBM().nameOf(emid_).isEmpty();
+	const BufferString objnm( emid_.name() );
+	const bool notempty = !objnm.isEmpty();
 	if ( saveas && notempty )
 	{
 	    if ( plg_ )
-		plg_->setName( DBM().nameOf(emid_) );
+		plg_->setName( objnm );
 
 	    if ( rpb_ )
-		rpb_->setName( DBM().nameOf(emid_) );
+		rpb_->setName( objnm );
 
 	    if ( mcd_ )
-		mcd_->setName( DBM().nameOf(emid_) );
+		mcd_->setName( objnm );
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}

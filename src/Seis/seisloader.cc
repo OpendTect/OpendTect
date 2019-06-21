@@ -358,7 +358,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 			    .arg( ioobj_->name() ) );
     if ( is2d )
     {
-	const BufferString linenm( nameOf(tkzs_.hsamp_.getGeomID()) );
+	const BufferString linenm( tkzs_.hsamp_.getGeomID().name() );
 	if ( !linenm.isEmpty() )
 	    msg_.constructWordWith( toUiString("|%1" ).arg( linenm.str() ) );
     }
@@ -1056,7 +1056,7 @@ bool Seis::SequentialFSLoader::init()
 			    .arg( ioobj_->name() ) );
     if ( is2d )
     {
-	const BufferString linenm( nameOf(geomid) );
+	const BufferString linenm( geomid.name() );
 	if ( !linenm.isEmpty() )
 	    msg_.constructWordWith( toUiString("|%1" ).arg( linenm.str() ) );
     }
@@ -1247,7 +1247,7 @@ uiString Seis::SequentialPSLoader::nrDoneText() const
 bool Seis::SequentialPSLoader::init()
 {
     gatherdp_ = new GatherSetDataPack();
-    const StringPair strpair( prov_->name(), nameOf(geomid_));
+    const StringPair strpair( prov_->name(), geomid_.name());
     gatherdp_->setName( strpair.getCompString() );
     return true;
 }

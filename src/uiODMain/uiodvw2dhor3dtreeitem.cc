@@ -380,7 +380,7 @@ bool uiODVw2DHor3DTreeItem::init()
 
     displayMiniCtab();
 
-    name_ = toUiString(DBM().nameOf( emid_ ));
+    name_ = toUiString( emid_.name() );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor3DTreeItem,checkCB) );
@@ -475,7 +475,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	if ( trackerid>= 0 )
 	    renameVisObj();
 
-	name_ = toUiString( DBM().nameOf(emid_) );
+	name_ = toUiString( emid_.name() );
 	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
 

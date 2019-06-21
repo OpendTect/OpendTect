@@ -84,9 +84,9 @@ uiSeisSampleEditor::Setup::Setup( const DBKey& ky, Pos::GeomID linegeomid )
     , startz_(mUdf(float))
     , readonly_(false)
 {
-    BufferString dataname( DBM().nameOf(id_) );
+    BufferString dataname( id_.name() );
     if ( !mIsUdfGeomID(geomid_) )
-	dataname.add( ": " ).add( nameOf(geomid_) );
+	dataname.add( ": " ).add( geomid_.name() );
 
     wintitle_ = tr("Browse/Edit '%1'").arg( dataname );
 }
@@ -922,7 +922,7 @@ void uiSeisSampleEditor::dispTracesPush( CallBacker* )
 	mAttachCB( trcbufvwr_->windowClosed, uiSeisSampleEditor::bufVwrClose );
 
 	trcbufvwr_->setTrcBuf( &viewtbuf_, geomType(), "Browsed seismic data",
-				    DBM().nameOf(setup_.id_), compnr_ );
+				    setup_.id_.name(), compnr_ );
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
 	if ( (viewtbuf_.isEmpty()) )
@@ -990,7 +990,7 @@ void uiSeisSampleEditor::nrTracesChgCB( CallBacker* )
     if ( trcbufvwr_ )
     {
 	trcbufvwr_->setTrcBuf( &viewtbuf_, geomType(), "Browsed seismic data",
-				    DBM().nameOf(setup_.id_), compnr_ );
+				    setup_.id_.name(), compnr_ );
 	trcbufvwr_->handleBufChange();
     }
 }

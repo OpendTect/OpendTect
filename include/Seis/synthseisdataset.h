@@ -93,7 +93,7 @@ public:
     void		fillDispPars(IOPar&) const;
 
     DBKey		waveletID() const	{ return genpars_.wvltid_; }
-    BufferString	waveletName() const	{ return nameOf(waveletID()); }
+    BufferString	waveletName() const	{ return waveletID().name(); }
 
 protected:
 

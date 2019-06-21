@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiwelltiemgrdlg.h"
 
 #include "elasticpropsel.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"
 #include "seisioobjinfo.h"
@@ -324,7 +323,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 {
     if ( wtsetup_.seisid_.isValid() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( wtsetup_.seisid_ );
+	PtrMan<IOObj> ioobj = wtsetup_.seisid_.getIOObj();
 	if ( !ioobj )
 	{
 	    uiString errmsg = tr("The Seismic data in the stored setup "
@@ -485,7 +484,7 @@ bool uiTieWinMGRDlg::initSetup()
 	    // msg required because the seismic is optional
 
 	wtsetup_.seisid_ = seisid;
-	wtsetup_.seisnm_ = DBM().nameOf( seisid );
+	wtsetup_.seisnm_ = seisid.name();
 	if ( is2d )
 	    wtsetup_.linenm_ = seislinefld_->getInput();
 	else
@@ -573,8 +572,9 @@ bool uiTieWinMGRDlg::acceptOK()
     welltiedlgset_ += wtdlg;
     wtdlg->windowClosed.notify( mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
 
-    PtrMan<IOObj> ioobj = DBM().get( wtsetup_.wellid_ );
-    if ( !ioobj ) return false;
+    PtrMan<IOObj> ioobj = wtsetup_.wellid_.getIOObj();
+    if ( !ioobj )
+	return false;
 
     const BufferString fname( ioobj->fullUserExpr(true) );
     WellTie::Reader wtr( fname );

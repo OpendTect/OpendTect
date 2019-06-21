@@ -37,7 +37,7 @@ SeisPS2DReader::SeisPS2DReader( const char* lnm )
 
 SeisPS2DReader::SeisPS2DReader( Pos::GeomID geomid )
     : geomid_(geomid)
-    , lnm_(nameOf(geomid))
+    , lnm_(geomid.name())
 {}
 
 
@@ -116,7 +116,7 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
 	return false;
 
     for ( int idx=0; idx<geomids.size(); idx++ )
-	linenms.add( nameOf(geomids[idx]) );
+	linenms.add( geomids[idx].name() );
 
     return !linenms.isEmpty();
 }
@@ -642,7 +642,7 @@ void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
     BufferString fnm( get2DFileName(geomid) );
     if ( !File::exists(fnm) )
     {
-	errmsg_ = tr("Line %1 does not exist").arg( nameOf(geomid) );
+	errmsg_ = tr("Line %1 does not exist").arg( geomid.name() );
 	return;
     }
 
@@ -725,7 +725,7 @@ bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, Pos::GeomID geomid )
 	: SeisCBVSPSIO(dirnm)
 	, prevnr_(mUdf(int))
-	, lnm_(nameOf(geomid))
+	, lnm_(geomid.name())
 	, geomid_(geomid)
 {
     if ( !dirNmOK(false) ) return;

@@ -72,7 +72,7 @@ void WellServerTool::listWells()
     set( sKey::ID(mPlural), wellids );
     BufferStringSet nms;
     for ( auto wellid : wellids )
-	nms.add( nameOf(*wellid) );
+	nms.add( wellid->name() );
     set( sKey::Name(mPlural), nms );
     respondInfo( true );
 }
@@ -165,7 +165,7 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 	getWD( wellid, LoadReqs(Well::Inf,Well::Trck) );
 
     const auto sz = wl->size();
-    set( sKey::Well(), nameOf(wellid) );
+    set( sKey::Well(), wellid.name() );
     set( sKey::Name(), wl->name() );
     set( sKey::Size(), wl->size() );
     const auto* uom = wl->unitOfMeasure();

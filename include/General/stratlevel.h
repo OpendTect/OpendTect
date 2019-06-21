@@ -36,7 +36,11 @@ mExpClass(General) Level : public NamedMonitorable
 {
 public:
 
-    mDefIntegerIDType(	ID);
+    mDefIntegerIDTypeFull(int,ID,-1,
+
+	inline BufferString    name() const;
+
+	    );
 
 			Level(const char* nm,const Color&,ID =ID::getInvalid());
 			mDeclInstanceCreatedNotifierAccess(Level);
@@ -159,6 +163,7 @@ public:
 mGlobal(General) const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
 inline BufferString nameOf( const Level::ID& id ) { return LVLS().nameOf(id); }
+inline BufferString Strat::Level::ID::name() const { return nameOf(*this); }
 
 // From here: do not use, you will not need it.
 // Needless to say that if you push, make sure you pop (so afterwards the real

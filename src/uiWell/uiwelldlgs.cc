@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uiwellsel.h"
 
 #include "dbdir.h"
-#include "dbman.h"
 #include "file.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
@@ -73,7 +72,7 @@ uiString getWinTitle( const uiString& objtyp,
 
 uiString getDlgTitle( const DBKey& wllky )
 {
-    const BufferString wellnm = DBM().nameOf( wllky );
+    const BufferString wellnm = wllky.name();
     return toUiString("%1: %2").arg(uiStrings::sWell()).arg(wellnm);
 }
 

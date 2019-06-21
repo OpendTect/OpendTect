@@ -62,6 +62,7 @@ public:
 
     GeomID		getGeomID(const char* linenm) const;
     const char*		getName(GeomID) const;
+    GeomID		default2DGeomID() const;
 
     bool		fillGeometries(const TaskRunnerProvider&);
     void		list2D(GeomIDSet&,BufferStringSet* nms=0) const;

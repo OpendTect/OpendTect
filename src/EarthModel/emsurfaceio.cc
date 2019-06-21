@@ -256,7 +256,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 
 	    geomids_ += geomid;
 	    if ( !haslinenames )
-		linenames_.add( nameOf(geomid) );
+		linenames_.add( geomid.name() );
 	    StepInterval<int> trcrange;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		       trcrange );

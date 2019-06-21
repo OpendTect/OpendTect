@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "uipossubsel.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
-#include "trckeyzsampling.h"
-#include "posvecdatasettr.h"
+#include "horsubsel.h"
 #include "ioobjctxt.h"
+#include "posvecdatasettr.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 
 #include "file.h"
@@ -165,9 +166,17 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
     cs = TrcKeyZSampling( OD::UsrWork );
     if ( hrgfld_ )
-	cs.hsamp_ = hrgfld_->getSampling();
-    if ( nrrgfld_ )
-	cs.hsamp_.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
+	cs.hsamp_ = TrcKeySampling( CubeHorSubSel(hrgfld_->getSampling()) );
+    else if ( nrrgfld_ )
+    {
+	auto gid = setup_.tkzs_.hsamp_.getGeomID();
+	if ( !gid.isValid() )
+	    { pErrMsg("GeomID required"); gid = Pos::GeomID::getDefault2D(); }
+	LineHorSubSel lhss( gid );
+	lhss.setTrcNrRange( nrrgfld_->getRange() );
+	cs.hsamp_ = TrcKeySampling( lhss );
+    }
+
     if ( zrgfld_ )
 	cs.zsamp_ = zrgfld_->getRange();
 }

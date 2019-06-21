@@ -7,7 +7,6 @@
 
 #include "seisposprovider.h"
 #include "seisprovider.h"
-#include "dbman.h" // for ID -> name
 #include "iopar.h"
 #include "keystrs.h"
 #include "uistrings.h"
@@ -149,7 +148,7 @@ void Pos::SeisProvider3D::getSummary( uiString& txt ) const
     if ( id_.isInvalid() )
 	txt = tr("No selection").embedFinalState();
     else
-	txt = toUiString( "=> %1" ).arg( toUiString(DBM().nameOf(id_)) );
+	txt = toUiString( "=> %1" ).arg( id_.name() );
     const int nrsamps = nrSamples();
     if ( nrsamps > 1 )
 	txt.appendPhrase( toUiString("%1 %2").arg( nrsamps )

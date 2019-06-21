@@ -195,7 +195,7 @@ void SeisServerTool::listLines( const char* attr )
     {
 	const GeomID gid = prov_->geomID( idx );
 	gids.add( gid.getI() );
-	lnms.add( nameOf(gid) );
+	lnms.add( gid.name() );
     }
     set( sKey::Size(), gids.size() );
     set( sKey::GeomID(mPlural), gids );

@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emtracker.h"
 #include "emobject.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "randcolor.h"
@@ -260,7 +259,7 @@ bool uiODVw2DFaultTreeItem::init()
     mAttachCB( emobj->objectChanged(), uiODVw2DFaultTreeItem::emobjChangeCB );
     displayMiniCtab();
 
-    name_ = toUiString( DBM().nameOf(emid_) );
+    name_ = toUiString( emid_.name() );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
@@ -332,7 +331,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = toUiString( DBM().nameOf(emid_) );
+	name_ = toUiString( emid_.name() );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 		isRemoveItem(mnuid,false);

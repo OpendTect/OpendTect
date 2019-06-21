@@ -123,7 +123,7 @@ uiRetVal Saveable::save( const TaskRunnerProvider& trprov ) const
 	{ pErrMsg("save already deleted object"); return uiRetVal::OK(); }
 
     uiRetVal uirv;
-    PtrMan<IOObj> ioobj = DBM().get( storekey_ );
+    PtrMan<IOObj> ioobj = storekey_.getIOObj();
     if ( !ioobj )
     {
 	if ( storekey_.isValid() )
@@ -137,7 +137,7 @@ uiRetVal Saveable::save( const TaskRunnerProvider& trprov ) const
 	{
 	    ioobj->pars().merge( ioobjpars_ );
 	    DBM().setEntry( *ioobj );
-	    ioobj = DBM().get( storekey_ );
+	    ioobj = storekey_.getIOObj();
 	}
 
 	uirv = store( *ioobj, trprov );
@@ -367,7 +367,7 @@ void SaveableManager::setIOObjPars( const ObjID& id, const IOPar& iop ) const
 
 IOObj* SaveableManager::getIOObj( const ObjID& id ) const
 {
-    return DBM().get( id );
+    return id.getIOObj();
 }
 
 
@@ -379,7 +379,7 @@ IOObj* SaveableManager::getIOObjByName( const char* nm ) const
 
 BufferString SaveableManager::nameOf( const ObjID& id ) const
 {
-    return DBM().nameOf( id );
+    return id.name();
 }
 
 

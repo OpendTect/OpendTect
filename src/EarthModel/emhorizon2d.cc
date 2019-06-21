@@ -59,7 +59,7 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 {
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	const FixedString curlinenm( nameOf(geomids_[idx]) );
+	const BufferString curlinenm( geomids_[idx].name() );
 	if ( curlinenm == linenm )
 	    return idx;
     }
@@ -69,7 +69,7 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 
 
 const char* Horizon2DGeometry::lineName( int lidx ) const
-{ return geomids_.validIdx(lidx) ? nameOf( geomids_[lidx] ) : 0; }
+{ return geomids_.validIdx(lidx) ? geomids_[lidx].name() : 0; }
 
 Pos::GeomID Horizon2DGeometry::geomID( int idx ) const
 {

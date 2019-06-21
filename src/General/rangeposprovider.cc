@@ -607,7 +607,7 @@ void Pos::RangeProvider2D::getSummary( uiString& txt ) const
     BufferStringSet geomnms;
 
     for ( int idx=0; idx<geomids_.size(); idx++ )
-	geomnms.add( nameOf( geomids_[idx]) );
+	geomnms.add( geomids_[idx].name() );
 
     txt.appendPhrase(toUiString(geomnms.getDispString()),uiString::MoreInfo,
 						    uiString::OnSameLine);

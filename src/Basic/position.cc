@@ -177,7 +177,7 @@ bool Bin2D::fromString( const char* str )
 BufferString Bin2D::usrDispStr() const
 {
     BufferString ret;
-    ret.set( trcnr_ ).add( "@'" ).add( nameOf(geomid_) ).add( "." );
+    ret.set( trcnr_ ).add( "@'" ).add( geomid_.name() ).add( "." );
     return ret;
 }
 

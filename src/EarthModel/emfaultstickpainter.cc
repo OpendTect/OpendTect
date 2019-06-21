@@ -68,7 +68,7 @@ FaultStickPainter::~FaultStickPainter()
 
 
 const char* FaultStickPainter::getLineName() const
-{ return nameOf( geomid_ ); }
+{ return geomid_.name(); }
 
 void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 { tkzs_ = cs; }

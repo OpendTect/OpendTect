@@ -90,7 +90,7 @@ bool uiSeisCopy::acceptOK()
 	js.pars_.mergeComp( inppar, sKey::Input() );
 	IOPar outpar; storfld_->fillPar( outpar );
 	js.pars_.mergeComp( outpar, sKey::Output() );
-	batchfld_->setJobName( nameOf(copiedID()) );
+	batchfld_->setJobName( copiedID().name() );
 	return batchfld_->start();
     }
 

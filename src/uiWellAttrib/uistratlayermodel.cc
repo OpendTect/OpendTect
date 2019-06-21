@@ -624,7 +624,7 @@ bool uiStratLayerModel::checkUnscaledWavelets()
 	uiString msg;
 	if ( unscaledids.size() < 2 )
 	    msg.set( tr("Wavelet '%1' is not marked as 'scaled'").arg(
-			    nameOf(unscaledids.first()) ) );
+			    unscaledids.first().name() ) );
 	else
 	    msg.set( tr("Some used wavelets are not marked as 'scaled'") );
 	msg.appendPhrase(

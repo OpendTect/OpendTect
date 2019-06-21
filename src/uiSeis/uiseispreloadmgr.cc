@@ -14,8 +14,6 @@
 #include "datapack.h"
 #include "file.h"
 #include "filepath.h"
-#include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "preloads.h"
 #include "ptrman.h"
@@ -229,9 +227,9 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     {
 	BufferStringSet lnms;
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
-	    lnms.add( nameOf(loadedgeomids[idx]) );
+	    lnms.add( loadedgeomids[idx].name() );
 	uiString msg = tr("%1 dataset for lines %2 is already preloaded")
-			    .arg( DBM().nameOf(key) )
+			    .arg( key.name() )
 			    .arg( lnms.getDispString() );
 	msg.appendPhrase( tr("Do you want to reload?"),
 			  uiString::NoSep, uiString::AfterEmptyLine );

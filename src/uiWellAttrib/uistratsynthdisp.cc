@@ -350,7 +350,7 @@ void uiStratSynthDisp::updWvltFld()
 {
     const auto wvltid = datamgr_.waveletID(wvaselfld_->curID()) ;
     if ( wvltid.isValid() )
-	wvltfld_->setText( nameOf(wvltid) );
+	wvltfld_->setText( wvltid.name() );
     else
 	wvltfld_->setText( "" );
 }

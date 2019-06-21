@@ -192,7 +192,7 @@ const SurveyInfo& DBKey::surveyInfo() const
 
 bool DBKey::isUsable() const
 {
-    IOObj* ioobj = getIOObj( *this );
+    IOObj* ioobj = getIOObj();
     if ( !ioobj )
 	return false;
     delIOObj( ioobj );

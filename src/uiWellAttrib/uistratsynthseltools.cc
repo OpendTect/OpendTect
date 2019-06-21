@@ -347,7 +347,7 @@ void uiStratSeisEvent::putToScreen()
 	    const bool havelvl = ev_.downToLevelID().isValid();
 	    uptolvlfld_->setChecked( havelvl );
 	    if ( havelvl )
-		uptolvlfld_->setText( nameOf(ev_.downToLevelID()) );
+		uptolvlfld_->setText( ev_.downToLevelID().name() );
 	}
     }
 }

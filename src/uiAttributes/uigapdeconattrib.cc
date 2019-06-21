@@ -689,7 +689,7 @@ void uiGDPositionDlg::popUpPosDlg()
     TrcKeyZSampling inputcs = tkzs_;
     if ( is2d )
     {
-	SeisTrcTranslator::getRanges( mid_, inputcs, nameOf(getGeomID()) );
+	SeisTrcTranslator::getRanges( mid_, inputcs, getGeomID().name() );
 	tkzs_.hsamp_.set(inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange());
     }
 

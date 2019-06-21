@@ -103,7 +103,7 @@ static void getDataNames( const GeomIDSet ids, SeisIOObjInfo::Opts2D o2d,
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	BufferStringSet nms;
-	const char* linenm = nameOf( ids[idx] );
+	const char* linenm = ids[idx].name();
 	SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
 	for ( int nmidx=0; nmidx<nms.size(); nmidx++ )
 	    names.addIfNew( nms.get(nmidx) );

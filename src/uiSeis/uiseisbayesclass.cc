@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "od_helpids.h"
@@ -47,7 +46,7 @@ static ProbDenFunc* getPDF( const char* id, uiString& emsg )
 {
     if ( !id || !*id )
 	{ emsg = od_static_tr("getPDF","No ID"); return 0; }
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(id) );
+    PtrMan<IOObj> ioobj = DBKey(id).getIOObj();
     if ( !ioobj )
 	{ emsg = od_static_tr("getPDF","No IOObj"); return 0; }
     return ProbDenFuncTranslator::read(*ioobj,&emsg);
@@ -285,7 +284,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     for ( int idx=0; idx<nrpdfs_; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	uiString fldtxt = tr("For '%1'").arg(toUiString(DBM().nameFor(id)));
+	uiString fldtxt = tr("For '%1'").arg(DBKey(id).name());
 
 	float scl = 1;
 	FixedString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
@@ -528,7 +527,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
 	const DBKey dbky = DBKey::getFromStr( id );
-	addOut( DBM().nameOf(dbky), true );
+	addOut( dbky.name(), true );
     }
     if ( flds3d_.size() < 2 )
 	haveclass_ = false;

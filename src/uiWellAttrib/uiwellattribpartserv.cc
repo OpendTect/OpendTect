@@ -182,7 +182,7 @@ void uiWellAttribPartServer::doXPlot( bool is2d )
 bool uiWellAttribPartServer::createAttribLog( const DBKey& wellid )
 {
     BufferStringSet wellnames;
-    wellnames.add( DBM().nameOf(wellid) );
+    wellnames.add( wellid.name() );
     return createAttribLog( wellnames );
 }
 

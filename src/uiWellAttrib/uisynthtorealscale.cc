@@ -117,7 +117,7 @@ void sliderChgCB( CallBacker* )
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, const DataMgr& dmgr,
 		    const DBKey& wid, bool use2d, const LevelID& lvlid )
     : uiDialog(p,Setup(tr("Scale synthetics"),
-		       tr("Determine scaling for '%1'").arg( nameOf(wid) ),
+		       tr("Determine scaling for '%1'").arg( wid.name() ),
 			mODHelpKey(mSynthToRealScaleHelpID) ))
     , seisev_(*new SeisEvent)
     , use2dseis_(use2d)

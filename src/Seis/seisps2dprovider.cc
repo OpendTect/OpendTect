@@ -68,7 +68,7 @@ bool Seis::PS2DFetcher::mkReader( GeomID gid )
     delete rdr_;
     rdr_ = prov().ioobj_ ? SPSIOPF().get2DReader( *prov().ioobj_, gid ) : 0;
     if ( !rdr_ )
-	uirv_.set( tr("No data for %1").arg( nameOf(gid) ) );
+	uirv_.set( tr("No data for %1").arg( gid.name() ) );
     else
 	{ uirv_.setOK(); getDataPack(); }
     return uirv_.isOK();
