@@ -11,10 +11,16 @@ ________________________________________________________________________
 -*/
 
 #include "networkmod.h"
+
 #include "bufstringset.h"
 #include "refcount.h"
+#include "uistringset.h"
 
 #define mRequestPacketHeaderSize		10
+
+class IOPar;
+template <class T> class ArrayND;
+namespace OD { namespace JSON { class Object; } }
 
 
 namespace Network
@@ -36,7 +42,7 @@ namespace Network
   */
 
 mExpClass(Network) RequestPacket : public RefCount::Referenced
-{
+{ mODTextTranslationClass(RequestPacket)
 public:
 			RequestPacket(od_int32 payloadsize=0);
 			RequestPacket(const RequestPacket&);
@@ -46,7 +52,12 @@ public:
     bool		isRequestEnd() const { return subID()<cMoreSubID(); }
     bool		isError() const      { return subID()==cErrorSubID(); }
     const void*		payload() const;
+
     void		getStringPayload(BufferString&) const;
+    uiRetVal		getPayload(OD::JSON::Object&) const;
+    uiRetVal		getPayload(IOPar&) const;
+    template <class T> ArrayND<T>*	getPayload(uiRetVal&) const;
+
     od_int32		payloadSize() const;
     od_int32		totalSize() const
 			{ return payloadSize() + mRequestPacketHeaderSize; }
@@ -59,6 +70,9 @@ public:
     void*		allocPayload(od_int32 size);
     void		setPayload(void*,od_int32 size); //!< buf becomes mine
     void		setStringPayload(const char*);
+    void		setPayload(const OD::JSON::Object&);
+    void		setPayload(const IOPar&);
+    template <class T> void	setPayload(const ArrayND<T>&);
 
     void		addErrMsg(BufferString&) const;
 
@@ -72,12 +86,12 @@ protected:
     union Header
     {
 	od_int32	int32s_[2];
-	od_int16	int16s_[5]; //!< only int16s_[4] is used
+	od_int16	int16s_[5] = {0,0,0,0,0}; //!< only int16s_[4] is used
     };
 
 
     Header		header_;
-    char*		payload_;
+    char*		payload_ = nullptr;
 
     static od_int16	cBeginSubID()		{ return -1; }
     static od_int16	cMoreSubID()		{ return -2; }
@@ -190,6 +204,22 @@ protected:
     mutable int			curpos_;
 
 };
+
+
+
+template <class T> inline
+void RequestPacket::setPayload( const ArrayND<T>& arr )
+{
+    //TODO: use packet interpreter
+}
+
+
+template <class T> inline
+ArrayND<T>* RequestPacket::getPayload( uiRetVal& uirv ) const
+{
+    //TODO: use packet interpreter
+    return nullptr;
+}
 
 
 template <class T>

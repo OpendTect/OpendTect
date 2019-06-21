@@ -9,9 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "netreqpacket.h"
+
 #include "atomic.h"
-#include "settings.h"
+#include "datainterp.h"
+#include "odjson.h"
 #include "ptrman.h"
+#include "settings.h"
 #include "string.h"
 
 
@@ -163,6 +166,41 @@ void Network::RequestPacket::setStringPayload( const char* str )
 }
 
 
+void Network::RequestPacket::setPayload( const OD::JSON::Object& req )
+{
+    BufferString reqstr;
+    req.dumpJSon( reqstr );
+
+    OD::JSON::Object jsonhdr;
+    jsonhdr.set( "byteorder", "little" );
+    jsonhdr.set( "content-type", "text/json" );
+    jsonhdr.set( "content-encoding", "utf-8" );
+    jsonhdr.set( "content-length", reqstr.size() );
+    jsonhdr.set( "source", "OpendTect" );
+    BufferString messagestr;
+    jsonhdr.dumpJSon( messagestr );
+    const int jsonhdrsz = messagestr.size();
+
+    messagestr.add( reqstr );
+    const DataInterpreter<OD::String::size_type> interp( OD::UI16 );
+    const int hdrsz = interp.nrBytes();
+    const od_int32 payloadsz = hdrsz + messagestr.size();
+    void* payloadptr = allocPayload( payloadsz );
+    od_uint16* payloadiptr = (od_uint16*)payloadptr;
+
+    interp.put( (void*)payloadiptr++, 0, jsonhdrsz );
+    OD::memCopy( payloadiptr, messagestr.str(), messagestr.size() );
+
+    setPayload( payloadptr, payloadsz );
+}
+
+
+void Network::RequestPacket::setPayload( const IOPar& req )
+{
+    //TODO
+}
+
+
 const void* Network::RequestPacket::payload() const
 {
     return payload_;
@@ -205,6 +243,52 @@ void Network::RequestPacket::getStringPayload( BufferString& str ) const
 	OD::memCopy( cstr, payload_ + sizeof(int), nrchars );
 	*(cstr+nrchars) = '\0';
     }
+}
+
+
+uiRetVal Network::RequestPacket::getPayload( OD::JSON::Object& json ) const
+{
+    uiRetVal ret;
+
+    const void* recpayloadptr = payload_;
+    const od_uint16* payloadiptr = (od_uint16*)recpayloadptr;
+
+    const DataInterpreter<OD::String::size_type> interp( OD::UI16 );
+    const int jsonhdrsz = interp.get( payloadiptr++, 0 );
+    BufferString jsonhdrstr( jsonhdrsz+1, true );
+    OD::memCopy( jsonhdrstr.getCStr(), payloadiptr, jsonhdrsz );
+    OD::JSON::Object hdr;
+    ret = hdr.parseJSon( jsonhdrstr.getCStr(), jsonhdrstr.size() );
+    if ( !ret.isOK() )
+	return ret;
+
+    const BufferString type( hdr.getStringValue("content-type") );
+    const od_int64 paysz = hdr.getIntValue( "content-length" );
+    const BufferString endianess( hdr.getStringValue("byteorder") );
+    const BufferString encoding( hdr.getStringValue("content-encoding") );
+    recpayloadptr = (const char*)payloadiptr + jsonhdrsz;
+
+    if ( type != "text/json" )
+    {
+	ret = tr("Incorrect return type");
+	ret.add( tr("Expected: %1").arg("text/json") );
+	ret.add( tr("Received: %1").arg(type) );
+	return ret;
+    }
+
+    BufferString messagestr( paysz+1, true );
+    OD::memCopy( messagestr.getCStr(), recpayloadptr, paysz );
+    ret = json.parseJSon( messagestr.getCStr(), messagestr.size() );
+
+    return ret;
+}
+
+
+uiRetVal Network::RequestPacket::getPayload( IOPar& par ) const
+{
+    //TODO
+    uiRetVal ret;
+    return ret;
 }
 
 
