@@ -16,11 +16,12 @@
 
 static const int cProtocolNr = 1;
 
-static const char* sAddCmd	= "add";
-static const char* sRemoveCmd	= "remove";
-static const char* sAddOSCmd()	{ return "netsh firewall add allowedprogram "; }
-static const char* sDelOSCmd()
-			    { return "netsh firewall delete allowedprogram "; }
+static const char* sAddStr	= "add";
+static const char* sRemoveStr	= "remove";
+static uiString sAddOSCmd() { return toUiString( "netsh advfirewall firewall "
+	    "add rule name=%1 dir=in action=allow program=%2 enable=yes" ); }
+static uiString sDelOSCmd() { return toUiString("netsh advfirewall firewall "
+					    "delete rule name=%1 program=%2"); }
 /*
 Command --add p <procnm1> <procnm2> :  In case process is python related
 Command --add o <procnm1> <procnm2> :  In case process is opendtect related
@@ -30,15 +31,13 @@ class SetUpFirewallServerTool : public ServerProgTool
 {
 public :
 			SetUpFirewallServerTool(int,char**);
-    bool		addProcess(const BufferString&);
-    bool		removeProcess(const BufferString&);
+    bool		handleProcess(BufferString&,bool);
     bool		ispyproc_;
 
 protected :
     BufferString	getSpecificUsage() const override;
     void		createDirPaths();
 
-    BufferStringSet	processnmset_;
     File::Path		pypath_;
     File::Path		odpath_;
 };
@@ -72,7 +71,7 @@ void SetUpFirewallServerTool::createDirPaths()
 }
 
 
-bool SetUpFirewallServerTool::addProcess( const BufferString& procnm )
+bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 {
     BufferString exenm = procnm;
     File::Path fp( ispyproc_ ? pypath_ : odpath_ );
@@ -88,12 +87,11 @@ bool SetUpFirewallServerTool::addProcess( const BufferString& procnm )
 	fp.add( exenm );
     }
 
-    OS::MachineCommand cmd = sAddOSCmd();
-    BufferString path = fp.fullPath();
-    path.quote( '"' );
-    cmd.addArg( path ); cmd.addArg( procnm ); cmd.addArg( "ENABLE" );
-    BufferString erroutput;
-    BufferString command = cmd.getSingleStringRep();
+    uiString command = toadd ? sAddOSCmd() : sDelOSCmd();
+    command.arg( procnm.quote('"') ).arg( fp.fullPath() );
+
+    OS::MachineCommand cmd( command.getString() );
+
     OS::CommandExecPars pars;
     pars.launchtype( OS::LaunchType::RunInBG );
     pars.prioritylevel( 1 );
@@ -102,11 +100,6 @@ bool SetUpFirewallServerTool::addProcess( const BufferString& procnm )
     return true;
 }
 
-
-bool SetUpFirewallServerTool::removeProcess( const BufferString& procnm )
-{
-    return false;
-}
 
 BufferString SetUpFirewallServerTool::getSpecificUsage() const
 {
@@ -123,11 +116,11 @@ int main( int argc, char** argv )
     clp.getNormalArguments( procnms ); //idx=0 correspond to OD/Python env
     progtool.ispyproc_ = procnms.get( 0 ) == "o" ? false : true;
 
+    bool toadd = clp.hasKey( sAddStr );
+    
+    if ( !toadd && !clp.hasKey(sRemoveStr) )
+	return 0;
+
     for ( int procidx=1; procidx<procnms.size(); procidx++ )
-    {
-	if ( clp.hasKey( sAddCmd ) )
-	    progtool.addProcess( procnms.get(procidx) );
-	else
-	    progtool.removeProcess( procnms.get( procidx ) );
-    }
+	progtool.handleProcess( procnms.get(procidx), toadd );
 }
