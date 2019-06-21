@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioobj.h"
 #include "dbman.h"
+#include "linesubsel.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "posprovider.h"
@@ -417,12 +418,10 @@ void uiSeis2DSubSel::getTKZS( TrcKeyZSampling& tkzs, Pos::GeomID geomid ) const
     if ( singlelnmsel_ && !geomid.isValid() )
 	geomid = singlelnmsel_->getInputGeomID();
 
-    tkzs.set2DDef();
-    const auto lnr = geomid.lineNr();
-    tkzs.hsamp_.setLineRange( StepInterval<int>(lnr,lnr,1) );
-    tkzs.hsamp_.setTrcRange( getTrcRange(geomid) );
-    tkzs.zsamp_.setFrom( getZRange(geomid) );
-
+    LineSubSel lss( geomid );
+    lss.setTrcNrRange( getTrcRange(geomid) );
+    lss.setZRange( getZRange(geomid) );
+    tkzs = TrcKeyZSampling( lss );
 }
 
 
@@ -430,19 +429,10 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 {
     if ( singlelnmsel_ )
     {
-	const Pos::GeomID selid = singlelnmsel_->getInputGeomID();
-	SeisIOObjInfo oif( inpkey_ );
-	StepInterval<float> zrg;
-	StepInterval<int> trcrg;
-	if ( oif.getRanges(selid,trcrg,zrg) )
-	{
-	    TrcKeyZSampling cs;
-	    StepInterval<int> inlrg( 0, 0, 1 );
-	    cs.hsamp_.set( inlrg, trcrg );
-	    cs.zsamp_ = zrg;
-	    selfld_->setInput( cs );
-	    selfld_->setInputLimit( cs );
-	}
+	const LineSubSel lss( singlelnmsel_->getInputGeomID() );
+	const TrcKeyZSampling tkzs( lss );
+	selfld_->setInputLimit( tkzs );
+	selfld_->setInput( tkzs );
     }
 
     selChange.trigger();
