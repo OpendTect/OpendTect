@@ -789,14 +789,22 @@ public:
 
 
 
-uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions,
-			      bool keepcleanbut )
-    : uiCompoundParSel(p,uiStrings::sFault(mPlural))
+uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool withfltset,
+					bool useoptions, bool keepcleanbut )
+    : uiCompoundParSel(p,toUiString("**********"))
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
+    , objselfld_(0)
 {
+    if ( withfltset )
+    {
+	objselfld_ = new uiGenInput( this, uiStrings::sUse(),
+			    BoolInpSpec(true, uiStrings::sFaultSet(mPlural),
+					    uiStrings::sFault(mPlural)) );
+	mAttachCB( objselfld_->valuechanged, uiFaultParSel::updateOnSelChgCB );
+    }
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
     if ( keepcleanbut )
     {
@@ -805,8 +813,29 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions,
 	clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
 	clearbut->attach( rightOf, selbut_ );
     }
-
+    if ( withfltset )
+	txtfld_->attach( alignedBelow, objselfld_ );
     txtfld_->setElemSzPol( uiObject::Wide );
+    mAttachCB( postFinalise(), uiFaultParSel::updateOnSelChgCB );
+}
+
+
+uiFaultParSel::~uiFaultParSel()
+{
+    detachAllNotifiers();
+}
+
+
+bool uiFaultParSel::isSelFltSet() const
+{
+    return objselfld_ ? objselfld_->getBoolValue() : false;
+}
+
+
+void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
+{
+    setSelText( isSelFltSet() ? uiStrings::sFaultSet(mPlural)
+					    : uiStrings::sFault(mPlural) );
 }
 
 
@@ -873,8 +902,9 @@ void uiFaultParSel::doDlg( CallBacker* )
     }
     else
     {
-	PtrMan<CtxtIOObj> ctio = is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
-				       : mMkCtxtIOObj(EMFault3D);
+	PtrMan<CtxtIOObj> ctio = isSelFltSet() ? mMkCtxtIOObj( EMFaultSet3D )
+					: is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
+					: mMkCtxtIOObj(EMFault3D);
 	uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sFault()) );
 			     sdsu.multisel( true );
 	uiIOObjSelDlg dlg( this, sdsu, *ctio );

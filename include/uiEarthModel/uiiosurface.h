@@ -28,6 +28,7 @@ class CtxtIOObj;
 class uiCheckBox;
 class uiColorInput;
 class uiFaultOptSel;
+class uiGenInput;
 class uiIOObjSel;
 class uiListBox;
 class uiPosSubSel;
@@ -208,8 +209,10 @@ mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 { mODTextTranslationClass(uiFaultParSel)
 public:
 				uiFaultParSel(uiParent*,bool is2d,
-					      bool use_act_option=false,
-					      bool keep_clean_but=true);
+						bool withfltset,
+						bool use_act_option=false,
+						bool keep_clean_but=true);
+				~uiFaultParSel();
 
 				/*Set my own options on selected, optional*/
     void			setActOptions(const BufferStringSet&,
@@ -224,14 +227,17 @@ public:
     void			setEmpty();
     void			setGeomIDs(const GeomIDSet&);
 				/*<for FaultStickSet picked from 2D lines.*/
-
+    void			updateOnSelChg( bool isfltset = false );
     Notifier<uiFaultParSel>	selChange;
+
+    bool			isSelFltSet() const;
 
 protected:
 
     friend class		uiFaultOptSel;
     void			clearPush(CallBacker*);
     void			doDlg(CallBacker*);
+    void			updateOnSelChgCB( CallBacker* );
 
     bool			is2d_;
     BufferStringSet		selfaultnms_;
@@ -242,4 +248,6 @@ protected:
     BufferStringSet		optnms_;
     TypeSet<int>		optids_;
     int				defaultoptidx_;
+
+    uiGenInput*			objselfld_;
 };
