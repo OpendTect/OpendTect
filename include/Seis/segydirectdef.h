@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "segyfiledata.h"
-#include "bufstringset.h"
 #include "executor.h"
 #include "geomid.h"
 #include "od_iosfwd.h"

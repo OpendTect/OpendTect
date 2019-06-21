@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "i_common.h"
 
-#include "bufstringset.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
 #include "uistring.h"

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "prestackprocessingmod.h"
 #include "prestackprocessingmod.h"
-#include "bufstringset.h"
 #include "callback.h"
 #include "color.h"
 #include "dbkey.h"

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "uimain.h"
 #include "uistring.h"
-#include "bufstringset.h"
 
 #include "draw.h"
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 
 #include "ascstream.h"
-#include "bufstringset.h"
 #include "conn.h"
 #include "convert.h"
 #include "ioobj.h"

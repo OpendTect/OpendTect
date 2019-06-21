@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uimergeseis.h"
 
-#include "bufstringset.h"
 #include "seiscbvs.h"
 #include "seismerge.h"
 #include "seistrctr.h"

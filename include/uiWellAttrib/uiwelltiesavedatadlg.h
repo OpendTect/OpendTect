@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 
-#include "bufstringset.h"
 
 class uiCheckBox;
 class uiCheckList;

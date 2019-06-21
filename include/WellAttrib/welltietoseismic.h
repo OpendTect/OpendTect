@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 #include "elasticmodel.h"
-#include "bufstringset.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
 #include "uistring.h"

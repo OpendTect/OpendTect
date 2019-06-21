@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "transl.h"
-#include "bufstringset.h"
 
 class Probe;
 

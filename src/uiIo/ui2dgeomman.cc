@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "ui2dgeomman.h"
 
-#include "bufstringset.h"
 #include "dbman.h"
 #include "file.h"
 #include "linear.h"

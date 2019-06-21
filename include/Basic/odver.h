@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "odversion.h"
-#include "bufstringset.h"
 
 #include "gendefs.h"
 

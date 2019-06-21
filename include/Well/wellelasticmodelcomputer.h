@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "wellcommon.h"
 #include "elasticmodel.h"
-#include "bufstringset.h"
 #include "ranges.h"
 #include "uistring.h"
 #include "unitofmeasure.h"

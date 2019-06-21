@@ -9,7 +9,6 @@
 
 #include "ascstream.h"
 #include "attribdescset.h"
-#include "bufstringset.h"
 #include "conn.h"
 #include "file.h"
 #include "dbman.h"

@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uihor2dfrom3ddlg.h"
 
-#include "bufstringset.h"
 #include "emmanager.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"

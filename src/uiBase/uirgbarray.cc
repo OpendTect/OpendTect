@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uirgbarray.h"
 
-#include "bufstringset.h"
 #include "file.h"
 #include "uistrings.h"
 #include <QImage>

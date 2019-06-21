@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uivolumeprocessingmod.h"
 
 #include "uivolprocstepdlg.h"
-#include "bufstringset.h"
 #include "wellloginterpolator.h"
 
 class uiGridder2DSel;

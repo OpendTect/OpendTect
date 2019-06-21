@@ -8,7 +8,6 @@
 #include "gmtmod.h"
 #include "iopar.h"
 #include "namedobj.h"
-#include "bufstringset.h"
 
 
 namespace ODGMT
@@ -18,8 +17,8 @@ mExpClass(GMT) ProcFlow : public ::NamedObject
 {
 public:
 
-    			ProcFlow(const char* nm=0);
-    			~ProcFlow();
+			ProcFlow(const char* nm=0);
+			~ProcFlow();
 
     const IOPar&	pars() const			{ return iop_; }
     IOPar&		pars()				{ return iop_; }

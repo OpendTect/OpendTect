@@ -9,10 +9,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "geometrymod.h"
 #include "transl.h"
-#include "bufstringset.h"
 
 namespace Geometry { class RandomLineSet; }
 class Conn;
@@ -21,7 +20,7 @@ mExpClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
 {  isTranslatorGroup(RandomLineSet);
     mODTextTranslationClass(RandomLineSetTranslatorGroup);
 public:
-    			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
+			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
 
     const char*		defExtension() const		{ return "rdl"; }
 };
@@ -30,7 +29,7 @@ public:
 mExpClass(Geometry) RandomLineSetTranslator : public Translator
 { mODTextTranslationClass(RandomLineSetTranslator)
 public:
-    			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
+			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
 
     virtual const char*	read(Geometry::RandomLineSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
@@ -38,13 +37,13 @@ public:
 			//!< returns err msg or null on success
 
     static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
-	    			 BufferString&);
+				 BufferString&);
     static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
-	    			 uiString&);
+				 uiString&);
     static bool		store(const Geometry::RandomLineSet&,const IOObj*,
-	    		      BufferString&);
+			      BufferString&);
     static bool		store(const Geometry::RandomLineSet&,const IOObj*,
-	    		      uiString&);
+			      uiString&);
 };
 
 
@@ -52,7 +51,7 @@ mExpClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
 {				isTranslator(dgb,RandomLineSet)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,RandomLineSet)
+			mDefEmptyTranslatorConstructor(dgb,RandomLineSet)
 
     const char*		read(Geometry::RandomLineSet&,Conn&);
     const char*		write(const Geometry::RandomLineSet&,Conn&);

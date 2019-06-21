@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uimsg.h"
 #include "uiobjbody.h"
-#include "bufstringset.h"
 #include "staticstring.h"
 
 #include <QApplication>

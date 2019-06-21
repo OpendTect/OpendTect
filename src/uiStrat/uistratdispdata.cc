@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "iopar.h"
-#include "bufstringset.h"
 #include "color.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"

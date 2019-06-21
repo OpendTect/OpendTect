@@ -9,7 +9,6 @@
 #include "iopar.h"
 #include "madproc.h"
 #include "namedobj.h"
-#include "bufstringset.h"
 #include "uistring.h"
 
 
@@ -23,18 +22,18 @@ public:
 
     enum IOType		{ Vol, VolPS, Line, LinePS, Madagascar, SU, None };
 
-    			ProcFlow(const char* nm=0);
-    			~ProcFlow();
+			ProcFlow(const char* nm=0);
+			~ProcFlow();
 
     IOPar&		input()			{ return inpiop_; }
     const IOPar&	input() const		{ return inpiop_; }
     const IOPar&	output() const		{ return outiop_; }
-    IOPar&		output() 		{ return outiop_; }
+    IOPar&		output()		{ return outiop_; }
 
     IOType		ioType( bool inp ) const
-    			{ return ioType( inp ? inpiop_ : outiop_ ); }
+			{ return ioType( inp ? inpiop_ : outiop_ ); }
     void		setIOType( bool inp, IOType iot )
-    			{ setIOType( inp ? inpiop_ : outiop_, iot ); }
+			{ setIOType( inp ? inpiop_ : outiop_, iot ); }
 
     bool		isOK(uiString&) const;
     void		fillPar(IOPar&) const;

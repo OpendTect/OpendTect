@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uicmddrivermod.h"
 #include "separstr.h"
-#include "bufstringset.h"
 #include "mousecursor.h"
 #include "uistring.h"
 

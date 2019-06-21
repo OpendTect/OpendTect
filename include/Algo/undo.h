@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "bufstringset.h"
 #include "notify.h"
 
 class UndoEvent;

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uispinbox.h"
 #include "uistrings.h"
-#include "bufstringset.h"
 
 
 static const int cMinWidth = 1;

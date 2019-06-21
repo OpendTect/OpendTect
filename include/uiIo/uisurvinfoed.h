@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uidialog.h"
-#include "bufstringset.h"
 #include "ranges.h"
 
 

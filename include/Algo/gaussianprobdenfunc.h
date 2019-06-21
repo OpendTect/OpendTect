@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "probdenfunc.h"
 #include "samplingdata.h"
 #include "arrayndimpl.h"
-#include "bufstringset.h"
 template <class T> class Array2DMatrix;
 namespace Stats { class NormalRandGen; }
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
-#include "bufstringset.h"
 #include "menuhandler.h"
 #include "separstr.h"
 

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uichecklist.h"
 #include "uistrings.h"
 #include "globexpr.h"
-#include "bufstringset.h"
 
 
 uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )

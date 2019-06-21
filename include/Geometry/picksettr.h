@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "transl.h"
-#include "bufstringset.h"
 
 class BinIDValueSet;
 class Conn;

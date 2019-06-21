@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "bufstringset.h"
 #include "geometry.h"
 #include "ptrman.h"
 

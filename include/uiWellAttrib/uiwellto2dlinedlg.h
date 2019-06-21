@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uistring.h"
-#include "bufstringset.h"
 class IOObj;
 class uiCheckBox;
 class uiGenInput;

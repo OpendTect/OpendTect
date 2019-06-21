@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "bufstringset.h"
 #include "executor.h"
 #include "geomid.h"
 #include "paralleltask.h"

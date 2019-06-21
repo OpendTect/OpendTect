@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "notify.h"
 #include "color.h"
 #include "ranges.h"
-#include "bufstringset.h"
 
 
 namespace Strat
@@ -45,7 +44,7 @@ public:
 				, isdisplayed_(true)
 				{}
 
-	const char*	name() const 	{ return name_.buf(); }
+	const char*	name() const	{ return name_.buf(); }
 	const char*	fullCode() const { return fullcode_.buf(); }
 
 	Color		color_;

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uidpsaddcolumndlg.h"
-#include "bufstringset.h"
 
 class uiCheckBox;
 class uiColTabSel;

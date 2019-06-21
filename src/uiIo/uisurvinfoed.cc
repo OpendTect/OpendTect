@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "uisip.h"
 
-#include "bufstringset.h"
 #include "cubesampling.h"
 #include "cubesubsel.h"
 #include "trckeyzsampling.h"

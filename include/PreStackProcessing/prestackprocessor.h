@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "bufstringset.h"
 #include "datapack.h"
 #include "factory.h"
 #include "keystrs.h"

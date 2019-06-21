@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "emobject.h"
-#include "bufstringset.h"
 #include "mathfunc.h"
 #include "rowcolsurface.h"
 

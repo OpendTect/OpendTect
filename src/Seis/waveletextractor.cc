@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "binidvalset.h"
-#include "bufstringset.h"
 #include "ioobj.h"
 #include "trckeyzsampling.h"
 #include "fourier.h"

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "attribdescid.h"
-#include "bufstringset.h"
 #include "datapack.h"
 #include "position.h"
 
