@@ -15,6 +15,7 @@
 #include "linesetposinfo.h"
 #include "dbman.h"
 #include "safefileio.h"
+#include "staticstring.h"
 #include "ascstream.h"
 #include "binidvalset.h"
 #include "posinfo2dsurv.h"
@@ -77,7 +78,11 @@ bool Seis2DDataSet::isEmpty() const
 { return !nrLines(); }
 
 const char* Seis2DDataSet::lineName( int idx ) const
-{ return geomID(idx).name(); }
+{
+    mDeclStaticString( ret );
+    ret = geomID(idx).name();
+    return ret.str();
+}
 
 Pos::GeomID Seis2DDataSet::geomID( int idx ) const
 { return geomids_.validIdx(idx) ? geomids_[idx] : mUdfGeomID; }
