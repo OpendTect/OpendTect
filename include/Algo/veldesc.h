@@ -25,7 +25,7 @@ To tag a velocity volume as a velocity, this class can be used to do the work:
 \code
     VelocityDesc desc( VelocityDesc::Interval );
 
-    PtrMan<IOObj> ioobj = DBM().get( dbkey );
+    PtrMan<IOObj> ioobj = dbkey.getIOObj();
     desc.fillPar( ioobj->pars() );
     DBM().setEntry( ioobj );
 
@@ -37,8 +37,8 @@ mExpClass(Algo) VelocityDesc
 { mODTextTranslationClass(VelocityDesc);
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
-    			mDeclareEnumUtils(Type);
-    
+			mDeclareEnumUtils(Type);
+
 			VelocityDesc();
 			VelocityDesc(Type);
 

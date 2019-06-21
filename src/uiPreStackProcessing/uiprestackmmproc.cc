@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "posinfo.h"
@@ -68,7 +67,7 @@ bool uiPreStackMMProc::initWork( bool retry )
 				PreStack::ProcessManager::sKeyInputData() );
     if ( !inpidstr || !*inpidstr )
 	mErrRet(tr("Key for input data store missing in job specification") )
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(inpidstr) );
+    PtrMan<IOObj> ioobj = DBKey(inpidstr).getIOObj();
     if ( !ioobj )
 	mErrRet(tr("Cannot find data store with ID: %1").arg(inpidstr))
 

@@ -48,7 +48,6 @@ ___________________________________________________________________
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "houghtransform.h"
-#include "dbdir.h"
 #include "embodytr.h"
 #include "emfault3d.h"
 #include "emhorizon3d.h"

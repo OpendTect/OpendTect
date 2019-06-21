@@ -13,7 +13,6 @@
 #include "file.h"
 #include "genc.h"
 #include "dbman.h"
-#include "dbdir.h"
 #include "iopar.h"
 #include "moddepmgr.h"
 #include "strmprov.h"

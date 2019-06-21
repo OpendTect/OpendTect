@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiodannottreeitem.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "picksetmanager.h"

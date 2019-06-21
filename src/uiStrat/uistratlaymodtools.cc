@@ -325,7 +325,7 @@ int uiStratLayModEditTools::selLevelIdx() const
 
 BufferString uiStratLayModEditTools::selLevelName() const
 {
-    return Strat::LVLS().nameOf( selLevelID() );
+    return selLevelID().name();
 }
 
 

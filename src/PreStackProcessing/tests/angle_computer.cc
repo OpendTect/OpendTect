@@ -159,6 +159,7 @@ bool compareAngles( const Gather& angles, int zidx, bool depth, bool feet )
 
 
 bool testAnglesForDifferentSurveys();
+static const char* vel_dbky_str = "100010.8";
 
 
 bool BatchProgram::go( od_ostream& strm )
@@ -169,7 +170,7 @@ bool BatchProgram::go( od_ostream& strm )
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
-    PtrMan<IOObj> velobj = DBM().get( DBKey::getFromStr("100010.8") );
+    PtrMan<IOObj> velobj = DBKey(vel_dbky_str).getIOObj();
     if ( !velobj )
     {
 	od_cout() << " Input data is not available.\n";
@@ -256,7 +257,7 @@ bool testAnglesForDifferentSurveys()
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
 
-	PtrMan<IOObj> velobj = DBM().get( DBKey::getFromStr("100010.8") );
+	PtrMan<IOObj> velobj = DBKey(vel_dbky_str).getIOObj();
 	if ( !velobj )
 	{
 	    od_cout() << survnm << " : Input data is not available.\n";

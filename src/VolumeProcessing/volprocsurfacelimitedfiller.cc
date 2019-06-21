@@ -16,7 +16,6 @@
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "separstr.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "executor.h"
 #include "seisdatapack.h"
@@ -141,7 +140,7 @@ bool SurfaceLimitedFiller::setSurfaces( const DBKeySet& hids,
 
     for ( int idx=0; idx<hids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( hids[idx] );
+	PtrMan<IOObj> ioobj = hids[idx].getIOObj();
 	if ( !ioobj )
 	{
 	    errmsg_ = tr("Object does not exist, "

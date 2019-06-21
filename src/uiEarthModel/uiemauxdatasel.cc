@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "keystrs.h"
 #include "emsurfacetr.h"
-#include "dbman.h"
 #include "ptrman.h"
 
 uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
@@ -68,7 +67,7 @@ const char* uiEMAuxDataSel::getAuxDataSel() const
 
 uiString uiEMAuxDataSel::getSummary() const
 {
-    PtrMan<IOObj> ioobj = DBM().get( hormid_ );
+    PtrMan<IOObj> ioobj = hormid_.getIOObj();
     if ( !ioobj )
 	return uiString::empty();
 

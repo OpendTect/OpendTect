@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "flatposdata.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "ioobjctxt.h"
 #include "picksetmanager.h"
 #include "seisdatapack.h"

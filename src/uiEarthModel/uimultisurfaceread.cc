@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "od_helpids.h"
 

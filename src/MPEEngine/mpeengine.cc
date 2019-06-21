@@ -943,9 +943,8 @@ const char* Engine::errMsg() const
 
 BufferString Engine::setupFileName( const DBKey& emid ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( emid );
-    return ioobj.ptr() ? EM::Surface::getSetupFileName(*ioobj)
-		       : BufferString("");
+    PtrMan<IOObj> ioobj = emid.getIOObj();
+    return ioobj ? EM::Surface::getSetupFileName(*ioobj) : BufferString("");
 }
 
 

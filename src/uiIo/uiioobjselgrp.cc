@@ -694,7 +694,7 @@ void uiIOObjSelGrp::fillListBox()
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
-    return ioobjids_.validIdx(idx) ? DBM().get( ioobjids_[idx] ) : 0;
+    return ioobjids_.validIdx(idx) ? ioobjids_[idx].getIOObj() : 0;
 }
 
 
@@ -789,7 +789,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	    if ( wrtrselfld_ )
 	    {
 		if ( !ioobj )
-		    ioobj = DBM().get( currentID() );
+		    ioobj = currentID().getIOObj();
 		if ( ioobj )
 		    wrtrselfld_->use( *ioobj );
 	    }
@@ -894,7 +894,7 @@ void uiIOObjSelGrp::delPress( CallBacker* )
 
 void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 {
-    PtrMan<IOObj> ioobj = DBM().get( currentID() );
+    PtrMan<IOObj> ioobj = currentID().getIOObj();
     if ( !ioobj )
 	return;
 
@@ -913,7 +913,7 @@ void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
 {
     const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
     const Translator* deftrans = ctio_.ctxt_.trgroup_->templates()[deftransidx];
-    PtrMan<IOObj> curioobj = DBM().get( currentID() );
+    PtrMan<IOObj> curioobj = currentID().getIOObj();
     const Translator* selectedtrans =
 		wrtrselfld_ ? wrtrselfld_->selectedTranslator() : 0;
     const bool translatorchanged = curioobj && selectedtrans

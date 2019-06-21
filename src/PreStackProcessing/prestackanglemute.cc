@@ -9,7 +9,6 @@
 
 #include "arrayndslice.h"
 #include "flatposdata.h"
-#include "dbman.h"
 #include "elasticmodel.h"
 #include "ioobj.h"
 #include "math.h"
@@ -78,7 +77,7 @@ AngleMuteBase::~AngleMuteBase()
 
 void AngleMuteBase::fillPar( IOPar& par ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( params_->velvolmid_ );
+    PtrMan<IOObj> ioobj = params_->velvolmid_.getIOObj();
     if ( ioobj ) par.set( sKeyVelVolumeID(), params_->velvolmid_ );
 
     par.merge( params_->raypar_ );
@@ -98,11 +97,12 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 
 bool AngleMuteBase::setVelocityFunction()
 {
-    const DBKey& mid = params_->velvolmid_;
-    PtrMan<IOObj> ioobj = DBM().get( mid );
-    if ( !ioobj ) return false;
+    const DBKey& dbky = params_->velvolmid_;
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
+    if ( !ioobj )
+	return false;
 
-    velsource_->setFrom( mid );
+    velsource_->setFrom( dbky );
     return true;
 }
 

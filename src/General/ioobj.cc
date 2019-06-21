@@ -531,8 +531,9 @@ void IOX::copyFrom( const IOObj& obj )
 
 const char* IOX::fullUserExpr( bool forread ) const
 {
-    IOObj* ioobj = DBM().get( ownkey_ );
-    if ( !ioobj ) return "<invalid>";
+    IOObj* ioobj = ownkey_.getIOObj();
+    if ( !ioobj )
+	return "<invalid>";
     mDeclStaticString( ret );
     ret = ioobj->fullUserExpr( forread );
     delete ioobj;
@@ -542,8 +543,9 @@ const char* IOX::fullUserExpr( bool forread ) const
 
 BufferString IOX::mainFileName() const
 {
-    IOObj* ioobj = DBM().get( ownkey_ );
-    if ( !ioobj ) return BufferString( "invalid" );
+    IOObj* ioobj = ownkey_.getIOObj();
+    if ( !ioobj )
+	return BufferString( "invalid" );
     const BufferString ret = ioobj->mainFileName();
     delete ioobj;
     return ret;
@@ -575,7 +577,7 @@ Conn* IOX::getConn( bool forread ) const
 
 IOObj* IOX::getIOObj() const
 {
-    return ownkey_.isInvalid() ? 0 : DBM().get( ownkey_ );
+    return ownkey_.getIOObj();
 }
 
 

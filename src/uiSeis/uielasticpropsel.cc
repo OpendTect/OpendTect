@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "elasticpropseltransl.h"
-#include "dbman.h"
 #include "mathexpression.h"
 #include "propertyref.h"
 #include "od_helpids.h"
@@ -484,9 +483,10 @@ bool uiElasticPropSelDlg::openPropSel()
 bool uiElasticPropSelDlg::doRead( const DBKey& mid )
 {
     ElasticPropSelection* elp = elpropsel_.getByDBKey( mid );
-    ctio_.setObj( DBM().get( mid ) );
+    ctio_.setObj( mid.getIOObj() );
 
-    if ( !elp ) return false;
+    if ( !elp )
+	return false;
 
     elpropsel_ = *elp; delete elp;
     propnms_ = orgpropnms_;

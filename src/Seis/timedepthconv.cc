@@ -13,7 +13,6 @@
 #include "datapackbase.h"
 #include "genericnumer.h"
 #include "indexinfo.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -63,7 +62,7 @@ bool Time2DepthStretcher::setVelData( const DBKey& dbkey )
     fromzdomaininfo_.setID( dbkey.toString() );
     tozdomaininfo_.setID( dbkey.toString() );
 
-    PtrMan<IOObj> velioobj = DBM().get( dbkey );
+    PtrMan<IOObj> velioobj = dbkey.getIOObj();
     veldesc_.type_ = VelocityDesc::Interval;
     veldesc_.usePar( velioobj->pars() );
 

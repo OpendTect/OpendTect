@@ -27,7 +27,6 @@
 #include "statparallelcalc.h"
 #include "picksettr.h"
 #include "waveletmanager.h"
-#include "dbman.h"
 
 #include "uistratsynthseltools.h"
 #include "uipicksetsel.h"
@@ -605,6 +604,6 @@ bool uiSynthToRealScale::acceptOK()
     const auto horid = lvlhorfld_->horID();
     const auto seisid = seisfld_->key( true );
     WaveletMGR().setScalingInfo( outwvltid_, &inpwvltid_, &horid, &seisid,
-				 nameOf(lvlhorfld_->levelID()) );
+				 lvlhorfld_->levelID().name() );
     return true;
 }

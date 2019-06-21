@@ -14,7 +14,6 @@
 #include "attribdataholder.h"
 #include "cubesubsel.h"
 #include "datainpspec.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "linesubsel.h"
 #include "linesetposinfo.h"

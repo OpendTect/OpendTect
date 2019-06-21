@@ -11,7 +11,6 @@
 #include "seispswrite.h"
 #include "seisbuf.h"
 #include "seistrc.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "debug.h"
 #include "uistrings.h"
@@ -138,19 +137,13 @@ uiRetVal SeisPSImpDataMgr::writeGather()
     bool wrsampnms = false;
     if ( !storer_ )
     {
-	IOObj* ioobj = DBM().get( wrid_ );
+	IOObj* ioobj = wrid_.getIOObj();
 	if ( !ioobj )
-	{
-	    uirv.add( uiStrings::phrCannotFindDBEntry(wrid_) );
-	    return uirv;
-	}
+	    { uirv.add( uiStrings::phrCannotFindDBEntry(wrid_) ); return uirv; }
 	storer_ = new Storer( *ioobj );
 	delete ioobj;
 	if ( !storer_->isUsable() )
-	{
-	    uirv.add( storer_->errNotUsable() );
-	    return uirv;
-	}
+	    { uirv.add( storer_->errNotUsable() ); return uirv; }
 	wrsampnms = true;
     }
 

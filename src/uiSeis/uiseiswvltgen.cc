@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "ioobj.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletio.h"

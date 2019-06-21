@@ -41,8 +41,9 @@ static int prError( const char* msg )
 static EM::Horizon* loadHorizon( const char* id, BufferString& err )
 {
     DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = DBM().get( id );
-    if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
+    PtrMan<IOObj> ioobj = id.getIOObj();
+    if ( !ioobj )
+	{ err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
     EM::ObjectManager& mgr = EM::MGR();

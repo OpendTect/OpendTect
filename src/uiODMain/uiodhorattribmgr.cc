@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emhorizon3d.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "odplugin.h"
 #include "survinfo.h"
@@ -146,14 +145,12 @@ uiSelContourAttribDlg( uiParent* p, const DBKey& id )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 	       tr("Attribute to contour")), mNoDlgTitle, mNoHelpKey))
 {
-    PtrMan<IOObj> emioobj = DBM().get( id );
     EM::IOObjInfo eminfo( id );
     BufferStringSet attrnms;
     attrnms.add( uiODContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
 
-    const uiString lbl = emioobj ? toUiString(emioobj->name())
-				 : uiString::empty();
+    const uiString lbl = toUiString( id.name() );
     uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
     attrlb_ = new uiListBox( this, su );
     attrlb_->addItems( attrnms );

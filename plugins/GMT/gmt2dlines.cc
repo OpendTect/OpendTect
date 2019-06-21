@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "draw.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
@@ -240,8 +239,9 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 {
     DBKey id;
     get( sKey::ID(), id );
-    const IOObj* ioobj = DBM().get( id );
-    if ( !ioobj ) mErrStrmRet("Cannot find line")
+    const IOObj* ioobj = id.getIOObj();
+    if ( !ioobj )
+	mErrStrmRet("Cannot find line")
 
     BufferStringSet linenms;
     get( ODGMT::sKeyLineNames(), linenms );

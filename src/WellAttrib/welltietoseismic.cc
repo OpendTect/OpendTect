@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "welltietoseismic.h"
 
-#include "dbman.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "envvars.h"
@@ -106,7 +105,7 @@ bool DataPlayer::extractSeismics()
 {
     errmsg_.setEmpty();
 
-    PtrMan<IOObj> seisobj = DBM().get( seisid_ );
+    PtrMan<IOObj> seisobj = seisid_.getIOObj();
     const SeisIOObjInfo oinf( seisid_ );
     if ( !seisobj || !oinf.isOK() )
 	mErrRet( uiStrings::phrCannotRead(uiStrings::sSeismicData()) )

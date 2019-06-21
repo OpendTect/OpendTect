@@ -7,7 +7,6 @@
 
 #include "volprocchain.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -454,7 +453,7 @@ void VolProc::Chain::setStorageID( const DBKey& mid )
 
 uiString VolProc::Chain::name() const
 {
-    PtrMan<IOObj> ioobj = DBM().get( storageid_ );
+    PtrMan<IOObj> ioobj = storageid_.getIOObj();
     return !ioobj ? uiString::empty() :
 	tr("Executing '%1'").arg( ioobj->name() );
 }

@@ -936,7 +936,7 @@ void uiSEGYReadFinisher::setAsDefaultObj()
     if ( fs_.isVSP() || outputid_.isInvalid() )
 	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( outputid_ );
+    PtrMan<IOObj> ioobj = outputid_.getIOObj();
     if ( ioobj )
 	ioobj->setSurveyDefault();
 }

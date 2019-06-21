@@ -13,7 +13,6 @@
 #include "cbvswritemgr.h"
 #include "filepath.h"
 #include "iostrm.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "seispacketinfo.h"
 #include "seisseldata.h"

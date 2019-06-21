@@ -263,7 +263,7 @@ void SeisServerTool::provideGenInfo()
 	for ( int iln=0; iln<nrlines; iln++ )
 	{
 	    const GeomID gid = prov2d.geomID( iln );
-	    lnms.add( nameOf(gid) );
+	    lnms.add( gid.name() );
 	    gids += gid.getI();
 	}
 	set( sKey::Size(), lnms.size() );
@@ -364,7 +364,7 @@ bool SeisServerTool::getLineFromCL( bool mandatory )
     if ( !geomidnrstr.isEmpty() )
     {
 	geomid_.setI( geomidnrstr.toInt() );
-	linename_ = nameOf( geomid_ );
+	linename_ = geomid_.name();
     }
     else
     {

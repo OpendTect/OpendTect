@@ -10,7 +10,6 @@ ___________________________________________________________________
 
 #include "uiodpicksettreeitem.h"
 
-#include "dbman.h"
 #include "emmanager.h"
 #include "emrandomposbody.h"
 #include "ioobj.h"
@@ -41,8 +40,9 @@ ___________________________________________________________________
 
 static bool isPickSetPolygon( const DBKey& key )
 {
-    PtrMan<IOObj> ioobj = DBM().get( key );
-    if ( !ioobj ) return false;
+    PtrMan<IOObj> ioobj = key.getIOObj();
+    if ( !ioobj )
+	return false;
 
     return ioobj->translator() == "dGB";
 }

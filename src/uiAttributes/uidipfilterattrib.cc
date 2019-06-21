@@ -128,7 +128,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
 	return;
 
     const DBKey seisid( inpdesc->getStoredID() );
-    PtrMan<IOObj> ioobj = DBM().get( seisid );
+    PtrMan<IOObj> ioobj = seisid.getIOObj();
     if ( !ioobj )
 	return;
 

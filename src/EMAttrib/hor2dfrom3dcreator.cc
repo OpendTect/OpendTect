@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "posinfo.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "uistrings.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

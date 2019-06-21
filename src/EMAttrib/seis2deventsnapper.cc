@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seisprovider.h"
 #include "seistrc.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "uistrings.h"
 
 

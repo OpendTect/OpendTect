@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "velocityfunctionstored.h"
 
 #include "binidvalset.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "picksettr.h"

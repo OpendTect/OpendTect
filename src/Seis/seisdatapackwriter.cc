@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "seisdatapackwriter.h"
 
 #include "arrayndimpl.h"
-#include "dbman.h"
 #include "horsubsel.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -60,7 +59,7 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& outid,
 	    compscalers_ += 0;
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( outid_ );
+    PtrMan<IOObj> ioobj = outid_.getIOObj();
     storer_ = ioobj ? new Seis::Storer( *ioobj ) : 0;
     is2d_ = storer_ && storer_->is2D();
 

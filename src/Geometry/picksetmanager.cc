@@ -9,7 +9,6 @@
 #include "picksetio.h"
 #include "picksettr.h"
 #include "picksetchangerecorder.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "uistrings.h"
 
@@ -158,7 +157,7 @@ bool Pick::SetManager::isPolygon( const ObjID& id ) const
     }
     mUnlockAllAccess();
 
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     return ioobj ? PickSetTranslator::isPolygon( *ioobj ) : false;
 }
 
@@ -179,7 +178,7 @@ bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
     mUnlockAllAccess();
 
     const bool defhascat = !cat || !*cat;
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     return !ioobj ? defhascat : PickSetTranslator::getCategory(*ioobj) == cat;
 }
 

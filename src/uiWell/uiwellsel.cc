@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiwellsel.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -182,8 +181,9 @@ uiString uiWellSingLineMultiSel::getSummary() const
     uiStringSet names;
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( selids_[idx] );
-	if ( !ioobj ) continue;
+	PtrMan<IOObj> ioobj = selids_[idx].getIOObj();
+	if ( !ioobj )
+	    continue;
 
 	names.add( toUiString( ioobj->name() ) );
     }

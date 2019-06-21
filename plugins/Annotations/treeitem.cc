@@ -118,7 +118,7 @@ uiTreeItem* TreeItemFactory::create( int visid, uiTreeItem* treeitem ) const
     int setidx = mgr.indexOf(mid);
     if ( setidx==-1 )
     {
-	PtrMan<IOObj> ioobj = DBM().get( mid );
+	PtrMan<IOObj> ioobj = mid.getIOObj();
 	Pick::Set* ps = new Pick::Set;
 	BufferString bs;
 	PickSetTranslator::retrieve(*ps,ioobj,true,bs);
@@ -424,12 +424,9 @@ void SubItem::store() const
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 
     const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
+    PtrMan<IOObj> ioobj = mgr.id(setidx).getIOObj();
     if ( !ioobj )
-    {
-	storeAs( true );
-	return;
-    }
+	{ storeAs( true ); return; }
 
     ioobj->pars().set( sKey::Type(), managerName() );
     DBM().setEntry( *ioobj );
@@ -849,8 +846,9 @@ bool ArrowSubItem::init()
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
+    PtrMan<IOObj> ioobj = mgr.id(setidx).getIOObj();
+    if ( !ioobj )
+	return false;
 
     if ( !ioobj->pars().get(sKeyArrowType(),arrowtype_) )
 	set_->pars_.get( sKeyArrowType(), arrowtype_ );
@@ -998,7 +996,7 @@ bool ImageSubItem::init()
     {
 	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	const int setidx = mgr.indexOf( *set_ );
-	PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
+	PtrMan<IOObj> ioobj = mgr.id(setidx).getIOObj();
 	if ( ioobj )
 	    ioobj->pars().get(sKey::FileName(), filename );
     }

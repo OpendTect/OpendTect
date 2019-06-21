@@ -25,7 +25,6 @@ ___________________________________________________________________
 
 #include "draw.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "survinfo.h"
 #include "welldata.h"
 

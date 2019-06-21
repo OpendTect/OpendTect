@@ -228,7 +228,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    if ( firststoreddsc )
 	    {
 		PtrMan<IOObj> ioobj =
-			DBM().get( DBKey(firststoreddsc->getStoredID(true)) );
+			DBKey(firststoreddsc->getStoredID(true)).getIOObj();
 		if ( ioobj )
 		    transffld_->setInput( *ioobj );
 	    }
@@ -246,7 +246,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    if ( prov )
 	    {
 		DBKey mid( desc->getStoredID(true) );
-		ioobj = DBM().get( mid );
+		ioobj = mid.getIOObj();
 	    }
 
 	    if ( ioobj )

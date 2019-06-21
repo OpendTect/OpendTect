@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "dbman.h"
 #include "randcolor.h"
 
 namespace EM {
@@ -37,7 +36,7 @@ FaultSet3D::~FaultSet3D()
 
 Executor* FaultSet3D::loader()
 {
-    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
+    PtrMan<IOObj> ioobj = dbKey().getIOObj();
     if ( !ioobj )
 	return 0;
 

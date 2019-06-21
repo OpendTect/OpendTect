@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 
-#include "dbman.h"
 #include "iopar.h"
 #include "tabledef.h"
 #include "tableascio.h"

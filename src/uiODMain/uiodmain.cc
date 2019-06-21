@@ -608,8 +608,9 @@ void uiODMain::handleStartupSession()
     if ( !douse || id.isInvalid() )
 	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( id );
-    if ( !ioobj ) return;
+    PtrMan<IOObj> ioobj = id.getIOObj();
+    if ( !ioobj )
+	return;
     cursessid_ = id;
     restoreSession( ioobj );
 }

@@ -21,7 +21,6 @@
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "dbman.h"
 #include "iostrm.h"
 #include "ptrman.h"
 #include "selector.h"
@@ -58,12 +57,8 @@ EM::Manager& EM::MGR()
 
 bool EM::canOverwrite( const ObjectManager::ObjID& objid )
 {
-    const IOObj* ioobj = DBM().get( objid );
-    if ( !ioobj )
-	return true;
-
-    mDynamicCastGet(const IOStream*,iostream,ioobj)
-    return iostream;
+    PtrMan<IOObj> ioobj = objid.getIOObj();
+    return ioobj && ioobj->isStream();
 }
 
 
@@ -111,18 +106,17 @@ BufferString EM::ObjectManager::objectName( const ObjID& id ) const
 bool EM::ObjectManager::is2D( const ObjID& id ) const
 {
     //TODO crappy impl, what about FSS's? should look for obj in loaded first
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     if ( !ioobj )
 	return false;
 
-    return FixedString(ioobj->group())
-	== EMHorizon2DTranslatorGroup::sGroupName();
+    return ioobj->group() == EMHorizon2DTranslatorGroup::sGroupName();
 }
 
 
 BufferString EM::ObjectManager::objectType( const ObjID& id ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     return ioobj ? ioobj->group() : OD::String::empty();
 }
 
@@ -503,7 +497,7 @@ int EM::ObjectManager::undoIndexOf( const ObjID& id )
 
 EM::ObjectManager& EM::getMgr( const ObjID& id )
 {
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     return ioobj ? getMgr( ioobj->group().str() ) : Hor3DMan();
 }
 
@@ -556,7 +550,7 @@ ConstRefMan<EM::Object> EM::FaultSetManager::fetch(const ObjID& dbkey,
 					   const SurfaceIODataSelection*,
 					   bool forcereload ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( dbkey );
+    PtrMan<IOObj> ioobj = dbkey.getIOObj();
     if ( !ioobj )
 	return 0;
 

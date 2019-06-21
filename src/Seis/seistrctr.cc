@@ -606,7 +606,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 bool SeisTrcTranslator::getRanges( const DBKey& ky, TrcKeyZSampling& cs,
 				   const char* lk )
 {
-    PtrMan<IOObj> ioobj = DBM().get( ky );
+    PtrMan<IOObj> ioobj = ky.getIOObj();
     return ioobj ? getRanges( *ioobj, cs, lk ) : false;
 }
 

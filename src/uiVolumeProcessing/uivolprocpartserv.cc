@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uivolprocpartserv.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "separstr.h"
@@ -55,7 +54,7 @@ void uiVolProcPartServer::doVolProc( bool is2d, const DBKey* mid,
 	vprocchain->ref();
     }
 
-    PtrMan<IOObj> ioobj = mid ? DBM().get( *mid ) : 0;
+    PtrMan<IOObj> ioobj = mid ? mid->getIOObj() : 0;
     if ( ioobj )
     {
 	uiString errmsg;
@@ -98,7 +97,7 @@ void uiVolProcPartServer::volprocchainDlgClosed( CallBacker* cb )
 	 !vprocchain || vprocdlg->uiResult()==0 )
 	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( vprocchain->storageID() );
+    PtrMan<IOObj> ioobj = vprocchain->storageID().getIOObj();
     createVolProcOutput( is2d, ioobj );
 }
 

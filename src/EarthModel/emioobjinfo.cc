@@ -65,7 +65,7 @@ IOObjInfo::IOObjInfo( const IOObj& ioobj )
 
 
 IOObjInfo::IOObjInfo( const DBKey& id )
-    : ioobj_(DBM().get(id))
+    : ioobj_(id.getIOObj())
     , reader_(0)
 {
     setType();

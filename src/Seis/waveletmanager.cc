@@ -7,7 +7,6 @@
 
 #include "waveletmanager.h"
 #include "waveletio.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "separstr.h"
 

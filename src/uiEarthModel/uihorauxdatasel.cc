@@ -13,7 +13,6 @@
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "uibutton.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -172,7 +171,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const DBKey& mid,
     selbut_->attach( rightOf, horfld_ );
 
     StringListInpSpec str;
-    PtrMan<IOObj> obj = DBM().get(mid);
+    PtrMan<IOObj> obj = mid.getIOObj();
     const bool hasobj = mid.isValid() && obj;
     if ( hasobj )
     {
@@ -217,8 +216,9 @@ void uiHorizonAuxDataSel::selCB( CallBacker* )
     dlg_->go();
 
     selmid_ = dlg_->selected();
-    PtrMan<IOObj> obj = DBM().get(selmid_);
-    if ( !obj )	return;
+    PtrMan<IOObj> obj = selmid_.getIOObj();
+    if ( !obj )
+	return;
 
     horfld_->setText( obj->name() );
 

@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "trckeyzsampling.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "progressmeter.h"
@@ -236,11 +235,11 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
     if ( !par.get(SeisRandLineTo2DGrid::sKeyOutputID(),outpid) )
 	mNotOKRet("Error: Output ID is missing")
 
-    inpobj_ = DBM().get( inpid );
+    inpobj_ = inpid.getIOObj();
     if ( !inpobj_ )
 	mNotOKRet("Error: Input seismic cube cannot be found")
 
-    outpobj_ = DBM().get( outpid );
+    outpobj_ = outpid.getIOObj();
     if ( !outpobj_ )
 	mNotOKRet("Error: Output dataset cannot be found")
 

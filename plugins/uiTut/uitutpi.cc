@@ -136,7 +136,7 @@ void uiTutMgr::doWells( CallBacker* )
 	return;
 
     const DBKey wellid = wd->getDBKey();
-    PtrMan<IOObj> ioobj = DBM().get( wellid );
+    PtrMan<IOObj> ioobj = wellid.getIOObj();
     if ( !ioobj )
     {
 	gUiMsg(appl_).error( tr("Cannot find well in database.\n"

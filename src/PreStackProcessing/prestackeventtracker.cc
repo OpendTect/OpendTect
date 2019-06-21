@@ -7,7 +7,6 @@
 
 #include "prestackeventtracker.h"
 
-#include "dbman.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
 #include "uistrings.h"
@@ -76,7 +75,7 @@ bool EventTracker::setMute( bool inner, const DBKey& mid )
 
     if ( mid.isValid() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( mid );
+	PtrMan<IOObj> ioobj = mid.getIOObj();
 	if ( !ioobj )
 	    mErrRet( tr("Cannot find MuteDef ID in Object Manager") );
 	mutedef = new PreStack::MuteDef;

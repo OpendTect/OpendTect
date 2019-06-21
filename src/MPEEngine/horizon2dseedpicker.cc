@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emtracker.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seisinfo.h"

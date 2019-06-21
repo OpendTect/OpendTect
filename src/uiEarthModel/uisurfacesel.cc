@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emsurfaceiodata.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 
 

@@ -8,7 +8,6 @@
 #include "batchprog.h"
 #include "envvars.h"
 #include "flatposdata.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -76,7 +75,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mRetError(toUiString("\nCannot read setup"));
     }
 
-    PtrMan<IOObj> setupioobj = DBM().get( setupmid );
+    PtrMan<IOObj> setupioobj = setupmid.getIOObj();
     if ( !setupioobj )
     {
 	mRetError(toUiString("\nCannot create setup object"));
@@ -108,7 +107,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mRetError(toUiString("\nCannot read input id"));
 	}
 
-	inputioobj = DBM().get( inputmid );
+	inputioobj = inputmid.getIOObj();
 	if ( !inputioobj )
 	{
 	    mRetError(toUiString("\nCannot create input object"));
@@ -121,7 +120,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mRetError(toUiString("\nCannot read output id"));
     }
 
-    PtrMan<IOObj> outputioobj = DBM().get( outputmid );
+    PtrMan<IOObj> outputioobj = outputmid.getIOObj();
     if ( !outputioobj )
     {
 	mRetError(toUiString("\nCannot create output object"));

@@ -65,8 +65,9 @@ static int doWork( int argc, char** argv )
 	return 1;
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( argv[1] );
-    if ( !ioobj ) return prError( "No lineset found" );
+    PtrMan<IOObj> ioobj = DBKey(argv[1]).getIOObj();
+    if ( !ioobj )
+	return prError( "No lineset found" );
 
     const float udfval = argc==4 ? toFloat(argv[3]) : mUdf(float);
 

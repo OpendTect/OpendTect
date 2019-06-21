@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "uislider.h"
 
 #include "arrayndimpl.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "scaler.h"
 #include "seisbuf.h"

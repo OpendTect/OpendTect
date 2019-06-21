@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "attribparamgroup.h"
 #include "attribstorprovider.h"
 #include "attribfactory.h"
-#include "dbman.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "uiattrsel.h"
@@ -118,8 +117,9 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
-    IOObj* inpobj = DBM().get( inpdesc->getStoredID(false) );
-    if ( !inpobj ) return;
+    IOObj* inpobj = inpdesc->getStoredID(false).getIOObj();
+    if ( !inpobj )
+	return;
 
     SeisIOObjInfo seisinfo( inpobj );
     if ( seisinfo.nrComponents() > 1 )
@@ -251,10 +251,11 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    varinplastidx = varinpidx+1;
 
 		    DBKey mid = inpdsc->getStoredID( false );
-		    IOObj* inpobj = DBM().get( mid );
-		    if ( !inpobj ) break;
+		    PtrMan<IOObj> inpobj = mid.getIOObj();
+		    if ( !inpobj )
+			break;
 
-		    SeisIOObjInfo seisinfo( inpobj );
+		    SeisIOObjInfo seisinfo( *inpobj );
 		    if ( seisinfo.nrComponents() > 1 )
 		    {
 			BufferStringSet nms;

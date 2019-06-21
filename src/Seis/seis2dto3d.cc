@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "dataclipper.h"
 #include "fftfilter.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "paralleltask.h"
@@ -114,12 +113,12 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
 {
     DBKey key;
     pars.get( sKeyInput(), key );
-    inioobj_ = DBM().get( key );
+    inioobj_ = key.getIOObj();
     if ( !inioobj_ )
 	mErrRet( tr("2DDataSet not found") )
 
     pars.get( SeisJobExecProv::sKeySeisOutIDKey(), key );
-    outioobj_ = DBM().get( key );
+    outioobj_ = key.getIOObj();
     if ( !outioobj_ )
 	mErrRet( tr("Output cube entry not found") )
 

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "mousecursor.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"

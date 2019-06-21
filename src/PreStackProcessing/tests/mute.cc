@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "";
 
 #include "batchprog.h"
 #include "testprog.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
@@ -34,7 +33,7 @@ if ( !mIsEqual(muteval,chkval,1e-5f) ) \
 //check for Top Mute created in different versions
 bool odTestSameMuteInDiffVersion( od_ostream& strm, const DBKey& muteid )
 {
-    PtrMan<IOObj> muteobj = DBM().get( muteid );
+    PtrMan<IOObj> muteobj = muteid.getIOObj();
     if ( !muteobj )
     {
 	strm << "Mute object with id " << muteid.toString()

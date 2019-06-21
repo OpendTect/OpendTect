@@ -9,7 +9,6 @@
 
 #include "attribdesc.h"
 #include "attribsel.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
@@ -92,7 +91,7 @@ void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istb )
 {
     uiODDataTreeItem::createMenu( menu, istb );
 
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     mAddMenuOrTBItem( istb, 0, menu, &selmenuitem_, true, false );
     mAddMenuOrTBItem( istb, menu, menu, &reloadmenuitem_, ioobj, false );
     mAddMenuOrTBItem( istb, 0, menu, &editmenuitem_, ioobj, false );
@@ -130,7 +129,7 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
 
 bool uiDataTreeItem::selectSetup()
 {
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
 
     FixedString parenttype = parentType();
     const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
@@ -170,7 +169,7 @@ bool uiDataTreeItem::selectSetup()
 uiString uiDataTreeItem::createDisplayName() const
 {
     uiString dispname = uiStrings::sRightClick();
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     if ( ioobj )
 	dispname = toUiString( ioobj->name() );
     return dispname;

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "dbdir.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -165,7 +164,7 @@ void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 void uiIOObjManipGroup::selChg()
 {
     const DBKey curid = subj_.currentID();
-    IOObj* curioobj = DBM().get( curid );
+    IOObj* curioobj = curid.getIOObj();
     if ( !curioobj )
     {
 	renbut->setSensitive( false );
@@ -178,9 +177,9 @@ void uiIOObjManipGroup::selChg()
     DBKeySet chosenids; subj_.getChosenIDs( chosenids );
     BufferStringSet chosennames; subj_.getChosenNames( chosennames );
     if ( chosenids.isEmpty() )
-	return;
+	{ delete curioobj; return; }
 
-    IOObj* firstchosenioobj = DBM().get( chosenids[0] );
+    IOObj* firstchosenioobj = chosenids[0].getIOObj();
 
     uiString tt;
 #define mSetTBStateAndTT4Cur(tb,cond,oper) \
@@ -245,7 +244,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     DBKeySet chosenids;
     if ( !issingle )
 	subj_.getChosenIDs( chosenids );
-    IOObj* firstioobj = DBM().get( issingle ? curid : chosenids[0] );
+    IOObj* firstioobj = (issingle ? curid : chosenids[0]).getIOObj();
     if ( !firstioobj )
 	return;
 
@@ -259,7 +258,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     {
 	ObjectSet<IOObj> ioobjs;
 	for ( int idx=0; idx<chosenids.size(); idx++ )
-	    ioobjs += DBM().get( chosenids[idx] );
+	    ioobjs += chosenids[idx].getIOObj();
 
 	if ( issetro )
 	{

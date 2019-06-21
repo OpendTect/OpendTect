@@ -35,7 +35,6 @@
 #include "attribprocessor.h"
 #include "binidvalset.h"
 #include "dataclipper.h"
-#include "dbman.h"
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attribfactory.h"
@@ -327,12 +326,9 @@ void uiGLCM_attrib::analyseData( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( DBKey(inpdesc->getStoredID(true)) );
+    PtrMan<IOObj> ioobj = DBKey(inpdesc->getStoredID(true)).getIOObj();
     if ( !ioobj )
-    {
-	uiMSG().error( tr("Select a valid input") );
-	return;
-    }
+	{ uiMSG().error( tr("Select a valid input") ); return; }
 
     uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D() );
     if ( !subseldlg.go() )

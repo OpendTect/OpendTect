@@ -25,7 +25,6 @@
 #include "envvars.h"
 #include "settings.h"
 #include "ioobj.h"
-#include "dbman.h"
 
 
 Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
@@ -38,7 +37,7 @@ Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
 Well::Writer::Writer( const DBKey& ky, const Well::Data& wd )
     : wa_(0)
 {
-    IOObj* ioobj = DBM().get( ky );
+    IOObj* ioobj = ky.getIOObj();
     if ( !ioobj )
 	errmsg_.appendPhrase( uiStrings::phrCannotFindDBEntry(ky) );
     else
@@ -72,7 +71,7 @@ Well::Writer::~Writer()
 
 bool Well::Writer::isFunctional( const DBKey& ky )
 {
-    PtrMan<IOObj> ioobj = DBM().get( ky );
+    PtrMan<IOObj> ioobj = ky.getIOObj();
     return ioobj ? isFunctional(*ioobj) : false;
 }
 

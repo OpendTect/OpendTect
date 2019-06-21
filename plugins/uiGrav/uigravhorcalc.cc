@@ -10,7 +10,6 @@
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "dbman.h"
 #include "survinfo.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
@@ -27,7 +26,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, const DBKey& enobjid )
     , t2dfld_(0)
 {
     const DBKey horid = EM::MGR().getDBKey( enobjid );
-    horioobj_ = DBM().get( horid );
+    horioobj_ = horid.getIOObj();
     if ( !horioobj_ )
 	{ new uiLabel(this,tr("Internal: Cannot find horizon")); return; }
     setTitleText( tr("Calculate gravity at '%1'").arg( horioobj_->name() ) );

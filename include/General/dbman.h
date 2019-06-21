@@ -39,8 +39,8 @@ public:
 
     bool		isPresent(const DBKey&) const;
     bool		isPresent(const char*,const char* tgname) const;
-    BufferString	nameOf( const DBKey& dbky ) const
-			{ return ::nameOf(dbky); }
+    mDeprecated BufferString nameOf( const DBKey& dbky ) const
+			{ return dbky.name(); }
     BufferString	nameFor(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
     BufferString	mainFileOf(const DBKey&) const;

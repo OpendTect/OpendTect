@@ -11,7 +11,6 @@
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "interpol1d.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
@@ -120,7 +119,7 @@ mImplClassFactory( FunctionSource, factory );
 
 BufferString FunctionSource::userName() const
 {
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     if ( ioobj )
 	return ioobj->name();
 

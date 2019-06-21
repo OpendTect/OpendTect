@@ -22,7 +22,6 @@
 #include "od_iostream.h"
 #include "ascbinstream.h"
 #include "ptrman.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "scaler.h"
@@ -156,7 +155,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	, prevnr_(mUdf(int))
 	, zistm_(SI().zIsTime())
 {
-    PtrMan<IOObj> ioobj = DBM().get( data_.seiskey_ );
+    PtrMan<IOObj> ioobj = data_.seiskey_.getIOObj();
     if ( !ioobj )
 	return;
     const_cast<bool&>(zistm_) = ZDomain::isTime( ioobj->pars() );

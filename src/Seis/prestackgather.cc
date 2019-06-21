@@ -12,7 +12,6 @@
 #include "ioobj.h"
 #include "ioobjtags.h"
 #include "iopar.h"
-#include "dbman.h"
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "seisbuf.h"
@@ -163,7 +162,7 @@ Monitorable::ChangeType Gather::compareClassData( const Gather& oth ) const
 bool Gather::readFrom( const DBKey& mid, const TrcKey& tk, int comp,
 		       uiString* errmsg )
 {
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    PtrMan<IOObj> ioobj = mid.getIOObj();
     if ( !ioobj )
     {
 	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
@@ -438,7 +437,7 @@ void Gather::setIsOffsetAngle( bool yn, Unit angleunit )
 
 bool Gather::getVelocityID(const DBKey& stor, DBKey& vid )
 {
-    PtrMan<IOObj> ioobj = DBM().get( stor );
+    PtrMan<IOObj> ioobj = stor.getIOObj();
     return ioobj && GetVelocityVolumeTag( *ioobj, vid );
 }
 

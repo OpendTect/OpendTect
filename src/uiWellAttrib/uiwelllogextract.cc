@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "survinfo.h"

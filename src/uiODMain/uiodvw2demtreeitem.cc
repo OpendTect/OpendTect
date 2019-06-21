@@ -45,7 +45,7 @@ void uiODVw2DEMTreeItem::doSave()
     bool savewithname = false;
     if ( emid_.isValid() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( emid_ );
+	PtrMan<IOObj> ioobj = emid_.getIOObj();
 	savewithname = !ioobj;
     }
     doStoreObject( savewithname );

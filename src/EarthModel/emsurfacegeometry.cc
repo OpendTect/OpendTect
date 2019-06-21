@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "parametricsurface.h"
 #include "mathfunc.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "pca.h"
@@ -180,7 +179,7 @@ bool SurfaceGeometry::isFullResolution() const
 
 Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
-    PtrMan<IOObj> ioobj = DBM().get( surface_.dbKey() );
+    PtrMan<IOObj> ioobj = surface_.dbKey().getIOObj();
     if ( !ioobj )
 	{ surface_.errmsg_ = uiStrings::phrCannotFindObjInDB(); return 0; }
 
@@ -227,8 +226,8 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 			          const DBKey* key )
 {
-    const DBKey& mid = key && key->isValid() ? *key : surface_.dbKey();
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    const DBKey& dbky = key && key->isValid() ? *key : surface_.dbKey();
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     if ( !ioobj )
 	{ surface_.errmsg_ = uiStrings::phrCannotFindObjInDB(); return 0; }
 

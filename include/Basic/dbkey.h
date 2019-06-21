@@ -46,8 +46,9 @@ public:
     typedef GroupNrType	DirNrType;
 
 			DBKey()				{}
-    explicit		DBKey( const char* s )		{ fromString( s ); }
-			DBKey( DirID dirid, ObjID oid=ObjID::getInvalid() )
+    explicit		DBKey( const char* s )		{ fromString(s); }
+    explicit		DBKey( const OD::String& s )	{ fromString(s.str()); }
+    explicit		DBKey( DirID dirid, ObjID oid=ObjID::getInvalid() )
 			    : IDWithGroup<int,int>(dirid,oid)	{}
 			DBKey( const DBKey& oth )	{ *this = oth; }
 			~DBKey();

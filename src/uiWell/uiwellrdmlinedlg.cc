@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uimsg.h"
 #include "ptrman.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "dbdir.h"

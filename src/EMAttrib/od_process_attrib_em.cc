@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
 #include "moddepmgr.h"
@@ -99,7 +98,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	objidstr.setEmpty();
     else
     {
-	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(objid) );
+	PtrMan<IOObj> ioobj = DBKey(objid).getIOObj();
 	if ( !ioobj )
 	{
 	    errmsg = "Cannot find object for '"; errmsg += objid;
@@ -134,8 +133,8 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
     }
     else
     {
-	outpid = DBKey::getFromStr( objidstr );
-	PtrMan<IOObj> ioobj = DBM().get( outpid ); //check already done
+	outpid = DBKey( objidstr );
+	PtrMan<IOObj> ioobj = outpid.getIOObj(); //check already done
 	if ( !ioobj )
 	    return false;
 

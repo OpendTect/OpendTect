@@ -414,7 +414,7 @@ bool uiSeisPartServer::select2DSeis( DBKey& mid )
 
 
 #define mGet2DDataSet(retval) \
-    PtrMan<IOObj> ioobj = DBM().get( mid ); \
+    PtrMan<IOObj> ioobj = mid.getIOObj(); \
     if ( !ioobj ) return retval; \
     Seis2DDataSet dataset( *ioobj );
 

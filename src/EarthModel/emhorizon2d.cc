@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "horizon2dline.h"
-#include "dbman.h"
 #include "selector.h"
 #include "toplist.h"
 #include "survinfo.h"
@@ -340,7 +339,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	DBKey mid;
 	if ( !par.get(linesetkey.buf(),mid) ) continue;
 
-	PtrMan<IOObj> ioobj = DBM().get( mid );
+	PtrMan<IOObj> ioobj = mid.getIOObj();
 	if ( !ioobj ) continue;
 
 	const BufferString oldlnm( ioobj->name(), "-", linenames.get(idx) );

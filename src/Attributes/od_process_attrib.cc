@@ -81,8 +81,8 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !seisid )
 	    break;
 
-	const DBKey seisdbky = DBKey::getFromStr( seisid );
-	PtrMan<IOObj> seisioobj = DBM().get( seisdbky );
+	const DBKey seisdbky( seisid );
+	PtrMan<IOObj> seisioobj = seisdbky.getIOObj();
 	if ( !seisioobj )
 	{
 	    const BufferString msg( "Cannot find output Seismic Object (ID=",
@@ -177,7 +177,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    DBKey dsid;
 	    pars().get( "Input Line Set", dsid );
-	    PtrMan<IOObj> dsobj = DBM().get( dsid );
+	    PtrMan<IOObj> dsobj = dsid.getIOObj();
 	    if ( dsobj )
 	    {
 		Seis2DDataSet ds(*dsobj);
@@ -322,7 +322,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mDestroyWorkers
 	}
 
-	PtrMan<IOObj> ioobj = DBM().get( seisdbky );
+	PtrMan<IOObj> ioobj = seisdbky.getIOObj();
 	BufferString finishmsg( "\nFinished processing" );
 	if ( ioobj )
 	{

@@ -11,7 +11,6 @@
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "dbman.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -82,7 +81,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     for ( int idx=0; idx<geosz; idx++ )
     {
 	const DBKey* mid = surfacefiller_->getSurfaceID(idx);
-	PtrMan<IOObj> ioobj = DBM().get(*mid);
+	PtrMan<IOObj> ioobj = mid->getIOObj();
 	const char dir = surfacefiller_->getSurfaceFillSide(idx);
 	addSurfaceTableEntry( *ioobj, false, dir );
     }
@@ -200,7 +199,7 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 	const DBKey mid( dlg.chosenID(idx) );
 	if ( !surfacelist_.isPresent(mid) )
 	{
-	    IOObj* ioobj = DBM().get( mid );
+	    IOObj* ioobj = mid.getIOObj();
 	    addSurfaceTableEntry( *ioobj, false, 0 );
 	    delete ioobj;
 	}

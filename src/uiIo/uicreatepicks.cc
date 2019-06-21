@@ -28,8 +28,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "datainpspec.h"
-#include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"
 #include "picksetmanager.h"

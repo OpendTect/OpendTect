@@ -7,7 +7,6 @@
 
 #include "prestackanglemutecomputer.h"
 
-#include "dbman.h"
 #include "dbkey.h"
 #include "elasticmodel.h"
 #include "prestackgather.h"
@@ -57,7 +56,7 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
     if ( !setVelocityFunction() )
 	return false;
 
-    PtrMan<IOObj> muteioobj = DBM().get( params().outputmutemid_ );
+    PtrMan<IOObj> muteioobj = params().outputmutemid_.getIOObj();
     if ( !muteioobj )
     {
 	msg_ = tr("Cannot find MuteDef ID in Object Manager");
@@ -171,7 +170,7 @@ bool AngleMuteComputer::doFinish( bool sucess )
     if ( !sucess )
 	return false;
 
-    PtrMan<IOObj> obj = DBM().get( params().outputmutemid_ );
+    PtrMan<IOObj> obj = params().outputmutemid_.getIOObj();
     PtrMan<MuteDefTranslator> mdtrl = obj
 	? (MuteDefTranslator*)obj->createTranslator()
 	: 0;

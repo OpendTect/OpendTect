@@ -39,7 +39,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "uiunitsel.h"
 #include "od_helpids.h"
-#include "dbman.h"
 #include "emioobjinfo.h"
 #include "uiioobjselgrp.h"
 #include "unitofmeasure.h"

@@ -238,7 +238,7 @@ Strat::Level::ID uiStratSeisEvent::levelID() const
 
 BufferString uiStratSeisEvent::levelName() const
 {
-    return Strat::LVLS().nameOf( levelID() );
+    return levelID().name();
 }
 
 

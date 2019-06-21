@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emsurfauxdataio.h"
 #include "executor.h"
 #include "file.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -306,12 +305,9 @@ void SurfaceAuxData::resetChangedFlag()
 
 static EMSurfaceTranslator* getTranslator( Horizon& horizon )
 {
-    PtrMan<IOObj> ioobj = DBM().get( horizon.dbKey() );
+    PtrMan<IOObj> ioobj = horizon.dbKey().getIOObj();
     if ( !ioobj )
-    {
-	horizon.setErrMsg( uiStrings::phrCannotFindObjInDB() );
-	return 0;
-    }
+	{ horizon.setErrMsg( uiStrings::phrCannotFindObjInDB() ); return 0; }
 
     EMSurfaceTranslator* transl =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
@@ -386,12 +382,9 @@ Executor* SurfaceAuxData::auxDataSaver( AuxID auxid, bool overwrite )
 	return 0;
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( horizon_.dbKey() );
+    PtrMan<IOObj> ioobj = horizon_.dbKey().getIOObj();
     if ( !ioobj )
-    {
-	horizon_.setErrMsg( uiStrings::phrCannotFindObjInDB() );
-	return 0;
-    }
+	{ horizon_.setErrMsg( uiStrings::phrCannotFindObjInDB() ); return 0; }
 
     PtrMan<EMSurfaceTranslator> transl =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
@@ -450,14 +443,14 @@ bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
 
 BufferString SurfaceAuxData::getFileName( const char* attrnm ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( horizon_.dbKey() );
+    PtrMan<IOObj> ioobj = horizon_.dbKey().getIOObj();
     return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm ) : "";
 }
 
 
 bool SurfaceAuxData::removeFile( const char* attrnm ) const
 {
-    PtrMan<IOObj> ioobj = DBM().get( horizon_.dbKey() );
+    PtrMan<IOObj> ioobj = horizon_.dbKey().getIOObj();
     return ioobj ? SurfaceAuxData::removeFile( *ioobj, attrnm ) : false;
 }
 

@@ -8,7 +8,6 @@
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "seisrangeseldata.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
 #include "ptrman.h"
@@ -38,8 +37,8 @@ int main( int argc, char** argv )
     }
 
     OD::ModDeps().ensureLoaded( "Seis" );
-    const DBKey seismid = DBKey::getFromStr( argv[1] );
-    PtrMan<IOObj> ioobj = DBM().get( seismid );
+    const DBKey seismid( argv[1] );
+    PtrMan<IOObj> ioobj = seismid.getIOObj();
     if ( !ioobj )
     {
 	std::cerr << "Cannot read seismic data with ID " << seismid.toString()

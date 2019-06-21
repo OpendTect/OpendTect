@@ -6,7 +6,6 @@
 
 #include "vistutorialdisplay.h"
 
-#include "dbman.h"
 #include "randcolor.h"
 
 #include "vismarkerset.h"
@@ -24,19 +23,19 @@
 
 visSurvey::TutorialWellDisplay::~TutorialWellDisplay()
 {
-    if ( welltrack_ )   
+    if ( welltrack_ )
     {
 	removeChild( welltrack_->osgNode() );
 	unRefAndZeroPtr( welltrack_ );
     }
 
-    if( wellmarkers_ ) 
+    if( wellmarkers_ )
     {
 	removeChild( wellmarkers_->osgNode() );
 	unRefAndZeroPtr( wellmarkers_ );
     }
 
-    if( welllabels_ )  
+    if( welllabels_ )
     {
 	removeChild( welllabels_->osgNode() );
 	unRefAndZeroPtr( welllabels_ );
@@ -49,7 +48,7 @@ visSurvey::TutorialWellDisplay::TutorialWellDisplay()
     , wellmarkers_(0)
     , welllabels_(0)
     , welltrack_(0)
-					    
+
 {
     wellmarkers_ = visBase::MarkerSet::create(); wellmarkers_->ref();
     welllabels_ = visBase::Text::create(); welllabels_->ref();
@@ -63,15 +62,14 @@ visSurvey::TutorialWellDisplay::TutorialWellDisplay()
 
 void visSurvey::TutorialWellDisplay::loadAndDisplayWell( const DBKey& wellid )
 {
-    PtrMan<IOObj> ioobj = DBM().get( wellid );
-    if ( ioobj ) setName( ioobj->getName() );
+    setName( wellid.name() );
 
     uiRetVal uirv;
     ConstRefMan<Well::Data> data =
 		Well::MGR().fetch( wellid, Well::LoadReqs::All(), uirv);
 
     Well::Track timetrack;
-    
+
     if ( scene_ && false==scene_->zDomainInfo().def_.isDepth() )
 	timetrack.toTime( *data );  // convert to time (if required)
     else
@@ -104,11 +102,11 @@ void visSurvey::TutorialWellDisplay::loadAndDisplayWell( const DBKey& wellid )
 	wellmarkers_->setMarkerStyle( markerstyle );
 
 	displayWellLabel( welllabels_, toUiString(marker.name()), markerpos );
-    } 
+    }
 }
 
 
-void visSurvey::TutorialWellDisplay::displayWellLabel( 
+void visSurvey::TutorialWellDisplay::displayWellLabel(
 						   visBase::Text* welllabels,
 						   const uiString& texttodisp,
 						   const Coord3& pos )

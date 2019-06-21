@@ -458,7 +458,7 @@ uiStoredViewer2DWin* uiViewer3DMgr::createMultiGather2DViewer(
 				    const visSurvey::PreStackDisplay& psv )
 {
     const DBKey mid = psv.getDBKey();
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    PtrMan<IOObj> ioobj = mid.getIOObj();
     if ( !ioobj )
        return 0;
 
@@ -490,7 +490,7 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
     win->getIDs( selids );
     for( int idx=0; idx<selids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( selids[idx] );
+	PtrMan<IOObj> ioobj = selids[idx].getIOObj();
 	if ( ioobj )
 	    selgnms.addIfNew( ioobj->name() );
     }
@@ -648,7 +648,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 		continue;
 	}
 
-	PtrMan<IOObj> ioobj = DBM().get( mid );
+	PtrMan<IOObj> ioobj = mid.getIOObj();
 	if ( !ioobj )
 	    continue;
 

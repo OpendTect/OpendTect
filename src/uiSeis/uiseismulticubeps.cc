@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "ctxtioobj.h"
-#include "dbman.h"
 #include "dbdir.h"
 #include "ioobj.h"
 #include "od_helpids.h"
@@ -171,7 +170,7 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 
     for ( int idx=0; idx<keys.size(); idx++ )
     {
-	IOObj* ioobj = DBM().get( keys[idx] );
+	IOObj* ioobj = keys[idx].getIOObj();
 	if ( !ioobj )
 	    continue;
 	uiSeisMultiCubePSEntry* entry = new uiSeisMultiCubePSEntry( ioobj );

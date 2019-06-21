@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "treeitem.h"
 
 #include "draw.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "pickset.h"
@@ -163,8 +162,9 @@ bool ScaleBarSubItem::init()
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
+    PtrMan<IOObj> ioobj = mgr.id(setidx).getIOObj();
+    if ( !ioobj )
+	return false;
 
     ad->fromPar( set_->pars_ );
     return SubItem::init();

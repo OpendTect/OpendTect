@@ -48,7 +48,7 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 
     for ( int ils=0; ils<lsids.size(); ils++ )
     {
-	IOObj* ioobj = DBM().get( lsids[ils] );
+	IOObj* ioobj = lsids[ils].getIOObj();
 	if ( !ioobj )
 	    continue;
 	Seis2DLineSet ls( *ioobj );

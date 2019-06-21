@@ -111,7 +111,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     selgrp_->getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( selids[idx] );
+	PtrMan<IOObj> ioobj = selids[idx].getIOObj();
 	if ( !ioobj || ioobj->implReadOnly() )
 	    continue;
 

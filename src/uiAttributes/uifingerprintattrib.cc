@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "attribparamgroup.h"
 #include "binidvalset.h"
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "oddirs.h"
 #include "pickretriever.h"
@@ -267,7 +266,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
-		  IOObj* ioobj = DBM().get( DBKey::getFromStr(pickidstr) );
+		  IOObj* ioobj = DBKey(pickidstr).getIOObj();
 		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )

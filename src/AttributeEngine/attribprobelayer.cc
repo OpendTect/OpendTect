@@ -12,7 +12,6 @@ ___________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "coltabseqmgr.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "seisioobjinfo.h"
 #include "datadistributionextracter.h"

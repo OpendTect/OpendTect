@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "od_istream.h"

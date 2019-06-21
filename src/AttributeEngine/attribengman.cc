@@ -707,7 +707,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		// It could be 'storage', but it's not yet in the set ...
 		PtrMan<IOObj> ioobj;
 		if ( IOObj::isKey(inpname) )
-		    ioobj = DBM().get( DBKey::getFromStr(inpname) );
+		    ioobj = DBKey(inpname).getIOObj();
 		else
 		{
 		    BufferString rawnmbufstr;
@@ -1058,7 +1058,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     const StringPair storkey( storeddesc->getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
     const DBKey key = DBKey::getFromStr( storkey.first() );
-    PtrMan<IOObj> ioobj = DBM().get( key );
+    PtrMan<IOObj> ioobj = key.getIOObj();
     if ( !ioobj ) return;
 
     const Seis2DDataSet dset( *ioobj );

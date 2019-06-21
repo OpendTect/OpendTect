@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uimultiwelllogsel.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -164,9 +163,9 @@ void uiMultiWellLogSel::update()
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	const DBKey dbky = wic.ids()[iid];
-	IOObj* ioobj = DBM().get( dbky );
-	if ( !ioobj || ( singlewid_ && dbky != *singlewid_ ) )
-	    continue;
+	IOObj* ioobj = dbky.getIOObj();
+	if ( !ioobj || (singlewid_ && dbky != *singlewid_) )
+	    { delete ioobj; continue; }
 
 	wellobjs_ += ioobj;
 	wellnms.add( ioobj->name() );
@@ -276,8 +275,9 @@ void uiMultiWellLogSel::setSelWellIDs( const DBKeySet& ids )
     BufferStringSet wellnms;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( ids[idx] );
-	if ( ioobj ) wellnms.add( ioobj->name() );
+	PtrMan<IOObj> ioobj = ids[idx].getIOObj();
+	if ( ioobj )
+	    wellnms.add( ioobj->name() );
     }
 
     setSelWellNames( wellnms );

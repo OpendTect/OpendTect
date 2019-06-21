@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "survinfo.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "ptrman.h"
 #include "taskrunner.h"
 #include "welldata.h"

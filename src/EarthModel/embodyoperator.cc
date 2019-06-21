@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "emrandomposbody.h"
 #include "survinfo.h"
 #include "task.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "executor.h"
 
@@ -497,7 +496,7 @@ bool BodyOperator::isOK() const
     }
     else
     {
-	if ( !DBM().get(inputbody0_) )
+	if ( !inputbody0_.isUsable() )
 	    return false;
     }
 
@@ -508,7 +507,7 @@ bool BodyOperator::isOK() const
     }
     else
     {
-	if ( !DBM().get(inputbody1_) )
+	if ( !inputbody1_.isUsable() )
 	    return false;
     }
 

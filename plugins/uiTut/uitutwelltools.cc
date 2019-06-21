@@ -13,7 +13,6 @@
 #include "uimsg.h"
 #include "bufstring.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "od_ostream.h"
 #include "wellmanager.h"
 #include "wellodio.h"

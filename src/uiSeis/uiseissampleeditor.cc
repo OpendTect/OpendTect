@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "arrayndimpl.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "posidxpairdataset.h"
 #include "posinfo.h"
 #include "posinfo2d.h"

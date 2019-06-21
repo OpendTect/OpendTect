@@ -11,7 +11,6 @@
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
@@ -316,7 +315,7 @@ Survey::Geometry2D* SEGYDirectSurvGeom2DTranslator::readGeometry(
     if ( !ioobj.pars().get(sKeySEGYDirectID(),segydirectid) )
 	return 0;
 
-    PtrMan<IOObj> segydirectobj = DBM().get( segydirectid );
+    PtrMan<IOObj> segydirectobj = segydirectid.getIOObj();
     if ( !segydirectobj )
 	return 0;
 

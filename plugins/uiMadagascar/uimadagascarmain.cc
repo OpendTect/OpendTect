@@ -24,7 +24,6 @@
 #include "uimsg.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
-#include "dbman.h"
 #include "oddirs.h"
 #include "seisioobjinfo.h"
 #include "strmprov.h"

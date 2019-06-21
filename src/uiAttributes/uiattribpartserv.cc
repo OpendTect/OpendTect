@@ -1478,7 +1478,7 @@ void uiAttribPartServer::filter2DMenuItems(
 		continue;
 
 	    DBKey dbky( desc->getStoredID(true) );
-	    PtrMan<IOObj> seisobj = DBM().get( dbky );
+	    PtrMan<IOObj> seisobj = dbky.getIOObj();
 	    if ( !seisobj || attribnms.isPresent(seisobj->name()) )
 	    {
 		MenuItem* item = new MenuItem( toUiString(childnm) );
@@ -1768,7 +1768,7 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& ass ) const
     if ( !desc->isStored() || storedid.isInvalid() )
 	return 0;
 
-    return DBM().get( storedid );
+    return storedid.getIOObj();
 }
 
 

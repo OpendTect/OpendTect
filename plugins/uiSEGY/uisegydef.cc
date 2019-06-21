@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "ptrman.h"
 #include "iostrm.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "oddirs.h"

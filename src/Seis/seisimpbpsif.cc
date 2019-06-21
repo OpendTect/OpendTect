@@ -11,7 +11,6 @@
 #include "strmoper.h"
 #include "dirlist.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "oddirs.h"
 #include "survinfo.h"

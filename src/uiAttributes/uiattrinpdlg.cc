@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "seistrctr.h"
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "keystrs.h"

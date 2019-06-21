@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "paramsetget.h"
@@ -352,7 +351,7 @@ void uiSteerAttrSel::setDesc( const Attrib::Desc* desc )
 		= desc->getValParam( Attrib::StorageProvider::keyStr() );
     const StringPair storkey( keypar->getStringValue() );
     const DBKey dbky( DBKey::getFromStr( storkey.first() ) );
-    PtrMan<IOObj> ioob = DBM().get( dbky );
+    PtrMan<IOObj> ioob = dbky.getIOObj();
     workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();
 }

@@ -97,7 +97,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     BufferString typestr, zdomstr;
     for ( int idx=0; idx<chosenids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( chosenids[idx] );
+	PtrMan<IOObj> ioobj = chosenids[idx].getIOObj();
 	if ( !ioobj )
 	    continue;
 

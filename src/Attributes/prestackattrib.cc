@@ -25,7 +25,6 @@
 #include "raytrace1d.h"
 #include "windowfunction.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 
 
@@ -150,7 +149,7 @@ PSAttrib::PSAttrib( Desc& ds )
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
     preprocid_.fromString( preprocessstr );
-    PtrMan<IOObj> preprociopar = DBM().get( preprocid_ );
+    PtrMan<IOObj> preprociopar = preprocid_.getIOObj();
     if ( !preprociopar )
 	preprocid_.setInvalid();
     else
@@ -496,7 +495,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     }
     else
     {
-	psioobj_ = DBM().get( psid_ );
+	psioobj_ = psid_.getIOObj();
 	if ( !psioobj_ && isondisc )
 	    mErrRet( uiStrings::phrCannotFindDBEntry(psid_) )
 

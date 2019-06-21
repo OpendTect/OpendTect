@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiwelltiecontrolview.h"
 
-#include "dbman.h"
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"

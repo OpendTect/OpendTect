@@ -75,7 +75,7 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
     if ( !inioobj )
 	{ strm << "Input file spec is not OK" << od_endl; return false; }
     const DBKey dbky = DBKey::getFromStr( outpar->find(sKey::ID()) );
-    PtrMan<IOObj> outioobj = DBM().get( dbky );
+    PtrMan<IOObj> outioobj = dbky.getIOObj();
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }
 
@@ -102,7 +102,7 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     DBKey indbky;
     inppar->get( sKey::ID(), indbky );
-    PtrMan<IOObj> inioobj = DBM().get( indbky );
+    PtrMan<IOObj> inioobj = indbky.getIOObj();
     if ( !inioobj )
 	{ strm << "Input seismics is not OK" << od_endl; return false; }
 

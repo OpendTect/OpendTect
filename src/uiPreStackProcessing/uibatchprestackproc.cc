@@ -8,7 +8,6 @@
 #include "uibatchprestackproc.h"
 
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
@@ -72,7 +71,7 @@ void uiBatchProcSetup::setupSelCB( CallBacker* )
     DBKey chainmid;
     PtrMan<IOObj> setupioobj = 0;
     if ( chainsel_->getSel(chainmid) )
-	setupioobj = DBM().get( chainmid );
+	setupioobj = chainmid.getIOObj();
 
     if ( !setupioobj )
 	return;
@@ -101,7 +100,7 @@ bool uiBatchProcSetup::prepareProcessing()
     DBKey chainmid;
     PtrMan<IOObj> ioobj = 0;
     if ( chainsel_->getSel(chainmid) )
-	ioobj = DBM().get( chainmid );
+	ioobj = chainmid.getIOObj();
 
     if ( !ioobj )
     {

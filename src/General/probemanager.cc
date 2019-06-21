@@ -37,7 +37,7 @@ RefManType ProbeManager::doFetch( const ObjID& id, uiRetVal& uirv ) const
     if ( oldprobe )
 	return RefManType( oldprobe );		// already loaded
 
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     if ( !ioobj )
 	return RefManType( 0 );
 

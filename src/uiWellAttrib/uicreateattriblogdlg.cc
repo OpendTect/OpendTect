@@ -11,7 +11,6 @@ _______________________________________________________________________
 #include "uicreateattriblogdlg.h"
 
 #include "attribsel.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "strmprov.h"
 #include "survinfo.h"

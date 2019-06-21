@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiwellextractparams.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"

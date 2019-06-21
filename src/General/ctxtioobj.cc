@@ -492,10 +492,7 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 {
     const BufferString valstr = SI().getDefaultPars().find( parky );
     if ( !valstr.isEmpty() )
-    {
-	DBKey dbky = DBKey::getFromStr( valstr );
-	setObj( DBM().get(dbky) );
-    }
+	setObj( DBKey(valstr).getIOObj() );
 
     if ( !ioobj_ && oone2 )
 	fillIfOnlyOne();
@@ -515,7 +512,7 @@ void CtxtIOObj::setObj( IOObj* obj )
 
 void CtxtIOObj::setObj( const DBKey& id )
 {
-    setObj( DBM().get(id) );
+    setObj( id.getIOObj() );
 }
 
 

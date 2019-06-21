@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "geomelement.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "randcolor.h"

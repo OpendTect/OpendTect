@@ -44,9 +44,7 @@ void MyClass::askSaveCB( CallBacker* )
         BufferString str("Object type \"" );
 	str += name(); str += "\"";
 
-	PtrMan<IOObj> ioobj = DBM().get( mid );
-	const bool issaveas = (bool) ioobj;
-
+	const bool issaveas = mid.isUsable();
         NotSavedPrompter::NSP().addObject( new NotSavedPrompter::Data(
 	    str.buf(), mCB(this,MyClass,saveCB()), issaveas, 0 ) );
     }

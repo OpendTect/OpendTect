@@ -33,7 +33,7 @@ Level& Level::dummy()
 const OD::String& StratSynth::Level::name() const
 {
     mDeclStaticString( ret );
-    ret = Strat::LVLS().nameOf( id_ );
+    ret = id_.name();
     return ret;
 }
 

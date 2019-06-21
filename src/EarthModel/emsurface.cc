@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "filepath.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "posfilter.h"
 #include "posinfo2dsurv.h"

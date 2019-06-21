@@ -88,7 +88,7 @@ void init()
     for ( int idx=0; idx<loader_.tobeLodedKeys().size(); idx++ )
     {
 	const DBKey objid = loader_.tobeLodedKeys()[idx];
-	PtrMan<IOObj> ioobj = DBM().get( objid );
+	PtrMan<IOObj> ioobj = objid.getIOObj();
 	if ( !ioobj )
 	    { pErrMsg( "Required ID not in DBM. Probably not OK" ); continue; }
 

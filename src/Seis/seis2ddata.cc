@@ -13,7 +13,6 @@
 #include "survgeom2d.h"
 #include "survgeom.h"
 #include "linesetposinfo.h"
-#include "dbman.h"
 #include "safefileio.h"
 #include "staticstring.h"
 #include "ascstream.h"

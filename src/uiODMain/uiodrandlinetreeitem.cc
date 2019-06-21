@@ -14,7 +14,6 @@ ___________________________________________________________________
 #include "attribsel.h"
 #include "attribprobelayer.h"
 #include "ctxtioobj.h"
-#include "dbman.h"
 #include "mousecursor.h"
 #include "ptrman.h"
 #include "probemanager.h"

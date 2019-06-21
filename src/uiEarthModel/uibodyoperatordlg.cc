@@ -18,7 +18,6 @@ ___________________________________________________________________
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
 #include "executor.h"
-#include "dbdir.h"
 #include "dbman.h"
 #include "marchingcubes.h"
 #include "od_helpids.h"
@@ -264,7 +263,7 @@ void uiBodyOperatorDlg::itemClick( CallBacker* )
 	bodyselfld_->display( true );
 	bodyselbut_->display( true );
 	typefld_->box()->setCurrentItem( 0 );
-	PtrMan<IOObj> ioobj = DBM().get( listinfo_[curidx].mid_ );
+	PtrMan<IOObj> ioobj = listinfo_[curidx].mid_.getIOObj();
 	const BufferString text = ioobj ? ioobj->name().buf() : "";
 	bodyselfld_->setText( text );
     }
@@ -334,7 +333,7 @@ bool uiBodyOperatorDlg::acceptOK()
 	mRetErr(uiStrings::phrSaveBodyFail())
 
     DBKey key = emcs->dbKey();
-    PtrMan<IOObj> ioobj = DBM().get( key );
+    PtrMan<IOObj> ioobj = key.getIOObj();
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );

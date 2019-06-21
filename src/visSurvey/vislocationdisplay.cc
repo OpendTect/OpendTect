@@ -7,7 +7,6 @@
 
 #include "vislocationdisplay.h"
 
-#include "dbman.h"
 #include "keystrs.h"
 #include "picksetmanager.h"
 #include "selector.h"

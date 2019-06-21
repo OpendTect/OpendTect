@@ -22,8 +22,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "dbman.h"
-#include "dbdir.h"
 #include "randcolor.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"

@@ -13,7 +13,6 @@
 #include "emmanager.h"
 #include "emobjectposselector.h"
 #include "geomelement.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "rowcolsurface.h"
@@ -107,7 +106,7 @@ void Object::setNameToJustCreated()
 void Object::setDBKey( const DBKey& mid )
 {
     storageid_ = mid;
-    PtrMan<IOObj> ioobj = DBM().get( storageid_ );
+    PtrMan<IOObj> ioobj = storageid_.getIOObj();
     if ( ioobj )
 	name_ = ioobj->name();
 }

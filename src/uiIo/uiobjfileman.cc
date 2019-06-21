@@ -200,7 +200,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
 void uiObjFileMan::updateFromSelected()
 {
     delete curioobj_;
-    curioobj_ = selgrp_->nrChosen() > 0 ? DBM().get(selgrp_->currentID()) : 0;
+    curioobj_ = selgrp_->nrChosen() > 0 ? selgrp_->currentID().getIOObj() : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
 
     ownSelChg();

@@ -9,7 +9,6 @@
 #include "attribparamgroup.h"
 #include "uistrings.h"
 #include "datapack.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "position.h"
@@ -313,7 +312,7 @@ bool SeisStorageRefParam::isOK() const
     }
 
     const DBKey storid = DBKey::getFromStr( storstr );
-    PtrMan<IOObj> ioobj = DBM().get( storid );
+    PtrMan<IOObj> ioobj = storid.getIOObj();
     return ioobj;
 }
 

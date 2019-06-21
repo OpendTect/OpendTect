@@ -11,7 +11,6 @@
 #include "seissingtrcproc.h"
 #include "seisioobjinfo.h"
 #include "iopar.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
@@ -27,7 +26,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !inpar || inpar->isEmpty() )
 	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }
     DBKey dbky = DBKey::getFromStr( inpar->find(sKey::ID()) );
-    PtrMan<IOObj> inioobj = DBM().get( dbky );
+    PtrMan<IOObj> inioobj = dbky.getIOObj();
     if ( !inioobj )
 	{ strm << "Input object spec is not OK" << od_endl; return false; }
     SeisIOObjInfo ioobjinfo( *inioobj );
@@ -40,7 +39,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !outpar || outpar->isEmpty() )
 	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
     dbky = DBKey::getFromStr( outpar->find(sKey::ID()) );
-    PtrMan<IOObj> outioobj = DBM().get( dbky );
+    PtrMan<IOObj> outioobj = dbky.getIOObj();
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }
 

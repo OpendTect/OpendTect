@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emrandlinegen.h"
 #include "emsurfacetr.h"
-#include "dbman.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "survinfo.h"

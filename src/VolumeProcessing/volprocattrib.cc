@@ -10,7 +10,6 @@
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribsel.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "survgeom3d.h"
@@ -56,7 +55,7 @@ bool VolProcAttrib::allowParallelComputation() const
 
 void VolProcAttrib::prepareForComputeData()
 {
-    PtrMan<IOObj>  ioobj = DBM().get( setupmid_ );
+    PtrMan<IOObj>  ioobj = setupmid_.getIOObj();
     if ( !ioobj )
 	return;
 
@@ -168,7 +167,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 	return false;
 
     DBKey dbky = DBKey::getFromStr( dbkystring );
-    PtrMan<IOObj>  ioobj = DBM().get( dbky );
+    PtrMan<IOObj>  ioobj = dbky.getIOObj();
     if ( !ioobj )
     {
 	errmsg_ = tr("Cannot find the processing setup.");

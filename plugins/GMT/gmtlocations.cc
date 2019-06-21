@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "draw.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "initgmtplugin.h"
 #include "ioobj.h"
 #include "od_ostream.h"

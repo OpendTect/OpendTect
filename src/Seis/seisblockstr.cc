@@ -119,7 +119,7 @@ bool BlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     wrr_ = new Seis::Blocks::Writer;
     wrr_->setFullPath( infofnm );
 
-    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     if ( ioobj )
     {
 	OD::DataRepType datarep = OD::AutoDataRep;

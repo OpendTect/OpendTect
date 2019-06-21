@@ -27,7 +27,6 @@ ________________________________________________________________________
 
 #include "ioobjctxt.h"
 #include "file.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"

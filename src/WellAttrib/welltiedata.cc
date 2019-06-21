@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "dbman.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -196,7 +195,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
     ExistingTaskRunnerProvider trprov( &taskr );
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = DBM().get( horids[idx] );
+	PtrMan<IOObj> ioobj = horids[idx].getIOObj();
 	if ( !ioobj )
 	{
 	    errms.appendPhrase(tr("Cannot get database entry for "

@@ -61,7 +61,7 @@ void SelSpec::setZDomainKey( const Desc& desc )
     if ( storedid.isInvalid() )
 	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( storedid );
+    PtrMan<IOObj> ioobj = storedid.getIOObj();
     if ( ioobj )
 	ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
 }
@@ -161,7 +161,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	if ( desc->isStored() )
 	{
 	    const DBKey dbky = desc->getStoredID( false );
-	    PtrMan<IOObj> ioobj = DBM().get( dbky );
+	    PtrMan<IOObj> ioobj = dbky.getIOObj();
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
@@ -442,7 +442,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(defstr) );
+    PtrMan<IOObj> ioobj = DBKey(defstr).getIOObj();
     if ( !ioobj || !SeisIOObjInfo(ioobj).is2D() )
 	return;
 

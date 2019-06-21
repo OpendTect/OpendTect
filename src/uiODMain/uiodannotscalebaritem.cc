@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiodannottreeitem.h"
 
 #include "draw.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "picksetmanager.h"

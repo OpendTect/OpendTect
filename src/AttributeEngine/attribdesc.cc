@@ -11,7 +11,6 @@
 #include "attribparam.h"
 #include "attribdescset.h"
 #include "attribstorprovider.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -662,7 +661,7 @@ BufferString Desc::getStoredType( bool recursive ) const
 {
     BufferString typestr;
     const DBKey key( getStoredID(recursive) );
-    PtrMan<IOObj> ioobj = DBM().get( key );
+    PtrMan<IOObj> ioobj = key.getIOObj();
     if ( ioobj )
 	ioobj->pars().get( sKey::Type(), typestr );
 

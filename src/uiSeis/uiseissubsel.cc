@@ -122,7 +122,7 @@ void uiSeisSubSel::clear()
 
 void uiSeisSubSel::setInput( const DBKey& id )
 {
-    IOObj* ioobj = DBM().get( id );
+    IOObj* ioobj = id.getIOObj();
     if ( ioobj )
 	setInput( *ioobj );
     delete ioobj;

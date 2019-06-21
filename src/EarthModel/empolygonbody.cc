@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurfaceio.h"
-#include "dbman.h"
 #include "survinfo.h"
 #include "uistrings.h"
 #include "undo.h"
@@ -270,7 +269,7 @@ void PolygonBody::fillBodyPar( IOPar& par ) const
 
 Executor* PolygonBody::saver()
 {
-    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
+    PtrMan<IOObj> ioobj = dbKey().getIOObj();
     return saver( ioobj );
 }
 
@@ -286,7 +285,7 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
 
 Executor* PolygonBody::loader()
 {
-    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
+    PtrMan<IOObj> ioobj = dbKey().getIOObj();
     if ( !ioobj )
 	{ errmsg_ = uiStrings::phrCannotFindObjInDB(); return 0; }
 
@@ -316,7 +315,7 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 				      const DBKey* key )
 {
     const DBKey dbky = key && key->isValid() ? *key : surface_.dbKey();
-    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     if ( !ioobj )
 	{ surface_.setErrMsg(uiStrings::phrCannotFindObjInDB()); return 0; }
 

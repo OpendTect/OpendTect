@@ -24,7 +24,6 @@
 #include "strmprov.h"
 #include "dbdir.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "dbkey.h"

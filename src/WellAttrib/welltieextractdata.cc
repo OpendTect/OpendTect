@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "interpol1d.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "datapointset.h"
 #include "samplingdata.h"
 #include "seisbuf.h"

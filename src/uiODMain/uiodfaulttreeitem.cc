@@ -366,7 +366,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	bool saveas = mnuid==saveasmnuitem_.id || emid_.isInvalid();
 	if ( !saveas )
 	{
-	    PtrMan<IOObj> ioobj = DBM().get( emid_ );
+	    PtrMan<IOObj> ioobj = emid_.getIOObj();
 	    saveas = !ioobj;
 	}
 
@@ -658,7 +658,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 	bool saveas = mnuid==saveasmnuitem_.id || emid_.isInvalid();
 	if ( !saveas )
 	{
-	    PtrMan<IOObj> ioobj = DBM().get( emid_ );
+	    PtrMan<IOObj> ioobj = emid_.getIOObj();
 	    saveas = !ioobj;
 	}
 

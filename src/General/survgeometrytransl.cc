@@ -9,8 +9,6 @@
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
-#include "dbdir.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "survgeom2d.h"
 #include "posinfo2d.h"
@@ -44,7 +42,7 @@ IOObj* SurvGeom2DTranslator::getIOObj( GeomID geomid )
 {
     IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
     const DBKey dbky( ioctxt.getSelDirID(), DBKey::ObjID::get(geomid.getI()) );
-    return DBM().get( dbky );
+    return dbky.getIOObj();
 }
 
 

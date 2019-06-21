@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "datainpspec.h"
 #include "hilbertattrib.h"
-#include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "nlamodel.h"

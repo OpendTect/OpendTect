@@ -11,7 +11,6 @@
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "dbman.h"
 #include "rowcol.h"
 #include "prestackeventtransl.h"
 #include "prestackeventio.h"
@@ -410,7 +409,7 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 	}
     }
 
-    IOObj* ioobj = DBM().get( storageid_ );
+    PtrMan<IOObj> ioobj = storageid_.getIOObj();
     if ( !ioobj )
 	return !first;
 
@@ -447,7 +446,7 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 	bvs.add( bid );
     }
 
-    IOObj* ioobj = DBM().get( storageid_ );
+    PtrMan<IOObj> ioobj = storageid_.getIOObj();
     if ( !ioobj )
 	return false;
 
@@ -461,7 +460,7 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 
 Executor* EventManager::commitChanges()
 {
-    IOObj* ioobj = DBM().get( storageid_ );
+    PtrMan<IOObj> ioobj = storageid_.getIOObj();
     if ( !ioobj )
 	{ pErrMsg("No ioobj"); return 0; }
 
@@ -471,15 +470,17 @@ Executor* EventManager::commitChanges()
 
 Executor* EventManager::load( const BinIDValueSet& bidset, bool trigger )
 {
-    IOObj* ioobj = DBM().get( storageid_ );
-    if ( !ioobj ) return 0;
+    PtrMan<IOObj> ioobj = storageid_.getIOObj();
+    if ( !ioobj )
+	return 0;
     return PSEventTranslator::reader( *this, &bidset, 0, ioobj, trigger );
 }
 
 
 bool EventManager::isChanged() const
 {
-    if ( auxdatachanged_ ) return true;
+    if ( auxdatachanged_ )
+	return true;
 
     RowCol pos( -1, -1 );
     while ( events_.next( pos, false ) )

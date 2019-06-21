@@ -214,8 +214,9 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	if ( volidx < 0 ) continue;
 
 	const DBKey id = allvolsids_[volidx];
-	IOObj* ioobj = DBM().get( id );
-	if ( !ioobj ) continue;
+	IOObj* ioobj = id.getIOObj();
+	if ( !ioobj )
+	    continue;
 
 	if ( selobjs_.isEmpty() )
 	    storage = ioobj->pars().find( storagekey );

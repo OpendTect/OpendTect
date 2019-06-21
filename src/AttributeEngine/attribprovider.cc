@@ -21,7 +21,6 @@
 #include "cubesubsel.h"
 #include "linesubsel.h"
 #include "trckeyzsampling.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seismscprov.h"

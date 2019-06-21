@@ -10,7 +10,6 @@
 #include "arrayndslice.h"
 #include "flatposdata.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "muter.h"
 #include "prestackgather.h"
@@ -93,7 +92,7 @@ bool Mute::setMuteDefID( const DBKey& dbky )
 
     if ( dbky.isInvalid() )
 	mErrRet( uiStrings::phrDBIDNotValid() )
-    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     if ( !ioobj )
 	mErrRet( uiStrings::phrCannotFindObjInDB() );
 
@@ -113,7 +112,7 @@ bool Mute::setMuteDefID( const DBKey& dbky )
 
 void Mute::fillPar( IOPar& par ) const
 {
-    PtrMan <IOObj> ioobj = DBM().get( id_ );
+    PtrMan <IOObj> ioobj = id_.getIOObj();
     if ( ioobj )
 	par.set( sMuteDef(), id_ );
 

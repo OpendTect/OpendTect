@@ -7,7 +7,6 @@
 
 #include "volprocvolreader.h"
 
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "scaler.h"
@@ -145,7 +144,7 @@ bool VolumeReader::prepareWork( int )
     if ( !Step::prepareWork() )
 	return false;
 
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     if ( !ioobj )
 	return false;
 
@@ -186,7 +185,7 @@ ReportingTask* VolumeReader::createTask()
     if ( !prepareWork() )
 	return 0;
 
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
 
     return new VolumeReaderExecutor( *ioobj, components_, compscalers_,
@@ -197,7 +196,7 @@ ReportingTask* VolumeReader::createTask()
 bool VolumeReader::setVolumeID( const DBKey& mid )
 {
     mid_ = mid;
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     return ioobj;
 }
 
@@ -265,7 +264,7 @@ int VolumeReader::getNrOutComponents( OutputSlotID slotid,
     if ( components_.size() > 0 )
 	return components_.size();
 
-    PtrMan<IOObj> ioobj = DBM().get( mid_ );
+    PtrMan<IOObj> ioobj = mid_.getIOObj();
     SeisIOObjInfo seisinfo( ioobj );
     if ( !seisinfo.isOK() )
 	return Step::getNrOutComponents( slotid, geomid );

@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "odver.h"
 #include "seisprovider.h"

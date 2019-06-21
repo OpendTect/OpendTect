@@ -8,7 +8,6 @@
 #include "vissurvobj.h"
 #include "visobject.h"
 #include "uitutmod.h"
-#include "dbdir.h"
 
 namespace visBase /*forward declaration*/
 {
@@ -20,12 +19,12 @@ namespace visBase /*forward declaration*/
 namespace visSurvey
 {
 mExpClass(uiTut) TutorialWellDisplay : public visBase::VisualObjectImpl,
-				  	public visSurvey::SurveyObject
+					public visSurvey::SurveyObject
 {
 public:
 				TutorialWellDisplay();
 				~TutorialWellDisplay();
-    
+
     void			loadAndDisplayWell(const DBKey&);
 
 protected:
@@ -38,8 +37,8 @@ protected:
     void			displayWellLabel(visBase::Text*,
 					    const uiString&,const Coord3&);
 
-    virtual const char*		getClassName() const 
+    virtual const char*		getClassName() const
 				{ return typeid(*this).name(); }
-    
+
 };
 } // namespace visSurvey

@@ -564,7 +564,7 @@ bool uiEMPartServer::askUserToSave( const DBKey& emid,
     if ( !emobj || !emobj->isChanged() || !EM::canOverwrite(emobj->dbKey()) )
 	return true;
 
-    PtrMan<IOObj> ioobj = DBM().get( emid );
+    PtrMan<IOObj> ioobj = emid.getIOObj();
     if ( !ioobj && emobj->isEmpty() )
 	return true;
 
@@ -855,7 +855,7 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 	else
 	{
 	    CtxtIOObj ctio( body ? EMBodyTranslatorGroup::ioContext()
-				 : object->getIOObjContext(), DBM().get(key) );
+				 : object->getIOObjContext(), key.getIOObj() );
 
 	    ctio.ctxt_.forread_ = false;
 
@@ -1276,7 +1276,7 @@ bool uiEMPartServer::loadSurface( const DBKey& dbky,
     RefMan<EM::Object> obj = emmgr_.fetchForEdit( dbky, trprov );
     if ( !obj )
     {
-	PtrMan<IOObj> ioobj = DBM().get(dbky);
+	PtrMan<IOObj> ioobj = dbky.getIOObj();
 	const BufferString nm = ioobj	? (const OD::String&)ioobj->name()
 					: (const OD::String&)dbky.toString();
 	uiString msg = uiStrings::phrCannotLoad( nm );

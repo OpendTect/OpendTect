@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "dbman.h"
 #include "marchingcubes.h"
 #include "mousecursor.h"
 #include "picksetmanager.h"

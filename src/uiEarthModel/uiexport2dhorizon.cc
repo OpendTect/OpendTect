@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "ptrman.h"
@@ -161,7 +160,7 @@ bool uiExport2DHorizon::doExport()
 	}
 	else
 	{
-	    PtrMan<IOObj> ioobj = DBM().get( horid );
+	    PtrMan<IOObj> ioobj = horid.getIOObj();
 	    if ( !ioobj )
 		mErrRet(uiStrings::phrCannotFindDBEntry( horid ));
 
@@ -376,7 +375,7 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
 
     DBKey horid = hinfos_[horidx]->dbkey;
 
-    PtrMan<IOObj> ioobj = DBM().get( horid );
+    PtrMan<IOObj> ioobj = horid.getIOObj();
     if ( !ioobj ) return;
 
     EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );

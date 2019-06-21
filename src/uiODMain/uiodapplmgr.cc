@@ -559,7 +559,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 
     const DBKey hormid = DBKey::getFromStr(
 			    transform->fromZDomainInfo().getID() );
-    PtrMan<IOObj> ioobj = DBM().get( hormid );
+    PtrMan<IOObj> ioobj = hormid.getIOObj();
     const BufferString hornm = ioobj ? BufferString(ioobj->name())
 				: transform->factoryDisplayName().getString();
     uiString scenenm = tr("Flattened on '%1'").arg( hornm );
@@ -1891,7 +1891,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
     if ( !surface ) return;
 
     const DBKey emid = surface->getObjectID();
-    PtrMan<IOObj> ioobj = DBM().get( emid );
+    PtrMan<IOObj> ioobj = emid.getIOObj();
     const bool saveas = emid.isInvalid() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
 

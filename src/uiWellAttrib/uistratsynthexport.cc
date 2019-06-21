@@ -23,7 +23,6 @@ _______________________________________________________________________
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 
-#include "dbman.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ioobjctxt.h"

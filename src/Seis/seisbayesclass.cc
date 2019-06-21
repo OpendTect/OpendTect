@@ -16,7 +16,6 @@
 #include "probdenfunctr.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "uistrings.h"
 
@@ -89,11 +88,11 @@ bool SeisBayesClass::getPDFs()
 {
     for ( int ipdf=0; ; ipdf++ )
     {
-	const char* id = pars_.find( mGetSeisBayesPDFIDKey(ipdf) );
-	if ( !id || !*id )
+	const char* idstr = pars_.find( mGetSeisBayesPDFIDKey(ipdf) );
+	if ( !idstr || !*idstr )
 	    break;
 
-	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(id) );
+	PtrMan<IOObj> ioobj = DBKey(idstr) .getIOObj();
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find object for PDF %1 in data store")
@@ -235,19 +234,19 @@ bool SeisBayesClass::getStorers()
     {
 	outtrcs_.add( new SeisTrc );
 
-	const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(ipdf) );
-	if ( !id || !*id )
+	const char* idstr = pars_.find( mGetSeisBayesSeisOutIDKey(ipdf) );
+	if ( !idstr || !*idstr )
 	    { storers_ += 0; continue; }
 	else
 	    haveoutput = true;
 
-	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromStr(id) );
+	PtrMan<IOObj> ioobj = DBKey(idstr).getIOObj();
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find output cube for %1"
 		      "\nID found is %2)")
 		 .arg( pdfnames_.get( ipdf ) )
-		 .arg( id );
+		 .arg( idstr );
 	    return false;
 	}
 

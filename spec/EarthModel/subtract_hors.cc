@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "executor.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "position.h"
 #include "ranges.h"
@@ -44,8 +43,7 @@ static int prError( const char* msg )
 
 static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 {
-    DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     if ( !ioobj )
 	{ err = "Horizon "; err += id; err += " not OK"; return 0; }
 
@@ -63,7 +61,8 @@ static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 
 static int doWork( int argc, char** argv )
 {
-    if ( argc < 4 ) return prUsage();
+    if ( argc < 4 )
+	return prUsage();
 
     BufferString errmsg;
     EM::Horizon3D* horizon1 = loadHorizon( argv[1], errmsg );

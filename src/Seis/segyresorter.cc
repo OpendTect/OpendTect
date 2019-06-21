@@ -11,7 +11,6 @@
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "posfilter.h"
-#include "dbman.h"
 #include "filepath.h"
 #include "od_iostream.h"
 #include "uistrings.h"
@@ -76,7 +75,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     , outstrm_(0)
     , needwritefilehdrs_(true)
 {
-    IOObj* ioobj = DBM().get( setup_.inpkey_ );
+    IOObj* ioobj = setup_.inpkey_.getIOObj();
     if ( !ioobj )
 	msg_ = tr("Cannot find provided input in data manager");
     else

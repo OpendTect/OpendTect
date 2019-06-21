@@ -471,7 +471,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 
 void uiIOObjSel::setInput( const DBKey& dbky )
 {
-    workctio_.setObj( DBM().get(dbky) );
+    workctio_.setObj( dbky.getIOObj() );
     uiIOSelect::setInput( dbky.toString() );
 }
 
@@ -699,11 +699,11 @@ void uiIOObjSel::objInserted( CallBacker* cb )
 
 void uiIOObjSel::objSel()
 {
-    const char* ky = getKey();
-    if ( !ky || !*ky )
+    const char* kystr = getKey();
+    if ( !kystr || !*kystr )
 	workctio_.setObj( 0 );
     else
-	workctio_.setObj( DBM().get( DBKey::getFromStr(ky) ) );
+	workctio_.setObj( DBKey(kystr).getIOObj() );
 }
 
 

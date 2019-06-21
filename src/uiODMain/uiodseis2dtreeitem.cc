@@ -34,7 +34,6 @@ ___________________________________________________________________
 #include "attribsel.h"
 #include "emmanager.h"
 #include "externalattrib.h"
-#include "dbman.h"
 #include "posinfo2d.h"
 #include "probeimpl.h"
 #include "probemanager.h"

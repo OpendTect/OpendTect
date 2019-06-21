@@ -12,7 +12,6 @@
 #include "posvecdatasettr.h"
 #include "od_istream.h"
 #include "iopar.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "survgeom.h"

@@ -16,7 +16,6 @@
 #include "od_iostream.h"
 #include "ascstream.h"
 #include "separstr.h"
-#include "dbman.h"
 #include "uistrings.h"
 
 static const char* sKeyFileType = "MultiCube Pre-Stack Seismics";
@@ -162,7 +161,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, DBKeySet& keys,
 	const FileMultiString fms( astrm.value() );
 	if ( ky.isInvalid() || fms.size() < 1 )
 	    continue;
-	PtrMan<IOObj> ioobj = DBM().get( ky );
+	PtrMan<IOObj> ioobj = ky.getIOObj();
 	if ( !ioobj || ioobj->isBad() )
 	    continue;
 

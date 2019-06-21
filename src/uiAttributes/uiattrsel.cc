@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "hilbertattrib.h"
 
-#include "dbman.h"
-#include "dbdir.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
@@ -527,7 +525,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
     if ( insertedobjdbky_.isValid() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( insertedobjdbky_ );
+	PtrMan<IOObj> ioobj = insertedobjdbky_.getIOObj();
 	if ( !ioobj )
 	    return false;
 

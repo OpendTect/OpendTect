@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -83,7 +82,7 @@ bool FaultAuxData::init()
     if ( !dataset_.isEmpty() )
 	return true; //already called
 
-    PtrMan<IOObj> ioobj = DBM().get( faultid_ );
+    PtrMan<IOObj> ioobj = faultid_.getIOObj();
     IOObjInfo ioinfo( ioobj );
     if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault )
 	return false;

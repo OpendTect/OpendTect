@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "dataclipper.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
@@ -259,12 +258,9 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( DBKey(inpdesc->getStoredID(true)) );
+    PtrMan<IOObj> ioobj = DBKey(inpdesc->getStoredID(true)).getIOObj();
     if ( !ioobj )
-    {
-	uiMSG().error( tr("Select a valid input") );
-	return;
-    }
+	{ uiMSG().error( tr("Select a valid input") ); return; }
 
     uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D() );
     if ( !subseldlg.go() )

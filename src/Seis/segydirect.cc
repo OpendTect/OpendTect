@@ -570,7 +570,7 @@ SEGY::FileIndexer::FileIndexer( const DBKey& mid, bool isvol,
 				        const IOPar& segypar )
     : Executor( "SEGY Indexer" )
     , directdef_( 0 )
-    , ioobj_( DBM().get( mid ) )
+    , ioobj_( mid.getIOObj() )
     , isvol_(isvol)
     , is2d_(is2d)
     , geomid_(mUdfGeomID)

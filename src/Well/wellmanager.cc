@@ -15,7 +15,6 @@
 #include "welldisp.h"
 #include "welllogset.h"
 #include "welltransl.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "dbdir.h"

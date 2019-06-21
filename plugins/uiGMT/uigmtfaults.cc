@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "fixedstring.h"
 #include "gmtpar.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "dbkey.h"
 #include "survinfo.h"
@@ -167,7 +166,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	DBKey mid;
 	if (!fltpar->get( toString(idx), mid ) )
 	    break;
-	IOObj* obj = DBM().get( mid );
+	IOObj* obj = mid.getIOObj();
 	if ( obj )
 	    tosel += mid;
 	delete obj;

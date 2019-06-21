@@ -269,7 +269,7 @@ int VolProc::ChainOutput::getChain()
     if ( chainid_.isInvalid() )
 	return retError( tr("No Volume Processing ID specified") );
 
-    PtrMan<IOObj> ioobj = DBM().get( chainid_ );
+    PtrMan<IOObj> ioobj = chainid_.getIOObj();
     if ( !ioobj )
 	return retError( uiStrings::phrCannotFind(
 		tr("Volume Processing with id: %1").arg(chainid_) ) );
@@ -378,7 +378,7 @@ bool VolProc::ChainOutput::openOutput()
     if ( !seisdp )
 	mErrRet( tr("No output data available") )
 
-    PtrMan<IOObj> ioobj = DBM().get( outid_ );
+    PtrMan<IOObj> ioobj = outid_.getIOObj();
     if ( !ioobj )
 	mErrRet( uiStrings::phrCannotFind( tr("output cube ID in database") ) )
 

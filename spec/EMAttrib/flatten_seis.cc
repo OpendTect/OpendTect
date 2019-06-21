@@ -30,7 +30,7 @@ ________________________________________________________________________
 static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 {
     DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
@@ -55,7 +55,7 @@ static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
 {
     DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = id.getIOObj();
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;

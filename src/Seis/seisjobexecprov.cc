@@ -294,8 +294,8 @@ Executor* SeisJobExecProv::getPostProcessor()
 {
     if ( is2d_ ) return 0;
 
-    PtrMan<IOObj> inioobj = DBM().get( tmpstorid_ );
-    PtrMan<IOObj> outioobj = DBM().get( seisoutid_ );
+    PtrMan<IOObj> inioobj = tmpstorid_.getIOObj();
+    PtrMan<IOObj> outioobj = seisoutid_.getIOObj();
     return new SeisSingleTraceProc( *inioobj, *outioobj,
 				    "Data transfer", &iopar_,
 				    tr("Writing results to output cube") );
@@ -306,7 +306,7 @@ bool SeisJobExecProv::removeTempSeis()
 {
     if ( is2d_ ) return true;
 
-    PtrMan<IOObj> ioobj = DBM().get( tmpstorid_ );
+    PtrMan<IOObj> ioobj = tmpstorid_.getIOObj();
     if ( !ioobj ) return true;
 
     File::Path fp( ioobj->mainFileName() );

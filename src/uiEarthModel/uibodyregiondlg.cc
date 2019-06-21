@@ -1022,7 +1022,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	mRetErrDelHoridx( uiStrings::phrSaveBodyFail() )
 
     DBKey key = emcs->dbKey();
-    PtrMan<IOObj> ioobj = DBM().get( key );
+    PtrMan<IOObj> ioobj = key.getIOObj();
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );

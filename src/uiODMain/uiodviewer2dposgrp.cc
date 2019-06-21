@@ -225,7 +225,7 @@ IOObj* uiODViewer2DPosGrp::get2DObj()
     if ( !desc ) return 0;
 
     const DBKey stored2did( desc->getStoredID(true) );
-    return DBM().get( stored2did );
+    return stored2did.getIOObj();
 }
 
 

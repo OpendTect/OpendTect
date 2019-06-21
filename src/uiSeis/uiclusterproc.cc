@@ -309,10 +309,10 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tskr,
     msg.setEmpty();
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
 	msg = tr("Missing ID of Temporary storage in the parameters file");
-    PtrMan<IOObj> inobj = DBM().get( key );
+    PtrMan<IOObj> inobj = key.getIOObj();
     if ( !pars.get("Output.ID",key) )
 	msg = tr("Missing ID of output dataset in the parameters file");
-    PtrMan<IOObj> outobj = DBM().get( key );
+    PtrMan<IOObj> outobj = key.getIOObj();
     if ( !msg.isEmpty() )
 	return false;
     if ( !inobj || !outobj )

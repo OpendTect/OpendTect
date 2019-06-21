@@ -9,7 +9,6 @@
 #include "nlamodel.h"
 
 #include "datacoldef.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "posvecdataset.h"
 #include "datapointset.h"
@@ -118,7 +117,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
     }
     else
     {
-	PtrMan<IOObj> ioobj = DBM().get( vdsid );
+	PtrMan<IOObj> ioobj = vdsid.getIOObj();
 	if ( !ioobj )
 	    return tr("Cannot find training data set specified");
 

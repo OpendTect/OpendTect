@@ -5,7 +5,6 @@
 -*/
 
 #include "commandlineparser.h"
-#include "dbman.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -117,7 +116,7 @@ int main( int argc, char** argv )
     progtool.ispyproc_ = procnms.get( 0 ) == "o" ? false : true;
 
     bool toadd = clp.hasKey( sAddStr );
-    
+
     if ( !toadd && !clp.hasKey(sRemoveStr) )
 	return 0;
 

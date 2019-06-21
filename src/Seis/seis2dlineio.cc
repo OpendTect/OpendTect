@@ -217,8 +217,9 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
     if ( !ioobj )
 	return false;
 
-    PtrMan<IOObj> oldioobj = DBM().get( ioobj->key() );
-    if ( !oldioobj ) return false;
+    PtrMan<IOObj> oldioobj = ioobj->key().getIOObj();
+    if ( !oldioobj )
+	return false;
 
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
@@ -232,7 +233,7 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool TwoDSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
+    PtrMan<IOObj> ioobj = conn_ ? conn_->linkedTo().getIOObj() : nullptr;
     if ( !ioobj )
 	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
     BufferString fnm( ioobj->mainFileName() );
@@ -267,7 +268,7 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
     if ( !ioobj )
 	return false;
 
-    PtrMan<IOObj> oldioobj = DBM().get( ioobj->key() );
+    PtrMan<IOObj> oldioobj = ioobj->key().getIOObj();
     if ( !oldioobj ) return false;
 
     const bool isro = implReadOnly( ioobj );
@@ -285,11 +286,12 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 bool SeisTrc2DTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
+    PtrMan<IOObj> ioobj = conn_ ? conn_->linkedTo().getIOObj() : nullptr;
     if ( !ioobj )
 	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
     BufferString fnm( ioobj->mainFileName() );
-    if ( !File::exists(fnm) ) return false;
+    if ( !File::exists(fnm) )
+	return false;
 
     Seis2DDataSet dset( *ioobj );
     if ( dset.nrLines() < 1 )

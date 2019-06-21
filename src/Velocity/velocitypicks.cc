@@ -1134,7 +1134,7 @@ Picks* PicksMgr::get( const DBKey& mid, bool sgmid, bool create,
 	res->ref();
     }
 
-    PtrMan<IOObj> ioobj = DBM().get( mid );
+    PtrMan<IOObj> ioobj = mid.getIOObj();
     if ( forceread && !ioobj )
     {
 	res->unRef();
