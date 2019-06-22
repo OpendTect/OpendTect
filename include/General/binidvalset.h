@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "posidxpairvalset.h"
-#include "trckey.h"
+#include "binid.h"
 
 
 /*!\brief A Pos::IdxPairValueSet with BinIDs. */
