@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "oscommand.h"
 #include "staticstring.h"
-#include "settings.h"
 #include "uistrings.h"
 
 

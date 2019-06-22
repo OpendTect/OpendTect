@@ -23,7 +23,6 @@
 #include "posvecdataset.h"
 #include "randcolor.h"
 #include "selector.h"
-#include "settings.h"
 #include "survinfo.h"
 #include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "hostdata.h"
 #include "ioobj.h"
 #include "oddirs.h"
-#include "settings.h"
 #include "singlebatchjobdispatch.h"
 
 #include "uigeninput.h"

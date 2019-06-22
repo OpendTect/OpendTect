@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 #include "uicursor.h"
-#include "settings.h"
 
 #include "uihelpview.h"
 #include "uirgbarray.h"

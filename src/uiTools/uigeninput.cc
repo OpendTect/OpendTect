@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "binidvalue.h"
 #include "undefval.h"
-#include "settings.h"
 
 
 //! maps a uiGenInput's idx to a field- and sub-idx

@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "parametricsurface.h"
 #include "ptrman.h"
 #include "safefileio.h"
-#include "settings.h"
 #include "varlenarray.h"
 
 namespace EM

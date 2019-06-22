@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
-#include "settings.h"
 #include "survinfo.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \

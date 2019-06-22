@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "statrand.h"
 #include "survinfo.h"
 #include "systeminfo.h"
-#include "settings.h"
 #include "unitofmeasure.h"
 #include "latlong.h"
 

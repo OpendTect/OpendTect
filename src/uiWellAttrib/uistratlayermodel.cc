@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "seistrc.h"
 #include "separstr.h"
-#include "settings.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
 #include "stratlaygen.h"

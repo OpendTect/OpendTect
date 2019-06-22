@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uicolseqsel.h"
 #include "uicolsequsemodesel.h"
 
-#include "settings.h"
 #include "coltabseqmgr.h"
 #include "mouseevent.h"
 

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "survgeom3d.h"
 #include "posidxpairdataset.h"
 #include "envvars.h"
-#include "settings.h"
 #include "posinfo.h"
 #include "hdf5access.h"
 #include "survinfo.h"

@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uicompoundparsel.h"
 #include "uigeninput.h"
 #include "uibutton.h"
-#include "settings.h"
 
 
 #define mSelCB mCB(this,uiCompoundParSel,doSel)

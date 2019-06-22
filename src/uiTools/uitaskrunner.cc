@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 #include "fixedstring.h"
 #include "keystrs.h"
-#include "settings.h"
 #include "thread.h"
 #include "threadlock.h"
 #include "timer.h"

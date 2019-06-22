@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "parametricsurface.h"
 #include "ptrman.h"
-#include "settings.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
 #include "varlenarray.h"

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "file.h"
 #include "keystrs.h"
-#include "settings.h"
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )

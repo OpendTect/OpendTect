@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "fileformat.h"
 #include "odiconfile.h"
-#include "settings.h"
 
 #include "uirgbarray.h"
 

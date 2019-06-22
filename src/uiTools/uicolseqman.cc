@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "datadistributiontools.h"
 #include "keystrs.h"
 #include "mouseevent.h"
-#include "settings.h"
 #include "uistring.h"
 #include "uistrings.h"
 
