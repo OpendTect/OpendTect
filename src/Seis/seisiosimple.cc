@@ -15,7 +15,6 @@
 #include "seistrc.h"
 #include "seisrangeseldata.h"
 #include "seisresampler.h"
-#include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "survgeom.h"
 #include "oddirs.h"

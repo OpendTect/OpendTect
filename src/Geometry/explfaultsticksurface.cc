@@ -8,7 +8,6 @@
 #include "explfaultsticksurface.h"
 
 #include "arrayndinfo.h"
-#include "trckeyzsampling.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "delaunay.h"

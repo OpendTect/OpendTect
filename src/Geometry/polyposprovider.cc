@@ -9,7 +9,7 @@
 #include "keystrs.h"
 #include "iopar.h"
 #include "polygon.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "survinfo.h"
 #include "ioobj.h"
 #include "ptrman.h"

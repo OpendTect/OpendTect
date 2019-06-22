@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiseisfileman.h"
 
 #include "cbvsreadmgr.h"
-#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
@@ -25,7 +24,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "seisstatscollector.h"
-#include "separstr.h"
 #include "timedepthconv.h"
 #include "fileview.h"
 

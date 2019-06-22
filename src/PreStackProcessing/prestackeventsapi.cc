@@ -8,7 +8,7 @@
 #include "prestackeventsapi.h"
 
 #include "binidvalset.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "executor.h"
 #include "ioobj.h"
 #include "dbman.h"

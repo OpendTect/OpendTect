@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "executor.h"
 #include "bufstringset.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "iopar.h"
 #include "sets.h"
 #include "valseriesevent.h"

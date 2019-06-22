@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "datapack.h"
 #include "executor.h"
 #include "arrayndimpl.h"

@@ -22,7 +22,6 @@
 #include "uiioobjseldlg.h"
 #include "uifilesel.h"
 #include "uimsg.h"
-#include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "seisioobjinfo.h"

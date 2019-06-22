@@ -15,6 +15,7 @@
 #include "moddepmgr.h"
 #include "progressmeterimpl.h"
 #include "seisioobjinfo.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 
 #include "prog.h"

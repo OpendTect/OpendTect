@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "emsurfauxdataio.h"
 
 #include "ascstream.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "datachar.h"
 #include "datainterp.h"
 #include "emhorizon3d.h"

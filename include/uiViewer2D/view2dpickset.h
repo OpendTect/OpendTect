@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiviewer2dmod.h"
 #include "flatview.h"
 #include "flatauxdataeditor.h"
-#include "trckeyzsampling.h"
 #include "view2ddata.h"
 #include "pickset.h"
 

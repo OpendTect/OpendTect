@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seistrctr.h"
 #include "linekey.h"
-#include "trckeyzsampling.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"

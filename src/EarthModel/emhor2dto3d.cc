@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emrowcoliterator.h"
 #include "arrayndimpl.h"
 #include "array2dinterpol.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "survinfo.h"
 #include "uistrings.h"
 

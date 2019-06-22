@@ -20,6 +20,7 @@
 #include "separstr.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }

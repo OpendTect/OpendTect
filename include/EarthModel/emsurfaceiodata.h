@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "emcommon.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "bufstringset.h"
 #include "typeset.h"
 

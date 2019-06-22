@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "executor.h"
 #include "dbkey.h"
 

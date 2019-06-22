@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "thread.h"
 #include "paralleltask.h"
 #include "veldesc.h"

@@ -13,7 +13,7 @@ ___________________________________________________________________
 #include "survgeometry.h"
 #include "survinfo.h"
 #include "trigonometry.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 
 Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
 {

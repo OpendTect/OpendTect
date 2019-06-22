@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seistableseldata.h"
 #include "ioobj.h"
 #include "uistrings.h"
-#include "trckeyzsampling.h"
 #include "binidvalset.h"
 
 

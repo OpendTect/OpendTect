@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacerelations.h"
-#include "trckeyzsampling.h"
 #include "cubicbeziersurface.h"
 #include "consistencychecker.h"
 

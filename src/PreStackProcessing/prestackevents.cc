@@ -8,7 +8,7 @@
 #include "prestackevents.h"
 
 #include "binidvalset.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "rowcol.h"

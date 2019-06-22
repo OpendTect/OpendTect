@@ -8,7 +8,7 @@
 #include "velocityfunctiongrid.h"
 
 #include "binidvalset.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "iopar.h"

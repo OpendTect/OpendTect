@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uinewpickset.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "bufstringset.h"
 
 class uiComboBox;

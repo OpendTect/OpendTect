@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "datainterp.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 
 class TraceData;
 

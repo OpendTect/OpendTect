@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "emcommon.h"
 #include "executor.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "dbkey.h"
 #include "binid.h"
 #include "posinfo2dsurv.h"

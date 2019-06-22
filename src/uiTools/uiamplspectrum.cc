@@ -27,7 +27,6 @@ _______________________________________________________________________
 #include "fourier.h"
 #include "mouseevent.h"
 #include "od_ostream.h"
-#include "trckeyzsampling.h"
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)

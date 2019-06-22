@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "batchprog.h"
 
 #include "ioobjctxt.h"
-#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"

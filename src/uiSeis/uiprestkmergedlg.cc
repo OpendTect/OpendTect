@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uilabel.h"
 #include "uistrings.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "posinfo.h"
 #include "ptrman.h"
 #include "dbdir.h"

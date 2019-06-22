@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "survgeom3d.h"
 #include "survinfo.h"
 #include "arrayndimpl.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "linsolv.h"
 
 

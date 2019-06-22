@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "binidvalset.h"
 #include "binidvalue.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "datapointset.h"
 
 #include "emmanager.h"

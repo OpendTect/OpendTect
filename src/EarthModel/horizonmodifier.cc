@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "horizonmodifier.h"
 
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"

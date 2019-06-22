@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "fileview.h"
 #include "survinfo.h"
 #include "oddirs.h"
-#include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "staticstring.h"
 #include "tabledef.h"

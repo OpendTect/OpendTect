@@ -8,7 +8,7 @@
 #include "tuthortools.h"
 #include "emhorizon3d.h"
 #include "emsurface.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "survinfo.h"
 #include "emsurfaceauxdata.h"
 #include "statruncalc.h"

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "uistrings.h"
 
 class Scaler;

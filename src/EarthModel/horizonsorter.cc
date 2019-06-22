@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "horizonsorter.h"
 
 #include "arrayndimpl.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ptrman.h"

@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "jobdescprov.h"
 
-#include "trckeyzsampling.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "settings.h"
