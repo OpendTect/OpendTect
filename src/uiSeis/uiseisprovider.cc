@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "survsubsel.h"
 #include "surveydisklocation.h"
-#include "zdomain.h"
 
 #include "uilistbox.h"
 #include "uicombobox.h"

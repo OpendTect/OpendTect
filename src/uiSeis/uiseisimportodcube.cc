@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "survgeom3d.h"
 #include "veldesc.h"
 #include "velocitycalc.h"
-#include "zdomain.h"
 #include "file.h"
 #include "filepath.h"
 

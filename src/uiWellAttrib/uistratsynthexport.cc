@@ -42,7 +42,6 @@ _______________________________________________________________________
 #include "survinfo.h"
 #include "synthseisdataset.h"
 #include "velocitycalc.h"
-#include "zdomain.h"
 
 
 #define mErrRet( msg, rettyp ) \

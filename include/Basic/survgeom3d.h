@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "survgeom.h"
 #include "posidxpair2coord.h"
-#include "zdomain.h"
 
 
 namespace Survey

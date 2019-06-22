@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "posinfo.h"
-#include "zdomain.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 

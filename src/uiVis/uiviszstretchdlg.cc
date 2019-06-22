@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "vistransmgr.h"
 #include "vissurvscene.h"
-#include "zdomain.h"
 
 #include <typeinfo>
 

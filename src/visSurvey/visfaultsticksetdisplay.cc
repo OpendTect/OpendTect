@@ -37,7 +37,6 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "viscoord.h"
 #include "vissurvobj.h"
-#include "zdomain.h"
 #include "visdrawstyle.h"
 #include "limits.h"
 

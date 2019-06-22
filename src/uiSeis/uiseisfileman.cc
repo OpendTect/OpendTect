@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "seisstatscollector.h"
-#include "zdomain.h"
 #include "separstr.h"
 #include "timedepthconv.h"
 #include "fileview.h"

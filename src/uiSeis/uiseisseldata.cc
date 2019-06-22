@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "seistableseldata.h"
 #include "cubesubsel.h"
 #include "linesubsel.h"
-#include "zdomain.h"
 
 #include "uidialog.h"
 #include "uilistbox.h"
