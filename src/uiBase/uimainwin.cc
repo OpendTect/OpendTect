@@ -39,7 +39,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odver.h"
 #include "settings.h"
-#include "strmprov.h"
 #include "texttranslation.h"
 #include "threadlock.h"
 #include "timer.h"

@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "randcolor.h"
-#include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

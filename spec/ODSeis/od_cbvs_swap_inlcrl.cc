@@ -9,7 +9,6 @@
 #include "cbvsreadmgr.h"
 #include "conn.h"
 #include "iostrm.h"
-#include "strmprov.h"
 #include "progressmeter.h"
 #include "survinfo.h"
 #include "file.h"

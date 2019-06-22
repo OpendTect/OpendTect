@@ -12,7 +12,6 @@
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "file.h"
 #include "filepath.h"
 #include "ptrman.h"

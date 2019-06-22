@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survgeom.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"

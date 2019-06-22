@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "preloads.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "transl.h"
 #include "od_helpids.h"
 

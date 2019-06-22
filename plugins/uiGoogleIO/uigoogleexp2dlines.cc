@@ -17,7 +17,6 @@
 #include "oddirs.h"
 #include "ioobj.h"
 #include "posinfo2d.h"
-#include "strmprov.h"
 #include "draw.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

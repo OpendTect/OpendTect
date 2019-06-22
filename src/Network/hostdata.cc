@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "safefileio.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "systeminfo.h"
 
 #ifdef __win__

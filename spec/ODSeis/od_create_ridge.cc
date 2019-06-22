@@ -13,7 +13,6 @@
 #include "seispacketinfo.h"
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "strmprov.h"
 #include "valseriesevent.h"
 
 #include "prog.h"

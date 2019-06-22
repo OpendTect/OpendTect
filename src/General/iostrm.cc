@@ -7,7 +7,6 @@
 
 #include "iostrm.h"
 #include "ascstream.h"
-#include "strmprov.h"
 #include "separstr.h"
 #include "string2.h"
 #include "file.h"

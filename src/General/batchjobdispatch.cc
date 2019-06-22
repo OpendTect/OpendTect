@@ -8,7 +8,6 @@
 #include "batchjobdispatch.h"
 #include "keystrs.h"
 #include "filepath.h"
-#include "strmprov.h"
 #include "oddirs.h"
 #include "ascstream.h"
 #include "dirlist.h"

@@ -14,7 +14,6 @@
 #include "seisseldata.h"
 #include "survgeom3d.h"
 #include "ioman.h"
-#include "strmprov.h"
 #include "posinfo.h"
 #include "file.h"
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "tabledef.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "uistrings.h"
 
 #include "uibutton.h"
@@ -211,7 +210,7 @@ void uiConvertPos::inputTypChg( CallBacker* )
 	outidxs_ += idx;
 	outtypstrs.add( DataTypeDef().getUiStringForIndex(idx) );
     }
-    
+
     inpcrdsysselfld_->setSensitive( selval != IC );
 
     outputtypfld_->newSpec( StringListInpSpec(outtypstrs), 0 );
@@ -398,7 +397,7 @@ void uiConvertPos::convFile()
     {
 	firstinp_ = crd.x_;
 	secondinp_ = crd.y_;
-	
+
 	launchSelConv( false, selidx );
     }
 

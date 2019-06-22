@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "od_istream.h"
 #include "thread.h"
 #include "timefun.h"

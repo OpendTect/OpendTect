@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "settings.h"
 #include "separstr.h"
 #include "ascstream.h"
-#include "strmprov.h"
 #include "oddirs.h"
 #include <iostream>
 

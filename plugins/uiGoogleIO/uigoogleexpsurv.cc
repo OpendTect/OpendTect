@@ -14,7 +14,6 @@
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "latlong.h"
 #include "draw.h"

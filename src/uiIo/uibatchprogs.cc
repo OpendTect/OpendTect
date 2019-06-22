@@ -18,17 +18,16 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "ascstream.h"
-#include "separstr.h"
-#include "strmprov.h"
-#include "od_istream.h"
-#include "file.h"
-#include "manobjectset.h"
-#include "iopar.h"
-#include "oddirs.h"
-#include "envvars.h"
 #include "dirlist.h"
-
+#include "envvars.h"
+#include "file.h"
+#include "iopar.h"
+#include "manobjectset.h"
+#include "od_istream.h"
 #include "od_helpids.h"
+#include "oddirs.h"
+#include "oscommand.h"
+#include "separstr.h"
 
 
 class BatchProgPar

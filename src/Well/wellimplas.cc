@@ -9,7 +9,6 @@
 
 #include "sorting.h"
 #include "staticstring.h"
-#include "strmprov.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "varlenarray.h"

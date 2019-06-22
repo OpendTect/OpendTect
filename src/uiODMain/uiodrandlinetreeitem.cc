@@ -22,7 +22,6 @@ ___________________________________________________________________
 #include "randomlinegeom.h"
 #include "randcolor.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "trigonometry.h"
 
 #include "uibutton.h"

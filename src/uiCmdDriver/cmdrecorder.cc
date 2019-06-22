@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "od_strstream.h"
 #include "timer.h"
 

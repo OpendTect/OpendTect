@@ -12,7 +12,6 @@ _______________________________________________________________________
 
 #include "attribsel.h"
 #include "ioobj.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "wellmanager.h"
 #include "wellextractdata.h"

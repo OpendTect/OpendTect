@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisioobjinfo.h"
-#include "strmprov.h"
 #include "survinfo.h"
 
 #include "uibatchtime2depthsetup.h"

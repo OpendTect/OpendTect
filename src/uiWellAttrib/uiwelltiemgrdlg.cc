@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "dbkey.h"
 #include "seisioobjinfo.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "wavelet.h"

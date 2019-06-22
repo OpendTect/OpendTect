@@ -30,7 +30,6 @@
 #include "seistrctr.h"
 #include "seispacketinfo.h"
 #include "seisstorer.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"

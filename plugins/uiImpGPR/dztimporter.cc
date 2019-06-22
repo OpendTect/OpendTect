@@ -8,7 +8,6 @@
 #include "dztimporter.h"
 #include "seistrc.h"
 #include "seisstorer.h"
-#include "strmprov.h"
 #include "datachar.h"
 #include "survinfo.h"
 #include "uistrings.h"

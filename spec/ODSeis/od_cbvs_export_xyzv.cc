@@ -11,7 +11,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include <iostream>
 #include <math.h>
 

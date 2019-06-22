@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "file.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welldata.h"

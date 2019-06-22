@@ -16,7 +16,6 @@
 #include "statrand.h"
 #include "survinfo.h"
 #include <math.h>
-#include "strmprov.h"
 #include "ceemdalgo.h"
 
 using namespace std;

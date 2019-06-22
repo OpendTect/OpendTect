@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "ioobj.h"
 #include "seistrctr.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
 #include "od_iostream.h"

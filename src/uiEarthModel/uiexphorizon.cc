@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"

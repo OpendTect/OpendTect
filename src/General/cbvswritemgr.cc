@@ -8,7 +8,6 @@
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
-#include "strmprov.h"
 #include "filepath.h"
 #include "survinfo.h"
 #include "envvars.h"

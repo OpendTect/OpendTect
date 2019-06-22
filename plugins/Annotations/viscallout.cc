@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 #include "pickset.h"
-#include "strmprov.h"
 #include "uidesktopservices.h"
 
 #include <Inventor/nodes/SoMaterial.h>

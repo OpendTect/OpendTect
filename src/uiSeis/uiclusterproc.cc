@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "od_istream.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "envvars.h"
 #include "keystrs.h"
 #include "seissingtrcproc.h"

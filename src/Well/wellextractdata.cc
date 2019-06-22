@@ -20,7 +20,6 @@
 #include "dbdir.h"
 #include "ctxtioobj.h"
 #include "datacoldef.h"
-#include "strmprov.h"
 #include "dbdir.h"
 #include "ioobj.h"
 #include "iopar.h"

@@ -10,7 +10,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "dirlist.h"
-#include "strmprov.h"
 #include "executor.h"
 #include "globexpr.h"
 #include "ptrman.h"

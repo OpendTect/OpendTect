@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "strmprov.h"
 #include "ioobjselectiontransl.h"
 #include "od_iostream.h"
 #include "ascstream.h"

@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "dbdir.h"
 #include "randcolor.h"
-#include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

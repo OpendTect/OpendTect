@@ -23,7 +23,6 @@
 #include "seispsioprov.h"
 #include "seisposindexer.h"
 #include "staticstring.h"
-#include "strmprov.h"
 #include "survgeom.h"
 #include "od_iostream.h"
 #include "survinfo.h"

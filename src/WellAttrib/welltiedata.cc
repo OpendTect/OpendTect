@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "iostrm.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"

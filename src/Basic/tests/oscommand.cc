@@ -13,7 +13,6 @@
 #include "oscommand.h"
 #include "strmdata.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "testprog.h"
 #include "thread.h"
 

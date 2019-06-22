@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "strmprov.h"
 #include "hostdata.h"
 
 #ifdef __win__

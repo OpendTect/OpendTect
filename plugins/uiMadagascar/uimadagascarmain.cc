@@ -25,7 +25,6 @@
 #include "keystrs.h"
 #include "oddirs.h"
 #include "seisioobjinfo.h"
-#include "strmprov.h"
 #include "od_helpids.h"
 
 const char* sKeySeisOutIDKey = "Output Seismics Key";

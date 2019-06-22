@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "oddirs.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "netsocket.h"
 
 #define mErrRet( s ) { uiErrorMsg( s ); exit(0); }

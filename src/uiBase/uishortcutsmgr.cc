@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "settings.h"
 #include "keyenum.h"
 #include "keystrs.h"
-#include "strmprov.h"
 #include "ascstream.h"
 
 #include <QKeyEvent>

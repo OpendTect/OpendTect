@@ -49,7 +49,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
-#include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
