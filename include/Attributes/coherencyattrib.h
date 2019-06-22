@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
-#include "valseries.h"
 #include "valseriesinterpol.h"
 #include "arrayndimpl.h"
 

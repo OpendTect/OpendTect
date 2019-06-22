@@ -12,7 +12,6 @@
 #include "datadistributionextracter.h"
 #include "prestackevents.h"
 #include "survinfo.h"
-#include "valseries.h"
 #include "velocitycalc.h"
 #include "viscoord.h"
 #include "visdatagroup.h"

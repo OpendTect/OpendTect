@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "paralleltask.h"
-#include "valseries.h"
 #include "genericnumer.h"
 #include "typeset.h"
 #include "iopar.h"

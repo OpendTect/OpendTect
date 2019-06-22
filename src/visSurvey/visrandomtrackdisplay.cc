@@ -15,7 +15,6 @@
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "convmemvalseries.h"
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
 #include "randomlinegeom.h"
