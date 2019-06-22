@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "remjobexec.h"
 
-#include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "strmprov.h"

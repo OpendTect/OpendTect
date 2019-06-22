@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 #include "buildinfo.h"
-#include "filepath.h"
 #include "file.h"
 #include "legal.h"
 #include "oddirs.h"

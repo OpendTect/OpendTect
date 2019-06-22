@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "dbdir.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
-#include "filepath.h"
 #include "uimsg.h"
 
 

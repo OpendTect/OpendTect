@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emundo.h"
 #include "executor.h"
-#include "filepath.h"
 #include "horsubsel.h"
 #include "ioobj.h"
 #include "pickset.h"

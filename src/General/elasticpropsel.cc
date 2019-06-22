@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "streamconn.h"
 #include "keystrs.h"
 #include "file.h"
-#include "filepath.h"
 #include "math.h"
 #include "mathexpression.h"
 #include "rockphysics.h"

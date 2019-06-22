@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "file.h"
-#include "filepath.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"

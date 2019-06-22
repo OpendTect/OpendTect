@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "od_istream.h"
 #include "file.h"
-#include "filepath.h"
 #include "manobjectset.h"
 #include "iopar.h"
 #include "oddirs.h"

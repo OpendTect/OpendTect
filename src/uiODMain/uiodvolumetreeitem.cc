@@ -34,7 +34,6 @@
 #include "visvolumedisplay.h"
 
 #include "attribprobelayer.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mousecursor.h"

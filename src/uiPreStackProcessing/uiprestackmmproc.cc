@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "jobdescprov.h"
 #include "iopar.h"
 #include "file.h"
-#include "filepath.h"
 #include "seistype.h"
 #include "genc.h"
 #include "prestackprocessor.h"

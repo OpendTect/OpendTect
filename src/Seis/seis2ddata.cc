@@ -22,7 +22,6 @@
 #include "survinfo.h"
 #include "survgeom3d.h"
 #include "file.h"
-#include "filepath.h"
 #include "keystrs.h"
 #include "od_ostream.h"
 

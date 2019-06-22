@@ -8,7 +8,6 @@
 #include "batchprog.h"
 
 #include "file.h"
-#include "filepath.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"

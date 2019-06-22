@@ -42,7 +42,6 @@ ________________________________________________________________________
 #include "attribprobelayer.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "mouseevent.h"

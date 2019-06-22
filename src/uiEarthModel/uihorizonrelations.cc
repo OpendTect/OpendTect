@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "horizonrelation.h"
 #include "horizonsorter.h"
 #include "ioobj.h"
-#include "filepath.h"
 #include "iopar.h"
 #include "od_helpids.h"
 

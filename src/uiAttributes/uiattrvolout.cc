@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "ioobjctxt.h"
 #include "trckeyzsampling.h"
-#include "filepath.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"

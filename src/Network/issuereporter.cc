@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "iopar.h"
 #include "file.h"
-#include "filepath.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odnetworkaccess.h"

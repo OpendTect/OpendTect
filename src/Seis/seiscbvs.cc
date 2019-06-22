@@ -11,7 +11,6 @@
 #include "cbvsreader.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
-#include "filepath.h"
 #include "iostrm.h"
 #include "keystrs.h"
 #include "seispacketinfo.h"

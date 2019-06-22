@@ -9,7 +9,6 @@
 #include "uistring.h"
 #include "testprog.h"
 #include "uistrings.h"
-#include "filepath.h"
 #include "oddirs.h"
 
 #include <QString>

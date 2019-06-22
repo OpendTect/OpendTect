@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"

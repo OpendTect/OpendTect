@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "survinfo.h"

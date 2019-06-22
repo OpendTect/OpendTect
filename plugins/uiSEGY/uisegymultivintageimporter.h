@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uidialog.h"
-#include "filepath.h"
 
 class uiTable;
 class uiToolButton;

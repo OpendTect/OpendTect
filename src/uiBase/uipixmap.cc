@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "file.h"
-#include "filepath.h"
 #include "fileformat.h"
 #include "odiconfile.h"
 #include "settings.h"

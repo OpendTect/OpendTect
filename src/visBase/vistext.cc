@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "dirlist.h"
 #include "oddirs.h"
-#include "filepath.h"
 #include "texttranslation.h"
 
 

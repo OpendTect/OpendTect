@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "survinfo.h"
 #include "transl.h"
-#include "filepath.h"
 #include "uistrings.h"
 
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )

@@ -6,7 +6,6 @@
 -*/
 
 #include "uidialog.h"
-#include "filepath.h"
 #include "uigeninput.h"
 #include "giswriter.h"
 #include "geojsonwriter.h"

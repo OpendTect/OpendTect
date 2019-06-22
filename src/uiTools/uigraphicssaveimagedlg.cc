@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uispinbox.h"
 
 #include "iopar.h"
-#include "filepath.h"
 #include "settings.h"
 
 

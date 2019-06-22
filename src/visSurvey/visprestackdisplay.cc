@@ -10,7 +10,6 @@ _______________________________________________________________________________
 
 #include "visprestackdisplay.h"
 
-#include "filepath.h"
 #include "flatposdata.h"
 #include "iopar.h"
 #include "mousecursor.h"

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "odplatform.h"
 #include "genc.h"
 #include "file.h"
-#include "filepath.h"
 #include "staticstring.h"
 #ifndef OD_NO_QT
 #include "qglobal.h"

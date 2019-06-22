@@ -11,7 +11,6 @@
 #include "survinfo.h"
 #include "od_iostream.h"
 #include "file.h"
-#include "filepath.h"
 #include "debug.h"
 #include "dbman.h"
 #include "uistrings.h"

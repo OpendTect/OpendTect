@@ -9,7 +9,6 @@
 
 #include "envvars.h"
 #include "file.h"
-#include "filepath.h"
 #include "gmtdef.h"
 #include "dbman.h"
 #include "initgmtplugin.h"

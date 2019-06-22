@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "executor.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "ptrman.h"

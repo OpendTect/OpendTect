@@ -13,7 +13,6 @@
 #include "coltabseqmgr.h"
 #include "datapack.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "preloads.h"
 #include "ptrman.h"

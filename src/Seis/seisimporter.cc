@@ -21,7 +21,6 @@
 #include "cbvsreadmgr.h"
 #include "conn.h"
 #include "file.h"
-#include "filepath.h"
 #include "iostrm.h"
 #include "ptrman.h"
 #include "scaler.h"

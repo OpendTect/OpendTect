@@ -23,7 +23,6 @@
 #include "uitaskrunner.h"
 
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "iopar.h"

@@ -16,7 +16,6 @@ ___________________________________________________________________
 #include "coltabsequence.h"
 #include "datacoldef.h"
 #include "datapointset.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "dbman.h"
 #include "keystrs.h"

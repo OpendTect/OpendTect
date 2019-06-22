@@ -6,7 +6,6 @@
 
 #include "clusterjobdispatch.h"
 #include "envvars.h"
-#include "filepath.h"
 #include "oddirs.h"
 #include "sets.h"
 
