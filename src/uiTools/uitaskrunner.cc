@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "settings.h"
 #include "thread.h"
 #include "threadlock.h"
-#include "timefun.h"
 #include "timer.h"
 
 #include <math.h>

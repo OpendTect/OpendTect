@@ -14,7 +14,6 @@
 #include "datainterp.h"
 #include "conn.h"
 #include "iopar.h"
-#include "timefun.h"
 #include "scaler.h"
 #include "survinfo.h"
 #include "seisseldata.h"

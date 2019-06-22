@@ -12,8 +12,6 @@ ________________________________________________________________________
 #include "cmddriverbasics.h"
 #include "cmdrecorder.h"
 
-#include "timefun.h"
-
 #include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uidialog.h"

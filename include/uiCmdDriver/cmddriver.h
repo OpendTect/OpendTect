@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include "cmddriverbasics.h"
 #include "searchkey.h"
+#include "timefun.h"
 
 class StreamData;
 class uiObject;

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "od_istream.h"
 #include "settings.h"
-#include "timefun.h"
 #include "uistrings.h"
 
 static const char* sKeyTimeOut = "Download.Timout";

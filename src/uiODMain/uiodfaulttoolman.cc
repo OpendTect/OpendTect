@@ -22,7 +22,6 @@ ___________________________________________________________________
 #include "keyboardevent.h"
 #include "randcolor.h"
 #include "thread.h"
-#include "timefun.h"
 #include "undo.h"
 #include "visdataman.h"
 #include "visfaultsticksetdisplay.h"

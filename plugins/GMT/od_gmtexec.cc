@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "timefun.h"
 #include "strmprov.h"
 #include "moddepmgr.h"
 

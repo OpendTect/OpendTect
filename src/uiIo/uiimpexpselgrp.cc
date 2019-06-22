@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "od_iostream.h"
 #include "dbman.h"
-#include "timefun.h"
 #include "od_helpids.h"
 
 static const char* sKeyFileType = "CrossPlot Selection";

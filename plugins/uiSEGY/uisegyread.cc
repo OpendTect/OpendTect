@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"
-#include "timefun.h"
 
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";

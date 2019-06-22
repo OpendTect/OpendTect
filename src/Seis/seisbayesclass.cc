@@ -295,8 +295,6 @@ od_int64 SeisBayesClass::totalNr() const
 }
 
 
-#include "timefun.h"
-
 int SeisBayesClass::nextStep()
 {
     if ( initstep_ )

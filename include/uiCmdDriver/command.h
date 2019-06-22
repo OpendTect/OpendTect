@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uitreeview.h"
 #include "cmddriver.h"
-#include "timefun.h"
 #include "uistring.h"
 
 class uiActionContainer;
