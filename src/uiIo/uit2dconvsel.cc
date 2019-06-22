@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uicombobox.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "veldesc.h"
 #include "zdomain.h"

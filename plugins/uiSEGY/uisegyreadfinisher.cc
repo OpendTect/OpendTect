@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "posinfo2dsurv.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"

@@ -17,7 +17,6 @@
 #include "iopar.h"
 #include "stratlevel.h"
 #include "wellmanager.h"
-#include "keystrs.h"
 
 
 int Well::nrSubObjTypes()

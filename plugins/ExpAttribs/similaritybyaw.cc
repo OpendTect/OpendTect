@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribparamgroup.h"
 
+#include "keystrs.h"
 #include "seisinfo.h"
+#include "statruncalc.h"
 #include "survinfo.h"
 
-#include "statruncalc.h"
 
 namespace Attrib
 {

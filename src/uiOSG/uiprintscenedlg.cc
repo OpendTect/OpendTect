@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 
 #include "filepath.h"
-#include "keystrs.h"
 #include "settings.h"
 #include "visscene.h"
 #include "viscamera.h"

@@ -15,7 +15,6 @@
 #include "indexinfo.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "samplfunc.h"
 #include "seisdatapack.h"
 #include "seisprovider.h"

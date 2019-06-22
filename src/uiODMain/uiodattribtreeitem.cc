@@ -18,7 +18,6 @@ ___________________________________________________________________
 #include "datapointset.h"
 #include "ioobj.h"
 #include "dbman.h"
-#include "keystrs.h"
 #include "ptrman.h"
 #include "probeimpl.h"
 #include "posvecdataset.h"

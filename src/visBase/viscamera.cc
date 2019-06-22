@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "viscamera.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "visosg.h"
 
 #include <osg/Camera>

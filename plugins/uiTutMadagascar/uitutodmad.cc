@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uitutodmad.h"
 
 #include "file.h"
+#include "keystrs.h"
 #include "madio.h"
 #include "madstream.h"
 #include "seisbufadapters.h"

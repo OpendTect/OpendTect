@@ -19,7 +19,6 @@
 #include "seisseldata.h"
 #include "envvars.h"
 #include "separstr.h"
-#include "keystrs.h"
 #include "settings.h"
 #include "zdomain.h"
 #include "filepath.h"

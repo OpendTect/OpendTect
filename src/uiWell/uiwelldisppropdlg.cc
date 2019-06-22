@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uitabbar.h"
 #include "uitabstack.h"
 
+#include "keystrs.h"
 #include "objdisposer.h"
 #include "welldata.h"
 #include "welldisp.h"

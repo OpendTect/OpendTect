@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "keystrs.h"
 #include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"

@@ -10,7 +10,6 @@
 #include "ascstream.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "odver.h"
 #include "ptrman.h"
 #include "settings.h"

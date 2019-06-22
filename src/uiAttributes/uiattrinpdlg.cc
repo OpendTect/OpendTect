@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 

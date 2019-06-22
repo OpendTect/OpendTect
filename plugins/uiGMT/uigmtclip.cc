@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "draw.h"
 #include "gmtpar.h"
+#include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "uigeninput.h"

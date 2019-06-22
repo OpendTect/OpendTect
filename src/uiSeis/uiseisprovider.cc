@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "dbdir.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
+#include "keystrs.h"
 #include "seisioobjinfo.h"
 #include "seisrangeseldata.h"
 #include "seisprovider.h"

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uigridder2d.h"
 
 #include "gridder2d.h"
+#include "keystrs.h"
 #include "uigeninput.h"
 #include "survinfo.h"
 

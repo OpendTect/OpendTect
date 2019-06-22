@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "debug.h"
 #include "dbman.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "nlacrdesc.h"
 #include "nladataprep.h"
 #include "od_helpids.h"

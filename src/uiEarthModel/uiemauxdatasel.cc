@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 
 #include "bufstringset.h"
-#include "keystrs.h"
 #include "emsurfacetr.h"
 #include "ptrman.h"
 

@@ -7,6 +7,7 @@
 
 #include "uivolprocudfreplacer.h"
 
+#include "keystrs.h"
 #include "volprocudfreplacer.h"
 
 #include "uigeninput.h"

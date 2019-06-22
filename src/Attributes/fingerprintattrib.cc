@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "genericnumer.h"
+#include "keystrs.h"
 
 #include <math.h>
 

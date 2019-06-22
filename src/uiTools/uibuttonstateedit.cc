@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uibuttonstateedit.h"
 #include "uigeninput.h"
 #include "keyenum.h"
-#include "keystrs.h"
+
 
 uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const uiString& label,
 				      int initialstate )

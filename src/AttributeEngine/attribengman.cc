@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "linesetposinfo.h"
 #include "nladesign.h"
 #include "nlamodel.h"

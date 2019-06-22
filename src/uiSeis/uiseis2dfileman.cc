@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "linesetposinfo.h"
 #include "od_helpids.h"
 #include "posinfo2dsurv.h"

@@ -15,17 +15,18 @@ ________________________________________________________________________
 #include "uiscaler.h"
 #include "uimainwin.h"
 #include "uimsg.h"
+#include "conn.h"
+#include "iopar.h"
+#include "ioobj.h"
+#include "keystrs.h"
+#include "ptrman.h"
 #include "seissingtrcproc.h"
 #include "seiscbvs.h"
 #include "seistrc.h"
 #include "seisseldata.h"
 #include "seisresampler.h"
-#include "trckeyzsampling.h"
 #include "survinfo.h"
-#include "ptrman.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "conn.h"
+#include "trckeyzsampling.h"
 
 
 uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )

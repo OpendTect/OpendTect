@@ -6,6 +6,7 @@
 
 #include "uitutvolproc.h"
 
+#include "keystrs.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
 

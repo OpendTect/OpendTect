@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "welltiesetup.h"
 
-#include "keystrs.h"
 #include "settings.h"
 #include "ascstream.h"
 #include "od_iostream.h"

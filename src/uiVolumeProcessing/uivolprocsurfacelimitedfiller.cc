@@ -11,6 +11,7 @@
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicombobox.h"

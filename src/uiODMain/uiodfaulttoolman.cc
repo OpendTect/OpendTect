@@ -20,6 +20,7 @@ ___________________________________________________________________
 #include "executor.h"
 #include "dbman.h"
 #include "keyboardevent.h"
+#include "keystrs.h"
 #include "randcolor.h"
 #include "thread.h"
 #include "undo.h"

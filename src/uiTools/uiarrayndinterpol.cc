@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "array1dinterpol.h"
 #include "array2dinterpolimpl.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "uicombobox.h"
 #include "uigeninput.h"

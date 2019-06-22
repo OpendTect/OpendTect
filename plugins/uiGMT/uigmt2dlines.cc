@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "gmtpar.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"

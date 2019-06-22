@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "attribparambase.h"
 #include "attribfactory.h"
-#include "keystrs.h"
 #include "survinfo.h"
 #include "ctxtioobj.h"
 

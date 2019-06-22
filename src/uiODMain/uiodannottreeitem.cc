@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "picksetmanager.h"
 #include "ptrman.h"
 #include "uicolor.h"

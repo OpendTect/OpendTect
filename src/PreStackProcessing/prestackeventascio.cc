@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "binidvalue.h"
 #include "executor.h"
 #include "file.h"
+#include "keystrs.h"
 #include "od_iostream.h"
 #include "tabledef.h"
 #include "uistrings.h"

@@ -41,7 +41,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "dbman.h"
-#include "keystrs.h"
 #include "measuretoolman.h"
 #include "oddirs.h"
 #include "odinst.h"

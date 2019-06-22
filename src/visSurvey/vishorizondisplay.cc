@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "posvecdataset.h"
 #include "callback.h"
-#include "keystrs.h"
 
 #include "visevent.h"
 #include "vismarkerset.h"

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiscaler.h"
+#include "keystrs.h"
 #include "scaler.h"
 
 #include "uigeninput.h"

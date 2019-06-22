@@ -18,7 +18,6 @@
 #include "executor.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "keystrs.h"
 #include "file.h"
 #include "filepath.h"
 #include "ptrman.h"

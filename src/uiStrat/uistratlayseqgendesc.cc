@@ -24,6 +24,10 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiunitsel.h"
+#include "keystrs.h"
+#include "keyenum.h"
+#include "mathproperty.h"
+#include "od_helpids.h"
 #include "stratlayermodel.h"
 #include "stratsinglaygen.h"
 #include "stratlayseqgendesc.h"
@@ -31,9 +35,6 @@ ________________________________________________________________________
 #include "stratcontent.h"
 #include "stratunitrefiter.h"
 #include "unitofmeasure.h"
-#include "mathproperty.h"
-#include "keyenum.h"
-#include "od_helpids.h"
 
 
 mImplClassFactory( uiLayerSequenceGenDesc, factory )

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiseispsman.h"
 
-#include "keystrs.h"
 #include "posinfo.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"

@@ -35,7 +35,6 @@
 
 #include "attribprobelayer.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "mousecursor.h"
 #include "probeimpl.h"
 #include "probemanager.h"

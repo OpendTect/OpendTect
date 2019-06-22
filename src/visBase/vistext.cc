@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "vismaterial.h"
 #include "visosg.h"
 #include "separstr.h"
-#include "keystrs.h"
 #include "dirlist.h"
 #include "oddirs.h"
 #include "texttranslation.h"

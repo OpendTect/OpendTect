@@ -14,9 +14,7 @@ ________________________________________________________________________
 #include "coltabseqmgr.h"
 #include "draw.h"
 #include "datadistributiontools.h"
-#include "keystrs.h"
 #include "mouseevent.h"
-#include "uistring.h"
 #include "uistrings.h"
 
 #include "uibutton.h"

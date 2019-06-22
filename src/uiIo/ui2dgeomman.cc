@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "dbman.h"
 #include "file.h"
+#include "keystrs.h"
 #include "linear.h"
 #include "od_helpids.h"
 #include "posinfo2dsurv.h"

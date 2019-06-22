@@ -20,11 +20,12 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 
-#include "trckeyzsampling.h"
+#include "keystrs.h"
 #include "od_helpids.h"
 #include "seis2dto3d.h"
 #include "seisjobexecprov.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 
 uiSeis2DTo3D::uiSeis2DTo3D(uiParent* p, uiString& titletext)

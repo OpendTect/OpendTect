@@ -12,7 +12,6 @@
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "iostrm.h"
-#include "keystrs.h"
 #include "seispacketinfo.h"
 #include "seisseldata.h"
 #include "seistrc.h"

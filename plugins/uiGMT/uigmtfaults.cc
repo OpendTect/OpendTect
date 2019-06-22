@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include "gmtpar.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "dbkey.h"
 #include "survinfo.h"
 

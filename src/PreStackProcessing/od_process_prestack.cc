@@ -10,7 +10,6 @@
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "jobcommunic.h"
 #include "moddepmgr.h"
 #include "progressmeterimpl.h"

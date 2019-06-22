@@ -12,7 +12,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "seisbuf.h"

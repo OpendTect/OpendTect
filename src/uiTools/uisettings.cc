@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "filepath.h"
 #include "genc.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "oscommand.h"

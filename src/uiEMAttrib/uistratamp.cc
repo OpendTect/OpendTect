@@ -14,6 +14,7 @@
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "keystrs.h"
 #include "stratamp.h"
 #include "survinfo.h"
 #include "stattype.h"

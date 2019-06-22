@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "coltabseqmgr.h"
 #include "oddirs.h"
 #include "iopar.h"
-#include "keystrs.h"
 
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )

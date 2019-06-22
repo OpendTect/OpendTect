@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "od_istream.h"
 #include "seisioobjinfo.h"
 

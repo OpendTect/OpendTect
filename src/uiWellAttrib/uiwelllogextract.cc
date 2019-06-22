@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "survinfo.h"
-#include "keystrs.h"
 #include "posinfo.h"
 #include "posvecdataset.h"
 #include "posfilterset.h"

@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "dbman.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "picksetmanager.h"
 #include "picksettr.h"
 #include "picksetio.h"

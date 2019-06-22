@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "horizonsorter.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "mousecursor.h"
 #include "ptrman.h"
 

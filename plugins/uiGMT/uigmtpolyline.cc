@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "gmtpar.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "uicolor.h"

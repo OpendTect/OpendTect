@@ -11,7 +11,6 @@
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
 #include "segydirectdef.h"

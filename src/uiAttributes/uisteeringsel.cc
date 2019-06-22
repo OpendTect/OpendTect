@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "paramsetget.h"
 #include "survinfo.h"
-#include "keystrs.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "uiattribfactory.h"

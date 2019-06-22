@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "dbdir.h"
 #include "dbman.h"
 #include "file.h"
+#include "keystrs.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "ioobjselectiontransl.h"

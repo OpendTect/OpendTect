@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "dbman.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "segybatchio.h"

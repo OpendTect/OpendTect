@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "hostdata.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "singlebatchjobdispatch.h"
 

@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
-#include "keystrs.h"
 #include "pickset.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"

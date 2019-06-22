@@ -12,6 +12,7 @@
 #include "attribdescset.h"
 #include "attribstorprovider.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 

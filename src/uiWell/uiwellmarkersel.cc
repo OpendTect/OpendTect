@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiwellmarkersel.h"
 
 #include "globexpr.h"
+#include "keystrs.h"
 #include "wellextractdata.h"
 #include "wellmanager.h"
 #include "wellmarker.h"

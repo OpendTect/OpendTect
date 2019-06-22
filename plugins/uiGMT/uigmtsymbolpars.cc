@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "gmtdef.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 #include "uicolor.h"
 #include "uicombobox.h"
@@ -77,7 +78,7 @@ void uiGMTSymbolPars::fillShapes()
 	{
 	    BufferString iconfilenm = GMTWSR().get( idx )->iconfilenm_;
 	    BufferString nm = GMTWSR().get( idx )->name();
-	    shapefld_->insertItem( uiPixmap(iconfilenm), toUiString(nm.buf()), 
+	    shapefld_->insertItem( uiPixmap(iconfilenm), toUiString(nm.buf()),
 									  idx );
 	}
     }

@@ -12,6 +12,7 @@ _______________________________________________________________________________
 
 #include "flatposdata.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "mousecursor.h"
 #include "oddirs.h"
 #include "oscommand.h"

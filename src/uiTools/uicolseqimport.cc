@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "settings.h"

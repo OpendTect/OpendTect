@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "draw.h"
 #include "gmtpar.h"
+#include "keystrs.h"
 #include "ioobj.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"

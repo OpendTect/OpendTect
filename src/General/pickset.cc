@@ -14,6 +14,7 @@
 #include "unitofmeasure.h"
 #include "od_iostream.h"
 #include "settings.h"
+#include "keystrs.h"
 #include <ctype.h>
 
 mDefineInstanceCreatedNotifierAccess(Pick::Set)

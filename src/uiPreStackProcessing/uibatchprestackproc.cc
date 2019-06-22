@@ -8,7 +8,6 @@
 #include "uibatchprestackproc.h"
 
 #include "ioobjctxt.h"
-#include "keystrs.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
 #include "seistrctr.h"

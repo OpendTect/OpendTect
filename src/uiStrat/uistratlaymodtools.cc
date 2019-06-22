@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uistratlaymodtools.h"
 
-#include "keystrs.h"
 #include "propertyref.h"
 #include "stratlayermodel.h"
 #include "uicombobox.h"

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 
 #include "fixedstring.h"
-#include "keystrs.h"
 #include "thread.h"
 #include "threadlock.h"
 #include "timer.h"

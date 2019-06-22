@@ -8,6 +8,7 @@
 #include "waveletio.h"
 #include "waveletmanager.h"
 #include "uistrings.h"
+#include "keystrs.h"
 #include "ioobj.h"
 #include "separstr.h"
 #include "ascstream.h"

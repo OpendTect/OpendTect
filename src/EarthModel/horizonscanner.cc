@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "survinfo.h"
 #include "oddirs.h"
-#include "keystrs.h"
 #include "tabledef.h"
 #include "fileview.h"
 #include "staticstring.h"

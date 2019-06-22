@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "mousecursor.h"
 #include "iopar.h"
 #include "oddirs.h"

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "datainpspec.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "settings.h"
 

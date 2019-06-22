@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "posinfo2d.h"
 #include "posprovider.h"
 #include "posfilterset.h"

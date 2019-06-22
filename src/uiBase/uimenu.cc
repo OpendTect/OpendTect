@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uistring.h"
 
-#include "keystrs.h"
 #include "menuhandler.h"
 #include "texttranslation.h"
 

@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uitable.h"
 
 #include "ctxtioobj.h"
+#include "dbdir.h"
 #include "emmanager.h"
 #include "embodytr.h"
 #include "emfaultstickset.h"
@@ -33,8 +34,8 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
-#include "dbdir.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "randcolor.h"
 #include "survinfo.h"
 

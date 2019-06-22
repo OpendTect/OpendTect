@@ -18,6 +18,7 @@ _______________________________________________________________________
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "keystrs.h"
 #include "similaritybyaw.h"
 #include "survinfo.h"
 

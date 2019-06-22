@@ -9,6 +9,7 @@
 
 #include "ioobjctxt.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "seisjobexecprov.h"
 #include "seisselsetup.h"
 #include "volprocchain.h"

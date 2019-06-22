@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include "uitoolbutton.h"
 
+#include "keystrs.h"
 #include "posinfo2dsurv.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

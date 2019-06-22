@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "gmtpar.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "uibutton.h"

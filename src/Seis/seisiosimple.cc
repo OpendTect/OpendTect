@@ -24,7 +24,6 @@
 #include "ioobj.h"
 #include "iopar.h"
 #include "scaler.h"
-#include "keystrs.h"
 #include "posimpexppars.h"
 #include "zdomain.h"
 #include "msgh.h"

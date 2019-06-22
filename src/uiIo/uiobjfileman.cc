@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "timefun.h"
 #include "dbman.h"
 #include "iostrm.h"

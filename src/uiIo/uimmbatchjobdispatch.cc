@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "envvars.h"
 #include "hostdata.h"
+#include "keystrs.h"
 #include "batchjobdispatch.h"
 #include "jobrunner.h"
 #include "jobdescprov.h"

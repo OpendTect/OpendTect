@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "ioobjctxt.h"
 #include "file.h"
+#include "keystrs.h"
 #include "odver.h"
 #include "safefileio.h"
 #include "separstr.h"

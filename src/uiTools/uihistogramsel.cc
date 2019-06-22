@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "datadistributiontools.h"
 #include "mousecursor.h"
-#include "keystrs.h"
 #include <math.h>
 
 

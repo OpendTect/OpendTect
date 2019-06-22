@@ -32,6 +32,7 @@ _______________________________________________________________________
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "unitofmeasure.h"
 #include "od_helpids.h"
 

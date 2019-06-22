@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "debug.h"
 #include "envvars.h"
 #include "initgmtplugin.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "od_istream.h"
 #include "strmprov.h"

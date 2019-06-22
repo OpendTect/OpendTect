@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
 #include "initgmtplugin.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "timer.h"

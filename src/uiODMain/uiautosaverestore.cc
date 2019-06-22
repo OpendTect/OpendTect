@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "dbman.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "transl.h"
 #include "autosaver.h"
 #include "ioobjctxt.h"

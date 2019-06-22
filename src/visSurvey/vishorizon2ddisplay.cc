@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "dbman.h"
 #include "dbdir.h"
-#include "keystrs.h"
 #include "rowcolsurface.h"
 #include "survinfo.h"
 #include "visdrawstyle.h"

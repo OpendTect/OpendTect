@@ -11,7 +11,6 @@
 #include "separstr.h"
 #include "envvars.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "ptrman.h"
 #include <iostream>
 

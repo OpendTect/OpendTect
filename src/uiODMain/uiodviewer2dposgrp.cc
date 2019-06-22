@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribprobelayer.h"
 #include "ioobjctxt.h"
+#include "keystrs.h"
 #include "probeimpl.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"

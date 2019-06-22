@@ -20,7 +20,6 @@
 #include "dbman.h"
 #include "dbdir.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "uistrings.h"
 
 #include "seispsioprov.h"

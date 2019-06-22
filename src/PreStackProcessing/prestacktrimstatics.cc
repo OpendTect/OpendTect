@@ -9,6 +9,7 @@
 
 #include "arrayndimpl.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "prestackgather.h"
 
 

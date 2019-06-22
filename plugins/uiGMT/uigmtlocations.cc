@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "gmtpar.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "picksettr.h"
 
 #include "uigeninput.h"

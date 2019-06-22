@@ -26,7 +26,6 @@
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "seisioobjinfo.h"

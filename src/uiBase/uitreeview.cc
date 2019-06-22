@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uishortcutsmgr.h"
 #include "uistrings.h"
 
-#include "keystrs.h"
 #include "odqtobjset.h"
 #include "staticstring.h"
 #include "texttranslation.h"

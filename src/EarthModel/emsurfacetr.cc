@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
-#include "keystrs.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "settings.h"

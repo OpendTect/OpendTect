@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "envvars.h"
 #include "geometry.h"
-#include "keystrs.h"
 #include "od_iostream.h"
 #include "odmemory.h"
 #include "staticstring.h"

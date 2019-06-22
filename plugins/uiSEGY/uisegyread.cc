@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "ptrman.h"

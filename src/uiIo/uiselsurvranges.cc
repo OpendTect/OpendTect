@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiselsurvranges.h"
 
+#include "keystrs.h"
 #include "math.h"
 #include "survinfo.h"
 #include "zdomain.h"

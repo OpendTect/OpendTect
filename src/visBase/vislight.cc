@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "vislight.h"
 #include "iopar.h"
-#include "keystrs.h"
 
 #include <osg/Light>
 

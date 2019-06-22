@@ -20,15 +20,16 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
-#include "uistrings.h"
 
+#include "ascstream.h"
+#include "file.h"
+#include "filepath.h"
+#include "keystrs.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
 #include "mathformulatransl.h"
 #include "od_iostream.h"
-#include "ascstream.h"
-#include "file.h"
-#include "filepath.h"
+#include "uistrings.h"
 
 
 uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uistratreftree.h"
 #include "uitreeview.h"
 
-#include "keystrs.h"
 #include "iopar.h"
 #include "color.h"
 #include "stratreftree.h"

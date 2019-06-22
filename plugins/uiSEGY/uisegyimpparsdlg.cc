@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uimsg.h"
+#include "keystrs.h"
 #include "repos.h"
 
 

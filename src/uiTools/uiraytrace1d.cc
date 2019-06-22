@@ -7,6 +7,7 @@
 
 #include "uiraytrace1d.h"
 
+#include "keystrs.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicombobox.h"

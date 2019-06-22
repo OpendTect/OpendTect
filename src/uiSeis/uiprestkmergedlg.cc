@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "dbdir.h"
 #include "dbkey.h"
+#include "keystrs.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsmerge.h"

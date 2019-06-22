@@ -13,9 +13,10 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uilistbox.h"
 #include "uibutton.h"
-#include "ioobjctxt.h"
-#include "seisioobjinfo.h"
 #include "ioobj.h"
+#include "ioobjctxt.h"
+#include "keystrs.h"
+#include "seisioobjinfo.h"
 
 
 static IOObjContext& getCtxt( const uiSurvSeisSel::Setup& su )

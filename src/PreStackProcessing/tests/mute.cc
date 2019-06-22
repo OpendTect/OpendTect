@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "";
 #include "batchprog.h"
 #include "testprog.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "moddepmgr.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
