@@ -15,7 +15,6 @@ Translators for SEGY files traces.
 #include "segyfiledef.h"
 #include "seistrctr.h"
 #include "tracedata.h"
-#include "strmdata.h"
 #include "uistring.h"
 #include "coordsystem.h"
 

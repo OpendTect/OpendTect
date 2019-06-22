@@ -11,7 +11,6 @@
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "oscommand.h"
-#include "strmdata.h"
 #include "separstr.h"
 #include "testprog.h"
 #include "thread.h"

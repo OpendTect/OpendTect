@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "factory.h"
+#include "strmdata.h"
 
 
 namespace File

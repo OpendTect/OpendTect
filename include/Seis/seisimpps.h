@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
-#include "strmdata.h"
 #include "bufstringset.h"
 #include "dbkey.h"
 #include "executor.h"

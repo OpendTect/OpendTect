@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "keystrs.h"
 #include "picksetmanager.h"
-#include "strmdata.h"
 #include "od_ostream.h"
 
 

@@ -26,7 +26,6 @@
 #include "ptrman.h"
 #include "od_iostream.h"
 #include "staticstring.h"
-#include "strmdata.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
 #include "separstr.h"

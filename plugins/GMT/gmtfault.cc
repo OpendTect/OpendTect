@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "staticstring.h"
 #include "string2.h"
-#include "strmdata.h"
 #include "survinfo.h"
 #include "typeset.h"
 

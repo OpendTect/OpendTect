@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
-#include "strmdata.h"
 #include "survgeom2d.h"
 #include "od_ostream.h"
 #include "survinfo.h"

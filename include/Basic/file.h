@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "strmdata.h"
+#include "bufstring.h"
 
 class BufferStringSet;
 class Executor;
