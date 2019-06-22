@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "factory.h"
-#include "trckeysampling.h"
 #include "uistrings.h"
 #include "survgeom.h"
 

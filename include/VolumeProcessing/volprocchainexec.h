@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "volprocchain.h"
+#include "trckeysampling.h"
 #include "executor.h"
 
 
