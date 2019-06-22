@@ -11,11 +11,12 @@
 #include "stratlaymodgen.h"
 #include "stratlayermodel.h"
 #include "strattransl.h"
-#include "mathproperty.h"
 #include "ascstream.h"
-#include "keystrs.h"
-#include "ptrman.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "mathproperty.h"
+#include "ptrman.h"
+#include "staticstring.h"
 
 
 #define mFileType "Layer Sequence Generator Description"

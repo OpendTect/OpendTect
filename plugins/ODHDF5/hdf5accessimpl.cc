@@ -10,9 +10,10 @@ ________________________________________________________________________
 
 #include "hdf5readerimpl.h"
 #include "hdf5writerimpl.h"
-#include "uistrings.h"
-#include "file.h"
 #include "envvars.h"
+#include "file.h"
+#include "staticstring.h"
+#include "uistrings.h"
 #include "H5Cpp.h"
 
 

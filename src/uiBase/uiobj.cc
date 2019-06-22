@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "color.h"
 #include "settingsaccess.h"
 #include "timer.h"
-#include "staticstring.h"
 
 #include <QEvent>
 

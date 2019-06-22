@@ -15,6 +15,7 @@
 #include "keystrs.h"
 #include "math2.h"
 #include "rowcol.h"
+#include "staticstring.h"
 #include "string2.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"

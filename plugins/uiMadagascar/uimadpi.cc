@@ -20,6 +20,7 @@
 #include "madio.h"
 #include "odplugin.h"
 #include "separstr.h"
+#include "staticstring.h"
 
 
 

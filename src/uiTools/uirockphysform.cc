@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "rockphysics.h"
 #include "mathformula.h"
 #include "mathproperty.h"
+#include "staticstring.h"
 #include "unitofmeasure.h"
 
 #include "uicombobox.h"

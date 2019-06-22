@@ -11,7 +11,6 @@
 #include "bufstringset.h"
 #include "typeset.h"
 #include "ptrman.h"
-#include "staticstring.h"
 #include "uistrings.h"
 
 

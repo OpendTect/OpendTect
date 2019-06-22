@@ -14,7 +14,6 @@
 #include "datapointset.h"
 #include "ptrman.h"
 #include "statrand.h"
-#include "staticstring.h"
 #include "uistrings.h"
 
 static const char* nladatatyps[] = { "Training data", "Test data",

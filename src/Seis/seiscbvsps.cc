@@ -19,6 +19,7 @@
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seistrc.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "survgeom.h"
 #include "uistrings.h"

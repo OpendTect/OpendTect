@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uiparentbody.h"
 
-#include "staticstring.h"
 #include <QDockWidget>
 
 mUseQtnamespace

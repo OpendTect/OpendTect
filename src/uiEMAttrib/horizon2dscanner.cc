@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
+#include "staticstring.h"
 #include "tabledef.h"
 #include "uistrings.h"
 #include "survgeom2d.h"

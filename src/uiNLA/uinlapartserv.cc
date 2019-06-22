@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "sorting.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "varlenarray.h"
 #include "wellextractdata.h"

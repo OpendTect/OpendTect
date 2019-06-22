@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "coordsystem.h"
 #include "separstr.h"
+#include "staticstring.h"
 #include "survinfo.h"
 
 #include <math.h>

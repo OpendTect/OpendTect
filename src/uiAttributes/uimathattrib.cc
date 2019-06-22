@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "attribparamgroup.h"
 #include "attribstorprovider.h"
 #include "attribfactory.h"
+#include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "uiattrsel.h"

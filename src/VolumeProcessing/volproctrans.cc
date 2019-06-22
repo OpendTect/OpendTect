@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "volprocchain.h"
 #include "ascstream.h"
+#include "staticstring.h"
 #include "uistrings.h"
 
 defineTranslatorGroup(VolProcessing,"Volume Processing Setup");

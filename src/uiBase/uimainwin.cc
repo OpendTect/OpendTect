@@ -38,7 +38,6 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "oddirs.h"
 #include "odver.h"
-#include "staticstring.h"
 #include "settings.h"
 #include "strmprov.h"
 #include "texttranslation.h"

@@ -19,7 +19,6 @@
 #include "separstr.h"
 #include "ioobjctxt.h"
 #include "seistrctr.h"
-#include "staticstring.h"
 
 namespace SEGY
 {

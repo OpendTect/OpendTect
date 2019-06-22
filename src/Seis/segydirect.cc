@@ -22,6 +22,7 @@
 #include "segyscanner.h"
 #include "seispsioprov.h"
 #include "seisposindexer.h"
+#include "staticstring.h"
 #include "strmoper.h"
 #include "strmprov.h"
 #include "survgeom.h"

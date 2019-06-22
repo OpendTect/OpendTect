@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "randomlinegeom.h"
 #include "seistrc.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "survgeom.h"
 #include "keystrs.h"

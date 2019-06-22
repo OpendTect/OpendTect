@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
-#include "staticstring.h"
 #include "ptrman.h"
 #include "typeset.h"
 #include "uistring.h"

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "pickset.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "polygon.h"
 #include "gridder2d.h"

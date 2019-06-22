@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "staticstring.h"
 #include "od_helpids.h"
 
 

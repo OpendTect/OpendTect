@@ -11,6 +11,7 @@
 #include "filepath.h"
 #include "keystrs.h"
 #include "mousecursor.h"
+#include "staticstring.h"
 #include "thread.h"
 #include "uistring.h"
 #include "visusershowwaitimpl.h"

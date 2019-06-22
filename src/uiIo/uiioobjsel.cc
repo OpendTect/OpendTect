@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "dbdir.h"
 #include "dbman.h"
 #include "iopar.h"
+#include "staticstring.h"
 #include "transl.h"
 
 #include "uimsg.h"

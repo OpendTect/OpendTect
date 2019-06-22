@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 #include "randcolor.h"
 #include "settings.h"
+#include "staticstring.h"
 #include "survgeom.h"
 #include "survinfo.h"
 #include "windowfunction.h"

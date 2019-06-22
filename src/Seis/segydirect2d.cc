@@ -21,6 +21,7 @@
 #include "seispacketinfo.h"
 #include "seisseldata.h"
 #include "seisbuf.h"
+#include "staticstring.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "uistrings.h"

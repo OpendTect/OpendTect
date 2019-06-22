@@ -10,7 +10,6 @@
 
 #include "genc.h"
 #include "strmdata.h"
-#include "staticstring.h"
 #include "uistrings.h"
 
 #include <iostream>

@@ -13,6 +13,7 @@
 #include "gmtdef.h"
 #include "dbman.h"
 #include "initgmtplugin.h"
+#include "staticstring.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
 #include "uigmtadv.h"

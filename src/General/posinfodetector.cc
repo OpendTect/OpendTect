@@ -11,7 +11,6 @@
 #include "binidsorting.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "staticstring.h"
 #include "uistrings.h"
 
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uistring.h"
 
-#include "staticstring.h"
 
 #include <QLabel>
 

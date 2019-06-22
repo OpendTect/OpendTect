@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uipixmap.h"
 
 #include "menuhandler.h"
-#include "staticstring.h"
 #include "texttranslation.h"
 
 

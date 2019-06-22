@@ -10,7 +10,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "staticstring.h"
 #include "prestackgather.h"
 #include "seiscbvs.h"
 #include "seiscbvsps.h"

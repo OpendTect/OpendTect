@@ -15,6 +15,7 @@
 #include "ptrman.h"
 #include "sorting.h"
 #include "flatposdata.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "iopar.h"
 #include "keystrs.h"

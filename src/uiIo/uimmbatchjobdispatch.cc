@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uistatusbar.h"
 #include "uimsg.h"
+#include "staticstring.h"
 #include "timer.h"
 #include "timefun.h"
 #include "oddirs.h"

@@ -24,6 +24,7 @@
 #include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
