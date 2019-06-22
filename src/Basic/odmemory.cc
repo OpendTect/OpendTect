@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 #ifdef __lux__
 # include "od_istream.h"
-# include "strmoper.h"
 # include <fstream>
 static od_int64 swapfree;
 #endif

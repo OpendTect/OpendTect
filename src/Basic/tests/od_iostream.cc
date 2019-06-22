@@ -13,7 +13,6 @@
 #include "ptrman.h"
 #include "strmprov.h"
 #include "thread.h"
-#include "strmoper.h"
 
 #include <string.h>
 

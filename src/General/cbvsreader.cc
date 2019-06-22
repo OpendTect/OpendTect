@@ -30,7 +30,6 @@ The next 8 bytes are reserved for 2 integers:
 #include "envvars.h"
 #include "ptrman.h"
 #include "varlenarray.h"
-#include "strmoper.h"
 #include "posinfo.h"
 #include "tracedata.h"
 #include "od_istream.h"

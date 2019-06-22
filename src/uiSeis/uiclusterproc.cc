@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "seistrctr.h"
 #include "od_istream.h"
-#include "strmoper.h"
 #include "survinfo.h"
 #include "strmprov.h"
 #include "envvars.h"

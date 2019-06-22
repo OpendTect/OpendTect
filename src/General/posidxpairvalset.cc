@@ -10,7 +10,6 @@
 #include "iopar.h"
 #include "separstr.h"
 #include "posinfo.h"
-#include "strmoper.h"
 #include "statrand.h"
 #include "survgeom.h"
 #include "threadlock.h"

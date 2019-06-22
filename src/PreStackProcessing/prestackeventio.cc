@@ -26,7 +26,6 @@
 #include "separstr.h"
 #include "survinfo.h"
 #include "streamconn.h"
-#include "strmoper.h"
 #include "offsetazimuth.h"
 #include "uistrings.h"
 
