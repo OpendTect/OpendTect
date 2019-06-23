@@ -429,7 +429,7 @@ void SubItem::store() const
 	{ storeAs( true ); return; }
 
     ioobj->pars().set( sKey::Type(), managerName() );
-    DBM().setEntry( *ioobj );
+    ioobj->commitChanges();
 
     fillStoragePar( set_->pars_ );
     BufferString bs;

@@ -113,9 +113,9 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
     iox->setGroup( mTranslGroupName(SeisTrc) );
     iox->setKeyForNewEntry( ioobj.key().dirID() );
     iox->setOwnKey( ioobj.key() );
-    DBM().setEntry( *iox );
+    iox->commitChanges();
     ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
-    DBM().setEntry( ioobj );
+    ioobj.commitChanges();
 }
 
 

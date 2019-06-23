@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "ioobjctxt.h"
 #include "trckeyzsampling.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -357,7 +356,7 @@ bool uiAttrVolOut::prepareProcessing()
 
 	const IOObj* chioobj = outioobj->clone();
 	chioobj->pars().set( sKey::Type(), typestr );
-	DBM().setEntry( *chioobj );
+	chioobj->commitChanges();
 	delete chioobj;
     }
 

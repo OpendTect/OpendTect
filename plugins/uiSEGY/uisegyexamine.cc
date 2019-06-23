@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "od_strstream.h"
 #include "oddirs.h"
-#include "dbman.h"
 #include "od_helpids.h"
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
@@ -241,8 +240,8 @@ SEGYSeisTrcTranslator* uiSEGYExamine::getReader(
     if ( !ioobj )
 	{ emsg = mINTERNAL("Cannot create DB object"); return 0; }
 
-    DBM().setEntry( *ioobj );
     su.fp_.fillPar( ioobj->pars() );
+    ioobj->commitChanges();
 
     segytr = static_cast<SEGYSeisTrcTranslator*>( ioobj->createTranslator() );
     if ( !segytr )

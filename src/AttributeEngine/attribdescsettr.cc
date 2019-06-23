@@ -11,7 +11,6 @@
 #include "attribdescset.h"
 #include "conn.h"
 #include "file.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -114,7 +113,7 @@ uiRetVal AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     }
 
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
-    DBM().setEntry( *ioobj );
+    ioobj->commitChanges();
     uirv = toUiString( trans->write(ads,*conn) );
     if ( !uirv.isOK() )
 	conn->rollback();

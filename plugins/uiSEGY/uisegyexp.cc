@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "dbman.h"
 #include "iostrm.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -533,7 +532,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     execptrman.erase();
 
     if ( tmpioobj )
-	DBM().setEntry( *tmpioobj );
+	tmpioobj->commitChanges();
 
     mRet( rv )
 }

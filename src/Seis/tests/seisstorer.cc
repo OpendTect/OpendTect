@@ -181,7 +181,7 @@ static Storer* getStorer( GeomType gt, const DBKey& dbky, const char* objnm )
     if ( ctio.ioobj_->key() != dbky )
 	DBM().removeEntry( dbky );
     ctio.ioobj_->setKey( dbky );
-    DBM().setEntry( *ctio.ioobj_ );
+    ctio.ioobj_->commitChanges();
     ctio.destroyAll();
 
     auto* ret = new Storer( dbky );

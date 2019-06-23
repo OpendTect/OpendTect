@@ -17,7 +17,6 @@
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "executor.h"
-#include "dbman.h"
 #include "marchingcubes.h"
 #include "polygon.h"
 #include "polyposprovider.h"
@@ -1026,8 +1025,9 @@ bool uiBodyRegionDlg::createImplicitBody()
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
-	if ( !DBM().setEntry( *ioobj ) )
-	    mRetErr( ioobj->phrCannotWriteToDB() ) )
+	const auto uirv = ioobj->commitChanges();
+	if ( !uirv.isOK() )
+	    mRetErr( uirv ) )
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )

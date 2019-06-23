@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiscaler.h"
 #include "datachar.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "scaler.h"
@@ -250,13 +249,14 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 
 void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
 {
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     if ( !scalefld_ )
 	fillFmtPars( ioobj->pars() );
 
     if ( commit )
-	DBM().setEntry( *ioobj );
+	ioobj->commitChanges();
 }
 
 

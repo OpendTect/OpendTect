@@ -625,7 +625,7 @@ void SeisServerTool::writeObj( GeomType gt, const char* cmd )
     }
 
     if ( ioobjchgd )
-	DBM().setEntry( *ctio.ioobj_ );
+	ctio.ioobj_->commitChanges();
 
     storer_ = new Storer( *ctio.ioobj_ );
     ctio.setObj( nullptr );

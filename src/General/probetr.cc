@@ -87,7 +87,7 @@ bool ProbeTranslator::store( const Probe& probe, const IOObj* ioobj,
     }
 
     if ( needcommit )
-	DBM().setEntry( *ioobj );
+	ioobj->commitChanges();
 
     return true;
 }

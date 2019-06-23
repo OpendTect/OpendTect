@@ -25,7 +25,6 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "dbman.h"
 #include "dirlist.h"
 #include "ioobjctxt.h"
 #include "iostrm.h"
@@ -315,7 +314,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     }
 
     if ( tmpioobj )
-	DBM().setEntry( *tmpioobj );
+	tmpioobj->commitChanges();
     delete tmpioobj;
     return retval;
 }

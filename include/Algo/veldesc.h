@@ -27,7 +27,7 @@ To tag a velocity volume as a velocity, this class can be used to do the work:
 
     PtrMan<IOObj> ioobj = dbkey.getIOObj();
     desc.fillPar( ioobj->pars() );
-    DBM().setEntry( ioobj );
+    ioobj->commitChanges();
 
 \endcode
 

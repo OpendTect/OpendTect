@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "seismerge.h"
 #include "seistrctr.h"
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -131,7 +130,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     {
 	outioobj->pars().update( sKey::Type(), typestr );
 	outioobj->pars().update( ZDomain::sKey(), zdomstr );
-	DBM().setEntry( *outioobj );
+	outioobj->commitChanges();
     }
 
     return true;

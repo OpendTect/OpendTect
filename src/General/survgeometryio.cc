@@ -10,7 +10,6 @@
 #include "bendpointfinder.h"
 #include "ioobjctxt.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "survgeom2d.h"
 #include "posinfo2d.h"
 #include "survgeometrytransl.h"
@@ -146,7 +145,7 @@ bool ODGeometry2DWriter::write( const Geometry2D& geom, uiString& errmsg,
 
     const bool isok = geomtransl->writeGeometry( *ioobj, geom, errmsg );
     if ( isok && needcommit )
-	DBM().setEntry( *ioobj );
+	ioobj->commitChanges();
 
     return isok;
 }

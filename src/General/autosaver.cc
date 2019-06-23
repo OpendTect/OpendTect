@@ -166,9 +166,8 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->pars().set( sKey::CrInfo(), fms );
     newstoreioobj->updateCreationPars();
 
-    if ( !DBM().setEntry( *newstoreioobj ) )
-	msgs_.add(uiStrings::phrCannotCreateDBEntryFor(tr("auto-save object")));
-    else
+    msgs_ = newstoreioobj->commitChanges();
+    if ( msgs_.isOK() )
 	msgs_ = saver_->store( *newstoreioobj, trprov );
     if ( !msgs_.isOK() )
     {
@@ -311,11 +310,8 @@ bool OD::AutoSaver::restore( IOStream& iostrm, const char* newnm )
     iostrm.updateCreationPars();
 
     iostrm.setKeyForNewEntry( tmpky.dirID() );
-    if ( DBM().setEntry(iostrm) )
-    {
-	DBM().removeEntry( tmpky );
-	return true;
-    }
+    if ( iostrm.commitChanges().isOK() )
+	{ DBM().removeEntry( tmpky ); return true; }
 
     return false;
 }

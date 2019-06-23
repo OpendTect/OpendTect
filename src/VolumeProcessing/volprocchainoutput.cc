@@ -7,7 +7,6 @@
 
 #include "volprocchainoutput.h"
 
-#include "dbman.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
@@ -395,7 +394,7 @@ bool VolProc::ChainOutput::openOutput()
     else if ( hasveldesc )
 	{ VelocityDesc::removePars( ioobj->pars() ); docommit = true; }
     if ( docommit )
-	DBM().setEntry( *ioobj );
+	ioobj->commitChanges();
 
     delete wrr_;
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );

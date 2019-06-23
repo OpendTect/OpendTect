@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uipixmap.h"
 
 #include "ctxtioobj.h"
-#include "dbman.h"
 #include "transl.h"
 
 
@@ -253,12 +252,8 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
     if ( fld )
     {
 	if ( !fld->fill(ioobj.pars()) )
-	{
-	    uiMSG().error( fld->errMsg() );
-	    return;
-	}
-
-	DBM().setEntry( ioobj );
+	    { uiMSG().error( fld->errMsg() ); return; }
+	ioobj.commitChanges();
     }
 }
 

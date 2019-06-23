@@ -8,7 +8,6 @@
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
 
-#include "dbman.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "dbkey.h"
@@ -20,11 +19,7 @@
 
 #include "prog.h"
 
-#define mErrRet( msg ) \
-{ \
-    strm << msg; \
-    return false; \
-}
+#define mErrRet( msg ) { strm << msg; return false; }
 
 bool BatchProgram::go( od_ostream& strm )
 {
@@ -76,8 +71,9 @@ bool BatchProgram::go( od_ostream& strm )
     else
 	veldesc.removePars( outputioobj->pars() );
 
-    if ( !DBM().setEntry(*outputioobj) )
-	mErrRet( "Cannot write velocity information" )
+    auto uirv = outputioobj->commitChanges();
+    if ( !uirv.isOK() )
+	mErrRet( toString(uirv) )
 
     return true;
 }

@@ -57,7 +57,7 @@ SEGY::Vintage::Importer::Importer( const SEGY::Vintage::Info& vntinfo,
 	    continue;
 
 	inioobj->pars() = *iop;
-	DBM().setEntry( *inioobj );
+	inioobj->commitChanges();
 
 	auto* rdr = new SeisStdImporterReader( *inioobj, "SEG-Y" );
 	auto* storer = new Seis::Storer( *ctio.ioobj_ );

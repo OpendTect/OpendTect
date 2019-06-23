@@ -196,7 +196,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 		geomobj->pars().set(
 			SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
 			outfld_->key(true) );
-		DBM().setEntry( *geomobj );
+		geomobj->commitChanges();
 		geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
 	    }
 

@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "ptrman.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "dbdir.h"
@@ -240,7 +239,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     }
 
     outctio_.ioobj_->pars().set( storagekey, storage );
-    DBM().setEntry( *outctio_.ioobj_ );
+    outctio_.ioobj_->commitChanges();
     return true;
 }
 

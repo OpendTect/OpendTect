@@ -8,7 +8,6 @@
 #include "uibatchtime2depthsetup.h"
 
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "keystrs.h"
 #include "seisselsetup.h"
 #include "seistrctr.h"
@@ -151,7 +150,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	ZDomain::Time().set( outioobj->pars() );
     }
 
-    DBM().setEntry( *outioobj );
+    outioobj->commitChanges();
     return true;
 }
 

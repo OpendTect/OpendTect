@@ -8,7 +8,6 @@
 #include "uivelocityvolumeconversion.h"
 
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "seistrctr.h"
 #include "seisprovider.h"
 #include "survinfo.h"
@@ -142,7 +141,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     else
 	outputdesc.fillPar( outputioobj->pars() );
 
-    DBM().setEntry( *outputioobj );
+    outputioobj->commitChanges();
 
     IOPar& par = batchfld_->jobSpec().pars_;
     outputdesc.fillPar( par );

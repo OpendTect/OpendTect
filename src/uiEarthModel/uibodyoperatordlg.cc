@@ -338,8 +338,9 @@ bool uiBodyOperatorDlg::acceptOK()
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
-	if ( !DBM().setEntry( *ioobj ) )
-	    mRetErr( ioobj->phrCannotWriteToDB() )
+	const auto uirv = ioobj->commitChanges();
+	if ( !uirv.isOK() )
+	    mRetErr( uirv )
     }
 
     if ( trprov.execute(*exec) )
@@ -490,8 +491,9 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     {
 	PtrMan<IOObj> chgioobj = outiobj->clone();
 	chgioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
-	if ( !DBM().setEntry(*chgioobj) )
-	    mRetErr( chgioobj->phrCannotWriteToDB() )
+	const auto uirv = chgioobj->commitChanges();
+	if ( !uirv.isOK() )
+	    mRetErr( uirv )
     }
 
     if ( !trprov.execute(*exec) )

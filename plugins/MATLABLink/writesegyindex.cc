@@ -40,11 +40,10 @@ static DBKey getKey( const char* nm )
     IOObjContext ctxt = mIOObjContext(SeisTrc);
     ctxt.fixTranslator( mSEGYDirectTranslNm );
     CtxtIOObj ctio( ctxt );
-    DBM().to( ctio.ctxt.getSelDirID() );
     ctio.setName( nm );
     DBM().getEntry( ctio );
     if ( ctio.ioobj )
-	DBM().setEntry( *ctio.ioobj );
+	ctio.ioobj->commitChanges();
 
     return ctio.ioobj ? ctio.ioobj->key() : DBKey::getInvalid();
 }

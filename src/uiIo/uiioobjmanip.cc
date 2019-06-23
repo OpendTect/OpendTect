@@ -362,7 +362,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 	}
     }
 
-    DBM().setEntry( ioobj );
+    ioobj.commitChanges();
     return true;
 }
 
@@ -439,7 +439,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     if (!doReloc(trans, iostrm, chiostrm))
 	return false;
 
-    DBM().setEntry( ioobj );
+    ioobj.commitChanges();
     return true;
 }
 

@@ -13,7 +13,6 @@
 #include "position.h"
 #include "survinfo.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "ascstream.h"
 #include "od_iostream.h"
@@ -113,7 +112,7 @@ Executor* EMStickSetTranslator::writer( const EM::StickSet& hor,
 
 	formatfilename += ".fault_fmt";
 	ioobj->pars().set( "Format file", formatfilename );
-	DBM().setEntry( *ioobj );
+	ioobj->commitChanges();
     }
 
     return tr->writer( hor, conn, formatfilename.buf() );

@@ -281,7 +281,7 @@ DBKey SeisJobExecProv::tempStorID() const
 	iostrm->fileSpec().setFileName( fp.fullPath() );
 	iostrm->fileSpec().nrs_ = inls;
 
-	DBM().setEntry( *iostrm );
+	iostrm->commitChanges();
 	ctio_.setObj(0);
     }
 

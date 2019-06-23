@@ -18,7 +18,6 @@
 #include "welldisp.h"
 #include "keystrs.h"
 #include "iostrm.h"
-#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
 
@@ -51,7 +50,7 @@ Well::HDF5Writer::HDF5Writer( const IOObj& ioobj, const Data& wd,
 	if ( iostrm )
 	{
 	    iostrm->fileSpec().setFileName( filename_ );
-	    DBM().setEntry( *iostrm );
+	    iostrm->commitChanges();
 	}
     }
 }

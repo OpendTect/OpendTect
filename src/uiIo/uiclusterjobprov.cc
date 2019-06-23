@@ -349,7 +349,7 @@ DBKey uiClusterJobProv::getTmpID( const char* tmpdir ) const
     jobprov_->getRange( fnrs );
     iostrm->fileSpec().setFileName( fp.fullPath() );
     iostrm->fileSpec().nrs_ = fnrs;
-    DBM().setEntry( *iostrm );
+    iostrm->commitChanges();
     return ret;
 }
 

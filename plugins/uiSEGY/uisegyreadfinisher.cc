@@ -411,7 +411,7 @@ void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
     const bool outissidom = ZDomain::isSI( outioobj.pars() );
     if ( !outissidom )
 	ZDomain::Def::get(outioobj.pars()).set( inioobj.pars() );
-    DBM().setEntry( inioobj );
+    inioobj.commitChanges();
 }
 
 
@@ -623,7 +623,7 @@ bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
 	geomobj->pars().set(
 		    SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
 		    outscanfld_->key(true) );
-	DBM().setEntry( *geomobj );
+	geomobj->commitChanges();
 	geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
     }
     else if ( isnew )

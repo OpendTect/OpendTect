@@ -67,7 +67,7 @@ void doWork( CallBacker* )
     iter.retire(); // needed, otherwise deadlock
 
     for ( int idx=0; idx<toset.size(); idx++ )
-	DBM().setEntry( *toset[idx] );
+	toset[idx]->commitChanges();
     deepErase( toset );
 }
 

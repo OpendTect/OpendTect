@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emmarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
-#include "dbman.h"
 #include "uistrings.h"
 #include "keystrs.h"
 
@@ -78,7 +77,7 @@ Executor* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
     IOPar& iopar = ioobj.pars();
     iopar.set( sKey::Type(), body.type() );
     ioobj.updateCreationPars();
-    DBM().setEntry( ioobj );
+    ioobj.commitChanges();
 
     mDynamicCastGet(EM::PolygonBody*,plgbdy,const_cast<EM::Body*>(&body));
     if ( plgbdy ) return plgbdy->saver(&ioobj);

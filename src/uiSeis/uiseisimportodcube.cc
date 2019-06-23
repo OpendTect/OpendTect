@@ -214,12 +214,14 @@ bool uiSeisImportODCube::acceptOK()
     else
     {
 	inioobj = getInpIOObj( fname );
-	if ( !DBM().setEntry(*inioobj) )
-	    { uiMSG().error( inioobj->phrCannotWriteToDB() ); return false; }
+	const auto inuirv = inioobj->commitChanges();
+	if ( !inuirv.isOK() )
+	    { uiMSG().error( inuirv ); return false; }
     }
 
-    if ( !DBM().setEntry(*outioobj_) )
-	{ uiMSG().error( outioobj_->phrCannotWriteToDB() ); return false; }
+    const auto outuirv = outioobj_->commitChanges();
+    if ( !outuirv.isOK() )
+	{ uiMSG().error( outuirv ); return false; }
 
     if ( dolink )
     {

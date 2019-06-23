@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "dbdir.h"
-#include "dbman.h"
 #include "file.h"
 #include "keystrs.h"
 #include "iopar.h"
@@ -480,7 +479,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     if ( ctio_.ioobj_ && wrtrselfld_ && !wrtrselfld_->isEmpty() )
     {
 	wrtrselfld_->updatePars( *ctio_.ioobj_ );
-	DBM().setEntry( *ctio_.ioobj_ );
+	ctio_.ioobj_->commitChanges();
     }
 
     return true;

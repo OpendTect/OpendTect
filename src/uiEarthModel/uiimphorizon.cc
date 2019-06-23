@@ -45,7 +45,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "horizonscanner.h"
-#include "dbman.h"
 #include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
@@ -510,7 +509,7 @@ bool uiImportHorizon::acceptOK()
 	{
 	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
 	    ioobj->updateCreationPars();
-	    DBM().setEntry( *ioobj );
+	    ioobj->commitChanges();
 	}
     }
 

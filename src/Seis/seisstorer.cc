@@ -276,7 +276,7 @@ uiRetVal Seis::Storer::prepareWork( const SeisTrc& trc )
 	ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
 	ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
 	ioobj_->updateCreationPars();
-	DBM().setEntry( *ioobj_ );
+	ioobj_->commitChanges();
     }
 
     return uirv;

@@ -1435,7 +1435,7 @@ bool acceptOK()
 	if ( !type_.isEmpty() )
 	{
 	    ctio_.ioobj_->pars().set( sKey::Type(), type_ );
-	    DBM().setEntry( *ctio_.ioobj_ );
+	    ctio_.ioobj_->commitChanges();
 	}
 	fname_ = ctio_.ioobj_->mainFileName();
     }

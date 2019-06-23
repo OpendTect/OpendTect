@@ -95,7 +95,7 @@ static void convertSeis2DTranslators()
     iter.retire(); // essential: lifts lock on dbdir
 
     for ( int idx=0; idx<newioobjs.size(); idx++ )
-	DBM().setEntry( *newioobjs[idx] );
+	newioobjs[idx]->commitChanges();
 }
 
 

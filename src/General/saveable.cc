@@ -136,7 +136,7 @@ uiRetVal Saveable::save( const TaskRunnerProvider& trprov ) const
 	if ( !ioobj->pars().includes(ioobjpars_) )
 	{
 	    ioobj->pars().merge( ioobjpars_ );
-	    DBM().setEntry( *ioobj );
+	    ioobj->commitChanges();
 	    ioobj = storekey_.getIOObj();
 	}
 
@@ -361,7 +361,7 @@ void SaveableManager::setIOObjPars( const ObjID& id, const IOPar& iop ) const
 	return;
 
     ioobj->pars() = iop;
-    DBM().setEntry( *ioobj );
+    ioobj->commitChanges();
 }
 
 

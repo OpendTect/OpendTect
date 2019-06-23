@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "datapointset.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "hdf5reader.h"
 #include "hdf5writer.h"
 #include "hdf5arraynd.h"
@@ -160,7 +159,7 @@ uiRetVal PickSetTranslator::store( const Pick::Set& ps, const IOObj& ioobj )
 	}
 
 	if ( needcommit )
-	    DBM().setEntry( ioobj );
+	    ioobj.commitChanges();
     }
     return uirv;
 }

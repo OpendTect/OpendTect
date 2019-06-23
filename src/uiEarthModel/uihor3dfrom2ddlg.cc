@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "emhor2dto3d.h"
 #include "array2dinterpol.h"
 #include "ioobjctxt.h"
-#include "dbman.h"
 #include "survinfo.h"
 #include "od_helpids.h"
 
@@ -136,7 +135,7 @@ bool uiHor3DFrom2DDlg::acceptOK()
 	source.add( " (" ).add( hor2d_.name() ).add( ")" );
 	ioobj->pars().update( sKey::CrFrom(), source );
 	ioobj->updateCreationPars();
-	DBM().setEntry( *ioobj );
+	ioobj->commitChanges();
     }
 
     return rv;

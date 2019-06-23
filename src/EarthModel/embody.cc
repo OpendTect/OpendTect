@@ -180,9 +180,9 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 
     for ( int idx=0; idx<toset.size(); idx++ )
     {
-	const IOObj& ioobj = *toset[idx];
-	if ( !DBM().setEntry( ioobj ) )
-	    { errmsg = ioobj.phrCannotWriteToDB(); return false; }
+	errmsg = toset[idx]->commitChanges();
+	if ( !errmsg.isEmpty() )
+	    return false;
     }
     deepErase( toset );
 

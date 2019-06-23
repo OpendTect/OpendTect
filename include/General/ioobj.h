@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "namedobj.h"
-#include "uistring.h"
 #include "dbkey.h"
+#include "uistringset.h"
 
 class Conn;
 class IOObj;
@@ -138,6 +138,8 @@ public:
     uiPhrase			phrCannotLoadObj() const;
     uiPhrase			phrCannotWriteObj() const;
     uiPhrase			phrCannotWriteToDB() const;
+
+    uiRetVal			commitChanges() const;
 
 protected:
 

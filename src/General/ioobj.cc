@@ -404,6 +404,18 @@ uiString IOObj::phrCannotWriteToDB() const
 }
 
 
+uiRetVal IOObj::commitChanges() const
+{
+    if ( !key().isValid() )
+	return mINTERNAL( "Empty DB Key" );
+    else if ( name().isEmpty() )
+	return mINTERNAL( "Empty IOObj name" );
+    else if ( !DBM().setEntry(*this) )
+	return phrCannotWriteToDB();
+    return uiRetVal();
+}
+
+
 static void mkStd( DBKey& ky )
 {
     if ( ky.isInvalid() )

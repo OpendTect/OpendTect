@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "ctxtioobj.h"
 #include "iostrm.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "seis2dlineio.h"
@@ -434,7 +433,7 @@ void uiSeisSel::commitSucceeded()
     if ( inctio_.ioobj_ )
     {
 	def->set( inctio_.ioobj_->pars() );
-	DBM().setEntry( *inctio_.ioobj_ );
+	inctio_.ioobj_->commitChanges();
     }
 }
 
