@@ -63,9 +63,9 @@ public:
     static DBKey	getFromStr(const char*);
     static DBKey	getFromI64(od_int64);
 
-    virtual bool	isInvalid() const override { return groupnr_ < 0; }
+    bool		isInvalid() const override { return groupnr_ < 0; }
     bool		isUsable() const;
-    virtual bool	isInCurrentSurvey() const;
+    bool		isInCurrentSurvey() const;
 
 			// aliases
     inline bool		hasValidDirID() const	{ return hasValidGroupID(); }
@@ -128,7 +128,7 @@ public:
     explicit		DBKeySet( const DBKey& dbky )
 						{ add( dbky ); }
 			~DBKeySet()		{ deepErase(dbkys_); }
-    virtual DBKeySet*	clone() const		{ return new DBKeySet(*this); }
+    DBKeySet*		clone() const override	{ return new DBKeySet(*this); }
 
     inline DBKeySet&	operator =( const DBKeySet& oth )
 			{ deepCopy( dbkys_, oth.dbkys_ ); return *this; }
@@ -136,7 +136,7 @@ public:
 
     inline size_type	size() const		{ return dbkys_.size(); }
     inline bool		isEmpty() const		{ return dbkys_.isEmpty(); }
-    virtual bool	validIdx( od_int64 i ) const
+    bool		validIdx( od_int64 i ) const override
 						{ return dbkys_.validIdx(i); }
     idx_type		indexOf(const DBKey&) const;
     inline bool		isPresent( const DBKey& dbky )
@@ -159,7 +159,7 @@ public:
 						{ dbkys_.useIndexes(idxs); }
 
     void		setEmpty()		{ deepErase( dbkys_ ); }
-    virtual void	erase()			{ setEmpty(); }
+    void		erase() override	{ setEmpty(); }
     DBKeySet&		removeSingle(idx_type);
     DBKeySet&		removeRange(idx_type,idx_type);
     DBKeySet&		remove(const DBKey&);
@@ -176,10 +176,10 @@ public:
 
     // remainder of OD::Set interface
 
-    virtual od_int64	nrItems() const		{ return size(); }
-    virtual void	swapItems( od_int64 i1, od_int64 i2 )
+    od_int64		nrItems() const override	{ return size(); }
+    void		swapItems( od_int64 i1, od_int64 i2 ) override
 			{ swap( (idx_type)i1, (idx_type)i2 ); }
-    virtual void	reverse()		{ dbkys_.reverse(); }
+    void		reverse() override		{ dbkys_.reverse(); }
 
 };
 

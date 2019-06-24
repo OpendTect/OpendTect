@@ -388,7 +388,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     }
 
     return exists ? uiIOObj(ioobj).removeImpl( true, shldrm )
-		  : DBM().removeEntry( ioobj.key() );
+		  : ioobj.removeFromDB();
 }
 
 

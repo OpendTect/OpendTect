@@ -80,16 +80,13 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 
     if ( rmentry )
     {
-	const bool removed = DBM().removeEntry( ioobj_.key() );
-	if ( removed )
+	ioobj_.removeFromDB();
+	if ( IOObj::isSurveyDefault(ioobj_.key()) )
 	{
-	    if ( IOObj::isSurveyDefault(ioobj_.key()) )
-	    {
-		PtrMan<Translator> trl = ioobj_.createTranslator();
-		const BufferString defaultkey(
-				   trl->group()->getSurveyDefaultKey(&ioobj_) );
-		SI().removeKeyFromDefaultPars( defaultkey, true );
-	    }
+	    PtrMan<Translator> trl = ioobj_.createTranslator();
+	    const BufferString defaultkey(
+			       trl->group()->getSurveyDefaultKey(&ioobj_) );
+	    SI().removeKeyFromDefaultPars( defaultkey, true );
 	}
     }
 

@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uiwellsel.h"
 
-#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
@@ -591,7 +590,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     if ( storer )
 	storer->close();
     if ( singlevintage_ && !handleWarnings(!doimp,indexer,imp) )
-	{ DBM().removeEntry( outioobj.key() ); return false; }
+	{ outioobj.removeFromDB(); return false; }
 
     if ( indexer )
     {

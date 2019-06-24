@@ -272,7 +272,7 @@ bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 	const FixedString res = ioobj->pars().find(
 					SeisPSIOProvider::sKeyCubeID );
 	if ( !res.isEmpty() )
-	    DBM().removeEntry( DBKey::getFromStr(res) );
+	    DBM().removeEntry( DBKey(res) );
     }
     return true;
 }

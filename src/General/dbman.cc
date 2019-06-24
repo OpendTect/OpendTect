@@ -254,6 +254,9 @@ void DBMan::readDirs()
 
 bool DBMan::isPresent( const DBKey& dbky ) const
 {
+    if ( !dbky.isValid() || !dbky.isInCurrentSurvey() )
+	return false;
+
     mLock4Read();
     const DBDir* dir = gtDir( dbky.dirID() );
     return dir && dir->isPresent( dbky.objID() );
@@ -280,7 +283,7 @@ BufferString DBMan::nameFor( const char* kystr ) const
     if ( !isKeyString(kystr) )
 	return kystr;
 
-    const DBKey id = DBKey::getFromStr( kystr );
+    const DBKey id = DBKey( kystr );
     return DBMan_nameOf( id );
 }
 
@@ -529,7 +532,7 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
 	}
     }
 
-    IOObj* ioobj = DBMan_getIOObj( DBKey::getFromStr(res) );
+    IOObj* ioobj = DBMan_getIOObj( DBKey(res) );
     if ( !ioobj )
 	errmsg = tr("Value for %1 is invalid.").arg( iopkey );
 
@@ -677,7 +680,7 @@ bool DBMan::setEntry( const IOObj& ioobj )
 bool DBMan::removeEntry( const DBKey& dbky )
 {
     const ObjID objid = dbky.objID();
-    if ( objid.isInvalid() )
+    if ( objid.isInvalid() || !dbky.isInCurrentSurvey() )
 	return false;
 
     RefMan<DBDir> dbdir = getDBDir( dbky.dirID() );

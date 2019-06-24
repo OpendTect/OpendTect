@@ -12,7 +12,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "idxable.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "offsetazimuth.h"
@@ -683,14 +682,14 @@ int SEGY::FileIndexer::nextStep()
 	const SEGY::FileDataSet& fds = scanner_->fileDataSet();
 	if ( !fds.nrFiles() )
 	{
-	    DBM().removeEntry( ioobj_->key() );
+	    ioobj_->removeFromDB();
 	    msg_ = tr("No files scanned");
 	    return ErrorOccurred();
 	}
 
 	if ( fds.isEmpty() )
 	{
-	    DBM().removeEntry( ioobj_->key() );
+	    ioobj_->removeFromDB();
 	    msg_ = fds.nrFiles() > 1
 		? tr("No traces found in any of the files")
 		: tr("No traces found in file");

@@ -400,7 +400,7 @@ const Saveable* SaveableManager::saverFor( const ObjID& id ) const
 
 bool SaveableManager::canSave( const ObjID& id ) const
 {
-    return DBM().isPresent( id );
+    return id.isUsable();
 }
 
 

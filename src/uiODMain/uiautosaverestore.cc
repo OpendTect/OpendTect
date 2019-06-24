@@ -204,7 +204,7 @@ int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
 	if ( delthisone || delall )
 	{
 	    ioobj.implRemove();
-	    DBM().removeEntry( ioobj.key() );
+	    ioobj.removeFromDB();
 	}
     }
 

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "ui2dgeomman.h"
 
-#include "dbman.h"
 #include "file.h"
 #include "keystrs.h"
 #include "linear.h"
@@ -126,7 +125,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	    continue;
 	}
 
-	DBM().removeEntry( ioobj->key() );
+	ioobj->removeFromDB();
 	Survey::GMAdmin().removeGeometry( geomid );
 	const FixedString crfromstr = ioobj->pars().find( sKey::CrFrom() );
 	if ( !crfromstr.isEmpty() )

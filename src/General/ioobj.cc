@@ -416,6 +416,12 @@ uiRetVal IOObj::commitChanges() const
 }
 
 
+bool IOObj::removeFromDB() const
+{
+    return DBM().removeEntry( key() );
+}
+
+
 static void mkStd( DBKey& ky )
 {
     if ( ky.isInvalid() )

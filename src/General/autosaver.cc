@@ -104,7 +104,7 @@ void OD::AutoSaveObj::removeIOObjAndData( IOStream*& ioobj ) const
 	return;
 
     ioobj->implRemove();
-    DBM().removeEntry( ioobj->key() );
+    ioobj->removeFromDB();
     delete ioobj;
     ioobj = 0;
 }

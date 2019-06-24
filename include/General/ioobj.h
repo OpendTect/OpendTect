@@ -140,6 +140,7 @@ public:
     uiPhrase			phrCannotWriteToDB() const;
 
     uiRetVal			commitChanges() const;
+    bool			removeFromDB() const;
 
 protected:
 
