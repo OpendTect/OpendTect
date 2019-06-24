@@ -32,7 +32,7 @@ public:
 			~Phase();
 
     void		setUnitDeg( bool indegrees ) { indegrees_ = indegrees; }
-    bool		calculate();
+    bool		calculate(bool unwrap=false);
 
 			//!< Available after execution - in the Bandwidth
     float		getAvgPhase() const		{ return avgphase_; }

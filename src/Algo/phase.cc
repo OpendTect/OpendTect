@@ -70,8 +70,15 @@ void Phase::init()
 }
 
 
-bool Phase::calculate()
-{ return extract() && unWrap() && convert(); }
+bool Phase::calculate( bool unwrap )
+{
+    bool res = extract();
+    if ( res && unwrap )
+	res = unWrap();
+    if ( res )
+	res = convert();
+    return res;
+}
 
 
 bool Phase::convert()
