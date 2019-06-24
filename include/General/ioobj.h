@@ -63,8 +63,6 @@ public:
     typedef DBKey::ObjNrType	ObjNrType;
     typedef DBKey::GroupID	DirID;
 
-    // uiString			uiName() const { return toUiString(name()); }
-
     IOObj*			clone() const;
     virtual DBKey		key() const	{ return key_; }
     virtual ObjID		objID() const	{ return key_.objID(); }
@@ -144,10 +142,10 @@ public:
 
 protected:
 
-    BufferString	dirnm_;
     DBKey		key_;
     BufferString	transl_;
     BufferString	group_;
+    BufferString	dirnm_;
 
 			IOObj(const char* nm=0,DBKey ky=DBKey::getInvalid());
 			IOObj(const IOObj&);
