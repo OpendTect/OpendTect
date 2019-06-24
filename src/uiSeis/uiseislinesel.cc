@@ -186,8 +186,7 @@ void uiSeis2DLineChoose::readChoiceDone( CallBacker* )
     GeomIDSet gids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
     {
-	const DBKey key =
-	    DBKey::getFromStr( lbchoiceio_->chosenKeys().get(idx).buf() );
+	const DBKey key( lbchoiceio_->chosenKeys().get(idx).buf() );
 	gids += Pos::GeomID( key.objNr() );
     }
 

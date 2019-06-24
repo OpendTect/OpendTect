@@ -21,16 +21,16 @@
 
 static bool initLoader( EM::StoredObjAccess& soa )
 {
-    if ( !soa.add( DBKey::getFromStr("100020.2") ) ) // Hor3D: 1-Top
+    if ( !soa.add( DBKey("100020.2") ) ) // Hor3D: 1-Top
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( DBKey::getFromStr("100020.4") ) ) // Body: Slumps-2b
+    if ( !soa.add( DBKey("100020.4") ) ) // Body: Slumps-2b
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( DBKey::getFromStr("100020.5") ) ) // SSIS-Grid-Faultstick
+    if ( !soa.add( DBKey("100020.5") ) ) // SSIS-Grid-Faultstick
 	mErrRet( soa.getError(0) );
 
-    if ( soa.add( DBKey::getFromStr("100020.99795") ) )
+    if ( soa.add( DBKey("100020.99795") ) )
 	mErrRet( "ID 100020.99795 should give error" );
-    soa.dismiss( DBKey::getFromStr("100020.99795") );
+    soa.dismiss( DBKey("100020.99795") );
 
     return true;
 }

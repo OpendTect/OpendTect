@@ -58,7 +58,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     ctio_.ctxt_.forread_ = false;
     ctio_.ctxt_.fixTranslator( "MultiCube" );
     if ( ky && *ky )
-	ctio_.setObj( DBKey::getFromStr(ky) );
+	ctio_.setObj( DBKey(ky) );
     else
 	ctio_.setObj( 0 );
 

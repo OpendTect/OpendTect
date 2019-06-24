@@ -72,7 +72,7 @@ void RelationTree::Node::fillChildren( const FileMultiString& fms,
     children_.erase();
     for ( int idx=0; idx<fms.size(); idx++ )
     {
-	const DBKey id = DBKey::getFromStr( fms[idx] );
+	const DBKey id( fms[idx] );
 	const RelationTree::Node* node = tree.getNode( id );
 	if ( !node )
 	    continue;

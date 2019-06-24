@@ -246,7 +246,7 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 		      SeisTrc2DTranslatorGroup::sKeyDefault()) );
     BufferString midstr( SI().getDefaultPars().find(key) );
     if ( !midstr.isEmpty() )
-	return DBKey::getFromStr( midstr.buf() );
+	return DBKey( midstr.buf() );
 
     const IOObjContext ctxt( mIOObjContext(SeisTrc2D) );
     int nrod2d = 0;
@@ -297,7 +297,7 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
     BufferString midstr( SI().getDefaultPars().find(key) );
     if ( !midstr.isEmpty() )
-	return DBKey::getFromStr( midstr.buf() );
+	return DBKey( midstr.buf() );
 
     const IOObjContext ctxt( mIOObjContext(SeisTrc) );
     int nrod3d = 0; DBKey def3dky;

@@ -388,7 +388,7 @@ bool Horizon2DGridCreator::init( const IOPar& par,
     par.get( Horizon2DGridCreator::sKeyInputIDs(), horids );
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	const DBKey dbky = DBKey::getFromStr( horids.get(idx) );
+	const DBKey dbky( horids.get(idx) );
 	RefMan<EM::Object> emobj =
 			EM::Hor3DMan().loadIfNotFullyLoaded( dbky, trprov );
 

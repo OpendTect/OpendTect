@@ -221,7 +221,7 @@ DescID DescSet::defStoredID() const
     }
 
     return const_cast<DescSet*>(this)->getStoredID(
-			    DBKey::getFromStr(idstr), 0, true, true );
+			    DBKey(idstr), 0, true, true );
 }
 
 

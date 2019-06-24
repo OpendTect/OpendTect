@@ -126,7 +126,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
     if ( !iscubeoutp )
     {
-	dbkys += DBKey::getFromStr( objidstr );
+	dbkys += DBKey( objidstr );
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << od_endl;
@@ -145,14 +145,14 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
 	    return false;
 
-	dbkys += DBKey::getFromStr( objidstr );
+	dbkys += DBKey( objidstr );
 
 	BufferString hor2str = IOPar::compKey(basehorstr,1);
 	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
 	    return false;
 
 	if ( !objidstr.isEmpty() )
-	    dbkys += DBKey::getFromStr( objidstr );
+	    dbkys += DBKey( objidstr );
     }
     return true;
 }

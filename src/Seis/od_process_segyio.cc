@@ -73,7 +73,7 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
     IOObj* inioobj = fs.getIOObj( true );
     if ( !inioobj )
 	{ strm << "Input file spec is not OK" << od_endl; return false; }
-    const DBKey dbky = DBKey::getFromStr( outpar->find(sKey::ID()) );
+    const DBKey dbky( outpar->find(sKey::ID()) );
     PtrMan<IOObj> outioobj = dbky.getIOObj();
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }

@@ -163,9 +163,10 @@ float PreStack::EventsAPIMgr::crlDistance() const
 
 int PreStack::EventsAPIMgr::openReader( const char* reference )
 {
-    const DBKey mid = DBKey::getFromStr( reference );
-    PtrMan<IOObj> ioobj = mid.getIOObj();
-    if ( !ioobj ) return -1;
+    const DBKey dbky( reference );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
+    if ( !ioobj )
+	return -1;
 
     int res = 0;
     while ( ids_.isPresent(res) ) res++;
@@ -174,7 +175,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     {
 	PreStack::EventManager* picks = new PreStack::EventManager;
 	picks->ref();
-	PtrMan<Executor> exec = picks->setStorageID( mid, false );
+	PtrMan<Executor> exec = picks->setStorageID( dbky, false );
 	if ( exec && !exec->execute() )
 	    return -1;
 
@@ -183,7 +184,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     }
     else
     {
-	RefMan<Vel::Picks> vp = Vel::VPM().get( mid, false, true, true );
+	RefMan<Vel::Picks> vp = Vel::VPM().get( dbky, false, true, true );
 	if ( !vp || vp->isEmpty() )
 	    return -1;
 

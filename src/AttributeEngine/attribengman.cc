@@ -1058,7 +1058,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const StringPair storkey( storeddesc->getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
-    const DBKey key = DBKey::getFromStr( storkey.first() );
+    const DBKey key( storkey.first() );
     PtrMan<IOObj> ioobj = key.getIOObj();
     if ( !ioobj ) return;
 
@@ -1356,9 +1356,8 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    if ( refidx > -1 )
 	    {
 		FileMultiString fms( attrrefs.get(refidx) );
-		const DBKey dbky = DBKey::getFromStr( fms[1] );
 		descid = const_cast<DescSet&>(descset).
-				    getStoredID( dbky, 0, true );
+				    getStoredID( DBKey(fms[1]), 0, true );
 	    }
 	    if ( !descid.isValid() )
 		mErrRet( tr("Cannot find specified '%1'",

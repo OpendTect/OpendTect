@@ -446,7 +446,7 @@ void uiIOObjSel::usePar( const IOPar& iopar )
     const char* res = iopar.find( sKey::ID() );
     if ( res && *res )
     {
-	const DBKey dbky = DBKey::getFromStr( res );
+	const DBKey dbky( res );
 	workctio_.setObj( dbky );
 	setInput( dbky );
     }
@@ -501,7 +501,7 @@ const char* uiIOObjSel::userNameFromKey( const char* kystr ) const
 {
     mDeclStaticString( nm );
     nm.setEmpty();
-    const DBKey dbky = DBKey::getFromStr( kystr );
+    const DBKey dbky( kystr );
     if ( dbky.isValid() )
 	nm = dbky.name();
     return nm.buf();

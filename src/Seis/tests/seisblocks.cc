@@ -48,8 +48,7 @@ static bool testWriting()
     const char* seisidstr = usesteer ? sSteerSeisIDStr : sNormSeisIDStr;
     if ( usemonster )
 	seisidstr = sMonsterSeisIDStr;
-    Seis::Provider* prov = Seis::Provider::create(
-				    DBKey::getFromStr(seisidstr) );
+    Seis::Provider* prov = Seis::Provider::create( DBKey(seisidstr) );
     if ( !prov )
     {
 	tstStream(true) << "Cur survey has no " << seisidstr << od_endl;

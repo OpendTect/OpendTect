@@ -353,7 +353,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     mIfGetString( FingerPrint::rgpicksetStr(), rgp,
-		calcobj_->setRgRefPick(DBKey::getFromStr(rgp)))
+		calcobj_->setRgRefPick(DBKey(rgp)))
 
     mIfGetInt(FingerPrint::rgreftypeStr(), rgtyp, calcobj_->setRgRefType(rgtyp))
 

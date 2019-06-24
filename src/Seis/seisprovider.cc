@@ -83,7 +83,7 @@ Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 
 Seis::Provider* Seis::Provider::create( const IOPar& iop, uiRetVal* uirv )
 {
-    const DBKey dbky = DBKey::getFromStr( iop.find(sKey::ID()) );
+    const DBKey dbky( iop.find(sKey::ID()) );
     if ( dbky.isInvalid() )
 	return 0;
 
@@ -116,7 +116,7 @@ DBKey Seis::Provider::dbKey( const IOPar& iop )
     }
 
     if ( res && *res )
-	return DBKey::getFromStr( res );
+	return DBKey( res );
 
     return DBKey::getInvalid();
 }

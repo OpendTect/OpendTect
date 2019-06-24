@@ -557,8 +557,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     RefMan<ZAxisTransform> transform = emserv_->getHorizonZAxisTransform(is2d);
     if ( !transform ) return;
 
-    const DBKey hormid = DBKey::getFromStr(
-			    transform->fromZDomainInfo().getID() );
+    const DBKey hormid = DBKey( transform->fromZDomainInfo().getID() );
     PtrMan<IOObj> ioobj = hormid.getIOObj();
     const BufferString hornm = ioobj ? BufferString(ioobj->name())
 				: transform->factoryDisplayName().getString();

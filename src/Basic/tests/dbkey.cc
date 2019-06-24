@@ -23,7 +23,7 @@ static bool checkCharacteristics( const char* strrep,
 	return false;
     }
 
-    const DBKey dbky = DBKey::getFromStr( strrep );
+    const DBKey dbky( strrep );
     if ( dbky.isValid() == kyvalid )
 	tstStream( false ) << "'" << strrep << "' valid for DBKey OK."
 			  << od_endl;
@@ -79,14 +79,14 @@ static bool testToFromString()
 	return false;
 
     DBKey dbky1; DBKey::DirID dirid; dirid.setInvalid();
-    dbky1 = DBKey::getFromStr( kystr1 );
-    DBKey dbky2 = DBKey::getFromStr( kystr2 );
-    DBKey dbky3 = DBKey::getFromStr( kystr3 );
-    DBKey dbky4 = DBKey::getFromStr( kystr4 );
-    DBKey dbky5 = DBKey::getFromStr( kystr5 );
-    DBKey dbky6 = DBKey::getFromStr( kystr6 );
-    DBKey dbky7 = DBKey::getFromStr( kystr7 );
-    DBKey dbky8 = DBKey::getFromStr( kystr8 );
+    dbky1 = DBKey( kystr1 );
+    DBKey dbky2 = DBKey( kystr2 );
+    DBKey dbky3 = DBKey( kystr3 );
+    DBKey dbky4 = DBKey( kystr4 );
+    DBKey dbky5 = DBKey( kystr5 );
+    DBKey dbky6 = DBKey( kystr6 );
+    DBKey dbky7 = DBKey( kystr7 );
+    DBKey dbky8 = DBKey( kystr8 );
 
     BufferString kystr1_2 = dbky1.toString(), kystr2_2 = dbky2.toString();
     BufferString kystr3_2 = dbky3.toString(), kystr4_2 = dbky4.toString();
@@ -111,8 +111,8 @@ static bool testToFromString()
 static bool testSurvDBKey()
 {
     File::Path sstr( "100010.5`/tmp/surveys/Apenoot" );
-    DBKey ldbky = DBKey::getFromStr( "100010.5" );
-    DBKey sdbky = DBKey::getFromStr( sstr.fullPath() );
+    DBKey ldbky = DBKey( "100010.5" );
+    DBKey sdbky = DBKey( sstr.fullPath() );
 
     mRunStandardTest( ldbky.isInCurrentSurvey(), "DBKey in-survey" );
     mRunStandardTest( !sdbky.isInCurrentSurvey(), "DBKey off-survey" );

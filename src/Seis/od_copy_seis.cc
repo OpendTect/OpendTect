@@ -25,7 +25,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOPar> inpar = pars().subselect( sKey::Input() );
     if ( !inpar || inpar->isEmpty() )
 	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }
-    DBKey dbky = DBKey::getFromStr( inpar->find(sKey::ID()) );
+    DBKey dbky( inpar->find(sKey::ID()) );
     PtrMan<IOObj> inioobj = dbky.getIOObj();
     if ( !inioobj )
 	{ strm << "Input object spec is not OK" << od_endl; return false; }
@@ -38,7 +38,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOPar> outpar = pars().subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
 	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
-    dbky = DBKey::getFromStr( outpar->find(sKey::ID()) );
+    dbky = DBKey( outpar->find(sKey::ID()) );
     PtrMan<IOObj> outioobj = dbky.getIOObj();
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }

@@ -99,7 +99,7 @@ void PSAttrib::updateDesc( Desc& desc )
 {
     const BufferString procidstr
 		    = desc.getValParam(preProcessStr())->getStringValue();
-    const DBKey procid = DBKey::getFromStr( procidstr );
+    const DBKey procid( procidstr );
     const bool dopreproc = !procid.isInvalid();
     desc.setParamEnabled( preProcessStr(), dopreproc );
 

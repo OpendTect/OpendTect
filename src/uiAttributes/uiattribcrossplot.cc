@@ -178,7 +178,7 @@ DBKey uiAttribCrossPlot::getSelectedID() const
 	{
 	    BufferString psidstr;
 	    mGetStringFromDesc( (*desc), psidstr, "id" );
-	    return DBKey::getFromStr( psidstr );
+	    return DBKey( psidstr );
 	}
 
 	return desc->getStoredID(true);

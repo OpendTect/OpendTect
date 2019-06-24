@@ -311,7 +311,7 @@ bool SeisStorageRefParam::isOK() const
 	return DPM(fid).isPresent( fid );
     }
 
-    const DBKey storid = DBKey::getFromStr( storstr );
+    const DBKey storid( storstr );
     PtrMan<IOObj> ioobj = storid.getIOObj();
     return ioobj;
 }

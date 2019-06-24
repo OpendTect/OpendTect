@@ -364,8 +364,7 @@ Convolve::Convolve( Desc& ds )
     {
 	BufferString wavidstr;
 	mGetString( wavidstr, waveletStr() );
-	ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch(
-				    DBKey::getFromStr(wavidstr) );
+	ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( DBKey(wavidstr) );
 	if ( !wvlt )
 	    return;
 

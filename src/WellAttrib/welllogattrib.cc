@@ -48,8 +48,7 @@ WellLog::WellLog( Desc& ds )
     if ( !isOK() ) return;
 
     logname_ = desc_.getValParam(logName())->getStringValue( 0 );
-    wellid_ = DBKey::getFromStr(
-			desc_.getValParam(keyStr())->getStringValue(0) );
+    wellid_ = DBKey( desc_.getValParam(keyStr())->getStringValue(0) );
     mGetEnum( upscaletype_, upscaleType() );
 }
 

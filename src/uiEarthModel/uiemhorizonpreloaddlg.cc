@@ -226,7 +226,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	if ( !DBKey::isValidString(idstr) )
 	    continue;
 
-	seldbkys += DBKey::getFromStr( idstr );
+	seldbkys += DBKey( idstr );
     }
 
     if ( seldbkys.isEmpty() )

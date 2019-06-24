@@ -115,7 +115,7 @@ bool BatchProgram::go( od_ostream& strm )
 	const char* setid = pars().find( "Attribute Set" );
 	uiRetVal uirv;
 	if ( setid && *setid )
-	    uirv = attribset.load( DBKey::getFromStr(setid) );
+	    uirv = attribset.load( DBKey(setid) );
 	else
 	{
 	    PtrMan<IOPar> attribs = pars().subselect("Attributes");

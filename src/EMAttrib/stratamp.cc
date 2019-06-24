@@ -129,7 +129,7 @@ int StratAmpCalc::init( const IOPar& pars )
     {
 	const StringPair strpair( targetdesc->getValParam(
 		Attrib::StorageProvider::keyStr())->getStringValue(0) );
-	const DBKey key = DBKey::getFromStr( strpair.first() );
+	const DBKey key( strpair.first() );
 
 	prov_ = Seis::Provider::create( key, &uirv );
 	if ( !prov_ )

@@ -38,13 +38,14 @@ VolProcAttrib::VolProcAttrib( Desc& ds )
     , executor_(0)
 {
     const char* idstr = desc_.getValParam( sKeySetup() )->getStringValue();
-    setupmid_ = DBKey::getFromStr( idstr );
+    setupmid_ = DBKey( idstr );
 }
 
 
 VolProcAttrib::~VolProcAttrib()
 {
-    if ( chain_ ) chain_->unRef();
+    if ( chain_ )
+	chain_->unRef();
     delete executor_;
 }
 
@@ -166,8 +167,8 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     if ( !Attrib::Desc::getParamString( definition, sKeySetup(), dbkystring ) )
 	return false;
 
-    DBKey dbky = DBKey::getFromStr( dbkystring );
-    PtrMan<IOObj>  ioobj = dbky.getIOObj();
+    DBKey dbky( dbkystring );
+    PtrMan<IOObj> ioobj = dbky.getIOObj();
     if ( !ioobj )
     {
 	errmsg_ = tr("Cannot find the processing setup.");

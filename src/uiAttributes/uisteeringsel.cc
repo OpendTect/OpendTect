@@ -349,9 +349,7 @@ void uiSteerAttrSel::setDesc( const Attrib::Desc* desc )
     const Attrib::ValParam* keypar
 		= desc->getValParam( Attrib::StorageProvider::keyStr() );
     const StringPair storkey( keypar->getStringValue() );
-    const DBKey dbky( DBKey::getFromStr( storkey.first() ) );
-    PtrMan<IOObj> ioob = dbky.getIOObj();
-    workctio_.setObj( ioob ? ioob->clone() : 0 );
+    workctio_.setObj( DBKey(storkey.first()).getIOObj() );
     updateInput();
 }
 
