@@ -147,7 +147,8 @@ void Network::Server::readyReadCB( CallBacker* cb )
 void Network::Server::disconnectCB( CallBacker* cb )
 {
     mDynamicCastGet(Network::Socket*,socket,cb);
-    if ( !socket ) return;
+    if ( !socket )
+	return;
 
     //socket->readyRead.remove( mCB(this,Server,readyReadCB) );
     const int idx = sockets_.indexOf( socket );
@@ -164,16 +165,20 @@ void Network::Server::disconnectCB( CallBacker* cb )
 void Network::Server::read( int id, BufferString& data ) const
 {
     const Network::Socket* socket = getSocket( id );
-    if ( !socket ) return;
-	socket->read( data );
+    if ( !socket )
+	return;
+
+    socket->read( data );
 }
 
 
 void Network::Server::read( int id, IOPar& par ) const
 {
     const Network::Socket* socket = getSocket( id );
-    if ( !socket ) return;
-	socket->read( par );
+    if ( !socket )
+	return;
+
+    socket->read( par );
 }
 
 
