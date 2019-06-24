@@ -470,6 +470,7 @@ void uiGraphicsItem::setGradientFill( int xstart, int ystart,
     if ( !agsitm ) return;
 
     QLinearGradient qgrad( xstart, ystart, xstop, ystop );
+    qgrad.setCoordinateMode( QGradient::ObjectBoundingMode );
     for ( int idx=0; idx<colors.size(); idx++ )
 	qgrad.setColorAt( stops[idx], QColor( QRgb(colors[idx].rgb()) ) );
 

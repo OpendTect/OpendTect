@@ -128,6 +128,12 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	    polygonitem_->setFillColor( fillcolor_, true );
 	    polygonitem_->setFillPattern( fillpattern_ );
+	    if ( fillgradient_.hasGradient() )
+		polygonitem_->setGradientFill( fillgradient_.from_.x,
+			fillgradient_.from_.y, fillgradient_.to_.x,
+			fillgradient_.to_.y, fillgradient_.stops_,
+			fillgradient_.colors_ );
+
 	    item = polygonitem_;
 
 	    if ( polylineitem_ )

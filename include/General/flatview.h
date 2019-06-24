@@ -83,6 +83,28 @@ public:
     OD::LineStyle		linestyle_;
     Color			fillcolor_;
     FillPattern			fillpattern_;
+
+    mExpClass(General) FillGradient
+    {
+    public:
+			FillGradient()
+			    : from_(Point::udf()),to_(Point::udf())	{}
+			FillGradient(const Point& fr,const Point& to,
+				     const TypeSet<float>& stops,
+				     const TypeSet<Color>& colors)
+			    : from_(fr),to_(to)
+			    , stops_(stops),colors_(colors)	{}
+
+	bool		hasGradient()	{ return !stops_.isEmpty(); }
+
+	Point		from_;
+	Point		to_;
+	TypeSet<float>	stops_;
+	TypeSet<Color>	colors_;
+    };
+
+    FillGradient		fillgradient_;    
+
     int				zvalue_; //!<overlay zvalue ( max=on top )
     MouseCursor			cursor_;
 
