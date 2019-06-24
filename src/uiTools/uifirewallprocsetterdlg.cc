@@ -11,6 +11,7 @@
 
 #include "dirlist.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "pythonaccess.h"
 #include "oscommand.h"
 #include "settings.h"
