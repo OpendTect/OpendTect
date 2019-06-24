@@ -10,6 +10,7 @@ set(OD_MODULE_SOURCES
 	expattribspi.cc
 	eventfreqattrib.cc
 	grubbsfilterattrib.cc
+	integratedtrace.cc
 	similaritybyaw.cc
 )
 set( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
