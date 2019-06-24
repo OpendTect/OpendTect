@@ -326,10 +326,10 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 	{
 	    case OD::ArrowHeadStyle::Square:
 	    {
-	        TypeSet<QPoint> polypts;
+		TypeSet<QPoint> polypts;
 		polypts += qpt;
-	        const QPoint pt1=getEndPoint(qpt,M_PI,headstyle.sz_);
-	        const QPoint pt2 = getEndPoint(qpt, -(M_PI),headstyle.sz_);
+		const QPoint pt1=getEndPoint(qpt,M_PI,headstyle.sz_);
+		const QPoint pt2 = getEndPoint(qpt, -(M_PI),headstyle.sz_);
 		polypts += pt1;
 		polypts += pt2;
 		painter.drawPolygon( polypts.arr(), 3 );
@@ -375,7 +375,7 @@ double ODGraphicsArrowItem::getAddedAngle( double ang, float ratiopi )
 
 
 QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
-				         double angle, double len )
+					 double angle, double len )
 {
     QPoint endpt( pt.x(), pt.y() );
     double delta = len * cos( angle );
@@ -430,22 +430,22 @@ QPointF ODGraphicsTextItem::getAlignment() const
 
     switch ( hal_ )
     {
-        case Qt::AlignRight:
-            movex = -1.0f;
-            break;
-        case Qt::AlignHCenter:
-            movex = -0.5f;
-            break;
+	case Qt::AlignRight:
+	    movex = -1.0f;
+	    break;
+	case Qt::AlignHCenter:
+	    movex = -0.5f;
+	    break;
     }
 
     switch ( val_ )
     {
-        case Qt::AlignBottom:
-            movey = -1;
-            break;
-        case Qt::AlignVCenter:
-            movey = -0.5f;
-            break;
+	case Qt::AlignBottom:
+	    movey = -1;
+	    break;
+	case Qt::AlignVCenter:
+	    movey = -0.5f;
+	    break;
     }
 
     return QPointF( movex, movey );
@@ -950,7 +950,7 @@ void ODGraphicsPathItem::set( const QPainterPath& ppath )
 {
     setPath( ppath );
 
-    const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
+    const QPolygonF poly = mapFromScene( 0, 0, 1, 1 );
     QPainterPathStroker pps;
     pps.setWidth( poly.boundingRect().width() );
     path_ = pps.createStroke( ppath );
