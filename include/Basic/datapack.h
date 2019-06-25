@@ -157,9 +157,12 @@ protected:
     char*		buf_;
     total_size_type	sz_;
 
-    virtual bool	gtIsEmpty() const	{ return sz_ < 1; }
-    virtual kb_size_type gtNrKBytes() const	{ return sz_*sKb2MbFac(); }
-    virtual void	doDumpInfo( IOPar& p ) const { DataPack::doDumpInfo(p);}
+    virtual bool	gtIsEmpty() const override
+						{ return sz_ < 1; }
+    virtual kb_size_type gtNrKBytes() const override
+						{ return sz_*sKb2MbFac(); }
+    virtual void	doDumpInfo( IOPar& p ) const override
+						{ DataPack::doDumpInfo(p);}
 
 };
 

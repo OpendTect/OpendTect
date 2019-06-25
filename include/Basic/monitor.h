@@ -16,16 +16,25 @@ ________________________________________________________________________
 // Tools for implementation of subclasses of Monitorable
 
 
-/*!\brief Defines simple MT-safe copyable member get. */
 
-#define mImplSimpleMonitoredGet(fnnm,typ,memb) \
-    typ fnnm() const { return getMemberSimple( memb ); }
+#define mImplSimpleMonitoredGet_impl(fnnm,typ,memb,ovrspec) \
+    typ fnnm() const ovrspec { return getMemberSimple( memb ); }
+
+#define mImplSimpleMonitoredSet_impl(fnnm,typ,memb,chgtyp,ovrspec) \
+    void fnnm( typ _set_to_ ) ovrspec \
+	{ setMemberSimple( memb, _set_to_, chgtyp, cUnspecChgID() ); }
+
+/*!\brief Defines simple MT-safe copyable member get. */
+#define mImplSimpleMonitoredGet( fnnm, typ, memb ) \
+	    mImplSimpleMonitoredGet_impl(fnnm,typ,memb,)
+#define mImplSimpleMonitoredGetOverride( fnnm, typ, memb ) \
+	    mImplSimpleMonitoredGet_impl(fnnm,typ,memb,override)
 
 /*!\brief Defines simple MT-safe copyable member change. */
-
 #define mImplSimpleMonitoredSet(fnnm,typ,memb,chgtyp) \
-    void fnnm( typ _set_to_ ) { setMemberSimple( memb, _set_to_, chgtyp, \
-				    cUnspecChgID() ); }
+	    mImplSimpleMonitoredSet_impl(fnnm,typ,memb,chgtyp,)
+#define mImplSimpleMonitoredSetOverride(fnnm,typ,memb,chgtyp) \
+	    mImplSimpleMonitoredSet_impl(fnnm,typ,memb,chgtyp,override)
 
 /*!\brief Defines simple MT-safe copyable member access.
 
@@ -80,8 +89,8 @@ ________________________________________________________________________
 	bool		operator ==(const clss&) const; \
 	inline bool	operator !=( const clss& oth ) const \
 			{ return !(*this == oth); } \
-	virtual clss*	clone() const		{ return (clss*)getClone(); } \
-        ChangeType	compareWith(const Monitorable&) const
+	clss*		clone() const override	{ return (clss*)getClone(); } \
+        ChangeType	compareWith(const Monitorable&) const override
 
 
 /*!\brief Monitorable subclasses: assignment and comparison.
@@ -110,7 +119,7 @@ ________________________________________________________________________
 
 #define mDeclMonitorableAssignment(clss) \
     mDeclGenMonitorableAssignment(clss); \
-    virtual clss* getClone() const		{ return new clss( *this ); }
+    clss* getClone() const override		{ return new clss( *this ); }
 
 
 #define mImplEmptyMonitorableCopyClassData( clssnm ) \

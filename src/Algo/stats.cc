@@ -140,7 +140,6 @@ int Stats::CalcSetup::medianEvenHandling()
 
 
 Stats::RandGen::RandGen()
-    : seed_(0)
 {
     initSeed( 0 );
 }

@@ -194,3 +194,11 @@ macro ( OD_FILTER_LIBRARIES INPUTLIST BUILD_TYPE )
 
     set ( ${INPUTLIST} ${OUTPUT} )
 endmacro()
+
+OPTION ( OD_CREATE_COMPILE_DATABASE "Create compile_commands.json database for analyser tools to use" OFF )
+if ( OD_CREATE_COMPILE_DATABASE )
+    set( CMAKE_EXPORT_COMPILE_COMMANDS "ON" )
+endif()
+# Used compile_commands.json for include-what-you-use
+# python3 /usr/local/bin/iwyu_tool.py -p . > iwyu_results.txt
+# Note that this tool is of limited use as it wants to dictate all includes

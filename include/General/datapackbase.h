@@ -37,23 +37,23 @@ public:
 
     mDeclAbstractMonitorableAssignment(PointDataPack);
 
-    virtual size_type		size() const			= 0;
-    virtual BinID		binID(idx_type) const		= 0;
-    virtual z_type		z(idx_type) const		= 0;
-    virtual Coord		coord(idx_type) const;
-    virtual trcnr_type		trcNr(idx_type) const		{ return 0; }
+    virtual size_type	size() const			= 0;
+    virtual BinID	binID(idx_type) const		= 0;
+    virtual z_type	z(idx_type) const		= 0;
+    virtual Coord	coord(idx_type) const;
+    virtual trcnr_type	trcNr(idx_type) const		{ return 0; }
 
-    virtual bool		simpleCoords() const		{ return true; }
+    virtual bool	simpleCoords() const		{ return true; }
 				//!< If true, coords are always SI().tranform(b)
-    virtual bool		isOrdered() const		{ return false;}
+    virtual bool	isOrdered() const		{ return false;}
 				//!< If yes, one can draw a line between the pts
 
 protected:
 
-				PointDataPack(const char*);
-				~PointDataPack();
+			PointDataPack(const char*);
+			~PointDataPack();
 
-    virtual bool		gtIsEmpty() const	{ return size() < 1; }
+    virtual bool	gtIsEmpty() const override	{ return size() < 1; }
 
 };
 
@@ -115,12 +115,13 @@ protected:
     data_type*		arr2d_;
     FlatPosData&	posdata_;
 
-    virtual bool	gtIsEmpty() const
-				{ return size(true)<1 && size(false)<1; }
-    virtual float	gtNrKBytes() const;
-    virtual void	doDumpInfo(IOPar&) const;
-    virtual size_type	gtNrArrays() const	 { return 1; }
-    virtual const arrnd_type* gtArrayData(idx_type) const { return arr2d_; }
+    virtual bool	gtIsEmpty() const override
+				{ return size(true)<1 || size(false)<1; }
+    virtual float	gtNrKBytes() const override;
+    virtual void	doDumpInfo(IOPar&) const override;
+    virtual size_type	gtNrArrays() const override	{ return 1; }
+    virtual const arrnd_type* gtArrayData( idx_type ) const override
+							{ return arr2d_; }
 
 private:
 
@@ -142,13 +143,13 @@ public:
 					//!< arr becomes mine (of course)
 			mDeclMonitorableAssignment(MapDataPack);
 
-    virtual bool	isVertical() const	{ return false; }
+    virtual bool	isVertical() const override	{ return false; }
 
     void		setPositions(const IdxSubSel2D&);
     const IdxSubSel2D&	positions() const	{ return *idxsubsel_; }
     void		setDimNames(const char*,const char*);
 				// defaults to inline and crossline
-    const char*		dimName(bool dim0) const;
+    const char*		dimName(bool dim0) const override;
 
     virtual void	getAuxInfo(idx_type,idx_type,IOPar&) const override;
 
@@ -248,13 +249,15 @@ protected:
     BinDataDesc			desc_;
     const Scaler*		scaler_;
 
-    virtual bool		gtIsEmpty() const { return arrays_.isEmpty(); }
-    virtual size_type		gtNrArrays() const { return arrays_.size(); }
-    virtual const ArrayND<float>* gtArrayData( idx_type iarr ) const
+    bool			gtIsEmpty() const override
+				{ return arrays_.isEmpty(); }
+    size_type			gtNrArrays() const override
+				{ return arrays_.size(); }
+    const ArrayND<float>*	gtArrayData( idx_type iarr ) const override
 				{ return arrays_.validIdx(iarr)
 				       ? arrays_[iarr] : 0; }
 
-    float			gtNrKBytes() const;
-    void			doDumpInfo(IOPar&) const;
+    float			gtNrKBytes() const override;
+    void			doDumpInfo(IOPar&) const override;
 
 };

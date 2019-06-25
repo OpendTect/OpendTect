@@ -71,10 +71,9 @@ public:
     mUseType( ZSubSelData,	z_type );
     mUseType( ZSubSelData,	z_steprg_type );
 
-		ZSubSel( const z_steprg_type& rg )
-		    : data_(rg)					{}
-		mImplSimpleEqOpers1Memb(ZSubSel,data_)
-		mImplArrRegSubSelClone(ZSubSel)
+			ZSubSel( const z_steprg_type& rg )
+			    : data_(rg)	{}
+			mImplSimpleEqOpers1Memb(ZSubSel,data_)
 
     const ZSubSelData&	zData() const	{ return data_; }
     ZSubSelData&	zData()		{ return data_; }
@@ -108,6 +107,8 @@ public:
 protected:
 
     ZSubSelData	data_;
+
+		mImplArrRegSubSelClone(ZSubSel)
 
     Data&	gtData( idx_type ) const override
 		{ return mSelf().data_; }

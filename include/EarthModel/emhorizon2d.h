@@ -152,7 +152,7 @@ public:
     Array1D<float>*		createArray1D(Pos::GeomID geomid,
 					      const ZAxisTransform* =0) const;
 
-    OD::GeomSystem		geomSystem() const override
+    OD::GeomSystem		geomSystem() const
 				{ return OD::LineBasedGeom; }
     uiString			getUserTypeStr() const { return userTypeStr(); }
     static uiString		userTypeStr() { return tr("2D Horizon"); }

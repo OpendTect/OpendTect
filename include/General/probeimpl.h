@@ -28,9 +28,9 @@ public:
 
 			mDeclRequiredProbeFns();
 
-    virtual bool	is3DSlice() const	{ return true; }
+    virtual bool	is3DSlice() const override	{ return true; }
 
-    virtual bool	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&) override;
 
 };
 
@@ -46,9 +46,9 @@ public:
 
 			mDeclRequiredProbeFns();
 
-    virtual bool	is3DSlice() const   { return true; }
+    virtual bool	is3DSlice() const override	{ return true; }
 
-    virtual bool	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&) override;
 
 };
 
@@ -84,12 +84,12 @@ public:
 
 			mDeclRequiredProbeFns();
 
-    virtual bool	is2D() const		{ return true; }
+    bool		is2D() const override		{ return true; }
 
 			mImplSimpleMonitoredGet(geomID,Pos::GeomID,geomid_);
     void		setGeomID(Pos::GeomID);
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const override;
+    virtual bool	usePar(const IOPar&) override;
 
 protected:
 
@@ -109,7 +109,7 @@ public:
 
 			mDeclRequiredProbeFns();
 
-    virtual bool	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&) override;
     void		setZDomain(const ZDomain::Info&);
 
 protected:

@@ -241,7 +241,7 @@ public:
 				//!< Fast: reads from the first section
     bool		setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
-    OD::GeomSystem	geomSystem() const override
+    OD::GeomSystem	geomSystem() const
 			{ return getSurveyGeomID().is2D() ? OD::LineBasedGeom
 							  : OD::VolBasedGeom; }
 };

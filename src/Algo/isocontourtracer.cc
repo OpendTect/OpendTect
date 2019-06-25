@@ -168,7 +168,7 @@ public:
 					ObjectSet<ODPolygon<float> >& contours,
 					float* crossings, int* execs, int xsize,
 					int ysize, unsigned int edge,
-					float bendpointeps, int nrlargestonly,
+					float bendpointeps,
 					int minnrvertices, bool closedonly);
     void		    setRanges(const Interval<int>&,
 				      const Interval<int>&);
@@ -202,7 +202,6 @@ private:
     StepInterval<int>		ysampling_;
     float			bendpointeps_;
     int				minnrvertices_;
-    int				nrlargestonly_;
     unsigned int		edge_;
     int				xsize_;
     int				ysize_;
@@ -216,7 +215,7 @@ private:
 
 ContourTracer::ContourTracer( ObjectSet<ODPolygon<float> >& contours,
     float* crossings, int* execs, int xsize, int ysize, unsigned int edge,
-    float bendpointeps, int nrlargestonly, int minnrvertices, bool closedonly )
+    float bendpointeps, int minnrvertices, bool closedonly )
     : crossings_( crossings )
     , contours_( contours )
     , execs_( execs )
@@ -224,7 +223,6 @@ ContourTracer::ContourTracer( ObjectSet<ODPolygon<float> >& contours,
     , ysize_( ysize )
     , edge_( edge )
     , bendpointeps_( bendpointeps )
-    , nrlargestonly_( nrlargestonly )
     , minnrvertices_( minnrvertices )
     , closedonly_( closedonly )
     , totalnr_( 0 )
@@ -505,7 +503,7 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
     if ( finder.execute() )
     {
 	ContourTracer tracer( contours, crossings, execs, xsize, ysize, edge_,
-	    bendpointeps_, nrlargestonly_, minnrvertices_, closedonly );
+	    bendpointeps_, minnrvertices_, closedonly );
 
 	tracer.setRanges( xrange_, yrange_ );
 	tracer.setSamplings( xsampling_, ysampling_ );

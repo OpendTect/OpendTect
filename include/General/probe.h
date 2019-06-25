@@ -140,9 +140,9 @@ protected:
     static Probe*	createFrom(const IOPar&); \
     static void		initClass(); \
  \
-    virtual const char*	type() const		{ return sFactoryKey(); } \
-    virtual uiWord	usrType() const; \
-    virtual uiWord	displayName() const
+    const char*	type() const override		{ return sFactoryKey(); } \
+    uiWord	usrType() const override; \
+    uiWord	displayName() const override
 
 
 
@@ -169,13 +169,13 @@ mGlobal(General) ProbeFactory& ProbeFac();
 mExpClass(General) ProbeSaver : public Saveable
 {
 public:
-				ProbeSaver(const Probe&);
-				mDeclMonitorableAssignment(ProbeSaver);
-				~ProbeSaver();
+			ProbeSaver(const Probe&);
+			mDeclMonitorableAssignment(ProbeSaver);
+			~ProbeSaver();
 protected:
 
-    virtual uiRetVal		doStore(const IOObj&,
-				        const TaskRunnerProvider&) const;
+    virtual uiRetVal	doStore(const IOObj&,
+				const TaskRunnerProvider&) const override;
 
 };
 

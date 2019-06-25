@@ -91,8 +91,6 @@ if( UNIX ) #Apple and Linux
 		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
 	    endif()
 
-	    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
-
 	    #Compile time optimization
 	    if ( GCC_VERSION VERSION_LESS 4.8 )
 		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=nocona" )

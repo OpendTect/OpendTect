@@ -158,11 +158,11 @@ public:
     bool		validColID(ColID) const;
 
 			// size, binID, coord, z and trcNr impl PointDataPack
-    int			size() const		{ return bvsidxs_.size(); }
-    BinID		binID(RowID) const;
-    Coord		coord(RowID) const;
-    float		z(RowID) const;
-    int			trcNr(RowID) const;
+    int			size() const override	{ return bvsidxs_.size(); }
+    BinID		binID(RowID) const override;
+    Coord		coord(RowID) const override;
+    float		z(RowID) const override;
+    int			trcNr(RowID) const override;
 
     Pos			pos(RowID) const;
     DataRow		dataRow(RowID) const;
@@ -255,8 +255,8 @@ protected:
 
     DataColDef&		gtColDef(ColID) const;
 
-    virtual float	gtNrKBytes() const;
-    virtual void	doDumpInfo(IOPar&) const;
+    virtual float	gtNrKBytes() const override;
+    virtual void	doDumpInfo(IOPar&) const override;
 
 };
 

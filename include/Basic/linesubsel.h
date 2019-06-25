@@ -45,7 +45,6 @@ public:
 			LineSubSel(const Bin2D&);
 			LineSubSel(const TrcKeySampling&);
 			LineSubSel(const TrcKeyZSampling&);
-			mImplArrRegSubSelClone(LineSubSel)
 
     const TrcNrSubSelData& trcNrSubSel() const	{ return hss_.trcNrSubSel(); }
     TrcNrSubSelData& trcNrSubSel()		{ return hss_.trcNrSubSel(); }
@@ -59,8 +58,10 @@ public:
     size_type		nrTrcs() const		{ return hss_.nrTrcs(); }
     void		setTrcNrRange( const pos_steprg_type& rg )
 			{ hss_.setTrcNrRange( rg ); }
-    bool		isAll() const		{ return GeomSubSel::isAll(); }
-    totalsz_type	totalSize() const { return GeomSubSel::totalSize(); }
+    bool		isAll() const override
+					{ return GeomSubSel::isAll(); }
+    totalsz_type	totalSize() const override
+					{ return GeomSubSel::totalSize(); }
     void		merge(const LineSubSel&);
     void		limitTo(const LineSubSel&);
 
@@ -76,7 +77,9 @@ protected:
 
     LineHorSubSel hss_;
 
-    HorSubSel&	gtHorSubSel() const
+		mImplArrRegSubSelClone(LineSubSel)
+
+    HorSubSel&	gtHorSubSel() const override
 		{
 		    return mSelf().hss_;
 		}

@@ -35,7 +35,6 @@ public:
 			LineHorSubSel(const TrcKeySampling&);
 			LineHorSubSel(GeomID,trcnr_type);
 			LineHorSubSel(const Bin2D&);
-			mImplArrRegSubSelClone(LineHorSubSel)
 
     bool		is2D() const override	   { return true; }
     GeomID		geomID() const override	   { return geomid_; }
@@ -76,6 +75,8 @@ public:
 protected:
 
     GeomID		geomid_;
+
+			mImplArrRegSubSelClone(LineHorSubSel)
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
@@ -135,7 +136,6 @@ public:
 				      const pos_steprg_type&);
 			CubeHorSubSel(const BinID&);
 			CubeHorSubSel(const TrcKeySampling&);
-			mImplArrRegSubSelClone(CubeHorSubSel)
 
     bool		is2D() const override	   { return false; }
     GeomID		geomID() const override;
@@ -207,6 +207,8 @@ public:
 			}
 
 protected:
+
+			mImplArrRegSubSelClone(CubeHorSubSel)
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;

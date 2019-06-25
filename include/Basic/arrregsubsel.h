@@ -75,9 +75,7 @@ public:
     typedef od_int64		totsz_type;
 
     virtual		~ArrRegSubSel()			{}
-    template <class T>
-    inline T*		clone() const
-			{ return static_cast<T*>(gtClone()); }
+    ArrRegSubSel*	clone() const			{ return gtClone(); }
 
     inline bool		isEmpty() const;
     inline bool		hasOffset() const;
@@ -90,16 +88,16 @@ public:
 
 protected:
 
-    virtual Data&	gtData(idx_type) const		= 0;
+#   define mImplArrRegSubSelClone( clss ) \
+    inline ArrRegSubSel* gtClone() const override { return new clss(*this); }
     virtual ArrRegSubSel* gtClone() const		= 0;
+
     virtual size_type	gtNrDims() const		= 0;
+
+    virtual Data&	gtData(idx_type) const		= 0;
 
 };
 
-
-#define mImplArrRegSubSelClone(clss) \
-    ArrRegSubSel* gtClone() const override { return new clss(*this); } \
-    clss* getCopy() const { return new clss(*this); }
 
 
 /*!\brief base class for regular array subselection iterators.
@@ -151,7 +149,7 @@ public:
 
 protected:
 
-    inline size_type	gtNrDims() const override	{ return 1; }
+    inline size_type	gtNrDims() const override	{ return 2; }
 
 };
 
@@ -189,11 +187,12 @@ public:
 		PlainArrRegSubSel1D( size_type sz )
 		    : data_(sz)			{}
 		mImplSimpleEqOpers1Memb(PlainArrRegSubSel1D,data_)
-		mImplArrRegSubSelClone(PlainArrRegSubSel1D)
 
 protected:
 
     Data	data_;
+
+		mImplArrRegSubSelClone(PlainArrRegSubSel1D)
 
     Data&	gtData( idx_type ) const override
 		{ return const_cast<Data&>( data_ ); }
@@ -252,7 +251,7 @@ public:
 
     inline void		toStart() override	{ idx0_ = 0; idx1_ = -1; }
     inline void		startAt(idx_type,idx_type idim) override;
-    inline bool		next();
+    inline bool		next() override;
     inline bool		isValid() const override { return idx1_ >= 0; }
     inline idx_type	arrIdx( idx_type idim ) const override
 			{ return subsel_.arrIdx(idim,idim?idx1_:idx0_); }
@@ -271,12 +270,13 @@ public:
 		PlainArrRegSubSel2D( const Data& d0, const Data& d1 )
 		    : data0_(d0), data1_(d1)	{}
 		mImplSimpleEqOpers2Memb(PlainArrRegSubSel2D,data0_,data1_)
-		mImplArrRegSubSelClone(PlainArrRegSubSel2D)
 
 protected:
 
     Data	data0_;
     Data	data1_;
+
+		mImplArrRegSubSelClone(PlainArrRegSubSel2D)
 
     Data&	gtData( idx_type idim ) const override
 		{ return const_cast<Data&>( idim ? data1_ : data0_ ); }
@@ -341,7 +341,7 @@ public:
 
     inline void		toStart() override  { idx0_ = idx1_ = 0, idx2_ = -1; }
     inline void		startAt(idx_type,idx_type idim) override;
-    inline bool		next();
+    inline bool		next() override;
     inline bool		isValid() const override { return idx2_ >= 0; }
     inline idx_type	arrIdx( idx_type idim ) const override
 			{ return subsel_.arrIdx( idim,
@@ -364,13 +364,14 @@ public:
 		    : data0_(d0), data1_(d1), data2_(d2)	{}
 		mImplSimpleEqOpers3Memb(PlainArrRegSubSel3D,
 					data0_,data1_,data2_)
-		mImplArrRegSubSelClone(PlainArrRegSubSel3D)
 
 protected:
 
     Data	data0_;
     Data	data1_;
     Data	data2_;
+
+		mImplArrRegSubSelClone(PlainArrRegSubSel3D)
 
     Data&	gtData( idx_type idim ) const override
 		{ return const_cast<Data&>( !idim ? data0_

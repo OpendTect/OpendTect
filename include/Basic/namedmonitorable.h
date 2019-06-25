@@ -27,8 +27,9 @@ public:
     virtual		~NamedMonitorable();
     mDeclMonitorableAssignment(NamedMonitorable);
 
-    inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
-    virtual void	setName(const char*);
+    inline		mImplSimpleMonitoredGetOverride(getName,
+							BufferString,name_)
+    void		setName(const char*) override;
 
     mDeclInstanceCreatedNotifierAccess(NamedMonitorable);
 

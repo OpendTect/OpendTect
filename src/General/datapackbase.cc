@@ -209,7 +209,7 @@ void MapDataPack::setPositions( const IdxSubSel2D& ss2d )
     if ( &ss2d != idxsubsel_ )
     {
 	delete idxsubsel_;
-	idxsubsel_ = ss2d.clone<IdxSubSel2D>();
+	idxsubsel_ = static_cast<IdxSubSel2D*>( ss2d.clone() );
 	posdata_.set( *idxsubsel_ );
     }
 }

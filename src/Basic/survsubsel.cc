@@ -77,7 +77,7 @@ void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 }
 
 
-Survey::SubSel* Survey::HorSubSel::getCopy() const
+Survey::SubSel* Survey::HorSubSel::duplicate() const
 {
     const auto* lhss = asLineHorSubSel();
     if ( lhss )
@@ -157,13 +157,13 @@ Survey::GeomSubSel::GeomSubSel( const z_steprg_type& zrg )
 }
 
 
-Survey::SubSel* Survey::GeomSubSel::getCopy() const
+Survey::SubSel* Survey::GeomSubSel::duplicate() const
 {
     const auto* lss = asLineSubSel();
     if ( lss )
-	return lss->getCopy();
+	return lss->duplicate();
     else
-	return asCubeSubSel()->getCopy();
+	return asCubeSubSel()->duplicate();
 }
 
 

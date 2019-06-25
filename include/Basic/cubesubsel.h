@@ -63,7 +63,6 @@ public:
 			CubeSubSel(const CubeSampling&);
 			CubeSubSel(const TrcKeySampling&);
 			CubeSubSel(const TrcKeyZSampling&);
-			mImplArrRegSubSelClone(CubeSubSel)
 
     const IdxSubSelData& inlSubSel() const	{ return hss_.inlSubSel(); }
     IdxSubSelData&	inlSubSel()		{ return hss_.inlSubSel(); }
@@ -73,7 +72,7 @@ public:
     RowCol		horSizes() const	{ return hss_.arraySize(); }
     BinID		origin() const
 			{ return BinID(inlRange().start,crlRange().start); }
-    bool		isAll() const		{ return GeomSubSel::isAll(); }
+    bool		isAll() const override	{ return GeomSubSel::isAll(); }
 
     size_type		nrInl() const		{ return inlSubSel().size(); }
     size_type		nrCrl() const		{ return crlSubSel().size(); }
@@ -113,6 +112,8 @@ public:
 protected:
 
     CubeHorSubSel hss_;
+
+		mImplArrRegSubSelClone(CubeSubSel)
 
     HorSubSel&	gtHorSubSel() const override
 		{
