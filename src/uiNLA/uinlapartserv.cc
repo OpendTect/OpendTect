@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "datacoldef.h"
 #include "debug.h"
-#include "dbman.h"
-#include "ioobj.h"
 #include "nlacrdesc.h"
 #include "nladataprep.h"
 #include "od_helpids.h"
@@ -137,8 +135,8 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	for ( int iinp=0; iinp<crdesc.design.inputs.size(); iinp++ )
 	{
 	    BufferString psnm = crdesc.design.inputs.get( iinp );
-	    if ( IOObj::isKey(psnm) )
-		psnm = DBM().nameFor( psnm );
+	    if ( DBKey::isValidString(psnm) )
+		psnm = DBKey(psnm).name();
 	    vds.add( new DataColDef(psnm) );
 	}
     }

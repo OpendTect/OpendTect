@@ -202,7 +202,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm = "Applying ";
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
-	if ( IOObj::isKey(usernm) )
+	if ( DBKey::isValidString(usernm) )
 	    usernm = DBKey(usernm).name();
     }
     else
@@ -707,7 +707,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 	    {
 		// It could be 'storage', but it's not yet in the set ...
 		PtrMan<IOObj> ioobj;
-		if ( IOObj::isKey(inpname) )
+		if ( DBKey::isValidString(inpname) )
 		    ioobj = DBKey(inpname).getIOObj();
 		else
 		{

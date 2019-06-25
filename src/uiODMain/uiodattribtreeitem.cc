@@ -17,7 +17,6 @@ ___________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "ioobj.h"
-#include "dbman.h"
 #include "ptrman.h"
 #include "probeimpl.h"
 #include "posvecdataset.h"
@@ -354,9 +353,9 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
     if ( as && as->isNLA() )
     {
 	dispname = toUiString(as->objectRef());
-	uiString nodenm = toUiString( as->userRef());
-	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = toUiString(DBM().nameFor( as->userRef() ));
+	BufferString nodenm = as->userRef();
+	if ( DBKey::isValidString(nodenm) )
+	    nodenm = DBKey(nodenm).name();
 	dispname = toUiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 
@@ -382,10 +381,9 @@ uiString uiODAttribTreeItem::createDisplayName() const
 					 : uiString::empty() );
     if ( as.isNLA() )
     {
-	dispname = toUiString(as.objectRef());
-	uiString nodenm = toUiString( as.userRef());
-	if ( IOObj::isKey(as.userRef()) )
-	    nodenm = toUiString(DBM().nameFor( as.userRef() ));
+	BufferString nodenm = as.userRef();
+	if ( DBKey::isValidString(nodenm) )
+	    nodenm = DBKey(nodenm).name();
 	dispname = toUiString("%1 (%2)").arg( as.objectRef() ).arg( nodenm );
     }
 

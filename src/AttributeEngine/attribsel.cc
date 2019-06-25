@@ -430,7 +430,7 @@ void SelInfo::fillNonStored( const DescSet& attrset, const DescID& ignoreid,
 	for ( int idx=0; idx<nroutputs; idx++ )
 	{
 	    BufferString nm( *nlamod->design().outputs[idx] );
-	    if ( IOObj::isKey(nm) )
+	    if ( DBKey::isValidString(nm) )
 		nm = DBKey(nm).name();
 	    nlaoutnms_.add( nm );
 	}
