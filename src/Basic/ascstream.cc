@@ -247,7 +247,7 @@ bool ascistream::isOK() const
 void ascistream::init( bool rdhead )
 {
     filetype_ = header_ = timestamp_ = "";
-    if ( !rdhead )
+    if ( !rdhead || !strm_.isOK() )
 	return;
 
     if ( !strm_.getLine(header_)
