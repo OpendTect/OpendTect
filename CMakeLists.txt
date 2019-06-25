@@ -164,5 +164,5 @@ OD_ADD_PACKAGES_TARGET()
 
 #Avoid warnings if specified on command line
 set ( DUMMY ${ISTAG} ${BRANCH} ${CMAKE_PDB_OUTPUT_DIRECTORY} ${OD_RUN_LMSTRIP}
-	    ${COINDIR} ${BUILD_dGBPDF3D} ${PDF3D_ROOT} )
+	    ${COINDIR} ${BUILD_dGBPDF3D} ${PDF3D_ROOT} ${HDF5_ROOT} )
 
