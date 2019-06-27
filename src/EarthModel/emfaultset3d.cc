@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "emfaultset3d.h"
 
+#include "dbman.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -109,5 +110,16 @@ ConstRefMan<Fault3D> FaultSet3D::getFault3D( FaultID fid ) const
 int FaultSet3D::indexOf( FaultID fid ) const
 { return ids_.indexOf( fid ); }
 
+
+Executor* FaultSet3D::saver()
+{
+    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
+    PtrMan<EMFaultSet3DTranslator> transl =
+	(EMFaultSet3DTranslator*)ioobj->createTranslator();
+    if ( !transl )
+	return 0;
+
+    return transl->writer( *this, *ioobj );
+}
 
 } // namespace EM
