@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
-#include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "oscommand.h"

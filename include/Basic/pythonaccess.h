@@ -16,11 +16,11 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "commontypes.h"
 #include "enums.h"
+#include "filepath.h"
 #include "notify.h"
 
 class Timer;
 class uiString;
-namespace File { class Path; }
 namespace OS {
     class CommandExecPars;
     class CommandLauncher;
