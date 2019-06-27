@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "binid.h"
 #include "factory.h"
-#include "geomid.h"
+#include "bin2d.h"
 #include "namedobj.h"
 #include "refcount.h"
 class TrcKey;
@@ -53,6 +53,7 @@ public:
 
     mUseType( OD,		GeomSystem );
     mUseType( OD,		SnapDir );
+    mUseType( Pos,		IdxPair );
     typedef Pos::Index_Type	idx_type;
     typedef idx_type		pos_type;
     typedef Pos::rg_type	pos_rg_type;
@@ -113,10 +114,18 @@ public:
     static GeomID	cSynthGeomID();
 
     static bool		includes(const TrcKey&);
-    static Coord	toCoord(const TrcKey&);
+
     static Coord	toCoord(GeomSystem,linenr_type,trcnr_type);
-    static Coord	toCoord( GeomSystem gs, const BinID& bid )
-			{ return toCoord( gs, bid.lineNr(), bid.trcNr() ); }
+    static Coord	toCoord( GeomSystem gs, const IdxPair& ip )
+			{ return toCoord(gs,ip.lineNr(),ip.trcNr());}
+    static Coord	toCoord( const BinID& bid )
+			{ return toCoord(OD::VolBasedGeom,bid.inl(),bid.crl());}
+    static Coord	toCoord( GeomID gid, trcnr_type tnr )
+			{ return toCoord(OD::LineBasedGeom,gid.lineNr(),tnr); }
+    static Coord	toCoord( const Bin2D& b2d )
+			{ return toCoord(OD::LineBasedGeom,
+					 b2d.lineNr(),b2d.trcNr()); }
+    static Coord	toCoord(const TrcKey&);
 
 protected:
 			~Geometry();
