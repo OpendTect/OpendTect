@@ -67,11 +67,14 @@ bool uiIntegratedTrace::setParameters( const Desc& desc )
 {
     mIfGetFloatInterval( IntegratedTrace::gateStr(),gate,
 			 gatefld_->setValue( gate ) );
+    return true;
 }
+
 
 bool uiIntegratedTrace::getParameters( Desc& desc )
 {
     mSetFloatInterval( IntegratedTrace::gateStr(), gatefld_->getFInterval() );
+    return true;
 }
 
 #define mSetParam( type, nm, str, fn )\
