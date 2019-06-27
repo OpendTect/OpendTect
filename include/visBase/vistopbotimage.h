@@ -39,16 +39,22 @@ public:
 
     void			setImageFilename(const char*);
     const char*			getImageFilename() const;
-
     void			setRGBImageFromFile(const char*);
 
     void			setTransparency(float); // 0-1
     float			getTransparency() const; // returns value 0-1
+
+    bool			getImageInfo(int& w,int& h,int& pixsz) const;
+    const unsigned char*	getTextureData() const;
+    bool			getTextureDataInfo(TypeSet<Coord3>& coords,
+						   TypeSet<Coord>& texcoords,
+						   TypeSet<int>& ps ) const;
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
 protected:
-    				~TopBotImage();
+				~TopBotImage();
 
     void			updateCoords();
     void			setRGBImage(const OD::RGBImage&);
@@ -58,7 +64,7 @@ protected:
     Coord3			pos0_;
     Coord3			pos1_;
     BufferString		filenm_;
-    
+
     static const char*		sKeyTopLeftCoord();
     static const char*		sKeyBottomRightCoord();
     static const char*		sKeyFileNameStr();
@@ -71,4 +77,4 @@ protected:
 
 } // namespace visBase
 
-#endif 
+#endif
