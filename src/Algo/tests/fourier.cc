@@ -4,8 +4,6 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "fourier.h"
 
 #include "testprog.h"

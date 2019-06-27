@@ -109,7 +109,7 @@ int SeisEventSnapper3D::nextStep()
 	case Seis::MSCProvider::EndReached: return Finished();
 	case Seis::MSCProvider::NewPosition:
 	{
-	    SeisTrc* trc = mscprov_->get(0,0);
+	    SeisTrc* trc = mscprov_->curTrc();
 	    BinIDValueSet::SPos pos = positions_.find( trc->info().binID() );
 	    if ( pos.isValid() )
 	    {

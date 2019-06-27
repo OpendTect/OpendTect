@@ -49,8 +49,8 @@ int main(int argc, char** argv)
 }
 # endif
 
-static mUsedVar bool quiet_ = true;
-static mUsedVar PtrMan<CommandLineParser> the_testprog_parser_ = 0;
+static bool quiet_ mUnusedVar = true;
+static PtrMan<CommandLineParser> the_testprog_parser_ mUnusedVar = nullptr;
 
 static inline CommandLineParser& clParser()
 {
@@ -82,7 +82,7 @@ static inline CommandLineParser& clParser()
 #endif // ifndef __test_lib_source__
 
 
-static inline mUsedVar od_ostream& tstStream( bool err=false )
+static inline mUnusedVar od_ostream& tstStream( bool err=false )
 {
     if ( !quiet_ || err )
     {
@@ -93,12 +93,12 @@ static inline mUsedVar od_ostream& tstStream( bool err=false )
     return od_ostream::nullStream();
 }
 
-static inline mUsedVar od_ostream& logStream()
+static inline mUnusedVar od_ostream& logStream()
 {
     return tstStream( false );
 }
 
-static inline mUsedVar od_ostream& errStream()
+static inline mUnusedVar od_ostream& errStream()
 {
     return tstStream( true );
 }

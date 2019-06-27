@@ -239,7 +239,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		    if ( useshortcuts_ )
 			{ advancefurther = false; continue; }
 
-		    SeisTrc* trc = mscprov_->get( 0, 0 );
+		    SeisTrc* trc = mscprov_->curTrc();
 		    if ( !trc )
 			{ pErrMsg("should not happen"); continue; }
 
@@ -523,11 +523,13 @@ bool StorageProvider::computeData( const DataHolder& output,
     const BinID bidstep = getStepoutStep();
     const SeisTrc* trc = 0;
 
-    if ( isondisk_)
-	trc = mscprov_->get( relpos.inl()/bidstep.inl(),
-			     relpos.crl()/bidstep.crl() );
-    else
+    if ( !isondisk_ )
 	trc = getTrcFromPack( relpos, 0 );
+    else if ( desc_.is2D() )
+	trc = mscprov_->getAt( relpos.crl()/bidstep.crl() );
+    else
+	trc = mscprov_->getAt( relpos.inl()/bidstep.inl(),
+			       relpos.crl()/bidstep.crl() );
 
     if ( !trc || !trc->size() )
 	return false;
@@ -575,9 +577,17 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
     if ( !stbdtp )
 	return 0;
 
-    int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
+    int trcidx;
+    if ( desc_.is2D() )
+	trcidx = stbdtp->trcBuf().find( currentbid_+relpos );
+    else
+    {
+	const Bin2D b2d( Pos::GeomID(currentbid_.inl()), currentbid_.trcNr() );
+	trcidx = stbdtp->trcBuf().find( b2d );
+    }
+
     if ( trcidx+relidx >= stbdtp->trcBuf().size() || trcidx+relidx<0 )
-	return 0;
+	return nullptr;
 
     return stbdtp->trcBuf().get( trcidx + relidx );
 }
@@ -678,7 +688,7 @@ BinID StorageProvider::getStepoutStep() const
 void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dp ) const
 {
     if ( !mscprov_ ) return;
-    const SeisTrc* trc = mscprov_->get(0,0);
+    const SeisTrc* trc = mscprov_->curTrc();
     if ( !trc ) return;
 
     Interval<float> trcrange = trc->info().sampling_.interval(trc->size());

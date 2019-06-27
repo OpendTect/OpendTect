@@ -404,61 +404,82 @@ void SeisTrcBuf::revert()
 }
 
 
-int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
+int SeisTrcBuf::find( const BinID& binid ) const
+{
+    return doFind( binid );
+}
+
+
+int SeisTrcBuf::find( const Bin2D& bin2d ) const
+{
+    return doFind( IdxPair(bin2d.lineNr(),bin2d.trcNr()) );
+}
+
+
+int SeisTrcBuf::findTrcNr( int trcnr ) const
+{
+    return doFind( IdxPair(-999,trcnr) );
+}
+
+
+int SeisTrcBuf::doFind( const IdxPair& idxpair ) const
 {
     int sz = size();
-    int startidx = probableIdx( binid, is2d );
+    int startidx = probableIdx( idxpair );
     int idx = startidx, pos = 0;
+    const bool checklnr = idxpair.lineNr() != -999;
     while ( idx<sz && idx>=0 )
     {
-	if ( ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
+	if ( checklnr )
+	{
+	    if ( get(idx)->info().idxPair() == idxpair )
+		return idx;
+	}
+	else if ( get(idx)->info().trcNr() == idxpair.trcNr() )
 	    return idx;
 
-	if ( pos < 0 ) pos = -pos;
-	else	       pos = -pos-1;
+	if ( pos < 0 )
+	    pos = -pos;
+	else
+	    pos = -pos-1;
 	idx = startidx + pos;
-	if ( idx < 0 ) { pos = -pos; idx = startidx + pos; }
-	else if ( idx >= sz ) { pos = -pos-1; idx = startidx + pos; }
+	if ( idx < 0 )
+	    { pos = -pos; idx = startidx + pos; }
+	else if ( idx >= sz )
+	    { pos = -pos-1; idx = startidx + pos; }
     }
     return -1;
 }
 
 
-int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
+int SeisTrcBuf::find( const SeisTrc* trc ) const
 {
-    if ( !trc ) return -1;
-
-    int tryidx = probableIdx( trc->info().binID(), is2d );
-    if ( trcs_[tryidx] == trc ) return tryidx;
-
-    // Bugger. brute force then
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( ((SeisTrcBuf*)this)->get(idx) == trc )
-	    return idx;
-    }
-
-    return -1;
+    if ( !trc )
+	return -1;
+    return trc->info().is2D() ? find( trc->info().bin2D() )
+			      : find( trc->info().binID() );
 }
 
 
-int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
+int SeisTrcBuf::probableIdx( const IdxPair& ip ) const
 {
     int sz = size(); if ( sz < 2 ) return 0;
-    BinID start = trcs_[0]->info().binID();
-    BinID stop = trcs_[sz-1]->info().binID();
-    BinID dist( start.inl() - stop.inl(), start.crl() - stop.crl() );
+    const auto start = trcs_[0]->info().idxPair();
+    const auto stop = trcs_[sz-1]->info().idxPair();
+    const IdxPair dist( start.inl()-stop.inl(), start.crl()-stop.crl() );
     if ( !dist.inl() && !dist.crl() )
 	return 0;
 
-    int n1  = dist.inl() ? start.inl() : start.crl();
-    int n2  = dist.inl() ? stop.inl()  : stop.crl();
-    int pos = dist.inl() ? bid.inl()   : bid.crl();
+    auto n1  = dist.inl() ? start.inl() : start.crl();
+    auto n2  = dist.inl() ? stop.inl()  : stop.crl();
+    auto pos = dist.inl() ? ip.inl()    : ip.crl();
 
     float fidx = ((sz-1.f) * (pos - n1)) / (n2-n1);
     int idx = mNINT32(fidx);
-    if ( idx < 0 ) idx = 0;
-    if ( idx >= sz ) idx = sz-1;
+    if ( idx < 0 )
+	idx = 0;
+    if ( idx >= sz )
+	idx = sz-1;
     return idx;
 }
 

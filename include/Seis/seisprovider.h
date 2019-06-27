@@ -11,8 +11,8 @@ ________________________________________________________________________
 */
 
 #include "dbkey.h"
-#include "geomid.h"
 #include "seistype.h"
+#include "bin2d.h"
 #include "threadlock.h"
 #include "zsubsel.h"
 
@@ -285,6 +285,7 @@ public:
     size_type	nrGeomIDs() const override;
     GeomID	geomID(idx_type) const override;
     idx_type	indexOf(GeomID) const override;
+    Bin2D	curBin2D() const;
     GeomID	curGeomID() const override	{ return geomID(lineidx_); }
     trcnr_type	curTrcNr() const;
 

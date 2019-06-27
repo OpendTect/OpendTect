@@ -5,8 +5,6 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "uicombobox.h"
 #include "testprog.h"
 #include "dateinfo.h"

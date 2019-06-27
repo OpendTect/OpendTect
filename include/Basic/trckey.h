@@ -36,6 +36,7 @@ public:
 
     mUseType( OD,	GeomSystem );
     mUseType( Pos,	GeomID );
+    mUseType( Pos,	IdxPair );
     mUseType( Survey,	Geometry );
     mUseType( Geometry,	pos_type );
     mUseType( Geometry,	linenr_type );
@@ -68,6 +69,7 @@ public:
     trcnr_type		trcNr() const			{ return pos_.col(); }
     const BinID&	binID() const			{ return position(); }
     Bin2D		bin2D() const;
+    IdxPair		idxPair() const;
     pos_type		inl() const			{ return pos_.row(); }
     pos_type		crl() const			{ return pos_.col(); }
 

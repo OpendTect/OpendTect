@@ -114,7 +114,6 @@ if( UNIX ) #Apple and Linux
     set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
     set ( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
-    add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
     if ( OD_GCC_COMPILER )
 
@@ -192,9 +191,7 @@ if(WIN32)
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "-DmUnusedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS   "-D_CRT_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
-    set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUnusedVar= ${CMAKE_C_FLAGS}")
-    set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
 

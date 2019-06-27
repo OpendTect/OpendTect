@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "arraynd.h"
-#include "rowcol.h"
-#include "geomid.h"
+#include "bin2d.h"
 #include "objectset.h"
 #include "uistring.h"
 
@@ -56,6 +55,10 @@ mExpClass(Seis) MSCProvider
 { mODTextTranslationClass(Seis::MSCProvider);
 public:
 
+    mUseType( Pos,	GeomID );
+    mUseType( Pos,	IdxPair );
+    mUseType( IdxPair,	pos_type );
+
 			MSCProvider(const DBKey&);
 				//!< Use any real user entry from '.omf' file
     virtual		~MSCProvider();
@@ -67,14 +70,19 @@ public:
 			// but before the first next()
     void		forceFloatData( bool yn )
 			{ intofloats_ = yn; }
-    void		setStepout(int,int,bool required);
+    void		setStepout(pos_type,bool required);
+    void		setStepout(pos_type,pos_type,bool required);
     void		setStepout(Array2D<bool>* mask);
 			/*!< mask has 2m+1 * 2n+1 entries and becomes mine. */
-    void		setStepoutStep( int i, int c )
+    void		setStepoutStep( pos_type trcnr )
+			{ stepoutstep_.row() = 0; stepoutstep_.col() = trcnr; }
+    void		setStepoutStep( pos_type i, pos_type c )
 			{ stepoutstep_.row() = i; stepoutstep_.col() = c; }
-    int			inlStepout( bool req ) const
+    pos_type		inlStepout( bool req ) const
 			{ return req ? reqstepout_.row() : desstepout_.row(); }
-    int			crlStepout( bool req ) const
+    pos_type		crlStepout( bool req ) const
+			{ return req ? reqstepout_.col() : desstepout_.col(); }
+    pos_type		trcStepout( bool req ) const
 			{ return req ? reqstepout_.col() : desstepout_.col(); }
     void		setSelData(Seis::SelData*);
 			//!< seldata becomes mine
@@ -84,20 +92,32 @@ public:
     uiRetVal		errMsg() const		{ return uirv_; }
     bool		toNextPos(); //!< end==false but no errMsg
 
-    Pos::GeomID		geomID() const;
-    BinID		getPos() const;
-    int			getTrcNr() const;
-    SeisTrc*		get(int deltainl,int deltacrl);
-    SeisTrc*		get(const BinID&);
-    const SeisTrc*	get( int i, int c ) const
-			{ return const_cast<MSCProvider*>(this)->get(i,c); }
-    const SeisTrc*	get( const BinID& bid ) const
-			{ return const_cast<MSCProvider*>(this)->get(bid); }
+    IdxPair		curPos() const;
+    BinID		curBinID() const;
+    Bin2D		curBin2D() const;
+    GeomID		curGeomID() const;
+    pos_type		curTrcNr() const;
+    SeisTrc*		curTrc();
+    SeisTrc*		getAt(pos_type deltatrcnr);
+    SeisTrc*		getAt(pos_type deltainl,pos_type deltacrl);
+    SeisTrc*		getFor(const Bin2D&);
+    SeisTrc*		getFor(const BinID&);
+    const SeisTrc*	curTrc() const
+			{ return mSelf().curTrc(); }
+    const SeisTrc*	getAt( pos_type dtrc ) const
+			{ return mSelf().getAt( dtrc ); }
+    const SeisTrc*	getAt( pos_type di, pos_type dc ) const
+			{ return mSelf().getAt( di, dc ); }
+    const SeisTrc*	getFor( const Bin2D& b2d ) const
+			{ return mSelf().getFor( b2d ); }
+    const SeisTrc*	getFor( const BinID& bid ) const
+			{ return mSelf().getFor( bid ); }
 
     int			comparePos(const MSCProvider&) const;
-			//!< 0 = equal; -1 means I need to next(), 1 the other
+			//!< 0 = equal; -1 = I need next(), 1 = other needs next
     int			estimatedNrTraces() const; //!< returns -1 when unknown
 
+    inline GeomID	geomID() const		{ return curGeomID(); }
     Provider*		provider()		{ return prov_; }
     const Provider*	provider() const	{ return prov_; }
 
@@ -105,16 +125,16 @@ protected:
 
     Provider*		prov_;
     ObjectSet<SeisTrcBuf> tbufs_;
-    RowCol		reqstepout_;
-    RowCol		desstepout_;
-    RowCol		stepoutstep_;
+    IdxPair		reqstepout_;
+    IdxPair		desstepout_;
+    IdxPair		stepoutstep_;
     Array2D<bool>*	reqmask_;
     bool		intofloats_;
     bool		workstarted_;
     bool		atend_;
 
     uiRetVal		uirv_;
-    int			curlinenr_;
+    GeomID		curgeomid_;
     mutable int		estnrtrcs_;
 
 			// Indexes of new pos ready, equals -1 while buffering.

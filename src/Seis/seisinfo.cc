@@ -327,8 +327,12 @@ bool SeisTrcInfo::isSynthetic() const
 { return trcky_.isSynthetic();}
 OD::GeomSystem SeisTrcInfo::geomSystem() const
 { return trcky_.geomSystem(); }
-const BinID& SeisTrcInfo::binID() const
+BinID SeisTrcInfo::binID() const
 { return trcky_.binID(); }
+Bin2D SeisTrcInfo::bin2D() const
+{ return trcky_.bin2D(); }
+Pos::IdxPair SeisTrcInfo::idxPair() const
+{ return trcky_.idxPair(); }
 SeisTrcInfo::pos_type SeisTrcInfo::inl() const
 { return trcky_.inl(); }
 SeisTrcInfo::pos_type SeisTrcInfo::crl() const
@@ -343,6 +347,8 @@ SeisTrcInfo& SeisTrcInfo::setGeomSystem( GeomSystem gs )
 { trcky_.setGeomSystem( gs ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setPos( const BinID& bid )
 { trcky_.setPos( bid ); return *this; }
+SeisTrcInfo& SeisTrcInfo::setPos( const Bin2D& b2d )
+{ trcky_.setPos( b2d ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setPos( GeomID gid, pos_type tnr )
 { trcky_.setPos( gid, tnr ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setGeomID( GeomID gid )

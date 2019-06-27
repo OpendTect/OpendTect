@@ -5,8 +5,6 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "testprog.h"
 #include "uigraphicsviewbase.h"
 #include "uigraphicsscene.h"

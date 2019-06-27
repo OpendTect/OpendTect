@@ -965,6 +965,12 @@ Seis::Provider2D::trcnr_type Seis::Provider2D::trcNrAt( idx_type lidx,
 }
 
 
+Bin2D Seis::Provider2D::curBin2D() const
+{
+    return Bin2D( curGeomID(), curTrcNr() );
+}
+
+
 Seis::Provider2D::trcnr_type Seis::Provider2D::curTrcNr() const
 {
     return trcNrAt( lineidx_, trcidx_ );

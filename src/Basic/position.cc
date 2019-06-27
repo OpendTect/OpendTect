@@ -363,6 +363,12 @@ Bin2D TrcKey::bin2D() const
 }
 
 
+Pos::IdxPair TrcKey::idxPair() const
+{
+    return IdxPair( pos_.row(), pos_.col() );
+}
+
+
 BufferString TrcKey::usrDispStr() const
 {
     if ( isUdf() )

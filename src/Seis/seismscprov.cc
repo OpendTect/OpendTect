@@ -24,9 +24,8 @@ Seis::MSCProvider::MSCProvider( const DBKey& id )
     intofloats_ = workstarted_ = atend_ = false;
     estnrtrcs_ = -2;
     reqmask_ = 0;
-    bufidx_ = -1;
-    trcidx_ = -1;
-    curlinenr_ = -1;
+    bufidx_ = trcidx_ = -1;
+    curgeomid_ = GeomID();
 }
 
 
@@ -56,15 +55,15 @@ void Seis::MSCProvider::setStepout( int i, int c, bool req )
 {
     if ( req )
     {
-	reqstepout_.row() = is2D() ? 0 : i;
-	reqstepout_.col() = c;
+	reqstepout_.lineNr() = is2D() ? 0 : i;
+	reqstepout_.trcNr() = c;
 	delete reqmask_;
 	reqmask_ = 0;
     }
     else
     {
-	desstepout_.row() = is2D() ? 0 : i;
-	desstepout_.col() = c;
+	desstepout_.lineNr() = is2D() ? 0 : i;
+	desstepout_.trcNr() = c;
     }
 }
 
@@ -108,10 +107,7 @@ Seis::MSCProvider::AdvanceState Seis::MSCProvider::advance()
 
     SeisTrc* trc = new SeisTrc;
     if ( !readTrace(*trc) )
-    {
-	delete trc;
-	return atend_ ? EndReached : Error;
-    }
+	{ delete trc; return atend_ ? EndReached : Error; }
 
     trc->data().handleDataSwapping();
 
@@ -136,9 +132,9 @@ int Seis::MSCProvider::comparePos( const MSCProvider& oth ) const
     if ( &oth == this )
 	return 0;
 
-    int startval = tbufs_[bufidx_]->get(0)->info().trcNr();
-    int stopval = tbufs_[bufidx_]->get(tbufs_[bufidx_]->size()-1)->info()
-								      .trcNr();
+    const auto& tbuf = *tbufs_[bufidx_];
+    int startval = tbuf.get(0)->info().trcNr();
+    int stopval = tbuf.get(tbuf.size()-1)->info().trcNr();
 
     int bufidx = oth.bufidx_;
 
@@ -151,16 +147,15 @@ int Seis::MSCProvider::comparePos( const MSCProvider& oth ) const
 
     if ( is2D() && oth.is2D() )
     {
-	const int mynr = getTrcNr();
-	const int othsnr = oth.getTrcNr();
-
+	const auto mynr = curTrcNr();
+	const auto othsnr = oth.curTrcNr();
 	if ( mynr == othsnr )
 	    return 0;
 	return ( (mynr > othsnr) && !arebothreversed ) ? 1 : -1;
     }
 
-    const BinID mybid = getPos();
-    const BinID othbid = oth.getPos();
+    const BinID mybid = curBinID();
+    const BinID othbid = oth.curBinID();
     if ( mybid == othbid )
 	return 0;
 
@@ -191,7 +186,7 @@ bool Seis::MSCProvider::startWork()
     prov_->forceFPData( intofloats_ );
     const auto& hss = prov_->horSubSel();
     if ( hss.is2D() )
-	stepoutstep_ = BinID( 1, hss.asLineHorSubSel()->trcNrRange().step );
+	stepoutstep_ = IdxPair( 1, hss.asLineHorSubSel()->trcNrRange().step );
     else
     {
 	auto& chss = *hss.asCubeHorSubSel();
@@ -199,15 +194,15 @@ bool Seis::MSCProvider::startWork()
 	stepoutstep_.crl() = chss.crlStep();
     }
 
-    if ( reqstepout_.row() > desstepout_.row() )
-	desstepout_.row() = reqstepout_.row();
-    if ( reqstepout_.col() > desstepout_.col() )
-	desstepout_.col() = reqstepout_.col();
+    if ( reqstepout_.lineNr() > desstepout_.lineNr() )
+	desstepout_.lineNr() = reqstepout_.lineNr();
+    if ( reqstepout_.trcNr() > desstepout_.trcNr() )
+	desstepout_.trcNr() = reqstepout_.trcNr();
 
     const SelData* sd = prov_->selData();
     if ( sd && !sd->isAll() )
     {
-	BinID so( desstepout_.row(), desstepout_.col() );
+	BinID so( desstepout_.lineNr(), desstepout_.trcNr() );
 	bool doextend = so.inl() > 0 || so.crl() > 0;
 	if ( is2D() )
 	    so.inl() = 0;
@@ -215,7 +210,7 @@ bool Seis::MSCProvider::startWork()
 	if ( doextend )
 	{
 	    auto* newseldata = sd->clone();
-	    const BinID sostep( stepoutstep_.row(), stepoutstep_.col() );
+	    const BinID sostep( stepoutstep_.lineNr(), stepoutstep_.trcNr() );
 	    newseldata->extendH( so, &sostep );
 	    prov_->setSelData( newseldata );
 	}
@@ -244,23 +239,12 @@ bool Seis::MSCProvider::readTrace( SeisTrc& trc )
     uirv_ = prov_->getNext( trc );
     if ( uirv_.isOK() )
     {
-	if ( prov_->is2D() )
+	if ( prov_->is2D() && trc.info().geomID() != curgeomid_ )
 	{
-	    if ( trc.info().lineNr() != curlinenr_ )
-	    {
-		stepoutstep_.crl() = 1;
-		curlinenr_ = trc.info().lineNr();
-		mDynamicCastGet( Provider2D*, prov2d, prov_ );
-		PosInfo::Line2DData l2dd;
-		prov2d->getGeometryInfo( prov2d->curLineIdx(), l2dd );
-		if ( l2dd.size() > 1 )
-		{
-		    const float avgstep = mCast(float,l2dd.trcNrRange().width()
-					  / (l2dd.size()-1));
-		    if ( avgstep > 1.5 )
-			stepoutstep_.crl() = mNINT32( avgstep );
-		}
-	    }
+	    curgeomid_ = trc.info().geomID();
+	    const auto lidx = prov_->as2D()->curLineIdx();
+	    const auto& lhss = *prov_->horSubSel( lidx ).asLineHorSubSel();
+	    stepoutstep_.trcNr() = lhss.trcNrRange().step;
 	}
 	return true;
     }
@@ -272,14 +256,39 @@ bool Seis::MSCProvider::readTrace( SeisTrc& trc )
 }
 
 
-BinID Seis::MSCProvider::getPos() const
+Pos::IdxPair Seis::MSCProvider::curPos() const
 {
-    return bufidx_ < 0 ? BinID(-1,-1)
-	 : tbufs_[bufidx_]->get(trcidx_)->info().binID();
+    if ( !is2D() )
+	return curBinID();
+    else
+    {
+	const auto curb2d = curBin2D();
+	return IdxPair( curb2d.lineNr(), curb2d.trcNr() );
+    }
 }
 
 
-Pos::GeomID Seis::MSCProvider::geomID() const
+SeisTrc* Seis::MSCProvider::curTrc()
+{
+    return bufidx_ < 0 ? nullptr : tbufs_[bufidx_]->get( trcidx_ );
+}
+
+
+BinID Seis::MSCProvider::curBinID() const
+{
+    const auto* trc = curTrc();
+    return trc ? trc->info().binID() : BinID::udf();
+}
+
+
+Bin2D Seis::MSCProvider::curBin2D() const
+{
+    const auto* trc = curTrc();
+    return trc ? trc->info().bin2D() : Bin2D();
+}
+
+
+Pos::GeomID Seis::MSCProvider::curGeomID() const
 {
     if ( !is2D() )
 	return Pos::GeomID::get3D();
@@ -291,83 +300,131 @@ Pos::GeomID Seis::MSCProvider::geomID() const
 }
 
 
-int Seis::MSCProvider::getTrcNr() const
+int Seis::MSCProvider::curTrcNr() const
 {
-    return !is2D() || bufidx_==-1
-	? getPos().trcNr() : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
+    const auto* trc = curTrc();
+    return trc ? trc->info().trcNr() : Bin2D().trcNr();
 }
 
 
-SeisTrc* Seis::MSCProvider::get( int deltainl, int deltacrl )
+SeisTrc* Seis::MSCProvider::getAt( int deltatrcnr )
 {
-    if ( bufidx_==-1 )
-	return 0;
-    if ( abs(deltainl)>desstepout_.row() || abs(deltacrl)>desstepout_.col() )
-	return 0;
+    if ( !is2D() )
+	{ pErrMsg("Use 3D version"); return getAt( 0, deltatrcnr ); }
+    if ( bufidx_ < 0 )
+	return nullptr;
+    if ( abs(deltatrcnr)>desstepout_.trcNr() )
+	return nullptr;
 
-    BinID bidtofind( deltainl*stepoutstep_.row(), deltacrl*stepoutstep_.col() );
-    bidtofind += tbufs_[bufidx_]->get(trcidx_)->info().binID();
+    auto& tbuf = *tbufs_[bufidx_];
+    const auto trcnrtofind = curTrcNr() + deltatrcnr*stepoutstep_.trcNr();
+    const auto trcidx = tbuf.find( Bin2D(curgeomid_,trcnrtofind) );
+    return trcidx<0 ? 0 : tbuf.get( trcidx );
+}
 
-    int idx = mMIN( mMAX(0,bufidx_+deltainl), tbufs_.size()-1 );
-    while ( !is2D() )
+
+SeisTrc* Seis::MSCProvider::getAt( int deltainl, int deltacrl )
+{
+    if ( is2D() )
+	{ pErrMsg("Use 2D version"); return getAt( deltacrl ); }
+    if ( bufidx_ < 0 )
+	return nullptr;
+    if ( abs(deltainl)>desstepout_.inl() || abs(deltacrl)>desstepout_.crl() )
+	return nullptr;
+
+    BinID bidtofind( deltainl*stepoutstep_.inl(), deltacrl*stepoutstep_.crl() );
+    bidtofind += curBinID();
+
+    int ibuf = mMIN( mMAX(0,bufidx_+deltainl), tbufs_.size()-1 );
+    while ( true )
     {
 	const int inldif =
-	    tbufs_[idx]->get(0)->info().lineNr()-bidtofind.inl();
+	    tbufs_[ibuf]->get(0)->info().inl()-bidtofind.inl();
 	if ( !inldif )
 	    break;
 	if ( deltainl*inldif < 0 )
-	    return 0;
-	idx += deltainl>0 ? -1 : 1;
+	    return nullptr;
+	ibuf += deltainl>0 ? -1 : 1;
     }
 
-    const int idy = tbufs_[idx]->find( bidtofind, is2D() );
-    return idy<0 ? 0 : tbufs_[idx]->get(idy);
+    auto& tbuf = *tbufs_[ibuf];
+    const int trcidx = tbuf.find( bidtofind );
+    return trcidx<0 ? nullptr : tbuf.get( trcidx );
 }
 
 
-SeisTrc* Seis::MSCProvider::get( const BinID& bid )
+SeisTrc* Seis::MSCProvider::getFor( const Bin2D& b2d )
 {
-    if ( bufidx_==-1 || !stepoutstep_.row() || !stepoutstep_.col() )
+    if ( bufidx_==-1 || !stepoutstep_.trcNr() || b2d.geomID() != curgeomid_ )
+	return nullptr;
+
+    const auto tnrdif = b2d.trcNr() - curTrcNr();
+    auto delta = tnrdif; delta /= stepoutstep_.trcNr();
+    auto check = delta;  check *= stepoutstep_.trcNr();
+    if ( tnrdif != check )
 	return 0;
 
-    RowCol biddif( bid );
-    biddif -= tbufs_[bufidx_]->get(trcidx_)->info().binID();
+    return getAt( delta );
+}
 
-    RowCol delta( biddif ); delta /= stepoutstep_;
-    RowCol check( delta  ); check *= stepoutstep_;
 
+SeisTrc* Seis::MSCProvider::getFor( const BinID& bid )
+{
+    if ( bufidx_==-1 || !stepoutstep_.inl() || !stepoutstep_.crl() )
+	return nullptr;
+
+    const BinID biddif( bid - curBinID() );
+
+    BinID delta( biddif ); delta = delta / BinID(stepoutstep_);
+    BinID check( delta  ); check = check * BinID(stepoutstep_);
     if ( biddif != check )
 	return 0;
 
-    return get( delta.row(), delta.col() );
+    return getAt( delta.inl(), delta.crl() );
 }
 
 
 // Distances to box borders: 0 on border, >0 outside, <0 inside.
 #define mCalcBoxDistances(idx,idy,stepout) \
-    const BinID curbid = tbufs_[idx]->get(idy)->info().binID(); \
-    const BinID pivotbid = tbufs_[pivotidx_]->get(pivotidy_)->info().binID(); \
-    RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
-    const int bottomdist mUnusedVar = \
-	pivotbid.inl()-curbid.inl()-bidstepout.row(); \
-    const int topdist mUnusedVar = \
-	curbid.inl()-pivotbid.inl()-bidstepout.row(); \
-    const int leftdist mUnusedVar = \
-	pivotbid.crl()-curbid.crl()-bidstepout.col(); \
-    const int rightdist mUnusedVar = \
-	curbid.crl()-pivotbid.crl()-bidstepout.col();
+    const IdxPair curip = tbufs_[idx]->get(idy)->info().idxPair(); \
+    const IdxPair pivotip =tbufs_[pivotidx_]->get(pivotidy_)->info().idxPair();\
+    IdxPair ipstepout( stepout ); \
+    ipstepout.lineNr() = ipstepout.lineNr() * stepoutstep_.lineNr(); \
+    ipstepout.trcNr() = ipstepout.trcNr() * stepoutstep_.trcNr(); \
+    const auto bottomdist mUnusedVar = \
+	pivotip.inl()-curip.lineNr()-ipstepout.lineNr(); \
+    const auto topdist mUnusedVar = \
+	curip.inl()-pivotip.lineNr()-ipstepout.lineNr(); \
+    const auto leftdist mUnusedVar = \
+	pivotip.crl()-curip.trcNr()-ipstepout.trcNr(); \
+    const auto rightdist mUnusedVar = \
+	curip.crl()-pivotip.trcNr()-ipstepout.trcNr();
 
 
 bool Seis::MSCProvider::isReqBoxFilled() const
 {
-    for ( int idy=0; idy<=2*reqstepout_.col(); idy++ )
+    if ( is2D() )
     {
-	for ( int idx=0; idx<=2*reqstepout_.row(); idx++ )
+	for ( int itnr=0; itnr<=2*reqstepout_.trcNr(); itnr++ )
 	{
-	    if ( !reqmask_ || reqmask_->get(idx,idy) )
+	    if ( !reqmask_ || reqmask_->get(0,itnr) )
 	    {
-		if ( !get(idx-reqstepout_.row(), idy-reqstepout_.col()) )
+		if ( !getAt(itnr-reqstepout_.trcNr()) )
 		    return false;
+	    }
+	}
+    }
+    else
+    {
+	for ( int icrl=0; icrl<=2*reqstepout_.crl(); icrl++ )
+	{
+	    for ( int iinl=0; iinl<=2*reqstepout_.inl(); iinl++ )
+	    {
+		if ( !reqmask_ || reqmask_->get(iinl,icrl) )
+		{
+		    if ( !getAt(iinl-reqstepout_.inl(),icrl-reqstepout_.crl()) )
+			return false;
+		}
 	    }
 	}
     }
@@ -469,8 +526,11 @@ bool Seis::MSCProvider::toNextPos()
 bool Seis::advance( ObjectSet<Seis::MSCProvider>& provs, uiRetVal& uirv )
 {
     uirv.setEmpty();
+    if ( provs.isEmpty() )
+	{ uirv.set( mINTERNAL("No seismics") ); return false; }
 
-    BinID curbid;
+    const bool is2d = provs.first()->is2D();
+    BinID curbid; Bin2D curb2d;
     for ( int iprov=0; iprov<provs.size(); iprov++ )
     {
 	Seis::MSCProvider& prov = *provs[iprov];
@@ -478,18 +538,38 @@ bool Seis::advance( ObjectSet<Seis::MSCProvider>& provs, uiRetVal& uirv )
 	{
 	    if ( !prov.toNextPos() )
 		{ uirv.set( prov.errMsg() ); return false; }
-	    curbid = prov.getPos();
+	    if ( is2d )
+		curb2d = prov.curBin2D();
+	    else
+		curbid = prov.curBinID();
 	}
 
-	BinID provbid = prov.getPos();
-	while ( provbid < curbid )
+	if ( is2d )
 	{
-	    if ( !prov.toNextPos() )
-		{ uirv.set( prov.errMsg() ); return false; }
-	    provbid = prov.getPos();
+	    Bin2D provb2d = prov.curBin2D();
+	    while ( provb2d.geomID() != curb2d.geomID()
+		 || provb2d.trcNr() < curb2d.trcNr() )
+	    {
+		if ( !prov.toNextPos() )
+		    { uirv.set( prov.errMsg() ); return false; }
+		provb2d = prov.curBin2D();
+	    }
+	    if ( provb2d.geomID() != curb2d.geomID()
+		|| provb2d.trcNr() > curb2d.trcNr() )
+		{ iprov = -1; continue; }
 	}
-	if ( provbid > curbid )
-	    { iprov = -1; continue; }
+	else
+	{
+	    BinID provbid = prov.curBinID();
+	    while ( provbid < curbid )
+	    {
+		if ( !prov.toNextPos() )
+		    { uirv.set( prov.errMsg() ); return false; }
+		provbid = prov.curBinID();
+	    }
+	    if ( provbid > curbid )
+		{ iprov = -1; continue; }
+	}
     }
 
     return true;

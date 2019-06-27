@@ -31,6 +31,7 @@ public:
 
     typedef TypeSet<float>	ZValueSet;
     typedef ObjectSet<SeisTrc>	TrcSet;
+    mUseType( Pos,		IdxPair );
 
 			SeisTrcBuf( bool ownr )
 				: owner_(ownr)		{}
@@ -73,8 +74,10 @@ public:
     void		getShifted(ZGate,const ZValueSet&,bool upward,
 				    float udfval,SeisTrcBuf&) const;
 
-    int			find(const BinID&,bool is2d=false) const;
-    int			find(const SeisTrc*,bool is2d=false) const;
+    int			find(const BinID&) const;
+    int			find(const Bin2D&) const;
+    int			findTrcNr(int) const;
+    int			find(const SeisTrc*) const;
     inline SeisTrc*	get( int idx )
 			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
     inline const SeisTrc* get( int idx ) const
@@ -115,7 +118,8 @@ protected:
 
     bool		owner_;
 
-    int			probableIdx(const BinID&,bool is2d) const;
+    int			probableIdx(const IdxPair&) const;
+    int			doFind(const IdxPair&) const;
 
 public:
 

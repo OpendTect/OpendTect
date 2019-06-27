@@ -26,6 +26,7 @@ mExpClass(Seis) SeisTrcInfo
 {
 public:
 
+    mUseType( Pos,	IdxPair );
     mUseType( IdxPair,	pos_type );
     mUseType( OD,	GeomSystem );
     mUseType( Pos,	GeomID );
@@ -48,7 +49,9 @@ public:
     bool		is2D() const;
     bool		isSynthetic() const;
     GeomSystem		geomSystem() const;
-    const BinID&	binID() const;
+    BinID		binID() const;
+    Bin2D		bin2D() const;
+    IdxPair		idxPair() const;
     pos_type		inl() const;
     pos_type		crl() const;
     pos_type		lineNr() const;
@@ -59,6 +62,7 @@ public:
 
     SeisTrcInfo&	setGeomSystem(GeomSystem);
     SeisTrcInfo&	setPos(const BinID&);
+    SeisTrcInfo&	setPos(const Bin2D&);
     SeisTrcInfo&	setPos(GeomID,pos_type);
     SeisTrcInfo&	setGeomID(GeomID);
     SeisTrcInfo&	setTrcNr(pos_type);

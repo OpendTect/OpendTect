@@ -36,6 +36,7 @@ public:
     GeomID		geomID() const	    { return geomid_; }
     trcnr_type&		trcNr()		    { return trcnr_; }
     trcnr_type		trcNr() const	    { return trcnr_; }
+    GeomID::IDType	lineNr() const	    { return geomid_.lineNr(); }
 
     static Bin2D	first(GeomID);
     static Bin2D	last(GeomID);
