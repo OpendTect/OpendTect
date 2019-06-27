@@ -247,6 +247,7 @@ protected:
 
 
 /*!\brief Flat-array implementation of ArrayND. */
+mGlobal(Basic) void* getArrayND(const ArrayNDInfo&,const OD::DataRepType);
 
 template <class T>
 mClass(Basic) ArrayNDImpl : public ArrayND<T>, public ArrayNDImplBase<T>

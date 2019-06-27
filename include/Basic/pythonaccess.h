@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "bufstring.h"
+#include "commontypes.h"
 #include "enums.h"
 #include "notify.h"
 
@@ -62,6 +63,9 @@ namespace OD
 	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
 
 	bool		isModuleUsable(const char* nm) const;
+
+	static BufferString	getDataTypeStr(OD::DataRepType);
+	static OD::DataRepType	getDataType(const char*);
 
 	static bool		hasInternalEnvironment(bool allowuserdef=true);
 	static bool		validInternalEnvironment(const File::Path&);

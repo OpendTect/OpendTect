@@ -287,6 +287,63 @@ bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 }
 
 
+BufferString OD::PythonAccess::getDataTypeStr( OD::DataRepType typ )
+{
+    BufferString ret;
+    if ( typ == OD::F32 )
+	ret.set( "float32" );
+    else if ( typ == OD::F64 )
+	ret.set( "float64" );
+    else if ( typ == OD::SI8 )
+	ret.set( "int8" );
+    else if ( typ == OD::UI8 )
+	ret.set( "uint8" );
+    else if ( typ == OD::SI16 )
+	ret.set( "int16" );
+    else if ( typ == OD::UI16 )
+	ret.set( "uint16" );
+    else if ( typ == OD::SI32 )
+	ret.set( "int32" );
+    else if ( typ == OD::UI32 )
+	ret.set( "uint32" );
+    else if ( typ == OD::SI64 )
+	ret.set( "int64" );
+/*    else if ( typ == OD::UI64 )
+	ret.set( "uint64" );*/
+
+    return ret;
+}
+
+
+OD::DataRepType OD::PythonAccess::getDataType( const char* str )
+{
+    OD::DataRepType ret = OD::AutoDataRep;
+    const FixedString typestr( str );
+    if ( typestr == "float32" )
+	ret = OD::F32;
+    else if ( typestr == "float64" )
+	ret = OD::F64;
+    else if ( typestr == "int8" )
+	ret = OD::SI8;
+    else if ( typestr == "uint8" )
+	ret = OD::UI8;
+    else if ( typestr == "int16" )
+	ret = OD::SI16;
+    else if ( typestr == "uint16" )
+	ret = OD::UI16;
+    else if ( typestr == "int32" )
+	ret = OD::SI32;
+    else if ( typestr == "uint32" )
+	ret = OD::UI32;
+    else if ( typestr == "int64" )
+	ret = OD::SI64;
+    else if ( typestr == "uint64" )
+	ret = OD::SI64;
+
+    return ret;
+}
+
+
 OS::CommandLauncher* OD::PythonAccess::getLauncher(
 						const OS::MachineCommand& mc,
 						File::Path& scriptfp ) const
