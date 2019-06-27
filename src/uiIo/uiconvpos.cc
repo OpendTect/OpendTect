@@ -541,7 +541,6 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	mErrRetWithMsg( uiStrings::phrCannotOpenOutpFile() );
     }
 
-    int nrln = 0;
     uiConvPosAscIO aio( *fd_, istream );
     const uiConvertPos::DataType fromdatatype = aio.getConvFromTyp();
     Coord crd;
@@ -644,9 +643,7 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
     delete inpstream;
 
-    uiString msg = tr("File written successfuly");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-						    tr("No, close window") );
+    uiMSG().message( tr( "File written successfuly" ) );
 }
 
 //TODO: outcrsfld_ display will be dependend on output type input

@@ -1349,7 +1349,6 @@ bool FaultTrcDataProvider::init( const DBKeySet& ids,
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sel( sd );
     sd.rg = hrg;
-    EM::ObjectManager& emmgr = is2d_ ? EM::FSSMan() : EM::MGR();
     RefObjectSet<EM::Object> emobjs =
 				EM::MGR().loadObjects( ids, trprov, &sel );
     if ( emobjs.isEmpty() )
