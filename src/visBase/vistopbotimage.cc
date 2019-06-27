@@ -40,7 +40,7 @@ namespace visBase
 
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)
-    , trans_(0)
+    , trans_(nullptr)
     , laytex_( new osgGeo::LayeredTexture )
     , texplane_( new osgGeo::TexturePlaneNode )
 {
@@ -150,6 +150,87 @@ void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
     image->flipVertical();
     laytex_->setDataLayerImage( layerid_, image );
     texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
+}
+
+
+bool TopBotImage::getImageInfo( int& width, int& height, int& pixsz ) const
+{
+    const osg::Image* image = laytex_ ? laytex_->getCompositeTextureImage()
+				      : nullptr;
+    if ( !image )
+	return false;
+
+    width = image->s();
+    height = image->t();
+    pixsz = image->getPixelSizeInBits() / 8;
+    return true;
+}
+
+
+unsigned const char* TopBotImage::getTextureData() const
+{
+    const osg::Image* image = laytex_ ? laytex_->getCompositeTextureImage()
+				      : nullptr;
+    return image ? image->data() : nullptr;
+}
+
+
+bool TopBotImage::getTextureDataInfo( TypeSet<Coord3>& coords,
+				      TypeSet<Coord>& texcoords,
+				      TypeSet<int>& ps ) const
+{
+    const std::vector<osg::Geometry*>& geometries = texplane_->getGeometries();
+    Interval<float> xrg( mUdf(float), -mUdf(float) );
+    Interval<float> yrg( mUdf(float), -mUdf(float) );
+    Interval<float> zrg( mUdf(float), -mUdf(float) );
+    Interval<float> texxrg( mUdf(float), -mUdf(float) );
+    Interval<float> texyrg( mUdf(float), -mUdf(float) );
+    for ( unsigned int gidx=0; gidx<geometries.size(); gidx++ )
+    {
+	const osg::Array* vertarr = geometries[gidx]->getVertexArray();
+	const osg::Vec3Array* vertcoords =
+			dynamic_cast<const osg::Vec3Array*>( vertarr );
+	if ( !vertcoords )
+	    continue;
+
+	for ( unsigned int idx=0; idx<vertcoords->size(); idx++ )
+	{
+	    xrg.include( vertcoords->at(idx)[0], false );
+	    yrg.include( vertcoords->at(idx)[1], false );
+	    zrg.include( vertcoords->at(idx)[2], false );
+	}
+
+	osg::ref_ptr<const osg::Vec2Array> osgcoords =
+			    texplane_->getCompositeTextureCoords( gidx );
+	if ( !osgcoords.valid() )
+	    continue;
+
+	for ( unsigned int idx=0; idx<osgcoords->size(); idx++ )
+	{
+	    texxrg.include( osgcoords->at(idx)[0], false );
+	    texyrg.include( osgcoords->at(idx)[1], false );
+	}
+    }
+
+    coords.setEmpty();
+    Coord3 crd; crd.z = sCast(double,zrg.start);
+    crd.setXY( xrg.start, yrg.start ); coords += crd;
+    crd.setXY( xrg.stop, yrg.start ); coords += crd;
+    crd.setXY( xrg.stop, yrg.stop ); coords += crd;
+    crd.setXY( xrg.start, yrg.stop ); coords += crd;
+
+    texcoords.setEmpty();
+    Coord texcrd;
+    texcrd.setXY( texxrg.start, texyrg.start ); texcoords += texcrd;
+    texcrd.setXY( texxrg.stop, texyrg.start ); texcoords += texcrd;
+    texcrd.setXY( texxrg.stop, texyrg.stop ); texcoords += texcrd;
+    texcrd.setXY( texxrg.start, texyrg.stop ); texcoords += texcrd;
+
+    ps.setEmpty();
+    for ( int idx=0; idx<4; idx++ )
+	ps += idx;
+
+    return true;
 }
 
 
