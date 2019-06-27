@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "bufstring.h"
 #include "geomid.h"
+class Bin2D;
 
 
 namespace Seis
@@ -53,6 +54,7 @@ public:
 
     mUseType( Pos::IdxPair,	pos_type );
     mUseType( Pos,		GeomID );
+    mUseType( Pos,		IdxPair );
     typedef int			idx_type;
     typedef idx_type		size_type;
     typedef float		z_type;
@@ -72,10 +74,14 @@ public:
     virtual Type	type() const			= 0;
     virtual bool	is2D() const			{ return false; }
     virtual bool	isAll() const			{ return false; }
-    bool		isOK(const TrcKey&) const;
+    inline bool		isOK(const Bin2D&) const;
     inline bool		isOK( const BinID& b ) const	{ return !selRes(b); }
     inline bool		isOK( GeomID gid, trcnr_type trcnr ) const
 			{ return !selRes(gid,trcnr); }
+    bool		isOK(const TrcKey&) const;
+			//!< will work in trckey's domain
+    bool		isOK(const IdxPair&) const;
+			//!< will convert to either BinID or Bin2D
 
     virtual PosIter*	posIter() const			= 0;
     virtual pos_rg_type inlRange() const		= 0;

@@ -156,10 +156,23 @@ Seis::SelData* Seis::SelData::get( const DBKey& dbky )
 }
 
 
+bool Seis::SelData::isOK( const Bin2D& b2d ) const
+{
+    return isOK( b2d.geomID(), b2d.trcNr() );
+}
+
+
 bool Seis::SelData::isOK( const TrcKey& tk ) const
 {
     return tk.is2D() ? isOK( tk.geomID(), tk.trcNr() )
 		     : isOK( tk.position() );
+}
+
+
+bool Seis::SelData::isOK( const IdxPair& ip ) const
+{
+    return is2D() ? isOK( GeomID(ip.lineNr()), ip.trcNr() )
+		  : isOK( BinID(ip) );
 }
 
 
