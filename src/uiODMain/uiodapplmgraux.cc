@@ -260,6 +260,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(FltSet):
 	switch( at )
 	{
+	mCase( Imp ) :
+	    am_.emserv_->importFaultSet();
+	break;
 	mCase(Exp):
 	    am_.emserv_->exportFaultSet();
 	break;

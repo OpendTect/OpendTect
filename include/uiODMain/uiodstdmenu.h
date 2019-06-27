@@ -71,6 +71,7 @@ ________________________________________________________________________
 #define mImpFltSSAscii3DBulkMnuItm	(mImpFltSSAsciiMnu + 1)
 #define mImpFltSSAscii3DMnuItm		(mImpFltSSAsciiMnu + 2)
 #define mImpFltSSAscii2DBulkMnuItm	(mImpFltSSAsciiMnu + 3)
+#define mImpFltSetAsciiMnuItm		(mFileImpMnu + 54)
 #define mImpPickAsciiMnuItm		(mFileImpMnu + 60)
 #define mImpWvltAsciiMnuItm		(mFileImpMnu + 70)
 #define mImpMuteDefAsciiMnuItm		(mFileImpMnu + 80)

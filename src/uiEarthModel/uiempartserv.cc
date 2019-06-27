@@ -365,6 +365,15 @@ bool uiEMPartServer::importBulkFaultStickSet( bool is2d )
 }
 
 
+bool uiEMPartServer::importFaultSet()
+{
+    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
+	EMFaultSet3DTranslatorGroup::sGroupName(), false );
+
+    return impbulkfltdlg_->go();
+}
+
+
 void uiEMPartServer::importBulk2DFaultStickset()
 {
     importBulkFaultStickSet(true);

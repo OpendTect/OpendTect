@@ -223,7 +223,7 @@ public:
 			~FaultTrcDataProvider();
 
     bool		init(const DBKeySet&,const TrcKeySampling&,
-			     const TaskRunnerProvider&);
+			     const TaskRunnerProvider&, bool isfltset=false);
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
@@ -253,4 +253,5 @@ protected:
     Pos::GeomID		geomid_;
     uiString	        errmsg_;
     bool		is2d_;
+    bool		isfltset_;
 };

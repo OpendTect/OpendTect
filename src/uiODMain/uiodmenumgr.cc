@@ -480,6 +480,7 @@ void uiODMenuMgr::setSurveySubMenus()
     mnunm = uiStrings::sFaultSet(mPlural); iconnm = "faultplanes";
     impmnus_ += 0;
     expmnus_ += 0;
+    addAction( impmnu_, mnunm, iconnm, mImpFltSetAsciiMnuItm );
     addAction( expmnu_, mnunm, iconnm, mExpFltSetAsciiMnuItm );
     addAction( manmnu_, mnunm, iconnm, mManFaultSetMnuItm );
 
@@ -1317,6 +1318,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpBulkFltAsciiMnuItm:	mDoOp(Imp,Flt,1); break;
     case mImpFltSSAscii3DMnuItm:	mDoOp(Imp,Fltss,0); break;
     case mImpFltSSAscii2DMnuItm:	mDoOp(Imp,Fltss,1); break;
+    case mImpFltSetAsciiMnuItm:		mDoOp(Imp,FltSet,0); break;
     case mImpFltSSAscii3DBulkMnuItm:	mDoOp(Imp,Fltss,2); break;
     case mImpFltSSAscii2DBulkMnuItm:	mDoOp(Imp,Fltss,3); break;
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;

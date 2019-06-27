@@ -61,6 +61,7 @@ public:
     bool		export2DHorizon(bool bulk=false);
     bool		importFault(bool bulk);
     bool		importFaultStickSet();
+    bool		importFaultSet();
     bool		importBulkFaultStickSet(bool is2d=false);
     void		import2DFaultStickset();
     void		importBulk2DFaultStickset();
