@@ -31,12 +31,12 @@ _______________________________________________________________________
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     : uiMainWin( p,tr("Amplitude Spectrum"), 0, false, false )
-    , timedomain_(0)
-    , freqdomain_(0)
-    , freqdomainsum_(0)
-    , fft_(0)
-    , data_(0)
-    , specvals_(0)
+    , timedomain_(nullptr)
+    , freqdomain_(nullptr)
+    , freqdomainsum_(nullptr)
+    , fft_(nullptr)
+    , data_(nullptr)
+    , specvals_(nullptr)
     , setup_(setup)
 {
     if ( !setup_.caption_.isEmpty() )
@@ -74,7 +74,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     valfld_->display( false );
     valfld_->setNrDecimals( 2 );
 
-    normfld_ = new uiCheckBox( dispparamgrp_, uiStrings::sNormalise() );
+    normfld_ = new uiCheckBox( dispparamgrp_, uiStrings::sNormalize() );
     normfld_->attach( rightOf, valfld_ );
     normfld_->setChecked( true );
 
@@ -117,8 +117,8 @@ void uiAmplSpectrum::setDataPackID(
     ConstRefMan<DataPack> datapack = DPM(dmid).getDP( dpid );
     if ( datapack )
 	setCaption( !datapack ? tr("No data")
-	                      : tr("Amplitude Spectrum for %1")
-                                .arg( datapack->name() ) );
+			      : tr("Amplitude Spectrum for %1")
+				.arg( datapack->name() ) );
 
     if ( dmid == DataPackMgr::FlatID() )
     {
@@ -249,7 +249,7 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 }
 
 
-void uiAmplSpectrum::putDispData( CallBacker* cb )
+void uiAmplSpectrum::putDispData( CallBacker* )
 {
     const bool isnormalized = normfld_->isChecked();
     const bool dbscale = powerdbfld_->isChecked();
@@ -262,7 +262,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 	    val /= maxspecval_;
 
 	if ( dbscale )
-	    val = 20 * Math::Log10( val > 0. ? val : mDefEpsF );
+	    val = 20 * Math::Log10( val > 0 ? val : mDefEpsF );
 
 	dbspecvals.set( idx, val );
     }
@@ -327,9 +327,9 @@ void uiAmplSpectrum::exportCB( CallBacker* )
 
     if ( strm.isBad() )
     {
-        uiMSG().error( uiStrings::phrCannotWrite(tr("values to: %1")
+	uiMSG().error( uiStrings::phrCannotWrite(tr("values to: %1")
 				 .arg(fnm)) );
-        return;
+	return;
     }
 
     uiMSG().message( tr("Values written to: %1").arg(fnm) );
@@ -350,7 +350,7 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 	return;
 
     const float ratio = (xpos-posrange_.start)/posrange_.width();
-    const float specsize = mCast( float, specvals_->getSize(0) );
+    const float specsize = sCast( float, specvals_->getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
     const TypeSet<float>& specvals = disp_->yVals();
     if ( !specvals.validIdx(specidx) )

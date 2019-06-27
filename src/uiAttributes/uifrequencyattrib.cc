@@ -33,7 +33,7 @@ static const char* outpstrs[] =
 	"Spectral Area beyond dominant frequency",
 	"Frequency Slope Fall",
 	"Absorption Quality Factor",
-	0
+	nullptr
 };
 
 
@@ -51,12 +51,12 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 						    .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    normfld_ = new uiGenInput( this, uiStrings::sNormalise(),
+    normfld_ = new uiGenInput( this, uiStrings::sNormalize(),
 				BoolInpSpec(false) );
     normfld_->attach( alignedBelow, gatefld_ );
 
     uiWindowFunctionSel::Setup su; su.label_ = "Window/Taper";
-    su.winname_ = "CosTaper"; su.winparam_ = .05;
+    su.winname_ = "CosTaper"; su.winparam_ = .05f;
     winfld_ = new uiWindowFunctionSel( this, su );
     winfld_->attach( alignedBelow, normfld_ );
 
@@ -65,7 +65,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     smoothspectrumfld_->attach( alignedBelow, winfld_ );
 
     outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
-                              StringListInpSpec(outpstrs) );
+			      StringListInpSpec(outpstrs) );
     outpfld_->setElemSzPol( uiObject::WideVar );
     outpfld_->attach( alignedBelow, smoothspectrumfld_ );
 

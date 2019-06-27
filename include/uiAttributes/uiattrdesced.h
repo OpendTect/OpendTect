@@ -234,8 +234,8 @@ void clss::initClass() \
 { \
     if ( factoryid_ < 0 ) \
 	factoryid_ = uiAF().add( dispnm, attr::attribName(), grp, \
-		     clss::createInstance, (int)domtyp, (int)dimtyp, \
-		     synthtyp == Usable4Synth, isgrpdef ); \
+		clss::createInstance, sCast(int,domtyp), sCast(int,dimtyp), \
+		synthtyp == Usable4Synth, isgrpdef ); \
     dispname_ = dispnm; domtyp_ = domtyp; dimtyp_ = dimtyp; \
     attrnm_ = attr::attribName(); \
 } \

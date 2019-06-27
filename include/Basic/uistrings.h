@@ -562,7 +562,7 @@ public:
     static uiWord sNoLogSel()		{ return tr("No log selected"); }
     static uiWord sNone()		{ return tr("None"); }
     static uiWord sNormal()		{ return tr("Normal"); }
-    static uiWord sNormalise()		{ return tr("Normalise"); }
+    static uiWord sNormalize()		{ return tr("Normalize"); }
     static uiWord sNorth( bool abbr )
     { return abbr ? tr("N","abbr North") : tr("North"); }
     static uiWord sNotPresent()		{ return tr("Not Present"); }
