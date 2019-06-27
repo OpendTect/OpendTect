@@ -49,11 +49,12 @@ namespace HDF5
 
 #define mCatchUnexpected( act ) \
     catch ( H5::Exception& exc ) \
-	{ const char* exc_msg = exc.getCDetailMsg(); pErrMsg(exc_msg); act; } \
+	{ const char* exc_msg mUnusedVar = exc.getCDetailMsg(); \
+	    pErrMsg(exc_msg); act; } \
     catch ( std::exception& exc ) \
-	{ const char* exc_msg = exc.what(); pErrMsg(exc_msg); act; } \
+	{ const char* exc_msg mUnusedVar = exc.what(); pErrMsg(exc_msg); act;} \
     catch ( ... ) \
-	{ const char* exc_msg = "Unexpected non-std exception"; \
+	{ const char* exc_msg mUnusedVar = "Unexpected non-std exception"; \
 	    pErrMsg(exc_msg); act; }
 
 // Err Ret stuff
