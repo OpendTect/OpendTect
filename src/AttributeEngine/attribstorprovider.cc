@@ -581,10 +581,8 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
     if ( desc_.is2D() )
 	trcidx = stbdtp->trcBuf().find( currentbid_+relpos );
     else
-    {
-	const Bin2D b2d( Pos::GeomID(currentbid_.inl()), currentbid_.trcNr() );
-	trcidx = stbdtp->trcBuf().find( b2d );
-    }
+	trcidx = stbdtp->trcBuf().findTrcNr(
+					currentbid_.trcNr()+relpos.trcNr() );
 
     if ( trcidx+relidx >= stbdtp->trcBuf().size() || trcidx+relidx<0 )
 	return nullptr;
