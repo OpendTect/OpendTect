@@ -225,7 +225,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     botgrp->attach( ensureBelow, sep );
 
     outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
-					    0, tr("Output Coordinate System") );
+			SI().getCoordSystem(), tr("Output Coordinate System") );
     sep->attach( alignedAbove, outcrdsysselfld_ );
 
     leftoutfld1_ = new uiGenInput( botgrp, uiConvertPos::sLLStr() );
@@ -400,6 +400,7 @@ void uiManualConvGroup::convFromXY()
 } \
 
 //FILE CONVERSION GROUP
+//Commented lines have to be implemented.
 uiFileConvGroup::uiFileConvGroup( uiParent* p, const SurveyInfo& si )
     :uiDlgGroup(p,tr("File Conversion"))
     , fd_(uiConvPosAscIO::getDesc())
@@ -425,25 +426,25 @@ uiFileConvGroup::uiFileConvGroup( uiParent* p, const SurveyInfo& si )
     botgrp->attach( alignedBelow, topgrp );
     botgrp->attach( ensureBelow, sep );
 
-    outmodefld_ = new uiGenInput( botgrp, tr("Output mode"),
+    /*outmodefld_ = new uiGenInput( botgrp, tr("Output mode"),
 		BoolInpSpec(true, tr("Add columns"), tr("Replace columns")) );
     outmodefld_->attach( alignedBelow, sep );
     mAttachCB( outmodefld_->valuechanged, uiFileConvGroup::outModeChg );
-
+    */
     insertpos_ = new uiGenInput( botgrp, tr("Insert at"),
 				BoolInpSpec(true,tr("Beginning"),tr("End")) );
-    insertpos_->attach( rightOf, outmodefld_ );
+    insertpos_->attach( alignedBelow, sep );
 
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Output types") );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Output types"),
+						uiListBox::LblPos::LeftMid );
     su.prefnrlines( uiConvertPos::DataTypeDef().size()+1 );
     outtypfld_ = new uiListBox( botgrp, su );
     outtypfld_->addItems( uiConvertPos::DataTypeDef().strings() );
-    outtypfld_->attach( alignedBelow, outmodefld_ );
+    outtypfld_->attach( alignedBelow, insertpos_ );
     mAttachCB( outtypfld_->itemChosen, uiFileConvGroup::outTypChg );
 
-
     outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
-					0, tr("Output Coordinate System") );
+			SI().getCoordSystem(), tr("Output Coordinate System") );
     outcrdsysselfld_->attach( alignedBelow, outtypfld_ );
 
     fssu.setForWrite();
@@ -459,8 +460,9 @@ uiFileConvGroup::uiFileConvGroup( uiParent* p, const SurveyInfo& si )
     convertbut_->attach( ensureBelow, lowersep );
     mAttachCB( convertbut_->activated, uiFileConvGroup::convButPushCB );
 
-    outModeChg( 0 );
+    //outModeChg( 0 );
 }
+
 
 uiFileConvGroup::~uiFileConvGroup()
 {
@@ -481,7 +483,7 @@ void uiFileConvGroup::outTypChg( CallBacker* )
 
 }
 
-void uiFileConvGroup::outModeChg( CallBacker* )
+/*void uiFileConvGroup::outModeChg( CallBacker* )
 {
     const bool isaddmode = outmodefld_->getBoolValue();
     insertpos_->display( isaddmode );
@@ -490,7 +492,7 @@ void uiFileConvGroup::outModeChg( CallBacker* )
 	outtypfld_->setChoiceMode( OD::ChooseAtLeastOne );
     else
 	outtypfld_->setChoiceMode( OD::ChooseOnlyOne );
-}
+}*/
 
 
 void uiFileConvGroup::llFormatTypChg( CallBacker* )
@@ -502,14 +504,14 @@ void uiFileConvGroup::llFormatTypChg( CallBacker* )
 
 void uiFileConvGroup::inpFileSpecChg( CallBacker* )
 {
-    od_istream istream( "" );
+    od_istream istream("");
     uiConvPosAscIO aio( *fd_, istream );
 
     uiStringSet outnms;
     outtypfld_->setEmpty();
     outdisptypidxs_.setEmpty();
 
-    for (int idx = 0; idx < uiConvertPos::DataTypeDef().size(); idx++)
+    for ( int idx = 0; idx<uiConvertPos::DataTypeDef().size(); idx++ )
     {
 	if ( idx == DataSelType::IC &&
 				    aio.getConvFromTyp() == DataSelType::IC )
@@ -609,7 +611,8 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	    outbid = SI().transform( coord );
 	}
 
-	const bool addcol = outmodefld_->getBoolValue();
+	//const bool addcol = outmodefld_->getBoolValue();
+	const bool addcol = true;
 	const bool convdatainbeg  = insertpos_->getBoolValue();
 
 	BufferString filestr;
@@ -645,5 +648,3 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
     uiMSG().message( tr( "File written successfuly" ) );
 }
-
-//TODO: outcrsfld_ display will be dependend on output type input

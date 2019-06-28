@@ -126,7 +126,7 @@ public:
 protected:
     Table::FormatDesc*		fd_;
     uiGenInput*			inptypfld_;
-    uiGenInput*			outmodefld_;
+    //uiGenInput*			outmodefld_;
     uiGenInput*			insertpos_;
     uiGenInput*			lltypfld_;
     uiListBox*			outtypfld_;
@@ -145,7 +145,7 @@ protected:
     bool			convtoic_;
 
     void			llFormatTypChg(CallBacker*);
-    void			outModeChg( CallBacker* );
+    //void			outModeChg( CallBacker* );
     void			outTypChg(CallBacker*);
     void			convButPushCB(CallBacker*);
     void			inpFileSpecChg(CallBacker*);
