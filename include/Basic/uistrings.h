@@ -471,7 +471,7 @@ public:
     static uiWord sParsMissing()	{ return tr("Parameters missing"); }
     static uiWord sInput()		{ return tr("Input"); }
     static uiWord sInputData()		{ return tr("Input Data"); }
-    static uiWord sInputFile()		{ return tr("Input File"); }
+    static uiWord sInputFile(int n=1)	{ return tr("Input File",0,n); }
     static uiWord sInputSelection()	{ return tr("Input Selection"); }
     static uiWord sInterpolate()	{ return tr("Interpolate"); }
     static uiWord sInterval()		{ return tr("Interval"); }
