@@ -224,14 +224,30 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, spl );
 
+    uiGroup* outgrp = new uiGroup( this, "Output group" );
+    selmultifld_ = new uiGenInput( outgrp, tr("Apply to"),
+			BoolInpSpec( true, tr("This file"),
+			    tr("A selection of files similar to this one") ) );
+    selmultifld_->valuechanged.notify( mCB(this,uiSEGYFileManip,destSelCB) );
+
     uiFileSel::Setup fssu( OD::GeneralContent );
     File::Path inpfp( fname_ );
     fssu.objtype( uiStrings::sSEGY() )
-	.setForWrite().formats( uiSEGYFileSpec::fileFmts() )
+	.formats( uiSEGYFileSpec::fileFmts() )
 	.initialselectiondir( inpfp.pathOnly() );
-    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
-    fnmfld_->attach( ensureBelow, sep );
-    fnmfld_->attach( hCentered );
+    uiFileSel::Setup singfssu( fssu ); singfssu.setForWrite();
+    outfnmfld_ = new uiFileSel( outgrp, uiStrings::sOutputFile(), singfssu );
+    outfnmfld_->attach( alignedBelow, selmultifld_ );
+    uiFileSel::Setup multfssu( fssu );
+    inpfnmsfld_ = new uiFileSel( outgrp, uiStrings::sFileName(mPlural), fssu );
+    inpfnmsfld_->setSelectionMode( OD::SelectMultiFile );
+    inpfnmsfld_->attach( alignedBelow, selmultifld_ );
+    postfixfld_ = new uiGenInput( outgrp, tr("Postfix for file basename"),
+				  StringInpSpec("edited") );
+    postfixfld_->attach( alignedBelow, inpfnmsfld_ );
+
+    outgrp->attach( ensureBelow, sep );
+    outgrp->attach( hCentered );
 
     postFinalise().notify( mCB(this,uiSEGYFileManip,initWin) );
 }
@@ -419,6 +435,7 @@ void uiSEGYFileManip::initWin( CallBacker* )
 {
     selChg( 0 );
     trcNrChg( 0 );
+    destSelCB( 0 );
 }
 
 
@@ -629,6 +646,15 @@ void uiSEGYFileManip::rowClck( CallBacker* cb )
 }
 
 
+void uiSEGYFileManip::destSelCB( CallBacker* cb )
+{
+    const bool wantmulti = !selmultifld_->getBoolValue();
+    outfnmfld_->display( !wantmulti );
+    inpfnmsfld_->display( wantmulti );
+    postfixfld_->display( wantmulti );
+}
+
+
 class uiSEGYFileManipDataExtracter : public Executor
 { mODTextTranslationClass(uiSEGYFileManipDataExtracter);
 public:
@@ -762,16 +788,58 @@ bool uiSEGYFileManip::acceptOK()
 	return true;
 
     if ( binhdr_.nrSamples() < 1 )
-	{ mErrRet(tr("Binary header's number of samples must be > 0") ) }
-    const BufferString fnm = fnmfld_->fileName();
+	mErrRet( tr("Binary header's number of samples must be > 0") )
+    const bool wantmulti = !selmultifld_->getBoolValue();
+    BufferStringSet fnms; BufferString postfix;
+    if ( !wantmulti )
+    {
+	fnms.add( outfnmfld_->fileName() );
+	if ( fnms.first()->isEmpty() )
+	    mErrRet( tr("Please specify an output filename") )
+    }
+    else
+    {
+	postfix = postfixfld_->text();
+	postfix.clean();
+	if ( postfix.isEmpty() )
+	    mErrRet( tr("Please specify a postfix") )
+	inpfnmsfld_->getFileNames( fnms );
+	if ( fnms.isEmpty() )
+	    mErrRet( tr("No files to apply the editing to") )
+    }
+
+    for ( auto fnm : fnms )
+    {
+	BufferString outfnm( *fnm );
+	if ( wantmulti )
+	{
+	    fname_ = *fnm;
+	    File::Path fp( *fnm );
+	    fp.setExtension( postfix );
+	    outfnm = fp.fullPath();
+	}
+	if ( !handleFile(outfnm) )
+	{
+	    if ( !wantmulti )
+		return false;
+	    else if ( fnm == fnms.last()
+		|| !uiMSG().askContinue(tr("Try handling next file?") ) )
+		return false;
+	}
+    }
+
+    return true;
+}
+
+
+bool uiSEGYFileManip::handleFile( const char* outpfnm )
+{
     File::Path inpfp( fname_ );
-    File::Path outfp( fnmfld_->fileName() );
-    if ( outfp.isEmpty() )
-	mErrRet(uiStrings::phrEnter(tr("an output filename")))
+    File::Path outfp( outpfnm );
     if ( !outfp.isAbsolute() )
 	outfp.setPath( inpfp.pathOnly() );
     if ( inpfp == outfp )
-	mErrRet(tr("input and output file cannot be the same") )
+	mErrRet(tr("Input and output file cannot be the same") )
 
     od_ostream outstrm( outfp.fullPath() );
     if ( !outstrm.isOK() )
@@ -784,11 +852,11 @@ bool uiSEGYFileManip::acceptOK()
     strm().setReadPosition( 0 );
     Executor* exec = calcset_.getApplier( strm(), outstrm, bptrc,
 					  &binhdr_, &txthdr_ );
-    uiTaskRunner taskrunner( this );
-    const bool rv = TaskRunner::execute( &taskrunner, *exec );
+    uiTaskRunner uitr( this );
+    const bool rv = uitr.execute( *exec );
     delete exec;
 
     if ( rv )
-	fname_ = fnm;
+	fname_ = outstrm.fileName();
     return rv;
 }

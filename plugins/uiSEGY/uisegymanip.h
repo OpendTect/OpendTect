@@ -15,15 +15,16 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "od_iosfwd.h"
 
-class uiLabel;
-class uiTable;
-class uiSpinBox;
-class uiListBox;
-class uiTextEdit;
 class uiCheckBox;
 class uiFileSel;
-class uiToolButton;
+class uiGenInput;
+class uiLabel;
+class uiListBox;
+class uiTextEdit;
 class uiSEGYBinHdrEd;
+class uiSpinBox;
+class uiTable;
+class uiToolButton;
 namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
 
 
@@ -60,7 +61,8 @@ protected:
     uiSEGYBinHdrEd*	binhdrfld_;
     uiListBox*		trchdrfld_;
     uiListBox*		avtrchdrsfld_;
-    uiFileSel*		fnmfld_;
+    uiFileSel*		outfnmfld_;
+    uiFileSel*		inpfnmsfld_;
     uiToolButton*	edbut_;
     uiToolButton*	rmbut_;
     uiToolButton*	savebut_;
@@ -69,6 +71,8 @@ protected:
     uiCheckBox*		plotallbox_;
     uiSpinBox*		trcnrfld_;
     uiLabel*		errlbl_;
+    uiGenInput*		selmultifld_;
+    uiGenInput*		postfixfld_;
 
     void		initWin(CallBacker*);
     void		addReq(CallBacker*);
@@ -80,7 +84,7 @@ protected:
     void		selChg(CallBacker*);
     void		trcNrChg(CallBacker*);
     void		rowClck(CallBacker*);
-    void		cellClck(CallBacker*);
+    void		destSelCB(CallBacker*);
 
     uiGroup*		mkTrcGroup();
     bool		openInpFile();
@@ -90,6 +94,7 @@ protected:
     void		rowSel(int);
 
     bool		acceptOK();
+    bool		handleFile(const char*);
 
     friend class	uiSEGYFileManipDataExtracter;
 
