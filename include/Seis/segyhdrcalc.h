@@ -63,9 +63,8 @@ public:
     void			reSetSeqNr( int seqnr=1 ) { seqnr_ = seqnr; }
     void			apply(void*,bool needswap) const;
     Executor*			getApplier(od_istream&,od_ostream&,
-					   int data_bytes_per_trace,
-					   const BinHeader* bh=0,
-					   const TxtHeader* th=0) const;
+					   const TxtHeader* th=0,
+					   const BinHeader* bh=0) const;
 
     bool			storeInSettings() const;
     void			getFromSettings(const char*);

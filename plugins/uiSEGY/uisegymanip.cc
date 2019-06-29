@@ -47,11 +47,14 @@ class uiSEGYBinHdrEdDlg : public uiDialog
 { mODTextTranslationClass(uiSEGYBinHdrEdDlg);
 public:
 
-uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
+    mUseType( SEGY,	BinHeader );
+    mUseType( SEGY,	HdrEntry );
+
+uiSEGYBinHdrEdDlg( uiParent* p, BinHeader& h )
     : uiDialog(p,Setup(tr("SEG-Y Binary Header"),mNoDlgTitle,
                         mODHelpKey(mSEGYBinHdrEdDlgHelpID) ))
     , hdr_(h)
-    , def_(SEGY::BinHeader::hdrDef())
+    , def_(BinHeader::hdrDef())
     , orgns_(h.nrSamples())
     , orgfmt_(h.format())
     , havechg_(false)
@@ -69,7 +72,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
 
     for ( int irow=0; irow<nrrows; irow++ )
     {
-	const SEGY::HdrEntry& he = *def_[irow];
+	const HdrEntry& he = *def_[irow];
 	tbl_->setRowLabel( irow, toUiString(he.name()) );
 	tbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
 	tbl_->setValue( RowCol(irow,0), he.bytepos_+1 );
@@ -82,7 +85,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     tbl_->setStretch( 2, 2 );
 
 #define mSetUsedRow(nm) \
-    tbl_->setLabelBGColor( SEGY::BinHeader::Entry##nm(), Color::Peach(), true )
+    tbl_->setLabelBGColor( BinHeader::Entry##nm(), Color::Peach(), true )
     mSetUsedRow(Dt);
     mSetUsedRow(Ns);
     mSetUsedRow(Fmt);
@@ -102,18 +105,18 @@ bool acceptOK()
     if ( !havechg_ )
 	return true;
 
-    const int ns = tbl_->getIntValue( RowCol(SEGY::BinHeader::EntryNs(),1) );
+    const int ns = tbl_->getIntValue( RowCol(BinHeader::EntryNs(),1) );
     if ( ns < 1 )
 	mErrRet(tr("The 'hns' entry (number of samples) must be > 0"))
 
     const short fmt = (short)tbl_->getIntValue(
-				RowCol(SEGY::BinHeader::EntryFmt(),1) );
-    if ( !SEGY::BinHeader::isValidFormat(fmt) )
+				RowCol(BinHeader::EntryFmt(),1) );
+    if ( !BinHeader::isValidFormat(fmt) )
 	mErrRet(tr("The 'format' entry must be 1,3,5 "
 		   "or 8 (see row tooltip).\n"))
 
-    const int orgfmtbts = SEGY::BinHeader::formatBytes(orgfmt_);
-    const int fmtbts = SEGY::BinHeader::formatBytes(fmt);
+    const int orgfmtbts = BinHeader::formatBytes(orgfmt_);
+    const int fmtbts = BinHeader::formatBytes(fmt);
     if ( orgns_ * orgfmtbts != ns * fmtbts )
     {
 	uiString msg = tr("You have changed the number of bytes per trace:\n"
@@ -136,7 +139,7 @@ bool acceptOK()
     return true;
 }
 
-    SEGY::BinHeader&	hdr_;
+    BinHeader&		hdr_;
     const SEGY::HdrDef&	def_;
     int			orgns_;
     short		orgfmt_;
@@ -151,7 +154,9 @@ class uiSEGYBinHdrEd : public uiCompoundParSel
 { mODTextTranslationClass(uiSEGYBinHdrEd);
 public:
 
-uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
+    mUseType( SEGY,	BinHeader );
+
+uiSEGYBinHdrEd( uiParent* p, BinHeader& h )
     : uiCompoundParSel(p,tr("Binary header"),uiStrings::sChange())
     , hdr_(h)
 {
@@ -184,7 +189,7 @@ void doDlg( CallBacker* )
 	updateSummary();
 }
 
-    SEGY::BinHeader&	hdr_;
+    BinHeader&	hdr_;
 
 };
 
@@ -194,9 +199,9 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
 				  tr("Edit '%1'").arg(fnm),
 				  mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
-    , txthdr_(*new SEGY::TxtHeader)
-    , binhdr_(*new SEGY::BinHeader)
-    , calcset_(*new SEGY::HdrCalcSet(SEGY::TrcHeader::hdrDef()))
+    , txthdr_(*new TxtHeader)
+    , binhdr_(*new BinHeader)
+    , calcset_(*new HdrCalcSet(SEGY::TrcHeader::hdrDef()))
     , strm_(0)
     , errlbl_(0)
 {
@@ -239,12 +244,16 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     outfnmfld_ = new uiFileSel( outgrp, uiStrings::sOutputFile(), singfssu );
     outfnmfld_->attach( alignedBelow, selmultifld_ );
     uiFileSel::Setup multfssu( fssu );
-    inpfnmsfld_ = new uiFileSel( outgrp, uiStrings::sFileName(mPlural), fssu );
+    inpfnmsfld_ = new uiFileSel( outgrp, uiStrings::sInputFile(mPlural), fssu );
     inpfnmsfld_->setSelectionMode( OD::SelectMultiFile );
     inpfnmsfld_->attach( alignedBelow, selmultifld_ );
     postfixfld_ = new uiGenInput( outgrp, tr("Postfix for file basename"),
 				  StringInpSpec("edited") );
     postfixfld_->attach( alignedBelow, inpfnmsfld_ );
+    dotxthdbox_ = new uiCheckBox( outgrp, tr("Replace text header") );
+    dotxthdbox_->attach( rightOf, postfixfld_ );
+    dobinhdbox_ = new uiCheckBox( outgrp, tr("Replace binary header") );
+    dobinhdbox_->attach( rightOf, dotxthdbox_ );
 
     outgrp->attach( ensureBelow, sep );
     outgrp->attach( hCentered );
@@ -371,6 +380,7 @@ bool uiSEGYFileManip::openInpFile()
     binhdr_.guessIsSwapped();
 
     filesize_ = strm_->endPosition();
+    databytespertrace_ = binhdr_.nrSamples() * binhdr_.bytesPerSample();
     return true;
 }
 
@@ -606,7 +616,7 @@ void uiSEGYFileManip::saveReq( CallBacker* )
     if ( !calcset_.storeInSettings() )
 	uiMSG().error(uiStrings::phrCannotWrite(
 		 tr("to the user settings file:\n%1")
-		 .arg(GetSettingsFileName(SEGY::HdrCalcSet::sKeySettsFile()))));
+		 .arg(GetSettingsFileName(HdrCalcSet::sKeySettsFile()))));
 }
 
 
@@ -652,6 +662,8 @@ void uiSEGYFileManip::destSelCB( CallBacker* cb )
     outfnmfld_->display( !wantmulti );
     inpfnmsfld_->display( wantmulti );
     postfixfld_->display( wantmulti );
+    dotxthdbox_->display( wantmulti );
+    dobinhdbox_->display( wantmulti );
 }
 
 
@@ -790,7 +802,9 @@ bool uiSEGYFileManip::acceptOK()
     if ( binhdr_.nrSamples() < 1 )
 	mErrRet( tr("Binary header's number of samples must be > 0") )
     const bool wantmulti = !selmultifld_->getBoolValue();
+    const BufferString orgfname( fname_ );
     BufferStringSet fnms; BufferString postfix;
+    dotxthd_ = dobinhd_ = true;
     if ( !wantmulti )
     {
 	fnms.add( outfnmfld_->fileName() );
@@ -806,8 +820,11 @@ bool uiSEGYFileManip::acceptOK()
 	inpfnmsfld_->getFileNames( fnms );
 	if ( fnms.isEmpty() )
 	    mErrRet( tr("No files to apply the editing to") )
+	dotxthd_ = dotxthdbox_->isChecked();
+	dobinhd_ = dobinhdbox_->isChecked();
     }
 
+    bool retval = true;
     for ( auto fnm : fnms )
     {
 	BufferString outfnm( *fnm );
@@ -815,20 +832,25 @@ bool uiSEGYFileManip::acceptOK()
 	{
 	    fname_ = *fnm;
 	    File::Path fp( *fnm );
-	    fp.setExtension( postfix );
+	    const BufferString ext = fp.extension();
+	    fp.setExtension( nullptr );
+	    fp.setFileName( BufferString(fp.fileName(),"_",postfix) );
+	    fp.setExtension( ext );
 	    outfnm = fp.fullPath();
 	}
 	if ( !handleFile(outfnm) )
 	{
 	    if ( !wantmulti )
-		return false;
+		{ retval = false; break; }
 	    else if ( fnm == fnms.last()
 		|| !uiMSG().askContinue(tr("Try handling next file?") ) )
-		return false;
+		{ retval = false; break; }
 	}
     }
 
-    return true;
+    if ( wantmulti )
+	fname_ = orgfname;
+    return retval;
 }
 
 
@@ -844,14 +866,16 @@ bool uiSEGYFileManip::handleFile( const char* outpfnm )
     od_ostream outstrm( outfp.fullPath() );
     if ( !outstrm.isOK() )
 	{ mErrRet(uiStrings::phrCannotOpenOutpFile()) }
+    od_istream instrm( inpfp.fullPath() );
+    if ( !instrm.isOK() )
+	{ mErrRet(uiStrings::phrCannotOpenInpFile()) }
 
     txthdr_.setText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );
 
-    const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();
-    strm().setReadPosition( 0 );
-    Executor* exec = calcset_.getApplier( strm(), outstrm, bptrc,
-					  &binhdr_, &txthdr_ );
+    TxtHeader* thptr = dotxthd_ ? &txthdr_ : nullptr;
+    BinHeader* bhptr = dobinhd_ ? &binhdr_ : nullptr;
+    Executor* exec = calcset_.getApplier( instrm, outstrm, thptr, bhptr );
     uiTaskRunner uitr( this );
     const bool rv = uitr.execute( *exec );
     delete exec;

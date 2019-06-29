@@ -34,6 +34,10 @@ mExpClass(uiSEGY) uiSEGYFileManip : public uiDialog
 { mODTextTranslationClass(uiSEGYFileManip);
 public:
 
+    mUseType( SEGY,	TxtHeader );
+    mUseType( SEGY,	BinHeader );
+    mUseType( SEGY,	HdrCalcSet );
+
 			uiSEGYFileManip(uiParent*,const char* filenm);
 			~uiSEGYFileManip();
 
@@ -47,15 +51,18 @@ public:
 protected:
 
     BufferString	fname_;
-    SEGY::TxtHeader&	txthdr_;
-    SEGY::BinHeader&	binhdr_;
-    SEGY::HdrCalcSet&	calcset_;
+    TxtHeader&		txthdr_;
+    BinHeader&		binhdr_;
+    HdrCalcSet&		calcset_;
     uiString		errmsg_;
     BoolTypeSet		trchdrdefined_;
     od_istream*		strm_;
     od_int64		filesize_;
     unsigned char	inphdrbuf_[SegyTrcHeaderLength];
     unsigned char	curhdrbuf_[SegyTrcHeaderLength];
+    bool		dotxthd_;
+    bool		dobinhd_;
+    int			databytespertrace_;
 
     uiTextEdit*		txthdrfld_;
     uiSEGYBinHdrEd*	binhdrfld_;
@@ -69,6 +76,8 @@ protected:
     uiToolButton*	plotbut_;
     uiTable*		thtbl_;
     uiCheckBox*		plotallbox_;
+    uiCheckBox*		dotxthdbox_;
+    uiCheckBox*		dobinhdbox_;
     uiSpinBox*		trcnrfld_;
     uiLabel*		errlbl_;
     uiGenInput*		selmultifld_;

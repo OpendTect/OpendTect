@@ -188,35 +188,44 @@ class SEGYHdrCalcSetapplier : public Executor
 public:
 
 SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
-			od_istream& is, od_ostream& os, int dbpt,
-			const SEGY::BinHeader* bh, const SEGY::TxtHeader* th )
+			od_istream& is, od_ostream& os,
+			const SEGY::TxtHeader* th, const SEGY::BinHeader* bh )
     : Executor("Manipulate SEG-Y file")
-    , tkzs_(cs)
+    , hcs_(cs)
     , inpstrm_(is)
     , outstrm_(os)
-    , bptrc_(dbpt+240)
     , nrdone_(-1)
+    , bptrc_(240)
     , msg_(tr("Handling traces"))
     , needswap_(bh ? bh->isSwapped() : false)
+    , rdbuf_(nullptr)
 {
     totalnr_ = inpstrm_.endPosition();
     inpstrm_.setReadPosition( 0 );
 
-    buf_ = new unsigned char [bptrc_>mSEGYFileHdrSize?bptrc_:mSEGYFileHdrSize];
-    if ( !inpstrm_.getBin(buf_,mSEGYFileHdrSize) )
+    auto* fhdrbuf = new unsigned char [mSEGYFileHdrSize];
+    if ( !inpstrm_.getBin(fhdrbuf,mSEGYFileHdrSize) )
 	msg_ = tr("Cannot read file headers");
     else
     {
 	if ( th )
-	    OD::memCopy( buf_, th->txt_, 3200 );
-	if ( bh )
-	{
-	    OD::memCopy( buf_+3200, bh->buf(), 400 );
-	    if ( needswap_ )
-		SEGY::BinHeader::hdrDef().swapValues( buf_+3200 );
-	}
+	    OD::memCopy( fhdrbuf, th->txt_, 3200 );
 
-	if ( !outstrm_.addBin(buf_,mSEGYFileHdrSize) )
+	SEGY::BinHeader filebh;
+	if ( !bh )
+	{
+	    filebh.setInput( fhdrbuf+3200 );
+	    bh = &filebh;
+	}
+	else
+	{
+	    OD::memCopy( fhdrbuf+3200, bh->buf(), 400 );
+	    if ( needswap_ )
+		SEGY::BinHeader::hdrDef().swapValues( fhdrbuf+3200 );
+	}
+	bptrc_ = 240 + bh->nrSamples() * bh->bytesPerSample();
+
+	if ( !outstrm_.addBin(fhdrbuf,mSEGYFileHdrSize) )
 	    msg_ = tr("Cannot write to output file");
 	else
 	    nrdone_ = 0;
@@ -224,6 +233,13 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
 
     totalnr_ -= mSEGYFileHdrSize;
     totalnr_ /= bptrc_;
+
+    rdbuf_ = new unsigned char [bptrc_];
+}
+
+~SEGYHdrCalcSetapplier()
+{
+    delete rdbuf_;
 }
 
 uiString message() const		{ return msg_; }
@@ -233,19 +249,19 @@ od_int64 totalNr() const		{ return totalnr_; }
 
 int nextStep()
 {
-    if ( nrdone_ < 0 )
+    if ( nrdone_ < 0 || !rdbuf_ )
 	return ErrorOccurred();
 
     if ( nrdone_ >= totalnr_ )
 	return Finished();
 
-    if ( !inpstrm_.getBin(buf_,bptrc_) )
+    if ( !inpstrm_.getBin(rdbuf_,bptrc_) )
     {
 	msg_ = tr("Unexpected early end of input file encountered");
 	return ErrorOccurred();
     }
-    tkzs_.apply( buf_, needswap_ );
-    if ( !outstrm_.addBin(buf_,bptrc_) )
+    hcs_.apply( rdbuf_, needswap_ );
+    if ( !outstrm_.addBin(rdbuf_,bptrc_) )
     {
 	msg_ = tr("Cannot write to output file."
 		  "\nWrote %1 traces.\nTotal: %2"
@@ -258,13 +274,13 @@ int nextStep()
     return nrdone_ == totalnr_ ? Finished() : MoreToDo();
 }
 
-    const SEGY::HdrCalcSet& tkzs_;
+    const SEGY::HdrCalcSet& hcs_;
     od_istream&		inpstrm_;
     od_ostream&		outstrm_;
     od_int64		nrdone_;
     od_int64		totalnr_;
-    const unsigned int	bptrc_;
-    unsigned char*	buf_;
+    unsigned int	bptrc_;
+    unsigned char*	rdbuf_;
     bool		needswap_;
     uiString		msg_;
 
@@ -272,9 +288,9 @@ int nextStep()
 
 
 Executor* SEGY::HdrCalcSet::getApplier( od_istream& is, od_ostream& os,
-	int dbpt, const SEGY::BinHeader* bh, const SEGY::TxtHeader* th ) const
+			const TxtHeader* th, const BinHeader* bh ) const
 {
-    return new SEGYHdrCalcSetapplier( *this, is, os, dbpt, bh, th );
+    return new SEGYHdrCalcSetapplier( *this, is, os, th, bh );
 }
 
 
