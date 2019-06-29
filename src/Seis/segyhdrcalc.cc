@@ -183,11 +183,11 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 
 #define mSEGYFileHdrSize 3600
 
-class SEGYHdrCalcSetapplier : public Executor
-{ mODTextTranslationClass(SEGYHdrCalcSetapplier);
+class SEGYHdrCalcSetApplier : public Executor
+{ mODTextTranslationClass(SEGYHdrCalcSetApplier);
 public:
 
-SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
+SEGYHdrCalcSetApplier( const SEGY::HdrCalcSet& cs,
 			od_istream& is, od_ostream& os,
 			const SEGY::TxtHeader* th, const SEGY::BinHeader* bh )
     : Executor("Manipulate SEG-Y file")
@@ -237,7 +237,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     rdbuf_ = new unsigned char [bptrc_];
 }
 
-~SEGYHdrCalcSetapplier()
+~SEGYHdrCalcSetApplier()
 {
     delete rdbuf_;
 }
@@ -290,7 +290,7 @@ int nextStep()
 Executor* SEGY::HdrCalcSet::getApplier( od_istream& is, od_ostream& os,
 			const TxtHeader* th, const BinHeader* bh ) const
 {
-    return new SEGYHdrCalcSetapplier( *this, is, os, th, bh );
+    return new SEGYHdrCalcSetApplier( *this, is, os, th, bh );
 }
 
 
