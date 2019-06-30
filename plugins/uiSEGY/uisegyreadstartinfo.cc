@@ -68,6 +68,7 @@ uiSEGYByteNr( uiParent* p, const char* nm )
     szfld_->setHSzPol( uiObject::Small );
     szfld_->addItem( toUiString("2 bytes") );
     szfld_->addItem( toUiString("4 bytes") );
+    szfld_->addItem( toUiString("4 [IEEE]") );
     szfld_->setCurrentItem( 1 );
     szfld_->attach( rightTo, bytenrfld_, 0 );
 
@@ -87,8 +88,9 @@ void changeCB( CallBacker* cb )
 	const int selidx = nonefound_ ? -1 : bytenrfld_->currentItem();
 	if ( selidx >= 0 )
 	{
-	    const bool issmall = hdef_[ heidxs_[selidx] ]->issmall_;
-	    szfld_->setCurrentItem( issmall ? 0 : 1 );
+	    const auto& he = *hdef_[ heidxs_[selidx] ];
+	    szfld_->setCurrentItem( he.issmall_ ? 0
+			: (he.type_ == SEGY::HdrEntry::Float ? 2 : 1) );
 	}
     }
 
@@ -104,6 +106,8 @@ SEGY::HdrEntry hdrEntry() const
 	ret = *hdef_[ heidxs_[selidx] ];
 	ret.bytepos_++; // convert to 'user' byte number
 	ret.issmall_ = szfld_->currentItem()==0;
+	if ( szfld_->currentItem()==2 )
+	    ret.type_ = SEGY::HdrEntry::Float;
     }
     return ret;
 }
@@ -115,6 +119,7 @@ void setHdrEntry( const SEGY::HdrEntry& entry )
 
     short bnr = entry.bytepos_;
     const bool issmall = entry.issmall_;
+    const bool isieee = entry.type_ == SEGY::HdrEntry::Float;
     NotifyStopper ns( changed );
     if ( bnr%2 )
 	bnr--; // input was 'user' byte number
@@ -125,7 +130,7 @@ void setHdrEntry( const SEGY::HdrEntry& entry )
 	if ( he.bytepos_ == bnr )
 	{
 	    bytenrfld_->setCurrentItem( idx );
-	    szfld_->setCurrentItem( issmall ? 0 : 1 );
+	    szfld_->setCurrentItem( issmall ? 0 : (isieee ? 2 : 1) );
 	    break;
 	}
     }
