@@ -751,7 +751,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
 #define mGetFloatVal(memb,fac) \
     if ( !hdef_.memb##_.isUdf() ) \
     {\
-	float ftemp = (float)hdef_.memb##_.getValue(buf_,needswap_); \
+	float ftemp = hdef_.memb##_.getfValue(buf_,needswap_); \
 	ti.memb##_ = ftemp * fac; \
     }
     mGetFloatVal(pick,0.001f);
@@ -768,9 +768,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
     ti.coord_.x_ = ti.coord_.y_ = 0;
     ti.coord_.x_ = hdef_.xcoord_.getValue(buf_,needswap_);
     ti.coord_.y_ = hdef_.ycoord_.getValue(buf_,needswap_);
-    ti.offset_ = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
+    ti.offset_ = hdef_.offs_.getfValue(buf_,needswap_);
     if ( ti.offset_ < 0 ) ti.offset_ = -ti.offset_;
-    ti.azimuth_ = mCast( float, hdef_.azim_.getValue(buf_,needswap_) );
+    ti.azimuth_ = hdef_.azim_.getfValue(buf_,needswap_);
     ti.azimuth_ *= M_PI / 360;
 
     if ( !is2d )
