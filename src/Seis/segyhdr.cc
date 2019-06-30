@@ -699,7 +699,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti, bool is2d ) const
 	ti.setPos( tibid );
     }
 
-    ti.refnr_ = mCast( float, entryVal( EntrySP() ) );
+    ti.refnr_ = entryfVal( EntrySP() );
     if ( !isrev0_ )
     {
 	const short scalnr = (short)entryVal( EntrySPscale() );

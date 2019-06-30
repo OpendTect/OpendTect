@@ -219,6 +219,8 @@ public:
 
     inline int	entryVal( int idx ) const
 		{ return hdrDef()[idx]->getValue(buf_,needswap_); }
+    inline float entryfVal( int idx ) const
+		{ return hdrDef()[idx]->getfValue(buf_,needswap_); }
     inline void	setEntryVal( int idx, int val ) const
 		{ return hdrDef()[idx]->putValue(buf_,val); }
 

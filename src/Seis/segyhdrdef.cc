@@ -95,6 +95,27 @@ static const unsigned char* getBytes( const void* inpbuf, bool swapped,
 
 #define mGetBytes() getBytes(buf,swapped,byteposition,byteSize())
 
+float SEGY::HdrEntry::getfValue( const void* buf, bool swapped ) const
+{
+    if ( bytepos_ < 0 )
+	return 0;
+    short byteposition = bytepos_;
+    if ( !isInternal() )
+	byteposition--;
+
+    if ( issmall_ )
+	return type_ == UInt ? (float)IbmFormat::asUnsignedShort( mGetBytes() )
+			     : (float)IbmFormat::asShort( mGetBytes() );
+    else if ( type_ == UInt )
+	return (float)IbmFormat::asUnsignedShort( mGetBytes() );
+    else if ( type_ == Float )
+	return *( (float*)mGetBytes() );
+		// If they are stupid enough to put floats in SEG-Y headers,
+		// then they will probably not do that in IbmFormat
+
+    return (float)IbmFormat::asInt( mGetBytes() );
+}
+
 int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
 {
     if ( bytepos_ < 0 )

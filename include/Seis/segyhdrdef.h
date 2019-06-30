@@ -63,6 +63,7 @@ public:
 			{ return b >= bytepos_ && b < bytepos_ + byteSize(); }
 
     int			getValue(const void* buf,bool swapped=false) const;
+    float		getfValue(const void* buf,bool swapped=false) const;
     void		putValue(void* buf,int) const;
 
     void		usePar(const IOPar&,const char* ky,const HdrDef* hd=0);
