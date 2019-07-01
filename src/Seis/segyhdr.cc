@@ -757,12 +757,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
     mGetFloatVal(pick,0.001f);
     mPIEPAdj(Z,ti.pick_,true);
     float nrfac = 1.f;
-    if ( !isrev0_ )
-    {
-	short scalnr = (short)entryVal( EntrySPscale() );
-	if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
-	    nrfac = 1.f / ((float)(-scalnr));
-    }
+    short scalnr = (short)entryVal( EntrySPscale() );
+    if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
+	nrfac = 1.f / ((float)(-scalnr));
     mGetFloatVal(refnr,nrfac);
 
     ti.coord_.x_ = ti.coord_.y_ = 0;
