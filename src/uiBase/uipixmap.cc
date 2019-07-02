@@ -158,6 +158,48 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
 }
 
 
+void uiPixmap::fillGradient( const Color& col1, const Color& col2, bool hor )
+{
+    srcname_ = "[Gradient]";
+
+    const bool validsz = width()>=2 && height()>=2;
+    if ( !validsz )
+    {
+	qpixmap_->fill( QColor(0,0,0,0) );
+	return;
+    }
+
+    uiRGBArray rgbarr( false );
+    rgbarr.setSize( width(), height() );
+    if ( hor )
+    {
+	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
+	{
+	    const float frac = idx1 / (float) width();
+	    const Color color = Color::interpolate( col1, col2, frac );
+	    for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
+		rgbarr.set( idx1, idx2, color );
+	}
+    }
+    else // vertical colorbar
+    {
+	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
+	{
+	    const float frac = idx1 / (float) height();
+	    const Color color = Color::interpolate( col1, col2, frac );
+	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
+		rgbarr.set( idx2, idx1, color );
+	}
+    }
+
+    convertFromRGBArray( rgbarr );
+
+    QPainter painter( qpixmap_ );
+    painter.setPen( QColor(100,100,100) );
+    painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
+}
+
+
 bool uiPixmap::save( const char* fnm, const char* fmt, int quality ) const
 { return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false; }
 
