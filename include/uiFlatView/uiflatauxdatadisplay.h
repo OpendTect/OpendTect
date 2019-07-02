@@ -1,5 +1,5 @@
-#ifndef uiflatauxdataeditor_h
-#define uiflatauxdataeditor_h
+#ifndef uiflatauxdatadisplay_h
+#define uiflatauxdatadisplay_h
 /*+
 ________________________________________________________________________
 
