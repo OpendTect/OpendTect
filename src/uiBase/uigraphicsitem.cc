@@ -649,15 +649,15 @@ void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
     itm->qGraphicsItem()->setParentItem( 0 );
 
     QGraphicsItem* qitm = itm->qGraphicsItem();
-    qgraphicsitemgrp_->removeFromGroup( qitm );
     if ( withdelete )
     {
 	if ( qitm && qitm->scene() )
 	    qitm->scene()->removeItem( qitm );
-//	delete itm; TODO: This delete leads to crash in Qt 4.4.3
-	itm->setVisible( false );
-	items2bdel_ += itm;
+	delete itm;
+	return;
     }
+
+    qgraphicsitemgrp_->removeFromGroup( qitm );
 }
 
 
