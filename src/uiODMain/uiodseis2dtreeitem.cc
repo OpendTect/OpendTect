@@ -480,15 +480,20 @@ const char* uiOD2DLineTreeItem::parentType() const
 { return typeid(uiODLine2DParentTreeItem).name(); }
 
 
+Pos::GeomID uiOD2DLineTreeItem::geomID() const
+{
+    const Probe* probe = getProbe();
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe);
+    return l2dprobe ? l2dprobe->geomID() : GeomID();
+}
+
+
 bool uiOD2DLineTreeItem::init()
 {
     Probe* probe = getProbe();
     mDynamicCastGet(Line2DProbe*,l2dprobe,probe);
     if ( !probe || !l2dprobe )
-    {
-	pErrMsg( "Shared Object not of type Line2D Probe" );
-	return false;
-    }
+	{ pErrMsg( "Shared Object not of type Line2D Probe" ); return false; }
 
     bool newdisplay = false;
     if ( displayid_==-1 )
@@ -630,7 +635,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 
-	TrcKeyZSampling maxcs;
+	TrcKeyZSampling maxcs( geomID() );
 	assign( maxcs.zsamp_, s2d->getMaxZRange(true)  );
 	maxcs.hsamp_.start_.crl() = s2d->getMaxTraceNrRange().start;
 	maxcs.hsamp_.stop_.crl() = s2d->getMaxTraceNrRange().stop;
@@ -642,7 +647,8 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 				   maxcs, dummy, uiSliceSel::TwoD,
 				   scene->zDomainInfo() );
 	if ( !positiondlg.go() ) return;
-	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
+	TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
+	newcs.hsamp_.setGeomID( geomID() );
 	probe->setPos( newcs );
 
 	updateColumnText(0);

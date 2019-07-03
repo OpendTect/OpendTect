@@ -25,6 +25,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
     mDefineItemMembers( Line2DParent, SceneProbeParentTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
+
 			~uiODLine2DParentTreeItem();
 
     virtual bool	is2D() const			{ return true; }
@@ -85,12 +86,14 @@ public:
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODSceneProbeTreeItem
 { mODTextTranslationClass(uiOD2DLineTreeItem);
 public:
+    mUseType( Pos,	GeomID );
 
 			uiOD2DLineTreeItem(Probe&,int displayid=-1);
 
     void		showLineName(bool);
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
+    GeomID		geomID() const;
 
 protected:
 

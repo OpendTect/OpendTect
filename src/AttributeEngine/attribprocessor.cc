@@ -252,6 +252,7 @@ void Processor::init()
 {
     TypeSet<int> globaloutputinterest;
     FullSubSel globalfss;
+    globalfss.setToAll( is2D() );
     defineGlobalOutputSpecs( globaloutputinterest, globalfss );
     if ( is2D() )
     {
@@ -306,7 +307,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	FullSubSel fss;
+	FullSubSel fss; fss.setToAll( is2D() );
 	if ( !outputs_[idx]->getDesiredSubSel(fss) )
 	{
 	    outputs_[idx]->unRef();

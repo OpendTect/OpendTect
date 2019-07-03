@@ -76,7 +76,10 @@ public:
 mExpClass(General) Line2DProbe : public Probe
 {
 public:
-			Line2DProbe(Pos::GeomID);
+
+    mUseType( Pos,	GeomID );
+
+			Line2DProbe(GeomID);
 			Line2DProbe();
 			~Line2DProbe();
 			mDeclInstanceCreatedNotifierAccess(Line2DProbe);
@@ -86,14 +89,14 @@ public:
 
     bool		is2D() const override		{ return true; }
 
-			mImplSimpleMonitoredGet(geomID,Pos::GeomID,geomid_);
-    void		setGeomID(Pos::GeomID);
+			mImplSimpleMonitoredGet(geomID,GeomID,geomid_);
+    void		setGeomID(GeomID);
     virtual void	fillPar(IOPar&) const override;
     virtual bool	usePar(const IOPar&) override;
 
 protected:
 
-    Pos::GeomID		geomid_;
+    GeomID		geomid_;
 
 };
 
