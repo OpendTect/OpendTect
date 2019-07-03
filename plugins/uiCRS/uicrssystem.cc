@@ -243,7 +243,8 @@ void uiProjectionBasedSystem::convCB( CallBacker* )
     {
 	TrcKeyZSampling worktksz;
 	si_->getSampling( worktksz, OD::UsrWork );
-	const Coord centerpos = worktksz.hsamp_.center().getCoord();
+	const Coord centerpos =
+		si_->transform( worktksz.hsamp_.center().binID() );
 	convdlg_ = new uiConvertGeographicPos( this, outputsystem_, centerpos );
     }
 
