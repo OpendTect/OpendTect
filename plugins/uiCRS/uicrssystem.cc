@@ -240,7 +240,8 @@ void uiProjectionBasedSystem::convCB( CallBacker* )
     if ( !convdlg_ )
     {
 	const TrcKeyZSampling survtkzs = si_->sampling( true );
-	const Coord centerpos = survtkzs.hsamp_.center().getCoord();
+	const Coord centerpos =
+		si_->transform( survtkzs.hsamp_.center().binID() );
 	convdlg_ = new uiConvertGeographicPos( this, outputsystem_.ptr(),
 						centerpos );
     }
