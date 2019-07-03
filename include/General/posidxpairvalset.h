@@ -64,6 +64,8 @@ public:
 
     inline SPos		find( const IdxPair& ip ) const
 			{ return data_.find( ip ); }
+    inline SPos		findNearest( const IdxPair& ip ) const
+			{ return data_.findNearest( ip ); }
     SPos		findOccurrence( const IdxPair& ip, int occ=0 ) const
 			{ return data_.findOccurrence( ip, occ ); }
     bool		next( SPos& spos, bool skip_dupl_idxpairs=false ) const

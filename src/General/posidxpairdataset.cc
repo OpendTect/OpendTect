@@ -564,6 +564,53 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findOccurrence(
 }
 
 
+void Pos::IdxPairDataSet::updNearest( const IdxPair& ip, const SPos& spos,
+		    od_int64& mindistsq, SPos& ret ) const
+{
+    const auto curip = getIdxPair( spos );
+    const IdxPair ipdiff( curip.first-ip.first, curip.second-ip.second );
+    od_int64 distsq = ((od_int64)ipdiff.first) * ipdiff.first;
+    distsq += ((od_int64)ipdiff.second) * ipdiff.second;
+    if ( distsq < mindistsq )
+	{ ret = spos; mindistsq = distsq; }
+}
+
+
+Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findNearest(
+					const IdxPair& ip ) const
+{
+    SPos ret;
+    const auto nrfrst = frsts_.size();
+    if ( nrfrst < 1 )
+	return ret;
+
+    od_int64 mindistsq = mUdf( od_int64 );
+
+
+    for ( SPos spos(0); spos.i<nrfrst; spos.i++ )
+    {
+	const IdxSet& scnds = gtScndSet( spos );
+	const auto lastj = scnds.size() - 1;
+	bool found;
+	spos.j = findIndexFor( scnds, ip.second, &found );
+	if ( found )
+	    updNearest( ip, spos, mindistsq, ret );
+	else if ( spos.j < 0 )
+	    { spos.j = 0; updNearest( ip, spos, mindistsq, ret ); }
+	else if ( spos.j > lastj )
+	    { spos.j = lastj; updNearest( ip, spos, mindistsq, ret ); }
+	else
+	{
+	    updNearest( ip, spos, mindistsq, ret );
+	    if ( spos.j < lastj )
+		{ spos.j++; updNearest( ip, spos, mindistsq, ret ); }
+	}
+    }
+
+    return ret;
+}
+
+
 bool Pos::IdxPairDataSet::next( SPos& spos, bool skip_dup ) const
 {
     if ( spos.i < 0 )

@@ -116,6 +116,7 @@ public:
     inline SPos		findFirst( const IdxPair& ip ) const
 						{ return findOccurrence(ip,0); }
     SPos		findOccurrence(const IdxPair&,int occ=0) const;
+    SPos		findNearest(const IdxPair&) const;
     bool		next(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		prev(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		isValid(SPos) const;
@@ -243,6 +244,8 @@ protected:
     bool		addObj(SPos&,pos_type,const void*);
     void		putObj(const SPos&,const void*);
     void		addEntry(const Pos::IdxPair&,const void*,SPos&);
+    void		updNearest(const IdxPair&,const SPos&,
+				   od_int64&,SPos&) const;
 
     // All 'gt' functions return unchecked
     inline pos_type	gtFrst( const SPos& pos ) const

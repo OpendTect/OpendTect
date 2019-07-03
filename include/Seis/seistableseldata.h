@@ -29,6 +29,9 @@ mExpClass(Seis) TableSelData : public SelData
 {
 public:
 
+    typedef Pos::Distance_Type	dist_type;
+
+
     Type		type() const override	{ return Table; }
 
 			TableSelData();
@@ -45,12 +48,16 @@ public:
     BinIDValueSet&	binidValueSet()		{ return bvs_; }
     const BinIDValueSet& binidValueSet() const	{ return bvs_; }
     z_rg_type		extraZ() const		{ return extraz_; }
+    dist_type		searchRadius() const	{ return searchradius_; }
     void		merge(const TableSelData&);
 
     PosIter*		posIter() const override;
     pos_rg_type		inlRange() const override;
     pos_rg_type		crlRange() const override;
     z_rg_type		zRange(idx_type i=0) const override;
+
+    void		setSearchRadius( dist_type r ) { searchradius_ = r; }
+    void		setExtraZ( z_rg_type zr ) { extraz_ = zr; }
     void		setZRange( const z_rg_type& zrg, idx_type i=0 ) override
 						{ fixedzrange_ = zrg; }
 
@@ -61,6 +68,7 @@ protected:
     BinIDValueSet&	bvs_;
     z_rg_type		extraz_;
     z_rg_type		fixedzrange_; // used only if no z vals in bidvalset
+    dist_type		searchradius_		= 0;
 
     void		doCopyFrom(const SelData&) override;
     void		doExtendH(BinID,BinID) override;
@@ -68,6 +76,7 @@ protected:
     void		doFillPar(IOPar&) const override;
     void		doUsePar(const IOPar&) override;
     uiString		gtUsrSummary() const override;
+    int			selRes2D(GeomID,pos_type) const override;
     int			selRes3D(const BinID&) const override;
 
     friend class	TableSelDataPosIter;

@@ -179,11 +179,34 @@ void Seis::TableSelData::doExtendH( BinID so, BinID sos )
 }
 
 
+int Seis::TableSelData::selRes2D( GeomID gid, pos_type trcnr ) const
+{
+    if ( bvs_.is2D() )
+	return selRes3D( BinID(gid.lineNr(),trcnr) );
+	// BinIDValueSets can actually be Bin2DValueSets
+
+    return SelData::selRes2D( gid, trcnr );
+}
+
+
 int Seis::TableSelData::selRes3D( const BinID& bid ) const
 {
-    const BinIDValueSet::SPos pos( bvs_.find(bid) );
-    if ( pos.j >= 0 )
+    const auto pos = bvs_.find( bid );
+    if ( pos.isValid() >= 0 )
 	return 0;
+
+    if ( !mIsZero(searchradius_,0.01) )
+    {
+	const auto nearestpos = bvs_.findNearest( bid );
+	if ( nearestpos.isValid() )
+	{
+	    const auto foundbid = bvs_.getBinID( nearestpos );
+	    const Coord reqcoord = SI().transform( bid );
+	    const Coord foundcoord = SI().transform( foundbid );
+	    if ( foundcoord.distTo<dist_type>(reqcoord) <= searchradius_ )
+		return 0;
+	}
+    }
 
     const int inlres = pos.i < 0 ? 2 : 0;
     const int crlres = 1; // Maybe not true, but safe
