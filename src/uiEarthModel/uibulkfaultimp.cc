@@ -92,7 +92,15 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     if ( ret <= 0 ) return false;
 
     fltnm = text( 0 );
-    crd = getPos3D( 1, 2, 3, udfval_ );
+    
+    if ( !isXY() )
+    {
+	crd.setXY( SI().transform(getBinID(1,2,udfval_)) );
+	crd.z_ = getDValue( 3 );
+    }
+    else
+	crd = getPos3D( 1, 2, 3, udfval_ );
+
     stickidx = getIntValue( 4 );
     nodeidx = getIntValue( 5 );
     if ( is2d_ )
