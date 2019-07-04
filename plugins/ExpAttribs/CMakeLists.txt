@@ -12,6 +12,7 @@ SET(OD_MODULE_SOURCES
 	eventfreqattrib.cc
 	grubbsfilterattrib.cc
 	similaritybyaw.cc
+	integratedtrace.cc
 )
 SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
 OD_INIT_MODULE()

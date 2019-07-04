@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "eventfreqattrib.h"
 #include "grubbsfilterattrib.h"
 #include "similaritybyaw.h"
+#include "integratedtrace.h"
 
 
 mDefODPluginEarlyLoad(ExpAttribs)
@@ -38,6 +39,7 @@ mDefODInitPlugin(ExpAttribs)
 
 #ifdef __debug__
     Attrib::SimilaritybyAW::initClass();
+    Attrib::IntegratedTrace::initClass();
 #endif
 
     return 0;
