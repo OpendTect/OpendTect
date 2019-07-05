@@ -465,7 +465,7 @@ static int border = 5;
 QRectF ODGraphicsTextItem::boundingRect() const
 {
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( QString(text_) );
+    const float txtwidth = qfm.horizontalAdvance( QString(text_) );
     const float txtheight = qfm.height();
 
     const double paintangle = getPaintAngle( transform() );
@@ -503,7 +503,7 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     painter->resetTransform();
 
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( text_ );
+    const float txtwidth = qfm.horizontalAdvance( text_ );
     const float txtheight = qfm.height();
 
     const float width = txtwidth * cos(paintangle) +

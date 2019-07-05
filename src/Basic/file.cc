@@ -843,7 +843,7 @@ const char* File::timeCreated( const char* fnm )
 
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    ret = qfi.created().toString( Qt::ISODate );
+    ret = qfi.birthTime().toString( Qt::ISODate );
     return ret.buf();
 #else
     pFreeFnErrMsg(not_implemented_str);
@@ -876,7 +876,8 @@ od_int64 File::getTimeInSeconds( const char* fnm, bool lastmodif )
 
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    return lastmodif ? qfi.lastModified().toTime_t() : qfi.created().toTime_t();
+    return lastmodif ? qfi.lastModified().toTime_t()
+		     : qfi.birthTime().toTime_t();
 #else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
@@ -893,7 +894,7 @@ od_int64 File::getTimeInMilliSeconds( const char* fnm, bool lastmodif )
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     const QTime qtime = lastmodif ? qfi.lastModified().time()
-	: qfi.created().time();
+	: qfi.birthTime().time();
     const QTime daystart( 0, 0, 0, 0 );
     return daystart.msecsTo( qtime );
 #else

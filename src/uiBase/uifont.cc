@@ -122,13 +122,13 @@ int uiFont::maxWidth() const
 
 int uiFont::avgWidth() const
 {
-    return qfontmetrics_.width(QChar('x'));
+    return qfontmetrics_.horizontalAdvance(QChar('x'));
 }
 
 
 int uiFont::width(const uiString& str) const
 {
-    return qfontmetrics_.width( toQString(str) );
+    return qfontmetrics_.horizontalAdvance( toQString(str) );
 }
 
 

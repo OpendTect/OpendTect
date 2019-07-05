@@ -308,7 +308,7 @@ void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
     setCorner( 7, inlrg.start, crlrg.stop, zrg.stop );
 
     box_->dirtyBound();
-    box_->dirtyDisplayList();
+    box_->dirtyGLObjects();
     geode_->dirtyBound();
 
     updateTextPos();
@@ -502,7 +502,7 @@ void Annotation::updateGridLines()
     }
 
     for ( int idx=gridlines_->getNumDrawables()-1; idx>=0; idx-- )
-	gridlines_->getDrawable(idx)->dirtyDisplayList();
+	gridlines_->getDrawable(idx)->dirtyGLObjects();
 
     gridlines_->dirtyBound();
 }

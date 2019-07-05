@@ -551,7 +551,7 @@ int uiObjectBody::fontWidthFor( const uiString& str ) const
 	return qstr.size() * fnt_wdt;
     }
 
-    return qw->fontMetrics().width( toQString(str) );
+    return qw->fontMetrics().horizontalAdvance( toQString(str) );
 }
 
 
@@ -561,7 +561,7 @@ int uiObjectBody::fontWidthFor( const char* str ) const
     if ( !qw )
 	{ gtFntWdtHgt(); return strLength(str) * fnt_wdt; }
 
-    return qw->fontMetrics().width( QString( str ) );
+    return qw->fontMetrics().horizontalAdvance( QString( str ) );
 }
 
 
@@ -581,7 +581,7 @@ void uiObjectBody::gtFntWdtHgt() const
     QFont qft = QFont();
     QFontMetrics qfm( qft );
     self.fnt_hgt = qfm.lineSpacing() + 2;
-    self.fnt_wdt = qfm.width( QChar('x') );
+    self.fnt_wdt = qfm.horizontalAdvance( QChar('X') );
 
     self.fnt_maxwdt = qfm.maxWidth();
 
@@ -596,7 +596,7 @@ void uiObjectBody::gtFntWdtHgt() const
 	    QChar ch( idx );
 	    if ( ch.isPrint() )
 	    {
-		const int width = qfm.width( ch );
+		const int width = qfm.horizontalAdvance( ch );
 		if ( width>self.fnt_maxwdt )
 		    self.fnt_maxwdt = width;
 	    }

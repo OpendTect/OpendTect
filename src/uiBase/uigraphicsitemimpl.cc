@@ -730,7 +730,7 @@ uiSize uiTextItem::getTextSize() const
     QFontMetrics qfm( qtextitem_->getFont() );
     // Extra space is added to avoid clipping on some platforms and the value is
     // arbitrarily chosen.
-    return uiSize( qfm.width(text_.getOriginalString())+mExtraSpace,
+    return uiSize( qfm.horizontalAdvance(text_.getOriginalString())+mExtraSpace,
 		   qfm.height()+mExtraSpace );
 }
 
@@ -821,7 +821,7 @@ void uiTextItem::fitIn( const uiRect& rect, bool verttxt )
     while ( true )
     {
 	QFontMetrics qfm( qfont );
-	const int wdth = qfm.width( qtxt );
+	const int wdth = qfm.horizontalAdvance( qtxt );
 	const int hght = qfm.height();
 	const bool istoobig = wdth > txtwidth || hght > txtheight;
 	if ( resizedir == 0 )
@@ -836,7 +836,7 @@ void uiTextItem::fitIn( const uiRect& rect, bool verttxt )
 
     qfont.setPointSizeF( prevptsz );
     QFontMetrics qfm( qfont );
-    const int wdth = qfm.width( qtxt );
+    const int wdth = qfm.horizontalAdvance( qtxt );
     int txtdirshift = (txtwidth - wdth) / 2;
     if ( txtdirshift < 0 )
 	txtdirshift = 0;

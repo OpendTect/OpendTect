@@ -1173,12 +1173,12 @@ void RandomTrackDragger::updatePanels()
 
 	    verts->dirty();
 	    norms->dirty();
-	    curpanel->dirtyDisplayList();
+	    curpanel->dirtyGLObjects();
 	    curpanel->dirtyBound();
 
 	    osg::ref_ptr<osg::Geometry> curpoles =
 		    dynamic_cast<osg::Geometry*>( curgeode->getDrawable(1) );
-	    curpoles->dirtyDisplayList();
+	    curpoles->dirtyGLObjects();
 	    curpoles->dirtyBound();
 	}
     }

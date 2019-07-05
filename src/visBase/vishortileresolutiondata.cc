@@ -144,7 +144,7 @@ void TileResolutionData::dirtyGeometry( int type )
     if ( geode )
     {
 	mGetOsgGeometry( geode )->dirtyBound();
-	mGetOsgGeometry( geode )->dirtyDisplayList();
+	mGetOsgGeometry( geode )->dirtyGLObjects();
     }
 }
 
@@ -286,11 +286,11 @@ void TileResolutionData::updatePrimitiveSets()
     { \
 	const int lastidx = geomps->index( pssize-1 ); \
 	if ( lastidx==idx0 && geomps->index(pssize-2)==idx1 ) \
-    	    geomps->push_back( idx2 ); \
+	    geomps->push_back( idx2 ); \
 	else if ( lastidx==idx1 && geomps->index(pssize-2)==idx2 ) \
-    	    geomps->push_back( idx0 ); \
+	    geomps->push_back( idx0 ); \
 	else if ( lastidx==idx2 && geomps->index(pssize-2)==idx0 ) \
-    	    geomps->push_back( idx1 ); \
+	    geomps->push_back( idx1 ); \
 	else \
 	{ \
 	    continuestrip = false; \

@@ -149,8 +149,9 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 				    eventinfo.mousepos.x_+frustrumPixelRadius,
 				    eventinfo.mousepos.y_+frustrumPixelRadius );
 
-    polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
-				       osgUtil::PolytopeIntersector::DimOne );
+    polyintersector->setPrimitiveMask(
+		   osgUtil::PolytopeIntersector::POINT_PRIMITIVES |
+		   osgUtil::PolytopeIntersector::LINE_PRIMITIVES );
 
     const osg::Camera* camera = view->getCamera();
     const osg::Matrix MVPW = camera->getViewMatrix() *
