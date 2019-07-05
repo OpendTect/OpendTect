@@ -192,7 +192,7 @@ int Seis::TableSelData::selRes2D( GeomID gid, pos_type trcnr ) const
 int Seis::TableSelData::selRes3D( const BinID& bid ) const
 {
     const auto pos = bvs_.find( bid );
-    if ( pos.isValid() >= 0 )
+    if ( pos.isValid() )
 	return 0;
 
     if ( !mIsZero(searchradius_,0.01) )
