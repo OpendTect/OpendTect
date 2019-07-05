@@ -220,7 +220,10 @@ bool IOStream::implDoAll( bool dorem, bool yn ) const
     {
 	const BufferString fnm( fs_.absFileName(idx) );
 	if ( dorem )
-	    ret = File::remove( fnm ) && ret;
+	{
+	    if ( File::exists(fnm) )
+		ret = File::remove( fnm ) && ret;
+	}
 	else
 	    ret = File::makeWritable( fnm, !yn, true ) && ret;
     }
