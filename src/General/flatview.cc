@@ -322,6 +322,24 @@ bool FlatView::AuxData::isEmpty() const
 void FlatView::AuxData::empty()
 { poly_.erase(); }
 
+void FlatView::AuxData::FillGradient::set( const Point& fr, const Point& to,
+		const TypeSet<float>& stops, const TypeSet<Color>& colors )
+{
+    from_ = fr; to_ = to;
+    stops_ = stops; colors_ = colors;
+}
+
+
+void FlatView::AuxData::FillGradient::set( const Color& col1,
+					   const Color& col2, bool hor )
+{
+    from_ = Point( 0., 0. );
+    to_ = Point( hor ? 1. : 0., hor ? 0. : 1. );
+    stops_.erase(); colors_.erase();
+    stops_ += 0.f; stops_ += 1.f;
+    colors_ += col1; colors_ += col2;
+}
+
 
 #define mIOPDoWVA(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyWVA(),keynm), memb )

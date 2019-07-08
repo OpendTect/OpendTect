@@ -89,12 +89,11 @@ public:
     public:
 			FillGradient()
 			    : from_(Point::udf()),to_(Point::udf())	{}
-			FillGradient(const Point& fr,const Point& to,
-				     const TypeSet<float>& stops,
-				     const TypeSet<Color>& colors)
-			    : from_(fr),to_(to)
-			    , stops_(stops),colors_(colors)	{}
 
+	void		set(const Point& fr,const Point& to,
+			    const TypeSet<float>& stops,
+			    const TypeSet<Color>& colors);
+	void		set(const Color& col1,const Color& col2,bool hor);
 	bool		hasGradient()	{ return !stops_.isEmpty(); }
 
 	Point		from_;
