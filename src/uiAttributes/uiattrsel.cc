@@ -634,6 +634,8 @@ void uiAttrSel::createFields()
 {
     selfld_ = new uiComboBox( this, "Attrib selector" );
     selfld_->setHSzPol( uiObject::WideVar );
+    selfld_->setEditable( true );
+    selfld_->setReadOnly( true );
 
     typfld_ = new uiComboBox( this, "Attrib type" );
     typfld_->setHSzPol( uiObject::SmallVar );
