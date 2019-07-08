@@ -250,7 +250,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread_))
 	, seissetup_(mkSetup(su,ctxt.forread_))
 	, othdombox_(0)
-        , compnr_(0)
+	, compnr_(0)
 {
     workctio_.ctxt_ = inctio_.ctxt_;
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
@@ -265,7 +265,7 @@ void uiSeisSel::mkOthDomBox()
     if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
     {
 	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? uiStrings::sDepth()
-                                                          : uiStrings::sTime());
+							  : uiStrings::sTime());
 	othdombox_->attach( rightOf, endObj(false) );
     }
 }
@@ -458,7 +458,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 {
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().seltxt( txt );
-    sssu.withwriteopts( false );
+    sssu.withwriteopts(false).withinserters(false);
     return sssu;
 }
 
