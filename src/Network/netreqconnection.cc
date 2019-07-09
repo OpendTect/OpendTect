@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "netreqconnection.h"
 
 #include "applicationdata.h"
+#include "envvars.h"
 #include "netreqpacket.h"
 #include "netsocket.h"
 #include "netserver.h"
@@ -26,6 +27,8 @@ ________________________________________________________________________
 
 namespace Network
 {
+
+mUseType( RequestConnection, port_nr_type );
 
 struct PacketSendData : public RefCount::Referenced
 {
@@ -43,7 +46,7 @@ static Threads::Atomic<int> connid;
 
 
 RequestConnection::RequestConnection( const char* servername,
-				      unsigned short servport,
+				      port_nr_type servport,
 				      bool multithreaded,
 				      int timeout )
     : socket_( 0 )
@@ -81,7 +84,7 @@ RequestConnection::RequestConnection( const char* servername,
 RequestConnection::RequestConnection( Network::Socket* sock )
     : socket_( sock )
     , ownssocket_( false )
-    , serverport_( mUdf(unsigned short) )
+    , serverport_( mUdf(port_nr_type) )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
@@ -487,7 +490,7 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 }
 
 
-RequestServer::RequestServer( unsigned short servport )
+RequestServer::RequestServer( port_nr_type servport )
     : serverport_( servport )
     , server_( new Network::Server )
     , newConnection( this )
@@ -548,8 +551,7 @@ void RequestServer::newConnectionCB(CallBacker* cb)
 }
 
 
-bool RequestConnection::isPortFree( unsigned short port,
-				    uiRetVal* errmsg )
+bool RequestConnection::isPortFree( port_nr_type port, uiString* errmsg )
 {
     const RequestServer reqserv( port );
     const bool ret = reqserv.isOK();
@@ -560,15 +562,38 @@ bool RequestConnection::isPortFree( unsigned short port,
 }
 
 
-unsigned short RequestConnection::getUsablePort( unsigned short firstport,
-						 uiRetVal* errmsg, int nrtries )
+static Threads::Atomic<port_nr_type> lastusableport_ = 0;
+
+
+port_nr_type RequestConnection::getNextCandidatePort()
 {
-    for ( int idx=0; idx<nrtries; idx++, firstport++ )
+    if ( lastusableport_ == 0 )
+	lastusableport_ = GetEnvVarIVal( "OD_START_PORT", 20049 );
+    return lastusableport_ + 1;
+}
+
+
+port_nr_type RequestConnection::getUsablePort( port_nr_type portnr )
+{
+    uiRetVal uirv;
+    return getUsablePort( uirv, portnr, 100 );
+}
+
+
+port_nr_type RequestConnection::getUsablePort( uiRetVal& uirv,
+					 port_nr_type portnr, int nrtries )
+{
+    uiString errmsg;
+    if ( portnr == 0 )
+	portnr = getNextCandidatePort();
+
+    for ( int idx=0; idx<nrtries; idx++, portnr++ )
     {
-	if ( isPortFree(firstport,errmsg) )
-	    return firstport;
+	if ( isPortFree(portnr,&errmsg) )
+	    { lastusableport_ = portnr; return portnr; }
     }
 
+    uirv = errmsg;
     return 0;
 }
 

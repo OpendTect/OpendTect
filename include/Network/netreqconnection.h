@@ -50,8 +50,11 @@ struct PacketSendData;
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
+
+    typedef unsigned short  port_nr_type;
+
 			RequestConnection(const char* servername,
-					  unsigned short serverport,
+					  port_nr_type serverport,
 					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
@@ -64,7 +67,7 @@ public:
     bool		isOK() const;		//!< is the conn usable?
     bool		stillTrying() const;	//!< if not OK, may it become?
     const char*		server() const		{ return servername_; }
-    unsigned short	port() const		{ return serverport_; }
+    port_nr_type	port() const		{ return serverport_; }
     int			ID() const		{ return id_; }
 
     bool		sendPacket(const RequestPacket&,
@@ -93,14 +96,15 @@ public:
 
     uiString		errMsg() const		{ return errmsg_; }
 
-    static const char*		sKeyLocalHost() { return "localhost"; }
+    static const char*	sKeyLocalHost() { return "localhost"; }
 
-    static bool			isPortFree(unsigned short port,
-					   uiRetVal* errmsg=nullptr);
-    static unsigned short	getUsablePort(unsigned short firstport=20050,
-					      uiRetVal* errmsg=nullptr,
-					      int nrtries=100);
+    static port_nr_type	getUsablePort(uiRetVal&,port_nr_type firstport
+					      =0,int maxportstotry=100);
 				//!<Returns 0 if none found
+    static port_nr_type	getUsablePort(port_nr_type firstport=0);
+    static bool			isPortFree(port_nr_type port,
+					   uiString* errmsg=nullptr);
+    static port_nr_type	getNextCandidatePort();
 
 private:
 
@@ -117,7 +121,7 @@ private:
     int				id_;
 
     BufferString		servername_;
-    unsigned short		serverport_;
+    port_nr_type		serverport_;
 
     Threads::Thread*		socketthread_;
     QEventLoop*			eventloop_;
@@ -155,7 +159,10 @@ private:
 mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
-				RequestServer(unsigned short serverport);
+
+    mUseType( RequestConnection, port_nr_type );
+
+				RequestServer(port_nr_type serverport);
 				~RequestServer();
 
     bool			isOK() const;
@@ -169,15 +176,16 @@ public:
 
 private:
 
-    void				newConnectionCB(CallBacker*);
+    void			newConnectionCB(CallBacker*);
 
-    uiString				errmsg_;
+    uiString			errmsg_;
 
-    ObjectSet<RequestConnection>	pendingconns_;
+    ObjectSet<RequestConnection> pendingconns_;
 
-    Threads::Lock			lock_;
-    unsigned short			serverport_;
-    Server*				server_;
+    Threads::Lock		lock_;
+    port_nr_type		serverport_;
+    Server*			server_;
+
 };
 
 
