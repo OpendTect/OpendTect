@@ -1014,12 +1014,12 @@ void uiSurvey::dataRootInfoCB( CallBacker* )
     const BufferString totalmem = getSizeStr( System::bytesTotal(dataroot_) );
     const BufferString freemem = getSizeStr( System::bytesFree(dataroot_) );
     const BufferString availmem = getSizeStr(System::bytesAvailable(dataroot_));
-    uiString msg = tr("%1: %2\n%3: %4\n%5: %6\n%7: %8\n%9: %10")
+    uiString msg = tr("%1: %2\n%3: %4\n\n%5:\t%6\n%7:\t%8\n%9:\t%10")
 	.arg(sKey::Name()).arg(fsnm)
-	.arg(sKey::Type()).arg(fstp)
-	.arg(tr("Total memory")).arg(totalmem)
-	.arg(tr("Free memory")).arg(freemem)
-	.arg(tr("Available memory")).arg(availmem);
+	.arg(tr("File system")).arg(fstp)
+	.arg(tr("Total disk space")).arg(totalmem)
+	.arg(tr("Free disk space")).arg(freemem)
+	.arg(tr("Available disk space")).arg(availmem);
     uiMSG().message( msg );
 }
 
