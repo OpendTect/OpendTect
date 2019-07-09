@@ -48,7 +48,7 @@ static const char* doSetRootDataDir( const char* inpdatadir )
     BufferString datadir = inpdatadir;
 
     if ( !IOMan::isValidDataRoot(datadir) )
-	return "Provided directory name is not a valid OpendTect root data dir";
+	return "Provided folder name is not a valid OpendTect Survey Data Root";
 
     SetCurBaseDataDir( datadir );
 
@@ -87,8 +87,8 @@ static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
-	: uiDialog(p,uiDialog::Setup(tr("Set Data Directory"),
-				     tr("Specify a data storage directory"),
+	: uiDialog(p,uiDialog::Setup(tr("Set OpendTect Survey Data Root"),
+				     tr("Specify a Data Root folder"),
 				     mODHelpKey(mSetDataDirHelpID) ))
 	, curdatadir_(GetBaseDataDir())
 {
@@ -100,16 +100,15 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     {
 	if ( oldok )
 	{
-	    titletxt =	tr("Locate an OpendTect Data Root directory\n"
-			"or specify a new directory name to create");
+	    titletxt =	tr("Locate an OpendTect Data Root folder\n");
 	    basedirnm = curdatadir_;
 	}
 	else
 	{
-	    titletxt =	tr("OpendTect needs a place to store your data files.\n"
+	    titletxt = tr("OpendTect needs a place to store your projects.\n"
 			"\nThe current OpendTect Data Root is invalid.\n"
-			"* Locate a valid data root directory\n"
-			"* Or specify a new directory name to create");
+			"Please locate a valid Data Root folder or\n"
+			"select a recent Data Root");
 
 	    FilePath fp( curdatadir_ );
 	    oddirnm = fp.fileName();
@@ -119,7 +118,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     else
     {
 	titletxt =
-	    tr("OpendTect needs a place to store your data files:"
+	    tr("OpendTect needs a place to store your projects:"
 	    " the OpendTect Data Root.\n\n"
 	    "You have not yet specified a location for it,\n"
 	    "and there is no 'DTECT_DATA' set in your environment.\n\n"
@@ -255,10 +254,10 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	const BufferString ddatslvl( fpdd.dirUpTo(nrslvls-1) );
 	if ( ddatslvl == fps.fullPath() )
 	{
-	    uiMSG().error( tr("The directory you have chosen is"
-		   "\n *INSIDE*\nthe software installation directory."
+	    uiMSG().error( tr("The folder you have chosen is"
+		   "\n *INSIDE*\nthe software installation folder."
 		   "\nThis leads to many problems, and we cannot support this."
-		   "\n\nPlease choose another directory") );
+		   "\n\nPlease choose another folder") );
 	    return false;
 	}
     }
@@ -323,7 +322,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	  || datadir.contains( "program files" )
 	  || datadir.contains( "PROGRAM FILES" ) )
 	    mErrRet( tr("Please do not try to use 'Program Files' for data.\n"
-		     "Instead, a directory like 'My Documents' would be OK.") )
+		     "Instead, a folder like 'My Documents' would be OK.") )
 #endif
 	if ( !File::createDir( datadir ) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(datadir)) )
@@ -332,18 +331,20 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
     while ( !IOMan::isValidDataRoot(datadir) )
     {
 	if ( !File::isDirectory(datadir) )
-	   mErrRet(tr("A file (not a directory) with this name already exists"))
+	   mErrRet(tr("A file (not a folder) with this name already exists"))
 
 	if ( !File::isWritable(datadir) )
-	    mErrRet( tr("Selected directory is not writable") )
+	    mErrRet( tr("Folder %1 is not writable.\n\n"
+			"Please change permissions or select\n"
+			"another Data Root folder.").arg(datadir) )
 
 	if ( File::exists(omffnm) )
 	{
 	    // most likely a survey directory (see IOMan::isValidDataRoot())
 	    const BufferString parentdir = FilePath(datadir).pathOnly();
-	    uiString msg = tr( "Target directory:\n%1\nappears to be a survey "
-		"directory.\n\nDo you want to set its parent:\n%2\nas the "
-		"OpendTect Data Root directory?").arg(datadir).arg(parentdir);
+	    uiString msg = tr( "Target folder:\n%1\nappears to be an OpendTect "
+		"survey folder.\n\nDo you want to set its parent:\n%2\nas the "
+		"OpendTect Data Root?").arg(datadir).arg(parentdir);
 	    if ( !uiMSG().askGoOn(msg) )
 		return false;
 
@@ -368,11 +369,11 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 		offerunzipsurv = false;
 	    else
 	    {
-		uiString msg = tr("The target directory:\n%1"
-		    "\nis not an OpendTect Data Root directory."
+		uiString msg = tr("The target folder:\n%1"
+		    "\nis not an OpendTect Data Root folder."
 		    "\nIt already contains files though."
-		    "\n\nDo you want to convert this directory into an "
-		    "OpendTect Data Root directory?"
+		    "\n\nDo you want to convert this folder into an "
+		    "OpendTect Data Root?"
 		    "\n(this process will not remove the existing files)")
 		    .arg(datadir);
 		if ( !uiMSG().askGoOn( msg ) )
@@ -382,7 +383,8 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 
 	File::copy( stdomf, omffnm );
 	if ( !File::exists(omffnm) )
-	    mErrRet(tr("Could not convert the directory.\n"
+	    mErrRet(tr("Could not convert selected folder into an "
+		       "OpendTect Data Root.\n"
 		       "Most probably you have no write permissions for:\n%1")
 		  .arg(datadir))
 
