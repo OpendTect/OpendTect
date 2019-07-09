@@ -568,7 +568,7 @@ static Threads::Atomic<port_nr_type> lastusableport_ = 0;
 port_nr_type RequestConnection::getNextCandidatePort()
 {
     if ( lastusableport_ == 0 )
-	lastusableport_ = GetEnvVarIVal( "OD_START_PORT", 20049 );
+	lastusableport_ = (port_nr_type)GetEnvVarIVal( "OD_START_PORT", 20049 );
     return lastusableport_ + 1;
 }
 
