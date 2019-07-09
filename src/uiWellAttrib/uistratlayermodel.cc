@@ -77,11 +77,11 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 
 
 class uiStratLayerModelManager : public CallBacker
-{ mODTextTranslationClass(uiStratLayerModelManager);
+{ mODTextTranslationClass(uiStratLayerModelManager)
 public:
 
 uiStratLayerModelManager()
-    : dlg_(0)
+    : dlg_(nullptr)
 {
     IOM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
     IOM().applicationClosing.notify(mCB(this,uiStratLayerModelManager,survChg));
@@ -92,13 +92,13 @@ void survChg( CallBacker* )
 {
     if ( dlg_ )
 	dlg_->saveGenDescIfNecessary( false );
-    delete dlg_; dlg_ = 0;
+    deleteAndZeroPtr( dlg_ );
 }
 
 void winClose( CallBacker* )
 {
     uiStratTreeWin::makeEditable( true );
-    dlg_ = 0;
+    dlg_ = nullptr;
 }
 
 void startCB( CallBacker* cb )
@@ -200,7 +200,7 @@ void doLayerModel( uiParent* p, const char* modnm, int opt )
 
     dlg_ = new uiStratLayerModel( p, modnm, opt );
     if ( !dlg_->moddisp_ )
-	{ delete dlg_; dlg_ = 0; }
+	deleteAndZeroPtr( dlg_ );
     else
     {
 	uiStratTreeWin::makeEditable( false );
@@ -271,11 +271,11 @@ uiStratLayerModel* uiStratLayerModel::getUILayerModel()
 
 
 class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
-{ mODTextTranslationClass(uiStratLayerModelLMProvider);
+{ mODTextTranslationClass(uiStratLayerModelLMProvider)
 public:
 
 uiStratLayerModelLMProvider()
-    : modled_(0)
+    : modled_(nullptr)
 {
     modl_ = new Strat::LayerModel;
     setEmpty();
@@ -340,13 +340,13 @@ void initEditing()
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiString::emptyString(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
-    , elpropsel_(0)
+    , elpropsel_(nullptr)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , analtb_(0)
+    , analtb_(nullptr)
     , lmp_(*new uiStratLayerModelLMProvider)
     , needtoretrievefrpars_(false)
     , automksynth_(true)
-    , moddisp_(0)
+    , moddisp_(nullptr)
     , newModels(this)
     , waveletChanged(this)
     , saveRequired(this)
@@ -497,7 +497,7 @@ void uiStratLayerModel::setWinTitle()
 const char* uiStratLayerModel::levelName() const
 {
     const char* nm = modtools_->selLevel();
-    return !nm || !*nm || (*nm == '-' && *(nm+1) == '-') ? 0 : nm;
+    return !nm || !*nm || (*nm == '-' && *(nm+1) == '-') ? nullptr : nm;
 }
 
 
@@ -551,7 +551,7 @@ const Wavelet* uiStratLayerModel::wavelet() const
 }
 
 
-void uiStratLayerModel::initWin( CallBacker* cb )
+void uiStratLayerModel::initWin( CallBacker* )
 {
     if ( !moddisp_ )
     {
@@ -578,7 +578,7 @@ bool uiStratLayerModel::canShowFlattened() const
 }
 
 
-void uiStratLayerModel::mkSynthChg( CallBacker* cb )
+void uiStratLayerModel::mkSynthChg( CallBacker* )
 {
     automksynth_ = modtools_->mkSynthetics();
     synthdisp_->setAutoUpdate( automksynth_ );
@@ -593,14 +593,14 @@ void uiStratLayerModel::lmViewChangedCB( CallBacker* )
 }
 
 
-void uiStratLayerModel::flattenChg( CallBacker* cb )
+void uiStratLayerModel::flattenChg( CallBacker* )
 {
     moddisp_->setFlattened( modtools_->showFlattened() );
     synthdisp_->setFlattened( modtools_->showFlattened() );
 }
 
 
-void uiStratLayerModel::levelChg( CallBacker* cb )
+void uiStratLayerModel::levelChg( CallBacker* )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor() );
@@ -768,8 +768,10 @@ bool uiStratLayerModel::saveGenDesc() const
     bool rv = false;
 
     MouseCursorChanger mcch( MouseCursor::Wait );
-    Strat::LayerSequenceGenDesc desc = seqdisp_->currentDesc();
-    fillWorkBenchPars( desc.getWorkBenchParams() );
+    const Strat::LayerSequenceGenDesc& desc = seqdisp_->currentDesc();
+    IOPar& wbpars =
+	const_cast<Strat::LayerSequenceGenDesc&>(desc).getWorkBenchParams();
+    fillWorkBenchPars( wbpars );
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
@@ -896,7 +898,7 @@ static bool getCleanSyntheticName( BufferString& sdnm )
     char* cleansdnm = sdnm.getCStr();
     if ( cleansdnm[0] != '[' ) return false; //Is not StratPropSyntheticData
     cleansdnm++;
-    int idx = 0;
+    unsigned int idx = 0;
     while ( cleansdnm[idx] != ']' && idx<sdnm.size() )
 	idx++;
 
@@ -948,7 +950,7 @@ void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
     const int nrmods = nrModels();
     const int nrseq = desc_.size();
     decimation =
-	mCast(int,floor(mCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed)) + 1;
+	sCast(int,floor(sCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed)) + 1;
     desc_.getWorkBenchParams().set( sKeyDecimation(), decimation );
 }
 
@@ -1089,10 +1091,7 @@ void uiStratLayerModel::setElasticProps()
     {
 	elpropsel_ = new ElasticPropSelection;
 	if ( !elpropsel_->usePar(desc_.getWorkBenchParams()) )
-	{
-	    delete elpropsel_;
-	    elpropsel_ = 0;
-	}
+	    deleteAndZeroPtr( elpropsel_ );
     }
 
     if ( !elpropsel_ )
