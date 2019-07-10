@@ -414,7 +414,7 @@ void uiMain::cleanQtOSEnv()
 
 void uiMain::init( QApplication* qap )
 {
-	QLocale::setDefault( QLocale::c() );
+    QLocale::setDefault( QLocale::c() );
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
     themain_ = this;
@@ -438,7 +438,7 @@ void uiMain::init( QApplication* qap )
     app_->installEventFilter( tabletfilter_ );
 
     if ( DBG::isOn(DBG_UI) && !qap )
-	DBG::message( "... done." );
+	DBG::message( " done." );
 
 #if QT_VERSION >= 0x050000
     qInstallMessageHandler( qtMessageOutput );
@@ -451,7 +451,8 @@ void uiMain::init( QApplication* qap )
     if ( stylestr.isEmpty() )
 	stylestr = __ismac__ ? "macintosh" : "cleanlooks";
 
-    QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
+    if ( !stylestr.isEmpty() && QStyleFactory::keys().contains(stylestr.str()) )
+	QApplication::setStyle( QStyleFactory::create(stylestr.str()) );
 #endif
 
     const BufferString stylenm = OD::getActiveStyleName();
@@ -605,7 +606,13 @@ Color uiMain::windowColor() const
 
 
 int uiMain::nrScreens() const
-{ return qdesktop_ ? qdesktop_->screenCount() : -1; }
+{
+#if QT_VERSION >= 0x050000
+    return QGuiApplication::screens().size();
+#else
+    return qdesktop_ ? qdesktop_->screenCount() : -1;
+#endif
+}
 
 
 const char* uiMain::getScreenName( int screenidx ) const
@@ -627,11 +634,21 @@ const char* uiMain::getScreenName( int screenidx ) const
 
 uiSize uiMain::getScreenSize( int screennr, bool available ) const
 {
+#if QT_VERSION >= 0x050000
+    QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
+	return uiSize( mUdf(int), mUdf(int) );
+
+    QScreen* qscreen = screens.at( screennr );
+    QRect qrect = available ? qscreen->availableGeometry()
+			    : qscreen->geometry();
+#else
     if ( !qdesktop_ )
 	return uiSize( mUdf(int), mUdf(int) );
 
     QRect qrect = available ? qdesktop_->availableGeometry( screennr )
 			    : qdesktop_->screenGeometry( screennr );
+#endif
     return uiSize( qrect.width(), qrect.height() );
 }
 
@@ -673,7 +690,14 @@ KeyboardEventHandler& uiMain::keyboardEventHandler()
 void uiMain::flushX()
 {
     if ( app_ )
+    {
+#if QT_VERSION >= 0x050000
+	app_->sendPostedEvents();
+	app_->processEvents();
+#else
 	app_->flush();
+#endif
+    }
 }
 
 
