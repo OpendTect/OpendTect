@@ -272,6 +272,31 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 
 BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 {
+    if ( cl_.ptr() )
+    {
+	OS::CommandLauncher* cl = cl_.ptr();
+	if ( msg && !cl->errorMsg().isEmpty() )
+	    msg->set( cl->errorMsg() );
+
+	BufferString ret;
+	if ( stderrout )
+	{
+	    if ( cl->getStdError() )
+		cl->getStdError()->getAll( ret );
+	    else
+		ret = laststderr_;
+	}
+	else
+	{
+	    if ( cl->getStdOutput() )
+		cl->getStdOutput()->getAll( ret );
+	    else
+		ret = laststdout_;
+	}
+
+	return ret;
+    }
+
     if ( msg )
 	msg->set( msg_ );
     return stderrout ? laststderr_ : laststdout_;
@@ -340,17 +365,6 @@ OD::DataRepType OD::PythonAccess::getDataType( const char* str )
 	ret = OD::SI64;
 
     return ret;
-}
-
-
-OS::CommandLauncher* OD::PythonAccess::getLauncher(
-						const OS::MachineCommand& mc,
-						File::Path& scriptfp ) const
-{
-    if ( !isUsable(!istested_) )
-	return nullptr;
-
-    return getLauncher( mc, activatefp_, virtenvnm_.buf(), scriptfp );
 }
 
 
@@ -466,19 +480,18 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     msg_.setEmpty();
 
     File::Path scriptfp;
-    PtrMan<OS::CommandLauncher> cl = getLauncher( cmd, activatefp, envnm,
-						  scriptfp );
-    if ( !cl )
+    cl_ = getLauncher( cmd, activatefp, envnm, scriptfp );
+    if ( !cl_.ptr() )
     {
 	msg_ = tr("Cannot create launcher for command '%1'")
 		    .arg( cmd.getSingleStringRep() );
 	return false;
     }
 
-    const bool res = execpars ? cl->execute( *execpars )
-			      : cl->execute( laststdout_, &laststderr_ );
+    const bool res = execpars ? cl_->execute( *execpars )
+			      : cl_->execute( laststdout_, &laststderr_ );
     if ( pid )
-	*pid = cl->processID();
+	*pid = cl_->processID();
 
     if ( !scriptfp.isEmpty() )
     {
@@ -494,18 +507,10 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 
     if ( !res )
     {
-	if ( cl->errorMsg().isEmpty() )
+	if ( cl_->errorMsg().isEmpty() )
 	    msg_.set( uiStrings::phrCannotStart(cmd.program()) );
 	else
-	    msg_.set( cl->errorMsg() );
-    }
-
-    if ( execpars && execpars->createstreams_ )
-    {
-	if ( cl->getStdOutput() )
-	    cl->getStdOutput()->getAll( laststdout_ );
-	if ( cl->getStdError() )
-	    cl->getStdError()->getAll( laststderr_ );
+	    msg_.set( cl_->errorMsg() );
     }
 
     return res;
