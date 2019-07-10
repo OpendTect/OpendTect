@@ -92,6 +92,7 @@ namespace OD
 	bool		isusable_ = false;
 	FilePath*	activatefp_ = nullptr;
 	BufferString	virtenvnm_;
+	mutable PtrMan<OS::CommandLauncher>	cl_;
 	mutable BufferString	laststdout_;
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
@@ -122,11 +123,6 @@ namespace OD
 	static FilePath*	getActivateScript(const FilePath& root);
 
 	void			handleFilesCB(CallBacker*);
-
-    public:
-
-	OS::CommandLauncher* getLauncher(const OS::MachineCommand&,
-					 FilePath& scriptfp) const;
 
     };
 

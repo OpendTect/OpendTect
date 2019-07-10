@@ -277,6 +277,31 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 
 BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 {
+    if ( cl_.ptr() )
+    {
+	OS::CommandLauncher* cl = cl_.ptr();
+	if ( msg && !cl->errorMsg().isEmpty() )
+	    *msg = cl->errorMsg();
+
+	BufferString ret;
+	if ( stderrout )
+	{
+	    if ( cl->getStdError() )
+		cl->getStdError()->getAll( ret );
+	    else
+		ret = laststderr_;
+	}
+	else
+	{
+	    if ( cl->getStdOutput() )
+		cl->getStdOutput()->getAll( ret );
+	    else
+		ret = laststdout_;
+	}
+
+	return ret;
+    }
+
     if ( msg )
 	*msg = msg_;
     return stderrout ? laststderr_ : laststdout_;
@@ -289,17 +314,6 @@ bool OD::PythonAccess::isModuleUsable( const char* nm ) const
     comm.add( " -c \"import " ).add( nm ).add( "\"");
     const OS::MachineCommand cmd( comm );
     return execute( cmd ) && lastOutput(true,nullptr).isEmpty();
-}
-
-
-OS::CommandLauncher* OD::PythonAccess::getLauncher(
-						const OS::MachineCommand& mc,
-						FilePath& scriptfp ) const
-{
-    if ( !isUsable(!istested_) )
-	return nullptr;
-
-    return getLauncher( mc, activatefp_, virtenvnm_.buf(), scriptfp );
 }
 
 
@@ -410,19 +424,18 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     msg_.setEmpty();
 
     FilePath scriptfp;
-    PtrMan<OS::CommandLauncher> cl = getLauncher( cmd, activatefp, envnm,
-						  scriptfp );
-    if ( !cl )
+    cl_ = getLauncher( cmd, activatefp, envnm, scriptfp );
+    if ( !cl_.ptr() )
     {
 	msg_ = tr("Cannot create launcher for command '%1'")
 		    .arg( cmd.getSingleStringRep() );
 	return false;
     }
 
-    const bool res = execpars ? cl->execute( *execpars )
-			      : cl->execute( laststdout_, &laststderr_ );
+    const bool res = execpars ? cl_->execute( *execpars )
+			      : cl_->execute( laststdout_, &laststderr_ );
     if ( pid )
-	*pid = cl->processID();
+	*pid = cl_->processID();
 
     if ( !scriptfp.isEmpty() )
     {
@@ -438,7 +451,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 
     if ( !res )
     {
-	if ( cl->errorMsg().isEmpty() )
+	if ( cl_->errorMsg().isEmpty() )
 	{
 	    BufferStringSet commandline;
 	    commandline.unCat( cmd.command(), " " );
@@ -447,15 +460,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 					      : toUiString(commandline.get(0)));
 	}
 	else
-	    msg_ = cl->errorMsg();
-    }
-
-    if ( execpars && execpars->createstreams_ )
-    {
-	if ( cl->getStdOutput() )
-	    cl->getStdOutput()->getAll( laststdout_ );
-	if ( cl->getStdError() )
-	    cl->getStdError()->getAll( laststderr_ );
+	    msg_ = cl_->errorMsg();
     }
 
     return res;
