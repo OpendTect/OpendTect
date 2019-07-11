@@ -111,6 +111,8 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 bool Network::Socket::disconnectFromHost( bool wait )
 {
     mCheckThread;
+    if ( !isConnected() )
+	return true;
 
     if ( noeventloop_ )
 	wait = true;
