@@ -547,6 +547,13 @@ bool Seis::advance( ObjectSet<Seis::MSCProvider>& provs, uiRetVal& uirv )
 	if ( is2d )
 	{
 	    Bin2D provb2d = prov.curBin2D();
+	    if ( mIsUdf(provb2d.trcNr()) )
+	    {
+		if ( !prov.toNextPos() )
+		    { uirv.set( prov.errMsg() ); return false; }
+		provb2d = prov.curBin2D();
+	    }
+
 	    while ( provb2d.geomID() != curb2d.geomID()
 		 || provb2d.trcNr() < curb2d.trcNr() )
 	    {
@@ -561,6 +568,13 @@ bool Seis::advance( ObjectSet<Seis::MSCProvider>& provs, uiRetVal& uirv )
 	else
 	{
 	    BinID provbid = prov.curBinID();
+	    if ( mIsUdf(provbid.inl()) )
+	    {
+		if ( !prov.toNextPos() )
+		    { uirv.set( prov.errMsg() ); return false; }
+		provbid = prov.curBinID();
+	    }
+
 	    while ( provbid < curbid )
 	    {
 		if ( !prov.toNextPos() )
