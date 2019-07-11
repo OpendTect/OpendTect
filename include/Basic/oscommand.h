@@ -189,6 +189,7 @@ public:
 				BufferString* output_stderr=0);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
+    bool		startServer(bool inpythonenv=false,double waittm=3);
 
     int			processID() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
@@ -217,7 +218,7 @@ protected:
     const BufferString	odprogressviewer_;
 
     QProcess*		process_;
-    od_int64		pid_;
+    int			pid_;
 
     od_istream*		stdoutput_;
     od_istream*		stderror_;

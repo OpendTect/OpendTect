@@ -17,8 +17,10 @@
 #include "iopar.h"
 #include "oddirs.h"
 #include "od_iostream.h"
+#include "pythonaccess.h"
 #include "staticstring.h"
 #include "separstr.h"
+#include "uistrings.h"
 
 #ifndef OD_NO_QT
 # include "qstreambuf.h"
@@ -748,6 +750,43 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
+bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
+{
+    CommandExecPars execpars( RunInBG );
+    pid_ = -1;
+    if ( ispyth )
+    {
+	if ( !OD::PythA().execute(machcmd_,execpars,&pid_,&errmsg_) )
+	    pid_ = -1;
+    }
+    else
+    {
+	if ( !execute(execpars) )
+	    pid_ = -1;
+    }
+    if ( pid_ < 0 )
+    {
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = uiStrings::phrCannotStart( machcmd_.getExecCommand());
+	return false;
+    }
+
+    sleepSeconds( waittm );
+    if ( !isProcessAlive(pid_) )
+    {
+	if ( ispyth )
+	    errmsg_ = toUiString(OD::PythA().lastOutput(true,nullptr));
+
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = tr("Server process (%1) exited early")
+			    .arg( machcmd_.getExecCommand() );
+	return false;
+    }
+
+    return true;
+}
+
+
 void OS::CommandLauncher::startMonitor()
 {
     if ( monitorfnm_.isEmpty() )
@@ -906,7 +945,7 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 
 	if ( res )
 	{
-	    pid_ = pi.dwProcessId;
+	    pid_ = (int)pi.dwProcessId;
 	    CloseHandle( pi.hProcess );
 	    CloseHandle( pi.hThread );
 	}
@@ -916,6 +955,7 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 #endif
 
 #ifndef OD_NO_QT
+
     CommandLineParser parser( comm );
     if ( parser.getExecutable().isEmpty() )
 	return false;
@@ -930,11 +970,13 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
     if ( !QProcess::startDetached(parser.getExecutable().str(),args,"",&qpid) )
 	return false;
 
-    pid_ = mCast(od_int64,qpid);
-
+    pid_ = (int)qpid;
     return true;
+
 #else
+
     return false;
+
 #endif
 }
 
