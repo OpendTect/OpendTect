@@ -375,7 +375,7 @@ PtrMan<Network::PacketInterpreter> Network::RequestPacket::getPayload(
     uiRetVal uirv;
     OD::JSON::Object hdr;
     Network::PacketInterpreter* interpreter = readJsonHeader( hdr, uirv );
-    if ( !interpreter )
+    if ( !interpreter || !hdr.isPresent("array-shape") )
 	return nullptr;
 
     const auto shapes = hdr.getArray("array-shape");
