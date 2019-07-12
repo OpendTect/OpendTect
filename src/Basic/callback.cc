@@ -110,7 +110,7 @@ public:
             if ( found )
             {
                 locker.unlockNow();
-                Threads::sleep( 0.01 );
+                Threads::sleep( 10*mOneMilliSecond );
                 locker.reLock();
             }
         }

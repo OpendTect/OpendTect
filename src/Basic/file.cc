@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "timefun.h"
 #include "uistrings.h"
 
 
@@ -905,6 +906,33 @@ od_int64 File::getTimeInMilliSeconds( const char* fnm, bool lastmodif )
 
     return lastmodif ? st_buf.st_mtime * 1000 : st_buf.st_ctime * 1000;
 #endif
+}
+
+
+bool File::waitUntilExists( const char* fnm, double maxwaittm,
+			    double* actualwaited )
+{
+    if ( actualwaited )
+	*actualwaited = 0;
+    if ( exists(fnm) )
+	return true;
+
+    const int msecsstart = Time::getMilliSeconds();
+    const double checkincr = 0.1;
+    double waittm = 0;
+    bool appeared = true;
+    while ( !exists(fnm) )
+    {
+	waittm += checkincr;
+	if ( waittm > maxwaittm )
+	    { appeared = false; break; }
+	Threads::sleep( checkincr );
+    }
+
+    if ( actualwaited )
+	*actualwaited = 1000. * (Time::getMilliSeconds() - msecsstart);
+
+    return appeared;
 }
 
 
