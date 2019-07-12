@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "bufstring.h"
 
+class BufferStringSet;
 class uiStringData;
 class uiStringSet;
 class uiRetVal;
@@ -305,6 +306,7 @@ mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
 mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
+mGlobal(Basic) uiString toUiString(const BufferStringSet&);
 
 mGlobal(Basic) const char* toString(const uiString&);
 

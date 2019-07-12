@@ -139,3 +139,6 @@ public:
 };
 
 mDefContainerSwapFunction( Basic, BufferStringSet )
+
+inline BufferString toString( const BufferStringSet& bss )
+{ return bss.cat( " " ); }

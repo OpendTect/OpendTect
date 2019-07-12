@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "usernamestring.h"
 
-#include "bufstring.h"
+#include "bufstringset.h"
 #include "envvars.h"
 #include "geometry.h"
 #include "od_iostream.h"
@@ -980,6 +980,11 @@ uiString toUiString( const Coord& c )
 {
     return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x_) )
 				  .arg( mRounded(od_int64,c.y_) );
+}
+
+uiString toUiString( const BufferStringSet& bss )
+{
+    return toUiString( bss.getDispString(-1,false) );
 }
 
 

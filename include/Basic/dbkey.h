@@ -185,11 +185,8 @@ public:
 
 mDefContainerSwapFunction( Basic, DBKeySet )
 
-
-mGlobal(Basic) inline BufferString toString( const DBKey& ky )
-{ return ky.toString(); }
-mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
-{ return ky.toUiString(); }
+inline BufferString toString( const DBKey& ky )	{ return ky.toString(); }
+inline uiString toUiString( const DBKey& ky )	{ return ky.toUiString(); }
 
 // These functions are implemented in dbman.cc in General, so they only work
 // if you also link (and init) the General lib
