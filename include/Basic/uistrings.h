@@ -159,6 +159,7 @@ public:
     static uiPhrase phrSorting(const uiWord&);
     static uiPhrase phrSpecify(const uiWord&);
     static uiPhrase phrStart(const uiWord&);
+    static uiPhrase phrStarting(const uiWord&);
     static uiPhrase phrStop(const uiWord&);
     static uiPhrase phrStorageDir(const uiWord&);
     static uiPhrase phrSuccessfullyExported(const uiWord&);

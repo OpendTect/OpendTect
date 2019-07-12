@@ -355,6 +355,9 @@ uiPhrase uiStrings::phrSpecify( const uiWord& string )
 uiPhrase uiStrings::phrStart( const uiWord& string )
 { return mJoinStr.arg( sStart() ).arg( string ); }
 
+uiPhrase uiStrings::phrStarting( const uiWord& string )
+{ return tr("Starting %1").arg( string ); }
+
 uiPhrase uiStrings::phrStop( const uiWord& string )
 { return mJoinStr.arg( sStop() ).arg( string ); }
 
