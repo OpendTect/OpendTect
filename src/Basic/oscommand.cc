@@ -103,7 +103,7 @@ void OS::CommandExecPars::usePar( const IOPar& iop )
 
     FileMultiString fms;
     subpar->get( sKeyMonitor, fms );
-    int sz = fms.size();
+    auto sz = fms.size();
     if ( sz > 0 )
     {
 	needmonitor_ = toBool( fms[0] );
@@ -632,7 +632,7 @@ OS::CommandLauncher::~CommandLauncher()
 }
 
 
-int OS::CommandLauncher::processID() const
+OS::CommandLauncher::ProcID OS::CommandLauncher::processID() const
 {
 #ifndef OD_NO_QT
     if ( !process_ )
