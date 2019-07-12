@@ -115,29 +115,32 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 
     if ( usesystem )
     {
-	isusable_ = isEnvUsable( nullptr, scriptstr, scriptexpectedout );
+	isusable_ = isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
 	return isusable_;
     }
 
     PtrMan<FilePath> externalroot = nullptr;
-    BufferString virtenvnm;
+    PtrMan<BufferString> virtenvnm;
     if ( source == Custom )
     {
 	BufferString virtenvloc;
 	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
 	    externalroot = new FilePath( virtenvloc );
-	pythonsetts.get( sKey::Name(), virtenvnm );
+	virtenvnm = new BufferString();
+	pythonsetts.get( sKey::Name(), *virtenvnm );
     }
 
-    ManagedObjectSet<FilePath> virtualenvsfp;
-    if ( !getSortedVirtualEnvironmentLoc(virtualenvsfp,virtenvnm.buf(),
+    ManagedObjectSet<FilePath> pythonenvsfp;
+    BufferStringSet envnms;
+    if ( !getSortedVirtualEnvironmentLoc(pythonenvsfp,envnms,virtenvnm,
 					 externalroot) )
 	return false;
 
-    for ( int idx=0; idx<virtualenvsfp.size(); idx++ )
+    for ( int idx=0; idx<pythonenvsfp.size(); idx++ )
     {
-	const FilePath* virtualenvfp = virtualenvsfp[idx];
-	if ( isEnvUsable(virtualenvfp,scriptstr,scriptexpectedout) )
+	const FilePath* pythonenvfp = pythonenvsfp[idx];
+	const BufferString& envnm = envnms.get( idx );
+	if ( isEnvUsable(pythonenvfp,envnm.buf(),scriptstr,scriptexpectedout) )
 	{
 	    isusable_ = true;
 	    return true;
@@ -166,21 +169,19 @@ FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 }
 
 
-bool OD::PythonAccess::isEnvUsable( const FilePath* virtualenvfp,
+bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
+				    const char* envnm,
 				    const char* scriptstr,
 				    const char* scriptexpectedout )
 {
-    BufferString venvnm;
     PtrMan<FilePath> activatefp;
-    if ( virtualenvfp )
+    BufferString venvnm( envnm );
+    if ( pythonenvfp )
     {
-	if ( !virtualenvfp->exists() )
+	if ( !pythonenvfp->exists() )
 	    return false;
 
-	venvnm.set( virtualenvfp->baseName() );
-	const BufferString rootfpstr(
-			    virtualenvfp->dirUpTo(virtualenvfp->nrLevels()-3) );
-	activatefp = getActivateScript( FilePath(rootfpstr) );
+	activatefp = getActivateScript( FilePath(pythonenvfp->fullPath()) );
 	if ( !activatefp )
 	    return false;
     }
@@ -206,7 +207,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* virtualenvfp,
 	return false;
 
     bool notrigger;
-    if ( virtualenvfp )
+    if ( pythonenvfp )
     {
 	notrigger = activatefp_ &&
 		    activatefp_->fullPath() == activatefp->fullPath() &&
@@ -474,8 +475,9 @@ namespace OD
 
 
 bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
-					ObjectSet<FilePath>& virtualenvfp,
-					const char* envnm,
+					ObjectSet<FilePath>& pythonenvfp,
+					BufferStringSet& envnms,
+					const BufferString* envnm,
 					const FilePath* externalroot )
 {
     FilePath envsfp;
@@ -489,62 +491,71 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	    return false;
     }
 
+    if ( envnm )
+    {
+	if ( !envnm->isEmpty() )
+	{
+	    const DirList dl( FilePath(envsfp,"envs").fullPath().str(),
+			      DirList::DirsOnly );
+	    if ( !dl.isPresent(envnm->str()) )
+		return false;
+	}
+
+	pythonenvfp.add( new FilePath(envsfp) );
+	envnms.add( *envnm );
+	return true;
+    }
+
     const DirList dl( FilePath(envsfp,"envs").fullPath().str(),
 		      DirList::DirsOnly );
-    if ( envnm && *envnm )
+    BufferStringSet prioritydirs;
+    TypeSet<int> prioritylist;
+    for ( int idx=0; idx<dl.size(); idx++ )
     {
-	if ( !dl.isPresent(envnm) )
-	    return false;
-
-	const FilePath fp( dl.fullPath( dl.indexOf(envnm) ) );
-	virtualenvfp.add( new FilePath(fp) );
-	return true;
+	const BufferString envpath( dl.fullPath(idx) );
+	const DirList priorityfiles( envpath, DirList::FilesOnly,
+				     sKeyPriorityGlobExpr() );
+	if ( !priorityfiles.isEmpty() )
+	{
+	    const FilePath priofp( priorityfiles.fullPath(0) );
+	    prioritydirs.add( envpath );
+	    prioritylist += toInt( priofp.extension() );
+	}
+    }
+    if ( prioritylist.isEmpty() )
+    {
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    pythonenvfp.add( new FilePath(envsfp) );
+	    const FilePath virtenvpath( dl.fullPath(idx) );
+	    envnms.add( virtenvpath.baseName() );
+	}
     }
     else
     {
-	BufferStringSet prioritydirs;
-	TypeSet<int> prioritylist;
-	for ( int idx=0; idx<dl.size(); idx++ )
+	while( !prioritylist.isEmpty() )
 	{
-	    const BufferString envpath( dl.fullPath(idx) );
-	    const DirList priorityfiles( envpath, DirList::FilesOnly,
-					 sKeyPriorityGlobExpr() );
-	    if ( !priorityfiles.isEmpty() )
+	    int highestprio = -1, prioidx = -1;
+	    for ( int idx=0; idx<prioritylist.size(); idx++ )
 	    {
-		const FilePath priofp( priorityfiles.fullPath(0) );
-		prioritydirs.add( envpath );
-		prioritylist += toInt( priofp.extension() );
-	    }
-	}
-	if ( prioritylist.isEmpty() )
-	{
-	    for ( int idx=0; idx<dl.size(); idx++ )
-		virtualenvfp.add( new FilePath(dl.fullPath(idx)) );
-	}
-	else
-	{
-	    while( !prioritylist.isEmpty() )
-	    {
-		int highestprio = -1, prioidx = -1;
-		for ( int idx=0; idx<prioritylist.size(); idx++ )
+		if ( prioritylist[idx] > highestprio )
 		{
-		    if ( prioritylist[idx] > highestprio )
-		    {
-			highestprio = prioritylist[idx];
-			prioidx = idx;
-		    }
+		    highestprio = prioritylist[idx];
+		    prioidx = idx;
 		}
-		if ( prioidx == -1 )
-		    break;
-
-		virtualenvfp.add( new FilePath(prioritydirs.get(prioidx)) );
-		prioritydirs.removeSingle( prioidx );
-		prioritylist.removeSingle( prioidx );
 	    }
+	    if ( prioidx == -1 )
+		break;
+
+	    pythonenvfp.add( new FilePath(envsfp) );
+	    const FilePath virtenvpath( prioritydirs.get(prioidx) );
+	    envnms.add( virtenvpath.baseName() );
+	    prioritydirs.removeSingle( prioidx );
+	    prioritylist.removeSingle( prioidx );
 	}
     }
 
-    return !virtualenvfp.isEmpty();
+    return !pythonenvfp.isEmpty();
 }
 
 

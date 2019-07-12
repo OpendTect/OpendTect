@@ -104,9 +104,11 @@ namespace OD
 	static FilePath getInternalEnvPath(bool userdef);
 	static bool	getSortedVirtualEnvironmentLoc(
 				      ObjectSet<FilePath>&,
-				      const char* envnm=nullptr,
+				      BufferStringSet& envnms,
+				      const BufferString* envnm=nullptr,
 				      const FilePath* extroot=nullptr);
-	bool		isEnvUsable(const FilePath* virtualenvfp,
+	bool		isEnvUsable(const FilePath* pythonenvfp,
+				    const char* envnm,
 				    const char* scriptstr,
 				    const char* scriptexpectedout);
 	static FilePath* getCommand(OS::MachineCommand&,

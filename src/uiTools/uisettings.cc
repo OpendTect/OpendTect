@@ -573,10 +573,12 @@ uiPythonSettings(uiParent* p, const char* nm)
     customloc_->attach( alignedBelow, pythonsrcfld_ );
     mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
 
-    customenvnmfld_ = new uiGenInput( this, tr("Environment"),
+    customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
 				      StringListInpSpec() );
+    customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this, uiPythonSettings, testCB), true);
@@ -670,7 +672,10 @@ void fillPar( IOPar& par ) const
 	if ( !envroot.isEmpty() )
 	{
 	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
-	    par.set( sKey::Name(), customenvnmfld_->text() );
+	    if ( customenvnmfld_->isChecked() )
+		par.set( sKey::Name(), customenvnmfld_->text() );
+	    else
+		par.removeWithKey( sKey::Name() );
 	}
     }
 }
@@ -686,6 +691,7 @@ void usePar( const IOPar& par )
     }
 
     pythonsrcfld_->setValue( source );
+    customenvnmfld_->setChecked( false );
     if ( source == OD::Internal && internalloc_ )
     {
 	BufferString envroot;
@@ -694,14 +700,17 @@ void usePar( const IOPar& par )
     }
     else if ( source == OD::Custom )
     {
-	BufferString envroot;
+	BufferString envroot, envnm;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
 	{
 	    customloc_->setFileName( envroot );
 	    customEnvChgCB( nullptr );
 	}
-	if ( par.get(sKey::Name(),envroot) )
-	    customenvnmfld_->setText( envroot );
+
+	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
+				     !envnm.isEmpty() );
+	if ( customenvnmfld_->isChecked() )
+	    customenvnmfld_->setText( envnm );
     }
 }
 
@@ -805,6 +814,21 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
+    needrestore_ = chgdsetts_;
+    if ( !useScreen() )
+	return;
+
+    if ( !OD::PythA().isUsable(true) )
+    {
+        uiString launchermsg;
+        uiRetVal uirv( tr("Cannot detect python version:\n%1")
+                        .arg(OD::PythA().lastOutput(true,&launchermsg)) );
+        uirv.add( tr("Python environment not usable") )
+            .add( launchermsg );
+        uiMSG().error( uirv );
+        return;
+    }
+
     const BufferString termem = SettingsAccess().getTerminalEmulator();
     BufferString cmd;
 #ifdef __win__
