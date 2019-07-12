@@ -16,11 +16,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "datapointset.h"
 
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfacetr.h"
+#include "iodir.h"
+#include "ioobj.h"
 #include "parametricsurface.h"
 #include "posprovider.h"
 #include "progressmeter.h"
@@ -33,6 +37,34 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM
 {
+
+void HorizonSelInfo::getAll( ObjectSet<HorizonSelInfo>& set, bool is2d )
+{
+    const IODir iodir(
+	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
+    FixedString groupstr = is2d
+	? EMHorizon2DTranslatorGroup::sGroupName()
+	: EMHorizon3DTranslatorGroup::sGroupName();
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj* ioobj = ioobjs[idx];
+	if ( ioobj->translator() != "dGB" )
+	    continue;
+
+	if ( ioobj->group() != groupstr  )
+	    continue;
+
+	HorizonSelInfo* info = new HorizonSelInfo( ioobj->key() );
+	info->name_ = ioobj->name();
+	set += info;
+
+	uiString errmsg;
+	EM::IOObjInfo eminfo( ioobj->key() );
+	eminfo.getSurfaceData( info->iodata_, errmsg );
+    }
+}
+
 
 float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
 {
