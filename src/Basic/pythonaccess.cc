@@ -230,8 +230,9 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
 bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				bool wait4finish ) const
 {
-    const OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
-						    : OS::RunInBG );
+    OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish : OS::RunInBG );
+    execpars.createstreams_ = true;
+    execpars.prioritylevel_ = 0.f;
     return execute( cmd, execpars );
 }
 

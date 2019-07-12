@@ -758,6 +758,7 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
     pid_ = -1;
     if ( ispyth )
     {
+	execpars.prioritylevel_ = 0.f;
 	if ( !OD::PythA().execute(machcmd_,execpars,&pid_,&errmsg_) )
 	    pid_ = -1;
     }
