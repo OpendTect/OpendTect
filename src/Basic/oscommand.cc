@@ -753,6 +753,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 {
     CommandExecPars execpars( RunInBG );
+    execpars.createstreams_ = true;
+	// this has to be done otherwise we cannot pick up any error messages
     pid_ = -1;
     if ( ispyth )
     {
