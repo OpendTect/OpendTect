@@ -290,10 +290,12 @@ uiPythonSettings(uiParent* p, const char* nm)
     customloc_->attach( alignedBelow, pythonsrcfld_ );
     mAttachCB( customloc_->newSelection, uiPythonSettings::customEnvChgCB );
 
-    customenvnmfld_ = new uiGenInput( this, tr("Environment"),
+    customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
 				      StringListInpSpec() );
+	customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
+	mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
@@ -375,7 +377,10 @@ void fillPar( IOPar& par ) const
 	if ( !envroot.isEmpty() )
 	{
 	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
-	    par.set( sKey::Name(), customenvnmfld_->text() );
+		if ( customenvnmfld_->isChecked() )
+			par.set( sKey::Name(), customenvnmfld_->text() );
+		else
+			par.removeWithKey( sKey::Name() );
 	}
     }
 }
@@ -391,6 +396,7 @@ void usePar( const IOPar& par )
     }
 
     pythonsrcfld_->setValue( source );
+	customenvnmfld_->setChecked( false );
     if ( source == OD::Internal && internalloc_ )
     {
 	BufferString envroot;
@@ -399,11 +405,14 @@ void usePar( const IOPar& par )
     }
     else if ( source == OD::Custom )
     {
-	BufferString envroot;
+	BufferString envroot, envnm;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
 	    customloc_->setFileName( envroot );
-	if ( par.get(sKey::Name(),envroot) )
-	    customenvnmfld_->setText( envroot );
+
+	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
+								 !envnm.isEmpty() );
+	if ( customenvnmfld_->isChecked() )
+	    customenvnmfld_->setText( envnm );
     }
 }
 
@@ -459,6 +468,7 @@ void setCustomEnvironmentNames()
 	envnames.add( File::Path(dl.fullPath(idx)).baseName() );
     customenvnmfld_->setEmpty();
     customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
+	customenvnmfld_->setChecked( !envnames.isEmpty() );
 }
 
 void testPythonModules()
@@ -508,6 +518,21 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
+	needrestore_ = chgdsetts_;
+    if ( !useScreen() )
+	return;
+
+	if ( !OD::PythA().isUsable(true) )
+    {
+	uiString launchermsg;
+	uiRetVal uirv( tr("Cannot detect python version:\n%1")
+			.arg(OD::PythA().lastOutput(true,&launchermsg)) );
+	uirv.add( tr("Python environment not usable") )
+	    .add( launchermsg );
+	gUiMsg( this ).error( uirv );
+	return;
+    }
+
     const BufferString termem = SettingsAccess().getTerminalEmulator();
 #ifdef __win__
     OS::MachineCommand cmd( "start" );
