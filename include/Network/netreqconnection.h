@@ -102,8 +102,7 @@ public:
 					      =0,int maxportstotry=100);
 				//!<Returns 0 if none found
     static port_nr_type	getUsablePort(port_nr_type firstport=0);
-    static bool			isPortFree(port_nr_type port,
-					   uiString* errmsg=nullptr);
+    static bool		isPortFree(port_nr_type port,uiString* errmsg=nullptr);
     static port_nr_type	getNextCandidatePort();
 
 private:
