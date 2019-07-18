@@ -71,6 +71,7 @@ public:
     Coord3		getPos(int,bool scenespace=false) const;
     bool		isDefined(int) const;
     void		setPos(int,const Coord3&);
+    void		setPositions(const TypeSet<Coord3>&);
     void		setPositions(const Coord3*,int sz,int start,
 				     bool scenespace=false);
     void		insertPos(int,const Coord3&);
@@ -90,7 +91,6 @@ public:
 protected:
 
     void		getPositions(TypeSet<Coord3>&) const;
-    void		setPositions(const TypeSet<Coord3>&);
 
     void		setPosWithoutLock(int, const Coord3&,bool scenespace);
 			/*!< Object should be locked when calling */
