@@ -1162,22 +1162,19 @@ void IOPar::update( const char* keyw, const Pos::GeomID& gid )
 
 void IOPar::set( const char* keyw, const GeomIDSet& geomids )
 {
-    TypeSet<Pos::GeomID::IDType> lnrs;
-    for ( auto gid : geomids )
-	lnrs.add( gid.lineNr() );
-    set( keyw, lnrs );
+    GeomIDSet::IntSet ints;
+    geomids.getIntSet( ints );
+    set( keyw, ints );
 }
 
 
 bool IOPar::get( const char* keyw, GeomIDSet& geomids ) const
 {
-    TypeSet<Pos::GeomID::IDType> lnrs;
-    if ( !get(keyw,lnrs) )
+    GeomIDSet::IntSet ints;
+    if ( !get(keyw,ints) )
 	return false;
 
-    geomids.setEmpty();
-    for ( auto lnr : lnrs )
-	geomids.add( Pos::GeomID(lnr) );
+    geomids = GeomIDSet( ints );
     return true;
 }
 

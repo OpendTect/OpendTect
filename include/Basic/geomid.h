@@ -47,10 +47,14 @@ mExpClass(Basic) GeomIDSet : public TypeSet<Pos::GeomID>
 {
 public:
 
-    mUseType( Pos,  GeomID );
+    mUseType( Pos,	GeomID );
+    typedef TypeSet<GeomID::IDType>	IntSet;
 
-		    GeomIDSet()			{}
-		    GeomIDSet( GeomID gid )	{ add(gid); }
+			GeomIDSet()			{}
+			GeomIDSet( GeomID gid )	{ add(gid); }
+    explicit		GeomIDSet(const IntSet&);
+
+    void		getIntSet(IntSet&) const;
 
 };
 
@@ -69,12 +73,22 @@ inline OD::GeomSystem geomSystemOf( Pos::GeomID gid )
 	 : (gid.isSynthetic() ? OD::SynthGeom : OD::VolBasedGeom);
 }
 
-
 inline const char* toString( Pos::GeomID gid )
 {
     return toString( gid.getI() );
 }
 
+inline GeomIDSet::GeomIDSet( const IntSet& ints )
+{
+    for ( auto i : ints )
+	add( GeomID(i) );
+}
+
+inline void GeomIDSet::getIntSet( IntSet& ints ) const
+{
+    for ( auto gid : *this )
+	ints.add( gid.getI() );
+}
 
 // This prevents usage of mIsUdf(geomid). Use !geomid.isValid() instead.
 namespace Values

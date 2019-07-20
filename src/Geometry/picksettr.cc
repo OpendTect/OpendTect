@@ -503,9 +503,12 @@ void dgbPickSetTranslatorHDF5BackEnd::setGeomIDs( Pick::Set& ps,
 	if ( !rdr_->setScope(dsky_) )
 	    return;
 
-	uiRetVal uirv = rdr_->get( geomids );
+	GeomIDSet::IntSet ints;
+	uiRetVal uirv = rdr_->get( ints );
 	if ( !uirv.isOK() )
 	    return;
+
+	geomids = GeomIDSet( ints );
     }
 
     Pick::SetIter4Edit it( ps );
@@ -554,7 +557,7 @@ uiRetVal dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
     if ( havegrps )
 	setGroups( ps );
 
-    Pos::GeomID geomid = mUdfGeomID;;
+    Pos::GeomID geomid = mUdfGeomID;
     iop.get( sKeyGeomID, geomid );
     setGeomIDs( ps, geomid );
 
@@ -636,7 +639,9 @@ bool dgbPickSetTranslatorHDF5BackEnd::putGeomIDs( const Pick::Set& ps,
     while ( psiter.next() )
 	geomids += psiter.get().geomID();
     dsky_.setDataSetName( sKeyGeomIDs );
-    uirv = wrr_->put( dsky_, geomids );
+    GeomIDSet::IntSet ints;
+    geomids.getIntSet( ints );
+    uirv = wrr_->put( dsky_, ints );
     return uirv.isOK();
 }
 
