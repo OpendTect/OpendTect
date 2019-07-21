@@ -284,11 +284,10 @@ bool uiWellLogExtractGrp::extractDPS()
     for ( int idps=0; idps<dpss.size(); idps++ )
     {
 	DataPointSet& curdps = *dpss[idps];
-	const auto gs = curdps.bivSet().geomSystem();
 	for ( int idr=0; idr<curdps.size(); idr++ )
 	{
 	    dr = curdps.dataRow( idr );
-	    if ( filt && !filt->includes(dr.pos_.coord(gs),dr.pos_.z()) )
+	    if ( filt && !filt->includes(dr.pos_.coord(),dr.pos_.z()) )
 		continue;
 
 	    DataPointSet::DataRow newdr( dr );

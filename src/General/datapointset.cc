@@ -48,6 +48,15 @@ static void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
 }
 
 
+DataPointSet::Pos::Pos( const Bin2D& b2d, float _z )
+    : z_(_z)
+{
+    const Coord coord( b2d.coord() );
+    binid_ = SI().transform( coord );
+    setOffs( coord );
+}
+
+
 DataPointSet::Pos::Pos( const Coord& c, float _z )
     : binid_(SI().transform(c))
     , z_(_z)
@@ -86,10 +95,9 @@ void DataPointSet::Pos::set( const Coord3& c )
 }
 
 
-Coord DataPointSet::Pos::coord( OD::GeomSystem gs ) const
+Coord DataPointSet::Pos::coord() const
 {
-    TrcKey trckey( gs, binid_ );
-    Coord sc = trckey.getCoord();
+    Coord sc = SI().transform( binid_ );
     sc.x_ += offsx_; sc.y_ += offsy_;
     return sc;
 }
@@ -330,13 +338,12 @@ DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
     mDynamicCastGet(const ::Pos::Filter3D*,f3d,&filt)
     mDynamicCastGet(const ::Pos::Filter2D*,f2d,&filt)
 
-    const auto gs = dps.bivSet().geomSystem();
     for ( RowID irow=0; irow<dps.size(); irow++ )
     {
 	DataRow dr( dps.dataRow(irow) );
 	bool inc = true;
 	if ( typ == -1 )
-	    inc = filt.includes( dr.pos_.coord(gs), dr.pos_.z_ );
+	    inc = filt.includes( dr.pos_.coord(), dr.pos_.z_ );
 	else if ( f3d )
 	    inc = f3d->includes( dr.pos_.binID(), dr.pos_.z_ );
 	else if ( f2d )
@@ -551,7 +558,7 @@ BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Coord::udf());
-    return pos(rid).coord( bivSet().geomSystem() );
+    return pos(rid).coord();
 }
 
 
@@ -898,7 +905,7 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     float mindist = mUdf(float);
     int resrowidx=-1;
     mGetZ( dpos.z_, zinxy );
-    Coord3 targetpos( dpos.coord(bivSet().geomSystem()), zinxy );
+    Coord3 targetpos( dpos.coord(), zinxy );
     for ( int rowidx=0; rowidx<bvsidxs_.size(); rowidx++ )
     {
 	mGetZ( z(rowidx), zinxy );
@@ -919,6 +926,12 @@ DataPointSet::RowID DataPointSet::findFirst( const BinID& bid ) const
 {
     SPos bpos = bivSet().find( bid );
     return getRowID( bpos );
+}
+
+
+DataPointSet::RowID DataPointSet::findFirst( const Bin2D& b2d ) const
+{
+    return findFirst( b2d.coord() );
 }
 
 

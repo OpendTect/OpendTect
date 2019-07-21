@@ -50,7 +50,7 @@ public:
 
     typedef int			RowID;
     typedef int			ColID;
-    typedef BinIDValueSet::SPos	SPos;
+    mUseType( BinIDValueSet,	SPos );
 
     class DataRow;
 
@@ -63,6 +63,7 @@ public:
 			Pos( const BinID& bid, float _z )
 			    : binid_(bid), nr_(0), z_(_z)
 			    , offsx_(0), offsy_(0)		{}
+			Pos(const Bin2D&,float);
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
 
@@ -70,7 +71,7 @@ public:
 			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
 				&& offsy_==pos.offsy_ && z_==pos.z_; }
 	const BinID&	binID() const	{ return binid_; }
-	Coord		coord(OD::GeomSystem) const;
+	Coord		coord() const;
 	float		z() const	{ return z_; }
 
 	void		set( const BinID& bid )
@@ -114,8 +115,7 @@ public:
 				{ return pos_==dr.pos_ && grp_==dr.grp_
 					&& data_==dr.data_; }
 	const BinID&		binID() const		{ return pos_.binID(); }
-	Coord			coord( OD::GeomSystem gs ) const
-						    { return pos_.coord(gs); }
+	Coord			coord() const		{ return pos_.coord(); }
 	const TypeSet<float>&	data() const		{ return data_; }
 	od_uint16		group() const;
 	bool			isSel() const		{ return grp_ > 0; }
@@ -187,6 +187,7 @@ public:
     RowID		find(const Pos&,float horradius,float deltaz) const;
     RowID		findFirst(const Coord&) const;
     RowID		findFirst(const BinID&) const;
+    RowID		findFirst(const Bin2D&) const;
 
     const PosVecDataSet& dataSet() const		{ return data_; }
     const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>
@@ -218,9 +219,9 @@ public:
     bool		setRow(const DataRow&);
 			//!< Can be add or change
 			//!< Returns whether it's an add (see addRow)
-    RowID		getRowID(BinIDValueSet::SPos) const;
+    RowID		getRowID(SPos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
-    BinIDValueSet::SPos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
+    SPos		bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
 
 			// Building from scratch
 			DataPointSet(bool is2d,bool minimal=false);

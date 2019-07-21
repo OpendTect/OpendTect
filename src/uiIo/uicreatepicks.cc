@@ -211,15 +211,12 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 	    return false;
     }
 
-    const auto gs = dps->bivSet().geomSystem();
     for ( DataPointSet::RowID idx=0; idx<sztouse; idx++ )
     {
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
 	const DataPointSet::Pos pos( dps->pos(posidx) );
-	Pick::Location pl( pos.coord(gs), pos.z() );
-	if ( dps->is2D() )
-	    pl.setGeomID( Pos::GeomID(pos.binid_.inl()) );
+	Pick::Location pl( pos.coord(), pos.z() );
 	ps.add( pl );
     }
 

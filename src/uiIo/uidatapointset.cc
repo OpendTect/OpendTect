@@ -781,9 +781,8 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
     if ( dlg.go() )
     {
 	addRow( dlg.datarow_ );
-	const auto gs = dps_ ? dps_->bivSet().geomSystem() : OD::VolBasedGeom;
 	const float newzval = dlg.datarow_.pos_.z_;
-	const Coord3 newcoord( dlg.datarow_.coord(gs), newzval );
+	const Coord3 newcoord( dlg.datarow_.coord(), newzval );
 	const BinID newbid( dlg.datarow_.binID() );
 	rowAdded.trigger();
 	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
@@ -1191,8 +1190,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	{
 	    if ( !isDisp(true) ) { pErrMsg("Huh"); mRetErr; }
 	    BinID bid( pos.binID() );
-	    auto gs = dps_ ? dps_->bivSet().geomSystem() : OD::VolBasedGeom;
-	    Coord crd( pos.coord(gs) );
+	    Coord crd( pos.coord() );
 	    if ( showbids_ )
 	    {
 		int& posval = ( dcid == -nrPosCols() ) ? bid.inl() : bid.crl();

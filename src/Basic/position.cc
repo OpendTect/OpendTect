@@ -130,6 +130,13 @@ BufferString BinID::usrDispStr( bool is2d ) const
 }
 
 
+Coord Bin2D::coord() const
+{
+    const auto& g2d = Survey::Geometry2D::get( geomid_ );
+    return g2d.isEmpty() ? Coord::udf() : g2d.getCoord( trcNr() );
+}
+
+
 Bin2D Bin2D::first( GeomID gid )
 {
     const auto& g2d = Survey::Geometry2D::get( gid );
