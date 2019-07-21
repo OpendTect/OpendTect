@@ -643,7 +643,7 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     ensureSelType( Seis::Table );
     auto& tsd = *seldata_->asTable();
     tsd.binidValueSet() = bidvalset;
-    tsd.binidValueSet().allowDuplicateBinIDs(true);
+    tsd.binidValueSet().allowDuplicatePositions( true );
 
     arebiddupl_ = areBIDDuplicated();
 }
@@ -740,7 +740,7 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 bool LocationOutput::areBIDDuplicated() const
 {
     BinIDValueSet tmpset(bidvalset_);
-    tmpset.allowDuplicateBinIDs(false);
+    tmpset.allowDuplicatePositions( false );
 
     return tmpset.totalSize()<bidvalset_.totalSize();
 }
@@ -756,7 +756,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     delete seldata_;
     auto& tsd = *new Seis::TableSelData( bidvalset );
     seldata_ = &tsd;
-    tsd.binidValueSet().allowDuplicateBinIDs( true );
+    tsd.binidValueSet().allowDuplicatePositions( true );
 
     const int nrinterv = bidvalset.nrVals() / 2;
     float zmin = mUdf(float);
@@ -1113,7 +1113,7 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 {
     ensureSelType( Seis::Table );
     auto& tsd = *seldata_->asTable();
-    tsd.binidValueSet().allowDuplicateBinIDs(true);
+    tsd.binidValueSet().allowDuplicatePositions( true );
     tsd.binidValueSet() = datapointset_.bivSet();
 
     arebiddupl_ = areBIDDuplicated();

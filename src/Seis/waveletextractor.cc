@@ -84,9 +84,9 @@ void WaveletExtractor::init3D()
     if ( !tsd )
 	return;
 
-    isbetweenhor_ = tsd->binidValueSet().hasDuplicateBinIDs();
+    isbetweenhor_ = tsd->binidValueSet().hasDuplicatePositions();
     if ( isbetweenhor_ )
-	totalnr_ = tsd->binidValueSet().nrDuplicateBinIDs();
+	totalnr_ = tsd->binidValueSet().nrDuplicatePositions();
 }
 
 

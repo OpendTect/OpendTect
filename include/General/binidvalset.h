@@ -13,9 +13,10 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posidxpairvalset.h"
 #include "binid.h"
+#include "bin2d.h"
 
 
-/*!\brief A Pos::IdxPairValueSet with BinIDs. */
+/*!\brief A Pos::IdxPairValueSet with BinIDs or Bin2Ds */
 
 
 mExpClass(General) BinIDValueSet : public Pos::IdxPairValueSet
@@ -23,6 +24,7 @@ mExpClass(General) BinIDValueSet : public Pos::IdxPairValueSet
 public:
 
     mUseType( OD,	GeomSystem );
+    mUseType( Pos,	GeomID );
 
 			BinIDValueSet(int nrvals,bool allowdup,
 				      GeomSystem gs=OD::VolBasedGeom)
@@ -38,17 +40,21 @@ public:
 			    return *this;
 			}
 
-    inline void		allowDuplicateBinIDs( bool yn )
+    inline void		allowDuplicatePositions( bool yn )
 					{ allowDuplicateIdxPairs(yn); }
-    inline bool		hasDuplicateBinIDs() const
+    inline bool		hasDuplicatePositions() const
 					{ return hasDuplicateIdxPairs(); }
-    inline bool		nrDuplicateBinIDs() const
+    inline bool		nrDuplicatePositions() const
 					{ return nrDuplicateIdxPairs(); }
 
     inline BinID	getBinID( const SPos& spos ) const
 					{ return mkBinID(getIdxPair(spos)); }
     inline BinID	firstBinID() const
 					{ return mkBinID(firstIdxPair()); }
+    inline Bin2D	getBin2D( const SPos& spos ) const
+					{ return mkBin2D(getIdxPair(spos)); }
+    inline Bin2D	firstBin2D() const
+					{ return mkBin2D(firstIdxPair()); }
 
     inline GeomSystem	geomSystem() const
 			{ return geomsystem_; }
@@ -73,5 +79,12 @@ protected:
 
     inline static BinID	mkBinID( const Pos::IdxPair& ip )
 			{ return BinID( ip.first, ip.second ); }
+    inline static Bin2D	mkBin2D( const Pos::IdxPair& ip )
+			{ return Bin2D( GeomID(ip.first), ip.second ); }
+
+public:
+
+    mDeprecated void	allowDuplicateBinIDs( bool yn )
+			{ allowDuplicatePositions( yn ); }
 
 };

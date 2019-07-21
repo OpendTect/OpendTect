@@ -333,7 +333,7 @@ int HorizonScanner::nextStep()
 	mErrRet(tr("Not enough data read to analyze"))
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
-    bvalset_->allowDuplicateBinIDs(true);
+    bvalset_->allowDuplicatePositions( true );
 
     float fac = 1;
     if ( doscale_ )

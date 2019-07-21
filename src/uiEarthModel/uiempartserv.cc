@@ -1033,7 +1033,7 @@ bool uiEMPartServer::getAllAuxData( const DBKey& oid,
 	}
     }
 
-    data.bivSet().allowDuplicateBinIDs(false);
+    data.bivSet().allowDuplicatePositions( false );
     mAllocVarLenArr( float, auxvals, nms.size()+2 );
     if ( !hor3d->geometry().geometryElement() )
 	return false;

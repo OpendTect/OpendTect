@@ -105,9 +105,10 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 				const Interval<float>* rgs )
 {
     const int orgsz = mCast( int, bvs.totalSize() );
-    if ( orgsz == 0 ) return;
+    if ( orgsz == 0 )
+	return;
 
-    bvs.allowDuplicateBinIDs( true );
+    bvs.allowDuplicatePositions( true );
     BinIDValueSet bvsnew( bvs.nrVals(), true );
     BinID bid;
     const int nrvals = bvs.nrVals();

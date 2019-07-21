@@ -440,7 +440,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	}
 
 	BinIDValueSet& bvs = tsd.binidValueSet();
-	bvs.allowDuplicateBinIDs( true );
+	bvs.allowDuplicatePositions( true );
 	horizon1->geometry().fillBinIDValueSet( bvs, prov );
 	horizon2->geometry().fillBinIDValueSet( bvs, prov );
 	emobjdoublehor->unRef();

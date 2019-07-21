@@ -62,7 +62,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     vals[0] = zrg.start;
     vals[1] = (float) startpos.x_; vals[2] = (float) startpos.y_;
     vals[3] = (float)trcnr;
-    seldata_.binidValueSet().allowDuplicateBinIDs( true );
+    seldata_.binidValueSet().allowDuplicatePositions( true );
     seldata_.binidValueSet().setNrVals( 4 );
     seldata_.binidValueSet().add( startbid, vals );
     trcnr += 1;
