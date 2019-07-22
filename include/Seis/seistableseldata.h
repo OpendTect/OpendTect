@@ -43,6 +43,7 @@ public:
     TableSelData&	operator =( const TableSelData& oth )
 						{ copyFrom(oth); return *this; }
     SelData*		clone() const	{ return new TableSelData(*this); }
+    bool		is2D() const override	{ return bvs_.is2D(); }
 
     void		updateAfterBVSChange();
     BinIDValueSet&	binidValueSet()		{ return bvs_; }
