@@ -129,8 +129,9 @@ public:
     inline void		randomSubselect( od_int64 maxsz )
 			{ data_.randomSubselect( maxsz ); }
 
-    void		extendHor(const IdxPairDelta& stepout,
-				  const IdxPairStep&,EntryCreatedFn fn=0);
+    void		extendHor3D(const IdxPairDelta& stepout,
+				    const IdxPairStep&,EntryCreatedFn fn=0);
+    void		extendHor2D(pos_type stepout,EntryCreatedFn fn=0);
     void		add(const PosInfo::CubeData&);
     inline void		remove( const SPos& spos )
 			{ data_.remove( spos ); }

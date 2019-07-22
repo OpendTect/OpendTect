@@ -904,9 +904,24 @@ void Pos::IdxPairDataSet::removeDuplicateIdxPairs()
 }
 
 
-void Pos::IdxPairDataSet::extendHor( const Pos::IdxPairDelta& so,
-				     const Pos::IdxPairStep& sostep,
-				     EntryCreatedFn crfn )
+void Pos::IdxPairDataSet::addHorPosIfNeeded( const BinID& bid,
+					     EntryCreatedFn crfn )
+{
+    SPos spos = find( bid );
+    if ( !spos.isValid() )
+    {
+	spos = add( bid, getObj(SPos(0,0)) ); // just use an existing obj
+	if ( !spos.isValid() )
+	    { mHandleMemFull(); return; }
+	else if ( crfn )
+	    crfn( *this, spos.i, spos.j );
+    }
+}
+
+
+void Pos::IdxPairDataSet::extendHor3D( const Pos::IdxPairDelta& so,
+				       const Pos::IdxPairStep& sostep,
+				       EntryCreatedFn crfn )
 {
     if ( isEmpty()
       || (!so.first && !so.second) || (!sostep.first && !sostep.second) )
@@ -943,25 +958,53 @@ void Pos::IdxPairDataSet::extendHor( const Pos::IdxPairDelta& so,
 	}
     }
 
-    const SPos firstspos( 0, 0 );
-    const void* firstobj = getObj( firstspos );
     ArrRegSubSel2DIterator it( subsel );
     while ( it.next() )
+	if ( needed.get(it.idx0_,it.idx1_) )
+	    addHorPosIfNeeded( subsel.binID(it.idx0_,it.idx1_), crfn );
+}
+
+
+void Pos::IdxPairDataSet::extendHor2D( pos_type so, EntryCreatedFn crfn )
+{
+    if ( isEmpty() || so < 1 )
+	return;
+
+    for ( auto ifirst=0; ifirst<frsts_.size(); ifirst++ )
     {
-	if ( !needed.get(it.idx0_,it.idx1_) )
+	const auto frst = frsts_[ifirst];
+	const GeomID geomid( frst );
+	const ::LineHorSubSel subsel( geomid );
+	if ( subsel.isEmpty() )
 	    continue;
 
-	const auto bid( subsel.binID(it.idx0_,it.idx1_) );
-	spos = find( bid );
-	if ( !spos.isValid() )
+	Array1DImpl<bool> needed( subsel.size() );
+	needed.setAll( false );
+
+	const auto sostep = subsel.trcNrRange().step;
+	const auto& scnds = gtScndSet( ifirst );
+	for ( auto iscnd=0; iscnd<scnds.size(); iscnd++ )
 	{
-	    spos = add( bid, firstobj );
-	    if ( !spos.isValid() )
-		{ mHandleMemFull(); return; }
-	    else if ( crfn )
-		crfn( *this, spos.i, spos.j );
+	    const auto centralnr = scnds[iscnd];
+	    for ( int ioffs=-so; ioffs<=so; ioffs++ )
+	    {
+		const auto arridx = subsel.idx4Pos( centralnr + ioffs*sostep );
+		if ( needed.validIdx(arridx) )
+		    needed.set( arridx, true );
+	    }
+	}
+
+	const auto arrsz = needed.size();
+	for ( auto idx=0; idx<arrsz; idx++ )
+	{
+	    if ( needed.get(idx) )
+	    {
+		const BinID bid( frst, subsel.pos4Idx(idx) );
+		addHorPosIfNeeded( bid, crfn );
+	    }
 	}
     }
+
 }
 
 

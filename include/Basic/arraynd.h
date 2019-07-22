@@ -155,6 +155,8 @@ public:
 				mTypeDefArrNDTypes;
 
     virtual inline bool		isOK() const	{ return ArrayND<T>::isOK(); }
+    bool			validIdx( idx_type idx ) const
+				{ return idx>=0 && idx<size(); }
 
     virtual void		set(idx_type,T)				= 0;
     virtual T			get(idx_type) const			= 0;

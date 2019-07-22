@@ -160,10 +160,11 @@ public:
     void		removeDuplicateIdxPairs();
     idx_type		nrPos(idx_type lineidx) const;
 
-    void		extendHor(const IdxPairDelta& stepout,
+    void		extendHor3D(const IdxPairDelta& stepout,
 				  const IdxPairStep&,EntryCreatedFn fn=0);
+    void		extendHor2D(pos_type stepout,EntryCreatedFn fn=0);
     void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
-			    //!< Adds only IdxPair postions not yet in set
+			    //!< Adds only IdxPair positions not yet in set
     void		randomSubselect(glob_idx_type maxsz);
 
 			// I/O
@@ -247,6 +248,7 @@ protected:
     void		addEntry(const Pos::IdxPair&,const void*,SPos&);
     void		updNearest(const IdxPair&,const SPos&,
 				   od_int64&,SPos&) const;
+    void		addHorPosIfNeeded(const BinID&,EntryCreatedFn);
 
     // All 'gt' functions return unchecked
     inline pos_type	gtFrst( const SPos& pos ) const

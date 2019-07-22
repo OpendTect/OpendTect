@@ -322,11 +322,17 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals )
 }
 
 
-void Pos::IdxPairValueSet::extendHor( const Pos::IdxPairDelta& so,
-				      const Pos::IdxPairStep& sos,
-				      EntryCreatedFn fn )
+void Pos::IdxPairValueSet::extendHor3D( const Pos::IdxPairDelta& so,
+					const Pos::IdxPairStep& sos,
+					EntryCreatedFn fn )
 {
-    data_.extendHor( so, sos, fn );
+    data_.extendHor3D( so, sos, fn );
+}
+
+
+void Pos::IdxPairValueSet::extendHor2D( pos_type so, EntryCreatedFn fn )
+{
+    data_.extendHor2D( so, fn );
 }
 
 

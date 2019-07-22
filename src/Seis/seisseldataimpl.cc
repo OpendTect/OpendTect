@@ -164,7 +164,10 @@ void Seis::TableSelData::doExtendH( BinID so, BinID sos )
 	return;
 
     const BinIDValueSet orgbvs( bvs_ );
-    bvs_.extendHor( so, sos );
+    if ( is2D() )
+	bvs_.extendHor2D( so.crl() );
+    else
+	bvs_.extendHor3D( so, sos );
 
     const auto zrg( orgbvs.valRange(0) );
     const auto avgz = zrg.center();
