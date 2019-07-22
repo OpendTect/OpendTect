@@ -51,9 +51,9 @@ static void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
 DataPointSet::Pos::Pos( const Bin2D& b2d, float _z )
     : z_(_z)
 {
-    const Coord coord( b2d.coord() );
-    binid_ = SI().transform( coord );
-    setOffs( coord );
+    const Coord b2dcoord( b2d.coord() );
+    binid_ = SI().transform( b2dcoord );
+    setOffs( b2dcoord );
 }
 
 
