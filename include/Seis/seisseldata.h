@@ -133,6 +133,7 @@ protected:
     virtual int		selRes2D(GeomID,trcnr_type) const;
 
     static const char*	sNrLinesKey();
+    static int		cInvalidSelRes()		{ return 258; }
 
 public:
 

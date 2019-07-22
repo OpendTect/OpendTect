@@ -117,6 +117,7 @@ public:
 						{ return findOccurrence(ip,0); }
     SPos		findOccurrence(const IdxPair&,int occ=0) const;
     SPos		findNearest(const IdxPair&) const;
+    SPos		findNearestOnFirst(pos_type frst,pos_type scnd) const;
     bool		next(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		prev(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		isValid(SPos) const;

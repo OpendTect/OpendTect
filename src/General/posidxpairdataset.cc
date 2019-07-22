@@ -611,6 +611,44 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findNearest(
 }
 
 
+Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findNearestOnFirst(
+					pos_type frst, pos_type scnd ) const
+{
+    const auto nrfrst = frsts_.size();
+    if ( nrfrst < 1 )
+	return SPos();
+
+    bool found;
+    SPos spos;
+    spos.i = findIndexFor( frsts_, frst, &found );
+    if ( !found )
+	return SPos();
+
+    const IdxSet& scnds = gtScndSet( spos );
+    const auto lastj = scnds.size() - 1;
+    spos.j = findIndexFor( scnds, scnd, &found );
+    if ( found )
+	return spos;
+
+    if ( spos.j < 0 )
+	spos.j = 0;
+    else if ( spos.j > lastj )
+	spos.j = scnds.size() - 1;
+    else if ( spos.j < lastj )
+    {
+	auto ip = getIdxPair( spos );
+	const auto posdiff1 = std::abs( ip.second - scnd );
+	SPos spos2( spos.i, spos.j+1 );
+	ip = getIdxPair( spos2 );
+	const auto posdiff2 = std::abs( ip.second - scnd );
+	if ( posdiff2 < posdiff1 )
+	    spos = spos2;
+    }
+
+    return spos;
+}
+
+
 bool Pos::IdxPairDataSet::next( SPos& spos, bool skip_dup ) const
 {
     if ( spos.i < 0 )
