@@ -178,6 +178,12 @@ BinID Pick::Location::binID() const
 }
 
 
+Bin2D Pick::Location::bin2D() const
+{
+    return Bin2D( Pos::GeomID(lineNr()), trcNr() );
+}
+
+
 const Sphere& Pick::Location::dir() const
 {
     return dir_ ? *dir_ : Sphere::nullSphere();

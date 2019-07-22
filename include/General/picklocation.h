@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include "geomid.h"
 #include "binid.h"
+#include "bin2d.h"
 class TrcKey;
 class Sphere;
 
@@ -78,6 +79,7 @@ public:
     linenr_type		lineNr() const;
     trcnr_type		trcNr() const;
     BinID		binID() const;
+    Bin2D		bin2D() const;
     const Sphere&	dir() const;
     const BufferString&	text() const;
     GroupLabelID	groupLabelID() const	{ return grplblid_; }
