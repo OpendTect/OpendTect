@@ -50,7 +50,6 @@ namespace Geom
     template <class T> class Point3D;
     template <class T> class Point2D;
 }
-
 typedef Geom::Point3D<Pos::Ordinate_Type>	Coord3d;
 typedef Geom::Point3D<float>			Coord3f;
 typedef Geom::Point2D<Pos::Ordinate_Type>	Coord2d;
