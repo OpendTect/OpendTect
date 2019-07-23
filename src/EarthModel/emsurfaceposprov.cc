@@ -488,7 +488,7 @@ bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
     PosInfo::Line2DPos pos;
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	const auto& geom2d = Survey::Geometry2D::get( geomID(lidx) );
+	const auto& geom2d = SurvGeom2D::get( geomID(lidx) );
 	if ( geom2d.isEmpty() )
 	    continue;
 

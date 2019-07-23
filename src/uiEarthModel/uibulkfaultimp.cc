@@ -92,7 +92,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     if ( ret <= 0 ) return false;
 
     fltnm = text( 0 );
-    
+
     if ( !isXY() )
     {
 	crd.setXY( SI().transform(getBinID(1,2,udfval_)) );
@@ -299,7 +299,7 @@ static void updateFaultStickSet( EM::Fault* flt,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,emfss,flt)
-	    const auto geomid = Survey::Geometry::getGeomID( stick->lnm_ );
+	    const auto geomid = SurvGeom::getGeomID( stick->lnm_ );
 	    emfss->geometry().insertStick( sticknr, 0,
 		    stick->crds_[0], stick->getNormal(true), geomid, false );
 

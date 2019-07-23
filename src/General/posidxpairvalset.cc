@@ -90,7 +90,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	return false;
 
     BufferString line; char valbuf[1024];
-    const auto& survgeom = Survey::Geometry::get( gid );
+    const auto& survgeom = SurvGeom::get( gid );
     int coordindic = -1;
 
     while ( strm.getLine( line ) )

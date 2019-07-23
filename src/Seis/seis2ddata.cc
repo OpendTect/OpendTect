@@ -90,7 +90,7 @@ int Seis2DDataSet::indexOf( GeomID geomid ) const
 
 int Seis2DDataSet::indexOf( const char* linename ) const
 {
-    return indexOf( Survey::Geometry::getGeomID(linename) );
+    return indexOf( SurvGeom::getGeomID(linename) );
 }
 
 bool Seis2DDataSet::isPresent( GeomID geomid ) const
@@ -208,10 +208,10 @@ bool Seis2DDataSet::haveMatch( GeomID geomid,
     if ( bivs.is2D() )
 	return bivs.hasInl( geomid.lineNr() );
 
-    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    const auto& geom2d = SurvGeom::get2D( geomid );
     if ( geom2d.isEmpty() )
 	return false;
-    const auto& geom3d = Survey::Geometry::get3D();
+    const auto& geom3d = SurvGeom::get3D();
 
     const PosInfo::Line2DData& l2dd = geom2d.data();
     for ( int idx=0; idx<l2dd.positions().size(); idx++ )
@@ -226,7 +226,7 @@ bool Seis2DDataSet::haveMatch( GeomID geomid,
 
 void Seis2DDataSet::getDataSetsOnLine( const char* lnm, BufferStringSet& ds )
 {
-    Seis2DDataSet::getDataSetsOnLine( Survey::Geometry::getGeomID(lnm), ds );
+    Seis2DDataSet::getDataSetsOnLine( SurvGeom::getGeomID(lnm), ds );
 }
 
 

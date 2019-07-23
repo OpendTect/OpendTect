@@ -729,7 +729,7 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const Seis2DDisplay* s2dd = seis2dlist[idz];
-		const auto& geom2d = Survey::Geometry::get2D(s2dd->getGeomID());
+		const auto& geom2d = SurvGeom::get2D(s2dd->getGeomID());
 		const float max = geom2d.isEmpty() ? s2dd->maxDist()
 						   : geom2d.averageTrcDist();
 		const float dist = s2dd->calcDist( markerpos );

@@ -809,7 +809,7 @@ void HorizonFlatViewEditor2D::updatePatchDisplay()
 
 TrcKey HorizonFlatViewEditor2D::getTrcKey( const Coord& crd ) const
 {
-    auto trcnr = Survey::Geometry::get2D( geomid_ ).nearestTracePosition( crd );
+    auto trcnr = SurvGeom::get2D( geomid_ ).nearestTracePosition( crd );
     return trcnr < 0 ? TrcKey::udf() : TrcKey( geomid_, trcnr );
 }
 
@@ -873,7 +873,7 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     EM::Object* emobj = EM::Hor2DMan().getObject( emid_ );
     if ( !emobj ) return false;
 
-    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& geom2d = SurvGeom::get2D( geomid_ );
     if ( geom2d.isEmpty() )
 	return false;
 

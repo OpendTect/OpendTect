@@ -128,7 +128,7 @@ bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	return true;
 
     mGetHorizon(hor2d,false);
-    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& geom2d = SurvGeom::get2D( geomid_ );
     if ( geom2d.isEmpty() )
 	return false;
 
@@ -319,7 +319,7 @@ TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
 {
     if ( trackmode_ != DrawBetweenSeeds )
 	return TrcKey::udf();
-    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& geom2d = SurvGeom::get2D( geomid_ );
     if ( geom2d.isEmpty() )
 	return TrcKey::udf();
 

@@ -151,7 +151,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 			continue;
 		    else
 		    {
-			const auto& geom2d = Survey::Geometry::get2D( geomid );
+			const auto& geom2d = SurvGeom::get2D( geomid );
 			if ( geom2d.isEmpty()
 			  || geom2d.data().nearestIdx(pl.pos().getXY())<0 )
 			    continue;
@@ -238,7 +238,7 @@ void VW2DPickSet::draw()
     if ( !regfdp && !randfdp )
 	return;
 
-    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry();
+    ConstRefMan<SurvGeom3D> geom3d = SI().get3DGeometry();
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
@@ -287,7 +287,7 @@ void VW2DPickSet::draw()
 		    }
 		    else
 		    {
-			const auto& geom2d = Survey::Geometry::get2D( geomid );
+			const auto& geom2d = SurvGeom::get2D( geomid );
 			if ( !geom2d.isEmpty() )
 			    trcidx = geom2d.data().nearestIdx( pos.getXY() );
 		    }

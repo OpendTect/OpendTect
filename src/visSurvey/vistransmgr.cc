@@ -33,7 +33,7 @@ SceneTransformManager& STM()
 
 
 void SceneTransformManager::computeUTM2DisplayTransform(
-	const Survey::Geometry3D& sg, float zfactor, float zmidpt,
+	const SurvGeom3D& sg, float zfactor, float zmidpt,
         mVisTrans* res)
 {
     const Coord startpos = SI().transform( sg.origin() );
@@ -48,7 +48,7 @@ void SceneTransformManager::computeUTM2DisplayTransform(
 
 
 void SceneTransformManager::computeICRotationTransform(
-	const Survey::Geometry3D& sg, float zfactor, float zmidpt,
+	const SurvGeom3D& sg, float zfactor, float zmidpt,
 		visBase::Transformation* rotation,
 		visBase::Transformation* disptrans )
 {

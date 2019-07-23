@@ -206,7 +206,7 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	const auto geomid = Survey::Geometry::getGeomID( lnms.get(idx) );
+	const auto geomid = SurvGeom::getGeomID( lnms.get(idx) );
 	Seis::SequentialPSLoader psrdr( *ioobj, 0, geomid );
 	if ( !runTask(psrdr) )
 	    return false;

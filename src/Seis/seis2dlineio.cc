@@ -418,7 +418,7 @@ bool Seis2DLineMerger::nextGetter()
 	return true;
 
     BufferString lnm( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
-    const auto& geom2d = Survey::Geometry::get2D( lnm );
+    const auto& geom2d = SurvGeom::get2D( lnm );
     const PosInfo::Line2DData& l2dd( geom2d.data() );
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
@@ -492,7 +492,7 @@ int Seis2DLineMerger::doWork()
 	    if ( !putter_->close() )
 		mErrRet(putter_->errMsg())
 	    delete putter_; putter_ = 0;
-	    auto& geom2d = Survey::Geometry::get2D4Edit(outgeomid_);
+	    auto& geom2d = SurvGeom::get2D4Edit(outgeomid_);
 	    if ( geom2d.isEmpty() )
 		return MoreToDo();
 	    if ( !Survey::GMAdmin().save(geom2d,msg_) )
@@ -510,7 +510,7 @@ int Seis2DLineMerger::doWork()
 	{
 	    PosInfo::Line2DPos pos( trc.info().trcNr() );
 	    pos.coord_ = trc.info().coord_;
-	    auto& geom2d = Survey::Geometry::get2D4Edit(outgeomid_);
+	    auto& geom2d = SurvGeom::get2D4Edit(outgeomid_);
 	    if ( geom2d.isEmpty() )
 		mErrRet( tr("Output 2D Geometry not written properly") );
 

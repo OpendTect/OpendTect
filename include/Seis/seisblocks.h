@@ -46,7 +46,7 @@ namespace Blocks
     typedef od_uint16		version_type;
     typedef od_uint16		size_type;
     typedef od_int16		idx_type;
-    typedef Survey::Geometry3D	HGeom;
+    typedef SurvGeom3D		HGeom;
     typedef StepInterval<float>	ZGeom;
     typedef DataInterpreter<float> DataInterp;
 

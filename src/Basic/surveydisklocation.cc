@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "od_istream.h"
+#include "survgeommgr.h"
 #include "survinfo.h"
 
 const SurveyDiskLocation& SurveyDiskLocation::currentSurvey()
@@ -192,4 +193,15 @@ const SurveyInfo& SurveyDiskLocation::surveyInfo() const
     infos_ += newinfo;
     timestamps_ += timestamp;
     return *newinfo;
+}
+
+
+const SurvGM& SurveyDiskLocation::geometryManager() const
+{
+    if ( isCurrentSurvey() )
+	return Survey::GM();
+
+    //TODO implement this cache
+    static SurvGM ret;
+    return ret;
 }

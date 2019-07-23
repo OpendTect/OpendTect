@@ -1250,7 +1250,7 @@ bool Horizon3D::setPosition( const PosID& posid,
     const TrcKey tk = TrcKey( bid );
     if ( !arrayinited_ )
     {
-	const auto& geom3d = Survey::Geometry::get3D();
+	const auto& geom3d = SurvGeom::get3D();
 	StepInterval<int> inlrg = geom3d.inlRange();
 	StepInterval<int> trcrg = geom3d.crlRange();
 	initNodeArraysSize( inlrg, trcrg );

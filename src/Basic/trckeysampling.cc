@@ -1026,7 +1026,7 @@ TrcKeyZSampling::TrcKeyZSampling( GeomID gid )
 
 TrcKeyZSampling::TrcKeyZSampling( const HorSubSel& hss )
     : hsamp_(hss)
-    , zsamp_(Survey::Geometry::get(hss.geomID()).zRange())
+    , zsamp_(SurvGeom::get(hss.geomID()).zRange())
 {
 }
 

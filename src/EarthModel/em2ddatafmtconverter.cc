@@ -113,7 +113,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 		continue;
 
 	    BufferString oldlnm( lsioobj->name().str(), "-", linename );
-	    auto geomid = Survey::Geometry::getGeomID( oldlnm );
+	    auto geomid = SurvGeom::getGeomID( oldlnm );
 	    mDefStickKey("GeomID",geomstr,secids[secididx],stickidx);
 	    surfacepara_->set( geomstr, geomid );
 	}

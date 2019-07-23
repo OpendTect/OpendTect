@@ -133,13 +133,13 @@ protected:
     mutable StepInterval<int>	curtrcrg_;
     mutable StepInterval<float>	curzrg_;
 
-    const Survey::Geometry2D*	curgeom_;
+    const SurvGeom2D*	curgeom_;
 
-    Pos::GeomID			curGeomID() const;
-    const Survey::Geometry2D*	curGeom() const;
-    StepInterval<float>		curZRange() const;
-    StepInterval<int>		curTrcRange() const;
-    void			getCurRanges() const;
+    Pos::GeomID		curGeomID() const;
+    const SurvGeom2D*	curGeom() const;
+    StepInterval<float>	curZRange() const;
+    StepInterval<int>	curTrcRange() const;
+    void		getCurRanges() const;
 
 public:
 

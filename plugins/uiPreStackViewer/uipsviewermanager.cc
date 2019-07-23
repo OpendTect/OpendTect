@@ -657,7 +657,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	TrcKey tk( bid );
 	if ( !is3d )
 	{
-	    tk.setGeomID( Survey::Geometry::getGeomID(name2d) );
+	    tk.setGeomID( SurvGeom::getGeomID(name2d) );
 	    tk.setTrcNr( trcnr );
 	}
 

@@ -61,7 +61,7 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
     , udftreat_(udftreat)
 {
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomids_ += Survey::Geometry::getGeomID( lnms.get(lineidx).buf() );
+	geomids_ += SurvGeom::getGeomID( lnms.get(lineidx).buf() );
 }
 
 
@@ -99,7 +99,7 @@ int nextStep()
 	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
 	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
 
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    return Executor::ErrorOccurred();
 
@@ -180,7 +180,7 @@ protected:
     ObjectSet<EM::Horizon2D>&	hors_;
     const BinIDValueSet*	bvalset_;
     GeomIDSet			geomids_;
-    const Survey::Geometry2D*	curlinegeom_;
+    const SurvGeom2D*		curlinegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;

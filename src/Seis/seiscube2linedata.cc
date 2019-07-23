@@ -62,7 +62,7 @@ int Seis2DFrom3DExtractor::goToNextLine()
 	return Finished();
 
     const auto geomid = geomids_[curlineidx_];
-    curgeom2d_ = &Survey::Geometry::get2D( geomid );
+    curgeom2d_ = &SurvGeom::get2D( geomid );
     if ( curgeom2d_->isEmpty() )
 	mErrRet(tr("Line geometry not available"))
 

@@ -486,12 +486,12 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 	else // Pre v6.0 Pickset without TrcKey information
 	{
 	    GeomIDSet ids;
-	    Survey::Geometry::list2D( ids );
+	    SurvGeom::list2D( ids );
 	    TrcKey ntk;
 	    double ndist = mUdf(double);
 	    for ( int idx=0; idx<ids.size(); idx++ )
 	    {
-		const auto& geom2d = Survey::Geometry::get2D( ids[idx] );
+		const auto& geom2d = SurvGeom::get2D( ids[idx] );
 		if ( geom2d.isEmpty() )
 		    continue;
 

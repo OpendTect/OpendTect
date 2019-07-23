@@ -522,7 +522,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
 	if ( menuid==0 )
 	{
-	    const auto& geom2d = Survey::Geometry::get2D( intpoint2d.otherid_ );
+	    const auto& geom2d = SurvGeom::get2D( intpoint2d.otherid_ );
 	    const PosInfo::Line2DData& l2ddata = geom2d.data();
 	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
 	    const float trcdist =
@@ -776,7 +776,7 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs( const uiODViewer2D* vwr2d,
     {
 	const char* wvalnm = wvalnms.get(lidx).buf();
 	if ( vdlnms.isPresent(wvalnm) )
-	    commongids += Survey::Geometry::getGeomID( wvalnm );
+	    commongids += SurvGeom::getGeomID( wvalnm );
     }
 }
 

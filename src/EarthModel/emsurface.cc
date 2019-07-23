@@ -109,7 +109,7 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
 	{
 	    const BufferString oldlnm( linesets.get(idx), "-",
 				       linenames.get(idx) );
-	    const Pos::GeomID geomid = Survey::Geometry::getGeomID( oldlnm );
+	    const Pos::GeomID geomid = SurvGeom::getGeomID( oldlnm );
 	    if ( geomid.isValid() )
 		iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomid );
 	}
@@ -151,7 +151,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 		    const BufferString oldlnm(
 			    S2DPOS().getLineSet(l2dkey.lsID()), "-",
 				S2DPOS().getLineName(l2dkey.lineID()) );
-		    geomid = Survey::Geometry::getGeomID( oldlnm );
+		    geomid = SurvGeom::Geometry::getGeomID( oldlnm );
 		}
 	    }
 

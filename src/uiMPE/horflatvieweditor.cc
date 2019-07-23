@@ -390,7 +390,7 @@ bool HorizonFlatViewEditor::getPosID( const EM::Object& emobj,
     else
     {
 	mDynamicCastGet(const EM::Horizon2D*,hor2d,&emobj);
-	const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+	const auto& geom2d = SurvGeom::get2D( geomid_ );
 	if ( !hor2d || geom2d.isEmpty() )
 	    return false;
 

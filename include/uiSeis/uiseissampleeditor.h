@@ -84,7 +84,7 @@ protected:
     SeisTrcBuf&		viewtbuf_;
     Pos::IdxPairDataSet& edtrcs_;
     SeisTrc*		ctrc_;
-    const Survey::Geometry* survgeom_;
+    const SurvGeom*	survgeom_;
     ZDomain::Def	zdomdef_;
     PosInfo::CubeData&	cubedata_;
     PosInfo::LineData&	linedata_;

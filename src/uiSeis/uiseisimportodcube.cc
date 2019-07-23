@@ -180,7 +180,7 @@ bool uiSeisImportODCube::acceptOK()
 	Seis::Blocks::Reader rdr( fname );
 	if ( rdr.state().isError() )
 	    mErrRet( rdr.state() )
-	if ( !rdr.hGeom().isCompatibleWith(Survey::Geometry::get3D()) )
+	if ( !rdr.hGeom().isCompatibleWith(SurvGeom::get3D()) )
 	    mErrRet( tr("The selected cube is not usable in this survey") )
 
     }

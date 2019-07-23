@@ -51,7 +51,7 @@ mExpClass(Basic) Line2DPos3D : public Line2DPos
 {
 public:
 
-    typedef Survey::Geometry::z_type	z_type;
+    mUseType( SurvGeom,	z_type );
 
 			Line2DPos3D( trcnr_type n=0, z_type z=mUdf(z_type) )
 			    : Line2DPos(n), z_(z)		{}

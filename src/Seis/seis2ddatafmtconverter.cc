@@ -47,12 +47,12 @@ static void convert2DPSData()
 	    if ( lnm.contains('^') )
 		continue;	//Already converted.
 
-	    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	    Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
 	    int lsidx=0;
 	    while( mIsUdfGeomID(geomid) && lsidx<lsnms.size() )
 	    {
 		const BufferString oldlnm( lsnms.get(lsidx++), "-", lnm );
-		geomid = Survey::Geometry::getGeomID( oldlnm );
+		geomid = SurvGeom::getGeomID( oldlnm );
 	    }
 	    if ( mIsUdfGeomID(geomid) )
 		continue;
@@ -307,7 +307,7 @@ static void read2DSFile( const IOObj& lsobj, ObjectSet<IOPar>& pars )
 		newpar->setName( astrm.value() );
 		const BufferString oldlnm( lsobj.name(), "-", astrm.value() );
 		newpar->set( sKey::GeomID(),
-			     Survey::Geometry::getGeomID( oldlnm ) );
+			     SurvGeom::getGeomID( oldlnm ) );
 	    }
 	    else if ( !astrm.hasValue("") )
 		newpar->set( astrm.keyWord(), astrm.value() );
@@ -500,8 +500,7 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 	    attrname.clean( BufferString::AllowDots );
 	    BufferString newfile( attrname );
 	    const BufferString oldlnm( ioobjlist[idx]->name(), "-", iop.name());
-	    newfile.add(mCapChar)
-		   .add( Survey::Geometry::getGeomID( oldlnm ) );
+	    newfile.add(mCapChar).add( SurvGeom::getGeomID( oldlnm ) );
 	    File::Path newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
 			    attrname, newfile );
 	    newfp.setExtension( oldfp.extension(), false );

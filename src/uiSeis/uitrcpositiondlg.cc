@@ -218,7 +218,7 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
     else
     {
 	Pos::GeomID geomid = linesfld_->getInputGeomID();
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    return;
 

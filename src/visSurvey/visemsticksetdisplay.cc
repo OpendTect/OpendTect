@@ -244,7 +244,7 @@ bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
 
 
 void StickSetDisplay::stickSelectionCB( CallBacker* cb,
-    const Survey::Geometry3D* s3dgeom )
+					const SurvGeom3D* s3dgeom )
 {
     if ( !s3dgeom ) return;
 

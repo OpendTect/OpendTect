@@ -225,7 +225,7 @@ bool doImp( const File::Path& fp )
 	BufferString lnm( fullfnm.buf() + lnmoffs );
 	*(lnm.getCStr() + lnmlen) = '\0';
 
-	Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
 	if ( geomid.isValid() )
 	{
 	    if ( !overwritequestionasked )
@@ -237,7 +237,7 @@ bool doImp( const File::Path& fp )
 
 	    if ( overwrite )
 	    {
-		const auto& geom2d = Survey::Geometry::get2D( geomid );
+		const auto& geom2d = SurvGeom::get2D( geomid );
 		geom2d.setEmpty();
 	    }
 
@@ -288,7 +288,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     bool retval;
     if ( !morebut_ || !morebut_->isChecked() )
     {
-	Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
 	if ( is2d && geomid.isValid() )
 	{
 	    const bool overwrite =
@@ -296,7 +296,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 				    "\n\nDo you want to overwrite?").arg(lnm) );
 	    if ( overwrite )
 	    {
-		const auto& geom2d = Survey::Geometry::get2D( geomid );
+		const auto& geom2d = SurvGeom::get2D( geomid );
 		geom2d.setEmpty();
 	    }
 
@@ -348,7 +348,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( is2d )
     {
-	Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm );
+	Pos::GeomID geomid = SurvGeom::getGeomID( linenm );
 	if ( mIsUdfGeomID(geomid) )
 	    geomid = Geom2DImpHandler::getGeomID( linenm );
 	if ( mIsUdfGeomID(geomid) )

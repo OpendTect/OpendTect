@@ -41,7 +41,7 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 	return geomid;
     capstr++;
     geomid = Pos::GeomID( toInt(capstr,Pos::GeomID().getI()) );
-    const auto* geom2d = Survey::Geometry::get(geomid).as2D();
+    const auto* geom2d = SurvGeom::get(geomid).as2D();
     return geom2d ? geomid : mUdfGeomID;
 }
 
@@ -308,7 +308,7 @@ bool SEGYDirect2DLinePutter::close()
 const char* SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID()
 { return "SEGY Direct ID"; }
 
-Survey::Geometry2D* SEGYDirectSurvGeom2DTranslator::readGeometry(
+SurvGeom2D* SEGYDirectSurvGeom2DTranslator::readGeometry(
 				const IOObj& ioobj, uiString& errmsg ) const
 {
     DBKey segydirectid;
@@ -329,7 +329,7 @@ Survey::Geometry2D* SEGYDirectSurvGeom2DTranslator::readGeometry(
 
     PosInfo::Line2DData* data = new PosInfo::Line2DData( ld );
     data->setLineName( ioobj.name() );
-    Survey::Geometry2D* geom = new Survey::Geometry2D( data );
+    SurvGeom2D* geom = new SurvGeom2D( data );
     geom->setGeomID( geomid );
     geom->commitChanges();
     return geom;

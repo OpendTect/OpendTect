@@ -96,7 +96,7 @@ bool FaultStickPainter::addPolyLine()
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
 
-    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry();
+    ConstRefMan<SurvGeom3D> geom3d = SI().get3DGeometry();
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,
 		    emfss->geometryElement());

@@ -171,12 +171,12 @@ bool Seis2DGridCreator::init( const IOPar& par )
 
 #define mHandleLineGeom \
 uiString errmsg; \
-Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm ); \
+Pos::GeomID geomid = SurvGeom::getGeomID( linenm ); \
 const bool islinepresent = geomid.isValid(); \
 if ( !islinepresent ) \
 { \
     PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm ); \
-    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( l2d ); \
+    SurvGeom2D* newgoem2d = new SurvGeom2D( l2d ); \
     newgoem2d->ref(); \
     Survey::GMAdmin().addEntry( newgoem2d, geomid, errmsg ); \
     newgoem2d->unRef(); \
@@ -188,8 +188,8 @@ if ( !islinepresent ) \
 } \
 else if ( islinepresent && dooverwrite ) \
 { \
-    const auto& geom = Survey::Geometry::get2D( geomid ); \
-    const_cast<Survey::Geometry2D&>(geom).data().setEmpty(); \
+    const auto& geom = SurvGeom::get2D( geomid ); \
+    const_cast<SurvGeom2D&>(geom).data().setEmpty(); \
 }
 
 bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,

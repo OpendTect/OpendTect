@@ -136,7 +136,7 @@ void PosInfo::Line2DData::setLineName( const char* lnm )
     if ( lnm_.isEmpty() )
 	return;
 
-    const auto& g2d = Survey::Geometry2D::get( lnm_ );
+    const auto& g2d = SurvGeom2D::get( lnm_ );
     if ( !g2d.isEmpty() )
 	geomid_ = g2d.geomID();
 }
@@ -145,7 +145,7 @@ void PosInfo::Line2DData::setLineName( const char* lnm )
 Pos::GeomID PosInfo::Line2DData::geomID() const
 {
     if ( !geomid_.isValid() && !lnm_.isEmpty() )
-	geomid_ = Survey::Geometry::getGeomID( lnm_ );
+	geomid_ = SurvGeom::getGeomID( lnm_ );
     return geomid_;
 }
 

@@ -169,14 +169,14 @@ int nextStep()
 	if ( !crd.isDefined() )
 	    Executor::MoreToDo();
 
-	const auto geomid = Survey::Geometry::getGeomID( linenm );
+	const auto geomid = SurvGeom::getGeomID( linenm );
 	int nr = 0;
 
 	if ( ascio_->isTrNr() )
 	    nr = trcnr;
 	else if ( crd.isDefined() )
 	{
-	    const auto& geom2d = Survey::Geometry::get2D( geomid );
+	    const auto& geom2d = SurvGeom::get2D( geomid );
 	    if ( geom2d.isEmpty() )
 		return Executor::ErrorOccurred();
 	    PosInfo::Line2DPos pos;

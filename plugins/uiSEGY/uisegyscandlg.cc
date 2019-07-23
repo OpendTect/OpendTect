@@ -184,7 +184,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	js.pars_.set( sKey::Output(), outfld_->key(true) );
 	if ( lnmfld_ )
 	{
-	    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	    Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
 	    if ( mIsUdfGeomID(geomid) )
 	    {
 		PtrMan<IOObj> geomobj = SurvGeom2DTranslator::getEntry( lnm,

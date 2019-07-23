@@ -53,7 +53,7 @@ int BendPointFinder2DGeomSet::nextStep()
     if ( curidx_ >= geomids_.size() )
 	return Finished();
 
-    const auto& geom2d = Survey::Geometry::get2D( geomids_[curidx_] );
+    const auto& geom2d = SurvGeom::get2D( geomids_[curidx_] );
     if ( geom2d.isEmpty() )
 	{ mRetMoreToDo(); }
 
@@ -192,7 +192,7 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
     lsintersections_.setNullAllowed( true );
     for ( int idx=0; idx<bps.size(); idx++ )
     {
-	const auto& geom2d = Survey::Geometry::get2D( bps[idx]->geomid_ );
+	const auto& geom2d = SurvGeom::get2D( bps[idx]->geomid_ );
 	geoms_ += &geom2d;
 	lsintersections_ += new Line2DInterSection( bps[idx]->geomid_ );
     }

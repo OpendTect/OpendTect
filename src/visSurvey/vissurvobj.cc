@@ -125,7 +125,7 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 { min = mUdf(int); max= mUdf(int); }
 
 
-void SurveyObject::set3DSurvGeom( const Survey::Geometry3D* sg )
+void SurveyObject::set3DSurvGeom( const SurvGeom3D* sg )
 {
     if ( s3dgeom_ )
 	s3dgeom_->unRef();
@@ -343,7 +343,7 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
     if ( xytmousepos.isUdf() )
 	return;
 
-    const auto& geom = Survey::Geometry::get3D();
+    const auto& geom = SurvGeom::get3D();
     const TrcKey tk( geom.nearestTracePosition(xytmousepos.getXY()) );
     if ( !tk.isUdf() )
 	iopar.set( sKey::TraceKey(), tk );

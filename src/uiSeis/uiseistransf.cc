@@ -178,7 +178,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 	seldata->fillPar( iop );
     else if ( setup_.is2d_ )
     {
-	Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm2d );
+	Pos::GeomID geomid = SurvGeom::getGeomID( linenm2d );
 	iop.set( sKey::GeomID(), geomid );
     }
 

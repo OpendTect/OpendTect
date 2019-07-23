@@ -132,21 +132,21 @@ BufferString BinID::usrDispStr( bool is2d ) const
 
 Coord Bin2D::coord() const
 {
-    const auto& g2d = Survey::Geometry2D::get( geomid_ );
+    const auto& g2d = SurvGeom2D::get( geomid_ );
     return g2d.isEmpty() ? Coord::udf() : g2d.getCoord( trcNr() );
 }
 
 
 Bin2D Bin2D::first( GeomID gid )
 {
-    const auto& g2d = Survey::Geometry2D::get( gid );
+    const auto& g2d = SurvGeom2D::get( gid );
     return Bin2D( gid, g2d.isEmpty() ? mUdf(trcnr_type) : g2d.trcNr(0) );
 }
 
 
 Bin2D Bin2D::last( GeomID gid )
 {
-    const auto& g2d = Survey::Geometry2D::get( gid );
+    const auto& g2d = SurvGeom2D::get( gid );
     const auto gsz = g2d.size();
     return Bin2D( gid, gsz<1 ? mUdf(trcnr_type) : g2d.trcNr(gsz-1) );
 }
@@ -298,10 +298,10 @@ bool TrcKey::exists() const
     if ( isUdf() )
 	return false;
     else if ( is3D() )
-	return Survey::Geometry::get3D().includes( pos_ );
+	return SurvGeom::get3D().includes( pos_ );
 
     const auto gid( geomID() );
-    const auto& geom2d = Survey::Geometry::get2D( gid );
+    const auto& geom2d = SurvGeom::get2D( gid );
     return geom2d.includes( gid.lineNr() );
 
 }
@@ -337,9 +337,9 @@ TrcKey::dist_type TrcKey::distTo( const TrcKey& oth ) const
 }
 
 
-const Survey::Geometry& TrcKey::geometry() const
+const SurvGeom& TrcKey::geometry() const
 {
-    return Survey::Geometry::get( geomID() );
+    return SurvGeom::get( geomID() );
 }
 
 
@@ -357,9 +357,9 @@ TrcKey& TrcKey::setFrom( const Coord& crd )
 Coord TrcKey::getCoord() const
 {
     if ( geomsystem_ == OD::VolBasedGeom )
-	return Survey::Geometry::get3D().transform( pos_ );
+	return SurvGeom::get3D().transform( pos_ );
 
-    const auto& geom2d = Survey::Geometry::get2D( geomID() );
+    const auto& geom2d = SurvGeom::get2D( geomID() );
     return geom2d.isEmpty() ? Coord::udf() : geom2d.getCoord( trcNr() );
 }
 

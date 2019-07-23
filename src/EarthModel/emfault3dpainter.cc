@@ -201,7 +201,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 
     if ( !equinormal ) return false;
 
-    ConstRefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry();
+    ConstRefMan<SurvGeom3D> geom3d = SI().get3DGeometry();
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     if ( tkzs_.defaultDir() != OD::ZSlice )
     {

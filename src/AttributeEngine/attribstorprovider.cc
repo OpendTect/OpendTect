@@ -773,7 +773,7 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
     {
 	const BufferString linenm( prov2d.lineName(idx) );
 	PosInfo::Line2DData& linegeom = ls2ddata_->addLine( linenm );
-	const auto& geom2d = Survey::Geometry::get2D( prov2d.geomID(idx) );
+	const auto& geom2d = SurvGeom::get2D( prov2d.geomID(idx) );
 	if ( geom2d.isEmpty() )
 	    continue;
 

@@ -51,13 +51,24 @@ namespace Geom
     template <class T> class Point2D;
 }
 
-typedef Geom::Point3D<Pos::Ordinate_Type> Coord3d;
-typedef Geom::Point3D<float> Coord3f;
-typedef Geom::Point2D<Pos::Ordinate_Type> Coord2d;
-typedef Geom::Point2D<float> Coord2f;
+typedef Geom::Point3D<Pos::Ordinate_Type>	Coord3d;
+typedef Geom::Point3D<float>			Coord3f;
+typedef Geom::Point2D<Pos::Ordinate_Type>	Coord2d;
+typedef Geom::Point2D<float>			Coord2f;
+typedef Coord2d					Coord;
+typedef Coord3d					Coord3;
 
-typedef Coord2d Coord;
-typedef Coord3d Coord3;
+namespace Survey
+{
+    class Geometry;
+    class Geometry2D;
+    class Geometry3D;
+    class GeometryManager;
+}
+typedef Survey::Geometry			SurvGeom;
+typedef Survey::Geometry2D			SurvGeom2D;
+typedef Survey::Geometry3D			SurvGeom3D;
+typedef Survey::GeometryManager			SurvGM;
 
 
 template <typename T> using Twins = std::pair<T,T>;

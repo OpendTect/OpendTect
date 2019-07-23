@@ -119,9 +119,9 @@ public:
 
 protected:
 
-    ObjectSet<const Survey::Geometry2D>	geoms_;
-    const ObjectSet<BendPoints>&	bendptset_;
-    Line2DInterSectionSet&		lsintersections_;
+    ObjectSet<const SurvGeom2D>	geoms_;
+    const ObjectSet<BendPoints>& bendptset_;
+    Line2DInterSectionSet&	lsintersections_;
 
     bool		doWork(od_int64 start,od_int64 stop,int threadid);
     bool		doFinish(bool success);

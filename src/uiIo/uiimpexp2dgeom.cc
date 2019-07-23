@@ -107,8 +107,8 @@ bool uiImp2DGeom::acceptOK()
 	if ( geomid == mUdfGeomID )
 	    return false;
 
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
-	if ( !fillGeom(const_cast<Survey::Geometry2D&>(geom2d)) )
+	const auto& geom2d = SurvGeom::get2D( geomid );
+	if ( !fillGeom(const_cast<SurvGeom2D&>(geom2d)) )
 	    return false;
 
 	uiString errmsg;
@@ -119,7 +119,7 @@ bool uiImp2DGeom::acceptOK()
     }
     else
     {
-	ObjectSet<Survey::Geometry2D> geoms;
+	ObjectSet<SurvGeom2D> geoms;
 	if ( !fillGeom(geoms) )
 	    return false;
 
@@ -170,7 +170,7 @@ od_istream* uiImp2DGeom::getStrm() const
 }
 
 
-bool uiImp2DGeom::fillGeom( ObjectSet<Survey::Geometry2D>& geoms )
+bool uiImp2DGeom::fillGeom( ObjectSet<SurvGeom2D>& geoms )
 {
     PtrMan<od_istream> strm = getStrm();
     Geom2DAscIO geomascio( dataselfld_->desc(), *strm );
@@ -184,7 +184,7 @@ bool uiImp2DGeom::fillGeom( ObjectSet<Survey::Geometry2D>& geoms )
 }
 
 
-bool uiImp2DGeom::fillGeom( Survey::Geometry2D& geom )
+bool uiImp2DGeom::fillGeom( SurvGeom2D& geom )
 {
     PtrMan<od_istream> strm = getStrm();
     Geom2DAscIO geomascio( dataselfld_->desc(), *strm );
@@ -242,7 +242,7 @@ bool uiExp2DGeom::acceptOK()
     for ( int gidx=0; gidx<dbkys.size(); gidx++ )
     {
 	const auto geomid = geomIDOf( dbkys[gidx] );
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    continue;
 
@@ -276,7 +276,7 @@ bool uiExp2DGeom::acceptOK()
 
 Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 {
-    Pos::GeomID geomid = Survey::Geometry::getGeomID( nm );
+    Pos::GeomID geomid = SurvGeom::getGeomID( nm );
     if ( !geomid.isValid() )
 	return createNewGeom( nm );
 
@@ -294,7 +294,7 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
     TypeSet<int> existingidxs;
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	Pos::GeomID geomid = Survey::Geometry::getGeomID( nms.get(idx) );
+	Pos::GeomID geomid = SurvGeom::getGeomID( nms.get(idx) );
 	if ( !mIsUdfGeomID(geomid) )
 	    existingidxs += idx;
 	else
@@ -326,10 +326,10 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
 
 void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
 {
-    const auto& cgeom2d = Survey::Geometry::get2D( geomid );
+    const auto& cgeom2d = SurvGeom::get2D( geomid );
     if ( !cgeom2d.isEmpty() )
     {
-	auto& geom2d = const_cast<Survey::Geometry2D&>( cgeom2d );
+	auto& geom2d = const_cast<SurvGeom2D&>( cgeom2d );
 	geom2d.data().setEmpty();
 	geom2d.commitChanges();
     }
@@ -339,7 +339,7 @@ void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
 Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
 {
     PosInfo::Line2DData* l2d = new PosInfo::Line2DData( nm );
-    Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
+    SurvGeom2D* newgeom = new SurvGeom2D( l2d );
 
     uiString msg; Pos::GeomID geomid;
     if ( Survey::GMAdmin().addEntry(newgeom,geomid,msg) )

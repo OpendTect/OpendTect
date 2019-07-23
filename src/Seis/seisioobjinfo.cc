@@ -824,7 +824,7 @@ bool SeisIOObjInfo::hasData( GeomID geomid )
 void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 					    BufferStringSet& datasets,
 					    Opts2D o2d )
-{ getDataSetNamesForLine( Survey::Geometry::getGeomID(lnm), datasets, o2d ); }
+{ getDataSetNamesForLine( SurvGeom::getGeomID(lnm), datasets, o2d ); }
 
 void SeisIOObjInfo::getDataSetNamesForLine( GeomID geomid,
 					    BufferStringSet& datasets,
@@ -877,7 +877,7 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
 
 void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms, GeomIDSet& gids )
 {
-    Survey::Geometry::list2D( gids, &lnms );
+    SurvGeom::list2D( gids, &lnms );
     BoolTypeSet hasdata( gids.size(), false );
 
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );

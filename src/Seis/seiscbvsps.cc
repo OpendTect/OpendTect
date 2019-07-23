@@ -31,7 +31,7 @@ static const char* cPosDataFnm = "posdata.txt";
 
 SeisPS2DReader::SeisPS2DReader( const char* lnm )
     : lnm_(lnm)
-    , geomid_(Survey::Geometry::getGeomID(lnm))
+    , geomid_(SurvGeom::getGeomID(lnm))
 {}
 
 
@@ -160,7 +160,7 @@ BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
 
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
-    const auto geomid = Survey::Geometry::getGeomID( lnm );
+    const auto geomid = SurvGeom::getGeomID( lnm );
     return mIsUdfGeomID(geomid) ? BufferString::empty() : get2DFileName(geomid);
 }
 
@@ -629,7 +629,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 	, SeisPS2DReader(lnm)
 	, posdata_(*new PosInfo::Line2DData)
 {
-    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+    Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
     if ( !mIsUdfGeomID(geomid) )
 	init( geomid );
 }
@@ -737,7 +737,7 @@ SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, const char* lnm )
 	: SeisCBVSPSIO(dirnm)
 	, prevnr_(mUdf(int))
 	, lnm_(lnm)
-	, geomid_(Survey::Geometry::getGeomID(lnm))
+	, geomid_(SurvGeom::getGeomID(lnm))
 {
     if ( !dirNmOK(false) ) return;
     mRemCacheIfExists();

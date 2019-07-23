@@ -56,8 +56,8 @@ public:
 
 				mDefineFactoryInClass(SurveyObject,factory);
 
-    virtual void		set3DSurvGeom(const Survey::Geometry3D*);
-    const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_; }
+    virtual void		set3DSurvGeom(const SurvGeom3D*);
+    const SurvGeom3D*		get3DSurvGeom() const { return s3dgeom_; }
     virtual const char*		get3DSurvGeomName() const;
     virtual Pos::GeomID		getGeomID() const;
 
@@ -387,7 +387,7 @@ protected:
     bool			locked_;
     ObjectSet<BufferStringSet>	userrefs_;
 
-    const Survey::Geometry3D*	s3dgeom_;
+    const SurvGeom3D*		s3dgeom_;
     BufferString		survname_; //Only from IOPar
     bool			saveinsessionsflag_;
 

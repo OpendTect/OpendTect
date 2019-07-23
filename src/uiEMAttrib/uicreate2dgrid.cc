@@ -633,7 +633,7 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
     BufferStringSet ovwrlinenms;
     for ( int lidx=0; lidx < linenames.size(); lidx++ )
     {
-	auto geomid = Survey::Geometry::getGeomID( linenames[lidx]->buf() );
+	auto geomid = SurvGeom::getGeomID( linenames[lidx]->buf() );
 	if ( geomid.isValid() )
 	    ovwrlinenms.add( linenames.get(lidx) );
     }

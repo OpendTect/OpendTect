@@ -349,7 +349,7 @@ Pos::GeomID uiStratSynthExport::getGeometry( Line2DData& linegeom )
     {
 	case Existing:
 	{
-	    const auto& geom2d = Survey::Geometry::get2D( linegeom.lineName() );
+	    const auto& geom2d = SurvGeom::get2D( linegeom.lineName() );
 	    if ( geom2d.isEmpty() )
 		mErrRet(uiStrings::phrCannotFind(
 			    tr("the geometry of specified line")), mUdfGeomID )
@@ -420,11 +420,11 @@ bool uiStratSynthExport::createHor2Ds( const char* prefix, const char* postfix )
 		   "2D line"), false);
     const char* linenm = createnew ? newlinenmfld_->text()
 				   : existlinenmsel_->getInput();
-    const Pos::GeomID geomid = Survey::Geometry::getGeomID( linenm );
+    const Pos::GeomID geomid = SurvGeom::getGeomID( linenm );
     if ( !geomid.isValid() )
 	return false;
 
-    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    const auto& geom2d = SurvGeom::get2D( geomid );
     const auto trcnrrg = geom2d.data().trcNrRange();
     for ( int horidx=0; horidx<sellvls_.size(); horidx++ )
     {

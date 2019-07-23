@@ -319,7 +319,7 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
     clearAll();
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	const auto geomid = Survey::Geometry::getGeomID( lnms.get(idx) );
+	const auto geomid = SurvGeom::getGeomID( lnms.get(idx) );
 	if ( !geomid.isValid() )
 	    continue;
 
@@ -515,7 +515,7 @@ const char* uiSeis2DLineNameSel::getInput() const
 
 Pos::GeomID uiSeis2DLineNameSel::getInputGeomID() const
 {
-    return Survey::Geometry::getGeomID( getInput() );
+    return SurvGeom::getGeomID( getInput() );
 }
 
 
@@ -830,7 +830,7 @@ void uiSeis2DMultiLineSel::initRanges( const DBKey* datasetid )
 	   dataset->getRanges( geomids_[idx], trcrg, zrg );
 	else
 	{
-	    const auto& geom2d = Survey::Geometry::get2D( geomids_[idx] );
+	    const auto& geom2d = SurvGeom::get2D( geomids_[idx] );
 	    if ( geom2d.isEmpty() )
 		continue;
 
@@ -918,7 +918,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	{
 	    FixedString lnm = linepar->find( sKey::Name() );
 	    const BufferString oldlnm( lsetname, "-", lnm );
-	    geomid = Survey::Geometry::getGeomID( oldlnm );
+	    geomid = SurvGeom::getGeomID( oldlnm );
 	}
 	if ( !geomid.isValid() )
 	    break;

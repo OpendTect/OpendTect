@@ -88,7 +88,7 @@ void adjustSteeringScaler()
 	 type != BufferString(sKey::Steering()) )
 	return;
 
-    const auto& geom2d = Survey::Geometry::get2D(
+    const auto& geom2d = SurvGeom::get2D(
 				output_.sampling().hsamp_.getGeomID() );
     if ( geom2d.isEmpty() )
 	return;

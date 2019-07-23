@@ -61,6 +61,5 @@ protected:
     int				nrdone_;
     int				totalnr_;
     Pos::GeomID			geomid_;
-
-    const Survey::Geometry2D*	geom2d_;
+    const SurvGeom2D*		geom2d_;
 };

@@ -69,7 +69,7 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	return;
 
     const BufferString linenm = curioobj_->name();
-    const auto& geom2d = Survey::Geometry::get2D( linenm );
+    const auto& geom2d = SurvGeom::get2D( linenm );
     if ( geom2d.isEmpty() )
     {
 	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
@@ -115,7 +115,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	    continue;
 
 	const BufferString lnm( ioobj->name() );
-	Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+	Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
 	if ( !geomid.isValid() )
 	    return;
 
@@ -254,7 +254,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p, Pos::GeomID geomid,
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
 
-    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& geom2d = SurvGeom::get2D( geomid_ );
     if ( geom2d.isEmpty() )
     {
 	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
@@ -311,7 +311,7 @@ void uiManageLineGeomDlg::impGeomCB( CallBacker* )
     uiImp2DGeom dlg( this, linenm );
     if ( !dlg.go() ) return;
 
-    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm );
+    RefMan<SurvGeom2D> geom = new SurvGeom2D( linenm );
     if ( !dlg.fillGeom(*geom) )
 	return;
 
@@ -342,7 +342,7 @@ void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
 }
 
 
-void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
+void uiManageLineGeomDlg::fillTable( const SurvGeom2D& geom2d )
 {
     const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
     const auto& spnrs = geom2d.spNrs();
@@ -370,11 +370,11 @@ bool uiManageLineGeomDlg::acceptOK()
 			    "This will affect all associated data.")))
 	return false;
 
-    const auto& cgeom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& cgeom2d = SurvGeom::get2D( geomid_ );
     if ( cgeom2d.isEmpty() )
 	return true;
 
-    auto& geom2d = const_cast<Survey::Geometry2D&>( cgeom2d );
+    auto& geom2d = const_cast<SurvGeom2D&>( cgeom2d );
     geom2d.setEmpty();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {

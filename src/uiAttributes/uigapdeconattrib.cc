@@ -737,5 +737,5 @@ Pos::GeomID uiGDPositionDlg::getGeomID() const
     if ( !linesfld_ )
 	return mUdfGeomID;
 
-    return Survey::Geometry::getGeomID( linesfld_->box()->text() );
+    return SurvGeom::getGeomID( linesfld_->box()->text() );
 }

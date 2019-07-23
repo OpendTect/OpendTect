@@ -27,12 +27,12 @@ public:
 				uiImp2DGeom(uiParent*,const char* lnm=0);
 				~uiImp2DGeom();
 
-    bool			fillGeom(Survey::Geometry2D&);
+    bool			fillGeom(SurvGeom2D&);
 
 protected:
     bool			acceptOK();
     od_istream*			getStrm() const;
-    bool			fillGeom(ObjectSet<Survey::Geometry2D>&);
+    bool			fillGeom(ObjectSet<SurvGeom2D>&);
     void			singmultCB(CallBacker*);
 
     uiFileSel*			fnmfld_;

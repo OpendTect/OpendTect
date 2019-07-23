@@ -210,8 +210,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 	    Attrib::EngineMan attrengman;
 	    Attrib::DescSet attribsetlocal( attribset ); //May change
-	    const Pos::GeomID geomid = is2d
-			? Survey::Geometry::getGeomID(alllinenames.get(idx))
+	    const auto geomid = is2d
+			? SurvGeom::getGeomID(alllinenames.get(idx))
 			: Pos::GeomID::get3D();
 	    proc = attrengman.usePar( procpar, attribsetlocal, uirv,
 				      outidx, geomid );

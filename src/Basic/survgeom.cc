@@ -21,17 +21,17 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "task.h"
 
-mUseType( Pos,			GeomID);
-mUseType( Survey::Geometry,	idx_type);
-mUseType( Survey::Geometry,	pos_type);
-mUseType( Survey::Geometry,	idx_type);
-mUseType( Survey::Geometry,	pos_steprg_type);
-mUseType( Survey::Geometry,	z_type);
-mUseType( Survey::Geometry,	z_steprg_type);
-mUseType( Survey::Geometry,	linenr_type);
-mUseType( Survey::Geometry,	trcnr_type);
-mUseType( Survey::Geometry2D,	spnr_type);
-mUseType( Survey::Geometry2D,	size_type);
+mUseType( Pos,		GeomID);
+mUseType( SurvGeom,	idx_type);
+mUseType( SurvGeom,	pos_type);
+mUseType( SurvGeom,	idx_type);
+mUseType( SurvGeom,	pos_steprg_type);
+mUseType( SurvGeom,	z_type);
+mUseType( SurvGeom,	z_steprg_type);
+mUseType( SurvGeom,	linenr_type);
+mUseType( SurvGeom,	trcnr_type);
+mUseType( SurvGeom2D,	spnr_type);
+mUseType( SurvGeom2D,	size_type);
 
 GeomID Survey::Geometry::cSynthGeomID()
 { return GeomID( (GeomID::IDType)OD::SynthGeom ); }
@@ -39,7 +39,7 @@ GeomID Survey::Geometry::cSynthGeomID()
 
 BufferString nameOf( Pos::GeomID geomid )
 {
-    return Survey::Geometry::get( geomid ).name();
+    return SurvGeom::get( geomid ).name();
 }
 
 

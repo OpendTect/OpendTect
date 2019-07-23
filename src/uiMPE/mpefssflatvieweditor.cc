@@ -323,7 +323,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
 
     if ( trcnr )
     {
-	const auto& geom2d = Survey::Geometry::get2D(fsspainter_->getGeomID());
+	const auto& geom2d = SurvGeom::get2D(fsspainter_->getGeomID());
 	*trcnr = geom2d.nearestTracePosition( worldpos.getXY() );
     }
 

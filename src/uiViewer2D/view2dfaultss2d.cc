@@ -79,7 +79,7 @@ VW2DFaultSS2D::~VW2DFaultSS2D()
 
 void VW2DFaultSS2D::draw()
 {
-    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& geom2d = SurvGeom::get2D( geomid_ );
     if ( geom2d.isEmpty() )
 	return;
 

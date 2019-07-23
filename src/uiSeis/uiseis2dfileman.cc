@@ -127,7 +127,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     StringBuilder sb;
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	const auto geomid = Survey::Geometry::getGeomID( linenms.get(idx) );
+	const auto geomid = SurvGeom::getGeomID( linenms.get(idx) );
 	const int lineidx = dataset_->indexOf( geomid );
 	if ( lineidx < 0 ) { pErrMsg("Huh"); continue; }
 
@@ -136,7 +136,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	const bool hasrg = dataset_->getRanges( geomid, trcrg, zrg );
 
 	PosInfo::Line2DData l2dd;
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	l2dd = geom2d.data();
 	if ( l2dd.isEmpty() )
 	{
@@ -208,7 +208,7 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linenm = sellines.get(idx);
-	dataset_->remove( Survey::Geometry::getGeomID(linenm) );
+	dataset_->remove( SurvGeom::getGeomID(linenm) );
 	linefld_->removeItem( linenm );
     }
 
@@ -220,7 +220,7 @@ void uiSeis2DFileMan::browsePush( CallBacker* )
     if ( !objinfo_ || !objinfo_->ioObj() )
 	return;
 
-    const auto geomid = Survey::Geometry::getGeomID( linefld_->getText() );
+    const auto geomid = SurvGeom::getGeomID( linefld_->getText() );
     uiSeisSampleEditor::launch( this, objinfo_->ioObj()->key(), geomid );
     fillLineBox();
 }

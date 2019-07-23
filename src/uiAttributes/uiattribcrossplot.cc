@@ -290,7 +290,7 @@ bool uiAttribCrossPlot::acceptOK()
 	    linenames.add( lnms, false );
 	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
 	    {
-		const auto geomid = Survey::Geometry::getGeomID(lnms.get(lidx));
+		const auto geomid = SurvGeom::getGeomID(lnms.get(lidx));
 		if ( geomid.isValid() )
 		    p2d->addGeomID( geomid );
 	    }

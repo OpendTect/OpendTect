@@ -45,7 +45,7 @@ Horizon2DBulkImporter::Horizon2DBulkImporter( const BufferStringSet& lnms,
     , udftreat_(udftreat)
 {
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomids_ += Survey::Geometry::getGeomID( lnms.get(lineidx) );
+	geomids_ += SurvGeom::getGeomID( lnms.get(lineidx) );
 }
 
 
@@ -84,7 +84,7 @@ int Horizon2DBulkImporter::nextStep()
 	prevtrcnrs_ = TypeSet<int>( nrvals, -1 );
 	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
 
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    return Executor::ErrorOccurred();
 

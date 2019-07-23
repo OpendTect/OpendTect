@@ -53,7 +53,7 @@ protected:
 
     void		impGeomCB(CallBacker*);
     void		setTrcSPNrCB(CallBacker*);
-    void		fillTable(const Survey::Geometry2D&);
+    void		fillTable(const SurvGeom2D&);
     bool		acceptOK();
 
     uiTable*		table_;

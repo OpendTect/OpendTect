@@ -25,9 +25,9 @@ namespace Survey
 class GeometryManager;
 class Geometry2DWriter;
 
-mGlobal(Basic) const GeometryManager& GM();
-inline mGlobal(Basic) GeometryManager& GMAdmin()
-{ return const_cast<GeometryManager&>( Survey::GM() ); }
+mGlobal(Basic) const SurvGM& GM();
+inline mGlobal(Basic) SurvGM& GMAdmin()
+{ return const_cast<SurvGM&>( Survey::GM() ); }
 
 
 /*!\brief Provides Geometry objects from a geometry ID, name, or DBKey

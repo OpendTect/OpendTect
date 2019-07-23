@@ -71,7 +71,7 @@ Seis::ProviderTester::~ProviderTester()
 
 Pos::GeomID Seis::ProviderTester::lineGeomID( int idx )
 {
-    return Survey::Geometry::getGeomID( BufferString(lineGeomNameBase(),idx) );
+    return SurvGeom::getGeomID( BufferString(lineGeomNameBase(),idx) );
 }
 
 

@@ -311,7 +311,7 @@ RefMan<Pick::Set> uiPickPartServer::createRandom2DSet()
 
     BufferStringSet linenames;
     GeomIDSet geomids;
-    Survey::Geometry::list2D( geomids, &linenames );
+    SurvGeom::list2D( geomids, &linenames );
     if ( linenames.isEmpty() )
     {
 	uimsg().warning( tr("No 2D lines are available in this survey") );
@@ -349,7 +349,7 @@ void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
     {
 	for ( int iln=0; iln<selectlines_.size(); iln++ )
 	{
-	    const auto& geom2d = Survey::Geometry::get2D(selectlines_.get(iln));
+	    const auto& geom2d = SurvGeom::get2D(selectlines_.get(iln));
 	    if ( geom2d.isEmpty() )
 		continue;
 

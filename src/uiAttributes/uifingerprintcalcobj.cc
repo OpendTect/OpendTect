@@ -92,7 +92,7 @@ void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
     {
 	const int lineidx = Stats::randGen().getIndex( nrlines );
 	const Pos::GeomID geomid = dset->geomID( lineidx );
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    break;
 

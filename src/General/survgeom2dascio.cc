@@ -76,7 +76,7 @@ bool Geom2DAscIO::readLine( int startidx, Coord& crd,
 }
 
 
-bool Geom2DAscIO::getData( Survey::Geometry2D& geom ) const
+bool Geom2DAscIO::getData( SurvGeom2D& geom ) const
 {
     if ( !getHdrVals(strm_) )
 	return false;
@@ -107,7 +107,7 @@ bool Geom2DAscIO::getData( Survey::Geometry2D& geom ) const
 }
 
 
-bool Geom2DAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
+bool Geom2DAscIO::getData( ObjectSet<SurvGeom2D>& geoms ) const
 {
     if ( !getHdrVals(strm_) )
 	return false;
@@ -121,7 +121,7 @@ bool Geom2DAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
 	return false;
     }
 
-    Survey::Geometry2D* geom = 0;
+    SurvGeom2D* geom = 0;
     int trcidx = 0;
     while ( true )
     {
@@ -135,7 +135,7 @@ bool Geom2DAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
 
 	if ( !geom || linenm != geom->name() )
 	{
-	    geom = new Survey::Geometry2D( linenm );
+	    geom = new SurvGeom2D( linenm );
 	    geom->ref();
 	    geoms += geom;
 	    trcidx = 0;

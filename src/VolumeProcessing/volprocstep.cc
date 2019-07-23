@@ -468,7 +468,7 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 		       getHorizontalStepout().crl() );
     res.zsamp_.widen( res.zsamp_.step * getVerticalStepout() );
 
-    const auto& geom = Survey::Geometry::get( res.hsamp_.getGeomID() );
+    const auto& geom = SurvGeom::get( res.hsamp_.getGeomID() );
     TrcKeyZSampling cs( false );
     cs.hsamp_.setLineRange( geom.trcNrRange() );
     if ( geom.is2D() )

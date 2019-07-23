@@ -442,11 +442,11 @@ bool Pick::Location::fromString( const char* inp )
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
     mSkipBlanks(str);
     const auto storedid = getNextInt( str );
-    const Survey::Geometry* geom = 0;
+    const SurvGeom* geom = 0;
     if ( mIsUdf(storedid) || storedid < 0 )
-	geom = &Survey::Geometry::get3D();
+	geom = &SurvGeom::get3D();
     else
-	geom = &Survey::Geometry::get2D( GeomID(storedid) );
+	geom = &SurvGeom::get2D( GeomID(storedid) );
     if ( !trckey_ )
 	trckey_ = new TrcKey;
 

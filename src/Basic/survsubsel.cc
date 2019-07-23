@@ -60,7 +60,7 @@ bool Survey::SubSel::getInfo( const IOPar& iop, bool& is2d, GeomID& geomid )
     is2d = igs == (int)OD::LineBasedGeom;
     if ( is2d )
 	return iop.get( sKey::GeomID(), geomid )
-	    && Survey::Geometry::isUsable( geomid );
+	    && SurvGeom::isUsable( geomid );
 
     return true;
 }
@@ -329,7 +329,7 @@ bool LineHorSubSel::doUsePar( const IOPar& inpiop )
 
     auto geomid = geomid_;
     if ( !iop->get(sKey::GeomID(),geomid)
-      || !Survey::Geometry::isPresent(geomid) )
+      || !SurvGeom::isPresent(geomid) )
 	return false;
 
     auto trcrg( trcNrRange() );
@@ -377,7 +377,7 @@ LineHorSubSelSet::totalsz_type LineHorSubSelSet::totalSize() const
 bool LineHorSubSelSet::hasAllLines() const
 {
     GeomIDSet allgids;
-    Survey::Geometry2D::getGeomIDs( allgids );
+    SurvGeom2D::getGeomIDs( allgids );
     for ( auto gid : allgids )
 	if ( !find(gid) )
 	    return false;
@@ -569,7 +569,7 @@ void CubeHorSubSel::doFillPar( IOPar& iop ) const
 
 
 LineSubSel::LineSubSel( GeomID gid )
-    : LineSubSel( Survey::Geometry::get2D(gid) )
+    : LineSubSel( SurvGeom::get2D(gid) )
 {
 }
 
@@ -583,7 +583,7 @@ LineSubSel::LineSubSel( const Geometry2D& geom )
 
 
 LineSubSel::LineSubSel( const pos_steprg_type& trnrrg )
-    : LineSubSel( trnrrg, Survey::Geometry::get3D().zRange() )
+    : LineSubSel( trnrrg, SurvGeom::get3D().zRange() )
 {
 }
 
@@ -624,20 +624,20 @@ LineSubSel::LineSubSel( const Bin2D& b2d )
 
 
 LineSubSel::LineSubSel( const TrcKeySampling& tks )
-    : LineSubSel( Survey::Geometry::get2D(tks.getGeomID()) )
+    : LineSubSel( SurvGeom::get2D(tks.getGeomID()) )
 {
     setTrcNrRange( tks.trcRange() );
 }
 
 
 LineSubSel::LineSubSel( const TrcKeyZSampling& tkzs )
-    : LineSubSel( Survey::Geometry::get2D(tkzs.getGeomID()) )
+    : LineSubSel( SurvGeom::get2D(tkzs.getGeomID()) )
 {
     setTrcNrRange( tkzs.hsamp_.trcRange() );
 }
 
 
-const Survey::Geometry2D& LineSubSel::geometry2D() const
+const SurvGeom2D& LineSubSel::geometry2D() const
 {
     return Geometry2D::get( geomID() );
 }
@@ -668,7 +668,7 @@ void LineSubSelSet::setToAll()
 {
     setEmpty();
     GeomIDSet allgids;
-    Survey::Geometry2D::getGeomIDs( allgids );
+    SurvGeom2D::getGeomIDs( allgids );
     for ( auto gid : allgids )
 	add( new LineSubSel(gid) );
 }
@@ -686,7 +686,7 @@ LineSubSelSet::totalsz_type LineSubSelSet::totalSize() const
 bool LineSubSelSet::hasAllLines() const
 {
     GeomIDSet allgids;
-    Survey::Geometry2D::getGeomIDs( allgids );
+    SurvGeom2D::getGeomIDs( allgids );
     for ( auto gid : allgids )
 	if ( !find(gid) )
 	    return false;
@@ -843,7 +843,7 @@ CubeSubSel::CubeSubSel( const CubeSampling& cs )
 
 
 CubeSubSel::CubeSubSel( const TrcKeySampling& tks )
-    : Survey::GeomSubSel( Survey::Geometry::get3D().zRange() )
+    : Survey::GeomSubSel( SurvGeom::get3D().zRange() )
 {
     setInlRange( tks.lineRange() );
     setCrlRange( tks.trcRange() );
@@ -851,7 +851,7 @@ CubeSubSel::CubeSubSel( const TrcKeySampling& tks )
 
 
 CubeSubSel::CubeSubSel( const TrcKeyZSampling& tkzs )
-    : Survey::GeomSubSel( Survey::Geometry::get3D().zRange() )
+    : Survey::GeomSubSel( SurvGeom::get3D().zRange() )
 {
     setInlRange( tkzs.hsamp_.lineRange() );
     setCrlRange( tkzs.hsamp_.trcRange() );
@@ -922,9 +922,9 @@ void CubeSubSel::getDefaultNormal( Coord3& ret ) const
 {
     const auto defdir = defaultDir();
     if ( defdir == OD::InlineSlice )
-	ret = Coord3( Survey::Geometry::get3D().binID2Coord().inlDir(), 0 );
+	ret = Coord3( SurvGeom::get3D().binID2Coord().inlDir(), 0 );
     else if ( defdir == OD::CrosslineSlice )
-	ret = Coord3( Survey::Geometry::get3D().binID2Coord().crlDir(), 0 );
+	ret = Coord3( SurvGeom::get3D().binID2Coord().crlDir(), 0 );
     else
 	ret = Coord3( 0, 0, 1 );
 }
@@ -1173,7 +1173,7 @@ bool Survey::FullSubSel::isZSlice() const
 }
 
 
-static pos_type getInlCrl42D( const Survey::Geometry2D& geom,
+static pos_type getInlCrl42D( const SurvGeom2D& geom,
 			      bool first, bool inl )
 {
     const Coord coord( geom.getCoordByIdx(first? 0 : geom.size()-1) );
@@ -1182,7 +1182,7 @@ static pos_type getInlCrl42D( const Survey::Geometry2D& geom,
 }
 
 
-static void inclInlCrl42D( const Survey::Geometry2D& geom,
+static void inclInlCrl42D( const SurvGeom2D& geom,
 			   pos_rg_type& rg, bool inl )
 {
     if ( geom.isEmpty() )
@@ -1205,7 +1205,7 @@ pos_steprg_type Survey::FullSubSel::inlRange() const
 
     pos_rg_type ret( mUdf(int), mUdf(int) );
     for ( auto idx=0; idx<nrGeomIDs(); idx++ )
-	inclInlCrl42D( Survey::Geometry2D::get( geomID(idx) ), ret, true );
+	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, true );
 
     return pos_steprg_type( ret, SI().inlStep() );
 }
@@ -1218,7 +1218,7 @@ pos_steprg_type Survey::FullSubSel::crlRange() const
 
     pos_rg_type ret( mUdf(int), mUdf(int) );
     for ( auto idx=0; idx<nrGeomIDs(); idx++ )
-	inclInlCrl42D( Survey::Geometry2D::get( geomID(idx) ), ret, false );
+	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, false );
 
     return pos_steprg_type( ret, SI().crlStep() );
 }

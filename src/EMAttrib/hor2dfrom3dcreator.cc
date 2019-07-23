@@ -66,7 +66,7 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 
 bool Hor2DFrom3DCreator::setCreator( Pos::GeomID geomid )
 {
-    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    const auto& geom2d = SurvGeom::get2D( geomid );
     if ( geom2d.isEmpty() )
 	return false;
 

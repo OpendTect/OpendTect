@@ -686,7 +686,7 @@ void Line2DProbe::setGeomID( Pos::GeomID geomid )
 	return;
 
     geomid_ = geomid;
-    const auto& geom2d = Survey::Geometry::get2D( geomid_ );
+    const auto& geom2d = SurvGeom::get2D( geomid_ );
     if ( geom2d.isEmpty() )
 	{ pErrMsg( "Geometry not found" ); return; }
 

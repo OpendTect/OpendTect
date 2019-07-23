@@ -199,7 +199,7 @@ bool uiWellTo2DLineDlg::acceptOK()
 
 Pos::GeomID uiWellTo2DLineDlg::get2DLineID() const
 {
-    return Survey::Geometry::getGeomID( linenmfld_->text() );
+    return SurvGeom::getGeomID( linenmfld_->text() );
 }
 
 

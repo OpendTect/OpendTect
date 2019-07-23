@@ -1067,7 +1067,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     for ( int idx=0; idx<dset.nrLines(); idx++ )
     {
 	const BufferString lnm = dset.lineName( idx );
-	const auto& geom2d = Survey::Geometry::get2D( lnm  );
+	const auto& geom2d = SurvGeom::get2D( lnm  );
 	if ( !geom2d.isEmpty() )
 	    linesetgeom.addLine( lnm ) = geom2d.data();
     }

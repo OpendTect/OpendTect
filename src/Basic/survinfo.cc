@@ -1268,19 +1268,19 @@ void SurveyInfo::updateGeometries()
 }
 
 
-RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( SurvLimitType slt )
+RefMan<SurvGeom3D> SurveyInfo::get3DGeometry( SurvLimitType slt )
 {
     return &gt3DGeom( slt );
 }
 
 
-ConstRefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( SurvLimitType slt ) const
+ConstRefMan<SurvGeom3D> SurveyInfo::get3DGeometry( SurvLimitType slt ) const
 {
     return &gt3DGeom( slt );
 }
 
 
-Survey::Geometry3D& SurveyInfo::gt3DGeom( SurvLimitType slt ) const
+SurvGeom3D& SurveyInfo::gt3DGeom( SurvLimitType slt ) const
 {
     // No read locking here, and callers may choose not to lock.
     // The locking/unlocking can simply be too big of a performance hit

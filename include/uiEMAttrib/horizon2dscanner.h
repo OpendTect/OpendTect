@@ -58,7 +58,7 @@ protected:
     TypeSet<Interval<float> > valranges_;
     Table::FormatDesc&	fd_;
 
-    const Survey::Geometry2D*	curlinegeom_;
+    const SurvGeom2D*	curlinegeom_;
 
     BufferStringSet	linenames_;
     BufferStringSet	validnms_;

@@ -74,7 +74,7 @@ bool SeismicExtractor::collectTracesAroundPath()
     const bool seisid2D = prov_->is2D();
     if ( seisid2D )
     {
-	const auto& geom2d = Survey::Geometry::get2D( linenm_ );
+	const auto& geom2d = SurvGeom::get2D( linenm_ );
 	if ( geom2d.isEmpty() )
 	    mErrRet( tr("2D Line Geometry not found") );
 
@@ -100,7 +100,7 @@ bool SeismicExtractor::collectTracesAroundPath()
     tkzs_->zsamp_ = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *tkzs_ );
     if ( seisid2D && !linenm_.isEmpty() )
-	sd->setGeomID( Survey::Geometry::getGeomID(linenm_) );
+	sd->setGeomID( SurvGeom::getGeomID(linenm_) );
 
     prov_->setSelData( sd );
 

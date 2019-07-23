@@ -246,7 +246,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		    const BufferString oldlnm(
 				S2DPOS().getLineSet(l2dkey.lsID()), "-",
 				S2DPOS().getLineName(l2dkey.lineID()) );
-		    geomid = Survey::Geometry::getGeomID( oldlnm );
+		    geomid = SurvGeom::getGeomID( oldlnm );
 		}
 	    }
 
@@ -283,7 +283,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    }
 
 	    const BufferString oldlnm( ioobj->name(),"-",linenames_.get(idx) );
-	    const Pos::GeomID geomid = Survey::Geometry::getGeomID( oldlnm );
+	    const Pos::GeomID geomid = SurvGeom::getGeomID( oldlnm );
 	    geomids_ += geomid;
 	    BufferString trcrangekey(
 		    Horizon2DGeometry::sKeyTraceRange(), idx );
@@ -837,7 +837,7 @@ int dgbSurfaceReader::nextStep()
 	if ( geomids_.validIdx(rowindex_) )
 	{
 	    const Pos::GeomID geomid = geomids_[rowindex_];
-	    const auto& geom2d = Survey::Geometry2D::get( geomid );
+	    const auto& geom2d = SurvGeom2D::get( geomid );
 	    if ( geom2d.isEmpty() )
 		return skipRow(strm) == ErrorOccurred() ? ErrorOccurred()
 							: MoreToDo();

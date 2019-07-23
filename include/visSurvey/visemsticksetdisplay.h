@@ -52,8 +52,7 @@ public:
 					       BufferString& info) const;
 protected:
 
-    void			stickSelectionCB(CallBacker*,
-						 const Survey::Geometry3D*);
+    void			stickSelectionCB(CallBacker*,const SurvGeom3D*);
     void			setCurScene( visSurvey::Scene* scene )
 					   { ownerscene_ = scene; }
     const visSurvey::Scene*	getCurScene() { return ownerscene_; }

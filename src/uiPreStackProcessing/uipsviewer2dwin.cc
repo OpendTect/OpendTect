@@ -810,7 +810,7 @@ void uiViewer2DWin::setGatherforPreProc( const BinID& relbid,
 	BufferString linename = storedpsmw->lineName();
 	TrcKey tk( ginfo.bid_ );
 	if ( is2D() )
-	    tk.setGeomID( Survey::Geometry::getGeomID(linename) );
+	    tk.setGeomID( SurvGeom::getGeomID(linename) );
 
 	if ( gather->readFrom(ginfo.mid_,tk) )
 	    preprocmgr_->setInput( relbid, gather->id() );

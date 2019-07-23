@@ -119,7 +119,7 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 	return;
 
     const Pos::GeomID geomid = dp_->sampling().hsamp_.getGeomID();
-    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    const auto& geom2d = SurvGeom::get2D( geomid );
     if ( geom2d.isEmpty() )
 	return;
 

@@ -27,7 +27,7 @@ class SeisTrcInfo;
 class SeisTrcTranslator;
 class TraceData;
 class TrcKey;
-namespace Survey { class GeomSubSel; class HorSubSel; }
+namespace Survey { class GeometryManager; class GeomSubSel; class HorSubSel; }
 namespace PosInfo { class CubeData; class CubeDataPos;
 		    class Line2DData; class Line2DDataSet; }
 
@@ -277,6 +277,7 @@ public:
 
     mUseType( PosInfo,	Line2DData );
     mUseType( PosInfo,	Line2DDataSet );
+    mUseType( Survey,	GeometryManager );
     typedef int		trcnr_type;
 
     bool	isPresent(GeomID) const;
@@ -312,6 +313,7 @@ protected:
     LineSubSelSet&	lsss_;
     mutable idx_type	lineidx_		= 0;
     mutable idx_type	trcidx_			= 0;
+    GeometryManager*	gm_			= nullptr;
 
     void		establishGeometry(uiRetVal&) const override;
     void		scanPositions() const override;

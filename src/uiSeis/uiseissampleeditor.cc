@@ -138,12 +138,12 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
 
     if ( !is2d_ )
     {
-	survgeom_ = &Survey::Geometry::get3D();
+	survgeom_ = &SurvGeom::get3D();
 	prov3D().getGeometryInfo( cubedata_ );
     }
     else
     {
-	const auto& geom2d = Survey::Geometry::get2D( setup_.geomid_ );
+	const auto& geom2d = SurvGeom::get2D( setup_.geomid_ );
 	if ( geom2d.isEmpty() )
 	    mRetNoGo( tr("Cannot find line geometry for ID=%1)")
 			.arg(setup_.geomid_.getI()) );

@@ -19,18 +19,18 @@ ________________________________________________________________________
 #include "task.h"
 #include "uistrings.h"
 
-mUseType( Survey,			Geometry2D );
-mUseType( Survey,			Geometry3D );
-mUseType( Pos,				GeomID );
-mUseType( Survey::GeometryManager,	idx_type );
-mUseType( Survey::GeometryManager,	size_type );
+mUseType( Survey,	Geometry2D );
+mUseType( Survey,	Geometry3D );
+mUseType( Pos,		GeomID );
+mUseType( SurvGM,	idx_type );
+mUseType( SurvGM,	size_type );
 
 BufferString Survey::GeometryManager::factorykey_;
 mImplClassFactory(Survey::Geometry2DReader,factory);
 mImplClassFactory(Survey::Geometry2DWriter,factory);
-const Survey::GeometryManager& Survey::GM()
+const SurvGM& Survey::GM()
 {
-    static PtrMan<Survey::GeometryManager> theinst = 0;
+    static PtrMan<SurvGM> theinst = 0;
     return *theinst.createIfNull();
 }
 

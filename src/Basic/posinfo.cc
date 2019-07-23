@@ -372,7 +372,7 @@ void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
 
 void PosInfo::CubeData::fillBySI( OD::SurvLimitType slt )
 {
-    const CubeHorSubSel hss( Survey::Geometry::get3D(slt) );
+    const CubeHorSubSel hss( SurvGeom::get3D(slt) );
     generate( BinID(hss.inlStart(),hss.crlStart()),
 	      BinID(hss.inlStop(),hss.crlStop()),
 	      BinID(hss.inlStep(),hss.crlStep()), false );

@@ -347,7 +347,7 @@ void MadStream::fillHeaderParsFromSeis()
 	const int lidx = dset.indexOf( seldata->geomID() );
 	if (lidx < 0) mErrRet(tr("2D Line not found"));
 
-	const auto& geom2d = Survey::Geometry::get2D( seldata->geomID() );
+	const auto& geom2d = SurvGeom::get2D( seldata->geomID() );
 	if ( geom2d.isEmpty() )
 	    mErrRet( tr("Line geometry not available") );
 

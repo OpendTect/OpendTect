@@ -148,8 +148,8 @@ protected:
     const EM::Horizon3D*		hor_;
     const TypeSet<EM::PosID>*		seedposids_;
     bool				onthesamegrid_;
-    const Survey::Geometry*		pathgeom_;
-    const Survey::Geometry*		horgeom_;
+    const SurvGeom*			pathgeom_;
+    const SurvGeom*			horgeom_;
 
     Coord3*				positions_;
 };
@@ -166,8 +166,8 @@ bool HorizonPathIntersector::doPrepare( int nrthreads )
 
     const Pos::GeomID pathgeomid = path_[0].geomID();
     const Pos::GeomID horgeomid = hor_->getSurveyGeomID();
-    pathgeom_ = &Survey::Geometry::get( pathgeomid );
-    horgeom_ = &Survey::Geometry::get( horgeomid );
+    pathgeom_ = &SurvGeom::get( pathgeomid );
+    horgeom_ = &SurvGeom::get( horgeomid );
     onthesamegrid_ = pathgeomid==horgeomid;
 
     return pathgeom_ && horgeom_;

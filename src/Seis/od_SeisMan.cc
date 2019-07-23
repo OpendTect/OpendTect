@@ -370,7 +370,7 @@ bool SeisServerTool::getLineFromCL( bool mandatory )
     {
 	linename_ = getKeyedArgStr( sLineNameArg );
 	if ( !linename_.isEmpty() )
-	    geomid_ = Survey::Geometry::getGeomID( linename_ );
+	    geomid_ = SurvGeom::getGeomID( linename_ );
     }
 
     const bool havegeomid = geomid_.isValid();

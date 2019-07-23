@@ -20,10 +20,13 @@ namespace File { class Path; }
 /*!\brief Survey location on disk.
 
   The survey itself is the only OpendTect database 'object' that has no ID by
-  itself. Thus, if you have to work accross surveys, this has to be the ID
-  of a survey. To make things like 'relocate' easier, the path is split in a
+  itself. Thus, if you have to work accross surveys, this object has to be the
+  ID of a survey. To make things like 'relocate' easier, the path is split in a
   base path (usualy the 'Data Root') and the survey directory name. If any
   of the two is empty, it will be taken from surrent survey.
+
+  When working accross surveys, you can get the corresponding SurveyInfo and
+  GeometryManager, cached for you.
 
  */
 
@@ -31,9 +34,11 @@ mExpClass(Basic) SurveyDiskLocation
 {
 public:
 
+    mUseType( File,	Path );
+
 			SurveyDiskLocation()	{} //!< current
 			SurveyDiskLocation(const char* dirnm,const char* bp=0);
-			SurveyDiskLocation(const File::Path& fulldir);
+			SurveyDiskLocation(const Path& fulldir);
     bool		operator ==(const SurveyDiskLocation&) const;
     bool		operator !=( const SurveyDiskLocation& oth ) const
 			{ return !(*this == oth); }
@@ -44,14 +49,16 @@ public:
     void		setDirName( const char* dn )	{ dirname_ = dn; }
 
     void		set(const char* fullpath);
-    void		set(const File::Path&);
+    void		set(const Path&);
     BufferString	fullPath() const;
     BufferString	surveyName() const;
     BufferString	fullPathFor(const char* fnm) const;
 
     bool		isCurrentSurvey() const;
     void		setToCurrentSurvey(bool hard=true);
-    const SurveyInfo&	surveyInfo() const; //!< will cache if non-current
+
+    const SurveyInfo&	surveyInfo() const;
+    const SurvGM&	geometryManager() const;
 
     bool		isEmpty() const;    //!< current survey, soft path
     void		setEmpty();	    //!< current survey, soft path

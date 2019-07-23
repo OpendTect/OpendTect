@@ -179,7 +179,7 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.isPresent(linenm) )
 	    return Executor::MoreToDo();
 
-	const auto& geom2d = Survey::Geometry::get2D( linenm );
+	const auto& geom2d = SurvGeom::get2D( linenm );
 	if ( geom2d.isEmpty() )
 	{
 	    invalidnms_.addIfNew( linenm );

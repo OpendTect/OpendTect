@@ -234,7 +234,7 @@ const Seis::PolySelData* Seis::SelData::asPoly() const
 }
 
 
-static Seis::SelData::pos_type getInlCrl42D( const Survey::Geometry2D& geom,
+static Seis::SelData::pos_type getInlCrl42D( const SurvGeom2D& geom,
 					     bool first, bool inl )
 {
     const Coord coord( geom.getCoordByIdx(first? 0 : geom.size()-1) );
@@ -243,7 +243,7 @@ static Seis::SelData::pos_type getInlCrl42D( const Survey::Geometry2D& geom,
 }
 
 
-static void inclInlCrl42D( const Survey::Geometry2D& geom,
+static void inclInlCrl42D( const SurvGeom2D& geom,
 		    Seis::SelData::pos_rg_type& rg, bool inl )
 {
     if ( geom.isEmpty() )
@@ -266,7 +266,7 @@ Seis::SelData::pos_rg_type Seis::SelData::inlRange() const
 
     pos_rg_type ret( mUdf(int), mUdf(int) );
     for ( auto idx=0; idx<nrGeomIDs(); idx++ )
-	inclInlCrl42D( Survey::Geometry2D::get( geomID(idx) ), ret, true );
+	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, true );
 
     return ret;
 }
@@ -279,7 +279,7 @@ Seis::SelData::pos_rg_type Seis::SelData::crlRange() const
 
     pos_rg_type ret( mUdf(int), mUdf(int) );
     for ( auto idx=0; idx<nrGeomIDs(); idx++ )
-	inclInlCrl42D( Survey::Geometry2D::get( geomID(idx) ), ret, false );
+	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, false );
 
     return ret;
 }
@@ -348,7 +348,7 @@ int Seis::SelData::selRes2D( GeomID gid, pos_type trcnr ) const
     if ( !gid.isValid() || !gid.is2D() )
 	return false;
 
-    auto& geom = Survey::Geometry2D::get( gid );
+    auto& geom = SurvGeom2D::get( gid );
     if ( geom.isEmpty() )
 	return false;
 

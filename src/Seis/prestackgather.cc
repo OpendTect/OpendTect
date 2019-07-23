@@ -210,7 +210,7 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 bool Gather::readFrom( const DBKey& dbky, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    Pos::GeomID geomid = Survey::Geometry::getGeomID( linename );
+    Pos::GeomID geomid = SurvGeom::getGeomID( linename );
     if ( !geomid.isValid() )
 	return false;
 
@@ -221,7 +221,7 @@ bool Gather::readFrom( const DBKey& dbky, const int trcnr,
 bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    Pos::GeomID geomid = Survey::Geometry::getGeomID( linename );
+    Pos::GeomID geomid = SurvGeom::getGeomID( linename );
     if ( !geomid.isValid() )
 	return false;
 

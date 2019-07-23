@@ -611,7 +611,7 @@ bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
     const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
     uiString errmsg =
 	    tr("Internal: Cannot create line geometry in database");
-    geomid = Survey::Geometry::getGeomID( lnm );
+    geomid = SurvGeom::getGeomID( lnm );
     if ( isnew && !doimp )
     {
 	PtrMan<IOObj> geomobj = SurvGeom2DTranslator::getEntry( lnm,
@@ -788,7 +788,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 					     bool& overwr_warn, bool& overwr,
 					     bool& isnewline )
 {
-    Pos::GeomID geomid = Survey::Geometry::getGeomID( lnm );
+    Pos::GeomID geomid = SurvGeom::getGeomID( lnm );
     if ( mIsUdfGeomID(geomid) )
 	return true;
 
@@ -826,7 +826,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
     overwr = choice == 1 || choice == 3;
     if ( overwr )
     {
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	geom2d.setEmpty();
     }
 

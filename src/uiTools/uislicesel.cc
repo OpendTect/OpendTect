@@ -628,7 +628,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
     , posdlg_(0)
 {
     BufferStringSet linenames; GeomIDSet geomids;
-    Survey::Geometry::list2D( geomids, &linenames );
+    SurvGeom::list2D( geomids, &linenames );
     linesfld_ = new uiGenInput( this, tr("Calculate on line"),
 				StringListInpSpec(linenames) );
     setOkText( uiStrings::sWizNext() );
@@ -666,7 +666,7 @@ bool uiLinePosSelDlg::acceptOK()
 
 bool uiLinePosSelDlg::selectPos2D()
 {
-    const auto& geom2d = Survey::Geometry::get2D( linesfld_->text() );
+    const auto& geom2d = SurvGeom::get2D( linesfld_->text() );
     if ( geom2d.isEmpty() )
 	return false;
 

@@ -134,7 +134,7 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 void ZAxisTransform::transform2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    const TrcKey trckey( Survey::Geometry::getGeomID(linenm), trcnr );
+    const TrcKey trckey( SurvGeom::getGeomID(linenm), trcnr );
     transformTrc( trckey, sd, sz, res );
 }
 
@@ -151,7 +151,7 @@ float ZAxisTransform::transform2D( const char* linenm, int trcnr,
 void ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    const TrcKey trckey( Survey::Geometry::getGeomID(linenm), trcnr );
+    const TrcKey trckey( SurvGeom::getGeomID(linenm), trcnr );
     transformTrcBack( trckey, sd, sz, res );
 }
 

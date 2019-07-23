@@ -129,7 +129,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     if ( !lineposdlg.go() )
 	return;
 
-    const auto geomid = Survey::Geometry::getGeomID( lineposdlg.getLineName() );
+    const auto geomid = SurvGeom::getGeomID( lineposdlg.getLineName() );
     const bool is2d = objinfo.is2D();
     if ( !is2d )
 	objinfo.getRanges( *tkzs_ );

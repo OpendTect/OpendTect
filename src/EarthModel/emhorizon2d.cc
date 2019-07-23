@@ -131,7 +131,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
     if ( geomids_.isPresent(geomid) )
 	return false;
 
-    const auto& geom2d = Survey::Geometry::get2D( geomid );
+    const auto& geom2d = SurvGeom::get2D( geomid );
     StepInterval<int> trcrg = inptrg.isUdf() ? geom2d.data().trcNrRange()
 					     : inptrg;
     Geometry::Horizon2DLine* h2dl =
@@ -304,11 +304,11 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 		    const BufferString oldlnm(
 			    S2DPOS().getLineSet(l2dkey.lsID()), "-",
 			    S2DPOS().getLineName(l2dkey.lineID()) );
-		    geomid = Survey::Geometry::getGeomID( oldlnm );
+		    geomid = SurvGeom::getGeomID( oldlnm );
 		}
 	    }
 
-	    const auto& geom2d = Survey::Geometry::get2D( geomid );
+	    const auto& geom2d = SurvGeom::get2D( geomid );
 	    if ( geom2d.isEmpty() )
 		continue;
 
@@ -343,8 +343,8 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	if ( !ioobj ) continue;
 
 	const BufferString oldlnm( ioobj->name(), "-", linenames.get(idx) );
-	const Pos::GeomID geomid = Survey::Geometry::getGeomID( oldlnm );
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const Pos::GeomID geomid = SurvGeom::getGeomID( oldlnm );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	if ( geom2d.isEmpty() )
 	    continue;
 
@@ -396,7 +396,7 @@ bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist,
 
 void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 {
-    const auto& geom2d = Survey::Geometry::get2D( tk.geomID() );
+    const auto& geom2d = SurvGeom::get2D( tk.geomID() );
     if ( geom2d.data().isEmpty() )
 	return;
     StepInterval<int> trcrg = geom2d.data().trcNrRange();

@@ -31,7 +31,7 @@ RandomLine::RandomLine( const char* nm )
     , zrangeChanged(this)
     , lset_(0)
     , locked_(false)
-    , survgeom_( &Survey::Geometry::get3D() )
+    , survgeom_( &SurvGeom::get3D() )
 {
     assign( zrange_, SI().zRange() );
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
@@ -310,7 +310,7 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 			      TypeSet<int>* segments )
 {
     if ( !survgeom )
-	survgeom = &Survey::Geometry::get3D();
+	survgeom = &SurvGeom::get3D();
     for ( int idx=1; idx<knots.size(); idx++ )
     {
 	BinID start = knots[idx-1];
@@ -363,7 +363,7 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 
 RandomLineSet::RandomLineSet()
     : pars_(*new IOPar)
-    , survgeom_(&Survey::Geometry::get3D())
+    , survgeom_(&SurvGeom::get3D())
 {
 }
 

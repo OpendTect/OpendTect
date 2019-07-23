@@ -606,7 +606,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
     if ( !is2d_ )
 	return undef;
 
-    const auto& geom2d = Survey::Geometry::get2D( linefld_->lineName() );
+    const auto& geom2d = SurvGeom::get2D( linefld_->lineName() );
     if ( geom2d.isEmpty() )
 	return undef;
 

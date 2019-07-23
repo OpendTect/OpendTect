@@ -136,7 +136,7 @@ void uiGISExport2DSeis::getCoordsForLine( ObjectSet<Pick::Set>& picks,
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );
-    const auto& geom2d = Survey::Geometry::get2D( lnm );
+    const auto& geom2d = SurvGeom::get2D( lnm );
     if ( iln < 0 || geom2d.isEmpty() )
 	return;
 

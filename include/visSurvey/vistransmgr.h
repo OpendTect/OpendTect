@@ -30,11 +30,11 @@ public:
 			    , mouseCursorCall(this)
 			{}
 
-    static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
+    static void		computeUTM2DisplayTransform(const SurvGeom3D&,
 				    float zfactor, float zmidpt,mVisTrans* res);
 			//!<Given to all objects in XY-space
 
-    static void		computeICRotationTransform(const Survey::Geometry3D&,
+    static void		computeICRotationTransform(const SurvGeom3D&,
 						   float zfactor, float zmidpt,
 						   mVisTrans* rotation,
 						   mVisTrans* disptrans );

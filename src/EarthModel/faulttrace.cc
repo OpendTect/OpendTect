@@ -1217,7 +1217,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     const Pos::GeomID geomid = fss->geometry().pickedGeomID( sticknr );
     if ( geomid != geomid_ ) return true;
 
-    const auto& geom2d = Survey::Geometry2D::get( geomid );
+    const auto& geom2d = SurvGeom2D::get( geomid );
     if ( geom2d.isEmpty() )
 	return true;
 

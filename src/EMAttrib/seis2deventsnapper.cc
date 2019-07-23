@@ -92,8 +92,7 @@ SeisEventSnapper2D::SeisEventSnapper2D( const EM::Horizon2D* hor,
     hor2diterator_ = new EM::Hor2DSeisLineIterator( *hor );
     while ( hor2diterator_->next() )
     {
-	Pos::GeomID lineid = Survey::Geometry::getGeomID(
-					hor2diterator_->lineName());
+	Pos::GeomID lineid = SurvGeom::getGeomID( hor2diterator_->lineName() );
 	if ( !lineid.isValid() )
 	    continue;
 	Seis2DLineEventSnapper::Setup setup( su.seisioobj_, lineid, gate_ );

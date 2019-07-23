@@ -514,7 +514,7 @@ bool uiOD2DLineTreeItem::init()
     if ( !s2d )
 	return false;
 
-    const auto& geom2d = Survey::Geometry::get2D( l2dprobe->geomID() );
+    const auto& geom2d = SurvGeom::get2D( l2dprobe->geomID() );
     if ( geom2d.isEmpty() )
 	return false;
 

@@ -88,7 +88,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	const auto& geom2d = Survey::Geometry::get2D( geomids[idx] );
+	const auto& geom2d = SurvGeom::get2D( geomids[idx] );
 	if ( geom2d.isEmpty() )
 	    continue;
 
@@ -122,7 +122,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	const auto& geom2d = Survey::Geometry::get2D( geomids[idx] );
+	const auto& geom2d = SurvGeom::get2D( geomids[idx] );
 	if ( geom2d.isEmpty() )
 	    continue;
 

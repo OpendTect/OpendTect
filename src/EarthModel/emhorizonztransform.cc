@@ -244,13 +244,13 @@ bool EM::HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	    return false;
 
 	if ( hor3d )
-	    hortrckey = TrcKey( Survey::Geometry::get3D().transform(crd) );
+	    hortrckey = TrcKey( SurvGeom::get3D().transform(crd) );
 	else if ( hor2d )
 	{
 	    float bestdist2 = mUdf(float);
 	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
 	    {
-		const auto& geom2d = Survey::Geometry::get2D(
+		const auto& geom2d = SurvGeom::get2D(
 					hor2d->geometry().geomID(idx) );
 		if ( geom2d.isEmpty() )
 		    continue;

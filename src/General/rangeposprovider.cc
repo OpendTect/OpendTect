@@ -16,7 +16,7 @@
 
 
 #define mGet2DGeometry(gid) \
-    const auto& geom2d = Survey::Geometry::get2D( gid )
+    const auto& geom2d = SurvGeom::get2D( gid )
 
 
 Pos::RangeProvider3D::RangeProvider3D()
@@ -330,7 +330,7 @@ void Pos::RangeProvider2D::getCurRanges() const
 }
 
 
-const Survey::Geometry2D* Pos::RangeProvider2D::curGeom() const
+const SurvGeom2D* Pos::RangeProvider2D::curGeom() const
 {
     if ( !curgeom_ )
     {
@@ -401,7 +401,7 @@ float Pos::RangeProvider2D::curZ() const
 
 Coord Pos::RangeProvider2D::curCoord() const
 {
-    ConstRefMan<Survey::Geometry2D> curgeom = curGeom();
+    ConstRefMan<SurvGeom2D> curgeom = curGeom();
     if ( curgeom )
     {
 	PosInfo::Line2DPos l2dpos;
@@ -450,7 +450,7 @@ bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
 
 bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 {
-    ConstRefMan<Survey::Geometry2D> curgeom = curGeom();
+    ConstRefMan<SurvGeom2D> curgeom = curGeom();
 
     if ( curgeom )
     {

@@ -619,7 +619,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
     if ( !tr ) return false;
     if ( lnm && *lnm )
     {
-	auto* sd = new Seis::RangeSelData( Survey::Geometry::getGeomID(lnm) );
+	auto* sd = new Seis::RangeSelData( SurvGeom::getGeomID(lnm) );
 	tr->setSelData( sd );
     }
 

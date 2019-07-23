@@ -165,7 +165,7 @@ bool Seis::Storer::writeCollectedLineGeometry( uiRetVal& uirv ) const
 {
     if ( linedata_ && !linedata_->isEmpty() )
     {
-	auto& geom2d = Survey::Geometry2D::get4Edit( lastGeomID() );
+	auto& geom2d = SurvGeom2D::get4Edit( lastGeomID() );
 	geom2d.data() = *linedata_;
 	geom2d.commitChanges();
 	uiString errmsg;
@@ -365,13 +365,13 @@ bool Seis::Storer::selectLine( const SeisTrc& trc, uiRetVal& uirv )
     }
 
     const GeomID geomid = geomID( trc );
-    if ( !Survey::Geometry2D::isPresent(geomid) )
+    if ( !SurvGeom2D::isPresent(geomid) )
     {
 	const BufferString msg( "GeomID not found: ", geomid.getI() );
 	mErrRetInternal( msg )
     }
 
-    auto& geom = Survey::Geometry2D::get( geomid );
+    auto& geom = SurvGeom2D::get( geomid );
     const BufferString lnm( getLineName(geomid) );
     if ( geom.isEmpty() )
     {

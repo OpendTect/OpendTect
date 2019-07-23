@@ -139,7 +139,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
     si.getComponentNames( nms, geomid );
     if ( nms.size() > 1 && nms.get(1).isEqual("Line dip",CaseInsensitive) )
     {
-	const auto& geom2d = Survey::Geometry::get2D( geomid );
+	const auto& geom2d = SurvGeom::get2D( geomid );
 	dist_type maxdist;
 	geom2d.data().getTrcDistStats( maxdist, trcdist_ );
 	if ( mIsZero(trcdist_,mDefEps) )

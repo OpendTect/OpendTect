@@ -28,8 +28,8 @@ public:
 					    od_istream&);
     static Table::FormatDesc*	getDesc(bool withline);
     static void			fillDesc(Table::FormatDesc&,bool withline);
-    bool			getData(Survey::Geometry2D&) const;
-    bool			getData(ObjectSet<Survey::Geometry2D>&) const;
+    bool			getData(SurvGeom2D&) const;
+    bool			getData(ObjectSet<SurvGeom2D>&) const;
 
 protected:
 

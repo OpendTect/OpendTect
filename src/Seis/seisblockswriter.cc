@@ -180,7 +180,7 @@ Seis::Blocks::Writer::Writer( const HGeom* hgeom )
     if ( hgeom )
 	hgeom_ = *hgeom;
     else
-	hgeom_ = Survey::Geometry::get3D();
+	hgeom_ = SurvGeom::get3D();
     zgeom_ = hgeom_.zRange();
 }
 

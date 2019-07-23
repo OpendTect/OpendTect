@@ -43,7 +43,7 @@ public:
 				HorizonAutoTracker( EM::Horizon& );
                                 ~HorizonAutoTracker();
 
-    void			set3DSurvGeom(const Survey::Geometry3D&);
+    void			set3DSurvGeom(const SurvGeom3D&);
 
     bool			init();
 
@@ -138,7 +138,7 @@ protected:
     RowCol					arrayorigin_;
     RowCol					step_;
 
-    RefMan<Survey::Geometry3D>			s3dgeom_;
+    RefMan<SurvGeom3D>				s3dgeom_;
 
 };
 

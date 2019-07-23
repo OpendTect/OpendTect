@@ -512,7 +512,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 
 	    const BufferString oldlnm( S2DPOS().getLineSet(l2dkey.lsID()),
 		    "-", S2DPOS().getLineName(l2dkey.lineID()) );
-	    stickinfo_[0]->pickedgeomid = Survey::Geometry::getGeomID( oldlnm );
+	    stickinfo_[0]->pickedgeomid = SurvGeom::getGeomID( oldlnm );
 	    continue;
 	}
 
@@ -531,7 +531,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	{
 	    const BufferString oldlnm( pickedioobj->name(),
 				       stickinfo_[0]->pickednm );
-	    stickinfo_[0]->pickedgeomid = Survey::Geometry::getGeomID( oldlnm );
+	    stickinfo_[0]->pickedgeomid = SurvGeom::getGeomID( oldlnm );
 	}
     }
 
