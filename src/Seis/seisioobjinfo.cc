@@ -11,14 +11,14 @@
 #include "cbvsio.h"
 #include "conn.h"
 #include "cubesubsel.h"
-#include "genc.h"
+#include "dbdir.h"
+#include "dbman.h"
+#include "datadistributiontools.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
+#include "genc.h"
 #include "globexpr.h"
-#include "dbdir.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -557,6 +557,36 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 { return getAux( sParFileExtension(), sKey::Pars(), iop ); }
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
 { return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
+
+
+DataDistribution<float>* SeisIOObjInfo::getDataDistribution() const
+{
+    mChk(nullptr);
+    IOPar iop;
+    DataDistribution<float>* ret = nullptr;
+    if ( haveStats() && getStats(iop) )
+    {
+	ret = new DataDistribution<float>;
+	DataDistributionChanger<float> chgr( *ret );
+	chgr.usePar( iop );
+	return ret;
+    }
+
+    // extract stats from 5 non-null traces
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_ );
+    if ( !prov )
+	return ret;
+
+    /* TODO implement
+    const bool is2d = prov->is2D();
+    const auto totalnr = prov->totalNr();
+    while ( true )
+    {
+    }
+    */
+
+    return ret;
+}
 
 
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const

@@ -23,6 +23,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class SeisIOObjInfo;
 class TrcKeyZSampling;
+template <class T> class DataDistribution;
 namespace ZDomain { class Def; }
 
 namespace Seis
@@ -147,13 +148,15 @@ public:
 			//!< max bytes per sample, component -1 => add all
     bool		havePars() const;
     bool		getPars(IOPar&) const;
-    bool		haveStats() const;
-    bool		getStats(IOPar&) const;
     bool		getDisplayPars( IOPar& iop ) const
 			{ return getPars(iop); }
     void		saveDisplayPars(const IOPar&);
 
     void		getUserInfo(uiPhraseSet&) const;
+    bool		haveStats() const;
+    bool		getStats(IOPar&) const;
+    DataDistribution<float>* getDataDistribution() const;
+			//this may take some time, use uiUserShowWait or alike
 
     int			nrComponents(GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,
