@@ -37,8 +37,8 @@ class ODFileDialog : public QFileDialog
 {
 public:
 
-ODFileDialog( const QString& dirname, const QString& fltr=QString::null,
-	      QWidget* p=0, const char* caption=0 )
+ODFileDialog( const QString& dirname, const QString& fltr, QWidget* p,
+		const char* caption )
     : QFileDialog(p,caption,dirname,fltr)
 { setModal( true ); }
 
@@ -182,7 +182,7 @@ int uiFileDialog::go()
 				: QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(mode_) );
     fd->setWindowTitle( toQString(wintitle) );
-    fd->setConfirmOverwrite( confirmoverwrite_ );
+    fd->setOption( QFileDialog::DontConfirmOverwrite, !confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )

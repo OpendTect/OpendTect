@@ -261,8 +261,8 @@ class ODQFileDialog : public QFileDialog
 {
 public:
 
-ODQFileDialog( const QString& dirname, const QString& fltr=QString::null,
-	      QWidget* p=0, const char* caption=0 )
+ODQFileDialog( const QString& dirname, const QString& fltr,
+	       QWidget* p, const char* caption )
     : QFileDialog(p,caption,dirname,fltr)
 {
     setModal( true );
@@ -364,7 +364,7 @@ bool uiLocalFileSelTool::doSelection()
 						 : QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(setup_.selmode_) );
     fd->setWindowTitle( toQString(wintitle) );
-    fd->setConfirmOverwrite( setup_.confirmoverwrite_ );
+    fd->setOption(QFileDialog::DontConfirmOverwrite,!setup_.confirmoverwrite_);
     if ( !setup_.initialselectiondir_.isEmpty() )
 	fd->setDirectory( QString(setup_.initialselectiondir_.buf()) );
     if ( !setup_.defaultextension_.isEmpty() )

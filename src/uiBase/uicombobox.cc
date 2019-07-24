@@ -35,7 +35,6 @@ uiComboBoxBody( uiComboBox& hndle, uiParent* p, const char* nm )
     , messenger_( *new i_comboMessenger( this, &hndle))
 {
     setEditable( false );
-    setAutoCompletion( false );
     setStretch( 1, 0 );
     setHSzPol( uiObject::Medium) ;
 }
