@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "datachar.h"
+#include "datadistribution.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
@@ -23,7 +24,6 @@ class BinIDValueSet;
 class BufferStringSet;
 class SeisIOObjInfo;
 class TrcKeyZSampling;
-template <class T> class DataDistribution;
 namespace ZDomain { class Def; }
 
 namespace Seis
@@ -155,7 +155,7 @@ public:
     void		getUserInfo(uiPhraseSet&) const;
     bool		haveStats() const;
     bool		getStats(IOPar&) const;
-    DataDistribution<float>* getDataDistribution() const;
+    RefMan<FloatDistrib> getDataDistribution() const;
 			//this may take some time, use uiUserShowWait or alike
 
     int			nrComponents(GeomID geomid=mUdfGeomID) const;

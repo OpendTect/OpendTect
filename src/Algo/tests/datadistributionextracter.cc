@@ -21,7 +21,7 @@ static bool testDistribMaking()
 
     RangeLimitedDataDistributionExtracter<float> extr( data,
 						SilentTaskRunnerProvider() );
-    RefMan<DataDistribution<float> > distr = extr.getDistribution();
+    RefMan<FloatDistrib> distr = extr.getDistribution();
     const float expectedtotal = (float)cNrDataPts;
     const float distrtotal = distr->sumOfValues();
     mRunStandardTest( fabs(expectedtotal - distrtotal) < 0.1f ,

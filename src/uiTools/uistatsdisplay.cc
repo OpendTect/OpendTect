@@ -279,7 +279,7 @@ void uiStatsDisplay::usePar( const IOPar& iop )
 }
 
 
-void uiStatsDisplay::setData( const DataDistribution<float>& distrib,
+void uiStatsDisplay::setData( const FloatDistrib& distrib,
 			      od_int64 count, Interval<float> rg )
 {
     histgramdisp_->setDistribution( distrib );

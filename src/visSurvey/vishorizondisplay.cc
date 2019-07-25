@@ -1016,7 +1016,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	DPSValueSeries dpsvs( *data, data->nrCols()-1 );
 	RangeLimitedDataDistributionExtracter<float> extr( dpsvs, data->size(),
 							    trprov );
-	const_cast<DataDistribution<float>&>(
+	const_cast<FloatDistrib&>(
 	    coltabmappers_[channel]->distribution()) = *extr.getDistribution();
     }
 

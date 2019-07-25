@@ -137,7 +137,8 @@ inline T& getNonConst( const T& t )
 #define mNonConst(x)	getNonConst( x )
 #define mSelf()		mNonConst( *this )
 
-#define mUseType(scope,typ)		typedef scope::typ typ
+#define mUseType(scope,typ)		typedef typename scope::typ typ
+
 # define mGetDynamicCast(typ,in)	dynamic_cast< typ >( in );
 # define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
 # define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)

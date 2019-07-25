@@ -156,8 +156,7 @@ bool Seis::StatsCollector::finish() const
 }
 
 
-const Seis::StatsCollector::DistribType&
-Seis::StatsCollector::distribution() const
+FloatDistrib& Seis::StatsCollector::distribution()
 {
     return finish() ? *distrib_ : *new DistribType;
 }
@@ -196,7 +195,7 @@ Seis::StatsCollector::getDistribution( const IOPar& iop )
     PtrMan<IOPar> distribpar = iop.subselect( sKey::Distribution() );
     if ( distribpar && !distribpar->isEmpty() )
     {
-	ret = new DataDistribution<float>;
+	ret = new DistribType;
 	DataDistributionChanger<float>(*ret).usePar( *distribpar );
     }
     return ret;

@@ -25,7 +25,7 @@ template <class VT> class DataDistributionIter;
   The data in this object can be either true 'frequencies' or 'histogram'
   values. More generally, if you want to obtain a 'true' distribution in the
   mathematical sense of the word, then you should use 'normalise', which
-  assures that the sum of he values is 1.
+  assures that the sum of the values is 1.
 
   The SamplingData describes the positions of the bin *centers*. Thus, if
   you have a hard start and stop, calculate the step like (stop-start)/nrbins,
@@ -33,27 +33,27 @@ template <class VT> class DataDistributionIter;
 
   Note that it is a bad idea to have negative data (P<0). We're not checking.
 
-  Also note that PosType and DataValueType are the same typedefs. The position
+  Also note that pos_type and value_type are the same typedefs. The position
   in a distribution is a data value.
 
 */
+
 
 template <class VT>
 mClass(Algo) DataDistribution : public SharedObject
 {
 public:
 
-    typedef VT			DataValueType;
-    typedef DataValueType	PosType;
-    typedef VT			ValueType;
+    typedef VT			value_type;
+    typedef value_type		pos_type;
     typedef TypeSet<VT>		SetType;
-    typedef typename SetType::size_type	size_type;
-    typedef typename SetType::idx_type	idx_type;
-    typedef SamplingData<PosType> SamplingType;
+    mUseType( SetType,		size_type );
+    mUseType( SetType,		idx_type );
+    typedef SamplingData<pos_type> SamplingType;
     typedef Interval<VT>	RangeType;
 
     inline			DataDistribution()
-				    : sampling_(PosType(0),PosType(1)) {}
+				    : sampling_(pos_type(0),pos_type(1)) {}
     inline			DataDistribution(size_type);
     inline			DataDistribution(SamplingType,size_type n=256);
     inline			DataDistribution(const SetType&);
@@ -69,8 +69,9 @@ public:
 
     inline VT			get(idx_type,bool cumulative=false) const;
     inline VT			operator[](idx_type) const;
-    inline VT			valueAt(PosType,bool cumulative) const;
-    inline idx_type		getBinNr(PosType) const;
+    inline pos_type		binPos(idx_type) const;
+    inline VT			valueAt(pos_type,bool cumulative) const;
+    inline idx_type		getBinNr(pos_type) const;
     inline SetType		getSet( bool cum ) const
 				{ mLock4Read(); return cum ? cumdata_ : data_; }
 
@@ -84,8 +85,9 @@ public:
     inline VT			maxValue() const;
     inline RangeType		dataRange() const;
 
-    inline PosType		positionForCumulative(VT) const;
-    inline PosType		medianPosition() const;
+    inline pos_type		positionForCumulative(VT) const;
+    inline pos_type		medianPosition() const;
+    inline void			getAvgStd(pos_type& avg,pos_type& std) const;
     inline VT*			getArr( bool cum ) const
 				{ return cum ? cumdata_.arr() : data_.arr(); }
 				//!< for fast non-shared usage
@@ -94,7 +96,7 @@ public:
     static ChangeType		cSamplingChange()	{ return 3; }
 
     static const DataDistribution<VT>& getEmptyDistrib();
-    static inline idx_type	getBinNrFor(PosType,const SamplingType&,
+    static inline idx_type	getBinNrFor(pos_type,const SamplingType&,
 					    size_type nrbins);
 
 protected:
@@ -114,6 +116,8 @@ protected:
 
 };
 
+typedef DataDistribution<float> FloatDistrib;
+
 
 template <class VT> inline
 DataDistribution<VT>::DataDistribution( const DataDistribution<VT>& oth )
@@ -129,7 +133,7 @@ template <class VT> inline
 DataDistribution<VT>::DataDistribution( size_type nrbins )
     : data_(nrbins,0)
     , cumdata_(nrbins,0)
-    , sampling_(PosType(0),PosType(1))
+    , sampling_(pos_type(0),pos_type(1))
 {
 }
 
@@ -147,7 +151,7 @@ template <class VT> inline
 DataDistribution<VT>::DataDistribution( const SetType& d )
     : data_(d.size(),0)
     , cumdata_(d.size(),0)
-    , sampling_(PosType(0),PosType(1))
+    , sampling_(pos_type(0),pos_type(1))
 {
     set( d.arr() );
 }
@@ -204,7 +208,7 @@ typename DataDistribution<VT>::size_type DataDistribution<VT>::size() const
 
 template <class VT> inline
 typename DataDistribution<VT>::idx_type DataDistribution<VT>::getBinNrFor(
-			PosType pos, const SamplingType& sd, size_type nbins )
+			pos_type pos, const SamplingType& sd, size_type nbins )
 {
     const float fbin = sd.getfIndex( pos );
     idx_type ret;
@@ -222,7 +226,7 @@ typename DataDistribution<VT>::idx_type DataDistribution<VT>::getBinNrFor(
 
 template <class VT> inline
 typename DataDistribution<VT>::idx_type DataDistribution<VT>::getBinNr(
-						PosType p ) const
+						pos_type p ) const
 {
     mLock4Read();
     return getBinNrFor( p, sampling_, data_.size() );
@@ -243,8 +247,17 @@ VT DataDistribution<VT>::get( idx_type idx, bool cumulative ) const
     return cumulative ? cumdata_[idx] : data_[idx];
 }
 
+
+template <class VT> inline typename DataDistribution<VT>::pos_type
+DataDistribution<VT>::binPos( idx_type idx ) const
+{
+    mLock4Read();
+    return sampling_.atIndex( idx );
+}
+
+
 template <class VT> inline
-VT DataDistribution<VT>::valueAt( PosType pos, bool cumulative ) const
+VT DataDistribution<VT>::valueAt( pos_type pos, bool cumulative ) const
 {
     mLock4Read();
     const SetType& vals = cumulative ? cumdata_ : data_;
@@ -252,7 +265,7 @@ VT DataDistribution<VT>::valueAt( PosType pos, bool cumulative ) const
     if ( sz < 1 )
 	return mUdf(VT);
 
-    PosType fidx = sampling_.getfIndex( pos );
+    pos_type fidx = sampling_.getfIndex( pos );
     if ( fidx < -0.5f )
 	fidx = -0.5f;
     else if ( fidx > vals.size()-0.5f )
@@ -266,7 +279,7 @@ VT DataDistribution<VT>::valueAt( PosType pos, bool cumulative ) const
     const VT valbefore = beforeidx<0 ? (cumulative?VT(0):vals[0])
 				     : vals[ beforeidx ];
     const VT valafter = aftidx>sz-2 ? vals.last() : vals[ aftidx ] ;
-    const PosType relpos = (fidx - beforeidx);
+    const pos_type relpos = (fidx - beforeidx);
     return valbefore + (valafter-valbefore) * relpos;
 }
 
@@ -362,7 +375,7 @@ template <class VT> inline
 typename DataDistribution<VT>::RangeType DataDistribution<VT>::dataRange() const
 {
     mLock4Read();
-    const PosType hstep = sampling_.step * PosType(0.5);
+    const pos_type hstep = sampling_.step * pos_type(0.5);
     return RangeType( sampling_.start - hstep,
 		      sampling_.atIndex(data_.size()-1) + hstep );
 }
@@ -394,7 +407,7 @@ VT DataDistribution<VT>::gtMax( int* idxat ) const
 }
 
 
-template <class VT> inline typename DataDistribution<VT>::PosType
+template <class VT> inline typename DataDistribution<VT>::pos_type
 DataDistribution<VT>::positionForCumulative( VT val ) const
 {
     if ( mIsUdf(val) )
@@ -403,11 +416,11 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
     mLock4Read();
     const size_type sz = cumdata_.size();
     if ( sz < 2 )
-	return sz == 1 ? sampling_.start : mUdf(PosType);
+	return sz == 1 ? sampling_.start : mUdf(pos_type);
     else if ( val <= VT(0) )
-	return sampling_.start - PosType(0.5) * sampling_.step;
+	return sampling_.start - pos_type(0.5) * sampling_.step;
     else if ( val >= cumdata_.last() )
-	return sampling_.start + PosType(sz-0.5) * sampling_.step;
+	return sampling_.start + pos_type(sz-0.5) * sampling_.step;
 
     // this function is mostly used for clipping which is at start or end
     // simple bisection may then not be optimal.
@@ -420,13 +433,13 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
 	    const VT nextval = cumdata_[idx];
 	    if ( val <= nextval )
 	    {
-		PosType prevpos = sampling_.start + PosType(idx-0.5)
+		pos_type prevpos = sampling_.start + pos_type(idx-0.5)
 						    * sampling_.step;
 		if ( val == nextval )
 		    return prevpos + sampling_.step;
 
 		const VT prevval = idx ? cumdata_[idx-1] : VT(0);
-		const PosType relpos = (val - prevval) / (nextval - prevval);
+		const pos_type relpos = (val - prevval) / (nextval - prevval);
 		return prevpos + sampling_.step * relpos;
 	    }
 	}
@@ -438,13 +451,13 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
 	    const VT prevval = cumdata_[idx-1];
 	    if ( val >= prevval )
 	    {
-		PosType prevpos = sampling_.start + VT(idx-0.5)
+		pos_type prevpos = sampling_.start + VT(idx-0.5)
 						    * sampling_.step;
 		if ( prevval == val )
 		    return prevpos;
 
 		const VT nextval = cumdata_[idx];
-		const PosType relpos = (val - prevval) / (nextval - prevval);
+		const pos_type relpos = (val - prevval) / (nextval - prevval);
 		return prevpos + sampling_.step * relpos;
 	    }
 	}
@@ -455,7 +468,7 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
 }
 
 
-template <class VT> inline typename DataDistribution<VT>::PosType
+template <class VT> inline typename DataDistribution<VT>::pos_type
 DataDistribution<VT>::medianPosition() const
 {
     mLock4Read();
@@ -463,6 +476,29 @@ DataDistribution<VT>::medianPosition() const
 	return sampling_.start;
 
     return positionForCumulative( cumdata_.last() * VT(0.5) );
+}
+
+
+template <class VT> inline void DataDistribution<VT>::getAvgStd( pos_type& avg,
+							 pos_type& std ) const
+{
+    mLock4Read();
+    const auto sz = cumdata_.size();
+    if ( sz < 2 )
+	{ avg = sampling_.start; std = (pos_type)0; return; }
+
+    pos_type wtsum = (VT)0;
+    for ( auto idx=0; idx<sz; idx++ )
+	wtsum += data_[idx] * sampling_.atIndex( idx );
+    avg = wtsum / cumdata_[sz-1];
+
+    pos_type sumsq = (VT)0;
+    for ( auto idx=0; idx<sz; idx++ )
+    {
+	auto diff = data_[idx] - avg;
+	sumsq += diff * diff;
+    }
+    std = Math::Sqrt( sumsq );
 }
 
 

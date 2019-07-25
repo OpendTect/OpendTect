@@ -181,6 +181,7 @@ bool Seis::Storer::writeCollectedLineGeometry( uiRetVal& uirv ) const
 void Seis::Storer::writeCollectedStats() const
 {
     IOPar statspar;
+    statspar.set( sKey::Source(), "Full Scan" );
     if ( !statscollector_.fillPar(statspar) )
 	return;
 

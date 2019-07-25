@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "seis2dlineio.h"
@@ -332,7 +333,7 @@ void uiSeisFileMan::showHistogram( CallBacker* )
     uiStatsDisplayWin* statswin = new uiStatsDisplayWin( this, su, 1, false );
     statswin->setDeleteOnClose( true );
 
-    ConstRefMan<DataDistribution<float> > distrib
+    ConstRefMan<FloatDistrib> distrib
 			= Seis::StatsCollector::getDistribution( iop );
     if ( !distrib )
 	statswin->statsDisplay()->usePar( iop );
@@ -343,7 +344,11 @@ void uiSeisFileMan::showHistogram( CallBacker* )
 	statswin->statsDisplay()->setData( *distrib, nrsamples, rg );
     }
 
-    statswin->setDataName( curioobj_->name() );
+    BufferString datanm( curioobj_->name() );
+    const char* findres = iop.find( sKey::Source() );
+    if ( findres && *findres == 'P' )
+	datanm.add( " [Partial Scan]" );
+    statswin->setDataName( datanm );
     statswin->show();
 }
 

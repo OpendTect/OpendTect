@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "draw.h"
+#include "datadistribution.h"
 
 class uiAxisHandler;
 class uiGraphicsItem;
@@ -23,7 +24,6 @@ class uiPolygonItem;
 class uiPolyLineItem;
 class uiRectItem;
 class uiTextItem;
-template <class T> class DataDistribution;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
 
@@ -157,7 +157,7 @@ public:
 				//!< Undef values are filtered out
     void			setY2Vals(const Interval<float>&,
 					const float* yvals,int sz);
-    void			setY2Vals(const DataDistribution<float>&,
+    void			setY2Vals(const FloatDistrib&,
 					  bool limitspikes=true);
     void			setMarkValue(float,bool is_x);
     void			setMark2Value(float,bool is_x);

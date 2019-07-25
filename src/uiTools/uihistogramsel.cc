@@ -105,7 +105,7 @@ void uiHistogramSel::setData( const float* array, od_int64 sz )
 
 bool uiHistogramSel::setData( const IOPar& iop )
 {
-    RefMan<DataDistribution<float> > distr = new DataDistribution<float>;
+    RefMan<FloatDistrib> distr = new FloatDistrib;
     DataDistributionChanger<float>( *distr ).usePar( iop );
     if ( distr->isEmpty() )
 	return false;

@@ -24,7 +24,7 @@ mExpClass(Seis) StatsCollector
 {
 public:
 
-    typedef DataDistribution<float> DistribType;
+    typedef FloatDistrib DistribType;
 
 			StatsCollector(int icomp=-1);
 			~StatsCollector();
@@ -32,9 +32,11 @@ public:
     void		setEmpty();
 
     void		useTrace(const SeisTrc&);
+    od_int64		nrSamplesUsed() const	{ return nrvalshandled_; }
 
     const TrcKeyZSampling& trcKeyZSampling() const	{ return tkzs_; }
-    const DistribType&	distribution() const;
+    DistribType&	distribution();
+    const DistribType&	distribution() const { return mSelf().distribution(); }
 
     bool		fillPar(IOPar&) const;
 

@@ -443,8 +443,7 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
 	.noxgridline( true ).noygridline( true ).noy2gridline( true );
     transpdisp_ = new uiFunctionDisplay( rightgrp, su );
     transpdisp_->setStretch( 2, 2 );
-    RefMan<DataDistribution<float> > y2distr
-			    = uiCOLTAB().mapper().distribution().clone();
+    RefMan<FloatDistrib> y2distr = uiCOLTAB().mapper().distribution().clone();
     const int distrsz = y2distr->size();
     if ( distrsz > 2 )
     {

@@ -133,6 +133,7 @@ namespace sKey
     inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
+    inline FixedString Source()		{ return "Source"; }
     inline FixedString SpaceString()	{ return " "; }
     inline FixedString StackOrder()	{ return "Stack order"; }
     inline FixedString Stats()		{ return "Stats"; }

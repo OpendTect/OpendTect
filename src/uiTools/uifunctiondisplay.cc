@@ -209,8 +209,7 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 }
 
 
-void uiFunctionDisplay::setY2Vals( const DataDistribution<float>& distr,
-				   bool limitspikes )
+void uiFunctionDisplay::setY2Vals( const FloatDistrib& distr, bool limitspikes )
 {
     DataDistributionInfoExtracter<float>( distr )
 	.getCurve( y2xvals_, y2yvals_, limitspikes );

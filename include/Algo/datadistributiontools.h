@@ -24,9 +24,9 @@ public:
 
     typedef MonitorableIterBase< typename DataDistribution<VT>::idx_type >
 						base_type;
-    typedef DataDistribution<VT>		DistribType;
-    typedef typename DistribType::PosType	PosType;
-    typedef typename DistribType::idx_type	idx_type;
+    typedef DataDistribution<VT>	DistribType;
+    mUseType( DistribType,		pos_type );
+    mUseType( DistribType,		idx_type );
 
     inline	    DataDistributionIter( const DistribType& d )
 			: MonitorableIter4Read<idx_type>(d,0,d.size()-1) {}
@@ -43,10 +43,10 @@ public:
     inline VT	    cumValue() const
 		    { return isValid() ? distrib().cumdata_[base_type::curidx_]
 				       : mUdf(VT); }
-    inline PosType  position() const
+    inline pos_type  position() const
 		    { return isValid()
 			    ? distrib().sampling().atIndex(base_type::curidx_)
-			    : mUdf(PosType); }
+			    : mUdf(pos_type); }
 
     mDefNoAssignmentOper(DataDistributionIter)
 
@@ -58,11 +58,11 @@ mClass(Algo) DataDistributionInfoExtracter
 {
 public:
 
-    typedef DataDistribution<VT>		DistribType;
-    typedef typename DistribType::idx_type	idx_type;
-    typedef typename DistribType::PosType	PosType;
-    typedef typename DistribType::ValueType	ValueType;
-    typedef typename DistribType::SetType	SetType;
+    typedef DataDistribution<VT>	DistribType;
+    mUseType( DistribType,		pos_type );
+    mUseType( DistribType,		idx_type );
+    mUseType( DistribType,		value_type );
+    mUseType( DistribType,		SetType );
 
     inline		DataDistributionInfoExtracter( const DistribType& d )
 			    : distrib_(d)		{}
@@ -72,9 +72,9 @@ public:
 
     inline void		getCurve(SetType& xvals,SetType& yvals,
 				 bool limitspikes=false) const;
-    inline void		getRanges(Interval<PosType>& xrg,
-				  Interval<PosType>& yrg) const;
-    inline void		getAvgStdRMS(PosType&,PosType&,PosType&) const;
+    inline void		getRanges(Interval<pos_type>& xrg,
+				  Interval<pos_type>& yrg) const;
+    inline void		getAvgStdRMS(pos_type&,pos_type&,pos_type&) const;
 
     void		fillPar(IOPar&) const;
 
@@ -90,11 +90,11 @@ mClass(Algo) DataDistributionChanger
 {
 public:
 
-    typedef DataDistribution<VT>		DistribType;
-    typedef typename DistribType::idx_type	idx_type;
-    typedef typename DistribType::PosType	PosType;
-    typedef typename DistribType::ValueType	ValueType;
-    typedef typename DistribType::SetType	SetType;
+    typedef DataDistribution<VT>	DistribType;
+    mUseType( DistribType,		pos_type );
+    mUseType( DistribType,		idx_type );
+    mUseType( DistribType,		value_type );
+    mUseType( DistribType,		SetType );
 
     inline		DataDistributionChanger( DistribType& d )
 			    : distrib_(d)		{}
@@ -188,9 +188,9 @@ bool DataDistributionInfoExtracter<VT>::isRoughlySymmetrical(
 {
     mLockMonitorable4Read( distrib_ );
     idx_type maxidx; distrib_.gtMax( &maxidx );
-    PosType medpos = distrib_.medianPosition();
-    PosType diff = medpos - distrib_.sampling_.atIndex( maxidx );
-    if ( diff < PosType(0) )
+    pos_type medpos = distrib_.medianPosition();
+    pos_type diff = medpos - distrib_.sampling_.atIndex( maxidx );
+    if ( diff < pos_type(0) )
 	diff = -diff;
     if ( diff < distrib_.sampling_.step )
     {
@@ -231,8 +231,8 @@ void DataDistributionInfoExtracter<VT>::getCurve( SetType& xvals, SetType& yvals
 
 
 template <class VT> inline
-void DataDistributionInfoExtracter<VT>::getRanges( Interval<PosType>& xrg,
-				      Interval<PosType>& yrg ) const
+void DataDistributionInfoExtracter<VT>::getRanges( Interval<pos_type>& xrg,
+				      Interval<pos_type>& yrg ) const
 {
     mLockMonitorable4Read( distrib_ );
     xrg.start = distrib_.sampling_.start;
@@ -259,14 +259,14 @@ void DataDistributionInfoExtracter<VT>::getRanges( Interval<PosType>& xrg,
 
 
 template <class VT> inline
-void DataDistributionInfoExtracter<VT>::getAvgStdRMS( PosType& avg,
-				    PosType& stdev, PosType& rms ) const
+void DataDistributionInfoExtracter<VT>::getAvgStdRMS( pos_type& avg,
+				    pos_type& stdev, pos_type& rms ) const
 {
     mLockMonitorable4Read( distrib_ );
     const int sz = distrib_.data_.size();
     if ( sz < 1 )
-	{ avg = rms = stdev = PosType(0); return; }
-    avg = rms = distrib_.data_[0]; stdev = PosType(0);
+	{ avg = rms = stdev = pos_type(0); return; }
+    avg = rms = distrib_.data_[0]; stdev = pos_type(0);
     if ( sz == 1 )
 	return;
 

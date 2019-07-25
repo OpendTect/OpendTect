@@ -321,7 +321,7 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 }
 
 
-void uiHistogramDisplay::setDistribution( const DataDistribution<float>& distr,
+void uiHistogramDisplay::setDistribution( const FloatDistrib& distr,
 					  int nrvals )
 {
     nrinpvals_ = nrvals;

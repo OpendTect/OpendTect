@@ -31,6 +31,7 @@
 #include "seisprovider.h"
 #include "seispsioprov.h"
 #include "seispacketinfo.h"
+#include "seisstatscollector.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -559,14 +560,14 @@ bool SeisIOObjInfo::getStats( IOPar& iop ) const
 { return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
 
 
-DataDistribution<float>* SeisIOObjInfo::getDataDistribution() const
+RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 {
     mChk(nullptr);
     IOPar iop;
-    DataDistribution<float>* ret = nullptr;
+    RefMan<FloatDistrib> ret;
     if ( haveStats() && getStats(iop) )
     {
-	ret = new DataDistribution<float>;
+	ret = new FloatDistrib;
 	DataDistributionChanger<float> chgr( *ret );
 	chgr.usePar( iop );
 	return ret;
@@ -577,13 +578,30 @@ DataDistribution<float>* SeisIOObjInfo::getDataDistribution() const
     if ( !prov )
 	return ret;
 
-    /* TODO implement
-    const bool is2d = prov->is2D();
-    const auto totalnr = prov->totalNr();
+    SeisTrc trc;
+    Seis::StatsCollector ssc;
     while ( true )
     {
+	const uiRetVal uirv = prov->getNext( trc );
+	if ( !uirv.isOK() )
+	    break;
+	else if ( trc.isNull() )
+	    continue;
+
+	ssc.useTrace( trc );
+	if ( ssc.nrSamplesUsed() > 100000 )
+	    break;
     }
-    */
+
+    ret = &ssc.distribution();
+    if ( !ret->isEmpty() )
+    {
+	iop.set( sKey::Source(), "Partial Scan" );
+	ssc.fillPar( iop );
+	File::Path fp( ioobj_->mainFileName() );
+	fp.setExtension( sStatsFileExtension() );
+	iop.write( fp.fullPath(), sKey::Stats() );
+    }
 
     return ret;
 }
