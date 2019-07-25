@@ -333,12 +333,8 @@ static const char* getStyleFromSettings()
 }
 
 
-#if QT_VERSION >= 0x050000
 static void qtMessageOutput( QtMsgType type, const QMessageLogContext&,
 			     const QString& msg )
-#else
-static void qtMessageOutput( QtMsgType type, const char* msg )
-#endif
 {
     const BufferString str( msg );
     if ( str.isEmpty() )
@@ -440,11 +436,7 @@ void uiMain::init( QApplication* qap )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( " done." );
 
-#if QT_VERSION >= 0x050000
     qInstallMessageHandler( qtMessageOutput );
-#else
-    qInstallMsgHandler( qtMessageOutput );
-#endif
 
 #ifndef __win__
     BufferString stylestr = getStyleFromSettings();
@@ -607,11 +599,7 @@ Color uiMain::windowColor() const
 
 int uiMain::nrScreens() const
 {
-#if QT_VERSION >= 0x050000
     return QGuiApplication::screens().size();
-#else
-    return qdesktop_ ? qdesktop_->screenCount() : -1;
-#endif
 }
 
 
@@ -619,14 +607,12 @@ const char* uiMain::getScreenName( int screenidx ) const
 {
     mDeclStaticString(screennm);
     screennm.set( "Screen " ).add( screenidx );
-#if QT_VERSION >= 0x050000
     QList<QScreen*> screens = QGuiApplication::screens();
     if ( !screens.isEmpty() && screenidx>=0 && screenidx<screens.size() )
     {
 	QScreen* qscreen = screens.at( screenidx );
 	screennm = qscreen->name();
     }
-#endif
 
     return screennm.buf();
 }
@@ -634,7 +620,6 @@ const char* uiMain::getScreenName( int screenidx ) const
 
 uiSize uiMain::getScreenSize( int screennr, bool available ) const
 {
-#if QT_VERSION >= 0x050000
     QList<QScreen*> screens = QGuiApplication::screens();
     if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
 	return uiSize( mUdf(int), mUdf(int) );
@@ -642,13 +627,6 @@ uiSize uiMain::getScreenSize( int screennr, bool available ) const
     QScreen* qscreen = screens.at( screennr );
     QRect qrect = available ? qscreen->availableGeometry()
 			    : qscreen->geometry();
-#else
-    if ( !qdesktop_ )
-	return uiSize( mUdf(int), mUdf(int) );
-
-    QRect qrect = available ? qdesktop_->availableGeometry( screennr )
-			    : qdesktop_->screenGeometry( screennr );
-#endif
     return uiSize( qrect.width(), qrect.height() );
 }
 
@@ -691,12 +669,8 @@ void uiMain::flushX()
 {
     if ( app_ )
     {
-#if QT_VERSION >= 0x050000
 	app_->sendPostedEvents();
 	app_->processEvents();
-#else
-	app_->flush();
-#endif
     }
 }
 

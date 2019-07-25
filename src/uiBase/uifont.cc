@@ -23,6 +23,12 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
+
 static const char* fDefKey = "Font.def";
 
 uiFont::uiFont( const char* ky, const char* fam, int ps, FontData::Weight w,
@@ -122,13 +128,13 @@ int uiFont::maxWidth() const
 
 int uiFont::avgWidth() const
 {
-    return qfontmetrics_.horizontalAdvance(QChar('x'));
+    return mGetTextWidth(qfontmetrics_,QChar('x'));
 }
 
 
 int uiFont::width(const uiString& str) const
 {
-    return qfontmetrics_.horizontalAdvance( toQString(str) );
+    return mGetTextWidth(qfontmetrics_,toQString(str));
 }
 
 

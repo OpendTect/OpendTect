@@ -394,21 +394,8 @@ bool File::LocalFileSystemAccess::remove( const char* uri,
 
     if ( recursive && isDirectory( fnm ) )
     {
-#if QT_VERSION >= 0x050000
 	QDir dir( fnm.buf() );
 	return dir.removeRecursively();
-#else
-# ifdef __win__
-	return WinUtils::removeDir( fnm );
-# else
-	BufferString cmd;
-	cmd = "/bin/rm -rf";
-	cmd.add(" \"").add(fnm).add("\"");
-	bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
-	if ( res ) res = !exists(fnm);
-	return res;
-# endif
-#endif
     }
 
     return false;

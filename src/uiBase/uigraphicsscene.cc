@@ -545,12 +545,7 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 {
     QString fileName( filename );
     QPrinter* pdfprinter = new QPrinter();
-#if QT_VERSION >= 0x050000
     pdfprinter->setOutputFormat( QPrinter::PdfFormat );
-#else
-    pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
-				       : QPrinter::PostScriptFormat );
-#endif
     pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
@@ -602,12 +597,8 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 
 uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos )
 {
-#if QT_VERSION >= 0x050000
     QGraphicsItem* qitm =
 	odgraphicsscene_->itemAt( pos.x_, pos.y_, QTransform());
-#else
-    QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x_, pos.y_ );
-#endif
     if ( !qitm ) return 0;
 
     for ( int idx=0; idx<items_.size(); idx++ )

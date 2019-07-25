@@ -35,6 +35,12 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
+
 uiObjectItem::uiObjectItem( uiObject* obj )
     : uiGraphicsItem(mkQtObj())
     , obj_(0)
@@ -730,7 +736,7 @@ uiSize uiTextItem::getTextSize() const
     QFontMetrics qfm( qtextitem_->getFont() );
     // Extra space is added to avoid clipping on some platforms and the value is
     // arbitrarily chosen.
-    return uiSize( qfm.horizontalAdvance(text_.getOriginalString())+mExtraSpace,
+    return uiSize( mGetTextWidth(qfm,text_.getOriginalString())+mExtraSpace,
 		   qfm.height()+mExtraSpace );
 }
 
@@ -821,7 +827,7 @@ void uiTextItem::fitIn( const uiRect& rect, bool verttxt )
     while ( true )
     {
 	QFontMetrics qfm( qfont );
-	const int wdth = qfm.horizontalAdvance( qtxt );
+	const int wdth = mGetTextWidth(qfm,qtxt);
 	const int hght = qfm.height();
 	const bool istoobig = wdth > txtwidth || hght > txtheight;
 	if ( resizedir == 0 )
@@ -836,7 +842,7 @@ void uiTextItem::fitIn( const uiRect& rect, bool verttxt )
 
     qfont.setPointSizeF( prevptsz );
     QFontMetrics qfm( qfont );
-    const int wdth = qfm.horizontalAdvance( qtxt );
+    const int wdth = mGetTextWidth(qfm,qtxt);
     int txtdirshift = (txtwidth - wdth) / 2;
     if ( txtdirshift < 0 )
 	txtdirshift = 0;

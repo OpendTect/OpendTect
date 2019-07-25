@@ -30,6 +30,12 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
+
 static bool drawDebugItems()
 {
     static bool val = GetEnvVarYN( "DTECT_DEBUG_GRAPHICSITEM_PAINT" );
@@ -465,7 +471,7 @@ static int border = 5;
 QRectF ODGraphicsTextItem::boundingRect() const
 {
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.horizontalAdvance( QString(text_) );
+    const float txtwidth = mGetTextWidth(qfm,QString(text_));
     const float txtheight = qfm.height();
 
     const double paintangle = getPaintAngle( transform() );
@@ -503,7 +509,7 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     painter->resetTransform();
 
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.horizontalAdvance( text_ );
+    const float txtwidth = mGetTextWidth(qfm,text_);
     const float txtheight = qfm.height();
 
     const float width = txtwidth * cos(paintangle) +
@@ -1021,23 +1027,15 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
 }
 
 
-#if QT_VERSION>=0x040700
-# define mImage2PixmapImpl( image, pixmap ) pixmap->convertFromImage( image )
-#else
-# define mImage2PixmapImpl( image, pixmap ) \
-   *pixmap = QPixmap::fromImage( image, Qt::OrderedAlphaDither )
-#endif
-
-
 #ifdef __mac__
 # define mImage2Pixmap( image, pixmap ) \
  pixmap = new QPixmap; \
- mImage2PixmapImpl( image, pixmap )
+ pixmap->convertFromImage( image )
 #else
 # define mImage2Pixmap( image, pixmap ) \
  if ( !pixmap ) \
     pixmap = new QPixmap; \
- mImage2PixmapImpl( image, pixmap )
+ pixmap->convertFromImage( image )
 #endif
 
 void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
