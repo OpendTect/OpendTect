@@ -45,21 +45,25 @@ protected:
 mExpClass(uiIo) uiManageLineGeomDlg : public uiDialog
 { mODTextTranslationClass(uiManageLineGeomDlg)
 public:
-			uiManageLineGeomDlg(uiParent*,Pos::GeomID,
-					    bool readonly);
+			uiManageLineGeomDlg(uiParent*,
+				const TypeSet<Pos::GeomID>&,bool readonly);
 			~uiManageLineGeomDlg();
 
 protected:
 
-    void		impGeomCB(CallBacker*);
-    void		setTrcSPNrCB(CallBacker*);
-    void		fillTable(const SurvGeom2D&);
-    bool		acceptOK();
+    void			impGeomCB(CallBacker*);
+    void			setTrcSPNrCB(CallBacker*);
+    void			expGeomCB(CallBacker*);
+    void			lineSel(CallBacker*);
+    void			fillTable(const SurvGeom2D&);
+    bool			acceptOK();
 
-    uiTable*		table_;
-    uiGenInput*		rgfld_;
+    uiTable*			table_;
+    uiGenInput*			rgfld_;
+    uiGenInput*			linefld_;
+    TypeSet<Pos::GeomID>	geomidset_;
 
-    Pos::GeomID		geomid_;
-    bool		readonly_;
+    Pos::GeomID			geomid_;
+    bool			readonly_;
 };
 

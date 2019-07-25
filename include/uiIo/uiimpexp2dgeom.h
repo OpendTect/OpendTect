@@ -48,17 +48,21 @@ protected:
 mExpClass(uiIo) uiExp2DGeom : public uiDialog
 { mODTextTranslationClass(uiExp2DGeom)
 public:
-				uiExp2DGeom(uiParent*);
+				uiExp2DGeom(uiParent*,
+						const TypeSet<Pos::GeomID>* =0,
+						bool ismodal=false);
 				~uiExp2DGeom();
 
 protected:
 
     bool			acceptOK();
+    void			createUI();
+    void			setList( CallBacker* );
 
     uiIOObjSelGrp*		geomfld_;
     uiFileSel*			outfld_;
+    TypeSet<Pos::GeomID>	geomidset_;
 };
-
 
 /*!
 \brief This class has a set of static functions handling 2D geometries during

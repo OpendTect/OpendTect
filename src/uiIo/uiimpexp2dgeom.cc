@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
 #include "uitblimpexpdatasel.h"
+#include "uilistbox.h"
 
 #include "file.h"
 #include "od_iostream.h"
@@ -199,25 +200,46 @@ bool uiImp2DGeom::fillGeom( SurvGeom2D& geom )
 
 
 // uiExp2DGeom
-uiExp2DGeom::uiExp2DGeom( uiParent* p )
+uiExp2DGeom::uiExp2DGeom( uiParent* p, const TypeSet<Pos::GeomID>* g,
+				       bool ismodal )
     : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Geometry")),
 		       mNoDlgTitle, mODHelpKey(mExp2DGeomHelpID))
-		 .modal(false))
+		 .modal(ismodal))
 {
-    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
-
-    IOObjContext ctxt = mIOObjContext( SurvGeom2D );
-    geomfld_ = new uiIOObjSelGrp( this, ctxt,
-				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
-
-    uiFileSel::Setup fss; fss.setForWrite();
-    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fss );
-    outfld_->attach( alignedBelow, geomfld_ );
+    createUI();
+    if ( g )
+    {
+	geomidset_=*g;
+	mAttachCB( postFinalise(),uiExp2DGeom::setList );
+    }
 }
 
 
 uiExp2DGeom::~uiExp2DGeom()
 {
+}
+
+
+void uiExp2DGeom::setList( CallBacker* )
+{
+    geomfld_->getListField()->setEmpty();
+    BufferStringSet linenms;
+    for ( int idx=0; idx<geomidset_.size(); idx++ )
+    {
+	linenms.add( geomidset_.get(idx).name() );
+    }
+    geomfld_->getListField()->addItems( linenms );
+}
+
+void uiExp2DGeom::createUI()
+{
+    IOObjContext ctxt = mIOObjContext( SurvGeom2D  );
+    geomfld_ = new uiIOObjSelGrp( this, ctxt,
+				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
+    uiFileSel::Setup fss; fss.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fss );
+    outfld_->attach( alignedBelow, geomfld_ );
 }
 
 
