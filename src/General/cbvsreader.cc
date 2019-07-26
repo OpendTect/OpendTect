@@ -634,6 +634,14 @@ bool CBVSReader::fetch( TraceData& trcdata, const bool* comps,
 
     const auto nrsampsleftatend = info_.nrsamples_ - samps->stop - 1;
     int iselc = -1;
+    int nrcompsselected = nrcomps_;
+    if ( comps )
+	for ( int icomp=0; icomp<nrcomps_; icomp++ )
+	    if ( !comps[icomp] )
+		nrcompsselected--;
+    if ( trcdata.nrComponents() != nrcompsselected )
+	trcdata.setNrComponents( nrcompsselected, OD::AutoDataRep );
+
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	if ( comps && !comps[icomp] )
