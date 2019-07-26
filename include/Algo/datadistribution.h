@@ -492,13 +492,13 @@ template <class VT> inline void DataDistribution<VT>::getAvgStd( pos_type& avg,
 	wtsum += data_[idx] * sampling_.atIndex( idx );
     avg = wtsum / cumdata_[sz-1];
 
-    pos_type sumsq = (VT)0;
+    pos_type sumsqdiffs = (VT)0;
     for ( auto idx=0; idx<sz; idx++ )
     {
-	auto diff = data_[idx] - avg;
-	sumsq += diff * diff;
+	const auto diff = sampling_.atIndex(idx) - avg;
+	sumsqdiffs += data_[idx] * diff * diff;
     }
-    std = Math::Sqrt( sumsq );
+    std = Math::Sqrt( sumsqdiffs / cumdata_[sz-1] );
 }
 
 

@@ -567,13 +567,17 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
     RefMan<FloatDistrib> ret;
     if ( haveStats() && getStats(iop) )
     {
-	ret = new FloatDistrib;
-	DataDistributionChanger<float> chgr( *ret );
-	chgr.usePar( iop );
-	return ret;
+	PtrMan<IOPar> dpar = iop.subselect( sKey::Distribution() );
+	if ( dpar && !dpar->isEmpty() )
+	{
+	    ret = new FloatDistrib;
+	    DataDistributionChanger<float> chgr( *ret );
+	    chgr.usePar( *dpar );
+	    return ret;
+	}
     }
 
-    // extract stats from 5 non-null traces
+    // No .stats file. Extract stats right now
     PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_ );
     if ( !prov )
 	return ret;
