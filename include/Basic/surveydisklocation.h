@@ -62,6 +62,7 @@ public:
 
     bool		isEmpty() const;    //!< current survey, soft path
     void		setEmpty();	    //!< current survey, soft path
+    bool		exists() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

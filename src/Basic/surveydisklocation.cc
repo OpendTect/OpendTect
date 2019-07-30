@@ -92,6 +92,12 @@ void SurveyDiskLocation::setEmpty()
 }
 
 
+bool SurveyDiskLocation::exists() const
+{
+    return File::isDirectory( fullPath() );
+}
+
+
 void SurveyDiskLocation::setToCurrentSurvey( bool hard )
 {
     if ( !hard )

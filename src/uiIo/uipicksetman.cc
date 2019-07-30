@@ -131,6 +131,15 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
     addObjInfo( inf, tr("Marker size (pixels)"), disp.mkstyle_.size_ );
     addObjInfo( inf, tr("Marker Type"), OD::MarkerStyle3D::TypeDef()
 			.getUiStringForIndex(disp.mkstyle_.type_) );
+    if ( SI().has2D() && SI().has3D() )
+    {
+	const bool has2d = ps->has2D();
+	const bool has3d = ps->has3D();
+	uiString pickedonstr = has3d ? tr("3D Seismics") : tr("2D Seismics");
+	if ( has2d && has3d )
+	    pickedonstr = tr("Both 2D and 3D Seismics");
+	addObjInfo( inf, tr("Picked on"), pickedonstr );
+    }
 
     return true;
 }

@@ -76,6 +76,8 @@ public:
 					     dist_type* dist_to_line=0) const;
     trcnr_type		tracePosition(const Coord&,
 				      dist_type maxdist=mUdf(dist_type)) const;
+    static Bin2D	findNearestTrace(const Coord&,
+					 dist_type* dist_to_line=0);
 
     Notifier<Geometry2D> objectChanged;
 

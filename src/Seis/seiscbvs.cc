@@ -280,7 +280,11 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     if ( is2d_ )
-	return seldata_->selRes( seldata_->geomID(), bid.trcNr() );
+    {
+	if ( seldata_->nrGeomIDs() < 2 )
+	    return seldata_->selRes( seldata_->geomID(), bid.trcNr() );
+	return seldata_->selRes( Bin2D::decode(bid) );
+    }
 
     return seldata_->selRes( bid );
 }

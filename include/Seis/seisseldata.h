@@ -141,6 +141,7 @@ public:
 			{ return selRes3D(bid); }
     inline int		selRes( GeomID gid, trcnr_type tnr ) const
 			{ return selRes2D(gid,tnr); }
+    int			selRes(const Bin2D&) const;
 
 };
 

@@ -359,3 +359,9 @@ int Seis::SelData::selRes2D( GeomID gid, pos_type trcnr ) const
     const BinID bid( SI().transform(geom.getCoordByIdx(idxof)) );
     return selRes3D( bid );
 }
+
+
+int Seis::SelData::selRes( const Bin2D& b2d ) const
+{
+    return selRes2D( b2d.geomID(), b2d.trcNr() );
+}

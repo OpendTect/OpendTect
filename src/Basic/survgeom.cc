@@ -720,6 +720,31 @@ trcnr_type Survey::Geometry2D::tracePosition( const Coord& crd,
 }
 
 
+Bin2D Survey::Geometry2D::findNearestTrace( const Coord& coord,
+					    dist_type* dist )
+{
+    GeomIDSet geomids;
+    list2D( geomids );
+
+    Bin2D best_b2d; dist_type best_dist = mUdf(dist_type);
+    for ( auto geomid : geomids )
+    {
+	dist_type linedist = mUdf(dist_type);
+	const auto tnr = get(geomid).nearestTracePosition( coord, &linedist );
+	if ( linedist < best_dist )
+	{
+	    best_b2d = Bin2D( geomid, tnr );
+	    best_dist = linedist;
+	}
+
+    }
+
+    if ( dist )
+	*dist = best_dist;
+    return best_b2d;
+}
+
+
 void Survey::Geometry2D::getSampling( TrcKeyZSampling& tkzs ) const
 {
     auto& hs = tkzs.hsamp_;

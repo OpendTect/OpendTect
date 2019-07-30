@@ -43,6 +43,8 @@ public:
     static Bin2D	last(GeomID);
     void		encodeIn(BinID&) const;
     void		decodeFrom(const BinID&);
+    inline static Bin2D	decode( const BinID& bid )
+			{ Bin2D ret; ret.decodeFrom(bid); return ret; }
 
     const char*		toString() const;
     BufferString	usrDispStr() const;
