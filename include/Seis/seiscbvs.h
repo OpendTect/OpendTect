@@ -102,6 +102,7 @@ protected:
     bool	inactiveSelData() const;
     int		selRes(const BinID&) const;
     BinID	curMgrBinID() const;
+    void	updBinIDFromMgr(BinID&) const;
 
 private:
 

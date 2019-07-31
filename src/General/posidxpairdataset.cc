@@ -425,7 +425,7 @@ Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::nrSecondAtIdx(
 }
 
 
-Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::firstAtIdx(
+Pos::IdxPairDataSet::pos_type Pos::IdxPairDataSet::firstAtIdx(
 						idx_type frst ) const
 {
     return frsts_.validIdx(frst) ? frsts_[frst] : mUdf(idx_type);

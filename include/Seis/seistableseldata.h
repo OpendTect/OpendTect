@@ -44,6 +44,7 @@ public:
 						{ copyFrom(oth); return *this; }
     SelData*		clone() const	{ return new TableSelData(*this); }
     bool		is2D() const override	{ return bvs_.is2D(); }
+    size_type		nrGeomIDs() const override;
 
     void		updateAfterBVSChange();
     BinIDValueSet&	binidValueSet()		{ return bvs_; }
@@ -71,6 +72,7 @@ protected:
     z_rg_type		fixedzrange_; // used only if no z vals in bidvalset
     dist_type		searchradius_		= 0;
 
+    GeomID		gtGeomID(idx_type) const override;
     void		doCopyFrom(const SelData&) override;
     void		doExtendH(BinID,BinID) override;
     void		doExtendZ(const z_rg_type&) override;

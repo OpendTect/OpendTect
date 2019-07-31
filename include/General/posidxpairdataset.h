@@ -147,7 +147,7 @@ public:
     inline size_type	nrFirst() const		{ return frsts_.size(); }
     size_type		nrSecond(pos_type firstpos) const;
     size_type		nrSecondAtIdx(idx_type firstidx) const;
-    size_type		firstAtIdx(idx_type firstidx) const;
+    pos_type		firstAtIdx(idx_type firstidx) const;
     IdxPair		positionAtIdxs(idx_type,idx_type) const;
     bool		hasFirst(pos_type) const;
     bool		hasSecond(pos_type) const;

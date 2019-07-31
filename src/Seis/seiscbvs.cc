@@ -223,11 +223,17 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 }
 
 
+void CBVSSeisTrcTranslator::updBinIDFromMgr( BinID& bid ) const
+{
+    if ( is2d_ && geomid_.isValid() && geomid_.is2D() )
+	bid.inl() = geomid_.getI();
+}
+
+
 BinID CBVSSeisTrcTranslator::curMgrBinID() const
 {
     auto ret = rdmgr_->binID();
-    if ( geomid_.isValid() && geomid_.is2D() )
-	ret.inl() = geomid_.getI();
+    updBinIDFromMgr( ret );
     return ret;
 }
 
@@ -247,10 +253,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	cs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
 	if ( !rdmgr_->pruneReaders( cs ) )
-	{
-	    errmsg_ = tr("Input contains no relevant data");
-	    return false;
-	}
+	    { errmsg_ = tr("Input contains no relevant data"); return false; }
     }
 
     delete [] compsel_;
@@ -280,11 +283,7 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     if ( is2d_ )
-    {
-	if ( seldata_->nrGeomIDs() < 2 )
-	    return seldata_->selRes( seldata_->geomID(), bid.trcNr() );
 	return seldata_->selRes( Bin2D::decode(bid) );
-    }
 
     return seldata_->selRes( bid );
 }
@@ -308,6 +307,7 @@ bool CBVSSeisTrcTranslator::toNext()
     if ( nextbid == BinID(0,0) )
 	return false;
 
+    updBinIDFromMgr( nextbid );
     if ( !selRes(nextbid) )
 	return rdmgr_->toNext();
 
@@ -317,7 +317,8 @@ bool CBVSSeisTrcTranslator::toNext()
 	while ( true )
 	{
 	    int res = selRes( nextbid );
-	    if ( !res ) break;
+	    if ( !res )
+		break;
 
 	    if ( res%256 == 2 )
 		{ if ( !info.geom_.moveToNextInline(nextbid) ) return false; }
@@ -337,17 +338,27 @@ bool CBVSSeisTrcTranslator::toNext()
 
 bool CBVSSeisTrcTranslator::toStart()
 {
-    if ( rdmgr_->toStart() )
-	{ headerdone_ = donext_ = false; return true; }
-    return false;
+    if ( !rdmgr_->toStart() )
+	return false;
+    headerdone_ = donext_ = false;
+    return true;
 }
 
 
 bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 {
-    if ( rdmgr_ && rdmgr_->goTo(bid) )
-	{ headerdone_ = donext_ = false; return true; }
-    return false;
+    if ( !rdmgr_ )
+	return false;
+
+    BinID bid2use( bid );
+    if ( is2d_ )
+	bid2use.inl() = rdmgr_->binID().inl();
+
+    if ( !rdmgr_->goTo(bid2use) )
+	return false;
+
+    headerdone_ = donext_ = false;
+    return true;
 }
 
 

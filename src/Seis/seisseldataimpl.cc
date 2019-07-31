@@ -98,6 +98,18 @@ void Seis::TableSelData::doCopyFrom( const SelData& sd )
 }
 
 
+size_type Seis::TableSelData::nrGeomIDs() const
+{
+    return is2D() ? bvs_.nrFirst() : 1;
+}
+
+
+Pos::GeomID Seis::TableSelData::gtGeomID( idx_type idx ) const
+{
+    return GeomID( bvs_.data().firstAtIdx(idx) );
+}
+
+
 void Seis::TableSelData::merge( const TableSelData& oth )
 {
     bvs_.append( oth.bvs_ );

@@ -196,6 +196,9 @@ public:
     Interval<pos_type>	colRange( pos_type row=-1 ) const
 						    { return secondRange(row); }
 
+    inline IdxPairDataSet&	data()		    { return data_; }
+    inline const IdxPairDataSet& data() const	    { return data_; }
+
 protected:
 
     const int			nrvals_;

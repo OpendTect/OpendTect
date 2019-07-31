@@ -123,7 +123,12 @@ uiRetVal Seis2DTraceGetter::doGet( TrcNrType tnr, SeisTrc* trc, TraceData& data,
     SeisTrcInfo& inforet = trcinfo ? *trcinfo : info;
     if ( ( trc && !tr_->read(*trc) ) ||
 	 (!trc && ( !tr_->readInfo(inforet) || !tr_->readData(&data) ) ) )
-	return uiRetVal( tr_->errMsg() );
+    {
+	uiString emsg = tr_->errMsg();
+	if ( emsg.isEmpty() )
+	    emsg = tr("Failed to get data for trace number %1").arg( tnr );
+	return uiRetVal( emsg );
+    }
 
     if ( trcinfo )
 	ensureCorrectTrcKey( inforet );
