@@ -904,13 +904,13 @@ void Pos::IdxPairDataSet::removeDuplicateIdxPairs()
 }
 
 
-void Pos::IdxPairDataSet::addHorPosIfNeeded( const BinID& bid,
+void Pos::IdxPairDataSet::addHorPosIfNeeded( const IdxPair& ip,
 					     EntryCreatedFn crfn )
 {
-    SPos spos = find( bid );
+    SPos spos = find( ip );
     if ( !spos.isValid() )
     {
-	spos = add( bid, getObj(SPos(0,0)) ); // just use an existing obj
+	spos = add( ip, getObj(SPos(0,0)) ); // just use an existing obj
 	if ( !spos.isValid() )
 	    { mHandleMemFull(); return; }
 	else if ( crfn )
@@ -999,8 +999,8 @@ void Pos::IdxPairDataSet::extendHor2D( pos_type so, EntryCreatedFn crfn )
 	{
 	    if ( needed.get(idx) )
 	    {
-		const BinID bid( frst, subsel.pos4Idx(idx) );
-		addHorPosIfNeeded( bid, crfn );
+		const IdxPair ip( frst, subsel.pos4Idx(idx) );
+		addHorPosIfNeeded( ip, crfn );
 	    }
 	}
     }

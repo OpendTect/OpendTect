@@ -248,7 +248,7 @@ protected:
     void		addEntry(const Pos::IdxPair&,const void*,SPos&);
     void		updNearest(const IdxPair&,const SPos&,
 				   od_int64&,SPos&) const;
-    void		addHorPosIfNeeded(const BinID&,EntryCreatedFn);
+    void		addHorPosIfNeeded(const IdxPair&,EntryCreatedFn);
 
     // All 'gt' functions return unchecked
     inline pos_type	gtFrst( const SPos& pos ) const
