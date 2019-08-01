@@ -210,7 +210,7 @@ bool uiPickPartServer::doSaveAs( const DBKey& setid, const Pick::Set* ps )
     }
     IOObjContext ctxt( uiPickSetIOObjSel::getCtxt( mObjSelType(ps->isPolygon()),
 						    false, ps->category() ) );
-    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSaveAs(toUiString(ps->name())) );
+    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSaveAs(ps->name()) );
     uiIOObjSelDlg dlg( parent(), sdsu, ctxt );
     dlg.showAlwaysOnTop();
     if ( !dlg.go() || !dlg.ioObj() )

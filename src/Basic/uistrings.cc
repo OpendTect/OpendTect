@@ -167,6 +167,8 @@ uiPhrase uiStrings::phrDoesNotExist(const uiWord& string )
 uiPhrase uiStrings::phrErrCalculating( const uiWord& subj )
 { return tr("Error calculating %1").arg( subj ); }
 
+uiPhrase uiStrings::phrEdit( const char* nm )
+{ return mJoinStr.arg( sEdit() ).arg( nm ); }
 uiPhrase uiStrings::phrEdit( const uiWord& string )
 { return mJoinStr.arg( sEdit() ).arg( string ); }
 
@@ -255,6 +257,8 @@ uiPhrase uiStrings::phrLoading( const uiWord& string )
 uiPhrase uiStrings::phrManage( const uiWord& string )
 { return mJoinStr.arg( sManage() ).arg( string ); }
 
+uiPhrase uiStrings::phrMerge( const char* nm )
+{ return mJoinStr.arg( sMerge() ).arg( nm ); }
 uiPhrase uiStrings::phrMerge( const uiWord& string )
 { return mJoinStr.arg( sMerge() ).arg( string ); }
 
@@ -325,9 +329,13 @@ uiPhrase uiStrings::phrRename( const uiWord& string )
 uiPhrase uiStrings::phrRestart( const uiWord& string )
 { return mJoinStr.arg( sRestart() ).arg( string ); }
 
+uiPhrase uiStrings::phrSave( const char* nm )
+{ return mJoinStr.arg( sSave() ).arg( nm ); }
 uiPhrase uiStrings::phrSave( const uiWord& string )
 { return mJoinStr.arg( sSave() ).arg( string ); }
 
+uiPhrase uiStrings::phrSaveAs( const char* nm )
+{ return phrSaveAs( toUiString(nm) ); }
 uiPhrase uiStrings::phrSaveAs( const uiWord& string )
 { return tr("Save %1 as" ).arg( string ); }
 
