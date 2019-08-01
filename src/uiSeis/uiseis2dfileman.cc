@@ -129,7 +129,11 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     {
 	const auto geomid = SurvGeom::getGeomID( linenms.get(idx) );
 	const int lineidx = dataset_->indexOf( geomid );
-	if ( lineidx < 0 ) { pErrMsg("Huh"); continue; }
+	if ( lineidx < 0 )
+	    { pErrMsg("Huh"); continue; }
+
+	BufferString displinenm( linenms.get(idx) );
+	displinenm.add( " [ID=" ).add( geomid.getI() ).add( "]" );
 
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
@@ -141,7 +145,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	if ( l2dd.isEmpty() )
 	{
 	    sb.add( "\nAbsent or empty geometry for line " );
-	    sb.add( linenms.get(idx) );
+	    sb.add( displinenm );
 	    continue;
 	}
 
@@ -151,13 +155,13 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	l2dd.getPos( trcrg.stop, lastpos );
 
 	if ( !hasrg )
-	    sb.add( "\nCannot read ranges for line: " ).add( linenms.get(idx) )
-		.add( "\nCBVS file might be corrupt or missing.\n" );
+	    sb.add( "\nCannot read ranges for line: " ).add( displinenm )
+		.add( "\nCBVS file may be corrupt or missing.\n" );
 	else
 	{
 	    if ( idx > 0 )
 		sb.add( "\n\n" );
-	    sb.add( "Line: " ).add( linenms.get(idx) );
+	    sb.add( "Line: " ).add( displinenm );
 	    sb.add( "\nNumber of traces: " ).add( sz )
 		.add( "\nFirst trace: " );
 	    if ( l2dd.getPos(trcrg.start,firstpos) )
