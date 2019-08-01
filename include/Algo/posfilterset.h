@@ -101,6 +101,7 @@ public:
 
     virtual bool	is2D() const	{ return true; }
     virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
+    virtual bool	includes(const Bin2D&,float z=mUdf(float)) const;
 
     mSimpPosFilterSetDefFns(2D)
 

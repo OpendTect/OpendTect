@@ -31,40 +31,40 @@ namespace Attrib { class DescSet; class SelInfo; }
 mExpClass(uiAttributes) uiAttribCrossPlot : public uiDialog
 { mODTextTranslationClass(uiAttribCrossPlot);
 public:
-					uiAttribCrossPlot(uiParent*,
-						  const Attrib::DescSet&);
-					~uiAttribCrossPlot();
 
-    void				setDescSet(const Attrib::DescSet&);
-    void				setDisplayMgr(
-					    DataPointSetDisplayMgr* dispmgr )
-					{ dpsdispmgr_ = dispmgr; }
+				uiAttribCrossPlot(uiParent*,
+					  const Attrib::DescSet&);
+				~uiAttribCrossPlot();
 
-    const DataPointSet&			getDPS() const;
+    void			setDescSet(const Attrib::DescSet&);
+    void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )
+				    { dpsdispmgr_ = dispmgr; }
+
+    const DataPointSet&		getDPS() const;
 
 protected:
 
-    const Attrib::DescSet&		ads_;
-    Attrib::SelInfo*			attrinfo_;
-    TypeSet<int>			selidxs_;
+    const Attrib::DescSet&	ads_;
+    Attrib::SelInfo*		attrinfo_;
+    TypeSet<int>		selidxs_;
     DBKeySet			selids_;
-    TypeSet<BufferStringSet>		linenmsset_;
+    TypeSet<BufferStringSet>	linenmsset_;
 
-    uiListBox*				attrsfld_;
-    uiPosProvider*			posprovfld_;
-    uiPosFilterSetSel*			posfiltfld_;
-    uiListBox*				lnmfld_;
-    DataPointSet*			curdps_;
-    DataPointSetDisplayMgr*		dpsdispmgr_;
-    ObjectSet<uiDataPointSet>		dpsset_;
+    uiListBox*			attrsfld_;
+    uiPosProvider*		posprovfld_;
+    uiPosFilterSetSel*		posfiltfld_;
+    uiListBox*			lnmfld_;
+    DataPointSet*		curdps_;
+    DataPointSetDisplayMgr*	dpsdispmgr_;
 
-    void				adsChg();
-    DBKey				getSelectedID() const;
-    void				getLineNames(BufferStringSet&);
-    void				initWin(CallBacker*);
-    void				lineChecked(CallBacker*);
-    void				attrChecked(CallBacker*);
-    void				attrChanged(CallBacker*);
+    void			adsChg();
+    DBKey			getSelectedID() const;
+    void			getLineNames(BufferStringSet&);
+    void			initWin(CallBacker*);
+    void			lineChecked(CallBacker*);
+    void			attrChecked(CallBacker*);
+    void			attrChanged(CallBacker*);
 
-    bool				acceptOK();
+    bool			acceptOK();
+
 };

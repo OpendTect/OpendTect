@@ -273,9 +273,8 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 
 	DataPointSet::DataRow dr;
 	dr.data_.setSize( nrcols, mUdf(float) );
-	dr.pos_.nr_ = trcnr;
-	dr.pos_.set( trcpos );
-	dr.pos_.z_ = twt;
+	dr.pos_.set( Bin2D(Pos::GeomID(),trcnr), trcpos );
+	dr.pos_.setZ( twt );
 	dr.data_[depthidx] = dah;
 	dps.addRow( dr );
 
@@ -310,10 +309,9 @@ void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
 	const float laythickness = subseq.layers()[ilay]->thickness();
 	DataPointSet::DataRow dr;
 	dr.data_.setSize( nrcols, mUdf(float) );
-	dr.pos_.nr_ = trcnr;
-	dr.pos_.set( trcpos );
+	dr.pos_.set( Bin2D(Pos::GeomID(),trcnr), trcpos );
 	float depth = dah + laythickness/2.f;
-	dr.pos_.z_ = d2tmodel.getTime( depth );
+	dr.pos_.setZ( d2tmodel.getTime(depth) );
 	if ( SI().depthsInFeet() )
 	    depth *= mToFeetFactorF;
 

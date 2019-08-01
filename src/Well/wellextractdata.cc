@@ -658,7 +658,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
     if ( dahcolnr_ >= 0 )
 	dr.data_ += dah;
 #define mAddRow(bv,pos) \
-    dr.pos_.z_ = bv.val(); dr.pos_.set( pos ); dps.addRow( dr )
+    dr.pos_.setZ( bv.val() ); dr.pos_.set( pos ); dps.addRow( dr )
 
     mAddRow( biv, precisepos );
     if ( mIsUdf(locradius_) || locradius_ < 1e-3 )

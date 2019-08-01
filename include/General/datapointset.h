@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "datapackbase.h"
 #include "valseries.h"
+#include "bin2d.h"
 class DataColDef;
 class BinIDValueSet;
 class PosVecDataSet;
@@ -51,37 +52,41 @@ public:
     typedef int			RowID;
     typedef int			ColID;
     mUseType( BinIDValueSet,	SPos );
+    mUseType( Pos,		GeomID );
 
     class DataRow;
 
-    /*!\brief Real Coord3D-position storable in BinIDValueSet + trc nr */
+    /*!\brief Real Coord3D-position storable in BinIDValueSet + Bin2D */
 
     mExpClass(General) Pos
     {
     public:
-			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
+			Pos()
+			    : offsx_(0), offsy_(0), z_(0)	{}
 			Pos( const BinID& bid, float _z )
-			    : binid_(bid), nr_(0), z_(_z)
+			    : binid_(bid), z_(_z)
 			    , offsx_(0), offsy_(0)		{}
 			Pos(const Bin2D&,float);
-			Pos(const Coord&,float z);
+			Pos(const Coord&,float _z);
 			Pos(const Coord3&);
 
 	bool		operator ==(const Pos& pos) const
 			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
 				&& offsy_==pos.offsy_ && z_==pos.z_; }
 	const BinID&	binID() const	{ return binid_; }
+	const Bin2D&	bin2D() const	{ return bin2d_; }
 	Coord		coord() const;
 	float		z() const	{ return z_; }
 
 	void		set( const BinID& bid )
-			{ binid_ = bid; offsx_ = offsy_ = 0; }
-	void		set(const Coord&);
-	void		set(const Coord3&);
-
-	BinID		binid_;
-	float		z_;
-	int		nr_;			//!< unused if not 2D
+					{ binid_ = bid; offsx_ = offsy_ = 0; }
+	void		set(const Coord&); //!< updates binid_
+	void		set(const Coord3&); //!< updates binid_
+	void		set( const Bin2D& b2d )
+					{ set( b2d, b2d.coord() ); }
+	void		set(const BinID& bid,const Coord&);
+	void		set(const Bin2D&,const Coord&);
+	void		setZ( float _z ) { z_ = _z; }
 
 	float		binIDOffSet( bool inx ) const
 			{ return inx ? offsx_ : offsy_; }
@@ -92,7 +97,11 @@ public:
 
     protected:
 
+	BinID		binid_;
+	float		z_;
 	float		offsx_, offsy_;
+	Bin2D		bin2d_;		    //!< unused if not 2D
+
 	void		setOffs(const Coord&);
 	friend class	DataRow;
 
@@ -120,6 +129,7 @@ public:
 	od_uint16		group() const;
 	bool			isSel() const		{ return grp_ > 0; }
 	bool			isInactive() const	{ return grp_ == 0; }
+	const Bin2D&		bin2D() const		{ return pos_.bin2D(); }
 	void			setSel( bool yn )
 				{ if ( (grp_ >= 0) != yn ) grp_ = -grp_; }
 	void			setGroup(od_uint16);
@@ -145,7 +155,7 @@ public:
     OD::GeomSystem	geomSystem() const;
     bool		is2D() const		{ return is2d_; }
     bool		isMinimal() const	{ return minimal_; }
-    bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
+    bool		isEmpty() const		{ return sposs_.isEmpty(); }
     void		setEmpty();
     void		clearData(); //!< Keeps structure
 
@@ -158,10 +168,11 @@ public:
     bool		validColID(ColID) const;
 
 			// size, binID, coord, z and trcNr impl PointDataPack
-    int			size() const override	{ return bvsidxs_.size(); }
+    int			size() const override	{ return sposs_.size(); }
     BinID		binID(RowID) const override;
     Coord		coord(RowID) const override;
     float		z(RowID) const override;
+    GeomID		geomID(RowID) const;
     int			trcNr(RowID) const override;
 
     Pos			pos(RowID) const;
@@ -221,7 +232,7 @@ public:
 			//!< Returns whether it's an add (see addRow)
     RowID		getRowID(SPos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
-    SPos		bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
+    SPos		bvsPos( RowID rid ) const	{ return sposs_[rid];}
 
 			// Building from scratch
 			DataPointSet(bool is2d,bool minimal=false);
@@ -242,7 +253,7 @@ protected:
     virtual		~DataPointSet();
 
     PosVecDataSet&	data_;
-    TypeSet<SPos>	bvsidxs_;
+    TypeSet<SPos>	sposs_;
     bool		is2d_;
     bool		minimal_;
 

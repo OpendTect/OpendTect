@@ -80,6 +80,13 @@ Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 }
 
 
+bool Pos::Filter2D::includes( const Bin2D& b2d, float z ) const
+{
+    const auto lidx = geomids_.indexOf( b2d.geomID() );
+    return includes( b2d.trcNr(), z, lidx );
+}
+
+
 void Pos::Filter2D::addGeomID( const Pos::GeomID geomid )
 { geomids_ += geomid; }
 
@@ -247,6 +254,18 @@ bool Pos::FilterSet2D::includes( int nr, float z, int lidx ) const
     {
 	mDynamicCastGet(const Pos::Filter2D*,f2d,filts_[idx])
 	if ( !f2d->includes(nr,z,lidx) )
+	    return true;
+    }
+    return true;
+}
+
+
+bool Pos::FilterSet2D::includes( const Bin2D& b2d, float z ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(const Pos::Filter2D*,f2d,filts_[idx])
+	if ( !f2d->includes(b2d,z) )
 	    return false;
     }
     return true;

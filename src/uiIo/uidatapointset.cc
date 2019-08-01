@@ -221,7 +221,9 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 }
 
 int uiDataPointSet::nrPosCols() const
-{ return dps_->nrFixedCols()-1; }
+{
+    return dps_->nrFixedCols() - (is2D() ? 2 : 1);
+}
 
 #define mCleanRunCalcs \
     deepErase( runcalcs_ ); \
@@ -507,11 +509,11 @@ void uiDataPointSet::fillPos( TRowID tid )
     RowCol rc( tid, 0 );
     tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid) ); rc.col()++;
     tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid) ); rc.col()++;
-    if ( mIsUdf(pos.z_) )
+    if ( mIsUdf(pos.z()) )
 	tbl_->setText( rc, "" );
     else
     {
-	float fz = zfac_ * pos.z_ * 100;
+	float fz = zfac_ * pos.z() * 100;
 	int iz = mNINT32(fz);
 	tbl_->setValue( rc, iz * 0.01 );
     }
@@ -519,16 +521,21 @@ void uiDataPointSet::fillPos( TRowID tid )
     if ( dps_->is2D() )
     {
 	rc.col()++;
-	tbl_->setValue( rc, pos.nr_ );
+	tbl_->setValue( rc, pos.bin2D().trcNr() );
     }
 
     BufferString rownm = groupName( dps_->group(dRowID(tid)) );
-    if ( rownm.isEmpty() )
+    if ( !rownm.isEmpty() )
     {
 	if ( is2D() )
-	    rownm += pos.nr_;
+	    rownm.add( "|" ).add( pos.bin2D().lineName() );
+    }
+    else
+    {
+	if ( is2D() )
+	    rownm = pos.bin2D().lineName();
 	else
-	    rownm += pos.binid_.toString();
+	    rownm = pos.binID().toString();
     }
     tbl_->setRowLabel( tid, toUiString(rownm) );
     fillingtable_ = false;
@@ -759,7 +766,7 @@ bool acceptOK()
 	pos.set( posinpfld_->getCoord() );
     else
 	pos.set( posinpfld_->getBinID() );
-    pos.z_ = zinpfld_->getFValue();
+    pos.setZ( zinpfld_->getFValue() );
 
     datarow_ =
 	DataPointSet::DataRow( pos, mCast( unsigned short,
@@ -781,7 +788,7 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
     if ( dlg.go() )
     {
 	addRow( dlg.datarow_ );
-	const float newzval = dlg.datarow_.pos_.z_;
+	const float newzval = dlg.datarow_.pos_.z();
 	const Coord3 newcoord( dlg.datarow_.coord(), newzval );
 	const BinID newbid( dlg.datarow_.binID() );
 	rowAdded.trigger();
@@ -1138,7 +1145,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
     }
 
     if ( mIsTrcNr(dcid) )
-	return mCast(float,dps_->pos( drid ).nr_);
+	return (float)dps_->pos(drid).bin2D().trcNr();
     else if ( mIsZ(dcid) )
     {
 	const float val = dps_->z( drid );
@@ -1183,8 +1190,8 @@ void uiDataPointSet::valChg( CallBacker* )
 	if ( dcid == -1 )
 	{
 	    if ( !isDisp(false) ) { pErrMsg("Huh"); mRetErr; }
-	    pos.z_ = tbl_->getFValue( cell ) / zfac_;
-	    poschgd = !mIsZero(pos.z_-beforechgdr_.pos_.z_,1e-6);
+	    pos.setZ( tbl_->getFValue( cell ) / zfac_ );
+	    poschgd = !mIsZero(pos.z()-beforechgdr_.pos_.z(),1e-6);
 	}
 	else
 	{
@@ -1202,7 +1209,7 @@ void uiDataPointSet::valChg( CallBacker* )
 		posval = tbl_->getDValue(cell);
 	    }
 	    showbids_ ? pos.set( bid ) : pos.set( crd );
-	    poschgd = pos.binid_ != beforechgdr_.pos_.binid_;
+	    poschgd = pos.binID() != beforechgdr_.pos_.binID();
 	}
     }
 

@@ -163,7 +163,7 @@ public:
 			{ return new EMSurfaceProvider2D(*this); }
 
     virtual const char*	curLine() const;
-    virtual int		curNr() const;
+    virtual Bin2D	curBin2D() const;
     virtual TrcKey	curTrcKey() const;
     virtual Coord	curCoord() const;
     virtual bool	includes(const Coord&,float) const;

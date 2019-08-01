@@ -86,6 +86,7 @@ Can only be used if Line2DData is filled.
 mExpClass(General) RangeProvider2D : public Provider2D
 { mODTextTranslationClass(RangeProvider2D)
 public:
+
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
 			~RangeProvider2D();
@@ -99,7 +100,9 @@ public:
     virtual bool	toNextPos();
     virtual bool	toNextZ();
 
-    virtual int		curNr() const;
+    GeomID		curGeomID() const;
+    int			curTrcNr() const;
+    virtual Bin2D	curBin2D() const;
     virtual float	curZ() const;
     virtual Coord	curCoord() const;
     virtual TrcKey	curTrcKey() const;
@@ -135,7 +138,6 @@ protected:
 
     const SurvGeom2D*	curgeom_;
 
-    Pos::GeomID		curGeomID() const;
     const SurvGeom2D*	curGeom() const;
     StepInterval<float>	curZRange() const;
     StepInterval<int>	curTrcRange() const;

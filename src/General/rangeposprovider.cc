@@ -303,7 +303,7 @@ void Pos::RangeProvider2D::setZRange( const StepInterval<float>& zrg, int lidx )
 TrcKey Pos::RangeProvider2D::curTrcKey() const
 {
     const Pos::GeomID gid = curGeomID();
-    return gid.isValid() ? TrcKey( gid, curNr() ) : TrcKey::udf();
+    return gid.isValid() ? TrcKey( curBin2D() ) : TrcKey::udf();
 }
 
 
@@ -382,10 +382,16 @@ bool Pos::RangeProvider2D::toNextZ()
 }
 
 
-int Pos::RangeProvider2D::curNr() const
+int Pos::RangeProvider2D::curTrcNr() const
 {
     StepInterval<int> trcrg = curTrcRange();
     return trcrg.atIndex( curtrcidx_ );
+}
+
+
+Bin2D Pos::RangeProvider2D::curBin2D() const
+{
+    return Bin2D( curGeomID(), curTrcNr() );
 }
 
 
@@ -405,7 +411,7 @@ Coord Pos::RangeProvider2D::curCoord() const
     if ( curgeom )
     {
 	PosInfo::Line2DPos l2dpos;
-	if ( curgeom->data().getPos(curNr(),l2dpos) )
+	if ( curgeom->data().getPos(curTrcNr(),l2dpos) )
 	    return l2dpos.coord_;
     }
 
@@ -433,6 +439,9 @@ StepInterval<float> Pos::RangeProvider2D::curZRange() const
 
 bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
 {
+    if ( lidx < 0 )
+	return false;
+
     if ( lidx == curlineidx_ || !geomids_.validIdx(lidx) )
 	return curTrcRange().includes(nr,false)
 	    && curZRange().includes(z,false);

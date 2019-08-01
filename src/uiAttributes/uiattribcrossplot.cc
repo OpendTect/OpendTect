@@ -140,7 +140,6 @@ void uiAttribCrossPlot::adsChg()
 uiAttribCrossPlot::~uiAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
-    deepErase( dpsset_ );
 }
 
 
@@ -350,15 +349,16 @@ bool uiAttribCrossPlot::acceptOK()
     if ( !trprov.execute( *tabextr ) )
 	return false;
 
-    uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
-		uiDataPointSet::Setup(tr("Attribute data"),false),dpsdispmgr_ );
-    dpsset_ += uidps;
+    uiDataPointSet::Setup uidpssu( tr("Attribute data") );
+    auto* uidps = new uiDataPointSet( this, *dps, uidpssu, dpsdispmgr_ );
+    uidps->setDeleteOnClose( true );
     IOPar& attrpar = uidps->storePars();
     ads_.fillPar( attrpar );
     if ( attrpar.name().isEmpty() )
 	attrpar.setName( "Attributes" );
+    uidps->go();
 
-    return uidps->go() ? true : false;
+    return false;
 }
 
 

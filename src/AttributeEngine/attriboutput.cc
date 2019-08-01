@@ -90,7 +90,9 @@ TypeSet<Interval<int> > Output::getLocalZRanges( const Coord& c, float f,
 
 void Output::ensureSelType( Seis::SelType st )
 {
-    if ( seldata_->type() != st )
+    if ( !seldata_ )
+	seldata_ = Seis::SelData::get( st );
+    else if ( seldata_->type() != st )
     {
 	auto* newseldata = Seis::SelData::get( st );
 	newseldata->copyFrom( *seldata_ );
@@ -362,8 +364,6 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
 
 bool SeisTrcStorOutput::doInit()
 {
-    ensureSelType( Seis::Range );
-
     if ( storid_.isValid() )
     {
 	PtrMan<IOObj> ioseisout = getIOObj( storid_ );
@@ -568,7 +568,6 @@ bool TwoDOutput::wantsOutput( const BinID& bid ) const
 void TwoDOutput::setGeometry( const Interval<int>& trg,
 			      const Interval<float>& zrg )
 {
-    ensureSelType( Seis::Range );
     seldata_->asRange()->setZRange( zrg );
     seldata_->asRange()->setTrcNrRange( trg );
 }
@@ -640,6 +639,7 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
+    deleteAndZeroPtr( seldata_ );
     ensureSelType( Seis::Table );
     auto& tsd = *seldata_->asTable();
     tsd.binidValueSet() = bidvalset;
@@ -947,7 +947,6 @@ void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
 
 bool Trc2DVarZStorOutput::doInit()
 {
-    ensureSelType( Seis::Range );
     if ( storid_.isValid() )
     {
 	PtrMan<IOObj> ioseisout = getIOObj( storid_ );
@@ -1111,6 +1110,7 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     : datapointset_(datapointset)
     , firstattrcol_(firstcol)
 {
+    deleteAndZeroPtr( seldata_ );
     ensureSelType( Seis::Table );
     auto& tsd = *seldata_->asTable();
     tsd.binidValueSet().allowDuplicatePositions( true );

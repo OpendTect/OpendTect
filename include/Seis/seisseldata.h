@@ -104,7 +104,8 @@ public:
 
     virtual size_type	nrGeomIDs() const		{ return 1; }
     virtual GeomID	geomID( idx_type i=0 ) const	{ return gtGeomID(i); }
-    bool		hasGeomID(GeomID) const;
+    idx_type		indexOf(GeomID) const;
+    bool		hasGeomID( GeomID g ) const	{ return indexOf(g)>=0;}
 
     bool		isRange() const		{ return type() == Range; }
     bool		isTable() const		{ return type() == Table; }

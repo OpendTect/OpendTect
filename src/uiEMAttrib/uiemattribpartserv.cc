@@ -283,12 +283,12 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	if ( mIsUdf(realz) )
 	    continue;
 
-	datarow.pos_.binid_ = BinID( knotrc );
+	datarow.pos_.set( BinID(knotrc) );
 
 	for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
 	{
 	    const float shift = intv.atIndex(shiftidx);
-	    datarow.pos_.z_ = realz+shift;
+	    datarow.pos_.setZ( realz+shift );
 	    dpsset[shiftidx]->addRow( datarow );
 	}
     }

@@ -189,12 +189,12 @@ void Seis::SelData::include( const SelData& oth )
 }
 
 
-bool Seis::SelData::hasGeomID( GeomID gid ) const
+Seis::SelData::idx_type Seis::SelData::indexOf( GeomID gid ) const
 {
-    for ( auto igid=0; igid<nrGeomIDs(); igid++ )
+    for ( idx_type igid=0; igid<nrGeomIDs(); igid++ )
 	if ( geomID(igid) == gid )
-	    return true;
-    return false;
+	    return igid;
+    return -1;
 }
 
 

@@ -89,9 +89,7 @@ public:
 };
 
 
-/*!
-\brief Provides a filter related to 2D seismic data.
-*/
+/*!\brief Provides a filter related to 2D seismic data. */
 
 mExpClass(Algo) Filter2D : public virtual Filter
 {
@@ -106,6 +104,7 @@ public:
     virtual bool	includes(int,float z=mUdf(float),int lidx=0) const = 0;
     virtual bool	includes(const Coord&,
 				 float z=mUdf(float)) const	= 0;
+    bool		includes(const Bin2D&,float z=mUdf(float)) const;
 
     void		addGeomID(const GeomID);
     void		removeGeomID(int lidx);

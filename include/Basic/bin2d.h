@@ -47,6 +47,8 @@ public:
 			{ Bin2D ret; ret.decodeFrom(bid); return ret; }
 
     const char*		toString() const;
+    BufferString	lineName() const
+			{ return BufferString(geomid_.name()); }
     BufferString	usrDispStr() const;
     bool		fromString(const char*);
 

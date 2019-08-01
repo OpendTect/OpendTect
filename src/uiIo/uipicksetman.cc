@@ -12,13 +12,16 @@ ________________________________________________________________________
 #include "uipicksettools.h"
 
 #include "uibutton.h"
+#include "uidatapointset.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
 #include "ioobjctxt.h"
+#include "datapointset.h"
 #include "draw.h"
 #include "picksetmanager.h"
 #include "picksettr.h"
@@ -51,9 +54,12 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
 			getIOObjContext(fixedtrkey))
 {
     createDefaultUI();
+    edbut_ = selgrp_->getManipGroup()->addButton( "edit",
+				    uiStrings::phrEdit(uiStrings::sPickSet()),
+				    mCB(this,uiPickSetMan,edSetCB) );
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
-				    uiStrings::phrMerge(uiStrings::sPickSet()),
-				    mCB(this,uiPickSetMan,mergeSets) );
+			    uiStrings::phrMerge(uiStrings::sPickSet(mPlural)),
+				    mCB(this,uiPickSetMan,mergeSetsCB) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
 }
@@ -66,14 +72,18 @@ uiPickSetMan::~uiPickSetMan()
 
 void uiPickSetMan::ownSelChg()
 {
-    BufferStringSet chsnnms;
-    selgrp_->getChosen( chsnnms );
-    uiString tt;
-    if ( chsnnms.size() > 1 )
-	tt = uiStrings::phrMerge( toUiString(chsnnms.getDispString(2)) );
-    else
-	tt = uiStrings::phrMerge(uiStrings::sPickSet());
-    mergebut_->setToolTip( tt );
+    BufferStringSet nms;
+    selgrp_->getChosen( nms );
+    const bool singlechosen = nms.size() == 1;
+    const bool multichosen = nms.size() > 1;
+
+    edbut_->setToolTip( singlechosen ? uiStrings::phrEdit(nms.get(0))
+				 : uiStrings::phrEdit(uiStrings::sPickSet()));
+    edbut_->setSensitive( singlechosen );
+    mergebut_->setToolTip( multichosen ?
+		  uiStrings::phrMerge( nms.getDispString(3) )
+		: uiStrings::phrMerge( uiStrings::sPickSet(mPlural) ) );
+    mergebut_->setSensitive( multichosen );
 }
 
 
@@ -145,7 +155,53 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 }
 
 
-void uiPickSetMan::mergeSets( CallBacker* )
+void uiPickSetMan::edSetCB( CallBacker* )
+{
+    if ( !curioobj_ )
+	return;
+
+    //TODO make a proper table-based editor that monitors the Pick::Set
+    const DBKey dbky( curioobj_->key() );
+    uiRetVal uirv;
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( dbky, uirv );
+    if ( !ps )
+	{ uiMSG().error( uirv ); return; }
+
+    const bool is2donly = ps->hasOnly2D();
+    RefMan<DataPointSet> dps = new DataPointSet( is2donly );
+    Pick::SetIter it( *ps );
+    while ( it.next() )
+    {
+	const auto& loc = it.get();
+	DataPointSet::Pos pos;
+	const Coord coord = loc.pos().getXY();
+	if ( !is2donly )
+	    pos.set( loc.binID(), coord );
+	else
+	    pos.set( loc.bin2D(), coord );
+	pos.setZ( loc.z() );
+	DataPointSet::DataRow dr( pos );
+	dps->addRow( dr );
+    }
+    dps->dataChanged();
+
+    const bool editable = (is2donly || ps->hasOnly3D())
+			&& !ps->haveDirections() && !ps->haveTexts();
+    uiDataPointSet::Setup su( uiStrings::phrEdit(dbky.name()), true );
+    su.isconst( editable );
+    su.canaddrow( true );
+    su.directremove( true );
+    su.allowretrieve( false );
+
+    uiDataPointSet uidp( this, *dps, su );
+    if ( !uidp.go() || !editable )
+	return;
+
+    uiMSG().error( mINTERNAL("TODO - implement save edited data") );
+}
+
+
+void uiPickSetMan::mergeSetsCB( CallBacker* )
 {
     DBKey curid;
     if ( curioobj_ )

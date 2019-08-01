@@ -12,10 +12,11 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uiobjfileman.h"
+class uiToolButton;
+
 
 /*!\brief 'Manage PickSet/Polygon' */
 
-class uiToolButton;
 
 mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiPickSetMan);
@@ -28,10 +29,12 @@ public:
 
 protected:
 
+    uiToolButton*	edbut_;
     uiToolButton*	mergebut_;
 
     virtual void	ownSelChg();
     virtual bool	gtItemInfo(const IOObj&,uiPhraseSet&) const;
-    void		mergeSets(CallBacker*);
+    void		edSetCB(CallBacker*);
+    void		mergeSetsCB(CallBacker*);
 
 };

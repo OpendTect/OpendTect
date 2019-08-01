@@ -465,8 +465,10 @@ const char* Pos::EMSurfaceProvider2D::curLine() const
 }
 
 
-int Pos::EMSurfaceProvider2D::curNr() const
-{ return curpos_.getBinID().trcNr(); }
+Bin2D Pos::EMSurfaceProvider2D::curBin2D() const
+{
+    return Bin2D::decode( curpos_.getBinID() );
+}
 
 
 Coord Pos::EMSurfaceProvider2D::curCoord() const
@@ -583,9 +585,8 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
 
 	const BinID bid2d = BinID( posid.getRowCol() );
 	DataPointSet::Pos pos( surf.getPos(posid) );
-	pos.nr_ = bid2d.crl();
-	dps.addRow( DataPointSet::DataRow( pos,
-		    mCast(unsigned short,bid2d.inl())) );
+	pos.set( Bin2D::decode(bid2d) );
+	dps.addRow( DataPointSet::DataRow(pos) );
     }
 }
 

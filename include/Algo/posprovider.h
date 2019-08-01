@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "posfilter.h"
 #include "ranges.h"
 #include "trckey.h"
+#include "bin2d.h"
 class TrcKeyZSampling;
 
 
@@ -100,7 +101,7 @@ public:
 
     virtual bool	is2D() const				{ return true; }
 
-    virtual int		curNr() const				= 0;
+    virtual Bin2D	curBin2D() const			= 0;
     virtual bool	includes(int,float z=mUdf(float), int nr=0) const= 0;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
 
