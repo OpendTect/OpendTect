@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uistringset.h"
 #include "survsubsel.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class BufferStringSet;
 class DataPackMgr;
 class DataPointSet;
@@ -84,14 +84,14 @@ public:
 				   const ObjectSet<const RegularSeisDataPack>&);
 
     Executor*		createFeatureOutput(const BufferStringSet& inputs,
-					    const ObjectSet<BinIDValueSet>&);
+					    const ObjectSet<BinnedValueSet>&);
 
     Processor*		createScreenOutput2D(uiRetVal&,Data2DHolder&);
     Processor*		createLocationOutput(uiRetVal&,
-					     ObjectSet<BinIDValueSet>&);
+					     ObjectSet<BinnedValueSet>&);
 
     Processor*		createTrcSelOutput(uiRetVal&,
-					   const BinIDValueSet& bidvalset,
+					   const BinnedValueSet& bidvalset,
 					   SeisTrcBuf&, float outval=0,
 					   const Interval<float>* cubezbounds=0,
 					   const TypeSet<BinID>* trueknotspos=0,
@@ -113,7 +113,7 @@ public:
     int			getNrOutputsToBeProcessed(const Processor&) const;
 
     const char*		getCurUserRef() const;
-    void		computeIntersect2D(ObjectSet<BinIDValueSet>&) const;
+    void		computeIntersect2D(ObjectSet<BinnedValueSet>&) const;
 
     bool		hasCache() const		{ return cache_; }
 

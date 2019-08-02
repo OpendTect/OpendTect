@@ -95,13 +95,13 @@ Random::createAttrib( const CubeSampling& cs, const Attrib::DataCubes* dc )
 }
 
 
-bool Random::createAttrib(ObjectSet<BinIDValueSet>&,TaskRunner*)
+bool Random::createAttrib(ObjectSet<BinnedValueSet>&,TaskRunner*)
 {
     return false;
 }
 
 
-bool Random::createAttrib(const BinIDValueSet&, SeisTrcBuf&, TaskRunner*)
+bool Random::createAttrib(const BinnedValueSet&, SeisTrcBuf&, TaskRunner*)
 {
     return false;
 }

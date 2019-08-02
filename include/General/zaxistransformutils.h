@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class ZAxisTransform;
 class DataPointSet;
-class BinIDValueSet;
+class BinnedValueSet;
 
 /*!
 \brief Generates a DataPointSet with untransformed z-values corresponding to
@@ -42,8 +42,8 @@ protected:
     od_int64			nrIterations() const
 				{ return tkzs_.hsamp_.totalNr(); }
 
-    int			voiid_;
-    ObjectSet<BinIDValueSet>	bidvalsets_;
+    int				voiid_;
+    ObjectSet<BinnedValueSet>	bidvalsets_;
     TrcKeySamplingIterator	iter_;
     TrcKeyZSampling		tkzs_;
     ZAxisTransform&		transform_;

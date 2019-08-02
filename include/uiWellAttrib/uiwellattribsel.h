@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 
 class NLAModel;
 class uiAttrSel;
@@ -47,12 +47,12 @@ protected:
     virtual bool		acceptOK();
 
     bool			inputsOK();
-    void			getPositions(BinIDValueSet&,
-	    				     TypeSet<BinIDValueSet::Pos>&,
+    void			getPositions(BinnedValueSet&,
+					     TypeSet<BinnedValueSet::Pos>&,
 					     TypeSet<float>& depths);
-    bool			extractData(BinIDValueSet&);
-    bool			createLog(const BinIDValueSet&,
-	    				  const TypeSet<BinIDValueSet::Pos>&,
+    bool			extractData(BinnedValueSet&);
+    bool			createLog(const BinnedValueSet&,
+					  const TypeSet<BinnedValueSet::Pos>&,
 					  const TypeSet<float>& depths);
 
     int				sellogidx_;

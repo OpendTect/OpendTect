@@ -27,7 +27,7 @@ class uiToolButton;
 class uiButtonGroup;
 class uiSeis2DLineSel;
 class uiPickSetIOObjSel;
-class BinIDValueSet;
+class BinnedValueSet;
 class PickRetriever;
 
 class uiFPAdvancedDlg;
@@ -73,7 +73,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
     uiRetVal		getInput(Attrib::Desc&);
 
-    BinIDValueSet*	createValuesBinIDSet(uiString&) const;
+    BinnedValueSet*	createValuesBinIDSet(uiString&) const;
     BinID		get2DRefPos() const;
 
     PickRetriever*	pickretriever_;

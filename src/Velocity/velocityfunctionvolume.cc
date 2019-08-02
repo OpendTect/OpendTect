@@ -7,7 +7,7 @@
 
 #include "velocityfunctionvolume.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "idxable.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -211,7 +211,7 @@ Seis::Provider* VolumeFunctionSource::getProvider( uiRetVal& uirv )
 }
 
 
-void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
+void VolumeFunctionSource::getAvailablePositions( BinnedValueSet& bids ) const
 {
     uiRetVal uirv;
     VolumeFunctionSource* myself = const_cast<VolumeFunctionSource*>(this);

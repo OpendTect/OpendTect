@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "horizon2dscanner.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emhorizon2d.h"
 #include "emhorizonascio.h"
 #include "ioobj.h"
@@ -212,7 +212,7 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     if ( !bvalset_ )
-	bvalset_ = new BinIDValueSet( data.size(), false );
+	bvalset_ = new BinnedValueSet( data.size(), false );
 
     int validx = 0;
     const int nrvals = data.size();

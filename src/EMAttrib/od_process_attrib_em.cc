@@ -433,7 +433,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !iscubeoutp )
     {
-	ObjectSet<BinIDValueSet> bivs;
+	ObjectSet<BinnedValueSet> bivs;
 	HorizonUtils::getPositions( strm, dbkys[0], bivs );
 	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uirv, bivs );
@@ -530,7 +530,7 @@ bool BatchProgram::go( od_ostream& strm )
 	}
 	else
 	{
-	    BinIDValueSet bivs(2,false);
+	    BinnedValueSet bivs(2,false);
 	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *mmprocrange,
 								  false );
 	    HorizonUtils::getWantedPositions( strm, dbkys, bivs,

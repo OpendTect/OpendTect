@@ -881,7 +881,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     rdmline->getNodePositions( knots );
     rdmline->getPathBids( knots, path );
     snapToValidRandomTraces( path, targetdesc );
-    BinIDValueSet bidset( 2, false );
+    BinnedValueSet bidset( 2, false );
     if ( subpath )
     {
 	const int subpathstopidx = path.indexOf( subpath->last() );
@@ -968,7 +968,7 @@ void uiAttribPartServer::snapToValidRandomTraces( TypeSet<BinID>& path,
 }
 
 
-bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
+bool uiAttribPartServer::createOutput( const BinnedValueSet& bidset,
 				       SeisTrcBuf& output,
 				       const TypeSet<BinID>& trueknotspos,
 				       const TypeSet<BinID>& snappedpos )

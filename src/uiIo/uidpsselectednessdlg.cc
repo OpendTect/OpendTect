@@ -95,8 +95,8 @@ void uiDPSSelectednessDlg::addColumn()
 	const bool isy1 = selaxisfld_ && selaxisfld_->attachObj()->isDisplayed()
 				? selaxisfld_->getBoolValue() : true;
 	const float val = plotter_.getSelectedness( rid, !isy1 );
-	BinIDValueSet& bvs = dps.bivSet();
-	BinIDValueSet::SPos pos = dps.bvsPos( rid );
+	BinnedValueSet& bvs = dps.bivSet();
+	BinnedValueSet::SPos pos = dps.bvsPos( rid );
 	BinID curbid;
 	TypeSet<float> vals;
 	bvs.get( pos, curbid, vals );

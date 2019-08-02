@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "uistring.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class TrcKeyZSampling;
 class SeisTrcBuf;
 class TaskRunner;
@@ -49,9 +49,9 @@ public:
     virtual RefMan<RegularSeisDataPack>	createAttrib(const TrcKeyZSampling&,
 					     DataPack::ID, TaskRunner*);
 
-    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
+    virtual bool		createAttrib(ObjectSet<BinnedValueSet>&,
 					     TaskRunner*);
-    virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
+    virtual bool		createAttrib(const BinnedValueSet&, SeisTrcBuf&,
 					     TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }

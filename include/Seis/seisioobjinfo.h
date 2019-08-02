@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "survsubsel.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class BufferStringSet;
 class SeisIOObjInfo;
 class TrcKeyZSampling;
@@ -166,7 +166,7 @@ public:
     {
 				Opts2D()
 				    : bvs_(0), steerpol_(2)	{}
-	const BinIDValueSet*	bvs_;
+	const BinnedValueSet*	bvs_;
 	BufferString		zdomky_;	//!< default=empty=only SI()'s
 				//!< Will be matched as GlobExpr
 	int			steerpol_;	//!< 0=none, 1=only, 2=both

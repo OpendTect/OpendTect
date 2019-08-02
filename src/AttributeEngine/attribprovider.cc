@@ -16,7 +16,7 @@
 #include "attriblinebuffer.h"
 #include "attribparam.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "convmemvalseries.h"
 #include "cubesubsel.h"
 #include "linesubsel.h"
@@ -483,7 +483,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 		pos = bvs.firstBinID();
 	    else
 	    {
-		BinIDValueSet::SPos oldpos = bvs.find( currentbid_ );
+		BinnedValueSet::SPos oldpos = bvs.find( currentbid_ );
 		if ( bvs.next(oldpos,true) )
 		    pos = bvs.getBinID( oldpos );
 	    }

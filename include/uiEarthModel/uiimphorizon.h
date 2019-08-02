@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class Array2DInterpol;
-class BinIDValueSet;
+class BinnedValueSet;
 class BufferStringSet;
 class CtxtIOObj;
 class HorizonScanner;
@@ -77,7 +77,7 @@ protected:
     bool		checkInpFlds();
     bool		doScan();
     bool		doImport();
-    bool		fillUdfs(ObjectSet<BinIDValueSet>&);
+    bool		fillUdfs(ObjectSet<BinnedValueSet>&);
     EM::Horizon3D*	createHor() const;
     EM::Horizon3D*	loadHor();
 

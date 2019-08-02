@@ -77,10 +77,10 @@ public:
     virtual RefMan<RegularSeisDataPack>
 			createAttrib(const TrcKeyZSampling&,DataPack::ID,
 				     TaskRunner*);
-    virtual bool	createAttrib( ObjectSet<BinIDValueSet>& o,
+    virtual bool	createAttrib( ObjectSet<BinnedValueSet>& o,
 				      TaskRunner* tskr )
 			{ return Attrib::ExtAttribCalc::createAttrib(o,tskr); }
-    virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
+    virtual bool	createAttrib( const BinnedValueSet& b, SeisTrcBuf& tb,
 				      TaskRunner* tskr )
 			{
 			return Attrib::ExtAttribCalc::createAttrib(b,tb,tskr);

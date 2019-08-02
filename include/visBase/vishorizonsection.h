@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "geomelement.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class DataPointSet;
 class ZAxisTransform;
 namespace Geometry { class BinIDSurface; }
@@ -83,7 +83,7 @@ public:
 						int sid,TaskRunner*) const;
     void			setTextureData(int channel,const DataPointSet*,
 					   int sid,const TaskRunnerProvider&);
-    const BinIDValueSet*	getCache(int channel) const;
+    const BinnedValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
     void			setChannels2RGBA(TextureChannel2RGBA*);

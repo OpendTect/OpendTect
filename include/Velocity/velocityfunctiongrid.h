@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "velocitymod.h"
 
 #include "arrayndalgo.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "samplingdata.h"
 #include "thread.h"
 #include "notify.h"
 #include "velocityfunction.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class Gridder2D;
 class InterpolationLayerModel;
 
@@ -114,7 +114,7 @@ protected:
     bool			gridderinited_;
     const InterpolationLayerModel* layermodel_;
 
-    BinIDValueSet		sourcepos_;		//All sources
+    BinnedValueSet		sourcepos_;		//All sources
 
     TypeSet<BinID>		gridsourcebids_;	//Filtered
     TypeSet<Coord>		gridsourcecoords_;	//Filtered

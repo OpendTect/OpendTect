@@ -9,8 +9,8 @@
 #include "survinfo.h"
 
 
-BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
-					  const BinID& step )
+BIDValSetArrAdapter::BIDValSetArrAdapter( const BinnedValueSet& bidvs,
+					  int colnr, const BinID& step )
     : bidvs_( bidvs )
     , targetcolidx_( colnr )
 {
@@ -24,10 +24,10 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
 void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 {
     BinID bid = tks_.atIndex( inlidx, crlidx );
-    BinIDValueSet::SPos pos = bidvs_.find( bid );
+    BinnedValueSet::SPos pos = bidvs_.find( bid );
     if ( !pos.isValid() || bidvs_.nrVals()<targetcolidx_ ) return;
 
-    BinIDValueSet& ncset = const_cast<BinIDValueSet&>( bidvs_ );
+    BinnedValueSet& ncset = const_cast<BinnedValueSet&>( bidvs_ );
     float* allvals = ncset.getVals( pos );
     allvals[targetcolidx_] = value;
     ncset.set( pos, allvals );
@@ -37,7 +37,7 @@ void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 float BIDValSetArrAdapter::get( int inlidx, int crlidx ) const
 {
     BinID bid = tks_.atIndex( inlidx, crlidx );
-    BinIDValueSet::SPos pos = bidvs_.find( bid );
+    BinnedValueSet::SPos pos = bidvs_.find( bid );
     if ( !pos.isValid() || bidvs_.nrVals()<targetcolidx_ )
 	return mUdf(float);
 

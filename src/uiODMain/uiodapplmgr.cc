@@ -812,7 +812,7 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 
     attribvals[0] = 0.0; //depth
 
-    BinIDValueSet::SPos bvspos;
+    BinnedValueSet::SPos bvspos;
     while ( dpsset[0]->bivSet().next(bvspos) )
     {
 	const BinID binid = dpsset[0]->bivSet().getBinID( bvspos );

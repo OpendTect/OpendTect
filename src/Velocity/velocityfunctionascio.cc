@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "velocityfunctionascio.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "tableconv.h"

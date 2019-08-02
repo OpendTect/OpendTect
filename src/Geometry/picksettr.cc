@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "ascstream.h"
 #include "ioobjctxt.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "datapointset.h"
 #include "ioobj.h"
 #include "hdf5reader.h"

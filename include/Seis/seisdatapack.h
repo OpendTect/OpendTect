@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "trckeyzsampling.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class TraceData;
 
 
@@ -75,13 +75,13 @@ public:
     const StepInterval<float>&	getZRange() const
 				{ return sampling_.zsamp_; }
 
-    static DataPack::ID		createDataPackForZSlice(const BinIDValueSet*,
+    static DataPack::ID		createDataPackForZSlice(const BinnedValueSet*,
 				    const TrcKeyZSampling&,const ZDomain::Info&,
 				    const BufferStringSet* nms=0);
 				/*!< Creates RegularSeisDataPack from
-				BinIDValueSet for z-slices in z-axis transformed
+				BinnedValueSet for z-slices in z-axis transformd
 				domain. nrComponents() in the created datapack
-				will be one less than BinIDValueSet::nrVals(),
+				will be one less than BinnedValueSet::nrVals(),
 				as the	z-component is not used. \param nms is
 				for passing component names. */
 protected:

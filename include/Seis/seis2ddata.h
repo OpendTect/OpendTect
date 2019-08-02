@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class SeisTrcBuf;
 class TrcKeyZSampling;
-class BinIDValueSet;
+class BinnedValueSet;
 class BufferStringSet;
 class Seis2DLinePutter;
 class Seis2DTraceGetter;
@@ -73,7 +73,7 @@ public:
 				   BufferString& stdinfo) const;
     bool		getRanges(GeomID,StepInterval<int>& trcrg,
 				  StepInterval<float>& zrg) const;
-    bool		haveMatch(GeomID,const BinIDValueSet&) const;
+    bool		haveMatch(GeomID,const BinnedValueSet&) const;
 
     bool		rename(const char*);
     bool		remove(GeomID);

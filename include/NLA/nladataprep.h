@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "nlamod.h"
 #include "nladesign.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class PosVecDataSet;
 
 /*!
@@ -23,7 +23,7 @@ class PosVecDataSet;
 mExpClass(NLA) NLADataPreparer
 {
 public:
-    			NLADataPreparer( BinIDValueSet& bvs, int tc )
+			NLADataPreparer( BinnedValueSet& bvs, int tc )
 			    : bvs_(bvs), targetcol_(tc)		{}
 
     void		removeUndefs(bool targetonly=false);
@@ -37,14 +37,14 @@ public:
 	float		noiselvl;
     };
     void		balance(const BalanceSetup&);
-    			//!< noiselvl not yet supported
+			//!< noiselvl not yet supported
 
 protected:
 
-    BinIDValueSet&	bvs_;
+    BinnedValueSet&	bvs_;
     int			targetcol_;
 
-    void		addVecs(BinIDValueSet&,int,float,
-	    			const Interval<float>*);
+    void		addVecs(BinnedValueSet&,int,float,
+				const Interval<float>*);
 
 };

@@ -23,7 +23,7 @@ ________________________________________________________________________
 namespace EM { class Fault; class Horizon; }
 namespace Geometry { class ExplFaultStickSurface; }
 namespace PosInfo { class Line2DData; }
-class BinIDValueSet;
+class BinnedValueSet;
 
 /*!\brief Subclass of Coord3List that represents a fault trace. */
 
@@ -60,7 +60,7 @@ public:
 					BinID&,float&,
 					const StepInterval<int>* trcrg=0,
                                         bool snappositive=true) const;
-    bool		getHorCrossings(const BinIDValueSet&,
+    bool		getHorCrossings(const BinnedValueSet&,
 					Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
@@ -109,7 +109,7 @@ protected:
     void		computeTraceSegments();
     Coord		getIntersection(const BinID&,float,
 					const BinID&,float) const;
-    bool		handleUntrimmed(const BinIDValueSet&,Interval<float>&,
+    bool		handleUntrimmed(const BinnedValueSet&,Interval<float>&,
 					const BinID&,const BinID&,bool) const;
 
     bool		isinl_;

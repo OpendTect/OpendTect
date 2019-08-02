@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "prestackprocessingmod.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "prestackevents.h"
 #include "tableascio.h"
 #include "task.h"
@@ -44,8 +44,8 @@ The columns are as follows:
 mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 { mODTextTranslationClass(EventExporter);
 public:
-    			EventExporter(od_ostream& strm,EventManager&);
-    			~EventExporter();
+			EventExporter(od_ostream& strm,EventManager&);
+			~EventExporter();
 
     void		setHRange(const TrcKeySampling&);
 
@@ -62,8 +62,8 @@ protected:
     EventManager&		events_;
     TrcKeySampling		tks_;
 
-    BinIDValueSet		locations_;
-    BinIDValueSet::SPos		pos_;
+    BinnedValueSet		locations_;
+    BinnedValueSet::SPos	pos_;
 
     int				nrdone_;
     int				fileidx_;
@@ -72,7 +72,7 @@ protected:
 
 
 /*!
-\brief Ascii I/O for PreStack event. 
+\brief Ascii I/O for PreStack event.
 */
 
 mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
@@ -87,7 +87,7 @@ public:
 
     bool			isXY() const;
     int				getNextLine(BinID& bid,int& horid,
-	    				    float& off,float& val);
+					    float& off,float& val);
 
 protected:
 
@@ -105,9 +105,9 @@ protected:
 mExpClass(PreStackProcessing) EventImporter : public SequentialTask
 { mODTextTranslationClass(EventImporter);
 public:
-    			EventImporter(const char*,const Table::FormatDesc&,
+			EventImporter(const char*,const Table::FormatDesc&,
 				      EventManager&);
-    			~EventImporter();
+			~EventImporter();
 
     od_int64		nrDone() const;
     od_int64		totalNr() const		{ return totalnr_; }

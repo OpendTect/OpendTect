@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uidpsdemo.h"
 
 #include "datapointset.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
 #include "statrand.h"
@@ -133,7 +133,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	BinID bid = BinID( mGeomElem.getKnotRowCol(selnodenr) );
 
 	// Checking whether position is already in set. Here, we have to use
-	// the BinIDValueSet, because we don't want to call
+	// the BinnedValueSet, because we don't want to call
 	// DataPointSet::dataChanged() after every addRow().
 	if ( needrandsel && dps.bivSet().isValid(bid) )
 	    mNextTry()

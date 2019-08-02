@@ -8,7 +8,7 @@
 #include "linesetposinfo.h"
 #include "survinfo.h"
 #include "statruncalc.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "binidvalue.h"
 
 
@@ -65,14 +65,14 @@ void PosInfo::LineSet2DData::removeLine( const char* lnm )
 }
 
 
-void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
+void PosInfo::LineSet2DData::intersect( const BinnedValueSet& bivset,
 			ObjectSet<PosInfo::LineSet2DData::IR>& resultset ) const
 {
     const int nrvals = bivset.nrVals();
-    BinIDValueSet* globalbivset = new BinIDValueSet( nrvals, true );
+    BinnedValueSet* globalbivset = new BinnedValueSet( nrvals, true );
     for ( int idx=0; idx<nrLines(); idx++ )
     {
-	BinIDValueSet* newbivset = new BinIDValueSet( nrvals, true );
+	BinnedValueSet* newbivset = new BinnedValueSet( nrvals, true );
 	BinID prevbid(-1,-1);
 	for ( int idy=0; idy<lineData(idx).positions().size(); idy++ )
 	{
@@ -81,7 +81,7 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 	    prevbid = bid;
 	    if ( bivset.includes(bid) )
 	    {
-		BinIDValueSet::SPos pos = bivset.find(bid);
+		BinnedValueSet::SPos pos = bivset.find(bid);
 
 		while ( true )
 		{

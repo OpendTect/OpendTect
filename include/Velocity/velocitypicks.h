@@ -23,7 +23,7 @@ ________________________________________________________________________
 class Undo;
 class IOObj;
 template <class T> class Smoother1D;
-class BinIDValueSet;
+class BinnedValueSet;
 class IOObjContext;
 
 namespace EM { class Horizon3D; }
@@ -144,7 +144,7 @@ public:
     EM::Horizon3D*		getHorizon(const DBKey&);
     const EM::Horizon3D*	getHorizon(const DBKey&) const;
     bool			interpolateVelocity(const DBKey&,
-				    float searchradius,BinIDValueSet&) const;
+				    float searchradius,BinnedValueSet&) const;
 				/*!<Interpolates vel at all locations in
 				    the valset. First value in valset will
 				    be horizon depth, second will be velocity.*/

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "statruncalc.h"
 
 class uiParent;
-class BinIDValueSet;
+class BinnedValueSet;
 class BufferStringSet;
 namespace Attrib { class EngineMan; class DescSet; }
 
@@ -47,8 +47,8 @@ public:
     void		clearRanges()			{ ranges_.erase(); }
     void		clearWeights()			{ weights_.erase(); }
 
-    BinIDValueSet*	createRangesBinIDSet() const;
-    void		setValRgSet(BinIDValueSet*,bool);
+    BinnedValueSet*	createRangesBinIDSet() const;
+    void		setValRgSet(BinnedValueSet*,bool);
     bool		computeValsAndRanges();
     static uiString	emTxt()	    { return tr("Cannot create 2D random "
 					    "pickset to compute the ranges:"); }
@@ -60,7 +60,7 @@ protected:
     void		extractAndSaveValsAndRanges();
     void		saveValsAndRanges(const TypeSet<float>&,
 					  const TypeSet< Interval<float> >&);
-    void		fillInStats(BinIDValueSet*,
+    void		fillInStats(BinnedValueSet*,
 				ObjectSet< Stats::RunCalc<float> >&,
 				Stats::Type) const;
 
@@ -70,11 +70,11 @@ protected:
     TypeSet<float>	values_;
     TypeSet<int>	weights_;
     TypeSet< Interval<float> > ranges_;
-    ObjectSet<BinIDValueSet> posset_;
+    ObjectSet<BinnedValueSet> posset_;
     uiParent*		parent_;
     DBKey		rgpickset_;
     int			rgreftype_;
     static void		create2DRandPicks(const DBKey& dsetid,
-					  BinIDValueSet* rangesset);
+					  BinnedValueSet* rangesset);
 
 };

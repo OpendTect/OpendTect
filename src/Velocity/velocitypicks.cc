@@ -9,7 +9,7 @@
 
 #include "velocitycalc.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "iopar.h"
@@ -694,7 +694,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 
 
 bool Picks::interpolateVelocity(const DBKey& emid, float searchradius,
-					BinIDValueSet& res ) const
+					BinnedValueSet& res ) const
 {
     ConstRefMan<EM::Horizon3D> horizon = getHorizon( emid );
     if ( !horizon )
@@ -739,7 +739,7 @@ bool Picks::interpolateVelocity(const DBKey& emid, float searchradius,
     const bool usesearchradius = !mIsUdf(searchradius);
     const double searchradius2 = searchradius*searchradius;
 
-    BinIDValueSet::SPos pos( 0, 0 );
+    BinnedValueSet::SPos pos( 0, 0 );
     do
     {
 	const BinID bid = res.getBinID(pos);
@@ -887,9 +887,9 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 
     if ( interpolhors )
     {
-	BinIDValueSet bidset( 2, false );
+	BinnedValueSet bidset( 2, false );
 	const float vals[] = { mUdf(float), mUdf(float) };
-	BinIDValueSet::SPos pos = bidset.add( pickbid );
+	BinnedValueSet::SPos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
 	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];
@@ -940,9 +940,9 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 
     if ( interpolhors )
     {
-	BinIDValueSet bidset( 2, false );
+	BinnedValueSet bidset( 2, false );
 	const float vals[] = { mUdf(float), mUdf(float) };
-	BinIDValueSet::SPos pos = bidset.add( pickbid );
+	BinnedValueSet::SPos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
 	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];

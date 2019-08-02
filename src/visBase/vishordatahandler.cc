@@ -120,7 +120,7 @@ void HorizonSectionDataHandler::removeZTransform()
 class DataPointSetFiller : public ParallelTask
 {
 public:
-DataPointSetFiller( BinIDValueSet& bivs, const HorizonSection& section,
+DataPointSetFiller( BinnedValueSet& bivs, const HorizonSection& section,
 	   const ZAxisTransform* zat, double shift, float* vals )
     : bivs_(bivs)
     , section_(section)
@@ -182,14 +182,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	}
 
 	vals[0] = zval;
-	BinIDValueSet::SPos bidpos = bivs_.find( bid );
+	BinnedValueSet::SPos bidpos = bivs_.find( bid );
 	bivs_.set( bidpos, vals );
     }
 
     return true;
 }
 
-    BinIDValueSet&		bivs_;
+    BinnedValueSet&		bivs_;
     const HorizonSection&	section_;
     const ZAxisTransform*	zat_;
     double			shift_;
@@ -217,7 +217,7 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
     const int sidcolidx =  dtpntset.dataSet().findColDef(
 	sidcol, PosVecDataSet::NameExact ) - dtpntset.nrFixedCols();
 
-    BinIDValueSet& bivs = dtpntset.bivSet();
+    BinnedValueSet& bivs = dtpntset.bivSet();
     mAllocVarLenArr( float, vals, bivs.nrVals() );
     for ( int idx=0; idx<bivs.nrVals(); idx++ )
 	vals[idx] = mUdf(float);

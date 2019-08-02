@@ -7,7 +7,7 @@
 
 #include "vispseventdisplay.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "coltabseqmgr.h"
 #include "datadistributionextracter.h"
 #include "prestackevents.h"
@@ -389,7 +389,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     if ( !eventman_ )
 	return;
 
-    BinIDValueSet locations( 0, false );
+    BinnedValueSet locations( 0, false );
     eventman_->getLocations( locations );
 
     TrcKeySampling evntrg( false );
@@ -736,7 +736,7 @@ bool PSEventDisplay::supportsDisplay() const
     if ( !hasParents() || !eventman_ )
 	return false;
 
-    BinIDValueSet locations( 0, false );
+    BinnedValueSet locations( 0, false );
     eventman_->getLocations( locations );
     TrcKeySampling eventrg( false );
     eventrg.setIs3D();

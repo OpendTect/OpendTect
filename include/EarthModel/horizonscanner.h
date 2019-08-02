@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class od_istream;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
@@ -50,7 +50,7 @@ public:
     void		launchBrowser(const char* fnm=0) const;
     void		report(IOPar&) const;
 
-    const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
+    const ObjectSet<BinnedValueSet>& getSections()	{ return sections_; }
 
 protected:
 
@@ -75,8 +75,8 @@ protected:
     Table::FormatDesc&	fd_;
     od_istream*		strm_;
 
-    BinIDValueSet*	bvalset_;
-    ObjectSet<BinIDValueSet> sections_;
+    BinnedValueSet*	bvalset_;
+    ObjectSet<BinnedValueSet> sections_;
 
     mutable uiString	curmsg_;
 };

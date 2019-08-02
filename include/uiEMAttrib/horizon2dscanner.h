@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "dbkey.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 namespace Survey { class Geometry2D; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
@@ -35,7 +35,7 @@ public:
     virtual uiString	nrDoneText() const;
 
     bool		getLineNames(BufferStringSet&) const;
-    BinIDValueSet*	getVals()			{ return bvalset_; }
+    BinnedValueSet*	getVals()			{ return bvalset_; }
 
     bool		reInitAscIO(const char*);
 
@@ -63,5 +63,5 @@ protected:
     BufferStringSet	linenames_;
     BufferStringSet	validnms_;
     BufferStringSet	invalidnms_;
-    BinIDValueSet*	bvalset_;
+    BinnedValueSet*	bvalset_;
 };

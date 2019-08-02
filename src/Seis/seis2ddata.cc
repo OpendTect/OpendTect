@@ -16,7 +16,7 @@
 #include "safefileio.h"
 #include "staticstring.h"
 #include "ascstream.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "posinfo2dsurv.h"
 #include "dirlist.h"
 #include "survinfo.h"
@@ -203,7 +203,7 @@ bool Seis2DDataSet::getRanges( GeomID geomid, StepInterval<int>& sii,
 { return liop_ && liop_->getRanges( ioobj_, geomid, sii, sif ); }
 
 bool Seis2DDataSet::haveMatch( GeomID geomid,
-			       const BinIDValueSet& bivs ) const
+			       const BinnedValueSet& bivs ) const
 {
     if ( bivs.is2D() )
 	return bivs.hasInl( geomid.lineNr() );

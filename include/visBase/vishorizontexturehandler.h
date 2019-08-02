@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "refcount.h"
 
 class DataPointSet;
-class BinIDValueSet;
+class BinnedValueSet;
 class TaskRunnerProvider;
 namespace osg {  class Node; }
 namespace osgGeo { class LayeredTexture; }
@@ -38,7 +38,7 @@ public:
     void		        addChannel();
     void		        removeChannel(int);
     void		        swapChannels(int,int);
-    const BinIDValueSet*	getCache(int channel) const;
+    const BinnedValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
     void			setChannels2RGBA(TextureChannel2RGBA*);
@@ -74,7 +74,7 @@ protected:
                                 ~HorizonTextureHandler();
 
     const HorizonSection*       horsection_;
-    ObjectSet<BinIDValueSet>	cache_;
+    ObjectSet<BinnedValueSet>	cache_;
 
     TextureChannels*		channels_;
     TextureChannel2RGBA*	channel2rgba_;

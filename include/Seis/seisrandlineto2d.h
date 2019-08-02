@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "randomlinegeom.h"
 #include "uistring.h"
 
@@ -45,7 +45,7 @@ protected:
     int			nrdone_;
     int			totnr_;
 
-    BinIDValueSet::SPos	pos_;
+    BinnedValueSet::SPos pos_;
     Seis::TableSelData&	seldata_;
 
 private:

@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "bufstringset.h"
 #include "uistrings.h"
 class DataColDef;
@@ -48,8 +48,8 @@ public:
 			      ColMatchPol cmp=NameExact);
 			//!< This is a rather intelligent method.
 
-    BinIDValueSet&	data()			{ return data_; }
-    const BinIDValueSet& data() const		{ return data_; }
+    BinnedValueSet&	data()			{ return data_; }
+    const BinnedValueSet& data() const		{ return data_; }
     OD::GeomSystem	geomSystem() const;
     bool		is2D() const		{ return ::is2D(geomSystem()); }
 
@@ -79,7 +79,7 @@ public:
 
 protected:
 
-    BinIDValueSet	data_;
+    BinnedValueSet	data_;
     ObjectSet<DataColDef> coldefs_;
     BufferString	name_;
     IOPar&		pars_;

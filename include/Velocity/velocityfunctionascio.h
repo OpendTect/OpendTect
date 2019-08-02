@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "task.h"
 
 namespace Table { class FormatDesc; }
-class BinIDValueSet;
+class BinnedValueSet;
 
 namespace Vel
 {
@@ -23,32 +23,32 @@ namespace Vel
 mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 { mODTextTranslationClass(FunctionAscIO);
 public:
-    				FunctionAscIO( const Table::FormatDesc& fd,
-					       od_istream&,
-				       	       od_int64 filesizeinkb=-1 );
-   static Table::FormatDesc*	getDesc();
-   static void			updateDesc(Table::FormatDesc&);
 
-   float 			getUdfVal() const;
-   bool				isXY() const;
-   void				setOutput(BinIDValueSet& bvs)
-       				{ output_ = &bvs; first_ = true; }
+    mUseType( Table,	FormatDesc );
+
+			FunctionAscIO(const FormatDesc&,od_istream&,
+				      od_int64 filesizeinkb=-1);
+   static FormatDesc*	getDesc();
+   static void		updateDesc(FormatDesc&);
+
+   float		getUdfVal() const;
+   bool			isXY() const;
+   void			setOutput(BinnedValueSet& bvs)
+			{ output_ = &bvs; first_ = true; }
 
 protected:
 
-   int				nextStep();
-   od_int64			nrDone() const { return nrdone_/1024; }
-   uiString			nrDoneText() const { 
-						    return tr("KBytes read"); 
-						     }
-   od_int64			totalNr() const { return nrkbytes_; }
-   static void			createDescBody(Table::FormatDesc&);
+   int			nextStep();
+   od_int64		nrDone() const { return nrdone_/1024; }
+   uiString		nrDoneText() const { return tr("KBytes read"); }
+   od_int64		totalNr() const { return nrkbytes_; }
+   static void		createDescBody(FormatDesc&);
 
-   od_istream&			strm_;   
-   BinIDValueSet*		output_;
-   bool				first_;
-   od_int64			nrdone_;
-   od_int64			nrkbytes_;
+   od_istream&		strm_;
+   BinnedValueSet*	output_;
+   bool			first_;
+   od_int64		nrdone_;
+   od_int64		nrkbytes_;
 };
 
 } // namespace Vel

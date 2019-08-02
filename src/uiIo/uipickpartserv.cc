@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uimsg.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "color.h"
 #include "datapointset.h"
 #include "executor.h"
@@ -44,7 +44,7 @@ int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , gendef_(*new BinIDValueSet(2,true))
+    , gendef_(*new BinnedValueSet(2,true))
     , selhs_(true)
     , ps_(0)
     , imppsdlg_(0)

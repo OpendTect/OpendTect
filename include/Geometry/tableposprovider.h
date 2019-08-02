@@ -13,14 +13,14 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "posprovider.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "bufstring.h"
 class IOObj;
 
 namespace Pos
 {
 
-/*!\brief Provider based on BinIDValueSet table */
+/*!\brief Provider based on BinnedValueSet table */
 
 mExpClass(Geometry) TableProvider3D : public Provider3D
 { mODTextTranslationClass(TableProvider3D)
@@ -52,18 +52,18 @@ public:
     od_int64		estNrPos() const	{ return bvs_.totalSize(); }
     int			estNrZPerPos() const	{ return 1; }
 
-    BinIDValueSet&	binidValueSet()		{ return bvs_; }
-    const BinIDValueSet& binidValueSet() const	{ return bvs_; }
+    BinnedValueSet&	binidValueSet()		{ return bvs_; }
+    const BinnedValueSet& binidValueSet() const	{ return bvs_; }
 
-    static void		getBVSFromPar(const IOPar&,BinIDValueSet&);
+    static void		getBVSFromPar(const IOPar&,BinnedValueSet&);
 
     virtual bool	includes( const Coord& c, float z ) const
 			{ return Provider3D::includes(c,z); }
 
 protected:
 
-    BinIDValueSet	bvs_;
-    BinIDValueSet::SPos	pos_;
+    BinnedValueSet	bvs_;
+    BinnedValueSet::SPos pos_;
 
 public:
 

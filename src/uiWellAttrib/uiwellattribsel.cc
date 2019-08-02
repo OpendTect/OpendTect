@@ -106,8 +106,8 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 
     uiUserShowWait usw( this, uiStrings::sCollectingData() );
 
-    BinIDValueSet bidset( 2, true );
-    TypeSet<BinIDValueSet::SPos> positions;
+    BinnedValueSet bidset( 2, true );
+    TypeSet<BinnedValueSet::SPos> positions;
     TypeSet<float> mdepths;
     getPositions( bidset, positions, mdepths );
     if ( positions.isEmpty() )
@@ -149,8 +149,8 @@ bool uiWellAttribSel::inputsOK()
 }
 
 
-void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
-				    TypeSet<BinIDValueSet::SPos>& positions,
+void uiWellAttribSel::getPositions( BinnedValueSet& bidset,
+				    TypeSet<BinnedValueSet::SPos>& positions,
 				    TypeSet<float>& mdepths )
 {
     const bool zinft = SI().depthsInFeet();
@@ -168,10 +168,10 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
 	    pos.z = wd_.d2TModel()->getTime( md );
 	bidset.add( bid, pos.z, (float)idx );
 	mdepths += md;
-	positions += BinIDValueSet::SPos(0,0);
+	positions += BinnedValueSet::SPos(0,0);
     }
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( bidset.next(pos) )
     {
 	float& vidx = bidset.getVals(pos)[1];
@@ -182,7 +182,7 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
 }
 
 
-bool uiWellAttribSel::extractData( BinIDValueSet& bidset )
+bool uiWellAttribSel::extractData( BinnedValueSet& bidset )
 {
     Attrib::SelSpec selspec;
     attribfld->fillSelSpec( selspec );
@@ -192,7 +192,7 @@ bool uiWellAttribSel::extractData( BinIDValueSet& bidset )
     aem.setAttribSpec( selspec );
 
     BufferString errmsg;
-    ObjectSet<BinIDValueSet> bivsset;
+    ObjectSet<BinnedValueSet> bivsset;
     bivsset += &bidset;
     PtrMan<Attrib::Processor> process =
 		aem.createLocationOutput( errmsg, bivsset );
@@ -202,8 +202,8 @@ bool uiWellAttribSel::extractData( BinIDValueSet& bidset )
 }
 
 
-bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
-				 const TypeSet<BinIDValueSet::SPos>& positions,
+bool uiWellAttribSel::createLog( const BinnedValueSet& bidset,
+				 const TypeSet<BinnedValueSet::SPos>& positions,
 				 const TypeSet<float>& mdepths )
 {
     BufferString lognm = lognmfld->text();

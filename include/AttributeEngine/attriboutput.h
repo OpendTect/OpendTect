@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 class BinDataDesc;
-class BinIDValueSet;
+class BinnedValueSet;
 class DataPointSet;
 class RegularSeisDataPack;
 class SeisTrc;
@@ -298,7 +298,7 @@ protected:
 mExpClass(AttributeEngine) LocationOutput : public Output
 {
 public:
-				LocationOutput(BinIDValueSet&);
+				LocationOutput(BinnedValueSet&);
 				~LocationOutput() {};
 
     bool			getDesiredSubSel(FullSubSel&) const
@@ -318,7 +318,7 @@ public:
     static const char*		surfidkey();
 
 protected:
-    BinIDValueSet&		bidvalset_;
+    BinnedValueSet&		bidvalset_;
 
     bool			arebiddupl_;
 
@@ -335,7 +335,7 @@ protected:
 mExpClass(AttributeEngine) TrcSelectionOutput : public Output
 {
 public:
-				TrcSelectionOutput(const BinIDValueSet&,
+				TrcSelectionOutput(const BinnedValueSet&,
 						   float outval =0);
 				~TrcSelectionOutput() ;
 
@@ -351,7 +351,7 @@ public:
     void			setGeomID(Pos::GeomID);
 
 protected:
-    const BinIDValueSet&	bidvalset_;
+    const BinnedValueSet&	bidvalset_;
     SeisTrcBuf*			outpbuf_;
     float			outval_;
     float			stdtrcsz_;

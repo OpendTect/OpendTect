@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "horizonscanner.h"
 #include "emhorizonascio.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emhorizon3d.h"
 #include "posinfodetector.h"
 #include "iopar.h"
@@ -287,9 +287,9 @@ int HorizonScanner::nextStep()
 	{
 	    PosInfo::Detector* secdtctr = !idx ? &dtctor_
 		: new PosInfo::Detector( PosInfo::Detector::Setup(false) );
-	    const BinIDValueSet& bivs = *sections_[idx];
+	    const BinnedValueSet& bivs = *sections_[idx];
 	    BinID bid;
-	    BinIDValueSet::SPos pos;
+	    BinnedValueSet::SPos pos;
 	    while ( bivs.next(pos) )
 	    {
 		bid = bivs.getBinID( pos );
@@ -332,7 +332,7 @@ int HorizonScanner::nextStep()
     if ( data.size() < 1 )
 	mErrRet(tr("Not enough data read to analyze"))
 
-    if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
+    if ( !bvalset_ ) bvalset_ = new BinnedValueSet( data.size(), false );
     bvalset_->allowDuplicatePositions( true );
 
     float fac = 1;

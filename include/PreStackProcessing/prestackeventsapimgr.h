@@ -27,7 +27,7 @@ namespace PreStack
 mClass(PreStackProcessing) EventsAPIMgr
 {
 public:
-    		EventsAPIMgr();
+		EventsAPIMgr();
 		~EventsAPIMgr();
 
     int		setSurvey( const char* dataroot, const char* survey );
@@ -51,7 +51,7 @@ public:
 		         float* depths, float* quality ) const;
 
     void	getDip(int handle,int eventindex,
-	    	       float& inldip,float& crldip);
+		       float& inldip,float& crldip);
     void	getQuality(int handle, int eventindex,float& weight) const;
     int		getHorizonID(int handle,int eventindex,int& horid) const;
 
@@ -61,7 +61,7 @@ protected:
 
     ObjectSet<Vel::Picks>		velpicks_;
     ObjectSet<PreStack::EventManager>	events_;
-    ObjectSet<BinIDValueSet>		locations_;
+    ObjectSet<BinnedValueSet>		locations_;
     TypeSet<int>			ids_;
     TypeSet<BinID>			curpos_;
 };

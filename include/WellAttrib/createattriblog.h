@@ -11,7 +11,7 @@
 
 #include "wellattribmod.h"
 #include "attribsel.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "uistring.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
@@ -24,12 +24,12 @@ mExpClass(WellAttrib) AttribLogExtractor
 public:
 				AttribLogExtractor(const Well::Data& wd)
 				    : wd_(&wd)
-				    , bidset_(BinIDValueSet(2,true))
+				    , bidset_(BinnedValueSet(2,true))
 				    {}
 
-    const TypeSet<BinIDValueSet::SPos>& positions() const { return positions_; }
+    const TypeSet<BinnedValueSet::SPos>& positions() const { return positions_; }
     const TypeSet<float>&	depths() const	{ return depths_; }
-    const BinIDValueSet&	bidset() const		{ return bidset_; }
+    const BinnedValueSet&	bidset() const		{ return bidset_; }
 
     bool                        extractData(Attrib::EngineMan&,TaskRunner* t=0);
     bool                        fillPositions(const StepInterval<float>&);
@@ -39,8 +39,8 @@ public:
 protected:
 
     const Well::Data*		wd_;
-    TypeSet<BinIDValueSet::SPos> positions_;
-    BinIDValueSet		bidset_;
+    TypeSet<BinnedValueSet::SPos> positions_;
+    BinnedValueSet		bidset_;
     TypeSet<float>		depths_;
 };
 
@@ -85,7 +85,7 @@ protected:
     int				sellogidx_;
     AttribLogExtractor*		extractor_;
 
-    bool                        extractData(BinIDValueSet&);
+    bool                        extractData(BinnedValueSet&);
     bool                        createLog(Well::Data&,
 					  const AttribLogExtractor&);
 

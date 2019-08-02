@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uibulkhorizonimp.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -125,7 +125,7 @@ bool uiBulkHorizonImport::acceptOK()
     if ( !dataselfld_->commit() )
 	return false;
 
-    ObjectSet<BinIDValueSet> data;
+    ObjectSet<BinnedValueSet> data;
     BufferStringSet hornms;
     BulkHorizonAscIO aio( *fd_, strm );
     BufferString hornm; Coord3 crd;
@@ -134,13 +134,13 @@ bool uiBulkHorizonImport::acceptOK()
 	if ( hornm.isEmpty() )
 	    continue;
 
-	BinIDValueSet* bidvs = 0;
+	BinnedValueSet* bidvs = 0;
 	const int hidx = hornms.indexOf( hornm );
 	if ( data.validIdx(hidx) )
 	    bidvs = data[hidx];
 	else
 	{
-	    bidvs = new BinIDValueSet( 1, false );
+	    bidvs = new BinnedValueSet( 1, false );
 	    data += bidvs;
 	    hornms.add( hornm );
 	}
@@ -169,9 +169,9 @@ bool uiBulkHorizonImport::acceptOK()
 	    continue;
 	}
 
-	BinIDValueSet* bidvs = data[idx];
+	BinnedValueSet* bidvs = data[idx];
 	BinID bid;
-	BinIDValueSet::SPos pos;
+	BinnedValueSet::SPos pos;
 	PosInfo::Detector detector( PosInfo::Detector::Setup(false) );
 	while ( bidvs->next(pos) )
 	{
@@ -182,7 +182,7 @@ bool uiBulkHorizonImport::acceptOK()
 
 	TrcKeySampling hs;
 	detector.getTrcKeySampling( hs );
-	ObjectSet<BinIDValueSet> curdata; curdata += bidvs;
+	ObjectSet<BinnedValueSet> curdata; curdata += bidvs;
 	PtrMan<Executor> importer = hor3d->importer( curdata, hs );
 	if ( !importer || !TaskRunner::execute( &dlg, *importer ) )
 	    continue;

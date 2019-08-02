@@ -8,7 +8,7 @@
 #include "velocityfunction.h"
 
 #include "attribdataholder.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "interpol1d.h"
 #include "ioobj.h"
 #include "survinfo.h"
@@ -144,9 +144,9 @@ const uiString FunctionSource::errMsg() const
 
 
 void FunctionSource::getSurroundingPositions( const BinID& bid,
-					      BinIDValueSet& bids) const
+					      BinnedValueSet& bids) const
 {
-    BinIDValueSet mybids( 0, false );
+    BinnedValueSet mybids( 0, false );
     getAvailablePositions( mybids );
     if ( !mybids.isEmpty() )
 	bids.append( mybids ); //Filter?

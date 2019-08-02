@@ -282,7 +282,7 @@ const Attrib::SelSpecList* MarchingCubesDisplay::getSelSpecs(
     getRandomPos( *data, 0 ); \
     DataColDef* isovdef = new DataColDef(nm); \
     data->dataSet().add( isovdef ); \
-    BinIDValueSet& bivs = data->bivSet();  \
+    BinnedValueSet& bivs = data->bivSet();  \
     if ( !data->size() || bivs.nrVals()!=3 ) \
     { return; } \
     int valcol = data->dataSet().findColDef( *isovdef, \
@@ -304,7 +304,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     const int crlsz = impbody_->tkzs_.nrCrl();
     const int zsz = impbody_->tkzs_.nrZ();
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
 	BinID bid = bivs.getBinID(pos);
@@ -362,7 +362,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 {
     mSetDataPointSet("Z values");
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
 	float* vals = bivs.getVals(pos);
@@ -463,13 +463,13 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     if ( valididx==-1 )
 	return;
 
-    const BinIDValueSet& bivset = cache_[valididx]->bivSet();
+    const BinnedValueSet& bivset = cache_[valididx]->bivSet();
     const BinID bid = s3dgeom_->transform( xyzpos.getXY() );
 
     TypeSet<float> zdist;
     TypeSet<float> vals;
 
-    BinIDValueSet::SPos pos = bivset.find( bid );
+    BinnedValueSet::SPos pos = bivset.find( bid );
     const int validx = bivset.nrVals()-1;
 
     while ( pos.isValid() )

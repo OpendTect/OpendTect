@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uitaskrunner.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ctxtioobj.h"
 #include "oddirs.h"
 #include "picksettr.h"
@@ -104,7 +104,7 @@ void uiImportVelFunc::formatSel( CallBacker* )
 
 bool uiImportVelFunc::acceptOK()
 {
-    BinIDValueSet bidvalset( 0, true);
+    BinnedValueSet bidvalset( 0, true);
     VelocityDesc desc;
     if ( !typefld_->get( desc, true ) )
 	return false;

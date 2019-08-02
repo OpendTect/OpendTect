@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "randcolor.h"
@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 Horizon2DBulkImporter::Horizon2DBulkImporter( const BufferStringSet& lnms,
 			ObjectSet<EM::Horizon2D>& hors,
-			const BinIDValueSet* valset, UndefTreat udftreat )
+			const BinnedValueSet* valset, UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , curlinegeom_(0)
     , hors_(hors)

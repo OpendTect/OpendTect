@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 
 class Executor;
-class BinIDValueSet;
+class BinnedValueSet;
 class OffsetAzimuth;
 class TrcKeySampling;
 
@@ -150,14 +150,14 @@ public:
     const DBKey&		getStorageID() const;
 
     bool			getHorRanges(TrcKeySampling&) const;
-    bool			getLocations(BinIDValueSet&) const;
+    bool			getLocations(BinnedValueSet&) const;
 
     Undo&			undo()		{ return undo_; }
     const Undo&			undo() const	{ return undo_; }
 
 
     Executor*			commitChanges();
-    Executor*			load(const BinIDValueSet&,bool trigger);
+    Executor*			load(const BinnedValueSet&,bool trigger);
 
     bool			isChanged() const;
     void			resetChangedFlag(bool onlyhorflag);
@@ -191,7 +191,7 @@ public:
 					    unreffed. Eventual load requirements
 					    should be added. */
     void				addReloadPositions(
-							const BinIDValueSet&);
+							const BinnedValueSet&);
     void				addReloadPosition(const BinID&);
 
     void				reportChange(const BinID&);
@@ -223,8 +223,8 @@ protected:
 
     BinID			changebid_;
     Threads::Lock		changebidlock_;
-    BinIDValueSet*		notificationqueue_;
-    BinIDValueSet*		reloadbids_;
+    BinnedValueSet*		notificationqueue_;
+    BinnedValueSet*		reloadbids_;
 
     int				nexthorid_;
     int				auxdatachanged_;

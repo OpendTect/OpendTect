@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "geomid.h"
 class Bin2D;
-class BinIDValueSet;
+class BinnedValueSet;
 namespace PosInfo { class Line2DDataSet; class CubeData; }
 
 
@@ -121,8 +121,8 @@ public:
     PolySelData*	asPoly();
     const PolySelData*	asPoly() const;
 
-    BinIDValueSet*	applyTo(const Line2DDataSet&) const;
-    BinIDValueSet*	applyTo(const CubeData&) const;
+    BinnedValueSet*	applyTo(const Line2DDataSet&) const;
+    BinnedValueSet*	applyTo(const CubeData&) const;
 
 protected:
 

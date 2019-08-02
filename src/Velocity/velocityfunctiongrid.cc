@@ -7,7 +7,7 @@
 
 #include "velocityfunctiongrid.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "trckeysampling.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
@@ -391,7 +391,7 @@ const VelocityDesc& GriddedSource::getDesc() const
 class GridderSourceFilter : public ParallelTask
 {
 public:
-GridderSourceFilter( const BinIDValueSet& bvs, TypeSet<BinID>& bids,
+GridderSourceFilter( const BinnedValueSet& bvs, TypeSet<BinID>& bids,
 		     TypeSet<Coord>& coords )
     : bvs_( bvs )
     , bids_( bids )
@@ -407,7 +407,7 @@ bool doWork(od_int64 start, od_int64 stop, int )
     const BinID step( SI().inlRange().step, SI().crlRange().step );
     while ( true )
     {
-	TypeSet<BinIDValueSet::SPos> positions;
+	TypeSet<BinnedValueSet::SPos> positions;
 	Threads::Locker lckr( lock_ );
 	if ( moretodo_ )
 	{
@@ -466,8 +466,8 @@ bool doWork(od_int64 start, od_int64 stop, int )
 }
 protected:
 
-    const BinIDValueSet& bvs_;
-    BinIDValueSet::SPos  pos_;
+    const BinnedValueSet& bvs_;
+    BinnedValueSet::SPos pos_;
 
     TypeSet<BinID>&     bids_;
     TypeSet<Coord>&     coords_;
@@ -506,7 +506,7 @@ bool GriddedSource::initGridder()
 
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {
-	BinIDValueSet bids( 0, false );
+	BinnedValueSet bids( 0, false );
 	datasources_[idx]->getAvailablePositions( bids );
 
 	sourcepos_.append( bids );

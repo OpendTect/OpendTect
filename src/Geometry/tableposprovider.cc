@@ -76,7 +76,7 @@ const char* Pos::TableProvider3D::type() const
 
 bool Pos::TableProvider3D::includes( const BinID& bid, float z ) const
 {
-    BinIDValueSet::SPos pos = bvs_.find( bid );
+    BinnedValueSet::SPos pos = bvs_.find( bid );
     if ( !pos.isValid() ) return false;
     if ( mIsUdf(z) ) return true;
 
@@ -96,7 +96,8 @@ bool Pos::TableProvider3D::includes( const BinID& bid, float z ) const
 }
 
 
-void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
+void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop,
+					  BinnedValueSet& bvs )
 {
     const char* res = iop.find( mGetTableKey("ID") );
     if ( res && *res )
@@ -153,7 +154,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		}
 		if ( zfac > 0 )
 		{
-		    BinIDValueSet::SPos p;
+		    BinnedValueSet::SPos p;
 		    while ( bvs.next(p) )
 		    {
 			float* val = bvs.getVals( p );
@@ -198,7 +199,7 @@ void Pos::TableProvider3D::getSummary( uiString& txt ) const
 
 void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    BinIDValueSet::SPos p; bvs_.next(p);
+    BinnedValueSet::SPos p; bvs_.next(p);
     if ( !p.isValid() )
 	{ start = stop = BinID(0,0); return; }
 
@@ -217,7 +218,7 @@ void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 {
-    BinIDValueSet::SPos p; bvs_.next(p);
+    BinnedValueSet::SPos p; bvs_.next(p);
     if ( !p.isValid() )
 	{ zrg.start = zrg.stop = 0; return; }
 

@@ -477,14 +477,14 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     getRandomPos( *data, 0 );
     DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
     data->dataSet().add( zvalsdef );
-    BinIDValueSet& bivs = data->bivSet();
+    BinnedValueSet& bivs = data->bivSet();
     if ( data->size() && bivs.nrVals()==4 )
     {
 	int zcol = data->dataSet().findColDef( *zvalsdef,
 					       PosVecDataSet::NameExact );
 	if ( zcol==-1 ) zcol = 3;
 
-	BinIDValueSet::SPos pos;
+	BinnedValueSet::SPos pos;
 	while ( bivs.next(pos) )
 	{
 	    float* vals = bivs.getVals(pos);
@@ -1202,8 +1202,8 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     const int columnj =
 	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
 
-    const BinIDValueSet& vals = dpset->bivSet();
-    BinIDValueSet::SPos pos;
+    const BinnedValueSet& vals = dpset->bivSet();
+    BinnedValueSet::SPos pos;
     while ( vals.next( pos ) )
     {
 	const float* ptr = vals.getVals( pos );

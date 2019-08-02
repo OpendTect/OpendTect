@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seistableseldata.h"
 #include "ioobj.h"
 #include "uistrings.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 
 
 SeisEventSnapper::SeisEventSnapper( const Interval<float>& gate	)
@@ -76,7 +76,7 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 }
 
 
-SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
+SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinnedValueSet& bvs,
 				    const Interval<float>& gate	)
     : SeisEventSnapper(gate)
     , positions_(bvs)
@@ -110,7 +110,7 @@ int SeisEventSnapper3D::nextStep()
 	case Seis::MSCProvider::NewPosition:
 	{
 	    SeisTrc* trc = mscprov_->curTrc();
-	    BinIDValueSet::SPos pos = positions_.find( trc->info().binID() );
+	    BinnedValueSet::SPos pos = positions_.find( trc->info().binID() );
 	    if ( pos.isValid() )
 	    {
 		BinID dummy; float zval;

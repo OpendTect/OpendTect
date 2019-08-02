@@ -114,10 +114,10 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 	    pos.z_ = wd_->d2TModel().getTime( md, wd_->track() );
 	bidset_.add( bid, (float) pos.z_, (float)idx );
 	depths_ += md;
-	positions_ += BinIDValueSet::SPos(0,0);
+	positions_ += BinnedValueSet::SPos(0,0);
     }
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( bidset_.next(pos) )
     {
 	float& vidx = bidset_.getVals(pos)[1];
@@ -133,7 +133,7 @@ bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
 				      TaskRunner* taskr )
 {
     uiRetVal uirv;
-    ObjectSet<BinIDValueSet> bivsset;
+    ObjectSet<BinnedValueSet> bivsset;
     bivsset += &bidset_;
     PtrMan<Attrib::Processor> process =
 	    aem.createLocationOutput( uirv, bivsset );

@@ -8,7 +8,7 @@
 #include "volprocsurfacelimitedfiller.h"
 
 #include "arrayndimpl.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"

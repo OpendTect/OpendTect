@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "attribprocessor.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "trckeyzsampling.h"
 #include "dataclipper.h"
 #include "ioobj.h"
@@ -314,7 +314,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     aem->setSubSel( Survey::FullSubSel(cs) );
     TypeSet<TrcKey> trckeys;
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
-    BinIDValueSet bidvals( 0, false );
+    BinnedValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
 	bidvals.add( trckeys[idx].binID() );
 

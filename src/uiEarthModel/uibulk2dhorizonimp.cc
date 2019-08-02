@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uibulk2dhorizonimp.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -164,7 +164,7 @@ int nextStep()
 	    bsr = linenms_.get(lidx);
 
 	if ( !bidvs_ || (prevhornm_ != hornm) )
-	    bidvs_ = new BinIDValueSet( 1, false );
+	    bidvs_ = new BinnedValueSet( 1, false );
 
 	if ( !crd.isDefined() )
 	    Executor::MoreToDo();
@@ -216,8 +216,8 @@ od_int64 totalNr() const
     od_int64			totalnr_;
     BufferStringSet		hornms_;
     BufferStringSet		linenms_;
-    BinIDValueSet*		bidvs_;
-    ObjectSet<BinIDValueSet>	data_;
+    BinnedValueSet*		bidvs_;
+    ObjectSet<BinnedValueSet>	data_;
     BulkHorizon2DAscIO*		ascio_;
     BufferString		prevhornm_;
 };
@@ -294,7 +294,7 @@ bool uiBulk2DHorizonImport::acceptOK()
 	return false;
     BufferStringSet hornms = reader->hornms_;
     BufferStringSet linenmset = reader->linenms_;
-    ObjectSet<BinIDValueSet> data = reader->data_;
+    ObjectSet<BinnedValueSet> data = reader->data_;
     ObjectSet<EM::Horizon2D> hor2ds;
     EM::ObjectManager& mgr = EM::Hor2DMan();
     PtrMan<IOObj> existioobj(0);

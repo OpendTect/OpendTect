@@ -950,7 +950,7 @@ int uiEMPartServer::setAuxData( const DBKey& id, DataPointSet& data,
 	auxnm += idx;
     }
 
-    const BinIDValueSet& bivs = data.bivSet();
+    const BinnedValueSet& bivs = data.bivSet();
     const int nrdatavals = bivs.nrVals();
     if ( idx>=nrdatavals ) return -1;
 
@@ -959,7 +959,7 @@ int uiEMPartServer::setAuxData( const DBKey& id, DataPointSet& data,
     hor3d->auxdata.setAuxDataShift( auxdataidx, shift );
 
     BinID bid;
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
 	bid = bivs.getBinID( pos );
@@ -1085,7 +1085,7 @@ bool uiEMPartServer::filterAuxData( const DBKey& oid,
 
 static int getColID( const DataPointSet& dps, const char* nm )
 {
-    const BinIDValueSet& bivs = dps.bivSet();
+    const BinnedValueSet& bivs = dps.bivSet();
     int cid = -1;
     for ( int idx=0; idx<bivs.nrVals(); idx++ )
     {
@@ -1105,7 +1105,7 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return false;
 
-    BinIDValueSet& bivs = dpset.bivSet();
+    BinnedValueSet& bivs = dpset.bivSet();
     if ( dpset.dataSet().nrCols() != bivs.nrVals() )
 	return false;
 
@@ -1153,7 +1153,7 @@ bool uiEMPartServer::changeAuxData( const DBKey& oid,
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return false;
 
-    BinIDValueSet& bivs = dpset.bivSet();
+    BinnedValueSet& bivs = dpset.bivSet();
     if ( dpset.dataSet().nrCols() != bivs.nrVals() )
 	return false;
 
@@ -1398,7 +1398,7 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 
 
 void uiEMPartServer::getSurfaceDef3D( const DBKeySet& selhorids,
-				    BinIDValueSet& bivs,
+				    BinnedValueSet& bivs,
 				    const TrcKeySampling& hs ) const
 {
     bivs.setEmpty(); bivs.setNrVals( 2 );

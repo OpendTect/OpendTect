@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
 #include "oddirs.h"
@@ -499,7 +499,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 
     advanceddlg_ = new uiFPAdvancedDlg( this, calcobj_, userrefset );
 
-    BinIDValueSet* valuesset = createValuesBinIDSet( advanceddlg_->errmsg_ );
+    BinnedValueSet* valuesset = createValuesBinIDSet( advanceddlg_->errmsg_ );
     calcobj_->setValRgSet( valuesset, true );
     calcobj_->setDescSet( ads_ );
     BufferStringSet* refset = new BufferStringSet();
@@ -521,7 +521,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
     uiString errmsg;
-    BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
+    BinnedValueSet* valuesset = createValuesBinIDSet( errmsg );
     if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isInvalid() )
     {
 	uiMSG().error(uiStrings::phrSelect(tr("the pickset from which\n"
@@ -542,7 +542,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	    refset->add( attrnm );
     }
     calcobj_->setUserRefList( refset );
-    BinIDValueSet* rangesset = calcobj_->createRangesBinIDSet();
+    BinnedValueSet* rangesset = calcobj_->createRangesBinIDSet();
     calcobj_->setValRgSet( valuesset, true );
     calcobj_->setValRgSet( rangesset, false );
     if ( picksetbut_->isChecked() )
@@ -552,10 +552,10 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 }
 
 
-BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
+BinnedValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 						uiString& errmsg ) const
 {
-    BinIDValueSet* retset = new BinIDValueSet( 1, false );
+    BinnedValueSet* retset = new BinnedValueSet( 1, false );
     if ( refgrp_->selectedId() == 1 )
     {
 	BinID refpos = is2d_ ? get2DRefPos() : refposfld_->getBinID();
@@ -748,7 +748,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 	calcobj_.setRgRefPick( ioobj->key() );
     }
 
-    BinIDValueSet* rangesset = calcobj_.createRangesBinIDSet();
+    BinnedValueSet* rangesset = calcobj_.createRangesBinIDSet();
     calcobj_.setValRgSet( rangesset, false );
     if ( !calcobj_.computeValsAndRanges() )
 	return;

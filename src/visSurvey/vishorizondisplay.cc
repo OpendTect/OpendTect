@@ -838,7 +838,7 @@ void HorizonDisplay::setSelSpecs( int channel, const Attrib::SelSpecList& as )
 class ZValSetter : public ParallelTask
 {
 public:
-ZValSetter( BinIDValueSet& bivs, int zcol, ZAxisTransform* zat )
+ZValSetter( BinnedValueSet& bivs, int zcol, ZAxisTransform* zat )
     : ParallelTask()
     , bivs_(bivs), zcol_(zcol), zat_(zat)
 {
@@ -855,7 +855,7 @@ bool doWork( od_int64 start, od_int64 stop, int thread )
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	const BinID bid = hs_.atIndex( idx );
-	BinIDValueSet::SPos pos = bivs_.findOccurrence( bid );
+	BinnedValueSet::SPos pos = bivs_.findOccurrence( bid );
 	if ( !pos.isValid() ) continue;
 
 	float* vals = bivs_.getVals(pos);
@@ -873,7 +873,7 @@ bool doWork( od_int64 start, od_int64 stop, int thread )
     return true;
 }
 
-    BinIDValueSet&	bivs_;
+    BinnedValueSet&	bivs_;
     int			zcol_;
     ZAxisTransform*	zat_;
     TrcKeySampling	hs_;
@@ -917,7 +917,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     if ( !positions->size() ) return;
 
-    BinIDValueSet& bivs = positions->bivSet();
+    BinnedValueSet& bivs = positions->bivSet();
     if ( bivs.nrVals()!=3 )
     {
 	pErrMsg( "Hmm" );
@@ -958,7 +958,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	const BinIDValueSet* cache = sections_[idx]->getCache( channel );
+	const BinnedValueSet* cache = sections_[idx]->getCache( channel );
 	if ( cache )
 	{
 	    data.bivSet().setNrVals( cache->nrVals() );
@@ -1047,7 +1047,7 @@ void HorizonDisplay::createDisplayDataPacks(
 	data->dataSet().findColDef(sidcoldef,PosVecDataSet::NameExact);
     const int nrfixedcols = data->nrFixedCols();
     const int shift = data->validColID(sidcol) ? nrfixedcols+1 : nrfixedcols;
-    const BinIDValueSet* cache =
+    const BinnedValueSet* cache =
 	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
     if ( !cache )
 	return;
@@ -1447,7 +1447,7 @@ void HorizonDisplay::updateAuxData()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
     if ( !hor3d ) return;
 
-    const BinIDValueSet& auxdata = hor3d->auxdata.getData();
+    const BinnedValueSet& auxdata = hor3d->auxdata.getData();
     if ( auxdata.isEmpty() )
 	return;
 
@@ -1467,7 +1467,7 @@ void HorizonDisplay::updateAuxData()
 	dps->dataSet().add( new DataColDef(sKeySectionID()) );
 	dps->dataSet().add( new DataColDef(auxdatanm) );
 
-	BinIDValueSet::SPos pos;
+	BinnedValueSet::SPos pos;
 	while ( auxdata.next(pos) )
 	{
 	    auxvals[2] = auxdata.getVal( pos, idx );
@@ -1678,10 +1678,10 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	      sections_[sectionidx]->getTransparency(idx)==255 )
 	    continue;
 
-	const BinIDValueSet* bidvalset = sections_[sectionidx]->getCache( idx );
+	const BinnedValueSet* bidvalset = sections_[sectionidx]->getCache(idx);
 	if ( !bidvalset || bidvalset->nrVals()<2 ) continue;
 
-	const BinIDValueSet::SPos setpos = bidvalset->find( bid );
+	const BinnedValueSet::SPos setpos = bidvalset->find( bid );
 	if ( !setpos.isValid() )
 	    continue;
 

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "uistring.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 namespace Seis { class Provider; }
 
 namespace Vel
@@ -71,7 +71,7 @@ public:
 
     VolumeFunction*		createFunction(const BinID&);
 
-    void			getAvailablePositions(BinIDValueSet&) const;
+    void			getAvailablePositions(BinnedValueSet&) const;
     bool			getVel(const BinID&,SamplingData<float>&,
 				       TypeSet<float>&);
 

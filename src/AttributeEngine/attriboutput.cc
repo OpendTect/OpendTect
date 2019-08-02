@@ -636,7 +636,7 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 }
 
 
-LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
+LocationOutput::LocationOutput( BinnedValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
     deleteAndZeroPtr( seldata_ );
@@ -652,7 +652,7 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 void LocationOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( info.binID() );
+    BinnedValueSet::SPos pos = bidvalset_.find( info.binID() );
     if ( !pos.isValid() ) return;
 
     const int desnrvals = desoutputs_.size()+1;
@@ -700,7 +700,7 @@ void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
 
 bool LocationOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    BinnedValueSet::SPos pos = bidvalset_.find( bid );
     return pos.isValid();
 }
 
@@ -712,7 +712,7 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
     //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
 
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    BinnedValueSet::SPos pos = bidvalset_.find( bid );
     while ( pos.isValid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
@@ -739,13 +739,13 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 
 bool LocationOutput::areBIDDuplicated() const
 {
-    BinIDValueSet tmpset(bidvalset_);
+    BinnedValueSet tmpset(bidvalset_);
     tmpset.allowDuplicatePositions( false );
 
     return tmpset.totalSize()<bidvalset_.totalSize();
 }
 
-TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
+TrcSelectionOutput::TrcSelectionOutput( const BinnedValueSet& bidvalset,
 					float outval )
     : bidvalset_(bidvalset)
     , outpbuf_(0)
@@ -771,7 +771,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 
     if ( !mIsUdf(zmin) && !mIsUdf(-zmax) )
     {
-	BinIDValueSet::SPos pos; bidvalset.next( pos );
+	BinnedValueSet::SPos pos; bidvalset.next( pos );
 	const BinID bid0( bidvalset.getBinID(pos) );
 	tsd.binidValueSet().add( bid0, zmin );
 	tsd.binidValueSet().add( bid0, zmax );
@@ -836,7 +836,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 
 bool TrcSelectionOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    BinnedValueSet::SPos pos = bidvalset_.find( bid );
     return pos.isValid();
 }
 
@@ -868,7 +868,7 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 						const BinID& bid, float zstep,
 						TypeSet<float>&	) const
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    BinnedValueSet::SPos pos = bidvalset_.find( bid );
     BinID binid;
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
@@ -1157,7 +1157,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 
     if ( datapointset_.is2D() )
     {
-	BinIDValueSet::SPos spos = datapointset_.bvsPos( rid );
+	BinnedValueSet::SPos spos = datapointset_.bvsPos( rid );
 	float* vals = datapointset_.bivSet().getVals( spos );
 	vals[datapointset_.nrFixedCols()-1] = (float)info.trcKey().trcNr();
     }
@@ -1208,7 +1208,7 @@ void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
 
 bool TableOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::SPos pos = datapointset_.bivSet().find( bid );
+    BinnedValueSet::SPos pos = datapointset_.bivSet().find( bid );
     return pos.isValid();
 }
 
@@ -1225,8 +1225,8 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 {
     TypeSet< Interval<int> > sampleinterval;
 
-    const BinIDValueSet& bvs = datapointset_.bivSet();
-    BinIDValueSet::SPos pos = bvs.find( bid );
+    const BinnedValueSet& bvs = datapointset_.bivSet();
+    BinnedValueSet::SPos pos = bvs.find( bid );
 
     DataPointSet::RowID rid = datapointset_.getRowID( pos );
     while ( pos.isValid() && bid == bvs.getBinID(pos) )

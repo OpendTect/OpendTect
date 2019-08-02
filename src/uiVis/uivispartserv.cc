@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "attribsel.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "coltabseqmgr.h"
 #include "coltabmapper.h"
 #include "cubesubsel.h"

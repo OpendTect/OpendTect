@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uitaskrunnerprovider.h"
 
 #include "arrayndimpl.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "bufstring.h"
 #include "cubesubsel.h"
 #include "ioobjctxt.h"
@@ -422,7 +422,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     }
 
     if ( !betweenhors )
-	horizon1->geometry().fillBinIDValueSet( tsd.binidValueSet(), prov );
+	horizon1->geometry().fillBinnedValueSet( tsd.binidValueSet(), prov );
     else
     {
 	EM::Object* emobjdoublehor =
@@ -439,10 +439,10 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	    return false;
 	}
 
-	BinIDValueSet& bvs = tsd.binidValueSet();
+	BinnedValueSet& bvs = tsd.binidValueSet();
 	bvs.allowDuplicatePositions( true );
-	horizon1->geometry().fillBinIDValueSet( bvs, prov );
-	horizon2->geometry().fillBinIDValueSet( bvs, prov );
+	horizon1->geometry().fillBinnedValueSet( bvs, prov );
+	horizon2->geometry().fillBinnedValueSet( bvs, prov );
 	emobjdoublehor->unRef();
     }
 

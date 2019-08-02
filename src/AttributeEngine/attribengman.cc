@@ -956,7 +956,7 @@ class AEMFeatureExtracter : public Executor
 { mODTextTranslationClass(AEMFeatureExtracter);
 public:
 AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
-		     const ObjectSet<BinIDValueSet>& bivsets )
+		     const ObjectSet<BinnedValueSet>& bivsets )
     : Executor("Extracting attributes")
 {
     const DescSet* attrset =
@@ -971,8 +971,8 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 	aem.attrspecs_ += ss;
     }
 
-    ObjectSet<BinIDValueSet>& bvs =
-	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
+    ObjectSet<BinnedValueSet>& bvs =
+	const_cast<ObjectSet<BinnedValueSet>&>(bivsets);
 
     proc_ = aem.createLocationOutput( uirv_, bvs );
 }
@@ -1018,13 +1018,13 @@ int nextStep()
 
 
 Executor* EngineMan::createFeatureOutput( const BufferStringSet& inputs,
-				    const ObjectSet<BinIDValueSet>& bivsets )
+				    const ObjectSet<BinnedValueSet>& bivsets )
 {
     return new AEMFeatureExtracter( *this, inputs, bivsets );
 }
 
 
-void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
+void EngineMan::computeIntersect2D( ObjectSet<BinnedValueSet>& bivsets ) const
 {
     if ( !procattrset_ || !attrspecs_.size() )
 	return;
@@ -1072,10 +1072,10 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	    linesetgeom.addLine( lnm ) = geom2d.data();
     }
 
-    ObjectSet<BinIDValueSet> newbivsets;
+    ObjectSet<BinnedValueSet> newbivsets;
     for ( int idx=0; idx<bivsets.size(); idx++ )
     {
-	BinIDValueSet* newset = new BinIDValueSet(bivsets[idx]->nrVals(), true);
+	auto* newset = new BinnedValueSet(bivsets[idx]->nrVals(), true);
 	ObjectSet<PosInfo::LineSet2DData::IR> resultset;
 	linesetgeom.intersect( *bivsets[idx], resultset );
 
@@ -1089,7 +1089,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
 
 Processor* EngineMan::createLocationOutput( uiRetVal& uirv,
-					    ObjectSet<BinIDValueSet>& bidzvset )
+					ObjectSet<BinnedValueSet>& bidzvset )
 {
     if ( bidzvset.size() == 0 ) return 0;
 
@@ -1101,7 +1101,7 @@ Processor* EngineMan::createLocationOutput( uiRetVal& uirv,
     ObjectSet<LocationOutput> outputs;
     for ( int idx=0; idx<bidzvset.size(); idx++ )
     {
-	BinIDValueSet& bidzvs = *bidzvset[idx];
+	BinnedValueSet& bidzvs = *bidzvset[idx];
 	LocationOutput* attrout = new LocationOutput( bidzvs );
 	outputs += attrout;
     }
@@ -1209,7 +1209,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
     if ( !proc )
 	return 0;
 
-    ObjectSet<BinIDValueSet> bidsets;
+    ObjectSet<BinnedValueSet> bidsets;
     bidsets += &datapointset.bivSet();
     computeIntersect2D( bidsets );
     TableOutput* tableout = new TableOutput( datapointset, firstcol );
@@ -1276,7 +1276,7 @@ Processor* EngineMan::getProcessor( uiRetVal& uirv )
 
 
 Processor* EngineMan::createTrcSelOutput( uiRetVal& uirv,
-					  const BinIDValueSet& bidvalset,
+					  const BinnedValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
 					  const Interval<float>* cubezbounds,
 					  const TypeSet<BinID>* trueknotspos,

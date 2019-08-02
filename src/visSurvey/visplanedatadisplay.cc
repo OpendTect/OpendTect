@@ -738,7 +738,7 @@ void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
     if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
 
-    rposcache_.replace( attrib, data ? new BinIDValueSet(data->bivSet()) : 0 );
+    rposcache_.replace( attrib, data ? new BinnedValueSet(data->bivSet()) : 0 );
 }
 
 
@@ -876,7 +876,7 @@ DataPack::ID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
 
 
 void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
-		const BinIDValueSet* bivset, const TaskRunnerProvider& trprov )
+		const BinnedValueSet* bivset, const TaskRunnerProvider& trprov )
 {
     if ( !bivset || !datatransform_ )
 	return;

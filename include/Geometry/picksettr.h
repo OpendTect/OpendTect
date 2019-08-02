@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "transl.h"
 
-class BinIDValueSet;
 class Conn;
 class DataPointSet;
 namespace Pick { class Set; }

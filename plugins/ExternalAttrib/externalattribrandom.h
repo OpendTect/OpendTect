@@ -39,9 +39,9 @@ public:
 					     TaskRunner*);
     const Attrib::DataCubes*	createAttrib(const CubeSampling&,
 					     const Attrib::DataCubes*);
-    bool			createAttrib(ObjectSet<BinIDValueSet>&,
+    bool			createAttrib(ObjectSet<BinnedValueSet>&,
 					     TaskRunner*);
-    bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&,
+    bool			createAttrib(const BinnedValueSet&, SeisTrcBuf&,
 					     TaskRunner*);
 
     bool			isIndexes() const;

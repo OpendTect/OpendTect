@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class BinDataDesc;
-class BinIDValueSet;
+class BinnedValueSet;
 class RegularSeisDataPack;
 class Scaler;
 
@@ -99,7 +99,7 @@ public:
 
 
 /*!Loads a 3D Seismic volume in parallel into a RegularSeisDataPack or
-   into a BinIDValueSet from a Parallel File System
+   into a BinnedValueSet from a Parallel File System
 */
 
 mExpClass(Seis) ParallelFSLoader3D : public Loader

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uistring.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class Executor;
 class IOObj;
 class UnitOfMeasure;
@@ -92,7 +92,7 @@ public:
 
     Array2D<float>*	createArray2D(AuxID) const;
     void		setArray2D(AuxID,const Array2D<float>&);
-    const BinIDValueSet& getData() const	{ return auxdata_; }
+    const BinnedValueSet& getData() const	{ return auxdata_; }
     Interval<float>	valRange(AuxID,bool conv_to_internal=false) const;
 
     bool		usePar(const IOPar&);
@@ -101,7 +101,7 @@ public:
 protected:
 
     Horizon3D&		horizon_;
-    BinIDValueSet&	auxdata_;
+    BinnedValueSet&	auxdata_;
 
 			//One entry per auxdata
     BoolTypeSet		usable_;

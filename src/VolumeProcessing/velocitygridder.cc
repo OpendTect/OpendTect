@@ -8,7 +8,7 @@
 #include "velocitygridder.h"
 
 #include "arrayndimpl.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "iopar.h"
@@ -41,7 +41,7 @@ public:
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
 
-    const BinIDValueSet&	completedBids() const { return completedbids_; }
+    const BinnedValueSet&	completedBids() const { return completedbids_; }
 
 protected:
     ObjectSet<Vel::Function>	velfuncs_;
@@ -49,7 +49,7 @@ protected:
     VelGriddingTask&		task_;
 
     Threads::Mutex		lock_;
-    BinIDValueSet		completedbids_;
+    BinnedValueSet		completedbids_;
 };
 
 
@@ -63,12 +63,12 @@ public:
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
 
-    const BinIDValueSet&	completedBids() const { return completedbids_; }
+    const BinnedValueSet&	completedBids() const { return completedbids_; }
 
 protected:
 
     Threads::Mutex		lock_;
-    BinIDValueSet		completedbids_;
+    BinnedValueSet		completedbids_;
 
     ObjectSet<Gridder2D>	gridders_;
     VelGriddingTask&		task_;
@@ -91,23 +91,23 @@ public:
 						{ return tr("CDPs gridded"); }
 
     VelocityGridder&		getStep()	      { return step_; }
-    const BinIDValueSet&	remainingBids() const { return remainingbids_; }
-    const BinIDValueSet&	definedBids() const   { return definedbids_; }
+    const BinnedValueSet&	remainingBids() const { return remainingbids_; }
+    const BinnedValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
-    const TypeSet<BinIDValueSet::SPos>& definedPos() const
+    const TypeSet<BinnedValueSet::SPos>& definedPos() const
 							{ return definedpos_;}
 
 protected:
     int				nrdone_;
     mutable Threads::Mutex	lock_;
 
-    BinIDValueSet::SPos		curpos_;
+    BinnedValueSet::SPos		curpos_;
 
-    BinIDValueSet		remainingbids_;
-    BinIDValueSet		definedbids_;
+    BinnedValueSet		remainingbids_;
+    BinnedValueSet		definedbids_;
 
     TypeSet<Coord>		definedpts_;
-    TypeSet<BinIDValueSet::SPos> definedpos_;
+    TypeSet<BinnedValueSet::SPos> definedpos_;
 
     VelocityGridder&		step_;
     od_int64			totalnr_;
@@ -173,7 +173,7 @@ BinID VelGriddingTask::getNextBid()
 
 int VelGriddingTask::nextStep()
 {
-    curpos_ = BinIDValueSet::SPos(-1,-1);
+    curpos_ = BinnedValueSet::SPos(-1,-1);
 
     bool change = false;
 
@@ -193,7 +193,7 @@ int VelGriddingTask::nextStep()
 	definedpts_.erase();
 	definedpos_.erase();
 
-	BinIDValueSet::SPos pos;
+	BinnedValueSet::SPos pos;
 	while ( definedbids_.next( pos, true ) )
 	{
 	    definedpts_ += SI().transform( definedbids_.getBinID(pos) );
@@ -666,7 +666,7 @@ ReportingTask* VelocityGridder::createTask()
     if ( !layermodel_ || !layermodel_->prepare(tkzs,SilentTaskRunnerProvider()))
 	return 0;
 
-    BinIDValueSet valset( 1, true );
+    BinnedValueSet valset( 1, true );
     const auto gs = tkzs.hsamp_.geomSystem();
     TrcKeySampling hsamp;
     Pos::IdxPairValueSet::SPos pos;

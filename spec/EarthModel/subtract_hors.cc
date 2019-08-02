@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "prog.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ioobjctxt.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"

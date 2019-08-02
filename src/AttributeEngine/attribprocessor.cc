@@ -16,7 +16,7 @@
 #include "seisinfo.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "cubesubsel.h"
 
 #include <limits.h>

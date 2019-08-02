@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "angles.h"
 #include "atomic.h"
 #include "arrayndimpl.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "datapackbase.h"
 #include "elasticpropsel.h"
 #include "envvars.h"

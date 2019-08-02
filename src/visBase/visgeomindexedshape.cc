@@ -403,14 +403,14 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set, TaskRunner* )
     if ( col==-1 )
 	return;
 
-    const BinIDValueSet& vals = set.bivSet();
+    const BinnedValueSet& vals = set.bivSet();
     if ( vals.nrVals()<col+1 )
 	return;
 
     TypeSet<float>& cache = colorhandler_.attributecache_;
     cache.setSize( vals.totalSize(), mUdf(float) );
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( vals.next( pos ) )
     {
 	const float* ptr = vals.getVals( pos );

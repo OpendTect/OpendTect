@@ -60,7 +60,7 @@ int EventExporter::nextStep()
     bool isatend = false;
     message_ = uiStrings::sReadingData();
 
-    BinIDValueSet currentbatch( 0, false );
+    BinnedValueSet currentbatch( 0, false );
     for ( int idx=0; idx<mBatchSize; idx++ )
     {
 	if ( !locations_.next( pos_ ) )
@@ -82,7 +82,7 @@ int EventExporter::nextStep()
 	return ErrorOccurred();
 
     message_ = uiStrings::sWriting();
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
 
     while ( currentbatch.next( pos ) )
     {

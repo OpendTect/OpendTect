@@ -601,8 +601,8 @@ void getRmsError( bool isy2 )
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2? 2:1);
 
     Math::Expression* mathobj = isy2 ? mathobj1_ : mathobj_;
-    const BinIDValueSet& bvs = dps_.bivSet();
-    BinIDValueSet::SPos pos;
+    const BinnedValueSet& bvs = dps_.bivSet();
+    BinnedValueSet::SPos pos;
     bool shwrmserr = true;
     double sqsumerr = 0.0;
     int count = 0;

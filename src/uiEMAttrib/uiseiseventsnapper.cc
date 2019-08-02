@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ioobjctxt.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
@@ -133,8 +133,8 @@ bool uiSeisEventSnapper::acceptOK()
 	if ( !newhor3d )
 	    return false;
 
-	BinIDValueSet bivs( 1, false );
-	hor3d->geometry().fillBinIDValueSet( bivs );
+	BinnedValueSet bivs( 1, false );
+	hor3d->geometry().fillBinnedValueSet( bivs );
 
 	SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
 	snapper.setEvent(
@@ -146,7 +146,7 @@ bool uiSeisEventSnapper::acceptOK()
 
 	hor3d->setBurstAlert( true );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
-	BinIDValueSet::SPos pos;
+	BinnedValueSet::SPos pos;
 	while ( bivs.next(pos) )
 	{
 	    BinID bid; float z;

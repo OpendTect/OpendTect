@@ -305,7 +305,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
     mSetIs2D(is2d)
     data_.pars() = pdvs.pars();
 
-    const BinIDValueSet& bvs = pdvs.data();
+    const BinnedValueSet& bvs = pdvs.data();
     const int bvssz = bvs.nrVals();
     const bool isdps = bvssz >= nrfixedcols_
 		    && pdvs.colDef(1) == data_.colDef(1)
@@ -532,7 +532,7 @@ bool DataPointSet::validColID( ColID cid ) const
 
 
 
-BinIDValueSet& DataPointSet::bivSet()
+BinnedValueSet& DataPointSet::bivSet()
 {
     return data_.data();
 }

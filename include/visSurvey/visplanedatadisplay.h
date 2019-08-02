@@ -26,7 +26,7 @@ namespace visBase
     class GridLines;
 }
 
-class BinIDValueSet;
+class BinnedValueSet;
 class Probe;
 
 namespace visSurvey
@@ -172,7 +172,7 @@ protected:
 				~PlaneDataDisplay();
 
     void			setRandomPosDataNoCache(int,
-						const BinIDValueSet*,
+						const BinnedValueSet*,
 						const TaskRunnerProvider&);
     void			updateChannels(int,const TaskRunnerProvider&);
     void			createTransformedDataPack(int attrib,
@@ -220,7 +220,7 @@ protected:
     TypeSet<DataPack::ID>		transfdatapackids_;
 
     ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
-    ObjectSet<BinIDValueSet>		rposcache_;
+    ObjectSet<BinnedValueSet>		rposcache_;
 
     TrcKeyZSampling			csfromsession_;
     BinID				curicstep_;

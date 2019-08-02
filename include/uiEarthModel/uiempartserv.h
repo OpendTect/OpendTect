@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "uistring.h"
 
-
-class BinIDValueSet;
+class BinnedValueSet;
 class BufferStringSet;
 class TrcKeyZSampling;
 class DataPointSet;
@@ -128,7 +127,7 @@ public:
 				    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     static void         getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
-    void		getSurfaceDef3D(const DBKeySet&,BinIDValueSet&,
+    void		getSurfaceDef3D(const DBKeySet&,BinnedValueSet&,
 				        const TrcKeySampling&) const;
     void		getSurfaceDef2D(const DBKeySet&,
 					const BufferStringSet& sellines,

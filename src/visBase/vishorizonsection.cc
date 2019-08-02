@@ -687,7 +687,7 @@ void HorizonSection::inValidateCache( int channel )
 { hortexturehandler_->inValidateCache( channel ); }
 
 
-const BinIDValueSet* HorizonSection::getCache( int channel ) const
+const BinnedValueSet* HorizonSection::getCache( int channel ) const
 { return hortexturehandler_->getCache( channel ); }
 
 

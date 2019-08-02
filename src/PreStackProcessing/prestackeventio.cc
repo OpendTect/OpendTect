@@ -8,7 +8,7 @@
 #include "prestackeventio.h"
 
 #include "ascstream.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "color.h"
 #include "datachar.h"
 #include "datainterp.h"
@@ -78,10 +78,10 @@ public:
 			EventPatchReader(Conn*,EventManager*);
 			~EventPatchReader();
 
-    void		getPositions(BinIDValueSet& bidset) const;
-    const TrcKeySampling&	getRange() const	{ return filebbox_; }
+    void		getPositions(BinnedValueSet& bidset) const;
+    const TrcKeySampling& getRange() const	{ return filebbox_; }
 
-    void		setSelection(const BinIDValueSet*);
+    void		setSelection(const BinnedValueSet*);
     void		setSelection(const TrcKeySampling*);
 
     bool		hasDataInRange() const;
@@ -108,7 +108,7 @@ protected:
     Conn*			conn_;
     TrcKeySampling			filebbox_;
     const TrcKeySampling*		horsel_;
-    const BinIDValueSet*	bidvalsel_;
+    const BinnedValueSet*	bidvalsel_;
     uiString			errmsg_;
 
     bool			readeventtype_;
@@ -174,7 +174,7 @@ EventReader::~EventReader()
 }
 
 
-bool EventReader::getPositions( BinIDValueSet& bidset ) const
+bool EventReader::getPositions( BinnedValueSet& bidset ) const
 {
     for ( int idx=patchreaders_.size()-1; idx>=0; idx-- )
     {
@@ -235,7 +235,7 @@ VSEvent::Type EventReader::decodeEventType( int et )
 }
 
 
-void EventReader::setSelection( const BinIDValueSet* bivs )
+void EventReader::setSelection( const BinnedValueSet* bivs )
 { bidsel_ = bivs; }
 
 
@@ -383,7 +383,7 @@ bool EventReader::prepareWork()
 
 	    if ( !usefile && bidsel_ )
 	    {
-		BinIDValueSet::SPos pos;
+		BinnedValueSet::SPos pos;
 		while ( bidsel_->next(pos,true) )
 		{
 		    if ( filehrg.includes( bidsel_->getBinID(pos) ))
@@ -1113,7 +1113,7 @@ EventPatchReader::~EventPatchReader()
 
 
 void EventPatchReader::setSelection(
-	const BinIDValueSet* bidvalset )
+	const BinnedValueSet* bidvalset )
 { bidvalsel_ = bidvalset; }
 
 
@@ -1147,7 +1147,7 @@ bool EventPatchReader::hasDataInRange() const
 }
 
 
-void EventPatchReader::getPositions( BinIDValueSet& bidset ) const
+void EventPatchReader::getPositions( BinnedValueSet& bidset ) const
 {
     for ( int idx=fileheader_.nrEvents()-1; idx>=0; idx-- )
 	bidset.add( fileheader_.getBinID(idx) );

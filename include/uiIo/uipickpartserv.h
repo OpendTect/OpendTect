@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "pickset.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class DataPointSet;
 class RandLocGenPars;
 class SurfaceInfo;
@@ -71,7 +71,7 @@ public:
     static int			evDisplayPickSet();
 
 				// Interaction stuff
-    BinIDValueSet&			genDef()	{ return gendef_; }
+    BinnedValueSet&		genDef()		{ return gendef_; }
     DBKey			pickSetID() const	{ return picksetid_; }
 
     ObjectSet<SurfaceInfo>&	horInfos()		{ return hinfos_; }
@@ -88,7 +88,7 @@ public:
 
 protected:
 
-    BinIDValueSet&		gendef_;
+    BinnedValueSet&		gendef_;
 
     ObjectSet<SurfaceInfo>	hinfos_;
     DBKeySet			selhorids_;

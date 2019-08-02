@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "attribparamgroup.h"
 #include "attribprocessor.h"
 #include "attribfactory.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "trckeyzsampling.h"
 #include "ioobj.h"
 #include "flatposdata.h"
@@ -586,7 +586,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     aem->setSubSel( Survey::FullSubSel(cs) );
 
-    BinIDValueSet bidvals( 0, false );
+    BinnedValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
        bidvals.add( trckeys[idx].binID() );
 

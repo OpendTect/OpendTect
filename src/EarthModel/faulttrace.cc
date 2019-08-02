@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "faulttrace.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emfaultset3d.h"
@@ -495,7 +495,7 @@ bool FaultTrace::getFaultTraceIntersection( const FaultTrace& flttrc,
 }
 
 
-bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
+bool FaultTrace::handleUntrimmed( const BinnedValueSet& bvs,
 			Interval<float>& zintv, const BinID& negbid,
 			const BinID& posbid, bool istop ) const
 {
@@ -506,7 +506,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 		  isinl_ ? trcrange_.stop+10 : nr_ );
     for ( int idx=0; idx<1024; idx++,trcvar-- )
     {
-	BinIDValueSet::SPos pos = bvs.find( bid );
+	BinnedValueSet::SPos pos = bvs.find( bid );
 	if ( !pos.isValid() )
 	    continue;
 
@@ -534,7 +534,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 		    isinl_ ? trcrange_.start-10 : nr_ );
     for ( int idx=0; idx<1024; idx++,trcvar++ )
     {
-	BinIDValueSet::SPos pos = bvs.find( bid );
+	BinnedValueSet::SPos pos = bvs.find( bid );
 	if ( !pos.isValid() )
 	    continue;
 
@@ -560,7 +560,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 }
 
 
-bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
+bool FaultTrace::getHorCrossings( const BinnedValueSet& bvs,
 				  Interval<float>& ztop,
 				  Interval<float>& zbot ) const
 {
@@ -573,7 +573,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     od_int64 idx = 0;
     for ( idx=0; idx<bvssz; idx++,startvar += step )
     {
-	BinIDValueSet::SPos pos = bvs.find( start );
+	BinnedValueSet::SPos pos = bvs.find( start );
 	if ( !pos.isValid() )
 	    continue;
 
@@ -600,7 +600,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	if ( foundtop && foundbot )
 	    break;
 
-	BinIDValueSet::SPos pos = bvs.find( stop );
+	BinnedValueSet::SPos pos = bvs.find( stop );
 	if ( !pos.isValid() )
 	    continue;
 

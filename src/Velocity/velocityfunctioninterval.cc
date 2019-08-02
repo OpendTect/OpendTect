@@ -106,7 +106,7 @@ void IntervalSource::setInput( FunctionSource* input )
 }
 
 
-void IntervalSource::getAvailablePositions( BinIDValueSet& bidset ) const
+void IntervalSource::getAvailablePositions( BinnedValueSet& bidset ) const
 {
     if ( inputsource_ )
 	inputsource_->getAvailablePositions( bidset );

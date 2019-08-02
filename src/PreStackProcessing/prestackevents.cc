@@ -7,7 +7,7 @@
 
 #include "prestackevents.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "trckeysampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -218,8 +218,8 @@ EventManager::EventManager()
     , forceReload( this )
     , change( this )
     , resetChangeStatus( this )
-    , reloadbids_( new BinIDValueSet( 0, false ) )
-    , notificationqueue_( new BinIDValueSet( 0, false ) )
+    , reloadbids_( new BinnedValueSet( 0, false ) )
+    , notificationqueue_( new BinnedValueSet( 0, false ) )
     , nexthorid_( 0 )
     , auxdatachanged_( false )
     , primarydipprovider_( 0 )
@@ -436,7 +436,7 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 }
 
 
-bool EventManager::getLocations( BinIDValueSet& bvs ) const
+bool EventManager::getLocations( BinnedValueSet& bvs ) const
 {
     RowCol arraypos( -1, -1 );
     while ( events_.next( arraypos, false ) )
@@ -468,7 +468,7 @@ Executor* EventManager::commitChanges()
 }
 
 
-Executor* EventManager::load( const BinIDValueSet& bidset, bool trigger )
+Executor* EventManager::load( const BinnedValueSet& bidset, bool trigger )
 {
     PtrMan<IOObj> ioobj = storageid_.getIOObj();
     if ( !ioobj )
@@ -528,7 +528,7 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
     {
 	if ( doload )
 	{
-	    BinIDValueSet bidvalset(0,false);
+	    BinnedValueSet bidvalset(0,false);
 	    bidvalset.add( bid );
 	    PtrMan<Executor> loader = load( bidvalset, false );
 	    if ( loader )
@@ -581,7 +581,7 @@ void EventManager::cleanUp( bool keepchanged )
 }
 
 
-void EventManager::addReloadPositions( const BinIDValueSet& bvs )
+void EventManager::addReloadPositions( const BinnedValueSet& bvs )
 { reloadbids_->append( bvs ); }
 
 
@@ -598,7 +598,7 @@ void EventManager::blockChange( bool yn, bool sendnow )
 	change.enable();
 	if ( sendnow )
 	{
-	    BinIDValueSet::SPos pos;
+	    BinnedValueSet::SPos pos;
 	    while ( notificationqueue_->next(pos) )
 		reportChange( notificationqueue_->getBinID( pos ) );
 	}

@@ -53,7 +53,7 @@ bool ZAxisTransformPointGenerator::doPrepare( int nrthreads )
 {
     deepErase( bidvalsets_ );
     for ( int idx=0; idx<nrthreads; idx++ )
-	bidvalsets_ += new BinIDValueSet( dps_->bivSet().nrVals(),
+	bidvalsets_ += new BinnedValueSet( dps_->bivSet().nrVals(),
 				dps_->bivSet().allowsDuplicateIdxPairs() );
     return true;
 }

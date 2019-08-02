@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "velocityfunction.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class Gridder2D;
 
 namespace Vel
@@ -37,7 +37,7 @@ public:
     void		setInput(Function*);
 
 protected:
-    			~IntervalFunction();
+			~IntervalFunction();
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
@@ -49,14 +49,14 @@ protected:
 mExpClass(Velocity) IntervalSource : public FunctionSource
 {
 public:
-    			IntervalSource();
+			IntervalSource();
     const VelocityDesc&	getDesc() const;
     const char*		factoryKeyword() const { return sType(); }
     static const char*	sType() { return "Interval"; }
 
     void		setInput(FunctionSource*);
     void		getSources(DBKeySet&) const;
-    void		getAvailablePositions(BinIDValueSet&) const;
+    void		getAvailablePositions(BinnedValueSet&) const;
 
     NotifierAccess*	changeNotifier();
     BinID		changeBinID() const;
@@ -64,7 +64,7 @@ public:
 protected:
     void		sourceChangeCB(CallBacker*);
     IntervalFunction*	createFunction(const BinID&);
-    			~IntervalSource();
+			~IntervalSource();
 
     FunctionSource*	inputsource_;
     VelocityDesc	veldesc_;

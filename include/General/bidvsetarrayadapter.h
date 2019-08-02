@@ -13,28 +13,29 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "arraynd.h"
 #include "arrayndinfo.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "trckeysampling.h"
 
 
-//!\brief an adapter between Array2D and a BinIDValueSet
+//!\brief an adapter offering the Array2D interface for a BinnedValueSet
 
 mExpClass(General) BIDValSetArrAdapter : public Array2D<float>
 {
-public:			
-    				BIDValSetArrAdapter(const BinIDValueSet&,
+public:
+				BIDValSetArrAdapter(const BinnedValueSet&,
 						    int col,const BinID& step);
 
     void			set(int inlidx,int crlidx,float val);
     float			get(int inlidx,int crlidx) const;
 
     const Array2DInfo&		info() const		{ return arrinfo_; }
-    TrcKeySampling			tks_;
+
+    TrcKeySampling		tks_;
 
 protected:
 
     Array2DInfoImpl		arrinfo_;
-    const BinIDValueSet&	bidvs_;
+    const BinnedValueSet&	bidvs_;
     int				targetcolidx_;
 
 };

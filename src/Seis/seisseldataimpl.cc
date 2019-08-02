@@ -8,7 +8,7 @@
 #include "seistableseldata.h"
 #include "seispolyseldata.h"
 #include "seisrangeseldata.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "polygon.h"
@@ -27,16 +27,16 @@ typedef StepInterval<pos_type> pos_steprg_type;
 
 
 Seis::TableSelData::TableSelData()
-    : bvs_(*new BinIDValueSet(1,true))
+    : bvs_(*new BinnedValueSet(1,true))
     , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
 }
 
 
-Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
+Seis::TableSelData::TableSelData( const BinnedValueSet& bvs,
 				  const z_rg_type* extraz )
-    : bvs_(*new BinIDValueSet(bvs))
+    : bvs_(*new BinnedValueSet(bvs))
     , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
@@ -47,7 +47,7 @@ Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
 
 
 Seis::TableSelData::TableSelData( const DBKey& dbky )
-    : bvs_(*new BinIDValueSet(1,true))
+    : bvs_(*new BinnedValueSet(1,true))
     , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
@@ -58,7 +58,7 @@ Seis::TableSelData::TableSelData( const DBKey& dbky )
 
 
 Seis::TableSelData::TableSelData( const TableSelData& sd )
-    : bvs_(*new BinIDValueSet(1,true))
+    : bvs_(*new BinnedValueSet(1,true))
     , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
@@ -175,7 +175,7 @@ void Seis::TableSelData::doExtendH( BinID so, BinID sos )
     if ( bvs_.isEmpty() )
 	return;
 
-    const BinIDValueSet orgbvs( bvs_ );
+    const BinnedValueSet orgbvs( bvs_ );
     if ( is2D() )
 	bvs_.extendHor2D( so.crl() );
     else
@@ -184,7 +184,7 @@ void Seis::TableSelData::doExtendH( BinID so, BinID sos )
     const auto zrg( orgbvs.valRange(0) );
     const auto avgz = zrg.center();
 
-    BinIDValueSet::SPos spos;
+    BinnedValueSet::SPos spos;
     while ( bvs_.next(spos) )
     {
 	const BinID bid( bvs_.getBinID(spos) );

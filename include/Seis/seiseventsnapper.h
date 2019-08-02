@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseriesevent.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class SeisTrc;
 namespace Seis { class MSCProvider; }
 
@@ -57,7 +57,7 @@ protected:
 mExpClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
 {
 public:
-			SeisEventSnapper3D(const IOObj&,BinIDValueSet&,
+			SeisEventSnapper3D(const IOObj&,BinnedValueSet&,
 					   const Interval<float>& gate);
 			~SeisEventSnapper3D();
 
@@ -68,7 +68,7 @@ protected:
 
     virtual int		nextStep();
 
-    BinIDValueSet&	positions_;
+    BinnedValueSet&	positions_;
     Seis::MSCProvider*	mscprov_;
 
 };

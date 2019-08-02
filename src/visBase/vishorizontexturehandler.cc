@@ -10,7 +10,7 @@
 #include "vishorizonsectiondef.h"
 #include "vishorizonsectiontile.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "posvecdataset.h"
@@ -211,7 +211,7 @@ void HorizonTextureHandler::inValidateCache( int channel )
 }
 
 
-const BinIDValueSet* HorizonTextureHandler::getCache( int channel ) const
+const BinnedValueSet* HorizonTextureHandler::getCache( int channel ) const
 {
     return cache_.validIdx(channel) ? cache_[channel] : 0;
 }
@@ -220,7 +220,7 @@ const BinIDValueSet* HorizonTextureHandler::getCache( int channel ) const
 void HorizonTextureHandler::setTextureData( int channel,  int sectionid,
 				     const DataPointSet* dtpntset )
 {
-    const BinIDValueSet* data = dtpntset ? &dtpntset->bivSet() : 0;
+    const BinnedValueSet* data = dtpntset ? &dtpntset->bivSet() : 0;
     if ( channel<0 || channel>=cache_.size() )
 	return;
 
@@ -238,7 +238,7 @@ void HorizonTextureHandler::setTextureData( int channel,  int sectionid,
     }
     else if ( data )
     {
-	cache_.replace( channel, new BinIDValueSet(*data) );
+	cache_.replace( channel, new BinnedValueSet(*data) );
     }
 
     updateTexture( channel, sectionid, dtpntset );
@@ -250,7 +250,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 {
     if ( !horsection_ ) return;
 
-    const BinIDValueSet* data = cache_.validIdx(channel) ? cache_[channel] : 0;
+    const BinnedValueSet* data = cache_.validIdx(channel) ? cache_[channel] : 0;
     if ( !horsection_->geometry_ || !horsection_->geometry_->getArray() ||
 	 !dtpntset || !data )
 	return;
@@ -286,7 +286,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 	versiondata += vals;
     }
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     const int startsourceidx = nrfixedcols + (nrfixedcols==sidcol ? 1 : 0);
     while ( data->next(pos,true) )
     {

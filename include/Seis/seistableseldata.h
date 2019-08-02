@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisseldata.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 
 
 namespace Seis
@@ -19,7 +19,7 @@ namespace Seis
 
 class TableSelDataPosIter;
 
-/*!\brief Selection data from a BinIDValueSet.
+/*!\brief Selection data from a BinnedValueSet.
 
   TableSelData works in 3D space; it does not select in trace numbers. In 2D,
   this will go via coordinates.
@@ -35,7 +35,7 @@ public:
     Type		type() const override	{ return Table; }
 
 			TableSelData();
-			TableSelData(const BinIDValueSet&,
+			TableSelData(const BinnedValueSet&,
 				     const z_rg_type* extraz=0);
 			TableSelData(const DBKey&);
 			TableSelData(const TableSelData&);
@@ -47,8 +47,8 @@ public:
     size_type		nrGeomIDs() const override;
 
     void		updateAfterBVSChange();
-    BinIDValueSet&	binidValueSet()		{ return bvs_; }
-    const BinIDValueSet& binidValueSet() const	{ return bvs_; }
+    BinnedValueSet&	binidValueSet()		{ return bvs_; }
+    const BinnedValueSet& binidValueSet() const	{ return bvs_; }
     z_rg_type		extraZ() const		{ return extraz_; }
     dist_type		searchRadius() const	{ return searchradius_; }
     void		merge(const TableSelData&);
@@ -67,7 +67,7 @@ public:
 
 protected:
 
-    BinIDValueSet&	bvs_;
+    BinnedValueSet&	bvs_;
     z_rg_type		extraz_;
     z_rg_type		fixedzrange_; // used only if no z vals in bidvalset
     dist_type		searchradius_		= 0;
@@ -110,7 +110,7 @@ public:
 
 protected:
 
-    BinIDValueSet::SPos	spos_;
+    BinnedValueSet::SPos spos_;
 
 };
 

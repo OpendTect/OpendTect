@@ -457,7 +457,7 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
     if ( dataidx_ < 0 )
 	dataidx_ = addSurfaceData();
 
-    BinIDValueSet& bivs = emdps_.bivSet();
+    BinnedValueSet& bivs = emdps_.bivSet();
     BIDValSetArrAdapter adapter( bivs, 2, tks_.step_ );
     adapter.setAll( mUdf(float) );
     for ( int idx=0; idx<dps_.size(); idx++ )

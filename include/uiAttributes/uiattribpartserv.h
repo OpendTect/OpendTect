@@ -29,7 +29,7 @@ namespace Attrib
     class EngineMan;
 }
 
-class BinIDValueSet;
+class BinnedValueSet;
 class TrcKeyZSampling;
 class DataPointSetDisplayMgr;
 class IOObj;
@@ -124,7 +124,7 @@ public:
     bool		createOutput(DataPointSet&,int firstcol =0);
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
-    bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
+    bool		createOutput(const BinnedValueSet&,SeisTrcBuf&,
 				     const TypeSet<BinID>&,
 				     const TypeSet<BinID>&);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emfault3d.h"
 #include "emioobjinfo.h"
 #include "emsurfacegeometry.h"

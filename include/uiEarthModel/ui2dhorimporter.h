@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "bufstringset.h"
 #include "posinfo2d.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 
 namespace EM { class Horizon2D;}
 namespace Survey { class Geometry2D;}
@@ -27,19 +27,19 @@ public:
 
     Horizon2DBulkImporter(const BufferStringSet& lnms,
 			ObjectSet<EM::Horizon2D>& hors,
-			const BinIDValueSet* valset, UndefTreat udftreat);
+			const BinnedValueSet* valset, UndefTreat udftreat);
 
 protected:
 
     ObjectSet<EM::Horizon2D>&	hors_;
-    const BinIDValueSet*	bvalset_;
+    const BinnedValueSet*	bvalset_;
     GeomIDSet			geomids_;
     const SurvGeom2D*		curlinegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;
     int				prevlineidx_;
-    BinIDValueSet::SPos		pos_;
+    BinnedValueSet::SPos	pos_;
     UndefTreat			udftreat_;
     void			interpolateAndSetVals(int hidx,Pos::GeomID,
 				int curtrcnr,int prevtrcnr,float curval,

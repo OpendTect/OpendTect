@@ -105,8 +105,8 @@ PosVecDataSet& PosVecDataSet::operator =( const PosVecDataSet& vds )
     name_ = vds.name();
     pars_ = vds.pars_;
 
-    const BinIDValueSet& bvs = vds.data();
-    BinIDValueSet::SPos pos;
+    const BinnedValueSet& bvs = vds.data();
+    BinnedValueSet::SPos pos;
     while ( bvs.next(pos) )
 	data_.add( bvs.getBinID(pos), bvs.getVals( pos ) );
 
@@ -225,14 +225,14 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
     if ( vds.data_.isEmpty() )
 	return;
 
-    BinIDValueSet::SPos vdspos;
+    BinnedValueSet::SPos vdspos;
     const int vdsnrvals = vds.data_.nrVals();
     BinID bid; float* vals;
     while ( vds.data_.next(vdspos) )
     {
 	const float* vdsvals = vds.data_.getVals(vdspos);
 	vds.data_.get( vdspos, bid );
-	BinIDValueSet::SPos pos = data_.find( bid );
+	BinnedValueSet::SPos pos = data_.find( bid );
 	data_.prev( pos );
 	vals = 0;
 	while ( data_.next(pos) )
@@ -608,7 +608,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     }
 
     const int nrvals = data().nrVals();
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     float* vals = new float [nrvals];
     BinID bid;
     while ( data().next(pos) )
@@ -685,7 +685,7 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
     }
 
     const int nrvals = data().nrVals();
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     float* vals = new float [nrvals];
     BinID bid;
     while ( data().next(pos) )

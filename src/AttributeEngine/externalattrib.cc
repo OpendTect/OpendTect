@@ -25,11 +25,11 @@ RefMan<RegularSeisDataPack> ExtAttribCalc::createAttrib( const TrcKeyZSampling&,
 { return 0; }
 
 
-bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>&, TaskRunner* )
+bool ExtAttribCalc::createAttrib( ObjectSet<BinnedValueSet>&, TaskRunner* )
 { return false; }
 
 
-bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
+bool ExtAttribCalc::createAttrib( const BinnedValueSet&, SeisTrcBuf& buf,
 				  TaskRunner* )
 { return false; }
 

@@ -13,9 +13,9 @@ ________________________________________________________________________
 
 #include "velocitymod.h"
 #include "velocityfunction.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class IOObjContext;
 
 namespace Vel
@@ -62,11 +62,11 @@ public:
 
     StoredFunction*	createFunction(const BinID&);
 
-    void			getAvailablePositions(BinIDValueSet&) const;
+    void			getAvailablePositions(BinnedValueSet&) const;
     bool			getVel(const BinID&,TypeSet<float>& zvals,
 	                               TypeSet<float>& vel);
 
-    void			setData(const BinIDValueSet&,
+    void			setData(const BinnedValueSet&,
 					const VelocityDesc&,bool zit);
 
     static const char*          sKeyZIsTime();
@@ -79,7 +79,7 @@ protected:
     static FunctionSource*	create(const DBKey&);
 				~StoredFunctionSource();
 
-    BinIDValueSet		veldata_;
+    BinnedValueSet		veldata_;
     bool                        zit_;
     VelocityDesc                desc_;
 };

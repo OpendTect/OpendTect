@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "array2dinterpolimpl.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ctxtioobj.h"
 #include "emhorizonascio.h"
 #include "emhorizon3d.h"
@@ -437,7 +437,7 @@ bool uiImportHorizon::doImport()
 	mErrRetUnRef( msg );
     }
 
-    ManagedObjectSet<BinIDValueSet> sections;
+    ManagedObjectSet<BinnedValueSet> sections;
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
@@ -584,7 +584,7 @@ bool uiImportHorizon::checkInpFlds()
 }
 
 
-bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
+bool uiImportHorizon::fillUdfs( ObjectSet<BinnedValueSet>& sections )
 {
     if ( !interpol_ )
 	return false;
@@ -602,7 +602,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	arr.setAll( mUdf(float) );
-	BinIDValueSet& data = *sections[idx];
+	BinnedValueSet& data = *sections[idx];
 	BinID bid;
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
 	{
@@ -610,7 +610,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
 		bid.crl() = hs.start_.crl() + crl*hs.step_.crl();
-		BinIDValueSet::SPos pos = data.find( bid );
+		BinnedValueSet::SPos pos = data.find( bid );
 		if ( pos.j >= 0 )
 		{
 		    const float* vals = data.getVals( pos );
@@ -632,7 +632,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
 		bid.crl() = hs.start_.crl() + crl*hs.step_.crl();
-		BinIDValueSet::SPos pos = data.find( bid );
+		BinnedValueSet::SPos pos = data.find( bid );
 		if ( pos.j >= 0 ) continue;
 
 		TypeSet<float> vals( data.nrVals(), mUdf(float) );

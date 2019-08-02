@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posinfo2d.h"
 #include "objectset.h"
-class BinIDValueSet;
+class BinnedValueSet;
 
 
 namespace PosInfo
@@ -44,9 +44,9 @@ public:
 			~IR(); //		{ delete posns_; }
 
 	BufferString	lnm_;
-	BinIDValueSet*	posns_;
+	BinnedValueSet*	posns_;
     };
-    void		intersect(const BinIDValueSet&,ObjectSet<IR>&) const;
+    void		intersect(const BinnedValueSet&,ObjectSet<IR>&) const;
 
     dist_type		getDistBetwTrcs(bool,const char* linenm =0) const;
     void                compDistBetwTrcsStats();

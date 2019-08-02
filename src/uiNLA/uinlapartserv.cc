@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uinlapartserv.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ioobjctxt.h"
 #include "datacoldef.h"
 #include "debug.h"
@@ -152,7 +152,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
 	       gtUiTitle(dps), mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {
-    const BinIDValueSet& bvs = dps.dataSet().data();
+    const BinnedValueSet& bvs = dps.dataSet().data();
     bvs.getColumn( bvs.nrVals() - 1, datavals, false );
     if ( datavals.isEmpty() )
     {
@@ -404,8 +404,8 @@ const uiString uiNLAPartServer::convertToClasses(
     LithCodeData lcd;
     for ( int iset=firstgooddps; iset<dpss.size(); iset++ )
     {
-	const BinIDValueSet& bvs = dpss[iset]->dataSet().data();
-	BinIDValueSet::SPos pos;
+	const BinnedValueSet& bvs = dpss[iset]->dataSet().data();
+	BinnedValueSet::SPos pos;
 	while( bvs.next(pos) )
 	{
 	    const float val = bvs.getVals(pos)[valnr];
@@ -503,8 +503,8 @@ void uiNLAPartServer::LithCodeData::addCols( PosVecDataSet& vds,
 void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 					      const int valnr )
 {
-    BinIDValueSet& bvs = vds.data();
-    BinIDValueSet::SPos pos;
+    BinnedValueSet& bvs = vds.data();
+    BinnedValueSet::SPos pos;
     while ( bvs.next(pos) )
     {
 	float* vals = bvs.getVals( pos );
@@ -617,7 +617,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	allok = pddlg.go();
 	if ( allok )
 	{
-	    BinIDValueSet& bivset = dps()->dataSet().data();
+	    BinnedValueSet& bivset = dps()->dataSet().data();
 	    const int targetcol = bivset.nrVals() - 1;
 	    NLADataPreparer dp( bivset, targetcol );
 	    dp.removeUndefs(); dp.limitRange( pddlg.rg_ );

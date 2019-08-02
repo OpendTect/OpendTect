@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 
 class IOObj;
-class BinIDValueSet;
+class BinnedValueSet;
 class TrcKeySampling;
 template <class T> class DataInterpreter;
 
@@ -43,12 +43,12 @@ public:
 			//!<getPositions can be run, no real work
 			~EventReader();
 
-    void		setSelection(const BinIDValueSet*);
+    void		setSelection(const BinnedValueSet*);
     void		setSelection(const TrcKeySampling*);
 
     bool		prepareWork();
 			//!<Will run automaticly at first nextStep
-    bool		getPositions(BinIDValueSet&) const;
+    bool		getPositions(BinnedValueSet&) const;
 			//!<Only after first nextStep, or prepareWork
 
     bool		getBoundingBox(Interval<int>& inlrg,
@@ -92,7 +92,7 @@ protected:
 
     const IOObj*				ioobj_;
     EventManager*				eventmanager_;
-    const BinIDValueSet*			bidsel_;
+    const BinnedValueSet*			bidsel_;
     const TrcKeySampling*				horsel_;
 
     ObjectSet<EventPatchReader>			patchreaders_;

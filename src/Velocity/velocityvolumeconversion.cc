@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "velocityvolumeconversion.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ioobj.h"
 #include "ioobjtags.h"
 #include "seisprovider.h"

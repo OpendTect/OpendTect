@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 
 #include "arrayndimpl.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
@@ -33,7 +33,7 @@ namespace EM
 SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
     : horizon_(horizon)
     , changed_(false)
-    , auxdata_(*new BinIDValueSet(0,false))
+    , auxdata_(*new BinnedValueSet(0,false))
 {
     units_.setNullAllowed( true );
 }
@@ -222,7 +222,7 @@ float SurfaceAuxData::getAuxDataVal( AuxID auxid, const PosID& posid ) const
 	return mUdf(float);
 
     const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::SPos spos = auxdata_.find( geomrc );
+    const BinnedValueSet::SPos spos = auxdata_.find( geomrc );
     if ( !spos.isValid() )
 	return mUdf(float);
 
@@ -235,7 +235,7 @@ float SurfaceAuxData::getAuxDataVal( AuxID auxid, const TrcKey& tk ) const
     if ( !isUsable(auxid) )
 	return mUdf(float);
 
-    const BinIDValueSet::SPos spos = auxdata_.find( tk.binID() );
+    const BinnedValueSet::SPos spos = auxdata_.find( tk.binID() );
     if ( !spos.isValid() )
 	return mUdf(float);
 
@@ -253,7 +253,7 @@ void SurfaceAuxData::setAuxDataVal( AuxID auxid, const PosID& posid, float val,
     if ( geomrc.isUdf() )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_.find( geomrc );
+    const BinnedValueSet::SPos pos = auxdata_.find( geomrc );
     const int colidx = getColIdx( auxid );
     if ( !pos.isValid() )
     {
@@ -279,7 +279,7 @@ void SurfaceAuxData::setAuxDataVal( AuxID auxid, const TrcKey& tk, float val )
     if ( !isUsable(auxid) || tk.isUdf() || horizon_.isNodeLocked(tk) )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_.find( tk.binID() );
+    const BinnedValueSet::SPos pos = auxdata_.find( tk.binID() );
     if ( pos.isValid() )
     {
 	auxdata_.getVals( pos )[ getColIdx(auxid) ] = val;

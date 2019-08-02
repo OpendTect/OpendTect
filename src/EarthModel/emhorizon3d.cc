@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "atomic.h"
 #include "binidsurface.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "datapointset.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -50,7 +50,7 @@ class AuxDataImporter : public Executor
 { mODTextTranslationClass(AuxDataImporter)
 public:
 
-AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
+AuxDataImporter( Horizon3D& hor, const ObjectSet<BinnedValueSet>& sects,
 		 const BufferStringSet& attribnames, const int start,
 		 TrcKeySampling hs )
     : Executor("Data Import")
@@ -101,13 +101,13 @@ int nextStep()
 	inl_ = inlrg_.start;
     }
 
-    const BinIDValueSet& bvs = *bvss_[0];
+    const BinnedValueSet& bvs = *bvss_[0];
     for ( int crl=crlrg_.start; crl<=crlrg_.stop; crl+=crlrg_.step )
     {
 	const BinID bid( inl_, crl );
 	if ( !hs_.includes(bid) ) continue;
 
-	BinIDValueSet::SPos pos = bvs.find( bid );
+	BinnedValueSet::SPos pos = bvs.find( bid );
 	if ( !pos.isValid() ) continue;
 
 	const float* vals = bvs.getVals( pos );
@@ -135,7 +135,7 @@ uiString	nrDoneText() const	{ return tr("Positions handled"); }
 
 protected:
 
-    const ObjectSet<BinIDValueSet>&	bvss_;
+    const ObjectSet<BinnedValueSet>& bvss_;
     Horizon3D&			horizon_;
     const TrcKeySampling	hs_;
     uiString			msg_;
@@ -156,7 +156,7 @@ class HorizonImporter : public Executor
 { mODTextTranslationClass(HorizonImporter)
 public:
 
-HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
+HorizonImporter( Horizon3D& hor, const ObjectSet<BinnedValueSet>& sects,
 		 const TrcKeySampling& hs )
     : Executor("Horizon Import")
     , horizon_(hor)
@@ -175,7 +175,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
     for ( int idx=0; idx<bvss_.size(); idx++ )
     {
-	const BinIDValueSet& bvs = *bvss_[idx];
+	const BinnedValueSet& bvs = *bvss_[idx];
 	if ( bvs.nrVals() != nrvals_ )
 	    { msg_ = tr("Incompatible sections"); return; }
 
@@ -221,7 +221,7 @@ int nextStep()
 	return Finished();
     }
 
-    const BinIDValueSet& bvs = *bvss_[sectionidx_];
+    const BinnedValueSet& bvs = *bvss_[sectionidx_];
     BinID bid;
     for ( int idx=0; idx<10000; idx++ )
     {
@@ -260,9 +260,9 @@ void fillHorizonArray()
 
 protected:
 
-    const ObjectSet<BinIDValueSet>&	bvss_;
+    const ObjectSet<BinnedValueSet>&	bvss_;
     Horizon3D&				horizon_;
-    BinIDValueSet::SPos			pos_;
+    BinnedValueSet::SPos		pos_;
     TrcKeySampling			hs_;
     uiString				msg_;
     int					nrvals_;
@@ -615,7 +615,7 @@ const IOObjContext& Horizon3D::getIOObjContext() const
 { return EMHorizon3DTranslatorGroup::ioContext(); }
 
 
-Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
+Executor* Horizon3D::importer( const ObjectSet<BinnedValueSet>& sections,
 			   const TrcKeySampling& hs )
 {
     removeAll();
@@ -623,7 +623,7 @@ Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
 }
 
 
-Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
+Executor* Horizon3D::auxDataImporter( const ObjectSet<BinnedValueSet>& sections,
 				      const BufferStringSet& attribnms,
 				      const int start, const TrcKeySampling& hs)
 {
@@ -1439,7 +1439,7 @@ Geometry::BinIDSurface* Horizon3DGeometry::createGeometryElement() const
 
 void Horizon3DGeometry::getDataPointSet( DataPointSet& dps, float shift ) const
 {
-    BinIDValueSet& bidvalset = dps.bivSet();
+    BinnedValueSet& bidvalset = dps.bivSet();
     bidvalset.setNrVals( 1 );
     const int nrknots = geometryElement()->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
@@ -1527,7 +1527,7 @@ bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
 }
 
 
-void Horizon3DGeometry::fillBinIDValueSet( BinIDValueSet& bivs,
+void Horizon3DGeometry::fillBinnedValueSet( BinnedValueSet& bivs,
 					   Pos::Provider3D* prov ) const
 {
     PtrMan<ObjectIterator> it = createIterator();

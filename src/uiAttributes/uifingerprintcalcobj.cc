@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "attribengman.h"
 #include "uimsg.h"
 #include "ioobj.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "picksetmanager.h"
 #include "seis2ddata.h"
 #include "posinfo2d.h"
@@ -43,7 +43,7 @@ static const int cNrRandPicks = 100;
 }\
 
 
-static void create3DRandPicks( BinIDValueSet* rangesset )
+static void create3DRandPicks( BinnedValueSet* rangesset )
 {
     BinID bid;
     const auto zrg = SI().zRange( OD::UsrWork );
@@ -78,7 +78,7 @@ calcFingParsObject::~calcFingParsObject()
 
 
 void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
-					    BinIDValueSet* rangesset )
+					    BinnedValueSet* rangesset )
 {
     PtrMan<IOObj> ioobj = dsetid.getIOObj();
     if ( !ioobj )
@@ -109,15 +109,15 @@ void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
 }
 
 
-void calcFingParsObject::setValRgSet( BinIDValueSet* positions, bool isvalset )
+void calcFingParsObject::setValRgSet( BinnedValueSet* positions, bool isvalset )
 {
     delete( posset_.replace( isvalset ? 0 : 1, positions ) );
 }
 
 
-BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
+BinnedValueSet* calcFingParsObject::createRangesBinIDSet() const
 {
-    BinIDValueSet* retset = 0;
+    BinnedValueSet* retset = 0;
     if ( rgreftype_ == 1 )
     {
 	const DBKey setid( getRgRefPick() );
@@ -126,7 +126,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	if ( !ps )
 	    { gUiMsg(parent_).error( uirv ); return 0; }
 
-	retset = new BinIDValueSet( 1, false );
+	retset = new BinnedValueSet( 1, false );
 	Pick::SetIter psiter( *ps );
 	while ( psiter.next() )
 	{
@@ -136,7 +136,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     }
     else if ( rgreftype_ == 2 )
     {
-	retset = new BinIDValueSet( 2, true );
+	retset = new BinnedValueSet( 2, true );
 	if ( attrset_->is2D() )
 	{
 	    DBKey datasetid;
@@ -147,7 +147,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	    create3DRandPicks( retset );
     }
     else
-	retset = new BinIDValueSet( 1, false );
+	retset = new BinnedValueSet( 1, false );
 
     return retset;
 }
@@ -207,8 +207,8 @@ bool calcFingParsObject::computeValsAndRanges()
 void calcFingParsObject::extractAndSaveValsAndRanges()
 {
     const int nrattribs = reflist_->size();
-    BinIDValueSet* valueset = posset_[0];
-    BinIDValueSet* rangeset = posset_[1];
+    BinnedValueSet* valueset = posset_[0];
+    BinnedValueSet* rangeset = posset_[1];
     TypeSet<float> vals( nrattribs, mUdf(float) );
     TypeSet< Interval<float> > rgs( nrattribs,
 				    Interval<float>(mUdf(float),mUdf(float)) );
@@ -270,7 +270,7 @@ EngineMan* calcFingParsObject::createEngineMan()
 }
 
 
-void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
+void calcFingParsObject::fillInStats( BinnedValueSet* bidvalset,
 			ObjectSet< Stats::RunCalc<float> >& statsset,
 			Stats::Type styp ) const
 {
@@ -279,7 +279,7 @@ void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
 	statsset += new Stats::RunCalc<float>(
 			Stats::CalcSetup().require(styp) );
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     while ( bidvalset->next(pos) )
     {
 	const float* values = bidvalset->getVals( pos );

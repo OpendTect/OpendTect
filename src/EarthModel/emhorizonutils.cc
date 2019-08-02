@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "emhorizonutils.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "binidvalue.h"
 #include "trckeysampling.h"
 #include "datapointset.h"
@@ -116,7 +116,7 @@ Surface* HorizonUtils::getSurface( const DBKey& id )
 
 
 void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
-				 ObjectSet<BinIDValueSet>& data )
+				 ObjectSet<BinnedValueSet>& data )
 {
     Surface* surface = getSurface(id);
     if ( !surface ) return;
@@ -126,7 +126,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
     deepErase( data );
 
     PtrMan<ObjectIterator> iterator = surface->createIterator();
-    BinIDValueSet* res = new BinIDValueSet( 1, false );
+    BinnedValueSet* res = new BinnedValueSet( 1, false );
     data += res;
     while ( iterator )
     {
@@ -204,7 +204,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 
 void HorizonUtils::getWantedPositions( od_ostream& strm,
 				       DBKeySet& dbkeyset,
-				       BinIDValueSet& wantedposbivs,
+				       BinnedValueSet& wantedposbivs,
 				       const TrcKeySampling& hs,
 				       const Interval<float>& extraz,
 				       int nrinterpsamp, int mainhoridx,
@@ -328,7 +328,7 @@ bool HorizonUtils::SolveIntersect( float& topz, float& botz, int nrinterpsamp,
 
 void HorizonUtils::addSurfaceData( const DBKey& id,
 				   const BufferStringSet& attrnms,
-				   const ObjectSet<BinIDValueSet>& data )
+				   const ObjectSet<BinnedValueSet>& data )
 {
     Object* obj = Hor3DMan().getObject( id );
     mDynamicCastGet(Horizon3D*,horizon,obj)
@@ -339,9 +339,9 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
     for ( int idx=0; idx<attrnms.size(); idx++ )
 	horizon->auxdata.addAuxData( attrnms.get(idx).buf() );
 
-    const BinIDValueSet& bivs = *data[0];
+    const BinnedValueSet& bivs = *data[0];
 
-    BinIDValueSet::SPos pos;
+    BinnedValueSet::SPos pos;
     BinID bid; TypeSet<float> vals;
     while ( bivs.next(pos) )
     {

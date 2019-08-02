@@ -33,7 +33,7 @@
 #include "uiselsurvranges.h"
 #include "uitaskrunner.h"
 #include "attribprocessor.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "dataclipper.h"
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -383,7 +383,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     aem->setSubSel( Survey::FullSubSel(cs) );
     TypeSet<TrcKey> trckeys;
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
-    BinIDValueSet bidvals( 0, false );
+    BinnedValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
 	bidvals.add( trckeys[idx].binID() );
 

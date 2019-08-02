@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "task.h"
 
-class BinIDValueSet;
+class BinnedValueSet;
 class DataPointSet;
 class BufferStringSet;
 class TrcKeySampling;
@@ -61,7 +61,7 @@ public:
     bool			getBoundingPolygon(Pick::Set&) const;
     void			getDataPointSet(  DataPointSet&,
 						  float shift=0.0) const;
-    void			fillBinIDValueSet(BinIDValueSet&,
+    void			fillBinnedValueSet(BinnedValueSet&,
 						 Pos::Provider3D* prov=0) const;
 
     ObjectIterator*		createIterator(const TrcKeyZSampling* =0) const;
@@ -149,12 +149,13 @@ public:
 				     when takeoverarr=true.
 				     Removes any existing data. */
 
-    Executor*			importer(const ObjectSet<BinIDValueSet>&,
+    Executor*			importer(const ObjectSet<BinnedValueSet>&,
 					 const TrcKeySampling& hs);
 					/*!< Removes all data and creates
-					  a section for every BinIDValueSet
+					  a section for every BinnedValueSet
 					*/
-    Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
+    Executor*			auxDataImporter(
+					const ObjectSet<BinnedValueSet>&,
 					const BufferStringSet& attribnms,int,
 					const TrcKeySampling& hs);
 

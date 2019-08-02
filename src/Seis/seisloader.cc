@@ -8,7 +8,7 @@
 #include "seisloader.h"
 
 #include "arrayndalgo.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "cbvsreadmgr.h"
 #include "convmemvalseries.h"
 #include "datapackbase.h"

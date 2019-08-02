@@ -7,7 +7,7 @@
 
 #include "prestackeventsapi.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "trckeysampling.h"
 #include "executor.h"
 #include "ioobj.h"
@@ -267,7 +267,7 @@ int PreStack::EventsAPIMgr::getNextCDP(int handle, int previnl, int prevcrl,
 
     if ( !locations_[idx] )
     {
-	locations_.replace( 0,  new BinIDValueSet( 0, false ) );
+	locations_.replace( 0, new BinnedValueSet( 0, false ) );
 	if ( events_[idx] )
 	{
 	    if ( !events_[idx]->getLocations( *locations_[idx] ) )
@@ -290,9 +290,9 @@ int PreStack::EventsAPIMgr::getNextCDP(int handle, int previnl, int prevcrl,
 	}
     }
 
-    BinIDValueSet::SPos pos = previnl!=-1 && prevcrl!=-1
-	?  locations_[idx]->find( BinID(previnl, prevcrl ) )
-	: BinIDValueSet::SPos( -1, -1 );
+    BinnedValueSet::SPos pos = previnl!=-1 && prevcrl!=-1
+	? locations_[idx]->find( BinID(previnl, prevcrl ) )
+	: BinnedValueSet::SPos( -1, -1 );
 
     if ( !locations_[idx]->next( pos, true ) )
 	return 0;

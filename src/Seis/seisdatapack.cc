@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "atomic.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "paralleltask.h"
@@ -408,7 +408,7 @@ void RegularSeisDataPack::doDumpInfo( IOPar& par ) const
 
 
 DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
-						const BinIDValueSet* bivset,
+						const BinnedValueSet* bivset,
 						const TrcKeyZSampling& tkzs,
 						const ZDomain::Info& zinfo,
 						const BufferStringSet* names )
@@ -424,7 +424,7 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
 	const char* name = names && names->validIdx(idx-1)
 			    ? names->get(idx-1).str() : OD::EmptyString();
 	regsdp->addComponent( name, true );
-	BinIDValueSet::SPos pos;
+	BinnedValueSet::SPos pos;
 	BinID bid;
 	while ( bivset->next(pos,true) )
 	{

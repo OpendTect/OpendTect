@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "ioobj.h"
 #include "trckeyzsampling.h"
 #include "fourier.h"
@@ -188,12 +188,12 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     if ( trc.zRange().width(false) <  wvlt_->samplePositions().width(false) )
 	return false;
 
-    const BinIDValueSet& bvis = tsd->binidValueSet();
+    const BinnedValueSet& bvis = tsd->binidValueSet();
     Interval<float> extz = tsd->extraZ();
     BinID bid = trc.info().binID();
     float z1(mUdf(float)), z2(mUdf(float));
     BinID duplicatebid;
-    BinIDValueSet::SPos pos = bvis.find( bid );
+    BinnedValueSet::SPos pos = bvis.find( bid );
     bvis.get( pos, bid, z1 );
 
     if ( !isbetweenhor_ )

@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 namespace Attrib { class DataHolder; }
 
-class BinIDValueSet;
+class BinnedValueSet;
 
 
 namespace Vel
@@ -86,8 +86,8 @@ public:
     virtual BufferString	userName() const;
     virtual const VelocityDesc&	getDesc() const				= 0;
     virtual void		getSurroundingPositions(const BinID&,
-				    BinIDValueSet&) const;
-    virtual void		getAvailablePositions(BinIDValueSet&) const {}
+						BinnedValueSet&) const;
+    virtual void		getAvailablePositions(BinnedValueSet&) const {}
 
     ConstRefMan<Function>	getFunction(const BinID&);
     virtual Function*		createFunction(const BinID&)		= 0;

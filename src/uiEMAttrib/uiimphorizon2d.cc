@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "horizon2dscanner.h"
@@ -50,7 +50,7 @@ public:
     enum UndefTreat		{ Skip, Adopt, Interpolate };
 
 Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
-		   const BinIDValueSet* valset, UndefTreat udftreat )
+		   const BinnedValueSet* valset, UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , linenames_(lnms)
     , curlinegeom_(0)
@@ -178,14 +178,14 @@ protected:
 
     const BufferStringSet&	linenames_;
     ObjectSet<EM::Horizon2D>&	hors_;
-    const BinIDValueSet*	bvalset_;
+    const BinnedValueSet*	bvalset_;
     GeomIDSet			geomids_;
     const SurvGeom2D*		curlinegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;
     int				prevlineidx_;
-    BinIDValueSet::SPos		pos_;
+    BinnedValueSet::SPos	pos_;
     UndefTreat			udftreat_;
 };
 
@@ -339,7 +339,7 @@ bool uiImportHorizon2D::doImport()
     scanPush(0);
     if ( !scanner_ ) return false;
 
-    const BinIDValueSet* valset = scanner_->getVals();
+    const BinnedValueSet* valset = scanner_->getVals();
     if ( !valset || valset->totalSize() == 0 )
     {
 	uiString msg = tr("No valid positions found\nPlease re-examine "

@@ -369,9 +369,9 @@ int Seis::SelData::selRes( const Bin2D& b2d ) const
 }
 
 
-BinIDValueSet* Seis::SelData::applyTo( const Line2DDataSet& l2dds ) const
+BinnedValueSet* Seis::SelData::applyTo( const Line2DDataSet& l2dds ) const
 {
-    auto* ret = new BinIDValueSet( 0, false, OD::LineBasedGeom );
+    auto* ret = new BinnedValueSet( 0, false, OD::LineBasedGeom );
 
     for ( int iln=0; iln<l2dds.size(); iln++ )
     {
@@ -391,9 +391,9 @@ BinIDValueSet* Seis::SelData::applyTo( const Line2DDataSet& l2dds ) const
 }
 
 
-BinIDValueSet* Seis::SelData::applyTo( const CubeData& cd ) const
+BinnedValueSet* Seis::SelData::applyTo( const CubeData& cd ) const
 {
-    auto* ret = new BinIDValueSet( 0, false, OD::VolBasedGeom );
+    auto* ret = new BinnedValueSet( 0, false, OD::VolBasedGeom );
 
     PosInfo::CubeDataPos cdp; bool donext = true;
     while ( !donext || cd.toNext(cdp) )

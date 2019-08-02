@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class RowCol;
 class od_ostream;
-class BinIDValueSet;
+class BinnedValueSet;
 class DataPointSet;
 class TrcKeySampling;
 class BufferStringSet;
@@ -39,31 +39,31 @@ public:
     static float	getZ(const RowCol&,const Surface*);
     static float	getMissingZ(const RowCol&,const Surface*,int);
     static Surface*	getSurface(const DBKey&);
-    static void getPositions(od_ostream&,const DBKey&,
-				     ObjectSet<BinIDValueSet>&);
-    static void getExactCoords(od_ostream&,const DBKey&,
-				       Pos::GeomID,const TrcKeySampling&,
-				       ObjectSet<DataPointSet>&);
-    static void getWantedPositions(od_ostream&,DBKeySet&,
-					   BinIDValueSet&,const TrcKeySampling&,
-					   const Interval<float>& extraz,
-					   int nrinterpsamp,int mainhoridx,
-					   float extrawidth,
-					   Pos::Provider* provider=0);
-    static void getWantedPos2D(od_ostream&,DBKeySet&,
-				       DataPointSet*,const TrcKeySampling&,
-				       const Interval<float>& extraz,
-				       Pos::GeomID);
+    static void		getPositions(od_ostream&,const DBKey&,
+				     ObjectSet<BinnedValueSet>&);
+    static void		getExactCoords(od_ostream&,const DBKey&,
+					Pos::GeomID,const TrcKeySampling&,
+					ObjectSet<DataPointSet>&);
+    static void		getWantedPositions(od_ostream&,DBKeySet&,
+					BinnedValueSet&,const TrcKeySampling&,
+					const Interval<float>& extraz,
+					int nrinterpsamp,int mainhoridx,
+					float extrawidth,
+					Pos::Provider* provider=0);
+    static void		getWantedPos2D(od_ostream&,DBKeySet&,
+					DataPointSet*,const TrcKeySampling&,
+					const Interval<float>& extraz,
+					Pos::GeomID);
     static bool		getZInterval(int idi,int idc,Surface*,Surface*,
-				     float& topz,float& botz,int nrinterpsamp,
-				     int mainhoridx,float& lastzinterval,
-				     float extrawidth);
+					float& topz,float& botz,int nrinterpsmp,
+					int mainhoridx,float& lastzinterval,
+					float extrawidth);
 
     static bool		SolveIntersect(float& topz,float& botz,int nrinterpsamp,
-				       int is1main,float extrawidth,
-				       bool is1interp,bool is2interp);
+					int is1main,float extrawidth,
+					bool is1interp,bool is2interp);
     static void addSurfaceData(const DBKey&,const BufferStringSet&,
-				       const ObjectSet<BinIDValueSet>&);
+					const ObjectSet<BinnedValueSet>&);
 
 protected:
 

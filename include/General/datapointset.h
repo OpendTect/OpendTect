@@ -11,13 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "binidvalset.h"
+#include "binnedvalueset.h"
 #include "color.h"
 #include "datapackbase.h"
 #include "valseries.h"
 #include "bin2d.h"
 class DataColDef;
-class BinIDValueSet;
+class BinnedValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
@@ -30,7 +30,7 @@ namespace Pos { class Filter; class Provider; }
 /*!\brief Set of data points with group selection.
 
   The idea is to generate a set of data points, which are then put in different
-  groups. The data is transferred into a BinIDValueSet for performance,
+  groups. The data is transferred into a BinnedValueSet for performance,
   but a fixed int addressing becomes available.
 
   The design is based on the model that you extract data in some way which
@@ -51,12 +51,12 @@ public:
 
     typedef int			RowID;
     typedef int			ColID;
-    mUseType( BinIDValueSet,	SPos );
+    mUseType( BinnedValueSet,	SPos );
     mUseType( Pos,		GeomID );
 
     class DataRow;
 
-    /*!\brief Real Coord3D-position storable in BinIDValueSet + Bin2D */
+    /*!\brief Real Coord3D-position storable in BinnedValueSet + Bin2D */
 
     mExpClass(General) Pos
     {
@@ -201,9 +201,9 @@ public:
     RowID		findFirst(const Bin2D&) const;
 
     const PosVecDataSet& dataSet() const		{ return data_; }
-    const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>
+    const BinnedValueSet& bivSet() const { return const_cast<DataPointSet*>
 					  (this)->bivSet(); }
-    BinIDValueSet&	bivSet();
+    BinnedValueSet&	bivSet();
 			//!< The idea is to manage vectors with the selection
 			//!< mechanism. But if you really must remove
 			//!< vectors, this may be your access point
