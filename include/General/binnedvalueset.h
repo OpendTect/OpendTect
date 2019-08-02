@@ -56,13 +56,13 @@ public:
     inline Bin2D	firstBin2D() const
 					{ return mkBin2D(firstIdxPair()); }
 
-    inline SPos		find( const Pos::IdxPair& ip ) const
-			{ return data_.find( ip ); }
+    inline SPos		find( const BinID& bid ) const
+			{ return data_.find( bid ); }
     inline SPos		find( const Bin2D& b2d ) const
-			{ return find( Pos::IdxPair( b2d.lineNr(),
-						     b2d.trcNr() ) ); }
-    inline SPos		findNearest( const Pos::IdxPair& ip ) const
-			{ return data_.findNearest( ip ); }
+			{ return data_.find( Pos::IdxPair( b2d.lineNr(),
+							   b2d.trcNr() ) ); }
+    inline SPos		findNearest( const BinID& bid ) const
+			{ return data_.findNearest( bid ); }
     inline SPos		findNearest( const Bin2D& b2d ) const
 			{ return data_.findNearestOnFirst( b2d.lineNr(),
 							   b2d.trcNr() ); }
