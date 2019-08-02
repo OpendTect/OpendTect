@@ -1014,15 +1014,16 @@ uiRetVal Seis::Provider2D::getGatherAt( GeomID gid, trcnr_type tnr,
 const LineHorSubSel& Seis::Provider2D::lineHorSubSel( idx_type iln ) const
 {
     ensurePositionsScanned();
-    return lsss_.validIdx(iln) ? lsss_.get(iln)->lineHorSubSel()
-			       : LineHorSubSel::empty();
+    const LineSubSel* lss = lsss_.find( geomID(iln) );
+    return lss ? lss->lineHorSubSel() : LineHorSubSel::empty();
 }
 
 
 const LineSubSel& Seis::Provider2D::lineSubSel( idx_type iln ) const
 {
     ensurePositionsScanned();
-    return lsss_.validIdx(iln) ? *lsss_.get(iln) : LineSubSel::empty();
+    const LineSubSel* lss = lsss_.find( geomID(iln) );
+    return lss ? *lss : LineSubSel::empty();
 }
 
 

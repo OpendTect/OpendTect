@@ -172,7 +172,7 @@ int Seis::MSCProvider::estimatedNrTraces() const
     {
 	estnrtrcs_ = -1;
 	if ( prov_ )
-	    estnrtrcs_ = mCast(int,prov_->totalNr());
+	    estnrtrcs_ = (int)prov_->totalNr();
     }
     return estnrtrcs_;
 }
@@ -184,7 +184,7 @@ bool Seis::MSCProvider::startWork()
 	return false;
 
     prov_->forceFPData( intofloats_ );
-    const auto& hss = prov_->horSubSel();
+    const auto& hss = prov_->horSubSel( 0 );
     if ( hss.is2D() )
 	stepoutstep_ = IdxPair( 1, hss.asLineHorSubSel()->trcNrRange().step );
     else

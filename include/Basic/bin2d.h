@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "uistring.h"
 
 
-/*! \brief uniquely identifies a trace position on a 2D geometry */
+/*! \brief uniquely identifies a trace position on a 2D geometry.
+Did not inherit from Pos::IdxPair to make it harder to interchange BinID and
+Bin2D */
 
 
 mExpClass(Basic) Bin2D
@@ -32,15 +34,17 @@ public:
     explicit inline	Bin2D( const IdxPair& ip )
 			    : geomid_(ip.first), trcnr_(ip.second)	{}
 
-    GeomID&		geomID()	    { return geomid_; }
-    GeomID		geomID() const	    { return geomid_; }
-    trcnr_type&		trcNr()		    { return trcnr_; }
-    trcnr_type		trcNr() const	    { return trcnr_; }
-    GeomID::IDType	lineNr() const	    { return geomid_.lineNr(); }
+    GeomID&		geomID()	{ return geomid_; }
+    GeomID		geomID() const	{ return geomid_; }
+    trcnr_type&		trcNr()		{ return trcnr_; }
+    trcnr_type		trcNr() const	{ return trcnr_; }
+    GeomID::IDType	lineNr() const	{ return geomid_.lineNr(); }
     Coord		coord() const;
 
-    static Bin2D	first(GeomID);
-    static Bin2D	last(GeomID);
+    static Bin2D	first(GeomID);	//!< start of the line
+    static Bin2D	last(GeomID);	//!< end of the line
+
+    IdxPair		idxPair() const	{ return IdxPair(lineNr(),trcNr()); }
     void		encodeIn(BinID&) const;
     void		decodeFrom(const BinID&);
     inline static Bin2D	decode( const BinID& bid )

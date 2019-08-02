@@ -13,6 +13,8 @@
 #include "keystrs.h"
 #include "linesubsel.h"
 #include "picksettr.h"
+#include "posinfo.h"
+#include "posinfo2d.h"
 #include "posvecdatasettr.h"
 #include "seis2ddata.h"
 #include "seisioobjinfo.h"
@@ -346,15 +348,15 @@ uiString Seis::SelData::usrSummary() const
 int Seis::SelData::selRes2D( GeomID gid, pos_type trcnr ) const
 {
     if ( !gid.isValid() || !gid.is2D() )
-	return false;
+	return 256+2;
 
     auto& geom = SurvGeom2D::get( gid );
     if ( geom.isEmpty() )
-	return false;
+	return 256+2;
 
     const auto idxof = geom.indexOf( trcnr );
     if ( idxof < 0 )
-	return false;
+	return 256;
 
     const BinID bid( SI().transform(geom.getCoordByIdx(idxof)) );
     return selRes3D( bid );
@@ -364,4 +366,50 @@ int Seis::SelData::selRes2D( GeomID gid, pos_type trcnr ) const
 int Seis::SelData::selRes( const Bin2D& b2d ) const
 {
     return selRes2D( b2d.geomID(), b2d.trcNr() );
+}
+
+
+BinIDValueSet* Seis::SelData::applyTo( const Line2DDataSet& l2dds ) const
+{
+    auto* ret = new BinIDValueSet( 0, false, OD::LineBasedGeom );
+
+    for ( int iln=0; iln<l2dds.size(); iln++ )
+    {
+	const auto& l2dd = *l2dds.get( iln );
+	if ( l2dd.isEmpty() || (selRes(l2dd.bin2D(0))%256)==2 )
+	    continue;
+
+	for ( auto itrc=0; itrc<l2dd.size(); itrc++ )
+	{
+	    const Bin2D b2d = l2dd.bin2D( itrc );
+	    if ( isOK( b2d ) )
+		ret->add( b2d.idxPair() );
+	}
+    }
+
+    return ret;
+}
+
+
+BinIDValueSet* Seis::SelData::applyTo( const CubeData& cd ) const
+{
+    auto* ret = new BinIDValueSet( 0, false, OD::VolBasedGeom );
+
+    PosInfo::CubeDataPos cdp; bool donext = true;
+    while ( !donext || cd.toNext(cdp) )
+    {
+	donext = true;
+	const BinID bid( cd.binID(cdp) );
+	const int selres = selRes( bid );
+	if ( !selres )
+	    ret->add( bid );
+	else if ( (selres%256) == 2 )
+	{
+	    if ( !cd.toNextLine(cdp) )
+		break;
+	    donext = false;
+	}
+    }
+
+    return ret;
 }

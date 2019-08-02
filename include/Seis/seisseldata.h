@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "geomid.h"
 class Bin2D;
+class BinIDValueSet;
+namespace PosInfo { class Line2DDataSet; class CubeData; }
 
 
 namespace Seis
@@ -55,6 +57,8 @@ public:
     mUseType( Pos::IdxPair,	pos_type );
     mUseType( Pos,		GeomID );
     mUseType( Pos,		IdxPair );
+    mUseType( PosInfo,		Line2DDataSet );
+    mUseType( PosInfo,		CubeData );
     typedef int			idx_type;
     typedef idx_type		size_type;
     typedef float		z_type;
@@ -116,6 +120,9 @@ public:
     const TableSelData*	asTable() const;
     PolySelData*	asPoly();
     const PolySelData*	asPoly() const;
+
+    BinIDValueSet*	applyTo(const Line2DDataSet&) const;
+    BinIDValueSet*	applyTo(const CubeData&) const;
 
 protected:
 

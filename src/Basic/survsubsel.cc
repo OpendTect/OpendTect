@@ -18,11 +18,11 @@
 
 
 const LineHorSubSel& LineHorSubSel::empty()
-{ static const LineHorSubSel ret( pos_steprg_type(0,0,1) ); return ret; }
+{ static const LineHorSubSel ret( pos_steprg_type(0,-1,1) ); return ret; }
 LineHorSubSel& LineHorSubSel::dummy()
 { static LineHorSubSel ret( pos_steprg_type(0,0,1) ); return ret; }
 const LineSubSel& LineSubSel::empty()
-{ static const LineSubSel ret( pos_steprg_type(0,0,1) ); return ret; }
+{ static const LineSubSel ret( pos_steprg_type(0,-1,1) ); return ret; }
 LineSubSel& LineSubSel::dummy()
 { static LineSubSel ret( pos_steprg_type(0,0,1) ); return ret; }
 

@@ -425,6 +425,26 @@ Pos::IdxPairDataSet::size_type Pos::IdxPairDataSet::nrSecondAtIdx(
 }
 
 
+Pos::IdxPairDataSet::idx_type Pos::IdxPairDataSet::firstIdx(
+						pos_type frstpos ) const
+{
+    bool found = false;
+    auto idx = findIndexFor( frsts_, frstpos, &found );
+    return found ? idx : -1;
+}
+
+
+Pos::IdxPairDataSet::idx_type Pos::IdxPairDataSet::secondIdx( idx_type firstidx,
+						pos_type scndpos ) const
+{
+    if ( !frsts_.validIdx(firstidx) )
+	return -1;
+    bool found = false;
+    auto idx = findIndexFor( *scndsets_[firstidx], scndpos, &found );
+    return found ? idx : -1;
+}
+
+
 Pos::IdxPairDataSet::pos_type Pos::IdxPairDataSet::firstAtIdx(
 						idx_type frst ) const
 {
@@ -823,7 +843,9 @@ Pos::IdxPairDataSet::glob_idx_type Pos::IdxPairDataSet::totalSize() const
 
 bool Pos::IdxPairDataSet::hasFirst( pos_type frst ) const
 {
-    return frsts_.isPresent( frst );
+    bool found = false;
+    findIndexFor( frsts_, frst, &found );
+    return found;
 }
 
 
@@ -832,9 +854,10 @@ bool Pos::IdxPairDataSet::hasSecond( pos_type scnd ) const
     for ( idx_type ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
 	const IdxSet& scnds = gtScndSet( ifrst );
-	for ( idx_type iscnd=0; iscnd<scnds.size(); iscnd++ )
-	    if ( scnds[iscnd] == scnd )
-		return true;
+	bool found = false;
+	findIndexFor( scnds, scnd, &found );
+	if ( found )
+	    return true;
     }
     return false;
 }

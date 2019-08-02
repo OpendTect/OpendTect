@@ -99,6 +99,8 @@ public:
 			{ return segments_[ldp.segnr_].atIndex(ldp.sidx_); }
     BinID		binID( const LineDataPos& ldp ) const
 			{ return BinID( linenr_, pos(ldp) ); }
+    BinID		first() const
+			{ return BinID(linenr_,segments_.first().start); }
 
     pos_type		centerNumber() const;  //!< not exact
     pos_type		nearestNumber(pos_type) const;

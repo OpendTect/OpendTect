@@ -147,12 +147,15 @@ public:
     inline size_type	nrFirst() const		{ return frsts_.size(); }
     size_type		nrSecond(pos_type firstpos) const;
     size_type		nrSecondAtIdx(idx_type firstidx) const;
-    pos_type		firstAtIdx(idx_type firstidx) const;
-    IdxPair		positionAtIdxs(idx_type,idx_type) const;
     bool		hasFirst(pos_type) const;
     bool		hasSecond(pos_type) const;
     Interval<pos_type>	firstRange() const;
     Interval<pos_type>	secondRange(pos_type firstpos=-1) const;
+
+    idx_type		firstIdx(pos_type) const;
+    idx_type		secondIdx(idx_type firstidx,pos_type) const;
+    pos_type		firstAtIdx(idx_type firstidx) const;
+    IdxPair		positionAtIdxs(idx_type,idx_type) const;
 
     IdxPair		firstIdxPair() const; //!< when empty returns udf()
     bool		hasDuplicateIdxPairs() const;

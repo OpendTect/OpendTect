@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "bin2d.h"
 #include "horsubsel.h"
 #include "manobjectset.h"
 class TrcKeyZSampling;
@@ -60,6 +61,8 @@ public:
 			{ hss_.setTrcNrRange( rg ); }
     bool		isAll() const override
 					{ return GeomSubSel::isAll(); }
+    bool		includes( trcnr_type trcnr ) const
+					{ return hss_.includes( trcnr ); }
     totalsz_type	totalSize() const override
 					{ return GeomSubSel::totalSize(); }
     void		merge(const LineSubSel&);
@@ -116,8 +119,18 @@ public:
     void		limitTo(const LineSubSelSet&);
     void		addStepout(trcnr_type);
 
-    LineSubSel*		find( GeomID gid )	{ return doFind( gid ); }
-    const LineSubSel*	find( GeomID gid ) const { return doFind( gid ); }
+    bool		includes( GeomID gid ) const
+			{ return doFind( gid ); }
+    bool		includes( const Bin2D& b2d ) const
+			{ return includes( b2d.geomID(), b2d.trcNr() ); }
+    bool		includes( const GeomID& gid, trcnr_type trcnr ) const
+			{
+			    const auto* lss = doFind( gid );
+			    return lss && lss->includes( trcnr );
+			}
+
+    LineSubSel*		find( GeomID gid )	      { return doFind( gid ); }
+    const LineSubSel*	find( GeomID gid ) const      { return doFind( gid ); }
 
 protected:
 
