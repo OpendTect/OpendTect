@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "ptrman.h"
 #include "seistrctr.h"
-#include "linekey.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"

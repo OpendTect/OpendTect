@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-
+#warning "IODir is replaced by DBDir. Include dbdir.h"
 #include "dbdir.h"
-
-mDeprecated typedef DBDir IODir;
+typedef DBDir IODir;

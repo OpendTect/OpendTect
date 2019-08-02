@@ -94,18 +94,18 @@ void DataPointSet::Pos::set( const Coord3& c )
 }
 
 
-void DataPointSet::Pos::set( const BinID& bid, const Coord& coord )
+void DataPointSet::Pos::set( const BinID& bid, const Coord& crd )
 {
     binid_ = bid;
-    setOffs( coord );
+    setOffs( crd );
 }
 
 
-void DataPointSet::Pos::set( const Bin2D& b2d, const Coord& coord )
+void DataPointSet::Pos::set( const Bin2D& b2d, const Coord& crd )
 {
     bin2d_ = b2d;
-    binid_ = SI().transform( coord );
-    setOffs( coord );
+    binid_ = SI().transform( crd );
+    setOffs( crd );
 }
 
 

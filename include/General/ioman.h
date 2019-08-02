@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#warning "IOMan and IOM() are replaced by DBMan and DBM(). Include dbman.h"
 #include "dbman.h"
-
-mDeprecated typedef DBMan IOMan;
+typedef DBMan IOMan;
 mGlobal(General) mDeprecated inline DBMan&	IOM()	{ return DBM(); }

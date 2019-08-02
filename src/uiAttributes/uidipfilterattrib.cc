@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribfactory.h"
-#include "ioman.h"
 #include "ioobj.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"

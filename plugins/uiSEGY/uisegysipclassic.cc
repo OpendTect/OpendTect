@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "posinfodetector.h"
 #include "trckeyzsampling.h"
 #include "ptrman.h"
-#include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "oddirs.h"

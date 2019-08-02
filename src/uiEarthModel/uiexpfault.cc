@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
-#include "ioman.h"
 #include "uiunitsel.h"
 #include "od_helpids.h"
 #include "emioobjinfo.h"

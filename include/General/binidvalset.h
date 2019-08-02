@@ -10,5 +10,6 @@ ________________________________________________________________________
 
 -*/
 
+#warning "BinIDValueSet is now called BinnedValueSet. Include binnedvalueset.h"
 #include "binnedvalueset.h"
 typedef BinnedValueSet BinIDValueSet;

@@ -13,7 +13,6 @@
 #include "seispacketinfo.h"
 #include "seisseldata.h"
 #include "survgeom3d.h"
-#include "ioman.h"
 #include "posinfo.h"
 #include "file.h"
 

@@ -12,7 +12,6 @@
 #include "commandlineparser.h"
 #include "elasticmodel.h"
 #include "factory.h"
-#include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
 #include "dbkey.h"

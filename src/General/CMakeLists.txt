@@ -56,7 +56,6 @@ list ( APPEND OD_MODULE_SOURCES
 	iostrm.cc
 	keyboardevent.cc
 	keyenum.cc
-	linekey.cc
 	linesetposinfo.cc
 	mathexpression.cc
 	mathformula.cc

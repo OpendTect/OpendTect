@@ -23,7 +23,6 @@ ___________________________________________________________________
 #include "survinfo.h"
 #include "threadwork.h"
 #include "timefun.h"
-#include "ioman.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"

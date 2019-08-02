@@ -10,6 +10,6 @@ ________________________________________________________________________
 
 -*/
 
+#warning "MultiID has been replaced by DBKey. Include dbkey.h"
 #include "dbkey.h"
-
-mDeprecated typedef DBKey MultiID;
+typedef DBKey MultiID;

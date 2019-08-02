@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "ascstream.h"
 #include "ioobj.h"
-#include "ioman.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "survinfo.h"
