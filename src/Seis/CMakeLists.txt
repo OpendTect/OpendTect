@@ -48,6 +48,7 @@ SET(OD_MODULE_SOURCES
 	seiscubeprov.cc
 	seiscube2linedata.cc
 	seisdatapack.cc
+	seisdatapackfromdps.cc
 	seisdatapackzaxistransformer.cc
 	seiseventsnapper.cc
 	seisimpbpsif.cc
