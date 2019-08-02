@@ -47,6 +47,7 @@ set(OD_MODULE_SOURCES
 	seiscube2linedata.cc
 	seisdatapack.cc
 	seisdatapackwriter.cc
+	seisdatapackfromdps.cc
 	seiseventsnapper.cc
 	seisfetcher.cc
 	seisfixedcubeprov.cc
