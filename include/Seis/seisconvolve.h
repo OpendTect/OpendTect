@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "uistring.h"
 
-class DBKey;
 class SeisTrc;
 class TaskRunnerProvider;
 class Wavelet;

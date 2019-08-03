@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 
-class DBKey;
 class uiGenInput;
 class uiFileSel;
 class uiSeisPosProvGroup;

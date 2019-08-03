@@ -15,7 +15,6 @@ ________________________________________________________________________
 class SeparString;
 class CompoundKey;
 class FixedString;
-class DBKey;
 
 
 /*!\brief OD class for stream read */

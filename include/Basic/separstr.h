@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "convert.h"
 
 class BufferStringSet;
-class DBKey;
 
 /*!
 \brief %List encoded in a string.

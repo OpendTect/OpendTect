@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "od_stream.h"
 
-class DBKey;
 class SeparString;
 class CompoundKey;
 class FixedString;

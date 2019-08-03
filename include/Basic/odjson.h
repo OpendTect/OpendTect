@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "od_iosfwd.h"
 
-class DBKey;
 class DBKeySet;
 class SeparString;
 class StringBuilder;

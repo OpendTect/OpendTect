@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "integerid.h"
 #include "typeset.h"
 #include "bufstring.h"
-class DBKey;
 
 
 namespace Pos

@@ -77,10 +77,10 @@ static int doWork( int argc, char** argv )
 
     IOObjContext ctxt = EMHorizon2DTranslatorGroup::ioContext();
     DBM().to( ctxt.getSelDirID() );
-    IODirEntryList list( DBM().dirPtr(), ctxt );
+    DBDirEntryList list( DBM().dirPtr(), ctxt );
     DBKeySet horids;
     for ( int idx=0; idx<list.size(); idx++ )
-	horids += list[idx]->ioobj->key();
+	horids += list.key( idx );
 
     PtrMan<Executor> loader = EM::Hor2DMan().objectLoader( horids, 0 );
     if ( !loader->execute() )

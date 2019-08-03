@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-class DBKey;
 namespace VolProc { class Chain; class uiBatchSetup; class uiChain; }
 
 /*!

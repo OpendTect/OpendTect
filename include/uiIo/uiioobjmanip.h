@@ -79,7 +79,7 @@ public:
 };
 
 
-/*! \brief Buttongroup to manipulate an IODirEntryList. */
+/*! \brief Buttongroup to manipulate entries in DBDir. */
 
 mExpClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
 { mODTextTranslationClass(uiIOObjManipGroup);

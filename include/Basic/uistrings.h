@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "fixedstring.h"
 #include "uistring.h"
-class DBKey;
 class TrcKey;
 
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "threadlock.h"
 
 class TaskRunnerProvider;
-class DBKey;
 
 
 namespace Survey
