@@ -341,7 +341,7 @@ StepInterval<int> PreStackDisplay::getTraceRange( const BinID& bid,
 			     (!isOrientationInline() && !oncurrentline);
 	if ( docrlrg )
 	{
-	    const int inlidx = posinfo.indexOf( bid.inl() );
+	    const int inlidx = posinfo.lineIndexOf( bid.inl() );
 	    if ( inlidx==-1 )
 		return StepInterval<int>(mUdf(int),mUdf(int),1);
 

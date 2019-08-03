@@ -1703,7 +1703,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	    const PosInfo::LineData* ld = 0;
 	    if ( havesubsel_ )
 	    {
-		const auto lidx = cubedata_.indexOf( islc );
+		const auto lidx = cubedata_.lineIndexOf( islc );
 		if ( lidx < 0 )
 		    continue;
 		ld = cubedata_[lidx];
@@ -1831,10 +1831,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	const auto& ld = *cubedata_.get( (int)idx );
 	const auto idx0 = hss_.idx4Inl( ld.linenr_ );
 	T* linestart = dataptr + idx0 * slcsz;
-	PosInfo::LineDataPos ldp;
-	while ( ld.toNext(ldp) )
+	PosInfo::LinePos lp;
+	while ( ld.toNext(lp) )
 	{
-	    const auto idx1 = hss_.idx4Crl( ld.pos(ldp) );
+	    const auto idx1 = hss_.idx4Crl( ld.pos(lp) );
 	    if ( dataptr )
 	    {
 		T* trcdata = linestart + idx1 * trcsz;

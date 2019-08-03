@@ -25,7 +25,7 @@ class RegularSeisDataPack;
 class Scaler;
 
 class GatherSetDataPack;
-namespace PosInfo { class CubeData; class CubeDataIterator;
+namespace PosInfo { class CubeData; class LineCollDataIterator;
 		    class Line2DData; class Line2DDataIterator; }
 
 namespace Seis
@@ -211,7 +211,7 @@ private:
     Provider*		prov_;
     Interval<int>	samprg_;
     PosInfo::Line2DDataIterator* trcsiterator2d_;
-    PosInfo::CubeDataIterator*	trcsiterator3d_;
+    PosInfo::LineCollDataIterator* trcsiterator3d_;
     bool		samedatachar_;
     StepInterval<float> dpzsamp_;
     bool		needresampling_;

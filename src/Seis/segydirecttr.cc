@@ -609,7 +609,7 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
     if ( !def_ ) return false;
 
     const PosInfo::CubeData& cd = cubeData();
-    const int newild = cd.indexOf( bid.inl() );
+    const int newild = cd.lineIndexOf( bid.inl() );
     if ( newild < 0 )
 	return false;
     const PosInfo::LineData& ld = *cd[newild];

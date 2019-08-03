@@ -20,7 +20,7 @@ class od_istream;
 class SeisTrc;
 class SeisTrcInfo;
 class TraceData;
-namespace PosInfo { class CubeData; class CubeDataPos; }
+namespace PosInfo { class CubeData; class LineCollPos; }
 
 
 namespace Seis
@@ -79,7 +79,7 @@ public:
 
 protected:
 
-    typedef PosInfo::CubeDataPos    CubeDataPos;
+    typedef PosInfo::LineCollPos    CubeDataPos;
 
     ReadBackEnd*	backend_;
     SelData*		seldata_;

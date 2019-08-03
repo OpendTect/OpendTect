@@ -54,7 +54,7 @@ BufferString SEGY::ReSorter::Setup::getFileName( const Interval<int>& rg ) const
 Interval<int> SEGY::ReSorter::Setup::getInlRg( int curinl,
 			const PosInfo::CubeData& cd ) const
 {
-    int curidx = cd.indexOf( curinl );
+    int curidx = cd.lineIndexOf( curinl );
     if ( curidx < 0 ) curidx = 0;
     int endidx = newfileeach_ <= 0 ? mUdf(int) : curidx + newfileeach_ - 1;
     if ( endidx >= cd.size() )

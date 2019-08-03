@@ -901,12 +901,12 @@ void Seis::Blocks::Writer::scanPositions(
 	first = false;
     }
 
-    PosInfo::CubeDataFiller cdf( cubedata_ );
+    PosInfo::LineCollDataFiller lcdf( cubedata_ );
     spos.reset();
     while ( sortedpositions.next(spos) )
     {
 	const Pos::IdxPair ip( sortedpositions.getIdxPair( spos ) );
-	cdf.add( BinID(ip.inl(),ip.crl()) );
+	lcdf.add( BinID(ip.inl(),ip.crl()) );
     }
 }
 

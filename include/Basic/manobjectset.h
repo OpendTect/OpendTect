@@ -36,6 +36,7 @@ public:
     inline virtual ManagedObjectSetBase<T>& operator-=(T*);
 
 protected:
+
     typedef void		(*PtrFunc)(T*ptr);
 				ManagedObjectSetBase(PtrFunc delfunc)
 				    : ObjectSet<T>()
@@ -103,9 +104,10 @@ public:
     inline virtual T*		replace(idx_type,T*);
     inline virtual void		insertAt(T*,idx_type);
 
-private:
-    virtual ObjectSet<T>&	doAdd(T* ptr);
-    static void			unRef(T* ptr) { unRefPtr(ptr); }
+protected:
+
+    virtual ObjectSet<T>&	doAdd(T*);
+    static void			unRef( T* ptr ) { unRefPtr(ptr); }
 
 };
 

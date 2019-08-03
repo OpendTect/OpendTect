@@ -12,12 +12,20 @@
 #include "od_iostream.h"
 #include "math2.h"
 
+mUseType( PosInfo::LineData, idx_type );
+mUseType( PosInfo::LineData, size_type );
+mUseType( PosInfo::LineData, pos_type );
+mUseType( PosInfo::LineData, pos_rg_type );
+mUseType( PosInfo::LineData, pos_steprg_type );
+mUseType( PosInfo::LineData, Segment );
+mUseType( PosInfo::LineCollData, glob_size_type );
 
-int PosInfo::LineData::size() const
+
+size_type PosInfo::LineData::size() const
 {
-    int res = 0;
-    for ( int idx=0; idx<segments_.size(); idx++ )
-	res += segments_[idx].nrSteps() + 1;
+    size_type res = 0;
+    for ( auto seg : segments_ )
+	res += seg.nrSteps() + 1;
     return res;
 }
 
@@ -26,36 +34,30 @@ bool PosInfo::LineData::operator ==( const PosInfo::LineData& oth ) const
 {
     if ( this == &oth )
 	return true;
-
     if ( linenr_ != oth.linenr_ )
 	return false;
-
-    const int nrsegs = segments_.size();
+    const size_type nrsegs = segments_.size();
     if ( nrsegs != oth.segments_.size() )
 	return false;
 
-    for ( int iseg=0; iseg<nrsegs; iseg++ )
-    {
-	const PosInfo::LineData::Segment& myseg = segments_[iseg];
-	const PosInfo::LineData::Segment& othseg = oth.segments_[iseg];
-	if ( myseg != othseg )
+    for ( idx_type iseg=0; iseg<nrsegs; iseg++ )
+	if ( segments_[iseg] != oth.segments_[iseg] )
 	    return false;
-    }
 
     return true;
 }
 
 
-int PosInfo::LineData::minStep() const
+pos_type PosInfo::LineData::minStep() const
 {
-    const int nrsegs = segments_.size();
+    const auto nrsegs = segments_.size();
     if ( nrsegs < 1 )
 	return 1;
 
-    int minstep = std::abs( segments_[0].step );
-    for ( int iseg=1; iseg<nrsegs; iseg++ )
+    pos_type minstep = std::abs( segments_[0].step );
+    for ( idx_type iseg=1; iseg<nrsegs; iseg++ )
     {
-	const int stp = std::abs( segments_[iseg].step );
+	const auto stp = std::abs( segments_[iseg].step );
 	if ( stp && stp < minstep )
 	    minstep = stp;
     }
@@ -64,16 +66,19 @@ int PosInfo::LineData::minStep() const
 }
 
 
-int PosInfo::LineData::centerNumber() const
+pos_type PosInfo::LineData::centerNumber() const
 {
-    const int nr = (segments_.first().start + segments_.last().stop) / 2;
+    if ( segments_.isEmpty() )
+	return 0;
+
+    const pos_type nr = (segments_.first().start + segments_.last().stop) / 2;
     return nearestNumber( nr );
 }
 
 
-int PosInfo::LineData::nearestNumber( int nr ) const
+pos_type PosInfo::LineData::nearestNumber( pos_type nr ) const
 {
-    const int nrsegs = segments_.size();
+    const auto nrsegs = segments_.size();
     if ( nrsegs < 1 )
 	return -1;
 
@@ -85,9 +90,9 @@ int PosInfo::LineData::nearestNumber( int nr ) const
     if ( nr >= nrrg.stop )
 	return nrrg.stop;
 
-    for ( int idx=0; idx<nrsegs; idx++ )
+    for ( idx_type idx=0; idx<nrsegs; idx++ )
     {
-	const int iseg = isrev ? nrsegs-idx-1 : idx;
+	const idx_type iseg = isrev ? nrsegs-idx-1 : idx;
 	const Segment& seg = segments_[iseg];
 	if ( isrev )
 	{
@@ -95,7 +100,7 @@ int PosInfo::LineData::nearestNumber( int nr ) const
 	    {
 		if ( idx > 0 )
 		{
-		    const int prevstop = segments_[iseg-1].stop;
+		    const auto prevstop = segments_[iseg-1].stop;
 		    if ( prevstop - nr < nr - seg.start )
 			return prevstop;
 		}
@@ -103,7 +108,7 @@ int PosInfo::LineData::nearestNumber( int nr ) const
 	    }
 	    if ( nr >= seg.stop )
 	    {
-		const int segidx = seg.nearestIndex( nr );
+		const auto segidx = seg.nearestIndex( nr );
 		return seg.atIndex( segidx );
 	    }
 	}
@@ -113,7 +118,7 @@ int PosInfo::LineData::nearestNumber( int nr ) const
 	    {
 		if ( idx > 0 )
 		{
-		    const int prevstop = segments_[iseg-1].stop;
+		    const auto prevstop = segments_[iseg-1].stop;
 		    if ( nr - prevstop < seg.start - nr )
 			return prevstop;
 		}
@@ -121,7 +126,7 @@ int PosInfo::LineData::nearestNumber( int nr ) const
 	    }
 	    if ( nr <= seg.stop )
 	    {
-		const int segidx = seg.nearestIndex( nr );
+		const auto segidx = seg.nearestIndex( nr );
 		return seg.atIndex( segidx );
 	    }
 	}
@@ -132,14 +137,14 @@ int PosInfo::LineData::nearestNumber( int nr ) const
 }
 
 
-int PosInfo::LineData::nearestSegment( double x ) const
+idx_type PosInfo::LineData::nearestSegment( double x ) const
 {
-    const int nrsegs = segments_.size();
+    const auto nrsegs = segments_.size();
     if ( nrsegs < 1 )
 	return -1;
 
-    int ret = 0; float mindist = mUdf(float);
-    for ( int iseg=0; iseg<nrsegs; iseg++ )
+    idx_type ret = 0; float mindist = mUdf(float);
+    for ( idx_type iseg=0; iseg<nrsegs; iseg++ )
     {
 	const Segment& seg = segments_[iseg];
 
@@ -163,9 +168,9 @@ int PosInfo::LineData::nearestSegment( double x ) const
 }
 
 
-int PosInfo::LineData::segmentOf( int nr ) const
+idx_type PosInfo::LineData::segmentOf( pos_type nr ) const
 {
-    for ( int iseg=0; iseg<segments_.size(); iseg++ )
+    for ( idx_type iseg=0; iseg<segments_.size(); iseg++ )
     {
 	if ( segments_[iseg].includes(nr,false) )
 	{
@@ -185,10 +190,10 @@ int PosInfo::LineData::segmentOf( int nr ) const
 PosInfo::LineData::pos_rg_type PosInfo::LineData::range() const
 {
     if ( segments_.isEmpty() )
-	return pos_rg_type( mUdf(int), mUdf(int) );
+	return pos_rg_type( mUdf(pos_type), mUdf(pos_type) );
 
     pos_rg_type ret( segments_[0].start, segments_[0].start );
-    for ( int idx=0; idx<segments_.size(); idx++ )
+    for ( idx_type idx=0; idx<segments_.size(); idx++ )
     {
 	const Segment& seg = segments_[idx];
 	if ( seg.start < ret.start ) ret.start = seg.start;
@@ -201,28 +206,28 @@ PosInfo::LineData::pos_rg_type PosInfo::LineData::range() const
 }
 
 
-bool PosInfo::LineData::isValid( const PosInfo::LineDataPos& ldp ) const
+bool PosInfo::LineData::isValid( const LinePos& lp ) const
 {
-    if ( ldp.segnr_ < 0 || ldp.segnr_ >= segments_.size() )
+    if ( lp.segnr_ < 0 || lp.segnr_ >= segments_.size() )
 	return false;
-    return ldp.sidx_ >= 0 && ldp.sidx_ <= segments_[ldp.segnr_].nrSteps();
+    return lp.sidx_ >= 0 && lp.sidx_ <= segments_[lp.segnr_].nrSteps();
 }
 
 
-bool PosInfo::LineData::toNext( PosInfo::LineDataPos& ldp ) const
+bool PosInfo::LineData::toNext( LinePos& lp ) const
 {
-    if ( !isValid(ldp) )
+    if ( !isValid(lp) )
     {
-	ldp.toStart();
-	return isValid(ldp);
+	lp.toStart();
+	return isValid(lp);
     }
     else
     {
-	ldp.sidx_++;
-	if ( ldp.sidx_ > segments_[ldp.segnr_].nrSteps() )
+	lp.sidx_++;
+	if ( lp.sidx_ > segments_[lp.segnr_].nrSteps() )
 	{
-	    ldp.segnr_++; ldp.sidx_ = 0;
-	    if ( ldp.segnr_ >= segments_.size() )
+	    lp.segnr_++; lp.sidx_ = 0;
+	    if ( lp.segnr_ >= segments_.size() )
 		return false;
 	}
 	return true;
@@ -230,26 +235,26 @@ bool PosInfo::LineData::toNext( PosInfo::LineDataPos& ldp ) const
 }
 
 
-bool PosInfo::LineData::toPrev( PosInfo::LineDataPos& ldp ) const
+bool PosInfo::LineData::toPrev( LinePos& lp ) const
 {
-    if ( !isValid(ldp) )
+    if ( !isValid(lp) )
     {
 	if ( segments_.isEmpty() )
 	    return false;
 
-	ldp.segnr_ = segments_.size() - 1;
-	ldp.sidx_ = segments_[ldp.segnr_].nrSteps();
+	lp.segnr_ = segments_.size() - 1;
+	lp.sidx_ = segments_[lp.segnr_].nrSteps();
 	return true;
     }
     else
     {
-	ldp.sidx_--;
-	if ( ldp.sidx_ < 0 )
+	lp.sidx_--;
+	if ( lp.sidx_ < 0 )
 	{
-	    ldp.segnr_--;
-	    if ( ldp.segnr_ < 0 )
+	    lp.segnr_--;
+	    if ( lp.segnr_ < 0 )
 		return false;
-	    ldp.sidx_ = segments_[ldp.segnr_].nrSteps();
+	    lp.sidx_ = segments_[lp.segnr_].nrSteps();
 	}
 	return true;
     }
@@ -275,18 +280,18 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
     segments_.erase();
 
     pos_rg_type rg( ld1.range() ); rg.include( ld2.range() );
-    const int defstep = ld1.segments_.isEmpty() ? ld2.segments_[0].step
-						: ld1.segments_[0].step;
+    const auto defstep = ld1.segments_.isEmpty() ? ld2.segments_[0].step
+						 : ld1.segments_[0].step;
     if ( rg.start == rg.stop )
     {
-	segments_ += Segment( rg.start, rg.start, defstep );
+	segments_.add( Segment(rg.start,rg.start,defstep) );
 	return;
     }
     else if ( ld1.segments_.size() == 1 && ld2.segments_.size() == 1 )
     {
 	// Very common, can be done real fast
 	if ( inc )
-	    segments_ += Segment( rg.start, rg.stop, defstep );
+	    segments_.add( Segment(rg.start,rg.stop,defstep) );
 	else
 	{
 	    Segment seg( ld1.segments_[0] );
@@ -294,14 +299,14 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 	    if ( ld2seg.start > seg.start ) seg.start = ld2seg.start;
 	    if ( ld2seg.stop < seg.stop ) seg.stop = ld2seg.stop;
 	    if ( seg.stop >= seg.start )
-		segments_ += seg;
+		segments_.add( seg );
 	}
 	return;
     }
 
     // slow but straightforward
-    Segment curseg( mUdf(int), 0, mUdf(int) );
-    for ( int nr=rg.start; nr<=rg.stop; nr++ )
+    Segment curseg( mUdf(pos_type), 0, mUdf(pos_type) );
+    for ( pos_type nr=rg.start; nr<=rg.stop; nr++ )
     {
 	const bool in1 = ld1.segmentOf(nr) >= 0;
 	bool use = true;
@@ -316,7 +321,7 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 		curseg.start = curseg.stop = nr;
 	    else
 	    {
-		int curstep = nr - curseg.stop;
+		pos_type curstep = nr - curseg.stop;
 		if ( mIsUdf(curseg.step) )
 		{
 		    curseg.step = curstep;
@@ -326,9 +331,9 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 		    curseg.stop = nr;
 		else
 		{
-		    segments_ += curseg;
+		    segments_.add( curseg );
 		    curseg.start = curseg.stop = nr;
-		    curseg.step = mUdf(int);
+		    curseg.step = mUdf(pos_type);
 		}
 	    }
 	}
@@ -337,234 +342,222 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
     if ( mIsUdf(curseg.start) )
 	return;
 
-    if ( mIsUdf(curseg.step) ) curseg.step = defstep;
-    segments_ += curseg;
+    if ( mIsUdf(curseg.step) )
+	curseg.step = defstep;
+    segments_.add( curseg );
 }
 
 
-void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
-				  bool allowreversed )
+void PosInfo::LineCollData::copyContents( const LineCollData& oth )
 {
-    erase();
-
-    if ( !allowreversed )
-    {
-	if ( start.inl() > stop.inl() )
-	    std::swap( start.inl(), stop.inl() );
-	if ( start.crl() > stop.crl() )
-	    std::swap( start.crl(), stop.crl() );
-	if ( step.inl() < 0 )
-	    step.inl() = -step.inl();
-	if ( step.crl() < 0 )
-	    step.crl() = -step.crl();
-    }
-
-    const bool isinlrev = step.inl()<0;
-    for ( int iln=start.inl(); isinlrev ? iln>=stop.inl() : iln<=stop.inl();
-	      iln+=step.inl() )
-    {
-	LineData* ld = new LineData( iln );
-	ld->segments_ += LineData::Segment( start.crl(), stop.crl(),step.crl());
-	*this += ld;
-    }
-}
-
-
-void PosInfo::CubeData::fillBySI( OD::SurvLimitType slt )
-{
-    const CubeHorSubSel hss( SurvGeom::get3D(slt) );
-    generate( BinID(hss.inlStart(),hss.crlStart()),
-	      BinID(hss.inlStop(),hss.crlStop()),
-	      BinID(hss.inlStep(),hss.crlStep()), false );
-}
-
-
-void PosInfo::CubeData::copyContents( const PosInfo::CubeData& cd )
-{
-    if ( &cd != this )
+    if ( &oth != this )
     {
 	erase();
-	for ( int idx=0; idx<cd.size(); idx++ )
-	    *this += new PosInfo::LineData( *cd[idx] );
+	for ( idx_type idx=0; idx<oth.size(); idx++ )
+	    add( new LineData( *oth.get(idx) ) );
     }
 }
 
 
-int PosInfo::CubeData::totalNrSegments() const
+glob_size_type PosInfo::LineCollData::totalSize() const
 {
-    int nrseg = 0;
-    for ( int idx=0; idx<size(); idx++ )
-	nrseg += (*this)[idx]->segments_.size();
+    glob_size_type nrpos = 0;
+    for ( auto ld : *this )
+	nrpos += ld->size();
+    return nrpos;
+}
 
+
+glob_size_type PosInfo::LineCollData::totalNrSegments() const
+{
+    glob_size_type nrseg = 0;
+    for ( auto ld : *this )
+	nrseg += ld->segments_.size();
     return nrseg;
 }
 
 
-int PosInfo::CubeData::totalSize() const
+void PosInfo::LineCollData::merge( const LineCollData& lcd1, bool inc )
 {
-    int nrpos = 0;
-    for ( int idx=0; idx<size(); idx++ )
-	nrpos += (*this)[idx]->size();
+    const LineCollData lcd2( *this );
+    deepErase( *this );
 
-    return nrpos;
-}
-
-
-int PosInfo::CubeData::totalSizeInside( const CubeHorSubSel& hss ) const
-{
-    int nrpos = 0;
-    for ( int idx=0; idx<size(); idx++ )
+    for ( idx_type iln1=0; iln1<lcd1.size(); iln1++ )
     {
-	const PosInfo::LineData* linedata = (*this)[idx];
-	if ( !hss.inlRange().isPresent(linedata->linenr_) )
-	    continue;
-
-	for ( int idy=0; idy<linedata->segments_.size(); idy++ )
+	const LineData& ld1 = *lcd1[iln1];
+	const idx_type iln2 = lcd2.lineIndexOf( ld1.linenr_ );
+	if ( iln2 < 0 )
 	{
-	    const PosInfo::LineData::Segment& segment =
-		linedata->segments_[idy];
-
-	    for ( int crl=segment.start; crl<=segment.stop; crl+=segment.step )
-	    {
-		if ( hss.crlRange().isPresent(crl) )
-		    nrpos ++;
-	    }
+	    if ( inc )
+		add( new LineData(ld1) );
+	    continue;
 	}
-    }
 
-    return nrpos;
+	LineData* ld = new LineData( *lcd2[iln2] );
+	ld->merge( ld1, inc );
+	add( ld );
+    }
+    if ( !inc )
+	return;
+
+    for ( idx_type iln2=0; iln2<lcd2.size(); iln2++ )
+    {
+	const LineData& ld2 = *lcd2[iln2];
+	const idx_type iln = lineIndexOf( ld2.linenr_ );
+	if ( iln < 0 )
+	    add( new LineData(ld2) );
+    }
 }
 
 
-int PosInfo::CubeData::indexOf( int lnr, int* newidx ) const
+bool PosInfo::LineCollData::read( od_istream& strm, bool asc )
 {
-    for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx]->linenr_ == lnr )
-	    return idx;
-    return -1;
-}
-
-
-int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
-{
-    const int nrld = size();
-    if ( nrld < 1 )
-	{ if ( newidx ) *newidx = 0; return -1; }
-
-    int loidx = 0;
-    int lnr = (*this)[loidx]->linenr_;
-    if ( reqlnr <= lnr )
+    const auto intsz = sizeof(int);
+    int buf[4]; int itmp = 0;
+    if ( asc )
+	strm >> itmp;
+    else
     {
-	if ( newidx ) *newidx = 0;
-	return reqlnr == lnr ? loidx : -1;
+	strm.getBin( buf, intsz );
+	itmp = buf[0];
     }
-    else if ( nrld == 1 )
-	{ if ( newidx ) *newidx = 1; return -1; }
+    const size_type nrinl = itmp;
+    if ( nrinl < 0 )
+	return false;
 
-    int hiidx = nrld - 1;
-    lnr = (*this)[hiidx]->linenr_;
-    if ( reqlnr >= lnr )
-    {
-	if ( newidx ) *newidx = hiidx+1;
-	return reqlnr == lnr ? hiidx : -1;
-    }
-    else if ( nrld == 2 )
-	{ if ( newidx ) *newidx = 1; return -1; }
+    const pos_rg_type reasonableinls = SI().reasonableRange( true );
+    const pos_rg_type reasonablecrls = SI().reasonableRange( false );
 
-    while ( hiidx - loidx > 1 )
+    for ( idx_type iinl=0; iinl<nrinl; iinl++ )
     {
-	const int mididx = (hiidx + loidx) / 2;
-	lnr = (*this)[mididx]->linenr_;
-	if ( lnr == reqlnr )
-	    return mididx;
-	else if ( reqlnr > lnr )
-	    loidx = mididx;
+	pos_type linenr = 0;
+        size_type nrseg = 0;
+	if ( asc )
+	    strm >> linenr >> nrseg;
 	else
-	    hiidx = mididx;
+	{
+	    strm.getBin( buf, 2 * intsz );
+	    linenr = (pos_type)buf[0];
+	    nrseg = (size_type)buf[1];
+	}
+	if ( linenr == 0 ) continue;
+
+	if ( !reasonableinls.includes( linenr, false ) )
+	    return false;
+
+
+	LineData* iinf = new LineData( linenr );
+
+	Segment crls;
+	for ( idx_type iseg=0; iseg<nrseg; iseg++ )
+	{
+	    if ( asc )
+		strm >> crls.start >> crls.stop >> crls.step;
+	    else
+	    {
+		strm.getBin( buf, 3 * intsz );
+		crls.start = buf[0]; crls.stop = buf[1]; crls.step = buf[2];
+	    }
+
+	    if ( !reasonablecrls.includes( crls.start,false ) ||
+		 !reasonablecrls.includes( crls.stop, false ) )
+		    return false;
+
+	    if ( crls.step<1 )
+	    {
+		if ( crls.step<0 || crls.start!=crls.stop )
+		    return false;
+	    }
+
+	    iinf->segments_.add( crls );
+	}
+
+	add( iinf );
     }
+
+    return true;
+}
+
+
+bool PosInfo::LineCollData::write( od_ostream& strm, bool asc ) const
+{
+    const auto intsz = sizeof( int );
+    const auto nrinl = this->size();
+    if ( asc )
+	strm << nrinl << '\n';
+    else
+	strm.addBin( &nrinl, intsz );
+
+    for ( idx_type iinl=0; iinl<nrinl; iinl++ )
+    {
+	const LineData& inlinf = *get( iinl );
+	const idx_type nrsegs = inlinf.segments_.size();
+	if ( asc )
+	    strm << inlinf.linenr_ << ' ' << nrsegs;
+	else
+	{
+	    strm.addBin( &inlinf.linenr_, intsz );
+	    strm.addBin( &nrsegs, intsz );
+	}
+
+	for ( idx_type iseg=0; iseg<nrsegs; iseg++ )
+	{
+	    const Segment& seg = inlinf.segments_[iseg];
+	    if ( asc )
+		strm << ' ' << seg.start << ' ' << seg.stop << ' ' << seg.step;
+	    else
+	    {
+		strm.addBin( &seg.start, intsz );
+		strm.addBin( &seg.stop, intsz );
+		strm.addBin( &seg.step, intsz );
+	    }
+	    if ( asc )
+		strm << '\n';
+	}
+
+	if ( !strm.isOK() ) return false;
+    }
+
+    return true;
+}
+
+
+idx_type PosInfo::LineCollData::lineIndexOf( pos_type lnr,
+					   idx_type* newidx ) const
+{
+    for ( idx_type idx=0; idx<size(); idx++ )
+	if ( get(idx)->linenr_ == lnr )
+	    return idx;
 
     if ( newidx )
-	*newidx = hiidx;
+	*newidx = size();
     return -1;
 }
 
 
-void PosInfo::CubeData::limitTo( const CubeHorSubSel& hss )
-{
-    for ( int iidx=size()-1; iidx>=0; iidx-- )
-    {
-	PosInfo::LineData* ld = (*this)[iidx];
-	if ( !hss.inlRange().isPresent(ld->linenr_) )
-	    { removeSingle( iidx ); continue; }
-
-	int nrvalidsegs = 0;
-	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
-	{
-	    auto& seg = ld->segments_[iseg];
-	    const bool isrev = seg.start > seg.stop;
-	    auto segstart = seg.start;
-	    auto segstop = seg.stop;
-	    if ( segstart > hss.crlStop() || segstop < hss.crlStart() )
-		{ ld->segments_.removeSingle( iseg ); continue; }
-
-	    seg.step = Math::LCMOf( seg.step, hss.crlStep() );
-	    if ( !seg.step )
-		{ ld->segments_.removeSingle( iseg ); continue; }
-
-	    if ( segstart < hss.crlStart() )
-	    {
-		int newstart = hss.crlStart();
-		int diff = newstart - segstart;
-		if ( diff % seg.step )
-		{
-		    diff += seg.step - diff % seg.step;
-		    newstart = segstart + diff;
-		}
-
-		if ( isrev )
-		    seg.stop = newstart;
-		else
-		    seg.start = newstart;
-	    }
-	    if ( segstop > hss.crlStop() )
-	    {
-		int newstop = hss.crlStop();
-		int diff = segstop - newstop;
-		if ( diff % seg.step )
-		{
-		    diff += seg.step - diff % seg.step;
-		    newstop = segstop - diff;
-		}
-
-		if ( isrev )
-		    seg.start = newstop;
-		else
-		    seg.stop = newstop;
-	    }
-	    if ( segstart > segstop )
-		ld->segments_.removeSingle( iseg );
-	    else
-		nrvalidsegs++;
-	}
-
-	if ( !nrvalidsegs )
-	    removeSingle( iidx );
-    }
-}
-
-
-bool PosInfo::CubeData::includes( const BinID& bid ) const
+bool PosInfo::LineCollData::includes( const BinID& bid ) const
 {
     return includes( bid.inl(), bid.crl() );
 }
 
 
-bool PosInfo::CubeData::includes( int lnr, int crl ) const
+bool PosInfo::LineCollData::includes( const Bin2D& b2d ) const
 {
-    int ilnr = indexOf( lnr ); if ( ilnr < 0 ) return false;
-    for ( int iseg=0; iseg<(*this)[ilnr]->segments_.size(); iseg++ )
-	if ( (*this)[ilnr]->segments_[iseg].includes(crl,false) )
+    return includes( b2d.lineNr(), b2d.trcNr() );
+}
+
+
+bool PosInfo::LineCollData::includes( pos_type lnr, pos_type tnr ) const
+{
+    idx_type lidx = lineIndexOf( lnr );
+    if ( lidx < 0 )
+	return false;
+
+    const auto& segs = get( lidx )->segments_;
+    for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
+	if ( segs[iseg].includes(tnr,false) )
 	    return true;
+
     return false;
 }
 
@@ -573,14 +566,14 @@ void PosInfo::CubeData::getRanges( pos_rg_type& inlrg,
 				   pos_rg_type& crlrg ) const
 {
     inlrg.start = inlrg.stop = crlrg.start = crlrg.stop = 0;
-    const int sz = size();
+    const auto sz = size();
     if ( sz < 1 )
 	return;
 
     bool isfirst = true;
-    for ( int iln=0; iln<sz; iln++ )
+    for ( idx_type iln=0; iln<sz; iln++ )
     {
-	const PosInfo::LineData& ld = *(*this)[iln];
+	const auto& ld = *get( iln );
 	if ( ld.segments_.isEmpty() )
 	    continue;
 
@@ -593,8 +586,8 @@ void PosInfo::CubeData::getRanges( pos_rg_type& inlrg,
 	}
 
 	inlrg.include( ld.linenr_ );
-	for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
-	    crlrg.include( ld.segments_[iseg], false );
+	for ( auto seg : ld.segments_ )
+	    crlrg.include( seg, false );
     }
 }
 
@@ -605,19 +598,19 @@ bool PosInfo::CubeData::getInlRange( pos_steprg_type& rg,
     const auto sz = size();
     if ( sz < 1 )
 	return false;
-    rg.start = rg.stop = (*this)[0]->linenr_;
+    rg.start = rg.stop = get(0)->linenr_;
     if ( sz == 1 )
 	{ rg.step = 1; return true; }
 
-    int prevlnr = rg.stop = (*this)[1]->linenr_;
+    auto prevlnr = rg.stop = get(1)->linenr_;
     rg.step = rg.stop - rg.start;
     bool isreg = rg.step != 0;
     if ( !isreg ) rg.step = 1;
 
-    for ( int idx=2; idx<sz; idx++ )
+    for ( idx_type lidx=2; lidx<sz; lidx++ )
     {
-	const int newlnr = (*this)[idx]->linenr_;
-	int newstep =  newlnr - prevlnr;
+	const auto newlnr = get(lidx)->linenr_;
+	auto newstep = newlnr - prevlnr;
 	if ( newstep != rg.step )
 	{
 	    isreg = false;
@@ -643,17 +636,17 @@ bool PosInfo::CubeData::getCrlRange( pos_steprg_type& rg,
     if ( sz < 1 )
 	return false;
 
-    const PosInfo::LineData* ld = (*this)[0];
+    const auto* ld = first();
     rg = ld->segments_.size() ? ld->segments_[0] : pos_steprg_type(0,0,1);
     bool foundrealstep = rg.start != rg.stop;
     bool isreg = true;
 
-    for ( int ilnr=0; ilnr<sz; ilnr++ )
+    for ( idx_type lidx=0; lidx<sz; lidx++ )
     {
-	ld = (*this)[ilnr];
-	for ( int icrl=0; icrl<ld->segments_.size(); icrl++ )
+	ld = get( lidx );
+	for ( idx_type icrl=0; icrl<ld->segments_.size(); icrl++ )
 	{
-	    const PosInfo::LineData::Segment& seg = ld->segments_[icrl];
+	    const Segment& seg = ld->segments_[icrl];
 	    rg.include( seg.start ); rg.include( seg.stop );
 
 	    if ( seg.step && seg.start != seg.stop )
@@ -666,8 +659,8 @@ bool PosInfo::CubeData::getCrlRange( pos_steprg_type& rg,
 		else if ( rg.step != seg.step )
 		{
 		    isreg = false;
-		    const int segstep = abs(seg.step);
-		    const int rgstep = abs(rg.step);
+		    const pos_type segstep = abs( seg.step );
+		    const pos_type rgstep = abs( rg.step );
 		    if ( segstep < rgstep )
 		    {
 			rg.step = seg.step;
@@ -683,124 +676,37 @@ bool PosInfo::CubeData::getCrlRange( pos_steprg_type& rg,
 }
 
 
-bool PosInfo::CubeData::isValid( const PosInfo::CubeDataPos& cdp ) const
+bool PosInfo::LineCollData::isValid( const PosInfo::LineCollPos& lcp ) const
 {
-    if ( cdp.lidx_ < 0 || cdp.lidx_ >= size() )
+    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
 	return false;
-    const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
-    if ( cdp.segnr_ < 0 || cdp.segnr_ >= segs.size() )
+    const auto& segs( get(lcp.lidx_)->segments_ );
+    if ( lcp.segnr_ < 0 || lcp.segnr_ >= segs.size() )
 	return false;
-    return cdp.sidx_ >= 0 && cdp.sidx_ <= segs[cdp.segnr_].nrSteps();
+    return lcp.sidx_ >= 0 && lcp.sidx_ <= segs[lcp.segnr_].nrSteps();
 }
 
 
-bool PosInfo::CubeData::isValid( od_int64 gidx, const CubeHorSubSel& hss ) const
+bool PosInfo::LineCollData::toNext( LineCollPos& lcp ) const
 {
-    const BinID bid( hss.atGlobIdx(gidx) );
-    return isValid( bid );
-}
-
-
-bool PosInfo::CubeData::isValid( const BinID& bid ) const
-{
-    const PosInfo::CubeDataPos cdatapos( cubeDataPos(bid) );
-    return isValid( cdatapos );
-}
-
-
-BinID PosInfo::CubeData::minStep() const
-{
-    const int sz = size();
-    if ( sz < 1 )
-	return BinID(1,1);
-
-    BinID minstep( 1, first()->minStep() );
-    if ( sz == 1 )
-	return minstep;
-
-    minstep.inl() = std::abs( (*this)[1]->linenr_ - first()->linenr_ );
-    for ( int iln=1; iln<sz; iln++ )
+    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
     {
-	const LineData& ld = *((*this)[iln]);
-	int istp = std::abs( ld.linenr_ - (*this)[iln-1]->linenr_ );
-	if ( istp && istp < minstep.inl() )
-	    minstep.inl() = istp;
-	int cstp = ld.minStep();
-	if ( cstp && cstp < minstep.crl() )
-	    minstep.crl() = cstp;
+	lcp.toStart();
+	return isValid(lcp);
     }
-
-    return minstep;
-}
-
-
-BinID PosInfo::CubeData::centerPos() const
-{
-    if ( isEmpty() )
-	return BinID(0,0);
-
-    const LineData& ld = *((*this)[size() / 2]);
-    return BinID( ld.linenr_, ld.centerNumber() );
-}
-
-
-BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
-{
-    if ( isEmpty() )
-	return BinID(0,0);
-
-    int newidx;
-    int inlidx = indexOf( bid.inl(), &newidx );
-    if ( inlidx < 0 )
-    {
-	inlidx = newidx;
-	if ( inlidx > size() - 1 )
-	    inlidx = size() - 1;
-    }
-    else if ( (*this)[inlidx]->includes(bid.crl()) )
-	return bid; // exact match
-
-    BinID ret( 0, 0 );
-    int minnroff = mUdf( int );
-    for ( int idx=inlidx-2; idx<=inlidx+2; idx++ )
-    {
-	if ( !validIdx(idx) )
-	    continue;
-	const LineData& ld = *((*this)[idx]);
-	int nearcrl = ld.nearestNumber( bid.crl() );
-	int nroff = std::abs(ld.linenr_-bid.inl())
-		  + std::abs(nearcrl-bid.crl());
-	if ( nroff < minnroff )
-	{
-	    minnroff = nroff;
-	    ret = BinID( ld.linenr_, nearcrl );
-	}
-    }
-
-    return ret;
-}
-
-
-bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
-{
-    if ( cdp.lidx_ < 0 || cdp.lidx_ >= size() )
-    {
-	cdp.toStart();
-	return isValid(cdp);
-    }
-    else if ( cdp.segnr_ < 0 )
-	cdp.segnr_ = cdp.sidx_ = 0;
+    else if ( lcp.segnr_ < 0 )
+	lcp.segnr_ = lcp.sidx_ = 0;
     else
     {
-	const auto& segset = get(cdp.lidx_)->segments_;
-	cdp.sidx_++;
-	if ( cdp.sidx_ > segset.get(cdp.segnr_).nrSteps() )
+	const auto& segset = get(lcp.lidx_)->segments_;
+	lcp.sidx_++;
+	if ( lcp.sidx_ > segset.get(lcp.segnr_).nrSteps() )
 	{
-	    cdp.segnr_++; cdp.sidx_ = 0;
-	    if ( cdp.segnr_ >= segset.size() )
+	    lcp.segnr_++; lcp.sidx_ = 0;
+	    if ( lcp.segnr_ >= segset.size() )
 	    {
-		cdp.lidx_++; cdp.segnr_ = 0;
-		if ( cdp.lidx_ >= size() )
+		lcp.lidx_++; lcp.segnr_ = 0;
+		if ( lcp.lidx_ >= size() )
 		    return false;
 	    }
 	}
@@ -809,105 +715,119 @@ bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
 }
 
 
-bool PosInfo::CubeData::toNextLine( PosInfo::CubeDataPos& cdp ) const
+bool PosInfo::LineCollData::toNextLine( LineCollPos& lcp ) const
 {
-    cdp.lidx_++;
-    if ( cdp.lidx_ >= size() )
+    lcp.lidx_++;
+    if ( lcp.lidx_ >= size() )
 	return false;
 
-    cdp.segnr_ = cdp.sidx_ = 0;
+    lcp.segnr_ = lcp.sidx_ = 0;
     return true;
 }
 
 
-bool PosInfo::CubeData::toPrev( PosInfo::CubeDataPos& cdp ) const
+bool PosInfo::LineCollData::toPrev( LineCollPos& lcp ) const
 {
-    if ( !isValid(cdp) )
+    if ( !isValid(lcp) )
     {
 	if ( isEmpty() )
 	    return false;
 
-	cdp.lidx_ = size() - 1;
-	const LineData::SegmentSet& segs = (*this)[cdp.lidx_]->segments_;
-	cdp.segnr_ = segs.size() - 1;
-	cdp.sidx_ = segs[cdp.segnr_].nrSteps();
+	lcp.lidx_ = size() - 1;
+	const auto& segs = get(lcp.lidx_)->segments_;
+	lcp.segnr_ = segs.size() - 1;
+	lcp.sidx_ = segs[lcp.segnr_].nrSteps();
 	return true;
     }
     else
     {
-	cdp.sidx_--;
-	if ( cdp.sidx_ < 0 )
+	lcp.sidx_--;
+	if ( lcp.sidx_ < 0 )
 	{
-	    cdp.segnr_--;
-	    if ( cdp.segnr_ < 0 )
+	    lcp.segnr_--;
+	    if ( lcp.segnr_ < 0 )
 	    {
-		cdp.lidx_--;
-		if ( cdp.lidx_ < 0 )
+		lcp.lidx_--;
+		if ( lcp.lidx_ < 0 )
 		    return false;
-		cdp.segnr_ = (*this)[cdp.lidx_]->segments_.size() - 1;
+		lcp.segnr_ = get(lcp.lidx_)->segments_.size() - 1;
 	    }
-	    cdp.sidx_ = ((*this)[cdp.lidx_]->segments_)[cdp.segnr_].nrSteps();
+	    lcp.sidx_ = get(lcp.lidx_)->segments_.get(lcp.segnr_).nrSteps();
 	}
 	return true;
     }
 }
 
 
-BinID PosInfo::CubeData::binID( const PosInfo::CubeDataPos& cdp ) const
+BinID PosInfo::LineCollData::binID( const LineCollPos& lcp ) const
 {
-    return !isValid(cdp) ? BinID(0,0)
-	: BinID( (*this)[cdp.lidx_]->linenr_,
-		 (*this)[cdp.lidx_]->segments_[cdp.segnr_].atIndex(cdp.sidx_) );
+    return !isValid(lcp) ? BinID(0,0)
+	: BinID( get(lcp.lidx_)->linenr_,
+		 get(lcp.lidx_)->segments_.get(lcp.segnr_).atIndex(lcp.sidx_) );
 }
 
 
-PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
+Bin2D PosInfo::LineCollData::bin2D( const LineCollPos& lcp ) const
 {
-    PosInfo::CubeDataPos cdp;
-    cdp.lidx_ = indexOf( bid.inl() );
-    if ( cdp.lidx_ < 0 )
-	return cdp;
-    const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
-    for ( int iseg=0; iseg<segs.size(); iseg++ )
+    return Bin2D::decode( binID(lcp) );
+}
+
+
+PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
+						const BinID& bid ) const
+{
+    LineCollPos lcp;
+    lcp.lidx_ = lineIndexOf( bid.inl() );
+    if ( lcp.lidx_ < 0 )
+	return lcp;
+    const auto& segs( get(lcp.lidx_)->segments_ );
+    for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
     {
-	const pos_steprg_type& seg( segs[iseg] );
+	const auto& seg( segs[iseg] );
 	if ( seg.includes(bid.crl(),true) )
 	{
 	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
 	    {
-		cdp.segnr_ = iseg;
-		cdp.sidx_ = seg.getIndex( bid.crl() );
+		lcp.segnr_ = iseg;
+		lcp.sidx_ = seg.getIndex( bid.crl() );
 	    }
 	    break;
 	}
     }
-    return cdp;
+    return lcp;
+}
+
+
+PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
+						const Bin2D& b2d ) const
+{
+    return lineCollPos( BinID(b2d.idxPair()) );
 }
 
 
 bool PosInfo::CubeData::isFullyRectAndReg() const
 {
-    const int sz = size();
+    const auto sz = size();
     if ( sz < 1 ) return true;
 
-    const PosInfo::LineData* ld = (*this)[0];
+    const PosInfo::LineData* ld = first();
     if ( ld->segments_.isEmpty() )
 	return sz == 1;
-    const PosInfo::LineData::Segment seg = ld->segments_[0];
+    const Segment seg = ld->segments_[0];
 
-    int lnrstep = mUdf(int);
-    for ( int ilnr=0; ilnr<sz; ilnr++ )
+    pos_type lnrstep = mUdf(pos_type);
+    for ( idx_type lidx=0; lidx<sz; lidx++ )
     {
-	ld = (*this)[ilnr];
+	ld = get( lidx );
 	if ( ld->segments_.isEmpty() )
 	    return false;
 	if ( ld->segments_.size() > 1 || ld->segments_[0] != seg )
 	    return false;
-	if ( ilnr > 0 )
+	if ( lidx > 0 )
 	{
-	    if ( ilnr == 1 )
-		lnrstep = ld->linenr_ - (*this)[ilnr-1]->linenr_;
-	    else if ( ld->linenr_ - (*this)[ilnr-1]->linenr_ != lnrstep )
+	    if ( lidx == 1 )
+		lnrstep = ld->linenr_ - get(lidx-1)->linenr_;
+	    else if ( ld->linenr_ - get(lidx-1)->linenr_ != lnrstep )
 		return false;
 	}
     }
@@ -916,55 +836,20 @@ bool PosInfo::CubeData::isFullyRectAndReg() const
 }
 
 
-PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
-{
-    return (PosInfo::SortedCubeData&)doAdd( ld );
-}
-
-
-PosInfo::CubeData& PosInfo::SortedCubeData::doAdd( PosInfo::LineData* ld )
-{
-    if ( !ld ) return *this;
-
-    int newidx;
-    const int curidx = indexOf( ld->linenr_, &newidx );
-    if ( curidx < 0 )
-    {
-	if ( newidx >= size() )
-	    ManagedObjectSet<LineData>::doAdd( ld );
-	else
-	    insertAt( ld, newidx );
-	return *this;
-    }
-    LineData* curld = (*this)[curidx];
-    if ( ld == curld )
-	return *this;
-
-    curld->merge( *ld, true );
-    delete ld;
-    return *this;
-}
-
-
 bool PosInfo::CubeData::isCrlReversed() const
 {
-    const int sz = size();
+    const auto sz = size();
     if ( sz < 1 )
 	return false;
-    for ( int ilnr=0; ilnr<sz; ilnr++ )
+    for ( idx_type lidx=0; lidx<sz; lidx++ )
     {
-	const PosInfo::LineData& ld = *(*this)[ilnr];
+	const auto& ld = *get( lidx );
 	if ( ld.segments_.isEmpty() )
 	    continue;
 	if ( ld.segments_.size() >= 2 )
 	{
 	    if ( ld.segments_[0].start==ld.segments_[1].start )
-	    {
-		BufferString msg( "Two segemnts in line nr " );
-		msg += ld.linenr_; msg += " have same start";
-		pErrMsg( msg );
-		continue;
-	    }
+		{ pErrMsg( BufferString("Same start: ",ld.linenr_) ); continue;}
 	    return ld.segments_[0].start > ld.segments_[1].start;
 	}
 	else
@@ -981,16 +866,16 @@ bool PosInfo::CubeData::isCrlReversed() const
 
 bool PosInfo::CubeData::haveCrlStepInfo() const
 {
-    const int sz = size();
+    const auto sz = size();
     if ( sz < 1 )
 	return false;
 
-    for ( int ilnr=0; ilnr<sz; ilnr++ )
+    for ( idx_type lidx=0; lidx<sz; lidx++ )
     {
-	const PosInfo::LineData& ld = *(*this)[ilnr];
-	for ( int icrl=0; icrl<ld.segments_.size(); icrl++ )
+	const auto& ld = *get( lidx );
+	for ( idx_type icrl=0; icrl<ld.segments_.size(); icrl++ )
 	{
-	    const PosInfo::LineData::Segment& seg = ld.segments_[icrl];
+	    const auto& seg = ld.segments_[icrl];
 	    if ( seg.start != seg.stop )
 		return true;
 	}
@@ -1017,172 +902,306 @@ bool PosInfo::CubeData::isAll( const CubeHorSubSel& hss ) const
 }
 
 
-void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
+void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
+				  bool allowreversed )
 {
-    PosInfo::CubeData pd2( *this );
-    deepErase( *this );
+    erase();
 
-    for ( int iln1=0; iln1<pd1.size(); iln1++ )
+    if ( !allowreversed )
     {
-	const PosInfo::LineData& ld1 = *pd1[iln1];
-	const int iln2 = pd2.indexOf( ld1.linenr_ );
-	if ( iln2 < 0 )
-	{
-	    if ( inc ) *this += new PosInfo::LineData(ld1);
+	if ( start.inl() > stop.inl() )
+	    std::swap( start.inl(), stop.inl() );
+	if ( start.crl() > stop.crl() )
+	    std::swap( start.crl(), stop.crl() );
+	if ( step.inl() < 0 )
+	    step.inl() = -step.inl();
+	if ( step.crl() < 0 )
+	    step.crl() = -step.crl();
+    }
+
+    const bool isinlrev = step.inl()<0;
+    for ( pos_type lnr=start.inl();
+	  isinlrev ? lnr>=stop.inl() : lnr<=stop.inl();
+	  lnr+=step.inl() )
+    {
+	LineData* ld = new LineData( lnr );
+	ld->segments_.add( Segment(start.crl(),stop.crl(),step.crl()) );
+	add( ld );
+    }
+}
+
+
+void PosInfo::CubeData::fillBySI( OD::SurvLimitType slt )
+{
+    const CubeHorSubSel hss( SurvGeom::get3D(slt) );
+    generate( BinID(hss.inlStart(),hss.crlStart()),
+	      BinID(hss.inlStop(),hss.crlStop()),
+	      BinID(hss.inlStep(),hss.crlStep()), false );
+}
+
+
+glob_size_type PosInfo::CubeData::totalSizeInside(
+					const CubeHorSubSel& hss ) const
+{
+    glob_size_type nrpos = 0;
+    for ( auto linedata : *this )
+	if ( hss.inlRange().isPresent(linedata->linenr_) )
+	    for ( auto seg : linedata->segments_ )
+		for ( pos_type crl=seg.start; crl<=seg.stop; crl+=seg.step )
+		    if ( hss.crlRange().isPresent(crl) )
+			nrpos++;
+    return nrpos;
+}
+
+
+bool PosInfo::CubeData::hasPosition( const CubeHorSubSel& hss,
+				     glob_idx_type gidx ) const
+{
+    const BinID bid( hss.atGlobIdx(gidx) );
+    return includes( bid );
+}
+
+
+BinID PosInfo::CubeData::minStep() const
+{
+    const auto sz = size();
+    if ( sz < 1 )
+	return BinID(1,1);
+
+    BinID minstep( 1, first()->minStep() );
+    if ( sz == 1 )
+	return minstep;
+
+    minstep.inl() = std::abs( get(1)->linenr_ - first()->linenr_ );
+    for ( idx_type iln=1; iln<sz; iln++ )
+    {
+	const LineData& ld = *get( iln );
+	pos_type istp = std::abs( ld.linenr_ - get(iln-1)->linenr_ );
+	if ( istp && istp < minstep.inl() )
+	    minstep.inl() = istp;
+	pos_type cstp = ld.minStep();
+	if ( cstp && cstp < minstep.crl() )
+	    minstep.crl() = cstp;
+    }
+
+    return minstep;
+}
+
+
+BinID PosInfo::CubeData::centerPos() const
+{
+    if ( isEmpty() )
+	return BinID(0,0);
+
+    const LineData& ld = *get( size() / 2 );
+    return BinID( ld.linenr_, ld.centerNumber() );
+}
+
+
+BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
+{
+    if ( isEmpty() )
+	return BinID(0,0);
+
+    idx_type newidx;
+    idx_type inlidx = lineIndexOf( bid.inl(), &newidx );
+    if ( inlidx < 0 )
+    {
+	inlidx = newidx;
+	if ( inlidx > size() - 1 )
+	    inlidx = size() - 1;
+    }
+    else if ( get(inlidx)->includes(bid.crl()) )
+	return bid; // exact match
+
+    BinID ret( 0, 0 );
+    pos_type minnroff = mUdf( pos_type );
+    for ( idx_type idx=inlidx-2; idx<=inlidx+2; idx++ )
+    {
+	if ( !validIdx(idx) )
 	    continue;
+	const LineData& ld = *get( idx );
+	pos_type nearcrl = ld.nearestNumber( bid.crl() );
+	pos_type nroff = std::abs( ld.linenr_-bid.inl() )
+			  + std::abs( nearcrl-bid.crl() );
+	if ( nroff < minnroff )
+	{
+	    minnroff = nroff;
+	    ret = BinID( ld.linenr_, nearcrl );
 	}
-
-	PosInfo::LineData* ld = new PosInfo::LineData( *pd2[iln2] );
-	ld->merge( ld1, inc );
-	*this += ld;
     }
-    if ( !inc ) return;
 
-    for ( int iln2=0; iln2<pd2.size(); iln2++ )
-    {
-	const PosInfo::LineData& ld2 = *pd2[iln2];
-	const int iln = indexOf( ld2.linenr_ );
-	if ( iln < 0 )
-	    *this += new PosInfo::LineData(ld2);
-    }
+    return ret;
 }
 
 
-
-
-bool PosInfo::CubeData::read( od_istream& strm, bool asc )
+void PosInfo::CubeData::limitTo( const CubeHorSubSel& hss )
 {
-    const int intsz = sizeof(int);
-    int buf[4]; int itmp = 0;
-    if ( asc )
-	strm >> itmp;
-    else
+    for ( idx_type lidx=size()-1; lidx>=0; lidx-- )
     {
-	strm.getBin( buf, intsz );
-	itmp = buf[0];
-    }
-    const int nrinl = itmp;
-    if ( nrinl < 0 )
-	return false;
+	PosInfo::LineData* ld = get( lidx );
+	if ( !hss.inlRange().isPresent(ld->linenr_) )
+	    { removeSingle( lidx ); continue; }
 
-    const pos_rg_type reasonableinls = SI().reasonableRange( true );
-    const pos_rg_type reasonablecrls = SI().reasonableRange( false );
-
-    for ( int iinl=0; iinl<nrinl; iinl++ )
-    {
-	int linenr = 0, nrseg = 0;
-	if ( asc )
-	    strm >> linenr >> nrseg;
-	else
+	size_type nrvalidsegs = 0;
+	for ( idx_type iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
 	{
-	    strm.getBin( buf, 2 * intsz );
-	    linenr = buf[0];
-	    nrseg = buf[1];
-	}
-	if ( linenr == 0 ) continue;
+	    auto& seg = ld->segments_[iseg];
+	    const bool isrev = seg.start > seg.stop;
+	    auto segstart = seg.start;
+	    auto segstop = seg.stop;
+	    if ( segstart > hss.crlStop() || segstop < hss.crlStart() )
+		{ ld->segments_.removeSingle( iseg ); continue; }
 
-	if ( !reasonableinls.includes( linenr, false ) )
-	    return false;
+	    seg.step = Math::LCMOf( seg.step, hss.crlStep() );
+	    if ( !seg.step )
+		{ ld->segments_.removeSingle( iseg ); continue; }
 
+	    if ( segstart < hss.crlStart() )
+	    {
+		auto newstart = hss.crlStart();
+		auto diff = newstart - segstart;
+		if ( diff % seg.step )
+		{
+		    diff += seg.step - diff % seg.step;
+		    newstart = segstart + diff;
+		}
 
-	PosInfo::LineData* iinf = new PosInfo::LineData( linenr );
+		if ( isrev )
+		    seg.stop = newstart;
+		else
+		    seg.start = newstart;
+	    }
+	    if ( segstop > hss.crlStop() )
+	    {
+		auto newstop = hss.crlStop();
+		auto diff = segstop - newstop;
+		if ( diff % seg.step )
+		{
+		    diff += seg.step - diff % seg.step;
+		    newstop = segstop - diff;
+		}
 
-	PosInfo::LineData::Segment crls;
-	for ( int iseg=0; iseg<nrseg; iseg++ )
-	{
-	    if ( asc )
-		strm >> crls.start >> crls.stop >> crls.step;
+		if ( isrev )
+		    seg.start = newstop;
+		else
+		    seg.stop = newstop;
+	    }
+	    if ( segstart > segstop )
+		ld->segments_.removeSingle( iseg );
 	    else
-	    {
-		strm.getBin( buf, 3 * intsz );
-		crls.start = buf[0]; crls.stop = buf[1]; crls.step = buf[2];
-	    }
-
-	    if ( !reasonablecrls.includes( crls.start,false ) ||
-		 !reasonablecrls.includes( crls.stop, false ) )
-		    return false;
-
-	    if ( crls.step<1 )
-	    {
-		if ( crls.step<0 || crls.start!=crls.stop )
-		    return false;
-	    }
-
-	    iinf->segments_ += crls;
+		nrvalidsegs++;
 	}
 
-	*this += iinf;
+	if ( !nrvalidsegs )
+	    removeSingle( lidx );
     }
-
-    return true;
 }
 
 
-bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
+idx_type PosInfo::SortedCubeData::lineIndexOf( pos_type reqlnr,
+					    idx_type* newidx ) const
 {
-    const int intsz = sizeof( int );
-    const int nrinl = this->size();
-    if ( asc )
-	strm << nrinl << '\n';
-    else
-	strm.addBin( &nrinl, intsz );
+    const auto nrld = size();
+    if ( nrld < 1 )
+	{ if ( newidx ) *newidx = 0; return -1; }
 
-    for ( int iinl=0; iinl<nrinl; iinl++ )
+    idx_type loidx = 0;
+    pos_type lnr = get(loidx)->linenr_;
+    if ( reqlnr <= lnr )
     {
-	const PosInfo::LineData& inlinf = *(*this)[iinl];
-	const int nrsegs = inlinf.segments_.size();
-	if ( asc )
-	    strm << inlinf.linenr_ << ' ' << nrsegs;
+	if ( newidx ) *newidx = 0;
+	return reqlnr == lnr ? loidx : -1;
+    }
+    else if ( nrld == 1 )
+	{ if ( newidx ) *newidx = 1; return -1; }
+
+    idx_type hiidx = nrld - 1;
+    lnr = get(hiidx)->linenr_;
+    if ( reqlnr >= lnr )
+    {
+	if ( newidx ) *newidx = hiidx+1;
+	return reqlnr == lnr ? hiidx : -1;
+    }
+    else if ( nrld == 2 )
+	{ if ( newidx ) *newidx = 1; return -1; }
+
+    while ( hiidx - loidx > 1 )
+    {
+	const idx_type mididx = (hiidx + loidx) / 2;
+	lnr = get(mididx)->linenr_;
+	if ( lnr == reqlnr )
+	    return mididx;
+	else if ( reqlnr > lnr )
+	    loidx = mididx;
 	else
-	{
-	    strm.addBin( &inlinf.linenr_, intsz );
-	    strm.addBin( &nrsegs, intsz );
-	}
-
-	for ( int iseg=0; iseg<nrsegs; iseg++ )
-	{
-	    const PosInfo::LineData::Segment& seg = inlinf.segments_[iseg];
-	    if ( asc )
-		strm << ' ' << seg.start << ' ' << seg.stop << ' ' << seg.step;
-	    else
-	    {
-		strm.addBin( &seg.start, intsz );
-		strm.addBin( &seg.stop, intsz );
-		strm.addBin( &seg.step, intsz );
-	    }
-	    if ( asc )
-		strm << '\n';
-	}
-
-	if ( !strm.isOK() ) return false;
+	    hiidx = mididx;
     }
 
-    return true;
+    if ( newidx )
+	*newidx = hiidx;
+    return -1;
 }
 
 
-PosInfo::CubeDataFiller::CubeDataFiller( CubeData& cd )
-    : cd_(cd)
+PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
+{
+    return (PosInfo::SortedCubeData&)doAdd( ld );
+}
+
+
+PosInfo::CubeData& PosInfo::SortedCubeData::doAdd( PosInfo::LineData* ld )
+{
+    if ( !ld ) return *this;
+
+    idx_type newidx;
+    const auto curidx = lineIndexOf( ld->linenr_, &newidx );
+    if ( curidx < 0 )
+    {
+	if ( newidx >= size() )
+	    ManagedObjectSet<LineData>::doAdd( ld );
+	else
+	    insertAt( ld, newidx );
+	return *this;
+    }
+    LineData* curld = get( curidx );
+    if ( ld == curld )
+	return *this;
+
+    curld->merge( *ld, true );
+    delete ld;
+    return *this;
+}
+
+
+PosInfo::LineCollDataFiller::LineCollDataFiller( LineCollData& lcd )
+    : lcd_(lcd)
     , ld_(0)
 {
     initLine();
 }
 
 
-PosInfo::CubeDataFiller::~CubeDataFiller()
+PosInfo::LineCollDataFiller::~LineCollDataFiller()
 {
     finish();
 }
 
 
-PosInfo::LineData* PosInfo::CubeDataFiller::findLine( int lnr )
+PosInfo::LineData* PosInfo::LineCollDataFiller::findLine( pos_type lnr )
 {
-    const int idxof = cd_.indexOf( lnr );
-    return idxof < 0 ? 0 : cd_[idxof];
+    const idx_type idxof = lcd_.lineIndexOf( lnr );
+    return idxof < 0 ? 0 : lcd_[idxof];
 }
 
 
-void PosInfo::CubeDataFiller::add( const BinID& bid )
+void PosInfo::LineCollDataFiller::add( const Bin2D& b2d )
+{
+    add( BinID(b2d.idxPair()) );
+}
+
+
+void PosInfo::LineCollDataFiller::add( const BinID& bid )
 {
     if ( !ld_ || ld_->linenr_ != bid.inl() )
     {
@@ -1195,46 +1214,46 @@ void PosInfo::CubeDataFiller::add( const BinID& bid )
 	{
 	    if ( ld_->segmentOf(bid.crl()) >= 0 )
 		return;
-	    mSetUdf(prevcrl); mSetUdf(seg_.step);
+	    mSetUdf(prevtrcnr_); mSetUdf(seg_.step);
 	}
     }
 
-    if ( mIsUdf(prevcrl) )
-	prevcrl = seg_.start = seg_.stop = bid.crl();
+    if ( mIsUdf(prevtrcnr_) )
+	prevtrcnr_ = seg_.start = seg_.stop = bid.crl();
     else
     {
-	const int curstep = bid.crl() - prevcrl;
+	const auto curstep = bid.crl() - prevtrcnr_;
 	if ( curstep != 0 )
 	{
 	    if ( mIsUdf(seg_.step) )
 		seg_.step = curstep;
 	    else if ( seg_.step != curstep )
 	    {
-		ld_->segments_ += seg_;
+		ld_->segments_.add( seg_ );
 		seg_.start = bid.crl();
 		mSetUdf(seg_.step);
 	    }
-	    prevcrl = seg_.stop = bid.crl();
+	    prevtrcnr_ = seg_.stop = bid.crl();
 	}
     }
 }
 
 
-void PosInfo::CubeDataFiller::finish()
+void PosInfo::LineCollDataFiller::finish()
 {
     if ( ld_ )
 	finishLine();
 }
 
 
-void PosInfo::CubeDataFiller::initLine()
+void PosInfo::LineCollDataFiller::initLine()
 {
     ld_ = 0;
-    prevcrl = seg_.start = seg_.stop = seg_.step = mUdf(int);
+    prevtrcnr_ = seg_.start = seg_.stop = seg_.step = mUdf( pos_type );
 }
 
 
-void PosInfo::CubeDataFiller::finishLine()
+void PosInfo::LineCollDataFiller::finishLine()
 {
     if ( mIsUdf(seg_.start) )
 	delete ld_;
@@ -1248,8 +1267,8 @@ void PosInfo::CubeDataFiller::finishLine()
 		seg_.step = ld_->segments_[0].step;
 	}
 
-	ld_->segments_ += seg_;
-	cd_ += ld_;
+	ld_->segments_.add( seg_ );
+	lcd_.add( ld_ );
     }
 
     initLine();

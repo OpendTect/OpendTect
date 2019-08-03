@@ -588,7 +588,7 @@ private:
 		    for ( od_int64 idx=start; idx<=stop; idx++,
 							 quickAddToNrDone(idx) )
 		    {
-			if ( !isrect && !trcssampling_->isValid(idx,tks) )
+			if ( !isrect && !trcssampling_->hasPosition(tks,idx) )
 			{
 			    if ( hasarrayptr ) dataptr += nrz;
 			    else if ( hasstorage ) validx += nrz;

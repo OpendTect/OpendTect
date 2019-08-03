@@ -112,7 +112,7 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-	    const int ldidx = info.geom_.cubedata.indexOf( bid.inl() );
+	    const int ldidx = info.geom_.cubedata.lineIndexOf( bid.inl() );
 	    if ( ldidx < 0 )
 	    {
 		od_cout() << "This inline is not present in the cube"

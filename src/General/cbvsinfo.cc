@@ -50,7 +50,7 @@ int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
     int res = outOfRange( bid );
     if ( res ) return res;
 
-    return cubedata.cubeDataPos(bid).isValid() ? 0 : 1 + 256;
+    return cubedata.includes(bid) ? 0 : 1 + 256;
 }
 
 
@@ -64,14 +64,14 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
 		inl % step.inl() == 0;
     }
 
-    return cubedata.indexOf(inl) >= 0;
+    return cubedata.includes( inl );
 }
 
 
 #define nrsameposretries 100
 bool CBVSInfo::SurvGeom::moveToNextPos( BinID& bid ) const
 {
-    PosInfo::CubeDataPos cdp( cubedata.cubeDataPos(bid) );
+    PosInfo::LineCollPos cdp( cubedata.lineCollPos(bid) );
     if ( !cdp.isValid() )
 	cdp.toPreStart();
 
@@ -92,7 +92,7 @@ bool CBVSInfo::SurvGeom::moveToNextPos( BinID& bid ) const
 
 bool CBVSInfo::SurvGeom::moveToNextInline( BinID& bid ) const
 {
-    PosInfo::CubeDataPos cdp( cubedata.cubeDataPos(bid) );
+    PosInfo::LineCollPos cdp( cubedata.lineCollPos(bid) );
     if ( !cdp.isValid() )
 	{ cdp.toPreStart(); return moveToNextPos( bid ); }
 
@@ -162,7 +162,7 @@ void CBVSInfo::SurvGeom::mergeIrreg( const CBVSInfo::SurvGeom& g )
     for ( int idx=0; idx<geom->cubedata.size(); idx++ )
     {
 	const PosInfo::LineData* gii = geom->cubedata[idx];
-	const int myidx = cubedata.indexOf( gii->linenr_ );
+	const int myidx = cubedata.lineIndexOf( gii->linenr_ );
 	PosInfo::LineData* ii = myidx >= 0 ? cubedata[myidx] : 0;
 	if ( !ii )
 	    cubedata.add( new PosInfo::LineData( *gii ) );

@@ -645,7 +645,7 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 	for ( int inl=info().geom_.start.inl(); inl<=info().geom_.stop.inl();
 		inl += inlstep )
 	{
-	    const int inlinfidx = info().geom_.cubedata.indexOf( inl );
+	    const int inlinfidx = info().geom_.cubedata.lineIndexOf( inl );
 	    if ( inlinfidx < 0 )
 	    {
 		inlgaps = true;

@@ -28,7 +28,7 @@ class SeisTrcTranslator;
 class TraceData;
 class TrcKey;
 namespace Survey { class GeometryManager; class GeomSubSel; class HorSubSel; }
-namespace PosInfo { class CubeData; class CubeDataPos;
+namespace PosInfo { class CubeData; class LineCollPos;
 		    class Line2DData; class Line2DDataSet; }
 
 
@@ -224,7 +224,7 @@ mExpClass(Seis) Provider3D : public Provider
 public:
 
     mUseType( PosInfo,	CubeData );
-    mUseType( PosInfo,	CubeDataPos );
+    typedef PosInfo::LineCollPos CubeDataPos;
 
     bool	isPresent(const BinID&) const;
     void	getGeometryInfo(CubeData&) const;

@@ -496,7 +496,7 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
     Interval<int> crlrg( indexer_->crlRange() ); crlrg.sort();
     const BinID step( SI().inlStep(), SI().crlStep() );
 
-    PosInfo::CubeDataFiller cdf( cd );
+    PosInfo::LineCollDataFiller lcdf( cd );
     const TypeSet<int>& inlines = indexer_->getInls();
     TypeSet<int> crls;
 
@@ -512,11 +512,11 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 	    const FileDataSet::TrcIdx tidx = keylist_->find( Seis::PosKey(bid),
 							    *indexer_, false );
 	    if ( tidx.isValid() )
-		cdf.add( bid );
+		lcdf.add( bid );
 	}
     }
 
-    cdf.finish();
+    lcdf.finish();
 }
 
 
