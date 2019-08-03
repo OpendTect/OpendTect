@@ -1444,9 +1444,9 @@ void Horizon3DGeometry::getDataPointSet( DataPointSet& dps, float shift ) const
     const int nrknots = geometryElement()->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	const RowCol bid = geometryElement()->getKnotRowCol( idx );
+	const BinID bid( geometryElement()->getKnotRowCol(idx) );
 	Coord3 coord = geometryElement()->getKnot( bid, false );
-	bidvalset.add( bid, (float) coord.z_ + shift );
+	bidvalset.add( bid, (float)(coord.z_ + shift) );
     }
     dps.dataChanged();
 }
@@ -1545,7 +1545,7 @@ void Horizon3DGeometry::fillBinnedValueSet( BinnedValueSet& bivs,
 	    BinID bid = pid.getBinID();
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
-		bivs.add( bid, (float) crd.z_ );
+		bivs.add( bid, (float)crd.z_ );
 	}
     }
 }

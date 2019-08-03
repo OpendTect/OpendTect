@@ -74,8 +74,8 @@ public:
 			{ return data_.next( spos, skip_dupl_idxpairs ); }
     bool		prev( SPos& spos, bool skip_dupl_idxpairs=false ) const
 			{ return data_.prev( spos, skip_dupl_idxpairs ); }
-    bool		isValid( const IdxPair& spos ) const
-			{ return data_.isValid( spos ); }
+    bool		isValid( const IdxPair& ip ) const
+			{ return data_.isValid( ip ); }
 
     void		get(const SPos&,float* v=0,int mxnrvals=-1) const;
     void		get(const SPos&,IdxPair&,float* v=0,int mxnrv=-1) const;
@@ -132,7 +132,7 @@ public:
     void		extendHor3D(const IdxPairDelta& stepout,
 				    const IdxPairStep&,EntryCreatedFn fn=0);
     void		extendHor2D(pos_type stepout,EntryCreatedFn fn=0);
-    void		add(const PosInfo::CubeData&);
+    void		add(const PosInfo::LineCollData&);
     inline void		remove( const SPos& spos )
 			{ data_.remove( spos ); }
     inline void		remove( const TypeSet<SPos>& torem )

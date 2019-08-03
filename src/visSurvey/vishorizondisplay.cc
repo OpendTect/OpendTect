@@ -1471,7 +1471,7 @@ void HorizonDisplay::updateAuxData()
 	while ( auxdata.next(pos) )
 	{
 	    auxvals[2] = auxdata.getVal( pos, idx );
-	    dps->bivSet().add( auxdata.getIdxPair(pos), auxvals );
+	    dps->bivSet().add( BinID(auxdata.getIdxPair(pos)), auxvals );
 	}
 
 	dps->dataChanged();

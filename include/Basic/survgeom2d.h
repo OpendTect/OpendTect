@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "bin2d.h"
 class TrcKeyZSampling;
-namespace PosInfo { class Line2DData; class Line2DPos; }
+namespace PosInfo { class Line2DData; class LineCollData; }
 
 
 namespace Survey
@@ -36,11 +36,11 @@ mExpClass(Basic) Geometry2D : public Geometry
 {
 public:
 
-    typedef PosInfo::Line2DData	Line2DData;
-    typedef PosInfo::Line2DPos	Line2DPos;
-    typedef float		spnr_type;
-    typedef TypeSet<spnr_type>	SPNrSet;
-    mUseType( SPNrSet,		size_type );
+    mUseType( PosInfo,	Line2DData );
+    mUseType( PosInfo,	LineCollData );
+    typedef float	spnr_type;
+    typedef TypeSet<spnr_type> SPNrSet;
+    mUseType( SPNrSet,	size_type );
 
 			Geometry2D(const char* lnm);
 			Geometry2D(Line2DData*); //!<Line2DData becomes mine
@@ -49,6 +49,7 @@ public:
 
     static bool		isPresent(GeomID);
     static void		getGeomIDs(GeomIDSet&);
+    static void		getLineCollData(LineCollData&);
     static const Geometry2D& get(const char* linenm);
     static const Geometry2D& get(GeomID);
     bool		isEmpty() const;

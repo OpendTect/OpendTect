@@ -14,9 +14,10 @@ ________________________________________________________________________
 #include "posidxpairvalset.h"
 #include "binid.h"
 #include "bin2d.h"
+namespace PosInfo { class LineCollData; }
 
 
-/*!\brief A Pos::IdxPairValueSet with BinIDs or Bin2Ds */
+/*!\brief A Pos::IdxPairValueSet with ether BinIDs or Bin2Ds. */
 
 
 mExpClass(General) BinnedValueSet : public Pos::IdxPairValueSet
@@ -25,36 +26,121 @@ public:
 
     mUseType( OD,	GeomSystem );
     mUseType( Pos,	GeomID );
+    mUseType( Pos,	IdxPairValueSet );
 
 			BinnedValueSet(int nrvals,bool allowdup,
 				      GeomSystem gs=OD::VolBasedGeom)
-			    : Pos::IdxPairValueSet(nrvals,allowdup)
+			    : IdxPairValueSet(nrvals,allowdup)
 			    , geomsystem_(gs)				{}
 			BinnedValueSet( const BinnedValueSet& oth )
-			    : Pos::IdxPairValueSet(oth)
+			    : IdxPairValueSet(oth)
 			    , geomsystem_(oth.geomsystem_)		{}
+			BinnedValueSet(const PosInfo::LineCollData&,GeomSystem);
     BinnedValueSet&	operator =( const BinnedValueSet& oth )
 			{
-			    Pos::IdxPairValueSet::operator=(oth);
+			    IdxPairValueSet::operator=(oth);
 			    geomsystem_ = oth.geomsystem_;
 			    return *this;
 			}
 
     inline void		allowDuplicatePositions( bool yn )
-					{ allowDuplicateIdxPairs(yn); }
+			{ allowDuplicateIdxPairs(yn); }
     inline bool		hasDuplicatePositions() const
-					{ return hasDuplicateIdxPairs(); }
+			{ return hasDuplicateIdxPairs(); }
     inline bool		nrDuplicatePositions() const
-					{ return nrDuplicateIdxPairs(); }
+			{ return nrDuplicateIdxPairs(); }
 
     inline BinID	getBinID( const SPos& spos ) const
-					{ return mkBinID(getIdxPair(spos)); }
-    inline BinID	firstBinID() const
-					{ return mkBinID(firstIdxPair()); }
+			{ return mkBinID(getIdxPair(spos)); }
     inline Bin2D	getBin2D( const SPos& spos ) const
-					{ return mkBin2D(getIdxPair(spos)); }
+			{ return mkBin2D(getIdxPair(spos)); }
+    inline BinID	firstBinID() const
+			{ return mkBinID(firstIdxPair()); }
     inline Bin2D	firstBin2D() const
-					{ return mkBin2D(firstIdxPair()); }
+			{ return mkBin2D(firstIdxPair()); }
+    inline bool		isValid( const BinID& bid ) const
+			{ return IdxPairValueSet::isValid(bid); }
+    inline bool		isValid( const Bin2D& b2d ) const
+			{ return IdxPairValueSet::isValid(b2d.idxPair()); }
+    inline bool		includes( const BinID& bid ) const
+			{ return IdxPairValueSet::includes(bid); }
+    inline bool		includes( const Bin2D& b2d ) const
+			{ return IdxPairValueSet::includes(b2d.idxPair()); }
+
+    inline void		get( const SPos& spos, DataRow& dr ) const
+			{ IdxPairValueSet::get( spos, dr ); }
+    inline void		get( const SPos& spos, PairVal& pv ) const
+			{ IdxPairValueSet::get( spos, pv ); }
+    inline void		get( const SPos& spos, float* v=0, int mxnrv=-1 ) const
+			{ IdxPairValueSet::get( spos, v, mxnrv ); }
+    inline void		get( const SPos& spos, BinID& bid, float* v=0,
+			     int mxnrv=-1 ) const
+			{ IdxPairValueSet::get( spos, bid, v, mxnrv ); }
+    inline void		get( const SPos& spos, Bin2D& b2d, float* v=0,
+			     int mxnrv=-1 ) const
+			{
+			    BinID bid( b2d.idxPair() );
+			    IdxPairValueSet::get( spos, bid, v, mxnrv );
+			    b2d = Bin2D::decode( bid );
+			}
+    inline void		get( const SPos& spos, BinID& bid, float& v ) const
+			{ IdxPairValueSet::get( spos, bid, v ); }
+    inline void		get( const SPos& spos, Bin2D& b2d, float& v ) const
+			{
+			    BinID bid( b2d.idxPair() );
+			    IdxPairValueSet::get( spos, bid, v );
+			    b2d = Bin2D::decode( bid );
+			}
+    inline void		get( const SPos& spos, BinID& bid,
+				float& v1, float& v2 ) const
+			{ IdxPairValueSet::get( spos, bid, v1, v2 ); }
+    inline void		get( const SPos& spos, Bin2D& b2d,
+				float& v1, float& v2 ) const
+			{
+			    BinID bid( b2d.idxPair() );
+			    IdxPairValueSet::get( spos, bid, v1, v2 );
+			    b2d = Bin2D::decode( bid );
+			}
+    inline void		get( const SPos& spos, BinID& bid, TypeSet<float>& tf,
+			     int mxnrv=-1) const
+			{ IdxPairValueSet::get( spos, bid, tf, mxnrv ); }
+    inline void		get( const SPos& spos, Bin2D& b2d, TypeSet<float>& tf,
+			     int mxnrv=-1) const
+			{
+			    BinID bid( b2d.idxPair() );
+			    IdxPairValueSet::get( spos, bid, tf, mxnrv );
+			    b2d = Bin2D::decode( bid );
+			}
+    inline void		get( const SPos& spos, TypeSet<float>& tf,
+			     int mxnrv=-1) const
+			{ IdxPairValueSet::get( spos, tf, mxnrv ); }
+
+    inline SPos		add( const BinID& bid, const float* vs=0 )
+			{ return IdxPairValueSet::add( bid, vs ); }
+    inline SPos		add( const Bin2D& b2d, const float* vs=0 )
+			{ return IdxPairValueSet::add( b2d.idxPair(), vs ); }
+    inline SPos		add( const BinID& bid, float v )
+			{ return IdxPairValueSet::add( bid, v ); }
+    inline SPos		add( const Bin2D& b2d, float v )
+			{ return IdxPairValueSet::add( b2d.idxPair(), v ); }
+    inline SPos		add( const BinID& bid, double v )
+			{ return IdxPairValueSet::add( bid, v ); }
+    inline SPos		add( const Bin2D& b2d, double v )
+			{ return IdxPairValueSet::add( b2d.idxPair(), v ); }
+    inline SPos		add( const BinID& bid, float v1, float v2 )
+			{ return IdxPairValueSet::add( bid, v1, v2 ); }
+    inline SPos		add( const Bin2D& b2d, float v1, float v2 )
+			{ return IdxPairValueSet::add( b2d.idxPair(), v1, v2 );}
+    inline SPos		add( const BinID& bid, const TypeSet<float>& tf )
+			{ return IdxPairValueSet::add( bid, tf ); }
+    inline SPos		add( const Bin2D& b2d, const TypeSet<float>& tf )
+			{ return IdxPairValueSet::add( b2d.idxPair(), tf ); }
+    inline SPos		add( const DataRow& dr )
+			{ return IdxPairValueSet::add( dr ); }
+    inline SPos		add( const PairVal& pv )
+			{ return IdxPairValueSet::add( pv ); }
+    inline void		add( const PosInfo::LineCollData& lcd )
+			{ IdxPairValueSet::add( lcd ); }
 
     inline SPos		find( const BinID& bid ) const
 			{ return data_.find( bid ); }

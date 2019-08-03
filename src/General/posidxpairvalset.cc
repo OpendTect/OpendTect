@@ -5,7 +5,7 @@
 -*/
 
 
-#include "posidxpairvalset.h"
+#include "binnedvalueset.h"
 #include "posidxpairvalue.h"
 #include "iopar.h"
 #include "separstr.h"
@@ -266,9 +266,9 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const DataRow& dr )
 }
 
 
-void Pos::IdxPairValueSet::add( const PosInfo::CubeData& cubedata )
+void Pos::IdxPairValueSet::add( const PosInfo::LineCollData& lcd )
 {
-    data_.add( cubedata, initVals );
+    data_.add( lcd, initVals );
 }
 
 
@@ -660,4 +660,26 @@ bool Pos::IdxPairValueSet::haveDataRow( const DataRow& dr ) const
     }
 
     return found;
+}
+
+
+BinnedValueSet::BinnedValueSet( const PosInfo::LineCollData& lcd,
+				GeomSystem gs )
+    : Pos::IdxPairValueSet( 0, false )
+    , geomsystem_(gs)
+{
+    const bool is2d = is2D();
+    for ( int iln=0; iln<lcd.size(); iln++ )
+    {
+	const auto& ld = *lcd.get( iln );
+	PosInfo::LinePos lp;
+	while ( ld.toNext(lp) )
+	{
+	    const auto tnr = ld.pos( lp );
+	    if ( is2d )
+		add( Bin2D(GeomID(ld.linenr_),tnr) );
+	    else
+		add( BinID(ld.linenr_,tnr) );
+	}
+    }
 }

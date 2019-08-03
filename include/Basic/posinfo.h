@@ -62,8 +62,8 @@ public:
 
 };
 
-/*!\brief Position info for a line (3D: inlines, 2D: geometry IDs).
-  Stored as number segments of regular numbering. */
+/*!\brief Position info for a line (3D: inlines, 2D: lines (with GeomID)).
+  Kept as number segments with a regular numbering each. */
 
 mExpClass(Basic) LineData
 {
@@ -110,6 +110,11 @@ public:
 			{ return Bin2D( GeomID(linenr_), pos(ldp) ); }
     IdxPair		first() const
 			{ return IdxPair(linenr_,segments_.first().start); }
+    BinID		firstBinID() const
+			{ return BinID(first()); }
+    Bin2D		firstBin2D() const
+			{ const auto frst = first();
+			  return Bin2D( GeomID(frst.lineNr()), frst.trcNr() ); }
 
     pos_type		centerNumber() const;  //!< not exact
     pos_type		nearestNumber(pos_type) const;

@@ -369,45 +369,37 @@ int Seis::SelData::selRes( const Bin2D& b2d ) const
 }
 
 
-BinnedValueSet* Seis::SelData::applyTo( const Line2DDataSet& l2dds ) const
+BinnedValueSet* Seis::SelData::applyTo( const LineCollData& lcd ) const
 {
-    auto* ret = new BinnedValueSet( 0, false, OD::LineBasedGeom );
+    const bool is2d = is2D();
+    auto* ret = new BinnedValueSet( 0, false,
+			is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
 
-    for ( int iln=0; iln<l2dds.size(); iln++ )
+    for ( int iln=0; iln<lcd.size(); iln++ )
     {
-	const auto& l2dd = *l2dds.get( iln );
-	if ( l2dd.isEmpty() || (selRes(l2dd.bin2D(0))%256)==2 )
+	const auto& ld = *lcd.get( iln );
+	if ( ld.isEmpty() )
+	    { pErrMsg("Empty linedata"); continue; }
+	auto selres = is2d ? selRes( ld.firstBin2D() )
+			   : selRes( ld.firstBinID() );
+	if ( (selres%256) == 2 )
 	    continue;
 
-	for ( auto itrc=0; itrc<l2dd.size(); itrc++ )
+	PosInfo::LinePos lp;
+	while ( ld.toNext( lp ) )
 	{
-	    const Bin2D b2d = l2dd.bin2D( itrc );
-	    if ( isOK( b2d ) )
-		ret->add( b2d.idxPair() );
-	}
-    }
-
-    return ret;
-}
-
-
-BinnedValueSet* Seis::SelData::applyTo( const CubeData& cd ) const
-{
-    auto* ret = new BinnedValueSet( 0, false, OD::VolBasedGeom );
-
-    PosInfo::CubeDataPos cdp; bool donext = true;
-    while ( !donext || cd.toNext(cdp) )
-    {
-	donext = true;
-	const BinID bid( cd.binID(cdp) );
-	const int selres = selRes( bid );
-	if ( !selres )
-	    ret->add( bid );
-	else if ( (selres%256) == 2 )
-	{
-	    if ( !cd.toNextLine(cdp) )
-		break;
-	    donext = false;
+	    if ( is2d )
+	    {
+		const Bin2D b2d( GeomID(ld.linenr_), ld.pos(lp) );
+		if ( isOK(b2d) )
+		    ret->add( b2d );
+	    }
+	    else
+	    {
+		const BinID bid( ld.linenr_, ld.pos(lp) );
+		if ( isOK(bid) )
+		    ret->add( bid );
+	    }
 	}
     }
 

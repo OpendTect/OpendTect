@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "geomid.h"
 class Bin2D;
 class BinnedValueSet;
-namespace PosInfo { class Line2DDataSet; class CubeData; }
+namespace PosInfo { class LineCollData; }
 
 
 namespace Seis
@@ -54,11 +54,10 @@ mExpClass(Seis) SelData
 {
 public:
 
-    mUseType( Pos::IdxPair,	pos_type );
     mUseType( Pos,		GeomID );
     mUseType( Pos,		IdxPair );
-    mUseType( PosInfo,		Line2DDataSet );
-    mUseType( PosInfo,		CubeData );
+    mUseType( PosInfo,		LineCollData );
+    mUseType( Pos::IdxPair,	pos_type );
     typedef int			idx_type;
     typedef idx_type		size_type;
     typedef float		z_type;
@@ -121,8 +120,7 @@ public:
     PolySelData*	asPoly();
     const PolySelData*	asPoly() const;
 
-    BinnedValueSet*	applyTo(const Line2DDataSet&) const;
-    BinnedValueSet*	applyTo(const CubeData&) const;
+    BinnedValueSet*	applyTo(const LineCollData&) const;
 
 protected:
 

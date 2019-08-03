@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include "dbkey.h"
 #include "keystrs.h"
+#include "posinfo.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "trckey.h"
@@ -572,6 +573,20 @@ void Survey::Geometry2D::getGeomIDs( GeomIDSet& gids )
 }
 
 
+void Survey::Geometry2D::getLineCollData( LineCollData& lcd )
+{
+    lcd.setEmpty();
+    GeomIDSet gids;
+    GM().list2D( gids );
+    for ( auto gid : gids )
+    {
+	auto* ld = new PosInfo::LineData( gid.lineNr() );
+	get( gid ).data().getSegments( *ld );
+	lcd.add( ld );
+    }
+}
+
+
 const Survey::Geometry2D& Survey::Geometry2D::get( GeomID geomid )
 {
     const auto* g2d = GM().get2DGeometry( geomid );
@@ -707,7 +722,7 @@ void Survey::Geometry2D::getInfo( trcnr_type trcnr, Coord& crd,
 trcnr_type Survey::Geometry2D::nearestTracePosition( const Coord& crd,
 							dist_type* dist ) const
 {
-    Line2DPos pos;
+    PosInfo::Line2DPos pos;
     return data_.getPos(crd,pos,dist) ? pos.nr_ : mUdf(trcnr_type);
 }
 
@@ -715,7 +730,7 @@ trcnr_type Survey::Geometry2D::nearestTracePosition( const Coord& crd,
 trcnr_type Survey::Geometry2D::tracePosition( const Coord& crd,
 					    dist_type maxdist ) const
 {
-    Line2DPos pos;
+    PosInfo::Line2DPos pos;
     return data_.getPos(crd,pos,maxdist) ? pos.nr_ : mUdf(trcnr_type);
 }
 
@@ -775,7 +790,7 @@ void Survey::Geometry2D::setName( const char* nm )
 
 void Survey::Geometry2D::add( const Coord& crd, int trcnr, spnr_type spnr )
 {
-    Line2DPos pos( trcnr );
+    PosInfo::Line2DPos pos( trcnr );
     pos.coord_ = crd;
     data_.add( pos );
     spnrs_ += spnr;

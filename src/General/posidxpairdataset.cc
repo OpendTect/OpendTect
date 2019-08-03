@@ -1033,38 +1033,38 @@ void Pos::IdxPairDataSet::extendHor2D( pos_type so, EntryCreatedFn crfn )
 
 namespace Pos
 {
-class IdxPairDataSetFromCubeData : public ::ParallelTask
+class IdxPairDataSetFromLineCollData : public ::ParallelTask
 {
 public:
 
 typedef Pos::IdxPairDataSet::pos_type pos_type;
 typedef Pos::IdxPairDataSet::idx_type idx_type;
 
-IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
-			    const PosInfo::CubeData& cubedata,
+IdxPairDataSetFromLineCollData( IdxPairDataSet& ds,
+			    const PosInfo::LineCollData& lcd,
 			    EntryCreatedFn crfn )
     : ds_( ds )
-    , cubedata_( cubedata )
+    , lcd_( lcd )
     , crfn_( crfn )
 {
     // Add first spos on each line so all lines are in, thus
     // threadsafe to add things as long as each line is separate
-    for ( idx_type idx=0; idx<cubedata.size(); idx++ )
+    for ( idx_type idx=0; idx<lcd.size(); idx++ )
     {
-	const PosInfo::LineData& line = *cubedata_[idx];
+	const PosInfo::LineData& line = *lcd_[idx];
 	const idx_type frst = line.linenr_;
 	if ( !line.segments_.isEmpty() )
 	    ds.add( IdxPair(frst,line.segments_[0].start) );
     }
 }
 
-od_int64 nrIterations() const { return cubedata_.size(); }
+od_int64 nrIterations() const { return lcd_.size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( IdxPair::pos_type idx=(IdxPair::pos_type)start; idx<=stop; idx++ )
     {
-	const PosInfo::LineData& line = *cubedata_[idx];
+	const PosInfo::LineData& line = *lcd_[idx];
 	const pos_type frst = line.linenr_;
 	for ( int idy=0; idy<line.segments_.size(); idy++ )
 	{
@@ -1090,7 +1090,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 }
 
     IdxPairDataSet&	ds_;
-    PosInfo::CubeData	cubedata_;
+    PosInfo::LineCollData lcd_;
     EntryCreatedFn	crfn_;
 
 };
@@ -1098,10 +1098,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 } // namespace Pos
 
 
-void Pos::IdxPairDataSet::add( const PosInfo::CubeData& cubedata,
+void Pos::IdxPairDataSet::add( const PosInfo::LineCollData& lcd,
 			       EntryCreatedFn crfn )
 {
-    Pos::IdxPairDataSetFromCubeData task( *this, cubedata, crfn );
+    Pos::IdxPairDataSetFromLineCollData task( *this, lcd, crfn );
     if ( !task.execute() )
 	mHandleMemFull()
 }

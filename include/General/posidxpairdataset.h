@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "ranges.h"
 #include "od_iosfwd.h"
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class LineCollData; }
 class TrcKeySampling;
 
 
@@ -166,7 +166,7 @@ public:
     void		extendHor3D(const IdxPairDelta& stepout,
 				  const IdxPairStep&,EntryCreatedFn fn=0);
     void		extendHor2D(pos_type stepout,EntryCreatedFn fn=0);
-    void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
+    void		add(const PosInfo::LineCollData&,EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair positions not yet in set
     void		randomSubselect(glob_idx_type maxsz);
 
