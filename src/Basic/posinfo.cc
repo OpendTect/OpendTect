@@ -348,6 +348,22 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 }
 
 
+bool PosInfo::LineCollData::operator ==( const LineCollData& oth ) const
+{
+    const auto sz = size();
+    if ( sz != oth.size() )
+	return false;
+    if ( sz < 1 )
+	return true;
+
+    for ( idx_type idx=0; idx<sz; idx++ )
+	if ( *get(idx) != *oth.get(idx) )
+	    return false;
+
+    return true;
+}
+
+
 void PosInfo::LineCollData::copyContents( const LineCollData& oth )
 {
     if ( &oth != this )
@@ -1174,102 +1190,106 @@ PosInfo::CubeData& PosInfo::SortedCubeData::doAdd( PosInfo::LineData* ld )
 }
 
 
+PosInfo::LineDataFiller::LineDataFiller( LineData& ld )
+    : ld_(ld)
+{
+    reset();
+}
+
+
+PosInfo::LineDataFiller& PosInfo::LineDataFiller::add( pos_type nr )
+{
+    if ( mIsUdf(nr) )
+	return *this;
+    else if ( mIsUdf(prevnr_) )
+	{ prevnr_ = seg_.start = seg_.stop = nr; return *this; }
+
+    const auto curstep = nr - prevnr_;
+    if ( curstep == 0 )
+	return *this;
+
+    if ( mIsUdf(seg_.step) )
+	seg_.step = curstep;
+    else if ( seg_.step != curstep )
+    {
+	ld_.segments_.add( seg_ );
+	seg_.start = nr;
+	mSetUdf(seg_.step);
+    }
+
+    prevnr_ = seg_.stop = nr;
+    return *this;
+}
+
+
+void PosInfo::LineDataFiller::reset()
+{
+    ld_.segments_.setEmpty();
+    prevnr_ = seg_.start = seg_.stop = seg_.step = mUdf( pos_type );
+    finished_ = false;
+}
+
+
+bool PosInfo::LineDataFiller::finish()
+{
+    finished_ = true;
+    if ( mIsUdf(seg_.start) )
+	return false;
+
+    if ( mIsUdf(seg_.step) && !ld_.segments_.isEmpty() )
+	seg_.step = ld_.segments_.last().step;
+
+    ld_.segments_.add( seg_ );
+    return true;
+}
+
+
 PosInfo::LineCollDataFiller::LineCollDataFiller( LineCollData& lcd )
     : lcd_(lcd)
-    , ld_(0)
 {
-    initLine();
+    reset();
 }
 
 
-PosInfo::LineCollDataFiller::~LineCollDataFiller()
+void PosInfo::LineCollDataFiller::reset()
 {
-    finish();
+    deleteAndZeroPtr( ldf_ );
+    deleteAndZeroPtr( ld_ );
+    lcd_.setEmpty();
 }
 
 
-PosInfo::LineData* PosInfo::LineCollDataFiller::findLine( pos_type lnr )
+PosInfo::LineCollDataFiller& PosInfo::LineCollDataFiller::doAdd(
+					const IdxPair& ip )
 {
-    const idx_type idxof = lcd_.lineIndexOf( lnr );
-    return idxof < 0 ? 0 : lcd_[idxof];
-}
-
-
-void PosInfo::LineCollDataFiller::add( const Bin2D& b2d )
-{
-    add( BinID(b2d.idxPair()) );
-}
-
-
-void PosInfo::LineCollDataFiller::add( const BinID& bid )
-{
-    if ( !ld_ || ld_->linenr_ != bid.inl() )
+    if ( !ld_ || ld_->linenr_ != ip.lineNr() )
     {
-	if ( ld_ )
-	    finishLine();
-	ld_ = findLine( bid.inl() );
-	if ( !ld_ )
-	    ld_ = new LineData( bid.inl() );
-	else
-	{
-	    if ( ld_->segmentOf(bid.crl()) >= 0 )
-		return;
-	    mSetUdf(prevtrcnr_); mSetUdf(seg_.step);
-	}
+	finishLine();
+	ld_ = new LineData( ip.lineNr() );
+	ldf_ = new LineDataFiller( *ld_ );
     }
 
-    if ( mIsUdf(prevtrcnr_) )
-	prevtrcnr_ = seg_.start = seg_.stop = bid.crl();
-    else
-    {
-	const auto curstep = bid.crl() - prevtrcnr_;
-	if ( curstep != 0 )
-	{
-	    if ( mIsUdf(seg_.step) )
-		seg_.step = curstep;
-	    else if ( seg_.step != curstep )
-	    {
-		ld_->segments_.add( seg_ );
-		seg_.start = bid.crl();
-		mSetUdf(seg_.step);
-	    }
-	    prevtrcnr_ = seg_.stop = bid.crl();
-	}
-    }
+    ldf_->add( ip.trcNr() );
+    return *this;
 }
 
 
 void PosInfo::LineCollDataFiller::finish()
 {
-    if ( ld_ )
-	finishLine();
-}
-
-
-void PosInfo::LineCollDataFiller::initLine()
-{
-    ld_ = 0;
-    prevtrcnr_ = seg_.start = seg_.stop = seg_.step = mUdf( pos_type );
+    finishLine();
 }
 
 
 void PosInfo::LineCollDataFiller::finishLine()
 {
-    if ( mIsUdf(seg_.start) )
-	delete ld_;
-    else
-    {
-	if ( mIsUdf(seg_.step) )
-	{
-	    if ( ld_->segments_.isEmpty() )
-		seg_.step = SI().crlStep();
-	    else
-		seg_.step = ld_->segments_[0].step;
-	}
+    if ( !ld_ )
+	return;
 
-	ld_->segments_.add( seg_ );
+    if ( ldf_->finish() )
 	lcd_.add( ld_ );
-    }
+    else
+	delete ld_;
 
-    initLine();
+    deleteAndZeroPtr( ldf_ );
+    ld_ = nullptr;
 }

@@ -167,6 +167,8 @@ public:
 						{ *this = oth; }
     LineCollData&	operator =( const LineCollData& oth )
 				{ copyContents(oth); return *this; }
+    bool		operator ==(const LineCollData&) const;
+			mImplSimpleIneqOper(LineCollData)
 
     glob_size_type	totalSize() const;
     glob_size_type	totalNrSegments() const;
@@ -220,6 +222,12 @@ public:
 			{ copyContents(oth); return *this; }
     CubeData&		operator =( const LineCollData& lcd )
 			{ copyContents(lcd); return *this; }
+    bool		operator ==( const CubeData& oth ) const
+			{ return LineCollData::operator ==( oth ); }
+    bool		operator ==( const LineCollData& oth ) const
+			{ return LineCollData::operator ==( oth ); }
+			mImplSimpleIneqOper(CubeData)
+			mImplSimpleIneqOper(LineCollData)
 
     glob_size_type	totalSizeInside(const CubeHorSubSel&) const;
 			/*!<Only take positions that are inside hrg. */
@@ -313,32 +321,60 @@ public:
 typedef LineCollDataIterator CubeDataIterator;
 
 
-/*!\brief Fills LineCollData object.
- Requires per-line feed with trcnrs sorted  */
+/*!\brief Fills LineData. Requires feed of sorted trcnrs  */
+
+mExpClass(Basic) LineDataFiller
+{
+public:
+
+    mUseType( LineData,	pos_type );
+
+			LineDataFiller(LineData&);
+			~LineDataFiller()	{ if ( !finished_ ) finish(); }
+    void		reset();
+
+    LineDataFiller&	add(pos_type);
+    bool		finish();		//!< true if any valid nr added
+
+    LineData&		lineData()		{ return ld_; }
+    const LineData&	lineData() const	{ return ld_; }
+    pos_type		prevNr() const		{ return prevnr_; }
+
+protected:
+
+    LineData&		ld_;
+    LineData::Segment	seg_;
+    pos_type		prevnr_;
+    bool		finished_;
+
+};
+
+
+/*!\brief Fills LineCollData. Requires per-line feed with trcnrs sorted  */
 
 mExpClass(Basic) LineCollDataFiller
 {
 public:
 
-    mUseType( LineCollData,	pos_type );
+    mUseType( LineCollData,	IdxPair );
 
 			LineCollDataFiller(LineCollData&);
-			~LineCollDataFiller();
+			~LineCollDataFiller()	{ finish(); }
+    void		reset();
 
-    void		add(const BinID&);
-    void		add(const Bin2D&);
-    void		finish(); // automatically called on delete
+    LineCollDataFiller&	add( const Bin2D& b2d )	{ return doAdd(b2d.idxPair()); }
+    LineCollDataFiller&	add( const BinID& bid )	{ return doAdd(bid); }
+
+    void		finish();
 
 protected:
 
     LineCollData&	lcd_;
-    LineData*		ld_;
-    LineData::Segment	seg_;
-    pos_type		prevtrcnr_;
+    LineData*		ld_		    = nullptr;
+    LineDataFiller*	ldf_		    = nullptr;
 
-    void		initLine();
+    LineCollDataFiller&	doAdd(const IdxPair&);
     void		finishLine();
-    LineData*		findLine(pos_type);
 
 };
 

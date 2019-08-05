@@ -348,8 +348,8 @@ bool ObjectSet<T>::operator ==( const ObjectSet<T>& oth ) const
     if ( sz != oth.size() )
 	return false;
 
-    for ( idx_type vidx=sz; vidx!=-1; vidx-- )
-	if ( (*this)[vidx] != oth[vidx] )
+    for ( idx_type vidx=sz-1; vidx!=-1; vidx-- )
+	if ( get(vidx) != oth.get(vidx) )
 	    return false;
     return true;
 }
