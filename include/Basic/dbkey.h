@@ -57,7 +57,7 @@ public:
     bool		operator ==(const DBKey&) const;
 			mImplSimpleIneqOper(DBKey)
 
-    static DBKey	getInvalid()		{ return DBKey(-1,-1); }
+    static const DBKey&	getInvalid();
     static DBKey	get( DirNrType gnr, ObjNrType onr=-1 )
 						{ return DBKey(gnr,onr); }
     static DBKey	getFromStr(const char*);

@@ -76,6 +76,25 @@ typedef Twins<od_int64>	int64_pair;
 typedef Twins<float>	float_pair;
 typedef Twins<double>	double_pair;
 
+class IJPos
+{
+public:
+		    IJPos( Index_Type ii=-1, Index_Type jj=-1 )
+			: i(ii), j(jj)		{}
+		    mImplSimpleEqOpers2Memb(IJPos,i,j)
+
+    inline bool	    operator>( const IJPos& oth ) const
+		    { return i > oth.i || (i == oth.i && j > oth.j); }
+    inline bool	    operator<( const IJPos& oth ) const
+		    { return i < oth.i || (i == oth.i && j < oth.j); }
+
+    void	    reset()			{ i = j = -1; }
+    inline bool	    isValid() const		{ return i > -1 && j > -1; }
+
+    Index_Type	    i, j;
+
+};
+
 
 enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
 

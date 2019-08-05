@@ -287,9 +287,9 @@ Seis::SelData::pos_rg_type Seis::SelData::crlRange() const
 }
 
 
-Seis::SelData::z_rg_type Seis::SelData::zRange( idx_type ) const
+Seis::SelData::z_rg_type Seis::SelData::zRange( idx_type idx ) const
 {
-    return SI().zRange();
+    return Survey::Geometry::get(geomID(idx)).zRange();
 }
 
 

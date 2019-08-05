@@ -70,23 +70,10 @@ public:
 
     /*!\brief Set Position: position in IdxPairDataSet
 
-      Note that the iterator becomes invalid when adding or removing from
+      Note that the iterator becomes invalid when adding to or removing from
       the set.
      */
-    struct SPos
-    {
-			SPos( idx_type ii=-1, idx_type jj=-1 )
-			    : i(ii), j(jj)	{}
-			mImplSimpleEqOpers2Memb(SPos,i,j)
-	inline bool	operator>(const SPos&) const;
-	inline bool	operator<(const SPos&) const;
-
-	void		reset()		{ i = j = -1; }
-	inline bool	isValid() const	{ return i > -1 && j > -1; }
-
-	idx_type	i, j;
-    };
-
+    typedef IJPos	SPos;
 
 			IdxPairDataSet(obj_size_type,bool allow_duplicate_idxs,
 					bool manage_data=true);
@@ -279,21 +266,6 @@ protected:
 
 };
 
-
-inline bool IdxPairDataSet::SPos::operator >( const SPos& oth ) const
-{
-    if ( i > oth.i )
-	return true;
-    return i == oth.i && j > oth.j;
-}
-
-
-inline bool IdxPairDataSet::SPos::operator <( const SPos& oth ) const
-{
-    if ( i < oth.i )
-	return true;
-    return i == oth.i && j < oth.j;
-}
 
 
 } // namespace Pos

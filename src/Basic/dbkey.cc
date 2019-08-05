@@ -10,6 +10,8 @@
 #include "compoundkey.h"
 #include "surveydisklocation.h"
 
+const DBKey& DBKey::getInvalid() { static const DBKey ret; return ret; }
+
 static BufferString noStrFromDBKeyFn( const DBKey& ) { return BufferString(); }
 static bool falseForDBKeyFn( const DBKey& )	{ return false; }
 static IOObj* nullForDBKeyFn( const DBKey& )	{ return 0; }
