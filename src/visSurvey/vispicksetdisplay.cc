@@ -217,15 +217,6 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 
     if ( needLine() )
 	setPolylinePos( idx, loc.pos_ );
-
-    if ( loc.pos_.isDefined() && dragger_ )
-    {
-	dragger_->setPos( loc.pos_ );
-	dragger_->turnOn( showdragger_ );
-    }
-
-    updateDragger();
-
 }
 
 
@@ -343,14 +334,8 @@ void PickSetDisplay::redrawMultiSets()
 		firstidx = ps[ps.size()-1];
 		first = false;
 	    }
-
-	    if ( dragger_ )
-	    {
-		dragger_->setPos( pos );
-		dragger_->updateDragger( false );
-		dragger_->turnOn( showdragger_ );
-	    }
 	}
+
 	if ( set_->disp_.connect_==Pick::Set::Disp::Close )
 	    ps += firstidx;
 	if ( ps.isEmpty() )
@@ -374,9 +359,6 @@ void PickSetDisplay::redrawAll( int drageridx )
 	createLine();
 
     markerset_->clearMarkers();
-    if ( drageridx==set_->size() )
-	drageridx = set_->size()-1;
-
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Coord3 pos = (*set_)[idx].pos_;
@@ -384,13 +366,6 @@ void PickSetDisplay::redrawAll( int drageridx )
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
 	    markerset_->addPos( pos );
-
-	if ( idx==drageridx && dragger_ )
-	{
-	    dragger_->setPos( pos );
-	    dragger_->updateDragger( false );
-	    dragger_->turnOn( showdragger_ );
-	}
     }
 
     markerset_->forceRedraw( true );
