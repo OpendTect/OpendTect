@@ -181,13 +181,13 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &desc_;
     delete &lms_;
     delete elpropsel_;
-    descctio_.setObj(0); delete &descctio_;
+    descctio_.setObj(nullptr); delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
 
 
-void uiStratLayerModel::initWin( CallBacker* cb )
+void uiStratLayerModel::initWin( CallBacker* )
 {
     if ( !moddisp_ )
     {
@@ -368,14 +368,16 @@ bool uiStratLayerModel::saveGenDesc() const
     bool rv = false;
 
     uiUserShowWait usw( this, uiStrings::sSavingData() );
-	Strat::LayerSequenceGenDesc desc = descdisp_->currentDesc();
-    fillWorkBenchPars( desc.getWorkBenchParams() );
+    const Strat::LayerSequenceGenDesc& desc = descdisp_->currentDesc();
+    IOPar& wbpars =
+	const_cast<Strat::LayerSequenceGenDesc&>(desc).getWorkBenchParams();
+    fillWorkBenchPars( wbpars );
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	uiMSG().error( uiStrings::phrCannotOpenOutpFile() );
     else if ( !desc.putTo(strm) )
-	uiMSG().error(desc.errMsg());
+	uiMSG().error( desc.errMsg() );
     else
     {
 	rv = true;
@@ -492,7 +494,7 @@ void uiStratLayerModel::updateDispEach( const LayerModel& mdl )
 }
 
 
-void uiStratLayerModel::genModelsCB( CallBacker* cb )
+void uiStratLayerModel::genModelsCB( CallBacker* )
 {
     doGenModels();
 }
@@ -578,7 +580,7 @@ void uiStratLayerModel::setElasticProps()
 	if ( !elpropsel_->usePar(desc_.getWorkBenchParams()) )
 	{
 	    delete elpropsel_;
-	    elpropsel_ = 0;
+	    elpropsel_ = nullptr;
 	}
     }
 
