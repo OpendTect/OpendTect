@@ -143,6 +143,7 @@ public:
     idx_type		secondIdx(idx_type firstidx,pos_type) const;
     pos_type		firstAtIdx(idx_type firstidx) const;
     IdxPair		positionAtIdxs(idx_type,idx_type) const;
+    void		getSecondsAtIndex(idx_type,TypeSet<pos_type>&) const;
 
     IdxPair		firstIdxPair() const; //!< when empty returns udf()
     bool		hasDuplicateIdxPairs() const;

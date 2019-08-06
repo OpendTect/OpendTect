@@ -1222,6 +1222,15 @@ PosInfo::LineDataFiller& PosInfo::LineDataFiller::add( pos_type nr )
 }
 
 
+PosInfo::LineDataFiller& PosInfo::LineDataFiller::add( const pos_type* posarr,
+						       size_type sz )
+{
+    for ( auto idx=0; idx<sz; idx++ )
+	add( posarr[idx] );
+    return *this;
+}
+
+
 void PosInfo::LineDataFiller::reset()
 {
     ld_.segments_.setEmpty();

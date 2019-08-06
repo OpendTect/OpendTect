@@ -465,6 +465,27 @@ Pos::IdxPair Pos::IdxPairDataSet::positionAtIdxs( idx_type frst,
 }
 
 
+void Pos::IdxPairDataSet::getSecondsAtIndex( idx_type frst,
+					     TypeSet<pos_type>& seconds ) const
+{
+    seconds.setEmpty();
+    if ( !frsts_.validIdx(frst) )
+	return;
+    const IdxSet& scnds = gtScndSet( frst );
+    const auto sz = scnds.size();
+    if ( sz < 1 )
+	return;
+
+    seconds.add( scnds.get(0) );
+    for ( idx_type idx=1; idx<sz; idx++ )
+    {
+	const auto scnd = scnds.get( idx );
+	if ( scnd != scnds.get(idx-1) )
+	    seconds.add( scnd );
+    }
+}
+
+
 Interval<Pos::IdxPairDataSet::pos_type> Pos::IdxPairDataSet::firstRange() const
 {
     Interval<pos_type> ret( mUdf(pos_type), mUdf(pos_type) );

@@ -328,12 +328,18 @@ mExpClass(Basic) LineDataFiller
 public:
 
     mUseType( LineData,	pos_type );
+    mUseType( LineData,	size_type );
+    mUseType( LineData,	idx_type );
 
 			LineDataFiller(LineData&);
 			~LineDataFiller()	{ if ( !finished_ ) finish(); }
     void		reset();
 
     LineDataFiller&	add(pos_type);
+    LineDataFiller&	add(const pos_type*,size_type);
+    LineDataFiller&	add( const TypeSet<pos_type>& ps )
+			{ return add( ps.arr(), ps.size() ); }
+
     bool		finish();		//!< true if any valid nr added
 
     LineData&		lineData()		{ return ld_; }
