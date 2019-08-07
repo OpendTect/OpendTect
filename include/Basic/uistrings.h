@@ -100,13 +100,13 @@ public:
     static uiPhrase phrEdit(const uiWord&);
     static uiPhrase phrEnter(const uiWord&);
     static uiPhrase phrErrCalculating(const uiWord&);
-    static uiPhrase phrErrDuringIO(bool read,const char* objnm=0);
+    static uiPhrase phrErrDuringIO(bool read,const char* objnm=nullptr);
     static uiPhrase phrErrDuringIO(bool read,const uiWord&);
-    static uiPhrase phrErrDuringRead( const char* objnm=0 )
+    static uiPhrase phrErrDuringRead( const char* objnm=nullptr )
 		    { return phrErrDuringIO( true, objnm ); }
     static uiPhrase phrErrDuringRead( const uiWord& subj )
 		    { return phrErrDuringIO( true, subj ); }
-    static uiPhrase phrErrDuringWrite( const char* objnm=0 )
+    static uiPhrase phrErrDuringWrite( const char* objnm=nullptr )
 		    { return phrErrDuringIO( false, objnm ); }
     static uiPhrase phrErrDuringWrite( const uiWord& subj )
 		    { return phrErrDuringIO( false, subj ); }
@@ -168,6 +168,7 @@ public:
     static uiPhrase phrSuccessfullyExported(const uiWord&);
     static uiPhrase phrTODONotImpl(const char* clssname);
     static uiPhrase phrThreeDots(const uiWord&,bool immediate=false);
+    static uiPhrase phrUnexpected(const uiWord&,const char* what=nullptr);
     static uiPhrase phrWrite(const uiWord&);
     static uiPhrase phrWriting(const uiWord&);
     static uiPhrase phrWritten(const uiWord&);

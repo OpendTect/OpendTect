@@ -12,8 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
-#include "datachar.h"
-#include "datapackbase.h"
+#include "datapack.h"
 #include "dbkey.h"
 #include "ranges.h"
 #include "survgeom.h"
@@ -75,7 +74,7 @@ public:
 protected:
 
     DBKey			dbkey_;
-    GeomID			defgeomid_;
+    GeomID			defgeomid_	    = GeomID::get3D();
     const TaskRunnerProvider*	trprov_;
     mutable uiString		errmsg_;
 
@@ -92,15 +91,15 @@ mExpClass(Seis) PreLoadDataEntry
 public:
 
     mUseType( Pos,	GeomID );
+    typedef DataPack::ID PackID;
 
-			PreLoadDataEntry(const DBKey&,GeomID,
-					 DataPack::ID);
+			PreLoadDataEntry(const DBKey&,GeomID,PackID);
 
     bool		equals(const DBKey&,GeomID) const;
 
     DBKey		dbkey_;
     GeomID		geomid_;
-    DataPack::ID	dpid_;
+    PackID		dpid_;
     bool		is2d_;
     BufferString	name_;
 };
@@ -135,7 +134,7 @@ public:
     bool			isPresent(const DBKey&,
 					  GeomID gid=GeomID()) const;
 
-    const ObjectSet<PreLoadDataEntry>& getEntries() const;
+    const ObjectSet<PreLoadDataEntry>& getEntries() const { return entries_; }
     RefMan<DataPack>		getDP(const DBKey&,GeomID gid=GeomID());
 
 protected:
@@ -148,9 +147,9 @@ public:
 				PreLoadDataManager();
 				~PreLoadDataManager();
 
-    inline RefMan<DataPack>	getDP( DataPack::ID dpid )
+    inline RefMan<DataPack>	getDP( PackID dpid )
 				{ return dpmgr_.getDP( dpid ); }
-    ConstRefMan<DataPack>	getDP(const DBKey&,GeomID gid=GeomID()) const;
+    ConstRefMan<DataPack>	getDP(const DBKey&,GeomID) const;
     inline ConstRefMan<DataPack> getDP( DataPack::ID dpid ) const
 				{ return dpmgr_.getDP( dpid ); }
 

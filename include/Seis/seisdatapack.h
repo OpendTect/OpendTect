@@ -58,6 +58,8 @@ public:
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
+    ZSampling			zRange() const
+				{ return sampling_.zsamp_; }
 
     void			setTrcsSampling(PosInfo::CubeData*);
 				//!< Becomes mine

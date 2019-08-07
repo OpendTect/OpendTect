@@ -179,7 +179,7 @@ public:
 				 const DBKey&) const override;
     const char*	iconName() const override	{ return "segy"; }
 
-    bool	getGeometryInfo(PosInfo::CubeData&) const override;
+    bool	getGeometryInfo(LineCollData&) const override;
     bool	goTo(const BinID&) override;
     uiString	errMsg() const  override { return SeisTrcTranslator::errMsg(); }
 

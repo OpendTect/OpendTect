@@ -38,7 +38,7 @@ public:
     bool	supportsGoTo() const override		{ return true; }
     bool	goTo(const BinID&) override;
     bool	isUserSelectable(bool) const override	{ return true; }
-    bool	getGeometryInfo(PosInfo::CubeData&) const override;
+    bool	getGeometryInfo(LineCollData&) const override;
 
     void	usePar(const IOPar&) override;
 

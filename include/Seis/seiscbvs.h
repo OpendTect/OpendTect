@@ -49,7 +49,7 @@ public:
     const CBVSReadMgr*	readMgr() const			{ return rdmgr_; }
     Pos::IdxPair2Coord	getTransform() const;
 
-    bool	getGeometryInfo(PosInfo::CubeData&) const override;
+    bool	getGeometryInfo(LineCollData&) const override;
 
     bool	implRemove(const IOObj*) const override;
     bool	implRename(const IOObj*,const char*,

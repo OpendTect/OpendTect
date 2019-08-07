@@ -22,11 +22,10 @@ class VolFetcher;
 
 
 mExpClass(Seis) VolProvider : public Provider3D
-{ mODTextTranslationClass(Seis::VolProvider);
+{
 public:
 
 			VolProvider();
-			~VolProvider();
 
     virtual GeomType	geomType() const	{ return Vol; }
 
@@ -35,18 +34,8 @@ protected:
     friend class	VolFetcher;
     VolFetcher&		fetcher_;
 
-    Fetcher3D&		fetcher() const override;
-    void		getLocationData(uiRetVal&) const override;
-    void		prepWork(uiRetVal&) const override;
-    bool		doGoTo(const BinID&,uiRetVal*) const override;
-    void		gtCur(SeisTrc&,uiRetVal&) const override;
-    void		gtAt(const BinID&,TraceData&,SeisTrcInfo&,
-				uiRetVal&) const override;
-    void		gtComponentInfo(BufferStringSet&,DataType&) const override;
-
-public:
-
-    virtual const SeisTrcTranslator* curTransl() const override;
+    Fetcher&		gtFetcher() override;
+    void		gtTrc(TraceData&,SeisTrcInfo&,uiRetVal&) const override;
 
 };
 

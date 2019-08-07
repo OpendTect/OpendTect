@@ -649,7 +649,7 @@ void SEGYDirectSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 }
 
 
-bool SEGYDirectSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
+bool SEGYDirectSeisTrcTranslator::getGeometryInfo( LineCollData& cd ) const
 {
     if ( !def_ )
 	return false;

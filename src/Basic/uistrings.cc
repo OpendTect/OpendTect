@@ -381,6 +381,17 @@ uiPhrase uiStrings::phrThreeDots( const uiWord& string, bool immediate )
 uiPhrase uiStrings::phrTODONotImpl( const char* clssnm )
 { return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
 
+
+uiPhrase uiStrings::phrUnexpected( const uiWord& obj, const char* what )
+{
+    uiPhrase ret = tr("Unexpected %1%2").arg( obj );
+    if ( what && *what )
+	ret.arg( BufferString(": ",what) );
+    else
+	ret.arg( "" );
+    return ret;
+}
+
 uiPhrase uiStrings::phrWrite( const uiWord& string )
 { return tr("Write %1").arg( string ); }
 

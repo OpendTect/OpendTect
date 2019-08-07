@@ -26,7 +26,7 @@ class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class TrcKeyZSampling;
-namespace PosInfo	{ class CubeData; }
+namespace PosInfo	{ class LineCollData; }
 namespace Seis		{ class Provider; class SelData; }
 
 
@@ -87,9 +87,11 @@ mExpClass(Seis) SeisTrcTranslator : public Translator
 { mODTextTranslationClass(SeisTrcTranslator);
 public:
 
-    typedef Seis::DataType	DataType;
-    typedef Seis::ReadMode	ReadMode;
-    typedef Seis::SelData	SelData;
+    mUseType( Seis,	DataType );
+    mUseType( Seis,	ReadMode );
+    mUseType( Seis,	SelData );
+    mUseType( Pos,	GeomID );
+    mUseType( PosInfo,	LineCollData );
 
     /*!\brief Information for one component
 
@@ -188,12 +190,12 @@ public:
     uiString		errMsg() const			{ return errmsg_; }
 
     virtual bool	isSingleComponent() const	{ return true; }
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const
+    virtual bool	getGeometryInfo(LineCollData&) const
 							{ return false; }
+				//!< The returned CubeData should be sorted
 
     DataType		dataType() const		 { return datatype_; }
     void		setDataType( DataType dt )	{ datatype_ = dt; }
-			//!< The returned CubeData is assumed to be sorted!
     virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
     virtual int		estimatedNrTraces() const	{ return -1; }
@@ -236,8 +238,8 @@ public:
     void		enforceSurvinfoWrite( bool yn )
 			{ enforce_survinfo_write = yn; }
 
-    Pos::GeomID		curGeomID() const		{ return geomid_; }
-    void		setCurGeomID( Pos::GeomID gid )	{ geomid_ = gid; }
+    GeomID		curGeomID() const		{ return geomid_; }
+    void		setCurGeomID( GeomID gid )	{ geomid_ = gid; }
 
     void		setComponentNames(const BufferStringSet&);
     void		getComponentNames(BufferStringSet&) const;
@@ -274,7 +276,7 @@ protected:
     SamplingData<float>			outsd_;
     int					outnrsamples_;
     Interval<int>			samprg_;
-    Pos::GeomID				geomid_;
+    GeomID				geomid_;
     DataType				datatype_;
     bool				headerdone_;
     bool				datareaddone_;

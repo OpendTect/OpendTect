@@ -42,6 +42,8 @@ mExpClass(Seis) MultiProvider
 { mODTextTranslationClass(Seis::MultiProvider);
 public:
 
+    mUseType( Pos,		GeomID );
+
     enum Policy			{ GetEveryWhere, RequireOnlyOne,
 				  RequireAtLeastOne, RequireAll };
 				mDeclareEnumUtils(Policy);
@@ -172,7 +174,7 @@ public:
 
     int				nrLines() const
 				{ return geomids_.size(); }
-    Pos::GeomID			geomID( int iln ) const
+    GeomID			geomID( int iln ) const
 				{ return geomids_[iln]; }
     BufferString		lineName( int iln ) const
 				{ return geomID(iln).name(); }

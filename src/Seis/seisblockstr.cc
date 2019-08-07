@@ -249,7 +249,7 @@ bool BlocksSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 }
 
 
-bool BlocksSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
+bool BlocksSeisTrcTranslator::getGeometryInfo( LineCollData& cd ) const
 {
     cd = rdr_->positions();
     return true;

@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "seisprovider.h"
 #include "datapack.h"
+class GatherSetDataPack;
+class RegularSeisDataPack;
 class Seis2DDataSet;
 
 
@@ -25,19 +27,36 @@ namespace Seis
   */
 
 class Fetcher
-{ mODTextTranslationClass(Seis::Fetcher);
+{
 public:
 
-			Fetcher( Provider& p ) : prov_(p)	{}
-    virtual		~Fetcher()				{}
+    mUseType( Provider,		idx_type );
+    mUseType( Provider,		STTrl );
+
+				Fetcher( Provider& p )
+				    : prov_(p)		{}
+    virtual			~Fetcher()		{}
+    virtual bool		is2D() const		= 0;
+    virtual bool		isPS() const		= 0;
+
+    virtual void		reset();
+    virtual void		getComponentInfo(BufferStringSet&,
+				     DataType&) const	= 0;
+    virtual void		getPossiblePositions()	= 0;
+    virtual void		prepWork()		= 0;
+    virtual const STTrl*	curTransl() const	{ return nullptr; }
+
+    void			ensureDPIfAvailable(idx_type lidx);
+    bool			haveDP() const		{ return dp_; }
+    RegularSeisDataPack&	regSeisDP();
+    const RegularSeisDataPack&	regSeisDP() const;
+    GatherSetDataPack&		gathDP();
+    const GatherSetDataPack&	gathDP() const;
 
     Provider&		prov_;
     mutable uiRetVal	uirv_;
     RefMan<DataPack>	dp_;
-
-    void		getDataPack();
-    bool		haveDP() const				{ return dp_; }
-    virtual void	reset();
+    idx_type		dplidx_			= -1;
 
 };
 
@@ -49,12 +68,14 @@ class Fetcher3D : public Fetcher
 public:
 
 			Fetcher3D( Provider& p ) : Fetcher(p)	{}
+    virtual bool	is2D() const		{ return false; }
 
-    Provider3D&		prov3D();
-    const Provider3D&	prov3D() const;
-    BinID		curBid() const;
+    Provider3D&		prov3D()
+			{ return static_cast<Provider3D&>( prov_ ); }
+    const Provider3D&	prov3D() const
+			{ return static_cast<const Provider3D&>( prov_ ); }
 
-    bool		isSelectedBinID(const BinID&) const;
+    virtual bool	setPosition(const BinID&)		= 0;
 
 };
 
@@ -65,36 +86,29 @@ class Fetcher2D : public Fetcher
 { mODTextTranslationClass(Seis::Fetcher2D);
 public:
 
-    mUseType( Pos,		GeomID );
-    mUseType( Provider2D,	trcnr_type );
-    mUseType( Provider2D,	Line2DData );
-    mUseType( Provider2D,	Line2DDataSet );
-
 			Fetcher2D( Provider& p ) : Fetcher(p)	{}
 			~Fetcher2D();
-
-    Provider2D&		prov2D();
-    const Provider2D&	prov2D() const;
-
-    bool		isSelectedPosition(GeomID,trcnr_type) const;
-    void		getComponentInfo(BufferStringSet&,DataType&) const;
-
-    void		ensureDataSet() const;
-    void		getLineData(Line2DDataSet&) const;
-    bool		toNextTrace();
-    bool		toNextLine();
-
-    Seis2DDataSet*	dataset_	= nullptr;
-
-    bool		selectPosition(GeomID,trcnr_type);
-
+    virtual bool	is2D() const		{ return true; }
     void		reset() override;
 
+    Provider2D&		prov2D()
+			{ return static_cast<Provider2D&>( prov_ ); }
+    const Provider2D&	prov2D() const
+			{ return static_cast<const Provider2D&>( prov_ ); }
+
+    void		getComponentInfo(BufferStringSet&,
+					 DataType&) const override;
+
+    virtual bool	setPosition(const Bin2D&)		= 0;
+
+    Bin2D		curb2d_;
+    Seis2DDataSet*	dataset_	= nullptr;
+
+protected:
+
+    void		ensureDataSet() const;
+
 };
-
-
-#define mIsSingleLine(sd) (sd && sd->nrGeomIDs()<2)
-
 
 
 } // namespace Seis

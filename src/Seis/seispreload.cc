@@ -23,19 +23,16 @@
 #include "uistrings.h"
 
 
-namespace Seis
-{
+const char* Seis::PreLoader::sKeyLines()	{ return "Lines"; }
+const char* Seis::PreLoader::sKeyUserType()	{ return "User Type"; }
 
-const char* PreLoader::sKeyLines()	{ return "Lines"; }
-const char* PreLoader::sKeyUserType()	{ return "User Type"; }
-
-PreLoader::PreLoader( const DBKey& dbky )
+Seis::PreLoader::PreLoader( const DBKey& dbky )
     : dbkey_(dbky), trprov_(0) {}
-PreLoader::PreLoader( const DBKey& dbky, const TaskRunnerProvider& trprv )
+Seis::PreLoader::PreLoader( const DBKey& dbky, const TaskRunnerProvider& trprv )
     : dbkey_(dbky), trprov_(&trprv) {}
 
 
-IOObj* PreLoader::getIOObj() const
+IOObj* Seis::PreLoader::getIOObj() const
 {
     IOObj* ret = ::getIOObj( dbkey_ );
     if ( !ret )
@@ -44,7 +41,7 @@ IOObj* PreLoader::getIOObj() const
 }
 
 
-Interval<int> PreLoader::inlRange() const
+Interval<int> Seis::PreLoader::inlRange() const
 {
     Interval<int> ret( mUdf(int), -mUdf(int) );
     BufferStringSet fnms;
@@ -52,19 +49,22 @@ Interval<int> PreLoader::inlRange() const
     for ( int idx=0; idx<fnms.size(); idx++ )
 	ret.include( SeisCBVSPSIO::getInlNr( fnms.get(idx) ), false );
 
-    if ( mIsUdf(ret.start) ) ret.stop = ret.start;
+    if ( mIsUdf(ret.start) )
+	ret.stop = ret.start;
     return ret;
 }
 
 
-void PreLoader::getLineNames( BufferStringSet& lks ) const
+void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
 {
     lks.erase(); PtrMan<IOObj> ioobj = getIOObj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     BufferStringSet fnms;
     StreamProvider::getPreLoadedFileNames( dbkey_.toString(), fnms );
-    if ( fnms.isEmpty() ) return;
+    if ( fnms.isEmpty() )
+	return;
 
     BufferStringSet nms;
     for ( int idx=0; idx<fnms.size(); idx++ )
@@ -85,7 +85,7 @@ void PreLoader::getLineNames( BufferStringSet& lks ) const
 }
 
 
-bool PreLoader::runTask( Task& tsk ) const
+bool Seis::PreLoader::runTask( Task& tsk ) const
 {
     if ( trprov_ )
 	return trprov_->execute( tsk );
@@ -98,7 +98,7 @@ bool PreLoader::runTask( Task& tsk ) const
     if ( !ioobj ) \
 	return false; \
 
-bool PreLoader::load( const TrcKeyZSampling& tkzs,
+bool Seis::PreLoader::load( const TrcKeyZSampling& tkzs,
 			 DataCharacteristics::UserType type,
 			 const Scaler* scaler ) const
 {
@@ -115,13 +115,11 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
     if ( !runTask(rdr) )
-    {
-	errmsg_ = rdr.message();
-	return false;
-    }
+	{ errmsg_ = rdr.message(); return false; }
 
     ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
-    if ( !dp ) return false;
+    if ( !dp )
+	return false;
 
     PLDM().add( dbkey_, defgeomid_, dp.getNonConstPtr() );
 
@@ -129,7 +127,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 }
 
 
-bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
+bool Seis::PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 		      const GeomIDSet& geomids,
 		      DataCharacteristics::UserType type,
 		      const Scaler* scaler ) const
@@ -163,7 +161,8 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	SequentialFSLoader& rdr = *rdrs[idx];
 	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
 	ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
-	if ( !dp ) continue;
+	if ( !dp )
+	    continue;
 	PLDM().add( dbkey_, loadedgeomid, dp.getNonConstPtr() );
     }
 
@@ -171,7 +170,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 }
 
 
-bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
+bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
     mPrepIOObj();
 
@@ -184,7 +183,7 @@ bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 }
 
 
-bool PreLoader::loadPS2D( const char* lnm ) const
+bool Seis::PreLoader::loadPS2D( const char* lnm ) const
 {
     mPrepIOObj();
     BufferStringSet lnms;
@@ -197,7 +196,7 @@ bool PreLoader::loadPS2D( const char* lnm ) const
 }
 
 
-bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
+bool Seis::PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 {
     if ( lnms.isEmpty() )
 	return true;
@@ -218,28 +217,30 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 }
 
 
-void PreLoader::unLoad() const
+void Seis::PreLoader::unLoad() const
 {
     PLDM().remove( dbkey_, GeomID() );
 }
 
 
-void PreLoader::unLoad( GeomID gid ) const
+void Seis::PreLoader::unLoad( GeomID gid ) const
 {
     PLDM().remove( dbkey_, gid );
 }
 
 
-void PreLoader::load( const IOPar& iop )
+void Seis::PreLoader::load( const IOPar& iop )
 { doLoad(iop,0); }
-void PreLoader::load( const IOPar& iop, const TaskRunnerProvider& trprov )
+void Seis::PreLoader::load( const IOPar& iop, const TaskRunnerProvider& trprov )
 { doLoad(iop,&trprov); }
 
 
-void PreLoader::doLoad( const IOPar& iniop, const TaskRunnerProvider* trprov )
+void Seis::PreLoader::doLoad( const IOPar& iniop,
+			      const TaskRunnerProvider* trprov )
 {
     PtrMan<IOPar> iop = iniop.subselect( "Seis" );
-    if ( !iop || iop->isEmpty() ) return;
+    if ( !iop || iop->isEmpty() )
+	return;
 
     for ( int ipar=0; ; ipar++ )
     {
@@ -251,13 +252,15 @@ void PreLoader::doLoad( const IOPar& iniop, const TaskRunnerProvider* trprov )
 }
 
 
-void PreLoader::loadObj( const IOPar& iop )
+void Seis::PreLoader::loadObj( const IOPar& iop )
 { doLoadObj(iop,0); }
-void PreLoader::loadObj( const IOPar& iop, const TaskRunnerProvider& trprov )
+void Seis::PreLoader::loadObj( const IOPar& iop,
+				const TaskRunnerProvider& trprov )
 { doLoadObj(iop,&trprov); }
 
 
-void PreLoader::doLoadObj( const IOPar& iop, const TaskRunnerProvider* trprov )
+void Seis::PreLoader::doLoadObj( const IOPar& iop,
+				 const TaskRunnerProvider* trprov )
 {
     DBKey dbky;
     iop.get( sKey::ID(), dbky );
@@ -314,10 +317,11 @@ void PreLoader::doLoadObj( const IOPar& iop, const TaskRunnerProvider* trprov )
 }
 
 
-void PreLoader::fillPar( IOPar& iop ) const
+void Seis::PreLoader::fillPar( IOPar& iop ) const
 {
     SeisIOObjInfo oinf( dbkey_ );
-    if ( !oinf.isOK() ) return;
+    if ( !oinf.isOK() )
+	return;
 
     iop.set( sKey::ID(), dbkey_ );
     if ( defgeomid_.isValid() )
@@ -369,21 +373,18 @@ void PreLoader::fillPar( IOPar& iop ) const
 
 
 // PreLoadDataEntry
-PreLoadDataEntry::PreLoadDataEntry( const DBKey& dbky, Pos::GeomID geomid,
-				    DataPack::ID dpid )
+Seis::PreLoadDataEntry::PreLoadDataEntry( const DBKey& dbky, GeomID geomid,
+					  PackID dpid )
     : dbkey_(dbky), geomid_(geomid), dpid_(dpid), is2d_(geomid.is2D())
 {
     name_ = dbky.name();
     is2d_ = geomid.is2D();
     if ( is2d_ )
-    {
-	name_.add( " - " );
-	name_.add( geomid.name() );
-    }
+	{ name_.add( " - " ); name_.add( geomid.name() ); }
 }
 
 
-bool PreLoadDataEntry::equals( const DBKey& dbky, Pos::GeomID geomid ) const
+bool Seis::PreLoadDataEntry::equals( const DBKey& dbky, GeomID geomid ) const
 {
     return dbkey_==dbky && geomid_==geomid;
 }
@@ -391,22 +392,24 @@ bool PreLoadDataEntry::equals( const DBKey& dbky, Pos::GeomID geomid ) const
 
 
 // PreLoadDataManager
-PreLoadDataManager::PreLoadDataManager()
+Seis::PreLoadDataManager::PreLoadDataManager()
     : dpmgr_(DPM(DataPackMgr::SeisID()))
 {
 }
 
 
-PreLoadDataManager::~PreLoadDataManager()
+Seis::PreLoadDataManager::~PreLoadDataManager()
 {
 }
 
 
-void PreLoadDataManager::add( const DBKey& dbky, DataPack* dp )
-{ add( dbky, Pos::GeomID::get3D(), dp ); }
+void Seis::PreLoadDataManager::add( const DBKey& dbky, DataPack* dp )
+{
+    add( dbky, Pos::GeomID::get3D(), dp );
+}
 
 
-void PreLoadDataManager::add( const DBKey& dbky, Pos::GeomID geomid,
+void Seis::PreLoadDataManager::add( const DBKey& dbky, Pos::GeomID geomid,
 			      DataPack* dp )
 {
     if ( !dp ) return;
@@ -419,7 +422,7 @@ void PreLoadDataManager::add( const DBKey& dbky, Pos::GeomID geomid,
 }
 
 
-void PreLoadDataManager::remove( const DBKey& dbky, Pos::GeomID geomid )
+void Seis::PreLoadDataManager::remove( const DBKey& dbky, Pos::GeomID geomid )
 {
     if ( !geomid.isValid() )
 	removeAll();
@@ -430,49 +433,40 @@ void PreLoadDataManager::remove( const DBKey& dbky, Pos::GeomID geomid )
 }
 
 
-void PreLoadDataManager::remove( PackID dpid )
+void Seis::PreLoadDataManager::remove( PackID dpid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
-    {
 	if ( entries_[idx]->dpid_ == dpid )
-	{
-	    entries_.removeSingle( idx );
-	    dpmgr_.unRef( dpid );
-	    return;
-	}
-    }
+	    { entries_.removeSingle( idx ); dpmgr_.unRef( dpid ); return; }
 }
 
 
-void PreLoadDataManager::removeAll()
+void Seis::PreLoadDataManager::removeAll()
 {
     while ( entries_.size() )
-    {
-	dpmgr_.unRef( entries_[0]->dpid_ );
-	entries_.removeSingle( 0 );
-    }
+	{ dpmgr_.unRef( entries_[0]->dpid_ ); entries_.removeSingle( 0 ); }
 }
 
 
 RefMan<DataPack>
-PreLoadDataManager::getDP( const DBKey& dbky, Pos::GeomID geomid )
+Seis::PreLoadDataManager::getDP( const DBKey& dbky, Pos::GeomID geomid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
-    {
 	if ( entries_[idx]->equals(dbky,geomid) )
 	    return getDP( entries_[idx]->dpid_ );
-    }
 
     return 0;
 }
 
 
-ConstRefMan<DataPack> PreLoadDataManager::getDP( const DBKey& dbky,
+ConstRefMan<DataPack> Seis::PreLoadDataManager::getDP( const DBKey& dbky,
 					 Pos::GeomID geomid ) const
-{ return const_cast<PreLoadDataManager*>(this)->getDP( dbky, geomid ); }
+{
+    return const_cast<PreLoadDataManager*>(this)->getDP( dbky, geomid );
+}
 
 
-void PreLoadDataManager::getInfo( const DBKey& dbky, Pos::GeomID geomid,
+void Seis::PreLoadDataManager::getInfo( const DBKey& dbky, Pos::GeomID geomid,
 				  BufferString& info ) const
 {
     auto dp = getDP( dbky, geomid );
@@ -484,35 +478,26 @@ void PreLoadDataManager::getInfo( const DBKey& dbky, Pos::GeomID geomid,
 }
 
 
-void PreLoadDataManager::getIDs( DBKeySet& ids ) const
+void Seis::PreLoadDataManager::getIDs( DBKeySet& ids ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
 	ids += entries_[idx]->dbkey_;
 }
 
 
-bool PreLoadDataManager::isPresent( const DBKey& dbky,
+bool Seis::PreLoadDataManager::isPresent( const DBKey& dbky,
 				    Pos::GeomID geomid ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
-    {
 	if ( entries_[idx]->equals(dbky,geomid) )
 	    return true;
-    }
 
     return false;
 }
 
 
-const ObjectSet<PreLoadDataEntry>& PreLoadDataManager::getEntries() const
-{ return entries_; }
-
-
-PreLoadDataManager& PLDM()
+Seis::PreLoadDataManager& PLDM()
 {
-    mDefineStaticLocalObject(PtrMan<PreLoadDataManager>,pldm,
-			     (new PreLoadDataManager));
+    static PtrMan<PreLoadDataManager> pldm = new PreLoadDataManager;
     return *pldm;
 }
-
-} // namespace Seis
