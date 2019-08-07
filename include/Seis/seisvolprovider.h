@@ -16,10 +16,7 @@ ________________________________________________________________________
 namespace Seis
 {
 
-class VolFetcher;
-
 /*!\brief is the place to get traces from your seismic volumes.  */
-
 
 mExpClass(Seis) VolProvider : public Provider3D
 {

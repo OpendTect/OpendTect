@@ -13,6 +13,7 @@ ________________________________________________________________________
 class GatherSetDataPack;
 class RegularSeisDataPack;
 class Seis2DDataSet;
+namespace Pos { class ZSubSel; }
 
 
 namespace Seis
@@ -32,6 +33,8 @@ public:
 
     mUseType( Provider,		idx_type );
     mUseType( Provider,		STTrl );
+    mUseType( Pos,		GeomID );
+    mUseType( Pos,		ZSubSel );
 
 				Fetcher( Provider& p )
 				    : prov_(p)		{}
@@ -98,6 +101,7 @@ public:
 
     void		getComponentInfo(BufferStringSet&,
 					 DataType&) const override;
+    void		getPossiblePositions() override;
 
     virtual bool	setPosition(const Bin2D&)		= 0;
 

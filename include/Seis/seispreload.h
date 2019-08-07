@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
+#include "datachar.h"
 #include "datapack.h"
 #include "dbkey.h"
 #include "ranges.h"

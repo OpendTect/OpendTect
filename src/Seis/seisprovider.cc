@@ -193,7 +193,9 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
     else
     {
 	possiblepositions_.setEmpty();
-	getPossiblePositions( uirv );
+	zsubsels_.setEmpty();
+	fetcher().getPossiblePositions();
+	uirv = fetcher().uirv_;
 
 	if ( !uirv.isOK() )
 	    state_ = NeedInput;
@@ -206,13 +208,6 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
     }
 
     return uirv;
-}
-
-
-void Seis::Provider::getPossiblePositions( uiRetVal& uirv ) const
-{
-    fetcher().getPossiblePositions();
-    uirv = fetcher().uirv_;
 }
 
 
@@ -265,17 +260,6 @@ BufferString Seis::Provider::name() const
     if ( ioobj_ )
 	return ioobj_->getName();
     return BufferString();
-}
-
-
-Pos::GeomID Seis::Provider::geomID( idx_type lidx ) const
-{
-    if ( !selectedpositions_ )
-	return GeomID( possiblepositions_.get(lidx)->linenr_ )
-    else if ( !is2D() )
-	return GeomID::get3D();
-
-    return GeomID( selectedpositions_->data().firstAtIdx(lidx) );
 }
 
 
@@ -349,6 +333,17 @@ void Seis::Provider::setSelData( const SelData& sd ) const
     for ( int idx=0; idx<nrgeomids; idx++ )
 	zsubsels_.add( sd.zRange(idx) );
 
+    reportSetupChg();
+}
+
+
+void Seis::Provider::setZRange( const ZSampling& zrg, idx_type iln )
+{
+    Threads::Locker locker( lock_ );
+    if ( !zsubsels_.validIdx(iln) )
+	return;
+
+    zsubsels_[iln].setOutputZRange( zrg );
     reportSetupChg();
 }
 
@@ -843,6 +838,7 @@ Pos::GeomID Seis::Provider2D::geomID( idx_type lidx ) const
 {
     auto lnr = selectedpositions_ ? selectedpositions_->data().firstAtIdx(lidx)
 				  : possiblepositions_.get(lidx)->linenr_;
+    return GeomID( lnr );
 }
 
 

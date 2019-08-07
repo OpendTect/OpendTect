@@ -71,6 +71,8 @@ public:
     uiRetVal		getNext(SeisTrc&) const;
 
     bool		getComponentInfo(BufferStringSet&) const;
+    bool		ensureTranslator() const;
+    SeisTrcTranslator*	translator()		{ return tr_; }
 
 protected:
 
@@ -85,7 +87,6 @@ protected:
     mutable uiString	initmsg_;
     mutable SeisTrcTranslator* tr_;
 
-    bool		ensureTranslator() const;
     void		ensureCorrectTrcKey(SeisTrcInfo&) const;
     LineNrType		lineNr() const		{ return geomid_.lineNr(); }
     void		setErrMsgForNoTrMade() const;

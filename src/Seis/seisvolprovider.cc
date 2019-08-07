@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seisdatapack.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 
@@ -34,15 +35,6 @@ public:
 			~VolFetcher()			{ delete trl_; }
 
     bool		isPS() const override		{ return false; }
-
-    VolProvider&	prov()
-	    { return static_cast<VolProvider&>( prov_ ); }
-    const VolProvider&	prov() const
-	    { return static_cast<const VolProvider&>( prov_ ); }
-
-    const RegularSeisDataPack& dp() const
-	    { return *static_cast<const RegularSeisDataPack*>( dp_.ptr() ); }
-
     void		getComponentInfo(BufferStringSet&,
 					 DataType&) const override;
     void		getPossiblePositions() override;
@@ -60,6 +52,8 @@ protected:
     bool		isMultiConn() const;
     bool		createTranslator(inl_type) const;
     bool		ensureRightTransl(inl_type inl=-1) const;
+    const RegularSeisDataPack& dp() const
+		{ return *static_cast<const RegularSeisDataPack*>(dp_.ptr()); }
 
 };
 
@@ -109,6 +103,7 @@ void Seis::VolFetcher::getPossiblePositions()
     {
 	const auto fnrs = prov_.ioobj_->asStream()->fileSpec().nrs_;
 	const auto nrfiles = fnrs.nrSteps() + 1;
+	prov_.possiblepositions_.setEmpty();
 	for ( auto idx=0; idx<nrfiles; idx++ )
 	{
 	    const auto inl = fnrs.atIndex( idx );
@@ -119,7 +114,9 @@ void Seis::VolFetcher::getPossiblePositions()
     }
 
     if ( trl_ )
-	prov_.zsubsels_[0].setInputZRange( trl_->packetInfo().zrg );
+	prov_.zsubsels_.add( ZSubSel(trl_->packetInfo().zrg) );
+    else
+	prov_.zsubsels_.add( ZSubSel(SI().zRange()) );
 }
 
 
@@ -167,14 +164,14 @@ void Seis::VolFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 
 bool Seis::VolFetcher::isMultiConn() const
 {
-    const auto* ioobj = prov().ioObj();
+    const auto* ioobj = prov_.ioObj();
     return ioobj && ioobj->isStream() && ioobj->asStream()->isMultiConn();
 }
 
 
 bool Seis::VolFetcher::createTranslator( inl_type inl ) const
 {
-    const auto* ioobj = prov().ioObj();
+    const auto* ioobj = prov_.ioObj();
     auto* newtrl = ioobj->createTranslator();
     mDynamicCastGet( SeisTrcTranslator*, newtransl, newtrl );
     if ( !newtransl )
@@ -195,12 +192,12 @@ bool Seis::VolFetcher::createTranslator( inl_type inl ) const
     }
 
     auto* conn = ioobj->getConn( true );
-    if ( !newtransl->initRead(conn,prov().readmode_) )
+    if ( !newtransl->initRead(conn,prov_.readmode_) )
 	{ uirv_ = newtransl->errMsg(); delete newtransl; return false; }
 
-    if ( prov().haveSelComps() )
+    if ( prov_.haveSelComps() )
 	for ( auto icd=0; icd<newtransl->componentInfo().size(); icd++ )
-	    if ( !prov().selectedcomponents_.isPresent(icd) )
+	    if ( !prov_.selectedcomponents_.isPresent(icd) )
 		newtransl->componentInfo()[icd]->selected_ = false;
 
     if ( !newtransl->commitSelections() )
@@ -219,7 +216,7 @@ bool Seis::VolFetcher::ensureRightTransl( inl_type inl ) const
 	if ( inl == -1 || !isMultiConn() )
 	    return true;
 
-	const auto& iostrm = *prov().ioObj()->asStream();
+	const auto& iostrm = *prov_.ioObj()->asStream();
 	const auto connidx = iostrm.curConnIdx();
 	const auto conninl = iostrm.fileSpec().nrs_.atIndex(connidx);
 	if ( conninl == inl )

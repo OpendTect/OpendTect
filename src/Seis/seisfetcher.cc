@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seisfetcher.h"
 #include "keystrs.h"
+#include "posinfo2d.h"
 #include "prestackgather.h"
 #include "seis2ddata.h"
 #include "seisdatapack.h"
@@ -26,13 +27,13 @@ void Seis::Fetcher::reset()
 
 
 RegularSeisDataPack& Seis::Fetcher::regSeisDP()
-{ return *((RegularSeisDataPack*)dp_->ptr()); }
+{ return *((RegularSeisDataPack*)dp_.ptr()); }
 const RegularSeisDataPack& Seis::Fetcher::regSeisDP() const
-{ return *((RegularSeisDataPack*)dp_->ptr()); }
+{ return *((RegularSeisDataPack*)dp_.ptr()); }
 GatherSetDataPack& Seis::Fetcher::gathDP()
-{ return *((GatherSetDataPack*)dp_->ptr()); }
+{ return *((GatherSetDataPack*)dp_.ptr()); }
 const GatherSetDataPack& Seis::Fetcher::gathDP() const
-{ return *((GatherSetDataPack*)dp_->ptr()); }
+{ return *((GatherSetDataPack*)dp_.ptr()); }
 
 
 void Seis::Fetcher::ensureDPIfAvailable( idx_type iln )
@@ -62,6 +63,25 @@ void Seis::Fetcher2D::reset()
 {
     Fetcher::reset();
     deleteAndZeroPtr( dataset_ );
+}
+
+
+void Seis::Fetcher2D::getPossiblePositions()
+{
+    ensureDataSet();
+    if ( !dataset_ )
+	return;
+
+    for ( auto idx=0; idx<dataset_->nrLines(); idx++ )
+    {
+	const auto geomid = dataset_->geomID( idx );
+	PosInfo::Line2DData l2dd;
+	dataset_->getGeometry( geomid, l2dd );
+	auto* ld = new PosInfo::LineData( geomid.lineNr() );
+	l2dd.getSegments( *ld );
+	prov_.possiblepositions_.add( ld );
+	prov_.zsubsels_.add( ZSubSel(l2dd.zRange()) );
+    }
 }
 
 

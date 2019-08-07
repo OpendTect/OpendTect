@@ -102,15 +102,18 @@ public:
     BufferString	name() const;
 
     const LineCollData&	possiblePositions() const { return possiblepositions_; }
-    size_type		nrGeomIDs() const	  { return zsubsels_.size(); }
-    GeomID		geomID(idx_type iln) const;
-    const ZSubSel&	zSubSel( idx_type iln=0 ) const
-						  { return zsubsels_[iln]; }
-    ZSampling		zRange( idx_type iln=0 ) const
-				{ return zSubSel(iln).outputZRange(); }
     void		getComponentInfo(BufferStringSet&,DataType* dt=0) const;
     size_type		nrOffsets() const { return gtNrOffsets(); }
 				//!< can vary; returned from a central location
+    virtual size_type	nrGeomIDs() const
+				{ return 1; }
+    virtual GeomID	geomID( idx_type iln=0 ) const
+				{ return GeomID::get3D(); }
+    const ZSubSel&	zSubSel( idx_type iln=0 ) const
+				{ return zsubsels_[iln]; }
+    ZSampling		zRange( idx_type iln=0 ) const
+				{ return zSubSel(iln).outputZRange(); }
+    void		setZRange(const ZSampling&,idx_type iln=0);
 
     void		setSelData(const SelData&);
     void		selectComponent(comp_idx_type);
@@ -167,7 +170,6 @@ protected:
     mutable Threads::Atomic<totsz_type> nrdone_	= 0;
     totsz_type		totalnr_;
 
-    void		getPossiblePositions(uiRetVal&) const;
     void		prepWork(uiRetVal&) const;
     virtual size_type	gtNrOffsets() const			{ return 1; }
 
@@ -260,16 +262,17 @@ public:
 
     bool	isPresent(GeomID) const;
     bool	isPresent(const Bin2D&) const;
-    idx_type	indexOf(GeomID) const;
     size_type	nrLines() const;
-    GeomID	geomID(idx_type) const;
+    size_type	nrGeomIDs() const override	{ return nrLines(); }
+    GeomID	geomID(idx_type) const override;
+    idx_type	lineIdx(GeomID) const;
     void	getLineData(idx_type,LineData&) const;
     BufferString lineName( idx_type iln ) const	{ return geomID(iln).name(); }
     Bin2D	curBin2D() const		{ return trcpos_; }
 
+    bool	goTo(const Bin2D&,uiRetVal* uirv=0) const;
     uiRetVal	getAt(const Bin2D&,SeisTrc&) const;
     uiRetVal	getGatherAt(const Bin2D&,SeisTrcBuf&) const;
-    bool	goTo(const Bin2D&,uiRetVal* uirv=0) const;
 
     const LineHorSubSel& lineHorSubSel(idx_type) const;
     const LineSubSel& lineSubSel(idx_type) const;
