@@ -702,7 +702,8 @@ bool SeisCBVSPS2DReader::getGather( const TrcKey& tk, SeisTrcBuf& tbuf ) const
 	return false;
 
     SeisTrc* trc = readNewTrace( tk.trcNr() );
-    if ( !trc ) return false;
+    if ( !trc )
+	return false;
 
     while ( trc )
     {

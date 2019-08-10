@@ -33,6 +33,7 @@ public:
 			    : geomid_(gid), trcnr_(tnr)			{}
     explicit inline	Bin2D( const IdxPair& ip )
 			    : geomid_(ip.first), trcnr_(ip.second)	{}
+			mImplSimpleEqOpers2Memb(Bin2D,geomid_,trcnr_)
 
     GeomID&		geomID()	{ return geomid_; }
     GeomID		geomID() const	{ return geomid_; }

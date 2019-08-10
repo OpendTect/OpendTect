@@ -114,27 +114,4 @@ bool Seis::LineFetcher::ensureRightDataSource( GeomID geomid )
 }
 
 
-Seis::LineProvider::LineProvider()
-    : fetcher_(*new LineFetcher(*this))
-{
-}
-
-
-Seis::Fetcher& Seis::LineProvider::gtFetcher()
-{
-    return fetcher_;
-}
-
-
-void Seis::LineProvider::gtTrc( TraceData& td, SeisTrcInfo& ti,
-				uiRetVal& uirv ) const
-{
-    if ( !fetcher_.setPosition(trcpos_) )
-	uirv.set( uiStrings::phrUnexpected(uiStrings::sPosition(),
-					    trcpos_.usrDispStr()) );
-    else
-    {
-	fetcher_.getTrc( td, ti );
-	uirv = fetcher_.uirv_;
-    }
-}
+mDefNonPSProvFns( 2D, Line )

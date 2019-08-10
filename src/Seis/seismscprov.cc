@@ -78,12 +78,10 @@ void Seis::MSCProvider::setStepout( Array2D<bool>* mask )
 }
 
 
-void Seis::MSCProvider::setSelData( Seis::SelData* sd )
+void Seis::MSCProvider::setSelData( const Seis::SelData& sd )
 {
     if ( prov_ )
 	prov_->setSelData( sd );
-    else
-	delete sd;
 }
 
 
@@ -182,22 +180,30 @@ bool Seis::MSCProvider::startWork()
 {
     if ( !prov_ )
 	return false;
-
-    prov_->forceFPData( intofloats_ );
-    const auto& hss = prov_->horSubSel( 0 );
-    if ( hss.is2D() )
-	stepoutstep_ = IdxPair( 1, hss.asLineHorSubSel()->trcNrRange().step );
-    else
-    {
-	auto& chss = *hss.asCubeHorSubSel();
-	stepoutstep_.inl() = chss.inlStep();
-	stepoutstep_.crl() = chss.crlStep();
-    }
+    if ( prov_->isEmpty() )
+	{ uirv_.set( tr("No input data available") ); return false; }
 
     if ( reqstepout_.lineNr() > desstepout_.lineNr() )
 	desstepout_.lineNr() = reqstepout_.lineNr();
     if ( reqstepout_.trcNr() > desstepout_.trcNr() )
 	desstepout_.trcNr() = reqstepout_.trcNr();
+
+    prov_->forceFPData( intofloats_ );
+    const auto& lcd = prov_->possiblePositions();
+    if ( prov_->is2D() )
+    {
+	const auto& prov2d = *prov_->as2D();
+	prov2d.setStepout( desstepout_.trcNr() );
+	stepoutstep_.crl() = prov2d.stepoutStep( 0 );
+    }
+    else
+    {
+	const auto& prov3d = *prov_->as3D();
+	prov3d.setStepout( desstepout_ );
+	stepoutstep_ = prov3d.stepoutStep();
+    }
+
+    //TODO
 
     const SelData* sd = prov_->selData();
     if ( sd && !sd->isAll() )

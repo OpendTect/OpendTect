@@ -134,10 +134,14 @@ public:
     mDeprecated bool		readFrom(const IOObj&, const int tracenr,
 					 const char* linename,int comp,
 					 uiString* errmsg=0);
-    const BinID&		getBinID() const
-				{ return trckey_.position(); }
+    BinID			getBinID() const
+				{ return trckey_.binID(); }
     void			setBinID( const BinID& bid )
 				{ trckey_.setPos( bid ); }
+    Bin2D			getBin2D() const
+				{ return trckey_.bin2D(); }
+    void			setBin2D( const Bin2D& b2d )
+				{ trckey_.setPos( b2d ); }
 
 protected:
 
@@ -185,10 +189,13 @@ public:
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
     bool			fillGatherBuf(SeisTrcBuf&,const BinID&) const;
+    bool			fillGatherBuf(SeisTrcBuf&,const Bin2D&) const;
     SeisTrc*			createTrace(int gatheridx,int offsetidx) const;
     SeisTrc*			createTrace(const BinID&,int offsetidx) const;
+    SeisTrc*			createTrace(const Bin2D&,int offsetidx) const;
 
     const Gather*		getGather(const BinID&) const;
+    const Gather*		getGather(const Bin2D&) const;
     const GatherSet&		getGathers() const	{ return gathers_; }
     GatherSet&			getGathers()		{ return gathers_; }
     void			addGather(Gather*);

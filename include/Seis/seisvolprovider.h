@@ -23,6 +23,7 @@ mExpClass(Seis) VolProvider : public Provider3D
 public:
 
 			VolProvider();
+			VolProvider(const DBKey&,uiRetVal&);
 
     virtual GeomType	geomType() const	{ return Vol; }
 

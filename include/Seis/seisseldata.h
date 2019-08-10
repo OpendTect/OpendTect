@@ -99,9 +99,6 @@ public:
     void		usePar(const IOPar&);
     static void		removeFromPar(IOPar&,const char* subky=0);
 
-    void		extendZ( const z_rg_type&);
-    void		extendH(const BinID& stepout,
-				const BinID* stepoutstep=0);
     void		include(const SelData&);
     virtual void	setZRange(const z_rg_type&,idx_type i=0) = 0;
 
@@ -130,8 +127,6 @@ protected:
     virtual GeomID	gtGeomID( idx_type ) const { return GeomID::get3D(); }
 
     virtual void	doCopyFrom(const SelData&)	= 0;
-    virtual void	doExtendH(BinID so,BinID sostp)	= 0;
-    virtual void	doExtendZ(const z_rg_type&)	= 0;
     virtual void	doFillPar(IOPar&) const		= 0;
     virtual void	doUsePar(const IOPar&)		= 0;
     virtual uiString	gtUsrSummary() const		= 0;

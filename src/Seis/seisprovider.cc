@@ -16,8 +16,7 @@ ________________________________________________________________________
 #include "seisfetcher.h"
 #include "seis2ddata.h"
 
-#include "cubesubsel.h"
-#include "linesubsel.h"
+#include "binnedvalueset.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -31,6 +30,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survgeom2d.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 
@@ -122,29 +122,35 @@ DBKey Seis::Provider::dbKey( const IOPar& iop )
 }
 
 
-Seis::Provider::Provider( bool is2d )
+Seis::Provider::Provider( bool is2d, bool fillposs )
     : possiblepositions_(is2d ? *new LineCollData
-			      : *(LineCollData*)new CubeData)
+			      : *(LineCollData*)new PosInfo::CubeData)
 {
-    if ( is2d )
+    if ( !is2d )
     {
-	Survey::Geometry2D::getLineCollData( possiblepositions_ );
-	for ( auto ld : possiblepositions_ )
-	{
-	    const auto& sg2d = Survey::Geometry2D::get( ld->geomID() );
-	    zsubsels_.add( ZSubSel(sg2d.zRange()) );
-	}
+	allgeomids_.add( GeomID::get3D() );
+	allzsubsels_.add( ZSubSel(SI().zRange()) );
+	if ( fillposs )
+	    ((PosInfo::CubeData*)(&possiblepositions_))->fillBySI();
     }
     else
     {
-	((CubeData*)(&possiblepositions_))->fillBySI();
-	zsubsels_.add( ZSubSel(SI().zRange()) );
+	Survey::Geometry2D::getGeomIDs( allgeomids_ );
+	for ( auto gid : allgeomids_ )
+	{
+	    const auto& sg2d = Survey::Geometry2D::get( gid );
+	    allzsubsels_.add( ZSubSel(sg2d.zRange()) );
+	}
+
+	if ( fillposs )
+	    Survey::Geometry2D::getLineCollData( possiblepositions_ );
     }
 }
 
 
 Seis::Provider::~Provider()
 {
+    delete seldata_;
     delete selectedpositions_;
     delete &possiblepositions_;
     delete &fetcher();
@@ -175,9 +181,26 @@ const Seis::Provider3D* Seis::Provider::as3D() const
 }
 
 
+Seis::Provider::size_type Seis::Provider::nrGeomIDs() const
+{
+    return is2D() ? as2D()->nrLines() : 1;
+}
+
+
+Pos::GeomID Seis::Provider::geomID( int iln ) const
+{
+    return is2D() ? as2D()->gtGeomID( iln ) : allgeomids_[0];
+}
+
+
+const Pos::ZSubSel& Seis::Provider::zSubSel( int iln ) const
+{
+    return is2D() ? as2D()->gtZSubSel( iln ) : allzsubsels_[0];
+}
+
+
 uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
-    Threads::Locker locker( lock_ );
     deleteAndZeroPtr( ioobj_ );
     nrdone_ = 0;
 
@@ -193,8 +216,7 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
     else
     {
 	possiblepositions_.setEmpty();
-	zsubsels_.setEmpty();
-	fetcher().getPossiblePositions();
+	fetcher().getPossibleExtents();
 	uirv = fetcher().uirv_;
 
 	if ( !uirv.isOK() )
@@ -211,9 +233,9 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 }
 
 
-void Seis::Provider::prepWork( uiRetVal& uirv ) const
+void Seis::Provider::prepWork( uiRetVal& uirv )
 {
-    Fetcher& ftch = mNonConst( fetcher() );
+    Fetcher& ftch = fetcher();
     ftch.reset();
     ftch.prepWork();
     uirv = ftch.uirv_;
@@ -230,7 +252,7 @@ void Seis::Provider::handleNewPositions()
 {
     if ( !selectedpositions_ || selectedpositions_->isEmpty() )
     {
-	LineCollPos lcp; lcp.toStart();
+	PosInfo::LineCollPos lcp; lcp.toStart();
 	if ( is2D() )
 	    as2D()->trcpos_ = possiblepositions_.bin2D( lcp );
 	else
@@ -249,7 +271,7 @@ void Seis::Provider::handleNewPositions()
 }
 
 
-const DBKey& Seis::Provider::dbKey() const
+DBKey Seis::Provider::dbKey() const
 {
     return ioobj_ ? ioobj_->key() : DBKey::getInvalid();
 }
@@ -260,6 +282,32 @@ BufferString Seis::Provider::name() const
     if ( ioobj_ )
 	return ioobj_->getName();
     return BufferString();
+}
+
+
+bool Seis::Provider::isEmpty() const
+{
+    return selectedpositions_ ? selectedpositions_->isEmpty()
+			      : possiblepositions_.isEmpty();
+}
+
+
+void Seis::Provider::getPositions( LineCollData& lcd ) const
+{
+    if ( !selectedpositions_ )
+	lcd = possiblepositions_;
+    else
+    {
+	PosInfo::LineCollDataFiller filler( lcd );
+	SPos spos;
+	while ( selectedpositions_->next(spos,true) )
+	{
+	    if ( is2D() )
+		filler.add( selectedpositions_->getBin2D(spos) );
+	    else
+		filler.add( selectedpositions_->getBinID(spos) );
+	}
+    }
 }
 
 
@@ -306,51 +354,46 @@ bool Seis::Provider::haveSelComps() const
 }
 
 
-const Pos::ZSubSel& Seis::Provider::zSubSel( idx_type idx ) const
+void Seis::Provider::setSelData( SelData* sd )
 {
-    return geomSubSel( idx ).zSubSel();
+    delete seldata_;
+    seldata_ = sd;
+    reportSetupChg();
 }
 
 
-const Survey::GeomSubSel& Seis::Provider::geomSubSel( idx_type idx ) const
+void Seis::Provider::setSelData( const SelData& sd )
 {
-    if ( is2D() )
-	return as2D()->lineSubSel( idx );
-    return as3D()->cubeSubSel();
-}
-
-
-void Seis::Provider::setSelData( const SelData& sd ) const
-{
-    Threads::Locker locker( lock_ );
-
-    delete selectedpositions_;
-    selectedpositions_ = sd.applyTo( possiblepositions_ );
-    handleNewPositions();
-
-    zsubsels_.setEmpty();
-    const auto nrgeomids = sd.nrGeomIDs();
-    for ( int idx=0; idx<nrgeomids; idx++ )
-	zsubsels_.add( sd.zRange(idx) );
-
+    delete seldata_;
+    seldata_ = sd.clone();
     reportSetupChg();
 }
 
 
 void Seis::Provider::setZRange( const ZSampling& zrg, idx_type iln )
 {
-    Threads::Locker locker( lock_ );
-    if ( !zsubsels_.validIdx(iln) )
+    if ( !is2D() )
+	allzsubsels_[0].setOutputZRange( zrg );
+    else
+	as2D()->stZRange( iln, zrg );
+
+    reportSetupChg();
+}
+
+
+void Seis::Provider::setZExtension( const z_rg_type& zrg )
+{
+    static const z_type zeps = 1.e-6f;
+    if ( zrg.isEqual(zextension_,zeps) )
 	return;
 
-    zsubsels_[iln].setOutputZRange( zrg );
+    zextension_ = zrg;
     reportSetupChg();
 }
 
 
 void Seis::Provider::selectComponent( int icomp )
 {
-    Threads::Locker locker( lock_ );
     const auto curnrsel = selectedcomponents_.size();
     if ( curnrsel == 1 && selectedcomponents_[0] == icomp )
 	return;
@@ -363,7 +406,6 @@ void Seis::Provider::selectComponent( int icomp )
 
 void Seis::Provider::selectComponents( const TypeSet<int>& comps )
 {
-    Threads::Locker locker( lock_ );
     if ( comps == selectedcomponents_ )
 	return;
 
@@ -372,16 +414,8 @@ void Seis::Provider::selectComponents( const TypeSet<int>& comps )
 }
 
 
-void Seis::Provider::forceFPData( bool yn )
-{
-    Threads::Locker locker( lock_ );
-    forcefpdata_ = yn; // needs lock but is postproc so no reset needed
-}
-
-
 void Seis::Provider::setReadMode( ReadMode rm )
 {
-    Threads::Locker locker( lock_ );
     if ( readmode_ != rm )
     {
 	readmode_ = rm;
@@ -424,8 +458,6 @@ uiRetVal Seis::Provider::usePar( const IOPar& iop )
     if ( !dbkey.isValid() )
 	return uiStrings::phrDBIDNotValid();
 
-    Threads::Locker locker( lock_ );
-
     uiRetVal uirv;
     if ( dbkey != dbKey() )
     {
@@ -458,14 +490,38 @@ void Seis::Provider::reportSetupChg()
 }
 
 
-void Seis::Provider::ensureSelectedPositions() const
+void Seis::Provider::ensureSelectedPositions()
 {
-    if ( !selectedpositions_ )
-    {
+    if ( selectedpositions_ )
+	return;
+
+    if ( !seldata_ )
 	selectedpositions_ = new BinnedValueSet( possiblepositions_,
-                        is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
-	handleNewPositions();
+			is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
+    else
+    {
+	applySelData();
+	applyStepout();
     }
+
+    applyZExt();
+
+    handleNewPositions();
+}
+
+
+void Seis::Provider::applySelData()
+{
+}
+
+
+void Seis::Provider::applyStepout()
+{
+}
+
+
+void Seis::Provider::applyZExt()
+{
 }
 
 
@@ -482,8 +538,8 @@ bool Seis::Provider::prepareAccess( uiRetVal& uirv ) const
     }
     else
     {
-	ensureSelectedPositions();
-	prepWork( uirv );
+	mSelf().ensureSelectedPositions();
+	mSelf().prepWork( uirv );
 	if ( uirv.isOK() )
 	    state_ = Active;
     }
@@ -587,13 +643,13 @@ bool Seis::Provider::prepGet( uiRetVal& uirv, bool next ) const
     if ( !prepareAccess(uirv) )
 	return false;
 
-    if ( next && !selectedpositions_->toNext(spos_) )
+    if ( next && !selectedpositions_->next(spos_,true) )
 	{ uirv.set( uiStrings::sFinished() ); return false; }
 
     if ( is2D() )
-	as2D()->trcpos_ = selectedpositions_->getBin2D();
+	mSelf().as2D()->trcpos_ = selectedpositions_->getBin2D(spos_);
     else
-	as3D()->trcpos_ = selectedpositions_->getBinID();
+	mSelf().as3D()->trcpos_ = selectedpositions_->getBinID(spos_);
 
     return true;
 }
@@ -601,14 +657,14 @@ bool Seis::Provider::prepGet( uiRetVal& uirv, bool next ) const
 
 uiRetVal Seis::Provider::getCurrent( SeisTrc& trc ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     return doGetTrc( trc, false );
 }
 
 
 uiRetVal Seis::Provider::getNext( SeisTrc& trc ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     return doGetTrc( trc, true );
 }
 
@@ -620,15 +676,11 @@ uiRetVal Seis::Provider::doGetTrc( SeisTrc& trc, bool next ) const
 	return uirv;
 
     if ( !isPS() )
-    {
 	gtTrc( trc.data(), trc.info(), uirv );
-	locker.unLockNow();
-    }
     else
     {
 	SeisTrcBuf tbuf( true );
 	gtGather( tbuf, uirv );
-	locker.unLockNow();
 	putGatherInTrace( tbuf, trc );
     }
 
@@ -639,14 +691,14 @@ uiRetVal Seis::Provider::doGetTrc( SeisTrc& trc, bool next ) const
 
 uiRetVal Seis::Provider::getCurrentGather( SeisTrcBuf& tbuf ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     return doGetGath( tbuf, false );
 }
 
 
 uiRetVal Seis::Provider::getNextGather( SeisTrcBuf& tbuf ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     return doGetGath( tbuf, true );
 }
 
@@ -660,13 +712,11 @@ uiRetVal Seis::Provider::doGetGath( SeisTrcBuf& tbuf, bool next ) const
     if ( isPS() )
     {
 	gtGather( tbuf, uirv );
-	locker.unlockNow();
     }
     else
     {
 	SeisTrc trc;
 	gtTrc( trc.data(), trc.info(), uirv );
-	locker.unlockNow();
 	if ( uirv.isOK() )
 	    putTraceInGather( trc, tbuf );
     }
@@ -678,7 +728,7 @@ uiRetVal Seis::Provider::doGetGath( SeisTrcBuf& tbuf, bool next ) const
 
 uiRetVal Seis::Provider::getAt( const TrcKey& trcky, SeisTrc& trc ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     if ( !doGoTo(trcky) )
 	return uiStrings::sNotPresent();
     return doGetTrc( trc, false );
@@ -688,24 +738,23 @@ uiRetVal Seis::Provider::getAt( const TrcKey& trcky, SeisTrc& trc ) const
 uiRetVal Seis::Provider::getGatherAt( const TrcKey& trcky,
 				      SeisTrcBuf& tbuf ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     if ( !doGoTo(trcky) )
 	return uiStrings::sNotPresent();
-    return doGetGather( tbuf, false );
+    return doGetGath( tbuf, false );
 }
 
 
 uiRetVal Seis::Provider::getNextSequence( Seis::RawTrcsSequence& rawseq ) const
 {
     uiRetVal uirv;
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
 
     if ( !prepGet(uirv,false) )
 	return uirv;
 
     fillSequence( rawseq, uirv );
     nrdone_ += rawseq.nrPositions();
-    locker.unlockNow();
 
     return uirv;
 }
@@ -749,23 +798,30 @@ void Seis::Provider::fillSequence( Seis::RawTrcsSequence& rawseq,
 
 
 Seis::Provider3D::Provider3D()
-    : Provider(false)
+    : Provider(false,false)
 {
     handleNewPositions(); // cannot do this in base class
 }
 
 
-void Seis::Provider3D::getCubeData( CubeData& cd ) const
+Seis::Provider3D::Provider3D( const DBKey& dbky, uiRetVal& uirv )
+    : Provider(false,true)
 {
-    if ( !selectedpositions_ )
-	cd = (const CubeData&)possiblepositions_;
-    else
-    {
-	LineCollDataFiller filler( cd );
-	SPos spos;
-	while ( selectedpositions_->toNext(spos,false) )
-	    filler.add( selectedpositions_->getBinID(spos) );
-    }
+    uirv = setInput( dbky );
+}
+
+
+void Seis::Provider3D::setStepout( const IdxPair& so )
+{
+    Threads::Locker locker( getlock_ );
+    if ( stepout_ != so )
+	{ stepout_ = so; reportSetupChg(); }
+}
+
+
+const PosInfo::CubeData& Seis::Provider3D::possibleCubeData() const
+{
+    return (const CubeData&)possiblepositions_;
 }
 
 
@@ -778,7 +834,7 @@ bool Seis::Provider3D::isPresent( const BinID& bid ) const
 
 bool Seis::Provider3D::goTo( const BinID& bid ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     return doGoTo( TrcKey(bid) );
 }
 
@@ -798,9 +854,23 @@ uiRetVal Seis::Provider3D::getGatherAt( const BinID& bid,
 
 
 Seis::Provider2D::Provider2D()
-    : Provider(true)
+    : Provider(true,true)
 {
     handleNewPositions(); // cannot do this in base class
+}
+
+
+Seis::Provider2D::Provider2D( const DBKey& dbky, uiRetVal& uirv )
+    : Provider(true,false)
+{
+    uirv = setInput( dbky );
+}
+
+
+void Seis::Provider2D::setStepout( trcnr_type so )
+{
+    if ( stepout_ != so )
+	{ stepout_ = so; reportSetupChg(); }
 }
 
 
@@ -819,14 +889,6 @@ bool Seis::Provider2D::isPresent( const Bin2D& b2d ) const
 }
 
 
-bool Seis::Provider2D::indexOf( GeomID gid ) const
-{
-    const auto lnr = gid.lineNr();
-    return selectedpositions_ ? selectedpositions_->data().firstIdx( lnr )
-			      : possiblepositions_.lineIndexOf( lnr );
-}
-
-
 Seis::Provider::size_type Seis::Provider2D::nrLines() const
 {
     return selectedpositions_ ? selectedpositions_->nrFirst()
@@ -834,23 +896,23 @@ Seis::Provider::size_type Seis::Provider2D::nrLines() const
 }
 
 
-Pos::GeomID Seis::Provider2D::geomID( idx_type lidx ) const
+Seis::Provider2D::idx_type Seis::Provider2D::lineIdx( GeomID gid ) const
 {
-    auto lnr = selectedpositions_ ? selectedpositions_->data().firstAtIdx(lidx)
-				  : possiblepositions_.get(lidx)->linenr_;
-    return GeomID( lnr );
+    const auto lnr = gid.lineNr();
+    return selectedpositions_ ? selectedpositions_->data().firstIdx( lnr )
+			      : possiblepositions_.lineIndexOf( lnr );
 }
 
 
 void Seis::Provider2D::getLineData( idx_type iln, LineData& ld ) const
 {
     if ( !selectedpositions_ )
-	ld = *possiblepositions_.get( lidx );
+	ld = *possiblepositions_.get( iln );
     else
     {
 	PosInfo::LineDataFiller ldf( ld );
-	TypeSet<pos_type> trcnrs;
-	selectedpositions_->getSecondsAtIndex( iln, trcnrs );
+	TypeSet<trcnr_type> trcnrs;
+	selectedpositions_->data().getSecondsAtIndex( iln, trcnrs );
 	PosInfo::LineDataFiller( ld ).add( trcnrs );
     }
 }
@@ -858,7 +920,7 @@ void Seis::Provider2D::getLineData( idx_type iln, LineData& ld ) const
 
 bool Seis::Provider2D::goTo( const Bin2D& b2d ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( getlock_ );
     return doGoTo( TrcKey(b2d) );
 }
 
@@ -873,4 +935,29 @@ uiRetVal Seis::Provider2D::getGatherAt( const Bin2D& b2d,
 					SeisTrcBuf& tbuf ) const
 {
     return Provider::getGatherAt( TrcKey(b2d), tbuf );
+}
+
+
+Pos::GeomID Seis::Provider2D::gtGeomID( idx_type lidx ) const
+{
+    if ( selectedpositions_ )
+	return GeomID( selectedpositions_->data().firstAtIdx(lidx) );
+
+    return GeomID( possiblepositions_[lidx]->linenr_ );
+}
+
+
+const Pos::ZSubSel& Seis::Provider2D::gtZSubSel( idx_type iln ) const
+{
+    const auto gid = gtGeomID( iln );
+    const auto zsidx = allgeomids_.indexOf( gid );
+    return allzsubsels_[zsidx];
+}
+
+
+void Seis::Provider2D::stZRange( idx_type iln, const ZSampling& zrg )
+{
+    const auto gid = gtGeomID( iln );
+    const auto zsidx = allgeomids_.indexOf( gid );
+    allzsubsels_[zsidx].setOutputZRange( zrg );
 }

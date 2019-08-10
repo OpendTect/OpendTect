@@ -28,27 +28,21 @@ typedef StepInterval<pos_type> pos_steprg_type;
 
 Seis::TableSelData::TableSelData()
     : bvs_(*new BinnedValueSet(1,true))
-    , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
 }
 
 
-Seis::TableSelData::TableSelData( const BinnedValueSet& bvs,
-				  const z_rg_type* extraz )
+Seis::TableSelData::TableSelData( const BinnedValueSet& bvs )
     : bvs_(*new BinnedValueSet(bvs))
-    , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
     bvs_.setNrVals( 1 );
-    if ( extraz )
-	extraz_ = *extraz;
 }
 
 
 Seis::TableSelData::TableSelData( const DBKey& dbky )
     : bvs_(*new BinnedValueSet(1,true))
-    , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
     IOPar iop;
@@ -59,7 +53,6 @@ Seis::TableSelData::TableSelData( const DBKey& dbky )
 
 Seis::TableSelData::TableSelData( const TableSelData& sd )
     : bvs_(*new BinnedValueSet(1,true))
-    , extraz_(0,0)
     , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
 {
     copyFrom(sd);
@@ -87,7 +80,6 @@ void Seis::TableSelData::doCopyFrom( const SelData& sd )
     {
 	mDynamicCastGet(const TableSelData&,tsd,sd)
 	bvs_ = tsd.bvs_;
-	extraz_ = tsd.extraz_;
 	fixedzrange_ = tsd.fixedzrange_;
     }
     else
@@ -136,11 +128,6 @@ z_rg_type Seis::TableSelData::zRange( idx_type ) const
     z_rg_type zrg = bvs_.valRange( 0 );
     if ( zrg.isUdf() )
 	zrg = SI().zRange();
-    else
-    {
-	zrg.start += extraz_.start;
-	zrg.stop += extraz_.stop;
-    }
 
     return zrg;
 }
@@ -149,7 +136,6 @@ z_rg_type Seis::TableSelData::zRange( idx_type ) const
 void Seis::TableSelData::doFillPar( IOPar& iop ) const
 {
     iop.set( mGetTableKey("FixedZ"), fixedzrange_ );
-    iop.set( mGetTableKey("ExtraZ"), extraz_ );
     bvs_.fillPar( iop, mGetTableKey("Data") );
 }
 
@@ -158,39 +144,7 @@ void Seis::TableSelData::doUsePar( const IOPar& iop )
 {
     bvs_.setEmpty();
     iop.get( mGetTableKey("FixedZ"), fixedzrange_ );
-    iop.get( mGetTableKey("ExtraZ"), extraz_ );
     Pos::TableProvider3D::getBVSFromPar( iop, bvs_ );
-}
-
-
-void Seis::TableSelData::doExtendZ( const z_rg_type& zrg )
-{
-    extraz_.start += zrg.start;
-    extraz_.stop += zrg.stop;
-}
-
-
-void Seis::TableSelData::doExtendH( BinID so, BinID sos )
-{
-    if ( bvs_.isEmpty() )
-	return;
-
-    const BinnedValueSet orgbvs( bvs_ );
-    if ( is2D() )
-	bvs_.extendHor2D( so.crl() );
-    else
-	bvs_.extendHor3D( so, sos );
-
-    const auto zrg( orgbvs.valRange(0) );
-    const auto avgz = zrg.center();
-
-    BinnedValueSet::SPos spos;
-    while ( bvs_.next(spos) )
-    {
-	const BinID bid( bvs_.getBinID(spos) );
-	if ( !orgbvs.includes(bid) )
-	    bvs_.set( spos, avgz );
-    }
 }
 
 
@@ -287,7 +241,6 @@ BinID Seis::TableSelDataPosIter::binID() const
 
 
 Seis::PolySelData::PolySelData()
-    : stepoutreach_(0,0)
 {
     initZrg( 0 );
 }
@@ -295,7 +248,6 @@ Seis::PolySelData::PolySelData()
 
 Seis::PolySelData::PolySelData( const ODPolygon<float>& poly,
 			        const z_rg_type* zrg )
-    : stepoutreach_(0,0)
 {
     polys_ += new ODPolygon<float>( poly );
     initZrg( zrg );
@@ -304,7 +256,6 @@ Seis::PolySelData::PolySelData( const ODPolygon<float>& poly,
 
 Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
 			        const z_rg_type* zrg )
-    : stepoutreach_(0,0)
 {
     polys_ += new ODPolygon<float>;
 
@@ -318,7 +269,6 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
 
 
 Seis::PolySelData::PolySelData( const DBKey& dbky )
-    : stepoutreach_(0,0)
 {
     IOPar iop;
     iop.set( mGetPolyKey("NrPolygons"), 1 );
@@ -328,8 +278,7 @@ Seis::PolySelData::PolySelData( const DBKey& dbky )
 
 
 Seis::PolySelData::PolySelData( const PolySelData& sd )
-    : stepoutreach_(0,0)
-    , zrg_(sd.zrg_)
+    : zrg_(sd.zrg_)
 {
     for ( int idx=0; idx<sd.polys_.size(); idx++ )
 	polys_ += new ODPolygon<float>( *sd.polys_[idx] );
@@ -362,7 +311,6 @@ void Seis::PolySelData::doCopyFrom( const SelData& sd )
     if ( sd.type() == type() )
     {
 	mDynamicCastGet(const PolySelData&,psd,sd)
-	stepoutreach_ = psd.stepoutreach_;
 	zrg_ = psd.zrg_;
 
 	deepErase( polys_ );
@@ -405,9 +353,6 @@ pos_rg_type Seis::PolySelData::inlRange() const
 	floatrg.include( polys_[idx]->getRange(true) );
 
     pos_rg_type intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
-    intrg.widen( stepoutreach_.inl() );
-    intrg.limitTo( SelData::inlRange() );
-
     return intrg;
 }
 
@@ -422,9 +367,6 @@ pos_rg_type Seis::PolySelData::crlRange() const
 	floatrg.include( polys_[idx]->getRange(false) );
 
     pos_rg_type intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
-    intrg.widen( stepoutreach_.crl() );
-    intrg.limitTo( SelData::crlRange() );
-
     return intrg;
 }
 
@@ -438,7 +380,6 @@ z_rg_type Seis::PolySelData::zRange( idx_type ) const
 void Seis::PolySelData::doFillPar( IOPar& iop ) const
 {
     iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
-    iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     iop.set( mGetPolyKey("NrPolygons"), polys_.size() );
     for ( int idx=0; idx<polys_.size(); idx++ )
@@ -451,7 +392,6 @@ void Seis::PolySelData::doUsePar( const IOPar& iop )
     const bool wasfilled = !polys_.isEmpty();
 
     iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
-    iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     int nrpolys = 0;
     iop.get( mGetPolyKey("NrPolygons"), nrpolys );
@@ -483,31 +423,14 @@ void Seis::PolySelData::doUsePar( const IOPar& iop )
 }
 
 
-void Seis::PolySelData::doExtendZ( const z_rg_type& zrg )
-{
-    zrg_.start += zrg.start;
-    zrg_.stop += zrg.stop;
-}
-
-
-void Seis::PolySelData::doExtendH( BinID so, BinID sos )
-{
-    stepoutreach_ += so * sos;
-}
-
-
 int Seis::PolySelData::selRes3D( const BinID& bid ) const
 {
     z_rg_type inlrg( (float)bid.inl(), (float)bid.inl() );
-    inlrg.widen( (float)stepoutreach_.inl() );
     z_rg_type crlrg( (float)bid.crl(), (float)bid.crl() );
-    crlrg.widen( (float)stepoutreach_.crl() );
 
     for ( int idx=0; idx<polys_.size(); idx++ )
-    {
-	if ( polys_[idx]->windowOverlaps(inlrg, crlrg, 0.5) )
+	if ( polys_[idx]->windowOverlaps(inlrg,crlrg,0.5f) )
 	    return 0;
-    }
 
     const int inlres = inlRange().includes(bid.inl(),true) ? 0 : 2;
     const int crlres = 1; // Maybe not true, but safe
@@ -546,8 +469,6 @@ size_type Seis::PolySelData::expectedNrTraces() const
 	pos_steprg_type crlrg( mNINT32(polycrlrg.start),
 				mNINT32(polycrlrg.stop),
 				SI().crlStep() );
-	inlrg.widen( stepoutreach_.inl() );
-	crlrg.widen( stepoutreach_.crl() );
 
 	size_type nrpolytrcs = (inlrg.nrSteps()+1) * (crlrg.nrSteps()+1);
 	estnrtraces += mNINT32( coverfrac * nrpolytrcs );

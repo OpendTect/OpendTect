@@ -47,7 +47,7 @@ void Seis::Fetcher::ensureDPIfAvailable( idx_type iln )
 	return;
 
     const auto dpzsamp = isPS() ? gathDP().zRange() : regSeisDP().zRange();
-    const auto provzsamp = prov_.zRange();
+    const auto provzsamp = prov_.zRange( iln );
     if ( !dpzsamp.includes(provzsamp) )
 	dp_ = nullptr;
 }
@@ -66,7 +66,7 @@ void Seis::Fetcher2D::reset()
 }
 
 
-void Seis::Fetcher2D::getPossiblePositions()
+void Seis::Fetcher2D::getPossibleExtents()
 {
     ensureDataSet();
     if ( !dataset_ )
@@ -75,12 +75,15 @@ void Seis::Fetcher2D::getPossiblePositions()
     for ( auto idx=0; idx<dataset_->nrLines(); idx++ )
     {
 	const auto geomid = dataset_->geomID( idx );
+
 	PosInfo::Line2DData l2dd;
 	dataset_->getGeometry( geomid, l2dd );
 	auto* ld = new PosInfo::LineData( geomid.lineNr() );
 	l2dd.getSegments( *ld );
 	prov_.possiblepositions_.add( ld );
-	prov_.zsubsels_.add( ZSubSel(l2dd.zRange()) );
+
+	const auto zsidx = prov_.allgeomids_.indexOf( geomid );
+	prov_.allzsubsels_[zsidx].setOutputZRange( l2dd.zRange() );
     }
 }
 

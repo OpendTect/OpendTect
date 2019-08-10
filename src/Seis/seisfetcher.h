@@ -45,7 +45,7 @@ public:
     virtual void		reset();
     virtual void		getComponentInfo(BufferStringSet&,
 				     DataType&) const	= 0;
-    virtual void		getPossiblePositions()	= 0;
+    virtual void		getPossibleExtents()	= 0;
     virtual void		prepWork()		= 0;
     virtual const STTrl*	curTransl() const	{ return nullptr; }
 
@@ -101,7 +101,7 @@ public:
 
     void		getComponentInfo(BufferStringSet&,
 					 DataType&) const override;
-    void		getPossiblePositions() override;
+    void		getPossibleExtents() override;
 
     virtual bool	setPosition(const Bin2D&)		= 0;
 

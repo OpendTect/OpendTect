@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "seisps2dprovider.h"
-#include "posinfo2d.h"
+#include "posinfo.h"
 #include "prestackgather.h"
 #include "seisfetcher.h"
 #include "seisbuf.h"
 #include "seispsioprov.h"
+#include "uistrings.h"
 
 
 namespace Seis
@@ -22,156 +23,114 @@ namespace Seis
 /*\brief Gets required traces from 2D data store.  */
 
 class PS2DFetcher : public Fetcher2D
-{ mODTextTranslationClass(Seis::PS2DFetcher);
+{
 public:
 
-PS2DFetcher( PS2DProvider& p )
-    : Fetcher2D(p)
-{
-}
+    mUseType( Provider,	size_type );
+    mUseType( Pos,	GeomID );
 
-~PS2DFetcher()
-{
-    delete rdr_;
-}
+			PS2DFetcher( PS2DProvider& p )
+			    : Fetcher2D(p)		{}
+			~PS2DFetcher()			{ delete rdr_; }
 
-PS2DProvider& prov()
-{
-    return static_cast<PS2DProvider&>( prov_ );
-}
+    bool		isPS() const override		{ return true; }
+    void		getComponentInfo(BufferStringSet&,
+					 DataType&) const override;
+    size_type		nrOffsets() const;
+    void		prepWork() override;
 
-const PS2DProvider& prov() const
-{
-    return static_cast<const PS2DProvider&>( prov_ );
-}
+    bool		setPosition(const Bin2D&) override;
+    void		getGather(SeisTrcBuf&);
 
-const GatherSetDataPack& dp() const
-{
-    return *static_cast<const GatherSetDataPack*>( dp_.ptr() );
-}
-
-    bool		mkReader(GeomID);
-    void		prepWork();
-    bool		goTo(GeomID,trcnr_type);
-    void		getAt(GeomID,trcnr_type,SeisTrcBuf&);
-    void		getCur(SeisTrcBuf&);
+protected:
 
     SeisPS2DReader*	rdr_		= nullptr;
+    Bin2D		curb2d_;
+
+    bool		ensureRightDataSource(GeomID) const;
+    const GatherSetDataPack& dp() const
+		{ return *static_cast<const GatherSetDataPack*>( dp_.ptr() ); }
 
 };
 
 } // namespace Seis
 
 
-bool Seis::PS2DFetcher::mkReader( GeomID gid )
+void Seis::PS2DFetcher::getComponentInfo( BufferStringSet& nms,
+                                         DataType& dt ) const
 {
-    delete rdr_;
-    rdr_ = prov().ioobj_ ? SPSIOPF().get2DReader( *prov().ioobj_, gid ) : 0;
-    if ( !rdr_ )
-	uirv_.set( tr("No data for %1").arg( gid.name() ) );
-    else
-	{ uirv_.setOK(); getDataPack(); }
-    return uirv_.isOK();
+    return Provider::getFallbackComponentInfo( nms, dt );
 }
 
 
-void Seis::PS2DFetcher::prepWork()
+Seis::PS2DFetcher::size_type Seis::PS2DFetcher::nrOffsets() const
 {
-    getDataPack();
-}
-
-
-void Seis::PS2DFetcher::getAt( GeomID gid, trcnr_type tnr, SeisTrcBuf& tbuf )
-{
-    tbuf.deepErase();
-    const BinID bid( gid.lineNr(), tnr );
-    if ( !selectPosition(gid,tnr) )
-        return;
-
-    if ( rdr_ && rdr_->geomID() != gid )
-	deleteAndZeroPtr( rdr_ );
-    if ( !rdr_ && !mkReader(gid) )
-	return;
-
-    uirv_.setEmpty();
-    bool havefilled = false;
-    if ( haveDP() )
-	havefilled = dp().fillGatherBuf( tbuf, bid );
-
-    if ( !havefilled && !rdr_->getGather(bid,tbuf) )
-	uirv_.set( rdr_->errMsg() );
-}
-
-
-
-Seis::PS2DProvider::PS2DProvider()
-    : fetcher_(*new PS2DFetcher(*this))
-{
-}
-
-
-Seis::PS2DProvider::~PS2DProvider()
-{
-    delete &fetcher_;
-}
-
-
-Seis::Fetcher2D& Seis::PS2DProvider::fetcher() const
-{
-    return mNonConst( fetcher_ );
-}
-
-
-void Seis::PS2DProvider::prepWork( uiRetVal& ) const
-{
-    fetcher_.getDataPack();
-}
-
-
-int Seis::PS2DProvider::gtNrOffsets() const
-{
-    if ( l2dds_.isEmpty() )
-	return 1;
-    if ( !fetcher_.rdr_ && !fetcher_.mkReader( l2dds_.first()->geomID() ) )
+    if ( prov_.possiblepositions_.isEmpty() )
 	return 1;
 
-    const auto& rdr = *fetcher_.rdr_;
-    const auto& posns = rdr.posData().positions();
-    const auto nrtrcs = posns.size();
-    if ( posns.isEmpty() )
+    const auto midlidx = prov_.possiblepositions_.size() / 2;
+    const auto& ld = *prov_.possiblepositions_.get( midlidx );
+    const Bin2D cb2d( GeomID(ld.linenr_), ld.centerNumber() );
+    if ( !ensureRightDataSource(cb2d.geomID()) )
 	return 1;
 
     SeisTrcBuf tbuf( true );
-    if ( !rdr.getGath(posns.get(nrtrcs/2).nr_,tbuf) || tbuf.isEmpty() )
+    if ( !rdr_->getGath(cb2d.trcNr(),tbuf) || tbuf.isEmpty() )
 	return 1;
 
     return tbuf.size();
 }
 
 
-bool Seis::PS2DProvider::doGoTo( GeomID gid, trcnr_type tnr,
-				 uiRetVal* uirv ) const
+void Seis::PS2DFetcher::prepWork()
 {
-    if ( !fetcher_.selectPosition(gid,tnr) )
-    {
-	if ( uirv )
-	    *uirv = fetcher_.uirv_;
+}
+
+
+bool Seis::PS2DFetcher::setPosition( const Bin2D& b2d )
+{
+    if ( !ensureRightDataSource(b2d.geomID()) )
 	return false;
-    }
+
+    curb2d_ = b2d;
     return true;
 }
 
 
-void Seis::PS2DProvider::gtCurGather( SeisTrcBuf& tbuf, uiRetVal& uirv ) const
+void Seis::PS2DFetcher::getGather( SeisTrcBuf& tbuf )
 {
-    fetcher_.getAt( curGeomID(), curTrcNr(), tbuf );
-    uirv = fetcher_.uirv_;
+    tbuf.deepErase();
+
+    uirv_.setEmpty();
+    bool havefilled = false;
+    if ( haveDP() )
+	havefilled = dp().fillGatherBuf( tbuf, curb2d_ );
+    if ( !havefilled && !rdr_->getGath(curb2d_.trcNr(),tbuf) )
+	uirv_.set( rdr_->errMsg() );
 }
 
 
-void Seis::PS2DProvider::gtGatherAt( GeomID gid, trcnr_type tnr,
-				     SeisTrcBuf& tbuf, uiRetVal& uirv ) const
+bool Seis::PS2DFetcher::ensureRightDataSource( GeomID gid ) const
 {
-    fetcher_.getAt( gid, tnr, tbuf );
-    uirv = fetcher_.uirv_;
+    if ( rdr_ && rdr_->geomID() == gid )
+	return true;
+
+    delete rdr_;
+    mSelf().rdr_ = prov_.ioobj_ ? SPSIOPF().get2DReader(*prov_.ioobj_,gid)
+				: nullptr;
+
+    if ( !rdr_ )
+	uirv_.set( uiStrings::phrCannotOpen( toUiString("%1 [%2]")
+			.arg( uiStrings::sDataStore() )
+			.arg( gid.name()) ) );
+    else
+    {
+	uirv_.setOK();
+	mSelf().ensureDPIfAvailable( prov2D().lineIdx(gid) );
+    }
+
+    return uirv_.isOK();
 }
+
+
+mDefPSProvFns( 2D, PS2D )

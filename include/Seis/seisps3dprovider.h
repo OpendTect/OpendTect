@@ -16,7 +16,6 @@ ________________________________________________________________________
 namespace Seis
 {
 
-class PS3DFetcher;
 
 /*!\brief is the place to get traces from your 3D PS data stores.  */
 
@@ -26,8 +25,8 @@ mExpClass(Seis) PS3DProvider : public Provider3D
 public:
 
 			PS3DProvider();
-			PS3DProvider(const DBKey&);
-			~PS3DProvider();
+			PS3DProvider(const DBKey&,uiRetVal&);
+
     virtual GeomType	geomType() const	{ return VolPS; }
 
 protected:
@@ -35,14 +34,9 @@ protected:
     friend class	PS3DFetcher;
     PS3DFetcher&	fetcher_;
 
-    Fetcher3D&		fetcher() const override;
-    void		getLocationData(uiRetVal&) const override;
-    void		prepWork(uiRetVal&) const override;
+    Fetcher&		gtFetcher() override;
     size_type		gtNrOffsets() const override;
-    bool		doGoTo(const BinID&,uiRetVal*) const override;
-    void		gtCurGather(SeisTrcBuf&,uiRetVal&) const override;
-    void		gtGatherAt(const BinID&,SeisTrcBuf&,
-				    uiRetVal&) const override;
+    void		gtGather(SeisTrcBuf&,uiRetVal&) const override;
 
 };
 

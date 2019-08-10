@@ -35,8 +35,7 @@ public:
     Type		type() const override	{ return Table; }
 
 			TableSelData();
-			TableSelData(const BinnedValueSet&,
-				     const z_rg_type* extraz=0);
+			TableSelData(const BinnedValueSet&);
 			TableSelData(const DBKey&);
 			TableSelData(const TableSelData&);
 			~TableSelData();
@@ -49,7 +48,6 @@ public:
     void		updateAfterBVSChange();
     BinnedValueSet&	binidValueSet()		{ return bvs_; }
     const BinnedValueSet& binidValueSet() const	{ return bvs_; }
-    z_rg_type		extraZ() const		{ return extraz_; }
     dist_type		searchRadius() const	{ return searchradius_; }
     void		merge(const TableSelData&);
 
@@ -59,7 +57,6 @@ public:
     z_rg_type		zRange(idx_type i=0) const override;
 
     void		setSearchRadius( dist_type r ) { searchradius_ = r; }
-    void		setExtraZ( z_rg_type zr ) { extraz_ = zr; }
     void		setZRange( const z_rg_type& zrg, idx_type i=0 ) override
 						{ fixedzrange_ = zrg; }
 
@@ -68,14 +65,11 @@ public:
 protected:
 
     BinnedValueSet&	bvs_;
-    z_rg_type		extraz_;
     z_rg_type		fixedzrange_; // used only if no z vals in bidvalset
     dist_type		searchradius_		= 0;
 
     GeomID		gtGeomID(idx_type) const override;
     void		doCopyFrom(const SelData&) override;
-    void		doExtendH(BinID,BinID) override;
-    void		doExtendZ(const z_rg_type&) override;
     void		doFillPar(IOPar&) const override;
     void		doUsePar(const IOPar&) override;
     uiString		gtUsrSummary() const override;

@@ -31,13 +31,13 @@ public:
     typedef IdxPair::pos_type	inl_type;
 
 			VolFetcher( VolProvider& p )
-			    : Fetcher3D(p), trl_(0)	{}
+			    : Fetcher3D(p)		{}
 			~VolFetcher()			{ delete trl_; }
 
     bool		isPS() const override		{ return false; }
     void		getComponentInfo(BufferStringSet&,
 					 DataType&) const override;
-    void		getPossiblePositions() override;
+    void		getPossibleExtents() override;
     void		prepWork() override;
     const STTrl*	curTransl() const override   { return trl_; }
 
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    STTrl*		trl_;
+    STTrl*		trl_		= nullptr;
     BinID		dpbid_;
 
     bool		isMultiConn() const;
@@ -90,7 +90,7 @@ void Seis::VolFetcher::getComponentInfo( BufferStringSet& nms,
 }
 
 
-void Seis::VolFetcher::getPossiblePositions()
+void Seis::VolFetcher::getPossibleExtents()
 {
     if ( !isMultiConn() )
     {
@@ -114,9 +114,7 @@ void Seis::VolFetcher::getPossiblePositions()
     }
 
     if ( trl_ )
-	prov_.zsubsels_.add( ZSubSel(trl_->packetInfo().zrg) );
-    else
-	prov_.zsubsels_.add( ZSubSel(SI().zRange()) );
+	prov_.allzsubsels_[0].setOutputZRange( trl_->packetInfo().zrg );
 }
 
 
@@ -227,28 +225,4 @@ bool Seis::VolFetcher::ensureRightTransl( inl_type inl ) const
 }
 
 
-
-Seis::VolProvider::VolProvider()
-    : fetcher_(*new VolFetcher(*this))
-{
-}
-
-
-Seis::Fetcher& Seis::VolProvider::gtFetcher()
-{
-    return fetcher_;
-}
-
-
-void Seis::VolProvider::gtTrc( TraceData& td, SeisTrcInfo& ti,
-			       uiRetVal& uirv ) const
-{
-    if ( !fetcher_.setPosition(trcpos_) )
-	uirv.set( uiStrings::phrUnexpected(uiStrings::sPosition(),
-					    trcpos_.usrDispStr()) );
-    else
-    {
-	fetcher_.getTrc( td, ti );
-	uirv = fetcher_.uirv_;
-    }
-}
+mDefNonPSProvFns( 3D, Vol )

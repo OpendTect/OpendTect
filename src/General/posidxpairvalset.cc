@@ -683,3 +683,15 @@ BinnedValueSet::BinnedValueSet( const PosInfo::LineCollData& lcd,
 	}
     }
 }
+
+
+void BinnedValueSet::setStepout( pos_type so )
+{
+    data_.extendHor2D( so );
+}
+
+
+void BinnedValueSet::setStepout( const BinID& so, const BinID& sos )
+{
+    data_.extendHor3D( so, sos );
+}

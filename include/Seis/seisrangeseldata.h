@@ -109,8 +109,6 @@ protected:
 
     GeomID		gtGeomID(idx_type) const override;
     void		doCopyFrom(const SelData&) override;
-    void		doExtendH(BinID,BinID) override;
-    void		doExtendZ(const z_rg_type&) override;
     void		doFillPar(IOPar&) const override;
     void		doUsePar(const IOPar&) override;
     uiString		gtUsrSummary() const override;

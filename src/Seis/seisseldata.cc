@@ -80,21 +80,6 @@ void Seis::SelData::removeFromPar( IOPar& iop, const char* subky )
 }
 
 
-void Seis::SelData::extendH( const BinID& so, const BinID* stepoutstep )
-{
-    BinID sos( SI().inlStep(), SI().crlStep() );
-    if ( stepoutstep )
-	sos = *stepoutstep;
-    doExtendH( so, sos );
-}
-
-
-void Seis::SelData::extendZ( const z_rg_type& zrg )
-{
-    doExtendZ( zrg );
-}
-
-
 Seis::SelData* Seis::SelData::get( Type t )
 {
     switch ( t )

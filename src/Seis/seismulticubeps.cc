@@ -103,10 +103,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	prov->selectComponent( comp );
 	provs_ += prov; offs_ += offs; comps_ += comp;
 
-	PosInfo::CubeData cd;
-	mDynamicCastGet(const Seis::Provider3D&,prov3d,*prov);
-	prov3d.getGeometryInfo( cd );
-
+	const auto cd = prov->as3D()->possibleCubeData();
 	if ( provs_.size() == 1 )
 	    posdata_ = cd;
 	else

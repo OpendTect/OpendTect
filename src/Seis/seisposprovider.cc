@@ -66,7 +66,7 @@ uiRetVal Pos::SeisProvider3D::setSeisID( const DBKey& dbky )
 	return uirv;
     }
 
-    static_cast<Seis::Provider3D*>(prov.ptr())->getGeometryInfo( cubedata_ );
+    cubedata_ = prov.ptr()->as3D()->possibleCubeData();
     id_ = dbky;
     zsamp_ = prov->zRange();
     reset();

@@ -152,6 +152,8 @@ public:
     inline SPos		findNearest( const Bin2D& b2d ) const
 			{ return data_.findNearestOnFirst( b2d.lineNr(),
 							   b2d.trcNr() ); }
+    void		setStepout(pos_type);
+    void		setStepout(const BinID&,const BinID&);
 
     inline GeomSystem	geomSystem() const
 			{ return geomsystem_; }

@@ -84,8 +84,7 @@ public:
 			{ return req ? reqstepout_.col() : desstepout_.col(); }
     pos_type		trcStepout( bool req ) const
 			{ return req ? reqstepout_.col() : desstepout_.col(); }
-    void		setSelData(Seis::SelData*);
-			//!< seldata becomes mine
+    void		setSelData(const Seis::SelData&);
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();

@@ -84,7 +84,7 @@ public:
     bool		operator ==(const LineData&) const;
 			mImplSimpleIneqOper(LineData)
 
-    const pos_type	linenr_;
+    pos_type		linenr_;
     SegmentSet		segments_;
 
     size_type		size() const;

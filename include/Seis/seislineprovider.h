@@ -23,6 +23,7 @@ mExpClass(Seis) LineProvider : public Provider2D
 public:
 
 			LineProvider();
+			LineProvider(const DBKey&,uiRetVal&);
 
     virtual GeomType	geomType() const	{ return Line; }
 

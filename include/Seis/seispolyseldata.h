@@ -66,14 +66,10 @@ protected:
     void		initZrg(const z_rg_type*);
 
     ObjectSet<ODPolygon<float> > polys_;
-    float		midz_;
     Interval<float>	zrg_;
-    BinID		stepoutreach_;
     BufferString	polynm_;
 
     void		doCopyFrom(const SelData&) override;
-    void		doExtendH(BinID,BinID) override;
-    void		doExtendZ(const z_rg_type&) override;
     void		doFillPar(IOPar&) const override;
     void		doUsePar(const IOPar&) override;
     uiString		gtUsrSummary() const override;

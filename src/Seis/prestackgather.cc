@@ -363,8 +363,14 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
     zit_ = SI().zIsTime();
     coord_ = crd;
-    const BinID binid = SI().transform( coord_ );
-    trckey_ = TrcKey( binid );
+    const bool is2d = !tbuf.isEmpty() || tbuf.first()->info().is2D();
+    if ( is2d )
+	trckey_ = TrcKey( tbuf.first()->info().bin2D() );
+    else
+    {
+	const BinID binid = SI().transform( coord_ );
+	trckey_ = TrcKey( binid );
+    }
 
     return true;
 }
@@ -559,6 +565,16 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 }
 
 
+const Gather* GatherSetDataPack::getGather( const Bin2D& b2d ) const
+{
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	if ( gathers_[idx]->getBin2D() == b2d )
+	    return gathers_[idx];
+
+    return 0;
+}
+
+
 void GatherSetDataPack::addGather( Gather* gather )
 {
     gathers_ += gather;
@@ -671,11 +687,41 @@ bool GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,
 }
 
 
+bool GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,
+					const Bin2D& b2d ) const
+{
+    const Gather* gather = 0; int gatheridx = -1;
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	if ( gathers_[idx]->getBin2D() == b2d )
+	    { gather = gathers_[idx]; gatheridx = idx; break; }
+    if ( !gather )
+	return false;
+
+    if ( !seisbuf.isOwner() )
+	pErrMsg("Memory leak");
+
+    for ( int offsetidx=0; offsetidx<gather->nrOffsets(); offsetidx++ )
+	seisbuf.add( crTrace(gatheridx,offsetidx) );
+    return true;
+}
+
+
 SeisTrc* GatherSetDataPack::createTrace( const BinID& bid, int offsetidx ) const
 {
     int gatheridx = -1;
     for ( int idx=0; idx<gathers_.size(); idx++ )
 	if ( gathers_[idx]->getBinID() == bid )
+	    { gatheridx = idx; break; }
+
+    return crTrace( gatheridx, offsetidx );
+}
+
+
+SeisTrc* GatherSetDataPack::createTrace( const Bin2D& b2d, int offsetidx ) const
+{
+    int gatheridx = -1;
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	if ( gathers_[idx]->getBin2D() == b2d )
 	    { gatheridx = idx; break; }
 
     return crTrace( gatheridx, offsetidx );
