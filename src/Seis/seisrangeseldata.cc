@@ -88,7 +88,7 @@ Seis::SelDataPosIter* Seis::RangeSelData::posIter() const
 
 void Seis::RangeSelData::clearContents()
 {
-    fss_.clearContents();
+    fss_.setToNone( is2D() );
 }
 
 
@@ -277,57 +277,8 @@ void Seis::RangeSelData::doFillPar( IOPar& iop ) const
 
 void Seis::RangeSelData::doUsePar( const IOPar& iop )
 {
-    fss_.clearContents();
+    clearContents();
     fss_.usePar( iop );
-}
-
-
-static void shiftZrg( Survey::GeomSubSel& ss, const z_rg_type& zrg )
-{
-    auto outzrg = ss.zSubSel().outputZRange();
-    outzrg.start += zrg.start; outzrg.stop += zrg.stop;
-    ss.zSubSel().setOutputZRange( outzrg );
-}
-
-
-void Seis::RangeSelData::doExtendZ( const z_rg_type& zrg )
-{
-    if ( !fss_.is2D() )
-    {
-	CubeSubSel css( fss_.cubeSubSel() );
-	shiftZrg( css, zrg );
-	fss_.set( css );
-    }
-    else
-    {
-	for ( auto lss : fss_.subSel2D() )
-	    shiftZrg( *lss, zrg );
-    }
-}
-
-
-static void addHrgStepout( Pos::IdxSubSelData& ssd, pos_type so )
-{
-    auto outrg = ssd.outputPosRange();
-    outrg.start -= so; outrg.stop += so;
-    ssd.setOutputPosRange( outrg );
-}
-
-
-void Seis::RangeSelData::doExtendH( BinID so, BinID sos )
-{
-    if ( !is2D() )
-    {
-	CubeSubSel css( fss_.cubeSubSel() );
-	addHrgStepout( css.inlSubSel(), so.inl() * sos.inl() );
-	addHrgStepout( css.crlSubSel(), so.crl() * sos.crl() );
-	fss_.set( css );
-    }
-    else
-    {
-	for ( auto lss : fss_.subSel2D() )
-	    addHrgStepout( lss->trcNrSubSel(), so.crl() * sos.crl() );
-    }
 }
 
 

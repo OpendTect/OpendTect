@@ -39,6 +39,13 @@
 #include "zdomain.h"
 
 
+static bool isSteering( const IOObj& ioobj )
+{
+    const FixedString res = ioobj.pars().find( sKey::Type() );
+    return res == sKey::Steering();
+}
+
+
 Seis::ObjectSummary::ObjectSummary( const DBKey& dbkey, GeomID geomid )
     : ioobjinfo_(*new SeisIOObjInfo(dbkey))		{ init( geomid ); }
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, GeomID geomid )
@@ -256,68 +263,13 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 {
     mChk(false);
 
-    if ( Seis::isPS(geomtype_) )
-    {
-	if ( is2D() )
-	    return false;
-	else
-	{
-	    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *ioobj_ );
-	    if ( !rdr )
-		return false;
-
-	    const PosInfo::CubeData& cd = rdr->posData();
-	    spinf.expectednrtrcs = cd.totalSize();
-	    delete rdr;
-	}
-	spinf.expectednrsamps = SI().zRange().nrSteps() + 1;
-	return true;
-    }
-
-    if ( is2D() )
-    {
-	Seis2DDataSet ds2d( *ioobj_ );
-	if ( ds2d.nrLines() == 0 )
-	    return false;
-
-	StepInterval<int> trcrg; StepInterval<float> zrg;
-	GeomIDSet seen;
-	spinf.expectednrtrcs = 0;
-	for ( int idx=0; idx<ds2d.nrLines(); idx++ )
-	{
-	    const GeomID geomid = ds2d.geomID( idx );
-	    if ( !seen.isPresent(geomid) )
-	    {
-		seen.add( geomid );
-		ds2d.getRanges( geomid, trcrg, zrg );
-		spinf.expectednrtrcs += trcrg.nrSteps() + 1;
-	    }
-	}
-	spinf.expectednrsamps = zrg.nrSteps() + 1;
-	spinf.maxbytespsamp = 4;
-	return true;
-    }
-
-    TrcKeyZSampling cs;
-    if ( !getRanges(cs) )
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_ );
+    if ( !prov )
 	return false;
 
-    uiRetVal uirv;
-    PtrMan<Seis::Provider> prov = ioobj_
-				? Seis::Provider::create( *ioobj_, &uirv ) : 0;
-    mDynamicCastGet(Seis::Provider3D*,prov3d,prov.ptr())
-    if ( uirv.isOK() && prov3d )
-    {
-	PosInfo::CubeData cd;
-	prov3d->getGeometryInfo( cd );
-	spinf.expectednrtrcs = cd.totalSize();
-    }
-    else
-    {
-	spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
-    }
-
-    spinf.expectednrsamps = cs.zsamp_.nrSteps() + 1;
+    const auto nroffs = prov->nrOffsets();
+    spinf.expectednrtrcs = prov->totalNr() * nroffs;
+    spinf.expectednrsamps = prov->zRange().nrSteps() + 1;
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }
@@ -500,7 +452,6 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
     mChk(false);
     if ( isPS() )
     {
-	//TODO Make correct implementation
 	DataCharacteristics::UserType ut = OD::F32;
 	DataCharacteristics::getUserTypeFromPar( ioobj_->pars(), ut );
 	dc = DataCharacteristics( ut );
@@ -614,16 +565,20 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 {
     mChk(false);
-    if ( is2D() )
-	return 4;
-
-    if ( isPS() )
-	{ pErrMsg("TODO: no BPS for PS"); return false; }
+    if ( is2D() || isPS() )
+    {
+	DataCharacteristics dc;
+	getDataChar( dc );
+	bps = dc.nrBytes();
+	if ( icomp < 0 && isSteering(*ioobj_) )
+	    bps *= 2;
+	return true;
+    }
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator() );
     if ( !sttr )
-	{ pErrMsg("No Translator!"); return false; }
+	{ pErrMsg("No Translator!"); bps = 4; return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
     bool isgood = sttr->initRead(conn,Seis::Scan);
@@ -642,7 +597,8 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	}
     }
 
-    if ( bps == 0 ) bps = 4;
+    if ( bps == 0 )
+	bps = 4;
     return isgood;
 }
 
@@ -786,7 +742,8 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 int SeisIOObjInfo::getComponentInfo( GeomID geomid, BufferStringSet* nms ) const
 {
     int ret = 0;
-    if ( nms ) nms->erase();
+    if ( nms )
+	nms->erase();
     mChk(ret);
 
     if ( isPS() )
@@ -801,7 +758,7 @@ int SeisIOObjInfo::getComponentInfo( GeomID geomid, BufferStringSet* nms ) const
 	mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		     ioobj_->createTranslator() );
 	if ( !sttr )
-	    { pErrMsg("No Translator!"); return 0; }
+	    { pErrMsg("No Translator!"); return 1; }
 	Conn* conn = ioobj_->getConn( Conn::Read );
 	if ( sttr->initRead(conn,Seis::Scan) )
 	{
@@ -817,16 +774,17 @@ int SeisIOObjInfo::getComponentInfo( GeomID geomid, BufferStringSet* nms ) const
     {
 	PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
 	if ( !dataset || dataset->nrLines() == 0 )
-	    return 0;
+	    return 1;
 
 	int lidx = dataset->indexOf( geomid );
-	if ( lidx < 0 ) lidx = 0;
+	if ( lidx < 0 )
+	    lidx = 0;
 
 	uiRetVal uirv;
 	Seis2DTraceGetter* getter = dataset->traceGetter(
 					dataset->geomID(lidx), 0, uirv );
 	if ( !uirv.isOK() )
-	    return 0;
+	    return 1;
 
 	BufferStringSet names;
 	if ( !nms )
@@ -900,8 +858,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( GeomID geomid,
 
 	if ( o2d.steerpol_ != 2 )
 	{
-	    const FixedString dt = ioobj.pars().find( sKey::Type() );
-	    const bool issteering = dt==sKey::Steering();
+	    const bool issteering = isSteering( ioobj );
 	    const bool wantsteering = o2d.steerpol_ == 1;
 	    if ( issteering != wantsteering ) continue;
 	}

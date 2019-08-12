@@ -29,6 +29,7 @@ class SeisTrcTranslator;
 class TraceData;
 class TrcKey;
 namespace PosInfo { class CubeData; class LineData; class LineCollData; }
+namespace Survey { class FullSubSel; }
 
 
 namespace Seis
@@ -73,7 +74,7 @@ public:
     mUseType( Pos,		GeomID );
     mUseType( Pos,		ZSubSel );
     mUseType( PosInfo,		LineCollData );
-    mUseType( Seis,		SelData );
+    mUseType( Survey,		FullSubSel );
     typedef int			idx_type;
     typedef int			size_type;
     typedef float		z_type;
@@ -91,7 +92,6 @@ public:
 
     virtual		~Provider();
 
-    virtual GeomType	geomType() const		= 0;
     Provider2D*		as2D();
     const Provider2D*	as2D() const;
     Provider3D*		as3D();
@@ -100,8 +100,9 @@ public:
     uiRetVal		setInput(const DBKey&);
     uiRetVal		reset()		{ return setInput(dbKey()); }
 
-    bool		is2D() const	{ return Seis::is2D(geomType()); }
-    bool		isPS() const	{ return Seis::isPS(geomType()); }
+    GeomType		geomType() const { return geomTypeOf(is2D(),isPS()); }
+    virtual bool	is2D() const	= 0;
+    virtual bool	isPS() const	{ return false; }
     DBKey		dbKey() const;
     const IOObj*	ioObj() const	{ return ioobj_; }
     BufferString	name() const;
@@ -115,9 +116,11 @@ public:
     const ZSubSel&	zSubSel(idx_type iln=0) const;
     ZSampling		zRange( idx_type iln=0 ) const
 				{ return zSubSel(iln).outputZRange(); }
+    void		getSubSel(FullSubSel&) const;
 
     void		setSelData(SelData*);		//!< Give it to me
     void		setSelData(const SelData&);	//!< I'll make a copy
+    const SelData*	selData() const			{ return seldata_; }
     void		setZRange(const ZSampling&,idx_type iln=0);
 			    //!< will be overruled if you set a SelData
     void		setZExtension(const z_rg_type&);
@@ -238,16 +241,22 @@ public:
 
     mUseType( PosInfo,	CubeData );
 
+    bool	is2D() const override	{ return false; }
+
     void	setStepout(const IdxPair&);
 
     const CubeData& possibleCubeData() const;
     bool	isPresent(const BinID&) const;
-    BinID	curBinID() const	    { return trcpos_; }
+    BinID	curBinID() const	{ return trcpos_; }
+    BinID	binIDStep() const;
 
     bool	goTo(const BinID&) const;
 
     uiRetVal	getAt(const BinID&,SeisTrc&) const;
     uiRetVal	getGatherAt(const BinID&,SeisTrcBuf&) const;
+
+    static const Provider3D&	empty();
+    static Provider3D&		dummy();
 
 protected:
 
@@ -278,6 +287,8 @@ public:
     mUseType( PosInfo,	LineData );
     mUseType( Bin2D,	trcnr_type );
 
+    bool	is2D() const override	{ return true; }
+
     void	setStepout(trcnr_type); // use after setting seldata
 
     bool	isPresent(GeomID) const;
@@ -285,12 +296,17 @@ public:
     size_type	nrLines() const;
     idx_type	lineIdx(GeomID) const;
     void	getLineData(idx_type,LineData&) const;
+    trcnr_type	trcNrStep(idx_type) const;
     BufferString lineName( idx_type iln ) const	{ return geomID(iln).name(); }
     Bin2D	curBin2D() const		{ return trcpos_; }
+    GeomID	curGeomID() const		{ return curBin2D().geomID(); }
 
     bool	goTo(const Bin2D&) const;
     uiRetVal	getAt(const Bin2D&,SeisTrc&) const;
     uiRetVal	getGatherAt(const Bin2D&,SeisTrcBuf&) const;
+
+    static const Provider2D&	empty();
+    static Provider2D&		dummy();
 
 protected:
 

@@ -34,6 +34,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , nrusedtrcs_(0)
     , nrdone_(0)
     , fft_( Fourier::CC::createDefault() )
+    , relzwin_(0.f,0.f)
     , totalnr_(0)
     , msg_(tr("Extracting wavelet"))
     , wvlt_(new Wavelet)
@@ -55,6 +56,7 @@ WaveletExtractor::~WaveletExtractor()
 {
     delete fft_;
     delete seisprov_;
+    delete sd_;
 }
 
 
@@ -69,68 +71,18 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
 }
 
 
-void WaveletExtractor::init3D()
+void WaveletExtractor::setSelData( const Seis::SelData& sd )
 {
-    if ( !seisprov_ )
-	return;
-    if ( !sd_ )
-	{ totalnr_ = SI().maxNrTraces(); return; }
-
-    seisprov_->setSelData( sd_->clone() );
-    isbetweenhor_ = false;
+    sd_ = sd.clone();
     totalnr_ = sd_->expectedNrTraces();
-
-    auto* tsd = sd_->asTable();
+    seisprov_->setSelData( *sd_ );
+    isbetweenhor_ = false;
+    const auto* tsd = sd_->asTable();
     if ( !tsd )
 	return;
-
     isbetweenhor_ = tsd->binidValueSet().hasDuplicatePositions();
     if ( isbetweenhor_ )
 	totalnr_ = tsd->binidValueSet().nrDuplicatePositions();
-}
-
-
-void WaveletExtractor::init2D()
-{
-    StepInterval<int> range;
-    for ( int idx=0; idx<sdset_.size(); idx++ )
-    {
-	range = sdset_[idx]->crlRange();
-	totalnr_ += range.nrSteps() + 1;
-    }
-
-    getNextLine();
-}
-
-
-void WaveletExtractor::setSelData( const Seis::SelData& sd )
-{
-    sd_ = &sd;
-    init3D();
-}
-
-
-void WaveletExtractor::setSelData( const ObjectSet<Seis::SelData>& sdset )
-{
-    sdset_ = sdset;
-    init2D();
-}
-
-
-bool WaveletExtractor::getNextLine()
-{
-    lineidx_++;
-    if ( lineidx_ >= sdset_.size() )
-	return false;
-
-    deleteAndZeroPtr( seisprov_ );
-    uiRetVal uirv;
-    seisprov_ = Seis::Provider::create( iobj_, &uirv );
-    if ( !seisprov_ )
-	{ msg_ = uirv; return false; }
-
-    seisprov_->setSelData( sdset_[lineidx_]->clone() );
-    return true;
 }
 
 
@@ -152,9 +104,6 @@ int WaveletExtractor::nextStep()
     {
 	if ( !isFinished(uirv) )
 	    { msg_ = uirv; return ErrorOccurred(); }
-
-	if ( seisprov_->is2D() && getNextLine() )
-	    return MoreToDo();
 
 	return finish(nrusedtrcs_) ? Finished() : ErrorOccurred();
     }
@@ -179,17 +128,12 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 {
     mDynamicCastGet(const Seis::TableSelData*,tsd,sd_);
     if ( !tsd )
-    {
-	startsample = 0;
-	signalsz = trc.size();
-	return true;
-    }
+	{ startsample = 0; signalsz = trc.size(); return true; }
 
     if ( trc.zRange().width(false) <  wvlt_->samplePositions().width(false) )
 	return false;
 
     const BinnedValueSet& bvis = tsd->binidValueSet();
-    Interval<float> extz = tsd->extraZ();
     BinID bid = trc.info().binID();
     float z1(mUdf(float)), z2(mUdf(float));
     BinID duplicatebid;
@@ -209,11 +153,12 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     if ( z2 < z1 )
 	std::swap( z1, z2 );
 
-    if( !trc.dataPresent(z1 + extz.start) || !trc.dataPresent(z2 + extz.stop) )
+    if ( !trc.dataPresent(z1 + relzwin_.start)
+      || !trc.dataPresent(z2 + relzwin_.stop) )
 	return false;
 
-    startsample = trc.nearestSample( z1 + extz.start );
-    const int stopsample = trc.nearestSample( z2 + extz.stop );
+    startsample = trc.nearestSample( z1 + relzwin_.start );
+    const int stopsample = trc.nearestSample( z2 + relzwin_.stop );
     signalsz = stopsample - startsample + 1;
 
     return signalsz >= wvltsize_;

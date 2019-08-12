@@ -69,6 +69,8 @@ mExpClass(Basic) HorSubSel : public SubSel
 {
 public:
 
+    typedef Index_Type		trcnr_type;
+
     LineHorSubSel*		asLineHorSubSel();
     const LineHorSubSel*	asLineHorSubSel() const;
     CubeHorSubSel*		asCubeHorSubSel();
@@ -80,10 +82,14 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
+    virtual trcnr_type		trcNrStart() const		= 0;
+    virtual trcnr_type		trcNrStop() const		= 0;
+    virtual trcnr_type		trcNrStep() const		= 0;
+
 protected:
 
-    virtual bool		doUsePar(const IOPar&)	= 0;
-    virtual void		doFillPar(IOPar&) const	= 0;
+    virtual bool		doUsePar(const IOPar&)		= 0;
+    virtual void		doFillPar(IOPar&) const		= 0;
 
 };
 
@@ -191,7 +197,6 @@ public:
 			FullSubSel(const FullSubSel&);
 			FullSubSel(const IOPar&);
     virtual		~FullSubSel();
-    void		clearContents();
     FullSubSel&		operator =(const FullSubSel&);
 
     bool		is2D() const	{ return !css_; }
@@ -204,6 +209,8 @@ public:
     GeomID		geomID(idx_type) const;
     idx_type		indexOf(GeomID) const;
 
+    void		setToNone(bool for2d);
+    void		setToAll(bool for2d);
     void		setInlRange(const pos_rg_type&);
     void		setCrlRange(const pos_rg_type&);
     void		setGeomID(GeomID);
@@ -211,7 +218,6 @@ public:
     void		setTrcNrRange(const pos_rg_type&,idx_type i=0);
     void		setTrcNrRange(GeomID,const pos_rg_type&);
     void		setZRange(const z_rg_type&,int i=0);
-    void		setToAll(bool for2d);
 
     bool		isAll() const;
     GeomSubSel&		geomSubSel(idx_type i=0);
@@ -252,6 +258,7 @@ protected:
     LineSubSelSet&	lsss_;
 
     void		set3D(bool);
+    void		clearContents();
 
     friend class	FullSubSelPosIter;
 

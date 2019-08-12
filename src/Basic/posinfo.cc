@@ -6,11 +6,12 @@
 
 
 #include "posinfo.h"
+#include "cubesubsel.h"
+#include "linesubsel.h"
+#include "math2.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 #include "survgeom.h"
-#include "horsubsel.h"
-#include "od_iostream.h"
-#include "math2.h"
 
 mUseType( PosInfo::LineData, idx_type );
 mUseType( PosInfo::LineData, size_type );
@@ -393,6 +394,73 @@ glob_size_type PosInfo::LineCollData::totalNrSegments() const
 }
 
 
+void PosInfo::LineCollData::limitTo( const Survey::HorSubSel& hss )
+{
+    const auto* lhss = hss.asLineHorSubSel();
+    const auto* chss = hss.asCubeHorSubSel();
+    for ( idx_type lidx=size()-1; lidx>=0; lidx-- )
+    {
+	auto& ld = *get( lidx );
+	if ( (lhss && lhss->geomID().lineNr() != ld.linenr_)
+	  || (chss && !chss->inlRange().isPresent(ld.linenr_)) )
+	    { removeSingle( lidx ); continue; }
+
+	size_type nrvalidsegs = 0;
+	for ( idx_type iseg=ld.segments_.size()-1; iseg>=0; iseg-- )
+	{
+	    auto& seg = ld.segments_[iseg];
+	    const bool isrev = seg.start > seg.stop;
+	    auto segstart = seg.start;
+	    auto segstop = seg.stop;
+	    if ( segstart > hss.trcNrStop() || segstop < hss.trcNrStart() )
+		{ ld.segments_.removeSingle( iseg ); continue; }
+
+	    seg.step = Math::LCMOf( seg.step, hss.trcNrStep() );
+	    if ( !seg.step )
+		{ ld.segments_.removeSingle( iseg ); continue; }
+
+	    if ( segstart < hss.trcNrStart() )
+	    {
+		auto newstart = hss.trcNrStart();
+		auto diff = newstart - segstart;
+		if ( diff % seg.step )
+		{
+		    diff += seg.step - diff % seg.step;
+		    newstart = segstart + diff;
+		}
+
+		if ( isrev )
+		    seg.stop = newstart;
+		else
+		    seg.start = newstart;
+	    }
+	    if ( segstop > hss.trcNrStop() )
+	    {
+		auto newstop = hss.trcNrStop();
+		auto diff = segstop - newstop;
+		if ( diff % seg.step )
+		{
+		    diff += seg.step - diff % seg.step;
+		    newstop = segstop - diff;
+		}
+
+		if ( isrev )
+		    seg.start = newstop;
+		else
+		    seg.stop = newstop;
+	    }
+	    if ( segstart > segstop )
+		ld.segments_.removeSingle( iseg );
+	    else
+		nrvalidsegs++;
+	}
+
+	if ( !nrvalidsegs )
+	    removeSingle( lidx );
+    }
+}
+
+
 void PosInfo::LineCollData::merge( const LineCollData& lcd1, bool inc )
 {
     const LineCollData lcd2( *this );
@@ -422,6 +490,32 @@ void PosInfo::LineCollData::merge( const LineCollData& lcd1, bool inc )
 	const idx_type iln = lineIndexOf( ld2.linenr_ );
 	if ( iln < 0 )
 	    add( new LineData(ld2) );
+    }
+}
+
+
+void PosInfo::LineCollData::getFullSubSel( FullSubSel& fss, bool is2d ) const
+{
+    if ( is2d )
+    {
+	fss.setToNone( true );
+	for ( int iln=0; iln<size(); iln++ )
+	{
+	    const auto& ld = *get( iln );
+	    fss.addGeomID( GeomID(ld.linenr_) );
+	    const auto ldrg = ld.range();
+	    fss.lineSubSel(iln).setTrcNrRange(
+			pos_steprg_type(ldrg.start,ldrg.stop,ld.minStep()) );
+	}
+    }
+    else
+    {
+	fss.setToAll( false );
+	const CubeData cd( *this );
+	pos_steprg_type inlrg, crlrg;
+	cd.getInlRange( inlrg ); cd.getCrlRange( crlrg );
+	fss.cubeSubSel().setInlRange( inlrg );
+	fss.cubeSubSel().setCrlRange( crlrg );
     }
 }
 
@@ -578,6 +672,144 @@ bool PosInfo::LineCollData::includes( pos_type lnr, pos_type tnr ) const
 }
 
 
+bool PosInfo::LineCollData::isValid( const PosInfo::LineCollPos& lcp ) const
+{
+    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
+	return false;
+    const auto& segs( get(lcp.lidx_)->segments_ );
+    if ( lcp.segnr_ < 0 || lcp.segnr_ >= segs.size() )
+	return false;
+    return lcp.sidx_ >= 0 && lcp.sidx_ <= segs[lcp.segnr_].nrSteps();
+}
+
+
+bool PosInfo::LineCollData::toNext( LineCollPos& lcp ) const
+{
+    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
+    {
+	lcp.toStart();
+	return isValid(lcp);
+    }
+    else if ( lcp.segnr_ < 0 )
+	lcp.segnr_ = lcp.sidx_ = 0;
+    else
+    {
+	const auto& segset = get(lcp.lidx_)->segments_;
+	lcp.sidx_++;
+	if ( lcp.sidx_ > segset.get(lcp.segnr_).nrSteps() )
+	{
+	    lcp.segnr_++; lcp.sidx_ = 0;
+	    if ( lcp.segnr_ >= segset.size() )
+	    {
+		lcp.lidx_++; lcp.segnr_ = 0;
+		if ( lcp.lidx_ >= size() )
+		    return false;
+	    }
+	}
+    }
+    return true;
+}
+
+
+bool PosInfo::LineCollData::toNextLine( LineCollPos& lcp ) const
+{
+    lcp.lidx_++;
+    if ( lcp.lidx_ >= size() )
+	return false;
+
+    lcp.segnr_ = lcp.sidx_ = 0;
+    return true;
+}
+
+
+bool PosInfo::LineCollData::toPrev( LineCollPos& lcp ) const
+{
+    if ( !isValid(lcp) )
+    {
+	if ( isEmpty() )
+	    return false;
+
+	lcp.lidx_ = size() - 1;
+	const auto& segs = get(lcp.lidx_)->segments_;
+	lcp.segnr_ = segs.size() - 1;
+	lcp.sidx_ = segs[lcp.segnr_].nrSteps();
+	return true;
+    }
+    else
+    {
+	lcp.sidx_--;
+	if ( lcp.sidx_ < 0 )
+	{
+	    lcp.segnr_--;
+	    if ( lcp.segnr_ < 0 )
+	    {
+		lcp.lidx_--;
+		if ( lcp.lidx_ < 0 )
+		    return false;
+		lcp.segnr_ = get(lcp.lidx_)->segments_.size() - 1;
+	    }
+	    lcp.sidx_ = get(lcp.lidx_)->segments_.get(lcp.segnr_).nrSteps();
+	}
+	return true;
+    }
+}
+
+
+PosInfo::LineCollData::pos_type
+PosInfo::LineCollData::trcNr( const LineCollPos& lcp ) const
+{
+    return !isValid(lcp) ? 0
+	 : get(lcp.lidx_)->segments_.get(lcp.segnr_).atIndex(lcp.sidx_);
+}
+
+
+BinID PosInfo::LineCollData::binID( const LineCollPos& lcp ) const
+{
+    const auto tnr = trcNr( lcp );
+    return tnr ? BinID( get(lcp.lidx_)->linenr_, tnr ) : BinID(0,0);
+}
+
+
+Bin2D PosInfo::LineCollData::bin2D( const LineCollPos& lcp ) const
+{
+    const auto tnr = trcNr( lcp );
+    const auto gid = tnr ? GeomID( get(lcp.lidx_)->linenr_ ) : GeomID();
+    return Bin2D( gid, tnr );
+}
+
+
+PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
+						const BinID& bid ) const
+{
+    LineCollPos lcp;
+    lcp.lidx_ = lineIndexOf( bid.inl() );
+    if ( lcp.lidx_ < 0 )
+	return lcp;
+    const auto& segs( get(lcp.lidx_)->segments_ );
+    for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
+    {
+	const auto& seg( segs[iseg] );
+	if ( seg.includes(bid.crl(),true) )
+	{
+	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
+	    {
+		lcp.segnr_ = iseg;
+		lcp.sidx_ = seg.getIndex( bid.crl() );
+	    }
+	    break;
+	}
+    }
+    return lcp;
+}
+
+
+PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
+						const Bin2D& b2d ) const
+{
+    return lineCollPos( BinID(b2d.idxPair()) );
+}
+
+
 void PosInfo::CubeData::getRanges( pos_rg_type& inlrg,
 				   pos_rg_type& crlrg ) const
 {
@@ -692,132 +924,13 @@ bool PosInfo::CubeData::getCrlRange( pos_steprg_type& rg,
 }
 
 
-bool PosInfo::LineCollData::isValid( const PosInfo::LineCollPos& lcp ) const
+bool PosInfo::CubeData::getCubeHorSubSel( CubeHorSubSel& chss ) const
 {
-    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
-	return false;
-    const auto& segs( get(lcp.lidx_)->segments_ );
-    if ( lcp.segnr_ < 0 || lcp.segnr_ >= segs.size() )
-	return false;
-    return lcp.sidx_ >= 0 && lcp.sidx_ <= segs[lcp.segnr_].nrSteps();
-}
-
-
-bool PosInfo::LineCollData::toNext( LineCollPos& lcp ) const
-{
-    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
-    {
-	lcp.toStart();
-	return isValid(lcp);
-    }
-    else if ( lcp.segnr_ < 0 )
-	lcp.segnr_ = lcp.sidx_ = 0;
-    else
-    {
-	const auto& segset = get(lcp.lidx_)->segments_;
-	lcp.sidx_++;
-	if ( lcp.sidx_ > segset.get(lcp.segnr_).nrSteps() )
-	{
-	    lcp.segnr_++; lcp.sidx_ = 0;
-	    if ( lcp.segnr_ >= segset.size() )
-	    {
-		lcp.lidx_++; lcp.segnr_ = 0;
-		if ( lcp.lidx_ >= size() )
-		    return false;
-	    }
-	}
-    }
-    return true;
-}
-
-
-bool PosInfo::LineCollData::toNextLine( LineCollPos& lcp ) const
-{
-    lcp.lidx_++;
-    if ( lcp.lidx_ >= size() )
-	return false;
-
-    lcp.segnr_ = lcp.sidx_ = 0;
-    return true;
-}
-
-
-bool PosInfo::LineCollData::toPrev( LineCollPos& lcp ) const
-{
-    if ( !isValid(lcp) )
-    {
-	if ( isEmpty() )
-	    return false;
-
-	lcp.lidx_ = size() - 1;
-	const auto& segs = get(lcp.lidx_)->segments_;
-	lcp.segnr_ = segs.size() - 1;
-	lcp.sidx_ = segs[lcp.segnr_].nrSteps();
-	return true;
-    }
-    else
-    {
-	lcp.sidx_--;
-	if ( lcp.sidx_ < 0 )
-	{
-	    lcp.segnr_--;
-	    if ( lcp.segnr_ < 0 )
-	    {
-		lcp.lidx_--;
-		if ( lcp.lidx_ < 0 )
-		    return false;
-		lcp.segnr_ = get(lcp.lidx_)->segments_.size() - 1;
-	    }
-	    lcp.sidx_ = get(lcp.lidx_)->segments_.get(lcp.segnr_).nrSteps();
-	}
-	return true;
-    }
-}
-
-
-BinID PosInfo::LineCollData::binID( const LineCollPos& lcp ) const
-{
-    return !isValid(lcp) ? BinID(0,0)
-	: BinID( get(lcp.lidx_)->linenr_,
-		 get(lcp.lidx_)->segments_.get(lcp.segnr_).atIndex(lcp.sidx_) );
-}
-
-
-Bin2D PosInfo::LineCollData::bin2D( const LineCollPos& lcp ) const
-{
-    return Bin2D::decode( binID(lcp) );
-}
-
-
-PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
-						const BinID& bid ) const
-{
-    LineCollPos lcp;
-    lcp.lidx_ = lineIndexOf( bid.inl() );
-    if ( lcp.lidx_ < 0 )
-	return lcp;
-    const auto& segs( get(lcp.lidx_)->segments_ );
-    for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
-    {
-	const auto& seg( segs[iseg] );
-	if ( seg.includes(bid.crl(),true) )
-	{
-	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
-	    {
-		lcp.segnr_ = iseg;
-		lcp.sidx_ = seg.getIndex( bid.crl() );
-	    }
-	    break;
-	}
-    }
-    return lcp;
-}
-
-
-PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
-						const Bin2D& b2d ) const
-{
-    return lineCollPos( BinID(b2d.idxPair()) );
+    pos_steprg_type inlrg, crlrg;
+    bool ret = getInlRange( inlrg );
+    ret &= getCrlRange( crlrg );
+    chss = CubeHorSubSel( inlrg, crlrg );
+    return ret;
 }
 
 
@@ -1051,70 +1164,6 @@ BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
 }
 
 
-void PosInfo::CubeData::limitTo( const CubeHorSubSel& hss )
-{
-    for ( idx_type lidx=size()-1; lidx>=0; lidx-- )
-    {
-	PosInfo::LineData* ld = get( lidx );
-	if ( !hss.inlRange().isPresent(ld->linenr_) )
-	    { removeSingle( lidx ); continue; }
-
-	size_type nrvalidsegs = 0;
-	for ( idx_type iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
-	{
-	    auto& seg = ld->segments_[iseg];
-	    const bool isrev = seg.start > seg.stop;
-	    auto segstart = seg.start;
-	    auto segstop = seg.stop;
-	    if ( segstart > hss.crlStop() || segstop < hss.crlStart() )
-		{ ld->segments_.removeSingle( iseg ); continue; }
-
-	    seg.step = Math::LCMOf( seg.step, hss.crlStep() );
-	    if ( !seg.step )
-		{ ld->segments_.removeSingle( iseg ); continue; }
-
-	    if ( segstart < hss.crlStart() )
-	    {
-		auto newstart = hss.crlStart();
-		auto diff = newstart - segstart;
-		if ( diff % seg.step )
-		{
-		    diff += seg.step - diff % seg.step;
-		    newstart = segstart + diff;
-		}
-
-		if ( isrev )
-		    seg.stop = newstart;
-		else
-		    seg.start = newstart;
-	    }
-	    if ( segstop > hss.crlStop() )
-	    {
-		auto newstop = hss.crlStop();
-		auto diff = segstop - newstop;
-		if ( diff % seg.step )
-		{
-		    diff += seg.step - diff % seg.step;
-		    newstop = segstop - diff;
-		}
-
-		if ( isrev )
-		    seg.start = newstop;
-		else
-		    seg.stop = newstop;
-	    }
-	    if ( segstart > segstop )
-		ld->segments_.removeSingle( iseg );
-	    else
-		nrvalidsegs++;
-	}
-
-	if ( !nrvalidsegs )
-	    removeSingle( lidx );
-    }
-}
-
-
 idx_type PosInfo::SortedCubeData::lineIndexOf( pos_type reqlnr,
 					    idx_type* newidx ) const
 {
@@ -1166,7 +1215,7 @@ PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
 }
 
 
-PosInfo::CubeData& PosInfo::SortedCubeData::doAdd( PosInfo::LineData* ld )
+PosInfo::SortedCubeData& PosInfo::SortedCubeData::doAdd( PosInfo::LineData* ld )
 {
     if ( !ld ) return *this;
 

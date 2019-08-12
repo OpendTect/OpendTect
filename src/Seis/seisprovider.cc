@@ -199,6 +199,12 @@ const Pos::ZSubSel& Seis::Provider::zSubSel( int iln ) const
 }
 
 
+void Seis::Provider::getSubSel( FullSubSel& fss ) const
+{
+    return possiblepositions_.getFullSubSel( fss, is2D() );
+}
+
+
 uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
     deleteAndZeroPtr( ioobj_ );
@@ -832,6 +838,12 @@ bool Seis::Provider3D::isPresent( const BinID& bid ) const
 }
 
 
+BinID Seis::Provider3D::binIDStep() const
+{
+    return possibleCubeData().minStep();
+}
+
+
 bool Seis::Provider3D::goTo( const BinID& bid ) const
 {
     Threads::Locker locker( getlock_ );
@@ -849,6 +861,18 @@ uiRetVal Seis::Provider3D::getGatherAt( const BinID& bid,
 					SeisTrcBuf& tbuf ) const
 {
     return Provider::getGatherAt( TrcKey(bid), tbuf );
+}
+
+
+Seis::Provider3D& Seis::Provider3D::dummy()
+{
+    static auto* ret = new VolProvider;
+    ret->possiblepositions_.setEmpty();
+    return *ret;
+}
+const Seis::Provider3D& Seis::Provider3D::empty()
+{
+    return dummy();
 }
 
 
@@ -918,6 +942,16 @@ void Seis::Provider2D::getLineData( idx_type iln, LineData& ld ) const
 }
 
 
+Seis::Provider2D::trcnr_type Seis::Provider2D::trcNrStep( idx_type iln ) const
+{
+    if ( iln < 0 )
+	return 1;
+    LineData ld;
+    getLineData( iln, ld );
+    return ld.minStep();
+}
+
+
 bool Seis::Provider2D::goTo( const Bin2D& b2d ) const
 {
     Threads::Locker locker( getlock_ );
@@ -936,6 +970,19 @@ uiRetVal Seis::Provider2D::getGatherAt( const Bin2D& b2d,
 {
     return Provider::getGatherAt( TrcKey(b2d), tbuf );
 }
+
+
+Seis::Provider2D& Seis::Provider2D::dummy()
+{
+    static auto* ret = new LineProvider;
+    ret->possiblepositions_.setEmpty();
+    return *ret;
+}
+const Seis::Provider2D& Seis::Provider2D::empty()
+{
+    return dummy();
+}
+
 
 
 Pos::GeomID Seis::Provider2D::gtGeomID( idx_type lidx ) const

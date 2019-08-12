@@ -1337,6 +1337,13 @@ void Survey::FullSubSel::setZRange( const z_rg_type& rg, idx_type idx )
 }
 
 
+void Survey::FullSubSel::setToNone( bool is2d )
+{
+    clearContents();
+    set3D( !is2d );
+}
+
+
 void Survey::FullSubSel::setToAll( bool is2d )
 {
     clearContents();

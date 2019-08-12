@@ -89,8 +89,7 @@ static bool fillTrcBuf()
 	mErrRetUirv()
 
     auto& prov3d = *prov->as3D();
-    PosInfo::CubeData cd;
-    prov3d.getGeometryInfo( cd );
+    PosInfo::CubeData cd = prov3d.possibleCubeData();
     if ( cd.size() < 5 )
 	mErrRet( "Pick a larger input cube" )
 
@@ -102,8 +101,8 @@ static bool fillTrcBuf()
 	const auto& seg0 = ld.segments_.first();
 	const auto midcrl = seg0.center();
 	const BinID linestart( ld.linenr_, midcrl-50*seg0.step );
-	if ( !prov3d.goTo(linestart,&uirv) )
-	    mErrRetUirv()
+	if ( !prov3d.goTo(linestart) )
+	    mErrRet( "Cannot go to line start")
 
 	for ( auto idx=0; idx<nrtrcsperline_; idx++ )
 	{

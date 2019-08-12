@@ -728,23 +728,17 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , msg_(tr("Velocity cube scanning "))
     , startavgvel_( -1, -1 )
     , stopavgvel_( -1, -1 )
-    , subsel_( true )
     , provider_( 0 )
     , definedv0_( false )
     , definedv1_( false )
     , zistime_ ( SI().zIsTime() )
     , seisrefdatum_( SI().seismicReferenceDatum() )
-    , nrdone_( 0 )
 {
     uiRetVal uirv;
     provider_ = Seis::Provider::create( input, &uirv );
     if ( !provider_ )
 	{ msg_ = uirv; return; }
 
-    const TrcKeyZSampling tkzs( provider_->as3D()->cubeSubSel() );
-    subsel_ = tkzs.hsamp_;
-
-    hsiter_.setSampling(  subsel_ );
     zistime_ = ZDomain::isTime( input.pars() );
     if ( zistime_ && SI().depthsInFeet() )
 	seisrefdatum_ *= mToFeetFactorF;
@@ -757,34 +751,44 @@ VelocityModelScanner::~VelocityModelScanner()
 }
 
 
+od_int64 VelocityModelScanner::totalNr() const
+{
+    return provider_ ? provider_->totalNr() : 0;
+}
+
+
+od_int64 VelocityModelScanner::nrDone() const
+{
+    return provider_ ? provider_->nrDone() : 0;
+}
+
+
 int VelocityModelScanner::nextStep()
 {
-    if ( !hsiter_.next() )
-    {
-	if ( startavgvel_.start<0 || stopavgvel_.start<0 )
-	{
-	    msg_ = tr("Velocity volume is not defined for the selected type.");
-	    return ErrorOccurred();
-	}
-
-	return Finished();
-    }
-
-    nrdone_++;
+    if ( !provider_ )
+	return ErrorOccurred();
 
     SeisTrc veltrace;
     const uiRetVal uirv = provider_->getNext( veltrace );
     if ( !uirv.isOK() )
     {
 	if ( isFinished(uirv) )
+	{
+	    if ( startavgvel_.start<0 || stopavgvel_.start<0 )
+	    {
+		msg_ = tr("Velocity volume is not defined");
+		return ErrorOccurred();
+	    }
 	    return Finished();
+	}
 
 	msg_ = uirv;
 	return ErrorOccurred();
     }
 
     const int sz = veltrace.size();
-    if ( sz<2 ) return MoreToDo();
+    if ( sz<2 )
+	return MoreToDo();
 
     const SeisTrcValueSeries trcvs( veltrace, 0 );
     const SamplingData<double> sd = veltrace.info().sampling_;
@@ -808,23 +812,12 @@ int VelocityModelScanner::nextStep()
 
     int first = -1, last = -1;
     for ( int idx=0; idx<sz; idx++ )
-    {
 	if ( !mIsUdf(resvs.value(idx) ) )
-	{
-	    first = idx;
-	    break;
-	}
-    }
-
+	    { first = idx; break; }
 
     for ( int idx=sz-1; idx>=0; idx-- )
-    {
 	if ( !mIsUdf(resvs.value(idx) ) )
-	{
-	    last = idx;
-	    break;
-	}
-    }
+	    { last = idx; break; }
 
     if ( first!=-1 && last!=-1 && first!=last )
     {

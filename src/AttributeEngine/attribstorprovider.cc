@@ -180,12 +180,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
     const bool is2d = mscprov_->is2D();
     desc_.setIs2D( is2d );
-    const auto& seisprov = *mscprov_->provider();
-    if ( is2d )
-	storedsubsel_ = seisprov.as2D()->lineSubSelSet();
-    else
-	storedsubsel_ = FullSubSel( seisprov.as3D()->cubeSubSel() );
-
+    mscprov_->provider().getSubSel( storedsubsel_ );
     status_ = StorageOpened;
     return true;
 }
@@ -366,8 +361,8 @@ bool StorageProvider::setMSCProvSelData()
     if ( !mscprov_ )
 	return false;
 
-    Seis::Provider* prov = mscprov_->provider();
-    if ( !prov || prov->isPS() )
+    Seis::Provider& prov = mscprov_->provider();
+    if ( prov.isPS() )
 	return false;
 
     const bool haveseldata = seldata_ && !seldata_->isAll();
@@ -375,7 +370,7 @@ bool StorageProvider::setMSCProvSelData()
     {
 	if ( seldata_->type() == Seis::Table )
 	    return setTableSelData();
-	prov->setSelData( seldata_->clone() );
+	prov.setSelData( seldata_->clone() );
     }
     else if ( !desiredSubSelOK() )
 	return false;
@@ -384,14 +379,14 @@ bool StorageProvider::setMSCProvSelData()
 
 	FullSubSel fss( desiredsubsel_ );
 	fss.limitTo( storedsubsel_ );
-	prov->setSelData( new Seis::RangeSelData(fss) );
+	prov.setSelData( new Seis::RangeSelData(fss) );
     }
 
     TypeSet<int> selcomps;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	if ( outputinterest_[idx] )
 	    selcomps += idx;
-    prov->selectComponents( selcomps );
+    prov.selectComponents( selcomps );
 
     return true;
 }
@@ -405,12 +400,12 @@ bool StorageProvider::setTableSelData()
 	return false;
 
     Seis::SelData* seldata = seldata_->clone();
-    seldata->extendZ( extraz_ );
-    Seis::Provider& prov = *mscprov_->provider();
+    Seis::Provider& prov = mscprov_->provider();
     if ( prov.is2D() && seldata->isRange() )
 	seldata->asRange()->setGeomID( geomID() );
 
     prov.setSelData( seldata );
+    mscprov_->provider().setZExtension( extraz_ );
 
     TypeSet<int> selcomps;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
@@ -663,19 +658,14 @@ BinID StorageProvider::getStepoutStep() const
 	sos.inl() = sos.crl() = 1;
     else
     {
-	const Seis::Provider& prov = *mscprov_->provider();
-	if ( prov.is2D() )
-	{
-	    const auto& prov2d = *prov.as2D();
-	    int lnr = geomID().isValid() ? prov2d.lineNr(geomID()) : 0;
-	    const auto& lss = prov2d.lineSubSel( lnr );
-	    const auto trcrg = lss.trcNrRange();
-	    sos.crl() = trcrg.step;
-	}
+	const Seis::Provider& prov = mscprov_->provider();
+	if ( !prov.is2D() )
+	    sos = prov.as3D()->binIDStep();
 	else
 	{
-	    const TrcKeyZSampling cs( prov.as3D()->cubeSubSel() );
-	    sos = cs.hsamp_.step_;
+	    const auto& prov2d = *prov.as2D();
+	    const int lnr = geomID().isValid() ? prov2d.lineIdx(geomID()) : 0;
+	    sos.crl() = prov2d.trcNrStep( lnr );
 	}
     }
 
@@ -760,10 +750,9 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
     if ( ls2ddata_ && ls2ddata_->areStatsComputed() )
 	return true;
 
-    const Seis::Provider& prov = *mscprov_->provider();
+    const Seis::Provider& prov = mscprov_->provider();
     if ( !prov.is2D() )
 	return false;
-
     const auto& prov2d = *prov.as2D();
 
     if ( ls2ddata_ )

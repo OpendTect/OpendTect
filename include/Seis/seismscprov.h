@@ -45,7 +45,7 @@ available to work on, or that more traces need to be read first.
 
 You can specify two stepouts: required and desired. The required stepout
 traces will always be available when the return of advance() is DataOK.
-If "Buffering" is returned, then the provider is still gathering more
+If "Buffering" is returned, then the MSCProvider is still gathering more
 traces.
 
  */
@@ -58,9 +58,11 @@ public:
     mUseType( Pos,	GeomID );
     mUseType( Pos,	IdxPair );
     mUseType( IdxPair,	pos_type );
+    typedef float	z_type;
+    typedef Interval<z_type> z_rg_type;
 
 			MSCProvider(const DBKey&);
-				//!< Use any real user entry from '.omf' file
+			MSCProvider(Provider&);
     virtual		~MSCProvider();
 
     bool		is2D() const;
@@ -84,7 +86,9 @@ public:
 			{ return req ? reqstepout_.col() : desstepout_.col(); }
     pos_type		trcStepout( bool req ) const
 			{ return req ? reqstepout_.col() : desstepout_.col(); }
-    void		setSelData(const Seis::SelData&);
+    void		setSelData(SelData*);
+    void		setSelData(const SelData&);
+    void		setZExtension(const z_rg_type&);
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();
@@ -117,28 +121,29 @@ public:
     int			estimatedNrTraces() const; //!< returns -1 when unknown
 
     inline GeomID	geomID() const		{ return curGeomID(); }
-    Provider*		provider()		{ return prov_; }
-    const Provider*	provider() const	{ return prov_; }
+    Provider&		provider()		{ return *prov_; }
+    const Provider&	provider() const	{ return *prov_; }
 
 protected:
 
-    Provider*		prov_;
+    uiRetVal		uirv_; // keep before prov_
+    Provider*		prov_			= nullptr;
+    const bool		provmine_;
     ObjectSet<SeisTrcBuf> tbufs_;
-    IdxPair		reqstepout_;
-    IdxPair		desstepout_;
+    IdxPair		reqstepout_		= IdxPair(0,0);
+    IdxPair		desstepout_		= IdxPair(0,0);
     IdxPair		stepoutstep_;
-    Array2D<bool>*	reqmask_;
-    bool		intofloats_;
-    bool		workstarted_;
-    bool		atend_;
+    Array2D<bool>*	reqmask_		= nullptr;
+    bool		intofloats_		= false;
+    bool		workstarted_		= false;
+    bool		atend_			= false;
 
-    uiRetVal		uirv_;
     GeomID		curgeomid_;
-    mutable int		estnrtrcs_;
+    mutable int		estnrtrcs_		= -2;
 
-			// Indexes of new pos ready, equals -1 while buffering.
-    int			bufidx_;
-    int			trcidx_;
+			// Indexes of new pos ready, -1 while buffering.
+    int			bufidx_			= -1;
+    int			trcidx_			= -1;
 			// Indexes of next position to be examined.
     int			pivotidx_;
     int			pivotidy_;

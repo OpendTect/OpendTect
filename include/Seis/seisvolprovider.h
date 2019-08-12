@@ -25,8 +25,6 @@ public:
 			VolProvider();
 			VolProvider(const DBKey&,uiRetVal&);
 
-    virtual GeomType	geomType() const	{ return Vol; }
-
 protected:
 
     friend class	VolFetcher;

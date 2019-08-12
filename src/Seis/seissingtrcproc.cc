@@ -266,23 +266,12 @@ uiString SeisSingleTraceProc::message() const
     if ( curprovidx_ < provs_.size() )
     {
 	const Seis::Provider* prov = provs_[curprovidx_];
-
-	uiString ret;
-	if ( !prov->is2D() )
-	    ret  = uiStrings::sData();
-	else
-	{
-	    const Pos::GeomID geomid = prov->curGeomID();
-	    if ( !geomid.is2D() )
-		ret = uiStrings::sData();
-	    else
-		{ ret = toUiString("'%1'").arg( toString(geomid) ); }
-	}
-
-	return tr("Handling %1").arg(ret);
+	return tr("Handling %1").arg( prov->is2D()
+		? toUiString(prov->as2D()->curGeomID().name())
+		: uiStrings::sData() );
     }
 
-    return uiString::empty();
+    return uiStrings::sFinished();
 }
 
 

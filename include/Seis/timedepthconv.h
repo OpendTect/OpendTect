@@ -150,12 +150,9 @@ public:
 			~VelocityModelScanner();
 
     uiString		message() const	{ return msg_; }
-    od_int64		totalNr() const		{ return subsel_.totalNr(); }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		nrDoneText() const
-						{
-						return tr("Position scanned");
-						}
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
+    uiString		nrDoneText() const { return tr("Position scanned"); }
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
@@ -165,13 +162,10 @@ public:
 protected:
 
     uiString			msg_;
-    TrcKeySampling		subsel_;
-    TrcKeySamplingIterator	hsiter_;
     bool			definedv0_;
     bool			definedv1_;
     bool			zistime_;
     float			seisrefdatum_;
-    int				nrdone_;
 
     const IOObj&		obj_;
     const VelocityDesc&		vd_;

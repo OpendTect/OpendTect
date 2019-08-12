@@ -497,16 +497,19 @@ bool Seis::MultiProvider3D::getRanges( TrcKeyZSampling& sampling ) const
 {
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	const TrcKeyZSampling tkzs( *provs_[idx]->geomSubSel().asCubeSubSel() );
+	const auto& prov = *provs_[idx]->as3D();
+	CubeHorSubSel chss;
+	prov.possibleCubeData().getCubeHorSubSel( chss );
+	const TrcKeySampling tks( chss );
 
 	if ( idx == 0 )
-	    sampling.hsamp_ = tkzs.hsamp_;
+	    sampling.hsamp_ = tks;
 	else if ( policy_ != RequireAll )
-	    sampling.hsamp_.include( tkzs.hsamp_ );
+	    sampling.hsamp_.include( tks );
 	else
-	    sampling.hsamp_.getInterSection( tkzs.hsamp_, sampling.hsamp_ );
+	    sampling.hsamp_.getInterSection( tks, sampling.hsamp_ );
 
-	mUpdateRange( sampling.zsamp_, tkzs.zsamp_, zpolicy_==Maximum );
+	mUpdateRange( sampling.zsamp_, prov.zRange(), zpolicy_==Maximum );
     }
 
     return true;
@@ -516,12 +519,7 @@ bool Seis::MultiProvider3D::getRanges( TrcKeyZSampling& sampling ) const
 void Seis::MultiProvider3D::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
     for ( int idx=0; idx<provs_.size(); idx++ )
-    {
-	PosInfo::CubeData cubedata;
-	mDynamicCastGet(const Provider3D&,prov3d,*provs_[idx]);
-	prov3d.getGeometryInfo( cubedata );
-	cd.merge( cubedata, policy_!=RequireAll );
-    }
+	cd.merge( provs_[idx]->as3D()->possibleCubeData(), policy_!=RequireAll);
 }
 
 
@@ -633,38 +631,32 @@ bool Seis::MultiProvider2D::getRanges( int iln, StepInterval<int>& trcrg,
     const Pos::GeomID geomid = geomID( iln );
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	mDynamicCastGet(const Provider2D&,prov2d,*provs_[idx]);
-	const int linenr = prov2d.lineNr( geomid );
+	const auto& prov2d = *provs_[idx]->as2D();
+	const int linenr = prov2d.lineIdx( geomid );
 	if ( linenr < 0 )
 	    continue;
 
-	const auto& lss = prov2d.lineSubSel( linenr );
-	mUpdateRange( trcrg, lss.trcNrRange(), policy_!=RequireAll );
-	mUpdateRange( zrg, lss.zRange(), zpolicy_==Maximum );
+	PosInfo::LineData ld;
+	prov2d.getLineData( linenr, ld );
+	const auto ldtrcrg = StepInterval<int>( ld.range(), ld.minStep() );
+	mUpdateRange( trcrg, ldtrcrg, policy_!=RequireAll );
+	mUpdateRange( zrg, prov2d.zRange(iln), zpolicy_==Maximum );
     }
 
     return true;
 }
 
 
-void Seis::MultiProvider2D::getGeometryInfo(
-		int iln, PosInfo::Line2DData& ld ) const
+void Seis::MultiProvider2D::getGeometryInfo( int iln,
+				PosInfo::LineData& ld ) const
 {
     const Pos::GeomID geomid = geomID( iln );
     TypeSet<PosInfo::Line2DPos> positions;
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	mDynamicCastGet(const Provider2D&,prov2d,*provs_[idx]);
-	const int linenr = prov2d.lineNr( geomid );
-	if ( linenr == -1 )
-	    continue;
-
-	PosInfo::Line2DData l2dd;
-	prov2d.getGeometryInfo( linenr, l2dd );
-	mUpdateTypeSet( positions, l2dd.positions() );
+	const auto& prov2d = *provs_[idx]->as2D();
+	const int linenr = prov2d.lineIdx( geomid );
+	if ( linenr >= 0 )
+	    { prov2d.getLineData( linenr, ld ); return; }
     }
-
-    ld.setLineName( lineName(iln) );
-    ld.setPositions( positions );
-    ld.setZRange( zsampling_ );
 }

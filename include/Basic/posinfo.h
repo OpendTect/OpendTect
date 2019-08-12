@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "bin2d.h"
 #include "od_iosfwd.h"
 class CubeHorSubSel;
-namespace Survey { class SubGeometry3D; }
+namespace Survey { class HorSubSel; class FullSubSel; }
 
 
 /*!\brief Position info, segmented
@@ -79,8 +79,8 @@ public:
     typedef pos_steprg_type	Segment;
     typedef TypeSet<Segment>	SegmentSet;
 
-			LineData( pos_type i )
-			    : linenr_(i)	{}
+			LineData( pos_type lnr=0 )
+			    : linenr_(lnr)	{}
     bool		operator ==(const LineData&) const;
 			mImplSimpleIneqOper(LineData)
 
@@ -157,6 +157,8 @@ public:
     mUseType( LineData,	pos_type );
     mUseType( LineData,	pos_rg_type );
     mUseType( LineData,	pos_steprg_type );
+    mUseType( Survey,	FullSubSel );
+    mUseType( Pos,	GeomID );
     mUseType( Pos,	IdxPair );
     typedef od_int64	glob_idx_type;
     typedef od_int64	glob_size_type;
@@ -186,11 +188,14 @@ public:
     bool		toNextLine(LineCollPos&) const;
     BinID		binID(const LineCollPos&) const;
     Bin2D		bin2D(const LineCollPos&) const;
+    pos_type		trcNr(const LineCollPos&) const;
     LineCollPos		lineCollPos(const BinID&) const;
     LineCollPos		lineCollPos(const Bin2D&) const;
 
+    void		limitTo(const Survey::HorSubSel&);
     void		merge(const LineCollData&,bool incl);
 				//!< incl=union, !incl=intersection
+    void		getFullSubSel(FullSubSel&,bool is2d) const;
 
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc) const;
@@ -237,6 +242,10 @@ public:
 			    //!< Returns whether fully regular.
     bool		getCrlRange(pos_steprg_type&,bool sorted=true) const;
 			    //!< Returns whether fully regular.
+    bool		getCubeHorSubSel(CubeHorSubSel&) const;
+			    //!< Returns whether fully regular.
+    void		getCubeSubSel( FullSubSel& fss ) const
+			{ return getFullSubSel( fss, false ); }
 
     BinID		minStep() const;
     BinID		nearestBinID(const BinID&) const;
@@ -251,7 +260,6 @@ public:
     bool		isAll(const CubeHorSubSel&) const;
     bool		isCrlReversed() const;
 
-    void		limitTo(const CubeHorSubSel&);
     void		generate(BinID start,BinID stop,BinID step,
 				 bool allowreversed=false);
     void		fillBySI(OD::SurvLimitType slt=OD::FullSurvey);
@@ -271,12 +279,11 @@ public:
 						{ generate(start,stop,step); }
 			SortedCubeData( const SortedCubeData& oth )
 						{ copyContents( oth ); }
-			SortedCubeData( const CubeData& oth )
-						{ copyContents( oth ); }
+			SortedCubeData(const LineCollData&) = delete;
     SortedCubeData&	operator =( const SortedCubeData& scd )
 			{ copyContents(scd); return *this; }
-    SortedCubeData&	operator =( const CubeData& cd )
-			{ copyContents(cd); return *this; }
+    SortedCubeData&	operator =( const LineCollData& lcd )
+			{ copyContents(lcd); return *this; }
 
     virtual idx_type	lineIndexOf(pos_type inl,idx_type* newidx=0) const;
 
@@ -284,7 +291,7 @@ public:
 
 protected:
 
-    virtual CubeData&	doAdd(LineData*);
+    virtual SortedCubeData& doAdd(LineData*) override;
 
 };
 
@@ -295,23 +302,32 @@ mExpClass(Basic) LineCollDataIterator
 {
 public:
 
+    mUseType( LineCollData, pos_type );
+
 			LineCollDataIterator( const LineCollData& lcd )
 			    : lcd_(lcd)		{}
 
+    inline bool		next()
+			{ return lcd_.toNext( lcp_ ); }
     inline bool		next( BinID& bid )
 			{
-			    const bool rv = lcd_.toNext( lcp_ );
-			    bid = binID(); return rv;
+			    if ( !next() )
+				return false;
+			    bid = binID();
+			    return true;
 			}
     inline bool		next( Bin2D& b2d )
 			{
-			    const bool rv = lcd_.toNext( lcp_ );
-			    b2d = bin2D(); return rv;
+			    if ( !next() )
+				return false;
+			    b2d = bin2D();
+			    return true;
 			}
 
     inline void		reset()		{ lcp_.toPreStart(); }
     inline BinID	binID() const	{ return lcd_.binID( lcp_ ); }
     inline Bin2D	bin2D() const	{ return lcd_.bin2D( lcp_ ); }
+    inline pos_type	trcNr() const	{ return lcd_.trcNr( lcp_ ); }
 
     const LineCollData&	lcd_;
     LineCollPos		lcp_;

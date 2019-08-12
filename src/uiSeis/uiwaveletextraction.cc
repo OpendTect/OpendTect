@@ -56,6 +56,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     , linesel2dfld_(0)
     , subselfld3d_(0)
     , datastep_(SI().zStep())
+    , relzwin_(0.f,0.f)
 {
     setCtrlStyle( RunAndClose );
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
@@ -323,34 +324,29 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 							      wvltsize_ );
     if ( !linesel2dfld_ )
     {
-	if ( !getSelData(rangepar,surfacepar) || !seldata_ )
+	if ( !get3DSelData(rangepar,surfacepar) || !seldata_ )
 	    return false;
-
-	extractor->setSelData( *seldata_ );
     }
     else
     {
 	StepInterval<float> zrg = zrangefld_->getRange();
-	Seis::RangeSelData range;
-	range.setZRange( zrg );
-	Interval<int> inlrg( 0, 0 );
-	auto& chss = mNonConst(range.cubeSubSel()).cubeHorSubSel();
-	chss.setInlRange( inlrg );
+	auto rsd = new Seis::RangeSelData;
+	seldata_ = rsd;
 
-	ObjectSet<Seis::SelData> sdset;
 	GeomIDSet geomids;
 	linesel2dfld_->getSelGeomIDs( geomids );
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 	{
 	    const Pos::GeomID geomid = geomids[lidx];
-	    chss.setCrlRange( linesel2dfld_->getTrcRange(geomid) );
-	    range.setGeomID( geomid );
-	    seldata_ = range.clone();
-	    sdset += seldata_;
-	}
+	    rsd->addgeomID( geomid );
+	    if ( !mIsUdf(zrg.start) )
+		rsd->setZRange( zrg, lidx );
 
-	extractor->setSelData( sdset );
+	    rsd->setTrcNrRange( linesel2dfld_->getTrcRange(geomid) );
+	}
     }
+    extractor->setSelData( *seldata_ );
+    extractor->setRelZWindow( relzwin_ );
 
     const int taperlength = taperfld_->getIntValue();
     const float val =
@@ -378,9 +374,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 {
     const char* extrazkey = IOPar::compKey( sKey::Surface(),
 					  Pos::EMSurfaceProvider::extraZKey());
-    Interval<float> extz( 0, 0 );
-    if ( surfacepar.get(extrazkey,extz) )
-	tsd.extendZ( extz );
+    surfacepar.get( extrazkey, relzwin_ );
 
     Pos::Provider3D* prov = Pos::Provider3D::make( rangepar );
     BufferString surfkey = IOPar::compKey( sKey::Surface(),
@@ -452,19 +446,18 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 }
 
 
-bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
+bool uiWaveletExtraction::get3DSelData( const IOPar& rangepar,
 				      const IOPar& surfacepar )
 {
     if ( zextraction_->getBoolValue() )
     {
-	if ( !linesel2dfld_ )
-	{
-	    seldata_ = Seis::SelData::get( rangepar );
-	    if ( !seldata_ ) return false;
+	seldata_ = Seis::SelData::get( rangepar );
+	if ( !seldata_ )
+	    return false;
 
-	    StepInterval<float> zrg = zrangefld_->getRange();
+	StepInterval<float> zrg = zrangefld_->getRange();
+	if ( !mIsUdf(zrg.start) )
 	    seldata_->setZRange( zrg );
-	}
     }
     else
     {

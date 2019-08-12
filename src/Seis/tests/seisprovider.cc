@@ -7,6 +7,8 @@
 #include "seisprovidertester.h"
 #include "seisprovider.h"
 #include "trckey.h"
+#include "cubesubsel.h"
+#include "linesubsel.h"
 
 #include "testprog.h"
 #include "moddepmgr.h"
@@ -57,11 +59,13 @@ if ( !tester.testComponentSelection() ) \
     mTestGetAll()
 
 #define mStartPreLoad3D() \
-    auto* pl = tester.preLoad( tester.prov_->as3D()->cubeSubSel() ); \
+    auto* pl = tester.preLoad( CubeSubSel() ); \
     logStream() << "\n\t>> PreLoad" << od_endl \
 
 #define mStartPreLoad2D() \
-    auto* pl = tester.preLoad( tester.prov_->as2D()->lineSubSelSet() ); \
+    LineSubSelSet linestopreload; \
+    linestopreload.setToAll(); \
+    auto* pl = tester.preLoad( linestopreload ); \
     logStream() << "\n\t>> PreLoad" << od_endl \
 
 #define mStopPreLoad() \

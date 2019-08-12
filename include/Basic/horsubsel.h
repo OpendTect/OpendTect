@@ -26,8 +26,7 @@ mExpClass(Basic) LineHorSubSel : public Pos::IdxSubSel1D
 {
 public:
 
-    typedef Pos::IdxSubSelData		TrcNrSubSelData;
-    typedef TrcNrSubSelData::pos_type	trcnr_type;
+    typedef Pos::IdxSubSelData	TrcNrSubSelData;
 
 			LineHorSubSel(GeomID);
 			LineHorSubSel(const Geometry2D&);
@@ -57,6 +56,12 @@ public:
     trcnr_type		trcNr4Idx( idx_type idx ) const
 			{ return pos4Idx( idx ); }
     size_type		nrTrcs() const		{ return data_.size(); }
+    trcnr_type		trcNrStart() const override
+			{ return trcNrRange().start; }
+    trcnr_type		trcNrStop() const override
+			{ return trcNrRange().stop; }
+    trcnr_type		trcNrStep() const override
+			{ return trcNrRange().step; }
 
     bool		includes( trcnr_type tnr ) const
 			{ return Pos::IdxSubSel1D::includes(tnr); }
@@ -198,6 +203,9 @@ public:
     pos_type		crlStep() const	{ return crlRange().step; }
     size_type		nrInl() const	{ return inlRange().nrSteps()+1; }
     size_type		nrCrl() const	{ return crlRange().nrSteps()+1; }
+    trcnr_type		trcNrStart() const override { return crlStart(); }
+    trcnr_type		trcNrStop() const override  { return crlStop(); }
+    trcnr_type		trcNrStep() const override  { return crlStep(); }
 
     BinID		atGlobIdx( od_int64 gidx ) const
 			{

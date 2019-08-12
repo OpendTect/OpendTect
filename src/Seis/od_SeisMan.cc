@@ -74,7 +74,7 @@ public:
     mUseType( Seis,	Provider );
     mUseType( Seis,	Storer );
     mUseType( PosInfo,	CubeData );
-    mUseType( PosInfo,	Line2DData );
+    mUseType( PosInfo,	LineData );
 
 			SeisServerTool(int,char**);
 
@@ -288,8 +288,7 @@ void SeisServerTool::set3DPos( int ptnr, int inl, int crl )
 
 void SeisServerTool::set3DGeomInfo( bool full )
 {
-    CubeData cd;
-    prov_->as3D()->getGeometryInfo( cd );
+    CubeData cd = prov_->as3D()->possibleCubeData();
     const auto nrtrcs = cd.totalSize();
     set( sKey::Size(), nrtrcs );
     if ( nrtrcs < 1 )
@@ -322,32 +321,39 @@ void SeisServerTool::set3DGeomInfo( bool full )
 
 void SeisServerTool::set2DGeomInfo( bool full )
 {
-    Line2DData l2dd;
-    prov_->as2D()->getGeometryInfo( lineidx_, l2dd );
-    const auto nrtrcs = l2dd.size();
+    LineData ld;
+    prov_->as2D()->getLineData( lineidx_, ld );
+    const auto nrtrcs = ld.size();
     set( sKey::Size(), nrtrcs );
     if ( nrtrcs < 1 )
 	return;
 
     if ( !full )
     {
-	const auto trcrg = l2dd.trcNrRange();
+	const auto trcrg = ld.range();
 	set( "First Trace", trcrg.start );
 	set( "Last Trace", trcrg.stop );
-	set( "Step Trace", trcrg.step );
-	set( "First X", l2dd.coord(0).x_ );
-	set( "First Y", l2dd.coord(0).y_ );
-	set( "Last X", l2dd.coord(nrtrcs-1).x_ );
-	set( "Last Y", l2dd.coord(nrtrcs-1).y_ );
+	set( "Step Trace", ld.minStep() );
+	Bin2D b2d( GeomID(ld.linenr_), trcrg.start );
+	Coord coord( b2d.coord() );
+	set( "First X", coord.x_ );
+	set( "First Y", coord.y_ );
+	b2d.trcNr() = trcrg.stop;
+	coord = b2d.coord();
+	set( "Last X", coord.x_ );
+	set( "Last Y", coord.y_ );
     }
     else
     {
 	TypeSet<int> trcnrs;
 	TypeSet<double> xs, ys;
-	for ( auto itrc=0; itrc<nrtrcs; itrc++ )
+	PosInfo::LinePos lp;
+	const auto& survgeom = Survey::Geometry2D::get( GeomID(ld.linenr_) );
+	while ( ld.toNext(lp) )
 	{
-	    trcnrs += l2dd.trcNr( itrc );
-	    const Coord coord( l2dd.coord(itrc) );
+	    const auto trcnr = ld.pos( lp );
+	    trcnrs += trcnr;
+	    const Coord coord( survgeom.getCoord(trcnr) );
 	    xs += coord.x_;
 	    ys += coord.y_;
 	}
@@ -380,7 +386,7 @@ bool SeisServerTool::getLineFromCL( bool mandatory )
     if ( havegeomid && prov_ )
     {
 	const auto& prov2d = *prov_->as2D();
-	lineidx_ = prov2d.indexOf( geomid_ );
+	lineidx_ = prov2d.lineIdx( geomid_ );
 	if ( mandatory && lineidx_ < 0 )
 	    respondError( BufferString("Line '",linename_,"' not present") );
     }
@@ -874,7 +880,7 @@ BufferString SeisServerTool::getSpecificUsage() const
     addToUsageStr( ret, sListPS2DCmd, "" );
     addToUsageStr( ret, sListAttribs2DCmd, "" );
     addToUsageStr( ret, sInfoCmd, "seis_id" );
-    addToUsageStr( ret, sGeomInfoCmd, "seis_id [--all] [--geomid geomid]" );
+    addToUsageStr( ret, sGeomInfoCmd, "seis_id [--geomid geomid]" );
 #   define mAddWriteCmdToUsage( cmd ) \
 	addToUsageStr( ret, cmd, \
 	    "name [--ascii] [--format fmt] [--encoding nr] [--type tag]" )

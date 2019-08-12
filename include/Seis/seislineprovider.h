@@ -25,8 +25,6 @@ public:
 			LineProvider();
 			LineProvider(const DBKey&,uiRetVal&);
 
-    virtual GeomType	geomType() const	{ return Line; }
-
 protected:
 
     friend class	LineFetcher;

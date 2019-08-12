@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioobjctxt.h"
 #include "globexpr.h"
+#include "datapackbase.h"
 #include "dbdir.h"
 #include "dbman.h"
 #include "iopar.h"

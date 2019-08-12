@@ -18,14 +18,18 @@
 
 
 Seis::MSCProvider::MSCProvider( const DBKey& id )
+    : provmine_(true)
 {
     prov_ = Provider::create( id, &uirv_ );
+    if ( !prov_ )
+	prov_ = &Provider3D::dummy();
+}
 
-    intofloats_ = workstarted_ = atend_ = false;
-    estnrtrcs_ = -2;
-    reqmask_ = 0;
-    bufidx_ = trcidx_ = -1;
-    curgeomid_ = GeomID();
+
+Seis::MSCProvider::MSCProvider( Provider& prov )
+    : prov_(&prov)
+    , provmine_(false)
+{
 }
 
 
@@ -34,20 +38,21 @@ Seis::MSCProvider::~MSCProvider()
     for ( int idx=0; idx<tbufs_.size(); idx++ )
 	tbufs_[idx]->deepErase();
     deepErase( tbufs_ );
-    delete prov_;
     delete reqmask_;
+    if ( provmine_ )
+	delete prov_;
 }
 
 
 bool Seis::MSCProvider::is2D() const
 {
-    return prov_ && prov_->is2D();
+    return prov_->is2D();
 }
 
 
 BufferString Seis::MSCProvider::name() const
 {
-    return prov_ ? prov_->name() : BufferString();
+    return prov_->name();
 }
 
 
@@ -78,10 +83,21 @@ void Seis::MSCProvider::setStepout( Array2D<bool>* mask )
 }
 
 
-void Seis::MSCProvider::setSelData( const Seis::SelData& sd )
+void Seis::MSCProvider::setSelData( SelData* sd )
 {
-    if ( prov_ )
-	prov_->setSelData( sd );
+    prov_->setSelData( sd );
+}
+
+
+void Seis::MSCProvider::setSelData( const SelData& sd )
+{
+    prov_->setSelData( sd );
+}
+
+
+void Seis::MSCProvider::setZExtension( const z_rg_type& zrg )
+{
+    prov_->setZExtension( zrg );
 }
 
 
@@ -189,37 +205,17 @@ bool Seis::MSCProvider::startWork()
 	desstepout_.trcNr() = reqstepout_.trcNr();
 
     prov_->forceFPData( intofloats_ );
-    const auto& lcd = prov_->possiblePositions();
     if ( prov_->is2D() )
     {
-	const auto& prov2d = *prov_->as2D();
+	auto& prov2d = *prov_->as2D();
 	prov2d.setStepout( desstepout_.trcNr() );
-	stepoutstep_.crl() = prov2d.stepoutStep( 0 );
+	stepoutstep_.crl() = prov2d.trcNrStep( 0 );
     }
     else
     {
-	const auto& prov3d = *prov_->as3D();
+	auto& prov3d = *prov_->as3D();
 	prov3d.setStepout( desstepout_ );
-	stepoutstep_ = prov3d.stepoutStep();
-    }
-
-    //TODO
-
-    const SelData* sd = prov_->selData();
-    if ( sd && !sd->isAll() )
-    {
-	BinID so( desstepout_.lineNr(), desstepout_.trcNr() );
-	bool doextend = so.inl() > 0 || so.crl() > 0;
-	if ( is2D() )
-	    so.inl() = 0;
-
-	if ( doextend )
-	{
-	    auto* newseldata = sd->clone();
-	    const BinID sostep( stepoutstep_.lineNr(), stepoutstep_.trcNr() );
-	    newseldata->extendH( so, &sostep );
-	    prov_->setSelData( newseldata );
-	}
+	stepoutstep_ = prov3d.binIDStep();
     }
 
     SeisTrc* trc = new SeisTrc;
@@ -247,10 +243,10 @@ bool Seis::MSCProvider::readTrace( SeisTrc& trc )
     {
 	if ( prov_->is2D() && trc.info().geomID() != curgeomid_ )
 	{
+	    const auto& prov2d = *prov_->as2D();
 	    curgeomid_ = trc.info().geomID();
-	    const auto lidx = prov_->as2D()->curLineIdx();
-	    const auto& lhss = *prov_->horSubSel( lidx ).asLineHorSubSel();
-	    stepoutstep_.trcNr() = lhss.trcNrRange().step;
+	    stepoutstep_.trcNr() = prov2d.trcNrStep(
+					prov2d.lineIdx(curgeomid_) );
 	}
 	return true;
     }
@@ -302,7 +298,7 @@ Pos::GeomID Seis::MSCProvider::curGeomID() const
     if ( !prov_ )
 	return Pos::GeomID();
 
-    return prov_->curGeomID();
+    return prov_->as2D()->curGeomID();
 }
 
 

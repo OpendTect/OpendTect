@@ -27,7 +27,7 @@ public:
 			PS3DProvider();
 			PS3DProvider(const DBKey&,uiRetVal&);
 
-    virtual GeomType	geomType() const	{ return VolPS; }
+    bool		isPS() const override	{ return true; }
 
 protected:
 

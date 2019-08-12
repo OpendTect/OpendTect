@@ -340,7 +340,7 @@ bool Seis::ProviderTester::testIOParUsage()
     prov_->fillPar( iop );
 
     mHandleProvReset();
-    if ( !prov_->goTo(lastgoodtk_,&uirv_) )
+    if ( !prov_->goTo(lastgoodtk_) )
 	mHandleUiRv( "Provider goTo for usePar", true, true );
 
     TrcKey provpos;

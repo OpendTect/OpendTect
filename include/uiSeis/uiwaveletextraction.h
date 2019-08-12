@@ -32,7 +32,7 @@ public:
     DBKey			storeKey() const;
     bool			is2D() const;
 
-    Notifier<uiWaveletExtraction>	extractionDone;
+    Notifier<uiWaveletExtraction> extractionDone;
 
 protected:
 
@@ -45,7 +45,7 @@ protected:
     void			lineSelCB(CallBacker*);
     bool			doProcess(const IOObj&,const IOPar&,
 					  const IOPar&);
-    bool                        getSelData(const IOPar&,const IOPar&);
+    bool                        get3DSelData(const IOPar&,const IOPar&);
     bool			fillHorizonSelData(const IOPar&,const IOPar&,
 						   Seis::TableSelData&);
 
@@ -61,6 +61,8 @@ protected:
     uiSelZRange*		zrangefld_;
     Seis::SelData*		seldata_;
 
+    Interval<float>		relzwin_;
     float			datastep_;
     int				wvltsize_;
+
 };

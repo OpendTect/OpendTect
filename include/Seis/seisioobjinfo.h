@@ -145,7 +145,7 @@ public:
     bool		isFullyRectAndRegular() const;
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp=0) const;
-			//!< max bytes per sample, component -1 => add all
+			    //!< max bytes per sample, component -1 => add all
     bool		havePars() const;
     bool		getPars(IOPar&) const;
     bool		getDisplayPars( IOPar& iop ) const

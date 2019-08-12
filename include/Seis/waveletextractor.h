@@ -26,20 +26,20 @@ public:
 				WaveletExtractor(const IOObj&,int wvltsize);
 				~WaveletExtractor();
 
-    void			setSelData(const Seis::SelData&); // 3D
-    void			setSelData(const ObjectSet<Seis::SelData>&);//2D
+    void			setSelData(const Seis::SelData&);
     void			setPhase(int phase);
     void			setTaperParamVal(float paramval);
+    void			setRelZWindow( Interval<float> zw )
+					{ relzwin_ = zw; }
+					// when extracting a table of positions
+
     RefMan<Wavelet>		getWavelet() const;
 
 protected:
 
     void			initWavelet(const IOObj&);
-    void			init2D();
-    void			init3D();
     bool			getSignalInfo(const SeisTrc&,
 					      int& start,int& signalsz) const;
-    bool			getNextLine(); //2D
     bool			processTrace(const SeisTrc&,
 					     int start, int signalsz);
     void			doNormalisation(Array1DImpl<float>&);
@@ -56,8 +56,8 @@ protected:
 
     RefMan<Wavelet>		wvlt_;
     const IOObj&		iobj_;
+    Interval<float>		relzwin_;
     const Seis::SelData*	sd_;
-    ObjectSet<Seis::SelData>    sdset_;
     Seis::Provider*		seisprov_;
     Fourier::CC*		fft_;
     int				lineidx_;
@@ -69,4 +69,5 @@ protected:
     bool			isbetweenhor_;
     od_int64			totalnr_;
     uiString			msg_;
+
 };

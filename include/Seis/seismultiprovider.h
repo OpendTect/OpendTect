@@ -20,7 +20,7 @@ ________________________________________________________________________
 class SeisTrc;
 class SeisTrcBuf;
 
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class CubeData; class LineData; }
 
 namespace Seis
 {
@@ -183,7 +183,7 @@ public:
     bool			getRanges(int iln,StepInterval<int>& trcrg,
 					  ZSampling&) const;
     void			getGeometryInfo(int iln,
-					  PosInfo::Line2DData&) const;
+					  PosInfo::LineData&) const;
 
 protected:
 

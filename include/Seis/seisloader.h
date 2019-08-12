@@ -25,8 +25,7 @@ class RegularSeisDataPack;
 class Scaler;
 
 class GatherSetDataPack;
-namespace PosInfo { class CubeData; class LineCollDataIterator;
-		    class Line2DData; class Line2DDataIterator; }
+namespace PosInfo { class LineCollData; class LineCollDataIterator; }
 
 namespace Seis
 {
@@ -38,6 +37,9 @@ class SelData;
 mExpClass(Seis) Loader : public CallBacker
 { mODTextTranslationClass(Loader)
 public:
+
+    mUseType( PosInfo,	LineCollData );
+    mUseType( PosInfo,	LineCollDataIterator );
 
     virtual		~Loader();
 
@@ -66,9 +68,10 @@ protected:
     void		submitUdfWriterTasks();
     void		releaseDP();
 
+    bool		is2d_;
     RefMan<RegularSeisDataPack> dp_;
     bool		dpismine_;
-    Threads::Atomic<bool>	arrayfillererror_;
+    Threads::Atomic<bool> arrayfillererror_;
     bool		udftraceswritefinished_;
     IOObj*		ioobj_;
     TrcKeyZSampling	tkzs_;
@@ -79,8 +82,7 @@ protected:
     TypeSet<int>	outcomponents_;
     Scaler*		scaler_;
     ObjectSummary*	seissummary_;
-    const PosInfo::Line2DData* line2ddata_;
-    PosInfo::CubeData*	trcssampling_;
+    LineCollData&	trcssampling_;
     od_int64		totalnr_;
 
     int			queueid_;
@@ -210,8 +212,7 @@ private:
 
     Provider*		prov_;
     Interval<int>	samprg_;
-    PosInfo::Line2DDataIterator* trcsiterator2d_;
-    PosInfo::LineCollDataIterator* trcsiterator3d_;
+    LineCollDataIterator* trcsiterator_;
     bool		samedatachar_;
     StepInterval<float> dpzsamp_;
     bool		needresampling_;
@@ -247,6 +248,7 @@ protected:
 
     RefMan<GatherSetDataPack>	gatherdp_;
 
+    bool		is2d_;
     Provider*		prov_;
     SelData*		sd_;
     Pos::GeomID		geomid_;

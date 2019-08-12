@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "bin2d.h"
 namespace PosInfo { class LineCollData; }
+namespace Survey { class FullSubSel; }
 
 
 /*!\brief A Pos::IdxPairValueSet with ether BinIDs or Bin2Ds. */

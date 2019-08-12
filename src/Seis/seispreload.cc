@@ -496,8 +496,8 @@ bool Seis::PreLoadDataManager::isPresent( const DBKey& dbky,
 }
 
 
-Seis::PreLoadDataManager& PLDM()
+Seis::PreLoadDataManager& Seis::PLDM()
 {
-    static PtrMan<PreLoadDataManager> pldm = new PreLoadDataManager;
-    return *pldm;
+    static Seis::PreLoadDataManager pldm;
+    return pldm;
 }
