@@ -239,6 +239,7 @@ mExpClass(Seis) Provider3D : public Provider
 { mODTextTranslationClass(Seis::Provider3D);
 public:
 
+    mUseType( Pos,	IdxPair );
     mUseType( PosInfo,	CubeData );
 
     bool	is2D() const override	{ return false; }

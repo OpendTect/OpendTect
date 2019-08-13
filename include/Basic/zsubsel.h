@@ -24,6 +24,7 @@ mExpClass(Basic) ZSubSelData : public ArrRegSubSelData
 public:
 
     typedef Z_Type			z_type;
+    typedef Interval<z_type>		z_rg_type;
     typedef StepInterval<z_type>	z_steprg_type;
     static z_type			zEps()	    { return (z_type)1e-6; }
 
@@ -52,6 +53,7 @@ public:
 
     void	limitTo(const ZSubSelData&);
     void	widenTo(const ZSubSelData&);
+    void	widen(const z_rg_type&);
 
 protected:
 

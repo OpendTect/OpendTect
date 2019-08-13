@@ -77,8 +77,8 @@ public:
     virtual Type	type() const			= 0;
     virtual bool	is2D() const			{ return false; }
     virtual bool	isAll() const			{ return false; }
-    inline bool		isOK(const Bin2D&) const;
-    inline bool		isOK( const BinID& b ) const	{ return !selRes(b); }
+    inline bool		isOK( const Bin2D& b2d ) const	{ return !selRes(b2d); }
+    inline bool		isOK( const BinID& bid ) const	{ return !selRes(bid); }
     inline bool		isOK( GeomID gid, trcnr_type trcnr ) const
 			{ return !selRes(gid,trcnr); }
     bool		isOK(const TrcKey&) const;

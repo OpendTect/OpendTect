@@ -33,6 +33,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
+static const Seis::Provider::z_type zeps = 1.e-6f;
+
 
 Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
 {
@@ -389,7 +391,6 @@ void Seis::Provider::setZRange( const ZSampling& zrg, idx_type iln )
 
 void Seis::Provider::setZExtension( const z_rg_type& zrg )
 {
-    static const z_type zeps = 1.e-6f;
     if ( zrg.isEqual(zextension_,zeps) )
 	return;
 
@@ -518,16 +519,62 @@ void Seis::Provider::ensureSelectedPositions()
 
 void Seis::Provider::applySelData()
 {
+    if ( !selectedpositions_ )
+	selectedpositions_ = new BinnedValueSet( 0, false,
+		is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
+
+    PosInfo::LineCollDataIterator lcdit( possiblepositions_ );
+    if ( is2D() )
+    {
+	Bin2D b2d;
+	while ( lcdit.next(b2d) )
+	    if ( seldata_->isOK(b2d) )
+		selectedpositions_->add( b2d );
+    }
+    else
+    {
+	BinID bid;
+	while ( lcdit.next(bid) )
+	    if ( seldata_->isOK(bid) )
+		selectedpositions_->add( bid );
+    }
 }
 
 
 void Seis::Provider::applyStepout()
 {
+    TypeSet<SPos> toremove;
+    SPos spos;
+    if ( is2D() )
+    {
+	selectedpositions_->setStepout( as2D()->stepout_ );
+	while ( selectedpositions_->next(spos) )
+	    if ( !possiblepositions_.includes(
+				selectedpositions_->getBin2D(spos)) )
+		toremove += spos;
+    }
+    else
+    {
+	const auto& as3d = *as3D();
+	selectedpositions_->setStepout( as3d.stepout_, as3d.binIDStep() );
+	while ( selectedpositions_->next(spos) )
+	    if ( !possiblepositions_.includes(
+				selectedpositions_->getBinID(spos)) )
+		toremove += spos;
+    }
+
+    selectedpositions_->remove( toremove );
 }
 
 
 void Seis::Provider::applyZExt()
 {
+    if ( mIsZero(zextension_.start,zeps) && mIsZero(zextension_.stop,zeps) )
+	return;
+
+    const auto nrsubsels = nrGeomIDs();
+    for ( int idx=0; idx<nrsubsels; idx++ )
+	mNonConst(zSubSel(idx).zData()).widen( zextension_ );
 }
 
 

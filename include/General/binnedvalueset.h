@@ -27,6 +27,7 @@ public:
 
     mUseType( OD,	GeomSystem );
     mUseType( Pos,	GeomID );
+    mUseType( Pos,	IdxPair );
     mUseType( Pos,	IdxPairValueSet );
 
 			BinnedValueSet(int nrvals,bool allowdup,
@@ -153,8 +154,11 @@ public:
     inline SPos		findNearest( const Bin2D& b2d ) const
 			{ return data_.findNearestOnFirst( b2d.lineNr(),
 							   b2d.trcNr() ); }
-    void		setStepout(pos_type);
-    void		setStepout(const BinID&,const BinID&);
+
+    void		setStepout(pos_type); // 2D
+			    //!< may add positions that are outside line range
+    void		setStepout(const IdxPair&,const IdxPair&); // 3D
+			    //!< may add positions that are outside survey
 
     inline GeomSystem	geomSystem() const
 			{ return geomsystem_; }

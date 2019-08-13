@@ -214,30 +214,11 @@ Seis::Provider* VolumeFunctionSource::getProvider( uiRetVal& uirv )
 void VolumeFunctionSource::getAvailablePositions( BinnedValueSet& bids ) const
 {
     uiRetVal uirv;
-    VolumeFunctionSource* myself = const_cast<VolumeFunctionSource*>(this);
-    Seis::Provider* velprovider = myself->getProvider( uirv );
+    Seis::Provider* velprovider = mSelf().getProvider( uirv );
     if ( !velprovider )
-	{ pErrMsg( uirv.getText() ); return; }
+	{ ErrMsg( uirv.getText() ); return; }
 
-    if ( !velprovider->is2D() )
-    {
-	mDynamicCastGet(const Seis::Provider3D&,prov3d,*velprovider);
-	PosInfo::CubeData cubedata;
-	prov3d.getGeometryInfo( cubedata );
-	bids.add( cubedata );
-    }
-    else
-    {
-	mDynamicCastGet(const Seis::Provider2D&,prov2d,*velprovider);
-	PosInfo::Line2DData line2ddata;
-	prov2d.getGeometryInfo( prov2d.curLineIdx(), line2ddata );
-	for ( int idx=0; idx<line2ddata.positions().size(); idx++ )
-	{
-	    const TrcKey trckey( prov2d.curGeomID(),
-				 line2ddata.positions()[idx].nr_ );
-	    bids.add( trckey.binID() );
-	}
-    }
+    bids.add( velprovider->as3D()->possiblePositions() );
 }
 
 
@@ -247,7 +228,7 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
     uiRetVal uirv;
     Seis::Provider* velprovider = getProvider( uirv );
     if ( !velprovider )
-	{ pErrMsg( uirv.getText() ); return false; }
+	{ ErrMsg( uirv.getText() ); return false; }
 
     if ( !velprovider->isPresent(TrcKey(bid)) )
 	return false;

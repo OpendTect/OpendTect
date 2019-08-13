@@ -691,7 +691,7 @@ void BinnedValueSet::setStepout( pos_type so )
 }
 
 
-void BinnedValueSet::setStepout( const BinID& so, const BinID& sos )
+void BinnedValueSet::setStepout( const IdxPair& so, const IdxPair& sos )
 {
     data_.extendHor3D( so, sos );
 }

@@ -295,6 +295,14 @@ void Pos::ZSubSelData::widenTo( const ZSubSelData& oth )
 }
 
 
+void Pos::ZSubSelData::widen( const z_rg_type& zrg )
+{
+    auto outrg = outputZRange();
+    outrg.start += zrg.start; outrg.stop += zrg.stop;
+    setOutputZRange( outrg );
+}
+
+
 bool Pos::ZSubSel::usePar( const IOPar& iop )
 {
     z_steprg_type zrg;
