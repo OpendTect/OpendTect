@@ -477,7 +477,8 @@ int getTrc3D()
 
 int getTrc2D()
 {
-    const TrcKey reqtk( prov_.curGeomID(), bid_.crl() );
+    const auto curgeomid = prov_.as2D()->curGeomID();
+    const TrcKey reqtk( curgeomid, bid_.crl() );
     const uiRetVal uirv = prov_.getAt( reqtk, trc_ );
     if ( !uirv.isOK() )
 	{ msg_ = uirv; return ErrorOccurred(); }
@@ -488,7 +489,7 @@ int getTrc2D()
     mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_)
     if ( !hor2d )
 	return ErrorOccurred();
-    TrcKey tk( prov_.curGeomID(), trc_.info().trcNr() );
+    TrcKey tk( curgeomid, trc_.info().trcNr() );
     EM::PosID pid = hor2d->geometry().getPosID( tk );
     const Coord3 crd = dlg_.horizon_->getPos( pid );
     if ( mIsUdf(crd.z_) )

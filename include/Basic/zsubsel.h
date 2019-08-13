@@ -52,8 +52,9 @@ public:
 		{ setOutputZRange( rg.start, rg.stop, rg.step ); }
 
     void	limitTo(const ZSubSelData&);
+    void	limitTo(const z_rg_type&);
     void	widenTo(const ZSubSelData&);
-    void	widen(const z_rg_type&);
+    void	widen(const z_rg_type&); // zrg is relative, will be added
 
 protected:
 
@@ -71,6 +72,7 @@ mExpClass(Basic) ZSubSel : public ArrRegSubSel1D
 public:
 
     mUseType( ZSubSelData,	z_type );
+    mUseType( ZSubSelData,	z_rg_type );
     mUseType( ZSubSelData,	z_steprg_type );
 
 			ZSubSel( const z_steprg_type& rg )
@@ -91,6 +93,9 @@ public:
     bool	isAll() const		{ return data_.isAll(); }
     bool	hasFullRange() const	{ return data_.hasFullRange(); }
     void	limitTo( const ZSubSel& oth ) { data_.limitTo(oth.data_); }
+    void	limitTo( const z_rg_type& zrg ) { data_.limitTo(zrg); }
+    void	widenTo( const ZSubSel& oth ) { data_.widenTo(oth.data_); }
+    void	widen( const z_rg_type& zrg ) { data_.widen(zrg); }
     void	merge( const ZSubSel& oth ) { data_.widenTo(oth.data_); }
 
     idx_type	idx4Z( z_type z ) const { return data_.idx4Z( z ); }

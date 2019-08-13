@@ -596,12 +596,13 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	    DPM( DataPackMgr::SeisID() ).add( outcube );
 	    outcube->setName( "New VolProc DP" );
 	    outcube->setSampling( csamp );
-	    if ( posdata.totalSizeInside( csamp.hsamp_ ) > 0 )
+	    CubeHorSubSel chss( csamp.hsamp_ );
+	    if ( posdata.totalSizeInside( chss ) > 0 )
 	    {
-		posdata.limitTo( csamp.hsamp_ );
+		posdata.limitTo( chss );
 		if ( !posdata.isFullyRectAndReg() )
-		    outcube->setTrcsSampling(
-				    new PosInfo::SortedCubeData(posdata) );
+		    outcube->setTrcsSampling( new PosInfo::SortedCubeData(
+							posdata) );
 	    }
 
 	    for ( int icomp=0; icomp<currentstep->getNrOutComponents(0,geomid);

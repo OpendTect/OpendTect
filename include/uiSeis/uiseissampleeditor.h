@@ -106,8 +106,6 @@ protected:
     uiSeisTrcBufViewer*	trcbufvwr_;
 
     int			nrComponents() const	{ return compnms_.size(); }
-    Seis::Provider2D&	prov2D();
-    Seis::Provider3D&	prov3D();
     TrcKey		trcKey4BinID(const BinID&) const;
     SeisTrc*		curTrace(bool);
     BinID		getBinID4RelIdx(const BinID&,int) const;

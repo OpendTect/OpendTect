@@ -283,6 +283,14 @@ void Pos::ZSubSelData::limitTo( const ZSubSelData& oth )
 }
 
 
+void Pos::ZSubSelData::limitTo( const z_rg_type& zrg )
+{
+    auto outrg = outputZRange();
+    outrg.limitTo( zrg );
+    setOutputZRange( outrg );
+}
+
+
 void Pos::ZSubSelData::widenTo( const ZSubSelData& oth )
 {
     auto outrg = outputZRange();

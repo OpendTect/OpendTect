@@ -330,7 +330,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
     else
     {
 	StepInterval<float> zrg = zrangefld_->getRange();
-	auto rsd = new Seis::RangeSelData;
+	auto* rsd = new Seis::RangeSelData;
 	seldata_ = rsd;
 
 	GeomIDSet geomids;
@@ -338,7 +338,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 	{
 	    const Pos::GeomID geomid = geomids[lidx];
-	    rsd->addgeomID( geomid );
+	    rsd->addGeomID( geomid );
 	    if ( !mIsUdf(zrg.start) )
 		rsd->setZRange( zrg, lidx );
 
@@ -389,7 +389,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
     if ( !betweenhors )
     {
-	const int size = int ( 1+(extz.stop-extz.start)/datastep_ );
+	const int size = int ( 1+(relzwin_.stop-relzwin_.start)/datastep_ );
 	if ( size < wvltsize_ )
 	{
 	    uiMSG().error( tr("Selection window size should be"

@@ -7,6 +7,7 @@
 
 #include "uivelocityvolumeconversion.h"
 
+#include "horsubsel.h"
 #include "ioobjctxt.h"
 #include "seistrctr.h"
 #include "seisprovider.h"
@@ -91,7 +92,11 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 
     const auto* prov3d = provider->as3D();
     if ( prov3d )
-	possubsel_->setInputLimit( TrcKeyZSampling(prov3d->cubeSubSel()) );
+    {
+	Survey::FullSubSel fss;
+	prov3d->getSubSel( fss );
+	possubsel_->setInputLimit( TrcKeyZSampling(fss) );
+    }
 }
 
 

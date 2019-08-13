@@ -187,6 +187,7 @@ protected:
     void		reportSetupChg();
     void		handleNewPositions();
     virtual size_type	gtNrOffsets() const			{ return 1; }
+    ZSubSel&		zSubSel(idx_type);
     void		prepWork(uiRetVal&);
     bool		prepGet(uiRetVal&,bool) const;
     bool		doGoTo(const TrcKey&) const;
@@ -319,7 +320,7 @@ protected:
     trcnr_type		stepout_	= 0;
 
     GeomID		gtGeomID(idx_type) const;
-    const ZSubSel&	gtZSubSel(idx_type) const;
+    ZSubSel&		gtZSubSel(idx_type) const;
     void		stZRange(idx_type,const ZSampling&);
 
 private:

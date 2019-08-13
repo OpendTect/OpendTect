@@ -195,6 +195,12 @@ Pos::GeomID Seis::Provider::geomID( int iln ) const
 }
 
 
+Pos::ZSubSel& Seis::Provider::zSubSel( int iln )
+{
+    return is2D() ? as2D()->gtZSubSel( iln ) : allzsubsels_[0];
+}
+
+
 const Pos::ZSubSel& Seis::Provider::zSubSel( int iln ) const
 {
     return is2D() ? as2D()->gtZSubSel( iln ) : allzsubsels_[0];
@@ -524,19 +530,27 @@ void Seis::Provider::applySelData()
 		is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
 
     PosInfo::LineCollDataIterator lcdit( possiblepositions_ );
-    if ( is2D() )
-    {
-	Bin2D b2d;
-	while ( lcdit.next(b2d) )
-	    if ( seldata_->isOK(b2d) )
-		selectedpositions_->add( b2d );
-    }
-    else
+    if ( !is2D() )
     {
 	BinID bid;
 	while ( lcdit.next(bid) )
 	    if ( seldata_->isOK(bid) )
 		selectedpositions_->add( bid );
+	zSubSel(0).limitTo( seldata_->zRange() );
+	return;
+    }
+
+    Bin2D b2d;
+    while ( lcdit.next(b2d) )
+	if ( seldata_->isOK(b2d) )
+	    selectedpositions_->add( b2d );
+
+    const auto nrgeomids = seldata_->nrGeomIDs();
+    for ( int idx=0; idx<nrgeomids; idx++ )
+    {
+	const auto geomid = seldata_->geomID( idx );
+	const auto lidx = as2D()->lineIdx( geomid );
+	zSubSel(lidx).limitTo( seldata_->zRange(idx) );
     }
 }
 
@@ -574,7 +588,7 @@ void Seis::Provider::applyZExt()
 
     const auto nrsubsels = nrGeomIDs();
     for ( int idx=0; idx<nrsubsels; idx++ )
-	mNonConst(zSubSel(idx).zData()).widen( zextension_ );
+	zSubSel(idx).zData().widen( zextension_ );
 }
 
 
@@ -1041,11 +1055,11 @@ Pos::GeomID Seis::Provider2D::gtGeomID( idx_type lidx ) const
 }
 
 
-const Pos::ZSubSel& Seis::Provider2D::gtZSubSel( idx_type iln ) const
+Pos::ZSubSel& Seis::Provider2D::gtZSubSel( idx_type iln ) const
 {
     const auto gid = gtGeomID( iln );
     const auto zsidx = allgeomids_.indexOf( gid );
-    return allzsubsels_[zsidx];
+    return mNonConst( allzsubsels_[zsidx] );
 }
 
 

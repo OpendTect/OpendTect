@@ -148,6 +148,12 @@ void Seis::RangeSelData::setToAll()
 }
 
 
+void Seis::RangeSelData::setToAll( bool make2d )
+{
+    fss_.setToAll( make2d );
+}
+
+
 pos_rg_type Seis::RangeSelData::inlRange() const
 {
     if ( forceall_ )

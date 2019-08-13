@@ -190,22 +190,24 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
 					float zval )
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    uiTaskRunnerProvider trprov( this );
-    RefMan<DataPointSet> dps = new DataPointSet( pp_.is2D(), true );
-    if ( !dps->extractPositions(pp_,ObjectSet<DataColDef>(),trprov) )
-	return false;
-
-    const float zwdth = SI().zRange().width();
-    const Interval<float> maxzrg( -zwdth, zwdth );
-    auto* tsd = new Seis::TableSelData( dps->bivSet(), &maxzrg );
     uiRetVal uirv;
     PtrMan<Seis::Provider> prov = Seis::Provider::create( inioobj.key(), &uirv);
     if ( !prov )
 	{ errmsg_ = uirv; return false; }
 
+    uiTaskRunnerProvider trprov( this );
+    RefMan<DataPointSet> dps = new DataPointSet( pp_.is2D(), true );
+    if ( !dps->extractPositions(pp_,ObjectSet<DataColDef>(),trprov) )
+	return false;
+
+    auto* tsd = new Seis::TableSelData( dps->bivSet() );
     prov->setSelData( tsd );
+    const float zwdth = SI().zRange().width();
+    prov->setZExtension( Interval<float>(-zwdth,zwdth) );
+
     Seis::Storer storer( outioobj );
     uiWriteFlattenedCubeMaker cm( *prov, storer, pp_, horzrg_, zval );
     MouseCursorManager::restoreOverride();
+
     return trprov.execute( cm );
 }

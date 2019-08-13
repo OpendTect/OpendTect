@@ -367,8 +367,9 @@ void MadStream::fillHeaderParsFromSeis()
     }
     else
     {
-	const auto& prov3d = *seisprov_->as3D();
-	const TrcKeyZSampling tkzs( prov3d.cubeSubSel() );
+	Survey::FullSubSel fss;
+	seisprov_->getSubSel( fss );
+	const TrcKeyZSampling tkzs( fss );
 	zrg = tkzs.zsamp_;
 	trcrg = tkzs.hsamp_.trcRange();
 
@@ -379,8 +380,8 @@ void MadStream::fillHeaderParsFromSeis()
 	    trcrg.limitTo( rgsel->crlRange() );
 	}
 
-	PosInfo::CubeData newcd;
-	prov3d.getGeometryInfo( newcd );
+	const auto& prov3d = *seisprov_->as3D();
+	PosInfo::CubeData newcd = prov3d.possibleCubeData();
 	if ( rgsel && !rgsel->isAll() )
 	    newcd.limitTo( rgsel->cubeSubSel().cubeHorSubSel() );
 
@@ -465,9 +466,8 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	cubedata_ = new PosInfo::CubeData( rdr->posData() );
 	if ( seldata )
 	{
-	    TrcKeySampling hs;
-	    hs.set( seldata->inlRange(), seldata->crlRange() );
-	    cubedata_->limitTo( hs );
+	    CubeHorSubSel css( seldata->inlRange(), seldata->crlRange() );
+	    cubedata_->limitTo( css );
 	}
 
 	nrbids = cubedata_->totalSize();

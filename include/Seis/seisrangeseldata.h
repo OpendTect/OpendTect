@@ -29,7 +29,7 @@ public:
     mUseType( Survey,	GeomSubSel );
     mUseType( Survey,	FullSubSel );
 
-			RangeSelData()		    {}
+			RangeSelData()		    {} //3D, all
 			RangeSelData(GeomID);
 			RangeSelData(const GeomIDSet&);
 			RangeSelData(const CubeSubSel&);
@@ -73,6 +73,7 @@ public:
 
     bool		isAll() const override;
     void		setToAll();
+    void		setToAll(bool make2d);
     void		setForceIsAll( bool yn=true )
 						{ forceall_ = true; }
 

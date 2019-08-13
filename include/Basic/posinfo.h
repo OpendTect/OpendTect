@@ -279,7 +279,8 @@ public:
 						{ generate(start,stop,step); }
 			SortedCubeData( const SortedCubeData& oth )
 						{ copyContents( oth ); }
-			SortedCubeData(const LineCollData&) = delete;
+			SortedCubeData( const LineCollData& lcd )
+						{ copyContents(lcd); }
     SortedCubeData&	operator =( const SortedCubeData& scd )
 			{ copyContents(scd); return *this; }
     SortedCubeData&	operator =( const LineCollData& lcd )

@@ -10,10 +10,12 @@ ________________________________________________________________________
 
 #include "seisvolprovider.h"
 #include "seisfetcher.h"
+#include "cubesubsel.h"
 #include "iostrm.h"
 #include "file.h"
 #include "posinfo.h"
 #include "seispacketinfo.h"
+#include "seisrangeseldata.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seisdatapack.h"
@@ -197,6 +199,10 @@ bool Seis::VolFetcher::createTranslator( inl_type inl ) const
 	for ( auto icd=0; icd<newtransl->componentInfo().size(); icd++ )
 	    if ( !prov_.selectedcomponents_.isPresent(icd) )
 		newtransl->componentInfo()[icd]->selected_ = false;
+
+    auto* sd = new Seis::RangeSelData;
+    sd->cubeSubSel().zSubSel().limitTo( prov_.zSubSel() );
+    newtransl->setSelData( sd );
 
     if ( !newtransl->commitSelections() )
 	{ uirv_ = newtransl->errMsg(); delete newtransl; return false; }

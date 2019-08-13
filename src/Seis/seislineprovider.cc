@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "seislineprovider.h"
+#include "linesubsel.h"
 #include "seisfetcher.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seistrc.h"
 #include "seisdatapack.h"
-#include "seisseldata.h"
+#include "seisrangeseldata.h"
 #include "uistrings.h"
 #include "survgeom.h"
 
@@ -103,7 +104,12 @@ bool Seis::LineFetcher::ensureRightDataSource( GeomID geomid )
     ensureDataSet();
     if ( dataset_ )
     {
-	getter_ = dataset_->traceGetter( geomid, nullptr, uirv_ );
+	const auto providx = prov2D().lineIdx( geomid );
+	Seis::RangeSelData rsd( geomid );
+	rsd.lineSubSel(0).zSubSel().limitTo( prov_.zSubSel(providx) );
+
+	getter_ = dataset_->traceGetter( geomid, &rsd, uirv_ );
+
 	ensureDPIfAvailable( prov2D().lineIdx(geomid) );
     }
 

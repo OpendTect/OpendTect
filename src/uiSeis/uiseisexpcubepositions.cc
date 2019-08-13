@@ -77,15 +77,10 @@ bool uiSeisExpCubePositionsDlg::getPositions( const DBKey& key,
     PtrMan<Seis::Provider> prov = Seis::Provider::create( key, &ret );
     if ( !ret.isOK() )
 	mErrRet(ret)
+    else if ( prov->is2D() )
+	{ pErrMsg("Should not happen: dbkey not from 3D data"); return false; }
 
-    mDynamicCastGet(Seis::Provider3D*,prov3d,prov.ptr())
-    if ( !prov )
-    {
-	pErrMsg("Should not happen: dbkey not from 3D data");
-	return false;
-    }
-
-    prov3d->getGeometryInfo( cd );
+    cd = prov->as3D()->possibleCubeData();
     return true;
 }
 

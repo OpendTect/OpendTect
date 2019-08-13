@@ -139,7 +139,7 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     if ( !is2d_ )
     {
 	survgeom_ = &SurvGeom::get3D();
-	prov3D().getGeometryInfo( cubedata_ );
+	cubedata_ = prov_->as3D()->possibleCubeData();
     }
     else
     {
@@ -148,13 +148,8 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
 	    mRetNoGo( tr("Cannot find line geometry for ID=%1)")
 			.arg(setup_.geomid_.getI()) );
 	survgeom_ = &geom2d;
-	int linenr = prov2D().lineNr( setup_.geomid_ );
-	if ( linenr < 0 )
-	    mRetNoGo( tr("Line not present for ID=%1")
-			.arg(setup_.geomid_.getI()) )
-	PosInfo::Line2DData l2dd;
-	prov2D().getGeometryInfo( linenr, l2dd );
-	l2dd.getSegments( linedata_ );
+	const auto lidx = prov_->as2D()->lineIdx( setup_.geomid_ );
+	prov_->as2D()->getLineData( lidx, linedata_ );
     }
 
     if ( (is2d_ ? linedata_.isEmpty() : cubedata_.isEmpty()) )
@@ -198,18 +193,6 @@ void uiSeisSampleEditor::clearEditedTraces()
     while ( edtrcs_.next(spos) )
 	delete (SeisTrc*)edtrcs_.getObj( spos );
     edtrcs_.setEmpty();
-}
-
-
-Seis::Provider2D& uiSeisSampleEditor::prov2D()
-{
-    return *static_cast<Seis::Provider2D*>( prov_ );
-}
-
-
-Seis::Provider3D& uiSeisSampleEditor::prov3D()
-{
-    return *static_cast<Seis::Provider3D*>( prov_ );
 }
 
 
