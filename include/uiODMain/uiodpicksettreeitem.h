@@ -15,9 +15,8 @@ ________________________________________________________________________
 #include "uiodsceneparenttreeitem.h"
 #include "uioddisplaytreeitem.h"
 
+
 namespace Pick		{ class Set; }
-
-
 
 mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODSceneParentTreeItem
 {   mODTextTranslationClass(uiODPickSetParentTreeItem);
@@ -132,7 +131,6 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
-
     Pick::Set&		set_;
 
     MenuItem		storemnuitem_;
@@ -140,4 +138,5 @@ protected:
     MenuItem		onlyatsectmnuitem_;
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
+    MenuItem		changezmnuitem_;
 };

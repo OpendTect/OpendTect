@@ -9,7 +9,11 @@ ___________________________________________________________________
 -*/
 
 #include "uiodpicksettreeitem.h"
+#include "changepolygonz.h"
 
+#include "emhorizon3d.h"
+#include "emobject.h"
+#include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrandomposbody.h"
 #include "ioobj.h"
@@ -18,6 +22,7 @@ ___________________________________________________________________
 #include "selector.h"
 #include "survinfo.h"
 
+#include "uichangepolygonz.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -110,13 +115,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mLoadIdx );
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->insertAction( new uiAction(m3Dots(uiStrings::sEmpty())), mEmptyIdx);
+    newmnu->insertAction( new uiAction(m3Dots(uiStrings::sEmpty())),
+			  mEmptyIdx );
     uiString mnustr3d = SI().has2D() ? tr("Generate 3D")
 				     : uiStrings::sGenerate();
     newmnu->insertAction( new uiAction(m3Dots(mnustr3d)), mGen3DIdx );
     if ( SI().has2D() )
 	newmnu->insertAction( new uiAction(m3Dots(tr("Generate 2D"))),
-                            mRandom2DIdx);
+			      mRandom2DIdx);
     mnu.addMenu( newmnu );
 
     if ( children_.size() > 0 )
@@ -623,6 +629,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties()))
     , closepolyitem_(tr("Close Polygon"))
+    , changezmnuitem_(tr("Change Z values"))
 {
     set_.ref();
     storedid_ = Pick::SetMGR().getID( set_ );
@@ -713,6 +720,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
 
     const bool needssave = Pick::SetMGR().needsSave( set_ );
+
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
@@ -729,11 +737,14 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &closepolyitem_ );
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true,!psd->allShown());
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
+		  true, !psd->allShown() );
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
-
     mAddMenuItem( menu, &storemnuitem_, needssave, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
+
+    const bool islocked = visserv_->isLocked( displayID() );
+    mAddMenuItem( menu, &changezmnuitem_, !islocked, false );
 }
 
 
@@ -779,7 +790,18 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
     }
+    else if ( mnuid==changezmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	if ( set_.isEmpty() )
+	{
+	    gUiMsg(0).message( tr("There are no picks in the Polygon") );
+	    return;
+	}
 
+	uiChangePolygonZ dlg( getUiParent(), set_ );
+	dlg.go();
+    }
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
