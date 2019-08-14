@@ -63,6 +63,7 @@ public:
 
 			MSCProvider(const DBKey&);
 			MSCProvider(Provider&);
+    bool		isOK() const		{ return uirv_.isOK(); }
     virtual		~MSCProvider();
 
     bool		is2D() const;
@@ -92,7 +93,7 @@ public:
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();
-    uiRetVal		errMsg() const		{ return uirv_; }
+    const uiRetVal&	errMsg() const		{ return uirv_; }
     bool		toNextPos(); //!< end==false but no errMsg
 
     IdxPair		curPos() const;
