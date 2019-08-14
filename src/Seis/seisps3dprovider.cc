@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisps3dprovider.h"
+#include "seisproviderimpl.h"
 #include "posinfo.h"
 #include "prestackgather.h"
 #include "seisfetcher.h"
@@ -133,4 +133,5 @@ bool Seis::PS3DFetcher::ensureReader() const
 }
 
 
+#include "seisproviderimpldefs.h"
 mDefPSProvFns( 3D, PS3D )

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seislineprovider.h"
+#include "seisproviderimpl.h"
 #include "linesubsel.h"
 #include "seisfetcher.h"
 #include "seis2ddata.h"
@@ -120,4 +120,5 @@ bool Seis::LineFetcher::ensureRightDataSource( GeomID geomid )
 }
 
 
+#include "seisproviderimpldefs.h"
 mDefNonPSProvFns( 2D, Line )

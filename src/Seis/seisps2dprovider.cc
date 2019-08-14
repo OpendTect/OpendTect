@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisps2dprovider.h"
+#include "seisproviderimpl.h"
 #include "posinfo.h"
 #include "prestackgather.h"
 #include "seisfetcher.h"
@@ -133,4 +133,5 @@ bool Seis::PS2DFetcher::ensureRightDataSource( GeomID gid ) const
 }
 
 
+#include "seisproviderimpldefs.h"
 mDefPSProvFns( 2D, PS2D )

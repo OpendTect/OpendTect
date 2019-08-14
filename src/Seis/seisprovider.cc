@@ -9,12 +9,9 @@ ________________________________________________________________________
 -*/
 
 
-#include "seisvolprovider.h"
-#include "seislineprovider.h"
-#include "seisps2dprovider.h"
-#include "seisps3dprovider.h"
+#include "seisprovider.h"
+#include "seisproviderimpl.h"
 #include "seisfetcher.h"
-#include "seis2ddata.h"
 
 #include "binnedvalueset.h"
 #include "dbman.h"
@@ -155,7 +152,6 @@ Seis::Provider::~Provider()
     delete seldata_;
     delete selectedpositions_;
     delete &possiblepositions_;
-    delete &fetcher();
 }
 
 
@@ -500,6 +496,13 @@ void Seis::Provider::reportSetupChg()
 {
     if ( state_ == Active )
 	state_ = NeedPrep;
+}
+
+
+od_int64 Seis::Provider::totalNr() const
+{
+    mSelf().ensureSelectedPositions();
+    return totalnr_;
 }
 
 

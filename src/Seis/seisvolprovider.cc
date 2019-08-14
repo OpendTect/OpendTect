@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisvolprovider.h"
+#include "seisproviderimpl.h"
 #include "seisfetcher.h"
 #include "cubesubsel.h"
 #include "iostrm.h"
@@ -231,4 +231,5 @@ bool Seis::VolFetcher::ensureRightTransl( inl_type inl ) const
 }
 
 
+#include "seisproviderimpldefs.h"
 mDefNonPSProvFns( 3D, Vol )
