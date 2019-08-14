@@ -60,6 +60,10 @@ class VolFetcher; class LineFetcher; class PS2DFetcher; class PS3DFetcher;
  gather, or the entire gather in one trace as components. Just call the
  corresponding get function.
 
+ If you need to know the exact positions and Z ranges after you have set
+ SelData, Z extension and stepout, the use commitSelections(). Otherwise,
+ you'll get possible positions and Z ranges.
+
  Note: the getNext() function will return !isOK() at end of input. This will
  return the special 'error' 'Finished' which can be checked by
  isFinished( uirv ).
@@ -131,6 +135,10 @@ public:
     const comp_idx_set_type& selectedComponents() const
 						{ return selectedcomponents_; }
     bool		haveSelComps() const;
+
+    void		commitSelections() const;
+			    //!< will be done automatically if not called
+
     void		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
 
@@ -170,6 +178,7 @@ protected:
     SelData*		seldata_		= nullptr;
     z_rg_type		zextension_		= z_rg_type(0.f,0.f);
     BinnedValueSet*	selectedpositions_	= nullptr;
+    ZSubSelSet		selectedzsubsels_;
     comp_idx_set_type	selectedcomponents_;
     ReadMode		readmode_		= Prod;
     bool		forcefpdata_		= false;
@@ -186,8 +195,9 @@ protected:
 
     void		reportSetupChg();
     void		handleNewPositions();
+    void		ensureLineIdxOK(idx_type&) const;
     virtual size_type	gtNrOffsets() const			{ return 1; }
-    ZSubSel&		zSubSel(idx_type);
+    ZSubSel&		possZSubSel(idx_type);
     void		prepWork(uiRetVal&);
     bool		prepGet(uiRetVal&,bool) const;
     bool		doGoTo(const TrcKey&) const;
@@ -206,10 +216,9 @@ private:
     uiRetVal		doGetTrc(SeisTrc&,bool next) const;
     uiRetVal		doGetGath(SeisTrcBuf&,bool next) const;
 
-    void		ensureSelectedPositions();
-    void		applySelData();
+    void		getSelectedPositionsFromSelData();
     void		applyStepout();
-    void		applyZExt();
+    void		createSelectedZSubSels();
 
     friend class	Fetcher;
     friend class	Fetcher2D;
@@ -320,7 +329,7 @@ protected:
     trcnr_type		stepout_	= 0;
 
     GeomID		gtGeomID(idx_type) const;
-    ZSubSel&		gtZSubSel(idx_type) const;
+    ZSubSel&		gtPossZSubSel(idx_type) const;
     void		stZRange(idx_type,const ZSampling&);
 
 private:

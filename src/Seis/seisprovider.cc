@@ -185,21 +185,43 @@ Seis::Provider::size_type Seis::Provider::nrGeomIDs() const
 }
 
 
-Pos::GeomID Seis::Provider::geomID( int iln ) const
+void Seis::Provider::ensureLineIdxOK( idx_type& iln ) const
 {
-    return is2D() ? as2D()->gtGeomID( iln ) : allgeomids_[0];
+    if ( !is2D() )
+    {
+	if ( iln != 0 )
+	    { pErrMsg("For 3D, iln shld always be 0"); iln = 0; }
+    }
+    else
+    {
+	if ( iln < 0 )
+	    { pErrMsg("iln < 0"); iln = 0; }
+	else if ( iln >= as2D()->nrLines() )
+	    { pErrMsg("iln outside range"); iln = as2D()->nrLines()-1; }
+    }
 }
 
 
-Pos::ZSubSel& Seis::Provider::zSubSel( int iln )
+Pos::GeomID Seis::Provider::geomID( int iln ) const
 {
-    return is2D() ? as2D()->gtZSubSel( iln ) : allzsubsels_[0];
+    ensureLineIdxOK( iln );
+    return is2D() ? as2D()->gtGeomID( iln ) : allgeomids_[iln];
+}
+
+
+Pos::ZSubSel& Seis::Provider::possZSubSel( int iln )
+{
+    ensureLineIdxOK( iln );
+    return is2D() ? as2D()->gtPossZSubSel( iln ) : allzsubsels_[iln];
 }
 
 
 const Pos::ZSubSel& Seis::Provider::zSubSel( int iln ) const
 {
-    return is2D() ? as2D()->gtZSubSel( iln ) : allzsubsels_[0];
+    ensureLineIdxOK( iln );
+    if ( selectedpositions_ )
+	return selectedzsubsels_[iln];
+    return mSelf().possZSubSel( iln );
 }
 
 
@@ -382,10 +404,11 @@ void Seis::Provider::setSelData( const SelData& sd )
 
 void Seis::Provider::setZRange( const ZSampling& zrg, idx_type iln )
 {
-    if ( !is2D() )
-	allzsubsels_[0].setOutputZRange( zrg );
-    else
+    ensureLineIdxOK( iln );
+    if ( is2D() )
 	as2D()->stZRange( iln, zrg );
+    else
+	allzsubsels_[iln].setOutputZRange( zrg );
 
     reportSetupChg();
 }
@@ -501,59 +524,53 @@ void Seis::Provider::reportSetupChg()
 
 od_int64 Seis::Provider::totalNr() const
 {
-    mSelf().ensureSelectedPositions();
+    commitSelections();
     return totalnr_;
 }
 
 
-void Seis::Provider::ensureSelectedPositions()
+void Seis::Provider::commitSelections() const
 {
     if ( selectedpositions_ )
 	return;
 
+    auto& self = mSelf();
+
     if ( !seldata_ )
-	selectedpositions_ = new BinnedValueSet( possiblepositions_,
+	self.selectedpositions_ = new BinnedValueSet( possiblepositions_,
 			is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
     else
     {
-	applySelData();
-	applyStepout();
+	self.getSelectedPositionsFromSelData();
+	self.applyStepout();
     }
 
-    applyZExt();
+    self.createSelectedZSubSels();
 
-    handleNewPositions();
+    self.handleNewPositions();
 }
 
 
-void Seis::Provider::applySelData()
+void Seis::Provider::getSelectedPositionsFromSelData()
 {
     if ( !selectedpositions_ )
 	selectedpositions_ = new BinnedValueSet( 0, false,
 		is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
 
     PosInfo::LineCollDataIterator lcdit( possiblepositions_ );
-    if ( !is2D() )
+    if ( is2D() )
+    {
+	Bin2D b2d;
+	while ( lcdit.next(b2d) )
+	    if ( seldata_->isOK(b2d) )
+		selectedpositions_->add( b2d );
+    }
+    else
     {
 	BinID bid;
 	while ( lcdit.next(bid) )
 	    if ( seldata_->isOK(bid) )
 		selectedpositions_->add( bid );
-	zSubSel(0).limitTo( seldata_->zRange() );
-	return;
-    }
-
-    Bin2D b2d;
-    while ( lcdit.next(b2d) )
-	if ( seldata_->isOK(b2d) )
-	    selectedpositions_->add( b2d );
-
-    const auto nrgeomids = seldata_->nrGeomIDs();
-    for ( int idx=0; idx<nrgeomids; idx++ )
-    {
-	const auto geomid = seldata_->geomID( idx );
-	const auto lidx = as2D()->lineIdx( geomid );
-	zSubSel(lidx).limitTo( seldata_->zRange(idx) );
     }
 }
 
@@ -584,14 +601,37 @@ void Seis::Provider::applyStepout()
 }
 
 
-void Seis::Provider::applyZExt()
+void Seis::Provider::createSelectedZSubSels()
 {
-    if ( mIsZero(zextension_.start,zeps) && mIsZero(zextension_.stop,zeps) )
-	return;
+    selectedzsubsels_.setEmpty();
 
-    const auto nrsubsels = nrGeomIDs();
-    for ( int idx=0; idx<nrsubsels; idx++ )
-	zSubSel(idx).zData().widen( zextension_ );
+    if ( !is2D() )
+    {
+	selectedzsubsels_.add( allzsubsels_.first() );
+	if ( seldata_ )
+	    selectedzsubsels_.last().limitTo( seldata_->zRange(0) );
+    }
+    else
+    {
+	const auto& prov2d = *as2D();
+	const auto nrlines = prov2d.nrLines();
+	for ( int idx=0; idx<nrlines; idx++ )
+	{
+	    const auto geomid = geomID( idx );
+	    const auto zssidx = allgeomids_.indexOf( geomid );
+	    selectedzsubsels_.add( allzsubsels_.get(zssidx) );
+	    if ( seldata_ )
+	    {
+		const auto sdidx = seldata_->indexOf( geomid );
+		if ( sdidx < 0 )
+		    { pErrMsg("Huh"); continue; }
+		selectedzsubsels_.last().limitTo( seldata_->zRange(sdidx) );
+	    }
+	}
+    }
+
+    for ( auto& zss : selectedzsubsels_ )
+	zss.zData().widen( zextension_ );
 }
 
 
@@ -608,7 +648,7 @@ bool Seis::Provider::prepareAccess( uiRetVal& uirv ) const
     }
     else
     {
-	mSelf().ensureSelectedPositions();
+	commitSelections();
 	mSelf().prepWork( uirv );
 	if ( uirv.isOK() )
 	    state_ = Active;
@@ -883,7 +923,6 @@ Seis::Provider3D::Provider3D( const DBKey& dbky, uiRetVal& uirv )
 
 void Seis::Provider3D::setStepout( const IdxPair& so )
 {
-    Threads::Locker locker( getlock_ );
     if ( stepout_ != so )
 	{ stepout_ = so; reportSetupChg(); }
 }
@@ -994,6 +1033,7 @@ Seis::Provider2D::idx_type Seis::Provider2D::lineIdx( GeomID gid ) const
 
 void Seis::Provider2D::getLineData( idx_type iln, LineData& ld ) const
 {
+    ensureLineIdxOK( iln );
     if ( !selectedpositions_ )
 	ld = *possiblepositions_.get( iln );
     else
@@ -1058,8 +1098,9 @@ Pos::GeomID Seis::Provider2D::gtGeomID( idx_type lidx ) const
 }
 
 
-Pos::ZSubSel& Seis::Provider2D::gtZSubSel( idx_type iln ) const
+Pos::ZSubSel& Seis::Provider2D::gtPossZSubSel( idx_type iln ) const
 {
+    ensureLineIdxOK( iln );
     const auto gid = gtGeomID( iln );
     const auto zsidx = allgeomids_.indexOf( gid );
     return mNonConst( allzsubsels_[zsidx] );
@@ -1068,6 +1109,7 @@ Pos::ZSubSel& Seis::Provider2D::gtZSubSel( idx_type iln ) const
 
 void Seis::Provider2D::stZRange( idx_type iln, const ZSampling& zrg )
 {
+    ensureLineIdxOK( iln );
     const auto gid = gtGeomID( iln );
     const auto zsidx = allgeomids_.indexOf( gid );
     allzsubsels_[zsidx].setOutputZRange( zrg );

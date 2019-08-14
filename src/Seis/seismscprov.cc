@@ -58,28 +58,26 @@ BufferString Seis::MSCProvider::name() const
 
 void Seis::MSCProvider::setStepout( int i, int c, bool req )
 {
+    auto& so = req ? reqstepout_ : desstepout_;
+    so.lineNr() = is2D() ? 0 : i;
+    so.trcNr() = c;
     if ( req )
-    {
-	reqstepout_.lineNr() = is2D() ? 0 : i;
-	reqstepout_.trcNr() = c;
-	delete reqmask_;
-	reqmask_ = 0;
-    }
-    else
-    {
-	desstepout_.lineNr() = is2D() ? 0 : i;
-	desstepout_.trcNr() = c;
-    }
+	deleteAndZeroPtr( reqmask_ );
+    if ( prov_ )
+	prov_->is2D() ? prov_->as2D()->setStepout( c )
+		      : prov_->as3D()->setStepout( so );
 }
 
 
 void Seis::MSCProvider::setStepout( Array2D<bool>* mask )
 {
-    if ( !mask ) return;
-
-    setStepout( (mask->getSize(0)-1)/2,
-		(mask->getSize(1)-1)/2, true );
-    reqmask_ = mask;
+    deleteAndZeroPtr( reqmask_ );
+    if ( mask )
+    {
+	setStepout( (mask->getSize(0)-1)/2,
+		    (mask->getSize(1)-1)/2, true );
+	reqmask_ = mask;
+    }
 }
 
 
