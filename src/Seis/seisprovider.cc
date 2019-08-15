@@ -284,11 +284,11 @@ void Seis::Provider::handleNewPositions()
 {
     if ( !selectedpositions_ || selectedpositions_->isEmpty() )
     {
-	PosInfo::LineCollPos lcp; lcp.toStart();
+	PosInfo::LineCollDataPos lcdp; lcdp.toStart();
 	if ( is2D() )
-	    as2D()->trcpos_ = possiblepositions_.bin2D( lcp );
+	    as2D()->trcpos_ = possiblepositions_.bin2D( lcdp );
 	else
-	    as3D()->trcpos_ = possiblepositions_.binID( lcp );
+	    as3D()->trcpos_ = possiblepositions_.binID( lcdp );
 	totalnr_ = possiblepositions_.totalSize();
     }
     else
@@ -733,7 +733,11 @@ bool Seis::Provider::goTo( const TrcKey& tk ) const
 bool Seis::Provider::doGoTo( const TrcKey& tk ) const
 {
     if ( state_ != Active )
-	return false;
+    {
+	uiRetVal uirv;
+	if ( !prepareAccess(uirv) )
+	    return false;
+    }
 
     const SPos newpos( is2D() ? selectedpositions_->find( tk.bin2D() )
 			      : selectedpositions_->find( tk.binID() ) );

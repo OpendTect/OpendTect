@@ -71,19 +71,19 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
 #define nrsameposretries 100
 bool CBVSInfo::SurvGeom::moveToNextPos( BinID& bid ) const
 {
-    PosInfo::LineCollPos cdp( cubedata.lineCollPos(bid) );
-    if ( !cdp.isValid() )
-	cdp.toPreStart();
+    PosInfo::LineCollDataPos lcdp( cubedata.lineCollPos(bid) );
+    if ( !lcdp.isValid() )
+	lcdp.toPreStart();
 
     const BinID initialbid( bid );
     int nrretry = 0;
     while ( bid == initialbid && nrretry < nrsameposretries )
     {
 	nrretry++;
-	if ( !cubedata.toNext(cdp) )
+	if ( !cubedata.toNext(lcdp) )
 	    return false;
 
-	bid = cubedata.binID( cdp );
+	bid = cubedata.binID( lcdp );
     }
 
     return bid != initialbid;
@@ -92,15 +92,15 @@ bool CBVSInfo::SurvGeom::moveToNextPos( BinID& bid ) const
 
 bool CBVSInfo::SurvGeom::moveToNextInline( BinID& bid ) const
 {
-    PosInfo::LineCollPos cdp( cubedata.lineCollPos(bid) );
-    if ( !cdp.isValid() )
-	{ cdp.toPreStart(); return moveToNextPos( bid ); }
+    PosInfo::LineCollDataPos lcdp( cubedata.lineCollPos(bid) );
+    if ( !lcdp.isValid() )
+	{ lcdp.toPreStart(); return moveToNextPos( bid ); }
 
-    cdp.lidx_++; cdp.segnr_ = cdp.sidx_ = 0;
-    if ( !cubedata.isValid(cdp) )
+    lcdp.lidx_++; lcdp.segnr_ = lcdp.sidx_ = 0;
+    if ( !cubedata.isValid(lcdp) )
 	return false;
 
-    bid = cubedata.binID( cdp );
+    bid = cubedata.binID( lcdp );
     return true;
 }
 

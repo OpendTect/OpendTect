@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "od_iosfwd.h"
 namespace Pos		{ class Filter; }
-namespace PosInfo	{ class CubeData; class LineCollPos; }
+namespace PosInfo	{ class CubeData; class LineCollDataPos; }
 
 
 namespace SEGY
@@ -91,7 +91,7 @@ protected:
     od_int64		trcbytes_;
 
     TypeSet<BinID>	binids_;
-    PosInfo::LineCollPos& cdp_;
+    PosInfo::LineCollDataPos& cdp_;
     Pos::Filter*	posfilt_;
 
     int			fillBinIDs();

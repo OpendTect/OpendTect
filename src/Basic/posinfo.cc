@@ -207,28 +207,28 @@ PosInfo::LineData::pos_rg_type PosInfo::LineData::range() const
 }
 
 
-bool PosInfo::LineData::isValid( const LinePos& lp ) const
+bool PosInfo::LineData::isValid( const LineDataPos& ldp ) const
 {
-    if ( lp.segnr_ < 0 || lp.segnr_ >= segments_.size() )
+    if ( ldp.segnr_ < 0 || ldp.segnr_ >= segments_.size() )
 	return false;
-    return lp.sidx_ >= 0 && lp.sidx_ <= segments_[lp.segnr_].nrSteps();
+    return ldp.sidx_ >= 0 && ldp.sidx_ <= segments_[ldp.segnr_].nrSteps();
 }
 
 
-bool PosInfo::LineData::toNext( LinePos& lp ) const
+bool PosInfo::LineData::toNext( LineDataPos& ldp ) const
 {
-    if ( !isValid(lp) )
+    if ( !isValid(ldp) )
     {
-	lp.toStart();
-	return isValid(lp);
+	ldp.toStart();
+	return isValid(ldp);
     }
     else
     {
-	lp.sidx_++;
-	if ( lp.sidx_ > segments_[lp.segnr_].nrSteps() )
+	ldp.sidx_++;
+	if ( ldp.sidx_ > segments_[ldp.segnr_].nrSteps() )
 	{
-	    lp.segnr_++; lp.sidx_ = 0;
-	    if ( lp.segnr_ >= segments_.size() )
+	    ldp.segnr_++; ldp.sidx_ = 0;
+	    if ( ldp.segnr_ >= segments_.size() )
 		return false;
 	}
 	return true;
@@ -236,26 +236,26 @@ bool PosInfo::LineData::toNext( LinePos& lp ) const
 }
 
 
-bool PosInfo::LineData::toPrev( LinePos& lp ) const
+bool PosInfo::LineData::toPrev( LineDataPos& ldp ) const
 {
-    if ( !isValid(lp) )
+    if ( !isValid(ldp) )
     {
 	if ( segments_.isEmpty() )
 	    return false;
 
-	lp.segnr_ = segments_.size() - 1;
-	lp.sidx_ = segments_[lp.segnr_].nrSteps();
+	ldp.segnr_ = segments_.size() - 1;
+	ldp.sidx_ = segments_[ldp.segnr_].nrSteps();
 	return true;
     }
     else
     {
-	lp.sidx_--;
-	if ( lp.sidx_ < 0 )
+	ldp.sidx_--;
+	if ( ldp.sidx_ < 0 )
 	{
-	    lp.segnr_--;
-	    if ( lp.segnr_ < 0 )
+	    ldp.segnr_--;
+	    if ( ldp.segnr_ < 0 )
 		return false;
-	    lp.sidx_ = segments_[lp.segnr_].nrSteps();
+	    ldp.sidx_ = segments_[ldp.segnr_].nrSteps();
 	}
 	return true;
     }
@@ -672,37 +672,37 @@ bool PosInfo::LineCollData::includes( pos_type lnr, pos_type tnr ) const
 }
 
 
-bool PosInfo::LineCollData::isValid( const PosInfo::LineCollPos& lcp ) const
+bool PosInfo::LineCollData::isValid( const LineCollDataPos& lcdp ) const
 {
-    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
+    if ( lcdp.lidx_ < 0 || lcdp.lidx_ >= size() )
 	return false;
-    const auto& segs( get(lcp.lidx_)->segments_ );
-    if ( lcp.segnr_ < 0 || lcp.segnr_ >= segs.size() )
+    const auto& segs( get(lcdp.lidx_)->segments_ );
+    if ( lcdp.segnr_ < 0 || lcdp.segnr_ >= segs.size() )
 	return false;
-    return lcp.sidx_ >= 0 && lcp.sidx_ <= segs[lcp.segnr_].nrSteps();
+    return lcdp.sidx_ >= 0 && lcdp.sidx_ <= segs[lcdp.segnr_].nrSteps();
 }
 
 
-bool PosInfo::LineCollData::toNext( LineCollPos& lcp ) const
+bool PosInfo::LineCollData::toNext( LineCollDataPos& lcdp ) const
 {
-    if ( lcp.lidx_ < 0 || lcp.lidx_ >= size() )
+    if ( lcdp.lidx_ < 0 || lcdp.lidx_ >= size() )
     {
-	lcp.toStart();
-	return isValid(lcp);
+	lcdp.toStart();
+	return isValid(lcdp);
     }
-    else if ( lcp.segnr_ < 0 )
-	lcp.segnr_ = lcp.sidx_ = 0;
+    else if ( lcdp.segnr_ < 0 )
+	lcdp.segnr_ = lcdp.sidx_ = 0;
     else
     {
-	const auto& segset = get(lcp.lidx_)->segments_;
-	lcp.sidx_++;
-	if ( lcp.sidx_ > segset.get(lcp.segnr_).nrSteps() )
+	const auto& segset = get(lcdp.lidx_)->segments_;
+	lcdp.sidx_++;
+	if ( lcdp.sidx_ > segset.get(lcdp.segnr_).nrSteps() )
 	{
-	    lcp.segnr_++; lcp.sidx_ = 0;
-	    if ( lcp.segnr_ >= segset.size() )
+	    lcdp.segnr_++; lcdp.sidx_ = 0;
+	    if ( lcdp.segnr_ >= segset.size() )
 	    {
-		lcp.lidx_++; lcp.segnr_ = 0;
-		if ( lcp.lidx_ >= size() )
+		lcdp.lidx_++; lcdp.segnr_ = 0;
+		if ( lcdp.lidx_ >= size() )
 		    return false;
 	    }
 	}
@@ -711,44 +711,44 @@ bool PosInfo::LineCollData::toNext( LineCollPos& lcp ) const
 }
 
 
-bool PosInfo::LineCollData::toNextLine( LineCollPos& lcp ) const
+bool PosInfo::LineCollData::toNextLine( LineCollDataPos& lcdp ) const
 {
-    lcp.lidx_++;
-    if ( lcp.lidx_ >= size() )
+    lcdp.lidx_++;
+    if ( lcdp.lidx_ >= size() )
 	return false;
 
-    lcp.segnr_ = lcp.sidx_ = 0;
+    lcdp.segnr_ = lcdp.sidx_ = 0;
     return true;
 }
 
 
-bool PosInfo::LineCollData::toPrev( LineCollPos& lcp ) const
+bool PosInfo::LineCollData::toPrev( LineCollDataPos& lcdp ) const
 {
-    if ( !isValid(lcp) )
+    if ( !isValid(lcdp) )
     {
 	if ( isEmpty() )
 	    return false;
 
-	lcp.lidx_ = size() - 1;
-	const auto& segs = get(lcp.lidx_)->segments_;
-	lcp.segnr_ = segs.size() - 1;
-	lcp.sidx_ = segs[lcp.segnr_].nrSteps();
+	lcdp.lidx_ = size() - 1;
+	const auto& segs = get(lcdp.lidx_)->segments_;
+	lcdp.segnr_ = segs.size() - 1;
+	lcdp.sidx_ = segs[lcdp.segnr_].nrSteps();
 	return true;
     }
     else
     {
-	lcp.sidx_--;
-	if ( lcp.sidx_ < 0 )
+	lcdp.sidx_--;
+	if ( lcdp.sidx_ < 0 )
 	{
-	    lcp.segnr_--;
-	    if ( lcp.segnr_ < 0 )
+	    lcdp.segnr_--;
+	    if ( lcdp.segnr_ < 0 )
 	    {
-		lcp.lidx_--;
-		if ( lcp.lidx_ < 0 )
+		lcdp.lidx_--;
+		if ( lcdp.lidx_ < 0 )
 		    return false;
-		lcp.segnr_ = get(lcp.lidx_)->segments_.size() - 1;
+		lcdp.segnr_ = get(lcdp.lidx_)->segments_.size() - 1;
 	    }
-	    lcp.sidx_ = get(lcp.lidx_)->segments_.get(lcp.segnr_).nrSteps();
+	    lcdp.sidx_ = get(lcdp.lidx_)->segments_.get(lcdp.segnr_).nrSteps();
 	}
 	return true;
     }
@@ -756,36 +756,36 @@ bool PosInfo::LineCollData::toPrev( LineCollPos& lcp ) const
 
 
 PosInfo::LineCollData::pos_type
-PosInfo::LineCollData::trcNr( const LineCollPos& lcp ) const
+PosInfo::LineCollData::trcNr( const LineCollDataPos& lcdp ) const
 {
-    return !isValid(lcp) ? 0
-	 : get(lcp.lidx_)->segments_.get(lcp.segnr_).atIndex(lcp.sidx_);
+    return !isValid(lcdp) ? 0
+	 : get(lcdp.lidx_)->segments_.get(lcdp.segnr_).atIndex(lcdp.sidx_);
 }
 
 
-BinID PosInfo::LineCollData::binID( const LineCollPos& lcp ) const
+BinID PosInfo::LineCollData::binID( const LineCollDataPos& lcdp ) const
 {
-    const auto tnr = trcNr( lcp );
-    return tnr ? BinID( get(lcp.lidx_)->linenr_, tnr ) : BinID(0,0);
+    const auto tnr = trcNr( lcdp );
+    return tnr ? BinID( get(lcdp.lidx_)->linenr_, tnr ) : BinID(0,0);
 }
 
 
-Bin2D PosInfo::LineCollData::bin2D( const LineCollPos& lcp ) const
+Bin2D PosInfo::LineCollData::bin2D( const LineCollDataPos& lcdp ) const
 {
-    const auto tnr = trcNr( lcp );
-    const auto gid = tnr ? GeomID( get(lcp.lidx_)->linenr_ ) : GeomID();
+    const auto tnr = trcNr( lcdp );
+    const auto gid = tnr ? GeomID( get(lcdp.lidx_)->linenr_ ) : GeomID();
     return Bin2D( gid, tnr );
 }
 
 
-PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
+PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
 						const BinID& bid ) const
 {
-    LineCollPos lcp;
-    lcp.lidx_ = lineIndexOf( bid.inl() );
-    if ( lcp.lidx_ < 0 )
-	return lcp;
-    const auto& segs( get(lcp.lidx_)->segments_ );
+    LineCollDataPos lcdp;
+    lcdp.lidx_ = lineIndexOf( bid.inl() );
+    if ( lcdp.lidx_ < 0 )
+	return lcdp;
+    const auto& segs( get(lcdp.lidx_)->segments_ );
     for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
     {
 	const auto& seg( segs[iseg] );
@@ -793,17 +793,17 @@ PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
 	{
 	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
 	    {
-		lcp.segnr_ = iseg;
-		lcp.sidx_ = seg.getIndex( bid.crl() );
+		lcdp.segnr_ = iseg;
+		lcdp.sidx_ = seg.getIndex( bid.crl() );
 	    }
 	    break;
 	}
     }
-    return lcp;
+    return lcdp;
 }
 
 
-PosInfo::LineCollPos PosInfo::LineCollData::lineCollPos(
+PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
 						const Bin2D& b2d ) const
 {
     return lineCollPos( BinID(b2d.idxPair()) );

@@ -672,10 +672,10 @@ BinnedValueSet::BinnedValueSet( const PosInfo::LineCollData& lcd,
     for ( int iln=0; iln<lcd.size(); iln++ )
     {
 	const auto& ld = *lcd.get( iln );
-	PosInfo::LinePos lp;
-	while ( ld.toNext(lp) )
+	PosInfo::LineDataPos ldp;
+	while ( ld.toNext(ldp) )
 	{
-	    const auto tnr = ld.pos( lp );
+	    const auto tnr = ld.pos( ldp );
 	    if ( is2d )
 		add( Bin2D(GeomID(ld.linenr_),tnr) );
 	    else

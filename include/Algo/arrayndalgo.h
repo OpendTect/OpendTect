@@ -1831,10 +1831,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	const auto& ld = *cubedata_.get( (int)idx );
 	const auto idx0 = hss_.idx4Inl( ld.linenr_ );
 	T* linestart = dataptr + idx0 * slcsz;
-	PosInfo::LinePos lp;
-	while ( ld.toNext(lp) )
+	PosInfo::LineDataPos ldp;
+	while ( ld.toNext(ldp) )
 	{
-	    const auto idx1 = hss_.idx4Crl( ld.pos(lp) );
+	    const auto idx1 = hss_.idx4Crl( ld.pos(ldp) );
 	    if ( dataptr )
 	    {
 		T* trcdata = linestart + idx1 * trcsz;

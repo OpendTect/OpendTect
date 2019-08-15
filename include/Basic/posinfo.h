@@ -44,21 +44,22 @@ namespace PosInfo
 
 /*!\brief Index Position in a LineData. */
 
-mExpClass(Basic) LinePos
+mExpClass(Basic) LineDataPos
 {
 public:
 
     typedef Index_Type	idx_type;
 
-		LinePos( idx_type iseg=0, idx_type sidx=-1 )
-		    : segnr_(iseg), sidx_(sidx)		    {}
+		LineDataPos( idx_type iseg=0, idx_type sidx=-1 )
+		    : segnr_(iseg), sidx_(sidx)		{}
+    virtual	~LineDataPos()				{}
 
     idx_type	segnr_;
     idx_type	sidx_;
 
-    void	toPreStart()	{ segnr_ = 0; sidx_ = -1; }
-    void	toStart()	{ segnr_ = sidx_ = 0; }
-    bool	isValid() const	{ return segnr_>=0 && sidx_>=0; }
+    virtual void	toPreStart()	{ segnr_ = 0; sidx_ = -1; }
+    virtual void	toStart()	{ segnr_ = sidx_ = 0; }
+    virtual bool	isValid() const	{ return segnr_>=0 && sidx_>=0; }
 
 };
 
@@ -69,7 +70,7 @@ mExpClass(Basic) LineData
 {
 public:
 
-    mUseType( LinePos,		idx_type );
+    mUseType( LineDataPos,	idx_type );
     mUseType( Pos,		GeomID );
     mUseType( Pos,		IdxPair );
     typedef Pos::Index_Type	pos_type;
@@ -97,16 +98,16 @@ public:
     void		merge(const LineData&,bool incl);
 				//!< incl=union, !incl=intersection
 
-    bool		isValid(const LinePos&) const;
-    bool		toNext(LinePos&) const;
-    bool		toPrev(LinePos&) const;
-    pos_type		pos( const LinePos& ldp ) const
+    bool		isValid(const LineDataPos&) const;
+    bool		toNext(LineDataPos&) const;
+    bool		toPrev(LineDataPos&) const;
+    pos_type		pos( const LineDataPos& ldp ) const
 			{ return segments_[ldp.segnr_].atIndex(ldp.sidx_); }
-    IdxPair		idxPair( const LinePos& ldp ) const
+    IdxPair		idxPair( const LineDataPos& ldp ) const
 			{ return IdxPair( linenr_, pos(ldp) ); }
-    BinID		binID( const LinePos& ldp ) const
+    BinID		binID( const LineDataPos& ldp ) const
 			{ return BinID( linenr_, pos(ldp) ); }
-    Bin2D		bin2D( const LinePos& ldp ) const
+    Bin2D		bin2D( const LineDataPos& ldp ) const
 			{ return Bin2D( GeomID(linenr_), pos(ldp) ); }
     IdxPair		first() const
 			{ return IdxPair(linenr_,segments_.first().start); }
@@ -125,23 +126,23 @@ public:
 
 /*!\brief Position in LineCollData. */
 
-mExpClass(Basic) LineCollPos
+mExpClass(Basic) LineCollDataPos : public LineDataPos
 {
 public:
 
-    mUseType( LinePos,	idx_type );
-
-		LineCollPos()				   { toPreStart(); }
-		LineCollPos( idx_type iln, idx_type isn=0, idx_type sidx=-1 )
-		    : lidx_(iln), segnr_(isn), sidx_(sidx) {}
+		LineCollDataPos()			{ toPreStart(); }
+		LineCollDataPos( idx_type iln, idx_type isn=0,
+				 idx_type sidx=-1 )
+		    : LineDataPos(isn,sidx), lidx_(iln)	{}
 
     idx_type	lidx_;
-    idx_type	segnr_;
-    idx_type	sidx_;
 
-    void	toPreStart()	{ lidx_ = segnr_ = 0; sidx_ = -1; }
-    void	toStart()	{ lidx_ = segnr_ = sidx_ = 0; }
-    bool	isValid() const	{ return lidx_>=0 && segnr_>=0 && sidx_>=0; }
+    void	toPreStart() override
+		{ LineDataPos::toPreStart(); lidx_ = 0; }
+    void	toStart() override
+		{ LineDataPos::toStart(); lidx_ = 0; }
+    bool	isValid() const override
+		{ return LineDataPos::isValid() && lidx_>=0; }
 
 };
 
@@ -182,15 +183,15 @@ public:
     bool		includes(const BinID&) const;
     bool		includes(const Bin2D&) const;
 
-    bool		isValid(const LineCollPos&) const;
-    bool		toNext(LineCollPos&) const;
-    bool		toPrev(LineCollPos&) const;
-    bool		toNextLine(LineCollPos&) const;
-    BinID		binID(const LineCollPos&) const;
-    Bin2D		bin2D(const LineCollPos&) const;
-    pos_type		trcNr(const LineCollPos&) const;
-    LineCollPos		lineCollPos(const BinID&) const;
-    LineCollPos		lineCollPos(const Bin2D&) const;
+    bool		isValid(const LineCollDataPos&) const;
+    bool		toNext(LineCollDataPos&) const;
+    bool		toPrev(LineCollDataPos&) const;
+    bool		toNextLine(LineCollDataPos&) const;
+    BinID		binID(const LineCollDataPos&) const;
+    Bin2D		bin2D(const LineCollDataPos&) const;
+    pos_type		trcNr(const LineCollDataPos&) const;
+    LineCollDataPos	lineCollPos(const BinID&) const;
+    LineCollDataPos	lineCollPos(const Bin2D&) const;
 
     void		limitTo(const Survey::HorSubSel&);
     void		merge(const LineCollData&,bool incl);
@@ -207,7 +208,7 @@ protected:
 };
 
 
-typedef LineCollPos CubeDataPos;
+typedef LineCollDataPos CubeDataPos;
 
 /*!\brief Position info for an entire 3D cube. The LineData's are not
   automatically sorted. */
@@ -331,7 +332,7 @@ public:
     inline pos_type	trcNr() const	{ return lcd_.trcNr( lcp_ ); }
 
     const LineCollData&	lcd_;
-    LineCollPos		lcp_;
+    LineCollDataPos	lcp_;
 
 };
 

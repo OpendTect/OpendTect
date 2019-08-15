@@ -347,11 +347,11 @@ void SeisServerTool::set2DGeomInfo( bool full )
     {
 	TypeSet<int> trcnrs;
 	TypeSet<double> xs, ys;
-	PosInfo::LinePos lp;
+	PosInfo::LineDataPos ldp;
 	const auto& survgeom = Survey::Geometry2D::get( GeomID(ld.linenr_) );
-	while ( ld.toNext(lp) )
+	while ( ld.toNext(ldp) )
 	{
-	    const auto trcnr = ld.pos( lp );
+	    const auto trcnr = ld.pos( ldp );
 	    trcnrs += trcnr;
 	    const Coord coord( survgeom.getCoord(trcnr) );
 	    xs += coord.x_;

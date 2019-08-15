@@ -364,18 +364,18 @@ BinnedValueSet* Seis::SelData::applyTo( const LineCollData& lcd ) const
 	if ( (selres%256) == 2 )
 	    continue;
 
-	PosInfo::LinePos lp;
-	while ( ld.toNext( lp ) )
+	PosInfo::LineDataPos ldp;
+	while ( ld.toNext( ldp ) )
 	{
 	    if ( is2d )
 	    {
-		const Bin2D b2d( GeomID(ld.linenr_), ld.pos(lp) );
+		const Bin2D b2d( GeomID(ld.linenr_), ld.pos(ldp) );
 		if ( isOK(b2d) )
 		    ret->add( b2d );
 	    }
 	    else
 	    {
-		const BinID bid( ld.linenr_, ld.pos(lp) );
+		const BinID bid( ld.linenr_, ld.pos(ldp) );
 		if ( isOK(bid) )
 		    ret->add( bid );
 	    }

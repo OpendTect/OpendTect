@@ -147,6 +147,7 @@ uiODPreStart::uiODPreStart( uiParent* p )
     setCaption( tr("%1 V%2").arg(uiStrings::sOpendTect())
 			    .arg(GetFullODVersion()) );
     setOkText( uiStrings::phrStart(uiStrings::sOpendTect()) );
+    setCancelText( uiStrings::sDismiss() );
     readProviderList();
     setSaveButtonChecked( true );
     readPackageList();

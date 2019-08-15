@@ -33,6 +33,7 @@
 #include "seispacketinfo.h"
 #include "seisstatscollector.h"
 #include "seistrc.h"
+#include "statrand.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
@@ -530,14 +531,27 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 
     // No .stats file. Extract stats right now
     PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_ );
-    if ( !prov )
+    if ( !prov || prov->isEmpty() )
 	return ret;
 
-    SeisTrc trc;
     Seis::StatsCollector ssc;
+    const auto& lcd = prov->possiblePositions();
+    PosInfo::LineCollDataPos lcdp;
+    Stats::RandGen randgen;
+    const bool is2d = prov->is2D();
     while ( true )
     {
-	const uiRetVal uirv = prov->getNext( trc );
+	lcdp.lidx_ = randgen.getIndex( lcd.size() );
+	const auto& segs = lcd.get( lcdp.lidx_ )->segments_;
+	lcdp.segnr_ = randgen.getIndex( segs.size() );
+	lcdp.sidx_ = randgen.getIndex( segs.get(lcdp.segnr_).nrSteps()+1 );
+
+	uiRetVal uirv;
+	SeisTrc trc;
+	if ( is2d )
+	    uirv = prov->as2D()->getAt( lcd.bin2D(lcdp), trc );
+	else
+	    uirv = prov->as3D()->getAt( lcd.binID(lcdp), trc );
 	if ( !uirv.isOK() )
 	    break;
 	else if ( trc.isNull() )
