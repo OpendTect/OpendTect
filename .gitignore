@@ -67,14 +67,16 @@ ipch
 *.makeRelWithDebInfo
 *.build
 *.xcodeproj
+compile_commands.json
 
 #Doxygen stuff
 CMakeModules/Doxyfile
 doc/Programmer/Generated
+doc/Programmer/sitemap.txt
 dtect/backoffice-server-upload.sh
+CMakeDoxy*
 
-
-#CMakes stuff
+#CMake's stuff
 *.ninja
 .ninja_log
 .ninja_deps
