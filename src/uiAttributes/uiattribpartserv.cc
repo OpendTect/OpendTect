@@ -111,7 +111,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     multcomp2d_.checkable = true;
 
     mAttachCB( DBM().surveyChanged, uiAttribPartServer::survChangedCB );
-    DescSet::initGlobalSets();
 }
 
 
@@ -441,7 +440,10 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 
 bool uiAttribPartServer::setSaved( bool is2d ) const
 {
-    return !curDescSet( is2d ).isChanged();
+    if ( !DescSet::globalUsed(is2d) )
+	return true;
+
+    return !curDescSet(is2d).isChanged();
 }
 
 

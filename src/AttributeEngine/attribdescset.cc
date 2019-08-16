@@ -51,12 +51,20 @@ static DescSet*	dummy2d_	= new DescSet( true );
 static DescSet*	dummy3d_	= new DescSet( false );
 static uiRetVal autoloadresult_;
 
+bool DescSet::globalUsed( bool is2d )
+{
+    return is2d ? !global2d_.isEmpty() : !global3d_.isEmpty();
+}
+
+
 inline static DescSet& gtGDesc( bool is2d )
 {
     auto& descs = is2d ? global2d_ : global3d_;
     if ( descs.isEmpty() )
-	DescSet::initGlobalSets();
-    return *descs.last();
+	DescSet::initGlobalSet( is2d );
+
+    return !descs.isEmpty() ? *descs.last()
+			    : (is2d ? DescSet::dummy2D() : DescSet::dummy3D());
 }
 
 const DescSet&	DescSet::global2D()	{ return gtGDesc(true); }
@@ -964,35 +972,28 @@ DescSet* DescSet::popGlobal( bool is2d )
 }
 
 
-void DescSet::initGlobalSets()
+void DescSet::initGlobalSet( bool is2d )
 {
     static Threads::Lock lock_;
     Threads::Locker locker( lock_ );
 
-    if ( !global2d_.isEmpty() )
+    auto& descs = is2d ? global2d_ : global3d_;
+    if ( !descs.isEmpty() )
 	return; // another thread has beat us to it
 
     autoloadresult_.setEmpty();
 
-    DescSet* g2d = new DescSet( true ); DescSet* g3d = new DescSet( false );
-    global2d_ += g2d; global3d_ += g3d;
+    DescSet* gds = new DescSet( is2d );
+    descs += gds;
 
     bool loadauto = false;
     Settings::common().getYN( sKeyUseAutoAttrSet, loadauto );
-    if ( !loadauto )
-	return;
-
-    if ( SI().has2D() )
+    if ( loadauto )
     {
+	const char* ky = is2d ? sKeyAuto2DAttrSetID : sKeyAuto3DAttrSetID;
 	DBKey dbky;
-	if ( SI().getDefaultPars().get(sKeyAuto2DAttrSetID,dbky) )
-	    autoloadresult_.add( g2d->load(dbky) );
-    }
-    if ( SI().has3D() )
-    {
-	DBKey dbky;
-	if ( SI().getDefaultPars().get(sKeyAuto3DAttrSetID,dbky) )
-	    autoloadresult_.add( g3d->load(dbky) );
+	if ( SI().getDefaultPars().get(ky,dbky) )
+	    autoloadresult_.add( gds->load(dbky) );
     }
 }
 

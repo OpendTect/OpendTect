@@ -55,6 +55,7 @@ public:
 			{ return is2d ? empty2D() : empty3D(); }
     inline static const DescSet& dummy( bool is2d )
 			{ return is2d ? dummy2D() : dummy3D(); }
+    static bool		globalUsed(bool);
 
     explicit		DescSet(bool is2d);
 			DescSet(const DescSet&);
@@ -230,7 +231,7 @@ public:
 			{ return is2d ? global2D4Edit() : global3D4Edit(); }
     static void		pushGlobal(bool,DescSet*);
     static DescSet*	popGlobal(bool);
-    static void		initGlobalSets();
+    static void		initGlobalSet(bool);
     static const uiRetVal& autoLoadResult();
 
     DescID		ensureStoredPresent(const DBKey&,int compnr=-1) const;
