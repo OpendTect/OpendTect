@@ -56,6 +56,7 @@ public:
 
     void			fetchHors(bool);
     Pick::Set*			loadSet(const MultiID&);
+    bool			reLoadSet(const MultiID&);
     bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
     				//!< Load set(s) by user sel
     const Pick::Set*		createEmptySet(bool aspolygon);

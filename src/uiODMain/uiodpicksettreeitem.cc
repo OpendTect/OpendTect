@@ -439,8 +439,12 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     uiString warnstr = tr("This pickset has changed since the last save.\n\n"
 			  "Do you want to save it?");
     const int retval = uiMSG().askSave( warnstr, withcancel );
-    if ( retval == 0 )
+    if (retval == 0 )
+    {
+	Pick::SetMgr& psm = Pick::Mgr();
+	applMgr()->pickServer()->reLoadSet( psm.get(set_) );
 	return true;
+    }
     else if ( retval == -1 )
 	return false;
     else
@@ -448,7 +452,6 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
     return true;
 }
-
 
 
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()

@@ -66,7 +66,6 @@ protected:
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
     Pick::Set&		set_;
-
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;
     MenuItem		dirmnuitem_;

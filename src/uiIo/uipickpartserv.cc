@@ -156,6 +156,20 @@ Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
 }
 
 
+bool uiPickPartServer::reLoadSet( const MultiID& mid )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    const int setidx = psmgr_.indexOf( mid );
+
+    Pick::Set& ps = Pick::Mgr().get( mid );
+    ps.setEmpty();
+    BufferString bs;
+
+    return PickSetTranslator::retrieve( ps, ioobj, true, bs );
+}
+
+
+
 void uiPickPartServer::fetchHors( bool is2d )
 {
     deepErase( hinfos_ );
