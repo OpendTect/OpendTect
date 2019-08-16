@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "grubbsfilterattrib.h"
 #include "similaritybyaw.h"
 #include "integratedtrace.h"
+#include "corrmultiattrib.h"
+
 
 mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
@@ -32,6 +34,7 @@ mDefODInitPlugin(ExpAttribs)
 {
     Attrib::EventFreq::initClass();
     Attrib::GrubbsFilter::initClass();
+    Attrib::CorrMultiAttrib::initClass();
 
 #ifdef __debug__
     Attrib::SimilaritybyAW::initClass();

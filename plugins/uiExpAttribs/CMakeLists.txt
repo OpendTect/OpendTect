@@ -10,6 +10,7 @@ set(OD_MODULE_SOURCES
 	uieventfreqattrib.cc
 	uiexpattribspi.cc
 	uigrubbsfilterattrib.cc
+	uicorrmultiattrib.cc
 	uisimilaritybyaw.cc
 	uiintegratedtrace.cc
 )

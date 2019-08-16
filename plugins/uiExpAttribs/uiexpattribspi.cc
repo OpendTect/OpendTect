@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uigrubbsfilterattrib.h"
 #include "uisimilaritybyaw.h"
 #include "uiintegratedtrace.h"
-
+#include "uicorrmultiattrib.h"
 
 mDefODPluginInfo(uiExpAttribs)
 {
@@ -33,6 +33,7 @@ mDefODInitPlugin(uiExpAttribs)
 {
     uiEventFreqAttrib::initClass();
     uiGrubbsFilterAttrib::initClass();
+    uiCorrMultiAttrib::initClass();
 #ifdef __debug__
     uiSimilaritybyAW::initClass();
     uiIntegratedTrace::initClass();
