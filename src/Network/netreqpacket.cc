@@ -383,9 +383,7 @@ PtrMan<Network::PacketInterpreter> Network::RequestPacket::getPayload(
     for ( int idx=0; idx<shapes->size(); idx++ )
     {
 	const TypeSet<double>& shape = shapes->array(idx).valArr().vals();
-	ArrayNDInfo* info = ArrayNDInfoImpl::create( shape.size() );
-	for ( int idim=0; idim<info->nrDims(); idim++ )
-	    info->setSize( idim, mCast(int,shape[idim]) );
+	ArrayNDInfo* info = ArrayNDInfoImpl::create( shape.arr(), shape.size());
 	infos += info;
 	types += OD::PythonAccess::getDataType(
 					dtypes->valArr().strings().get(idx) );

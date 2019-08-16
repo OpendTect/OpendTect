@@ -293,6 +293,7 @@ public:
 
     virtual ArrayNDInfo* clone() const;
     static ArrayNDInfo*	create(nr_dims_type);
+    template <class T> static ArrayNDInfo*	create(const T*,int sz);
 
 			ArrayNDInfoImpl(nr_dims_type);
 			ArrayNDInfoImpl(const ArrayNDInfo&);
@@ -336,4 +337,24 @@ inline ArrayNDInfo::size_type Array3DInfoImpl::getSize( dim_idx_type dim ) const
 inline ArrayNDInfo::size_type Array4DInfoImpl::getSize( dim_idx_type dim ) const
 {
     return dim>3 || dim<0 ? 0 : dimsz_[dim];
+}
+
+template <class T> inline
+ArrayNDInfo* ArrayNDInfoImpl::create( const T* sizes, int sz )
+{
+    TypeSet<size_type> dimszs;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const size_type dimsz = mCast(size_type,mNINT32(sizes[idx]));
+	if ( dimsz > 1 )
+	    dimszs += dimsz;
+    }
+    ArrayNDInfo* ret = create( dimszs.size() );
+    if ( !ret )
+	return nullptr;
+
+    for ( dim_idx_type idx=0; idx<ret->rank(); idx++ )
+	ret->setSize( idx, dimszs[idx] );
+
+    return ret;
 }
