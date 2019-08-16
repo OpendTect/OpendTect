@@ -11,6 +11,7 @@ SET(OD_MODULE_SOURCES
 	expattribspi.cc
 	eventfreqattrib.cc
 	grubbsfilterattrib.cc
+	corrmultiattrib.cc
 	similaritybyaw.cc
 	integratedtrace.cc
 )
