@@ -16,11 +16,9 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "attribprovider.h"
 #include "statruncalc.h"
 #include "survinfo.h"
-#include "array2Dmatrix.h"
-#include "attribprovider.h"
-#include "math2.h"
 
 namespace Attrib
 {
