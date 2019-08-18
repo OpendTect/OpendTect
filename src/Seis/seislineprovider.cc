@@ -45,8 +45,7 @@ protected:
     Bin2D		dpbin2d_;
 
     bool		ensureRightDataSource(GeomID);
-    const RegularSeisDataPack& dp() const
-		{ return *static_cast<const RegularSeisDataPack*>(dp_.ptr()); }
+    const RegularSeisDataPack& dp() const { return regSeisDP(); }
 
 };
 
@@ -71,17 +70,12 @@ bool Seis::LineFetcher::setPosition( const Bin2D& b2d )
 }
 
 
-void Seis::LineFetcher::getTrc( TraceData& data, SeisTrcInfo& trcinfo )
+void Seis::LineFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 {
-    if ( !haveDP()
-      || !dp().sampling().hsamp_.includes(BinID(curb2d_.idxPair())) )
-	uirv_ = getter_->get( curb2d_.trcNr(), data, &trcinfo );
+    if ( useDP(curb2d_) )
+	fillFromDP( TrcKey(curb2d_), ti, td );
     else
-    {
-	const TrcKey tk( curb2d_ );
-	dp().fillTraceInfo( tk, trcinfo );
-	dp().fillTraceData( tk, data );
-    }
+	uirv_ = getter_->get( curb2d_.trcNr(), td, &ti );
 }
 
 
@@ -104,13 +98,13 @@ bool Seis::LineFetcher::ensureRightDataSource( GeomID geomid )
     ensureDataSet();
     if ( dataset_ )
     {
-	const auto providx = prov2D().lineIdx( geomid );
+	const auto lidx = prov2D().lineIdx( geomid );
 	Seis::RangeSelData rsd( geomid );
-	rsd.lineSubSel(0).zSubSel().limitTo( prov_.zSubSel(providx) );
+	rsd.lineSubSel(0).zSubSel().limitTo( prov_.zSubSel(lidx) );
 
 	getter_ = dataset_->traceGetter( geomid, &rsd, uirv_ );
 
-	ensureDPIfAvailable( prov2D().lineIdx(geomid) );
+	handleGeomIDChange( lidx );
     }
 
     if ( !getter_ && uirv_.isOK() )

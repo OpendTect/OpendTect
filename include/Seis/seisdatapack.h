@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class BinnedValueSet;
+class DataCharacteristics;
 class TraceData;
 
 
@@ -28,6 +29,10 @@ public:
 
     mDeclAbstractMonitorableAssignment(SeisVolumeDataPack);
 
+    bool		isFullyCompat(const z_steprg_type&,
+				      const DataCharacteristics&) const;
+
+			// following will just fill with all available data
     void		fillTrace(const TrcKey&,SeisTrc&) const;
     void		fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
     void		fillTraceData(const TrcKey&,TraceData&) const;
@@ -45,6 +50,7 @@ protected:
 mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 {
 public:
+
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 				mDeclMonitorableAssignment(RegularSeisDataPack);
@@ -74,7 +80,7 @@ public:
     TrcKey			getTrcKey(glob_idx_type) const;
     glob_idx_type		getGlobalIdx(const TrcKey&) const;
 
-    const StepInterval<float>&	getZRange() const
+    z_steprg_type		getZRange() const
 				{ return sampling_.zsamp_; }
 
     static DataPack::ID		createDataPackForZSlice(const BinnedValueSet*,
@@ -113,8 +119,8 @@ public:
     TrcKey			getTrcKey(int trcidx) const;
     glob_idx_type		getGlobalIdx(const TrcKey&) const;
 
-    const StepInterval<float>&	getZRange() const	{ return zsamp_; }
-    void			setZRange( const StepInterval<float>& zrg )
+    z_steprg_type		getZRange() const	{ return zsamp_; }
+    void			setZRange( const z_steprg_type& zrg )
 				{ zsamp_ = zrg; }
 
     void			setPath( const TrcKeyPath& path )
@@ -129,7 +135,7 @@ public:
 
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
 						int rdmlineid,
-						const Interval<float>& zrg,
+						const z_rg_type& zrg,
 						const BufferStringSet* nms=0,
 						const TypeSet<BinID>* subpth=0);
 
@@ -139,7 +145,7 @@ protected:
 
     int				rdlid_;
     TrcKeyPath			path_;
-    StepInterval<float>		zsamp_;
+    z_steprg_type		zsamp_;
 
 };
 
@@ -151,6 +157,7 @@ mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 public:
 
     mUseType( VolumeDataPack,	comp_idx_type );
+    mUseType( VolumeDataPack,	z_steprg_type );
 
     mDeclAbstractMonitorableAssignment(SeisFlatDataPack);
 
@@ -167,7 +174,7 @@ public:
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
-    const StepInterval<float>&	getZRange() const	{ return zSamp(); }
+    z_steprg_type		getZRange() const	{ return zSamp(); }
     virtual int			getRandomLineID() const
 				{ return source_->getRandomLineID(); }
 
@@ -196,7 +203,7 @@ protected:
     comp_idx_type		comp_;
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
 
-    const StepInterval<float>&	zSamp() const	{ return source_->getZRange(); }
+    z_steprg_type		zSamp() const	{ return source_->getZRange(); }
     virtual float		gtNrKBytes() const;
 
 };

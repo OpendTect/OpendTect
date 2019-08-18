@@ -171,6 +171,9 @@ mExpClass(General) VolumeDataPack : public DataPack
 {
 public:
 
+    typedef Pos::Z_Type			z_type;
+    typedef Interval<z_type>		z_rg_type;
+    typedef StepInterval<z_type>	z_steprg_type;
     typedef Array3D<value_type>		data_type;
     typedef Array3DImpl<value_type>	impl_type;
     typedef idx_type			glob_idx_type;
@@ -184,7 +187,7 @@ public:
     virtual glob_size_type	nrTrcs() const				= 0;
     virtual TrcKey		getTrcKey(glob_idx_type) const		= 0;
     virtual glob_idx_type	getGlobalIdx(const TrcKey&) const	= 0;
-    virtual const StepInterval<float>&	getZRange() const		= 0;
+    virtual z_steprg_type	getZRange() const		= 0;
     virtual glob_idx_type	getNearestGlobalIdx(const TrcKey&) const;
     virtual int			getRandomLineID() const		{ return -1; }
 

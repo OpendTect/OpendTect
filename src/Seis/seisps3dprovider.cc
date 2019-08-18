@@ -48,8 +48,7 @@ protected:
     BinID		curbid_;
 
     bool		ensureReader() const;
-    const GatherSetDataPack& dp() const
-		{ return *static_cast<const GatherSetDataPack*>( dp_.ptr() ); }
+    const GatherSetDataPack& dp() const { return gathDP(); }
 
 };
 
@@ -89,7 +88,8 @@ void Seis::PS3DFetcher::getPossibleExtents()
 
 void Seis::PS3DFetcher::prepWork()
 {
-    ensureDPIfAvailable( 0 );
+    ensureReader();
+    handleGeomIDChange( 0 );
 }
 
 

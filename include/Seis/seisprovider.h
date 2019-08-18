@@ -10,9 +10,10 @@ ________________________________________________________________________
 
 */
 
-#include "dbkey.h"
 #include "seistype.h"
 #include "bin2d.h"
+#include "datachar.h"
+#include "dbkey.h"
 #include "threadlock.h"
 #include "zsubsel.h"
 
@@ -121,6 +122,7 @@ public:
     ZSampling		zRange( idx_type iln=0 ) const
 				{ return zSubSel(iln).outputZRange(); }
     void		getSubSel(FullSubSel&) const;
+    DataCharacteristics	trcDataRep() const;
 
     void		setSelData(SelData*);		//!< Give it to me
     void		setSelData(const SelData&);	//!< I'll make a copy

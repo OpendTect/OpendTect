@@ -269,7 +269,7 @@ void TraceData::setValue( int isamp, float v, int icomp )
 {
 #ifdef __debug__
     if ( !isValidComp(icomp) )
-	{ pErrMsg("Component does not exist"); }
+	{ pErrMsg( BufferString("Invalid comp: ",icomp) ); }
     else
 #endif
 	interp_[icomp]->put( data_[icomp]->data(), isamp, v );

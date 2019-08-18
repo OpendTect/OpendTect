@@ -16,12 +16,13 @@ ________________________________________________________________________
 #include "seisdatapack.h"
 #include "seispreload.h"
 #include "seisprovider.h"
+#include "seistrctr.h"
 
 
 void Seis::Fetcher::reset()
 {
     uirv_.setOK();
-    dplidx_ = -1;
+    curlidx_ = -1;
     dp_ = nullptr;
 }
 
@@ -36,20 +37,73 @@ const GatherSetDataPack& Seis::Fetcher::gathDP() const
 { return *((GatherSetDataPack*)dp_.ptr()); }
 
 
-void Seis::Fetcher::ensureDPIfAvailable( idx_type iln )
+void Seis::Fetcher::handleGeomIDChange( idx_type iln )
 {
-    if ( dplidx_ == iln )
+    curlidx_ = iln;
+    provzsamp_ = prov_.zRange( curlidx_ );
+    datachar_ = DataCharacteristics();
+
+    const auto* trl = curTransl();
+    if ( trl )
+	datachar_ = trl->componentInfo().first()->datachar_;
+    else
+    {
+	DataCharacteristics::UserType ut = OD::F32;
+	const auto* ioobj = prov_.ioObj();
+	if ( ioobj )
+	    DataCharacteristics::getUserTypeFromPar( ioobj->pars(), ut );
+	datachar_ = DataCharacteristics( ut );
+    }
+
+    dp_ = Seis::PLDM().getDP( prov_.dbKey(), prov_.geomID(curlidx_) );
+    if ( dp_ )
+    {
+	const auto dpzsamp = isPS() ? gathDP().zRange() : regSeisDP().zRange();
+	if ( !dpzsamp.includes(provzsamp_) )
+	    dp_ = nullptr;
+    }
+}
+
+
+void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
+				TraceData& td )
+{
+    const bool directfill = regSeisDP().isFullyCompat( provzsamp_, datachar_ );
+    auto& filledti = directfill ? ti : worktrc_.info();
+    auto& filledtd = directfill ? td : worktrc_.data();
+    regSeisDP().fillTraceInfo( tk, filledti );
+    regSeisDP().fillTraceData( tk, filledtd );
+    if ( directfill )
 	return;
 
-    dplidx_ = iln;
-    dp_ = Seis::PLDM().getDP( prov_.dbKey(), prov_.geomID(iln) );
-    if ( !dp_ )
-	return;
+    // our data needs to go from worktrc into ti and td
+    const auto nrcomps = isPS() ? 1 : regSeisDP().nrComponents();
+    const auto nrsamps = provzsamp_.nrSteps() + 1;
+    td.setNrComponents( nrcomps, datachar_.userType() );
+    td.convertTo( datachar_, false );
+    td.reSize( nrsamps );
+    for ( auto icomp=0; icomp<nrcomps; icomp++ )
+    {
+	for ( auto isamp=0; isamp<nrsamps; isamp++ )
+	{
+	    const auto z = provzsamp_.atIndex( isamp );
+	    td.setValue( isamp, worktrc_.getValue(z,icomp), icomp );
+	}
+    }
+    ti = filledti;
+    ti.sampling_.start = provzsamp_.start;
+    ti.sampling_.step = provzsamp_.step;
+}
 
-    const auto dpzsamp = isPS() ? gathDP().zRange() : regSeisDP().zRange();
-    const auto provzsamp = prov_.zRange( iln );
-    if ( !dpzsamp.includes(provzsamp) )
-	dp_ = nullptr;
+
+bool Seis::Fetcher3D::useDP( const BinID& bid ) const
+{
+    if ( !haveDP() )
+	return false;
+    if ( isPS() )
+	return true; // for PS, we cannot predict, need to just try and see
+
+    return regSeisDP().sampling().hsamp_.includes( bid );
 }
 
 
@@ -63,6 +117,17 @@ void Seis::Fetcher2D::reset()
 {
     Fetcher::reset();
     deleteAndZeroPtr( dataset_ );
+}
+
+
+bool Seis::Fetcher2D::useDP( const Bin2D& b2d ) const
+{
+    if ( !haveDP() )
+	return false;
+    if ( isPS() )
+	return true; // for PS, we should just try and see
+
+    return regSeisDP().sampling().hsamp_.includes( BinID(b2d.idxPair()) );
 }
 
 

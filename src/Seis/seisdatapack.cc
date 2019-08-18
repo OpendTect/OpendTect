@@ -205,6 +205,14 @@ SeisVolumeDataPack::~SeisVolumeDataPack()
 mImplMonitorableAssignmentWithNoMembers( SeisVolumeDataPack, VolumeDataPack )
 
 
+bool SeisVolumeDataPack::isFullyCompat( const z_steprg_type& zrg,
+					const DataCharacteristics& dc ) const
+{
+    const auto myzrg = getZRange();
+    return dc == getDataDesc() && myzrg.isEqual(zrg,1e-6f);
+}
+
+
 void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 {
     fillTraceInfo( trcky, trc.info() );
@@ -213,39 +221,39 @@ void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 
 
 void SeisVolumeDataPack::fillTraceInfo( const TrcKey& tk,
-					SeisTrcInfo& info ) const
+					SeisTrcInfo& ti ) const
 {
-    const StepInterval<float> zrg = getZRange();
-    info.sampling_.start = zrg.start;
-    info.sampling_.step = zrg.step;
-    info.trcKey() = tk;
-    info.coord_ = tk.getCoord();
-    info.offset_ = 0.f;
+    const auto zrg = getZRange();
+    ti.sampling_.start = zrg.start;
+    ti.sampling_.step = zrg.step;
+    ti.trcKey() = tk;
+    ti.coord_ = tk.getCoord();
+    ti.offset_ = 0.f;
 }
 
 
 void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
-					TraceData& tdata ) const
+					TraceData& td ) const
 {
-    const int nrcomps = nrComponents();
     DataCharacteristics dc;
     if ( !scaler_ )
 	dc = DataCharacteristics( getDataDesc() );
-    tdata.convertTo( dc, false );
+    td.convertTo( dc, false );
 
     const int trcsz = getZRange().nrSteps() + 1;
-    tdata.reSize( trcsz );
+    td.reSize( trcsz );
 
     const int globidx = getGlobalIdx( trcky );
     if ( globidx < 0 )
-	{ tdata.zero(); return; }
+	{ td.zero(); return; }
 
     Array1DImpl<float> copiedtrc( trcsz );
+    const int nrcomps = nrComponents();
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
 	const float* vals = getTrcData( icomp, globidx );
 	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
-	    { tdata.zero(); return; }
+	    { td.zero(); return; }
 
 	float* copiedtrcptr = copiedtrc.getData();
 	for ( int isamp=0; isamp<trcsz; isamp++ )
@@ -253,7 +261,7 @@ void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
 	    const float val = vals ? vals[isamp] : copiedtrcptr
 						  ? copiedtrcptr[isamp]
 						  : copiedtrc.get( isamp );
-	    tdata.setValue( isamp, val, icomp );
+	    td.setValue( isamp, val, icomp );
 	}
     }
 }
@@ -548,7 +556,7 @@ void RandomSeisDataPack::setRandomLineID( int rdlid,
 DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					int rdmlineid,
-					const Interval<float>& zrange,
+					const z_rg_type& zrange,
 					const BufferStringSet* compnames,
 					const TypeSet<BinID>* subpath )
 {
@@ -753,7 +761,7 @@ void SeisFlatDataPack::setPosData()
 	    pos[idx] = mCast(float,(pos[idx-1]));
 	else
 	{
-	    const float dist = prevtk.distTo( trckey );
+	    const float dist = (float)prevtk.distTo( trckey );
 	    if ( mIsUdf(dist) )
 		pos[idx] = pos[idx-1];
 	    else
@@ -874,7 +882,7 @@ const char* RegularFlatDataPack::dimName( bool dim0 ) const
 }
 
 
-float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
+float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 {
     const int posidx = mCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;

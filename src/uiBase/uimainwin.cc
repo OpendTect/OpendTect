@@ -321,14 +321,14 @@ void uiMainWinBody::doShow( bool minimized )
 #   define mMinSupportedHeight 1080
 
     QRect qrect = geometry();
-    if ( !hasguisettings_ && (qrect.width() > mMinSupportedWidth
-			   || qrect.height() > mMinSupportedHeight) )
+    if ( !hasguisettings_ && qrect.height() > mMinSupportedHeight )
     {
 	BufferString msg( "The window '", name(), "' is " );
 	msg.add( qrect.width() ).add( "x" ).add( qrect.height() )
-	    .add( ". That won't fit on many laptops.\nWe want to support >= " )
-	    .add( mMinSupportedWidth ).add( "x" ).add( mMinSupportedHeight )
-	    .add( ", see comments in the .cc file." );
+	    .add( ". That height may be a problem on many laptops.\nWe want to "
+		    "support heights >= " ).add( mMinSupportedHeight )
+	    .add( "and if possible keep width below " ).add(mMinSupportedWidth)
+	    .add( ".\nSee comments in the .cc file." );
 	pErrMsg( msg );
     }
 

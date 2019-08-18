@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisprovider.h"
+#include "seistrc.h"
 #include "datapack.h"
 class GatherSetDataPack;
 class RegularSeisDataPack;
@@ -49,17 +50,31 @@ public:
     virtual void		prepWork()		= 0;
     virtual const STTrl*	curTransl() const	{ return nullptr; }
 
-    void			ensureDPIfAvailable(idx_type lidx);
     bool			haveDP() const		{ return dp_; }
     RegularSeisDataPack&	regSeisDP();
     const RegularSeisDataPack&	regSeisDP() const;
     GatherSetDataPack&		gathDP();
     const GatherSetDataPack&	gathDP() const;
 
+    DataCharacteristics		dataChar() const	{ return datachar_; }
+
     Provider&		prov_;
     mutable uiRetVal	uirv_;
+
+protected:
+
+    void		fillFromDP(const TrcKey&,SeisTrcInfo&,TraceData&);
+
+    void		handleGeomIDChange(idx_type iln=0);
+
+    idx_type		curlidx_			= -1;
     RefMan<DataPack>	dp_;
-    idx_type		dplidx_			= -1;
+    ZSampling		provzsamp_;
+    DataCharacteristics	datachar_;
+
+private:
+
+    SeisTrc		worktrc_;
 
 };
 
@@ -71,7 +86,7 @@ class Fetcher3D : public Fetcher
 public:
 
 			Fetcher3D( Provider& p ) : Fetcher(p)	{}
-    virtual bool	is2D() const		{ return false; }
+    bool		is2D() const override		{ return false; }
 
     Provider3D&		prov3D()
 			{ return static_cast<Provider3D&>( prov_ ); }
@@ -79,6 +94,10 @@ public:
 			{ return static_cast<const Provider3D&>( prov_ ); }
 
     virtual bool	setPosition(const BinID&)		= 0;
+
+protected:
+
+    bool		useDP(const BinID&) const;
 
 };
 
@@ -91,7 +110,7 @@ public:
 
 			Fetcher2D( Provider& p ) : Fetcher(p)	{}
 			~Fetcher2D();
-    virtual bool	is2D() const		{ return true; }
+    bool		is2D() const override	{ return true; }
     void		reset() override;
 
     Provider2D&		prov2D()
@@ -111,6 +130,7 @@ public:
 protected:
 
     void		ensureDataSet() const;
+    bool		useDP(const Bin2D&) const;
 
 };
 

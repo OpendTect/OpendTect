@@ -48,8 +48,7 @@ protected:
     Bin2D		curb2d_;
 
     bool		ensureRightDataSource(GeomID) const;
-    const GatherSetDataPack& dp() const
-		{ return *static_cast<const GatherSetDataPack*>( dp_.ptr() ); }
+    const GatherSetDataPack& dp() const { return gathDP(); }
 
 };
 
@@ -126,7 +125,7 @@ bool Seis::PS2DFetcher::ensureRightDataSource( GeomID gid ) const
     else
     {
 	uirv_.setOK();
-	mSelf().ensureDPIfAvailable( prov2D().lineIdx(gid) );
+	mSelf().handleGeomIDChange( prov2D().lineIdx(gid) );
     }
 
     return uirv_.isOK();

@@ -253,50 +253,48 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 
     if ( constraint->enabled() )
     {
-	BufferString msg;
-	if ( chknriters )
-	    msg = "\n  Too many iterations with: \"";
-	else
-	    msg = "\n  Layout loop on: \"";
-	msg += objLayouted() ? (const char*)objLayouted()->name() : "UNKNOWN";
-	msg += "\"";
+	BufferString msg( chknriters ? "Too many iterations: "
+				     : "Layout loop: " );
+	if ( objLayouted() )
+	    msg.add( "'" ).add( objLayouted()->name() ).add( "' " );
 
 	switch ( constraint->type_ )
 	{
-	    case leftOf:		msg += " leftOf "; break;
-	    case rightOf:		msg += " rightOf "; break;
-	    case leftTo:		msg += " leftTo "; break;
-	    case rightTo:		msg += " rightTo "; break;
-	    case leftAlignedBelow:	msg += " leftAlignedBelow "; break;
-	    case leftAlignedAbove:	msg += " leftAlignedAbove "; break;
-	    case rightAlignedBelow:	msg += " rightAlignedBelow "; break;
-	    case rightAlignedAbove:	msg += " rightAlignedAbove "; break;
-	    case alignedBelow:		msg += " alignedBelow "; break;
-	    case alignedAbove:		msg += " alignedAbove "; break;
-	    case centeredBelow:		msg += " centeredBelow "; break;
-	    case centeredAbove:		msg += " centeredAbove "; break;
-	    case ensureLeftOf:		msg += " ensureLeftOf "; break;
-	    case ensureRightOf:		msg += " ensureRightOf "; break;
-	    case ensureBelow:		msg += " ensureBelow "; break;
-	    case leftBorder:		msg += " leftBorder "; break;
-	    case rightBorder:		msg += " rightBorder "; break;
-	    case topBorder:		msg += " topBorder "; break;
-	    case bottomBorder:		msg += " bottomBorder "; break;
-	    case heightSameAs:		msg += " heightSameAs "; break;
-	    case widthSameAs:		msg += " widthSameAs "; break;
-	    case stretchedBelow:	msg += " stretchedBelow "; break;
-	    case stretchedAbove:	msg += " stretchedAbove "; break;
-	    case stretchedLeftTo:	msg += " stretchedLeftTo "; break;
-	    case stretchedRightTo:	msg += " stretchedRightTo "; break;
-	    case atSamePosition:	msg += " atSamePosition "; break;
-	    default:			msg += " .. "; break;
+#	    define mCase(typ) case typ: msg.add( #typ ); break
+
+	    mCase( leftOf );
+	    mCase( rightOf );
+	    mCase( leftTo );
+	    mCase( rightTo );
+	    mCase( leftAlignedBelow );
+	    mCase( leftAlignedAbove );
+	    mCase( rightAlignedBelow );
+	    mCase( rightAlignedAbove );
+	    mCase( alignedBelow );
+	    mCase( alignedAbove );
+	    mCase( centeredBelow );
+	    mCase( centeredAbove );
+	    mCase( ensureLeftOf );
+	    mCase( ensureRightOf );
+	    mCase( ensureBelow );
+	    mCase( leftBorder );
+	    mCase( rightBorder );
+	    mCase( topBorder );
+	    mCase( bottomBorder );
+	    mCase( heightSameAs );
+	    mCase( widthSameAs );
+	    mCase( stretchedBelow );
+	    mCase( stretchedAbove );
+	    mCase( stretchedLeftTo );
+	    mCase( stretchedRightTo );
+	    mCase( atSamePosition );
+
+	    default:	msg.add( "<new layout type?>" ); break;
 	}
 
-	msg += "\"";
-	msg += constraint->other_ && constraint->other_->objLayouted()
-	    ? (const char*)constraint->other_->objLayouted()->name()
-	    : "UNKNOWN";
-	msg += "\"";
+	if ( constraint->other_ && constraint->other_->objLayouted() )
+	    msg.add( " '" ).add( constraint->other_->objLayouted()->name() )
+		.add( "'" );
 	pErrMsg( msg );
 
 	constraint->disable( true );

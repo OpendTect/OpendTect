@@ -54,8 +54,7 @@ protected:
     bool		isMultiConn() const;
     bool		createTranslator(inl_type) const;
     bool		ensureRightTransl(inl_type inl=-1) const;
-    const RegularSeisDataPack& dp() const
-		{ return *static_cast<const RegularSeisDataPack*>(dp_.ptr()); }
+    const RegularSeisDataPack& dp() const { return regSeisDP(); }
 
 };
 
@@ -122,7 +121,8 @@ void Seis::VolFetcher::getPossibleExtents()
 
 void Seis::VolFetcher::prepWork()
 {
-    ensureDPIfAvailable( 0 );
+    ensureRightTransl();
+    handleGeomIDChange( 0 );
 }
 
 
@@ -133,7 +133,7 @@ bool Seis::VolFetcher::setPosition( const BinID& bid )
     if ( !ensureRightTransl(bid.inl()) )
 	return false;
 
-    if ( haveDP() && dp().sampling().hsamp_.includes( bid ) )
+    if ( useDP(bid) )
 	{ dpbid_ = bid; return true; }
     if ( trl_ && trl_->goTo(bid) )
 	return true;
@@ -145,11 +145,7 @@ bool Seis::VolFetcher::setPosition( const BinID& bid )
 void Seis::VolFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 {
     if ( dpbid_.inl() != -1 )
-    {
-	const TrcKey tk( dpbid_ );
-	dp().fillTraceData( tk, td );
-	dp().fillTraceInfo( tk, ti );
-    }
+	fillFromDP( TrcKey(dpbid_), ti, td );
     else
     {
 	if ( !trl_ )

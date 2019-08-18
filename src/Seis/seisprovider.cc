@@ -123,7 +123,7 @@ DBKey Seis::Provider::dbKey( const IOPar& iop )
 
 Seis::Provider::Provider( bool is2d, bool fillposs )
     : possiblepositions_(is2d ? *new LineCollData
-			      : *(LineCollData*)new PosInfo::CubeData)
+			      : *(LineCollData*)new PosInfo::SortedCubeData)
 {
     if ( !is2d )
     {
@@ -366,6 +366,12 @@ void Seis::Provider::getComponentInfo( BufferStringSet& nms,
     fetcher().getComponentInfo( nms, dtype );
     if ( pdt )
 	*pdt = dtype;
+}
+
+
+DataCharacteristics Seis::Provider::trcDataRep() const
+{
+    return fetcher().dataChar();
 }
 
 
