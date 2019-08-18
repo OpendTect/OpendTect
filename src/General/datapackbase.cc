@@ -353,12 +353,7 @@ OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
 const float* VolumeDataPack::getTrcData( int comp,
 			    glob_idx_type globaltrcidx ) const
 {
-    if ( !arrays_.validIdx(comp) )
-	return 0;
-
-    const Array3D<float>* array = arrays_[comp];
-    if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->getSize(2);
+    return mSelf().getTrcData( comp, globaltrcidx );
 }
 
 
@@ -368,7 +363,8 @@ float* VolumeDataPack::getTrcData( int comp, glob_idx_type globaltrcidx )
 	return 0;
 
     Array3D<float>* array = arrays_[comp];
-    if ( !array->getData() ) return 0;
+    if ( !array->getData() )
+	return 0;
     return array->getData() + (od_int64)globaltrcidx * array->getSize(2);
 }
 

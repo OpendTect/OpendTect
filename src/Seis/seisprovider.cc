@@ -766,12 +766,17 @@ bool Seis::Provider::prepGet( uiRetVal& uirv, bool next ) const
     if ( next && !selectedpositions_->next(spos_,true) )
 	{ uirv.set( uiStrings::sFinished() ); return false; }
 
+    setTrcPos();
+    return true;
+}
+
+
+void Seis::Provider::setTrcPos() const
+{
     if ( is2D() )
 	mSelf().as2D()->trcpos_ = selectedpositions_->getBin2D(spos_);
     else
 	mSelf().as3D()->trcpos_ = selectedpositions_->getBinID(spos_);
-
-    return true;
 }
 
 
@@ -895,6 +900,8 @@ void Seis::Provider::fillSequence( Seis::RawTrcsSequence& rawseq,
 	const TrcKey& tk = (*rawseq.tks_)[ipos];
 	if ( !doGoTo(tk) )
 	    continue;
+
+	setTrcPos();
 
 	if ( isps )
 	{

@@ -68,6 +68,9 @@ void Seis::Fetcher::handleGeomIDChange( idx_type iln )
 void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
 				TraceData& td )
 {
+    //TODO have the datapack do this work much more efficitently
+    // by providing provzsamp_ and datachar_
+
     const bool directfill = regSeisDP().isFullyCompat( provzsamp_, datachar_ );
     auto& filledti = directfill ? ti : worktrc_.info();
     auto& filledtd = directfill ? td : worktrc_.data();

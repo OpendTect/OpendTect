@@ -211,6 +211,7 @@ private:
 
     void		init(bool,bool);
     bool		prepareAccess(uiRetVal&) const;
+    void		setTrcPos() const;
     void		wrapUpGet(TraceData&,uiRetVal&) const;
     void		wrapUpGet(SeisTrc&,uiRetVal&) const;
     void		wrapUpGet(SeisTrcBuf&,uiRetVal&) const;
