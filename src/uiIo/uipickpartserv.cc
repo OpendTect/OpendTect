@@ -159,7 +159,6 @@ Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
 bool uiPickPartServer::reLoadSet( const MultiID& mid )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    const int setidx = psmgr_.indexOf( mid );
 
     Pick::Set& ps = Pick::Mgr().get( mid );
     ps.setEmpty();
