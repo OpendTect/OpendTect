@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "dbkey.h"
 
-class TaskRunner;
+class TaskRunnerProvider;
 namespace Pick { class Set; }
 namespace EM {
     class		Object;
