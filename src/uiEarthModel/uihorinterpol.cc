@@ -41,24 +41,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
-
 #define mScopeSurvey	0
 #define mScopeBBX	1
 #define mScopeConvex	2
 #define mScopeHoles	3
 #define mScopePolygon	4
 
+static float defaultRadius()
+{
+    return 2 * mMAX( SI().inlDistance()*SI().inlStep(),
+		     SI().crlDistance()*SI().crlStep() );
+}
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Horizon Gridding"),mNoDlgTitle,
 		mODHelpKey(mInverseDistanceArray2DInterpolHelpID)).modal(true))
-    , horizon_( hor )
-    , is2d_( is2d )
-    , inputhorsel_( 0 )
-    , interpolhor3dsel_( 0 )
-    , interpol1dsel_( 0 )
-    , savefldgrp_( 0 )
+    , horizon_(hor)
+    , is2d_(is2d)
+    , inputhorsel_(nullptr)
+    , interpolhor3dsel_(nullptr)
+    , interpol1dsel_(nullptr)
+    , savefldgrp_(nullptr)
     , finished(this)
     , horReadyForDisplay(this)
 {
@@ -74,7 +78,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 	ctxt.forread_ = true;
 	inputhorsel_ = new uiIOObjSel( this, ctxt );
 	mAttachCB( inputhorsel_->selectionDone,
-		    uiHorizonInterpolDlg::selChangeCB );
+		   uiHorizonInterpolDlg::selChangeCB );
     }
 
     if ( !is2d )
@@ -125,7 +129,7 @@ uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 }
 
 
-void uiHorizonInterpolDlg::selChangeCB( CallBacker* cb )
+void uiHorizonInterpolDlg::selChangeCB( CallBacker* )
 {
     if ( !inputhorsel_ || !inputhorsel_->ioobj(true) || !savefldgrp_ )
 	return;
@@ -154,7 +158,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( interpolhor3dsel_->isFullSurvey() )
 	savefldgrp_->setFullSurveyArray( true );
 
-    if ( !savefldgrp_->acceptOK(0) )
+    if ( !savefldgrp_->acceptOK(nullptr) )
 	return false;
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
@@ -184,8 +188,8 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 	uiRetVal rv = HorizonGridder::executeGridding(
 		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
-		usepolygon ? &polyinlrg : 0,
-		usepolygon ? &polycrlrg : 0, &taskrunner );
+		usepolygon ? &polyinlrg : nullptr,
+		usepolygon ? &polycrlrg : nullptr, &taskrunner );
 	if ( rv.isError() )
 	    errors += rv;
     }
@@ -211,7 +215,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 bool uiHorizonInterpolDlg::interpolate2D()
 {
-    if ( !savefldgrp_->acceptOK(0) )
+    if ( !savefldgrp_->acceptOK(nullptr) )
 	return false;
 
     EM::Horizon* usedhor = !savefldgrp_->overwriteHorizon() ?
@@ -246,7 +250,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	if ( !TaskRunner::execute( &taskrunner, execgrp ) )
 	{
 	    uiString msg = tr("Cannot interpolate section %1")
-	                 .arg(sid);
+			 .arg(sid);
 	    ErrMsg( msg.getFullString() ); continue;
 	}
 
@@ -261,7 +265,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 }
 
 
-bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
+bool uiHorizonInterpolDlg::acceptOK( CallBacker* )
 {
     IOPar par;
     const bool isok = is2d_ ? interpol1dsel_->acceptOK()
@@ -364,8 +368,8 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     }
 
     setHAlignObj( methodsel_ );
-    methodSelCB( 0 );
-    scopeChgCB( 0 );
+    methodSelCB( nullptr );
+    scopeChgCB( nullptr );
 }
 
 
@@ -450,7 +454,8 @@ bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
     {
 	const Pick::Location& pl = ps[idx];
 	const Coord bid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
-	poly.add( Geom::Point2D<float>((float) bid.x,(float) bid.y) );
+	Geom::Point2D<float> pt; pt.setXY( bid.x, bid.y );
+	poly.add( pt );
     }
 
     return true;
@@ -508,7 +513,7 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 }
 
 
-bool uiHor3DInterpolSel::usePar( const IOPar& par )
+bool uiHor3DInterpolSel::usePar( const IOPar& )
 {
     return true;
 }
@@ -542,15 +547,14 @@ uiHor3DInterpol* uiInvDistHor3DInterpol::create( uiParent* p )
 
 uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
     : uiHor3DInterpol(p)
-    , nrsteps_(mUdf(int))
     , cornersfirst_(false)
     , stepsz_(1)
+    , nrsteps_(mUdf(int))
 {
     fltselfld_ = new uiFaultParSel( this, false );
 
-    uiString titletext( tr("Search radius %1")
-			    .arg(SI().getUiXYUnitString()) );
-    radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
+    uiString lbltxt( tr("Search radius %1").arg( SI().getUiXYUnitString()) );
+    radiusfld_ = new uiGenInput( this, lbltxt, FloatInpSpec(defaultRadius()) );
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( true );
     radiusfld_->attach( alignedBelow, fltselfld_ );
@@ -599,7 +603,7 @@ bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 }
 
 
-bool uiInvDistHor3DInterpol::usePar( const IOPar& iopar )
+bool uiInvDistHor3DInterpol::usePar( const IOPar& )
 {
     return true;
 }
@@ -641,7 +645,7 @@ uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol( uiParent* p )
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
 
     setHAlignObj( useneighborfld_ );
-    useNeighborCB( 0 );
+    useNeighborCB( nullptr );
 }
 
 
@@ -676,7 +680,7 @@ bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
 }
 
 
-bool uiTriangulationHor3DInterpol::usePar( const IOPar& iopar )
+bool uiTriangulationHor3DInterpol::usePar( const IOPar& )
 {
     return true;
 }
@@ -722,26 +726,23 @@ bool uiExtensionHor3DInterpol::fillPar( IOPar& par ) const
 }
 
 
-bool uiExtensionHor3DInterpol::usePar( const IOPar& iopar )
+bool uiExtensionHor3DInterpol::usePar( const IOPar& )
 {
     return true;
 }
 
 
 uiContinuousCurvatureHor3DInterpol::uiContinuousCurvatureHor3DInterpol(
-    uiParent* p )
-    : uiHor3DInterpol( p )
-    , tensionfld_( 0 )
+								uiParent* p )
+    : uiHor3DInterpol(p)
 {
-    tensionfld_ = new uiGenInput(this,tr("Tension"),FloatInpSpec(0.25) );
+    tensionfld_ = new uiGenInput( this, tr("Tension"), FloatInpSpec(0.95f) );
 
-    uiString titletext( tr("Search radius %1")
-			   .arg(SI().getUiXYUnitString()) );
-    radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec(0.0) );
-    radiusfld_->attach( alignedBelow,tensionfld_ );
+    uiString lbltxt( tr("Search radius %1") .arg(SI().getUiXYUnitString()) );
+    radiusfld_ = new uiGenInput( this, lbltxt, FloatInpSpec(defaultRadius()) );
+    radiusfld_->attach( alignedBelow, tensionfld_ );
 
     setHAlignObj( radiusfld_ );
-
 }
 
 
@@ -777,7 +778,7 @@ bool uiContinuousCurvatureHor3DInterpol::fillPar( IOPar& par) const
 }
 
 
-bool uiContinuousCurvatureHor3DInterpol::usePar( const IOPar& par )
+bool uiContinuousCurvatureHor3DInterpol::usePar( const IOPar& )
 {
     return true;
 }
