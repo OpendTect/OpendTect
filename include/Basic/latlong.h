@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "coord.h"
+#include "uistring.h"
 
 namespace Coords { class CoordSystem; }
 
@@ -23,12 +24,17 @@ namespace Coords { class CoordSystem; }
 */
 
 mExpClass(Basic) LatLong
-{
+{ mODTextTranslationClass(LatLong)
 public:
 			LatLong( double la=0, double lo=0 )
 			    : lat_(la), lng_(lo)  {}
 			LatLong( const LatLong& ll )
 			    : lat_(ll.lat_), lng_(ll.lng_)	{}
+			LatLong( const char* la, const char* lo )
+			{
+			    setFromString( la, true );
+			    setFromString( lo, false );
+			}
 
     bool		operator ==(const LatLong&) const;
 
@@ -54,4 +60,9 @@ public:
 
     double		lat_;
     double		lng_;
+
+    uiString		errMsg() const	{ return errmsg_; }
+
+protected:
+    uiString		errmsg_;
 };

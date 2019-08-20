@@ -99,11 +99,35 @@ bool LatLong::setFromString( const char* str, bool lat )
 {
 // Supports strings formatted as dddmmssssh or ggg.gggggh
 // h is not mandatory
+    //TODO: Look for period in seconds
     BufferString llstr = str;
     if ( llstr.isEmpty() )
 	return false;
 
     char& lastchar = llstr[llstr.size()-1];
+    int charval = int(lastchar);
+    bool isalphabetinend = int( lastchar ) > 64 && int(lastchar) < 91;
+    
+    if ( isalphabetinend && ((lat && lastchar!='N' && lastchar!='S') ||
+	(!lat && lastchar != 'E' && lastchar != 'W')) )
+    {
+	if ( lat )
+	{
+	    lat_ = mUdf( double );
+	    errmsg_ = tr("Latitude is not correctly defined");
+	}
+	else
+	{
+	    lng_ = mUdf( double );
+	    errmsg_ = tr("Longitude is not correctly defined");
+	}
+
+	if ( mIsUdf(lat_) && mIsUdf(lng_) )
+	    errmsg_ = tr("Lat/Long are not correctly defined");
+	
+	return false;
+    }
+    
     const bool hasSW = lastchar=='S' || lastchar=='W';
     if ( lastchar=='N' || lastchar=='E' || hasSW )
 	lastchar = '\0';
