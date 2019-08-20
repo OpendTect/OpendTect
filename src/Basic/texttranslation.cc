@@ -66,12 +66,27 @@ TextTranslation::TranslatorData::~TranslatorData()
 }
 
 
+mDefineEnumUtils( TextTranslation::TranslateMgr, Language, "Language" )
+{
+    "English", "Chinese", "Spanish", 0
+};
+
+template <>
+void EnumDefImpl<TextTranslation::TranslateMgr::Language>::init()
+{
+    uistrings_ += mEnumTr("English",0);
+    uistrings_ += mEnumTr("Chinese",0);
+    uistrings_ += mEnumTr("Spanish",0);
+}
+
+
 TextTranslation::LanguageEntry::LanguageEntry( const char* qmfnm,
 					       const char* localekey )
     : localekey_(localekey)
 #ifndef OD_NO_QT
     , qlocale_(new QLocale(localekey))
     , qlangname_(new QString(localekey))
+    , addtoentry_(false)
 #endif
 {
 #ifndef OD_NO_QT
@@ -91,6 +106,7 @@ TextTranslation::LanguageEntry::LanguageEntry( const char* localekey,
     , qlocale_(new QLocale(localekey))
     , qlangname_(new QString(localekey))
     , qt_transl_(0)
+    , addtoentry_(false)
 #endif
 {
 #ifndef OD_NO_QT
@@ -127,6 +143,8 @@ void TextTranslation::LanguageEntry::addData4Dir( const File::Path& dirfp,
 	const BufferString qmfnm = File::Path( dirfp, filename ).fullPath();
 	if ( getData4Pkg(pkgnm) || !File::exists(qmfnm) )
 	    continue;
+
+	addtoentry_ = true;
 
 	if ( pkgnm == "od" )
 	    setLangName( qmfnm );
@@ -279,13 +297,22 @@ void TextTranslation::TranslateMgr::reInit()
     pkgnms_.setEmpty();
 
     BufferStringSet localekeys;
-    localekeys.add( "en" ); // whether or not in a file
+    
+    QList<QLocale> allLocales = QLocale::matchingLocales( QLocale::AnyLanguage,
+	QLocale::AnyScript, QLocale::AnyCountry );
+    for (int i = 0; i < allLocales.size(); i++)
+	localekeys.add( allLocales[i].name() );
+
     findLocales( userlocdir_, localekeys );
     findLocales( applocdir_, localekeys );
     findLocales( instlocdir_, localekeys );
 
     for ( int iloc=0; iloc<localekeys.size(); iloc++ )
-	addEntry( new LanguageEntry(localekeys.get(iloc),pkgnms_) );
+    {
+	LanguageEntry* le = new LanguageEntry( localekeys.get(iloc), pkgnms_ );
+	if ( le->addToEntry() )
+	    addEntry( le );
+    }
 
     if ( curlocalekey.isEmpty() )
 	setLanguage( cDefaultLocaleIdx() );
@@ -404,7 +431,7 @@ uiString TextTranslation::TranslateMgr::languageUserName( int idx ) const
 #endif
     }
 
-    return toUiString( "Unknown language" );
+    return ::toUiString( "Unknown language" );
 }
 
 

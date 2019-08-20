@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "notify.h"
 #include "uistring.h"
 #include "bufstringset.h"
+#include "enums.h"
 #include "filepath.h"
 
 namespace TextTranslation { class TranslateMgr; class LanguageEntry; }
@@ -54,6 +55,9 @@ namespace TextTranslation
 mExpClass(Basic) TranslateMgr : public CallBacker
 { mODTextTranslationClass(TranslateMgr);
 public:
+    enum			Language { English, Chinese, Spanish };
+				mDeclareEnumUtils(Language);
+				
 				TranslateMgr();
 				~TranslateMgr();
 
@@ -152,6 +156,7 @@ public:
 protected:
 
     BufferString		localekey_;
+    bool			addtoentry_;
 
     void			addData4Dir(const File::Path&,
 					    const BufferStringSet&);
@@ -168,6 +173,7 @@ public:
     mQtclass(QTranslator)*	qt_transl_;
 
     void			addData(const char* qmfnm,const char* pkgnm);
+    bool			addToEntry() { return addtoentry_; }
 
 };
 
