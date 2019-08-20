@@ -540,7 +540,7 @@ void uiTable::setDefaultRowLabels()
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiString lbl( setup_.rowdesc_ );
-	toUiString("%1 %2").arg(lbl).arg(idx + setup_.defrowstartidx_ );
+	lbl = toUiString("%1 %2").arg(lbl).arg(idx + setup_.defrowstartidx_);
 	setRowLabel( idx, lbl );
     }
 }
