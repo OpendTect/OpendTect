@@ -86,7 +86,7 @@ static const uiString sDecDescStr()
 
 static const uiString sErrMsg()
 {
-    return od_static_tr( "sErrMsg", "Input is not defined" );
+    return od_static_tr( "sErrMsg", "Input is not correct" );
 }
 
 
@@ -181,8 +181,6 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 uiConvertPos::~uiConvertPos()
 {
     detachAllNotifiers();
-    delete mangrp_;
-    delete filegrp_;
 }
 
 
@@ -190,6 +188,8 @@ uiConvertPos::~uiConvertPos()
 uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     :uiDlgGroup(p,tr("Manual Conversion"))
     , survinfo_(si)
+    , inpcrdsysselfld_(0)
+    , outcrdsysselfld_(0)
 {
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     topgrp->setVSpacing( 10 );
@@ -204,6 +204,10 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     lltypfld_->attach( rightTo, inptypfld_ );
     lltypfld_->setToolTip( sDMSDescStr() );
     mAttachCB( lltypfld_->valuechanged, uiManualConvGroup::llFormatTypChg );
+    
+    towgs84fld_ = new uiCheckBox( topgrp, tr("Output to WGS84 CRS") );
+    towgs84fld_->setChecked( false );
+    towgs84fld_->attach( rightOf, lltypfld_ );
 
     leftinpfld_ = new uiGenInput( topgrp, uiString::empty() );
     leftinpfld_->attach( alignedBelow, inptypfld_ );
@@ -211,10 +215,14 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     rightinpfld_ = new uiGenInput( topgrp, uiString::empty() );
     rightinpfld_->attach( rightOf, leftinpfld_ );
 
-    inpcrdsysselfld_ = new Coords::uiCoordSystemSel( topgrp, true, true,
-			SI().getCoordSystem(), tr("Input Coordinate System") );
-    inpcrdsysselfld_->attach( alignedBelow, leftinpfld_ );
+    const bool isprojcrs = SI().getCoordSystem()->isProjection();
 
+    if ( isprojcrs )
+    {
+	inpcrdsysselfld_ = new Coords::uiCoordSystemSel( topgrp, true, true,
+			SI().getCoordSystem(), tr("Input Coordinate System") );
+	inpcrdsysselfld_->attach( alignedBelow, leftinpfld_ );
+    }
     uiSeparator* sep = new uiSeparator( this, "Inp-Out Sep" );
     sep->setStretch( 2, 2 );
     sep->attach( stretchedBelow, topgrp );
@@ -224,13 +232,18 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     botgrp->attach( alignedBelow, topgrp );
     botgrp->attach( ensureBelow, sep );
 
-    outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
-			SI().getCoordSystem(), tr("Output Coordinate System") );
-    sep->attach( alignedAbove, outcrdsysselfld_ );
-
     leftoutfld1_ = new uiGenInput( botgrp, uiConvertPos::sLLStr() );
     leftoutfld1_->setReadOnly();
-    leftoutfld1_->attach( alignedBelow, outcrdsysselfld_ );
+
+    if ( isprojcrs )
+    {
+	outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
+			SI().getCoordSystem(), tr("Output Coordinate System") );
+	sep->attach( alignedAbove, outcrdsysselfld_ );
+	leftoutfld1_->attach( alignedBelow, outcrdsysselfld_ );
+    }
+    else
+	sep->attach( alignedAbove, leftoutfld1_ );
 
     rightoutfld1_ = new uiGenInput( botgrp, uiString::empty() );
     rightoutfld1_->setReadOnly();
@@ -280,8 +293,8 @@ void uiManualConvGroup::inputTypChg( CallBacker* )
     const int selval = inptypfld_->getIntValue();
     leftinpfld_->setTitleText(
 		    uiConvertPos::DataTypeDef().getUiStringForIndex(selval) );
-
-    inpcrdsysselfld_->setSensitive( selval != DataSelType::IC );
+    if ( inpcrdsysselfld_ )
+	inpcrdsysselfld_->setSensitive( selval != DataSelType::IC );
     lltypfld_->display( selval == DataSelType::LL );
     lltypelbl_->display( selval == DataSelType::LL );
     leftoutfld3_->display( selval != DataSelType::IC );
@@ -338,14 +351,15 @@ idx=3 : IC
 
 void uiManualConvGroup::convFromLL()
 {
-    const LatLong ll( leftinpfld_->getFValue(), rightinpfld_->getFValue() );
+    const LatLong ll( toString(leftinpfld_->text()),
+					toString(rightinpfld_->text()) );
     if ( !ll.isDefined() )
-	mErrRet
+	uiMSG().error( ll.errMsg() );
 
-    Coord coord( LatLong::transform( ll, true,
+    Coord coord( LatLong::transform( ll, towgs84fld_->isChecked(),
 	outcrdsysselfld_->getCoordSystem() ) );
 
-    LatLong outll = LatLong::transform( coord );
+    LatLong outll = LatLong::transform( coord, towgs84fld_->isChecked() );
     mSetOutVal( 1, outll.lat_, outll.lng_ )
 
     mSetOutVal( 2, coord.x_, coord.y_ )
@@ -363,7 +377,7 @@ void uiManualConvGroup::convFromIC()
 
     const Coord coord( SI().transform( bid ) );
 
-    const LatLong ll( LatLong::transform(coord, true,
+    const LatLong ll( LatLong::transform(coord, towgs84fld_->isChecked(),
 					outcrdsysselfld_->getCoordSystem()) );
     mSetOutVal( 1, ll.lat_, ll.lng_ )
 
@@ -380,7 +394,7 @@ void uiManualConvGroup::convFromXY()
     if (coord.isUdf())
 	mErrRet
 
-    const LatLong ll( LatLong::transform(coord, true,
+    const LatLong ll( LatLong::transform(coord, towgs84fld_->isChecked(),
 					outcrdsysselfld_->getCoordSystem()) );
     mSetOutVal( 1, ll.lat_, ll.lng_ )
 
@@ -414,6 +428,8 @@ uiFileConvGroup::uiFileConvGroup( uiParent* p, const SurveyInfo& si )
     inpfilefld_ = new uiFileSel( topgrp,
 		uiStrings::phrInput( uiStrings::sFile() ), fssu );
 
+    
+
     dataselfld_ = new uiTableImpDataSel( topgrp, *fd_,
 				mODHelpKey( mTableImpDataSelwellsHelpID ) );
     dataselfld_->attach( alignedBelow, inpfilefld_ );
@@ -434,6 +450,10 @@ uiFileConvGroup::uiFileConvGroup( uiParent* p, const SurveyInfo& si )
     insertpos_ = new uiGenInput( botgrp, tr("Insert at"),
 				BoolInpSpec(true,tr("Beginning"),tr("End")) );
     insertpos_->attach( alignedBelow, sep );
+
+    towgs84fld_ = new uiCheckBox( botgrp, tr("Output to WGS84 CRS") );
+    towgs84fld_->setChecked( false );
+    towgs84fld_->attach( rightOf, insertpos_ );
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Output types"),
 						uiListBox::LblPos::LeftMid );
@@ -563,6 +583,8 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
     LatLong outll;
     BinID outbid;
     od_istream* inpstream = new od_istream( inpfnm );
+
+    const bool towgs = towgs84fld_->isChecked();
     while ( aio.getData(crd) )
     {
 	const double firstinp = crd.x_;
@@ -570,7 +592,7 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
 	if ( fromdatatype == DataSelType::LL )
 	{
-	    const LatLong ll( firstinp, secondinp );
+	    const LatLong ll( toString(firstinp), toString(secondinp) );
 	    if ( !ll.isDefined() )
 		continue;
 
@@ -578,7 +600,7 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	    outcrd = Coords::CoordSystem::convert( coord,
 		*SI().getCoordSystem(), *outcrdsysselfld_->getCoordSystem() );
 
-	    outll = LatLong::transform( coord );
+	    outll = LatLong::transform( coord, towgs );
 
 	    outbid = SI().transform( coord );
 	}
@@ -590,7 +612,7 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
 	    outcrd = SI().transform( bid );
 
-	    outll = LatLong::transform( outcrd, true,
+	    outll = LatLong::transform( outcrd, towgs,
 				    outcrdsysselfld_->getCoordSystem() );
 
 	    outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
@@ -602,7 +624,7 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	    const Coord coord( firstinp, secondinp );
 		    //this coord is once converted from File CRS to SI().CRS
 
-	    outll = LatLong::transform( coord, true,
+	    outll = LatLong::transform( coord, towgs,
 					outcrdsysselfld_->getCoordSystem() );
 
 	    outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
@@ -646,5 +668,5 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
     delete inpstream;
 
-    uiMSG().message( tr( "File written successfuly" ) );
+    uiMSG().message( tr("File written successfuly") );
 }

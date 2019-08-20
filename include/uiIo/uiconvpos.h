@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 
 class SurveyInfo;
+class uiCheckBox;
 class uiComboBox;
 class uiFileSel;
 class uiGenInput;
@@ -30,7 +31,11 @@ class uiTableImpDataSel;
 class uiTabStack;
 
 namespace Table { class Desc; }
-namespace Coords { class uiCoordSystemSel; }
+namespace Coords 
+{ 
+    class uiCoordSystemSel;
+    class CoordSystem;
+}
 
 mExpClass(uiIo) uiConvertPos : public uiDialog
 { mODTextTranslationClass(uiConvertPos);
@@ -103,6 +108,10 @@ protected:
     uiLabel*			lltypelbl_;
     Coords::uiCoordSystemSel*	inpcrdsysselfld_;
     Coords::uiCoordSystemSel*	outcrdsysselfld_;
+    uiCheckBox*			towgs84fld_;
+
+    Coords::CoordSystem*	inpcoordsys_;
+    Coords::CoordSystem*	outcoordsys_;
 
     const SurveyInfo&		survinfo_;
 
@@ -126,7 +135,8 @@ public:
 protected:
     Table::FormatDesc*		fd_;
     uiGenInput*			inptypfld_;
-    //uiGenInput*			outmodefld_;
+    uiCheckBox*			towgs84fld_;
+    //uiGenInput*		outmodefld_;
     uiGenInput*			insertpos_;
     uiGenInput*			lltypfld_;
     uiListBox*			outtypfld_;
