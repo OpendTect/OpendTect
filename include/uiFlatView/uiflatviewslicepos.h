@@ -30,13 +30,14 @@ public:
 
 protected:
 
-    void		setBoxRanges();
-    void		setPosBoxValue();
-    void		setStepBoxValue();
-    void		slicePosChg(CallBacker*);
-    void		sliceStepChg(CallBacker*);
+    void		setBoxRanges() override;
+    void		setPosBoxValue() override;
+    void		setStepBoxValue() override;
+    void		handleSlicePosChg() override;
+    void		handleSliceStepChg() override;
 
     TrcKeyZSampling	limitscs_;
     SliceDir		curorientation_;
     ZDomain::Info	zdomaininfo_;
+
 };

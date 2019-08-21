@@ -35,13 +35,12 @@ uiSlicePos::uiSlicePos( uiParent* p )
 
     label_ = new uiLabel( toolbar_, boxlabels_[1] );
     sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
-    sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
+    sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChgCB) );
 
     uiLabel* steplabel = new uiLabel( toolbar_, uiStrings::sStep() );
 
     slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
-    slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
-    slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
+    slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChgCB) );
 
     prevbut_ = new uiToolButton( toolbar_, "prevpos", tr("Previous position"),
 				mCB(this,uiSlicePos,prevCB) );
@@ -141,8 +140,14 @@ void uiSlicePos::updatePos( CallBacker* )
 }
 
 
-void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
-				  const TrcKeyZSampling& oldcs )
+void uiSlicePos::slicePosChgCB( CallBacker* )
+{
+    handleSlicePosChg();
+}
+
+
+void uiSlicePos::stdHandleSlicePosChg( uiSlicePos::SliceDir orientation,
+					const TrcKeyZSampling& oldcs )
 {
     uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
@@ -167,7 +172,13 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 }
 
 
-void uiSlicePos::sliceStepChanged( uiSlicePos::SliceDir orientation )
+void uiSlicePos::sliceStepChgCB( CallBacker* )
+{
+    handleSliceStepChg();
+}
+
+
+void uiSlicePos::stdHandleSliceStepChg( uiSlicePos::SliceDir orientation )
 {
     laststeps_[(int)orientation] = slicestepbox_->getIntValue();
 
@@ -176,37 +187,36 @@ void uiSlicePos::sliceStepChanged( uiSlicePos::SliceDir orientation )
 
 
 void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
+				const TrcKeyZSampling& curcs,
 				const TrcKeyZSampling& survcs )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    NotifyStopper posstop( posbox->valueChanging );
-    NotifyStopper stepstop1( stepbox->valueChanged );
-    NotifyStopper stepstop2( stepbox->valueChanging );
+    NotifyStopper stepstop( stepbox->valueChanging );
 
     if ( orientation == OD::InlineSlice )
     {
-	posbox->setInterval( survcs.hsamp_.start_.inl(),
-	survcs.hsamp_.stop_.inl() );
+	posbox->setInterval( curcs.hsamp_.start_.inl(),
+	curcs.hsamp_.stop_.inl() );
 	stepbox->setInterval( survcs.hsamp_.step_.inl(),
-		      survcs.hsamp_.stop_.inl()-survcs.hsamp_.start_.inl(),
-		      survcs.hsamp_.step_.inl() );
+		      curcs.hsamp_.stop_.inl()-curcs.hsamp_.start_.inl(),
+		      curcs.hsamp_.step_.inl() );
     }
     else if ( orientation == OD::CrosslineSlice )
     {
-	posbox->setInterval( survcs.hsamp_.start_.crl(),
-		survcs.hsamp_.stop_.crl() );
+	posbox->setInterval( curcs.hsamp_.start_.crl(),
+		curcs.hsamp_.stop_.crl() );
 	stepbox->setInterval( survcs.hsamp_.step_.crl(),
-		survcs.hsamp_.stop_.crl()-survcs.hsamp_.start_.crl(),
-		survcs.hsamp_.step_.crl() );
+		curcs.hsamp_.stop_.crl()-curcs.hsamp_.start_.crl(),
+		curcs.hsamp_.step_.crl() );
     }
     else
     {
 	const int zfac = zfactor_;
-	posbox->setInterval( survcs.zsamp_.start*zfac, survcs.zsamp_.stop*zfac);
+	posbox->setInterval( curcs.zsamp_.start*zfac, curcs.zsamp_.stop*zfac);
 	stepbox->setInterval( survcs.zsamp_.step*zfac,
-			      (survcs.zsamp_.stop-survcs.zsamp_.start)*zfac,
-			      survcs.zsamp_.step*zfac );
+			      (curcs.zsamp_.stop-curcs.zsamp_.start)*zfac,
+			      curcs.zsamp_.step*zfac );
     }
 }
 

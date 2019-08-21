@@ -442,9 +442,9 @@ void StorageProvider::checkDisjunct( uiRetVal& uirv, const IdxSubSelData& posss,
     }
     else
     {
-	const auto nrsteps = desrg.nrSteps();
+	const auto nrpos = desrg.nrSteps() + 1;
 	bool foundone = false;
-	for ( auto idx=0; idx<=nrsteps; idx++ )
+	for ( auto idx=0; idx<nrpos; idx++ )
 	    if ( possrg.isPresent(desrg.atIndex(idx)) )
 		{ foundone = true; break; }
 	if ( !foundone )

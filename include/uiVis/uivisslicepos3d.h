@@ -40,9 +40,10 @@ protected:
     uiSlicePos::SliceDir	getOrientation() const;
     TrcKeyZSampling		getSampling() const;
 
-    void			slicePosChg(CallBacker*);
-    void			sliceStepChg(CallBacker*);
-    void			setBoxRanges();
-    void			setPosBoxValue();
-    void			setStepBoxValue();
+    void			handleSlicePosChg() override;
+    void			handleSliceStepChg() override;
+    void			setBoxRanges() override;
+    void			setPosBoxValue() override;
+    void			setStepBoxValue() override;
+
 };

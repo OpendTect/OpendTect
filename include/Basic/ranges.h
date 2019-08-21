@@ -716,7 +716,7 @@ bool StepInterval<T>::isPresent( X t, fidx_type eps ) const
     const fidx_type snapdiff = std::abs( fidx - ((int)fidx) );
     if ( snapdiff > eps )
 	return false;
-    return fidx > -eps && fidx < nrSteps() + eps;
+    return fidx > -eps && fidx <= nrSteps() + eps;
 }
 
 

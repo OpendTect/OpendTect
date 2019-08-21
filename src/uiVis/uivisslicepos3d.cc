@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "uivisslicepos3d.h"
 
 #include "survinfo.h"
+#include "cubesubsel.h"
+#include "linesubsel.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "visvolorthoslice.h"
@@ -91,15 +93,54 @@ void uiSlicePos3DDisp::setBoxRanges()
 {
     if ( !curpdd_ && !curvol_ ) return;
 
-    TrcKeyZSampling tkzs( false );
+    TrcKeyZSampling curcs( false );
     if ( curpdd_ && curpdd_->getScene() )
-	tkzs = curpdd_->getScene()->getTrcKeyZSampling();
+	curcs = curpdd_->getScene()->getTrcKeyZSampling();
     else if ( curvol_ )
-	tkzs = curvol_->getTrcKeyZSampling( false );
+	curcs = curvol_->getTrcKeyZSampling( false );
     else
-	SI().getSampling( tkzs, OD::UsrWork );
+	SI().getSampling( curcs, OD::UsrWork );
+    const TrcKeyZSampling survcs( curcs );
 
-    setBoxRg( getOrientation(), tkzs );
+    const auto orient = getOrientation();
+    if ( orient == OD::ZSlice )
+    {
+	SamplingData<float> sd( sliceposbox_->getFValue() / zfactor_,
+			        slicestepbox_->getFValue() / zfactor_ );
+	if ( !mIsZero(sd.step,1e-6f) )
+	{
+	    auto& zsamp = curcs.zsamp_;
+	    const auto startidx = sd.indexOnOrAfter( zsamp.start );
+	    sd.start = zsamp.start = sd.atIndex( startidx );
+	    zsamp.step = sd.step;
+	    zsamp.stop = zsamp.atIndex( sd.nrSteps(zsamp.stop) );
+	}
+    }
+    else
+    {
+	SamplingData<int> sd( sliceposbox_->getIntValue(),
+			      slicestepbox_->getIntValue() );
+	if ( sd.step != 0 )
+	{
+	    auto& hsamp = curcs.hsamp_;
+	    if ( orient == OD::InlineSlice )
+	    {
+		const auto startidx = sd.indexOnOrAfter( hsamp.start_.inl() );
+		sd.start = hsamp.start_.inl() = sd.atIndex( startidx );
+		hsamp.step_.inl() = sd.step;
+		hsamp.stop_.inl() = sd.atIndex( sd.nrSteps(hsamp.stop_.inl()) );
+	    }
+	    else
+	    {
+		const auto idx = sd.indexOnOrAfter( hsamp.start_.crl() );
+		sd.start = hsamp.start_.crl() = sd.atIndex(idx);
+		hsamp.step_.crl() = sd.step;
+		hsamp.stop_.crl() = sd.atIndex( sd.nrSteps(hsamp.stop_.crl()) );
+	    }
+	}
+    }
+
+    setBoxRg( orient, curcs, survcs );
 }
 
 
@@ -117,23 +158,26 @@ void uiSlicePos3DDisp::setStepBoxValue()
 
     const uiSlicePos::SliceDir orientation = getOrientation();
     slicestepbox_->setValue( laststeps_[(int)orientation] );
-    sliceStepChg( 0 );
+    handleSliceStepChg();
 }
 
 
-void uiSlicePos3DDisp::slicePosChg( CallBacker* )
+void uiSlicePos3DDisp::handleSlicePosChg()
 {
-    if ( !curpdd_ && !curvol_ ) return;
+    if ( !curpdd_ && !curvol_ )
+	return;
 
-    slicePosChanged( getOrientation(), getSampling() );
+    stdHandleSlicePosChg( getOrientation(), getSampling() );
 }
 
 
-void uiSlicePos3DDisp::sliceStepChg( CallBacker* )
+void uiSlicePos3DDisp::handleSliceStepChg()
 {
-    if ( !curpdd_ && !curvol_ ) return;
+    if ( !curpdd_ && !curvol_ )
+	return;
 
-    sliceStepChanged( getOrientation() );
+    setBoxRanges();
+    stdHandleSliceStepChg( getOrientation() );
 }
 
 

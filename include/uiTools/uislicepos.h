@@ -58,14 +58,17 @@ protected:
     virtual void	setBoxRanges()			=0;
     virtual void	setPosBoxValue()		=0;
     virtual void	setStepBoxValue()		=0;
-    virtual void	slicePosChg(CallBacker*)	=0;
-    virtual void	sliceStepChg(CallBacker*)	=0;
+    virtual void	handleSlicePosChg()		=0;
+    virtual void	handleSliceStepChg()		=0;
+    void		slicePosChgCB(CallBacker*);
+    void		sliceStepChgCB(CallBacker*);
     void		shortcutsChg(CallBacker*);
     void		updatePos(CallBacker*);
     void		initSteps(CallBacker* cb=0);
-    void		slicePosChanged(SliceDir,const TrcKeyZSampling&);
-    void		sliceStepChanged(SliceDir);
-    void		setBoxRg(SliceDir,const TrcKeyZSampling&);
+    void		stdHandleSlicePosChg(SliceDir,const TrcKeyZSampling&);
+    void		stdHandleSliceStepChg(SliceDir);
+    void		setBoxRg(SliceDir,const TrcKeyZSampling& curcs,
+					  const TrcKeyZSampling& survcs);
     void		setPosBoxVal(SliceDir,const TrcKeyZSampling&);
 
     void		prevCB(CallBacker*);

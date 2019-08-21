@@ -31,6 +31,7 @@ public:
 
     template <class IT> inline StepInterval<T> interval(IT nrsamples) const;
     template <class FT> inline float	getfIndex(FT) const;
+    template <class FT> inline int	nrSteps(FT) const;
     template <class FT> inline int	nearestIndex(FT) const;
     template <class FT> inline int	indexOnOrAfter(FT,
 						    float eps=mDefEps ) const;
@@ -131,8 +132,20 @@ float SamplingData<T>::getfIndex( FT val ) const
 
 template <class T>
 template <class FT> inline
+int SamplingData<T>::nrSteps( FT x ) const
+{
+    const float fidx = getfIndex(x);
+    return (int)(fidx + 1e-6f);
+}
+
+
+template <class T>
+template <class FT> inline
 int SamplingData<T>::nearestIndex( FT x ) const
-{ const float fidx = getfIndex(x); return mNINT32(fidx); }
+{
+    const float fidx = getfIndex( x );
+    return mNINT32( fidx );
+}
 
 
 template <class T>
@@ -140,7 +153,7 @@ template <class FT> inline
 int SamplingData<T>::indexOnOrAfter( FT x, float eps ) const
 {
     float fres = getfIndex( x );
-    int res = (int) getfIndex(x);
+    int res = (int)getfIndex(x);
     const float diff = fres-res;
     if ( diff>eps )
 	res++;

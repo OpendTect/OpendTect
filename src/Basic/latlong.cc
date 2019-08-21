@@ -106,8 +106,8 @@ bool LatLong::setFromString( const char* str, bool lat )
 
     char& lastchar = llstr[llstr.size()-1];
     int charval = int(lastchar);
-    bool isalphabetinend = int( lastchar ) > 64 && int(lastchar) < 91;
-    
+    bool isalphabetinend = charval > 64 && charval < 91;
+
     if ( isalphabetinend && ((lat && lastchar!='N' && lastchar!='S') ||
 	(!lat && lastchar != 'E' && lastchar != 'W')) )
     {
@@ -124,10 +124,10 @@ bool LatLong::setFromString( const char* str, bool lat )
 
 	if ( mIsUdf(lat_) && mIsUdf(lng_) )
 	    errmsg_ = tr("Lat/Long are not correctly defined");
-	
+
 	return false;
     }
-    
+
     const bool hasSW = lastchar=='S' || lastchar=='W';
     if ( lastchar=='N' || lastchar=='E' || hasSW )
 	lastchar = '\0';

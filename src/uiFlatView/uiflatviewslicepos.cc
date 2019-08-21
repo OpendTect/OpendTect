@@ -54,7 +54,7 @@ void uiSlicePos2DView::setLimitSampling( const TrcKeyZSampling& cs )
 
 void uiSlicePos2DView::setBoxRanges()
 {
-    setBoxRg( curorientation_, limitscs_ );
+    setBoxRg( curorientation_, curcs_, limitscs_ );
 }
 
 
@@ -67,18 +67,18 @@ void uiSlicePos2DView::setPosBoxValue()
 void uiSlicePos2DView::setStepBoxValue()
 {
     slicestepbox_->setValue( laststeps_[(int)curorientation_] );
-    sliceStepChg( 0 );
+    handleSliceStepChg();
 }
 
 
-void uiSlicePos2DView::slicePosChg( CallBacker* )
+void uiSlicePos2DView::handleSlicePosChg()
 {
     TrcKeyZSampling oldcs = curcs_;
-    slicePosChanged( curorientation_, oldcs );
+    stdHandleSlicePosChg( curorientation_, oldcs );
 }
 
 
-void uiSlicePos2DView::sliceStepChg( CallBacker* )
+void uiSlicePos2DView::handleSliceStepChg()
 {
-    sliceStepChanged( curorientation_ );
+    stdHandleSliceStepChg( curorientation_ );
 }
