@@ -824,7 +824,7 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 	{
 	    mDynamicCastGet(const RandomSeisDataPack&,rdmsdp,
 			    randfdp->getSourceDataPack());
-	    const int bidindex = rdmsdp.getNearestGlobalIdx( tkzs.tk_ );
+	    const int bidindex = rdmsdp.nearestGlobalIdx( tkzs.tk_ );
 	    const FlatPosData& flatposdata = randfdp->posData();
 	    x = flatposdata.position( true, bidindex );
 	}

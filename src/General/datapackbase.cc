@@ -294,12 +294,12 @@ void VolumeDataPack::copyClassData( const VolumeDataPack& oth )
 }
 
 
-VolumeDataPack::glob_idx_type VolumeDataPack::getNearestGlobalIdx(
+VolumeDataPack::glob_idx_type VolumeDataPack::nearestGlobalIdx(
 						const TrcKey& tk ) const
 {
-    if ( tk.isUdf() ) return -1;
-
-    const auto gidx = getGlobalIdx( tk );
+    if ( tk.isUdf() )
+	return -1;
+    const auto gidx = globalIdx( tk );
     if ( gidx >= 0 )
 	return gidx;
 

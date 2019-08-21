@@ -73,7 +73,7 @@ bool SeisDataPackFromDPS::doWork( od_int64 start, od_int64 stop, int threadidx )
 	for ( int idx=mCast(int,start); idx<=stop; idx++ )
 	{
 	    const TrcKey tkpos( dps_.binID(idx) );
-	    const int globidx = dp_.getGlobalIdx( tkpos );
+	    const int globidx = dp_.globalIdx( tkpos );
 	    if ( globidx < 0 )
 		continue;
 

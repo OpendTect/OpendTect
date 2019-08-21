@@ -943,7 +943,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     FlatView::Point& pt = marker_->poly_[0];
     if ( seisfdp )
     {
-	const int gidx = seisfdp->getSourceDataPack().getGlobalIdx( trkv.tk_ );
+	const int gidx = seisfdp->getSourceDataPack().globalIdx( trkv.tk_ );
 	const FlatPosData& posdata = fdp->posData();
 	const TrcKeyZSampling& probepos = probe_.position();
 	if ( seisfdp->isVertical() )

@@ -78,7 +78,7 @@ public:
     glob_size_type		nrTrcs() const { return (glob_size_type)
 					sampling_.hsamp_.totalNr(); }
     TrcKey			getTrcKey(glob_idx_type) const;
-    glob_idx_type		getGlobalIdx(const TrcKey&) const;
+    glob_idx_type		globalIdx(const TrcKey&) const override;
 
     z_steprg_type		getZRange() const
 				{ return sampling_.zsamp_; }
@@ -117,7 +117,7 @@ public:
     bool			is2D() const		{ return false; }
     glob_size_type		nrTrcs() const		{ return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const;
-    glob_idx_type		getGlobalIdx(const TrcKey&) const;
+    glob_idx_type		globalIdx(const TrcKey&) const override;
 
     z_steprg_type		getZRange() const	{ return zsamp_; }
     void			setZRange( const z_steprg_type& zrg )

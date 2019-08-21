@@ -245,7 +245,7 @@ protected:
 	}
 	else
 	{
-	    const int globidx = seisdp_->getGlobalIdx( TrcKey(curbid) );
+	    const int globidx = seisdp_->globalIdx( TrcKey(curbid) );
 	    const OffsetValueSeries<float>& dptrcvs =
 		seisdp_->getTrcStorage( 0, globidx );
 

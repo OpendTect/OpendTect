@@ -185,13 +185,13 @@ public:
     virtual VolumeDataPack*	getSimilar() const			= 0;
     virtual bool		is2D() const				= 0;
     virtual glob_size_type	nrTrcs() const				= 0;
+    virtual z_steprg_type	getZRange() const			= 0;
     virtual TrcKey		getTrcKey(glob_idx_type) const		= 0;
-    virtual glob_idx_type	getGlobalIdx(const TrcKey&) const	= 0;
-    virtual z_steprg_type	getZRange() const		= 0;
-    virtual glob_idx_type	getNearestGlobalIdx(const TrcKey&) const;
+    virtual glob_idx_type	globalIdx(const TrcKey&) const		= 0;
     virtual int			getRandomLineID() const		{ return -1; }
 
     void			getPath(TrcKeyPath&) const;
+    glob_idx_type		nearestGlobalIdx(const TrcKey&) const;
 
     virtual bool		addComponent(const char* nm,bool initvals) = 0;
 
@@ -259,6 +259,7 @@ protected:
     const ArrayND<float>*	gtArrayData( idx_type iarr ) const override
 				{ return arrays_.validIdx(iarr)
 				       ? arrays_[iarr] : 0; }
+    glob_idx_type		fndNearest(const TrcKey&) const;
 
     float			gtNrKBytes() const override;
     void			doDumpInfo(IOPar&) const override;

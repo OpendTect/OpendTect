@@ -1060,7 +1060,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
 	{
 	    const int trcidx =
-			outputdp_->getGlobalIdx( trcinfoset[tidx]->trcKey() );
+			outputdp_->globalIdx( trcinfoset[tidx]->trcKey() );
 	    if ( trcidx < 0 )
 		continue;
 

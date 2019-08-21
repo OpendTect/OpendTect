@@ -1513,7 +1513,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 	return false;
 
     const TrcKey trckey( s3dgeom_->transform(pos.getXY()) );
-    const int trcidx = randsdp->getNearestGlobalIdx( trckey );
+    const int trcidx = randsdp->nearestGlobalIdx( trckey );
     const int sampidx = randsdp->getZRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = randsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )

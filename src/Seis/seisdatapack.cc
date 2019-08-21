@@ -243,7 +243,7 @@ void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
     const int trcsz = getZRange().nrSteps() + 1;
     td.reSize( trcsz );
 
-    const int globidx = getGlobalIdx( trcky );
+    const int globidx = globalIdx( trcky );
     if ( globidx < 0 )
 	{ td.zero(); return; }
 
@@ -369,7 +369,7 @@ bool RegularSeisDataPack::is2D() const
 }
 
 
-int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
+int RegularSeisDataPack::globalIdx( const TrcKey& tk ) const
 {
     if ( !sampling_.hsamp_.includes(tk) )
 	return -1;
@@ -521,7 +521,7 @@ bool RandomSeisDataPack::addComponent( const char* nm, bool initvals )
 }
 
 
-int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
+int RandomSeisDataPack::globalIdx(const TrcKey& tk) const
 {
     return path_.indexOf(tk);
 }

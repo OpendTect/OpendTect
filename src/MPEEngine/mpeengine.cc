@@ -852,7 +852,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     if ( !vdp )
 	return DataPack::cNoID();
 
-    const int globidx = vdp->getNearestGlobalIdx( tk );
+    const int globidx = vdp->nearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
     StepInterval<float> zintv2 = zintv; zintv2.step = vdp->getZRange().step;

@@ -1082,7 +1082,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    bid = sampling_->hsamp_.getNearest( bid );
 	}
 
-	const int gidx = vdp_.getGlobalIdx( TrcKey(bid,dps_.is2D()) );
+	const int gidx = vdp_.globalIdx( TrcKey(bid,dps_.is2D()) );
 	if ( gidx<0 )
 	    continue;
 
