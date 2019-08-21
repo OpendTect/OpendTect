@@ -68,7 +68,8 @@ protected:
     void		initSteps(CallBacker* cb=0);
     void		slicePosChanged(SliceDir,const TrcKeyZSampling&);
     void		sliceStepChanged(SliceDir);
-    void		setBoxRg(SliceDir,const TrcKeyZSampling&);
+    void		setBoxRg(SliceDir,const TrcKeyZSampling&,
+				 const TrcKeyZSampling&);
     void		setPosBoxVal(SliceDir,const TrcKeyZSampling&);
 
     void		prevCB(CallBacker*);

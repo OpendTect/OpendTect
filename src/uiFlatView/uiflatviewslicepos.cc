@@ -55,7 +55,7 @@ void uiSlicePos2DView::setLimitSampling( const TrcKeyZSampling& cs )
 
 void uiSlicePos2DView::setBoxRanges()
 {
-    setBoxRg( curorientation_, limitscs_ );
+    setBoxRg( curorientation_, curcs_, limitscs_ );
 }
 
 

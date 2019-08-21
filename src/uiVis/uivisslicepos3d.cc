@@ -92,11 +92,54 @@ void uiSlicePos3DDisp::setBoxRanges()
 {
     if ( !curpdd_ && !curvol_ ) return;
 
-    const TrcKeyZSampling& survey = curpdd_ && curpdd_->getScene() ?
-				    curpdd_->getScene()->getTrcKeyZSampling()
-				  : curvol_ ? curvol_->getTrcKeyZSampling( 0 )
-				  : SI().sampling( true );
-    setBoxRg( getOrientation(), survey );
+    TrcKeyZSampling curcs( false );
+    if ( curpdd_ && curpdd_->getScene() )
+	curcs = curpdd_->getScene()->getTrcKeyZSampling();
+    else if ( curvol_ )
+	curcs = curvol_->getTrcKeyZSampling( false );
+    else
+	curcs = SI().sampling( true );
+    const TrcKeyZSampling survcs( curcs );
+
+    const auto orient = getOrientation();
+    if ( orient == OD::ZSlice )
+    {
+	SamplingData<float> sd( sliceposbox_->getFValue() / zfactor_,
+			        slicestepbox_->getFValue() / zfactor_ );
+	if ( !mIsZero(sd.step,1e-6f) )
+	{
+	    auto& zsamp = curcs.zsamp_;
+	    const auto startidx = sd.indexOnOrAfter( zsamp.start );
+	    sd.start = zsamp.start = sd.atIndex( startidx );
+	    zsamp.step = sd.step;
+	    zsamp.stop = zsamp.atIndex( sd.nrSteps(zsamp.stop) );
+	}
+    }
+    else
+    {
+	SamplingData<int> sd( sliceposbox_->getIntValue(),
+			      slicestepbox_->getIntValue() );
+	if ( sd.step != 0 )
+	{
+	    auto& hsamp = curcs.hsamp_;
+	    if ( orient == OD::InlineSlice )
+	    {
+		const auto startidx = sd.indexOnOrAfter( hsamp.start_.inl() );
+		sd.start = hsamp.start_.inl() = sd.atIndex( startidx );
+		hsamp.step_.inl() = sd.step;
+		hsamp.stop_.inl() = sd.atIndex( sd.nrSteps(hsamp.stop_.inl()) );
+	    }
+	    else
+	    {
+		const auto idx = sd.indexOnOrAfter( hsamp.start_.crl() );
+		sd.start = hsamp.start_.crl() = sd.atIndex(idx);
+		hsamp.step_.crl() = sd.step;
+		hsamp.stop_.crl() = sd.atIndex( sd.nrSteps(hsamp.stop_.crl()) );
+	    }
+	}
+    }
+
+    setBoxRg( orient, curcs, survcs );
 }
 
 
@@ -130,6 +173,7 @@ void uiSlicePos3DDisp::sliceStepChg( CallBacker* )
 {
     if ( !curpdd_ && !curvol_ ) return;
 
+    setBoxRanges();
     sliceStepChanged( getOrientation() );
 }
 
