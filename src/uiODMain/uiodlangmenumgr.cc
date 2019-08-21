@@ -81,7 +81,7 @@ void uiODLangMenuMgr::setLanguageMenu()
     uiAction* itm = new uiAction( tr( "Fetch latest Translation" ),
 	mCB( this, uiODLangMenuMgr, fetchLatestTranslationCB ) );
 
-    langmnu_->insertAction( itm, mSettLanguageMnu + 1 );
+    langmnu_->insertAction( itm, mSettLanguageMnu + nrlang );
 }
 
 
@@ -116,7 +116,7 @@ void uiODLangMenuMgr::fetchLatestTranslationCB( CallBacker* )
     {
 	File::Path fp( GetSoftwareDir(true) ); fp.add("Data")
 	    .add("translations").add( dlg->getFileName() );
-	TextTranslation::LanguageEntry* le = 
+	TextTranslation::LanguageEntry* le =
 	    new TextTranslation::LanguageEntry( fp.fullPath(),
 							dlg->getLocaleName() );
 	TrMgr().addLanguage( le );
@@ -135,7 +135,7 @@ uiFetchLatestQMDlg::uiFetchLatestQMDlg( uiParent* p )
 	mODHelpKey( mTrackingSetupGroupHelpID ) )
 	.oktext( tr( "Download" ) ) )
 {
-    fetchlanglist_ = new uiLabeledComboBox( this, 
+    fetchlanglist_ = new uiLabeledComboBox( this,
 	TextTranslation::TranslateMgr::LanguageDef().strings(),
 	uiStrings::phrSelect( uiStrings::sLanguage() ), "Check" );
     makecurrtransl_ = new uiCheckBox( this,
