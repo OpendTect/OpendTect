@@ -109,7 +109,7 @@ if exist %archivefile% echo Error report saved as %archivefile%
 
 
 REM Cleanup
-del %dumpfile%
+REM del %dumpfile%
 del %tmpfile%
 del %textfile%
 
