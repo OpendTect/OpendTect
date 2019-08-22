@@ -28,27 +28,29 @@
 #endif
 
 
-ODFontImplementation::ODFontImplementation(const QFont& font) :
-   _filename(font.toString().toStdString() + ".qfont"),
-   _font(font)
+ODFontImplementation::ODFontImplementation(const QFont& font)
+    : _filename(font.toString().toStdString() + ".qfont")
+    , _font(font)
 {
 }
+
 
 ODFontImplementation::~ODFontImplementation()
 {
 }
 
-std::string
-ODFontImplementation::getFileName() const
+
+std::string ODFontImplementation::getFileName() const
 {
     return _filename;
 }
 
 osgText::Glyph*
-ODFontImplementation::getGlyph(const osgText::FontResolution& fontRes, unsigned int charcode)
+    ODFontImplementation::getGlyph( const osgText::FontResolution& fontRes,
+				    unsigned int charcode)
 {
     unsigned int fontSize = fontRes.second;
-    _font.setPixelSize(fontSize);
+    _font.setPixelSize( fontSize );
 
     float coord_scale = 1.0f/float(fontSize);
 
@@ -87,19 +89,19 @@ ODFontImplementation::getGlyph(const osgText::FontResolution& fontRes, unsigned 
     // copy the qimage into the texture memory
     for (int x = 0; x < imageWidth; ++x)
     {
-        for (int y = 0; y < imageHeight; ++y)
-        {
-           data[x + y*imageWidth] = qAlpha(image.pixel(x, imageHeight - 1 - y));
-        }
+	for (int y = 0; y < imageHeight; ++y)
+	{
+	   data[x + y*imageWidth] = qAlpha(image.pixel(x, imageHeight - 1 - y));
+	}
     }
 
     // the glyph texture in osg
     glyph->setImage(imageWidth, imageHeight, 1,
-                    OSGTEXT_GLYPH_INTERNALFORMAT,
-                    OSGTEXT_GLYPH_FORMAT, GL_UNSIGNED_BYTE,
-                    data,
-                    osg::Image::USE_NEW_DELETE,
-                    1);
+		    OSGTEXT_GLYPH_INTERNALFORMAT,
+		    OSGTEXT_GLYPH_FORMAT, GL_UNSIGNED_BYTE,
+		    data,
+		    osg::Image::USE_NEW_DELETE,
+		    1);
     glyph->setInternalTextureFormat(OSGTEXT_GLYPH_INTERNALFORMAT);
 
     glyph->setWidth((float)imageWidth * coord_scale);
@@ -116,7 +118,7 @@ ODFontImplementation::getGlyph(const osgText::FontResolution& fontRes, unsigned 
 
     // for vertical layout
     osg::Vec2 topMiddle(- margin + 0.5*(leftBearing - rect.width() - rightBearing),
-                        rectF.top() - margin);
+			rectF.top() - margin);
     glyph->setVerticalBearing(topMiddle * coord_scale);
     glyph->setVerticalAdvance((rectF.height() + fontMetricsF.overlinePos() - fontMetricsF.xHeight()) * coord_scale);
 
@@ -124,16 +126,4 @@ ODFontImplementation::getGlyph(const osgText::FontResolution& fontRes, unsigned 
     //addGlyph(fontRes, charcode, glyph.get());
 
     return glyph.release();
-}
-
-osg::Vec2
-ODFontImplementation::getKerning(unsigned int /*leftcharcode*/, unsigned int /*rightcharcode*/, osgText::KerningType /*kerningType*/)
-{
-    return osg::Vec2(0, 0);
-}
-
-bool
-ODFontImplementation::hasVertical() const
-{
-    return true;
 }

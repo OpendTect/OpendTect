@@ -13,6 +13,7 @@
 */
 
 #include "uiosgmod.h"
+#include "commondefs.h"
 #include <osgText/Font>
 #include <QtGui/QFont>
 #include <string>
@@ -27,15 +28,28 @@ public:
 
     virtual bool supportsMultipleFontResolutions() const { return true; }
 
-    virtual osgText::Glyph* getGlyph(const osgText::FontResolution& fontRes, unsigned int charcode);
+    virtual osgText::Glyph* getGlyph(const osgText::FontResolution& fontRes,
+				     unsigned int charcode);
+    virtual osgText::Glyph3D*	getGlyph3D(const osgText::FontResolution&,
+					   unsigned int /*charcode*/)
+				{ return nullptr; }
 
-//    virtual osgText::Glyph3D* getGlyph3D(const osgText::FontResolution& /*fontRes*/, unsigned int /*charcode*/) { return 0; }
-    virtual osgText::Glyph3D* getGlyph3D(unsigned int /*charcode*/) { return 0; }
+    virtual osg::Vec2		getKerning(const osgText::FontResolution&,
+					   unsigned int leftcharcode,
+					   unsigned int rightcharcode,
+					   osgText::KerningType kerningType)
+				{ return osg::Vec2(0,0); }
+/*
+    virtual osgText::Glyph3D*	getGlyph3D(unsigned int )
+				{ return 0; }
+    virtual osg::Vec2		getKerning(unsigned int leftcharcode,
+					   unsigned int rightcharcode,
+					   osgText::KerningType kerningType)
+				{ return osg::Vec2(0, 0); }
+*/
 
-//    virtual osg::Vec2 getKerning(const osgText::FontResolution& fontRes, unsigned int leftcharcode, unsigned int rightcharcode, osgText::KerningType kerningType);
-    virtual osg::Vec2 getKerning(unsigned int leftcharcode, unsigned int rightcharcode, osgText::KerningType kerningType);
-
-    virtual bool hasVertical() const;
+    virtual bool		hasVertical() const
+				{ return true; }
 
 protected:
 

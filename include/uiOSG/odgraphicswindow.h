@@ -14,6 +14,7 @@
 
 
 #include "uiosgmod.h"
+#include "commondefs.h"
 #include <osgViewer/GraphicsWindow>
 
 #include <QMutex>
@@ -54,9 +55,9 @@ mExpClass(uiOSG) ODGLWidget : public QGLWidget
 
 public:
 
-    ODGLWidget( QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
-    ODGLWidget( QGLContext* context, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
-    ODGLWidget( const QGLFormat& format, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
+    ODGLWidget(QWidget* parent=NULL,const QGLWidget* shareWidget=NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
+    ODGLWidget(QGLContext* context, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
+    ODGLWidget(const QGLFormat& format, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
     virtual ~ODGLWidget();
 
     inline void setGraphicsWindow( ODGraphicsWindow* gw ) { _gw = gw; }
@@ -84,24 +85,24 @@ protected:
 
     int getNumDeferredEvents()
     {
-        QMutexLocker lock(&_deferredEventQueueMutex);
-        return _deferredEventQueue.count();
+	QMutexLocker lock(&_deferredEventQueueMutex);
+	return _deferredEventQueue.count();
     }
     void enqueueDeferredEvent(QEvent::Type eventType, QEvent::Type removeEventType = QEvent::None)
     {
-        QMutexLocker lock(&_deferredEventQueueMutex);
+	QMutexLocker lock(&_deferredEventQueueMutex);
 
-        if (removeEventType != QEvent::None)
-        {
-            if (_deferredEventQueue.removeOne(removeEventType))
-                _eventCompressor.remove(eventType);
-        }
+	if (removeEventType != QEvent::None)
+	{
+	    if (_deferredEventQueue.removeOne(removeEventType))
+		_eventCompressor.remove(eventType);
+	}
 
-        if (_eventCompressor.find(eventType) == _eventCompressor.end())
-        {
-            _deferredEventQueue.enqueue(eventType);
-            _eventCompressor.insert(eventType);
-        }
+	if (_eventCompressor.find(eventType) == _eventCompressor.end())
+	{
+	    _deferredEventQueue.enqueue(eventType);
+	    _eventCompressor.insert(eventType);
+	}
     }
     void processDeferredEvents();
 
@@ -140,9 +141,9 @@ public:
 
     struct WindowData : public osg::Referenced
     {
-        WindowData( ODGLWidget* widget = NULL, QWidget* parent = NULL ): _widget(widget), _parent(parent) {}
-        ODGLWidget* _widget;
-        QWidget* _parent;
+	WindowData( ODGLWidget* widget = NULL, QWidget* parent = NULL ): _widget(widget), _parent(parent) {}
+	ODGLWidget* _widget;
+	QWidget* _parent;
     };
 
     bool init( QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f );
