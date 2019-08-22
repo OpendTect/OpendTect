@@ -504,7 +504,7 @@ void PosInfo::LineCollData::getFullSubSel( FullSubSel& fss, bool is2d ) const
 	    const auto& ld = *get( iln );
 	    fss.addGeomID( GeomID(ld.linenr_) );
 	    const auto ldrg = ld.range();
-	    fss.lineSubSel(iln).setTrcNrRange(
+	    fss.lineSubSel(iln).trcNrSubSel().setInputPosRange(
 			pos_steprg_type(ldrg.start,ldrg.stop,ld.minStep()) );
 	}
     }
@@ -514,8 +514,8 @@ void PosInfo::LineCollData::getFullSubSel( FullSubSel& fss, bool is2d ) const
 	const CubeData cd( *this );
 	pos_steprg_type inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getCrlRange( crlrg );
-	fss.cubeSubSel().setInlRange( inlrg );
-	fss.cubeSubSel().setCrlRange( crlrg );
+	fss.cubeSubSel().inlSubSel().setInputPosRange( inlrg );
+	fss.cubeSubSel().crlSubSel().setInputPosRange( crlrg );
     }
 }
 
