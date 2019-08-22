@@ -122,8 +122,8 @@ bool Network::Socket::disconnectFromHost( bool wait )
 #ifndef OD_NO_QT
 
     qtcpsocket_->disconnectFromHost();
-
-    if ( wait )
+    const QAbstractSocket::SocketState state = qtcpsocket_->state();
+    if ( wait && state != QAbstractSocket::UnconnectedState )
     {
 	res = qtcpsocket_->waitForDisconnected( timeout_ );
 	if ( !res )

@@ -32,6 +32,8 @@ QTcpServerComm( QTcpServer* qtcpserver, Network::Server* netserver )
     : qtcpserver_(qtcpserver)
     , netserver_(netserver)
 {
+    if ( !qtcpserver || !netserver )
+	return;
     connect( qtcpserver, SIGNAL(newConnection()), this, SLOT(notifNewConn()) );
 }
 
