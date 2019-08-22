@@ -110,6 +110,8 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 bool Network::Socket::disconnectFromHost( bool wait )
 {
     mCheckThread;
+    if ( !isConnected() )
+	return true;
 
     if ( noeventloop_ )
 	wait = true;
@@ -119,8 +121,8 @@ bool Network::Socket::disconnectFromHost( bool wait )
 #ifndef OD_NO_QT
 
     qtcpsocket_->disconnectFromHost();
-
-    if ( wait )
+    const QAbstractSocket::SocketState state = qtcpsocket_->state();
+    if ( wait && state != QAbstractSocket::UnconnectedState )
     {
 	res = qtcpsocket_->waitForDisconnected( timeout_ );
 	if ( !res )
