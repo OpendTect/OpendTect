@@ -145,7 +145,10 @@ void Pos::IdxSubSelData::setOutputStep( pos_type newstep, pos_type existingpos )
 void Pos::IdxSubSelData::limitTo( const IdxSubSelData& oth )
 {
     auto outrg = outputPosRange();
-    outrg.limitTo( oth.outputPosRange() );
+    const auto othoutrg = oth.outputPosRange();
+    outrg.limitTo( othoutrg );
+    if ( othoutrg.step > outrg.step )
+	outrg.step = othoutrg.step;
     setOutputPosRange( outrg );
 }
 

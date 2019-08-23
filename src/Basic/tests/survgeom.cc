@@ -67,6 +67,27 @@ static bool testFillers()
 }
 
 
+static bool testSubSel()
+{
+    mUseType( Pos, IdxSubSelData );
+    mUseType( IdxSubSelData, pos_steprg_type );
+
+    const IdxSubSelData fullss( pos_steprg_type(14,77,7) );
+    const IdxSubSelData smallss( pos_steprg_type(21,49,14) );
+
+    IdxSubSelData work( fullss );
+    work.limitTo( smallss );
+    mRunStandardTest( work.outputPosRange()==smallss.outputPosRange(),
+			"SubSel limitTo" );
+
+    work.widenTo( fullss );
+    mRunStandardTest( work.outputPosRange()==pos_steprg_type(14,70,14),
+			"SubSel widenTo" );
+
+    return true;
+}
+
+
 static bool testSubGeom2D()
 {
     if ( Survey::GM().nr2DGeometries() < 1 )
@@ -147,6 +168,8 @@ int mTestMainFnName( int argc, char** argv )
     if ( SI().name().isEmpty() )
 	return 0;
 
+    if ( !testSubSel() )
+	return 1;
     if ( !testSubGeom3D() )
 	return 1;
     if ( !testSubGeom2D() )
