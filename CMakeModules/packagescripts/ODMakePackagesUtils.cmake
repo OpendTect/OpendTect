@@ -151,7 +151,7 @@ macro ( create_package PACKAGE_NAME )
 	if ( OD_ENABLE_BREAKPAD )
 	    if ( WIN32 )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/symbols/${EXE}
+				 ${COPYFROMLIBDIR}/symbols/${EXE}.pdb
 				 ${COPYTOLIBDIR}/symbols/${EXE}.pdb )
 	    elseif( APPLE )
 		#TODO
