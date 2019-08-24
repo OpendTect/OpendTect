@@ -24,7 +24,7 @@ ___________________________________________________________________
 #include "sectiontracker.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 #include "emmanager.h"
 #include "undo.h"
 

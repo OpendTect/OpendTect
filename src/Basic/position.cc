@@ -19,7 +19,7 @@
 #include "string2.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 #include "undefval.h"
 
 #include <ctype.h>

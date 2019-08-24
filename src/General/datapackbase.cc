@@ -8,6 +8,7 @@
 #include "datapackbase.h"
 
 #include "arrayndimpl.h"
+#include "binnedvalueset.h"
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "interpol2d.h"
@@ -19,6 +20,7 @@
 #include "scaler.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "trckey.h"
 
 
 // PointDataPack
@@ -305,10 +307,11 @@ VolumeDataPack::glob_idx_type VolumeDataPack::nearestGlobalIdx(
 
     double mindistsq = mUdf(double);
     glob_idx_type bestidx = -1;
-    const auto nrtrcs = nrTrcs();
+    const auto nrtrcs = nrPositions();
     for ( glob_idx_type idx=0; idx<nrtrcs; idx++ )
     {
-	const TrcKey curtk( getTrcKey(idx) );
+	TrcKey curtk;
+	getTrcKey( idx, curtk );
 	if ( curtk.isUdf() )
 	    continue;
 
@@ -324,29 +327,51 @@ VolumeDataPack::glob_idx_type VolumeDataPack::nearestGlobalIdx(
 }
 
 
-void VolumeDataPack::getPath( TrcKeyPath& path ) const
+void VolumeDataPack::getPositions( BinnedValueSet& bvs ) const
 {
-    path.erase();
-    for ( glob_idx_type idx=0; idx<nrTrcs(); idx++ )
-        path += getTrcKey( idx );
+    bvs.setEmpty();
+    bvs.setIs2D( is2D() );
+    const auto nrpos = nrPositions();
+    for ( glob_idx_type idx=0; idx<nrpos; idx++ )
+    {
+	TrcKey curtk;
+	getTrcKey( idx, curtk );
+	if ( is2D() )
+	    bvs.add( curtk.bin2D() );
+	else
+	    bvs.add( curtk.binID() );
+    }
 }
 
 
-const OffsetValueSeries<float>
-    VolumeDataPack::getTrcStorage( int comp, glob_idx_type globaltrcidx ) const
+void VolumeDataPack::getPath( TrcKeyPath& tkp ) const
 {
-    const Array3D<float>* array = arrays_[comp];
-    return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->getSize(2) );
+    tkp.setEmpty();
+    const auto nrpos = nrPositions();
+    for ( glob_idx_type idx=0; idx<nrpos; idx++ )
+    {
+	TrcKey curtk;
+	getTrcKey( idx, curtk );
+	tkp.add( curtk );
+    }
 }
 
 
 OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
-						glob_idx_type globaltrcidx )
+				glob_idx_type globaltrcidx ) const
 {
-    Array3D<float>* array = arrays_[comp];
-    return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->getSize(2) );
+    const Array3D<float>* array = arrays_[comp];
+    const auto* stor = array ? array->getStorage() : nullptr;
+    od_int64 offs = 0;
+    if ( stor )
+	offs = (od_int64)globaltrcidx * array->getSize( 2 );
+    else
+    {
+	static Array3DImpl<float> dummy( 1, 1, 1 );
+	stor = dummy.getStorage();
+    }
+
+    return OffsetValueSeries<float>( *stor, offs );
 }
 
 
@@ -375,7 +400,7 @@ bool VolumeDataPack::getCopiedTrcData( int comp, glob_idx_type globaltrcidx,
     if ( !arrays_.validIdx(comp) )
 	return false;
 
-    const auto nrz = getZRange().nrSteps()+1;
+    const auto nrz = zRange().nrSteps() + 1;
     const float* dataptr = getTrcData( comp, globaltrcidx );
     float* outptr = out.getData();
     if ( dataptr )
@@ -563,13 +588,4 @@ bool VolumeDataPack::addArray( size_type sz0, size_type sz1, size_type sz2,
 
     arrays_ += arr;
     return true;
-}
-
-
-const Array3DImpl<float>& VolumeDataPack::data( int component ) const
-{ return *arrays_[component]; }
-
-Array3DImpl<float>& VolumeDataPack::data( int component )
-{
-    return *arrays_[component];
 }

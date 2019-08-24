@@ -13,6 +13,7 @@
 #include "posimpexppars.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
+#include "trckey.h"
 #include <ctype.h>
 
 static char pipechar = '|';

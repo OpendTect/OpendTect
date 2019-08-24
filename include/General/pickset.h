@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "monitoriter.h"
 #include "enums.h"
 #include "odpresentationmgr.h"
-#include "trckey.h"
 #include "sets.h"
 #include "draw.h"
 #include "iopar.h"
+class TrcKey;
 template <class T> class ODPolygon;
 
 

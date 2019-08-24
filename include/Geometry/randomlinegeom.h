@@ -17,8 +17,9 @@ ________________________________________________________________________
 #include "notify.h"
 #include "ranges.h"
 #include "refcount.h"
-#include "trckeysampling.h"
 
+class TrcKey;
+class TrcKeyPath;
 class TrcKeyZSampling;
 class Line2;
 namespace Survey { class Geometry3D; }
@@ -92,9 +93,9 @@ public:
 	int		nodeidx_;
     };
 
-    Notifier<RandomLine>	nameChanged;
+    Notifier<RandomLine>			nameChanged;
     CNotifier<RandomLine,const ChangeData&>	nodeChanged;
-    Notifier<RandomLine>	zrangeChanged;
+    Notifier<RandomLine>			zrangeChanged;
 
     RandomLineSet*	lineSet()		{ return lset_; }
     const RandomLineSet* lineSet() const	{ return lset_; }

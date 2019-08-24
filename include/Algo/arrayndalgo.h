@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "horsubsel.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "uistrings.h"
 #include "valseries.h"
 

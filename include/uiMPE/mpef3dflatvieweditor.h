@@ -75,7 +75,7 @@ protected:
     Coord3			getNormal(const Coord3* mousepos=0) const;
 
     const TrcKeyPath*		path_;
-    int			rdlid_;
+    int				rdlid_;
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;

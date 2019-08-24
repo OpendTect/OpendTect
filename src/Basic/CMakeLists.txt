@@ -56,6 +56,7 @@ set( OD_MODULE_SOURCES
 	commandlineparser.cc
 	coordsystem.cc
 	cubesampling.cc
+	cubedata.cc
 	dateinfo.cc
 	datapack.cc
 	dbkey.cc

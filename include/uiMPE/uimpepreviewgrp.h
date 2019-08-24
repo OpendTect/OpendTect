@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "position.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 
 class uiCheckList;
 class uiFlatViewer;

@@ -21,11 +21,12 @@ A TrcKey contains the identifying position indices of a seismic trace position.
 For 2D data, it will contain the GeomID of the line and the trace number.
 For 3D data, it will hold the BinID.
 
-Seting the position to a BinID causes the TrcKey to become a 3D TrcKey, setting
-to GeomID and trace number will turn it into a 2D TrcKey.
+Setting the position to a BinID causes the TrcKey to become a 3D TrcKey, setting
+to Bin2D (GeomID and trace number) will turn it into a 2D TrcKey.
 
-Note that this class is only needed if you mix 2D and 3D positions; in most
-cases you can keep this issue outside the position identification.
+Note that this class is only needed if you need a channel of mixed 2D and 3D
+positions (and this is not very often!); in most cases you can and *should*
+keep this issue outside the position identification.
 
 */
 
@@ -126,5 +127,56 @@ protected:
 public:
 
     static GeomID	gtGeomID(GeomSystem,linenr_type);
+
+};
+
+
+mExpClass(Basic) TrcKeyPath : public TypeSet<TrcKey>
+{
+public:
+		    TrcKeyPath()				{}
+    explicit	    TrcKeyPath( size_type sz )
+			: TypeSet<TrcKey>(sz,TrcKey::udf())	{}
+
+};
+
+
+/*!\brief TrcKey and a value. */
+
+class BinIDValue;
+
+mExpClass(Basic) TrcKeyValue
+{
+public:
+
+    mUseType( TrcKey,	linenr_type );
+    mUseType( TrcKey,	trcnr_type );
+
+    inline		TrcKeyValue( const TrcKey& tk=TrcKey::udf(),
+				     float v=mUdf(float) )
+			    : tk_(tk)
+			    , val_(v)					{}
+			TrcKeyValue(const BinIDValue&);
+
+    linenr_type		lineNr() const		{ return tk_.lineNr(); }
+    trcnr_type		trcNr() const		{ return tk_.trcNr(); }
+    TrcKeyValue&	setLineNr( linenr_type nr )
+			{ tk_.setLineNr(nr); return *this; }
+    TrcKeyValue&	setTrcNr( trcnr_type nr )
+			{ tk_.setTrcNr(nr); return *this; }
+
+    inline bool		operator==( const TrcKeyValue& oth ) const
+			{ return oth.tk_==tk_ && mIsEqual(oth.val_,val_,1e-5); }
+    inline bool		operator!=( const TrcKeyValue& oth ) const
+			{ return !(*this==oth); }
+
+    inline bool		isDefined() const
+			{ return !tk_.isUdf() && !mIsUdf(val_); }
+    inline bool		isUdf() const		{ return !isDefined(); }
+    static const TrcKeyValue& udf();
+    inline void		setUdf()		{ *this = udf(); }
+
+    TrcKey		tk_;
+    float		val_;
 
 };

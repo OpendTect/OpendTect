@@ -19,6 +19,7 @@ ________________________________________________________________________
 class BinnedValueSet;
 class DataCharacteristics;
 class TraceData;
+class TrcKeyPath;
 
 
 /*!\brief Seis Volume DataPack base class. */
@@ -51,37 +52,38 @@ mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 {
 public:
 
+    mUseType( PosInfo,		LineCollData );
+
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 				mDeclMonitorableAssignment(RegularSeisDataPack);
 
-    bool			is2D() const;
+    bool			is2D() const override;
 
-    virtual RegularSeisDataPack* getSimilar() const;
+    RegularSeisDataPack*	getSimilar() const override;
     bool			copyFrom(const RegularSeisDataPack&);
 
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
-    ZSampling			zRange() const
+    const TrcKeySampling&	hSamp() const
+				{ return sampling_.hsamp_; }
+    z_steprg_type		zRange() const override
 				{ return sampling_.zsamp_; }
 
-    void			setTrcsSampling(PosInfo::CubeData*);
+    void			setTrcsSampling(LineCollData*);
 				//!< Becomes mine
-    const PosInfo::CubeData*	trcsSampling() const;
+    const LineCollData*		trcsSampling() const;
 				//!< Only returns non-null if explictly set
-    void			getTrcPositions(PosInfo::CubeData&) const;
+    void			getTrcPositions(PosInfo::LineCollData&) const;
 
     bool			addComponent(const char* nm,bool initvals);
 
-    glob_size_type		nrTrcs() const { return (glob_size_type)
-					sampling_.hsamp_.totalNr(); }
-    TrcKey			getTrcKey(glob_idx_type) const;
+    glob_size_type		nrPositions() const override
+				{ return (glob_size_type)hSamp().totalNr(); }
+    void			getTrcKey(glob_idx_type,TrcKey&) const override;
     glob_idx_type		globalIdx(const TrcKey&) const override;
-
-    z_steprg_type		getZRange() const
-				{ return sampling_.zsamp_; }
 
     static DataPack::ID		createDataPackForZSlice(const BinnedValueSet*,
 				    const TrcKeyZSampling&,const ZDomain::Info&,
@@ -97,9 +99,9 @@ protected:
 				~RegularSeisDataPack();
 
     TrcKeyZSampling		sampling_;
-    PtrMan<PosInfo::CubeData>	trcssampling_;
+    PtrMan<LineCollData>	lcd_;
 
-    virtual void		doDumpInfo(IOPar&) const;
+    void			doDumpInfo(IOPar&) const override;
 
 };
 
@@ -112,24 +114,23 @@ public:
 				RandomSeisDataPack(const char* cat,
 						   const BinDataDesc* bdd=0);
 				mDeclMonitorableAssignment(RandomSeisDataPack);
-    virtual RandomSeisDataPack*	getSimilar() const;
+    RandomSeisDataPack*		getSimilar() const override;
 
-    bool			is2D() const		{ return false; }
-    glob_size_type		nrTrcs() const		{ return path_.size(); }
+    bool			is2D() const override;
+    glob_size_type		nrPositions() const	{ return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const;
     glob_idx_type		globalIdx(const TrcKey&) const override;
 
-    z_steprg_type		getZRange() const	{ return zsamp_; }
+    z_steprg_type		zRange() const override	{ return zsamp_; }
     void			setZRange( const z_steprg_type& zrg )
 				{ zsamp_ = zrg; }
 
-    void			setPath( const TrcKeyPath& path )
-				{ path_ = path; }
-    const TrcKeyPath&		getPath() const		{ return path_; }
-    TrcKeyPath&			getPath()		{ return path_; }
+    void			setPath(const TrcKeyPath&);
+    const TrcKeyPath&		path() const		{ return path_; }
+    void			getPath(TrcKeyPath&) const override;
     void			setRandomLineID(int,
 						const TypeSet<BinID>* subpth=0);
-    int				getRandomLineID() const	{ return rdlid_; }
+    rdl_id			randomLineID() const	{ return rdlid_; }
 
     bool			addComponent(const char* nm,bool initvals);
 
@@ -144,7 +145,7 @@ protected:
 				~RandomSeisDataPack();
 
     int				rdlid_;
-    TrcKeyPath			path_;
+    TrcKeyPath&			path_;
     z_steprg_type		zsamp_;
 
 };
@@ -161,22 +162,25 @@ public:
 
     mDeclAbstractMonitorableAssignment(SeisFlatDataPack);
 
-    size_type			nrTrcs() const
-				{ return source_->nrTrcs(); }
-    TrcKey			getTrcKey( idx_type trcidx ) const
-				{ return source_->getTrcKey(trcidx); }
+    glob_size_type		nrPositions() const override
+				{ return source_->nrPositions(); }
+    void			getTrcKey( idx_type trcidx,
+					   TrcKey& tk ) const override
+				{ return source_->getTrcKey(trcidx,tk); }
     const SeisVolumeDataPack&	getSourceDataPack() const
 				{ return *source_; }
-    bool			is2D() const
+    bool			is2D() const override
 				{ return source_->is2D(); }
 
-    virtual const TrcKeyPath&	getPath() const				= 0;
+    void			getPath(TrcKeyPath&) const override;
+    const TrcKeyPath&		path() const override;
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
-    z_steprg_type		getZRange() const	{ return zSamp(); }
-    virtual int			getRandomLineID() const
-				{ return source_->getRandomLineID(); }
+    z_steprg_type		zRange() const override
+				{ return source_->getZRange(); }
+    int				randomLineID() const override
+				{ return source_->randomLineID(); }
 
     bool			dimValuesInInt(const char* keystr) const;
     void			getAltDim0Keys(BufferStringSet&) const;
@@ -203,7 +207,6 @@ protected:
     comp_idx_type		comp_;
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
 
-    z_steprg_type		zSamp() const	{ return source_->getZRange(); }
     virtual float		gtNrKBytes() const;
 
 };
@@ -222,13 +225,13 @@ public:
 
     bool			isVertical() const
 				{ return dir() != OD::ZSlice; }
-    const TrcKeyPath&		getPath() const		{ return path_; }
+    const TrcKeyPath&		path() const		{ return path_; }
     float			getPosDistance(bool dim0,float trcfidx) const;
 
     const TrcKeyZSampling&	sampling() const
 				{ return regSource().sampling(); }
-    Pos::GeomID			getGeomID() const
-				{ return sampling().hsamp_.getGeomID(); }
+    Pos::GeomID			geomID() const
+				{ return hSamp().getGeomID(); }
     OD::SliceType		dir() const
 				{ return sampling().defaultDir(); }
     Coord3			getCoord(idx_type,idx_type) const;
@@ -264,8 +267,8 @@ public:
 				mDeclMonitorableAssignment(RandomFlatDataPack);
 
     bool			isVertical() const	{ return true; }
-    const TrcKeyPath&		getPath() const
-				{ return rdlSource().getPath(); }
+    const TrcKeyPath&		path() const
+				{ return rdlSource().path(); }
     Coord3			getCoord(idx_type,idx_type) const;
     float			getPosDistance(bool dim0,float trcfidx) const;
 

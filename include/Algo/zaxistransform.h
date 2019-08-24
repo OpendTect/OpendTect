@@ -14,9 +14,9 @@ ________________________________________________________________________
 #include "factory.h"
 #include "samplingdata.h"
 #include "survgeom.h"
-#include "trckey.h"
 
 class BinIDValue;
+class TrcKey;
 class TrcKeyZSampling;
 class TaskRunnerProvider;
 

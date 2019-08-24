@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "uivisslicepos3d.h"
 
 #include "survinfo.h"
-#include "cubesubsel.h"
-#include "linesubsel.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "visvolorthoslice.h"

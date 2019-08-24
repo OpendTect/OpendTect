@@ -13,6 +13,7 @@
 #include "binidvalue.h"
 #include "zdomain.h"
 #include "survgeom2d.h"
+#include "trckey.h"
 
 
 mImplClassFactory( ZAxisTransform, factory );

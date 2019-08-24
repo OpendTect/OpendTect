@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "genericnumer.h"
 #include "samplfunc.h"
+#include "trckey.h"
 #include "zaxistransform.h"
 
 VolumeDataPackZAxisTransformer::VolumeDataPackZAxisTransformer(
@@ -41,7 +42,7 @@ od_int64 VolumeDataPackZAxisTransformer::nrIterations() const
 {
     if ( !inputdp_ ) return -1;
     auto voldp = dpm_.get<VolumeDataPack>( inputdp_->id() );
-    return voldp ? voldp->nrTrcs() : -1;
+    return voldp ? voldp->nrPositions() : -1;
 }
 
 
@@ -73,10 +74,10 @@ bool VolumeDataPackZAxisTransformer::doWork(
     if ( !outputdp_ )
 	return false;
 
-    const StepInterval<float>& inpzrg = voldp->getZRange();
+    const StepInterval<float>& inpzrg = voldp->zRange();
     const int nrinpsamp = inpzrg.nrSteps() + 1;
     const int nroutsamp = zrange_.nrSteps() + 1;
-    const int nrtrcs = voldp->nrTrcs() / voldp->data(0).getSize(0);
+    const int nrtrcs = voldp->nrPositions() / voldp->data(0).getSize(0);
 
     ZAxisTransformSampler outputsampler( transform_, true,
 	    SamplingData<double>(zrange_.start, zrange_.step), false );
@@ -88,7 +89,8 @@ bool VolumeDataPackZAxisTransformer::doWork(
 	    const int lineidx = posidx / nrtrcs;
 	    const int trcidx = posidx % nrtrcs;
 
-	    outputsampler.setTrcKey( voldp->getTrcKey(posidx) );
+	    TrcKey tk; voldp->getTrcKey(posidx,tk);
+	    outputsampler.setTrcKey( tk );
 	    outputsampler.computeCache( Interval<int>(0,nroutsamp-1) );
 
 	    const Array3D<float>& inputdata = voldp->data( idx );

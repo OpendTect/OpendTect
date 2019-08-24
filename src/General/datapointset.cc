@@ -1061,7 +1061,7 @@ void DPSFromVolumeFiller::setSampling( const TrcKeyZSampling* tkzs )
 
 bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 {
-    const StepInterval<float>& zsamp = vdp_.getZRange();
+    const StepInterval<float>& zsamp = vdp_.zRange();
     const int nrz = zsamp.nrSteps() + 1;
     const SamplingData<float> sd( zsamp.start, zsamp.step );
     Array1DImpl<float>* trcarr = 0;

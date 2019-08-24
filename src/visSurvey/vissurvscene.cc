@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 #include "uistring.h"
 #include "visannot.h"
 #include "viscamera.h"

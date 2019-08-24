@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "coord.h"
 #include "posinfo2dsurv.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 
 
 namespace EM { class Horizon2D; }

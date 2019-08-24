@@ -13,7 +13,9 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "coord.h"
-#include "trckey.h"
+#include "binid.h"
+#include "bin2d.h"
 class BinIDValue;
 class BinIDValues;
+class TrcKey;
 class TrcKeyValue;

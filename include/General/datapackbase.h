@@ -16,12 +16,14 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapack.h"
 #include "position.h"
-#include "trckeysampling.h"
 #include "valseries.h"
 #include "arrayndimpl.h"
 
+class BinnedValueSet;
 class FlatPosData;
 class Scaler;
+class TrcKey;
+class TrcKeyPath;
 namespace ZDomain   { class Info; }
 namespace Pos	    { class IdxSubSel2D; }
 
@@ -179,26 +181,28 @@ public:
     typedef idx_type			glob_idx_type;
     typedef size_type			glob_size_type;
     typedef idx_type			comp_idx_type;
+    typedef int				rdl_id;
 
     mDeclAbstractMonitorableAssignment(VolumeDataPack);
 
-    virtual VolumeDataPack*	getSimilar() const			= 0;
     virtual bool		is2D() const				= 0;
-    virtual glob_size_type	nrTrcs() const				= 0;
-    virtual z_steprg_type	getZRange() const			= 0;
-    virtual TrcKey		getTrcKey(glob_idx_type) const		= 0;
+    virtual bool		isFlat() const				= 0;
+    virtual glob_size_type	nrPositions() const			= 0;
+    virtual VolumeDataPack*	getSimilar() const			= 0;
+    virtual z_steprg_type	zRange() const				= 0;
+    virtual void		getTrcKey(glob_idx_type,TrcKey&) const	= 0;
     virtual glob_idx_type	globalIdx(const TrcKey&) const		= 0;
-    virtual int			getRandomLineID() const		{ return -1; }
+    virtual rdl_id		randomLineID() const		{ return -1; }
 
-    void			getPath(TrcKeyPath&) const;
+    virtual void		getPath(TrcKeyPath&) const;
+    virtual void		getPositions(BinnedValueSet&) const;
     glob_idx_type		nearestGlobalIdx(const TrcKey&) const;
 
     virtual bool		addComponent(const char* nm,bool initvals) = 0;
 
 				//!< Check first if there is a storage!
-    const OffsetValueSeries<float> getTrcStorage(
+    OffsetValueSeries<float>	getTrcStorage(
 					comp_idx_type,glob_idx_type) const;
-    OffsetValueSeries<float>	getTrcStorage(comp_idx_type,glob_idx_type);
 
 				//!< May return null
     const float*		getTrcData(comp_idx_type,glob_idx_type) const;
@@ -218,8 +222,10 @@ public:
 
     static const char*		categoryStr(bool isvertical,bool is2d);
 
-    const impl_type&		data(comp_idx_type c=0) const;
-    impl_type&			data(comp_idx_type c=0);
+    impl_type&			data( comp_idx_type c=0 )
+				{ return *arrays_[c]; }
+    const impl_type&		data( comp_idx_type c=0 ) const
+				{ return *arrays_[c]; }
 
     void			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const

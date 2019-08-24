@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "trckey.h"
 #include "uistring.h"
-typedef TypeSet<TrcKey> TrcKeyPath;
 namespace Survey { class HorSubSel; class Geometry; }
 class HorSampling;
 class LineHorSubSel;

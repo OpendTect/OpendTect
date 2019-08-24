@@ -35,7 +35,6 @@ public:
 					  int rancompidx )
 		    : ransdp_( ransdp )
 		    , regsdp_( regsdp )
-		    , path_( ransdp.getPath() )
 		    , regidx_( -1 )
 		    , ranidx_( rancompidx )
 		    , domemcopy_( false )
@@ -47,7 +46,9 @@ public:
 		    , srclnbytes_( 0 )
 		    , bytestocopy_( 0 )
 		    , idzoffset_( 0 )
-		{}
+		{
+		    ransdp.getPath( path_ );
+		}
 
     od_int64	nrIterations() const			{ return path_.size(); }
 
@@ -59,7 +60,7 @@ protected:
 
     RandomSeisDataPack&		ransdp_;
     const RegularSeisDataPack&	regsdp_;
-    const TrcKeyPath&		path_;
+    TrcKeyPath			path_;
     int				regidx_;
     int				ranidx_;
     bool			domemcopy_;
@@ -276,7 +277,7 @@ RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisVolumeDataPack(cat,bdd)
     , sampling_(false) // MUST be false, otherwise program startup issues
-    , trcssampling_(0)
+    , lcd_(0)
 {
 }
 
@@ -284,7 +285,7 @@ RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 RegularSeisDataPack::RegularSeisDataPack( const RegularSeisDataPack& oth )
     : SeisVolumeDataPack(oth)
     , sampling_(oth.sampling_)
-    , trcssampling_(0)
+    , lcd_(0)
 {
     copyClassData( oth );
 }
@@ -301,10 +302,7 @@ mImplMonitorableAssignment( RegularSeisDataPack, SeisVolumeDataPack )
 void RegularSeisDataPack::copyClassData( const RegularSeisDataPack& oth )
 {
     sampling_ = oth.sampling_;
-    if ( oth.trcssampling_ )
-	trcssampling_ = new PosInfo::CubeData( *oth.trcssampling_ );
-    else
-	trcssampling_ = 0;
+    lcd_ = oth.lcd_ ? new oth.lcd_->clone() : nullptr;
 }
 
 
@@ -313,7 +311,13 @@ Monitorable::ChangeType RegularSeisDataPack::compareClassData(
 {
     if ( sampling_ != oth.sampling_ )
 	return cEntireObjectChange();
-    return cNoChange();
+
+    if ( !lcd_ )
+	return oth.lcd_ ? cEntireObjectChange() : cNoChange();
+    if ( !oth.lcd_ )
+	return cEntireObjectChange();
+
+    return *lcd_ == *oth.lcd_ ? cNoChange() : cEntireObjectChange();
 }
 
 
@@ -325,43 +329,35 @@ RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 }
 
 
-void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
+void RegularSeisDataPack::setTrcsSampling( LineCollData* newlcd )
 {
-    trcssampling_ = newposdata;
+    lcd_ = newlcd;
 }
 
 
-const PosInfo::CubeData* RegularSeisDataPack::trcsSampling() const
+const CubeData* RegularSeisDataPack::trcsSampling() const
 {
-    return trcssampling_.ptr();
+    return lcd_.ptr();
 }
 
 
-void RegularSeisDataPack::getTrcPositions( PosInfo::CubeData& cd ) const
+PosInfo::LineCollData* RegularSeisDataPack::getTrcPositions() const
 {
     cd.setEmpty();
-    if ( trcssampling_ )
-	cd = *trcssampling_;
-    else if ( !is2D() && !sampling_.isDefined() )
-	cd.setEmpty();
+    if ( lcd_ )
+	return lcd_->clone();
+    else if ( !sampling_.isDefined() )
+	return nullptr;
     else
-    {
-	const TrcKeySampling& tks = sampling_.hsamp_;
-	if ( !is2D() )
-	    cd.generate( tks.start_, tks.stop_, tks.step_ );
-	else
-	{
-	    PosInfo::LineData* linedata =
-			       new PosInfo::LineData( tks.getGeomID().getI() );
-	    linedata->segments_ += tks.trcRange();
-	    cd.add( linedata );
-	}
-    }
+	return LineCollData::create( FullSubSel(sampling_) );
 }
 
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
-{ return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
+{
+    return sampling_.hsamp_.trcKeyAt( globaltrcidx );
+}
+
 
 bool RegularSeisDataPack::is2D() const
 {
@@ -398,10 +394,8 @@ void RegularSeisDataPack::doDumpInfo( IOPar& par ) const
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
-    {
 	par.set( sKey::TrcRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
 				   tks.step_.trcNr() );
-    }
     else
     {
 	par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
@@ -454,12 +448,14 @@ RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 					const BinDataDesc* bdd )
     : SeisVolumeDataPack(cat,bdd)
     , rdlid_(-1)
+    , path_(*new TrcKeyPath)
 {
 }
 
 
 RandomSeisDataPack::RandomSeisDataPack( const RandomSeisDataPack& oth )
     : SeisVolumeDataPack(oth)
+    , path_(*new TrcKeyPath)
 {
     copyClassData( oth );
 }
@@ -468,6 +464,7 @@ RandomSeisDataPack::RandomSeisDataPack( const RandomSeisDataPack& oth )
 RandomSeisDataPack::~RandomSeisDataPack()
 {
     sendDelNotif();
+    delete &path_;
 }
 
 
@@ -502,9 +499,9 @@ RandomSeisDataPack* RandomSeisDataPack::getSimilar() const
 }
 
 
-TrcKey RandomSeisDataPack::getTrcKey( int trcidx ) const
+void RandomSeisDataPack::getTrcKey( int trcidx, TrcKey& tk ) const
 {
-    return path_.validIdx(trcidx) ? path_[trcidx] : TrcKey::udf();
+    tk = path_.validIdx(trcidx) ? path_[trcidx] : TrcKey::udf();
 }
 
 
@@ -513,7 +510,7 @@ bool RandomSeisDataPack::addComponent( const char* nm, bool initvals )
     if ( path_.isEmpty() || zsamp_.isUdf() )
 	return false;
 
-    if ( !addArray(1,nrTrcs(),zsamp_.nrSteps()+1,initvals) )
+    if ( !addArray(1,nrPositions(),zsamp_.nrSteps()+1,initvals) )
 	return false;
 
     componentnames_.add( nm );
@@ -521,7 +518,19 @@ bool RandomSeisDataPack::addComponent( const char* nm, bool initvals )
 }
 
 
-int RandomSeisDataPack::globalIdx(const TrcKey& tk) const
+void RandomSeisDataPack::setPath( const TrcKeyPath& pth )
+{
+    path_ = pth;
+}
+
+
+void RandomSeisDataPack::getPath( TrcKeyPath& pth ) const
+{
+    pth = path_;
+}
+
+
+int RandomSeisDataPack::globalIdx( const TrcKey& tk ) const
 {
     return path_.indexOf(tk);
 }
@@ -570,7 +579,8 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    TrcKeyPath& path = randsdp->getPath();
+    TrcKeyPath path;
+    randsdp->getPath( path );
 
     TrcKeySampling unitsteptks = regsdp.sampling().hsamp_;
     unitsteptks.step_ = BinID( 1, 1 );
@@ -707,7 +717,7 @@ double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
 						getCoord(i0,0).getXY()).crl();
 	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x_;
 	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y_;
-	case SeisTrcInfo::TrcNr:	return getPath()[i0].trcNr();
+	case SeisTrcInfo::TrcNr:	return path()[i0].trcNr();
 	case SeisTrcInfo::RefNr:	return source_->getRefNr(i0);
 	default:			return posdata_.position(true,i0);
     }
@@ -723,7 +733,7 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 
     if ( is2D() )
     {
-	const int trcidx = nrTrcs()==1 ? 0 : i0;
+	const int trcidx = nrPositions()==1 ? 0 : i0;
 	const TrcKey& tk = getTrcKey( trcidx );
 	iop.set( mKeyTrcNr, tk.trcNr() );
 	iop.set( mKeyRefNr, source_->getRefNr(trcidx) );
@@ -748,7 +758,7 @@ float SeisFlatDataPack::gtNrKBytes() const
 
 void SeisFlatDataPack::setPosData()
 {
-    const TrcKeyPath& path = getPath();
+    const TrcKeyPath& path = path();
     const int nrtrcs = path.size();
     float* pos = new float[nrtrcs];
     pos[0] = 0;
@@ -778,14 +788,14 @@ void SeisFlatDataPack::setPosData()
 
 
 
-#define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrTrcs()-1))/ \
-	posdata_.position(true,nrTrcs()-1))>0.99)
+#define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrPositions()-1))/ \
+	posdata_.position(true,nrPositions()-1))>0.99)
 
 RegularFlatDataPack::RegularFlatDataPack(
 		const RegularSeisDataPack& source, int comp )
     : SeisFlatDataPack(source,comp)
     , usemulticomps_(comp_==-1)
-    , hassingletrace_(nrTrcs()==1)
+    , hassingletrace_(nrPositions()==1)
 {
     if ( usemulticomps_ )
 	setSourceDataFromMultiCubes();
@@ -898,7 +908,7 @@ float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 	}
 
 	double posdistatidx = posdata_.position( true, posidx );
-	if ( nrTrcs()>=posidx+1 )
+	if ( nrPositions()>=posidx+1 )
 	{
 	    double posdistatatnextidx = posdata_.position( true, posidx+1 );
 	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
@@ -930,8 +940,8 @@ void RegularFlatDataPack::setSourceData()
     const bool isz = dir()==OD::ZSlice;
     if ( !isz )
     {
-	path_.setCapacity( source_->nrTrcs(), false );
-	for ( int idx=0; idx<source_->nrTrcs(); idx++ )
+	path_.setCapacity( source_->nrPositions(), false );
+	for ( int idx=0; idx<source_->nrPositions(); idx++ )
 	    path_ += source_->getTrcKey( idx );
     }
 
@@ -988,8 +998,8 @@ mImplMonitorableAssignmentWithNoMembers( RandomFlatDataPack, SeisFlatDataPack )
 
 Coord3 RandomFlatDataPack::getCoord( int i0, int i1 ) const
 {
-    const Coord coord = getPath().validIdx(i0)
-	? getPath().get(i0).getCoord() : Coord::udf();
+    const Coord coord = path().validIdx(i0) ? path().get(i0).getCoord()
+					    : Coord::udf();
     return Coord3( coord, zSamp().atIndex(i1) );
 }
 
@@ -1022,7 +1032,7 @@ void RandomFlatDataPack::setSourceData()
 
 void RandomFlatDataPack::setPosData()
 {
-    const TrcKeyPath& path = getPath();
+    const TrcKeyPath& path = path();
     const int nrtrcs = path.size();
     float* pos = new float[nrtrcs];
     pos[0] = 0;
@@ -1083,7 +1093,7 @@ float RandomFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
     if ( dim0 )
     {
 	double posdistatidx = posdata_.position( true, posidx );
-	if ( nrTrcs()>=posidx+1 )
+	if ( nrPositions()>=posidx+1 )
 	{
 	    double posdistatatnextidx = posdata_.position( true, posidx+1 );
 	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;

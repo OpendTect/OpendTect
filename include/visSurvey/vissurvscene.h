@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "trckeyzsampling.h"
-#include "trckeyvalue.h"
 #include "position.h"
 
 class MouseCursor;

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "math2.h"
 #include "keystrs.h"
+#include "trckeyzsampling.h"
 
 // InterpolationLayerModel
 mImplClassFactory( InterpolationLayerModel, factory )

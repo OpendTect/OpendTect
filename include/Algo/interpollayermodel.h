@@ -12,11 +12,15 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
-#include "trckeyzsampling.h"
 #include "factory.h"
+#include "survgeom.h"
 #include "typeset.h"
 
 class TaskRunnerProvider;
+class TrcKey;
+class TrcKeySampling;
+class TrcKeyZSampling;
+
 
 mExpClass(Algo) InterpolationLayerModel
 {

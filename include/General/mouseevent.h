@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "geometry.h"
 #include "position.h"
 #include "notify.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 
 
 mExpClass(General) TabletInfo

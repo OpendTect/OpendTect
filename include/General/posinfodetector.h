@@ -10,9 +10,9 @@ ________________________________________________________________________
 */
 
 #include "generalmod.h"
-#include "posinfo.h"
-#include "coord.h"
 #include "bufstring.h"
+#include "coord.h"
+#include "cubedata.h"
 #include "uistring.h"
 class TrcKeySampling;
 class BinIDSorting;

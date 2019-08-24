@@ -12,12 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "generalmod.h"
+#include "basiccompinfo.h"
+#include "cubedata.h"
 #include "posauxinfo.h"
 #include "posidxpair2coord.h"
-#include "basiccompinfo.h"
 #include "samplingdata.h"
-#include "posinfo.h"
 #include "scaler.h"
 class TrcKeyZSampling;
 
@@ -58,7 +57,7 @@ public:
 				{ return !excludes(bid); }
 	bool			includesInline(int) const;
 	void			clean()
-	    			{ fullyrectandreg = false; deepErase(cubedata);}
+				{ fullyrectandreg = false; deepErase(cubedata);}
 
 	bool			moveToNextPos(BinID&) const;
 	bool			moveToNextInline(BinID&) const;

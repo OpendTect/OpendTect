@@ -84,7 +84,7 @@ protected:
     Coord3			getNormal(const Coord3* mousepos=0) const;
 
     const TrcKeyPath*		path_;
-    int			rdlid_;
+    int				rdlid_;
 
     EM::FaultStickPainter*	fsspainter_;
     bool			seedhasmoved_;
@@ -96,6 +96,7 @@ protected:
     int				activestickid_;
     MouseEventHandler*		meh_;
     EM::PosID			mousepid_;
+
 };
 
 } //namespace MPE

@@ -12,9 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "position.h"
-#include "posinfo.h"
 #include "bufstringset.h"
+#include "cubedata.h"
+#include "position.h"
 #include "uistrings.h"
 
 

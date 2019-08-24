@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "position.h"
+#include "trckey.h"
 
 mStartAllowDeprecatedSection
 

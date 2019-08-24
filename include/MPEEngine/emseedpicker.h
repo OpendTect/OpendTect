@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "position.h"
 #include "trckeysampling.h"
-#include "trckeyvalue.h"
+#include "trckey.h"
 #include "uistring.h"
 #include "undo.h"
 

@@ -164,10 +164,13 @@ public:
     typedef od_int64	glob_idx_type;
     typedef od_int64	glob_size_type;
 
-			LineCollData()		{}
+			LineCollData()	{}
 			LineCollData( const LineCollData& oth )
 			    : ManagedObjectSet<LineData>()
-						{ *this = oth; }
+					{ *this = oth; }
+    virtual LineCollData* clone() const	{ return new LineCollData(*this); }
+    static LineCollData* create(const FullSubSel&);
+    virtual bool	isLineSorted() const; //!< checks ascending only
     LineCollData&	operator =( const LineCollData& oth )
 				{ copyContents(oth); return *this; }
     bool		operator ==(const LineCollData&) const;
@@ -204,96 +207,6 @@ public:
 protected:
 
     void		copyContents(const LineCollData&);
-
-};
-
-
-typedef LineCollDataPos CubeDataPos;
-
-/*!\brief Position info for an entire 3D cube. The LineData's are not
-  automatically sorted. */
-
-mExpClass(Basic) CubeData : public LineCollData
-{
-public:
-
-			CubeData()		{}
-			CubeData( BinID start, BinID stop, BinID step )
-						{ generate(start,stop,step); }
-			CubeData( const CubeData& oth )
-						{ copyContents(oth); }
-			CubeData( const LineCollData& oth )
-						{ copyContents(oth); }
-    CubeData&		operator =( const CubeData& oth )
-			{ copyContents(oth); return *this; }
-    CubeData&		operator =( const LineCollData& lcd )
-			{ copyContents(lcd); return *this; }
-    bool		operator ==( const CubeData& oth ) const
-			{ return LineCollData::operator ==( oth ); }
-    bool		operator ==( const LineCollData& oth ) const
-			{ return LineCollData::operator ==( oth ); }
-			mImplSimpleIneqOper(CubeData)
-			mImplSimpleIneqOper(LineCollData)
-
-    glob_size_type	totalSizeInside(const CubeHorSubSel&) const;
-			/*!<Only take positions that are inside hrg. */
-
-    void		getRanges(pos_rg_type& inl,pos_rg_type& crl) const;
-    bool		getInlRange(pos_steprg_type&,bool sorted=true) const;
-			    //!< Returns whether fully regular.
-    bool		getCrlRange(pos_steprg_type&,bool sorted=true) const;
-			    //!< Returns whether fully regular.
-    bool		getCubeHorSubSel(CubeHorSubSel&) const;
-			    //!< Returns whether fully regular.
-    void		getCubeSubSel( FullSubSel& fss ) const
-			{ return getFullSubSel( fss, false ); }
-
-    BinID		minStep() const;
-    BinID		nearestBinID(const BinID&) const;
-    BinID		centerPos() const;  //!< not exact
-    bool		hasPosition(const CubeHorSubSel&,glob_idx_type) const;
-    CubeDataPos		cubeDataPos( const BinID& bid ) const
-						{ return lineCollPos(bid); }
-
-    bool		haveInlStepInfo() const	{ return size() > 1; }
-    bool		haveCrlStepInfo() const;
-    bool		isFullyRectAndReg() const;
-    bool		isAll(const CubeHorSubSel&) const;
-    bool		isCrlReversed() const;
-
-    void		generate(BinID start,BinID stop,BinID step,
-				 bool allowreversed=false);
-    void		fillBySI(OD::SurvLimitType slt=OD::FullSurvey);
-
-};
-
-
-/*!\brief Position info for an entire 3D cube. The LineData's added are
-  automatically sorted. */
-
-mExpClass(Basic) SortedCubeData : public CubeData
-{
-public:
-			SortedCubeData()				{}
-			SortedCubeData( const BinID& start, const BinID& stop,
-					const BinID& step )
-						{ generate(start,stop,step); }
-			SortedCubeData( const SortedCubeData& oth )
-						{ copyContents( oth ); }
-			SortedCubeData( const LineCollData& lcd )
-						{ copyContents(lcd); }
-    SortedCubeData&	operator =( const SortedCubeData& scd )
-			{ copyContents(scd); return *this; }
-    SortedCubeData&	operator =( const LineCollData& lcd )
-			{ copyContents(lcd); return *this; }
-
-    virtual idx_type	lineIndexOf(pos_type inl,idx_type* newidx=0) const;
-
-    SortedCubeData&	add(LineData*);
-
-protected:
-
-    virtual SortedCubeData& doAdd(LineData*) override;
 
 };
 
@@ -335,8 +248,6 @@ public:
     LineCollDataPos	lcp_;
 
 };
-
-typedef LineCollDataIterator CubeDataIterator;
 
 
 /*!\brief Fills LineData. Requires feed of sorted trcnrs  */
