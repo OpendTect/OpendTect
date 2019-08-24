@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "survgeom3d.h"
 #include "separstr.h"
 #include "od_istream.h"

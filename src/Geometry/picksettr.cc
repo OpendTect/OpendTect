@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survinfo.h"
 #include "streamconn.h"
+#include "trckey.h"
 #include "polygon.h"
 #include "trigonometry.h"
 #include "keystrs.h"

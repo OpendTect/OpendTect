@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "hdf5arraynd.h"
 #include "od_iostream.h"
 #include "uistrings.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "keystrs.h"
 #include "seistrc.h"
 

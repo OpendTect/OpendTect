@@ -12,10 +12,11 @@
 #include "seistrctr.h"
 #include "seispacketinfo.h"
 #include "seisbuf.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "od_iostream.h"
 #include "ascstream.h"
 #include "separstr.h"
+#include "trckey.h"
 #include "uistrings.h"
 
 static const char* sKeyFileType = "MultiCube Pre-Stack Seismics";

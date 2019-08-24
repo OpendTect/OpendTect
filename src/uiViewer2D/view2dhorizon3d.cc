@@ -46,8 +46,8 @@ void Vw2DHorizon3D::setEditors()
     {
 	ConstRefMan<FlatDataPack> fdp =
 		viewerwin_->viewer(ivwr).getPack( true, true );
-	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp )
 	{
 	    horeds_ += 0;
@@ -105,8 +105,8 @@ void Vw2DHorizon3D::draw()
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
-	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp ) continue;
 
 	if ( horeds_[ivwr] )

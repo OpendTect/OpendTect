@@ -357,6 +357,8 @@ SeisTrcInfo& SeisTrcInfo::setTrcNr( pos_type tnr )
 { trcky_.setTrcNr( tnr ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setLineNr( pos_type lnr )
 { trcky_.setLineNr( lnr ); return *this; }
+SeisTrcInfo& SeisTrcInfo::setTrcKey( const TrcKey& tk )
+{ trcky_ = tk; return *this; }
 
 
 float SeisTrcInfo::defaultSampleInterval( bool forcetime )

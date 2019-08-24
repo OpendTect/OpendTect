@@ -137,7 +137,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	return;
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
-    fdp = new RegularFlatDataPack( *regsdp, 0 );
+    fdp = new RegularSeisFlatDataPack( *regsdp, 0 );
     DPM(DataPackMgr::FlatID()).add( fdp );
 }
 
@@ -155,7 +155,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     if ( !csmatchessurv ) output->setSampling( tkzs_ );
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
-    fdp = new RegularFlatDataPack( *output, 0 );
+    fdp = new RegularSeisFlatDataPack( *output, 0 );
     DPM(DataPackMgr::FlatID()).add( fdp );
 }
 

@@ -7,14 +7,14 @@
 
 #include "seisblockstr.h"
 
+#include "cubedata.h"
+#include "file.h"
 #include "seisblocksreader.h"
 #include "seisblockswriter.h"
-#include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisseldata.h"
+#include "seistrc.h"
 #include "survgeom3d.h"
-#include "posinfo.h"
-#include "file.h"
 
 
 BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,

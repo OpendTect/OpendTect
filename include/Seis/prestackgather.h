@@ -22,6 +22,7 @@ ________________________________________________________________________
 class SeisPSReader;
 class SeisTrc;
 class SeisTrcBuf;
+class TrcKey;
 
 
 /*!\brief PreStack gather. */
@@ -40,7 +41,8 @@ public:
 				Gather(const FlatPosData&);
 				mDeclMonitorableAssignment(Gather);
 
-    bool			is3D() const	{ return !trckey_.is2D(); }
+    bool			is3D() const;
+
     void			getFlatPosData(FlatPosData&) const;
 
     bool			readFrom(const DBKey&,const TrcKey&,
@@ -65,10 +67,6 @@ public:
 						 int taperlen=0) const;
 	                        /*<!For each trace, try to detect the first
 				   inner-mute affected value. */
-
-    const TrcKey&		getTrcKey() const	{ return trckey_; }
-    void			setTrcKey(const TrcKey& tk )
-				{ trckey_ = tk; }
 
     const DBKey&		getStoredID() const	{ return storageid_; }
     const StepInterval<float>&	zRange() const		{ return zrg_; }
@@ -134,14 +132,13 @@ public:
     mDeprecated bool		readFrom(const IOObj&, const int tracenr,
 					 const char* linename,int comp,
 					 uiString* errmsg=0);
-    BinID			getBinID() const
-				{ return trckey_.binID(); }
-    void			setBinID( const BinID& bid )
-				{ trckey_.setPos( bid ); }
-    Bin2D			getBin2D() const
-				{ return trckey_.bin2D(); }
-    void			setBin2D( const Bin2D& b2d )
-				{ trckey_.setPos( b2d ); }
+
+    BinID			getBinID() const;
+    void			setBinID(const BinID&);
+    Bin2D			getBin2D() const;
+    void			setBin2D(const Bin2D&);
+    const TrcKey&		getTrcKey() const	{ return trckey_; }
+    void			setTrcKey(const TrcKey&);
 
 protected:
 

@@ -186,7 +186,6 @@ public:
     mDeclAbstractMonitorableAssignment(VolumeDataPack);
 
     virtual bool		is2D() const				= 0;
-    virtual bool		isFlat() const				= 0;
     virtual glob_size_type	nrPositions() const			= 0;
     virtual VolumeDataPack*	getSimilar() const			= 0;
     virtual z_steprg_type	zRange() const				= 0;

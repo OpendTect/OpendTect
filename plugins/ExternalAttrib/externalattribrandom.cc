@@ -82,7 +82,7 @@ DataPack::ID Random::createAttrib( const CubeSampling& tkzs,
 	}
     }
 
-    RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, 0 );
+    RegularSeisFlatDataPack* regfdp = new RegularSeisFlatDataPack( *regsdp, 0 );
     DPM(DataPackMgr::FlatID()).add( regfdp );
     return regfdp->id();
 }

@@ -15,7 +15,7 @@
 #include "ioobj.h"
 #include "keystrs.h"
 #include "offsetazimuth.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "posinfo2d.h"
 #include "segyfiledata.h"
 #include "segyscanner.h"

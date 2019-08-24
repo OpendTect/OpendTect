@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
-static bool hasTraceData( const PosInfo::CubeData& trcssampling,
+static bool hasTraceData( const PosInfo::CubeData& trcposns,
 			  const TrcKeySampling& tks, od_int64 trcidx )
 {
     const BinID bid( tks.atIndex(trcidx) );
-    const PosInfo::CubeDataPos cdatapos( trcssampling.cubeDataPos( bid ) );
+    const PosInfo::CubeDataPos cdatapos( trcposns.cubeDataPos( bid ) );
 
-    return trcssampling.isValid( cdatapos );
+    return trcposns.isValid( cdatapos );
 }
 
 
@@ -88,7 +88,7 @@ HilbertCalculatorTask::HilbertCalculatorTask( const Array2D<float>& in,
     , realdata_(in)
     , imagdata_(out)
     , is3d_(false)
-    , trcssampling_(0)
+    , trcposns_(0)
     , tks_(0)
 {
     totalnr_ = realdata_.getSize( 0 );
@@ -102,7 +102,7 @@ HilbertCalculatorTask::HilbertCalculatorTask( const Array3D<float>& in,
     : ParallelTask("Hilbert Transform")
     , realdata_(in)
     , imagdata_(out)
-    , trcssampling_(0)
+    , trcposns_(0)
     , tks_(0)
     , is3d_(true)
 {
@@ -113,14 +113,14 @@ HilbertCalculatorTask::HilbertCalculatorTask( const Array3D<float>& in,
 }
 
 
-void HilbertCalculatorTask::setTrcsSampling(
-					const PosInfo::CubeData& trcssampling,
+void HilbertCalculatorTask::setTracePositions(
+					const PosInfo::CubeData& trcposns,
 					const TrcKeySampling& tks )
 {
-    if ( trcssampling.isFullyRectAndReg() )
+    if ( trcposns.isFullyRectAndReg() )
 	return;
 
-    trcssampling_ = &trcssampling;
+    trcposns_ = &trcposns;
     tks_ = &tks;
 }
 
@@ -184,8 +184,8 @@ bool HilbertCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 	    continue;
 	}
 
-	const bool hastrc = !trcssampling_ || !tks_ ? true
-			  : hasTraceData( *trcssampling_, *tks_, trcidx );
+	const bool hastrc = !trcposns_ || !tks_ ? true
+			  : hasTraceData( *trcposns_, *tks_, trcidx );
 	const bool alludfvals = hastrc ? traceIsUdf( realtrc ) : true;
 	if ( !hastrc || alludfvals )
 	{

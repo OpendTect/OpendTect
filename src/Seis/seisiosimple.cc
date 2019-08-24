@@ -358,7 +358,6 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    binstrm.get( bid.inl() ).get( bid.crl() );
 	    coord = SI().transform( bid );
 	}
-
     }
 
     if ( isps )
@@ -382,7 +381,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
 
-    trc.info().trcKey() = is2d ? TrcKey( Pos::GeomID(0), nr ) : TrcKey( bid );
+    if ( is2d )
+	trc.info().setPos( Bin2D(data_.geomid_,nr) );
+    else
+	trc.info().setPos( bid );
     prevbid_ = bid;
     trc.info().coord_ = coord;
     trc.info().offset_ = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;

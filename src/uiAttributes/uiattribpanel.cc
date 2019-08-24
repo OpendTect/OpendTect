@@ -115,7 +115,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 					   Processor* proc ) const
 {
     const RegularSeisDataPack* output = aem->getDataPackOutput( *proc );
-    return output ? new RegularFlatDataPack(*output,-1) : nullptr;
+    return output ? new RegularSeisFlatDataPack(*output,-1) : nullptr;
 }
 
 

@@ -52,8 +52,8 @@ void VW2DFault::setEditors()
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
-	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp )
 	{
 	    faulteds_ += 0;
@@ -95,8 +95,8 @@ void VW2DFault::draw()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
-	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp ) continue;
 
 	if ( faulteds_[ivwr] )

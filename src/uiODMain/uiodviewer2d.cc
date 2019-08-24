@@ -621,9 +621,9 @@ DataPack::ID uiODViewer2D::createFlatDataPack( DataPack::ID dpid, int comp )
     mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
     SeisFlatDataPack* seisfdp = 0;
     if ( regsdp )
-	seisfdp = new RegularFlatDataPack( *regsdp, comp );
+	seisfdp = new RegularSeisFlatDataPack( *regsdp, comp );
     else if ( randsdp )
-	seisfdp = new RandomFlatDataPack( *randsdp, comp );
+	seisfdp = new RandomSeisFlatDataPack( *randsdp, comp );
     DPM(DataPackMgr::FlatID()).add( seisfdp );
     return seisfdp ? seisfdp->id() : DataPack::cNoID();
 }

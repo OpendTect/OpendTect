@@ -8,7 +8,7 @@
 #include "seisprovider.h"
 #include "seisprovidertester.h"
 #include "ctxtioobj.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "seisstorer.h"
 #include "seisbuf.h"
 #include "seistrc.h"

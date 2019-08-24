@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "horsubsel.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "trckey.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
 
@@ -79,10 +80,14 @@ SeisDataPackWriter::~SeisDataPackWriter()
 
 void SeisDataPackWriter::getPosInfo()
 {
-    const PosInfo::CubeData* pi = dp_->trcsSampling();
-    posinfo_ = pi;
-    if ( pi && !pi->isFullyRectAndReg() )
+    const auto* pi = dp_->tracePositions();
+    if ( pi && !pi->isCubeData() )
+	{ pErrMsg("2D not supported yet"); }
+    posinfo_ = pi ? pi->asCubeData() : nullptr;
+    if ( posinfo_ && !posinfo_->isFullyRectAndReg() )
 	totalnr_ = posinfo_->totalSizeInside( CubeHorSubSel(tks_) );
+    else
+	totalnr_ = tks_.totalNr();
 }
 
 
@@ -254,7 +259,7 @@ int SeisDataPackWriter::nextStep()
     if ( seldata_ && !seldata_->isOK(currentpos) )
 	return MoreToDo();
 
-    trc_->info().trcKey() = currentpos;
+    trc_->info().setTrcKey( currentpos );
     trc_->info().coord_ = currentpos.getCoord();
     const int inlpos = hs.lineIdx( currentpos.inl() );
     const int crlpos = hs.trcIdx( currentpos.crl() );

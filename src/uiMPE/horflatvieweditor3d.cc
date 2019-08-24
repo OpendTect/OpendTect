@@ -679,7 +679,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
 
     NotifyStopper notifystopper( MPE::engine().activevolumechange );
     MPE::engine().setActiveVolume( curcs_ );
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,&dp);
+    mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,&dp);
     MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
     MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
 						 : -1 );
@@ -813,7 +813,7 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
     TypeSet<TrcKeyValue> path = patch->getPath();
     ConstRefMan<FlatDataPack> fdp =
 	editor_->viewer().getPack( true, true );
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+    mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
     for ( int idx=0; idx<path.size(); idx++ )
     {
 	const TrcKeyValue tkzs = path[idx];
@@ -949,7 +949,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 
     ConstRefMan<FlatDataPack> fdp =
 	editor_->viewer().getPack( true, true );
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+    mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
 	const FlatView::AuxData* auxdata = getAuxData(selectedids[ids]);

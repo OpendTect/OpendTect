@@ -22,6 +22,7 @@
 #include "seistrcprop.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "trckey.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
@@ -373,6 +374,42 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
     }
 
     return true;
+}
+
+
+bool Gather::is3D() const
+{
+    return !trckey_.is2D();
+}
+
+
+BinID Gather::getBinID() const
+{
+    return trckey_.binID();
+}
+
+
+Bin2D Gather::getBin2D() const
+{
+    return trckey_.bin2D();
+}
+
+
+void Gather::setBinID( const BinID& bid )
+{
+    trckey_.setPos( bid );
+}
+
+
+void Gather::setBin2D( const Bin2D& b2d )
+{
+    trckey_.setPos( b2d );
+}
+
+
+void Gather::setTrcKey( const TrcKey& tk )
+{
+    trckey_ = tk;
 }
 
 
@@ -743,7 +780,7 @@ SeisTrc* GatherSetDataPack::crTrace( int gatheridx, int offsetidx ) const
     const Gather* gather = gathers_[gatheridx];
     const int gathersz = gather->size( false );
     SeisTrc* trc = new SeisTrc( gathersz );
-    trc->info().trcKey() = gather->getTrcKey();
+    trc->info().setTrcKey( gather->getTrcKey() );
     trc->info().offset_ = gather->getOffset( offsetidx );
     trc->info().coord_ = trc->info().trcKey().getCoord();
     const SamplingData<double>& sd = gather->posData().range( false );

@@ -51,8 +51,8 @@ void VW2DFaultSS3D::setEditors()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true );
-	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp )
 	{
 	    fsseds_ += 0;
@@ -91,8 +91,8 @@ void VW2DFaultSS3D::draw()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
-	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp ) continue;
 
 	if ( fsseds_[ivwr] )

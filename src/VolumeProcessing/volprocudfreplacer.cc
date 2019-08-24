@@ -106,7 +106,7 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 	const TrcKeySampling& tks = output->sampling().hsamp_;
 	PosInfo::CubeData* outcd = new PosInfo::CubeData;
 	outcd->generate( tks.start_, tks.stop_, tks.step_ );
-	output->setTrcsSampling( outcd );
+	output->setTracePositions( outcd );
     }
 
     TaskGroup* tasks = new TaskGroup;
@@ -127,9 +127,9 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 
 	auto* task = new ArrayUdfValReplacer<float>( out );
 	task->setReplacementValue( replval_ );
-	const auto* cd = output->trcsSampling();
-	if ( cd )
-	    task->setPositions( *cd, outputtkzs.hsamp_ );
+	const auto* posns = output->tracePositions();
+	if ( posns )
+	    task->setPositions( *posns, outputtkzs.hsamp_ );
 	tasks->addTask( task );
     }
 

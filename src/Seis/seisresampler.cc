@@ -101,7 +101,7 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 	return const_cast<SeisTrc*>( &intrc );
 
     worktrc_.info() = intrc.info();
-    Pos::GeomID geomid = intrc.info().trcKey().geomID();
+    Pos::GeomID geomid = intrc.info().geomID();
     Pos::ZSubSelData::z_steprg_type zrg;
     if ( !geomid.is2D() )
 	zrg = rsd_.subSel3D().zSubSel().outputZRange();

@@ -19,6 +19,7 @@ ________________________________________________________________________
 class BinnedValueSet;
 class DataCharacteristics;
 class TraceData;
+class TrcKey;
 class TrcKeyPath;
 
 
@@ -72,11 +73,11 @@ public:
     z_steprg_type		zRange() const override
 				{ return sampling_.zsamp_; }
 
-    void			setTrcsSampling(LineCollData*);
+    void			setTracePositions(LineCollData*);
 				//!< Becomes mine
-    const LineCollData*		trcsSampling() const;
+    const LineCollData*		tracePositions() const;
 				//!< Only returns non-null if explictly set
-    void			getTrcPositions(PosInfo::LineCollData&) const;
+    LineCollData*		getTrcPositions() const;
 
     bool			addComponent(const char* nm,bool initvals);
 
@@ -118,7 +119,9 @@ public:
 
     bool			is2D() const override;
     glob_size_type		nrPositions() const	{ return path_.size(); }
-    TrcKey			getTrcKey(int trcidx) const;
+    void			getTrcKey(glob_idx_type,TrcKey&) const;
+    TrcKey&			trcKey(glob_idx_type);
+    const TrcKey&		trcKey(glob_idx_type) const;
     glob_idx_type		globalIdx(const TrcKey&) const override;
 
     z_steprg_type		zRange() const override	{ return zsamp_; }
@@ -151,35 +154,36 @@ protected:
 };
 
 
-/*!\brief Base class for RegularFlatDataPack and RandomFlatDataPack. */
+/*!\brief Base class for RegularSeisFlatDataPack and RandomSeisFlatDataPack. */
 
 mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
 
     mUseType( VolumeDataPack,	comp_idx_type );
+    mUseType( VolumeDataPack,	glob_size_type );
+    mUseType( VolumeDataPack,	glob_idx_type );
     mUseType( VolumeDataPack,	z_steprg_type );
 
     mDeclAbstractMonitorableAssignment(SeisFlatDataPack);
 
-    glob_size_type		nrPositions() const override
+    glob_size_type		nrPositions() const
 				{ return source_->nrPositions(); }
     void			getTrcKey( idx_type trcidx,
-					   TrcKey& tk ) const override
+					   TrcKey& tk ) const
 				{ return source_->getTrcKey(trcidx,tk); }
+
     const SeisVolumeDataPack&	getSourceDataPack() const
 				{ return *source_; }
-    bool			is2D() const override
+    bool			is2D() const
 				{ return source_->is2D(); }
 
-    void			getPath(TrcKeyPath&) const override;
-    const TrcKeyPath&		path() const override;
-				//!< Will be empty if isVertical() is false
-				//!< Eg: Z-slices. Or if the data corresponds
-				//!< to a single trace.
-    z_steprg_type		zRange() const override
-				{ return source_->getZRange(); }
-    int				randomLineID() const override
+    virtual const TrcKeyPath&	path() const			= 0;
+    void			getPath( TrcKeyPath& pth ) const
+				{ return source_->getPath( pth ); }
+    z_steprg_type		zRange() const
+				{ return source_->zRange(); }
+    int				randomLineID() const
 				{ return source_->randomLineID(); }
 
     bool			dimValuesInInt(const char* keystr) const;
@@ -214,79 +218,75 @@ protected:
 
 /*!\brief FlatDataPack for 2D and 3D seismic data. */
 
-mExpClass(Seis) RegularFlatDataPack : public SeisFlatDataPack
+mExpClass(Seis) RegularSeisFlatDataPack : public SeisFlatDataPack
 {
 public:
-				mTypeDefArrNDTypes;
+			mTypeDefArrNDTypes;
 
-				RegularFlatDataPack(const RegularSeisDataPack&,
-						    comp_idx_type);
-				mDeclMonitorableAssignment(RegularFlatDataPack);
+			RegularSeisFlatDataPack(const RegularSeisDataPack&,
+					    comp_idx_type);
+			mDeclMonitorableAssignment(RegularSeisFlatDataPack);
 
-    bool			isVertical() const
-				{ return dir() != OD::ZSlice; }
-    const TrcKeyPath&		path() const		{ return path_; }
-    float			getPosDistance(bool dim0,float trcfidx) const;
+    bool		isVertical() const	{ return dir() != OD::ZSlice; }
+    const TrcKeyPath&	path() const override	{ return path_; }
+    float		getPosDistance(bool dim0,float trcfidx) const;
 
-    const TrcKeyZSampling&	sampling() const
-				{ return regSource().sampling(); }
-    Pos::GeomID			geomID() const
-				{ return hSamp().getGeomID(); }
-    OD::SliceType		dir() const
-				{ return sampling().defaultDir(); }
-    Coord3			getCoord(idx_type,idx_type) const;
+    const TrcKeyZSampling& sampling() const { return regSource().sampling(); }
+    const TrcKeySampling& hSamp() const { return regSource().hSamp(); }
+    Pos::GeomID		geomID() const	{ return hSamp().getGeomID(); }
+    OD::SliceType	dir() const	{ return sampling().defaultDir(); }
+    Coord3		getCoord(idx_type,idx_type) const;
 
-    const char*			dimName(bool dim0) const;
+    const char*		dimName(bool dim0) const;
 
 protected:
 
-				~RegularFlatDataPack();
+			~RegularSeisFlatDataPack();
 
-    void			setSourceDataFromMultiCubes();
-    void			setSourceData();
-    void			setTrcInfoFlds();
+    void		setSourceDataFromMultiCubes();
+    void		setSourceData();
+    void		setTrcInfoFlds();
 
-    TrcKeyPath			path_;
-    bool			usemulticomps_;
-    bool			hassingletrace_;
+    TrcKeyPath&		path_;
+    bool		usemulticomps_;
+    bool		hassingletrace_;
 
     const RegularSeisDataPack&	regSource() const
-				{ return (RegularSeisDataPack&)(*source_); }
+			{ return (RegularSeisDataPack&)(*source_); }
 
 };
 
 
 /*!\brief FlatDataPack for random lines. */
 
-mExpClass(Seis) RandomFlatDataPack : public SeisFlatDataPack
+mExpClass(Seis) RandomSeisFlatDataPack : public SeisFlatDataPack
 {
 public:
 
-				RandomFlatDataPack(const RandomSeisDataPack&,
-						   comp_idx_type);
-				mDeclMonitorableAssignment(RandomFlatDataPack);
+			RandomSeisFlatDataPack(const RandomSeisDataPack&,
+					   comp_idx_type);
+			mDeclMonitorableAssignment(RandomSeisFlatDataPack);
 
-    bool			isVertical() const	{ return true; }
-    const TrcKeyPath&		path() const
-				{ return rdlSource().path(); }
-    Coord3			getCoord(idx_type,idx_type) const;
-    float			getPosDistance(bool dim0,float trcfidx) const;
+    bool		isVertical() const	{ return true; }
+    const TrcKeyPath&	path() const override	{ return rdlSource().path(); }
+    Coord3		getCoord(idx_type,idx_type) const;
+    float		getPosDistance(bool dim0,float trcfidx) const;
 
-    const char*			dimName( bool dim0 ) const
-				{ return dim0 ? "Distance" : "Z"; }
+    const char*		dimName( bool dim0 ) const
+			{ return dim0 ? "Distance" : "Z"; }
 
 protected:
 
-				~RandomFlatDataPack();
+			~RandomSeisFlatDataPack();
 
-    void			setSourceData();
-    void			setPosData();
+    void		setSourceData();
+    void		setPosData();
 				/*!< Sets distances from start and Z-values
 				 as X1 and X2 posData after regularizing. */
 
-    void			setTrcInfoFlds();
+    void		setTrcInfoFlds();
 
-    const RandomSeisDataPack&	rdlSource() const
-				{ return (RandomSeisDataPack&)(*source_); }
+    const RandomSeisDataPack& rdlSource() const
+			{ return (RandomSeisDataPack&)(*source_); }
 
 };

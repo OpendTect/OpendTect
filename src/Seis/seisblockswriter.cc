@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "posidxpairdataset.h"
 #include "paralleltask.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "scaler.h"
 #include "seistrc.h"
 #include "seisbuf.h"

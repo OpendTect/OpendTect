@@ -204,7 +204,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->resetMenuItems();
 
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,dp.ptr());
     const bool is2d = regfdp && regfdp->is2D();
     Pos::GeomID geomid = viewer2D()->geomID();
     subitem = applMgr()->attrServer()->storedAttribMenuItem(as,is2d,false);
@@ -235,7 +235,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
     dousemulticomp = stored = steering = false;
 
     BufferString attrbnm;
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,dp.ptr());
     if ( regfdp && regfdp->is2D() )
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
 

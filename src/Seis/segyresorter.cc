@@ -11,6 +11,7 @@
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "posfilter.h"
+#include "cubedata.h"
 #include "filepath.h"
 #include "od_iostream.h"
 #include "uistrings.h"

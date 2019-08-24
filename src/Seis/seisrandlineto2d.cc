@@ -173,14 +173,14 @@ int SeisRandLineTo2D::nextStep()
 	}
     } while ( seldata_.binidValueSet().next(pos_) );
 
-    if ( !geommatching ) return Executor::ErrorOccurred();
+    if ( !geommatching )
+	return Executor::ErrorOccurred();
 
     float vals[4];
     seldata_.binidValueSet().get( pos_, bid, vals );
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT32( vals[3] );
-    TrcKey trckey2d( geomid_, trcnr );
-    trc->info().trcKey() = trckey2d;
+    trc->info().setPos( Bin2D(geomid_,trcnr) );
     trc->info().coord_ = coord;
     addTrcToBuffer( trc, buf_ );
 
@@ -195,7 +195,7 @@ int SeisRandLineTo2D::nextStep()
 	const Coord nextcoord( vals[1], vals[2] );
 	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT32( vals[3] );
-	nexttrc->info().trcKey() = TrcKey( geomid_, nexttrcnr );
+	nexttrc->info().setPos( Bin2D(geomid_,nexttrcnr) );
 	nexttrc->info().coord_ = nextcoord;
 	addTrcToBuffer( nexttrc, buf_ );
 	nrdone_++;

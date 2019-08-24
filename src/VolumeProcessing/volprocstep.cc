@@ -522,11 +522,11 @@ public:
 
 		NullTracesArrayScanner( const Array3DImpl<float>& data,
 					const TrcKeySampling& tks,
-					const PosInfo::CubeData* trcssampling )
+					const PosInfo::CubeData* trcposns )
 		    : ParallelTask("Null Traces array scanner")
 		    , data_(data)
 		    , tks_(tks)
-		    , trcssampling_(trcssampling)
+		    , trcposns_(trcposns)
 		    , totalnr_(tks.totalNr())
 		    , result_(0)
 		{}
@@ -564,8 +564,8 @@ private:
 			return false;
 
 		    PosInfo::Detector& detector = *detectors_[threadid];
-		    const bool isrect = !trcssampling_ ||
-					trcssampling_->isFullyRectAndReg();
+		    const bool isrect = !trcposns_ ||
+					trcposns_->isFullyRectAndReg();
 		    const TrcKeySampling tks( tks_ );
 		    const float* dataptr = data_.getData();
 		    const ValueSeries<float>* datastor = data_.getStorage();
@@ -588,7 +588,7 @@ private:
 		    for ( od_int64 idx=start; idx<=stop; idx++,
 							 quickAddToNrDone(idx) )
 		    {
-			if ( !isrect && !trcssampling_->hasPosition(tks,idx) )
+			if ( !isrect && !trcposns_->hasPosition(tks,idx) )
 			{
 			    if ( hasarrayptr ) dataptr += nrz;
 			    else if ( hasstorage ) validx += nrz;
@@ -642,9 +642,9 @@ private:
 
     const Array3DImpl<float>&	data_;
     const TrcKeySampling&	tks_;
-    const PosInfo::CubeData*	trcssampling_;
+    const PosInfo::CubeData*	trcposns_;
     const od_int64	totalnr_;
-    ObjectSet<PosInfo::Detector>	detectors_;
+    ObjectSet<PosInfo::Detector> detectors_;
     const PosInfo::CubeData*	result_;
 };
 
@@ -661,7 +661,7 @@ const PosInfo::CubeData* VolProc::Step::getPosSamplingOfNonNullTraces(
 
     NullTracesArrayScanner scanner( input->data( compidx ),
 				    input->sampling().hsamp_,
-				    input->trcsSampling() );
+				    input->tracePositions() );
     if ( !scanner.execute() || !scanner.getResult() )
 	return nullptr;
 

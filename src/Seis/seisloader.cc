@@ -325,7 +325,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , queueid_(Threads::WorkManager::cDefaultQueueID())
     , arrayfillererror_(false)
     , udftraceswritefinished_(true)
-    , trcssampling_(*new LineCollData)
+    , trcposns_(*new LineCollData)
 {
     compscalers_.setNullAllowed( true );
     const SeisIOObjInfo info( ioobj );
@@ -348,7 +348,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     if ( prov )
 	prov->setSelData( new Seis::RangeSelData(tkzs_) );
     if ( prov && uirv.isOK() )
-	setTrcsSamplingFromProv( *prov );
+	setTracePositionsFromProv( *prov );
 
     delete prov;
     const Pos::GeomID geomid = tkzs_.hsamp_.getGeomID();
@@ -373,7 +373,7 @@ Seis::Loader::~Loader()
     deepErase( compscalers_ );
     delete scaler_;
     delete seissummary_;
-    delete &trcssampling_;
+    delete &trcposns_;
 }
 
 
@@ -432,21 +432,21 @@ uiString Seis::Loader::nrDoneText() const
 }
 
 
-bool Seis::Loader::setTrcsSamplingFromProv( const Provider& prov )
+bool Seis::Loader::setTracePositionsFromProv( const Provider& prov )
 {
     const TrcKeySampling& tks = tkzs_.hsamp_;
-    trcssampling_ = prov.possiblePositions();
+    trcposns_ = prov.possiblePositions();
     if ( is2d_ )
-	trcssampling_.limitTo( LineHorSubSel(tks) );
+	trcposns_.limitTo( LineHorSubSel(tks) );
     else
-	trcssampling_.limitTo( CubeHorSubSel(tks) );
+	trcposns_.limitTo( CubeHorSubSel(tks) );
 
-    totalnr_ = trcssampling_.totalSize();
+    totalnr_ = trcposns_.totalSize();
     if ( dp_ )
     {
 	auto* scd = new PosInfo::SortedCubeData;
-	*scd = trcssampling_;
-	dp_->setTrcsSampling( scd );
+	*scd = trcposns_;
+	dp_->setTracePositions( scd );
     }
 
     return true;
@@ -508,14 +508,14 @@ void Seis::Loader::udfTracesWrittenCB( CallBacker* )
 
 void Seis::Loader::submitUdfWriterTasks()
 {
-    if ( trcssampling_.totalSize() >= tkzs_.hsamp_.totalNr() )
+    if ( trcposns_.totalSize() >= tkzs_.hsamp_.totalNr() )
 	return;
 
     TaskGroup* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
 	udfwriters->addTask(
-	new Array3DUdfTrcRestorer<float>( trcssampling_, tkzs_.hsamp_,
+	new Array3DUdfTrcRestorer<float>( trcposns_, tkzs_.hsamp_,
 					  dp_->data(idx) ) );
     }
 
@@ -621,11 +621,11 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 				       &dc_ );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
-	if ( !trcssampling_.isEmpty() )
+	if ( !trcposns_.isEmpty() )
 	{
 	    auto* scd = new PosInfo::SortedCubeData;
-	    *scd = trcssampling_;
-	    dp_->setTrcsSampling( scd );
+	    *scd = trcposns_;
+	    dp_->setTracePositions( scd );
 	}
 
 	if ( scaler_ && !scaler_->isEmpty() )
@@ -655,7 +655,7 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
 				       int threadid )
 {
-    if ( !tks_.validIdx(threadid) || trcssampling_.isEmpty() )
+    if ( !tks_.validIdx(threadid) || trcposns_.isEmpty() )
 	return false;
     const TrcKeySampling& tks = *tks_.get( threadid );
 
@@ -677,7 +677,7 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     if ( !seissummary.isOK() || !rawseq->isOK() )
 	{ delete rawseq; return false; }
 
-    PosInfo::CubeData cubedata( trcssampling_ );
+    PosInfo::CubeData cubedata( trcposns_ );
     cubedata.limitTo( CubeHorSubSel(tks) );
     PosInfo::CubeDataIterator trcsiterator( cubedata );
 
@@ -788,11 +788,11 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 				       &dc_ );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
-	if ( !trcssampling_.isEmpty() )
+	if ( !trcposns_.isEmpty() )
 	{
 	    auto* scd = new PosInfo::SortedCubeData;
-	    *scd = trcssampling_;
-	    dp_->setTrcsSampling( scd );
+	    *scd = trcposns_;
+	    dp_->setTracePositions( scd );
 	}
 
 	if ( scaler_ && !scaler_->isEmpty() )
@@ -809,7 +809,7 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 
     submitUdfWriterTasks();
     trcnrs_.setEmpty();
-    LineCollDataIterator trcsiterator( trcssampling_ );
+    LineCollDataIterator trcsiterator( trcposns_ );
     while ( trcsiterator.next() )
 	trcnrs_.addIfNew( trcsiterator.trcNr() );
 
@@ -1008,9 +1008,9 @@ bool Seis::SequentialFSLoader::init()
     }
 
     prov_->setSelData( new Seis::RangeSelData(seistkzs) );
-    setTrcsSamplingFromProv( *prov_ );
+    setTracePositionsFromProv( *prov_ );
     delete trcsiterator_;
-    trcsiterator_ = new PosInfo::LineCollDataIterator( trcssampling_ );
+    trcsiterator_ = new PosInfo::LineCollDataIterator( trcposns_ );
     nrdone_ = 0;
 
     samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );

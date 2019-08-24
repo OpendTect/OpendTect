@@ -21,6 +21,7 @@
 #include "staticstring.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "trckey.h"
 #include "uistrings.h"
 #include "od_iostream.h"
 #include <string.h>
@@ -685,7 +686,7 @@ SeisTrc* SeisCBVSPS2DReader::getTrace( const TrcKey& tk, int nr ) const
 
     SeisTrc* trc = readNewTrace( tk.trcNr() );
     if ( trc )
-	trc->info().trcKey() = tk;
+	trc->info().setTrcKey( tk );
     return trc;
 }
 
@@ -707,9 +708,8 @@ bool SeisCBVSPS2DReader::getGather( const TrcKey& tk, SeisTrcBuf& tbuf ) const
 
     while ( trc )
     {
-	trc->info().trcKey() = tk;
+	trc->info().setTrcKey( tk );
 	tbuf.add( trc );
-
 	trc = readNewTrace( tk.trcNr() );
     }
 
@@ -764,17 +764,18 @@ void SeisCBVSPS2DWriter::close()
 
 bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
 {
-    if ( !ensureTr(trc) ) return false;
+    if ( !ensureTr(trc) )
+	return false;
 
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
     if ( ti.trcNr() != prevnr_ )
 	nringather_ = 1;
     prevnr_ = ti.trcNr();
 
-    const TrcKey trctk( ti.trcKey() );
+    const auto realtk( ti.trcKey() );
     ti.setPos( BinID(ti.trcNr(),nringather_) );
     bool res = tr_->write( trc );
-    ti.trcKey() = trctk;
+    ti.setTrcKey( realtk );
     if ( !res )
 	errmsg_ = tr_->errMsg();
     else

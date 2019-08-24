@@ -17,6 +17,7 @@
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "trckey.h"
 #include "waveletmanager.h"
 #include "keystrs.h"
 
@@ -737,7 +738,7 @@ bool SynthSeis::MultiTraceGenerator::doPrepare( int nrthreads )
 	trc.info().offset_ = model_->raytracerdata_->getOffset( idx );
 	trc.info().coord_.setUdf();
 	if ( withposition )
-	    trc.info().trcKey() = tk_;
+	    trc.info().setTrcKey( tk_ );
     }
 
     ReflectivityModelSet& sampledrefs = model_->sampledreflmodels_;

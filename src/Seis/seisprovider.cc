@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "posinfo2d.h"
 #include "scaler.h"
 #include "seisbuf.h"
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "trckey.h"
 #include "uistrings.h"
 
 static const Seis::Provider::z_type zeps = 1.e-6f;

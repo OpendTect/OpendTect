@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisproviderimpl.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "prestackgather.h"
 #include "seisfetcher.h"
 #include "seisbuf.h"

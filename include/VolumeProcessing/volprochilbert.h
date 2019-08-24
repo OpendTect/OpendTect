@@ -58,8 +58,8 @@ public:
 				HilbertCalculatorTask(const Array3D<float>&,
 						      Array3D<float>&);
 
-    void			setTrcsSampling(const PosInfo::CubeData&,
-						const TrcKeySampling&);
+    void			setTracePositions(const PosInfo::CubeData&,
+						  const TrcKeySampling&);
 
     uiString			message() const { return msg_; }
     uiString			nrDoneText() const { return sTracesDone(); }
@@ -77,7 +77,7 @@ private:
 
     const ArrayND<float>&	realdata_;
     ArrayND<float>&		imagdata_;
-    const PosInfo::CubeData*	trcssampling_;
+    const PosInfo::CubeData*	trcposns_;
     const TrcKeySampling*	tks_;
 
     const bool			is3d_;

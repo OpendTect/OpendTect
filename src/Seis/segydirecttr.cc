@@ -7,7 +7,7 @@
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "filepath.h"
 #include "segytr.h"
 #include "seistrc.h"
@@ -17,6 +17,7 @@
 #include "dirlist.h"
 #include "seisseldata.h"
 #include "seispacketinfo.h"
+#include "trckey.h"
 #include "uistrings.h"
 
 

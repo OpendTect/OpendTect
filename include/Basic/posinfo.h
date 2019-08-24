@@ -147,6 +147,8 @@ public:
 };
 
 
+class CubeData;
+
 /*!\brief Position info for a collection of Line objects */
 
 mExpClass(Basic) LineCollData : public ManagedObjectSet<LineData>
@@ -170,6 +172,9 @@ public:
 					{ *this = oth; }
     virtual LineCollData* clone() const	{ return new LineCollData(*this); }
     static LineCollData* create(const FullSubSel&);
+    virtual bool	isCubeData() const  { return false; }
+    CubeData*		asCubeData();
+    const CubeData*	asCubeData() const;
     virtual bool	isLineSorted() const; //!< checks ascending only
     LineCollData&	operator =( const LineCollData& oth )
 				{ copyContents(oth); return *this; }

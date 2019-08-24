@@ -15,7 +15,7 @@
 #include "keystrs.h"
 #include "linesubsel.h"
 #include "od_iostream.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "posinfo2d.h"
 #include "prog.h"
 #include "segydirectdef.h"

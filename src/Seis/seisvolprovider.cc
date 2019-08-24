@@ -154,7 +154,8 @@ void Seis::VolFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 	    { uirv_.set( trl_->errMsg() ); return; }
     }
 
-    ti.trcKey().setIs2D( false );
+    if ( ti.is2D() )
+	{ pErrMsg("trcinf is 2D"); ti.setPos(SI().transform(ti.coord_)); }
 }
 
 

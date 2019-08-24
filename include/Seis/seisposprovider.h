@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "posprovider.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "dbkey.h"
 #include "keystrs.h"
 

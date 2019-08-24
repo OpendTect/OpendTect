@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "cubesubsel.h"
 #include "linesubsel.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "posinfo2d.h"
 #include "seisprovider.h"
 #include "seisbuf.h"

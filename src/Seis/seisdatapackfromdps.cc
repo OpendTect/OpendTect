@@ -60,7 +60,7 @@ bool SeisDataPackFromDPS::doPrepare( int nrthreads )
 
 bool SeisDataPackFromDPS::doWork( od_int64 start, od_int64 stop, int threadidx )
 {
-    const StepInterval<float>& zsamp = dp_.getZRange();
+    const auto zsamp = dp_.zRange();
     const int nrsamps = zsamp.nrSteps() + 1;
     for ( int compidx=0; compidx<selcomps_.size(); compidx++ )
     {

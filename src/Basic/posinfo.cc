@@ -347,6 +347,18 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 }
 
 
+PosInfo::CubeData* PosInfo::LineCollData::asCubeData()
+{
+    return isCubeData() ? static_cast<CubeData*>(this) : nullptr;
+}
+
+
+const PosInfo::CubeData* PosInfo::LineCollData::asCubeData() const
+{
+    return isCubeData() ? static_cast<const CubeData*>(this) : nullptr;
+}
+
+
 bool PosInfo::LineCollData::isLineSorted() const
 {
     if ( isEmpty() )

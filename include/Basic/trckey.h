@@ -15,18 +15,37 @@ ________________________________________________________________________
 #include "bin2d.h"
 
 
-/*!\brief represents a unique trace position coupled to a survey geometry
+/*!\brief a trace position coupled to a survey geometry
 
 A TrcKey contains the identifying position indices of a seismic trace position.
-For 2D data, it will contain the GeomID of the line and the trace number.
+For 2D data, it will contain the Bin2D (GeomID and trace number).
 For 3D data, it will hold the BinID.
 
-Setting the position to a BinID causes the TrcKey to become a 3D TrcKey, setting
-to Bin2D (GeomID and trace number) will turn it into a 2D TrcKey.
+As such, TrcKey is a 'Capsule' class, a channel to communicate a position that
+can be BinID or Bin2D. Setting the position to a BinID causes the TrcKey to
+become a 3D TrcKey, setting to Bin2D will turn it into a 2D TrcKey.
 
-Note that this class is only needed if you need a channel of mixed 2D and 3D
+As a result this class is only needed if you need a channel of mixed 2D and 3D
 positions (and this is not very often!); in most cases you can and *should*
-keep this issue outside the position identification.
+keep this issue outside the position identification. Why? Because this class
+factually circumvents the C++ type system; many errors are caused by not
+being careful with the difference between inl/crl and line/trace.
+
+Thus, try to avoid the TrcKey classes:
+* In interfaces, consider supporting explicit BinID and/or Bin2D parts
+* For nonsequential sets of positions, consider using BinnedValueSet
+* In positioning of concrete geometries, consider PosInfo::LineCollData
+* When subselecting from an existing geometry, use the Survey::SubSel classes
+
+The usages that are really OK:
+* for sets of mixed 2D and 3D positions
+* when you need to return a position that can be either 2D or 3D, where the
+  caller will do the accordingly correct thing.
+
+and, a bit driven by practicality, you can use the TrcKeyPath:
+
+* when you need ordered traversal of a concrete path that can be 2D or 3D
+  (but again this shld really have a '2D or 3D only' settable constraint).
 
 */
 
@@ -131,12 +150,19 @@ public:
 };
 
 
+/*!\brief a path of trace positions. Note that there is no enforcement of
+  'only 2D' or 'only 3D' because it is conceivable that paths consist of both
+  2D and 3D positions. This is highly unlikely though. */
+
+
 mExpClass(Basic) TrcKeyPath : public TypeSet<TrcKey>
 {
 public:
-		    TrcKeyPath()				{}
-    explicit	    TrcKeyPath( size_type sz )
-			: TypeSet<TrcKey>(sz,TrcKey::udf())	{}
+		TrcKeyPath()				{}
+    explicit	TrcKeyPath( size_type sz )
+		    : TypeSet<TrcKey>(sz,TrcKey::udf())	{}
+
+    bool	is2D() const    { return isEmpty() ? false : first().is2D(); }
 
 };
 

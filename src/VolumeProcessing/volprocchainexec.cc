@@ -553,7 +553,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
 	Step* currentstep = steps_[idx];
-	PosInfo::CubeData posdata;
+	PosInfo::CubeData cubedata;
 	for ( int idy=0; idy<currentstep->getNrInputs(); idy++ )
 	{
 	    const Step::InputSlotID inputslot =
@@ -565,9 +565,9 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	    }
 
 	    const RegularSeisDataPack* input = currentstep->getInput(inputslot);
-	    const PosInfo::CubeData* inppd = !input ? 0 : input->trcsSampling();
-	    if ( inppd )
-		posdata.merge( *inppd, true );
+	    const auto* inpcd = !input ? nullptr : input->tracePositions();
+	    if ( inpcd )
+		cubedata.merge( *inpcd, true );
 	}
 
 	TrcKeyZSampling csamp;
@@ -597,12 +597,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	    outcube->setName( "New VolProc DP" );
 	    outcube->setSampling( csamp );
 	    CubeHorSubSel chss( csamp.hsamp_ );
-	    if ( posdata.totalSizeInside( chss ) > 0 )
+	    if ( cubedata.totalSizeInside( chss ) > 0 )
 	    {
-		posdata.limitTo( chss );
-		if ( !posdata.isFullyRectAndReg() )
-		    outcube->setTrcsSampling( new PosInfo::SortedCubeData(
-							posdata) );
+		cubedata.limitTo( chss );
+		if ( !cubedata.isFullyRectAndReg() )
+		    outcube->setTracePositions( new PosInfo::SortedCubeData(
+							cubedata) );
 	    }
 
 	    for ( int icomp=0; icomp<currentstep->getNrOutComponents(0,geomid);

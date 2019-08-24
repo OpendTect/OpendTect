@@ -63,7 +63,7 @@ protected:
 			       const TypeSet<int>* components);
 
     bool		setOutputComponents();
-    bool		setTrcsSamplingFromProv(const Provider&);
+    bool		setTracePositionsFromProv(const Provider&);
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
     void		submitUdfWriterTasks();
     void		releaseDP();
@@ -82,7 +82,7 @@ protected:
     TypeSet<int>	outcomponents_;
     Scaler*		scaler_;
     ObjectSummary*	seissummary_;
-    LineCollData&	trcssampling_;
+    LineCollData&	trcposns_;
     od_int64		totalnr_;
 
     int			queueid_;

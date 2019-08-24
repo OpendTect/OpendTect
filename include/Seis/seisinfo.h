@@ -57,7 +57,6 @@ public:
     pos_type		lineNr() const;
     pos_type		trcNr() const;
     GeomID		geomID() const;
-    TrcKey&		trcKey()		{ return trcky_; }
     const TrcKey&	trcKey() const		{ return trcky_; }
 
     SeisTrcInfo&	setGeomSystem(GeomSystem);
@@ -67,6 +66,7 @@ public:
     SeisTrcInfo&	setGeomID(GeomID);
     SeisTrcInfo&	setTrcNr(pos_type);
     SeisTrcInfo&	setLineNr(pos_type);
+    SeisTrcInfo&	setTrcKey(const TrcKey&);
 
     idx_type		nearestSample(z_type) const;
     z_type		samplePos( idx_type idx ) const

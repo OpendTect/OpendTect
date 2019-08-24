@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
 #include "seistrc.h"
+#include "trckey.h"
 
 
 Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )

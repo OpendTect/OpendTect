@@ -344,7 +344,7 @@ int SeisZAxisStretcher::nextStep()
 	outtrc_->set( 0, outtrc_->get( 1, 0 ), 0 );
     }
 
-    outtrc_->info().trcKey() = curtrcky;
+    outtrc_->info().setTrcKey( curtrcky );
     outtrc_->info().coord_ = intrc.info().coord_;
     auto uirv = storer_->put( *outtrc_ );
     if ( !uirv.isOK() )

@@ -91,8 +91,7 @@ bool Seis2DTraceGetter::ensureTranslator() const
 
 void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrcInfo& trcinfo ) const
 {
-    const TrcKey tk( geomid_, trcinfo.trcNr() );
-    trcinfo.trcKey() = tk;
+    trcinfo.setPos( Bin2D(geomid_,trcinfo.trcNr()) );
 }
 
 
@@ -563,11 +562,9 @@ void Seis2DLineMerger::mergeBufs()
     }
 
     if ( renumber_ )
-    {
 	for ( int idx=0; idx<outbuf_.size(); idx++ )
-	    outbuf_.get( idx )->info().trcKey() =
-				TrcKey( outgeomid_, numbering_.atIndex(idx) );
-    }
+	    outbuf_.get(idx)->info().setPos(
+				Bin2D(outgeomid_,numbering_.atIndex(idx)) );
 }
 
 
