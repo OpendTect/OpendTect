@@ -18,6 +18,7 @@
 #include "raytrace1d.h"
 #include "smoother1d.h"
 #include "survinfo.h"
+#include "trckey.h"
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 
@@ -491,12 +492,16 @@ RefMan<Gather> AngleComputer::computeAngles()
 // VelocityBasedAngleComputer
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
     : AngleComputer()
-{}
+    , tk_(*new TrcKey)
+{
+}
 
 
 VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 {
-    if ( velsource_ ) velsource_->unRef();
+    if ( velsource_ )
+	velsource_->unRef();
+    delete &tk_;
 }
 
 

@@ -130,6 +130,13 @@ BufferString BinID::usrDispStr( bool is2d ) const
 }
 
 
+Coord BinID::coord() const
+{
+    const auto& g3d = SurvGeom::get3D();
+    return g3d.getCoord( *this );
+}
+
+
 Coord Bin2D::coord() const
 {
     const auto& g2d = SurvGeom2D::get( geomid_ );

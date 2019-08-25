@@ -24,6 +24,7 @@ template <class T> class Array2D;
 class FFTFilter;
 class Gather;
 class RayTracerData;
+class TrcKey;
 class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
@@ -123,7 +124,8 @@ protected:
 				~VelocityBasedAngleComputer();
 
     Vel::FunctionSource*	velsource_	= 0;
-    TrcKey			tk_;
+    TrcKey&			tk_;
+
 };
 
 

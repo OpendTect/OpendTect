@@ -16,6 +16,7 @@
 #include "seispacketinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "trckey.h"
 #include "uistrings.h"
 
 

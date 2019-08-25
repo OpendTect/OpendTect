@@ -910,7 +910,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	if ( !newpack->addComponent(targetspecs_[idx].userRef(),true) )
 	    continue;
 
-	const TrcKeyPath& tkpath = newpack->getPath();
+	const TrcKeyPath& tkpath = newpack->path();
 	const int pathsz = tkpath.size();
 	const int nrz = newpack->data(idx).getSize(2);
 

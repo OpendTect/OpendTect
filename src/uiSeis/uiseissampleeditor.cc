@@ -29,11 +29,11 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 
 #include "trckeysampling.h"
+#include "cubedata.h"
 #include "datapack.h"
 #include "executor.h"
 #include "arrayndimpl.h"
 #include "posidxpairdataset.h"
-#include "posinfo.h"
 #include "posinfo2d.h"
 #include "ranges.h"
 #include "seis2ddata.h"
@@ -211,12 +211,15 @@ TrcKey uiSeisSampleEditor::trcKey4BinID( const BinID& bid ) const
 }
 
 
-TrcKey uiSeisSampleEditor::curPos() const
+BinID uiSeisSampleEditor::curBinID() const
 {
-    if ( !ctrc_ )
-	return TrcKey::udf();
+    return ctrc_ ? ctrc_->info().binID() : BinID::udf();
+}
 
-    return ctrc_->info().trcKey();
+
+Bin2D uiSeisSampleEditor::curBin2D() const
+{
+    return ctrc_ ? ctrc_->info().bin2D() : Bin2D::udf();
 }
 
 
@@ -294,9 +297,10 @@ BinID uiSeisSampleEditor::getBinID4RelIdx( const BinID& bid, int idx ) const
 }
 
 
-bool uiSeisSampleEditor::setPos( const TrcKey& tk )
+bool uiSeisSampleEditor::setPos( const Bin2D& b2d )
 {
-    return doSetPos( tk.binID(), false );
+    BinID bid; b2d.encodeIn( bid );
+    return doSetPos( bid, false );
 }
 
 
@@ -352,7 +356,7 @@ void uiSeisSampleEditor::addTrc( const BinID& bid )
 	const TrcKey tk( trcKey4BinID(bid) );
 	if ( !prov_->getAt(tk,*trc).isOK() )
 	{
-	    trc->info().trcKey() = tk;
+	    trc->info().setTrcKey( tk );
 	    trc->info().coord_ = tk.getCoord();
 	    fillUdf( *trc );
 	}
@@ -511,15 +515,18 @@ uiSeisSampleEditorGoToDlg( uiSeisSampleEditor* p )
 			    tr("Adjust to existing position"),
 			    mCB(this,uiSeisSampleEditorGoToDlg,toNearestCB) );
 
-    const TrcKey curpos = ed_.curPos();
-    trcnrfld_->setValue( curpos.trcNr() );
     mAttachCB( trcnrfld_->valueChanging, uiSeisSampleEditorGoToDlg::valChgCB );
     if ( !inlfld_ )
+    {
+	trcnrfld_->setValue( ed_.curBin2D().trcNr() );
 	tonearestbut_->attach( rightOf, lbsb );
+    }
     else
     {
+	const BinID bid( ed_.curBinID() );
+	trcnrfld_->setValue( bid.crl() );
+	inlfld_->setValue( bid.inl() );
 	tonearestbut_->attach( rightOf, trcnrfld_ );
-	inlfld_->setValue( curpos.inl() );
 	mAttachCB( inlfld_->valueChanged, uiSeisSampleEditorGoToDlg::valChgCB );
     }
 

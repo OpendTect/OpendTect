@@ -680,8 +680,8 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     NotifyStopper notifystopper( MPE::engine().activevolumechange );
     MPE::engine().setActiveVolume( curcs_ );
     mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,&dp);
-    MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
-    MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
+    MPE::engine().setActivePath( randfdp ? &randfdp->path() : 0 );
+    MPE::engine().setActiveRandomLineID( randfdp ? randfdp->randomLineID()
 						 : -1 );
     notifystopper.enableNotification();
 
@@ -968,7 +968,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 	}
 	else if ( randfdp )
 	{
-	    const TrcKeyPath& rdlpath = randfdp->getPath();
+	    const TrcKeyPath& rdlpath = randfdp->path();
 	    IndexInfo ix = randfdp->posData().indexInfo( true, posx );
 	    bid = rdlpath[ix.nearest_].binID();
 	}

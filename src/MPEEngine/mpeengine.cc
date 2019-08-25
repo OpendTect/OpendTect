@@ -855,18 +855,18 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     const int globidx = vdp->nearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
-    StepInterval<float> zintv2 = zintv; zintv2.step = vdp->getZRange().step;
+    StepInterval<float> zintv2 = zintv; zintv2.step = vdp->zRange().step;
     const int nrz = zintv2.nrSteps() + 1;
     Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     seeddata->setAll( mUdf(float) );
 
     const int trcidx0 = globidx - (int)(nrtrcs/2);
-    const StepInterval<float>& zsamp = vdp->getZRange();
+    const auto zsamp = vdp->zRange();
     const int zidx0 = zsamp.getIndex( z + zintv.start );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
 	const int curtrcidx = trcidx0+tidx;
-	if ( curtrcidx<0 || curtrcidx >= vdp->nrTrcs() )
+	if ( curtrcidx<0 || curtrcidx >= vdp->nrPositions() )
 	    continue;
 
 	const OffsetValueSeries<float> ovs =

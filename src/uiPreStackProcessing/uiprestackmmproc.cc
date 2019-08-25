@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "posinfo.h"
+#include "cubedata.h"
 
 #include "uimsg.h"
 

@@ -773,7 +773,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     if ( !randsdp )
 	return;
 
-    updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->getZRange() );
+    updateTexOriginAndScale( attrib, randsdp->path(), randsdp->zRange() );
 
     const int nrversions = randsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
@@ -835,7 +835,7 @@ void RandomTrackDisplay::createTransformedDataPack(
     {
 	if ( datatransform_->needsVolumeOfInterest() )
 	{
-	    const TrcKeyPath& path = randsdp->getPath();
+	    const TrcKeyPath& path = randsdp->path();
 	    TrcKeyZSampling tkzs( false );
 	    for ( int idx=0; idx<path.size(); idx++ )
 		tkzs.hsamp_.include( path[idx].binID() );
@@ -1514,7 +1514,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 
     const TrcKey trckey( s3dgeom_->transform(pos.getXY()) );
     const int trcidx = randsdp->nearestGlobalIdx( trckey );
-    const int sampidx = randsdp->getZRange().nearestIndex( pos.z_ );
+    const int sampidx = randsdp->zRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = randsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;

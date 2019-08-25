@@ -236,7 +236,7 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
     if ( mIsUdf(startz) )
 	return false;
 
-    const StepInterval<float>& zsamp = vdp->getZRange();
+    const auto zsamp = vdp->zRange();
     const int nrz = zsamp.nrSteps() + 1;
     const SamplingData<float> sd( zsamp.start, zsamp.step );
     evtracker_.setRangeStep( sd.step );

@@ -94,9 +94,9 @@ void VW2DFaultSS2D::draw()
 	    TypeSet<int>& trcnrs = fsseds_[ivwr]->getTrcNos();
 	    TypeSet<float>& dists = fsseds_[ivwr]->getDistances();
 	    trcnrs.erase(); dists.erase();
-	    for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
+	    for ( int idx=0; idx<regfdp->nrPositions(); idx++ )
 	    {
-		trcnrs += regfdp->getTrcKey(idx).trcNr();
+		trcnrs += regfdp->path().get(idx).trcNr();
 		dists += mCast(float,regfdp->posData().position(true,idx));
 	    }
 

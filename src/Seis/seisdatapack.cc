@@ -708,6 +708,15 @@ Monitorable::ChangeType SeisFlatDataPack::compareClassData(
 }
 
 
+Pos::GeomID SeisFlatDataPack::geomID() const
+{
+    if ( !is2D() )
+	return GeomID::get3D();
+    const auto& pth = path();
+    return pth.isEmpty() ? GeomID() : pth.first().geomID();
+}
+
+
 bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 {
     const FixedString key( keystr );

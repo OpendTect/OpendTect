@@ -15,6 +15,7 @@
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "trckey.h"
 
 #define mErrRet(msg, retval) { msg_ = msg; return retval; }
 #define mpErrRet(msg, retval) { pErrMsg(msg); return retval; }

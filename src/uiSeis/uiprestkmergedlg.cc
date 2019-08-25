@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "dbdir.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
+#include "cubedata.h"
 #include "dbdir.h"
 #include "dbkey.h"
 #include "keystrs.h"

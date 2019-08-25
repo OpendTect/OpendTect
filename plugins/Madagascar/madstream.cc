@@ -6,6 +6,7 @@
 
 
 #include "madstream.h"
+#include "cubedata.h"
 #include "cubesubsel.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"

@@ -59,10 +59,10 @@ public :
     void		setCrlWise(bool yn)	{ crlwise_ = yn; }
     int			stepOut()		{ return stepout_; }
     void		setStepout(int);
-    TrcKey		curPos() const;
-    BinID		curBinID() const	{ return curPos().binID(); }
+    Bin2D		curBin2D() const;
+    BinID		curBinID() const;
     bool		setPos(const BinID&);
-    bool		setPos(const TrcKey&);
+    bool		setPos(const Bin2D&);
     float		curZ() const;
     void		setZ(float);
     int			compNr() const		{ return compnr_; }

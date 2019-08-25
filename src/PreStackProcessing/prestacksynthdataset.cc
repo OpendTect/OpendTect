@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "prestackgather.h"
 #include "seisbufadapters.h"
 #include "synthseisgenerator.h"
+#include "trckey.h"
 #include "seistrc.h"
 
 
@@ -153,7 +154,7 @@ const SeisTrc* SynthSeis::PreStackDataSet::addTrcToCache( int seqnr,
     if ( !trccache_.validIdx(seqnr) )
 	return 0;
 
-    trc->info().trcKey() = TrcKey::getSynth( seqnr + 1 );
+    trc->info().setTrcKey( TrcKey::getSynth(seqnr + 1) );
     trc->info().offset_ = offsetDef().atIndex( offsnr );
     auto* trcset = trccache_.get( seqnr );
     if ( !trcset )

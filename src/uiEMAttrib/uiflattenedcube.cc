@@ -156,7 +156,7 @@ int nextStep()
     }
 
     const float horz = pp_.adjustedZ( intrc_.info().coord_, zval_ );
-    outtrc_.info().trcKey() = intrc_.info().trcKey();
+    outtrc_.info().setTrcKey( intrc_.info().trcKey() );
     outtrc_.info().coord_ = intrc_.info().coord_;
     outtrc_.info().pick_ = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )

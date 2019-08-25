@@ -106,8 +106,8 @@ void VW2DFault::draw()
 
 	    if ( randfdp )
 	    {
-		faulteds_[ivwr]->setPath( randfdp->getPath() );
-		faulteds_[ivwr]->setRandomLineID( randfdp->getRandomLineID() );
+		faulteds_[ivwr]->setPath( randfdp->path() );
+		faulteds_[ivwr]->setRandomLineID( randfdp->randomLineID() );
 		faulteds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
 

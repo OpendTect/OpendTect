@@ -12,12 +12,13 @@
 #include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
+#include "binnedvalueset.h"
+#include "cubesubsel.h"
+#include "trckey.h"
 #include "seistableseldata.h"
 #include "seisinfo.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "binnedvalueset.h"
-#include "cubesubsel.h"
 
 #include <limits.h>
 
@@ -183,11 +184,17 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     SeisTrcInfo mytrcinfo;
     if ( !curtrcinfo )
     {
-	TrcKey trckey( curbid );
 	if ( is2D() )
-	    trckey.setPos( provider_->geomID(), curbid.crl() );
-	mytrcinfo.trcKey() = trckey;
-	mytrcinfo.coord_ = trckey.getCoord();
+	{
+	    const Bin2D b2d( provider_->geomID(), curbid.crl() );
+	    mytrcinfo.setPos( b2d );
+	    mytrcinfo.coord_ = b2d.coord();
+	}
+	else
+	{
+	    mytrcinfo.setPos( curbid );
+	    mytrcinfo.coord_ = curbid.coord();
+	}
 	curtrcinfo = &mytrcinfo;
     }
 

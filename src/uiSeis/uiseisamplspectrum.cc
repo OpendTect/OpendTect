@@ -24,7 +24,7 @@ void uiSeisAmplSpectrum::setDataPackID(
 	auto vdp = DPM(dmid).get<VolumeDataPack>( dpid );
 	if ( vdp )
 	{
-	    setup_.nyqvistspspace_ = vdp->getZRange().step;
+	    setup_.nyqvistspspace_ = vdp->zRange().step;
 	    setData( vdp->data(version) );
 	}
     }

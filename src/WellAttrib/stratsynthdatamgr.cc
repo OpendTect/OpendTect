@@ -1039,7 +1039,7 @@ bool doPrepare( int )
 	{
 	    SeisTrc* trc = new SeisTrc( nrsamps );
 	    auto& ti = trc->info();
-	    ti.trcKey() = TrcKey::getSynth( itrc*calceach_ + 1 );
+	    ti.setTrcKey( TrcKey::getSynth(itrc*calceach_+1) );
 	    ti.coord_.setUdf();
 	    ti.sampling_.start = zrg.start;
 	    ti.sampling_.step = zrg.step;
@@ -1388,7 +1388,7 @@ StratSynth::DataMgr::genPSPostProcDataSet( const GenParams& gp,
 	auto* trc = new SeisTrc( nrsamples );
 	auto& ti = trc->info();
 	ti.sampling_ = tsampling;
-	ti.trcKey() = TrcKey::getSynth( igath+1 );
+	ti.setTrcKey( TrcKey::getSynth(igath+1) );
 	for ( int isamp=0; isamp<nrsamples; isamp++ )
 	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );
 	tbuf->add( trc );

@@ -106,12 +106,11 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
     if ( dp )
     {
 	mDynamicCastGet(const SeisFlatDataPack*,seisdp,dp.ptr())
-	if ( seisdp && seisdp->nrTrcs() && seisdp->is2D() )
+	if ( seisdp && seisdp->nrPositions()>0 && seisdp->is2D() )
 	{
 	    const FlatPosData& pd = seisdp->posData();
 	    const IndexInfo ix = pd.indexInfo( true, selpt.x_ );
-	    const TrcKey trckey = seisdp->getTrcKey( ix.nearest_ );
-	    newloc.setTrcKey( trckey );
+	    newloc.setTrcKey( seisdp->path().get(ix.nearest_) );
 	}
     }
 
@@ -168,7 +167,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 		    continue;
 	    }
 	}
-	else if ( randfdp->getPath().indexOf(pl.trcKey())<0 )
+	else if ( randfdp->path().indexOf(pl.trcKey())<0 )
 	    continue;
 
 	vw2dlocids += psiter.ID();
@@ -327,7 +326,7 @@ void VW2DPickSet::draw()
 		const BinID bid = SI().transform( pos.getXY() );
 		const FlatPosData& flatposdata = randfdp->posData();
 		const TrcKey trckey( bid );
-		const int bidindex = randfdp->getPath().indexOf( trckey );
+		const int bidindex = randfdp->path().indexOf( trckey );
 		if ( bidindex<0 )
 		    continue;
 

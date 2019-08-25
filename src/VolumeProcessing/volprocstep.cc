@@ -8,12 +8,13 @@
 #include "volprocstep.h"
 
 #include "arrayndimpl.h"
-#include "seisdatapack.h"
-#include "posinfodetector.h"
-#include "volprocchain.h"
-#include "keystrs.h"
-#include "survgeom3d.h"
+#include "cubedata.h"
 #include "horsubsel.h"
+#include "keystrs.h"
+#include "posinfodetector.h"
+#include "seisdatapack.h"
+#include "survgeom3d.h"
+#include "volprocchain.h"
 
 
 mImplClassFactory( VolProc::Step, factory );
@@ -659,9 +660,13 @@ const PosInfo::CubeData* VolProc::Step::getPosSamplingOfNonNullTraces(
     if ( !input || !input->validComp(compidx) )
 	return 0;
 
+    PosInfo::CubeData* trcposns = nullptr;
+    if ( input->is2D() )
+	{ pErrMsg("Not prepared for 2D"); return nullptr; }
+    else
+	trcposns = (PosInfo::CubeData*)input->tracePositions();
     NullTracesArrayScanner scanner( input->data( compidx ),
-				    input->sampling().hsamp_,
-				    input->tracePositions() );
+				    input->sampling().hsamp_, trcposns );
     if ( !scanner.execute() || !scanner.getResult() )
 	return nullptr;
 

@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "seis2dlineio.h"
 #include "stratsynthexp.h"
 #include "synthseisdataset.h"
+#include "trckey.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom.h"
@@ -153,7 +154,7 @@ int StratSynthExporter::writePostStackTrace()
 	mErrRetPErr( "Cannot find the trace in the required position" )
 
     SeisTrc trc( *synthrc );
-    trc.info().trcKey() = TrcKey( setup_.geomid_, linepos.nr_ );
+    trc.info().setPos( Bin2D(setup_.geomid_,linepos.nr_) );
     trc.info().coord_ = linepos.coord_;
     prepTrc4Store( trc );
     errmsg_ = storer_->put( trc );
@@ -192,7 +193,7 @@ int StratSynthExporter::writePreStackTraces()
 	const float offset = gather.getOffset( offsidx );
 	PtrMan<SeisTrc> trc = gsdp.createTrace( posdone_, offsidx );
 	auto& ti = trc->info();
-	ti.trcKey() = TrcKey( setup_.geomid_, linepos.nr_ );
+	ti.setPos( Bin2D(setup_.geomid_,linepos.nr_) );
 	ti.coord_ = linepos.coord_;
 	ti.offset_ = offset;
 	prepTrc4Store( *trc );

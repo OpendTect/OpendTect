@@ -29,6 +29,8 @@ mExpClass(Seis) SeisVolumeDataPack : public VolumeDataPack
 {
 public:
 
+    mUseType( Pos,	GeomID );
+
     mDeclAbstractMonitorableAssignment(SeisVolumeDataPack);
 
     bool		isFullyCompat(const z_steprg_type&,
@@ -160,6 +162,7 @@ mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
 
+    mUseType( Pos,		GeomID );
     mUseType( VolumeDataPack,	comp_idx_type );
     mUseType( VolumeDataPack,	glob_size_type );
     mUseType( VolumeDataPack,	glob_idx_type );
@@ -177,6 +180,7 @@ public:
 				{ return *source_; }
     bool			is2D() const
 				{ return source_->is2D(); }
+    GeomID			geomID() const;
 
     virtual const TrcKeyPath&	path() const			= 0;
     void			getPath( TrcKeyPath& pth ) const

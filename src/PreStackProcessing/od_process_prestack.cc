@@ -6,6 +6,7 @@
 
 
 #include "batchprog.h"
+#include "cubedata.h"
 #include "envvars.h"
 #include "flatposdata.h"
 #include "ioobj.h"
@@ -13,7 +14,6 @@
 #include "jobcommunic.h"
 #include "moddepmgr.h"
 #include "progressmeterimpl.h"
-#include "posinfo.h"
 #include "posinfo2d.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
@@ -24,6 +24,7 @@
 #include "seistrc.h"
 #include "seistype.h"
 #include "survinfo.h"
+#include "trckey.h"
 #include "trckeysampling.h"
 #include "uistrings.h"
 
@@ -332,15 +333,15 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( reader2d )
 		{
-		    trc.info().trcKey() = TrcKey( Pos::GeomID(curbid.lineNr()),
-						 curbid.trcNr() );
+		    trc.info().setPos( Bin2D(Pos::GeomID(curbid.lineNr()),
+						 curbid.trcNr()) );
 		    PosInfo::Line2DPos linepos;
 		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )
 			trc.info().coord_ = linepos.coord_;
 		}
 		else
 		{
-		    trc.info().trcKey() = TrcKey( curbid );
+		    trc.info().setPos( curbid );
 		    trc.info().coord_ = SI().transform( curbid );
 		}
 

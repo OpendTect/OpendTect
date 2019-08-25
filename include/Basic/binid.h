@@ -42,6 +42,7 @@ public:
     inline BinID		operator/(int) const;
 
     inline static BinID		fromInt64(od_int64);
+    Coord			coord() const;
 
     inline const char*		toString(bool is2d=false) const;
     inline bool			fromString(const char*);

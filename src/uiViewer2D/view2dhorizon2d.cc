@@ -47,12 +47,9 @@ void Vw2DHorizon2D::setEditors()
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<RegularSeisFlatDataPack> regfdp = vwr.getPack( true, true );
 	if ( !regfdp || !regfdp->is2D() )
-	{
-	    horeds_ += 0;
-	    continue;
-	}
+	    { horeds_ += 0; continue; }
 	else
-	    geomid_ = regfdp->getTrcKey(0).geomID();
+	    geomid_ = regfdp->geomID();
 
 	MPE::HorizonFlatViewEditor2D* hored =
 	    new MPE::HorizonFlatViewEditor2D(
@@ -116,14 +113,14 @@ void Vw2DHorizon2D::draw()
 	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
-	horeds_[ivwr]->setGeomID( regfdp->getTrcKey(0).geomID() );
+	horeds_[ivwr]->setGeomID( regfdp->geomID() );
 
 	TypeSet<int>& trcnrs = horeds_[ivwr]->getPaintingCanvTrcNos();
 	TypeSet<float>& dists = horeds_[ivwr]->getPaintingCanDistances();
 	trcnrs.erase(); dists.erase();
-	for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
+	for ( int idx=0; idx<regfdp->nrPositions(); idx++ )
 	{
-	    trcnrs += regfdp->getTrcKey(idx).trcNr();
+	    trcnrs += regfdp->path().get(idx).trcNr();
 	    dists += mCast(float,regfdp->posData().position(true,idx));
 	}
 

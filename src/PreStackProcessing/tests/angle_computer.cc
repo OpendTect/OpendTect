@@ -14,6 +14,7 @@
 #include "dbkey.h"
 #include "prestackanglecomputer.h"
 #include "prestackgather.h"
+#include "trckey.h"
 #include "windowfunction.h"
 
 /*

@@ -14,14 +14,15 @@ ________________________________________________________________________
 #include "interpol1d.h"
 #include "binidvalue.h"
 #include "dbkey.h"
+#include "keystrs.h"
 #include "position.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellmanager.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
+#include "trckey.h"
 #include "zdomain.h"
-#include "keystrs.h"
 
 
 WellT2DTransform::WellT2DTransform()
