@@ -49,7 +49,6 @@ public:
 
     static bool		isPresent(GeomID);
     static void		getGeomIDs(GeomIDSet&);
-    static void		getLineCollData(LineCollData&);
     static const Geometry2D& get(const char* linenm);
     static const Geometry2D& get(GeomID);
     bool		isEmpty() const;

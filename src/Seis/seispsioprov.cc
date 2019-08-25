@@ -384,7 +384,8 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 
 bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
 {
-    if ( !posdata_.includes(bid.inl(),bid.crl()) ) return false;
+    if ( !posdata_.includes(bid) )
+	return false;
     curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg.step;
     return true;
 }
@@ -395,10 +396,10 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
     for ( int crl=curbinid_.crl()+pinfo_.crlrg.step; crl<=pinfo_.crlrg.stop;
 	    crl+=pinfo_.crlrg.step )
     {
-	if ( posdata_.includes(curbinid_.inl(),crl) )
+	const BinID bid( curbinid_.inl(), crl );
+	if ( posdata_.includes(bid) )
 	{
-	    BinID bid( curbinid_.inl(), crl );
-	    if ( !seldata_ || seldata_->isOK(BinID(curbinid_.inl(),crl)) )
+	    if ( !seldata_ || seldata_->isOK(bid) )
 		{ curbinid_.crl() = crl; return true; }
 	}
     }

@@ -10,7 +10,7 @@
 #include "cubesubsel.h"
 #include "od_istream.h"
 #include "oddirs.h"
-#include "posinfo.h"
+#include "cubedata.h"
 #include "survgeom2d.h"
 #include "survgeommgr.h"
 #include "survinfo.h"
@@ -22,7 +22,7 @@
 static bool testFillers()
 {
     mUseType( PosInfo, LineData );
-    mUseType( PosInfo, LineCollData );
+    mUseType( PosInfo, CubeData );
     mUseType( LineData, Segment );
     LineData ld_ref( 0 );
     LineData ld_fill( 0 );
@@ -42,7 +42,7 @@ static bool testFillers()
     ld_ref.segments_.add( Segment(40,38,-2) );
     mRunStandardTest( ld_fill==ld_ref, "LineDataFiller [2]" );
 
-    LineCollData lcd_ref, lcd_fill;
+    CubeData lcd_ref, lcd_fill;
     PosInfo::LineCollDataFiller lcdfiller( lcd_fill );
     mRunStandardTest( lcd_ref==lcd_fill, "LineCollDataFiller [0]" );
     lcdfiller.add( BinID(1,40) ).add( BinID(1,40) ).add( BinID(1,38) );

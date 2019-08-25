@@ -11,9 +11,9 @@ ________________________________________________________________________
 #include "seisproviderimpl.h"
 #include "seisfetcher.h"
 #include "cubesubsel.h"
+#include "cubedata.h"
 #include "iostrm.h"
 #include "file.h"
-#include "posinfo.h"
 #include "seispacketinfo.h"
 #include "seisrangeseldata.h"
 #include "seistrc.h"
@@ -108,9 +108,9 @@ void Seis::VolFetcher::getPossibleExtents()
 	for ( auto idx=0; idx<nrfiles; idx++ )
 	{
 	    const auto inl = fnrs.atIndex( idx );
-	    PosInfo::LineCollData linecd;
-	    if ( ensureRightTransl(inl) && trl_->getGeometryInfo(linecd) )
-		prov_.possiblepositions_.merge( linecd, true );
+	    PosInfo::CubeData cd;
+	    if ( ensureRightTransl(inl) && trl_->getGeometryInfo(cd) )
+		prov_.possiblepositions_.merge( cd, true );
 	}
     }
 

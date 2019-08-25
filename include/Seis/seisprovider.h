@@ -29,8 +29,12 @@ class SeisTrcInfo;
 class SeisTrcTranslator;
 class TraceData;
 class TrcKey;
-namespace PosInfo { class CubeData; class LineData; class LineCollData; }
 namespace Survey { class FullSubSel; }
+namespace PosInfo
+{
+    class CubeData; class LinesData;
+    class LineData; class LineCollData;
+}
 
 
 namespace Seis
@@ -299,12 +303,14 @@ mExpClass(Seis) Provider2D : public Provider
 public:
 
     mUseType( PosInfo,	LineData );
+    mUseType( PosInfo,	LinesData );
     mUseType( Bin2D,	trcnr_type );
 
     bool	is2D() const override	{ return true; }
 
     void	setStepout(trcnr_type); // use after setting seldata
 
+    const LinesData& possibleLinesData() const;
     bool	isPresent(GeomID) const;
     bool	isPresent(const Bin2D&) const;
     size_type	nrLines() const;

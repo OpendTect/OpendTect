@@ -128,8 +128,8 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 	auto* task = new ArrayUdfValReplacer<float>( out );
 	task->setReplacementValue( replval_ );
 	const auto* posns = output->tracePositions();
-	if ( posns )
-	    task->setPositions( *posns, outputtkzs.hsamp_ );
+	if ( posns && !posns->isLinesData() )
+	    task->setPositions( *posns->asCubeData(), outputtkzs.hsamp_ );
 	tasks->addTask( task );
     }
 

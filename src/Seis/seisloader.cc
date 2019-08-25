@@ -321,11 +321,9 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , ioobj_(ioobj.clone())
     , tkzs_(false)
     , dc_(OD::AutoDataRep)
-    , scaler_(0)
     , queueid_(Threads::WorkManager::cDefaultQueueID())
     , arrayfillererror_(false)
     , udftraceswritefinished_(true)
-    , trcposns_(*new LineCollData)
 {
     compscalers_.setNullAllowed( true );
     const SeisIOObjInfo info( ioobj );
@@ -373,7 +371,7 @@ Seis::Loader::~Loader()
     deepErase( compscalers_ );
     delete scaler_;
     delete seissummary_;
-    delete &trcposns_;
+    delete trcposns_;
 }
 
 
@@ -435,17 +433,17 @@ uiString Seis::Loader::nrDoneText() const
 bool Seis::Loader::setTracePositionsFromProv( const Provider& prov )
 {
     const TrcKeySampling& tks = tkzs_.hsamp_;
-    trcposns_ = prov.possiblePositions();
+    trcposns_ = prov.possiblePositions().clone();
     if ( is2d_ )
-	trcposns_.limitTo( LineHorSubSel(tks) );
+	trcposns_->limitTo( LineHorSubSel(tks) );
     else
-	trcposns_.limitTo( CubeHorSubSel(tks) );
+	trcposns_->limitTo( CubeHorSubSel(tks) );
 
-    totalnr_ = trcposns_.totalSize();
+    totalnr_ = trcposns_->totalSize();
     if ( dp_ )
     {
 	auto* scd = new PosInfo::SortedCubeData;
-	*scd = trcposns_;
+	*scd = *trcposns_;
 	dp_->setTracePositions( scd );
     }
 
@@ -508,15 +506,17 @@ void Seis::Loader::udfTracesWrittenCB( CallBacker* )
 
 void Seis::Loader::submitUdfWriterTasks()
 {
-    if ( trcposns_.totalSize() >= tkzs_.hsamp_.totalNr() )
+    if ( !trcposns_ || trcposns_->isLinesData() )
+	return;
+    if ( trcposns_->totalSize() >= tkzs_.hsamp_.totalNr() )
 	return;
 
     TaskGroup* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
 	udfwriters->addTask(
-	new Array3DUdfTrcRestorer<float>( trcposns_, tkzs_.hsamp_,
-					  dp_->data(idx) ) );
+	new Array3DUdfTrcRestorer<float>( *trcposns_->asCubeData(),
+					tkzs_.hsamp_, dp_->data(idx) ) );
     }
 
     CallBack cb = mCB( this, Seis::Loader, udfTracesWrittenCB );
@@ -621,10 +621,10 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 				       &dc_ );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
-	if ( !trcposns_.isEmpty() )
+	if ( trcposns_ && !trcposns_->isEmpty() )
 	{
 	    auto* scd = new PosInfo::SortedCubeData;
-	    *scd = trcposns_;
+	    *scd = *trcposns_;
 	    dp_->setTracePositions( scd );
 	}
 
@@ -655,7 +655,7 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
 				       int threadid )
 {
-    if ( !tks_.validIdx(threadid) || trcposns_.isEmpty() )
+    if ( !tks_.validIdx(threadid) || !trcposns_ || trcposns_->isEmpty() )
 	return false;
     const TrcKeySampling& tks = *tks_.get( threadid );
 
@@ -677,7 +677,7 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     if ( !seissummary.isOK() || !rawseq->isOK() )
 	{ delete rawseq; return false; }
 
-    PosInfo::CubeData cubedata( trcposns_ );
+    PosInfo::CubeData cubedata( *trcposns_ );
     cubedata.limitTo( CubeHorSubSel(tks) );
     PosInfo::CubeDataIterator trcsiterator( cubedata );
 
@@ -788,10 +788,10 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 				       &dc_ );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
-	if ( !trcposns_.isEmpty() )
+	if ( trcposns_ && !trcposns_->isEmpty() )
 	{
 	    auto* scd = new PosInfo::SortedCubeData;
-	    *scd = trcposns_;
+	    *scd = *trcposns_;
 	    dp_->setTracePositions( scd );
 	}
 
@@ -809,7 +809,7 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 
     submitUdfWriterTasks();
     trcnrs_.setEmpty();
-    LineCollDataIterator trcsiterator( trcposns_ );
+    LineCollDataIterator trcsiterator( *trcposns_ );
     while ( trcsiterator.next() )
 	trcnrs_.addIfNew( trcsiterator.trcNr() );
 
@@ -1010,7 +1010,7 @@ bool Seis::SequentialFSLoader::init()
     prov_->setSelData( new Seis::RangeSelData(seistkzs) );
     setTracePositionsFromProv( *prov_ );
     delete trcsiterator_;
-    trcsiterator_ = new PosInfo::LineCollDataIterator( trcposns_ );
+    trcsiterator_ = new PosInfo::LineCollDataIterator( *trcposns_ );
     nrdone_ = 0;
 
     samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );

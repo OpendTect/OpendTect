@@ -112,7 +112,7 @@ float Pos::SeisProvider3D::curZ() const
 
 bool Pos::SeisProvider3D::includes( const BinID& bid, float z ) const
 {
-    if ( !cubedata_.includes( bid.inl(), bid.crl() ) )
+    if ( !cubedata_.includes(bid) )
 	return false;
     if ( mIsUdf(z) )
 	return true;

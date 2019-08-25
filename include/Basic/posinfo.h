@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "bin2d.h"
 #include "od_iosfwd.h"
-class CubeHorSubSel;
+class TrcKey;
 namespace Survey { class HorSubSel; class FullSubSel; }
 
 
@@ -148,6 +148,7 @@ public:
 
 
 class CubeData;
+class LinesData;
 
 /*!\brief Position info for a collection of Line objects */
 
@@ -161,35 +162,36 @@ public:
     mUseType( LineData,	pos_rg_type );
     mUseType( LineData,	pos_steprg_type );
     mUseType( Survey,	FullSubSel );
-    mUseType( Pos,	GeomID );
     mUseType( Pos,	IdxPair );
     typedef od_int64	glob_idx_type;
     typedef od_int64	glob_size_type;
 
-			LineCollData()	{}
-			LineCollData( const LineCollData& oth )
-			    : ManagedObjectSet<LineData>()
-					{ *this = oth; }
-    virtual LineCollData* clone() const	{ return new LineCollData(*this); }
+    virtual LineCollData* clone() const		= 0;
     static LineCollData* create(const FullSubSel&);
-    virtual bool	isCubeData() const  { return false; }
-    CubeData*		asCubeData();
-    const CubeData*	asCubeData() const;
+
     virtual bool	isLineSorted() const; //!< checks ascending only
     LineCollData&	operator =( const LineCollData& oth )
 				{ copyContents(oth); return *this; }
     bool		operator ==(const LineCollData&) const;
 			mImplSimpleIneqOper(LineCollData)
 
+    virtual bool	isCubeData() const	= 0;
+    bool		isLinesData() const	{ return !isCubeData(); }
+    CubeData*		asCubeData();
+    const CubeData*	asCubeData() const;
+    LinesData*		asLinesData();
+    const LinesData*	asLinesData() const;
+
     glob_size_type	totalSize() const;
     glob_size_type	totalNrSegments() const;
 
     virtual idx_type	lineIndexOf(pos_type lnr,idx_type* newidx=0) const;
-    bool		includes( pos_type lnr ) const
+    bool		includesLine( pos_type lnr ) const
 			{ return lineIndexOf(lnr) >= 0; }
     bool		includes(pos_type lnr,pos_type trcnr) const;
     bool		includes(const BinID&) const;
     bool		includes(const Bin2D&) const;
+    bool		includes(const TrcKey&) const;
 
     bool		isValid(const LineCollDataPos&) const;
     bool		toNext(LineCollDataPos&) const;
@@ -197,9 +199,12 @@ public:
     bool		toNextLine(LineCollDataPos&) const;
     BinID		binID(const LineCollDataPos&) const;
     Bin2D		bin2D(const LineCollDataPos&) const;
+    pos_type		lineNr(const LineCollDataPos&) const;
     pos_type		trcNr(const LineCollDataPos&) const;
+    LineCollDataPos	lineCollPos(pos_type lnr,pos_type trcnr) const;
     LineCollDataPos	lineCollPos(const BinID&) const;
     LineCollDataPos	lineCollPos(const Bin2D&) const;
+    LineCollDataPos	lineCollPos(const TrcKey&) const;
 
     void		limitTo(const Survey::HorSubSel&);
     void		merge(const LineCollData&,bool incl);
@@ -210,6 +215,11 @@ public:
     bool		write(od_ostream&,bool asc) const;
 
 protected:
+
+			LineCollData()	{}
+			LineCollData( const LineCollData& oth )
+			    : ManagedObjectSet<LineData>()
+					{ *this = oth; }
 
     void		copyContents(const LineCollData&);
 

@@ -80,10 +80,10 @@ protected:
     TypeSet<int>	components_;
     ObjectSet<Scaler>	compscalers_; //Same size as components_
     TypeSet<int>	outcomponents_;
-    Scaler*		scaler_;
-    ObjectSummary*	seissummary_;
-    LineCollData&	trcposns_;
-    od_int64		totalnr_;
+    Scaler*		scaler_			= nullptr;
+    ObjectSummary*	seissummary_		= nullptr;
+    LineCollData*	trcposns_		= nullptr;
+    od_int64		totalnr_		= -1;
 
     int			queueid_;
 

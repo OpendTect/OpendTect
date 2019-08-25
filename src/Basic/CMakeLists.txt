@@ -56,7 +56,6 @@ set( OD_MODULE_SOURCES
 	commandlineparser.cc
 	coordsystem.cc
 	cubesampling.cc
-	cubedata.cc
 	dateinfo.cc
 	datapack.cc
 	dbkey.cc
@@ -79,6 +78,7 @@ set( OD_MODULE_SOURCES
 	initbasic.cc
 	latlong.cc
 	legal.cc
+	linecolldataimpl.cc
 	math2.cc
 	moddepmgr.cc
 	monitor.cc

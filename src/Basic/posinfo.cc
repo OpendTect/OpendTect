@@ -6,11 +6,14 @@
 
 
 #include "cubedata.h"
-#include "linesubsel.h"
+#include "linesdata.h"
 #include "cubesubsel.h"
+#include "linesubsel.h"
 #include "math2.h"
 #include "od_iostream.h"
+#include "trckey.h"
 
+mUseType( Pos, GeomID );
 mUseType( PosInfo::LineData, idx_type );
 mUseType( PosInfo::LineData, size_type );
 mUseType( PosInfo::LineData, pos_type );
@@ -260,43 +263,43 @@ bool PosInfo::LineData::toPrev( LineDataPos& ldp ) const
 }
 
 
-void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
+void PosInfo::LineData::merge( const PosInfo::LineData& oth, bool inc )
 {
     if ( segments_.isEmpty() )
     {
 	if ( inc )
-	    segments_ = ld1.segments_;
+	    segments_ = oth.segments_;
 	return;
     }
-    if ( ld1.segments_.isEmpty() )
+    if ( oth.segments_.isEmpty() )
     {
 	if ( !inc )
 	    segments_.erase();
 	return;
     }
 
-    const PosInfo::LineData ld2( *this );
+    const PosInfo::LineData cln( *this );
     segments_.erase();
 
-    pos_rg_type rg( ld1.range() ); rg.include( ld2.range() );
-    const auto defstep = ld1.segments_.isEmpty() ? ld2.segments_[0].step
-						 : ld1.segments_[0].step;
+    pos_rg_type rg( oth.range() ); rg.include( cln.range() );
+    const auto defstep = oth.segments_.isEmpty() ? cln.segments_[0].step
+						 : oth.segments_[0].step;
     if ( rg.start == rg.stop )
     {
 	segments_.add( Segment(rg.start,rg.start,defstep) );
 	return;
     }
-    else if ( ld1.segments_.size() == 1 && ld2.segments_.size() == 1 )
+    else if ( oth.segments_.size() == 1 && cln.segments_.size() == 1 )
     {
 	// Very common, can be done real fast
 	if ( inc )
 	    segments_.add( Segment(rg.start,rg.stop,defstep) );
 	else
 	{
-	    Segment seg( ld1.segments_[0] );
-	    const Segment& ld2seg = ld2.segments_[0];
-	    if ( ld2seg.start > seg.start ) seg.start = ld2seg.start;
-	    if ( ld2seg.stop < seg.stop ) seg.stop = ld2seg.stop;
+	    Segment seg( oth.segments_[0] );
+	    const Segment& clnseg = cln.segments_[0];
+	    if ( clnseg.start > seg.start ) seg.start = clnseg.start;
+	    if ( clnseg.stop < seg.stop ) seg.stop = clnseg.stop;
 	    if ( seg.stop >= seg.start )
 		segments_.add( seg );
 	}
@@ -307,12 +310,12 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
     Segment curseg( mUdf(pos_type), 0, mUdf(pos_type) );
     for ( pos_type nr=rg.start; nr<=rg.stop; nr++ )
     {
-	const bool in1 = ld1.segmentOf(nr) >= 0;
+	const bool in1 = oth.segmentOf(nr) >= 0;
 	bool use = true;
 	if ( (!in1 && !inc) || (in1 && inc ) )
 	    use = inc;
 	else
-	    use = ld2.segmentOf(nr) >= 0;
+	    use = cln.segmentOf(nr) >= 0;
 
 	if ( use )
 	{
@@ -385,7 +388,7 @@ PosInfo::LineCollData* PosInfo::LineCollData::create( const FullSubSel& fss )
     }
     else
     {
-	ret = new LineCollData;
+	ret = new LinesData;
 	const auto nrlines = fss.nrGeomIDs();
 	for ( auto iln=0; iln<nrlines; iln++ )
 	{
@@ -512,36 +515,39 @@ void PosInfo::LineCollData::limitTo( const Survey::HorSubSel& hss )
 }
 
 
-void PosInfo::LineCollData::merge( const LineCollData& lcd1, bool inc )
+void PosInfo::LineCollData::merge( const LineCollData& oth, bool inc )
 {
-    const LineCollData lcd2( *this );
+    const auto* myclone = clone();
     deepErase( *this );
 
-    for ( idx_type iln1=0; iln1<lcd1.size(); iln1++ )
+    for ( idx_type iothln=0; iothln<oth.size(); iothln++ )
     {
-	const LineData& ld1 = *lcd1[iln1];
-	const idx_type iln2 = lcd2.lineIndexOf( ld1.linenr_ );
-	if ( iln2 < 0 )
+	const LineData& ldoth = *oth.get( iothln );
+	const idx_type iclln = myclone->lineIndexOf( ldoth.linenr_ );
+	if ( iclln < 0 )
 	{
 	    if ( inc )
-		add( new LineData(ld1) );
+		add( new LineData(ldoth) );
 	    continue;
 	}
 
-	LineData* ld = new LineData( *lcd2[iln2] );
-	ld->merge( ld1, inc );
-	add( ld );
+	LineData* newld = new LineData( *myclone->get(iclln) );
+	newld->merge( ldoth, inc );
+	add( newld );
     }
-    if ( !inc )
-	return;
 
-    for ( idx_type iln2=0; iln2<lcd2.size(); iln2++ )
+    if ( inc )
     {
-	const LineData& ld2 = *lcd2[iln2];
-	const idx_type iln = lineIndexOf( ld2.linenr_ );
-	if ( iln < 0 )
-	    add( new LineData(ld2) );
+	for ( idx_type iclln=0; iclln<myclone->size(); iclln++ )
+	{
+	    const LineData& ld = *myclone->get( iclln );
+	    const idx_type iln = lineIndexOf( ld.linenr_ );
+	    if ( iln < 0 )
+		add( new LineData(ld) );
+	}
     }
+
+    delete myclone;
 }
 
 
@@ -562,7 +568,7 @@ void PosInfo::LineCollData::getFullSubSel( FullSubSel& fss, bool is2d ) const
     else
     {
 	fss.setToAll( false );
-	const CubeData cd( *this );
+	CubeData cd; cd.copyContents( *this );
 	pos_steprg_type inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getCrlRange( crlrg );
 	fss.cubeSubSel().inlSubSel().setInputPosRange( inlrg );
@@ -687,15 +693,11 @@ idx_type PosInfo::LineCollData::lineIndexOf( pos_type lnr,
 
 
 bool PosInfo::LineCollData::includes( const BinID& bid ) const
-{
-    return includes( bid.inl(), bid.crl() );
-}
-
-
+{ return includes( bid.inl(), bid.crl() ); }
 bool PosInfo::LineCollData::includes( const Bin2D& b2d ) const
-{
-    return includes( b2d.lineNr(), b2d.trcNr() );
-}
+{ return includes( b2d.lineNr(), b2d.trcNr() ); }
+bool PosInfo::LineCollData::includes( const TrcKey& tk ) const
+{ return includes( tk.lineNr(), tk.trcNr() ); }
 
 
 bool PosInfo::LineCollData::includes( pos_type lnr, pos_type tnr ) const
@@ -797,6 +799,13 @@ bool PosInfo::LineCollData::toPrev( LineCollDataPos& lcdp ) const
 
 
 PosInfo::LineCollData::pos_type
+PosInfo::LineCollData::lineNr( const LineCollDataPos& lcdp ) const
+{
+    return !isValid(lcdp) ? 0 : get(lcdp.lidx_)->linenr_;
+}
+
+
+PosInfo::LineCollData::pos_type
 PosInfo::LineCollData::trcNr( const LineCollDataPos& lcdp ) const
 {
     return !isValid(lcdp) ? 0
@@ -819,23 +828,23 @@ Bin2D PosInfo::LineCollData::bin2D( const LineCollDataPos& lcdp ) const
 }
 
 
-PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
-						const BinID& bid ) const
+PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos( pos_type lnr,
+							pos_type trcnr ) const
 {
     LineCollDataPos lcdp;
-    lcdp.lidx_ = lineIndexOf( bid.inl() );
+    lcdp.lidx_ = lineIndexOf( lnr );
     if ( lcdp.lidx_ < 0 )
 	return lcdp;
     const auto& segs( get(lcdp.lidx_)->segments_ );
     for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
     {
 	const auto& seg( segs[iseg] );
-	if ( seg.includes(bid.crl(),true) )
+	if ( seg.includes(trcnr,true) )
 	{
-	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
+	    if ( !seg.step || !((trcnr-seg.start) % seg.step) )
 	    {
 		lcdp.segnr_ = iseg;
-		lcdp.sidx_ = seg.getIndex( bid.crl() );
+		lcdp.sidx_ = seg.getIndex( trcnr );
 	    }
 	    break;
 	}
@@ -845,10 +854,14 @@ PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
 
 
 PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
+						const BinID& bid ) const
+{ return lineCollPos( bid.inl(), bid.crl() ); }
+PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
 						const Bin2D& b2d ) const
-{
-    return lineCollPos( BinID(b2d.idxPair()) );
-}
+{ return lineCollPos( b2d.lineNr(), b2d.trcNr() ); }
+PosInfo::LineCollDataPos PosInfo::LineCollData::lineCollPos(
+						const TrcKey& tk ) const
+{ return lineCollPos( tk.lineNr(), tk.trcNr() ); }
 
 
 PosInfo::LineDataFiller::LineDataFiller( LineData& ld )

@@ -1060,9 +1060,10 @@ public:
 
 typedef Pos::IdxPairDataSet::pos_type pos_type;
 typedef Pos::IdxPairDataSet::idx_type idx_type;
+mUseType( PosInfo, LineCollData );
 
 IdxPairDataSetFromLineCollData( IdxPairDataSet& ds,
-			    const PosInfo::LineCollData& lcd,
+			    const LineCollData& lcd,
 			    EntryCreatedFn crfn )
     : ds_( ds )
     , lcd_( lcd )
@@ -1072,10 +1073,10 @@ IdxPairDataSetFromLineCollData( IdxPairDataSet& ds,
     // threadsafe to add things as long as each line is separate
     for ( idx_type idx=0; idx<lcd.size(); idx++ )
     {
-	const PosInfo::LineData& line = *lcd_[idx];
-	const idx_type frst = line.linenr_;
-	if ( !line.segments_.isEmpty() )
-	    ds.add( IdxPair(frst,line.segments_[0].start) );
+	const auto& ld = *lcd_[idx];
+	const idx_type frst = ld.linenr_;
+	if ( !ld.segments_.isEmpty() )
+	    ds.add( IdxPair(frst,ld.segments_[0].start) );
     }
 }
 
@@ -1085,11 +1086,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( IdxPair::pos_type idx=(IdxPair::pos_type)start; idx<=stop; idx++ )
     {
-	const PosInfo::LineData& line = *lcd_[idx];
-	const pos_type frst = line.linenr_;
-	for ( int idy=0; idy<line.segments_.size(); idy++ )
+	const auto& ld = *lcd_[idx];
+	const pos_type frst = ld.linenr_;
+	for ( int idy=0; idy<ld.segments_.size(); idy++ )
 	{
-	    StepInterval<pos_type> crls = line.segments_[idy];
+	    StepInterval<pos_type> crls = ld.segments_[idy];
 	    if ( idy == 0 )
 		crls.start += crls.step; //We added first scnd in constructor
 	    for ( pos_type scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
@@ -1111,7 +1112,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 }
 
     IdxPairDataSet&	ds_;
-    PosInfo::LineCollData lcd_;
+    const LineCollData&	lcd_;
     EntryCreatedFn	crfn_;
 
 };

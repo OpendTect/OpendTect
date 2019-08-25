@@ -14,10 +14,11 @@ ________________________________________________________________________
 #include "seisfetcher.h"
 
 #include "binnedvalueset.h"
+#include "cubedata.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "cubedata.h"
+#include "linesdata.h"
 #include "posinfo2d.h"
 #include "scaler.h"
 #include "seisbuf.h"
@@ -123,7 +124,7 @@ DBKey Seis::Provider::dbKey( const IOPar& iop )
 
 
 Seis::Provider::Provider( bool is2d, bool fillposs )
-    : possiblepositions_(is2d ? *new LineCollData
+    : possiblepositions_(is2d ? *(LineCollData*)new PosInfo::LinesData
 			      : *(LineCollData*)new PosInfo::SortedCubeData)
 {
     if ( !is2d )
@@ -143,7 +144,7 @@ Seis::Provider::Provider( bool is2d, bool fillposs )
 	}
 
 	if ( fillposs )
-	    Survey::Geometry2D::getLineCollData( possiblepositions_ );
+	    ((PosInfo::LinesData*)(&possiblepositions_))->setToAllLines();
     }
 }
 
@@ -1019,11 +1020,17 @@ void Seis::Provider2D::setStepout( trcnr_type so )
 }
 
 
+const PosInfo::LinesData& Seis::Provider2D::possibleLinesData() const
+{
+    return (const LinesData&)possiblepositions_;
+}
+
+
 bool Seis::Provider2D::isPresent( GeomID gid ) const
 {
     const auto lnr = gid.lineNr();
     return selectedpositions_ ? selectedpositions_->hasFirst( lnr )
-			      : possiblepositions_.includes( lnr );
+			      : possiblepositions_.includesLine( lnr );
 }
 
 

@@ -64,7 +64,7 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
 		inl % step.inl() == 0;
     }
 
-    return cubedata.includes( inl );
+    return cubedata.includesLine( inl );
 }
 
 

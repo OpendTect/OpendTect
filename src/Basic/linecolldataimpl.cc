@@ -6,8 +6,30 @@
 
 #include "cubedata.h"
 #include "cubesubsel.h"
+#include "linesdata.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
+
+
+void PosInfo::LinesData::setTo( const GeomIDSet& gids )
+{
+    setEmpty();
+    for ( const auto gid : gids )
+    {
+	auto* ld = new PosInfo::LineData( gid.lineNr() );
+	Survey::Geometry2D::get( gid ).data().getSegments( *ld );
+	add( ld );
+    }
+}
+
+
+void PosInfo::LinesData::setToAllLines()
+{
+    GeomIDSet gids;
+    Survey::Geometry2D::getGeomIDs( gids );
+    setTo( gids );
+}
 
 
 PosInfo::CubeData::CubeData( pos_steprg_type inlrg, pos_steprg_type crlrg )

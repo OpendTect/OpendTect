@@ -573,20 +573,6 @@ void Survey::Geometry2D::getGeomIDs( GeomIDSet& gids )
 }
 
 
-void Survey::Geometry2D::getLineCollData( LineCollData& lcd )
-{
-    lcd.setEmpty();
-    GeomIDSet gids;
-    GM().list2D( gids );
-    for ( auto gid : gids )
-    {
-	auto* ld = new PosInfo::LineData( gid.lineNr() );
-	get( gid ).data().getSegments( *ld );
-	lcd.add( ld );
-    }
-}
-
-
 const Survey::Geometry2D& Survey::Geometry2D::get( GeomID geomid )
 {
     const auto* g2d = GM().get2DGeometry( geomid );
