@@ -1675,7 +1675,7 @@ float HorizonDisplay::maxDist() const
 
 
 visBase::HorizonSection* HorizonDisplay::getHorizonSection(
-	const EM::SectionID& sid )
+					const EM::SectionID& sid )
 {
     for ( int idx=0; idx<sids_.size(); idx++ )
     {
@@ -1683,7 +1683,14 @@ visBase::HorizonSection* HorizonDisplay::getHorizonSection(
 	    return sections_[idx];
     }
 
-    return 0;
+    return nullptr;
+}
+
+
+const visBase::HorizonSection* HorizonDisplay::getHorizonSection(
+					const EM::SectionID& sid ) const
+{
+    return const_cast<HorizonDisplay*>(this)->getHorizonSection( sid );
 }
 
 
