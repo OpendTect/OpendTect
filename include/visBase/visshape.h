@@ -17,7 +17,14 @@ ________________________________________________________________________
 #include "indexedshape.h"
 #include "draw.h"
 
-namespace osg { class Geometry; class Geode; class Switch; class PrimitiveSet; }
+namespace osg
+{
+    class Geode;
+    class Geometry;
+    class PrimitiveSet;
+    class StateAttribute;
+    class Switch;
+}
 
 namespace visBase
 {
@@ -139,6 +146,7 @@ public:
     void		setTextureChannels(TextureChannels*);
     const unsigned char*  getTextureData(int&,int&,int&) const;
     void		forceRedraw(bool=true);
+    void		setAttribAndMode(osg::StateAttribute*);
 
 protected:
     			VertexShape( Geometry::PrimitiveSet::PrimitiveType,

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/BlendFunc>
 #include <osg/CullFace>
 #include <osg/PrimitiveSet>
+#include <osg/StateAttribute>
 #include <osg/Switch>
 #include <osg/Geometry>
 #include <osg/Geode>
@@ -34,7 +35,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgUtil/SmoothingVisitor>
 #include <osgUtil/Optimizer>
 #include <osgUtil/CullVisitor>
-
 
 mCreateFactoryEntry( visBase::VertexShape );
 
@@ -391,6 +391,16 @@ void VertexShape::setCoordinates( Coordinates* coords )
 	    osggeom_->setVertexArray( mGetOsgVec3Arr( coords_->osgArray() ) );
     }
 
+}
+
+
+void VertexShape::setAttribAndMode( osg::StateAttribute* drawstyl )
+{
+    if ( !drawstyl || !osggeom_ )
+	return;
+
+    osggeom_->getOrCreateStateSet()->setAttributeAndModes( drawstyl,
+		    osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE );
 }
 
 

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/PolyLine>
 #include <osg/Node>
 #include <osg/Geode>
+#include <osg/LineStipple>
 
 mCreateFactoryEntry( visBase::PolyLine );
 mCreateFactoryEntry( visBase::PolyLine3D );
@@ -89,6 +90,8 @@ void PolyLine::setLineStyle( const OD::LineStyle& lst )
     drawstyle_->setLineStyle( lst );
     if ( getMaterial() )
 	getMaterial()->setColor( lst.color_ );
+
+    setAttribAndMode( drawstyle_->getLineStipple() );
     
     if ( lst.width_ == 0 )
 	turnOn( false );
