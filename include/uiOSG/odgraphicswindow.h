@@ -55,31 +55,46 @@ mExpClass(uiOSG) ODGLWidget : public QGLWidget
 
 public:
 
-    ODGLWidget(QWidget* parent=NULL,const QGLWidget* shareWidget=NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
-    ODGLWidget(QGLContext* context, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
-    ODGLWidget(const QGLFormat& format, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0, bool forwardKeyEvents = false );
-    virtual ~ODGLWidget();
+				ODGLWidget(QWidget* parent=nullptr,
+					   const QGLWidget* shareWidget=nullptr,
+					   Qt::WindowFlags f=0,
+					   bool forwardKeyEvents=false);
+				ODGLWidget(QGLContext* context,
+					   QWidget* parent=nullptr,
+					   const QGLWidget* shareWidget=nullptr,
+					   Qt::WindowFlags f=0,
+					   bool forwardKeyEvents=false);
+				ODGLWidget(const QGLFormat& format,
+					   QWidget* parent=nullptr,
+					   const QGLWidget* shareWidget=nullptr,
+					   Qt::WindowFlags f=0,
+					   bool forwardKeyEvents=false);
+    virtual			~ODGLWidget();
 
-    inline void setGraphicsWindow( ODGraphicsWindow* gw ) { _gw = gw; }
-    inline ODGraphicsWindow* getGraphicsWindow() { return _gw; }
-    inline const ODGraphicsWindow* getGraphicsWindow() const { return _gw; }
+    inline void			setGraphicsWindow( ODGraphicsWindow* gw )
+				{ _gw = gw; }
+    inline ODGraphicsWindow*	getGraphicsWindow()		{ return _gw; }
+    inline const ODGraphicsWindow* getGraphicsWindow() const	{ return _gw; }
 
-    inline bool getForwardKeyEvents() const { return _forwardKeyEvents; }
-    virtual void setForwardKeyEvents( bool f ) { _forwardKeyEvents = f; }
+    inline bool			getForwardKeyEvents() const
+				{ return _forwardKeyEvents; }
+    virtual void		setForwardKeyEvents( bool yn )
+				{ _forwardKeyEvents = yn; }
 
-    inline bool getTouchEventsEnabled() const { return _touchEventsEnabled; }
-    void setTouchEventsEnabled( bool e );
+    inline bool			getTouchEventsEnabled() const
+				{ return _touchEventsEnabled; }
+    void			setTouchEventsEnabled(bool yn);
 
-    void setKeyboardModifiers( QInputEvent* event );
+    void			setKeyboardModifiers(QInputEvent*);
 
-    virtual void keyPressEvent( QKeyEvent* event );
-    virtual void keyReleaseEvent( QKeyEvent* event );
-    virtual void mousePressEvent( QMouseEvent* event );
-    virtual void mouseReleaseEvent( QMouseEvent* event );
-    virtual void mouseDoubleClickEvent( QMouseEvent* event );
-    virtual void mouseMoveEvent( QMouseEvent* event );
-    virtual void wheelEvent( QWheelEvent* event );
-    virtual bool gestureEvent( QGestureEvent* event );
+    virtual void		keyPressEvent(QKeyEvent*);
+    virtual void		keyReleaseEvent(QKeyEvent*);
+    virtual void		mousePressEvent(QMouseEvent*);
+    virtual void		mouseReleaseEvent(QMouseEvent*);
+    virtual void		mouseDoubleClickEvent(QMouseEvent*);
+    virtual void		mouseMoveEvent(QMouseEvent*);
+    virtual void		wheelEvent(QWheelEvent*);
+    virtual bool		gestureEvent(QGestureEvent*);
 
 protected:
 
@@ -88,7 +103,8 @@ protected:
 	QMutexLocker lock(&_deferredEventQueueMutex);
 	return _deferredEventQueue.count();
     }
-    void enqueueDeferredEvent(QEvent::Type eventType, QEvent::Type removeEventType = QEvent::None)
+    void enqueueDeferredEvent( QEvent::Type eventType,
+			       QEvent::Type removeEventType = QEvent::None )
     {
 	QMutexLocker lock(&_deferredEventQueueMutex);
 
@@ -107,82 +123,90 @@ protected:
     void processDeferredEvents();
 
     friend class ODGraphicsWindow;
-    ODGraphicsWindow* _gw;
+    ODGraphicsWindow*		_gw;
 
-    QMutex _deferredEventQueueMutex;
-    QQueue<QEvent::Type> _deferredEventQueue;
-    QSet<QEvent::Type> _eventCompressor;
+    QMutex			_deferredEventQueueMutex;
+    QQueue<QEvent::Type>	_deferredEventQueue;
+    QSet<QEvent::Type>		_eventCompressor;
 
-    bool _touchEventsEnabled;
+    bool			_touchEventsEnabled;
 
-    bool _forwardKeyEvents;
-    qreal _devicePixelRatio;
+    bool			_forwardKeyEvents;
+    qreal			_devicePixelRatio;
 
-    virtual void resizeEvent( QResizeEvent* event );
-    virtual void moveEvent( QMoveEvent* event );
-    virtual void glDraw();
-    virtual bool event( QEvent* event );
+    virtual void		resizeEvent(QResizeEvent*);
+    virtual void		moveEvent(QMoveEvent*);
+    virtual void		glDraw();
+    virtual bool		event(QEvent*);
 };
+
 
 mExpClass(uiOSG) ODGraphicsWindow : public osgViewer::GraphicsWindow
 {
 public:
-    ODGraphicsWindow( osg::GraphicsContext::Traits* traits, QWidget* parent = NULL, const QGLWidget* shareWidget = NULL, Qt::WindowFlags f = 0 );
-    ODGraphicsWindow( ODGLWidget* widget );
-    virtual ~ODGraphicsWindow();
+				ODGraphicsWindow(osg::GraphicsContext::Traits*,
+						 QWidget* parent=nullptr,
+						 const QGLWidget* shareWidget=0,
+						 Qt::WindowFlags f=0);
+				ODGraphicsWindow(ODGLWidget* widget);
+    virtual			~ODGraphicsWindow();
 
-    inline ODGLWidget* getGLWidget() { return _widget; }
-    inline const ODGLWidget* getGLWidget() const { return _widget; }
-
-    /// deprecated
-    inline ODGLWidget* getGraphWidget() { return _widget; }
-    /// deprecated
-    inline const ODGLWidget* getGraphWidget() const { return _widget; }
+    inline ODGLWidget*		getGLWidget()		{ return _widget; }
+    inline const ODGLWidget*	getGLWidget() const	{ return _widget; }
 
     struct WindowData : public osg::Referenced
     {
-	WindowData( ODGLWidget* widget = NULL, QWidget* parent = NULL ): _widget(widget), _parent(parent) {}
+	WindowData( ODGLWidget* widget = nullptr, QWidget* parent = nullptr )
+	    : _widget(widget), _parent(parent) {}
+
 	ODGLWidget* _widget;
 	QWidget* _parent;
     };
 
-    bool init( QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f );
+    bool			init(QWidget* parent,
+				     const QGLWidget* shareWidget,
+				     Qt::WindowFlags f );
 
-    static QGLFormat traits2qglFormat( const osg::GraphicsContext::Traits* traits );
-    static void qglFormat2traits( const QGLFormat& format, osg::GraphicsContext::Traits* traits );
-    static osg::GraphicsContext::Traits* createTraits( const QGLWidget* widget );
+    static QGLFormat		traits2qglFormat(
+					const osg::GraphicsContext::Traits*);
+    static void			qglFormat2traits(const QGLFormat& format,
+						 osg::GraphicsContext::Traits*);
+    static osg::GraphicsContext::Traits* createTraits(const QGLWidget* widget);
 
-    virtual bool setWindowRectangleImplementation( int x, int y, int width, int height );
-    virtual void getWindowRectangle( int& x, int& y, int& width, int& height );
-    virtual bool setWindowDecorationImplementation( bool windowDecoration );
-    virtual bool getWindowDecoration() const;
-    virtual void grabFocus();
-    virtual void grabFocusIfPointerInWindow();
-    virtual void raiseWindow();
-    virtual void setWindowName( const std::string& name );
-    virtual std::string getWindowName();
-    virtual void useCursor( bool cursorOn );
-    virtual void setCursor( MouseCursor cursor );
-    inline bool getTouchEventsEnabled() const { return _widget->getTouchEventsEnabled(); }
-    virtual void setTouchEventsEnabled( bool e ) { _widget->setTouchEventsEnabled(e); }
+    virtual bool		setWindowRectangleImplementation(int x,int y,
+							int width,int height);
+    virtual void		getWindowRectangle(int& x,int& y,int& width,
+						   int& height);
+    virtual bool		setWindowDecorationImplementation(bool yn);
+    virtual bool		getWindowDecoration() const;
+    virtual void		grabFocus();
+    virtual void		grabFocusIfPointerInWindow();
+    virtual void		raiseWindow();
+    virtual void		setWindowName(const std::string&);
+    virtual std::string		getWindowName();
+    virtual void		useCursor(bool cursoron);
+    virtual void		setCursor(MouseCursor);
+    inline bool			getTouchEventsEnabled() const
+				{ return _widget->getTouchEventsEnabled(); }
+    virtual void		setTouchEventsEnabled( bool yn )
+				{ _widget->setTouchEventsEnabled(yn); }
 
+    virtual bool		valid() const;
+    virtual bool		realizeImplementation();
+    virtual bool		isRealizedImplementation() const;
+    virtual void		closeImplementation();
+    virtual bool		makeCurrentImplementation();
+    virtual bool		releaseContextImplementation();
+    virtual void		swapBuffersImplementation();
+    virtual void		runOperations();
 
-    virtual bool valid() const;
-    virtual bool realizeImplementation();
-    virtual bool isRealizedImplementation() const;
-    virtual void closeImplementation();
-    virtual bool makeCurrentImplementation();
-    virtual bool releaseContextImplementation();
-    virtual void swapBuffersImplementation();
-    virtual void runOperations();
-
-    virtual void requestWarpPointer( float x, float y );
+    virtual void		requestWarpPointer(float x,float y);
 
 protected:
 
-    friend class ODGLWidget;
-    ODGLWidget* _widget;
-    bool _ownsWidget;
-    QCursor _currentCursor;
-    bool _realized;
+    friend class	ODGLWidget;
+    ODGLWidget*		_widget;
+    bool		_ownsWidget;
+    QCursor		_currentCursor;
+    bool		_realized;
 };

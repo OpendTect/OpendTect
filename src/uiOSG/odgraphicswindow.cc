@@ -89,7 +89,7 @@ public:
 	//mKeyMap[84] = osgGA::GUIEventAdapter::KEY_KP_Down;
 	//mKeyMap[85] = osgGA::GUIEventAdapter::KEY_KP_Page_Down;
 	mKeyMap[Qt::Key_Insert] = osgGA::GUIEventAdapter::KEY_KP_Insert;
-	//mKeyMap[Qt::Key_Delete        ] = osgGA::GUIEventAdapter::KEY_KP_Delete;
+	//mKeyMap[Qt::Key_Delete] = osgGA::GUIEventAdapter::KEY_KP_Delete;
     }
 
     ~QtKeyboardMap()
@@ -143,34 +143,40 @@ QPointer<HeartBeat> HeartBeat::heartBeat;
     #define GETDEVICEPIXELRATIO() devicePixelRatio()
 #endif
 
-ODGLWidget::ODGLWidget( QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f, bool forwardKeyEvents )
-: QGLWidget(parent, shareWidget, f),
-_gw( NULL ),
-_touchEventsEnabled( false ),
-_forwardKeyEvents( forwardKeyEvents )
+ODGLWidget::ODGLWidget( QWidget* parent, const QGLWidget* sharewidget,
+			Qt::WindowFlags f, bool forwardkeyevents )
+    : QGLWidget(parent,sharewidget,f)
+    , _gw(NULL)
+    , _touchEventsEnabled(false)
+    , _forwardKeyEvents( forwardkeyevents )
 {
     _devicePixelRatio = GETDEVICEPIXELRATIO();
 }
 
-ODGLWidget::ODGLWidget( QGLContext* context, QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f,
-		    bool forwardKeyEvents )
-: QGLWidget(context, parent, shareWidget, f),
-_gw( NULL ),
-_touchEventsEnabled( false ),
-_forwardKeyEvents( forwardKeyEvents )
+
+ODGLWidget::ODGLWidget( QGLContext* context, QWidget* parent,
+			const QGLWidget* shareWidget, Qt::WindowFlags f,
+			bool forwardKeyEvents )
+    : QGLWidget(context,parent,shareWidget,f)
+    , _gw(NULL)
+    , _touchEventsEnabled(false)
+    , _forwardKeyEvents(forwardKeyEvents)
 {
     _devicePixelRatio = GETDEVICEPIXELRATIO();
 }
 
-ODGLWidget::ODGLWidget( const QGLFormat& format, QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f,
-		    bool forwardKeyEvents )
-: QGLWidget(format, parent, shareWidget, f),
-_gw( NULL ),
-_touchEventsEnabled( false ),
-_forwardKeyEvents( forwardKeyEvents )
+
+ODGLWidget::ODGLWidget( const QGLFormat& format, QWidget* parent,
+			const QGLWidget* shareWidget, Qt::WindowFlags f,
+			bool forwardKeyEvents )
+    : QGLWidget(format,parent,shareWidget,f)
+    , _gw(NULL)
+    , _touchEventsEnabled(false)
+    , _forwardKeyEvents(forwardKeyEvents)
 {
     _devicePixelRatio = GETDEVICEPIXELRATIO();
 }
+
 
 ODGLWidget::~ODGLWidget()
 {
@@ -183,7 +189,8 @@ ODGLWidget::~ODGLWidget()
     }
 }
 
-void ODGLWidget::setTouchEventsEnabled(bool e)
+
+void ODGLWidget::setTouchEventsEnabled( bool e )
 {
 #ifdef USE_GESTURES
     if (e==_touchEventsEnabled)
@@ -202,6 +209,7 @@ void ODGLWidget::setTouchEventsEnabled(bool e)
 #endif
 }
 
+
 void ODGLWidget::processDeferredEvents()
 {
     QQueue<QEvent::Type> deferredEventQueueCopy;
@@ -218,6 +226,7 @@ void ODGLWidget::processDeferredEvents()
 	QGLWidget::event(&event);
     }
 }
+
 
 bool ODGLWidget::event( QEvent* event )
 {
@@ -271,15 +280,21 @@ bool ODGLWidget::event( QEvent* event )
     return QGLWidget::event( event );
 }
 
+
 void ODGLWidget::setKeyboardModifiers( QInputEvent* event )
 {
-    int modkey = event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+    int modkey = event->modifiers() &
+		 (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
     unsigned int mask = 0;
-    if ( modkey & Qt::ShiftModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
-    if ( modkey & Qt::ControlModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-    if ( modkey & Qt::AltModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    if ( modkey & Qt::ShiftModifier )
+	mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( modkey & Qt::ControlModifier )
+	mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    if ( modkey & Qt::AltModifier )
+	mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
     _gw->getEventQueue()->getCurrentEventState()->setModKeyMask( mask );
 }
+
 
 void ODGLWidget::resizeEvent( QResizeEvent* event )
 {
@@ -293,6 +308,7 @@ void ODGLWidget::resizeEvent( QResizeEvent* event )
     _gw->requestRedraw();
 }
 
+
 void ODGLWidget::moveEvent( QMoveEvent* event )
 {
     if (_gw == NULL || !_gw->valid())
@@ -304,10 +320,12 @@ void ODGLWidget::moveEvent( QMoveEvent* event )
     _gw->getEventQueue()->windowResize( pos.x(), pos.y(), scaled_width,  scaled_height );
 }
 
+
 void ODGLWidget::glDraw()
 {
     _gw->requestRedraw();
 }
+
 
 void ODGLWidget::keyPressEvent( QKeyEvent* event )
 {
@@ -320,6 +338,7 @@ void ODGLWidget::keyPressEvent( QKeyEvent* event )
     if( _forwardKeyEvents )
 	inherited::keyPressEvent( event );
 }
+
 
 void ODGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
@@ -340,6 +359,7 @@ void ODGLWidget::keyReleaseEvent( QKeyEvent* event )
 	inherited::keyReleaseEvent( event );
 }
 
+
 void ODGLWidget::mousePressEvent( QMouseEvent* event )
 {
     int button = 0;
@@ -354,6 +374,7 @@ void ODGLWidget::mousePressEvent( QMouseEvent* event )
     setKeyboardModifiers( event );
     _gw->getEventQueue()->mouseButtonPress( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio, button );
 }
+
 
 void ODGLWidget::mouseReleaseEvent( QMouseEvent* event )
 {
@@ -370,6 +391,7 @@ void ODGLWidget::mouseReleaseEvent( QMouseEvent* event )
     _gw->getEventQueue()->mouseButtonRelease( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio, button );
 }
 
+
 void ODGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
 {
     int button = 0;
@@ -385,11 +407,13 @@ void ODGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
     _gw->getEventQueue()->mouseDoubleButtonPress( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio, button );
 }
 
+
 void ODGLWidget::mouseMoveEvent( QMouseEvent* event )
 {
     setKeyboardModifiers( event );
     _gw->getEventQueue()->mouseMotion( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio );
 }
+
 
 void ODGLWidget::wheelEvent( QWheelEvent* event )
 {
@@ -399,6 +423,7 @@ void ODGLWidget::wheelEvent( QWheelEvent* event )
 	    (event->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN) :
 	    (event->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
+
 
 #ifdef USE_GESTURES
 static osgGA::GUIEventAdapter::TouchPhase translateQtGestureState( Qt::GestureState state )
@@ -490,6 +515,7 @@ ODGraphicsWindow::ODGraphicsWindow( osg::GraphicsContext::Traits* traits, QWidge
     init( parent, shareWidget, f );
 }
 
+
 ODGraphicsWindow::ODGraphicsWindow( ODGLWidget* widget )
 :   _realized(false)
 {
@@ -497,6 +523,7 @@ ODGraphicsWindow::ODGraphicsWindow( ODGLWidget* widget )
     _traits = _widget ? createTraits( _widget ) : new osg::GraphicsContext::Traits;
     init( NULL, NULL, 0 );
 }
+
 
 ODGraphicsWindow::~ODGraphicsWindow()
 {
@@ -506,6 +533,7 @@ ODGraphicsWindow::~ODGraphicsWindow()
     if ( _widget )
 	_widget->_gw = NULL;
 }
+
 
 bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f )
 {
@@ -578,6 +606,7 @@ bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::
     return true;
 }
 
+
 QGLFormat ODGraphicsWindow::traits2qglFormat( const osg::GraphicsContext::Traits* traits )
 {
     QGLFormat format( QGLFormat::defaultFormat() );
@@ -601,6 +630,7 @@ QGLFormat ODGraphicsWindow::traits2qglFormat( const osg::GraphicsContext::Traits
     return format;
 }
 
+
 void ODGraphicsWindow::qglFormat2traits( const QGLFormat& format, osg::GraphicsContext::Traits* traits )
 {
     traits->red = format.redBufferSize();
@@ -618,6 +648,7 @@ void ODGraphicsWindow::qglFormat2traits( const QGLFormat& format, osg::GraphicsC
 
     traits->vsync = format.swapInterval() >= 1;
 }
+
 
 osg::GraphicsContext::Traits* ODGraphicsWindow::createTraits( const QGLWidget* widget )
 {
@@ -643,6 +674,7 @@ osg::GraphicsContext::Traits* ODGraphicsWindow::createTraits( const QGLWidget* w
     return traits;
 }
 
+
 bool ODGraphicsWindow::setWindowRectangleImplementation( int x, int y, int width, int height )
 {
     if ( _widget == NULL )
@@ -651,6 +683,7 @@ bool ODGraphicsWindow::setWindowRectangleImplementation( int x, int y, int width
     _widget->setGeometry( x, y, width, height );
     return true;
 }
+
 
 void ODGraphicsWindow::getWindowRectangle( int& x, int& y, int& width, int& height )
 {
@@ -663,6 +696,7 @@ void ODGraphicsWindow::getWindowRectangle( int& x, int& y, int& width, int& heig
 	height = geom.height();
     }
 }
+
 
 bool ODGraphicsWindow::setWindowDecorationImplementation( bool windowDecoration )
 {
@@ -681,16 +715,19 @@ bool ODGraphicsWindow::setWindowDecorationImplementation( bool windowDecoration 
     return false;
 }
 
+
 bool ODGraphicsWindow::getWindowDecoration() const
 {
     return _traits->windowDecoration;
 }
+
 
 void ODGraphicsWindow::grabFocus()
 {
     if ( _widget )
 	_widget->setFocus( Qt::ActiveWindowFocusReason );
 }
+
 
 void ODGraphicsWindow::grabFocusIfPointerInWindow()
 {
@@ -704,16 +741,19 @@ void ODGraphicsWindow::raiseWindow()
 	_widget->raise();
 }
 
+
 void ODGraphicsWindow::setWindowName( const std::string& name )
 {
     if ( _widget )
 	_widget->setWindowTitle( name.c_str() );
 }
 
+
 std::string ODGraphicsWindow::getWindowName()
 {
     return _widget ? _widget->windowTitle().toStdString() : "";
 }
+
 
 void ODGraphicsWindow::useCursor( bool cursorOn )
 {
@@ -724,6 +764,7 @@ void ODGraphicsWindow::useCursor( bool cursorOn )
 	else _widget->setCursor( _currentCursor );
     }
 }
+
 
 void ODGraphicsWindow::setCursor( MouseCursor cursor )
 {
@@ -758,10 +799,12 @@ void ODGraphicsWindow::setCursor( MouseCursor cursor )
     if ( _widget ) _widget->setCursor( _currentCursor );
 }
 
+
 bool ODGraphicsWindow::valid() const
 {
     return _widget && _widget->isValid();
 }
+
 
 bool ODGraphicsWindow::realizeImplementation()
 {
@@ -806,10 +849,12 @@ bool ODGraphicsWindow::realizeImplementation()
     return true;
 }
 
+
 bool ODGraphicsWindow::isRealizedImplementation() const
 {
     return _realized;
 }
+
 
 void ODGraphicsWindow::closeImplementation()
 {
@@ -817,6 +862,7 @@ void ODGraphicsWindow::closeImplementation()
 	_widget->close();
     _realized = false;
 }
+
 
 void ODGraphicsWindow::runOperations()
 {
@@ -831,6 +877,7 @@ void ODGraphicsWindow::runOperations()
     GraphicsWindow::runOperations();
 }
 
+
 bool ODGraphicsWindow::makeCurrentImplementation()
 {
     if (_widget->getNumDeferredEvents() > 0)
@@ -841,11 +888,13 @@ bool ODGraphicsWindow::makeCurrentImplementation()
     return true;
 }
 
+
 bool ODGraphicsWindow::releaseContextImplementation()
 {
     _widget->doneCurrent();
     return true;
 }
+
 
 void ODGraphicsWindow::swapBuffersImplementation()
 {
@@ -862,11 +911,13 @@ void ODGraphicsWindow::swapBuffersImplementation()
     _widget->swapBuffers();
 }
 
+
 void ODGraphicsWindow::requestWarpPointer( float x, float y )
 {
     if ( _widget )
 	QCursor::setPos( _widget->mapToGlobal(QPoint((int)x,(int)y)) );
 }
+
 
 class QtWindowingSystem : public osg::GraphicsContext::WindowingSystemInterface
 {
@@ -987,6 +1038,7 @@ HeartBeat* HeartBeat::instance()
     }
     return heartBeat;
 }
+
 
 void HeartBeat::stopTimer()
 {
