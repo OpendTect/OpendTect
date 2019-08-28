@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "survsubsel.h"
 #include "manobjectset.h"
 class Bin2D;
+class CubeSubSel;
 class HorSampling;
 class LineSubSel;
 namespace Survey { class Geometry; class Geometry2D; class Geometry3D; }
@@ -144,6 +145,7 @@ public:
 			CubeHorSubSel(const pos_steprg_type&,
 				      const pos_steprg_type&);
 			CubeHorSubSel(const BinID&);
+			CubeHorSubSel(const CubeSubSel&);
 			CubeHorSubSel(const TrcKeySampling&);
 
     bool		is2D() const override	   { return false; }

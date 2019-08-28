@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "survinfo.h"
 #include "survgeom.h"
-#include "survsubsel.h"
+#include "fullsubsel.h"
 #include "keystrs.h"
 
 #include <limits.h>

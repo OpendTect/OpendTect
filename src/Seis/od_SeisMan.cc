@@ -486,18 +486,18 @@ void SeisServerTool::setReadRange()
     auto* rsd = is2d ? new Seis::RangeSelData( geomid_ )
 		     : new Seis::RangeSelData;
 
+    auto& fss = rsd->fullSubSel();
     if ( is2d )
     {
-	auto& lss = rsd->lineSubSel( 0 );
 	const auto trcrg = posRgFromCL( 0, "Trace Number" );
-	lss.lineHorSubSel().setTrcNrRange( trcrg );
+	fss.setTrcNrRange( trcrg );
     }
     else
     {
-	auto& css = rsd->cubeSubSel();
 	const auto inlrg = posRgFromCL( 0, "Inline" );
+	fss.setInlRange( inlrg );
 	const auto crlrg = posRgFromCL( 3, "Crossline" );
-	css.setInlRange( inlrg ); css.setCrlRange( crlrg );
+	fss.setCrlRange( crlrg );
     }
     const auto zrg = zRgFromCL( is2d ? 3 : 6 );
     rsd->zSubSel().setOutputZRange( zrg );

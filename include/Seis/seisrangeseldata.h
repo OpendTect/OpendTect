@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisseldata.h"
-#include "survsubsel.h"
+#include "fullsubsel.h"
 
 namespace Seis
 {
@@ -27,7 +27,9 @@ public:
 
     mUseType( Pos,	ZSubSel );
     mUseType( Survey,	GeomSubSel );
+    mUseType( Survey,	HorSubSel );
     mUseType( Survey,	FullSubSel );
+    mUseType( ZSubSel,	z_steprg_type );
 
 			RangeSelData()		    {} //3D, all
 			RangeSelData(GeomID);
@@ -61,6 +63,7 @@ public:
     pos_rg_type		crlRange() const override;
     pos_rg_type		trcNrRange(idx_type iln=0) const override;
     z_rg_type		zRange(idx_type i=0) const override;
+    z_steprg_type	zRangeFor(GeomID) const;
 
     void		setInlRange(const pos_rg_type&);
     void		setCrlRange(const pos_rg_type&);
@@ -80,20 +83,11 @@ public:
     size_type		expectedNrTraces() const override;
     FullSubSel&		fullSubSel()		{ return fss_; }
     const FullSubSel&	fullSubSel() const	{ return fss_; }
-    GeomSubSel&		geomSubSel(idx_type i=0);
-    const GeomSubSel&	geomSubSel(idx_type i=0) const;
-    CubeSubSel&		cubeSubSel()		{ return fss_.cubeSubSel();}
-    const CubeSubSel&	cubeSubSel() const	{ return fss_.cubeSubSel();}
-    LineSubSel&		lineSubSel(idx_type);
-    const LineSubSel&	lineSubSel(idx_type) const;
-    CubeSubSel&		subSel3D()		{ return fss_.subSel3D(); }
-    const CubeSubSel&	subSel3D() const	{ return fss_.subSel3D(); }
-    LineSubSelSet&	subSel2D()		{ return fss_.subSel2D(); }
-    const LineSubSelSet& subSel2D() const	{ return fss_.subSel2D(); }
-    ZSubSel&		zSubSel()		{ return fss_.zSubSel(); }
-    const ZSubSel&	zSubSel() const		{ return fss_.zSubSel(); }
-    bool		hasFullZRange() const;
-    const LineSubSel*	findLineSubSel(GeomID) const;
+    HorSubSel&		horSubSel( int iln=0 )	{ return fss_.horSubSel(iln); }
+    const HorSubSel&	horSubSel( int iln=0 ) const
+			{ return fss_.horSubSel(iln); }
+    ZSubSel&		zSubSel( int iln=0 )	{ return fss_.zSubSel(iln); }
+    const ZSubSel&	zSubSel( int iln=0 ) const { return fss_.zSubSel(iln); }
     void		merge(const RangeSelData&);
 
     void		set(const CubeSubSel&);
@@ -147,7 +141,7 @@ public:
 
 protected:
 
-    Survey::FullSubSelPosIter	iter_;
+    Survey::SubSelPosIter	iter_;
 
 };
 

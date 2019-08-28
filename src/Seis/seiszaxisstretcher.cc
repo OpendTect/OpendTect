@@ -385,23 +385,31 @@ bool SeisZAxisStretcher::ensureTransformSet( const TrcKey& tk )
 	const Pos::GeomID geomid( tk.geomID() );
 	if ( curlhss_ && curlhss_->geomID() == geomid )
 	    return true;
-	const LineSubSel fulllss( geomid );
-	const auto* uselss = seldata ? seldata->findLineSubSel( geomid )
-				     : &fulllss;
+	const auto idxof = seldata->indexOf( geomid );
 	delete curlhss_;
-	curlhss_ = new LineHorSubSel( uselss->lineHorSubSel() );
-	tkzs = TrcKeyZSampling( *uselss );
+	if ( idxof < 0 )
+	{
+	    tkzs = TrcKeyZSampling( geomid );
+	    curlhss_ = new LineHorSubSel( geomid );
+	}
+	else
+	{
+	    const LineSubSel lss( seldata->fullSubSel().lineSubSel(idxof) );
+	    tkzs = TrcKeyZSampling( lss );
+	    curlhss_ = new LineHorSubSel( lss );
+	}
     }
     else
     {
 	const BinID bid( tk.binID() );
 	if ( curchss_ && curchss_->includes(bid) )
 	    return true;
-	const CubeSubSel fullcss;
-	const auto* usecss = seldata ? &seldata->subSel3D() : &fullcss;
-	const auto& usechss = usecss->cubeHorSubSel();
-	auto inlrg = usechss.inlRange();
-	const auto crlrg = usechss.crlRange();
+
+	CubeSubSel css;
+	if ( seldata )
+	    css = seldata->fullSubSel().cubeSubSel();
+	auto inlrg = css.inlRange();
+	const auto crlrg = css.crlRange();
 	const auto nrcrl = crlrg.nrSteps() + 1;
 	auto nrinl = nrcrl / mMaxNrTrcPerChunk;
 	if ( nrinl < 1 )
@@ -410,9 +418,9 @@ bool SeisZAxisStretcher::ensureTransformSet( const TrcKey& tk )
 	if ( endinl < inlrg.stop )
 	    inlrg.stop = endinl;
 	delete curchss_;
-	curchss_ = new CubeHorSubSel( usecss->cubeHorSubSel() );
+	curchss_ = new CubeHorSubSel( css );
 	curchss_->setInlRange( inlrg );
-	tkzs = TrcKeyZSampling( CubeSubSel(*curchss_,usecss->zSubSel()) );
+	tkzs = TrcKeyZSampling( css );
     }
 
     if ( voiid_<0 )

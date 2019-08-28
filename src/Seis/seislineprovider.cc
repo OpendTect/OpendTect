@@ -100,10 +100,8 @@ bool Seis::LineFetcher::ensureRightDataSource( GeomID geomid )
     {
 	const auto lidx = prov2D().lineIdx( geomid );
 	Seis::RangeSelData rsd( geomid );
-	rsd.lineSubSel(0).zSubSel().limitTo( prov_.zSubSel(lidx) );
-
+	rsd.zSubSel().limitTo( prov_.zSubSel(lidx) );
 	getter_ = dataset_->traceGetter( geomid, &rsd, uirv_ );
-
 	handleGeomIDChange( lidx );
     }
 

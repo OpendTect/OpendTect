@@ -35,7 +35,7 @@ typedef StepInterval<z_type> z_steprg_type;
 
 const char* Seis::SelData::sNrLinesKey()
 {
-    return Survey::FullSubSel::sNrLinesKey();
+    return Survey::FullHorSubSel::sNrLinesKey();
 }
 
 
@@ -117,15 +117,10 @@ Seis::SelData* Seis::SelData::get( const DBKey& dbky )
 	}
 	Seis2DDataSet ds2d( *objinf.ioObj() );
 	const auto nrlns = ds2d.nrLines();
-	RangeSelData* rsd = nullptr;
+	LineSubSelSet lsss;
 	for ( auto iln=0; iln<nrlns; iln++ )
-	{
-	    if ( rsd )
-		rsd->subSel2D().add( new LineSubSel(ds2d.geomID(iln)) );
-	    else
-		rsd = new RangeSelData( ds2d.geomID(iln) );
-	}
-	return rsd;
+	    lsss += new LineSubSel( ds2d.geomID(iln) );
+	return new RangeSelData( lsss );
     }
 
     if ( ioobj->group() == mTranslGroupName(PosVecDataSet) )

@@ -181,11 +181,10 @@ pos_rg_type Seis::RangeSelData::trcNrRange( idx_type iln ) const
     if ( !is2D() )
 	return crlRange();
 
-    if ( !subSel2D().validIdx(iln) )
-	{ pErrMsg("iln>=sz"); return pos_rg_type(); }
+    if ( forceall_ )
+	return LineHorSubSel( geomID(iln) ).fullTrcNrRange();
 
-    const auto& lss = fss_.lineSubSel( iln );
-    return forceall_ ? lss.fullTrcNrRange() : lss.trcNrRange();
+    return fss_.trcNrRange( iln );
 }
 
 
@@ -194,11 +193,19 @@ z_rg_type Seis::RangeSelData::zRange( idx_type iln ) const
     if ( !is2D() )
 	return forceall_ ? SelData::zRange() : fss_.zRange();
 
-    if ( !subSel2D().validIdx(iln) )
-	    { pErrMsg("iln>=sz"); return SelData::zRange(); }
+    if ( forceall_ )
+	return LineSubSel( geomID(iln) ).zSubSel().inputZRange();
 
-    const auto& lss = fss_.lineSubSel( iln );
-    return forceall_ ? lss.zSubSel().inputZRange() : lss.zRange();
+    return fss_.zRange( iln );
+}
+
+
+z_steprg_type Seis::RangeSelData::zRangeFor( GeomID gid ) const
+{
+    const auto iln = fss_.indexOf( gid );
+    if ( iln >= 0 )
+	return zRange( iln );
+    return SI().zRange();
 }
 
 
@@ -240,7 +247,7 @@ void Seis::RangeSelData::setTrcNrRange( const pos_rg_type& rg, idx_type idx )
 
 void Seis::RangeSelData::setZRange( const z_rg_type& rg, idx_type idx )
 {
-    fss_.setZRange( rg, idx );
+    fss_.zSubSel(idx).setOutputZRange( rg );
 }
 
 
@@ -290,13 +297,13 @@ void Seis::RangeSelData::doUsePar( const IOPar& iop )
 
 int Seis::RangeSelData::selRes3D( const BinID& bid ) const
 {
-    return forceall_ ? 0 : fss_.selRes3D( bid );
+    return forceall_ ? 0 : fss_.fullHorSubSel().selRes3D( bid );
 }
 
 
 int Seis::RangeSelData::selRes2D( GeomID gid, pos_type trcnr ) const
 {
-    return forceall_ ? 0 : fss_.selRes2D( gid, trcnr );
+    return forceall_ ? 0 : fss_.fullHorSubSel().selRes2D( gid, trcnr );
 }
 
 
@@ -308,43 +315,7 @@ uiString Seis::RangeSelData::gtUsrSummary() const
 
 size_type Seis::RangeSelData::expectedNrTraces() const
 {
-    return fss_.expectedNrTraces();
-}
-
-
-Survey::GeomSubSel& Seis::RangeSelData::geomSubSel( idx_type idx )
-{
-    return fss_.geomSubSel( idx );
-}
-
-
-const Survey::GeomSubSel& Seis::RangeSelData::geomSubSel( idx_type idx ) const
-{
-    return mSelf().geomSubSel( idx );
-}
-
-
-LineSubSel& Seis::RangeSelData::lineSubSel( idx_type idx )
-{
-    return fss_.lineSubSel( idx );
-}
-
-
-const LineSubSel& Seis::RangeSelData::lineSubSel( idx_type idx ) const
-{
-    return fss_.lineSubSel( idx );
-}
-
-
-bool Seis::RangeSelData::hasFullZRange() const
-{
-    return fss_.hasFullZRange();
-}
-
-
-const LineSubSel* Seis::RangeSelData::findLineSubSel( GeomID geomid ) const
-{
-    return fss_.findLineSubSel( geomid );
+    return fss_.expectedNrPositions();
 }
 
 

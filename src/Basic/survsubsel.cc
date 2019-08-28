@@ -503,6 +503,12 @@ CubeHorSubSel::CubeHorSubSel( const HorSampling& hsamp )
 }
 
 
+CubeHorSubSel::CubeHorSubSel( const CubeSubSel& css )
+    : CubeHorSubSel( css.cubeHorSubSel() )
+{
+}
+
+
 CubeHorSubSel::CubeHorSubSel( const TrcKeySampling& tks )
     : CubeHorSubSel( tks.lineRange(), tks.trcRange() )
 {

@@ -97,20 +97,11 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 	worktrc_ = intrc; // set data type and components
 
     nrtrcs_++;
-    if ( rsd_.hasFullZRange() && !valrg_ )
+    if ( rsd_.fullSubSel().hasFullZRange() && !valrg_ )
 	return const_cast<SeisTrc*>( &intrc );
 
     worktrc_.info() = intrc.info();
-    Pos::GeomID geomid = intrc.info().geomID();
-    Pos::ZSubSelData::z_steprg_type zrg;
-    if ( !geomid.is2D() )
-	zrg = rsd_.subSel3D().zSubSel().outputZRange();
-    else
-    {
-	const auto& lss = *rsd_.subSel2D().find( geomid );
-	zrg = lss.zSubSel().outputZRange();
-    }
-
+    const auto zrg = rsd_.zRangeFor( intrc.info().geomID() ) ;
     const auto nrsamps = zrg.nrSteps() + 1;
     worktrc_.reSize( nrsamps, false );
     worktrc_.info().sampling_.start = zrg.start;

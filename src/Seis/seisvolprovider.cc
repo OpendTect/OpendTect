@@ -198,7 +198,7 @@ bool Seis::VolFetcher::createTranslator( inl_type inl ) const
 		newtransl->componentInfo()[icd]->selected_ = false;
 
     auto* sd = new Seis::RangeSelData;
-    sd->cubeSubSel().zSubSel().limitTo( prov_.zSubSel() );
+    sd->zSubSel().limitTo( prov_.zSubSel() );
     newtransl->setSelData( sd );
 
     if ( !newtransl->commitSelections() )
