@@ -501,6 +501,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    }
 
 	    info().setObjDataPackID( datapackid );
+	    info().setObjCS( pdd->getDataPackSampling() );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 	    allowPickBasedReselection();
 	}
