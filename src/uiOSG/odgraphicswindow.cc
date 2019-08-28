@@ -96,12 +96,12 @@ public:
     {
     }
 
-    int remapKey(QKeyEvent* event)
+    int remapKey(QKeyEvent* ev )
     {
-	KeyMap::iterator itr = mKeyMap.find(event->key());
+	KeyMap::iterator itr = mKeyMap.find(ev ->key());
 	if (itr == mKeyMap.end())
 	{
-	    return int(*(event->text().toLatin1().data()));
+	    return int(*(ev ->text().toLatin1().data()));
 	}
 	else
 	    return itr->second;
@@ -126,7 +126,7 @@ public:
 
     void init( osgViewer::ViewerBase *viewer );
     void stopTimer();
-    void timerEvent( QTimerEvent *event );
+    void timerEvent( QTimerEvent *ev  );
 
     static HeartBeat* instance();
 private:
@@ -143,10 +143,10 @@ QPointer<HeartBeat> HeartBeat::heartBeat;
     #define GETDEVICEPIXELRATIO() devicePixelRatio()
 #endif
 
-ODGLWidget::ODGLWidget( QWidget* parent, const QGLWidget* sharewidget,
+ODGLWidget::ODGLWidget( QWidget* prnt, const QGLWidget* sharewidget,
 			Qt::WindowFlags f, bool forwardkeyevents )
-    : QGLWidget(parent,sharewidget,f)
-    , _gw(NULL)
+    : QGLWidget(prnt,sharewidget,f)
+    , _gw(nullptr)
     , _touchEventsEnabled(false)
     , _forwardKeyEvents( forwardkeyevents )
 {
@@ -154,11 +154,11 @@ ODGLWidget::ODGLWidget( QWidget* parent, const QGLWidget* sharewidget,
 }
 
 
-ODGLWidget::ODGLWidget( QGLContext* context, QWidget* parent,
+ODGLWidget::ODGLWidget( QGLContext* glctxt, QWidget* prnt,
 			const QGLWidget* shareWidget, Qt::WindowFlags f,
 			bool forwardKeyEvents )
-    : QGLWidget(context,parent,shareWidget,f)
-    , _gw(NULL)
+    : QGLWidget(glctxt,prnt,shareWidget,f)
+    , _gw(nullptr)
     , _touchEventsEnabled(false)
     , _forwardKeyEvents(forwardKeyEvents)
 {
@@ -166,11 +166,11 @@ ODGLWidget::ODGLWidget( QGLContext* context, QWidget* parent,
 }
 
 
-ODGLWidget::ODGLWidget( const QGLFormat& format, QWidget* parent,
+ODGLWidget::ODGLWidget( const QGLFormat& format, QWidget* prnt,
 			const QGLWidget* shareWidget, Qt::WindowFlags f,
 			bool forwardKeyEvents )
-    : QGLWidget(format,parent,shareWidget,f)
-    , _gw(NULL)
+    : QGLWidget(format,prnt,shareWidget,f)
+    , _gw(nullptr)
     , _touchEventsEnabled(false)
     , _forwardKeyEvents(forwardKeyEvents)
 {
@@ -184,8 +184,8 @@ ODGLWidget::~ODGLWidget()
     if( _gw )
     {
 	_gw->close();
-	_gw->_widget = NULL;
-	_gw = NULL;
+	_gw->_widget = nullptr;
+	_gw = nullptr;
     }
 }
 
@@ -222,54 +222,57 @@ void ODGLWidget::processDeferredEvents()
 
     while (!deferredEventQueueCopy.isEmpty())
     {
-	QEvent event(deferredEventQueueCopy.dequeue());
-	QGLWidget::event(&event);
+	QEvent ev (deferredEventQueueCopy.dequeue());
+	QGLWidget::event(&ev );
     }
 }
 
 
-bool ODGLWidget::event( QEvent* event )
+bool ODGLWidget::event( QEvent* ev  )
 {
 #ifdef USE_GESTURES
-    if ( event->type()==QEvent::Gesture )
-	return gestureEvent(static_cast<QGestureEvent*>(event));
+    if ( ev ->type()==QEvent::Gesture )
+	return gestureEvent(static_cast<QGestureEvent*>(ev ));
 #endif
 
-    // QEvent::Hide
-    //
-    // workaround "Qt-workaround" that does glFinish before hiding the widget
-    // (the Qt workaround was seen at least in Qt 4.6.3 and 4.7.0)
-    //
-    // Qt makes the context current, performs glFinish, and releases the context.
-    // This makes the problem in OSG multithreaded environment as the context
-    // is active in another thread, thus it can not be made current for the purpose
-    // of glFinish in this thread.
+// QEvent::Hide
+//
+// workaround "Qt-workaround" that does glFinish before hiding the widget
+// (the Qt workaround was seen at least in Qt 4.6.3 and 4.7.0)
+//
+// Qt makes the context current, performs glFinish,
+// and releases the context.
+// This makes the problem in OSG multithreaded environment as the context
+// is active in another thread, thus it can not be made current for the
+// purpose of glFinish in this thread.
 
-    // QEvent::ParentChange
-    //
-    // Reparenting GLWidget may create a new underlying window and a new GL context.
-    // Qt will then call doneCurrent on the GL context about to be deleted. The thread
-    // where old GL context was current has no longer current context to render to and
-    // we cannot make new GL context current in this thread.
+// QEvent::ParentChange
+//
+// Reparenting GLWidget may create a new underlying window and a new GL
+// context. Qt will then call doneCurrent on the GL context about
+// to be deleted. The thread where old GL context was current has no longer
+// current context to render to and we cannot make new GL context current
+// in this thread.
 
-    // We workaround above problems by deferring execution of problematic event requests.
-    // These events has to be enqueue and executed later in a main GUI thread (GUI operations
-    // outside the main thread are not allowed) just before makeCurrent is called from the
-    // right thread. The good place for doing that is right after swap in a swapBuffersImplementation.
+// We workaround above problems by deferring execution of problematic
+// event requests. These events has to be enqueue and executed later in a
+// main GUI thread (GUI operations outside the main thread are not allowed)
+// just before makeCurrent is called from the right thread. The good place
+// for doing that is right after swap in a swapBuffersImplementation.
 
-    if (event->type() == QEvent::Hide)
+    if (ev ->type() == QEvent::Hide)
     {
 	// enqueue only the last of QEvent::Hide and QEvent::Show
 	enqueueDeferredEvent(QEvent::Hide, QEvent::Show);
 	return true;
     }
-    else if (event->type() == QEvent::Show)
+    else if (ev ->type() == QEvent::Show)
     {
 	// enqueue only the last of QEvent::Show or QEvent::Hide
 	enqueueDeferredEvent(QEvent::Show, QEvent::Hide);
 	return true;
     }
-    else if (event->type() == QEvent::ParentChange)
+    else if (ev ->type() == QEvent::ParentChange)
     {
 	// enqueue only the last QEvent::ParentChange
 	enqueueDeferredEvent(QEvent::ParentChange);
@@ -277,47 +280,49 @@ bool ODGLWidget::event( QEvent* event )
     }
 
     // perform regular event handling
-    return QGLWidget::event( event );
+    return QGLWidget::event( ev  );
 }
 
 
-void ODGLWidget::setKeyboardModifiers( QInputEvent* event )
+void ODGLWidget::setKeyboardModifiers( QInputEvent* ev  )
 {
-    int modkey = event->modifiers() &
+    int modkey = ev ->modifiers() &
 		 (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
-    unsigned int mask = 0;
+    unsigned int modkeymask = 0;
     if ( modkey & Qt::ShiftModifier )
-	mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
     if ( modkey & Qt::ControlModifier )
-	mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
     if ( modkey & Qt::AltModifier )
-	mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
-    _gw->getEventQueue()->getCurrentEventState()->setModKeyMask( mask );
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    _gw->getEventQueue()->getCurrentEventState()->setModKeyMask( modkeymask );
 }
 
 
-void ODGLWidget::resizeEvent( QResizeEvent* event )
+void ODGLWidget::resizeEvent( QResizeEvent* ev  )
 {
-    if (_gw == NULL || !_gw->valid())
+    if ( _gw == nullptr || !_gw->valid() )
 	return;
-    const QSize& size = event->size();
-    int scaled_width = static_cast<int>(size.width()*_devicePixelRatio);
-    int scaled_height = static_cast<int>(size.height()*_devicePixelRatio);
+
+    const QSize& qsz = ev ->size();
+    int scaled_width = static_cast<int>(qsz.width()*_devicePixelRatio);
+    int scaled_height = static_cast<int>(qsz.height()*_devicePixelRatio);
     _gw->resized( x(), y(), scaled_width,  scaled_height);
     _gw->getEventQueue()->windowResize( x(), y(), scaled_width, scaled_height );
     _gw->requestRedraw();
 }
 
 
-void ODGLWidget::moveEvent( QMoveEvent* event )
+void ODGLWidget::moveEvent( QMoveEvent* ev  )
 {
-    if (_gw == NULL || !_gw->valid())
+    if (_gw == nullptr || !_gw->valid())
 	return;
-    const QPoint& pos = event->pos();
+    const QPoint& pos = ev ->pos();
     int scaled_width = static_cast<int>(width()*_devicePixelRatio);
     int scaled_height = static_cast<int>(height()*_devicePixelRatio);
     _gw->resized( pos.x(), pos.y(), scaled_width,  scaled_height );
-    _gw->getEventQueue()->windowResize( pos.x(), pos.y(), scaled_width,  scaled_height );
+    _gw->getEventQueue()->windowResize( pos.x(), pos.y(),
+					scaled_width, scaled_height );
 }
 
 
@@ -327,43 +332,45 @@ void ODGLWidget::glDraw()
 }
 
 
-void ODGLWidget::keyPressEvent( QKeyEvent* event )
+void ODGLWidget::keyPressEvent( QKeyEvent* ev  )
 {
-    setKeyboardModifiers( event );
-    int value = s_QtKeyboardMap.remapKey( event );
+    setKeyboardModifiers( ev  );
+    int value = s_QtKeyboardMap.remapKey( ev  );
     _gw->getEventQueue()->keyPress( value );
 
     // this passes the event to the regular Qt key event processing,
-    // among others, it closes popup windows on ESC and forwards the event to the parent widgets
+    // among others, it closes popup windows on ESC and forwards the event
+    // to the parent widgets
     if( _forwardKeyEvents )
-	inherited::keyPressEvent( event );
+	inherited::keyPressEvent( ev  );
 }
 
 
-void ODGLWidget::keyReleaseEvent( QKeyEvent* event )
+void ODGLWidget::keyReleaseEvent( QKeyEvent* ev  )
 {
-    if( event->isAutoRepeat() )
+    if( ev ->isAutoRepeat() )
     {
-	event->ignore();
+	ev ->ignore();
     }
     else
     {
-	setKeyboardModifiers( event );
-	int value = s_QtKeyboardMap.remapKey( event );
+	setKeyboardModifiers( ev  );
+	int value = s_QtKeyboardMap.remapKey( ev  );
 	_gw->getEventQueue()->keyRelease( value );
     }
 
     // this passes the event to the regular Qt key event processing,
-    // among others, it closes popup windows on ESC and forwards the event to the parent widgets
+    // among others, it closes popup windows on ESC and forwards the event
+    // to the parent widgets
     if( _forwardKeyEvents )
-	inherited::keyReleaseEvent( event );
+	inherited::keyReleaseEvent( ev  );
 }
 
 
-void ODGLWidget::mousePressEvent( QMouseEvent* event )
+void ODGLWidget::mousePressEvent( QMouseEvent* ev  )
 {
     int button = 0;
-    switch ( event->button() )
+    switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
 	case Qt::MidButton: button = 2; break;
@@ -371,15 +378,16 @@ void ODGLWidget::mousePressEvent( QMouseEvent* event )
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
     }
-    setKeyboardModifiers( event );
-    _gw->getEventQueue()->mouseButtonPress( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio, button );
+    setKeyboardModifiers( ev  );
+    _gw->getEventQueue()->mouseButtonPress(
+	ev ->x()*_devicePixelRatio, ev ->y()*_devicePixelRatio, button );
 }
 
 
-void ODGLWidget::mouseReleaseEvent( QMouseEvent* event )
+void ODGLWidget::mouseReleaseEvent( QMouseEvent* ev  )
 {
     int button = 0;
-    switch ( event->button() )
+    switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
 	case Qt::MidButton: button = 2; break;
@@ -387,15 +395,16 @@ void ODGLWidget::mouseReleaseEvent( QMouseEvent* event )
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
     }
-    setKeyboardModifiers( event );
-    _gw->getEventQueue()->mouseButtonRelease( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio, button );
+    setKeyboardModifiers( ev  );
+    _gw->getEventQueue()->mouseButtonRelease(
+	ev ->x()*_devicePixelRatio, ev ->y()*_devicePixelRatio, button );
 }
 
 
-void ODGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
+void ODGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
 {
     int button = 0;
-    switch ( event->button() )
+    switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
 	case Qt::MidButton: button = 2; break;
@@ -403,30 +412,35 @@ void ODGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
     }
-    setKeyboardModifiers( event );
-    _gw->getEventQueue()->mouseDoubleButtonPress( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio, button );
+    setKeyboardModifiers( ev  );
+    _gw->getEventQueue()->mouseDoubleButtonPress(
+	ev ->x()*_devicePixelRatio, ev ->y()*_devicePixelRatio, button );
 }
 
 
-void ODGLWidget::mouseMoveEvent( QMouseEvent* event )
+void ODGLWidget::mouseMoveEvent( QMouseEvent* ev  )
 {
-    setKeyboardModifiers( event );
-    _gw->getEventQueue()->mouseMotion( event->x()*_devicePixelRatio, event->y()*_devicePixelRatio );
+    setKeyboardModifiers( ev  );
+    _gw->getEventQueue()->mouseMotion(
+		ev ->x()*_devicePixelRatio, ev ->y()*_devicePixelRatio );
 }
 
 
-void ODGLWidget::wheelEvent( QWheelEvent* event )
+void ODGLWidget::wheelEvent( QWheelEvent* ev  )
 {
-    setKeyboardModifiers( event );
+    setKeyboardModifiers( ev  );
     _gw->getEventQueue()->mouseScroll(
-	event->orientation() == Qt::Vertical ?
-	    (event->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN) :
-	    (event->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
+	ev ->orientation() == Qt::Vertical ?
+	    (ev ->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+			      : osgGA::GUIEventAdapter::SCROLL_DOWN) :
+	    (ev ->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+			      : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
 
 
 #ifdef USE_GESTURES
-static osgGA::GUIEventAdapter::TouchPhase translateQtGestureState( Qt::GestureState state )
+static osgGA::GUIEventAdapter::TouchPhase translateQtGestureState(
+						Qt::GestureState state )
 {
     osgGA::GUIEventAdapter::TouchPhase touchPhase;
     switch ( state )
@@ -458,41 +472,47 @@ bool ODGLWidget::gestureEvent( QGestureEvent* qevent )
 
     bool accept = false;
 
-    if ( QPinchGesture* pinch = static_cast<QPinchGesture *>(qevent->gesture(Qt::PinchGesture) ) )
+    if ( QPinchGesture* pinch = static_cast<QPinchGesture *>(
+					qevent->gesture(Qt::PinchGesture) ) )
     {
-    const QPointF qcenterf = pinch->centerPoint();
-    const float angle = pinch->totalRotationAngle();
-    const float scale = pinch->totalScaleFactor();
+	const QPointF qcenterf = pinch->centerPoint();
+	const float angle = pinch->totalRotationAngle();
+	const float scale = pinch->totalScaleFactor();
 
-    const QPoint pinchCenterQt = mapFromGlobal(qcenterf.toPoint());
-    const osg::Vec2 pinchCenter( pinchCenterQt.x(), pinchCenterQt.y() );
+	const QPoint pinchCenterQt = mapFromGlobal(qcenterf.toPoint());
+	const osg::Vec2 pinchCenter( pinchCenterQt.x(), pinchCenterQt.y() );
 
-	//We don't have absolute positions of the two touches, only a scale and rotation
-	//Hence we create pseudo-coordinates which are reasonable, and centered around the
-	//real position
+	//We don't have absolute positions of the two touches, only a scale and
+	// rotation. Hence we create pseudo-coordinates which are reasonable,
+	// and centered around the real position
 	const float radius = float(width()+height())/4.0f;
-	const osg::Vec2 vector( scale*cos(angle)*radius, scale*sin(angle)*radius);
+	const osg::Vec2 vector( scale*cos(angle)*radius,
+				scale*sin(angle)*radius);
 	const osg::Vec2 p0 = pinchCenter+vector;
 	const osg::Vec2 p1 = pinchCenter-vector;
 
-	osg::ref_ptr<osgGA::GUIEventAdapter> event = 0;
-	const osgGA::GUIEventAdapter::TouchPhase touchPhase = translateQtGestureState( pinch->state() );
+	osg::ref_ptr<osgGA::GUIEventAdapter> ev  = nullptr;
+	const osgGA::GUIEventAdapter::TouchPhase touchPhase =
+				translateQtGestureState( pinch->state() );
 	if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_BEGAN )
 	{
-	    event = _gw->getEventQueue()->touchBegan(0 , touchPhase, p0[0], p0[1] );
+	    ev  = _gw->getEventQueue()->touchBegan(
+				0, touchPhase, p0[0], p0[1] );
 	}
 	else if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_MOVED )
 	{
-	    event = _gw->getEventQueue()->touchMoved( 0, touchPhase, p0[0], p0[1] );
+	    ev  = _gw->getEventQueue()->touchMoved(
+				0, touchPhase, p0[0], p0[1] );
 	}
 	else
 	{
-	    event = _gw->getEventQueue()->touchEnded( 0, touchPhase, p0[0], p0[1], 1 );
+	    ev  = _gw->getEventQueue()->touchEnded(
+				0, touchPhase, p0[0], p0[1], 1 );
 	}
 
-	if ( event )
+	if ( ev  )
 	{
-	    event->addTouchPoint( 1, touchPhase, p1[0], p1[1] );
+	    ev ->addTouchPoint( 1, touchPhase, p1[0], p1[1] );
 	    accept = true;
 	}
     }
@@ -506,13 +526,15 @@ bool ODGLWidget::gestureEvent( QGestureEvent* qevent )
 
 
 
-ODGraphicsWindow::ODGraphicsWindow( osg::GraphicsContext::Traits* traits, QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f )
-:   _realized(false)
+ODGraphicsWindow::ODGraphicsWindow( osg::GraphicsContext::Traits* traits,
+				    QWidget* prnt, const QGLWidget* shareWidget,
+				    Qt::WindowFlags f )
+    : _realized(false)
 {
 
-    _widget = NULL;
+    _widget = nullptr;
     _traits = traits;
-    init( parent, shareWidget, f );
+    init( prnt, shareWidget, f );
 }
 
 
@@ -520,8 +542,9 @@ ODGraphicsWindow::ODGraphicsWindow( ODGLWidget* widget )
 :   _realized(false)
 {
     _widget = widget;
-    _traits = _widget ? createTraits( _widget ) : new osg::GraphicsContext::Traits;
-    init( NULL, NULL, 0 );
+    _traits = _widget ? createTraits( _widget )
+		      : new osg::GraphicsContext::Traits;
+    init( nullptr, nullptr, 0 );
 }
 
 
@@ -531,26 +554,29 @@ ODGraphicsWindow::~ODGraphicsWindow()
 
     // remove reference from ODGLWidget
     if ( _widget )
-	_widget->_gw = NULL;
+	_widget->_gw = nullptr;
 }
 
 
-bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f )
+bool ODGraphicsWindow::init( QWidget* prnt, const QGLWidget* shareWidget,
+			     Qt::WindowFlags f )
 {
     // update _widget and parent by WindowData
-    WindowData* windowData = _traits.get() ? dynamic_cast<WindowData*>(_traits->inheritedWindowData.get()) : 0;
+    WindowData* windowData = _traits.get() ?
+	dynamic_cast<WindowData*>(_traits->inheritedWindowData.get()) : nullptr;
     if ( !_widget )
-	_widget = windowData ? windowData->_widget : NULL;
-    if ( !parent )
-	parent = windowData ? windowData->_parent : NULL;
+	_widget = windowData ? windowData->_widget : nullptr;
+    if ( !prnt )
+	prnt = windowData ? windowData->_parent : nullptr;
 
     // create widget if it does not exist
-    _ownsWidget = _widget == NULL;
+    _ownsWidget = _widget == nullptr;
     if ( !_widget )
     {
 	// shareWidget
 	if ( !shareWidget ) {
-	    ODGraphicsWindow* sharedContextQt = dynamic_cast<ODGraphicsWindow*>(_traits->sharedContext.get());
+	    ODGraphicsWindow* sharedContextQt =
+		dynamic_cast<ODGraphicsWindow*>(_traits->sharedContext.get());
 	    if ( sharedContextQt )
 		shareWidget = sharedContextQt->getGLWidget();
 	}
@@ -558,14 +584,16 @@ bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::
 	// WindowFlags
 	Qt::WindowFlags flags = f | Qt::Window | Qt::CustomizeWindowHint;
 	if ( _traits->windowDecoration )
-	    flags |= Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint | Qt::WindowSystemMenuHint
+	    flags |= Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint
+		  | Qt::WindowSystemMenuHint
 #if (QT_VERSION_CHECK(4, 5, 0) <= QT_VERSION)
-		| Qt::WindowCloseButtonHint
+		  | Qt::WindowCloseButtonHint
 #endif
 		;
 
 	// create widget
-	_widget = new ODGLWidget( traits2qglFormat( _traits.get() ), parent, shareWidget, flags );
+	_widget = new ODGLWidget( traits2qglFormat( _traits.get() ), prnt,
+				  shareWidget, flags );
     }
 
     // set widget name and position
@@ -574,8 +602,10 @@ bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::
     {
 	_widget->setWindowTitle( _traits->windowName.c_str() );
 	_widget->move( _traits->x, _traits->y );
-	if ( !_traits->supportsResize ) _widget->setFixedSize( _traits->width, _traits->height );
-	else _widget->resize( _traits->width, _traits->height );
+	if ( !_traits->supportsResize )
+	    _widget->setFixedSize( _traits->width, _traits->height );
+	else
+	    _widget->resize( _traits->width, _traits->height );
     }
 
     // initialize widget properties
@@ -592,7 +622,8 @@ bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::
     // initialize contextID
     if ( _traits.valid() && _traits->sharedContext.valid() )
     {
-	getState()->setContextID( _traits->sharedContext->getState()->getContextID() );
+	getState()->setContextID(
+			_traits->sharedContext->getState()->getContextID() );
 	incrementContextIDUsageCount( getState()->getContextID() );
     }
     else
@@ -600,14 +631,16 @@ bool ODGraphicsWindow::init( QWidget* parent, const QGLWidget* shareWidget, Qt::
 	getState()->setContextID( osg::GraphicsContext::createNewContextID() );
     }
 
-    // make sure the event queue has the correct window rectangle size and input range
+    // make sure the event queue has the correct window
+    // rectangle size and input range
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
 
     return true;
 }
 
 
-QGLFormat ODGraphicsWindow::traits2qglFormat( const osg::GraphicsContext::Traits* traits )
+QGLFormat ODGraphicsWindow::traits2qglFormat(
+		const osg::GraphicsContext::Traits* traits )
 {
     QGLFormat format( QGLFormat::defaultFormat() );
 
@@ -631,7 +664,8 @@ QGLFormat ODGraphicsWindow::traits2qglFormat( const osg::GraphicsContext::Traits
 }
 
 
-void ODGraphicsWindow::qglFormat2traits( const QGLFormat& format, osg::GraphicsContext::Traits* traits )
+void ODGraphicsWindow::qglFormat2traits( const QGLFormat& format,
+					 osg::GraphicsContext::Traits* traits )
 {
     traits->red = format.redBufferSize();
     traits->green = format.greenBufferSize();
@@ -650,7 +684,8 @@ void ODGraphicsWindow::qglFormat2traits( const QGLFormat& format, osg::GraphicsC
 }
 
 
-osg::GraphicsContext::Traits* ODGraphicsWindow::createTraits( const QGLWidget* widget )
+osg::GraphicsContext::Traits*
+	ODGraphicsWindow::createTraits( const QGLWidget* widget )
 {
     osg::GraphicsContext::Traits *traits = new osg::GraphicsContext::Traits;
 
@@ -675,9 +710,10 @@ osg::GraphicsContext::Traits* ODGraphicsWindow::createTraits( const QGLWidget* w
 }
 
 
-bool ODGraphicsWindow::setWindowRectangleImplementation( int x, int y, int width, int height )
+bool ODGraphicsWindow::setWindowRectangleImplementation( int x, int y,
+							 int width, int height )
 {
-    if ( _widget == NULL )
+    if ( _widget == nullptr )
 	return false;
 
     _widget->setGeometry( x, y, width, height );
@@ -685,7 +721,8 @@ bool ODGraphicsWindow::setWindowRectangleImplementation( int x, int y, int width
 }
 
 
-void ODGraphicsWindow::getWindowRectangle( int& x, int& y, int& width, int& height )
+void ODGraphicsWindow::getWindowRectangle( int& x, int& y,
+					   int& width, int& height )
 {
     if ( _widget )
     {
@@ -698,17 +735,18 @@ void ODGraphicsWindow::getWindowRectangle( int& x, int& y, int& width, int& heig
 }
 
 
-bool ODGraphicsWindow::setWindowDecorationImplementation( bool windowDecoration )
+bool ODGraphicsWindow::setWindowDecorationImplementation( bool windowDecoration)
 {
-    Qt::WindowFlags flags = Qt::Window|Qt::CustomizeWindowHint;//|Qt::WindowStaysOnTopHint;
+    Qt::WindowFlags flags = Qt::Window | Qt::CustomizeWindowHint;
+//				       | Qt::WindowStaysOnTopHint;
     if ( windowDecoration )
-	flags |= Qt::WindowTitleHint|Qt::WindowMinMaxButtonsHint|Qt::WindowSystemMenuHint;
+	flags |= Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint
+	      | Qt::WindowSystemMenuHint;
     _traits->windowDecoration = windowDecoration;
 
     if ( _widget )
     {
 	_widget->setWindowFlags( flags );
-
 	return true;
     }
 
@@ -776,7 +814,8 @@ void ODGraphicsWindow::setCursor( MouseCursor cursor )
     switch ( cursor )
     {
     case NoCursor: _currentCursor = Qt::BlankCursor; break;
-    case RightArrowCursor: case LeftArrowCursor: _currentCursor = Qt::ArrowCursor; break;
+    case RightArrowCursor: case LeftArrowCursor:
+				_currentCursor = Qt::ArrowCursor; break;
     case InfoCursor: _currentCursor = Qt::SizeAllCursor; break;
     case DestroyCursor: _currentCursor = Qt::ForbiddenCursor; break;
     case HelpCursor: _currentCursor = Qt::WhatsThisCursor; break;
@@ -788,8 +827,10 @@ void ODGraphicsWindow::setCursor( MouseCursor cursor )
     case HandCursor: _currentCursor = Qt::OpenHandCursor; break;
     case UpDownCursor: _currentCursor = Qt::SizeVerCursor; break;
     case LeftRightCursor: _currentCursor = Qt::SizeHorCursor; break;
-    case TopSideCursor: case BottomSideCursor: _currentCursor = Qt::UpArrowCursor; break;
-    case LeftSideCursor: case RightSideCursor: _currentCursor = Qt::SizeHorCursor; break;
+    case TopSideCursor: case BottomSideCursor:
+				_currentCursor = Qt::UpArrowCursor; break;
+    case LeftSideCursor: case RightSideCursor:
+				_currentCursor = Qt::SizeHorCursor; break;
     case TopLeftCorner: _currentCursor = Qt::SizeBDiagCursor; break;
     case TopRightCorner: _currentCursor = Qt::SizeFDiagCursor; break;
     case BottomRightCorner: _currentCursor = Qt::SizeBDiagCursor; break;
@@ -833,11 +874,13 @@ bool ODGraphicsWindow::realizeImplementation()
 
     _realized = true;
 
-    // make sure the event queue has the correct window rectangle size and input range
+    // make sure the event queue has the correct
+    // window rectangle size and input range
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
 
     // make this window's context not current
-    // note: this must be done as we will probably make the context current from another thread
+    // note: this must be done as we will probably make the context current
+    // from another thread
     //       and it is not allowed to have one context current in two threads
     if( !releaseContext() )
 	OSG_WARN << "Window realize: Can not release context." << std::endl;
@@ -866,8 +909,8 @@ void ODGraphicsWindow::closeImplementation()
 
 void ODGraphicsWindow::runOperations()
 {
-    // While in graphics thread this is last chance to do something useful before
-    // graphics thread will execute its operations.
+    // While in graphics thread this is last chance to do something useful
+    // before graphics thread will execute its operations.
     if (_widget->getNumDeferredEvents() > 0)
 	_widget->processDeferredEvents();
 
@@ -898,15 +941,16 @@ bool ODGraphicsWindow::releaseContextImplementation()
 
 void ODGraphicsWindow::swapBuffersImplementation()
 {
-    // FIXME: the processDeferredEvents should really be executed in a GUI (main) thread context but
-    // I couln't find any reliable way to do this. For now, lets hope non of *GUI thread only operations* will
-    // be executed in a QGLWidget::event handler. On the other hand, calling GUI only operations in the
-    // QGLWidget event handler is an indication of a Qt bug.
+// FIXME: the processDeferredEvents should really be executed in a
+// GUI (main) thread context but I couln't find any reliable way to do this.
+// For now, lets hope non of *GUI thread only operations* will be executed
+// in a QGLWidget::event handler. On the other hand, calling GUI only operations
+// in the QGLWidget event handler is an indication of a Qt bug.
     if (_widget->getNumDeferredEvents() > 0)
 	_widget->processDeferredEvents();
 
-    // We need to call makeCurrent here to restore our previously current context
-    // which may be changed by the processDeferredEvents function.
+// We need to call makeCurrent here to restore our previously current context
+// which may be changed by the processDeferredEvents function.
     _widget->makeCurrent();
     _widget->swapBuffers();
 }
@@ -923,69 +967,86 @@ class QtWindowingSystem : public osg::GraphicsContext::WindowingSystemInterface
 {
 public:
 
-    QtWindowingSystem()
-    {
-	OSG_INFO << "QtWindowingSystemInterface()" << std::endl;
-    }
+QtWindowingSystem()
+{
+    OSG_INFO << "QtWindowingSystemInterface()" << std::endl;
+}
 
-    ~QtWindowingSystem()
+~QtWindowingSystem()
+{
+    if ( osg::Referenced::getDeleteHandler() )
     {
-	if (osg::Referenced::getDeleteHandler())
-	{
-	    osg::Referenced::getDeleteHandler()->setNumFramesToRetainObjects(0);
-	    osg::Referenced::getDeleteHandler()->flushAll();
-	}
+	osg::Referenced::getDeleteHandler()->setNumFramesToRetainObjects(0);
+	osg::Referenced::getDeleteHandler()->flushAll();
     }
+}
 
-    // Access the Qt windowing system through this singleton class.
-    static QtWindowingSystem* getInterface()
+
+// Access the Qt windowing system through this singleton class.
+static QtWindowingSystem* getInterface()
+{
+    static QtWindowingSystem* qtInterface = new QtWindowingSystem;
+    return qtInterface;
+}
+
+
+// Return the number of screens present in the system
+virtual unsigned int getNumScreens(
+		const osg::GraphicsContext::ScreenIdentifier& /*si*/ )
+{
+    OSG_WARN << "uiOSG: getNumScreens() not implemented yet." << std::endl;
+    return 0;
+}
+
+
+// Return the resolution of specified screen
+// (0,0) is returned if screen is unknown
+virtual void getScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
+				osg::GraphicsContext::ScreenSettings& )
+{
+    OSG_WARN << "uiOSG: getScreenSettings() not implemented yet." << std::endl;
+}
+
+
+// Set the resolution for given screen
+virtual bool setScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
+				const osg::GraphicsContext::ScreenSettings& )
+{
+    OSG_WARN << "uiOSG: setScreenSettings() not implemented yet." << std::endl;
+    return false;
+}
+
+
+// Enumerates available resolutions
+virtual void enumerateScreenSettings(
+		const osg::GraphicsContext::ScreenIdentifier&,
+		osg::GraphicsContext::ScreenSettingsList& )
+{
+    OSG_WARN << "uiOSG: enumerateScreenSettings() not implemented yet."
+	     << std::endl;
+}
+
+
+// Create a graphics context with given traits
+virtual osg::GraphicsContext* createGraphicsContext(
+		osg::GraphicsContext::Traits* traits )
+{
+    if ( traits->pbuffer )
     {
-	static QtWindowingSystem* qtInterface = new QtWindowingSystem;
-	return qtInterface;
+	OSG_WARN << "uiOSG: createGraphicsContext - "
+		    "pbuffer not implemented yet." << std::endl;
+	return nullptr;
     }
-
-    // Return the number of screens present in the system
-    virtual unsigned int getNumScreens( const osg::GraphicsContext::ScreenIdentifier& /*si*/ )
+    else
     {
-	OSG_WARN << "uiOSG: getNumScreens() not implemented yet." << std::endl;
-	return 0;
-    }
-
-    // Return the resolution of specified screen
-    // (0,0) is returned if screen is unknown
-    virtual void getScreenSettings( const osg::GraphicsContext::ScreenIdentifier& /*si*/, osg::GraphicsContext::ScreenSettings & /*resolution*/ )
-    {
-	OSG_WARN << "uiOSG: getScreenSettings() not implemented yet." << std::endl;
-    }
-
-    // Set the resolution for given screen
-    virtual bool setScreenSettings( const osg::GraphicsContext::ScreenIdentifier& /*si*/, const osg::GraphicsContext::ScreenSettings & /*resolution*/ )
-    {
-	OSG_WARN << "uiOSG: setScreenSettings() not implemented yet." << std::endl;
-	return false;
-    }
-
-    // Enumerates available resolutions
-    virtual void enumerateScreenSettings( const osg::GraphicsContext::ScreenIdentifier& /*screenIdentifier*/, osg::GraphicsContext::ScreenSettingsList & /*resolution*/ )
-    {
-	OSG_WARN << "uiOSG: enumerateScreenSettings() not implemented yet." << std::endl;
-    }
-
-    // Create a graphics context with given traits
-    virtual osg::GraphicsContext* createGraphicsContext( osg::GraphicsContext::Traits* traits )
-    {
-	if (traits->pbuffer)
-	{
-	    OSG_WARN << "uiOSG: createGraphicsContext - pbuffer not implemented yet." << std::endl;
-	    return NULL;
-	}
+	osg::ref_ptr< ODGraphicsWindow > window =
+				    new ODGraphicsWindow( traits );
+	if ( window->valid() )
+	    return window.release();
 	else
-	{
-	    osg::ref_ptr< ODGraphicsWindow > window = new ODGraphicsWindow( traits );
-	    if (window->valid()) return window.release();
-	    else return NULL;
-	}
+	    return nullptr;
     }
+}
 
 private:
 
@@ -1001,7 +1062,8 @@ REGISTER_WINDOWINGSYSTEMINTERFACE(Qt, QtWindowingSystem)
 // declare C entry point for static compilation.
 extern "C" void graphicswindow_Qt(void)
 {
-    osg::GraphicsContext::setWindowingSystemInterface(QtWindowingSystem::getInterface());
+    osg::GraphicsContext::setWindowingSystemInterface(
+		QtWindowingSystem::getInterface() );
 }
 
 
@@ -1068,7 +1130,7 @@ void HeartBeat::init( osgViewer::ViewerBase *viewer )
 }
 
 
-void HeartBeat::timerEvent( QTimerEvent * /*event*/ )
+void HeartBeat::timerEvent( QTimerEvent * )
 {
     osg::ref_ptr< osgViewer::ViewerBase > viewer;
     if( !_viewer.lock( viewer ) )
@@ -1084,16 +1146,19 @@ void HeartBeat::timerEvent( QTimerEvent * /*event*/ )
 	double dt = _lastFrameStartTime.time_s();
 	double minFrameTime = 1.0 / viewer->getRunMaxFrameRate();
 	if (dt < minFrameTime)
-	    OpenThreads::Thread::microSleep(static_cast<unsigned int>(1000000.0*(minFrameTime-dt)));
+	    OpenThreads::Thread::microSleep(
+			static_cast<unsigned int>(1000000.0*(minFrameTime-dt)));
     }
     else
     {
-	// avoid excessive CPU loading when no frame is required in ON_DEMAND mode
+	// avoid excessive CPU loading when no frame is required
+	// in ON_DEMAND mode
 	if( viewer->getRunFrameScheme() == osgViewer::ViewerBase::ON_DEMAND )
 	{
 	    double dt = _lastFrameStartTime.time_s();
 	    if (dt < 0.01)
-		OpenThreads::Thread::microSleep(static_cast<unsigned int>(1000000.0*(0.01-dt)));
+		OpenThreads::Thread::microSleep(
+			static_cast<unsigned int>(1000000.0*(0.01-dt)));
 	}
 
 	// record start frame time
