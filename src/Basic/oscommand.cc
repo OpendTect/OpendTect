@@ -536,9 +536,10 @@ void OS::CommandLauncher::adaptForV7()
     for ( int idx=1; idx<cmdsep.size(); idx++ )
 	scriptfnm.addSpace().add( cmdsep[idx] );
 
-    const MachineCommand cmd( scriptfnm );
+    const MachineCommand mc( scriptfnm );
+    addQuotesIfNeeded( mc );
     setIsolated();
-    set( cmd );
+    set( mc );
 }
 
 
