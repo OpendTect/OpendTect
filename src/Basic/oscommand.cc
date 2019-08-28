@@ -528,6 +528,9 @@ void OS::CommandLauncher::adaptForV7()
 	return;
 
     BufferString scriptfnm( extscript7fp.fullPath() );
+    addQuotesIfNeeded( scriptfnm );
+    setIsolated();
+
     scriptfnm.addSpace().add( scriptfp.fullPath() );
 #ifdef __unix__
     if ( scriptfp.fileName() == "exec_prog" )
@@ -536,9 +539,7 @@ void OS::CommandLauncher::adaptForV7()
     for ( int idx=1; idx<cmdsep.size(); idx++ )
 	scriptfnm.addSpace().add( cmdsep[idx] );
 
-    addQuotesIfNeeded( scriptfnm );
     const MachineCommand mc( scriptfnm );
-    setIsolated();
     set( mc );
 }
 
