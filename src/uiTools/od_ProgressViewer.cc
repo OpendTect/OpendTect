@@ -79,6 +79,7 @@ protected:
 
     bool		haveProcess();
 
+    void		initWin(CallBacker*);
     void		doWork(CallBacker*);
     void		getNewPID(CallBacker*);
     void		quitFn(CallBacker*);
@@ -143,15 +144,29 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     if ( deswidth > txtfld_->defaultWidth() )
 	txtfld_->setPrefWidth( deswidth );
 
+    mAttachCB( postFinalise(), uiProgressViewer::initWin );
     mAttachCB( timer_.tick, uiProgressViewer::doWork );
     mAttachCB( txtfld_->fileReOpened, uiProgressViewer::getNewPID );
-    timer_.start( delay_, false );
 }
 
 
 uiProgressViewer::~uiProgressViewer()
 {
     detachAllNotifiers();
+}
+
+
+void uiProgressViewer::initWin( CallBacker* )
+{
+    handleProcessStatus();
+    if ( procnm_.isEmpty() || procnm_ == "bash" || procnm_ == "cmd" )
+    {
+	pid_ = mUdf(int);
+	getNewPID(0);
+    }
+
+    if ( !timer_.isActive() )
+	timer_.start( delay_, false );
 }
 
 
@@ -220,6 +235,7 @@ void uiProgressViewer::handleProcessStatus()
 	}
     }
 
+    timer_.stop();
     uiString stbmsg = tr("Processing finished %1")
 		      .arg( procstatus_ == AbnormalEnd ? tr("abnormally.")
 						       : tr("successfully.") );
@@ -229,7 +245,6 @@ void uiProgressViewer::handleProcessStatus()
 	stbmsg = tr("Process %1 was terminated." ).arg(procnm_);
 
     statusBar()->message( stbmsg );
-    timer_.stop();
     tb_->setToolTip( quittbid_, sQuitOnly() );
     tb_->setSensitive( killbid_, false );
     pid_ = mUdf(int);
@@ -249,6 +264,10 @@ void uiProgressViewer::doWork( CallBacker* )
 
 void uiProgressViewer::getNewPID( CallBacker* )
 {
+    const bool activetimer = timer_.isActive();
+    if ( activetimer )
+	timer_.stop();
+
     if ( !mIsUdf(pid_) || !strm_ )
 	return;
 
@@ -282,7 +301,8 @@ void uiProgressViewer::getNewPID( CallBacker* )
 	tb_->setSensitive( killbid_, true );
     }
 
-    timer_.start( delay_, false );
+    if ( activetimer )
+	timer_.start( delay_, false );
 }
 
 
