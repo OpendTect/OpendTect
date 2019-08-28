@@ -584,15 +584,16 @@ uiPythonSettings(uiParent* p, const char* nm)
 			mCB(this, uiPythonSettings, testCB), true);
     testbut->attach( ensureBelow, customenvnmfld_ );
 
-	uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
-		 mCB(this, uiPythonSettings, promptCB), true );
-	cmdwinbut->attach( rightOf, testbut );
+    uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
+				 mCB(this,uiPythonSettings,promptCB), true );
+    cmdwinbut->attach( rightOf, testbut );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
 
 virtual ~uiPythonSettings()
 {
+    detachAllNotifiers();
 }
 
 private:
