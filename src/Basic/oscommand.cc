@@ -496,9 +496,56 @@ void OS::CommandLauncher::reset()
 }
 
 
+void OS::CommandLauncher::adaptForV7()
+{
+    if ( !FixedString(machcmd_.command()).startsWith("od_deeplearn_apply") )
+	return;
+
+    const FilePath v7binfp( GetSoftwareDir(true), "v7", "bin" );
+    const FilePath extscriptfp( GetODExternalScript() );
+    const FilePath extscript7fp( v7binfp, extscriptfp.fileName() );
+    if ( !extscript7fp.exists() )
+	return;
+
+    const SeparString cmdsep( machcmd_.command(), ' ' );
+    if ( cmdsep.size() < 1 )
+	return;
+
+    const BufferString execnm( cmdsep[0] );
+    FilePath scriptfp( v7binfp );
+#ifdef __win__
+    scriptfp.add( GetPlfSubDir() ).add( GetBinSubDir() ).add( execnm );
+    scriptfp.setExtension( "exe" );
+#else
+    scriptfp.add( "exec_prog" );
+    if ( !scriptfp.exists() )
+    {
+	scriptfp.set( scriptfp.dirUpTo(scriptfp.nrLevels()-2) );
+	scriptfp.add( GetPlfSubDir() ).add( GetBinSubDir() ).add( execnm );
+    }
+#endif
+    if ( !scriptfp.exists() )
+	return;
+
+    BufferString scriptfnm( extscript7fp.fullPath() );
+    scriptfnm.addSpace().add( scriptfp.fullPath() );
+#ifdef __unix__
+    if ( scriptfp.fileName() == "exec_prog" )
+	scriptfnm.addSpace().add( execnm );
+#endif
+    for ( int idx=1; idx<cmdsep.size(); idx++ )
+	scriptfnm.addSpace().add( cmdsep[idx] );
+
+    const MachineCommand cmd( scriptfnm );
+    setIsolated();
+    set( cmd );
+}
+
+
 void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 {
     machcmd_ = cmd;
+    adaptForV7();
     reset();
 }
 

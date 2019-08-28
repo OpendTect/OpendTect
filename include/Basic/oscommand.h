@@ -193,6 +193,7 @@ protected:
 
 private:
     void		setIsolated();
+    void		adaptForV7();
 
 public: //Extra utilities, not for general use
     static void		addShellIfNeeded(BufferString& cmd);
