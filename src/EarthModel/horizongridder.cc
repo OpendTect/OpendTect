@@ -75,7 +75,7 @@ bool HorizonGridder::blockSrcPoints( const float* data,
 	return false;
 
     deepErase( blocks );
-    blocks += new TypeSet<int>( 1, 0 );
+    blocks += new TypeSet<int>( 0 );
     for ( int idx=1; idx<nrsrc; idx++ )
     {
 	const BinID curbid = hs_.atIndex( sources[idx] );
@@ -104,7 +104,7 @@ bool HorizonGridder::blockSrcPoints( const float* data,
 	}
 
 	if ( !isassigned )
-	    blocks += new TypeSet<int>( 1, idx );
+	    blocks += new TypeSet<int>( idx );
     }
 
     return true;

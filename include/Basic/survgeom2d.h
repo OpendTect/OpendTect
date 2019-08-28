@@ -51,7 +51,7 @@ public:
     static void		getGeomIDs(GeomIDSet&);
     static const Geometry2D& get(const char* linenm);
     static const Geometry2D& get(GeomID);
-    bool		isEmpty() const;
+    bool		isEmpty() const override;
     bool		isDummy() const		{ return this == &dummy(); }
 
     GeomSystem		geomSystem() const override

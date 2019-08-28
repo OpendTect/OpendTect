@@ -85,8 +85,7 @@ void FlatView::ZoomMgr::setFwdFac( double fac )
 
 void FlatView::ZoomMgr::init( const Geom::PosRectangle<double>& wr )
 {
-    TypeSet<Geom::PosRectangle<double> > wrr( 1, wr );
-    init( wrr );
+    init( TypeSet<Geom::PosRectangle< double> >( wr ) );
 }
 
 
@@ -108,8 +107,7 @@ void FlatView::ZoomMgr::init( const TypeSet<Geom::PosRectangle<double> >& wrs )
 
 void FlatView::ZoomMgr::reInit( const Geom::PosRectangle<double>& wr )
 {
-    TypeSet<Geom::PosRectangle<double> > wrr( 1, wr );
-    reInit( wrr );
+    reInit( TypeSet<Geom::PosRectangle< double> >( wr ) );
 }
 
 
@@ -134,7 +132,7 @@ void FlatView::ZoomMgr::reInit(const TypeSet<Geom::PosRectangle<double> >& wrs)
 	    {
 		viewerdata_[idx]->zooms_ += oldviewerdata[idx]->zooms_[idy];
 		if ( idy == oldcur[idx] )
-    		    current_[idx] = nrZooms(idx)-1;
+		    current_[idx] = nrZooms(idx)-1;
 	    }
 	}
     }
@@ -146,7 +144,7 @@ void FlatView::ZoomMgr::reInit(const TypeSet<Geom::PosRectangle<double> >& wrs)
 void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 {
     if ( current_.isPresent(-1) )
-    	return;
+	return;
     const Size zoom0 = viewerdata_[vieweridx]->zooms_[0];
     if ( newzoom.width() > zoom0.width() )
 	newzoom.setWidth( zoom0.width() );
@@ -165,7 +163,7 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 	    found = true; break;
 	}
     }
-    
+
     if ( !found )
     {
 	for ( int idx=viewerdata_[vieweridx]->zooms_.size()-1; idx>=0; idx-- )
@@ -175,7 +173,7 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 		|| newzoom.height() > zoom.height() + eps.height() )
 		viewerdata_[vieweridx]->zooms_.removeSingle(idx);
 	}
-	
+
 	viewerdata_[vieweridx]->zooms_ += newzoom;
 	current_[vieweridx] = nrZooms(vieweridx)-1;
     }
@@ -218,7 +216,7 @@ FlatView::ZoomMgr::Size FlatView::ZoomMgr::forward( int vieweridx,
 
     if ( !usefwdfac && cur<nrZooms(vieweridx)-1 && !onlyvertical )
 	{ cur++; return current( vieweridx ); }
-    
+
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
     if ( !onlyvertical )
 	newsize.setWidth( newsize.width() * fwdfac_ );

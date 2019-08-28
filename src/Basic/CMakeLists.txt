@@ -70,6 +70,8 @@ set( OD_MODULE_SOURCES
 	filemultispec.cc
 	filepath.cc
 	filesystemaccess.cc
+	fullhorsubsel.cc
+	fullsubsel.cc
 	gason.cpp
 	genc.cc
 	gpuprog.cc
@@ -133,6 +135,7 @@ set( OD_MODULE_SOURCES
 	uistringset.cc
 	winutils.cc
 	zdomain.cc
+	zsubsel.cc
 )
 
 set ( OD_MODULE_PROGS test_exit_program.cc )

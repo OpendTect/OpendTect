@@ -6,8 +6,9 @@
 
 
 #include "cubedata.h"
-#include "linesdata.h"
 #include "cubesubsel.h"
+#include "fullsubsel.h"
+#include "linesdata.h"
 #include "linesubsel.h"
 #include "math2.h"
 #include "od_iostream.h"

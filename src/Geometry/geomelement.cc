@@ -114,8 +114,7 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 
 void Element::triggerMovement( const GeomPosID& gpid )
 {
-    TypeSet<GeomPosID> gpids( 1, gpid );
-    triggerMovement( gpids );
+    triggerMovement( TypeSet<GeomPosID>(gpid) );
 }
 
 
@@ -148,8 +147,7 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 
 void Element::triggerNrPosCh( const GeomPosID& gpid )
 {
-    TypeSet<GeomPosID> gpids( 1, gpid );
-    triggerNrPosCh( gpids );
+    triggerNrPosCh( TypeSet<GeomPosID>(gpid) );
 }
 
 

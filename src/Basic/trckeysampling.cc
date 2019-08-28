@@ -8,8 +8,7 @@
 #include "trckeyzsampling.h"
 
 #include "cubesampling.h"
-#include "cubesubsel.h"
-#include "linesubsel.h"
+#include "fullsubsel.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "separstr.h"
@@ -40,9 +39,9 @@ TrcKeySampling::TrcKeySampling( const HorSubSel& hss )
     {
 	const auto* lhss = hss.asLineHorSubSel();
 	const auto trcrg = lhss->trcNrRange();
-	const auto igeomid = lhss->geomID().getI();
-	start_ = BinID( igeomid, trcrg.start );
-	stop_ = BinID( igeomid, trcrg.stop );
+	const auto lnr = lhss->geomID().lineNr();
+	start_ = BinID( lnr, trcrg.start );
+	stop_ = BinID( lnr, trcrg.stop );
 	step_ = BinID( 1, trcrg.step );
     }
     else
@@ -1039,7 +1038,7 @@ TrcKeyZSampling::TrcKeyZSampling( const GeomSubSel& gss )
 
 
 TrcKeyZSampling::TrcKeyZSampling( const FullSubSel& fss )
-    : hsamp_(fss.geomSubSel().horSubSel())
+    : hsamp_(fss.horSubSel())
     , zsamp_(fss.zRange())
 {
 }

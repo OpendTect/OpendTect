@@ -1267,8 +1267,7 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
 
 DescSet* DescSet::optimizeClone( const DescID& targetnode ) const
 {
-    TypeSet<DescID> needednodes( 1, targetnode );
-    return optimizeClone( needednodes );
+    return optimizeClone( TypeSet<DescID>(needednodes) );
 }
 
 

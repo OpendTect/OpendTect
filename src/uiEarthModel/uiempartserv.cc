@@ -689,9 +689,10 @@ int uiEMPartServer::loadAuxData( const DBKey& id, const char* attrnm,
 	{ selidx= idx; break; }
     }
 
-    if ( selidx<0 ) return -1;
-    TypeSet<int> selattribs( 1, selidx );
-    return loadAuxData( id, selattribs, removeold )
+    if ( selidx<0 )
+	return -1;
+
+    return loadAuxData( id, TypeSet<int>(selidx), removeold )
 	? hor3d->auxdata.auxDataIndex(attrnm) : -1;
 }
 

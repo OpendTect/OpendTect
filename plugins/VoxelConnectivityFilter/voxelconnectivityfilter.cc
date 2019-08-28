@@ -420,7 +420,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 
             const MultiDimStorage<char>& dim1 = *bodyaliases_[idx];
 
-            TypeSet<int> aliases( 1, pos );
+            TypeSet<int> aliases( pos );
             for ( int idy=0; idy<dim1.size(); idy++ )
                 aliases += dim1.getPos(idy);
 

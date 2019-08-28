@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 class Bin2D;
 class HorSampling;
+class LineSubSel;
 namespace Survey { class Geometry; class Geometry2D; class Geometry3D; }
 class TrcKeySampling;
 
@@ -34,9 +35,11 @@ public:
 			LineHorSubSel(const TrcKeySampling&);
 			LineHorSubSel(GeomID,trcnr_type);
 			LineHorSubSel(const Bin2D&);
+			LineHorSubSel(const LineSubSel&);
 
     bool		is2D() const override	   { return true; }
     GeomID		geomID() const override	   { return geomid_; }
+    const Geometry2D&	geometry2D() const;
     totalsz_type	totalSize() const override { return data_.size(); }
     bool		isAll() const override
 			{ return IdxSubSel1D::isAll(); }
@@ -109,6 +112,7 @@ public:
     void		merge(const LineHorSubSelSet&);
     void		limitTo(const LineHorSubSelSet&);
     void		addStepout(trcnr_type);
+    void		setToAll();
 
     LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
     const LineHorSubSel* find( GeomID gid ) const { return doFind( gid ); }

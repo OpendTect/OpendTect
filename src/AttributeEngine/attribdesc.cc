@@ -401,7 +401,7 @@ Desc::SatisfyLevel Desc::satisfyLevel() const
 		     .arg( userref_ ).arg( inputspecs_[idx].getDesc() ) )
 	else
 	{
-	    TypeSet<Attrib::DescID> deps( 1, inputs_[idx]->id() );
+	    TypeSet<Attrib::DescID> deps( inputs_[idx]->id() );
 	    inputs_[idx]->getDependencies( deps );
 
 	    if ( deps.isPresent( id() ) )

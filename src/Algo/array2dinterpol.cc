@@ -591,7 +591,7 @@ void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
 
     int next;
 
-    TypeSet<int> seeds( 1, seed );
+    TypeSet<int> seeds( seed );
     while ( seeds.size() )
     {
 	const int curseedidx = seeds.size()-1;

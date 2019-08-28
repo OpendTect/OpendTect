@@ -862,7 +862,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	{
 	    RefMan<DataPointSet> dps = new DataPointSet( false, true );
 	    dpm.add( dps );
-	    TypeSet<float> shifts( 1, 0 );
+	    TypeSet<float> shifts( 0 );
 	    emserv_->getAuxData( surfid, auxdatanr, *dps, shifts[0] );
 	    setRandomPosData( visid, attrib, *dps );
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,

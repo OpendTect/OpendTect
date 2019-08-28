@@ -74,10 +74,9 @@ uiRetVal EngineMan::getPossibleSubSel( DescSet& attrset, const DescID& outid,
 					FullSubSel& fss, GeomID gid )
 {
     fss = attrset.is2D() ? FullSubSel(gid) : FullSubSel();
-    TypeSet<DescID> desiredids( 1, outid );
 
     uiRetVal uirv;
-    DescID evalid = createEvaluateADS( attrset, desiredids, uirv );
+    DescID evalid = createEvaluateADS( attrset, TypeSet<DescID>(outid), uirv );
     PtrMan<Processor> proc = createProcessor( attrset, evalid, uirv, gid );
     if ( !proc )
 	return uirv;

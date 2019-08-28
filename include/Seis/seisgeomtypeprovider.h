@@ -46,7 +46,7 @@ public:
     GeomType		geomType() const override
 			{ return gt_; }
     TypeSet<GeomType>	availableTypes() const override
-			{ return TypeSet<GeomType>(1,gt_); }
+			{ return TypeSet<GeomType>(gt_); }
 
     GeomType	gt_;
 

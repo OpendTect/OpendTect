@@ -6,14 +6,11 @@
 
 
 #include "posidxsubsel.h"
-#include "zsubsel.h"
 #include "iopar.h"
-#include "keystrs.h"
 
 mUseType( Pos::IdxSubSelData, idx_type );
 mUseType( Pos::IdxSubSelData, pos_type );
 mUseType( Pos::IdxSubSelData, pos_steprg_type );
-mUseType( Pos::ZSubSelData, z_type );
 
 
 Pos::IdxSubSelData::IdxSubSelData( const pos_steprg_type& rg )
@@ -179,153 +176,4 @@ void Pos::IdxSubSelData::ensureSizeOK()
 {
     if ( posStop() > inpposrg_.stop )
 	sz_ = (inpposrg_.stop - posStart()) / posStep() + 1;
-}
-
-
-Pos::ZSubSelData::ZSubSelData( const z_steprg_type& rg )
-    : ArrRegSubSelData(rg.nrSteps()+1)
-    , inpzrg_(rg)
-{
-    ensureSizeOK();
-}
-
-
-bool Pos::ZSubSelData::operator ==( const Pos::ZSubSelData& oth ) const
-{
-    return inpzrg_.isEqual( oth.inpzrg_, zEps() )
-	&& ArrRegSubSelData::operator ==( oth );
-}
-
-
-bool Pos::ZSubSelData::isAll() const
-{
-    return !isSubSpaced() && hasFullRange();
-}
-
-
-bool Pos::ZSubSelData::hasFullRange() const
-{
-    return mIsEqual(zStart(),inpzrg_.start,zEps())
-	&& mIsEqual(zStop(),inpzrg_.stop,zEps());
-}
-
-
-idx_type Pos::ZSubSelData::idx4Z( z_type z ) const
-{
-    const auto fnrz = (z - zStart()) / zStep();
-    return mNINT32( fnrz );
-}
-
-
-z_type Pos::ZSubSelData::z4Idx( idx_type idx ) const
-{
-    return zStart() + zStep() * idx;
-}
-
-
-z_type Pos::ZSubSelData::zStart() const
-{
-    return inpzrg_.start + inpzrg_.step * offs_;
-}
-
-
-z_type Pos::ZSubSelData::zStep() const
-{
-    return inpzrg_.step * step_;
-}
-
-
-z_type Pos::ZSubSelData::zStop() const
-{
-    return zStart() + zStep() * (sz_-1);
-}
-
-
-void Pos::ZSubSelData::setInputZRange( const z_steprg_type& newrg )
-{
-    inpzrg_ = newrg;
-    sz_ = inpzrg_.nrSteps() + 1;
-    ensureSizeOK();
-}
-
-
-void Pos::ZSubSelData::setOutputZRange( z_type newstart, z_type newstop,
-					z_type newstep )
-{
-    if ( mIsUdf(newstart) )
-	newstart = inpzrg_.start;
-    if ( mIsUdf(newstop) )
-	newstop = inpzrg_.stop;
-    if ( mIsUdf(newstep) || newstep <= 0.f )
-	newstep = inpzrg_.step;
-
-    IdxSubSelData newss( pos_steprg_type(0,inpzrg_.nrSteps(),1) );
-    z_type fnewstep = newstep / inpzrg_.step;
-    ZSubSelData cleanzss( inpzrg_ );
-    newss.setOutputPosRange( cleanzss.idx4Z(newstart), cleanzss.idx4Z(newstop),
-			     mRounded(z_type,fnewstep) );
-    ArrRegSubSelData::operator =( newss );
-}
-
-
-void Pos::ZSubSelData::ensureSizeOK()
-{
-    if ( zStop() > inpzrg_.stop+zEps() )
-    {
-	z_type fsz = (inpzrg_.stop - zStart()) / zStep() + 1;
-	sz_ = (size_type)(fsz + zEps());
-    }
-}
-
-
-void Pos::ZSubSelData::limitTo( const ZSubSelData& oth )
-{
-    auto outrg = outputZRange();
-    outrg.limitTo( oth.outputZRange() );
-    setOutputZRange( outrg );
-}
-
-
-void Pos::ZSubSelData::limitTo( const z_rg_type& zrg )
-{
-    auto outrg = outputZRange();
-    outrg.limitTo( zrg );
-    setOutputZRange( outrg );
-}
-
-
-void Pos::ZSubSelData::widenTo( const ZSubSelData& oth )
-{
-    auto outrg = outputZRange();
-    const auto othoutrg = oth.outputZRange();
-    if ( othoutrg.start < outrg.start )
-	outrg.start = outrg.atIndex( outrg.nearestIndex(othoutrg.start) );
-    if ( othoutrg.stop > outrg.stop )
-	outrg.stop = outrg.atIndex( outrg.nearestIndex(othoutrg.stop) );
-    setOutputZRange( outrg );
-}
-
-
-void Pos::ZSubSelData::widen( const z_rg_type& zrg )
-{
-    auto outrg = outputZRange();
-    outrg.start += zrg.start; outrg.stop += zrg.stop;
-    setOutputZRange( outrg );
-}
-
-
-bool Pos::ZSubSel::usePar( const IOPar& iop )
-{
-    z_steprg_type zrg;
-    if ( !iop.get(sKey::ZRange(),zrg) )
-	return false;
-
-    data_.setOutputZRange( zrg );
-    return true;
-}
-
-
-void Pos::ZSubSel::fillPar( IOPar& iop ) const
-{
-    iop.set( sKey::ZRange(), zStart(), zStop(), zStep() );
 }

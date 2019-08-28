@@ -71,7 +71,7 @@ public:
     LineHorSubSel&	lineHorSubSel()		{ return hss_; }
     const LineHorSubSel& lineHorSubSel() const	{ return hss_; }
 
-    const Geometry2D&	geometry2D() const;
+    const Geometry2D&	geometry2D() const	{ return hss_.geometry2D(); }
 
     static const LineSubSel&	empty();
     static LineSubSel&		dummy();

@@ -578,8 +578,8 @@ bool Math::Expression::setInput( int inp, Math::Expression* obj )
 
 	    if ( !found )
 	    {
-		variableobj_ += new TypeSet<int>( 1, inp );
-		variablenr_ += new TypeSet<int>( 1, idx );
+		variableobj_ += new TypeSet<int>( inp );
+		variablenr_ += new TypeSet<int>( idx );
 		addIfOK( str );
 	    }
 	}

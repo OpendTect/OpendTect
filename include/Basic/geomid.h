@@ -27,6 +27,7 @@ mDefIntegerIDTypeFull( int, GeomID,
 	-999,
 
 	inline bool		is2D() const		{ return nr_>=0; }
+	inline bool		is3D() const		{ return nr_<0; }
 	inline bool		isSynthetic() const	{ return nr_==-2; }
 	inline IDType		lineNr() const		{ return getI(); }
 	inline static GeomID	get3D()			{ return GeomID(-1); }

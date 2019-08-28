@@ -154,6 +154,8 @@ public: \
 		    : OD::ValVec<T,size_type>()		{} \
 		clss( size_type nr, T typ ) \
 		    : OD::ValVec<T,size_type>( nr, typ )	{} \
+    explicit	clss( T typ ) \
+		    : OD::ValVec<T,size_type>( 1, typ )	{} \
 		clss( const T* t, size_type nr ) \
 		    : OD::ValVec<T,size_type>( t, nr )		{} \
 		clss( const clss& oth ) \

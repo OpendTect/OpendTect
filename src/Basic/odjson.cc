@@ -830,7 +830,7 @@ OD::JSON::Array& OD::JSON::Array::set( const OD::String& val )
 
 OD::JSON::Array& OD::JSON::Array::set( bool val )
 {
-    return set( BoolTypeSet(1,val) );
+    return set( BoolTypeSet(val) );
 }
 
 

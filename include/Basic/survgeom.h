@@ -70,6 +70,7 @@ public:
 			{ return geomSystem() != OD::VolBasedGeom; }
     bool		is3D() const
 			{ return geomSystem() == OD::VolBasedGeom; }
+    virtual bool	isEmpty() const		{ return false; }
 
     GeomID		geomID() const		{ return geomid_; }
 

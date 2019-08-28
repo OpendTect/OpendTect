@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "arrregsubsel.h"
+#include "geomid.h"
 
 
 namespace Pos
@@ -74,9 +75,11 @@ public:
     mUseType( ZSubSelData,	z_type );
     mUseType( ZSubSelData,	z_rg_type );
     mUseType( ZSubSelData,	z_steprg_type );
+    mUseType( Pos,		GeomID );
 
-			ZSubSel( const z_steprg_type& rg )
+    explicit		ZSubSel( const z_steprg_type& rg )
 			    : data_(rg)	{}
+    explicit		ZSubSel(GeomID);
 			mImplSimpleEqOpers1Memb(ZSubSel,data_)
 
     const ZSubSelData&	zData() const	{ return data_; }
@@ -111,6 +114,9 @@ public:
     bool	usePar(const IOPar&);
     void	fillPar(IOPar&) const;
 
+    static const ZSubSel&   surv3D();
+    static ZSubSel&	    dummy();
+
 protected:
 
     ZSubSelData	data_;
@@ -123,3 +129,78 @@ protected:
 };
 
 } // namespace Pos
+
+
+namespace Survey
+{
+
+/*!\brief subselection of the z range for a 3D geometry or a set of
+  2D geometries */
+
+mExpClass(Basic) FullZSubSel
+{
+public:
+
+    mUseType( Pos,		GeomID );
+    mUseType( Pos::ZSubSel,	ZSubSel );
+    mUseType( ZSubSel,		idx_type );
+    mUseType( ZSubSel,		size_type );
+    mUseType( Pos::ZSubSelData,	z_type );
+    mUseType( Pos::ZSubSelData,	z_rg_type );
+    mUseType( Pos::ZSubSelData,	z_steprg_type );
+
+			FullZSubSel();				//!< full 3D
+			FullZSubSel(GeomID);			//!< full range
+			FullZSubSel(const GeomIDSet&);		//!< full ranges
+			FullZSubSel(const ZSubSel&);		//!< 3D
+			FullZSubSel(const z_steprg_type&);	//!< 3D
+			FullZSubSel(GeomID,const z_steprg_type&);
+			FullZSubSel(const FullZSubSel&);
+    FullZSubSel&	operator =(const FullZSubSel&);
+    bool		operator ==(const FullZSubSel&) const;
+			mImplSimpleIneqOper(FullZSubSel)
+
+    bool		is2D() const;
+    bool		is3D() const		{ return !is2D(); }
+    bool		isEmpty() const		{ return zsss_.isEmpty(); }
+    size_type		size() const		{ return zsss_.size(); }
+    size_type		nrGeomIDs() const	{ return size(); }
+    idx_type		indexOf( GeomID g ) const { return geomids_.indexOf(g);}
+    bool		isPresent( GeomID g ) const { return indexOf(g)>=0; }
+    GeomID		geomID( idx_type idx=0 ) const { return geomids_[idx]; }
+    ZSubSel&		get( idx_type idx=0 )	{ return zsss_[idx]; }
+    const ZSubSel&	get( idx_type idx=0 ) const { return zsss_[idx]; }
+    ZSubSel&		getFor(GeomID);
+    const ZSubSel&	getFor( GeomID g ) const { return mSelf().getFor(g); }
+    ZSubSel&		first()			{ return zsss_.first(); }
+    const ZSubSel&	first() const		{ return zsss_.first(); }
+    GeomID		firstGeomID() const	{ return geomids_.first(); }
+
+    bool		isAll() const;
+    bool		hasFullRange() const;
+    z_steprg_type	zRange( idx_type idx=0 ) const
+			{ return get(idx).outputZRange(); }
+
+			// setting the input (and output) range:
+    void		setFull(GeomID);
+    void		set(const ZSubSel&);		//!< 3D
+    void		set(GeomID,const ZSubSel&);
+    void		setToNone(bool is2d);
+    void		remove(idx_type);
+    void		remove(GeomID);
+
+    void		merge(const FullZSubSel&);
+    void		limitTo(const FullZSubSel&);
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+    uiString		getUserSummary() const;
+
+protected:
+
+    TypeSet<GeomID>	geomids_;
+    TypeSet<ZSubSel>	zsss_;
+
+};
+
+} // namespace Survey
