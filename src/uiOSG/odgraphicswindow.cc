@@ -166,10 +166,10 @@ ODGLWidget::ODGLWidget( QGLContext* glctxt, QWidget* prnt,
 }
 
 
-ODGLWidget::ODGLWidget( const QGLFormat& format, QWidget* prnt,
+ODGLWidget::ODGLWidget( const QGLFormat& glformat, QWidget* prnt,
 			const QGLWidget* shareWidget, Qt::WindowFlags f,
 			bool forwardKeyEvents )
-    : QGLWidget(format,prnt,shareWidget,f)
+    : QGLWidget(glformat,prnt,shareWidget,f)
     , _gw(nullptr)
     , _touchEventsEnabled(false)
     , _forwardKeyEvents(forwardKeyEvents)
@@ -317,11 +317,12 @@ void ODGLWidget::moveEvent( QMoveEvent* ev  )
 {
     if (_gw == nullptr || !_gw->valid())
 	return;
-    const QPoint& pos = ev ->pos();
+
+    const QPoint& evpos = ev ->pos();
     int scaled_width = static_cast<int>(width()*_devicePixelRatio);
     int scaled_height = static_cast<int>(height()*_devicePixelRatio);
-    _gw->resized( pos.x(), pos.y(), scaled_width,  scaled_height );
-    _gw->getEventQueue()->windowResize( pos.x(), pos.y(),
+    _gw->resized( evpos.x(), evpos.y(), scaled_width,  scaled_height );
+    _gw->getEventQueue()->windowResize( evpos.x(), evpos.y(),
 					scaled_width, scaled_height );
 }
 
@@ -642,45 +643,45 @@ bool ODGraphicsWindow::init( QWidget* prnt, const QGLWidget* shareWidget,
 QGLFormat ODGraphicsWindow::traits2qglFormat(
 		const osg::GraphicsContext::Traits* traits )
 {
-    QGLFormat format( QGLFormat::defaultFormat() );
+    QGLFormat glformat( QGLFormat::defaultFormat() );
 
-    format.setAlphaBufferSize( traits->alpha );
-    format.setRedBufferSize( traits->red );
-    format.setGreenBufferSize( traits->green );
-    format.setBlueBufferSize( traits->blue );
-    format.setDepthBufferSize( traits->depth );
-    format.setStencilBufferSize( traits->stencil );
-    format.setSampleBuffers( traits->sampleBuffers );
-    format.setSamples( traits->samples );
+    glformat.setAlphaBufferSize( traits->alpha );
+    glformat.setRedBufferSize( traits->red );
+    glformat.setGreenBufferSize( traits->green );
+    glformat.setBlueBufferSize( traits->blue );
+    glformat.setDepthBufferSize( traits->depth );
+    glformat.setStencilBufferSize( traits->stencil );
+    glformat.setSampleBuffers( traits->sampleBuffers );
+    glformat.setSamples( traits->samples );
 
-    format.setAlpha( traits->alpha>0 );
-    format.setDepth( traits->depth>0 );
-    format.setStencil( traits->stencil>0 );
-    format.setDoubleBuffer( traits->doubleBuffer );
-    format.setSwapInterval( traits->vsync ? 1 : 0 );
-    format.setStereo( traits->quadBufferStereo ? 1 : 0 );
+    glformat.setAlpha( traits->alpha>0 );
+    glformat.setDepth( traits->depth>0 );
+    glformat.setStencil( traits->stencil>0 );
+    glformat.setDoubleBuffer( traits->doubleBuffer );
+    glformat.setSwapInterval( traits->vsync ? 1 : 0 );
+    glformat.setStereo( traits->quadBufferStereo ? 1 : 0 );
 
-    return format;
+    return glformat;
 }
 
 
-void ODGraphicsWindow::qglFormat2traits( const QGLFormat& format,
+void ODGraphicsWindow::qglFormat2traits( const QGLFormat& glformat,
 					 osg::GraphicsContext::Traits* traits )
 {
-    traits->red = format.redBufferSize();
-    traits->green = format.greenBufferSize();
-    traits->blue = format.blueBufferSize();
-    traits->alpha = format.alpha() ? format.alphaBufferSize() : 0;
-    traits->depth = format.depth() ? format.depthBufferSize() : 0;
-    traits->stencil = format.stencil() ? format.stencilBufferSize() : 0;
+    traits->red = glformat.redBufferSize();
+    traits->green = glformat.greenBufferSize();
+    traits->blue = glformat.blueBufferSize();
+    traits->alpha = glformat.alpha() ? glformat.alphaBufferSize() : 0;
+    traits->depth = glformat.depth() ? glformat.depthBufferSize() : 0;
+    traits->stencil = glformat.stencil() ? glformat.stencilBufferSize() : 0;
 
-    traits->sampleBuffers = format.sampleBuffers() ? 1 : 0;
-    traits->samples = format.samples();
+    traits->sampleBuffers = glformat.sampleBuffers() ? 1 : 0;
+    traits->samples = glformat.samples();
 
-    traits->quadBufferStereo = format.stereo();
-    traits->doubleBuffer = format.doubleBuffer();
+    traits->quadBufferStereo = glformat.stereo();
+    traits->doubleBuffer = glformat.doubleBuffer();
 
-    traits->vsync = format.swapInterval() >= 1;
+    traits->vsync = glformat.swapInterval() >= 1;
 }
 
 
