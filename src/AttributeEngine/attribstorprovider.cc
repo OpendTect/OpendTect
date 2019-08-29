@@ -166,22 +166,26 @@ bool StorageProvider::checkInpAndParsAtStart()
 	}
 
 	storedsubsel_.setZRange( si.zrg );
-	return true;
+	desiredsubsel_ = storedsubsel_;
+    }
+    else
+    {
+	const StringPair strpair(
+			desc_.getValParam(keyStr())->getStringValue(0) );
+	const DBKey dbky( strpair.first() );
+	if ( !isOK() )
+	    return false;
+
+	mscprov_ = new Seis::MSCProvider( dbky );
+	if ( !initMSCProvider() )
+	    mErrRet( uirv_ )
+
+	const bool is2d = mscprov_->is2D();
+	desc_.setIs2D( is2d );
+	mscprov_->provider().getSubSel( storedsubsel_ );
+	status_ = StorageOpened;
     }
 
-    const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
-    const DBKey dbky( strpair.first() );
-    if ( !isOK() )
-	return false;
-
-    mscprov_ = new Seis::MSCProvider( dbky );
-    if ( !initMSCProvider() )
-	mErrRet( uirv_ )
-
-    const bool is2d = mscprov_->is2D();
-    desc_.setIs2D( is2d );
-    mscprov_->provider().getSubSel( storedsubsel_ );
-    status_ = StorageOpened;
     return true;
 }
 

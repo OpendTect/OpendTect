@@ -420,6 +420,7 @@ bool Provider::calcPossibleSubSel( int output, const FullSubSel& desss )
 	    outputs += idx;
 
     bool isset = false;
+    bool havesetpss = false;
     for ( const auto out : outputs )
     {
 	for ( int iinp=0; iinp<inputs_.size(); iinp++ )
@@ -450,7 +451,10 @@ bool Provider::calcPossibleSubSel( int output, const FullSubSel& desss )
 
 		applyMargins( reqZMargin(iinp,out), reqZSampMargin(iinp,out),
 			      inpfss );
-		possiblesubsel_.limitTo( inpfss );
+		if ( havesetpss )
+		    possiblesubsel_.limitTo( inpfss );
+		else
+		    possiblesubsel_ = inpfss;
 		isset = true;
 	    }
 	}
