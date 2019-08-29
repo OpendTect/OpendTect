@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "seistype.h"
-#include "survsubsel.h"
+#include "fullsubsel.h"
 #include "binid.h"
 #include "uistrings.h"
 

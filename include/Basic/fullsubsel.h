@@ -91,6 +91,8 @@ public:
     void		setZSubSel( const ZSubSel& zss, idx_type iln=0 )
 			{ zss_.get(iln) = zss; }
     void		setZSubSel(GeomID,const ZSubSel&);
+    void		setZRange( const z_steprg_type& zrg, idx_type iln=0 )
+			{ zss_.get(iln).setOutputZRange( zrg ); }
 
     HorSubSel&		horSubSel( idx_type iln=0 )
 			{ return hss_.horSubSel( iln ); }

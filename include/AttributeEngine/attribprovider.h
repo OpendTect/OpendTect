@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "attributeenginecommon.h"
 #include "posinfo2dsurv.h"
-#include "survsubsel.h"
+#include "fullsubsel.h"
 #include "uistring.h"
 
 class BinDataDesc;

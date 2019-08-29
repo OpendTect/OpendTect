@@ -898,7 +898,7 @@ bool TrcSelectionOutput::getDesiredSubSel( FullSubSel& fss ) const
 {
     fss.setToAll( false );
 
-    auto& css = fss.cubeSubSel();
+    auto css = fss.cubeSubSel();
     StepInterval<int> inlrg( bidvalset_.inlRange(), css.inlSubSel().posStep() );
     StepInterval<int> crlrg( bidvalset_.crlRange(), css.crlSubSel().posStep() );
     StepInterval<float> zrg( stdstarttime_, stdstarttime_ + stdtrcsz_,
@@ -906,6 +906,7 @@ bool TrcSelectionOutput::getDesiredSubSel( FullSubSel& fss ) const
     css.setInlRange( inlrg );
     css.setCrlRange( crlrg );
     css.setZRange( zrg );
+    fss.set( css );
     return true;
 }
 

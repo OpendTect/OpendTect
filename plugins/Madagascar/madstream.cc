@@ -384,7 +384,7 @@ void MadStream::fillHeaderParsFromSeis()
 	const auto& prov3d = *seisprov_->as3D();
 	PosInfo::CubeData newcd = prov3d.possibleCubeData();
 	if ( rgsel && !rgsel->isAll() )
-	    newcd.limitTo( rgsel->cubeSubSel().cubeHorSubSel() );
+	    newcd.limitTo( rgsel->horSubSel() );
 
 	needposfile = !newcd.isFullyRectAndReg();
 	if ( needposfile )
@@ -397,7 +397,7 @@ void MadStream::fillHeaderParsFromSeis()
 	{
 	    StepInterval<int> inlrg;
 	    if ( rgsel )
-		inlrg = rgsel->cubeSubSel().inlRange();
+		inlrg = rgsel->fullSubSel().inlRange();
 	    else
 		newcd.getInlRange( inlrg );
 

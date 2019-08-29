@@ -114,9 +114,8 @@ void uiSeisSelDataDlg::create2DFlds( const SelData* sd, uiGroup* attgrp )
     const Seis2DDataSet ds2d( *ioobjinf_->ioObj() );
     const auto nrlines = ds2d.nrLines();
 
-    if ( rsd && !rsd->subSel2D().isEmpty() )
-	deepCopy( *lsss_, rsd->subSel2D() );
-    else
+    *lsss_ = rsd ? rsd->fullSubSel().lineSubSelSet() : LineSubSelSet();
+    if ( lsss_->isEmpty() )
     {
 	// No previous selection means we select all
 	for ( int iln=0; iln<nrlines; iln++ )
@@ -173,7 +172,7 @@ void uiSeisSelDataDlg::create3DFlds( const SelData* sd, bool onlyrange,
     if ( rsd )
     {
 	typfld_->setCurrentItem( 1 );
-	const auto& css = rsd->cubeSubSel();
+	const auto css = rsd->fullSubSel().cubeSubSel();
 	inlsel_->setRange( css.inlSubSel().outputPosRange() );
 	crlsel_->setRange( css.crlSubSel().outputPosRange() );
 	zsel_->setRange( css.zSubSel().outputZRange() );
@@ -380,7 +379,7 @@ Seis::SelData* uiSeisSelDataDlg::get3DSelData()
     }
 
     Seis::RangeSelData* rsd = new Seis::RangeSelData;
-    CubeSubSel& css = rsd->subSel3D();
+    CubeSubSel css = rsd->fullSubSel().cubeSubSel();
     css.inlSubSel().setOutputPosRange( inlsel_->getRange() );
     css.crlSubSel().setOutputPosRange( crlsel_->getRange() );
     css.zSubSel().setOutputZRange( zsel_->getRange() );

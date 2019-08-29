@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "attribsel.h"
 #include "uistringset.h"
-#include "survsubsel.h"
+#include "fullsubsel.h"
 
 class BinnedValueSet;
 class BufferStringSet;

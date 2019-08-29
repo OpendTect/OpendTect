@@ -7,7 +7,7 @@
 
 #include "uivelocityvolumeconversion.h"
 
-#include "horsubsel.h"
+#include "fullsubsel.h"
 #include "ioobjctxt.h"
 #include "seistrctr.h"
 #include "seisprovider.h"
