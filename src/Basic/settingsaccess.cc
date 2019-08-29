@@ -139,7 +139,7 @@ BufferString SettingsAccess::getTerminalEmulator()
     if ( termcmd.isEmpty() )
 	termcmd = "cmd.exe";
 #else
-    OS::MachineCommand mc( GetShellScript("find_term.bash") );
+    OS::MachineCommand mc( GetShellScript("od_find_term.bash") );
     if ( !termcmd.isEmpty() )
 	mc.addArg( termcmd );
     termcmd = mc.runAndCollectOutput();
