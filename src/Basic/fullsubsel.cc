@@ -136,7 +136,7 @@ Survey::FullSubSel::FullSubSel( const LineHorSubSel& lhss )
 Survey::FullSubSel::FullSubSel( const LineSubSelSet& lsss )
     : hss_(lsss)
 {
-    zss_.setToNone( is2D() );
+    zss_.setToNone( true );
     for ( auto lss : lsss )
 	zss_.set( lss->geomID(), lss->zSubSel() );
 }

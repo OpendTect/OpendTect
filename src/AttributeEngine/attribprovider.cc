@@ -218,7 +218,7 @@ Provider::Provider( Desc& nd )
     , dataunavailableflag_( false )
 {
     possiblesubsel_.setToAll( desc_.is2D() );
-    desiredsubsel_.setToAll( desc_.is2D() );
+    desiredsubsel_ = possiblesubsel_;
     desc_.ref();
     inputs_.setNullAllowed( true );
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
