@@ -661,4 +661,48 @@ Standard color tables
 41.Value-Color.6: 1`255`255`0`0
 41.Transparency.0: 0`0
 41.Transparency.1: 1`0
+
+42.Name: Depth_AS
+42.Marker color: 0`0`0`0
+42.Undef color: 200`200`200`255
+42.Nr segments: 0
+42.Value-Color.0: 0`163`0`0`0
+42.Value-Color.1: 0.04379562`188`31`0`0
+42.Value-Color.2: 0.33941606`255`170`0`0
+42.Value-Color.3: 0.54014599`0`255`0`0
+42.Value-Color.4: 0.729927`0`235`235`0
+42.Value-Color.5: 0.7591241`0`230`255`0
+42.Value-Color.6: 0.97445256`0`0`195`0
+42.Value-Color.7: 1`0`0`210`0
+42.Transparency.0: 0`0
+42.Transparency.1: 1`0
+
+43.Name: AI_NedMag
+43.Marker color: 0`240`0`0
+43.Undef color: 150`200`150`255
+43.Nr segments: 0
+43.Value-Color.0: 0`240`65`255`0
+43.Value-Color.1: 0.14`123`75`255`0
+43.Value-Color.2: 0.215`53`53`255`0
+43.Value-Color.3: 0.33`42`191`255`0
+43.Value-Color.4: 0.48`85`255`255`0
+43.Value-Color.5: 0.61`72`217`50`0
+43.Value-Color.6: 0.75`255`247`85`0
+43.Value-Color.7: 0.93`255`145`0`0
+43.Value-Color.8: 1`255`85`0`0
+43.Transparency.0: 0`0
+43.Transparency.1: 1`0
+
+44.Name: Depth_Spectral
+44.Marker color: 0`240`0`0
+44.Undef color: 150`200`150`255
+44.Nr segments: 0
+44.Value-Color.0: 0`215`25`28`0
+44.Value-Color.1: 0.25`249`158`89`0
+44.Value-Color.2: 0.5`255`255`191`0
+44.Value-Color.3: 0.75`211`167`0
+44.Value-Color.4: 1`43`131`186`0
+44.Transparency.0: 0`0
+44.Transparency.1: 1`0
+
 !
