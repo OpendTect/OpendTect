@@ -379,7 +379,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     insd_ = fds.getSampling();
     innrsamples_ = fds.getTrcSz();
     pinfo_.nr = 1;
-    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
+    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRegular();
     pinfo_.cubedata->getInlRange( pinfo_.inlrg );
     pinfo_.cubedata->getCrlRange( pinfo_.crlrg );
 

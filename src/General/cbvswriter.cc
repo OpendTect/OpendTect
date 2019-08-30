@@ -427,7 +427,7 @@ void CBVSWriter::getRealGeometry()
     for ( int idx=0; idx<lds_.size(); idx++ )
 	cd += new PosInfo::LineData( *lds_[idx] );
 
-    survgeom_.fullyrectandreg = forcetrailer_ ? false : cd.isFullyRectAndReg();
+    survgeom_.fullyrectandreg = forcetrailer_ ? false : cd.isFullyRegular();
     StepInterval<int> rg;
     cd.getInlRange( rg ); survgeom_.step.inl() = rg.step;
     survgeom_.start.inl() = rg.start; survgeom_.stop.inl() = rg.stop;

@@ -47,6 +47,7 @@ public:
 			mImplSimpleIneqOper(LinesData)
 
     virtual bool	isCubeData() const	{ return false; }
+    bool		isFullyRegular() const override;
 
     void		setTo( GeomID gid )	{ setTo( GeomIDSet(gid) ); }
     void		setTo(const GeomIDSet&);
@@ -56,6 +57,9 @@ public:
 			{ return LineCollData::includes(b2d); }
     LineCollDataPos	lineCollPos( const Bin2D& b2d ) const
 			{ return LineCollData::lineCollPos(b2d); }
+    glob_size_type	totalSizeInside(const LineHorSubSelSet&) const;
+    bool		hasPosition(const LineHorSubSelSet&,
+				    glob_idx_type) const;
 
     bool		includes(const BinID&) const	    = delete;
     LineCollDataPos	lineCollPos(const BinID&) const	    = delete;

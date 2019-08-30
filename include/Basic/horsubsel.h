@@ -118,6 +118,8 @@ public:
     LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
     const LineHorSubSel* find( GeomID gid ) const { return doFind( gid ); }
 
+    Bin2D		atGlobIdx(totalsz_type) const;
+
 protected:
 
     LineHorSubSel*	doFind(GeomID) const;
@@ -213,7 +215,7 @@ public:
     trcnr_type		trcNrStop() const override  { return crlStop(); }
     trcnr_type		trcNrStep() const override  { return crlStep(); }
 
-    BinID		atGlobIdx( od_int64 gidx ) const
+    BinID		atGlobIdx( totalsz_type gidx ) const
 			{
 			    const auto nrinl = nrInl();
 			    return BinID( inl4Idx((pos_type)(gidx/nrinl)),

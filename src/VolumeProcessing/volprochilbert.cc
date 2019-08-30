@@ -117,7 +117,7 @@ void HilbertCalculatorTask::setTracePositions(
 					const PosInfo::CubeData& trcposns,
 					const TrcKeySampling& tks )
 {
-    if ( trcposns.isFullyRectAndReg() )
+    if ( trcposns.isFullyRegular() )
 	return;
 
     trcposns_ = &trcposns;

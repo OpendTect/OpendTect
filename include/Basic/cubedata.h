@@ -40,6 +40,7 @@ public:
 			CubeData(const LinesData&)	= delete;
 
     bool		isCubeData() const override { return true; }
+    bool		isFullyRegular() const override;
     CubeData*		clone() const override	{ return new CubeData(*this); }
     CubeData&		operator =( const CubeData& oth )
 			{ copyContents(oth); return *this; }
@@ -57,7 +58,8 @@ public:
     LineCollDataPos	lineCollPos(const Bin2D&) const	    = delete;
 
     glob_size_type	totalSizeInside(const CubeHorSubSel&) const;
-			/*!<Only take positions that are inside hrg. */
+				/*!<Only count positions that are inside */
+    bool		hasPosition(const CubeHorSubSel&,glob_idx_type) const;
 
     void		getRanges(pos_rg_type& inl,pos_rg_type& crl) const;
     bool		getInlRange(pos_steprg_type&,bool sorted=true) const;
@@ -72,7 +74,6 @@ public:
     BinID		minStep() const;
     BinID		nearestBinID(const BinID&) const;
     BinID		centerPos() const;  //!< not exact
-    bool		hasPosition(const CubeHorSubSel&,glob_idx_type) const;
 
     bool		includes( const BinID& bid ) const
                         { return LineCollData::includes(bid); }
@@ -83,7 +84,6 @@ public:
 
     bool		haveInlStepInfo() const	{ return size() > 1; }
     bool		haveCrlStepInfo() const;
-    bool		isFullyRectAndReg() const;
     bool		isAll(const CubeHorSubSel&) const;
     bool		isCrlReversed() const;
 

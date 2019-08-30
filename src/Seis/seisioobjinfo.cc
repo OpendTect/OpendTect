@@ -884,7 +884,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( GeomID geomid,
 }
 
 
-bool SeisIOObjInfo::isFullyRectAndRegular() const
+bool SeisIOObjInfo::isFullyRegular() const
 {
     PtrMan<Translator> trl = ioobj_->createTranslator();
     mDynamicCastGet(SeisTrcTranslator*,strl,trl.ptr())

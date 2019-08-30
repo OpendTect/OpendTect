@@ -84,7 +84,7 @@ void SeisDataPackWriter::getPosInfo()
     if ( pi && !pi->isCubeData() )
 	{ pErrMsg("2D not supported yet"); }
     posinfo_ = pi ? pi->asCubeData() : nullptr;
-    if ( posinfo_ && !posinfo_->isFullyRectAndReg() )
+    if ( posinfo_ && !posinfo_->isFullyRegular() )
 	totalnr_ = posinfo_->totalSizeInside( CubeHorSubSel(tks_) );
     else
 	totalnr_ = tks_.totalNr();

@@ -90,7 +90,7 @@ bool BlocksSeisTrcTranslator::initRead_()
     pinfo_.usrinfo = rdr_->cubeName();
     pinfo_.stdinfo = rdr_->infoFileName();
     pinfo_.cubedata = &rdr_->positions();
-    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
+    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRegular();
     rdr_->positions().getRanges( pinfo_.inlrg, pinfo_.crlrg );
     pinfo_.inlrg.step = rdr_->hGeom().inlRange().step;
     pinfo_.crlrg.step = rdr_->hGeom().crlRange().step;

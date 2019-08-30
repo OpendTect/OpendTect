@@ -601,7 +601,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare()
 	    if ( cubedata.totalSizeInside( chss ) > 0 )
 	    {
 		cubedata.limitTo( chss );
-		if ( !cubedata.isFullyRectAndReg() )
+		if ( !cubedata.isFullyRegular() )
 		    outcube->setTracePositions( new PosInfo::SortedCubeData(
 							cubedata) );
 	    }

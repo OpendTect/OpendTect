@@ -12,6 +12,16 @@
 #include "survgeom2d.h"
 
 
+bool PosInfo::LinesData::isFullyRegular() const
+{
+    const auto sz = size();
+    for ( idx_type lidx=0; lidx<sz; lidx++ )
+	if ( get(lidx)->segments_.size() > 1 )
+	    return false;
+    return true;
+}
+
+
 void PosInfo::LinesData::setTo( const GeomIDSet& gids )
 {
     setEmpty();
@@ -29,6 +39,31 @@ void PosInfo::LinesData::setToAllLines()
     GeomIDSet gids;
     Survey::Geometry2D::getGeomIDs( gids );
     setTo( gids );
+}
+
+
+PosInfo::LinesData::glob_size_type PosInfo::LinesData::totalSizeInside(
+					const LineHorSubSelSet& lhsss ) const
+{
+    glob_size_type nrpos = 0;
+    for ( auto linedata : *this )
+    {
+	const auto* lhss = lhsss.find( GeomID(linedata->linenr_) );
+	if ( lhss )
+	    for ( auto seg : linedata->segments_ )
+		for ( pos_type tnr=seg.start; tnr<=seg.stop; tnr+=seg.step )
+		    if ( lhss->trcNrSubSel().includes(tnr) )
+			nrpos++;
+    }
+    return nrpos;
+}
+
+
+bool PosInfo::LinesData::hasPosition( const LineHorSubSelSet& lhsss,
+				     glob_idx_type gidx ) const
+{
+    const Bin2D b2d( lhsss.atGlobIdx(gidx) );
+    return includes( b2d );
 }
 
 
@@ -168,31 +203,29 @@ bool PosInfo::CubeData::getCubeHorSubSel( CubeHorSubSel& chss ) const
 }
 
 
-bool PosInfo::CubeData::isFullyRectAndReg() const
+bool PosInfo::CubeData::isFullyRegular() const
 {
     const auto sz = size();
-    if ( sz < 1 ) return true;
-
+    if ( sz < 1 )
+	return true;
     const PosInfo::LineData* ld = first();
     if ( ld->segments_.isEmpty() )
 	return sz == 1;
-    const auto seg = ld->segments_[0];
 
+    const auto seg = ld->segments_.first();
     pos_type lnrstep = mUdf(pos_type);
     for ( idx_type lidx=0; lidx<sz; lidx++ )
     {
 	ld = get( lidx );
-	if ( ld->segments_.isEmpty() )
+	if ( ld->segments_.size() != 1 || ld->segments_[0] != seg )
 	    return false;
-	if ( ld->segments_.size() > 1 || ld->segments_[0] != seg )
+	if ( lidx < 1 )
+	    continue;
+
+	if ( lidx == 1 )
+	    lnrstep = ld->linenr_ - get(lidx-1)->linenr_;
+	else if ( ld->linenr_ - get(lidx-1)->linenr_ != lnrstep )
 	    return false;
-	if ( lidx > 0 )
-	{
-	    if ( lidx == 1 )
-		lnrstep = ld->linenr_ - get(lidx-1)->linenr_;
-	    else if ( ld->linenr_ - get(lidx-1)->linenr_ != lnrstep )
-		return false;
-	}
     }
 
     return true;

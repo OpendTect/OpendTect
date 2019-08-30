@@ -566,7 +566,7 @@ private:
 
 		    PosInfo::Detector& detector = *detectors_[threadid];
 		    const bool isrect = !trcposns_ ||
-					trcposns_->isFullyRectAndReg();
+					trcposns_->isFullyRegular();
 		    const TrcKeySampling tks( tks_ );
 		    const float* dataptr = data_.getData();
 		    const ValueSeries<float>* datastor = data_.getStorage();

@@ -459,6 +459,25 @@ void LineHorSubSelSet::setToAll()
 }
 
 
+Bin2D LineHorSubSelSet::atGlobIdx( totalsz_type gidx ) const
+{
+    totalsz_type totsz = 0;
+    for ( auto lhss : *this )
+    {
+	auto cursz = lhss->totalSize();
+	if ( totsz+cursz > gidx )
+	{
+	    const idx_type locidx = (idx_type)(gidx - totsz);
+	    return Bin2D( lhss->geomID(), lhss->trcNr4Idx(locidx) );
+	}
+
+	totsz += cursz;
+    }
+
+    return Bin2D::udf();
+}
+
+
 LineHorSubSel* LineHorSubSelSet::doFind( GeomID gid ) const
 {
     for ( auto lhss : *this )

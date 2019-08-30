@@ -142,7 +142,7 @@ public:
     od_int64		getFileModifTime() const;
     GeomSubSel*		getSurvSubSel() const;
     bool		getRanges(TrcKeyZSampling&) const;
-    bool		isFullyRectAndRegular() const;
+    bool		isFullyRegular() const;
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp=0) const;
 			    //!< max bytes per sample, component -1 => add all

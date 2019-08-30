@@ -386,7 +386,7 @@ void MadStream::fillHeaderParsFromSeis()
 	if ( rgsel && !rgsel->isAll() )
 	    newcd.limitTo( rgsel->horSubSel() );
 
-	needposfile = !newcd.isFullyRectAndReg();
+	needposfile = !newcd.isFullyRegular();
 	if ( needposfile )
 	{
 	    nrtrcs = newcd.totalSize();

@@ -175,13 +175,14 @@ public:
     bool		operator ==(const LineCollData&) const;
 			mImplSimpleIneqOper(LineCollData)
 
-    virtual bool	isCubeData() const	= 0;
-    bool		isLinesData() const	{ return !isCubeData(); }
+    virtual bool	isCubeData() const		= 0;
+    bool		isLinesData() const		{ return !isCubeData();}
     CubeData*		asCubeData();
     const CubeData*	asCubeData() const;
     LinesData*		asLinesData();
     const LinesData*	asLinesData() const;
 
+    virtual bool	isFullyRegular() const		= 0;
     glob_size_type	totalSize() const;
     glob_size_type	totalNrSegments() const;
 
