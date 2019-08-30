@@ -280,26 +280,28 @@ void uiTableBody::copy()
 
 void uiTableBody::paste()
 {
-    BufferString str;
-    uiClipboard::getText( str );
+    const QString str = uiClipboard::getText();
+    const QStringList rows = str.split( '\n', QString::SkipEmptyParts );
 
-    const SeparString rows( str, '\n' );
-    const int nrrows = rows.size()-1;
-    const SeparString firstrow( rows[0], '\t' );
-    const int nrcols = firstrow.size();
+    const int nrrows = rows.count();
+    const int nrcols = rows.first().count('\t') + 1;
+    const int startrow = currentRow();
+    const int totalnrrows = nrrows + startrow;
+    const int startcol = currentColumn();
 
-    if ( rowCount() < nrrows )
-	setRowCount( nrrows );
+    if ( rowCount() < totalnrrows )
+	setRowCount( totalnrrows );
 
     for ( int i = 0; i<nrrows; i++ )
     {
-	const SeparString columns( rows[i], '\t' );
+	setCurrentCell( startrow+i, startcol );
+	QStringList columns = rows[i].split( '\t' );
 	for ( int j=0; j<nrcols; j++ )
 	{
-	    const RowCol rc( currentRow()+i, currentColumn()+j );
+	    const RowCol rc( startrow+i, startcol+j );
 	    QTableWidgetItem* itm = getItem( rc, true );
 	    if ( itm )
-		itm->setText( columns[j].str() );
+		itm->setText( columns[j] );
 	}
     }
 }

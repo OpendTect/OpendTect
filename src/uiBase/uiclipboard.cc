@@ -60,3 +60,9 @@ void uiClipboard::setImage( const OD::RGBImage& img )
 	setImage( arr.qImage() );
     }
 }
+
+
+QString uiClipboard::getText()
+{
+     return QApplication::clipboard()->text();
+}
