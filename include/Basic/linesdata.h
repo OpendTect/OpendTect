@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "posinfo.h"
+class LineHorSubSelSet;
 
 
 namespace PosInfo
