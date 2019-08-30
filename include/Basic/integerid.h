@@ -63,7 +63,7 @@ public:
     inline void		setI( IntType i )	{ nr_ = i; }
     inline void		setI( const char* s )	{ nr_ = Conv::to<IntType>(s); }
 
-    inline bool		isInvalid() const	{ return nr_ < 0; }
+    inline bool		isInvalid() const	{ return nr_ == udfval; }
     inline bool		isValid() const		{ return !isInvalid(); }
     inline void		setInvalid()		{ nr_ = udfval; }
     static inline IntegerID getInvalid()	{ return IntegerID(udfval); }
