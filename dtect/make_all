@@ -51,8 +51,8 @@ else if ( "$1" == "--nrcpus" ) then
 else if ( "$1" == "--help" ) then
     echo "Usage: make_all [options]"
     echo " --shallow:   do not make clean before start"
-    echo " --noupd:     Do not run 'svn update'"
-    echo " --stoponerr: stop on all error (i.e. don't add '-k' to make flags)"
+    echo " --noupd:     do not update from remote repository"
+    echo " --stoponerr: stop on all errors (i.e. don't add '-k' to make flags)"
     echo " --doc:       create classDoc"
     echo " --nrcpus:    force number of CPUs to use"
     exit 0
@@ -83,10 +83,10 @@ set dgbdir=`echo $oddir | sed 's/od/dgb/'`
 
 if ( $doupd == yes ) then
     cd ..
-    echo "svn update $oddir"
+    echo "make update for $oddir"
     cd $oddir; $make_cmd update
     echo ""
-    echo "svn update $dgbdir"
+    echo "make update for $dgbdir"
     sleep 2;
     cd ../$dgbdir; $make_cmd update
     cdw
