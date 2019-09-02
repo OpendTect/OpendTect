@@ -245,7 +245,8 @@ File::Path& File::Path::setExtension( const char* ext, bool replace )
 
 bool File::Path::exists() const
 {
-    return File::exists( fullPath() );
+    const BufferString fp( fullPath() );
+    return File::exists( fp );
 }
 
 

@@ -450,17 +450,17 @@ void OD::PythonAccess::handleFilesCB( CallBacker* )
     filedeltimer_.stop();
     for ( int idx=fptodelset_.size()-1; idx>=0; idx-- )
     {
-	const File::Path& fp = *fptodelset_.get( idx );
-	if ( !fp.exists() )
+	const File::Path* fp = fptodelset_.get( idx );
+	if ( !fp || !fp->exists() )
 	{
 	    fptodelset_.removeSingle( idx );
 	    continue;
 	}
 
-	const BufferString scriptfnm( fp.fullPath() );
-	const od_int64 creationtym = File::getTimeInMilliSeconds( scriptfnm );
-	const od_int64 currtym = Time::getMilliSeconds();
-	const double timediff = creationtym - currtym;
+	const BufferString scriptfnm( fp->fullPath() );
+	const od_int64 creationtime = File::getTimeInMilliSeconds( scriptfnm );
+	const od_int64 currtime = Time::getMilliSeconds();
+	const double timediff = creationtime - currtime;
 	if ( timediff < mFileRetentionTimeInMilliSec )
 	    continue;
 
