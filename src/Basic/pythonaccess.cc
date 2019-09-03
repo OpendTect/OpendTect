@@ -285,14 +285,22 @@ BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 	if ( stderrout )
 	{
 	    if ( cl->getStdError() )
+	    {
 		cl->getStdError()->getAll( ret );
+		if ( ret.isEmpty() && !laststderr_.isEmpty() )
+		    ret = laststderr_;
+	    }
 	    else
 		ret = laststderr_;
 	}
 	else
 	{
 	    if ( cl->getStdOutput() )
+	    {
 		cl->getStdOutput()->getAll( ret );
+		if ( ret.isEmpty() && !laststdout_.isEmpty() )
+		    ret = laststdout_;
+	    }
 	    else
 		ret = laststdout_;
 	}
