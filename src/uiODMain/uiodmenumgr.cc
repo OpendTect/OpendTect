@@ -928,7 +928,6 @@ void uiODMenuMgr::fillUtilMenu()
     const bool enabadvsettings = GetEnvVarYN( "OD_ENABLE_ADVANCED_SETTINGS" );
 #endif
     uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
-    mInsertItem( advmnu, m3Dots(tr("Python Settings")), mSettPython );
     if ( enabadvsettings )
     {
 	mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
@@ -944,6 +943,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
+    mInsertItem( installmnu_, m3Dots(tr("Python Settings")), mSettPython );
     FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller )
