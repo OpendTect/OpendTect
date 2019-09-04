@@ -41,37 +41,8 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "timer.h"
-
-
-class uiPythonInstallGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiPythonInstallGrp)
-public:
-uiPythonInstallGrp( uiParent* p )
-    : uiDlgGroup(p,tr("Python Installation"))
-{
-    uiString msg = tr("This Presentation Maker needs a Python installation.\n"
-		   "For more information please click the Help button.");
-    uiLabel* lbl = new uiLabel( this, msg );
-
-    const BufferString filter( __iswin__ ? "Application (*.exe)" : "" );
-    pythonfld_ = new uiFileInput( this, tr("Python Executable") );
-    pythonfld_->setFilter( filter );
-    pythonfld_->setFileName( PresentationSpec::getPyExec() );
-    pythonfld_->attach( leftAlignedBelow, lbl );
-}
-
-
-bool acceptOK()
-{
-    const char* fnm = pythonfld_->fileName();
-    PresentationSpec::setPyExec( fnm );
-    return true;
-}
-
-protected:
-    uiFileInput*	pythonfld_;
-};
-
+#include "pythonaccess.h"
+#include "settings.h"
 
 class uiSlideLayoutGrp : public uiDlgGroup
 { mODTextTranslationClass(uiSlideLayoutDlg)
@@ -196,7 +167,6 @@ uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
 				      mODHelpKey(mSlideLayoutDlgHelpID)))
 {
     addGroup( new uiSlideLayoutGrp(tabParent(),spec) );
-    addGroup( new uiPythonInstallGrp(tabParent()) );
 }
 
 };
@@ -296,7 +266,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     templateCB(0);
     imageTypeCB(0);
 
-    postFinalise().notify( mCB(this,uiPresentationMakerDlg,finalizeCB) );
+	afterPopup.notify(mCB(this,uiPresentationMakerDlg,checkCB) );
 }
 
 
@@ -306,43 +276,29 @@ uiPresentationMakerDlg::~uiPresentationMakerDlg()
 }
 
 
-void uiPresentationMakerDlg::finalizeCB( CallBacker* )
-{
-    checktimer_ = new Timer( "Check Installation Timer" );
-    checktimer_->tick.notify( mCB(this,uiPresentationMakerDlg,checkCB) );
-    checktimer_->start( 250, true );
-}
-
-
 void uiPresentationMakerDlg::checkCB( CallBacker* )
 { checkInstallation(); }
 
 
 bool uiPresentationMakerDlg::checkInstallation()
 {
-    const BufferString pyexec = PresentationSpec::getPyExec();
-    if ( !File::exists(pyexec) )
-    {
-	uiMSG().error( tr("Could not detect a valid Python installation.\n"
-			"Please click the Help button for more information\n"
-			"on how to install Python.\n"
-			"When installed, select the Python executable in the\n"
-			"settings window.") );
-	return false;
-    }
+	if ( !OD::PythA().isUsable(true) )
+	{
+		uiMSG().error( tr("Could not detect a valid Python installation.\n"
+				"Please visit the \"Utilities | Settings | Advanced | Python Settings\" menu \n"
+				"to specify the default Python installation.") );
+		return false;
+	}
 
-    BufferString outstr;
-    const char* cmd = "pip list";
-    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &outstr );
-    if ( !res || !outstr.find("python-pptx") )
-    {
-	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
-			"Please click the Help button for more information\n"
-			"on how to install the python-pptx package.") );
-	return false;
-    }
+	if ( !OD::PythA().isModuleUsable("pptx") )
+	{
+		uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
+				"Please click the Help button for more information\n"
+				"on how to install the python-pptx package.") );
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 
@@ -610,12 +566,13 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
-    BufferString cmd( PresentationSpec::getPyExec(), " ", scriptfp.fullPath() );
-    if ( !OS::ExecCommand(cmd.buf(),OS::Wait4Finish) )
-    {
-	uiMSG().error( tr("Could not execute\n: "), cmd.buf(),
-	    tr("\nPlease check if Python is correctly installed.") );
-	return;
+	BufferString comm( OD::PythonAccess::sPythonExecNm(true) );
+	comm.add( " " ).add(scriptfp.fullPath() );
+	if ( !OD::PythA().execute( OS::MachineCommand( comm ), true ) )
+	{
+		uiMSG().error( tr("Could not execute\n: "), comm.buf(),
+			tr("\nPlease check the log file for error messages.") );
+		return;
     }
 
     if ( !File::exists(outputfnm) )
