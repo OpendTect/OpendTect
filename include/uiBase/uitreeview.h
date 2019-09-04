@@ -39,6 +39,7 @@ public:
 				   bool rootdecorated=true);
     virtual		~uiTreeView();
 
+    bool		isEmpty() const override;
     void		setEmpty();
     void		setNrLines(int);
 
