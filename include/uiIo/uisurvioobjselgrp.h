@@ -82,5 +82,6 @@ protected:
 public:
 
     void		insert(uiObject&);
+    virtual void	refresh()		{ updGrp(false); }
 
 };
