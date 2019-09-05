@@ -92,6 +92,7 @@ public:
     bool		sensitive() const;
     bool		visible() const;
     bool		isDisplayed() const;
+    virtual bool	isEmpty() const { return false; }
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);

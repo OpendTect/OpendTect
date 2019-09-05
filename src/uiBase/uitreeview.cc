@@ -295,6 +295,12 @@ uiTreeView::~uiTreeView()
 }
 
 
+bool uiTreeView::isEmpty() const
+{
+    return body_->topLevelItemCount() < 1;
+}
+
+
 void uiTreeView::setEmpty()
 {
     body_->QTreeWidget::clear();
