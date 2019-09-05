@@ -67,6 +67,8 @@ public:
     StepInterval<int>		geometryRowRange() const;
     StepInterval<int>		geometryColRange() const;
     visBase::HorizonSection*	getHorizonSection(const EM::SectionID&);
+    const visBase::HorizonSection*
+				getHorizonSection(const EM::SectionID&) const;
     TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
     void			useTexture(bool yn,bool trigger=false);
