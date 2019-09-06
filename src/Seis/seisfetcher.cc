@@ -37,10 +37,15 @@ const GatherSetDataPack& Seis::Fetcher::gathDP() const
 { return *((GatherSetDataPack*)dp_.ptr()); }
 
 
+ZSampling Seis::Fetcher::provZSamp() const
+{
+    return prov_.zRange( curlidx_ );
+}
+
+
 void Seis::Fetcher::handleGeomIDChange( idx_type iln )
 {
     curlidx_ = iln;
-    provzsamp_ = prov_.zRange( curlidx_ );
     datachar_ = DataCharacteristics();
 
     const auto* trl = curTransl();
@@ -59,7 +64,7 @@ void Seis::Fetcher::handleGeomIDChange( idx_type iln )
     if ( dp_ )
     {
 	const auto dpzsamp = isPS() ? gathDP().zRange() : regSeisDP().zRange();
-	if ( !dpzsamp.includes(provzsamp_) )
+	if ( !dpzsamp.includes(provZSamp()) )
 	    dp_ = nullptr;
     }
 }
@@ -69,9 +74,10 @@ void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
 				TraceData& td )
 {
     //TODO have the datapack do this work much more efficitently
-    // by providing provzsamp_ and datachar_
+    // by providing provzsamp and datachar_
 
-    const bool directfill = regSeisDP().isFullyCompat( provzsamp_, datachar_ );
+    const auto provzsamp = provZSamp();
+    const bool directfill = regSeisDP().isFullyCompat( provzsamp, datachar_ );
     auto& filledti = directfill ? ti : worktrc_.info();
     auto& filledtd = directfill ? td : worktrc_.data();
     regSeisDP().fillTraceInfo( tk, filledti );
@@ -81,7 +87,7 @@ void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
 
     // our data needs to go from worktrc into ti and td
     const auto nrcomps = isPS() ? 1 : regSeisDP().nrComponents();
-    const auto nrsamps = provzsamp_.nrSteps() + 1;
+    const auto nrsamps = provzsamp.nrSteps() + 1;
     td.setNrComponents( nrcomps, datachar_.userType() );
     td.convertTo( datachar_, false );
     td.reSize( nrsamps );
@@ -89,13 +95,13 @@ void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
     {
 	for ( auto isamp=0; isamp<nrsamps; isamp++ )
 	{
-	    const auto z = provzsamp_.atIndex( isamp );
+	    const auto z = provzsamp.atIndex( isamp );
 	    td.setValue( isamp, worktrc_.getValue(z,icomp), icomp );
 	}
     }
     ti = filledti;
-    ti.sampling_.start = provzsamp_.start;
-    ti.sampling_.step = provzsamp_.step;
+    ti.sampling_.start = provzsamp.start;
+    ti.sampling_.step = provzsamp.step;
 }
 
 

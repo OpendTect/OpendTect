@@ -60,6 +60,7 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 	, lastposfo_(0)
 	, hs_(false)
 	, singlinemode_(false)
+	, worktrcdata_(*new TraceData)
 {
     hs_.step_.inl() = hs_.step_.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
@@ -70,6 +71,7 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 CBVSReader::~CBVSReader()
 {
     close();
+    delete &worktrcdata_;
 }
 
 
@@ -275,7 +277,7 @@ bool CBVSReader::readComps()
 
 	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar_.nrBytes();
 	bytespertrace_ += cnrbytes_[icomp];
-	samprg_ = Interval<int>( 0, info_.nrsamples_-1 );
+	samprg_ = StepInterval<int>( 0, info_.nrsamples_-1, 1 );
     }
 
     return true;
@@ -612,8 +614,8 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 }
 
 
-bool CBVSReader::fetch( TraceData& trcdata, const bool* comps,
-			const Interval<int>* samps, int offs )
+bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
+			const StepInterval<int>* samprg, int offs )
 {
     if ( !hinfofetched_ && auxnrbytes_ )
     {
@@ -622,42 +624,58 @@ bool CBVSReader::fetch( TraceData& trcdata, const bool* comps,
 	    return false;
     }
 
-    if ( !samps )
-	samps = &samprg_;
+    if ( !samprg )
+	samprg = &samprg_;
 
-    const auto nrsamps = samps->stop - samps->start + 1;
-    if ( trcdata.size(0) < nrsamps )
-    {
-	trcdata.convertTo( info_.compinfo_[0]->datachar_ );
-	trcdata.reSize( nrsamps );
-    }
-
-    const auto nrsampsleftatend = info_.nrsamples_ - samps->stop - 1;
     int iselc = -1;
     int nrcompsselected = nrcomps_;
     if ( comps )
 	for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	    if ( !comps[icomp] )
 		nrcompsselected--;
-    if ( trcdata.nrComponents() != nrcompsselected )
-	trcdata.setNrComponents( nrcompsselected, OD::AutoDataRep );
+    if ( tdtofill.nrComponents() != nrcompsselected )
+	tdtofill.setNrComponents( nrcompsselected, OD::AutoDataRep );
 
+    tdtofill.convertTo( info_.compinfo_[0]->datachar_ );
+    const auto outnrsamps = samprg->nrSteps() + 1;
+    if ( tdtofill.size(0) < outnrsamps )
+	tdtofill.reSize( outnrsamps );
+
+    TraceData* td = &tdtofill;
+    if ( samprg->step > 1 )
+    {
+	worktrcdata_.setNrComponents( nrcompsselected, OD::AutoDataRep );
+	worktrcdata_.reSize( samprg->stop-samprg->start+1 );
+	td = &worktrcdata_;
+    }
+
+    const auto nrsamps2skip = samprg->start;
+    const auto nrsamps2read = samprg->stop - samprg->start + 1;
+    const auto nrsampsleftatend = info_.nrsamples_ - samprg->stop - 1;
+    const auto bps = info_.compinfo_[0]->datachar_.nrBytes();
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	if ( comps && !comps[icomp] )
 	    { strm_.ignore( cnrbytes_[icomp] ); continue; }
 	iselc++;
 
-	const auto bps = info_.compinfo_[icomp]->datachar_.nrBytes();
-	if ( samps->start > 0 )
-	    strm_.ignore( samps->start*bps );
-	char* bufptr = (char*)trcdata.getComponent(iselc)->data();
-	if ( !strm_.getBin(bufptr+offs*bps,nrsamps*bps) )
+	if ( nrsamps2skip > 0 )
+	    strm_.ignore( nrsamps2skip*bps );
+
+	char* bufptr = (char*)td->getComponent(iselc)->data();
+	if ( !strm_.getBin(bufptr+offs*bps,nrsamps2read*bps) )
 	    break;
 
 	if ( nrsampsleftatend > 0 )
 	    strm_.ignore( nrsampsleftatend*bps );
     }
+
+    if ( td != &tdtofill )
+	for ( int icomp=0; icomp<nrcomps_; icomp++ )
+	    for ( auto isamp=0; isamp<outnrsamps; isamp++ )
+		tdtofill.setValue( isamp,
+				   td->getValue(isamp*samprg->step,icomp),
+				   icomp );
 
     hinfofetched_ = false;
     return !strm_.isBad();

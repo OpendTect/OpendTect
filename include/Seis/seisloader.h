@@ -211,7 +211,6 @@ private:
     bool		getTrcsPosForRead(TypeSet<TrcKey>&) const;
 
     Provider*		prov_;
-    Interval<int>	samprg_;
     LineCollDataIterator* trcsiterator_;
     bool		samedatachar_;
     StepInterval<float> dpzsamp_;

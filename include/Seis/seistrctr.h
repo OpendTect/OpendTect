@@ -275,15 +275,17 @@ protected:
     const SelData*			seldata_;
     SamplingData<float>			outsd_;
     int					outnrsamples_;
-    Interval<int>			samprg_;
+    StepInterval<int>			samprg_;
     GeomID				geomid_;
     DataType				datatype_;
     bool				headerdone_;
     bool				datareaddone_;
-    TraceData*				storbuf_;
+    TraceData*				trcdata_;
     LinScaler*				trcscale_;
     const LinScaler*			curtrcscale_;
 
+    int			nrSamps2Read() const
+			{ return samprg_.stop-samprg_.start+1; }
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,const char* nm=0);
 

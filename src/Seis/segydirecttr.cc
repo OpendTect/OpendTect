@@ -517,7 +517,7 @@ bool SEGYDirectSeisTrcTranslator::readData( TraceData* extbuf )
     if ( !ensureSelectionsCommitted() )
 	return false;
 
-    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    TraceData& tdata = extbuf ? *extbuf : *trcdata_;
     if ( !tr_->readData(&tdata) )
 	return false;
 

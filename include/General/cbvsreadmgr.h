@@ -50,7 +50,7 @@ public:
 
     bool		getAuxInfo(PosAuxInfo&);
     bool		fetch(TraceData&,const bool* comps=0,
-				const Interval<int>* samps=0);
+				const StepInterval<int>* samps=0);
 			//!< See CBVSReader::fetch comments
 
     static const char*	check(const char*);

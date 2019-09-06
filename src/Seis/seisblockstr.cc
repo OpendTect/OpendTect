@@ -196,7 +196,7 @@ bool BlocksSeisTrcTranslator::readData( TraceData* extbuf )
     if ( !ensureSelectionsCommitted() )
 	return false;
 
-    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    TraceData& tdata = extbuf ? *extbuf : *trcdata_;
     uiRetVal uirv = rdr_->getTrcData( tdata );
     if ( uirv.isError() )
     {

@@ -527,6 +527,7 @@ void Seis::Provider::reportSetupChg()
 {
     if ( state_ == Active )
 	state_ = NeedPrep;
+    deleteAndZeroPtr( selectedpositions_ );
 }
 
 
@@ -617,7 +618,13 @@ void Seis::Provider::createSelectedZSubSels()
     {
 	selectedzsubsels_.add( allzsubsels_.first() );
 	if ( seldata_ )
-	    selectedzsubsels_.last().limitTo( seldata_->zRange(0) );
+	{
+	    if ( seldata_->isRange() )
+		selectedzsubsels_.last().limitTo(
+				seldata_->asRange()->zSubSel(0) );
+	    else
+		selectedzsubsels_.last().limitTo( seldata_->zRange(0) );
+	}
     }
     else
     {

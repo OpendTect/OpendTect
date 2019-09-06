@@ -47,9 +47,10 @@
 	, totnr_(-1) \
 	, curprovidx_(-1) \
 
-#define mHandlePastLastReader(to_do) \
-    if ( !provs_.validIdx(curprovidx_) ) \
-	{ wrapUp(); to_do; }
+#define mPastLastReader() (!provs_.validIdx(curprovidx_))
+#define mWrapUpIfPastLastReader() \
+    if ( mPastLastReader() ) \
+	return wrapUp();
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
@@ -222,7 +223,8 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 bool SeisSingleTraceProc::nextReader()
 {
     curprovidx_++;
-    mHandlePastLastReader( return false );
+    if ( mPastLastReader() )
+	{ wrapUp(); return false; }
     return true;
 }
 
@@ -298,7 +300,7 @@ od_int64 SeisSingleTraceProc::totalNr() const
 
 int SeisSingleTraceProc::getNextTrc()
 {
-    mHandlePastLastReader( return Finished() );
+    mWrapUpIfPastLastReader();
     Seis::Provider& curprov = *provs_[curprovidx_];
 
     const uiRetVal uirv = curprov.getNext( intrc_ );
@@ -307,7 +309,7 @@ int SeisSingleTraceProc::getNextTrc()
 	if ( isFinished(uirv) )
 	{
 	    if ( !nextReader() )
-		{ wrapUp(); return Finished(); }
+		return wrapUp();
 
 	    return MoreToDo();
 	}
@@ -350,7 +352,7 @@ void SeisSingleTraceProc::prepareNullFilling()
 
 int SeisSingleTraceProc::getFillTrc()
 {
-    mHandlePastLastReader( return Finished() );
+    mWrapUpIfPastLastReader();
 
     if ( !filltrc_ )
     {
@@ -379,7 +381,7 @@ int SeisSingleTraceProc::getFillTrc()
     }
 
     if ( fillbid_.inl() > fillhs_.stop_.inl() )
-	{ wrapUp(); return Finished(); }
+	return wrapUp();
 
     const Seis::Provider& curprov = *provs_[curprovidx_];
     const Seis::SelData* seldata = curprov.selData();
@@ -442,7 +444,8 @@ bool SeisSingleTraceProc::writeTrc()
 {
     if ( nrwr_ < 1 && storer_.translator() )
     {
-	mHandlePastLastReader( curprovidx_-- );
+	if ( mPastLastReader() )
+	    curprovidx_--;
 	const Seis::Provider& curprov = *provs_[curprovidx_];
 	SeisTrcTranslator& wrtr = *storer_.translator();
 	if ( !curprov.is2D() )
@@ -472,7 +475,7 @@ bool SeisSingleTraceProc::writeTrc()
 
 int SeisSingleTraceProc::nextStep()
 {
-    mHandlePastLastReader( return Finished() );
+    mWrapUpIfPastLastReader();
 
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
@@ -490,7 +493,12 @@ int SeisSingleTraceProc::nextStep()
 }
 
 
-void SeisSingleTraceProc::wrapUp()
+int SeisSingleTraceProc::wrapUp()
 {
-    storer_.close();
+    const auto uirv = storer_.close();
+    if ( uirv.isOK() )
+	return Finished();
+
+    curmsg_ = uirv;
+    return ErrorOccurred();
 }

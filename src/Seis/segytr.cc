@@ -367,7 +367,7 @@ void SEGYSeisTrcTranslator::setTxtHeader( SEGY::TxtHeader* th )
 bool SEGYSeisTrcTranslator::writeTapeHeader()
 {
     if ( filepars_.fmt_ == 0 ) // Auto-detect
-	filepars_.fmt_ = nrFormatFor( storbuf_->getInterpreter()->dataChar() );
+	filepars_.fmt_ = nrFormatFor( trcdata_->getInterpreter()->dataChar() );
 
     trchead_.isrev0_ = false;
 
@@ -743,7 +743,7 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 {
     if ( ntrcs < 1 )
 	return true;
-    if ( !storbuf_ )
+    if ( !trcdata_ )
 	commitSelections();
 
     od_istream& strm = sConn().iStream();
@@ -790,17 +790,18 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 }
 
 
-bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
+bool SEGYSeisTrcTranslator::readData( TraceData* tdtofill )
 {
     if ( !ensureSelectionsCommitted() )
 	return false;
 
-    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    const bool directread = tdtofill && samprg_.step < 2;
+    TraceData& tdata = directread ? *tdtofill : *trcdata_;
     od_istream& strm = sConn().iStream();
     if ( samprg_.start > 0 )
 	strm.ignore( samprg_.start * mBPS(inpcd_) );
 
-    int rdsz = (samprg_.width()+1) *  mBPS(inpcd_);
+    int rdsz = nrSamps2Read() * mBPS(inpcd_);
     if ( !sConn().iStream().getBin(tdata.getComponent()->data(),rdsz) )
     {
 	if ( strm.lastNrBytesRead() != rdsz )
@@ -814,6 +815,14 @@ bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 
     if ( !strm.isBad() )
 	datareaddone_ = true;
+
+    if ( tdtofill && !directread )
+    {
+	const auto nrsamps2read = nrSamps2Read();
+	for ( int isamp=0; isamp<nrsamps2read; isamp++ )
+	    tdtofill->setValue( isamp,
+				trcdata_->getValue(isamp*samprg_.step,0), 0 );
+    }
 
     headerdone_ = false;
 
@@ -834,10 +843,10 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 	float val = trc.getValue( outsd_.atIndex(idx), curcomp );
 	if ( !allowudfs && mIsUdf(val) )
 	    val = udfreplaceval;
-	storbuf_->setValue( idx, val );
+	trcdata_->setValue( idx, val );
     }
 
-    if ( !sConn().oStream().addBin( storbuf_->getComponent()->data(),
+    if ( !sConn().oStream().addBin( trcdata_->getComponent()->data(),
 			 outnrsamples_ * outcd_->datachar_.nrBytes() ) )
 	mErrRetDiskFull(tr("Cannot write trace data"))
 

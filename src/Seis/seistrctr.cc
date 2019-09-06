@@ -85,7 +85,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , datatype_(Seis::UnknownData)
     , headerdone_(false)
     , datareaddone_(false)
-    , storbuf_(0)
+    , trcdata_(0)
     , compnms_(0)
     , trcscale_(0)
     , curtrcscale_(0)
@@ -130,7 +130,7 @@ void SeisTrcTranslator::cleanUp()
 
     headerdone_ = false;
     datareaddone_ = false;
-    deleteAndZeroPtr( storbuf_ );
+    deleteAndZeroPtr( trcdata_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
     deleteAndZeroArrPtr( inpfor_ );
@@ -200,15 +200,12 @@ bool SeisTrcTranslator::commitSelections()
     outsd_ = insd_; outnrsamples_ = innrsamples_;
     if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
     {
-	Interval<float> selzrg( seldata_->zRange() );
-	const Interval<float> sizrg( SI().zRange() );
-	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
-	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
-	{
-	    outsd_.start = selzrg.start;
-	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd_.step;
-	    outnrsamples_ = mNINT32(fnrsteps) + 1;
-	}
+	const auto selzrg = seldata_->zRange();
+	if ( seldata_->isRange() )
+	    outsd_.step = seldata_->asRange()->zSubSel().zStep();
+	outsd_.start = selzrg.start;
+	const float fnrsteps = (selzrg.stop-selzrg.start) / outsd_.step;
+	outnrsamples_ = mNINT32(fnrsteps) + 1;
     }
 
     mAllocLargeVarLenArr( int, selnrs, sz );
@@ -246,24 +243,20 @@ bool SeisTrcTranslator::commitSelections()
     errmsg_.setEmpty();
     enforceBounds();
 
-    float fsampnr = (outsd_.start - insd_.start) / insd_.step;
-    samprg_.start = mNINT32( fsampnr );
-    samprg_.stop = samprg_.start + outnrsamples_ - 1;
-
     const bool forread = forRead();
     const int nrcomps = nrSelComps();
     const ComponentData** cds = forread ? (const ComponentData**)inpcds_
 					: (const ComponentData**)outcds_;
     const int ns = forread ? innrsamples_ : outnrsamples_;
-    delete storbuf_;
-    storbuf_ = new TraceData;
+    delete trcdata_;
+    trcdata_ = new TraceData;
     for ( int iselc=0; iselc<nrcomps; iselc++ )
-	storbuf_->addComponent( ns+1, cds[iselc]->datachar_ , true );
+	trcdata_->addComponent( ns+1, cds[iselc]->datachar_ , true );
 
-    if ( !storbuf_->allOk() )
+    if ( !trcdata_->allOk() )
     {
 	errmsg_ = tr("Out of memory");
-	deleteAndZeroPtr( storbuf_ );
+	deleteAndZeroPtr( trcdata_ );
 	return false;
     }
 
@@ -273,27 +266,23 @@ bool SeisTrcTranslator::commitSelections()
 
 void SeisTrcTranslator::enforceBounds()
 {
-    // Ranges
-    outsd_.step = insd_.step;
-    float outstop = outsd_.start + (outnrsamples_ - 1) * outsd_.step;
-    if ( outsd_.start < insd_.start )
-	outsd_.start = insd_.start;
-    const float instop = insd_.start + (innrsamples_ - 1) * insd_.step;
-    if ( outstop > instop )
-	outstop = instop;
+    mUseType( Pos, ZSubSel );
+    mUseType( ZSubSel, z_steprg_type );
+    const z_steprg_type inrg( insd_.start,
+		insd_.start + (innrsamples_ - 1) * insd_.step, insd_.step );
+    ZSubSel zss( inrg );
+    const z_steprg_type outrg( outsd_.start,
+		outsd_.start + (outnrsamples_ - 1) * outsd_.step, outsd_.step );
+    zss.setOutputZRange( outrg );
 
-    // Snap to samples
-    float sampdist = (outsd_.start - insd_.start) / insd_.step;
-    int startsamp = (int)(sampdist + 0.0001);
-    if ( startsamp < 0 ) startsamp = 0;
-    if ( startsamp > innrsamples_-1 ) startsamp = innrsamples_-1;
-    sampdist = (outstop - insd_.start) / insd_.step;
-    int endsamp = (int)(sampdist + 0.9999);
-    if ( endsamp < startsamp ) endsamp = startsamp;
-    if ( endsamp > innrsamples_-1 ) endsamp = innrsamples_-1;
+    outsd_.start = zss.zStart();
+    outsd_.step = zss.zStep();
+    outnrsamples_ = zss.zData().size();
 
-    outsd_.start = insd_.start + startsamp * insd_.step;
-    outnrsamples_ = endsamp - startsamp + 1;
+    samprg_.start = inrg.nearestIndex( outsd_.start );
+    samprg_.stop = inrg.nearestIndex( outsd_.atIndex(outnrsamples_-1) );
+    samprg_.step = inrg.nearestIndex( outsd_.start+outsd_.step )
+		 - samprg_.start;
 }
 
 
@@ -571,7 +560,7 @@ bool SeisTrcTranslator::read( SeisTrc& trc )
     {
 	const DataCharacteristics datachar =
 					tdataout.getInterpreter(0)->dataChar();
-	tdataout = *storbuf_;
+	tdataout = *trcdata_;
 	tdataout.convertTo( datachar );
     }
 

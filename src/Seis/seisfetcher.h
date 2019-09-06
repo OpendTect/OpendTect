@@ -66,10 +66,10 @@ protected:
     void		fillFromDP(const TrcKey&,SeisTrcInfo&,TraceData&);
 
     void		handleGeomIDChange(idx_type iln=0);
+    ZSampling		provZSamp() const;
 
     idx_type		curlidx_			= -1;
     RefMan<DataPack>	dp_;
-    ZSampling		provzsamp_;
     DataCharacteristics	datachar_;
 
 private:

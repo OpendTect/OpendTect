@@ -125,7 +125,7 @@ protected:
 
     void		addProv(Provider*,bool,const IOPar* iop=0);
     bool		nextReader();
-    virtual void	wrapUp();
+    virtual int		wrapUp();
 
     int			getNextTrc();
     int			getFillTrc();
