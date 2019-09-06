@@ -118,7 +118,8 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
 bool uiDataPointSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
 {
-    mGetDPS(dps,&ioobj);
+    const IOObj* ioobjptr = &ioobj;
+    mGetDPS(dps,ioobjptr);
     if ( !dps )
 	{ inf.add( sSelDataSetEmpty() ); return false; }
 

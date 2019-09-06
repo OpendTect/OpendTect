@@ -795,7 +795,7 @@ bool EventManager::DipSource::use( const char* str )
 {
     const FileMultiString fms( str );
     const char* type = fms[0];
-    if ( !type || !type )
+    if ( !type || !*type )
 	return false;
 
     Type typeenum;
