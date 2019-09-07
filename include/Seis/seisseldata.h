@@ -64,7 +64,7 @@ public:
     typedef SelType		Type;
     typedef SelDataPosIter	PosIter;
     typedef Interval<pos_type>	pos_rg_type;
-    typedef Interval<z_type>	z_rg_type;
+    typedef StepInterval<z_type> z_steprg_type;
     typedef pos_type		trcnr_type;
 
     virtual		~SelData()			{}
@@ -90,7 +90,7 @@ public:
     virtual pos_rg_type inlRange() const		= 0;
     virtual pos_rg_type crlRange() const		= 0;
     virtual pos_rg_type trcNrRange(idx_type i=0) const	{ return crlRange(); }
-    virtual z_rg_type	zRange(idx_type i=0) const;
+    virtual z_steprg_type zRange(idx_type i=0) const;
 
     uiString		usrSummary() const;
     virtual size_type	expectedNrTraces() const	= 0;
@@ -100,7 +100,7 @@ public:
     static void		removeFromPar(IOPar&,const char* subky=0);
 
     void		include(const SelData&);
-    virtual void	setZRange(const z_rg_type&,idx_type i=0) = 0;
+    virtual void	setZRange(const z_steprg_type&,idx_type i=0) = 0;
 
     virtual size_type	nrGeomIDs() const		{ return 1; }
     virtual GeomID	geomID( idx_type i=0 ) const	{ return gtGeomID(i); }

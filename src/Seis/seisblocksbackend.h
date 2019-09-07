@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "seisblocksreader.h"
 #include "seisblockswriter.h"
 #include "hdf5access.h"
+#include "zsubsel.h"
 #include "od_iosfwd.h"
 #include <map>
 namespace HDF5 { class Reader; class Writer; }

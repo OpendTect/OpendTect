@@ -18,24 +18,25 @@
 
 #define mGetPolyKey(k) IOPar::compKey(sKey::Polygon(),k)
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
-mUseType( Seis::SelData, z_rg_type );
+mUseType( Seis::SelData, z_steprg_type );
 mUseType( Seis::SelData, pos_type );
 mUseType( Seis::SelData, pos_rg_type );
 mUseType( Seis::SelData, idx_type );
 mUseType( Seis::SelData, size_type );
+typedef Interval<Seis::SelData::z_type> z_rg_type;
 typedef StepInterval<pos_type> pos_steprg_type;
 
 
 Seis::TableSelData::TableSelData()
     : bvs_(*new BinnedValueSet(1,true))
-    , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
+    , fixedzrange_(z_steprg_type(mUdf(z_type),mUdf(z_type),mUdf(z_type)))
 {
 }
 
 
 Seis::TableSelData::TableSelData( const BinnedValueSet& bvs )
     : bvs_(*new BinnedValueSet(bvs))
-    , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
+    , fixedzrange_(z_steprg_type(mUdf(z_type),mUdf(z_type),mUdf(z_type)))
 {
     bvs_.setNrVals( 1 );
 }
@@ -43,7 +44,7 @@ Seis::TableSelData::TableSelData( const BinnedValueSet& bvs )
 
 Seis::TableSelData::TableSelData( const DBKey& dbky )
     : bvs_(*new BinnedValueSet(1,true))
-    , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
+    , fixedzrange_(z_steprg_type(mUdf(z_type),mUdf(z_type),mUdf(z_type)))
 {
     IOPar iop;
     iop.set( mGetTableKey(sKey::ID()), dbky );
@@ -53,7 +54,7 @@ Seis::TableSelData::TableSelData( const DBKey& dbky )
 
 Seis::TableSelData::TableSelData( const TableSelData& sd )
     : bvs_(*new BinnedValueSet(1,true))
-    , fixedzrange_(z_rg_type(mUdf(z_type),mUdf(z_type)))
+    , fixedzrange_(z_steprg_type(mUdf(z_type),mUdf(z_type),mUdf(z_type)))
 {
     copyFrom(sd);
 }
@@ -120,14 +121,16 @@ pos_rg_type Seis::TableSelData::crlRange() const
 }
 
 
-z_rg_type Seis::TableSelData::zRange( idx_type ) const
+z_steprg_type Seis::TableSelData::zRange( idx_type ) const
 {
+    z_steprg_type zrg;
     if ( !mIsUdf(fixedzrange_.start) )
-	return fixedzrange_;
+	zrg = fixedzrange_;
+    else
+	zrg = bvs_.valRange( 0 );
 
-    z_rg_type zrg = bvs_.valRange( 0 );
-    if ( zrg.isUdf() )
-	zrg = SI().zRange();
+    if ( mIsUdf(zrg.step) )
+	zrg.step = SI().zStep();
 
     return zrg;
 }
@@ -247,7 +250,7 @@ Seis::PolySelData::PolySelData()
 
 
 Seis::PolySelData::PolySelData( const ODPolygon<float>& poly,
-			        const z_rg_type* zrg )
+			        const z_steprg_type* zrg )
 {
     polys_ += new ODPolygon<float>( poly );
     initZrg( zrg );
@@ -255,7 +258,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<float>& poly,
 
 
 Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
-			        const z_rg_type* zrg )
+			        const z_steprg_type* zrg )
 {
     polys_ += new ODPolygon<float>;
 
@@ -285,7 +288,7 @@ Seis::PolySelData::PolySelData( const PolySelData& sd )
 }
 
 
-void Seis::PolySelData::initZrg( const z_rg_type* zrg )
+void Seis::PolySelData::initZrg( const z_steprg_type* zrg )
 {
     if ( zrg )
 	zrg_ = *zrg;
@@ -348,7 +351,7 @@ pos_rg_type Seis::PolySelData::inlRange() const
     if ( polys_.isEmpty() )
 	return pos_rg_type( mUdf(pos_type), mUdf(pos_type) );
 
-    z_rg_type floatrg( polys_[0]->getRange(true) );
+    auto floatrg = polys_[0]->getRange( true );
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(true) );
 
@@ -362,7 +365,7 @@ pos_rg_type Seis::PolySelData::crlRange() const
     if ( polys_.isEmpty() )
 	return pos_rg_type( mUdf(pos_type), mUdf(pos_type) );
 
-    z_rg_type floatrg( polys_[0]->getRange(false) );
+    auto floatrg = polys_[0]->getRange( false );
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(false) );
 
@@ -371,7 +374,7 @@ pos_rg_type Seis::PolySelData::crlRange() const
 }
 
 
-z_rg_type Seis::PolySelData::zRange( idx_type ) const
+z_steprg_type Seis::PolySelData::zRange( idx_type ) const
 {
     return zrg_;
 }

@@ -92,7 +92,7 @@ protected:
 
     BoolTypeSet		compsel_;
     uiRetVal		state_;
-    const Interval<float> zrgintrace_;
+    const StepInterval<float> zrgintrace_;
     const int		nrcomponentsintrace_;
     mutable bool	lastopwasgetinfo_;
 

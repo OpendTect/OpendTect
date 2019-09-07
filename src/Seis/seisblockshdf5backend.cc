@@ -197,6 +197,8 @@ public:
     const HLocIdx	start_;
     const Dimensions	dims_;
     int			nrsamples2read_;
+    int			outnrsamples_;
+    int			outstep_;
     mutable HDF5::SlabSpec slabspec_;
     OD::DataRepType	datatype_;
     char*		valbuf_;
@@ -258,12 +260,16 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     dms.z() = (size_type)ainf->getSize( 2 );
 
     HDF5::SlabDimSpec& zdimspec = slabspec_[2];
-    const Interval<idx_type> zidxrg(
-	    (idx_type)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.start ),
-	    (idx_type)rdr_.zgeom_.nearestIndex( rdr_.zrgintrace_.stop ) );
-    nrsamples2read_ = zidxrg.width() + 1;
+    Pos::ZSubSel zss( rdr_.zgeom_ );
+    zss.setOutputZRange( rdr_.zrgintrace_ );
+    outnrsamples_ = zss.size();
+    outstep_ = zss.step();
+    StepInterval<idx_type> zidxrg( zss.offset(), zss.arrIdx( outnrsamples_-1 ),
+				   outstep_ );
+    nrsamples2read_ = zidxrg.stop - zidxrg.stop + 1;
+
     zdimspec.start_ = (HDF5::SlabDimSpec::idx_type)zidxrg.start;
-    zdimspec.count_ = (HDF5::SlabDimSpec::idx_type)nrsamples2read_;
+    zdimspec.count_ = (HDF5::SlabDimSpec::idx_type)(zidxrg.nrSteps()+1);
     if ( !isZSlice() )
 	{ slabspec_[0].count_ = slabspec_[1].count_ = 1; }
     else
@@ -331,7 +337,7 @@ void Seis::Blocks::HDF5Column::fillTraceData( const BinID& bid, TraceData& td,
     }
 
     td.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.datarep_ );
-    td.reSize( nrsamples2read_ );
+    td.reSize( outnrsamples_ );
     if ( !isZSlice() )
     {
 	td.zero();
@@ -366,9 +372,9 @@ void Seis::Blocks::HDF5Column::fillTraceData( const BinID& bid, TraceData& td,
 	}
 	else
 	{
-	    for ( int isamp=0; isamp<nrsamples2read_; isamp++ )
+	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
 	    {
-		const float val = rdr_.interp_->get( buf, isamp );
+		const float val = rdr_.interp_->get( buf, isamp*outstep_ );
 		td.setValue( isamp, rdr_.scaledVal(val), trccompnr );
 	    }
 	}
