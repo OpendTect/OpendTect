@@ -107,10 +107,11 @@ You can contribute to the enhancement of OpendTect either by:
 An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](http://doc.opendtect.org/6.4.0/doc/Programmer/overview.html).
 
 ## Contacts and More Information
-[dGB Earth Sciences](https://dgbes.com/index.php/contact)
-[OpendTect Documentation](https://dgbes.com/index.php/support#documentation)
-[OpendTect Programmer's Manual](http://doc.opendtect.org/6.4.0/doc/Programmer/index.html)
-[OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
+
+- [dGB Earth Sciences](https://dgbes.com/index.php/contact)
+- [OpendTect Documentation](https://dgbes.com/index.php/support#documentation)
+- [OpendTect Programmer's Manual](http://doc.opendtect.org/6.4.0/doc/Programmer/index.html)
+- [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
 [header-img]: doc/pics/opendtect_header.png
 [example-img]: doc/pics/supported-functionality.jpg
