@@ -154,7 +154,6 @@ public:
     size_type		headernrbytes_;
     HLocIdx		start_;
     const Dimensions	dims_;
-    int			nrsamplesintrace_;
     ZSubSel		zss_;
 
     struct Chunk
@@ -189,7 +188,6 @@ Seis::Blocks::FileColumn::FileColumn( const StreamReadBackEnd& rdrbe,
     , hgeom_(rdrbe.rdr_.hGeom())
     , start_(0,0)
     , strm_(*rdrbe.strm_)
-    , nrsamplesintrace_(0)
     , trcpartbuf_(0)
     , startoffsinfile_(rdrbe.rdr_.fileidtbl_[globidx_])
 {
@@ -239,7 +237,7 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 
     const idx_type lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
 					rdr_.zgeom_.stop, dims_.z() );
-    nrsamplesintrace_ = 0;
+    int nrsamplesintrace = 0;
     int blocknrbytes = dims_.z() * nrbytespercompslice;
     od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_;
     for ( idx_type gzidx=0; gzidx<=lastglobzidxinfile; gzidx++ )
@@ -265,7 +263,7 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 		Chunk* chunk = new Chunk;
 		chunk->comp_ = compintrc;
 		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
-		chunk->startsamp_ = nrsamplesintrace_;
+		chunk->startsamp_ = nrsamplesintrace;
 		chunk->nrsamps_ = nrsampsthisblock;
 		chunk->trcpartnrbytes_ = nrsampsthisblock * nrbytespersample;
 		chunk->blockznrbytes_ = blockzdim * nrbytespersample;
@@ -275,7 +273,7 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 	    blockstartoffs += blocknrbytes;
 	}
 
-	nrsamplesintrace_ += nrsampsthisblock;
+	nrsamplesintrace += nrsampsthisblock;
     }
 
     delete [] trcpartbuf_;

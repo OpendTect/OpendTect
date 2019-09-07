@@ -61,6 +61,11 @@ public:
 			    return ssidx >= 0 && ssidx < sz_;
 			}
 
+    inline idx_type	firstArrIdx() const
+			{ return offs_; }
+    inline idx_type	lastArrIdx() const
+			{ return offs_ + (sz_-1) * step_; }
+
 protected:
 
     idx_type		offs_			= 0;
@@ -155,6 +160,11 @@ public:
 			{ return i < size(); }
     inline bool		isSelectedArrIdx( idx_type i ) const
 			{ return data().isSelectedArrIdx(i); }
+
+    inline idx_type	firstArrIdx() const
+			{ return data().firstArrIdx(); }
+    inline idx_type	lastArrIdx() const
+			{ return data().lastArrIdx(); }
 
 protected:
 
