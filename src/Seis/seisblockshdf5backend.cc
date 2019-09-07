@@ -266,7 +266,7 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     outstep_ = zss.step();
     StepInterval<idx_type> zidxrg( zss.offset(), zss.arrIdx( outnrsamples_-1 ),
 				   outstep_ );
-    nrsamples2read_ = zidxrg.stop - zidxrg.stop + 1;
+    nrsamples2read_ = zidxrg.stop - zidxrg.start + 1;
 
     zdimspec.start_ = (HDF5::SlabDimSpec::idx_type)zidxrg.start;
     zdimspec.count_ = (HDF5::SlabDimSpec::idx_type)(zidxrg.nrSteps()+1);
