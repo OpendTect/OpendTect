@@ -13,11 +13,16 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 - [Repository Structure](#repository-structure)
 - [License](#license)
 - [Building the Software](#building-the-software)
-    - [Windows](#windows)
-    - [MacOS](#macos)
-    - [Linux](#linux)
+	- [Requirements](#requirements)
+	- [Dependencies](#dependencies)
+		- [Qt Install](#qt-install)
+		- [OpenSceneGraph Build](#openscenegraph-build)
+		- [osgQt Build](#osgqt-build)
+ 	- [Windows](#windows)
+ 	- [MacOS](#macos)
+ 	- [Linux](#linux)
 - [Contributing](#contributing)
-- [Contacts](#contacts)
+- [Contacts and More Information](#contacts-and-more-information)
 
 ## Repository Structure
 The repository contains a number of release branches and 3 development branches. The current stable release branch is [6.4.4](https://github.com/OpendTect/OpendTect/tree/od6.4.4)
@@ -31,41 +36,81 @@ The development branches are:
 | [od6.5](https://github.com/OpendTect/OpendTect/tree/od6.5)  |  This branch is used for developing new incremental features against the 6.4 series codebase for future integration into the software.  |
 
 ## License
-
-OpendTect is released under a triple licensing scheme:
-
-- [Free - GNU GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html)
-- [Commercial - Pro License Agreement](http://www.opendtect.org/backendscripts/eula.php?format=pdf)
-- [Academic License Agreement](https://dgbes.com/images/PDF/Proforma_OpendTect_academic_v5f.pdf)
+OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html) license.
 
 ## Building the Software
+### Requirements
+
+- A C++ compiler and compilation tool chain:
+	- Windows: msvc2017 64 bit. The free community edition is sufficient.
+	- macOS:
+	- Linux: gcc 64 bit version 4.8.5 or higher
+- CMake version 2.8 or higher
+
+### Dependencies
 To build the software you need to also download and install/build a few dependencies which probably are not installed in your system. The version of dependencies varies between the branches. The Qt dependencies are available in binary installers, the others have to be built from source.
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [OpenSceneGraph 3.6.3](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
-| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/qt-opensource-linux-x64-5.12.3.run), [OpenSceneGraph 3.6.3](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/), [OpenSceneGraph 3.6.3](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+
+#### Qt Install
+For the Qt install the following components must be selected depending on your build platform:
+
+-  Desktop msvc2017 64- bit (Windows), XXXXX (macOS) or gcc 64 bit (Linux) 
+-  QtWebEngine
+-  Optionally source code or debug information files
+
+#### OpenSceneGraph Build
+Configure using CMake, compile and install. 
+
+#### osgQt Build
+Configure CMake ensuring to set the following variables:
+
+- DESIRED\_QT\_VERSION=5
+- CMAKE\_PREFIX\_PATH= set this to the location of the Qt cmake folder (Linux: "Qt install location"/gcc_64/lib/cmake)
+- OSG_DIR="OpenSceneGraph install location"
+- OpenGL\_GL\_PREFERENCE=LEGACY  (Linux only)
+
+Compile and install. Note that osgQt will need to be built against the versions of Qt required by the respective OpendTect branch 
 
 ### Windows
+Configure CMake ensuring to set the following variables:
+
+- QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
+- OSGQT= set this to the install location of osgQt for the version of Qt being used
+- OSG_DIR="OpenSceneGraph install location"
+
+Start msvc2017, open the OpendTect build solution and build.
+
 ### MacOS
 ### Linux
+Configure CMake ensuring to set the following variables:
+
+- QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
+- OSGQT= set this to the install location of osgQt for the version of Qt being used
+- OSG_DIR="OpenSceneGraph install location"
+- OpenGL\_GL\_PREFERENCE=LEGACY 
+- ZLIB\_INCLUDE\_DIR=  set this if not being found by CMake
+- ZLIB\_LIBRARY= set this if not being found by CMake
+
+Run make in the toplevel folder (i.e. where this README.MD file is located)
 
 ## Contributing
-Any contributions you make are **greatly appreciated**.
+**PROBABLY WANT TO EXPAND THIS WITH GUIDANCE ON WHAT TYPE OF CONTRIBUTIONS WILL BE WELCOME AND WHERE  IN THE CODEBASE**
+You can contribute to the enhancement of OpendTect either by:
 
-1. Fork the Project
-2. Create your local Feature branch (`git checkout -b feature/AmazingFeature`)
-3. Make/Test your changes in the local Feature branch
-4. Commit your Changes to the local Feature branch (`git commit -m 'Add some AmazingFeature'`)
-5. Merge/rebase against the upstream OpendTect repository (`git fetch upstream/`
-6. Push the Branch to your fork (`git push origin feature/AmazingFeature`)
-7. Open a Pull Request
+-  providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
+- or independently by developing and releasing open source plugins from your own Github or equivalent repository. See the [wmplugins repository](https://github.com/waynegm/OpendTect-Plugins) as an example of this approach.
 
-[dGB's coding guide](http://doc.opendtect.org/6.4.0/doc/Programmer/plugins.html#intro) provides a starting point for developing with the OpendTect codebase.
+An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](http://doc.opendtect.org/6.4.0/doc/Programmer/overview.html).
 
-## Contacts
+## Contacts and More Information
 [dGB Earth Sciences](https://dgbes.com/index.php/contact)
-
+[OpendTect Documentation](https://dgbes.com/index.php/support#documentation)
+[OpendTect Programmer's Manual](http://doc.opendtect.org/6.4.0/doc/Programmer/index.html)
+[OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
 [header-img]: doc/pics/opendtect_header.png
 [example-img]: doc/pics/supported-functionality.jpg
