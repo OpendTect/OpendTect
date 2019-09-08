@@ -76,7 +76,7 @@ int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
 
 
 SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
-					const SEGY::DirectDef& def, int filenr )
+		const SEGY::DirectDef& def, int filenr, bool commsel )
 {
     const FixedString filename = def.fileName( filenr );
     if ( !filename )
@@ -91,7 +91,7 @@ SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
     ret->usePar( *def.segyPars() );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
 	{ delete ret; return 0; }
-    if ( !ret->commitSelections() )
+    if ( commsel && !ret->commitSelections() )
 	{ delete ret; return 0; }
 
     return ret;
@@ -485,7 +485,14 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 
 	curfilenr_ = fdsidx.filenr_;
 	delete tr_;
-	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_);
+	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_,
+							     false );
+	if ( tr_ )
+	{
+	    tr_->setSelData( seldata_ );
+	    if ( !tr_->commitSelections() )
+		deleteAndZeroPtr( tr_ );
+	}
 	setCompDataFromInput();
     }
 

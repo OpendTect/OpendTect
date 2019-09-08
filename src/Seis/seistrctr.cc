@@ -176,7 +176,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     innrsamples_ = outnrsamples_ = trc.size();
     if ( innrsamples_ < 1 )
-	{ errmsg_ = tr("Empty first trace"); return false; }
+	{ errmsg_ = tr("Traces to write are empty"); return false; }
 
     insd_ = outsd_ = trc.info().sampling_;
 

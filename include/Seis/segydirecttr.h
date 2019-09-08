@@ -185,7 +185,7 @@ public:
 
     virtual SEGY::DirectDef* getDef()	{ return def_; }
     static SEGYSeisTrcTranslator* createTranslator(const SEGY::DirectDef& def,
-						   int filenr);
+					       int filenr,bool commsel=true);
 protected:
 
     bool		commitSelections_() override;

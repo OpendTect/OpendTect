@@ -797,6 +797,16 @@ bool SEGYSeisTrcTranslator::readData( TraceData* tdtofill )
 
     const bool directread = tdtofill && samprg_.step < 2;
     TraceData& tdata = directread ? *tdtofill : *trcdata_;
+    int tdsz = samprg_.nrSteps() + 1;
+    if ( tdata.size(0) != tdsz
+      || tdata.nrComponents() != 1
+      || tdata.getInterpreter(0)->dataChar() != inpcd_->datachar_ )
+    {
+	tdata.setNrComponents( 0, OD::AutoDataRep );
+	tdata.addComponent( 1, inpcd_->datachar_ );
+	tdata.reSize( tdsz );
+    }
+
     od_istream& strm = sConn().iStream();
     if ( samprg_.start > 0 )
 	strm.ignore( samprg_.start * mBPS(inpcd_) );
