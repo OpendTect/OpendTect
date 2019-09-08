@@ -289,6 +289,11 @@ LineHorSubSel::LineHorSubSel( const TrcKeySampling& tks )
 }
 
 
+bool LineHorSubSel::operator ==( const LineHorSubSel& oth ) const
+{
+}
+
+
 const SurvGeom2D& LineHorSubSel::geometry2D() const
 {
     return Geometry2D::get( geomID() );
@@ -373,6 +378,20 @@ LineHorSubSelSet::LineHorSubSelSet( GeomID gid )
 LineHorSubSelSet::LineHorSubSelSet( GeomID gid, trcnr_type tnr )
 {
     add( new LineHorSubSel(gid,tnr) );
+}
+
+
+bool LineHorSubSelSet::operator ==( const LineHorSubSelSet& oth ) const
+{
+    const auto sz = size();
+    if ( sz != oth.size() )
+	return false;
+
+    for ( auto idx=0; idx<sz; idx++ )
+	if ( *get(idx) != *oth.get(idx) )
+	    return false;
+
+    return true;
 }
 
 

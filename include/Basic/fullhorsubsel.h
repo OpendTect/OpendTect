@@ -62,6 +62,8 @@ public:
 			FullHorSubSel(const TrcKeyZSampling&);
     virtual		~FullHorSubSel();
     FullHorSubSel&	operator =(const FullHorSubSel&);
+    bool		operator ==(const FullHorSubSel&) const;
+			mImplSimpleIneqOper(FullHorSubSel);
 
     bool		is2D() const	{ return !chss_; }
     bool		is3D() const	{ return chss_; }

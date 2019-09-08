@@ -105,6 +105,8 @@ public:
 			LineHorSubSelSet()		{}
 			LineHorSubSelSet(GeomID);
 			LineHorSubSelSet(GeomID,trcnr_type);
+    bool		operator ==(const LineHorSubSelSet&) const;
+			mImplSimpleIneqOper(LineHorSubSelSet);
 
     bool		isAll() const;
     totalsz_type	totalSize() const;

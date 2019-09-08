@@ -98,6 +98,17 @@ public:
 
     inline size_type	nrDims() const			{ return gtNrDims(); }
 
+    bool		isEqualSubSel( const ArrRegSubSel& oth ) const
+			{
+			    const auto ndims = nrDims();
+			    if ( ndims != oth.nrDims() )
+				return false;
+			    for ( auto idim=0; idim<ndims; idim++ )
+				if ( data(idim) != oth.data(idim) )
+				    return false;
+			    return true;
+			}
+
 protected:
 
 #   define mImplArrRegSubSelClone( clss ) \

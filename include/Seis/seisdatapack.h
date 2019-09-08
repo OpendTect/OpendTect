@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "datapackbase.h"
 #include "posinfo.h"
-#include "trckeyzsampling.h"
+#include "survsubsel.h"
 
 class BinnedValueSet;
 class DataCharacteristics;
@@ -56,9 +56,11 @@ mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 public:
 
     mUseType( PosInfo,		LineCollData );
+    mUseType( Survey,		GeomSubSel );
 
-				RegularSeisDataPack(const char* cat,
-						    const BinDataDesc* bdd=0);
+				RegularSeisDataPack( const char* cat,
+						     const BinDataDesc* bdd=0 )
+				    : SeisVolumeDataPack(cat,bdd)	{}
 				mDeclMonitorableAssignment(RegularSeisDataPack);
 
     bool			is2D() const override;
@@ -66,20 +68,21 @@ public:
     RegularSeisDataPack*	getSimilar() const override;
     bool			copyFrom(const RegularSeisDataPack&);
 
-    void			setSampling( const TrcKeyZSampling& tkzs )
-				{ sampling_ = tkzs; }
-    const TrcKeyZSampling&	sampling() const
-				{ return sampling_; }
-    const TrcKeySampling&	hSamp() const
-				{ return sampling_.hsamp_; }
-    z_steprg_type		zRange() const override
-				{ return sampling_.zsamp_; }
+    GeomSubSel&			subSel();
+    const GeomSubSel&		subSel() const;
+    void			setSubSel(const GeomSubSel&);
+    z_steprg_type		zRange(idx_type iln=0) const override;
+
+    void			getTKZS(TrcKeyZSampling&) const;
+    void			getTKS(TrcKeySampling&) const;
+    void			setSampling(const TrcKeyZSampling&);
 
     void			setTracePositions(LineCollData*);
 				//!< Becomes mine
-    const LineCollData*		tracePositions() const;
-				//!< Only returns non-null if explictly set
     LineCollData*		getTrcPositions() const;
+					//!< always non-null, yours
+    const LineCollData*		tracePositions() const;
+					//!< non-null if explictly set, mine
 
     bool			addComponent(const char* nm,bool initvals);
 
@@ -101,8 +104,8 @@ protected:
 
 				~RegularSeisDataPack();
 
-    TrcKeyZSampling		sampling_;
-    PtrMan<LineCollData>	lcd_;
+    GeomSubSel*			subsel_	= nullptr_;
+    LineCollData*		lcd_	= nullptr;
 
     void			doDumpInfo(IOPar&) const override;
 

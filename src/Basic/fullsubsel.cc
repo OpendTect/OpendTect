@@ -208,6 +208,12 @@ Survey::FullSubSel& Survey::FullSubSel::operator=( const FullSubSel& oth )
 }
 
 
+bool Survey::FullSubSel::operator==( const FullSubSel& oth ) const
+{
+    return hss_ == oth.hss_ && zss_ == oth.zss_;
+}
+
+
 void Survey::FullSubSel::setZSubSel( GeomID gid, const ZSubSel& zss )
 {
     zss_.set( gid, zss );

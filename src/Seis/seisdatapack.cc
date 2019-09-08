@@ -277,16 +277,12 @@ void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisVolumeDataPack(cat,bdd)
-    , sampling_(false) // MUST be false, otherwise program startup issues
-    , lcd_(0)
 {
 }
 
 
 RegularSeisDataPack::RegularSeisDataPack( const RegularSeisDataPack& oth )
     : SeisVolumeDataPack(oth)
-    , sampling_(oth.sampling_)
-    , lcd_(0)
 {
     copyClassData( oth );
 }
@@ -295,6 +291,8 @@ RegularSeisDataPack::RegularSeisDataPack( const RegularSeisDataPack& oth )
 RegularSeisDataPack::~RegularSeisDataPack()
 {
     sendDelNotif();
+    delete subsel_;
+    delete lcd_;
 }
 
 
@@ -302,7 +300,7 @@ mImplMonitorableAssignment( RegularSeisDataPack, SeisVolumeDataPack )
 
 void RegularSeisDataPack::copyClassData( const RegularSeisDataPack& oth )
 {
-    sampling_ = oth.sampling_;
+    subsel_ = oth.subsel_ ? oth.subsel_->clone() : nullptr;
     lcd_ = oth.lcd_ ? oth.lcd_->clone() : nullptr;
 }
 

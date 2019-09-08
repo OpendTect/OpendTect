@@ -61,6 +61,8 @@ public:
 			FullSubSel(const IOPar&);
     virtual		~FullSubSel();
     FullSubSel&		operator =(const FullSubSel&);
+    bool		operator ==(const FullSubSel&) const;
+			mImplSimpleIneqOper(FullSubSel);
 
     bool		is2D() const		{ return hss_.is2D(); }
     bool		is3D() const		{ return hss_.is3D(); }

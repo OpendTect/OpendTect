@@ -179,7 +179,8 @@ Survey::FullHorSubSel::~FullHorSubSel()
 }
 
 
-Survey::FullHorSubSel& Survey::FullHorSubSel::operator=( const FullHorSubSel& oth )
+Survey::FullHorSubSel& Survey::FullHorSubSel::operator=(
+						const FullHorSubSel& oth )
 {
     if ( this != &oth )
     {
@@ -190,6 +191,18 @@ Survey::FullHorSubSel& Survey::FullHorSubSel::operator=( const FullHorSubSel& ot
 	    lhsss_ = oth.lhsss_;
     }
     return *this;
+}
+
+
+bool Survey::FullHorSubSel::operator==( const FullHorSubSel& oth ) const
+{
+    if ( is2D() != oth.is2D() )
+	return false;
+
+    if ( oth.chss_ )
+	return oth.chss_->equals( *chss_ );
+    else
+	return lhsss_ == oth.lhsss_;
 }
 
 

@@ -43,15 +43,16 @@ public:
     mUseType( Survey,		Geometry3D );
     typedef od_int64		totalsz_type;
 
-    virtual			~SubSel()		{}
+    virtual			~SubSel()			{}
     virtual SubSel*		duplicate() const	= 0;
 				    //!< clone() would clash with ArrRegSubSel's
+    virtual bool		equals(const SubSel&) const	= 0;
 
-    virtual GeomID		geomID() const		= 0;
-    virtual bool		is2D() const		= 0;
-    virtual totalsz_type	totalSize() const	= 0;
-    virtual bool		isAll() const		= 0;
-    virtual bool		hasFullRange() const	= 0;
+    virtual GeomID		geomID() const			= 0;
+    virtual bool		is2D() const			= 0;
+    virtual totalsz_type	totalSize() const		= 0;
+    virtual bool		isAll() const			= 0;
+    virtual bool		hasFullRange() const		= 0;
 
     static bool			getInfo(const IOPar&,bool& is2d,GeomID&);
 
