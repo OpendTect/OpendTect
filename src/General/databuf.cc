@@ -350,7 +350,8 @@ void TraceData::setNrComponents( int newnrcomps, OD::DataRepType datarep )
 
     const int sz = size();
     if ( isautodatarep )
-	datarep = getInterpreter(0)->dataChar().userType();
+	datarep = oldnrcomps > 0 ? getInterpreter(0)->dataChar().userType()
+				 : OD::F32;
 
     while ( nrComponents() > 0 )
 	delComponent( 0 );
