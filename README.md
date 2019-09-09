@@ -52,8 +52,8 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
-| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/), [OpenSceneGraph 3.6.3](http://download.qt.io/archive/qt/5.9/5.9.6/qt-opensource-linux-x64-5.9.6.run), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
