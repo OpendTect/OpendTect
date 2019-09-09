@@ -16,7 +16,6 @@
 
 #include <osgViewer/Viewer>
 #include <osgGA/TrackballManipulator>
-#include <osgQt/GraphicsWindowQt>
 
 #include <osg/Version>
 #include <osg/ShapeDrawable>
@@ -24,6 +23,7 @@
 #include <osgManipulator/TabBoxDragger>
 
 #include <osgDB/ReadFile>
+#include "odgraphicswindow.h"
 
 int main( int argc, char** argv )
 {
@@ -53,10 +53,10 @@ int main( int argc, char** argv )
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     viewer->setSceneData( root );
     viewer->setCameraManipulator( new osgGA::TrackballManipulator );
-    osgQt::setViewer( viewer.get() );
+    setViewer( viewer.get() );
 
-    osgQt::GLWidget* glw = new osgQt::GLWidget;
-    osgQt::GraphicsWindowQt* graphicswin = new osgQt::GraphicsWindowQt( glw );
+    ODGLWidget* glw = new ODGLWidget;
+    ODGraphicsWindow* graphicswin = new ODGraphicsWindow( glw );
 
     viewer->getCamera()->setViewport(
 		    new osg::Viewport(0, 0, glw->width(), glw->height() ) );

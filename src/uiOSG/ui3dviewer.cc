@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimouseeventblockerbygesture.h"
 #include "swapbuffercallback.h"
+#include "odgraphicswindow.h"
 
-#include <osgQt/GraphicsWindowQt>
 #include <osgViewer/View>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
@@ -172,19 +172,19 @@ protected:
     osgViewer::GraphicsWindow&	getGraphicsWindow(){return *graphicswin_.get();}
     osg::GraphicsContext*	getGraphicsContext(){return graphicswin_.get();}
 
-    osg::ref_ptr<osgQt::GraphicsWindowQt>	graphicswin_;
+    osg::ref_ptr<ODGraphicsWindow>	graphicswin_;
 };
 
 
 uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     : ui3DViewerBody( hndl, parnt )
 {
-    osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
+    ODGLWidget* glw = new ODGLWidget( parnt->pbody()->managewidg() );
 
     mouseeventblocker_.attachToQObj( glw );
     eventfilter_.attachToQObj( glw );
 
-    graphicswin_ = new osgQt::GraphicsWindowQt( glw );
+    graphicswin_ = new ODGraphicsWindow( glw );
 
     swapcallback_ = new SwapCallback( this );
     swapcallback_->ref();
@@ -632,7 +632,7 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 	if ( !viewer )
 	{
 	    viewer = updatedviewer;
-	    osgQt::setViewer( viewer.get() );
+	    setViewer( viewer.get() );
 	    visBase::DataObject::setCommonViewer( viewer );
 	}
 
@@ -1625,7 +1625,7 @@ ui3DViewer::~ui3DViewer()
 uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
 {
 #if OSG_VERSION_LESS_THAN( 3, 5, 0 )
-    osgQt::initQtWindowingSystem();
+    initQtWindowingSystem();
 #endif
 
     osgbody_ = direct

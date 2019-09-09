@@ -28,10 +28,6 @@ macro( OD_ADD_OSG )
     set (CMAKE_DEBUG_POSTFIX d)
 
     find_package( OpenSceneGraph REQUIRED osgDB osgGA osgUtil osgManipulator osgWidget osgViewer osgVolume osgText osgSim )
-    if ( DEFINED OSGQT_DIR )
-	set(ENV{OSGQT_DIR} ${OSGQT_DIR})
-    endif()
-    find_package( osgQt5 REQUIRED )
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
@@ -39,7 +35,6 @@ macro( OD_ADD_OSG )
        message( FATAL_ERROR "Cannot find/use the OSG installation" )
     endif()
     unset( OSG_DIR CACHE )
-    unset( OSGQT_DIR CACHE )
 
 endmacro()
 
@@ -50,9 +45,6 @@ macro( OD_ADD_OSGGEO )
 	if ( (NOT DEFINED OSG_FOUND) )
 	    MESSAGE( FATAL_ERROR "OSG_DIR not set" )
 	endif()
-    endif()
-    if ( (NOT DEFINED OSGQT_FOUND) )
-	MESSAGE( FATAL_ERROR "OSGQT not found" )
     endif()
 
     list(APPEND CMAKE_MODULE_PATH
@@ -87,7 +79,6 @@ macro(OD_SETUP_OSG)
     if(OD_USEOSG)
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 		${OSGGEO_INCLUDE_DIR}
-		${OSGQT_INCLUDE_DIR}
 		${OSG_INCLUDE_DIR} )
 	list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
 
@@ -100,7 +91,6 @@ macro(OD_SETUP_OSG)
 		OSGDB
 		OSGGA
 		OSGUTIL
-		OSGQT
 		OSGMANIPULATOR
 		OSGWIDGET
 		OSGVIEWER
@@ -148,10 +138,10 @@ macro(OD_SETUP_OSG)
 			if( NOT ${ISOSGGEO} EQUAL -1 )
 			    set( ALLLIBS ${LIB} )
 			elseif( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-			    #installing linux osgfiles(like libosgQt.so.100,libosgDB.so.100 etc. )
+			    #installing linux osgfiles(like libosgDB.so.100 etc. )
 			    file( GLOB ALLLIBS "${OSGLIBLOC}/${OSGLIBNAME}.so.[0-9][0-9]*" )
 			elseif( APPLE )
-			    #installing Mac osgfiles(like libosgQt.80.dylib,libosgDB.80.dylib etc. )
+			    #installing Mac osgfiles(like libosgDB.80.dylib etc. )
 			    file( GLOB ALLLIBS "${OSGLIBLOC}/${OSGLIBNAME}.[0-9][0-9]*.dylib" )
 			endif()
 			list( APPEND ARGS ${ALLLIBS} )
