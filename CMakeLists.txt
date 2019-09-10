@@ -103,6 +103,7 @@ set( OD_PLUGINS
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
 	CmdDriver
+	uiCOLOP
 )
 
 
