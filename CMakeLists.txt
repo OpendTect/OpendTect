@@ -89,6 +89,7 @@ set( OD_PLUGINS
 	Tut
 	VoxelConnectivityFilter
 	uiCEEMDAttrib
+	uiCOLOP
 	uiCRS
 	uiDPSDemo
 	uiExpAttribs
