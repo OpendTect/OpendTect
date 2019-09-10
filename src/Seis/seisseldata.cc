@@ -24,7 +24,7 @@
 
 static const char* sKeyBinIDSel = "BinID selection";
 mUseType( Seis::SelData, z_type );
-mUseType( Seis::SelData, z_rg_type );
+mUseType( Seis::SelData, z_steprg_type );
 mUseType( Seis::SelData, pos_type );
 mUseType( Seis::SelData, pos_rg_type );
 mUseType( Seis::SelData, idx_type );
@@ -261,7 +261,7 @@ Seis::SelData::pos_rg_type Seis::SelData::crlRange() const
 }
 
 
-Seis::SelData::z_rg_type Seis::SelData::zRange( idx_type idx ) const
+Seis::SelData::z_steprg_type Seis::SelData::zRange( idx_type idx ) const
 {
     return Survey::Geometry::get(geomID(idx)).zRange();
 }

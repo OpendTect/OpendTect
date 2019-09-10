@@ -394,12 +394,9 @@ bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
     if ( !ensureSelectionsCommitted() )
 	return false;
 
-    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    TraceData& tdata = extbuf ? *extbuf : *trcdata_;
     if ( !rdmgr_->fetch(tdata,compsel_,&samprg_) )
-    {
-	errmsg_ = toUiString(rdmgr_->errMsg());
-	return false;
-    }
+	{ errmsg_ = toUiString(rdmgr_->errMsg()); return false; }
 
     headerdone_ = false;
 
@@ -467,15 +464,15 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	const int icomp = selComp(iselc);
-	for ( int isamp=samprg_.start; isamp<=samprg_.stop; isamp++ )
+	for ( int isamp=samprg_.start; isamp<=samprg_.stop; isamp+=samprg_.step)
 	{
 	    //Parallel !!!
-	    storbuf_->setValue(isamp-samprg_.start,trc.get(isamp,icomp),iselc);
+	    trcdata_->setValue(isamp-samprg_.start,trc.get(isamp,icomp),iselc);
 	}
     }
 
     trc.info().putTo( auxinf_ );
-    if ( !wrmgr_->put(*storbuf_) )
+    if ( !wrmgr_->put(*trcdata_) )
 	{ errmsg_ = wrmgr_->errMsg(); return false; }
 
     return true;

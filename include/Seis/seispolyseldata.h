@@ -38,9 +38,9 @@ public:
 
 			PolySelData();
 			PolySelData(const ODPolygon<float>&,
-				    const z_rg_type* zrange=0);
+				    const z_steprg_type* zrange=0);
 			PolySelData(const ODPolygon<int>&,
-				    const z_rg_type* zrange=0);
+				    const z_steprg_type* zrange=0);
 			PolySelData(const DBKey&);
 			PolySelData(const PolySelData&);
 			~PolySelData();
@@ -52,9 +52,10 @@ public:
     PosIter*		posIter() const override;
     pos_rg_type		inlRange() const override;
     pos_rg_type		crlRange() const override;
-    z_rg_type		zRange(idx_type i=0) const override;
+    z_steprg_type	zRange(idx_type i=0) const override;
 
-    void		setZRange( const z_rg_type& zrg, idx_type i=0 ) override
+    void		setZRange( const z_steprg_type& zrg,
+					    idx_type i=0 ) override
 					{ zrg_ = zrg; }
     void		merge(const PolySelData&);
 
@@ -63,10 +64,10 @@ public:
 
 protected:
 
-    void		initZrg(const z_rg_type*);
+    void		initZrg(const z_steprg_type*);
 
     ObjectSet<ODPolygon<float> > polys_;
-    Interval<float>	zrg_;
+    z_steprg_type	zrg_;
     BufferString	polynm_;
 
     void		doCopyFrom(const SelData&) override;

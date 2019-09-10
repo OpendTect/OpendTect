@@ -383,6 +383,7 @@ Seis::SelData* uiSeisSelDataDlg::get3DSelData()
     css.inlSubSel().setOutputPosRange( inlsel_->getRange() );
     css.crlSubSel().setOutputPosRange( crlsel_->getRange() );
     css.zSubSel().setOutputZRange( zsel_->getRange() );
+    rsd->set( css );
     return rsd;
 }
 

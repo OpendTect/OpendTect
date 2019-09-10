@@ -498,7 +498,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 
 bool SeisPSCubeSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    TraceData& tdata = extbuf ? *extbuf : *trcdata_;
     if ( !inforead_ && !read(trc_) )
 	return false;
     tdata = trc_.data();

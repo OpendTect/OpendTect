@@ -155,10 +155,10 @@ bool Object::setPosition( const PosID& posid,
     {
 	for ( int idx=0; idx<posattribs_.size(); idx++ )
 	{
-	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
-	    if ( !&nodes ) continue;
+	    TypeSet<PosID>* nodes = &posattribs_[idx]->posids_;
+	    if ( !nodes ) continue;
 
-	    if ( nodes.isPresent(posid) )
+	    if ( nodes->isPresent(posid) )
 		setPosAttrib( posid, attribs_[idx], false, addtoundo );
 	}
     }
@@ -607,16 +607,16 @@ void Object::posIDChangeCB(CallBacker* cb)
 
     for ( int idx=0; idx<posattribs_.size(); idx++ )
     {
-	TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
-	if ( !&nodes ) continue;
+	TypeSet<PosID>* nodes = &posattribs_[idx]->posids_;
+	if ( !nodes ) continue;
 
 	while ( true )
 	{
-	    const int idy = nodes.indexOf( cbauxdata->pid0 );
+	    const int idy = nodes->indexOf( cbauxdata->pid0 );
 	    if ( idy==-1 )
 		break;
 
-	    nodes[idy] = cbauxdata->pid1;
+	    (*nodes)[idy] = cbauxdata->pid1;
 	}
     }
 }

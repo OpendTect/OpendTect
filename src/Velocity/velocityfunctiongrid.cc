@@ -95,12 +95,12 @@ bool GriddedFunction::fetchSources()
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
 
-    const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
+    const TypeSet<Coord>* gridderpoints = gridder_->getPoints();
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
-    if ( gridder_->allPointsAreRelevant() && &gridderpoints )
+    if ( gridder_->allPointsAreRelevant() && gridderpoints )
     {
-	const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
+	const TypeSet<Coord>::size_type nrpoints = gridderpoints->size();
 	for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
 	    usedpoints += idx;
     }

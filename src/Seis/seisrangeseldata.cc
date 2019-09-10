@@ -12,7 +12,7 @@
 #include "survinfo.h"
 
 mUseType( Seis::SelData, z_type );
-mUseType( Seis::SelData, z_rg_type );
+mUseType( Seis::SelData, z_steprg_type );
 mUseType( Seis::SelData, pos_type );
 mUseType( Seis::SelData, pos_rg_type );
 mUseType( Seis::SelData, idx_type );
@@ -107,7 +107,7 @@ void Seis::RangeSelData::doCopyFrom( const SelData& sd )
 	CubeSubSel css;
 	css.setInlRange( pos_steprg_type(sd.inlRange(),SI().inlStep()) );
 	css.setCrlRange( pos_steprg_type(sd.crlRange(),SI().crlStep()) );
-	css.setZRange( z_steprg_type(sd.zRange(),SI().zStep()) );
+	css.setZRange( sd.zRange() );
 	fss_.set( css );
     }
     else
@@ -118,7 +118,7 @@ void Seis::RangeSelData::doCopyFrom( const SelData& sd )
 	{
 	    auto* lss = new LineSubSel( sd.geomID(idx) );
 	    lss->setTrcNrRange( pos_steprg_type(sd.trcNrRange(idx)) );
-	    lss->setZRange( z_steprg_type(sd.zRange(idx),SI().zStep()) );
+	    lss->setZRange( sd.zRange(idx) );
 	    lsss.add( lss );
 	}
 	fss_.set( lsss );
@@ -188,7 +188,7 @@ pos_rg_type Seis::RangeSelData::trcNrRange( idx_type iln ) const
 }
 
 
-z_rg_type Seis::RangeSelData::zRange( idx_type iln ) const
+z_steprg_type Seis::RangeSelData::zRange( idx_type iln ) const
 {
     if ( !is2D() )
 	return forceall_ ? SelData::zRange() : fss_.zRange();
@@ -245,7 +245,7 @@ void Seis::RangeSelData::setTrcNrRange( const pos_rg_type& rg, idx_type idx )
 }
 
 
-void Seis::RangeSelData::setZRange( const z_rg_type& rg, idx_type idx )
+void Seis::RangeSelData::setZRange( const z_steprg_type& rg, idx_type idx )
 {
     fss_.zSubSel(idx).setOutputZRange( rg );
 }

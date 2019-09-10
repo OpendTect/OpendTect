@@ -58,8 +58,8 @@ public:
     bool		getAuxInfo(PosAuxInfo&);
 			//!< Gets the aux info. Follow by
 			//!< fetch() to get the sample data.
-    bool		fetch(TraceData& buffers,const bool* comps=0,
-				const Interval<int>* samps=0,
+    bool		fetch(TraceData& buffers,const bool* comps=nullptr,
+				const StepInterval<int>* samps=nullptr,
 				int offs=0);
 			//!< Gets the sample data.
 			//!< 'comps', if provided, selects the components.
@@ -103,9 +103,10 @@ private:
     DataInterpreter<int> iinterp_;
     DataInterpreter<float> finterp_;
     DataInterpreter<double> dinterp_;
-    TrcKeySampling		hs_;
-    Interval<int>	samprg_;
+    TrcKeySampling	hs_;
+    StepInterval<int>	samprg_;
     TypeSet<int>	posnrs_;
+    TraceData&		worktrcdata_;
 
     bool		readInfo(bool,bool);
     od_int64		lastposfo_;

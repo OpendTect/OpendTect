@@ -121,6 +121,7 @@ void Seis::VolFetcher::getPossibleExtents()
 
 void Seis::VolFetcher::prepWork()
 {
+    deleteAndZeroPtr( trl_ ); // make sure we select the updated ranges etc.
     ensureRightTransl();
     handleGeomIDChange( 0 );
 }

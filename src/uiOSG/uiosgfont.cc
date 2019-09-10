@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uifont.h"
 
 #include <osgText/Font>
-#include <osgQt/QFontImplementation>
+#include "odfontimplementation.h"
 
 
 void uiOsgFontCreator::initClass()
@@ -25,6 +25,6 @@ osgText::Font* uiOsgFontCreator::createFont( const FontData& fd )
 {
     PtrMan<mQtclass(QFont)> qfont = uiFont::createQFont( fd );
     return qfont
-        ? new osgText::Font( new osgQt::QFontImplementation(*qfont) )
+	? new osgText::Font( new ODFontImplementation(*qfont) )
 	: 0;
 }

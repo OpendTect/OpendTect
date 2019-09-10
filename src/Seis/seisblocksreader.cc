@@ -12,20 +12,21 @@ ________________________________________________________________________
 #include "seisblocksbackend.h"
 #include "seisseldata.h"
 #include "seistrc.h"
-#include "uistrings.h"
-#include "posidxpairdataset.h"
-#include "scaler.h"
+#include "ascstream.h"
+#include "cubedata.h"
 #include "datachar.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
-#include "cubedata.h"
-#include "survgeom3d.h"
-#include "separstr.h"
-#include "od_istream.h"
-#include "ascstream.h"
-#include "zdomain.h"
 #include "genc.h"
+#include "keystrs.h"
+#include "od_istream.h"
+#include "posidxpairdataset.h"
+#include "scaler.h"
+#include "separstr.h"
+#include "survgeom3d.h"
+#include "uistrings.h"
+#include "zdomain.h"
+#include "zsubsel.h"
 
 
 #define mSeisBlocksReaderInitList() \
@@ -347,13 +348,16 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 	if ( compsel_[idx] )
 	    nrcomps++;
 
-    Interval<float>& zrg = const_cast<Interval<float>&>( zrgintrace_ );
-    zrg = zgeom_;
-    if ( seldata_ )
+    mUseType( Pos, ZSubSel );
+    mUseType( ZSubSel, z_steprg_type );
+    auto& zrg = const_cast<z_steprg_type&>( zrgintrace_ );
+    if ( !seldata_ )
+	zrg = zgeom_;
+    else
     {
-	zrg.limitTo( seldata_->zRange() );
-	zrg.start = zgeom_.snap( zrg.start );
-	zrg.stop = zgeom_.snap( zrg.stop );
+	ZSubSel zss( zgeom_ );
+	zss.setOutputZRange( seldata_->zRange() );
+	zrg = zss.outputZRange();
     }
 
     return true;
@@ -451,7 +455,7 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
     ti.sampling_.start = zrgintrace_.start;
-    ti.sampling_.step = zgeom_.step;
+    ti.sampling_.step = zrgintrace_.step;
     ti.setPos( bid );
     ti.coord_ = hgeom_.transform( bid );
 }

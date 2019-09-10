@@ -62,7 +62,7 @@ public:
     pos_rg_type		inlRange() const override;
     pos_rg_type		crlRange() const override;
     pos_rg_type		trcNrRange(idx_type iln=0) const override;
-    z_rg_type		zRange(idx_type i=0) const override;
+    z_steprg_type	zRange(idx_type i=0) const override;
     z_steprg_type	zRangeFor(GeomID) const;
 
     void		setInlRange(const pos_rg_type&);
@@ -72,7 +72,7 @@ public:
     idx_type		indexOf(GeomID) const;
     void		setTrcNrRange(const pos_rg_type&,idx_type i=0);
     void		setTrcNrRange(GeomID,const pos_rg_type&);
-    void		setZRange(const z_rg_type&,int i=0) override;
+    void		setZRange(const z_steprg_type&,int i=0) override;
 
     bool		isAll() const override;
     void		setToAll();

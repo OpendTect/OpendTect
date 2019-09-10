@@ -53,6 +53,18 @@ public:
 			{ return offs_ + step_*subselidx; }
     inline idx_type	subSelIdx( idx_type arridx ) const
 			{ return (arridx-offs_) / step_; }
+    inline bool		isSelectedArrIdx( idx_type arridx ) const
+			{
+			    if ( (arridx-offs_) % step_ )
+				return false;
+			    const auto ssidx = subSelIdx( arridx );
+			    return ssidx >= 0 && ssidx < sz_;
+			}
+
+    inline idx_type	firstArrIdx() const
+			{ return offs_; }
+    inline idx_type	lastArrIdx() const
+			{ return offs_ + (sz_-1) * step_; }
 
 protected:
 
@@ -146,6 +158,13 @@ public:
 			{ return data().subSelIdx(i); }
     inline bool		validIdx( idx_type i ) const
 			{ return i < size(); }
+    inline bool		isSelectedArrIdx( idx_type i ) const
+			{ return data().isSelectedArrIdx(i); }
+
+    inline idx_type	firstArrIdx() const
+			{ return data().firstArrIdx(); }
+    inline idx_type	lastArrIdx() const
+			{ return data().lastArrIdx(); }
 
 protected:
 
@@ -227,6 +246,8 @@ public:
 			{ return data(idim).subSelIdx(i); }
     inline bool		validIdxs( idx_type i0, idx_type i1 ) const
 			{ return i0 < size(0) && i1 < size(1); }
+    inline bool		isSelectedArrIdx( idx_type idim, idx_type i ) const
+			{ return data(idim).isSelectedArrIdx(i); }
 
 protected:
 
@@ -311,6 +332,8 @@ public:
 			{ return data(idim).arrIdx(i); }
     inline idx_type	subSelIdx( idx_type idim, idx_type i ) const
 			{ return data(idim).subSelIdx(i); }
+    inline bool		isSelectedArrIdx( idx_type idim, idx_type i ) const
+			{ return data(idim).isSelectedArrIdx(i); }
 
     inline size_type	size2D() const
 			{ return size( 0 ) * size( 1 ); }

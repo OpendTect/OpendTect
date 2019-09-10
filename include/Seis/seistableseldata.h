@@ -54,10 +54,11 @@ public:
     PosIter*		posIter() const override;
     pos_rg_type		inlRange() const override;
     pos_rg_type		crlRange() const override;
-    z_rg_type		zRange(idx_type i=0) const override;
+    z_steprg_type	zRange(idx_type i=0) const override;
 
     void		setSearchRadius( dist_type r ) { searchradius_ = r; }
-    void		setZRange( const z_rg_type& zrg, idx_type i=0 ) override
+    void		setZRange( const z_steprg_type& zrg,
+						idx_type i=0 ) override
 						{ fixedzrange_ = zrg; }
 
     size_type		expectedNrTraces() const override;
@@ -65,7 +66,7 @@ public:
 protected:
 
     BinnedValueSet&	bvs_;
-    z_rg_type		fixedzrange_; // used only if no z vals in bidvalset
+    z_steprg_type	fixedzrange_; // used only if no z vals in bidvalset
     dist_type		searchradius_		= 0;
 
     GeomID		gtGeomID(idx_type) const override;

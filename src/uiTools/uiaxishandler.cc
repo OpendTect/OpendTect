@@ -831,7 +831,10 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
 	       const uiAxisHandler& xah, const uiAxisHandler& yah,
 	       const Interval<float>* extxvalrg )
 {
-    if ( !&xah || !&yah || !&lineitm )
+    const uiAxisHandler* xahptr = &xah;
+    const uiAxisHandler* yahptr = &yah;
+    uiLineItem* liptr = &lineitm;
+    if ( !xahptr || !yahptr || !liptr )
 	return;
 
     const Interval<int> ypixrg( yah.pixRange() );
