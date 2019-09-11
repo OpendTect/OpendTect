@@ -48,6 +48,7 @@ public:
     const OD::LineStyle& lineStyle() const		{ return linestyle_; }
 
     void		setPixelDensity(float);
+    osg::LineStipple*	getLineStipple()	{ return linestippleattrib_; }
 
 protected:
 

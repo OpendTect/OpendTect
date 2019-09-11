@@ -393,6 +393,16 @@ void VertexShape::setCoordinates( Coordinates* coords )
 }
 
 
+void VertexShape::setAttribAndMode( osg::StateAttribute* drawstyl )
+{
+    if (!drawstyl || !osggeom_)
+	return;
+
+    osggeom_->getOrCreateStateSet()->setAttributeAndModes( drawstyl,
+	osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE );
+}
+
+
 void VertexShape::setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp )
 {
     primitivetype_ = tp;
