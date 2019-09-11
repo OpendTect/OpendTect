@@ -461,8 +461,9 @@ bool isWritable( const char* fnm )
     else
     {
 	const FilePath fp( fnm, "testfile" );
-	const od_ostream strm( fp.fullPath() );
+	od_ostream strm( fp.fullPath() );
 	const bool res = strm.isOK();
+	strm.close();
 	File::remove( fp.fullPath() );
 	return res;
     }
