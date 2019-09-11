@@ -15,7 +15,6 @@ set(OD_MODULE_SOURCES
 	uibulkhorizonimp.cc
 	uicalcpoly2horvol.cc
 	uichangesurfacedlg.cc
-	uichangepolygonz.cc
 	uicreatehorizon.cc
 	uiemauxdatasel.cc
 	uiemhorizonpreloaddlg.cc
@@ -38,6 +37,7 @@ set(OD_MODULE_SOURCES
 	uiiosurfacedlg.cc
 	uimultisurfaceread.cc
 	uinewemobjdlg.cc
+	uipolygonzchanger.cc
 	uirandlinegen.cc
 	uisurfaceman.cc
 	uisurfaceposprov.cc

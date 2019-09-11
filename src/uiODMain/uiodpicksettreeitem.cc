@@ -9,7 +9,7 @@ ___________________________________________________________________
 -*/
 
 #include "uiodpicksettreeitem.h"
-#include "changepolygonz.h"
+#include "polygonzchanger.h"
 
 #include "emhorizon3d.h"
 #include "emobject.h"
@@ -22,7 +22,7 @@ ___________________________________________________________________
 #include "selector.h"
 #include "survinfo.h"
 
-#include "uichangepolygonz.h"
+#include "uipolygonzchanger.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -795,11 +795,12 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	if ( set_.isEmpty() )
 	{
-	    gUiMsg(0).message( tr("There are no picks in the Polygon") );
+	    gUiMsg(0).message( uiStrings::sEmpty().
+			       append(uiStrings::sPolygon()) );
 	    return;
 	}
 
-	uiChangePolygonZ dlg( getUiParent(), set_ );
+	uiPolygonZChanger dlg( getUiParent(), set_ );
 	dlg.go();
     }
     updateColumnText( uiODSceneMgr::cNameColumn() );

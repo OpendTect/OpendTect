@@ -14,25 +14,19 @@ ________________________________________________________________________
 class TaskRunnerProvider;
 namespace Pick { class Set; }
 namespace EM {
-    class		Object;
-    class		ObjectManager;
-    class		SurfaceIODataSelection;
-}
-
-mExpClass(EarthModel) ChangePolygonZ
-{ mODTextTranslationClass(ChangePolygonZ);
+  mExpClass(EarthModel) PolygonZChanger
+{ mODTextTranslationClass(PolygonZChanger);
 public:
-			ChangePolygonZ(Pick::Set&,const DBKey horid);
-			ChangePolygonZ(Pick::Set&,double zval);
-			~ChangePolygonZ();
+			PolygonZChanger(Pick::Set&,const DBKey horid);
+			PolygonZChanger(Pick::Set&,float zval);
+			~PolygonZChanger();
 
-    bool		doShift(const TaskRunnerProvider&);
-    bool		shiftPickToHorizon(const TaskRunnerProvider&);
-    bool		shiftPickToConstant();
+    uiRetVal		doWork(const TaskRunnerProvider&) const;
 
 protected:
     Pick::Set&		ps_;
     DBKey		horid_;
     void		changeZval();
-    double		constzval_;
+    float		zval_;
 };
+}

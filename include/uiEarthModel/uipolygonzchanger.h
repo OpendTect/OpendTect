@@ -16,19 +16,20 @@ ________________________________________________________________________
 
 namespace Pick { class Set; }
 
-mExpClass(uiEarthModel) uiChangePolygonZ : public uiDialog
+mExpClass(uiEarthModel) uiPolygonZChanger : public uiDialog
 {
-    mODTextTranslationClass(uiChangePolygonZ);
+    mODTextTranslationClass(uiPolygonZChanger);
 public:
-    uiChangePolygonZ(uiParent*,Pick::Set&);
-    ~uiChangePolygonZ();
+    uiPolygonZChanger(uiParent*,Pick::Set&);
+    ~uiPolygonZChanger();
 
 protected:
     bool		acceptOK();
     void		changeZvalCB(CallBacker*);
+    bool		returnApplyZChanger(const EM::PolygonZChanger&);
 
-    uiGenInput*		changezfld_;
-    uiGenInput*		constzfld_;
+    uiGenInput*		isconstzfld_;
+    uiGenInput*		zvalfld_;
     uiIOObjSel*		horinpfld_;
     Pick::Set&		set_;
 };

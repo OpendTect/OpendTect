@@ -8,7 +8,6 @@
 
 SET(OD_MODULE_DEPS Geometry)
 set(OD_MODULE_SOURCES
-		changepolygonz.cc
 		em2ddatafmtconverter.cc
 		embody.cc
 		embodyoperator.cc
@@ -61,6 +60,7 @@ set(OD_MODULE_SOURCES
 		horizonsorter.cc
 		lmkemfaulttransl.cc
 		poly2horvol.cc
+		polygonzchanger.cc
 		emundo.cc
 		initearthmodel.cc
 )
