@@ -40,38 +40,8 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "timer.h"
 #include "uistrings.h"
-
-
-class uiPythonInstallGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiPythonInstallGrp)
-public:
-uiPythonInstallGrp( uiParent* p )
-    : uiDlgGroup(p,tr("Python Installation"))
-{
-    uiString msg = tr("This Presentation Maker needs a Python installation.\n"
-		   "For more information please click the Help button.");
-    uiLabel* lbl = new uiLabel( this, msg );
-
-    uiFileSel::Setup fssu( PresentationSpec::getPyExec() );
-    if ( __iswin__ )
-	fssu.setFormat( tr("Application"), "exe" );
-    pythonfld_ = new uiFileSel( this, tr("Python Executable"), fssu );
-    pythonfld_->attach( leftAlignedBelow, lbl );
-}
-
-
-bool acceptOK()
-{
-    const char* fnm = pythonfld_->fileName();
-    PresentationSpec::setPyExec( fnm );
-    return true;
-}
-
-protected:
-
-    uiFileSel*	pythonfld_;
-
-};
+#include "pythonaccess.h"
+#include "settings.h"
 
 
 class uiSlideLayoutGrp : public uiDlgGroup
@@ -197,7 +167,6 @@ uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
 				      mODHelpKey(mSlideLayoutDlgHelpID)))
 {
     addGroup( new uiSlideLayoutGrp(tabParent(),spec) );
-    addGroup( new uiPythonInstallGrp(tabParent()) );
 }
 
 };
@@ -294,7 +263,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     templateCB(0);
     imageTypeCB(0);
 
-    postFinalise().notify( mCB(this,uiPresentationMakerDlg,finalizeCB) );
+    afterPopup.notify(mCB(this,uiPresentationMakerDlg,checkCB) );
 }
 
 
@@ -304,35 +273,22 @@ uiPresentationMakerDlg::~uiPresentationMakerDlg()
 }
 
 
-void uiPresentationMakerDlg::finalizeCB( CallBacker* )
-{
-    checktimer_ = new Timer( "Check Installation Timer" );
-    checktimer_->tick.notify( mCB(this,uiPresentationMakerDlg,checkCB) );
-    checktimer_->start( 250, true );
-}
-
-
 void uiPresentationMakerDlg::checkCB( CallBacker* )
 { checkInstallation(); }
 
 
 bool uiPresentationMakerDlg::checkInstallation()
 {
-    const BufferString pyexec = PresentationSpec::getPyExec();
-    if ( !File::exists(pyexec) )
+    if ( !OD::PythA().isUsable(true) )
     {
 	uiMSG().error( tr("Could not detect a valid Python installation.\n"
-			"Please click the Help button for more information\n"
-			"on how to install Python.\n"
-			"When installed, select the Python executable in the\n"
-			"settings window.") );
+			"Please visit the \"Utilities | Settings | Advanced"
+			" | Python Settings\" menu\n"
+			"to specify the default Python installation.") );
 	return false;
     }
 
-    BufferString outstr;
-    OS::MachineCommand machcomm( "pip", "list" );
-    const bool res = machcomm.execute( outstr );
-    if ( !res || !outstr.find("python-pptx") )
+    if ( !OD::PythA().isModuleUsable("pptx") )
     {
 	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
 			"Please click the Help button for more information\n"
@@ -605,13 +561,13 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
-    OS::MachineCommand machcomm( PresentationSpec::getPyExec(),
-				 scriptfp.fullPath() );
-    if ( !machcomm.execute(OS::Wait4Finish) )
+    BufferString comm( OD::PythonAccess::sPythonExecNm(true) );
+    comm.add( " " ).add(scriptfp.fullPath() );
+    if ( !OD::PythA().execute( OS::MachineCommand( comm ), true ) )
     {
 	uiMSG().error( tr("Could not execute\n: "),
-		toUiString(machcomm.getExecCommand()),
-		tr("\nPlease check whether Python is correctly installed.") );
+		uiString().set( comm.buf() ),
+		tr("\nPlease check the log for error messages.") );
 	return;
     }
 

@@ -45,7 +45,6 @@ protected:
     void		removeCB(CallBacker*);
     void		createCB(CallBacker*);
     void		showLogCB(CallBacker*);
-    void		finalizeCB(CallBacker*);
 
     void		updateWindowList();
     void		updateSceneList();
