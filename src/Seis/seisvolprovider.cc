@@ -146,7 +146,7 @@ bool Seis::VolFetcher::setPosition( const BinID& bid )
 void Seis::VolFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 {
     if ( dpbid_.inl() != -1 )
-	fillFromDP( TrcKey(dpbid_), ti, td );
+	fillFromDP( dpbid_, ti, td );
     else
     {
 	if ( !trl_ )

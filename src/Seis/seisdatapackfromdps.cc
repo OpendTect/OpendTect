@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapointset.h"
 #include "seisdatapack.h"
+#include "trckey.h"
 
 #define mZColID 9999
 
@@ -72,8 +73,8 @@ bool SeisDataPackFromDPS::doWork( od_int64 start, od_int64 stop, int threadidx )
 	DataPointSet::ColID colid = selcols_[compidx];
 	for ( int idx=mCast(int,start); idx<=stop; idx++ )
 	{
-	    const TrcKey tkpos( dps_.binID(idx) );
-	    const int globidx = dp_.globalIdx( tkpos );
+	    const auto globidx = dp_.is2D() ? dp_.globalIdx( dps_.bin2D(idx) )
+					    : dp_.globalIdx( dps_.binID(idx) );
 	    if ( globidx < 0 )
 		continue;
 

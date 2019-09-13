@@ -153,7 +153,7 @@ public:
 			mDeclMonitorableAssignment(DataPointSet);
 
     OD::GeomSystem	geomSystem() const;
-    bool		is2D() const		{ return is2d_; }
+    bool		is2D() const override	{ return is2d_; }
     bool		isMinimal() const	{ return minimal_; }
     bool		isEmpty() const		{ return sposs_.isEmpty(); }
     void		setEmpty();
@@ -170,10 +170,11 @@ public:
 			// size, binID, coord, z and trcNr impl PointDataPack
     int			size() const override	{ return sposs_.size(); }
     BinID		binID(RowID) const override;
+    Bin2D		bin2D(RowID) const override;
     Coord		coord(RowID) const override;
     float		z(RowID) const override;
-    GeomID		geomID(RowID) const;
-    int			trcNr(RowID) const override;
+    linenr_type		lineNr(RowID) const override;
+    trcnr_type		trcNr(RowID) const override;
 
     Pos			pos(RowID) const;
     DataRow		dataRow(RowID) const;

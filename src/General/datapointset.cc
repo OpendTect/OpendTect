@@ -576,6 +576,13 @@ BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 }
 
 
+Bin2D DataPointSet::bin2D( DataPointSet::RowID rid ) const
+{
+    mChkRowID( rid, Bin2D::udf() );
+    return bivSet().getBin2D( sposs_[rid] );
+}
+
+
 Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 {
     mChkRowID( rid, Coord::udf() );
@@ -590,25 +597,17 @@ float DataPointSet::z( DataPointSet::RowID rid ) const
 }
 
 
-Pos::GeomID DataPointSet::geomID( DataPointSet::RowID rid ) const
+DataPointSet::linenr_type DataPointSet::lineNr( DataPointSet::RowID rid ) const
 {
-    mChkRowID( rid, GeomID() );
-    if ( !is2d_ )
-	return GeomID::get3D();
-
-    const float fnr = bivSet().getVal( sposs_[rid], nrfixedcols_-2 );
-    return GeomID( mNINT32(fnr) );
+    mChkRowID( rid, 0 );
+    return is2d_ ? bin2D(rid).lineNr() : binID(rid).inl();
 }
 
 
-int DataPointSet::trcNr( DataPointSet::RowID rid ) const
+DataPointSet::trcnr_type DataPointSet::trcNr( DataPointSet::RowID rid ) const
 {
     mChkRowID( rid, 0 );
-    if ( !is2d_ )
-	return binID(rid).crl();
-
-    const float fnr = bivSet().getVal( sposs_[rid], nrfixedcols_-1 );
-    return mNINT32(fnr);
+    return is2d_ ? bin2D(rid).trcNr() : binID(rid).crl();
 }
 
 
@@ -1082,7 +1081,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    bid = sampling_->hsamp_.getNearest( bid );
 	}
 
-	const int gidx = vdp_.globalIdx( TrcKey(bid,dps_.is2D()) );
+	const int gidx = vdp_.getGlobalIdx( TrcKey(bid,dps_.is2D()) );
 	if ( gidx<0 )
 	    continue;
 

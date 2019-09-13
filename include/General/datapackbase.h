@@ -36,19 +36,26 @@ public:
 
     typedef Pos::Z_Type		z_type;
     typedef Pos::TraceNr_Type	trcnr_type;
+    typedef trcnr_type		linenr_type;
+    mUseType( Pos,		GeomID );
 
     mDeclAbstractMonitorableAssignment(PointDataPack);
 
+    virtual bool	is2D() const			= 0;
     virtual size_type	size() const			= 0;
-    virtual BinID	binID(idx_type) const		= 0;
     virtual z_type	z(idx_type) const		= 0;
+    virtual linenr_type	lineNr(idx_type) const		= 0;
+    virtual trcnr_type	trcNr(idx_type) const		= 0;
     virtual Coord	coord(idx_type) const;
-    virtual trcnr_type	trcNr(idx_type) const		{ return 0; }
+    virtual BinID	binID(idx_type) const;
+    virtual Bin2D	bin2D(idx_type) const;
 
     virtual bool	simpleCoords() const		{ return true; }
 				//!< If true, coords are always SI().tranform(b)
     virtual bool	isOrdered() const		{ return false;}
 				//!< If yes, one can draw a line between the pts
+
+    GeomID		geomID(idx_type) const;
 
 protected:
 
@@ -189,13 +196,10 @@ public:
     virtual glob_size_type	nrPositions() const			= 0;
     virtual VolumeDataPack*	getSimilar() const			= 0;
     virtual z_steprg_type	zRange() const				= 0;
-    virtual void		getTrcKey(glob_idx_type,TrcKey&) const	= 0;
-    virtual glob_idx_type	globalIdx(const TrcKey&) const		= 0;
     virtual rdl_id		randomLineID() const		{ return -1; }
 
     virtual void		getPath(TrcKeyPath&) const;
     virtual void		getPositions(BinnedValueSet&) const;
-    glob_idx_type		nearestGlobalIdx(const TrcKey&) const;
 
     virtual bool		addComponent(const char* nm,bool initvals) = 0;
 
@@ -225,6 +229,18 @@ public:
 				{ return *arrays_[c]; }
     const impl_type&		data( comp_idx_type c=0 ) const
 				{ return *arrays_[c]; }
+
+    BinID			binID(glob_idx_type) const;
+    Bin2D			bin2D(glob_idx_type) const;
+    glob_idx_type		globalIdx(const BinID&) const;
+    glob_idx_type		globalIdx(const Bin2D&) const;
+    glob_idx_type		nearestGlobalIdx(const BinID&) const;
+    glob_idx_type		nearestGlobalIdx(const Bin2D&) const;
+    void			getTrcKey( glob_idx_type i, TrcKey& tk ) const
+				{ gtTrcKey( i, tk ); }
+    glob_idx_type		getGlobalIdx( const TrcKey& tk ) const
+				{ return gtGlobalIdx( tk ); }
+    glob_idx_type		getNearestGlobalIdx(const TrcKey&) const;
 
     void			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const
@@ -265,6 +281,8 @@ protected:
 				{ return arrays_.validIdx(iarr)
 				       ? arrays_[iarr] : 0; }
     glob_idx_type		fndNearest(const TrcKey&) const;
+    virtual void		gtTrcKey(glob_idx_type,TrcKey&) const	= 0;
+    virtual glob_idx_type	gtGlobalIdx(const TrcKey&) const	= 0;
 
     float			gtNrKBytes() const override;
     void			doDumpInfo(IOPar&) const override;

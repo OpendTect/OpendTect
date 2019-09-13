@@ -63,7 +63,8 @@ public:
 
 protected:
 
-    void		fillFromDP(const TrcKey&,SeisTrcInfo&,TraceData&);
+    void		fillFromDP(const BinID&,SeisTrcInfo&,TraceData&);
+    void		fillFromDP(const Bin2D&,SeisTrcInfo&,TraceData&);
 
     void		handleGeomIDChange(idx_type iln=0);
     ZSampling		provZSamp() const;
@@ -75,6 +76,7 @@ protected:
 private:
 
     SeisTrc		worktrc_;
+    void		fillFromDP(const TrcKey&,SeisTrcInfo&,TraceData&);
 
 };
 

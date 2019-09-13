@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seispreload.h"
 #include "seisprovider.h"
 #include "seistrctr.h"
+#include "trckey.h"
 
 
 void Seis::Fetcher::reset()
@@ -70,6 +71,20 @@ void Seis::Fetcher::handleGeomIDChange( idx_type iln )
 }
 
 
+void Seis::Fetcher::fillFromDP( const BinID& bid, SeisTrcInfo& ti,
+				TraceData& td )
+{
+    fillFromDP( TrcKey(bid), ti, td );
+}
+
+
+void Seis::Fetcher::fillFromDP( const Bin2D& b2d, SeisTrcInfo& ti,
+				TraceData& td )
+{
+    fillFromDP( TrcKey(b2d), ti, td );
+}
+
+
 void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
 				TraceData& td )
 {
@@ -80,8 +95,16 @@ void Seis::Fetcher::fillFromDP( const TrcKey& tk, SeisTrcInfo& ti,
     const bool directfill = regSeisDP().isFullyCompat( provzsamp, datachar_ );
     auto& filledti = directfill ? ti : worktrc_.info();
     auto& filledtd = directfill ? td : worktrc_.data();
-    regSeisDP().fillTraceInfo( tk, filledti );
-    regSeisDP().fillTraceData( tk, filledtd );
+    if ( is2D() )
+    {
+	regSeisDP().fillTraceInfo( tk.bin2D(), filledti );
+	regSeisDP().fillTraceData( tk.bin2D(), filledtd );
+    }
+    else
+    {
+	regSeisDP().fillTraceInfo( tk.binID(), filledti );
+	regSeisDP().fillTraceData( tk.binID(), filledtd );
+    }
     if ( directfill )
 	return;
 
@@ -112,7 +135,7 @@ bool Seis::Fetcher3D::useDP( const BinID& bid ) const
     if ( isPS() )
 	return true; // for PS, we cannot predict, need to just try and see
 
-    return regSeisDP().sampling().hsamp_.includes( bid );
+    return regSeisDP().horSubSel().includes( bid );
 }
 
 
@@ -136,7 +159,7 @@ bool Seis::Fetcher2D::useDP( const Bin2D& b2d ) const
     if ( isPS() )
 	return true; // for PS, we should just try and see
 
-    return regSeisDP().sampling().hsamp_.includes( BinID(b2d.idxPair()) );
+    return regSeisDP().horSubSel().includes( b2d );
 }
 
 

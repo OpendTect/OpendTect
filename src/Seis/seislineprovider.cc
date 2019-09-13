@@ -73,7 +73,7 @@ bool Seis::LineFetcher::setPosition( const Bin2D& b2d )
 void Seis::LineFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 {
     if ( useDP(curb2d_) )
-	fillFromDP( TrcKey(curb2d_), ti, td );
+	fillFromDP( curb2d_, ti, td );
     else
 	uirv_ = getter_->get( curb2d_.trcNr(), td, &ti );
 }

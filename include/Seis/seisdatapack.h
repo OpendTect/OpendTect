@@ -37,14 +37,20 @@ public:
 				      const DataCharacteristics&) const;
 
 			// following will just fill with all available data
-    void		fillTrace(const TrcKey&,SeisTrc&) const;
-    void		fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
-    void		fillTraceData(const TrcKey&,TraceData&) const;
+    void		fillTrace(const BinID&,SeisTrc&) const;
+    void		fillTrace(const Bin2D&,SeisTrc&) const;
+    void		fillTraceInfo(const BinID&,SeisTrcInfo&) const;
+    void		fillTraceInfo(const Bin2D&,SeisTrcInfo&) const;
+    void		fillTraceData(const BinID&,TraceData&) const;
+    void		fillTraceData(const Bin2D&,TraceData&) const;
 
 protected:
 
 			SeisVolumeDataPack(const char* cat,const BinDataDesc*);
 			~SeisVolumeDataPack();
+
+    void		fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
+    void		fillTraceData(glob_idx_type,TraceData&) const;
 
 };
 
@@ -55,8 +61,10 @@ mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 {
 public:
 
+    mUseType( Pos,		ZSubSel );
     mUseType( PosInfo,		LineCollData );
     mUseType( Survey,		GeomSubSel );
+    mUseType( Survey,		HorSubSel );
 
 				RegularSeisDataPack( const char* cat,
 						     const BinDataDesc* bdd=0 )
@@ -70,8 +78,15 @@ public:
 
     GeomSubSel&			subSel();
     const GeomSubSel&		subSel() const;
+    HorSubSel&			horSubSel()
+				{ return subSel().horSubSel(); }
+    const HorSubSel&		horSubSel() const
+				{ return subSel().horSubSel(); }
     void			setSubSel(const GeomSubSel&);
-    z_steprg_type		zRange(idx_type iln=0) const override;
+    ZSubSel&			zSubSel()	{ return subSel().zSubSel(); }
+    const ZSubSel&		zSubSel() const { return subSel().zSubSel(); }
+    z_steprg_type		zRange() const override
+				{ return zSubSel().outputZRange(); }
 
     void			getTKZS(TrcKeyZSampling&) const;
     void			getTKS(TrcKeySampling&) const;
@@ -87,9 +102,7 @@ public:
     bool			addComponent(const char* nm,bool initvals);
 
     glob_size_type		nrPositions() const override
-				{ return (glob_size_type)hSamp().totalNr(); }
-    void			getTrcKey(glob_idx_type,TrcKey&) const override;
-    glob_idx_type		globalIdx(const TrcKey&) const override;
+				{ return horSubSel().totalSize(); }
 
     static DataPack::ID		createDataPackForZSlice(const BinnedValueSet*,
 				    const TrcKeyZSampling&,const ZDomain::Info&,
@@ -104,10 +117,12 @@ protected:
 
 				~RegularSeisDataPack();
 
-    GeomSubSel*			subsel_	= nullptr_;
+    GeomSubSel*			subsel_	= nullptr;
     LineCollData*		lcd_	= nullptr;
 
     void			doDumpInfo(IOPar&) const override;
+    void			gtTrcKey(glob_idx_type,TrcKey&) const override;
+    glob_idx_type		gtGlobalIdx(const TrcKey&) const override;
 
 };
 
@@ -123,11 +138,7 @@ public:
     RandomSeisDataPack*		getSimilar() const override;
 
     bool			is2D() const override;
-    glob_size_type		nrPositions() const	{ return path_.size(); }
-    void			getTrcKey(glob_idx_type,TrcKey&) const;
-    TrcKey&			trcKey(glob_idx_type);
-    const TrcKey&		trcKey(glob_idx_type) const;
-    glob_idx_type		globalIdx(const TrcKey&) const override;
+    glob_size_type		nrPositions() const;
 
     z_steprg_type		zRange() const override	{ return zsamp_; }
     void			setZRange( const z_steprg_type& zrg )
@@ -136,6 +147,8 @@ public:
     void			setPath(const TrcKeyPath&);
     const TrcKeyPath&		path() const		{ return path_; }
     void			getPath(TrcKeyPath&) const override;
+    TrcKey&			trcKey(glob_idx_type);
+    const TrcKey&		trcKey(glob_idx_type) const;
     void			setRandomLineID(int,
 						const TypeSet<BinID>* subpth=0);
     rdl_id			randomLineID() const	{ return rdlid_; }
@@ -155,6 +168,9 @@ protected:
     int				rdlid_;
     TrcKeyPath&			path_;
     z_steprg_type		zsamp_;
+
+    void			gtTrcKey(glob_idx_type,TrcKey&) const override;
+    glob_idx_type		gtGlobalIdx(const TrcKey&) const override;
 
 };
 
@@ -228,7 +244,10 @@ protected:
 mExpClass(Seis) RegularSeisFlatDataPack : public SeisFlatDataPack
 {
 public:
+
 			mTypeDefArrNDTypes;
+    mUseType( Survey,	GeomSubSel );
+    mUseType( Survey,	HorSubSel );
 
 			RegularSeisFlatDataPack(const RegularSeisDataPack&,
 					    comp_idx_type);
@@ -238,11 +257,11 @@ public:
     const TrcKeyPath&	path() const override	{ return path_; }
     float		getPosDistance(bool dim0,float trcfidx) const;
 
-    const TrcKeyZSampling& sampling() const { return regSource().sampling(); }
-    const TrcKeySampling& hSamp() const { return regSource().hSamp(); }
-    Pos::GeomID		geomID() const	{ return hSamp().getGeomID(); }
-    OD::SliceType	dir() const	{ return sampling().defaultDir(); }
+    const GeomSubSel&	subSel() const { return regSource().subSel(); }
+    const HorSubSel&	horSubSel() const { return regSource().horSubSel(); }
+    Pos::GeomID		geomID() const	{ return horSubSel().geomID(); }
     Coord3		getCoord(idx_type,idx_type) const;
+    OD::SliceType	dir() const;
 
     const char*		dimName(bool dim0) const;
 

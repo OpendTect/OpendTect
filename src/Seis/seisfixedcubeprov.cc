@@ -229,7 +229,7 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 	if ( geomid_.is2D() )
 	    tk.setGeomID( geomid_ );
 	SeisTrc& dptrc = dptrc_.getObject();
-	seisdp_->fillTrace( TrcKey(bid), dptrc );
+	seisdp_->fillTrace( bid, dptrc );
 	return &dptrc;
     }
 

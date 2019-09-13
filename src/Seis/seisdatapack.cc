@@ -17,14 +17,15 @@ ________________________________________________________________________
 #include "convmemvalseries.h"
 #include "cubedata.h"
 #include "flatposdata.h"
+#include "fullsubsel.h"
+#include "keystrs.h"
 #include "paralleltask.h"
 #include "randomlinegeom.h"
 #include "seistrc.h"
 #include "staticstring.h"
 #include "survinfo.h"
 #include "survgeom.h"
-#include "fullsubsel.h"
-#include "keystrs.h"
+#include "trckey.h"
 
 #include <limits.h>
 
@@ -215,10 +216,31 @@ bool SeisVolumeDataPack::isFullyCompat( const z_steprg_type& zrg,
 }
 
 
-void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
+void SeisVolumeDataPack::fillTrace( const BinID& bid, SeisTrc& trc ) const
 {
-    fillTraceInfo( trcky, trc.info() );
-    fillTraceData( trcky, trc.data() );
+    fillTraceInfo( bid, trc.info() );
+    fillTraceData( bid, trc.data() );
+}
+
+
+void SeisVolumeDataPack::fillTrace( const Bin2D& b2d, SeisTrc& trc ) const
+{
+    fillTraceInfo( b2d, trc.info() );
+    fillTraceData( b2d, trc.data() );
+}
+
+
+void SeisVolumeDataPack::fillTraceInfo( const BinID& bid,
+					SeisTrcInfo& ti ) const
+{
+    fillTraceInfo( TrcKey(bid), ti );
+}
+
+
+void SeisVolumeDataPack::fillTraceInfo( const Bin2D& bid,
+					SeisTrcInfo& ti ) const
+{
+    fillTraceInfo( TrcKey(b2d), ti );
 }
 
 
@@ -234,7 +256,21 @@ void SeisVolumeDataPack::fillTraceInfo( const TrcKey& tk,
 }
 
 
-void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
+void SeisVolumeDataPack::fillTraceData( const BinID& bid,
+					TraceData& td ) const
+{
+    fillTraceData( globalIdx(bid), td );
+}
+
+
+void SeisVolumeDataPack::fillTraceData( const BinID& b2d,
+					TraceData& td ) const
+{
+    fillTraceData( globalIdx(b2d), td );
+}
+
+
+void SeisVolumeDataPack::fillTraceData( glob_idx_type globidx,
 					TraceData& td ) const
 {
     DataCharacteristics dc;
@@ -245,7 +281,6 @@ void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
     const int trcsz = zRange().nrSteps() + 1;
     td.reSize( trcsz );
 
-    const int globidx = globalIdx( trcky );
     if ( globidx < 0 )
 	{ td.zero(); return; }
 
@@ -323,7 +358,7 @@ Monitorable::ChangeType RegularSeisDataPack::compareClassData(
 RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 {
     RegularSeisDataPack* ret = new RegularSeisDataPack( category(), &desc_ );
-    ret->setSampling( sampling() );
+    ret->setSubSel( subSel() );
     return ret;
 }
 
@@ -340,6 +375,18 @@ const PosInfo::LineCollData* RegularSeisDataPack::tracePositions() const
 }
 
 
+void RegularSeisDataPack::setSubSel( const GeomSubSel& newss )
+{
+    if ( !subsel_ || *subsel_ != newss )
+    {
+	// lock for write
+	deleteAndZeroPtr( subsel_ );
+	subsel_ = newss.clone();
+	// send notif
+    }
+}
+
+
 PosInfo::LineCollData* RegularSeisDataPack::getTrcPositions() const
 {
     if ( lcd_ )
@@ -353,22 +400,24 @@ PosInfo::LineCollData* RegularSeisDataPack::getTrcPositions() const
 
 void RegularSeisDataPack::getTrcKey( int globaltrcidx, TrcKey& tk ) const
 {
-    tk = sampling_.hsamp_.trcKeyAt( globaltrcidx );
+    if ( is2D() )
+	tk.setPos( horSubSel().asLineHorSubSel()->atGlobIdx(globaltrcidx) );
+    else
+	tk.setPos( horSubSel().asCubeHorSubSel()->atGlobIdx(globaltrcidx) );
 }
 
 
 bool RegularSeisDataPack::is2D() const
 {
-    return sampling_.hsamp_.is2D();
+    return subSel().is2D();
 }
 
 
-int RegularSeisDataPack::globalIdx( const TrcKey& tk ) const
+RegularSeisDataPack::glob_idx_type
+RegularSeisDataPack::gtGlobalIdx( const TrcKey& tk ) const
 {
-    if ( !sampling_.hsamp_.includes(tk) )
-	return -1;
-
-    return mCast(int,sampling_.hsamp_.globalIdx(tk));
+    return is2D() ? horSubSel().asLineHorSubSel()->globIdx( tk.trcNr() )
+		  : horSubSel().asCubeHorSubSel()->globIdx( tk.binID() );
 }
 
 
@@ -503,7 +552,13 @@ RandomSeisDataPack* RandomSeisDataPack::getSimilar() const
 }
 
 
-void RandomSeisDataPack::getTrcKey( glob_idx_type idx, TrcKey& tk ) const
+RandomSeisDataPack::glob_size_type RandomSeisDataPack::nrPositions() const
+{
+    return path_.size();
+}
+
+
+void RandomSeisDataPack::gtTrcKey( glob_idx_type idx, TrcKey& tk ) const
 {
     tk = trcKey( idx );
 }
@@ -550,9 +605,9 @@ void RandomSeisDataPack::getPath( TrcKeyPath& pth ) const
 }
 
 
-int RandomSeisDataPack::globalIdx( const TrcKey& tk ) const
+glob_idx_type RandomSeisDataPack::gtGlobalIdx( const TrcKey& tk ) const
 {
-    return path_.indexOf(tk);
+    return path_.indexOf( tk );
 }
 
 
@@ -892,6 +947,16 @@ Coord3 RegularSeisFlatDataPack::getCoord( int i0, int i1 ) const
     TrcKey tk; getTrcKey( trcidx, tk );
     const Coord c = tk.getCoord();
     return Coord3( c.x_, c.y_, sampling().zsamp_.atIndex(isvertical ? i1 : 0) );
+}
+
+
+OD::SliceType RegularSeisFlatDataPack::dir() const
+{
+    const auto* css = subSel().asCubeSubSel();
+    if ( !css )
+	return OD::InlineSlice; // 2D line ...
+
+    return css->defaultDir();
 }
 
 

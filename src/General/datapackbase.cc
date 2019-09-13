@@ -53,6 +53,28 @@ Coord PointDataPack::coord( idx_type idx ) const
 }
 
 
+BinID PointDataPack::binID( idx_type idx ) const
+{
+    if ( is2D() )
+	{ pErrMsg("2D/3D err"); }
+    return BinID( lineNr(idx), trcNr(idx) );
+}
+
+
+Bin2D PointDataPack::bin2D( idx_type idx ) const
+{
+    if ( !is2D() )
+	{ pErrMsg("2D/3D err"); }
+    return Bin2D( GeomID(lineNr(idx)), trcNr(idx) );
+}
+
+
+Pos::GeomID PointDataPack::geomID( idx_type idx ) const
+{
+    return is2D() ? GeomID(lineNr(idx)) : GeomID::get3D();
+}
+
+
 
 // FlatDataPack
 FlatDataPack::FlatDataPack( const char* cat )
@@ -296,12 +318,12 @@ void VolumeDataPack::copyClassData( const VolumeDataPack& oth )
 }
 
 
-VolumeDataPack::glob_idx_type VolumeDataPack::nearestGlobalIdx(
+VolumeDataPack::glob_idx_type VolumeDataPack::getNearestGlobalIdx(
 						const TrcKey& tk ) const
 {
     if ( tk.isUdf() )
 	return -1;
-    const auto gidx = globalIdx( tk );
+    const auto gidx = gtGlobalIdx( tk );
     if ( gidx >= 0 )
 	return gidx;
 
@@ -506,6 +528,60 @@ const char* VolumeDataPack::categoryStr( bool isvertical, bool is2d )
 float VolumeDataPack::getRefNr( glob_idx_type globaltrcidx ) const
 {
     return refnrs_.validIdx(globaltrcidx) ? refnrs_[globaltrcidx] : mUdf(float);
+}
+
+
+BinID VolumeDataPack::binID( glob_idx_type gidx ) const
+{
+    if ( is2D() )
+	{ pErrMsg("2D/3D err"); }
+    TrcKey tk; gtTrcKey( gidx, tk );
+    return tk.binID();
+}
+
+
+Bin2D VolumeDataPack::bin2D( glob_idx_type gidx ) const
+{
+    if ( !is2D() )
+	{ pErrMsg("2D/3D err"); }
+    TrcKey tk; gtTrcKey( gidx, tk );
+    return tk.bin2D();
+}
+
+
+VolumeDataPack::glob_idx_type
+VolumeDataPack::globalIdx( const BinID& bid ) const
+{
+    if ( is2D() )
+	{ pErrMsg("2D/3D err"); }
+    return gtGlobalIdx( TrcKey(bid) );
+}
+
+
+VolumeDataPack::glob_idx_type
+VolumeDataPack::globalIdx( const Bin2D& b2d ) const
+{
+    if ( !is2D() )
+	{ pErrMsg("2D/3D err"); }
+    return gtGlobalIdx( TrcKey(b2d) );
+}
+
+
+VolumeDataPack::glob_idx_type
+VolumeDataPack::nearestGlobalIdx( const BinID& bid ) const
+{
+    if ( is2D() )
+	{ pErrMsg("2D/3D err"); }
+    return getNearestGlobalIdx( TrcKey(bid) );
+}
+
+
+VolumeDataPack::glob_idx_type
+VolumeDataPack::nearestGlobalIdx( const Bin2D& b2d ) const
+{
+    if ( !is2D() )
+	{ pErrMsg("2D/3D err"); }
+    return getNearestGlobalIdx( TrcKey(b2d) );
 }
 
 
