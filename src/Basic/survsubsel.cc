@@ -119,6 +119,20 @@ Survey::HorSubSel* Survey::HorSubSel::get( const TrcKeySampling& tks )
 }
 
 
+bool Survey::HorSubSel::includes( const BinID& bid ) const
+{
+    const auto* chss = asCubeHorSubSel();
+    return chss ? chss->includes( bid ) : false;
+}
+
+
+bool Survey::HorSubSel::includes( const Bin2D& b2d ) const
+{
+    const auto* lhss = asLineHorSubSel();
+    return lhss ? lhss->includes( b2d ) : false;
+}
+
+
 Survey::HorSubSel* Survey::HorSubSel::create( const IOPar& iop )
 {
     bool is2d; GeomID gid;
@@ -484,6 +498,20 @@ void LineHorSubSelSet::setToAll()
     SurvGeom2D::getGeomIDs( allgids );
     for ( auto gid : allgids )
 	add( new LineHorSubSel(gid) );
+}
+
+
+LineHorSubSelSet::totalsz_type
+LineHorSubSelSet::globIdx( const Bin2D& b2d ) const
+{
+    totalsz_type totsz = 0;
+    for ( auto lhss : *this )
+    {
+	if ( lhss->geomID() == b2d.geomID() )
+	    return totsz + lhss->globIdx( b2d.trcNr() );
+	totsz += lhss->totalSize();
+    }
+    return -1;
 }
 
 

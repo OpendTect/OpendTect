@@ -10,11 +10,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "bin2d.h"
 #include "posidxsubsel.h"
 #include "survsubsel.h"
 #include "manobjectset.h"
-class Bin2D;
 class CubeSubSel;
 class HorSampling;
 class LineSubSel;
@@ -85,6 +84,11 @@ public:
     static const LineHorSubSel&	empty();
     static LineHorSubSel&	dummy();
 
+    totalsz_type	globIdx( trcnr_type tnr ) const
+			{ return idx4TrcNr(tnr); }
+    Bin2D		atGlobIdx( totalsz_type idx ) const
+			{ return Bin2D( geomid_, (pos_type)trcNr4Idx(idx) ); }
+
 protected:
 
     GeomID		geomid_;
@@ -124,6 +128,7 @@ public:
     LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
     const LineHorSubSel* find( GeomID gid ) const { return doFind( gid ); }
 
+    totalsz_type	globIdx(const Bin2D&) const;
     Bin2D		atGlobIdx(totalsz_type) const;
 
 protected:
@@ -225,11 +230,16 @@ public:
     trcnr_type		trcNrStop() const override  { return crlStop(); }
     trcnr_type		trcNrStep() const override  { return crlStep(); }
 
+    totalsz_type	globIdx( const BinID& bid ) const
+			{
+			    return nrCrl() * idx4Inl(bid.inl())
+				 + idx4Crl(bid.crl());
+			}
     BinID		atGlobIdx( totalsz_type gidx ) const
 			{
-			    const auto nrinl = nrInl();
-			    return BinID( inl4Idx((pos_type)(gidx/nrinl)),
-					  crl4Idx((pos_type)(gidx%nrinl)) );
+			    const auto nrcrl = nrCrl();
+			    return BinID( inl4Idx((pos_type)(gidx/nrcrl)),
+					  crl4Idx((pos_type)(gidx%nrcrl)) );
 			}
 
 protected:

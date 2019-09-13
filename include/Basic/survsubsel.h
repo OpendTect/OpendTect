@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "geomid.h"
 #include "zsubsel.h"
 
+class Bin2D;
 class CubeSubSel;
 class CubeHorSubSel;
 class LineSubSel;
@@ -44,6 +45,9 @@ public:
     typedef od_int64		totalsz_type;
 
     virtual			~SubSel()			{}
+    bool			operator ==( const SubSel& oth ) const
+				{ return equals( oth ); }
+				mImplSimpleIneqOper(SubSel)
     virtual SubSel*		duplicate() const	= 0;
 				    //!< clone() would clash with ArrRegSubSel's
     virtual bool		equals(const SubSel&) const	= 0;
@@ -74,12 +78,19 @@ public:
 
     typedef Index_Type		trcnr_type;
 
+    bool			operator ==( const HorSubSel& oth ) const
+				{ return equals( oth ); }
+				mImplSimpleIneqOper(HorSubSel)
+    SubSel*			duplicate() const override;
+
     LineHorSubSel*		asLineHorSubSel();
     const LineHorSubSel*	asLineHorSubSel() const;
     CubeHorSubSel*		asCubeHorSubSel();
     const CubeHorSubSel*	asCubeHorSubSel() const;
 
-    SubSel*			duplicate() const override;
+    bool			includes(const BinID&) const;
+    bool			includes(const Bin2D&) const;
+
     static HorSubSel*		get(const TrcKeySampling&);
     static HorSubSel*		create(const IOPar&);
     bool			usePar(const IOPar&);
@@ -110,7 +121,11 @@ public:
     mUseType( ZSubSel,	z_type );
     mUseType( ZSubSel,	z_steprg_type );
 
+    bool		operator ==( const GeomSubSel& oth ) const
+			{ return equals( oth ); }
+			mImplSimpleIneqOper(GeomSubSel)
     SubSel*		duplicate() const override;
+
     bool		is2D() const override
 			{ return gtHorSubSel().is2D(); }
     GeomID		geomID() const override
