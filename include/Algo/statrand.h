@@ -43,6 +43,8 @@ public:
 			//!< Uniform [0-1]
     int			getInt() const;
 			//!< Uniform int
+    int			getInt(int min, int max) const;
+			//!< random int in the range [min,max]>
     int			getIndex(int sz) const;
 			//!< random index in the range [0,sz>
     int			getIndexFast(int sz,int seed) const;
