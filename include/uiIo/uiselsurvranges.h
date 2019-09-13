@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiSpinBox;
+class uiLabeledSpinBox;
 class uiLineEdit;
 namespace ZDomain { class Def; }
 
@@ -36,6 +37,7 @@ public:
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
     void		setRangeLimits(const StepInterval<float>&);
+    void		displayStep( bool yn );
 
     Notifier<uiSelZRange>	rangeChanged;
 
@@ -45,7 +47,7 @@ protected:
 
     uiSpinBox*		startfld_;
     uiSpinBox*		stopfld_;
-    uiSpinBox*		stepfld_;
+    uiLabeledSpinBox*	stepfld_;
     bool		isrel_;
     const ZDomain::Def&	zddef_; // keep above othdom_.
     const bool		othdom_; // keep above cansnap_
@@ -72,6 +74,7 @@ public:
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
     void		setLimitRange(const StepInterval<int>&);
+    void		displayStep( bool yn );
 
     bool		isChecked();
     void		setChecked(bool);
@@ -88,7 +91,7 @@ protected:
     uiSpinBox*		startfld_;
     uiSpinBox*		icstopfld_;
     uiLineEdit*		nrstopfld_;
-    uiSpinBox*		stepfld_;
+    uiLabeledSpinBox*	stepfld_;
     BufferString	fldnm_;
     uiString		lbltxt_;
     bool		finalised_;
@@ -141,6 +144,7 @@ public:
     TrcKeySampling		getSampling() const;
     void		setSampling(const TrcKeySampling&);
     void		setLimits(const TrcKeySampling&);
+    void		displayStep( bool yn );
 
     uiSelNrRange*	inlfld_;
     uiSelNrRange*	crlfld_;
