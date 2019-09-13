@@ -46,6 +46,10 @@ public:
 			LineSubSel(const Bin2D&);
 			LineSubSel(const TrcKeySampling&);
 			LineSubSel(const TrcKeyZSampling&);
+    bool		operator ==( const LineSubSel& oth ) const
+			{ return equals( oth ); }
+			mImplSimpleIneqOper(LineSubSel)
+    bool		equals(const SubSel&) const override;
 
     const TrcNrSubSelData& trcNrSubSel() const	{ return hss_.trcNrSubSel(); }
     TrcNrSubSelData& trcNrSubSel()		{ return hss_.trcNrSubSel(); }
@@ -108,6 +112,8 @@ public:
 
 			LineSubSelSet()		{}
 			LineSubSelSet(const LineHorSubSelSet&);
+    bool		operator ==(const LineSubSelSet&) const;
+			mImplSimpleIneqOper(LineSubSelSet)
     void		setToAll();
 
     bool		isAll() const;

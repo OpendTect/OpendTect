@@ -289,8 +289,13 @@ LineHorSubSel::LineHorSubSel( const TrcKeySampling& tks )
 }
 
 
-bool LineHorSubSel::operator ==( const LineHorSubSel& oth ) const
+bool LineHorSubSel::equals( const SubSel& ss ) const
 {
+    mDynamicCastGet( const LineHorSubSel*, oth, &ss );
+    if ( !oth )
+	return false;
+
+    return geomid_ == oth->geomid_ && data_ == oth->data_;
 }
 
 
@@ -388,8 +393,12 @@ bool LineHorSubSelSet::operator ==( const LineHorSubSelSet& oth ) const
 	return false;
 
     for ( auto idx=0; idx<sz; idx++ )
-	if ( *get(idx) != *oth.get(idx) )
+    {
+	const auto& mylhss = *get( idx );
+	const auto* othlhss = oth.find( mylhss.geomID() );
+	if ( !othlhss || *othlhss != mylhss )
 	    return false;
+    }
 
     return true;
 }
@@ -553,6 +562,16 @@ CubeHorSubSel::CubeHorSubSel( const TrcKeySampling& tks )
 }
 
 
+bool CubeHorSubSel::equals( const SubSel& ss ) const
+{
+    mDynamicCastGet( const CubeHorSubSel*, oth, &ss );
+    if ( !oth )
+	return false;
+
+    return data0_ == oth->data0_ && data1_ == oth->data1_;
+}
+
+
 Pos::GeomID CubeHorSubSel::geomID() const
 {
     return GeomID::get3D();
@@ -702,6 +721,16 @@ LineSubSel::LineSubSel( const TrcKeyZSampling& tkzs )
 }
 
 
+bool LineSubSel::equals( const SubSel& ss ) const
+{
+    mDynamicCastGet( const LineSubSel*, oth, &ss );
+    if ( !oth )
+	return false;
+
+    return hss_ == oth->hss_ && zss_ == oth->zss_;
+}
+
+
 void LineSubSel::merge( const LineSubSel& oth )
 {
     hss_.merge( oth.hss_ );
@@ -720,6 +749,24 @@ LineSubSelSet::LineSubSelSet( const LineHorSubSelSet& lhsss )
 {
     for ( auto lhss : lhsss )
 	add( new LineSubSel( *lhss ) );
+}
+
+
+bool LineSubSelSet::operator ==( const LineSubSelSet& oth ) const
+{
+    const auto sz = size();
+    if ( sz != oth.size() )
+	return false;
+
+    for ( auto idx=0; idx<sz; idx++ )
+    {
+	const auto& mylss = *get( idx );
+	const auto* othlss = oth.find( mylss.geomID() );
+	if ( !othlss || *othlss != mylss )
+	    return false;
+    }
+
+    return true;
 }
 
 
@@ -915,6 +962,16 @@ CubeSubSel::CubeSubSel( const TrcKeyZSampling& tkzs )
     setInlRange( tkzs.hsamp_.lineRange() );
     setCrlRange( tkzs.hsamp_.trcRange() );
     setZRange( tkzs.zsamp_ );
+}
+
+
+bool CubeSubSel::equals( const SubSel& ss ) const
+{
+    mDynamicCastGet( const CubeSubSel*, oth, &ss );
+    if ( !oth )
+	return false;
+
+    return hss_ == oth->hss_ && zss_ == oth->zss_;
 }
 
 

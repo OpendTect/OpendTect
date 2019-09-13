@@ -37,6 +37,10 @@ public:
 			LineHorSubSel(GeomID,trcnr_type);
 			LineHorSubSel(const Bin2D&);
 			LineHorSubSel(const LineSubSel&);
+    bool		operator ==( const LineHorSubSel& oth ) const
+			{ return equals( oth ); }
+			mImplSimpleIneqOper(LineHorSubSel)
+    bool		equals(const SubSel&) const override;
 
     bool		is2D() const override	   { return true; }
     GeomID		geomID() const override	   { return geomid_; }
@@ -151,6 +155,10 @@ public:
 			CubeHorSubSel(const BinID&);
 			CubeHorSubSel(const CubeSubSel&);
 			CubeHorSubSel(const TrcKeySampling&);
+    bool		operator ==( const CubeHorSubSel& oth ) const
+			{ return equals( oth ); }
+			mImplSimpleIneqOper(CubeHorSubSel)
+    bool		equals(const SubSel&) const override;
 
     bool		is2D() const override	   { return false; }
     GeomID		geomID() const override;

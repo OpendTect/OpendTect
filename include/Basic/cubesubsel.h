@@ -63,6 +63,10 @@ public:
 			CubeSubSel(const CubeSampling&);
 			CubeSubSel(const TrcKeySampling&);
 			CubeSubSel(const TrcKeyZSampling&);
+    bool		operator ==( const CubeSubSel& oth ) const
+			{ return equals( oth ); }
+			mImplSimpleIneqOper(CubeSubSel)
+    bool		equals(const SubSel&) const override;
 
     const IdxSubSelData& inlSubSel() const	{ return hss_.inlSubSel(); }
     IdxSubSelData&	inlSubSel()		{ return hss_.inlSubSel(); }
