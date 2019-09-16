@@ -17,12 +17,11 @@ ________________________________________________________________________
 #include "monitoriter.h"
 #include "enums.h"
 #include "odpresentationmgr.h"
+#include "trckey.h"
 #include "sets.h"
 #include "draw.h"
 #include "iopar.h"
-class TrcKey;
 template <class T> class ODPolygon;
-
 
 namespace Pick
 {
@@ -134,6 +133,10 @@ public:
 				mImplSimpleEqOpers2Memb(Disp,connect_,mkstyle_)
 	Connection		connect_ = None;
 	OD::MarkerStyle3D	mkstyle_;
+	OD::LineStyle		lnstyle_;
+	Color			fillcol_;
+	bool			filldodraw_ = false;
+	bool			linedodraw_ = true;
     };
 
     mImplSimpleMonitoredGetSet(inline,getDisp,setDisp,Disp,disp_,cDispChange())
@@ -143,8 +146,20 @@ public:
 				OD::MarkerStyle3D,disp_.mkstyle_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,dispColor,setDispColor,
 				Color,disp_.mkstyle_.color_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,lineStyle,setLineStyle,
+				OD::LineStyle,disp_.lnstyle_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,dispSize,setDispSize,
 				int,disp_.mkstyle_.size_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,lineColor,setLineColor,
+				Color,disp_.lnstyle_.color_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,lineSize,setLineSize,
+				int,disp_.lnstyle_.width_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,fillColor,setFillColor,
+				Color,disp_.fillcol_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,fillDoDraw,setFillDoDraw,
+				bool,disp_.filldodraw_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,lineDoDraw,setLineDoDraw,
+				bool,disp_.linedodraw_,cDispChange())
 
     static ChangeType	cDispChange()		{ return 2; }
     static ChangeType	cParsChange()		{ return 3; }
@@ -165,6 +180,15 @@ public:
     static Set&		dummySet()		{ return dummyset_; }
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
+    static const char*	sKeyLineType()		{ return "Line Type"; }
+    static const char*	sKeyWidth()		{ return "Line Width"; }
+    static const char*	sKeyLineColor()		{ return "Line Color"; }
+    static const char*	sKeyLineStyle()		{ return "Line Style"; }
+    static const char*	sKeySurfaceStyle()	{ return "Surface Style"; }
+    static const char*	sKeySurfaceColor()	{ return "Surface Color"; }
+    static const char*	sKeyFill()		{ return "Fill"; }
+    static const char*	sKeyLine()		{ return "Draw Line"; }
+    static const char*	sKeyConnect()		{ return "Connect"; }
     static const char*	sKeyThresholdSize()
 			{ return "PointSet Size Threshold";}
     static const char*	sKeyUseThreshold()
@@ -191,6 +215,7 @@ protected:
     LocID		insNewLocID(idx_type,AccessLocker&);
     void		replaceID(LocID from,LocID to);
     int			gtLblIdx(GroupLabelID) const;
+    static bool		isPolygon(const IOPar&,bool connect);
 
     friend class	SetIter;
     friend class	SetIter4Edit;

@@ -5,23 +5,21 @@
 -*/
 
 
-#include "pickset.h"
 #include "picksetascio.h"
-#include "keystrs.h"
-#include "od_iostream.h"
+#include "pickset.h"
 #include "polygon.h"
-#include "posimpexppars.h"
-#include "settings.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "trckey.h"
+#include "posimpexppars.h"
 #include "unitofmeasure.h"
+#include "od_iostream.h"
+#include "settings.h"
+#include "keystrs.h"
 #include <ctype.h>
 
 mDefineInstanceCreatedNotifierAccess(Pick::Set)
 const Pick::Set Pick::Set::emptyset_;
 Pick::Set Pick::Set::dummyset_;
-static const char* sKeyConnect = "Connect";
 
 int Pick::Set::getSizeThreshold()
 {
@@ -195,15 +193,20 @@ double Pick::Set::getZ( LocID id ) const
 }
 
 
+bool Pick::Set::isPolygon(const IOPar& par , bool doconnect)
+{
+    const FixedString typ = par.find( sKey::Type() );
+    if( typ.isEmpty() )
+	return doconnect != Set::Disp::None;
+    return typ == sKey::Polygon();
+}
+
+
 bool Pick::Set::isPolygon() const
 {
     mLock4Read();
 
-    const FixedString typ = pars_.find( sKey::Type() );
-    if ( typ.isEmpty() )
-	return disp_.connect_ != Set::Disp::None;
-
-    return typ == sKey::Polygon();
+    return isPolygon( pars_ , disp_.connect_);
 }
 
 
@@ -636,10 +639,15 @@ void Pick::Set::fillPar( IOPar& par ) const
 {
     mLock4Read();
     par.merge( pars_ );
-    BufferString parstr;
-    disp_.mkstyle_.toString( parstr );
-    par.set( sKey::MarkerStyle(), parstr );
-    par.set( sKeyConnect, Disp::toString(disp_.connect_) );
+    BufferString mkparstr,lnparstr;
+    disp_.mkstyle_.toString( mkparstr );
+    disp_.lnstyle_.toString( lnparstr );
+    par.set( sKeyLineStyle(), lnparstr );
+    par.set( sKeyLineType(), disp_.lnstyle_.type_ );
+    par.set( sKey::MarkerStyle(), mkparstr );
+    par.set( sKeyConnect(), Disp::toString(disp_.connect_) );
+    par.setYN( sKeyFill(), disp_.filldodraw_ );
+    par.setYN( sKeyLine(), disp_.linedodraw_ );
     if ( !grouplabels_.isEmpty() )
     {
 	for ( int igrp=0; igrp<grouplabels_.size(); igrp++ )
@@ -660,6 +668,13 @@ void Pick::Set::fillPar( IOPar& par ) const
 
 bool Pick::Set::usePar( const IOPar& par )
 {
+    IOPar mergedpar( par );
+    if( pars_.isPresent(sKey::Type()) )
+    {
+	BufferString typ;
+	pars_.get( sKey::Type(),typ );
+	mergedpar.set( sKey::Type(),typ );
+    }
     mLock4Write();
 
     BufferString mkststr;
@@ -667,23 +682,51 @@ bool Pick::Set::usePar( const IOPar& par )
 	disp_.mkstyle_.fromString( mkststr );
     else
     {
-	BufferString colstr;
+	BufferString colstr,lncolstr;
 	if ( par.get(sKey::Color(),colstr) )
 	    disp_.mkstyle_.color_.use( colstr.buf() );
+
+	if ( par.get(sKeyLineColor(),lncolstr) )
+	    disp_.lnstyle_.color_.use( lncolstr.buf() );
+
 	par.get( sKey::Size(),disp_.mkstyle_.size_ );
+	par.get( sKeyWidth(),disp_.lnstyle_.width_ );
 	int pstype = 0;
 	par.get( sKeyMarkerType(), pstype );
 	pstype++;
 	disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type)pstype;
     }
+    BufferString lnststr;
+    if ( par.get(sKeyLineStyle(),lnststr) )
+	disp_.lnstyle_.fromString( lnststr );
+    else
+    {
+	BufferString lncolstr;
+	if ( par.get(sKeyLineColor(),lncolstr) )
+	    disp_.lnstyle_.color_.use( lncolstr.buf() );
+	par.get( sKeyWidth(),disp_.lnstyle_.width_ );
+	OD::LineStyle::parseEnum( par, sKeyLineType(), disp_.lnstyle_.type_ );
+    }
 
-    bool doconnect;
-    par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
-    if ( doconnect )
-	disp_.connect_ = Disp::Close;
-    else if ( !Disp::ConnectionDef().parse(par.find(sKeyConnect),
+
+    par.getYN( sKeyFill(), disp_.filldodraw_ );
+    par.getYN( sKeyLine(), disp_.linedodraw_ );
+
+    bool doconnect = true;
+    if ( par.getYN( sKeyConnect(), doconnect ) )
+    {
+	if ( doconnect )
+	    disp_.connect_ = Disp::Close;
+	else if ( !Disp::ConnectionDef().parse(par.find(sKeyConnect()),
 					   disp_.connect_) )
-	disp_.connect_ = Disp::None;
+	    disp_.connect_ = Disp::None;
+    }
+    else
+    {
+	if( isPolygon( mergedpar, disp_.connect_ ) )
+	    disp_.connect_ = Disp::Close;
+    }
+
 
     for ( int grpnr=0; ; grpnr++ )
     {
@@ -697,7 +740,11 @@ bool Pick::Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKey::Color() );
     pars_.removeWithKey( sKey::Size() );
     pars_.removeWithKey( sKeyMarkerType() );
-    pars_.removeWithKey( sKeyConnect );
+    pars_.removeWithKey( sKeyLineType() );
+    pars_.removeWithKey( sKeyWidth() );
+    pars_.removeWithKey( sKeyConnect() );
+    pars_.removeWithKey( sKeyFill() );
+    pars_.removeWithKey( sKeyLine() );
     GroupLabel::removeFromPar( pars_ );
 
     mSendEntireObjChgNotif();

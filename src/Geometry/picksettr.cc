@@ -13,8 +13,11 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "ioobjctxt.h"
 #include "binnedvalueset.h"
+#include "bufstring.h"
 #include "datapointset.h"
 #include "ioobj.h"
+#include "file.h"
+#include "filepath.h"
 #include "hdf5reader.h"
 #include "hdf5writer.h"
 #include "hdf5arraynd.h"
@@ -103,7 +106,7 @@ uiRetVal PickSetTranslator::retrieve( Pick::Set& ps, const IOObj& ioobj )
 	if ( FixedString(ps.category()).isEmpty() )
 	    ps.setCategory( getCategory(ioobj,&ps) );
 
-	bool ispoly = false;
+	bool ispoly = true;
 	if ( getIsPolygon(ioobj,ispoly) )
 	    ps.setIsPolygon( ispoly );
 
@@ -196,8 +199,82 @@ void fillPar( const Pick::Set& ps, IOPar& iop ) const
 }
 
     const BufferString	filenm_;
-
+protected:
+    Pick::Set::Disp	readDisp();
 };
+
+
+Pick::Set::Disp dgbPickSetTranslatorBackEnd::readDisp()
+{
+    Pick::Set::Disp disp;
+    File::Path fp( filenm_ );
+    fp.setExtension( "disp" );
+    if ( !fp.exists() )
+	return disp;
+
+    od_istream dispstrm( fp.fullPath() );
+    ascistream adispstrm( dispstrm );
+    if ( !adispstrm.isOK() )
+	return disp;
+
+    IOPar iopar;
+    iopar.getFrom( adispstrm );
+    if ( !iopar.isEmpty() )
+	return disp;
+
+    int picksz;
+    if ( iopar.get(sKey::Size(),picksz) )
+    {
+	disp.mkstyle_.size_ = picksz;
+    }
+
+    Color mkcolor;
+    if ( iopar.get(sKey::Color(),mkcolor) )
+    {
+	disp.mkstyle_.color_ = mkcolor;
+	disp.mkstyle_.color_.setTransparency( 0 );
+    }
+    BufferString mkststr;
+    if ( iopar.get(Pick::Set::sKeyMarkerType(),mkststr) )
+    {
+	OD::MarkerStyle3D::TypeDef().parse( iopar,
+		     Pick::Set::sKeyMarkerType(), disp.mkstyle_.type_ );
+    }
+    Color lncolor;
+    if ( iopar.get(Pick::Set::sKeyLineColor(),lncolor) )
+    {
+	disp.lnstyle_.color_ = lncolor ;
+    }
+    int lnsz;
+    if ( iopar.get(Pick::Set::sKeyWidth(),lnsz) )
+	disp.lnstyle_.width_ = lnsz;
+
+    BufferString lnststr;
+    if ( iopar.get(Pick::Set::sKeyLineType(),lnststr) )
+	OD::LineStyle::TypeDef().parse( iopar,
+		     Pick::Set::sKeyLineType(), disp.lnstyle_.type_ );
+
+    BufferString connect;
+    if ( iopar.get(Pick::Set::sKeyConnect(),connect) )
+	Pick::Set::Disp::ConnectionDef().parse( iopar,
+		     Pick::Set::sKeyConnect(), disp.connect_ );
+
+    Color fillcolor;
+    if ( iopar.get(Pick::Set::sKeySurfaceColor(),fillcolor) )
+    {
+	disp.fillcol_ = fillcolor;
+    }
+
+    bool fill;
+    if ( iopar.getYN(Pick::Set::sKeyFill(), fill) )
+	disp.filldodraw_ = fill;
+
+    bool line;
+    if ( iopar.getYN(Pick::Set::sKeyLine(), line) )
+	disp.linedodraw_ = line;
+
+    return disp;
+}
 
 
 class dgbPickSetTranslatorStreamBackEnd : public dgbPickSetTranslatorBackEnd
@@ -209,6 +286,10 @@ public:
 
     virtual uiRetVal	read(Pick::Set&);
     virtual uiRetVal	write(const Pick::Set&);
+/*
+protected:
+    Pick::Set::Disp	readDisp();*/
+
 
 };
 
@@ -292,6 +373,7 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
     if ( astrm.hasKeyword("Ref") )
     {
 	Pick::Set::Disp disp;
+
 	// In old format we can find mulitple pick sets. Just gather them all
 	// in the pick set
 	for ( int ips=0; !atEndOfSection(astrm); ips++ )
@@ -310,12 +392,11 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
 	    }
 	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
 	    {
-		// OD::MarkerStyle3D::Type used to start with -1. This has
-		// changed and thus a '+1' is needed to keep the same shapes
 		const int markertype = astrm.getIValue() + 1;
 		disp.mkstyle_.type_ = (OD::MarkerStyle3D::Type)markertype;
 		astrm.next();
 	    }
+	    disp = readDisp();
 	    while ( !atEndOfSection(astrm) )
 	    {
 		Pick::Location loc;
@@ -334,7 +415,7 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
     {
 	IOPar iopar; iopar.getFrom( astrm );
 	ps.usePar( iopar );
-
+	const Pick::Set::Disp disp( readDisp() );
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
@@ -344,6 +425,7 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
 
 	    astrm.next();
 	}
+	ps.setDisp( disp );
     }
 
     if ( ps.isEmpty() )
