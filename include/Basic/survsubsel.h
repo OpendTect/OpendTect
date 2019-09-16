@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "geomid.h"
 #include "zsubsel.h"
+#include "posidxsubsel.h"
 
 class Bin2D;
 class CubeSubSel;
@@ -90,6 +91,7 @@ public:
 
     bool			includes(const BinID&) const;
     bool			includes(const Bin2D&) const;
+    bool			includes(const TrcKey&) const;
 
     static HorSubSel*		get(const TrcKeySampling&);
     static HorSubSel*		create(const IOPar&);
@@ -99,6 +101,9 @@ public:
     virtual trcnr_type		trcNrStart() const		= 0;
     virtual trcnr_type		trcNrStop() const		= 0;
     virtual trcnr_type		trcNrStep() const		= 0;
+    virtual StepInterval<trcnr_type> trcNrRange() const
+				{ return StepInterval<trcnr_type>(
+				    trcNrStart(), trcNrStop(), trcNrStep() ); }
 
 protected:
 
@@ -124,6 +129,7 @@ public:
     bool		operator ==( const GeomSubSel& oth ) const
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(GeomSubSel)
+    bool		includes(const GeomSubSel&) const;
     SubSel*		duplicate() const override;
 
     bool		is2D() const override

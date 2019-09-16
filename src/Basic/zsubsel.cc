@@ -33,6 +33,26 @@ bool Pos::ZSubSelData::operator ==( const Pos::ZSubSelData& oth ) const
 }
 
 
+bool Pos::ZSubSelData::includes( z_type z ) const
+{
+    const auto zrg = outputZRange();
+    const auto fidx = zrg.getfIndex( z );
+    const auto idx = mNINT32( fidx );
+    return mIsZero( fidx - idx, zEps() );
+}
+
+
+bool Pos::ZSubSelData::includes( const ZSubSelData& oth ) const
+{
+    const auto zstep = zStep();
+    const auto othzstep = oth.zStep();
+    const auto fstepratio = othzstep / zstep;
+    const auto stepratio = mNINT32( fstepratio );
+    return stepratio >= 1 && mIsZero(stepratio-fstepratio,zEps())
+	&& includes( oth.zStart() ) && includes( oth.zStop() );
+}
+
+
 bool Pos::ZSubSelData::isAll() const
 {
     return !isSubSpaced() && hasFullRange();

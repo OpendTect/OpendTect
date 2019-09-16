@@ -64,6 +64,20 @@ pos_type Pos::IdxSubSelData::posStop() const
 }
 
 
+bool Pos::IdxSubSelData::includes( const IdxSubSelData& oth ) const
+{
+    const auto othposrg = oth.outputPosRange();
+    if ( othposrg.start == othposrg.stop )
+	return includes( othposrg.start );
+
+    const auto posrg = outputPosRange();
+    return posrg.step <= othposrg.step
+        && othposrg.step % posrg.step == 0
+        && includes( othposrg.start )
+        && includes( othposrg.stop );
+}
+
+
 bool Pos::IdxSubSelData::includes( pos_type pos ) const
 {
     return outputPosRange().isPresent( pos );

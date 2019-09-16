@@ -133,6 +133,12 @@ bool Survey::HorSubSel::includes( const Bin2D& b2d ) const
 }
 
 
+bool Survey::HorSubSel::includes( const TrcKey& tk ) const
+{
+    return tk.is2D() ? includes( tk.bin2D() ) : includes( tk.binID() );
+}
+
+
 Survey::HorSubSel* Survey::HorSubSel::create( const IOPar& iop )
 {
     bool is2d; GeomID gid;
@@ -167,6 +173,17 @@ void Survey::HorSubSel::fillPar( IOPar& iop ) const
 Survey::GeomSubSel::GeomSubSel( const z_steprg_type& zrg )
     : zss_( zrg )
 {
+}
+
+
+bool Survey::GeomSubSel::includes( const GeomSubSel& oth ) const
+{
+    const bool is2d = is2D();
+    if ( is2d != oth.is2D() )
+	return false;
+
+    return is2d ? asLineSubSel()->includes( *oth.asLineSubSel() )
+		: asCubeSubSel()->includes( *oth.asCubeSubSel() );
 }
 
 
@@ -319,16 +336,6 @@ const SurvGeom2D& LineHorSubSel::geometry2D() const
 }
 
 
-bool LineHorSubSel::includes( const LineHorSubSel& oth ) const
-{
-    const auto trcnrrg = trcNrRange();
-    const auto othtrcnrrg = oth.trcNrRange();
-    return trcnrrg.step == othtrcnrrg.step
-	&& includes( othtrcnrrg.start )
-	&& includes( othtrcnrrg.stop );
-}
-
-
 bool LineHorSubSel::includes( const Bin2D& b2d ) const
 {
     return b2d.geomID() == geomid_ && includes( b2d.trcNr() );
@@ -411,6 +418,24 @@ bool LineHorSubSelSet::operator ==( const LineHorSubSelSet& oth ) const
 	const auto& mylhss = *get( idx );
 	const auto* othlhss = oth.find( mylhss.geomID() );
 	if ( !othlhss || *othlhss != mylhss )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool LineHorSubSelSet::includes( const LineHorSubSelSet& oth ) const
+{
+    const auto sz = size();
+    if ( sz < oth.size() )
+	return false;
+
+    for ( auto idx=0; idx<sz; idx++ )
+    {
+	const auto& mylhss = *get( idx );
+	const auto* othlhss = oth.find( mylhss.geomID() );
+	if ( othlhss && !mylhss.includes(*othlhss) )
 	    return false;
     }
 
@@ -612,17 +637,6 @@ CubeHorSubSel::totalsz_type CubeHorSubSel::totalSize() const
 }
 
 
-bool CubeHorSubSel::includes( const CubeHorSubSel& oth ) const
-{
-    const auto inlrg = inlRange();
-    const auto crlrg = crlRange();
-    return includes( BinID(inlrg.start,crlrg.start) )
-	&& includes( BinID(inlrg.start,crlrg.stop) )
-	&& includes( BinID(inlrg.stop,crlrg.start) )
-	&& includes( BinID(inlrg.stop,crlrg.stop) );
-}
-
-
 void CubeHorSubSel::merge( const CubeHorSubSel& oth )
 {
     inlSubSel().widenTo( oth.inlSubSel() );
@@ -759,6 +773,12 @@ bool LineSubSel::equals( const SubSel& ss ) const
 }
 
 
+bool LineSubSel::includes( const LineSubSel& oth ) const
+{
+    return hss_.includes( oth.hss_ ) && zss_.includes( oth.zss_ );
+}
+
+
 void LineSubSel::merge( const LineSubSel& oth )
 {
     hss_.merge( oth.hss_ );
@@ -791,6 +811,24 @@ bool LineSubSelSet::operator ==( const LineSubSelSet& oth ) const
 	const auto& mylss = *get( idx );
 	const auto* othlss = oth.find( mylss.geomID() );
 	if ( !othlss || *othlss != mylss )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool LineSubSelSet::includes( const LineSubSelSet& oth ) const
+{
+    const auto sz = size();
+    if ( sz < oth.size() )
+	return false;
+
+    for ( auto idx=0; idx<sz; idx++ )
+    {
+	const auto& mylss = *get( idx );
+	const auto* othlss = oth.find( mylss.geomID() );
+	if ( othlss && !mylss.includes(*othlss) )
 	    return false;
     }
 
@@ -1000,6 +1038,12 @@ bool CubeSubSel::equals( const SubSel& ss ) const
 	return false;
 
     return hss_ == oth->hss_ && zss_ == oth->zss_;
+}
+
+
+bool CubeSubSel::includes( const CubeSubSel& oth ) const
+{
+    return hss_.includes( oth.hss_ ) && zss_.includes( oth.zss_ );
 }
 
 

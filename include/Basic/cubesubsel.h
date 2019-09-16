@@ -67,6 +67,8 @@ public:
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(CubeSubSel)
     bool		equals(const SubSel&) const override;
+    bool		includes(const CubeSubSel&) const;
+    bool		includes(const BinID&) const;
 
     const IdxSubSelData& inlSubSel() const	{ return hss_.inlSubSel(); }
     IdxSubSelData&	inlSubSel()		{ return hss_.inlSubSel(); }
@@ -92,7 +94,6 @@ public:
 			{ return hss_.binID4RowCol( rc ); }
     RowCol		rowCol4BinID( const BinID& bid ) const
 			{ return hss_.rowCol4BinID( bid ); }
-    bool		includes(const BinID&) const;
 
     void		setInlRange( const pos_steprg_type& rg )
 			{ inlSubSel().setOutputPosRange( rg ); }

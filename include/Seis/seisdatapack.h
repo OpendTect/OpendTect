@@ -82,6 +82,7 @@ public:
 				{ return subSel().horSubSel(); }
     const HorSubSel&		horSubSel() const
 				{ return subSel().horSubSel(); }
+    GeomSubSel*			subSelClone() const;
     void			setSubSel(const GeomSubSel&);
     ZSubSel&			zSubSel()	{ return subSel().zSubSel(); }
     const ZSubSel&		zSubSel() const { return subSel().zSubSel(); }

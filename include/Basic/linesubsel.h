@@ -67,6 +67,7 @@ public:
 					{ return GeomSubSel::isAll(); }
     bool		includes( trcnr_type trcnr ) const
 					{ return hss_.includes( trcnr ); }
+    bool		includes(const LineSubSel&) const;
     totalsz_type	totalSize() const override
 					{ return GeomSubSel::totalSize(); }
     void		merge(const LineSubSel&);
@@ -134,6 +135,7 @@ public:
 			    const auto* lss = doFind( gid );
 			    return lss && lss->includes( trcnr );
 			}
+    bool		includes(const LineSubSelSet&) const;
 
     LineSubSel*		find( GeomID gid )	      { return doFind( gid ); }
     const LineSubSel*	find( GeomID gid ) const      { return doFind( gid ); }

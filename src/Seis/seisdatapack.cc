@@ -118,22 +118,24 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( !srcptr_ || !dstptr_ )
 	return true;
 
-    srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(OD::ZSlice);
-    srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(OD::CrosslineSlice);
-    dsttrcbytes_ = samplebytes_ * (ransdp_.zRange().nrSteps()+1);
+    const auto ransdpzrg = ransdp_.zRange();
+
+    srctrcbytes_ = samplebytes_ * regsdp_.subSel().nrZ();
+    srclnbytes_ = srctrcbytes_ * regsdp_.horSubSel().trcNrRange().nrSteps()+1;
+    dsttrcbytes_ = samplebytes_ * (ransdpzrg.nrSteps() + 1);
 
     bytestocopy_ = dsttrcbytes_;
 
-    if ( idzoffset_ < 0 )
+    if ( idzoffset_ >= 0 )
+	srcptr_ += samplebytes_ * idzoffset_;
+    else
     {
 	dstptr_ -= samplebytes_ * idzoffset_;
 	bytestocopy_ += samplebytes_ * idzoffset_;
     }
-    else
-	srcptr_ += samplebytes_ * idzoffset_;
 
     const int stopoffset = regsdp_.zRange().nrSteps() -
-		regsdp_.zRange().nearestIndex( ransdp_.zRange().stop );
+		regsdp_.zRange().nearestIndex( ransdpzrg.stop );
 
     if ( stopoffset < 0 )
 	bytestocopy_ += samplebytes_ * stopoffset;
@@ -146,19 +148,20 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 				       int thread )
 {
+    const auto& chss = *regsdp_.horSubSel().asCubeHorSubSel();
+    const auto inlrg = chss.inlRange();
+    const auto crlrg = chss.crlRange();
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
-	const TrcKeySampling& hsamp = regsdp_.sampling().hsamp_;
-	if ( !hsamp.lineRange().includes(path_[idx].lineNr(),true) ||
-	     !hsamp.trcRange().includes(path_[idx].trcNr(),true) )
+	const auto bid( path_[idx].binID() );
+	if ( !chss.includes(bid) )
 	    continue;
 
-	const int shiftedtogetnearestinl = path_[idx].lineNr() +
-					   hsamp.step_.lineNr()/2;
-	const int inlidx = hsamp.inlIdx( shiftedtogetnearestinl );
-	const int shiftedtogetnearestcrl = path_[idx].trcNr() +
-					   hsamp.step_.trcNr()/2;
-	const int crlidx = hsamp.crlIdx( shiftedtogetnearestcrl );
+	// ?? what is this doing ??
+	const int shiftedtogetnearestinl = bid.inl() + inlrg.step / 2;
+	const int inlidx = inlrg.nearestIndex( shiftedtogetnearestinl );
+	const int shiftedtogetnearestcrl = bid.crl() + crlrg.step / 2;
+	const int crlidx = crlrg.nearestIndex( shiftedtogetnearestcrl );
 
 	if ( domemcopy_ )
 	{
@@ -169,7 +172,8 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 	    continue;
 	}
 
-	for ( int newidz=0; newidz<=ransdp_.zRange().nrfSteps(); newidz++ )
+	const auto nrsteps = ransdp_.zRange().nrfSteps();
+	for ( int newidz=0; newidz<=nrsteps; newidz++ )
 	{
 	    const int oldidz = newidz + idzoffset_;
 	    const float val =
@@ -237,7 +241,7 @@ void SeisVolumeDataPack::fillTraceInfo( const BinID& bid,
 }
 
 
-void SeisVolumeDataPack::fillTraceInfo( const Bin2D& bid,
+void SeisVolumeDataPack::fillTraceInfo( const Bin2D& b2d,
 					SeisTrcInfo& ti ) const
 {
     fillTraceInfo( TrcKey(b2d), ti );
@@ -263,7 +267,7 @@ void SeisVolumeDataPack::fillTraceData( const BinID& bid,
 }
 
 
-void SeisVolumeDataPack::fillTraceData( const BinID& b2d,
+void SeisVolumeDataPack::fillTraceData( const Bin2D& b2d,
 					TraceData& td ) const
 {
     fillTraceData( globalIdx(b2d), td );
@@ -309,12 +313,6 @@ void SeisVolumeDataPack::fillTraceData( glob_idx_type globidx,
 
 // RegularSeisDataPack
 
-RegularSeisDataPack::RegularSeisDataPack( const char* cat,
-					  const BinDataDesc* bdd )
-    : SeisVolumeDataPack(cat,bdd)
-{
-}
-
 
 RegularSeisDataPack::RegularSeisDataPack( const RegularSeisDataPack& oth )
     : SeisVolumeDataPack(oth)
@@ -335,15 +333,23 @@ mImplMonitorableAssignment( RegularSeisDataPack, SeisVolumeDataPack )
 
 void RegularSeisDataPack::copyClassData( const RegularSeisDataPack& oth )
 {
-    subsel_ = oth.subsel_ ? oth.subsel_->clone() : nullptr;
+    subsel_ = oth.subSelClone();
     lcd_ = oth.lcd_ ? oth.lcd_->clone() : nullptr;
+}
+
+
+RegularSeisDataPack::GeomSubSel* RegularSeisDataPack::subSelClone() const
+{
+    return subsel_ ? (GeomSubSel*)subsel_->duplicate() : nullptr;
 }
 
 
 Monitorable::ChangeType RegularSeisDataPack::compareClassData(
 					const RegularSeisDataPack& oth ) const
 {
-    if ( sampling_ != oth.sampling_ )
+    if ( !subsel_ && !oth.subsel_)
+	return cNoChange();
+    if ( !subsel_ || !oth.subsel_ || *subsel_ != *oth.subsel_ )
 	return cEntireObjectChange();
 
     if ( !lcd_ )
@@ -352,6 +358,12 @@ Monitorable::ChangeType RegularSeisDataPack::compareClassData(
 	return cEntireObjectChange();
 
     return *lcd_ == *oth.lcd_ ? cNoChange() : cEntireObjectChange();
+}
+
+
+bool RegularSeisDataPack::is2D() const
+{
+    return subSel().is2D();
 }
 
 
@@ -371,7 +383,7 @@ void RegularSeisDataPack::setTracePositions( LineCollData* newlcd )
 
 const PosInfo::LineCollData* RegularSeisDataPack::tracePositions() const
 {
-    return lcd_.ptr();
+    return lcd_;
 }
 
 
@@ -381,9 +393,37 @@ void RegularSeisDataPack::setSubSel( const GeomSubSel& newss )
     {
 	// lock for write
 	deleteAndZeroPtr( subsel_ );
-	subsel_ = newss.clone();
+	subsel_ = (GeomSubSel*)newss.duplicate();
 	// send notif
     }
+}
+
+
+void RegularSeisDataPack::getTKZS( TrcKeyZSampling& tkzs ) const
+{
+    if ( !subsel_ )
+	tkzs.init();
+    else
+	tkzs = TrcKeyZSampling( *subsel_ );
+}
+
+
+
+void RegularSeisDataPack::getTKS( TrcKeySampling& tks ) const
+{
+    if ( !subsel_ )
+	tks.init();
+    else
+	tks = TrcKeySampling( horSubSel() );
+}
+
+
+void RegularSeisDataPack::setSampling( const TrcKeyZSampling& tkzs )
+{
+    if ( tkzs.is2D() )
+	setSubSel( LineSubSel(tkzs) );
+    else
+	setSubSel( CubeSubSel(tkzs) );
 }
 
 
@@ -391,25 +431,19 @@ PosInfo::LineCollData* RegularSeisDataPack::getTrcPositions() const
 {
     if ( lcd_ )
 	return lcd_->clone();
-    else if ( !sampling_.isDefined() )
+    else if ( !subsel_ )
 	return nullptr;
     else
-	return LineCollData::create( Survey::FullSubSel(sampling_) );
+	return LineCollData::create( Survey::FullSubSel(*subsel_) );
 }
 
 
-void RegularSeisDataPack::getTrcKey( int globaltrcidx, TrcKey& tk ) const
+void RegularSeisDataPack::gtTrcKey( glob_idx_type gidx, TrcKey& tk ) const
 {
     if ( is2D() )
-	tk.setPos( horSubSel().asLineHorSubSel()->atGlobIdx(globaltrcidx) );
+	tk.setPos( horSubSel().asLineHorSubSel()->atGlobIdx(gidx) );
     else
-	tk.setPos( horSubSel().asCubeHorSubSel()->atGlobIdx(globaltrcidx) );
-}
-
-
-bool RegularSeisDataPack::is2D() const
-{
-    return subSel().is2D();
+	tk.setPos( horSubSel().asCubeHorSubSel()->atGlobIdx(gidx) );
 }
 
 
@@ -423,11 +457,12 @@ RegularSeisDataPack::gtGlobalIdx( const TrcKey& tk ) const
 
 bool RegularSeisDataPack::addComponent( const char* nm, bool initvals )
 {
-    if ( !sampling_.isDefined() || sampling_.hsamp_.totalNr()>INT_MAX )
+    if ( !subsel_ )
 	return false;
 
-    if ( !addArray(sampling_.nrLines(),sampling_.nrTrcs(),sampling_.nrZ(),
-		   initvals) )
+    const auto nrlines = is2D() ? 1 : horSubSel().asCubeHorSubSel()->nrInl();
+    const auto nrtrcs = horSubSel().trcNrRange().nrSteps() + 1;
+    if ( !addArray(nrlines,nrtrcs,subsel_->nrZ(),initvals) )
 	return false;
 
     componentnames_.add( nm );
@@ -438,21 +473,24 @@ bool RegularSeisDataPack::addComponent( const char* nm, bool initvals )
 void RegularSeisDataPack::doDumpInfo( IOPar& par ) const
 {
     VolumeDataPack::doDumpInfo( par );
+    if ( !subsel_ )
+	return;
 
-    const TrcKeySampling& tks = sampling_.hsamp_;
+    const auto& hss = horSubSel();
     if ( is2D() )
-	par.set( sKey::TrcRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
-				   tks.step_.trcNr() );
+	par.set( sKey::TrcRange(), hss.trcNrStart(), hss.trcNrStop(),
+				   hss.trcNrStep() );
     else
     {
-	par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
-				   tks.step_.lineNr() );
-	par.set( sKey::CrlRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
-				   tks.step_.trcNr() );
+	const auto& chss = *hss.asCubeHorSubSel();
+	par.set( sKey::InlRange(), chss.inlStart(), chss.inlStop(),
+				   chss.inlStep() );
+	par.set( sKey::CrlRange(), chss.crlStart(), chss.crlStop(),
+				   chss.crlStep() );
     }
 
-    par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
-			     sampling_.zsamp_.step );
+    const auto zrg = subsel_->zRange();
+    par.set( sKey::ZRange(), zrg.start, zrg.stop, zrg.step );
 }
 
 

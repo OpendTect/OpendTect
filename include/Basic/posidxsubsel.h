@@ -47,6 +47,8 @@ public:
 		IdxSubSelData(const pos_steprg_type&);
     bool	operator ==(const IdxSubSelData&) const;
 		mImplSimpleIneqOper(IdxSubSelData)
+    bool	includes(const IdxSubSelData&) const;
+    bool	includes(pos_type) const;
 
     bool	isAll() const	{ return outputPosRange() == inpposrg_; }
     bool	hasFullRange() const;
@@ -57,7 +59,6 @@ public:
     pos_type	posStart() const;
     pos_type	posStop() const;
     pos_type	posStep() const;
-    bool	includes(pos_type) const;
 
     pos_steprg_type inputPosRange() const { return inpposrg_; }
     pos_steprg_type outputPosRange() const
@@ -94,6 +95,8 @@ public:
 		IdxSubSel1D( const pos_steprg_type& rg )
 		    : data_(rg)					{}
 		mImplSimpleEqOpers1Memb(IdxSubSel1D,data_)
+    bool	includes( const IdxSubSel1D& oth ) const
+		{ return data_.includes( oth.data_ ); }
 
     const IdxSubSelData& posData() const	{ return data_; }
     IdxSubSelData&	posData()		{ return data_; }
@@ -147,6 +150,9 @@ public:
 			     const IdxSubSel1D& ss1 )
 		    : data0_(ss0.posData()), data1_(ss1.posData())	{}
 		mImplSimpleEqOpers2Memb(IdxSubSel2D,data0_,data1_)
+    bool	includes( const IdxSubSel2D& oth ) const
+		{ return data0_.includes( oth.data0_ )
+		      && data1_.includes( oth.data1_ ); }
 
     IdxSubSelData&	posData( idx_type idim )
 			{ return idim ? data1_ : data0_; }

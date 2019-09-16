@@ -52,7 +52,7 @@ public:
 
     const TrcNrSubSelData& trcNrSubSel() const	{ return data_; }
     TrcNrSubSelData&	trcNrSubSel()		{ return data_; }
-    pos_steprg_type	trcNrRange() const
+    pos_steprg_type	trcNrRange() const override
 			{ return outputPosRange(); }
     void		setTrcNrRange( const pos_steprg_type& rg )
 			{ setOutputPosRange( rg ); }
@@ -72,8 +72,9 @@ public:
 
     bool		includes( trcnr_type tnr ) const
 			{ return Pos::IdxSubSel1D::includes(tnr); }
+    bool		includes( const LineHorSubSel& oth ) const
+			{ return Pos::IdxSubSel1D::includes(oth); }
     bool		includes(const Bin2D&) const;
-    bool		includes(const LineHorSubSel&) const;
     void		merge(const LineHorSubSel&);
     void		limitTo(const LineHorSubSel&);
     void		addStepout( trcnr_type so )
@@ -115,6 +116,7 @@ public:
 			LineHorSubSelSet(GeomID,trcnr_type);
     bool		operator ==(const LineHorSubSelSet&) const;
 			mImplSimpleIneqOper(LineHorSubSelSet);
+    bool		includes(const LineHorSubSelSet&) const;
 
     bool		isAll() const;
     totalsz_type	totalSize() const;
@@ -164,6 +166,10 @@ public:
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(CubeHorSubSel)
     bool		equals(const SubSel&) const override;
+    bool		includes( const CubeHorSubSel& oth ) const
+			{ return Pos::IdxSubSel2D::includes( oth ); }
+    bool		includes( const BinID& bid ) const
+			{ return Pos::IdxSubSel2D::includes( bid ); }
 
     bool		is2D() const override	   { return false; }
     GeomID		geomID() const override;
@@ -211,9 +217,6 @@ public:
 			{ return BinID( inlSubSel().idx4Pos(bid.inl()),
 					crlSubSel().idx4Pos(bid.crl()) ); }
 
-    bool		includes( const BinID& bid ) const
-			{ return Pos::IdxSubSel2D::includes( bid ); }
-    bool		includes(const CubeHorSubSel&) const;
     void		merge(const CubeHorSubSel&);
     void		limitTo(const CubeHorSubSel&);
     void		addStepout(pos_type,pos_type);

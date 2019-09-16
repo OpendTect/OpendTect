@@ -32,6 +32,8 @@ public:
 		ZSubSelData(const z_steprg_type&);
     bool	operator ==(const ZSubSelData&) const;
 		mImplSimpleIneqOper(ZSubSelData)
+    bool	includes(z_type) const;
+    bool	includes(const ZSubSelData&) const;
 
     bool	isAll() const;
     bool	hasFullRange() const;
@@ -81,6 +83,8 @@ public:
 			    : data_(rg)	{}
     explicit		ZSubSel(GeomID);
 			mImplSimpleEqOpers1Memb(ZSubSel,data_)
+    bool		includes( const ZSubSel& oth ) const
+			{ return data_.includes( oth.data_ ); }
 
     const ZSubSelData&	zData() const	{ return data_; }
     ZSubSelData&	zData()		{ return data_; }
