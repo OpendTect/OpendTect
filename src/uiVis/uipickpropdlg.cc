@@ -97,10 +97,7 @@ void uiPickPropDlg::initDlg( CallBacker* )
 void uiPickPropDlg::linePropertyChanged( CallBacker* )
 {
     const OD::LineStyle lst = lsfld_->getStyle();
-    set_.setLineStyle( lst );/*
-    set_.setLineType( lst.type_ )
-    set_.setLineSize( lst.width_ );
-    set_.setLineColor( lst.color_ );*/
+    set_.setLineStyle( lst );
     set_.setLineDoDraw( lsfld_->doDraw() );
     if ( !lsfld_->doDraw() )
     {

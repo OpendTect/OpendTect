@@ -347,10 +347,7 @@ void PickSetDisplay::createLine()
     polyline_->setMaterial( new visBase::Material() );
 
     OD::LineStyle ls;
-    ls = set_->lineStyle();/*
-    ls.width_ = set_->lineSize();
-    ls.color_ = set_->lineColor();
-    ls.type_ = set_->lineColor();*/
+    ls = set_->lineStyle();
     polyline_->setLineStyle( ls );
 }
 
@@ -361,9 +358,7 @@ void PickSetDisplay::redrawLine()
 	return;
 
     OD::LineStyle ls;
-    ls = set_->lineStyle();/*<<
-    ls.width_ = set_->lineSize();
-    ls.color_ = set_->lineColor();*/
+    ls = set_->lineStyle();
     polyline_->setLineStyle( ls );
 
     polyline_->removeAllPoints();
