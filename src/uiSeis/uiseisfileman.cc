@@ -305,7 +305,9 @@ void uiSeisFileMan::mkFileInfo()
 	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
 		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
-		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]");
+		.add(" [");
+	    const double zstep = cs.zsamp_.step * SI().zDomain().userFactor();
+	    txt.addLim( zstep, 5 ) .add("]");
 	}
     }
 

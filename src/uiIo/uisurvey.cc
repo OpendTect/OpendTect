@@ -1254,7 +1254,9 @@ void uiSurvey::putToScreen()
 	const bool istime = si.zIsTime();
 	mAdd2ZString( si.zRange(false).start );
 	zinfo += " - "; mAdd2ZString( si.zRange(false).stop );
-	zinfo += " - "; mAdd2ZString( si.zRange(false).step );
+	zinfo += " - ";
+	const float zstep = si.zRange( false ).step * si.zDomain().userFactor();
+	zinfo.addLim( zstep, 5 );
 	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
 	FilePath fp( si.datadir_, si.dirname_ );
