@@ -66,6 +66,9 @@ public:
     inline idx_type	lastArrIdx() const
 			{ return offs_ + (sz_-1) * step_; }
 
+    inline void		clearSubSel( size_type sz )
+			{ offs_ = 0; step_ = 1; sz_ = sz; }
+
 protected:
 
     idx_type		offs_			= 0;
@@ -81,9 +84,9 @@ mExpClass(Basic) ArrRegSubSel
 {
 public:
 
-    typedef ArrRegSubSelData	Data;
-    mUseType( Data,		idx_type );
-    mUseType( Data,		size_type );
+    typedef ArrRegSubSelData	SSData;
+    mUseType( SSData,		idx_type );
+    mUseType( SSData,		size_type );
     typedef od_int64		totsz_type;
 
     virtual		~ArrRegSubSel()			{}
@@ -93,8 +96,10 @@ public:
     inline bool		hasOffset() const;
     inline bool		isSubSpaced() const;
     inline totsz_type	totalSize() const;
-    inline Data&	data( idx_type idim )		{ return gtData(idim); }
-    inline const Data&	data( idx_type idim ) const	{ return gtData(idim); }
+    inline SSData&	ssData( idx_type idim )
+			{ return gtSSData(idim); }
+    inline const SSData& ssData( idx_type idim ) const
+			{ return gtSSData(idim); }
 
     inline size_type	nrDims() const			{ return gtNrDims(); }
 
@@ -104,7 +109,7 @@ public:
 			    if ( ndims != oth.nrDims() )
 				return false;
 			    for ( auto idim=0; idim<ndims; idim++ )
-				if ( data(idim) != oth.data(idim) )
+				if ( ssData(idim) != oth.ssData(idim) )
 				    return false;
 			    return true;
 			}
@@ -117,7 +122,7 @@ protected:
 
     virtual size_type	gtNrDims() const		= 0;
 
-    virtual Data&	gtData(idx_type) const		= 0;
+    virtual SSData&	gtSSData(idx_type) const	= 0;
 
 };
 
@@ -130,8 +135,9 @@ mExpClass(Basic) ArrRegSubSelIterator
 {
 public:
 
-    mUseType( ArrRegSubSelData,	idx_type );
-    mUseType( ArrRegSubSelData,	size_type );
+    typedef ArrRegSubSelData	SSData;
+    mUseType( SSData,		idx_type );
+    mUseType( SSData,		size_type );
 
     virtual void	toStart()			= 0;
     virtual void	startAt(idx_type,idx_type idim)	= 0;
@@ -152,34 +158,37 @@ public:
 			{ return size() == inpsz
 			      && !hasOffset() && !isSubSpaced(); }
 
-    inline Data&	data()			{ return ArrRegSubSel::data(0);}
-    inline const Data&	data() const		{ return ArrRegSubSel::data(0);}
+    inline SSData&	ssData()	{ return ArrRegSubSel::ssData(0);}
+    inline const SSData& ssData() const	{ return ArrRegSubSel::ssData(0);}
 
-    inline idx_type	offset() const		{ return data().offset(); }
-    inline idx_type	step() const		{ return data().step(); }
-    inline size_type	size() const		{ return data().size(); }
+    inline idx_type	offset() const	{ return ssData().offset(); }
+    inline idx_type	step() const	{ return ssData().step(); }
+    inline size_type	size() const	{ return ssData().size(); }
 
-    inline idx_type&	offset()		{ return data().offset(); }
-    inline idx_type&	step()			{ return data().step(); }
-    inline size_type&	size()			{ return data().size(); }
+    inline idx_type&	offset()	{ return ssData().offset(); }
+    inline idx_type&	step()		{ return ssData().step(); }
+    inline size_type&	size()		{ return ssData().size(); }
 
     inline idx_type	arrIdx( idx_type i ) const
-			{ return data().arrIdx(i); }
+			{ return ssData().arrIdx(i); }
     inline idx_type	subSelIdx( idx_type i ) const
-			{ return data().subSelIdx(i); }
+			{ return ssData().subSelIdx(i); }
     inline bool		validIdx( idx_type i ) const
 			{ return i < size(); }
     inline bool		isSelectedArrIdx( idx_type i ) const
-			{ return data().isSelectedArrIdx(i); }
+			{ return ssData().isSelectedArrIdx(i); }
 
     inline idx_type	firstArrIdx() const
-			{ return data().firstArrIdx(); }
+			{ return ssData().firstArrIdx(); }
     inline idx_type	lastArrIdx() const
-			{ return data().lastArrIdx(); }
+			{ return ssData().lastArrIdx(); }
+
+    void		clearSubSel( size_type sz )
+			{ ssData().clearSubSel( sz ); }
 
 protected:
 
-    inline size_type	gtNrDims() const override	{ return 2; }
+    inline size_type	gtNrDims() const override	{ return 1; }
 
 };
 
@@ -215,17 +224,17 @@ mExpClass(Basic) PlainArrRegSubSel1D : public ArrRegSubSel1D
 public:
 
 		PlainArrRegSubSel1D( size_type sz )
-		    : data_(sz)			{}
-		mImplSimpleEqOpers1Memb(PlainArrRegSubSel1D,data_)
+		    : ssdata_(sz)			{}
+		mImplSimpleEqOpers1Memb(PlainArrRegSubSel1D,ssdata_)
 
 protected:
 
-    Data	data_;
+    SSData	ssdata_;
 
 		mImplArrRegSubSelClone(PlainArrRegSubSel1D)
 
-    Data&	gtData( idx_type ) const override
-		{ return const_cast<Data&>( data_ ); }
+    SSData&	gtSSData( idx_type ) const override
+		{ return const_cast<SSData&>( ssdata_ ); }
 
 };
 
@@ -241,24 +250,28 @@ public:
 			      && !hasOffset() && !isSubSpaced(); }
 
     inline idx_type	offset( idx_type idim ) const
-			{ return data(idim).offset(); }
+			{ return ssData(idim).offset(); }
     inline idx_type	step( idx_type idim ) const
-			{ return data(idim).step(); }
+			{ return ssData(idim).step(); }
     inline idx_type	size( idx_type idim ) const
-			{ return data(idim).size(); }
+			{ return ssData(idim).size(); }
 
-    inline idx_type&	offset( idx_type idim )	{ return data(idim).offset(); }
-    inline idx_type&	step( idx_type idim )	{ return data(idim).step(); }
-    inline size_type&	size( idx_type idim )	{ return data(idim).size(); }
+    inline idx_type&	offset( idx_type idim )	{ return ssData(idim).offset();}
+    inline idx_type&	step( idx_type idim )	{ return ssData(idim).step(); }
+    inline size_type&	size( idx_type idim )	{ return ssData(idim).size(); }
 
     inline idx_type	arrIdx( idx_type idim, idx_type i ) const
-			{ return data(idim).arrIdx(i); }
+			{ return ssData(idim).arrIdx(i); }
     inline idx_type	subSelIdx( idx_type idim, idx_type i ) const
-			{ return data(idim).subSelIdx(i); }
+			{ return ssData(idim).subSelIdx(i); }
     inline bool		validIdxs( idx_type i0, idx_type i1 ) const
 			{ return i0 < size(0) && i1 < size(1); }
     inline bool		isSelectedArrIdx( idx_type idim, idx_type i ) const
-			{ return data(idim).isSelectedArrIdx(i); }
+			{ return ssData(idim).isSelectedArrIdx(i); }
+
+    void		clearSubSel( size_type sz0, size_type sz1 )
+			{ ssData(0).clearSubSel(sz0);
+			  ssData(1).clearSubSel(sz1); }
 
 protected:
 
@@ -298,20 +311,20 @@ mExpClass(Basic) PlainArrRegSubSel2D : public ArrRegSubSel2D
 public:
 
 		PlainArrRegSubSel2D( size_type sz0, size_type sz1 )
-		    : data0_(sz0), data1_(sz1)	{}
-		PlainArrRegSubSel2D( const Data& d0, const Data& d1 )
-		    : data0_(d0), data1_(d1)	{}
-		mImplSimpleEqOpers2Memb(PlainArrRegSubSel2D,data0_,data1_)
+		    : ssdata0_(sz0), ssdata1_(sz1)	{}
+		PlainArrRegSubSel2D( const SSData& d0, const SSData& d1 )
+		    : ssdata0_(d0), ssdata1_(d1)	{}
+		mImplSimpleEqOpers2Memb(PlainArrRegSubSel2D,ssdata0_,ssdata1_)
 
 protected:
 
-    Data	data0_;
-    Data	data1_;
+    SSData	ssdata0_;
+    SSData	ssdata1_;
 
 		mImplArrRegSubSelClone(PlainArrRegSubSel2D)
 
-    Data&	gtData( idx_type idim ) const override
-		{ return const_cast<Data&>( idim ? data1_ : data0_ ); }
+    SSData&	gtSSData( idx_type idim ) const override
+		{ return const_cast<SSData&>( idim ? ssdata1_ : ssdata0_ ); }
 
 };
 
@@ -329,27 +342,33 @@ public:
 			      && !hasOffset() && !isSubSpaced(); }
 
     inline idx_type	offset( idx_type idim ) const
-			{ return data(idim).offset(); }
+			{ return ssData(idim).offset(); }
     inline idx_type	step( idx_type idim ) const
-			{ return data(idim).step(); }
+			{ return ssData(idim).step(); }
     inline idx_type	size( idx_type idim ) const
-			{ return data(idim).size(); }
+			{ return ssData(idim).size(); }
 
-    inline idx_type&	offset( idx_type idim )	{ return data(idim).offset(); }
-    inline idx_type&	step( idx_type idim )	{ return data(idim).step(); }
-    inline size_type&	size( idx_type idim )	{ return data(idim).size(); }
+    inline idx_type&	offset( idx_type idim )	{ return ssData(idim).offset();}
+    inline idx_type&	step( idx_type idim )	{ return ssData(idim).step(); }
+    inline size_type&	size( idx_type idim )	{ return ssData(idim).size(); }
 
     inline idx_type	arrIdx( idx_type idim, idx_type i ) const
-			{ return data(idim).arrIdx(i); }
+			{ return ssData(idim).arrIdx(i); }
     inline idx_type	subSelIdx( idx_type idim, idx_type i ) const
-			{ return data(idim).subSelIdx(i); }
+			{ return ssData(idim).subSelIdx(i); }
     inline bool		isSelectedArrIdx( idx_type idim, idx_type i ) const
-			{ return data(idim).isSelectedArrIdx(i); }
+			{ return ssData(idim).isSelectedArrIdx(i); }
 
     inline size_type	size2D() const
 			{ return size( 0 ) * size( 1 ); }
     inline bool		validIdxs( idx_type i0, idx_type i1, idx_type i2 ) const
 			{ return i0 < size(0) && i1 < size(1) && i2 < size(2); }
+
+    void		clearSubSel( size_type sz0, size_type sz1,
+				     size_type sz2 )
+			{ ssData(0).clearSubSel(sz0);
+			  ssData(1).clearSubSel(sz1);
+			  ssData(2).clearSubSel(sz2); }
 
 protected:
 
@@ -392,24 +411,24 @@ public:
 
 		PlainArrRegSubSel3D( size_type sz0, size_type sz1,
 				     size_type sz2 )
-		    : data0_(sz0), data1_(sz1), data2_(sz2)	{}
-		PlainArrRegSubSel3D( const Data& d0, const Data& d1,
-				     const Data& d2 )
-		    : data0_(d0), data1_(d1), data2_(d2)	{}
+		    : ssdata0_(sz0), ssdata1_(sz1), ssdata2_(sz2)	{}
+		PlainArrRegSubSel3D( const SSData& d0, const SSData& d1,
+				     const SSData& d2 )
+		    : ssdata0_(d0), ssdata1_(d1), ssdata2_(d2)	{}
 		mImplSimpleEqOpers3Memb(PlainArrRegSubSel3D,
-					data0_,data1_,data2_)
+					ssdata0_,ssdata1_,ssdata2_)
 
 protected:
 
-    Data	data0_;
-    Data	data1_;
-    Data	data2_;
+    SSData	ssdata0_;
+    SSData	ssdata1_;
+    SSData	ssdata2_;
 
 		mImplArrRegSubSelClone(PlainArrRegSubSel3D)
 
-    Data&	gtData( idx_type idim ) const override
-		{ return const_cast<Data&>( !idim ? data0_
-				: (idim==1 ? data1_ : data2_) ); }
+    SSData&	gtSSData( idx_type idim ) const override
+		{ return const_cast<SSData&>( !idim ? ssdata0_
+				: (idim==1 ? ssdata1_ : ssdata2_) ); }
 
 };
 
@@ -418,7 +437,7 @@ inline bool ArrRegSubSel::isEmpty() const
 {
     const auto nrdims = nrDims();
     for ( auto idx=0; idx<nrdims; idx++ )
-	if ( !data(idx).isEmpty() )
+	if ( !ssData(idx).isEmpty() )
 	    return false;
     return true;
 }
@@ -428,7 +447,7 @@ inline bool ArrRegSubSel::isSubSpaced() const
 {
     const auto nrdims = nrDims();
     for ( auto idx=0; idx<nrdims; idx++ )
-	if ( data(idx).isSubSpaced() )
+	if ( ssData(idx).isSubSpaced() )
 	    return true;
     return false;
 }
@@ -438,7 +457,7 @@ inline bool ArrRegSubSel::hasOffset() const
 {
     const auto nrdims = nrDims();
     for ( auto idx=0; idx<nrdims; idx++ )
-	if ( data(idx).hasOffset() )
+	if ( ssData(idx).hasOffset() )
 	    return true;
     return false;
 }
@@ -447,9 +466,9 @@ inline bool ArrRegSubSel::hasOffset() const
 inline ArrRegSubSel::totsz_type ArrRegSubSel::totalSize() const
 {
     const auto nrdims = nrDims();
-    totsz_type ret = data(0).size();
+    totsz_type ret = ssData(0).size();
     for ( auto idx=1; idx<nrdims; idx++ )
-	ret *= data(idx).size();
+	ret *= ssData(idx).size();
     return ret;
 }
 

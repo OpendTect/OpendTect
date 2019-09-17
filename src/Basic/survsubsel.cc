@@ -76,7 +76,7 @@ void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 }
 
 
-Survey::SubSel* Survey::HorSubSel::duplicate() const
+Survey::HorSubSel* Survey::HorSubSel::duplicate() const
 {
     const auto* lhss = asLineHorSubSel();
     if ( lhss )
@@ -170,6 +170,74 @@ void Survey::HorSubSel::fillPar( IOPar& iop ) const
 }
 
 
+Survey::HorSubSelIterator::HorSubSelIterator( const HorSubSel& hss )
+    : hss_(const_cast<HorSubSel&>(hss))
+    , nrtrcs_(hss.trcNrRange().nrSteps()+1)
+{
+    toStart();
+}
+
+
+Survey::HorSubSelIterator::HorSubSelIterator( HorSubSel& hss )
+    : hss_(hss)
+    , nrtrcs_(hss.trcNrRange().nrSteps()+1)
+{
+    toStart();
+}
+
+
+bool Survey::HorSubSelIterator::next()
+{
+    tidx_++;
+    if ( tidx_ >= nrtrcs_ )
+    {
+	tidx_ = -1;
+	if ( is2D() )
+	    return false;
+	lidx_++;
+	if ( lidx_ >= hss_.asCubeHorSubSel()->nrInl() )
+	    { lidx_ = 0; return false; }
+	tidx_++;
+    }
+    return true;
+}
+
+
+BinID Survey::HorSubSelIterator::binID() const
+{
+    if ( !is2D() )
+    {
+	const auto& chss = *hss_.asCubeHorSubSel();
+	return BinID( chss.inl4Idx(lidx_), chss.crl4Idx(tidx_) );
+    }
+
+    const auto b2d( bin2D() );
+    return Survey::Geometry::get3D().transform( b2d.coord() );
+}
+
+
+Bin2D Survey::HorSubSelIterator::bin2D() const
+{
+    if ( is2D() )
+    {
+	const auto& lhss = *hss_.asLineHorSubSel();
+	return Bin2D( lhss.geomID(), lhss.trcNr4Idx(tidx_) );
+    }
+
+    //TODO find nearest
+    return Bin2D::udf();
+}
+
+
+void Survey::HorSubSelIterator::getTrcKey( TrcKey& tk ) const
+{
+    if ( is2D() )
+	tk.setPos( bin2D() );
+    else
+	tk.setPos( binID() );
+}
+
+
 Survey::GeomSubSel::GeomSubSel( const z_steprg_type& zrg )
     : zss_( zrg )
 {
@@ -187,7 +255,7 @@ bool Survey::GeomSubSel::includes( const GeomSubSel& oth ) const
 }
 
 
-Survey::SubSel* Survey::GeomSubSel::duplicate() const
+Survey::GeomSubSel* Survey::GeomSubSel::duplicate() const
 {
     const auto* lss = asLineSubSel();
     if ( lss )
@@ -273,6 +341,47 @@ void Survey::GeomSubSel::fillPar( IOPar& iop ) const
 }
 
 
+Survey::GeomSubSel::dist_type Survey::GeomSubSel::trcDist( bool max ) const
+{
+    if ( !is2D() )
+    {
+	const CubeSubSel& css = *asCubeSubSel();
+	const auto& g3d = Geometry::get3D();
+	const auto inldist = css.inlRange().step * g3d.inlDistance();
+	const auto crldist = css.crlRange().step * g3d.crlDistance();
+	return max ? (inldist > crldist ? inldist : crldist)
+		   : (inldist + crldist) / 2;
+    }
+
+    const LineSubSel& lss = *asLineSubSel();
+    const auto& g2d = lss.geometry2D();
+    const auto trcnrrg = lss.trcNrRange();
+    auto prevcoord( Coord::udf() );
+    dist_type sqd = 0;
+    auto nrdists = 0;
+    for ( auto tnr=trcnrrg.start; tnr<=trcnrrg.stop; tnr += trcnrrg.step )
+    {
+	const auto curcoord( g2d.getCoord(tnr) );
+	if ( prevcoord.isUdf() )
+	    continue;
+
+	const auto distsq = curcoord.sqDistTo( prevcoord );
+	if ( max )
+	    { if ( sqd < distsq ) sqd = distsq; }
+	else
+	    sqd += distsq;
+
+	nrdists++;
+	prevcoord = curcoord;
+    }
+
+    if ( nrdists < 1 )
+	return g2d.averageTrcDist();
+
+    return max ? sqd : sqd / nrdists;
+}
+
+
 LineHorSubSel::LineHorSubSel( GeomID gid )
     : LineHorSubSel( Geometry::get2D(gid) )
 {
@@ -326,7 +435,7 @@ bool LineHorSubSel::equals( const SubSel& ss ) const
     if ( !oth )
 	return false;
 
-    return geomid_ == oth->geomid_ && data_ == oth->data_;
+    return geomid_ == oth->geomid_ && ssdata_ == oth->ssdata_;
 }
 
 
@@ -380,7 +489,7 @@ bool LineHorSubSel::doUsePar( const IOPar& inpiop )
     iop->get( sKey::LastTrc(), trcrg.stop );
     if ( !iop->get(sKey::StepTrc(),trcrg.step) )
 	iop->get( sKey::StepCrl(), trcrg.step );
-    data_.setOutputPosRange( trcrg );
+    ssdata_.setOutputPosRange( trcrg );
 
     return true;
 }
@@ -526,6 +635,13 @@ void LineHorSubSelSet::setToAll()
 }
 
 
+void LineHorSubSelSet::clearSubSel()
+{
+    for ( auto lhss : *this )
+	lhss->clearSubSel();
+}
+
+
 LineHorSubSelSet::totalsz_type
 LineHorSubSelSet::globIdx( const Bin2D& b2d ) const
 {
@@ -621,7 +737,7 @@ bool CubeHorSubSel::equals( const SubSel& ss ) const
     if ( !oth )
 	return false;
 
-    return data0_ == oth->data0_ && data1_ == oth->data1_;
+    return ssdata0_ == oth->ssdata0_ && ssdata1_ == oth->ssdata1_;
 }
 
 
@@ -843,6 +959,13 @@ void LineSubSelSet::setToAll()
     SurvGeom2D::getGeomIDs( allgids );
     for ( auto gid : allgids )
 	add( new LineSubSel(gid) );
+}
+
+
+void LineSubSelSet::clearSubSel()
+{
+    for ( auto lss : *this )
+	lss->clearSubSel();
 }
 
 

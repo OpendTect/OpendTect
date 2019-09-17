@@ -40,7 +40,7 @@ public:
 
     mUseType( Survey,		HorSubSel );
     mUseType( Pos,		IdxSubSelData );
-    mUseType( Data,		idx_type );
+    mUseType( IdxSubSelData,	idx_type );
     mUseType( IdxSubSelData,	pos_type );
     mUseType( IdxSubSelData,	pos_steprg_type );
     mUseType( IdxSubSelData,	size_type );
@@ -101,6 +101,8 @@ public:
 			{ crlSubSel().setOutputPosRange( rg ); }
     void		setRange(const BinID&,const BinID&,const BinID& step);
     void		setToAll();
+    void		clearSubSel()
+			{ hss_.clearSubSel(); zss_.clearSubSel(); }
     void		merge(const CubeSubSel&);
     void		limitTo(const CubeSubSel&);
     void		addStepout( pos_type i, pos_type c )
@@ -125,12 +127,12 @@ protected:
 		    return mSelf().hss_;
 		}
 
-    Data&	gtData( idx_type idim ) const override
+    SSData&	gtSSData( idx_type idim ) const override
 		{
-		    const Data* ret = &zSubSelData();
+		    const SSData* ret = &zSubSelData();
 		    if ( idim < 2 )
 			ret = idim ? &crlSubSel() : &inlSubSel();
-		    return const_cast<Data&>( *ret );
+		    return const_cast<SSData&>( *ret );
 		}
 
 };

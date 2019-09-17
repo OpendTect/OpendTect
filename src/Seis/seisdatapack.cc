@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "survgeom.h"
 #include "trckey.h"
+#include "trckeyzsampling.h"
 
 #include <limits.h>
 
@@ -643,7 +644,8 @@ void RandomSeisDataPack::getPath( TrcKeyPath& pth ) const
 }
 
 
-glob_idx_type RandomSeisDataPack::gtGlobalIdx( const TrcKey& tk ) const
+RandomSeisDataPack::glob_idx_type
+RandomSeisDataPack::gtGlobalIdx( const TrcKey& tk ) const
 {
     return path_.indexOf( tk );
 }
@@ -695,15 +697,15 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     TrcKeyPath path;
     randsdp->getPath( path );
 
-    TrcKeySampling unitsteptks = regsdp.sampling().hsamp_;
-    unitsteptks.step_ = BinID( 1, 1 );
+    PtrMan<Survey::HorSubSel> allposss = regsdp.horSubSel().duplicate();
+    allposss->clearSubSel();
 
     // Remove outer undefined traces at both sides
     int pathidx = path.size()-1;
-    while ( pathidx>0 && !unitsteptks.includes(path[pathidx]) )
+    while ( pathidx>0 && !allposss->includes(path[pathidx]) )
 	path.removeSingle( pathidx-- );
 
-    while ( path.size()>1 && !unitsteptks.includes(path[0]) )
+    while ( path.size()>1 && !allposss->includes(path[0]) )
 	path.removeSingle( 0 );
 
     if ( subpath )
@@ -721,7 +723,8 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     auxtkzs.hsamp_.start_ = path.first().binID();
     auxtkzs.hsamp_.stop_ = path.last().binID();
     auxtkzs.zsamp_ = zrange;
-    if ( !auxtkzs.adjustTo(regsdp.sampling(),true) && path.size()>1 )
+    if ( !auxtkzs.adjustTo(TrcKeyZSampling(regsdp.subSel()),true)
+	    && path.size()>1 )
 	 path.removeRange( 1, path.size()-1 );
 
     randsdp->setZRange( auxtkzs.zsamp_ );

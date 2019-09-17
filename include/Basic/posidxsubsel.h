@@ -32,8 +32,8 @@ namespace Pos
     - sz ((498-354)/6 + 1 = 25
     resulting in selected range of 354-498 step 6.
 
-  Note that the requested output range will be adapted to something supported
-  by the input range.
+  Thus, note that the requested output range will be adapted to something
+  supported by the input range.
 
  */
 
@@ -63,6 +63,8 @@ public:
     pos_steprg_type inputPosRange() const { return inpposrg_; }
     pos_steprg_type outputPosRange() const
 		{ return pos_steprg_type( posStart(), posStop(), posStep() ); }
+    size_type	inputSize() const	    { return inpposrg_.nrSteps()+1; }
+    size_type	outputSize() const	    { return size(); }
 
     void	setInputPosRange(const pos_steprg_type&);
     void	setOutputPosRange(pos_type start,pos_type stop,pos_type stp);
@@ -70,6 +72,7 @@ public:
 		{ setOutputPosRange( rg.start, rg.stop, rg.step ); }
     void	setOutputStep(pos_type step,pos_type existpos=mUdf(pos_type));
 
+    void	clearSubSel()	{ ArrRegSubSelData::clearSubSel(inputSize()); }
     void	limitTo(const IdxSubSelData&);
     void	widenTo(const IdxSubSelData&);
     void	addStepout(pos_type);
@@ -93,43 +96,45 @@ public:
     mUseType( IdxSubSelData,	pos_steprg_type );
 
 		IdxSubSel1D( const pos_steprg_type& rg )
-		    : data_(rg)					{}
-		mImplSimpleEqOpers1Memb(IdxSubSel1D,data_)
+		    : ssdata_(rg)		{}
+		mImplSimpleEqOpers1Memb(IdxSubSel1D,ssdata_)
     bool	includes( const IdxSubSel1D& oth ) const
-		{ return data_.includes( oth.data_ ); }
+		{ return ssdata_.includes( oth.ssdata_ ); }
 
-    const IdxSubSelData& posData() const	{ return data_; }
-    IdxSubSelData&	posData()		{ return data_; }
+    const IdxSubSelData& posData() const	{ return ssdata_; }
+    IdxSubSelData&	posData()		{ return ssdata_; }
 
     // for convenience, we duplicate the IdxSubSelData interface
 
-    pos_type	posStart() const	{ return data_.posStart(); }
-    pos_type	posStop() const		{ return data_.posStop(); }
-    pos_type	posStep() const		{ return data_.posStep(); }
-    pos_steprg_type inputPosRange() const { return data_.inputPosRange(); }
-    pos_steprg_type outputPosRange() const { return data_.outputPosRange(); }
+    pos_type	posStart() const	{ return ssdata_.posStart(); }
+    pos_type	posStop() const		{ return ssdata_.posStop(); }
+    pos_type	posStep() const		{ return ssdata_.posStep(); }
+    pos_steprg_type inputPosRange() const { return ssdata_.inputPosRange(); }
+    pos_steprg_type outputPosRange() const { return ssdata_.outputPosRange(); }
 
-    bool	includes( pos_type pos ) const { return data_.includes(pos); }
+    bool	includes( pos_type pos ) const { return ssdata_.includes(pos); }
 
-    bool	isAll() const		{ return data_.isAll(); }
-    bool	hasFullRange() const	{ return data_.hasFullRange(); }
+    bool	isAll() const		{ return ssdata_.isAll(); }
+    bool	hasFullRange() const	{ return ssdata_.hasFullRange(); }
 
-    idx_type	idx4Pos( pos_type pos ) const { return data_.idx4Pos( pos ); }
-    pos_type	pos4Idx( idx_type idx ) const { return data_.pos4Idx( idx ); }
+    idx_type	idx4Pos( pos_type pos ) const { return ssdata_.idx4Pos( pos ); }
+    pos_type	pos4Idx( idx_type idx ) const { return ssdata_.pos4Idx( idx ); }
 
     void	setInputPosRange( const pos_steprg_type& rg )
-		{ data_.setInputPosRange( rg ); }
+		{ ssdata_.setInputPosRange( rg ); }
     void	setOutputPosRange( const pos_steprg_type& rg )
-		{ data_.setOutputPosRange( rg ); }
+		{ ssdata_.setOutputPosRange( rg ); }
     void	setOutputPosRange( pos_type start, pos_type stop, pos_type stp )
-		{ data_.setOutputPosRange( start, stop, stp ); }
+		{ ssdata_.setOutputPosRange( start, stop, stp ); }
+
+    void	clearSubSel()		{ ssdata_.clearSubSel(); }
 
 protected:
 
-    IdxSubSelData	data_;
+    IdxSubSelData	ssdata_;
 
-    Data&		gtData( idx_type ) const override
-			{ return mSelf().data_; }
+    SSData&		gtSSData( idx_type ) const override
+			{ return mSelf().ssdata_; }
 
 };
 
@@ -145,44 +150,49 @@ public:
 
 		IdxSubSel2D( const pos_steprg_type& rg0,
 			     const pos_steprg_type& rg1 )
-		    : data0_(rg0), data1_(rg1)				{}
+		    : ssdata0_(rg0), ssdata1_(rg1)			{}
 		IdxSubSel2D( const IdxSubSel1D& ss0,
 			     const IdxSubSel1D& ss1 )
-		    : data0_(ss0.posData()), data1_(ss1.posData())	{}
-		mImplSimpleEqOpers2Memb(IdxSubSel2D,data0_,data1_)
+		    : ssdata0_(ss0.posData()), ssdata1_(ss1.posData())	{}
+		mImplSimpleEqOpers2Memb(IdxSubSel2D,ssdata0_,ssdata1_)
     bool	includes( const IdxSubSel2D& oth ) const
-		{ return data0_.includes( oth.data0_ )
-		      && data1_.includes( oth.data1_ ); }
+		{ return ssdata0_.includes( oth.ssdata0_ )
+		      && ssdata1_.includes( oth.ssdata1_ ); }
 
     IdxSubSelData&	posData( idx_type idim )
-			{ return idim ? data1_ : data0_; }
+			{ return idim ? ssdata1_ : ssdata0_; }
     const IdxSubSelData& posData( idx_type idim ) const
-			{ return idim ? data1_ : data0_; }
+			{ return idim ? ssdata1_ : ssdata0_; }
 
     inline bool	isAll() const
-		{ return data0_.isAll() && data1_.isAll(); }
+		{ return ssdata0_.isAll() && ssdata1_.isAll(); }
     inline bool	hasFullRange() const
-		{ return data0_.hasFullRange() && data1_.hasFullRange(); }
+		{ return ssdata0_.hasFullRange() && ssdata1_.hasFullRange(); }
 
 		// convenience fns usable when idxs represent inl/crl
     BinID	binID( idx_type iinl, idx_type icrl ) const
-		{ return BinID( data0_.pos4Idx(iinl), data1_.pos4Idx(icrl) ); }
+		{ return BinID( ssdata0_.pos4Idx(iinl),
+				ssdata1_.pos4Idx(icrl) ); }
     RowCol	rowCol( pos_type inl, pos_type crl ) const
-		{ return RowCol( data0_.idx4Pos(inl), data1_.idx4Pos(crl) ); }
+		{ return RowCol( ssdata0_.idx4Pos(inl),
+				 ssdata1_.idx4Pos(crl) ); }
     bool	includes( const BinID& bid ) const
-		{ return data0_.includes(bid.inl())
-		      && data1_.includes(bid.crl()); }
-    pos_steprg_type inlRange() const { return data0_.outputPosRange(); }
-    pos_steprg_type crlRange() const { return data1_.outputPosRange(); }
+		{ return ssdata0_.includes(bid.inl())
+		      && ssdata1_.includes(bid.crl()); }
+    pos_steprg_type inlRange() const { return ssdata0_.outputPosRange(); }
+    pos_steprg_type crlRange() const { return ssdata1_.outputPosRange(); }
+
+    void	clearSubSel()
+		{ ssdata0_.clearSubSel(); ssdata1_.clearSubSel(); }
 
 protected:
 
-    IdxSubSelData	data0_;
-    IdxSubSelData	data1_;
+    IdxSubSelData	ssdata0_;
+    IdxSubSelData	ssdata1_;
 
-    Data&		gtData( idx_type idim ) const override
-			{ return const_cast<IdxSubSelData&>( idim ? data1_
-								  : data0_ ); }
+    SSData&		gtSSData( idx_type idim ) const override
+			{ return const_cast<IdxSubSelData&>( idim ? ssdata1_
+								  : ssdata0_ );}
 
 };
 

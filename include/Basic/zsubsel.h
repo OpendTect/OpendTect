@@ -48,11 +48,14 @@ public:
     z_steprg_type inputZRange() const		{ return inpzrg_; }
     z_steprg_type outputZRange() const
 		{ return z_steprg_type( zStart(), zStop(), zStep() ); }
+    size_type	inputSize() const		{ return inpzrg_.nrSteps()+1; }
+    size_type	outputSize() const		{ return size(); }
 
     void	setInputZRange(const z_steprg_type&);
     void	setOutputZRange(z_type start,z_type stop,z_type stp);
     inline void	setOutputZRange( const z_steprg_type& rg )
 		{ setOutputZRange( rg.start, rg.stop, rg.step ); }
+    void	clearSubSel()	{ ArrRegSubSelData::clearSubSel(inputSize()); }
 
     void	limitTo(const ZSubSelData&);
     void	limitTo(const z_rg_type&);
@@ -80,40 +83,43 @@ public:
     mUseType( Pos,		GeomID );
 
     explicit		ZSubSel( const z_steprg_type& rg )
-			    : data_(rg)	{}
+			    : ssdata_(rg)	{}
     explicit		ZSubSel(GeomID);
-			mImplSimpleEqOpers1Memb(ZSubSel,data_)
+			mImplSimpleEqOpers1Memb(ZSubSel,ssdata_)
     bool		includes( const ZSubSel& oth ) const
-			{ return data_.includes( oth.data_ ); }
+			{ return ssdata_.includes( oth.ssdata_ ); }
 
-    const ZSubSelData&	zData() const	{ return data_; }
-    ZSubSelData&	zData()		{ return data_; }
+    const ZSubSelData&	zData() const	{ return ssdata_; }
+    ZSubSelData&	zData()		{ return ssdata_; }
 
     // for convenience, we duplicate the ZSubSelData interface
 
-    z_type	zStart() const		{ return data_.zStart(); }
-    z_type	zStop() const		{ return data_.zStop(); }
-    z_type	zStep() const		{ return data_.zStep(); }
-    z_steprg_type inputZRange() const	{ return data_.inputZRange(); }
-    z_steprg_type outputZRange() const	{ return data_.outputZRange(); }
+    z_type	zStart() const		{ return ssdata_.zStart(); }
+    z_type	zStop() const		{ return ssdata_.zStop(); }
+    z_type	zStep() const		{ return ssdata_.zStep(); }
+    z_steprg_type inputZRange() const	{ return ssdata_.inputZRange(); }
+    z_steprg_type outputZRange() const	{ return ssdata_.outputZRange(); }
+    size_type	inputSize() const	{ return ssdata_.inputSize(); }
+    size_type	outputSize() const	{ return ssdata_.outputSize(); }
 
-    bool	isAll() const		{ return data_.isAll(); }
-    bool	hasFullRange() const	{ return data_.hasFullRange(); }
-    void	limitTo( const ZSubSel& oth ) { data_.limitTo(oth.data_); }
-    void	limitTo( const z_rg_type& zrg ) { data_.limitTo(zrg); }
-    void	widenTo( const ZSubSel& oth ) { data_.widenTo(oth.data_); }
-    void	widen( const z_rg_type& zrg ) { data_.widen(zrg); }
-    void	merge( const ZSubSel& oth ) { data_.widenTo(oth.data_); }
+    bool	isAll() const		{ return ssdata_.isAll(); }
+    bool	hasFullRange() const	{ return ssdata_.hasFullRange(); }
+    void	limitTo( const ZSubSel& oth ) { ssdata_.limitTo(oth.ssdata_); }
+    void	limitTo( const z_rg_type& zrg ) { ssdata_.limitTo(zrg); }
+    void	widenTo( const ZSubSel& oth ) { ssdata_.widenTo(oth.ssdata_); }
+    void	widen( const z_rg_type& zrg ) { ssdata_.widen(zrg); }
+    void	merge( const ZSubSel& oth ) { ssdata_.widenTo(oth.ssdata_); }
 
-    idx_type	idx4Z( z_type z ) const { return data_.idx4Z( z ); }
-    z_type	z4Idx( idx_type idx ) const { return data_.z4Idx( idx ); }
+    idx_type	idx4Z( z_type z ) const { return ssdata_.idx4Z( z ); }
+    z_type	z4Idx( idx_type idx ) const { return ssdata_.z4Idx( idx ); }
 
     void	setInputZRange( const z_steprg_type& rg )
-		{ data_.setInputZRange( rg ); }
+		{ ssdata_.setInputZRange( rg ); }
     void	setOutputZRange( const z_steprg_type& rg )
-		{ data_.setOutputZRange( rg ); }
+		{ ssdata_.setOutputZRange( rg ); }
     void	setOutputZRange( z_type start, z_type stop, z_type stp )
-		{ data_.setOutputZRange( start, stop, stp ); }
+		{ ssdata_.setOutputZRange( start, stop, stp ); }
+    void	clearSubSel()	    { ssdata_.clearSubSel(); }
 
     bool	usePar(const IOPar&);
     void	fillPar(IOPar&) const;
@@ -123,12 +129,12 @@ public:
 
 protected:
 
-    ZSubSelData	data_;
+    ZSubSelData	ssdata_;
 
 		mImplArrRegSubSelClone(ZSubSel)
 
-    Data&	gtData( idx_type ) const override
-		{ return mSelf().data_; }
+    SSData&	gtSSData( idx_type ) const override
+		{ return mSelf().ssdata_; }
 
 };
 

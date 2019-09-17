@@ -86,11 +86,8 @@ int nextStep()
 
 
 SeisFixedCubeProvider::SeisFixedCubeProvider( const DBKey& key )
-    : tkzs_(false)
-    , data_(0)
-    , ioobj_(getIOObj(key))
+    : ioobj_(getIOObj(key))
     , trcdist_(SI().crlDistance())
-    , geomid_(-1)
 {
 }
 
@@ -128,56 +125,22 @@ bool SeisFixedCubeProvider::isEmpty() const
 }
 
 
-bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
-{
-    trcdist_ = SI().crlDistance();
-    const SeisIOObjInfo si( ioobj_->key() );
-    if ( !si.is2D() )
-	return true;
-
-    BufferStringSet nms;
-    si.getComponentNames( nms, geomid );
-    if ( nms.size() > 1 && nms.get(1).isEqual("Line dip",CaseInsensitive) )
-    {
-	const auto& geom2d = SurvGeom::get2D( geomid );
-	dist_type maxdist;
-	geom2d.data().getTrcDistStats( maxdist, trcdist_ );
-	if ( mIsZero(trcdist_,mDefEps) )
-	{
-	    errmsg_ = tr("Cannot calculate median trace distance");
-	    return false;
-	}
-    }
-
-    return true;
-}
-
-
-bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs,
-				     TaskRunner* taskr)
-{ return readData( cs, mUdfGeomID, taskr ); }
-
-
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid,
+bool SeisFixedCubeProvider::readData( const GeomSubSel& gss,
 				      TaskRunner* taskr )
 {
-    geomid_ = geomid;
     clear();
+    const auto geomid = gss.geomID();
     if ( !ioobj_ )
 	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) );
 
     if ( ioobj_->isInCurrentSurvey()
 	&& Seis::PLDM().isPresent(ioobj_->key(),geomid) )
     {
-	auto dp = Seis::PLDM().get<RegularSeisDataPack>( ioobj_->key(), geomid);
-	if ( dp )
-	{
-	    if ( dp->sampling().includes(cs) )
-		{ seisdp_ = dp; return true; }
-	}
+	auto dp = Seis::PLDM().get<RegularSeisDataPack>(ioobj_->key(),geomid);
+	if ( dp && dp->subSel().includes(gss) )
+	    { seisdp_ = dp; return true; }
     }
 
     uiRetVal uirv;
@@ -185,25 +148,20 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     if ( !prov )
 	mErrRet( uirv );
 
-    tkzs_ = cs;
-    const bool is2d = !mIsUdfGeomID( geomid );
-    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
-    if ( is2d )
-    {
-	sd->setGeomID( geomid );
-	if ( !calcTrcDist(geomid) )
-	    return false;
-    }
+    gss_ = gss.duplicate();
+    const bool is2d = gss_->is2D();
+    Seis::RangeSelData* sd = new Seis::RangeSelData( *gss_ );
+    trcdist_ = gss_->trcDist( false );
 
     prov->setSelData( sd );
-    data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(),
-				       tkzs_.hsamp_.nrCrl() );
-    for ( int idx=0; idx<data_->getSize(0); idx++ )
-	for ( int idy=0; idy<data_->getSize(1); idy++ )
-	    data_->set( idx, idy, 0 );
+    data_ = new Array2DImpl<SeisTrc*>(
+		    gss_->is2D() ? 1 : gss_->asCubeSubSel()->nrInl(),
+		    gss_->is2D() ? gss_->asLineSubSel()->nrTrcs()
+				 : gss_->asCubeSubSel()->nrCrl() );
+    data_->setAll( nullptr );
 
     PtrMan<Seis::TrcDataLoader> loader =
-	new Seis::TrcDataLoader( *prov, *data_, tkzs_.hsamp_, is2d );
+	new Seis::TrcDataLoader( *prov, *data_, gss_->horSubSel(), is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
 	mErrRet( ioobj_->phrCannotReadObj() )
@@ -212,26 +170,44 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 }
 
 
-const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
-{
-    return getTrace( BinID(0,trcnr) );
-}
-
-
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
-    if ( isEmpty() || !tkzs_.hsamp_.includes(bid) )
-	return 0;
+    if ( !gss_ )
+	return nullptr;
+    if ( gss_->is2D() )
+	{ pErrMsg("2D/3D err"); return nullptr; }
+    const auto& css = *gss_->asCubeSubSel();
+    if ( !css.includes( bid ) )
+	return nullptr;
 
     if ( seisdp_ )
     {
-	TrcKey tk( bid );
-	if ( geomid_.is2D() )
-	    tk.setGeomID( geomid_ );
 	SeisTrc& dptrc = dptrc_.getObject();
 	seisdp_->fillTrace( bid, dptrc );
 	return &dptrc;
     }
 
-    return data_->get( tkzs_.inlIdx(bid.inl()), tkzs_.crlIdx(bid.crl()) );
+    const auto rc = css.rowCol4BinID( bid );
+    return data_->get( rc.row(), rc.col() );
+}
+
+
+const SeisTrc* SeisFixedCubeProvider::getTrace( trcnr_type tnr ) const
+{
+    if ( !gss_ )
+	return nullptr;
+    if ( !gss_->is2D() )
+	{ pErrMsg("2D/3D err"); return nullptr; }
+    const auto& lss = *gss_->asLineSubSel();
+    if ( !lss.includes(tnr) )
+	return nullptr;
+
+    if ( seisdp_ )
+    {
+	SeisTrc& dptrc = dptrc_.getObject();
+	seisdp_->fillTrace( Bin2D(lss.geomID(),tnr), dptrc );
+	return &dptrc;
+    }
+
+    return data_->get( 0, lss.idx4TrcNr(tnr) );
 }

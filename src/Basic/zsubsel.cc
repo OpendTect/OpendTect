@@ -187,7 +187,7 @@ Pos::ZSubSel& Pos::ZSubSel::dummy()
 
 
 Pos::ZSubSel::ZSubSel( GeomID gid )
-    : data_(Survey::Geometry::get(gid).zRange())
+    : ssdata_(Survey::Geometry::get(gid).zRange())
 {
 }
 
@@ -198,7 +198,7 @@ bool Pos::ZSubSel::usePar( const IOPar& iop )
     if ( !iop.get(sKey::ZRange(),zrg) )
 	return false;
 
-    data_.setOutputZRange( zrg );
+    ssdata_.setOutputZRange( zrg );
     return true;
 }
 

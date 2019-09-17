@@ -26,8 +26,8 @@ public:
 
     mUseType( Pos,		IdxSubSel1D );
     mUseType( Pos,		IdxSubSelData );
-    mUseType( Data,		idx_type );
-    mUseType( Data,		size_type );
+    mUseType( IdxSubSelData,	idx_type );
+    mUseType( IdxSubSelData,	size_type );
     mUseType( IdxSubSelData,	pos_type );
     mUseType( IdxSubSelData,	pos_steprg_type );
     mUseType( Survey,		HorSubSel );
@@ -70,6 +70,8 @@ public:
     bool		includes(const LineSubSel&) const;
     totalsz_type	totalSize() const override
 					{ return GeomSubSel::totalSize(); }
+    void		clearSubSel()
+			{ hss_.clearSubSel(); zss_.clearSubSel(); }
     void		merge(const LineSubSel&);
     void		limitTo(const LineSubSel&);
 
@@ -92,12 +94,12 @@ protected:
 		    return mSelf().hss_;
 		}
 
-    Data&	gtData( idx_type idim ) const override
+    SSData&	gtSSData( idx_type idim ) const override
 		{
-		    const Data* ret = &zSubSelData();
+		    const SSData* ret = &zSubSelData();
 		    if ( idim < 1 )
 			ret = &trcNrSubSel();
-		    return const_cast<Data&>( *ret );
+		    return const_cast<SSData&>( *ret );
 		}
 
 };
@@ -125,6 +127,7 @@ public:
     void		merge(const LineSubSelSet&);
     void		limitTo(const LineSubSelSet&);
     void		addStepout(trcnr_type);
+    void		clearSubSel();
 
     bool		includes( GeomID gid ) const
 			{ return doFind( gid ); }

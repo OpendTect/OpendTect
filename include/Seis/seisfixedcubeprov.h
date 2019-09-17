@@ -12,8 +12,8 @@ ________________________________________________________________________
 
 
 #include "seisdatapack.h"
-#include "trckeyzsampling.h"
 #include "perthreadrepos.h"
+#include "survsubsel.h"
 #include "uistring.h"
 
 template <class T> class Array2D;
@@ -26,30 +26,29 @@ mExpClass(Seis) SeisFixedCubeProvider
 public:
 
     typedef double	dist_type;
+    mUseType( Survey,	GeomSubSel );
+    mUseType( Survey::HorSubSel, trcnr_type );
 
 			SeisFixedCubeProvider(const DBKey&);
 			~SeisFixedCubeProvider();
 
     void		clear();
     bool		isEmpty() const;
-    bool		readData(const TrcKeyZSampling&,TaskRunner* tskr=0);
-    bool		readData(const TrcKeyZSampling&,
-				const Pos::GeomID geomid, TaskRunner* tskr = 0);
+    bool		readData(const GeomSubSel&,TaskRunner* tskr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
-    const SeisTrc*	getTrace(int trcnr) const;
+    const SeisTrc*	getTrace(trcnr_type) const;
     dist_type		getTrcDist() const		{ return trcdist_; }
     uiString		errMsg() const;
 
 protected:
 
-    Array2D<SeisTrc*>*	data_;
+    Array2D<SeisTrc*>*	data_		= nullptr;;
     RefMan<SeisVolumeDataPack> seisdp_;
-    Pos::GeomID		geomid_;
     mutable PerThreadObjectRepository<SeisTrc> dptrc_;
 
-    TrcKeyZSampling	tkzs_;
-    IOObj*		ioobj_;
+    GeomSubSel*		gss_		= nullptr;
+    IOObj*		ioobj_		= nullptr;
     uiString		errmsg_;
     dist_type		trcdist_;
 

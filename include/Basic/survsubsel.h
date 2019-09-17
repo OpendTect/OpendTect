@@ -58,6 +58,7 @@ public:
     virtual totalsz_type	totalSize() const		= 0;
     virtual bool		isAll() const			= 0;
     virtual bool		hasFullRange() const		= 0;
+    virtual void		clearSubSel()			= 0;
 
     static bool			getInfo(const IOPar&,bool& is2d,GeomID&);
 
@@ -82,7 +83,7 @@ public:
     bool			operator ==( const HorSubSel& oth ) const
 				{ return equals( oth ); }
 				mImplSimpleIneqOper(HorSubSel)
-    SubSel*			duplicate() const override;
+    HorSubSel*			duplicate() const override;
 
     LineHorSubSel*		asLineHorSubSel();
     const LineHorSubSel*	asLineHorSubSel() const;
@@ -113,6 +114,36 @@ protected:
 };
 
 
+mExpClass(Basic) HorSubSelIterator
+{
+public:
+
+    typedef int		idx_type;
+
+			HorSubSelIterator(HorSubSel&);
+			HorSubSelIterator(const HorSubSel&);
+
+    void		toStart()		{ lidx_ = 0; tidx_ = -1; }
+    bool		next();
+
+    bool		is2D() const		{ return hss_.is2D(); }
+    HorSubSel&		horSubSel()		{ return hss_; }
+    const HorSubSel&	horSubSel() const	{ return hss_; }
+
+    BinID		binID() const;
+    Bin2D		bin2D() const;
+    void		getTrcKey(TrcKey&) const;
+
+protected:
+
+    HorSubSel&		hss_;
+    idx_type		lidx_;
+    idx_type		tidx_;
+    const idx_type	nrtrcs_;
+
+};
+
+
 /*!\brief base class for the subselection of a 2D or 3D geometry */
 
 mExpClass(Basic) GeomSubSel : public SubSel
@@ -125,12 +156,19 @@ public:
     mUseType( ZSubSel,	size_type );
     mUseType( ZSubSel,	z_type );
     mUseType( ZSubSel,	z_steprg_type );
+    typedef Pos::Distance_Type dist_type;
 
     bool		operator ==( const GeomSubSel& oth ) const
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(GeomSubSel)
     bool		includes(const GeomSubSel&) const;
-    SubSel*		duplicate() const override;
+    bool		includes( const BinID& bid ) const
+			{ return horSubSel().includes( bid ); }
+    bool		includes( const Bin2D& b2d ) const
+			{ return horSubSel().includes( b2d ); }
+    bool		includes( const TrcKey& tk ) const
+			{ return horSubSel().includes( tk ); }
+    GeomSubSel*		duplicate() const override;
 
     bool		is2D() const override
 			{ return gtHorSubSel().is2D(); }
@@ -172,6 +210,8 @@ public:
     static GeomSubSel*	create(const IOPar&);
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
+
+    dist_type		trcDist(bool max_else_avg) const;
 
 protected:
 

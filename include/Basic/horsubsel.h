@@ -44,14 +44,16 @@ public:
     bool		is2D() const override	   { return true; }
     GeomID		geomID() const override	   { return geomid_; }
     const Geometry2D&	geometry2D() const;
-    totalsz_type	totalSize() const override { return data_.size(); }
+    totalsz_type	totalSize() const override { return ssdata_.size(); }
     bool		isAll() const override
 			{ return IdxSubSel1D::isAll(); }
     bool		hasFullRange() const override
 			{ return IdxSubSel1D::hasFullRange(); }
+    void		clearSubSel()
+			{ IdxSubSel1D::clearSubSel(); }
 
-    const TrcNrSubSelData& trcNrSubSel() const	{ return data_; }
-    TrcNrSubSelData&	trcNrSubSel()		{ return data_; }
+    const TrcNrSubSelData& trcNrSubSel() const	{ return ssdata_; }
+    TrcNrSubSelData&	trcNrSubSel()		{ return ssdata_; }
     pos_steprg_type	trcNrRange() const override
 			{ return outputPosRange(); }
     void		setTrcNrRange( const pos_steprg_type& rg )
@@ -62,7 +64,7 @@ public:
 			{ return idx4Pos( trcnr ); }
     trcnr_type		trcNr4Idx( idx_type idx ) const
 			{ return pos4Idx( idx ); }
-    size_type		nrTrcs() const		{ return data_.size(); }
+    size_type		nrTrcs() const		{ return ssdata_.size(); }
     trcnr_type		trcNrStart() const override
 			{ return trcNrRange().start; }
     trcnr_type		trcNrStop() const override
@@ -126,6 +128,7 @@ public:
     void		limitTo(const LineHorSubSelSet&);
     void		addStepout(trcnr_type);
     void		setToAll();
+    void		clearSubSel();
 
     LineHorSubSel*	find( GeomID gid )	{ return doFind( gid ); }
     const LineHorSubSel* find( GeomID gid ) const { return doFind( gid ); }
@@ -179,11 +182,13 @@ public:
     bool		hasFullRange() const override
 			{ return inlSubSel().hasFullRange()
 			      && crlSubSel().hasFullRange(); }
+    void		clearSubSel()
+			{ IdxSubSel2D::clearSubSel(); }
 
-    const IdxSubSelData& inlSubSel() const	{ return data0_; }
-    IdxSubSelData&	inlSubSel()		{ return data0_; }
-    const IdxSubSelData& crlSubSel() const	{ return data1_; }
-    IdxSubSelData&	crlSubSel()		{ return data1_; }
+    const IdxSubSelData& inlSubSel() const	{ return ssdata0_; }
+    IdxSubSelData&	inlSubSel()		{ return ssdata0_; }
+    const IdxSubSelData& crlSubSel() const	{ return ssdata1_; }
+    IdxSubSelData&	crlSubSel()		{ return ssdata1_; }
 
     RowCol		arraySize() const
 			{ return RowCol(inlSubSel().size(),crlSubSel().size());}

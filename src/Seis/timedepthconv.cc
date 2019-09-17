@@ -245,14 +245,13 @@ protected:
 	}
 	else
 	{
-	    const int globidx = seisdp_->globalIdx( TrcKey(curbid) );
+	    const int globidx = seisdp_->globalIdx( curbid );
 	    const OffsetValueSeries<float>& dptrcvs =
 		seisdp_->getTrcStorage( 0, globidx );
 
-	    const SamplingData<float> sd = seisdp_->sampling().zsamp_;
-	    tdc_.setVelocityModel( dptrcvs,
-				   seisdp_->sampling().zsamp_.nrSteps()+1,
-				   sd, veldesc_, velintime_ );
+	    const auto zrg = seisdp_->zSubSel();
+	    tdc_.setVelocityModel( dptrcvs, zss.outputSize(), zss.zRange(),
+				   veldesc_, velintime_ );
 	}
 
 	if ( ( voiintime_ && !tdc_.calcDepths(arrvs,nrz,voisd_) ) ||

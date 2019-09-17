@@ -34,13 +34,13 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& outid,
 				  const TypeSet<int>& compidxs )
     : Executor( "Attribute volume writer" )
     , nrdone_( 0 )
-    , tks_( dp.sampling().hsamp_ )
-    , cubezrgidx_(0,dp.sampling().nrZ()-1)
-    , totalnr_( (int) dp.sampling().hsamp_.totalNr() )
+    , hss_( dp.horSubSel().duplicate() )
+    , cubezrgidx_(0,dp.subSel().nrZ()-1)
+    , totalnr_( dp.horSubSel().totalNr() )
+    , iterator_( dp.horSubSel() )
     , dp_( &dp )
-    , iterator_( dp.sampling().hsamp_ )
     , outid_( outid )
-    , posinfo_(0)
+    , lcd_(0)
     , compidxs_( compidxs )
 {
     compscalers_.setNullAllowed( true );
@@ -62,7 +62,6 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& outid,
 
     PtrMan<IOObj> ioobj = outid_.getIOObj();
     storer_ = ioobj ? new Seis::Storer( *ioobj ) : 0;
-    is2d_ = storer_ && storer_->is2D();
 
     msg_ = storer_ ? uiStrings::sWriting()
 		   : uiStrings::phrCannotWrite( uiStrings::sData() );
@@ -82,12 +81,13 @@ void SeisDataPackWriter::getPosInfo()
 {
     const auto* pi = dp_->tracePositions();
     if ( pi && !pi->isCubeData() )
-	{ pErrMsg("2D not supported yet"); }
-    posinfo_ = pi ? pi->asCubeData() : nullptr;
-    if ( posinfo_ && !posinfo_->isFullyRegular() )
-	totalnr_ = posinfo_->totalSizeInside( CubeHorSubSel(tks_) );
+	{ pErrMsg("2D not properly supported yet"); }
+
+    lcd_ = pi ? pi->asCubeData() : nullptr;
+    if ( lcd_ && !lcd_->isFullyRegular() )
+	totalnr_ = lcd_->totalSizeInside( *hss_ );
     else
-	totalnr_ = tks_.totalNr();
+	totalnr_ = hss_->totalNr();
 }
 
 
@@ -123,8 +123,8 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 	 type != BufferString(sKey::Steering()) )
 	return;
 
-    const Pos::GeomID geomid = dp_->sampling().hsamp_.getGeomID();
-    const auto& geom2d = SurvGeom::get2D( geomid );
+    const auto& lhss = *dp_->horSubSel().asLineSubSel();
+    const auto& geom2d = lhss.geometry2D();
     if ( geom2d.isEmpty() )
 	return;
 
@@ -160,25 +160,23 @@ od_int64 SeisDataPackWriter::nrDone() const
 void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
-    {
-        dp_ = &dp;
-	getPosInfo();
-    }
+	{ dp_ = &dp; getPosInfo(); }
 
     nrdone_ = 0;
-    if ( cubezrgidx_.stop >= dp.sampling().nrZ() )
-	cubezrgidx_.stop = dp.sampling().nrZ()-1;
+    if ( cubezrgidx_.stop >= dp.subSel().nrZ() )
+	cubezrgidx_.stop = dp.subSel().nrZ()-1;
 
-    setSelection( dp_->sampling().hsamp_ );
+    setSelection( dp_->subSel() );
 }
 
 
-void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
+void SeisDataPackWriter::setSelection( const HorSubSel& hss,
 				       const Interval<int>* cubezrgidx )
 {
-    tks_ = hrg;
-    iterator_.setSampling( hrg );
-    totalnr_ = posinfo_ ? posinfo_->totalSizeInside( CubeHorSubSel(hrg) )
+    delete hss_; delete iterator_;
+    hss_ = hss.duplicate();
+    iterator_ = new HorSubSelIterator( *hss_ );
+    totalnr_ = lcd_ ? lcd_->totalSizeInside( *hss_ )
 			: mCast(int,hrg.totalNr());
     delete seldata_;
     seldata_ = new Seis::RangeSelData( tks_ );
@@ -203,7 +201,7 @@ bool SeisDataPackWriter::goImpl( od_ostream* strm, bool first, bool last,
 				 int delay )
 {
     const bool success = Executor::goImpl( strm, first, last, delay );
-    dp_ = 0; posinfo_ = 0;
+    dp_ = 0; lcd_ = 0;
     deleteAndZeroPtr( trc_ );
 
     return success;
@@ -247,26 +245,33 @@ int SeisDataPackWriter::nextStep()
     if ( !trc_ && !setTrc() )
 	return ErrorOccurred();
 
-    const TrcKeySampling& hs = dp_->sampling().hsamp_;
-    const od_int64 posidx = iterator_.curIdx();
-    if ( posinfo_ )
+    if ( lcd_ )
     {
-	const BinID bid( hs.atIndex(posidx) );
-	if ( !posinfo_->isValid(posinfo_->cubeDataPos(bid)) )
-	    return iterator_.next() ? MoreToDo() : Finished();
+	if ( (is2D() && !lcd_->includes(iterator_->bin2D()))
+	  || (!is2D() && !lcd_->includes(iterator_->binID())) )
+	    return iterator_->next() ? MoreToDo() : Finished();
     }
-    const TrcKey currentpos( iterator_.curTrcKey() );
+
+    TrcKey currentpos;
+    iterator_->getTrcKey( currentpos );
     if ( seldata_ && !seldata_->isOK(currentpos) )
-	return MoreToDo();
+	return iterator_->next() ? MoreToDo() : Finished();
 
     trc_->info().setTrcKey( currentpos );
     trc_->info().coord_ = currentpos.getCoord();
-    const int inlpos = hs.lineIdx( currentpos.inl() );
-    const int crlpos = hs.trcIdx( currentpos.crl() );
-    const int trcsz = cubezrgidx_.stop - cubezrgidx_.start + 1;
+    const auto& hss = dp_->horSubSel();
+    int linepos = 0; int trcpos = 0;
+    if ( is2D() )
+	trcpos = hss.asLineHorSubSel()->idx4TrcNr( currentpos.trcNr() );
+    else
+    {
+	linepos = hss.asCubeHorSubSel()->idx4Inl( currentpos.inl() );
+	trcpos = hss.asCubeHorSubSel()->idx4Crl( currentpos.crl() );
+    }
+    const auto trcsz = cubezrgidx_.stop - cubezrgidx_.start + 1;
     int cubesample = cubezrgidx_.start;
-    const od_int64 offset = dp_->data().info().
-					getOffset( inlpos, crlpos, cubesample );
+    const od_int64 offset = dp_->data().info().getOffset(
+					linepos, trcpos, cubesample );
     float value = mUdf(float);
     for ( int compidx=0; compidx<compidxs_.size(); compidx++ )
     {
@@ -278,7 +283,7 @@ int SeisDataPackWriter::nextStep()
 	for ( int idz=0; idz<trcsz; idz++ )
 	{
 	    value = dataptr ? *dataptr++
-			    : outarr.get( inlpos, crlpos, cubesample++ );
+			    : outarr.get( linepos, trcpos, cubesample++ );
 
 	    if ( scaler )
 		value = mCast(float,scaler->scale( value ));
@@ -292,7 +297,7 @@ int SeisDataPackWriter::nextStep()
 	{ msg_ = uirv; return ErrorOccurred(); }
 
     nrdone_++;
-    if ( iterator_.next() )
+    if ( iterator_->next() )
 	return MoreToDo();
 
     uirv = storer_->close();

@@ -15,35 +15,42 @@ ________________________________________________________________________
 #include "executor.h"
 #include "dbkey.h"
 
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class LineCollData; }
 class RegularSeisDataPack;
+class ArrRegSubSelIterator;
 class Scaler;
 class SeisTrc;
 namespace Seis { class SelData; class Storer; }
+namespace Survey { class HorSubSel; class HorSubSelIterator; }
 
 
 mExpClass(Seis) SeisDataPackWriter : public Executor
 { mODTextTranslationClass(SeisDataPackWriter);
 public:
+
+    mUseType( PosInfo,	LineCollData );
+    mUseType( Survey,	HorSubSel );
+    mUseType( Survey,	HorSubSelIterator );
+
 			SeisDataPackWriter(const DBKey&,
 			       const RegularSeisDataPack&,
 			       const TypeSet<int>& components=TypeSet<int>());
 			~SeisDataPackWriter();
 
-    void		setSelection(const TrcKeySampling&,
+    void		setSelection(const HorSubSel&,
 				     const Interval<int>* =0);
-    const RegularSeisDataPack* dataPack() const	{ return dp_; }
+    const RegularSeisDataPack& dataPack() const	{ return *dp_; }
     void		setNextDataPack(const RegularSeisDataPack&);
 
     void		setComponentScaler(const Scaler&,int compidx);
 
-    od_int64		nrDone() const;
-    od_int64		totalNr() const;
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const		{ return totalnr_; }
     uiString		message() const		{ return msg_; }
     uiString		nrDoneText() const	{ return tr("Traces written"); }
     int			nextStep();
 
-    TrcKeySampling	hSampling() const	{ return tks_; }
+    HorSubSel&		horSubSel() const	{ return *hss_; }
 
 private:
 
@@ -56,18 +63,17 @@ private:
     DBKey			outid_;
     ConstRefMan<RegularSeisDataPack>	dp_;
 
-    int				nrdone_;
-    int				totalnr_;
-    TrcKeySamplingIterator	iterator_;
-    const PosInfo::CubeData*	posinfo_;
+    od_int64			nrdone_;
+    od_int64			totalnr_;
+    HorSubSel*			hss_;
+    HorSubSelIterator*		iterator_	= nullptr;
+    const LineCollData*		lcd_		= nullptr;
     Seis::Storer*		storer_		= nullptr;
     Seis::SelData*		seldata_	= nullptr;
     SeisTrc*			trc_		= nullptr;
     uiString			msg_;
-
-    TrcKeySampling		tks_;
     Interval<int>		cubezrgidx_;
-    bool			is2d_;
 
     void			getPosInfo();
+
 };
