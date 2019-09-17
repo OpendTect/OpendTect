@@ -709,7 +709,6 @@ bool Pick::Set::usePar( const IOPar& par )
         par.get( sKeyLineType(), pstype );
         pstype++;
         disp_.lnstyle_.type_ = (OD::LineStyle::Type)pstype;
-	//OD::LineStyle::parseEnum( par, sKeyLineType(), disp_.lnstyle_.type_ );
     }
 
 
