@@ -92,6 +92,9 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     markerset_->setMarkerStyle( markerstyle );
     markerset_->setMarkersSingleColor( markerstyle.color_ );
 
+    if ( !polyline_ )
+	createLine();
+
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
 
@@ -162,7 +165,10 @@ void PickSetDisplay::dispChg()
     {
 	if ( needLine() && polyline_ )
 	{
-	    OD::LineStyle ls; ls.width_ = psdisp.mkstyle_.size_;
+	    OD::LineStyle ls; 
+	    ls.width_ = psdisp.lnstyle_.width_;
+	    ls.color_ = psdisp.lnstyle_.color_;
+	    ls.type_ = psdisp.lnstyle_.type_;
 	    polyline_->setLineStyle( ls );
 	}
 
@@ -176,6 +182,13 @@ void PickSetDisplay::dispChg()
 		|| psdisp.mkstyle_.type_ == OD::MarkerStyle3D::Plane )
 	    fullRedraw(0);
     }
+
+    if( bodydisplay_ &&
+	    bodydisplay_->getMaterial()->getColor() != set_->fillColor() ) 
+    {
+	bodydisplay_->getMaterial()->setColor( set_->fillColor() );
+    }
+
 
     LocationDisplay::dispChg();
     markerset_->setMarkersSingleColor( psdisp.mkstyle_.color_  );
@@ -257,6 +270,12 @@ void PickSetDisplay::removePolylinePos( int idx )
     if ( !polyline_ || idx>polyline_->size() )
 	return;
 
+    if ( set_->connection()==Pick::Set::Disp::Close )
+    {
+        redrawLine();
+        return;
+    }
+
     polyline_->removePoint( idx );
     polyline_->dirtyCoordinates();
 
@@ -325,10 +344,13 @@ void PickSetDisplay::createLine()
     polyline_->ref();
     addChild( polyline_->osgNode() );
     polyline_->setDisplayTransformation( transformation_ );
-    polyline_->setMaterial( 0 );
+    polyline_->setMaterial( new visBase::Material() );
 
     OD::LineStyle ls;
-    ls.width_ = set_->dispSize();
+    ls = set_->lineStyle();/*
+    ls.width_ = set_->lineSize();
+    ls.color_ = set_->lineColor();
+    ls.type_ = set_->lineColor();*/
     polyline_->setLineStyle( ls );
 }
 
@@ -339,7 +361,9 @@ void PickSetDisplay::redrawLine()
 	return;
 
     OD::LineStyle ls;
-    ls.width_ = set_->dispSize();
+    ls = set_->lineStyle();/*<<
+    ls.width_ = set_->lineSize();
+    ls.color_ = set_->lineColor();*/
     polyline_->setLineStyle( ls );
 
     polyline_->removeAllPoints();
@@ -465,7 +489,7 @@ bool PickSetDisplay::setBodyDisplay()
 {
     UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
-    if ( !shoulddisplaybody_ || set_->isEmpty() )
+    if ( !shoulddisplaybody_ || set_->isEmpty() ) 
 	return false;
 
     if ( !bodydisplay_ )
@@ -478,7 +502,7 @@ bool PickSetDisplay::setBodyDisplay()
 
     if ( !bodydisplay_->getMaterial() )
 	bodydisplay_->setMaterial( new visBase::Material );
-    bodydisplay_->getMaterial()->setColor( set_->dispColor() );
+    bodydisplay_->getMaterial()->setColor( set_->fillColor() );
     bodydisplay_->setDisplayTransformation( transformation_ );
 
     TypeSet<Coord3> picks;
@@ -641,7 +665,7 @@ void PickSetDisplay::getPickingMessage( uiString& str ) const
 
 void PickSetDisplay::setColor( Color nc )
 {
-    set_->setDispColor( nc );
+    set_->setFillColor( nc );
 
     if ( !bodydisplay_ ) return;
 
@@ -658,7 +682,7 @@ void PickSetDisplay::setPixelDensity( float dpi )
     LocationDisplay::setPixelDensity( dpi );
 
     if ( markerset_ )
-       markerset_->setPixelDensity( dpi );
+    	markerset_->setPixelDensity( dpi );
     if ( bodydisplay_ )
 	bodydisplay_->setPixelDensity( dpi );
     if ( polyline_ )

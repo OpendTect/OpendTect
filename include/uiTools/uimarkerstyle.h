@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "typeset.h"
 
 class uiColorInput;
+class uiCheckBox;
 class uiGenInput;
 class uiSpinBox;
 
@@ -32,6 +33,7 @@ public:
 			    , wcolor_(true)
 			    , wtransparency_(false)
 			    , wsz_(true)
+			    , withcheck_(true)
 			{}
 
 	    mDefSetupMemb(uiString,lbltxt)
@@ -39,9 +41,12 @@ public:
 	    mDefSetupMemb(bool,wcolor)
 	    mDefSetupMemb(bool,wsz)
 	    mDefSetupMemb(bool,wtransparency)
+	    mDefSetupMemb(bool,withcheck)
 	};
 
     void		setColor(const Color&);
+    bool		showMarker() const;
+    void		setShowMarker(bool);
     Color		getColor() const;
     void		setSize(int);
     int			getSize() const;
@@ -51,12 +56,15 @@ public:
 protected:
 
 			uiMarkerStyle(uiParent*);
+			~uiMarkerStyle();
 
     uiGenInput*		typefld_;
     uiSpinBox*		sizefld_;
     uiColorInput*	colorfld_;
+    uiCheckBox*		needmarker_;
 
     void		changeCB(CallBacker*);
+    void		needmarkerCB(CallBacker*);
     void		createFlds(const uiStringSet&,const Setup&);
 };
 

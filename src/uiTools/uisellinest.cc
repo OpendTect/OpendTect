@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "uilabel.h"
 #include "uicombobox.h"
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uispinbox.h"
 #include "uistrings.h"
@@ -25,6 +26,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
     : uiGroup(p,"Line style selector")
     , linestyle_(*new OD::LineStyle(ls))
     , changed(this)
+    , needline_(0)
 {
     init( su );
 }
@@ -34,6 +36,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
     : uiGroup(p,"Line style selector")
     , linestyle_(*new OD::LineStyle(ls))
     , changed(this)
+    , needline_(0)
 {
     init( Setup(ltxt) );
 }
@@ -51,14 +54,25 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 
     uiObject* alobj = 0;
 
+    if ( su.withcheck_ )
+    {
+	needline_ = new uiCheckBox( this, su.txt_ );
+	needline_->setChecked( true );
+	needline_->activated.notify( mCB(this,uiSelLineStyle,needlineCB) );
+    }
+
     if ( su.drawstyle_ )
     {
-	stylesel_ = new uiComboBox( this, OD::LineStyle::TypeDef(), "Line Style" );
+	stylesel_ = new uiComboBox( this, OD::LineStyle::TypeDef()
+							, "Line Style" );
 	stylesel_->setCurrentItem( (int)linestyle_.type_ );
 	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( !lbltxt.isEmpty() )
 	    new uiLabel( this, lbltxt, stylesel_ );
-	alobj = stylesel_;
+	if ( needline_ )
+	    stylesel_->attach( rightTo, needline_ );
+	else
+    	    alobj = stylesel_;
     }
 
     if ( su.color_ )
@@ -192,4 +206,31 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
     }
 
     changed.trigger(cb);
+}
+
+
+void uiSelLineStyle::needlineCB( CallBacker* )
+{
+    stylesel_->setSensitive( needline_->isChecked() );
+    if ( colinp_ )
+        colinp_->setSensitive( needline_->isChecked() );
+    if ( widthbox_ )
+        widthbox_->setSensitive( needline_->isChecked() );
+    changed.trigger();
+}
+
+
+bool uiSelLineStyle::doDraw() const
+{
+    return needline_ ? needline_->isChecked() : true;
+}
+
+
+void uiSelLineStyle::setDoDraw( bool yn )
+{
+    if ( needline_ )
+    {
+        needline_->setChecked( yn );
+        colinp_->setSensitive( yn );
+    }
 }

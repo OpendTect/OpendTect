@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uimarkerstyle.h"
 
 #include "uicolor.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uistrings.h"
@@ -23,9 +24,17 @@ uiMarkerStyle::uiMarkerStyle( uiParent* p )
     , typefld_(0)
     , sizefld_(0)
     , colorfld_(0)
+    , needmarker_(0)
     , change(this)
 {
 }
+
+
+uiMarkerStyle::~uiMarkerStyle()
+{
+    detachAllNotifiers();
+}
+
 
 
 void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
@@ -37,11 +46,23 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
 	lbltxt.setEmpty();
 
     uiObject* alignobj = 0;
+
+    if ( su.withcheck_ )
+    {
+        needmarker_ = new uiCheckBox( this, su.lbltxt_ );
+        needmarker_->setChecked( su.withcheck_ );
+	mAttachCB( needmarker_->activated, uiMarkerStyle::needmarkerCB );
+    }
+
     if ( su.wshape_ )
     {
 	typefld_ = new uiGenInput( this, lbltxt, StringListInpSpec(typnms) );
 	typefld_->valuechanged.notify( mCB(this,uiMarkerStyle,changeCB) );
 	alignobj = typefld_->attachObj();
+	if ( needmarker_ )
+            typefld_->attach( rightTo, needmarker_ );
+        else
+            alignobj = typefld_->attachObj();
     }
 
     if ( su.wcolor_ )
@@ -75,6 +96,33 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
     }
 
     setHAlignObj( alignobj );
+}
+
+
+void uiMarkerStyle::needmarkerCB( CallBacker* )
+{
+    typefld_->setSensitive( needmarker_->isChecked() );
+    if ( sizefld_ )
+	sizefld_->setSensitive( needmarker_->isChecked() );
+    if ( colorfld_ )
+	colorfld_->setSensitive( needmarker_->isChecked() );
+    change.trigger();
+}
+
+
+bool uiMarkerStyle::showMarker() const
+{
+    return needmarker_ ? needmarker_->isChecked() : true;
+}
+
+
+void uiMarkerStyle::setShowMarker( bool yn )
+{
+    if ( needmarker_ )
+    {
+	needmarker_->setChecked( yn );
+	typefld_->setSensitive( yn );
+    }
 }
 
 

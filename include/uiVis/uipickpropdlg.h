@@ -11,6 +11,8 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uidialog.h"
+#include "uisellinest.h"
+#include "uicolor.h"
 
 class uiCheckBox;
 class uiGenInput;
@@ -32,16 +34,17 @@ protected:
 
     bool			acceptOK();
     void			styleSel(CallBacker*);
-    void			drawStyleCB(CallBacker*);
-    void			drawSel(CallBacker*);
     void			useThresholdCB(CallBacker*);
+    void			fillColorChangeCB(CallBacker*);
+    void			linePropertyChanged(CallBacker*);
     void			thresholdChangeCB(CallBacker*);
+    void			initDlg(CallBacker*);
 
-    uiCheckBox*			usedrawstylefld_;
-    uiGenInput*			drawstylefld_;
-    uiMarkerStyle3D*		stylefld_;
-    uiCheckBox*			usethresholdfld_;
-    uiGenInput*			thresholdfld_;
+    uiMarkerStyle3D*		stylefld_ = nullptr;
+    uiCheckBox*			usethresholdfld_ = nullptr;
+    uiGenInput*			thresholdfld_ = nullptr;
+    uiSelLineStyle*		lsfld_ = nullptr;
+    uiColorInput*		fillcolfld_ = nullptr;
 
     Pick::Set&			set_;
     visSurvey::PickSetDisplay*	psd_;
