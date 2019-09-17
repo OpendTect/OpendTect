@@ -33,7 +33,6 @@ public:
 			    , wcolor_(true)
 			    , wtransparency_(false)
 			    , wsz_(true)
-			    , withcheck_(true)
 			{}
 
 	    mDefSetupMemb(uiString,lbltxt)
@@ -41,7 +40,6 @@ public:
 	    mDefSetupMemb(bool,wcolor)
 	    mDefSetupMemb(bool,wsz)
 	    mDefSetupMemb(bool,wtransparency)
-	    mDefSetupMemb(bool,withcheck)
 	};
 
     void		setColor(const Color&);
@@ -61,8 +59,8 @@ protected:
     uiGenInput*		typefld_;
     uiSpinBox*		sizefld_;
     uiColorInput*	colorfld_;
-    uiCheckBox*		needmarker_;
 
+    virtual void	initGrp(CallBacker*);
     void		changeCB(CallBacker*);
     void		needmarkerCB(CallBacker*);
     void		createFlds(const uiStringSet&,const Setup&);

@@ -24,9 +24,9 @@ uiMarkerStyle::uiMarkerStyle( uiParent* p )
     , typefld_(0)
     , sizefld_(0)
     , colorfld_(0)
-    , needmarker_(0)
     , change(this)
 {
+    mAttachCB( postFinalise(), uiMarkerStyle::initGrp );
 }
 
 
@@ -45,24 +45,16 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
     else if ( lbltxt.getString() == "-" )
 	lbltxt.setEmpty();
 
-    uiObject* alignobj = 0;
-
-    if ( su.withcheck_ )
-    {
-        needmarker_ = new uiCheckBox( this, su.lbltxt_ );
-        needmarker_->setChecked( su.withcheck_ );
-	mAttachCB( needmarker_->activated, uiMarkerStyle::needmarkerCB );
-    }
+    uiObject* alignobj = nullptr;
 
     if ( su.wshape_ )
     {
-	typefld_ = new uiGenInput( this, lbltxt, StringListInpSpec(typnms) );
-	typefld_->valuechanged.notify( mCB(this,uiMarkerStyle,changeCB) );
+	typefld_ = new uiGenInput( this, lbltxt,
+					StringListInpSpec(typnms) );
+	typefld_->setWithCheck();
+	mAttachCB( typefld_->valuechanged, uiMarkerStyle::changeCB );
+	mAttachCB( typefld_->checked, uiMarkerStyle::needmarkerCB );
 	alignobj = typefld_->attachObj();
-	if ( needmarker_ )
-            typefld_->attach( rightTo, needmarker_ );
-        else
-            alignobj = typefld_->attachObj();
     }
 
     if ( su.wcolor_ )
@@ -86,6 +78,7 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
 	    su.wcolor_||su.wshape_ ? uiStrings::sSize() : tr("Marker size") );
 	sizefld_ = lsb->box();
 	sizefld_->setMinValue( 1 );
+	sizefld_->setValue( 3 );
 	sizefld_->valueChanging.notify( mCB(this,uiMarkerStyle,changeCB) );
 	if ( colorfld_ )
 	    lsb->attach( rightTo, colorfld_ );
@@ -99,28 +92,36 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
 }
 
 
-void uiMarkerStyle::needmarkerCB( CallBacker* )
+void uiMarkerStyle::initGrp( CallBacker* )
 {
-    typefld_->setSensitive( needmarker_->isChecked() );
+    NotifyStopper nstype( typefld_->checked );
+    typefld_->setChecked( true );
+    needmarkerCB(nullptr);
+}
+
+
+void uiMarkerStyle::needmarkerCB( CallBacker* cb )
+{
+    const bool ischecked = typefld_->isChecked();
     if ( sizefld_ )
-	sizefld_->setSensitive( needmarker_->isChecked() );
+	sizefld_->setSensitive( ischecked );
     if ( colorfld_ )
-	colorfld_->setSensitive( needmarker_->isChecked() );
-    change.trigger();
+	colorfld_->setSensitive( ischecked );
+    changeCB( cb );
 }
 
 
 bool uiMarkerStyle::showMarker() const
 {
-    return needmarker_ ? needmarker_->isChecked() : true;
+    return typefld_ ? typefld_->isChecked() : true;
 }
 
 
 void uiMarkerStyle::setShowMarker( bool yn )
 {
-    if ( needmarker_ )
+    if ( typefld_ )
     {
-	needmarker_->setChecked( yn );
+	typefld_->setChecked( yn );
 	typefld_->setSensitive( yn );
     }
 }
@@ -222,12 +223,14 @@ void uiMarkerStyle2D::setMarkerStyle( const OD::MarkerStyle2D& st )
 
 
 
-// uiMarkerStyle3D
-uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, const Setup& su,
+
+//uiMarkerStyle3D
+
+
+uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, const uiMarkerStyle::Setup& su,
 				  const TypeSet<OD::MarkerStyle3D::Type>* excl )
     : uiMarkerStyle(p)
 {
-
     const EnumDefImpl<OD::MarkerStyle3D::Type>& def
 				= OD::MarkerStyle3D::TypeDef();
     uiStringSet nms;

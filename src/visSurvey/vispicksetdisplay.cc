@@ -165,7 +165,7 @@ void PickSetDisplay::dispChg()
     {
 	if ( needLine() && polyline_ )
 	{
-	    OD::LineStyle ls; 
+	    OD::LineStyle ls;
 	    ls.width_ = psdisp.lnstyle_.width_;
 	    ls.color_ = psdisp.lnstyle_.color_;
 	    ls.type_ = psdisp.lnstyle_.type_;
@@ -184,7 +184,7 @@ void PickSetDisplay::dispChg()
     }
 
     if( bodydisplay_ &&
-	    bodydisplay_->getMaterial()->getColor() != set_->fillColor() ) 
+	    bodydisplay_->getMaterial()->getColor() != set_->fillColor() )
     {
 	bodydisplay_->getMaterial()->setColor( set_->fillColor() );
     }
@@ -272,8 +272,8 @@ void PickSetDisplay::removePolylinePos( int idx )
 
     if ( set_->connection()==Pick::Set::Disp::Close )
     {
-        redrawLine();
-        return;
+	redrawLine();
+	return;
     }
 
     polyline_->removePoint( idx );
@@ -489,7 +489,7 @@ bool PickSetDisplay::setBodyDisplay()
 {
     UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
-    if ( !shoulddisplaybody_ || set_->isEmpty() ) 
+    if ( !shoulddisplaybody_ || set_->isEmpty() )
 	return false;
 
     if ( !bodydisplay_ )
@@ -682,7 +682,7 @@ void PickSetDisplay::setPixelDensity( float dpi )
     LocationDisplay::setPixelDensity( dpi );
 
     if ( markerset_ )
-    	markerset_->setPixelDensity( dpi );
+	markerset_->setPixelDensity( dpi );
     if ( bodydisplay_ )
 	bodydisplay_->setPixelDensity( dpi );
     if ( polyline_ )

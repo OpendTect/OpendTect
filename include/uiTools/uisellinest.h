@@ -12,12 +12,12 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "draw.h"
 
-class uiComboBox;
+class uiGenInput;
 class uiCheckBox;
 class uiColorInput;
 class uiLabeledSpinBox;
-namespace OD { class LineStyle; };
 
 
 /*!\brief Group for defining line properties
@@ -40,7 +40,6 @@ public:
 			    , color_(true)
 			    , width_(true)
 			    , transparency_(false)
-			    , withcheck_(true)
 			{}
 
 	mDefSetupMemb(uiString,txt)
@@ -48,7 +47,6 @@ public:
 	mDefSetupMemb(bool,color)
 	mDefSetupMemb(bool,width)
 	mDefSetupMemb(bool,transparency)
-	mDefSetupMemb(bool,withcheck)
 
     };
 
@@ -68,20 +66,20 @@ public:
     void		setWidth(int);
     int			getWidth() const;
     void		setLineWidthBounds( int min, int max );
-    void		setType(int);
+    void		setType(OD::LineStyle::Type);
     int			getType() const;
 
     Notifier<uiSelLineStyle>	changed;
 
 protected:
 
-    uiComboBox*			stylesel_;
+    uiGenInput*			stylesel_;
     uiColorInput*		colinp_;
     uiLabeledSpinBox*		widthbox_;
-    uiCheckBox*			needline_;
 
     OD::LineStyle&		linestyle_;
 
+    void			initGrp(CallBacker*);
     void			changeCB(CallBacker*);
     void			needlineCB(CallBacker*);
 private:
