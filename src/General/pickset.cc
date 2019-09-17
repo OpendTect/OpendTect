@@ -705,7 +705,11 @@ bool Pick::Set::usePar( const IOPar& par )
 	if ( par.get(sKeyLineColor(),lncolstr) )
 	    disp_.lnstyle_.color_.use( lncolstr.buf() );
 	par.get( sKeyWidth(),disp_.lnstyle_.width_ );
-	OD::LineStyle::parseEnum( par, sKeyLineType(), disp_.lnstyle_.type_ );
+	int pstype = 0;
+        par.get( sKeyLineType(), pstype );
+        pstype++;
+        disp_.lnstyle_.type_ = (OD::LineStyle::Type)pstype;
+	//OD::LineStyle::parseEnum( par, sKeyLineType(), disp_.lnstyle_.type_ );
     }
 
 
