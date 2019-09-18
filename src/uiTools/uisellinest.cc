@@ -107,7 +107,6 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     }
 
     setHAlignObj( alignobj );
-    //setHCenterObj( alignobj );
 }
 
 

@@ -64,7 +64,7 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
 	csu.lbltxt( typefld_ ? uiString::empty() : tr("Marker color") )
 	   .withdesc(true);
 	colorfld_ = new uiColorInput( this,  csu );
-	colorfld_->colorChanged.notify( mCB(this,uiMarkerStyle,changeCB) );
+	mAttachCB( colorfld_->colorChanged, uiMarkerStyle::changeCB );
 	if ( typefld_ )
 	    colorfld_->attach( rightTo, typefld_ );
 	else
@@ -78,8 +78,9 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
 	    su.wcolor_||su.wshape_ ? uiStrings::sSize() : tr("Marker size") );
 	sizefld_ = lsb->box();
 	sizefld_->setMinValue( 1 );
-	sizefld_->setValue( 3 );
-	sizefld_->valueChanging.notify( mCB(this,uiMarkerStyle,changeCB) );
+	const OD::MarkerStyle3D marker3ddef;
+	sizefld_->setValue( marker3ddef.size_ );
+	mAttachCB( sizefld_->valueChanging, uiMarkerStyle::changeCB );
 	if ( colorfld_ )
 	    lsb->attach( rightTo, colorfld_ );
 	else if ( typefld_ )

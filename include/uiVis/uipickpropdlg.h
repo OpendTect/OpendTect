@@ -40,11 +40,11 @@ protected:
     void			thresholdChangeCB(CallBacker*);
     void			initDlg(CallBacker*);
 
-    uiMarkerStyle3D*		stylefld_ = nullptr;
-    uiCheckBox*			usethresholdfld_ = nullptr;
-    uiGenInput*			thresholdfld_ = nullptr;
-    uiSelLineStyle*		lsfld_ = nullptr;
-    uiColorInput*		fillcolfld_ = nullptr;
+    uiMarkerStyle3D*		stylefld_;
+    uiCheckBox*			usethresholdfld_;
+    uiGenInput*			thresholdfld_;
+    uiSelLineStyle*		lsfld_;
+    uiColorInput*		fillcolfld_;
 
     Pick::Set&			set_;
     visSurvey::PickSetDisplay*	psd_;

@@ -51,13 +51,12 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usethresholdfld_ = new uiCheckBox( this,
 			   tr("Switch to Point mode for all large PointSets") );
     usethresholdfld_->setChecked( usethreshold );
-    usethresholdfld_->activated.notify( mCB(this,uiPickPropDlg,useThresholdCB));
+    mAttachCB( usethresholdfld_->activated, uiPickPropDlg::useThresholdCB );
     usethresholdfld_->attach( alignedBelow, stylefld_ );
 
     thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
     thresholdfld_->attach( alignedBelow, usethresholdfld_ );
-    thresholdfld_->valuechanged.notify(
-				     mCB(this,uiPickPropDlg,thresholdChangeCB));
+    mAttachCB( thresholdfld_->valuechanged, uiPickPropDlg::thresholdChangeCB );
     thresholdfld_->setSensitive( usethreshold );
     thresholdfld_->setValue( Pick::Set::getSizeThreshold() );
     uiColorInput::Setup colstu( set_.fillColor() );

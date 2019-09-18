@@ -165,10 +165,7 @@ void PickSetDisplay::dispChg()
     {
 	if ( needLine() && polyline_ )
 	{
-	    OD::LineStyle ls;
-	    ls.width_ = psdisp.lnstyle_.width_;
-	    ls.color_ = psdisp.lnstyle_.color_;
-	    ls.type_ = psdisp.lnstyle_.type_;
+	    OD::LineStyle ls = psdisp.lnstyle_;	
 	    polyline_->setLineStyle( ls );
 	}
 
@@ -346,9 +343,7 @@ void PickSetDisplay::createLine()
     polyline_->setDisplayTransformation( transformation_ );
     polyline_->setMaterial( new visBase::Material() );
 
-    OD::LineStyle ls;
-    ls = set_->lineStyle();
-    polyline_->setLineStyle( ls );
+    polyline_->setLineStyle( set_->lineStyle() );
 }
 
 
@@ -357,10 +352,7 @@ void PickSetDisplay::redrawLine()
     if ( !polyline_ )
 	return;
 
-    OD::LineStyle ls;
-    ls = set_->lineStyle();
-    polyline_->setLineStyle( ls );
-
+    polyline_->setLineStyle( set_->lineStyle() );
     polyline_->removeAllPoints();
     Pick::SetIter psiter( *set_ );
     while ( psiter.next() )
