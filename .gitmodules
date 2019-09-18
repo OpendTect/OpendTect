@@ -1,0 +1,8 @@
+[submodule "external/osgGeo"]
+    path = external/osgGeo
+    url = git://github.com/OpendTect/osgGeo.git
+    
+[submodule "external/proj4"]
+    path = external/proj4
+    url = git://github.com/OpendTect/proj4.git
+
