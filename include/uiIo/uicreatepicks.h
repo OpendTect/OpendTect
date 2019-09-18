@@ -105,6 +105,7 @@ protected:
     DataPointSet*	dps_;
 
     bool		acceptOK(CallBacker*);
+    void		posProvChgCB(CallBacker*);
 };
 
 

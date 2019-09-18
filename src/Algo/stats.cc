@@ -155,6 +155,10 @@ int Stats::RandGen::getInt() const
 #endif
 }
 
+int Stats::RandGen::getInt( int min, int max ) const
+{
+    return getIndex( max-min+1 ) + min;
+}
 
 int Stats::RandGen::getIndex( int sz ) const
 {

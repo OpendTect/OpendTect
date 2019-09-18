@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurface.h"
 #include "rowcolsurface.h"
 #include "survinfo.h"
+#include "typeset.h"
 
 namespace EM
 {
@@ -30,6 +31,8 @@ RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
 {
     if ( allsids_ )
 	sid_ = surf_.sectionID(0);
+
+    fillPosIDs();
 }
 
 
@@ -47,6 +50,50 @@ RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
 {
     if ( allsids_ )
 	sid_ = surf_.sectionID(0);
+
+    fillPosIDs();
+}
+
+
+RowColIterator::~RowColIterator()
+{
+    deepErase( posids_ );
+}
+
+
+void RowColIterator::fillPosIDs()
+{
+    if ( !posids_.isEmpty() )
+	posids_.setEmpty();
+
+    if ( allsids_ )
+    {
+	for ( int ids=0; ids<surf_.nrSections(); ids++ )
+	{
+	    TypeSet<GeomPosID>* posids = new TypeSet<GeomPosID>;
+	    posids_ += posids;
+
+	    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
+			     surf_.sectionGeometry( surf_.sectionID( ids ) ) );
+	    if ( !rcs ) return;
+
+	    rcs->getPosIDs( *posids );
+	}
+    }
+    else
+    {
+	int idx = surf_.sectionIndex( sid_ );
+	while ( posids_.size()<idx+1 )
+	{
+	    TypeSet<GeomPosID>* posids = new TypeSet<GeomPosID>;
+	    posids_ += posids;
+	}
+	mDynamicCastGet( const Geometry::RowColSurface*, rcs,
+			 surf_.sectionGeometry( sid_ ) );
+	if ( !rcs ) return;
+
+	rcs->getPosIDs( *posids_[idx] );
+    }
 }
 
 
@@ -93,6 +140,49 @@ PosID RowColIterator::next()
     }
 
     return PosID( surf_.id(), sid_, rc_.toInt64() );
+}
+
+
+PosID RowColIterator::fromIndex( int idx ) const
+{
+    if ( allsids_ )
+    {
+	for ( int ids=0; ids<posids_.size(); ids++ )
+	{
+	    const TypeSet<GeomPosID>& posids = *posids_[ids];
+	    if ( idx > posids.size() )
+		idx -= posids.size();
+	    else
+		return PosID( surf_.id(), surf_.sectionID( ids ),
+			      posids[idx] );
+	}
+    }
+    else
+    {
+	const int sectIdx = surf_.sectionIndex( sid_ );
+	const TypeSet<GeomPosID>& posids = *posids_[sectIdx];
+	if ( idx < posids.size() )
+	    return PosID( surf_.id(), sid_, posids[idx] );
+    }
+    return PosID( -1, -1, -1 );
+}
+
+
+int RowColIterator::maxIndex() const
+{
+    if ( allsids_ )
+    {
+	int sum = 0;
+	for ( int idx=0; idx<posids_.size(); idx++ )
+	{
+	    const TypeSet<GeomPosID>& posids = *posids_[idx];
+	    sum += posids.size();
+	}
+	return sum;
+    }
+    const int sectIdx = surf_.sectionIndex( sid_ );
+    const TypeSet<GeomPosID>& posids = *posids_[sectIdx];
+    return posids.size();
 }
 
 

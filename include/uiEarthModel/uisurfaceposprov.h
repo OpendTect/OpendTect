@@ -18,6 +18,7 @@ class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiSpinBox;
+class uiLabeledSpinBox;
 class uiSelZRange;
 class uiLabel;
 
@@ -33,6 +34,7 @@ public:
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
     void		getSummary(BufferString&) const;
+    virtual bool	hasRandomSampling() const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
     			{ return new uiSurfacePosProvGroup(p,s); }
@@ -47,11 +49,13 @@ protected:
     uiIOObjSel*		surf1fld_;
     uiIOObjSel*		surf2fld_;
     uiGenInput*		issingfld_;
-    uiSpinBox*		zstepfld_;
-    uiLabel*		zsteplbl_;
+    uiLabeledSpinBox*	zstepfld_;
     uiSelZRange*	extrazfld_;
+    uiGenInput*		samplingfld_;
+    uiGenInput*		nrsamplesfld_;
 
     void		selChg(CallBacker*);
+    void		samplingCB(CallBacker*);
 };
 
 

@@ -59,6 +59,12 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 }
 
 
+void uiSelZRange::displayStep( bool yn )
+{
+    stepfld_->display( yn );
+}
+
+
 void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 				 const StepInterval<float>* inplimitrg )
 {
@@ -84,8 +90,7 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
     if ( ltxt.isEmpty() )
 	ltxt = zddef_.getRange();
 
-    uiLabel* lbl = new uiLabel( this,
-		uiStrings::phrJoinStrings( ltxt, zddef_.uiUnitStr(true)),
+    new uiLabel( this, uiStrings::phrJoinStrings( ltxt, zddef_.uiUnitStr(true)),
 		startfld_ );
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
@@ -98,17 +103,17 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 
     if ( wstep )
     {
-	stepfld_ = new uiSpinBox( this, nrdecimals, "Z step" );
+	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), nrdecimals,
+					 "Z step" );
 	if ( cansnap_ )
-	    stepfld_->setInterval(
+	    stepfld_->box()->setInterval(
 		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
 	else
-	    stepfld_->setInterval(
+	    stepfld_->box()->setInterval(
 	    StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
 				  mNINT32(limitrg.step)) );
-	stepfld_->doSnap( cansnap_ );
-	lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
-	lbl->attach( rightOf, stopfld_ );
+	stepfld_->box()->doSnap( cansnap_ );
+	stepfld_->attach( rightOf, stopfld_ );
     }
 
     const CallBack cb( mCB(this,uiSelZRange,valChg) );
@@ -121,7 +126,7 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 StepInterval<float> uiSelZRange::getRange() const
 {
     StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(),
-			     stepfld_ ? stepfld_->getFValue() : 1 );
+			     stepfld_ ? stepfld_->box()->getFValue() : 1 );
     zrg.scale( 1.f / zddef_.userFactor() );
     if ( !stepfld_ )
 	zrg.step = SI().zRange(true).step;
@@ -187,14 +192,14 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 	startfld_->setValue( mNINT32(newzrg.start) );
 	stopfld_->setValue( mNINT32(newzrg.stop) );
 	if ( stepfld_ )
-	    stepfld_->setValue( mNINT32(newzrg.step) );
+	    stepfld_->box()->setValue( mNINT32(newzrg.step) );
     }
     else
     {
 	startfld_->setValue( newzrg.start );
 	stopfld_->setValue( newzrg.stop );
 	if ( stepfld_ )
-	    stepfld_->setValue( newzrg.step );
+	    stepfld_->box()->setValue( newzrg.step );
     }
 }
 
@@ -221,9 +226,9 @@ void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
     stopfld_->setInterval( zrg );
     if ( stepfld_ )
     {
-	stepfld_->setMinValue( zrg.step );
-	stepfld_->setMaxValue( mMAX(zrg.step, zrg.stop-zrg.start) );
-	stepfld_->setStep( zrg.step );
+	stepfld_->box()->setMinValue( zrg.step );
+	stepfld_->box()->setMaxValue( mMAX(zrg.step, zrg.stop-zrg.start) );
+	stepfld_->box()->setStep( zrg.step );
     }
 }
 
@@ -283,6 +288,12 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 }
 
 
+void uiSelNrRange::displayStep( bool yn )
+{
+    stepfld_->display( yn );
+}
+
+
 void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
 				  bool isgen )
 {
@@ -310,15 +321,17 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
 
     if ( wstep )
     {
-	stepfld_ = new uiSpinBox( this, 0, BufferString(lbltxt_," step") );
-	stepfld_->setInterval( StepInterval<int>(limitrg.step,
+	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 0,
+					 BufferString(lbltxt_," step") );
+	stepfld_->box()->setInterval( StepInterval<int>(limitrg.step,
 			    limitrg.width() ? limitrg.width() : limitrg.step,
 			    limitrg.step) );
-	stepfld_->doSnap( true );
-	stepfld_->valueChanging.notify( cb );
-	uiLabel* lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
+	stepfld_->box()->doSnap( true );
+	stepfld_->box()->valueChanging.notify( cb );
+//	uiLabel* lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
 	if ( stopfld )
-	    lbl->attach( rightOf, stopfld );
+	    stepfld_->attach( rightOf, stopfld );
+//	    lbl->attach( rightOf, stopfld );
     }
 
     startfld_->valueChanging.notify( cb );
@@ -389,7 +402,7 @@ void uiSelNrRange::doFinalise( CallBacker* )
 StepInterval<int> uiSelNrRange::getRange() const
 {
     return StepInterval<int>( startfld_->getValue(), getStopVal(),
-			      stepfld_ ? stepfld_->getValue() : defstep_ );
+			stepfld_ ? stepfld_->box()->getValue() : defstep_ );
 }
 
 
@@ -402,7 +415,7 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
     startfld_->setValue( newrg.start );
     setStopVal( newrg.stop );
     if ( stepfld_ )
-	stepfld_->setValue( newrg.step );
+	stepfld_->box()->setValue( newrg.step );
 }
 
 
@@ -413,9 +426,10 @@ void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
 	icstopfld_->setInterval( limitrg );
     if ( stepfld_ )
     {
-	stepfld_->setMinValue( limitrg.step );
-	stepfld_->setMaxValue( mMAX(limitrg.step, limitrg.stop-limitrg.start) );
-	stepfld_->setStep( limitrg.step );
+	stepfld_->box()->setMinValue( limitrg.step );
+	stepfld_->box()->setMaxValue( mMAX(limitrg.step,
+					   limitrg.stop-limitrg.start) );
+	stepfld_->box()->setStep( limitrg.step );
     }
 }
 
@@ -512,6 +526,13 @@ uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit,
 {
     crlfld_->attach( alignedBelow, inlfld_ );
     setHAlignObj( inlfld_ );
+}
+
+
+void uiSelHRange::displayStep( bool yn )
+{
+    inlfld_->displayStep( yn );
+    crlfld_->displayStep( yn );
 }
 
 

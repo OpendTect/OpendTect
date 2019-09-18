@@ -28,6 +28,9 @@ static const char* rcsID mUsedVar = "$Id: emsurfaceposprov.cc 38252 2015-02-24 0
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
+#include "statrand.h"
+
+#include "errmsg.h"
 
 namespace Pos
 {
@@ -50,6 +53,10 @@ EMSurfaceProvider::EMSurfaceProvider()
     , curz_(mUdf(float))
     , curzrg_(0,0)
     , estnrpos_(-1)
+    , nrsamples_(mUdf(int))
+    , dorandom_(false)
+    , enoughsamples_(true)
+    , maxidx_(0)
 {}
 
 
@@ -82,6 +89,10 @@ void EMSurfaceProvider::copyFrom( const EMSurfaceProvider& pp )
     id2_ = pp.id2_;
     hs_ = pp.hs_;
     zrg1_ = pp.zrg1_; zrg2_ = pp.zrg2_;
+    nrsamples_ = pp.nrsamples_;
+    dorandom_ = pp.dorandom_;
+    enoughsamples_ = pp.enoughsamples_;
+    maxidx_ = pp.maxidx_;
     estnrpos_ = -1;
 }
 
@@ -152,6 +163,17 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
     }
 
     reset();
+
+    if ( dorandom_ )
+    {
+	maxidx_ = iterator_->maxIndex();
+	// Need to avoid situation where there aren't enough samples available
+	// to avoid an infinite loop when sampling
+	// This is a crude lower bound, need to think about using zrg's as well
+	enoughsamples_ = nrsamples_ < maxidx_ ;
+	estnrpos_ = nrsamples_;
+    }
+
     return true;
 }
 
@@ -167,47 +189,103 @@ void EMSurfaceProvider::reset()
 
 bool EMSurfaceProvider::toNextPos()
 {
-    curpos_ = iterator_->next();
-    if ( curpos_.objectID() == -1 )
-	return false;
-
-    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
-    if ( surf2_ )
+    if ( dorandom_  && enoughsamples_ )
     {
-	const float stop =
-	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
-	if ( !mIsUdf(stop) )
-	    curzrg_.stop = stop;
-    }
-
-    curzrg_.sort();
-    curzrg_ += extraz_;
-
-    Interval<float> unsnappedzrg = curzrg_;
-    if ( surf2_ )
-    {
-	SI().snapZ( curzrg_.start, 1 );
-	SI().snapZ( curzrg_.stop, -1 );
-	if ( !unsnappedzrg.includes(curzrg_.start, false) )
+	postuple pos;
+	od_int64 idx;
+	const Stats::RandGen& randGen = Stats::randGen();
+	do
 	{
+	    idx = randGen.getIndex( maxidx_ );
+	    curpos_ = iterator_->fromIndex( idx );
 	    curz_ = mUdf(float);
-	    return true;
-	}
-    }
 
-    curz_ = curzrg_.start;
+	    if ( curpos_.objectID() == -1 )
+		return false;
+
+	    curzrg_.start = curzrg_.stop =
+			    (float) surf1_->getPos( curpos_ ).z;
+
+	    if ( surf2_ )
+	    {
+		const float stop =
+		(float) surf2_->getPos( surf2_->sectionID(0),
+					curpos_.subID()).z;
+		if ( !mIsUdf(stop) )
+		    curzrg_.stop = stop;
+	    }
+
+	    curzrg_.sort();
+	    curzrg_ += extraz_;
+
+	    if ( surf2_ )
+	    {
+		SI().snapZ( curzrg_.start, 1 );
+		SI().snapZ( curzrg_.stop, -1 );
+	    }
+
+	    const TrcKeyZSampling& tkzs = SI().sampling( false );
+	    if ( !mIsUdf(curzrg_.start) && !mIsUdf(curzrg_.stop) )
+	    {
+		int zsamp = randGen.getInt( tkzs.zIdx( curzrg_.start ),
+						 tkzs.zIdx( curzrg_.stop ) );
+		curz_ = tkzs.zAtIndex( zsamp );
+		pos = postuple( idx, zsamp );
+	    }
+	} while ( mIsUdf(curz_) ? false : posindexlst_.isPresent(pos) );
+	posindexlst_ += pos;
+	if ( posindexlst_.size() == nrsamples_ )
+	    return false;
+    }
+    else
+    {
+	curpos_ = iterator_->next();
+	if ( curpos_.objectID() == -1 )
+	    return false;
+
+	curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
+	if ( surf2_ )
+	{
+	    const float stop =
+	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+	    if ( !mIsUdf(stop) )
+		curzrg_.stop = stop;
+	}
+
+	curzrg_.sort();
+	curzrg_ += extraz_;
+
+	Interval<float> unsnappedzrg = curzrg_;
+	if ( surf2_ )
+	{
+	    SI().snapZ( curzrg_.start, 1 );
+	    SI().snapZ( curzrg_.stop, -1 );
+	    if ( !unsnappedzrg.includes(curzrg_.start, false) )
+	    {
+		curz_ = mUdf(float);
+		return true;
+	    }
+	}
+
+	curz_ = curzrg_.start;
+    }
     return true;
 }
 
 
 bool EMSurfaceProvider::toNextZ()
 {
-    if ( mIsUdf(curz_) || (!surf2_ && mIsZero(extraz_.width(),mDefEps) ) )
+    if ( dorandom_ )
 	return toNextPos();
+    else
+    {
+	if ( mIsUdf(curz_) || (!surf2_ && mIsZero(extraz_.width(),mDefEps) ) )
+	    return toNextPos();
 
-    curz_ += zstep_;
-    if ( curz_ > (curzrg_.stop+mDefEps) )
-	return toNextPos();
+	curz_ += zstep_;
+	if ( curz_ > (curzrg_.stop+mDefEps) )
+	    return toNextPos();
+    }
 
     return true;
 }
@@ -234,6 +312,11 @@ float EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
 
 void EMSurfaceProvider::usePar( const IOPar& iop )
 {
+    dorandom_ = false;
+    iop.getYN( sKey::Random(), dorandom_ );
+    if ( dorandom_ )
+	iop.get( sKey::NrValues(), nrsamples_);
+
     iop.get( mGetSurfKey(id1Key()), id1_ );
     iop.get( mGetSurfKey(id2Key()), id2_ );
     iop.get( mGetSurfKey(zstepKey()), zstep_ );
@@ -263,6 +346,9 @@ void EMSurfaceProvider::fillPar( IOPar& iop ) const
     iop.set( mGetSurfKey(id2Key()), id2_ );
     iop.set( mGetSurfKey(zstepKey()), zstep_ );
     iop.set( mGetSurfKey(extraZKey()), extraz_ );
+    iop.setYN( sKey::Random(), dorandom_ );
+    if ( dorandom_ )
+	iop.set( sKey::NrValues(), nrsamples_ );
 }
 
 
@@ -332,10 +418,14 @@ void EMSurfaceProvider::getZRange( Interval<float>& zrg ) const
 
 int EMSurfaceProvider::estNrZPerPos() const
 {
-    if ( !surf2_ ) return 1;
-    Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5f,
-			    (zrg1_.stop + zrg2_.stop)*.5f );
-    return (int)((avgzrg.stop-avgzrg.start) / zstep_ + .5);
+    if ( !dorandom_ ) {
+	if ( !surf2_ ) return 1;
+	Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5f,
+				(zrg1_.stop + zrg2_.stop)*.5f );
+	return (int)((avgzrg.stop-avgzrg.start) / zstep_ + .5);
+    }
+    else
+	return 1;
 }
 
 

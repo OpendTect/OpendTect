@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "ranges.h"
 
+typedef od_int64 GeomPosID;
+
 namespace Geometry { class RowColSurface; }
 
 namespace EM
@@ -34,13 +36,18 @@ public:
     			RowColIterator(const Surface&,const SectionID&,
 				       const StepInterval<int> rowbnd,
 				       const StepInterval<int> colbnd);
+			~RowColIterator();
+
     PosID		next();
+    PosID		fromIndex( int idx ) const;
+    int			maxIndex() const;
     int			maximumSize() const;
     int			maximumSize(const SectionID&) const;
 
 protected:
     bool		initSection();
     bool		nextSection();
+    void		fillPosIDs();
 
     RowCol				rc_;
     SectionID				sid_;
@@ -56,6 +63,8 @@ protected:
     const bool				rowcolbounded_;
     Coord3				pos_;
     BinID				bid_;
+
+    ObjectSet<TypeSet<GeomPosID>>	posids_;
 };
 
 } // namespace EM

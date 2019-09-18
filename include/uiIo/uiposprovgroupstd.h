@@ -28,15 +28,17 @@ class uiIOFileSelect;
 /*! \brief UI for RangePosProvider */
 
 mExpClass(uiIo) uiRangePosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiRangePosProvGroup)
 public:
 
 			uiRangePosProvGroup(uiParent*,
 					    const uiPosProvGroup::Setup&);
+			~uiRangePosProvGroup();
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
     void		getSummary(BufferString&) const;
+    virtual bool	hasRandomSampling() const;
 
     void		setExtractionDefaults();
 
@@ -51,8 +53,13 @@ protected:
     uiSelHRange*	hrgfld_;
     uiSelZRange*	zrgfld_;
     uiSelNrRange*	nrrgfld_;
+    uiGenInput*		samplingfld_;
+    uiGenInput*		nrsamplesfld_;
 
     uiPosProvGroup::Setup setup_;
+
+    void		initGrp(CallBacker*);
+    void		samplingCB(CallBacker*);
 
 };
 
