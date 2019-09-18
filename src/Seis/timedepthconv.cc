@@ -249,7 +249,7 @@ protected:
 	    const OffsetValueSeries<float>& dptrcvs =
 		seisdp_->getTrcStorage( 0, globidx );
 
-	    const auto zrg = seisdp_->zSubSel();
+	    const auto& zss = seisdp_->zSubSel();
 	    tdc_.setVelocityModel( dptrcvs, zss.outputSize(), zss.zRange(),
 				   veldesc_, velintime_ );
 	}

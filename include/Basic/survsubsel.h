@@ -105,6 +105,8 @@ public:
     virtual StepInterval<trcnr_type> trcNrRange() const
 				{ return StepInterval<trcnr_type>(
 				    trcNrStart(), trcNrStop(), trcNrStep() ); }
+    inline int			trcNrSize() const
+				{ return trcNrRange().nrSteps()+1; }
 
 protected:
 

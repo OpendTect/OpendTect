@@ -332,7 +332,7 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 	{
 	    iop.set( sKeyUserType(), DataCharacteristics::toString(
 		    DataCharacteristics(regsdp->getDataDesc()).userType()) );
-	    regsdp->sampling().fillPar( iop );
+	    regsdp->subSel().fillPar( iop );
 	    const Scaler* scaler = regsdp->getScaler();
 	    if ( scaler )
 	    {

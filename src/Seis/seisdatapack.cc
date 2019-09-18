@@ -878,8 +878,13 @@ float SeisFlatDataPack::gtNrKBytes() const
 }
 
 
-#define mStepIntvD( rg ) \
-    StepInterval<double>( rg.start, rg.stop, rg.step )
+
+template <class T>
+static StepInterval<double> gtDIntv( const StepInterval<T>& rg )
+{
+    return StepInterval<double>( rg.start, rg.stop, rg.step );
+}
+
 
 void SeisFlatDataPack::setPosData()
 {
@@ -911,7 +916,7 @@ void SeisFlatDataPack::setPosData()
     }
 
     posData().setX1Pos( pos, nrtrcs, 0 );
-    posData().setRange( false, mStepIntvD(zRange()) );
+    posData().setRange( false, gtDIntv(zRange()) );
 }
 
 
@@ -984,10 +989,10 @@ Coord3 RegularSeisFlatDataPack::getCoord( int i0, int i1 ) const
 {
     const bool isvertical = dir() != OD::ZSlice;
     const int trcidx = isvertical ? (hassingletrace_ ? 0 : i0)
-				  : i0*sampling().nrTrcs()+i1;
+				  : i0*horSubSel().trcNrSize()+i1;
     TrcKey tk; getTrcKey( trcidx, tk );
     const Coord c = tk.getCoord();
-    return Coord3( c.x_, c.y_, sampling().zsamp_.atIndex(isvertical ? i1 : 0) );
+    return Coord3( c.x_, c.y_, subSel().zRange().atIndex(isvertical ? i1 : 0) );
 }
 
 
@@ -1076,9 +1081,9 @@ float RegularSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 void RegularSeisFlatDataPack::setSourceDataFromMultiCubes()
 {
     const int nrcomps = source_->nrComponents();
-    const int nrz = sampling().zsamp_.nrSteps() + 1;
+    const int nrz = subSel().nrZ();
     posdata_.setRange( true, StepInterval<double>(0,nrcomps-1,1) );
-    posdata_.setRange( false, mStepIntvD(sampling().zsamp_) );
+    posdata_.setRange( false, gtDIntv(subSel().zRange()) );
 
     arr2d_ = new Array2DImpl<float>( nrcomps, nrz );
     for ( int idx=0; idx<nrcomps; idx++ )
@@ -1097,17 +1102,18 @@ void RegularSeisFlatDataPack::setSourceData()
 	    path_ += trcKy( source_.ptr(), idx );
     }
 
-    if ( !is2D() )
+    if ( is2D() )
+	setPosData();
+    else
     {
 	const bool isinl = dir()==OD::InlineSlice;
+	const auto& css = *subSel().asCubeSubSel();
 	posdata_.setRange(
-		true, isinl ? mStepIntvD(sampling().hsamp_.crlRange())
-			    : mStepIntvD(sampling().hsamp_.inlRange()) );
-	posdata_.setRange( false, isz ? mStepIntvD(sampling().hsamp_.crlRange())
-				      : mStepIntvD(sampling().zsamp_) );
+		true, isinl ? gtDIntv(css.crlRange())
+			    : gtDIntv(css.inlRange()) );
+	posdata_.setRange( false, isz ? gtDIntv(css.crlRange())
+				      : gtDIntv(css.zRange()) );
     }
-    else
-	setPosData();
 
     const dim_idx_type dim0 = dir()==OD::InlineSlice ? 1 : 0;
     const dim_idx_type dim1 = dir()==OD::ZSlice ? 1 : 2;
@@ -1239,7 +1245,7 @@ void RandomSeisFlatDataPack::setPosData()
     }
 
     posData().setX1Pos( pos, nrtrcs, 0 );
-    posData().setRange( false, mStepIntvD(zRange()) );
+    posData().setRange( false, gtDIntv(zRange()) );
 }
 
 

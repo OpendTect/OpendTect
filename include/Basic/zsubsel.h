@@ -48,6 +48,7 @@ public:
     z_steprg_type inputZRange() const		{ return inpzrg_; }
     z_steprg_type outputZRange() const
 		{ return z_steprg_type( zStart(), zStop(), zStep() ); }
+    z_steprg_type zRange() const		{ return outputZRange(); }
     size_type	inputSize() const		{ return inpzrg_.nrSteps()+1; }
     size_type	outputSize() const		{ return size(); }
 
@@ -99,6 +100,7 @@ public:
     z_type	zStep() const		{ return ssdata_.zStep(); }
     z_steprg_type inputZRange() const	{ return ssdata_.inputZRange(); }
     z_steprg_type outputZRange() const	{ return ssdata_.outputZRange(); }
+    z_steprg_type zRange() const	{ return ssdata_.zRange(); }
     size_type	inputSize() const	{ return ssdata_.inputSize(); }
     size_type	outputSize() const	{ return ssdata_.outputSize(); }
 
