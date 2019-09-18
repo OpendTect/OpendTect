@@ -50,6 +50,7 @@ public:
     };
 
 			uiPosProvider(uiParent*,const Setup&);
+			~uiPosProvider();
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&) const;
@@ -57,6 +58,9 @@ public:
 
     void		setSampling(const TrcKeyZSampling&);
     void		getSampling(TrcKeyZSampling&,const IOPar* =0) const;
+
+    Notifier<uiPosProvider>	posProvGroupChanged;
+    bool			hasRandomSampling() const;
 
     Pos::Provider*	createProvider() const;
 

@@ -110,7 +110,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 	    ret->setEmpty();
     }
 
-    OD::MarkerStyle3D mstyle;
+    OD::MarkerStyle3D mstyle( ret->markerStyle() );
     markerstylefld_->getMarkerStyle( mstyle );
     ret->setMarkerStyle( mstyle );
     ret->setConnection( ispolygon_ ? Pick::Set::Disp::Open
@@ -152,15 +152,11 @@ uiGenPosPicksDlg::uiGenPosPicksDlg( uiParent* p )
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
-    maxnrpickfld_ = new uiGenInput( this, tr("Maximum number of Picks"),
-				    IntInpSpec(100) );
-    maxnrpickfld_->attach( alignedBelow, posprovfld_ );
-
     uiPosFilterSet::Setup fsu( false );
     fsu.seltxt( uiStrings::phrRemove(uiStrings::sLocation(mPlural)) )
 		.incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
-    posfiltfld_->attach( alignedBelow, maxnrpickfld_ );
+    posfiltfld_->attach( alignedBelow, posprovfld_ );
 
     attachStdFlds( true, posfiltfld_ );
 }
@@ -196,10 +192,7 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
     if ( dpssize < 1 )
 	mErrRet(tr("No matching locations found"))
 
-    int sztouse = maxnrpickfld_->getIntValue();
-    if ( mIsUdf(sztouse) || sztouse < 1 )
-	sztouse = dpssize;
-    const bool usemaxnrpicks = dpssize > sztouse;
+    int sztouse = dpssize;
 
     if ( sztouse>50000 )
     {
@@ -213,9 +206,7 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 
     for ( DataPointSet::RowID idx=0; idx<sztouse; idx++ )
     {
-	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
-					 : idx;
-	const DataPointSet::Pos pos( dps->pos(posidx) );
+	const DataPointSet::Pos pos( dps->pos(idx) );
 	Pick::Location pl( pos.coord(), pos.z() );
 	ps.add( pl );
     }

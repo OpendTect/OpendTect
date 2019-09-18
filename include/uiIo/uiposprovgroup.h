@@ -43,6 +43,8 @@ public:
 			uiPosProvGroup(uiParent*,const Setup&);
 
     virtual void	setExtractionDefaults()		{}
+    virtual bool	hasRandomSampling() const	{ return false; }
+    Notifier<uiPosProvGroup>	posProvGroupChg;
 
     mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,const Setup&,factory);
 

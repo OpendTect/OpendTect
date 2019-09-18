@@ -13,7 +13,7 @@
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "uistrings.h"
-
+#include "statrand.h"
 
 #define mGet2DGeometry(gid) \
     const auto& geom2d = SurvGeom::get2D( gid )
@@ -23,6 +23,9 @@ Pos::RangeProvider3D::RangeProvider3D()
     : Pos::Provider3D()
     , tkzs_(*new TrcKeyZSampling(true))
     , zsampsz_(0)
+    , nrsamples_(mUdf(int))
+    , dorandom_(false)
+    , enoughsamples_(true)
 {
     reset();
 }
@@ -54,6 +57,10 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
     curbid_ = oth.curbid_;
     curzidx_ = oth.curzidx_;
     zsampsz_ = oth.zsampsz_;
+    nrsamples_ = oth.nrsamples_;
+    dorandom_ = oth.dorandom_;
+    enoughsamples_ = oth.enoughsamples_;
+    posindexlst_.setEmpty();
 
     return *this;
 }
@@ -62,6 +69,14 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
 void Pos::RangeProvider3D::setSampling( const TrcKeyZSampling& tkzs )
 {
     tkzs_ = tkzs;
+    if ( dorandom_ )
+    {
+	// For random sampling use the survey steps/sampling
+	TrcKeyZSampling sitkzs;
+	SI().getSampling( sitkzs );
+	tkzs_.hsamp_.step_ = sitkzs.hsamp_.step_;
+	tkzs_.zsamp_.step = sitkzs.zsamp_.step;
+    }
     zsampsz_ = tkzs.zsamp_.nrSteps()+1;
 }
 
@@ -69,6 +84,24 @@ void Pos::RangeProvider3D::setSampling( const TrcKeyZSampling& tkzs )
 const char* Pos::RangeProvider3D::type() const
 {
     return sKey::Range();
+}
+
+
+bool Pos::RangeProvider3D::initialize( const TaskRunnerProvider& )
+{
+    if ( dorandom_ )
+    {
+	// For random sampling use the survey steps/sampling
+	TrcKeyZSampling sitkzs;
+	SI().getSampling( sitkzs );
+	tkzs_.hsamp_.step_ = sitkzs.hsamp_.step_;
+	tkzs_.zsamp_.step = sitkzs.zsamp_.step;
+	// Check the number of samples doesn't exceed the number available
+	enoughsamples_ = nrsamples_<tkzs_.totalNr();
+
+    }
+    reset();
+    return true;
 }
 
 
@@ -83,16 +116,37 @@ void Pos::RangeProvider3D::reset()
 
 bool Pos::RangeProvider3D::toNextPos()
 {
-    curbid_.crl() += tkzs_.hsamp_.step_.crl();
-    if ( curbid_.crl() > tkzs_.hsamp_.stop_.crl() )
+    if ( dorandom_ && enoughsamples_ )
     {
-	curbid_.inl() += tkzs_.hsamp_.step_.inl();
-	if ( curbid_.inl() > tkzs_.hsamp_.stop_.inl() )
+	postuple pos;
+	od_int64 idx;
+	const Stats::RandGen& randGen = Stats::randGen();
+	const TrcKeySampling& hsamp = tkzs_.hsamp_;
+	const od_int64 totalNrTraces = hsamp.totalNr();
+	do
+	{
+	    idx = randGen.getIndex( totalNrTraces );
+	    curzidx_ = randGen.getInt( 0, zsampsz_ );
+	    pos = postuple( idx, curzidx_ );
+	} while ( posindexlst_.isPresent(pos) );
+	curbid_ = hsamp.atIndex( idx );
+	posindexlst_ += pos;
+	if ( posindexlst_.size() == nrsamples_ )
 	    return false;
-	curbid_.crl() = tkzs_.hsamp_.start_.crl();
+    }
+    else
+    {
+	curbid_.crl() += tkzs_.hsamp_.step_.crl();
+	if ( curbid_.crl() > tkzs_.hsamp_.stop_.crl() )
+	{
+	    curbid_.inl() += tkzs_.hsamp_.step_.inl();
+	    if ( curbid_.inl() > tkzs_.hsamp_.stop_.inl() )
+		return false;
+	    curbid_.crl() = tkzs_.hsamp_.start_.crl();
+	}
+	curzidx_ = 0;
     }
 
-    curzidx_ = 0;
     return true;
 }
 
@@ -101,9 +155,14 @@ bool Pos::RangeProvider3D::toNextPos()
 
 bool Pos::RangeProvider3D::toNextZ()
 {
-    curzidx_++;
-    if ( curzidx_>=zsampsz_ )
+    if ( dorandom_ && enoughsamples_ )
 	return toNextPos();
+    else
+    {
+	curzidx_++;
+	if ( curzidx_>=zsampsz_ )
+	    return toNextPos();
+    }
 
     return true;
 }
@@ -130,7 +189,12 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 
 void Pos::RangeProvider3D::usePar( const IOPar& iop )
 {
+    dorandom_ = true;
+    iop.getYN( sKey::Random(), dorandom_ );
     tkzs_.usePar( iop );
+    if ( dorandom_ )
+	iop.get( sKey::NrValues(), nrsamples_);
+
     zsampsz_ = tkzs_.zsamp_.nrSteps()+1;
 }
 
@@ -138,6 +202,9 @@ void Pos::RangeProvider3D::usePar( const IOPar& iop )
 void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 {
     tkzs_.fillPar( iop );
+    iop.setYN( sKey::Random(), dorandom_ );
+    if ( dorandom_ )
+	iop.set( sKey::NrValues(), nrsamples_ );
 }
 
 
@@ -169,13 +236,19 @@ void Pos::RangeProvider3D::getZRange( Interval<float>& zrg ) const
 
 od_int64 Pos::RangeProvider3D::estNrPos() const
 {
-    return tkzs_.hsamp_.totalNr();
+    if ( dorandom_ )
+	return nrsamples_;
+    else
+	return tkzs_.hsamp_.totalNr();
 }
 
 
 int Pos::RangeProvider3D::estNrZPerPos() const
 {
-    return zsampsz_;
+    if ( dorandom_ )
+	return 1;
+    else
+	return zsampsz_;
 }
 
 
@@ -188,6 +261,13 @@ void Pos::RangeProvider3D::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
 void Pos::RangeProvider3D::setHSampling( const TrcKeySampling& tks )
 {
     tkzs_.hsamp_ = tks;
+    if ( dorandom_ )
+    {
+	// For random sampling use the survey steps/sampling
+	TrcKeyZSampling sitkzs;
+	SI().getSampling( sitkzs );
+	tkzs_.hsamp_.step_ = sitkzs.hsamp_.step_;
+    }
 }
 
 

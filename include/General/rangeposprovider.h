@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posprovider.h"
 #include "transl.h"
+#include "sortedlist.h"
+
 class TrcKeySampling;
 
 namespace PosInfo { class Line2DData; }
@@ -24,6 +26,8 @@ namespace Pos
 {
 
 /*!\brief 3D provider based on TrcKeyZSampling */
+
+typedef std::tuple<od_int64,int> postuple;
 
 mExpClass(General) RangeProvider3D : public Provider3D
 { mODTextTranslationClass(RangeProvider3D)
@@ -37,6 +41,7 @@ public:
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider3D(*this); }
 
+    virtual bool	initialize(const TaskRunnerProvider&);
     virtual void	reset();
 
     virtual bool	toNextPos();
@@ -68,6 +73,10 @@ protected:
     BinID		curbid_;
     int			curzidx_;
     int			zsampsz_;
+    int			nrsamples_;
+    bool		dorandom_;
+    bool		enoughsamples_;
+    SortedList<postuple> posindexlst_;
 
 public:
 

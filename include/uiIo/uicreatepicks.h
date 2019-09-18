@@ -59,7 +59,6 @@ protected:
     uiPosFilterSetSel*	posfiltfld_;
 
     virtual bool	fillData(Pick::Set&);
-
 };
 
 
