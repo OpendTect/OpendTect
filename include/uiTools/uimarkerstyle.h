@@ -76,9 +76,11 @@ public:
 				const Interval<int>& sizerange,
 				int nrexcluded=0,
 				const MarkerStyle3D::Type* excluded=0);
+
     NotifierAccess*	sliderMove();
     NotifierAccess*	typeSel();
     NotifierAccess*	colSel();
+    NotifierAccess*	checkSel();
 
     MarkerStyle3D::Type	getType() const;
     Color		getColor() const;
@@ -87,13 +89,18 @@ public:
     void		setMarkerStyle(const MarkerStyle3D& style);
     void		getMarkerStyle(MarkerStyle3D& style) const;
     void		enableColorSelection(bool);
+    bool		showMarker() const;
+    void		setShowMarker(bool);
+
 
 protected:
     TypeSet<MarkerStyle3D::Type>	types_;
 
-    uiSlider*				sliderfld_;
+    uiSpinBox*				szfld_;
     uiGenInput*				typefld_;
     uiColorInput*			colselfld_;
+
+    void				needmarkerCB(CallBacker*);
 };
 
 #endif

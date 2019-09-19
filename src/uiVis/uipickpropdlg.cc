@@ -16,8 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "settings.h"
 #include "uibutton.h"
+#include "uicolor.h"
 #include "uigeninput.h"
 #include "uimarkerstyle.h"
+#include "uisellinest.h"
 #include "uislider.h"
 #include "vispicksetdisplay.h"
 #include "vistristripset.h"
@@ -29,87 +31,95 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     , set_( set )
     , psd_( psd )
 {
-    usedrawstylefld_ = new uiCheckBox( this, tr("Connect picks") );
-    const bool hasbody = psd && psd->isBodyDisplayed();
-    const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
-    usedrawstylefld_->setChecked( hassty );
-    usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
+    uiSelLineStyle::Setup stu;
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(set_.disp_.type_
+				,set_.disp_.width_,set_.disp_.color_), stu );
+    mAttachCB( lsfld_->changed, uiPickPropDlg::linePropertyChanged );
 
-    drawstylefld_ = new uiGenInput( this, tr("with"),
-				    BoolInpSpec( true, tr("Line"),
-				    tr("Surface") ) );
-    drawstylefld_->setValue( !hasbody );
-    drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
-    drawstylefld_->attach( rightOf, usedrawstylefld_ );
-
-    stylefld_->attach( alignedBelow, usedrawstylefld_ );
+    stylefld_->attach( alignedBelow, lsfld_ );
 
     bool usethreshold = true;
     Settings::common().getYN( Pick::Set::sKeyUseThreshold(), usethreshold );
     usethresholdfld_ =
      new uiCheckBox( this, tr("Switch to Point mode for all large PointSets") );
     usethresholdfld_->setChecked( usethreshold );
-    usethresholdfld_->activated.notify( mCB(this,uiPickPropDlg,useThresholdCB));
+    mAttachCB( usethresholdfld_->activated, uiPickPropDlg::useThresholdCB );
     usethresholdfld_->attach( alignedBelow, stylefld_ );
 
     thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
-    thresholdfld_->attach( rightAlignedBelow, usethresholdfld_ );
-    thresholdfld_->valuechanged.notify(
-				     mCB(this,uiPickPropDlg,thresholdChangeCB));
+    thresholdfld_->attach( alignedBelow, usethresholdfld_ );
+    mAttachCB( thresholdfld_->valuechanged, uiPickPropDlg::thresholdChangeCB );
     thresholdfld_->setSensitive( usethreshold );
     thresholdfld_->setValue( Pick::Set::getSizeThreshold() );
 
-    drawSel( 0 );
+    uiColorInput::Setup colstu( set_.disp_.fillcolor_ );
+    colstu.lbltxt( tr("Fill with") ).withcheck( true )
+	  .transp(uiColorInput::Setup::Separate);
+    fillcolfld_ = new uiColorInput( this, colstu );
+    fillcolfld_->attach( alignedBelow, stylefld_ );
+    fillcolfld_->attach( ensureBelow, thresholdfld_ );
+    mAttachCB( fillcolfld_->colorChanged, uiPickPropDlg::fillColorChangeCB );
+    mAttachCB( fillcolfld_->doDrawChanged, uiPickPropDlg::fillColorChangeCB );
 }
 
 
-void uiPickPropDlg::drawSel( CallBacker* )
+uiPickPropDlg::~uiPickPropDlg()
 {
-    const bool usestyle = usedrawstylefld_->isChecked();
-    drawstylefld_->display( usestyle );
+    detachAllNotifiers();
+}
 
-    if ( !usestyle )
+
+void uiPickPropDlg::linePropertyChanged( CallBacker* )
+{
+    OD::LineStyle lst;
+    lst = lsfld_->getStyle();
+
+    set_.disp_.type_ = lst.type_;
+    set_.disp_.width_ = lst.width_;
+    set_.disp_.linecolor_ = lst.color_;
+    set_.disp_.linedodraw_ = lsfld_->doDraw();
+    if ( !lsfld_->doDraw() )
     {
-	if ( set_.disp_.connect_==Pick::Set::Disp::Close )
-	{
-	    set_.disp_.connect_ = Pick::Set::Disp::None;
-	    Pick::Mgr().reportDispChange( this, set_ );
-	}
-
-	if ( psd_ )
-	    psd_->displayBody( false );
+	set_.disp_.connect_ = Pick::Set::Disp::None;
     }
     else
-	drawStyleCB( 0 );
-}
-
-
-void uiPickPropDlg::drawStyleCB( CallBacker* )
-{
-    const bool showline = drawstylefld_->getBoolValue();
-    if ( psd_ )
-	psd_->displayBody( !showline );
-
-    if ( showline )
     {
 	set_.disp_.connect_ = Pick::Set::Disp::Close;
-	Pick::Mgr().reportDispChange( this, set_ );
+	fillcolfld_->setDoDraw( false );
+    }
+    Pick::Mgr().reportDispChange( this, set_ );
+}
+
+
+void uiPickPropDlg::fillColorChangeCB( CallBacker* )
+{
+    bool fillcol = fillcolfld_->doDraw();
+    set_.disp_.fillcolor_ = fillcolfld_->color() ;
+    set_.disp_.filldodraw_ = fillcolfld_->doDraw() ;
+    if ( !fillcol )
+    {
+	if ( !psd_ )
+	    return;
+	psd_->displayBody( false );
     }
     else
     {
-	if ( !psd_ ) return;
-	set_.disp_.connect_ = Pick::Set::Disp::None;
-	Pick::Mgr().reportDispChange( this, set_ );
+	if ( !psd_ )
+	    return;
 
+	set_.disp_.connect_ = Pick::Set::Disp::None ;
+	lsfld_->setDoDraw( false );
+	psd_->displayBody( true );
 	if ( !psd_->getDisplayBody() )
 	    psd_->setBodyDisplay();
     }
+    Pick::Mgr().reportDispChange( this, set_ );
 }
 
 
 void uiPickPropDlg::doFinalise( CallBacker* )
 {
-    const MarkerStyle3D style( (MarkerStyle3D::Type) set_.disp_.markertype_,
+    MarkerStyle3D style( (MarkerStyle3D::Type) set_.disp_.markertype_,
 	    set_.disp_.pixsize_, set_.disp_.color_ );
     stylefld_->setMarkerStyle( style );
 }
@@ -131,9 +141,13 @@ void uiPickPropDlg::sliderMove( CallBacker* )
 void uiPickPropDlg::typeSel( CallBacker* )
 {
     MarkerStyle3D style;
-    stylefld_->getMarkerStyle( style );
-
-    set_.disp_.markertype_ = style.type_;
+    if ( !stylefld_->showMarker() )
+	set_.disp_.markertype_ = MarkerStyle3D::None;
+    else
+    {
+	stylefld_->getMarkerStyle( style );
+	set_.disp_.markertype_ = style.type_;
+    }
     Pick::Mgr().reportDispChange( this, set_ );
 }
 

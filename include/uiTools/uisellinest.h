@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistrings.h"
 
-class uiComboBox;
+class uiGenInput;
+class uiCheckBox;
 class uiColorInput;
 class uiLabeledSpinBox;
 namespace OD { class LineStyle; }
@@ -41,7 +42,9 @@ public:
 			    , drawstyle_(true)
 			    , color_(true)
 			    , width_(true)
-			    , transparency_(false)	{}
+			    , transparency_(false)
+			{}
+
 
 	mDefSetupMemb(uiString,txt)
 	mDefSetupMemb(bool,drawstyle)
@@ -62,6 +65,8 @@ public:
 
     void		setColor(const Color&);
     const Color&	getColor() const;
+    bool		doDraw() const;
+    void		setDoDraw(bool);
     void		setWidth(int);
     int			getWidth() const;
     void		setLineWidthBounds( int min, int max );
@@ -72,13 +77,15 @@ public:
 
 protected:
 
-    uiComboBox*			stylesel_;
+    uiGenInput*			stylesel_;
     uiColorInput*		colinp_;
     uiLabeledSpinBox*		widthbox_;
 
     OD::LineStyle&		linestyle_;
 
+    void			initGrp(CallBacker*);
     void			changeCB(CallBacker*);
+    void			needlineCB(CallBacker*);
 private:
 
     void			init(const Setup&);

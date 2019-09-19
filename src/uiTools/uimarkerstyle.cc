@@ -168,7 +168,9 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	    const Interval<int>& rg, int nrexcluded,
 	    const MarkerStyle3D::Type* excluded )
 	: uiGroup(p)
-	, colselfld_( 0 )
+	, colselfld_( nullptr )
+	, typefld_(nullptr)
+	, szfld_(nullptr)
 {
     StringListInpSpec str;
     for ( int idx=0; MarkerStyle3D::TypeNames()[idx]; idx++ )
@@ -193,32 +195,48 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	types_ += type;
     }
 
-    typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
+    uiObject* alignobj = 0;
 
-    sliderfld_ = new uiSlider( this,
-	uiSlider::Setup(uiStrings::sSize()).withedit(true), "Slider Size" );
-    sliderfld_->setInterval( rg );
-    sliderfld_->attach( alignedBelow, typefld_ );
+    typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
+    typefld_->setWithCheck();
+    typefld_->setChecked( true );
+    mAttachCB( typefld_->checked, uiMarkerStyle3D::needmarkerCB );
+    alignobj = typefld_->attachObj();
 
     if ( withcolor )
     {
 	colselfld_ = new uiColorInput( this,
 				uiColorInput::Setup(Color::White())
 				.lbltxt(uiStrings::sColor()) );
-	colselfld_->attach( alignedBelow, sliderfld_ );
+	if ( typefld_ )
+	    colselfld_->attach( rightTo, typefld_ );
+	else
+	    alignobj = colselfld_->attachObj();
     }
 
-    setHAlignObj( sliderfld_ );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, tr("Size") );
+    szfld_ = lsb->box();
+    szfld_->setMinValue( 1 );
+    if ( colselfld_ )
+	lsb->attach( rightTo, colselfld_ );
+    else if ( typefld_ )
+	lsb->attach( rightTo, typefld_ );
+    else
+	alignobj = lsb->attachObj();
+
+    setHAlignObj( alignobj );
 }
 
 
 NotifierAccess* uiMarkerStyle3D::sliderMove()
-{ return &sliderfld_->valueChanged; }
+{ return &szfld_->valueChanged; }
 
 
 NotifierAccess* uiMarkerStyle3D::typeSel()
 { return &typefld_->valuechanged; }
 
+NotifierAccess* uiMarkerStyle3D::checkSel()
+{ return &typefld_->checked; }
 
 NotifierAccess* uiMarkerStyle3D::colSel()
 { return colselfld_ ? &colselfld_->colorChanged : 0; }
@@ -241,7 +259,7 @@ Color uiMarkerStyle3D::getColor() const
 
 
 int uiMarkerStyle3D::getSize() const
-{ return sliderfld_->getIntValue(); }
+{ return szfld_->getIntValue(); }
 
 
 void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
@@ -253,7 +271,7 @@ void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
     typefld_->setValue( idx );
     if ( colselfld_ )
 	colselfld_->setColor( st.color_ );
-    sliderfld_->setValue( st.size_ );
+    szfld_->setValue( st.size_ );
 }
 
 
@@ -261,4 +279,30 @@ void uiMarkerStyle3D::enableColorSelection( bool yn )
 {
     if ( colselfld_ )
 	colselfld_->setSensitive(yn);
+}
+
+
+void uiMarkerStyle3D::needmarkerCB( CallBacker* )
+{
+    const bool ischecked = typefld_->isChecked();
+    if ( szfld_ )
+	szfld_->setSensitive( ischecked );
+    if ( colselfld_ )
+	colselfld_->setSensitive( ischecked );
+}
+
+
+bool uiMarkerStyle3D::showMarker() const
+{
+    return typefld_ ? typefld_->isChecked() : true;
+}
+
+
+void uiMarkerStyle3D::setShowMarker( bool yn )
+{
+    if ( typefld_ )
+    {
+	typefld_->setChecked( yn );
+	typefld_->setSensitive( yn );
+    }
 }

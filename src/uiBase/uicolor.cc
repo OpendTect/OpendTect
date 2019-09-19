@@ -140,7 +140,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     if ( s.withcheck_ )
     {
 	dodrawbox_ = new uiCheckBox( this, s.lbltxt_);
-	dodrawbox_->setChecked( true );
+	dodrawbox_->setChecked( false );
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
     colbut_ = new uiPushButton( this,uiString::emptyString(), false );

@@ -25,9 +25,10 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
 				{ MarkerStyle3D::None };
     stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
 	    2, excludedtypes );
-    stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleDlg,typeSel) );
-    stylefld_->sliderMove()->notify( mCB(this,uiMarkerStyleDlg,sliderMove));
-    stylefld_->colSel()->notify( mCB(this,uiMarkerStyleDlg,colSel) );
+    mAttachCB( stylefld_->typeSel(), uiMarkerStyleDlg::typeSel );
+    mAttachCB( stylefld_->checkSel(), uiMarkerStyleDlg::typeSel );
+    mAttachCB( stylefld_->sliderMove(), uiMarkerStyleDlg::sliderMove );
+    mAttachCB( stylefld_->colSel(), uiMarkerStyleDlg::colSel );
 
     preFinalise().notify( mCB(this,uiMarkerStyleDlg,doFinalise) );
 }

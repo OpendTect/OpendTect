@@ -12,7 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisellinest.h"
 #include "draw.h"
 #include "uilabel.h"
-#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uispinbox.h"
 #include "uistrings.h"
@@ -29,6 +30,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
     , changed(this)
 {
     init( su );
+    mAttachCB( postFinalise(), uiSelLineStyle::initGrp );
 }
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
@@ -38,12 +40,13 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
     , changed(this)
 {
     init( Setup(ltxt) );
+    mAttachCB( postFinalise(), uiSelLineStyle::initGrp );
 }
 
 
 void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 {
-    stylesel_ = 0; colinp_ = 0; widthbox_ = 0;
+    stylesel_ = nullptr; colinp_ = nullptr; widthbox_ = nullptr;
 
     uiString lbltxt( su.txt_ );
     if ( lbltxt.isEmpty() )
@@ -51,18 +54,19 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     else if ( lbltxt.getFullString() == "-" )
 	lbltxt.setEmpty();
 
-    uiObject* alobj = 0;
+    uiObject* alobj = nullptr;
 
     if ( su.drawstyle_ )
     {
-	BufferStringSet itms( OD::LineStyle::TypeNames() );
-	stylesel_ = new uiComboBox( this, itms, "Line Style" );
-	stylesel_->setPrefWidthInChar( 16 );
-	stylesel_->setCurrentItem( (int)linestyle_.type_ );
-	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
-	if ( !lbltxt.isEmpty() )
-	    new uiLabel( this, lbltxt, stylesel_ );
-	alobj = stylesel_;
+	stylesel_ = new uiGenInput( this, lbltxt,
+				StringListInpSpec(OD::LineStyle::TypeDef()) );
+	stylesel_->setWithCheck();
+	const bool hasstyle = linestyle_.isVisible();
+	stylesel_->setChecked( hasstyle );
+	stylesel_->setValue( linestyle_.type_ );
+	mAttachCB( stylesel_->valuechanged, uiSelLineStyle::changeCB );
+	mAttachCB( stylesel_->checked, uiSelLineStyle::needlineCB );
+	alobj = stylesel_->attachObj();
     }
 
     if ( su.color_ )
@@ -72,10 +76,10 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	csu.lbltxt( stylesel_ ? uiStrings::sColor() 
                               : tr("Line color") ).withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
-	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
+	mAttachCB( colinp_->colorChanged,uiSelLineStyle::changeCB );
 	if ( stylesel_ )
 	    colinp_->attach( rightTo, stylesel_ );
-	else
+	else if ( !alobj )
 	    alobj = colinp_->attachObj();
     }
 
@@ -94,21 +98,29 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	else if ( !lbltxt.isEmpty() )
 	{
 	    new uiLabel( this, uiStrings::sEmptyString(), widthbox_ );
-	    alobj = widthbox_->attachObj();
+	    if ( !alobj )
+		alobj = widthbox_->attachObj();
 	}
 
-	widthbox_->box()->valueChanging.notify( 
-					mCB(this,uiSelLineStyle,changeCB) );
+	mAttachCB( widthbox_->box()->valueChanging,uiSelLineStyle::changeCB );
     }
 
-    setHAlignObj( alobj ); setHCenterObj( alobj );
+    setHAlignObj( alobj );
 }
 
 
 uiSelLineStyle::~uiSelLineStyle()
 {
+    detachAllNotifiers();
     delete &linestyle_;
 }
+
+
+void uiSelLineStyle::initGrp( CallBacker* )
+{
+    needlineCB(nullptr);
+}
+
 
 
 const OD::LineStyle& uiSelLineStyle::getStyle() const
@@ -168,7 +180,8 @@ int uiSelLineStyle::getWidth() const
 void uiSelLineStyle::setType( int tp )
 {
     linestyle_.type_ = (OD::LineStyle::Type)tp;
-    if ( stylesel_ ) stylesel_->setCurrentItem( tp );
+    if ( stylesel_ )
+	stylesel_->setValue( tp );
 }
 
 
@@ -181,7 +194,7 @@ int uiSelLineStyle::getType() const
 void uiSelLineStyle::changeCB( CallBacker* cb )
 {
     if ( stylesel_ )
-	linestyle_.type_ = (OD::LineStyle::Type)stylesel_->currentItem();
+	linestyle_.type_ = (OD::LineStyle::Type)stylesel_->getIntValue();
 
     if ( colinp_ )
     {
@@ -196,4 +209,31 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
     }
 
     changed.trigger(cb);
+}
+
+
+void uiSelLineStyle::needlineCB( CallBacker* cb )
+{
+    const bool ischecked = stylesel_->isChecked();
+    if ( colinp_ )
+	colinp_->setSensitive( ischecked );
+    if ( widthbox_ )
+	widthbox_->setSensitive( ischecked );
+    changeCB( cb );
+}
+
+
+bool uiSelLineStyle::doDraw() const
+{
+    return stylesel_ ? stylesel_->isChecked() : true;
+}
+
+
+void uiSelLineStyle::setDoDraw( bool yn )
+{
+    if ( stylesel_ )
+    {
+	stylesel_->setChecked( yn );
+	colinp_->setSensitive( yn );
+    }
 }

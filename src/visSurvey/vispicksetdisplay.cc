@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispicksetdisplay.h"
 
-
+#include "draw.h"
 #include "mousecursor.h"
 #include "pickset.h"
 #include "visemobjdisplay.h"
@@ -97,6 +97,13 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     markerset_->setMarkerStyle( markerstyle );
     markerset_->setMarkersSingleColor( set_->disp_.color_ );
 
+    OD::LineStyle ls;
+    ls.width_ = set_->disp_.width_;
+    ls.type_ = set_->disp_.type_;
+    ls.color_ = set_->disp_.linecolor_;
+    if ( polylines_ )
+	polylines_->setLineStyle( ls );
+
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
 
@@ -179,6 +186,12 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	    fullRedraw(0);
     }
 
+    if( bodydisplay_ &&
+	    bodydisplay_->getMaterial()->getColor() != set_->disp_.fillcolor_ )
+    {
+	bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
+    }
+
     LocationDisplay::dispChg( cb );
     markerset_->setMarkersSingleColor( set_->disp_.color_  );
     markerset_->forceRedraw( true );
@@ -191,10 +204,9 @@ void PickSetDisplay::updateLineStyle()
     if ( !polylines_ || !set_ )
 	return;
 
-    const int sz = set_->disp_.pixsize_;
-    const int width = (int)mMAX( sz, 1.0f );
-    polylines_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,width) );
-
+    const int sz = set_->disp_.width_;
+    polylines_->setLineStyle( OD::LineStyle(set_->disp_.type_,
+				sz,set_->disp_.linecolor_) );
 }
 
 
@@ -274,11 +286,11 @@ void PickSetDisplay::removePolylinePos( int idx )
     if ( !polylines_ || idx>polylines_->size() )
 	return;
 
-     if ( set_->disp_.connect_==Pick::Set::Disp::Close )
-     {
+    if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+    {
 	redrawLine();
 	return;
-     }
+    }
 
     polylines_->removePoint( idx );
 
@@ -401,7 +413,7 @@ void PickSetDisplay::createLine()
 
     addChild( polylines_->osgNode() );
     polylines_->setDisplayTransformation( transformation_ );
-    polylines_->setMaterial( 0 );
+    polylines_->setMaterial( new visBase::Material() );
 
     updateLineStyle();
 }
@@ -412,10 +424,8 @@ void PickSetDisplay::redrawLine()
     if ( !polylines_ || !set_ )
 	return;
 
-    int pixsize = set_->disp_.pixsize_;
-    OD::LineStyle ls;
-    ls.width_ = pixsize;
-    polylines_->setLineStyle( ls );
+    polylines_->setLineStyle( OD::LineStyle(set_->disp_.type_,
+				set_->disp_.width_,set_->disp_.linecolor_) );
 
     polylines_->removeAllPoints();
     int idx=0;
@@ -542,7 +552,7 @@ bool PickSetDisplay::setBodyDisplay()
 
     if ( !bodydisplay_->getMaterial() )
 	bodydisplay_->setMaterial( new visBase::Material );
-    bodydisplay_->getMaterial()->setColor( set_->disp_.color_ );
+    bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
     bodydisplay_->setDisplayTransformation( transformation_ );
 
     TypeSet<Coord3> picks;
@@ -552,6 +562,8 @@ bool PickSetDisplay::setBodyDisplay()
 	if ( datatransform_ )
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
+
+    setColor(set_->disp_.fillcolor_);
 
     return  bodydisplay_->setPoints( picks );
 }
@@ -721,7 +733,7 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
 void PickSetDisplay::setColor( Color nc )
 {
     if ( set_ )
-	set_->disp_.color_ = nc;
+	set_->disp_.fillcolor_ = nc;
 
     if ( !bodydisplay_ ) return;
 
@@ -729,7 +741,6 @@ void PickSetDisplay::setColor( Color nc )
 	bodydisplay_->setMaterial( new visBase::Material );
 
     bodydisplay_->getMaterial()->setColor( nc );
-    markerset_->setMarkersSingleColor( nc );
 }
 
 
@@ -743,7 +754,6 @@ void PickSetDisplay::setPixelDensity( float dpi )
 	bodydisplay_->setPixelDensity( dpi );
     if ( polylines_ )
 	polylines_->setPixelDensity( dpi );
-
 }
 
 
@@ -822,7 +832,7 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
     if ( !scene_ || ! scene_->getPolySelection() )
 	return;
 
-    color_ = set_->disp_.color_;
+    color_ = set_->disp_.linecolor_;
     const int diff = markerset_->size()-pickselstatus_.size();
     if ( diff !=0 ) // added new pos or removed pos. reset
     {
