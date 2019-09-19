@@ -509,6 +509,12 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 }
 
 
+Coord3 LocationDisplay::convertCoords( const Coord3& crd, bool disptoworld )
+{
+    return disptoworld ? display2World( crd ) : world2Display( crd );
+}
+
+
 Coord3 LocationDisplay::display2World( const Coord3& pos ) const
 {
     Coord3 res = pos;
