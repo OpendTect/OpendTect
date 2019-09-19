@@ -93,6 +93,8 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+    Coord3			convertCoords(const Coord3&,bool disptoworld);
+
 protected:
 				LocationDisplay();
     virtual void		setPosition(int idx,const Pick::Location&,
