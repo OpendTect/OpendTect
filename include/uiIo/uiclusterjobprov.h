@@ -40,18 +40,20 @@ protected:
     IOPar&		iopar_;
     const char*		prognm_;
     BufferString	tempstordir_;
+    BufferString	scriptdir_;
+    BufferString	parfnm_;
 
     uiGenInput*		nrinlfld_;
     uiLabel*		nrjobsfld_;
-    uiFileInput*	parfilefld_;
-    uiFileInput*	tmpstordirfld_;
-    uiFileInput*	scriptdirfld_;
     uiGenInput*		cmdfld_;
+
+    uiGenInput*		datarootfld_;
+    uiGenInput*		instdirfld_;
 
     void		nrJobsCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    bool		createJobScripts(const char*);
+    bool		createJobScripts(const char*,const char*);
     const char*		getOutPutIDKey() const;
     MultiID		getTmpID(const char*) const;
 };

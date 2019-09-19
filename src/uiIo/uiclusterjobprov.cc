@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 
 #include "dirlist.h"
@@ -57,13 +58,44 @@ static BufferString getDefTempStorDir()
 }
 
 
+static BufferString getExecScript( const char* instdir )
+{
+    FixedString instdirstr = instdir;
+    if ( instdirstr == GetSoftwareDir(false) )
+	return GetExecScript(0);
+
+    FilePath fp( instdir );
+    fp.add( "bin" ).add( "od_exec" );
+    return fp.fullPath( FilePath::Unix );
+}
+
+
+static BufferString convertPath( const char* fullpath,
+				 const char* localdir,
+				 const char* clusterdir )
+{
+    FilePath relpath;
+    FilePath fp( fullpath );
+    if ( !fp.isSubDirOf(localdir,&relpath) )
+	return fullpath;
+
+    fp.set( clusterdir );
+    fp.add( relpath.fullPath() );
+    return fp.fullPath( FilePath::Unix );
+}
+
+
+
 class ClusterJobCreator : public Executor
 { mODTextTranslationClass(ClusterJobCreator);
 public:
-ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
+ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* scriptdir,
+		   const char* dataroot, const char* instdir,
 		   const char* prognm )
     : Executor("Job generator")
-    , jobprov_(jobprov),dirnm_(dir),prognm_(prognm)
+    , jobprov_(jobprov),dirnm_(scriptdir),prognm_(prognm)
+    , localdataroot_(GetBaseDataDir())
+    , dataroot_(dataroot), instdir_(instdir)
     , curidx_(0)
 {
     FilePath fp( dirnm_.buf() ); fp.add( "X" );
@@ -92,8 +124,14 @@ od_int64 totalNr() const
     strm << "setenv " << s << " " << (envval ? envval : "") << od_endl; \
 }
 
-static bool writeScriptFile( const char* scrfnm, const char* prognm,
-			     const char* desc )
+
+BufferString getClusterPath( const char* fnm )
+{
+    return convertPath( fnm, localdataroot_, dataroot_ );
+}
+
+
+bool writeScriptFile( const char* scrfnm, const char* desc )
 {
     od_ostream strm( scrfnm );
     if ( !strm.isOK() )
@@ -101,19 +139,19 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
 
     strm << "#!/bin/csh -f " << od_endl;
 
-    strm << "setenv DTECT_DATA " << GetBaseDataDir() << od_endl;
+    strm << "setenv DTECT_DATA " << dataroot_ << od_endl;
     mSetEnvVar("LD_LIBRARY_PATH")
     mSetEnvVar("OD_APPL_PLUGIN_DIR")
     mSetEnvVar("OD_USER_PLUGIN_DIR")
-    strm << GetExecScript(false) << " " << prognm << " \\" << od_endl;
+    strm << getExecScript(instdir_) << " " << prognm_ << " \\" << od_endl;
     FilePath fp( scrfnm );
     fp.setExtension( ".par" );
-    strm << fp.fullPath().buf() << od_endl;
+    strm << getClusterPath(fp.fullPath().buf()) << od_endl;
     strm << "set exitcode = $status" << od_endl;
     strm << "echo \""; strm << desc;
     strm << " finished with code ${exitcode}\" >> \\" << od_endl;
     fp.setExtension( ".log" );
-    strm << fp.fullPath().buf() << od_endl;
+    strm << getClusterPath(fp.fullPath().buf()) << od_endl;
     strm << "exit ${exitcode}" << od_endl;
     strm.close();
     File::setPermissions( scrfnm, "711", 0 );
@@ -138,16 +176,16 @@ int nextStep()
     fp.setExtension( "par" );
     BufferString parfnm = fp.fullPath();
     fp.setExtension( "log" );
-    BufferString logfnm = fp.fullPath();
+    BufferString logfnm = getClusterPath( fp.fullPath() );
     iop.set( sKey::LogFile(), logfnm );
-    iop.set( sKey::DataRoot(), GetBaseDataDir() );
+    iop.set( sKey::DataRoot(), dataroot_ );
     iop.set( sKey::Survey(), IOM().surveyName() );
     if ( !iop.write(parfnm.buf(),sKey::Pars()) )
 	return ErrorOccurred();
 
     fp.setExtension( "scr" );
     BufferString scrfnm = fp.fullPath();
-    if ( !writeScriptFile(scrfnm.buf(),prognm_.buf(),desc.buf()))
+    if ( !writeScriptFile(scrfnm.buf(),desc.buf()) )
 	return ErrorOccurred();
 
     return MoreToDo();
@@ -155,10 +193,13 @@ int nextStep()
 
 protected:
 
-	const InlineSplitJobDescProv&	jobprov_;
-	BufferString			dirnm_;
-	BufferString			prognm_;
-	int				curidx_;
+    const InlineSplitJobDescProv&	jobprov_;
+    BufferString			dirnm_;
+    BufferString			prognm_;
+    BufferString			localdataroot_;
+    BufferString			dataroot_;
+    BufferString			instdir_;
+    int					curidx_;
 
 };
 
@@ -166,6 +207,11 @@ protected:
 static const char* sKeyClusterProcCommand()
 { return "dTect.Cluster Proc Command"; }
 
+static const char* sKeyClusterDataRoot()
+{ return "dTect.Data Root"; }
+
+static const char* sKeyClusterInstDir()
+{ return "dTect.Installation Dir"; }
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm )
@@ -173,9 +219,12 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				 uiString::emptyString(),
 				 mODHelpKey(mClusterJobProvHelpID))
 			.oktext(uiStrings::sContinue()))
+    , iopar_(*new IOPar(iop))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())
-    , iopar_(*new IOPar(iop))
+    , parfnm_(parfnm)
+    , datarootfld_(nullptr)
+    , instdirfld_(nullptr)
 {
     jobprov_ = new InlineSplitJobDescProv( iop );
 
@@ -184,31 +233,8 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				IntInpSpec(nrinl) );
     nrinlfld_->valuechanging.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 
-    nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
-    nrjobsfld_->attach( alignedBelow, nrinlfld_ );
-
-    parfilefld_ = new uiFileInput( this, uiStrings::sParFile(),
-		    uiFileInput::Setup(uiFileDialog::Gen,parfnm)
-		    .forread(false).filter("*.par;;").confirmoverwrite(false) );
-    parfilefld_->attach( alignedBelow, nrjobsfld_ );
-
-    tmpstordirfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
-				    tr("Temporary"), uiStrings::sStorageDir()),
-				    tempstordir_.buf() );
-    tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
-    tmpstordirfld_->attach( alignedBelow, parfilefld_ );
-
-    FilePath fp( parfnm );
-    fp.setExtension( 0 );
-    BufferString filenm = fp.fileName();
-    filenm += "_scriptdir";
-    fp.setFileName( filenm.buf() );
-    if ( !File::isDirectory(fp.fullPath()) )
-	File::createDir( fp.fullPath() );
-    scriptdirfld_ = new uiFileInput( this, uiStrings::phrStorageDir(
-				     tr("for scripts")), fp.fullPath() );
-    scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
-    scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
+    nrjobsfld_ = new uiLabel( this, tr("Total nr of jobs: 0000") );
+    nrjobsfld_->attach( rightTo, nrinlfld_ );
 
     BufferString cmd = "qsub";
     if ( !Settings::common().get(sKeyClusterProcCommand(),cmd) )
@@ -216,7 +242,35 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 
     cmdfld_ = new uiGenInput( this, tr("Cluster Processing command"),
 			      StringInpSpec(cmd) );
-    cmdfld_->attach( alignedBelow, scriptdirfld_ );
+    cmdfld_->setElemSzPol( uiObject::Wide );
+    cmdfld_->attach( alignedBelow, nrinlfld_ );
+
+    bool showpathflds = __iswin__;
+#ifdef __debug__
+    showpathflds = true;
+#endif
+    if ( showpathflds )
+    {
+	uiSeparator* sep = new uiSeparator( this );
+	sep->attach( stretchedBelow, cmdfld_ );
+
+	datarootfld_ = new uiGenInput( this, tr("Survey DataRoot on cluster") );
+	datarootfld_->setElemSzPol( uiObject::Wide );
+	datarootfld_->attach( alignedBelow, cmdfld_ );
+	datarootfld_->attach( ensureBelow, sep );
+
+	instdirfld_ = new uiGenInput( this,
+			tr("OpendTect installation folder on cluster") );
+	instdirfld_->setElemSzPol( uiObject::Wide );
+	instdirfld_->attach( alignedBelow, datarootfld_ );
+
+	BufferString dirstr = GetBaseDataDir();
+	Settings::common().get( sKeyClusterDataRoot(), dirstr );
+	datarootfld_->setText( dirstr );
+	dirstr = GetSoftwareDir( false );
+	Settings::common().get( sKeyClusterInstDir(), dirstr );
+	instdirfld_->setText( dirstr );
+    }
 
     postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 }
@@ -237,6 +291,20 @@ void uiClusterJobProv::nrJobsCB( CallBacker* )
 }
 
 
+static BufferString getScriptDir( const char* parfnm )
+{
+    FilePath fp( parfnm );
+    fp.setExtension( nullptr );
+    BufferString filenm = fp.fileName();
+    filenm += "_scriptdir";
+    fp.setFileName( filenm.buf() );
+    if ( !File::isDirectory(fp.fullPath()) )
+	File::createDir( fp.fullPath() );
+
+    return fp.fullPath();
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiClusterJobProv::acceptOK( CallBacker* )
 {
@@ -244,22 +312,13 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( mIsUdf(nrinlperjob) || nrinlperjob < 1 )
 	mErrRet( tr("Please specify number of inlines per job"))
 
-    BufferString parfnm = parfilefld_->fileName();
-    if ( parfnm.isEmpty() )
-	mErrRet( tr("Please enter a valid par file name"))
+    FixedString cmd = cmdfld_->text();
+    if ( cmd.isEmpty() )
+	mErrRet(tr("Please enter a valid command for submitting jobs"))
 
-    BufferString tmpdir = tmpstordirfld_->fileName();
-    if ( tmpdir.isEmpty() || !File::isDirectory(tmpdir) )
-	mErrRet(tr("Please make a valid entry for temporary storage directory"))
+    scriptdir_ = getScriptDir( parfnm_ );
 
-    BufferString scriptdir = scriptdirfld_->fileName();
-    if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )
-	mErrRet( tr("Please make a valid entry for script storage directory"))
-
-    if ( tempstordir_ != tmpdir )
-	File::remove( tempstordir_.buf() );
-
-    const MultiID tmpid = getTmpID( tmpdir.buf() );
+    const MultiID tmpid = getTmpID( tempstordir_.buf() );
     MultiID outseisid;
     iopar_.get( getOutPutIDKey(), outseisid );
     iopar_.set( getOutPutIDKey(), tmpid );
@@ -267,46 +326,75 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     jobprov_ = new InlineSplitJobDescProv( iopar_ );
     jobprov_->setNrInlsPerJob( nrinlperjob );
     iopar_.set( "Output.ID", outseisid );
-    iopar_.set( "Script dir", scriptdir.buf() );
-    iopar_.set( sKey::TmpStor(), tmpdir.buf() );
-    const char* cmd = cmdfld_->text();
-    if ( !cmd || !*cmd )
-	mErrRet(tr("Please enter a valid command for submitting jobs"))
+
+    BufferString dataroot = datarootfld_ ? datarootfld_->text() : "";
+    if ( dataroot.isEmpty() )
+	dataroot = GetBaseDataDir();
+    BufferString instdir = instdirfld_ ? instdirfld_->text() : "";
+    if ( instdir.isEmpty() )
+	instdir = GetSoftwareDir(false);
 
     Settings& setts = Settings::common();
-    setts.set( sKeyClusterProcCommand(), cmd );
+    setts.set( sKeyClusterProcCommand(), cmd.buf() );
+    setts.set( sKeyClusterDataRoot(), dataroot.buf() );
+    setts.set( sKeyClusterInstDir(), instdir.buf() );
     setts.write();
 
+    const BufferString clusterscriptdir =
+		convertPath(scriptdir_,GetBaseDataDir(),dataroot);
+    iopar_.set( "Script dir", clusterscriptdir );
+    iopar_.set( sKey::TmpStor(),
+		convertPath(tempstordir_,GetBaseDataDir(),dataroot) );
+    iopar_.set( sKey::DataRoot(), dataroot );
     iopar_.set( "Command", cmd );
-    if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
+    if ( !iopar_.write(parfnm_.buf(),sKey::Pars()) )
 	mErrRet(tr("Failed to write parameter file"))
 
-    if ( !createJobScripts(scriptdir.buf()) )
+    if ( !createJobScripts(dataroot,instdir) )
 	mErrRet(tr("Failed to split jobs"))
 
-    uiString msg = tr("Job scripts "
-		      "have been created successfully. Execute now?");
-    if ( uiMSG().askGoOn(msg) )
+    BufferString localcmd = GetExecScript( false );
+    localcmd.addSpace().add( "od_ClusterProc" ).add( " --dosubmit " )
+	    .add( parfnm_ );
+
+    uiString msg = tr("Job scripts have been created successfully.");
+    if ( !__iswin__ )
     {
-	BufferString comm( "@" );
-	comm += GetExecScript( false );
-	comm += " "; comm += "od_ClusterProc";
-	comm += " --dosubmit "; comm += parfnm;
-	if ( !OS::ExecCommand(comm,OS::RunInBG) )
-	    { uiMSG().error( uiStrings::phrCannotStart(
-			     uiStrings::sBatchProgram()) ); return false; }
+	uiString execmsg = msg;
+	execmsg.append( tr("Execute now?"), true );
+	if ( uiMSG().askGoOn(execmsg) )
+	{
+	    BufferString comm( "@" );
+	    comm += localcmd;
+	    if ( !OS::ExecCommand(comm,OS::RunInBG) )
+	    {
+		uiMSG().error(
+		    uiStrings::phrCannotStart(uiStrings::sBatchProgram()) );
+		return false;
+	    }
+
+	    return true;
+	}
+
+	msg.setEmpty();
     }
+
+    msg.append( tr("Scripts are located in %1\n"
+		   "and ready to be executed on your cluster")
+		.arg(clusterscriptdir), true );
+    uiMSG().message( msg );
 
     return true;
 }
 
 
-bool uiClusterJobProv::createJobScripts( const char* scriptdir )
+bool uiClusterJobProv::createJobScripts( const char* dataroot,
+					 const char* instdir )
 {
     if ( !jobprov_ || !jobprov_->nrJobs() )
 	mErrRet(tr("No jobs to generate"))
 
-    ClusterJobCreator exec( *jobprov_, scriptdir, prognm_ );
+    ClusterJobCreator exec( *jobprov_, scriptdir_, dataroot, instdir, prognm_ );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, exec);
 }
