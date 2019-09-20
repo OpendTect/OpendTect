@@ -79,15 +79,14 @@ SeisDataPackWriter::~SeisDataPackWriter()
 
 void SeisDataPackWriter::getPosInfo()
 {
+    totalnr_ = hss_->totalSize();
+
     const auto* pi = dp_->tracePositions();
     if ( pi && !pi->isCubeData() )
 	{ pErrMsg("2D not properly supported yet"); }
-
-    lcd_ = pi ? pi->asCubeData() : nullptr;
-    if ( lcd_ && !lcd_->isFullyRegular() )
-	totalnr_ = lcd_->totalSizeInside( *hss_ );
-    else
-	totalnr_ = hss_->totalNr();
+    else if ( pi )
+	totalnr_ = lcd_->asCubeData()->totalSizeInside(
+			    *hss_->asCubeHorSubSel() );
 }
 
 
@@ -123,7 +122,7 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 	 type != BufferString(sKey::Steering()) )
 	return;
 
-    const auto& lhss = *dp_->horSubSel().asLineSubSel();
+    const auto& lhss = *dp_->horSubSel().asLineHorSubSel();
     const auto& geom2d = lhss.geometry2D();
     if ( geom2d.isEmpty() )
 	return;
@@ -133,7 +132,7 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );
 
-    double zstep = dp_->sampling().zsamp_.step;
+    double zstep = dp_->subSel().zRange().step;
     const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZUnit();
     const ZDomain::Def& zdef = SI().zDomain();
     if ( zuom && zdef.isDepth() )
@@ -151,12 +150,6 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
 }
 
 
-od_int64 SeisDataPackWriter::nrDone() const
-{
-    return nrdone_;
-}
-
-
 void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
@@ -166,7 +159,7 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
     if ( cubezrgidx_.stop >= dp.subSel().nrZ() )
 	cubezrgidx_.stop = dp.subSel().nrZ()-1;
 
-    setSelection( dp_->subSel() );
+    setSelection( dp_->horSubSel() );
 }
 
 
@@ -176,24 +169,19 @@ void SeisDataPackWriter::setSelection( const HorSubSel& hss,
     delete hss_; delete iterator_;
     hss_ = hss.duplicate();
     iterator_ = new HorSubSelIterator( *hss_ );
-    totalnr_ = lcd_ ? lcd_->totalSizeInside( *hss_ )
-			: mCast(int,hrg.totalNr());
+    totalnr_ = dp_->is2D() || !lcd_ ? hss_->totalSize()
+				    : lcd_->asCubeData()->totalSizeInside(
+						*hss_->asCubeHorSubSel() );
     delete seldata_;
-    seldata_ = new Seis::RangeSelData( tks_ );
+    seldata_ = new Seis::RangeSelData( *hss_ );
 
     if ( !cubezrgidx )
 	return;
 
-    if ( cubezrgidx->stop >= dp_->sampling().nrZ() )
+    if ( cubezrgidx->stop >= dp_->subSel().nrZ() )
 	{ msg_ = mINTERNAL("Invalid selection"); cubezrgidx_.setUdf(); return; }
 
     cubezrgidx_ = *cubezrgidx;
-}
-
-
-od_int64 SeisDataPackWriter::totalNr() const
-{
-    return totalnr_;
 }
 
 
@@ -220,9 +208,9 @@ bool SeisDataPackWriter::setTrc()
     delete trc_;
     trc_ = new SeisTrc( trcsz );
 
-    trc_->info().sampling_.start = dp_->sampling().zsamp_.atIndex(
-				  cubezrgidx_.start );
-    trc_->info().sampling_.step = dp_->sampling().zsamp_.step;
+    const auto zrg = dp_->subSel().zRange();
+    trc_->info().sampling_.start = zrg.atIndex( cubezrgidx_.start );
+    trc_->info().sampling_.step = zrg.step;
 
     BufferStringSet compnames;
     compnames.add( dp_->getComponentName() );
@@ -245,10 +233,11 @@ int SeisDataPackWriter::nextStep()
     if ( !trc_ && !setTrc() )
 	return ErrorOccurred();
 
+    const bool is2d = dp_->is2D();
     if ( lcd_ )
     {
-	if ( (is2D() && !lcd_->includes(iterator_->bin2D()))
-	  || (!is2D() && !lcd_->includes(iterator_->binID())) )
+	if ( (is2d && !lcd_->includes(iterator_->bin2D()))
+	  || (!is2d && !lcd_->includes(iterator_->binID())) )
 	    return iterator_->next() ? MoreToDo() : Finished();
     }
 
@@ -261,7 +250,7 @@ int SeisDataPackWriter::nextStep()
     trc_->info().coord_ = currentpos.getCoord();
     const auto& hss = dp_->horSubSel();
     int linepos = 0; int trcpos = 0;
-    if ( is2D() )
+    if ( is2d )
 	trcpos = hss.asLineHorSubSel()->idx4TrcNr( currentpos.trcNr() );
     else
     {

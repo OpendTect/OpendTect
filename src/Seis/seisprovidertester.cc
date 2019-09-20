@@ -288,7 +288,7 @@ Seis::PreLoader* Seis::ProviderTester::preLoad( const CubeSubSel& css ) const
     auto* pl = new PreLoader( prov_->dbKey() );
 
     if ( !prov_->isPS() )
-	pl->load( TrcKeyZSampling(css) );
+	pl->load( &css );
     else
     {
 	const auto linerg = css.inlRange();
@@ -304,21 +304,17 @@ Seis::PreLoader* Seis::ProviderTester::preLoad(
     auto* pl = new PreLoader( prov_->dbKey() );
 
     const bool isps = prov_->isPS();
-    TypeSet<TrcKeyZSampling> tkzss;
-    GeomIDSet gids;
+    ObjectSet<GeomSubSel> gsss;
     for ( auto lss : lsss )
     {
 	if ( isps )
 	    pl->loadPS2D( lss->geomID().name() );
 	else
-	{
-	    tkzss += TrcKeyZSampling( *lss );
-	    gids += lss->geomID();
-	}
+	    gsss += lss;
     }
 
     if ( !isps )
-	pl->load( tkzss, gids );
+	pl->load( gsss );
 
     return pl;
 }

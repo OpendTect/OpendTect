@@ -39,11 +39,15 @@ mExpClass(Basic) SubSel
 {
 public:
 
-    mUseType( Pos,		GeomID );
-    mUseType( Survey,		Geometry );
-    mUseType( Survey,		Geometry2D );
-    mUseType( Survey,		Geometry3D );
-    typedef od_int64		totalsz_type;
+    mUseType( ArrRegSubSel::SSData,	idx_type );
+    mUseType( ArrRegSubSel::SSData,	size_type );
+    mUseType( Pos,			GeomID );
+    mUseType( Pos,			IdxSubSelData );
+    mUseType( IdxSubSelData,		pos_type );
+    mUseType( Survey,			Geometry );
+    mUseType( Survey,			Geometry2D );
+    mUseType( Survey,			Geometry3D );
+    typedef od_int64			totalsz_type;
 
     virtual			~SubSel()			{}
     bool			operator ==( const SubSel& oth ) const
@@ -78,7 +82,7 @@ mExpClass(Basic) HorSubSel : public SubSel
 {
 public:
 
-    typedef Index_Type		trcnr_type;
+    typedef pos_type		trcnr_type;
 
     bool			operator ==( const HorSubSel& oth ) const
 				{ return equals( oth ); }
@@ -105,8 +109,13 @@ public:
     virtual StepInterval<trcnr_type> trcNrRange() const
 				{ return StepInterval<trcnr_type>(
 				    trcNrStart(), trcNrStop(), trcNrStep() ); }
-    inline int			trcNrSize() const
+    inline size_type			trcNrSize() const
 				{ return trcNrRange().nrSteps()+1; }
+
+    pos_type			lineNr4Idx(idx_type) const;
+    pos_type			trcNr4Idx(idx_type) const;
+    idx_type			idx4LineNr(pos_type) const;
+    idx_type			idx4TrcNr(pos_type) const;
 
 protected:
 

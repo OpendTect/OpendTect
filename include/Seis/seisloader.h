@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "paralleltask.h"
 #include "survgeom.h"
-#include "trckeyzsampling.h"
+#include "linesubsel.h"
+#include "cubesubsel.h"
 #include "uistring.h"
 
 class BinDataDesc;
@@ -40,6 +41,7 @@ public:
 
     mUseType( PosInfo,	LineCollData );
     mUseType( PosInfo,	LineCollDataIterator );
+    mUseType( Survey,	GeomSubSel );
 
     virtual		~Loader();
 
@@ -56,15 +58,16 @@ public:
     virtual uiString	nrDoneText() const;
     virtual uiString	message() const			{ return msg_; }
 
-    virtual od_int64	totalNr() const { return tkzs_.hsamp_.totalNr(); }
+    virtual od_int64	totalNr() const { return reqss_->totalSize(); }
 
 protected:
-			Loader(const IOObj&,const TrcKeyZSampling*,
+
+			Loader(const IOObj&,const GeomSubSel*,
 			       const TypeSet<int>* components);
 
     bool		setOutputComponents();
-    bool		setTracePositionsFromProv(const Provider&);
-    void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
+    void		setTracePositionsFromProv(const Provider&);
+    void		adjustDPDescToScalers(const BinDataDesc&);
     void		submitUdfWriterTasks();
     void		releaseDP();
 
@@ -74,7 +77,7 @@ protected:
     Threads::Atomic<bool> arrayfillererror_;
     bool		udftraceswritefinished_;
     IOObj*		ioobj_;
-    TrcKeyZSampling	tkzs_;
+    GeomSubSel*		reqss_;
 
     DataCharacteristics dc_;
     TypeSet<int>	components_;
@@ -108,9 +111,9 @@ mExpClass(Seis) ParallelFSLoader3D : public Loader
 				   , public ParallelTask
 { mODTextTranslationClass(ParallelFSLoader3D)
 public:
-			ParallelFSLoader3D(const IOObj&,const TrcKeyZSampling&);
-			/*!<Calculates nr of comps and allocates cubes to
-			    fit the cs. */
+			ParallelFSLoader3D(const IOObj&,const CubeSubSel&);
+			    /*!<Calculates nr of comps and allocates cubes to
+				fit the cs. */
 			~ParallelFSLoader3D();
 
     void		setDataPack(RegularSeisDataPack*);
@@ -128,7 +131,7 @@ private:
     bool		doWork(od_int64,od_int64,int);
     bool		executeParallel(bool);
 
-    ObjectSet<TrcKeySampling>	tks_;
+    ObjectSet<CubeSubSel>	csss_;
 
 };
 
@@ -142,7 +145,7 @@ mExpClass(Seis) ParallelFSLoader2D : public Loader
 { mODTextTranslationClass(ParallelFSLoader2D)
 public:
 			ParallelFSLoader2D(const IOObj&,
-					   const TrcKeyZSampling&,
+					   const LineSubSel&,
 					   const TypeSet<int>* comps=0);
 			/*!<Calculates nr of comps and allocates arrays to
 			    fit the cs. */
@@ -179,12 +182,10 @@ mExpClass(Seis) SequentialFSLoader : public Loader
 				   , public Executor
 { mODTextTranslationClass(SequentialFSLoader)
 public:
+
 			SequentialFSLoader(const IOObj&,
-					   const TrcKeyZSampling* =0,
+					   const GeomSubSel* gss=0,
 					   const TypeSet<int>* components=0);
-			/*!< For 2D data, pass line GeomID as lineNr in
-			     TrcKeySampling
-			*/
 			~SequentialFSLoader();
 
     bool		setDataPack(RegularSeisDataPack&,od_ostream* strm=0);
@@ -229,6 +230,9 @@ private:
 mExpClass(Seis) SequentialPSLoader : public Executor
 { mODTextTranslationClass(SequentialPSLoader)
 public:
+
+    mUseType( Survey,	GeomSubSel );
+
 			SequentialPSLoader(const IOObj&,
 					   const Interval<int>* linerg=0,
 					   Pos::GeomID geomid=mUdfGeomID);
@@ -256,5 +260,6 @@ protected:
     od_int64		nrdone_;
     uiString		msg_;
 };
+
 
 } // namespace Seis

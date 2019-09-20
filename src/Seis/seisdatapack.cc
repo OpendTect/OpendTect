@@ -388,6 +388,20 @@ const PosInfo::LineCollData* RegularSeisDataPack::tracePositions() const
 }
 
 
+Survey::GeomSubSel& RegularSeisDataPack::subSel()
+{
+    if ( !subsel_ )
+	{ pErrMsg("No subsel"); subsel_ = new CubeSubSel(); }
+    return *subsel_;
+}
+
+
+const Survey::GeomSubSel& RegularSeisDataPack::subSel() const
+{
+    return mSelf().subSel();
+}
+
+
 void RegularSeisDataPack::setSubSel( const GeomSubSel& newss )
 {
     if ( !subsel_ || *subsel_ != newss )

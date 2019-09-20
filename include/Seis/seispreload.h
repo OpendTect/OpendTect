@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ranges.h"
 #include "survgeom.h"
+#include "survsubsel.h"
 #include "taskrunner.h"
 
 class Scaler;
@@ -31,6 +32,7 @@ mExpClass(Seis) PreLoader
 public:
 
     mUseType( Pos,	GeomID );
+    mUseType( Survey,	GeomSubSel );
 
 			PreLoader(const DBKey&);
 			PreLoader(const DBKey&,const TaskRunnerProvider&);
@@ -47,10 +49,10 @@ public:
     void		getLineNames(BufferStringSet&) const;
 			//!< Line 2D only.
 
-    bool		load(const TrcKeyZSampling&,
+    bool		load(const GeomSubSel*,
 				DataCharacteristics::UserType=OD::AutoDataRep,
 				const Scaler* =0) const;
-    bool		load(const TypeSet<TrcKeyZSampling>&,const GeomIDSet&,
+    bool		load(const ObjectSet<GeomSubSel>&,
 			     DataCharacteristics::UserType=OD::AutoDataRep,
 			     const Scaler* =0) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;

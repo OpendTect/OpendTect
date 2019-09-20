@@ -98,19 +98,22 @@ bool Seis::PreLoader::runTask( Task& tsk ) const
     if ( !ioobj ) \
 	return false; \
 
-bool Seis::PreLoader::load( const TrcKeyZSampling& tkzs,
+bool Seis::PreLoader::load( const GeomSubSel* reqss,
 			 DataCharacteristics::UserType type,
 			 const Scaler* scaler ) const
 {
     mPrepIOObj();
     const uiString caption = tr("Pre-loading '%1'").arg( ioobj->name() );
 
-    TrcKeyZSampling tkzstoload( tkzs );
-    const SeisIOObjInfo info( dbkey_ );
-    if ( !tkzs.hsamp_.isDefined() && info.is2D() )
-	tkzstoload.hsamp_ = TrcKeySampling( defgeomid_ );
+    PtrMan<GeomSubSel> ss2load;
+    if ( reqss )
+	ss2load = reqss->duplicate();
+    else if ( defgeomid_.is3D() )
+	ss2load = new CubeSubSel;
+    else
+	ss2load = new LineSubSel( defgeomid_ );
 
-    SequentialFSLoader rdr( *ioobj, tkzstoload.isDefined() ? &tkzstoload : 0 );
+    SequentialFSLoader rdr( *ioobj, ss2load );
     rdr.setName( toString(caption) );
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
@@ -127,8 +130,7 @@ bool Seis::PreLoader::load( const TrcKeyZSampling& tkzs,
 }
 
 
-bool Seis::PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
-		      const GeomIDSet& geomids,
+bool Seis::PreLoader::load( const ObjectSet<GeomSubSel>& sss,
 		      DataCharacteristics::UserType type,
 		      const Scaler* scaler ) const
 {
@@ -138,19 +140,18 @@ bool Seis::PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
     TaskGroup taskgrp;
     ObjectSet<SequentialFSLoader> rdrs;
     GeomIDSet loadedgeomids;
-    for ( int idx=0; idx<tkzss.size(); idx++ )
+    for ( int idx=0; idx<sss.size(); idx++ )
     {
-	const Pos::GeomID& geomid = geomids[idx];
-	TrcKeyZSampling tkzs( tkzss[idx] );
-	if ( !tkzs.hsamp_.isDefined() )
-	    tkzs.hsamp_ = TrcKeySampling( geomid );
+	const auto* gss = sss.get( idx );
+	if ( !gss )
+	    continue;
 
-	SequentialFSLoader* rdr = new SequentialFSLoader( *ioobj, &tkzs );
+	SequentialFSLoader* rdr = new SequentialFSLoader( *ioobj, gss );
 	rdr->setName( toString(caption) );
 	rdr->setScaler( scaler );
 	rdr->setDataChar( type );
 	taskgrp.addTask( rdr );
-	loadedgeomids.add( geomid );
+	loadedgeomids.add( gss->geomID() );
 	rdrs.add( rdr );
     }
 
@@ -159,7 +160,7 @@ bool Seis::PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
     for ( int idx=0; idx<rdrs.size(); idx++ )
     {
 	SequentialFSLoader& rdr = *rdrs[idx];
-	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
+	const auto loadedgeomid = loadedgeomids[idx];
 	ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
 	if ( !dp )
 	    continue;
@@ -291,14 +292,14 @@ void Seis::PreLoader::doLoadObj( const IOPar& iop,
     switch ( gt )
     {
 	case Vol: {
-	    TrcKeyZSampling tkzs( true );
-	    tkzs.usePar( iop );
-	    spl.load( tkzs, usertype, scaler );
+	    CubeSubSel css;
+	    css.usePar( iop );
+	    spl.load( &css, usertype, scaler );
 	} break;
 	case Line: {
-	    TrcKeyZSampling tkzs( false );
-	    tkzs.usePar( iop );
-	    spl.load( tkzs, usertype, scaler );
+	    LineSubSel lss( geomid );
+	    lss.usePar( iop );
+	    spl.load( &lss, usertype, scaler );
 	} break;
 	case VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;

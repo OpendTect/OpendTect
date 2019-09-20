@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ptrman.h"
 #include "geomid.h"
+#include "survsubsel.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -45,6 +46,7 @@ mExpClass(Seis) ProviderTester
 public:
 
     mUseType( Pos,	GeomID );
+    mUseType( Survey,	GeomSubSel );
 
 			ProviderTester(bool bequiet,const char* survnm=0);
 			ProviderTester(GeomType,bool bequiet,

@@ -63,6 +63,7 @@ public:
 			CubeSubSel(const CubeSampling&);
 			CubeSubSel(const TrcKeySampling&);
 			CubeSubSel(const TrcKeyZSampling&);
+			CubeSubSel(const CubeSubSel&,int nrchunks,int chunknr);
     bool		operator ==( const CubeSubSel& oth ) const
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(CubeSubSel)

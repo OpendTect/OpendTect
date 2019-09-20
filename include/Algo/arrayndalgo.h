@@ -1801,16 +1801,22 @@ mClass(Algo) Array3DUdfTrcRestorer : public ParallelTask
 { mODTextTranslationClass(Array3DUdfTrcRestorer)
 public:
 
-Array3DUdfTrcRestorer( const PosInfo::CubeData& cd, const CubeHorSubSel& hss,
+    mUseType( Survey, HorSubSel );
+
+Array3DUdfTrcRestorer( const PosInfo::LineCollData& lcd, const HorSubSel& hss,
 		       Array3D<T>& arr )
     : ParallelTask("Udf traces restorer")
-    , cubedata_(cd)
+    , lcd_(lcd.clone())
     , hss_(hss)
     , arr_(arr)
-    , totalnr_(cubedata_.size())
+    , totalnr_(lcd_->size())
 {
-    cubedata_.limitTo( hss );
-    havesubsel_ = !cubedata_.isAll( hss );
+    lcd_->limitTo( hss );
+}
+
+~Array3DUdfTrcRestorer()
+{
+    delete lcd_;
 }
 
 uiString message() const	{ return tr("Restoring undefined values"); }
@@ -1828,13 +1834,13 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	const auto& ld = *cubedata_.get( (int)idx );
-	const auto idx0 = hss_.idx4Inl( ld.linenr_ );
+	const auto& ld = *lcd_->get( (int)idx );
+	const auto idx0 = hss_.idx4LineNr( ld.linenr_ );
 	T* linestart = dataptr + idx0 * slcsz;
 	PosInfo::LineDataPos ldp;
 	while ( ld.toNext(ldp) )
 	{
-	    const auto idx1 = hss_.idx4Crl( ld.pos(ldp) );
+	    const auto idx1 = hss_.idx4TrcNr( ld.pos(ldp) );
 	    if ( dataptr )
 	    {
 		T* trcdata = linestart + idx1 * trcsz;
@@ -1853,9 +1859,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 }
 
     Array3D<T>&			arr_;
-    PosInfo::CubeData		cubedata_;
-    const CubeHorSubSel		hss_;
-    bool			havesubsel_;
+    PosInfo::LineCollData*	lcd_;
+    const HorSubSel&		hss_;
     const od_int64		totalnr_;
 
 };

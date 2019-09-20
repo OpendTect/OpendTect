@@ -27,6 +27,10 @@ mExpClass(Basic) LineHorSubSel : public Pos::IdxSubSel1D
 {
 public:
 
+    mUseType( Survey,		HorSubSel );
+    mUseType( HorSubSel,	idx_type );
+    mUseType( HorSubSel,	size_type );
+    mUseType( HorSubSel,	pos_type );
     typedef Pos::IdxSubSelData	TrcNrSubSelData;
 
 			LineHorSubSel(GeomID);
@@ -153,9 +157,13 @@ mExpClass(Basic) CubeHorSubSel : public Pos::IdxSubSel2D
 {
 public:
 
-    mUseType( Survey,	Geometry );
-    mUseType( Survey,	Geometry3D );
-    mUseType( Pos,	IdxSubSelData );
+    mUseType( Survey,		HorSubSel );
+    mUseType( Survey,		Geometry );
+    mUseType( Survey,		Geometry3D );
+    mUseType( HorSubSel,	idx_type );
+    mUseType( HorSubSel,	size_type );
+    mUseType( HorSubSel,	pos_type );
+    mUseType( Pos,		IdxSubSelData );
 
 			CubeHorSubSel(OD::SurvLimitType slt=OD::FullSurvey);
 			CubeHorSubSel(const Geometry3D&);
@@ -165,6 +173,8 @@ public:
 			CubeHorSubSel(const BinID&);
 			CubeHorSubSel(const CubeSubSel&);
 			CubeHorSubSel(const TrcKeySampling&);
+			CubeHorSubSel(const CubeHorSubSel&,int nrchunks,
+							   int chunknr);
     bool		operator ==( const CubeHorSubSel& oth ) const
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(CubeHorSubSel)

@@ -170,6 +170,32 @@ void Survey::HorSubSel::fillPar( IOPar& iop ) const
 }
 
 
+Survey::HorSubSel::pos_type Survey::HorSubSel::lineNr4Idx( idx_type idx ) const
+{
+    return is2D() ? 0 : asCubeHorSubSel()->inl4Idx( idx );
+}
+
+
+Survey::HorSubSel::pos_type Survey::HorSubSel::trcNr4Idx( idx_type idx ) const
+{
+    return is2D() ? asLineHorSubSel()->trcNr4Idx( idx )
+		  : asCubeHorSubSel()->crl4Idx( idx );
+}
+
+
+Survey::HorSubSel::idx_type Survey::HorSubSel::idx4LineNr( pos_type idx ) const
+{
+    return is2D() ? 0 : asCubeHorSubSel()->inl4Idx( idx );
+}
+
+
+Survey::HorSubSel::idx_type Survey::HorSubSel::idx4TrcNr( pos_type idx ) const
+{
+    return is2D() ? asLineHorSubSel()->idx4TrcNr( idx )
+		  : asCubeHorSubSel()->idx4Crl( idx );
+}
+
+
 Survey::HorSubSelIterator::HorSubSelIterator( const HorSubSel& hss )
     : hss_(const_cast<HorSubSel&>(hss))
     , nrtrcs_(hss.trcNrRange().nrSteps()+1)
@@ -731,6 +757,36 @@ CubeHorSubSel::CubeHorSubSel( const TrcKeySampling& tks )
 }
 
 
+CubeHorSubSel::CubeHorSubSel( const CubeHorSubSel& org, int nrchunks,
+							int chunknr )
+    : Pos::IdxSubSel2D( org.inlRange(), org.crlRange() )
+{
+    if ( nrchunks < 2 )
+	return;
+
+    const auto orgnrinl = nrInl();
+    auto chunksz = orgnrinl / nrchunks;
+    if ( chunksz < 1 )
+	chunksz = 1;
+
+    auto startidx = chunksz * chunknr;
+    if ( startidx >= orgnrinl )
+	startidx = orgnrinl-1;
+    if ( startidx < 0 )
+	return;
+
+    auto stopidx = startidx + chunksz - 1;
+    if ( chunknr == nrchunks-1 )
+	stopidx = orgnrinl - 1;
+
+    pos_steprg_type inlrg;
+    inlrg.start = inl4Idx( startidx );
+    inlrg.stop = inl4Idx( stopidx );
+    inlrg.step = inlSubSel().posStep();
+    setInlRange( inlrg );
+}
+
+
 bool CubeHorSubSel::equals( const SubSel& ss ) const
 {
     mDynamicCastGet( const CubeHorSubSel*, oth, &ss );
@@ -1151,6 +1207,13 @@ CubeSubSel::CubeSubSel( const TrcKeyZSampling& tkzs )
     setInlRange( tkzs.hsamp_.lineRange() );
     setCrlRange( tkzs.hsamp_.trcRange() );
     setZRange( tkzs.zsamp_ );
+}
+
+
+CubeSubSel::CubeSubSel( const CubeSubSel& org, int nrchunks, int chunknr )
+    : Survey::GeomSubSel(org.zss_.zRange())
+    , hss_(org.hss_,nrchunks,chunknr)
+{
 }
 
 
