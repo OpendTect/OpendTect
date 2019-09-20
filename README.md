@@ -98,7 +98,7 @@ Configure CMake ensuring to set the following variables:
 Run make in the toplevel folder (i.e. where this README.MD file is located)
 
 ## Contributing
-[//]: # PROBABLY WANT TO EXPAND THIS WITH GUIDANCE ON WHAT TYPE OF CONTRIBUTIONS WILL BE WELCOME AND WHERE  IN THE CODEBASE
+[//]: # (PROBABLY WANT TO EXPAND THIS WITH GUIDANCE ON WHAT TYPE OF CONTRIBUTIONS WILL BE WELCOME AND WHERE  IN THE CODEBASE)
 You can contribute to the enhancement of OpendTect either by:
 
 -  providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
