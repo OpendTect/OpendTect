@@ -41,7 +41,9 @@ SurveyDiskLocation::SurveyDiskLocation( const File::Path& fp )
 
 bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
 {
-    return basePath() == oth.basePath() && dirName() == oth.dirName();
+    File::Path fp( basePath() ), ofp( oth.basePath() );
+    fp.makeCanonical(); ofp.makeCanonical();
+    return fp == ofp && dirName() == oth.dirName();
 }
 
 
