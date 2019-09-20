@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "dbkey.h"
 #include "keystrs.h"
+#include "sortedlist.h"
+#include <tuple>
 
 class DataPointSet;
 
@@ -30,6 +32,7 @@ namespace Pos
   For one surface, the provider iterates through the horizon. For two horizons,
   the points between the surfaces are visited with the specified Z step.
 */
+typedef std::tuple<od_int64,int> postuple;
 
 mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
 { mODTextTranslationClass(EMSurfaceProvider);
@@ -94,7 +97,12 @@ protected:
     EM::PosID		curpos_;
     Interval<float>	curzrg_;
     float		curz_;
-
+    int			nrsamples_;
+    bool		dorandom_;
+    bool		enoughsamples_;
+    od_int64		maxidx_;
+    SortedList<postuple> posindexlst_;
+    TypeSet<GeomPosID>	posids_;
 };
 
 

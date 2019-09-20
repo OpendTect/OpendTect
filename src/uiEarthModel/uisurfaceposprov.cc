@@ -36,6 +36,8 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     , extrazfld_(0)
     , surf1fld_(0)
     , surf2fld_(0)
+    , samplingfld_(0)
+    , nrsamplesfld_(0)
 {
     if ( su.is2d_ )
     {
@@ -57,14 +59,13 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     uiString txt;
     if ( su.withstep_ )
     {
-	zstepfld_ = new uiSpinBox( this, 0, "Z step" );
+	txt = tr("Z step %1").arg(SI().zUnitString());
+	zstepfld_ = new uiLabeledSpinBox( this, txt, 0, "Z step" );
 	zstepfld_->attach( alignedBelow, surf2fld_ );
 	float zstep = SI().zRange(OD::UsrWork).step * 10;
 	int v = (int)((zstep * zfac_) + .5);
-	zstepfld_->setValue( v );
-	zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
-	txt = tr("Z step").withSurvZUnit();
-	zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
+	zstepfld_->box()->setValue( v );
+	zstepfld_->box()->setInterval( StepInterval<int>(1,999999,1) );
     }
 
     if ( su.withz_ )
@@ -76,6 +77,24 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	    extrazfld_->attach( alignedBelow, surf2fld_ );
     }
 
+    if ( !su.is2d_ )
+    {
+	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
+				BoolInpSpec(true,tr("Random"),tr("Regular")) );
+	mAttachCB( samplingfld_->valuechanged,
+		   uiSurfacePosProvGroup::samplingCB );
+	if ( extrazfld_ )
+	    samplingfld_->attach( alignedBelow, extrazfld_ );
+	else if ( zstepfld_ )
+	    samplingfld_->attach( alignedBelow, zstepfld_ );
+	else
+	    samplingfld_->attach( alignedBelow, surf2fld_ );
+
+	nrsamplesfld_ = new uiGenInput( this, uiStrings::sNrSamples(),
+					IntInpSpec(4000) );
+	nrsamplesfld_->attach( rightOf, samplingfld_ );
+    }
+
     setHAlignObj( surf1fld_ );
     postFinalise().notify( selcb );
 }
@@ -85,6 +104,13 @@ uiSurfacePosProvGroup::~uiSurfacePosProvGroup()
 {
     delete ctio1_.ioobj_; delete &ctio1_;
     delete ctio2_.ioobj_; delete &ctio2_;
+    detachAllNotifiers();
+}
+
+
+bool uiSurfacePosProvGroup::hasRandomSampling() const
+{
+    return samplingfld_->getBoolValue();
 }
 
 
@@ -92,6 +118,7 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 {
     const bool isbtwn = !issingfld_->getBoolValue();
     surf2fld_->display( isbtwn );
+    samplingCB( 0 );
 }
 
 
@@ -113,10 +140,10 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 
     if ( zstepfld_ )
     {
-	float zstep = zstepfld_->getFValue() / zfac_;
+	float zstep = zstepfld_->box()->getFValue() / zfac_;
 	iop.get( mGetSurfKey(zstep), zstep );
 	int v = (int)((zstep * zfac_) + .5);
-	zstepfld_->setValue( v );
+	zstepfld_->box()->setValue( v );
     }
 
     if ( extrazfld_ )
@@ -124,6 +151,20 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 	StepInterval<float> ez = extrazfld_->getRange();
 	iop.get( mGetSurfKey(extraZ), ez );
 	extrazfld_->setRange( ez );
+    }
+
+    if	( samplingfld_ )
+    {
+	bool random = false;
+	iop.getYN( sKey::Random(), random );
+	samplingfld_->setValue( random );
+
+	int nrsamples = 1000;
+	if ( random )
+	    iop.get( sKey::NrValues(), nrsamples );
+	nrsamplesfld_->setValue( nrsamples );
+
+	samplingCB( nullptr );
     }
 
     selChg( 0 );
@@ -150,7 +191,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj_->key() );
     }
 
-    const float zstep = zstepfld_ ? zstepfld_->getFValue() / zfac_
+    const float zstep = zstepfld_ ? zstepfld_->box()->getFValue() / zfac_
 				  : SI().zStep();
     iop.set( mGetSurfKey(zstep), zstep );
 
@@ -160,6 +201,14 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
     iop.set( mGetSurfKey(extraZ), ez );
     iop.set( sKey::Type(), sKey::Surface() );
+
+    if ( samplingfld_ )
+    {
+	iop.setYN( sKey::Random(), samplingfld_->getBoolValue() );
+	if ( samplingfld_->getBoolValue() )
+	    iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
+    }
+
     return true;
 }
 
@@ -176,4 +225,18 @@ void uiSurfacePosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Surface(),
 					  uiStrings::sHorizon() );
+}
+
+
+void uiSurfacePosProvGroup::samplingCB( CallBacker* )
+{
+    if ( samplingfld_ )
+    {
+	bool showstep = !samplingfld_->getBoolValue();
+	if ( zstepfld_ )
+	    zstepfld_->display( showstep );
+	if ( nrsamplesfld_ )
+	    nrsamplesfld_->display( !showstep );
+	posProvGroupChg.trigger();
+    }
 }
