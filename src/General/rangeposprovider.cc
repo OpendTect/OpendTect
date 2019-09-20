@@ -5,6 +5,8 @@
 -*/
 
 
+#include <tuple>
+
 #include "rangeposprovider.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
