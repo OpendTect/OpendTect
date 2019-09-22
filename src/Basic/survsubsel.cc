@@ -408,6 +408,30 @@ Survey::GeomSubSel::dist_type Survey::GeomSubSel::trcDist( bool max ) const
 }
 
 
+void Survey::GeomSubSel::limitTo( const GeomSubSel& oth )
+{
+    const bool is2d = is2D();
+    if ( is2d != oth.is2D() )
+	{ pErrMsg("2D/3D err"); return; }
+    if ( is2d )
+	asLineSubSel()->limitTo( *oth.asLineSubSel() );
+    else
+	asCubeSubSel()->limitTo( *oth.asCubeSubSel() );
+}
+
+
+void Survey::GeomSubSel::merge( const GeomSubSel& oth )
+{
+    const bool is2d = is2D();
+    if ( is2d != oth.is2D() )
+	{ pErrMsg("2D/3D err"); return; }
+    if ( is2d )
+	asLineSubSel()->merge( *oth.asLineSubSel() );
+    else
+	asCubeSubSel()->merge( *oth.asCubeSubSel() );
+}
+
+
 LineHorSubSel::LineHorSubSel( GeomID gid )
     : LineHorSubSel( Geometry::get2D(gid) )
 {

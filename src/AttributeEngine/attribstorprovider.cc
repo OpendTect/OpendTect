@@ -679,20 +679,21 @@ BinID StorageProvider::getStepoutStep() const
 
 void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dp ) const
 {
-    if ( !mscprov_ ) return;
+    if ( !dp || !mscprov_ )
+	return;
     const SeisTrc* trc = mscprov_->curTrc();
-    if ( !trc ) return;
-
-    Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling_.step );
-    const BinID bid = trc->info().binID();
-    if ( !dp->sampling().hsamp_.includes(bid) )
+    const auto& hss = dp->horSubSel();
+    if ( !trc || !hss.includes(trc->info().trcKey()) )
 	return;
 
-    const TrcKeyZSampling& sampling = dp->sampling();
-    const int inlidx = sampling.hsamp_.lineRange().nearestIndex( bid.inl() );
-    const int crlidx = sampling.hsamp_.trcRange().nearestIndex( bid.crl() );
+    const auto inlidx = hss.idx4LineNr( trc->info().lineNr() );
+    const auto crlidx = hss.idx4TrcNr( trc->info().trcNr() );
+    Interval<float> trczrg = trc->info().sampling_.interval( trc->size() );
+    trczrg.widen( 0.001f * trc->info().sampling_.step );
+
     int cubeidx = -1;
+    const auto& zss = dp->zSubSel();
+    const auto nrz = zss.size();
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
 	if ( !outputinterest_[idx] )
@@ -704,10 +705,10 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dp ) const
 	    continue;
 
 	const int compnr = desc_.is2D() ? idx : cubeidx;
-	for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
+	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
-	    const float curt = sampling.zsamp_.atIndex( zidx );
-	    if ( !trcrange.includes(curt,false) )
+	    const float curt = zss.z4Idx( zidx );
+	    if ( !trczrg.includes(curt,false) )
 		continue;
 
 	    //the component index inthe trace is depending on outputinterest_,

@@ -149,25 +149,20 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 				       int thread )
 {
-    const auto& chss = *regsdp_.horSubSel().asCubeHorSubSel();
-    const auto inlrg = chss.inlRange();
-    const auto crlrg = chss.crlRange();
+    const auto& hss = regsdp_.horSubSel();
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	const auto bid( path_[idx].binID() );
-	if ( !chss.includes(bid) )
+	if ( !hss.includes(bid) )
 	    continue;
 
-	// ?? what is this doing ??
-	const int shiftedtogetnearestinl = bid.inl() + inlrg.step / 2;
-	const int inlidx = inlrg.nearestIndex( shiftedtogetnearestinl );
-	const int shiftedtogetnearestcrl = bid.crl() + crlrg.step / 2;
-	const int crlidx = crlrg.nearestIndex( shiftedtogetnearestcrl );
+	const auto lidx = hss.idx4LineNr( bid.inl() );
+	const auto tidx = hss.idx4TrcNr( bid.crl() );
 
 	if ( domemcopy_ )
 	{
-	    const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
-						  + crlidx*srctrcbytes_;
+	    const unsigned char* srcptr = srcptr_ + lidx*srclnbytes_
+						  + tidx*srctrcbytes_;
 	    unsigned char* dstptr = dstptr_ + idx*dsttrcbytes_;
 	    OD::sysMemCopy( dstptr, srcptr, bytestocopy_ );
 	    continue;
@@ -178,8 +173,8 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 	{
 	    const int oldidz = newidz + idzoffset_;
 	    const float val =
-		regsdp_.data(regidx_).info().validPos(inlidx,crlidx,oldidz) ?
-		regsdp_.data(regidx_).get(inlidx,crlidx,oldidz) : mUdf(float);
+		regsdp_.data(regidx_).info().validPos(lidx,tidx,oldidz) ?
+		regsdp_.data(regidx_).get(lidx,tidx,oldidz) : mUdf(float);
 
 	    ransdp_.data(ranidx_).set( 0, idx, newidz, val );
 	}

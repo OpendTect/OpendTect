@@ -186,8 +186,8 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 	init( refstep, &bdd );
     }
 
-    const TrcKeyZSampling& tkzs = output_->sampling();
-    if ( !tkzs.hsamp_.includes(info.binID()) )
+    const auto& subsel = output_->subSel();
+    if ( !subsel.includes(info.trcKey()) )
 	return;
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
@@ -208,17 +208,20 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
     // 'nice' way (i.e. not with 'random' shifts). Thus ... will assume that.
     // This tests pretty nicely
 
+    const auto zrg = subsel.zRange();
+    const auto& hss = subsel.horSubSel();
+
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const float z0 = tkzs.zsamp_.start / tkzs.zsamp_.step;
+    const float z0 = zrg.start / zrg.step;
     const int outz0samp = mNINT32( z0 );
-    const Interval<int> outrg( outz0samp, outz0samp+tkzs.zsamp_.nrSteps() );
+    const Interval<int> outrg( outz0samp, outz0samp+zrg.nrSteps() );
     if ( !inputrg.overlaps(outrg,false) )
 	return;
 
     const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
 				 mMIN(inputrg.stop, outrg.stop ) );
-    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.lineNr());
-    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.trcNr() );
+    const auto lineidx = hss.idx4LineNr( info.lineNr());
+    const auto trcidx = hss.idx4TrcNr( info.trcNr() );
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -259,7 +262,10 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
     output_ = new RegularSeisDataPack( OD::EmptyString(), bdd );
     output_->setSampling( TrcKeyZSampling(dcfss_) );
     DPM(DataPackMgr::SeisID()).add( output_ );
-    const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;
+    auto& zss = output_->zSubSel();
+    auto zrg = zss.zRange();
+    zrg.step = refstep;
+    zss.setOutputZRange( zrg );
 }
 
 

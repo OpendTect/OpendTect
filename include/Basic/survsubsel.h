@@ -103,14 +103,22 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
-    virtual trcnr_type		trcNrStart() const		= 0;
-    virtual trcnr_type		trcNrStop() const		= 0;
-    virtual trcnr_type		trcNrStep() const		= 0;
-    virtual StepInterval<trcnr_type> trcNrRange() const
-				{ return StepInterval<trcnr_type>(
-				    trcNrStart(), trcNrStop(), trcNrStep() ); }
-    inline size_type			trcNrSize() const
-				{ return trcNrRange().nrSteps()+1; }
+    IdxSubSelData&		trcNrSubSel()
+				{ return gtTrcNrSubSel(); }
+    const IdxSubSelData&	trcNrSubSel() const
+				{ return gtTrcNrSubSel(); }
+    trcnr_type			trcNrStart() const
+				{ return gtTrcNrSubSel().posStart(); }
+    trcnr_type			trcNrStop() const
+				{ return gtTrcNrSubSel().posStop(); }
+    trcnr_type			trcNrStep() const
+				{ return gtTrcNrSubSel().posStep(); }
+    StepInterval<trcnr_type>	trcNrRange() const
+				{ return gtTrcNrSubSel().outputPosRange(); }
+    size_type			trcNrSize() const
+				{ return gtTrcNrSubSel().size(); }
+    virtual size_type		nrLines() const
+				{ return 1; }
 
     pos_type			lineNr4Idx(idx_type) const;
     pos_type			trcNr4Idx(idx_type) const;
@@ -121,6 +129,8 @@ protected:
 
     virtual bool		doUsePar(const IOPar&)		= 0;
     virtual void		doFillPar(IOPar&) const		= 0;
+
+    virtual IdxSubSelData&	gtTrcNrSubSel() const	= 0;
 
 };
 
@@ -223,6 +233,8 @@ public:
     virtual void	fillPar(IOPar&) const;
 
     dist_type		trcDist(bool max_else_avg) const;
+    void		limitTo(const GeomSubSel&);
+    void		merge(const GeomSubSel&);
 
 protected:
 

@@ -279,7 +279,7 @@ RefMan<RegularSeisDataPack>
     {
 	output = const_cast<RegularSeisDataPack*>(
 			proc.outputs_[0]->getDataPack() );
-	if ( !output || !output->sampling().isDefined() )
+	if ( !output )
 	    return 0;
 
 	for ( int idx=0; idx<attrspecs_.size(); idx++ )
@@ -296,7 +296,7 @@ RefMan<RegularSeisDataPack>
     {
 	ConstRefMan<RegularSeisDataPack> dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
-	if ( !dp || !dp->sampling().isDefined() )
+	if ( !dp )
 	    continue;
 
 	dpm_.add( const_cast<RegularSeisDataPack*>( dp.ptr()) );
@@ -338,9 +338,10 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     , outlinebytes_(0)
     , bytestocopy_(0)
 {
-    worktkzs_ = out.sampling();
-    worktkzs_.limitTo( in.sampling(), true );
-    totalnr_ = worktkzs_.hsamp_.totalNr();
+    const bool is2d = in.is2D();
+    worksubsel_ = out.subSel()->duplicate();
+    worksubsel_->limitTo( in.subSel() );
+    totalnr_ = worksubsel_->totalSize();
 
     const int nrcomps = out_.nrComponents();
     incomp_ = new int[nrcomps];
@@ -353,6 +354,7 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     delete [] incomp_;
     delete [] inptr_;
     delete [] outptr_;
+    delete worksubsel_;
 }
 
 od_int64 nrIterations() const		{ return totalnr_; }
@@ -392,7 +394,7 @@ bool doPrepare( int nrthreads )
 	if ( !inptr_[idc] || !outptr_[idc] )
 	    return true;
 
-	const float start = worktkzs_.zsamp_.start;
+	const float start = worksubsel_->zRange().start;
 	inptr_[idc] += samplebytes_ * in_.zRange().nearestIndex( start );
 	outptr_[idc] += samplebytes_ * out_.zRange().nearestIndex( start );
     }
@@ -403,7 +405,7 @@ bool doPrepare( int nrthreads )
     outtracebytes_ = samplebytes_ * out_.sampling().size(OD::ZSlice);
     outlinebytes_ = outtracebytes_ * out_.sampling().size(OD::CrosslineSlice);
 
-    bytestocopy_ = samplebytes_ * worktkzs_.nrZ();
+    bytestocopy_ = samplebytes_ * worksubsel_->nrZ();
 
     domemcopy_ = true;
     return true;
@@ -412,147 +414,130 @@ bool doPrepare( int nrthreads )
 
 bool doWork( od_int64 start, od_int64 stop, int threadidx )
 {
-    const auto inhs = in_.sampling().hsamp_;
-    const auto ouths = out_.sampling().hsamp_;
-    const auto workhs = worktkzs_.hsamp_;
+    const auto inhss = in_.horSubSel();
+    const auto outhss = out_.horSubSel();
+    const auto& workhss = worksubsel_->horSubSel();
+    const bool is2d = workhss.is2D();
 
-    const StepInterval<float> inzsamp = in_.sampling().zsamp_;
-    const StepInterval<float> outzsamp = out_.sampling().zsamp_;
-    const StepInterval<float> workzsamp = worktkzs_.zsamp_;
+    const auto inzrg = in_.zRange();
+    const auto outzrg = out_.zRange();
+    const auto workzrg = worksubsel_->zRange();
 
-    const od_int64 intracebytes = intracebytes_;
-    const od_int64 inlinebytes = inlinebytes_;
-    const od_int64 outtracebytes = outtracebytes_;
-    const od_int64 outlinebytes = outlinebytes_;
-
-    const od_int64 bytestocopy = bytestocopy_;
-    const int samplebytes = samplebytes_;
-
-    const int nrcomps = out_.nrComponents();
+    const auto nrcomps = out_.nrComponents();
     const bool domemcopy = domemcopy_;
 
-    int nrz = worktkzs_.nrZ();
-    int* inzlut = 0;
-    int* outzlut = 0;
+    int nrz = worksubsel_->nrZ();
+    int* inzidxs = nullptr;
+    int* outzidxs = nullptr;
 
-    if ( !domemcopy || !mIsEqual(inzsamp.step, outzsamp.step, mDefEpsF) )
+    if ( !domemcopy || !mIsEqual(inzrg.step, outzrg.step, mDefEpsF) )
     {
-	inzlut = new int[ nrz ];
-	outzlut = new int[ nrz ];
+	inzidxs = new int[ nrz ];
+	outzidxs = new int[ nrz ];
 
-	const int nrinpzsamp = inzsamp.nrSteps()+1;
-	const int nroutzsamp = outzsamp.nrSteps()+1;
+	const int nrinpzrg = inzrg.nrSteps()+1;
+	const int nroutzrg = outzrg.nrSteps()+1;
 	for ( int idz=0; idz<nrz; idz++ )
 	{
-	    const float zval = workzsamp.atIndex( idz );
-	    inzlut[idz] = inzsamp.nearestIndex( zval );
-	    outzlut[idz] = outzsamp.nearestIndex( zval );
+	    const float zval = workzrg.atIndex( idz );
+	    inzidxs[idz] = inzrg.nearestIndex( zval );
+	    outzidxs[idz] = outzrg.nearestIndex( zval );
 
-	    if ( inzlut[idz]>=nrinpzsamp || outzlut[idz]>=nroutzsamp )
-	    {
-		nrz = idz;
-		break;
-	    }
+	    if ( inzidxs[idz]>=nrinpzrg || outzidxs[idz]>=nroutzrg )
+		{ nrz = idz; break; }
 	}
 
 	for ( int idz=nrz-1; domemcopy && idz>=0; idz-- )
 	{
 	    // Need relative offsets in case of domemcopy
-	    inzlut[idz] =  idz ? samplebytes * (inzlut[idz]-inzlut[idz-1]) : 0;
-	    outzlut[idz] = idz ? samplebytes*(outzlut[idz]-outzlut[idz-1]) : 0;
+	    inzidxs[idz] =  idz ? samplebytes_ * (inzidxs[idz]-inzidxs[idz-1])
+				: 0;
+	    outzidxs[idz] = idz ? samplebytes_*(outzidxs[idz]-outzidxs[idz-1])
+				: 0;
 	}
     }
 
-    const int nrtrcs = workhs.nrTrcs();
-    int inlidx = mCast( int, start/nrtrcs );
-    int crlidx = mCast( int, start%nrtrcs );
+    const auto& worktrcnrss = workhss->trcNrSubSel();
+    const auto& intrcnrss = inhss.trcNrSubSel();
+    const auto& outtrcnrss = outhss.trcNrSubSel();
 
-    const int halfinlstep = inhs.step_.lineNr() / 2;
-    BinID bid = workhs.atIndex( inlidx, 0 );
-    int outinlidx = ouths.lineIdx( bid.inl() );
-    int shiftedtogetnearestinl = bid.lineNr() + halfinlstep;
-    int ininlidx = inhs.lineIdx( shiftedtogetnearestinl );
-
-    int* incrllut = new int[ nrtrcs ];
-    int* outcrllut = new int[ nrtrcs ];
-    const int halfcrlstep = inhs.step_.trcNr() / 2;
-    for ( int cidx=0; cidx<nrtrcs; cidx++ )
+    const int worktrcnrsz = worktrcnrss.size();
+    int* intrcnridxs = new int[ worktrcnrsz ];
+    int* outtrcnridxs = new int[ worktrcnrsz ];
+    for ( int tidx=0; tidx<worktrcnrsz; tidx++ )
     {
-	bid = workhs.atIndex( 0, cidx );
-	outcrllut[cidx] = ouths.trcIdx( bid.crl() );
-	const int shiftedtogetnearestcrl = bid.trcNr() + halfcrlstep;
-	incrllut[cidx] = inhs.trcIdx( shiftedtogetnearestcrl );
+	const auto tnr = worktrcnrss.pos4Idx( tidx );
+	outtrcnridxs[tidx] = outtrcnrss.idx4Pos( tnr );
+	intrcnridxs[tidx] = intrcnrss.idx4Pos( tnr );
     }
 
-    for ( od_int64 gidx=start; gidx<=stop; gidx++ )
+    for ( auto gidx=start; gidx<=stop; gidx++ )
     {
-	const int outcrlidx = outcrllut[crlidx];
-	const int incrlidx = incrllut[crlidx];
+	const auto lineidx = start / worktrcnrsz;
+	if ( is2d && lineidx > 1 )
+	    { pErrMsg("Unexpected next line"); break; }
+	const auto trcnridx = start % worktrcnrsz;
+
+	const auto linenr = workhss.lineNr4Idx( lineidx );
+	const auto trcnr = workhss.trcNr4Idx( trcnridx );
+	const auto inlineidx = inhss.idx4LineNr( linenr );
+	const auto outlineidx = outhss.idx4LineNr( linenr );
+	const auto intrcidx = inhss.idx4TrcNr( linenr );
+	const auto outtrcidx = outhss.idx4TrcNr( linenr );
 
 	if ( domemcopy )
 	{
-	    const od_int64 inoffset = ininlidx*inlinebytes +
-				      incrlidx*intracebytes;
-	    const od_int64 outoffset = outinlidx*outlinebytes +
-				       outcrlidx*outtracebytes;
+	    const od_int64 inoffset = inlineidx*inlinebytes_ +
+				      intrcidx*intracebytes_;
+	    const od_int64 outoffset = outlineidx*outlinebytes_ +
+				       outtrcidx*outtracebytes_;
 
 	    for ( int idc=0; idc<nrcomps; idc++ )
 	    {
 		const unsigned char* curinptr = inptr_[idc] + inoffset;
 		unsigned char* curoutptr = outptr_[idc] + outoffset;
-		if ( inzlut && outzlut )
+		if ( inzidxs && outzidxs )
 		{
 		    for ( int idz=0; idz<nrz; idz++ )
 		    {
-			curinptr += inzlut[idz];
-			curoutptr += outzlut[idz];
-			OD::sysMemCopy( curoutptr, curinptr, samplebytes );
+			curinptr += inzidxs[idz];
+			curoutptr += outzidxs[idz];
+			OD::sysMemCopy( curoutptr, curinptr, samplebytes_ );
 		    }
 		}
 		else
-		    OD::sysMemCopy( curoutptr, curinptr, bytestocopy );
+		    OD::sysMemCopy( curoutptr, curinptr, bytestocopy_ );
 	    }
 	}
 	else
 	{
 	    for ( int idz=0; idz<nrz; idz++ )
 	    {
-		const int inzidx = inzlut[idz];
-		const int outzidx = outzlut[idz];
+		const int inzidx = inzidxs[idz];
+		const int outzidx = outzidxs[idz];
 
 		for ( int idc=0; idc<nrcomps; idc++ )
 		{
 		    const float val =
-			in_.data(incomp_[idc]).get( ininlidx, incrlidx, inzidx);
+			in_.data(incomp_[idc]).get(inlineidx,intrcidx,inzidx);
 		    if ( mFastIsFloatDefined(val) )
-			out_.data(idc).set( outinlidx, outcrlidx, outzidx, val);
+			out_.data(idc).set(outlineidx,outtrcidx,outzidx,val);
 		}
 	    }
 	}
-
-	if ( ++crlidx >= nrtrcs )
-	{
-	    crlidx = 0;
-	    bid = workhs.atIndex( ++inlidx, 0 );
-	    outinlidx = ouths.lineIdx( bid.inl() );
-	    shiftedtogetnearestinl = bid.lineNr() + halfinlstep;
-	    ininlidx = inhs.lineIdx( shiftedtogetnearestinl );
-	}
     }
 
-    delete [] incrllut;
-    delete [] outcrllut;
-    if ( inzlut )  delete [] inzlut;
-    if ( outzlut ) delete [] outzlut;
-
+    delete [] inzidxs;
+    delete [] outzidxs;
     return true;
 }
 
 
 protected:
+
     const RegularSeisDataPack&	in_;
     RegularSeisDataPack&	out_;
-    TrcKeyZSampling		worktkzs_;
+    GeomSubSel*			worksubsel_;
 
     od_int64			totalnr_;
     bool			domemcopy_;

@@ -928,10 +928,7 @@ bool Seis::SequentialFSLoader::init()
     const SeisIOObjInfo& seisinfo = seissummary_->ioObjInfo();
     PtrMan<GeomSubSel> usess = reqss_->duplicate();
     PtrMan<GeomSubSel> avss = seisinfo.getSurvSubSel();
-    if ( avss->is2D() )
-	usess->asLineSubSel()->limitTo( *avss->asLineSubSel() );
-    else
-	usess->asCubeSubSel()->limitTo( *avss->asCubeSubSel() );
+    usess->limitTo( *avss );
 
     const DataCharacteristics datasetdc( seissummary_->dataChar() );
     if ( dc_.userType() == OD::AutoDataRep )

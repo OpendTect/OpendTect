@@ -56,10 +56,6 @@ public:
     void		clearSubSel()
 			{ IdxSubSel1D::clearSubSel(); }
 
-    const TrcNrSubSelData& trcNrSubSel() const	{ return ssdata_; }
-    TrcNrSubSelData&	trcNrSubSel()		{ return ssdata_; }
-    pos_steprg_type	trcNrRange() const override
-			{ return outputPosRange(); }
     void		setTrcNrRange( const pos_steprg_type& rg )
 			{ setOutputPosRange( rg ); }
     pos_steprg_type	fullTrcNrRange() const
@@ -69,12 +65,6 @@ public:
     trcnr_type		trcNr4Idx( idx_type idx ) const
 			{ return pos4Idx( idx ); }
     size_type		nrTrcs() const		{ return ssdata_.size(); }
-    trcnr_type		trcNrStart() const override
-			{ return trcNrRange().start; }
-    trcnr_type		trcNrStop() const override
-			{ return trcNrRange().stop; }
-    trcnr_type		trcNrStep() const override
-			{ return trcNrRange().step; }
 
     bool		includes( trcnr_type tnr ) const
 			{ return Pos::IdxSubSel1D::includes(tnr); }
@@ -104,6 +94,9 @@ protected:
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
+
+    IdxSubSelData&	gtTrcNrSubSel() const override
+			{ return mNonConst(ssdata_); }
 
 };
 
@@ -244,9 +237,7 @@ public:
     pos_type		crlStep() const	{ return crlRange().step; }
     size_type		nrInl() const	{ return inlRange().nrSteps()+1; }
     size_type		nrCrl() const	{ return crlRange().nrSteps()+1; }
-    trcnr_type		trcNrStart() const override { return crlStart(); }
-    trcnr_type		trcNrStop() const override  { return crlStop(); }
-    trcnr_type		trcNrStep() const override  { return crlStep(); }
+    size_type		nrLines() const	override { return nrInl(); }
 
     totalsz_type	globIdx( const BinID& bid ) const
 			{
@@ -266,5 +257,8 @@ protected:
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
+
+    IdxSubSelData&	gtTrcNrSubSel() const override
+			{ return mNonConst(ssdata1_); }
 
 };
