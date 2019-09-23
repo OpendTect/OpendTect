@@ -63,6 +63,7 @@ public:
 			~uiCreatePicks() {}
 
     virtual Pick::Set*	getPickSet() const;	//!< Set is yours
+    const char*		pickSetName() const {return name_; }
     float		getZVal() { return zvalfld_->getFValue(); }
     float		getZValInSurvUnit() { return zval_; }
     DepthType		getDepthZValType() { return zdepthvaltyp_; }
