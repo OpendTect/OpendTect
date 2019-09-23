@@ -90,6 +90,8 @@ protected:
 
 			//! necessary for uicMain coin inialisation
     virtual void	init( mQtclass(QWidget*) mainwidget )	{}
+			//! set attributes before the app is created
+    void		preInit();
 };
 
 
