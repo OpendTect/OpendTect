@@ -248,7 +248,6 @@ QtTabletEventFilter* uiMain::tabletfilter_ = 0;
 static void initQApplication()
 {
     uiMain::cleanQtOSEnv();
-    QApplication::setDesktopSettingsAware( true );
 
     ApplicationData::setOrganizationName( "dGB");
     ApplicationData::setOrganizationDomain( "opendtect.org" );
@@ -354,9 +353,18 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 }
 
 
+void uiMain::preInit()
+{
+#if QT_VERSION >= 0x050300
+    QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
+#endif
+    QApplication::setDesktopSettingsAware( true );
+}
+
+
 void uiMain::init( QApplication* qap, int& argc, char **argv )
 {
-	QLocale::setDefault( QLocale::c() );
+    QLocale::setDefault( QLocale::c() );
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
 
@@ -365,6 +373,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
+    preInit();
     app_ = qap ? qap : new QApplication( argc, argv );
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
