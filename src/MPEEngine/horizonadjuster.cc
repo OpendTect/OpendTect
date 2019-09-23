@@ -227,7 +227,7 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
     if ( !horizon_.hasZ(to) )
 	return false;
 
-    const int totrcidx = vdp->globalIdx( to );
+    const int totrcidx = vdp->getGlobalIdx( to );
     if ( totrcidx < 0 )
 	return false;
 
@@ -247,7 +247,7 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	if ( !horizon_.hasZ(from) )
 	    return false;
 
-	const int seedtrcidx = vdp->globalIdx( seedtk_ );
+	const int seedtrcidx = vdp->getGlobalIdx( seedtk_ );
 	if ( seedtrcidx < 0 ) return false;
 
 	OffsetValueSeries<float> seedvs = vdp->getTrcStorage( 0, seedtrcidx );
@@ -259,7 +259,7 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	else
 	    evtracker_.setSeed( 0, -1, mUdf(float) );
 
-	const int fromtrcidx = vdp->globalIdx( from );
+	const int fromtrcidx = vdp->getGlobalIdx( from );
 	if ( fromtrcidx < 0 ) return false;
 
 	const OffsetValueSeries<float> fromvs =

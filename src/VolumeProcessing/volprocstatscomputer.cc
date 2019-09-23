@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "seisdatapack.h"
 #include "statruncalc.h"
+#include "trckeyzsampling.h"
 #include "keystrs.h"
 
 namespace VolProc
@@ -76,8 +77,8 @@ ReportingTask* StatsCalculator::createTask()
     for ( int idx=0; idx<nrcompsinput; idx++ )
 	output->setComponentName( input->getComponentName(idx), idx );
 
-    const TrcKeyZSampling tkzsin = input->sampling();
-    const TrcKeyZSampling tkzsout = output->sampling();
+    const TrcKeyZSampling tkzsin( input->subSel() );
+    const TrcKeyZSampling tkzsout( output->subSel() );
     TaskGroup* taskgrp = new TaskGroup();
     for ( int idx=0; idx<nrcompsinput; idx++ )
     {

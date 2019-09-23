@@ -153,12 +153,12 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     if ( flatbody && plgknots_.size()<2 )
 	return false;
 
-    const TrcKeySampling& ouths = output->sampling().hsamp_;
-    const StepInterval<float>& zrg( output->sampling().zsamp_ );
+    const TrcKeySampling ouths( output->horSubSel() );
+    const StepInterval<float> zrg( output->zRange() );
 
     const int outputinlidx = ouths.inlRange().nearestIndex( bid.inl() );
     const int outputcrlidx = ouths.crlRange().nearestIndex( bid.crl() );
-    const int outputzsz = output->sampling().nrZ();
+    const int outputzsz = output->nrZ();
     if ( outputinlidx<0 || outputcrlidx<0 )
 	return true;
 
@@ -168,15 +168,20 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     if ( outsidevaltype_ == PrevStep ) outsideval_ = -mUdf(float);
 
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    const int inputinlidx = input
-	? input->sampling().hsamp_.inlRange().nearestIndex(bid.inl()) : 0;
-    const int inputcrlidx = input
-	? input->sampling().hsamp_.crlRange().nearestIndex(bid.crl()) : 0;
-    const bool useinput = input &&
-	inputinlidx>=0 && inputinlidx<input->data(0).getSize(0) &&
-	inputcrlidx>=0 && inputcrlidx<input->data(0).getSize(1);
-    const int inputzsz = useinput && input
-	? input->data(0).getSize(2) : 0;
+    int inputinlidx = 0, inputcrlidx = 0, inputzsz = 0;
+    bool useinput = false;
+    if ( input )
+    {
+	const auto inlrg( input->horSubSel().lineNrRange() );
+	const auto crlrg( input->horSubSel().trcNrRange() );
+	inputinlidx = inlrg.nearestIndex( bid.inl() );
+	inputcrlidx = crlrg.nearestIndex( bid.crl() );
+	useinput =
+	    inputinlidx>=0 && inputinlidx<input->data(0).getSize(0) &&
+	    inputcrlidx>=0 && inputcrlidx<input->data(0).getSize(1);
+	if ( useinput )
+	    inputzsz = input->data(0).getSize(2);
+    }
 
     int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
     bool alloutside = true;

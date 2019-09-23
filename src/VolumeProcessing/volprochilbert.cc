@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 
 static bool hasTraceData( const PosInfo::CubeData& trcposns,

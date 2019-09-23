@@ -12,10 +12,11 @@
 #include "arrayndimpl.h"
 #include "fourier.h"
 #include "keystrs.h"
+#include "paralleltask.h"
 #include "seisdatapack.h"
 #include "smoother2d.h"
 #include "survinfo.h"
-#include "paralleltask.h"
+#include "trckeysampling.h"
 
 
 namespace VolProc
@@ -389,20 +390,18 @@ bool LateralSmoother::usePar( const IOPar& pars )
 ReportingTask* LateralSmoother::createTask()
 {
     if ( !prepareWork() )
-	return 0;
+	return nullptr;
 
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    const TrcKeySampling& inphs = input->sampling().hsamp_;
-    const TrcKeySampling& ouths = output->sampling().hsamp_;
+    const TrcKeySampling inphs( input->horSubSel() );
+    const TrcKeySampling ouths( output->horSubSel() );
 
-    if ( inphs.step_ != ouths.step_ ||
-	 !mIsEqual(input->sampling().zsamp_.step,
-		   output->sampling().zsamp_.step,
-		   1e-3*SI().zStep()) )
-    {
-	return 0;
-    }
+    const auto inzrg = input->zRange();
+    const auto outzrg = output->zRange();
+    if ( inphs.step_ != ouths.step_
+      || !mIsEqual(inzrg.step,outzrg.step,1e-3*SI().zStep()) )
+	return nullptr;
 
     if ( pars_.type_!=Stats::Median )
     {
@@ -424,15 +423,11 @@ ReportingTask* LateralSmoother::createTask()
 
     Interval<int> crlsamples(inphs.crlRange().nearestIndex(ouths.start_.crl()),
 			     inphs.crlRange().nearestIndex(ouths.stop_.crl()));
-    Interval<int> zsamples( input->sampling().zsamp_.nearestIndex(
-					    output->sampling().zsamp_.start ),
-			    input->sampling().zsamp_.nearestIndex(
-					    output->sampling().zsamp_.stop ) );
+    Interval<int> zsamples( inzrg.nearestIndex(outzrg.start),
+			    inzrg.nearestIndex(outzrg.stop) );
 
-    const int inpz0 =
-	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
-    const int outpz0 =
-	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
+    const int inpz0 = mNINT32(inzrg.start/inzrg.step);
+    const int outpz0 = mNINT32(outzrg.start/outzrg.step);
 
     return new LateralSmootherTask( input->data(),
 	    inphs.start_.inl(), inphs.start_.crl(), inpz0,

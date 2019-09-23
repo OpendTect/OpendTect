@@ -709,7 +709,8 @@ TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
     const DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID dpid = getDataPackID( attrib );
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
-    return regsdp ? regsdp->sampling() : getTrcKeyZSampling( attrib );
+    return regsdp ? TrcKeyZSampling(regsdp->subSel())
+		  : getTrcKeyZSampling( attrib );
 }
 
 
@@ -902,7 +903,7 @@ void PlaneDataDisplay::updateChannels( int attrib,
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp ) return;
 
-    updateTexOriginAndScale( attrib, regsdp->sampling() );
+    updateTexOriginAndScale( attrib, TrcKeyZSampling(regsdp->subSel()) );
 
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
@@ -1043,7 +1044,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
-    const TrcKeyZSampling& tkzs = regsdp->sampling();
+    const TrcKeyZSampling tkzs( regsdp->subSel() );
     const BinID bid = s3dgeom_->transform( pos.getXY() );
     const int inlidx = tkzs.hsamp_.inlRange().nearestIndex( bid.inl() );
     const int crlidx = tkzs.hsamp_.crlRange().nearestIndex( bid.crl() );

@@ -78,16 +78,18 @@ public:
 
     GeomSubSel&			subSel();
     const GeomSubSel&		subSel() const;
+    GeomSubSel*			subSelClone() const;
     HorSubSel&			horSubSel()
 				{ return subSel().horSubSel(); }
     const HorSubSel&		horSubSel() const
 				{ return subSel().horSubSel(); }
-    GeomSubSel*			subSelClone() const;
-    void			setSubSel(const GeomSubSel&);
     ZSubSel&			zSubSel()	{ return subSel().zSubSel(); }
     const ZSubSel&		zSubSel() const { return subSel().zSubSel(); }
     z_steprg_type		zRange() const override
 				{ return zSubSel().outputZRange(); }
+    size_type			nrZ() const
+				{ return zSubSel().size(); }
+    void			setSubSel(const GeomSubSel&);
 
     void			getTKZS(TrcKeyZSampling&) const;
     void			getTKS(TrcKeySampling&) const;

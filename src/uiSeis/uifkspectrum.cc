@@ -203,7 +203,7 @@ void uiFKSpectrum::setDataPackID(
 
 	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
 	const OD::SliceType slctyp = regsdp ?
-		regsdp->sampling().defaultDir() : OD::InlineSlice;
+		regsdp->subSel().asCubeSubSel().defaultDir() : OD::InlineSlice;
 
 	typedef Array2DSlice<float>::dim_idx_type dim_idx_type;
 	const dim_idx_type valdim = (dim_idx_type)slctyp;

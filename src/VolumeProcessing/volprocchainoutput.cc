@@ -445,8 +445,8 @@ void startWork()
 	return;
 
     SeisDataPackWriter& wrr = *co_.wrr_;
-    if ( wrr.dataPack() == dp_.ptr() )
-	wrr.setSelection( dp_->sampling().hsamp_ );
+    if ( &wrr.dataPack() == dp_.ptr() )
+	wrr.setSelection( dp_->horSubSel() );
     else
 	wrr.setNextDataPack( *dp_ );
 

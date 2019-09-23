@@ -18,9 +18,10 @@
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "task.h"
+#include "trckeyzsampling.h"
+#include "uistrings.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
-#include "uistrings.h"
 
 
 namespace VolProc
@@ -123,15 +124,10 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     , step_( step )
 {
     const RegularSeisDataPack* output = step_.getOutput();
-    const TrcKeySampling hrg = output->sampling().hsamp_;
-
-    TrcKeySamplingIterator iterator( hrg );
-    do
-    {
-	remainingbids_.add( iterator.curBinID() );
-    } while ( iterator.next() );
-
-    totalnr_ = hrg.totalNr();
+    Survey::HorSubSelIterator iterator( output->horSubSel() );
+    while ( iterator.next() )
+	remainingbids_.add( iterator.binID() );
+    totalnr_ = output->horSubSel().totalSize();
 }
 
 
@@ -280,10 +276,10 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 	return false;
 
     Vel::Function* func = velfuncs_[thread];
-    const TrcKeySampling& hs = output->sampling().hsamp_;
-    const StepInterval<float>& zrg( output->sampling().zsamp_ );
+    const TrcKeySampling hs( output->horSubSel() );
+    const StepInterval<float> zrg( output->zRange() );
     func->setDesiredZRange( zrg );
-    const int zsz = output->sampling().nrZ();
+    const int zsz = output->nrZ();
 
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
@@ -359,8 +355,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
     if ( !storage )
 	return false;
 
-    const TrcKeySampling& hs = output->sampling().hsamp_;
-    const int zsz = output->sampling().nrZ();
+    const TrcKeySampling hs( output->horSubSel() );
+    const int zsz = output->nrZ();
 
     Gridder2D* gridder = gridders_[thread];
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
@@ -662,7 +658,7 @@ ReportingTask* VelocityGridder::createTask()
 	return 0;
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    const TrcKeyZSampling& tkzs = output->sampling();
+    const TrcKeyZSampling tkzs( output->subSel() );
     if ( !layermodel_ || !layermodel_->prepare(tkzs,SilentTaskRunnerProvider()))
 	return 0;
 

@@ -267,7 +267,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     const Array3D<float>* inputarr =
 	!input || input->isEmpty() ?  0 : &input->data( 0 );
 
-    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const TrcKeySampling hs( output->horSubSel() );
 
     const StepInterval<int> outputinlrg( hs.inlRange() );
 
@@ -284,7 +284,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
-	inputinlrg = input->sampling().hsamp_.inlRange();
+	inputinlrg = input->horSubSel().lineNrRange();
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
 	     (bid.inl()-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
@@ -293,7 +293,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputcrlrg;
     if ( inputarr )
     {
-	inputcrlrg = input->sampling().hsamp_.crlRange();
+	inputcrlrg = input->horSubSel().trcNrRange();
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
 	     (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
@@ -355,12 +355,13 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex(bid.crl()) : -1;
     const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
-    const int outputmaxidx = output->sampling().nrZ() - 1;
+    const int outputmaxidx = output->nrZ() - 1;
     const bool initok = !mIsUdf(val0) && !mIsUdf(gradient) && !mIsUdf(fixedz);
 
+    const auto outzrg( output->zRange() );
     for ( int idx=outputmaxidx; idx>=0; idx-- )
     {
-	const double curz = output->sampling().zsamp_.atIndex( idx );
+	const double curz = outzrg.atIndex( idx );
 	bool cancalculate = allhordefined;
 	if ( allhordefined )
 	{

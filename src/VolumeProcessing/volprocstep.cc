@@ -14,6 +14,7 @@
 #include "posinfodetector.h"
 #include "seisdatapack.h"
 #include "survgeom3d.h"
+#include "trckeyzsampling.h"
 #include "volprocchain.h"
 
 
@@ -41,8 +42,7 @@ protected:
 
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
-		    const TrcKeySampling hrg(
-				step_.output_->sampling().hsamp_ );
+		    const TrcKeySampling hrg( step_.output_->horSubSel() );
 		    BinID curbid = hrg.start_;
 
 		    const int nrinls = mCast( int, start/hrg.nrCrl() );
@@ -83,8 +83,7 @@ protected:
 		{
 		    if ( totalnr_==-1 )
 		    {
-			const TrcKeySampling hrg(
-				step_.output_->sampling().hsamp_ );
+			const TrcKeySampling hrg( step_.output_->horSubSel() );
 			totalnr_ = hrg.nrInl() * hrg.nrCrl();
 		    }
 
@@ -340,7 +339,7 @@ bool VolProc::Step::prepareWork( int nrthreads )
 	return false;
     }
 
-    const Pos::GeomID geomid = output_->sampling().hsamp_.getGeomID();
+    const Pos::GeomID geomid = output_->subSel().geomID();
     if ( needsInput() )
     {
 	const int nrinputs = getNrInputs();
@@ -666,7 +665,7 @@ const PosInfo::CubeData* VolProc::Step::getPosSamplingOfNonNullTraces(
     else
 	trcposns = (PosInfo::CubeData*)input->tracePositions();
     NullTracesArrayScanner scanner( input->data( compidx ),
-				    input->sampling().hsamp_, trcposns );
+			    TrcKeySampling(input->horSubSel()), trcposns );
     if ( !scanner.execute() || !scanner.getResult() )
 	return nullptr;
 

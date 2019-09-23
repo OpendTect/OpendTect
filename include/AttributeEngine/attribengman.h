@@ -38,6 +38,7 @@ public:
 
     mUseType( Pos, GeomID );
     mUseType( Survey, FullSubSel );
+    mUseType( Survey, GeomSubSel );
 
 			EngineMan();
     virtual		~EngineMan();
@@ -57,8 +58,8 @@ public:
 
     const DescSet*	attribSet() const	{ return attrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
-    const FullSubSel&	subSel() const		{ return subsel_; }
-    GeomID		geomID() const		{ return subsel_.geomID(0); }
+    const FullSubSel&	subSel() const		{ return reqss_; }
+    GeomID		geomID() const		{ return reqss_.geomID(0); }
     float		undefValue() const	{ return udfval_; }
 
     void		setAttribSet(const DescSet*);
@@ -66,6 +67,7 @@ public:
     void		setAttribSpec(const SelSpec&);
     void		setAttribSpecs(const SelSpecList&);
     void		setSubSel(const FullSubSel&);
+    void		setSubSel(const GeomSubSel&);
     void		setGeomID(GeomID);	// only actually useful for 2D
     void		setUndefValue( float v )	 { udfval_ = v; }
     DescSet*		createNLAADS(DescID& outid,uiRetVal&,
@@ -121,7 +123,7 @@ protected:
 
     const DescSet*	attrset_;
     const NLAModel*	nlamodel_;
-    FullSubSel		subsel_;
+    FullSubSel		reqss_;
     float		udfval_;
     DataPackMgr&	dpm_;
 

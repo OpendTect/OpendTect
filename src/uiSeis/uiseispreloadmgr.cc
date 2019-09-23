@@ -192,7 +192,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     PreLoader spl( key );
     uiTaskRunnerProvider trprov( this );
     spl.setTaskRunner( trprov );
-    if ( !spl.load(tkzs,dc.userType(),dlg.getScaler()) )
+    if ( !spl.load(Survey::CubeSubSel(tkzs),dc.userType(),dlg.getScaler()) )
     {
 	const uiString emsg = spl.errMsg();
 	if ( !emsg.isEmpty() )

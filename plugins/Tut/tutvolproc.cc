@@ -82,8 +82,8 @@ ReportingTask* TutOpCalculator::createTask()
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
 
-    const TrcKeyZSampling tkzsin = input->sampling();
-    const TrcKeyZSampling tkzsout = output->sampling();
+    const TrcKeyZSampling tkzsin( input->subSel() );
+    const TrcKeyZSampling tkzsout( output->subSel() );
     return new TutOpCalculatorTask( input->data(), tkzsin, tkzsout, type_,
 				    shift_, output->data() );
 }

@@ -57,7 +57,7 @@ protected:
 
 int nextStep()
 {
-    Seis::SequentialFSLoader rdr( *ioobj_, &output_.sampling(), &components_ );
+    Seis::SequentialFSLoader rdr( *ioobj_, &output_.subSel(), &components_ );
     if ( !rdr.setDataPack(output_) )
 	mErrRet()
 
@@ -88,8 +88,7 @@ void adjustSteeringScaler()
 	 type != BufferString(sKey::Steering()) )
 	return;
 
-    const auto& geom2d = SurvGeom::get2D(
-				output_.sampling().hsamp_.getGeomID() );
+    const auto& geom2d = SurvGeom::get2D( output_.subSel().geomID() );
     if ( geom2d.isEmpty() )
 	return;
 
@@ -98,7 +97,7 @@ void adjustSteeringScaler()
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );
 
-    double zstep = output_.sampling().zsamp_.step;
+    double zstep = output_.zRange().step;
     const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZUnit();
     const ZDomain::Def& zdef = SI().zDomain();
     if ( zuom && zdef.isDepth() )
@@ -154,7 +153,7 @@ bool VolumeReader::prepareWork( int )
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     BufferStringSet compnms;
-    seisinfo.getComponentNames( compnms, output->sampling().hsamp_.getGeomID());
+    seisinfo.getComponentNames( compnms, output->subSel().geomID());
     if ( compnms.isEmpty() )
 	return false;
 

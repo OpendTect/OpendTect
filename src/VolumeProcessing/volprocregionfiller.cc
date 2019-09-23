@@ -58,12 +58,12 @@ bool RegionFiller::computeBinID( const BinID& bid, int )
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
 
     const TrcKey tk( bid );
-    const int inlidx = output->sampling().inlIdx( bid.inl() );
-    const int crlidx = output->sampling().crlIdx( bid.crl() );
-    const int nrz = output->sampling().nrZ();
+    const int inlidx = output->horSubSel().idx4LineNr( bid.inl() );
+    const int crlidx = output->horSubSel().idx4TrcNr( bid.crl() );
+    const int nrz = output->nrZ();
     for ( int idz=0; idz<nrz; idz++ )
     {
-	const float zval = output->sampling().zAtIndex( idz );
+	const float zval = output->zSubSel().z4Idx( idz );
 	float val =
 		region_.isInside(tk,zval,true) ? insideval_ : outsideval_;
 	if ( mIsUdf(val) && input )

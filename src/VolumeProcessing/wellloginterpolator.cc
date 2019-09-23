@@ -13,6 +13,7 @@
 #include "keystrs.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
@@ -327,14 +328,10 @@ bool WellLogInterpolator::prepareComp( int )
     if ( !gridder_ )
 	{ errmsg_ = tr("Cannot retrieve gridding method"); return false; }
 
-    if ( !layermodel_ || !layermodel_->prepare(output->sampling(),
-					SilentTaskRunnerProvider()) )
-    {
-	errmsg_ = tr("Could not prepare the interpolation model");
-	return false;
-    }
+    const TrcKeySampling hs( output->horSubSel() );
+    if ( !layermodel_ || !layermodel_->prepare(hs,SilentTaskRunnerProvider()) )
+	{ errmsg_ = tr("Could not prepare the interpolation"); return false; }
 
-    const TrcKeySampling& hs = output->sampling().hsamp_;
     outputinlrg_ = hs.inlRange();
     outputcrlrg_ = hs.crlRange();
     uiStringSet errmsgs;
@@ -440,13 +437,13 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     Array3D<float>& outputarray = output->data(0);
-    const int nrz = output->sampling().nrZ();
+    const int nrz = output->nrZ();
     const int nrwells = infos_.size();
 
     TypeSet<Coord> corners;
     getCornerPoints( bid, corners );
 
-    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const TrcKeySampling hs( output->horSubSel() );
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg_.nearestIndex( bid.crl() );
     const Coord gridpoint( hs.toCoord(bid) );
@@ -455,9 +452,10 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     Gridder2D* invdistgridder = invdistgridder_->clone();
     TypeSet<Coord> points;
     TypeSet<float> logvals;
+    const auto zrg( output->zRange() );
     for ( int idz=0; idz<nrz; idz++ )
     {
-	const float z = output->sampling().zsamp_.atIndex( idz );
+	const float z = zrg.atIndex( idz );
 	const float layeridx = layermodel_->getLayerIndex( tk, z );
 	if ( mIsUdf(layeridx) )
 	{

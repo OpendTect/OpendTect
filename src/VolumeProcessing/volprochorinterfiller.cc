@@ -140,7 +140,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     if ( !output || output->isEmpty() || !isOK() )
 	return false;
 
-    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const TrcKeySampling hs( output->horSubSel() );
     const StepInterval<int> outputinlrg( hs.inlRange() );
 
     if ( !outputinlrg.includes( bid.inl(), false ) ||
@@ -174,8 +174,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	? bottomhorizon_->getPos( botposid ).z_
 	: SI().zRange().stop;
 
-    const SamplingData<double>
-	zsampling( output->sampling().zsamp_ );
+    const SamplingData<double> zsampling( output->zRange() );
 
     const int topsample = mIsUdf(topdepth)
 	? mUdf(int)
@@ -187,7 +186,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
     SamplingData<double> cursampling;
     if ( usegradient_ )
-	cursampling.step = gradient_ * output->sampling().zsamp_.step;
+	cursampling.step = gradient_ * output->zRange().step;
     else if ( topsample==bottomsample )
 	cursampling.step = 0;
     else
@@ -202,7 +201,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
-	inputinlrg = input->sampling().hsamp_.inlRange();
+	inputinlrg = input->horSubSel().lineNrRange();
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
 	      (bid.inl()-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
@@ -211,7 +210,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputcrlrg;
     if ( inputarr )
     {
-	inputcrlrg = input->sampling().hsamp_.crlRange();
+	inputcrlrg = input->horSubSel().trcNrRange();
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
 	      (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;

@@ -11,6 +11,7 @@
 #include "odsysmem.h"
 #include "horsubsel.h"
 #include "seisdatapack.h"
+#include "trckeyzsampling.h"
 #include "threadwork.h"
 
 uiString VolProc::ChainExecutor::sGetStepErrMsg()

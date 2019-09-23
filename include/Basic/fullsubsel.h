@@ -109,10 +109,13 @@ public:
     const ZSubSel&	zSubSel( GeomID gid ) const
 			{ return zss_.getFor( gid ); }
 
+    CubeHorSubSel	cubeHorSubSel() const;
     CubeSubSel		cubeSubSel() const;
+    LineHorSubSel	lineHorSubSel(idx_type iln=0) const;
     LineSubSel		lineSubSel(idx_type iln=0) const;
+    LineHorSubSelSet	lineHorSubSelSet() const;
     LineSubSelSet	lineSubSelSet() const;
-    GeomSubSel*		getGeomSubSel() const;
+    GeomSubSel*		getGeomSubSel(idx_type iln=0) const;
     CubeSubSel		subSel3D() const	{ return cubeSubSel(); }
     LineSubSelSet	subSel2D() const	{ return lineSubSelSet(); }
     FullHorSubSel&	fullHorSubSel()		{ return hss_; }
@@ -153,6 +156,7 @@ protected:
     FullHorSubSel	hss_;
     FullZSubSel		zss_;
 
+    void		getLineHorSubSelSet(LineHorSubSelSet&) const;
     void		getLineSubSelSet(LineSubSelSet&) const;
     void		fillFullZSS();
     void		setFromZSS(const FullZSubSel&);

@@ -14,6 +14,7 @@
 #include "seisdatapack.h"
 #include "survgeom3d.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "volprocchainexec.h"
 #include "volproctrans.h"
 

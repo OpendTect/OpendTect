@@ -40,6 +40,9 @@ ________________________________________________________________________
 
 #include <string.h>
 
+#define mZRelEps 0.001f
+
+
 namespace Attrib
 {
 
@@ -66,7 +69,7 @@ EngineMan::~EngineMan()
 
 bool EngineMan::is2D() const
 {
-    return attrset_ ? attrset_->is2D() : subsel_.is2D();
+    return attrset_ ? attrset_->is2D() : reqss_.is2D();
 }
 
 
@@ -114,8 +117,8 @@ void EngineMan::setGeomID( GeomID gid )
     if ( attrset_ && attrset_->is2D() != gid.is2D() )
 	{ pErrMsg("2D/3D mismatch"); }
 
-    if ( subsel_.geomID(0) != gid )
-	subsel_ = FullSubSel( gid );
+    if ( reqss_.geomID(0) != gid )
+	reqss_ = FullSubSel( gid );
 }
 
 
@@ -150,14 +153,14 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attrset,
 	proc->addOutputInterest( idx );
 
     if ( attrset.is2D() )
-	subsel_ = FullSubSel( gid );
+	reqss_ = FullSubSel( gid );
     else
-	subsel_.setToAll( false );
+	reqss_.setToAll( false );
 
     PtrMan<IOPar> subselpar =
 	iopar.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     if ( subselpar )
-       subsel_.usePar( *subselpar );
+       reqss_.usePar( *subselpar );
 
     SeisTrcStorOutput* storeoutp = createOutput( iopar, uirv, outidx );
     if ( !storeoutp )
@@ -226,7 +229,7 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, uiRetVal& uirv,
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr==sKey::Cube() )
     {
-	SeisTrcStorOutput* outp = new SeisTrcStorOutput( subsel_ );
+	SeisTrcStorOutput* outp = new SeisTrcStorOutput( reqss_ );
 	const bool res = outp->doUsePar( pars, outidx );
 	if ( !res )
 	    { uirv = outp->errMsg(); delete outp; outp = nullptr; }
@@ -338,10 +341,9 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     , outlinebytes_(0)
     , bytestocopy_(0)
 {
-    const bool is2d = in.is2D();
-    worksubsel_ = out.subSel()->duplicate();
+    worksubsel_ = out.subSel().duplicate();
     worksubsel_->limitTo( in.subSel() );
-    totalnr_ = worksubsel_->totalSize();
+    totalnr_ = worksubsel_->horSubSel().totalSize();
 
     const int nrcomps = out_.nrComponents();
     incomp_ = new int[nrcomps];
@@ -399,14 +401,11 @@ bool doPrepare( int nrthreads )
 	outptr_[idc] += samplebytes_ * out_.zRange().nearestIndex( start );
     }
 
-    intracebytes_ = samplebytes_ * in_.sampling().size(OD::ZSlice);
-    inlinebytes_ = intracebytes_ * in_.sampling().size(OD::CrosslineSlice);
-
-    outtracebytes_ = samplebytes_ * out_.sampling().size(OD::ZSlice);
-    outlinebytes_ = outtracebytes_ * out_.sampling().size(OD::CrosslineSlice);
-
+    intracebytes_ = samplebytes_ * in_.subSel().nrZ();
+    inlinebytes_ = intracebytes_ * in_.horSubSel().trcNrSize();
+    outtracebytes_ = samplebytes_ * out_.subSel().nrZ();
+    outlinebytes_ = outtracebytes_ * out_.horSubSel().trcNrSize();
     bytestocopy_ = samplebytes_ * worksubsel_->nrZ();
-
     domemcopy_ = true;
     return true;
 }
@@ -414,8 +413,8 @@ bool doPrepare( int nrthreads )
 
 bool doWork( od_int64 start, od_int64 stop, int threadidx )
 {
-    const auto inhss = in_.horSubSel();
-    const auto outhss = out_.horSubSel();
+    const auto& inhss = in_.horSubSel();
+    const auto& outhss = out_.horSubSel();
     const auto& workhss = worksubsel_->horSubSel();
     const bool is2d = workhss.is2D();
 
@@ -424,13 +423,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
     const auto workzrg = worksubsel_->zRange();
 
     const auto nrcomps = out_.nrComponents();
-    const bool domemcopy = domemcopy_;
 
     int nrz = worksubsel_->nrZ();
     int* inzidxs = nullptr;
     int* outzidxs = nullptr;
 
-    if ( !domemcopy || !mIsEqual(inzrg.step, outzrg.step, mDefEpsF) )
+    if ( !domemcopy_ || !mIsEqual(inzrg.step, outzrg.step, mDefEpsF) )
     {
 	inzidxs = new int[ nrz ];
 	outzidxs = new int[ nrz ];
@@ -447,9 +445,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 		{ nrz = idz; break; }
 	}
 
-	for ( int idz=nrz-1; domemcopy && idz>=0; idz-- )
+	for ( int idz=nrz-1; domemcopy_ && idz>=0; idz-- )
 	{
-	    // Need relative offsets in case of domemcopy
+	    // Need relative offsets in case of domemcopy_
 	    inzidxs[idz] =  idz ? samplebytes_ * (inzidxs[idz]-inzidxs[idz-1])
 				: 0;
 	    outzidxs[idz] = idz ? samplebytes_*(outzidxs[idz]-outzidxs[idz-1])
@@ -457,7 +455,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	}
     }
 
-    const auto& worktrcnrss = workhss->trcNrSubSel();
+    const auto& worktrcnrss = workhss.trcNrSubSel();
     const auto& intrcnrss = inhss.trcNrSubSel();
     const auto& outtrcnrss = outhss.trcNrSubSel();
 
@@ -482,10 +480,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	const auto trcnr = workhss.trcNr4Idx( trcnridx );
 	const auto inlineidx = inhss.idx4LineNr( linenr );
 	const auto outlineidx = outhss.idx4LineNr( linenr );
-	const auto intrcidx = inhss.idx4TrcNr( linenr );
-	const auto outtrcidx = outhss.idx4TrcNr( linenr );
+	const auto intrcidx = inhss.idx4TrcNr( trcnr );
+	const auto outtrcidx = outhss.idx4TrcNr( trcnr );
 
-	if ( domemcopy )
+	if ( domemcopy_ )
 	{
 	    const od_int64 inoffset = inlineidx*inlinebytes_ +
 				      intrcidx*intracebytes_;
@@ -537,7 +535,7 @@ protected:
 
     const RegularSeisDataPack&	in_;
     RegularSeisDataPack&	out_;
-    GeomSubSel*			worksubsel_;
+    Survey::GeomSubSel*		worksubsel_;
 
     od_int64			totalnr_;
     bool			domemcopy_;
@@ -559,30 +557,32 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 {
     if ( packset.isEmpty() ) return 0;
     const char* category = VolumeDataPack::categoryStr(
-				!subsel_.isZSlice(), subsel_.is2D() );
+				!reqss_.isZSlice(), reqss_.is2D() );
     RegularSeisDataPack* output =
 	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
     DPM(DataPackMgr::SeisID()).add( output );
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
-    if ( cache_ && cache_->sampling().zsamp_.step != subsel_.zSubSel().zStep() )
+    if ( cache_ && cache_->subSel().zRange().step != reqss_.zSubSel().zStep() )
     {
-	TrcKeyZSampling cswithcachestep( subsel_ );
-	cswithcachestep.zsamp_.step = cache_->sampling().zsamp_.step;
-	output->setSampling( cswithcachestep );
+	PtrMan<Survey::GeomSubSel> gss = reqss_.getGeomSubSel();
+	auto zrg = gss->zRange();
+	zrg.step = cache_->subSel().zRange().step;
+	gss->setZRange( zrg );
+	output->setSubSel( *gss );
     }
     else
     {
-	// For running dimensions, steps of TrcKeyZSampling (Inl, Crl and Z)
+	// For running dimensions, steps of subsel (Inl, Crl and Z)
 	// should be same as that of datapack (packset) that is preloaded.
-	TrcKeyZSampling availabletkzs = packset[0]->sampling();
+	PtrMan<Survey::GeomSubSel> avss = packset[0]->subSel().duplicate();
 	for ( int idx=1; idx<packset.size(); idx++ )
-	    availabletkzs.include( packset[idx]->sampling() );
+	    avss->merge( packset[idx]->subSel() );
 
-	TrcKeyZSampling outputtkzs = TrcKeyZSampling( subsel_ );
-	outputtkzs.adjustTo( availabletkzs, true );
-	output->setSampling( outputtkzs );
+	PtrMan<Survey::GeomSubSel> gss = reqss_.getGeomSubSel();
+	gss->limitTo( *avss );
+	output->setSubSel( *gss );
     }
 
     for ( int idx=0; idx<attrspecs_.size(); idx++ )
@@ -622,7 +622,15 @@ void EngineMan::setSubSel( const FullSubSel& fss )
 {
     if ( attrset_ && fss.is2D() != attrset_->is2D() )
 	{ pErrMsg("2D/3D mismatch"); return; }
-    subsel_ = fss;
+    reqss_ = fss;
+}
+
+
+void EngineMan::setSubSel( const GeomSubSel& gss )
+{
+    if ( attrset_ && gss.is2D() != attrset_->is2D() )
+	{ pErrMsg("2D/3D mismatch"); return; }
+    reqss_ = FullSubSel( gss );
 }
 
 
@@ -787,9 +795,6 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 }
 
 
-#define mStepEps 1e-3
-
-
 Processor* EngineMan::createScreenOutput2D( uiRetVal& uirv,
 					    Data2DHolder& output )
 {
@@ -797,47 +802,26 @@ Processor* EngineMan::createScreenOutput2D( uiRetVal& uirv,
     if ( !proc )
 	return 0;
 
-    TwoDOutput* attrout = new TwoDOutput( subsel_.trcNrRange(),
-					  subsel_.zRange(), subsel_.geomID(0) );
+    TwoDOutput* attrout = new TwoDOutput( reqss_.trcNrRange(),
+					  reqss_.zRange(), reqss_.geomID(0) );
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
     return proc;
 }
 
-#define mRg(dir) (cachecs.dir##samp_)
 
 Processor* EngineMan::createDataPackOutput( uiRetVal& uirv,
 					    const RegularSeisDataPack* prev )
 {
     unRefAndZeroPtr( cache_ );
-    const TrcKeyZSampling tkzs( subsel_ );
-
     if ( prev )
-    {
-	cache_ = prev;
-	cache_->ref();
-	const TrcKeyZSampling cachecs = cache_->sampling();
-	if ( (mRg(h).start_.inl() - tkzs.hsamp_.start_.inl()) %
-		tkzs.hsamp_.step_.inl()
-	  || (mRg(h).start_.crl() - tkzs.hsamp_.start_.crl()) %
-		tkzs.hsamp_.step_.crl()
-	  || mRg(h).start_.inl() > tkzs.hsamp_.stop_.inl()
-	  || mRg(h).stop_.inl() < tkzs.hsamp_.start_.inl()
-	  || mRg(h).start_.crl() > tkzs.hsamp_.stop_.crl()
-	  || mRg(h).stop_.crl() < tkzs.hsamp_.start_.crl()
-	  || mRg(z).start > tkzs.zsamp_.stop + mStepEps*tkzs.zsamp_.step
-	  || mRg(z).stop < tkzs.zsamp_.start - mStepEps*tkzs.zsamp_.step )
-	    // No overlap, gotta crunch all the numbers ...
-	{
-	    unRefAndZeroPtr( cache_ );
-	}
-    }
+	{ cache_ = prev; cache_->ref(); }
 
-#define mAddAttrOut(todocs) \
+#define mAddAttrOut( fss ) \
 { \
-    DataPackOutput* attrout = new DataPackOutput(todocs); \
-    attrout->setGeometry( todocs ); \
+    DataPackOutput* attrout = new DataPackOutput( fss ); \
+    attrout->setGeometry( fss ); \
     attrout->setUndefValue( udfval_ ); \
     proc->addOutput( attrout ); \
 }
@@ -846,88 +830,103 @@ Processor* EngineMan::createDataPackOutput( uiRetVal& uirv,
     if ( !proc )
 	return 0;
 
+    const bool is2d = reqss_.is2D();
+    FullSubSel todofss( reqss_ );
     if ( !cache_ )
-	mAddAttrOut( tkzs )
+	mAddAttrOut( todofss )
     else
     {
-	const TrcKeyZSampling cachecs = cache_->sampling();
-	TrcKeyZSampling todocs( tkzs );
-	if ( mRg(h).start_.inl() > tkzs.hsamp_.start_.inl() )
+	const auto& cachess = cache_->subSel();
+	const auto& cachehss = cachess.horSubSel();
+	const auto cacheinlrg = cachehss.lineNrRange();
+
+	if ( !cachess.is2D() )
 	{
-	    todocs.hsamp_.stop_.inl() =
-		mRg(h).start_.inl() - tkzs.hsamp_.step_.inl();
-	    mAddAttrOut( todocs )
+	    const auto reqchss = reqss_.cubeHorSubSel();
+	    const auto reqinlrg = reqchss.inlRange();
+	    if ( cacheinlrg.start > reqinlrg.start )
+	    {
+		auto toloadrg( reqinlrg );
+		toloadrg.stop = cacheinlrg.start - reqinlrg.step;
+		FullSubSel fss( reqss_ );
+		fss.setInlRange( toloadrg );
+		mAddAttrOut( fss )
+	    }
+	    if ( cacheinlrg.stop < reqinlrg.stop )
+	    {
+		auto toloadrg( reqinlrg );
+		toloadrg.start = cacheinlrg.stop + reqinlrg.step;
+		FullSubSel fss( reqss_ );
+		fss.setInlRange( toloadrg );
+		mAddAttrOut( fss )
+	    }
 	}
 
-	if ( mRg(h).stop_.inl() < tkzs.hsamp_.stop_.inl() )
+	const auto cachetrcnrrg = cachehss.trcNrRange();
+	const auto& reqhss = reqss_.horSubSel();
+	const auto reqtrcnrrg = reqhss.trcNrRange();
+	if ( cachetrcnrrg.start > reqtrcnrrg.start )
 	{
-	    todocs = tkzs;
-	    todocs.hsamp_.start_.inl() =
-		mRg(h).stop_.inl() + tkzs.hsamp_.step_.inl();
-	    mAddAttrOut( todocs )
+	    auto toloadrg( reqtrcnrrg );
+	    toloadrg.stop = cachetrcnrrg.start - reqtrcnrrg.step;
+	    FullSubSel fss( reqss_ );
+	    if ( !is2d )
+		fss.setInlRange( cachetrcnrrg );
+	    fss.setCrlRange( toloadrg );
+	    mAddAttrOut( fss )
+	}
+	if ( cachetrcnrrg.stop < reqtrcnrrg.stop )
+	{
+	    auto toloadrg( reqtrcnrrg );
+	    toloadrg.start = cachetrcnrrg.stop + reqtrcnrrg.step;
+	    FullSubSel fss( reqss_ );
+	    if ( !is2d )
+		fss.setInlRange( cachetrcnrrg );
+	    fss.setCrlRange( toloadrg );
+	    mAddAttrOut( fss )
 	}
 
-	const int startinl =
-		mMAX(tkzs.hsamp_.start_.inl(), mRg(h).start_.inl() );
-	const int stopinl = mMIN( tkzs.hsamp_.stop_.inl(), mRg(h).stop_.inl());
-
-	if ( mRg(h).start_.crl() > tkzs.hsamp_.start_.crl() )
+	const auto cachezrg = cachess.zRange();
+	const auto reqzrg = reqss_.zRange();
+	const auto zeps = mZRelEps * cachezrg.step;
+	if ( reqzrg.start < cachezrg.atIndex(-1) + zeps )
 	{
-	    todocs = tkzs;
-	    todocs.hsamp_.start_.inl() = startinl;
-	    todocs.hsamp_.stop_.inl() = stopinl;
-	    todocs.hsamp_.stop_.crl() =
-		mRg(h).start_.crl() - tkzs.hsamp_.step_.crl();
-	    mAddAttrOut( todocs )
+	    auto toloadrg( reqzrg );
+	    toloadrg.stop = cachezrg.start - reqzrg.step;
+	    FullSubSel fss( cachess );
+	    fss.setZRange( toloadrg );
+	    mAddAttrOut( fss )
 	}
-
-	if ( mRg(h).stop_.crl() < tkzs.hsamp_.stop_.crl() )
+	if ( reqzrg.stop > cachezrg.atIndex(cachezrg.nrSteps()+1) - zeps )
 	{
-	    todocs = tkzs;
-	    todocs.hsamp_.start_.inl() = startinl;
-	    todocs.hsamp_.stop_.inl() = stopinl;
-	    todocs.hsamp_.start_.crl() =
-		mRg(h).stop_.crl() + tkzs.hsamp_.step_.crl();
-	    mAddAttrOut( todocs )
-	}
-
-	todocs = tkzs;
-	todocs.hsamp_.start_.inl() = startinl;
-	todocs.hsamp_.stop_.inl() = stopinl;
-	todocs.hsamp_.start_.crl() =
-		mMAX( tkzs.hsamp_.start_.crl(), mRg(h).start_.crl() );
-	todocs.hsamp_.stop_.crl() =
-		mMIN( tkzs.hsamp_.stop_.crl(), mRg(h).stop_.crl() );
-
-	if ( mRg(z).start > tkzs.zsamp_.start + mStepEps*tkzs.zsamp_.step )
-	{
-	    todocs.zsamp_.stop = mMAX( mRg(z).start-tkzs.zsamp_.step,
-				       todocs.zsamp_.start );
-	    mAddAttrOut( todocs )
-	}
-
-	if ( mRg(z).stop < tkzs.zsamp_.stop - mStepEps*tkzs.zsamp_.step )
-	{
-	    todocs.zsamp_ = tkzs.zsamp_;
-	    todocs.zsamp_.start = mMIN( mRg(z).stop+tkzs.zsamp_.step,
-					todocs.zsamp_.stop );
-	    mAddAttrOut( todocs )
+	    auto toloadrg( reqzrg );
+	    toloadrg.start = cachezrg.stop + reqzrg.step;
+	    FullSubSel fss( cachess );
+	    fss.setZRange( toloadrg );
+	    mAddAttrOut( fss )
 	}
     }
 
-    if ( tkzs.isFlat() && tkzs.defaultDir() != OD::ZSlice )
+    if ( !is2d && reqss_.isFlat() && !reqss_.isZSlice() )
     {
+	const auto css = reqss_.cubeSubSel();
 	TypeSet<BinID> positions;
-	if ( tkzs.defaultDir() == OD::InlineSlice )
-	    for ( int idx=0; idx<tkzs.nrCrl(); idx++ )
-		positions += BinID( tkzs.hsamp_.start_.inl(),
-				    tkzs.hsamp_.start_.crl() +
-					tkzs.hsamp_.step_.crl()*idx );
-	if ( tkzs.defaultDir() == OD::CrosslineSlice )
-	    for ( int idx=0; idx<tkzs.nrInl(); idx++ )
-		positions += BinID( tkzs.hsamp_.start_.inl() +
-				    tkzs.hsamp_.step_.inl()*idx,
-				    tkzs.hsamp_.start_.crl() );
+	if ( css.defaultDir() == OD::InlineSlice )
+	{
+	    const auto inl = reqss_.inlRange().start;
+	    const auto crlrg = reqss_.crlRange();
+	    const auto sz = crlrg.nrSteps() + 1;
+	    for ( int idx=0; idx<sz; idx++ )
+		positions += BinID( inl, crlrg.atIndex(idx) );
+	}
+	else if ( css.defaultDir() == OD::CrosslineSlice )
+	{
+	    const auto crl = reqss_.crlRange().start;
+	    const auto inlrg = reqss_.inlRange();
+	    const auto sz = inlrg.nrSteps() + 1;
+	    for ( int idx=0; idx<sz; idx++ )
+		positions += BinID( inlrg.atIndex(idx), crl );
+	}
 
 	proc->setRdmPaths( positions, positions );
     }

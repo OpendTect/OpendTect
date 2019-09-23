@@ -300,7 +300,7 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
 
     auto rsdp = Seis::PLDM().get<RegularSeisDataPack>( key );
     setAttribData( as, rsdp->id() );
-    setActiveVolume( rsdp->sampling() );
+    setActiveVolume( TrcKeyZSampling(rsdp->subSel()) );
     return true;
 }
 
@@ -744,7 +744,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
     if ( !rsdp )
 	return false;
 
-    TrcKeyZSampling cachedcs = rsdp->sampling();
+    TrcKeyZSampling cachedcs( rsdp->subSel() );
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zsamp_.widen( zrgeps );
     return cachedcs.includes( cs );
@@ -852,7 +852,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     if ( !vdp )
 	return DataPack::cNoID();
 
-    const int globidx = vdp->nearestGlobalIdx( tk );
+    const int globidx = vdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
     StepInterval<float> zintv2 = zintv; zintv2.step = vdp->zRange().step;

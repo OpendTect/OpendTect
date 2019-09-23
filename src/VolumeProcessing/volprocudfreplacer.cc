@@ -8,9 +8,10 @@
 #include "volprocudfreplacer.h"
 
 #include "arrayndalgo.h"
+#include "cubesubsel.h"
 #include "keystrs.h"
 #include "seisdatapack.h"
-#include "cubesubsel.h"
+#include "trckeyzsampling.h"
 
 
 const char* VolProc::UdfReplacer::sKeyPadTraces()
@@ -103,7 +104,7 @@ ReportingTask* VolProc::UdfReplacer::createTask()
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( padmissingtraces_ )
     {
-	const TrcKeySampling& tks = output->sampling().hsamp_;
+	const TrcKeySampling tks( output->horSubSel() );
 	PosInfo::CubeData* outcd = new PosInfo::CubeData;
 	outcd->generate( tks.start_, tks.stop_, tks.step_ );
 	output->setTracePositions( outcd );
@@ -114,12 +115,12 @@ ReportingTask* VolProc::UdfReplacer::createTask()
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
 	Array3D<float>& out = output->data( icomp );
-	const TrcKeyZSampling& outputtkzs = output->sampling();
 	if ( !canInputAndOutputBeSame() )
 	{
 	    Array3DCopier<float>* copier =
 		new Array3DCopier<float>( input->data(icomp), out,
-		      CubeSubSel(input->sampling()), CubeSubSel(outputtkzs) );
+		      *input->subSel().asCubeSubSel(),
+		      *output->subSel().asCubeSubSel() );
 	    tasks->addTask( copier );
 	    if ( !comps_.isPresent(icomp) )
 		continue;
@@ -129,7 +130,8 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 	task->setReplacementValue( replval_ );
 	const auto* posns = output->tracePositions();
 	if ( posns && !posns->isLinesData() )
-	    task->setPositions( *posns->asCubeData(), outputtkzs.hsamp_ );
+	    task->setPositions( *posns->asCubeData(),
+				*output->horSubSel().asCubeHorSubSel() );
 	tasks->addTask( task );
     }
 

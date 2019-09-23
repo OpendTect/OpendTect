@@ -223,6 +223,12 @@ void Survey::FullSubSel::setZSubSel( GeomID gid, const ZSubSel& zss )
 }
 
 
+CubeHorSubSel Survey::FullSubSel::cubeHorSubSel() const
+{
+    return hss_.cubeHorSubSel();
+}
+
+
 CubeSubSel Survey::FullSubSel::cubeSubSel() const
 {
     CubeSubSel ret( hss_.cubeHorSubSel() );
@@ -231,10 +237,32 @@ CubeSubSel Survey::FullSubSel::cubeSubSel() const
 }
 
 
+LineHorSubSel Survey::FullSubSel::lineHorSubSel( idx_type iln ) const
+{
+    return hss_.lineHorSubSel( iln );
+}
+
+
 LineSubSel Survey::FullSubSel::lineSubSel( idx_type iln ) const
 {
     LineSubSel ret( hss_.lineHorSubSel(iln) );
     ret.zSubSel() = zss_.getFor( ret.geomID() );
+    return ret;
+}
+
+
+void Survey::FullSubSel::getLineHorSubSelSet( LineHorSubSelSet& lhsss ) const
+{
+    lhsss.setEmpty();
+    for ( int idx=0; idx<nrGeomIDs(); idx++ )
+	lhsss.add( new LineHorSubSel( hss_.lineHorSubSel(idx) ) );
+}
+
+
+LineHorSubSelSet Survey::FullSubSel::lineHorSubSelSet() const
+{
+    LineHorSubSelSet ret;
+    getLineHorSubSelSet( ret );
     return ret;
 }
 
@@ -259,10 +287,10 @@ LineSubSelSet Survey::FullSubSel::lineSubSelSet() const
 }
 
 
-Survey::GeomSubSel* Survey::FullSubSel::getGeomSubSel() const
+Survey::GeomSubSel* Survey::FullSubSel::getGeomSubSel( idx_type idx ) const
 {
     if ( is2D() )
-	return new LineSubSel( lineSubSel() );
+	return new LineSubSel( lineSubSel(idx) );
     else
 	return new CubeSubSel( cubeSubSel() );
 }

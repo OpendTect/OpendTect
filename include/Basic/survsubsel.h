@@ -83,6 +83,7 @@ mExpClass(Basic) HorSubSel : public SubSel
 public:
 
     typedef pos_type		trcnr_type;
+    typedef StepInterval<trcnr_type>	trcnr_steprg_type;
 
     bool			operator ==( const HorSubSel& oth ) const
 				{ return equals( oth ); }
@@ -113,12 +114,15 @@ public:
 				{ return gtTrcNrSubSel().posStop(); }
     trcnr_type			trcNrStep() const
 				{ return gtTrcNrSubSel().posStep(); }
-    StepInterval<trcnr_type>	trcNrRange() const
+    trcnr_steprg_type		trcNrRange() const
 				{ return gtTrcNrSubSel().outputPosRange(); }
     size_type			trcNrSize() const
 				{ return gtTrcNrSubSel().size(); }
     virtual size_type		nrLines() const
 				{ return 1; }
+    virtual trcnr_steprg_type	lineNrRange() const
+				{ const auto lnr = geomID().getI();
+				    return trcnr_steprg_type(lnr,lnr,1); }
 
     pos_type			lineNr4Idx(idx_type) const;
     pos_type			trcNr4Idx(idx_type) const;
