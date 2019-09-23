@@ -255,7 +255,6 @@ static const uiString dontchange( toUiString("-") );
 static void initQApplication( uiString appnm, uiString orgnm )
 {
     uiMain::cleanQtOSEnv();
-    QApplication::setDesktopSettingsAware( true );
 
     if ( orgnm != dontchange )
     {
@@ -423,6 +422,8 @@ void uiMain::init( QApplication* qap )
 	    DBG::message( "Constructing QApplication ..." );
 
 	SetArgcAndArgv( clp_->getArgc(), clp_->getArgv() );
+	QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
+	QApplication::setDesktopSettingsAware( true );
 	app_ = new QApplication( GetArgC(), GetArgV() );
     }
 
