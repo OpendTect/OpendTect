@@ -123,7 +123,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	if ( !sdp )
 	    { pErrMsg( "Could not find Cube DataPack" ); return; }
 
-	TrcKeyZSampling cs = sdp->sampling();
+	const TrcKeyZSampling cs( sdp->subSel() );
 	uiString str = tr("Compute attribute at position:");
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );

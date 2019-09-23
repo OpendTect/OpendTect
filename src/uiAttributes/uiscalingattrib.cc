@@ -443,7 +443,7 @@ void createSelFields( DataType type )
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
             auto cdp = DPM(mgrid).get<RegularSeisDataPack>(dpid);
-	    cs = cdp->sampling();
+	    cs = TrcKeyZSampling( cdp->subSel() );
 	}
 	else if ( type==uiSelectPositionDlg::Stored3D )
 	{

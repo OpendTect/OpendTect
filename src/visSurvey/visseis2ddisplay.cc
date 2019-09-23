@@ -428,7 +428,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
     if ( !regsdp )
 	return;
 
-    updateTexOriginAndScale( attrib, regsdp->sampling() );
+    updateTexOriginAndScale( attrib, TrcKeyZSampling(regsdp->subSel()) );
 
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
@@ -899,13 +899,13 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
     const TrcKey trckey( l2dprobe->geomID(), trcnr );
-    const int trcidx = regsdp->nearestGlobalIdx( trckey );
+    const int trcidx = regsdp->getNearestGlobalIdx( trckey );
     const int sampidx = regsdp->zRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = regsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;
 
-    res =  array.get( 0, trcidx, sampidx );
+    res = array.get( 0, trcidx, sampidx );
     return true;
 }
 

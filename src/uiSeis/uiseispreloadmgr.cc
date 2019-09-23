@@ -11,10 +11,12 @@
 #include "ctxtioobj.h"
 #include "coltabmapper.h"
 #include "coltabseqmgr.h"
+#include "cubesubsel.h"
 #include "datapack.h"
 #include "file.h"
-#include "keystrs.h"
 #include "ioobj.h"
+#include "keystrs.h"
+#include "linesubsel.h"
 #include "preloads.h"
 #include "ptrman.h"
 #include "seisbuf.h"
@@ -192,7 +194,8 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     PreLoader spl( key );
     uiTaskRunnerProvider trprov( this );
     spl.setTaskRunner( trprov );
-    if ( !spl.load(Survey::CubeSubSel(tkzs),dc.userType(),dlg.getScaler()) )
+    const CubeSubSel css( tkzs );
+    if ( !spl.load(&css,dc.userType(),dlg.getScaler()) )
     {
 	const uiString emsg = spl.errMsg();
 	if ( !emsg.isEmpty() )
@@ -257,7 +260,14 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     }
 
     PreLoader spl( key, trprov );
-    spl.load( tkzss, loadgeomids, dc.userType(), dlg.getScaler() );
+    ObjectSet<Survey::GeomSubSel> gsss;
+    for ( auto tkzsamp : tkzss )
+	if ( tkzsamp.is2D() )
+	    gsss += new LineSubSel( tkzsamp );
+	else
+	    gsss += new CubeSubSel( tkzsamp );
+    spl.load( gsss, dc.userType(), dlg.getScaler() );
+    deepErase( gsss );
 
     fullUpd( 0 );
 }

@@ -22,6 +22,7 @@ _______________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "bufstring.h"
+#include "cubesubsel.h"
 #include "datapackbase.h"
 #include "envvars.h"
 #include "flatposdata.h"
@@ -203,7 +204,7 @@ void uiFKSpectrum::setDataPackID(
 
 	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
 	const OD::SliceType slctyp = regsdp ?
-		regsdp->subSel().asCubeSubSel().defaultDir() : OD::InlineSlice;
+		regsdp->subSel().asCubeSubSel()->defaultDir() : OD::InlineSlice;
 
 	typedef Array2DSlice<float>::dim_idx_type dim_idx_type;
 	const dim_idx_type valdim = (dim_idx_type)slctyp;

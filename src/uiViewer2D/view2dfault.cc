@@ -102,7 +102,8 @@ void VW2DFault::draw()
 	if ( faulteds_[ivwr] )
 	{
 	    if ( regfdp )
-		faulteds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
+		faulteds_[ivwr]->setTrcKeyZSampling(
+					TrcKeyZSampling(regfdp->subSel()) );
 
 	    if ( randfdp )
 	    {

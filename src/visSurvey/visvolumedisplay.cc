@@ -641,7 +641,7 @@ float VolumeDisplay::getValue( int attrib, const Coord3& pos ) const
 	return mUdf(float);
 
     const BinID bid( SI().transform(pos.getXY()) );
-    const TrcKeyZSampling& samp = attribs_[attrib]->cache_->sampling();
+    const TrcKeyZSampling samp( attribs_[attrib]->cache_->subSel() );
     const int inlidx = samp.inlIdx( bid.inl() );
     const int crlidx = samp.crlIdx( bid.crl() );
     const int zidx = samp.zsamp_.getIndex( pos.z_ );
@@ -842,7 +842,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tskr )
 	isosurfaces_[idx]->getSurface()->removeAll();
     else
     {
-	const TrcKeyZSampling& samp = cache->sampling();
+	const TrcKeyZSampling samp( cache->subSel() );
 	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->setBoxBoundary(
 		mCast(float,samp.hsamp_.inlRange().stop),
@@ -1103,7 +1103,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
     if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
 	return false;
 
-    TrcKeyZSampling tkzs = attribdata->sampling();
+    TrcKeyZSampling tkzs( attribdata->subSel() );
 
     const Array3D<float>* usedarray = 0;
     bool arrayismine = true;
@@ -1116,8 +1116,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
 //	datatransformer_->setInterpolate( !isClassification(attrib) );
 	datatransformer_->setInterpolate( true );
-	datatransformer_->setInput( attribdata->data(),
-				    attribdata->sampling() );
+	datatransformer_->setInput( attribdata->data(), tkzs );
 	tkzs.zsamp_ = getTrcKeyZSampling(true,true,0).zsamp_;
 	datatransformer_->setOutputRange( tkzs );
 

@@ -16,12 +16,13 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "picksetmanager.h"
+#include "posinfo2d.h"
 #include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
-#include "posinfo2d.h"
+#include "trckeyzsampling.h"
 #include "uiflatviewer.h"
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
@@ -139,14 +140,14 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	const Pick::Location& pl = psiter.get();
 	if ( regfdp )
 	{
-	    const TrcKeyZSampling& vwr2dtkzs = regfdp->sampling();
+	    const TrcKeyZSampling vwr2dtkzs( regfdp->subSel() );
 	    if ( regfdp->isVertical() )
 	    {
 		if ( regfdp->is2D() )
 		{
 		    const Pos::GeomID geomid(
 				vwr2dtkzs.hsamp_.inlRange().start );
-		    if ( pl.hasTrcKey() &&  pl.geomID()!=geomid )
+		    if ( pl.hasTrcKey() && pl.geomID()!=geomid )
 			continue;
 		    else
 		    {
@@ -266,7 +267,7 @@ void VW2DPickSet::draw()
 		pl.getKeyedText( "Dip" , dipval );
 		SeparString dipstr( dipval );
 		double distance = mUdf(double);
-		const TrcKeyZSampling& vwr2dtkzs = regfdp->sampling();
+		const TrcKeyZSampling vwr2dtkzs( regfdp->subSel() );
 		if ( !regfdp->is2D() )
 		{
 		    if ( !vwr2dtkzs.hsamp_.includes(pl.binID()) )
@@ -281,8 +282,8 @@ void VW2DPickSet::draw()
 			if ( pl.geomID() != geomid )
 			    continue;
 
-			trcidx = regfdp->getSourceDataPack().globalIdx(
-				pl.trcKey() );
+			trcidx = regfdp->getSourceDataPack().getGlobalIdx(
+								pl.trcKey() );
 		    }
 		    else
 		    {
@@ -313,8 +314,9 @@ void VW2DPickSet::draw()
 	    }
 	    else if ( regfdp && !regfdp->isVertical() )
 	    {
-		const float vwr2dzpos = regfdp->sampling().zsamp_.start;
-		const float eps = regfdp->sampling().zsamp_.step/2.f;
+		const auto zrg( regfdp->subSel().zRange() );
+		const float vwr2dzpos = zrg.start;
+		const float eps = zrg.step/2.f;
 		if ( !mIsEqual(vwr2dzpos,pos.z_,eps) )
 		    continue;
 

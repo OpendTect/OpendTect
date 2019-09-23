@@ -806,15 +806,11 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 	mTryAlloc( datatransformer,ZAxisTransformer(*datatransform_,true));
 	datatransformer->setInterpolate( textureInterpolationEnabled() );
 	//datatransformer->setInterpolate( true );
-	//datatransformer->setInput( cdp->cube().getCube(0), cdp->sampling() );
-	datatransformer->setInput( cdp->data(), cdp->sampling() );
+	datatransformer->setInput( cdp->data(), TrcKeyZSampling(cdp->subSel()));
 	datatransformer->setOutputRange( getTrcKeyZSampling(true,true,0) );
 
 	if ( TaskRunner::execute( tskr, *datatransformer ) )
-	{
-	    pErrMsg( "Transform failed" );
-	    return false;
-	}
+	    { ErrMsg( "Transform failed" ); return false; }
 
 	DPM( DataPackMgr::SeisID() ).ref( cdp->id() );
 	DPM( DataPackMgr::SeisID() ).unRef( attrib_dpid );
@@ -851,9 +847,9 @@ bool MPEDisplay::updateFromCacheID( int attrib,
 
     // get the dimensions from the engine and then get a subsample of the array
     const TrcKeyZSampling displaycs = engine_.activeVolume();
-    if ( displaycs != regsdp->sampling() )
+    if ( displaycs != TrcKeyZSampling(regsdp->subSel()) )
     {
-	const TrcKeyZSampling& attrcs = regsdp->sampling();
+	const TrcKeyZSampling attrcs( regsdp->subSel() );
 	if ( !attrcs.includes( displaycs ) )
 	    return false;
 
@@ -1061,7 +1057,7 @@ float MPEDisplay::getValue( const Coord3& pos_ ) const
     if ( !volumecache_ ) return mUdf(float);
 
     const BinID bid( SI().transform(pos_.getXY()) );
-    const TrcKeyZSampling& samp = volumecache_->sampling();
+    const TrcKeyZSampling samp( volumecache_->subSel() );
     const int inlidx = samp.inlIdx( bid.inl() );
     const int crlidx = samp.crlIdx( bid.crl() );
     const int zidx = samp.zsamp_.getIndex( pos_.z_ );

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "cubesubsel.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seisdatapack.h"
@@ -111,9 +112,10 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
     if ( selbutid==0 )
     {
 	TrcKeyZSampling tkzs; tkzs.setEmpty();
+	const CubeSubSel css( tkzs );
 	Seis::PreLoader spl( key );
 	spl.setTaskRunner( uitr );
-	if ( !spl.load(tkzs) )
+	if ( !spl.load(&css) )
 	{
 	    const bool res = gUiMsg().askGoOn(
 		tr("Data has not been pre-loaded.\n"
@@ -133,10 +135,11 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
 	    return false;
 
 	TrcKeyZSampling tkzs; spldlg.getSampling( tkzs );
+	const CubeSubSel css( tkzs );
 	DataCharacteristics spldc; spldlg.getDataChar( spldc );
 	Seis::PreLoader spl( key );
 	spl.setTaskRunner( uitr );
-	if ( !spl.load(tkzs,spldc.userType(),spldlg.getScaler()) )
+	if ( !spl.load(&css,spldc.userType(),spldlg.getScaler()) )
 	{
 	    const uiString emsg = spl.errMsg();
 	    if ( !emsg.isEmpty() )

@@ -772,7 +772,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 	auto sdp = Seis::PLDM().get<RegularSeisDataPack>(dbky);
 	if ( sdp )
 	{
-	    const TrcKeyZSampling& seistkzs = sdp->sampling();
+	    const TrcKeyZSampling seistkzs( sdp->subSel() );
 	    TrcKeySampling dpstks;
 	    dpstks.set( posvals.bivSet().inlRange(),
 			posvals.bivSet().crlRange() );
@@ -804,7 +804,8 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 		uiTaskRunner uitr( parent() );
 		const int comp = targetdesc->selectedOutput();
 		DPSFromVolumeFiller filler( posvals, firstcol, *sdp, comp );
-		filler.setSampling( &sdp->sampling() );
+		const TrcKeyZSampling sdptkzs( sdp->subSel() );
+		filler.setSampling( &sdptkzs );
 		return TaskRunner::execute( &uitr, filler );
 	    }
 	}
@@ -1060,7 +1061,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
 	{
 	    const int trcidx =
-			outputdp_->globalIdx( trcinfoset[tidx]->trcKey() );
+			outputdp_->getGlobalIdx( trcinfoset[tidx]->trcKey() );
 	    if ( trcidx < 0 )
 		continue;
 

@@ -93,12 +93,14 @@ void VW2DFaultSS3D::draw()
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
 	mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
 	mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
-	if ( !regfdp && !randfdp ) continue;
+	if ( !regfdp && !randfdp )
+	    continue;
 
 	if ( fsseds_[ivwr] )
 	{
 	    if ( regfdp )
-		fsseds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
+		fsseds_[ivwr]->setTrcKeyZSampling(
+					TrcKeyZSampling(regfdp->subSel()) );
 
 	    if ( randfdp )
 	    {

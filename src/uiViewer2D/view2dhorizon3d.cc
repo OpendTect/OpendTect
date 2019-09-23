@@ -112,7 +112,8 @@ void Vw2DHorizon3D::draw()
 	if ( horeds_[ivwr] )
 	{
 	    if ( regfdp )
-		horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
+		horeds_[ivwr]->setTrcKeyZSampling(
+				TrcKeyZSampling(regfdp->subSel()) );
 
 	    if ( randfdp )
 	    {

@@ -110,7 +110,7 @@ void Vw2DHorizon2D::draw()
 	ConstRefMan<RegularSeisFlatDataPack> regfdp = vwr.getPack( true, true );
 	if ( !regfdp ) continue;
 
-	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
+	horeds_[ivwr]->setTrcKeyZSampling( TrcKeyZSampling(regfdp->subSel()) );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	horeds_[ivwr]->setGeomID( regfdp->geomID() );
