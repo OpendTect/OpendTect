@@ -115,6 +115,10 @@ set( OD_MODULE_GUI_PROGS
 	od_uiReportIssue.cc
 )
 
+if ( USE_QtWebEngine )
+	list( APPEND OD_MODULE_GUI_PROGS od_WebEngine.cc )
+endif()
+
 if( WIN32 )
     list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_runinst.cc )
     set( OD_od_runinst_RESOURCE resources/od_runinst.rc )
