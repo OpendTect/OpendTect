@@ -392,9 +392,7 @@ void uiSeisBrowser::fillUdf( SeisTrc& trc )
 static BufferString getZValStr( float z, int zfac )
 {
     BufferString txt;
-    float dispz = zfac * z * 10;
-    int idispz = mNINT32( dispz );
-    dispz = idispz * 0.1f;
+    const float dispz = zfac * z;
     txt = dispz;
     return txt;
 }
