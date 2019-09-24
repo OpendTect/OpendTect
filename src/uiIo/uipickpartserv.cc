@@ -121,6 +121,9 @@ void uiPickPartServer::exportSet()
 bool uiPickPartServer::storePickSets()
 { return uipsmgr_.storeSets(); }
 
+bool uiPickPartServer::storeNewPickSet( Pick::Set*& ps )
+{ return uipsmgr_.storeNewSet( ps ); }
+
 bool uiPickPartServer::storePickSet( const Pick::Set& ps )
 { return uipsmgr_.storeSet( ps ); }
 

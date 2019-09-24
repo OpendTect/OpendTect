@@ -49,6 +49,7 @@ public:
     void			exportSet();
 
     bool			storePickSets();
+    bool			storeNewPickSet(Pick::Set*&);
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
     bool			pickSetsStored() const;
