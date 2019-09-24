@@ -79,6 +79,8 @@ public:
     static const char*	sKeyJobID();
     static const char*	sKeyDataDir()		{ return "datadir"; }
     static const char*	sKeyFinishMsg() { return "Finished batch processing."; }
+    static const char*	sKeySurveyDir() { return "surveydir"; }
+    static const char*	sKeySimpleBatch() { return "noparfile"; }
 
 protected:
 

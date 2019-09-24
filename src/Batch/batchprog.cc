@@ -123,38 +123,42 @@ void BatchProgram::init()
 	parfilnm.setEmpty();
     }
 
-    if ( parfilnm.isEmpty() )
+    const bool simplebatch = clparser_->hasKey( sKeySimpleBatch() );
+    if ( parfilnm.isEmpty() && !simplebatch )
     {
 	errorMsg( tr("%1: No existing parameter file name specified")
 		 .arg(clparser_->getExecutableName()) );
 	return;
     }
 
-    setName( parfilnm );
-    od_istream odstrm( parfilnm );
-    if ( !odstrm.isOK() )
+    if ( !simplebatch )
     {
-	errorMsg( tr("%1: Cannot open parameter file: %2")
-		    .arg( clparser_->getExecutableName() )
-		    .arg( parfilnm ));
-	return;
+	setName( parfilnm );
+	od_istream odstrm(parfilnm);
+	if ( !odstrm.isOK() )
+	{
+	    errorMsg( tr("%1: Cannot open parameter file: %2" )
+		.arg(clparser_->getExecutableName() )
+		.arg(parfilnm) );
+	    return;
+	}
+
+	ascistream aistrm( odstrm, true );
+	if ( sKey::Pars() != aistrm.fileType() )
+	{
+	    errorMsg( tr("%1: Input file %2 is not a parameter file")
+		.arg(clparser_->getExecutableName())
+		.arg(parfilnm) );
+
+	    od_cerr() << aistrm.fileType() << od_endl;
+	    return;
+	}
+
+
+	iopar_->getFrom( aistrm );
+	odstrm.close();
     }
-
-    ascistream aistrm( odstrm, true );
-    if ( sKey::Pars() != aistrm.fileType() )
-    {
-	errorMsg( tr("%1: Input file %2 is not a parameter file")
-		    .arg( clparser_->getExecutableName() )
-		    .arg( parfilnm ));
-
-	od_cerr() << aistrm.fileType() << od_endl;
-	return;
-    }
-
-    iopar_->getFrom( aistrm );
-    odstrm.close();
-
-    if ( iopar_->size() == 0 )
+    if ( iopar_->size() == 0 && !simplebatch )
     {
 	errorMsg( tr( "%1: Invalid input file %2")
 		    .arg( clparser_->getExecutableName() )
@@ -175,7 +179,10 @@ void BatchProgram::init()
 	SetEnvVar( "DTECT_DATA", res );
 
     res = iopar_->find( sKey::Survey() );
-    if ( res.isEmpty() )
+
+    if ( simplebatch && clparser_->getVal(sKeySurveyDir(), res) )
+	iopar_->set( sKey::Survey(), res );
+    else if ( res.isEmpty() )
 	IOMan::newSurvey();
     else
     {
