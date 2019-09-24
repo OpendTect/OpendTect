@@ -29,4 +29,8 @@ SET(OD_MODULE_PROGS
 	od_remexec.cc
 )
 
+if ( WIN32 )
+	set( OD_ELEVATED_PERMISSIONS_PROGS od_Setup_Firewall.cc )
+endif( WIN32 )
+
 OD_INIT_MODULE()
