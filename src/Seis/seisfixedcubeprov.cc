@@ -211,3 +211,9 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( trcnr_type tnr ) const
 
     return data_->get( 0, lss.idx4TrcNr(tnr) );
 }
+
+
+const SeisTrc* SeisFixedCubeProvider::getTrace( const TrcKey& tk ) const
+{
+    return tk.is2D() ? getTrace( tk.trcNr() ) : getTrace( tk.binID() );
+}

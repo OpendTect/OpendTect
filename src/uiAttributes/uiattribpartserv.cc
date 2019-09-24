@@ -563,7 +563,8 @@ Attrib::EngineMan* uiAttribPartServer::createEngMan(
     aem->setAttribSpecs( targetspecs_ );
     if ( tkzs )
 	aem->setSubSel( Survey::FullSubSel(*tkzs) );
-    aem->setGeomID( geomid );
+    else if ( geomid.isValid() )
+	aem->setGeomID( geomid );
 
     return aem;
 }

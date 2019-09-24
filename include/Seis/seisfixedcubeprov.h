@@ -38,6 +38,7 @@ public:
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(trcnr_type) const;
+    const SeisTrc*	getTrace(const TrcKey&) const;
     dist_type		getTrcDist() const		{ return trcdist_; }
     uiString		errMsg() const;
 

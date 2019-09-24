@@ -184,7 +184,7 @@ Survey::HorSubSel::pos_type Survey::HorSubSel::trcNr4Idx( idx_type idx ) const
 
 Survey::HorSubSel::idx_type Survey::HorSubSel::idx4LineNr( pos_type idx ) const
 {
-    return is2D() ? 0 : asCubeHorSubSel()->inl4Idx( idx );
+    return is2D() ? 0 : asCubeHorSubSel()->idx4Inl( idx );
 }
 
 
