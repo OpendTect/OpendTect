@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "taskrunner.h"
 
 class Scaler;
-class TrcKeyZSampling;
 
 
 namespace Seis

@@ -78,9 +78,8 @@ void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 
 Survey::HorSubSel* Survey::HorSubSel::duplicate() const
 {
-    const auto* lhss = asLineHorSubSel();
-    if ( lhss )
-	return new LineHorSubSel( *lhss );
+    if ( is2D() )
+	return new LineHorSubSel( *asLineHorSubSel() );
     else
 	return new CubeHorSubSel( *asCubeHorSubSel() );
 }
@@ -88,25 +87,25 @@ Survey::HorSubSel* Survey::HorSubSel::duplicate() const
 
 LineHorSubSel* Survey::HorSubSel::asLineHorSubSel()
 {
-    return mGetDynamicCast( LineHorSubSel*, this );
+    return is2D() ? static_cast<LineHorSubSel*>( this ) : nullptr;
 }
 
 
 const LineHorSubSel* Survey::HorSubSel::asLineHorSubSel() const
 {
-    return mGetDynamicCast( const LineHorSubSel*, this );
+    return is2D() ? static_cast<const LineHorSubSel*>( this ) : nullptr;
 }
 
 
 CubeHorSubSel* Survey::HorSubSel::asCubeHorSubSel()
 {
-    return mGetDynamicCast( CubeHorSubSel*, this );
+    return is2D() ? nullptr : static_cast<CubeHorSubSel*>( this );
 }
 
 
 const CubeHorSubSel* Survey::HorSubSel::asCubeHorSubSel() const
 {
-    return mGetDynamicCast( const CubeHorSubSel*, this );
+    return is2D() ? nullptr : static_cast<const CubeHorSubSel*>( this );
 }
 
 
@@ -283,35 +282,34 @@ bool Survey::GeomSubSel::includes( const GeomSubSel& oth ) const
 
 Survey::GeomSubSel* Survey::GeomSubSel::duplicate() const
 {
-    const auto* lss = asLineSubSel();
-    if ( lss )
-	return lss->duplicate();
+    if ( is2D() )
+	return new LineSubSel( *asLineSubSel() );
     else
-	return asCubeSubSel()->duplicate();
+	return new CubeSubSel( *asCubeSubSel() );
 }
 
 
 LineSubSel* Survey::GeomSubSel::asLineSubSel()
 {
-    return mGetDynamicCast( LineSubSel*, this );
+    return is2D() ? static_cast<LineSubSel*>( this ) : nullptr;
 }
 
 
 const LineSubSel* Survey::GeomSubSel::asLineSubSel() const
 {
-    return mGetDynamicCast( const LineSubSel*, this );
+    return is2D() ? static_cast<const LineSubSel*>( this ) : nullptr;
 }
 
 
 CubeSubSel* Survey::GeomSubSel::asCubeSubSel()
 {
-    return mGetDynamicCast( CubeSubSel*, this );
+    return is2D() ? nullptr : static_cast<CubeSubSel*>( this );
 }
 
 
 const CubeSubSel* Survey::GeomSubSel::asCubeSubSel() const
 {
-    return mGetDynamicCast( const CubeSubSel*, this );
+    return is2D() ? nullptr : static_cast<const CubeSubSel*>( this );
 }
 
 
