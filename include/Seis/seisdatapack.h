@@ -72,6 +72,7 @@ public:
 				mDeclMonitorableAssignment(RegularSeisDataPack);
 
     bool			is2D() const override;
+    Pos::GeomID			geomID() const	{ return subSel().geomID(); }
 
     RegularSeisDataPack*	getSimilar() const override;
     bool			copyFrom(const RegularSeisDataPack&);
