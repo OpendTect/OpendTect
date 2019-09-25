@@ -152,7 +152,7 @@ macro ( create_package PACKAGE_NAME )
 	if ( OD_ENABLE_BREAKPAD )
 	    if ( WIN32 )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/symbols/${EXE}
+				 ${COPYFROMLIBDIR}/symbols/${EXE}.pdb
 				 ${COPYTOLIBDIR}/symbols/${EXE}.pdb )
 	    elseif( APPLE )
 		#TODO
@@ -222,7 +222,22 @@ macro( copy_thirdpartylibs )
 		endif()
 	    endif()
 	endif()
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
+
+
+	string( FIND ${LIB} "Qt" ISQTLIB )
+	string( FIND ${LIB} "osg" ISOSGLIB )
+	#Checking ISOSGLIB value to avoid OSG library libosgQt.ylib
+	if ( ${QT_VERSION_MAJOR} STREQUAL "${QT_VERSION_MAJOR}" AND APPLE
+	     AND NOT ${ISQTLIB} EQUAL -1  AND ${ISOSGLIB} EQUAL -1 )
+	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
+				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
+				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB}
+			     ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
+	endif()
+
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -425,6 +440,9 @@ macro( create_develpackages )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/dtect
 		     ${COPYTODATADIR}/dtect )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/../Debug/platforms
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
