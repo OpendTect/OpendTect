@@ -289,10 +289,9 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 }
 
 
-bool StorageProvider::calcPossibleSubSel( int outp, const FullSubSel& desss )
+bool StorageProvider::calcPossibleSubSel( int outp, const FullSubSel& )
 {
     possiblesubsel_ = storedsubsel_;
-    possiblesubsel_.limitTo( desss );
     return status_ != None;
 }
 

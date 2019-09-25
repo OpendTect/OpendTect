@@ -127,7 +127,10 @@ z_steprg_type Seis::TableSelData::zRange( idx_type ) const
     if ( !mIsUdf(fixedzrange_.start) )
 	zrg = fixedzrange_;
     else
+    {
 	zrg = bvs_.valRange( 0 );
+	mSetUdf( zrg.step );
+    }
 
     if ( mIsUdf(zrg.step) )
 	zrg.step = SI().zStep();
