@@ -134,6 +134,7 @@ iT IntPowerOf( iT i, iPOW p )
 
 mGlobal(Basic) double IntPowerOf(double,int);
 mGlobal(Basic) float IntPowerOf(float,int);
+mGlobal(Basic) int NrSignificantDecimals(double);
 
 
 } // namespace Math

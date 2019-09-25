@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "math2.h"
 #include "undefval.h"
+#include "bufstring.h"
 
 #include <float.h>
 #include <limits.h>
@@ -32,6 +33,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTYPE double
 #include "math2_inc.h"
 #undef mTYPE
+
+#ifndef OD_NO_QT
+# include <QString>
+#endif
 
 
 float_complex Math::Sqrt( const float_complex& s )
@@ -141,4 +146,37 @@ double Math::Atan2( double y, double x )
 	return mUdf(double);
 
     return atan2 ( y, x );
+}
+
+
+int Math::NrSignificantDecimals( double val )
+{
+    int digits = 10; //double precision
+    const int magnitude = mCast(int,Floor( Log10( Abs(val) ) ) ) + 1;
+    digits -= magnitude;
+    if ( digits < 0 || magnitude > 0 )
+        digits = 0;
+
+    BufferString resstr;
+#ifdef OD_NO_QT
+    char buf[80]; OD::memZero( buf, 80 );
+    sprintf( buf, "%.*f", digits, val );
+    resstr.set( buf );
+#else
+    const QString qstr = QString::number( val, 'f', digits );
+    resstr.set( qstr );
+#endif
+    const char* str = resstr.buf();
+    const char* ptrdot = firstOcc( str, '.' );
+    if ( !ptrdot ) return 0;
+    int ret = FixedString(str).size();
+    const char* ptrend = str + ret;
+    while ( ptrend-- > ptrdot )
+    {
+        if ( *ptrend != '0' )
+            break;
+        ret--;
+    }
+
+    return ret-2;
 }
