@@ -472,13 +472,12 @@ void uiSliceSel::updateUI()
 
     int nrdec = 0;
     const float zfac = mCast( float, zdominfo_.userFactor() );
-    float step = maxcs_.zsamp_.step * zfac;
-    while ( true )
+    float decval = maxcs_.zsamp_.step * zfac;
+
+    while (decval > Math::Floor(decval) )
     {
-	if ( step>1 || mIsEqual(step,1,mDefEps) )
-	    break;
 	nrdec++;
-	step *= 10;
+	decval = decval*10 - Math::Floor(decval*10);
     }
 
     if ( nrdec==0 )
@@ -500,10 +499,10 @@ void uiSliceSel::updateUI()
 	maxzrg.scale( zfac );
 
 	z0fld_->box()->setInterval( maxzrg );
-	z0fld_->box()->setValue( tkzs_.zsamp_.start );
+	z0fld_->box()->setValue( tkzs_.zsamp_.start*zfac );
 
 	z1fld_->setInterval( maxzrg );
-	z1fld_->setValue( tkzs_.zsamp_.stop );
+	z1fld_->setValue( tkzs_.zsamp_.stop*zfac );
     }
 
     z0fld_->box()->setNrDecimals( nrdec );
