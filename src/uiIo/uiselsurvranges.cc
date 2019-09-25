@@ -60,7 +60,8 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 
 void uiSelZRange::displayStep( bool yn )
 {
-    stepfld_->display( yn );
+    if ( stepfld_ )
+	stepfld_->display( yn );
 }
 
 
@@ -290,7 +291,8 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 
 void uiSelNrRange::displayStep( bool yn )
 {
-    stepfld_->display( yn );
+    if ( stepfld_ )
+	stepfld_->display( yn );
 }
 
 
