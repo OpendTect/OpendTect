@@ -166,7 +166,8 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 		txt.add( lastpos.nr_ )
 		   .add( " " ).add( lastpos.coord_.toString() );
 
-#define mAddZRangeTxt(memb) txt += zistm ? mNINT32(1000*memb) : memb
+#define mAddZRangeTxt(memb) txt += \
+				zistm ? SI().zDomain().userFactor()*memb : memb
 	    txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
 	    mAddZRangeTxt(zrg.stop);
 	    txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";
