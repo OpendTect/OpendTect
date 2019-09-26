@@ -10,14 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisellinest.h"
+
+#include "bufstringset.h"
 #include "draw.h"
-#include "uilabel.h"
-#include "uigeninput.h"
+
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uigeninput.h"
+#include "uilabel.h"
 #include "uispinbox.h"
 #include "uistrings.h"
-#include "bufstringset.h"
 
 
 static const int cMinWidth = 1;
@@ -214,11 +216,12 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 
 void uiSelLineStyle::needlineCB( CallBacker* cb )
 {
-    const bool ischecked = stylesel_->isChecked();
+    const bool ischecked = stylesel_ && stylesel_->isChecked();
     if ( colinp_ )
 	colinp_->setSensitive( ischecked );
     if ( widthbox_ )
 	widthbox_->setSensitive( ischecked );
+
     changeCB( cb );
 }
 
