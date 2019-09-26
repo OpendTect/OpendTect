@@ -68,7 +68,7 @@ EngineMan::~EngineMan()
 }
 
 
-void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
+bool EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
 				   const char* linename, const DescID& outid )
 {
     TypeSet<DescID> desiredids(1,outid);
@@ -77,11 +77,11 @@ void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
     DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
     PtrMan<Processor> proc =
 			createProcessor( attribset, linename, evalid, errmsg );
-    if ( !proc ) return;
+    if ( !proc ) return false;
 
     proc->computeAndSetRefZStepAndZ0();
     proc->getProvider()->setDesiredVolume( cs );
-    proc->getProvider()->getPossibleVolume( -1, cs );
+    return proc->getProvider()->getPossibleVolume( -1, cs );
 }
 
 
@@ -542,6 +542,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 		}
 		else
 		    OD::sysMemCopy( curoutptr, curinptr, bytestocopy );
+
 	    }
 	}
 	else

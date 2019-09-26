@@ -672,6 +672,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 	    attrserv_->setTargetSelSpecs( myas );
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
+
 	    if ( newid == DataPack::cNoID() )
 	    {
 		// clearing texture and set back original selspec

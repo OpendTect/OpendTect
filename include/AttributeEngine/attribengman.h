@@ -54,7 +54,7 @@ public:
 
     static Processor*	createProcessor(const DescSet&,const char*,
 					const DescID&,uiString& errmsg);
-    static void		getPossibleVolume(DescSet&,TrcKeyZSampling&,
+    static bool		getPossibleVolume(DescSet&,TrcKeyZSampling&,
 					  const char* linename,const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);

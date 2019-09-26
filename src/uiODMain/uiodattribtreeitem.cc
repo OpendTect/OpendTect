@@ -271,6 +271,8 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	    dispname.append( toUiString(str) );
 	}
 	dispname.append( toUiString(as->userRef()) );
+	if ( visserv->getDataPackID( visid, attrib ) == DataPack::cNoID() )
+	    dispname.appendPhrase(uiStrings::sNoValidData());
     }
 
     if ( as && as->isNLA() )
