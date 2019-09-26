@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 static const char* rcsID mUsedVar = "$Id$";
+#define mNrExtraZDec 3
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -47,6 +48,13 @@ const char* DataDispPars::sKeyHighFillCol()	{ return "High fill color"; }
 const char* DataDispPars::sKeyOverlap()  { return "Overlap"; }
 const char* DataDispPars::sKeySymMidValue()  { return "Sym Mid value"; }
 const char* DataDispPars::sKeyRefLineValue() { return "Ref Line value"; }
+
+const char* Viewer::sKeyIsZSlice() { return "isZSlice"; };
+const char* Viewer::sKeyWVAData() { return "Wiggle/VA data"; };
+const char* Viewer::sKeyVDData() { return "Variable density data"; };
+const char* Viewer::sKeyWVAVal() { return "WVA Value"; };
+const char* Viewer::sKeyVDVal() { return "VD Value"; };
+const char* Viewer::sKeyViewZnrDec() { return "Decimal places for Z Value"; };
 
 }
 
@@ -535,28 +543,45 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     ConstDataPackRef<FlatDataPack> dp = obtainPack( iswva );
     if ( !dp )
     {
-	iswva ? iop.removeWithKey( "Wiggle/VA data" )
-	      : iop.removeWithKey( "Variable density data" );
-	iswva ? iop.removeWithKey( "WVA Value" )
-	      : iop.removeWithKey( "VD Value" );
+	iswva ? iop.removeWithKey( sKeyWVAData() )
+	      : iop.removeWithKey( sKeyVDData() );
+	iswva ? iop.removeWithKey( sKeyWVAVal() )
+	      : iop.removeWithKey( sKeyVDVal() );
 	    return;
     }
     const Array2D<float>& arr = dp->data();
 
     const char* nm = dp->name();
-    iop.set( iswva ? "Wiggle/VA data" : "Variable density data", nm );
-
+    iop.set( iswva ? sKeyWVAData() : sKeyVDData(), nm );
     const Array2DInfo& info = arr.info();
     const FlatPosData& pd = dp->posData();
     const IndexInfo ix = pd.indexInfo( true, pt.x );
     const IndexInfo iy = pd.indexInfo( false, pt.y );
 
-    if ( info.validPos(ix.nearest_, iy.nearest_) )
+    if ( !info.validPos(ix.nearest_, iy.nearest_) )
+	return;
+
+    const float val = arr.get( ix.nearest_, iy.nearest_ );
+    iop.set( iswva ? sKeyWVAVal() : sKeyVDVal(), val );
+    dp->getAuxInfo( ix.nearest_, iy.nearest_, iop );
+    bool isvertical = false;
+    iop.getYN( sKeyIsZSlice(), isvertical );
+    if ( isvertical )
     {
-	const float val = arr.get( ix.nearest_, iy.nearest_ );
-	iop.set( iswva ? "WVA Value" : "VD Value", val );
-	dp->getAuxInfo( ix.nearest_, iy.nearest_, iop );
+	int nrdec = nrDec();
+	iop.get( sKeyViewZnrDec(), nrdec );
+	BufferString zstr;
+	zstr.set( mCast(float,pt.y*zDomain().userFactor()), nrdec );
+	iop.set( sKey::ZCoord(), zstr );
     }
+}
+
+
+int FlatView::Viewer::nrDec() const
+{
+    const float zstep = SI().zStep() * SI().zDomain().userFactor();
+    if ( zstep > 1 ) return 0;
+    return Math::NrSignificantDecimals( zstep ) + 1;
 }
 
 

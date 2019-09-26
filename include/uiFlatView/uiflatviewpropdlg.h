@@ -40,6 +40,7 @@ public:
     void		getAllFromScreen();
 
     int			selectedAnnot() const		{ return selannot_; }
+    void		fillPar(IOPar&) const;
 
 protected:
 

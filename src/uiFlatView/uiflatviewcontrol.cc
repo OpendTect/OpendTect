@@ -352,6 +352,9 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
     IOPar infopar;
     if ( isinsde )
     {
+	if ( propdlg_ )
+	    propdlg_->fillPar( infopars_ );
+
 	vwr->getAuxInfo( wp, infopars_ );
 	infopar = infopars_;
     }

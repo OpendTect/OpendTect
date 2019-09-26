@@ -174,7 +174,7 @@ public:
 
     int			getSelAnnot() const	{ return x1_->getSelAnnot(); }
     void		setSelAnnot( int i )	{ x1_->setSelAnnot( i ); }
-
+    void		fillPar(IOPar&) const;
 
 protected:
 
@@ -215,6 +215,7 @@ protected:
     };
 
     uiColorInput*       colfld_;
+    uiGenInput*		viewnrdeczfld_;
     AxesGroup*		x1_;
     AxesGroup*		x2_;
 

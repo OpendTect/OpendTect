@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "flatposdata.h"
+#include "flatview.h"
 #include "paralleltask.h"
 #include "posinfo.h"
 #include "randomlinegeom.h"
@@ -586,7 +587,11 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     const Coord3 crd = getCoord( i0, i1 );
     iop.set( mKeyCoordX, crd.x );
     iop.set( mKeyCoordY, crd.y );
-    iop.set( sKey::ZCoord(), crd.z * zDomain().userFactor() );
+    iop.set( sKey::ZCoord(), (int)(crd.z*zDomain().userFactor()) );
+    mDynamicCastGet(RegularFlatDataPack*,rseisdp,
+					   const_cast<SeisFlatDataPack*>(this));
+    iop.setYN( FlatView::Viewer::sKeyIsZSlice(),
+				    rseisdp ? rseisdp->isVertical() : false );
 
     if ( is2D() )
     {
@@ -669,11 +674,11 @@ RegularFlatDataPack::RegularFlatDataPack(
 
 Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 {
-    const bool isvertical = dir_ != TrcKeyZSampling::Z;
-    const int trcidx = isvertical ? (hassingletrace_ ? 0 : i0)
-				  : i0*sampling_.nrTrcs()+i1;
-    const Coord c = Survey::GM().toCoord( getTrcKey(trcidx) );
-    return Coord3( c.x, c.y, sampling_.zsamp_.atIndex(isvertical ? i1 : 0) );
+    const int trcidx = isVertical() ? (hassingletrace_ ? 0 : i0)
+				    : i0*sampling_.nrTrcs()+i1;
+    const Coord crd( Survey::GM().toCoord( getTrcKey(trcidx) ) );
+    return Coord3( crd.x, crd.y,
+		   sampling_.zsamp_.atIndex(isVertical() ? i1 : 0) );
 }
 
 

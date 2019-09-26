@@ -21,9 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisellinest.h"
 #include "uiseparator.h"
 #include "uisellinest.h"
+#include "survinfo.h"
 
 #include "od_helpids.h"
-
 
 uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 				      uiString lbl )
@@ -104,6 +104,10 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
 }
+
+
+void uiFlatViewPropDlg::fillPar( IOPar& iopar) const
+{ annottab_->fillPar( iopar ); }
 
 
 void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
@@ -653,6 +657,10 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 				annot_.allowuserchangereversedaxis_ );
     x2_->attach( alignedBelow, x1_ );
 
+    viewnrdeczfld_ = new uiGenInput( this, tr("Decimal places for Z Value"),
+			       IntInpSpec(vwr_.nrDec(),0,vwr_.nrDec()+2,1) );
+    viewnrdeczfld_->attach( alignedBelow, x2_ );
+
     BufferStringSet auxnames;
     for ( int idx=0; idx<vwr_.nrAuxData(); idx++ )
     {
@@ -682,7 +690,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     auxnamefld_ = new uiGenInput( this, tr("Aux data"),
 				  StringListInpSpec( auxnames ) );
     auxnamefld_->valuechanged.notify( mCB( this, uiFVAnnotPropTab, auxNmFldCB));
-    auxnamefld_->attach( alignedBelow, x2_ );
+    auxnamefld_->attach( alignedBelow, viewnrdeczfld_ );
 
     linestylefld_ = new uiSelLineStyle( this, linestyles_[0],
 					tr("Line style") );
@@ -705,6 +713,13 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     x2rgfld_ = new uiGenInput( this, tr("Y-Range"),
 			       FloatInpIntervalSpec() );
     x2rgfld_->attach( alignedBelow, x1rgfld_ );
+}
+
+
+void uiFVAnnotPropTab::fillPar( IOPar& iopar ) const
+{
+    const int nrdec = viewnrdeczfld_->getIntValue();
+    iopar.set( FlatView::Viewer::sKeyViewZnrDec(), nrdec );
 }
 
 

@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 static const char* rcsID mUsedVar = "$Id$";
+#define mNrXYDec 2
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -87,12 +88,12 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     if ( !crd.coord().isUdf() )
     {
-	mesg.addTab().add( "(" ).add( toString(crd.x,0) );
-	mesg.add( ", " ).add( toString(crd.y,0) );
+	mesg.addTab().add( "(" ).add( toString(crd.x,mNrXYDec) );
+	mesg.add( ", " ).add( toString(crd.y,mNrXYDec) );
     }
 
     if ( !mIsUdf(crd.z) )
-	mesg.add( ", " ).add( toString(crd.z,0) ).add( ")" );
+	mesg.add( ", " ).add( toString(crd.z) ).add( ")" );
     else if ( !crd.coord().isUdf() )
 	mesg.add( ")" );
     //<-- MapDataPack has valid crd.coord() but invalid crd.z.
@@ -102,10 +103,10 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
-    FixedString vdstr = pars.find( "Variable density data" );
-    FixedString wvastr = pars.find( "Wiggle/VA data" );
-    FixedString vdvalstr = pars.find( "VD Value" );
-    FixedString wvavalstr = pars.find( "WVA Value" );
+    FixedString vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
+    FixedString wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
+    FixedString vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
+    FixedString wvavalstr = pars.find( FlatView::Viewer::sKeyWVAVal() );
     const bool issame = vdstr && wvastr && vdstr==wvastr;
     if ( vdvalstr )
     {
@@ -113,7 +114,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	if ( issame )
 	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
 	else
-	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
+	    { if ( !vdstr || !*vdstr ) vdstr = FlatView::Viewer::sKeyVDVal(); }
 	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
 	mesg += " ("; mesg += vdstr; mesg += ")";
@@ -123,7 +124,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
-	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
+	if ( !wvastr || !*wvastr ) wvastr = FlatView::Viewer::sKeyWVAVal();
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 

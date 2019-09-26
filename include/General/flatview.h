@@ -395,6 +395,7 @@ public:
 
     enum DataChangeType	{ All=0xFFFFFFFF, BitmapData=0x0001, DisplayPars=0x0002,
 			  Annot=0x0004, Auxdata=0x0008 };
+
     virtual void	handleChange(unsigned int datachangetype)	= 0;
 			/*!<\param datachangetype can be any combination of
 				   DataChangeType. */
@@ -442,6 +443,13 @@ public:
     const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const;
     void			setZDomain(const ZDomain::Def&);
     const ZDomain::Info&	zDomain() const;
+    int				nrDec() const;
+    static const char*		sKeyIsZSlice();
+    static const char*		sKeyWVAData();
+    static const char*		sKeyVDData();
+    static const char*		sKeyWVAVal();
+    static const char*		sKeyVDVal();
+    static const char*		sKeyViewZnrDec();
 
 protected:
 

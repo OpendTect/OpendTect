@@ -162,7 +162,7 @@ void uiODViewer2DPosGrp::usePar( const IOPar& selpar )
 {
     posdatasel_->usePar( selpar );
 
-    if ( postypefld_)
+    if ( postypefld_ )
 	postypefld_->box()->setText( mToPosTypeStr(posdatasel_->postype_) );
 
     updateFlds();

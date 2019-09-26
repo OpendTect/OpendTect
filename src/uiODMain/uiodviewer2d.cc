@@ -1023,7 +1023,7 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     if ( valstr.isEmpty() ) valstr = pars.find( "Z-Coord" );
     if ( !valstr.isEmpty() )
     {
-	mousepos.z = valstr.toDouble() / zDomain().userFactor();
+	mousepos.z = valstr.toFloat() / zDomain().userFactor();
 	if ( datatransform_ )
 	    mousepos.z = datatransform_->transformBack( mousepos );
     }
