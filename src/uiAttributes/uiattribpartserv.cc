@@ -734,7 +734,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
-    RegularSeisDataPack* preloadeddatapack = 0;
+    RegularSeisDataPack* preloadeddatapack = nullptr;
     if ( targetdesc )
     {
 	if ( targetdesc->isStored() && !targetspecs_[0].isNLA() )
@@ -742,10 +742,13 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    const MultiID mid( targetdesc->getStoredID() );
 	    mDynamicCast( RegularSeisDataPack*, preloadeddatapack,
 						Seis::PLDM().get(mid) );
-	    TrcKeyZSampling outtkzs( &tkzs );
-	    tkzs.getIntersection( preloadeddatapack->sampling(), outtkzs );
-	    if ( !tkzs.includes(outtkzs) )
-		return nullptr;
+	    if ( preloadeddatapack )
+	    {
+		TrcKeyZSampling outtkzs( &tkzs );
+		tkzs.getIntersection( preloadeddatapack->sampling(), outtkzs );
+		if ( !tkzs.includes(outtkzs) )
+		    return nullptr;
+	    }
 
 	}
 
