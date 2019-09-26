@@ -736,6 +736,41 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+int uiODHorizonTreeItem::reloadEMObject()
+{
+    const bool wasonlyatsections = uivisemobj_->isOnlyAtSections();
+    uiEMPartServer* ems = applMgr()->EMServer();
+    const MultiID mid = ems->getStorageID( emid_ );
+
+    removeAllChildren();
+    applMgr()->visServer()->removeObject( displayid_, sceneID() );
+    delete uivisemobj_; uivisemobj_ = 0;
+
+    if ( !ems->loadSurface(mid) )
+	return -1;
+
+    emid_ = applMgr()->EMServer()->getObjectID(mid);
+    uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
+    displayid_ = uivisemobj_->id();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+		    visserv_->getObject(displayid_));
+    if ( hd )
+    {
+	hd->setDepthAsAttrib( 0 );
+	const Attrib::SelSpec* as = visserv_->getSelSpec(displayid_,0);
+	uiODDataTreeItem* item = createAttribItem( as );
+	if ( item )
+	    addChild( item, false );
+    }
+
+    const EM::IOObjInfo eminfo( mid );
+    timelastmodified_ = eminfo.timeLastModified( true );
+    uivisemobj_->setOnlyAtSectionsDisplay( wasonlyatsections );
+    return displayid_;
+}
+
+
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODTreeItem(
 	uiStrings::phrJoinStrings(uiStrings::s2D(),uiStrings::sHorizon()) )

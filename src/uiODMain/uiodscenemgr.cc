@@ -1419,11 +1419,19 @@ uiTreeItem* uiODSceneMgr::findItem( int displayid )
 
 void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 {
+    findItems( nm, items, -1 );
+}
+
+
+void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items,
+			      int sceneid )
+{
     deepErase( items );
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	scene.itemmanager_->findChildren( nm, items );
+	if ( sceneid==-1 || scene.itemmanager_->sceneID() == sceneid )
+	    scene.itemmanager_->findChildren( nm, items );
     }
 }
 

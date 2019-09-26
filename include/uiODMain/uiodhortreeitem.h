@@ -64,6 +64,8 @@ public:
 					    bool rgba,bool atsect);
 			~uiODHorizonTreeItem();
 
+    virtual int		reloadEMObject();	// Return new display id.
+
 protected:
     bool		init();
     void		initMenuItems();

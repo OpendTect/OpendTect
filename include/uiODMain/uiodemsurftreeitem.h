@@ -29,7 +29,7 @@ public:
 
     uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    int			reloadEMObject();	//Return new display id.
+    virtual int		reloadEMObject();	// Return new display id.
 
     void		setOnlyAtSectionsDisplay(bool);
     bool		isOnlyAtSections() const;
