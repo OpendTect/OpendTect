@@ -93,8 +93,6 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	    widthbox_->attach( rightTo, colinp_ );
 	else if ( stylesel_ )
 	    widthbox_->attach( rightTo, stylesel_ );
-	else if ( stylesel_ )
-	    widthbox_->attach( rightTo, stylesel_ );
 	else if ( !lbltxt.isEmpty() )
 	{
 	    new uiLabel( this, uiString::empty(), widthbox_ );
@@ -214,11 +212,12 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 
 void uiSelLineStyle::needlineCB( CallBacker* cb )
 {
-    const bool ischecked = stylesel_->isChecked();
+    const bool ischecked = stylesel_ && stylesel_->isChecked();
     if ( colinp_ )
 	colinp_->setSensitive( ischecked );
     if ( widthbox_ )
 	widthbox_->setSensitive( ischecked );
+
     changeCB( cb );
 }
 
