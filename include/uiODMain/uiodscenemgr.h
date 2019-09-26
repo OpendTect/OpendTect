@@ -164,6 +164,8 @@ public:
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
+    void			findItems(const char*,ObjectSet<uiTreeItem>&,
+	    				  int sceneid);
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
     uiTreeView*			getTree(int sceneid);

@@ -274,10 +274,11 @@ int uiODEarthModelSurfaceTreeItem::reloadEMObject()
     if ( !ems->loadSurface(mid) )
 	return -1;
 
+    const EM::IOObjInfo eminfo( mid );
+    timelastmodified_ = eminfo.timeLastModified( true );
     emid_ = applMgr()->EMServer()->getObjectID(mid);
     uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
-    displayid_ = uivisemobj_->id();
-    return displayid_;
+    return uivisemobj_->id();
 }
 
 
