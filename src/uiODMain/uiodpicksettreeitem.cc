@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "polygonzchanger.h"
 #include "randcolor.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -29,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
+#include "uipolygonzchanger.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
@@ -603,6 +605,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties()))
     , closepolyitem_(tr("Close Polygon"))
+    , changezmnuitem_(tr("Change Z values"))
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
@@ -717,6 +720,9 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     mAddMenuItem( menu, &storemnuitem_, changed, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
+
+    const bool islocked = visserv_->isLocked( displayID() );
+    mAddMenuItem( menu, &changezmnuitem_, !islocked, false );
 }
 
 
@@ -761,6 +767,21 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
+	dlg.go();
+    }
+    else if ( mnuid == changezmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	if ( set_.isEmpty() )
+	{
+	    uiMSG().message( uiStrings::sPolygon()
+		       .append( tr("%1 is empty. Pick some points in the %2") )
+		       .arg( uiStrings::sPolygon() )
+		       .arg( uiStrings::sPolygon().toLower() ) );
+	    return;
+	}
+
+	uiPolygonZChanger dlg( getUiParent(), set_ );
 	dlg.go();
     }
 

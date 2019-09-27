@@ -130,6 +130,7 @@ protected:
     MenuItem		onlyatsectmnuitem_;
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
+    MenuItem		changezmnuitem_;
 
     void		selChangedCB(CallBacker*);
 };

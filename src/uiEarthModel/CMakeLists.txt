@@ -39,6 +39,7 @@ SET(OD_MODULE_SOURCES
 	uiiosurface.cc
 	uiiosurfacedlg.cc
 	uimultisurfaceread.cc
+	uipolygonzchanger.cc
 	uirandlinegen.cc
 	uisurfaceman.cc
 	uisurfaceposprov.cc

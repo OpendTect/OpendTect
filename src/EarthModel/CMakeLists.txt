@@ -65,6 +65,7 @@ set(OD_MODULE_SOURCES
 		horizonsorter.cc
 		lmkemfaulttransl.cc
 		poly2horvol.cc
+		polygonzchanger.cc
 		initearthmodel.cc
 )
 OD_INIT_MODULE()
