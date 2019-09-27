@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "multiid.h"
 #include "picksetmgr.h"
+#include "task.h"
 
 namespace Pick { class Set; }
 namespace EM
