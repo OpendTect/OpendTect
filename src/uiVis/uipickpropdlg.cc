@@ -34,6 +34,8 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     uiSelLineStyle::Setup stu;
     lsfld_ = new uiSelLineStyle( this, OD::LineStyle(set_.disp_.type_
 				,set_.disp_.width_,set_.disp_.color_), stu );
+    lsfld_->setColor( set_.disp_.linecolor_ );
+    lsfld_->setDoDraw( set_.disp_.linedodraw_ );
     mAttachCB( lsfld_->changed, uiPickPropDlg::linePropertyChanged );
 
     stylefld_->attach( alignedBelow, lsfld_ );
@@ -56,6 +58,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     colstu.lbltxt( tr("Fill with") ).withcheck( true )
 	  .transp(uiColorInput::Setup::Separate);
     fillcolfld_ = new uiColorInput( this, colstu );
+    fillcolfld_->setDoDraw( set_.disp_.filldodraw_ );
     fillcolfld_->attach( alignedBelow, stylefld_ );
     fillcolfld_->attach( ensureBelow, thresholdfld_ );
     mAttachCB( fillcolfld_->colorChanged, uiPickPropDlg::fillColorChangeCB );
@@ -180,6 +183,8 @@ void uiPickPropDlg::thresholdChangeCB( CallBacker* )
 
 bool uiPickPropDlg::acceptOK( CallBacker* )
 {
-    set_.writeDisplayPars();
-    return true;
+    if ( !saveButtonChecked() )
+	return true;
+
+    return set_.writeDisplayPars();
 }

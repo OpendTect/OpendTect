@@ -19,8 +19,10 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
 	: uiDialog(p,
 		   uiDialog::Setup(title,tr("Specify marker style properties"),
 				   mNoHelpKey)
-		   .canceltext(uiString::emptyString()))
+		   .canceltext(uiString::emptyString()).savebutton(true)
+		   .savetext(tr("Save on OK")))
 {
+    setSaveButtonChecked( true );
     MarkerStyle3D::Type excludedtypes[] =
 				{ MarkerStyle3D::None };
     stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
