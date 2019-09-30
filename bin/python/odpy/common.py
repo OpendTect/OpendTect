@@ -290,3 +290,10 @@ def writeFile( fnm, content ):
   except:
     return False
   return True
+
+def getTempDir():
+    # This HAS to correspond with the C++ getTempDir() function
+  if isWin():
+    return "C:\\TEMP\\"
+  else:
+    return "/tmp/"

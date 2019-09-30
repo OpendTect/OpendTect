@@ -770,18 +770,15 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 
     if ( pid_ > 0 )
     {
-	const BufferString pidfnm( "od_subproc_", pid_, ".pid" );
-#ifdef __win__
-	const BufferString pidfnmfullpath( "C:\\TEMP\\", pidfnm );
-#else
-	const BufferString pidfnmfullpath( "/tmp/", pidfnm );
-#endif
-	if ( File::exists(pidfnmfullpath) )
+	File::Path pidfp( File::Path::getTempDir(),
+			  BufferString("od_serv_subproc_",pid_,".pid") );
+	const BufferString pidfnm( pidfp.fullPath() );
+	if ( File::exists(pidfnm) )
 	{
 	    BufferString pidstr;
-	    if ( File::getContent(pidfnmfullpath,pidstr) )
+	    if ( File::getContent(pidfnm,pidstr) )
 		pid_ = pidstr.toInt();
-	    File::remove( pidfnmfullpath );
+	    File::remove( pidfnm );
 	}
     }
 
