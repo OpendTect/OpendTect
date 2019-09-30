@@ -4,6 +4,7 @@ if [ "$#" -lt 1 ]; then
     echo "Usage: command [ARGS]"
     exit 1	
 fi
+
 if [[ ! -z "${OD_INTERNAL_CLEANPATH}" ]]; then
     export PATH=${OD_INTERNAL_CLEANPATH}
 fi

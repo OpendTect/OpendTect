@@ -768,20 +768,22 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 	    pid_ = -1;
     }
 
-    /* Can we get the actual PID ...?
-#ifndef __win__
     if ( pid_ > 0 )
     {
-	const BufferString pidfnm( "/tmp/od_", pid_, ".pid" );
-	if ( File::exists(pidfnm) )
+	const BufferString pidfnm( "od_subproc_", pid_, ".pid" );
+#ifdef __win__
+	const BufferString pidfnmfullpath( "C:\\TEMP\\", pidfnm );
+#else
+	const BufferString pidfnmfullpath( "/tmp/", pidfnm );
+#endif
+	if ( File::exists(pidfnmfullpath) )
 	{
 	    BufferString pidstr;
-	    if ( File::getContent(pidfnm,pidstr) )
+	    if ( File::getContent(pidfnmfullpath,pidstr) )
 		pid_ = pidstr.toInt();
+	    File::remove( pidfnmfullpath );
 	}
     }
-#endif
-    */
 
     if ( pid_ < 1 )
     {
