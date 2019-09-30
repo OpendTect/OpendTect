@@ -192,7 +192,8 @@ public:
 				BufferString* output_stderr=0);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
-    bool		startServer(bool inpythonenv=false,double waittm=3);
+    bool		startServer(bool inpythonenv=false,
+				    double maxwaittm=20 /* seconds */);
 
     ProcID		processID() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }

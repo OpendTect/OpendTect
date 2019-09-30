@@ -767,14 +767,37 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 	if ( !execute(execpars) )
 	    pid_ = -1;
     }
-    if ( pid_ < 0 )
+
+    /* Can we get the actual PID ...?
+#ifndef __win__
+    if ( pid_ > 0 )
+    {
+	const BufferString pidfnm( "/tmp/od_", pid_, ".pid" );
+	if ( File::exists(pidfnm) )
+	{
+	    BufferString pidstr;
+	    if ( File::getContent(pidfnm,pidstr) )
+		pid_ = pidstr.toInt();
+	}
+    }
+#endif
+    */
+
+    if ( pid_ < 1 )
     {
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = uiStrings::phrCannotStart( machcmd_.getExecCommand());
 	return false;
     }
 
-    sleepSeconds( waittm );
+    while ( waittm > 0 )
+    {
+	waittm -= 1;
+	sleepSeconds( 1 );
+	if ( isProcessAlive(pid_) )
+	    break;
+    }
+
     if ( !isProcessAlive(pid_) )
     {
 	if ( ispyth )

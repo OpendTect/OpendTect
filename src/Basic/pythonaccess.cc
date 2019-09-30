@@ -98,6 +98,9 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
+    static bool force_external = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    if ( force_external )
+	return (isusable_ = istested_ = true);
     if ( !force )
 	return isusable_;
 
