@@ -46,10 +46,10 @@ static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 				  "Between Horizons", 0 };
 
 mDefineEnumUtils( uiCreatePicks, DepthType, "DepthType" )
-{ "Feet", "Meter", 0 };
+{ "Feet", "Meter", nullptr };
 
 mDefineEnumUtils( uiCreatePicks, TimeType, "TimeType" )
-{ "Seconds", "MilliSeconds", "MicroSeconds", 0 };
+{ "Seconds", "MilliSeconds", "MicroSeconds", nullptr };
 
 
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
@@ -60,11 +60,11 @@ uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
     , iszvalreq_(zvalreq)
-    , zvalfld_(0)
-    , zvaltypfld_(0)
+    , zvalfld_(nullptr)
+    , zvaltypfld_(nullptr)
 {
     if ( addstdflds )
-	addStdFields( 0 );
+	addStdFields( nullptr );
 }
 
 
@@ -141,12 +141,12 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
 // uiGenPosPicks
 uiGenPosPicks::uiGenPosPicks( uiParent* p )
     : uiCreatePicks(p,false,false)
-    , posprovfld_(0)
-    , dps_(0)
+    , posprovfld_(nullptr)
+    , dps_(nullptr)
 {
     uiPosProvider::Setup psu( false, true, true );
-    psu .seltxt( tr("Generate locations by") )
-	.choicetype( uiPosProvider::Setup::All );
+    psu.seltxt( tr("Generate locations by") )
+	.choicetype( uiPosProvider::Setup::All ).withrandom(true);
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
@@ -168,11 +168,11 @@ uiGenPosPicks::~uiGenPosPicks()
 #define mSetCursor() MouseCursorManager::setOverride( MouseCursor::Wait )
 #define mRestorCursor() MouseCursorManager::restoreOverride()
 
-bool uiGenPosPicks::acceptOK( CallBacker* c )
+bool uiGenPosPicks::acceptOK( CallBacker* cb )
 {
     if ( !posprovfld_ ) return true;
 
-    if ( !uiCreatePicks::acceptOK(c) )
+    if ( !uiCreatePicks::acceptOK(cb) )
 	return false;
 
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
@@ -193,8 +193,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
 				 &taskrunner) )
     {
-	delete dps_;
-	dps_ = 0;
+	deleteAndZeroPtr( dps_ );
 	return false;
     }
 
@@ -212,13 +211,16 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 	if ( !uiMSG().askGoOn(msg) )
 	{
 	    mRestorCursor();
-	    delete dps_; dps_ = 0;
+	    deleteAndZeroPtr( dps_ );
 	    return false;
 	}
     }
 
     if ( dps_->isEmpty() )
-    { delete dps_; dps_ = 0; mErrRet(tr("No matching locations found")) }
+    {
+	deleteAndZeroPtr( dps_ );
+	mErrRet(tr("No matching locations found"))
+    }
 
     return true;
 }
@@ -226,7 +228,8 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
 Pick::Set* uiGenPosPicks::getPickSet() const
 {
-    if ( dps_->isEmpty() ) return 0;
+    if ( dps_->isEmpty() )
+	return nullptr;
 
     Pick::Set* ps = uiCreatePicks::getPickSet();
     const int dpssize = dps_->size();
@@ -246,8 +249,8 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 				    const BufferStringSet& lnms )
     : uiCreatePicks(p,false,false)
-    , geomfld_(0)
     , hornms_(hornms)
+    , geomfld_(nullptr)
     , linenms_(lnms)
 {
     nrfld_ = new uiGenInput( this, tr("Number of Points to generate"),
@@ -287,7 +290,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 						       SI().getUiZUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
-    inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );
+    inpzrg.scale( sCast(float,SI().zDomain().userFactor()) );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
@@ -297,13 +300,13 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 }
 
 
-void uiGenRandPicks2D::hor1Sel( CallBacker* cb )
+void uiGenRandPicks2D::hor1Sel( CallBacker* )
 {
     horSel( horselfld_->box(), horsel2fld_ );
 }
 
 
-void uiGenRandPicks2D::hor2Sel( CallBacker* cb )
+void uiGenRandPicks2D::hor2Sel( CallBacker* )
 {
     horSel( horsel2fld_, horselfld_->box() );
 }
@@ -325,7 +328,7 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
 }
 
 
-void uiGenRandPicks2D::geomSel( CallBacker* cb )
+void uiGenRandPicks2D::geomSel( CallBacker* )
 {
     if ( !geomfld_ ) return;
 
@@ -375,7 +378,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     {
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
-	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
+	survzrg.scale( sCast(float,SI().zDomain().userFactor()) );
 	if ( !survzrg.includes(zrg.start,false) ||
 		!survzrg.includes(zrg.stop,false) )
 	    mErrRet(uiStrings::phrEnter(tr("a valid Z Range")));

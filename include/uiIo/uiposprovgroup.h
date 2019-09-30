@@ -31,6 +31,7 @@ public:
 			    , withstep_(with_step)
 			    , withz_(with_z)
 			    , tkzs_(!is_2d)
+			    , withrandom_(false)
 			 { if ( is_2d ) tkzs_.set2DDef(); }
 
 	virtual	~Setup()				{}
@@ -40,6 +41,7 @@ public:
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(TrcKeyZSampling,tkzs)
+	mDefSetupMemb(bool,withrandom)
 	mDefSetupMemb(TypeSet< StepInterval<int> >,trcrgs)
 	mDefSetupMemb(TypeSet< StepInterval<float> >,zrgs)
     };
@@ -50,7 +52,7 @@ public:
     virtual bool	hasRandomSampling() const	{ return false; }
     Notifier<uiPosProvGroup>	posProvGroupChg;
 
-    mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,const Setup&,factory);
+    mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,const Setup&,factory)
 
 };
 

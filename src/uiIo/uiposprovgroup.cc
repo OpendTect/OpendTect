@@ -73,7 +73,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 	attobj = zrgfld_->attachObj();
     }
 
-    if ( !su.is2d_ )
+    if ( su.withrandom_ )
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 			    BoolInpSpec(true,tr("Random"),tr("Regular")) );
@@ -82,7 +82,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 	if ( attobj )
 	    samplingfld_->attach( alignedBelow, attobj );
 
-	nrsamplesfld_ = new uiGenInput( this, sKey::NrValues(),
+	nrsamplesfld_ = new uiGenInput( this, tr("Number of samples"),
 					IntInpSpec(4000) );
 	nrsamplesfld_->attach( rightOf, samplingfld_ );
 	attobj = samplingfld_->attachObj();
@@ -153,9 +153,12 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Range() );
 
-    iop.setYN( sKey::Random(), samplingfld_->getBoolValue() );
-    if ( samplingfld_->getBoolValue() )
-	iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
+    if ( samplingfld_ )
+    {
+	iop.setYN( sKey::Random(), samplingfld_->getBoolValue() );
+	if ( samplingfld_->getBoolValue() )
+	    iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
+    }
 
     TrcKeyZSampling cs; getTrcKeyZSampling( cs );
 

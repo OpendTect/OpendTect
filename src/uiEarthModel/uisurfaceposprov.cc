@@ -32,14 +32,13 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
-    , zfac_(mCast(float,SI().zDomain().userFactor()))
-    , zstepfld_(0)
-    , extrazfld_(0)
-    , surf1fld_(0)
-    , surf2fld_(0)
-    , samplingfld_(0)
-    , nrsamplesfld_(0)
-
+    , zfac_(sCast(float,SI().zDomain().userFactor()))
+    , surf1fld_(nullptr)
+    , surf2fld_(nullptr)
+    , zstepfld_(nullptr)
+    , extrazfld_(nullptr)
+    , samplingfld_(nullptr)
+    , nrsamplesfld_(nullptr)
 {
     if ( su.is2d_ )
     {
@@ -50,8 +49,8 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),
-	    		BoolInpSpec(true,tr("On Horizon"),
-                                    tr("To a 2nd Horizon")) );
+			BoolInpSpec(true,tr("On Horizon"),
+				    tr("To a 2nd Horizon")) );
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valuechanged.notify( selcb );
 
@@ -79,7 +78,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	    extrazfld_->attach( alignedBelow, surf2fld_ );
     }
 
-    if ( !su.is2d_ )
+    if ( su.withrandom_ )
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 				BoolInpSpec(true,tr("Random"),tr("Regular")) );
@@ -92,7 +91,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	else
 	    samplingfld_->attach( alignedBelow, surf2fld_ );
 
-	nrsamplesfld_ = new uiGenInput( this, sKey::NrValues(),
+	nrsamplesfld_ = new uiGenInput( this, tr("Number of samples"),
 					IntInpSpec(4000) );
 	nrsamplesfld_->attach( rightOf, samplingfld_ );
     }
@@ -112,7 +111,7 @@ uiSurfacePosProvGroup::~uiSurfacePosProvGroup()
 
 bool uiSurfacePosProvGroup::hasRandomSampling() const
 {
-    return samplingfld_->getBoolValue();
+    return samplingfld_ ? samplingfld_->getBoolValue() : false;
 }
 
 
@@ -120,7 +119,7 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 {
     const bool isbtwn = !issingfld_->getBoolValue();
     surf2fld_->display( isbtwn );
-    samplingCB( 0 );
+    samplingCB( nullptr );
 }
 
 
@@ -169,7 +168,7 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 	samplingCB( nullptr );
     }
 
-    selChg( 0 );
+    selChg( nullptr );
 }
 
 
