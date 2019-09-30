@@ -9,6 +9,9 @@
 #include "picksetio.h"
 #include "picksettr.h"
 #include "picksetchangerecorder.h"
+#include "dbman.h"
+#include "file.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "uistrings.h"
 
@@ -180,6 +183,40 @@ bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
     const bool defhascat = !cat || !*cat;
     PtrMan<IOObj> ioobj = id.getIOObj();
     return !ioobj ? defhascat : PickSetTranslator::getCategory(*ioobj) == cat;
+}
+
+
+BufferString Pick::SetManager::getDispFileName( const DBKey& dbkey )
+{
+    PtrMan<IOObj> ioobj = DBM().get( dbkey );
+    if ( !ioobj)
+	return BufferString::empty();
+
+    File::Path fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( "disp" );
+    return fp.fullPath();
+}
+
+
+static const char* sKeyDispPars()	{ return "Display Parameters"; }
+
+
+bool Pick::SetManager::readDisplayPars( const DBKey& dbkey,
+					IOPar& par ) const
+{
+    const BufferString fnm = getDispFileName( dbkey );
+    return par.read( fnm, sKeyDispPars() );
+}
+
+
+
+bool Pick::SetManager::writeDisplayPars( const DBKey& dbkey,
+					const Pick::Set& ps ) const
+{
+    IOPar curpar;
+    ps.fillDisplayPar( curpar );
+    const BufferString fnm = getDispFileName( dbkey );
+    return curpar.write( fnm, sKeyDispPars() );
 }
 
 

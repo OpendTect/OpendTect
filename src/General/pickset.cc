@@ -635,10 +635,10 @@ bool Pick::Set::removeWithPolygon( const ODPolygon<double>& wpoly, bool inside )
 
 
 
-void Pick::Set::fillPar( IOPar& par ) const
+void Pick::Set::fillDisplayPar( IOPar& par ) const
 {
     mLock4Read();
-    par.merge( pars_ );
+    par.merge( disppars_ );
     BufferString mkparstr,lnparstr;
     disp_.mkstyle_.toString( mkparstr );
     disp_.lnstyle_.toString( lnparstr );
@@ -648,6 +648,14 @@ void Pick::Set::fillPar( IOPar& par ) const
     par.set( sKeyConnect(), Disp::toString(disp_.connect_) );
     par.setYN( sKeyFill(), disp_.filldodraw_ );
     par.setYN( sKeyLine(), disp_.linedodraw_ );
+}
+
+
+void Pick::Set::fillPar( IOPar& par ) const
+{
+    mLock4Read();
+    par.merge( pars_ );
+    par.merge( disppars_ );
     if ( !grouplabels_.isEmpty() )
     {
 	for ( int igrp=0; igrp<grouplabels_.size(); igrp++ )
@@ -664,6 +672,7 @@ void Pick::Set::fillPar( IOPar& par ) const
 	}
     }
 }
+
 
 
 bool Pick::Set::usePar( const IOPar& par )

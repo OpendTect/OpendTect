@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "picksettr.h"
 #include "pickset.h"
+#include "picksetmanager.h"
 #include "ascstream.h"
 #include "ioobjctxt.h"
 #include "binnedvalueset.h"
@@ -145,6 +146,9 @@ uiRetVal PickSetTranslator::store( const Pick::Set& ps, const IOObj& ioobj )
 	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
 
     uiRetVal uirv = tr->write( ps, ioobj );
+
+    Pick::SetMGR().writeDisplayPars( ioobj.key(), ps );
+
     if ( uirv.isOK() )
     {
 	// Now make sure it gets a standard entry in the omf
@@ -219,7 +223,7 @@ Pick::Set::Disp dgbPickSetTranslatorBackEnd::readDisp()
 
     IOPar iopar;
     iopar.getFrom( adispstrm );
-    if ( !iopar.isEmpty() )
+    if ( iopar.isEmpty() )
 	return disp;
 
     int picksz;
@@ -452,6 +456,15 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 	psiter.get().toString( str );
 	strm << str << od_newline;
     }
+
+    Pick::Set::Disp disp;
+    File::Path fp(filenm_);
+    fp.setExtension( "disp" );
+    od_ostream dispstrm( fp.fullPath() );
+    ascostream adispstrm( dispstrm );
+    IOPar disppar;
+    disppar.merge( ps.disppars() );
+    disppar.putTo( adispstrm );
 
     astrm.newParagraph();
     uiRetVal uirv;

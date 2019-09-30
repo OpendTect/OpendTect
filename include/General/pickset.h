@@ -122,6 +122,9 @@ public:
     bool		isSizeLargerThanThreshold() const;
 
     mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
+    mImplSimpleMonitoredGetSet(inline,disppars,setDispPars
+			,IOPar,disppars_,cParsChange())
+    void		fillDisplayPar(IOPar&) const;
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		updateInPar(const char* ky,const char* val);
@@ -184,7 +187,6 @@ public:
     static const char*	sKeyWidth()		{ return "Line Width"; }
     static const char*	sKeyLineColor()		{ return "Line Color"; }
     static const char*	sKeyLineStyle()		{ return "Line Style"; }
-    static const char*	sKeySurfaceStyle()	{ return "Surface Style"; }
     static const char*	sKeySurfaceColor()	{ return "Surface Color"; }
     static const char*	sKeyFill()		{ return "Fill"; }
     static const char*	sKeyLine()		{ return "Draw Line"; }
@@ -206,6 +208,7 @@ protected:
     TypeSet<GroupLabel>	grouplabels_;
     Disp		disp_;
     IOPar		pars_;
+    IOPar		disppars_;
     mutable Threads::Atomic<idx_type> curlocidnr_;
     mutable Threads::Atomic<int>     curlabelidnr_;
     static const Set	emptyset_;

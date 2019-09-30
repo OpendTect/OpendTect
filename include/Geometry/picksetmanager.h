@@ -53,6 +53,10 @@ public:
     bool		isPolygon(const ObjID&) const;
     bool		hasCategory(const ObjID&,const char*) const;
 
+    static BufferString getDispFileName(const DBKey&);
+    bool		readDisplayPars(const DBKey&,IOPar&) const;
+    bool		writeDisplayPars(const DBKey&,const Pick::Set&) const;
+
 			// Use MonitorLock when iterating
     ConstRefMan<Set>	get(idx_type) const;
     RefMan<Set>		getForEdit(idx_type);
@@ -61,6 +65,9 @@ protected:
 
 			SetManager();
 			~SetManager();
+
+    ObjectSet<Set>	pss_;
+    TypeSet<DBKey>	ids_;
 
     virtual Saveable*	getSaver(const SharedObject&) const;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const;

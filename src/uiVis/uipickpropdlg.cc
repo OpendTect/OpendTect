@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "color.h"
 #include "draw.h"
 #include "pickset.h"
+#include "picksetmanager.h"
+#include "taskrunner.h"
 #include "settings.h"
 
 #include "uibutton.h"
@@ -22,19 +24,23 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "vispicksetdisplay.h"
 #include "vistristripset.h"
+#include "ioobj.h"
+#include "dbman.h"
 
 
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
     : uiDialog(p,Setup(tr("PointSet Display Properties"),
-		       mNoDlgTitle,mTODOHelpKey))
+			mNoDlgTitle,mTODOHelpKey).savebutton(true)
+			.savetext(tr("Save on OK")))
     , set_( set )
     , psd_( psd )
 {
     set_.ref();
     setTitleText( uiString::empty() );
+    setSaveButtonChecked( true );
     uiSelLineStyle::Setup stu;
-    lsfld_ = new uiSelLineStyle( this, set_.lineStyle(), stu );
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(set_.lineStyle()), stu );
     lsfld_->setDoDraw( set_.lineDoDraw() );
     mAttachCB( lsfld_->changed, uiPickPropDlg::linePropertyChanged );
 
@@ -88,6 +94,7 @@ void uiPickPropDlg::initDlg( CallBacker* )
 
     stylefld_->setMarkerStyle( set_.markerStyle() );
     fillcolfld_->setDoDraw( set_.fillDoDraw() );
+
     fillColorChangeCB(nullptr);
     linePropertyChanged(nullptr);
     styleSel(nullptr);
@@ -171,5 +178,14 @@ void uiPickPropDlg::thresholdChangeCB( CallBacker* )
 
 bool uiPickPropDlg::acceptOK()
 {
-    return true;
+    if ( !saveButtonChecked() )	
+	return true;
+
+    IOPar par;
+    set_.fillPar( par );
+    DBKey dbkey = Pick::SetMGR().getID(set_).getIOObj()->key();
+    if ( dbkey.isInvalid() )
+	return false;
+
+    return Pick::SetMGR().writeDisplayPars( dbkey, set_ );
 }
