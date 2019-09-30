@@ -281,3 +281,12 @@ def batchIsFinished( logfile ):
   with open(logfile) as fd:
     ret = tail(fd,10,True)
   return len(ret) > 0 and 'Finished batch processing' in ret[-1]
+
+def writeFile( fnm, content ):
+  try:
+    f = open( fnm, 'w' )
+    f.write( content )
+    f.close()
+  except:
+    return False
+  return True
