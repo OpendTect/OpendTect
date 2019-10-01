@@ -46,7 +46,7 @@ defineTranslator(dgb,PickSet,mDGBKey);
 mDefSimpleTranslatorioContext( PickSet, Loc )
 mDefSimpleTranslatorSelector( PickSet )
 uiString PickSetTranslatorGroup::sTypeName( int num)
-{ return uiStrings::sPickSet( num ); }
+{ return uiStrings::sPointSet( num ); }
 
 
 // In earlier versions, 'Type' and 'Category' were mixed

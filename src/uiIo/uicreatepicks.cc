@@ -91,7 +91,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
     else
     {
 	const DBKey setid = Pick::SetMGR().getIDByName( nm );
-	uiString msg = tr("A Pick Set with that name already exists");
+	uiString msg = tr("A PointSet with that name already exists");
 	if ( Pick::SetMGR().isLoaded( setid ) )
 	{
 	    msg.appendPhrase( tr("You are currently using it") );
