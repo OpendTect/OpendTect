@@ -107,7 +107,7 @@ public:
 
 private:
 
-    uiString			errmsg_;
+    mutable uiString		errmsg_;
 
     TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;

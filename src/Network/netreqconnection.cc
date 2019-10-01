@@ -197,7 +197,14 @@ void RequestConnection::connectToHost( bool witheventloop )
 
 bool RequestConnection::isOK() const
 {
-    return socket_ && !socket_->isBad();
+    if ( !socket_ )
+	return false;
+
+    const bool badsocket = socket_->isBad();
+    if ( badsocket && !socket_->errMsg().isEmpty() )
+	errmsg_.append( socket_->errMsg(), true );
+
+    return !badsocket;
 }
 
 
