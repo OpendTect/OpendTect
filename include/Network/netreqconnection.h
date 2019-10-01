@@ -90,7 +90,7 @@ public:
 
 private:
 
-    uiString			errmsg_;
+    mutable uiString		errmsg_;
 
     enum ThreadReadStatus	{ None, TryRead, ReadOK, ReadFail };
     ThreadReadStatus		threadreadstatus_;
