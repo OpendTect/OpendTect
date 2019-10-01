@@ -112,18 +112,21 @@ macro(OD_SETUP_QT)
 			     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 			     USE_SOURCE_PERMISSIONS )
 	        endif()
-
-		if ( WIN32 )
-		    OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess.exe ${CMAKE_BUILD_TYPE} )
-		    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
-		    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
-		else()
-		    OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
-		    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
-		    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
-		endif()
-
 	    endif()
+
+	    if ( WIN32 )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess.exe ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libEGL.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libGLESv2.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/opengl32sw.dll ${CMAKE_BUILD_TYPE} )
+	    else()
+		OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
+	    endif()
+
 
 	    install( DIRECTORY ${QTDIR}/plugins/platforms
 		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
