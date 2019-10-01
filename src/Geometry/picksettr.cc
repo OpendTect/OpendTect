@@ -97,7 +97,7 @@ uiRetVal PickSetTranslator::retrieve( Pick::Set& ps, const IOObj& ioobj )
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj.createTranslator());
     if ( !tr )
-	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
+	return uiStrings::phrSelectObjectWrongType( uiStrings::sPointSet() );
 
     ChangeNotifyBlocker cnb( ps );
 
@@ -143,7 +143,7 @@ uiRetVal PickSetTranslator::store( const Pick::Set& ps, const IOObj& ioobj )
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj.createTranslator());
     if ( !tr )
-	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
+	return uiStrings::phrSelectObjectWrongType( uiStrings::sPointSet() );
 
     uiRetVal uirv = tr->write( ps, ioobj );
 
@@ -367,7 +367,7 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::read( Pick::Set& ps )
     if ( !astrm.isOK() )
 	return uiStrings::phrCannotOpenInpFile();
     else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
-	return uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
+	return uiStrings::phrSelectObjectWrongType( uiStrings::sPointSet() );
     if ( atEndOfSection(astrm) )
 	astrm.next();
     if ( atEndOfSection(astrm) )
@@ -469,7 +469,7 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
     astrm.newParagraph();
     uiRetVal uirv;
     if ( !astrm.isOK() )
-	uirv = uiStrings::phrCannotWrite( uiStrings::sPickSet() );
+	uirv = uiStrings::phrCannotWrite( uiStrings::sPointSet() );
 
     return uirv;
 }

@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
-    : uiODVw2DParentTreeItem( uiStrings::sPickSet() )
+    : uiODVw2DParentTreeItem( uiStrings::sPointSet() )
 {
 }
 

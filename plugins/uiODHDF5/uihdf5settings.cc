@@ -44,7 +44,7 @@ uiHDF5Settings::uiHDF5Settings( uiSettingsGroup& pgrp )
     typenms_.add( HDF5::sSeismicsType() );
     uitypenms.add( uiStrings::sSeismicData() );
     typenms_.add( HDF5::sPickSetType() );
-    uitypenms.add( uiStrings::sPickSet(mPlural) );
+    uitypenms.add( uiStrings::sPointSet(mPlural) );
     typenms_.add( HDF5::sWellType() );
     uitypenms.add( uiStrings::sWell(mPlural) );
 

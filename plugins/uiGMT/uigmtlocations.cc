@@ -42,7 +42,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,uiStrings::sLocation(mPlural))
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    inpfld_ = new uiIOObjSel( this, ctio_,uiStrings::sPickSet() );
+    inpfld_ = new uiIOObjSel( this, ctio_,uiStrings::sPointSet() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTLocationsGrp,objSel) );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
@@ -78,7 +78,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
 bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
-	mErrRet(uiStrings::phrSelect(uiStrings::sPickSet().toLower()))
+	mErrRet(uiStrings::phrSelect(uiStrings::sPointSet().toLower()))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

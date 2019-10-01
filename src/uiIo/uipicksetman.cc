@@ -45,20 +45,20 @@ static IOObjContext getIOObjContext( const char* fixedtrkey )
 
 uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
     : uiObjFileMan(p,uiDialog::Setup(
-             uiStrings::phrManage( toUiString("%1/%2")
-                .arg( uiStrings::sPickSet(mPlural) )
-                .arg( uiStrings::sPolygon(mPlural))),
-             mNoDlgTitle,
-             mODHelpKey(mPickSetManHelpID) )
-                 .nrstatusflds(1).modal(false),
+	     uiStrings::phrManage( toUiString("%1/%2")
+		.arg( uiStrings::sPointSet(mPlural) )
+		.arg( uiStrings::sPolygon(mPlural))),
+	     mNoDlgTitle,
+	     mODHelpKey(mPickSetManHelpID) )
+		 .nrstatusflds(1).modal(false),
 			getIOObjContext(fixedtrkey))
 {
     createDefaultUI();
     edbut_ = selgrp_->getManipGroup()->addButton( "edit",
-				    uiStrings::phrEdit(uiStrings::sPickSet()),
+				    uiStrings::phrEdit(uiStrings::sPointSet()),
 				    mCB(this,uiPickSetMan,edSetCB) );
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
-			    uiStrings::phrMerge(uiStrings::sPickSet(mPlural)),
+			    uiStrings::phrMerge(uiStrings::sPointSet(mPlural)),
 				    mCB(this,uiPickSetMan,mergeSetsCB) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
@@ -78,11 +78,11 @@ void uiPickSetMan::ownSelChg()
     const bool multichosen = nms.size() > 1;
 
     edbut_->setToolTip( singlechosen ? uiStrings::phrEdit(nms.get(0))
-				 : uiStrings::phrEdit(uiStrings::sPickSet()));
+				 : uiStrings::phrEdit(uiStrings::sPointSet()));
     edbut_->setSensitive( singlechosen );
     mergebut_->setToolTip( multichosen ?
 		  uiStrings::phrMerge( nms.getDispString(3) )
-		: uiStrings::phrMerge( uiStrings::sPickSet(mPlural) ) );
+		: uiStrings::phrMerge( uiStrings::sPointSet(mPlural) ) );
     mergebut_->setSensitive( multichosen );
 }
 
@@ -103,7 +103,7 @@ bool uiPickSetMan::gtItemInfo( const IOObj& ioobj, uiPhraseSet& inf ) const
     else if ( !cat.isEmpty() )
 	typestr = toUiString(cat);
     else
-	typestr = uiStrings::sPickSet();
+	typestr = uiStrings::sPointSet();
 
 
     MonitorLock ml( *ps );

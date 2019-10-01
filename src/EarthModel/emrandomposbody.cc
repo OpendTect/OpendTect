@@ -165,7 +165,7 @@ public:
 	ascostream astream( *strm_ );
 	astream.putHeader( RandomPosBody::typeStr() );
 	if ( !astream.isOK() )
-	    mRetErr( uiStrings::phrCannotWrite(uiStrings::sPickSet()) )
+	    mRetErr( uiStrings::phrCannotWrite(uiStrings::sPointSet()) )
 
 	IOPar pars;
 	rdposbody.fillPar( pars );

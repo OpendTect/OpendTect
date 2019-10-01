@@ -60,7 +60,7 @@ void uiPickSetIOObjSel::updateCtxt( IOObjContext& ctxt, Type typ, bool forread,
     if ( typ == PolygonOnly ) \
 	setLabelText( uiStrings::sPolygon() ); \
     else \
-	setLabelText( uiStrings::sPickSet() )
+	setLabelText( uiStrings::sPointSet() )
 
 
 uiPickSetIOObjSel::uiPickSetIOObjSel( uiParent* p, bool forread, Type typ,
@@ -125,14 +125,14 @@ ODPolygon<double>* uiPickSetIOObjSel::getCoordPolygon() const
 
 
 uiMergePickSets::uiMergePickSets( uiParent* p, DBKey& setid )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPickSet()),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPointSet()),
 				 tr("Specify sets to merge"),
 				 mODHelpKey(mMergePickSetsHelpID) ))
     , setid_(setid)
 {
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
     selfld_ = new uiIOObjSelGrp( this, ctxt, uiStrings::phrSelect(
-				uiStrings::phrInput( uiStrings::sPickSet(2) ) ),
+				uiStrings::phrInput(uiStrings::sPointSet(2))),
 				uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
     selfld_->setCurrent( setid );
 

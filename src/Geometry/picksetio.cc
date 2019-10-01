@@ -167,7 +167,7 @@ class SetLoaderExec : public Executor
 public:
 
 SetLoaderExec( const Pick::SetLoader& ldr )
-    : Executor("Pick Set Loader")
+    : Executor("PointSet Loader")
     , loader_(ldr)
     , curidx_(-1)
 {
@@ -187,7 +187,7 @@ virtual od_int64 totalNr() const
 
 virtual uiString message() const
 {
-    return uiStrings::phrLoading( uiStrings::sPickSet() );
+    return uiStrings::phrLoading( uiStrings::sPointSet() );
 }
 
 virtual uiString nrDoneText() const
