@@ -39,8 +39,8 @@ ________________________________________________________________________
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QIcon>
-#include <QMenu>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QScreen>
 #include <QStyleFactory>
 #include <QTreeWidget>
@@ -407,6 +407,44 @@ void uiMain::cleanQtOSEnv()
 }
 
 
+void uiMain::preInit()
+{
+    QApplication::setDesktopSettingsAware( true );
+#if QT_VERSION >= 0x050400
+    // Attributes added with Qt5.3 and Qt5.4
+    if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
+	 QApplication::testAttribute(Qt::AA_UseOpenGLES) ||
+	 QApplication::testAttribute(Qt::AA_UseSoftwareOpenGL) )
+	return;
+
+# ifdef __unix__
+    const bool directren = directRendering();
+    if ( !directren )
+    {
+	QApplication::setAttribute( Qt::AA_UseSoftwareOpenGL );
+	/* Prevents corruption of QtWebEngine widget on remote Unix.
+	   Keeping dynamic loading of DLLs on Windows for 'standards' uiMain
+	 */
+    }
+# endif
+#endif
+}
+
+
+void uiMain::preInitForOpenGL()
+{
+#ifdef __win__
+    /*Dynamic dll loading makes OSG crash with Remote Desktop Protocal.
+      Needs to set it explicitely. Sufficient for machine with Nvidia Quadro,
+      but not with GeForce cards.
+      */
+# if QT_VERSION >= 0x050300
+    QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
+# endif
+#endif
+}
+
+
 void uiMain::init( QApplication* qap )
 {
     QLocale::setDefault( QLocale::c() );
@@ -422,8 +460,7 @@ void uiMain::init( QApplication* qap )
 	    DBG::message( "Constructing QApplication ..." );
 
 	SetArgcAndArgv( clp_->getArgc(), clp_->getArgv() );
-	QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
-	QApplication::setDesktopSettingsAware( true );
+	preInit();
 	app_ = new QApplication( GetArgC(), GetArgV() );
     }
 
@@ -731,6 +768,43 @@ void uiMain::formatNameToolTipString( BufferString& namestr )
     bufstr.replace( '\a', '&' );
 
     namestr = "\""; namestr += bufstr; namestr += "\"";
+}
+
+
+static Threads::Atomic<int> directrendering( 0 );
+//0 = don't know
+//1 = yes
+//-1 = no
+
+bool uiMain::directRendering()
+{
+    if ( directrendering )
+	return directrendering == 1;
+
+    OS::MachineCommand cmd( "od_glxinfo" );
+    BufferString stdoutstr;
+    if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
+	return false;
+
+    BufferStringSet glxinfostrs;
+    glxinfostrs.unCat( stdoutstr.str() );
+    BufferString dorender;
+    for ( const auto line : glxinfostrs )
+    {
+	if ( !line->startsWith("direct rendering:") )
+	    continue;
+
+	dorender.set( line->find( ':' )+1 );
+	dorender.trimBlanks();
+	if ( !dorender.isEmpty() )
+	{
+	    directrendering = dorender == FixedString("Yes")
+			    ? 1
+			    : -1;
+	}
+    }
+
+    return directrendering == 1;
 }
 
 

@@ -5,13 +5,15 @@
 -*/
 
 #include "prog.h"
+
+#include "commandlineparser.h"
 #include "file.h"
+#include "uimain.h"
 
 # ifdef __msvc__
 #  include "winmain.h"
 # endif
 
-#include <QApplication>
 #include <QFileDialog>
 
 #include <osgViewer/Viewer>
@@ -29,12 +31,16 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
+    uiMain::preInitForOpenGL();
+    uiMain app( toUiString("OSG scene viewer") );
 
+    const auto& clp = app.commandLineParser();
+    BufferStringSet files;
+    clp.getNormalArguments( files );
     BufferString file;
-    if ( argc>1 )
-	file = argv[1];
+    if ( !files.isEmpty() )
+	file = files.first();
 
-    QApplication app(argc, argv);
 #if OSG_VERSION_LESS_THAN( 3, 5, 0 )
     osgQt::initQtWindowingSystem();
 #endif

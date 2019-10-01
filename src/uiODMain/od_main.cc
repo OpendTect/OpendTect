@@ -32,6 +32,7 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::NormalCtxt );
     SetProgramArgs( argc, argv, false );
+    uiMain::preInitForOpenGL();
     uiMain app;
 
     auto& clp = app.commandLineParser();

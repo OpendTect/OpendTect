@@ -31,6 +31,9 @@ mExpClass(uiBase) uiMain : public CallBacker
 {
 public:
 
+    static void		preInitForOpenGL();
+			//!< call before the uiMain object is constructed
+
 			uiMain(const uiString& appname=uiString::empty(),
 				const uiString& orgnm=uiString::empty());
 			    //!< defaults are uiStrings sOpendTect(), sdGB()
@@ -82,6 +85,7 @@ public:
     static bool		isNameToolTipUsed();
     static void		formatNameToolTipString(BufferString&);
     static void		setXpmIconData(const char**);
+    static bool		directRendering();
 
 protected:
 
@@ -103,6 +107,7 @@ protected:
 private:
 
 			uiMain(mQtclass(QApplication*));
+    void		preInit();
     void		init(mQtclass(QApplication*));
 
 };
