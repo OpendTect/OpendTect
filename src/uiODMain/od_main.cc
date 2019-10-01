@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "msgh.h"
 #include "fixedstring.h"
+#include "uimain.h"
 #include <iostream>
 
 #ifdef __mac__
@@ -30,6 +31,7 @@ extern Export_Basic int gLogFilesRedirectCode;
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    uiMain::preInitForOpenGL();
     const FixedString argv1( argv[1] );
     const bool showversiononly = argv1 == "-v" || argv1 == "--version";
 

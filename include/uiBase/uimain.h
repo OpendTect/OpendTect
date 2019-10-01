@@ -30,10 +30,15 @@ class KeyboardEventFilter;
 mExpClass(uiBase) uiMain
 {
 public:
+
+    static void		preInitForOpenGL();
+			//!< call before the uiMain object is constructed
+
 			uiMain(int& argc,char** argv);
 private:
 			uiMain(mQtclass(QApplication*));
     void		init(mQtclass(QApplication*),int& argc,char **argv);
+    void		preInit();
 
 public:
 
@@ -75,6 +80,7 @@ public:
     static void		useNameToolTip(bool);
     static bool		isNameToolTipUsed();
     static void		formatNameToolTipString(BufferString&);
+    static bool		directRendering();
 
 protected:
 
@@ -88,10 +94,8 @@ protected:
     static KeyboardEventHandler*	keyhandler_;
     static KeyboardEventFilter*		keyfilter_;
 
-			//! necessary for uicMain coin inialisation
+			//! necessary for uiMain coin initialisation
     virtual void	init( mQtclass(QWidget*) mainwidget )	{}
-			//! set attributes before the app is created
-    void		preInit();
 };
 
 

@@ -27,14 +27,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "settings.h"
 #include "thread.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QIcon>
-#include <QMenu>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QStyleFactory>
 #include <QToolTip>
 #include <QTreeWidget>
@@ -355,10 +356,39 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 
 void uiMain::preInit()
 {
-#if QT_VERSION >= 0x050300
-    QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
-#endif
     QApplication::setDesktopSettingsAware( true );
+#if QT_VERSION >= 0x050400
+    // Attributes added with Qt5.3 and Qt5.4
+    if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
+	 QApplication::testAttribute(Qt::AA_UseOpenGLES) ||
+	 QApplication::testAttribute(Qt::AA_UseSoftwareOpenGL) )
+	return;
+
+# ifdef __unix__
+    const bool directren = directRendering();
+    if ( !directren )
+    {
+	QApplication::setAttribute( Qt::AA_UseSoftwareOpenGL );
+	/* Prevents corruption of QtWebEngine widget on remote Unix.
+	   Keeping dynamic loading of DLLs on Windows for 'standards' uiMain
+	 */
+    }
+# endif
+#endif
+}
+
+
+void uiMain::preInitForOpenGL()
+{
+#ifdef __win__
+    /*Dynamic dll loading makes OSG crash with Remote Desktop Protocal.
+      Needs to set it explicitely. Sufficient for machine with Nvidia Quadro,
+      but not with GeForce cards.
+      */
+# if QT_VERSION >= 0x050300
+    QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
+# endif
+#endif
 }
 
 
@@ -640,6 +670,45 @@ void uiMain::formatNameToolTipString( BufferString& namestr )
 
     namestr = "\""; namestr += bufstr; namestr += "\"";
 }
+
+
+static Threads::Atomic<int> directrendering( 0 );
+//0 = don't know
+//1 = yes
+//-1 = no
+
+bool uiMain::directRendering()
+{
+    if ( directrendering )
+	return directrendering == 1;
+
+    OS::MachineCommand cmd( "od_glxinfo" );
+    const BufferString stdoutstr = cmd.runAndCollectOutput();
+    if ( stdoutstr.isEmpty() )
+	return false;
+
+    BufferStringSet glxinfostrs;
+    glxinfostrs.unCat( stdoutstr.str() );
+    BufferString dorender;
+    for ( int idx=0; idx<glxinfostrs.size(); idx++ )
+    {
+	const BufferString& line = glxinfostrs.get( idx );
+	if ( !line.startsWith("direct rendering:") )
+	    continue;
+
+	dorender.set( line.find( ':' )+1 );
+	dorender.trimBlanks();
+	if ( !dorender.isEmpty() )
+	{
+	    directrendering = dorender == FixedString("Yes")
+			    ? 1
+			    : -1;
+	}
+    }
+
+    return directrendering == 1;
+}
+
 
 
 bool isMainThread( const void* thread )

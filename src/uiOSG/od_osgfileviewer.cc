@@ -13,6 +13,8 @@ static const char* rcsID mUnusedVar = "$Id$";
 #  include "winmain.h"
 # endif
 
+#include "uimain.h"
+
 #include <QApplication>
 #include <QFileDialog>
 
@@ -28,6 +30,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    uiMain::preInitForOpenGL();
 
     BufferString file;
     if ( argc>1 )
