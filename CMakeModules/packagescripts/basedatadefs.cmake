@@ -4,7 +4,7 @@
 # Date:         September 2012
 #RCS:           $Id$
 
-SET( LIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
+SET( DATALIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
 	     BatchHosts_example FileFormats UnitsOfMeasure Properties odSettings
 	     EnvVars ShortCuts *.ico *.png *.html icons.Default
 	     RockPhysics ModDeps.od Strat

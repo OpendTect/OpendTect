@@ -37,6 +37,7 @@ macro ( create_package PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/bin/${PYTHONDIR}
 			 ${DESTINATION_DIR}/bin/python )
+	unset( PYTHONDIR  )
     endif()
 
     message( "Copying ${OD_PLFSUBDIR} libraries" )
@@ -88,13 +89,23 @@ macro ( create_package PACKAGE_NAME )
 	endforeach()
     endforeach()
 
-    if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
+    if( ${PACKAGE_NAME} STREQUAL "dgbbase" OR ${PACKAGE_NAME} STREQUAL "v7" )
 #Inslall lm 
 	foreach( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			      ${COPYFROMDATADIR}/${SPECFILE}
 			      ${COPYTODATADIR}/. )
 	endforeach()
+        if ( ${PACKAGE_NAME} STREQUAL "v7" )
+	    foreach( FILES ${v7SCRIPTS} )
+		 file( GLOB SCRIPTS ${COPYFROMDATADIR}/bin/${FILES} )
+		 foreach( SCRIPT ${SCRIPTS} )
+		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${SCRIPT}
+					     ${COPYTODATADIR}/bin/. )
+		 endforeach()
+	    endforeach()
+	endif()
+
 
 	if( UNIX )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -114,8 +125,8 @@ macro ( create_package PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/bin/${PYTHONDIR}
 			     ${DESTINATION_DIR}/bin/python )
+	    unset( PYTHONDIR  )
         endif()
-
     endif()
 
     if( WIN32 )
@@ -287,7 +298,7 @@ macro( copy_unix_systemlibs )
 endmacro()
 
 macro( create_basepackages PACKAGE_NAME )
-    if( ${PACKAGE_NAME} STREQUAL "basedata" )
+    if( ${PACKAGE_NAME} STREQUAL "basedata" OR ${PACKAGE_NAME} STREQUAL "v7basedatadefs" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			${COPYFROMDATADIR}/doc/system_requirements.html
 			${COPYTODATADIR}/doc/system_requirements.html )
@@ -297,7 +308,7 @@ macro( create_basepackages PACKAGE_NAME )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
 				${COPYTODATADIR}/doc/ReleaseInfo/RELEASEINFO.txt )
-	foreach( LIBS ${LIBLIST} )
+	foreach( LIBS ${DATALIBLIST} )
 	    file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
 	    foreach( DATA ${DATAFILES} )
     #TODO if possible copy files instead of INSTALL
@@ -314,15 +325,15 @@ macro( create_basepackages PACKAGE_NAME )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${COPYFROMDATADIR}/relinfo/RELEASE.dgb.txt
 				${COPYTODATADIR}/doc/ReleaseInfo/RELEASE.dgb.txt )
-       foreach( LIB ${LIBLIST} )
-	  if( IS_DIRECTORY "${COPYFROMDATADIR}/data/${LIB}" )
+       foreach( DATALIB ${DATALIBLIST} )
+	  if( IS_DIRECTORY "${COPYFROMDATADIR}/data/${DATALIB}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMDATADIR}/data/${LIB}
-			     ${COPYTODATADIR}/data/${LIB} )
+			     ${COPYFROMDATADIR}/data/${DATALIB}
+			     ${COPYTODATADIR}/data/${DATALIB} )
 	  else()
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMDATADIR}/data/${LIB}
-			     ${COPYTODATADIR}/data/${LIB} )
+			     ${COPYFROMDATADIR}/data/${DATALIB}
+			     ${COPYTODATADIR}/data/${DATALIB} )
 	  endif()
        endforeach()
        file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
