@@ -14,12 +14,14 @@ ________________________________________________________________________
 */
 
 #include "batchmod.h"
-#include "prog.h"
-#include "namedobj.h"
+
+#include "applicationdata.h"
 #include "bufstringset.h"
 #include "genc.h"
+#include "namedobj.h"
 #include "od_iostream.h"
 #include "oscommand.h"
+#include "prog.h"
 
 class CommandLineParser;
 class IOObj;
@@ -69,7 +71,7 @@ public:
     mExp(Batch) bool	errorMsg( const uiString& msg, bool cc_stderr=false);
     mExp(Batch) bool	infoMsg( const char* msg, bool cc_stdout=false);
 
-    mExp(Batch) static void	deleteInstance();
+    mExp(Batch) static void	deleteInstance(int retcode);
 
 
     static const char*	sKeyDataDir()	{ return "datadir"; }
@@ -81,7 +83,7 @@ public:
 
 protected:
 
-    friend int		Execute_batch(int*,char**);
+    friend void		Execute_batch(int*,char**);
 
     //friend class	JobCommunic;
 
@@ -115,7 +117,7 @@ private:
 };
 
 
-int Execute_batch(int*,char**);
+void Execute_batch(int*,char**);
 mGlobal(Batch) BatchProgram& BP();
 
 
@@ -158,9 +160,10 @@ if ( comm_ ) \
     {
 	OD::SetRunContext( OD::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
-	int ret = Execute_batch(&argc,argv);
-	ExitProgram( ret );
-	return ret;
+	ApplicationData app;
+	Execute_batch( &argc, argv );
+	const int ret = ApplicationData::exec();
+	return ExitProgram( ret );
     }
 
 #endif // __prog__

@@ -45,9 +45,10 @@ BatchProgram& BP()
 }
 
 
-void BatchProgram::deleteInstance()
+void BatchProgram::deleteInstance( int retcode )
 {
     delete BatchProgram::inst_;
+    ApplicationData::exit( retcode );
 }
 
 
