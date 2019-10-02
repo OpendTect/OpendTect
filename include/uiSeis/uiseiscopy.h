@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seistype.h"
 
 class IOObj;
+class uiGenInput;
 class uiSeisProvider;
 class uiSeisStorer;
 class uiBatchJobDispatcherSel;
@@ -37,6 +38,7 @@ public:
 protected:
 
     uiSeisProvider*	provfld_;
+    uiGenInput*		nullhndlfld_;
     uiSeisStorer*	storfld_;
     uiBatchJobDispatcherSel* batchfld_;
 

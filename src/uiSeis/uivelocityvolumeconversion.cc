@@ -94,7 +94,7 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
     if ( prov3d )
     {
 	Survey::FullSubSel fss;
-	prov3d->getSubSel( fss );
+	prov3d->getFullSubSel( fss );
 	possubsel_->setInputLimit( TrcKeyZSampling(fss) );
     }
 }

@@ -68,8 +68,8 @@ public:
 			    //!< Returns whether fully regular.
     bool		getCubeHorSubSel(CubeHorSubSel&) const;
 			    //!< Returns whether fully regular.
-    void		getCubeSubSel( FullSubSel& fss ) const
-			{ return getFullSubSel( fss, false ); }
+    void		getCubeFullHorSubSel( FullHorSubSel& fss ) const
+			{ return getFullHorSubSel( fss, false ); }
 
     BinID		minStep() const;
     BinID		nearestBinID(const BinID&) const;

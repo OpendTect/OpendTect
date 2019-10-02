@@ -227,9 +227,58 @@ const Pos::ZSubSel& Seis::Provider::zSubSel( int iln ) const
 }
 
 
-void Seis::Provider::getSubSel( FullSubSel& fss ) const
+void Seis::Provider::getFullHorSubSel( FullHorSubSel& fhss ) const
 {
-    return possiblepositions_.getFullSubSel( fss, is2D() );
+    possiblepositions_.getFullHorSubSel( fhss, is2D() );
+    if ( selectedpositions_ )
+    {
+	if ( !is2D() )
+	{
+	    const auto selinlrg = selectedpositions_->firstRange();
+	    const auto selcrlrg = selectedpositions_->secondRange();
+	    auto inlrg = fhss.inlRange();
+	    auto crlrg = fhss.crlRange();
+	    inlrg.start = selinlrg.start; inlrg.stop = selinlrg.stop;
+	    crlrg.start = selcrlrg.start; crlrg.stop = selcrlrg.stop;
+	    fhss.setInlRange( inlrg );
+	    fhss.setCrlRange( crlrg );
+	}
+	else
+	{
+	    auto& lhsss = fhss.subSel2D();
+	    for ( auto iln=0; iln<lhsss.size(); iln++ )
+	    {
+		auto& lhss = *lhsss.get( iln );
+		const auto lineid = lhss.geomID().getI();
+		if ( !selectedpositions_->hasFirst(lineid) )
+		    { lhsss.removeSingle( iln ); iln--; }
+		else
+		{
+		    const auto seltnrrg
+				= selectedpositions_->secondRange( lineid );
+		    auto tnrrg = lhss.trcNrRange();
+		    tnrrg.start = seltnrrg.start; tnrrg.stop = seltnrrg.stop;
+		    lhss.setTrcNrRange( seltnrrg );
+		}
+	    }
+	}
+    }
+}
+
+
+void Seis::Provider::getFullZSubSel( FullZSubSel& fzss ) const
+{
+    fzss.setToNone( is2D() );
+    const auto nrgeomids = nrGeomIDs();
+    for ( auto idx=0; idx<nrgeomids; idx++ )
+	fzss.set( geomID(idx), zSubSel(idx) );
+}
+
+
+void Seis::Provider::getFullSubSel( FullSubSel& fss ) const
+{
+    getFullHorSubSel( fss.fullHorSubSel() );
+    getFullZSubSel( fss.fullZSubSel() );
 }
 
 

@@ -158,6 +158,7 @@ public:
     GeomID		geomID() const;
     trcnr_type		trcNr() const;
     BinID		binID() const;
+    Bin2D		bin2D() const;
 
 protected:
 

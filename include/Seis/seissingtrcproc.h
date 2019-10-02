@@ -12,13 +12,14 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
-#include "trckeysampling.h"
 #include "uistrings.h"
 
+class CubeHorSubSel;
 class Scaler;
 class SeisTrc;
 class SeisResampler;
 namespace Seis { class Provider; class Storer; }
+namespace Survey { class HorSubSelIterator; }
 
 
 /*!\brief Single trace processing executor
@@ -117,8 +118,8 @@ protected:
     bool		skipnull_;
     bool		is3d_;
     bool		fillnull_;
-    BinID		fillbid_;
-    TrcKeySampling	fillhs_;
+    CubeHorSubSel*	fillchss_;
+    Survey::HorSubSelIterator* filliter_;
     SeisTrc*		filltrc_;
     bool		extendtrctosi_;
     int			compnr_;
@@ -131,6 +132,6 @@ protected:
     int			getFillTrc();
     bool		prepareTrc();
     bool		writeTrc();
-    void		prepareNullFilling();
+    bool		prepareNullFilling();
 
 };

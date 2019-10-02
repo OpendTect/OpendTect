@@ -15,7 +15,9 @@
 #include "seisprovider.h"
 #include "seisseldata.h"
 #include "seisresampler.h"
-#include "trckeyzsampling.h"
+#include "cubedata.h"
+#include "cubesubsel.h"
+#include "fullsubsel.h"
 #include "dbkey.h"
 #include "survinfo.h"
 #include "ioobj.h"
@@ -36,8 +38,9 @@
 	, scaler_(0) \
 	, skipnull_(false) \
 	, fillnull_(false) \
-	, fillhs_(true) \
 	, filltrc_(0) \
+	, fillchss_(0) \
+	, filliter_(0) \
 	, resampler_(0) \
 	, extendtrctosi_( false ) \
 	, is3d_(true) \
@@ -124,11 +127,14 @@ SeisSingleTraceProc::SeisSingleTraceProc( const ObjectSet<Provider>& provs,
 
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
-    delete resampler_;
     deepErase( provs_ );
+    delete resampler_;
+    delete scaler_;
+    delete filliter_;
+    delete fillchss_;
+    delete filltrc_;
     delete &storer_;
     delete &intrc_;
-    delete scaler_;
 }
 
 
@@ -205,13 +211,6 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 	    }
 	    szdone = true;
 	}
-	else if ( !is3d )
-	{
-	    // 2D, so let's make sure the line key is set
-	    Seis::SelData* sd = Seis::SelData::get(Seis::Range);
-	    sd->usePar( *iop );
-	    prov->setSelData( sd );
-	}
     }
 
     addProv( prov, szdone, iop );
@@ -249,8 +248,8 @@ void SeisSingleTraceProc::setProcPars( const IOPar& iop )
     Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
     const int nulltrcpol = toInt( iop.find("Null trace policy") );
     const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
-    TrcKeyZSampling cs; cs.usePar( iop );
-    SeisResampler* resmplr = new SeisResampler( cs );
+    CubeSubSel css; css.usePar( iop );
+    SeisResampler* resmplr = new SeisResampler( css );
 
     setScaler( sclr );
     skipNullTraces( nulltrcpol < 1 );
@@ -331,80 +330,59 @@ int SeisSingleTraceProc::getNextTrc()
 }
 
 
-void SeisSingleTraceProc::prepareNullFilling()
+bool SeisSingleTraceProc::prepareNullFilling()
 {
     if ( provs_.isEmpty() || !is3d_ || storer_.isPS() )
-	{ fillnull_ = false; return; }
+	{ fillnull_ = false; return false; }
 
-    const Seis::SelData* sd = provs_[0]->selData();
-    if ( sd && !sd->isAll() )
+    CubeHorSubSel chss;
+    Survey::FullHorSubSel fhss;
+    provs_[0]->getFullHorSubSel( fhss );
+    for ( auto idx=1; idx<provs_.size(); idx++ )
     {
-	Interval<int> rg( sd->inlRange() );
-	fillhs_.start_.inl() = rg.start;
-	fillhs_.stop_.inl() = rg.stop;
-	rg = sd->crlRange();
-	fillhs_.start_.crl() = rg.start;
-	fillhs_.stop_.crl() = rg.stop;
+	Survey::FullHorSubSel curfhss;
+	provs_[idx]->getFullHorSubSel( curfhss );
+	fhss.merge( curfhss );
     }
-    fillbid_ = BinID( fillhs_.start_.inl(), fillhs_.start_.crl() );
+    fillchss_ = new CubeHorSubSel( fhss.subSel3D() );
+    filliter_ = new Survey::HorSubSelIterator( *fillchss_ );
+
+    // Find the first actual trace; it will provide data type, size, etc.
+    while ( true )
+    {
+	int rv = getNextTrc();
+	if ( rv < 1 )
+	    return false;
+	if ( rv == 1 && prepareTrc() )
+	    break;
+    }
+    filltrc_ = new SeisTrc( *worktrc_ );
+    filltrc_->zero();
+    filltrc_->info().offset_ = 0;
+    filltrc_->info().azimuth_ = 0;
+    filltrc_->info().refnr_ = filltrc_->info().pick_ = mUdf(float);
+
+    return true;
 }
 
 
 int SeisSingleTraceProc::getFillTrc()
 {
     mWrapUpIfPastLastReader();
-
-    if ( !filltrc_ )
-    {
-	prepareNullFilling();
-	if ( !fillnull_ )
-	    return getNextTrc();
-
-	while ( true )
-	{
-	    int rv = getNextTrc();
-	    if ( rv < 1 )
-		return rv;
-	    if ( rv == 1 )
-	    {
-		if ( prepareTrc() )
-		{
-		    break;
-		}
-	    }
-	}
-	filltrc_ = new SeisTrc( *worktrc_ );
-	filltrc_->zero();
-	filltrc_->info().offset_ = 0;
-	filltrc_->info().azimuth_ = 0;
-	filltrc_->info().refnr_ = filltrc_->info().pick_ = mUdf(float);
-    }
-
-    if ( fillbid_.inl() > fillhs_.stop_.inl() )
+    if ( !filltrc_ && !prepareNullFilling() )
+	return wrapUp();
+    if ( !filliter_->next() )
 	return wrapUp();
 
-    const Seis::Provider& curprov = *provs_[curprovidx_];
-    const Seis::SelData* seldata = curprov.selData();
-    bool neednulltrc = seldata && !seldata->isOK(fillbid_);
-    if ( !neednulltrc )
+    const auto& curprov = *provs_[curprovidx_]->as3D();
+    const auto curbid( filliter_->binID() );
+    uiRetVal uirv = curprov.getAt( curbid, intrc_ );
+    if ( !uirv.isOK() )
     {
-	int rv = getNextTrc();
-	if ( rv != 1 )
-	    neednulltrc = true;
-    }
-    if ( neednulltrc )
-    {
+	intrc_ = *filltrc_;
+	intrc_.info().setPos( curbid );
+	intrc_.info().coord_ = SI().transform( curbid );
 	worktrc_ = &intrc_;
-	*worktrc_ = *filltrc_;
-	worktrc_->info().setPos( fillbid_ );
-	worktrc_->info().coord_ = SI().transform( fillbid_ );
-    }
-
-    fillbid_.crl() += fillhs_.step_.crl();
-    if ( fillbid_.crl() > fillhs_.stop_.crl() )
-    {
-	fillbid_.inl() += fillhs_.step_.inl();
-	fillbid_.crl() = fillhs_.start_.crl();
     }
 
     return Executor::MoreToDo();
@@ -480,8 +458,10 @@ int SeisSingleTraceProc::nextStep()
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
 	int rv = fillnull_ ? getFillTrc() : getNextTrc();
-	if ( rv < 1 )		return rv;
-	else if ( rv > 1 )	continue;
+	if ( rv < 1 )
+	    return rv;
+	else if ( rv > 1 )
+	    continue;
 
 	if ( !prepareTrc() )
 	    continue;

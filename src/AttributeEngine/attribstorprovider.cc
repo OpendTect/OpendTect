@@ -182,7 +182,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
 	const bool is2d = mscprov_->is2D();
 	desc_.setIs2D( is2d );
-	mscprov_->provider().getSubSel( storedsubsel_ );
+	mscprov_->provider().getFullSubSel( storedsubsel_ );
 	status_ = StorageOpened;
     }
 

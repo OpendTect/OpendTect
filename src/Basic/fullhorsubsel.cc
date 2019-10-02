@@ -787,3 +787,12 @@ BinID Survey::SubSelPosIter::binID() const
     const auto coord = lhss.geometry2D().getCoord( trcnr );
     return SI().transform( coord );
 }
+
+
+Bin2D Survey::SubSelPosIter::bin2D() const
+{
+    auto geomid = geomID();
+    if ( geomid.is3D() )
+	{ pErrMsg("2D/3D err"); geomid.setI( 0 ); }
+    return Bin2D( geomid, trcNr() );
+}

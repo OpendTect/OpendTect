@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "bin2d.h"
 #include "od_iosfwd.h"
 class TrcKey;
-namespace Survey { class HorSubSel; class FullSubSel; }
+namespace Survey { class HorSubSel; class FullHorSubSel; }
 
 
 /*!\brief Position info, segmented
@@ -161,13 +161,13 @@ public:
     mUseType( LineData,	pos_type );
     mUseType( LineData,	pos_rg_type );
     mUseType( LineData,	pos_steprg_type );
-    mUseType( Survey,	FullSubSel );
+    mUseType( Survey,	FullHorSubSel );
     mUseType( Pos,	IdxPair );
     typedef od_int64	glob_idx_type;
     typedef od_int64	glob_size_type;
 
     virtual LineCollData* clone() const		= 0;
-    static LineCollData* create(const FullSubSel&);
+    static LineCollData* create(const FullHorSubSel&);
 
     virtual bool	isLineSorted() const; //!< checks ascending only
     LineCollData&	operator =( const LineCollData& oth )
@@ -210,7 +210,7 @@ public:
     void		limitTo(const Survey::HorSubSel&);
     void		merge(const LineCollData&,bool incl);
 				//!< incl=union, !incl=intersection
-    void		getFullSubSel(FullSubSel&,bool is2d) const;
+    void		getFullHorSubSel(FullHorSubSel&,bool is2d) const;
 
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc) const;

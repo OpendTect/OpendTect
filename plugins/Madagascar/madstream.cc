@@ -369,7 +369,7 @@ void MadStream::fillHeaderParsFromSeis()
     else
     {
 	Survey::FullSubSel fss;
-	seisprov_->getSubSel( fss );
+	seisprov_->getFullSubSel( fss );
 	const TrcKeyZSampling tkzs( fss );
 	zrg = tkzs.zsamp_;
 	trcrg = tkzs.hsamp_.trcRange();

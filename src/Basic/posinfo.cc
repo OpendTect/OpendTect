@@ -379,22 +379,22 @@ bool PosInfo::LineCollData::isLineSorted() const
 }
 
 
-PosInfo::LineCollData* PosInfo::LineCollData::create( const FullSubSel& fss )
+PosInfo::LineCollData* PosInfo::LineCollData::create( const FullHorSubSel& fhss)
 {
     LineCollData* ret = nullptr;
-    if ( !fss.is2D() )
+    if ( !fhss.is2D() )
     {
-	const auto& chss = fss.cubeSubSel().cubeHorSubSel();
+	const auto& chss = fhss.cubeHorSubSel();
 	ret = new CubeData( chss.inlRange(), chss.crlRange() );
     }
     else
     {
 	ret = new LinesData;
-	const auto nrlines = fss.nrGeomIDs();
+	const auto nrlines = fhss.nrGeomIDs();
 	for ( auto iln=0; iln<nrlines; iln++ )
 	{
-	    const auto& lss = fss.lineSubSel( iln );
-	    auto* ld = new LineData( fss.geomID(iln).lineNr() );
+	    const auto& lss = fhss.lineHorSubSel( iln );
+	    auto* ld = new LineData( fhss.geomID(iln).lineNr() );
 	    ld->segments_.add( lss.trcNrRange() );
 	    ret->add( ld );
 	}
@@ -552,28 +552,29 @@ void PosInfo::LineCollData::merge( const LineCollData& oth, bool inc )
 }
 
 
-void PosInfo::LineCollData::getFullSubSel( FullSubSel& fss, bool is2d ) const
+void PosInfo::LineCollData::getFullHorSubSel( FullHorSubSel& fhss,
+					      bool is2d ) const
 {
     if ( is2d )
     {
-	fss.setToNone( true );
+	fhss.setToNone( true );
 	for ( int iln=0; iln<size(); iln++ )
 	{
 	    const auto& ld = *get( iln );
-	    fss.addGeomID( GeomID(ld.linenr_) );
+	    fhss.addGeomID( GeomID(ld.linenr_) );
 	    const auto ldrg = ld.range();
-	    fss.lineSubSel(iln).trcNrSubSel().setInputPosRange(
+	    fhss.lineHorSubSel(iln).trcNrSubSel().setInputPosRange(
 			pos_steprg_type(ldrg.start,ldrg.stop,ld.minStep()) );
 	}
     }
     else
     {
-	fss.setToAll( false );
+	fhss.setToAll( false );
 	CubeData cd; cd.copyContents( *this );
 	pos_steprg_type inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getCrlRange( crlrg );
-	fss.cubeSubSel().inlSubSel().setInputPosRange( inlrg );
-	fss.cubeSubSel().crlSubSel().setInputPosRange( crlrg );
+	fhss.cubeHorSubSel().inlSubSel().setInputPosRange( inlrg );
+	fhss.cubeHorSubSel().crlSubSel().setInputPosRange( crlrg );
     }
 }
 
