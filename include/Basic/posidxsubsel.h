@@ -75,7 +75,7 @@ public:
     void	clearSubSel()	{ ArrRegSubSelData::clearSubSel(inputSize()); }
     void	limitTo(const IdxSubSelData&);
     void	widenTo(const IdxSubSelData&);
-    void	addStepout(pos_type);
+    void	addStepout(idx_type);
 
 protected:
 

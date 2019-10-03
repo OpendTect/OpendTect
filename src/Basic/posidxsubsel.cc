@@ -176,7 +176,7 @@ void Pos::IdxSubSelData::widenTo( const IdxSubSelData& oth )
 }
 
 
-void Pos::IdxSubSelData::addStepout( pos_type so )
+void Pos::IdxSubSelData::addStepout( idx_type so )
 {
     const auto posdelta = so * posStep();
     auto posrg = outputPosRange();

@@ -227,15 +227,16 @@ const Pos::ZSubSel& Seis::Provider::zSubSel( int iln ) const
 }
 
 
-void Seis::Provider::getFullHorSubSel( FullHorSubSel& fhss ) const
+void Seis::Provider::getFullHorSubSel( FullHorSubSel& fhss, bool target ) const
 {
     possiblepositions_.getFullHorSubSel( fhss, is2D() );
-    if ( selectedpositions_ )
+    const auto posns = selectedPositions( target );
+    if ( posns )
     {
 	if ( !is2D() )
 	{
-	    const auto selinlrg = selectedpositions_->firstRange();
-	    const auto selcrlrg = selectedpositions_->secondRange();
+	    const auto selinlrg = posns->firstRange();
+	    const auto selcrlrg = posns->secondRange();
 	    auto inlrg = fhss.inlRange();
 	    auto crlrg = fhss.crlRange();
 	    inlrg.start = selinlrg.start; inlrg.stop = selinlrg.stop;
@@ -250,12 +251,11 @@ void Seis::Provider::getFullHorSubSel( FullHorSubSel& fhss ) const
 	    {
 		auto& lhss = *lhsss.get( iln );
 		const auto lineid = lhss.geomID().getI();
-		if ( !selectedpositions_->hasFirst(lineid) )
+		if ( !posns->hasFirst(lineid) )
 		    { lhsss.removeSingle( iln ); iln--; }
 		else
 		{
-		    const auto seltnrrg
-				= selectedpositions_->secondRange( lineid );
+		    const auto seltnrrg = posns->secondRange( lineid );
 		    auto tnrrg = lhss.trcNrRange();
 		    tnrrg.start = seltnrrg.start; tnrrg.stop = seltnrrg.stop;
 		    lhss.setTrcNrRange( seltnrrg );
@@ -275,10 +275,16 @@ void Seis::Provider::getFullZSubSel( FullZSubSel& fzss ) const
 }
 
 
-void Seis::Provider::getFullSubSel( FullSubSel& fss ) const
+void Seis::Provider::getFullSubSel( FullSubSel& fss, bool target ) const
 {
-    getFullHorSubSel( fss.fullHorSubSel() );
+    getFullHorSubSel( fss.fullHorSubSel(), target );
     getFullZSubSel( fss.fullZSubSel() );
+}
+
+
+const BinnedValueSet* Seis::Provider::selectedPositions( bool target ) const
+{
+    return target && targetpositions_ ? targetpositions_ : selectedpositions_;
 }
 
 
@@ -340,7 +346,7 @@ void Seis::Provider::handleNewPositions()
 	    as2D()->trcpos_ = possiblepositions_.bin2D( lcdp );
 	else
 	    as3D()->trcpos_ = possiblepositions_.binID( lcdp );
-	totalnr_ = possiblepositions_.totalSize();
+	targettotalnr_ = totalnr_ = possiblepositions_.totalSize();
     }
     else
     {
@@ -349,7 +355,9 @@ void Seis::Provider::handleNewPositions()
 	    as2D()->trcpos_ = selectedpositions_->getBin2D( spos );
 	else
 	    as3D()->trcpos_ = selectedpositions_->getBinID( spos );
-	totalnr_ = selectedpositions_->totalSize();
+	targettotalnr_ = totalnr_ = selectedpositions_->totalSize();
+	if ( targetpositions_ )
+	    targettotalnr_ = targetpositions_->totalSize();
     }
 }
 
@@ -375,20 +383,21 @@ bool Seis::Provider::isEmpty() const
 }
 
 
-void Seis::Provider::getPositions( LineCollData& lcd ) const
+void Seis::Provider::getPositions( LineCollData& lcd, bool target ) const
 {
     if ( !selectedpositions_ )
 	lcd = possiblepositions_;
     else
     {
+	const auto* posns = selectedPositions( target );
 	PosInfo::LineCollDataFiller filler( lcd );
 	SPos spos;
-	while ( selectedpositions_->next(spos,true) )
+	while ( posns->next(spos,true) )
 	{
 	    if ( is2D() )
-		filler.add( selectedpositions_->getBin2D(spos) );
+		filler.add( posns->getBin2D(spos) );
 	    else
-		filler.add( selectedpositions_->getBinID(spos) );
+		filler.add( posns->getBinID(spos) );
 	}
     }
 }
@@ -576,14 +585,15 @@ void Seis::Provider::reportSetupChg()
 {
     if ( state_ == Active )
 	state_ = NeedPrep;
+    deleteAndZeroPtr( targetpositions_ );
     deleteAndZeroPtr( selectedpositions_ );
 }
 
 
-od_int64 Seis::Provider::totalNr() const
+od_int64 Seis::Provider::totalNr( bool target ) const
 {
     commitSelections();
-    return totalnr_;
+    return target ? targettotalnr_ : totalnr_;
 }
 
 
@@ -637,22 +647,34 @@ void Seis::Provider::applyStepout()
 {
     TypeSet<SPos> toremove;
     SPos spos;
+    deleteAndZeroPtr( targetpositions_ );
+
     if ( is2D() )
     {
-	selectedpositions_->setStepout( as2D()->stepout_ );
-	while ( selectedpositions_->next(spos) )
-	    if ( !possiblepositions_.includes(
-				selectedpositions_->getBin2D(spos)) )
-		toremove += spos;
+	const auto so = as2D()->stepout_;
+	if ( so > 0 )
+	{
+	    targetpositions_ = new BinnedValueSet( *selectedpositions_ );
+	    selectedpositions_->setStepout( as2D()->stepout_ );
+	    while ( selectedpositions_->next(spos) )
+		if ( !possiblepositions_.includes(
+				    selectedpositions_->getBin2D(spos)) )
+		    toremove += spos;
+	}
     }
     else
     {
 	const auto& as3d = *as3D();
-	selectedpositions_->setStepout( as3d.stepout_, as3d.binIDStep() );
-	while ( selectedpositions_->next(spos) )
-	    if ( !possiblepositions_.includes(
-				selectedpositions_->getBinID(spos)) )
-		toremove += spos;
+	const auto so = as3d.stepout_;
+	if ( so.inl() > 0 && so.crl() > 0 )
+	{
+	    targetpositions_ = new BinnedValueSet( *selectedpositions_ );
+	    selectedpositions_->setStepout( as3d.stepout_, as3d.binIDStep() );
+	    while ( selectedpositions_->next(spos) )
+		if ( !possiblepositions_.includes(
+				    selectedpositions_->getBinID(spos)) )
+		    toremove += spos;
+	}
     }
 
     selectedpositions_->remove( toremove );

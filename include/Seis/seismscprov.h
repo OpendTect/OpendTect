@@ -119,7 +119,7 @@ public:
 
     int			comparePos(const MSCProvider&) const;
 			//!< 0 = equal; -1 = I need next(), 1 = other needs next
-    int			estimatedNrTraces() const; //!< returns -1 when unknown
+    od_int64		estimatedNrTraces() const; //!< returns -1 when unknown
 
     inline GeomID	geomID() const		{ return curGeomID(); }
     Provider&		provider()		{ return *prov_; }
@@ -140,7 +140,6 @@ protected:
     bool		atend_			= false;
 
     GeomID		curgeomid_;
-    mutable int		estnrtrcs_		= -2;
 
 			// Indexes of new pos ready, -1 while buffering.
     int			bufidx_			= -1;

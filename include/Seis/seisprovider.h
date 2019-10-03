@@ -69,6 +69,10 @@ class VolFetcher; class LineFetcher; class PS2DFetcher; class PS3DFetcher;
  SelData, Z extension and stepout, the use commitSelections(). Otherwise,
  you'll get possible positions and Z ranges.
 
+ It is possible to obtain all possible positions, and all selected positions.
+ You can also get the selected positions before the stepout is applied
+ (the 'target' positions).
+
  Note: the getNext() function will return !isOK() at end of input. This will
  return the special 'error' 'Finished' which can be checked by
  isFinished( uirv ).
@@ -127,10 +131,11 @@ public:
     const ZSubSel&	zSubSel(idx_type iln=0) const;
     ZSampling		zRange( idx_type iln=0 ) const
 				{ return zSubSel(iln).outputZRange(); }
-    void		getFullHorSubSel(FullHorSubSel&) const;
+    void		getFullHorSubSel(FullHorSubSel&,
+					 bool target=false) const;
     void		getFullZSubSel(FullZSubSel&) const;
-    void		getFullSubSel(FullSubSel&) const;
-    DataCharacteristics	trcDataRep() const;
+    void		getFullSubSel(FullSubSel&,bool target=false) const;
+    const BinnedValueSet* selectedPositions(bool target=false) const;
 
     void		setSelData(SelData*);		//!< Give it to me
     void		setSelData(const SelData&);	//!< I'll make a copy
@@ -145,6 +150,7 @@ public:
     const comp_idx_set_type& selectedComponents() const
 						{ return selectedcomponents_; }
     bool		haveSelComps() const;
+    DataCharacteristics	trcDataRep() const;
 
     void		commitSelections() const;
 			    //!< will be done automatically if not called
@@ -153,7 +159,7 @@ public:
     uiRetVal		usePar(const IOPar&);
 
     bool		isEmpty() const;
-    void		getPositions(LineCollData&) const;
+    void		getPositions(LineCollData&,bool target=false) const;
     bool		isPresent(const TrcKey&) const;
     void		getCurPosition(TrcKey&) const;
 
@@ -168,7 +174,7 @@ public:
     uiRetVal		getGatherAt(const TrcKey&,SeisTrcBuf&) const;
 
     od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const;
+    od_int64		totalNr(bool target=false) const;
 
     static const char*	sKeyForceFPData()
 			{ return "Force FPs"; }
@@ -187,6 +193,7 @@ protected:
     LineCollData&	possiblepositions_;
     SelData*		seldata_		= nullptr;
     z_rg_type		zextension_		= z_rg_type(0.f,0.f);
+    BinnedValueSet*	targetpositions_	= nullptr;
     BinnedValueSet*	selectedpositions_	= nullptr;
     ZSubSelSet		selectedzsubsels_;
     comp_idx_set_type	selectedcomponents_;
@@ -197,7 +204,8 @@ protected:
     mutable WorkState	state_			= NeedInput;
     mutable SPos	spos_;
     mutable totsz_type	nrdone_			= 0;
-    totsz_type		totalnr_;
+    totsz_type		totalnr_		= -1;
+    totsz_type		targettotalnr_		= -1;
 
     virtual Fetcher&	gtFetcher()		= 0;
     Fetcher&		fetcher()		{ return gtFetcher(); }

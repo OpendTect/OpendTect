@@ -178,15 +178,9 @@ int Seis::MSCProvider::comparePos( const MSCProvider& oth ) const
 }
 
 
-int Seis::MSCProvider::estimatedNrTraces() const
+od_int64 Seis::MSCProvider::estimatedNrTraces() const
 {
-    if ( estnrtrcs_ == -2 )
-    {
-	estnrtrcs_ = -1;
-	if ( prov_ )
-	    estnrtrcs_ = (int)prov_->totalNr();
-    }
-    return estnrtrcs_;
+    return prov_ ? prov_->totalNr( true ) : -1;
 }
 
 
