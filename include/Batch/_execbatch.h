@@ -96,13 +96,13 @@ static void setBatchPriority( int argc, char** argv, int pid )
 #endif
 }
 
-int Execute_batch( int* pargc, char** argv )
+void Execute_batch( int* pargc, char** argv )
 {
     PIM().loadAuto( false );
 
     BP().init();
     if ( !BP().stillok_ )
-	return 1;
+	return;
     if ( BP().inbg_ )
 	ForkProcess();
 
@@ -118,16 +118,17 @@ int Execute_batch( int* pargc, char** argv )
 	setBatchPriority( *pargc, argv, pid );
 #endif
 	logstrm << "Starting program: " << argv[0] << " " << bp.name()
-	    	<< od_endl;
-	logstrm << "Processing on: " << HostData::localHostName() << od_endl;
+		<< od_endl;
+	logstrm << "Processing on: " << GetLocalHostName() << od_endl;
 	logstrm << "Process ID: " << pid << od_endl;
 	allok = bp.go( logstrm );
     }
 
     bp.stillok_ = allok;
-    BatchProgram::deleteInstance();
+    const int ret = allok ? 0 : 1;
+    BatchProgram::deleteInstance( ret );
 
-    return allok ? 0 : 1;	// never reached.
+    ApplicationData::exit( ret );	// never reached.
 }
 
 #endif
