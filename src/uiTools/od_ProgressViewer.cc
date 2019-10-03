@@ -261,12 +261,12 @@ void uiProgressViewer::doWork( CallBacker* )
 
 void uiProgressViewer::getNewPID( CallBacker* )
 {
+    if ( !mIsUdf(pid_) || !strm_ )
+	return;
+
     const bool activetimer = timer_.isActive();
     if ( activetimer )
 	timer_.stop();
-
-    if ( !mIsUdf(pid_) || !strm_ )
-	return;
 
     sleepSeconds( 1. );
     strm_->reOpen();
@@ -283,12 +283,20 @@ void uiProgressViewer::getNewPID( CallBacker* )
 
     strm_->close();
     if ( !found )
+    {
+	if ( activetimer )
+	    timer_.start( delay_, false );
 	return;
+    }
 
     const SeparString sepstr( line.str(), ':' );
     const int pid = sepstr.getIValue( 1 );
     if ( pid == 0 )
+    {
+	if ( activetimer )
+	    timer_.start( delay_, false );
 	return;
+    }
 
     pid_ = pid;
     const_cast<BufferString&>( procnm_ ) = GetProcessNameForPID( pid_ );
