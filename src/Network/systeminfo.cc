@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "checksum.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iostrm.h"
 #include "oddirs.h"
 #ifndef OD_NO_QT
@@ -44,6 +45,28 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace System
 {
+
+static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
+{
+    if ( addr.isNull() )
+	return false;
+
+    const QAbstractSocket::NetworkLayerProtocol protocol = addr.protocol();
+#if QT_VERSION >= 0x050B00
+    if ( addr.isGlobal() )
+	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol : true;
+#elif QT_VERSION >= 0x050600
+    if ( addr.isMulticast() )
+	return false;
+#elif QT_VERSION >= 0x050000
+    if ( addr.isLoopback() )
+	return false;
+#endif
+
+    return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
+		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+}
+
 
 od_uint64 macAddressHash()
 {
@@ -71,41 +94,32 @@ od_uint64 uniqueSystemID()
 
 const char* localHostName()
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
-    str = QHostInfo::localHostName();
+    str = GetLocalHostName();
     return str.buf();
-#else
-    return 0;
-#endif
 }
 
 
-const char* localAddress()
+const char* localAddress( bool ipv4only )
 {
-    const char* retstr = hostAddress( localHostName() );
-    if ( retstr && *retstr )
-	return retstr;
-
-#ifndef OD_NO_QT
     mDeclStaticString( str );
-#if QT_VERSION >= 0x050000
+    str = hostAddress( localHostName() );
+    if ( !str.isEmpty() )
+	return str.buf();
+
     // Fallback implementation for some new OS/hardware
-    QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
     {
-	if ( !addresses[idx].isLoopback() &&
-	      addresses[idx].protocol() == QAbstractSocket::IPv4Protocol )
-	{
-	    str = addresses[idx].toString();
-	    break;
-	}
+	const QHostAddress& addr = addresses[idx];
+	if ( !isAcceptable(addr,ipv4only) )
+	    continue;
+
+	str = addr.toString();
+	break;
     }
-#endif
+
     return str.buf();
-#else
-    return 0;
-#endif
 }
 
 
@@ -113,7 +127,7 @@ const char* hostName( const char* ip )
 {
 #ifndef OD_NO_QT
     mDeclStaticString( str );
-    QHostInfo qhi = QHostInfo::fromName( ip );
+    const QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName();
     if ( str == ip )
 	str.setEmpty();
@@ -124,25 +138,26 @@ const char* hostName( const char* ip )
 }
 
 
-const char* hostAddress( const char* hostname )
+const char* hostAddress( const char* hostname, bool ipv4only )
 {
 #ifndef OD_NO_QT
     mDeclStaticString( str );
-#if QT_VERSION >= 0x050000
     str.setEmpty();
-    QHostInfo qhi = QHostInfo::fromName( hostname );
-    QList<QHostAddress> addresses = qhi.addresses();
+    const QHostInfo qhi = QHostInfo::fromName( QString(hostname) );
+    const QList<QHostAddress> addresses = qhi.addresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
     {
-	if ( addresses[idx] == QHostAddress::LocalHost ||
-	     addresses[idx].isLoopback() ||
-	     addresses[idx].toString().contains(':') ) continue;
-	str = addresses[idx].toString();
+	const QHostAddress& addr = addresses[idx];
+	if ( !isAcceptable(addr,ipv4only) )
+	    continue;
+
+	str = addr.toString();
+	break;
     }
-#endif
+
     return str.buf();
 #else
-    return 0;
+    return nullptr;
 #endif
 }
 
@@ -152,11 +167,11 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 #ifndef OD_NO_QT
     if ( msg )
 	msg->set( host_ip ).add( ": " );
-    QHostInfo hi = QHostInfo::fromName( host_ip );
-    if ( hi.error() != QHostInfo::NoError )
+    const QHostInfo qhi = QHostInfo::fromName( QString(host_ip) );
+    if ( qhi.error() != QHostInfo::NoError )
     {
 	if ( msg )
-	    msg->add( hi.errorString() );
+	    msg->add( qhi.errorString() );
 	return false;
     }
 

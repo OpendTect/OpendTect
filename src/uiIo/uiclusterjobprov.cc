@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "hostdata.h"
 #include "ioman.h"
 #include "iostrm.h"
@@ -47,7 +48,7 @@ const char* uiClusterJobProv::sKeyOutputID()
 static BufferString getDefTempStorDir()
 {
     BufferString stordir = "Proc_";
-    stordir += HostData::localHostName();
+    stordir += BufferString( GetLocalHostName() );
     stordir += "_";
     stordir += Stats::randGen().getIndex(100000);
     const FilePath fp( GetDataDir(), "Seismics", stordir );

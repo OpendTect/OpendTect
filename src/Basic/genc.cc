@@ -50,6 +50,13 @@ static const char* rcsID mUsedVar = "$Id$";
 # define mEnvVarDirSep ':'
 #endif
 
+
+#ifndef OD_NO_QT
+# include <QString>
+# include <QSysInfo>
+#endif
+
+
 #ifdef __lux__
 static Threads::Atomic<int> canovercommit( 0 );
 //0 = don't know
@@ -239,13 +246,29 @@ const char* GetOSIdentifier()
 }
 
 
-const char* GetLocalHostName()
+static void mUnusedVar GetLocalHostNameNoQt( char* ret )
 {
-    mDefineStaticLocalObject( char, ret, [256] );
 #ifdef __win__
     initWinSock();
 #endif
     gethostname( ret, 256 );
+}
+
+
+const char* GetLocalHostName()
+{
+    mDefineStaticLocalObject( char, ret, [256] );
+#ifndef OD_NO_QT
+# if QT_VERSION >= 0x050600
+    const BufferString hostnm( QSysInfo::machineHostName() );
+    OD::sysMemCopy( ret, hostnm.buf(), hostnm.size() );
+    ret[hostnm.size()+1] = '\0';
+# else
+    GetLocalHostNameNoQt( ret );
+# endif
+#else
+    GetLocalHostNameNoQt( ret );
+#endif
     return ret;
 }
 

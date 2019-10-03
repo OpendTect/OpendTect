@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "clusterjobdispatch.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "hostdata.h"
 #include "jobiomgr.h"
 #include "mmbatchjobdispatch.h"
@@ -32,7 +33,7 @@ bool Batch::SingleJobDispatcherRemote::launch()
 
     const HostDataList hdl( false );
     const bool hasconfig = !hdl.isEmpty();
-    const BufferString localhostnm( HostData::localHostName() );
+    const BufferString localhostnm( GetLocalHostName() );
     const HostData* localhost = hasconfig ? hdl.find( localhostnm.str() )
 					  : new HostData( localhostnm.str() );
     const bool remote = !remotehost_.isEmpty();

@@ -77,6 +77,8 @@ public:
 			{ return convPath(pt, FilePath(fn), from ); }
 
     static const char*	localHostName();
+			//!< shortcut to GetLocalHostName()
+
     void		setLocalHost( const HostData& hd )
 			{ localhd_ = &hd; }
     const HostData&	localHost() const

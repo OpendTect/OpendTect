@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "msgh.h"
+#include "netsocket.h"
 #include "oddirs.h"
 #include "od_strstream.h"
 #include "oscommand.h"
@@ -589,8 +590,9 @@ void HostDataList::dump( od_ostream& strm ) const
 void HostDataList::handleLocal()
 {
     const int sz = size();
-    const char* localhoststd = "localhost";
+    const char* localhoststd = Network::Socket::sKeyLocalHost();
     HostData* localhd = 0;
+    const BufferString hnm( GetLocalHostName() );
     for ( int idx=0; idx<sz; idx++ )
     {
 	HostData* hd = (*this)[idx];
@@ -605,7 +607,7 @@ void HostDataList::handleLocal()
 	    localhd = hd;
 	    break;
 	}
-	else if ( hd->isKnownAs(HostData::localHostName()) )
+	else if ( hd->isKnownAs(hnm) )
 	{
 	    hd->addAlias( localhoststd );
 
@@ -618,7 +620,6 @@ void HostDataList::handleLocal()
 	}
     }
 
-    BufferString hnm( HostData::localHostName() );
     if ( hnm.isEmpty() ) return;
     if ( !localhd )
     {
