@@ -46,7 +46,7 @@ def getFileLocation( dbkey, args=None ):
   cmd.append( dbkey )
   return retFileLoc( execCommand(cmd) )
 
-def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
+def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, ftype=None, args=None ):
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--create' )
   cmd.append( objnm )
@@ -54,6 +54,8 @@ def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, args=None ):
   cmd.append( trgrp )
   cmd.append( trl )
   cmd.append( ext )
+  if lrntype != None:
+      cmd.append( ftype )
   cmd.append( '--json' )
   return retFileLoc( execCommand(cmd) )
 
