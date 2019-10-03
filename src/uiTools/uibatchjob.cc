@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 #include "errmsg.h"
 #include "file.h"
+#include "genc.h"
 #include "hostdata.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -350,7 +351,7 @@ bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p )
     if ( !sjd_.remotehost_.isEmpty() )
     {
 	hdl_.refresh();
-	const HostData* localhost = hdl_.find( HostData::localHostName() );
+	const HostData* localhost = hdl_.find(BufferString(GetLocalHostName()));
 	if ( !localhost )
 	{
 	    gUiMsg(p).error( tr("Cannot find configuration for localhost") );
@@ -442,7 +443,7 @@ void hostChgCB( CallBacker* )
 {
     const HostData* curhost = hdl_.find( remhostfld_ && remhostfld_->isChecked()
 					 ? remhostfld_->text()
-					 : HostData::localHostName() );
+					 : GetLocalHostName() );
     if ( !curhost )
     {
 #ifdef __win__

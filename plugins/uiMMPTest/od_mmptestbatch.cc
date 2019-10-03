@@ -6,7 +6,6 @@
 
 
 #include "batchprog.h"
-#include "hostdata.h"
 #include "jobcommunic.h"
 #include "moddepmgr.h"
 
@@ -15,7 +14,7 @@ bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     strm << "Successfully running Diagnostic program on host ";
-    strm << HostData::localHostName() << od_endl;
+    strm << GetLocalHostName() << od_endl;
     comm_->setState( JobCommunic::Working );
     comm_->sendState();
     sleepSeconds( 2 );

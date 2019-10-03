@@ -43,6 +43,11 @@
 # define mEnvVarDirSep ':'
 #endif
 
+#ifndef OD_NO_QT
+# include <QString>
+# include <QSysInfo>
+#endif
+
 
 static BufferString		initialdir_;
 static int			argc_ = -1;
@@ -272,6 +277,14 @@ bool is64BitWindows()
 const char* GetLocalHostName()
 {
     mDefineStaticLocalObject( char, ret, [256] );
+#ifndef OD_NO_QT
+# if QT_VERSION >= 0x050600
+    const BufferString hostnm( QSysInfo::machineHostName() );
+    OD::sysMemCopy( ret, hostnm.buf(), hostnm.size() );
+    ret[hostnm.size()+1] = '\0';
+    return ret;
+# endif
+#endif
 #ifdef __win__
     initWinSock();
 #endif

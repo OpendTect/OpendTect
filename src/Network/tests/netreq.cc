@@ -15,6 +15,7 @@
 #include "netreqconnection.h"
 #include "netreqpacket.h"
 #include "netserver.h"
+#include "netsocket.h"
 
 
 #define mLargePayload 50000000
@@ -265,7 +266,7 @@ int mTestMainFnName(int argc, char** argv)
     PtrMan<Tester> runner = new Tester;
     runner->port_ = 1025;
     clParser().getKeyedInfo( portkey, runner->port_, true );
-    runner->hostname_ = Network::RequestConnection::sKeyLocalHost();
+    runner->hostname_ = Network::Socket::sKeyLocalHost();
     runner->prefix_ = "[singlethreaded] ";
 
     BufferString echoapp = "test_netreqechoserver";

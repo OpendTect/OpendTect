@@ -96,8 +96,6 @@ public:
 
     uiString		errMsg() const		{ return errmsg_; }
 
-    static const char*	sKeyLocalHost() { return "localhost"; }
-
     static port_nr_type	getUsablePort(uiRetVal&,port_nr_type firstport
 					      =0,int maxportstotry=100);
 				//!<Returns 0 if none found

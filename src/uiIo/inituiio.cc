@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 
 #include "envvars.h"
+#include "genc.h"
 #include "mmbatchjobdispatch.h"
 #include "oddirs.h"
 #include "settings.h"
@@ -51,7 +52,7 @@ mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 bool uiMMBatchJobDispatcherLauncher::go( uiParent* p )
 {
     const HostDataList hdl( false );
-    const HostData* localhost = hdl.find( HostData::localHostName() );
+    const HostData* localhost = hdl.find( BufferString(GetLocalHostName()) );
     if ( !localhost )
     {
 	if ( hdl.isEmpty() )

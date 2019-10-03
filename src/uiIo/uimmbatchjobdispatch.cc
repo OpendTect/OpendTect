@@ -759,7 +759,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* cb )
 	if ( !__iswin__ && !hd->isWindows() )
 	{
 	    BufferString errmsg;
-	    if ( !hd->isKnownAs(HostData::localHostName())
+	    if ( !hd->isKnownAs(BufferString(GetLocalHostName()))
 		    && !hostOK(*hd,hdl_.loginCmd(),errmsg) )
 	    { progrfld_->append( errmsg.buf() ); mLogMsg(errmsg); continue; }
 	}

@@ -47,7 +47,7 @@ const char* uiClusterJobProv::sKeyOutputID()
 static BufferString getDefTempStorDir()
 {
     BufferString stordir = "Proc_";
-    stordir += HostData::localHostName();
+    stordir += GetLocalHostName();
     stordir += "_";
     stordir += Stats::randGen().getIndex(100000);
     const File::Path fp( GetDataDir(), sSeismicSubDir(), stordir );

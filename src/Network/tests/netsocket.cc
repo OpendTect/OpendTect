@@ -63,7 +63,7 @@ bool TestRunner::testNetSocket( bool closeserver )
     Network::Socket connection( !noeventloop_ );
     connection.setTimeout( 600 );
 
-    if ( !connection.connectToHost(Network::RequestConnection::sKeyLocalHost(),
+    if ( !connection.connectToHost(Network::Socket::sKeyLocalHost(),
 				   port_,true) )
     {
 	OS::CommandLauncher cl( servercmd_ );
@@ -86,7 +86,7 @@ bool TestRunner::testNetSocket( bool closeserver )
 	    "Connect to non-existing host");
 
     mRunSockTest(
-	   connection.connectToHost(Network::RequestConnection::sKeyLocalHost(),
+	   connection.connectToHost(Network::Socket::sKeyLocalHost(),
 				    port_,true), "Connect to echo server");
 
     BufferString writebuf = "Hello world";
@@ -168,7 +168,7 @@ int mTestMainFnName(int argc, char** argv)
     ApplicationData app;
     clParser().setKeyHasValue( "serverapp" );
     clParser().setKeyHasValue( "timeout" );
-    clParser().setKeyHasValue( "port" );
+    clParser().setKeyHasValue( Network::Server::sKeyPort() );
 
     PtrMan<TestRunner> runner = new TestRunner;
     runner->prefix_ = "[ No event loop ]\t";
@@ -184,8 +184,8 @@ int mTestMainFnName(int argc, char** argv)
     runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
 
     runner->timeout_ = 600;
-    clParser().getKeyedInfo( "port", runner->port_, true );
-    runner->servercmd_.addKeyedArg( "port", runner->port_ );
+    clParser().getKeyedInfo( Network::Server::sKeyPort(), runner->port_, true );
+    runner->servercmd_.addKeyedArg( Network::Server::sKeyPort(), runner->port_);
 
     if ( clParser().hasKey("quiet") )
 	runner->servercmd_.addFlag( "quiet" );

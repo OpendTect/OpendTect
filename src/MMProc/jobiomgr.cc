@@ -533,7 +533,7 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
     const BufferString remhostaddress =
 		       System::hostAddress( machine.getHostName() );
     const HostData& localhost = machine.localHost();
-    const bool remote = !machine.isKnownAs( HostData::localHostName() ) ||
+    const bool remote = !machine.isKnownAs( BufferString(GetLocalHostName())) ||
 			remhostaddress != System::localAddress();
     const bool unixtounix = remote && !localhost.isWindows() &&
 			    !machine.isWindows();

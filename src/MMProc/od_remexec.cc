@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "hostdata.h"
 #include "iopar.h"
+#include "netserver.h"
+#include "netsocket.h"
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "remjobexec.h"
@@ -30,8 +32,10 @@ static void printBatchUsage()
     strm << "\t --" << OS::MachineCommand::sKeyRemoteHost() <<"\tremote_host\n";
     strm << "\t --" << OS::MachineCommand::sKeyRemoteCmd() << "\t\tod_cmd\n\n";
     strm << "Optional arguments:\n";
-    strm << "\t --" << OS::MachineCommand::sKeyMasterHost() <<"\tlocalhost\n";
-    strm << "\t --" << OS::MachineCommand::sKeyMasterHost() << "\tport\n" ;
+    strm << "\t --" << OS::MachineCommand::sKeyMasterHost() << "\t";
+    strm <<  Network::Socket::sKeyLocalHost() << od_newline;
+    strm << "\t --" << OS::MachineCommand::sKeyMasterHost() << "\t";
+    strm << Network::Server::sKeyPort() << od_newline;
     strm << "\t --" << OS::MachineCommand::sKeyJobID() << "\tjobid\n" ;
     strm << od_newline;
 }

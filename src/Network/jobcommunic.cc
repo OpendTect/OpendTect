@@ -142,7 +142,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
     statstr += jobid_;
     statstr += status;
-    statstr += HostData::localHostName();
+    statstr += BufferString( GetLocalHostName() );
     statstr += GetPID();
 
     if ( msg && *msg )

@@ -49,7 +49,7 @@ bool Batch::SingleJobDispatcher::launch()
 	return false;
 
     const HostDataList hdl( false );
-    const BufferString localhostnm( HostData::localHostName() );
+    const BufferString localhostnm( GetLocalHostName() );
     const HostData* localhost = hdl.find( localhostnm.str() );
     PtrMan<HostData> localhostdestroyer;
     if ( !localhost )
@@ -98,7 +98,8 @@ bool Batch::SingleJobDispatcher::launch()
 	File::Path basefp( procdir );
 	basefp.add( basenm );
 	BufferString msg;
-	if ( !JobIOMgr::mkIOParFile(basefp,*exechost,jobspec_.pars_,ioparfp,msg))
+	if ( !JobIOMgr::mkIOParFile(basefp,*exechost,jobspec_.pars_,
+				    ioparfp,msg) )
 	    { DBG::message(msg); return false; }
 
 	File::Path logfp( ioparfp );

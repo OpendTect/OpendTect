@@ -201,7 +201,7 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 	fp.add( sSeismicSubDir() );
 
     BufferString stordir = "Proc_";
-    stordir += HostData::localHostName();
+    stordir += GetLocalHostName();
     stordir += "_";
     stordir += GetPID();
 

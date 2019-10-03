@@ -21,10 +21,12 @@ class uiString;
 namespace System
 {
     mGlobal(Network) const char*	localHostName();
-    mGlobal(Network) const char*	localAddress();
+					//!< shortcut to GetLocalHostName()
+    mGlobal(Network) const char*	localAddress(bool ipv4only=true);
 
     mGlobal(Network) const char*	hostName(const char* ip);
-    mGlobal(Network) const char*	hostAddress(const char* hostname);
+    mGlobal(Network) const char*	hostAddress(const char* hostname,
+						    bool ipv4only=true);
     mGlobal(Network) bool		lookupHost(const char* host_ip,
 						   BufferString* msg=0);
 

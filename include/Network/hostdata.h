@@ -74,7 +74,6 @@ public:
 				  const HostData* from = 0 ) const
 			{ return convPath(pt, File::Path(fn), from ); }
 
-    static const char*	localHostName();
     void		setLocalHost( const HostData& hd )
 			{ localhd_ = &hd; }
     const HostData&	localHost() const

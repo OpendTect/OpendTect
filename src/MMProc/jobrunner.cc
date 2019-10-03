@@ -54,7 +54,7 @@ const OD::String& getTempBaseNm()
     mDeclStaticString( tmpfnm_base );
     if ( tmpfnm_base.isEmpty() )
     {
-	tmpfnm_base = HostData::localHostName();
+	tmpfnm_base = GetLocalHostName();
 	tmpfnm_base += "_";
 	tmpfnm_base += GetPID();
     }
@@ -157,7 +157,7 @@ bool JobRunner::addHost( const HostData& hd )
     {
 	deleteAndZeroPtr( iomgr_ );
 	errmsg_ = tr("Failed to listen to Port %1 on %2")
-	        .arg(firstport_).arg(HostData::localHostName());
+		.arg(firstport_).arg(BufferString(GetLocalHostName()));
 	mLogMsg( toString(errmsg_) )
 	return false;
     }
