@@ -59,7 +59,7 @@ public:
 	      conn.errMsg().getFullString() );
 	conn_ = &conn;
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
-/*
+
 	PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;
 	BufferString sentmessage = "Hello World";
 	packet->setIsNewRequest();
@@ -129,7 +129,7 @@ public:
 	     receivedpacket->requestID()==largepacket->requestID() &&
 	     receivedpacket->subID()==largepacket->subID(),
 	     packetString( prefix_, "Large packet content", largepacket ));
-*/
+
 	if ( !sendPacketInOtherThread() )
 	    return false;
 
@@ -138,7 +138,7 @@ public:
 	    //disconnect, and we should not be able to read the packet.
 	    //
 	    //Further, the errorcode should be set correctly.
-/*
+
 	    Network::RequestConnection conn2( hostname_, (unsigned short)port_,
 					 multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
@@ -164,12 +164,10 @@ public:
 	    mRunStandardTest(errorcode==conn2.cDisconnected(),
 	      packetString( prefix_, "Errorcode == disconnection",
 			    disconnectpacket ) );
-			    */
 	}
 
 	if ( sendkill )
 	{
-	    /*
 	    PtrMan<Network::RequestPacket> killpacket =
 						new Network::RequestPacket;
 	    killpacket->setStringPayload( Network::Server::sKeyKillword() );
@@ -178,7 +176,6 @@ public:
 	    mRunStandardTestWithError( conn.sendPacket( *killpacket ),
 			  BufferString( prefix_, "Sending kill packet"),
 			   conn.errMsg().getFullString() );
-			   */
 	}
 
 	return true;
@@ -286,8 +283,8 @@ int main(int argc, char** argv)
 
     Threads::sleep( 1 );
 
-/*    if ( !runner->runTest(false,false) )
-	ExitProgram( 1 ); */
+    if ( !runner->runTest(false,false) )
+	ExitProgram( 1 );
 
     CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
