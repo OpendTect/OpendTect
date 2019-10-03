@@ -502,12 +502,20 @@ void uiTextBrowser::fileChgCB( CallBacker* )
     recordScrollPos();
     if ( lastlinestartpos_ >= 0 )
     {
-	od_int64 newstartpos = -1;
-	sd.iStrm()->seekg( newstartpos );
-	if ( newstartpos < lastlinestartpos_ )
+	sd.iStrm()->seekg( 0, sd.iStrm()->end );
+	const od_int64 filelength = sd.iStrm()->tellg();
+	if ( filelength < lastlinestartpos_ )
+	{
 	    fileReOpened.trigger();
+	    lastlinestartpos_ = -1;
+	}
+	else if ( filelength-1 == lastlinestartpos_ )
+	{
+	    sd.close();
+	    return;
+	}
 
-	lastlinestartpos_ = newstartpos;
+	sd.iStrm()->seekg( lastlinestartpos_ );
 	sd.iStrm()->getline( buf, mMaxLineLength );
 	if ( !sd.iStrm()->good() || strncmp(buf, lastline_.buf(), maxchartocmp))
 	{
@@ -520,6 +528,7 @@ void uiTextBrowser::fileChgCB( CallBacker* )
 	}
     }
 
+    NotifyStopper ns( textChanged );
     while ( sd.iStrm()->peek()!=EOF )
     {
 	lastlinestartpos_ = sd.iStrm()->tellg();
