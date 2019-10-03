@@ -274,6 +274,15 @@ bool is64BitWindows()
 #endif
 
 
+static void mUnusedVar GetLocalHostNameNoQt( char* ret )
+{
+#ifdef __win__
+    initWinSock();
+#endif
+    gethostname( ret, 256 );
+}
+
+
 const char* GetLocalHostName()
 {
     mDefineStaticLocalObject( char, ret, [256] );
@@ -282,13 +291,12 @@ const char* GetLocalHostName()
     const BufferString hostnm( QSysInfo::machineHostName() );
     OD::sysMemCopy( ret, hostnm.buf(), hostnm.size() );
     ret[hostnm.size()+1] = '\0';
-    return ret;
+# else
+    GetLocalHostNameNoQt( ret );
 # endif
+#else
+    GetLocalHostNameNoQt( ret );
 #endif
-#ifdef __win__
-    initWinSock();
-#endif
-    gethostname( ret, 256 );
     return ret;
 }
 
