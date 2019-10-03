@@ -114,6 +114,12 @@ macro(OD_SETUP_QT)
 			     USE_SOURCE_PERMISSIONS )
 	        endif()
 	    endif()
+
+	    if ( WIN32 )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libEGL.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libGLESv2.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/opengl32sw.dll ${CMAKE_BUILD_TYPE} )
+	    endif()
 	    install( DIRECTORY ${QTDIR}/plugins/platforms
 		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
 		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
