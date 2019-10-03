@@ -694,6 +694,8 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	    return;
     }
 
+    const BufferString localhnm( GetLocalHostName() );
+
     for ( int idx=0; idx<nrmach; idx++ )
     {
 	if ( avmachfld_ && !avmachfld_->isChosen(idx) ) continue;
@@ -711,7 +713,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	if ( !__iswin__ && !hd->isWindows() )
 	{
 	    BufferString errmsg;
-	    if ( !hd->isKnownAs(HostData::localHostName())
+	    if ( !hd->isKnownAs(localhnm)
 		    && !hostOK(*hd,hdl_.loginCmd(),errmsg) )
 		{ progrfld_->append( errmsg.buf() ); continue; }
 	}

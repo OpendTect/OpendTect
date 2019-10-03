@@ -51,6 +51,8 @@ public:
 
     void	setTimeout(int ms) { timeout_ = ms; }
 
+    static const char*	sKeyLocalHost() { return "localhost"; }
+
     bool	connectToHost(const char* host,int port,
 			      bool wait=true);
     bool	disconnectFromHost(bool wait=false);

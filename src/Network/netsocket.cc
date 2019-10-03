@@ -15,11 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "datainterp.h"
 #include "netreqpacket.h"
+#include "systeminfo.h"
 
 #include <limits.h>
 
 #ifndef OD_NO_QT
 #include "qtcpsocketcomm.h"
+#include <QHostAddress>
 #endif
 
 # define mCheckThread \
@@ -97,7 +99,11 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 	return false;
     }
 
-    qtcpsocket_->connectToHost( QString(host), port );
+    const BufferString addr( System::hostAddress(host) );
+    if ( addr.isEmpty() )
+	qtcpsocket_->connectToHost( QString(host), port );
+    else
+	qtcpsocket_->connectToHost( QHostAddress(QString(addr)), port );
 
     if ( wait )
 	return waitForConnected();

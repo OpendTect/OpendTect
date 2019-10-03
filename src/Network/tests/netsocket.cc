@@ -63,7 +63,8 @@ bool TestRunner::testNetSocket( bool closeserver )
     Network::Socket connection( !noeventloop_ );
     connection.setTimeout( 600 );
 
-    if ( !connection.connectToHost("localhost",port_,true) )
+    if ( !connection.connectToHost(Network::Socket::sKeyLocalHost(),
+				   port_,true) )
     {
 	if ( !ExecODProgram(serverapp_,serverarg_) )
 	{
@@ -83,7 +84,8 @@ bool TestRunner::testNetSocket( bool closeserver )
 	    "Connect to non-existing host");
 
     mRunSockTest(
-	    connection.connectToHost( "localhost", port_, true ),
+	    connection.connectToHost( Network::Socket::sKeyLocalHost(),
+				      port_, true ),
 	    "Connect to echo server");
 
     BufferString writebuf = "Hello world";
@@ -166,15 +168,17 @@ int main(int argc, char** argv)
 
     PtrMan<TestRunner> runner = new TestRunner;
     runner->serverapp_ = "test_echoserver";
-    runner->serverarg_ = "--timeout 600 --port 1025 --quiet";
     runner->port_ = 1025;
+    runner->serverarg_.set( "--timeout 600 --" )
+		      .add( Network::Server::sKeyPort() )
+		      .addSpace().add( runner->port_ ).add( " --quiet" );
     runner->prefix_ = "[ No event loop ]\t";
     runner->exitonfinish_ = false;
     runner->noeventloop_ = true;
 
     clparser.getVal( "serverapp", runner->serverapp_, true );
     clparser.getVal( "serverarg", runner->serverarg_, true );
-    clparser.getVal( "port", runner->port_, true );
+    clparser.getVal( Network::Server::sKeyPort(), runner->port_, true );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );
