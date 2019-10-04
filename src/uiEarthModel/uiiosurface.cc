@@ -1116,6 +1116,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
 				  mCB(this,uiAuxDataSel,auxSelCB) );
     if ( objfld_ )
 	auxdatafld_->attach( alignedBelow, objfld_ );
+    setHAlignObj( auxdatafld_ );
 }
 
 
