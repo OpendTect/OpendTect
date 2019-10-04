@@ -34,8 +34,8 @@ namespace EM
 {
 
 SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
-    : horizon_( horizon )
-    , changed_( 0 )
+    : horizon_(horizon)
+    , changed_(false)
 {
     auxdatanames_.allowNull(true);
     auxdatainfo_.allowNull(true);
@@ -70,7 +70,7 @@ const char* SurfaceAuxData::auxDataName( int dataidx ) const
     if ( nrAuxData() && auxdatanames_[dataidx] )
 	return auxdatanames_[dataidx]->buf();
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -139,7 +139,7 @@ int SurfaceAuxData::addAuxData( const char* name )
 
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
-    auxdatanames_.replace( dataidx, 0 );
+    auxdatanames_.replace( dataidx, nullptr );
     auxdatashift_[dataidx] = 0.0;
     auxdatatypes_[dataidx] = NoType;
 
@@ -205,7 +205,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
     if ( !auxdata_.validIdx(sectionidx) )
     {
 	for ( int idx=auxdata_.size(); idx<horizon_.nrSections(); idx++ )
-	    auxdata_ += 0;
+	    auxdata_ += nullptr;
     }
 
     if ( !auxdata_[sectionidx] )
@@ -245,7 +245,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const TrcKey& tk, float val )
 }
 
 
-bool SurfaceAuxData::isChanged(int idx) const
+bool SurfaceAuxData::isChanged( int ) const
 { return changed_; }
 
 
@@ -261,7 +261,7 @@ static EMSurfaceTranslator* getTranslator( Horizon& horizon )
     if ( !ioobj )
     {
 	horizon.setErrMsg( uiStrings::sCantFindSurf() );
-	return 0;
+	return nullptr;
     }
 
     EMSurfaceTranslator* transl =
@@ -271,7 +271,7 @@ static EMSurfaceTranslator* getTranslator( Horizon& horizon )
 	horizon.setErrMsg( transl ? transl->errMsg()
 				  : toUiString("Cannot find Translator") );
 	delete transl;
-	return 0;
+	return nullptr;
     }
 
     return transl;
@@ -282,12 +282,12 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
     PtrMan<EMSurfaceTranslator> transl = getTranslator( horizon_ );
     if ( !transl )
-	return 0;
+	return nullptr;
 
     SurfaceIODataSelection& sel = transl->selections();
     const int nrauxdata = sel.sd.valnames.size();
     if ( nrauxdata==0 || selidx >= nrauxdata )
-	return 0;
+	return nullptr;
 
     return transl->getAuxdataReader( horizon_, selidx );
 }
@@ -297,12 +297,12 @@ Executor* SurfaceAuxData::auxDataLoader( const char* nm )
 {
     PtrMan<EMSurfaceTranslator> transl = getTranslator( horizon_ );
     if ( !transl )
-	return 0;
+	return nullptr;
 
     SurfaceIODataSelection& sel = transl->selections();
     const int selidx = sel.sd.valnames.indexOf( nm );
     if ( !sel.sd.valnames.validIdx(selidx) )
-	return 0;
+	return nullptr;
 
     return transl->getAuxdataReader( horizon_, selidx );
 }
@@ -312,7 +312,8 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 {
     PtrMan<StreamConn> conn =
 	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
-    if ( !conn ) return 0;
+    if ( !conn )
+	return nullptr;
 
     const int maxnrfiles = 100000; // just a big number to make this loop end
     for ( int idx=0; idx<maxnrfiles; idx++ )
@@ -323,7 +324,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 	    return fnm;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -333,11 +334,11 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     if ( !ioobj )
     {
 	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
-	return 0;
+	return nullptr;
     }
 
     PtrMan<EMSurfaceTranslator> transl =
-			(EMSurfaceTranslator*)ioobj->createTranslator();
+		sCast(EMSurfaceTranslator*,ioobj->createTranslator());
     if ( transl && transl->startWrite(horizon_) )
     {
 	PtrMan<Executor> exec = transl->writer( *ioobj, false );
@@ -347,7 +348,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 
     horizon_.setErrMsg(
 	transl ? transl->errMsg() : uiStrings::phrCannotFind(tr("Translator")));
-    return 0;
+    return nullptr;
 }
 
 
@@ -362,15 +363,18 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
 
 
 bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
-{ return !getFileName(ioobj,attrnm).isEmpty(); }
+{
+    return !getFileName(ioobj,attrnm).isEmpty();
+}
 
-BufferString
-    SurfaceAuxData::getFileName( const IOObj& ioobj, const char* attrnm )
+
+BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
+					  const char* attrnm )
 { return getFileName( ioobj.fullUserExpr(true), attrnm ); }
 
 
-BufferString
-    SurfaceAuxData::getFileName( const char* fulluserexp, const char* attrnmptr)
+BufferString SurfaceAuxData::getFileName( const char* fulluserexp,
+					  const char* attrnmptr)
 {
     FixedString attrnm( attrnmptr );
     const BufferString basefnm( fulluserexp );
@@ -416,7 +420,7 @@ bool SurfaceAuxData::removeFile( const char* attrnm ) const
 Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 {
     if ( horizon_.geometry().sectionGeometry( sid )->isEmpty() )
-	return 0;
+	return nullptr;
 
     const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
     const StepInterval<int> colrg = horizon_.geometry().colRange( sid, -1 );
@@ -471,33 +475,41 @@ void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 
 
 void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
-				 const Array2D<float>& arr2d )
+				 const Array2D<float>& arr2d,
+				 const TrcKeySampling* arrtks )
 {
-    const Geometry::RowColSurface* rcgeom =
-	horizon_.geometry().sectionGeometry( sid );
-    if ( !rcgeom || rcgeom->isEmpty() )
-	return;
-
-    const StepInterval<int> rowrg = rcgeom->rowRange();
-    const StepInterval<int> colrg = rcgeom->colRange();
-    PosID posid( horizon_.id(), sid );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    TrcKeySampling tks;
+    if ( arrtks )
+	tks = *arrtks;
+    else
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	{
-	    posid.setSubID( RowCol(row,col).toInt64() );
-	    const float val = arr2d.get( rowrg.getIndex(row),
-					 colrg.getIndex(col) );
-	    setAuxDataVal( dataidx, posid, val );
-	}
+	const Geometry::RowColSurface* rcgeom =
+		horizon_.geometry().sectionGeometry( sid );
+	if ( !rcgeom || rcgeom->isEmpty() )
+	    return;
+
+	tks.set( rcgeom->rowRange(), rcgeom->colRange() );
+    }
+
+    for ( od_int64 gidx=0; gidx<tks.totalNr(); gidx++ )
+    {
+	const TrcKey tk = tks.atIndex( gidx );
+	float val = mUdf(float);
+	if ( arr2d.getData() )
+	    val = arr2d.getData()[gidx];
+	else
+	    val = arr2d.get( tks.inlIdx(tk.inl()), tks.crlIdx(tk.crl()) );
+
+	setAuxDataVal( dataidx, tk, val );
     }
 }
 
 
-bool SurfaceAuxData::usePar( const IOPar& par )
+bool SurfaceAuxData::usePar( const IOPar& )
 { return true; }
 
-void SurfaceAuxData::fillPar( IOPar& par ) const
+
+void SurfaceAuxData::fillPar( IOPar& ) const
 {}
 
-}; //namespace
+} // namespace EM
