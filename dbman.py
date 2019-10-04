@@ -54,7 +54,7 @@ def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, ftype=None, args=None ):
   cmd.append( trgrp )
   cmd.append( trl )
   cmd.append( ext )
-  if lrntype != None:
+  if ftype != None:
       cmd.append( ftype )
   cmd.append( '--json' )
   return retFileLoc( execCommand(cmd) )
