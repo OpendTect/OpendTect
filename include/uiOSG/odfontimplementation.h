@@ -14,6 +14,7 @@
 
 #include "uiosgmod.h"
 #include "commondefs.h"
+#include <osg/Version>
 #include <osgText/Font>
 #include <QtGui/QFont>
 #include <string>
@@ -30,6 +31,7 @@ public:
 
     virtual osgText::Glyph* getGlyph(const osgText::FontResolution& fontRes,
 				     unsigned int charcode);
+#if OSG_MIN_VERSION_REQUIRED(3,6,0)
     virtual osgText::Glyph3D*	getGlyph3D(const osgText::FontResolution&,
 					   unsigned int /*charcode*/)
 				{ return nullptr; }
@@ -39,14 +41,14 @@ public:
 					   unsigned int rightcharcode,
 					   osgText::KerningType kerningType)
 				{ return osg::Vec2(0,0); }
-/*
+#else
     virtual osgText::Glyph3D*	getGlyph3D(unsigned int )
 				{ return 0; }
     virtual osg::Vec2		getKerning(unsigned int leftcharcode,
 					   unsigned int rightcharcode,
 					   osgText::KerningType kerningType)
 				{ return osg::Vec2(0, 0); }
-*/
+#endif
 
     virtual bool		hasVertical() const
 				{ return true; }
