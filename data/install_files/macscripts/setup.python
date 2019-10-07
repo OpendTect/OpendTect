@@ -39,43 +39,43 @@ endif
 # gets environment dirs and sets which dirs to walk through
 set envdirs=`ls $condainstdir/envs/`
 set envrepldirs='bin conda-meta etc/fonts lib/python3.7/site-packages ssl/misc'
-set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d lib lib/itcl4.1.1 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu shell/condabin ssl/misc'
+set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d lib lib/itcl4.1.1 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-darwin shell/condabin ssl/misc'
 
 # replace paths in miniconda3 dir
 echo "Setting up miniconda3..."
 foreach instrepldir ( $instrepldirs)
-        if ( -w "${condainstdir}/${instrepldir}" ) then
-                foreach fil (`ls --hide='~*' $condainstdir/$instrepldir`)
-                        set fildir=`file $condainstdir/$instrepldir/$fil | grep ASCII | awk '{print $1}' | sed 's/.$//'`
-                        if ("$fildir" != "") then
-                                sed -i -- s,$origdir,$condainstdir,g $fildir
-                        endif
-                end
-        else
-                echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
-        endif
+	if ( -w "${condainstdir}/${instrepldir}" ) then
+        	foreach fil (`ls $condainstdir/$instrepldir`)
+                	set fildir=`file $condainstdir/$instrepldir/$fil | grep ASCII | awk '{print $1}' | sed 's/.$//'`
+                	if ("$fildir" != "") then
+                        	sed -i -- s,$origdir,$condainstdir,g $fildir
+                	endif
+        	end
+	else
+		echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
+	endif
 end
 
 # replace paths in environment dirs
 if ("$envdirs" != "") then
-        foreach envdir ( $envdirs )
-                echo "Setting up environment $envdir..."
-                set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"miniconda3")}' | bc`
-                set origcondalen=`echo $origcondapos+9`
-                set origdir=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
-                foreach envrepldir ( $envrepldirs )
-                        if ( -w "${envrepldir}" ) then
-                                foreach fil (`ls --hide='~*' $condainstdir/envs/$envdir/$envrepldir`)
-                                        set fildir=`file $condainstdir/envs/$envdir/$envrepldir/$fil | grep ASCII | awk '{print $1}' | sed 's/.$//'`
-                                        if ("$fildir" != "") then
-                                                sed -i -- s,$origdir,$condainstdir,g $fildir
-                                        endif
-                                end
-                        else
-                                echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
-                        endif
-                end
-        end
+	foreach envdir ( $envdirs )
+		echo "Setting up environment $envdir..."
+		set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"miniconda3")}' | bc`
+		set origcondalen=`echo $origcondapos+9`
+		set origdir=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
+		foreach envrepldir ( $envrepldirs )
+			if ( -w "${envrepldir}" ) then
+				foreach fil (`ls $condainstdir/envs/$envdir/$envrepldir`)
+					set fildir=`file $condainstdir/envs/$envdir/$envrepldir/$fil | grep ASCII | awk '{print $1}' | sed 's/.$//'`
+					if ("$fildir" != "") then
+						sed -i -- s,$origdir,$condainstdir,g $fildir
+					endif
+				end
+			else
+				echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
+			endif
+		end
+	end
 endif
 
 # create Python_envs.txt file in OpendTect data directory
