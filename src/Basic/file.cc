@@ -1053,7 +1053,7 @@ const char* File::getTempPath()
 # endif
 #else
     pFreeFnErrMsg(not_implemented_str);
-# ifdef __win__
+# ifndef __win__
     ret = "/tmp";
 # else
     ret = "C:\\TEMP";
