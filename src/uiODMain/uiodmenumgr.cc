@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dviewer.h"
 #include "uicrdevenv.h"
 #include "uifiledlg.h"
+#include "uifirewallprocsetterdlg.h"
 #include "uiglinfo.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -966,6 +967,10 @@ void uiODMenuMgr::fillUtilMenu()
 		 mSetupBatchItm);
     mInsertItem( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
 
+    if (__iswin__)
+	mInsertItem( installmnu_, tr("Firewall Add/Remove Process"),
+							mFirewallProcItm );
+
     BufferString develverstr;
     GetSpecificODVersion( "devel", develverstr );
     if ( !develverstr.isEmpty() )
@@ -1492,6 +1497,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm:	showLogFile(); break;
+    case mFirewallProcItm:	showFirewallProcDlg(); break;
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
@@ -1634,6 +1640,17 @@ void uiODMenuMgr::showLogFile()
 				od_ostream::logStream().fileName(), true );
     dlg->setDeleteOnClose( true );
     dlg->go();
+}
+
+
+void uiODMenuMgr::showFirewallProcDlg()
+{
+    if (__iswin__)
+    {
+	uiFirewallProcSetter* dlg = new uiFirewallProcSetter( &appl_,
+					    uiFirewallProcSetter::AddNRemove );
+	dlg->go();
+    }
 }
 
 

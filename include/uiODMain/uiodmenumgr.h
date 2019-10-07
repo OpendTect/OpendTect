@@ -189,6 +189,7 @@ protected:
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
 
     void		showLogFile();
+    void		showFirewallProcDlg();
     void		mkViewIconsMnu();
     void		addIconMnuItems(const DirList&,uiMenu*,
 					BufferStringSet&);
