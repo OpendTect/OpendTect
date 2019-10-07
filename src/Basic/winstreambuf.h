@@ -19,10 +19,9 @@ ________________________________________________________________________
 
 #ifndef _POS_TYPE_FROM_STATE
 //TODO this is a hack for VS >= 15.8.7, try to get rid of this winstreambuf hack altogether
-#  define _POS_TYPE_FROM_STATE(postype, state, position) postype(state, position)
-#  define _POS_TYPE_TO_FPOS_T(pos) pos.seekpos()
-#  define _POS_TYPE_TO_STATE(pos) pos.state()
-#  define _BADOFF -1
+#define _POS_TYPE_FROM_STATE(postype, state, position) postype(state, position)
+#define _POS_TYPE_TO_STATE(pos) pos.state()
+#define _BADOFF -1
 #endif
 
 namespace std
@@ -70,28 +69,6 @@ virtual pos_type seekoff( off_type _Off, ios_base::seekdir _Way,
 
     if ( _Mysb::gptr() == &_Mychar )
 	_Mysb::setg( &_Mychar, &_Mychar+1, &_Mychar+1 );
-
-    realpos_ = (od_int64)_Fileposition;
-    return (_POS_TYPE_FROM_STATE(pos_type,_State,_Fileposition));
-}
-
-
-virtual pos_type seekpos( pos_type _Pos, ios_base::openmode = defom )
-
-{
-    fpos_t _Fileposition = _POS_TYPE_TO_FPOS_T(_Pos);
-    off_type _Off = (off_type)_Pos - _FPOSOFF(_Fileposition);
-
-    if ( _Myfile == 0 || !_Endwrite()
-	 || fsetpos(_Myfile, &_Fileposition) != 0
-	 || _Off != 0 && _fseeki64(_Myfile, _Off, SEEK_CUR) != 0
-	 || fgetpos(_Myfile, &_Fileposition) != 0)
-	return (pos_type(_BADOFF));
-
-    _State = _POS_TYPE_TO_STATE(_Pos);
-
-    if ( _Mysb::gptr() == &_Mychar)
-	 _Mysb::setg( &_Mychar, &_Mychar+1, &_Mychar+1 );
 
     realpos_ = (od_int64)_Fileposition;
     return (_POS_TYPE_FROM_STATE(pos_type,_State,_Fileposition));
