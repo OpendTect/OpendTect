@@ -18,30 +18,63 @@
 #include "pythonaccess.h"
 #include "settings.h"
 
-uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p )
-    : uiDialog(p, Setup(tr("Set Firewall Program Rules"), mNoDlgTitle,
+mDefineEnumUtils(uiFirewallProcSetter,ActionType,"ActionType")
+{
+    "Add", "Remove", "AddNRemove", 0
+};
+ template <>
+ void EnumDefImpl<uiFirewallProcSetter::ActionType>::init()
+ {
+     uistrings_ += uiStrings::sAdd();
+     uistrings_ += uiStrings::sRemove();
+     uistrings_ += tr("Not sure");
+ }
+
+
+uiString getDlgTitle( uiFirewallProcSetter::ActionType acttyp )
+{
+    if ( acttyp == uiFirewallProcSetter::Add )
+	return od_static_tr( "getDlgTitle", "Add Firewall Program Rule" );
+    else if ( acttyp == uiFirewallProcSetter::Remove )
+	return od_static_tr( "getDlgTitle", "Remove Firewall Program Rule" );
+    else
+	return od_static_tr( "getDlgTitle", "Remove Firewall Program Rule" );
+}
+
+uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp )
+    : uiDialog(p, Setup(getDlgTitle(acttyp), mNoDlgTitle,
 	mODHelpKey(mBatchHostsDlgHelpID)))
+    , acttyp_(acttyp)
+    , addremfld_(0)
+    , pythonproclistbox_(0)
 {
     uiListBox::Setup su;
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
     odproclistbox_ = new uiListBox( this, su );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    BufferStringSet odprocnms;
-    odprocnms.add( "od_remoteservice" );
+    BufferStringSet odprocnms; // This has to hold description (uiString) as well as exe name
+    odprocnms.add( "od_remoteservice" ); // Enum for each exe
     odprocnms.add( "od_SeisMMBatch" );
     odproclistbox_->addItems( odprocnms );
-
-    su.lbl( tr("Python Executables") );
-    pythonproclistbox_ = new uiListBox( this, su );
-    pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    pythonproclistbox_->attach( alignedBelow, odproclistbox_ );
-
-    pythonproclistbox_->addItems( getPythonExecList() );
-
-    addremfld_ = new uiGenInput( this, uiStrings::sAction(), BoolInpSpec(true,
-	uiStrings::sAdd(), uiStrings::sRemove()) );
-    addremfld_->attach( alignedBelow, pythonproclistbox_ );
+    uiObject* attachobj = odproclistbox_->attachObj();
+    if ( !getPythonExecList().isEmpty() )
+    {
+	su.lbl( tr("Python Executables") );
+	pythonproclistbox_ = new uiListBox( this, su );
+	pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
+	pythonproclistbox_->attach( alignedBelow, attachobj );
+	pythonproclistbox_->addItems( getPythonExecList() );
+	attachobj = pythonproclistbox_->attachObj();
+    }
+    if ( acttyp == AddNRemove )
+    {
+	addremfld_ = new uiGenInput( this, uiStrings::sAction(), 
+	    BoolInpSpec(true, uiStrings::sAdd(), uiStrings::sRemove()) );
+	addremfld_->attach( alignedBelow, attachobj );
+    }
+    else
+	setOkText( acttyp == Add ? uiStrings::sAdd() : uiStrings::sRemove() );
 }
 
 
@@ -61,15 +94,19 @@ BufferStringSet uiFirewallProcSetter::getPythonExecList()
 
     for ( int idx=0; idx<dirlist.size(); idx++ )
     {
-	FilePath exefp( dirlist.fullPath(idx) );
-	BufferString checkpath = exefp.fullPath();
-	BufferString foldernm = exefp.baseName();
-	exefp.add( "python.exe" );
+	const FilePath pyexefp( dirlist.fullPath(idx), "python.exe" );
+	const FilePath bokehexefp( dirlist.fullPath(idx), "Scripts",
+								"bokeh.exe" );
+	const FilePath tensorbrdexefp( dirlist.fullPath(idx), "Scripts",
+							"tensorboard.exe" );
 
-	if ( !File::exists(exefp.fullPath()) )
+	if ( !File::exists(pyexefp.fullPath()) && 
+			    !File::exists(bokehexefp.fullPath()) && 
+				    !File::exists(tensorbrdexefp.fullPath()) )
 	    continue;
 
-	dirset.add( foldernm );
+	FilePath exefp ( dirlist.fullPath(idx) );
+	dirset.add( exefp.baseName() );
     }
     return dirset;
 }
@@ -106,12 +143,16 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
 
     BufferString cmd = "od_Setup_Firewall.exe";
-    const bool toadd = addremfld_->getBoolValue();
-    if ( toadd )
-	cmd.add( " --add " );
-    else
-	cmd.add( " --remove " );
 
+    bool toadd = acttyp_ == Add;
+    if ( addremfld_ )
+	toadd = addremfld_->getBoolValue();
+
+    if ( toadd )
+	cmd.add(" --add ");
+    else
+	cmd.add(" --remove ");
+    
     bool errocc = false;
     const FilePath exepath( GetExecPlfDir(), "od_Setup_Firewall.exe" );
     for ( int idx=0; idx<2; idx++ ) //idx 0=od, idx1=python
@@ -138,8 +179,8 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    else
 		errmsg = uiStrings::phrCannotRemove( tr("%1 process") );
 
-	    uiMSG().error( errmsg.arg(idx == 0 ? toUiString("OpendTect") :
-		toUiString("Python")) );
+	    uiMSG().error( errmsg.arg(idx == 0 ? ::toUiString("OpendTect") :
+		::toUiString("Python")) );
 	    errocc = true;
 	}
     }

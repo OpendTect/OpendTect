@@ -10,6 +10,8 @@
 #include "uitoolsmod.h"
 #include "uidialog.h"
 
+#include "enums.h"
+
 class uiListBox;
 class uiButton;
 class uiGenInput;
@@ -17,16 +19,23 @@ class uiGenInput;
 mExpClass(uiTools) uiFirewallProcSetter : public uiDialog
 { mODTextTranslationClass(uiFireWallProcSetter)
 public:
-			    uiFirewallProcSetter(uiParent*);
+    enum ActionType	    { Add, Remove, AddNRemove };
+			    mDeclareEnumUtils(ActionType)
+
+			    uiFirewallProcSetter(uiParent*,ActionType);
 			    ~uiFirewallProcSetter();
+    
 protected:
 
     uiListBox*		    odproclistbox_;
     uiListBox*		    pythonproclistbox_;
+    uiListBox*		    deeplearninglistbox_;
     uiGenInput*		    addremfld_;
 
     bool		    acceptOK(CallBacker*);
     BufferString	    getPythonInstDir();
     BufferStringSet	    getPythonExecList();
+
+    ActionType		    acttyp_;
 };
 #endif

@@ -31,8 +31,8 @@ static uiString sDelOSCmd() {
 }
 
 /*
-Command --add --py <procnm1> <procnm2> :  In case process is python related
-Command --add --od <procnm1> <procnm2> :  In case process is opendtect related
+Command --add --py <procnm1.exe> <procnm2.exe> :  In case process is python related
+Command --add --od <procnm1.exe> <procnm2.exe> :  In case process is opendtect related
 */
 
 class SetUpFirewallServerTool
