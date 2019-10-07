@@ -22,9 +22,9 @@ public:
     enum ActionType	    { Add, Remove, AddNRemove };
 			    mDeclareEnumUtils(ActionType)
 
-			    uiFirewallProcSetter(uiParent*,ActionType);
+			    uiFirewallProcSetter(uiParent*,ActionType,
+				const BufferString&path=BufferString::empty());
 			    ~uiFirewallProcSetter();
-    
 protected:
 
     uiListBox*		    odproclistbox_;
@@ -37,5 +37,6 @@ protected:
     BufferStringSet	    getPythonExecList();
 
     ActionType		    acttyp_;
+    BufferString	    exepath_;
 };
 #endif

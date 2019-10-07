@@ -41,20 +41,26 @@ uiString getDlgTitle( uiFirewallProcSetter::ActionType acttyp )
 	return od_static_tr( "getDlgTitle", "Remove Firewall Program Rule" );
 }
 
-uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp )
+uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
+						    const BufferString& path )
     : uiDialog(p, Setup(getDlgTitle(acttyp), mNoDlgTitle,
 	mODHelpKey(mBatchHostsDlgHelpID)))
     , acttyp_(acttyp)
     , addremfld_(0)
     , pythonproclistbox_(0)
 {
+    if ( path.isEmpty() )
+	exepath_ = GetExecPlfDir();
+    else
+	exepath_ = path;
+
     uiListBox::Setup su;
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
     odproclistbox_ = new uiListBox( this, su );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    BufferStringSet odprocnms; // This has to hold description (uiString) as well as exe name
-    odprocnms.add( "od_remoteservice" ); // Enum for each exe
+    BufferStringSet odprocnms;
+    odprocnms.add( "od_remoteservice" );
     odprocnms.add( "od_SeisMMBatch" );
     odproclistbox_->addItems( odprocnms );
     uiObject* attachobj = odproclistbox_->attachObj();
@@ -154,7 +160,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	cmd.add(" --remove ");
     
     bool errocc = false;
-    const FilePath exepath( GetExecPlfDir(), "od_Setup_Firewall.exe" );
+    const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
     for ( int idx=0; idx<2; idx++ ) //idx 0=od, idx1=python
     {
 	BufferString fincmd = cmd;
