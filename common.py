@@ -10,6 +10,7 @@ import sys
 import os
 import platform
 import logging
+import tempfile
 from datetime import datetime
 
 def sTimeUnitString( ismilli=False, abbr=True ):
@@ -293,7 +294,4 @@ def writeFile( fnm, content ):
 
 def getTempDir():
     # This HAS to correspond with the C++ getTempDir() function
-  if isWin():
-    return "C:\\TEMP\\"
-  else:
-    return "/tmp/"
+    return tempfile.gettempdir()
