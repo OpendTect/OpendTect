@@ -180,6 +180,6 @@ void uiGLInfo::createAndShowMessage( bool addwarnings,
 {
     bool warning = false;
     const uiString msg = getMessage( addwarnings ? &warning : 0 );
-    if ( !msg.isEmpty() )
+    if ( !msg.isEmpty() && glinfo_.isPlatformSupported() )
 	showMessage( msg, warning, dontshowagainkey, addwarnings && !warning );
 }
