@@ -95,6 +95,9 @@ if ( $#argv >= 2 ) then
                         echo "!" >> $fil
                         echo "File name: ${condarootdir}" >> $fil
                         echo "!" >> $fil
+			if ( -w "${odinstdir}/v7/data" ) then
+                                cp $fil ${odinstdir}/v7/data
+                        endif
                 else
                         echo "Warning: cannot properly setup Python environments connection with OpendTect."
                         echo "Reason: $odinstdir/data is not writable or does not exist."

@@ -39,4 +39,8 @@ echo ! >> %fil%
 echo File name: %condarootdir% >> %fil%
 echo ! >> %fil%
 
+if exist %odinstdir%\v7\data (
+    copy %fil% %odinstdir%\v7\data
+)
+
 exit /b 0
