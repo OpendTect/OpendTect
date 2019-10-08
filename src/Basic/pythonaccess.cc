@@ -22,12 +22,14 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "timefun.h"
 #include "timer.h"
+#include "bufstringset.h"
+#include "separstr.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 
-#define mFileRetentionTimeInMilliSec 60000
-#define mDelCycleTym                mFileRetentionTimeInMilliSec*5
+#define mFileRetentionTimeInMilliSec	60000
+#define mDelCycleTym			mFileRetentionTimeInMilliSec*5
 
 OD::PythonAccess& OD::PythA()
 {
@@ -223,8 +225,10 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
     }
 
     msg_.setEmpty();
-    if ( !notrigger )
+    if ( !notrigger ) {
+	moduleinfos_.setEmpty();
 	envChange.trigger();
+    }
 
     return true;
 }
@@ -710,9 +714,96 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 }
 
 
-uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
-				       const char* cmd )
+uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
+    uiRetVal retval;
+
+    retval.add( updateModuleInfo() );
+    if ( !retval.isOK() )
+	return retval;
+
+    File::Path fp( mGetSWDirDataDir() );
+    fp.add( "Python" );
+    BufferString name( piname );
+    name += "_requirements.txt";
+    fp.add( name );
+    if ( !fp.exists() )
+	return retval;
+    od_istream strm( fp.fullPath() );
+    if ( !strm.isOK() )
+	return uiRetVal( tr("Can't open requirements file: %1").arg(
+			    fp.fullPath() ) );
+
+    BufferString line;
+    bool newlinefound = true;
+    int lnum = 1;
+    while ( strm.isOK() )
+    {
+	strm.getLine( line, &newlinefound );
+	if ( !newlinefound )
+	    break;
+	BufferStringSet modulestr;
+	modulestr.unCat( line, "==" );
+	BufferString modname = modulestr.get(0).trimBlanks().toLower();
+	if ( modulestr.size() == 1 )
+	    retval.add( hasModule( modname ) );
+	else if (modulestr.size() >= 2 )
+	{
+	    BufferString ver = modulestr.get( 1 ).trimBlanks();
+	    retval.add( hasModule( modname, ver ) );
+	} else
+	    retval.add( tr("Python requirements file: %1 error at line: %2"
+			    ).arg( fp.fullPath() ).arg( lnum ) );
+	lnum++;
+    };
+
+    return retval;
+}
+
+
+uiRetVal OD::PythonAccess::hasModule( const char* modname,
+				      const char* minversion ) const
+{
+    uiString msg;
+    if ( minversion )
+	msg = tr("Package: %1 Version: %2 or higher required").arg( modname )
+		.arg( minversion );
+    else
+	msg = tr("Package: %1 required").arg( modname );
+
+    for ( auto module : moduleinfos_ )
+    {
+	if ( module->name() == modname )
+	{
+	    if ( minversion ) {
+		const SeparString actverstr( module->versionstr_, '.' );
+		const SeparString reqverstr( minversion, '.' );
+		for ( int ver=0; ver<reqverstr.size(); ver++ )
+		{
+		    if ( actverstr.getUI16Value(ver)<
+			 reqverstr.getUI16Value(ver) )
+			return uiRetVal( tr("%1, but installed Version: %2")
+					    .arg( msg )
+			.arg( module->versionstr_ ) );
+		    else if ( actverstr.getUI16Value(ver)>reqverstr
+				.getUI16Value(ver))
+			break;
+		}
+	    }
+	    return uiRetVal::OK();
+	}
+    }
+
+    return uiRetVal( tr("%1, but module not found").arg( msg ) );
+}
+
+
+uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
+{
+    moduleinfos_.setEmpty();
+    if ( !isUsable( true ) )
+	return uiRetVal( tr("Could not detect a valid Python installation.") );
+
     BufferStringSet cmdstrs;
     cmdstrs.unCat( cmd, " " );
     if ( cmdstrs.isEmpty() )
@@ -723,25 +814,49 @@ uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
     OS::MachineCommand mc( prognm, cmdstrs );
     BufferString laststdout, laststderr;
     bool res = execute( mc, laststdout, &laststderr );
-#ifdef __unix__
+    #ifdef __unix__
     if ( !res && prognm == FixedString("pip") )
     {
 	mc.setProgram( "pip3" );
 	res = execute( mc, laststdout, &laststderr );
     }
-#endif
+    #endif
     if ( !res )
     {
-	return uiRetVal( tr("Cannot detect list of python modules:\n%1")
-				.arg(laststderr) );
+	return uiRetVal( tr("Cannot generate a list of python modules:\n%1")
+	.arg(laststderr) );
     }
 
     BufferStringSet modstrs;
     modstrs.unCat( laststdout );
     for ( int idx=2; idx<modstrs.size(); idx++ )
-	mods.add( new ModuleInfo( modstrs[idx]->buf() ) );
+    {
+	BufferString info = modstrs.get(idx).trimBlanks().toLower();
+	moduleinfos_.add( new ModuleInfo( info ) );
+    }
 
     return uiRetVal::OK();
+}
+
+
+uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
+{
+    uiRetVal retval;
+    if ( moduleinfos_.isEmpty() ) {
+	retval = updateModuleInfo();
+	if ( !retval.isOK() )
+	    return retval;
+    }
+
+    mods.setEmpty();
+    for ( auto module : moduleinfos_ )
+    {
+	ModuleInfo* minfo = new ModuleInfo( module->name() );
+	minfo->versionstr_ = module->versionstr_;
+	mods.add( minfo );
+    }
+
+    return retval;
 }
 
 

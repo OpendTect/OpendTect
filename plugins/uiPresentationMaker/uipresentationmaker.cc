@@ -279,20 +279,16 @@ void uiPresentationMakerDlg::checkCB( CallBacker* )
 
 bool uiPresentationMakerDlg::checkInstallation()
 {
-    if ( !OD::PythA().isUsable(true) )
+    const uiRetVal ret = OD::PythA().verifyEnvironment("presentation_maker");
+    if ( !ret.isOK() )
     {
-	uiMSG().error( tr("Could not detect a valid Python installation.\n"
-			"Please visit the \"Utilities | Settings | Advanced"
-			" | Python Settings\" menu\n"
-			"to specify the default Python installation.") );
-	return false;
-    }
+	uiRetVal msg( tr("Specific issues:") );
+	msg.add( ret );
+	uiMSG().errorWithDetails( msg,
+		    tr("This plugin depends on additional software, please "
+		    "consult the program help for instructions on setting up "
+		    "the requirements.\n") );
 
-    if ( !OD::PythA().isModuleUsable("pptx") )
-    {
-	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
-			"Please click the Help button for more information\n"
-			"on how to install the python-pptx package.") );
 	return false;
     }
 

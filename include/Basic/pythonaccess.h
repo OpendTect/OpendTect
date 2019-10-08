@@ -86,8 +86,11 @@ namespace OD
 	    BufferString	versionstr_;
 	};
 
-	uiRetVal	getModules(ObjectSet<ModuleInfo>&,
-				   const char* cmd="pip list");
+	uiRetVal	verifyEnvironment(const char* piname);
+	uiRetVal	updateModuleInfo(const char* cmd="pip list");
+	uiRetVal	hasModule(const char* modname,
+				  const char* minversion=0) const;
+	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 
     private:
 
@@ -100,7 +103,8 @@ namespace OD
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
 	Timer&		filedeltimer_;
-	mutable ManagedObjectSet<const File::Path> fptodelset_;
+	mutable ManagedObjectSet<const File::Path>	fptodelset_;
+	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
 	static bool	getInternalEnvironmentLocation(File::Path&,
 							   bool userdef);
