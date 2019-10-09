@@ -175,21 +175,11 @@ void uiBulkTrackImport::addD2T( uiString& errmsg )
 	return;
     }
 
-    const float twtvel = vel * .5f;
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
 	RefMan<Well::Data> wd = wells_[idx];
-	const Well::Track& track = wd->track();
-
-	const float srd = mCast(float,SI().seismicReferenceDatum());
-	const float zstart = track.zRange().start;
-	const float zstop = track.zRange().stop;
-	const float dahstart = track.dahRange().start;
-	const float dahstop = track.dahRange().stop;
-
 	Well::D2TModel* d2t = new Well::D2TModel;
-	d2t->add( dahstart, (zstart+srd)/twtvel );
-	d2t->add( dahstop, (zstop+srd)/twtvel );
+	d2t->makeFromTrack(  wd->track(), vel, wd->info().replvel );
 	wd->setD2TModel( d2t );
     }
 }
