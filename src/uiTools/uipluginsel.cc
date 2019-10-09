@@ -252,6 +252,7 @@ void uiPluginSel::createUI()
     uiPixmapItem* pmitem = new uiPixmapItem( pm );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
+    banner->setPrefWidth( pm.width() );
     banner->setStretch( 2, 0 );
 
     treefld_ = new uiTreeView( grp, "Plugin tree" );
