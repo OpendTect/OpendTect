@@ -1,5 +1,5 @@
 [![OpendTect header logo][header-img]](https://dgbes.com/index.php/software#free)
-[![Example][example-img]]()
+[![Example][example-img]](https://dgbes.com/index.php/software#free)
 
 OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Geo_Radar data. The software is written in C++ and the same codebase compiles and runs on [Windows, MacOS and Linux](https://dgbes.com/index.php/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/index.php/services/research-development#develop-your-own-plugins) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/index.php/download).
 
@@ -17,7 +17,6 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 	- [Dependencies](#dependencies)
 		- [Qt Install](#qt-install)
 		- [OpenSceneGraph Build](#openscenegraph-build)
-		- [osgQt Build](#osgqt-build)
  	- [Windows](#windows)
  	- [MacOS](#macos)
  	- [Linux](#linux)
@@ -52,8 +51,8 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
-| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), |
+| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
@@ -64,16 +63,6 @@ For the Qt install the following components must be selected depending on your b
 
 #### OpenSceneGraph Build
 Configure using CMake, compile and install. 
-
-#### osgQt Build
-Configure CMake ensuring to set the following variables:
-
-- DESIRED\_QT\_VERSION=5
-- CMAKE\_PREFIX\_PATH= set this to the location of the Qt cmake folder (Linux: "Qt install location"/gcc_64/lib/cmake)
-- OSG_DIR="OpenSceneGraph install location"
-- OpenGL\_GL\_PREFERENCE=LEGACY  (Linux only)
-
-Compile and install. Note that osgQt will need to be built against the versions of Qt required by the respective OpendTect branch 
 
 ### Windows
 Configure CMake ensuring to set the following variables:
