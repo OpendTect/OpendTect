@@ -19,6 +19,7 @@ ________________________________________________________________________
 class BinnedValueSet;
 class Executor;
 class IOObj;
+class TrcKeySampling;
 class UnitOfMeasure;
 
 template <class T> class Array2D;

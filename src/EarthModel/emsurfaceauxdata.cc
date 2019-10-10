@@ -561,14 +561,14 @@ void SurfaceAuxData::setArray2D( AuxID auxid, const Array2D<float>& arr2d,
 
     for ( od_int64 gidx=0; gidx<tks.totalNr(); gidx++ )
     {
-	const TrcKey tk = tks.atIndex( gidx );
+	const TrcKey tk = tks.trcKeyAt( gidx );
 	float val = mUdf(float);
 	if ( arr2d.getData() )
 	    val = arr2d.getData()[gidx];
 	else
 	    val = arr2d.get( tks.inlIdx(tk.inl()), tks.crlIdx(tk.crl()) );
 
-	setAuxDataVal( dataidx, tk, val );
+	setAuxDataVal( auxid, tk, val );
     }
 }
 
@@ -582,4 +582,4 @@ void SurfaceAuxData::fillPar( IOPar& par ) const
 {
 }
 
-}; //namespace
+} //namespace EM
