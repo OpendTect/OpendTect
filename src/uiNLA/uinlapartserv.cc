@@ -87,7 +87,7 @@ bool uiNLAPartServer::willDoExtraction() const
 
 const BufferStringSet& uiNLAPartServer::modelInputs() const
 {
-    return getModel().design().inputs;
+    return getModel().design().inputs_;
 }
 
 
@@ -112,9 +112,9 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
 	PosVecDataSet& vds = dpss[idx]->dataSet();
-	for ( int iinp=0; iinp<crdesc.design.inputs.size(); iinp++ )
+	for ( int iinp=0; iinp<crdesc.design.inputs_.size(); iinp++ )
 	{
-	    BufferString psnm = crdesc.design.inputs.get( iinp );
+	    BufferString psnm = crdesc.design.inputs_.get( iinp );
 	    if ( IOObj::isKey(psnm) )
 		psnm = IOM().nameOf( psnm );
 	    vds.add( new DataColDef(psnm) );
@@ -124,7 +124,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 
 
 class uiPrepNLAData : public uiDialog
-{ mODTextTranslationClass(uiPrepNLAData);
+{ mODTextTranslationClass(uiPrepNLAData)
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
@@ -167,7 +167,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     rg_.start = datavals[0];
     rg_.stop = datavals[datavals.size()-1];
     valrgfld = new uiGenInput( datagrp, uiStrings::phrData(tr("range to use")),
-	    			FloatInpIntervalSpec(rg_) );
+				FloatInpIntervalSpec(rg_) );
     valrgfld->attach( alignedBelow, percnoisefld );
     valrgfld->valuechanged.notify( mCB(this,uiPrepNLAData,valrgChg) );
 
@@ -231,7 +231,7 @@ bool acceptOK( CallBacker* )
 	    bsetup_.noiselvl = 0;
 	if ( bsetup_.noiselvl > 100 || bsetup_.noiselvl < -1e-6 )
 	    mErrRet(tr("Please enter a valid noise level"))
-	bsetup_.noiselvl *= 0.01;
+	bsetup_.noiselvl *= 0.01f;
     }
 
     bsetup_.nrclasses = statsfld_->funcDisp()->nrClasses();
@@ -275,8 +275,8 @@ class uiLithCodeMan : public uiDialog
 public:
 
 uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
-       		const char* lognm )
-    	: uiDialog(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sCode(2)),
+		const char* lognm )
+	: uiDialog(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sCode(2)),
 				     uiStrings::phrSpecify(tr(
 				     "how to handle codes")),
 				     mODHelpKey(mLithCodeManHelpID)))
@@ -546,7 +546,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
        if ( !extractDirectData(dpss) )
 	    mErrRet(uiStrings::sEmptyString())
 
-	if ( crdesc.design.classification )
+	if ( crdesc.design.classification_ )
 	{
 	    int firstgooddps = -1;
 	    for ( int iset=0; iset<dpss.size(); iset++ )
@@ -563,7 +563,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	    if ( !res.isEmpty() ) mErrRet(res)
 	    // change design output nodes to new nodes
 	    BufferStringSet& outps = const_cast<BufferStringSet&>(
-		    				crdesc.design.outputs );
+						crdesc.design.outputs_ );
 	    outps.erase();
 	    const int newnrvals = vds.data().nrVals();
 	    for ( int idx=orgnrvals; idx<newnrvals; idx++ )
@@ -580,7 +580,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	mErrRet(sKeyUsrCancel())
 
     bool allok = true;
-    if ( crdesc.isdirect && !crdesc.design.classification )
+    if ( crdesc.isdirect && !crdesc.design.classification_ )
     {
 	uiPrepNLAData pddlg( appserv().parent(), dps() );
 	allok = pddlg.go();

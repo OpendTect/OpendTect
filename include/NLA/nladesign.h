@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "nlamod.h"
 #include "bufstringset.h"
+#include "typeset.h"
 
 
 /*!
@@ -36,21 +37,23 @@ public:
 			{
 			    if ( this != &sd )
 			    {
-				deepCopy( inputs, sd.inputs );
-				deepCopy( outputs, sd.outputs );
-				hiddensz = sd.hiddensz;
-				classification = sd.classification;
+				deepCopy( inputs_, sd.inputs_ );
+				deepCopy( outputs_, sd.outputs_ );
+				hiddensz_ = sd.hiddensz_;
+				classification_ = sd.classification_;
 			    }
 			    return *this;
 			}
 
     inline void		clear()
 			{
-			    deepErase(inputs); deepErase(outputs);
-			    hiddensz = 0; classification = false;
+			    deepErase(inputs_); deepErase(outputs_);
+			    hiddensz_.erase(); hiddensz_ += 0;
+			    classification_ = false;
 			}
+
     inline bool		isSupervised() const
-			{ return outputs.size(); }
+			{ return outputs_.size(); }
 
     static inline int	finalNrHiddenNodes( int usrsz, int nrinp )
 			{
@@ -63,10 +66,10 @@ public:
 			    return usrsz;
 			}
 
-    BufferStringSet	inputs;
-    BufferStringSet	outputs;
-    int			hiddensz;
-    bool		classification;
+    BufferStringSet	inputs_;
+    BufferStringSet	outputs_;
+    TypeSet<int>	hiddensz_;
+    bool		classification_;
 
 };
 

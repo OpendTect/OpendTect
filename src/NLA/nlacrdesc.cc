@@ -20,8 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "uistrings.h"
 
-static const char* nladatatyps[] = { "Training data", "Test data",
-		"Misclassified training data", "Misclassified test data", 0 };
+static const char* nladatatyps[] =
+{ "Training data", "Test data", "Misclassified training data",
+  "Misclassified test data", nullptr };
 
 const char** NLACreationDesc::DataTypeNames()
 {
@@ -82,11 +83,11 @@ static bool isPresentInDesgn( const NLADesign& des, const char* inpcolnm )
     if ( isstored && colnm[colnm.size()-1] == ']' )
 	colnm[colnm.size()-1] = '\0';
 
-    for ( int idx=0; idx<des.inputs.size(); idx++ )
-	if ( haveColNmMatch( colnm, des.inputs.get(idx).buf() ) )
+    for ( int idx=0; idx<des.inputs_.size(); idx++ )
+	if ( haveColNmMatch( colnm, des.inputs_.get(idx).buf() ) )
 	    return true;
-    for ( int idx=0; idx<des.outputs.size(); idx++ )
-	if ( haveColNmMatch( colnm, des.outputs.get(idx).buf() ) )
+    for ( int idx=0; idx<des.outputs_.size(); idx++ )
+	if ( haveColNmMatch( colnm, des.outputs_.get(idx).buf() ) )
 	    return true;
 
     return false;
@@ -154,12 +155,12 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
     const bool addcols = doextraction && !isdirect;
     if ( addcols )
     {
-        for ( int iout=0; iout<nrout; iout++ )
+	for ( int iout=0; iout<nrout; iout++ )
 	{
 	    BufferString psnm = outids.get( iout );
 	    if ( IOObj::isKey(psnm) )
 		psnm = IOM().nameOf( psnm );
-            dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
+	    dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }
 
@@ -211,5 +212,5 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 
 bool isEmpty( const NLAModel* mdl )
 {
-    return !mdl || mdl->design().inputs.isEmpty();
+    return !mdl || mdl->design().inputs_.isEmpty();
 }

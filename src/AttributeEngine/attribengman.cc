@@ -782,7 +782,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
     }
 
     const NLADesign& nlades = nlamdl->design();
-    desc->setUserRef( *nlades.outputs[outputnr] );
+    desc->setUserRef( *nlades.outputs_[outputnr] );
     desc->selectOutput( outputnr );
 
     nladescid = descset.addDesc( desc );

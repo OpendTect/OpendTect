@@ -749,11 +749,11 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
 	    return "";
-	if ( outnr >= attrdata_.nlamodel_->design().outputs.size() ||
-		!attrdata_.nlamodel_->design().outputs[outnr] )
+	if ( outnr >= attrdata_.nlamodel_->design().outputs_.size() ||
+		!attrdata_.nlamodel_->design().outputs_[outnr] )
 	    return "<error>";
 
-	const char* nm = attrdata_.nlamodel_->design().outputs[outnr]->buf();
+	const char* nm = attrdata_.nlamodel_->design().outputs_[outnr]->buf();
 	return IOObj::isKey(nm) ? IOM().nameOf(nm) : nm;
     }
 
@@ -828,7 +828,7 @@ void uiAttrSel::processInput()
     attrdata_.outputnr_ = -1;
     if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
     {
-	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs );
+	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs_ );
 	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
 							: inp.buf();
 	for ( int idx=0; idx<outnms.size(); idx++ )

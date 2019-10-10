@@ -113,12 +113,12 @@ void SelSpec::setDiscr( const NLAModel& nlamod )
     else
     {
 	discrspec_.start = discrspec_.step = 1;
-	discrspec_.stop = nlamod.design().hiddensz;
+	discrspec_.stop = nlamod.design().hiddensz_.first();
     }
 }
 
 
-void SelSpec::setDiscr( const DescSet& ds )
+void SelSpec::setDiscr( const DescSet& )
 {
     discrspec_ = StepInterval<int>(0,0,0);
 }
@@ -127,11 +127,11 @@ void SelSpec::setDiscr( const DescSet& ds )
 void SelSpec::setIDFromRef( const NLAModel& nlamod )
 {
     isnla_ = true;
-    const int nrout = nlamod.design().outputs.size();
+    const int nrout = nlamod.design().outputs_.size();
     id_ = cNoAttrib();
     for ( int idx=0; idx<nrout; idx++ )
     {
-	if ( ref_ == *nlamod.design().outputs[idx] )
+	if ( ref_ == *nlamod.design().outputs_[idx] )
 	    { id_ = DescID(idx,false); break; }
     }
     setDiscr( nlamod );
@@ -160,7 +160,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 
 void SelSpec::setRefFromID( const NLAModel& nlamod )
 {
-    ref_ = id_.asInt() >= 0 ? nlamod.design().outputs[id_.asInt()]->buf() : "";
+    ref_ = id_.asInt() >= 0 ? nlamod.design().outputs_[id_.asInt()]->buf() : "";
     setDiscr( nlamod );
 }
 
@@ -282,10 +282,10 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 
     if ( nlamod )
     {
-	const int nroutputs = nlamod->design().outputs.size();
+	const int nroutputs = nlamod->design().outputs_.size();
 	for ( int idx=0; idx<nroutputs; idx++ )
 	{
-	    BufferString nm( *nlamod->design().outputs[idx] );
+	    BufferString nm( *nlamod->design().outputs_[idx] );
 	    if ( IOObj::isKey(nm) )
 		nm = IOM().nameOf( nm );
 	    nlaoutnms_.add( nm );
@@ -324,7 +324,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 
 	FixedString res = ioobj.pars().find( sKey::Type() );
 	if ( res && ( (!steerdata && res==sKey::Steering() )
-	         || ( steerdata && res!=sKey::Steering() ) ) )
+		 || ( steerdata && res!=sKey::Steering() ) ) )
 	    continue;
 	else if ( !res && steerdata )
 	    continue;
