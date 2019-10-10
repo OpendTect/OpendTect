@@ -543,25 +543,32 @@ void SurfaceAuxData::init( AuxID auxid, bool onlynewpos, float val )
 }
 
 
-void SurfaceAuxData::setArray2D( AuxID auxid, const Array2D<float>& arr2d )
+void SurfaceAuxData::setArray2D( AuxID auxid, const Array2D<float>& arr2d,
+				 const TrcKeySampling* arrtks )
 {
-    const Geometry::RowColSurface* rcgeom =
-	horizon_.geometry().geometryElement();
-    if ( !rcgeom || rcgeom->isEmpty() )
-	return;
-
-    const StepInterval<int> rowrg = rcgeom->rowRange();
-    const StepInterval<int> colrg = rcgeom->colRange();
-    PosID posid;
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    TrcKeySampling tks;
+    if ( arrtks )
+	tks = *arrtks;
+    else
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	{
-	    posid = PosID::getFromRowCol( row, col );
-	    const float val = arr2d.get( rowrg.getIndex(row),
-					 colrg.getIndex(col) );
-	    setAuxDataVal( auxid, posid, val );
-	}
+	const Geometry::RowColSurface* rcgeom =
+		horizon_.geometry().geometryElement();
+	if ( !rcgeom || rcgeom->isEmpty() )
+	    return;
+
+	tks.set( rcgeom->rowRange(), rcgeom->colRange() );
+    }
+
+    for ( od_int64 gidx=0; gidx<tks.totalNr(); gidx++ )
+    {
+	const TrcKey tk = tks.atIndex( gidx );
+	float val = mUdf(float);
+	if ( arr2d.getData() )
+	    val = arr2d.getData()[gidx];
+	else
+	    val = arr2d.get( tks.inlIdx(tk.inl()), tks.crlIdx(tk.crl()) );
+
+	setAuxDataVal( dataidx, tk, val );
     }
 }
 

@@ -32,7 +32,7 @@ class Horizon3D;
 /*!\brief Surface data like attribute data. */
 
 mExpClass(EarthModel) SurfaceAuxData
-{ mODTextTranslationClass(SurfaceAuxData);
+{ mODTextTranslationClass(SurfaceAuxData)
 public:
 
     typedef int		AuxID;
@@ -91,7 +91,8 @@ public:
 			     float val=mUdf(float)); //!< auxid==-1: init all
 
     Array2D<float>*	createArray2D(AuxID) const;
-    void		setArray2D(AuxID,const Array2D<float>&);
+    void		setArray2D(AuxID,const Array2D<float>&,
+				   const TrcKeySampling* tks=nullptr);
     const BinnedValueSet& getData() const	{ return auxdata_; }
     Interval<float>	valRange(AuxID,bool conv_to_internal=false) const;
 
