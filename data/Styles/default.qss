@@ -1,21 +1,21 @@
 *
 {
-    background: rgb( 240, 240, 245 );
+    background: rgb( 240, 240, 240 );
 }
 
 QGraphicsView, QTextDocument, QTextEdit, QTableView
 {
-    background-color: white;
+    background-color: rgb( 251, 251, 251 );
 }
 
 QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox, QListView
 {
-    background-color: rgb( 245, 245, 245 );
+    background-color: rgb( 251, 251, 251 );
 }
 
 QListView, QMenu
 {
-    selection-background-color: lightskyblue;
+    selection-background-color: rgb( 225, 239, 251 );
     selection-color: black;
 }
 
@@ -51,7 +51,7 @@ QSlider::add-page
 
 QSplitter::handle, QMainWindow::separator
 {
-    background: rgb( 200, 215, 200 );
+    background: rgb( 200, 200, 200 );
 }
 
 QSplitter::handle:hover, QMainWindow::separator:hover
@@ -67,7 +67,7 @@ QMainWindow, QDockWidget, QStatusBar, QStatusBar::item
 QMenu
 {
     menu-scrollable: 1;
-    border: 2px solid black;
+    border: 1px grey;
 }
 
 QMenuBar, QTabBar, QToolBar, QListView
@@ -77,7 +77,7 @@ QMenuBar, QTabBar, QToolBar, QListView
 
 QTableView, QDockWidget
 {
-    border: 2px solid black;
+    border: 1px grey;
     selection-background-color: yellow;
     selection-color: black;
 }
@@ -90,9 +90,9 @@ QToolBar
 
 QToolTip
 {
-    background-color: rgb( 255, 255, 220 );
+    background-color: rgb( 251, 251, 251 );
     color: black;
-    border: 2px solid black;
+    border: 1px solid black;
 }
 
 QTreeView
@@ -102,10 +102,10 @@ QTreeView
 
 QMenuBar, QTabBar, QTreeView, QStatusBar, QStatusBar QLabel
 {
-    background-color: rgb( 245, 250, 245 );
+    background-color: rgb( 251, 251, 251 );
 }
 
 QMessageBox, QMessageBox QLabel
 {
-    background-color: rgb( 245, 255, 250 );
+    background-color: rgb( 240, 240, 240 );
 }
