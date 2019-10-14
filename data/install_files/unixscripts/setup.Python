@@ -85,15 +85,12 @@ if ( $#argv >= 2 ) then
                 set odinstdir=$2
                 if ( -w "${odinstdir}/data" ) then
                         set fil="${odinstdir}/data/Python_envs.txt"
-                        set condapos=`echo $condainstdir | awk '{print index($0,"miniconda3")}' | bc`
-                        set condalen=`echo $condapos-2`
-                        set condarootdir=`echo $condainstdir | awk '{print substr($0, 0, '$condalen')}'`
                         touch $fil
                         echo "dTect V6.4" > $fil
                         echo "Python" >> $fil
                         date >> $fil
                         echo "!" >> $fil
-                        echo "File name: ${condarootdir}" >> $fil
+                        echo "File name: ${condainstdir}" >> $fil
                         echo "!" >> $fil
 			if ( -w "${odinstdir}/v7/data" ) then
 				cp $fil ${odinstdir}/v7/data
