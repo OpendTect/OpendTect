@@ -622,10 +622,9 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	    NLADataPreparer dp( bivset, targetcol );
 	    dp.removeUndefs(); dp.limitRange( pddlg.rg_ );
 	    if ( pddlg.dobal_ )
-	    {
 		dp.balance( pddlg.bsetup_ );
-		dps()->dataChanged();
-	    }
+
+	    dps()->dataChanged();
 	}
     }
 
