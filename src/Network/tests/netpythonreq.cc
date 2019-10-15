@@ -13,6 +13,7 @@
 #include "netreqconnection.h"
 #include "netreqpacket.h"
 #include "netserver.h"
+#include "netsocket.h"
 #include "od_ostream.h"
 #include "statrand.h"
 
@@ -213,7 +214,7 @@ public:
 	       testMultiArrayPacket(arr1,arr2,arr3);
     }
 
-    BufferString		hostname_ = HostData::localHostName();
+    BufferString		hostname_ = GetLocalHostName();
     unsigned short		port_ = 65432;
 };
 
