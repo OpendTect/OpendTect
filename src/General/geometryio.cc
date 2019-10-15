@@ -67,6 +67,8 @@ protected:
 	    mDynamicCastGet(Geometry2D*,geom2d,geometries_[geomidx])
 	    if ( geom2d && geom2d->data().isEmpty() )
 		doupdate = true;
+	    else if ( geom2d && geom2d->data().getBendPoints().isEmpty() )
+		calcBendPoints( geom2d->dataAdmin() );
 	    else
 		mReturn
 	}
