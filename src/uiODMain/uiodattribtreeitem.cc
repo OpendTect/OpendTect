@@ -271,8 +271,6 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	    dispname.append( toUiString(str) );
 	}
 	dispname.append( toUiString(as->userRef()) );
-	if ( visserv->getDataPackID( visid, attrib ) == DataPack::cNoID() )
-	    dispname.appendPhrase(uiStrings::sNoValidData());
     }
 
     if ( as && as->isNLA() )
@@ -314,7 +312,11 @@ void uiODAttribTreeItem::updateColumnText( int col )
 	    return;
 	}
 
-	displayMiniCtab( so->getColTabSequence(attribNr()) );
+	if ( visserv->getDataPackID(displayID(),attribNr()) ==
+							DataPack::cNoID() )
+	    uitreeviewitem_->setIcon( uiODSceneMgr::cColorColumn(), "warning" );
+	else
+	    displayMiniCtab( so->getColTabSequence(attribNr()) );
     }
 
     uiODDataTreeItem::updateColumnText( col );
