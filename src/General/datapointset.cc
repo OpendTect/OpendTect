@@ -160,7 +160,7 @@ class DPSPointExtractor : public Executor
 public:
 
 DPSPointExtractor( DataPointSet& dps, ::Pos::Provider& prov,
-		   const Pos::Filter* filt, int nrcols )
+		   const Pos::Filter* filt, int nrcols, bool filterAccept )
     : Executor( "Extracting positions" )
     , dps_(dps)
     , prov_(prov)
@@ -170,6 +170,7 @@ DPSPointExtractor( DataPointSet& dps, ::Pos::Provider& prov,
     , p2d_(0)
     , f3d_(0)
     , f2d_(0)
+    , filteraccept_(filterAccept)
 {
     mDynamicCast(const ::Pos::Provider3D*,p3d_,&prov)
     mDynamicCast(const ::Pos::Provider2D*,p2d_,&prov)
@@ -211,12 +212,14 @@ int nextStep()
     {
 	if ( f3d_ )
 	{
-	    if ( !f3d_->includes(dr_.pos_.binid_,dr_.pos_.z_) )
+	    if ( filteraccept_ ? !f3d_->includes(dr_.pos_.binid_,dr_.pos_.z_) :
+				 f3d_->includes(dr_.pos_.binid_,dr_.pos_.z_) )
 		return MoreToDo();
 	}
 	else if ( f2d_ )
 	{
-	    if ( !f2d_->includes(dr_.pos_.nr_,dr_.pos_.z_) )
+	    if ( filteraccept_ ? !f2d_->includes(dr_.pos_.nr_,dr_.pos_.z_) :
+				f2d_->includes(dr_.pos_.nr_,dr_.pos_.z_) )
 		return MoreToDo();
 	}
 	if ( filt_->hasZAdjustment() )
@@ -238,20 +241,21 @@ int nextStep()
     int				nrcols_;
     od_int64			nrdone_;
     od_int64			totalnr_;
+    bool			filteraccept_;
 };
 
 
 bool DataPointSet::extractPositions( ::Pos::Provider& prov,
 			    const ObjectSet<DataColDef>& dcds,
 			    const ::Pos::Filter* filt,
-			    TaskRunner* tr )
+			    TaskRunner* tr, bool filterAccept )
 {
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
 
     const int nrcols = dcds.size();
 
-    DPSPointExtractor extracttor( *this, prov, filt, nrcols );
+    DPSPointExtractor extracttor( *this, prov, filt, nrcols, filterAccept );
     if ( !TaskRunner::execute(tr,extracttor) )
 	return false;
 
