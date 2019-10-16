@@ -240,7 +240,8 @@ public:
     bool		extractPositions(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
 				     const TaskRunnerProvider&,
-				     const ::Pos::Filter* f=0);
+				     const ::Pos::Filter* f=0,
+				     bool filterAccept=true);
     void		addCol(const char* nm,const char* ref=0,
 				const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns
