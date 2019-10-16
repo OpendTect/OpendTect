@@ -11,19 +11,20 @@ ________________________________________________________________________
 #include "pythonaccess.h"
 
 #include "ascstream.h"
+#include "bufstringset.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "separstr.h"
 #include "settings.h"
 #include "string2.h"
-#include "uistrings.h"
 #include "timefun.h"
 #include "timer.h"
-#include "bufstringset.h"
-#include "separstr.h"
+#include "uistrings.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
@@ -69,9 +70,7 @@ void EnumDefImpl<OD::PythonSource>::init()
 
 OD::PythonAccess::PythonAccess()
     : envChange(this)
-    , filedeltimer_(*new Timer( "Delete Files" ))
 {
-    mAttachCB( filedeltimer_.tick, PythonAccess::handleFilesCB );
 }
 
 
@@ -80,9 +79,6 @@ OD::PythonAccess::~PythonAccess()
 {
     detachAllNotifiers();
     delete activatefp_;
-    delete &filedeltimer_;
-    for ( const auto fp : fptodelset_ )
-	File::remove( fp->fullPath() );
 }
 
 
@@ -386,7 +382,16 @@ OD::DataRepType OD::PythonAccess::getDataType( const char* str )
 }
 
 
+static BufferString getPIDFilePathStr( const File::Path& scriptfp )
+{
+    File::Path ret( scriptfp );
+    ret.setExtension( "pid" );
+    return ret.fullPath();
+}
+
+
 File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
+					  bool background,
 					  const File::Path* activatefp,
 					  const char* envnm )
 {
@@ -415,10 +420,16 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 
 #ifdef __win__
     strm.add( "@SETLOCAL" ).add( od_newline );
-    strm.add( "@ECHO OFF" ).add( od_newline );
+    strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
+    if ( background )
+    {
+	strm.add( "SET procnm=%~n0" ).add( od_newline );
+	strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
+	strm.add( "SET pidfile=%~dpn0.pid" ).add( od_newline ).add( od_newline);
+    }
     strm.add( "@CALL \"" );
 #else
-    strm.add( "#!/bin/bash" ).add( "\n\n" );
+    strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline );
     strm.add( "source " );
 #endif
     strm.add( activatefp->fullPath() );
@@ -427,11 +438,30 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #endif
     if ( envnm )
 	strm.add( " " ).add( envnm ).add( od_newline );
-    strm.add( cmd.program() ).add( " " )
-	.add( cmd.args().cat(" ") ).add( od_newline );
 #ifdef __win__
-    strm.add( "conda deactivate" ).add( od_newline );
+    if ( background )
+	strm.add( "Start \"%proctitle%\" " );
 #endif
+    strm.add( cmd.program() ).add( " " )
+	.add( cmd.args().cat(" ") );
+    if ( background )
+    {
+#ifdef __win__
+	strm.add( od_newline );
+	strm.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI" );
+	strm.add( " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO " );
+	strm.add( "(SET \"PROCRET=%%g\")" ).add( od_newline );
+	strm.add( "FOR /F \"tokens=2 delims=,\" %%g IN (\"%PROCRET%\") DO (" );
+	strm.add( "SET \"PIDRET=%%g\")" ).add( od_newline );
+	strm.add( "ECHO %PIDRET:\"=% > %PIDFILE%" );
+#else
+	strm.add( " 2>/dev/null" );
+	strm.add( " &" ).add( od_newline );
+	strm.add( "echo $! > " ).add( getPIDFilePathStr(*ret) );
+#endif
+    }
+    strm.add( od_newline );
+
     strm.close();
 #ifdef __unix__
     File::makeExecutable( ret->fullPath(), true );
@@ -444,12 +474,14 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 
 OS::CommandLauncher* OD::PythonAccess::getLauncher(
 						const OS::MachineCommand& mc,
+						bool background,
 						const File::Path* activatefp,
 						const char* envnm,
 						File::Path& scriptfpret )
 {
     OS::MachineCommand scriptcmd( mc );
-    PtrMan<File::Path> scriptfp = getCommand( scriptcmd, activatefp, envnm );
+    PtrMan<File::Path> scriptfp = getCommand( scriptcmd, background,
+					      activatefp, envnm );
     if ( scriptfp )
 	scriptfpret = *scriptfp;
     else
@@ -460,31 +492,27 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 }
 
 
-void OD::PythonAccess::handleFilesCB( CallBacker* )
+void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int& pid )
 {
-    filedeltimer_.stop();
-    for ( int idx=fptodelset_.size()-1; idx>=0; idx-- )
+    double waittm = 10., waitstep = 0.1;
+    while ( waittm > 0. )
     {
-	const File::Path& fp = *fptodelset_.get( idx );
-	if ( !fp.exists() )
-	{
-	    fptodelset_.removeSingle( idx );
-	    continue;
-	}
+	waittm -= waitstep;
+	if ( !File::exists(pidfnm) )
+	    { Threads::sleep( waitstep ); continue; }
 
-	const BufferString scriptfnm( fp.fullPath() );
-	const od_int64 creationtime = File::getTimeInMilliSeconds( scriptfnm );
-	const od_int64 currtime = Time::getMilliSeconds();
-	const double timediff = creationtime - currtime;
-	if ( timediff < mFileRetentionTimeInMilliSec )
-	    continue;
+	BufferString pidstr;
+	if ( !File::getContent(pidfnm,pidstr) || pidstr.isEmpty() )
+	    { Threads::sleep( waitstep ); continue; }
 
-	File::remove( scriptfnm );
-	fptodelset_.removeSingle( idx );
+	const int localpid = pidstr.toInt();
+	if ( !isProcessAlive(localpid) )
+	    { Threads::sleep( waitstep ); continue; }
+
+	pid = localpid;
+	File::remove( pidfnm );
+	return;
     }
-
-    if ( !fptodelset_.isEmpty() && !filedeltimer_.isActive() )
-	filedeltimer_.start( mDelCycleTym );
 }
 
 
@@ -498,7 +526,8 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     msg_.setEmpty();
 
     File::Path scriptfp;
-    cl_ = getLauncher( cmd, activatefp, envnm, scriptfp );
+    const bool background = execpars && execpars->launchtype_ == OS::RunInBG;
+    cl_ = getLauncher( cmd, background, activatefp, envnm, scriptfp );
     if ( !cl_.ptr() )
     {
 	msg_ = tr("Cannot create launcher for command '%1'")
@@ -513,14 +542,10 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 
     if ( !scriptfp.isEmpty() )
     {
-	if ( res && execpars && (execpars->launchtype_ == OS::RunInBG) )
-	{
-	    fptodelset_.add( new File::Path(scriptfp) );
-	    if ( !filedeltimer_.isActive() )
-		filedeltimer_.start( mDelCycleTym );
-	}
-	else
-	    File::remove( scriptfp.fullPath() );
+	const BufferString pidfnm( getPIDFilePathStr(scriptfp) );
+	if ( res && background )
+	    getPIDFromFile( pidfnm, *pid );
+	File::remove( scriptfp.fullPath() );
     }
 
     if ( !res )

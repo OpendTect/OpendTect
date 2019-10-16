@@ -768,20 +768,6 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 	    pid_ = -1;
     }
 
-    if ( pid_ > 0 )
-    {
-	File::Path pidfp( File::Path::getTempDir(),
-			  BufferString("od_serv_subproc_",pid_,".pid") );
-	const BufferString pidfnm( pidfp.fullPath() );
-	if ( File::exists(pidfnm) )
-	{
-	    BufferString pidstr;
-	    if ( File::getContent(pidfnm,pidstr) )
-		pid_ = pidstr.toInt();
-	    File::remove( pidfnm );
-	}
-    }
-
     if ( pid_ < 1 )
     {
 	if ( errmsg_.isEmpty() )
@@ -789,15 +775,20 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 	return false;
     }
 
+    bool wasalive = false;
+    const double waitstepsec = 0.1;
     while ( waittm > 0 )
     {
-	waittm -= 1;
-	sleepSeconds( 1 );
 	if ( isProcessAlive(pid_) )
+	{
+	    wasalive = true;
 	    break;
+	}
+	waittm -= waitstepsec;
+	sleepSeconds( waitstepsec );
     }
 
-    if ( !isProcessAlive(pid_) )
+    if ( !wasalive && !isProcessAlive(pid_) )
     {
 	if ( ispyth )
 	    errmsg_ = toUiString(OD::PythA().lastOutput(true,nullptr));

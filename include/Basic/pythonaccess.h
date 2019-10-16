@@ -102,8 +102,6 @@ namespace OD
 	mutable BufferString	laststdout_;
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
-	Timer&		filedeltimer_;
-	mutable ManagedObjectSet<const File::Path>	fptodelset_;
 	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
 	static bool	getInternalEnvironmentLocation(File::Path&,
@@ -119,19 +117,20 @@ namespace OD
 				    const char* scriptstr,
 				    const char* scriptexpectedout);
 	static File::Path* getCommand(OS::MachineCommand&,
+				      bool background,
 				      const File::Path* activatefp,
 				      const char* envnm);
 	static OS::CommandLauncher* getLauncher(const OS::MachineCommand&,
+				  bool background,
 				  const File::Path* activatefp,
 				  const char* envnm,
 				  File::Path& scriptfp);
+	static void		getPIDFromFile(const char* pidfnm,int& pid);
 	bool			doExecute(const OS::MachineCommand&,
 				  const OS::CommandExecPars*,int* pid,
 				  const File::Path* activatefp,
 				  const char* envnm) const;
 	static File::Path*	getActivateScript(const File::Path& root);
-
-	void			handleFilesCB(CallBacker*);
 
     };
 
