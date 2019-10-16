@@ -184,7 +184,8 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 	return false;
 
     RefMan<DataPointSet> dps = new DataPointSet( prov->is2D() );
-    if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),trprov,filt) )
+    if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),trprov,filt,
+				false) )
 	return false;
     usw.readyNow();
 
