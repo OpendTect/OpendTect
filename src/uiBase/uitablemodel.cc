@@ -30,7 +30,7 @@ public:
     QVariant		headerData(int rowcol,Qt::Orientation orientation,
 				   int role=Qt::DisplayRole) const;
     bool		setData(const QModelIndex&,const QVariant&,int role);
- 
+
 protected:
     uiTableModel&	model_;
 };
@@ -54,24 +54,24 @@ int ODAbstractTableModel::columnCount( const QModelIndex& ) const
 }
 
 
-QVariant ODAbstractTableModel::data( const QModelIndex& index, int role ) const
+QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx, int role ) const
 {
-    if ( !index.isValid() )
+    if ( !qmodidx.isValid() )
 	return QVariant();
 
     if ( role == Qt::DisplayRole )
     {
-	return model_.text(index.row(),index.column()).buf();
+	return model_.text(qmodidx.row(),qmodidx.column()).buf();
     }
 
     return QVariant();
 }
 
 
-bool ODAbstractTableModel::setData( const QModelIndex& index,
-				    const QVariant& value, int role )
+bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
+				    const QVariant& qvar, int role )
 {
-    if ( !index.isValid() )
+    if ( !qmodidx.isValid() )
 	return false;
 
     return true;
@@ -109,8 +109,8 @@ uiTableModel::~uiTableModel()
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
 {
 public:
-ODTableView( uiTableView& hndl, uiParent* parent, const char* nm )
-    : uiObjBodyImpl<uiTableView,QTableView>(hndl,parent,nm)
+ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
 {}
 
 protected:
