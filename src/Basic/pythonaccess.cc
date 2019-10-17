@@ -440,7 +440,7 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	strm.add( " " ).add( envnm ).add( od_newline );
 #ifdef __win__
     if ( background )
-	strm.add( "Start \"%proctitle%\" " );
+	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
     strm.add( cmd.program() ).add( " " )
 	.add( cmd.args().cat(" ") );
