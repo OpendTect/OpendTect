@@ -301,12 +301,14 @@ public:
 	mid_ = mid;
 	index_ = sidx;
 	Pick::SetMgr& mgr = Pick::Mgr();
-	Pick::Set& set = mgr.get(mid);
+	const int mididx = mgr.indexOf( mid );
+	const bool haspickset = mididx >=0;
+	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
 
 	if ( type == Insert || type == PolygonClose )
 	{
-	    if ( &set && set.size()>index_ )
-		pos_ = set[index_];
+	    if ( set && set->size()>index_ )
+		pos_ = (*set)[index_];
 	}
 	else if ( type == Remove )
 	{
@@ -314,8 +316,8 @@ public:
 	}
 	else if ( type == Move )
 	{
-	    if ( &set && set.size()>index_ )
-		pos_ = set[index_];
+	    if ( set && set->size()>index_ )
+		pos_ = (*set)[index_];
 	    newpos_ = pos;
 	}
 
@@ -338,11 +340,13 @@ public:
     bool unDo()
     {
 	Pick::SetMgr& mgr = Pick::Mgr();
-	Pick::Set& set = mgr.get(mid_);
-	if ( !&set ) return false;
+	const int mididx = mgr.indexOf( mid_ );
+	const bool haspickset = mididx >=0;
+	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	if ( !set ) return false;
 
-	if ( set.disp_.connect_==Pick::Set::Disp::Close &&
-	    index_ == set.size()-1 && type_ != Move )
+	if ( set->disp_.connect_==Pick::Set::Disp::Close &&
+	    index_ == set->size()-1 && type_ != Move )
 	    type_ = PolygonClose;
 
 	Pick::SetMgr::ChangeData::Ev ev = type_ == Move ?
@@ -351,26 +355,26 @@ public:
 	    ? Pick::SetMgr::ChangeData::Added
 	    : Pick::SetMgr::ChangeData::ToBeRemoved );
 
-	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
+	Pick::SetMgr::ChangeData cd( ev, set, index_ );
 
 	if ( type_ == Move )
 	{
-	   if ( &set && set.size()>index_  && pos_.pos_.isDefined() )
-	       set[index_] = pos_;
+	   if ( set && set->size()>index_  && pos_.pos_.isDefined() )
+	       (*set)[index_] = pos_;
 	}
 	else if ( type_ == Remove )
 	{
 	   if ( pos_.pos_.isDefined() )
-	     set.insert( index_, pos_ );
+	     set->insert( index_, pos_ );
 	}
 	else if ( type_ == Insert  )
 	{
-	    set.removeSingle( index_ );
+	    set->removeSingle( index_ );
 	}
 	else if ( type_ == PolygonClose )
 	{
-	    set.disp_.connect_ = Pick::Set::Disp::Open;
-	    set.removeSingle(index_);
+	    set->disp_.connect_ = Pick::Set::Disp::Open;
+	    set->removeSingle(index_);
 	}
 
 	mgr.reportChange( 0, cd );
@@ -382,8 +386,10 @@ public:
     bool reDo()
     {
 	Pick::SetMgr& mgr = Pick::Mgr();
-	Pick::Set& set = mgr.get( mid_ );
-	if ( !&set ) return false;
+	const int mididx = mgr.indexOf( mid_ );
+	const bool haspickset = mididx >=0;
+	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	if ( !set ) return false;
 
 	Pick::SetMgr::ChangeData::Ev ev = type_== Move ?
 	    Pick::SetMgr::ChangeData::Changed :
@@ -391,28 +397,28 @@ public:
 	    ? Pick::SetMgr::ChangeData::ToBeRemoved
 	    : Pick::SetMgr::ChangeData::Added );
 
-	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
+	Pick::SetMgr::ChangeData cd( ev, set, index_ );
 
 	if ( type_ == Move )
 	{
-	    if ( &set && set.size()>index_ && newpos_.pos_.isDefined() )
-		set[index_] = newpos_;
+	    if ( set && set->size()>index_ && newpos_.pos_.isDefined() )
+		(*set)[index_] = newpos_;
 	}
 	else if ( type_ == Remove )
 	{
-	    set.removeSingle( index_ );
+	    set->removeSingle( index_ );
 	}
 	else if ( type_ == Insert )
 	{
 	    if ( pos_.pos_.isDefined() )
-		set.insert( index_,pos_ );
+		set->insert( index_,pos_ );
 	}
 	else if ( type_ == PolygonClose )
 	{
 	    if ( pos_.pos_.isDefined() )
 	    {
-		set.disp_.connect_=Pick::Set::Disp::Close;
-		set.insert( index_, pos_ );
+		set->disp_.connect_=Pick::Set::Disp::Close;
+		set->insert( index_, pos_ );
 	    }
 	}
 
