@@ -114,7 +114,7 @@ public:
     int				getRow(const AxisData&,uiPoint) const;
     void			drawData(const AxisData&,bool y2,
 					 bool rempts = false);
-    void			drawRegrLine(uiAxisHandler&,
+    void			drawRegrLine(uiAxisHandler*,
 					     const Interval<int>&);
 
     void			prepareItems(bool y2);

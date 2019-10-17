@@ -106,8 +106,8 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     else
 	wd.setD2TModel( new Well::D2TModel );
 
-    Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
-    if ( !&d2t )
+    Well::D2TModel* d2t = cksh ? wd.checkShotModel() : wd.d2TModel();
+    if ( !d2t )
 	mErrRet( tr("D2Time model not set properly") )
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
@@ -117,7 +117,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( SI().zIsTime() && SI().depthsInFeet() && zun )
 	    vel = zun->internalValue( vel );
 
-	d2t.makeFromTrack( wd.track(), vel, wd.info().replvel );
+	d2t->makeFromTrack( wd.track(), vel, wd.info().replvel );
     }
     else
     {
@@ -129,9 +129,9 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( !dataselfld_->commit() )
 	    mErrRet( tr("Please specify data format") )
 
-	d2t.setName( fname );
+	d2t->setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
-	if ( !aio.get(strm,d2t,wd) )
+	if ( !aio.get(strm,*d2t,wd) )
 	{
 	    errmsg_ = tr("ASCII TD model import failed for well %1\n%2\n"
 			 "Change your format definition "
@@ -147,10 +147,10 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     if ( wd.track().zRange().stop < SI().seismicReferenceDatum() )
 	return true;
 
-    if ( d2t.size() < 2 )
+    if ( d2t->size() < 2 )
 	mErrRet( tr("Cannot import time-depth model") )
 
-    d2t.deInterpolate();
+    d2t->deInterpolate();
     return true;
 }
 

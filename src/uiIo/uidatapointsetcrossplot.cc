@@ -1842,7 +1842,7 @@ void uiDataPointSetCrossPlotter::drawData(
 
     setAnnotEndTxt( yah );
     if ( setup_.showregrline_ )
-	drawRegrLine( yah, usedxpixrg_ );
+	drawRegrLine( &yah, usedxpixrg_ );
     else if ( regrlineitm_ )
 	regrlineitm_->setLine( 0, 0, 0, 0 );
 
@@ -1851,16 +1851,18 @@ void uiDataPointSetCrossPlotter::drawData(
 }
 
 
-void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
+void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler* yah,
 					       const Interval<int>& xpixrg )
 {
-    if ( !x_.axis_ || !&yah ) return;
+    if ( !x_.axis_ || !yah ) return;
 
-    const uiAxisHandler& xah = *x_.axis_;
-    const LinStats2D& ls = y_.axis_ == &yah ? lsy1_ : lsy2_;
-    const Interval<int> ypixrg( yah.pixRange() );
-    Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
-    Interval<float> yvalrg( yah.getVal(ypixrg.start), yah.getVal(ypixrg.stop) );
+    const uiAxisHandler* xah = x_.axis_;
+    const LinStats2D& ls = y_.axis_ == yah ? lsy1_ : lsy2_;
+    const Interval<int> ypixrg( yah->pixRange() );
+    Interval<float> xvalrg( xah->getVal(xpixrg.start),
+			    xah->getVal(xpixrg.stop) );
+    Interval<float> yvalrg( yah->getVal(ypixrg.start),
+			    yah->getVal(ypixrg.stop) );
     if ( !regrlineitm_ )
     {
 	regrlineitm_ = new uiLineItem();
@@ -1868,5 +1870,5 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
 	regrlineitm_->setZValue( 4 );
     }
 
-    setLine( *regrlineitm_, ls.lp, xah, yah, &xvalrg );
+    setLine( regrlineitm_, ls.lp, xah, yah, &xvalrg );
 }

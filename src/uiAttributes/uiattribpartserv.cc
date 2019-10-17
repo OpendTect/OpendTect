@@ -744,7 +744,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 						Seis::PLDM().get(mid) );
 	    if ( preloadeddatapack )
 	    {
-		TrcKeyZSampling outtkzs( &tkzs );
+		TrcKeyZSampling outtkzs( tkzs );
 		tkzs.getIntersection( preloadeddatapack->sampling(), outtkzs );
 		if ( !tkzs.includes(outtkzs) )
 		    return nullptr;

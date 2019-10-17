@@ -199,8 +199,8 @@ protected:
 };
 
 //! draws line not outside box defined by X and Y value ranges
-mGlobal(uiTools) void setLine(uiLineItem&,const LineParameters<float>&,
-			const uiAxisHandler& xah,const uiAxisHandler& yah,
+mGlobal(uiTools) void setLine(uiLineItem*,const LineParameters<float>&,
+			const uiAxisHandler* xah,const uiAxisHandler* yah,
 			const Interval<float>* xvalrg = 0);
 
 

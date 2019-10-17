@@ -826,32 +826,33 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 }
 
 
-void setLine( uiLineItem& lineitm, const LinePars& lp,
-	       const uiAxisHandler& xah, const uiAxisHandler& yah,
+void setLine( uiLineItem* lineitm, const LinePars& lp,
+	       const uiAxisHandler* xah, const uiAxisHandler* yah,
 	       const Interval<float>* extxvalrg )
 {
-    if ( !&xah || !&yah || !&lineitm )
+    if ( !xah || !yah || !lineitm )
 	return;
 
-    const Interval<int> ypixrg( yah.pixRange() );
-    const Interval<float> yvalrg( yah.getVal(ypixrg.start),
-				  yah.getVal(ypixrg.stop) );
-    Interval<int> xpixrg( xah.pixRange() );
-    Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
+    const Interval<int> ypixrg( yah->pixRange() );
+    const Interval<float> yvalrg( yah->getVal(ypixrg.start),
+				  yah->getVal(ypixrg.stop) );
+    Interval<int> xpixrg( xah->pixRange() );
+    Interval<float> xvalrg( xah->getVal(xpixrg.start),
+			    xah->getVal(xpixrg.stop) );
     if ( extxvalrg )
     {
 	xvalrg = *extxvalrg;
-	xpixrg.start = xah.getPix( xvalrg.start );
-	xpixrg.stop = xah.getPix( xvalrg.stop );
+	xpixrg.start = xah->getPix( xvalrg.start );
+	xpixrg.stop = xah->getPix( xvalrg.stop );
 	xpixrg.sort();
-	xvalrg.start = xah.getVal(xpixrg.start);
-	xvalrg.stop = xah.getVal(xpixrg.stop);
+	xvalrg.start = xah->getVal(xpixrg.start);
+	xvalrg.stop = xah->getVal(xpixrg.stop);
     }
 
     uiPoint from(xpixrg.start,ypixrg.start), to(xpixrg.stop,ypixrg.stop);
     if ( lp.ax == 0 )
     {
-	const int ypix = yah.getPix( lp.a0 );
+	const int ypix = yah->getPix( lp.a0 );
 	if ( !ypixrg.includes( ypix,true ) ) return;
 	from.x = xpixrg.start; to.x = xpixrg.stop;
 	from.y = to.y = ypix;
@@ -872,35 +873,35 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
 
 	if ( yx0ok )
 	{
-	    from.x = xah.getPix( xx0 ); from.y = yah.getPix( yx0 );
+	    from.x = xah->getPix( xx0 ); from.y = yah->getPix( yx0 );
 	    if ( yx1ok )
-		{ to.x = xah.getPix( xx1 ); to.y = yah.getPix( yx1 ); }
+		{ to.x = xah->getPix( xx1 ); to.y = yah->getPix( yx1 ); }
 	    else if ( xy0ok )
-		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+		{ to.x = xah->getPix( xy0 ); to.y = yah->getPix( yy0 ); }
 	    else if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+		{ to.x = xah->getPix( xy1 ); to.y = yah->getPix( yy1 ); }
 	    else
 		return;
 	}
 	else if ( yx1ok )
 	{
-	    from.x = xah.getPix( xx1 ); from.y = yah.getPix( yx1 );
+	    from.x = xah->getPix( xx1 ); from.y = yah->getPix( yx1 );
 	    if ( xy0ok )
-		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+		{ to.x = xah->getPix( xy0 ); to.y = yah->getPix( yy0 ); }
 	    else if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+		{ to.x = xah->getPix( xy1 ); to.y = yah->getPix( yy1 ); }
 	    else
 		return;
 	}
 	else if ( xy0ok )
 	{
-	    from.x = xah.getPix( xy0 ); from.y = yah.getPix( yy0 );
+	    from.x = xah->getPix( xy0 ); from.y = yah->getPix( yy0 );
 	    if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+		{ to.x = xah->getPix( xy1 ); to.y = yah->getPix( yy1 ); }
 	    else
 		return;
 	}
     }
 
-    lineitm.setLine( from, to );
+    lineitm->setLine( from, to );
 }

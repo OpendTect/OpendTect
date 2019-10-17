@@ -186,9 +186,10 @@ bool EMObject::setPos( const SectionID& sid, const SubID& subid,
     {
 	for ( int idx=0; idx<posattribs_.size(); idx++ )
 	{
-	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
-	    if ( !&nodes ) continue;
+	    if ( !posattribs_[idx] )
+		continue;
 
+	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	    if ( nodes.isPresent(pid) )
 		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
@@ -624,7 +625,7 @@ void EMObject::removeAllUnSeedPos()
 	    break;
 
 	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) &&
-    	     !isNodeSourceType(pid,Manual) &&
+	     !isNodeSourceType(pid,Manual) &&
 	     !isNodeLocked(pid) )
 	    unSetPos( pid, true );
     }
@@ -815,9 +816,10 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 
     for ( int idx=0; idx<posattribs_.size(); idx++ )
     {
-	TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
-	if ( !&nodes ) continue;
+	if ( !posattribs_[idx] )
+	    continue;
 
+	TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	while ( true )
 	{
 	    const int idy = nodes.indexOf( cbdata.pid0 );
