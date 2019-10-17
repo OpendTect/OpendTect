@@ -492,7 +492,7 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 }
 
 
-void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int& pid )
+void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int* pid )
 {
     double waittm = 10., waitstep = 0.1;
     while ( waittm > 0. )
@@ -509,7 +509,8 @@ void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int& pid )
 	if ( !isProcessAlive(localpid) )
 	    { Threads::sleep( waitstep ); continue; }
 
-	pid = localpid;
+	if ( pid )
+	    *pid = localpid;
 	File::remove( pidfnm );
 	return;
     }
@@ -544,7 +545,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     {
 	const BufferString pidfnm( getPIDFilePathStr(scriptfp) );
 	if ( res && background )
-	    getPIDFromFile( pidfnm, *pid );
+	    getPIDFromFile( pidfnm, pid );
 	File::remove( scriptfp.fullPath() );
     }
 
