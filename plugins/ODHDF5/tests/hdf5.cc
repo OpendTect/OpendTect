@@ -173,13 +173,10 @@ static bool testReadData( HDF5::Reader& rdr )
     dimspec.start_ = 2; dimspec.step_ = 3; dimspec.count_ = 100;
     slabspec += dimspec;
     const char* slabspecmsg = "Should have pErrMsg but no error";
-    try {
-	uirv = rdr.getSlab( slabspec, valarr );
-	mRunStandardTest( false, slabspecmsg )
-    } catch ( ... )
-    {
-	mRunStandardTest( true, slabspecmsg )
-    }
+    const bool onerror = DBG::setCrashOnProgError( false );
+    uirv = rdr.getSlab( slabspec, valarr );
+    mRunStandardTest( true, slabspecmsg )
+    DBG::setCrashOnProgError( onerror );
     mAddTestResult( "Get slab values again" );
 
     const HDF5::DataSetKey dsky( "Slabby", "Slabby Data" );
