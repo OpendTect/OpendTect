@@ -125,7 +125,7 @@ namespace OD
 				  const File::Path* activatefp,
 				  const char* envnm,
 				  File::Path& scriptfp);
-	static void		getPIDFromFile(const char* pidfnm,int& pid);
+	static void		getPIDFromFile(const char* pidfnm,int* pid);
 	bool			doExecute(const OS::MachineCommand&,
 				  const OS::CommandExecPars*,int* pid,
 				  const File::Path* activatefp,
