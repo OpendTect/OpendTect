@@ -34,8 +34,8 @@ public:
 
     virtual int			size() const				= 0;
 
-    virtual float		period() const { return mUdf(float); } 
-    void			setPeriodic( bool np ) { periodic = np; } 
+    virtual float		period() const { return mUdf(float); }
+    void			setPeriodic( bool np ) { periodic = np; }
 
     float			getIndex(float x) const
 				    { return (x-getX0()) / getDx(); }
@@ -44,7 +44,7 @@ public:
 				    { return mNINT32(getIndex( x )); }
 
     RT				getValue( RT x ) const
-				{ 
+				{
 				    if ( !doInterpolate() )
 				    {
 					const int smpl = mNINT32( getIndex(x) );
@@ -55,14 +55,14 @@ public:
 
 				    if ( periodic )
 				    {
-					return 
+					return
 					    IdxAble::interpolateYPeriodicReg(
 						    *this, size(),
 						    getIndex(x), period(),
 						    extrapolate());
 				    }
 
-				    return hasUdfs() 
+				    return hasUdfs()
 					? IdxAble::interpolateRegWithUdf( *this,
 						size(), getIndex(x),
 						extrapolate())
@@ -103,7 +103,7 @@ public:
 			    , interpolate_( true )
 			{}
 
-    RT			operator[](od_int64 idx) const	{ return idxabl_[idx];}
+    RT			operator[](od_int64 idx) const;
 
     float		getDx() const			{ return dx_; }
     float		getX0() const			{ return x0_; }
@@ -117,7 +117,7 @@ public:
     void		setHasUdfs(bool yn)		{ hasudfs_=yn; }
 
     bool		doInterpolate() const		{ return interpolate_; }
-    void		setInterpolate( bool yn ) 	{ interpolate_=yn; }
+    void		setInterpolate( bool yn )	{ interpolate_=yn; }
 
 protected:
 
@@ -132,3 +132,10 @@ protected:
     bool		hasudfs_;
     bool		interpolate_;
 };
+
+
+template <class RT, class T> inline
+RT SampledFunctionImpl<RT,T>::operator[]( od_int64 idx ) const
+{
+    return idxabl_[idx];
+}
