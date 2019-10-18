@@ -82,7 +82,8 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 	limitrg.step = 1.0f;
     limitrg.scale( zfac );
 
-    const int nrdecimals = cansnap_ ? 0 : 2;
+    const int nrdecimals =
+	cansnap_ ? 0 : Math::NrSignificantDecimals( limitrg.step );
     const StepInterval<int> izrg( mNINT32(limitrg.start),
 				  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 

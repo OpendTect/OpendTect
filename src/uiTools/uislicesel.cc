@@ -155,7 +155,7 @@ public:
 uiSliceScroll( uiSliceSel* ss )
 	: uiDialog(ss,uiDialog::Setup(tr("Scrolling"),
 				      mToUiStringTodo(getTitle(ss)),
-                                      mODHelpKey(mSliceScrollHelpID) )
+				      mODHelpKey(mSliceScrollHelpID) )
 				      .modal(false))
 	, slcsel_(ss)
 	, inauto_(false)
@@ -470,15 +470,8 @@ void uiSliceSel::updateUI()
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
-    int nrdec = 0;
     const float zfac = mCast( float, zdominfo_.userFactor() );
-    float decval = maxcs_.zsamp_.step * zfac;
-
-    while (decval > Math::Floor(decval) )
-    {
-	nrdec++;
-	decval = decval*10 - Math::Floor(decval*10);
-    }
+    const int nrdec = Math::NrSignificantDecimals( tkzs_.zsamp_.step*zfac );
 
     if ( nrdec==0 )
     {
@@ -600,7 +593,7 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 			const ZDomain::Info& zdominfo )
     : uiDialog(p,uiDialog::Setup(tr("Positioning"),
 				 tr("Specify the element's position"),
-                                 mODHelpKey(mSliceSelHelpID) )
+				 mODHelpKey(mSliceSelHelpID) )
 		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
     slicesel_ = new uiSliceSel( this, type, zdominfo );

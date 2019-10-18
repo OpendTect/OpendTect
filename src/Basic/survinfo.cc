@@ -717,8 +717,15 @@ float SurveyInfo::getArea( bool work ) const
 }
 
 
+float SurveyInfo::zStep() const
+{ return tkzs_.zsamp_.step; }
 
-float SurveyInfo::zStep() const { return tkzs_.zsamp_.step; }
+
+int SurveyInfo::nrZDecimals() const
+{
+    return Math::NrSignificantDecimals(
+		sCast(double,zStep()*zDomain().userFactor()) );
+}
 
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
@@ -974,9 +981,9 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 				 int xline )
 {
     if ( b[1].inl() == b[0].inl() )
-        return "Need two different in-lines";
+	return "Need two different in-lines";
     if ( b[0].crl() == xline )
-        return "No Cross-line range present";
+	return "No Cross-line range present";
 
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
 	return "Cannot construct a valid transformation matrix from this input"

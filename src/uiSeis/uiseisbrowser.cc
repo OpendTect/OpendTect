@@ -75,7 +75,7 @@ protected:
 
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
     : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
-                      mODHelpKey(mSeisBrowserHelpID) )
+		      mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
     , geom_(gt)
     , startpos_(mUdf(int),mUdf(int))
@@ -389,15 +389,6 @@ void uiSeisBrowser::fillUdf( SeisTrc& trc )
 }
 
 
-static BufferString getZValStr( float z, int zfac )
-{
-    BufferString txt;
-    const float dispz = zfac * z;
-    txt = dispz;
-    return txt;
-}
-
-
 void uiSeisBrowser::fillTable()
 {
     NotifyStopper notifstop( tbl_->valueChanged );
@@ -405,10 +396,14 @@ void uiSeisBrowser::fillTable()
     const CBVSInfo& info = tr_->readMgr()->info();
     const int zfac = zdomdef_->userFactor();
     const char* zunstr = zdomdef_->unitStr(false);
+    const int nrdec = Math::NrSignificantDecimals( info.sd_.step*zfac );
+
+    BufferString zvalstr;
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
-	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );
+	zvalstr.set( info.sd_.atIndex(idx)*zfac, nrdec );
 	tbl_->setRowLabel( idx, zvalstr );
+
 	BufferString tt;
 	tt.add( idx+1 ).add( getRankPostFix(idx+1) ).add( " sample at " )
 	  .add( zvalstr ).add( zunstr );
@@ -526,7 +521,7 @@ void uiSeisBrowser::goToPush( CallBacker* cb )
     }
     setTrcBufViewTitle();
     if ( trcbufvwr_ )
-        trcbufvwr_->handleBufChange();
+	trcbufvwr_->handleBufChange();
 }
 
 
@@ -569,7 +564,7 @@ void uiSeisBrowser::commitChanges()
     BoolTypeSet changed( tbuf_.size(), false );
     for ( RowCol pos(0,0); pos.col()<tbuf_.size(); pos.col()++)
     {
-        SeisTrc& trc = *tbuf_.get( pos.col() );
+	SeisTrc& trc = *tbuf_.get( pos.col() );
 	for ( pos.row()=0; pos.row()<nrsamples_; pos.row()++)
 	{
 	    const float tableval = tbl_->getfValue( pos );
@@ -651,7 +646,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
 
     uiString errmsg;
     tri_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
-			        Seis::is2D(setup.geom_), &errmsg );
+				Seis::is2D(setup.geom_), &errmsg );
 
     SeisIOObjInfo seisinfo( ioobj.ptr() );
     TrcKeyZSampling cs;
@@ -933,11 +928,17 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(isamp); }
     }
 
-    const int zfac = zdomdef_.userFactor();
     minamplfld_->setValue( amplrg.start );
-    minamplatfld_->setText( getZValStr(peakzs.start,zfac) );
     maxamplfld_->setValue( amplrg.stop );
-    maxamplatfld_->setText( getZValStr(peakzs.stop,zfac) );
+
+    const int zfac = zdomdef_.userFactor();
+    const int nrdec =
+		Math::NrSignificantDecimals( trc.info().sampling.step*zfac );
+    BufferString zvalstr;
+    zvalstr.set( peakzs.start*zfac, nrdec );
+    minamplatfld_->setText( zvalstr );
+    zvalstr.set( peakzs.stop*zfac, nrdec );
+    maxamplatfld_->setText( zvalstr );
 
     setup_.nyqvistspspace_ = trc.info().sampling.step;
     Array1DImpl<float> a1d( vals.size() );

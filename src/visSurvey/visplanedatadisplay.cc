@@ -961,24 +961,28 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 {
+    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
     if ( orientation_==OD::InlineSlice )
     {
 	info = "In-line: ";
-	info += getTrcKeyZSampling(true,true).hsamp_.start_.inl();
+	info += tkzs.hsamp_.start_.inl();
     }
     else if ( orientation_==OD::CrosslineSlice )
     {
 	info = "Cross-line: ";
-	info += getTrcKeyZSampling(true,true).hsamp_.start_.crl();
+	info += tkzs.hsamp_.start_.crl();
     }
     else
     {
-	float val = getTrcKeyZSampling(true,true).zsamp_.start;
+	const float val = tkzs.zsamp_.start;
 	if ( !scene_ ) { info = val; return; }
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
 	info = mFromUiStringTodo(zdinf.userName()); info += ": ";
-	info += mNINT32(val * zdinf.userFactor());
+
+	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
+	const int nrdec = Math::NrSignificantDecimals( userval );
+	info.add( userval, nrdec );
     }
 }
 

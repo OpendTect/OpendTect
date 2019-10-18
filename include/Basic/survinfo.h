@@ -59,6 +59,7 @@ public:
     int			inlStep() const;
     int			crlStep() const;
     float		zStep() const;
+    int			nrZDecimals() const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
     float		getArea(const Interval<int>& inl,
@@ -134,6 +135,7 @@ public:
     void		setSeismicReferenceDatum( float d ) { seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
+			/*!<Returns contents of .defs file */
     void		putZDomain(IOPar&) const;
 
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;

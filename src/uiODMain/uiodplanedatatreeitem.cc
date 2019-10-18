@@ -97,7 +97,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     if ( mnuid==0 || mnuid==1 || mnuid==3 ) \
     { \
 	treeitm* newitm = new treeitm(-1,getType(mnuid));\
-        addChild( newitm, false ); \
+	addChild( newitm, false ); \
     } \
     else if ( mnuid==2 ) \
     { \
@@ -390,9 +390,10 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 	else
 	{
 	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
+	    const int nrdec =
+		Math::NrSignificantDecimals( cs.zsamp_.step*zdef.userFactor() );
 	    const float zval = cs.zsamp_.start * zdef.userFactor();
-	    res = toUiString( zdef.isTime() || zdef.userFactor()==1000
-		    ? (float)(mNINT32(zval)) : zval );
+	    res = toUiString( zval, nrdec );
 	}
     }
 

@@ -517,7 +517,7 @@ void uiODSceneMgr::updateStatusBar()
 	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
 	const float zfact = mCast(float,visServ().zFactor());
 	const float zval = (float) (zfact * xytpos.z);
-	const int nrdec = 1; // get from settings
+	const int nrdec = SI().nrZDecimals()+1; // get from settings
 	const BufferString zvalstr = toString( zval, nrdec );
 	msg = toUiString("%1    (%2, %3, %4)")
 	    .arg( bid.toString() )
