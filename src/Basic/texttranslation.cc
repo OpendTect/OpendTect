@@ -35,6 +35,9 @@ namespace OD
 	Settings& setts = Settings::common();
 	BufferString locale;
 	setts.get( sLocalizationKey(), locale );
+	if ( locale.isEmpty() )
+	    locale = "en";
+
 	TrMgr().setLanguageByLocaleKey( locale );
     }
 
@@ -232,12 +235,18 @@ bool TextTranslation::LanguageEntry::load()
     if ( nrloaded < 1 )
 	return false;
 
-    if ( !qt_transl_ )
+    BufferString locale;
+    Settings::common().get( sLocalizationKey(), locale );
+	
+    if ( locale.isEmpty() )
+	locale = "en";
+
+    if ( !qt_transl_ && (locale==localekey_) )
     {
 	qt_transl_ = new QTranslator;
 	const BufferString qtfnm( "qt_", localekey_, ".qm" );
 	const BufferString instdir( TrMgr().instlocdir_.fullPath() );
-	if ( qt_transl_->load( qtfnm.str(), instdir.str() ) )
+	if ( qt_transl_->load(qtfnm.str(), instdir.str()) )
 	    QCoreApplication::installTranslator( qt_transl_ );
     }
 
@@ -314,9 +323,7 @@ void TextTranslation::TranslateMgr::reInit()
 	    addEntry( le );
     }
 
-    if ( curlocalekey.isEmpty() )
-	setLanguage( cDefaultLocaleIdx() );
-    else
+    if ( !curlocalekey.isEmpty() )
 	setLanguageByLocaleKey( curlocalekey );
 }
 
@@ -331,6 +338,7 @@ void TextTranslation::TranslateMgr::findLocales( const File::Path& dirfp,
 						 BufferStringSet& localekeys )
 {
     const DirList dl( dirfp.fullPath(), File::FilesInDir, "*.qm" );
+    BufferString fp = dirfp.fullPath();
     for( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString pkgnm;
