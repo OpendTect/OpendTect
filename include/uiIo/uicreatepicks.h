@@ -57,6 +57,7 @@ protected:
     uiPosProvider*	posprovfld_;
     uiGenInput*		maxnrpickfld_;
     uiPosFilterSetSel*	posfiltfld_;
+    uiGenInput*		posfiltmodefld_;
 
     virtual bool	fillData(Pick::Set&);
 };

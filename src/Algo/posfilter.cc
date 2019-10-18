@@ -298,7 +298,7 @@ void Pos::RandomFilter::fillPar( IOPar& iop ) const
 
 void Pos::RandomFilter::getSummary( uiString& txt ) const
 {
-    txt = tr("Remove %1%").arg((1-passratio_)*100);
+    txt = tr("Select %1%").arg(passratio_*100);
 }
 
 
@@ -337,7 +337,7 @@ void Pos::SubsampFilter::fillPar( IOPar& iop ) const
 
 void Pos::SubsampFilter::getSummary( uiString& txt ) const
 {
-    txt = tr("Pass each %1%2").arg(each_)
+    txt = tr("Select each %1%2").arg(each_)
 				.arg(toUiString(getRankPostFix(each_)));
 }
 

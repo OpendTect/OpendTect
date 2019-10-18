@@ -148,15 +148,21 @@ uiGenPosPicksDlg::uiGenPosPicksDlg( uiParent* p )
 {
     uiPosProvider::Setup psu( false, true, true );
     psu .seltxt( tr("Generate locations by") )
-	.choicetype( uiPosProvider::Setup::All );
+	.choicetype( uiPosProvider::Setup::All )
+	.withrandom( true );
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
     uiPosFilterSet::Setup fsu( false );
-    fsu.seltxt( uiStrings::phrRemove(uiStrings::sLocation(mPlural)) )
+    fsu.seltxt( tr("%1 %2").arg(uiStrings::sLocation())
+		.arg(uiStrings::sFilter(mPlural)) )
 		.incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
+
+    posfiltmodefld_ = new uiGenInput( this, tr("Filter Mode"),
+		BoolInpSpec(false, uiStrings::sKeep(), uiStrings::sRemove()) );
+    posfiltmodefld_->attach( rightOf, posfiltfld_ );
 
     attachStdFlds( true, posfiltfld_ );
 }
@@ -185,7 +191,7 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 
     RefMan<DataPointSet> dps = new DataPointSet( prov->is2D() );
     if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),trprov,filt,
-				false) )
+				posfiltmodefld_->getBoolValue()) )
 	return false;
     usw.readyNow();
 

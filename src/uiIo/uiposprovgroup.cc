@@ -77,7 +77,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 	attobj = zrgfld_->attachObj();
     }
 
-    if ( !su.is2d_ )
+    if ( !su.is2d_ && su.withrandom_ )
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 			BoolInpSpec(true,tr("Random"),tr("Regular")) );
@@ -157,9 +157,11 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Range() );
 
-    iop.setYN( sKey::Random(), samplingfld_->getBoolValue() );
-    if ( samplingfld_->getBoolValue() )
-	iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
+    if ( samplingfld_ ) {
+	iop.setYN( sKey::Random(), samplingfld_->getBoolValue() );
+	if ( samplingfld_->getBoolValue() )
+	    iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
+    }
 
     TrcKeyZSampling cs; getTrcKeyZSampling( cs );
 
@@ -284,6 +286,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     {
 	zrgfld_ = new uiSelZRange( this, true, false, uiString(), su.zdomkey_ );
 	zrgfld_->attach( alignedBelow, attachobj );
+	attachobj = zrgfld_;
     }
 
     inoutfld_ = new uiGenInput( this, tr("Use Positions"),
@@ -291,7 +294,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     inoutfld_->valuechanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
 
     bboxfld_ = new uiPosSubSel( this,
-			uiPosSubSel::Setup(false,su.withz_) );
+			uiPosSubSel::Setup(false,su.withz_).withstep(false) );
 
     inoutfld_->attach( alignedBelow, attachobj );
     bboxfld_->attach( alignedBelow, inoutfld_ );
@@ -428,6 +431,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     pvdsfld_->attach( alignedBelow, typfld_ );
 
     setHAlignObj( typfld_ );
+    mAttachCB( postFinalise(), uiTablePosProvGroup::initGrpCB );
 }
 
 
@@ -451,6 +455,11 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
     typSelCB( 0 );
 }
 
+
+void uiTablePosProvGroup::initGrpCB( CallBacker* )
+{
+    typSelCB(0);
+}
 
 void uiTablePosProvGroup::typSelCB( CallBacker* )
 {

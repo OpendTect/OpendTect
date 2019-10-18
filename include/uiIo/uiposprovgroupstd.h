@@ -123,5 +123,6 @@ protected:
     uiIOObjSel*		pvdsfld_;
 
     void		typSelCB(CallBacker*);
+    void		initGrpCB(CallBacker*);
 
 };

@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
 #include "uiseislinesel.h"
+#include "uigeninput.h"
 #include "od_helpids.h"
 
 using namespace Attrib;
@@ -74,7 +75,8 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     provgrp->attach( leftAlignedBelow, attrgrp );
     uiPosProvider::Setup psu( ads_.is2D(), true, true );
     psu.seltxt( uiStrings::phrSelect(tr("locations by")) )
-       .choicetype( uiPosProvider::Setup::All );
+       .choicetype( uiPosProvider::Setup::All )
+       .withrandom(true);
     posprovfld_ = new uiPosProvider( provgrp, psu );
     posprovfld_->setExtractionDefaults();
 
@@ -82,6 +84,10 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     fsu.seltxt( tr("Location filters") ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( provgrp, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
+
+    posfiltmodefld_ = new uiGenInput( provgrp, tr("Filter Mode"),
+		BoolInpSpec(true, uiStrings::sKeep(), uiStrings::sRemove()) );
+    posfiltmodefld_->attach( alignedBelow, posfiltfld_ );
 
     setDescSet( d );
     postFinalise().notify( mCB(this,uiAttribCrossPlot,initWin) );
@@ -319,7 +325,8 @@ bool uiAttribCrossPlot::acceptOK()
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( prov->is2D() );
-    if ( !dps->extractPositions(*prov,dcds,trprov,filt) )
+    if ( !dps->extractPositions(*prov,dcds,trprov,filt,
+			posfiltmodefld_->getBoolValue()) )
 	return false;
 
     MouseCursorManager::restoreOverride();
