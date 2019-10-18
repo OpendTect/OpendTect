@@ -742,14 +742,6 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    const MultiID mid( targetdesc->getStoredID() );
 	    mDynamicCast( RegularSeisDataPack*, preloadeddatapack,
 						Seis::PLDM().get(mid) );
-	    if ( preloadeddatapack )
-	    {
-		TrcKeyZSampling outtkzs( tkzs );
-		tkzs.getIntersection( preloadeddatapack->sampling(), outtkzs );
-		if ( !tkzs.includes(outtkzs) )
-		    return nullptr;
-	    }
-
 	}
 
 	BufferString defstr;
@@ -835,11 +827,11 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	}
 
 	TrcKeyZSampling posstkzs( tkzs );
-	PtrMan<DescSet> targetdescset =
-		       targetdesc->descSet()->optimizeClone( targetdesc->id() );
 	if ( !targetdesc || !targetdesc->descSet() )
 	    return nullptr;
 
+	PtrMan<DescSet> targetdescset =
+		       targetdesc->descSet()->optimizeClone( targetdesc->id() );
 	const bool haspossvol = aem->getPossibleVolume( *targetdescset,
 					posstkzs, nullptr, targetdesc->id() );
 	if ( !haspossvol )
