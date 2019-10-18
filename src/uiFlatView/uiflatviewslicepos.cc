@@ -23,7 +23,7 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo )
 }
 
 
-static OD::SliceType getOrientation( const TrcKeyZSampling& cs )
+static OD::SliceType getSliceType( const TrcKeyZSampling& cs )
 {
     if ( cs.defaultDir() == TrcKeyZSampling::Crl )
 	return OD::CrosslineSlice;
@@ -36,7 +36,7 @@ static OD::SliceType getOrientation( const TrcKeyZSampling& cs )
 
 void uiSlicePos2DView::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    curorientation_ = getOrientation( cs );
+    curorientation_ = getSliceType( cs );
     curcs_ = cs;
 
     setBoxLabel( curorientation_ );

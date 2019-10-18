@@ -28,10 +28,11 @@ public:
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setLimitSampling(const TrcKeyZSampling&);
 
-    const TrcKeyZSampling& getLimitSampling() const { return limitscs_; };
+    const TrcKeyZSampling& getLimitSampling() const { return limitscs_; }
 
 protected:
 
+    SliceDir		getOrientation() const	{ return curorientation_; }
     void		setBoxRanges();
     void		setPosBoxValue();
     void		setStepBoxValue();

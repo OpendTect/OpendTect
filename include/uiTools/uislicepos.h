@@ -27,7 +27,6 @@ class uiToolButton;
 mExpClass(uiTools) uiSlicePos : public CallBacker
 { mODTextTranslationClass(uiSlicePos);
 public:
-			uiSlicePos(uiParent*);
 			~uiSlicePos();
 
     typedef OD::SliceType SliceDir;
@@ -37,7 +36,7 @@ public:
     TrcKeyZSampling	getTrcKeyZSampling() const	{ return curcs_; }
 
     void		setLabels(const uiString& inl,const uiString& crl,
-							    const uiString& z);
+				  const uiString& z);
     int			getStep(SliceDir) const;
     void		setStep(SliceDir,int step);
     void		setSteps(int inl,int crl,int z);
@@ -45,6 +44,7 @@ public:
     Notifier<uiSlicePos> positionChg;
 
 protected:
+			uiSlicePos(uiParent*);
 
     uiToolBar*		toolbar_;
     uiLabel*		label_;
@@ -57,6 +57,7 @@ protected:
     TrcKeyZSampling	curcs_;
     uiStringSet		boxlabels_;
 
+    virtual SliceDir	getOrientation() const		=0;
     void		setBoxLabel(SliceDir);
     virtual void	setBoxRanges()			=0;
     virtual void	setPosBoxValue()		=0;

@@ -188,6 +188,8 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
 	stepbox->setInterval( survcs.hsamp_.step_.inl(),
 		curcs.hsamp_.stop_.inl()-curcs.hsamp_.start_.inl(),
 		curcs.hsamp_.step_.inl() );
+	posbox->setNrDecimals( 0 );
+	stepbox->setNrDecimals( 0 );
     }
     else if ( orientation == OD::CrosslineSlice )
     {
@@ -196,14 +198,19 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
 	stepbox->setInterval( survcs.hsamp_.step_.crl(),
 		curcs.hsamp_.stop_.crl()-curcs.hsamp_.start_.crl(),
 		curcs.hsamp_.step_.crl() );
+	posbox->setNrDecimals( 0 );
+	stepbox->setNrDecimals( 0 );
     }
     else
     {
 	const int zfac = zfactor_;
+	const int nrdec = Math::NrSignificantDecimals( curcs.zsamp_.step*zfac );
 	posbox->setInterval( curcs.zsamp_.start*zfac, curcs.zsamp_.stop*zfac);
 	stepbox->setInterval( survcs.zsamp_.step*zfac,
 		(curcs.zsamp_.stop-curcs.zsamp_.start)*zfac,
 		curcs.zsamp_.step*zfac );
+	posbox->setNrDecimals( nrdec );
+	stepbox->setNrDecimals( nrdec );
     }
 }
 
@@ -227,7 +234,12 @@ void uiSlicePos::prevCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
+
+    OD::SliceType type = getOrientation();
+    if ( type == OD::InlineSlice || type == OD::CrosslineSlice )
+	posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
+    else
+	posbox->setValue( posbox->getValue()-stepbox->getValue() );
 }
 
 
@@ -235,5 +247,10 @@ void uiSlicePos::nextCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
+
+    OD::SliceType type = getOrientation();
+    if ( type == OD::InlineSlice || type == OD::CrosslineSlice )
+	posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
+    else
+	posbox->setValue( posbox->getValue()+stepbox->getValue() );
 }

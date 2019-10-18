@@ -50,8 +50,8 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
 	prevso->getMovementNotifier()->remove( movecb );
 	prevso->getManipulationNotifier()->remove( manipcb );
     }
-    if ( curpdd_ ) { curpdd_->unRef(); curpdd_ = 0; }
-    if ( curvol_ ) { curvol_->unRef(); curvol_ = 0; }
+    if ( curpdd_ ) { curpdd_->unRef(); curpdd_ = nullptr; }
+    if ( curvol_ ) { curvol_->unRef(); curvol_ = nullptr; }
 
     mDynamicCastGet(Object*,so,vispartserv_->getObject(dispid));
     mDynamicCastGet(Plane*,pdd,so);
@@ -105,7 +105,7 @@ void uiSlicePos3DDisp::setBoxRanges()
     if ( orient == OD::ZSlice )
     {
 	SamplingData<float> sd( sliceposbox_->getFValue() / zfactor_,
-			        slicestepbox_->getFValue() / zfactor_ );
+				slicestepbox_->getFValue() / zfactor_ );
 	if ( !mIsZero(sd.step,1e-6f) )
 	{
 	    auto& zsamp = curcs.zsamp_;
@@ -157,7 +157,7 @@ void uiSlicePos3DDisp::setStepBoxValue()
 
     const uiSlicePos::SliceDir orientation = getOrientation();
     slicestepbox_->setValue( laststeps_[(int)orientation] );
-    sliceStepChg( 0 );
+    sliceStepChg( nullptr );
 }
 
 
@@ -181,7 +181,8 @@ void uiSlicePos3DDisp::sliceStepChg( CallBacker* )
 OD::SliceType uiSlicePos3DDisp::getOrientation() const
 {
     if ( curpdd_ )
-	return (uiSlicePos::SliceDir) curpdd_->getOrientation();
+	return curpdd_->getOrientation();
+
     else if ( curvol_ && curvol_->getSelectedSlice() )
     {
 	const int dim = curvol_->getSelectedSlice()->getDim();
