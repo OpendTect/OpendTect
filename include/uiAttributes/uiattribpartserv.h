@@ -189,6 +189,9 @@ public:
 
     void		setSelAttr(const char* attrnm);
     void		loadDefaultAttrSet(const char* attribsetnm);
+    void		needSaveNLAps(CallBacker*);
+
+    Notifier<uiAttribPartServer>	needSaveNLA;
 
 protected:
 

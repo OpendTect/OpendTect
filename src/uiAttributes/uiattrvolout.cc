@@ -65,6 +65,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     , todofld_(0)
     , attrselfld_(0)
     , datastorefld_(0)
+    , needSaveNLA(this)
 {
     const bool is2d = ad.is2D();
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
@@ -408,7 +409,11 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     {
 	if ( !nlaid_ || !(*nlaid_) )
 	{
-	    uiMSG().message(tr("NN needs to be stored before creating volume"));
+	    needSaveNLA.trigger();
+	    //check if we have retrieved the newly saved DBKey
+	    if ( !nlaid_ || !(*nlaid_) )
+		uiMSG().message(
+			tr("NN needs to be stored before creating volume"));
 	    return 0;
 	}
 	addNLA( nlamodel_id );

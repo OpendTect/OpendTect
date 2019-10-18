@@ -116,7 +116,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 			uiODApplMgrAttrVisHandler( uiODApplMgr& a, uiParent* p )
 			    : am_(a), par_(p)		{}
     void		survChg(bool);
-
+    void		saveNLA(CallBacker*);
     bool		editNLA(bool);
     void		createHorOutput(int,bool);
     void		createVol(bool is2d,bool multiattrib);

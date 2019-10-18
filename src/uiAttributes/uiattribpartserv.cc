@@ -103,6 +103,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , attrsneedupdt_(true)
     , manattribset2ddlg_(0)
     , manattribsetdlg_(0)
+    , needSaveNLA(this)
     , impattrsetdlg_(0)
     , volattrdlg_(0)
     , multiattrdlg_(0)
@@ -606,12 +607,23 @@ void uiAttribPartServer::saveSet( bool is2d )
 #define mAttrProcDlg( dlgobj ) \
     { \
 	if ( !dlgobj ) \
+	{\
 	    dlgobj = new uiAttrVolOut( parent(), *dset, multiattrib, \
 					   getNLAModel(is2d), nlaid ); \
+	    mAttachCB(dlgobj->needSaveNLA,uiAttribPartServer::needSaveNLAps); \
+	} \
 	else \
 	    dlgobj->updateAttributes(*dset,getNLAModel(is2d),nlaid ); \
 	dlgobj->show(); \
     }
+
+
+void uiAttribPartServer::needSaveNLAps( CallBacker* )
+{
+    needSaveNLA.trigger();
+}
+
+
 
 void uiAttribPartServer::outputVol( const MultiID& nlaid, bool is2d,
 				    bool multiattrib )

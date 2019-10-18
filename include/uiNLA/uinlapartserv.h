@@ -59,6 +59,8 @@ public:
 
     static int		evPrepareWrite();
     			//!< need to fill modelPars()
+    static int		evConfirmWrite();
+			//!< need to send store confirmatoin & DBKeys of model
     static int		evPrepareRead();
     			//!< is FYI
     static int		evReadFinished();
@@ -91,6 +93,8 @@ public:
 
     virtual bool	fillPar(IOPar&) const		= 0;
     virtual void	usePar(const IOPar&)		= 0;
+    virtual void	doStore()			= 0;
+
 
     void		getDataPointSets(ObjectSet<DataPointSet>&) const;
     uiString		prepareInputData(ObjectSet<DataPointSet>&);

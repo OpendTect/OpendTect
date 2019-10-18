@@ -104,6 +104,7 @@ public:
     void			editAttribSet();
     void			editAttribSet(bool is2d);
     bool			editNLA(bool is2d);
+    void			saveNN();
     void			createVol(bool is2d,bool multiattrib);
     void			createVolProcOutput(bool);
     void			doWellXPlot(CallBacker* =0);

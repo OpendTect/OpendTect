@@ -71,6 +71,14 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 }
 
 
+void uiODApplMgrAttrVisHandler::saveNLA(CallBacker*)
+{
+    if ( am_.nlaserv_ )
+	am_.nlaserv_->doStore();
+}
+
+
+
 void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 {
     MultiID nlaid;
@@ -80,6 +88,7 @@ void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 	nlaid = am_.nlaserv_->modelId();
     }
     am_.attrserv_->outputVol( nlaid, is2d, multiattrib );
+    mAttachCB( am_.attrserv_->needSaveNLA,uiODApplMgrAttrVisHandler::saveNLA );
 }
 
 

@@ -1565,6 +1565,11 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	(cleanads ? cleanads : ads)->fillPar( iopar );
 	delete cleanads;
     }
+    else if ( evid == uiNLAPartServer::evConfirmWrite() )
+    {
+	MultiID nlaid = nlaserv_->modelId();
+	attrserv_->outputVol( nlaid, nlaserv_->is2DEvent(), false );
+    }
     else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());

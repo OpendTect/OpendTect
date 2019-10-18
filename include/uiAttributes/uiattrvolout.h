@@ -47,6 +47,7 @@ public:
 
     static const char*  sKeyMaxCrlRg();
     static const char*  sKeyMaxInlRg();
+    Notifier<uiAttrVolOut>	needSaveNLA;
     void		updateAttributes(const Attrib::DescSet& descst,
 					 const NLAModel* nlamodel,
 					 const MultiID& nlaid);

@@ -53,6 +53,7 @@ int uiNLAPartServer::evGetData()		{ return 5; }
 int uiNLAPartServer::evSaveMisclass()		{ return 6; }
 int uiNLAPartServer::evCreateAttrSet()		{ return 7; }
 int uiNLAPartServer::evCr2DRandomSet()		{ return 8; }
+int uiNLAPartServer::evConfirmWrite()		{ return 9; }
 uiString uiNLAPartServer::sKeyUsrCancel()	{ return tr("User cancel");  }
 
 #define mDPM DPM(DataPackMgr::PointID())
