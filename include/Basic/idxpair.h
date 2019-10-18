@@ -14,23 +14,23 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 
-typedef Twins<Index_Type> Index_Type_Twins;
+typedef Twins<Index_Type> Index_Type_Pair;
 typedef IdxPair IdxPairDelta;
 typedef IdxPair IdxPairStep;
 
 
 /*!\brief A pair of numbers; base class for BinID et al. */
 
-mExpClass(Basic) IdxPair : public Index_Type_Twins
+mExpClass(Basic) IdxPair : public Index_Type_Pair
 {
 public:
 
     typedef Index_Type		pos_type;
     typedef int			idx_type;
 
-				IdxPair() : Index_Type_Twins(0,0)	{}
+				IdxPair() : Index_Type_Pair(0,0)	{}
 				IdxPair( pos_type f, pos_type s )
-				    : Index_Type_Twins(f,s)		{}
+				    : Index_Type_Pair(f,s)		{}
 				mImplSimpleEqOpers2Memb(IdxPair,first,second)
 
     bool			isUdf() const	{ return *this == udf(); }
