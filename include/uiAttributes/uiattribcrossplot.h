@@ -25,6 +25,7 @@ class uiPosProvider;
 class uiPosFilterSetSel;
 class uiSeis2DLineNameSel;
 class uiListBox;
+class uiGenInput;
 namespace Attrib { class DescSet; class SelInfo; }
 
 
@@ -53,6 +54,7 @@ protected:
     uiListBox*			attrsfld_;
     uiPosProvider*		posprovfld_;
     uiPosFilterSetSel*		posfiltfld_;
+    uiGenInput*			posfiltmodefld_;
     uiListBox*			lnmfld_;
     DataPointSet*		curdps_;
     DataPointSetDisplayMgr*	dpsdispmgr_;

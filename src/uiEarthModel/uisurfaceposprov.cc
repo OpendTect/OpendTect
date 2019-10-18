@@ -77,7 +77,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	    extrazfld_->attach( alignedBelow, surf2fld_ );
     }
 
-    if ( !su.is2d_ )
+    if ( !su.is2d_ && su.withrandom_ )
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 				BoolInpSpec(true,tr("Random"),tr("Regular")) );

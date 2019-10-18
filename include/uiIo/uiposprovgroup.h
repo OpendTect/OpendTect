@@ -29,6 +29,7 @@ public:
 			    , withstep_(with_step)
 			    , withz_(with_z)
 			    , tkzs_(!is_2d)
+			    , withrandom_(false)
 			 { if ( is_2d ) tkzs_.set2DDef(); }
 
 	virtual	~Setup()				{}
@@ -38,6 +39,7 @@ public:
 	mDefSetupMemb(TrcKeyZSampling,tkzs)
 	mDefSetupMemb(TypeSet< StepInterval<int> >,trcrgs)
 	mDefSetupMemb(TypeSet< StepInterval<float> >,zrgs)
+	mDefSetupMemb(bool,withrandom)
     };
 
 			uiPosProvGroup(uiParent*,const Setup&);

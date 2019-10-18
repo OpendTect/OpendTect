@@ -258,8 +258,6 @@ int nextStep()
 				f2d_->includes(dr_.pos_.bin2D(),dr_.pos_.z()) )
 		return MoreToDo();
 	}
-	if ( filt_->hasZAdjustment() )
-	    dr_.pos_.setZ( filt_->adjustedZ(crd,(float)dr_.pos_.z()) );
     }
 
     dps_.addRow( dr_ );
