@@ -11,7 +11,7 @@ ________________________________________________________________________
 */
 
 #include "commondefs.h"
-#include <utility>
+#include <tuple>
 
 class IOPar;
 class Color;
@@ -71,10 +71,17 @@ typedef Survey::GeometryManager			SurvGM;
 
 
 template <typename T> using Twins = std::pair<T,T>;
-typedef Twins<int>	int_pair;
-typedef Twins<od_int64>	int64_pair;
-typedef Twins<float>	float_pair;
-typedef Twins<double>	double_pair;
+typedef Twins<int>		int_pair;
+typedef Twins<od_int64>		int64_pair;
+typedef Twins<float>		float_pair;
+typedef Twins<double>		double_pair;
+
+template <typename T> using Triplets = std::tuple<T,T,T>;
+typedef Triplets<int>		int_triplet;
+typedef Triplets<od_int64>	int64_triplet;
+typedef Triplets<float>		float_triplet;
+typedef Triplets<double>	double_triplet;
+
 
 class IJPos
 {

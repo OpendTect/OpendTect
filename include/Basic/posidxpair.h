@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Pos
 {
 
-typedef ::Index_Type_Twins Index_Type_Twins;
+typedef ::Index_Type_Pair Index_Type_Pair;
 typedef IdxPair IdxPairDelta;
 typedef IdxPair IdxPairStep;
 
