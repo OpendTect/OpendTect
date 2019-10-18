@@ -267,7 +267,9 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( mIsUdf(real) )
 		real = idy>0 ? myself->signal_->get(idy-1).real() : 0;
 
-	    const float imag = getInputValue(*imdata_, imagidx_, tempsamp, z0);
+	    float imag = getInputValue( *imdata_, imagidx_, tempsamp, z0 );
+	    if ( mIsUdf(imag) )
+		imag = idy>0 ? myself->signal_->get(idy-1).imag() : 0;
 
 	    myself->signal_->set( idy, float_complex(real,imag) );
 	    tempsamp++;
