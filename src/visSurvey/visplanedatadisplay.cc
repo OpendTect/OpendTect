@@ -982,7 +982,7 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 
 	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
 	const int nrdec = Math::NrSignificantDecimals( userval );
-	info.add( userval, nrdec );
+	info.add( val*zdinf.userFactor(), nrdec );
     }
 }
 
