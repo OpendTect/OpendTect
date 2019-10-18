@@ -78,7 +78,8 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     provgrp->attach( leftAlignedBelow, attrgrp );
     uiPosProvider::Setup psu( ads_.is2D(), true, true );
     psu.seltxt( uiStrings::phrSelect(tr("locations by")) )
-       .choicetype( uiPosProvider::Setup::All );
+       .choicetype( uiPosProvider::Setup::All )
+       .withrandom(true);
     posprovfld_ = new uiPosProvider( provgrp, psu );
     posprovfld_->setExtractionDefaults();
 

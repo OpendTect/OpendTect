@@ -225,6 +225,10 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 	cs.hsamp_.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
     if ( zrgfld_ )
 	cs.zsamp_ = zrgfld_->getRange();
+    if ( hasRandomSampling() ) {
+	cs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
+	cs.zsamp_.step = SI().sampling(true).zsamp_.step;
+    }
 }
 
 
