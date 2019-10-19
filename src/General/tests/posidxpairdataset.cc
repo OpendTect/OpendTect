@@ -110,7 +110,7 @@ static bool chckDs( Pos::IdxPairDataSet& ds, bool isrem, const char* msg )
     while ( ds.next(spos) )
     {
 	const TstObj* obj = static_cast<const TstObj*>( ds.get(spos,ip) );
-	tstStream() << ip.first << '/' << ip.second
+	tstStream() << ip.first() << '/' << ip.second()
 	    << "=> [" << obj->fidx_ << "," << obj->sidx_ << ']' << od_endl;
 
 	if ( nr != 0 && !havedup && previp == ip )
@@ -142,15 +142,15 @@ static bool checkContents( Pos::IdxPairDataSet& ds )
     while ( ds.next(spos) )
     {
 	ip = ds.getIdxPair( spos );
-	if ( ip.second == crltorem )
+	if ( ip.second() == crltorem )
 	{
 	    spostorem = spos;
 	    iptorem = ip;
 	}
     }
 
-    if ( !chckDs(ds,false,BufferString( "** Before remove ", iptorem.first,
-				BufferString("/",iptorem.second)) ) )
+    if ( !chckDs(ds,false,BufferString( "** Before remove ", iptorem.first(),
+				BufferString("/",iptorem.second())) ) )
 	return false;
     ds.remove( spostorem );
     if ( !chckDs(ds, true, "** After remove:") )

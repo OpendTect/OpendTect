@@ -182,9 +182,9 @@ protected:
     GeomSystem		geomsystem_;
 
     inline static BinID	mkBinID( const Pos::IdxPair& ip )
-			{ return BinID( ip.first, ip.second ); }
+			{ return BinID( ip.first(), ip.second() ); }
     inline static Bin2D	mkBin2D( const Pos::IdxPair& ip )
-			{ return Bin2D( GeomID(ip.first), ip.second ); }
+			{ return Bin2D( GeomID(ip.first()), ip.second() ); }
 
 public:
 

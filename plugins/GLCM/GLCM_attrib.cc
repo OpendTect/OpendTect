@@ -1460,7 +1460,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-double_pair GLCM_attrib::computeMu( Node* LinkedList, int elements ) const
+double_twins GLCM_attrib::computeMu( Node* LinkedList, int elements ) const
 {
     double MuX = 0.0;
     double MuY = 0.0;
@@ -1474,10 +1474,10 @@ double_pair GLCM_attrib::computeMu( Node* LinkedList, int elements ) const
 	MuY += (j+1) * mval;
 	values = values->next;
     }
-    return std::make_pair(MuX, MuY);
+    return double_twins( MuX, MuY );
 }
 
-double_pair GLCM_attrib::computeSigma( Node* LinkedList, int elements,
+double_twins GLCM_attrib::computeSigma( Node* LinkedList, int elements,
 					 double MuX, double MuY ) const
 {
     double SigmaX = 0.0;
@@ -1491,7 +1491,7 @@ double_pair GLCM_attrib::computeSigma( Node* LinkedList, int elements,
 	SigmaY += mval * pow(double (1-MuY),2);
 	values = values->next;
     }
-    return std::make_pair(SigmaX, SigmaY);
+    return double_twins( SigmaX, SigmaY );
 }
 
 
@@ -1728,10 +1728,10 @@ double GLCM_attrib::computeContrast( Node* LinkedList,
 double GLCM_attrib::computeCorrelation( Node* LinkedList,
 					int elements ) const
 {
-    double_pair Mu(0.0, 0.0);
+    double_twins Mu(0.0, 0.0);
     Mu = computeMu(LinkedList, elements);
-    double_pair Sigma(0.0, 0.0);
-    Sigma = computeSigma(LinkedList, elements, Mu.first, Mu.second);
+    double_twins Sigma(0.0, 0.0);
+    Sigma = computeSigma(LinkedList, elements, Mu.first(), Mu.second());
 
     double trcval = 0;
     Node* values = LinkedList;
@@ -1742,7 +1742,7 @@ double GLCM_attrib::computeCorrelation( Node* LinkedList,
 	int j = values->nodeJ;
 	double mval = values->numbercoocurrence / mCast(double,elements);
 	trcval += ( mCast(double,i+1) * mCast(double,j+1) * mval
-			- Mu.first*Mu.second ) / (Sigma.first*Sigma.second);
+		    - Mu.first()*Mu.second() ) / (Sigma.first()*Sigma.second());
 	values = values->next;
     }
     return trcval;
@@ -1969,7 +1969,7 @@ double GLCM_attrib::computeMaximumProbability( Node* LinkedList,
 double GLCM_attrib::computeClusterTendency( Node* LinkedList,
 					    int elements ) const
 {
-    double_pair Mu( 0.0, 0.0 );
+    double_twins Mu( 0.0, 0.0 );
     Mu = computeMu(LinkedList, elements);
 
     double trcval = 0;
@@ -1981,7 +1981,7 @@ double GLCM_attrib::computeClusterTendency( Node* LinkedList,
 	int j = values->nodeJ;
 	double mval = values->numbercoocurrence /
 			static_cast<double>(elements);
-	trcval += mval * pow(double (i+j+2-Mu.first-Mu.second),2);
+	trcval += mval * pow(double (i+j+2-Mu.first()-Mu.second()),2);
 	values = values->next;
     }
     return trcval;
@@ -1990,7 +1990,7 @@ double GLCM_attrib::computeClusterTendency( Node* LinkedList,
 
 double GLCM_attrib::computeClusterShade( Node* LinkedList, int elements ) const
 {
-    double_pair Mu(0.0, 0.0);
+    double_twins Mu(0.0, 0.0);
     Mu = computeMu( LinkedList, elements );
 
     double trcval = 0;
@@ -2001,7 +2001,7 @@ double GLCM_attrib::computeClusterShade( Node* LinkedList, int elements ) const
 	int i = values->nodeI;
 	int j = values->nodeJ;
 	double mval = values->numbercoocurrence / static_cast<double>(elements);
-	trcval += mval * pow(double (i+j+2-Mu.first-Mu.second),3);
+	trcval += mval * pow(double (i+j+2-Mu.first()-Mu.second()),3);
 	values = values->next;
     }
     return trcval;
@@ -2011,7 +2011,7 @@ double GLCM_attrib::computeClusterShade( Node* LinkedList, int elements ) const
 double GLCM_attrib::computeClusterProminence( Node* LinkedList,
 					      int elements ) const
 {
-    double_pair Mu( 0.0, 0.0 );
+    double_twins Mu( 0.0, 0.0 );
     Mu = computeMu( LinkedList, elements );
 
     double trcval = 0;
@@ -2022,7 +2022,7 @@ double GLCM_attrib::computeClusterProminence( Node* LinkedList,
 	int i = values->nodeI;
 	int j = values->nodeJ;
 	double mval = values->numbercoocurrence / static_cast<double>(elements);
-	trcval += mval*pow(double (i+j+2-Mu.first-Mu.second),4);
+	trcval += mval*pow(double (i+j+2-Mu.first()-Mu.second()),4);
 	values = values->next;
     }
     return trcval;

@@ -26,10 +26,10 @@ char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 Interval<float> A2DBitMapInpData::scale( const A2DBitMapClips& clipratio ) const
 {
     Interval<float> res;
-    if ( mIsUdf(clipratio.second) )
-	clipper_.getRange( clipratio.first, res );
+    if ( mIsUdf(clipratio.second()) )
+	clipper_.getRange( clipratio.first(), res );
     else
-	clipper_.getRange( clipratio.first, clipratio.second, res );
+	clipper_.getRange( clipratio.first(), clipratio.second(), res );
     return res;
 }
 

@@ -59,12 +59,14 @@ public: \
     inline	clss( typ iidx, typ xidx ) \
 			: Twins<typ>(iidx,xidx)		{} \
     inline bool	operator ==( const clss& oth ) const \
-		{ return first == oth.first && second == oth.second; } \
+		{ return first() == oth.first() && second() == oth.second(); } \
+    inline bool	operator <( const clss& oth ) const \
+		{ return pair() < oth.pair(); } \
 \
-    inline typ	inl() const	{ return first; } \
-    inline typ&	inl()		{ return first; } \
-    inline typ	crl() const	{ return second; } \
-    inline typ&	crl()		{ return second; } \
+    inline typ	inl() const	{ return first(); } \
+    inline typ&	inl()		{ return first(); } \
+    inline typ	crl() const	{ return second(); } \
+    inline typ&	crl()		{ return second(); } \
 }
 
 mDefSeisBlocksPairClass(HGlobIdx,idx_type);
@@ -72,25 +74,27 @@ mDefSeisBlocksPairClass(HLocIdx,idx_type);
 mDefSeisBlocksPairClass(HDimensions,size_type);
 
 #define mDefSeisBlocksTripletClass(clss,typ) \
-mExpClass(Seis) clss : public H##clss \
+mExpClass(Seis) clss : public Triplets<typ> \
 { \
 public: \
  \
-    inline		clss() : third(0)			{} \
+    inline		clss()			{} \
     inline		clss( typ iidx, typ xidx, typ zidx ) \
-			    : H##clss(iidx,xidx), third(zidx)	{} \
+			    : Triplets<typ>(iidx,xidx,zidx)	{} \
     inline bool		operator ==( const clss& oth ) const \
-			{ return H##clss::operator==(oth) \
-			      && third == oth.third; } \
+			{ return Triplets<typ>::operator==(oth); } \
     inline clss&	set( const H##clss& oth ) \
-			{ first=oth.first; second=oth.second; return *this; } \
+			{ first()=oth.first(); second()=oth.second(); \
+			    return *this; } \
     inline clss&	set( const clss& oth ) \
 			{ *this = oth; return *this; } \
  \
-    inline typ		z() const	{ return third; } \
-    inline typ&		z()		{ return third; } \
- \
-    typ			third; \
+    inline typ		inl() const	{ return first(); } \
+    inline typ&		inl()		{ return first(); } \
+    inline typ		crl() const	{ return second(); } \
+    inline typ&		crl()		{ return second(); } \
+    inline typ		z() const	{ return third(); } \
+    inline typ&		z()		{ return third(); } \
  \
 }
 

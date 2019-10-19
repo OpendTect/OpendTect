@@ -796,33 +796,33 @@ static void getNearestIdx( Pos::Index_Type& diridx, Pos::Index_Type step_ )
 
 BinID TrcKeySampling::getNearest( const BinID& bid ) const
 {
-    BinID relbid( bid.first - start_.first,
-		  bid.second - start_.second );
+    BinID relbid( bid.first() - start_.first(),
+		  bid.second() - start_.second() );
 
     BinID ret( 0, 0 );
 
     if ( is3D() )
     {
-	if ( step_.first )
-	    getNearestIdx( relbid.first, step_.first );
+	if ( step_.first() )
+	    getNearestIdx( relbid.first(), step_.first() );
 
-	ret.first = start_.first + relbid.first;
+	ret.first() = start_.first() + relbid.first();
 
-	if ( ret.first < start_.first )
-	    ret.first = start_.first;
-	else if ( ret.first > stop_.first )
-	    ret.first = stop_.first;
+	if ( ret.first() < start_.first() )
+	    ret.first() = start_.first();
+	else if ( ret.first() > stop_.first() )
+	    ret.first() = stop_.first();
     }
 
-    if ( step_.second )
-	getNearestIdx( relbid.second, step_.second );
+    if ( step_.second() )
+	getNearestIdx( relbid.second(), step_.second() );
 
-    ret.second = start_.second + relbid.second;
+    ret.second() = start_.second() + relbid.second();
 
-    if ( ret.second < start_.second )
-	ret.second = start_.second;
-    else if ( ret.second > stop_.second )
-	ret.second = stop_.second;
+    if ( ret.second() < start_.second() )
+	ret.second() = start_.second();
+    else if ( ret.second() > stop_.second() )
+	ret.second() = stop_.second();
 
     return ret;
 }

@@ -646,7 +646,7 @@ float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
 {
     mGetCoordVal(cv,crdvals,idx);
 
-    float val = (float) scaler.scale( cv.second );
+    float val = (float)scaler.scale( cv.second );
     if ( mIsUdf(val) ) return mUdf(float);
 
     if ( val < 0 ) val = 0;

@@ -146,9 +146,9 @@ void putToScreen()
     ColTab::ClipRatePair clipperc( setup().clipRate() );
     ColTab::convToPerc( clipperc );
     if ( dispbothclips_ )
-	clipfld_->setValues( clipperc.first, clipperc.second );
+	clipfld_->setValues( clipperc.first(), clipperc.second() );
     else
-	clipfld_->setValue( (clipperc.first+clipperc.second) * 0.5 );
+	clipfld_->setValue( (clipperc.first()+clipperc.second()) * 0.5 );
 
     int nrsegs = setup().nrSegs();
     const bool havesegs = nrsegs > 0;
@@ -173,11 +173,11 @@ void getFromScreen()
     {
 	newms->setNotFixed();
 	ColTab::ClipRatePair cliprate;
-	cliprate.first = fabs( clipfld_->getFValue(0) * 0.01f );
+	cliprate.first() = fabs( clipfld_->getFValue(0) * 0.01f );
 	if ( dispbothclips_ )
-	    cliprate.second = fabs( clipfld_->getFValue(1) * 0.01f );
+	    cliprate.second() = fabs( clipfld_->getFValue(1) * 0.01f );
 	else
-	    cliprate.second = cliprate.first;
+	    cliprate.second() = cliprate.first();
 	newms->setClipRate( cliprate );
     }
 

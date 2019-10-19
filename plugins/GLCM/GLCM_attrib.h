@@ -99,9 +99,9 @@ private:
     PosAndSteeridx		posandsteeridx_;
 
     int				computeGreyLevel(float) const;
-    double_pair			computeMu(Node* LinkedList,
+    double_twins		computeMu(Node* LinkedList,
 					  int elements) const;
-    double_pair			computeSigma(Node* LinkedList,
+    double_twins		computeSigma(Node* LinkedList,
 					     int elements,double MuX,
 					     double MuY) const;
     double			computeMean(Node* LinkedList,

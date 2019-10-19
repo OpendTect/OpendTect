@@ -208,7 +208,7 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     ColTab::ClipRatePair cliprate = msu.clipRate();
     if ( msu.isFixed() )
 	useclipfld_->setValue( 0 );
-    else if ( cliprate.first == cliprate.second )
+    else if ( cliprate.first() == cliprate.second() )
 	useclipfld_->setValue( 1 );
     else
 	useclipfld_->setValue( 2 );
@@ -218,9 +218,9 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     if ( !useclipfld_->getIntValue() )
 	rgfld_->setValue( vwr_.getDataRange(wva) );
 
-    symclipratiofld_->setValue( cliprate.first * 100.f );
-    assymclipratiofld_->setValue( cliprate.first * 100.f, 0 );
-    assymclipratiofld_->setValue( cliprate.second * 100.f, 1 );
+    symclipratiofld_->setValue( cliprate.first() * 100.f );
+    assymclipratiofld_->setValue( cliprate.first() * 100.f, 0 );
+    assymclipratiofld_->setValue( cliprate.second() * 100.f, 1 );
 
     if ( blockyfld_ )
 	blockyfld_->setValue( pars.blocky_ );
@@ -272,8 +272,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     {
 	msu->setNotFixed();
 	ColTab::ClipRatePair clips;
-	clips.first = assymclipratiofld_->getFValue(0) * 0.01f;
-	clips.second = assymclipratiofld_->getFValue(1) * 0.01f;
+	clips.first() = assymclipratiofld_->getFValue(0) * 0.01f;
+	clips.second() = assymclipratiofld_->getFValue(1) * 0.01f;
 	msu->setClipRate( clips );
     }
 

@@ -160,23 +160,24 @@ inline T& getNonConst( const T& t )
     inline bool operator !=( const clss& oth ) const { return !(*this==oth); }
 
 #define mImplSimpleEqOpers1Memb(clss,memb) \
-    inline bool operator ==( const clss& oth ) const { return memb==oth.memb; }\
+    inline bool operator ==( const clss& oth ) const { return this->memb==oth.memb; }\
     mImplSimpleIneqOper( clss )
 
 #define mImplSimpleEqOpers2Memb(clss,memb1,memb2) \
     inline bool operator ==( const clss& oth ) const \
-    { return memb1 == oth.memb1 && memb2 == oth.memb2; } \
+    { return this->memb1 == oth.memb1 && this->memb2 == oth.memb2; } \
     mImplSimpleIneqOper( clss )
 
 #define mImplSimpleEqOpers3Memb(clss,memb1,memb2,memb3) \
     inline bool operator ==( const clss& oth ) const \
-    { return memb1 == oth.memb1 && memb2 == oth.memb2 && memb3 == oth.memb3; } \
+    { return this->memb1 == oth.memb1 && this->memb2 == oth.memb2 \
+	  && this->memb3 == oth.memb3; } \
     mImplSimpleIneqOper( clss )
 
 #define mImplSimpleEqOpers4Memb(clss,memb1,memb2,memb3,memb4) \
     inline bool operator ==( const clss& oth ) const \
-    { return memb1 == oth.memb1 && memb2 == oth.memb2 \
-	  && memb3 == oth.memb3 && memb4 == oth.memb4; } \
+    { return this->memb1 == oth.memb1 && this->memb2 == oth.memb2 \
+	  && this->memb3 == oth.memb3 && this->memb4 == oth.memb4; } \
     mImplSimpleIneqOper( clss )
 
 

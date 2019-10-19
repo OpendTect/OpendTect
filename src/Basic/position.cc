@@ -51,9 +51,9 @@ const char* IdxPair::getUsrStr( const char* prefx, const char* sep,
     {
 	ret.set( prefx );
 	if ( only2nd )
-	    ret.add( second );
+	    ret.add( second() );
 	else
-	    ret.add( first ).add( sep ).add( second );
+	    ret.add( first() ).add( sep ).add( second() );
 	ret.add( postfx );
     }
     return ret.buf();
@@ -85,9 +85,9 @@ bool IdxPair::parseUsrStr( const char* str, const char* prefx,
     if ( ptrpost )
 	*ptrpost = 0;
 
-    second = toInt( ptr2nd );
+    second() = toInt( ptr2nd );
     if ( ptr1st != ptr2nd )
-	first = toInt( ptr1st );
+	first() = toInt( ptr1st );
     return true;
 }
 
@@ -100,8 +100,8 @@ const Pos::IdxPair& Pos::IdxPair::udf()
 
 od_int64 Pos::IdxPair::sqDistTo( const Pos::IdxPair& oth ) const
 {
-    od_int64 sqfrst = (first-oth.first); sqfrst *= sqfrst;
-    od_int64 sqsec = (second-oth.second); sqsec *= sqsec;
+    od_int64 sqfrst = (first()-oth.first()); sqfrst *= sqfrst;
+    od_int64 sqsec = (second()-oth.second()); sqsec *= sqsec;
     return sqfrst + sqsec;
 }
 
@@ -517,14 +517,14 @@ Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
     if ( mIsUdf(fip.x_) || mIsUdf(fip.y_) )
 	return IdxPair::udf();
 
-    Coord frelip( fip.x_ - start.first, fip.y_ - start.second );
-    if ( step.first && step.second )
-	{ frelip.x_ /= step.first; frelip.y_ /= step.second; }
+    Coord frelip( fip.x_ - start.first(), fip.y_ - start.second() );
+    if ( step.first() && step.second() )
+	{ frelip.x_ /= step.first(); frelip.y_ /= step.second(); }
 
     const IdxPair relip( mRounded(pos_type,frelip.x_),
 			 mRounded(pos_type,frelip.y_) );
-    return IdxPair( start.first + relip.first * step.first,
-		    start.second + relip.second * step.second );
+    return IdxPair( start.first() + relip.first() * step.first(),
+		    start.second() + relip.second() * step.second() );
 }
 
 

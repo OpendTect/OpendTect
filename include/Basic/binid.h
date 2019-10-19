@@ -63,9 +63,9 @@ inline BinID BinID::operator+( const IdxPair& bid ) const
 inline BinID BinID::operator-( const IdxPair& bid ) const
 	{ return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
 inline BinID BinID::operator*( const IdxPair& ip ) const
-	{ return BinID( first*ip.first, second*ip.second ); }
+	{ return BinID( first()*ip.first(), second()*ip.second() ); }
 inline BinID BinID::operator/( const IdxPair& ip ) const
-	{ return BinID( first/ip.first, second/ip.second ); }
+	{ return BinID( first()/ip.first(), second()/ip.second() ); }
 inline BinID BinID::operator*( int fac ) const
 	{ return BinID( inl()*fac, crl()*fac ); }
 inline BinID BinID::operator/( int fac ) const
@@ -77,7 +77,7 @@ inline BinID BinID::operator-() const
 inline BinID BinID::fromInt64( od_int64 i64 )
 {
     IdxPair p( IdxPair::fromInt64(i64) );
-    return BinID( p.first, p.second );
+    return BinID( p.first(), p.second() );
 }
 
 

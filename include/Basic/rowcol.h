@@ -87,7 +87,7 @@ inline RowCol::RowCol( const Pos::IdxPair& p )
 inline RowCol RowCol::fromInt64( od_int64 i64 )
 {
     Pos::IdxPair p( Pos::IdxPair::fromInt64(i64) );
-    return RowCol( p.first, p.second );
+    return RowCol( p.first(), p.second() );
 }
 
 
