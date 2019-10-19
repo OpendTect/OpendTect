@@ -47,13 +47,13 @@ bool PosInfo::Line2DKey::isUdf() const
 
 bool PosInfo::Line2DKey::haveLSID() const
 {
-    return first >= 0 && !mIsUdf(first);
+    return first() >= 0 && !mIsUdf(first());
 }
 
 
 bool PosInfo::Line2DKey::haveLineID() const
 {
-    return second >= 0 && !mIsUdf(second);
+    return second() >= 0 && !mIsUdf(second());
 }
 
 

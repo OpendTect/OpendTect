@@ -31,7 +31,7 @@ public:
     virtual		~TopList()				{}
 
     inline void		reset();
-    			/*!< Removes all values */
+			/*!< Removes all values */
 
     inline VT		getValue(int rank) const;
     inline AVT		getAssociatedValue(int rank) const;
@@ -77,10 +77,7 @@ template <class VT, class AVT> inline
 bool TopList<VT,AVT>::getHighestValue( VT& res ) const
 {
     if ( size() )
-    {
-	res = values_[0].first;
-	return true;
-    }
+	{ res = values_[0].first; return true; }
 
     return false;
 }
@@ -91,10 +88,7 @@ bool TopList<VT,AVT>::getLowestValue( VT& res ) const
 {
     const int sz = size();
     if ( sz )
-    {
-	res = values_[sz-1].first;
-	return true;
-    }
+	{ res = values_[sz-1].first; return true; }
 
     return false;
 }

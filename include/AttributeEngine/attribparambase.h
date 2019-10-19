@@ -117,7 +117,8 @@ public:
     void			setValue(const char*,int idx=0);
     void			setValue(double,int idx=0);
     inline void			setValue( const IdxPair& ip )
-				{ setValue(ip.first,0); setValue(ip.second,1); }
+				{ setValue(ip.first(),0);
+				  setValue(ip.second(),1); }
 
     virtual int			getDefaultIntValue(int idx=0) const;
     virtual float		getDefaultFValue(int idx=0) const;
@@ -135,8 +136,8 @@ public:
     void			setDefaultValue(const char*,int idx=0);
     void			setDefaultValue(double,int idx=0);
     inline void			setDefaultValue( const IdxPair& ip )
-				{ setDefaultValue(ip.first,0);
-				  setDefaultValue(ip.second,1); }
+				{ setDefaultValue(ip.first(),0);
+				  setDefaultValue(ip.second(),1); }
 
     DataInpSpec*		getSpec()	{ return spec_; }
     const DataInpSpec*		getSpec() const	{ return spec_; }

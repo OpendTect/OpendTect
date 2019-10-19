@@ -23,7 +23,7 @@ namespace ColTab
 typedef float				ValueType;
 typedef float				PosType;
 typedef SamplingData<ValueType>		SamplingType;
-typedef float_pair			ClipRatePair;
+typedef float_twins			ClipRatePair;
 enum SeqUseMode
 {
     UnflippedSingle, UnflippedCyclic, FlippedSingle, FlippedCyclic

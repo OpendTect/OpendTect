@@ -206,10 +206,10 @@ Seis::Blocks::FileColumn::FileColumn( const StreamReadBackEnd& rdrbe,
     }
 
     Dimensions& dms( const_cast<Dimensions&>(dims_) );
-    strm_.getBin( dms.first ).getBin( dms.second ).getBin( dms.third );
-    strm_.getBin( start_.first ).getBin( start_.second );
+    strm_.getBin( dms.first() ).getBin( dms.second() ).getBin( dms.third() );
+    strm_.getBin( start_.first() ).getBin( start_.second() );
     HGlobIdx gidx4dbg; // will be ignored, but helps debugging
-    strm_.getBin( gidx4dbg.first ).getBin( gidx4dbg.second );
+    strm_.getBin( gidx4dbg.first() ).getBin( gidx4dbg.second() );
 
     if ( !strm_.isOK() )
     {

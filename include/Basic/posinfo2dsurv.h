@@ -58,10 +58,10 @@ public:
     inline bool		operator !=( const Line2DKey& oth ) const
 			{ return !( operator==(oth) ); }
 
-    inline pos_type&	lsID()		{ return first; }
-    inline pos_type	lsID() const	{ return first; }
-    inline pos_type&	lineID()	{ return second; }
-    inline pos_type	lineID() const	{ return second; }
+    inline pos_type&	lsID()		{ return first(); }
+    inline pos_type	lsID() const	{ return first(); }
+    inline pos_type&	lineID()	{ return second(); }
+    inline pos_type	lineID() const	{ return second(); }
 
     bool		isOK() const;	//!< true if a line exist with this key
 

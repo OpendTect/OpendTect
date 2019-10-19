@@ -183,6 +183,10 @@ public:
     inline bool		get(const char*,SamplingData<T>&) const;
     template <class T1,class T2>
     inline bool		get(const char*,std::pair<T1,T2>&) const;
+    template <class T>
+    inline bool		get(const char*,Twins<T>&) const;
+    template <class T>
+    inline bool		get(const char*,Triplets<T>&) const;
 
     bool		get(const char*,TrcKey&) const;
     bool		get(const char*,DBKey&) const;
@@ -267,6 +271,10 @@ public:
     inline void		set(const char*,const SamplingData<T>&);
     template <class T1,class T2>
     inline void		set(const char*,const std::pair<T1,T2>&);
+    template <class T>
+    inline void		set(const char*,const Twins<T>&);
+    template <class T>
+    inline void		set(const char*,const Triplets<T>&);
 
     template<class iT>
     inline void		update(const char*,const IntegerID<iT>&);
@@ -457,8 +465,36 @@ bool IOPar::get( const char* keyw, std::pair<T1,T2>& p ) const
 }
 
 
+template <class T>
+bool IOPar::get( const char* keyw, Twins<T>& t ) const
+{
+    return get( keyw, t.first(), t.second() );
+}
+
+
+template <class T>
+bool IOPar::get( const char* keyw, Triplets<T>& t ) const
+{
+    return get( keyw, t.first(), t.second(), t.third() );
+}
+
+
 template<class T1,class T2>
 void IOPar::set( const char* keyw, const std::pair<T1,T2>& p )
 {
     set( keyw, p.first, p.second );
+}
+
+
+template<class T>
+void IOPar::set( const char* keyw, const Twins<T>& t )
+{
+    set( keyw, t.first(), t.second() );
+}
+
+
+template<class T>
+void IOPar::set( const char* keyw, const Triplets<T>& t )
+{
+    set( keyw, t.first(), t.second(), t.third() );
 }

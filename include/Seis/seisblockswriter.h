@@ -110,7 +110,7 @@ protected:
     bool		writeFullSummary(ascostream&,
 				const Array2D<float>&) const;
     void		writeLevelSummary(od_ostream&,
-				const Array2D<float>&,int_pair) const;
+				const Array2D<float>&,int_twins) const;
     void		scanPositions(Interval<idx_type>&,Interval<idx_type>&,
 				Interval<double>&,Interval<double>&);
 

@@ -316,6 +316,19 @@ uiString toUiString( const std::pair<T1,T2>& pair )
     return toUiString( "%1/%2" ).arg( pair.first ).arg( pair.second );
 }
 
+template <class T>
+uiString toUiString( const Twins<T>& t )
+{
+    return toUiString( "%1/%2" ).arg( t.first() ).arg( t.second() );
+}
+
+template <class T>
+uiString toUiString( const Triplets<T>& t )
+{
+    return toUiString( "%1/%2/%3" )
+	    .arg( t.first() ).arg( t.second() ).arg( t.third() );
+}
+
 mGlobal(Basic) uiString toUiString(const mQtclass(QString)&);
 
 

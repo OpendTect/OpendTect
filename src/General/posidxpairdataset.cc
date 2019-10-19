@@ -561,10 +561,10 @@ bool Pos::IdxPairDataSet::isValid( SPos spos ) const
 {
     if ( !spos.isValid() )
        return false;
-    else if ( !frsts_.validIdx(spos.i) )
+    else if ( !frsts_.validIdx(spos.i()) )
 	return false;
 
-    return scndsets_[spos.i]->validIdx( spos.j );
+    return scndsets_[spos.i()]->validIdx( spos.j() );
 }
 
 
@@ -577,21 +577,21 @@ bool Pos::IdxPairDataSet::isValid( const IdxPair& ip ) const
 Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findOccurrence(
 					const IdxPair& ip, int occ ) const
 {
-    bool found; idx_type idx = findIndexFor( frsts_, ip.first, &found );
+    bool found; idx_type idx = findIndexFor( frsts_, ip.first(), &found );
     SPos spos( found ? idx : -1, -1 );
     if ( !found )
 	return spos;
 
-    if ( spos.i >= 0 )
+    if ( spos.i() >= 0 )
     {
 	const IdxSet& scnds = gtScndSet( spos );
-	idx = findIndexFor( scnds, ip.second, &found );
-	spos.j = found ? idx : -1;
+	idx = findIndexFor( scnds, ip.second(), &found );
+	spos.j() = found ? idx : -1;
 	if ( found )
 	{
-	    spos.j = idx;
-	    while ( spos.j && scnds[spos.j-1] == ip.second )
-		spos.j--;
+	    spos.j() = idx;
+	    while ( spos.j() && scnds[spos.j()-1] == ip.second() )
+		spos.j()--;
 	}
     }
 
@@ -609,9 +609,10 @@ void Pos::IdxPairDataSet::updNearest( const IdxPair& ip, const SPos& spos,
 		    od_int64& mindistsq, SPos& ret ) const
 {
     const auto curip = getIdxPair( spos );
-    const IdxPair ipdiff( curip.first-ip.first, curip.second-ip.second );
-    od_int64 distsq = ((od_int64)ipdiff.first) * ipdiff.first;
-    distsq += ((od_int64)ipdiff.second) * ipdiff.second;
+    const IdxPair ipdiff( curip.first()-ip.first(),
+			  curip.second()-ip.second() );
+    od_int64 distsq = ((od_int64)ipdiff.first()) * ipdiff.first();
+    distsq += ((od_int64)ipdiff.second()) * ipdiff.second();
     if ( distsq < mindistsq )
 	{ ret = spos; mindistsq = distsq; }
 }
@@ -628,23 +629,23 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findNearest(
     od_int64 mindistsq = mUdf( od_int64 );
 
 
-    for ( SPos spos(0); spos.i<nrfrst; spos.i++ )
+    for ( SPos spos(0); spos.i()<nrfrst; spos.i()++ )
     {
 	const IdxSet& scnds = gtScndSet( spos );
 	const auto lastj = scnds.size() - 1;
 	bool found;
-	spos.j = findIndexFor( scnds, ip.second, &found );
+	spos.j() = findIndexFor( scnds, ip.second(), &found );
 	if ( found )
 	    updNearest( ip, spos, mindistsq, ret );
-	else if ( spos.j < 0 )
-	    { spos.j = 0; updNearest( ip, spos, mindistsq, ret ); }
-	else if ( spos.j > lastj )
-	    { spos.j = lastj; updNearest( ip, spos, mindistsq, ret ); }
+	else if ( spos.j() < 0 )
+	    { spos.j() = 0; updNearest( ip, spos, mindistsq, ret ); }
+	else if ( spos.j() > lastj )
+	    { spos.j() = lastj; updNearest( ip, spos, mindistsq, ret ); }
 	else
 	{
 	    updNearest( ip, spos, mindistsq, ret );
-	    if ( spos.j < lastj )
-		{ spos.j++; updNearest( ip, spos, mindistsq, ret ); }
+	    if ( spos.j() < lastj )
+		{ spos.j()++; updNearest( ip, spos, mindistsq, ret ); }
 	}
     }
 
@@ -661,27 +662,27 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findNearestOnFirst(
 
     bool found;
     SPos spos;
-    spos.i = findIndexFor( frsts_, frst, &found );
+    spos.i() = findIndexFor( frsts_, frst, &found );
     if ( !found )
 	return SPos();
 
     const IdxSet& scnds = gtScndSet( spos );
     const auto lastj = scnds.size() - 1;
-    spos.j = findIndexFor( scnds, scnd, &found );
+    spos.j() = findIndexFor( scnds, scnd, &found );
     if ( found )
 	return spos;
 
-    if ( spos.j < 0 )
-	spos.j = 0;
-    else if ( spos.j > lastj )
-	spos.j = scnds.size() - 1;
-    else if ( spos.j < lastj )
+    if ( spos.j() < 0 )
+	spos.j() = 0;
+    else if ( spos.j() > lastj )
+	spos.j() = scnds.size() - 1;
+    else if ( spos.j() < lastj )
     {
 	auto ip = getIdxPair( spos );
-	const auto posdiff1 = std::abs( ip.second - scnd );
-	SPos spos2( spos.i, spos.j+1 );
+	const auto posdiff1 = std::abs( ip.second() - scnd );
+	SPos spos2( spos.i(), spos.j()+1 );
 	ip = getIdxPair( spos2 );
-	const auto posdiff2 = std::abs( ip.second - scnd );
+	const auto posdiff2 = std::abs( ip.second() - scnd );
 	if ( posdiff2 < posdiff1 )
 	    spos = spos2;
     }
@@ -692,29 +693,29 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::findNearestOnFirst(
 
 bool Pos::IdxPairDataSet::next( SPos& spos, bool skip_dup ) const
 {
-    if ( spos.i < 0 )
+    if ( spos.i() < 0 )
     {
 	if ( frsts_.size() < 1 )
 	    return false;
-	spos.i = spos.j = 0;
+	spos.i() = spos.j() = 0;
 	return true;
     }
-    else if ( spos.i >= frsts_.size() )
-	{ spos.i = spos.j = -1; return false; }
-    else if ( spos.j < 0 )
-	{ spos.j = 0; return true; }
+    else if ( spos.i() >= frsts_.size() )
+	{ spos.i() = spos.j() = -1; return false; }
+    else if ( spos.j() < 0 )
+	{ spos.j() = 0; return true; }
 
     const IdxSet& scnds = gtScndSet( spos );
-    if ( spos.j > scnds.size()-2 )
+    if ( spos.j() > scnds.size()-2 )
     {
-	spos.j = 0; spos.i++;
-	if ( spos.i >= frsts_.size() )
-	    spos.i = spos.j = -1;
-	return spos.i >= 0;
+	spos.j() = 0; spos.i()++;
+	if ( spos.i() >= frsts_.size() )
+	    spos.i() = spos.j() = -1;
+	return spos.i() >= 0;
     }
 
-    spos.j++;
-    if ( skip_dup && scnds[spos.j] == scnds[spos.j-1] )
+    spos.j()++;
+    if ( skip_dup && scnds[spos.j()] == scnds[spos.j()-1] )
 	return next( spos, true );
 
     return true;
@@ -723,22 +724,22 @@ bool Pos::IdxPairDataSet::next( SPos& spos, bool skip_dup ) const
 
 bool Pos::IdxPairDataSet::prev( SPos& spos, bool skip_dup ) const
 {
-    if ( spos.j < 0 )
+    if ( spos.j() < 0 )
     {
-	spos.i--;
-	if ( spos.i >= 0 )
-	    spos.j = gtScndSet(spos).size() - 1;
+	spos.i()--;
+	if ( spos.i() >= 0 )
+	    spos.j() = gtScndSet(spos).size() - 1;
     }
-    if ( spos.i < 0 || spos.j < 0 )
+    if ( spos.i() < 0 || spos.j() < 0 )
 	return false;
-    else if ( spos.i == 0 && spos.j == 0 )
-	{ spos.i = spos.j = -1; return false; }
+    else if ( spos.i() == 0 && spos.j() == 0 )
+	{ spos.i() = spos.j() = -1; return false; }
 
     pos_type curscnd = gtScnd( spos );
-    if ( spos.j > 0 )
-	spos.j--;
+    if ( spos.j() > 0 )
+	spos.j()--;
     else
-	{ spos.i--; spos.j = gtScndSet(spos).size() - 1; }
+	{ spos.i()--; spos.j() = gtScndSet(spos).size() - 1; }
 
     if ( !skip_dup )
 	return true;
@@ -797,12 +798,12 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::getPos(
 					glob_idx_type glidx ) const
 {
     glob_idx_type firstidx = 0; SPos spos;
-    for ( spos.i=0; spos.i<frsts_.size(); spos.i++ )
+    for ( spos.i()=0; spos.i()<frsts_.size(); spos.i()++ )
     {
 	const IdxSet& scnds = gtScndSet(spos);
 	if ( firstidx + scnds.size() > glidx )
 	{
-	    spos.j = (idx_type)(glidx - firstidx);
+	    spos.j() = (idx_type)(glidx - firstidx);
 	    return spos;
 	}
 	firstidx += scnds.size();
@@ -893,20 +894,20 @@ Pos::IdxPair Pos::IdxPairDataSet::firstIdxPair() const
 
 void Pos::IdxPairDataSet::remove( SPos spos )
 {
-    if ( spos.i < 0 || spos.i >= frsts_.size() )
+    if ( spos.i() < 0 || spos.i() >= frsts_.size() )
 	return;
     IdxSet& scnds = gtScndSet( spos );
-    if ( spos.j < 0 || spos.j >= scnds.size() )
+    if ( spos.j() < 0 || spos.j() >= scnds.size() )
 	return;
 
-    scnds.removeSingle( spos.j );
-    gtObjData(spos).removeObj( mandata_, spos.j, objsz_ );
+    scnds.removeSingle( spos.j() );
+    gtObjData(spos).removeObj( mandata_, spos.j(), objsz_ );
 
     if ( scnds.isEmpty() )
     {
-	frsts_.removeSingle( spos.i );
-	delete scndsets_.removeSingle( spos.i );
-	delete objdatas_.removeSingle( spos.i );
+	frsts_.removeSingle( spos.i() );
+	delete scndsets_.removeSingle( spos.i() );
+	delete objdatas_.removeSingle( spos.i() );
     }
 }
 
@@ -958,7 +959,7 @@ void Pos::IdxPairDataSet::addHorPosIfNeeded( const IdxPair& ip,
 	if ( !spos.isValid() )
 	    { mHandleMemFull(); return; }
 	else if ( crfn )
-	    crfn( *this, spos.i, spos.j );
+	    crfn( *this, spos.i(), spos.j() );
     }
 }
 
@@ -968,7 +969,8 @@ void Pos::IdxPairDataSet::extendHor3D( const Pos::IdxPairDelta& so,
 				       EntryCreatedFn crfn )
 {
     if ( isEmpty()
-      || (!so.first && !so.second) || (!sostep.first && !sostep.second) )
+      || (!so.first() && !so.second())
+      || (!sostep.first() && !sostep.second()) )
 	return;
 
     // this implementation is rather complex to make sure big sets will not
@@ -990,12 +992,15 @@ void Pos::IdxPairDataSet::extendHor3D( const Pos::IdxPairDelta& so,
     while ( next(spos) )
     {
 	const auto centralip = gtIdxPair( spos );
-	for ( pos_type ifrstoffs=-so.first; ifrstoffs<=so.first; ifrstoffs++ )
+	for ( pos_type ifrstoffs=-so.first(); ifrstoffs<=so.first();
+		    ifrstoffs++ )
 	{
-	    const auto first = centralip.first + ifrstoffs * sostep.first;
-	    for ( int iscndoffs=-so.second; iscndoffs<=so.second; iscndoffs++ )
+	    const auto first = centralip.first() + ifrstoffs * sostep.first();
+	    for ( int iscndoffs=-so.second(); iscndoffs<=so.second();
+		    iscndoffs++ )
 	    {
-		const auto scnd = centralip.second + iscndoffs * sostep.second;
+		const auto scnd = centralip.second()
+				+ iscndoffs * sostep.second();
 		const auto rc = subsel.rowCol( first, scnd );
 		needed.set( rc.row(), rc.col(), true );
 	    }
@@ -1103,7 +1108,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		if ( !spos.isValid() )
 		    return false;
 		else if ( crfn_ )
-		    crfn_( ds_, spos.i, spos.j );
+		    crfn_( ds_, spos.i(), spos.j() );
 	    }
 	}
     }
@@ -1187,10 +1192,10 @@ void Pos::IdxPairDataSet::remove( const TrcKeySampling& hrg,
     while ( next(spos) )
     {
 	IdxPair ip = gtIdxPair( spos );
-	const bool inlinside = frstrg.includes( ip.first, false )
-			    && frstrg.snap( ip.first ) == ip.first;
-	const bool crlinside = scndrg.includes( ip.second, false )
-			    && scndrg.snap( ip.second ) == ip.second;
+	const bool inlinside = frstrg.includes( ip.first(), false )
+			    && frstrg.snap( ip.first() ) == ip.first();
+	const bool crlinside = scndrg.includes( ip.second(), false )
+			    && scndrg.snap( ip.second() ) == ip.second();
 	if ( (inside && inlinside && crlinside)
 	  || (!inside && (!inlinside || !crlinside)) )
 	    torem += spos;
@@ -1265,13 +1270,13 @@ bool Pos::IdxPairDataSet::slurp( od_istream& strm, bool binary )
 
 const void* Pos::IdxPairDataSet::gtObj( const SPos& spos ) const
 {
-    return gtObjData(spos).getObj( mandata_, spos.j, objsz_ );
+    return gtObjData(spos).getObj( mandata_, spos.j(), objsz_ );
 }
 
 
 void Pos::IdxPairDataSet::putObj( const SPos& spos, const void* obj )
 {
-    if ( objdatas_.size() <= spos.i )
+    if ( objdatas_.size() <= spos.i() )
     {
 	pErrMsg("putObj shuld not have to alloc its own objdata");
 	try { objdatas_ += new ObjData; }
@@ -1279,7 +1284,7 @@ void Pos::IdxPairDataSet::putObj( const SPos& spos, const void* obj )
 	    { mHandleMemFull(); return; }
     }
 
-    gtObjData(spos).putObj( mandata_, spos.j, objsz_, obj );
+    gtObjData(spos).putObj( mandata_, spos.j(), objsz_, obj );
 }
 
 
@@ -1287,25 +1292,25 @@ bool Pos::IdxPairDataSet::addObj( SPos& spos, pos_type scnd, const void* obj )
 {
     IdxSet& scnds = gtScndSet( spos );
 
-    if ( spos.j < 0 )
-	spos.j = findIndexFor(scnds,scnd) + 1;
+    if ( spos.j() < 0 )
+	spos.j() = findIndexFor(scnds,scnd) + 1;
     else
     {
-	spos.j++;
-	while ( spos.j < scnds.size() && scnds[spos.j] == scnd )
-	    spos.j++;
+	spos.j()++;
+	while ( spos.j() < scnds.size() && scnds[spos.j()] == scnd )
+	    spos.j()++;
     }
 
-    const bool atend = spos.j > scnds.size() - 1;
+    const bool atend = spos.j() > scnds.size() - 1;
     try {
 	if ( atend )
 	    scnds += scnd;
 	else
-	    scnds.insert( spos.j, scnd );
+	    scnds.insert( spos.j(), scnd );
     } catch ( std::bad_alloc )
 	mErrRetMemFull()
 
-    if ( !gtObjData(spos).addObjSpace(mandata_,spos.j,objsz_) )
+    if ( !gtObjData(spos).addObjSpace(mandata_,spos.j(),objsz_) )
 	mErrRetMemFull()
 
     putObj( spos, obj );
@@ -1316,28 +1321,28 @@ bool Pos::IdxPairDataSet::addObj( SPos& spos, pos_type scnd, const void* obj )
 void Pos::IdxPairDataSet::addEntry( const Pos::IdxPair& ip, const void* obj,
 				    SPos& spos )
 {
-    if ( spos.i < 0 )
+    if ( spos.i() < 0 )
     {
-	spos.i = findIndexFor(frsts_,ip.first) + 1;
+	spos.i() = findIndexFor(frsts_,ip.first()) + 1;
 	try {
 	    ObjData* newdata = new ObjData;
-	    if ( spos.i > frsts_.size()-1 )
+	    if ( spos.i() > frsts_.size()-1 )
 	    {
-		frsts_ += ip.first;
+		frsts_ += ip.first();
 		scndsets_ += new IdxSet;
 		objdatas_ += newdata;
-		spos.i = frsts_.size() - 1;
+		spos.i() = frsts_.size() - 1;
 	    }
 	    else
 	    {
-		frsts_.insert( spos.i, ip.first );
-		scndsets_.insertAt( new IdxSet, spos.i );
-		objdatas_.insertAt( newdata, spos.i );
+		frsts_.insert( spos.i(), ip.first() );
+		scndsets_.insertAt( new IdxSet, spos.i() );
+		objdatas_.insertAt( newdata, spos.i() );
 	    }
 	} catch ( std::bad_alloc )
 	    { mHandleMemFull(); spos.reset(); return; }
     }
 
-    if ( (spos.j < 0 || allowdup_) && !addObj( spos, ip.second, obj ) )
+    if ( (spos.j() < 0 || allowdup_) && !addObj( spos, ip.second(), obj ) )
 	spos.reset();
 }

@@ -414,10 +414,10 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     else
 	vd_.mapper_->setup().setFixedRange( range );
     ColTab::ClipRatePair clpperc = vd_.mapper_->setup().clipRate();
-    clpperc.first *= 100.f; clpperc.second *= 100.f;
+    clpperc.first() *= 100.f; clpperc.second() *= 100.f;
     mIOPDoVD( get, sKeyClipPerc(), clpperc );
-    if ( mIsUdf(clpperc.second) )
-	clpperc.second = clpperc.first;
+    if ( mIsUdf(clpperc.second()) )
+	clpperc.second() = clpperc.first();
     ColTab::convFromPerc( clpperc );
     vd_.mapper_->setup().setClipRate( clpperc );
 
@@ -440,10 +440,10 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     else
 	wva_.mapper_->setup().setFixedRange( range );
     clpperc = wva_.mapper_->setup().clipRate();
-    clpperc.first *= 100.f; clpperc.second *= 100.f;
+    clpperc.first() *= 100.f; clpperc.second() *= 100.f;
     mIOPDoWVA( get, sKeyClipPerc(), clpperc );
-    if ( mIsUdf(clpperc.second) )
-	clpperc.second = clpperc.first;
+    if ( mIsUdf(clpperc.second()) )
+	clpperc.second() = clpperc.first();
     ColTab::convFromPerc( clpperc );
     wva_.mapper_->setup().setClipRate( clpperc );
 }

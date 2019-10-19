@@ -11,7 +11,7 @@ ________________________________________________________________________
 */
 
 #include "commondefs.h"
-#include <tuple>
+#include <utility>
 
 class IOPar;
 class Color;
@@ -70,35 +70,98 @@ typedef Survey::Geometry3D			SurvGeom3D;
 typedef Survey::GeometryManager			SurvGM;
 
 
-template <typename T> using Twins = std::pair<T,T>;
-typedef Twins<int>		int_pair;
-typedef Twins<od_int64>		int64_pair;
-typedef Twins<float>		float_pair;
-typedef Twins<double>		double_pair;
+template <class T>
+class Twins
+{
+public:
 
-template <typename T> using Triplets = std::tuple<T,T,T>;
+    inline Twins()
+		: pair_(0,0)		{}
+    inline Twins( T f, T s )
+		: pair_(f,s)		{}
+		mImplSimpleEqOpers1Memb(Twins<T>,pair_)
+
+    inline std::pair<T,T> pair() const	{ return pair_; }
+    inline std::pair<T,T>& pair()	{ return pair_; }
+
+    inline T&	first()			{ return pair_.first; }
+    inline T	first() const		{ return pair_.first; }
+    inline T&	second()		{ return pair_.second; }
+    inline T	second() const		{ return pair_.second; }
+
+    int		size() const		{ return 2; }
+    inline T&	operator[]( int idx )
+		{ return idx<1 ? first() : second();}
+    inline T	operator[]( int idx ) const
+		{ return idx<1 ? first() : second();}
+
+protected:
+
+    std::pair<T,T>	pair_;
+
+};
+
+typedef Twins<int>		int_twins;
+typedef Twins<od_int64>		int64_twins;
+typedef Twins<float>		float_twins;
+typedef Twins<double>		double_twins;
+
+
+template <class T>
+class Triplets : public Twins<T>
+{
+public:
+
+    inline Triplets()
+		: third_(0)			{}
+    inline Triplets( T f, T s, T t )
+		: Twins<T>(f,s), third_(t)	{}
+		mImplSimpleEqOpers2Memb(Triplets<T>,pair_,third_)
+
+    inline T&	third()		{ return third_; }
+    inline T	third() const	{ return third_; }
+
+    int		size() const	{ return 3; }
+    inline T&	operator[]( int idx )
+		{ return idx<1 ? this->first() : (idx>1 ? this->third()
+							: this->second());}
+    inline T	operator[]( int idx ) const
+		{ return idx<1 ? this->first() : (idx>1 ? this->third()
+							: this->second());}
+
+protected:
+
+    T		third_;
+
+};
+
 typedef Triplets<int>		int_triplet;
 typedef Triplets<od_int64>	int64_triplet;
 typedef Triplets<float>		float_triplet;
 typedef Triplets<double>	double_triplet;
 
 
-class IJPos
+class IJPos : public int_twins
 {
 public:
-		    IJPos( Index_Type ii=-1, Index_Type jj=-1 )
-			: i(ii), j(jj)		{}
-		    mImplSimpleEqOpers2Memb(IJPos,i,j)
+
+		    IJPos() : int_twins(-1,-1)		{}
+    explicit	    IJPos( Index_Type ii, Index_Type jj=-1 )
+			: int_twins(ii,jj)		{}
+		    mImplSimpleEqOpers2Memb(IJPos,i(),j())
 
     inline bool	    operator>( const IJPos& oth ) const
-		    { return i > oth.i || (i == oth.i && j > oth.j); }
+		    { return i()>oth.i() || (i()==oth.i() && j()>oth.j()); }
     inline bool	    operator<( const IJPos& oth ) const
-		    { return i < oth.i || (i == oth.i && j < oth.j); }
+		    { return i()<oth.i() || (i()==oth.i() && j()<oth.j()); }
 
-    void	    reset()			{ i = j = -1; }
-    inline bool	    isValid() const		{ return i > -1 && j > -1; }
+    void	    reset()			{ i() = j() = -1; }
+    inline bool	    isValid() const		{ return i() > -1 && j() > -1; }
 
-    Index_Type	    i, j;
+    Index_Type&	    i()		{ return first(); }
+    Index_Type	    i() const	{ return first(); }
+    Index_Type&	    j()		{ return second(); }
+    Index_Type	    j() const	{ return second(); }
 
 };
 

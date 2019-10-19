@@ -216,15 +216,15 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
     par.get( sKeyClipRate(), cliprate_ );
     if ( !isfixed_ )
     {
-	if ( mIsUdf(cliprate_.first) )
+	if ( mIsUdf(cliprate_.first()) )
 	{
-	    if ( mIsUdf(cliprate_.second) )
+	    if ( mIsUdf(cliprate_.second()) )
 		cliprate_ = defClipRate();
 	    else
-		cliprate_.first = cliprate_.second;
+		cliprate_.first() = cliprate_.second();
 	}
-	if ( mIsUdf(cliprate_.second) )
-	    cliprate_.second = cliprate_.first;
+	if ( mIsUdf(cliprate_.second()) )
+	    cliprate_.second() = cliprate_.first();
     }
 
     bool flipseq = isFlipped( sequsemode_ );
@@ -372,10 +372,10 @@ void ColTab::Mapper::determineRange() const
     {
 	const ClipRatePair clips( setup_->clipRate() );
 	const float sumvals = distrib_->sumOfValues();
-	const ClipRatePair distrvals( clips.first * sumvals,
-			       (1.0f-clips.second) * sumvals );
-	rg.start = distrib_->positionForCumulative( distrvals.first );
-	rg.stop = distrib_->positionForCumulative( distrvals.second );
+	const ClipRatePair distrvals( clips.first() * sumvals,
+			       (1.0f-clips.second()) * sumvals );
+	rg.start = distrib_->positionForCumulative( distrvals.first() );
+	rg.stop = distrib_->positionForCumulative( distrvals.second() );
 	if ( isNearZeroSymmetry(rg) )
 	    rg.shift( -rg.center() );
     }

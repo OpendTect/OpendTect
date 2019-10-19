@@ -179,7 +179,7 @@ int Seis::TableSelData::selRes2D( GeomID gid, pos_type trcnr ) const
 	}
     }
 
-    const int inlres = pos.i < 0 ? 2 : 0;
+    const int inlres = pos.i() < 0 ? 2 : 0;
     const int crlres = 1;
     return inlres + 256 * crlres;
 }
@@ -204,7 +204,7 @@ int Seis::TableSelData::selRes3D( const BinID& bid ) const
 	}
     }
 
-    const int inlres = pos.i < 0 ? 2 : 0;
+    const int inlres = pos.i() < 0 ? 2 : 0;
     const int crlres = 1; // Maybe not true, but safe
     return inlres + 256 * crlres;
 }

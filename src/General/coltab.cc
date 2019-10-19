@@ -143,33 +143,33 @@ bool ColTab::fromPar( const IOPar& iop, SeqUseMode& mode )
 
 void ColTab::convToPerc( ClipRatePair& crp )
 {
-    if ( !mIsUdf(crp.first) )
-	crp.first *= 100.f;
-    if ( !mIsUdf(crp.second) )
-	crp.second *= 100.f;
+    if ( !mIsUdf(crp.first()) )
+	crp.first() *= 100.f;
+    if ( !mIsUdf(crp.second()) )
+	crp.second() *= 100.f;
 }
 
 
 void ColTab::convFromPerc( ClipRatePair& crp )
 {
-    if ( !mIsUdf(crp.first) )
-	crp.first *= 0.01f;
-    if ( !mIsUdf(crp.second) )
-	crp.second *= 0.01f;
+    if ( !mIsUdf(crp.first()) )
+	crp.first() *= 0.01f;
+    if ( !mIsUdf(crp.second()) )
+	crp.second() *= 0.01f;
 }
 
 
 ColTab::ClipRatePair ColTab::defClipRate()
 {
-    if ( mIsUdf(defcliprate_.first) || mIsUdf(defcliprate_.second))
+    if ( mIsUdf(defcliprate_.first()) || mIsUdf(defcliprate_.second()))
     {
 	ClipRatePair clipperc( mUdf(float), mUdf(float) );
 	Settings::common().get( sKeyDefClipPerc, clipperc );
 
-	if ( mIsUdf(clipperc.first) )
-	    clipperc.first = 2.5f;
-	if ( mIsUdf(clipperc.second) )
-	    clipperc.second = clipperc.first;
+	if ( mIsUdf(clipperc.first()) )
+	    clipperc.first() = 2.5f;
+	if ( mIsUdf(clipperc.second()) )
+	    clipperc.second() = clipperc.first();
 	convFromPerc( clipperc );
 	defcliprate_ = clipperc;
     }

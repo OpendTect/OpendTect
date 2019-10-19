@@ -19,7 +19,7 @@ static bool chckDs( Pos::IdxPairValueSet& ds, const char* msg )
     while ( ds.next(spos) )
     {
 	Pos::IdxPair ip = ds.getIdxPair( spos );
-	tstStream() << ip.first << '/' << ip.second;
+	tstStream() << ip.first() << '/' << ip.second();
 	const float* vals = ds.getVals( spos );
 	for ( int idx=0; idx<nrvals; idx++ )
 	    tstStream() << '\t' << vals[idx];
@@ -40,11 +40,8 @@ static bool checkContents( Pos::IdxPairValueSet& ds )
     while ( ds.next(spos) )
     {
 	ip = ds.getIdxPair( spos );
-	if ( ip.second == crltorem )
-	{
-	    spostorem = spos;
-	    iptorem = ip;
-	}
+	if ( ip.second() == crltorem )
+	    { spostorem = spos; iptorem = ip; }
     }
 
     chckDs( ds, "** Original:" );

@@ -756,17 +756,17 @@ bool Seis::Blocks::Writer::writeFullSummary( ascostream& astrm,
     iop.putTo( astrm, false );
 
     const int smallestdim = nrinl > nrcrl ? nrcrl : nrinl;
-    TypeSet<int_pair> levelnrblocks;
+    TypeSet<int_twins> levelnrblocks;
     int nodesperblock = smallestdim / 2;
     int nrlevels = 0;
     while ( nodesperblock > 1 )
     {
 	const float finlnrnodes = ((float)nrinl) / nodesperblock;
 	const float fcrlnrnodes = ((float)nrcrl) / nodesperblock;
-	const int_pair nrblocks( mNINT32(finlnrnodes), mNINT32(fcrlnrnodes) );
+	const int_twins nrblocks( mNINT32(finlnrnodes), mNINT32(fcrlnrnodes) );
 	levelnrblocks += nrblocks;
-	const Coord blockdist( fullcrldist/nrblocks.first,
-				fullinldist/nrblocks.second );
+	const Coord blockdist( fullcrldist/nrblocks.first(),
+				fullinldist/nrblocks.second() );
 	const double avglvlblcksz = (blockdist.x_ + blockdist.y_) * .5;
 	astrm.put( IOPar::compKey(sKey::Level(),nrlevels), avglvlblcksz );
 	nodesperblock /= 2; nrlevels++;
@@ -787,39 +787,41 @@ bool Seis::Blocks::Writer::writeFullSummary( ascostream& astrm,
 
 void Seis::Blocks::Writer::writeLevelSummary( od_ostream& strm,
 				const Array2D<float>& data,
-				int_pair nrblocks ) const
+				int_twins nrblocks ) const
 {
     mGetNrInlCrlAndRg();
-    const float_pair fcellsz( ((float)nrinl) / nrblocks.first,
-			     ((float)nrcrl) / nrblocks.second );
-    const float_pair fhcellsz( fcellsz.first * .5f, fcellsz.second * .5f );
-    const int_pair cellsz( mNINT32(fcellsz.first), mNINT32(fcellsz.second) );
-    const int_pair hcellsz( mNINT32(fhcellsz.first), mNINT32(fhcellsz.second) );
+    const float_twins fcellsz( ((float)nrinl) / nrblocks.first(),
+			     ((float)nrcrl) / nrblocks.second() );
+    const float_twins fhcellsz( fcellsz.first() * .5f, fcellsz.second() * .5f );
+    const int_twins cellsz( mNINT32(fcellsz.first()),
+			    mNINT32(fcellsz.second()) );
+    const int_twins hcellsz( mNINT32(fhcellsz.first()),
+			    mNINT32(fhcellsz.second()) );
 
     for ( int cix=0; ; cix++ )
     {
-	const float fcenterx = fhcellsz.first + cix * fcellsz.first;
-	int_pair center( mNINT32(fcenterx), 0 );
-	if ( center.first >= nrinl )
+	const float fcenterx = fhcellsz.first() + cix * fcellsz.first();
+	int_twins center( mNINT32(fcenterx), 0 );
+	if ( center.first() >= nrinl )
 	    break;
 
 	for ( int ciy=0; ; ciy++ )
 	{
-	    const float fcentery = fhcellsz.second + ciy * fcellsz.second;
-	    center.second = mNINT32( fcentery );
-	    if ( center.second > nrcrl )
+	    const float fcentery = fhcellsz.second() + ciy * fcellsz.second();
+	    center.second() = mNINT32( fcentery );
+	    if ( center.second() > nrcrl )
 		break;
 
 	    float sumv = 0.f; int nrv = 0;
-	    for ( int ix=center.first-hcellsz.first;
-		      ix<=center.first+hcellsz.first; ix++ )
+	    for ( int ix=center.first()-hcellsz.first();
+		      ix<=center.first()+hcellsz.first(); ix++ )
 	    {
 		if ( ix < 0 )
 		    continue;
 		if ( ix >= nrinl )
 		    break;
-		for ( int iy=center.second-hcellsz.second;
-			  iy<=center.second+hcellsz.second; iy++ )
+		for ( int iy=center.second()-hcellsz.second();
+			  iy<=center.second()+hcellsz.second(); iy++ )
 		{
 		    if ( iy < 0 )
 			continue;
@@ -832,8 +834,8 @@ void Seis::Blocks::Writer::writeLevelSummary( od_ostream& strm,
 	    }
 	    if ( nrv > 0 )
 	    {
-		const BinID cbid( finalinlrg_.atIndex(center.first,stepinl),
-				  finalcrlrg_.atIndex(center.second,stepcrl) );
+		const BinID cbid( finalinlrg_.atIndex(center.first(),stepinl),
+				  finalcrlrg_.atIndex(center.second(),stepcrl));
 		const Coord centercoord( SI().transform(cbid) );
 		strm << centercoord.x_ << '\t' << centercoord.y_ << '\t'
 				<< sumv / nrv << '\n';

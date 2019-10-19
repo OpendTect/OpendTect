@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 typedef Array2D<char>	A2DBitMap;
 #define A2DBitMapImpl	Array2DImpl<char>
-typedef float_pair A2DBitMapClips;
+typedef float_twins	A2DBitMapClips;
 
 /*!\brief Array2D Bitmap generation parameters. */
 

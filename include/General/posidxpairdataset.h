@@ -61,11 +61,11 @@ mExpClass(General) IdxPairDataSet
 {
 public:
 
-    mUseType( IdxPair,			pos_type );
-    mUseType( IdxPair,			idx_type );
-    typedef idx_type			size_type;
-    typedef od_int64			obj_size_type;
-    typedef od_int64			glob_idx_type;
+    mUseType( IdxPair,	pos_type );
+    typedef int		idx_type;
+    typedef idx_type	size_type;
+    typedef od_int64	obj_size_type;
+    typedef od_int64	glob_idx_type;
 
 
     /*!\brief Set Position: position in IdxPairDataSet
@@ -130,7 +130,7 @@ public:
 
     glob_idx_type	totalSize() const;
     inline bool		includes( const IdxPair& ip ) const
-						{ return find(ip).j > -1; }
+						{ return find(ip).j() > -1; }
     inline size_type	nrFirst() const		{ return frsts_.size(); }
     size_type		nrSecond(pos_type firstpos) const;
     size_type		nrSecondAtIdx(idx_type firstidx) const;
@@ -243,19 +243,19 @@ protected:
 
     // All 'gt' functions return unchecked
     inline pos_type	gtFrst( const SPos& pos ) const
-				{ return frsts_[pos.i]; }
+				{ return frsts_[pos.i()]; }
     inline pos_type	gtScnd( const SPos& pos ) const
-				{ return gtScndSet(pos)[pos.j]; }
+				{ return gtScndSet(pos)[pos.j()]; }
     inline IdxPair	gtIdxPair( const SPos& pos ) const
 				{ return IdxPair( gtFrst(pos), gtScnd(pos) ); }
     inline IdxSet&	gtScndSet( const SPos& pos )
-				{ return *scndsets_[pos.i]; }
+				{ return *scndsets_[pos.i()]; }
     inline const IdxSet& gtScndSet( const SPos& pos ) const
-				{ return *scndsets_[pos.i]; }
+				{ return *scndsets_[pos.i()]; }
     inline ObjData&	gtObjData( const SPos& pos )
-				{ return *objdatas_[pos.i]; }
+				{ return *objdatas_[pos.i()]; }
     inline const ObjData& gtObjData( const SPos& pos ) const
-				{ return *objdatas_[pos.i]; }
+				{ return *objdatas_[pos.i()]; }
     inline IdxSet&	gtScndSet( idx_type idx )
 				{ return *scndsets_[idx]; }
     inline const IdxSet& gtScndSet( idx_type idx ) const

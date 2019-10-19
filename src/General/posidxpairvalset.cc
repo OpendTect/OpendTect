@@ -163,7 +163,7 @@ bool Pos::IdxPairValueSet::putTo( od_ostream& strm ) const
     {
 	const IdxPair ip( getIdxPair(spos) );
 	const float* vals = gtVals(spos);
-	strm << ip.first << od_tab << ip.second;
+	strm << ip.first() << od_tab << ip.second();
 	for ( int idx=0; idx<nrvals_; idx++ )
 	    strm << od_tab << toString( vals[idx] );
 	strm << od_newline;
@@ -563,7 +563,7 @@ void Pos::IdxPairValueSet::fillPar( IOPar& iop, const char* ky ) const
     {
 	const IdxPair ip = getIdxPair( spos );
 
-	if ( ip.first != prevfirst )
+	if ( ip.first() != prevfirst )
 	{
 	    if ( !mIsUdf(prevfirst) )
 	    {
@@ -574,10 +574,10 @@ void Pos::IdxPairValueSet::fillPar( IOPar& iop, const char* ky ) const
 		key += prevfirst;
 		iop.set( key, fms );
 	    }
-	    fms.setEmpty(); fms += ip.first; prevfirst = ip.first;
+	    fms.setEmpty(); fms += ip.first(); prevfirst = ip.first();
 	}
 
-	fms += ip.second;
+	fms += ip.second();
 	if ( nrvals_ > 0 )
 	{
 	    const float* v = gtVals( spos );
@@ -619,12 +619,12 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* iopky )
 	    continue;
 
 	fms = res;
-	dr.first = fms.getIValue( 0 );
+	dr.first() = fms.getIValue( 0 );
 	int nrpos = (fms.size() - 1) / (nrvals_ + 1);
 	for ( int iscnd=0; iscnd<nrpos; iscnd++ )
 	{
 	    int fmsidx = 1 + iscnd * (nrvals_ + 1);
-	    dr.second = fms.getIValue( fmsidx );
+	    dr.second() = fms.getIValue( fmsidx );
 	    fmsidx++;
 	    for ( int ival=0; ival<nrvals_; ival++ )
 		dr.value(ival) = fms.getFValue( fmsidx+ival );
