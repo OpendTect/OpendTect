@@ -223,6 +223,9 @@ void uiRangePosProvGroup::setExtractionDefaults()
 void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
     cs = TrcKeyZSampling( OD::UsrWork );
+    BinID hsampStep = cs.hsamp_.step_;
+    Pos::Z_Type zsampStep = cs.zsamp_.step;
+
     if ( hrgfld_ )
 	cs.hsamp_ = TrcKeySampling( CubeHorSubSel(hrgfld_->getSampling()) );
     else if ( nrrgfld_ )
@@ -237,6 +240,11 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
     if ( zrgfld_ )
 	cs.zsamp_ = zrgfld_->getRange();
+
+    if ( hasRandomSampling() ) {
+	cs.hsamp_.step_ = hsampStep;
+	cs.zsamp_.step = zsampStep;
+    }
 }
 
 
