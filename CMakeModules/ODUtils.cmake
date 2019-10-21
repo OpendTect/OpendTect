@@ -77,6 +77,29 @@ set ( OD_PRESTACK_EXECS od_process_prestack )
 set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
 set ( OD_SURVEY_EXECS od_Edit_Survey od_Manage_Surveys )
 
+set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT OFF )
+if ( OSG_DIR )
+    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
+endif( OSG_DIR )
+
+if ( QTDIR )
+    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
+endif( QTDIR )
+
+
+# This option does two things
+#
+# 1. It installs the QT, OSG and other libraries to the installation structure when
+#    building the "install" target. On systems where these dependencies are provided
+#    through the operating system, this is not needed.
+#
+# 2. It copies dependencies into the build environment (bin/PLF/Debug and bin/PLF/Release)
+#    This is as the build environment should be as similar to the runtime environment as
+#    possible
+#
+# Default is to have it OFF when QTDIR and OSGDIR are not set
+
+option( OD_INSTALL_DEPENDENT_LIBS "Install dependent libs" ${OD_INSTALL_DEPENDENT_LIBS_DEFAULT} )
 
 #Macro for going through a list of modules and adding them
 macro ( OD_ADD_MODULES )
