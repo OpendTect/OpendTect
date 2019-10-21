@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "timer.h"
 #include "uistrings.h"
+#include "odplatform.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
@@ -750,11 +751,18 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 
     File::Path fp( mGetSWDirDataDir() );
     fp.add( "Python" );
-    BufferString name( piname );
-    name += "_requirements.txt";
-    fp.add( name );
-    if ( !fp.exists() )
-	return retval;
+    BufferString genericName( piname );
+    genericName.add( "_requirements" );
+    BufferString platSpecificName( piname );
+    platSpecificName.add( "_requirements_" )
+		    .add(OD::Platform::local().shortName());
+
+    fp.add( platSpecificName ).setExtension( "txt" );
+    if ( !fp.exists() ) {
+	fp.setFileName( genericName ).setExtension( "txt" );
+	if ( !fp.exists() )
+	    return retval;
+    }
     od_istream strm( fp.fullPath() );
     if ( !strm.isOK() )
 	return uiRetVal( tr("Can't open requirements file: %1").arg(
