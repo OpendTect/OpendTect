@@ -633,7 +633,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinnedValueSet>& sections )
 	    {
 		bid.crl() = hs.start_.crl() + crl*hs.step_.crl();
 		const auto pos = data.find( bid );
-		if ( pos.isValid() >= 0 ) continue;
+		if ( pos.isValid() ) continue;
 
 		TypeSet<float> vals( data.nrVals(), mUdf(float) );
 		vals[0] = arr.get( inl, crl );
