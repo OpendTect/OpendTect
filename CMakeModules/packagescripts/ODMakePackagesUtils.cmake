@@ -344,8 +344,9 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${COPYTODATADIR}/data/localizations/${QMFILENM} )
 	endforeach()
    endif()
-
+if ( NOT ${PACKAGE_NAME}  STREQUAL "v7basedatadefs" )
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
+endif()
 endmacro( create_basepackages )
 
 
