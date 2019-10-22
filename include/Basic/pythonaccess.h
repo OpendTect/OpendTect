@@ -61,6 +61,8 @@ namespace OD
 				uiString* errmsg=nullptr) const;
 
 	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
+	BufferString	pyVersion() const;
+	uiString	pySummary() const;
 
 	bool		isModuleUsable(const char* nm) const;
 
