@@ -83,6 +83,48 @@ OD::PythonAccess::~PythonAccess()
 }
 
 
+BufferString OD::PythonAccess::pyVersion() const
+{
+    BufferString result;
+    if ( isUsable( true ) )
+    {
+	result.set( lastOutput(false,nullptr) );
+	if ( result.isEmpty() )
+	    result.set( lastOutput( true, nullptr ) );
+    }
+    return result;
+}
+
+
+uiString OD::PythonAccess::pySummary() const
+{
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    PythonSource source;
+    if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source))
+	source = System;
+
+    uiStringSet result;
+    result += uiStrings::sUsing();
+    result += uiString(tr("%1 %2").arg(source).arg(pyVersion()));
+
+    if ( source == Custom )
+    {
+	BufferString virtenvloc;
+	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	{
+	    if ( virtenvnm_.isEmpty() )
+		result += uiString(tr("from %1").arg(virtenvloc));
+	    else
+		result += uiString(tr("environment %1 in %2").arg(virtenvnm_)
+							    .arg(virtenvloc));
+	}
+    }
+
+    return result.cat( uiString::Space, uiString::OnSameLine );
+}
+
+
 bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				 const char* scriptexpectedout ) const
 {
