@@ -426,7 +426,7 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     {
 	strm.add( "SET procnm=%~n0" ).add( od_newline );
 	strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
-	strm.add( "SET pidfile=%~dpn0.pid" ).add( od_newline ).add( od_newline);
+	strm.add( "SET pidfile=\"%~dpn0.pid\"" ).add( od_newline ).add( od_newline);
     }
     strm.add( "@CALL \"" );
 #else
@@ -449,6 +449,7 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     {
 #ifdef __win__
 	strm.add( od_newline );
+	strm.add( "timeout 2 > nul" ).add( od_newline );
 	strm.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI" );
 	strm.add( " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO " );
 	strm.add( "(SET \"PROCRET=%%g\")" ).add( od_newline );
