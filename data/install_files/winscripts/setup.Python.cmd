@@ -19,6 +19,12 @@ if %nrargs% LSS 1 (
     exit /b 1
 )
 
+REM run script elevated if it is not
+set winSysFolder=System32
+NET file 1>nul 2>nul && goto :createtxtfile || powershell -ex unrestricted -Command "Start-Process -Verb RunAs -FilePath '%SystemRoot%\%winSysFolder%\cmd.exe' -ArgumentList '/c %~fnx0 %~s1'"
+goto :eof
+
+:createtxtfile
 REM Extract the input parameters
 set odinstdir=%1
 set condarootdir=%~dp0
@@ -44,3 +50,4 @@ if exist %odinstdir%\v7\data (
 )
 
 exit /b 0
+:eof
