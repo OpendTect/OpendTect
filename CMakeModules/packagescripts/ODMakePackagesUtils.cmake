@@ -260,6 +260,9 @@ macro( copy_thirdpartylibs )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMLIBDIR}/../resources
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/../translations
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
     if ( UNIX )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/xcbglintegrations
@@ -336,12 +339,12 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${COPYTODATADIR}/data/${DATALIB} )
 	  endif()
        endforeach()
-       file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
+       file( GLOB QMFILES ${COPYFROMDATADIR}/data/translations/*.qm )
 	foreach( QMFILE ${QMFILES} )
 	    get_filename_component( QMFILENM ${QMFILE} NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMDATADIR}/data/localizations/${QMFILENM}
-			     ${COPYTODATADIR}/data/localizations/${QMFILENM} )
+			     ${COPYFROMDATADIR}/data/translations/${QMFILENM}
+			     ${COPYTODATADIR}/data/translations/${QMFILENM} )
 	endforeach()
    endif()
 if ( NOT ${PACKAGE_NAME}  STREQUAL "v7basedatadefs" )
