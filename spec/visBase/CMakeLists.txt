@@ -4,6 +4,9 @@
 # 	May 2012 :	Nageswara
 #_______________________________________________________________________________
 
+if ( UNIX )
+  set( OpenGL_GL_PREFERENCE "LEGACY" )
+endif()
 find_package( OpenGL REQUIRED )
 if ( UNIX )
     if ( APPLE )
