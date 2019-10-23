@@ -5,7 +5,8 @@
 #RCS:           $Id$
 
 set( BASEPACKAGES basedatadefs )
-set( PACKAGELIST basedefs develdefs )
+#set( PACKAGELIST basedefs develdefs )
+set( PACKAGELIST basedefs  )
 if ( WIN32 )
     if ( "${BUILD_USERDOC}" STREQUAL "YES" AND EXISTS ${USERDOC_PROJECT} )
 	set( PACKAGELIST ${PACKAGELIST} doc )
