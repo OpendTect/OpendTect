@@ -491,6 +491,7 @@ void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
 	tks.set( rcgeom->rowRange(), rcgeom->colRange() );
     }
 
+    PosID posid( horizon_.id(), sid );
     for ( od_int64 gidx=0; gidx<tks.totalNr(); gidx++ )
     {
 	const TrcKey tk = tks.atIndex( gidx );
@@ -500,7 +501,8 @@ void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
 	else
 	    val = arr2d.get( tks.inlIdx(tk.inl()), tks.crlIdx(tk.crl()) );
 
-	setAuxDataVal( dataidx, tk, val );
+	posid.setSubID( tk.binID().toInt64() );
+	setAuxDataVal( dataidx, posid, val );
     }
 }
 
