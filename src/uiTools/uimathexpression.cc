@@ -59,10 +59,6 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	    grpfld_->addItem( tr("Other") );
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
-	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? 
-				    toUiString("   \\") : toUiString("   /") );
-	lbl->attach( leftOf, grpfld_ );
-	insgrp->setHAlignObj( lbl );
 	grpfld_->setHSzPol( uiObject::Medium );
 	grpfld_->setStretch( 0, 0 );
 
