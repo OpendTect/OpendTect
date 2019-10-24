@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "iodir.h"
+#include "iodirentry.h"
 #include "ioobj.h"
 #include "parametricsurface.h"
 #include "posprovider.h"
@@ -40,19 +41,14 @@ namespace EM
 
 void HorizonSelInfo::getAll( ObjectSet<HorizonSelInfo>& set, bool is2d )
 {
-    const IODir iodir(
-	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
-    FixedString groupstr = is2d
-	? EMHorizon2DTranslatorGroup::sGroupName()
-	: EMHorizon3DTranslatorGroup::sGroupName();
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
+			     : mIOObjContext(EMHorizon3D);
+    IODir iodir( ctxt.getSelKey() );
+    IODirEntryList entries( iodir, ctxt );
+    for ( int idx=0; idx<entries.size(); idx++ )
     {
-	const IOObj* ioobj = ioobjs[idx];
-	if ( ioobj->translator() != "dGB" )
-	    continue;
-
-	if ( ioobj->group() != groupstr  )
+	const IOObj* ioobj = entries[idx]->ioobj_;
+	if ( !ioobj || ioobj->translator() != "dGB" )
 	    continue;
 
 	HorizonSelInfo* info = new HorizonSelInfo( ioobj->key() );
