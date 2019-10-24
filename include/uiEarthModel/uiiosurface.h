@@ -275,13 +275,14 @@ public:
 
     void			setKey(const MultiID&);
     void			setDataName(const char*);
-    const MultiID&		getKey() const;
+    MultiID			getKey() const;
     const char*			getDataName() const;
 
 protected:
     uiIOObjSel*			objfld_;
     uiIOSelect*			auxdatafld_;
 
+    void			finalizeCB(CallBacker*);
     void			objSelCB(CallBacker*);
     void			auxSelCB(CallBacker*);
     BufferString		objtype_;
