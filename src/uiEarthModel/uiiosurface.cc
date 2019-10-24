@@ -1047,12 +1047,14 @@ uiAuxDataGrp::uiAuxDataGrp( uiParent* p, bool forread )
     uiLabeledListBox* llb =
 	new uiLabeledListBox( this, uiStrings::sHorizonData() );
     listfld_ = llb->box();
+    listfld_->setHSzPol( uiObject::Wide );
 
     if ( !forread )
     {
 	mAttachCB( listfld_->selectionChanged, uiAuxDataGrp::selChg );
 
 	inpfld_ = new uiGenInput( this, uiStrings::sName() );
+	inpfld_->setElemSzPol( uiObject::Wide );
 	inpfld_->attach( alignedBelow, listfld_ );
     }
 }
@@ -1117,11 +1119,24 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
     if ( objfld_ )
 	auxdatafld_->attach( alignedBelow, objfld_ );
     setHAlignObj( auxdatafld_ );
+
+    mAttachCB( postFinalise(), uiAuxDataSel::finalizeCB );
 }
 
 
 uiAuxDataSel::~uiAuxDataSel()
 {
+    detachAllNotifiers();
+}
+
+
+void uiAuxDataSel::finalizeCB( CallBacker* )
+{
+    const IOObj* ioobj = objfld_ ? objfld_->ioobj(true) : nullptr;
+    if ( !ioobj )
+	return;
+
+    key_ = ioobj->key();
 }
 
 
@@ -1137,9 +1152,9 @@ void uiAuxDataSel::setDataName( const char* nm )
 }
 
 
-const MultiID& uiAuxDataSel::getKey() const
+MultiID uiAuxDataSel::getKey() const
 {
-    return key_;
+    return objfld_ ? objfld_->key() : key_;
 }
 
 
