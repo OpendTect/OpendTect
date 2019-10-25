@@ -197,7 +197,7 @@ uiString uiStrings::phrInsert( const uiString& string )
 { return phrJoinStrings( sInsert(), string ); }
 
 uiString uiStrings::phrInternalErr( const char* string )
-{ return tr("Internal Error (pease contact support@dgbes.com):\n%1")
+{ return tr("Internal Error (please contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
 uiString uiStrings::phrInvalid( const uiString& string )
@@ -223,7 +223,9 @@ uiString uiStrings::phrOpen( const uiString& string )
 { return toUiString(joinstring).arg(sOpen()).arg(string); }
 
 uiString uiStrings::phrOutput( const uiString& string )
-{ return toUiString(joinstring).arg( sOutput() ).arg( string ); }
+{ 
+    return toUiString(joinstring).arg( sOutput() ).arg( string ); 
+}
 
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
