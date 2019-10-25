@@ -245,7 +245,7 @@ uiPhrase uiStrings::phrInvalid( const uiWord& string )
 { return mJoinStr.arg( sInvalid() ).arg( string ); }
 
 uiPhrase uiStrings::phrInternalErr( const char* string )
-{ return tr("Internal Error (pease contact support@dgbes.com):\n%1")
+{ return tr("Internal Error (please contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
 uiPhrase uiStrings::phrLoad( const uiWord& string )
