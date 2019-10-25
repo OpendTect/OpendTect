@@ -35,7 +35,10 @@ HDF5::WriterImpl::WriterImpl()
     , createeditable_(false)
 {
     if ( szip_encoding_status < 0 )
-	szip_encoding_status = H5Zfilter_avail( H5Z_FILTER_SZIP ) ? 1 : 0;
+	szip_encoding_status = 0;
+/*	szip_encoding_status = H5Zfilter_avail( H5Z_FILTER_SZIP ) ? 1 : 0;
+	TODO: enable if possible
+*/
 }
 
 
