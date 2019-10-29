@@ -174,7 +174,21 @@ void uiStatusBar::setEmpty( int startat )
 
 void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
 {
+    while( messages_.size() <= fldidx )
+	messages_.add( uiString::emptyString() );
+
+    messages_[fldidx] = msg;
     body_->message( msg, fldidx, msecs );
+    body_->repaint();
+    uiMain::theMain().flushX();
+}
+
+
+void uiStatusBar::message( const uiStringSet& msgs, int msecs )
+{
+    messages_ = msgs;
+    for ( int idx=0; idx<msgs.size(); idx++ )
+	body_->message( msgs[idx], idx, msecs );
     body_->repaint();
     uiMain::theMain().flushX();
 }

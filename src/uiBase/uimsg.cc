@@ -644,8 +644,18 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
     if ( !mw || !mw->statusBar() )
 	mw = uiMain::theMain().topLevel();
     sb_ = mw ? mw->statusBar() : 0;
+    if ( sb_ )
+	sb_->getMessages( prevmessages_ );
 
     setMessage( msg );
+}
+
+
+uiUserShowWait::~uiUserShowWait()
+{
+    readyNow();
+    if ( sb_ )
+	sb_->message( prevmessages_ );
 }
 
 
@@ -658,11 +668,11 @@ void uiUserShowWait::setMessage( const uiString& msg )
 
 void uiUserShowWait::readyNow()
 {
-    if ( mcc_ )
-    {
-	setMessage( uiString::emptyString() );
-	mcc_->restore();
-	delete mcc_; mcc_ = 0;
-    }
+    if ( !mcc_ )
+	return;
+
+    setMessage( uiString::emptyString() );
+    mcc_->restore();
+    deleteAndZeroPtr( mcc_ );
 }
 

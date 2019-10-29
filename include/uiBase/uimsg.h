@@ -212,7 +212,7 @@ mExpClass(uiBase) uiUserShowWait
 public:
 
 			uiUserShowWait(uiParent*,const uiString&,int sbfld=0);
-			~uiUserShowWait()		{ readyNow(); }
+			~uiUserShowWait();
 
     void		setMessage(const uiString&);
     void		readyNow();
@@ -222,6 +222,7 @@ protected:
     uiStatusBar*	sb_;
     MouseCursorChanger*	mcc_;
     const int		fldidx_;
+    uiStringSet		prevmessages_;
 
 };
 

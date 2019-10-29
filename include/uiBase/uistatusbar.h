@@ -47,9 +47,12 @@ public:
 
     int			nrFields() const;
     void		message(const uiString&,int fldidx=0, int msecs=-1);
+    void		message(const uiStringSet&,int msecs=-1);
     void		setEmpty(int startat=0);
     void		setBGColor(int fldidx,const Color&);
     Color		getBGColor(int fldidx) const;
+    void		getMessages( uiStringSet& msgs ) const
+			{ msgs = messages_; }
 
 protected:
 
@@ -60,6 +63,7 @@ private:
     uiStatusBarBody*	body_;
     uiStatusBarBody&	mkbody(uiMainWin*, const char*,
 			       mQtclass(QStatusBar&));
+    uiStringSet		messages_;
 };
 
 
