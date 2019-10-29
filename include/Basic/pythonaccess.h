@@ -21,6 +21,7 @@ ________________________________________________________________________
 class FilePath;
 class Timer;
 class uiString;
+
 namespace OS {
     class CommandExecPars;
     class CommandLauncher;
@@ -86,6 +87,7 @@ namespace OD
 	uiRetVal	getModules(ObjectSet<ModuleInfo>&,
 				   const char* cmd="pip list");
 
+
     private:
 
 	bool		istested_ = false;
@@ -126,6 +128,9 @@ namespace OD
 
 	void			handleFilesCB(CallBacker*);
 
+    public:
+	void			initProcs(); //Only for init of Basic module
+
     };
 
     mGlobal(Basic) PythonAccess& PythA();
@@ -133,6 +138,9 @@ namespace OD
     mGlobal(Basic) bool canDoCUDA(BufferString& maxverstr);
 
 } //namespace OD
+
+
+
 
 #endif
 

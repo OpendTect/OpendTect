@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mmbatchjobdispatch.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "procdescdata.h"
 
 
 Batch::SingleJobDispatcherRemote::SingleJobDispatcherRemote()
@@ -125,7 +126,6 @@ bool Batch::SingleJobDispatcherRemote::launch()
     return cl.execute( jobspec_.execpars_ );
 }
 
-
 mDefModInitFn(MMProc)
 {
     mIfNotFirstTime( return );
@@ -133,4 +133,7 @@ mDefModInitFn(MMProc)
     Batch::SingleJobDispatcherRemote::initClass();
     Batch::MMJobDispatcher::initClass();
     Batch::ClusterJobDispatcher::initClass();
+
+    ePDD().add( "od_remoteservice",
+       Batch::MMProgDef::sMMProcDesc(), ProcDesc::DataEntry::OD );
 }

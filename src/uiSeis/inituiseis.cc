@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseiswriteopts.h"
 #include "uiseisposprovgroup.h"
 
+#include "procdescdata.h"
 
 mDefModInitFn(uiSeis)
 {
@@ -29,4 +30,7 @@ mDefModInitFn(uiSeis)
     uiCBVSPS3DOpts::initClass();
 
     uiSeisPosProvGroup::initClass();
+
+    ePDD().add( "od_SeisMMBatch",
+	Batch::SeisMMProgDef::sSeisMMProcDesc(), ProcDesc::DataEntry::OD );
 }

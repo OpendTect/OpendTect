@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "legal.h"
 #include "moddepmgr.h"
 #include "posinfo2dsurv.h"
+#include "pythonaccess.h"
 #include "sighndl.h"
 #include "texttranslator.h"
 
@@ -75,4 +76,5 @@ mDefModInitFn(Basic)
 #endif
 
     OD::loadLocalization();
+    OD::PythA().initProcs();
 }

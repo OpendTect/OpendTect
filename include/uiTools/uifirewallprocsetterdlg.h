@@ -11,6 +11,8 @@
 #include "uidialog.h"
 
 #include "enums.h"
+#include "procdescdata.h"
+
 
 class uiListBox;
 class uiButton;
@@ -34,9 +36,16 @@ protected:
 
     bool		    acceptOK(CallBacker*);
     BufferString	    getPythonInstDir();
-    BufferStringSet	    getPythonExecList();
+    uiStringSet		    getPythonExecList();
+
+    BufferStringSet	    getSelProcList(ProcDesc::DataEntry::Type);
 
     ActionType		    acttyp_;
     BufferString	    exepath_;
+
+    BufferStringSet	    odprocnms_;
+    uiStringSet		    odprocdescs_;
+    BufferStringSet	    pyprocnms_;
+    uiStringSet		    pyprocdescs_;
 };
 #endif

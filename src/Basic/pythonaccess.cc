@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "procdescdata.h"
 #include "settings.h"
 #include "string2.h"
 #include "timefun.h"
@@ -30,11 +31,12 @@ const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 
 #define mFileRetentionTimeInMilliSec 60000
-#define mDelCycleTym                mFileRetentionTimeInMilliSec*5
+#define mDelCycleTym		    mFileRetentionTimeInMilliSec*5
+
 
 OD::PythonAccess& OD::PythA()
 {
-    static PtrMan<OD::PythonAccess> theinst = nullptr;
+    mDefineStaticLocalObject( PtrMan<OD::PythonAccess>, theinst, = nullptr );
     return *theinst.createIfNull();
 }
 
@@ -67,7 +69,6 @@ void EnumDefImpl<OD::PythonSource>::init()
 }
 
 
-
 OD::PythonAccess::PythonAccess()
     : envChange(this)
     , filedeltimer_(*new Timer( "Delete Files" ))
@@ -84,6 +85,50 @@ OD::PythonAccess::~PythonAccess()
     delete &filedeltimer_;
     for ( int idx=fptodelset_.size()-1; idx>=0; idx-- )
 	File::remove( fptodelset_[idx]->fullPath() );
+}
+
+
+void OD::PythonAccess::initProcs()
+{
+#ifdef __win__
+    ManagedObjectSet<FilePath> fps;
+    BufferStringSet envnms;
+
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    PythonSource source;
+    PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
+
+    FilePath externalroot;
+    if ( source == Custom )
+    {
+	BufferString virtenvloc;
+	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	    externalroot = virtenvloc;
+	BufferString virtenvnm;
+	pythonsetts.get( sKey::Name(), virtenvnm );
+	if ( !getSortedVirtualEnvironmentLoc(fps, envnms, nullptr,
+							    &externalroot) )
+	    return;
+    }
+    else if ( source == Internal )
+    {
+	if ( !getSortedVirtualEnvironmentLoc(fps, envnms) )
+	    return;
+    }
+
+    for ( int idx=0; idx<fps.size(); idx++ )
+    {
+	FilePath* fp = fps[idx];
+	fp->add(sPythonExecNm());
+	if ( !File::exists(fp->fullPath()) )
+	    continue;
+
+	ePDD().add( *envnms[idx],
+	::toUiString("Machine Learning Environment : <%1>").arg(*envnms[idx]),
+	ProcDesc::DataEntry::Python );
+    }
+#endif //
 }
 
 
@@ -650,9 +695,9 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
 }
 
 
-bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
+bool OD::PythonAccess::hasInternalEnvironment(bool userdef)
 {
-    const FilePath fp( getInternalEnvPath( userdef ) );
+    const FilePath fp(getInternalEnvPath(userdef));
     return fp.exists();
 }
 

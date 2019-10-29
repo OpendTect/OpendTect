@@ -38,7 +38,8 @@ uiString getDlgTitle( uiFirewallProcSetter::ActionType acttyp )
     else if ( acttyp == uiFirewallProcSetter::Remove )
 	return od_static_tr( "getDlgTitle", "Remove Firewall Program Rule" );
     else
-	return od_static_tr( "getDlgTitle", "Remove Firewall Program Rule" );
+	return od_static_tr( "getDlgTitle",
+					"Add/Remove Firewall Program Rule" );
 }
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
@@ -54,23 +55,24 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
     else
 	exepath_ = path;
 
+    ePDD().getProcData( odprocnms_, odprocdescs_, ProcDesc::DataEntry::OD );
+
     uiListBox::Setup su;
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
     odproclistbox_ = new uiListBox( this, su );
+    odproclistbox_->addItems( odprocdescs_ );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    BufferStringSet odprocnms;
-    odprocnms.add( "od_remoteservice" );
-    odprocnms.add( "od_SeisMMBatch" );
-    odproclistbox_->addItems( odprocnms );
     uiObject* attachobj = odproclistbox_->attachObj();
+    
     if ( !getPythonExecList().isEmpty() )
     {
 	su.lbl( tr("Python Executables") );
 	pythonproclistbox_ = new uiListBox( this, su );
+	pythonproclistbox_->blockScrolling( false );
+	pythonproclistbox_->addItems( getPythonExecList() );
 	pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
 	pythonproclistbox_->attach( alignedBelow, attachobj );
-	pythonproclistbox_->addItems( getPythonExecList() );
 	attachobj = pythonproclistbox_->attachObj();
     }
     if ( acttyp == AddNRemove )
@@ -89,32 +91,34 @@ uiFirewallProcSetter::~uiFirewallProcSetter()
 }
 
 
-BufferStringSet uiFirewallProcSetter::getPythonExecList()
+uiStringSet uiFirewallProcSetter::getPythonExecList()
 {
-    BufferStringSet dirset;
+    pyprocnms_.setEmpty();
+    pyprocdescs_.setEmpty();
+
+    ePDD().getProcData( pyprocnms_, pyprocdescs_,
+						ProcDesc::DataEntry::Python );
+
+    if ( pyprocnms_.isEmpty() )
+	return nullptr;
+
     FilePath fp( getPythonInstDir() );
     fp.add( "envs" );
-    DirList dirlist( fp.fullPath(), DirList::DirsOnly );
-    if ( dirlist.isEmpty() )
-	return dirset;
 
-    for ( int idx=0; idx<dirlist.size(); idx++ )
+    for ( int idx=pyprocnms_.size()-1; idx>=0; idx-- )
     {
-	const FilePath pyexefp( dirlist.fullPath(idx), "python.exe" );
-	const FilePath bokehexefp( dirlist.fullPath(idx), "Scripts",
-								"bokeh.exe" );
-	const FilePath tensorbrdexefp( dirlist.fullPath(idx), "Scripts",
-							"tensorboard.exe" );
+	const FilePath pyexefp( fp.fullPath(), pyprocnms_.get(idx),
+								"python.exe" );
 
-	if ( !File::exists(pyexefp.fullPath()) && 
-			    !File::exists(bokehexefp.fullPath()) && 
-				    !File::exists(tensorbrdexefp.fullPath()) )
+	if ( !File::exists(pyexefp.fullPath()) )
+	{
+	    pyprocnms_.removeSingle( idx );
+	    pyprocdescs_.removeSingle( idx );
 	    continue;
-
-	FilePath exefp ( dirlist.fullPath(idx) );
-	dirset.add( exefp.baseName() );
+	}
     }
-    return dirset;
+
+    return pyprocdescs_;
 }
 
 
@@ -128,19 +132,38 @@ BufferString uiFirewallProcSetter::getPythonInstDir()
 	OD::PythonAccess::sKeyPythonSrc(), source );
     if ( !pythonsource || source != OD::PythonSource::Custom ||
 	!pythonsetts.get(OD::PythonAccess::sKeyEnviron(), pythonloc) )
-	return ""; // return default location?
+	return "";
 
     return pythonloc;
 }
 
 
+BufferStringSet uiFirewallProcSetter::getSelProcList(
+					    ProcDesc::DataEntry::Type type )
+{
+    BufferStringSet proclist;
+    TypeSet<int> selidxs;
+
+    const BufferStringSet& procnms = type == ProcDesc::DataEntry::OD ?
+						    odprocnms_ : pyprocnms_;
+    if ( type == ProcDesc::DataEntry::OD )
+	odproclistbox_->getChosen( selidxs );
+    else
+	pythonproclistbox_->getChosen( selidxs );
+
+    for ( int idx=0; idx<selidxs.size(); idx++ )
+	proclist.add( procnms.get(selidxs[idx]) );
+
+    return proclist;
+}
+
+
 bool uiFirewallProcSetter::acceptOK( CallBacker* )
 {
-    BufferStringSet odchosenproc;
-    odproclistbox_->getChosen( odchosenproc );
+    BufferStringSet odchosenproc = getSelProcList( ProcDesc::DataEntry::OD );
 
-    BufferStringSet pythonchosenproc;
-    pythonproclistbox_->getChosen( pythonchosenproc );
+    BufferStringSet pythonchosenproc =
+				getSelProcList( ProcDesc::DataEntry::Python );
 
     if ( odchosenproc.isEmpty() && pythonchosenproc.isEmpty() )
     {
@@ -185,8 +208,11 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    else
 		errmsg = uiStrings::phrCannotRemove( tr("%1 process") );
 
-	    uiMSG().error( errmsg.arg(idx == 0 ? ::toUiString("OpendTect") :
-		::toUiString("Python")) );
+	    uiMSG().errorWithDetails(
+		    errmsg.arg(idx == 0 ? ::toUiString("OpendTect") :
+		    ::toUiString("Python")),
+		    tr("Please make sure OpendTect is running "
+					"in administrative mode") );
 	    errocc = true;
 	}
     }

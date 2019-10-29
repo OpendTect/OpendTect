@@ -33,6 +33,9 @@ public:
 
     BufferString	mmprognm_;
 
+    static uiString	sMMProcDesc()
+			    { return tr("Distribution Computing service"); }
+
 };
 
 
