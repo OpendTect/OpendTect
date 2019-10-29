@@ -938,7 +938,7 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
 int Well::SimpleTrackSampler::nextStep()
 {
     float zval = extrintv_.atIndex( nrdone_ );
-    float dah = d2t_ ? d2t_->getDah( zval, track_ ) : zval;
+    float dah = d2t_ ? d2t_->getDah( zval, track_ ) : track_.getDahForTVD(zval);
 
     if ( zval > extrintv_.stop )
 	return Executor::Finished();
