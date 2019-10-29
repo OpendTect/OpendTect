@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "taskrunner.h"
-#include "uistring.h"
+#include "uistringset.h"
 class uiParent;
 class uiStatusBar;
 class MouseCursorChanger;
@@ -34,7 +34,7 @@ public:
 
 			uiUserShowWait(const uiParent*,const uiString&,
 					int statusbarfld=0);
-			~uiUserShowWait()		{ readyNow(); }
+			~uiUserShowWait();
 
     void		setMessage(const uiString&);
     void		readyNow();
@@ -47,6 +47,7 @@ protected:
     uiStatusBar*	sb_;
     MouseCursorChanger*	mcc_;
     const int		fldidx_;
+    uiStringSet		prevmessages_;
 
 };
 
