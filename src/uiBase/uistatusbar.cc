@@ -183,11 +183,8 @@ void uiStatusBar::setPartiallyEmpty( int startat )
 void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
 {
     body_->setText( msg, fldidx, msecs );
-    /* This makes OpendTect almost grind to a halt on my system
-       Is it needed? For what?
     body_->repaint();
     uiMain::theMain().flushX();
-    */
 }
 
 
