@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uibaseobject.h"
 #include "draw.h"
-#include "uistring.h"
+#include "uistringset.h"
 
 mFDQtclass(QStatusBar)
 class uiStatusBarBody;
@@ -49,11 +49,14 @@ public:
 
     int			nrFields() const;
     void		message(const uiString&,int fldidx=0, int msecs=-1);
+    void		message(const uiStringSet&,int msecs=-1);
     void		setPartiallyEmpty(int startat);
     void		setBGColor(int fldidx,const Color&);
     Color		getBGColor(int fldidx) const;
     bool		isEmpty() const	{ return nrFields() < 1; }
     void		setEmpty()	{ setPartiallyEmpty(0); }
+    void		getMessages( uiStringSet& msgs ) const
+			{ msgs = messages_; }
 
     int			getNrWidgets() const		{ return 1; }
     mQtclass(QWidget)*	getWidget(int);
@@ -67,4 +70,5 @@ private:
     uiStatusBarBody*	body_;
     uiStatusBarBody&	mkbody(uiMainWin*, const char*,
 			       mQtclass(QStatusBar&));
+    uiStringSet		messages_;
 };
