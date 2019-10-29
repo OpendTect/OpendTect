@@ -46,19 +46,23 @@ protected:
 mExpClass(uiIo) uiManageLineGeomDlg : public uiDialog
 { mODTextTranslationClass(uiManageLineGeomDlg)
 public:
-			uiManageLineGeomDlg(uiParent*,Pos::GeomID,
-					    bool readonly);
+			uiManageLineGeomDlg(uiParent*,
+				const TypeSet<Pos::GeomID>&,bool readonly);
 			~uiManageLineGeomDlg();
 
 protected:
 
     void		impGeomCB(CallBacker*);
+    void		expGeomCB(CallBacker*);
+    void		lineSel(CallBacker*);
     void		setTrcSPNrCB(CallBacker*);
     void		fillTable(const Survey::Geometry2D&);
     bool		acceptOK(CallBacker*);
 
     uiTable*		table_;
     uiGenInput*		rgfld_;
+    uiGenInput*			linefld_;
+    TypeSet<Pos::GeomID>	geomidset_;
 
     Pos::GeomID		geomid_;
     bool		readonly_;

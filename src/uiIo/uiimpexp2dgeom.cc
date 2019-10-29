@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
 #include "uitblimpexpdatasel.h"
+#include "uilistbox.h"
 
 #include "geom2dascio.h"
 #include "od_iostream.h"
@@ -204,9 +205,42 @@ bool uiImp2DGeom::fillGeom( Survey::Geometry2D& geom )
 
 
 // uiExp2DGeom
-uiExp2DGeom::uiExp2DGeom( uiParent* p )
+uiExp2DGeom::uiExp2DGeom( uiParent* p, const TypeSet<Pos::GeomID>* geomidset,
+				      bool ismodal )
     : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Geometry")),mNoDlgTitle,
-		       mODHelpKey(mExp2DGeomHelpID)).modal(false))
+		       mODHelpKey(mExp2DGeomHelpID)).modal(ismodal))
+{
+    createUI();
+    if ( geomidset )
+    {
+	geomidset_=*geomidset;
+	mAttachCB( postFinalise(),uiExp2DGeom::setList );
+    }
+}
+
+
+uiExp2DGeom::~uiExp2DGeom()
+{
+    detachAllNotifiers();
+}
+
+
+void uiExp2DGeom::setList( CallBacker* )
+{
+    BufferStringSet linenms;
+    for ( int idx=0; idx<geomidset_.size(); idx++ )
+    {
+	//mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+	ConstRefMan<Survey::Geometry> geom2d = Survey::GM()
+						.getGeometry(geomidset_[idx]);
+	if ( geom2d && geom2d->is2D() )
+	    linenms.add( geom2d->getName() );
+    }
+    geomfld_->getListField()->setChosen( linenms );
+}
+
+
+void uiExp2DGeom::createUI()
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
@@ -217,11 +251,6 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
     outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, geomfld_ );
-}
-
-
-uiExp2DGeom::~uiExp2DGeom()
-{
 }
 
 

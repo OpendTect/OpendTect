@@ -50,15 +50,20 @@ protected:
 mExpClass(uiIo) uiExp2DGeom : public uiDialog
 { mODTextTranslationClass(uiExp2DGeom)
 public:
-			uiExp2DGeom(uiParent*);
+			uiExp2DGeom(uiParent*,
+				    const TypeSet<Pos::GeomID>* =0,
+				    bool ismodal=false);
 			~uiExp2DGeom();
 
 protected:
 
     bool		acceptOK(CallBacker*);
+    void		createUI();
+    void		setList( CallBacker* );
 
     uiIOObjSelGrp*	geomfld_;
     uiFileInput*	outfld_;
+    TypeSet<Pos::GeomID>	geomidset_;
 };
 
 #endif
