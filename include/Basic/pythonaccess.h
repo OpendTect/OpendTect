@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "notify.h"
 
 class Timer;
+class uiPythonSettings;
 class uiString;
 namespace OS {
     class CommandExecPars;
@@ -89,7 +90,9 @@ namespace OD
 	};
 
 	uiRetVal	verifyEnvironment(const char* piname);
+	BufferString	getPacmanExecNm() const;
 	uiRetVal	updateModuleInfo(const char* cmd="pip list");
+			/*<! Pass nullptr to auto-detect */
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
@@ -104,6 +107,7 @@ namespace OD
 	mutable BufferString	laststdout_;
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
+	BufferString	pythversion_;
 	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
 	static bool	getInternalEnvironmentLocation(File::Path&,
@@ -133,6 +137,10 @@ namespace OD
 				  const File::Path* activatefp,
 				  const char* envnm) const;
 	static File::Path*	getActivateScript(const File::Path& root);
+	bool			retrievePythonVersionStr();
+	void			envChangeCB(CallBacker*);
+
+	friend class ::uiPythonSettings;
 
     };
 
