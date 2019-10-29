@@ -85,14 +85,13 @@ OD::PythonAccess::~PythonAccess()
 
 BufferString OD::PythonAccess::pyVersion() const
 {
-    BufferString result;
-    if ( isUsable( true ) )
+    if ( pythversion_.isEmpty() )
     {
-	result.set( lastOutput(false,nullptr) );
-	if ( result.isEmpty() )
-	    result.set( lastOutput( true, nullptr ) );
+	PythonAccess& acc = const_cast<PythonAccess&>( *this );
+	acc.retrievePythonVersionStr();
     }
-    return result;
+
+    return pythversion_;
 }
 
 
@@ -155,10 +154,7 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	source == System;
 
     if ( usesystem )
-    {
-	isusable_ = isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
-	return isusable_;
-    }
+	return isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
 
     PtrMan<File::Path> externalroot = nullptr;
     PtrMan<BufferString> virtenvnm;
@@ -182,10 +178,7 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	const File::Path* pythonenvfp = pythonenvsfp.get( idx );
 	const BufferString& envnm = envnms.get( idx );
 	if ( isEnvUsable(pythonenvfp,envnm.buf(),scriptstr,scriptexpectedout) )
-	{
-	    isusable_ = true;
 	    return true;
-	}
     }
 
     return false;
@@ -264,12 +257,11 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
     }
 
     msg_.setEmpty();
-    if ( !notrigger ) {
-	moduleinfos_.setEmpty();
-	envChange.trigger();
-    }
+    isusable_ = true;
+    if ( !notrigger )
+	envChangeCB(nullptr);
 
-    return true;
+    return isusable_;
 }
 
 
@@ -784,13 +776,45 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 }
 
 
+bool OD::PythonAccess::retrievePythonVersionStr()
+{
+    if ( !isUsable(!istested_) )
+	return false;
+
+    OS::MachineCommand cmd( sPythonExecNm(true) );
+    cmd.addFlag( "version" );
+    BufferString laststdout, laststderr;
+    const bool res = execute( cmd, laststdout, &laststderr );
+    if ( res )
+    {
+	if ( !laststdout.isEmpty() )
+	    pythversion_ = laststdout;
+	else if ( !laststderr.isEmpty() )
+	    pythversion_ = laststderr;
+    }
+
+    return !pythversion_.isEmpty();
+}
+
+
+void OD::PythonAccess::envChangeCB( CallBacker* )
+{
+    retrievePythonVersionStr();
+    const uiRetVal uirv = updateModuleInfo( nullptr );
+    if ( !uirv.isOK() )
+	msg_.append( uirv );
+
+    envChange.trigger();
+}
+
+
 uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
-    uiRetVal retval;
+    if ( !isUsable(!istested_) )
+	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
-    retval.add( updateModuleInfo() );
-    if ( !retval.isOK() )
-	return retval;
+    if ( !msg_.isEmpty() )
+	return uiRetVal( msg_ );
 
     File::Path fp( mGetSWDirDataDir() );
     fp.add( "Python" );
@@ -804,7 +828,7 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     if ( !fp.exists() ) {
 	fp.setFileName( genericName ).setExtension( "txt" );
 	if ( !fp.exists() )
-	    return retval;
+	    return uiRetVal( uiStrings::phrFileDoesNotExist(fp.fullPath() ) );
     }
     od_istream strm( fp.fullPath() );
     if ( !strm.isOK() )
@@ -814,6 +838,7 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     BufferString line;
     bool newlinefound = true;
     int lnum = 1;
+    uiRetVal retval;
     while ( strm.isOK() )
     {
 	strm.getLine( line, &newlinefound );
@@ -835,6 +860,44 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     };
 
     return retval;
+}
+
+
+BufferString OD::PythonAccess::getPacmanExecNm() const
+{
+    if ( activatefp_ )
+    {
+	File::Path packmanexe( *activatefp_ );
+	packmanexe.setFileName( "conda" );
+#ifdef __win__
+	packmanexe.setExtension( "bat" );
+#endif
+	if ( packmanexe.exists() )
+	    return packmanexe.baseName();
+
+#ifdef __win__
+	packmanexe.setFileName( nullptr ).setFileName( nullptr )
+		  .add( "Scripts" );
+#endif
+	packmanexe.setFileName( "pip" );
+#ifdef __win__
+	packmanexe.setExtension( "exe" );
+#endif
+	if ( packmanexe.exists() )
+	    return packmanexe.baseName();
+
+	packmanexe.setFileName( "pip3" );
+	if ( packmanexe.exists() )
+	    return packmanexe.baseName();
+
+	return BufferString( "pip" ); //Fallback
+    }
+
+#ifdef __win__
+    return BufferString( "pip" );
+#else
+    return BufferString( "pip3" );
+#endif
 }
 
 
@@ -877,39 +940,43 @@ uiRetVal OD::PythonAccess::hasModule( const char* modname,
 
 uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
 {
+    BufferString modulecmd( cmd );
+    if ( modulecmd.isEmpty() )
+	modulecmd.set( getPacmanExecNm() ).addSpace().add( "list" );
+
     moduleinfos_.setEmpty();
-    if ( !isUsable( true ) )
-	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
     BufferStringSet cmdstrs;
-    cmdstrs.unCat( cmd, " " );
+    cmdstrs.unCat( modulecmd, " " );
     if ( cmdstrs.isEmpty() )
-	return uiRetVal( tr("Invalid command: %1").arg(cmd) );
+	return uiRetVal( tr("Invalid command: %1").arg(modulecmd) );
 
     const BufferString prognm( cmdstrs.first()->str() );
     cmdstrs.removeSingle(0);
     OS::MachineCommand mc( prognm, cmdstrs );
     BufferString laststdout, laststderr;
     bool res = execute( mc, laststdout, &laststderr );
-    #ifdef __unix__
+#ifdef __unix__
     if ( !res && prognm == FixedString("pip") )
     {
 	mc.setProgram( "pip3" );
 	res = execute( mc, laststdout, &laststderr );
     }
-    #endif
+#endif
     if ( !res )
     {
 	return uiRetVal( tr("Cannot generate a list of python modules:\n%1")
-	.arg(laststderr) );
+			    .arg(laststderr) );
     }
 
     BufferStringSet modstrs;
     modstrs.unCat( laststdout );
-    for ( int idx=2; idx<modstrs.size(); idx++ )
+    for ( auto modstr : modstrs )
     {
-	BufferString info = modstrs.get(idx).trimBlanks().toLower();
-	moduleinfos_.add( new ModuleInfo( info ) );
+	if ( modstr->startsWith("#") ||
+	     modstr->startsWith("Package") || modstr->startsWith("----") )
+	    continue;
+	moduleinfos_.add( new ModuleInfo( modstr->trimBlanks().toLower() ) );
     }
 
     return uiRetVal::OK();
@@ -919,8 +986,9 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
 uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 {
     uiRetVal retval;
-    if ( moduleinfos_.isEmpty() ) {
-	retval = updateModuleInfo();
+    if ( moduleinfos_.isEmpty() )
+    {
+	retval = updateModuleInfo( nullptr );
 	if ( !retval.isOK() )
 	    return retval;
     }
@@ -948,7 +1016,7 @@ OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
 
     setName( moduledata.first()->buf() );
     if ( moduledata.size() > 1 )
-	versionstr_.set( moduledata.last()->buf() );
+	versionstr_.set( moduledata.get(1).buf() );
 }
 
 

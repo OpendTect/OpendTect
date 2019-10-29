@@ -496,21 +496,20 @@ void testCB(CallBacker*)
 	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
-    if ( !OD::PythA().isUsable(true) )
+    const bool getversion = OD::PythA().retrievePythonVersionStr();
+    if ( !getversion )
     {
 	uiString launchermsg;
 	uiRetVal uirv( tr("Cannot detect python version:\n%1")
-			.arg(OD::PythA().lastOutput(true,&launchermsg)) );
+		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
 	uirv.add( tr("Python environment not usable") )
 	    .add( launchermsg );
 	gUiMsg( this ).error( uirv );
 	return;
     }
 
-    BufferString versionstr( OD::PythA().lastOutput(false,nullptr) );
-    if ( versionstr.isEmpty() )
-	versionstr.set( OD::PythA().lastOutput(true,nullptr) );
-    gUiMsg( this ).message( tr("Detected Python version: %1").arg(versionstr));
+    gUiMsg( this ).message( tr("Detected Python version: %1")
+			.arg(OD::PythA().pyVersion() ));
 
     usw.setMessage( tr("Retrieving list of installed Python modules") );
     testPythonModules();
