@@ -99,7 +99,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     , jobrunner_(0)
     , timer_(0)
     , nrcyclesdone_(0)
-    , basecaption_(tr("Multi-Machine Processing"))
+    , basecaption_(tr("Distributed Processing"))
 {
     setCaption( basecaption_ );
 
