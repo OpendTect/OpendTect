@@ -2,7 +2,6 @@
 .DS_Store
 *mod.h
 *.local.php
-*helpids.h
 about.html
 dtect/linguist.csh
 include/Basic/svnversion.h
@@ -36,7 +35,6 @@ Testing/
 bin/lux64/Debug/
 bin/lux64/Release/
 doc/Programmer/Generated
-include/General/od_helpids.h
 src/Basic/qpaths.cc
 install_manifest.txt
 inst

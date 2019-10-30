@@ -4,12 +4,6 @@
 # 	July 1995	Bert
 #_______________________________________________________________________________
 
-add_custom_target( od_helpid ALL 
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    ${CMAKE_SOURCE_DIR}/external/doc_csh/od_helpids_orig.h
-                    ${PROJECT_BINARY_DIR}/include/General/od_helpids.h
-		COMMENT "Checking od_helpids.h" )
-
 set ( OD_MODULE_DEPS Algo )
 
 list ( APPEND OD_TEST_PROGS General_Composite.cc )
@@ -120,5 +114,3 @@ if ( WIN32 )
 endif()
 
 OD_INIT_MODULE()
-
-add_dependencies( ${OD_MODULE_NAME} od_helpid )
