@@ -1,7 +1,6 @@
 # Known generated files
 .DS_Store
 *mod.h
-*helpids.h
 about.html
 dtect/linguist.csh
 include/Basic/svnversion.h
@@ -36,8 +35,6 @@ Info.plist
 Testing/
 bin/lux64/Debug/
 bin/lux64/Release/
-include/General/od_helpids.h
-plugins/dGBCommon/dgb_helpids.h
 install_manifest.txt
 inst
 Null
