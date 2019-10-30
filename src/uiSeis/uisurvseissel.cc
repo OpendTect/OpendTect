@@ -10,9 +10,10 @@ ________________________________________________________________________
 
 #include "uisurvseissel.h"
 
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uilistbox.h"
-#include "uibutton.h"
+#include "uisurveyselect.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "keystrs.h"
@@ -248,6 +249,9 @@ void uiSurvSeisSelGroup::seisSelChgCB( CallBacker* )
 
 void uiSurvSeisSelGroup::setSelected( const DBKey& dbky, int compnr )
 {
+    if ( survsel_->surveyDiskLocation() != dbky.surveyDiskLocation() )
+	setSurvey( dbky.surveyDiskLocation() );
+
     const int idxof = indexOf( dbky );
     if ( idxof < 0 )
 	return;
