@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "legal.h"
 #include "moddepmgr.h"
+#include "oscommand.h"
 #include "posinfo2dsurv.h"
 #include "pythonaccess.h"
 #include "sighndl.h"
