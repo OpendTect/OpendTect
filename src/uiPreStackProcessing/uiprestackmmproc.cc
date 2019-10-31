@@ -42,7 +42,7 @@ uiPreStackMMProc::uiPreStackMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p, iop, mODHelpKey(mPreStackMMProcHelpID))
     , is2d_(Seis::is2DGeom(iop))
 {
-    setTitleText( isMultiHost()  ? tr("Multi-Machine Prestack Processing")
+    setTitleText( isMultiHost()  ? tr("Distributed Processing")
 				 : tr("Line-split Prestack processing") );
 }
 

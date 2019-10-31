@@ -40,7 +40,7 @@ uiMMBatchJobDispatcherLauncher( Batch::JobSpec& js )
 
 mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 		       uiMMBatchJobDispatcherLauncher,
-		       Batch::JobSpec&,"Multi-Machine",tr("Multi-Job/Machine"));
+		       Batch::JobSpec&,"Distributed",tr("Distributed"));
 
     virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
     virtual bool			go(uiParent*);
