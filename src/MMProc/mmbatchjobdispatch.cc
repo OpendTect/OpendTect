@@ -99,7 +99,7 @@ bool Batch::MMJobDispatcher::init()
     const int pdidx = defIdx();
     if ( pdidx < 0 || !progdefs_[pdidx]->canHandle(jobspec_) )
     {
-	errmsg_ = tr("The job cannot be handled Multi-Machine."
+	errmsg_ = tr("The job cannot be handled Distributed."
 			"\nTry single-machine execution.");
 	return false;
     }

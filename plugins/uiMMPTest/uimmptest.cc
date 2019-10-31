@@ -45,7 +45,7 @@ uiMMPTestProc::uiMMPTestProc( uiParent* p, const IOPar& iop )
 {
     setOkText( uiStrings::sClose() );
     setCancelText( uiString::empty() );
-    setCaption( tr("Multi-Machine Processing Diagnostic Tool") );
+    setCaption( tr("Distributed Processing Diagnostic Tool") );
     enableJobControl( false );
 
     File::Path fp( iop.find(sKey::FileName()) );

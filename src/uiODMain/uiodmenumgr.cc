@@ -925,7 +925,7 @@ void uiODMenuMgr::fillUtilMenu()
     addAction( licensemenu_, tr("Show this computer's HostID"), "hostid",
 	       mCB(this,uiODMenuMgr,showHostIDCB) );
 
-    mmmnu_ = addSubMenu( utilmnu_, tr("Multi-Machine Processing"), "mmproc" );
+    mmmnu_ = addSubMenu( utilmnu_, tr("Distributed Processing"), "mmproc" );
     addAction( mmmnu_, uiStrings::sSetup(), "settings", mSetupBatchItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
