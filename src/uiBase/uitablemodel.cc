@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 
 #include <QAbstractTableModel>
+#include <QSortFilterProxyModel>
 #include <QTableView>
 
 
@@ -62,6 +63,16 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx, int role ) cons
     if ( role == Qt::DisplayRole )
     {
 	return model_.text(qmodidx.row(),qmodidx.column()).buf();
+    }
+    if ( role == Qt::BackgroundRole )
+    {
+	QColor qcol;
+	Color odcol = model_.color(qmodidx.row(),qmodidx.column());
+	if ( odcol==Color::NoColor() )
+	    return QVariant();
+
+	qcol.setRgb( odcol.rgb() );
+	return qcol;
     }
 
     return QVariant();
@@ -120,6 +131,7 @@ protected:
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , tablemodel_(nullptr)
+    , qproxymodel_(nullptr)
 {
 }
 
@@ -139,6 +151,31 @@ ODTableView& uiTableView::mkView( uiParent* p, const char* nm )
 void uiTableView::setModel( uiTableModel* mdl )
 {
     tablemodel_ = mdl;
-    if ( tablemodel_ )
-	odtableview_->setModel( tablemodel_->getAbstractModel() );
+    if ( !tablemodel_ )
+	return;
+
+    delete qproxymodel_;
+    qproxymodel_ = new QSortFilterProxyModel();
+    qproxymodel_->setSourceModel(  tablemodel_->getAbstractModel() );
+    odtableview_->setModel( qproxymodel_ );
 }
+
+
+void uiTableView::setSortingEnabled( bool yn )
+{ odtableview_->setSortingEnabled( yn ); }
+
+bool uiTableView::isSortingEnabled() const
+{ return odtableview_->isSortingEnabled(); }
+
+void uiTableView::setRowHidden( int row, bool yn )
+{ odtableview_->setRowHidden( row, yn ); }
+
+bool uiTableView::isRowHidden( int row ) const
+{ return odtableview_->isRowHidden( row ); }
+
+void uiTableView::setColumnHidden( int col, bool yn )
+{ odtableview_->setColumnHidden( col, yn ); }
+
+bool uiTableView::iscolumnHidden( int col ) const
+{ return odtableview_->isColumnHidden( col ); }
+
