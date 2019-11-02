@@ -227,16 +227,16 @@ TrcKey::TrcKey( GeomID id, trcnr_type tnr )
 }
 
 
-TrcKey::TrcKey( GeomSystem gs, const BinID& bid )
+TrcKey::TrcKey( GeomSystem gs, const IdxPair& bid )
     : geomsystem_(gs)
     , pos_(bid)
 {
 }
 
 
-TrcKey::TrcKey( const BinID& bid, bool is2d )
+TrcKey::TrcKey( const IdxPair& ip, bool is2d )
     : geomsystem_(is2d ? OD::LineBasedGeom : OD::VolBasedGeom)
-    , pos_(bid)
+    , pos_(ip)
 {
 }
 

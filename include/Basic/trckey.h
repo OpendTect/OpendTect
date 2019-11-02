@@ -65,12 +65,12 @@ public:
 
 			TrcKey()		{ *this = udf(); }
 
-    explicit		TrcKey(const BinID&);	    //!< The 3D choice
+    explicit		TrcKey(const BinID&);
     explicit		TrcKey( const Bin2D& b2d )
 			    : TrcKey(b2d.geomID(),b2d.trcNr())	{}
 			TrcKey(GeomID,trcnr_type);
-			TrcKey(GeomSystem,const BinID&);
-			TrcKey(const BinID&,bool is2d);
+			TrcKey(const IdxPair&,bool is2d);
+			TrcKey(GeomSystem,const IdxPair&);
     static TrcKey	getSynth(trcnr_type);
 			mImplSimpleEqOpers2Memb(TrcKey,geomsystem_,pos_)
 
@@ -87,11 +87,11 @@ public:
     GeomID		geomID() const;
     linenr_type		lineNr() const			{ return pos_.row(); }
     trcnr_type		trcNr() const			{ return pos_.col(); }
-    const BinID&	binID() const			{ return position(); }
+    const BinID&	binID() const			{ return pos_; }
     Bin2D		bin2D() const;
     IdxPair		idxPair() const;
-    pos_type		inl() const			{ return pos_.row(); }
-    pos_type		crl() const			{ return pos_.col(); }
+    pos_type		inl() const			{ return pos_.inl(); }
+    pos_type		crl() const			{ return pos_.crl(); }
 
 			// These set the GeomSystem of the TrcKey:
     TrcKey&		setGeomID(GeomID);
