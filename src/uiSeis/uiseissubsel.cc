@@ -78,6 +78,14 @@ void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
 }
 
 
+void uiSeisSubSel::setSurvey( const SurveyInfo& si )
+{
+    TrcKeyZSampling tkzs( false );
+    si.getSampling( tkzs );
+    selfld_->setInputLimit( tkzs );
+}
+
+
 bool uiSeisSubSel::isAll() const
 {
     return selfld_->isAll();
