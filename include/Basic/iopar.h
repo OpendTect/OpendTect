@@ -350,6 +350,9 @@ public:
 
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
+#ifdef __debug__
+    const char*		dbgDump() const; //!< in debugger: 'p iop.dbgDump()'
+#endif
 
     void		collectIDs(TypeSet<int>&) const;
 

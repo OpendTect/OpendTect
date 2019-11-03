@@ -1485,6 +1485,16 @@ void IOPar::dumpPretty( BufferString& res ) const
 }
 
 
+#ifdef __debug__
+const char* IOPar::dbgDump() const
+{
+    static BufferString res;
+    dumpPretty( res );
+    return res.str();
+}
+#endif
+
+
 void IOPar::collectIDs( TypeSet<int>& ids ) const
 {
     for ( int idx=0; idx<size(); idx++ )
