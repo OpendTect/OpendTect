@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
+class SurveyInfo;
 class TrcKeySampling;
 class TrcKeyZSampling;
 
@@ -40,6 +41,8 @@ public:
 
     static uiSeisSubSel* get(uiParent*,const Seis::SelSetup&);
     virtual		~uiSeisSubSel();
+
+    void		setSurvey(const SurveyInfo&);
 
     bool		isAll() const;
     virtual void	getSampling(TrcKeyZSampling&) const;

@@ -74,11 +74,15 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
     StepInterval<float> limitrg( -mCast(float,cUnLim), mCast(float,cUnLim), 1 );
     if ( inplimitrg )
 	limitrg = *inplimitrg;
-    if ( !othdom_ && limitrg.step > sizrg.step )
+    else if ( !othdom_ && limitrg.step > sizrg.step )
 	limitrg.step = sizrg.step;
 
     if ( mIsZero(limitrg.step,mDefEpsF) )
-	limitrg.step = 1.0f;
+    {
+	limitrg.step = sizrg.step;
+	if ( mIsZero(limitrg.step,mDefEpsF) )
+	    limitrg.step = 1.0f;
+    }
     limitrg.scale( zfac );
 
     const int nrdecimals = cansnap_ ? 0 : 2;
