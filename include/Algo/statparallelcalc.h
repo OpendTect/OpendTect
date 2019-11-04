@@ -31,14 +31,19 @@ template <class T>
 mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
 { mODTextTranslationClass(ParallelCalc);
 public:
+
+    mUseType(CalcSetup,idx_type);
+    mUseType(CalcSetup,size_type);
+
 				ParallelCalc(const CalcSetup& s,const T* data,
-					     int sz,const T* weights = 0)
+					     size_type sz,const T* weights = 0)
 				    : BaseCalc<T>(s)
 						{ setValues(data,sz,weights); }
 				ParallelCalc( const CalcSetup& s )
 				    : BaseCalc<T>(s) { setValues(0,0,0); }
 
-    inline void			setValues(const T* inp,int sz,const T* wght=0);
+    inline void			setValues(const T* inp,size_type sz,
+					  const T* wght=0);
     inline void			setEmpty();
 
     const uiString		errMsg() const		{ return errmsg_; }
@@ -49,7 +54,7 @@ public:
 
 protected:
 
-    od_int64			nrIterations() const    { return nradded_;}
+    od_int64			nrIterations() const	{ return nradded_; }
 
     inline bool                 doPrepare(int);
     inline bool                 doWork(od_int64,od_int64,int);
@@ -94,7 +99,8 @@ inline void ParallelCalc<T>::setEmpty()
 
 
 template <class T>
-inline void ParallelCalc<T>::setValues( const T* data, int sz, const T* wght )
+inline void ParallelCalc<T>::setValues( const T* data, size_type sz,
+					const T* wght )
 {
     this->clear();
     nradded_ = sz;
@@ -119,7 +125,7 @@ inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 	return false;
     }
 
-    const int nradded = nradded_;
+    const size_type nradded = nradded_;
     BaseCalc<T>::clear();
     nradded_ = nradded;
     variance_ = variance_w_ =0;
@@ -138,14 +144,14 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     double sum_wxx = 0;
     double sum_x = 0;
     double sum_xx = 0;
-    int minidx = 0;
-    int maxidx = 0;
-    int nrused = 0;
+    idx_type minidx = 0;
+    idx_type maxidx = 0;
+    idx_type nrused = 0;
 
     for ( ; start<=stop && mIsUdf(data_[start] ); start++ )
 	/* just skip undefs at start */;
 
-    int idx = mCast( int, start );
+    idx_type idx = start;
     const T* dataptr = data_ + start;
     const T* stopptr = dataptr + (stop-start+1);
 
@@ -232,8 +238,8 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	T tvariance_w = 0;
 	const int nrthreads = barrier_.nrThreads();
 	const int nrperthread = nradded_/nrthreads;
-	const int startidx = thread*nrperthread;
-	const int stopidx = mMIN( startidx + nrperthread, nradded_)-1;
+	const idx_type startidx = thread*nrperthread;
+	const idx_type stopidx = mMIN( startidx + nrperthread, nradded_)-1;
 
 	dataptr = data_ + startidx;
 	stopptr = dataptr + ( stopidx-startidx + 1 );
@@ -303,15 +309,15 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 	clsswt_.setSize( nrused_ );
 	clsswt_.setAll( 1 );
 
-	for ( int idx=0; idx<nradded_; idx++ )
+	for ( idx_type idx=0; idx<nradded_; idx++ )
 	{
 	    const T val = data_[idx];
 	    if ( mIsUdf( val ) )
 		continue;
 
 	    const T wt = weights_[idx];
-	    int ival; Conv::set( ival, val );
-	    int setidx = clss_.indexOf( ival );
+	    idx_type ival; Conv::set( ival, val );
+	    idx_type setidx = clss_.indexOf( ival );
 
 	    if ( setidx < 0 )
 		{ clss_[idx] = ival; clsswt_[idx] = wt; }
@@ -322,7 +328,7 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 
     if ( setup_.needmed_ )
     {
-	for ( int idx=0; idx<nradded_; idx++ )
+	for ( idx_type idx=0; idx<nradded_; idx++ )
 	{
 	    const T val = data_[idx];
 	    if ( !mIsUdf( val ) )
