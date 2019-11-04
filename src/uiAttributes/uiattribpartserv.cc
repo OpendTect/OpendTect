@@ -618,11 +618,32 @@ void uiAttribPartServer::saveSet( bool is2d )
     }
 
 
+void uiAttribPartServer::updateMultiIdFromNLA( uiAttrVolOut* dlgobj,
+		const MultiID& nlaid, bool is2d, const Attrib::DescSet* dset )
+{
+    if ( dlgobj )
+	{
+	    dlgobj->updateAttributes(*dset,getNLAModel(is2d),nlaid );
+	}
+}
+
+
 void uiAttribPartServer::needSaveNLAps( CallBacker* )
 {
     needSaveNLA.trigger();
 }
 
+
+void uiAttribPartServer::updateNLAInput( const MultiID& nlaid, bool is2d )
+{
+    const DescSet* dset = DSHolder().getDescSet( is2d, false );
+    if ( !dset ) { pErrMsg("No attr set"); return; }
+
+    if ( is2d )
+	updateMultiIdFromNLA(dataattrdlg_, nlaid, is2d, dset);
+    else
+	updateMultiIdFromNLA(volattrdlg_, nlaid, is2d, dset);
+}
 
 
 void uiAttribPartServer::outputVol( const MultiID& nlaid, bool is2d,

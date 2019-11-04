@@ -101,6 +101,9 @@ public:
 					 const ZDomain::Info*,Pos::GeomID);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(const MultiID&,bool is2d,bool multioutput);
+    void		updateMultiIdFromNLA(uiAttrVolOut*,const MultiID&,
+					bool is2d,const Attrib::DescSet*);
+    void		updateNLAInput(const MultiID&,bool is2d);
     bool		replaceSet(const IOPar&,bool is2d);
     bool		addToDescSet(const char*,bool is2d);
     int			getSliceIdx() const		{ return sliceidx_; }

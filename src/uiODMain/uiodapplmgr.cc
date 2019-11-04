@@ -1568,7 +1568,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     else if ( evid == uiNLAPartServer::evConfirmWrite() )
     {
 	MultiID nlaid = nlaserv_->modelId();
-	attrserv_->outputVol( nlaid, nlaserv_->is2DEvent(), false );
+	attrserv_->updateNLAInput( nlaid, nlaserv_->is2DEvent() );
+	//Multiple NN volume output is not supported, hence no flag
     }
     else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
