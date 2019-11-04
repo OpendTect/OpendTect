@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceGenDesc,od,"sgd")
 mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceAttribSet,od,"lsa")
+mDeclEmptyTranslatorBundle(Strat,StratLayerModels,od,"slm")
 
 
 #endif

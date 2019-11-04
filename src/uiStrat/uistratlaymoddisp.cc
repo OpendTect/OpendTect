@@ -10,31 +10,38 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratsimplelaymoddisp.h"
-#include "uistratlaymodtools.h"
-#include "uistrateditlayer.h"
+
+#include "uifileinput.h"
+#include "uiflatviewer.h"
+#include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uifileinput.h"
+#include "uiioobjsel.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiflatviewer.h"
 #include "uimultiflatviewcontrol.h"
+#include "uistrateditlayer.h"
+#include "uistratlaymodtools.h"
+
+#include "arrayndimpl.h"
 #include "envvars.h"
 #include "flatposdata.h"
-#include "stratlevel.h"
-#include "arrayndimpl.h"
-#include "stratlayermodel.h"
-#include "stratlayersequence.h"
-#include "stratreftree.h"
-#include "od_iostream.h"
-#include "survinfo.h"
-#include "unitofmeasure.h"
-#include "property.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include "od_iostream.h"
+#include "unitofmeasure.h"
+#include "property.h"
+#include "stratlayermodel.h"
+#include "stratlayersequence.h"
+#include "stratlevel.h"
+#include "stratreftree.h"
+#include "strattransl.h"
+#include "survinfo.h"
+
 #include <stdio.h>
+#include <iostream>
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -64,6 +71,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , modelEdited(this)
     , infoChanged(this)
     , dispPropChanged(this)
+    , gendesckey_(MultiID::udf())
 {
     vwr_.setInitialSize( uiSize(600,250) );
     vwr_.setStretch( 2, 2 );
@@ -211,7 +219,7 @@ void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
 
 
 class uiStratLayerModelDispIO : public uiDialog
-{ mODTextTranslationClass(uiStratLayerModelDispIO);
+{ mODTextTranslationClass(uiStratLayerModelDispIO)
 public:
 
 static const char* sKeyUseEach()	{ return "Use Each"; }
@@ -222,61 +230,74 @@ static const char* sKeyPreserveMath()	{ return "Preserve Math formulas"; }
 
 uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 			 bool doread )
-    : uiDialog( p, Setup(doread ? tr("Read dumped models") : tr("Dump models"),
+    : uiDialog( p, Setup(doread ? tr("Read pseudo-wells")
+				: tr("Save pseudo-wells"),
 			 mNoDlgTitle,
 			 mODHelpKey(mStratLayerModelDispIOHelpID)) )
-    , doreplacefld_(0)
-    , eachfld_(0)
-    , nrdisplayfld_(0)
-    , presmathfld_(0)
+    , inputfld_(nullptr)
+    , doreplacefld_(nullptr)
+    , eachfld_(nullptr)
+    , nrdisplayfld_(nullptr)
+    , presmathfld_(nullptr)
     , lm_(lm)
     , pars_(pars)
     , doread_(doread)
 {
-    mDefineStaticLocalObject( BufferString, fixeddumpfnm,
-			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) );
-    if ( !fixeddumpfnm.isEmpty() )
-	fnm_ = BufferString( fixeddumpfnm );
+    if ( doread )
+    {
+	inputfld_ = new uiGenInput( this, tr("Saved in v6.4 or earlier"),
+				BoolInpSpec(false,uiStrings::sEmptyString()) );
+	mAttachCB( inputfld_->valuechanged, uiStratLayerModelDispIO::inputCB );
 
-    uiFileInput::Setup su( uiFileDialog::Gen, fnm_ );
-    su.forread_ = doread;
-    filefld_ = new uiFileInput( this, uiStrings::sFileName(), su );
+	filefld_ = new uiFileInput( this, uiStrings::sFileName() );
+	filefld_->attach( alignedBelow, inputfld_ );
+    }
+
+    IOObjContext ctxt = StratLayerModelsTranslatorGroup::ioContext();
+    laymodfld_ = new uiIOObjSel( this, ctxt );
+    if ( inputfld_ )
+	laymodfld_->attach( alignedBelow, inputfld_ );
 
     if ( doread )
     {
-	const Interval<int> valrg( 1, 1000 );
-	IntInpSpec val( 1, valrg );
-	eachfld_ = new uiGenInput( this, tr("Use Each"), val );
-	eachfld_->attach( alignedBelow, filefld_ );
+	eachfld_ = new uiGenInput( this, tr("Read each"), IntInpSpec(1,1,1000) );
+	eachfld_->attach( alignedBelow, laymodfld_ );
 
-	doreplacefld_ = new uiGenInput( this,
-					tr("Clear existing model before add"),
-					BoolInpSpec(true) );
-	doreplacefld_->attach( alignedBelow, eachfld_ );
-
-	val = 10;
-	val.setLimits( valrg );
-	nrdisplayfld_ = new uiGenInput( this, tr("Display Nr Models"), val );
+	nrdisplayfld_ = new uiGenInput( this, tr("Display Nr Wells"),
+					IntInpSpec(10,1) );
 	nrdisplayfld_->setWithCheck();
 	nrdisplayfld_->setChecked( true );
-	nrdisplayfld_->attach( alignedBelow, doreplacefld_ );
+	nrdisplayfld_->attach( rightTo, eachfld_ );
+
+	doreplacefld_ = new uiGenInput( this, tr("Replace existing model"),
+					BoolInpSpec(true) );
+	doreplacefld_->attach( alignedBelow, eachfld_ );
     }
     else
     {
 	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
 				       BoolInpSpec(true) );
-	presmathfld_->attach( alignedBelow, filefld_ );
+	presmathfld_->attach( alignedBelow, laymodfld_ );
     }
 
+    inputCB(nullptr);
     usePar();
+}
+
+
+void inputCB( CallBacker* )
+{
+    const bool usefile = inputfld_->getBoolValue();
+    filefld_->display( usefile );
+    laymodfld_->display( !usefile );
 }
 
 
 bool usePar()
 {
-    BufferString fnm;
-    if ( pars_.get(sKey::FileName(),fnm) )
-	filefld_->setFileName( fnm );
+    MultiID key;
+    if ( pars_.get(sKey::ID(),key) )
+	laymodfld_->setInput( key );
 
     if ( doread_ )
     {
@@ -308,7 +329,10 @@ bool usePar()
 
 void fillPar()
 {
-    pars_.set( sKey::FileName(), filefld_->fileName() );
+    const bool usefile = inputfld_ ? inputfld_->getBoolValue() : false;
+    if ( !usefile )
+	pars_.set( sKey::ID(), laymodfld_->key() );
+
     if ( doread_ )
     {
 	pars_.set( sKeyUseEach(), eachfld_->getIntValue() );
@@ -325,7 +349,7 @@ void fillPar()
 
 int getNrDisplayModels()
 {
-    int nrmoddisp;
+    int nrmoddisp = 100;
     if ( !pars_.get(sKeyNrDisplay(),nrmoddisp) )
 	return mUdf(int);
 
@@ -335,19 +359,12 @@ int getNrDisplayModels()
 
 bool acceptOK( CallBacker* )
 {
-    if ( fnm_.isEmpty() )
-    {
-	if ( !filefld_->fileName() )
-	    mErrRet(tr("Please provide a file name"))
-
-	fnm_ = filefld_->fileName();
-    }
-
-    if ( doread_ && !File::exists(fnm_) )
-	mErrRet(tr("Input file does not exist"))
-
     if ( doread_ )
     {
+	const bool usefile = inputfld_ ? inputfld_->getBoolValue() : false;
+	if ( usefile )
+	    fnm_ = filefld_->fileName();
+
 	od_istream strm( fnm_ );
 	if ( !strm.isOK() )
 	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
@@ -369,27 +386,28 @@ bool acceptOK( CallBacker* )
     {
 	od_ostream strm( fnm_ );
 	if ( !strm.isOK() )
-	    mErrRet(tr("Cannot open:\n%1\nfor write").arg(fnm_))
+	    mErrRet( tr("Cannot open:\n%1\nfor write").arg(fnm_) )
 
 	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
-	    mErrRet(m3Dots(tr("Unknown error during write")))
+	    mErrRet( tr("Unknown error during write") )
     }
 
     fillPar();
-
     return true;
 }
 
+    uiGenInput*			inputfld_;
     uiFileInput*		filefld_;
+    uiIOObjSel*			laymodfld_;
     uiGenInput*			doreplacefld_;
     uiGenInput*			eachfld_;
     uiGenInput*			nrdisplayfld_;
     uiGenInput*			presmathfld_;
 
     const Strat::LayerModel&	lm_;
-    BufferString		fnm_;
     IOPar&			pars_;
     bool			doread_;
+    BufferString		fnm_;
 
 };
 
@@ -612,7 +630,6 @@ void uiStratSimpleLayerModelDisp::eraseAll()
 }
 
 
-
 void uiStratSimpleLayerModelDisp::selPropChgCB( CallBacker* )
 { reDrawSeq(); }
 
@@ -678,12 +695,11 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     uiMenu mnu( parent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sProperties())), 1 );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::phrRemove(
-                                       uiStrings::sLayer().toLower()))), 2 );
+				       uiStrings::sLayer().toLower()))), 2 );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::phrRemove(
-                                                     tr("this Well")))), 3 );
-    mnu.insertAction( new uiAction(m3Dots(tr("Dump all wells to file"))), 4 );
-    mnu.insertAction( new uiAction(m3Dots(uiStrings::phrAdd(tr(
-                                          "dumped wells from file")))), 5 );
+						     tr("this Well")))), 3 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Save all pseudo-wells"))), 4 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Open saved pseudo-wells"))), 5 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 
@@ -706,13 +722,13 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 
 	uiDialog dlg( this, uiDialog::Setup( uiStrings::phrRemove(
 				  uiStrings::sLayer().toLower()),
-		                  uiStrings::phrRemove(toUiString("'%1'")
+				  uiStrings::phrRemove(toUiString("'%1'")
 				  .arg(lay.name())),
-                                  mODHelpKey(mStratSimpleLayerModDispHelpID)));
+				  mODHelpKey(mStratSimpleLayerModDispHelpID)));
 	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(),
-                                         BoolInpSpec(true,
-                                         tr("Only this layer"),
-                                         tr("All layers with this ID")) );
+					 BoolInpSpec(true,
+					 tr("Only this layer"),
+					 tr("All layers with this ID")) );
 	if ( dlg.go() )
 	    removeLayers( ls, layidx, !gi->getBoolValue() );
     }
@@ -914,6 +930,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 	    levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
 	    vwr_.addAuxData( levelad );
 	    levelads_ += levelad;
+	    std::cout << "auxdataidx: " << auxdataidx << std::endl;
 	}
 	else
 	    levelad = levelads_[auxdataidx];

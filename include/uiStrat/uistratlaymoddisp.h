@@ -45,11 +45,8 @@ mStruct(uiStrat) LMPropSpecificDispPars
 
 
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
-{ mODTextTranslationClass(uiStratLayerModelDisp);
+{ mODTextTranslationClass(uiStratLayerModelDisp)
 public:
-
-			uiStratLayerModelDisp(uiStratLayModEditTools&,
-					    const Strat::LayerModelProvider&);
 			~uiStratLayerModelDisp();
 
     virtual void	modelChanged()			= 0;
@@ -86,6 +83,8 @@ public:
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
     void		clearDispPars()		{ lmdisppars_.erase(); }
 
+    void		setGenDescKey( const MultiID& key ) { gendesckey_=key; }
+
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> rangeChanged;
@@ -94,42 +93,43 @@ public:
     Notifier<uiStratLayerModelDisp> dispPropChanged;
 
 protected:
+				uiStratLayerModelDisp(uiStratLayModEditTools&,
+					const Strat::LayerModelProvider&);
 
-    uiFlatViewer&	vwr_;
+    uiFlatViewer&		vwr_;
     const Strat::LayerModelProvider& lmp_;
-    uiStratLayModEditTools& tools_;
-    uiTextItem*		frtxtitm_;
-    int			selseqidx_;
-    Interval<float>	zrg_;
-    bool		flattened_;
+    uiStratLayModEditTools&	tools_;
+    uiTextItem*			frtxtitm_;
+    int				selseqidx_;
+    Interval<float>		zrg_;
+    bool			flattened_;
     /*mDeprecated*/ bool	fluidreplon_;
     /*mDeprecated*/ bool	isbrinefilled_;
-    TypeSet<float>	lvldpths_;
+    TypeSet<float>		lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
-    IOPar		dumppars_;
+    IOPar			dumppars_;
+    MultiID			gendesckey_;
 
-    bool		haveAnyZoom() const;
-    uiGraphicsScene&	scene() const;
-    mDeprecated void	displayFRText();
-    virtual void	drawSelectedSequence()		= 0;
+    bool			haveAnyZoom() const;
+    uiGraphicsScene&		scene() const;
+    mDeprecated void		displayFRText();
+    virtual void		drawSelectedSequence()		= 0;
 
-    int			getClickedModelNr() const;
-    void		mouseMoved(CallBacker*);
-    void		updateTextPosCB(CallBacker*);
-    void		doubleClicked(CallBacker*);
-    void		usrClicked(CallBacker*);
-    virtual void	selPropChgCB(CallBacker*)	= 0;
-    virtual void	dispLithChgCB(CallBacker*)	= 0;
-    virtual void	selContentChgCB(CallBacker*)	= 0;
-    virtual void	selLevelChgCB(CallBacker*)	= 0;
-    virtual void	dispEachChgCB(CallBacker*)	= 0;
-    virtual void	dispZoomedChgCB(CallBacker*)	= 0;
-    bool		doLayerModelIO(bool);
-    virtual void	doLevelChg()			= 0;
-    virtual void	handleClick(bool dble)		= 0;
+    int				getClickedModelNr() const;
+    void			mouseMoved(CallBacker*);
+    void			updateTextPosCB(CallBacker*);
+    void			doubleClicked(CallBacker*);
+    void			usrClicked(CallBacker*);
+    virtual void		selPropChgCB(CallBacker*)	= 0;
+    virtual void		dispLithChgCB(CallBacker*)	= 0;
+    virtual void		selContentChgCB(CallBacker*)	= 0;
+    virtual void		selLevelChgCB(CallBacker*)	= 0;
+    virtual void		dispEachChgCB(CallBacker*)	= 0;
+    virtual void		dispZoomedChgCB(CallBacker*)	= 0;
+    bool			doLayerModelIO(bool);
+    virtual void		doLevelChg()			= 0;
+    virtual void		handleClick(bool dble)		= 0;
 				//!< returns whether layermodel has changed
-
 };
-
 
 #endif

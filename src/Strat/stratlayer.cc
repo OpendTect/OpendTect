@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratreftree.h"
+#include "strattransl.h"
 #include "stratunitrefiter.h"
 #include "mathformula.h"
 #include "mathproperty.h"
@@ -19,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyXPos = "XPos";
 
+mDefSimpleTranslators(StratLayerModels,"Pseudo Wells",od,Mdl)
 
 //------ LayerValue ------
 
@@ -92,16 +94,16 @@ void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs )
 	float inpval = 0.f;
 	if ( form_.isConst(iinp) )
 	   inpval = (float)form_.getConstVal( iinp );
-        else if ( !form_.isSpec(iinp) )
+	else if ( !form_.isSpec(iinp) )
 	{
 	    const char* pnm = form_.inputDef( iinp );
 	    inpidx = prs.indexOf( pnm );
 	    if ( inpidx < 0 )
 	    {
-		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'" 
-                              "\nCannot find '%3'")
-                        .arg(lay_.name()).arg( form_.text() ).arg( pnm );
-                
+		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
+			      "\nCannot find '%3'")
+			.arg(lay_.name()).arg( form_.text() ).arg( pnm );
+
 		return;
 	    }
 	}
@@ -172,7 +174,7 @@ const PropertyRef& Strat::Layer::thicknessRef()
 
 Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
-    , content_(0)
+    , content_(nullptr)
 {
     vals_.allowNull( true );
     setThickness( 0.0f );
@@ -180,8 +182,10 @@ Strat::Layer::Layer( const LeafUnitRef& r )
 
 
 Strat::Layer::Layer( const Strat::Layer& oth )
+    : content_(nullptr)
 {
     vals_.allowNull( true );
+    setThickness( 0.0f );
     *this = oth;
 }
 
@@ -203,15 +207,10 @@ Strat::Layer& Strat::Layer::operator =( const Strat::Layer& oth )
 	for ( int ival=0; ival<oth.vals_.size(); ival++ )
 	{
 	    const LayerValue* lv = oth.vals_[ival];
-	    if ( !lv )
-		vals_ += 0;
-	    else
-	    {
-		LayerValue* newlv = lv->clone( this );
-		vals_ += newlv;
-	    }
+	    vals_ += lv ? lv->clone(this) : nullptr;
 	}
     }
+
     return *this;
 }
 

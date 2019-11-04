@@ -19,12 +19,14 @@ mDefModInitFn(Strat)
     mIfNotFirstTime( return );
 
     StratTreeTranslatorGroup::initClass();
+    StratLayerModelsTranslatorGroup::initClass();
     StratLayerSequenceAttribSetTranslatorGroup::initClass();
     StratLayerSequenceGenDescTranslatorGroup::initClass();
 
     odStratTreeTranslator::initClass();
-    odStratLayerSequenceGenDescTranslator::initClass();
+    odStratLayerModelsTranslator::initClass();
     odStratLayerSequenceAttribSetTranslator::initClass();
+    odStratLayerSequenceGenDescTranslator::initClass();
 
     Strat::SingleLayerGenerator::initClass();
 }
