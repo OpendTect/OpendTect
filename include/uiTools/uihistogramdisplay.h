@@ -36,8 +36,7 @@ public:
     void			setData(const float*,od_int64 sz);
     void			setData(const Array2D<float>*);
     void			setData(const Array3D<float>*);
-    void			setData(const DataPointSet&,int dpsidx);
-    void			setData(const TypeSet<float>&);
+    void			setData(const LargeValVec<float>&);
 
     void			useDrawRange(bool yn);
     const Interval<float>&	getDrawRange() const	{ return mydrawrg_; }
@@ -53,7 +52,7 @@ public:
     int				nrClasses() const	{ return nrclasses_; }
     void			putN();
 
-protected:
+private:
 
     Stats::ParallelCalc<float>&	rc_;
     int				nrinpvals_;
@@ -64,9 +63,9 @@ protected:
 
     Interval<float>		mydrawrg_;
     bool			usemydrawrg_;
-    TypeSet<float>		mydisplaydata_;
-    TypeSet<float>		originaldata_;
+    LargeValVec<float>		originaldata_;
 
     void			updateAndDraw();
     void			updateHistogram();
+    void			setDataDPS(const DataPointSet&,int dpsidx);
 };

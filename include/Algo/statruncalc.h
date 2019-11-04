@@ -36,6 +36,10 @@ namespace Stats
 mExpClass(Algo) CalcSetup
 {
 public:
+
+    typedef od_int64	idx_type;
+    typedef idx_type	size_type;
+
 			CalcSetup( bool weighted=false )
 			    : weighted_(weighted)
 			    , needextreme_(false)
@@ -99,6 +103,9 @@ mClass(Algo) BaseCalc
 {
 public:
 
+    mUseType(CalcSetup,idx_type);
+    mUseType(CalcSetup,size_type);
+
     virtual		~BaseCalc()		{}
 
     inline void		clear();
@@ -106,22 +113,22 @@ public:
     bool		isWeighted() const	{ return setup_.weighted_; }
 
     inline double	getValue(Type) const;
-    inline int		getIndex(Type) const; //!< only for Median, Min and Max
+    inline idx_type	getIndex(Type) const; //!< only for Median, Min and Max
 
     inline bool		hasUndefs() const	{ return nrused_ != nradded_; }
-    inline int		size( bool used=true ) const
+    inline size_type	size( bool used=true ) const
 			{ return used ? nrused_ : nradded_; }
 
     inline bool		isEmpty() const		{ return size() == 0; }
 
-    inline int		count() const		{ return nrused_; }
+    inline size_type	count() const		{ return nrused_; }
     inline double	average() const;
     inline T		mostFreq() const;
     inline T		sum() const;
-    inline T		min(int* index_of_min=0) const;
-    inline T		max(int* index_of_max=0) const;
-    inline T		extreme(int* index_of_extr=0) const;
-    inline T		median(int* index_of_median=0) const;
+    inline T		min(idx_type* index_of_min=0) const;
+    inline T		max(idx_type* index_of_max=0) const;
+    inline T		extreme(idx_type* index_of_extr=0) const;
+    inline T		median(idx_type* index_of_median=0) const;
     inline T		sqSum() const;
     inline double	rms() const;
     inline double	stdDev() const;
@@ -139,10 +146,10 @@ protected:
 
     CalcSetup		setup_;
 
-    int			nradded_;
-    int			nrused_;
-    int			minidx_;
-    int			maxidx_;
+    size_type		nradded_;
+    size_type		nrused_;
+    idx_type		minidx_;
+    idx_type		maxidx_;
     T			minval_;
     T			maxval_;
     T			sum_x_;
@@ -151,9 +158,9 @@ protected:
     T			sum_wx_;
     T			sum_wxx_;
 
-    TypeSet<int>	clss_;
-    TypeSet<T>		clsswt_;
-    TypeSet<T>		medwts_;
+    LargeValVec<idx_type>	clss_;
+    LargeValVec<T>	clsswt_;
+    LargeValVec<T>	medwts_;
 
     inline bool		isZero( const T& t ) const;
 };
@@ -189,11 +196,16 @@ template <class T>
 mClass(Algo) RunCalc : public BaseCalc<T>
 {
 public:
+
+    mUseType(CalcSetup,idx_type);
+    mUseType(CalcSetup,size_type);
+
 			RunCalc( const CalcSetup& s )
 			    : BaseCalc<T>(s) {}
 
     inline RunCalc<T>&	addValue(T data,T weight=1);
-    inline RunCalc<T>&	addValues(int sz,const T* data,const T* weights=0);
+    RunCalc<T>&		addValues(size_type sz,const T* data,
+				  const T* weights=0);
     inline RunCalc<T>&	replaceValue(T olddata,T newdata,T wt=1);
     inline RunCalc<T>&	removeValue(T data,T weight=1);
 
@@ -235,7 +247,11 @@ template <class T>
 mClass(Algo) WindowedCalc
 {
 public:
-			WindowedCalc( const CalcSetup& rcs, int sz )
+
+    mUseType(CalcSetup,idx_type);
+    mUseType(CalcSetup,size_type);
+
+			WindowedCalc( const CalcSetup& rcs, size_type sz )
 			    : calc_(rcs)
 			    , sz_(sz)
 			    , wts_(calc_.isWeighted() ? new T [sz] : 0)
@@ -247,11 +263,11 @@ public:
     inline WindowedCalc& addValue(T data,T weight=1);
     inline WindowedCalc& operator +=( T t )	{ return addValue(t); }
 
-    inline int		getIndex(Type) const;
+    inline idx_type	getIndex(Type) const;
 			//!< Only use for Min, Max or Median
     inline double	getValue(Type) const;
 
-    inline T		count() const	{ return full_ ? sz_ : posidx_; }
+    inline size_type	count() const	{ return full_ ? sz_ : posidx_; }
 
 #   define			mRunCalc_DefEqFn(ret,fn) \
     inline ret			fn() const	{ return calc_.fn(); }
@@ -265,21 +281,21 @@ public:
     mRunCalc_DefEqFn(T,		mostFreq)
 #   undef			mRunCalc_DefEqFn
 
-    inline T			min(int* i=0) const;
-    inline T			max(int* i=0) const;
-    inline T			extreme(int* i=0) const;
-    inline T			median(int* i=0) const;
+    inline T			min(idx_type* i=0) const;
+    inline T			max(idx_type* i=0) const;
+    inline T			extreme(idx_type* i=0) const;
+    inline T			median(idx_type* i=0) const;
 
 protected:
 
-    RunCalc<T>	calc_; // has to be before wts_ (see constructor inits)
-    const int	sz_;
-    T*		wts_;
-    T*		vals_;
-    int		posidx_;
-    bool	empty_;
-    bool	full_;
-    bool	needcalc_;
+    RunCalc<T>		calc_; // has to be before wts_ (see constructor inits)
+    const size_type	sz_;
+    T*			wts_;
+    T*			vals_;
+    idx_type		posidx_;
+    bool		empty_;
+    bool		full_;
+    bool		needcalc_;
 
     inline void	fillCalc(RunCalc<T>&) const;
 };
@@ -321,9 +337,9 @@ double BaseCalc<T>::getValue( Stats::Type t ) const
 
 
 template <class T> inline
-int BaseCalc<T>::getIndex( Type t ) const
+CalcSetup::idx_type BaseCalc<T>::getIndex( Type t ) const
 {
-    int ret;
+    idx_type ret;
     switch ( t )
     {
 	case Min:		(void)min( &ret );	break;
@@ -431,7 +447,7 @@ inline double BaseCalc<T>::normvariance() const
 
 
 template <class T>
-inline T BaseCalc<T>::min( int* index_of_min ) const
+inline T BaseCalc<T>::min( idx_type* index_of_min ) const
 {
     if ( index_of_min ) *index_of_min = minidx_;
     mBaseCalc_ChkEmpty(T);
@@ -440,7 +456,7 @@ inline T BaseCalc<T>::min( int* index_of_min ) const
 
 
 template <class T>
-inline T BaseCalc<T>::max( int* index_of_max ) const
+inline T BaseCalc<T>::max( idx_type* index_of_max ) const
 {
     if ( index_of_max ) *index_of_max = maxidx_;
     mBaseCalc_ChkEmpty(T);
@@ -449,7 +465,7 @@ inline T BaseCalc<T>::max( int* index_of_max ) const
 
 
 template <class T>
-inline T BaseCalc<T>::extreme( int* index_of_extr ) const
+inline T BaseCalc<T>::extreme( idx_type* index_of_extr ) const
 {
     if ( index_of_extr ) *index_of_extr = 0;
     mBaseCalc_ChkEmpty(T);
@@ -474,9 +490,11 @@ inline T BaseCalc<T>::clipVal( float ratio, bool upper ) const
 {
     mBaseCalc_ChkEmpty(T);
     (void)median();
-    const int lastidx = medvals_.size();
+    const size_type lastidx = medvals_.size();
     const float fidx = ratio * lastidx;
-    const int idx = fidx <= 0 ? 0 : (fidx > lastidx ? lastidx : (int)fidx);
+    const idx_type idx = fidx <= 0 ? 0
+				   : (fidx > lastidx ? lastidx
+						     : (idx_type)fidx);
     return medvals_[upper ? lastidx - idx : idx];
 }
 
@@ -487,8 +505,8 @@ inline T BaseCalc<T>::mostFreq() const
     if ( clss_.isEmpty() )
 	return mUdf(T);
 
-    T maxwt = clsswt_[0]; int ret = clss_[0];
-    for ( int idx=1; idx<clss_.size(); idx++ )
+    T maxwt = clsswt_[0]; idx_type ret = clss_[0];
+    for ( idx_type idx=1; idx<clss_.size(); idx++ )
     {
 	if ( clsswt_[idx] > maxwt )
 	    { maxwt = clsswt_[idx]; ret = clss_[idx]; }
@@ -504,13 +522,14 @@ float_complex BaseCalc<float_complex>::mostFreq() const
 
 
 template <class T> inline
-T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
+T computeMedian( const T* data, CalcSetup::size_type sz, int pol,
+		 CalcSetup::idx_type* idx_of_med )
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
 	return sz < 1 ? mUdf(T) : data[0];
 
-    int mididx = sz / 2;
+    CalcSetup::idx_type mididx = sz / 2;
     T* valarr = const_cast<T*>( data );
     if ( !idx_of_med )
     {
@@ -522,7 +541,7 @@ T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
     }
     else
     {
-	mGetIdxArr( int, idxs, sz );
+	mGetIdxArr( CalcSetup::idx_type, idxs, sz );
 	quickSort( valarr, idxs, sz );
 	*idx_of_med = idxs[ mididx ];
 	delete [] idxs;
@@ -541,20 +560,20 @@ T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 
 
 template <class T> inline
-T computeWeightedMedian( const T* data, const T* wts, int sz,
-				int* idx_of_med )
+T computeWeightedMedian( const T* data, const T* wts, CalcSetup::size_type sz,
+			 CalcSetup::idx_type* idx_of_med )
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
 	return sz < 1 ? mUdf(T) : data[0];
 
     T* valarr = const_cast<T*>( data );
-    mGetIdxArr( int, idxs, sz );
+    mGetIdxArr( CalcSetup::idx_type, idxs, sz );
     quickSort( valarr, idxs, sz );
     T* wtcopy = new T[sz];
     OD::memCopy( wtcopy, wts, sz*sizeof(T) );
     float wsum = 0;
-    for ( int idx=0; idx<sz; idx++ )
+    for ( CalcSetup::idx_type idx=0; idx<sz; idx++ )
     {
 	const_cast<T&>(wts[idx]) = wtcopy[ idxs[idx] ];
 	wsum += (float) wts[idx];
@@ -563,8 +582,8 @@ T computeWeightedMedian( const T* data, const T* wts, int sz,
 
     const float hwsum = wsum * 0.5f;
     wsum = 0;
-    int medidx = 0;
-    for ( int idx=0; idx<sz; idx++ )
+    CalcSetup::idx_type medidx = 0;
+    for ( CalcSetup::idx_type idx=0; idx<sz; idx++ )
     {
 	wsum += (float) wts[idx];
 	if ( wsum >= hwsum )
@@ -576,10 +595,10 @@ T computeWeightedMedian( const T* data, const T* wts, int sz,
 
 
 template <class T>
-inline T BaseCalc<T>::median( int* idx_of_med ) const
+inline T BaseCalc<T>::median( BaseCalc<T>::idx_type* idx_of_med ) const
 {
     const int policy = setup_.medianEvenHandling();
-    const int sz = medvals_.size();
+    const size_type sz = medvals_.size();
     const T* vals = medvals_.arr();
     return setup_.weighted_ ?
 	  computeWeightedMedian( vals, medwts_.arr(), sz, idx_of_med )
@@ -639,8 +658,8 @@ RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
 template <class T> inline
 void RunCalc<T>::setMostFrequent( T val, T wt )
 {
-    int ival; Conv::set( ival, val );
-    int setidx = clss_.indexOf( ival );
+    idx_type ival; Conv::set( ival, val );
+    idx_type setidx = clss_.indexOf( ival );
 
     if ( setidx < 0 )
 	{ clss_ += ival; clsswt_ += wt; }
@@ -666,7 +685,7 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 
     if ( setup_.needmed_ )
     {
-	int idx = medvals_.size();
+	size_type idx = medvals_.size();
 	while ( true )
 	{
 	    idx = medvals_.indexOf( val, false, idx-1 );
@@ -682,9 +701,9 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 
     if ( setup_.needmostfreq_ )
     {
-	int ival; Conv::set( ival, val );
-	int setidx = clss_.indexOf( ival );
-	int iwt = 1;
+	idx_type ival; Conv::set( ival, val );
+	idx_type setidx = clss_.indexOf( ival );
+	idx_type iwt = 1;
 	if ( setup_.weighted_ )
 	    Conv::set( iwt, wt );
 
@@ -717,9 +736,10 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 
 
 template <class T> inline
-RunCalc<T>& RunCalc<T>::addValues( int sz, const T* data, const T* weights )
+RunCalc<T>& RunCalc<T>::addValues( size_type sz, const T* data,
+				   const T* weights )
 {
-    for ( int idx=0; idx<sz; idx++ )
+    for ( idx_type idx=0; idx<sz; idx++ )
 	addValue( data[idx], weights ? weights[idx] : 1 );
     return *this;
 }
@@ -749,10 +769,10 @@ void WindowedCalc<T>::fillCalc( RunCalc<T>& calc ) const
 {
     if ( empty_ ) return;
 
-    const int stopidx = full_ ? sz_ : posidx_;
-    for ( int idx=posidx_; idx<stopidx; idx++ )
+    const idx_type stopidx = full_ ? sz_ : posidx_;
+    for ( idx_type idx=posidx_; idx<stopidx; idx++ )
 	calc.addValue( vals_[idx], wts_ ? wts_[idx] : 1 );
-    for ( int idx=0; idx<posidx_; idx++ )
+    for ( idx_type idx=0; idx<posidx_; idx++ )
 	calc.addValue( vals_[idx], wts_ ? wts_[idx] : 1 );
 }
 
@@ -773,9 +793,9 @@ double WindowedCalc<T>::getValue( Type t ) const
 
 
 template <class T> inline
-int WindowedCalc<T>::getIndex( Type t ) const
+CalcSetup::idx_type WindowedCalc<T>::getIndex( Type t ) const
 {
-    int ret;
+    idx_type ret;
     switch ( t )
     {
 	case Min:		(void)min( &ret );	break;
@@ -789,7 +809,7 @@ int WindowedCalc<T>::getIndex( Type t ) const
 
 
 template <class T> inline
-T WindowedCalc<T>::min( int* index_of_min ) const
+T WindowedCalc<T>::min( idx_type* index_of_min ) const
 {
     RunCalc<T> calc( CalcSetup().require(Stats::Min) );
     fillCalc( calc );
@@ -798,7 +818,7 @@ T WindowedCalc<T>::min( int* index_of_min ) const
 
 
 template <class T> inline
-T WindowedCalc<T>::max( int* index_of_max ) const
+T WindowedCalc<T>::max( idx_type* index_of_max ) const
 {
     RunCalc<T> calc( CalcSetup().require(Stats::Max) );
     fillCalc( calc );
@@ -807,7 +827,7 @@ T WindowedCalc<T>::max( int* index_of_max ) const
 
 
 template <class T> inline
-T WindowedCalc<T>::extreme( int* index_of_extr ) const
+T WindowedCalc<T>::extreme( idx_type* index_of_extr ) const
 {
     RunCalc<T> calc( CalcSetup().require(Stats::Extreme) );
     fillCalc( calc );
@@ -816,7 +836,7 @@ T WindowedCalc<T>::extreme( int* index_of_extr ) const
 
 
 template <class T> inline
-T WindowedCalc<T>::median( int* index_of_med ) const
+T WindowedCalc<T>::median( idx_type* index_of_med ) const
 {
     CalcSetup rcs( calc_.setup().weighted_ );
     RunCalc<T> calc( rcs.require(Stats::Median) );

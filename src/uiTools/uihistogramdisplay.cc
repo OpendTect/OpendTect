@@ -112,7 +112,7 @@ bool uiHistogramDisplay::setDataPackID(
 	    return false;
 
 	dpversionnm = dpset->name();
-	setData( *dpset, dpset->nrCols()-1 );
+	setDataDPS( *dpset, dpset->nrCols()-1 );
     }
     else
 	return false;
@@ -134,7 +134,7 @@ bool uiHistogramDisplay::setDataPackID(
 }
 
 
-void uiHistogramDisplay::setData( const DataPointSet& dpset, int dpsidx )
+void uiHistogramDisplay::setDataDPS( const DataPointSet& dpset, int dpsidx )
 {
     TypeSet<float> vals;
     for ( int idx=0; idx<dpset.size(); idx++ )
@@ -144,7 +144,7 @@ void uiHistogramDisplay::setData( const DataPointSet& dpset, int dpsidx )
 	    vals += val;
     }
 
-    setData( vals );
+    setData( vals.arr(), vals.size() );
 }
 
 
@@ -158,7 +158,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
     const int sz2d0 = array->getSize( 0 );
     const int sz2d1 = array->getSize( 1 );
-    TypeSet<float> vals;
+    LargeValVec<float> vals;
     for ( int idx0=0; idx0<sz2d0; idx0++ )
     {
 	for ( int idx1=0; idx1<sz2d1; idx1++ )
@@ -184,7 +184,7 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
     const int sz0 = array->getSize( 0 );
     const int sz1 = array->getSize( 1 );
     const int sz2 = array->getSize( 2 );
-    TypeSet<float> vals;
+    LargeValVec<float> vals;
     for ( int idx0=0; idx0<sz0; idx0++ )
 	for ( int idx1=0; idx1<sz1; idx1++ )
 	    for ( int idx2=0; idx2<sz2; idx2++ )
@@ -199,9 +199,9 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
 }
 
 
-void uiHistogramDisplay::setData( const TypeSet<float>& vals )
+void uiHistogramDisplay::setData( const LargeValVec<float>& vals )
 {
-    setData( vals.arr(), (od_int64)vals.size() );
+    setData( vals.arr(), vals.size() );
 }
 
 
@@ -212,26 +212,33 @@ void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 
     if ( array != originaldata_.arr() )
     {
-	originaldata_.erase();
-	for ( int idx=0; idx<sz; idx++ )
-	    originaldata_ += array[idx];
+	originaldata_.setSize( sz, mUdf(float) );
+	if ( originaldata_.arr() )
+	    OD::memCopy( originaldata_.arr(), array, sz*sizeof(float) );
+	else
+	{
+	    for ( od_int64 idx=0; idx<sz; idx++ )
+		originaldata_[idx] = array[idx];
+	}
     }
 
     const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) &&
-	!mIsUdf(mydrawrg_.stop);
+			   !mIsUdf(mydrawrg_.stop);
     if ( usedrawrg )
     {
-	mydisplaydata_.erase();
-	for ( int idx=0; idx<sz; idx++ )
+	LargeValVec<float> mydisplaydata( sz, mUdf(float) );
+	od_int64 addedcount = 0;
+	for ( od_int64 idx=0; idx<sz; idx++ )
 	{
-	    if ( mIsUdf(array[idx]) )
+	    const float& arrval = array[idx];
+	    if ( mIsUdf(arrval) )
 		continue;
 
-	    if ( mydrawrg_.includes(array[idx],false) )
-		mydisplaydata_ += array[idx];
+	    if ( mydrawrg_.includes(arrval,false) )
+		mydisplaydata[addedcount++] = arrval;
 	}
 
-	rc_.setValues( mydisplaydata_.arr(), mydisplaydata_.size() );
+	rc_.setValues( mydisplaydata.arr(), addedcount );
     }
     else
 	rc_.setValues( originaldata_.arr(), originaldata_.size() );
