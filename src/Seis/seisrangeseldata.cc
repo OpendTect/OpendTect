@@ -22,8 +22,14 @@ typedef StepInterval<pos_type> pos_steprg_type;
 
 
 
-Seis::RangeSelData::RangeSelData( GeomID gid )
-    : fss_(gid)
+Seis::RangeSelData::RangeSelData( const SurveyInfo* si )
+    : fss_(si)
+{}
+Seis::RangeSelData::RangeSelData( GeomID gid, const SurveyInfo* si )
+    : fss_(gid,si)
+{}
+Seis::RangeSelData::RangeSelData( const GeomIDSet& gids, const SurveyInfo* si )
+    : fss_(gids,si)
 {}
 Seis::RangeSelData::RangeSelData( const BinID& bid )
     : fss_(bid)
@@ -33,9 +39,6 @@ Seis::RangeSelData::RangeSelData( GeomID gid, trcnr_type tnr )
 {}
 Seis::RangeSelData::RangeSelData( const TrcKey& tk )
     : fss_(tk)
-{}
-Seis::RangeSelData::RangeSelData( const GeomIDSet& gids )
-    : fss_(gids)
 {}
 Seis::RangeSelData::RangeSelData( const CubeSubSel& css )
     : fss_(css)
@@ -70,9 +73,9 @@ Seis::RangeSelData::RangeSelData( const TrcKeyZSampling& tkzs )
 Seis::RangeSelData::RangeSelData( const RangeSelData& oth )
     : RangeSelData()
 { copyFrom( oth ); }
-Seis::RangeSelData::RangeSelData( const IOPar& iop )
+Seis::RangeSelData::RangeSelData( const IOPar& iop, const SurveyInfo* si )
     : RangeSelData()
-{ usePar( iop ); }
+{ usePar( iop, si ); }
 
 
 Seis::RangeSelData::~RangeSelData()
@@ -288,10 +291,10 @@ void Seis::RangeSelData::doFillPar( IOPar& iop ) const
 }
 
 
-void Seis::RangeSelData::doUsePar( const IOPar& iop )
+void Seis::RangeSelData::doUsePar( const IOPar& iop, const SurveyInfo* si )
 {
     clearContents();
-    fss_.usePar( iop );
+    fss_.usePar( iop, si );
 }
 
 

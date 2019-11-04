@@ -146,7 +146,7 @@ void Seis::TableSelData::doFillPar( IOPar& iop ) const
 }
 
 
-void Seis::TableSelData::doUsePar( const IOPar& iop )
+void Seis::TableSelData::doUsePar( const IOPar& iop, const SurveyInfo* )
 {
     bvs_.setEmpty();
     iop.get( mGetTableKey("FixedZ"), fixedzrange_ );
@@ -279,7 +279,7 @@ Seis::PolySelData::PolySelData( const DBKey& dbky )
     IOPar iop;
     iop.set( mGetPolyKey("NrPolygons"), 1 );
     iop.set( mGetPolyKey(sKey::ID()), dbky );
-    doUsePar( iop );
+    doUsePar( iop, &dbky.surveyInfo() );
 }
 
 
@@ -393,7 +393,7 @@ void Seis::PolySelData::doFillPar( IOPar& iop ) const
 }
 
 
-void Seis::PolySelData::doUsePar( const IOPar& iop )
+void Seis::PolySelData::doUsePar( const IOPar& iop, const SurveyInfo* )
 {
     const bool wasfilled = !polys_.isEmpty();
 

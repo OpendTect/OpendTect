@@ -251,6 +251,8 @@ void uiSurvSeisSelGroup::setSelected( const DBKey& dbky, int compnr )
 {
     if ( survsel_->surveyDiskLocation() != dbky.surveyDiskLocation() )
 	setSurvey( dbky.surveyDiskLocation() );
+    else if ( ioobjs_.isEmpty() )
+	updateObjs();
 
     const int idxof = indexOf( dbky );
     if ( idxof < 0 )

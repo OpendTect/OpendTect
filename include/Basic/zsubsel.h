@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "arrregsubsel.h"
 #include "geomid.h"
+class SurveyInfo;
 
 
 namespace Pos
@@ -126,7 +127,7 @@ public:
     bool	usePar(const IOPar&);
     void	fillPar(IOPar&) const;
 
-    static const ZSubSel&   surv3D();
+    static const ZSubSel&   surv3D(const SurveyInfo* si=nullptr);
     static ZSubSel&	    dummy();
 
 protected:
@@ -161,16 +162,19 @@ public:
     mUseType( Pos::ZSubSelData,	z_rg_type );
     mUseType( Pos::ZSubSelData,	z_steprg_type );
 
-			FullZSubSel();				//!< full 3D
-			FullZSubSel(GeomID);			//!< full range
-			FullZSubSel(const GeomIDSet&);		//!< full ranges
-			FullZSubSel(const ZSubSel&);		//!< 3D
-			FullZSubSel(const z_steprg_type&);	//!< 3D
-			FullZSubSel(GeomID,const z_steprg_type&);
+			FullZSubSel(const SurveyInfo* si=nullptr);
+			FullZSubSel(GeomID,const SurveyInfo* si=nullptr);
+			FullZSubSel(const GeomIDSet&,
+				    const SurveyInfo* si=nullptr);
+			FullZSubSel(const ZSubSel&);
+			FullZSubSel(const z_steprg_type&);
+			FullZSubSel(GeomID,const z_steprg_type&,
+					const SurveyInfo* si=nullptr);
 			FullZSubSel(const FullZSubSel&);
     FullZSubSel&	operator =(const FullZSubSel&);
     bool		operator ==(const FullZSubSel&) const;
 			mImplSimpleIneqOper(FullZSubSel)
+    const SurveyInfo&	survInfo() const;
 
     bool		is2D() const;
     bool		is3D() const		{ return !is2D(); }
@@ -194,10 +198,10 @@ public:
 			{ return get(idx).outputZRange(); }
 
 			// setting the input (and output) range:
-    void		setFull(GeomID);
+    void		setFull(GeomID,const SurveyInfo* si=nullptr);
     void		set(const ZSubSel&);		//!< 3D
     void		set(GeomID,const ZSubSel&);
-    void		setToNone(bool is2d);
+    void		setToNone(bool is2d,const SurveyInfo* si=nullptr);
     void		remove(idx_type);
     void		remove(GeomID);
 
@@ -205,13 +209,14 @@ public:
     void		limitTo(const FullZSubSel&);
 
     void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&,const SurveyInfo* si=nullptr);
     uiString		getUserSummary() const;
 
 protected:
 
     TypeSet<GeomID>	geomids_;
     TypeSet<ZSubSel>	zsss_;
+    const SurveyInfo*	si_			= nullptr;
 
 };
 

@@ -159,6 +159,7 @@ public:
     mUseType( Pos,		IdxSubSelData );
 
 			CubeHorSubSel(OD::SurvLimitType slt=OD::FullSurvey);
+			CubeHorSubSel(const SurveyInfo*);
 			CubeHorSubSel(const Geometry3D&);
 			CubeHorSubSel(const HorSampling&);
 			CubeHorSubSel(const pos_steprg_type&,
@@ -168,6 +169,7 @@ public:
 			CubeHorSubSel(const TrcKeySampling&);
 			CubeHorSubSel(const CubeHorSubSel&,int nrchunks,
 							   int chunknr);
+			CubeHorSubSel(const CubeHorSubSel&);
     bool		operator ==( const CubeHorSubSel& oth ) const
 			{ return equals( oth ); }
 			mImplSimpleIneqOper(CubeHorSubSel)

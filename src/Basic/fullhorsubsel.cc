@@ -29,20 +29,20 @@ const char* Survey::FullHorSubSel::sNrLinesKey()
 }
 
 
-Survey::FullHorSubSel::FullHorSubSel()
-    : chss_(new CubeHorSubSel)
+Survey::FullHorSubSel::FullHorSubSel( const SurveyInfo* si )
+    : chss_(new CubeHorSubSel(si))
     , lhsss_(*new LineHorSubSelSet)
 {
 }
 
 
-Survey::FullHorSubSel::FullHorSubSel( GeomID gid )
+Survey::FullHorSubSel::FullHorSubSel( GeomID gid, const SurveyInfo* si )
     : lhsss_(*new LineHorSubSelSet)
 {
     if ( gid.is2D() )
 	lhsss_ += new LineHorSubSel( gid );
     else
-	chss_ = new CubeHorSubSel;
+	chss_ = new CubeHorSubSel( si );
 }
 
 
@@ -68,11 +68,12 @@ Survey::FullHorSubSel::FullHorSubSel( const TrcKey& tk )
 }
 
 
-Survey::FullHorSubSel::FullHorSubSel( const GeomIDSet& gids )
+Survey::FullHorSubSel::FullHorSubSel( const GeomIDSet& gids,
+				      const SurveyInfo* si )
     : lhsss_(*new LineHorSubSelSet)
 {
     if ( !gids.isEmpty() && !gids.first().is2D() )
-	chss_ = new CubeHorSubSel;
+	chss_ = new CubeHorSubSel( si );
     else
 	for ( auto gid : gids )
 	    lhsss_ += new LineHorSubSel( gid );
@@ -165,10 +166,10 @@ Survey::FullHorSubSel::FullHorSubSel( const FullHorSubSel& oth )
 }
 
 
-Survey::FullHorSubSel::FullHorSubSel( const IOPar& iop )
+Survey::FullHorSubSel::FullHorSubSel( const IOPar& iop, const SurveyInfo* si )
     : FullHorSubSel()
 {
-    usePar( iop );
+    usePar( iop, si );
 }
 
 
@@ -206,6 +207,14 @@ bool Survey::FullHorSubSel::operator==( const FullHorSubSel& oth ) const
 }
 
 
+const SurveyInfo& Survey::FullHorSubSel::survInfo() const
+{
+    if ( chss_ )
+	return chss_->survInfo();
+    return SI();
+}
+
+
 void Survey::FullHorSubSel::clearContents()
 {
     deleteAndZeroPtr( chss_ );
@@ -213,7 +222,7 @@ void Survey::FullHorSubSel::clearContents()
 }
 
 
-void Survey::FullHorSubSel::set3D( bool yn )
+void Survey::FullHorSubSel::set3D( bool yn, const SurveyInfo* si )
 {
     if ( !yn )
 	deleteAndZeroPtr( chss_ );
@@ -221,7 +230,7 @@ void Survey::FullHorSubSel::set3D( bool yn )
     {
 	lhsss_.setEmpty();
 	if ( !chss_ )
-	    chss_ = new CubeHorSubSel;
+	    chss_ = new CubeHorSubSel( si );
     }
 }
 
@@ -238,18 +247,25 @@ void Survey::FullHorSubSel::addGeomID( GeomID gid )
 }
 
 
-void Survey::FullHorSubSel::setGeomID( GeomID gid )
+void Survey::FullHorSubSel::setGeomID( GeomID gid, const SurveyInfo* si )
 {
-    if ( is3D() )
+    if ( gid.is3D() )
     {
-	if ( gid.is3D() )
-	    return;
+	lhsss_.setEmpty();
+	if ( chss_ && &SI(si) != &chss_->survInfo() )
+	{
+	    delete chss_;
+	    chss_ = new CubeHorSubSel( si );
+	}
     }
-    else if ( lhsss_.size() == 1 && lhsss_.get(0)->geomID() == gid )
-	return;
+    else
+    {
+	if ( lhsss_.size() == 1 && lhsss_.get(0)->geomID() == gid )
+	    return;
 
-    lhsss_.setEmpty();
-    addGeomID( gid );
+	lhsss_.setEmpty();
+	addGeomID( gid );
+    }
 }
 
 
@@ -285,26 +301,26 @@ bool Survey::FullHorSubSel::isAll() const
 
 
 static pos_type getInlCrl42D( const SurvGeom2D& geom,
-			      bool first, bool inl )
+			      bool first, bool inl, const SurveyInfo& si )
 {
     const Coord coord( geom.getCoordByIdx(first? 0 : geom.size()-1) );
-    const BinID bid( SI().transform(coord) );
+    const BinID bid( si.transform(coord) );
     return inl ? bid.inl() : bid.crl();
 }
 
 
 static void inclInlCrl42D( const SurvGeom2D& geom,
-			   pos_rg_type& rg, bool inl )
+			   pos_rg_type& rg, bool inl, const SurveyInfo& si )
 {
     if ( geom.isEmpty() )
 	return;
 
-    auto posidx = getInlCrl42D( geom, true, inl );
+    auto posidx = getInlCrl42D( geom, true, inl, si );
     if ( mIsUdf(rg.start) )
 	rg.start = rg.stop = posidx;
     else
 	rg.include( posidx, false );
-    posidx = getInlCrl42D( geom, false, inl );
+    posidx = getInlCrl42D( geom, false, inl, si );
     rg.include( posidx );
 }
 
@@ -316,9 +332,9 @@ pos_steprg_type Survey::FullHorSubSel::inlRange() const
 
     pos_rg_type ret( mUdf(int), mUdf(int) );
     for ( auto idx=0; idx<nrGeomIDs(); idx++ )
-	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, true );
+	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, true, survInfo() );
 
-    return pos_steprg_type( ret, SI().inlStep() );
+    return pos_steprg_type( ret, survInfo().inlStep() );
 }
 
 
@@ -329,9 +345,9 @@ pos_steprg_type Survey::FullHorSubSel::crlRange() const
 
     pos_rg_type ret( mUdf(int), mUdf(int) );
     for ( auto idx=0; idx<nrGeomIDs(); idx++ )
-	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, false );
+	inclInlCrl42D( SurvGeom2D::get( geomID(idx) ), ret, false, survInfo() );
 
-    return pos_steprg_type( ret, SI().crlStep() );
+    return pos_steprg_type( ret, survInfo().crlStep() );
 }
 
 
@@ -381,7 +397,7 @@ void Survey::FullHorSubSel::setInlRange( const pos_rg_type& rg )
     if ( rg.hasStep() )
 	chss_->setInlRange( (const pos_steprg_type&)rg );
     else
-	chss_->setInlRange( pos_steprg_type(rg,SI().inlStep()) );
+	chss_->setInlRange( pos_steprg_type(rg,survInfo().inlStep()) );
 }
 
 
@@ -392,7 +408,7 @@ void Survey::FullHorSubSel::setCrlRange( const pos_rg_type& rg )
     if ( rg.hasStep() )
 	chss_->setCrlRange( (const pos_steprg_type&)rg );
     else
-	chss_->setCrlRange( pos_steprg_type(rg,SI().crlStep()) );
+	chss_->setCrlRange( pos_steprg_type(rg,survInfo().crlStep()) );
 }
 
 
@@ -421,31 +437,31 @@ void Survey::FullHorSubSel::setTrcNrRange( const pos_rg_type& rg, idx_type idx )
 }
 
 
-void Survey::FullHorSubSel::setToNone( bool is2d )
+void Survey::FullHorSubSel::setToNone( bool is2d, const SurveyInfo* si )
 {
     clearContents();
-    set3D( !is2d );
+    set3D( !is2d, si );
 }
 
 
-void Survey::FullHorSubSel::setToAll( bool is2d )
+void Survey::FullHorSubSel::setToAll( bool is2d, const SurveyInfo* si )
 {
     clearContents();
     if ( is2d )
 	lhsss_.setToAll();
     else
-	chss_ = new CubeHorSubSel;
+	chss_ = new CubeHorSubSel( si );
 }
 
 
-void Survey::FullHorSubSel::setFull( GeomID gid )
+void Survey::FullHorSubSel::setFull( GeomID gid, const SurveyInfo* si )
 {
     if ( !gid.isValid() )
 	return;
 
-    set3D( gid.is3D() );
+    set3D( gid.is3D(), si );
     if ( !is2D() )
-	{ delete chss_; chss_ = new CubeHorSubSel; return; }
+	{ delete chss_; chss_ = new CubeHorSubSel( si ); return; }
 
     const auto idxof = indexOf( gid );
     if ( idxof < 0 )
@@ -457,14 +473,14 @@ void Survey::FullHorSubSel::setFull( GeomID gid )
 
 void Survey::FullHorSubSel::set( const CubeHorSubSel& chss )
 {
-    set3D( true );
+    set3D( true, &chss.survInfo() );
     *chss_ = chss;
 }
 
 
 void Survey::FullHorSubSel::set( const CubeSubSel& css )
 {
-    set3D( true );
+    set3D( true, &css.survInfo() );
     *chss_ = css.cubeHorSubSel();
 }
 
@@ -517,10 +533,10 @@ void Survey::FullHorSubSel::fillPar( IOPar& iop ) const
 }
 
 
-void Survey::FullHorSubSel::usePar( const IOPar& iop )
+void Survey::FullHorSubSel::usePar( const IOPar& iop, const SurveyInfo* si )
 {
     clearContents();
-    set3D( !iop.isPresent(sNrLinesKey()) );
+    set3D( !iop.isPresent(sNrLinesKey()), si );
 
     if ( chss_ )
 	chss_->usePar( iop );
@@ -566,7 +582,7 @@ int Survey::FullHorSubSel::selRes3D( const BinID& bid ) const
     }
     else
     {
-	const Coord coord = SI().transform( bid );
+	const Coord coord = survInfo().transform( bid );
 	ret = 2 + 256 * 2;
 	for ( int iln=0; iln<lhsss_.size(); iln++ )
 	{
@@ -576,7 +592,7 @@ int Survey::FullHorSubSel::selRes3D( const BinID& bid ) const
 	    auto trcnr = geom.nearestTracePosition( coord );
 	    if ( trcnr >= 0 )
 	    {
-		const BinID trcbid( SI().transform(geom.getCoord(trcnr)) );
+		const BinID trcbid( survInfo().transform(geom.getCoord(trcnr)));
 		if ( trcbid == bid )
 		    { ret = 0; break; }
 	    }
@@ -785,7 +801,7 @@ BinID Survey::SubSelPosIter::binID() const
     const auto& lhss = *subsel_.lhsss_.get( lidx );
     const auto trcnr = lhss.trcNrSubSel().pos4Idx( mTrcIdx() );
     const auto coord = lhss.geometry2D().getCoord( trcnr );
-    return SI().transform( coord );
+    return subsel_.survInfo().transform( coord );
 }
 
 

@@ -60,7 +60,7 @@ class TrcKeyZSampling;
 mExpClass(Basic) SurveyInfo : public NamedMonitorable
 { mODTextTranslationClass(SurveyInfo);
 
-    mGlobal(Basic) friend const SurveyInfo&	SI();
+    mGlobal(Basic) friend const SurveyInfo&	SI(const SurveyInfo*);
 
 
 public:
@@ -345,7 +345,7 @@ public:
 };
 
 
-mGlobal(Basic) const SurveyInfo& SI();
+mGlobal(Basic) const SurveyInfo& SI(const SurveyInfo* si=nullptr);
 mDeprecated mGlobal(Basic) SurveyInfo& eSI();
 
 namespace Survey {

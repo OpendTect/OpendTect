@@ -39,9 +39,10 @@ public:
     typedef	StepInterval<pos_type>	pos_steprg_type;
     typedef	pos_type		trcnr_type;
 
-			FullSubSel();
-			FullSubSel(GeomID);
-			FullSubSel(const GeomIDSet&);
+			FullSubSel(const SurveyInfo* si=nullptr);
+			FullSubSel(GeomID,const SurveyInfo* si=nullptr);
+			FullSubSel(const GeomIDSet&,
+				    const SurveyInfo* si=nullptr);
 			FullSubSel(const CubeSubSel&);
 			FullSubSel(const LineSubSel&);
 			FullSubSel(const GeomSubSel&);
@@ -149,7 +150,7 @@ public:
 			{ return hss_.expectedNrPositions(); }
 
     void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&,const SurveyInfo* si=nullptr);
 
 protected:
 

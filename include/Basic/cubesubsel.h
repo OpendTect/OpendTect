@@ -48,6 +48,7 @@ public:
 				mDeclareEnumUtils(SliceType);
 
 			CubeSubSel(OD::SurvLimitType slt=OD::FullSurvey);
+			CubeSubSel(const SurveyInfo*);
 			CubeSubSel(const Geometry3D&);
 			CubeSubSel(const CubeHorSubSel&);
 			CubeSubSel(const CubeHorSubSel&,const z_steprg_type&);
@@ -70,6 +71,7 @@ public:
     bool		equals(const SubSel&) const override;
     bool		includes(const CubeSubSel&) const;
     bool		includes(const BinID&) const;
+    const SurveyInfo&	survInfo() const	{ return hss_.survInfo(); }
 
     const IdxSubSelData& inlSubSel() const	{ return hss_.inlSubSel(); }
     IdxSubSelData&	inlSubSel()		{ return hss_.inlSubSel(); }

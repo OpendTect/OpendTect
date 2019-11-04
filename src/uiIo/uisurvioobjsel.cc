@@ -151,6 +151,8 @@ void uiSurvIOObjSelGroup::setSurvey( const SurveyDiskLocation& sdl )
 
     if ( finalised() )
 	updGrp( false );
+    else
+	updateObjs();
 }
 
 
