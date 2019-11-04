@@ -29,12 +29,7 @@ ________________________________________________________________________
 mExpClass(Algo) ArrayNDProbDenFunc
 {
 public:
-
-			ArrayNDProbDenFunc()
-			: cumbins_(0)		{}
-			ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth)
-			: cumbins_(0)		{ *this = oth; }
-    virtual		~ArrayNDProbDenFunc()	{}
+    virtual		~ArrayNDProbDenFunc()	{ delete [] cumbins_; }
     ArrayNDProbDenFunc&	operator =(const ArrayNDProbDenFunc&);
 
     int			size( int dim ) const
@@ -63,6 +58,10 @@ public:
     static float	findAveragePos(const float*,int,float grandtotal);
 
 protected:
+			ArrayNDProbDenFunc()
+			: cumbins_(nullptr)		{}
+			ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth)
+			: cumbins_(nullptr)		{ *this = oth; }
 
     virtual const ArrayND<float>& getArrND() const	= 0;
     virtual const SamplingData<float>& getSampling(int) const	= 0;
@@ -215,7 +214,7 @@ public:
 protected:
 
     virtual const ArrayND<float>& getArrND() const
-    			{ return bins_;}
+			{ return bins_;}
     virtual const SamplingData<float>& getSampling( int d ) const
 			{ return sds_[d]; }
 
