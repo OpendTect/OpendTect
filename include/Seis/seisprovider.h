@@ -154,6 +154,8 @@ public:
 
     void		commitSelections() const;
 			    //!< will be done automatically if not called
+			    //!< if you need to investigate the exact positions
+			    //!< before you get traces, call this explicitly
 
     void		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);

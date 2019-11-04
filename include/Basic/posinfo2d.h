@@ -22,7 +22,6 @@ namespace PosInfo
 {
 
 class LineData;
-class LineCollData;
 
 /*!\brief the key (trace number) and the actual position (Coord) */
 
