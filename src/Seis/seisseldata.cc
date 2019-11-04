@@ -92,11 +92,11 @@ Seis::SelData* Seis::SelData::get( Type t )
 
 
 
-Seis::SelData* Seis::SelData::get( const IOPar& iop )
+Seis::SelData* Seis::SelData::get( const IOPar& iop, const SurveyInfo* si )
 {
     const Type t = selTypeOf( iop.find(sKey::Type()) );
     SelData* sd = get( t );
-    sd->usePar( iop );
+    sd->usePar( iop, si );
     return sd;
 }
 
@@ -297,9 +297,9 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 }
 
 
-void Seis::SelData::usePar( const IOPar& iop )
+void Seis::SelData::usePar( const IOPar& iop, const SurveyInfo* si )
 {
-    doUsePar( iop );
+    doUsePar( iop, si );
 }
 
 

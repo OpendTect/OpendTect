@@ -72,7 +72,7 @@ protected:
     GeomID		gtGeomID(idx_type) const override;
     void		doCopyFrom(const SelData&) override;
     void		doFillPar(IOPar&) const override;
-    void		doUsePar(const IOPar&) override;
+    void		doUsePar(const IOPar&,const SurveyInfo*) override;
     uiString		gtUsrSummary() const override;
     int			selRes2D(GeomID,pos_type) const override;
     int			selRes3D(const BinID&) const override;

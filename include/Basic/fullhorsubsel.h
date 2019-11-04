@@ -18,6 +18,7 @@ class LineSubSel;
 class LineHorSubSel;
 class LineHorSubSelSet;
 class LineSubSelSet;
+class SurveyInfo;
 class TrcKeySampling;
 class TrcKeyZSampling;
 
@@ -42,9 +43,10 @@ public:
     typedef StepInterval<pos_type>	pos_steprg_type;
     typedef pos_type			trcnr_type;
 
-			FullHorSubSel();			//!< full 3D
-			FullHorSubSel(GeomID);			//!< full line
-			FullHorSubSel(const GeomIDSet&);	//!< full lines
+			FullHorSubSel(const SurveyInfo* si=nullptr);
+			FullHorSubSel(GeomID,const SurveyInfo* si=nullptr);
+			FullHorSubSel(const GeomIDSet&,
+				      const SurveyInfo* si=nullptr);
 			FullHorSubSel(const CubeSubSel&);
 			FullHorSubSel(const LineSubSel&);
 			FullHorSubSel(const GeomSubSel&);
@@ -57,13 +59,15 @@ public:
 			FullHorSubSel(GeomID,trcnr_type);	//!< single pos
 			FullHorSubSel(const TrcKey&);		//!< single pos
 			FullHorSubSel(const FullHorSubSel&);
-			FullHorSubSel(const IOPar&);
+			FullHorSubSel(const IOPar&,
+				      const SurveyInfo* si=nullptr);
 			FullHorSubSel(const TrcKeySampling&);
 			FullHorSubSel(const TrcKeyZSampling&);
     virtual		~FullHorSubSel();
     FullHorSubSel&	operator =(const FullHorSubSel&);
     bool		operator ==(const FullHorSubSel&) const;
 			mImplSimpleIneqOper(FullHorSubSel);
+    const SurveyInfo&	survInfo() const;
 
     bool		is2D() const	{ return !chss_; }
     bool		is3D() const	{ return chss_; }
@@ -97,16 +101,16 @@ public:
     void		merge(const FullHorSubSel&);
     void		limitTo(const FullHorSubSel&);
 
-    void		setToNone(bool for2d);
-    void		setToAll(bool for2d);
-    void		setFull(GeomID);
+    void		setToNone(bool for2d,const SurveyInfo* si=nullptr);
+    void		setToAll(bool for2d,const SurveyInfo* si=nullptr);
+    void		setFull(GeomID,const SurveyInfo* si=nullptr);
     void		set(const CubeHorSubSel&);
     void		set(const CubeSubSel&);
     void		set(const LineHorSubSel&);
     void		set(const LineSubSel&);
     void		set(const LineHorSubSelSet&);
     void		set(const LineSubSelSet&);
-    void		setGeomID(GeomID);
+    void		setGeomID(GeomID,const SurveyInfo* si=nullptr);
     void		addGeomID(GeomID);
 
     uiString		getUserSummary() const;
@@ -114,14 +118,14 @@ public:
 
     static const char*	sNrLinesKey();
     void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&,const SurveyInfo* si=nullptr);
 
 protected:
 
     CubeHorSubSel*	chss_	= 0;
     LineHorSubSelSet&	lhsss_;
 
-    void		set3D(bool);
+    void		set3D(bool,const SurveyInfo* si=nullptr);
     void		clearContents();
 
     friend class	SubSelPosIter;

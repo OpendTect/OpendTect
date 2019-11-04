@@ -170,10 +170,10 @@ void Pos::ZSubSelData::widen( const z_rg_type& zrg )
 }
 
 
-const Pos::ZSubSel& Pos::ZSubSel::surv3D()
+const Pos::ZSubSel& Pos::ZSubSel::surv3D( const SurveyInfo* si )
 {
     static ZSubSel ret( z_steprg_type(0.f,0.f,1.f) );
-    ret.setInputZRange( SI().zRange() );
+    ret.setInputZRange( SI(si).zRange() );
     return ret;
 }
 
@@ -209,9 +209,10 @@ void Pos::ZSubSel::fillPar( IOPar& iop ) const
 }
 
 
-Survey::FullZSubSel::FullZSubSel()
+Survey::FullZSubSel::FullZSubSel( const SurveyInfo* si )
     : geomids_(GeomID::get3D())
-    , zsss_(ZSubSel(SI().zRange()))
+    , zsss_(ZSubSel(SI(si).zRange()))
+    , si_(si)
 {
 }
 
@@ -230,20 +231,23 @@ Survey::FullZSubSel::FullZSubSel( const z_steprg_type& zrg )
 }
 
 
-Survey::FullZSubSel::FullZSubSel( GeomID gid )
-    : FullZSubSel( GeomIDSet(gid) )
+Survey::FullZSubSel::FullZSubSel( GeomID gid, const SurveyInfo* si )
+    : FullZSubSel( GeomIDSet(gid), si )
 {
 }
 
 
-Survey::FullZSubSel::FullZSubSel( const GeomIDSet& gids )
+Survey::FullZSubSel::FullZSubSel( const GeomIDSet& gids, const SurveyInfo* si )
+    : si_(si)
 {
     for ( auto gid : gids )
-	setFull( gid );
+	setFull( gid, si );
 }
 
 
-Survey::FullZSubSel::FullZSubSel( GeomID gid, const z_steprg_type& zrg )
+Survey::FullZSubSel::FullZSubSel( GeomID gid, const z_steprg_type& zrg,
+				  const SurveyInfo* si )
+    : si_(si)
 {
     set( gid, ZSubSel(zrg) );
 }
@@ -252,6 +256,7 @@ Survey::FullZSubSel::FullZSubSel( GeomID gid, const z_steprg_type& zrg )
 Survey::FullZSubSel::FullZSubSel( const FullZSubSel& oth )
     : geomids_(oth.geomids_)
     , zsss_(oth.zsss_)
+    , si_(oth.si_)
 {
 }
 
@@ -262,6 +267,7 @@ Survey::FullZSubSel& Survey::FullZSubSel::operator =( const FullZSubSel& oth )
     {
 	geomids_ = oth.geomids_;
 	zsss_ = oth.zsss_;
+	si_ = oth.si_;
     }
     return *this;
 }
@@ -270,6 +276,12 @@ Survey::FullZSubSel& Survey::FullZSubSel::operator =( const FullZSubSel& oth )
 bool Survey::FullZSubSel::operator ==( const FullZSubSel& oth ) const
 {
     return geomids_ == oth.geomids_ && zsss_ == oth.zsss_;
+}
+
+
+const SurveyInfo& Survey::FullZSubSel::survInfo() const
+{
+    return SI( si_ );
 }
 
 
@@ -307,13 +319,19 @@ bool Survey::FullZSubSel::hasFullRange() const
 }
 
 
-void Survey::FullZSubSel::setFull( GeomID gid )
+void Survey::FullZSubSel::setFull( GeomID gid, const SurveyInfo* si )
 {
     if ( !gid.isValid() )
 	return;
-    const auto& geom = Survey::Geometry::get( gid );
-    if ( !geom.isEmpty() )
-	set( gid, ZSubSel(geom.zRange()) );
+    si_ = si;
+    if ( gid.is3D() )
+	set( gid, ZSubSel(SI(si_).zRange()) );
+    else
+    {
+	const auto& geom = Survey::Geometry::get( gid );
+	if ( !geom.isEmpty() )
+	    set( gid, ZSubSel(geom.zRange()) );
+    }
 }
 
 
@@ -339,12 +357,12 @@ void Survey::FullZSubSel::set( GeomID gid, const ZSubSel& zss )
 }
 
 
-void Survey::FullZSubSel::setToNone( bool is2d )
+void Survey::FullZSubSel::setToNone( bool is2d, const SurveyInfo* si )
 {
     geomids_.setEmpty();
     zsss_.setEmpty();
     if ( !is2d )
-	setFull( GeomID::get3D() );
+	setFull( GeomID::get3D(), si );
 }
 
 
@@ -416,7 +434,7 @@ void Survey::FullZSubSel::fillPar( IOPar& iop ) const
 }
 
 
-void Survey::FullZSubSel::usePar( const IOPar& inpiop )
+void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 {
     PtrMan<IOPar> iop = inpiop.subselect( sKeyZSS );
     if ( !iop || iop->isEmpty() )
@@ -427,10 +445,11 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop )
     if ( sz < 1 )
 	return;
 
+    si_ = si;
     bool is2d = is2D();
     iop->getYN( IOPar::compKey(sKeyZSS,sKey::Is2D()), is2d );
 
-    setToNone( is2d );
+    setToNone( is2d, si );
     for ( auto idx=0; idx<sz; idx++ )
     {
 	const BufferString baseky( IOPar::compKey(sKeyZSS,idx) );
@@ -438,7 +457,11 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop )
 	iop->get( IOPar::compKey(baseky,sKey::GeomID()), gid );
 	iop->get( IOPar::compKey(baseky,sKey::Range()), zrg );
 	if ( gid.isValid() )
-	    set( gid, ZSubSel(zrg) );
+	{
+	    ZSubSel zss( survInfo().zRange() );
+	    zss.setOutputZRange( zrg );
+	    set( gid, zss );
+	}
     }
 }
 

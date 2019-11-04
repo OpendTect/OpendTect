@@ -54,23 +54,25 @@ void Survey::FullSubSel::setFromZSS( const FullZSubSel& inpfzss )
 }
 
 
-Survey::FullSubSel::FullSubSel()
+Survey::FullSubSel::FullSubSel( const SurveyInfo* si )
+    : hss_(si)
+    , zss_(si)
 {
 }
 
 
-Survey::FullSubSel::FullSubSel( GeomID gid )
-    : FullSubSel(GeomIDSet(gid))
+Survey::FullSubSel::FullSubSel( GeomID gid, const SurveyInfo* si )
+    : FullSubSel(GeomIDSet(gid),si)
 {
 }
 
 
-Survey::FullSubSel::FullSubSel( const GeomIDSet& gids )
-    : hss_(gids)
+Survey::FullSubSel::FullSubSel( const GeomIDSet& gids, const SurveyInfo* si )
+    : hss_(gids,si)
 {
-    zss_.setToNone( is2D() );
+    zss_.setToNone( is2D(), &hss_.survInfo() );
     for ( auto gid : gids )
-	zss_.setFull( gid );
+	zss_.setFull( gid, &hss_.survInfo() );
 }
 
 
@@ -452,9 +454,9 @@ void Survey::FullSubSel::fillPar( IOPar& iop ) const
 }
 
 
-void Survey::FullSubSel::usePar( const IOPar& iop )
+void Survey::FullSubSel::usePar( const IOPar& iop, const SurveyInfo* si )
 {
-    hss_.usePar( iop );
-    zss_.usePar( iop );
+    hss_.usePar( iop, si );
+    zss_.usePar( iop, si );
     syncZSS();
 }

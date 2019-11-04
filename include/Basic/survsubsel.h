@@ -22,6 +22,7 @@ class LineSubSel;
 class LineHorSubSel;
 class LineSubSelSet;
 class LineHorSubSelSet;
+class SurveyInfo;
 class TrcKeySampling;
 class TrcKeyZSampling;
 
@@ -89,6 +90,7 @@ public:
 				{ return equals( oth ); }
 				mImplSimpleIneqOper(HorSubSel)
     HorSubSel*			duplicate() const override;
+    const SurveyInfo&		survInfo() const;
 
     LineHorSubSel*		asLineHorSubSel();
     const LineHorSubSel*	asLineHorSubSel() const;
@@ -100,7 +102,8 @@ public:
     bool			includes(const TrcKey&) const;
 
     static HorSubSel*		get(const TrcKeySampling&);
-    static HorSubSel*		create(const IOPar&);
+    static HorSubSel*		create(const IOPar&,
+					const SurveyInfo* si=nullptr);
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
@@ -130,6 +133,8 @@ public:
     idx_type			idx4TrcNr(pos_type) const;
 
 protected:
+
+    const SurveyInfo*		si_				= nullptr;
 
     virtual bool		doUsePar(const IOPar&)		= 0;
     virtual void		doFillPar(IOPar&) const		= 0;

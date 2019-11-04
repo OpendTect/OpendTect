@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "geomid.h"
 class Bin2D;
 class BinnedValueSet;
+class SurveyInfo;
 namespace PosInfo { class LineCollData; }
 
 
@@ -71,8 +72,8 @@ public:
     virtual SelData*	clone() const			= 0;
     void		copyFrom(const SelData&);
     static SelData*	get(Type);			//!< empty
-    static SelData*	get(const IOPar&);		//!< fully filled
-    static SelData*	get(const DBKey&);		//!< fully filled
+    static SelData*	get(const IOPar&,const SurveyInfo* si=nullptr);
+    static SelData*	get(const DBKey&);
 
     virtual Type	type() const			= 0;
     virtual bool	is2D() const			{ return false; }
@@ -96,7 +97,7 @@ public:
     virtual size_type	expectedNrTraces() const	= 0;
 
     void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&,const SurveyInfo* si=nullptr);
     static void		removeFromPar(IOPar&,const char* subky=0);
 
     void		include(const SelData&);
@@ -128,7 +129,7 @@ protected:
 
     virtual void	doCopyFrom(const SelData&)	= 0;
     virtual void	doFillPar(IOPar&) const		= 0;
-    virtual void	doUsePar(const IOPar&)		= 0;
+    virtual void	doUsePar(const IOPar&,const SurveyInfo*) = 0;
     virtual uiString	gtUsrSummary() const		= 0;
     virtual int		selRes3D(const BinID&) const	= 0;
     virtual int		selRes2D(GeomID,trcnr_type) const;

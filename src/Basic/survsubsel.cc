@@ -12,6 +12,7 @@
 #include "linesubsel.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
+#include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 
@@ -73,6 +74,12 @@ void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 	iop.set( sKey::GeomID(), gid );
     else
 	iop.removeWithKey( sKey::GeomID() );
+}
+
+
+const SurveyInfo& Survey::HorSubSel::survInfo() const
+{
+    return SI( si_ );
 }
 
 
@@ -138,7 +145,8 @@ bool Survey::HorSubSel::includes( const TrcKey& tk ) const
 }
 
 
-Survey::HorSubSel* Survey::HorSubSel::create( const IOPar& iop )
+Survey::HorSubSel* Survey::HorSubSel::create( const IOPar& iop,
+					      const SurveyInfo* si )
 {
     bool is2d; GeomID gid;
     if ( !getInfo(iop,is2d,gid) )
@@ -148,7 +156,7 @@ Survey::HorSubSel* Survey::HorSubSel::create( const IOPar& iop )
     if ( is2d )
 	ret = new LineHorSubSel( gid );
     else
-	ret = new CubeHorSubSel;
+	ret = new CubeHorSubSel( si );
     if ( ret )
 	ret->usePar( iop );
 
@@ -738,6 +746,13 @@ CubeHorSubSel::CubeHorSubSel( OD::SurvLimitType slt )
 }
 
 
+CubeHorSubSel::CubeHorSubSel( const SurveyInfo* si )
+    : CubeHorSubSel( SI(si).inlRange(), SI(si).crlRange() )
+{
+    si_ = si;
+}
+
+
 CubeHorSubSel::CubeHorSubSel( const Geometry3D& geom )
     : CubeHorSubSel( geom.inlRange(), geom.crlRange() )
 {
@@ -776,6 +791,13 @@ CubeHorSubSel::CubeHorSubSel( const CubeSubSel& css )
 CubeHorSubSel::CubeHorSubSel( const TrcKeySampling& tks )
     : CubeHorSubSel( tks.lineRange(), tks.trcRange() )
 {
+}
+
+
+CubeHorSubSel::CubeHorSubSel( const CubeHorSubSel& oth )
+    : Pos::IdxSubSel2D( oth.inlRange(), oth.crlRange() )
+{
+    si_ = oth.si_;
 }
 
 
@@ -1147,6 +1169,13 @@ CubeSubSel::CubeSubSel( OD::SurvLimitType slt )
 }
 
 
+CubeSubSel::CubeSubSel( const SurveyInfo* si )
+    : GeomSubSel(SI(si).zRange())
+    , hss_(si)
+{
+}
+
+
 CubeSubSel::CubeSubSel( const Geometry3D& geom )
     : Survey::GeomSubSel( geom.zRange() )
     , hss_( geom )
@@ -1155,7 +1184,7 @@ CubeSubSel::CubeSubSel( const Geometry3D& geom )
 
 
 CubeSubSel::CubeSubSel( const CubeHorSubSel& hss )
-    : CubeSubSel( hss, Geometry::get3D().zRange() )
+    : CubeSubSel( hss, hss.survInfo().zRange() )
 {
 }
 

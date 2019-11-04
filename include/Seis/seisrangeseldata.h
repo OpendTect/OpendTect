@@ -31,9 +31,10 @@ public:
     mUseType( Survey,	FullSubSel );
     mUseType( ZSubSel,	z_steprg_type );
 
-			RangeSelData()		    {} //3D, all
-			RangeSelData(GeomID);
-			RangeSelData(const GeomIDSet&);
+			RangeSelData(const SurveyInfo* si=nullptr);
+			RangeSelData(GeomID,const SurveyInfo* si=nullptr);
+			RangeSelData(const GeomIDSet&,
+				     const SurveyInfo* si=nullptr);
 			RangeSelData(const CubeSubSel&);
 			RangeSelData(const LineSubSel&);
 			RangeSelData(const GeomSubSel&);
@@ -48,7 +49,7 @@ public:
 			RangeSelData(const TrcKeySampling&);
 			RangeSelData(const TrcKeyZSampling&);
 			RangeSelData(const RangeSelData&);
-			RangeSelData(const IOPar&);
+			RangeSelData(const IOPar&,const SurveyInfo* si=nullptr);
 			~RangeSelData();
     RangeSelData&	operator =( const RangeSelData& rsd )
 					{ copyFrom(rsd); return *this; }
@@ -105,7 +106,7 @@ protected:
     GeomID		gtGeomID(idx_type) const override;
     void		doCopyFrom(const SelData&) override;
     void		doFillPar(IOPar&) const override;
-    void		doUsePar(const IOPar&) override;
+    void		doUsePar(const IOPar&,const SurveyInfo*) override;
     uiString		gtUsrSummary() const override;
     int			selRes3D(const BinID&) const override;
     int			selRes2D(GeomID,trcnr_type) const override;

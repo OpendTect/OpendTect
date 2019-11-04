@@ -98,8 +98,11 @@ static void DeleteSI()
 }
 
 
-const SurveyInfo& SI()
+const SurveyInfo& SI( const SurveyInfo* si )
 {
+    if ( si )
+	return *si;
+
     if ( !global_si_ && !IsExiting() )
     {
 	if ( global_si_.setIfNull( new SurveyInfo, true ) )
