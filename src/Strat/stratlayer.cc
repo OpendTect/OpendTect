@@ -54,8 +54,8 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 		const Strat::Layer& lay, const PropertyRefSelection& prs )
     : form_(*new Math::Formula(false,MathProperty::getSpecVars()))
-    , myform_(true)
     , lay_(lay)
+    , myform_(true)
     , xpos_(0.f)
 {
     const_cast<Math::Formula&>(form_).usePar( iop );
@@ -677,7 +677,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 
 void Strat::LayerModel::removeSequence( int seqidx )
 {
-    if ( seqidx >= 0 && seqidx < seqs_.size() )
+    if ( seqs_.validIdx(seqidx) )
 	delete seqs_.removeSingle( seqidx );
 }
 
@@ -803,6 +803,7 @@ bool Strat::LayerModel::read( od_istream& strm )
 	seq->prepareUse();
 	seqs_ += seq;
     }
+
     return true;
 }
 

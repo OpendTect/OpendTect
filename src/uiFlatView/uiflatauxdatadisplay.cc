@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace FlatView
 {
 
-
 AuxData* uiAuxDataDisplay::clone() const
 { return new uiAuxDataDisplay( *this ); }
 
@@ -32,11 +31,11 @@ uiAuxDataDisplay::~uiAuxDataDisplay()
 
 #define mImplConstructor( arg ) \
     : AuxData( arg ) \
-    , display_( 0 ) \
-    , polygonitem_( 0 ) \
-    , polylineitem_( 0 ) \
-    , nameitem_( 0 ) \
-    , viewer_( 0 )
+    , display_( nullptr ) \
+    , polygonitem_( nullptr ) \
+    , polylineitem_( nullptr ) \
+    , nameitem_( nullptr ) \
+    , viewer_( nullptr )
 
 
 uiAuxDataDisplay::uiAuxDataDisplay( const char* nm )
@@ -54,7 +53,7 @@ uiGraphicsItemGroup* uiAuxDataDisplay::getDisplay()
     if ( !isMainThreadCurrent() )
     {
 	pErrMsg("Attempt to update GUI in non ui-thread");
-	return 0;
+	return nullptr;
     }
 
     if ( !display_ )
@@ -66,19 +65,21 @@ uiGraphicsItemGroup* uiAuxDataDisplay::getDisplay()
 
 void uiAuxDataDisplay::removeDisplay()
 {
-    display_ = 0;
+    display_ = nullptr;
     removeItems();
 }
 
 
 void uiAuxDataDisplay::removeItems()
 {
-    polygonitem_ = 0; polylineitem_ = 0; nameitem_ = 0;
+    polygonitem_ = nullptr;
+    polylineitem_ = nullptr;
+    nameitem_ = nullptr;
     markeritems_.erase();
 }
 
 
-void uiAuxDataDisplay::updateCB( CallBacker* cb )
+void uiAuxDataDisplay::updateCB( CallBacker* )
 {
     if ( !isMainThreadCurrent() )
     {
@@ -106,13 +107,13 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	viewer_->viewChanged.notifyIfNotNotified(
 	    mCB(this,uiAuxDataDisplay,updateTransformCB) );
 
-	updateTransformCB(0);
+	updateTransformCB(nullptr);
     }
 
     const bool drawfill = close_ && fillcolor_.isVisible();
     if ( (linestyle_.isVisible() || drawfill) && poly_.size()>1 )
     {
-	uiGraphicsItem* item = 0;
+	uiGraphicsItem* item = nullptr;
 
 	if ( close_ )
 	{
@@ -139,7 +140,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    if ( polylineitem_ )
 	    {
 		display_->remove( polylineitem_, true );
-		polylineitem_ = 0;
+		polylineitem_ = nullptr;
 	    }
 	}
 	else
@@ -160,7 +161,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    if ( polygonitem_ )
 	    {
 		display_->remove( polygonitem_, true );
-		polygonitem_ = 0;
+		polygonitem_ = nullptr;
 	    }
 	}
 
@@ -172,13 +173,13 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	if ( polygonitem_ )
 	{
 	    display_->remove( polygonitem_, true );
-	    polygonitem_ = 0;
+	    polygonitem_ = nullptr;
 	}
 
 	if ( polylineitem_ )
 	{
 	    display_->remove( polylineitem_, true );
-	    polylineitem_ = 0;
+	    polylineitem_ = nullptr;
 	}
     }
 
@@ -244,7 +245,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     else if ( nameitem_ )
     {
 	display_->remove( nameitem_, true );
-	nameitem_ = 0;
+	nameitem_ = nullptr;
     }
 }
 
@@ -266,11 +267,11 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 	FlatView::Point modnamepos = poly_[listpos];
 
 	Interval<float> vwrxrg;
-	vwrxrg.start = mCast(float,curview.topLeft().x);
-	vwrxrg.stop = mCast(float,curview.bottomRight().x);
+	vwrxrg.start = sCast(float,curview.topLeft().x);
+	vwrxrg.stop = sCast(float,curview.bottomRight().x);
 	Interval<float> vwryrg;
-	vwryrg.start = mCast(float,curview.topLeft().y);
-	vwryrg.stop = mCast(float,curview.bottomRight().y);
+	vwryrg.start = sCast(float,curview.topLeft().y);
+	vwryrg.stop = sCast(float,curview.bottomRight().y);
 
 	Geom::Point2D<double> pt(display_->getUiItem(listpos)->getPos().x,
 				    display_->getUiItem(listpos)->getPos().y);
@@ -300,5 +301,4 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
     }
 }
 
-
-} //namespace
+} // namespace FlatView

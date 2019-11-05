@@ -1293,7 +1293,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		for ( int ilay=0; ilay<curseq.size(); ilay++ )
 		{
 		    const Strat::Layer* lay = curseq.layers()[ilay];
-		    if ( !lay ) continue;
+		    if ( !lay )
+			continue;
+
 		    const float val = lay->value(iprop);
 		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
 			continue;
@@ -1311,6 +1313,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		    continue;
 
 		propvals.add( time, propisvel ? 1.f / val : val );
+		layermodels_[idz]->sequence(iseq).setEmpty();
 	    }
 
 	    Array1DImpl<float> proptr( sz );
