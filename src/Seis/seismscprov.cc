@@ -22,7 +22,10 @@ Seis::MSCProvider::MSCProvider( const DBKey& id )
 {
     prov_ = Provider::create( id, &uirv_ );
     if ( !prov_ )
+    {
 	prov_ = &Provider3D::dummy();
+	mNonConst(provmine_) = false;
+    }
 }
 
 

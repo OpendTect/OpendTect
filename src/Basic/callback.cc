@@ -43,8 +43,16 @@ bool event( QEvent* ev )
 
     Locker locker( receiverlock_ );
     if ( !queue_.isEmpty() )
-	{ pErrMsg(BufferString("Queue size is ",queue_.size(),
-				", should be empty")); }
+    {
+	static int occurrences = 0;
+	if ( occurrences%100 == 0 )
+	{
+	    BufferString msg( "Queue should be empty, size=", queue_.size() );
+	    msg.add( " (occurrence " ).add( occurrences+1 ).add( ")" );
+	    pErrMsg( msg );
+	}
+	occurrences++;
+    }
 
     queue_ = cbs_;
     ObjectSet<CallBacker> cbers( cbers_ );
