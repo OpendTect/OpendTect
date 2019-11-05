@@ -17,112 +17,122 @@
 #include <QCoreApplication>
 #include <qpointer.h>
 
-static QEvent::Type qevent_type_ = QEvent::None;
+
+mUseType( Threads, ThreadID );
+mUseType( Threads, Lock );
+mUseType( Threads, Locker );
+static QEvent::Type the_qevent_type = QEvent::None;
 
 
 class QCallBackEventReceiver : public QObject
 {
 public:
-    QCallBackEventReceiver( Threads::ThreadID threadid)
-	: receiverlock_( true )
-	, threadid_( threadid )
-    { cbers_.setNullAllowed( true ); }
 
-    Threads::ThreadID threadID() const
-    { return threadid_; }
 
-    bool event( QEvent* ev )
+QCallBackEventReceiver( ThreadID threadid )
+    : receiverlock_( true )
+    , threadid_( threadid )
+{
+    cbers_.setNullAllowed( true );
+}
+
+bool event( QEvent* ev )
+{
+    if ( ev->type() != the_qevent_type )
+	return false;
+
+    Locker locker( receiverlock_ );
+    if ( !queue_.isEmpty() )
+	{ pErrMsg(BufferString("Queue size is ",queue_.size(),
+				", should be empty")); }
+
+    queue_ = cbs_;
+    ObjectSet<CallBacker> cbers( cbers_ );
+
+    cbs_.erase();
+    cbers_.erase();
+    locker.unlockNow();
+
+    for ( int idx=0; idx<queue_.size(); idx++ )
+	queue_[idx].doCall( cbers[idx] );
+
+    for ( int idx=cbers.size()-1; idx>=0; idx-- )
     {
-	if (ev->type() != qevent_type_ )
-	    return false;
+	if ( cbers[idx] && cbers[idx]->isCapsule() )
+	    delete cbers.removeSingle( idx );
+    }
 
-	Threads::Locker locker( receiverlock_ );
-	if ( queue_.size() )
+    locker.reLock();
+    queue_.erase();
+
+    return true;
+}
+
+void add( const CallBack& cb, CallBacker* cber )
+{
+    Locker locker( receiverlock_ );
+
+    if ( cbs_.isEmpty() )
+    {
+	QCoreApplication::postEvent( this, new QEvent(the_qevent_type) );
+    }
+
+    toremove_.addIfNew( cb.cbObj() );
+
+    cbs_ += cb;
+    cbers_ += cber;
+}
+
+void removeBy( const CallBacker* cber )
+{
+    Locker locker( receiverlock_ );
+
+    for ( int idx=cbs_.size()-1; idx>=0; idx-- )
+    {
+	if ( cbs_[idx].cbObj()==cber )
 	{
-	    pErrMsg("Queue should be empty");
+	    cbs_.removeSingle( idx );
+	    cbers_.removeSingle( idx );
+	}
+    }
+
+    //Check that it is not presently running
+    bool found = true;
+    while ( found )
+    {
+	found = false;
+
+	for ( int idx=queue_.size()-1; idx>=0; idx-- )
+	{
+	    if ( queue_[idx].cbObj()==cber )
+	    {
+		found = true;
+		break;
+	    }
 	}
 
-	queue_ = cbs_;
-	ObjectSet<CallBacker> cbers( cbers_ );
-
-	cbs_.erase();
-	cbers_.erase();
-	locker.unlockNow();
-
-	for ( int idx=0; idx<queue_.size(); idx++ )
-	    queue_[idx].doCall( cbers[idx] );
-
-	for ( int idx=cbers.size()-1; idx>=0; idx-- )
+	if ( found )
 	{
-	    if ( cbers[idx] && cbers[idx]->isCapsule() )
-		delete cbers.removeSingle( idx );
+	    locker.unlockNow();
+	    Threads::sleep( 10*mOneMilliSecond );
+	    locker.reLock();
 	}
-
-	locker.reLock();
-	queue_.erase();
-
-	return true;
     }
 
-    void add( const CallBack& cb, CallBacker* cber )
-    {
-	Threads::Locker locker( receiverlock_ );
+    toremove_ -= cber;
+}
 
-	if ( cbs_.isEmpty() )
-	{
-	    QCoreApplication::postEvent( this, new QEvent(qevent_type_) );
-	}
+bool isPresent( const CallBacker* cber )
+{
+    Locker locker( receiverlock_ );
+    return toremove_.isPresent( cber );
+}
 
-        toremove_.addIfNew( cb.cbObj() );
 
-	cbs_ += cb;
-	cbers_ += cber;
-    }
-
-    void removeBy( const CallBacker* cber )
-    {
-        Threads::Locker locker( receiverlock_ );
-
-        for ( int idx=cbs_.size()-1; idx>=0; idx-- )
-        {
-            if ( cbs_[idx].cbObj()==cber )
-            {
-                cbs_.removeSingle( idx );
-                cbers_.removeSingle( idx );
-            }
-        }
-
-        //Check that it is not presently running
-        bool found = true;
-        while ( found )
-        {
-            found = false;
-
-            for ( int idx=queue_.size()-1; idx>=0; idx-- )
-            {
-                if ( queue_[idx].cbObj()==cber )
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if ( found )
-            {
-                locker.unlockNow();
-                Threads::sleep( 10*mOneMilliSecond );
-                locker.reLock();
-            }
-        }
-
-        toremove_ -= cber;
-    }
-
-    bool isPresent( const CallBacker* cber )
-    {
-        Threads::Locker locker( receiverlock_ );
-        return toremove_.isPresent( cber );
-    }
+ThreadID threadID() const
+{
+    return threadid_;
+}
 
 private:
 
@@ -133,12 +143,13 @@ private:
 
     ObjectSet<const CallBacker>	toremove_;
 
-    Threads::Lock		receiverlock_;
-    const Threads::ThreadID	threadid_;
+    Lock			receiverlock_;
+    const ThreadID		threadid_;
+
 };
 
 
-static Threads::Lock cb_rcvrs_lock_;
+static Lock cb_rcvrs_lock_;
 
 static ObjectSet<QCallBackEventReceiver>& cbRcvrs()
 {
@@ -148,11 +159,11 @@ static ObjectSet<QCallBackEventReceiver>& cbRcvrs()
     return *cbrcvrs;
 }
 
-static QCallBackEventReceiver* getQCBER( Threads::ThreadID thread )
+static QCallBackEventReceiver* getQCBER( ThreadID threadid )
 {
     for (int idx = 0; idx < cbRcvrs().size(); idx++)
     {
-	if (cbRcvrs()[idx]->threadID() == thread)
+	if (cbRcvrs()[idx]->threadID() == threadid )
 	    return cbRcvrs()[idx];
     }
 
@@ -162,9 +173,9 @@ static QCallBackEventReceiver* getQCBER( Threads::ThreadID thread )
 
 void CallBacker::createReceiverForCurrentThread()
 {
-    const Threads::ThreadID curthread = Threads::currentThread();
+    const ThreadID curthread = Threads::currentThread();
 
-    Threads::Locker locker(cb_rcvrs_lock_);
+    Locker locker(cb_rcvrs_lock_);
 
     if ( getQCBER(curthread) )
 	return;
@@ -176,23 +187,20 @@ void CallBacker::createReceiverForCurrentThread()
 
 void CallBacker::removeReceiverForCurrentThread()
 {
-    const Threads::ThreadID curthread = Threads::currentThread();
+    const ThreadID curthreadid = Threads::currentThread();
 
-    Threads::Locker locker(cb_rcvrs_lock_);
+    Locker locker(cb_rcvrs_lock_);
     for (int idx = 0; idx < cbRcvrs().size(); idx++)
     {
-	if (cbRcvrs()[idx]->threadID() == curthread)
-	{
-	    delete cbRcvrs().removeSingle(idx);
-	    break;
-	}
+	if ( cbRcvrs()[idx]->threadID() == curthreadid )
+	    { delete cbRcvrs().removeSingle(idx); break; }
     }
 }
 
 
 static bool isPresent(const CallBacker* cber)
 {
-    Threads::Locker locker(cb_rcvrs_lock_);
+    Locker locker(cb_rcvrs_lock_);
     for (int idx = 0; idx < cbRcvrs().size(); idx++)
     {
 	if (cbRcvrs()[idx]->isPresent(cber))
@@ -249,7 +257,7 @@ void CallBacker::detachAllNotifiers() const
      the other thread deletes the callbacker at the same time) by using
      try-locks and retry after releasing own lock. */
 
-    Threads::Locker lckr( attachednotifierslock_ );
+    Locker lckr( attachednotifierslock_ );
 
     while ( attachednotifiers_.size() )
     {
@@ -307,7 +315,7 @@ bool CallBacker::attachCB( const NotifierAccess& notif, const CallBack& cb,
     if ( notif.cber_!=this )
 	worknotif.addShutdownSubscription( self );
 
-    Threads::Locker lckr( attachednotifierslock_ );
+    Locker lckr( attachednotifierslock_ );
     if ( !attachednotifiers_.isPresent( &notif ) )
 	self->attachednotifiers_ += &worknotif;
 
@@ -324,7 +332,7 @@ void CallBacker::detachCB( const NotifierAccess& notif,
 	return;
     }
 
-    Threads::Locker lckr( attachednotifierslock_ );
+    Locker lckr( attachednotifierslock_ );
     if ( !attachednotifiers_.isPresent( &notif ) )
     {
 	//It may be deleted. Don't touch it
@@ -354,15 +362,15 @@ void CallBacker::detachCB( const NotifierAccess& notif,
 
 bool CallBacker::isNotifierAttached( const NotifierAccess* na ) const
 {
-    Threads::Locker lckr( attachednotifierslock_ );
+    Locker lckr( attachednotifierslock_ );
     return attachednotifiers_.isPresent( na );
 }
 
 
 
 #define mGetLocker( thelock, wait ) \
-    Threads::Locker lckr( thelock, wait ? Threads::Locker::WaitIfLocked \
-					: Threads::Locker::DontWaitForLock ); \
+    Locker lckr( thelock, wait ? Locker::WaitIfLocked \
+					: Locker::DontWaitForLock ); \
     if ( !lckr.isLocked() ) return false
 
 
@@ -376,7 +384,7 @@ bool CallBacker::notifyShutdown( const NotifierAccess* na, bool wait ) const
 
 
 //---- CallBack
-Threads::ThreadID CallBack::mainthread_ = 0;
+ThreadID CallBack::mainthread_ = 0;
 
 
 bool CallBack::operator==( const CallBack& c ) const
@@ -389,7 +397,7 @@ void CallBack::initClass()
 {
 #ifndef OD_NO_QT
     mainthread_ = Threads::currentThread();
-    qevent_type_ = (QEvent::Type)QEvent::registerEventType();
+    the_qevent_type = (QEvent::Type)QEvent::registerEventType();
     CallBacker::createReceiverForCurrentThread(); //Force creation
 #endif
 }
@@ -426,10 +434,10 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 }
 
 
-bool CallBack::addToThread( Threads::ThreadID threadid, const CallBack& cb,
+bool CallBack::addToThread( ThreadID threadid, const CallBack& cb,
 			    CallBacker* cber)
 {
-    Threads::Locker locker(cb_rcvrs_lock_);
+    Locker locker(cb_rcvrs_lock_);
     QCallBackEventReceiver* rec = getQCBER(threadid);
 
     if (!rec)
@@ -475,7 +483,7 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 void CallBack::removeFromThreadCalls(const CallBacker* cber)
 {
 #ifndef OD_NO_QT
-    Threads::Locker locker(cb_rcvrs_lock_);
+    Locker locker(cb_rcvrs_lock_);
     for (int idx = 0; idx < cbRcvrs().size(); idx++)
 	cbRcvrs()[idx]->removeBy(cber);
 #endif
@@ -504,7 +512,7 @@ CallBackSet::~CallBackSet()
 
 CallBackSet& CallBackSet::operator=( const CallBackSet& cbs )
 {
-    Threads::Locker lckr( cbs.lock_ );
+    Locker lckr( cbs.lock_ );
     TypeSet<CallBack>::operator=( cbs );
     return *this;
 }
@@ -512,7 +520,7 @@ CallBackSet& CallBackSet::operator=( const CallBackSet& cbs )
 
 void CallBackSet::doCall( CallBacker* obj )
 {
-    Threads::Locker lckr( lock_ );
+    Locker lckr( lock_ );
     TypeSet<CallBack> cbscopy = *this;
     lckr.unlockNow();
 
@@ -531,7 +539,7 @@ void CallBackSet::doCall( CallBacker* obj )
 
 void CallBackSet::disableAll( bool yn )
 {
-    Threads::Locker lckr( lock_ );
+    Locker lckr( lock_ );
     for ( int idx=0; idx<size(); idx++ )
 	(*this)[idx].disable( yn );
 }
@@ -539,7 +547,7 @@ void CallBackSet::disableAll( bool yn )
 
 bool CallBackSet::hasAnyDisabled() const
 {
-    Threads::Locker lckr( lock_ );
+    Locker lckr( lock_ );
     for ( int idx=0; idx<size(); idx++ )
 	if ( (*this)[idx].isDisabled() )
 	    return true;
@@ -624,7 +632,7 @@ NotifierAccess::~NotifierAccess()
      the other thread deletes the callbacker at the same time) by using
      try-locks and retry after releasing own lock. */
 
-    Threads::Locker lckr( shutdownsubscriberlock_ );
+    Locker lckr( shutdownsubscriberlock_ );
     while ( shutdownsubscribers_.size() )
     {
 	for ( int idx=shutdownsubscribers_.size()-1; idx>=0; idx-- )
@@ -647,14 +655,14 @@ NotifierAccess::~NotifierAccess()
 
 void NotifierAccess::addShutdownSubscription( const CallBacker* cber ) const
 {
-    Threads::Locker lckr( shutdownsubscriberlock_ );
+    Locker lckr( shutdownsubscriberlock_ );
     shutdownsubscribers_.addIfNew( cber );
 }
 
 
 bool NotifierAccess::isShutdownSubscribed( const CallBacker* cber ) const
 {
-    Threads::Locker lckr( shutdownsubscriberlock_ );
+    Locker lckr( shutdownsubscriberlock_ );
     return shutdownsubscribers_.isPresent( cber );
 }
 
@@ -670,7 +678,7 @@ bool NotifierAccess::removeShutdownSubscription( const CallBacker* cber,
 
 void NotifierAccess::notify( const CallBack& cb, bool first ) const
 {
-    Threads::Locker lckr( cbs_.lock_ );
+    Locker lckr( cbs_.lock_ );
 
     if ( first )
 	cbs_.insert(0,cb);
@@ -681,14 +689,14 @@ void NotifierAccess::notify( const CallBack& cb, bool first ) const
 
 bool NotifierAccess::notifyIfNotNotified( const CallBack& cb ) const
 {
-    Threads::Locker lckr( cbs_.lock_ );
+    Locker lckr( cbs_.lock_ );
     return cbs_.addIfNew( cb );
 }
 
 
 void NotifierAccess::remove( const CallBack& cb ) const
 {
-    Threads::Locker lckr( cbs_.lock_ );
+    Locker lckr( cbs_.lock_ );
 
     cbs_ -= cb;
 }
@@ -712,8 +720,8 @@ void NotifierAccess::transferCBSTo( const NotifierAccess& oth,
 				    const CallBacker* only_for,
 				    const CallBacker* not_for ) const
 {
-    Threads::Locker mycbslocker( cbs_.lock_ );
-    Threads::Locker tocbslocker( oth.cbs_.lock_ );
+    Locker mycbslocker( cbs_.lock_ );
+    Locker tocbslocker( oth.cbs_.lock_ );
     const_cast<NotifierAccess*>(this)->cbs_.transferTo(
 	    const_cast<NotifierAccess&>(oth).cbs_, only_for, not_for );
 }
@@ -721,7 +729,7 @@ void NotifierAccess::transferCBSTo( const NotifierAccess& oth,
 
 bool NotifierAccess::willCall( const CallBacker* cber ) const
 {
-    Threads::Locker lckr( cbs_.lock_ );
+    Locker lckr( cbs_.lock_ );
 
     for ( int idx=0; idx<cbs_.size(); idx++ )
     {
@@ -761,7 +769,7 @@ NotifyStopper::~NotifyStopper()
 
 void NotifyStopper::setDisabled( bool yn )
 {
-    Threads::Locker locker( thenotif_.cbs_.lock_ );
+    Locker locker( thenotif_.cbs_.lock_ );
     for ( int idx=0; idx<thenotif_.cbs_.size(); idx++ )
     {
 	CallBack& cb = thenotif_.cbs_[idx];
