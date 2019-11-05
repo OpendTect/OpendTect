@@ -102,7 +102,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 	body_->setValidator( new ODDoubleValidator );
     else if ( rep == DataType::intTp )
 	body_->setValidator( new QIntValidator );
-    else if ( rep == DataType::stringTp || rep == DataType::filename )
+    else if ( rep == DataType::stringTp )
 	body_->setValidator( new QRegExpValidator );
 }
 
