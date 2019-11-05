@@ -270,6 +270,9 @@ StepInterval<float> uiSpinBox::getFInterval() const
 int uiSpinBox::getIntValue() const
 { return mNINT32(body_->value()); }
 
+od_int64 uiSpinBox::getInt64Value() const
+{ return mNINT64(body_->value()); }
+
 double uiSpinBox::getDValue() const
 { return body_->value(); }
 
@@ -289,6 +292,13 @@ const char* uiSpinBox::text() const
 
 static bool isNotSet( int val )
 { return mIsUdf(val) || val == INT_MAX; }
+
+
+void uiSpinBox::setValue( od_int64 val )
+{
+    //TODO do the right thing
+    setValue( (int)val );
+}
 
 void uiSpinBox::setValue( int val )
 {

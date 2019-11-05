@@ -37,11 +37,13 @@ public:
     void		setSpecialValueText(const char*); // First entry
 
     void		setValue(int);
+    void		setValue(od_int64);
     void		setValue(float);
     void		setValue(double);
     void		setValue(const char*);
 
     int			getIntValue() const;
+    od_int64		getInt64Value() const;
     double		getDValue() const;
     float		getFValue() const;
     bool		getBoolValue() const;

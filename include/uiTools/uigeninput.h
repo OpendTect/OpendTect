@@ -110,6 +110,7 @@ Returns true, if changes are accepted.
 			    { return text(0,undefval); }
 
     int			getIntValue( mDeclArgs(int) ) const;
+    od_int64		getInt64Value( mDeclArgs(od_int64) ) const;
     bool		getBoolValue( mDeclArgs(bool) ) const;
 
     double		getDValue( mDeclArgs(double) ) const;
@@ -166,6 +167,7 @@ Returns true, if changes are accepted.
 
     void		setText(const char*,int nr=0);
     void		setValue(int,int nr=0);
+    void		setValue(od_int64,int nr=0);
     void		setValue(double,int nr=0);
     void		setValue(float,int nr=0);
     void		setValue(bool,int nr=0);

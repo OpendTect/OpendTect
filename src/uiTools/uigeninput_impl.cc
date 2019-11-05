@@ -83,6 +83,18 @@ int uiGenInputInputFld::getIntValue( int idx ) const
 }
 
 
+od_int64 uiGenInputInputFld::getInt64Value( int idx ) const
+{
+    const UserInputObj* obj = element( idx );
+    if ( !obj )
+    {
+	mDynamicCastGet(const uiSpinBox*,sb,elemObj(idx))
+	if ( sb ) return sb->getInt64Value();
+    }
+    return obj ? obj->getInt64Value() : mUdf(od_int64);
+}
+
+
 #define mImplGetFn(typ,fn) \
 typ uiGenInputInputFld::fn( int idx ) const \
 {  \
@@ -394,7 +406,7 @@ bool uiGenInputBoolFld::isReadOnly() const
     if ( checkbox_ )		return checkbox_->sensitive();
 
     if ( !rb1_ || !rb2_ )
-    	{ pErrMsg("Huh?"); return false; }
+	{ pErrMsg("Huh?"); return false; }
 
     return !rb1_->sensitive() && !rb2_->sensitive();
 }
@@ -454,4 +466,55 @@ bool uiGenInputIntFld::notifyValueChanged_( const CallBack& cb )
 { uiSpinBox::valueChanged.notify( cb ); return true; }
 
 bool uiGenInputIntFld::notifyUpdateRequested_( const CallBack& cb )
+{ uiSpinBox::valueChanged.notify( cb ); return true; }
+
+
+// uiGenInputInt64Fld
+uiGenInputInt64Fld::uiGenInputInt64Fld( uiParent* p, od_int64 val,
+					const char* nm )
+    : uiSpinBox(p,0,nm)
+    , UserInputObjImpl<od_int64>()
+{
+    setvalue_( val );
+}
+
+
+uiGenInputInt64Fld::uiGenInputInt64Fld( uiParent* p, const DataInpSpec& spec,
+				    const char* nm )
+    : uiSpinBox(p,0,nm)
+    , UserInputObjImpl<od_int64>()
+{
+    mDynamicCastGet(const IntInpSpec*,ispec,&spec)
+    if ( spec.hasLimits() && ispec )
+	uiSpinBox::setInterval( *ispec->limits() );
+
+    setvalue_( spec.getIntValue() );
+}
+
+
+void uiGenInputInt64Fld::setReadOnly( bool yn )
+{ uiSpinBox::setSensitive( !yn ); }
+
+bool uiGenInputInt64Fld::isReadOnly() const
+{ return !uiSpinBox::sensitive(); }
+
+bool uiGenInputInt64Fld::update_( const DataInpSpec& spec )
+{ setvalue_( spec.getIntValue() ); return true; }
+
+void uiGenInputInt64Fld::setToolTip( const uiString& tt )
+{ uiSpinBox::setToolTip( tt ); }
+
+od_int64 uiGenInputInt64Fld::getvalue_() const
+{ return uiSpinBox::getInt64Value(); }
+
+void uiGenInputInt64Fld::setvalue_( od_int64 val )
+{ uiSpinBox::setValue( val ); }
+
+bool uiGenInputInt64Fld::notifyValueChanging_( const CallBack& cb )
+{ uiSpinBox::valueChanging.notify( cb ); return true; }
+
+bool uiGenInputInt64Fld::notifyValueChanged_( const CallBack& cb )
+{ uiSpinBox::valueChanged.notify( cb ); return true; }
+
+bool uiGenInputInt64Fld::notifyUpdateRequested_( const CallBack& cb )
 { uiSpinBox::valueChanged.notify( cb ); return true; }

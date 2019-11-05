@@ -31,6 +31,7 @@ public:
 
     virtual const char* text() const			= 0;
     virtual int		getIntValue() const		= 0;
+    virtual od_int64	getInt64Value() const		= 0;
     virtual double	getDValue() const		= 0;
     virtual float	getFValue() const		= 0;
     virtual bool	getBoolValue() const		= 0;
@@ -38,6 +39,7 @@ public:
     virtual void	setText(const char*)		= 0;
     virtual void	setValue(const char* s);
     virtual void	setValue(int)			= 0;
+    virtual void	setValue(od_int64)		= 0;
     virtual void	setValue(double)		= 0;
     virtual void	setValue(float)			= 0;
     virtual void	setValue(bool)			= 0;
@@ -56,7 +58,7 @@ public:
 			    \return true if this notification is supported */
     bool		notifyValueChanged( const CallBack& cb );
 
-    			/*! \return true if this notification is supported */
+			/*! \return true if this notification is supported */
     bool		notifyUpdateRequested( const CallBack& cb );
 
 			//! return false if not updated for whatever reason.
@@ -88,6 +90,8 @@ public:
 			{ return Conv::to<const char*>( getvalue_() ); }
     virtual int		getIntValue() const
 			    { return Conv::to<int>( getvalue_() ); }
+    virtual od_int64	getInt64Value() const
+			    { return Conv::to<od_int64>( getvalue_() ); }
     virtual double	getDValue() const
 			    { return Conv::to<double>( getvalue_() );}
     virtual float	getFValue() const
@@ -100,6 +104,8 @@ public:
     virtual void	setValue( const char* s )
 			    { setText( s ); }
     virtual void	setValue( int i )
+			    { setvalue_( Conv::to<T>(i) ); }
+    virtual void	setValue( od_int64 i )
 			    { setvalue_( Conv::to<T>(i) ); }
     virtual void	setValue( double d )
 			    { setvalue_( Conv::to<T>(d) ); }

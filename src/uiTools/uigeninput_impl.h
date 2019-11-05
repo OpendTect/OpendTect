@@ -45,6 +45,7 @@ public:
     virtual bool	isUndef(int) const;
     const char*		text(int) const;
     int			getIntValue(int) const;
+    od_int64		getInt64Value(int) const;
     float		getFValue(int) const;
     double		getDValue(int) const;
     bool		getBoolValue(int) const;
@@ -129,7 +130,7 @@ public:
 
 protected:
 
-    void 		init(uiParent*,const uiString&,const uiString&,bool);
+    void		init(uiParent*,const uiString&,const uiString&,bool);
 
     virtual bool	getvalue_() const			{ return yn_; }
     virtual void	setvalue_( bool );
@@ -170,6 +171,30 @@ protected:
 
     virtual int		getvalue_() const;
     virtual void	setvalue_(int);
+
+    virtual bool	notifyValueChanging_(const CallBack&);
+    virtual bool	notifyValueChanged_(const CallBack&);
+    virtual bool	notifyUpdateRequested_(const CallBack&);
+};
+
+
+class uiGenInputInt64Fld : public UserInputObjImpl<od_int64>, public uiSpinBox
+{
+public:
+			uiGenInputInt64Fld(uiParent*,od_int64 val=0,
+					 const char* nm="Int Input");
+			uiGenInputInt64Fld(uiParent*,const DataInpSpec&,
+					 const char* nm="Int Input");
+    virtual void	setReadOnly(bool);
+    virtual bool	isReadOnly() const;
+
+    virtual bool	update_(const DataInpSpec&);
+    virtual void	setToolTip(const uiString&);
+
+protected:
+
+    virtual od_int64	getvalue_() const;
+    virtual void	setvalue_(od_int64);
 
     virtual bool	notifyValueChanging_(const CallBack&);
     virtual bool	notifyValueChanged_(const CallBack&);
