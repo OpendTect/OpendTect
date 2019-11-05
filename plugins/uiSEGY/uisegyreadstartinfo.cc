@@ -586,7 +586,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
     setCellTxt( mUseTxtCol, mYRow, yustxt );
     if ( !is2d )
 	setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
-    setCellTxt( mUseTxtCol, mAzimuthRow, sBytePos );
+    setCellTxt( mUseTxtCol, mAzimuthRow, isps ? sBytePos : sEmpty );
 }
 
 
