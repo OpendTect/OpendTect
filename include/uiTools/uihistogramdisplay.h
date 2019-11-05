@@ -34,9 +34,10 @@ public:
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
 					      int version);
-    void			setData(const float*,int sz);
+    void			setData(const float*,od_int64 sz);
     void			setData(const Array2D<float>*);
-    void			setData(const DataPointSet&,int colid=2);
+    void			setData(const Array3D<float>*);
+    void			setData(const LargeValVec<float>&);
 
     void			useDrawRange(bool yn);
     const Interval<float>&	getDrawRange() const	{ return mydrawrg_; }
@@ -62,15 +63,11 @@ protected:
 
     Interval<float>		mydrawrg_;
     bool			usemydrawrg_;
-    TypeSet<float>		mydisplaydata_;
-    TypeSet<float>		originaldata_;
+    LargeValVec<float>		originaldata_;
 
     void			updateAndDraw();
     void			updateHistogram();
-
-public:
-    void			setData(const Array3D<float>*);
+    void			setDataDPS(const DataPointSet&,int dpsidx);
 };
-
 
 #endif

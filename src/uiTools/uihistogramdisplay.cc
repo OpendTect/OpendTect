@@ -117,7 +117,7 @@ bool uiHistogramDisplay::setDataPackID(
 	    return false;
 
 	dpversionnm = dpset->name();
-	setData( *dpset, dpset->nrCols()-1 );
+	setDataDPS( *dpset, dpset->nrCols()-1 );
     }
     else
 	return false;
@@ -139,18 +139,17 @@ bool uiHistogramDisplay::setDataPackID(
 }
 
 
-void uiHistogramDisplay::setData( const DataPointSet& dpset, int colid )
+void uiHistogramDisplay::setDataDPS( const DataPointSet& dpset, int dpsidx )
 {
-    TypeSet<float> valarr;
+    TypeSet<float> vals;
     for ( int idx=0; idx<dpset.size(); idx++ )
     {
-	const float val = dpset.value( colid, idx );
-	if ( mIsUdf(val) )
-	    continue;
-
-	valarr += val;
+	const float val = dpset.value( dpsidx, idx );
+	if ( !mIsUdf(val) )
+	    vals += val;
     }
-    setData( valarr.arr(), valarr.size() );
+
+    setData( vals.arr(), vals.size() );
 }
 
 
@@ -160,25 +159,21 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	{ rc_.setEmpty(); return; }
 
     if ( array->getData() )
-    {
-	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
-	return;
-    }
+	{ setData( array->getData(), array->info().getTotalSz() ); return; }
 
     const int sz2d0 = array->info().getSize( 0 );
     const int sz2d1 = array->info().getSize( 1 );
-    TypeSet<float> valarr;
+    LargeValVec<float> vals;
     for ( int idx0=0; idx0<sz2d0; idx0++ )
     {
 	for ( int idx1=0; idx1<sz2d1; idx1++ )
 	{
 	    const float val = array->get( idx0, idx1 );
-	    if ( mIsUdf(val) ) continue;
-
-	    valarr += val;
+	    if ( !mIsUdf(val) )
+		vals += val;
 	}
     }
-    rc_.setValues( valarr.arr(), valarr.size() );
+    rc_.setValues( vals.arr(), vals.size() );
     updateAndDraw();
 }
 
@@ -189,57 +184,66 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
 	{ rc_.setEmpty(); return; }
 
     if ( array->getData() )
-    {
-	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
-	return;
-    }
+	{ setData( array->getData(), array->info().getTotalSz() ); return; }
 
     const int sz0 = array->info().getSize( 0 );
     const int sz1 = array->info().getSize( 1 );
     const int sz2 = array->info().getSize( 2 );
-    TypeSet<float> valarr;
+    LargeValVec<float> vals;
     for ( int idx0=0; idx0<sz0; idx0++ )
 	for ( int idx1=0; idx1<sz1; idx1++ )
 	    for ( int idx2=0; idx2<sz2; idx2++ )
 	    {
 		const float val = array->get( idx0, idx1, idx2 );
-		if ( mIsUdf(val) ) continue;
-
-		valarr += val;
+		if ( !mIsUdf(val) )
+		    vals += val;
 	    }
 
-    rc_.setValues( valarr.arr(), valarr.size() );
+    rc_.setValues( vals.arr(), vals.size() );
     updateAndDraw();
 }
 
 
-void uiHistogramDisplay::setData( const float* array, int sz )
+void uiHistogramDisplay::setData( const LargeValVec<float>& vals )
+{
+    setData( vals.arr(), vals.size() );
+}
+
+
+void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 {
     if ( !array || sz < 1 )
 	{ rc_.setEmpty(); return; }
 
     if ( array != originaldata_.arr() )
     {
-	originaldata_.erase();
-	for ( int idx=0; idx<sz; idx++ )
-	    originaldata_ += array[idx];
+	originaldata_.setSize( sz, mUdf(float) );
+	if ( originaldata_.arr() )
+	    OD::memCopy( originaldata_.arr(), array, sz*sizeof(float) );
+	else
+	{
+	    for ( od_int64 idx=0; idx<sz; idx++ )
+		originaldata_[idx] = array[idx];
+	}
     }
 
     const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) &&
-	!mIsUdf(mydrawrg_.stop);
+			   !mIsUdf(mydrawrg_.stop);
     if ( usedrawrg )
     {
-	mydisplaydata_.erase();
-	for ( int idx=0; idx<sz; idx++ )
+	LargeValVec<float> mydisplaydata( sz, mUdf(float) );
+	od_int64 addedcount = 0;
+	for ( od_int64 idx=0; idx<sz; idx++ )
 	{
-	    if ( mIsUdf(array[idx]) )
+	    const float& arrval = array[idx];
+	    if ( mIsUdf(arrval) )
 		continue;
 
-	    if ( mydrawrg_.includes(array[idx],false) )
-		mydisplaydata_ += array[idx];
+	    if ( mydrawrg_.includes(arrval,false) )
+		mydisplaydata[addedcount++] = arrval;
 	}
 
-	rc_.setValues( mydisplaydata_.arr(), mydisplaydata_.size() );
+	rc_.setValues( mydisplaydata.arr(), addedcount );
     }
     else
 	rc_.setValues( originaldata_.arr(), originaldata_.size() );
@@ -299,7 +303,7 @@ void uiHistogramDisplay::useDrawRange( bool yn )
     usemydrawrg_ = yn;
     if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start) && !mIsUdf(mydrawrg_.stop) )
     {
-	setData( originaldata_.arr(), originaldata_.size() );
+	setData( originaldata_ );
 	drawRangeChanged.trigger();
     }
 }
@@ -314,7 +318,7 @@ void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
     mydrawrg_ = ni;
     if ( usemydrawrg_ )
     {
-	setData( originaldata_.arr(), originaldata_.size() );
+	setData( originaldata_ );
 	drawRangeChanged.trigger();
     }
 }
