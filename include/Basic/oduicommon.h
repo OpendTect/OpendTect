@@ -86,6 +86,7 @@ enum StdActionType
     Help,
     Import,
     Ok,
+    Open,
     Options,
     Properties,
     Reload,

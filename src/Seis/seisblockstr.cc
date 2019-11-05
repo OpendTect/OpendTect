@@ -76,16 +76,7 @@ bool BlocksSeisTrcTranslator::initRead_()
     sconn.close();
     rdr_ = new Seis::Blocks::Reader( fnm );
     if ( !rdr_->state().isOK() )
-    {
-	errmsg_ = rdr_->state();
-	return false;
-    }
-    else if ( read_mode == Seis::Prod
-	  && !rdr_->hGeom().isCompatibleWith( SurvGeom::get3D() ) )
-    {
-	errmsg_ = tr("The cube is not compatible with the survey setup");
-	return false;
-    }
+	{ errmsg_ = rdr_->state(); return false; }
 
     pinfo_.usrinfo = rdr_->cubeName();
     pinfo_.stdinfo = rdr_->infoFileName();

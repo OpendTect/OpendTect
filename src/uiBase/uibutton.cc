@@ -291,6 +291,7 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
 	mGetDefs(Help)
 	mGetDefs(Import)
 	mGetDefs(Ok)
+	mGetDefs(Open)
 	mGetDefs(Options)
 	mGetDefs(Properties)
 	mGetDefs(Reload)
