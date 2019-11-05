@@ -198,7 +198,7 @@ bool Seis::VolFetcher::createTranslator( inl_type inl ) const
 	    if ( !prov_.selectedcomponents_.isPresent(icd) )
 		newtransl->componentInfo()[icd]->selected_ = false;
 
-    auto* sd = new Seis::RangeSelData;
+    auto* sd = new Seis::RangeSelData( &prov_.dbKey().surveyInfo() );
     sd->zSubSel().limitTo( prov_.zSubSel() );
     newtransl->setSelData( sd );
 
