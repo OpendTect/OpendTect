@@ -16,7 +16,12 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "userinputobj.h"
 
+#include "bufstringset.h"
+
 class uiLineEditBody;
+
+#define mDefTextValidator "^[^'!'].+$"
+#define mTextVlAllCharsAccepted "^.+$"
 
 mExpClass(uiBase) uiIntValidator
 {
@@ -48,6 +53,43 @@ public:
 };
 
 
+mExpClass( uiBase ) uiTextValidator
+{
+public:
+		    uiTextValidator()
+			: leastnrocc_(mUdf(int))
+			, maxnrocc_(mUdf(int))
+			, excludfirstocconly_(true)
+		    {
+			regexchars_.setEmpty();
+		    }
+		    uiTextValidator(const BufferStringSet& regexchars,
+				    const int leastnrocc=mUdf(int),
+				    const int maxnrocc=mUdf(int),
+				    bool excludfirstocconly=true)
+			: regexchars_(regexchars)
+			, leastnrocc_(leastnrocc)
+			, maxnrocc_(maxnrocc)
+			, excludfirstocconly_(excludfirstocconly)
+		    {}
+		    uiTextValidator(const uiTextValidator& textvl)
+			: regexchars_(textvl.regexchars_)
+			, leastnrocc_(textvl.leastnrocc_)
+			, maxnrocc_(textvl.maxnrocc_)
+			, excludfirstocconly_(textvl.excludfirstocconly_)
+		    {}
+
+    BufferStringSet	    regexchars_;
+    int			    leastnrocc_;
+    int			    maxnrocc_;
+    bool		    excludfirstocconly_;
+
+    BufferString	    getRegExString() const;
+};
+
+
+
+
 mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>,
 			       public uiObject
 {
@@ -71,6 +113,7 @@ public:
     void		setPasswordMode();
     void		setValidator(const uiIntValidator&);
     void		setValidator(const uiFloatValidator&);
+    void		setTextValidator(const uiTextValidator&);
 
     void		setMaxLength(int);
     int			maxLength() const;

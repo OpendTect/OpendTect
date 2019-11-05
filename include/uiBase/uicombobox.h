@@ -85,6 +85,8 @@ public:
     int			getItemID(int index) const;
     int			getItemIndex(int id) const;
 
+    void		setValidator(const BufferString& regex);
+
     Notifier<uiComboBox> editTextChanged;
     Notifier<uiComboBox> selectionChanged;
 
@@ -98,6 +100,7 @@ protected:
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
     void		translateText();
+
 private:
 
     int			oldnritems_;

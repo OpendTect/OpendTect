@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QContextMenuEvent>
 #include <QIntValidator>
 #include <QDoubleValidator>
+#include <QRegExpValidator>
 
 mUseQtnamespace
 
@@ -96,11 +97,13 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() );
-    if ( spec.type().rep() == DataType::floatTp ||
-	 spec.type().rep() == DataType::doubleTp )
+    const DataType::Rep rep = spec.type().rep();
+    if ( rep == DataType::floatTp || rep == DataType::doubleTp )
 	body_->setValidator( new ODDoubleValidator );
-    else if ( spec.type().rep() == DataType::intTp )
+    else if ( rep == DataType::intTp )
 	body_->setValidator( new QIntValidator );
+    else if ( rep == DataType::stringTp || rep == DataType::filename )
+	body_->setValidator( new QRegExpValidator );
 }
 
 
@@ -152,6 +155,14 @@ void uiLineEdit::setvalue_( const char* t )
 void uiLineEdit::setPasswordMode()
 {
     body_->setEchoMode( QLineEdit::Password );
+}
+
+
+void uiLineEdit::setTextValidator( const uiTextValidator& valstr )
+{
+    const QRegExp regexp( QString(valstr.getRegExString().buf()) );
+    const QRegExpValidator* regexpvl = new QRegExpValidator( regexp );
+    body_->setValidator( regexpvl );
 }
 
 
@@ -279,4 +290,29 @@ void uiLineEdit::popupVirtualKeyboard( int globalx, int globaly )
 	returnPressed.trigger();
 
     editingFinished.trigger();
+}
+
+
+// uiTextValidator;
+BufferString uiTextValidator::getRegExString() const
+{
+    BufferString regexchars;
+    if ( !regexchars_.isEmpty() )
+	regexchars = regexchars_.getDispString();
+    if ( regexchars.isEmpty() )
+	return BufferString::empty();
+
+    BufferString regexstr( "^[" );
+
+    if ( excludfirstocconly_ && regexchars.isEmpty())
+	regexstr.add( "^!]." );
+    else if ( excludfirstocconly_ && !regexchars.isEmpty() )
+	regexstr.add( "^" ).add( regexchars ).add( "]." );
+
+    if ( !mIsUdf(leastnrocc_) && !mIsUdf(maxnrocc_) )
+	regexstr.add( "{" ).add( leastnrocc_ ).add( "," ).add( maxnrocc_ )
+								.add( "}" );
+
+    regexstr.add( "+$" );
+    return regexstr;
 }

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uiicon.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
 #include "uivirtualkeyboard.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QContextMenuEvent>
 #include <QLineEdit>
 #include <QSize>
+#include <QRegExpValidator>
 
 mUseQtnamespace
 
@@ -77,8 +79,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
     , enumdef_(0)
-{
-}
+{}
 
 
 uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
@@ -157,6 +158,19 @@ uiComboBox::uiComboBox( uiParent* parnt, const EnumDef& enums,
 
 uiComboBox::~uiComboBox()
 {}
+
+
+void uiComboBox::setValidator( const BufferString& regex )
+{
+    if ( regex.isEmpty() )
+	return;
+
+    QRegExpValidator* textvl = new QRegExpValidator();
+    QRegExp regexp( regex.buf() );
+    textvl->setRegExp(regexp);
+
+    body_->setValidator(textvl);
+}
 
 
 uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )

@@ -25,6 +25,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "settings.h"
 
+#include  "hiddenparam.h"
+
+static HiddenParam<uiGenInput,uiTextValidator*> textvl_(0);
 
 //! maps a uiGenInput's idx to a field- and sub-idx
 class uiGenInputFieldIdx
@@ -71,6 +74,8 @@ virtual UserInputObj* element( int idx=0 )
 
 virtual uiObject* mainObj()
 { return dynamic_cast<uiObject*>(&usrinpobj); }
+
+T&	getUsrInpObj()	{ return usrinpobj; }
 
 protected:
 
@@ -667,7 +672,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     {
 	if ( desc.type().form() == DataType::list )
 	{
-	    mDynamicCastGet(const StringListInpSpec*, strlist, &desc );
+	    mDynamicCastGet(const StringListInpSpec*,strlist,&desc);
 	    if ( strlist )
 	    {
 		fld = new uiStrLstInpFld( this, *strlist );
@@ -676,9 +681,19 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
 	else if ( desc.type().form() == DataType::filename )
 	    fld = new uiFileInputFld( this, desc );
-
 	else
 	    fld = new uiTextInputFld( this, desc );
+
+	if ( textvl_.getParam(this) )
+	{
+	    mDynamicCastGet(uiSimpleInputFld<uiLineEdit>*, simpfld, fld);
+	    if ( simpfld )
+	    {
+		BufferString str = textvl_.getParam(this)->getRegExString();
+		simpfld->getUsrInpObj().setTextValidator(
+						    *textvl_.getParam(this));
+	    }
+	}
     }
     break;
 
@@ -749,6 +764,9 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , elemszpol_( uiObject::Undef ) \
     , isrequired_(false)
 
+#define mDefaultTextValidator \
+    uiTextValidator* textvl = nullptr; \
+    textvl_.setParam( this, textvl ); \
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const char* inputStr)
@@ -757,6 +775,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     inputs_ += new StringInpSpec( inputStr );
     if ( !disptxt.isEmpty() )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+    mDefaultTextValidator;
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -769,6 +788,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( !disptxt.isEmpty() && !inputhasnm )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+    mDefaultTextValidator;
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -779,6 +799,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt
 {
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
+    mDefaultTextValidator;
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -791,12 +812,14 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
     inputs_ += inp3.clone();
+    mDefaultTextValidator;
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
 uiGenInput::~uiGenInput()
 {
+    textvl_.removeAndDeleteParam( this );
     deepErase( flds_ );
     deepErase( inputs_ ); // doesn't hurt
     delete &idxes_;
@@ -881,6 +904,12 @@ void uiGenInput::doFinalise( CallBacker* )
     if ( rdonlyset_) setReadOnly( rdonly_ );
 
     if ( withchk_ ) checkBoxSel(0);	// sets elements (non-)sensitive
+}
+
+
+void uiGenInput::setTextValidator( const uiTextValidator& textvl )
+{
+    textvl_.setParam( this, new uiTextValidator(textvl) );
 }
 
 

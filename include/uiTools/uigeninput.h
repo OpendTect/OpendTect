@@ -26,6 +26,7 @@ class uiString;
 class uiButton;
 class uiGenInputInputFld;
 class uiGenInputFieldIdx;
+class uiTextValidator;
 class DataInpSpec;
 class UserInputObj;
 
@@ -161,6 +162,8 @@ Returns true, if changes are accepted.
     BinID		getBinID( mDeclArgs(int) ) const;
     int			getTrcNr( mDeclArgs(int) ) const;
     float		getOffset( mDeclArgs(float) ) const;
+
+    void		setTextValidator(const uiTextValidator&);
 
 
 #undef mDeclArgs

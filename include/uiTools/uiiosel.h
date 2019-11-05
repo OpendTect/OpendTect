@@ -95,6 +95,8 @@ public:
 
     uiComboBox*		inpBox()		{ return inp_; }
     virtual uiObject*	endObj(bool left);
+    void		setTextValidator(const BufferString& regex);
+    void		avoidTextValidator();
 
 protected:
 

@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uibutton.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uifiledlg.h"
 #include "iopar.h"
 #include "file.h"
@@ -59,6 +60,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
     setHAlignObj( inp_ );
 
+    setTextValidator( mDefTextValidator );
     if ( su.optional_ )
     {
 	optbox_ = new uiCheckBox( this, su.seltxt_ );
@@ -94,6 +96,20 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 uiIOSelect::~uiIOSelect()
 {
     deepErase( entries_ );
+}
+
+void uiIOSelect::setTextValidator( const BufferString& regex )
+{
+    if ( regex.isEmpty() )
+	return;
+
+    inp_->setValidator( regex );
+}
+
+
+void uiIOSelect::avoidTextValidator()
+{
+    inp_->setValidator( mTextVlAllCharsAccepted );
 }
 
 
