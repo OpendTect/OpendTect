@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "ptrman.h"
 #include "uistrings.h"
+#include "systeminfo.h"
 
 #ifndef OD_NO_QT
 # include <QObject>
@@ -497,7 +498,7 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 }
 
 
-RequestServer::RequestServer( port_nr_type servport )
+RequestServer::RequestServer( port_nr_type servport, const char* addr )
     : serverport_( servport )
     , server_( new Network::Server )
     , newConnection( this )
@@ -506,7 +507,7 @@ RequestServer::RequestServer( port_nr_type servport )
 	return;
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
-    if ( !server_->listen( 0, serverport_ ) )
+    if ( !server_->listen(addr,serverport_) )
     {
 	errmsg_ = tr("Cannot start listening on port %1").arg( serverport_ );
     }
@@ -560,7 +561,8 @@ void RequestServer::newConnectionCB(CallBacker* cb)
 
 bool RequestConnection::isPortFree( port_nr_type port, uiString* errmsg )
 {
-    const RequestServer reqserv( port );
+    const BufferString addr( System::localAddress() );
+    const RequestServer reqserv( port, addr );
     const bool ret = reqserv.isOK();
     if ( errmsg && !reqserv.errMsg().isEmpty() )
 	errmsg->set( reqserv.errMsg() );
