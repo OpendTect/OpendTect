@@ -159,7 +159,8 @@ public:
 
     mUseType( RequestConnection, port_nr_type );
 
-				RequestServer(port_nr_type serverport);
+				RequestServer(port_nr_type serverport,
+						const char* addr =nullptr);
 				~RequestServer();
 
     bool			isOK() const;
