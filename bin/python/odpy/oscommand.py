@@ -92,7 +92,6 @@ def kill( proc ):
 # INTERNAL, you should not need to use those:
 def startAndWait( cmd ):
   try:
-    stdstream = get_std_stream()
     completedproc = subprocess.run( cmd, check=True, stdout=subprocess.PIPE, \
                                     stderr=get_std_stream() ).stdout
   except subprocess.CalledProcessError as err:
