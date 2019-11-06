@@ -5,11 +5,21 @@ from odpy.oscommand import getODCommand, execCommand
 
 dbmanexe = 'od_DBMan'
 
-def getDBList(translnm,args=None):
-  cmd = getODCommand(dbmanexe,args)
+def getDBList(translnm,exenm=dbmanexe,args=None):
+  cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
   cmd.append( '--list' )
   cmd.append( translnm )
+  return getDBDict( cmd )
+
+def getInfoByKey(objkey,exenm=dbmanexe,args=None ):
+  cmd = getODCommand(exenm,args)
+  cmd.append( '--json' )
+  cmd.append( '--info' )
+  cmd.append( objkey )
+  return getDBDict( cmd )
+
+def getDBDict( cmd ):
   ret = execCommand( cmd )
   retstr = ret.decode('utf-8')
   if isWin():
