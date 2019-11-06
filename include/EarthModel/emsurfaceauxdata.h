@@ -97,10 +97,9 @@ public:
 			/*!<dataidx==-1: init all*/
 
     Array2D<float>*	createArray2D(int dataidx,SectionID) const;
+    void		setArray2D(int dataidx,SectionID,const Array2D<float>&);
     void		setArray2D(int dataidx,SectionID,const Array2D<float>&,
-				   const TrcKeySampling* tks=nullptr);
-			/*!tks=nullptr assumes that array has same origin
-			   as horizon*/
+				   const TrcKeySampling* tks);
 
     const ObjectSet<BinIDValueSet>& getData() const	{ return auxdata_; }
 

@@ -475,6 +475,13 @@ void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 
 
 void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
+				 const Array2D<float>& arr2d )
+{
+    setArray2D( dataidx, sid, arr2d, 0 );
+}
+
+
+void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
 				 const Array2D<float>& arr2d,
 				 const TrcKeySampling* arrtks )
 {
