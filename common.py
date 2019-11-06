@@ -105,9 +105,9 @@ def has_log_file():
 
 def get_handler_stream(logger):
   for handler in logger.handlers:
-    if isinstance( handler, logging.StreamHandler ):
+    if isinstance( handler, logging.StreamHandler ) and handler.level != logging.NOTSET:
       return handler.stream
-    elif isinstance( handler, logging.FileHandler ):
+    elif isinstance( handler, logging.FileHandler ) and handler.level != logging.NOTSET:
       return handler.stream
   return None
 
