@@ -33,19 +33,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     : uiMainWin( p,tr("Amplitude Spectrum"), 0, false, false )
-    , timedomain_(0)
-    , freqdomain_(0)
-    , freqdomainsum_(0)
-    , fft_(0)
-    , data_(0)
-    , specvals_(0)
     , setup_(setup)
+    , data_(nullptr)
+    , timedomain_(nullptr)
+    , freqdomain_(nullptr)
+    , freqdomainsum_(nullptr)
+    , specvals_(nullptr)
+    , fft_(nullptr)
 {
     if ( !setup_.caption_.isEmpty() )
 	setCaption( setup_.caption_ );
+
     uiFunctionDisplay::Setup su;
-    su.fillbelow(true).canvaswidth(600).canvasheight(400);
-    su.noy2axis(true).noy2gridline(true);
+    su.fillbelow(false).canvaswidth(300).canvasheight(300);
+    su.noy2axis(true).noy2gridline(true).curvzvaly(8);
     disp_ = new uiFunctionDisplay( this, su );
     disp_->xAxis()->setCaption( SI().zIsTime() ? !setup_.iscepstrum_
 						    ? tr("Frequency (Hz)")
@@ -57,7 +58,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
-    uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ?
+    uiString disptitle = tr("%1 range").arg(SI().zIsTime() ?
 	      uiStrings::sFrequency() : uiStrings::sWaveNumber(true));
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
@@ -76,7 +77,6 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 		    tr("(%1, power)").arg(uiStrings::sWaveNumber(true)));
     valfld_ = new uiGenInput( dispparamgrp_, lbl, FloatInpIntervalSpec() );
     valfld_->attach( alignedBelow, rangefld_ );
-    valfld_->display( false );
     valfld_->setNrDecimals( 2 );
 
     normfld_ = new uiCheckBox( dispparamgrp_, tr("Normalize") );
@@ -354,7 +354,6 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     const float ypos = disp_->yAxis(false)->getVal( pos.y );
     const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
 		      disp_->yAxis(false)->range().includes(ypos,true);
-    valfld_->display( disp );
     if ( !disp )
 	return;
 
@@ -368,6 +367,7 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     const float yval = specvals[specidx];
     valfld_->setValue( xpos, 0 );
     valfld_->setValue( yval, 1 );
+    valfld_->setNrDecimals( 2 );
 }
 
 

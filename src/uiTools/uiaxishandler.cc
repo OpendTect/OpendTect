@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const float logof2 = logf(2);
 #define sDefNrDecimalPlaces 3
-#define mFillZValue	setup_.zval_ + 1
+#define mFillZValue	0
 #define mSpecialZValue	setup_.zval_ + 2
 #define mAuxZValue	setup_.zval_ + 3
 #define mAxisZValue	setup_.zval_ + 4
@@ -27,7 +27,7 @@ static const float logof2 = logf(2);
     if ( itm ) \
     { \
 	delete scene_->removeItem( itm ); \
-	itm = 0; \
+	itm = nullptr; \
     }
 
 
@@ -57,7 +57,7 @@ class uiAHPlotAnnotSet : public TypeSet<uiAHPlotAnnot>
 public:
 
 			uiAHPlotAnnotSet( uiAxisHandler& ah )
-			    : axh_(ah), texts_(0), setup_(ah.setup_) {}
+			    : axh_(ah), texts_(nullptr), setup_(ah.setup_) {}
 
 			~uiAHPlotAnnotSet()	{ removeAllGraphicsItems(); }
 
@@ -121,7 +121,7 @@ void uiAHPlotAnnotSet::removeAllGraphicsItems()
 	delete axh_.scene_->removeItems( lines_ );
 	delete axh_.scene_->removeItems( texts_ );
 	delete axh_.scene_->removeItems( ticks_ );
-	texts_ = 0;
+	texts_ = nullptr;
     }
 }
 
@@ -140,7 +140,9 @@ void uiAHPlotAnnotSet::setVisible( bool yn )
 const OD::LineStyle&
 	uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah ) const
 {
-    if ( !pah.isAux() ) return setup_.style_;
+    if ( !pah.isAux() )
+	return setup_.gridlinestyle_;
+
     const bool ishighlighted = pah.linetype_ == PlotAnnotation::HighLighted;
     return ishighlighted ? setup_.auxhllinestyle_ : setup_.auxlinestyle_;
 }
@@ -254,7 +256,7 @@ void uiAHPlotAnnotSet::addGridLineAt( int pix, const uiAHPlotAnnot& pah )
 
 void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 {
-    const OD::LineStyle& ls = getLineStyle( pah );
+    const OD::LineStyle& ls = setup_.style_;
     const int zvalue = getZValue( pah );
     uiLineItem* tickitm = axh_.getTickLine( pix );
     tickitm->setPenColor( ls.color_ );
@@ -286,7 +288,7 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 	txtitm->setFontData( fd );
     }
 
-    txtitm->setTextColor( ls.color_ );
+    txtitm->setTextColor( Color(75,75,75) );
     txtitm->setZValue( zvalue );
     texts_->add( txtitm );
 }
@@ -300,15 +302,15 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     , height_(su.height_)
     , width_(su.width_)
     , ticsz_(su.ticsz_)
-    , beghndlr_(0)
-    , endhndlr_(0)
+    , beghndlr_(nullptr)
+    , endhndlr_(nullptr)
     , annotstart_(0)
     , epsilon_(1e-5f)
     , axsz_(0)
     , devsz_(0)
-    , nameitm_(0)
-    , endannotitm_(0)
-    , axislineitm_(0)
+    , nameitm_(nullptr)
+    , endannotitm_(nullptr)
+    , axislineitm_(nullptr)
     , ynmtxtvertical_(false)
 {
     setRange( StepInterval<float>(0,1,1) );
@@ -465,7 +467,7 @@ float uiAxisHandler::getRelPos( float v ) const
     if ( !setup_.islog_ )
 	return relv;
 
-    if ( relv < -0.9 ) relv = -0.9;
+    if ( relv < -0.9f ) relv = -0.9f;
     return log( relv + 1 ) / logof2;
 }
 
@@ -642,12 +644,18 @@ bool uiAxisHandler::reCalcAnnotation()
     if ( showsplval && datarg_.includes(setup_.specialvalue_,rgisrev_) )
 	annots_.add( setup_.specialvalue_, uiAHPlotAnnot::Special );
 
-    if ( !showsplval || !mIsEqual(datarg_.start,setup_.specialvalue_,epsilon_) )
-	annots_.add( datarg_.start, uiAHPlotAnnot::Special );
+    const bool showstartstop = false;
+    if ( showstartstop )
+    {
+	if ( !showsplval ||
+	     !mIsEqual(datarg_.start,setup_.specialvalue_,epsilon_) )
+	    annots_.add( datarg_.start, uiAHPlotAnnot::Special );
 
-    if ( (!showsplval || !mIsEqual(datarg_.stop,setup_.specialvalue_,epsilon_))
-	    && rgwidth_>epsilon_ )
-	annots_.add( datarg_.stop, uiAHPlotAnnot::Special );
+	if ( (!showsplval ||
+	      !mIsEqual(datarg_.stop,setup_.specialvalue_,epsilon_))
+		&& rgwidth_>epsilon_ )
+	    annots_.add( datarg_.stop, uiAHPlotAnnot::Special );
+    }
 
     for ( int idx=0; idx<=nrsteps_; idx++ )
     {
@@ -692,9 +700,10 @@ void uiAxisHandler::updateName()
 	pt.y = height_/2 - pixAfter();
 
 	if ( !ynmtxtvertical_ )
-	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
+	    nameitm_->setRotation( isleft ? -90.f : 90.f );
 	ynmtxtvertical_ = true;
     }
+
     nameitm_->setPos( pt );
     nameitm_->setAlignment( al );
     nameitm_->setZValue( mAxisZValue );

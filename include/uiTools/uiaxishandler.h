@@ -54,26 +54,28 @@ public:
 
     struct Setup
     {
-			Setup( uiRect::Side s, int w=0, int h=0 )
-			    : side_(s)
-			    , noaxisline_(false)
-			    , noaxisannot_(false)
-			    , nogridline_(false)
-			    , showauxannot_(false)
-			    , auxlinestyle_(OD::LineStyle(OD::LineStyle::Dot))
-			    , annotinside_(false)
-			    , annotinint_(false)
-			    , fixedborder_(false)
-			    , ticsz_(2)
-			    , width_(w)
-			    , height_(h)
-			    , maxnrchars_(0)
-			    , specialvalue_(0.0f)
-			    , islog_(false)
-			    , zval_(4)
-			    , nmcolor_(Color::NoColor())
-			    , fontdata_(FontData(10))
-			    {}
+	Setup( uiRect::Side s, int w=0, int h=0 )
+	    : side_(s)
+	    , width_(w)
+	    , height_(h)
+	    , islog_(false)
+	    , noaxisline_(false)
+	    , noaxisannot_(false)
+	    , nogridline_(false)
+	    , annotinside_(false)
+	    , annotinint_(false)
+	    , fixedborder_(false)
+	    , showauxannot_(false)
+	    , ticsz_(2)
+	    , maxnrchars_(0)
+	    , specialvalue_(0.0f)
+	    , zval_(0)
+	    , nmcolor_(Color::NoColor())
+	    , fontdata_(FontData(10))
+	{
+	    gridlinestyle_.color_ = Color(200,200,200);
+	    auxlinestyle_.type_ = OD::LineStyle::Dot;
+	}
 
 	mDefSetupMemb(uiRect::Side,side)
 	mDefSetupMemb(int,width)
