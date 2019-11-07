@@ -98,18 +98,42 @@ OD_ADD_SOURCE_FILES( uimainicon.xpm )
 
 find_package( Qt5WebEngineWidgets QUIET )
 if ( Qt5WebEngineWidgets_FOUND )
-  option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets support" ON )
-  if ( USE_QtWebEngine )
-      set(OD_USEQT ${OD_USEQT} Positioning Quick QuickWidgets Qml
+    option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets support" ON )
+    if ( USE_QtWebEngine )
+      
+        set(OD_USEQT ${OD_USEQT} Positioning Quick QuickWidgets Qml
 			       WebChannel WebEngineCore WebEngineWidgets )
-      set(QT_MOC_HEADERS ${QT_MOC_HEADERS}  
+        set(QT_MOC_HEADERS ${QT_MOC_HEADERS}  
 	    i_qwebengineview.h
-      )
-      set(OD_MODULE_SOURCES ${OD_MODULE_SOURCES}
-	uiwebengine.cc
-      )
-      add_definitions( -D__withqtwebengine__ )
-  endif( USE_QtWebEngine )
+        )
+        set(OD_MODULE_SOURCES ${OD_MODULE_SOURCES}
+	  uiwebengine.cc
+        )
+        add_definitions( -D__withqtwebengine__ )
+
+        install( DIRECTORY ${QTDIR}/resources
+	         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+	         CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+	         USE_SOURCE_PERMISSIONS )
+	install( DIRECTORY ${QTDIR}/translations
+                 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+                 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+                 USE_SOURCE_PERMISSIONS
+                 FILES_MATCHING
+                 PATTERN "qtwebengine_*.qm"
+                 PATTERN "qtwebengine_locales/*.pak" )
+	if ( WIN32 )
+	    set( QTPOSTFIX "" )
+	    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+		set( QTPOSTFIX "d" )
+	    endif()
+	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe ${CMAKE_BUILD_TYPE} )
+	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
+	else()
+	    OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
+	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
+	endif()
+    endif( USE_QtWebEngine )
 endif( Qt5WebEngineWidgets_FOUND )
 
 OD_INIT_MODULE()

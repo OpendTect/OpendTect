@@ -123,19 +123,13 @@ macro(OD_SETUP_QT)
 
 	    #Install only, no direct cmake support
 	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
-	    install( DIRECTORY ${QTDIR}/resources
-		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
-		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		     USE_SOURCE_PERMISSIONS )
 	    install( DIRECTORY ${QTDIR}/translations
 		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
 		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 		     USE_SOURCE_PERMISSIONS
 		     FILES_MATCHING
 		     PATTERN "qt_*.qm"
-		     PATTERN "qtbase_*.qm"
-		     PATTERN "qtwebengine_*.qm"
-		     PATTERN "qtwebengine_locales/*.pak" )
+		     PATTERN "qtbase_*.qm" )
 
 	    if ( WIN32 )
 		set( QTPOSTFIX "" )
@@ -145,11 +139,6 @@ macro(OD_SETUP_QT)
 		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libEGL${QTPOSTFIX}.dll ${CMAKE_BUILD_TYPE} )
 		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libGLESv2${QTPOSTFIX}.dll ${CMAKE_BUILD_TYPE} )
 		OD_INSTALL_LIBRARY( ${QTDIR}/bin/opengl32sw.dll ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
-	    else()
-		OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
 	    endif()
 
 	    set( QT_REQ_PLUGINS iconengines imageformats platforms )
