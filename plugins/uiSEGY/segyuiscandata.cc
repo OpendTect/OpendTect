@@ -473,7 +473,7 @@ FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
     , clipsampler_(cs), offscalc_(oc)
     , nrdone_(1)
 {
-    si_.full_ = false;
+    si_.full_ = true;
     totalnr_ = def_.nrTracesIn( strm );
 }
 
@@ -494,7 +494,7 @@ virtual int nextStep()
     {
 	PtrMan<TrcHeader> thdr = def_.getTrace( strm_, buf_, vals_ );
 	if ( !thdr )
-	    { si_.full_ = true; return Finished(); }
+	    return Finished();
 	else if ( !thdr->isusable )
 	    continue; // dead trace
 
@@ -593,7 +593,8 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     if ( !def.havetrcnrs_ )
 	ti.nr = def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ );
 
-    keydata_.add( thdr, def.hdrsswapped_, isfirst );
+    if ( !full_ )
+	keydata_.add( thdr, def.hdrsswapped_, isfirst );
     pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset, ti.azimuth );
     addValues( clipsampler, vals, def.ns_ );
 
