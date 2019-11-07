@@ -194,7 +194,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     xyunitlbl_->attach( rightTo, applybut );
     xyunitlbl_->attach( rightBorder );
 
-    postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+    afterPopup.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
 
 
