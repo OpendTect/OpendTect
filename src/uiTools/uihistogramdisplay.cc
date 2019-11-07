@@ -35,13 +35,8 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 					    .require(Stats::Median)
 					    .require(Stats::StdDev)
 					    .require(Stats::RMS)) )
-    , nrinpvals_(0)
-    , nrclasses_(0)
     , withheader_(withheader)
-    , header_(0)
-    , nitm_(0)
     , mydrawrg_(mUdf(float),mUdf(float))
-    , usemydrawrg_(false)
     , drawRangeChanged(this)
 {
     xAxis()->setCaption( uiStrings::sValue() );
@@ -272,9 +267,9 @@ void uiHistogramDisplay::updateHistogram()
     }
 
     nrinpvals_ = 0;
-    for ( int idx=0; idx<nrpts; idx++ )
+    for ( od_int64 idx=0; idx<nrpts; idx++ )
     {
-	int seg = (int)((rc_.medvals_[idx] - min) / step);
+	int seg = mCast(int,(rc_.medvals_[idx] - min) / step);
 	if ( seg < -1 || seg > nrclasses_ )
 	   { pErrMsg("Huh"); continue; }
 

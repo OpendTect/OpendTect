@@ -11,9 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "math2.h"
 #include "paralleltask.h"
 #include "statruncalc.h"
+#include "uistrings.h"
 
 namespace Stats
 {
@@ -60,12 +62,15 @@ protected:
     inline bool                 doWork(od_int64,od_int64,int);
     inline bool                 doFinish(bool);
 
+    virtual const T*		sort(idx_type* index_of_median =nullptr);
+
     uiString		        errmsg_;
 
     mutable Threads::Barrier    barrier_;
 
-    const T*			data_;
-    const T*                    weights_;
+    const T*			data_ = nullptr;
+    const T*                    weights_ = nullptr;
+    bool*			udfarr_ = nullptr;
 
     T                           meanval_;
     T                           meanval_w_;
@@ -94,7 +99,8 @@ template <class T>
 inline void ParallelCalc<T>::setEmpty()
 {
     this->clear();
-    nradded_ = 0; data_ = 0; weights_ = 0;
+    nradded_ = 0; data_ = nullptr; weights_ = nullptr;
+    deleteAndZeroPtr( udfarr_ );
 }
 
 
@@ -114,21 +120,27 @@ inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 {
     if ( !data_ )
     {
-	errmsg_ = od_static_tr("Stats_Parallel_Calc",
-			       "No data given to compute statistics");
+	errmsg_ = tr("No data given to compute statistics");
 	return false;
     }
     if ( nradded_ < 1 )
     {
-	errmsg_ = od_static_tr("Stats_Parallel_Calc",
-			       "Data array is empty");
+	errmsg_ = tr("Data array is empty");
 	return false;
     }
 
     const size_type nradded = nradded_;
     BaseCalc<T>::clear();
     nradded_ = nradded;
-    variance_ = variance_w_ =0;
+    meanval_ = meanval_w_ = 0.;
+    variance_ = variance_w_ = 0.;
+    delete udfarr_;
+    mTryAlloc( udfarr_, bool[nradded] );
+    if ( !udfarr_ )
+    {
+	errmsg_ = uiStrings::phrCannotAllocateMemory( nradded );
+	return false;
+    }
 
     barrier_.setNrThreads( nrthreads );
 
@@ -148,8 +160,9 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     idx_type maxidx = 0;
     idx_type nrused = 0;
 
+    bool* udfptr = udfarr_ + start;
     for ( ; start<=stop && mIsUdf(data_[start] ); start++ )
-	/* just skip undefs at start */;
+	*udfptr++ = true;
 
     idx_type idx = start;
     const T* dataptr = data_ + start;
@@ -161,11 +174,10 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
     while ( dataptr < stopptr )
     {
-	val = *dataptr;
-	dataptr++;
+	val = *dataptr++;
 	idx ++;
-
-	if ( mIsUdf( val ) )
+	*udfptr = mIsUdf(val);
+	if ( *udfptr++ )
 	    continue;
 
 	sum_x += val;
@@ -181,6 +193,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     if ( setup_.weighted_ && weights_ )
     {
 	dataptr = data_ + start;
+	udfptr = udfarr_ + start;
 	const T* weightptr = weights_ ? weights_ + start : 0;
 	while ( dataptr < stopptr )
 	{
@@ -190,7 +203,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	    dataptr ++;
 	    weightptr ++;
 
-	    if ( mIsUdf( val ) )
+	    if ( *udfptr++ )
 		continue;
 
 	    sum_w += weight;
@@ -230,7 +243,6 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
     barrier_.waitForAll( true );
 
-
     //The 2nd pass of the 2 pass variance
     if ( setup_.needvariance_ )
     {
@@ -243,20 +255,18 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
 	dataptr = data_ + startidx;
 	stopptr = dataptr + ( stopidx-startidx + 1 );
+	udfptr = udfarr_ + startidx;
 
 	if ( setup_.weighted_ && weights_ )
 	{
 	    const T* weightptr = weights_ ? weights_ + startidx : 0;
 	    while ( dataptr < stopptr )
 	    {
-		const T weight = *weightptr;
-		val = *dataptr;
-
-		dataptr ++;
-		weightptr ++;
-
-		if ( mIsUdf( val ) )
+		const T weight = *weightptr++;
+		val = *dataptr++;
+		if ( *udfptr++ )
 		    continue;
+
 		T varval = val*weight - meanval_w_;
 		varval *= varval;
 		tvariance_w += varval;
@@ -266,12 +276,10 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	{
 	    while ( dataptr < stopptr )
 	    {
-		val = *dataptr;
-
-		dataptr++;
-
-		if ( mIsUdf( val ) )
+		val = *dataptr++;
+		if ( *udfptr++ )
 		    continue;
+
 		T varval = val - meanval_;
 		varval *= varval;
 		tvariance += varval;
@@ -309,12 +317,13 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 	clsswt_.setSize( nrused_ );
 	clsswt_.setAll( 1 );
 
+	const bool* udfptr = udfarr_;
 	for ( idx_type idx=0; idx<nradded_; idx++ )
 	{
-	    const T val = data_[idx];
-	    if ( mIsUdf( val ) )
+	    if ( *udfptr++ )
 		continue;
 
+	    const T val = data_[idx];
 	    const T wt = weights_[idx];
 	    idx_type ival; Conv::set( ival, val );
 	    idx_type setidx = clss_.indexOf( ival );
@@ -326,13 +335,17 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 	}
     }
 
-    if ( setup_.needmed_ )
+    if ( setup_.needmed_ || setup_.needsorted_ )
     {
+	medvals_.setSize( nrused_, mUdf(float) );
+	T* medvalsarr = medvals_.arr();
+	const bool* udfptr = udfarr_;
 	for ( idx_type idx=0; idx<nradded_; idx++ )
 	{
-	    const T val = data_[idx];
-	    if ( !mIsUdf( val ) )
-		medvals_ += val;
+	    if ( *udfptr++ )
+		continue;
+
+	    *medvalsarr++ = data_[idx];
 	}
     }
 
@@ -345,6 +358,42 @@ inline bool ParallelCalc<float_complex>::doFinish( bool )
 {
     pErrMsg("Undefined operation for float_complex in template");
     return false;
+}
+
+
+template <class T> inline
+const T* ParallelCalc<T>::sort( idx_type* idx_of_med )
+{
+    return BaseCalc<T>::sort( idx_of_med );
+
+/*  TODO: uncomment when the ParallelSorter works
+    T* valarr = medvals_.arr();
+    const size_type sz = nrused_;
+    LargeValVec<idx_type>& medidxs = BaseCalc<T>::medidxs_;
+    const bool withidxs = idx_of_med || setup_.weighted_;
+    if ( BaseCalc<T>::issorted_ &&
+         ( (withidxs && medidxs.size()==sz) || (!withidxs) ) )
+        return valarr;
+
+    ParallelSorter<T>* sorter = nullptr;
+    if ( withidxs )
+    {
+	if ( medidxs.size() != sz )
+	{
+	    medidxs.setSize( sz, 0 );
+	    for ( idx_type idx=0; idx<sz; idx++ )
+		medidxs[idx] = idx;
+	}
+
+	sorter = new ParallelSorter<T>( valarr, medidxs.arr(), sz );
+    }
+    else
+	sorter = new ParallelSorter<T>( valarr, sz );
+
+    sorter->execute();
+    delete sorter;
+
+    return valarr; */
 }
 
 

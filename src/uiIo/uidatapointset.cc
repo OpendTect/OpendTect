@@ -1083,6 +1083,7 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 	Stats::CalcSetup su( false );
 #	define mReq(typ) require(Stats::typ)
 	su.mReq(Count).mReq(Average).mReq(Median).mReq(StdDev);
+	su.setNeedSorted();
 	rc = new Stats::RunCalc<float>( su.mReq(Min).mReq(Max).mReq(RMS) );
 	for ( DRowID drid=0; drid<dps_->size(); drid++ )
 	{
@@ -1128,7 +1129,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
     }
 
-    statswin_->setData( rc.medvals_.arr(), rc.medvals_.size() );
+    statswin_->setData( rc.medValsArr(), rc.count() );
     statswin_->setDataName( txt );
     statswin_->show();
 }

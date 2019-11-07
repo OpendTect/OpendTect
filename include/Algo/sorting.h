@@ -116,10 +116,14 @@ inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
 
 template <class T>
 mClass(Algo) ParallelSorter : public ParallelTask
-{
+{ mODTextTranslationClass(ParallelSorter);
 public:
-				ParallelSorter(T* vals, int sz);
-				ParallelSorter(T* vals, int* idxs, int sz);
+
+    typedef od_int64		idx_type;
+    typedef idx_type		size_type;
+
+				ParallelSorter(T* vals,size_type);
+				ParallelSorter(T* vals,idx_type*,size_type);
 protected:
     od_int64			nrIterations() const { return nrvals_; }
 
@@ -128,23 +132,24 @@ protected:
     bool			doFinish(bool);
     bool			doWork(od_int64,od_int64,int);
     static bool			mergeLists(const T* vals, T* res,
-					   int start0,int start1,int start2,
-					   int stop, int& totalsz );
+					   idx_type start0,idx_type start1,
+					   idx_type start2,idx_type stop,
+					   size_type& totalsz );
     od_int64			nrDone() const { return totalnr_; }
 
     T*				vals_;
     ArrPtrMan<T>		tmpbuffer_;
 
-    int*			idxs_;
+    idx_type*			idxs_;
     T*				curvals_;
     T*				buf_;
 
-    const int			nrvals_;
-    int				totalnr_;
+    const size_type		nrvals_;
+    size_type			totalnr_;
 
     Threads::ConditionVar	condvar_;
-    TypeSet<int>		starts_;
-    TypeSet<int>		newstarts_;
+    TypeSet<idx_type>		starts_;
+    TypeSet<idx_type>		newstarts_;
 
     Threads::Barrier		barrier_;
 };
@@ -181,7 +186,7 @@ void partSort( T* arr, I istart, I istop,
 
     const float localseed = getPartSortSeed();
 
-    ipivot = (int)(istart + (istop-istart) * (float)localseed / (float)FM + .5);
+    ipivot = istart + (istop-istart) * (float)localseed / (float)FM + .5;
     if ( ipivot < istart ) ipivot = istart;
     if ( ipivot > istop ) ipivot = istop;
     pivotval = arr[ipivot];
@@ -290,15 +295,16 @@ void quickSort( T* arr, I sz )
 
 
 template <class T, class IT> inline
-void partSort( T* arr, IT* iarr, int istart, int istop, int* jstart, int* jstop)
+void partSort( T* arr, IT* iarr, od_int64 istart, od_int64 istop,
+	       od_int64* jstart, od_int64* jstop)
 {
-    int ipivot, ileft, iright;
+    od_int64 ipivot, ileft, iright;
     T pivotval, tmp;
     IT itmp;
 
     const float localseed = getPartSortSeed();
 
-    ipivot = (int)(istart + (istop-istart) * (float)localseed / (float)FM);
+    ipivot = istart + (istop-istart) * (float)localseed / (float)FM;
     if ( ipivot < istart ) ipivot = istart;
     if ( ipivot > istop ) ipivot = istop;
     pivotval = arr[ipivot];
@@ -350,9 +356,9 @@ void partSort( T* arr, IT* iarr, int istart, int istop, int* jstart, int* jstop)
 
 
 template <class T, class IT> inline
-void insertionSort( T* arr, IT* iarr, int istart, int istop )
+void insertionSort( T* arr, IT* iarr, od_int64 istart, od_int64 istop )
 {
-    int i, j;
+    od_int64 i, j;
     T arr_i;
     IT iarr_i;
 
@@ -370,9 +376,9 @@ void insertionSort( T* arr, IT* iarr, int istart, int istop )
 }
 
 template <class T, class IT>
-void sortFor( T* arr, IT* iarr, int sz, int itarget )
+void sortFor( T* arr, IT* iarr, od_int64 sz, od_int64 itarget )
 {
-    int j, k, p = 0, q = sz-1;
+    od_int64 j, k, p = 0, q = sz-1;
 
     while( q - p > NSMALL )
     {
@@ -388,9 +394,9 @@ void sortFor( T* arr, IT* iarr, int sz, int itarget )
 
 
 template <class T, class IT> inline
-void quickSort( T* arr, IT* iarr, int sz )
+void quickSort( T* arr, IT* iarr, od_int64 sz )
 {
-    int pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
+    od_int64 pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
 
     pstack[top] = 0;
     qstack[top++] = sz - 1;
@@ -431,7 +437,7 @@ void quickSort( T* arr, IT* iarr, int sz )
 
 //ParallelSort implementation
 template <class T> inline
-ParallelSorter<T>::ParallelSorter(T* vals, int sz)
+ParallelSorter<T>::ParallelSorter( T* vals, size_type sz)
     : vals_( vals )
     , nrvals_( sz )
     , tmpbuffer_( 0 )
@@ -444,7 +450,7 @@ ParallelSorter<T>::ParallelSorter(T* vals, int sz)
 
 
 template <class T> inline
-ParallelSorter<T>::ParallelSorter(T* vals, int* idxs, int sz)
+ParallelSorter<T>::ParallelSorter( T* vals, idx_type* idxs, size_type sz )
     : vals_( vals )
     , nrvals_( sz )
     , tmpbuffer_( 0 )
@@ -467,7 +473,7 @@ bool ParallelSorter<T>::doPrepare( int nrthreads )
     starts_.erase();
     newstarts_.erase();
 
-    int nrmerges = -1;
+    od_int64 nrmerges = -1;
     while ( nrthreads )
     {
 	nrmerges++;
@@ -495,7 +501,7 @@ bool ParallelSorter<T>::doFinish( bool success )
 template <class T> inline
 bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    const int threadsize = stop-start+1;
+    const od_int64 threadsize = stop-start+1;
     if ( threadsize<100 )
     {
 	if ( idxs_ )
@@ -547,9 +553,9 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	    break;
 	}
 
-	const int curstart0 = starts_[0]; starts_.removeSingle( 0 );
-	const int curstart1 = starts_[0]; starts_.removeSingle( 0 );
-	int curstart2;
+	const idx_type curstart0 = starts_[0]; starts_.removeSingle( 0 );
+	const idx_type curstart1 = starts_[0]; starts_.removeSingle( 0 );
+	idx_type curstart2;
 	if ( starts_.size()==1 )
 	{
 	    curstart2 = starts_[0];
@@ -558,11 +564,11 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	else
 	    curstart2 = -1;
 
-	const int curstop = (starts_.size() ? starts_[0] : nrvals_)-1;
+	const idx_type curstop = (starts_.size() ? starts_[0] : nrvals_)-1;
 	newstarts_ += curstart0;
 	barrier_.mutex().unLock();
 
-	int cursize;
+	size_type cursize;
 	if ( !mergeLists( curvals_, buf_,
 		    curstart0, curstart1, curstart2, curstop, cursize) )
 	    return false;
@@ -579,12 +585,13 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
 template <class T> inline
 bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
-				    int start0, int start1, int start2,
-				    int stop, int& totalsz )
+				    idx_type start0, idx_type start1,
+				    idx_type start2, idx_type stop,
+				    size_type& totalsz )
 {
-    const int sz0 = start1-start0;
-    const int sz1 = start2==-1 ? stop-start1+1 : start2-start1;
-    const int sz2 = start2==-1 ? 0 : stop-start2+1;
+    const size_type sz0 = start1-start0;
+    const size_type sz1 = start2==-1 ? stop-start1+1 : start2-start1;
+    const size_type sz2 = start2==-1 ? 0 : stop-start2+1;
     totalsz = sz0+sz1+sz2;
 
     const T* ptr0 = valptr + start0;
