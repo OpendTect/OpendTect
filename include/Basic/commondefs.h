@@ -240,10 +240,10 @@ namespace Threads
 
 //! Catches bad_alloc and sets ptr to null as normal.
 #define mTryAlloc(var,stmt) \
-{ try { var = new stmt; } catch ( std::bad_alloc ) { var = 0; } }
+{ try { var = new stmt; } catch ( std::bad_alloc ) { var = nullptr; } }
 
 #define mTryAllocPtrMan(var,stmt) \
-{ try { var = new stmt; } catch ( std::bad_alloc ) { var.set( 0 ); } }
+{ try { var = new stmt; } catch ( std::bad_alloc ) { var.set( nullptr ); } }
 
 //!Creates variable, try to alloc and catch bad_alloc.
 #define mDeclareAndTryAlloc(tp,var,stmt) \
