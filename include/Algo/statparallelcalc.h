@@ -397,6 +397,14 @@ const T* ParallelCalc<T>::sort( idx_type* idx_of_med )
 }
 
 
+template <> inline
+const float_complex* ParallelCalc<float_complex>::sort( idx_type* idx_of_med )
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return nullptr;
+}
+
+
 template <class T>
 inline double ParallelCalc<T>::variance() const
 {
