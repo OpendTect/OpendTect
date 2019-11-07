@@ -57,7 +57,7 @@ macro(OD_READ_QTMODINFO MOD )
 	get_target_property( QTLIBSONAME ${MOD} IMPORTED_SONAME_${QT_BUILD_TYPE} )
     endif()
     get_filename_component( QTLIBDIR ${QTLIBLOC} DIRECTORY )
-endmacro(OD_READ_MODINFO)
+endmacro(OD_READ_QTMODINFO)
 
 macro(OD_SETUP_QT)
     if ( OD_NO_QT )
