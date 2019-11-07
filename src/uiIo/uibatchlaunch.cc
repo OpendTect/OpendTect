@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uiusershowwait.h"
 #include "uitextfile.h"
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
@@ -94,7 +95,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 
     jobsfld_ = new uiListBox( topgrp, "Stored Batch Job" );
     jobsfld_->box()->setPrefHeightInChar( 10 );
-    jobsfld_->addItem( tr("Scanning Proc directory ....") );
+    mAttachCB( jobsfld_->selectionChanged, uiStartBatchJobDialog::itmSel );
 
     vwfilebut_ = new uiToolButton( topgrp, "info", tr("View/Edit job file"),
 		      mCB(this,uiStartBatchJobDialog,viewFile) );
@@ -112,8 +113,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 
     batchfld_ = new uiBatchJobDispatcherSel( botgrp, false,
 					     Batch::JobSpec::Attrib );
-    batchfld_->selectionChange.notify(
-				mCB(this,uiStartBatchJobDialog,launcherSel) );
+    mAttachCB( batchfld_->selectionChange, uiStartBatchJobDialog::launcherSel );
 
     resumefld_ = new uiGenInput( botgrp, tr("Use already processed data"),
 	BoolInpSpec(false,uiStrings::sYes(),tr("No, start from scratch")) );
@@ -123,30 +123,43 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     botgrp->setHAlignObj( batchfld_ );
     botgrp->attach( leftAlignedBelow, topgrp );
 
-    afterPopup.notify( mCB(this,uiStartBatchJobDialog,fillList) );
+    mAttachCB( afterPopup, uiStartBatchJobDialog::fillList );
+}
+
+
+uiStartBatchJobDialog::~uiStartBatchJobDialog()
+{
+    detachAllNotifiers();
 }
 
 
 void uiStartBatchJobDialog::fillList( CallBacker* )
 {
+    uiUserShowWait usw( parent(), tr("Scanning Proc directory") );
+    const int curitm = jobsfld_->currentItem();
+    NotifyStopper ns( jobsfld_->selectionChanged );
     jobsfld_->setEmpty();
-    DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
+    filenames_.setEmpty();
+    const DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	filenames_.add( dl.fullPath(idx) );
 	const BufferString& fnm = dl.get( idx );
-	jobsfld_->addItem( toUiString(Batch::JobDispatcher::
-							    getJobName(fnm)) );
+	jobsfld_->addItem( toUiString(Batch::JobDispatcher::getJobName(fnm)) );
     }
 
-    jobsfld_->selectionChanged.notify( mCB(this,uiStartBatchJobDialog,itmSel) );
-    if ( !filenames_.isEmpty() )
-	jobsfld_->setCurrentItem( 0 );
-    else
-    {
-	batchfld_->display( false );
-	resumefld_->display( false );
-    }
+    usw.readyNow();
+    const bool hasjobs = !filenames_.isEmpty();
+    batchfld_->display( hasjobs );
+    resumefld_->display( hasjobs );
+    if ( !hasjobs )
+	return;
+
+    ns.enableNotification();
+    jobsfld_->setCurrentItem( 0 );
+    if ( curitm == -1 && jobsfld_->size() == 1 &&
+	 jobsfld_->currentItem() == jobsfld_->size()-1 )
+	itmSel( nullptr );
 }
 
 
@@ -158,7 +171,7 @@ void uiStartBatchJobDialog::itmSel( CallBacker* )
     if ( haveparfiles )
     {
 	const int selidx = jobsfld_->currentItem();
-	if ( selidx >= 0 )
+	if ( selidx >= 0 && filenames_.validIdx(selidx) )
 	{
 	    od_istream strm( filenames_.get(selidx) );
 	    if ( !strm.isOK() )
@@ -197,8 +210,7 @@ void uiStartBatchJobDialog::launcherSel( CallBacker* )
 	if ( !uibjdl )
 	    canresume_ = false;
 	else
-	    canresume_ = uibjdl->dispatcher().canResume(
-		    batchfld_->jobSpec() );
+	    canresume_ = uibjdl->dispatcher().canResume( batchfld_->jobSpec() );
     }
 
     resumefld_->display( canrun && canresume_ );
@@ -208,7 +220,7 @@ void uiStartBatchJobDialog::launcherSel( CallBacker* )
 void uiStartBatchJobDialog::viewFile( CallBacker* )
 {
     const int selidx = jobsfld_->currentItem();
-    if ( selidx < 0 )
+    if ( selidx < 0 || !filenames_.validIdx(selidx) )
 	{ pErrMsg("Huh"); return; }
 
     uiTextFileDlg* dlg = new uiTextFileDlg( this, filenames_.get(selidx) );
@@ -222,7 +234,7 @@ void uiStartBatchJobDialog::viewFile( CallBacker* )
 void uiStartBatchJobDialog::rmFile( CallBacker* )
 {
     const int selidx = jobsfld_->currentItem();
-    if ( selidx < 0 )
+    if ( selidx < 0 || !filenames_.validIdx(selidx) )
 	{ pErrMsg("Huh"); return; }
 
     const OD::String& fnm( filenames_.get(selidx) );
@@ -236,8 +248,7 @@ void uiStartBatchJobDialog::rmFile( CallBacker* )
 	newsel--;
     if ( newsel >= 0 )
 	jobsfld_->setCurrentItem( newsel );
-    else
-	itmSel( 0 );
+    itmSel( nullptr );
 }
 
 
