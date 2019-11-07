@@ -38,16 +38,44 @@ endif( Qt5Core_FOUND )
 
 cmake_policy( SET CMP0057 NEW )
 
+macro(OD_READ_QTMODINFO MOD )
+    get_target_property( QT_BUILD_TYPE ${MOD} IMPORTED_CONFIGURATIONS )
+    list( LENGTH QT_BUILD_TYPE QT_NRBUILDS )
+    if ( ${QT_NRBUILDS} GREATER "1" )
+	if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND "DEBUG" IN_LIST QT_BUILD_TYPE )
+	    set( QT_BUILD_TYPE "DEBUG" )
+	elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND "RELEASE" IN_LIST QT_BUILD_TYPE )
+	    set( QT_BUILD_TYPE "RELEASE" )
+	elseif( "RELEASE" IN_LIST QT_BUILD_TYPE )
+	    set( QT_BUILD_TYPE "RELEASE" )
+	elseif( "DEBUG" IN_LIST QT_BUILD_TYPE )
+	    set( QT_BUILD_TYPE "DEBUG" )
+	endif()
+    endif()
+    get_target_property( QTLIBLOC ${MOD} IMPORTED_LOCATION_${QT_BUILD_TYPE} )
+    if( UNIX OR APPLE )
+	get_target_property( QTLIBSONAME ${MOD} IMPORTED_SONAME_${QT_BUILD_TYPE} )
+    endif()
+    get_filename_component( QTLIBDIR ${QTLIBLOC} DIRECTORY )
+endmacro(OD_READ_MODINFO)
+
 macro(OD_SETUP_QT)
     if ( OD_NO_QT )
 	add_definitions( -DOD_NO_QT )
     else()
 	#Setup Qt5
 	if ( Qt5Core_FOUND )
-	    find_package( Qt5 REQUIRED ${OD_USEQT} )
-	    string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" QT_VERSION_MAJOR
-		   "${Qt5Core_VERSION_STRING}")
-	    set(QT_VERSION_MAJOR ${QT_VERSION_MAJOR} PARENT_SCOPE)
+	    set( OD_INSTLIBS Svg Xml )
+	    if ( UNIX )
+		if ( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+		    list( APPEND OD_INSTLIBS DBus XcbQpa )
+		endif()
+	    endif()
+	    set( OD_QTALLLIBS ${OD_USEQT} )
+	    list( APPEND OD_QTALLLIBS ${OD_INSTLIBS} )
+	    find_package( Qt5 REQUIRED ${OD_QTALLLIBS} )
+	    set(QT_VERSION_MAJOR ${Qt5Core_VERSION_MAJOR} PARENT_SCOPE)
+
 	    if( QT_MOC_HEADERS )
 		set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
 		if ( NOT EXISTS ${OD_MODULE_DIR} ) # Allow plugins
@@ -64,39 +92,60 @@ macro(OD_SETUP_QT)
 	    foreach ( QTMOD ${OD_USEQT} )
 		list( APPEND OD_MODULE_INCLUDESYSPATH ${Qt5${QTMOD}_INCLUDE_DIRS} )
 		list( APPEND OD_QT_LIBS ${Qt5${QTMOD}_LIBRARIES} )
-
-		get_target_property( QT_BUILD_TYPE Qt5::${QTMOD} IMPORTED_CONFIGURATIONS )
-		list( LENGTH QT_BUILD_TYPE QT_NRBUILDS )
-		if ( ${QT_NRBUILDS} GREATER "1" )
-		    if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND "DEBUG" IN_LIST QT_BUILD_TYPE )
-		        set( QT_BUILD_TYPE "DEBUG" )
-		    elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Release" AND "RELEASE" IN_LIST QT_BUILD_TYPE )
-			set( QT_BUILD_TYPE "RELEASE" )
-	            elseif( "RELEASE" IN_LIST QT_BUILD_TYPE )
-		        set( QT_BUILD_TYPE "RELEASE" )
-		    elseif( "DEBUG" IN_LIST QT_BUILD_TYPE )
-		        set( QT_BUILD_TYPE "DEBUG" )
-		    endif()
-		endif()
-		get_target_property( QTLIBLOC Qt5::${QTMOD} IMPORTED_LOCATION_${QT_BUILD_TYPE} )
-		if( UNIX OR APPLE )
-		    get_target_property( QTLIBSONAME Qt5::${QTMOD} IMPORTED_SONAME_${QT_BUILD_TYPE} )
-		endif()
-		get_filename_component( QTLIBDIR ${QTLIBLOC} DIRECTORY )
-	        if( UNIX OR APPLE )
-		    OD_INSTALL_LIBRARY( ${QTLIBDIR}/${QTLIBSONAME} ${CMAKE_BUILD_TYPE} )
-	        elseif( WIN32 )
-		    OD_INSTALL_LIBRARY( ${QTLIBLOC} ${CMAKE_BUILD_TYPE} )
-	        endif()
 	    endforeach()
-	    #Installing Qt5DBus and Qt5XcbQpa libs on Linux64 platform and required Qt plugins on all platforms
+
+	    get_target_property( QT5CORE_LIBRARY Qt5::Core LOCATION )
+	    get_filename_component( QT_LIBRARY_DIR ${QT5CORE_LIBRARY} DIRECTORY )
+	    list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${QT_LIBRARY_DIR} )
+
+	    list( REMOVE_DUPLICATES OD_QT_LIBS )
+	    list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
+	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
+
+	    #Install only: linked and runtime dependent libraries supported by cmake
+	    foreach( MODNM ${OD_QTALLLIBS} )
+		OD_READ_QTMODINFO( Qt5::${MODNM} )
+		if( UNIX OR APPLE )
+		    OD_INSTALL_LIBRARY( ${QTLIBDIR}/${QTLIBSONAME} ${CMAKE_BUILD_TYPE} )
+		elseif( WIN32 )
+		    OD_INSTALL_LIBRARY( ${QTLIBLOC} ${CMAKE_BUILD_TYPE} )
+		endif()
+	    endforeach()
+
+	    #Install only, no direct cmake support
+	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
+	    install( DIRECTORY ${QTDIR}/resources
+		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+		     USE_SOURCE_PERMISSIONS )
+	    install( DIRECTORY ${QTDIR}/translations
+		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+		     USE_SOURCE_PERMISSIONS
+		     FILES_MATCHING
+		     PATTERN "qt_*.qm"
+		     PATTERN "qtbase_*.qm"
+		     PATTERN "qtwebengine_*.qm"
+		     PATTERN "qtwebengine_locales/*.pak" )
+
+	    if ( WIN32 )
+		set( QTPOSTFIX "" )
+		if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+		    set( QTPOSTFIX "d" )
+		endif()
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libEGL${QTPOSTFIX}.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libGLESv2${QTPOSTFIX}.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/opengl32sw${QTPOSTFIX}.dll ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
+	    else()
+		OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
+		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
+	    endif()
+
+	    set( QT_REQ_PLUGINS iconengines imageformats platforms )
 	    if ( UNIX )
 		if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-		    set( LIBNMS DBus XcbQpa )
-		    foreach( LIBNM ${LIBNMS} )
-			set( FILENM "libQt${QT_VERSION_MAJOR}${LIBNM}.so.${QT_VERSION_MAJOR}" )
-			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${CMAKE_BUILD_TYPE} )
-		    endforeach()
 		    set( ICU_VERSION_MAJOR "56" )
 		    set( LIBNMS i18n data uc )
 		    foreach( LIBNM ${LIBNMS} )
@@ -107,47 +156,21 @@ macro(OD_SETUP_QT)
 		    endforeach()
 		endif()
 		if ( NOT APPLE )
-		    install( DIRECTORY ${QTDIR}/plugins/xcbglintegrations
-			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
-			     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-			     USE_SOURCE_PERMISSIONS )
+		    list( APPEND QT_REQ_PLUGINS xcbglintegrations )
 	        endif()
 	    endif()
-
-	    if ( WIN32 )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess.exe ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libEGL.dll ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/libGLESv2.dll ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/opengl32sw.dll ${CMAKE_BUILD_TYPE} )
-	    else()
-		OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
-		OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
-	    endif()
-
-	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
-
-
-	    install( DIRECTORY ${QTDIR}/plugins/platforms
-		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
-		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		     USE_SOURCE_PERMISSIONS )
-	    install( DIRECTORY ${QTDIR}/resources
-		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
-		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		     USE_SOURCE_PERMISSIONS )
-	    install( DIRECTORY ${QTDIR}/translations
-		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
-		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		     USE_SOURCE_PERMISSIONS )
-
-	    get_target_property( QT5CORE_LIBRARY Qt5::Core LOCATION )
-	    get_filename_component( QT_LIBRARY_DIR ${QT5CORE_LIBRARY} DIRECTORY )
-	    list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${QT_LIBRARY_DIR} )
-
-	    list( REMOVE_DUPLICATES OD_QT_LIBS )
-	    list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
-	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
+	    foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
+		install( DIRECTORY ${QTDIR}/plugins/${QTPLUGIN}
+			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+			 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+			 USE_SOURCE_PERMISSIONS 
+			 FILES_MATCHING
+			 PATTERN "*.so"
+			 PATTERN "*.dll"
+			 PATTERN "*d.dll" EXCLUDE
+			 PATTERN "*.pdb" EXCLUDE
+			 PATTERN "*.so.debug" EXCLUDE )
+	    endforeach()
 
 	    if ( WIN32 )
 		set ( CMAKE_CXX_FLAGS "/wd4481 ${CMAKE_CXX_FLAGS}" )
@@ -161,6 +184,9 @@ macro(OD_SETUP_QT)
 	    endif()
 
 	    find_package( Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
+	    string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" QT_VERSION_MAJOR
+		   "${Qt5Core_VERSION_STRING}")
+	    set(QT_VERSION_MAJOR ${QT_VERSION_MAJOR} PARENT_SCOPE)
 
 	    include(${QT_USE_FILE})
 

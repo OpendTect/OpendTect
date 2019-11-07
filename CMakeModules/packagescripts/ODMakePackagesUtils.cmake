@@ -90,7 +90,7 @@ macro ( create_package PACKAGE_NAME )
     endforeach()
 
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" OR ${PACKAGE_NAME} STREQUAL "v7" )
-#Inslall lm 
+#Install lm 
 	foreach( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			      ${COPYFROMDATADIR}/${SPECFILE}
@@ -252,17 +252,20 @@ macro( copy_thirdpartylibs )
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMDATADIR}/imageformats
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/platforms
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMLIBDIR}/../resources
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMLIBDIR}/../translations
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMDATADIR}/iconengines
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMDATADIR}/imageformats
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/platforms
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
     if ( UNIX )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/xcbglintegrations
