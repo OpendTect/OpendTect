@@ -524,6 +524,14 @@ const T* BaseCalc<T>::sort( idx_type* idx_of_med )
 }
 
 
+template <> inline
+const float_complex* BaseCalc<float_complex>::sort( idx_type* idx_of_med )
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return nullptr;
+}
+
+
 template <class T>
 inline T BaseCalc<T>::computeWeightedMedian( idx_type* idx_of_med ) const
 {
