@@ -240,6 +240,12 @@ macro( copy_thirdpartylibs )
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/../translations
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMDATADIR}/iconengines
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/imageformats
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -249,6 +255,11 @@ macro( copy_thirdpartylibs )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/xcbglintegrations
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
+    endif()
+    if ( EXISTS ${COPYFROMLIBDIR}/../resources )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/../resources
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
     endif()
 endmacro( copy_thirdpartylibs )
 
