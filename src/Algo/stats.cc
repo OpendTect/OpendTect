@@ -95,7 +95,7 @@ void Stats::RandomGenerator::init( int seed )
 Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 {
     if ( t == Stats::Median )
-	{ needmed_ = true; return *this; }
+	{ needmed_ = true; needsorted_ = true; return *this; }
     else if ( t == Stats::MostFreq )
 	{ needmostfreq_ = true; return *this; }
     else if ( t >= Stats::Min && t <= Stats::Extreme )
