@@ -41,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 #include <stdio.h>
-#include <iostream>
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -930,7 +929,6 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 	    levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
 	    vwr_.addAuxData( levelad );
 	    levelads_ += levelad;
-	    std::cout << "auxdataidx: " << auxdataidx << std::endl;
 	}
 	else
 	    levelad = levelads_[auxdataidx];
