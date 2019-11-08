@@ -155,7 +155,7 @@ mExpClass(Basic) FullZSubSel
 public:
 
     mUseType( Pos,		GeomID );
-    mUseType( Pos::ZSubSel,	ZSubSel );
+    mUseType( Pos,		ZSubSel );
     mUseType( ZSubSel,		idx_type );
     mUseType( ZSubSel,		size_type );
     mUseType( Pos::ZSubSelData,	z_type );
