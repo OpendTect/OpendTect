@@ -52,6 +52,7 @@ mExpClass(uiIo) uiStartBatchJobDialog : public uiDialog
 public:
 
 				uiStartBatchJobDialog(uiParent*);
+				~uiStartBatchJobDialog();
 
 protected:
 

@@ -13,11 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uifont.h"
+#include "uiicon.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
-#include "uiicon.h"
 
 #include "bufstringset.h"
 #include "color.h"
@@ -205,8 +205,8 @@ void uiListBoxBody::removeAll()
 {
     QListWidget::clear();
     items_.erase();
-    itemstrings_.erase();
-    itemmarked_.erase();
+    itemstrings_.setEmpty();
+    itemmarked_.setEmpty();
 }
 
 
@@ -1085,7 +1085,10 @@ void uiListBox::setCurrentItem( int idx )
 
     mListBoxBlockCmdRec;
 
+    const int curitmidx = currentItem();
     lb_->body().setCurrentRow( idx );
+    if ( curitmidx == currentItem() )
+	selectionChanged.trigger(); // Qt won't trigger
     if ( choicemode_ == OD::ChooseOnlyOne )
 	lb_->body().item( idx )->setSelected( true );
 
