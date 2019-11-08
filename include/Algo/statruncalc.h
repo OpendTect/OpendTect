@@ -647,8 +647,8 @@ float_complex BaseCalc<float_complex>::mostFreq() const
 
 
 
-template <class T> inline
-RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
+template <class T>
+inline RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
 {
     nradded_++;
     if ( mIsUdf(val) )
