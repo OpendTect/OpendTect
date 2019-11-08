@@ -1146,7 +1146,10 @@ void uiListBox::setCurrentItem( int idx )
 
     mListBoxBlockCmdRec;
 
+    const int curitmidx = currentItem();
     lb_->body().setCurrentRow( idx );
+    if ( curitmidx == currentItem() )
+	selectionChanged.trigger(); // Qt won't trigger
     if ( choicemode_ == OD::ChooseOnlyOne )
 	lb_->body().item( idx )->setSelected( true );
 

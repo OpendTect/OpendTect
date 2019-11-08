@@ -135,9 +135,9 @@ uiStartBatchJobDialog::~uiStartBatchJobDialog()
 
 void uiStartBatchJobDialog::fillList( CallBacker* )
 {
-    uiUserShowWait usw( parent(), tr("Scanning Proc directory") );
-    const int curitm = jobsfld_->currentItem();
     NotifyStopper ns( jobsfld_->selectionChanged );
+
+    uiUserShowWait usw( parent(), tr("Scanning Proc directory") );
     jobsfld_->setEmpty();
     filenames_.setEmpty();
     const DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
@@ -157,9 +157,6 @@ void uiStartBatchJobDialog::fillList( CallBacker* )
 
     ns.enableNotification();
     jobsfld_->setCurrentItem( 0 );
-    if ( curitm == -1 && jobsfld_->size() == 1 &&
-	 jobsfld_->currentItem() == jobsfld_->size()-1 )
-	itmSel( nullptr );
 }
 
 
