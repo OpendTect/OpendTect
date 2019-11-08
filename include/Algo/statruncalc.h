@@ -353,7 +353,7 @@ double BaseCalc<T>::getValue( Stats::Type t ) const
 template <class T> inline
 CalcSetup::idx_type BaseCalc<T>::getIndex( Type t ) const
 {
-    idx_type ret;
+    idx_type ret = 0;
     switch ( t )
     {
 	case Min:		(void)min( &ret );	break;
@@ -837,7 +837,7 @@ double WindowedCalc<T>::getValue( Type t ) const
 template <class T> inline
 CalcSetup::idx_type WindowedCalc<T>::getIndex( Type t ) const
 {
-    idx_type ret;
+    idx_type ret = 0;
     switch ( t )
     {
 	case Min:		(void)min( &ret );	break;
