@@ -133,7 +133,6 @@ uiStartBatchJobDialog::~uiStartBatchJobDialog()
 
 void uiStartBatchJobDialog::fillList( CallBacker* )
 {
-    const int curitm = jobsfld_->currentItem();
     NotifyStopper ns( jobsfld_->selectionChanged );
     jobsfld_->setEmpty();
     filenames_.setEmpty();
