@@ -47,10 +47,12 @@ public:
 			    , needextreme_(false)
 			    , needsums_(false)
 			    , needmed_(false)
+			    , needsorted_(false)
 			    , needvariance_(false)
 			    , needmostfreq_(false)	{}
 
     CalcSetup&	require(Type);
+    void		setNeedSorted( bool yn=true )	{ needsorted_ = yn; }
 
     static int		medianEvenHandling();
 
@@ -58,6 +60,7 @@ public:
     bool		needExtreme() const	{ return needextreme_; }
     bool		needSums() const	{ return needsums_; }
     bool		needMedian() const	{ return needmed_; }
+    bool		needSorted() const	{ return needsorted_; }
     bool		needMostFreq() const	{ return needmostfreq_; }
     bool		needVariance() const	{ return needvariance_; }
 
@@ -76,6 +79,7 @@ protected:
     bool		needextreme_;
     bool		needsums_;
     bool		needmed_;
+    bool		needsorted_;
     bool		needmostfreq_;
     bool		needvariance_;
 
@@ -119,7 +123,7 @@ public:
 
     inline bool		hasUndefs() const	{ return nrused_ != nradded_; }
     inline size_type	size( bool used=true ) const
-			{ return used ? nrused_ : nradded_; }
+			{ return used ? (size_type)nrused_ : nradded_; }
 
     inline bool		isEmpty() const		{ return size() == 0; }
 
@@ -138,9 +142,9 @@ public:
     virtual inline double variance() const;
 
     inline T		clipVal(float ratio,bool upper) const;
-			//!< require median; 0 <= ratio <= 1
+			//!< requires sort; 0 <= ratio <= 1
 
-    TypeSet<T>		medvals_;
+    const T*		medValsArr() const	{ return medvals_.arr(); }
 
 protected:
 			BaseCalc( const CalcSetup& s )
@@ -149,7 +153,7 @@ protected:
     CalcSetup		setup_;
 
     size_type		nradded_;
-    size_type		nrused_;
+    Threads::Atomic<size_type>	nrused_;
     idx_type		minidx_;
     idx_type		maxidx_;
     T			minval_;
@@ -159,12 +163,19 @@ protected:
     T			sum_w_;
     T			sum_wx_;
     T			sum_wxx_;
+    bool		issorted_ = false;
 
     LargeValVec<idx_type>	clss_;
     LargeValVec<T>	clsswt_;
+    LargeValVec<T>	medvals_;
     LargeValVec<T>	medwts_;
+    LargeValVec<idx_type>	medidxs_;
 
-    inline bool		isZero( const T& t ) const;
+    inline bool		isZero(const T&) const;
+    virtual const T*	sort(idx_type* index_of_median =nullptr);
+    T			computeMedian(idx_type* index_of_median =nullptr) const;
+    T			computeWeightedMedian(
+				      idx_type* index_of_median =nullptr) const;
 };
 
 
@@ -213,8 +224,6 @@ public:
 
     inline RunCalc<T>&	operator +=( T t )	{ return addValue(t); }
 
-    using BaseCalc<T>::medvals_;
-
 protected:
 
     inline void		setMostFrequent(T val,T wt);
@@ -233,6 +242,7 @@ protected:
     using BaseCalc<T>::sum_wxx_;
     using BaseCalc<T>::clss_;
     using BaseCalc<T>::clsswt_;
+    using BaseCalc<T>::medvals_;
     using BaseCalc<T>::medwts_;
 };
 
@@ -310,7 +320,9 @@ void BaseCalc<T>::clear()
     sum_x_ = sum_w_ = sum_xx_ = sum_wx_ = sum_wxx_ = 0;
     nradded_ = nrused_ = minidx_ = maxidx_ = 0;
     minval_ = maxval_ = mUdf(T);
-    clss_.erase(); clsswt_.erase(); medvals_.erase(); medwts_.erase();
+    clss_.setEmpty(); clsswt_.setEmpty();
+    medvals_.setEmpty(); medwts_.setEmpty(); medidxs_.setEmpty();
+    issorted_ = false;
 }
 
 
@@ -487,17 +499,130 @@ inline T BaseCalc<T>::extreme( idx_type* index_of_extr ) const
 }
 
 
+template <class T> inline
+const T* BaseCalc<T>::sort( idx_type* idx_of_med )
+{
+    T* valarr = medvals_.arr();
+    const bool withidxs = idx_of_med || setup_.weighted_;
+    if ( issorted_ &&
+	 ( (withidxs && medidxs_.size()==nrused_) || (!withidxs) ) )
+	return valarr;
+
+    if ( withidxs )
+    {
+	if ( medidxs_.size() != nrused_ )
+	{
+	    medidxs_.setSize( nrused_, 0 );
+	    for ( idx_type idx=0; idx<nrused_; idx++ )
+		medidxs_[idx] = idx;
+	}
+
+	quickSort( valarr, medidxs_.arr(), nrused_ );
+    }
+    else
+	quickSort( valarr, nrused_ );
+
+    return valarr;
+}
+
+
+template <> inline
+const float_complex* BaseCalc<float_complex>::sort( idx_type* idx_of_med )
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return nullptr;
+}
+
+
+template <class T>
+inline T BaseCalc<T>::computeWeightedMedian( idx_type* idx_of_med ) const
+{
+    const T* valarr = medvals_.arr();
+    const T* wts = medwts_.arr();
+    const size_type sz = nrused_;
+    T* wtcopy = new T[sz];
+    OD::memCopy( wtcopy, wts, sz*sizeof(T) );
+    double wsum = 0;
+    const idx_type* idxs = medidxs_.arr();
+    for ( idx_type idx=0; idx<sz; idx++ )
+    {
+	const_cast<T&>(wts[idx]) = wtcopy[ idxs[idx] ];
+	wsum += (double) wts[idx];
+    }
+    delete [] wtcopy;
+
+    const_cast<LargeValVec<idx_type>&>( medidxs_ ).setEmpty();
+    const double hwsum = wsum * 0.5;
+    wsum = 0;
+    idx_type medidx = 0;
+    for ( size_type idx=0; idx<sz; idx++ )
+    {
+	wsum += (double) wts[idx];
+	if ( wsum >= hwsum )
+	    { medidx = idx; break; }
+    }
+
+    if ( idx_of_med ) *idx_of_med = medidx;
+
+    return valarr[sz/2];
+}
+
+
+template <class T>
+inline T BaseCalc<T>::computeMedian( idx_type* idx_of_med ) const
+{
+    const T* valarr = medvals_.arr();
+    const size_type sz = nrused_;
+    idx_type mididx = sz/2;
+    if ( idx_of_med )
+    {
+	const idx_type* idxs = medidxs_.arr();
+	*idx_of_med = idxs[ mididx ];
+	const_cast<LargeValVec<idx_type>&>( medidxs_ ).setEmpty();
+    }
+
+    if ( sz%2 == 0 )
+    {
+	const int policy = setup_.medianEvenHandling();
+	if ( policy == 0 )
+	    return (valarr[mididx] + valarr[mididx-1]) / 2;
+	else if ( policy == 1 )
+	    mididx--;
+    }
+
+    return valarr[mididx];
+}
+
+
+template <class T>
+inline T BaseCalc<T>::median( idx_type* index_of_median ) const
+{
+    mBaseCalc_ChkEmpty(T);
+    const size_type sz = nrused_;
+    if ( sz == 1 )
+    {
+	if ( index_of_median ) *index_of_median = 0;
+	return medvals_[0];
+    }
+
+    const_cast<BaseCalc<T>&>( *this ).sort( index_of_median );
+    return setup_.weighted_ ? computeWeightedMedian( index_of_median )
+			    : computeMedian( index_of_median );
+}
+
+
 template <class T>
 inline T BaseCalc<T>::clipVal( float ratio, bool upper ) const
 {
     mBaseCalc_ChkEmpty(T);
-    (void)median();
-    const size_type lastidx = medvals_.size();
+    const T* vararr = const_cast<BaseCalc<T>&>( *this ).sort();
+
+    const size_type lastidx = nrused_;
     const float fidx = ratio * lastidx;
     const idx_type idx = fidx <= 0 ? 0
 				   : (fidx > lastidx ? lastidx
 						     : (idx_type)fidx);
-    return medvals_[upper ? lastidx - idx : idx];
+    return vararr[upper ? lastidx - idx : idx];
 }
 
 
@@ -523,95 +648,9 @@ float_complex BaseCalc<float_complex>::mostFreq() const
 { return mUdf(float_complex); }
 
 
-template <class T> inline
-T computeMedian( const T* data, CalcSetup::size_type sz, int pol,
-		 CalcSetup::idx_type* idx_of_med )
-{
-    if ( idx_of_med ) *idx_of_med = 0;
-    if ( sz < 2 )
-	return sz < 1 ? mUdf(T) : data[0];
-
-    CalcSetup::idx_type mididx = sz / 2;
-    T* valarr = const_cast<T*>( data );
-    if ( !idx_of_med )
-    {
-	if ( sz<=255 || !is8BitesData(valarr,sz,100) ||
-	     !duplicate_sort(valarr,sz,256) )
-	{
-	    quickSort( valarr, sz );
-	}
-    }
-    else
-    {
-	mGetIdxArr( CalcSetup::idx_type, idxs, sz );
-	quickSort( valarr, idxs, sz );
-	*idx_of_med = idxs[ mididx ];
-	delete [] idxs;
-    }
-
-    if ( sz%2 == 0 )
-    {
-	if ( pol == 0 )
-	    return (data[mididx] + data[mididx-1]) / 2;
-	else if ( pol == 1 )
-	   mididx--;
-    }
-
-    return data[ mididx ];
-}
-
-
-template <class T> inline
-T computeWeightedMedian( const T* data, const T* wts, CalcSetup::size_type sz,
-			 CalcSetup::idx_type* idx_of_med )
-{
-    if ( idx_of_med ) *idx_of_med = 0;
-    if ( sz < 2 )
-	return sz < 1 ? mUdf(T) : data[0];
-
-    T* valarr = const_cast<T*>( data );
-    mGetIdxArr( CalcSetup::idx_type, idxs, sz );
-    quickSort( valarr, idxs, sz );
-    T* wtcopy = new T[sz];
-    OD::memCopy( wtcopy, wts, sz*sizeof(T) );
-    float wsum = 0;
-    for ( CalcSetup::idx_type idx=0; idx<sz; idx++ )
-    {
-	const_cast<T&>(wts[idx]) = wtcopy[ idxs[idx] ];
-	wsum += (float) wts[idx];
-    }
-    delete [] idxs;
-
-    const float hwsum = wsum * 0.5f;
-    wsum = 0;
-    CalcSetup::idx_type medidx = 0;
-    for ( CalcSetup::idx_type idx=0; idx<sz; idx++ )
-    {
-	wsum += (float) wts[idx];
-	if ( wsum >= hwsum )
-	    { medidx = idx; break; }
-    }
-    if ( idx_of_med ) *idx_of_med = medidx;
-    return valarr[ medidx ];
-}
-
 
 template <class T>
-inline T BaseCalc<T>::median( BaseCalc<T>::idx_type* idx_of_med ) const
-{
-    const int policy = setup_.medianEvenHandling();
-    const size_type sz = medvals_.size();
-    const T* vals = medvals_.arr();
-    return setup_.weighted_ ?
-	  computeWeightedMedian( vals, medwts_.arr(), sz, idx_of_med )
-	: computeMedian( vals, sz, policy, idx_of_med );
-}
-
-
-
-
-template <class T> inline
-RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
+inline RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
 {
     nradded_++;
     if ( mIsUdf(val) )
@@ -619,8 +658,9 @@ RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
     if ( setup_.weighted_ && (mIsUdf(wt) || this->isZero(wt)) )
 	return *this;
 
-    if ( setup_.needmed_ )
+    if ( setup_.needmed_ || setup_.needsorted_ )
     {
+	BaseCalc<T>::issorted_ = false;
 	medvals_ += val;
 	if ( setup_.weighted_ )
 	    medwts_ += wt;
@@ -685,7 +725,7 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
     if ( setup_.weighted_ && (mIsUdf(wt) || this->isZero(wt)) )
 	return *this;
 
-    if ( setup_.needmed_ )
+    if ( setup_.needmed_ || setup_.needsorted_ )
     {
 	size_type idx = medvals_.size();
 	while ( true )
