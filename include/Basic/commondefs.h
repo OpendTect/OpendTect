@@ -142,10 +142,12 @@ inline T& getNonConst( const T& t )
 #else
 # define mUseType(scope,typ)		typedef typename scope::typ typ
 #endif
+//In template classes:
+#define mUseTemplType(scope,typ)	typedef typename scope::typ typ
 
-# define mGetDynamicCast(typ,in)	dynamic_cast< typ >( in );
-# define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
-# define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
+#define mGetDynamicCast(typ,in)	dynamic_cast< typ >( in );
+#define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
+#define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 
 #define mDefSetupClssMemb(clss,typ,memb) \
 	typ	memb##_; \

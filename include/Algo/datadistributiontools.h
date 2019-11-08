@@ -25,8 +25,8 @@ public:
     typedef MonitorableIterBase< typename DataDistribution<VT>::idx_type >
 						base_type;
     typedef DataDistribution<VT>	DistribType;
-    mUseType( DistribType,		pos_type );
-    mUseType( DistribType,		idx_type );
+    mUseTemplType( DistribType,	pos_type );
+    mUseTemplType( DistribType,	idx_type );
 
     inline	    DataDistributionIter( const DistribType& d )
 			: MonitorableIter4Read<idx_type>(d,0,d.size()-1) {}
@@ -59,10 +59,10 @@ mClass(Algo) DataDistributionInfoExtracter
 public:
 
     typedef DataDistribution<VT>	DistribType;
-    mUseType( DistribType,		pos_type );
-    mUseType( DistribType,		idx_type );
-    mUseType( DistribType,		value_type );
-    mUseType( DistribType,		SetType );
+    mUseTemplType( DistribType,	pos_type );
+    mUseTemplType( DistribType,	idx_type );
+    mUseTemplType( DistribType,	value_type );
+    mUseTemplType( DistribType,	SetType );
 
     inline		DataDistributionInfoExtracter( const DistribType& d )
 			    : distrib_(d)		{}
@@ -91,10 +91,10 @@ mClass(Algo) DataDistributionChanger
 public:
 
     typedef DataDistribution<VT>	DistribType;
-    mUseType( DistribType,		pos_type );
-    mUseType( DistribType,		idx_type );
-    mUseType( DistribType,		value_type );
-    mUseType( DistribType,		SetType );
+    mUseTemplType( DistribType,	pos_type );
+    mUseTemplType( DistribType,	idx_type );
+    mUseTemplType( DistribType,	value_type );
+    mUseTemplType( DistribType,	SetType );
 
     inline		DataDistributionChanger( DistribType& d )
 			    : distrib_(d)		{}
