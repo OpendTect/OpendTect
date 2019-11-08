@@ -96,8 +96,11 @@ protected:
 
     union Header
     {
+			Header()
+			{ int32s_[0] = 0; int32s_[1] = 0; int16s_[4] = 0; };
+
 	od_int32	int32s_[2];
-	od_int16	int16s_[5] = {0,0,0,0,0}; //!< only int16s_[4] is used
+	od_int16	int16s_[5]; //!< only int16s_[4] is used
     };
 
 
