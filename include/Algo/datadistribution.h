@@ -47,8 +47,8 @@ public:
     typedef VT			value_type;
     typedef value_type		pos_type;
     typedef TypeSet<VT>		SetType;
-    mUseType( SetType,		size_type );
-    mUseType( SetType,		idx_type );
+    mUseTemplType( SetType,		size_type );
+    mUseTemplType( SetType,		idx_type );
     typedef SamplingData<pos_type> SamplingType;
     typedef Interval<VT>	RangeType;
 
