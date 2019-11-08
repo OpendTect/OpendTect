@@ -151,7 +151,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 		    const BufferString oldlnm(
 			    S2DPOS().getLineSet(l2dkey.lsID()), "-",
 				S2DPOS().getLineName(l2dkey.lineID()) );
-		    geomid = SurvGeom::Geometry::getGeomID( oldlnm );
+		    geomid = Survey::Geometry::getGeomID( oldlnm );
 		}
 	    }
 
