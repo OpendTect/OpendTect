@@ -90,16 +90,16 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))
     , hdl_(*new const HostDataList(false))
-    , avmachfld_(0), usedmachfld_(0)
-    , nicefld_(0)
-    , logvwer_(0)
-    , progrfld_(0)
-    , progbar_(0)
-    , jrpstartfld_(0), jrpstopfld_(0)
-    , jobrunner_(0)
-    , timer_(0)
+    , avmachfld_(nullptr), usedmachfld_(nullptr)
+    , nicefld_(nullptr)
+    , logvwer_(nullptr)
+    , progrfld_(nullptr)
+    , progbar_(nullptr)
+    , jrpstartfld_(nullptr), jrpstopfld_(nullptr)
+    , jobrunner_(nullptr)
+    , timer_(nullptr)
     , nrcyclesdone_(0)
-    , basecaption_(tr("Distributed Processing"))
+    , basecaption_(tr("Distributed Computing"))
 {
     setCaption( basecaption_ );
 
@@ -144,9 +144,9 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     uiListBox::Setup su( OD::ChooseOnlyOne,
 		multihost ? tr("Used hosts") : uiString::emptyString(),
 		uiListBox::AboveMid );
+    su.prefnrlines( isMultiHost() ? maxhostdisp : 1 );
     usedmachfld_ = new uiListBox( usedmachgrp, su );
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
-    usedmachfld_->setPrefHeightInChar( maxhostdisp );
 
     uiButton* stopbut = new uiPushButton( usedmachgrp,
 					  uiStrings::sStop(), true );
@@ -156,23 +156,27 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld_ );
 
-    uiButton* addbut;
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld_ );
-	addbut = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
+
+	uiPushButton* stopallbut =
+		new uiPushButton( machgrp, tr("Stop all"), true );
+	stopallbut->activated.notify(
+		mCB(this,uiMMBatchJobDispatcher,stopAllPush) );
+	addbut_ = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
 	if ( avmachfld_ )
-	    addbut->attach( centeredRightOf, avmachfld_ );
-	usedmachgrp->attach( ensureRightOf, addbut );
+	    addbut_->attach( centeredRightOf, avmachfld_ );
+	usedmachgrp->attach( ensureRightOf, addbut_ );
     }
     else
     {
-	addbut = new uiPushButton( usedmachgrp, tr("Start"), true );
-	addbut->attach( alignedBelow, usedmachfld_ );
+	addbut_ = new uiPushButton( usedmachgrp, tr("Start"), true );
+	addbut_->attach( alignedBelow, usedmachfld_ );
 	stopbut->attach( centeredBelow, usedmachfld_ );
 	machgrp->setHAlignObj( stopbut );
     }
-    addbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,addPush) );
+    addbut_->activated.notify( mCB(this,uiMMBatchJobDispatcher,addPush) );
 
     if ( sep )
 	machgrp->attach( ensureBelow, sep );
@@ -297,8 +301,8 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 
     if ( jobrunner_->nextStep() == Executor::ErrorOccurred() )
     {
-	delete jobrunner_;
-	jobrunner_ = 0;
+	deleteAndZeroPtr( jobrunner_ );
+	addbut_->setSensitive( true );
 	return;
     }
 
@@ -348,8 +352,18 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 void uiMMBatchJobDispatcher::stopPush( CallBacker* )
 {
     const int rhidx = runnerHostIdx( curUsedMachName() );
-    if ( rhidx >= 0 )
-	jobrunner_->removeHost( rhidx );
+    if ( !jobrunner_ || rhidx<0 )
+	return;
+
+    jobrunner_->removeHost( rhidx );
+    addbut_->setSensitive( true );
+}
+
+
+void uiMMBatchJobDispatcher::stopAllPush( CallBacker* )
+{
+    if ( jobrunner_ )
+	jobrunner_->stopAll();
 }
 
 
@@ -687,6 +701,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
     if ( nrsel < 1 )
 	mErrRet(tr("Please select one or more hosts"))
 
+    MouseCursorChanger cursorchanger(MouseCursor::Wait);
     if ( !jobrunner_ )
     {
 	startWork( 0 );
@@ -728,20 +743,22 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	    progrfld_->append( msg.getFullString() );
 	}
     }
+
+    if ( hdl_.size() == 1 )
+	addbut_->setSensitive( false );
 }
 
 
 const char* uiMMBatchJobDispatcher::curUsedMachName()
 {
    mDeclStaticString( mach );
-   mach = usedmachfld_->getText();
+   mach = isMultiHost() ? usedmachfld_->getText() : usedmachfld_->textOfItem(0);
 
    char* ptr = mach.find( " -:- ");
    if ( ptr ) *ptr='\0';
 
    return mach;
 }
-
 
 
 int uiMMBatchJobDispatcher::runnerHostIdx( const char* mach ) const

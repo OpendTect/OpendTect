@@ -14,17 +14,19 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 
-class Timer;
 class Executor;
-class JobRunner;
 class HostDataList;
-class uiLabel;
-class uiSlider;
-class uiListBox;
-class uiTextEdit;
-class uiGenInput;
+class JobRunner;
+class Timer;
+
+class uiButton;
 class uiComboBox;
+class uiGenInput;
+class uiLabel;
+class uiListBox;
 class uiProgressBar;
+class uiSlider;
+class uiTextEdit;
 class uiTextFileDlg;
 
 
@@ -73,6 +75,7 @@ private:
     uiGenInput*		jrpstartfld_;
     uiGenInput*		jrpstopfld_;
     uiLabel*		jrpworklbl_;
+    uiButton*		addbut_;
 
     bool		retFullFailGoOnMsg();
     bool		rejectOK(CallBacker*);
@@ -82,6 +85,7 @@ private:
     void		doCycle(CallBacker*);
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
+    void		stopAllPush(CallBacker*);
     void		vwLogPush(CallBacker*);
     void		jrpSel(CallBacker*);
     void		jobPrep(CallBacker*);
