@@ -963,7 +963,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( installmnu_, m3Dots(tr("Connection Settings")),
 		 mInstConnSettsMnuItm );
     mInsertItem( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
-    mInsertItem( installmnu_, m3Dots(tr("Setup Distributed Processing")),
+    mInsertItem( installmnu_, m3Dots(tr("Setup Distributed Computing")),
 		 mSetupBatchItm);
     mInsertItem( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
 

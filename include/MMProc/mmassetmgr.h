@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 
-/*!\brief Distributed Processing*/
+/*!\brief Distributed Computing*/
 
 namespace MMProc
 {

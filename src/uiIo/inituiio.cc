@@ -34,8 +34,9 @@ uiMMBatchJobDispatcherLauncher( Batch::JobSpec& js )
     : uiBatchJobDispatcherLauncher(js) {}
 
 mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
-		       uiMMBatchJobDispatcherLauncher,
-		       Batch::JobSpec&,"Distributed",tr("Distributed"));
+			uiMMBatchJobDispatcherLauncher,
+			Batch::JobSpec&,"Multi-Machine",
+			tr("Distributed Computing"));
 
     virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
     Batch::MMJobDispatcher		jd_;

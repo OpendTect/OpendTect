@@ -40,7 +40,7 @@ static const int sDataRootCol	= 4;
 
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Setup Distributed Processing"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Setup Distributed Computing"),mNoDlgTitle,
 		       mODHelpKey(mBatchHostsDlgHelpID)))
     , hostdatalist_(*new HostDataList(true))
 {
