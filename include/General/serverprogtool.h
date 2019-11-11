@@ -74,7 +74,12 @@ public:
     od_ostream&		outStream() const;
 
     static const char*	sListUsrCmd()	    { return "list"; }
+    static const char*	sExistsUsrCmd()     { return "exists"; }
     static const char*	sInfoUsrCmd()	    { return "info"; }
+    static const char*	sAllUsrCmd()	    { return "all"; }
+    static const char*	sKeyTransGrp(int n=1)
+			{ return n<2 ? "TranslatorGroup"
+				     : "TranslatorGroups"; }
 
     void		setDBMDataSource();
 

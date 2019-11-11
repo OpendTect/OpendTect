@@ -23,10 +23,13 @@ static const int cProtocolNr = 1;
 static const char* sStatusCmd		= "status";
 static const char* sListCmd		= ServerProgTool::sListUsrCmd();
 static const char* sListSurvCmd		= "list-surveys";
+static const char* sExistsCmd		= ServerProgTool::sExistsUsrCmd();
 static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
+static const char* sAllCmd		= ServerProgTool::sAllUsrCmd();
 static const char* sCreateCmd		= "create";
 static const char* sRemoveCmd		= "remove";
 static const char* sFileNameArg		= "filename";
+static const char* sTrlGrpArg		= "trl-grp";
 
 class DBManServerTool : public ServerProgTool
 {
@@ -35,7 +38,9 @@ public:
 
     void	    listSurveys();
     void	    listObjs();
+    void	    checkExists();
     void	    provideInfo();
+    void	    provideInfo(const IOObj&,bool all);
     void	    removeObj();
     void	    createObj();
 
@@ -75,23 +80,28 @@ void DBManServerTool::listSurveys()
 void DBManServerTool::listObjs()
 {
     const BufferString trgrpnm = getKeyedArgStr( sListCmd );
+    const bool alltrlgrps = clp().hasKey( sAllCmd );
     auto dbdir = DBM().findDir( trgrpnm );
-    BufferStringSet nms, types, trls; DBKeySet ids;
+    BufferStringSet nms, types, trls, trlgrps; DBKeySet ids;
     bool havetype = false;
     if ( dbdir )
     {
 	DBDirIter it( *dbdir );
 	while ( it.next() )
 	{
-	    if ( !it.ioObj().isTmp() && it.ioObj().group() == trgrpnm )
+	    if ( !it.ioObj().isTmp() &&
+		 ( alltrlgrps ||
+		   (!alltrlgrps && it.ioObj().group() == trgrpnm) ) )
 	    {
 		nms.add( it.ioObj().name() );
 		ids.add( it.ioObj().key() );
 		trls.add( it.ioObj().translator() );
-		BufferString typ( it.ioObj().pars().find("Type") );
-		typ.remove( ' ' );
-		if ( !typ.isEmpty() )
-		    { havetype = true; typ.replace( '`', '|' ); }
+		if ( alltrlgrps )
+		    trlgrps.add( it.ioObj().group() );
+
+		BufferString typ;
+		if ( it.ioObj().pars().get(sKey::Type(),typ) && !typ.isEmpty() )
+		    havetype = true;
 		types.add( typ );
 	    }
 	}
@@ -101,9 +111,60 @@ void DBManServerTool::listObjs()
     set( sKey::ID(mPlural), ids );
     set( sKey::Name(mPlural), nms );
     set( sKey::Format(mPlural), trls );
+    if ( !trlgrps.isEmpty() )
+	set( ServerProgTool::sKeyTransGrp(mPlural), trlgrps );
     if ( havetype )
 	set( sKey::Type(mPlural), types );
 
+    respondInfo( true );
+}
+
+
+void DBManServerTool::checkExists()
+{
+    const BufferString objnm = getKeyedArgStr( sExistsCmd );
+    if ( objnm.isEmpty() )
+	respondError( "Incorrect usage: no object name provided" );
+
+    const BufferString trlgrpnm = getKeyedArgStr( sTrlGrpArg, false );
+    if ( trlgrpnm.isEmpty() )
+    {
+	const EnumDefImpl<IOObjContext::StdSelType>& stdseltypimpl =
+						IOObjContext::StdSelTypeDef();
+	for ( int idx=0; idx<stdseltypimpl.size()-1; idx++ )
+	{
+	    auto dbdir = DBM().fetchDir( stdseltypimpl.getEnumForIndex(idx) );
+	    if ( !dbdir )
+		continue;
+	    DBDirIter it( *dbdir );
+	    while ( it.next() )
+	    {
+		if ( it.ioObj().name() != objnm )
+		    continue;
+		provideInfo( it.ioObj(), true );
+		respondInfo( true );
+		return;
+	    }
+	}
+    }
+    else
+    {
+	auto dbdir = DBM().findDir( trlgrpnm );
+	if ( !dbdir )
+	    respondError( "No database directory for object found" );
+
+	DBDirIter it( *dbdir );
+	while ( it.next() )
+	{
+	    if ( it.ioObj().name() != objnm )
+		continue;
+	    provideInfo( it.ioObj(), true );
+	    respondInfo( true );
+	    return;
+	}
+    }
+
+    set( "message", "Input object key not found" );
     respondInfo( true );
 }
 
@@ -112,18 +173,26 @@ void DBManServerTool::provideInfo()
 {
     const DBKey dbky = getDBKey( sInfoCmd );
     PtrMan<IOObj> ioobj = getIOObj( dbky );
-    if ( !ioobj )
+    if ( !ioobj.ptr() )
 	respondError( "Input object key not found" );
 
-    set( sKey::ID(), ioobj->key() );
-    set( sKey::Name(), ioobj->name() );
-    set( sKey::Format(), ioobj->translator() );
-    set( sKey::FileName(), ioobj->mainFileName() );
-    const char* typstr = ioobj->pars().find( sKey::Type() );
-    if ( typstr && *typstr )
-	set( sKey::Type(), typstr );
+    provideInfo( *ioobj.ptr(), clp().hasKey(sAllCmd) );
 
     respondInfo( true );
+}
+
+
+void DBManServerTool::provideInfo( const IOObj& ioobj, bool all )
+{
+    set( sKey::ID(), ioobj.key() );
+    set( sKey::Name(), ioobj.name() );
+    set( sKey::Format(), ioobj.translator() );
+    if ( all )
+	set( ServerProgTool::sKeyTransGrp(), ioobj.group() );
+    BufferString typ;
+    if ( ioobj.pars().get(sKey::Type(),typ) && !typ.isEmpty() )
+	set( sKey::Type(), typ );
+    set( sKey::FileName(), ioobj.mainFileName() );
 }
 
 
@@ -179,6 +248,8 @@ BufferString DBManServerTool::getSpecificUsage() const
     addToUsageStr( ret, sStatusCmd, "" );
     addToUsageStr( ret, sListSurvCmd, "" );
     addToUsageStr( ret, sListCmd, "trl_group_name" );
+    addToUsageStr( ret, sAllCmd, "output information for all groups" );
+    addToUsageStr( ret, sExistsCmd, "obj_name [--trl-grp trl_group_name]" );
     addToUsageStr( ret, sInfoCmd, "object_id" );
     addToUsageStr( ret, sRemoveCmd, "object_id" );
     addToUsageStr( ret, sCreateCmd, "obj_name dir_id trl_group_name trl_name "
@@ -211,11 +282,13 @@ int main( int argc, char** argv )
 	st.respondInfo( !isbad );
     }
 
-    if ( clp.hasKey( sListCmd ) )
+    if ( clp.hasKey(sListCmd) )
 	st.listObjs();
-    else if ( clp.hasKey( sInfoCmd ) )
+    else if ( clp.hasKey(sExistsCmd) )
+	st.checkExists();
+    else if ( clp.hasKey(sInfoCmd) )
 	st.provideInfo();
-    else if ( clp.hasKey( sRemoveCmd ) )
+    else if ( clp.hasKey(sRemoveCmd) )
 	st.removeObj();
 
     const int cridx = clp.indexOf( sCreateCmd );
