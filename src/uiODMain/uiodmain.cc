@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiodhorattribmgr.h"
+#include "uiodservicemgr.h"
 
 #include "autosaver.h"
 #include "genc.h"
@@ -255,6 +256,8 @@ uiODMain::uiODMain( uiMain& a )
     if ( !useallcpus )
 	cputxt_ = tr("[cpu] %1/%2").arg( odnrcpus ).arg( systemnrcpus );
 
+    uiODServiceMgr::getMgr();
+
     postFinalise().notify( mCB(this,uiODMain,afterStartupCB) );
 }
 
@@ -276,6 +279,7 @@ uiODMain::~uiODMain()
     delete viewer2dmgr_;
     delete scenemgr_;
     delete applmgr_;
+    serviceMgr().stopServer();
 }
 
 
@@ -898,4 +902,10 @@ void uiODMain::exit( bool doconfirm )
 	closeApplication();
 
     uiapp_.exit(0);
+}
+
+
+uiODServiceMgr& uiODMain::serviceMgr()
+{
+    return uiODServiceMgr::getMgr();
 }

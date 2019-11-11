@@ -68,6 +68,7 @@ set( OD_MODULE_SOURCES
 	uiodtreeitem.cc
 	uiodprestart.cc
 	uiodprmantreeitem.cc
+	uiodservice.cc
 	uiofferinfo.cc
 	uipluginman.cc
 	uipositiontable.cc
