@@ -13,21 +13,15 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "uihistogramdisplay.h"
 
-#include "datapack.h"
-
-class uiHistogramDisplay;
-class uiLineItem;
-class uiTextItem;
-class uiAxisHandler;
-
-template <class T> class Array2D;
 
 mExpClass(uiTools) uiHistogramSel : public uiGroup
 {
 public:
-				uiHistogramSel(uiParent*,int an_id=0,
-						    bool fixdrawrg=true);
+    				uiHistogramSel(uiParent*,
+					       const uiHistogramDisplay::Setup&,
+					       int an_id=0);
 				~uiHistogramSel();
 
     int				ID() const		{ return id_; }

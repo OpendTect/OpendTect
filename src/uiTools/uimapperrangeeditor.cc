@@ -149,7 +149,7 @@ static uiLineItem* createLineItem( uiGraphicsScene& scene, int zval )
 void uiMapperRangeEditor::init()
 {
     uiGraphicsScene& scene = histogramdisp_->scene();
-    const int zval = 4;
+    const int zval = 40;
 
     leftcoltab_ = scene.addItem( new uiPixmapItem() );
     leftcoltab_->setZValue( zval );

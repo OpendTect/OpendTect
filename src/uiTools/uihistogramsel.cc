@@ -22,7 +22,8 @@ ________________________________________________________________________
 #include <math.h>
 
 
-uiHistogramSel::uiHistogramSel( uiParent* p, int id, bool fixdrawrg )
+uiHistogramSel::uiHistogramSel( uiParent* p,
+				const uiHistogramDisplay::Setup& su, int id )
     : uiGroup( p, "Histogram with slider" )
     , id_(id)
     , startpix_(mUdf(int))
@@ -30,9 +31,7 @@ uiHistogramSel::uiHistogramSel( uiParent* p, int id, bool fixdrawrg )
     , mousedown_(false)
     , rangeChanged(this)
 {
-    uiHistogramDisplay::Setup hsu;
-    hsu.border( uiBorder(20,20,20,20) );
-    hsu.fixdrawrg(fixdrawrg);
+    uiHistogramDisplay::Setup hsu( su );
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
 			     mCB(this,uiHistogramSel,mousePressed) );
@@ -72,9 +71,8 @@ bool uiHistogramSel::setDataPackID(
 {
     const bool retval = histogramdisp_->setDataPackID( dpid, dmid,version);
     const bool nodata = histogramdisp_->xVals().isEmpty();
-    datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
-    datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
-    cliprg_ = datarg_;
+    cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
+				: histogramdisp_->setup().xrg_;
     if ( retval )
 	drawAgain();
     return retval;
@@ -85,9 +83,8 @@ void uiHistogramSel::setData( const Array2D<float>* data )
 {
     histogramdisp_->setData( data );
     const bool nodata = histogramdisp_->xVals().isEmpty();
-    datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
-    datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
-    cliprg_ = datarg_;
+    cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
+				: histogramdisp_->setup().xrg_;
     drawAgain();
 }
 
@@ -96,9 +93,8 @@ void uiHistogramSel::setData( const float* array, int sz )
 {
     histogramdisp_->setData( array, sz );
     const bool nodata = histogramdisp_->xVals().isEmpty();
-    datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
-    datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
-    cliprg_ = datarg_;
+    cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
+				: histogramdisp_->setup().xrg_;
     drawAgain();
 }
 
@@ -113,7 +109,7 @@ void uiHistogramSel::setMarkValue( float val, bool forx )
 void uiHistogramSel::init()
 {
     uiGraphicsScene& scene = histogramdisp_->scene();
-    const int zval = 4;
+    const int zval = 40;
 
     minvaltext_ = scene.addItem(
 	new uiTextItem(uiStrings::sEmptyString(),Alignment::Right) );

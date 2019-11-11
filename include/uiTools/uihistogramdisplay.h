@@ -60,6 +60,7 @@ protected:
     bool			withheader_;
     uiTextItem*			header_ = nullptr;
     uiTextItem*			nitm_ = nullptr;
+    ObjectSet<uiRectItem>	baritems_;
 
     Interval<float>		mydrawrg_;
     bool			usemydrawrg_ = false;
@@ -68,6 +69,8 @@ protected:
     void			updateAndDraw();
     void			updateHistogram();
     void			setDataDPS(const DataPointSet&,int dpsidx);
+    virtual void		drawData();
+
 };
 
 #endif

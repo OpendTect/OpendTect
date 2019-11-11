@@ -27,7 +27,8 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 					bool withheader	)
     : uiFunctionDisplay( p, su.fillbelow(true).yannotinint(true)
 			    .noy2axis(true).noy2gridline(true)
-			    .yrg(Interval<float>(0,mUdf(float))) )
+			    .yrg(Interval<float>(0,mUdf(float)))
+			    .fixdrawrg(true) )
     , rc_(*new Stats::ParallelCalc<float>(Stats::CalcSetup(false)
 					    .require(Stats::Min)
 					    .require(Stats::Max)
@@ -47,18 +48,13 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 uiHistogramDisplay::~uiHistogramDisplay()
 {
     delete &rc_; delete header_; delete nitm_;
+    deepErase( baritems_ );
 }
 
 
 static int getNrIntervals( int nrpts )
 {
-    int res = nrpts / 25;
-    if ( res < 10 ) res = 10;
-    else if ( res < 20 ) res = 20;
-    else if ( res < 50 ) res = 50;
-    else res = 100;
-
-    return res;
+    return 100;
 }
 
 
@@ -247,6 +243,38 @@ void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 }
 
 
+void uiHistogramDisplay::drawData()
+{
+    const int nrpts = xvals_.size();
+    if ( nrpts < 2 )
+	return;
+
+    const float basepix = yax_->getPix( yax_->range().start );
+    float xwidth = xvals_[1] - xvals_[0];
+    for ( int idx=0; idx<nrpts; idx++ )
+    {
+	uiRectItem* baritem = baritems_.validIdx(idx) ? baritems_[idx] : 0;
+	const float xleft = idx ? (xvals_[idx] + xvals_[idx-1])/2
+	    			: xvals_[idx] - xwidth/2;
+	const float xright = idx==nrpts-1 ? xvals_[idx] + xwidth/2
+	    				  : (xvals_[idx] + xvals_[idx+1])/2;
+	const float origxpix = xax_->getPix( xleft );
+	const float barwidth = xax_->getPix( xright ) - origxpix;
+	const float barheight = yax_->getPix( yvals_[idx] ) - basepix;
+	if ( baritem )
+	{
+	    baritem->setRect( origxpix, basepix, barwidth, barheight );
+	    continue;
+	}
+	
+	baritem = scene().addRect( origxpix, basepix, barwidth, barheight );
+	baritem->setZValue( 30 );
+	baritem->setFillColor( Color(200,160,140) );
+	baritems_ += baritem;
+    }
+}
+
+
 void uiHistogramDisplay::updateAndDraw()
 {
     updateHistogram();
@@ -324,6 +352,8 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 				       Interval<float> xrg, int nrvals )
 {
     nrinpvals_ = nrvals;
+    const float xstep = xrg.width() / (histdata.size()-1);
+    setup_.xrg( Interval<float>(xrg.start-xstep/2, xrg.stop+xstep/2) );
     setVals( xrg, histdata.arr(), histdata.size() );
 }
 

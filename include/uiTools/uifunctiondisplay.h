@@ -46,8 +46,8 @@ public:
 				    , yrg_(mUdf(float),mUdf(float))
 				    , y2rg_(mUdf(float),mUdf(float))
 				    , bgcol_(Color::White())
-				    , ycol_(0,0,150)
-				    , y2col_(0,200,0)
+				    , ycol_(200,160,140)
+				    , y2col_(140,160,200)
 				    , ywidth_(2)
 				    , y2width_(2)
 				    , canvaswidth_(400)
@@ -241,6 +241,8 @@ protected:
     void			getAxisRanges(const TypeSet<float>& vals,
 					      const Interval<float>& setuprg,
 					      Interval<float>&) const;
+
+    virtual void		drawData();
 };
 
 

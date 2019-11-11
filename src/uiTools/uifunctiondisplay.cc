@@ -559,6 +559,18 @@ void uiFunctionDisplay::draw()
 	return;
 
     setUpAxis( havey2 );
+    drawData();
+    drawBorder();
+    drawMarkLines();
+}
+
+
+void uiFunctionDisplay::drawData()
+{
+    const bool havey = !yvals_.isEmpty();
+    const bool havey2 = !y2yvals_.isEmpty();
+    if ( !havey && !havey2 )
+	return;
 
     TypeSet<uiPoint> yptlist, y2ptlist;
     if ( havey )
@@ -578,9 +590,6 @@ void uiFunctionDisplay::draw()
     }
     else if ( y2markeritems_ )
 	y2markeritems_->setVisible( false );
-
-    drawBorder();
-    drawMarkLines();
 }
 
 
