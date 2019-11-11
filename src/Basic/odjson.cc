@@ -202,6 +202,14 @@ OD::JSON::ValArr::ValArr( const ValArr& oth )
 }
 
 
+BufferString OD::JSON::ValArr::dumpJSon() const
+{
+    StringBuilder sb;
+    dumpJSon( sb );
+    return sb.result();
+}
+
+
 void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 {
     StringBuilder sb;
@@ -560,6 +568,14 @@ uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz )
     uiRetVal uirv;
     gtByParse( buf, bufsz, uirv, this );
     return uirv;
+}
+
+
+BufferString OD::JSON::ValueSet::dumpJSon() const
+{
+    StringBuilder sb;
+    dumpJSon( sb );
+    return sb.result();
 }
 
 

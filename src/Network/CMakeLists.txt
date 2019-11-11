@@ -21,6 +21,7 @@ set ( OD_MODULE_SOURCES
 	netreqconnection.cc
 	netreqpacket.cc
 	netserver.cc
+	netservice.cc
 	netsocket.cc
 	oddlsite.cc
 	odhttp.cc
