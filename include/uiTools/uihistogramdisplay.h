@@ -57,8 +57,9 @@ protected:
     int				nrinpvals_;
     int				nrclasses_;
     bool			withheader_;
-    uiTextItem*			header_;
-    uiTextItem*			nitm_;
+    uiTextItem*			header_ = nullptr;
+    uiTextItem*			nitm_ = nullptr;
+    ObjectSet<uiRectItem>	baritems_;
 
     Interval<float>		mydrawrg_;
     bool			usemydrawrg_;
@@ -70,6 +71,8 @@ protected:
 
 public:
     void			setData(const Array3D<float>*);
+    virtual void		drawData();
+
 };
 
 
