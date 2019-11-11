@@ -48,12 +48,12 @@ class Fetcher; class Fetcher2D; class Fetcher3D;
 class VolFetcher; class LineFetcher; class PS2DFetcher; class PS3DFetcher;
 
 
-/*!\brief is the access point for seismic traces, from storage of DataPack.
+/*!\brief is the access point for seismic traces, from storage or DataPack.
 
  Instantiate a subclass and ask for what you need. The fetching can be done
  from multiple threads, but parameter setting has to be done before the start
  and is not MT-safe. There is a stand-alone goTo() which is MT-safe but can,
- by its nature, not be reliably used if in MT condiditions. Then you have to
+ by its nature, not be reliably used in MT condiditions. Then you have to
  reposition and get in one go, hence the 'getAt' functions.
 
  At or after instantiation, provide the DBKey with setInput. Then you can ask
