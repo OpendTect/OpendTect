@@ -951,6 +951,12 @@ void uiTreeViewItem::setIcon( int column, const char* iconname )
 }
 
 
+void uiTreeViewItem::removeIcon( int column )
+{
+    qItem()->setIcon( column, QIcon() );
+}
+
+
 void uiTreeViewItem::setPixmap( int column, const uiPixmap& pm )
 {
     mTreeViewBlockCmdRec;
