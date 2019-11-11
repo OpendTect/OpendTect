@@ -5,12 +5,42 @@ from odpy.oscommand import getODCommand, execCommand
 
 dbmanexe = 'od_DBMan'
 
-def getDBList(translnm,exenm=dbmanexe,args=None):
+def getDBList(translnm,alltrlsgrps=False,exenm=dbmanexe,args=None):
   cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
+  if alltrlsgrps:
+    cmd.append( '--all' )
   cmd.append( '--list' )
   cmd.append( translnm )
   return getDBDict( cmd )
+
+def getInfoFromDBListByNameOrKey(nm_or_key,dblist):
+  for (dbobjnm,objid,objfmt,objtrlgrp,objtyp) in \
+        zip(dblist['Names'],dblist['IDs'],dblist['Formats'], \
+            dblist['TranslatorGroups'],dblist['Types']):
+    if dbobjnm != nm_or_key and objid != nm_or_key:
+      continue
+    ret = {
+      'ID': objid,
+      'Name': dbobjnm,
+      'Format': objfmt,
+      'TranslatorGroup': objtrlgrp,
+    }
+    if len(objtyp) > 0:
+      ret.update({'Type': objtyp})
+    return ret
+
+def getInfoByName(objnm,translnm,exenm=dbmanexe,args=None ):
+  cmd = getODCommand(exenm,args)
+  cmd.append( '--json' )
+  cmd.append( '--exists' )
+  cmd.append( objnm )
+  cmd.append( '--trl-grp' )
+  cmd.append( translnm )
+  ret = getDBDict( cmd )
+  if not 'ID' in ret:
+    return None
+  return ret
 
 def getInfoByKey(objkey,exenm=dbmanexe,args=None ):
   cmd = getODCommand(exenm,args)
