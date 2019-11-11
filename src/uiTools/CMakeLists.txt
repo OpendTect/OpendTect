@@ -67,6 +67,7 @@ SET( OD_MODULE_SOURCES
 	uinotsaveddlg.cc
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc
+	uiodservice.cc
 	uiofferinfo.cc
 	uipluginman.cc
 	uipluginsel.cc

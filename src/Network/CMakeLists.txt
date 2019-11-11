@@ -33,6 +33,7 @@ set ( OD_MODULE_SOURCES
 	systeminfo.cc
 	netserver.cc
 	netsocket.cc
+	netservice.cc
 )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc)

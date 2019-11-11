@@ -28,11 +28,12 @@ class uiODSceneMgr;
 class uiODViewer2DMgr;
 class uiToolBar;
 class uiVisColTabEd;
+class uiODServiceMgr;
 
 
 mGlobal(uiODMain) uiODMain* ODMainWin();
 //!< Top-level access for plugins
-
+class uiODRequestServerMgr;
 
 /*!
 \brief OpendTect application top level object
@@ -54,6 +55,7 @@ public:
     uiODViewer2DMgr&	viewer2DMgr()	{ return *viewer2dmgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
     uiToolBar*		colTabToolBar()	{ return ctabtb_; }
+    uiODServiceMgr&	serviceMgr();
 
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
     Notifier<uiODMain>	sessionRestoreEarly; //!< Get data from pars, before vis

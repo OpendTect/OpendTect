@@ -14,12 +14,16 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "bufstringset.h"
+#include "odjson.h"
 
 #define mRequestPacketHeaderSize		10
 
 
 namespace Network
 {
+
+class PacketFiller;
+class PacketInterpreter;
 
 /*\brief Standardized packet that can be sent over a Tcp connection
 
@@ -37,7 +41,7 @@ namespace Network
   */
 
 mExpClass(Network) RequestPacket
-{
+{ mODTextTranslationClass(RequestPacket);
 public:
 			RequestPacket(od_int32 payloadsize=0);
 			~RequestPacket();
@@ -49,6 +53,7 @@ public:
     od_int32		payloadSize() const;
     const void*		payload() const;
     void		getStringPayload(BufferString&) const;
+    uiRetVal		getPayload(OD::JSON::Object&) const;
     od_int32		totalSize() const
 			{ return payloadSize() + mRequestPacketHeaderSize; }
 
@@ -59,6 +64,7 @@ public:
 
     void*		allocPayload(od_int32 size);
     void		setPayload(void*,od_int32 size); //!< buf becomes mine
+    bool		setPayload(const OD::JSON::Object&);
     void		setStringPayload(const char*);
 
     void		addErrMsg(BufferString&) const;
@@ -89,6 +95,10 @@ protected:
 
     friend class	PacketFiller;
     friend class	PacketInterpreter;
+
+    static OD::JSON::Object	getDefaultJsonHeader(bool fortxt,od_int32 sz);
+    PacketFiller*	finalize(const OD::JSON::Object&);
+    PacketInterpreter*	readJsonHeader(OD::JSON::Object&,uiRetVal&) const;
 
 public:
 
@@ -130,6 +140,8 @@ public:
     static int		sizeFor(const T*,int nrelems,bool rawmode=false);
     static int		sizeFor(bool);
     static int		sizeFor(const char*);
+    static int		sizeFor(const FixedString&);
+    static int		sizeFor(const BufferString&);
     static int		sizeFor(const OD::String&);
     static int		sizeFor(const BufferStringSet&);
 
@@ -139,6 +151,8 @@ public:
 			put(const T*,int nrelems,bool rawmode=false) const;
     const PacketFiller&	put(const char*) const;
     const PacketFiller&	put(bool) const;
+    const PacketFiller& put(const FixedString&) const;
+    const PacketFiller& put(const BufferString&) const;
     const PacketFiller&	put(const OD::String&) const;
     const PacketFiller&	put(const BufferStringSet&) const;
 
@@ -216,6 +230,16 @@ inline int PacketFiller::sizeFor( const char* str )
     return sizeFor( FixedString(str) );
 }
 
+inline int PacketFiller::sizeFor( const FixedString& str )
+{
+    return sizeFor( (const OD::String&) str );
+}
+
+inline int PacketFiller::sizeFor( const BufferString& str )
+{
+    return sizeFor( (const OD::String&) str );
+}
+
 inline int PacketFiller::sizeFor( const OD::String& str )
 {
     return sizeof(int) + str.size();
@@ -255,6 +279,16 @@ inline const PacketFiller& PacketFiller::put( const T* arr, int nrelems,
 inline const PacketFiller& PacketFiller::put( const char* str ) const
 {
     return put( FixedString(str) );
+}
+
+inline const PacketFiller& PacketFiller::put( const FixedString& str ) const
+{
+    return put( (const OD::String&) str );
+}
+
+inline const PacketFiller& PacketFiller::put( const BufferString& str ) const
+{
+    return put( (const OD::String&) str );
 }
 
 inline const PacketFiller& PacketFiller::put( const OD::String& str ) const

@@ -201,6 +201,14 @@ OD::JSON::ValArr::ValArr( const ValArr& oth )
 }
 
 
+BufferString OD::JSON::ValArr::dumpJSon() const
+{
+    BufferString bs;
+    dumpJSon( bs );
+    return bs;
+}
+
+
 void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 {
     const int sz = (size_type)set_->nrItems();
@@ -564,6 +572,14 @@ uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz )
     uiRetVal uirv;
     gtByParse( buf, bufsz, uirv, this );
     return uirv;
+}
+
+
+BufferString OD::JSON::ValueSet::dumpJSon() const
+{
+    BufferString bs;
+    dumpJSon( bs );
+    return bs;
 }
 
 

@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netserver.h"
 #include "timefun.h"
 #include "ptrman.h"
+#include "envvars.h"
+#include "systeminfo.h"
 
 using namespace Network;
 
@@ -428,7 +430,7 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 }
 
 
-RequestServer::RequestServer( unsigned short servport )
+RequestServer::RequestServer( unsigned short servport, const char* addr )
     : serverport_( servport )
     , server_( new Network::Server )
     , newConnection( this )
@@ -437,7 +439,7 @@ RequestServer::RequestServer( unsigned short servport )
 	return;
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
-    if ( !server_->listen( 0, serverport_ ) )
+    if ( !server_->listen( addr, serverport_ ) )
     {
 	errmsg_ = tr("Cannot start listening on port %1").arg( serverport_ );
     }
@@ -486,4 +488,53 @@ void RequestServer::newConnectionCB(CallBacker* cb)
     locker.unlockNow();
 
     newConnection.trigger();
+}
+
+
+bool RequestConnection::isPortFree( port_nr_type port, uiString* errmsg )
+{
+    const BufferString addr( System::localAddress() );
+    const RequestServer reqserv( port, addr );
+    const bool ret = reqserv.isOK();
+    if ( errmsg && !reqserv.errMsg().isEmpty() ) {
+	errmsg->setEmpty();
+	errmsg->append( reqserv.errMsg() );
+    }
+    return ret;
+}
+
+
+static Threads::Atomic<port_nr_type> lastusableport_ = 0;
+
+
+port_nr_type RequestConnection::getNextCandidatePort()
+{
+    if ( lastusableport_ == 0 )
+	lastusableport_ = (port_nr_type)GetEnvVarIVal( "OD_START_PORT", 20049 );
+    return lastusableport_ + 1;
+}
+
+
+port_nr_type RequestConnection::getUsablePort( port_nr_type portnr )
+{
+    uiRetVal uirv;
+    return getUsablePort( uirv, portnr, 100 );
+}
+
+
+port_nr_type RequestConnection::getUsablePort( uiRetVal& uirv,
+					    port_nr_type portnr, int nrtries )
+{
+    uiString errmsg;
+    if ( portnr == 0 )
+	portnr = getNextCandidatePort();
+
+    for ( int idx=0; idx<nrtries; idx++, portnr++ )
+    {
+	if ( isPortFree(portnr,&errmsg) )
+	{ lastusableport_ = portnr; return portnr; }
+    }
+
+    uirv = errmsg;
+    return 0;
 }

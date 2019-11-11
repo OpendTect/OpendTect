@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
+#include "uiodservicemgr.h"
 
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
@@ -233,6 +234,8 @@ uiODMain::uiODMain( uiMain& a )
 
     if ( !useallcpus )
 	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
+
+    uiODServiceMgr::getMgr();
 }
 
 
@@ -252,6 +255,7 @@ uiODMain::~uiODMain()
     delete viewer2dmgr_;
     delete scenemgr_;
     delete applmgr_;
+    serviceMgr().stopServer();
 }
 
 
@@ -818,4 +822,9 @@ void uiODMain::forceExit()
 {
     closeApplication();
     uiapp_.exit(0);
+}
+
+uiODServiceMgr& uiODMain::serviceMgr()
+{
+    return uiODServiceMgr::getMgr();
 }

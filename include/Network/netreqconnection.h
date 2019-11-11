@@ -41,7 +41,7 @@ class RequestPacket;
   fetch your packets until getNextExternalPacket() returns null.
 
  */
-
+typedef unsigned short port_nr_type;
 
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
@@ -87,6 +87,13 @@ public:
     Notifier<RequestConnection> connectionClosed;
 
     uiString		errMsg() const		{ return errmsg_; }
+
+    static port_nr_type getUsablePort(uiRetVal&,port_nr_type firstport
+					=0,int maxportstotry=100);
+				//!<Returns 0 if none found
+    static port_nr_type getUsablePort(port_nr_type firstport=0);
+    static bool		isPortFree(port_nr_type port,uiString* errmsg=nullptr);
+    static port_nr_type getNextCandidatePort();
 
 private:
 
@@ -145,7 +152,8 @@ private:
 mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
-				RequestServer(unsigned short serverport);
+		    RequestServer(unsigned short serverport,
+				    const char* addr =nullptr);
 				~RequestServer();
 
     bool			isOK() const;

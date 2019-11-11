@@ -74,6 +74,7 @@ public:
     const SSet&		strings() const		{ return *((SSet*)set_); }
 
     void		dumpJSon( BufferString& ) const;
+    BufferString	dumpJSon() const;
 
 protected:
 
@@ -135,6 +136,7 @@ public:
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
     void		dumpJSon(BufferString&) const;
+    BufferString	dumpJSon() const;
 
     uiRetVal		read(od_istream&);
     static ValueSet*	read(od_istream&,uiRetVal&);
