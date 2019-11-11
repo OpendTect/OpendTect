@@ -278,6 +278,7 @@ public:
     const char*		text(int column=0) const;
 
     void		setIcon(int column,const char* iconname);
+    void		removeIcon(int column);
     void		setPixmap(int column,const uiPixmap&);
     void		setPixmap(int column,const Color&,
 				  int width=16,int height=10);
