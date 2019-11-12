@@ -17,8 +17,8 @@
 #include "netreqconnection.h"
 #include "netreqpacket.h"
 #include "netserver.h"
-#include "commandlineparser.h"
 #include "settings.h"
+#include "commandlineparser.h"
 #include "odjson.h"
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
@@ -41,13 +41,14 @@ uiODServiceBase::uiODServiceBase( bool assignport )
     if ( clport > 0 && NRC::isPortFree( (port_nr_type) clport ) )
 	portid = (port_nr_type) clport;
     else if ( assignport && defport>0
-			 && NRC::isPortFree((port_nr_type) defport) )
+			 && NRC::isPortFree((port_nr_type)defport) )
 	portid = (port_nr_type) defport;
     else if ( assignport )
     {
 	uiRetVal uirv;
 	portid = NRC::getUsablePort( uirv );
-	if ( !uirv.isOK() ) {
+	if ( !uirv.isOK() )
+	{
 	    pErrMsg( "unable to find usable port" );
 	    portid = 0;
 	}
@@ -88,8 +89,8 @@ void uiODServiceBase::sendOK( Network::RequestConnection* conn,
     OD::JSON::Object response;
     response.set( sKeyOK(), BufferString::empty() );
     packet->setPayload( response );
-    if ( !conn->sendPacket( *packet ) )
-	pErrMsg("sendOK - failed");
+    if ( !conn->sendPacket(*packet) )
+	{ pErrMsg("sendOK - failed"); }
 }
 
 
@@ -106,8 +107,8 @@ void uiODServiceBase::sendErr( Network::RequestConnection* conn,
     OD::JSON::Object response;
     response.set( sKeyError(), msg );
     packet->setPayload( response );
-    if ( !conn->sendPacket( *packet ) )
-	pErrMsg("sendErr - failed");
+    if ( !conn->sendPacket(*packet) )
+	{ pErrMsg("sendErr - failed"); }
 }
 
 
@@ -117,14 +118,14 @@ uiODService::uiODService( bool assignport )
     , odport_(0)
     , serviceinfo_(port())
 {
-    BufferString odserverStr;
     const CommandLineParser& clp = uiMain::CLP();
     clp.setKeyHasValue( sKeyODServer() );
     if ( clp.hasKey( sKeyODServer() ) )
     {
-	clp.getKeyedInfo( sKeyODServer(), odserverStr );
+	BufferString odserverstr;
+	clp.getKeyedInfo( sKeyODServer(), odserverstr );
 	BufferStringSet tmp;
-	tmp.unCat( odserverStr, ":" );
+	tmp.unCat( odserverstr, ":" );
 	if ( tmp.size()==2 && tmp.get(1).isNumber(true) )
 	{
 	    odhostname_ = tmp.get(0);

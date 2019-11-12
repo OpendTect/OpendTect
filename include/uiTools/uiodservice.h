@@ -19,11 +19,11 @@
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
-typedef Network::RequestConnection::port_nr_type port_nr_type;
 
 mExpClass(uiTools) uiODServiceBase : public CallBacker
 { mODTextTranslationClass(uiODServiceBase)
 public:
+    typedef Network::port_nr_type port_nr_type;
 
     uiODServiceBase(uiODServiceBase const&) = delete;
     uiODServiceBase(uiODServiceBase&&) = delete;
@@ -54,9 +54,9 @@ public:
 
 protected:
 			uiODServiceBase(bool assignport=true);
-			~uiODServiceBase();
+    virtual		~uiODServiceBase();
 
-    virtual void	startServer( port_nr_type );
+    virtual void	startServer(port_nr_type);
     void		sendOK(Network::RequestConnection*,
 				RefMan<Network::RequestPacket>);
     void		sendErr(Network::RequestConnection*,
@@ -73,15 +73,15 @@ protected:
 mExpClass(uiTools) uiODService : public uiODServiceBase
 { mODTextTranslationClass(uiODService)
 public:
-    uiODService(uiODService const&) = delete;
-    uiODService(uiODService&&) = delete;
-    uiODService& operator=(uiODService const&) = delete;
-    uiODService& operator=(uiODService &&) = delete;
+			uiODService(uiODService const&) = delete;
+			uiODService(uiODService&&) = delete;
+			uiODService& operator=(uiODService const&) = delete;
+			uiODService& operator=(uiODService &&) = delete;
 
     void	setServiceName( const char* nm ) { serviceinfo_.setName(nm); }
 protected:
-    uiODService( bool assignport=false );
-    ~uiODService();
+			uiODService(bool assignport=false);
+    virtual		~uiODService();
 
     void		packetArrivedCB(CallBacker*);
     void		connClosedCB(CallBacker*);

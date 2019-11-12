@@ -47,11 +47,12 @@ struct PacketSendData;
  */
 
 
+typedef unsigned short  port_nr_type;
+
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
 
-    typedef unsigned short  port_nr_type;
 
 			RequestConnection(const char* servername,
 					  port_nr_type serverport,
@@ -156,8 +157,6 @@ private:
 mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
-
-    mUseType( RequestConnection, port_nr_type );
 
 				RequestServer(port_nr_type serverport,
 						const char* addr =nullptr);
