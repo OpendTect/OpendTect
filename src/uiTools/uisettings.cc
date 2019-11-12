@@ -521,17 +521,6 @@ void promptCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
-    if ( !OD::PythA().isUsable(true) )
-    {
-	uiString launchermsg;
-	uiRetVal uirv( tr("Cannot detect python version:\n%1")
-			.arg(OD::PythA().lastOutput(true,&launchermsg)) );
-	uirv.add( tr("Python environment not usable") )
-	    .add( launchermsg );
-	gUiMsg( this ).error( uirv );
-	return;
-    }
-
     const BufferString termem = SettingsAccess().getTerminalEmulator();
 #ifdef __win__
     OS::MachineCommand cmd( "start" );
