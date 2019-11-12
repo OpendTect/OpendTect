@@ -53,8 +53,8 @@ public:
     static const char*	sKeyODServer()		{ return "odserver"; }
 
 protected:
-    uiODServiceBase(bool assignport=true);
-    ~uiODServiceBase();
+			uiODServiceBase(bool assignport=true);
+			~uiODServiceBase();
 
     virtual void	startServer( port_nr_type );
     void		sendOK(Network::RequestConnection*,
@@ -66,7 +66,7 @@ protected:
 				RefMan<Network::RequestPacket>,
 				const char*);
 
-    Network::RequestServer*	server_;
+    Network::RequestServer*	server_ = nullptr;
 };
 
 
