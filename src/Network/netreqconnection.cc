@@ -29,8 +29,6 @@ ________________________________________________________________________
 namespace Network
 {
 
-mUseType( RequestConnection, port_nr_type );
-
 struct PacketSendData : public RefCount::Referenced
 {
     PacketSendData(const RequestPacket&,bool wait);
