@@ -24,7 +24,6 @@
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
 uiODServiceBase::uiODServiceBase( bool assignport )
-    : server_(nullptr)
 {
     typedef Network::RequestConnection NRC;
     const char* skeyport = Network::Server::sKeyPort();
@@ -68,7 +67,8 @@ uiODServiceBase::~uiODServiceBase()
 void uiODServiceBase::startServer( port_nr_type portid )
 {
     server_ = new Network::RequestServer( portid );
-    if ( !server_ || !server_->isOK() ) {
+    if ( !server_ || !server_->isOK() )
+    {
 	pErrMsg( "startServer - failed" );
 	stopServer();
 	return;
@@ -78,8 +78,7 @@ void uiODServiceBase::startServer( port_nr_type portid )
 
 void uiODServiceBase::stopServer()
 {
-    if ( server_ )
-	deleteAndZeroPtr( server_ );
+    deleteAndZeroPtr( server_ );
 }
 
 
@@ -111,10 +110,12 @@ void uiODServiceBase::sendErr( Network::RequestConnection* conn,
 	pErrMsg("sendErr - failed");
 }
 
+
+
 uiODService::uiODService( bool assignport )
-: uiODServiceBase(assignport)
-, odport_(0)
-, serviceinfo_(port())
+    : uiODServiceBase(assignport)
+    , odport_(0)
+    , serviceinfo_(port())
 {
     BufferString odserverStr;
     const CommandLineParser& clp = uiMain::CLP();
@@ -130,7 +131,10 @@ uiODService::uiODService( bool assignport )
 	    odport_ = tmp.get(1).toInt();
 	}
     }
-    mAttachCB( server_->newConnection, uiODService::newConnectionCB );
+
+    if ( server_ )
+	mAttachCB( server_->newConnection, uiODService::newConnectionCB );
+
     doRegister();
 }
 
