@@ -831,6 +831,10 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     if ( !isUsable(!istested_) )
 	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
+    static bool force_external_ok = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    if ( force_external_ok )
+	return uiRetVal::OK();
+
     if ( !msg_.isEmpty() )
 	return uiRetVal( msg_ );
 
