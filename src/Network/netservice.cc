@@ -125,7 +125,7 @@ uiRetVal Network::Service::useJSON( const OD::JSON::Object& jsonobj )
 void Network::Service::setLogFile( const char* fnm )
 {
     if ( !logfp_ )
-	logfp_ = new FilePath();
+	logfp_ = new File::Path();
 
     logfp_->set( fnm );
 }
