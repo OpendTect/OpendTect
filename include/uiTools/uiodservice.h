@@ -20,7 +20,6 @@
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
-typedef unsigned short port_nr_type;
 
 mExpClass(uiTools) uiODServiceBase : public CallBacker
 { mODTextTranslationClass(uiODServiceBase)
@@ -54,8 +53,8 @@ public:
     static const char*	sKeyODServer()		{ return "odserver"; }
 
 protected:
-    uiODServiceBase( bool assignport=true );
-    ~uiODServiceBase();
+			uiODServiceBase(bool assignport=true);
+    virtual		~uiODServiceBase();
 
     virtual void	startServer(port_nr_type);
     void		sendOK(Network::RequestConnection*,
@@ -67,25 +66,25 @@ protected:
 				PtrMan<Network::RequestPacket>,
 				const char*);
 
-    Network::RequestServer*	server_;
+    Network::RequestServer*	server_ = nullptr;
 };
 
 
 mExpClass(uiTools) uiODService : public uiODServiceBase
 { mODTextTranslationClass(uiODService)
 public:
-    uiODService(uiODService const&) = delete;
-    uiODService(uiODService&&) = delete;
-    uiODService& operator=(uiODService const&) = delete;
-    uiODService& operator=(uiODService &&) = delete;
-
+			uiODService(uiODService const&) = delete;
+			uiODService(uiODService&&) = delete;
+			uiODService& operator=(uiODService const&) = delete;
+			uiODService& operator=(uiODService &&) = delete;
 
 protected:
-    uiODService( bool assignport=false );
-    ~uiODService();
+			uiODService(bool assignport=false);
+    virtual		~uiODService();
 
     BufferString	odhostname_;
     port_nr_type	odport_;
 
 };
+
 #endif

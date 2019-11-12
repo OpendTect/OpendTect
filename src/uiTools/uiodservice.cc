@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
 uiODServiceBase::uiODServiceBase( bool assignport)
-    : server_(nullptr)
 {
     typedef Network::RequestConnection NRC;
     const char* skeyport = Network::Server::sKeyPort();
@@ -47,7 +46,8 @@ uiODServiceBase::uiODServiceBase( bool assignport)
     {
 	uiRetVal uirv;
 	portid = NRC::getUsablePort( uirv );
-	if ( !uirv.isOK() ) {
+	if ( !uirv.isOK() )
+	{
 	    pErrMsg( "unable to find usable port" );
 	    portid = 0;
 	}
@@ -66,24 +66,19 @@ uiODServiceBase::~uiODServiceBase()
 
 void uiODServiceBase::startServer( port_nr_type portid )
 {
-
     server_ = new Network::RequestServer( portid );
-    if ( !server_ || !server_->isOK() ) {
+    if ( !server_ || !server_->isOK() )
+    {
 	pErrMsg( "startServer - failed" );
 	stopServer();
 	return;
     }
-    BufferString tmp( "Starting on port: ");
-    tmp += port();
-    ErrMsg( tmp );
 }
 
 
 void uiODServiceBase::stopServer()
 {
-    if ( server_ ) {
-	deleteAndZeroPtr( server_ );
-    }
+    deleteAndZeroPtr( server_ );
 }
 
 
@@ -94,8 +89,8 @@ void uiODServiceBase::sendOK( Network::RequestConnection* conn,
     response.set( sKeyOK(), BufferString::empty() );
     if ( packet )
 	packet->setPayload( response );
-    if ( packet && conn && !conn->sendPacket( *packet ) )
-	pErrMsg("sendOK - failed");
+    if ( packet && conn && !conn->sendPacket(*packet) )
+	{ pErrMsg("sendOK - failed"); }
 }
 
 
@@ -115,22 +110,23 @@ void uiODServiceBase::sendErr( Network::RequestConnection* conn,
     response.set( sKeyError(), msg );
     if ( packet )
 	packet->setPayload( response );
-    if ( packet && conn && !conn->sendPacket( *packet ) )
-	pErrMsg("sendErr - failed");
+    if ( packet && conn && !conn->sendPacket(*packet) )
+	{ pErrMsg("sendErr - failed"); }
 }
 
 
+
 uiODService::uiODService( bool assignport )
-: uiODServiceBase(assignport)
-, odport_(0)
+    : uiODServiceBase(assignport)
+    , odport_(0)
 {
-    BufferString odserverStr;
     const CommandLineParser* clp = new CommandLineParser;
     if ( clp->hasKey( sKeyODServer() ) )
     {
-	clp->getVal( sKeyODServer(), odserverStr );
+	BufferString odserverstr;
+	clp->getVal( sKeyODServer(), odserverstr );
 	BufferStringSet tmp;
-	tmp.unCat( odserverStr, ":" );
+	tmp.unCat( odserverstr, ":" );
 	if ( tmp.size()==2 && tmp.get(1).isNumber(true) )
 	{
 	    odhostname_ = tmp.get(0);
@@ -142,4 +138,5 @@ uiODService::uiODService( bool assignport )
 
 
 uiODService::~uiODService()
-{}
+{
+}
