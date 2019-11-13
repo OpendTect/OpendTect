@@ -491,7 +491,6 @@ void testPythonModules()
 
 void testCB(CallBacker*)
 {
-    needrestore_ = chgdsetts_;
     if ( !useScreen() )
 	return;
 
@@ -517,7 +516,6 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
-    needrestore_ = chgdsetts_;
     if ( !useScreen() )
 	return;
 
@@ -575,24 +573,55 @@ bool useScreen()
     if ( !chgdsetts_ )
 	return true;
 
+    needrestore_ = chgdsetts_;
     if ( commitSetts(*chgdsetts_) )
 	deleteAndZeroPtr(chgdsetts_);
 
     if ( chgdsetts_ )
 	return false;
 
+    OD::PythA().istested_ = false;
     return true;
 }
 
 bool rejectOK()
 {
-    return needrestore_ ? commitSetts( initialsetts_ ) : true;
+    if ( !needrestore_ )
+	return true;
+
+    if ( commitSetts(initialsetts_) )
+    {
+	OD::PythA().istested_ = false;
+	OD::PythA().envChangeCB( nullptr );
+    }
+    else
+	gUiMsg(this).warning( tr("Cannot restore the initial settings") );
+
+    return true;
 }
 
 bool acceptOK()
 {
-    needrestore_ = false;
-    return useScreen();
+    bool isok = true; bool ismodified = false;
+    if ( chgdsetts_ )
+    {
+	isok = useScreen();
+	ismodified = true;
+    }
+    needrestore_ = !isok;
+    if ( isok )
+    {
+	if ( ismodified )
+	{
+	    OD::PythA().istested_ = false;
+	    OD::PythA().envChangeCB( nullptr );
+	    needrestore_ = false;
+	}
+    }
+    else
+	gUiMsg(this).warning( tr("Cannot use the new settings") );
+
+    return isok;
 }
 
     uiGenInput*		pythonsrcfld_;

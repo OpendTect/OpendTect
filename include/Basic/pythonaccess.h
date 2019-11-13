@@ -43,10 +43,7 @@ namespace OD
 			PythonAccess();
 			~PythonAccess();
 
-	bool		isUsable(bool force=false,
-				 const char* scriptstr=nullptr,
-				 const char* scriptexpectedout=nullptr);
-	bool		isUsable(bool force=false,
+	uiRetVal	isUsable(bool force=false,
 				 const char* scriptstr=nullptr,
 				 const char* scriptexpectedout=nullptr) const;
 
@@ -110,6 +107,9 @@ namespace OD
 	BufferString	pythversion_;
 	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
+	bool		isUsable(bool force=false,
+				 const char* scriptstr=nullptr,
+				 const char* scriptexpectedout=nullptr);
 	static bool	getInternalEnvironmentLocation(File::Path&,
 							   bool userdef);
 	static File::Path getInternalEnvPath(bool userdef);
