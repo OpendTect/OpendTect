@@ -710,8 +710,11 @@ bool PosInfo::LineCollData::includes( pos_type lnr, pos_type tnr ) const
 
     const auto& segs = get( lidx )->segments_;
     for ( idx_type iseg=0; iseg<segs.size(); iseg++ )
-	if ( segs[iseg].includes(tnr,false) )
-	    return true;
+    {
+	const auto& seg = segs[iseg];
+	if ( seg.includes(tnr,false) )
+	    return seg.step<2 ? true : (tnr-seg.start) % seg.step == 0;
+    }
 
     return false;
 }
