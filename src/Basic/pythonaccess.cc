@@ -124,14 +124,29 @@ uiString OD::PythonAccess::pySummary() const
 }
 
 
-bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
-				 const char* scriptexpectedout ) const
+uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
+				     const char* scriptexpectedout ) const
 {
     if ( !force )
-	return isusable_;
+	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
 
     OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
-    return pytha.isUsable( force, scriptstr, scriptexpectedout );
+    const bool isusable = pytha.isUsable( force, scriptstr, scriptexpectedout );
+    if ( isusable )
+	return uiRetVal::OK();
+
+    uiString clmsg;
+    const BufferString stdoutstr( lastOutput(true,&clmsg) );
+    const BufferString stderrstr( lastOutput(false,nullptr) );
+
+    uiRetVal ret;
+    if ( !clmsg.isEmpty() )
+	ret.add( clmsg );
+    if ( !stdoutstr.isEmpty() )
+	ret.add( toUiString(stdoutstr) );
+    if ( !stderrstr.isEmpty() )
+	ret.add( toUiString(stderrstr) );
+    return ret;
 }
 
 
@@ -256,6 +271,9 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
 	virtenvnm_.setEmpty();
     }
 
+    if ( pythversion_.isEmpty() && moduleinfos_.isEmpty() )
+	notrigger = false;
+
     msg_.setEmpty();
     isusable_ = true;
     if ( !notrigger )
@@ -280,7 +298,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString* stderrstr,
 				uiString* errmsg ) const
 {
-    if ( !isUsable(!istested_) )
+    if ( !const_cast<PythonAccess&>(*this).isUsable(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, nullptr, nullptr, activatefp_,
@@ -300,7 +318,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				const OS::CommandExecPars& pars,
 				int* pid, uiString* errmsg ) const
 {
-    if ( !isUsable(!istested_) )
+    if ( !const_cast<PythonAccess&>(*this).isUsable(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf());
@@ -963,14 +981,14 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
 	res = execute( mc, laststdout, &laststderr );
     }
 #endif
-    if ( !res )
+    BufferStringSet modstrs;
+    modstrs.unCat( laststdout );
+    if ( !res || modstrs.isEmpty() )
     {
 	return uiRetVal( tr("Cannot generate a list of python modules:\n%1")
 			    .arg(laststderr) );
     }
 
-    BufferStringSet modstrs;
-    modstrs.unCat( laststdout );
     for ( auto modstr : modstrs )
     {
 	if ( modstr->startsWith("#") ||
