@@ -10,15 +10,20 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiapplserv.h"
+#include "hiddenparam.h"
 
+
+static HiddenParam<uiApplPartServer,uiParent*> parent_(nullptr);
 
 uiApplService::uiApplService( const char* nm )
-    : NamedObject(nm)				{}
+    : NamedObject(nm)			{}
 
 
 uiApplPartServer::uiApplPartServer( uiApplService& a )
-    : uias_(a)		{}
-
+    : uias_(a)
+{
+    parent_.setParam( this, 0 );
+}
 
 uiApplService& uiApplPartServer::appserv()
 { return uias_; }
@@ -28,8 +33,15 @@ const uiApplService& uiApplPartServer::appserv() const
 { return uias_; }
 
 
+void uiApplPartServer::setParent( uiParent* p )
+{ parent_.setParam( this, p ); }
+
+
 uiParent* uiApplPartServer::parent() const
-{ return uias_.parent(); }
+{
+    uiParent* mypar = parent_.getParam(this );
+    return mypar ? mypar : uias_.parent();
+}
 
 
 bool uiApplPartServer::sendEvent( int evid ) const

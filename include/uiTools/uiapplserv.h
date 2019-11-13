@@ -55,6 +55,8 @@ public:
     uiApplService&	appserv();
     const uiApplService& appserv() const;
 
+    void		setParent(uiParent*);
+
 protected:
 
     uiParent*		parent() const;
