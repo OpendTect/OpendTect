@@ -86,9 +86,10 @@ protected:
     void		packetArrivedCB(CallBacker*);
     void		connClosedCB(CallBacker*);
     void		newConnectionCB(CallBacker*);
+    void		appClosingCB(CallBacker*);
 
     uiRetVal		sendAction( OD::JSON::Object* );
-    virtual uiRetVal	doAction( BufferString );
+    virtual uiRetVal	doAction( const OD::JSON::Object& );
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
 
