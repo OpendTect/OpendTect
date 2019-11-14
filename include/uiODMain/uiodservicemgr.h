@@ -67,6 +67,10 @@ public:
 
     uiRetVal	sendAction( const Network::Service&, const char* );
     uiRetVal	sendAction( int idx, const char* action );
+    uiRetVal	sendAction( const Network::Service&, const char*,
+			    OD::JSON::Object* );
+    uiRetVal	sendAction( int idx, const char* action,
+			    OD::JSON::Object* paramobj );
 
     int		indexOfService( const Network::Service& ) const;
     bool	isServicePresent( const Network::Service& service ) const

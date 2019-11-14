@@ -26,6 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "pythonaccess.h"
 #include "genc.h"
+#include "keystrs.h"
+#include "oddirs.h"
 
 /*!\brief The OpendTect service manager */
 
@@ -118,9 +120,9 @@ uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
 
 uiRetVal uiODServiceMgr::sendAction( int idx, const char* action )
 {
-    BufferString servicenm( services_[idx]->name() );
-    BufferString hostname( services_[idx]->hostname() );
-    port_nr_type portID = services_[idx]->port();
+    const BufferString servicenm( services_[idx]->name() );
+    const BufferString hostname( services_[idx]->hostname() );
+    const port_nr_type portID = services_[idx]->port();
 
     PtrMan<RequestConnection> conn = new RequestConnection( hostname, portID,
 							    false, 2000 );
@@ -156,6 +158,57 @@ uiRetVal uiODServiceMgr::sendAction( int idx, const char* action )
 }
 
 
+uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
+			const char* action, OD::JSON::Object* paramobj )
+{
+    int idx = indexOfService( service );
+    if ( idx>=0 )
+	return sendAction( idx, action, paramobj );
+    else
+	return uiRetVal(tr("Unknown service"));
+}
+
+
+uiRetVal uiODServiceMgr::sendAction( int idx, const char* action,
+				     OD::JSON::Object* paramobj )
+{
+    BufferString servicenm( services_[idx]->name() );
+    BufferString hostname( services_[idx]->hostname() );
+    port_nr_type portID = services_[idx]->port();
+
+    PtrMan<RequestConnection> conn = new RequestConnection( hostname, portID,
+							    false, 2000 );
+    if ( !conn || !conn->isOK() )
+	return uiRetVal(tr("Cannot connect to service %1 on %2:%3")
+	.arg(servicenm).arg(hostname).arg(portID) );
+
+    PtrMan<RequestPacket> packet =  new RequestPacket;
+    packet->setIsNewRequest();
+    OD::JSON::Object request;
+    request.set( sKeyAction(), action );
+    request.set( sKey::Pars(), paramobj );
+
+    packet->setPayload( request );
+
+    if ( !conn->sendPacket( *packet ) )
+	return uiRetVal(tr("Message failure to service %1 on %2:%3")
+	.arg(servicenm).arg(hostname).arg(portID) );
+
+    ConstPtrMan<Network::RequestPacket> receivedpacket =
+    conn->pickupPacket( packet->requestID(), 2000 );
+    if ( !receivedpacket )
+	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
+
+    OD::JSON::Object response;
+    uiRetVal uirv = receivedpacket->getPayload( response );
+    if ( !uirv.isOK() )
+	return uirv;
+    else if ( response.isPresent( sKeyError() ) )
+	return uiRetVal( tr("%1 error: %2").arg(servicenm)
+	.arg(response.getStringValue(sKeyError())));
+
+    return uiRetVal::OK();
+}
 void uiODServiceMgr::raise( const Network::Service& service )
 {
     uiRetVal uirv = sendAction( service, sKeyRaiseEv() );
@@ -165,8 +218,11 @@ void uiODServiceMgr::raise( const Network::Service& service )
 
 void uiODServiceMgr::surveyChangedCB( CallBacker* )
 {
+    OD::JSON::Object* paramobj = new OD::JSON::Object;
+    paramobj->set( sKey::Survey(), GetDataDir() );
+
     for (int idx=0; idx< services_.size(); idx++) {
-	uiRetVal uirv = sendAction( idx, sKeySurveyChangeEv() );
+	uiRetVal uirv = sendAction( idx, sKeySurveyChangeEv(), paramobj );
 	if (!uirv.isOK())
 	    uiMSG().error(uirv);
     }
