@@ -60,6 +60,7 @@ public:
 			//!<If msec is -1, this function will not time out
 
     static const char*	sKeyHostName()		{ return "hostname"; }
+    static const char*	sKeyNoListen()		{ return "no-listen"; }
     static const char*	sKeyPort()		{ return "port"; }
     static const char*	sKeyTimeout()		{ return "timeout"; }
     static const char*	sKeyKillword()		{ return "kill"; }

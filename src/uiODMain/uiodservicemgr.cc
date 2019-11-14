@@ -25,6 +25,8 @@
 #include "settings.h"
 #include "pythonaccess.h"
 #include "genc.h"
+#include "keystrs.h"
+#include "oddirs.h"
 
 /*!\brief The OpendTect service manager */
 
@@ -105,21 +107,23 @@ int uiODServiceMgr::indexOfService( const Network::Service& service ) const
 
 
 uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
-				     const char* action )
+			    const char* action, OD::JSON::Object* paramobj )
 {
     int idx = indexOfService( service );
     if ( idx>=0 )
-	return sendAction( idx, action );
+	return sendAction( idx, action, paramobj );
     else
 	return uiRetVal(tr("Unknown service"));
 }
 
 
-uiRetVal uiODServiceMgr::sendAction( int idx, const char* action )
+uiRetVal uiODServiceMgr::sendAction( int idx, const char* action,
+				    OD::JSON::Object* paramobj )
+
 {
-    BufferString servicenm( services_[idx]->name() );
-    BufferString hostname( services_[idx]->hostname() );
-    port_nr_type portID = services_[idx]->port();
+    const BufferString servicenm( services_[idx]->name() );
+    const BufferString hostname( services_[idx]->hostname() );
+    const port_nr_type portID = services_[idx]->port();
 
     PtrMan<RequestConnection> conn = new RequestConnection( hostname, portID,
 							    false, 2000 );
@@ -131,6 +135,8 @@ uiRetVal uiODServiceMgr::sendAction( int idx, const char* action )
     packet->setIsNewRequest();
     OD::JSON::Object request;
     request.set( sKeyAction(), action );
+    if ( paramobj )
+	request.set( sKey::Pars(), paramobj );
 
     packet->setPayload( request );
 
@@ -153,8 +159,6 @@ uiRetVal uiODServiceMgr::sendAction( int idx, const char* action )
 
     return uiRetVal::OK();
 }
-
-
 void uiODServiceMgr::raise( const Network::Service& service )
 {
     uiRetVal uirv = sendAction( service, sKeyRaiseEv() );
@@ -164,8 +168,11 @@ void uiODServiceMgr::raise( const Network::Service& service )
 
 void uiODServiceMgr::surveyChangedCB( CallBacker* )
 {
+    OD::JSON::Object* paramobj = new OD::JSON::Object;
+    paramobj->set( sKey::Survey(), GetDataDir() );
+
     for (int idx=0; idx< services_.size(); idx++) {
-	uiRetVal uirv = sendAction( idx, sKeySurveyChangeEv() );
+	uiRetVal uirv = sendAction( idx, sKeySurveyChangeEv(), paramobj );
 	if (!uirv.isOK())
 	    gUiMsg().error(uirv);
     }
@@ -174,6 +181,7 @@ void uiODServiceMgr::surveyChangedCB( CallBacker* )
 
 void uiODServiceMgr::appClosingCB( CallBacker* )
 {
+
     for (int idx=0; idx< services_.size(); idx++) {
 	uiRetVal uirv = sendAction( idx, sKeyCloseEv() );
     }

@@ -17,9 +17,11 @@
 #include "netreqconnection.h"
 #include "netreqpacket.h"
 #include "netserver.h"
-#include "settings.h"
 #include "commandlineparser.h"
+#include "settings.h"
 #include "odjson.h"
+#include "dbman.h"
+#include "keystrs.h"
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
@@ -27,6 +29,7 @@ uiODServiceBase::uiODServiceBase( bool assignport )
 {
     typedef Network::RequestConnection NRC;
     const char* skeyport = Network::Server::sKeyPort();
+    const char* skeynolisten = Network::Server::sKeyNoListen();
     port_nr_type portid = 0;
 
     int defport = 0;
@@ -34,23 +37,27 @@ uiODServiceBase::uiODServiceBase( bool assignport )
 
     int clport = 0;
     const CommandLineParser& clp = uiMain::CLP();
-    clp.setKeyHasValue( skeyport );
-    if ( clp.hasKey( skeyport ) )
-	clp.getKeyedInfo( skeyport, clport );
-
-    if ( clport > 0 && NRC::isPortFree( (port_nr_type) clport ) )
-	portid = (port_nr_type) clport;
-    else if ( assignport && defport>0
-			 && NRC::isPortFree((port_nr_type)defport) )
-	portid = (port_nr_type) defport;
-    else if ( assignport )
+    clp.setKeyHasValue( skeynolisten );
+    if ( !clp.hasKey( skeynolisten ) )
     {
-	uiRetVal uirv;
-	portid = NRC::getUsablePort( uirv );
-	if ( !uirv.isOK() )
+	clp.setKeyHasValue( skeyport );
+	if ( clp.hasKey( skeyport ) )
+	    clp.getKeyedInfo( skeyport, clport );
+
+	if ( clport > 0 && NRC::isPortFree( (port_nr_type) clport ) )
+	    portid = (port_nr_type) clport;
+	else if ( assignport && defport>0
+			 && NRC::isPortFree((port_nr_type) defport) )
+	    portid = (port_nr_type) defport;
+	else if ( assignport )
 	{
-	    pErrMsg( "unable to find usable port" );
-	    portid = 0;
+	    uiRetVal uirv;
+	    portid = NRC::getUsablePort( uirv );
+	    if ( !uirv.isOK() )
+	    {
+		pErrMsg( "unable to find usable port" );
+		portid = 0;
+	    }
 	}
     }
 
@@ -89,7 +96,7 @@ void uiODServiceBase::sendOK( Network::RequestConnection* conn,
     OD::JSON::Object response;
     response.set( sKeyOK(), BufferString::empty() );
     packet->setPayload( response );
-    if ( !conn->sendPacket(*packet) )
+    if ( !conn->sendPacket( *packet ) )
 	{ pErrMsg("sendOK - failed"); }
 }
 
@@ -107,35 +114,39 @@ void uiODServiceBase::sendErr( Network::RequestConnection* conn,
     OD::JSON::Object response;
     response.set( sKeyError(), msg );
     packet->setPayload( response );
-    if ( !conn->sendPacket(*packet) )
+    if ( !conn->sendPacket( *packet ) )
 	{ pErrMsg("sendErr - failed"); }
 }
 
-
-
 uiODService::uiODService( bool assignport )
-    : uiODServiceBase(assignport)
-    , odport_(0)
-    , serviceinfo_(port())
+: uiODServiceBase(assignport)
+, odport_(0)
+, serviceinfo_(port())
 {
     const CommandLineParser& clp = uiMain::CLP();
-    clp.setKeyHasValue( sKeyODServer() );
-    if ( clp.hasKey( sKeyODServer() ) )
-    {
-	BufferString odserverstr;
-	clp.getKeyedInfo( sKeyODServer(), odserverstr );
-	BufferStringSet tmp;
-	tmp.unCat( odserverstr, ":" );
-	if ( tmp.size()==2 && tmp.get(1).isNumber(true) )
+    const char* skeynolisten = Network::Server::sKeyNoListen();
+    clp.setKeyHasValue( skeynolisten );
+    if ( !clp.hasKey( skeynolisten ) ) {
+	clp.setKeyHasValue( sKeyODServer() );
+	if ( clp.hasKey( sKeyODServer() ) )
 	{
-	    odhostname_ = tmp.get(0);
-	    odport_ = tmp.get(1).toInt();
+	    BufferString odserverstr;
+	    clp.getKeyedInfo( sKeyODServer(), odserverstr );
+	    BufferStringSet tmp;
+	    tmp.unCat( odserverstr, ":" );
+	    if ( tmp.size()==2 && tmp.get(1).isNumber(true) )
+	    {
+		odhostname_ = tmp.get(0);
+		odport_ = tmp.get(1).toInt();
+	    }
 	}
     }
-
     if ( server_ )
 	mAttachCB( server_->newConnection, uiODService::newConnectionCB );
 
+    mAttachCB( DBM().applicationClosing,uiODService::appClosingCB );
+    mAttachCB( uiMain::theMain().topLevel()->windowClosed,
+					    uiODService::appClosingCB );
     doRegister();
 }
 
@@ -143,6 +154,11 @@ uiODService::uiODService( bool assignport )
 uiODService::~uiODService()
 {
     detachAllNotifiers();
+}
+
+void uiODService::appClosingCB( CallBacker* )
+{
+    doDeRegister();
 }
 
 void uiODService::newConnectionCB( CallBacker* )
@@ -194,10 +210,11 @@ void uiODService::packetArrivedCB( CallBacker* cb )
     }
 
     BufferString action( request.getStringValue( sKeyAction()) );
+
     if ( action == sKeyCloseEv() )
 	sendOK( conn, packet );
 
-    uirv = doAction( action );
+    uirv = doAction( request );
     if ( uirv.isOK() )
 	sendOK( conn, packet );
     else
@@ -211,8 +228,13 @@ void uiODService::connClosedCB( CallBacker* cb )
     mDetachCB( conn->connectionClosed, uiODService::connClosedCB );
 }
 
-uiRetVal uiODService::doAction( BufferString action )
+uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
 {
+    const BufferString action( actobj.getStringValue( sKeyAction()) );
+    const OD::JSON::Object* paramobj = nullptr;
+    if ( actobj.isPresent( sKey::Pars() ) )
+	paramobj = actobj.getObject( sKey::Pars() );
+
     if ( action == sKeyCloseEv() )
 	uiMain::theMain().exit(0);
     else if ( action == sKeyPyEnvChangeEv() )
@@ -224,8 +246,14 @@ uiRetVal uiODService::doAction( BufferString action )
     }
     else if ( action == sKeyStatusEv() )
 	statusMsg(tr("Status"));
-    else if ( action == sKeySurveyChangeEv() )
-	statusMsg(tr("Survey Change"));
+    else if ( action == sKeySurveyChangeEv() ) {
+	if ( paramobj && paramobj->isPresent( sKey::Survey() ) ) {
+	    const uiRetVal uirv = DBM().setDataSource(
+			    paramobj->getStringValue(sKey::Survey()), true );
+	    if (!uirv.isOK())
+		return uirv;
+	}
+    }
 
     return uiRetVal::OK();
 }
@@ -237,7 +265,7 @@ void uiODService::statusMsg( uiString msg )
 
 uiRetVal uiODService::doRegister()
 {
-    if ( mIsUdf(odport_) )
+    if ( odport_==0 )
 	return uiRetVal::OK();
     PtrMan<Network::RequestConnection> conn =
 	new Network::RequestConnection( odhostname_, odport_, false, 2000 );
@@ -262,7 +290,7 @@ uiRetVal uiODService::doRegister()
 
 uiRetVal uiODService::doDeRegister()
 {
-    if ( mIsUdf(odport_) )
+    if ( odport_==0 )
 	return uiRetVal::OK();
 
     PtrMan<Network::RequestConnection> conn =
@@ -289,6 +317,9 @@ uiRetVal uiODService::doDeRegister()
 
 uiRetVal uiODService::sendAction( OD::JSON::Object* actobj )
 {
+    if ( odport_==0 )
+	return uiRetVal::OK();
+
     PtrMan<Network::RequestConnection> conn =
 	new Network::RequestConnection( odhostname_, odport_, false, 2000 );
     if ( !conn || !conn->isOK() )
