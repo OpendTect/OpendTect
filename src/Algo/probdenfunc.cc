@@ -157,12 +157,13 @@ ArrayNDProbDenFunc& ArrayNDProbDenFunc::operator =(
 {
     if ( this != &oth )
     {
-	delete cumbins_;
-	if ( !oth.cumbins_ )
-	    cumbins_ = 0;
-	else
+	delete cumbins_; cumbins_ = nullptr;
+	if ( oth.cumbins_ )
 	    fillCumBins();
+
+	avgpos_.erase();
     }
+
     return *this;
 }
 
@@ -273,8 +274,11 @@ void ArrayNDProbDenFunc::prepRndDrw() const
 
 void ArrayNDProbDenFunc::fillCumBins() const
 {
+    if ( cumbins_ )
+	return;
+
     const od_uint64 sz = totalSize();
-    delete [] cumbins_; cumbins_ = 0;
+    delete [] cumbins_; cumbins_ = nullptr;
     if ( sz < 1 ) return;
 
     const float* vals = getData().getData();
@@ -287,7 +291,9 @@ void ArrayNDProbDenFunc::fillCumBins() const
 
 od_uint64 ArrayNDProbDenFunc::getRandBin() const
 {
-    if ( !cumbins_ ) fillCumBins();
+    if ( !cumbins_ )
+	fillCumBins();
+
     return getBinPos( (float) ( Stats::randGen().get() ) );
 }
 
@@ -328,6 +334,12 @@ float ArrayNDProbDenFunc::findAveragePos( const float* arr, int sz,
 
 float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 {
+    if ( avgpos_.isEmpty() )
+	avgpos_.setSize( getArrND().nrDims(), mUdf(float) );
+
+    if ( avgpos_.validIdx(tardim) && !mIsUdf(avgpos_[tardim]) )
+	return avgpos_[tardim];
+
     const int tardimsz = size( tardim );
     TypeSet<float> integrvals( tardimsz, 0 );
     const ArrayND<float>& arrnd = getData();
@@ -348,7 +360,9 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 
     const float avgpos = findAveragePos( integrvals.arr(), integrvals.size(),
 					 grandtotal );
-    return sampling(tardim).atIndex( avgpos );
+    const float val = sampling(tardim).atIndex( avgpos );
+    avgpos_[tardim] = val;
+    return val;
 }
 
 
@@ -800,7 +814,7 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
     else if ( newnrdims != nrdims )
     {
 	bins_.copyFrom( ArrayNDImpl<float>( ArrayNDInfoImpl(newnrdims) ) );
-        nrdims = newnrdims;
+	nrdims = newnrdims;
     }
 
     TypeSet<int> szs( nrdims, 0 );

@@ -70,6 +70,7 @@ protected:
     virtual bool	gtIsEq(const ProbDenFunc&) const;
 
     mutable float*	cumbins_;
+    mutable TypeSet<float> avgpos_;
 
     void		prepRndDrw() const;
     void		fillCumBins() const;
