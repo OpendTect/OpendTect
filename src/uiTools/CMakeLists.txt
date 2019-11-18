@@ -117,6 +117,7 @@ set( OD_MODULE_GUI_PROGS
 if( WIN32 )
     list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_runinst.cc )
     set( OD_od_runinst_RESOURCE resources/od_runinst.rc )
+    list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_FirewallProcSetter.cc )
 endif( WIN32 )
 
 if ( OD_ENABLE_BREAKPAD )
