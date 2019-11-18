@@ -100,7 +100,7 @@ uiStringSet uiFirewallProcSetter::getPythonExecList()
 						ProcDesc::DataEntry::Python );
 
     if ( pyprocnms_.isEmpty() )
-	return nullptr;
+	return pyprocdescs_;
 
     FilePath fp( getPythonInstDir() );
     fp.add( "envs" );
