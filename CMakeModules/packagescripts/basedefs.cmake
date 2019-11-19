@@ -24,6 +24,9 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid
 if ( UNIX )
     set( EXECLIST ${EXECLIST} od_batch_launcher )
 endif()
+if ( WIN32 )
+    set( EXECLIST ${EXECLIST} od_FirewallProcSetter )
+endif()
 
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
