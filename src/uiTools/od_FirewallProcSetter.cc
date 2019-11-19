@@ -21,6 +21,7 @@ int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiTools" );
+    OD::ModDeps().ensureLoaded( "uiSeis" );
     uiMain app( argc, argv );
 
     SetProgramArgs( argc, argv );
