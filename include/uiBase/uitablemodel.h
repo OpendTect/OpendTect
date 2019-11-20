@@ -41,6 +41,8 @@ protected:
 mExpClass(uiBase) uiTableView : public uiObject
 {
 public:
+    enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
+
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
 
@@ -48,6 +50,7 @@ public:
 
     void			setSortingEnabled(bool);
     bool			isSortingEnabled() const;
+    void			sortByColumn(int col,bool asc=true);
     void			setRowHidden(int row,bool);
     bool			isRowHidden(int row) const;
     void			setColumnHidden(int col,bool);
@@ -57,6 +60,7 @@ public:
 				// source model to filter model
     RowCol			mapToSource(const RowCol&) const;
 				// filter model to source model
+    void			setSelectionBehavior(SelectionBehavior);
 
 protected:
 

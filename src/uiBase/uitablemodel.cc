@@ -167,6 +167,14 @@ void uiTableView::setSortingEnabled( bool yn )
 bool uiTableView::isSortingEnabled() const
 { return odtableview_->isSortingEnabled(); }
 
+
+void uiTableView::sortByColumn( int col, bool asc )
+{
+    odtableview_->sortByColumn( col,
+			asc ? Qt::AscendingOrder : Qt::DescendingOrder );
+}
+
+
 void uiTableView::setRowHidden( int row, bool yn )
 { odtableview_->setRowHidden( row, yn ); }
 
@@ -195,3 +203,11 @@ RowCol uiTableView::mapToSource( const RowCol& rc ) const
     QModelIndex qmi = qproxymodel_->mapFromSource( proxyidx );
     return RowCol( qmi.row(), qmi.column() );
 }
+
+
+void uiTableView::setSelectionBehavior( SelectionBehavior sb )
+{
+    odtableview_->setSelectionBehavior(
+		sCast(QAbstractItemView::SelectionBehavior,sCast(int,sb)) );
+}
+
