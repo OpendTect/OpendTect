@@ -58,7 +58,7 @@ public:
     bool			removeSelections(TaskRunner*);
     bool			selectable() const		{ return true; }
     bool			canRemoveSelection() const	{ return true; }
-    bool			allowMaterialEdit() const	{ return true; }
+    bool			allowMaterialEdit() const	{ return false;}
     virtual void		setPixelDensity(float);
 
     virtual void		getMousePosInfo(const visBase::EventInfo&,

@@ -113,8 +113,6 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     if ( !display )
 	return;
 
-    menu->removeItems();
-
     bool dispcorrect = false;
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
     {
@@ -128,6 +126,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 
     if ( !dispcorrect ) return;
 
+    menu->removeItems();
     mAddMenuItem( menu, &propmenuitem_, true, false );
     propmenuitem_.iconfnm = "disppars";
     mAddMenuItem( menu, &createbodymnuitem_, true, false );
