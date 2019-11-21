@@ -70,6 +70,8 @@ public:
 
     void		setFieldNames(const char* nm1,const char* nm2=0);
 
+    void		set3D(bool);
+
 protected:
 
     uiSpinBox*		fld1_;
