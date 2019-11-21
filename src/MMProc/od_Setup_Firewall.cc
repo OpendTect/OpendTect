@@ -42,7 +42,7 @@ public:
 			{ createDirPaths(); }
     bool		handleProcess(BufferString&, bool);
     bool		ispyproc_;
-
+    void		updateDirPath(FilePath*);
 protected:
     void		createDirPaths();
 
@@ -55,6 +55,7 @@ protected:
 void SetUpFirewallServerTool::createDirPaths()
 {
     odpath_ = GetExecPlfDir();
+
     BufferString strcheck = odpath_.fullPath();
 
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
@@ -64,12 +65,28 @@ void SetUpFirewallServerTool::createDirPaths()
     const bool pythonsource = OD::PythonSourceDef().parse( pythonsetts,
 	OD::PythonAccess::sKeyPythonSrc(), source );
 
-    if ( !pythonsource || source != OD::PythonSource::Custom ||
+    if ( !pythonsource ||
 	!pythonsetts.get(OD::PythonAccess::sKeyEnviron(), pythonloc) )
 	return;
 
     pypath_ = pythonloc;
     pypath_.add( "envs" );
+}
+
+
+void SetUpFirewallServerTool::updateDirPath( FilePath* fp )
+{
+    if ( !fp )
+	return;
+
+    if ( ispyproc_ )
+    {
+	pypath_ = *fp;
+	pypath_.add( "envs" );
+    }
+    else
+	odpath_ = *fp;
+
 }
 
 
@@ -90,7 +107,7 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
     }
 
     uiString command = toadd ? sAddOSCmd() : sDelOSCmd();
-    command.arg( procnm.quote('"') ).arg( fp.fullPath() );
+    command.arg( procnm.quote('"') ).arg( fp.fullPath().quote('"') );
 
     OS::MachineCommand cmd( command.getFullString() );
 
@@ -113,16 +130,21 @@ int main( int argc, char** argv )
     BufferStringSet procnms;
     parser.getNormalArguments( procnms );
 
-    progtool.ispyproc_ = parser.hasKey( sODStr ) ? false : true;
+    const bool ispyproc = parser.hasKey( sODStr ) ? false : true;
+
 
 
     const bool toadd = parser.hasKey( sAddStr );
 
     if ( !toadd && !parser.hasKey(sRemoveStr) )
 	return NULL;
-
     for ( int procidx=0; procidx<procnms.size(); procidx++ )
+    {
+	if ( !progtool.ispyproc_&& procidx==0 )
+	    progtool.updateDirPath( new FilePath(procnms.get(procidx)) );
+
 	progtool.handleProcess( procnms.get(procidx), toadd );
+    }
 
     return true;
 }

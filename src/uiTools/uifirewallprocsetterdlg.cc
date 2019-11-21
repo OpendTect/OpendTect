@@ -148,7 +148,7 @@ BufferStringSet uiFirewallProcSetter::getSelProcList(
 						    odprocnms_ : pyprocnms_;
     if ( type == ProcDesc::DataEntry::OD )
 	odproclistbox_->getChosen( selidxs );
-    else
+    else if ( type == ProcDesc::DataEntry::Python && pythonproclistbox_ )
 	pythonproclistbox_->getChosen( selidxs );
 
     for ( int idx=0; idx<selidxs.size(); idx++ )
@@ -188,7 +188,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     {
 	BufferString fincmd = cmd;
 	if ( idx == 0 )
-	    fincmd.add( "--od " );
+	    fincmd.add( "--od " ).add( exepath_ ).addSpace();
 	else
 	    fincmd.add( "--py " );
 
