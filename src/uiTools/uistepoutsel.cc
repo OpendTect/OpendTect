@@ -147,6 +147,13 @@ void uiStepOutSel::valChanging( CallBacker* cb )
 }
 
 
+void uiStepOutSel::set3D( bool yn )
+{
+    fld1_->display( true );
+    fld1_->setPrefix( mkPrefx( yn ? uiStrings::sInl() : tr("Nr") ) );
+    fld2_->display( yn );
+}
+
 //-----------------------------------------------------------------------------
 
 uiStepout3DSel::uiStepout3DSel( uiParent* p, const uiStepOutSel::Setup& setup )
