@@ -71,7 +71,8 @@ protected:
     virtual uiRetVal	doRequest(const OD::JSON::Object&);
     uiRetVal		doCloseAct();
 
-    static const OD::JSON::Object* getParamsObj(const OD::JSON::Object& req);
+    static const OD::JSON::Object* getSubObj(const OD::JSON::Object&,
+					     const char* key);
     uiRetVal		survChangedAct(const OD::JSON::Object&);
     uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
     static void		getPythEnvRequestInfo(OD::JSON::Object&);

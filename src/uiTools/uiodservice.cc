@@ -75,6 +75,7 @@ uiODServiceBase::uiODServiceBase( bool assignport )
 
 uiODServiceBase::~uiODServiceBase()
 {
+    detachAllNotifiers();
     stopServer();
 }
 
@@ -149,17 +150,18 @@ uiRetVal uiODServiceBase::doCloseAct()
 }
 
 
-const OD::JSON::Object* uiODServiceBase::getParamsObj(
-					 const OD::JSON::Object& request )
+const OD::JSON::Object* uiODServiceBase::getSubObj(
+					 const OD::JSON::Object& request,
+					 const char* key )
 {
-    return request.isPresent(sKey::Pars()) ? request.getObject( sKey::Pars() )
-					   : nullptr;
+    return request.isPresent(key) ? request.getObject( key ) : nullptr;
 }
 
 
 uiRetVal uiODServiceBase::survChangedAct( const OD::JSON::Object& request )
 {
-    const OD::JSON::Object* paramobj = uiODServiceBase::getParamsObj( request );
+    const OD::JSON::Object* paramobj = uiODServiceBase::getSubObj( request,
+							       sKey::Pars() );
     if ( paramobj && paramobj->isPresent(sKey::Survey()) )
     {
 	return DBM().setDataSource(
@@ -172,7 +174,8 @@ uiRetVal uiODServiceBase::survChangedAct( const OD::JSON::Object& request )
 
 uiRetVal uiODServiceBase::pythEnvChangedReq( const OD::JSON::Object& request )
 {
-    const OD::JSON::Object* paramobj = uiODServiceBase::getParamsObj( request );
+    const OD::JSON::Object* paramobj = uiODServiceBase::getSubObj( request,
+							sKeyPyEnvChangeEv() );
     if ( paramobj && paramobj->isPresent(sKey::FileName()) &&
 	 paramobj->isPresent(sKey::Name()) )
     {
@@ -186,6 +189,7 @@ uiRetVal uiODServiceBase::pythEnvChangedReq( const OD::JSON::Object& request )
 	const BufferString virtenvnm( paramobj->getStringValue(sKey::Name() ) );
 	if ( prevactivatefp != activatefp || prevvirtenvnm != virtenvnm )
 	{
+	    NotifyStopper ns( pytha.envChange );
 	    if ( activatefp.isEmpty() )
 		deleteAndZeroPtr( pytha.activatefp_ );
 	    else if ( pytha.activatefp_ )
@@ -195,7 +199,7 @@ uiRetVal uiODServiceBase::pythEnvChangedReq( const OD::JSON::Object& request )
 	    pytha.virtenvnm_ = virtenvnm;
 	    pytha.istested_ = true;
 	    pytha.isusable_ = true;
-	    OD::PythA().envChangeCB( nullptr );
+	    pytha.envChangeCB( nullptr );
 	}
     }
 
@@ -398,7 +402,6 @@ uiODService::uiODService( bool assignport )
 
 uiODService::~uiODService()
 {
-    detachAllNotifiers();
     doDeRegister();
 }
 
