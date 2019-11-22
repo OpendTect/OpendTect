@@ -312,6 +312,7 @@ uiPythonSettings(uiParent* p, const char* nm)
 
 virtual ~uiPythonSettings()
 {
+    detachAllNotifiers();
 }
 
 private:
