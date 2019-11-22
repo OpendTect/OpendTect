@@ -11,7 +11,8 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
-#include "callback.h"
+
+#include "networkcommon.h"
 #include "od_iosfwd.h"
 
 namespace Network { class Server; }
@@ -21,7 +22,7 @@ namespace Network { class Server; }
 mExpClass(MMProc) RemCommHandler : public CallBacker
 {
 public:
-			RemCommHandler(int port);
+			RemCommHandler(PortNr_Type);
 			~RemCommHandler();
 
     void		listen() const; //!< Has to be called
@@ -33,7 +34,7 @@ protected:
     void		writeLog(const char* msg);
     od_ostream&		logstrm_;
 
-    const int		port_;
+    const PortNr_Type	port_;
     Network::Server&	server_;
 
 };

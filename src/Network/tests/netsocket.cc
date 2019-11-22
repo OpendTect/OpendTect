@@ -8,16 +8,12 @@
 #include "netsocket.h"
 
 #include "applicationdata.h"
-#include "limits.h"
-#include "netreqconnection.h"
 #include "netserver.h"
 #include "odsysmem.h"
 #include "odmemory.h"
 #include "oscommand.h"
 #include "statrand.h"
 #include "testprog.h"
-#include "thread.h"
-#include "varlenarray.h"
 
 
 
@@ -35,6 +31,11 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 class TestRunner : public CallBacker
 {
 public:
+
+    TestRunner()
+	: auth_(Network::Socket::sKeyLocalHost(),(PortNr_Type)1025)
+    {}
+
     ~TestRunner()
     {
 	detachAllNotifiers();
@@ -50,8 +51,8 @@ public:
     }
 
     bool		noeventloop_;
-    int			port_;
-    int			timeout_;
+    Network::Authority	auth_;
+    int			timeout_ = 600;
     const char*		prefix_;
     bool		exitonfinish_;
     OS::MachineCommand	servercmd_;
@@ -61,10 +62,9 @@ public:
 bool TestRunner::testNetSocket( bool closeserver )
 {
     Network::Socket connection( !noeventloop_ );
-    connection.setTimeout( 600 );
+    connection.setTimeout( timeout_ );
 
-    if ( !connection.connectToHost(Network::Socket::sKeyLocalHost(),
-				   port_,true) )
+    if ( !connection.connectToHost(auth_,true) )
     {
 	OS::CommandLauncher cl( servercmd_ );
 	if ( !cl.execute(OS::RunInBG) )
@@ -81,13 +81,13 @@ bool TestRunner::testNetSocket( bool closeserver )
 	connection.abort();
     }
 
-    mRunSockTest(
-	    !connection.connectToHost( "non_existing_host", 20000, true ),
-	    "Connect to non-existing host");
+    const Network::Authority nonexisting( "non_existing_host",
+				mCast(PortNr_Type,20000) );
+    mRunSockTest( !connection.connectToHost(nonexisting,true),
+		  "Connect to non-existing host" );
 
-    mRunSockTest(
-	   connection.connectToHost(Network::Socket::sKeyLocalHost(),
-				    port_,true), "Connect to echo server");
+    mRunSockTest( connection.connectToHost(auth_,true),
+		  "Connect to echo server" );
 
     BufferString writebuf = "Hello world";
     const int writesize = writebuf.size()+1;
@@ -179,13 +179,14 @@ int mTestMainFnName(int argc, char** argv)
     clParser().getKeyedInfo( "serverapp", serverapp, true );
     runner->servercmd_.setProgram( serverapp );
 
-    runner->port_ = 1025;
+    int port = 1025;
+    runner->auth_.setPort( mCast(PortNr_Type,port) );
     clParser().getKeyedInfo( "timeout", runner->timeout_, true );
     runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
 
-    runner->timeout_ = 600;
-    clParser().getKeyedInfo( Network::Server::sKeyPort(), runner->port_, true );
-    runner->servercmd_.addKeyedArg( Network::Server::sKeyPort(), runner->port_);
+    if ( clParser().getKeyedInfo(Network::Server::sKeyPort(),port,false) )
+	runner->auth_.setPort( mCast(PortNr_Type,port) );
+    runner->servercmd_.addKeyedArg( Network::Server::sKeyPort(), port );
 
     if ( clParser().hasKey("quiet") )
 	runner->servercmd_.addFlag( "quiet" );

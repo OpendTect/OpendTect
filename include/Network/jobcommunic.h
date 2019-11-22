@@ -10,11 +10,9 @@ ________________________________________________________________________
 
 */
 
-#include "networkmod.h"
-#include "bufstring.h"
+#include "networkcommon.h"
+
 #include "genc.h"
-#include "callback.h"
-#include "uistring.h"
 #include "od_ostream.h"
 
 class BatchProgram;
@@ -52,8 +50,8 @@ public:
     enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,
 			  JobError, HostError, Killed, Timeout };
 
-			JobCommunic( const char* host, int port,
-					int jobid, StreamData& );
+			JobCommunic(const char* host,PortNr_Type,
+				    int jobid,StreamData&);
 			~JobCommunic();
 
     bool		ok()		{ return stillok_; }
@@ -63,12 +61,12 @@ public:
     void		setState( State s ) { stat_ = s; }
 
     bool		updateState()
-			    {
-				bool ret = sendState_(stat_,false,false);
-				mReturn(ret)
-			    }
+			{
+			    bool ret = sendState_(stat_,false,false);
+			    mReturn(ret)
+			}
     bool		updateProgress( int p )
-			    { bool ret = sendProgress_(p,false); mReturn(ret) }
+			{ bool ret = sendProgress_(p,false); mReturn(ret) }
 
     void		setTimeBetweenMsgUpdates(int);
 
@@ -92,8 +90,7 @@ public:
 
 protected:
 
-    BufferString	masterhost_;
-    int			masterport_;
+    Network::Authority	masterauth_;
     bool		stillok_;
     State		stat_;
     uiString		errmsg_;
@@ -110,6 +107,7 @@ protected:
     bool		sendErrMsg_( const char* msg );
 
     void		alarmHndl( CallBacker* ); //!< time-out
+
 private:
 
     bool		updateMsg( char tag, int, const char* msg=0 );

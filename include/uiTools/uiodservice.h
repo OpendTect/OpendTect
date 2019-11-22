@@ -4,35 +4,41 @@
  *
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * Author:	Wayne Mogg
- * Date:		Oct 2019
+ * Date:	Oct 2019
  * RCS:		$Id$
  * ________________________________________________________________________
  *
  * -*/
 
 #include "uitoolsmod.h"
-#include "callback.h"
-#include "uistring.h"
-#include "netreqconnection.h"
-#include "netserver.h"
-#include "netservice.h"
+
+#include "networkcommon.h"
+#include "ptrman.h"
+
+namespace Network {
+    class RequestConnection;
+    class RequestPacket;
+    class RequestServer;
+};
+
+namespace OD {
+    namespace JSON {
+	class Object;
+    };
+};
+
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
-
 
 mExpClass(uiTools) uiODServiceBase : public CallBacker
 { mODTextTranslationClass(uiODServiceBase)
 public:
-    typedef Network::port_nr_type port_nr_type;
 
-    uiODServiceBase(uiODServiceBase const&) = delete;
-    uiODServiceBase(uiODServiceBase&&) = delete;
-    uiODServiceBase& operator=(uiODServiceBase const&) = delete;
-    uiODServiceBase& operator=(uiODServiceBase &&) = delete;
+    virtual		~uiODServiceBase();
 
-    bool		isOK() const { return port()>0; }
-    port_nr_type	port() const { return server_ ?
-					    server_->server()->port() : 0; }
+    bool		isOK() const;
+
+    Network::Authority	getAuthority() const;
     virtual void	stopServer();
 
     static const char*	sKeyAction()		{ return "action"; }
@@ -54,49 +60,85 @@ public:
 
 protected:
 			uiODServiceBase(bool assignport=true);
-    virtual		~uiODServiceBase();
 
-    virtual void	startServer(port_nr_type);
-    void		sendOK(Network::RequestConnection*,
-				RefMan<Network::RequestPacket>);
-    void		sendErr(Network::RequestConnection*,
-				RefMan<Network::RequestPacket>,
-				uiRetVal&);
-    void		sendErr(Network::RequestConnection*,
-				RefMan<Network::RequestPacket>,
-				const char*);
+    static uiRetVal	sendAction(const Network::Authority&,
+				   const char* servicenm,
+				   const char* action,const OD::JSON::Object*);
+    static uiRetVal	sendRequest(const Network::Authority&,
+				    const char* servicenm,
+				    const char* reqkey,const OD::JSON::Object&);
+    virtual uiRetVal	doAction(const OD::JSON::Object&);
+    virtual uiRetVal	doRequest(const OD::JSON::Object&);
+    uiRetVal		doCloseAct();
+
+    static const OD::JSON::Object* getParamsObj(const OD::JSON::Object& req);
+    uiRetVal		survChangedAct(const OD::JSON::Object&);
+    uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
+    static void		getPythEnvRequestInfo(OD::JSON::Object&);
+
+    void		sendOK();
+    void		sendErr(uiRetVal&);
+
+    virtual void	doSurveyChanged(CallBacker*)		{}
+    virtual void	doAppClosing(CallBacker*)		{}
+    virtual void	doPyEnvChange(CallBacker*)		{}
+    bool		needclose_ = false;
+
+private:
+			uiODServiceBase(const uiODServiceBase&) = delete;
+			uiODServiceBase(uiODServiceBase&&) = delete;
+
+    uiODServiceBase&	operator=(const uiODServiceBase&) = delete;
+    uiODServiceBase&	operator=(uiODServiceBase &&) = delete;
+
+    virtual void	startServer(PortNr_Type);
+
+    void		newConnectionCB(CallBacker*);
+    void		packetArrivedCB(CallBacker*);
+    void		connClosedCB(CallBacker*);
+
+    void		surveyChangedCB(CallBacker*);
+    void		appClosingCB(CallBacker*);
+    void		pyenvChangeCB(CallBacker*);
 
     Network::RequestServer*	server_ = nullptr;
+    Network::RequestConnection*		conn_ = nullptr;
+    RefMan<Network::RequestPacket>	packet_;
+
 };
 
 
 mExpClass(uiTools) uiODService : public uiODServiceBase
 { mODTextTranslationClass(uiODService)
 public:
-			uiODService(uiODService const&) = delete;
-			uiODService(uiODService&&) = delete;
-			uiODService& operator=(uiODService const&) = delete;
-			uiODService& operator=(uiODService &&) = delete;
 
-    void	setServiceName( const char* nm ) { serviceinfo_.setName(nm); }
-protected:
-			uiODService(bool assignport=false);
+    typedef int ID;
+
     virtual		~uiODService();
 
-    void		packetArrivedCB(CallBacker*);
-    void		connClosedCB(CallBacker*);
-    void		newConnectionCB(CallBacker*);
-    void		appClosingCB(CallBacker*);
+    bool		isODMainSlave() const;
 
-    uiRetVal		sendAction( OD::JSON::Object* );
-    virtual uiRetVal	doAction( const OD::JSON::Object& );
+protected:
+
+			uiODService(bool assignport=false);
+
+    uiRetVal		sendAction(const char* act,
+				   const OD::JSON::Object* =nullptr) const;
+    uiRetVal		doAction(const OD::JSON::Object&) override;
+    uiRetVal		close();
+
+private:
+			uiODService(const uiODService&) = delete;
+			uiODService(uiODService&&) = delete;
+
+    uiODService&	operator=(const uiODService&) = delete;
+    uiODService&	operator=(uiODService &&) = delete;
+
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
+    void		doPyEnvChange(CallBacker*) override;
 
-    void		statusMsg( uiString );
-
-    Network::Service	serviceinfo_;
-    BufferString	odhostname_;
-    port_nr_type	odport_;
+    Network::Authority	odauth_;
+    ID			servid_ = 0;
 
 };

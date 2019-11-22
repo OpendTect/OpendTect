@@ -10,24 +10,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
-
-#include "refcount.h"
-#include "ptrman.h"
-#include "manobjectset.h"
-#include "gendefs.h"
-#include "thread.h"
-#include "objectset.h"
-#include "notify.h"
-#include "uistring.h"
+#include "networkcommon.h"
 
 class QEventLoop;
 
 namespace Network
 {
 
-class Socket;
 class Server;
+class Socket;
 class RequestPacket;
 struct PacketSendData;
 
@@ -47,15 +38,10 @@ struct PacketSendData;
  */
 
 
-typedef unsigned short  port_nr_type;
-
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
-
-
-			RequestConnection(const char* servername,
-					  port_nr_type serverport,
+			RequestConnection(const Authority&,
 					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
@@ -67,8 +53,8 @@ public:
 
     bool		isOK() const;		//!< is the conn usable?
     bool		stillTrying() const;	//!< if not OK, may it become?
-    const char*		server() const		{ return servername_; }
-    port_nr_type	port() const		{ return serverport_; }
+    BufferString	server() const;
+    PortNr_Type		port() const;
     int			ID() const		{ return id_; }
 
     bool		sendPacket(const RequestPacket&,
@@ -97,13 +83,6 @@ public:
 
     uiString		errMsg() const		{ return errmsg_; }
 
-    static port_nr_type	getUsablePort(uiRetVal&,port_nr_type firstport
-					      =0,int maxportstotry=100);
-				//!<Returns 0 if none found
-    static port_nr_type	getUsablePort(port_nr_type firstport=0);
-    static bool		isPortFree(port_nr_type port,uiString* errmsg=nullptr);
-    static port_nr_type	getNextCandidatePort();
-
 private:
 
     mutable uiString		errmsg_;
@@ -118,8 +97,7 @@ private:
 
     int				id_;
 
-    BufferString		servername_;
-    port_nr_type		serverport_;
+    Authority*			authority_ = nullptr;
 
     Threads::Thread*		socketthread_;
     QEventLoop*			eventloop_;
@@ -158,12 +136,13 @@ mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
 
-				RequestServer(port_nr_type serverport,
-						const char* addr =nullptr);
+				RequestServer(PortNr_Type,SpecAddr=Any);
 				~RequestServer();
 
     bool			isOK() const;
     Server*			server()		{ return server_; }
+    Authority			getAuthority() const;
+				//Just what is needed for a connection
 
     Notifier<RequestServer>	newConnection;
     RequestConnection*		pickupNewConnection();
@@ -180,7 +159,6 @@ private:
     ObjectSet<RequestConnection> pendingconns_;
 
     Threads::Lock		lock_;
-    port_nr_type		serverport_;
     Server*			server_;
 
 };

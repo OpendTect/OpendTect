@@ -18,10 +18,7 @@ ________________________________________________________________________
 
 #include <limits.h>
 
-#ifndef OD_NO_QT
 #include "qtcpsocketcomm.h"
-#include <QHostAddress>
-#endif
 
 # define mCheckThread \
     if ( thread_!=Threads::currentThread() ) \
@@ -31,11 +28,7 @@ ________________________________________________________________________
 
 
 Network::Socket::Socket( bool haveevloop )
-#ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
-#else
-    : qtcpsocket_(0)
-#endif
     , socketcomm_( 0 )
     , timeout_( 30000 )
     , noeventloop_( !haveevloop )
@@ -45,18 +38,12 @@ Network::Socket::Socket( bool haveevloop )
     , ownssocket_( true )
     , thread_( Threads::currentThread() )
 {
-#ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
-#endif
 }
 
 
 Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
-#ifndef OD_NO_QT
     : qtcpsocket_(s)
-#else
-    : qtcpsocket_(0)
-#endif
     , socketcomm_(0)
     , timeout_( 30000 )
     , noeventloop_( !haveevloop )
@@ -66,28 +53,21 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     , error( this )
     , thread_( Threads::currentThread() )
 {
-#ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
-#endif
 }
 
 
 Network::Socket::~Socket()
 {
-#ifndef OD_NO_QT
     socketcomm_->disconnect();
     mCheckThread;
     socketcomm_->deleteLater();
     if ( ownssocket_ ) qtcpsocket_->deleteLater();
-#endif
 }
 
 
-bool Network::Socket::connectToHost( const char* host, int port, bool wait )
+bool Network::Socket::connectToHost( const Authority& auth, bool wait )
 {
-#ifdef OD_NO_QT
-    return false;
-#else
     mCheckThread;
 
     if ( noeventloop_ )
@@ -100,18 +80,16 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 	return false;
     }
 
-    //TODO: convert sKeyLocalHost() to its IPv4 address?
-    const BufferString addr( System::hostAddress(host) );
-    if ( addr.isEmpty() )
-	qtcpsocket_->connectToHost( QString(host), port );
+    const PortNr_Type port = auth.getPort();
+    if ( auth.addressIsValid() )
+	qtcpsocket_->connectToHost( auth.qhostaddr_, port );
     else
-	qtcpsocket_->connectToHost( QHostAddress(QString(addr)), port );
+	qtcpsocket_->connectToHost( auth.qhost_, port );
 
     if ( wait )
 	return waitForConnected();
 
     return true;
-#endif
 }
 
 
@@ -126,8 +104,6 @@ bool Network::Socket::disconnectFromHost( bool wait )
 
     bool res = true;
 
-#ifndef OD_NO_QT
-
     qtcpsocket_->disconnectFromHost();
     const QAbstractSocket::SocketState state = qtcpsocket_->state();
     if ( wait && state != QAbstractSocket::UnconnectedState )
@@ -136,8 +112,6 @@ bool Network::Socket::disconnectFromHost( bool wait )
 	if ( !res )
 	    errmsg_.setFrom( qtcpsocket_->errorString() );
     }
-
-#endif
 
     if ( res )
 	disconnected.trigger();
@@ -148,31 +122,20 @@ bool Network::Socket::disconnectFromHost( bool wait )
 
 bool Network::Socket::isBad() const
 {
-#ifdef OD_NO_QT
-    return false;
-#else
     const QAbstractSocket::SocketState state = qtcpsocket_->state();
     return state == QAbstractSocket::UnconnectedState
 	|| state == QAbstractSocket::ClosingState;
-#endif
 }
 
 
 bool Network::Socket::isConnected() const
 {
-#ifdef OD_NO_QT
-    return false;
-#else
     const QAbstractSocket::SocketState state = qtcpsocket_->state();
     return state == QAbstractSocket::ConnectedState;
-#endif
 }
 
 od_int64 Network::Socket::bytesAvailable() const
 {
-#ifdef OD_NO_QT
-    return false;
-#else
     od_int64 res = qtcpsocket_->bytesAvailable();
     if ( res || !noeventloop_ )
 	return res;
@@ -182,16 +145,13 @@ od_int64 Network::Socket::bytesAvailable() const
     qtcpsocket_->waitForReadyRead( 1 );
 
     return qtcpsocket_->bytesAvailable();
-#endif
 }
 
 
 void Network::Socket::abort()
 {
     mCheckThread;
-#ifndef OD_NO_QT
     qtcpsocket_->abort();
-#endif
 }
 
 // 2000 is a margin. Qt has a margin of 32, but we don't wish to
@@ -201,7 +161,6 @@ static const od_int64 maxbuffersize = ((INT_MAX/2-2000));
 
 bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
-#ifndef OD_NO_QT
     mCheckThread;
     const char* buf = (const char*) voidbuf;
     if ( noeventloop_ )
@@ -247,16 +206,11 @@ bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
     }
 
     return true;
-
-#else
-    return false;
-#endif
 }
 
 
 bool Network::Socket::waitForWrite( bool forall ) const
 {
-#ifndef OD_NO_QT
     while ( qtcpsocket_->bytesToWrite() )
     {
 	od_int64 oldpayload = qtcpsocket_->bytesToWrite();
@@ -272,7 +226,6 @@ bool Network::Socket::waitForWrite( bool forall ) const
 	if ( !forall )
 	    break;
     }
-#endif
 
     return true;
 }
@@ -323,7 +276,6 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
 							od_int64 sz ) const
 {
     mCheckThread;
-#ifndef OD_NO_QT
     char* buf = (char*)voidbuf;
 
     if ( !waitForConnected() )
@@ -357,10 +309,6 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
     }
 
     return ReadOK;
-
-#else
-    return ReadError;
-#endif
 }
 
 
@@ -466,8 +414,6 @@ bool Network::Socket::waitForConnected() const
     if ( isConnected() )
 	return true;
 
-#ifndef OD_NO_QT
-
     //Have we started at something?
     QAbstractSocket::SocketState state = qtcpsocket_->state();
     if ( state > QAbstractSocket::UnconnectedState )
@@ -483,14 +429,12 @@ bool Network::Socket::waitForConnected() const
     }
 
     errmsg_ = tr("No connection");
-#endif
     return false;
 }
 
 
 bool Network::Socket::waitForNewData() const
 {
-#ifndef OD_NO_QT
     while ( !qtcpsocket_->bytesAvailable() )
     {
 	qtcpsocket_->waitForReadyRead( timeout_ );
@@ -501,7 +445,6 @@ bool Network::Socket::waitForNewData() const
 	    return false;
 	}
     }
-#endif
 
     return true;
 }

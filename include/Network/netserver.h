@@ -11,9 +11,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
-#include "notify.h"
-#include "bufstring.h"
+#include "networkcommon.h"
 
 mFDQtclass(QTcpSocket)
 mFDQtclass(QTcpServer)
@@ -25,17 +23,17 @@ namespace Network
 
 class Socket;
 
-
 mExpClass(Network) Server : public CallBacker
 {
 public:
 			Server();
 			~Server();
 
-    bool		listen(const char* host,int port=0);
-			//!<If host is 0, server will listen to any host
+    bool		listen(SpecAddr=Any,PortNr_Type port=0);
+			//!<If Any, server will listen to all network interfaces
     bool		isListening() const;
-    int			port() const;
+    PortNr_Type		port() const;
+    Authority		authority() const;
 
     void		close();
     bool		hasPendingConnections() const;

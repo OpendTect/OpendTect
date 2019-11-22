@@ -27,7 +27,7 @@ int main( int argc, char** argv )
     if ( dofork )
 	ForkProcess();
 
-    RemCommHandler* handler = new RemCommHandler( 5050 );
+    RemCommHandler* handler = new RemCommHandler(mCast(PortNr_Type,5050) );
     handler->listen();
     const bool res = app.exec();
 

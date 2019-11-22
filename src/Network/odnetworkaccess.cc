@@ -21,10 +21,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "uistrings.h"
 
-#ifndef OD_NO_QT
 # include <QByteArray>
 # include <QNetworkProxy>
-#endif
 
 
 bool Network::exists( const char* url )
@@ -167,16 +165,12 @@ FileDownloader::FileDownloader( const char* url )
 
 FileDownloader::~FileDownloader()
 {
-#ifndef OD_NO_QT
-
-#endif
     delete osd_;
 }
 
 
 int FileDownloader::nextStep()
 {
-#ifndef OD_NO_QT
     if ( totalnr_ < 0 )
 	return errorOccured();
 
@@ -205,15 +199,11 @@ int FileDownloader::nextStep()
     }
 
     return MoreToDo();
-#else
-    return 0;
-#endif
 }
 
 
 od_int64 FileDownloader::getDownloadSize()
 {
-#ifndef OD_NO_QT
     od_int64 totalbytes = 0;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
@@ -231,15 +221,11 @@ od_int64 FileDownloader::getDownloadSize()
 
     odnr_ = 0;
     return totalbytes;
-#else
-    return 0;
-#endif
 }
 
 
 bool FileDownloader::writeData()
 {
-#ifndef OD_NO_QT
     od_int64 bytes = odnr_->downloadBytesAvailable();
     mAllocLargeVarLenArr( char, buffer, bytes );
     bytes = odnr_->read( buffer, bytes );
@@ -248,9 +234,6 @@ bool FileDownloader::writeData()
 	return writeDataToBuffer( buffer, bytes );
     else
 	return writeDataToFile( buffer, bytes );
-#else
-    return false;
-#endif
 }
 
 
@@ -293,11 +276,9 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 
 int FileDownloader::errorOccured()
 {
-#ifndef OD_NO_QT
     msg_ = tr("Oops! Something went wrong.\n");
     if (odnr_)
 	msg_ = tr("Details: %1").arg( odnr_->errMsg() );
-#endif
     return ErrorOccurred();
 }
 
@@ -426,12 +407,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 
 DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
-#ifndef OD_NO_QT
     : data_( data )
-#else
-    : data_(0)
-    , qeventloop_(0)
-#endif
     , nrdone_(0)
     , totalnr_(0)
     , odnr_(0)
@@ -448,7 +424,6 @@ DataUploader::~DataUploader()
 
 int DataUploader::nextStep()
 {
-#ifndef OD_NO_QT
     if ( init_ )
     {
 	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
@@ -476,20 +451,15 @@ int DataUploader::nextStep()
     }
 
     return MoreToDo();
-#else
-    return 0;
-#endif
 }
 
 
 int DataUploader::errorOccured()
 {
-#ifndef OD_NO_QT
     msg_ = tr("Oops! Something went wrong.\n");
     if (odnr_)
 	msg_ = tr("Details: %1")
 	     .arg( odnr_->errMsg() );
-#endif
     return ErrorOccurred();
 }
 
@@ -549,11 +519,9 @@ void Network::setHttpProxyFromIOPar( const IOPar& pars )
     pars.getYN( Network::sKeyUseProxy(), useproxy );
     if ( !useproxy )
     {
-#ifndef OD_NO_QT
 	QNetworkProxy proxy;
 	proxy.setType( QNetworkProxy::NoProxy );
 	QNetworkProxy::setApplicationProxy( proxy );
-#endif
 	return;
     }
 
@@ -601,7 +569,6 @@ bool Network::getProxySettingsFromUser()
 void Network::setHttpProxy( const char* hostname, int port, bool auth,
 			    const char* username, const char* password )
 {
-#ifndef OD_NO_QT
     QNetworkProxy proxy;
     proxy.setType( QNetworkProxy::HttpProxy );
     proxy.setHostName( hostname );
@@ -613,7 +580,6 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
     }
 
     QNetworkProxy::setApplicationProxy( proxy );
-#endif
 }
 
 
