@@ -65,9 +65,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 
-static float sMaxNrLayToBeDisplayed = 500.0f;
-static const char* sKeyDecimation() { return "Decimation"; }
-
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
 const char* uiStratLayerModel::sKeyModeler2Use()
