@@ -236,7 +236,6 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     , inputfld_(nullptr)
     , doreplacefld_(nullptr)
     , eachfld_(nullptr)
-    , nrdisplayfld_(nullptr)
     , presmathfld_(nullptr)
     , lm_(lm)
     , pars_(pars)
@@ -261,12 +260,6 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     {
 	eachfld_ = new uiGenInput( this, tr("Read each"), IntInpSpec(1,1,1000) );
 	eachfld_->attach( alignedBelow, laymodfld_ );
-
-	nrdisplayfld_ = new uiGenInput( this, tr("Display Nr Wells"),
-					IntInpSpec(10,1) );
-	nrdisplayfld_->setWithCheck();
-	nrdisplayfld_->setChecked( true );
-	nrdisplayfld_->attach( rightTo, eachfld_ );
 
 	doreplacefld_ = new uiGenInput( this, tr("Replace existing model"),
 					BoolInpSpec(true) );
@@ -307,13 +300,6 @@ bool usePar()
 	bool doreplace = true;
 	if ( pars_.getYN(sKeyDoClear(),doreplace) )
 	    doreplacefld_->setValue( doreplace );
-
-	int nrmodels;
-	if ( pars_.get(sKeyNrDisplay(),nrmodels) )
-	{
-	    nrdisplayfld_->setValue( nrmodels );
-	    nrdisplayfld_->setChecked( true );
-	}
     }
     else
     {
@@ -336,23 +322,11 @@ void fillPar()
     {
 	pars_.set( sKeyUseEach(), eachfld_->getIntValue() );
 	pars_.setYN( sKeyDoClear(), doreplacefld_->getBoolValue() );
-	if ( nrdisplayfld_->isChecked() )
-	    pars_.set( sKeyNrDisplay(), nrdisplayfld_->getIntValue() );
     }
     else
     {
 	pars_.setYN( sKeyPreserveMath(), presmathfld_->getBoolValue() );
     }
-}
-
-
-int getNrDisplayModels()
-{
-    int nrmoddisp = 100;
-    if ( !pars_.get(sKeyNrDisplay(),nrmoddisp) )
-	return mUdf(int);
-
-    return nrmoddisp;
 }
 
 
@@ -400,7 +374,6 @@ bool acceptOK( CallBacker* )
     uiIOObjSel*			laymodfld_;
     uiGenInput*			doreplacefld_;
     uiGenInput*			eachfld_;
-    uiGenInput*			nrdisplayfld_;
     uiGenInput*			presmathfld_;
 
     const Strat::LayerModel&	lm_;
@@ -430,13 +403,8 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !dlg.go() )
 	return false;
 
-    const int nrdisplaymodels = dlg.getNrDisplayModels();
-    if ( !mIsUdf(nrdisplaymodels) && nrdisplaymodels > 0 )
-    {
-	const int nrmodels = lm.size();
-	if ( nrdisplaymodels <= nrmodels )
-	    tools_.setDispEach( nrmodels/nrdisplaymodels );
-    }
+    const int nrmodels = lm.size();
+    tools_.setDispEach( sCast(int,Math::Ceil(nrmodels/100.f)) );
 
     return true;
 }

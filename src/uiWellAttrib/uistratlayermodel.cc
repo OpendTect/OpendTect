@@ -942,16 +942,13 @@ void uiStratLayerModel::modEd( CallBacker* )
 
 void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
 {
-    int decimation = mUdf(int);
-    if ( desc_.getWorkBenchParams().get(sKeyDecimation(),decimation) &&
-	 !overridedispeach )
+    int decimation = modtools_->dispEach();
+    if ( !overridedispeach )
 	return;
 
     const int nrmods = nrModels();
-    const int nrseq = desc_.size();
-    decimation =
-	sCast(int,floor(sCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed)) + 1;
-    desc_.getWorkBenchParams().set( sKeyDecimation(), decimation );
+    decimation = sCast(int,Math::Ceil(nrmods/100.f));
+    modtools_->setDispEach( decimation );
 }
 
 
@@ -984,6 +981,7 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
     doGenModels( isgo, isgo && seqdisp_->separateDisplay() );
 }
+
 
 void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
 {

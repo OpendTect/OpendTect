@@ -86,7 +86,6 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 				tr("Generate this amount of models"), gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );
-    rightgrp->setFrame( true );
 }
 
 
@@ -173,7 +172,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     eachlbl_ = new uiLabel( leftgrp, tr("each") );
     eachlbl_->attach( rightOf, contfld_ );
     eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
-    eachfld_->setInterval( 1, 1000 );
+    eachfld_->setInterval( 1, 100000 );
     eachfld_->attach( rightOf, eachlbl_ );
     eachfld_->valueChanging.notify(
 				mCB(this,uiStratLayModEditTools,dispEachCB) );
@@ -210,7 +209,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 void uiStratLayModEditTools::setNoDispEachFld()
 {
     eachlbl_->display( false ); eachfld_->display( false );
-    eachfld_ = 0;
+    eachfld_ = nullptr;
 }
 
 
@@ -250,7 +249,7 @@ void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
 
 const char* uiStratLayModEditTools::selProp() const
 {
-    return propfld_->isEmpty() ? 0 : propfld_->text();
+    return propfld_->isEmpty() ? nullptr : propfld_->text();
 }
 
 
@@ -271,7 +270,7 @@ int uiStratLayModEditTools::selPropIdx() const
 
 const char* uiStratLayModEditTools::selLevel() const
 {
-    return lvlfld_->isEmpty() ? 0 : lvlfld_->text();
+    return lvlfld_->isEmpty() ? nullptr : lvlfld_->text();
 }
 
 
@@ -283,14 +282,14 @@ int uiStratLayModEditTools::selLevelIdx() const
 
 const char* uiStratLayModEditTools::selContent() const
 {
-    return contfld_->isEmpty() ? 0 : contfld_->text();
+    return contfld_->isEmpty() ? nullptr : contfld_->text();
 }
 
 
 const Strat::Level* uiStratLayModEditTools::selStratLevel() const
 {
     const int lvlidx = selLevelIdx();
-    return lvlidx < 0 ? 0 : Strat::LVLS().levels()[lvlidx];
+    return lvlidx < 0 ? nullptr : Strat::LVLS().levels()[lvlidx];
 }
 
 
@@ -417,7 +416,7 @@ void uiStratLayModEditTools::fillPar( IOPar& par ) const
     if ( par.getYN( key(), yn ) ) \
     { \
 	func( yn ); \
-	cb( 0 ); \
+	cb( nullptr ); \
     } \
 }
 
@@ -436,13 +435,6 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     mSetProp( propfld_, sKeyDisplayedProp );
     mSetProp( lvlfld_, sKeySelectedLevel );
     mSetProp( contfld_, sKeySelectedContent );
-
-    int decimation;
-    if ( par.get( sKeyDecimation(), decimation ) )
-    {
-	setDispEach( decimation );
-	dispEachCB( 0 );
-    }
 
     mSetYN( setDispZoomed, sKeyZoomToggle, dispZoomedCB );
     mSetYN( setDispLith, sKeyDispLith, dispLithCB );
@@ -473,10 +465,10 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 					"referenced with the same type. \n"
 					"Please specify which one to use as: "),
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
-	, vsfld_(0)
-	, porosityfld_(0)
-	, initialsatfld_(0)
-	, finalsatfld_(0)
+    , vsfld_(nullptr)
+    , initialsatfld_(nullptr)
+    , finalsatfld_(nullptr)
+    , porosityfld_(nullptr)
 {
     mCreatePropSelFld(den, tr("Reference for Density"), PropertyRef::Den, 0);
     mCreatePropSelFld(vp, tr("Reference for Vp"), PropertyRef::Vel, lblboxden);
@@ -601,16 +593,16 @@ const char* uiStratLayModFRPropSelector::getSelVPName() const
 { return vpfld_->text(); }
 
 const char* uiStratLayModFRPropSelector::getSelVSName() const
-{ return vsfld_ ? vsfld_->text() : 0; }
+{ return vsfld_ ? vsfld_->text() : nullptr; }
 
 const char* uiStratLayModFRPropSelector::getSelDenName() const
 { return denfld_->text(); }
 
 const char* uiStratLayModFRPropSelector::getSelPorName() const
-{ return porosityfld_ ? porosityfld_->text() : 0; }
+{ return porosityfld_ ? porosityfld_->text() : nullptr; }
 
 const char* uiStratLayModFRPropSelector::getSelInitialSatName() const
-{ return initialsatfld_ ? initialsatfld_->text() : 0; }
+{ return initialsatfld_ ? initialsatfld_->text() : nullptr; }
 
 const char* uiStratLayModFRPropSelector::getSelFinalSatName() const
-{ return finalsatfld_ ? finalsatfld_->text() : 0; }
+{ return finalsatfld_ ? finalsatfld_->text() : nullptr; }
