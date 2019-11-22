@@ -15,10 +15,10 @@
 #include "uimsg.h"
 
 #include "dbman.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "netreqconnection.h"
 #include "netreqpacket.h"
-#include "keystrs.h"
 
 
 /*!\brief The OpendTect service manager */

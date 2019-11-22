@@ -256,7 +256,7 @@ uiODMain::uiODMain( uiMain& a )
     if ( !useallcpus )
 	cputxt_ = tr("[cpu] %1/%2").arg( odnrcpus ).arg( systemnrcpus );
 
-    postFinalise().notify( mCB(this,uiODMain,afterStartupCB) );
+    mAttachCB( postFinalise(), uiODMain::afterStartupCB );
 }
 
 
