@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uiobj.h"
+#include "rowcol.h"
 
 class ODAbstractTableModel;
 class ODTableView;
@@ -51,6 +52,11 @@ public:
     bool			isRowHidden(int row) const;
     void			setColumnHidden(int col,bool);
     bool			iscolumnHidden(int col) const;
+
+    RowCol			mapFromSource(const RowCol&) const;
+				// source model to filter model
+    RowCol			mapToSource(const RowCol&) const;
+				// filter model to source model
 
 protected:
 

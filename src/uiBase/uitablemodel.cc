@@ -179,3 +179,19 @@ void uiTableView::setColumnHidden( int col, bool yn )
 bool uiTableView::iscolumnHidden( int col ) const
 { return odtableview_->isColumnHidden( col ); }
 
+
+RowCol uiTableView::mapFromSource( const RowCol& rc ) const
+{
+    QModelIndex sourceidx =
+	tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
+    QModelIndex qmi = qproxymodel_->mapFromSource( sourceidx );
+    return RowCol( qmi.row(), qmi.column() );
+}
+
+
+RowCol uiTableView::mapToSource( const RowCol& rc ) const
+{
+    QModelIndex proxyidx = qproxymodel_->index( rc.row(), rc.col() );
+    QModelIndex qmi = qproxymodel_->mapFromSource( proxyidx );
+    return RowCol( qmi.row(), qmi.column() );
+}
