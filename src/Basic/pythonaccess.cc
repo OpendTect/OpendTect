@@ -896,8 +896,9 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
 	    return packmanexe.baseName();
 
 #ifdef __win__
-	packmanexe.setFileName( nullptr ).setFileName( nullptr )
-		  .add( "Scripts" );
+	packmanexe.setFileName( nullptr );
+	packmanexe.setFileName( nullptr );
+	packmanexe.add( "Scripts" );
 #endif
 	packmanexe.setFileName( "pip" );
 #ifdef __win__
