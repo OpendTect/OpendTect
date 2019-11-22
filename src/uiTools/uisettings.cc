@@ -581,11 +581,13 @@ uiPythonSettings(uiParent* p, const char* nm)
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
-			mCB(this, uiPythonSettings, testCB), true);
+			mCB(this,uiPythonSettings,testCB), true);
+    testbut->setIcon( "test" );
     testbut->attach( ensureBelow, customenvnmfld_ );
 
     uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
-				 mCB(this,uiPythonSettings,promptCB), true );
+			mCB(this,uiPythonSettings,promptCB), true );
+    cmdwinbut->setIcon( "launch" );
     cmdwinbut->attach( rightOf, testbut );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
@@ -613,13 +615,13 @@ void setPythonPath()
 
 void initDlg(CallBacker*)
 {
-    usePar(curSetts());
+    usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
 	setPythonPath();
     sourceChgCB(0);
 }
 
-IOPar&	curSetts()
+IOPar& curSetts()
 {
     BufferString pythonstr( sKey::Python() );
     return Settings::fetch( pythonstr.toLower() );
@@ -637,7 +639,7 @@ void getChanges()
 	workpar = new IOPar;
 
     fillPar( *workpar );
-    if ( !curSetts().isEqual(*workpar, true) )
+    if ( !curSetts().isEqual(*workpar,true) )
     {
 	if ( !alreadyedited )
 	    chgdsetts_ = workpar;
@@ -684,8 +686,8 @@ void fillPar( IOPar& par ) const
 void usePar( const IOPar& par )
 {
     OD::PythonSource source;
-    if (!OD::PythonSourceDef().parse(par,
-		OD::PythonAccess::sKeyPythonSrc(), source))
+    if ( !OD::PythonSourceDef().parse(par,
+		OD::PythonAccess::sKeyPythonSrc(), source) )
     {
 	source = OD::PythonAccess::hasInternalEnvironment(false)
 	       ? OD::Internal : OD::System;
@@ -703,10 +705,7 @@ void usePar( const IOPar& par )
     {
 	BufferString envroot, envnm;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
-	{
 	    customloc_->setFileName( envroot );
-	    customEnvChgCB( nullptr );
-	}
 
 	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
 				     !envnm.isEmpty() );
@@ -753,12 +752,13 @@ void parChgCB( CallBacker* )
     getChanges();
 }
 
+
 void setCustomEnvironmentNames()
 {
     const BufferString envroot( customloc_->fileName() );
     const FilePath fp( envroot, "envs" );
     if ( !fp.exists() )
-        return;
+	return;
 
     BufferStringSet envnames;
     const DirList dl( fp.fullPath(), DirList::DirsOnly );
@@ -766,6 +766,7 @@ void setCustomEnvironmentNames()
         envnames.add( FilePath(dl.fullPath(idx)).baseName() );
     customenvnmfld_->setEmpty();
     customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
+    customenvnmfld_->setChecked( !envnames.isEmpty() );
 }
 
 void testPythonModules()
@@ -788,26 +789,24 @@ void testPythonModules()
 
 void testCB(CallBacker*)
 {
-    needrestore_ = chgdsetts_;
     if ( !useScreen() )
-        return;
+	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
-    if ( !OD::PythA().isUsable(true) )
+    const bool getversion = OD::PythA().retrievePythonVersionStr();
+    if ( !getversion )
     {
-        uiString launchermsg;
-        uiRetVal uirv( tr("Cannot detect python version:\n%1")
-                        .arg(OD::PythA().lastOutput(true,&launchermsg)) );
-        uirv.add( tr("Python environment not usable") )
-            .add( launchermsg );
-        uiMSG().error( uirv );
-        return;
+	uiString launchermsg;
+	uiRetVal uirv( tr("Cannot detect python version:\n%1")
+		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
+	uirv.add( tr("Python environment not usable") )
+	    .add( launchermsg );
+	uiMSG().error( uirv );
+	return;
     }
 
-    BufferString versionstr( OD::PythA().lastOutput(false,nullptr) );
-    if ( versionstr.isEmpty() )
-        versionstr.set( OD::PythA().lastOutput(true,nullptr) );
-    uiMSG().message( tr("Detected Python version: %1").arg(versionstr));
+    uiMSG().message( tr("Detected Python version: %1")
+			.arg(OD::PythA().pyVersion() ));
 
     usw.setMessage( tr("Retrieving list of installed Python modules") );
     testPythonModules();
@@ -815,20 +814,8 @@ void testCB(CallBacker*)
 
 void promptCB( CallBacker* )
 {
-    needrestore_ = chgdsetts_;
     if ( !useScreen() )
 	return;
-
-    if ( !OD::PythA().isUsable(true) )
-    {
-        uiString launchermsg;
-        uiRetVal uirv( tr("Cannot detect python version:\n%1")
-                        .arg(OD::PythA().lastOutput(true,&launchermsg)) );
-        uirv.add( tr("Python environment not usable") )
-            .add( launchermsg );
-        uiMSG().error( uirv );
-        return;
-    }
 
     const BufferString termem = SettingsAccess().getTerminalEmulator();
     BufferString cmd;
@@ -844,8 +831,9 @@ bool useScreen()
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
-                OD::PythonSourceDef().getEnumForIndex(sourceidx);
+		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
+    uiString envrootstr = tr("Evironment root" );
     if ( source == OD::Internal && internalloc_ )
     {
         const BufferString envroot( internalloc_->fileName() );
@@ -880,27 +868,58 @@ bool useScreen()
         }
     }
 
-        if ( !chgdsetts_ )
-        return true;
+    if ( !chgdsetts_ )
+	return true;
 
+    needrestore_ = chgdsetts_;
     if ( commitSetts(*chgdsetts_) )
-        deleteAndZeroPtr(chgdsetts_);
+	deleteAndZeroPtr(chgdsetts_);
 
     if ( chgdsetts_ )
-        return false;
+	return false;
 
+    OD::PythA().istested_ = false;
     return true;
 }
 
 bool rejectOK( CallBacker* )
 {
-    return needrestore_ ? commitSetts( initialsetts_ ) : true;
+    if ( !needrestore_ )
+	return true;
+
+    if ( commitSetts(initialsetts_) )
+    {
+	OD::PythA().istested_ = false;
+	OD::PythA().envChangeCB( nullptr );
+    }
+    else
+	uiMSG().warning( tr("Cannot restore the initial settings") );
+
+    return true;
 }
 
 bool acceptOK( CallBacker* )
 {
-    needrestore_ = false;
-    return useScreen();
+    bool isok = true; bool ismodified = false;
+    if ( chgdsetts_ )
+    {
+	isok = useScreen();
+	ismodified = true;
+    }
+    needrestore_ = !isok;
+    if ( isok )
+    {
+	if ( ismodified )
+	{
+	    OD::PythA().istested_ = false;
+	    OD::PythA().envChangeCB( nullptr );
+	    needrestore_ = false;
+	}
+    }
+    else
+	uiMSG().warning( tr("Cannot use the new settings") );
+
+    return isok;
 }
 
     uiGenInput*		pythonsrcfld_;

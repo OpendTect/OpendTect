@@ -13,12 +13,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pythonaccess.h"
 
 #include "ascstream.h"
+#include "bufstringset.h"
 #include "dirlist.h"
 #include "envvars.h"
+#include "genc.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "oscommand.h"
+#include "separstr.h"
 #include "procdescdata.h"
 #include "settings.h"
 #include "string2.h"
@@ -29,9 +33,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
-
-#define mFileRetentionTimeInMilliSec 60000
-#define mDelCycleTym		    mFileRetentionTimeInMilliSec*5
 
 
 OD::PythonAccess& OD::PythA()
@@ -69,11 +70,10 @@ void EnumDefImpl<OD::PythonSource>::init()
 }
 
 
+
 OD::PythonAccess::PythonAccess()
     : envChange(this)
-    , filedeltimer_(*new Timer( "Delete Files" ))
 {
-    mAttachCB( filedeltimer_.tick, PythonAccess::handleFilesCB );
 }
 
 
@@ -82,9 +82,6 @@ OD::PythonAccess::~PythonAccess()
 {
     detachAllNotifiers();
     delete activatefp_;
-    delete &filedeltimer_;
-    for ( int idx=fptodelset_.size()-1; idx>=0; idx-- )
-	File::remove( fptodelset_[idx]->fullPath() );
 }
 
 
@@ -132,20 +129,79 @@ void OD::PythonAccess::initProcs()
 }
 
 
-bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
-				 const char* scriptexpectedout ) const
+BufferString OD::PythonAccess::pyVersion() const
+{
+    if ( pythversion_.isEmpty() )
+    {
+	PythonAccess& acc = const_cast<PythonAccess&>( *this );
+	acc.retrievePythonVersionStr();
+    }
+
+    return pythversion_;
+}
+
+
+uiString OD::PythonAccess::pySummary() const
+{
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    PythonSource source;
+    if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source))
+	source = System;
+
+    uiStringSet result;
+    result += tr("Using");
+    result += uiString(tr("%1 %2").arg(source).arg(pyVersion()));
+
+    if ( source == Custom )
+    {
+	BufferString virtenvloc;
+	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	{
+	    if ( virtenvnm_.isEmpty() )
+		result += uiString(tr("from %1").arg(virtenvloc));
+	    else
+		result += uiString(tr("environment %1 in %2").arg(virtenvnm_)
+							    .arg(virtenvloc));
+	}
+    }
+
+    return result.cat( " " );
+}
+
+
+uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
+				     const char* scriptexpectedout ) const
 {
     if ( !force )
-	return isusable_;
+	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
 
     OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
-    return pytha.isUsable( force, scriptstr, scriptexpectedout );
+    const bool isusable = pytha.isUsable( force, scriptstr, scriptexpectedout );
+    if ( isusable )
+	return uiRetVal::OK();
+
+    uiString clmsg;
+    const BufferString stdoutstr( lastOutput(true,&clmsg) );
+    const BufferString stderrstr( lastOutput(false,nullptr) );
+
+    uiRetVal ret;
+    if ( !clmsg.isEmpty() )
+	ret.add( clmsg );
+    if ( !stdoutstr.isEmpty() )
+	ret.add( toUiString(stdoutstr) );
+    if ( !stderrstr.isEmpty() )
+	ret.add( toUiString(stderrstr) );
+    return ret;
 }
 
 
 bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
+    static bool force_external = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    if ( force_external )
+	return (isusable_ = istested_ = true);
     if ( !force )
 	return isusable_;
 
@@ -159,10 +215,7 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	source == System;
 
     if ( usesystem )
-    {
-	isusable_ = isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
-	return isusable_;
-    }
+	return isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
 
     PtrMan<FilePath> externalroot = nullptr;
     PtrMan<BufferString> virtenvnm;
@@ -186,10 +239,7 @@ bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	const FilePath* pythonenvfp = pythonenvsfp[idx];
 	const BufferString& envnm = envnms.get( idx );
 	if ( isEnvUsable(pythonenvfp,envnm.buf(),scriptstr,scriptexpectedout) )
-	{
-	    isusable_ = true;
 	    return true;
-	}
     }
 
     return false;
@@ -268,21 +318,24 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	virtenvnm_.setEmpty();
     }
 
-    msg_.setEmpty();
-    if ( !notrigger )
-	envChange.trigger();
+    if ( pythversion_.isEmpty() && moduleinfos_.isEmpty() )
+	notrigger = false;
 
-    return true;
+    msg_.setEmpty();
+    isusable_ = true;
+    if ( !notrigger )
+	envChangeCB(nullptr);
+
+    return isusable_;
 }
 
 
 bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				bool wait4finish ) const
 {
-    OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
-					      : OS::RunInBG );
-    execpars.prioritylevel_ = 0.f;
+    OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish : OS::RunInBG );
     execpars.createstreams_ = true;
+    execpars.prioritylevel_ = 0.f;
     return execute( cmd, execpars );
 }
 
@@ -292,7 +345,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString* stderrstr,
 				uiString* errmsg ) const
 {
-    if ( !isUsable(!istested_) )
+    if ( !const_cast<PythonAccess&>(*this).isUsable(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, nullptr, nullptr, activatefp_,
@@ -312,7 +365,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				const OS::CommandExecPars& pars,
 				int* pid, uiString* errmsg ) const
 {
-    if ( !isUsable(!istested_) )
+    if ( !const_cast<PythonAccess&>(*this).isUsable(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf());
@@ -373,12 +426,25 @@ bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 }
 
 
+static BufferString getPIDFilePathStr( const FilePath& scriptfp )
+{
+    FilePath ret( scriptfp );
+    ret.setExtension( "pid" );
+    return ret.fullPath();
+}
+
+
 FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
-					  const FilePath* activatefp,
-					  const char* envnm )
+					bool background,
+					const FilePath* activatefp,
+					const char* envnm )
 {
     if ( !activatefp || !envnm )
+    {
+	const OS::MachineCommand cmdret( cmd );
+	cmd = cmdret;
 	return nullptr;
+    }
 
     FilePath* ret = new FilePath( FilePath::getTempName() );
     if ( !ret )
@@ -397,10 +463,16 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 
 #ifdef __win__
     strm.add( "@SETLOCAL" ).add( od_newline );
-    strm.add( "@ECHO OFF" ).add( od_newline );
+    strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
+    if ( background )
+    {
+	strm.add( "SET procnm=%~n0" ).add( od_newline );
+	strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
+	strm.add( "SET pidfile=\"%~dpn0.pid\"" ).add( od_newline ).add( od_newline);
+    }
     strm.add( "@CALL \"" );
 #else
-    strm.add( "#!/bin/bash" ).add( "\n\n" );
+    strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline );
     strm.add( "source " );
 #endif
     strm.add( activatefp->fullPath() );
@@ -409,29 +481,50 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #endif
     if ( envnm )
 	strm.add( " " ).add( envnm ).add( od_newline );
-    strm.add( cmd.command() ).add( od_newline );
 #ifdef __win__
-    strm.add( "conda deactivate" ).add( od_newline );
+    if ( background )
+	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
+    strm.add( cmd.command() );
+    if ( background )
+    {
+#ifdef __win__
+	strm.add( od_newline );
+	strm.add( "timeout 2 > nul" ).add( od_newline );
+	strm.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI" );
+	strm.add( " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO " );
+	strm.add( "(SET \"PROCRET=%%g\")" ).add( od_newline );
+	strm.add( "FOR /F \"tokens=2 delims=,\" %%g IN (\"%PROCRET%\") DO (" );
+	strm.add( "SET \"PIDRET=%%g\")" ).add( od_newline );
+	strm.add( "ECHO %PIDRET:\"=% > %PIDFILE%" );
+#else
+	strm.add( " 2>/dev/null" );
+	strm.add( " &" ).add( od_newline );
+	strm.add( "echo $! > " ).add( getPIDFilePathStr(*ret) );
+#endif
+    }
+    strm.add( od_newline );
+
     strm.close();
 #ifdef __unix__
     File::makeExecutable( ret->fullPath(), true );
 #endif
-	BufferString cmdstr( ret->fullPath() );
-	OS::CommandLauncher::addQuotesIfNeeded( cmdstr );
-    cmd = OS::MachineCommand( cmdstr );
+    cmd = OS::MachineCommand( ret->fullPath() );
+
     return ret;
 }
 
 
 OS::CommandLauncher* OD::PythonAccess::getLauncher(
 						const OS::MachineCommand& mc,
+						bool background,
 						const FilePath* activatefp,
 						const char* envnm,
 						FilePath& scriptfpret )
 {
     OS::MachineCommand scriptcmd( mc );
-    PtrMan<FilePath> scriptfp = getCommand( scriptcmd, activatefp, envnm );
+    PtrMan<FilePath> scriptfp = getCommand( scriptcmd, background,
+					    activatefp, envnm );
     if ( scriptfp )
 	scriptfpret = *scriptfp;
     else
@@ -442,31 +535,28 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 }
 
 
-void OD::PythonAccess::handleFilesCB( CallBacker* )
+void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int* pid )
 {
-    filedeltimer_.stop();
-    for ( int idx=fptodelset_.size()-1; idx>=0; idx-- )
+    double waittm = 10., waitstep = 0.1;
+    while ( waittm > 0. )
     {
-	const FilePath& fp = *fptodelset_[idx];
-	if ( !fp.exists() )
-	{
-	    fptodelset_.removeSingle( idx );
-	    continue;
-	}
+	waittm -= waitstep;
+	if ( !File::exists(pidfnm) )
+	    { Threads::sleep( waitstep ); continue; }
 
-	const BufferString scriptfnm( fp.fullPath() );
-	const od_int64 creationtime = File::getTimeInMilliSeconds( scriptfnm );
-	const od_int64 currtime = Time::getMilliSeconds();
-	const double timediff = creationtime - currtime;
-	if ( timediff < mFileRetentionTimeInMilliSec )
-	    continue;
+	BufferString pidstr;
+	if ( !File::getContent(pidfnm,pidstr) || pidstr.isEmpty() )
+	    { Threads::sleep( waitstep ); continue; }
 
-	File::remove( scriptfnm );
-	fptodelset_.removeSingle( idx );
+	const int localpid = pidstr.toInt();
+	if ( !isProcessAlive(localpid) )
+	    { Threads::sleep( waitstep ); continue; }
+
+	if ( pid )
+	    *pid = localpid;
+	File::remove( pidfnm );
+	return;
     }
-
-    if ( !fptodelset_.isEmpty() && !filedeltimer_.isActive() )
-	filedeltimer_.start( mDelCycleTym );
 }
 
 
@@ -480,7 +570,8 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     msg_.setEmpty();
 
     FilePath scriptfp;
-    cl_ = getLauncher( cmd, activatefp, envnm, scriptfp );
+    const bool background = execpars && execpars->launchtype_ == OS::RunInBG;
+    cl_ = getLauncher( cmd, background, activatefp, envnm, scriptfp );
     if ( !cl_.ptr() )
     {
 	msg_ = tr("Cannot create launcher for command '%1'")
@@ -495,14 +586,10 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 
     if ( !scriptfp.isEmpty() )
     {
-	if ( res && execpars && (execpars->launchtype_ == OS::RunInBG) )
-	{
-	    fptodelset_.add( new FilePath(scriptfp) );
-	    if ( !filedeltimer_.isActive() )
-		filedeltimer_.start( mDelCycleTym );
-	}
-	else
-	    File::remove( scriptfp.fullPath() );
+	const BufferString pidfnm( getPIDFilePathStr(scriptfp) );
+	if ( res && background )
+	    getPIDFromFile( pidfnm, pid );
+	File::remove( scriptfp.fullPath() );
     }
 
     if ( !res )
@@ -695,44 +782,252 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
 }
 
 
-bool OD::PythonAccess::hasInternalEnvironment(bool userdef)
+bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 {
-    const FilePath fp(getInternalEnvPath(userdef));
+    const FilePath fp( getInternalEnvPath( userdef ) );
     return fp.exists();
 }
 
 
-uiRetVal OD::PythonAccess::getModules( ObjectSet<ModuleInfo>& mods,
-				       const char* cmd )
+bool OD::PythonAccess::retrievePythonVersionStr()
 {
-    OS::MachineCommand mc( cmd );
+    if ( !isUsable(!istested_) )
+	return false;
+
+    const BufferString comm( sPythonExecNm(true), " --version" );
+    const OS::MachineCommand cmd( comm );
+    BufferString laststdout, laststderr;
+    const bool res = execute( cmd, laststdout, &laststderr );
+    if ( res )
+    {
+	if ( !laststdout.isEmpty() )
+	    pythversion_ = laststdout;
+	else if ( !laststderr.isEmpty() )
+	    pythversion_ = laststderr;
+    }
+
+    return !pythversion_.isEmpty();
+}
+
+
+void OD::PythonAccess::envChangeCB( CallBacker* )
+{
+    retrievePythonVersionStr();
+    const uiRetVal uirv = updateModuleInfo( nullptr );
+    if ( !uirv.isOK() )
+	msg_.append( uirv );
+
+    envChange.trigger();
+}
+
+
+uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
+{
+    if ( !isUsable(!istested_) )
+	return uiRetVal( tr("Could not detect a valid Python installation.") );
+
+    static bool force_external_ok = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    if ( force_external_ok )
+	return uiRetVal::OK();
+
+    if ( !msg_.isEmpty() )
+	return uiRetVal( msg_ );
+
+    FilePath fp( mGetSWDirDataDir() );
+    fp.add( "Python" );
+    BufferString genericName( piname );
+    genericName.add( "_requirements" );
+    BufferString platSpecificName( piname );
+    platSpecificName.add( "_requirements_" )
+		    .add(OD::Platform::local().shortName());
+
+    fp.add( platSpecificName ).setExtension( "txt" );
+    if ( !fp.exists() )
+    {
+	fp.setFileName( genericName );
+	fp.setExtension( "txt" );
+	if ( !fp.exists() )
+	    return uiRetVal( uiStrings::sFileDoesntExist() );
+    }
+
+    od_istream strm( fp.fullPath() );
+    if ( !strm.isOK() )
+	return uiRetVal( tr("Can't open requirements file: %1").arg(
+			    fp.fullPath() ) );
+
+    BufferString line;
+    bool newlinefound = true;
+    int lnum = 1;
+    uiRetVal retval;
+    while ( strm.isOK() )
+    {
+	strm.getLine( line, &newlinefound );
+	if ( !newlinefound )
+	    break;
+	BufferStringSet modulestr;
+	modulestr.unCat( line, "==" );
+	BufferString modname = modulestr.get(0).trimBlanks().toLower();
+	if ( modulestr.size() == 1 )
+	    retval.add( hasModule( modname ) );
+	else if (modulestr.size() >= 2 )
+	{
+	    BufferString ver = modulestr.get( 1 ).trimBlanks();
+	    retval.add( hasModule( modname, ver ) );
+	} else
+	    retval.add( tr("Python requirements file: %1 error at line: %2"
+			    ).arg( fp.fullPath() ).arg( lnum ) );
+	lnum++;
+    };
+
+    return retval;
+}
+
+
+BufferString OD::PythonAccess::getPacmanExecNm() const
+{
+    if ( activatefp_ )
+    {
+	FilePath packmanexe( *activatefp_ );
+	packmanexe.setFileName( "conda" );
+#ifdef __win__
+	packmanexe.setExtension( "bat" );
+#endif
+	if ( packmanexe.exists() )
+	    return packmanexe.baseName();
+
+#ifdef __win__
+	packmanexe.setFileName( nullptr ).setFileName( nullptr )
+		  .add( "Scripts" );
+#endif
+	packmanexe.setFileName( "pip" );
+#ifdef __win__
+	packmanexe.setExtension( "exe" );
+#endif
+	if ( packmanexe.exists() )
+	    return packmanexe.baseName();
+
+	packmanexe.setFileName( "pip3" );
+	if ( packmanexe.exists() )
+	    return packmanexe.baseName();
+
+	return BufferString( "pip" ); //Fallback
+    }
+
+#ifdef __win__
+    return BufferString( "pip" );
+#else
+    return BufferString( "pip3" );
+#endif
+}
+
+
+uiRetVal OD::PythonAccess::hasModule( const char* modname,
+				      const char* minversion ) const
+{
+    uiString msg;
+    if ( minversion )
+	msg = tr("Package: %1 Version: %2 or higher required").arg( modname )
+		.arg( minversion );
+    else
+	msg = tr("Package: %1 required").arg( modname );
+
+    for ( int idx=0; idx<moduleinfos_.size(); idx++ )
+    {
+	const ModuleInfo* module = moduleinfos_[idx];
+	if ( module->name() == modname )
+	{
+	    if ( minversion ) {
+		const SeparString actverstr( module->versionstr_, '.' );
+		const SeparString reqverstr( minversion, '.' );
+		for ( int ver=0; ver<reqverstr.size(); ver++ )
+		{
+		    if ( actverstr.getUIValue(ver)<
+			 reqverstr.getUIValue(ver) )
+			return uiRetVal( tr("%1, but installed Version: %2")
+					    .arg( msg )
+			.arg( module->versionstr_ ) );
+		    else if ( actverstr.getUIValue(ver)>reqverstr
+				.getUIValue(ver))
+			break;
+		}
+	    }
+	    return uiRetVal::OK();
+	}
+    }
+
+    return uiRetVal( tr("%1, but module not found").arg( msg ) );
+}
+
+
+uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
+{
+    BufferString modulecmd( cmd );
+    if ( modulecmd.isEmpty() )
+	modulecmd.set( getPacmanExecNm() ).addSpace().add( "list" );
+
+    moduleinfos_.setEmpty();
+
+    BufferStringSet cmdstrs;
+    cmdstrs.unCat( modulecmd, " " );
+    if ( cmdstrs.isEmpty() )
+	return uiRetVal( tr("Invalid command: %1").arg(modulecmd) );
+
+    const BufferString prognm( cmdstrs.first()->str() );
+    cmdstrs.removeSingle(0);
+    BufferString comm( prognm );
+    comm.addSpace().add( cmdstrs.cat( " " ) );
+    OS::MachineCommand mc( comm );
     BufferString laststdout, laststderr;
     bool res = execute( mc, laststdout, &laststderr );
 #ifdef __unix__
-    if ( !res )
+    if ( !res && prognm == FixedString("pip") )
     {
-	BufferStringSet cmdstrs;
-	cmdstrs.unCat( cmd, " " );
-	if ( !cmdstrs.isEmpty() && cmdstrs.get(0) == "pip" )
-	{
-	    cmdstrs.get(0) = "pip3";
-	    mc.setCommand( cmdstrs.cat( " " ) );
-	    res = execute( mc, laststdout, &laststderr );
-	}
+	comm.set( "pip3" ).addSpace().add( cmdstrs.cat( " " ) );
+	mc.setCommand( comm );
+	res = execute( mc, laststdout, &laststderr );
     }
 #endif
-    if ( !res )
-    {
-	return uiRetVal( tr("Cannot detect list of python modules:\n%1")
-				.arg(laststderr) );
-    }
-
     BufferStringSet modstrs;
     modstrs.unCat( laststdout );
-    for ( int idx=2; idx<modstrs.size(); idx++ )
-	mods.add( new ModuleInfo( modstrs[idx]->buf() ) );
+    if ( !res || modstrs.isEmpty() )
+    {
+	return uiRetVal( tr("Cannot generate a list of python modules:\n%1")
+			    .arg(laststderr) );
+    }
+
+    for ( int idx=0; idx<modstrs.size(); idx++ )
+    {
+	BufferString& modstr = modstrs.get( idx );
+	if ( modstr.startsWith("#") ||
+	     modstr.startsWith("Package") || modstr.startsWith("----") )
+	    continue;
+	moduleinfos_.add( new ModuleInfo( modstr.trimBlanks().toLower() ) );
+    }
 
     return uiRetVal::OK();
+}
+
+
+uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
+{
+    uiRetVal retval;
+    if ( moduleinfos_.isEmpty() )
+    {
+	retval = updateModuleInfo( nullptr );
+	if ( !retval.isOK() )
+	    return retval;
+    }
+
+    mods.setEmpty();
+    for ( int idx=0; idx<moduleinfos_.size(); idx++ )
+    {
+	const ModuleInfo* module = moduleinfos_[idx];
+	ModuleInfo* minfo = new ModuleInfo( module->name() );
+	minfo->versionstr_ = module->versionstr_;
+	mods.add( minfo );
+    }
+
+    return retval;
 }
 
 

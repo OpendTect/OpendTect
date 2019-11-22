@@ -282,14 +282,6 @@ void uiPresentationMakerDlg::checkCB( CallBacker* )
 
 bool uiPresentationMakerDlg::checkInstallation()
 {
-    if ( !OD::PythA().isUsable(true) )
-    {
-	uiMSG().error( tr("Could not detect a valid Python installation.\n"
-			  "Please visit the \"Utilities | Settings | Advanced | Python Settings\" menu \n"
-			  "to specify the default Python installation.") );
-	return false;
-    }
-
     if ( !OD::PythA().isModuleUsable("pptx") )
     {
 	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"

@@ -20,6 +20,8 @@ ________________________________________________________________________
 
 class FilePath;
 class Timer;
+class uiODServiceBase;
+class uiPythonSettings;
 class uiString;
 
 namespace OS {
@@ -43,10 +45,7 @@ namespace OD
 			PythonAccess();
 			~PythonAccess();
 
-	bool		isUsable(bool force=false,
-				 const char* scriptstr=nullptr,
-				 const char* scriptexpectedout=nullptr);
-	bool		isUsable(bool force=false,
+	uiRetVal	isUsable(bool force=false,
 				 const char* scriptstr=nullptr,
 				 const char* scriptexpectedout=nullptr) const;
 
@@ -62,6 +61,8 @@ namespace OD
 				uiString* errmsg=nullptr) const;
 
 	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
+	BufferString	pyVersion() const;
+	uiString	pySummary() const;
 
 	bool		isModuleUsable(const char* nm) const;
 
@@ -84,9 +85,13 @@ namespace OD
 	    BufferString	versionstr_;
 	};
 
-	uiRetVal	getModules(ObjectSet<ModuleInfo>&,
-				   const char* cmd="pip list");
-
+	uiRetVal	verifyEnvironment(const char* piname);
+	BufferString	getPacmanExecNm() const;
+	uiRetVal	updateModuleInfo(const char* cmd="pip list");
+			/*<! Pass nullptr to auto-detect */
+	uiRetVal	hasModule(const char* modname,
+				  const char* minversion=0) const;
+	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 
     private:
 
@@ -98,9 +103,12 @@ namespace OD
 	mutable BufferString	laststdout_;
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
-	Timer&		filedeltimer_;
-	mutable ManagedObjectSet<const FilePath> fptodelset_;
+	BufferString	pythversion_;
+	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
+	bool		isUsable(bool force=false,
+				 const char* scriptstr=nullptr,
+				 const char* scriptexpectedout=nullptr);
 	static bool	getInternalEnvironmentLocation(FilePath&,
 							   bool userdef);
 	static FilePath getInternalEnvPath(bool userdef);
@@ -114,19 +122,25 @@ namespace OD
 				    const char* scriptstr,
 				    const char* scriptexpectedout);
 	static FilePath* getCommand(OS::MachineCommand&,
+				      bool background,
 				      const FilePath* activatefp,
 				      const char* envnm);
 	static OS::CommandLauncher* getLauncher(const OS::MachineCommand&,
+				  bool background,
 				  const FilePath* activatefp,
 				  const char* envnm,
 				  FilePath& scriptfp);
+	static void		getPIDFromFile(const char* pidfnm,int* pid);
 	bool			doExecute(const OS::MachineCommand&,
 				  const OS::CommandExecPars*,int* pid,
 				  const FilePath* activatefp,
 				  const char* envnm) const;
 	static FilePath*	getActivateScript(const FilePath& root);
+	bool			retrievePythonVersionStr();
+	void			envChangeCB(CallBacker*);
 
-	void			handleFilesCB(CallBacker*);
+	friend class ::uiPythonSettings;
+	friend class ::uiODServiceBase;
 
     public:
 	void			initProcs(); //Only for init of Basic module
@@ -138,8 +152,6 @@ namespace OD
     mGlobal(Basic) bool canDoCUDA(BufferString& maxverstr);
 
 } //namespace OD
-
-
 
 
 #endif
