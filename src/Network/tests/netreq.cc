@@ -39,6 +39,7 @@ public:
     ~Tester()
     {
 	detachAllNotifiers();
+	delete authority_;
 	CallBack::removeFromThreadCalls( this );
     }
 
@@ -51,8 +52,7 @@ public:
 
     bool runTest( bool sendkill, bool multithreaded )
     {
-	Network::RequestConnection conn( hostname_, (unsigned short)port_,
-					 multithreaded );
+	Network::RequestConnection conn( *authority_, multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
 	      toString(conn.errMsg()) );
@@ -137,8 +137,8 @@ public:
 	    //disconnect, and we should not be able to read the packet.
 	    //
 	    //Further, the errorcode should be set correctly.
-	    Network::RequestConnection conn2( hostname_, (unsigned short)port_,
-					 multithreaded );
+
+	    Network::RequestConnection conn2( *authority_, multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
 	      toString(conn.errMsg()) );
@@ -250,8 +250,7 @@ public:
     bool			sendres_;
 
     BufferString		prefix_;
-    BufferString		hostname_;
-    int				port_;
+    Network::Authority*		authority_ = nullptr;
 };
 
 
@@ -264,15 +263,17 @@ int mTestMainFnName(int argc, char** argv)
     clParser().setKeyHasValue( "serverapp" );
 
     PtrMan<Tester> runner = new Tester;
-    runner->port_ = 1025;
-    clParser().getKeyedInfo( portkey, runner->port_, true );
-    runner->hostname_ = Network::Socket::sKeyLocalHost();
+    int port = 1025;
+    clParser().getKeyedInfo( portkey, port, true );
+    delete runner->authority_;
+    runner->authority_ = new Network::Authority(
+	Network::Socket::sKeyLocalHost(), mCast(PortNr_Type,port) );
     runner->prefix_ = "[singlethreaded] ";
 
     BufferString echoapp = "test_netreqechoserver";
     clParser().getKeyedInfo( "serverapp", echoapp );
     OS::MachineCommand echocmd( echoapp );
-    echocmd.addKeyedArg( portkey, runner->port_ );
+    echocmd.addKeyedArg( portkey, runner->authority_->getPort() );
     echocmd.addFlag( "quiet" );
 
     OS::CommandExecPars execpars( OS::RunInBG );

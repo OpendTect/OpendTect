@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 #include "mmprocmod.h"
 
-#include "bufstring.h"
-#include "callback.h"
+#include "networkcommon.h"
 #include "oscommand.h"
 
 class HostData;
@@ -63,8 +62,9 @@ mExpClass(MMProc) JobIOMgr : public CallBacker
 public:
     enum		Mode { Work, Pause, Stop };
 
-			JobIOMgr(int firstport=19345,float priority=-1.f,
-				 od_ostream* logstrm=0);
+			JobIOMgr(PortNr_Type firstport=19345,
+				 float priority=-1.f,
+				 od_ostream* logstrm=nullptr);
     virtual		~JobIOMgr();
 
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }

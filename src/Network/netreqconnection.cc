@@ -10,21 +10,15 @@ ________________________________________________________________________
 
 #include "netreqconnection.h"
 
-#include "applicationdata.h"
-#include "envvars.h"
 #include "netreqpacket.h"
-#include "netsocket.h"
 #include "netserver.h"
+#include "netsocket.h"
 #include "timefun.h"
-#include "ptrman.h"
 #include "uistrings.h"
-#include "systeminfo.h"
 
-#ifndef OD_NO_QT
-# include <QObject>
-# include <QCoreApplication>
-# include <QTcpSocket>
-#endif
+#include <QObject>
+#include <QCoreApplication>
+#include <QTcpSocket>
 
 namespace Network
 {
@@ -44,17 +38,15 @@ struct PacketSendData : public RefCount::Referenced
 static Threads::Atomic<int> connid;
 
 
-RequestConnection::RequestConnection( const char* servername,
-				      port_nr_type servport,
+RequestConnection::RequestConnection( const Authority& authority,
 				      bool multithreaded,
 				      int timeout )
     : socket_( 0 )
     , ownssocket_( true )
-    , servername_( servername )
-    , serverport_( servport )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
+    , authority_(new Authority(authority))
     , socketthread_( 0 )
     , eventloop_( 0 )
     , timeout_( timeout )
@@ -83,7 +75,6 @@ RequestConnection::RequestConnection( const char* servername,
 RequestConnection::RequestConnection( Network::Socket* sock )
     : socket_( sock )
     , ownssocket_( false )
-    , serverport_( mUdf(port_nr_type) )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
@@ -103,6 +94,7 @@ RequestConnection::~RequestConnection()
 {
     detachAllNotifiers();
 
+    delete authority_;
     if ( eventloop_ )
     {
 	eventloop_->exit();
@@ -181,12 +173,18 @@ void RequestConnection::connectToHost( bool witheventloop )
 	return;
     }
 
+    if ( !authority_ )
+    {
+	pErrMsg("I did not expect no authority" );
+	return;
+    }
+
     Network::Socket* newsocket = new Network::Socket( witheventloop );
 
     if ( timeout_ > 0 )
 	newsocket->setTimeout( timeout_ );
 
-    if ( newsocket->connectToHost(servername_,serverport_) )
+    if ( newsocket->connectToHost(*authority_,true) )
 	mAttachCB(newsocket->disconnected,RequestConnection::connCloseCB);
 
     Threads::MutexLocker locker( lock_ );
@@ -204,6 +202,18 @@ bool RequestConnection::isOK() const
 	errmsg_.append( socket_->errMsg(), true );
 
     return !badsocket;
+}
+
+
+BufferString RequestConnection::server() const
+{
+    return authority_ ? authority_->getHost() : BufferString::empty();
+}
+
+
+PortNr_Type RequestConnection::port() const
+{
+    return authority_ ? authority_->getPort() : 0;
 }
 
 
@@ -496,19 +506,17 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 }
 
 
-RequestServer::RequestServer( port_nr_type servport, const char* addr )
-    : serverport_( servport )
-    , server_( new Network::Server )
+
+RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
+    : server_( new Network::Server )
     , newConnection( this )
 {
     if ( !server_ )
 	return;
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
-    if ( !server_->listen(addr,serverport_) )
-    {
-	errmsg_ = tr("Cannot start listening on port %1").arg( serverport_ );
-    }
+    if ( !server_->listen(specaddr,servport) )
+	errmsg_ = tr("Cannot start listening on port %1").arg( servport );
 }
 
 
@@ -517,13 +525,19 @@ RequestServer::~RequestServer()
     detachAllNotifiers();
 
     deepErase( pendingconns_ );
-    deleteAndZeroPtr( server_ );
+    delete server_;
 }
 
 
 bool RequestServer::isOK() const
 {
     return server_ && server_->isListening();
+}
+
+
+Authority RequestServer::getAuthority() const
+{
+    return server_ ? server_->authority() : Authority();
 }
 
 
@@ -557,51 +571,14 @@ void RequestServer::newConnectionCB(CallBacker* cb)
 }
 
 
-bool RequestConnection::isPortFree( port_nr_type port, uiString* errmsg )
+bool isPortFree( PortNr_Type port, uiString* errmsg )
 {
-    const BufferString addr( System::localAddress() );
-    const RequestServer reqserv( port, addr );
+    const RequestServer reqserv( port );
     const bool ret = reqserv.isOK();
     if ( errmsg && !reqserv.errMsg().isEmpty() )
 	errmsg->set( reqserv.errMsg() );
 
     return ret;
-}
-
-
-static Threads::Atomic<port_nr_type> lastusableport_ = 0;
-
-
-port_nr_type RequestConnection::getNextCandidatePort()
-{
-    if ( lastusableport_ == 0 )
-	lastusableport_ = (port_nr_type)GetEnvVarIVal( "OD_START_PORT", 20049 );
-    return lastusableport_ + 1;
-}
-
-
-port_nr_type RequestConnection::getUsablePort( port_nr_type portnr )
-{
-    uiRetVal uirv;
-    return getUsablePort( uirv, portnr, 100 );
-}
-
-
-port_nr_type RequestConnection::getUsablePort( uiRetVal& uirv,
-					 port_nr_type portnr, int nrtries )
-{
-    uiString errmsg;
-    if ( portnr == 0 )
-	portnr = getNextCandidatePort();
-
-    for ( int idx=0; idx<nrtries; idx++, portnr++ )
-    {
-	if ( isPortFree(portnr,&errmsg) )
-	    { lastusableport_ = portnr; return portnr; }
-    }
-
-    uirv = errmsg;
-    return 0;
 }
 
 }; //Network

@@ -12,25 +12,25 @@
 
 #include "uimain.h"
 #include "uimainwin.h"
+#include "uimsg.h"
 #include "uistatusbar.h"
-#include "envvars.h"
+
+#include "commandlineparser.h"
+#include "dbman.h"
+#include "keystrs.h"
 #include "netreqconnection.h"
 #include "netreqpacket.h"
 #include "netserver.h"
-#include "commandlineparser.h"
+#include "netservice.h"
 #include "settings.h"
-#include "odjson.h"
-#include "dbman.h"
-#include "keystrs.h"
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
 uiODServiceBase::uiODServiceBase( bool assignport )
 {
-    typedef Network::RequestConnection NRC;
     const char* skeyport = Network::Server::sKeyPort();
     const char* skeynolisten = Network::Server::sKeyNoListen();
-    port_nr_type portid = 0;
+    PortNr_Type portid = 0;
 
     int defport = 0;
     Settings::common().get( skeyport, defport );
@@ -44,15 +44,15 @@ uiODServiceBase::uiODServiceBase( bool assignport )
 	if ( clp.hasKey( skeyport ) )
 	    clp.getKeyedInfo( skeyport, clport );
 
-	if ( clport > 0 && NRC::isPortFree( (port_nr_type) clport ) )
-	    portid = (port_nr_type) clport;
+	if ( clport > 0 && Network::isPortFree( (PortNr_Type) clport ) )
+	    portid = (PortNr_Type) clport;
 	else if ( assignport && defport>0
-			 && NRC::isPortFree((port_nr_type) defport) )
-	    portid = (port_nr_type) defport;
+			 && Network::isPortFree((PortNr_Type) defport) )
+	    portid = (PortNr_Type) defport;
 	else if ( assignport )
 	{
 	    uiRetVal uirv;
-	    portid = NRC::getUsablePort( uirv );
+	    portid = Network::getUsablePort( uirv );
 	    if ( !uirv.isOK() )
 	    {
 		pErrMsg( "unable to find usable port" );
@@ -63,6 +63,13 @@ uiODServiceBase::uiODServiceBase( bool assignport )
 
     if ( portid>0 )
 	startServer( portid );
+
+    if ( server_ )
+	mAttachCB( server_->newConnection, uiODServiceBase::newConnectionCB );
+
+    mAttachCB( DBM().surveyChanged, uiODServiceBase::surveyChangedCB );
+    mAttachCB( DBM().applicationClosing, uiODServiceBase::appClosingCB );
+    mAttachCB( OD::PythA().envChange, uiODServiceBase::pyenvChangeCB );
 }
 
 
@@ -72,7 +79,32 @@ uiODServiceBase::~uiODServiceBase()
 }
 
 
-void uiODServiceBase::startServer( port_nr_type portid )
+bool uiODServiceBase::isOK() const
+{
+    return getAuthority().hasAssignedPort();
+}
+
+
+Network::Authority uiODServiceBase::getAuthority() const
+{
+    return server_ ? server_->getAuthority()
+		   : Network::Authority();
+}
+
+
+void uiODServiceBase::surveyChangedCB( CallBacker* cb )
+{ doSurveyChanged(cb); }
+
+
+void uiODServiceBase::appClosingCB( CallBacker* cb )
+{ doAppClosing(cb); }
+
+
+void uiODServiceBase::pyenvChangeCB( CallBacker* cb )
+{ doPyEnvChange(cb); }
+
+
+void uiODServiceBase::startServer( PortNr_Type portid )
 {
     server_ = new Network::RequestServer( portid );
     if ( !server_ || !server_->isOK() )
@@ -90,78 +122,98 @@ void uiODServiceBase::stopServer()
 }
 
 
-void uiODServiceBase::sendOK( Network::RequestConnection* conn,
-				 RefMan<Network::RequestPacket> packet )
+uiRetVal uiODServiceBase::doAction( const OD::JSON::Object& actobj )
 {
-    OD::JSON::Object response;
-    response.set( sKeyOK(), BufferString::empty() );
-    packet->setPayload( response );
-    if ( !conn->sendPacket( *packet ) )
-	{ pErrMsg("sendOK - failed"); }
+    const BufferString action( actobj.getStringValue( sKeyAction()) );
+    if ( action == sKeyStatusEv() )
+	uiMain::theMain().topLevel()->statusBar()->message( tr("Status") );
+
+    return uiRetVal::OK();
 }
 
 
-void uiODServiceBase::sendErr( Network::RequestConnection* conn,
-			RefMan<Network::RequestPacket> packet, uiRetVal& uirv )
+uiRetVal uiODServiceBase::doRequest( const OD::JSON::Object& request )
 {
-    sendErr( conn, packet, uirv.getText() );
+    if ( request.isPresent(sKeyPyEnvChangeEv()) )
+	return pythEnvChangedReq( request );
+
+    return uiRetVal( tr("Unknown JSON packet type: %1")
+			.arg( request.dumpJSon() ) );
 }
 
 
-void uiODServiceBase::sendErr( Network::RequestConnection* conn,
-		    RefMan<Network::RequestPacket> packet, const char* msg )
+uiRetVal uiODServiceBase::doCloseAct()
 {
-    OD::JSON::Object response;
-    response.set( sKeyError(), msg );
-    packet->setPayload( response );
-    if ( !conn->sendPacket( *packet ) )
-	{ pErrMsg("sendErr - failed"); }
+    needclose_ = true;
+    return uiRetVal::OK();
 }
 
-uiODService::uiODService( bool assignport )
-: uiODServiceBase(assignport)
-, odport_(0)
-, serviceinfo_(port())
+
+const OD::JSON::Object* uiODServiceBase::getParamsObj(
+					 const OD::JSON::Object& request )
 {
-    const CommandLineParser& clp = uiMain::CLP();
-    const char* skeynolisten = Network::Server::sKeyNoListen();
-    clp.setKeyHasValue( skeynolisten );
-    if ( !clp.hasKey( skeynolisten ) ) {
-	clp.setKeyHasValue( sKeyODServer() );
-	if ( clp.hasKey( sKeyODServer() ) )
+    return request.isPresent(sKey::Pars()) ? request.getObject( sKey::Pars() )
+					   : nullptr;
+}
+
+
+uiRetVal uiODServiceBase::survChangedAct( const OD::JSON::Object& request )
+{
+    const OD::JSON::Object* paramobj = uiODServiceBase::getParamsObj( request );
+    if ( paramobj && paramobj->isPresent(sKey::Survey()) )
+    {
+	return DBM().setDataSource(
+			paramobj->getStringValue(sKey::Survey()), true );
+    }
+
+    return uiRetVal::OK();
+}
+
+
+uiRetVal uiODServiceBase::pythEnvChangedReq( const OD::JSON::Object& request )
+{
+    const OD::JSON::Object* paramobj = uiODServiceBase::getParamsObj( request );
+    if ( paramobj && paramobj->isPresent(sKey::FileName()) &&
+	 paramobj->isPresent(sKey::Name()) )
+    {
+	OD::PythonAccess& pytha = OD::PythA();
+	File::Path prevactivatefp;
+	if ( pytha.activatefp_ )
+	    prevactivatefp = *pytha.activatefp_;
+	const BufferString prevvirtenvnm( pytha.virtenvnm_ );
+	const File::Path activatefp(
+				   paramobj->getStringValue(sKey::FileName()) );
+	const BufferString virtenvnm( paramobj->getStringValue(sKey::Name() ) );
+	if ( prevactivatefp != activatefp || prevvirtenvnm != virtenvnm )
 	{
-	    BufferString odserverstr;
-	    clp.getKeyedInfo( sKeyODServer(), odserverstr );
-	    BufferStringSet tmp;
-	    tmp.unCat( odserverstr, ":" );
-	    if ( tmp.size()==2 && tmp.get(1).isNumber(true) )
-	    {
-		odhostname_ = tmp.get(0);
-		odport_ = tmp.get(1).toInt();
-	    }
+	    if ( activatefp.isEmpty() )
+		deleteAndZeroPtr( pytha.activatefp_ );
+	    else if ( pytha.activatefp_ )
+		*pytha.activatefp_ = activatefp;
+	    else
+		pytha.activatefp_ = new File::Path( activatefp );
+	    pytha.virtenvnm_ = virtenvnm;
+	    pytha.istested_ = true;
+	    pytha.isusable_ = true;
+	    OD::PythA().envChangeCB( nullptr );
 	}
     }
-    if ( server_ )
-	mAttachCB( server_->newConnection, uiODService::newConnectionCB );
 
-    mAttachCB( DBM().applicationClosing,uiODService::appClosingCB );
-    mAttachCB( uiMain::theMain().topLevel()->windowClosed,
-					    uiODService::appClosingCB );
-    doRegister();
+    return uiRetVal::OK();
 }
 
 
-uiODService::~uiODService()
+void uiODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 {
-    detachAllNotifiers();
+    const OD::PythonAccess& pytha = OD::PythA();
+    sinfo.set( sKey::FileName(), pytha.activatefp_
+				? pytha.activatefp_->fullPath()
+				: BufferString::empty() );
+    sinfo.set( sKey::Name(), pytha.virtenvnm_ );
 }
 
-void uiODService::appClosingCB( CallBacker* )
-{
-    doDeRegister();
-}
 
-void uiODService::newConnectionCB( CallBacker* )
+void uiODServiceBase::newConnectionCB( CallBacker* )
 {
     Network::RequestConnection* conn = server_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
@@ -172,183 +224,286 @@ void uiODService::newConnectionCB( CallBacker* )
 	return;
     }
 
-    mAttachCB( conn->packetArrived, uiODService::packetArrivedCB );
-    mAttachCB( conn->connectionClosed, uiODService::connClosedCB );
+    mAttachCB( conn->packetArrived, uiODServiceBase::packetArrivedCB );
+    mAttachCB( conn->connectionClosed, uiODServiceBase::connClosedCB );
 }
 
-void uiODService::packetArrivedCB( CallBacker* cb )
+
+void uiODServiceBase::packetArrivedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
 
-    Network::RequestConnection* conn =
-			static_cast<Network::RequestConnection*>( cber );
+    conn_ = static_cast<Network::RequestConnection*>( cber );
+    if ( !conn_ )
+	return;
 
-    RefMan<Network::RequestPacket> packet = conn->pickupPacket( reqid, 2000 );
-    if ( !packet )
+    packet_ = conn_->pickupPacket( reqid, 2000 );
+    if ( !packet_ )
     {
-	packet = conn->getNextExternalPacket();
-	if ( !packet )
+	packet_ = conn_->getNextExternalPacket();
+	if ( !packet_ )
 	{
 	    pErrMsg("packetArrivedCB - no packet");
 	    return;
 	}
     }
+
     OD::JSON::Object request;
-    uiRetVal uirv = packet->getPayload( request );
+    uiRetVal uirv = packet_->getPayload( request );
     if ( !uirv.isOK() )
     {
-	sendErr( conn, packet, uirv );
+	sendErr( uirv );
 	return;
     }
 
-    if ( !request.isPresent( sKeyAction()) )
-    {
-	BufferString err( "unknown JSON packet type: ");
-	err += request.dumpJSon();
-	sendErr( conn, packet, err );
-	return;
-    }
-
-    BufferString action( request.getStringValue( sKeyAction()) );
-
-    if ( action == sKeyCloseEv() )
-	sendOK( conn, packet );
-
-    uirv = doAction( request );
+    uirv = request.isPresent(sKeyAction()) ? doAction( request )
+					   : doRequest( request );
     if ( uirv.isOK() )
-	sendOK( conn, packet );
+	sendOK();
     else
-	sendErr( conn, packet, uirv );
+	sendErr( uirv );
 }
 
-void uiODService::connClosedCB( CallBacker* cb )
+
+void uiODServiceBase::connClosedCB( CallBacker* cb )
 {
     Network::RequestConnection* conn = (Network::RequestConnection*) cb;
-    mDetachCB( conn->packetArrived, uiODService::packetArrivedCB );
-    mDetachCB( conn->connectionClosed, uiODService::connClosedCB );
+    if ( !conn )
+	return;
+    mDetachCB( conn->packetArrived, uiODServiceBase::packetArrivedCB );
+    mDetachCB( conn->connectionClosed, uiODServiceBase::connClosedCB );
+    conn_ = nullptr;
+    if ( needclose_ )
+	uiMain::theMain().exit(0);
 }
 
-uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
-{
-    const BufferString action( actobj.getStringValue( sKeyAction()) );
-    const OD::JSON::Object* paramobj = nullptr;
-    if ( actobj.isPresent( sKey::Pars() ) )
-	paramobj = actobj.getObject( sKey::Pars() );
 
-    if ( action == sKeyCloseEv() )
-	uiMain::theMain().exit(0);
-    else if ( action == sKeyPyEnvChangeEv() )
-	statusMsg(tr("Python Environment Change"));
-    else if ( action == sKeyRaiseEv() )
+uiRetVal uiODServiceBase::sendAction( const Network::Authority& auth,
+				      const char* servicenm,
+				      const char* action,
+				      const OD::JSON::Object* paramobj )
+{
+    PtrMan<Network::RequestConnection> conn =
+			new Network::RequestConnection( auth, false, 2000 );
+    if ( !conn || !conn->isOK() )
     {
-	uiMain::theMain().topLevel()->show();
-	uiMain::theMain().topLevel()->raise();
+	return uiRetVal(tr("Cannot connect to service %1 on %2")
+				.arg(servicenm).arg(auth.toString(true)) );
     }
-    else if ( action == sKeyStatusEv() )
-	statusMsg(tr("Status"));
-    else if ( action == sKeySurveyChangeEv() ) {
-	if ( paramobj && paramobj->isPresent( sKey::Survey() ) ) {
-	    const uiRetVal uirv = DBM().setDataSource(
-			    paramobj->getStringValue(sKey::Survey()), true );
-	    if (!uirv.isOK())
-		return uirv;
-	}
+
+    RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
+    packet->setIsNewRequest();
+    OD::JSON::Object request;
+    request.set( sKeyAction(), action );
+    if ( paramobj )
+	request.set( sKey::Pars(), paramobj->clone() );
+
+    packet->setPayload( request );
+    if ( !conn->sendPacket(*packet) )
+    {
+	return uiRetVal(tr("Message failure to service %1 on %2")
+				.arg(servicenm).arg(auth.toString(true)) );
+    }
+
+    ConstRefMan<Network::RequestPacket> receivedpacket =
+				conn->pickupPacket( packet->requestID(), 2000 );
+    if ( !receivedpacket )
+	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
+
+    OD::JSON::Object response;
+    const uiRetVal uirv = receivedpacket->getPayload( response );
+    if ( !uirv.isOK() )
+	return uirv;
+    else if ( response.isPresent(sKeyError()) )
+    {
+	return uiRetVal( tr("%1 error: %2").arg(servicenm)
+		.arg(response.getStringValue(sKeyError())));
     }
 
     return uiRetVal::OK();
 }
 
-void uiODService::statusMsg( uiString msg )
+
+uiRetVal uiODServiceBase::sendRequest( const Network::Authority& auth,
+				       const char* servicenm,
+				       const char* reqkey,
+				       const OD::JSON::Object& reqobj )
 {
-    uiMain::theMain().topLevel()->statusBar()->message( msg );
+    PtrMan<Network::RequestConnection> conn =
+		    new Network::RequestConnection( auth, false, 2000 );
+    if ( !conn || !conn->isOK() )
+    {
+	return uiRetVal(tr("Cannot connect to %1 server on %2")
+			    .arg(servicenm).arg(auth.toString(true)) );
+    }
+
+    RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
+    packet->setIsNewRequest();
+    OD::JSON::Object request;
+    request.set( reqkey, reqobj.clone() );
+
+    packet->setPayload( request );
+    if ( packet && conn && !conn->sendPacket(*packet,true) )
+	return uiRetVal( tr("Request packet failed.") );
+
+    return uiRetVal::OK();
 }
+
+
+void uiODServiceBase::sendOK()
+{
+    OD::JSON::Object response;
+    response.set( sKeyOK(), BufferString::empty() );
+    if ( packet_ )
+	packet_->setPayload( response );
+    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+	{ pErrMsg("sendOK - failed"); }
+    packet_ = nullptr;
+}
+
+
+void uiODServiceBase::sendErr( uiRetVal& uirv )
+{
+    OD::JSON::Object response;
+    response.set( sKeyError(), uirv.getText() );
+    if ( packet_ )
+	packet_->setPayload( response );
+    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+	{ pErrMsg("sendErr - failed"); }
+    packet_ = nullptr;
+}
+
+
+
+uiODService::uiODService( bool assignport )
+   : uiODServiceBase(assignport)
+{
+    const CommandLineParser& clp = uiMain::CLP();
+    const char* skeynolisten = Network::Server::sKeyNoListen();
+    clp.setKeyHasValue( skeynolisten );
+    if ( !clp.hasKey(skeynolisten) )
+    {
+	clp.setKeyHasValue( sKeyODServer() );
+	if ( clp.hasKey(sKeyODServer()) )
+	{
+	    BufferString odserverstr;
+	    if ( clp.getKeyedInfo(sKeyODServer(),odserverstr) )
+		odauth_.fromString( odserverstr );
+	}
+    }
+
+    doRegister();
+}
+
+
+uiODService::~uiODService()
+{
+    detachAllNotifiers();
+    doDeRegister();
+}
+
+
+bool uiODService::isODMainSlave() const
+{
+    return odauth_.hasAssignedPort();
+}
+
+
+
+uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
+{
+    const BufferString action( actobj.getStringValue( sKeyAction()) );
+
+    if ( action == sKeyCloseEv() )
+	return doCloseAct();
+    else if ( action == sKeyRaiseEv() )
+    {
+	uiMainWin* mainwin = uiMain::theMain().topLevel();
+	if ( mainwin->isMinimized() || mainwin->isHidden() )
+	    mainwin->showNormal();
+    }
+    else if ( action == sKeySurveyChangeEv() )
+	return survChangedAct( actobj );
+
+    return uiODServiceBase::doAction( actobj );
+}
+
+
+uiRetVal uiODService::sendAction( const char* action,
+				  const OD::JSON::Object* actobj ) const
+{
+    if ( !isODMainSlave() )
+	return uiRetVal::OK();
+
+    const BufferString servicenm( "ODServiceMGr" );
+    return uiODServiceBase::sendAction( odauth_, servicenm, action, actobj );
+}
+
+
+uiRetVal uiODService::close()
+{
+    if ( !isODMainSlave() )
+	return uiRetVal::OK();
+
+    OD::JSON::Object request;
+    request.set( sKeyAction(), sKeyCloseEv() );
+    return doAction( request );
+}
+
 
 uiRetVal uiODService::doRegister()
 {
-    if ( odport_==0 )
+    if ( !isODMainSlave() )
 	return uiRetVal::OK();
-    PtrMan<Network::RequestConnection> conn =
-	new Network::RequestConnection( odhostname_, odport_, false, 2000 );
-    if ( !conn || !conn->isOK() )
-	return uiRetVal(tr("Cannot connect to ODMain server on %2:%3")
-	.arg(odhostname_).arg(odport_) );
 
-    RefMan<Network::RequestPacket> packet =  new Network::RequestPacket;
-    packet->setIsNewRequest();
-    OD::JSON::Object* sinfo = new OD::JSON::Object;
-    serviceinfo_.fillJSON( *sinfo );
-    OD::JSON::Object request;
-    request.set( sKeyRegister(), sinfo );
-    packet->setPayload( request );
-    if ( packet && conn && !conn->sendPacket( *packet, true ) ) {
-	return uiRetVal(tr("Registration of service: %1 failed")
-	.arg(serviceinfo_.name()) );
+    OD::JSON::Object sinfo;
+    Network::Service::fillJSON( getAuthority(), sinfo );
+    uiRetVal uirv = uiODServiceBase::sendRequest( odauth_, "ODMain",
+						  sKeyRegister(), sinfo );
+    if ( !uirv.isOK() )
+    {
+	uirv.add( tr("Registration of service: %1 failed")
+				.arg(Network::Service::getServiceName(sinfo)) );
+	return uirv;
     }
+
+    servid_ = Network::Service::getID( sinfo );
+
     return uiRetVal::OK();
 }
 
 
 uiRetVal uiODService::doDeRegister()
 {
-    if ( odport_==0 )
+    if ( !isODMainSlave() )
 	return uiRetVal::OK();
 
-    PtrMan<Network::RequestConnection> conn =
-	new Network::RequestConnection( odhostname_, odport_, false, 2000 );
-    if ( !conn || !conn->isOK() )
-	return uiRetVal(tr("Cannot connect to ODMain server on %2:%3")
-	.arg(odhostname_).arg(odport_) );
+    OD::JSON::Object sinfo;
+    Network::Service::fillJSON( getAuthority(), sinfo );
+    uiRetVal uirv = uiODServiceBase::sendRequest( odauth_, "ODMain",
+						  sKeyDeregister(), sinfo );
+    if ( !uirv.isOK() )
+    {
+	uirv.add( tr("DeRegistration of service: %1 failed")
+				.arg(Network::Service::getServiceName(sinfo)) );
+	return uirv;
+    }
 
-    RefMan<Network::RequestPacket> packet =  new Network::RequestPacket;
-    packet->setIsNewRequest();
-    OD::JSON::Object* sinfo = new OD::JSON::Object;
-    serviceinfo_.fillJSON( *sinfo );
-
-    OD::JSON::Object request;
-    request.set( sKeyDeregister(), sinfo );
-
-    packet->setPayload( request );
-    if ( !conn->sendPacket( *packet, true ) )
-	return uiRetVal(tr("DeRegistration of service: %1 failed")
-	.arg(serviceinfo_.name()) );
+    servid_ = 0;
 
     return uiRetVal::OK();
 }
 
-uiRetVal uiODService::sendAction( OD::JSON::Object* actobj )
+
+void uiODService::doPyEnvChange( CallBacker* )
 {
-    if ( odport_==0 )
-	return uiRetVal::OK();
+    if ( !isODMainSlave() )
+	return;
 
-    PtrMan<Network::RequestConnection> conn =
-	new Network::RequestConnection( odhostname_, odport_, false, 2000 );
-    if ( !conn || !conn->isOK() )
-	return uiRetVal(tr("Cannot connect to ODServiceMgr %1 on %1:%2")
-	.arg(odhostname_).arg(odport_) );
-
-    RefMan<Network::RequestPacket> packet =  new Network::RequestPacket;
-    packet->setIsNewRequest();
-    OD::JSON::Object request;
-    request.set( sKeyAction(), actobj );
-
-    packet->setPayload( request );
-
-    if ( !conn->sendPacket( *packet ) )
-	return uiRetVal(tr("Message failure to ODServiceMgr on %1:%2")
-	.arg(odhostname_).arg(odport_) );
-
-    ConstRefMan<Network::RequestPacket> receivedpacket =
-    conn->pickupPacket( packet->requestID(), 2000 );
-    if ( !receivedpacket )
-	return uiRetVal(tr("Did not receive response from ODServiceMgr"));
-
-    OD::JSON::Object response;
-    uiRetVal uirv = receivedpacket->getPayload( response );
+    OD::JSON::Object sinfo;
+    uiODServiceBase::getPythEnvRequestInfo( sinfo );
+    const uiRetVal uirv = uiODServiceBase::sendRequest( odauth_, "ODMain",
+						sKeyPyEnvChangeEv(), sinfo );
     if ( !uirv.isOK() )
-	return uirv;
-    else if ( response.isPresent( sKeyError() ) )
-	return uiRetVal( tr("ODServiceMgr error: %1")
-		    .arg(response.getStringValue(sKeyError())));
-
-    return uiRetVal::OK();
+	gUiMsg().error( uirv );
 }

@@ -22,10 +22,10 @@
 #include <iostream>
 #include "mmcommunicdefs.h"
 
-JobCommunic::JobCommunic( const char* host, int port, int jid,
+
+JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 			  StreamData& sout )
-    : masterhost_(System::hostAddress(host))
-    , masterport_(port)
+    : masterauth_(System::hostAddress(host),port)
     , timestamp_(Time::getMilliSeconds())
     , stillok_(true)
     , nrattempts_(0)
@@ -45,9 +45,9 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     socket_ = new Network::Socket( false );
     socket_->setTimeout( socktimeout_ );
 
-    const bool ret = socket_->connectToHost( masterhost_, masterport_ );
-    BufferString logmsg( "Connection to", masterhost_, " port " );
-    logmsg.add( masterport_ ).add( " : " );
+    const bool ret = socket_->connectToHost( masterauth_ );
+    BufferString logmsg( "Connection to", masterauth_.getHost(), " port " );
+    logmsg.add( masterauth_.getPort() ).add( " : " );
     logMsg( ret, logmsg, !ret ? "" : toString(socket_->errMsg()) );
 }
 
@@ -249,8 +249,8 @@ od_ostream* JobCommunic::createLogStream()
     if ( !DBG::isOn() )
 	return 0;
 
-    BufferString fnm( "od_mmproc_", masterhost_, "_" ); fnm.add( jobid_ );
-    fnm.replace( '.', '_' );
+    BufferString fnm( "od_mmproc_", masterauth_.getHost(), "_" );
+    fnm.add( jobid_ ).replace( '.', '_' );
     File::Path logfp( File::Path::getTempDir(), fnm );
     logfp.setExtension( ".log" );
     return new od_ostream( logfp.fullPath() );
@@ -276,6 +276,7 @@ void JobCommunic::dumpSystemInfo()
     *logstream_ << "----------------------------------------------"  <<od_endl;
     *logstream_ << "Local Host Name    : " << System::localHostName()<<od_endl;
     *logstream_ << "Local Host Address : " << System::localAddress() <<od_endl;
-    *logstream_ << "Server Address     : " << masterhost_	     <<od_endl;
+    *logstream_ << "Server Address     : " << masterauth_.getHost()  <<od_endl;
+    *logstream_ << "Server Port        : " << masterauth_.getPort()  <<od_endl;
     *logstream_ << "-----------------------------------------------" <<od_endl;
 }

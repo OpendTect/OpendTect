@@ -10,23 +10,16 @@
 
 #include "uiodservicemgr.h"
 
-#include "uidialog.h"
+#include "uimain.h"
+#include "uimainwin.h"
+#include "uimsg.h"
 
 #include "dbman.h"
-#include "ptrman.h"
-#include "thread.h"
-#include "uimain.h"
-#include "uiodmain.h"
-#include "envvars.h"
-#include "netreqconnection.h"
-#include "netserver.h"
-#include "netreqpacket.h"
-#include "uimsg.h"
-#include "settings.h"
-#include "pythonaccess.h"
-#include "genc.h"
-#include "keystrs.h"
 #include "oddirs.h"
+#include "netreqconnection.h"
+#include "netreqpacket.h"
+#include "keystrs.h"
+
 
 /*!\brief The OpendTect service manager */
 
@@ -40,229 +33,201 @@ uiODServiceMgr& uiODServiceMgr::getMgr()
 
 
 uiODServiceMgr::uiODServiceMgr()
+    : serviceAdded(this)
+    , serviceRemoved(this)
 {
-    mAttachCB( server_->newConnection, uiODServiceMgr::newConnectionCB );
-    mAttachCB( DBM().surveyChanged,uiODServiceMgr::surveyChangedCB );
-    mAttachCB( DBM().applicationClosing,uiODServiceMgr::appClosingCB );
-    mAttachCB( OD::PythA().envChange,uiODServiceMgr::pyenvChangeCB );
 }
 
 
 uiODServiceMgr::~uiODServiceMgr()
 {
-    detachAllNotifiers();
+    doAppClosing( nullptr );
+    deepErase( services_ );
 }
 
 
-BufferString uiODServiceMgr::address() const
+void uiODServiceMgr::setFor( uiMainWin& win )
 {
-    BufferString addr( GetLocalHostName() );
-    addr.add(":").add( port() );
-
-    return addr;
+    if ( &win == uiMain::theMain().topLevel() )
+	getMgr();
 }
 
 
 uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 {
-    Network::Service* tmp = new Network::Service;;
-    uiRetVal uirv = tmp->useJSON( *jsonobj );
-    if ( uirv.isOK() ) {
-	services_.add( tmp );
+    uiRetVal uirv;
+    if ( !jsonobj )
+    {
+	uirv = tr("Empty request");
+	return uirv;
     }
-    return uirv;
+
+    Network::Service* service = new Network::Service( *jsonobj );
+    if ( !service->isOK() )
+    {
+	uirv = service->message();
+	delete service;
+	return uirv;
+    }
+
+    services_.add( service );
+    serviceAdded.trigger( service->getID() );
+    return uiRetVal::OK();
 }
 
 
 uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj )
 {
-    Network::Service tmp;
-    uiRetVal uirv = tmp.useJSON( *jsonobj );
-    if ( uirv.isOK() )
-	removeService( tmp );
+    uiRetVal uirv;
+    if ( !jsonobj )
+    {
+	uirv = tr("Empty request");
+	return uirv;
+    }
 
-    return uirv;
+    const Network::Service service( *jsonobj );
+    if ( service.isOK() )
+	removeService( service.getID() );
+
+    return service.message();
 }
 
 
-void uiODServiceMgr::removeService( const Network::Service& service )
+void uiODServiceMgr::removeService( const Network::Service::ID servid )
 {
-    int idx = indexOfService( service );
-    if ( idx>=0 )
+    for ( int idx=services_.size()-1; idx>=0; idx-- )
     {
-	services_.removeSingle( idx );
+	if ( services_[idx]->getID() != servid )
+	    continue;
+
+	if ( services_[idx]->isAlive() )
+	    sendAction( *services_[idx], sKeyCloseEv() );
+	delete services_.removeSingle( idx );
+	serviceRemoved.trigger( servid );
+	return;
     }
 }
 
 
-int uiODServiceMgr::indexOfService( const Network::Service& service ) const
+const Network::Service* uiODServiceMgr::getService(
+				 const Network::Service::ID servid ) const
+{
+    return const_cast<uiODServiceMgr&>(*this).getService( servid );
+}
+
+
+Network::Service* uiODServiceMgr::getService(
+				  const Network::Service::ID servid )
 {
     for ( int idx=0; idx<services_.size(); idx++ )
     {
-	if ( *services_[idx] == service )
-	    return idx;
+	Network::Service* service = services_[idx];
+	if ( service->getID() == servid )
+	    return service;
     }
-    return -1;
+
+    return nullptr;
+}
+
+
+uiRetVal uiODServiceMgr::sendAction( const Network::Service::ID servid,
+				     const char* action,
+				     const OD::JSON::Object* paramobj ) const
+{
+    const Network::Service* service = getService( servid );
+    if ( !service )
+	return uiRetVal( tr("Service with ID %1 not registered").arg( servid ));
+
+    return sendAction( *service, action, paramobj );
 }
 
 
 uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
-			    const char* action, OD::JSON::Object* paramobj )
+				     const char* action,
+				     const OD::JSON::Object* paramobj ) const
 {
-    int idx = indexOfService( service );
-    if ( idx>=0 )
-	return sendAction( idx, action, paramobj );
-    else
-	return uiRetVal(tr("Unknown service"));
+    const BufferString servicenm( "Service ", service.name() );
+    return uiODServiceBase::sendAction( service.getAuthority(),
+					servicenm, action, paramobj );
 }
 
 
-uiRetVal uiODServiceMgr::sendAction( int idx, const char* action,
-				    OD::JSON::Object* paramobj )
-
+uiRetVal uiODServiceMgr::sendRequest( const Network::Service& service,
+				      const char* reqkey,
+				      const OD::JSON::Object& reqinfo ) const
 {
-    const BufferString servicenm( services_[idx]->name() );
-    const BufferString hostname( services_[idx]->hostname() );
-    const port_nr_type portID = services_[idx]->port();
-
-    PtrMan<RequestConnection> conn = new RequestConnection( hostname, portID,
-							    false, 2000 );
-    if ( !conn || !conn->isOK() )
-	return uiRetVal(tr("Cannot connect to service %1 on %2:%3")
-	.arg(servicenm).arg(hostname).arg(portID) );
-
-    RefMan<RequestPacket> packet =  new RequestPacket;
-    packet->setIsNewRequest();
-    OD::JSON::Object request;
-    request.set( sKeyAction(), action );
-    if ( paramobj )
-	request.set( sKey::Pars(), paramobj );
-
-    packet->setPayload( request );
-
-    if ( !conn->sendPacket( *packet ) )
-	return uiRetVal(tr("Message failure to service %1 on %2:%3")
-	.arg(servicenm).arg(hostname).arg(portID) );
-
-    ConstRefMan<Network::RequestPacket> receivedpacket =
-    conn->pickupPacket( packet->requestID(), 2000 );
-    if ( !receivedpacket )
-	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
-
-    OD::JSON::Object response;
-    uiRetVal uirv = receivedpacket->getPayload( response );
-    if ( !uirv.isOK() )
-	return uirv;
-    else if ( response.isPresent( sKeyError() ) )
-	return uiRetVal( tr("%1 error: %2").arg(servicenm)
-	.arg(response.getStringValue(sKeyError())));
-
-    return uiRetVal::OK();
+    const BufferString servicenm( "Service ", service.name() );
+    return uiODServiceBase::sendRequest( service.getAuthority(),
+					 servicenm, reqkey, reqinfo );
 }
-void uiODServiceMgr::raise( const Network::Service& service )
+
+
+bool uiODServiceMgr::isPresent( const Network::Service::ID servid ) const
 {
-    uiRetVal uirv = sendAction( service, sKeyRaiseEv() );
+    return getService( servid );
+}
+
+
+BufferString uiODServiceMgr::serviceName(
+				    const Network::Service::ID servid ) const
+{
+    const Network::Service* service = getService( servid );
+    return service ? service->name() : BufferString::empty();
+}
+
+
+void uiODServiceMgr::raise( const Network::Service::ID servid ) const
+{
+    const uiRetVal uirv = sendAction( servid, sKeyRaiseEv() );
     if ( !uirv.isOK() )
 	gUiMsg().error( uirv );
 }
 
-void uiODServiceMgr::surveyChangedCB( CallBacker* )
-{
-    OD::JSON::Object* paramobj = new OD::JSON::Object;
-    paramobj->set( sKey::Survey(), GetDataDir() );
 
-    for (int idx=0; idx< services_.size(); idx++) {
-	uiRetVal uirv = sendAction( idx, sKeySurveyChangeEv(), paramobj );
-	if (!uirv.isOK())
-	    gUiMsg().error(uirv);
-    }
+void uiODServiceMgr::doAppClosing( CallBacker* )
+{
+    for ( int idx=services_.size()-1; idx>=0; idx-- )
+	removeService( services_[idx]->getID() );
 }
 
 
-void uiODServiceMgr::appClosingCB( CallBacker* )
+void uiODServiceMgr::doSurveyChanged( CallBacker* )
 {
-
-    for (int idx=0; idx< services_.size(); idx++) {
-	uiRetVal uirv = sendAction( idx, sKeyCloseEv() );
-    }
-}
-
-
-void uiODServiceMgr::pyenvChangeCB( CallBacker* )
-{
-    for (int idx=0; idx< services_.size(); idx++) {
-	uiRetVal uirv = sendAction( idx, sKeyPyEnvChangeEv() );
-	if (!uirv.isOK())
-	    gUiMsg().error(uirv);
-    }
-}
-
-void uiODServiceMgr::newConnectionCB( CallBacker* )
-{
-    RequestConnection* conn = server_->pickupNewConnection();
-    if ( !conn || !conn->isOK() )
+    OD::JSON::Object paramobj;
+    paramobj.set( sKey::Survey(), GetDataDir() );
+    for ( const auto service : services_ )
     {
-	BufferString err("newConnectionCB - connection error: ");
-	pErrMsg(err);
-	return;
+	const uiRetVal uirv = sendAction( *service, sKeySurveyChangeEv(),
+					  &paramobj );
+	if ( !uirv.isOK() )
+	    gUiMsg().error( uirv );
     }
-
-    mAttachCB( conn->packetArrived, uiODServiceMgr::packetArrivedCB );
-    mAttachCB( conn->connectionClosed, uiODServiceMgr::connClosedCB );
 }
 
-void uiODServiceMgr::packetArrivedCB( CallBacker* cb )
+
+void uiODServiceMgr::doPyEnvChange( CallBacker* )
 {
-    mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
-
-    RequestConnection* conn = static_cast<RequestConnection*>( cber );
-
-    RefMan<RequestPacket> packet = conn->pickupPacket( reqid, 2000 );
-    if ( !packet )
+    OD::JSON::Object sinfo;
+    uiODServiceBase::getPythEnvRequestInfo( sinfo );
+    for ( const auto service : services_ )
     {
-	packet = conn->getNextExternalPacket();
-	if ( !packet )
-	{
-	    pErrMsg("packetArrivedCB - no packet");
-	    return;
-	}
+	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(),
+					   sinfo );
+	if ( !uirv.isOK() )
+	    gUiMsg().error( uirv );
     }
-    OD::JSON::Object request;
-    uiRetVal uirv = packet->getPayload( request );
-    if ( !uirv.isOK() )
-    {
-	sendErr( conn, packet, uirv );
-	return;
-    }
-
-    if ( request.isPresent( sKeyRegister() ) )
-	uirv = addService( request.getObject( sKeyRegister() ) );
-    else if ( request.isPresent( sKeyDeregister() ) )
-	uirv = removeService( request.getObject( sKeyDeregister() ) );
-    else if ( request.isPresent( sKeyAction() ) )
-	uirv = doAction( &request );
-
-    if ( uirv.isOK() )
-	sendOK( conn, packet );
-    else
-	sendErr( conn, packet, uirv );
 }
 
 
-void uiODServiceMgr::connClosedCB( CallBacker* cb )
+uiRetVal uiODServiceMgr::doRequest( const OD::JSON::Object& request )
 {
-    RequestConnection* conn = (RequestConnection*) cb;
+    if ( request.isPresent(sKeyRegister()) )
+	return addService( request.getObject(sKeyRegister()) );
+    else if ( request.isPresent(sKeyDeregister()) )
+	return removeService( request.getObject(sKeyDeregister()) );
 
-    mDetachCB( conn->packetArrived, uiODServiceMgr::packetArrivedCB );
-    mDetachCB( conn->connectionClosed, uiODServiceMgr::connClosedCB );
+    return uiODServiceBase::doRequest( request );
 }
-
-
-uiRetVal uiODServiceMgr::doAction( const OD::JSON::Object* jsondata )
-{
-    return uiRetVal::OK();
-}
-
 
 /*
  * class uiODRequestServerDlg : public uiDialog

@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "jobinfo.h"
 #include "jobiomgr.h"
 #include "msgh.h"
-#include "netreqconnection.h"
+#include "networkcommon.h"
 #include "oddirs.h"
 #include "od_ostream.h"
 #include "queue.h"
@@ -80,7 +80,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd, od_ostream* logstrm )
 	, descprov_(p)
 	, rshcomm_("rsh")
 	, prioritylevel_(-1.f)
-	, firstport_(Network::RequestConnection::getUsablePort(19636))
+	, firstport_(Network::getUsablePort(19636))
 	, prog_(cmd)
 	, starttimeout_( 1000 * GetEnvVarIVal("DTECT_MM_START_TO",   45 ) )
 	, failtimeout_(  1000 * GetEnvVarIVal("DTECT_MM_FAIL_TO",    450 ) )

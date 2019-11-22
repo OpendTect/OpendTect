@@ -113,7 +113,8 @@ int main( int argc, char** argv )
 
     par.set( "Par File", normalarguments.get(0) );
 
-    RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
+    const Network::Authority auth( remhostaddress, mCast(PortNr_Type,5050));
+    RemoteJobExec* rje = new RemoteJobExec( auth );
     rje->addPar( par );
     if ( !rje->launchProc() )
 	return ExitProgram( 1 );

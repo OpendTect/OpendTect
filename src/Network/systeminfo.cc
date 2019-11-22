@@ -21,13 +21,11 @@ ________________________________________________________________________
 #include "genc.h"
 #include "iostrm.h"
 #include "oddirs.h"
-#ifndef OD_NO_QT
 #include "staticstring.h"
 
 #include <QHostAddress>
 #include <QHostInfo>
 #include <QNetworkInterface>
-#endif
 
 #ifdef __lux__
 # include <sys/statfs.h>
@@ -97,7 +95,7 @@ const char* localHostName()
 const char* localAddress( bool ipv4only )
 {
     mDeclStaticString( str );
-    str = hostAddress( localHostName() );
+    str = hostAddress( localHostName(), ipv4only );
     if ( !str.isEmpty() )
 	return str.buf();
 
@@ -118,22 +116,17 @@ const char* localAddress( bool ipv4only )
 
 const char* hostName( const char* ip )
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
     const QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName();
     if ( str == ip )
 	str.setEmpty();
     return str.buf();
-#else
-    return 0;
-#endif
 }
 
 
 const char* hostAddress( const char* hostname, bool ipv4only )
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
     str.setEmpty();
     const QHostInfo qhi = QHostInfo::fromName( QString(hostname) );
@@ -148,15 +141,11 @@ const char* hostAddress( const char* hostname, bool ipv4only )
     }
 
     return str.buf();
-#else
-    return nullptr;
-#endif
 }
 
 
 bool lookupHost( const char* host_ip, BufferString* msg )
 {
-#ifndef OD_NO_QT
     if ( msg )
 	msg->set( host_ip ).add( ": " );
     const QHostInfo qhi = QHostInfo::fromName( QString(host_ip) );
@@ -185,16 +174,12 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 	msg->add( "Found with IP address " ).add( hostAddress(host_ip) );
 
     return true;
-#else
-    return false;
-#endif
 }
 
 
 void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 		   bool onlyactive )
 {
-#ifndef OD_NO_QT
     QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
     for ( int idx=0; idx<allif.size(); idx++ )
     {
@@ -214,7 +199,6 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 	names.add( qni.name() );
 	addresses.add( qni.hardwareAddress() );
     }
-#endif
 }
 
 
@@ -291,6 +275,7 @@ void getFreeMBOnDiskUiMsg( int mb, uiString& msg )
 						    .arg(gb).arg(tenthsofgb);
     }
 }
+
 
 const char* getFileSystemName( const char* path )
 {

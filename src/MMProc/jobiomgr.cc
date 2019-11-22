@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "jobinfo.h"
 #include "keystrs.h"
-#include "netreqconnection.h"
+#include "networkcommon.h"
 #include "oddirs.h"
 #include "queue.h"
 #include "separstr.h"
@@ -83,7 +83,7 @@ public:
 class JobIOHandler : public CallBacker
 {
 public:
-JobIOHandler( int firstport, od_ostream* logstrm )
+JobIOHandler( PortNr_Type firstport, od_ostream* logstrm )
     : exitreq_(0)
     , firstport_(firstport)
     , usedport_(0)
@@ -100,10 +100,10 @@ virtual	~JobIOHandler()
     server_.close();
 }
 
-    bool		ready() const	{ return ready_ && port() > 0; }
-    int			port() const	{ return usedport_; }
+    bool			ready() const	{ return ready_ && port() > 0; }
+    PortNr_Type			port() const	{ return usedport_; }
 
-    void		listen(int firstport,int maxtries=3000 );
+    void		listen(PortNr_Type firstport,int maxtries=3000);
     void		reqModeForJob(const JobInfo&, JobIOMgr::Mode);
     void		addJobDesc(const HostData&,int descnr);
     void		removeJobDesc(const char* hostnm, int descnr);
@@ -119,8 +119,8 @@ protected:
 
     bool*			exitreq_;
     Network::Server		server_;
-    int				firstport_;
-    int				usedport_;
+    PortNr_Type			firstport_;
+    PortNr_Type			usedport_;
     ObjQueue<StatusInfo>	statusqueue_;
     ObjectSet<JobHostRespInfo>	jobhostresps_;
     bool			ready_;
@@ -128,13 +128,12 @@ protected:
 };
 
 
-void JobIOHandler::listen( int firstport, int maxtries )
+void JobIOHandler::listen( PortNr_Type firstport, int maxtries )
 {
     mLogMsg("Initializing TCP server")
 
     uiRetVal portmsg;
-    usedport_ = Network::RequestConnection::getUsablePort( portmsg,
-				(unsigned short)firstport, maxtries );
+    usedport_ = Network::getUsablePort( portmsg, firstport, maxtries );
     ready_ = usedport_ >= firstport && portmsg.isOK();
     if ( !ready_ )
 	server_.close();
@@ -299,7 +298,8 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 
 
 // JobIOMgr
-JobIOMgr::JobIOMgr( int firstport, float prioritylevel, od_ostream* logstrm )
+JobIOMgr::JobIOMgr( PortNr_Type firstport, float prioritylevel,
+		    od_ostream* logstrm )
     : iohdlr_(*new JobIOHandler(firstport,logstrm))
     , execpars_(OS::RunInBG)
     , logstrm_(logstrm)

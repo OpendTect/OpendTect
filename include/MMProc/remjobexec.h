@@ -11,8 +11,9 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
-#include "callback.h"
+
 #include "gendefs.h"
+#include "networkcommon.h"
 
 namespace Network { class Socket; }
 
@@ -24,7 +25,7 @@ namespace Network { class Socket; }
 mExpClass(MMProc) RemoteJobExec : public CallBacker
 {
 public:
-			RemoteJobExec(const char*,const int);
+			RemoteJobExec(const Network::Authority&);
 			~RemoteJobExec();
 
     bool		launchProc() const;
@@ -38,6 +39,6 @@ protected:
     Network::Socket&	socket_;
     IOPar&		par_;
     bool		isconnected_;
-    const char*		host_;
+    const Network::Authority	auth_;
 
 };

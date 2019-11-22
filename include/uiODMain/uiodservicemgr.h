@@ -11,15 +11,14 @@
  * -*/
 
 #include "uiodmainmod.h"
+
 #include "uiodservice.h"
-#include "uistring.h"
-#include "netreqconnection.h"
+
 #include "netservice.h"
-#include "manobjectset.h"
 
 
 /*!\brief The OpendTect service manager
- M a*nagers communication between ODMain and external services/apps so that
+ Manage communication between ODMain and external services/apps so that
  the external app can show behaviour/state consistent with ODMain. Items
  communicated by ODMain are:
  - ODMain is closing
@@ -44,6 +43,8 @@
 
  */
 
+class uiMainWin;
+
 namespace OD {
     namespace JSON {
 	class Object;
@@ -53,46 +54,46 @@ namespace OD {
 mExpClass(uiODMain) uiODServiceMgr : public uiODServiceBase
 { mODTextTranslationClass(uiODServiceMgr)
 public:
-    friend class uiODMain;
+
+    static void		setFor(uiMainWin&);
     static uiODServiceMgr& getMgr();
 
-    uiODServiceMgr(uiODServiceMgr const&) = delete;
-    uiODServiceMgr(uiODServiceMgr&&) = delete;
-    uiODServiceMgr& operator=(uiODServiceMgr const&) = delete;
-    uiODServiceMgr& operator=(uiODServiceMgr &&) = delete;
+    bool		isPresent(const Network::Service::ID) const;
+    BufferString	serviceName(const Network::Service::ID) const;
+    void		raise(const Network::Service::ID) const;
+    void		removeService(const Network::Service::ID);
 
-    void	raise( const Network::Service& );
+    CNotifier<uiODServiceMgr,Network::Service::ID>	serviceAdded;
+    CNotifier<uiODServiceMgr,Network::Service::ID>	serviceRemoved;
 
-    uiRetVal	sendAction( const Network::Service&, const char*,
-					    OD::JSON::Object* pobj=nullptr );
-    uiRetVal	sendAction( int idx, const char* action,
-					    OD::JSON::Object* pobj=nullptr );
+private:
+			uiODServiceMgr();
+			uiODServiceMgr(const uiODServiceMgr&) = delete;
+			uiODServiceMgr(uiODServiceMgr&&) = delete;
+			~uiODServiceMgr();
 
+    uiODServiceMgr&	operator=(const uiODServiceMgr&) = delete;
+    uiODServiceMgr&	operator=(uiODServiceMgr &&) = delete;
 
-    int		indexOfService( const Network::Service& ) const;
-    bool	isServicePresent( const Network::Service& service ) const
-    { return indexOfService( service ) >=0; }
+    ObjectSet<Network::Service> services_;
 
-    BufferString	address() const;
+    void		doAppClosing(CallBacker*) override;
+    void		doSurveyChanged(CallBacker*) override;
+    void		doPyEnvChange(CallBacker*) override;
 
-protected:
-    uiODServiceMgr();
-    ~uiODServiceMgr();
+    uiRetVal		addService(const OD::JSON::Object*);
+    uiRetVal		removeService(const OD::JSON::Object*);
+    const Network::Service*	getService(const Network::Service::ID) const;
+    Network::Service*	getService(const Network::Service::ID);
+    uiRetVal		sendAction(const Network::Service::ID,const char*,
+				   const OD::JSON::Object* =nullptr) const;
+    uiRetVal		sendAction(const Network::Service&,const char*,
+				   const OD::JSON::Object* =nullptr) const;
+    uiRetVal		sendRequest(const Network::Service&,const char*,
+				    const OD::JSON::Object&) const;
 
-    ManagedObjectSet<Network::Service>	services_;
+    uiRetVal		doRequest(const OD::JSON::Object&) override;
 
-    void		packetArrivedCB(CallBacker*);
-    void		newConnectionCB(CallBacker*);
-    void		connClosedCB(CallBacker*);
-
-    void surveyChangedCB(CallBacker*);
-    void appClosingCB(CallBacker*);
-    void pyenvChangeCB(CallBacker*);
-
-    uiRetVal		addService( const OD::JSON::Object* );
-    uiRetVal		removeService( const OD::JSON::Object* );
-    void		removeService( const Network::Service& );
-
-    uiRetVal		doAction(const OD::JSON::Object*);
+    friend class uiODMain;
 
 };
