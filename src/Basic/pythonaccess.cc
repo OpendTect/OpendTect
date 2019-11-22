@@ -30,8 +30,6 @@ ________________________________________________________________________
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 
-#define mFileRetentionTimeInMilliSec	60000
-#define mDelCycleTym			mFileRetentionTimeInMilliSec*5
 
 OD::PythonAccess& OD::PythA()
 {
