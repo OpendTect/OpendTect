@@ -12,19 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
-#include "gendefs.h"
+#include "networkcommon.h"
+
 #include "thread.h"
-#include "objectset.h"
-#include "callback.h"
-#include "uistring.h"
 
 
 namespace Network
 {
 
-class Socket;
 class Server;
+class Socket;
 class RequestPacket;
 
 
@@ -41,13 +38,12 @@ class RequestPacket;
   fetch your packets until getNextExternalPacket() returns null.
 
  */
-typedef unsigned short port_nr_type;
+
 
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
-			RequestConnection(const char* servername,
-					  unsigned short serverport,
+			RequestConnection(const Authority&,
 					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
@@ -58,8 +54,8 @@ public:
 			~RequestConnection();
 
     bool		isOK() const;
-    const char*		server() const		{ return servername_; }
-    unsigned short	port() const		{ return serverport_; }
+    BufferString	server() const;
+    PortNr_Type		port() const;
     int			ID() const		{ return id_; }
 
     bool		sendPacket(const RequestPacket&,
@@ -88,13 +84,6 @@ public:
 
     uiString		errMsg() const		{ return errmsg_; }
 
-    static port_nr_type getUsablePort(uiRetVal&,port_nr_type firstport
-					=0,int maxportstotry=100);
-				//!<Returns 0 if none found
-    static port_nr_type getUsablePort(port_nr_type firstport=0);
-    static bool		isPortFree(port_nr_type port,uiString* errmsg=nullptr);
-    static port_nr_type getNextCandidatePort();
-
 private:
 
     mutable uiString		errmsg_;
@@ -118,8 +107,7 @@ private:
 
     int				id_;
 
-    BufferString		servername_;
-    unsigned short		serverport_;
+    Authority*			authority_ = nullptr;
 
     Threads::Thread*		socketthread_;
     void			socketThreadFunc(CallBacker*);
@@ -152,12 +140,14 @@ private:
 mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
-		    RequestServer(unsigned short serverport,
-				    const char* addr =nullptr);
+
+				RequestServer(PortNr_Type,SpecAddr=Any);
 				~RequestServer();
 
     bool			isOK() const;
     Server*			server()		{ return server_; }
+    Authority			getAuthority() const;
+				//Just what is needed for a connection
 
     Notifier<RequestServer>	newConnection;
     RequestConnection*		pickupNewConnection();
@@ -167,15 +157,15 @@ public:
 
 private:
 
-    void				newConnectionCB(CallBacker*);
+    void			newConnectionCB(CallBacker*);
 
-    uiString				errmsg_;
+    uiString			errmsg_;
 
-    ObjectSet<RequestConnection>	pendingconns_;
+    ObjectSet<RequestConnection> pendingconns_;
 
-    Threads::Lock			lock_;
-    unsigned short			serverport_;
-    Server*				server_;
+    Threads::Lock		lock_;
+    Server*			server_;
+
 };
 
 

@@ -21,14 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet( s ) { uiErrorMsg( s ); exit(0); }
 
 
-RemoteJobExec::RemoteJobExec( const char* host, const int port )
+RemoteJobExec::RemoteJobExec( const Network::Authority& auth )
     : socket_(*new Network::Socket)
-    , host_(host)
+    , auth_(auth)
     , par_(*new IOPar)
     , isconnected_(false)
 {
     socket_.setTimeout( 4000 );
-    isconnected_ = socket_.connectToHost( host_, port, true );
+    isconnected_ = socket_.connectToHost( auth, true );
     ckeckConnection();
 }
 
@@ -56,7 +56,7 @@ void RemoteJobExec::addPar( const IOPar& par )
 
 void RemoteJobExec::ckeckConnection()
 {
-    BufferString errmsg( "Connection to Daemon on ", host_ );
+    BufferString errmsg( "Connection to Daemon on ", auth_.getHost() );
     errmsg += " failed";
     if ( !isconnected_ )
     {

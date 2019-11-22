@@ -34,6 +34,7 @@ template<class T> class StepInterval;
 
 typedef od_int32	Index_Type;
 typedef od_int32	Index_Delta_Type;
+typedef unsigned short	PortNr_Type;
 
 enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
 enum Pol2D3D		{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };

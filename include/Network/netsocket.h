@@ -13,12 +13,11 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
-#include "callback.h"
+#include "networkcommon.h"
+
 #include "threadlock.h"
 #include "uistring.h"
 
-class BufferString;
 template <class T> class DataInterpreter;
 mFDQtclass(QTcpSocket)
 mFDQtclass(QTcpSocketComm)
@@ -53,8 +52,7 @@ public:
 
     static const char*	sKeyLocalHost() { return "localhost"; }
 
-    bool	connectToHost(const char* host,int port,
-			      bool wait=true);
+    bool	connectToHost(const Authority&,bool wait=true);
     bool	disconnectFromHost(bool wait=false);
 
     bool	isBad() const;

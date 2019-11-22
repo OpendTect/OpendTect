@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
-#include "callback.h"
-#include "bufstring.h"
+
+#include "networkcommon.h"
 
 class CommandString;
 class FilePath;
@@ -64,7 +64,7 @@ mExpClass(MMProc) JobIOMgr : public CallBacker
 public:
     enum		Mode { Work, Pause, Stop };
 
-			JobIOMgr(int firstport=19345,int niceval=19);
+			JobIOMgr(PortNr_Type firstport=19345,int niceval=19);
     virtual		~JobIOMgr();
 
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }

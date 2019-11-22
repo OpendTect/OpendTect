@@ -24,17 +24,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet( s ) \
 { BufferString msg(Time::getDateTimeString(),": ",s); writeLog( msg ); return; }
 
-RemCommHandler::RemCommHandler( int port )
+RemCommHandler::RemCommHandler( PortNr_Type port )
     : port_(port)
     , server_(*new Network::Server)
     , logstrm_(createLogFile())
 {
-    server_.readyRead.notify( mCB(this,RemCommHandler,dataReceivedCB) );
+    mAttachCB( server_.readyRead, RemCommHandler::dataReceivedCB );
 }
 
 
 RemCommHandler::~RemCommHandler()
 {
+    detachAllNotifiers();
     delete &server_;
     delete &logstrm_;
 }
@@ -42,7 +43,7 @@ RemCommHandler::~RemCommHandler()
 
 void RemCommHandler::listen() const
 {
-    server_.listen( System::localAddress(), port_ );
+    server_.listen( Network::Any, port_ );
 }
 
 

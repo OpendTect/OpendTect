@@ -235,7 +235,7 @@ uiODMain::uiODMain( uiMain& a )
     if ( !useallcpus )
 	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
 
-    uiODServiceMgr::getMgr();
+    mAttachCB( postFinalise(), uiODMain::afterStartupCB );
 }
 
 
@@ -615,6 +615,12 @@ void uiODMain::handleStartupSession()
 void uiODMain::sessTimerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
+}
+
+
+void uiODMain::afterStartupCB( CallBacker* )
+{
+    uiODServiceMgr::setFor( *this );
 }
 
 

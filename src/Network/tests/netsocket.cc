@@ -9,15 +9,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netsocket.h"
 
 #include "applicationdata.h"
-#include "limits.h"
 #include "netserver.h"
 #include "odsysmem.h"
 #include "odmemory.h"
 #include "oscommand.h"
 #include "statrand.h"
 #include "testprog.h"
-#include "thread.h"
-#include "varlenarray.h"
 
 
 
@@ -35,6 +32,11 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 class TestRunner : public CallBacker
 {
 public:
+
+    TestRunner()
+	: auth_(Network::Socket::sKeyLocalHost(),(PortNr_Type)1025)
+    {}
+
     ~TestRunner()
     {
 	detachAllNotifiers();
@@ -50,7 +52,8 @@ public:
     }
 
     bool		noeventloop_;
-    int			port_;
+    Network::Authority	auth_;
+    int			timeout_ = 600;
     const char*		prefix_;
     bool		exitonfinish_;
     BufferString	serverapp_;
@@ -61,10 +64,9 @@ public:
 bool TestRunner::testNetSocket( bool closeserver )
 {
     Network::Socket connection( !noeventloop_ );
-    connection.setTimeout( 600 );
+    connection.setTimeout( timeout_ );
 
-    if ( !connection.connectToHost(Network::Socket::sKeyLocalHost(),
-				   port_,true) )
+    if ( !connection.connectToHost(auth_,true) )
     {
 	if ( !ExecODProgram(serverapp_,serverarg_) )
 	{
@@ -79,14 +81,13 @@ bool TestRunner::testNetSocket( bool closeserver )
 	connection.abort();
     }
 
-    mRunSockTest(
-	    !connection.connectToHost( "non_existing_host", 20000, true ),
-	    "Connect to non-existing host");
+    const Network::Authority nonexisting( "non_existing_host",
+				mCast(PortNr_Type,20000) );
+    mRunSockTest( !connection.connectToHost(nonexisting,true),
+		  "Connect to non-existing host" );
 
-    mRunSockTest(
-	    connection.connectToHost( Network::Socket::sKeyLocalHost(),
-				      port_, true ),
-	    "Connect to echo server");
+    mRunSockTest( connection.connectToHost(auth_,true),
+		  "Connect to echo server" );
 
     BufferString writebuf = "Hello world";
     const int writesize = writebuf.size()+1;
@@ -168,17 +169,20 @@ int main(int argc, char** argv)
 
     PtrMan<TestRunner> runner = new TestRunner;
     runner->serverapp_ = "test_echoserver";
-    runner->port_ = 1025;
+    int port = 1025;
+    runner->auth_.setPort( mCast(PortNr_Type,port) );
     runner->serverarg_.set( "--timeout 600 --" )
 		      .add( Network::Server::sKeyPort() )
-		      .addSpace().add( runner->port_ ).add( " --quiet" );
+		      .addSpace().add( runner->auth_.getPort() )
+		      .add( " --quiet" );
     runner->prefix_ = "[ No event loop ]\t";
     runner->exitonfinish_ = false;
     runner->noeventloop_ = true;
 
     clparser.getVal( "serverapp", runner->serverapp_, true );
     clparser.getVal( "serverarg", runner->serverarg_, true );
-    clparser.getVal( Network::Server::sKeyPort(), runner->port_, true );
+    if ( clparser.getVal(Network::Server::sKeyPort(),port,false) )
+	runner->auth_.setPort( mCast(PortNr_Type,port) );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );

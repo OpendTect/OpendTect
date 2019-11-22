@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "jobinfo.h"
 #include "keystrs.h"
+#include "networkcommon.h"
 #include "oddirs.h"
 #include "queue.h"
 #include "separstr.h"
@@ -127,26 +128,26 @@ public:
 class JobIOHandler : public CallBacker
 {
 public:
-JobIOHandler( int firstport )
+JobIOHandler( PortNr_Type firstport )
     : exitreq_(0)
     , firstport_(firstport)
-    , usedport_(firstport)
+    , usedport_(0)
     , ready_(false)
 {
-    server_.readyRead.notify( mCB(this,JobIOHandler,socketCB) );
+    mAttachCB( server_.readyRead, JobIOHandler::socketCB );
     listen( firstport_ );
 }
 
 virtual	~JobIOHandler()
 {
+    detachAllNotifiers();
     server_.close();
-    server_.readyRead.remove( mCB(this,JobIOHandler,socketCB) );
 }
 
-    bool		ready() const	{ return ready_ && port() > 0; }
-    int			port() const	{ return usedport_; }
+    bool			ready() const	{ return ready_ && port() > 0; }
+    PortNr_Type			port() const	{ return usedport_; }
 
-    void		listen(int firstport,int maxtries=3000 );
+    void		listen(PortNr_Type firstport,int maxtries=3000);
     void		reqModeForJob(const JobInfo&, JobIOMgr::Mode);
     void		addJobDesc(const HostData&,int descnr);
     void		removeJobDesc(const char* hostnm, int descnr);
@@ -162,29 +163,21 @@ protected:
 
     bool*			exitreq_;
     Network::Server		server_;
-    int				firstport_;
-    int				usedport_;
+    PortNr_Type			firstport_;
+    PortNr_Type			usedport_;
     ObjQueue<StatusInfo>	statusqueue_;
     ObjectSet<JobHostRespInfo>	jobhostresps_;
     bool			ready_;
 };
 
 
-void JobIOHandler::listen( int firstport, int maxtries )
+void JobIOHandler::listen( PortNr_Type firstport, int maxtries )
 {
-    int currentport = firstport;
-    for ( int idx=0; idx<maxtries; idx++, currentport++ )
-    {
-	server_.listen( System::localAddress(), currentport );
-	if ( server_.isListening() )
-	{
-	    usedport_ = currentport;
-	    ready_ = true;
-	    break;
-	}
-	else
-	    server_.close();
-    }
+    uiRetVal portmsg;
+    usedport_ = Network::getUsablePort( portmsg, firstport, maxtries );
+    ready_ = usedport_ >= firstport && portmsg.isOK();
+    if ( !ready_ )
+	server_.close();
 }
 
 
@@ -332,7 +325,7 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 
 
 // JobIOMgr
-JobIOMgr::JobIOMgr( int firstport, int niceval )
+JobIOMgr::JobIOMgr( PortNr_Type firstport, int niceval )
     : iohdlr_(*new JobIOHandler(firstport))
     , niceval_(niceval)
 {
@@ -697,7 +690,7 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 	cmd.set( progname );
 
     argstr.addFlag( OS::MachineCommand::sKeyMasterHost(),
-		 System::localAddress() );
+		    System::localAddress() );
     argstr.addFlag( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
     argstr.addFlag( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
     argstr.addFilePath( iopfp );

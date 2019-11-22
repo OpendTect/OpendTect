@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobinfo.h"
 #include "jobiomgr.h"
 #include "msgh.h"
+#include "networkcommon.h"
 #include "oddirs.h"
 #include "queue.h"
 #include "timefun.h"
@@ -78,7 +79,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, descprov_(p)
 	, rshcomm_("rsh")
 	, niceval_(19)
-	, firstport_(19636)
+	, firstport_(Network::getUsablePort(19636))
 	, prog_(cmd)
 	, starttimeout_( 1000 * GetEnvVarIVal("DTECT_MM_START_TO",   45 ) )
 	, failtimeout_(  1000 * GetEnvVarIVal("DTECT_MM_FAIL_TO",    450 ) )

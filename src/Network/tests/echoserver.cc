@@ -22,15 +22,16 @@ namespace Network
 class EchoServer : public CallBacker
 {
 public:
-    EchoServer( unsigned short startport, unsigned short timeout )
+    EchoServer( PortNr_Type startport, unsigned short timeout )
 	: close_( false )
 	, timeout_( timeout )
     {
 	mAttachCB( server_.readyRead, EchoServer::dataArrivedCB );
 
-	unsigned short port = startport;
-	const unsigned short maxport = 10000;
-	while ( !close_ && !server_.listen( 0, port++ ) && port<maxport )
+	PortNr_Type port = startport;
+	const PortNr_Type maxport = 10000;
+	while ( !close_ && !server_.listen( Any, port++ ) &&
+		port<maxport )
 	{}
 
 	mAttachCB( timer_.tick, EchoServer::timerTick );
@@ -125,7 +126,7 @@ int main(int argc, char** argv)
     int timeout = 120;
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
-    Network::EchoServer server( mCast(unsigned short,startport),
+    Network::EchoServer server( mCast(PortNr_Type,startport),
 				mCast(unsigned short,timeout) );
 
     if ( !quiet )

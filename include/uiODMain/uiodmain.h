@@ -102,6 +102,7 @@ protected:
     bool		failed_;
 
     virtual bool	closeOK();
+    void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
     void		restoreSession(const IOObj*);

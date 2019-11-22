@@ -13,10 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netreqconnection.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "timer.h"
-
 #include "ptrman.h"
 #include "testprog.h"
+#include "timer.h"
 
 #include <time.h>
 
@@ -26,14 +25,14 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( unsigned short port, unsigned short timeout )
-	: server_( new RequestServer(port) )
+    RequestEchoServer( PortNr_Type port, unsigned short timeout )
+	: server_(port)
 	, timeout_( timeout )
     {
-	mAttachCB( server_->newConnection, RequestEchoServer::newConnectionCB );
+	mAttachCB( server_.newConnection, RequestEchoServer::newConnectionCB );
 
 	Threads::sleep( 1 );
-	if ( !server_->isOK() )
+	if ( !server_.isOK() )
 	    closeServerCB( 0 );
 
 	mAttachCB( timer_.tick, RequestEchoServer::timerTick );
@@ -47,20 +46,19 @@ public:
     {
 	detachAllNotifiers();
 	CallBack::removeFromMainThread( this );
-	delete server_;
     }
 
 
     void newConnectionCB( CallBacker* )
     {
 	lastactivity_ = time( 0 );
-	RequestConnection* newconn = server_->pickupNewConnection();
+	RequestConnection* newconn = server_.pickupNewConnection();
 	if ( !newconn )
 	    return;
 
 	if ( !quiet )
 	    od_cout() << "New connection " << newconn->ID()
-		      << " on port " << server_->server()->port() << od_endl;
+		      << " on port " << server_.server()->port() << od_endl;
 
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
@@ -149,7 +147,7 @@ public:
 
     void closeServerCB( CallBacker* )
     {
-	conns_.erase();
+	conns_.setEmpty();
 	ApplicationData::exit( 0 );
     }
 
@@ -167,7 +165,7 @@ public:
     }
 
 
-    RequestServer*			server_;
+    RequestServer			server_;
     Timer				timer_;
     time_t				lastactivity_;
     time_t				timeout_;
@@ -193,12 +191,12 @@ int main(int argc, char** argv)
     int timeout = 120;
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
-    Network::RequestEchoServer server( mCast(unsigned short,startport),
+    Network::RequestEchoServer server( mCast(PortNr_Type,startport),
 				       mCast(unsigned short,timeout) );
 
     if ( !quiet )
     {
-	od_cout() << "Listening to port " << server.server_->server()->port()
+	od_cout() << "Listening to port " << server.server_.server()->port()
 		  << " with a " << server.timeout_ << " second timeout\n";
     }
 

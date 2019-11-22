@@ -40,6 +40,7 @@ public:
     ~Tester()
     {
 	detachAllNotifiers();
+	delete authority_;
 	CallBack::removeFromMainThread( this );
     }
 
@@ -52,8 +53,7 @@ public:
 
     bool runTest( bool sendkill, bool multithreaded )
     {
-	Network::RequestConnection conn( hostname_, (unsigned short)port_,
-					 multithreaded );
+	Network::RequestConnection conn( *authority_, multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
 	      conn.errMsg().getFullString() );
@@ -139,8 +139,7 @@ public:
 	    //
 	    //Further, the errorcode should be set correctly.
 
-	    Network::RequestConnection conn2( hostname_, (unsigned short)port_,
-					 multithreaded );
+	    Network::RequestConnection conn2( *authority_, multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
 	      conn.errMsg().getFullString() );
@@ -251,8 +250,7 @@ public:
     bool			sendres_;
 
     BufferString		prefix_;
-    BufferString		hostname_;
-    int				port_;
+    Network::Authority*		authority_ = nullptr;
 };
 
 
@@ -263,16 +261,18 @@ int main(int argc, char** argv)
     const char* portkey = Network::Server::sKeyPort();
 
     PtrMan<Tester> runner = new Tester;
-    runner->port_ = 1025;
-    clparser.getVal( portkey, runner->port_, true );
-    runner->hostname_ = Network::Socket::sKeyLocalHost();;
+    int port = 1025;
+    clparser.getVal( portkey, port, true );
+    delete runner->authority_;
+    runner->authority_ = new Network::Authority(
+	Network::Socket::sKeyLocalHost(), mCast(PortNr_Type,port) );
     runner->prefix_ = "[singlethreaded] ";
 
     BufferString echoapp = "test_netreqechoserver";
     clparser.getVal( "serverapp", echoapp );
 
     BufferString args( "--", portkey );
-    args.addSpace().add( runner->port_ );
+    args.addSpace().add( runner->authority_->getPort() );
     args.add( " --quiet " );
 
     if ( !clparser.hasKey("noechoapp") && !ExecODProgram( echoapp, args.buf() ))
@@ -281,7 +281,7 @@ int main(int argc, char** argv)
 	ExitProgram( 1 );
     }
 
-    Threads::sleep( 1 );
+    Threads::sleep( 20 );
 
     if ( !runner->runTest(false,false) )
 	ExitProgram( 1 );

@@ -22,14 +22,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "iostrm.h"
 #include "oddirs.h"
-#ifndef OD_NO_QT
-# include "perthreadrepos.h"
+#include "perthreadrepos.h"
 
-# include <QHostAddress>
-# include <QHostInfo>
-# include <QNetworkInterface>
-# include <QStorageInfo>
-#endif
+#include <QHostAddress>
+#include <QHostInfo>
+#include <QNetworkInterface>
+#include <QStorageInfo>
 
 #ifdef __lux__
 # include <sys/statfs.h>
@@ -103,7 +101,7 @@ const char* localHostName()
 const char* localAddress( bool ipv4only )
 {
     mDeclStaticString( str );
-    str = hostAddress( localHostName() );
+    str = hostAddress( localHostName(), ipv4only );
     if ( !str.isEmpty() )
 	return str.buf();
 
@@ -125,22 +123,17 @@ const char* localAddress( bool ipv4only )
 
 const char* hostName( const char* ip )
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
     const QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName();
     if ( str == ip )
 	str.setEmpty();
     return str.buf();
-#else
-    return 0;
-#endif
 }
 
 
 const char* hostAddress( const char* hostname, bool ipv4only )
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
     str.setEmpty();
     const QHostInfo qhi = QHostInfo::fromName( QString(hostname) );
@@ -156,15 +149,11 @@ const char* hostAddress( const char* hostname, bool ipv4only )
     }
 
     return str.buf();
-#else
-    return nullptr;
-#endif
 }
 
 
 bool lookupHost( const char* host_ip, BufferString* msg )
 {
-#ifndef OD_NO_QT
     if ( msg )
 	msg->set( host_ip ).add( ": " );
     const QHostInfo qhi = QHostInfo::fromName( QString(host_ip) );
@@ -193,16 +182,12 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 	msg->add( "Found with IP address " ).add( hostAddress(host_ip) );
 
     return true;
-#else
-    return false;
-#endif
 }
 
 
 void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 		   bool onlyactive )
 {
-#ifndef OD_NO_QT
     QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
     for ( int idx=0; idx<allif.size(); idx++ )
     {
@@ -222,68 +207,47 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 	names.add( qni.name() );
 	addresses.add( qni.hardwareAddress() );
     }
-#endif
 }
 
 
 od_int64 bytesAvailable( const char* path )
 {
-#ifndef OD_NO_QT
     const QStorageInfo storageinfo( path );
     return storageinfo.bytesAvailable();
-#else
-    return -1;
-#endif
 }
 
 
 od_int64 bytesFree( const char* path )
 {
-#ifndef OD_NO_QT
     const QStorageInfo storageinfo( path );
     return storageinfo.bytesFree();
-#else
-    return -1;
-#endif
 }
 
 
 od_int64 bytesTotal( const char* path )
 {
-#ifndef OD_NO_QT
     const QStorageInfo storageinfo( path );
     return storageinfo.bytesTotal();
-#else
-    return -1;
-#endif
 }
 
 
 const char* fileSystemName( const char* path )
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
     const QStorageInfo storageinfo( path );
     str = storageinfo.name();
     if ( str.isEmpty() )
 	str = storageinfo.displayName();
     return str.buf();
-#else
-    return 0;
-#endif
 }
 
 
 const char* fileSystemType( const char* path )
 {
-#ifndef OD_NO_QT
     mDeclStaticString( str );
     const QStorageInfo storageinfo( path );
     str = storageinfo.fileSystemType().constData();
     return str.buf();
-#else
-    return 0;
-#endif
 }
 
 
@@ -291,39 +255,9 @@ const char* fileSystemType( const char* path )
 
 int getFreeMBOnDisk( const char* path )
 {
-#ifndef OD_NO_QT
     const QStorageInfo storageinfo( path );
     const od_int64 bytesavail = storageinfo.bytesAvailable();
     return (int)(bytesavail/1024/1024);
-#else
-    if ( !File::exists(path) )
-	return 0;
-
-    const double fac = mToKbFac;
-    double res;
-
-#ifdef __win__
-    ULARGE_INTEGER freeBytesAvail2User;
-    ULARGE_INTEGER totalNrBytes;
-    ULARGE_INTEGER totalNrFreeBytes;
-    GetDiskFreeSpaceExA( path, &freeBytesAvail2User,
-			&totalNrBytes, &totalNrFreeBytes );
-
-    res = freeBytesAvail2User.QuadPart * fac * fac;
-#else
-
-    struct statfs fsstatbuf;
-    if ( statfs(path,&fsstatbuf) == -1 )
-	return 0;
-
-    res = fac * fac             /* to MB */
-	* fsstatbuf.f_bavail    /* available blocks */
-	* fsstatbuf.f_bsize;    /* block size */
-
-#endif
-
-    return (int)(res + .5);
-#endif
 }
 
 
