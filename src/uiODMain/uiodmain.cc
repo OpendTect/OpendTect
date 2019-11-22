@@ -256,8 +256,6 @@ uiODMain::uiODMain( uiMain& a )
     if ( !useallcpus )
 	cputxt_ = tr("[cpu] %1/%2").arg( odnrcpus ).arg( systemnrcpus );
 
-    uiODServiceMgr::getMgr();
-
     postFinalise().notify( mCB(this,uiODMain,afterStartupCB) );
 }
 
@@ -654,6 +652,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 
 void uiODMain::afterStartupCB( CallBacker* )
 {
+    uiODServiceMgr::setFor( *this );
     uiCOLTAB().asParent()->display( false );
     startAutoSaved2RealObjectRestorer();
 }
