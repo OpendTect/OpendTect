@@ -141,9 +141,11 @@ mExpClass(Basic) CommandLauncher
 { mODTextTranslationClass(CommandLauncher);
 public:
 			CommandLauncher(const MachineCommand&);
+			CommandLauncher(const MachineCommand&,bool isolated);
 			~CommandLauncher();
 
     void		set(const MachineCommand&);
+    void		set(const MachineCommand&,bool isolated);
 
     bool		execute(const CommandExecPars& pars=CommandExecPars());
 
@@ -182,6 +184,10 @@ protected:
     qstreambuf*		stdoutputbuf_;
     qstreambuf*		stderrorbuf_;
     qstreambuf*		stdinputbuf_;
+
+private:
+    void		setIsolated();
+
 public: //Extra utilities, not for general use
     static void		addShellIfNeeded(BufferString& cmd);
 			/*!<Analyses the cmd and looks for pipes or redirects.
