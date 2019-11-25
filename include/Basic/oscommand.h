@@ -115,6 +115,9 @@ public:
 			//!< returns remaining part
     BufferString	getLocalCommand() const;
 
+    BufferString	runAndCollectOutput(BufferString* errmsg=nullptr);
+				//!< for quick get-me-the-output-of-this-command
+
     static const char*	odRemExecCmd()		{ return "od_remexec"; }
     static const char*	sKeyRemoteHost()	{ return "machine"; }
     static const char*	sKeyRemoteCmd()		{ return "cmd"; }

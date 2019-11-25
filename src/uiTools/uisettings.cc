@@ -11,17 +11,26 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisettings.h"
 
+#include "bufstring.h"
 #include "dirlist.h"
 #include "envvars.h"
+#include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "od_helpids.h"
 #include "posimpexppars.h"
 #include "ptrman.h"
+#include "pythonaccess.h"
+#include "separstr.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
 
+#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -39,6 +48,8 @@ static void getGrps( BufferStringSet& grps )
     const char* dtectuser = GetSoftwareUser();
     const bool needdot = dtectuser && *dtectuser;
     if ( needdot ) msk += ".*";
+    BufferString pythonstr(sKey::Python());
+    pythonstr.toLower();
     DirList dl( GetSettingsDir(), DirList::FilesOnly, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -56,7 +67,10 @@ static void getGrps( BufferStringSet& grps )
 	const char* underscoreptr = firstOcc( fnm.buf(), '_' );
 	if ( !underscoreptr || !*underscoreptr )
 	    continue;
-	grps.add( underscoreptr + 1 );
+	underscoreptr += 1;
+	if ( FixedString(underscoreptr).contains(pythonstr) )
+	    continue;
+	grps.add( underscoreptr );
     }
 }
 
@@ -79,7 +93,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	BufferStringSet grps; getGrps( grps );
 	grpfld_ = new uiGenInput( this, tr("Settings group"),
 				  StringListInpSpec(grps) );
-	grpfld_->valuechanged.notify( mCB(this,uiSettings,grpChg) );
+	mAttachCB( grpfld_->valuechanged, uiSettings::grpChg );
     }
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
@@ -93,12 +107,13 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     if ( grpfld_ )
 	tbl_->attach( ensureBelow, grpfld_ );
 
-    postFinalise().notify( mCB(this,uiSettings,dispNewGrp) );
+    mAttachCB( postFinalise(), uiSettings::dispNewGrp );
 }
 
 
 uiSettings::~uiSettings()
 {
+    detachAllNotifiers();
     deepErase( chgdsetts_ );
 }
 
@@ -116,13 +131,11 @@ int uiSettings::getChgdSettIdx( const char* nm ) const
 
 const IOPar& uiSettings::orgPar() const
 {
-    const IOPar* iop = &SI().getPars();
-    if ( !issurvdefs_ )
-    {
-	const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
-	iop = grp == sKeyCommon ? &Settings::common() : &Settings::fetch(grp);
-    }
-    return *iop;
+    if ( issurvdefs_ )
+	return SI().getPars();
+
+    const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
+    return grp == sKeyCommon ? Settings::common() : Settings::fetch( grp );
 }
 
 
@@ -531,4 +544,392 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 			   "only for newly launched objects."));
 
     return true;
+}
+
+
+
+mExpClass(uiTools) uiPythonSettings : public uiDialog
+{ mODTextTranslationClass(uiPythonSettings);
+public:
+
+uiPythonSettings(uiParent* p, const char* nm)
+	: uiDialog(p, uiDialog::Setup(mToUiStringTodo(nm),
+		tr("Set Python default environment"),mTODOHelpKey))
+{
+    pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
+		StringListInpSpec(OD::PythonSourceDef().strings()));
+
+    if ( !OD::PythonAccess::hasInternalEnvironment(false) )
+    {
+	internalloc_ = new uiFileInput( this, tr("Environment root") );
+	internalloc_->setSelectMode( uiFileDialog::DirectoryOnly );
+	internalloc_->attach( alignedBelow, pythonsrcfld_ );
+    }
+
+    customloc_ = new uiFileInput( this,tr("Custom Environment root"));
+    customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
+    customloc_->attach( alignedBelow, pythonsrcfld_ );
+
+    customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
+				      StringListInpSpec() );
+    customenvnmfld_->setWithCheck();
+    customenvnmfld_->attach( alignedBelow, customloc_ );
+
+    uiButton* testbut = new uiPushButton( this, tr("Test"),
+			mCB(this,uiPythonSettings,testCB), true);
+    testbut->setIcon( "test" );
+    testbut->attach( ensureBelow, customenvnmfld_ );
+
+    uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
+			mCB(this,uiPythonSettings,promptCB), true );
+    cmdwinbut->setIcon( "launch" );
+    cmdwinbut->attach( rightOf, testbut );
+
+    mAttachCB( postFinalise(), uiPythonSettings::initDlg );
+}
+
+virtual ~uiPythonSettings()
+{
+    detachAllNotifiers();
+}
+
+private:
+
+void initDlg(CallBacker*)
+{
+    usePar( curSetts() );
+    fillPar( initialsetts_ ); //Backup for restore
+    sourceChgCB(0);
+
+    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
+    if ( internalloc_ )
+	mAttachCB( internalloc_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
+    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
+}
+
+IOPar& curSetts()
+{
+    BufferString pythonstr( sKey::Python() );
+    return Settings::fetch( pythonstr.toLower() );
+}
+
+void getChanges()
+{
+    IOPar* workpar = 0;
+    if ( chgdsetts_ )
+	workpar = chgdsetts_;
+    const bool alreadyedited = workpar;
+    if ( alreadyedited )
+	workpar->setEmpty();
+    else
+	workpar = new IOPar;
+
+    fillPar( *workpar );
+    if ( !curSetts().isEqual(*workpar,true) )
+    {
+	if ( !alreadyedited )
+	    chgdsetts_ = workpar;
+    }
+    else
+    {
+	if ( alreadyedited )
+	    chgdsetts_ = 0;
+	delete workpar;
+    }
+}
+
+void fillPar( IOPar& par ) const
+{
+    BufferString pythonstr( sKey::Python() );
+    par.setName( pythonstr.toLower() );
+
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+    par.set(OD::PythonAccess::sKeyPythonSrc(),
+		OD::PythonSourceDef().getKey(source));
+
+    if ( source == OD::Internal && internalloc_ )
+    {
+	const BufferString envroot( internalloc_->fileName() );
+	if ( !envroot.isEmpty() )
+	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
+    }
+    else if ( source == OD::Custom )
+    {
+	const BufferString envroot( customloc_->fileName() );
+	if ( !envroot.isEmpty() )
+	{
+	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
+	    if ( customenvnmfld_->isChecked() )
+		par.set( sKey::Name(), customenvnmfld_->text() );
+	    else
+		par.removeWithKey( sKey::Name() );
+	}
+    }
+}
+
+void usePar( const IOPar& par )
+{
+    OD::PythonSource source;
+    if ( !OD::PythonSourceDef().parse(par,
+		OD::PythonAccess::sKeyPythonSrc(), source) )
+    {
+	source = OD::PythonAccess::hasInternalEnvironment(false)
+	       ? OD::Internal : OD::System;
+    }
+
+    pythonsrcfld_->setValue( source );
+    customenvnmfld_->setChecked( false );
+    if ( source == OD::Internal && internalloc_ )
+    {
+	BufferString envroot;
+	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	    internalloc_->setFileName( envroot );
+    }
+    else if ( source == OD::Custom )
+    {
+	BufferString envroot, envnm;
+	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	{
+	    customloc_->setFileName( envroot );
+	    setCustomEnvironmentNames();
+	}
+
+	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
+				     !envnm.isEmpty() );
+	if ( customenvnmfld_->isChecked() )
+	    customenvnmfld_->setText( envnm );
+    }
+}
+
+bool commitSetts( const IOPar& iop )
+{
+    Settings& setts = Settings::fetch( iop.name() );
+    setts.IOPar::operator =(iop);
+    if ( !setts.write(false) )
+    {
+	uiMSG().error(tr("Cannot write %1").arg(setts.name()));
+	return false;
+    }
+
+    return true;
+}
+
+void sourceChgCB( CallBacker* )
+{
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+
+    if ( internalloc_ )
+	internalloc_->display( source == OD::Internal );
+
+    customloc_->display( source == OD::Custom );
+    customenvnmfld_->display( source == OD::Custom );
+    parChgCB( nullptr );
+}
+
+void customEnvChgCB( CallBacker* )
+{
+    setCustomEnvironmentNames();
+    parChgCB( nullptr );
+}
+
+void parChgCB( CallBacker* )
+{
+    getChanges();
+}
+
+
+void setCustomEnvironmentNames()
+{
+    const BufferString envroot( customloc_->fileName() );
+    const FilePath fp( envroot, "envs" );
+    if ( !fp.exists() )
+	return;
+
+    BufferStringSet envnames;
+    const DirList dl( fp.fullPath(), DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+        envnames.add( FilePath(dl.fullPath(idx)).baseName() );
+    customenvnmfld_->setEmpty();
+    customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
+    customenvnmfld_->setChecked( !envnames.isEmpty() );
+}
+
+void testPythonModules()
+{
+    ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
+    const uiRetVal uirv( OD::PythA().getModules(modules) );
+    if ( !uirv.isOK() )
+    {
+        uiMSG().error( uirv );
+        return;
+    }
+
+    BufferStringSet modstrs;
+    for ( int idx=0; idx<modules.size(); idx++ )
+        modstrs.add( modules[idx]->displayStr() );
+
+    uiMSG().message( tr("Detected list of Python modules:\n%1")
+                                .arg( modstrs.cat()) );
+}
+
+void testCB(CallBacker*)
+{
+    if ( !useScreen() )
+	return;
+
+    uiUserShowWait usw( this, tr("Retrieving Python testing") );
+    const bool getversion = OD::PythA().retrievePythonVersionStr();
+    if ( !getversion )
+    {
+	uiString launchermsg;
+	uiRetVal uirv( tr("Cannot detect python version:\n%1")
+		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
+	uirv.add( tr("Python environment not usable") )
+	    .add( launchermsg );
+	uiMSG().error( uirv );
+	return;
+    }
+
+    uiMSG().message( tr("Detected Python version: %1")
+			.arg(OD::PythA().pyVersion() ));
+
+    usw.setMessage( tr("Retrieving list of installed Python modules") );
+    testPythonModules();
+}
+
+void promptCB( CallBacker* )
+{
+    if ( !useScreen() )
+	return;
+
+    const BufferString termem = SettingsAccess().getTerminalEmulator();
+    BufferString cmd;
+#ifdef __win__
+    cmd.set( "start " ).add( termem );
+#else
+    cmd.set( termem );
+#endif
+    OD::PythA().execute( OS::MachineCommand(cmd), false );
+}
+
+bool useScreen()
+{
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+
+    uiString envrootstr = tr("Evironment root" );
+    if ( source == OD::Internal && internalloc_ )
+    {
+        const BufferString envroot( internalloc_->fileName() );
+        if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+        {
+            uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+            return false;
+        }
+
+        const FilePath envrootfp( envroot );
+        if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
+        {
+            uiMSG().error( tr("Invalid environment root") );
+            return false;
+        }
+    }
+    else if ( source == OD::Custom )
+    {
+        const BufferString envroot( customloc_->fileName() );
+        if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+        {
+            uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+            return false;
+        }
+
+        const FilePath envrootfp( envroot, "envs" );
+        if ( !envrootfp.exists() )
+        {
+            uiMSG().error( tr("%1 does not contains a directory called %2")
+                                .arg(uiStrings::sDirectory()).arg("envs") );
+            return false;
+        }
+    }
+
+    if ( !chgdsetts_ )
+	return true;
+
+    needrestore_ = chgdsetts_;
+    if ( commitSetts(*chgdsetts_) )
+	deleteAndZeroPtr(chgdsetts_);
+
+    if ( chgdsetts_ )
+	return false;
+
+    OD::PythA().istested_ = false;
+    return true;
+}
+
+bool rejectOK( CallBacker* )
+{
+    if ( !needrestore_ )
+	return true;
+
+    if ( commitSetts(initialsetts_) )
+    {
+	OD::PythA().istested_ = false;
+	OD::PythA().envChangeCB( nullptr );
+    }
+    else
+	uiMSG().warning( tr("Cannot restore the initial settings") );
+
+    return true;
+}
+
+bool acceptOK( CallBacker* )
+{
+    bool isok = true; bool ismodified = false;
+    if ( chgdsetts_ )
+    {
+	isok = useScreen();
+	ismodified = true;
+    }
+    needrestore_ = !isok;
+    if ( isok )
+    {
+	if ( ismodified )
+	{
+	    OD::PythA().istested_ = false;
+	    OD::PythA().envChangeCB( nullptr );
+	    needrestore_ = false;
+	}
+    }
+    else
+	uiMSG().warning( tr("Cannot use the new settings") );
+
+    return isok;
+}
+
+    uiGenInput*		pythonsrcfld_;
+    uiFileInput*	internalloc_ = nullptr;
+    uiFileInput*	customloc_;
+    uiGenInput*		customenvnmfld_;
+
+    IOPar*		chgdsetts_ = nullptr;
+    bool		needrestore_ = false;
+    IOPar		initialsetts_;
+
+};
+
+
+
+uiDialog* uiSettings::getPythonDlg( uiParent* p, const char* nm )
+{
+    uiDialog* ret = new uiPythonSettings( p, nm );
+    ret->setModal( false );
+    ret->setDeleteOnClose( true );
+    return ret;
 }

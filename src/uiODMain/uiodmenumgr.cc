@@ -919,9 +919,18 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu_, m3Dots(tr("Look and Feel")), mSettLkNFlMnuItm );
     mInsertItem( settmnu_, m3Dots(tr("Keyboard Shortcuts")),
 		 mSettShortcutsMnuItm);
+
+#ifdef __debug__
+    const bool enabadvsettings = true;
+#else
+    const bool enabadvsettings = GetEnvVarYN( "OD_ENABLE_ADVANCED_SETTINGS" );
+#endif
     uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
-    mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
-    mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
+    if ( enabadvsettings )
+    {
+	mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
+	mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
+    }
     settmnu_->insertItem( advmnu );
 
     toolsmnu_ = new uiMenu( &appl_, uiStrings::sTools() );
@@ -937,6 +946,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
+    mInsertItem( installmnu_, m3Dots(tr("Python Settings")), mSettPython );
     FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller )
@@ -1520,6 +1530,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSettGeneral: {
 	uiSettings dlg( &appl_, "Set Personal Settings" );
 	dlg.go();
+    } break;
+    case mSettPython: {
+	uiDialog* dlg = uiSettings::getPythonDlg(&appl_,"Set Python Settings");
+	dlg->go();
     } break;
     case mSettSurvey: {
 	uiSettings dlg( &appl_, "Set Survey Default Settings",

@@ -618,6 +618,23 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
+BufferString OS::MachineCommand::runAndCollectOutput( BufferString* errmsg )
+{
+    BufferString ret;
+    CommandExecPars execpars( Wait4Finish );
+    execpars.createstreams( true );
+    CommandLauncher cl( *this );
+    if ( !cl.execute(execpars) )
+	return ret;
+
+    cl.getStdOutput()->getAll( ret );
+    if ( errmsg )
+	cl.getStdError()->getAll( *errmsg );
+
+    return ret;
+}
+
+
 void OS::CommandLauncher::addQuotesIfNeeded( BufferString& cmd )
 {
     if ( !cmd.find(' ' ) )

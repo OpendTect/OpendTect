@@ -235,7 +235,8 @@ ________________________________________________________________________
 #define mSettFontsMnuItm	(mUtilSettingMnu + 10)
 #define mSettLkNFlMnuItm	(mUtilSettingMnu + 30)
 #define mSettGeneral		(mUtilSettingMnu + 40)
-#define mSettSurvey		(mUtilSettingMnu + 41)
+#define mSettPython		(mUtilSettingMnu + 41)
+#define mSettSurvey		(mUtilSettingMnu + 42)
 #define mSettShortcutsMnuItm	(mUtilSettingMnu + 50)
 
 

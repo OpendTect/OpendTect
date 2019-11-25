@@ -11,6 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "settingsaccess.h"
 #include "envvars.h"
+#include "filepath.h"
+#include "keystrs.h"
+#include "oddirs.h"
+#include "oscommand.h"
 
 
 const char* SettingsAccess::sKeyIcons()
@@ -123,4 +127,28 @@ int SettingsAccess::getDefaultTexResFactor( int nrres ) const
 
     res = defaultTexResFactorFromEnvVar();
     return validResolution( res, nrres );
+}
+
+
+BufferString SettingsAccess::getTerminalEmulator()
+{
+    const BufferString orgtermcmd( settings_.find( sKey::TermEm() ) );
+    BufferString termcmd( orgtermcmd );
+#ifdef __win__
+    if ( termcmd.isEmpty() )
+	termcmd = "cmd.exe";
+#else
+    const FilePath fp( GetSoftwareDir(true), "bin", "od_find_term.bash" );
+    BufferString cmd( fp.fullPath() );
+    if ( !termcmd.isEmpty() )
+	cmd.addSpace().add( termcmd );
+    OS::MachineCommand mc( cmd );
+    termcmd = mc.runAndCollectOutput();
+#endif
+
+    settings_.set( sKey::TermEm(), termcmd );
+    if ( termcmd != orgtermcmd )
+	settings_.write( false );
+
+    return termcmd;
 }
