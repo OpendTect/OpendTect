@@ -37,8 +37,13 @@ int main( int argc, char ** argv )
     //Disable IssueReporter for IssueReporter itself.
     System::CrashDumper::getInstance().setSendAppl( "" );
 #endif
+    BufferString path;
+    if ( proctyp.size() > 1 )
+	path = *proctyp[1];
+
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
-	uiFirewallProcSetter::ActionTypeDef().getEnumForIndex(proctypidx) );
+	uiFirewallProcSetter::ActionTypeDef().getEnumForIndex(proctypidx),
+        path );
 
     app.setTopLevel( dlg );
     dlg->show();
