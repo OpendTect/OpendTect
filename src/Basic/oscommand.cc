@@ -537,6 +537,20 @@ void OS::CommandLauncher::setIsolated()
 }
 
 
+bool OS::CommandLauncher::execute( BufferString& out, BufferString* err )
+{
+    CommandExecPars execpars( Wait4Finish );
+    execpars.createstreams( true );
+    if ( !execute(execpars) )
+	return false;
+
+    getStdOutput()->getAll( out );
+    if ( err )
+	getStdError()->getAll( *err );
+    return true;
+}
+
+
 bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 {
     reset();

@@ -147,6 +147,9 @@ public:
     void		set(const MachineCommand&);
     void		set(const MachineCommand&,bool isolated);
 
+    bool		execute(BufferString& output_stdout,
+				BufferString* output_stderr=0);
+				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars& pars=CommandExecPars());
 
     int			processID() const;

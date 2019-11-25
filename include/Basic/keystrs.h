@@ -101,6 +101,7 @@ namespace sKey
     inline FixedString Polygon()	{ return "Polygon"; }
     inline FixedString Position()	{ return "Position"; }
     inline FixedString Property()	{ return "Property"; }
+    inline FixedString Python()		{ return "Python"; }
     inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
     inline FixedString Range()		{ return "Range"; }
