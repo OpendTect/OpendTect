@@ -558,27 +558,22 @@ uiPythonSettings(uiParent* p, const char* nm)
 {
     pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
 		StringListInpSpec(OD::PythonSourceDef().strings()));
-    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
     {
 	internalloc_ = new uiFileInput( this, tr("Environment root") );
 	internalloc_->setSelectMode( uiFileDialog::DirectoryOnly );
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
-	mAttachCB( internalloc_->valuechanged, uiPythonSettings::parChgCB );
     }
 
     customloc_ = new uiFileInput( this,tr("Custom Environment root"));
     customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
-    mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
 
     customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
 				      StringListInpSpec() );
     customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
-    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
-    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
@@ -602,23 +597,30 @@ private:
 
 void setPythonPath()
 {
-	const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
-	const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
-	if ( pythonmodsfp.exists() )
-	{
-		BufferStringSet pythonpaths;
-		GetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
-		if ( pythonpaths.addIfNew(pythonmodsfp.fullPath()) )
-			SetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
-	}
+    const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
+    const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
+    if ( !pythonmodsfp.exists() )
+	return;
+
+    BufferStringSet pythonpaths;
+    GetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
+    if ( pythonpaths.addIfNew(pythonmodsfp.fullPath()) )
+	SetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
 }
 
 void initDlg(CallBacker*)
 {
     usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
-	setPythonPath();
+    setPythonPath();
     sourceChgCB(0);
+
+    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
+    if ( internalloc_ )
+	mAttachCB( internalloc_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
+    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 }
 
 IOPar& curSetts()
@@ -705,7 +707,10 @@ void usePar( const IOPar& par )
     {
 	BufferString envroot, envnm;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	{
 	    customloc_->setFileName( envroot );
+	    setCustomEnvironmentNames();
+	}
 
 	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
 				     !envnm.isEmpty() );
