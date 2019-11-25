@@ -555,9 +555,11 @@ public:
 uiPythonSettings(uiParent* p, const char* nm)
 	: uiDialog(p, uiDialog::Setup(mToUiStringTodo(nm),
 		tr("Set Python default environment"),mTODOHelpKey))
+	, python645def_( OD::PythonSourceDef() )
 {
+    python645def_.remove( python645def_.getKey(OD::Internal) );
     pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
-		StringListInpSpec(OD::PythonSourceDef().strings()));
+		StringListInpSpec(python645def_.strings()));
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
     {
@@ -645,7 +647,7 @@ void fillPar( IOPar& par ) const
     BufferString pythonstr( sKey::Python() );
     par.setName( pythonstr.toLower() );
 
-    const int sourceidx = pythonsrcfld_->getIntValue();
+    const int sourceidx = pythonsrcfld_->getIntValue()+1;
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
     par.set(OD::PythonAccess::sKeyPythonSrc(),
@@ -676,12 +678,12 @@ void usePar( const IOPar& par )
     OD::PythonSource source;
     if ( !OD::PythonSourceDef().parse(par,
 		OD::PythonAccess::sKeyPythonSrc(), source) )
-    {
-	source = OD::PythonAccess::hasInternalEnvironment(false)
-	       ? OD::Internal : OD::System;
-    }
+	source = OD::System;
 
-    pythonsrcfld_->setValue( source );
+    if ( source == OD::Internal )
+	source = OD::System;
+
+    pythonsrcfld_->setValue( source-1 );
     customenvnmfld_->setChecked( false );
     if ( source == OD::Internal && internalloc_ )
     {
@@ -720,7 +722,7 @@ bool commitSetts( const IOPar& iop )
 
 void sourceChgCB( CallBacker* )
 {
-    const int sourceidx = pythonsrcfld_->getIntValue();
+    const int sourceidx = pythonsrcfld_->getIntValue()+1;
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
@@ -820,7 +822,7 @@ void promptCB( CallBacker* )
 
 bool useScreen()
 {
-    const int sourceidx = pythonsrcfld_->getIntValue();
+    const int sourceidx = pythonsrcfld_->getIntValue()+1;
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
@@ -921,6 +923,7 @@ bool acceptOK( CallBacker* )
     IOPar*		chgdsetts_ = nullptr;
     bool		needrestore_ = false;
     IOPar		initialsetts_;
+    EnumDefImpl<OD::PythonSource>		python645def_;
 
 };
 
