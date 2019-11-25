@@ -273,7 +273,6 @@ uiPythonSettings(uiParent* p, const char* nm)
 {
     pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
 		StringListInpSpec(OD::PythonSourceDef().strings()));
-    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
     {
@@ -281,21 +280,17 @@ uiPythonSettings(uiParent* p, const char* nm)
 	internalloc_->setup().withexamine(false);
 	internalloc_->setSelectionMode( OD::SelectDirectory );
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
-	mAttachCB( internalloc_->newSelection, uiPythonSettings::parChgCB );
     }
 
     customloc_ = new uiFileSel( this,tr("Custom Environment root"));
     customloc_->setup().withexamine(false);
     customloc_->setSelectionMode( OD::SelectDirectory );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
-    mAttachCB( customloc_->newSelection, uiPythonSettings::customEnvChgCB );
 
     customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
 				      StringListInpSpec() );
     customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
-    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
-    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
@@ -322,6 +317,13 @@ void initDlg(CallBacker*)
     usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
     sourceChgCB(0);
+
+    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
+    if ( internalloc_ )
+	mAttachCB( internalloc_->newSelection, uiPythonSettings::parChgCB );
+    mAttachCB( customloc_->newSelection, uiPythonSettings::customEnvChgCB );
+    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
 }
 
 IOPar& curSetts()
@@ -408,7 +410,10 @@ void usePar( const IOPar& par )
     {
 	BufferString envroot, envnm;
 	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	{
 	    customloc_->setFileName( envroot );
+	    setCustomEnvironmentNames();
+	}
 
 	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
 				     !envnm.isEmpty() );
