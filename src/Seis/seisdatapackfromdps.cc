@@ -78,7 +78,7 @@ bool SeisDataPackFromDPS::doWork( od_int64 start, od_int64 stop, int threadidx )
 		continue;
 
 	    const float zval = dps_.z( idx );
-	    data[globidx*nrsamps + zsamp.getIndex(zval)] =
+	    data[globidx*nrsamps + zsamp.nearestIndex(zval)] =
 		colid == mZColID ? zval : dps_.value( colid, idx );
 	}
     }
