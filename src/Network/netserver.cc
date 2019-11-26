@@ -249,14 +249,14 @@ void Network::Authority::setHostAddress( const char* host, bool resolveipv6 )
 	{
 	    const BufferString localaddr(
 			System::hostAddress(Network::Socket::sKeyLocalHost()) );
-	    qhostaddr_.setAddress( localaddr );
+	    qhostaddr_.setAddress( QString(localaddr) );
 	}
 	else if ( prtocolval == QAbstractSocket::IPv6Protocol &&
 			    qhostaddr_ == QHostAddress(QHostAddress::AnyIPv6) )
 	{
 	    const BufferString localaddr(
 		   System::hostAddress(Network::Socket::sKeyLocalHost(),false));
-	    qhostaddr_.setAddress( localaddr );
+	    qhostaddr_.setAddress( QString(localaddr) );
 	}
 #endif
     }
