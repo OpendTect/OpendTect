@@ -29,6 +29,7 @@ ________________________________________________________________________
 #else
 # include "sys/stat.h"
 # include <unistd.h>
+# include <utime.h>
 #endif
 
 # include <fstream>
@@ -471,9 +472,17 @@ bool File::LocalFileSystemAccess::copy( const char* fromuri,
 	remove( to );
 
     QFile qfile( from.buf() );
-    const bool ret = qfile.copy( to.buf() );
+    bool ret = qfile.copy( to.buf() );
     if ( !ret && errmsg )
 	errmsg->setFrom( qfile.errorString() );
+
+#ifdef __unix__
+    const QFileInfo qfi( qfile );
+    utimbuf timestamp;
+    timestamp.actime = qfi.lastRead().toSecsSinceEpoch();
+    timestamp.modtime = qfi.lastModified().toSecsSinceEpoch();
+    utime( to.buf(), &timestamp );
+#endif
 
     return ret;
 }
