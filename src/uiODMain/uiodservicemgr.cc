@@ -15,6 +15,7 @@
 #include "uimsg.h"
 
 #include "dbman.h"
+#include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "netreqconnection.h"
@@ -172,7 +173,8 @@ BufferString uiODServiceMgr::serviceName(
 				    const Network::Service::ID servid ) const
 {
     const Network::Service* service = getService( servid );
-    return service ? service->name() : BufferString::empty();
+    const File::Path fp( service->name() );
+    return service ? fp.baseName() : BufferString::empty();
 }
 
 
