@@ -235,12 +235,36 @@ void Network::Authority::setHostAddress( const char* host, bool resolveipv6 )
     qhost_ = hostnm;
     qhostaddr_.setAddress( qhost_ );
 
-    hostisaddress_ = qhostaddr_.protocol() >
+    const QAbstractSocket::NetworkLayerProtocol prtocolval =
+							qhostaddr_.protocol();
+    hostisaddress_ = prtocolval >
 		     QAbstractSocket::UnknownNetworkLayerProtocol;
 
-    if ( !hostisaddress_ )
+    if ( hostisaddress_ )
+    {
+#ifdef  __win__
+	if ( prtocolval == QAbstractSocket::IPv4Protocol &&
+			    qhostaddr_ == QHostAddress(QHostAddress::AnyIPv4) )
+	{
+	    const BufferString localaddr(
+			System::hostAddress(Network::Socket::sKeyLocalHost()) );
+	    qhostaddr_.setAddress( localaddr );
+	}
+	else if ( prtocolval == QAbstractSocket::IPv6Protocol &&
+			    qhostaddr_ == QHostAddress(QHostAddress::AnyIPv6) )
+	{
+	    const BufferString localaddr(
+		   System::hostAddress(Network::Socket::sKeyLocalHost(),false));
+	    qhostaddr_.setAddress( localaddr );
+	}
+#endif
+    }
+    else
+    {
 	qhostaddr_.setAddress(
 			QString(System::hostAddress(hostnm,!resolveipv6)) );
+
+    }
 
     if ( qhostaddr_.isNull() )
 	qhostaddr_.clear();
