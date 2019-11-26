@@ -173,7 +173,8 @@ BufferString uiODServiceMgr::serviceName(
 				    const Network::Service::ID servid ) const
 {
     const Network::Service* service = getService( servid );
-    return service ? service->name() : BufferString::empty();
+    const FilePath fp( service->name() );
+    return service ? fp.baseName() : BufferString::empty();
 }
 
 
