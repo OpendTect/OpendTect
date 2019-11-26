@@ -92,7 +92,7 @@ public:
     BufferStringSet regchars; \
     regchars.add( "!" ); \
     uiTextValidator txtvl( regchars ); \
-    fld##->setTextValidator( txtvl ); \
+    fld->setTextValidator( txtvl ); \
 
 
 
