@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uimsg.h"
 
+#include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "oddirs.h"
