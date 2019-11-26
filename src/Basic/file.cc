@@ -31,6 +31,7 @@ ________________________________________________________________________
 #else
 # include "sys/stat.h"
 # include <unistd.h>
+# include <utime.h>
 #endif
 
 #ifndef OD_NO_QT
@@ -588,6 +589,14 @@ bool copy( const char* from, const char* to, BufferString* errmsg )
     if ( !ret && errmsg )
 	errmsg->add( qfile.errorString() );
 
+#ifdef __unix__
+    const QFileInfo qfi( qfile );
+    utimbuf timestamp;
+    timestamp.actime = qfi.lastRead().toSecsSinceEpoch();
+    timestamp.modtime = qfi.lastModified().toSecsSinceEpoch();
+    utime( to, &timestamp );
+#endif
+
     return ret;
 
 #else
@@ -614,7 +623,7 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
     cmd = "xcopy /E /I /Q /H ";
     cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
 #else
-    cmd = "/bin/cp -r ";
+    cmd = "/bin/cp -a ";
     cmd.add(" '").add(from).add("' '").add(to).add("'");
 #endif
 
