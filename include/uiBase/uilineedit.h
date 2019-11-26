@@ -88,6 +88,12 @@ public:
 };
 
 
+#define mUseDefaultTextValidatorOnField(fld) \
+    BufferStringSet regchars; \
+    regchars.add( "!" ); \
+    uiTextValidator txtvl( regchars ); \
+    fld##->setTextValidator( txtvl ); \
+
 
 
 mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>,
