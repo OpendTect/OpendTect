@@ -106,7 +106,7 @@ void uiColopLink::doColop( CallBacker* )
     BufferString scriptfnm( fp.fullPath() );
     if ( !File::exists(scriptfnm) )
     {
-	uiMSG().error( mINTERNAL("COLOP.exe not found") );
+	uiMSG().error( "COLOP.exe not found" );
 	return;
     }
 
@@ -115,7 +115,7 @@ void uiColopLink::doColop( CallBacker* )
     OS::CommandLauncher cl( machcomm, true );
     if ( !cl.execute(execpars) )
     {
-	uiMSG().error( mINTERNAL("Cannot start COLOP app") );
+	uiMSG().error( "Cannot start COLOP app" );
 	return;
     }
 }
