@@ -789,7 +789,19 @@ bool Table::AscIO::putNextBodyVals( od_ostream& strm ) const
 
 const char* Table::AscIO::text( int ifld ) const
 {
-    return vals_.validIdx(ifld) ? ((const char*)vals_.get(ifld)) : "";
+    BufferString txt = "";
+
+    if ( vals_.validIdx(ifld) )
+    {
+	txt = (const char*)vals_.get( ifld );
+	BufferString firstchar;
+	firstchar.add( txt[0] );
+	const BufferString chartoavoid = "!";
+	if ( firstchar == chartoavoid )
+	    txt.replace( "!", "_" );
+    }
+
+    return txt;
 }
 
 

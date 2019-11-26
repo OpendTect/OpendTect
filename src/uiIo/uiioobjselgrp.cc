@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
+#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
 #include "uitoolbutton.h"
@@ -218,6 +219,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
+    mUseDefaultTextValidatorOnField(nmfld_);
     nmfld_->setElemSzPol( uiObject::SmallMax );
     nmfld_->setStretch( 2, 0 );
     mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );

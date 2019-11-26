@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidlggroup.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 #include "uibatchjobdispatchersel.h"
 #include "uistrings.h"
@@ -48,6 +49,8 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				 StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, attrfld_ );
+
+    mUseDefaultTextValidatorOnField(attrnmfld_);
 
     filludffld_ = new uiGenInput( pargrp_, tr("Fill undefined parts"),
 				  BoolInpSpec(false) );

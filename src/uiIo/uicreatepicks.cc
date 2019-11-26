@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uitaskrunner.h"
 #include "uilabel.h"
@@ -73,6 +74,8 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
     nmfld_ = new uiGenInput( this,
 		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
 					      uiStrings::sPointSet()) );
+    mUseDefaultTextValidatorOnField(nmfld_);
+
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(getRandStdDrawColor()).
 			      lbltxt(uiStrings::sColor()) );

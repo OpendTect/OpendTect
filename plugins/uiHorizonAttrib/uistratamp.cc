@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
+#include "uilineedit.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "od_helpids.h"
@@ -98,6 +99,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 				     StringInpSpec("Stratal Amplitude") );
     mAttachCB( attribnamefld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
+
+    mUseDefaultTextValidatorOnField(attribnamefld_);
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );

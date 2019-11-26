@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilineedit.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
@@ -130,7 +131,7 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type )
     : uiODTreeItem(type)
     , typestr_(type)
-{ }
+{}
 
 
 uiODAnnotTreeItem::~uiODAnnotTreeItem()
@@ -240,6 +241,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 			   new StringInpSpec );
 	dlg.setCaption( tr("Annotations") );
 
+	mUseDefaultTextValidatorOnField(dlg.getFld(0));
 	while ( true )
 	{
 	    if ( !dlg.go() ) return false;

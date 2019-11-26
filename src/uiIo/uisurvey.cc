@@ -254,6 +254,8 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     survnmfld_ = new uiGenInput( this, tr("Survey name") );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
+    mUseDefaultTextValidatorOnField(survnmfld_);
+
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
     pol2dfld_->setLabel( tr("Available data") );
     pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );

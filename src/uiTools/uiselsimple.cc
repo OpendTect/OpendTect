@@ -10,10 +10,11 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiselsimple.h"
+#include "uichecklist.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uilistboxfilter.h"
-#include "uichecklist.h"
 #include "uistrings.h"
 #include "globexpr.h"
 #include "bufstringset.h"
@@ -84,6 +85,9 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
     if ( defnm.isEmpty() && listfld_ )
 	defnm = sup.items_.get(0);
     inpfld_ = new uiGenInput( this, sup.inptxt_, defnm );
+
+    mUseDefaultTextValidatorOnField(inpfld_);
+
     if ( listfld_ )
 	inpfld_->attach( alignedBelow, listfld_ );
 }

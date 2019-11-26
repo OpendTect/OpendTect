@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
@@ -62,6 +63,9 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
 				 StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, horsel_ );
+
+    mUseDefaultTextValidatorOnField(attrnmfld_);
+
     toHorSel(0);
 
     if ( SI().zIsTime() )

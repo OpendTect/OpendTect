@@ -149,6 +149,8 @@ int uiFileDialog::go()
                             mNoHelpKey) );
 	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
 	le->setText( dirname );
+	mUseDefaultTextValidatorOnField(le);
+
 	new uiLabel( &dlg, tr("File name"), le );
 	if ( !dlg.go() ) return 0;
 	fn = le->text(); filenames_.add( fn );
