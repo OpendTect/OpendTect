@@ -171,7 +171,8 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	return false;
     }
 
-    BufferString cmd = "od_Setup_Firewall.exe";
+    const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
+    BufferString cmd = exepath.fullPath();
 
     bool toadd = acttyp_ == Add;
     if ( addremfld_ )
@@ -183,7 +184,6 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	cmd.add(" --remove ");
     
     bool errocc = false;
-    const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
     for ( int idx=0; idx<2; idx++ ) //idx 0=od, idx1=python
     {
 	BufferString fincmd = cmd;
