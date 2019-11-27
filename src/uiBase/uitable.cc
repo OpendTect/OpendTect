@@ -1373,8 +1373,8 @@ void uiTable::popupMenu( CallBacker* )
     const int nrcols = nrCols();
     if ( (nrrows*nrcols)!=0 && cur.row()==-1 && cur.col()==-1 )
 	return;
-    uiString beforestr = tr("%1 before").arg(toUiString(setup_.coldesc_));
-    uiString afterstr = tr("%1 after").arg(toUiString(setup_.coldesc_));
+    uiString beforestr;
+    uiString afterstr;
     int inscolbef = 0;
     int delcol = 0;
     int delcols = 0;
@@ -1390,6 +1390,8 @@ void uiTable::popupMenu( CallBacker* )
 	    }
 	    else
 	    {
+		beforestr = tr("%1 before").arg( toUiString(setup_.coldesc_) );
+		afterstr = tr("%1 after").arg( toUiString(setup_.coldesc_) );
 		itmtxt = uiStrings::phrInsert( beforestr );
 		inscolbef = mnu->insertAction( new uiAction(itmtxt), 0 );
 		itmtxt = uiStrings::phrInsert( afterstr );
@@ -1426,6 +1428,8 @@ void uiTable::popupMenu( CallBacker* )
 	    }
 	    else
 	    {
+		beforestr = tr("%1 before").arg( toUiString(setup_.rowdesc_) );
+		afterstr = tr("%1 after").arg( toUiString(setup_.rowdesc_) );
 		itmtxt =  uiStrings::phrInsert( beforestr );
 		insrowbef = mnu->insertAction( new uiAction(itmtxt), 1 );
 		itmtxt =  uiStrings::phrInsert( afterstr );
