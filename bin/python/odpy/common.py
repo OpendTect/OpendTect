@@ -12,6 +12,7 @@ import platform
 import logging
 import tempfile
 from datetime import datetime
+import threading
 
 def sTimeUnitString( ismilli=False, abbr=True ):
   if abbr:
@@ -295,3 +296,10 @@ def writeFile( fnm, content ):
 def getTempDir():
     # This HAS to correspond with the C++ getTempDir() function
     return tempfile.gettempdir()
+
+class Timer(threading.Timer):
+    def run(self):
+        while not self.finished.is_set():
+            self.finished.wait(self.interval)
+            self.function(*self.args, **self.kwargs)
+        self.finished.set()
