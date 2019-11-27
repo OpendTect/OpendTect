@@ -67,6 +67,7 @@ public:
     static void		cleanQtOSEnv();
 
     static void		flushX();
+    static void		repaint();
 
     /*!  Processes pending events for maxtime milliseconds
      *   or until there are no more events to process, whichever is shorter.

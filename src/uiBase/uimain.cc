@@ -605,6 +605,13 @@ void uiMain::flushX()
 }
 
 
+void uiMain::repaint()
+{
+    if ( app_ )
+	app_->sendPostedEvents( nullptr, QEvent::Paint );
+}
+
+
 int uiMain::getDPI()
 {
     const int xdpi = QApplication::desktop()->physicalDpiX();
