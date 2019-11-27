@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "applicationdata.h"
 #include "bufstringset.h"
 #include "commandlineparser.h"
+#include "dbman.h"
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
@@ -596,6 +597,7 @@ void uiMain::restart()
 
 void uiMain::exit( int retcode )
 {
+    DBM().applClosing();
     if ( app_ )
 	app_->exit( retcode );
     else
