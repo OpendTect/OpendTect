@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
+#include "ioman.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
@@ -507,6 +508,7 @@ void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
 
 void uiMain::exit( int retcode )
 {
+    IOM().applClosing();
     if ( !app_ )
 	{ pErrMsg("Huh?") ; return; }
     app_->exit( retcode );
