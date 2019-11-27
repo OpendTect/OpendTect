@@ -172,7 +172,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
 
     const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
-    BufferString cmd = exepath.fullPath();
+    BufferString cmd;
 
     bool toadd = acttyp_ == Add;
     if ( addremfld_ )
