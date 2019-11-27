@@ -124,24 +124,22 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
-
     CommandLineParser parser;
     SetUpFirewallServerTool progtool;
     BufferStringSet procnms;
     parser.getNormalArguments( procnms );
-
     const bool ispyproc = parser.hasKey( sODStr ) ? false : true;
-
-
-
+    progtool.ispyproc_ = ispyproc;
     const bool toadd = parser.hasKey( sAddStr );
-
     if ( !toadd && !parser.hasKey(sRemoveStr) )
 	return NULL;
     for ( int procidx=0; procidx<procnms.size(); procidx++ )
     {
 	if ( !progtool.ispyproc_&& procidx==0 )
+	{
 	    progtool.updateDirPath( new FilePath(procnms.get(procidx)) );
+	    continue;
+	}
 
 	progtool.handleProcess( procnms.get(procidx), toadd );
     }
