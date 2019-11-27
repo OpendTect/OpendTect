@@ -187,11 +187,8 @@ void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
 
     messages_[fldidx] = msg;
     body_->setText( msg, fldidx, msecs );
-    /* This makes OpendTect almost grind to a halt on my system
-       Is it needed? For what?
     body_->repaint();
-    uiMain::theMain().flushX();
-    */
+    uiMain::theMain().repaint();
 }
 
 
@@ -201,7 +198,7 @@ void uiStatusBar::message( const uiStringSet& msgs, int msecs )
     for ( int idx=0; idx<msgs.size(); idx++ )
 	body_->setText( msgs.get(idx), idx, msecs );
     body_->repaint();
-    uiMain::theMain().flushX();
+    uiMain::theMain().repaint();
 }
 
 

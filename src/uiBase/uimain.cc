@@ -703,13 +703,10 @@ KeyboardEventHandler& uiMain::keyboardEventHandler()
 }
 
 
-void uiMain::flushX()
+void uiMain::repaint()
 {
     if ( app_ )
-    {
-	app_->sendPostedEvents();
-	app_->processEvents();
-    }
+	app_->sendPostedEvents( nullptr, QEvent::Paint );
 }
 
 
