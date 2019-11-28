@@ -130,9 +130,16 @@ BufferString uiFirewallProcSetter::getPythonInstDir()
     BufferString pythonloc;
     const bool pythonsource = OD::PythonSourceDef().parse( pythonsetts,
 	OD::PythonAccess::sKeyPythonSrc(), source );
-    if ( !pythonsource || source != OD::PythonSource::Custom ||
-	!pythonsetts.get(OD::PythonAccess::sKeyEnviron(), pythonloc) )
-	return "";
+    if ( !pythonsource )
+	pythonloc = "";
+    else if ( source == OD::PythonSource::Custom )
+	pythonsetts.get( OD::PythonAccess::sKeyEnviron(), pythonloc );
+    else
+    {
+	FilePath fp;
+	OD::PythonAccess::getPathToInternalEnv( fp, true );
+	pythonloc = fp.fullPath();
+    }
 
     return pythonloc;
 }
@@ -190,7 +197,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	if ( idx == 0 )
 	    fincmd.add( "--od " ).add( exepath_ ).addSpace();
 	else
-	    fincmd.add( "--py " );
+	    fincmd.add( "--py " ).add( getPythonInstDir() ).addSpace();
 
 	const BufferStringSet& procset =
 				    idx == 0 ? odchosenproc : pythonchosenproc;

@@ -135,7 +135,7 @@ int main( int argc, char** argv )
 	return NULL;
     for ( int procidx=0; procidx<procnms.size(); procidx++ )
     {
-	if ( !progtool.ispyproc_&& procidx==0 )
+	if ( procidx==0 ) // index 0 stores path
 	{
 	    progtool.updateDirPath( new FilePath(procnms.get(procidx)) );
 	    continue;
