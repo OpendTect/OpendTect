@@ -348,7 +348,7 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 	if ( ret == 0 ) break;
 
 	float dah = mCast( float, getDValue( 0 ) );
-	BufferString namepart = text( 1 );
+	BufferString namepart = getText( 1 );
 	if ( mIsUdf(dah) || namepart.isEmpty() )
 	    continue;
 	if ( formOf(false,0) == 1 && !convToDah(trck,dah) )
@@ -358,7 +358,7 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 	for ( int icol=2; icol<5; icol++ )
 	{
 	    if ( icol == dpthcol ) break;
-	    namepart = text( icol );
+	    namepart = getText( icol );
 	    if ( namepart.isEmpty() ) break;
 
 	    fullnm += " "; fullnm += namepart;
@@ -498,10 +498,10 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    wellnm = text( 0 );
+    wellnm = getText( 0 );
     crd = getPos3D( 1, 2, 3 );
     md = getFValue( 4 );
-    uwi = text( 5 );
+    uwi = getText( 5 );
     return true;
 }
 
@@ -540,9 +540,9 @@ bool BulkMarkerAscIO::get( BufferString& wellnm,
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    wellnm = text( 0 );
+    wellnm = getText( 0 );
     md = getFValue( 1 );
-    markernm = text( 2 );
+    markernm = getText( 2 );
     return true;
 }
 
@@ -589,7 +589,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& zval, float& twt )
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    wellnm = text( 0 );
+    wellnm = getText( 0 );
     zval = getFValue( 1 );
     twt = getFValue( 2 );
     if ( mIsUdf(zval) || mIsUdf(twt) )

@@ -80,8 +80,9 @@ protected:
 				//!< Executor convention
     bool			putHdrVals(od_ostream&) const;
     bool			putNextBodyVals(od_ostream&) const;
-
+				//Do not use text(int), not secure for '!' char
     const char*			text(int) const; // Never returns null
+    BufferString		getText(int) const;
     int				getIntValue(int,int udf=mUdf(int)) const;
     float			getFValue(int,float udf=mUdf(float)) const;
     double			getDValue(int,double udf=mUdf(double)) const;

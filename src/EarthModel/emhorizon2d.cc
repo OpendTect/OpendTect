@@ -854,7 +854,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
-    lnm = text( 0 );
+    lnm = getText( 0 );
     crd = getPos( 1, 2 );
     nr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;

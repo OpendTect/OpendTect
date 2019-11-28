@@ -90,8 +90,8 @@ bool Geom2dAscIO::readLine( int startidx, Coord& crd,
     else
     {
 	LatLong ll;
-	ll.setFromString( text(startidx+2), true );
-	ll.setFromString( text(startidx+3), false );
+	ll.setFromString( getText(startidx+2).buf(), true );
+	ll.setFromString( getText(startidx+3), false );
 	crd = LatLong::transform( ll );
     }
 
@@ -152,7 +152,7 @@ bool Geom2dAscIO::getData( ObjectSet<Survey::Geometry2D>& geoms ) const
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	const BufferString linenm = text( 0 );
+	const BufferString linenm = getText( 0 );
 	if ( linenm.isEmpty() )
 	    continue;
 

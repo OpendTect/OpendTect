@@ -132,14 +132,14 @@ bool getLine()
     if ( ret <= 0 ) return false;
     atend_ = false;
 
-    wcd_.nm_ = text( 0 );
+    wcd_.nm_ = getText( 0 );
     if ( isXY() )
 	wcd_.coord_ = getPos( 1, 2 );
     else
     {
 	LatLong ll;
-	ll.setFromString( text(1), true );
-	ll.setFromString( text(2), false );
+	ll.setFromString( getText(1), true );
+	ll.setFromString( getText(2), false );
 	wcd_.coord_ = LatLong::transform( ll );
     }
 
@@ -151,7 +151,7 @@ bool getLine()
     wcd_.elev_ = getFValue( 3 );
     wcd_.td_ = getFValue( 4 );
     wcd_.gl_ = getFValue( 5 );
-    wcd_.uwi_ = text( 6 );
+    wcd_.uwi_ = getText( 6 );
     return true;
 }
 

@@ -84,7 +84,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    fltnm = text( 0 );
+    fltnm = getText( 0 );
     
     if ( !isXY() )
     {
@@ -98,7 +98,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     stickidx = getIntValue( 4 );
     nodeidx = getIntValue( 5 );
     if ( is2d_ )
-	lnnm = text( 6 );
+	lnnm = getText( 6 );
     return true;
 }
 

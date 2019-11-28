@@ -415,7 +415,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
 	BufferString lnm;
 	if ( is2d )
-	    lnm = text( 4 );
+	    lnm = getText( 4 );
 
 	if ( sticks.isEmpty() && !mIsUdf(stickidx) )
 	    hasstickidx = true;

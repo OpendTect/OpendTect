@@ -228,8 +228,8 @@ bool getData( BufferString& hornm, BufferString& linenm, Coord3& crd,
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    hornm = text( 0 );
-    linenm = text(1);
+    hornm = getText( 0 );
+    linenm = getText(1);
     crd = getPos3D( 2, 3, 5, udfval_ );
     trcnr = mCast(int,getDValue(4, udfval_));
     return true;
@@ -311,11 +311,8 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     {
 	if ( prevhornm.isEmpty() )
 	    prevhornm = hornm;
-
-
-	if ( !crd.isDefined() )
-	    continue;
-	if ( hornm.isEmpty() )
+	
+	if ( !crd.isDefined() || hornm.isEmpty() )
 	    continue;
 	else
 	    hornmset.addIfNew(hornm);

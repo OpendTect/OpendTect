@@ -793,6 +793,24 @@ const char* Table::AscIO::text( int ifld ) const
 }
 
 
+BufferString Table::AscIO::getText( int ifld ) const
+{
+    BufferString txt = "";
+
+    if ( vals_.validIdx(ifld) )
+    {
+	txt = vals_.get(ifld);
+	BufferString firstchar;
+	firstchar.add( txt[0] );
+	const BufferString chartoavoid = "!";
+	if ( firstchar == chartoavoid )
+	    txt.replace( "!", "_" );
+    }
+
+    return txt;
+}
+
+
 static const char* trimmedNumbStr( const char* sval, bool isint )
 {
     if ( !*sval ) return 0;

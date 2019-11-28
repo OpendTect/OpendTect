@@ -73,7 +73,7 @@ bool getData( BufferString& hornm, Coord3& crd )
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    hornm = text( 0 );
+    hornm = getText( 0 );
     crd = getPos3D( 1, 2, 3, udfval_ );
     return true;
 }
