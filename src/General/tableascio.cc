@@ -787,12 +787,6 @@ bool Table::AscIO::putNextBodyVals( od_ostream& strm ) const
 }
 
 
-const char* Table::AscIO::text( int ifld ) const
-{
-    return vals_.validIdx(ifld) ? ((const char*)vals_.get(ifld)) : "";
-}
-
-
 BufferString Table::AscIO::getText( int ifld ) const
 {
     BufferString txt = "";
