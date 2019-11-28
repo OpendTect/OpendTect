@@ -731,6 +731,12 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 }
 
 
+void OD::PythonAccess::getPathToInternalEnv( FilePath& fp, bool userdef )
+{
+    fp = getInternalEnvPath( userdef );
+}
+
+
 FilePath OD::PythonAccess::getInternalEnvPath( bool userdef )
 {
     FilePath fp;

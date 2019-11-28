@@ -93,6 +93,9 @@ namespace OD
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 
+	static void	getPathToInternalEnv(FilePath&,bool userdef);
+
+
     private:
 
 	bool		istested_ = false;
