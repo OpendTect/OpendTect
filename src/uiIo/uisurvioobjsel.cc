@@ -438,7 +438,7 @@ uiSurvIOObjSel::uiSurvIOObjSel( uiParent* p, const IOObjContext& ctxt,
     if ( !surveyfixed )
     {
 	survselbut_ = uiButton::getStd( this, OD::Select,
-		mCB(this,uiSurvIOObjSel,selSurvCB), true, uiString::empty() );
+	    mCB(this,uiSurvIOObjSel,selSurvCB), true, uiStrings::sSurvey() );
 	survselbut_->attach( rightOf, objfld_ );
     }
 
