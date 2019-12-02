@@ -43,12 +43,13 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 {
     ctxt_.toselect_.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
-    preFinalise().notify( mCB(this,uiObjFileMan,finaliseStartCB) );
+    mAttachCB( preFinalise(), uiObjFileMan::finaliseStartCB );
 }
 
 
 uiObjFileMan::~uiObjFileMan()
 {
+    detachAllNotifiers();
     delete curioobj_;
     delete &ctxt_;
 }
