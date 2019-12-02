@@ -423,7 +423,10 @@ uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
     {
 	uiMainWin* mainwin = uiMain::theMain().topLevel();
 	if ( mainwin->isMinimized() || mainwin->isHidden() )
+	{
 	    mainwin->showNormal();
+	    mainwin->raise();
+	}
     }
     else if ( action == sKeySurveyChangeEv() )
 	return survChangedAct( actobj );
