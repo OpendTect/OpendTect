@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisblocks.h"
+#include "seisblocksaccess.h"
 #include "seismemblocks.h"
 #include "cubedata.h"
 #include "datainterp.h"

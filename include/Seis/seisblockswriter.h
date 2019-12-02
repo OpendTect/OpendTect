@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 */
 
-#include "seisblocks.h"
+#include "seisblocksaccess.h"
 #include "filepath.h"
 #include "uistring.h"
 #include "ranges.h"

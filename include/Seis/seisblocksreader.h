@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 */
 
-#include "seisblocks.h"
+#include "seisblocksaccess.h"
 #include "ranges.h"
 #include "threadlock.h"
 #include "typeset.h"
