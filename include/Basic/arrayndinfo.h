@@ -34,6 +34,7 @@ public:
     virtual		~ArrayNDInfo()			{}
 
     virtual bool	isOK() const;
+    virtual bool	isEqual(const ArrayNDInfo&) const;
     virtual nr_dims_type nrDims() const			= 0;
     virtual size_type	getSize(dim_idx_type) const	= 0;
     virtual bool	setSize(dim_idx_type,size_type)	{ return false; }
