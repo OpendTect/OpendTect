@@ -62,18 +62,17 @@ protected:
 			uiODServiceBase(bool assignport=true);
 
     static uiRetVal	sendAction(const Network::Authority&,
-				   const char* servicenm,
-				   const char* action,const OD::JSON::Object*);
+				   const char* servicenm,const char* action);
     static uiRetVal	sendRequest(const Network::Authority&,
-				    const char* servicenm,
-				    const char* reqkey,const OD::JSON::Object&);
+				    const char* servicenm,const char* reqkey,
+				    const OD::JSON::Object&);
     virtual uiRetVal	doAction(const OD::JSON::Object&);
     virtual uiRetVal	doRequest(const OD::JSON::Object&);
     uiRetVal		doCloseAct();
 
     static const OD::JSON::Object* getSubObj(const OD::JSON::Object&,
 					     const char* key);
-    uiRetVal		survChangedAct(const OD::JSON::Object&);
+    uiRetVal		survChangedReq(const OD::JSON::Object&);
     uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
     static void		getPythEnvRequestInfo(OD::JSON::Object&);
 
@@ -123,8 +122,9 @@ protected:
 
 			uiODService(bool assignport=false);
 
-    uiRetVal		sendAction(const char* act,
-				   const OD::JSON::Object* =nullptr) const;
+    uiRetVal		sendAction(const char* act) const;
+    uiRetVal		sendRequest(const char* reqkey,
+				    const OD::JSON::Object&) const;
     uiRetVal		doAction(const OD::JSON::Object&) override;
     uiRetVal		close();
 

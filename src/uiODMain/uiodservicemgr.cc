@@ -132,24 +132,22 @@ Network::Service* uiODServiceMgr::getService(
 
 
 uiRetVal uiODServiceMgr::sendAction( const Network::Service::ID servid,
-				     const char* action,
-				     const OD::JSON::Object* paramobj ) const
+				     const char* action ) const
 {
     const Network::Service* service = getService( servid );
     if ( !service )
 	return uiRetVal( tr("Service with ID %1 not registered").arg( servid ));
 
-    return sendAction( *service, action, paramobj );
+    return sendAction( *service, action );
 }
 
 
 uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
-				     const char* action,
-				     const OD::JSON::Object* paramobj ) const
+				     const char* action ) const
 {
     const BufferString servicenm( "Service ", service.name() );
     return uiODServiceBase::sendAction( service.getAuthority(),
-					servicenm, action, paramobj );
+					servicenm, action );
 }
 
 
@@ -199,8 +197,8 @@ void uiODServiceMgr::doSurveyChanged( CallBacker* )
     paramobj.set( sKey::Survey(), GetDataDir() );
     for ( const auto service : services_ )
     {
-	const uiRetVal uirv = sendAction( *service, sKeySurveyChangeEv(),
-					  &paramobj );
+	const uiRetVal uirv = sendRequest( *service, sKeySurveyChangeEv(),
+					   paramobj );
 	if ( !uirv.isOK() )
 	    gUiMsg().error( uirv );
     }
