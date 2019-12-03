@@ -86,10 +86,9 @@ private:
     uiRetVal		removeService(const OD::JSON::Object*);
     const Network::Service*	getService(const Network::Service::ID) const;
     Network::Service*	getService(const Network::Service::ID);
-    uiRetVal		sendAction(const Network::Service::ID,const char*,
-				   const OD::JSON::Object* =nullptr) const;
-    uiRetVal		sendAction(const Network::Service&,const char*,
-				   const OD::JSON::Object* =nullptr) const;
+    uiRetVal		sendAction(const Network::Service::ID,
+				   const char*) const;
+    uiRetVal		sendAction(const Network::Service&,const char*) const;
     uiRetVal		sendRequest(const Network::Service&,const char*,
 				    const OD::JSON::Object&) const;
 

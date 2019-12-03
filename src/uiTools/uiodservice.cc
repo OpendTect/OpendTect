@@ -138,6 +138,8 @@ uiRetVal uiODServiceBase::doRequest( const OD::JSON::Object& request )
 {
     if ( request.isPresent(sKeyPyEnvChangeEv()) )
 	return pythEnvChangedReq( request );
+    else if ( request.isPresent(sKeySurveyChangeEv()) )
+	return survChangedReq( request );
 
     return uiRetVal( tr("Unknown JSON packet type: %1")
 			.arg( request.dumpJSon() ) );
@@ -159,10 +161,10 @@ const OD::JSON::Object* uiODServiceBase::getSubObj(
 }
 
 
-uiRetVal uiODServiceBase::survChangedAct( const OD::JSON::Object& request )
+uiRetVal uiODServiceBase::survChangedReq( const OD::JSON::Object& request )
 {
     const OD::JSON::Object* paramobj = uiODServiceBase::getSubObj( request,
-							       sKey::Pars() );
+						       sKeySurveyChangeEv() );
     if ( paramobj && paramobj->isPresent(sKey::Survey()) )
     {
 	const FilePath surveydir( paramobj->getStringValue(sKey::Survey() ) );
@@ -289,8 +291,7 @@ void uiODServiceBase::connClosedCB( CallBacker* cb )
 
 uiRetVal uiODServiceBase::sendAction( const Network::Authority& auth,
 				      const char* servicenm,
-				      const char* action,
-				      const OD::JSON::Object* paramobj )
+				      const char* action )
 {
     PtrMan<Network::RequestConnection> conn =
 			new Network::RequestConnection( auth, false, 2000 );
@@ -304,8 +305,6 @@ uiRetVal uiODServiceBase::sendAction( const Network::Authority& auth,
     packet->setIsNewRequest();
     OD::JSON::Object request;
     request.set( sKeyAction(), action );
-    if ( paramobj )
-	request.set( sKey::Pars(), paramobj->clone() );
 
     packet->setPayload( request );
     if ( !conn->sendPacket(*packet) )
@@ -426,23 +425,34 @@ uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
     {
 	uiMainWin* mainwin = uiMain::theMain().topLevel();
 	if ( mainwin->isMinimized() || mainwin->isHidden() )
+	{
 	    mainwin->showNormal();
+	    mainwin->raise();
+	}
     }
-    else if ( action == sKeySurveyChangeEv() )
-	return survChangedAct( actobj );
 
     return uiODServiceBase::doAction( actobj );
 }
 
 
-uiRetVal uiODService::sendAction( const char* action,
-				  const OD::JSON::Object* actobj ) const
+uiRetVal uiODService::sendAction( const char* action ) const
 {
     if ( !isODMainSlave() )
 	return uiRetVal::OK();
 
     const BufferString servicenm( "ODServiceMGr" );
-    return uiODServiceBase::sendAction( odauth_, servicenm, action, actobj );
+    return uiODServiceBase::sendAction( odauth_, servicenm, action );
+}
+
+
+uiRetVal uiODService::sendRequest( const char* reqkey,
+				   const OD::JSON::Object& request ) const
+{
+    if ( !isODMainSlave() )
+	return uiRetVal::OK();
+
+    const BufferString servicenm( "ODServiceMGr" );
+    return uiODServiceBase::sendRequest( odauth_, servicenm, reqkey, request );
 }
 
 
