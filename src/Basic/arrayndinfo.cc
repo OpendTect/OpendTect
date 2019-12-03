@@ -9,6 +9,20 @@
 #include "typeset.h"
 
 
+bool ArrayNDInfo::isEqual( const ArrayNDInfo& oth ) const
+{
+    const auto nrdims = nrDims();
+    if ( nrdims != oth.nrDims() )
+	return false;
+
+    for ( dim_idx_type idx=nrDims()-1; idx>=0; idx-- )
+	if ( getSize(idx) != oth.getSize(idx) )
+	    return false;
+
+    return true;
+}
+
+
 bool ArrayNDInfo::isOK() const
 {
     for ( dim_idx_type idx=nrDims()-1; idx>=0; idx-- )
