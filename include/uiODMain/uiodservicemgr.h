@@ -84,6 +84,7 @@ private:
 
     uiRetVal		addService(const OD::JSON::Object*);
     uiRetVal		removeService(const OD::JSON::Object*);
+    uiRetVal		startApp(const OD::JSON::Object*);
     const Network::Service*	getService(const Network::Service::ID) const;
     Network::Service*	getService(const Network::Service::ID);
     uiRetVal		sendAction(const Network::Service::ID,
@@ -97,5 +98,4 @@ private:
     friend class uiODMain;
 
 };
-
 #endif

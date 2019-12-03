@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodapplmgr.h"
 
 #include "filepath.h"
 #include "ioman.h"
@@ -226,8 +228,32 @@ uiRetVal uiODServiceMgr::doRequest( const OD::JSON::Object& request )
 	return addService( request.getObject(sKeyRegister()) );
     else if ( request.isPresent(sKeyDeregister()) )
 	return removeService( request.getObject(sKeyDeregister()) );
+    else if ( request.isPresent(sKeyStart()) )
+	return startApp( request.getObject(sKeyStart()) );
 
     return uiODServiceBase::doRequest( request );
+}
+
+
+uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
+{
+    uiRetVal uirv;
+    if ( !jsonobj )
+    {
+	uirv = tr("Empty startApp request");
+	return uirv;
+    }
+
+    if ( !jsonobj->isPresent( sKey::Name() ) )
+    {
+	uirv = tr("No application name to start");
+	return uirv;
+    }
+    BufferString appname( jsonobj->getStringValue( sKey::Name() ) );
+    if ( appname==sKey::NN3D() )
+	ODMainWin()->applMgr().editNLA( false );
+    else if ( appname==sKey::NN2D() )
+	ODMainWin()->applMgr().editNLA( true );
 }
 
 /*
