@@ -15,7 +15,30 @@ ________________________________________________________________________
 
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QTableView>
+
+
+class DoubleItemDelegate : public QStyledItemDelegate
+{
+public:
+DoubleItemDelegate()
+    : QStyledItemDelegate()
+    , nrdecimals_(2)
+{}
+
+QString displayText( const QVariant& val, const QLocale& locale ) const
+{
+    bool ok;
+    const double dval = val.toDouble( &ok );
+    if ( !ok )
+	return QStyledItemDelegate::displayText( val, locale );
+
+    return QString( toString(dval,nrdecimals_) );
+}
+
+   int		nrdecimals_;
+};
 
 
 class ODAbstractTableModel : public QAbstractTableModel
@@ -37,9 +60,13 @@ protected:
 };
 
 
-Qt::ItemFlags ODAbstractTableModel::flags( const QModelIndex& ) const
+Qt::ItemFlags ODAbstractTableModel::flags( const QModelIndex& qmodidx ) const
 {
-    return Qt::ItemIsEditable; // Qt::ItemIsEnabled Qt::ItemIsSelectable;
+    if ( !qmodidx.isValid() )
+	return Qt::NoItemFlags;
+
+    const int modelflags = model_.flags( qmodidx.row(), qmodidx.column() );
+    return sCast(Qt::ItemFlags,modelflags);
 }
 
 
@@ -55,24 +82,31 @@ int ODAbstractTableModel::columnCount( const QModelIndex& ) const
 }
 
 
-QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx, int role ) const
+QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
+				     int role ) const
 {
     if ( !qmodidx.isValid() )
 	return QVariant();
 
     if ( role == Qt::DisplayRole )
     {
-	return model_.text(qmodidx.row(),qmodidx.column()).buf();
+	uiTableModel::CellData cd =
+		model_.text( qmodidx.row(), qmodidx.column() );
+	return *cd.qvar_;
     }
     if ( role == Qt::BackgroundRole )
     {
-	QColor qcol;
-	Color odcol = model_.color(qmodidx.row(),qmodidx.column());
+	Color odcol = model_.color( qmodidx.row(), qmodidx.column() );
 	if ( odcol==Color::NoColor() )
 	    return QVariant();
 
-	qcol.setRgb( odcol.rgb() );
-	return qcol;
+	return QColor( odcol.rgb() );
+    }
+
+    if ( role == Qt::ForegroundRole )
+    {
+	Color odcol = model_.textColor( qmodidx.row(), qmodidx.column() );
+	return QColor( odcol.rgb() );
     }
 
     return QVariant();
@@ -114,6 +148,29 @@ uiTableModel::~uiTableModel()
 {
     delete odtablemodel_;
 }
+
+
+uiTableModel::CellData::CellData() : qvar_(new QVariant())
+{}
+
+uiTableModel::CellData::CellData( const char* txt ) : qvar_(new QVariant(txt))
+{}
+
+uiTableModel::CellData::CellData( int val ) : qvar_(new QVariant(val))
+{}
+
+uiTableModel::CellData::CellData( float val, int ) : qvar_(new QVariant(val))
+{}
+
+uiTableModel::CellData::CellData( double val, int ) : qvar_(new QVariant(val))
+{}
+
+uiTableModel::CellData::CellData( const CellData& cd )
+    : qvar_(new QVariant(*cd.qvar_))
+{}
+
+uiTableModel::CellData::~CellData()
+{ delete qvar_; }
 
 
 
@@ -211,3 +268,24 @@ void uiTableView::setSelectionBehavior( SelectionBehavior sb )
 		sCast(QAbstractItemView::SelectionBehavior,sCast(int,sb)) );
 }
 
+
+void uiTableView::setSelectionMode( SelectionMode sm )
+{
+    odtableview_->setSelectionMode(
+		sCast(QAbstractItemView::SelectionMode,sCast(int,sm)) );
+}
+
+
+static DoubleItemDelegate* getDoubleDelegate()
+{
+    mDefineStaticLocalObject( PtrMan<DoubleItemDelegate>, del,
+			      = new DoubleItemDelegate );
+    return del;
+}
+
+
+void uiTableView::setColumnValueType( int col, CellType tp )
+{
+    if ( tp==NumD || tp==NumF )
+	odtableview_->setItemDelegateForColumn( col, getDoubleDelegate() );
+}
