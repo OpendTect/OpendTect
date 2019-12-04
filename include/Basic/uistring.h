@@ -26,9 +26,10 @@ mFDQtclass( QTranslator );
 
 #define mTextTranslationClass(clss,pkgkey) \
 private: \
- static inline uiString tr( const char* text, const char* disambiguation = 0,  \
- int pluralnr=-1 ) \
- { return uiString( text, #clss, pkgkey, disambiguation, pluralnr ); } \
+static inline uiString tr( const char* text, \
+			   const char* disambiguation = nullptr,  \
+			   int pluralnr=-1 ) \
+{ return uiString( text, #clss, pkgkey, disambiguation, pluralnr ); } \
 
 #define mODTextTranslationClass(clss) \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
@@ -111,7 +112,7 @@ Notes:
 
 
 mExpClass(Basic) uiString
-{ mODTextTranslationClass(uiString);
+{ mODTextTranslationClass(uiString)
 public:
 
 		uiString();
@@ -367,7 +368,7 @@ inline uiString& uiString::addMoreInfo( const T& t )
    ./dtect/update_translations.csh).
 */
 mGlobal(Basic) uiString od_static_tr(const char* function_name,const char* text,
-				const char* disambiguation=0,int pluralnr=-1);
+			const char* disambiguation=nullptr,int pluralnr=-1);
 
 template <class T> inline
 uiString& uiString::arg( const T& var )
