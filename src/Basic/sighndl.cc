@@ -283,7 +283,7 @@ void SignalHandling::doStop( int signalnr, bool withcbs )
 }
 
 
-void SignalHandling::stopProcess( ProcID pid, bool friendly )
+void SignalHandling::stopProcess( PID_Type pid, bool friendly )
 {
 #ifdef __win__
     TerminateApp( pid, 0 );
@@ -293,7 +293,7 @@ void SignalHandling::stopProcess( ProcID pid, bool friendly )
 }
 
 
-void SignalHandling::stopRemote( const char* mach, ProcID pid, bool friendly,
+void SignalHandling::stopRemote( const char* mach, PID_Type pid, bool friendly,
 				 const char* rshcomm )
 {
     if ( !mach || !*mach )

@@ -34,7 +34,6 @@ namespace OS {
 
 
 */
-typedef int		ProcID;
 
 namespace Network
 {
@@ -42,7 +41,7 @@ namespace Network
 mExpClass(Network) Service : public NamedObject
 {  mODTextTranslationClass(Service);
 public:
-    typedef ProcID	ID;
+    typedef PID_Type	ID;
 
 			Service(PortNr_Type,const char* hostnm=nullptr);
 			Service(const OD::JSON::Object&);
@@ -63,7 +62,7 @@ public:
     Authority		getAuthority() const	{ return auth_; }
     BufferString	address() const;
     PortNr_Type		port() const;
-    ProcID		PID() const		{ return pid_; }
+    PID_Type		PID() const		{ return pid_; }
     BufferString	logFnm() const;
     uiRetVal		message() const		{ return msg_; }
     bool		fillJSON(OD::JSON::Object&) const;
@@ -72,7 +71,7 @@ public:
     void		setHostName(const char*);
     void		setLogFile(const char*);
     void		setPID(const OS::CommandLauncher&);
-    void		setPID(ProcID);
+    void		setPID(PID_Type);
     uiRetVal		useJSON(const OD::JSON::Object&);
     void		stop(bool removelog=true);
     void		setEmpty();
@@ -88,7 +87,7 @@ public:
 private:
 
     Authority		auth_;
-    ProcID		pid_	= 0;
+    PID_Type		pid_	= 0;
     File::Path*		logfp_	= nullptr;
 
     mutable uiRetVal	msg_;

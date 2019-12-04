@@ -141,7 +141,7 @@ bool Network::Service::fillJSON( OD::JSON::Object& jsonobj ) const
 bool Network::Service::fillJSON( const Authority& auth,
 				 OD::JSON::Object& jsonobj )
 {
-    const ProcID pid = GetPID();
+    const PID_Type pid = GetPID();
     const BufferString servnm( GetProcessNameForPID(pid) );
     jsonobj.set( sKeyServiceName(), servnm );
     jsonobj.set( Network::Server::sKeyHostName(), auth.getHost() );
@@ -216,7 +216,7 @@ void Network::Service::setLogFile( const char* fnm )
 }
 
 
-void Network::Service::setPID( ProcID pid )
+void Network::Service::setPID( PID_Type pid )
 {
     pid_ = pid;
     setName( GetProcessNameForPID(pid_) );
