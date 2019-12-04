@@ -30,6 +30,7 @@ template<class T> class StepInterval;
 typedef od_int32	Index_Type;
 typedef od_int64	DirtyCountType;
 typedef unsigned short	PortNr_Type;
+typedef od_int32	PID_Type;
 
 namespace Pos
 {

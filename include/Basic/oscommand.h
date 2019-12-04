@@ -178,9 +178,6 @@ public:
 mExpClass(Basic) CommandLauncher
 { mODTextTranslationClass(CommandLauncher);
 public:
-
-    typedef int		ProcID;
-
 			CommandLauncher(const MachineCommand&);
 			~CommandLauncher();
 
@@ -195,7 +192,7 @@ public:
     bool		startServer(bool inpythonenv=false,
 				    double maxwaittm=20 /* seconds */);
 
-    ProcID		processID() const;
+    PID_Type		processID() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
     uiString		errorMsg() const	{ return errmsg_; }
 
@@ -222,7 +219,7 @@ protected:
     const BufferString	odprogressviewer_;
 
     QProcess*		process_;
-    ProcID		pid_;
+    PID_Type		pid_;
 
     od_istream*		stdoutput_;
     od_istream*		stderror_;

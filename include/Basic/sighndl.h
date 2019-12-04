@@ -24,8 +24,6 @@ mExpClass(Basic) SignalHandling : public CallBacker
 {
 public:
 
-    typedef int			ProcID;
-
     static void			initClass();
 
     enum EvType			{
@@ -40,8 +38,8 @@ public:
 
     static void			startNotify(EvType,const CallBack&);
     static void			stopNotify(EvType,const CallBack&);
-    static void			stopProcess(ProcID,bool friendly=true);
-    static void			stopRemote(const char*,ProcID,
+    static void			stopProcess(PID_Type,bool friendly=true);
+    static void			stopRemote(const char*,PID_Type,
 					    bool friendly=true,
 					    const char* rshcomm=0 );
     static void			initFatalSignalHandling();
@@ -64,8 +62,8 @@ protected:
 
     static void			handle(int);
 
-    void			doKill(ProcID);
-    void			doStop(ProcID,bool withcbs=true);
+    void			doKill(PID_Type);
+    void			doStop(PID_Type,bool withcbs=true);
     void			doCont();
     void			handleConn();
     void			handleChld();

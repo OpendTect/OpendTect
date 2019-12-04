@@ -632,7 +632,7 @@ OS::CommandLauncher::~CommandLauncher()
 }
 
 
-OS::CommandLauncher::ProcID OS::CommandLauncher::processID() const
+PID_Type OS::CommandLauncher::processID() const
 {
 #ifndef OD_NO_QT
     if ( !process_ )
