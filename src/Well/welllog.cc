@@ -371,16 +371,19 @@ void Well::LogInfoSet::getUnits( BufferStringSet& logunits ) const
 }
 
 
-const BufferString& Well::LogInfoSet::getUnit( const BufferString& lognm ) 
-							    const
+void Well::LogInfoSet::getUnit( const BufferString& lognm,
+       				BufferString& logunit) const
 {
+    logunit.setEmpty();
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( (*this)[idx]->name() == lognm )
-	    return (*this)[idx]->logunit_;
+	{
+	    logunit = (*this)[idx]->logunit_;
+	    break;
+	}
     }
-    return NULL;
 }
 
 

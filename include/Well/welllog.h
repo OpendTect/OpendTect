@@ -118,7 +118,8 @@ public:
 				LogInfoSet(){}
     void			getNames(BufferStringSet&) const;
     void			getUnits(BufferStringSet&) const;
-    const BufferString&		getUnit(const BufferString&) const;
+    void			getUnit(const BufferString&,
+					BufferString&) const;
     bool			logIsPresent(const char*) const;
 protected:
 };
