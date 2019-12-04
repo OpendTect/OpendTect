@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "welllog.h"
 #include "welllogset.h"
+#include "bufstringset.h"
 #include "iopar.h"
 #include "idxable.h"
 #include "unitofmeasure.h"
@@ -349,4 +350,41 @@ bool Well::Log::insertAtDah( float dh, float val )
     if ( val < range_.start ) range_.start = val;
     if ( val > range_.stop ) range_.stop = val;
     return true;
+}
+
+
+//  ----LogInfoSet----
+
+void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+	lognms.add( (*this)[idx]->name() );
+}
+
+
+void Well::LogInfoSet::getUnits( BufferStringSet& logunits ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+	logunits.add( (*this)[idx]->logunit_ );
+}
+
+
+const BufferString& Well::LogInfoSet::getUnit( const BufferString& lognm ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( (*this)[idx]->name() == lognm )
+	    return (*this)[idx]->logunit_;
+    }
+}
+
+
+bool Well::LogInfoSet::logIsPresent( const char* nm ) const
+{
+    BufferStringSet lognms;
+    getNames( lognms );
+    return lognms.isPresent( nm );
 }

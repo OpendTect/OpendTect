@@ -225,8 +225,10 @@ bool Well::Reader::getCSMdl() const
 
 
 mImplWRFn(bool,getLog,const char*,lognm,false)
-void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
-{ if ( ra_ ) ra_->getLogInfo( lognms ); }
+bool Well::Reader::getLogInfo() const
+{ return ra_ ? ra_->getLogInfo() : false; }
+void Well::Reader::getLogInfo( BufferStringSet& logname ) const
+{ if ( ra_ ) ra_->getLogInfo( logname ); }
 Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : 0; }
 
@@ -512,6 +514,26 @@ bool Well::odReader::getTrack() const
 }
 
 
+bool Well::odReader::getLogInfo() const
+{
+    for ( int idx=1;  ; idx++ )
+    {
+	mGetInpStream( sExtLog(), idx, false, break );
+
+	double version = 0.0;
+	if ( rdHdr(strm,sKeyLog(),version) )
+	{
+	    int bintyp = 0;
+	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
+	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
+	    loginfo->logunit_ = log->unitMeasLabel();
+	    wd_.logInfoSet().add( loginfo );
+	}
+    }
+    return true;
+}
+
+
 void Well::odReader::getLogInfo( BufferStringSet& nms ) const
 {
     TypeSet<int> idxs;
@@ -520,7 +542,7 @@ void Well::odReader::getLogInfo( BufferStringSet& nms ) const
 
 
 void Well::odReader::getLogInfo( BufferStringSet& nms,
-				 TypeSet<int>& idxs ) const
+					TypeSet<int>& idxs ) const
 {
     for ( int idx=1;  ; idx++ )
     {

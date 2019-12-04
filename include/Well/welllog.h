@@ -100,6 +100,31 @@ protected:
 
 };
 
+
+mExpClass(Well) LogInfo: public::NamedObject
+{mODTextTranslationClass(Well::LogInfo)
+public:
+
+			LogInfo( const char* nm )
+			    : ::NamedObject(nm)
+			{}
+    BufferString	logunit_;
+};
+
+
+mExpClass(Well) LogInfoSet : public ObjectSet<Well::LogInfo>
+{
+public:
+				LogInfoSet(){}
+    void			getNames(BufferStringSet&) const;
+    void			getUnits(BufferStringSet&) const;
+    const BufferString&		getUnit(const BufferString&) const;
+    bool			logIsPresent(const char*) const;
+protected:
+};
+
+
+
 } // namespace Well
 
 #endif

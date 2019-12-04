@@ -48,6 +48,7 @@ public:
     virtual bool	getCSMdl() const;
     virtual bool	getDispProps() const;
     virtual bool	getLog(const char* lognm) const;
+    virtual bool	getLogInfo() const;
     virtual void	getLogInfo(BufferStringSet& lognms) const;
 
     virtual const OD::String& errMsg() const	{ return odIO::errMsg(); }

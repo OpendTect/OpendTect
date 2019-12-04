@@ -25,6 +25,7 @@ namespace Well
 {
 class Data;
 class ReadAccess;
+class LogInfo;
 
 /*!\brief Reads Well::Data from any data store */
 
@@ -48,6 +49,7 @@ public:
     bool		getCSMdl() const;	//!< Read Checkshot model parts
     bool		getDispProps() const;	//!< Read display props only
     bool		getLog(const char* lognm) const; //!< Read this one only
+    bool		getLogInfo() const;
     void		getLogInfo(BufferStringSet& lognms) const;
 
     const OD::String&	errMsg() const		{ return errmsg_; }

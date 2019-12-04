@@ -47,6 +47,7 @@ public:
     virtual bool	getCSMdl() const		= 0; //!< Checkshot mdl
     virtual bool	getDispProps() const		= 0;
     virtual bool	getLog(const char* lognm) const	= 0;
+    virtual bool	getLogInfo() const = 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
 
     virtual const OD::String& errMsg() const		= 0;
