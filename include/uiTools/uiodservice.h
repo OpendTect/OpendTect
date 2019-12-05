@@ -27,6 +27,12 @@ namespace OD {
     };
 };
 
+namespace sKey
+{
+    inline FixedString NN3D()	{ return "NeuralNetwork3D"; }
+    inline FixedString NN2D()	{ return "NeuralNetwork2D"; }
+};
+
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
@@ -48,6 +54,7 @@ public:
     static const char*	sKeyEvent()		{ return "event"; }
     static const char*	sKeyRegister()		{ return "register"; }
     static const char*	sKeyDeregister()	{ return "deregister"; }
+    static const char*	sKeyStart()		{ return "start"; }
 
     static const char*	sKeyCloseEv()		{ return "close"; }
     static const char*	sKeyHideEv()		{ return "hide"; }
