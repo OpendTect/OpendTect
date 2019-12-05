@@ -22,7 +22,7 @@ class QVariant;
 mExpClass(uiBase) uiTableModel
 {
 public:
-    class CellData
+    mExpClass(uiBase)	CellData
     {
     public:
 	CellData();
