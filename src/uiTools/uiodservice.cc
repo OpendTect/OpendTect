@@ -443,13 +443,13 @@ uiRetVal uiODService::sendAction( const char* action ) const
 
 
 uiRetVal uiODService::sendRequest( const char* reqkey,
-				   const OD::JSON::Object& request ) const
+				  const OD::JSON::Object& reqobj ) const
 {
     if ( !isODMainSlave() )
 	return uiRetVal::OK();
 
     const BufferString servicenm( "ODServiceMGr" );
-    return uiODServiceBase::sendRequest( odauth_, servicenm, reqkey, request );
+    return uiODServiceBase::sendRequest( odauth_, servicenm, reqkey, reqobj );
 }
 
 
