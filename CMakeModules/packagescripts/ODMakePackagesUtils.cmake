@@ -255,7 +255,7 @@ macro( copy_thirdpartylibs )
 		     ${COPYFROMLIBDIR}/../translations
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMDATADIR}/iconengines
+		     ${COPYFROMLIBDIR}/iconengines
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/imageformats
