@@ -249,11 +249,14 @@ uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
 	uirv = tr("No application name to start");
 	return uirv;
     }
+
     BufferString appname( jsonobj->getStringValue( sKey::Name() ) );
     if ( appname==sKey::NN3D() )
 	ODMainWin()->applMgr().editNLA( false );
     else if ( appname==sKey::NN2D() )
 	ODMainWin()->applMgr().editNLA( true );
+
+    return uirv;
 }
 
 /*
