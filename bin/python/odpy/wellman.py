@@ -1,7 +1,9 @@
 import numpy as np
+import json
 
 import odpy.common as odcommon
 import odpy.dbman as oddbman
+from odpy.oscommand import getODCommand, execCommand
 
 wellmanexe = 'od_WellMan'
 wlldbdirid = '100050'
@@ -18,6 +20,16 @@ def getNames( reload=False, args=None ):
 def getInfo( wllnm, reload=False, args=None ):
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   return oddbman.getInfoByNm( dbkey, exenm=wellmanexe,args=args )  
+
+def getLogNames( wllnm, reload=False, args=None ):
+  dbkey = getDBKey( wllnm, reload=reload, args=args )
+  cmd = getODCommand(wellmanexe,args)
+  cmd.append( '--list-logs' )
+  cmd.append( dbkey )
+  ret = execCommand( cmd )
+  retstr = ret.decode('utf-8')
+  ret = json.loads( retstr )
+  return ret['Names']
 
 #def getTrack()
 #def getLogNames()
