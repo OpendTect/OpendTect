@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+#include "executor.h"
 #include "ranges.h"
 #include "bufstring.h"
 #include "uistring.h"
@@ -30,7 +31,7 @@ class LogInfo;
 /*!\brief Reads Well::Data from any data store */
 
 mExpClass(Well) Reader
-{ mODTextTranslationClass(Reader);
+{ mODTextTranslationClass(Reader)
 public:
 
 			Reader(const MultiID&,Data&);
@@ -70,8 +71,26 @@ private:
 
 };
 
+} // namespace Well
 
-}; // namespace Well
 
+mExpClass(Well) MultiWellReader : public Executor
+{ mODTextTranslationClass(MultiWellReader)
+public:
+			MultiWellReader(const TypeSet<MultiID>&,
+					ObjectSet<Well::Data>&);
+
+    int			nextStep();
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
+    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const;
+
+protected:
+    ObjectSet<Well::Data>&	wds_;
+    TypeSet<MultiID>		keys_;
+    od_int64			nrwells_;
+    od_int64			nrdone_;
+};
 
 #endif

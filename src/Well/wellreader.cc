@@ -813,3 +813,46 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
     wd_.displayProperties(false).usePar( iop );
     return true;
 }
+
+
+// MultiWellReader
+MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
+		ObjectSet<Well::Data>& wds )
+    : Executor("Reading well info")
+    , wds_(wds)
+    , keys_(keys)
+    , nrwells_(keys.size())
+    , nrdone_(0)
+{}
+
+
+od_int64 MultiWellReader::totalNr() const
+{ return nrwells_; }
+
+od_int64 MultiWellReader::nrDone() const
+{ return nrdone_; }
+
+uiString MultiWellReader::uiMessage() const
+{ return tr("Reading well info"); }
+
+uiString MultiWellReader::uiNrDoneText() const
+{ return tr("Wells read"); }
+
+
+int MultiWellReader::nextStep()
+{
+    if ( nrdone_ >= totalNr() )
+	return Executor::Finished();
+
+    const MultiID wmid = keys_[sCast(int,nrdone_)];
+    Well::Data* wd = new Well::Data;
+    wd->ref();
+    Well::Reader wrdr( wmid, *wd );
+    if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
+	return Executor::MoreToDo();
+
+    wds_ += wd;
+    nrdone_++;
+    return Executor::MoreToDo();
+}
+
