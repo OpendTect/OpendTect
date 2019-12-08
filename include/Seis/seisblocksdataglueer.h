@@ -65,10 +65,11 @@ public:
 protected:
 
     Storer&		storer_;
-    const ArrayNDInfo*	arrinfo_;
+    const ArrayNDInfo*	arrinfo_	    = nullptr;
     pos_type		trcstep_	    = 1;
     pos_type		linestep_	    = 1;
     z_type		zstep_;
+    int			trcsz_		    = -1;
     Bin2D		curb2d_		    = Bin2D::udf();
     BinID		curbid_		    = BinID::udf();
     ObjectSet<LineBuf>	linebufs_;
@@ -78,7 +79,13 @@ protected:
     void	addPos(const BinID&,const Arr3D&,z_type);
     void	mergeZ(const Arr2D&,z_type);
     void	mergeZ(const Arr3D&,z_type);
-    uiRetVal	storeFinished();
+    uiRetVal	storeReadyPositions();
+
+    LineBuf*	getBuf(pos_type);
+    int		stepoutSize(int idim) const;
+    pos_type	trcNrWidth() const;
+    pos_type	inlineWidth() const;
+    uiRetVal	storeLine(const LineBuf&);
 
 };
 

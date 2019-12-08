@@ -351,6 +351,8 @@ SeisTrcInfo& SeisTrcInfo::setPos( const Bin2D& b2d )
 { trcky_.setPos( b2d ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setPos( GeomID gid, pos_type tnr )
 { trcky_.setPos( gid, tnr ); return *this; }
+SeisTrcInfo& SeisTrcInfo::calcCoord()
+{ coord_ = trcky_.getCoord(); return *this; }
 SeisTrcInfo& SeisTrcInfo::setGeomID( GeomID gid )
 { trcky_.setGeomID( gid ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setTrcNr( pos_type tnr )
