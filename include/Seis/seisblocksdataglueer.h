@@ -17,6 +17,7 @@ ________________________________________________________________________
 class ArrayNDInfo;
 template <class T> class Array2D;
 template <class T> class Array3D;
+class SeisTrc;
 
 
 namespace Seis
@@ -82,10 +83,8 @@ protected:
     uiRetVal	storeReadyPositions();
 
     LineBuf*	getBuf(pos_type);
-    int		stepoutSize(int idim) const;
-    pos_type	trcNrWidth() const;
-    pos_type	inlineWidth() const;
-    uiRetVal	storeLine(const LineBuf&);
+    uiRetVal	storeLineBuf(const LineBuf&);
+    void	fillTrace(SeisTrc&);
 
 };
 

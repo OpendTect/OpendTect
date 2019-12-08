@@ -23,6 +23,7 @@ namespace Blocks
 
 mUseType( DataGlueer, z_type );
 mUseType( DataGlueer, val_type );
+mUseType( DataGlueer, pos_type );
 mUseType( DataGlueer, Arr2D );
 mUseType( DataGlueer, Arr3D );
 typedef ArrayND<z_type> ArrND;
@@ -31,14 +32,41 @@ class Blocklet
 {
 public:
 
-    Blocklet( const Arr2D& inp, z_type z )
-	: data_(new Array2DImpl<val_type>(inp)), midz_(z)	    {}
-    Blocklet( const Arr3D& inp, z_type z )
-	: data_(new Array3DImpl<val_type>(inp)), midz_(z)	    {}
-    ~Blocklet()	{ delete data_; }
 
-    ArrND*	data_;
-    z_type	midz_;
+    Blocklet( const Arr2D& inp, pos_type tnr, pos_type tstep,
+				z_type z, z_type zstep )
+	: arr_(new Array2DImpl<val_type>(inp))
+	, tnrsd_(tnr,tstep), zsd_(z,zstep)	    {}
+    Blocklet( const Arr3D& inp, pos_type tnr, pos_type tstep,
+				z_type z, z_type zstep )
+	: arr_(new Array3DImpl<val_type>(inp))
+	, tnrsd_(tnr,tstep), zsd_(z,zstep)	    {}
+    ~Blocklet()	{ delete arr_; }
+
+    ArrND*			arr_;
+    SamplingData<pos_type>	tnrsd_;
+    SamplingData<z_type>	zsd_;
+
+    bool	is3D() const		{ return arr_->nrDims() > 2; }
+    pos_type	trcNrStart() const	{ return tnrsd_.start; }
+    pos_type	trcNrStep() const	{ return tnrsd_.step; }
+    pos_type	trcNrStop() const
+    { return tnrsd_.atIndex( arr_->getSize(arr_->nrDims()-1) - 1 ); }
+    z_type	zStart() const		{ return zsd_.start; }
+    z_type	zStep() const		{ return zsd_.step; }
+    z_type	zStop() const
+    { return zsd_.atIndex( arr_->getSize(arr_->nrDims()-1) - 1 ); }
+
+void addData( const StepInterval<pos_type>& lnrs, SeisTrc& trc,
+	      Array1D<int>& contrib )
+{
+    const auto& ti = trc.info();
+    if ( ti.lineNr() < lnrs.start || ti.lineNr() > lnrs.stop
+      || ti.trcNr() < tnrsd_.start || ti.trcNr() > trcNrStop() )
+	return;
+
+    //TODO fill the right Z range
+}
 
 };
 
@@ -50,48 +78,72 @@ public:
     mUseType( DataGlueer,	Arr2D );
     mUseType( DataGlueer,	Arr3D );
     mUseType( DataGlueer,	idx_type );
-    mUseType( DataGlueer,	pos_type );
 
-			LineBuf( pos_type lnr )
-			    : lnr_(lnr)		{}
+			LineBuf( pos_type startlnr, pos_type lstep=1 )
+			    : startlnr_(startlnr)
+			    , linerg_(startlnr,startlnr,lstep)	{}
 			~LineBuf()		{ deepErase(blocklets_); }
 
-idx_type idxOf( pos_type tnr ) const
+    const pos_type	startlnr_;
+    ObjectSet<Blocklet>	blocklets_;
+    StepInterval<pos_type> linerg_;
+
+
+pos_type lineNr4Idx( int lidx ) const
 {
-    for ( auto idx=0; idx<trcnrs_.size(); idx++ )
-	if ( trcnrs_[idx] == tnr )
-	    return idx;
-    return -1;
+    return startlnr_ + linerg_.step * lidx;
 }
 
-void add( pos_type tnr, Blocklet* bl )
+
+pos_type lastLineNr( const Blocklet& bll ) const
+{
+    return bll.is3D() ? lineNr4Idx( bll.arr_->getSize(0)-1 ) : startlnr_;
+}
+
+
+void add( Blocklet* bl )
 {
     blocklets_ += bl;
-    trcnrs_ += tnr;
-}
-
-Interval<pos_type> trcNrRange( pos_type tnrwdth ) const
-{
-    return Interval<pos_type>( trcnrs_.first()-tnrwdth, trcnrs_.last()+tnrwdth);
+    linerg_.include( lastLineNr(*bl) );
 }
 
 
-StepInterval<z_type> zRange( int zso, z_type zstep ) const
+StepInterval<pos_type> trcNrRange() const
 {
-    StepInterval<z_type> zrg;
-    zrg.start = zrg.stop = blocklets_.first()->midz_;
+    const auto& bll0 = *blocklets_.first();
+    StepInterval<pos_type> rg( bll0.trcNrStart(), bll0.trcNrStop(),
+			       bll0.trcNrStep() );
     for ( auto* bll : blocklets_ )
-	zrg.include( bll->midz_, false );
+    {
+	rg.include( bll->trcNrStart(), false );
+	rg.include( bll->trcNrStop(), false );
+    }
+    return rg;
+}
 
-    zrg.start -= zstep * zso;
-    zrg.stop += zstep * zso;
-    zrg.step = zstep;
+
+StepInterval<z_type> zRange() const
+{
+    const auto& bll0 = *blocklets_.first();
+    StepInterval<z_type> zrg( bll0.zStart(), bll0.zStop(), bll0.zStep() );
+    for ( auto* bll : blocklets_ )
+    {
+	zrg.include( bll->zStart(), false );
+	zrg.include( bll->zStop(), false );
+    }
     return zrg;
 }
 
-    const pos_type	lnr_;
-    TypeSet<pos_type>	trcnrs_;
-    ObjectSet<Blocklet>	blocklets_;
+
+void fillTrace( SeisTrc& trc, Array1D<int>& contrib )
+{
+    for ( auto* bll : blocklets_ )
+    {
+	const StepInterval<pos_type> lnrs( startlnr_, lastLineNr(*bll),
+					   linerg_.step );
+	bll->addData( lnrs, trc, contrib );
+    }
+}
 
 };
 
@@ -132,7 +184,7 @@ void Seis::Blocks::DataGlueer::initGeometry( const ArrayNDInfo& inf )
 }
 
 
-uiRetVal Seis::Blocks::DataGlueer::addData( const Bin2D& b2d, z_type midz,
+uiRetVal Seis::Blocks::DataGlueer::addData( const Bin2D& b2d, z_type z,
 					    const Arr2D& arr )
 {
     if ( !arrinfo_ )
@@ -142,13 +194,13 @@ uiRetVal Seis::Blocks::DataGlueer::addData( const Bin2D& b2d, z_type midz,
     if ( !arrinfo_->isEqual(arr.info()) )
 	return mINTERNAL( "Incompatible tile passed" );
 
-    addPos( b2d, arr, midz );
+    addPos( b2d, arr, z );
     curb2d_ = b2d;
     return storeReadyPositions();
 }
 
 
-uiRetVal Seis::Blocks::DataGlueer::addData( const BinID& bid, z_type midz,
+uiRetVal Seis::Blocks::DataGlueer::addData( const BinID& bid, z_type z,
 					    const Arr3D& arr )
 {
     if ( !arrinfo_ )
@@ -158,36 +210,36 @@ uiRetVal Seis::Blocks::DataGlueer::addData( const BinID& bid, z_type midz,
     if ( !arrinfo_->isEqual(arr.info()) )
 	return mINTERNAL( "Incompatible cubelet passed" );
 
-    addPos( bid, arr, midz );
+    addPos( bid, arr, z );
     curbid_ = bid;
     return storeReadyPositions();
 }
 
 
 void Seis::Blocks::DataGlueer::addPos( const Bin2D& b2d,
-					const Arr2D& arr, z_type midz )
+					const Arr2D& arr, z_type z )
 {
     auto* lb = getBuf( b2d.lineNr() );
     if ( !lb )
 	lb = new LineBuf( b2d.lineNr() );
-    lb->add( b2d.trcNr(), new Blocklet(arr,midz) );
+    lb->add( new Blocklet(arr,b2d.trcNr(),trcstep_,z,zstep_) );
 }
 
 
 void Seis::Blocks::DataGlueer::addPos( const BinID& bid,
-					const Arr3D& arr, z_type midz )
+					const Arr3D& arr, z_type z )
 {
     auto* lb = getBuf( bid.inl() );
     if ( !lb )
-	lb = new LineBuf( bid.inl() );
-    lb->add( bid.crl(), new Blocklet(arr,midz) );
+	lb = new LineBuf( bid.inl(), linestep_ );
+    lb->add( new Blocklet(arr,bid.crl(),trcstep_,z,zstep_) );
 }
 
 
 Seis::Blocks::LineBuf* Seis::Blocks::DataGlueer::getBuf( pos_type lnr )
 {
     for ( auto* lb : linebufs_ )
-	if ( lb->lnr_ == lnr )
+	if ( lb->startlnr_ == lnr )
 	    return lb;
     return nullptr;
 }
@@ -201,67 +253,51 @@ uiRetVal Seis::Blocks::DataGlueer::finish()
 }
 
 
-int Seis::Blocks::DataGlueer::stepoutSize( int idim ) const
-{
-    if ( !arrinfo_ )
-	{ pErrMsg("stepoutSize unknown before first add"); return 0; }
-    return arrinfo_->getSize( idim ) / 2;
-}
-
-
-Seis::Blocks::DataGlueer::pos_type Seis::Blocks::DataGlueer::trcNrWidth() const
-{
-    return stepoutSize( is2D() ? 0 : 1 ) * trcstep_;
-}
-
-
-Seis::Blocks::DataGlueer::pos_type Seis::Blocks::DataGlueer::inlineWidth() const
-{
-    return stepoutSize(0) * linestep_;
-}
-
-
 uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions()
 {
     uiRetVal uirv;
 
-    for ( auto* lb : linebufs_ )
+    int nrstored = 0;
+    for ( auto ilb=0; ilb<linebufs_.size(); ilb++ )
     {
-	const bool isfinishedline = is2D() ? lb->lnr_ != curb2d_.lineNr()
-				: lb->lnr_ < curbid_.inl() - 2*inlineWidth();
-	if ( !isfinishedline )
+	auto* lb = linebufs_.get( ilb );
+	const auto lnr = is2D() ? curb2d_.lineNr() : curbid_.inl();
+	if ( lb->linerg_.includes(lnr,false) )
 	    break;
 
-	uirv = storeLine( *lb );
+	uirv = storeLineBuf( *lb );
 	if ( !uirv.isOK() )
 	    return uirv;
+
+	nrstored++;
     }
+
+    for ( auto ilb=0; ilb<nrstored; ilb++ )
+	delete linebufs_.removeSingle( 0 );
 
     return uirv;
 }
 
 
-uiRetVal Seis::Blocks::DataGlueer::storeLine( const LineBuf& lb )
+uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 {
-    const auto firstln = is2D() ? lb.lnr_ : lb.lnr_ - inlineWidth();
-    const auto lastln = is2D() ? lb.lnr_ : lb.lnr_ + inlineWidth();
-
-    const auto tnrrg = lb.trcNrRange( trcNrWidth() );
-    const auto zrg = lb.zRange( stepoutSize(is2D()?1:2), zstep_ );
+    const auto tnrrg = lb.trcNrRange();
+    const auto zrg = lb.zRange();
     if ( trcsz_ < 0 )
 	trcsz_ = zrg.nrSteps() + 1;
 
     SeisTrc trc( trcsz_ );
     trc.info().setGeomSystem( is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
     uiRetVal uirv;
-    for ( auto lnr=firstln; lnr<=lastln; lnr++ )
+    for ( auto lnr=lb.linerg_.start; lnr<=lb.linerg_.stop;
+		lnr+=lb.linerg_.step )
     {
 	trc.info().setLineNr( lnr );
 	for ( auto trcnr=tnrrg.start; trcnr<=tnrrg.stop; trcnr+=trcstep_ )
 	{
 	    trc.info().setTrcNr( trcnr );
 	    trc.info().calcCoord();
-	    //TODO use multiplicity trace and collect all contributions
+	    fillTrace( trc );
 	    uirv = storer_.put( trc );
 	    if ( !uirv.isOK() )
 		return uirv;
@@ -269,4 +305,14 @@ uiRetVal Seis::Blocks::DataGlueer::storeLine( const LineBuf& lb )
     }
 
     return uirv;
+}
+
+
+void Seis::Blocks::DataGlueer::fillTrace( SeisTrc& trc )
+{
+    Array1DImpl<int> contrib( trc.size() );
+    contrib.setAll( 0 );
+
+    for ( auto lb : linebufs_ )
+	lb->fillTrace( trc, contrib );
 }
