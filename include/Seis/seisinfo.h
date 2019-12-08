@@ -67,6 +67,7 @@ public:
     SeisTrcInfo&	setTrcNr(pos_type);
     SeisTrcInfo&	setLineNr(pos_type);
     SeisTrcInfo&	setTrcKey(const TrcKey&);
+    SeisTrcInfo&	calcCoord(); //!< from current BinID or Bin2D
 
     idx_type		nearestSample(z_type) const;
     z_type		samplePos( idx_type idx ) const
