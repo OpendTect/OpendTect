@@ -1932,6 +1932,8 @@ void uiODApplMgr::createVolProcOutput( bool is2d )
 
 bool uiODApplMgr::editNLA( bool is2d )
 { return attrvishandler_.editNLA( is2d ); }
+bool uiODApplMgr::uvqNLA( bool is2d )
+{ return attrvishandler_.uvqNLA( is2d ); }
 void uiODApplMgr::createHorOutput( int tp, bool is2d )
 { attrvishandler_.createHorOutput( tp, is2d ); }
 void uiODApplMgr::createVol( bool is2d, bool multiattrib )

@@ -31,6 +31,8 @@ namespace sKey
 {
     inline FixedString NN3D()	{ return "NeuralNetwork3D"; }
     inline FixedString NN2D()	{ return "NeuralNetwork2D"; }
+    inline FixedString UVQ3D()	{ return "NNQuickUVQ3D"; }
+    inline FixedString UVQ2D()	{ return "NNQuickUVQ2D"; }
 };
 
 
