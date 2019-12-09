@@ -855,4 +855,3 @@ int MultiWellReader::nextStep()
     nrdone_++;
     return Executor::MoreToDo();
 }
-

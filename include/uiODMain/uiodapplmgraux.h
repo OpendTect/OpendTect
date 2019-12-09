@@ -118,6 +118,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		survChg(bool);
     void		saveNLA(CallBacker*);
     bool		editNLA(bool);
+    bool		uvqNLA(bool);
     void		createHorOutput(int,bool);
     void		createVol(bool is2d,bool multiattrib);
     void		doXPlot();
