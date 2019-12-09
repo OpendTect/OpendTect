@@ -48,24 +48,49 @@ public:
     SamplingData<z_type>	zsd_;
 
     bool	is3D() const		{ return arr_->nrDims() > 2; }
+    int		nrTrcs() const	{ return arr_->getSize(arr_->nrDims()-2); }
     pos_type	trcNrStart() const	{ return tnrsd_.start; }
     pos_type	trcNrStep() const	{ return tnrsd_.step; }
-    pos_type	trcNrStop() const
-    { return tnrsd_.atIndex( arr_->getSize(arr_->nrDims()-1) - 1 ); }
+    pos_type	trcNrStop() const	{ return tnrsd_.atIndex( nrTrcs()-1 ); }
+    int		nrZ() const	{ return arr_->getSize(arr_->nrDims()-1); }
     z_type	zStart() const		{ return zsd_.start; }
     z_type	zStep() const		{ return zsd_.step; }
-    z_type	zStop() const
-    { return zsd_.atIndex( arr_->getSize(arr_->nrDims()-1) - 1 ); }
+    z_type	zStop() const		{ return zsd_.atIndex( nrZ() - 1 ); }
 
 void addData( const StepInterval<pos_type>& lnrs, SeisTrc& trc,
-	      Array1D<int>& contrib )
+	      Array1D<float>& contrib )
 {
-    const auto& ti = trc.info();
-    if ( ti.lineNr() < lnrs.start || ti.lineNr() > lnrs.stop
-      || ti.trcNr() < tnrsd_.start || ti.trcNr() > trcNrStop() )
+    const auto lnr = trc.info().lineNr();
+    const auto tnr = trc.info().trcNr();
+    if ( lnr < lnrs.start || lnr > lnrs.stop
+      || tnr < tnrsd_.start || tnr > trcNrStop() )
 	return;
 
-    //TODO fill the right Z range
+    const auto nrz = nrZ();
+    const auto trczidx0 = trc.info().sampling_.nearestIndex( zStart() );
+    if ( is3D() )
+    {
+	const auto idx0 = lnrs.nearestIndex( lnr );
+	const auto idx1 = tnrsd_.nearestIndex( tnr );
+	mDynamicCastGet( Arr3D*, arr3d, arr_ )
+	for ( auto zidx=0; zidx<nrz; zidx++ )
+	{
+	    const auto idx2 = trczidx0 + zidx;
+	    const auto prevwt = contrib[idx2];
+	    const auto prevval = trc.get( idx2, 0 );
+	    const auto newwt = 1.0f;
+	    const auto newval = arr3d->get( idx0, idx1, zidx );
+
+	    const auto nextwt = prevwt + newwt;
+	    const auto wtavg = (prevwt * prevval + newwt * newval) / nextwt;
+	    trc.set( idx2, wtavg, 0 );
+	    contrib.set( idx2, nextwt );
+	}
+    }
+    else
+    {
+	// TODO similar, copy&adapt when 3D works fine
+    }
 }
 
 };
@@ -135,7 +160,7 @@ StepInterval<z_type> zRange() const
 }
 
 
-void fillTrace( SeisTrc& trc, Array1D<int>& contrib )
+void fillTrace( SeisTrc& trc, Array1D<float>& contrib )
 {
     for ( auto* bll : blocklets_ )
     {
@@ -310,8 +335,8 @@ uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 
 void Seis::Blocks::DataGlueer::fillTrace( SeisTrc& trc )
 {
-    Array1DImpl<int> contrib( trc.size() );
-    contrib.setAll( 0 );
+    Array1DImpl<float> contrib( trc.size() );
+    contrib.setAll( 0.f );
 
     for ( auto lb : linebufs_ )
 	lb->fillTrace( trc, contrib );
