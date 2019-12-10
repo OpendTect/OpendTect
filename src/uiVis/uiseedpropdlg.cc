@@ -14,11 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimarkerstyle.h"
 
 
-uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
+uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj, int posattr )
     : uiMarkerStyleDlg( p, tr("Seed properties") )
     , emobject_( emobj )
-    , markerstyle_(emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
+    , posattr_(posattr)
+    , markerstyle_(emobject_->getPosAttrMarkerStyle(posattr))
 {
+    stylefld_->setMarkerStyle( markerstyle_ );
 }
 
 
@@ -69,5 +71,5 @@ void uiSeedPropDlg::colSel( CallBacker* )
 
 void uiSeedPropDlg::updateMarkerStyle()
 {
-    emobject_->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), markerstyle_ );
+    emobject_->setPosAttrMarkerStyle( posattr_, markerstyle_ );
 }

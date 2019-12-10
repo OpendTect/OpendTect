@@ -222,11 +222,18 @@ void uiVisEMObject::setUpConnections()
 {
     singlecolmnuitem_.text = tr("Use single color");
     singlecolmnuitem_.checkable = true;
+
     seedsmenuitem_.text = tr("Seeds");
     seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = uiStrings::sShow();
     seedpropmnuitem_.text = m3Dots(uiStrings::sProperties());
     lockseedsmnuitem_.text = uiStrings::sLock();
+
+    ctrlpointsmenuitem_.text = tr("Control Points");
+    ctrlpointsmenuitem_.checkable = false;
+    showctrlpointsmnuitem_.text = uiStrings::sShow();
+    ctrlpointspropmnuitem_.text = m3Dots(uiStrings::sProperties());
+
     showonlyatsectionsmnuitem_.text = tr("Only at sections");
     showfullmnuitem_.text = tr("In full");
     showbothmnuitem_.text = tr("At sections and in full");
@@ -331,6 +338,36 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     MenuItemHolder* displaymnuitem = menu->findItem( "Display" );
     if ( !displaymnuitem ) displaymnuitem = menu;
 
+    seedsmenuitem_.removeItems();
+    ctrlpointsmenuitem_.removeItems();
+    visSurvey::Scene* scene = emod->getScene();
+    const bool hastransform = scene && scene->getZAxisTransform();
+    if ( displaymnuitem )
+    {
+	const bool hasseeds = emobj->hasPosAttrib( EM::EMObject::sSeedNode() );
+	showseedsmnuitem_.text =
+	   emod->showsPosAttrib(EM::EMObject::sSeedNode())
+		? uiStrings::sHide() : uiStrings::sShow();
+	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
+		      !hastransform && hasseeds, false );
+	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
+	mAddMenuItem( displaymnuitem, &seedsmenuitem_,
+		      seedsmenuitem_.nrItems(), false );
+
+	if ( emobj->hasPosAttrib(EM::EMObject::sTemporaryControlNode()) )
+	{
+	    showctrlpointsmnuitem_.text =
+	       emod->showsPosAttrib(EM::EMObject::sTemporaryControlNode())
+		    ? uiStrings::sHide() : uiStrings::sShow();
+	    mAddMenuItem( &ctrlpointsmenuitem_, &showctrlpointsmnuitem_,
+			  !hastransform, false );
+	    mAddMenuItem( &ctrlpointsmenuitem_, &ctrlpointspropmnuitem_, true,
+			  false );
+	    mAddMenuItem( displaymnuitem, &ctrlpointsmenuitem_,
+			  ctrlpointsmenuitem_.nrItems(), false );
+	}
+    }
+
     if ( hor2ddisp )
 	mResetMenuItem( &singlecolmnuitem_ )
     else if ( displaymnuitem )
@@ -370,33 +407,12 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
 
-    visSurvey::Scene* scene = emod->getScene();
-    const bool hastransform = scene && scene->getZAxisTransform();
     //Commented out as mAddMenu is commented out below
     //visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
     //const bool hastransform = scene && scene->getZAxisTransform();
     //const bool enabmenu =
 	//getObjectType(displayid_)==EM::Horizon3D::typeStr()
 	//&& !visserv_->isLocked(displayid_) && !hastransform;
-
-    seedsmenuitem_.removeItems();
-
-    mResetMenuItem( &lockseedsmnuitem_ );
-    MenuItem* trackmnu =
-	menu->findItem( uiStrings::sTracking().getFullString() );
-    if ( trackmnu )
-    {
-	const TypeSet<EM::PosID>* seeds =
-	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
-	showseedsmnuitem_.text =
-	   emod->showsPosAttrib(EM::EMObject::sSeedNode())
-		? uiStrings::sHide() : uiStrings::sShow();
-	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
-		      !hastransform && seeds && seeds->size(), false );
-	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
-	mAddMenuItem( trackmnu, &seedsmenuitem_,
-		      seedsmenuitem_.nrItems(), false );
-    }
 }
 
 
@@ -479,6 +495,23 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) );
 	menu->setIsHandled( true );
     }
+    else if ( mnuid==showctrlpointsmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	emod->showPosAttrib( EM::EMObject::sTemporaryControlNode(),
+		!emod->showsPosAttrib(EM::EMObject::sTemporaryControlNode()) );
+    }
+    else if ( mnuid==ctrlpointspropmnuitem_.id )
+    {
+	if ( emobj && !visserv_->showSetupGroupOnTop("Properties") )
+	{
+	    uiSeedPropDlg dlg( uiparent_, emobj,
+				EM::EMObject::sTemporaryControlNode() );
+	    dlg.go();
+	}
+	menu->setIsHandled( true );
+    }
+
 }
 
 

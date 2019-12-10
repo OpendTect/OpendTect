@@ -264,6 +264,7 @@ public:
 
     virtual int			nrPosAttribs() const;
     virtual int			posAttrib(int idx) const;
+    virtual bool		hasPosAttrib(int attr) const;
     virtual void		addPosAttrib(int attr);
     virtual void		removePosAttribList(int attr,
 						    bool addtohistory=true);
@@ -274,7 +275,7 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int attr) const;
-    const MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
+    const MarkerStyle3D&	getPosAttrMarkerStyle(int attr) const;
     void			setPosAttrMarkerStyle(int attr,
 						      const MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
@@ -347,6 +348,7 @@ protected:
     MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
+    MarkerStyle3D&		posattribmarkerstyle_;
 
     TrcKeyZSampling		removebypolyposbox_;
 

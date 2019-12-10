@@ -79,6 +79,9 @@ protected:
     MenuItem		showseedsmnuitem_;
     MenuItem		seedpropmnuitem_;
     MenuItem		lockseedsmnuitem_;
+    MenuItem		ctrlpointsmenuitem_;
+    MenuItem		showctrlpointsmnuitem_;
+    MenuItem		ctrlpointspropmnuitem_;
 
     MenuItem		displaymnuitem_;
     MenuItem		showonlyatsectionsmnuitem_;

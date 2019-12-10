@@ -20,12 +20,14 @@ class uiColorInput;
 mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
 { mODTextTranslationClass(uiSeedPropDlg);
 public:
-			uiSeedPropDlg(uiParent*,EM::EMObject*);
+			uiSeedPropDlg(uiParent*,EM::EMObject*,
+					int posattr=EM::EMObject::sSeedNode());
 
 protected:
 
     EM::EMObject*	emobject_;
     MarkerStyle3D	markerstyle_;
+    int			posattr_;
 
     void		doFinalise(CallBacker*);
 

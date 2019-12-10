@@ -58,6 +58,8 @@ EMObject::EMObject( EMManager& emm )
     , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::White()))
+    , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
+			    preferredcolor_.complementaryColor()))
     , haslockednodes_( false )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
@@ -75,6 +77,7 @@ EMObject::~EMObject()
     delete &preferredcolor_;
     delete &preferredlinestyle_;
     delete &preferredmarkerstyle_;
+    delete &posattribmarkerstyle_;
 
     change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
@@ -475,6 +478,12 @@ int EMObject::posAttrib(int idx) const
 int EMObject::addPosAttribName( const char* nm )
 { return -1; }
 
+bool EMObject::hasPosAttrib(int attr) const
+{
+    const int idx=attribs_.indexOf( attr );
+    return idx!=-1 ? !posattribs_[idx]->posids_.isEmpty() : false;
+}
+
 
 const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 {
@@ -483,17 +492,20 @@ const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 }
 
 
-const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
+const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr ) const
 {
-    addPosAttrib( attr );
-    return preferredMarkerStyle3D();
+    return attr == sSeedNode() ? preferredMarkerStyle3D()
+				: posattribmarkerstyle_;
 }
 
 
 void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
 {
     addPosAttrib( attr );
-    setPreferredMarkerStyle3D( ms );
+    if ( attr == sSeedNode() )
+	setPreferredMarkerStyle3D( ms );
+    else
+	posattribmarkerstyle_ = ms;
 
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::AttribChange;
@@ -770,6 +782,15 @@ bool EMObject::useDisplayPar( const IOPar& par )
 	preferredmarkerstyle_ = mkst;
     }
 
+    const BufferString posattribmskey =
+		IOPar::compKey( posattrprefixstr(), sKey::MarkerStyle() );
+    if ( par.get(posattribmskey,mkststr) )
+    {
+	MarkerStyle3D mkst;
+	mkst.fromString( mkststr );
+	posattribmarkerstyle_ = mkst;
+    }
+
     return true;
 }
 
@@ -787,6 +808,11 @@ void EMObject::fillDisplayPar( IOPar& par ) const
     BufferString mkststr;
     preferredmarkerstyle_.toString( mkststr );
     par.set( sKey::MarkerStyle(), mkststr );
+
+    const BufferString posattribmskey =
+		IOPar::compKey( posattrprefixstr(), sKey::MarkerStyle() );
+    posattribmarkerstyle_.toString( mkststr );
+    par.set( posattribmskey, mkststr );
 }
 
 
