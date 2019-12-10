@@ -280,7 +280,9 @@ uiRetVal Seis::Blocks::DataGlueer::finish()
 {
     curbid_ = BinID::udf();
     mSetUdf( curb2d_.trcNr() );
-    return storeReadyPositions();
+    auto uirv = storeReadyPositions();
+    uirv.add( storer_.close() );
+    return uirv;
 }
 
 
