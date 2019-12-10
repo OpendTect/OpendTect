@@ -7,7 +7,7 @@
 
 cmake_minimum_required ( VERSION 2.8.5 )
 
-set( MAIN_GIT_BRANCH od6.4 )
+set( MAIN_GIT_BRANCH od6.6 )
 
 set( OpendTect_VERSION_MAJOR 6 )
 set( OpendTect_VERSION_MINOR 6 )
