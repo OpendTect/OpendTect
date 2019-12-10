@@ -51,6 +51,16 @@ bool uiODApplMgrAttrVisHandler::editNLA( bool is2d )
 }
 
 
+bool uiODApplMgrAttrVisHandler::uvqNLA( bool is2d )
+{
+    if ( !am_.nlaserv_ ) return false;
+
+    am_.nlaserv_->set2DEvent( is2d );
+    const bool res = am_.nlaserv_->doUVQ();
+    return res;
+}
+
+
 void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 {
     am_.emattrserv_->setDescSet( am_.attrserv_->curDescSet(is2d) );

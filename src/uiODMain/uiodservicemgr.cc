@@ -200,8 +200,8 @@ void uiODServiceMgr::doSurveyChanged( CallBacker* )
     paramobj.set( sKey::Survey(), GetDataDir() );
     for ( int idx=0; idx<services_.size(); idx++ )
     {
-	const uiRetVal uirv = sendRequest( *services_[idx], sKeySurveyChangeEv(),
-					   paramobj );
+	const uiRetVal uirv = sendRequest( *services_[idx],
+					sKeySurveyChangeEv(), paramobj );
 	if ( !uirv.isOK() )
 	    uiMSG().error( uirv );
     }
@@ -255,8 +255,12 @@ uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
 	ODMainWin()->applMgr().editNLA( false );
     else if ( appname==sKey::NN2D() )
 	ODMainWin()->applMgr().editNLA( true );
+    else if ( appname==sKey::UVQ3D() )
+	ODMainWin()->applMgr().uvqNLA( false );
+    else if ( appname==sKey::UVQ2D() )
+	ODMainWin()->applMgr().uvqNLA( true );
 
-    return uirv;
+    return uiRetVal::OK();
 }
 
 /*

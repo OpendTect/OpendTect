@@ -47,6 +47,7 @@ public:
 	    			BufferStringSet& linekeys) const = 0;
     virtual bool	go()				= 0;
     			//!< returns whether manageNN should be called again
+    virtual bool	doUVQ()				= 0;
     virtual const NLAModel& getModel() const		= 0;
     virtual const NLACreationDesc& creationDesc() const	= 0;
 
