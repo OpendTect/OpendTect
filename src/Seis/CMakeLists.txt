@@ -7,8 +7,12 @@
 
 set(OD_MODULE_DEPS Geometry MMProc )
 
-# set( OD_NIGHTLY_TEST_PROGS seisprovider.cc )
-set( OD_NIGHTLY_TEST_PROGS seisblocks.cc seisstorer.cc seisprovider.cc )
+set(OD_NIGHTLY_TEST_PROGS
+	seisblocks.cc
+	seisstorer.cc
+	seisprovider.cc
+	seisblocksdataglueer.cc
+)
 
 set(OD_MODULE_SOURCES
 	initseis.cc

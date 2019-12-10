@@ -246,7 +246,10 @@ void Seis::Blocks::DataGlueer::addPos( const Bin2D& b2d,
 {
     auto* lb = getBuf( b2d.lineNr() );
     if ( !lb )
+    {
 	lb = new LineBuf( b2d.lineNr() );
+	linebufs_ += lb;
+    }
     lb->add( new Blocklet(arr,b2d.trcNr(),trcstep_,z,zstep_) );
 }
 
@@ -256,7 +259,10 @@ void Seis::Blocks::DataGlueer::addPos( const BinID& bid,
 {
     auto* lb = getBuf( bid.inl() );
     if ( !lb )
+    {
 	lb = new LineBuf( bid.inl(), linestep_ );
+	linebufs_ += lb;
+    }
     lb->add( new Blocklet(arr,bid.crl(),trcstep_,z,zstep_) );
 }
 
