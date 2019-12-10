@@ -33,7 +33,16 @@ class LineBuf;
 
 
 /*!\brief Takes in 'small' tiles or blocks of (seismic) data and makes
-  sure they are merged and written to storage. Hard requirement is that the data you feed is sorted on inl/crl or GeomID/trcnr. */
+  sure they are merged and written to storage.
+
+  Hard requirement is that the data you feed is sorted on inl/crl or
+  GeomID/trcnr.
+
+  The BinID/Bin2D and Z you provide denote the START of the tile/blocklet,
+  not the center!
+
+*/
+
 
 mExpClass(Seis) DataGlueer
 {
@@ -54,10 +63,10 @@ public:
     void	setSteps( pos_type stp, z_type zs )
 		{ trcstep_ = stp; zstep_ = zs; }
     void	setSteps( const BinID& ps, z_type zs )
-		{ trcstep_ = ps.crl(); linestep_ = ps.crl(); zstep_ = zs; }
+		{ trcstep_ = ps.crl(); linestep_ = ps.inl(); zstep_ = zs; }
 
-    uiRetVal	addData(const Bin2D&,z_type midz,const Arr2D&);
-    uiRetVal	addData(const BinID&,z_type midz,const Arr3D&);
+    uiRetVal	addData(const Bin2D&,z_type,const Arr2D&);
+    uiRetVal	addData(const BinID&,z_type,const Arr3D&);
 
     bool	is2D() const;
 
