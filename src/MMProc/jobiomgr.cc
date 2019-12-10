@@ -133,9 +133,13 @@ void JobIOHandler::listen( PortNr_Type firstport, int maxtries )
     mLogMsg("Initializing TCP server")
 
     uiRetVal portmsg;
-    usedport_ = Network::getUsablePort( portmsg, firstport, maxtries );
-    ready_ = usedport_ >= firstport && portmsg.isOK();
-    if ( !ready_ )
+    PortNr_Type currentport = firstport;
+    currentport = Network::getUsablePort( portmsg, currentport, maxtries );
+    ready_ = currentport >= firstport && portmsg.isOK() &&
+	     server_.listen( Network::Any, currentport );
+    if ( ready_ )
+	usedport_ = currentport;
+    else
 	server_.close();
 
     if ( logstrm_ )
