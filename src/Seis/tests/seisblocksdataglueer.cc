@@ -1,7 +1,7 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
- * DATE     : Aug 2013
+ * DATE     : Dec 2019
 -*/
 
 
