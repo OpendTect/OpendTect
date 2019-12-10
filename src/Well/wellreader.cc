@@ -229,6 +229,8 @@ bool Well::Reader::getLogInfo() const
 { return ra_ ? ra_->getLogInfo() : false; }
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
+bool Well::Reader::isOldFormat() const
+{ return ra_ ? ra_->isOldFormat() : false; }
 Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : 0; }
 
@@ -512,7 +514,20 @@ bool Well::odReader::getTrack() const
 
     return isok;
 }
+bool Well::odReader::isOldFormat() const
+{
+    for ( int idx=1;  ; idx++ )
+    {
+	mGetInpStream( sExtLog(), idx, false, break );
 
+	double version = 0.0;
+	if ( rdHdr(strm,sKeyLog(),version) )
+	{
+	    int bintyp = 0;
+	    return isOldFormat( strm, bintyp, idx-1 );
+	}
+    }
+}
 
 bool Well::odReader::getLogInfo() const
 {
@@ -527,6 +542,11 @@ bool Well::odReader::getLogInfo() const
 	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
 	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
 	    loginfo->logunit_ = log->unitMeasLabel();
+	    if ( !mIsUdf(log->dahStart()) && !mIsUdf(log->dahStop()) )
+	    {
+		loginfo->dahstart_ = log->dahStart();
+		loginfo->dahstop_ = log->dahStop();
+	    }
 	    wd_.logInfoSet().add( loginfo );
 	}
     }
@@ -600,6 +620,19 @@ bool Well::odReader::getLogs() const
 }
 
 
+bool Well::odReader::isOldFormat( od_istream& strm, int& bintype, int idx )
+{
+    ascistream astrm( strm, false );
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	if ( astrm.hasKeyword(Well::Log::sKeyDahStart()) ||
+		    astrm.hasKeyword(Well::Log::sKeyDahStop()) )
+	    return false;
+    }
+    return true;
+}
+
+
 Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 {
     Well::Log* newlog = new Well::Log;
@@ -617,6 +650,14 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 	if ( astrm.hasKeyword(Well::Log::sKeyStorage()) )
 	    bintype = *astrm.value() == 'B' ? 1
 		    : (*astrm.value() == 'S' ? -1 : 0);
+	if ( astrm.hasKeyword(Well::Log::sKeyDahStart()) )
+	    newlog->setDahStart( astrm.getFValue() );
+	else
+	    newlog->setDahStart( mUdf(float) );
+	if ( astrm.hasKeyword(Well::Log::sKeyDahStop()) )
+	    newlog->setDahStop( astrm.getFValue() );
+	else
+	    newlog->setDahStart( mUdf(float) );
     }
     if ( newlog->name().isEmpty() )
     {

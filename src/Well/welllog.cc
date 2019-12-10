@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
+const char* Well::Log::sKeyDahStart()	{ return "Dah start"; }
+const char* Well::Log::sKeyDahStop()	{ return "Dah stop"; }
 
 
 // ---- Well::LogSet
@@ -353,6 +355,14 @@ bool Well::Log::insertAtDah( float dh, float val )
 }
 
 
+//  ----LogInfo----
+bool Well::LogInfo::isOldFormat()
+{
+    if (!dahstart_ && !dahstop_)
+	return false;
+}
+
+
 //  ----LogInfoSet----
 
 void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
@@ -360,6 +370,17 @@ void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
 	lognms.add( (*this)[idx]->name() );
+}
+
+
+const Well::LogInfo* Well::LogInfoSet::getByName( const BufferString& lognms ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( lognms == (*this)[idx]->name() )
+	    return (*this)[idx];
+    }
 }
 
 
@@ -371,10 +392,9 @@ void Well::LogInfoSet::getUnits( BufferStringSet& logunits ) const
 }
 
 
-void Well::LogInfoSet::getUnit( const BufferString& lognm,
-       				BufferString& logunit) const
+void Well::LogInfoSet::getUnit( const char* lognm,
+       				const char* logunit) const
 {
-    logunit.setEmpty();
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -385,6 +405,29 @@ void Well::LogInfoSet::getUnit( const BufferString& lognm,
 	}
     }
 }
+
+
+float Well::LogInfoSet::dahStart( const char* lognm ) const
+{
+    const int sz = size();
+    for (int idx=0; idx<sz; idx++)
+    {
+	if ( (*this)[idx]->name() == lognm )
+	    return (*this)[idx]->dahstart_;
+    }
+}
+
+
+float Well::LogInfoSet::dahStop( const char* lognm ) const
+{
+    const int sz = size();
+    for (int idx=0; idx<sz; idx++)
+    {
+	if ( (*this)[idx]->name() == lognm )
+	    return (*this)[idx]->dahstop_;
+    }
+}
+
 
 
 bool Well::LogInfoSet::logIsPresent( const char* nm ) const

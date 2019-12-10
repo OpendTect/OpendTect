@@ -72,6 +72,10 @@ public:
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
+    float		dahStart() const		{ return dahstart_; }
+    float		dahStop() const			{ return dahstop_; }
+    void		setDahStart( const float start ){ dahstart_ = start; }
+    void		setDahStop( const float stop )	{ dahstop_ = stop; }
     void		convertTo(const UnitOfMeasure*);
     PropertyRef::StdType propType() const;
     bool		isCode() const			{ return iscode_; }
@@ -79,6 +83,8 @@ public:
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
+    static const char*	sKeyDahStart();
+    static const char*	sKeyDahStop();
 
     float*		valArr()			{ return vals_.arr(); }
     const float*	valArr() const			{ return vals_.arr(); }
@@ -91,6 +97,8 @@ protected:
     TypeSet<float>	vals_;
     Interval<float>	range_;
     BufferString	unitmeaslbl_;
+    float		dahstart_;
+    float		dahstop_;
     bool		iscode_;
     IOPar		pars_;
 
@@ -109,6 +117,10 @@ public:
 			    : ::NamedObject(nm)
 			{}
     BufferString	logunit_;
+    float		dahstart_;
+    float		dahstop_;
+
+    bool		isOldFormat();	//checks whether log hdr has dah range
 };
 
 
@@ -117,9 +129,12 @@ mExpClass(Well) LogInfoSet : public ObjectSet<Well::LogInfo>
 public:
 				LogInfoSet(){}
     void			getNames(BufferStringSet&) const;
+    const Well::LogInfo*	getByName(const BufferString&) const;
     void			getUnits(BufferStringSet&) const;
-    void			getUnit(const BufferString&,
-					BufferString&) const;
+    void			getUnit(const char*, 
+					const char*) const;
+    float			dahStart(const char*) const;
+    float			dahStop(const char*) const;
     bool			logIsPresent(const char*) const;
 protected:
 };

@@ -267,6 +267,8 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
 				     : "Ascii";
     astrm.put( Well::Log::sKeyStorage(), stortyp );
+    astrm.put( Well::Log::sKeyDahStart(), wl.dahRange().start );
+    astrm.put( Well::Log::sKeyDahStop(), wl.dahRange().stop );
     astrm.newParagraph();
     if ( havepars )
 	wl.pars().putTo( astrm );
