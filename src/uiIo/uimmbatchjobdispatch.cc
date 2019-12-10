@@ -64,7 +64,7 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
     if ( jobpars.isEmpty() )
     {
 	od_cout() << argv[0] << ": Invalid parameter file"
-                  << parfnm << od_endl;
+		  << parfnm << od_endl;
 	return false;
     }
     strm.close();
@@ -161,9 +161,11 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	stopbut->attach( alignedBelow, usedmachfld_ );
 
 	uiPushButton* stopallbut =
-		new uiPushButton( machgrp, tr("Stop all"), true );
+		new uiPushButton( usedmachgrp, tr("Stop all"), true );
+	stopallbut->attach( rightTo, stopbut );
 	stopallbut->activated.notify(
 		mCB(this,uiMMBatchJobDispatcher,stopAllPush) );
+
 	addbut_ = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
 	if ( avmachfld_ )
 	    addbut_->attach( centeredRightOf, avmachfld_ );
@@ -621,7 +623,7 @@ bool uiMMBatchJobDispatcher::isPaused() const
 
 	bool run = t1 >= t0 ? t >= t0 && t <= t1
 			    : t >= t0 || t <= t1;
-        dopause = !run;
+	dopause = !run;
     }
     return dopause;
 }
