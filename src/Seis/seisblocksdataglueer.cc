@@ -67,29 +67,43 @@ void addData( const StepInterval<pos_type>& lnrs, SeisTrc& trc,
 	return;
 
     const auto nrz = nrZ();
-    const auto trczidx0 = trc.info().sampling_.nearestIndex( zStart() );
+    const auto trcidx0 = trc.info().sampling_.nearestIndex( zStart() );
     if ( is3D() )
     {
-	const auto idx0 = lnrs.nearestIndex( lnr );
-	const auto idx1 = tnrsd_.nearestIndex( tnr );
+	const auto iinl = lnrs.nearestIndex( lnr );
+	const auto icrl = tnrsd_.nearestIndex( tnr );
 	mDynamicCastGet( Arr3D*, arr3d, arr_ )
-	for ( auto zidx=0; zidx<nrz; zidx++ )
+	for ( auto iz=0; iz<nrz; iz++ )
 	{
-	    const auto idx2 = trczidx0 + zidx;
-	    const auto prevwt = contrib[idx2];
-	    const auto prevval = trc.get( idx2, 0 );
+	    const auto trcidx = trcidx0 + iz;
+	    const auto curwt = contrib[trcidx];
+	    const auto curval = trc.get( trcidx, 0 );
 	    const auto newwt = 1.0f;
-	    const auto newval = arr3d->get( idx0, idx1, zidx );
+	    const auto newval = arr3d->get( iinl, icrl, iz );
 
-	    const auto nextwt = prevwt + newwt;
-	    const auto wtavg = (prevwt * prevval + newwt * newval) / nextwt;
-	    trc.set( idx2, wtavg, 0 );
-	    contrib.set( idx2, nextwt );
+	    const auto nextwt = curwt + newwt;
+	    const auto wtavg = (curwt*curval + newwt*newval) / nextwt;
+	    trc.set( trcidx, wtavg, 0 );
+	    contrib.set( trcidx, nextwt );
 	}
     }
     else
     {
-	// TODO similar, copy&adapt when 3D works fine
+	const auto itnr = tnrsd_.nearestIndex( tnr );
+	mDynamicCastGet( Arr2D*, arr2d, arr_ )
+	for ( auto iz=0; iz<nrz; iz++ )
+	{
+	    const auto trcidx = trcidx0 + iz;
+	    const auto curwt = contrib[trcidx];
+	    const auto curval = trc.get( trcidx, 0 );
+	    const auto newwt = 1.0f;
+	    const auto newval = arr2d->get( itnr, iz );
+
+	    const auto nextwt = curwt + newwt;
+	    const auto wtavg = (curwt*curval + newwt*newval) / nextwt;
+	    trc.set( trcidx, wtavg, 0 );
+	    contrib.set( trcidx, nextwt );
+	}
     }
 }
 
