@@ -31,6 +31,17 @@ def getLogNames( wllnm, reload=False, args=None ):
   ret = json.loads( retstr )
   return ret['Names']
 
+def getLog( wllnm, lognm, reload=False, args=None ):
+  dbkey = getDBKey( wllnm, reload=reload, args=args )
+  cmd = getODCommand(wellmanexe,args)
+  cmd.append( '--read-log' )
+  cmd.append( dbkey )
+  cmd.append( lognm )
+  ret = execCommand( cmd )
+  retstr = ret.decode('utf-8')
+  ret = json.loads( retstr )
+  return (ret['MDs'], ret['Values'])
+
 #def getTrack()
 #def getLogNames()
 #def getLog()
