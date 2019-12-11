@@ -179,7 +179,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     BufferString cmd;
 
 #ifdef __win__
-    fp.setExtension(  "cmd" );
+    fp.setExtension(  "bat" );
 #endif
 
     cmd.add( fp.fullPath() );
