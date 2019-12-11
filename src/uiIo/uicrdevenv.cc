@@ -203,16 +203,16 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     uiMSG().message( cmd );
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
-    BufferString stdout, stderror;
-    const bool res = cl.execute(  stdout, &stderror );
+    BufferString outmsg, errormsg;
+    const bool res = cl.execute(  outmsg, &errormsg );
     if ( !res )
     {
 	BufferString msg( "Failed to create Environment " );
-	if ( !stdout.isEmpty() )
-	    msg.add( stdout );
+	if ( !outmsg.isEmpty() )
+	    msg.add( outmsg );
 
-	if ( !stderror.isEmpty() )
-	    msg.add( stderror );
+	if ( !errormsg.isEmpty() )
+	    msg.add( errormsg );
     }
 
     const BufferString cmakefile =
