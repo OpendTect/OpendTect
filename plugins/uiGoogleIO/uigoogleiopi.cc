@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uigoogleiomod.h"
+#include "uigoogleexppointset.h"
 #include "uigoogleexppolygon.h"
 #include "uigoogleexprandline.h"
 #include "uigoogleexpsurv.h"
@@ -80,10 +81,9 @@ private:
 
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
-    , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-		    *a.applMgr().visServer(),
-		   sMenuTxt(),
-		    mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
+    , psmnuitmhandler_( visSurvey::PickSetDisplay::sFactoryKeyword(),
+			*a.applMgr().visServer(), sMenuTxt(),
+			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
 			*a.applMgr().visServer(),sMenuTxt(),
 			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
@@ -174,15 +174,24 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     if ( !psd || !psd->getSet() ) return;
     const Pick::Set& ps = *psd->getSet();
     if ( ps.disp_.connect_ == Pick::Set::Disp::None )
-	{ uiMSG().error(tr("Can only export Polygons")); return; }
-    if ( ps.size() < 3 )
-	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }
+    {
+	if ( !mEnsureTransformOK(&appl_,0) )
+	    return;
 
-    if ( !mEnsureTransformOK(&appl_,0) )
-	return;
+	uiGoogleExportPointSet dlg( &appl_, ps );
+	dlg.go();
+    }
+    else
+    {
+	if ( ps.size() < 3 )
+	    { uiMSG().error(tr("Polygon needs at least 3 points")); return; }
 
-    uiGoogleExportPolygon dlg( &appl_, ps );
-    dlg.go();
+	if ( !mEnsureTransformOK(&appl_,0) )
+	    return;
+
+	uiGoogleExportPolygon dlg( &appl_, ps );
+	dlg.go();
+    }
 }
 
 

@@ -102,7 +102,7 @@ void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 	strm() << "\t\t\t<Icon></Icon>\n";
     else
 	strm() << "\t\t\t<Icon>\n"
-		  "\t\t\t\t<href>http://opendtect.org/images/od-"
+		  "\t\t\t\t<href>http://static.opendtect.org/images/od-"
 						<< iconnm << ".png</href>\n"
 		  "\t\t\t</Icon>\n"
 		  "\t\t<hotSpot x=\"" << xpixoffs <<
@@ -129,13 +129,20 @@ void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 					  const char* nm )
 {
-    writePlaceMark( iconnm, LatLong::transform(crd,true), nm );
+    writePlaceMark( iconnm, LatLong::transform(crd,true), nm, 0.0 );
+}
+
+
+void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
+					  const char* nm, float hght )
+{
+    writePlaceMark( iconnm, LatLong::transform(crd,true), nm, hght );
 }
 
 
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 					  const LatLong& ll, const char* nm,
-					  const char* desc )
+					  float hght, const char* desc )
 {
     if ( !isOK() ) return; mDeclIconStNm;
 
@@ -147,7 +154,7 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
     strm() << "\t\t<LookAt>\n"
 	      "\t\t\t<longitude>" << lngstr << "</longitude>\n";
     strm() << "\t\t\t<latitude>" << latstr << "</latitude>\n";
-    strm() << "\t\t\t<altitude>0</altitude>\n"
+    strm() << "\t\t\t<altitude>" << hght <<"</altitude>\n"
 	"\t\t\t<range>500</range>\n"
 	"\t\t\t<tilt>20</tilt>\n"
 	"\t\t\t<heading>0</heading>\n"
@@ -156,7 +163,7 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 	"\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t<Point>\n"
 	"\t\t\t<coordinates>" << lngstr;
-    strm() << ',' << latstr << ",0</coordinates>\n"
+    strm() << ',' << latstr << ',' << hght << "</coordinates>\n"
 	"\t\t</Point>\n"
 	"\t</Placemark>\n" << od_endl;
 }

@@ -52,8 +52,11 @@ public:
 					const char* ins=0);
     void		writePlaceMark(const char* iconnm,const Coord&,
 				       const char* nm);
+    void		writePlaceMark(const char* iconnm,const Coord&,
+				       const char* nm,float hght);
     void		writePlaceMark(const char* iconnm,const LatLong&,
-				       const char* nm,const char* desc=0);
+				       const char* nm,float hght,
+				       const char* desc=0);
     void		writeLine(const char* iconnm,const TypeSet<Coord>&,
 	    			  const char* nm);
 
