@@ -175,35 +175,48 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     FilePath fp( swdir, "bin" );
 #endif
 
-#ifdef __win__
-    BufferString cmd;
-    fp.add( "od_cr_dev_env.bat" );
-    cmd += fp.fullPath();
-    cmd += " "; cmd += swdir;
-    char shortpath[1024];
-    GetShortPathName(workdirnm.buf(),shortpath,1024);
-    cmd += " "; cmd += shortpath;
-
-    OS::CommandExecPars execpars( false );
-    execpars.launchtype( OS::Wait4Finish )
-	    .isconsoleuiprog( true );
-    OS::MachineCommand mc( cmd );
-    OS::CommandLauncher cl( mc );
-    cl.execute( execpars );
-#else
     fp.add( "od_cr_dev_env" );
-    BufferString cmd( "'", fp.fullPath() );
-    cmd += "' '"; cmd += swdir;
-#ifdef __mac__
-    cmd += "/Resources";
+    BufferString cmd;
+
+#ifdef __win__
+    fp.setExtension(  "cmd" );
 #endif
 
-    cmd += "' '"; cmd += workdirnm; cmd += "'";
-    OS::ExecCommand( cmd );
+    cmd.add( fp.fullPath() );
+    OS::CommandLauncher::addQuotesIfNeeded( cmd );
+    OS::CommandLauncher::addQuotesIfNeeded( swdir );
+
+    cmd.addSpace().add( swdir );
+
+#ifdef __win__
+    char shortpath[1024];
+    GetShortPathName( workdirnm.buf(), shortpath, 1024 );
+    workdirnm = shortpath;
 #endif
 
-    BufferString cmakefile =
-			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
+    const BufferString workdirorig( workdirnm );//Need to keeping
+	//old format of path to check File::exists() later without quotes
+
+    OS::CommandLauncher::addQuotesIfNeeded( workdirnm );
+    cmd.addSpace().add( workdirnm );
+
+    uiMSG().message( cmd );
+    const OS::MachineCommand mc( cmd );
+    OS::CommandLauncher cl( mc );
+    BufferString stdout, stderror;
+    const bool res = cl.execute(  stdout, &stderror );
+    if ( !res )
+    {
+	BufferString msg( "Failed to create Environment " );
+	if ( !stdout.isEmpty() )
+	    msg.add( stdout );
+
+	if ( !stderror.isEmpty() )
+	    msg.add( stderror );
+    }
+
+    const BufferString cmakefile =
+			FilePath(workdirorig).add("CMakeLists.txt").fullPath();
     if ( !File::exists(cmakefile) )
 	mErrRet(tr("Creation seems to have failed"))
     else
