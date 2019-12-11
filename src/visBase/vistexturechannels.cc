@@ -549,7 +549,12 @@ void ChannelInfo::updateOsgImages()
 
 
 bool ChannelInfo::isCurrentDataPremapped() const
-{ return !unmappeddata_[currentversion_]; }
+{
+    if ( !unmappeddata_.validIdx(currentversion_) )
+	return false;
+
+    return !unmappeddata_[currentversion_];
+}
 
 
 
