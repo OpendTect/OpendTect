@@ -8,13 +8,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "filepath.h"
 
+#include "envvars.h"
 #include "file.h"
+#include "fixedstring.h"
 #include "genc.h"
 #include "msgh.h"
-#include "winutils.h"
-#include "fixedstring.h"
 #include "oddirs.h"
-#include "envvars.h"
+#include "perthreadrepos.h"
+#include "winutils.h"
 #include <time.h>
 #include <string.h>
 
@@ -83,6 +84,19 @@ static bool isServerPath( const char* path )
 {
     const FixedString pathstr = path;
     return pathstr.size()>1 && path[0]=='\\' && path[1]=='\\';
+}
+
+
+BufferString FilePath::getFullLongPath( const FilePath& fp )
+{
+#ifndef  __win__
+    return fp.fullPath();
+#else
+    mDeclStaticString( longpath );
+    longpath.setMinBufSize( 1025 );
+    GetLongPathName(fp.fullPath(), longpath.getCStr(), longpath.minBufSize()-1);
+    return longpath;
+#endif // ! __win__
 }
 
 

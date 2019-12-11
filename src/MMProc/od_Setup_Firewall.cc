@@ -81,12 +81,11 @@ void SetUpFirewallServerTool::updateDirPath( FilePath* fp )
 
     if ( ispyproc_ )
     {
-	pypath_ = *fp;
+	pypath_ = FilePath::getFullLongPath( *fp );
 	pypath_.add( "envs" );
     }
     else
-	odpath_ = *fp;
-
+	odpath_ = FilePath::getFullLongPath( *fp );
 }
 
 

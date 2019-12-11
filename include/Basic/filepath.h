@@ -91,6 +91,8 @@ public:
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
 
+    static BufferString getFullLongPath(const FilePath&);
+
 protected:
 
     bool		isabs_;
