@@ -23,6 +23,7 @@ mUseQtnamespace
 uiWebEngineBase::uiWebEngineBase( uiParent* p, const char* nm,
 				  uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
+    , loadFinished(this)
 {
 }
 
