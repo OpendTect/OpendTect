@@ -26,9 +26,7 @@ def getLogNames( wllnm, reload=False, args=None ):
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--list-logs' )
   cmd.append( dbkey )
-  ret = execCommand( cmd )
-  retstr = ret.decode('utf-8')
-  ret = json.loads( retstr )
+  ret = oddbman.getDBDict( cmd )
   return ret['Names']
 
 def getLog( wllnm, lognm, reload=False, args=None ):
@@ -37,9 +35,7 @@ def getLog( wllnm, lognm, reload=False, args=None ):
   cmd.append( '--read-log' )
   cmd.append( dbkey )
   cmd.append( lognm )
-  ret = execCommand( cmd )
-  retstr = ret.decode('utf-8')
-  ret = json.loads( retstr )
+  ret = oddbman.getDBDict( cmd )
   return (ret['MDs'], ret['Values'])
 
 #def getTrack()
