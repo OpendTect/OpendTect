@@ -22,7 +22,7 @@ namespace ProcDesc
     mExpClass(Basic) DataEntry
     {
     public:
-				enum Type { OD, Python };
+				enum Type { ODv6, ODv7, Python };
 				    mDeclareEnumUtils(Type)
 				DataEntry() {}
 				~DataEntry() {}

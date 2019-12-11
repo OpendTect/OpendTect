@@ -55,7 +55,8 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
     else
 	exepath_ = path;
 
-    ePDD().getProcData( odprocnms_, odprocdescs_, ProcDesc::DataEntry::OD );
+    ePDD().getProcData( odprocnms_, odprocdescs_, ProcDesc::DataEntry::ODv6 );
+    ePDD().getProcData( odprocnms_, odprocdescs_, ProcDesc::DataEntry::ODv7 );
 
     uiListBox::Setup su;
     su.lbl( tr("OpendTect Executables") );
@@ -63,6 +64,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
     odproclistbox_ = new uiListBox( this, su );
     odproclistbox_->addItems( odprocdescs_ );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
+    odproclistbox_->chooseAll();
     uiObject* attachobj = odproclistbox_->attachObj();
     
     if ( !getPythonExecList().isEmpty() )
@@ -73,6 +75,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
 	pythonproclistbox_->addItems( getPythonExecList() );
 	pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
 	pythonproclistbox_->attach( alignedBelow, attachobj );
+	pythonproclistbox_->chooseAll();
 	attachobj = pythonproclistbox_->attachObj();
     }
     if ( acttyp == AddNRemove )
@@ -151,9 +154,11 @@ BufferStringSet uiFirewallProcSetter::getSelProcList(
     BufferStringSet proclist;
     TypeSet<int> selidxs;
 
-    const BufferStringSet& procnms = type == ProcDesc::DataEntry::OD ?
-						    odprocnms_ : pyprocnms_;
-    if ( type == ProcDesc::DataEntry::OD )
+    const bool isodproc = type == ProcDesc::DataEntry::ODv6 ||
+				type == ProcDesc::DataEntry::ODv7;
+
+    const BufferStringSet& procnms = isodproc ? odprocnms_ : pyprocnms_;
+    if ( isodproc )
 	odproclistbox_->getChosen( selidxs );
     else if ( type == ProcDesc::DataEntry::Python && pythonproclistbox_ )
 	pythonproclistbox_->getChosen( selidxs );
@@ -167,12 +172,7 @@ BufferStringSet uiFirewallProcSetter::getSelProcList(
 
 bool uiFirewallProcSetter::acceptOK( CallBacker* )
 {
-    BufferStringSet odchosenproc = getSelProcList( ProcDesc::DataEntry::OD );
-
-    BufferStringSet pythonchosenproc =
-				getSelProcList( ProcDesc::DataEntry::Python );
-
-    if ( odchosenproc.isEmpty() && pythonchosenproc.isEmpty() )
+    if ( !odproclistbox_->nrChosen() && !pythonproclistbox_->nrChosen() )
     {
 	uiMSG().error( tr("Select atleast one option") );
 	return false;
@@ -191,18 +191,27 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	cmd.add(" --remove ");
     
     bool errocc = false;
-    for ( int idx=0; idx<2; idx++ ) //idx 0=od, idx1=python
+    for ( int idx=0; idx<ProcDesc::DataEntry::TypeDef().size(); idx++ )
     {
+	const BufferStringSet& procset = getSelProcList(
+			ProcDesc::DataEntry::TypeDef().getEnumForIndex(idx) );
+	if ( procset.isEmpty() )
+	    continue;
+
+	if ( idx == ProcDesc::DataEntry::ODv7 )
+	{
+	    const FilePath exefp( exepath_ );
+	    FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
+	    odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
+							.add( GetBinSubDir() );
+	    exepath_ = odv7fp.fullPath();
+	}
+
 	BufferString fincmd = cmd;
 	if ( idx == 0 )
 	    fincmd.add( "--od " ).add( exepath_ ).addSpace();
 	else
 	    fincmd.add( "--py " ).add( getPythonInstDir() ).addSpace();
-
-	const BufferStringSet& procset =
-				    idx == 0 ? odchosenproc : pythonchosenproc;
-	if ( procset.isEmpty() )
-	    continue;
 
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
 	    fincmd.add( procset.get(procidx) ).addSpace();

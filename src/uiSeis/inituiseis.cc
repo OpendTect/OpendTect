@@ -10,10 +10,10 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
-#include "uiveldesc.h"
 #include "uiseismmjobdispatch.h"
 #include "uiseiswriteopts.h"
 #include "uiseisposprovgroup.h"
+#include "uiveldesc.h"
 
 #include "procdescdata.h"
 
@@ -32,6 +32,6 @@ mDefModInitFn(uiSeis)
     uiSeisPosProvGroup::initClass();
 #ifdef __win__
     ePDD().add( "od_SeisMMBatch",
-	Batch::SeisMMProgDef::sSeisMMProcDesc(), ProcDesc::DataEntry::OD );
+	Batch::SeisMMProgDef::sSeisMMProcDesc(), ProcDesc::DataEntry::ODv6 );
 #endif // __win__
 }

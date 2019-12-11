@@ -9,12 +9,13 @@
 
 
 mDefineEnumUtils(ProcDesc::DataEntry,Type,"Type")
-{ "OD", "Python", 0 };
+{ "ODv6", "ODv7", "Python", 0 };
 
 template <>
 void EnumDefImpl<ProcDesc::DataEntry::Type>::init()
  {
-     uistrings_ += ::toUiString( "OD" );
+     uistrings_ += ::toUiString( "ODv6" );
+     uistrings_ += ::toUiString( "ODv7" );
      uistrings_ += ::toUiString( "Python" );
  }
 

@@ -24,7 +24,7 @@ public:
     virtual bool	canHandle(const JobSpec&) const;
     virtual bool	canResume(const JobSpec&) const;
     static uiString	sSeisMMProcDesc()
-				{ return tr("Distribution Computing client"); }
+				{ return tr("Distribution Computing Client"); }
 };
 
 } // namespace Batch

@@ -135,6 +135,6 @@ mDefModInitFn(MMProc)
     Batch::ClusterJobDispatcher::initClass();
 #ifdef  __win__
     ePDD().add( "od_remoteservice",
-       Batch::MMProgDef::sMMProcDesc(), ProcDesc::DataEntry::OD );
+       Batch::MMProgDef::sMMProcDesc(), ProcDesc::DataEntry::ODv6 );
 #endif //  __win__
 }

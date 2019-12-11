@@ -11,8 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 
+#include "procdescdata.h"
 #include "odsession.h"
 
+#include "uiodmain.h"
 #include "uiodscenemgr.h"
 #include "uiodvolproctreeitem.h"
 
@@ -24,4 +26,8 @@ mDefModInitFn(uiODMain)
     dgbODSessionTranslator::initClass();
     uiKeyBindingSettingsGroup::initClass();
     VolProc::uiDataTreeItem::initClass();
+
+#ifdef __win__
+    ePDD().add( "od_main", uiODMain::sODDesc(), ProcDesc::DataEntry::ODv6 );
+#endif
 }

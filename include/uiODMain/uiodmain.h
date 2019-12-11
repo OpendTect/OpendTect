@@ -83,6 +83,9 @@ public:
 			//Default is "OpendTect"
     void		forceExit();
 
+    static uiString	sODDesc()
+				{ return tr("OpendTect Main Window"); }
+
 protected:
 
     uiODApplMgr*	applmgr_;
