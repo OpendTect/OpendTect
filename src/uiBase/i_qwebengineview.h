@@ -33,31 +33,20 @@ i_WebEngineViewMessenger( QWebEngineView* sndr, uiWebEngineBase* receiver )
     : sender_(sndr)
     , receiver_(receiver)
 {
- /*   connect( sndr, SIGNAL(back()), this, SLOT(back()) );
-    connect( sndr, SIGNAL(forward()), this, SLOT(forward()) );
-    connect( sndr, SIGNAL(reload()), this, SLOT(reload()) );
-    connect( sndr, SIGNAL(stop()), this, SLOT(stop()) ); */
+    connect( sndr, SIGNAL(loadFinished(bool)),
+	     this, SLOT(loadFinished(bool)) );
 }
 
 private:
 
     uiWebEngineBase*	receiver_;
     QWebEngineView*	sender_;
-/*
+
 private slots:
 
-void back()
-{ receiver_->backPressed.trigger( *receiver_ ); }
+void loadFinished( bool res )
+{ receiver_->loadFinished.trigger( res ); }
 
-void forward()
-{ receiver_->forwardPressed.trigger( *receiver_ ); }
-
-void reload()
-{ receiver_->reloadPressed.trigger( *receiver_ ); }
-
-void stop()
-{ receiver_->stopPressed.trigger( *receiver_ ); }
-*/
 };
 
 QT_END_NAMESPACE

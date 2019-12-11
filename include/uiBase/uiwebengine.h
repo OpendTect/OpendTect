@@ -19,6 +19,9 @@ mFDQtclass(QWebEngineView)
 
 mExpClass(uiBase) uiWebEngineBase : public uiObject
 {
+public:
+
+    CNotifier<uiWebEngineBase,bool>	loadFinished;
 
 protected:
 			uiWebEngineBase(uiParent*,const char*,uiObjectBody&);
@@ -29,6 +32,8 @@ private:
     const mQtclass(QWebEngineView&)   qte() const
 			{ return const_cast<uiWebEngineBase*>(this)->qte(); }
 
+    friend class i_WebEngineViewMessenger;
+
 };
 
 
@@ -38,12 +43,12 @@ mExpClass(uiBase) uiWebEngine : public uiWebEngineBase
 public:
                         uiWebEngine(uiParent*,const char* nm="Web Browser");
 
-	void				setUrl(const char*);
+	void		setUrl(const char*);
 
-	void				back();
-	void				forward();
-	void				reload();
-	void				stop();
+	void		back();
+	void		forward();
+	void		reload();
+	void		stop();
 
 private:
 
