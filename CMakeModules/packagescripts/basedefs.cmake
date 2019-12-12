@@ -34,7 +34,6 @@ endif()
 
 if( INCLUDE_ODHDF5 STREQUAL "YES" )
     set( PLUGINS ${PLUGINS} ODHDF5 uiODHDF5  )
-    set( LIBLIST ${LIBLIST} hdf5_cpp hdf5 )
 endif()
 
 #Only for windows base package
