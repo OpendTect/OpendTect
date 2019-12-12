@@ -250,7 +250,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
     }
 
     IOObjContext ctxt = StratLayerModelsTranslatorGroup::ioContext();
-    ctxt.forread = doread;
+    ctxt.forread_ = doread;
     laymodfld_ = new uiIOObjSel( this, ctxt );
     if ( inputfld_ )
 	laymodfld_->attach( alignedBelow, inputfld_ );
