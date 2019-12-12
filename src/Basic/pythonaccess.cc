@@ -1083,14 +1083,14 @@ static bool usesNvidiaCard( BufferString* glversionstr )
 
 
 //from https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
-static const char* cudastrs[] = { "10.1.105", "10.0.130", "9.2.148 update 1",
+static const char* cudastrs[] = { "10.2.89", "10.1.105", "10.0.130", "9.2.148 update 1",
     "9.2.88", "9.1.85", "9.0.76", "8.0.61 GA2", "8.0.44", "7.5.16", "7.0.28",
 0 };
 #ifdef __win__
-static const float nvidiavers[] = { 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
+static const float nvidiavers[] = { 441.22f, 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
     385.54f, 376.51f, 369.30f, 353.66f, 347.62f };
 #else
-static const float nvidiavers[] = { 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
+static const float nvidiavers[] = { 440.33f, 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
     384.81f, 375.26f, 367.48f, 352.31f, 346.46f };
 #endif
 
