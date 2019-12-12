@@ -9,32 +9,26 @@ include/Basic/odversion.h
 include/Basic/buildinfo.h
 external/*/*
 .arcconfig
-doc/Programmer/*.html
 CMakeModules/FindOpendTect.cmake
+CMakeModules/Info.plist
 CMakeModules/license.txt
 CMakeModules/sourcefiles_od.txt
 CMakeModules/sourcefiles_dgb.txt
-CMakeModules/Doxyfile
-data/BatchHosts
 data/ModDeps.od
 data/ModDeps.dgb
 data/SequenceModels
 data/dgbAttribs/
 data/localizations/*.qm
 data/localizations/generated
+data/Python_envs.txt
 test/
 Contents/
 plugins/lux64
-moc*.cpp*
-moc*.cxx
 __pycache__
 
+src/*/moc_*
 lib*.dylib
-Info.plist
 Testing/
-bin/lux64/Debug/
-bin/lux64/Release/
-doc/Programmer/Generated
 src/Basic/qpaths.cc
 install_manifest.txt
 inst
@@ -69,12 +63,14 @@ compile_commands.json
 
 #Doxygen stuff
 CMakeModules/Doxyfile
+doc/Programmer/*.html
 doc/Programmer/Generated
 doc/Programmer/sitemap.txt
 dtect/backoffice-server-upload.sh
 CMakeDoxy*
 
-#CMake's stuff
+
+#CMakes stuff
 *.ninja
 .ninja_log
 .ninja_deps
@@ -94,6 +90,8 @@ CTestCustom.cmake
 *.sln
 *.sdf
 *.opensdf
+*.db
+.vs/*
 
 
 #Temporary files
