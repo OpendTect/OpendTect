@@ -7,19 +7,14 @@ include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
 external/*/*
-external/osgGeo
-external/proj4
 .arcconfig
-doc/Programmer/*.html
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
 CMakeModules/license.txt
 CMakeModules/sourcefiles_od.txt
 CMakeModules/sourcefiles_dgb.txt
-data/SequenceModels
 data/ModDeps.od
 data/ModDeps.dgb
-data/dgbAttribs
 data/SequenceModels
 data/dgbAttribs/
 data/localizations/*.qm
@@ -28,14 +23,10 @@ data/Python_envs.txt
 test/
 Contents/
 plugins/lux64
-data/localizations/*.qm
-data/localizations/generated
+
 src/*/moc_*
 lib*.dylib
-Info.plist
 Testing/
-bin/lux64/Debug/
-bin/lux64/Release/
 install_manifest.txt
 inst
 Null
@@ -60,18 +51,26 @@ ipch
 *.lastbuildstate
 *.unsuccessfulbuild
 *.cache
+*.makeDebug
+*.makeRelease
+*.makeRelWithDebInfo
+*.build
+*.xcodeproj
+compile_commands.json
 
 #Doxygen stuff
 CMakeModules/Doxyfile
+doc/Programmer/*.html
 doc/Programmer/Generated
+doc/Programmer/sitemap.txt
 dtect/backend-server-upload.sh
+CMakeDoxy*
 
 
 #CMakes stuff
 *.ninja
 .ninja_log
-*.xcodeproj
-*.build
+.ninja_deps
 develdefs.cmake
 cmake_install.cmake
 CTestTestfile.cmake
@@ -95,6 +94,7 @@ CTestCustom.cmake
 #Temporary files
 *.sw?
 *~
+.directory
 
 #Link to v7 application
 v7
@@ -105,3 +105,4 @@ v7
 # Linux
 
 # Mac
+
