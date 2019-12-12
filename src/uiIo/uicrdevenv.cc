@@ -200,7 +200,6 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     OS::CommandLauncher::addQuotesIfNeeded( workdirnm );
     cmd.addSpace().add( workdirnm );
 
-    uiMSG().message( toUiString(cmd) );
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     BufferString outmsg, errormsg;
