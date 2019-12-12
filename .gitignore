@@ -7,6 +7,8 @@ include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
 external/*/*
+external/proj4
+external/osgGeo
 .arcconfig
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
