@@ -55,7 +55,6 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
 	curzidx_ = p.curzidx_;
 	zsampsz_ = p.zsampsz_;
 	nrsamples_ = p.nrsamples_;
-	nrsamples_ = p.nrsamples_;
 	dorandom_ = p.dorandom_;
 	enoughsamples_ = p.enoughsamples_;
 	posindexlst_.setEmpty();
@@ -185,7 +184,7 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 
 void Pos::RangeProvider3D::usePar( const IOPar& iop )
 {
-    dorandom_ = true;
+    dorandom_ = false;
     iop.getYN( sKey::Random(), dorandom_ );
     tkzs_.usePar( iop );
     if ( dorandom_ )
@@ -233,8 +232,8 @@ od_int64 Pos::RangeProvider3D::estNrPos() const
 {
     if ( dorandom_ && enoughsamples_ )
 	return nrsamples_;
-    else
-	return tkzs_.hsamp_.totalNr();
+
+    return tkzs_.hsamp_.totalNr();
 }
 
 
@@ -242,8 +241,8 @@ int Pos::RangeProvider3D::estNrZPerPos() const
 {
     if ( dorandom_ && enoughsamples_ )
 	return 1;
-    else
-	return zsampsz_;
+
+    return zsampsz_;
 }
 
 
