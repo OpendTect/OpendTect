@@ -190,7 +190,7 @@ if( WIN32 )
     if( ${OD_PLFSUBDIR} STREQUAL "win32" )
 	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/redist/x86/Microsoft.VC120.CRT" )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
-	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/14.14.26405/x64/Microsoft.VC141.CRT" )
+	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/14.16.27012/x64/Microsoft.VC141.CRT" )
     endif()
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
