@@ -85,8 +85,8 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DFaultSSTreeItemFactory, 5500 );
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
 
-    IOM().surveyChanged.notify( mCB(this,uiODViewer2DMgr,surveyChangedCB) );
-    IOM().applicationClosing.notify( mCB(this,uiODViewer2DMgr,applClosing) );
+    mAttachCB(IOM().surveyChanged,uiODViewer2DMgr::surveyChangedCB);
+    mAttachCB(IOM().applicationClosing,uiODViewer2DMgr::applClosing);
 
     BufferStringSet lnms;
     SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
