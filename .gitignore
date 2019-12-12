@@ -24,6 +24,7 @@ data/SequenceModels
 data/dgbAttribs/
 data/localizations/*.qm
 data/localizations/generated
+data/Python_envs.txt
 test/
 Contents/
 plugins/lux64
@@ -94,6 +95,9 @@ CTestCustom.cmake
 #Temporary files
 *.sw?
 *~
+
+#Link to v7 application
+v7
 
 #Platform dependent files
 # Windows
