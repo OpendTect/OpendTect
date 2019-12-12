@@ -25,7 +25,6 @@ class DataPointSetDisplayMgr;
 class uiDataPointSet;
 class uiPosProvider;
 class uiPosFilterSetSel;
-class uiSeis2DLineNameSel;
 class uiListBox;
 namespace Attrib { class DescSet; class SelInfo; }
 
