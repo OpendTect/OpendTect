@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratlaymodtools.h"
 
 #include "arrayndimpl.h"
+#include "ascstream.h"
 #include "envvars.h"
 #include "flatposdata.h"
 #include "keystrs.h"
@@ -217,17 +218,15 @@ void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
+static int sUseEach = 1;
+static bool sDoReplace = true;
+static bool sPresMath = false;
+
 class uiStratLayerModelDispIO : public uiDialog
 { mODTextTranslationClass(uiStratLayerModelDispIO)
 public:
 
-static const char* sKeyUseEach()	{ return "Use Each"; }
-static const char* sKeyDoClear()	{ return "Clear First"; }
-static const char* sKeyNrDisplay()	{ return "Display Nr Models"; }
-static const char* sKeyPreserveMath()	{ return "Preserve Math formulas"; }
-
-
-uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
+uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 			 bool doread )
     : uiDialog( p, Setup(doread ? tr("Read pseudo-wells")
 				: tr("Save pseudo-wells"),
@@ -238,7 +237,6 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     , eachfld_(nullptr)
     , presmathfld_(nullptr)
     , lm_(lm)
-    , pars_(pars)
     , doread_(doread)
 {
     if ( doread )
@@ -252,28 +250,30 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     }
 
     IOObjContext ctxt = StratLayerModelsTranslatorGroup::ioContext();
+    ctxt.forread = doread;
     laymodfld_ = new uiIOObjSel( this, ctxt );
     if ( inputfld_ )
 	laymodfld_->attach( alignedBelow, inputfld_ );
 
     if ( doread )
     {
-	eachfld_ = new uiGenInput( this, tr("Read each"), IntInpSpec(1,1,1000) );
+	eachfld_ = new uiGenInput( this, tr("Read each"),
+				   IntInpSpec(sUseEach,1,1000) );
 	eachfld_->attach( alignedBelow, laymodfld_ );
 
 	doreplacefld_ = new uiGenInput( this, tr("Replace existing model"),
-					BoolInpSpec(true) );
+					BoolInpSpec(sDoReplace) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
     }
     else
     {
 	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
-				       BoolInpSpec(true) );
+				       BoolInpSpec(sPresMath) );
 	presmathfld_->attach( alignedBelow, laymodfld_ );
     }
 
-    inputCB(nullptr);
-    usePar();
+    if ( doread )
+	inputCB(nullptr);
 }
 
 
@@ -285,51 +285,6 @@ void inputCB( CallBacker* )
 }
 
 
-bool usePar()
-{
-    MultiID key;
-    if ( pars_.get(sKey::ID(),key) )
-	laymodfld_->setInput( key );
-
-    if ( doread_ )
-    {
-	int each;
-	if ( pars_.get(sKeyUseEach(),each) )
-	    eachfld_->setValue( each );
-
-	bool doreplace = true;
-	if ( pars_.getYN(sKeyDoClear(),doreplace) )
-	    doreplacefld_->setValue( doreplace );
-    }
-    else
-    {
-	bool preservemath = true;
-	if ( pars_.getYN(sKeyPreserveMath(),preservemath) )
-	    presmathfld_->setValue( preservemath );
-    }
-
-    return true;
-}
-
-
-void fillPar()
-{
-    const bool usefile = inputfld_ ? inputfld_->getBoolValue() : false;
-    if ( !usefile )
-	pars_.set( sKey::ID(), laymodfld_->key() );
-
-    if ( doread_ )
-    {
-	pars_.set( sKeyUseEach(), eachfld_->getIntValue() );
-	pars_.setYN( sKeyDoClear(), doreplacefld_->getBoolValue() );
-    }
-    else
-    {
-	pars_.setYN( sKeyPreserveMath(), presmathfld_->getBoolValue() );
-    }
-}
-
-
 bool acceptOK( CallBacker* )
 {
     if ( doread_ )
@@ -337,8 +292,17 @@ bool acceptOK( CallBacker* )
 	const bool usefile = inputfld_ ? inputfld_->getBoolValue() : false;
 	if ( usefile )
 	    fnm_ = filefld_->fileName();
+	else
+	{
+	    const IOObj* ioobj = laymodfld_->ioobj();
+	    if ( !ioobj )
+		return false;
+
+	    fnm_ = ioobj->fullUserExpr();
+	}
 
 	od_istream strm( fnm_ );
+	ascistream astrm( strm );
 	if ( !strm.isOK() )
 	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
 
@@ -348,8 +312,10 @@ bool acceptOK( CallBacker* )
 		       "in the log file ('Utilities-Show log file')"))
 
 	const int each = eachfld_->getIntValue();
+	sUseEach = each;
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
-	if ( doreplacefld_->getBoolValue() )
+	sDoReplace = doreplacefld_->getBoolValue();
+	if ( sDoReplace )
 	    lm.setEmpty();
 
 	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
@@ -357,15 +323,24 @@ bool acceptOK( CallBacker* )
     }
     else
     {
+	const IOObj* ioobj = laymodfld_->ioobj();
+	if ( !ioobj )
+	    return false;
+
+	fnm_ = ioobj->fullUserExpr();
 	od_ostream strm( fnm_ );
 	if ( !strm.isOK() )
 	    mErrRet( tr("Cannot open:\n%1\nfor write").arg(fnm_) )
 
-	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
+	ascostream astrm( strm );
+	if ( !astrm.putHeader("PseudoWells") )
+	    mErrRet( tr("Cannot write to output file:\n%1").arg(fnm_) )
+
+	sPresMath = presmathfld_->getBoolValue();
+	if ( !lm_.write(strm,0,sPresMath) )
 	    mErrRet( tr("Unknown error during write") )
     }
 
-    fillPar();
     return true;
 }
 
@@ -377,10 +352,8 @@ bool acceptOK( CallBacker* )
     uiGenInput*			presmathfld_;
 
     const Strat::LayerModel&	lm_;
-    IOPar&			pars_;
     bool			doread_;
     BufferString		fnm_;
-
 };
 
 
@@ -399,7 +372,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !foradd && lm.isEmpty() )
 	mErrRet( tr("Please generate at least one layer sequence") )
 
-    uiStratLayerModelDispIO dlg( this, lm, dumppars_, foradd );
+    uiStratLayerModelDispIO dlg( this, lm, foradd );
     if ( !dlg.go() )
 	return false;
 
