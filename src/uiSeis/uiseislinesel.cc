@@ -489,6 +489,7 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
+    fld_->setHSzPol( uiObject::Wide );
     setHAlignObj( lcb );
     if ( !forread_ )
 	fillWithAll();
