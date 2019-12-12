@@ -579,7 +579,7 @@ SurveyObject::AttribFormat
 void PlaneDataDisplay::addCache()
 {
     rposcache_ += 0;
-    datapackids_ += DataPack::cNoID();
+    datapackids_ += DataPack::cUdfID();
     transfdatapackids_ += DataPack::cNoID();
 }
 

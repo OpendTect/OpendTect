@@ -39,7 +39,7 @@ public:
     typedef MultiID	FullID;
     inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
-    			DataPack( const char* categry )
+			DataPack( const char* categry )
 			    : NamedObject("<?>")
 			    , category_(categry)
 			    , nrusers_( 0 )
@@ -62,6 +62,7 @@ public:
 
     static const char*	sKeyCategory();
     static ID		cNoID()			{ return 0; }
+    static ID		cUdfID()		{ return -1; }
 
     virtual bool	isOK() const 		{ return true; }
 
@@ -84,7 +85,7 @@ protected:
     static float	sKb2MbFac();	//!< 1 / 1024
 
     void		setCategory( const char* c )
-    			{ *const_cast<BufferString*>(&category_) = c; }
+			{ *const_cast<BufferString*>(&category_) = c; }
 
     friend class	DataPackMgr;
 };
@@ -98,7 +99,7 @@ mExpClass(Basic) BufferDataPack : public DataPack
 {
 public:
 
-    			BufferDataPack( char* b=0, od_int64 s=0,
+			BufferDataPack( char* b=0, od_int64 s=0,
 					const char* catgry="Buffer" )
 			    : DataPack(catgry)
 			    , buf_(b)
@@ -146,16 +147,16 @@ public:
 
     typedef int		ID;		//!< Each Mgr has its own ID
     inline static ID	getID( const DataPack::FullID& fid )
-    						{ return fid.ID(0); }
+						{ return fid.ID(0); }
 
     bool		haveID(DataPack::ID) const;
     inline bool		haveID( const DataPack::FullID& fid ) const
 			{ return id() == fid.ID(0) && haveID( fid.ID(1) ); }
 
     void		add(DataPack*);
-    			//!< The pack becomes mine
+			//!< The pack becomes mine
     DataPack*		addAndObtain(DataPack*);
-    			/*!< The pack becomes mines. Pack is obtained
+			/*!< The pack becomes mines. Pack is obtained
 			     during the lock, i.e. threadsafe. */
 
     inline DataPack*	obtain( DataPack::ID dpid )
@@ -169,7 +170,7 @@ public:
 
     void		release(DataPack::ID);
     void		release( const DataPack* dp )
-    			{ if ( dp ) release( dp->id() ); }
+			{ if ( dp ) release( dp->id() ); }
     void		releaseAll(bool donotify);
 
     Notifier<DataPackMgr> newPack;		//!< Passed CallBacker* = Pack
@@ -182,7 +183,7 @@ public:
     static ID		FlatID();	//!< Flat (N1xN2) data: 4
     static ID		SurfID();	//!< Surface (triangulated) data: 5
 
-    			// Convenience to get info without any obtain()
+			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;
     static const char*	nameOf(const DataPack::FullID&);
     const char*		categoryOf(DataPack::ID) const;
@@ -203,7 +204,7 @@ protected:
 
     DataPack*			doObtain(ID,bool) const;
     int				indexOf(ID) const;
-    					//!<Object should be readlocked
+					//!<Object should be readlocked
     mutable Threads::Lock	rwlock_;
 
     static Threads::Lock	mgrlistlock_;
@@ -211,10 +212,10 @@ protected:
 
 public:
 
-    			DataPackMgr(ID);
+			DataPackMgr(ID);
 			//!< You can, but normally should not, construct
 			//!< a manager. In general, leave it to DPM().
-    			~DataPackMgr();
+			~DataPackMgr();
 			//!< Delete a DataPackMgr only when you have
 			//!< created it with the constructor.
 
