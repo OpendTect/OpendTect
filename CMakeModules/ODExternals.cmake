@@ -74,7 +74,20 @@ else()
   set( GET_GIT_URL ${GIT_EXEC} remote get-url origin )
 endif()
 
-macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
+macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
+    SET( URL ${URL_STR} )
+    execute_process(
+	COMMAND ${GET_GIT_URL}
+	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	    RESULT_VARIABLE RESULT
+	    OUTPUT_VARIABLE MAIN_URL
+	    OUTPUT_STRIP_TRAILING_WHITESPACE )
+    STRING( FIND "${MAIN_URL}" "git@github.com" USE_SSH_URL )
+    if( NOT "${USE_SSH_URL}" EQUAL -1 )
+	STRING( REPLACE "https://github.com/" "git@github.com:" NEWURL ${URL} )
+	message( "Using SSH URL for external ${NEWURL}" )
+	SET( URL ${NEWURL} )
+    endif()
 
     if ( EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
 	# Check URL and Branch of the old checkout
@@ -109,7 +122,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL BRANCH )
 		ERROR_VARIABLE OUTPUT
 		RESULT_VARIABLE RESULT )
 	if ( ${RESULT} EQUAL 0 )
-	    message( STATUS "git checkout success for: ${URL}, branch ${BRANCH}" )
+	    message(STATUS "git checkout success for: ${URL}, branch ${BRANCH}")
 	else()
 	    message( SEND_ERROR "git cmd=${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}" )
 	    message( SEND_ERROR "git workdir=${CMAKE_SOURCE_DIR}/external" )
