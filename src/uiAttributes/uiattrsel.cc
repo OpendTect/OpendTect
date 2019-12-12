@@ -344,7 +344,8 @@ void uiAttrSelDlg::createSelectionFields()
     filtfld_->attach( centeredAbove, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
     compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld" );
-    compfld_->attach( rightAlignedBelow, storoutfld_ );
+    compfld_->box()->setStretch( 2, 0 );
+    compfld_->attach( alignedBelow, storoutfld_ );
     compfld_->attach( ensureBelow, steeroutfld_ );
 
     if ( haveattribs )
