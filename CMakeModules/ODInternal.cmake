@@ -249,6 +249,7 @@ if( EXISTS ${MSVCPATH} )
 	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
 	get_filename_component( FILENAME ${DLL} NAME )
 	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
+	list( APPEND MSVCDLLLIST ${FILENAME} )
     endforeach()
 endif()
 
