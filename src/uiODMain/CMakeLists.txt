@@ -63,6 +63,7 @@ set(OD_MODULE_SOURCES
 	uiodvolproctreeitem.cc
 	uiodwelltreeitem.cc
 	uiodlangmenumgr.cc
+	uifirewallprocsetterdlg.cc
 )
 
 set( OD_MODULE_GUI_PROGS od_main.cc  )
@@ -71,6 +72,7 @@ if(WIN32)
     set(OD_MODULE_PROGS od_main_console.cc )
     set(OD_od_main_RESOURCE  resources/od_main.rc )
     set(OD_od_start_dtect_RESOURCE resources/od_main.rc )
+    list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_FirewallProcSetter.cc )
 endif()
 
 OD_ADD_SOURCE_FILES( resources/od_main.rc resources/resource.h resources/icon1.ico scene.xpm )

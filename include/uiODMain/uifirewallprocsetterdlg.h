@@ -7,7 +7,7 @@
  * DATE     : May 2019
 -*/
 
-#include "uitoolsmod.h"
+#include "uiodmainmod.h"
 #include "uidialog.h"
 
 #include "enums.h"
@@ -18,7 +18,7 @@ class uiListBox;
 class uiButton;
 class uiGenInput;
 
-mExpClass(uiTools) uiFirewallProcSetter : public uiDialog
+mExpClass(uiODMain) uiFirewallProcSetter : public uiDialog
 { mODTextTranslationClass(uiFireWallProcSetter)
 public:
     enum ActionType	    { Add, Remove, AddNRemove };
