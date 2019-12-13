@@ -141,7 +141,7 @@ Usage:
     \code
     void myclass::createMenuCB( CallBacker* callback )
     {
-        mDynamicCastGet( MenuHandler*, menu, callback );
+	mDynamicCastGet( MenuHandler*, menu, callback );
 
 	mAddMenuItem( menu, &mymenuitem, true, false );
 	mAddMenuItem( menu, &mysubmenu, true, false );
@@ -165,7 +165,7 @@ inserted into the menu.
     void myclass::handleMenuCB(CallBacker* callback )
     {
 	mCBCapsuleUnpackWithCaller( int, mnuid, caller, callback );
-        mDynamicCastGet( MenuHandler*, menu, caller );
+	mDynamicCastGet( MenuHandler*, menu, caller );
 	if ( mnuid==-1 || menu->isHandled() )
 	    return;
 
@@ -305,7 +305,7 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 //Macro that can poplulate both a toolbar and a menu.
 #define mAddMenuOrTBItem( istoolbar, tbparent, popupparent, item, enab, check )\
     mAddMenuItem( \
-	istoolbar?(MenuItemHolder*)(tbparent):(MenuItemHolder*)(popupparent), \
-	    item, enab, check )
+	istoolbar ? sCast(MenuItemHolder*,tbparent) \
+		  : sCast(MenuItemHolder*,popupparent), item, enab, check )
 
 #endif
