@@ -210,9 +210,9 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 
 
 EM::Fault3D* FaultDisplay::emFault()
-{ 
+{
     mDynamicCastGet(EM::Fault3D*,flt,fault_);
-    return flt;	
+    return flt;
 }
 
 
@@ -1314,7 +1314,7 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultDisplay::addCache()
 {
-    datapackids_ += 0;
+    datapackids_ += DataPack::cUdfID();
 }
 
 void FaultDisplay::removeCache( int attrib )
@@ -2018,14 +2018,14 @@ const visBase::GeomIndexedShape* FaultDisplay::getFaultDisplayedPlane() const
 }
 
 
-const visBase::GeomIndexedShape* 
+const visBase::GeomIndexedShape*
 FaultDisplay::getFaultDisplayedStickLines() const
 {
     return stickdisplay_;
 }
 
 
-const ObjectSet<visBase::MarkerSet>& 
+const ObjectSet<visBase::MarkerSet>&
 FaultDisplay::getFaultDisplayedSticks() const
 {
     return viseditor_->getDraggerMarkers();
@@ -2043,8 +2043,8 @@ const MarkerStyle3D* FaultDisplay::getPreferedMarkerStyle() const
 
 void FaultDisplay::setPreferedMarkerStyle( const MarkerStyle3D& mkstyle )
 {
-    // for fault sticks we do use fixed colors for dragger, 
-    // polygon, and selection. So to guarantee this we set a fixed color here. 
+    // for fault sticks we do use fixed colors for dragger,
+    // polygon, and selection. So to guarantee this we set a fixed color here.
 
     MarkerStyle3D ftmkstyle = mkstyle;
     ftmkstyle.color_ = Color::Yellow();
