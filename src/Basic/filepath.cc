@@ -95,7 +95,10 @@ BufferString FilePath::getFullLongPath( const FilePath& fp )
     mDeclStaticString( longpath );
     longpath.setMinBufSize( 1025 );
     GetLongPathName(fp.fullPath(), longpath.getCStr(), longpath.minBufSize()-1);
-    return longpath;
+    BufferString fpstr = longpath;
+    if ( fpstr.isEmpty() )
+	fpstr = fp.fullPath();
+    return fpstr;
 #endif // ! __win__
 }
 
