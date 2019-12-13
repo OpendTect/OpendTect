@@ -146,6 +146,7 @@ private:
 
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
+    void		doAppClosing(CallBacker*) override;
     void		doPyEnvChange(CallBacker*) override;
 
     Network::Authority	odauth_;
