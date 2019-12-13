@@ -802,7 +802,7 @@ SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat( int ) const
 
 void Seis2DDisplay::addCache()
 {
-    datapackids_ += DataPack::cNoID();
+    datapackids_ += DataPack::cUdfID();
     transfdatapackids_ += DataPack::cNoID();
 }
 
