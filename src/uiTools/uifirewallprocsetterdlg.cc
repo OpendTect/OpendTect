@@ -55,8 +55,8 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
     else
 	exepath_ = path;
 
-    ePDD().getProcData( odprocnms_, odprocdescs_, ProcDesc::DataEntry::ODv6 );
-    ePDD().getProcData( odprocnms_, odprocdescs_, ProcDesc::DataEntry::ODv7 );
+    ePDD().getProcData( odv6procnms_, odprocdescs_, ProcDesc::DataEntry::ODv6 );
+    ePDD().getProcData( odv7procnms_, odprocdescs_, ProcDesc::DataEntry::ODv7 );
 
     uiListBox::Setup su;
     su.lbl( tr("OpendTect Executables") );
@@ -157,14 +157,32 @@ BufferStringSet uiFirewallProcSetter::getSelProcList(
     const bool isodproc = type == ProcDesc::DataEntry::ODv6 ||
 				type == ProcDesc::DataEntry::ODv7;
 
-    const BufferStringSet& procnms = isodproc ? odprocnms_ : pyprocnms_;
+    const BufferStringSet& procnms =
+	isodproc && type == ProcDesc::DataEntry::ODv6 ? odv6procnms_ :
+	isodproc && type == ProcDesc::DataEntry::ODv7 ? odv7procnms_ :
+								pyprocnms_;
     if ( isodproc )
+    {
 	odproclistbox_->getChosen( selidxs );
+    }
     else if ( type == ProcDesc::DataEntry::Python && pythonproclistbox_ )
 	pythonproclistbox_->getChosen( selidxs );
 
     for ( int idx=0; idx<selidxs.size(); idx++ )
-	proclist.add( procnms.get(selidxs[idx]) );
+    {
+	int selidx = selidxs[idx];
+	const int v6procsz = odv6procnms_.size();
+	if ( type == ProcDesc::DataEntry::ODv6 && selidx >= v6procsz )
+	    continue;
+	else if ( type == ProcDesc::DataEntry::ODv7 )
+	{
+	    selidx -= v6procsz;
+	    if ( selidx < 0 )
+		continue;
+	}
+
+	proclist.add( procnms.get(selidx) );
+    }
 
     return proclist;
 }

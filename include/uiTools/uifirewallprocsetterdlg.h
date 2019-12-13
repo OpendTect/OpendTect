@@ -43,7 +43,8 @@ protected:
     ActionType		    acttyp_;
     BufferString	    exepath_;
 
-    BufferStringSet	    odprocnms_;
+    BufferStringSet	    odv6procnms_;
+    BufferStringSet	    odv7procnms_;
     uiStringSet		    odprocdescs_;
     BufferStringSet	    pyprocnms_;
     uiStringSet		    pyprocdescs_;
