@@ -652,12 +652,8 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 		    : (*astrm.value() == 'S' ? -1 : 0);
 	if ( astrm.hasKeyword(Well::Log::sKeyDahStart()) )
 	    newlog->setDahStart( astrm.getFValue() );
-	else
-	    newlog->setDahStart( mUdf(float) );
 	if ( astrm.hasKeyword(Well::Log::sKeyDahStop()) )
 	    newlog->setDahStop( astrm.getFValue() );
-	else
-	    newlog->setDahStart( mUdf(float) );
     }
     if ( newlog->name().isEmpty() )
     {
