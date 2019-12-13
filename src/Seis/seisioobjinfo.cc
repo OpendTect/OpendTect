@@ -141,7 +141,7 @@ bool Seis::ObjectSummary::hasSameFormatAs( const BinDataDesc& desc ) const
 
 
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
-	: ioobj_(ioobj ? ioobj->clone() : 0)		{ setType(); }
+	: ioobj_(ioobj ? ioobj->clone() : nullptr)	{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
 	: ioobj_(ioobj.clone())				{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
@@ -149,8 +149,8 @@ SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
-	: ioobj_(0)
-	, geomtype_(geomtype)
+	: geomtype_(geomtype)
+	, ioobj_(nullptr)
 {
     mGoToSeisDir();
     switch ( geomtype_ )
@@ -177,10 +177,10 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
-	: ioobj_(0)
+	: ioobj_(nullptr)
 {
     mGoToSeisDir();
-    ioobj_ = IOM().getLocal( ioobjnm, 0 );
+    ioobj_ = IOM().getLocal( ioobjnm, nullptr );
     setType();
 }
 
@@ -189,7 +189,7 @@ SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
 	: geomtype_(sii.geomtype_)
 	, bad_(sii.bad_)
 {
-    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
+    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 }
 
 
@@ -204,7 +204,7 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
     if ( &sii != this )
     {
 	delete ioobj_;
-	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
+	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 	geomtype_ = sii.geomtype_;
 	bad_ = sii.bad_;
     }
@@ -241,7 +241,7 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
     if ( expectednrsamps < 0 )
 	expectednrsamps = SI().zRange(false).nrSteps() + 1;
     if ( expectednrtrcs < 0 )
-	expectednrtrcs = mCast( int, SI().sampling(false).hsamp_.totalNr() );
+	expectednrtrcs = sCast(int,SI().sampling(false).hsamp_.totalNr());
 }
 
 
@@ -303,7 +303,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     }
     else
     {
-	spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
+	spinf.expectednrtrcs = sCast(int,cs.hsamp_.totalNr());
     }
 
     spinf.expectednrsamps = cs.zsamp_.nrSteps() + 1;
@@ -342,7 +342,7 @@ int SeisIOObjInfo::SpaceInfo::expectedMBs() const
     od_int64 totnrbytes = expectednrsamps;
     totnrbytes *= expectednrtrcs;
     totnrbytes *= maxbytespsamp;
-    return (int)( totnrbytes / 1048576 );
+    return sCast(int,(totnrbytes / 1048576));
 }
 
 
@@ -355,7 +355,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return nrbytes;
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		    ioobj_->createTranslator() );
+		 ioobj_->createTranslator())
     if ( !sttr )
 	return -1;
 
@@ -365,7 +365,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
     sz = (sz + overhead) * si.expectednrtrcs;
 
     const double bytes2mb = 9.53674e-7;
-    return (int)((sz * bytes2mb) + .5);
+    return sCast(int,((sz * bytes2mb) + .5));
 }
 
 
@@ -449,7 +449,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 {
     mChk(false);
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		 ioobj_->createTranslator() );
+		 ioobj_->createTranslator())
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return false; }
 
@@ -480,7 +480,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
     }
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		 ioobj_->createTranslator() );
+		 ioobj_->createTranslator())
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return false; }
 
@@ -493,7 +493,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 		= sttr->componentInfo();
 	for ( int idx=0; idx<comps.size(); idx++ )
 	{
-	    int thisbps = (int)comps[idx]->datachar.nrBytes();
+	    int thisbps = sCast(int,comps[idx]->datachar.nrBytes());
 	    if ( icomp < 0 )
 		bps += thisbps;
 	    else if ( icomp == idx )
@@ -594,13 +594,13 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 
 static BufferStringSet& getTypes()
 {
-    mDefineStaticLocalObject( BufferStringSet, types, );
+    mDefineStaticLocalObject( BufferStringSet, types, )
     return types;
 }
 
 static TypeSet<MultiID>& getIDs()
 {
-    mDefineStaticLocalObject( TypeSet<MultiID>, ids, );
+    mDefineStaticLocalObject( TypeSet<MultiID>, ids, )
     return ids;
 }
 
@@ -624,7 +624,7 @@ void SeisIOObjInfo::initDefault( const char* typ )
 
 const MultiID& SeisIOObjInfo::getDefault( const char* typ )
 {
-    mDefineStaticLocalObject( const MultiID, noid, ("") );
+    mDefineStaticLocalObject( const MultiID, noid, ("") )
     const int typidx = getTypes().indexOf( typ );
     return typidx < 0 ? noid : getIDs()[typidx];
 }
@@ -648,7 +648,7 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 
 int SeisIOObjInfo::nrComponents( Pos::GeomID geomid ) const
 {
-    return getComponentInfo( geomid, 0 );
+    return getComponentInfo( geomid, nullptr );
 }
 
 
@@ -669,7 +669,10 @@ void SeisIOObjInfo::getCompNames( const MultiID& mid, BufferStringSet& nms )
 int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 				     BufferStringSet* nms ) const
 {
-    int ret = 0; if ( nms ) nms->erase();
+    int ret = 0;
+    if ( nms )
+	nms->erase();
+
     mChk(ret);
     if ( isPS() )
 	return 0;
@@ -677,7 +680,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
     if ( !is2D() )
     {
 	mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		     ioobj_->createTranslator() );
+		     ioobj_->createTranslator())
 	if ( !sttr )
 	    { pErrMsg("No Translator!"); return 0; }
 	Conn* conn = ioobj_->getConn( Conn::Read );
@@ -782,10 +785,10 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 	if ( !ioobj )
 	    continue;
 
-	if ( !o2d.zdomky_.isEmpty() )
+	if ( o2d.zdomky_ != "*" )
 	{
 	    const FixedString zdomkey = ioobj->pars().find( ZDomain::sKey() );
-	    if ( zdomkey && (o2d.zdomky_ != zdomkey) )
+	    if ( zdomkey != o2d.zdomky_ )
 		continue;
 	}
 
@@ -794,7 +797,8 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 	    const FixedString dt = ioobj->pars().find( sKey::Type() );
 	    const bool issteering = dt==sKey::Steering();
 	    const bool wantsteering = o2d.steerpol_ == 1;
-	    if ( issteering != wantsteering ) continue;
+	    if ( issteering != wantsteering )
+		continue;
 	}
 
 	Seis2DDataSet ds( *ioobj );
@@ -822,7 +826,7 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
 void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 				      TypeSet<Pos::GeomID>& gids )
 {
-    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GMAdmin().updateGeometries( nullptr );
     Survey::GM().getList( lnms, gids, true );
     BoolTypeSet hasdata( gids.size(), false );
 
