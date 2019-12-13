@@ -31,21 +31,29 @@ mDefineEnumUtils(uiFirewallProcSetter,ActionType,"ActionType")
  }
 
 
-uiString getDlgTitle( uiFirewallProcSetter::ActionType acttyp )
+uiString getWindowTitle( uiFirewallProcSetter::ActionType acttyp )
 {
     if ( acttyp == uiFirewallProcSetter::Add )
-	return od_static_tr( "getDlgTitle", "Add Firewall Program Rule" );
+	return od_static_tr( "getWindowTitle", "Add Firewall Program Rule" );
     else if ( acttyp == uiFirewallProcSetter::Remove )
-	return od_static_tr( "getDlgTitle", "Remove Firewall Program Rule" );
+	return od_static_tr( "getWindowTitle",
+					    "Remove Firewall Program Rule" );
     else
-	return od_static_tr( "getDlgTitle",
+	return od_static_tr( "getWindowTitle",
 					"Add/Remove Firewall Program Rule" );
+}
+
+uiString getDlgTitle()
+{
+    return od_static_tr( "getDlgTitle",
+	"Please add following rule before launching OpendTect for smooth "
+	"running of program.");
 }
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
 						    const BufferString& path )
-    : uiDialog(p, Setup(getDlgTitle(acttyp), mNoDlgTitle,
-	mODHelpKey(mBatchHostsDlgHelpID)))
+    : uiDialog(p, Setup(getWindowTitle(acttyp), getDlgTitle(),
+					    mODHelpKey(mBatchHostsDlgHelpID)))
     , acttyp_(acttyp)
     , addremfld_(0)
     , pythonproclistbox_(0)
