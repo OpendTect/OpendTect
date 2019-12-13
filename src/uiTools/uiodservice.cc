@@ -508,6 +508,18 @@ uiRetVal uiODService::doDeRegister()
 }
 
 
+void uiODService::doAppClosing( CallBacker* cb )
+{
+    if ( !isODMainSlave() )
+    {
+	uiODServiceBase::doAppClosing( cb );
+	return;
+    }
+
+    odauth_.setPort( 0 );
+}
+
+
 void uiODService::doPyEnvChange( CallBacker* )
 {
     if ( !isODMainSlave() )
