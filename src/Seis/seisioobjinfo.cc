@@ -594,13 +594,13 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 
 static BufferStringSet& getTypes()
 {
-    mDefineStaticLocalObject( BufferStringSet, types, )
+    mDefineStaticLocalObject( BufferStringSet, types, );
     return types;
 }
 
 static TypeSet<MultiID>& getIDs()
 {
-    mDefineStaticLocalObject( TypeSet<MultiID>, ids, )
+    mDefineStaticLocalObject( TypeSet<MultiID>, ids, );
     return ids;
 }
 
@@ -624,7 +624,7 @@ void SeisIOObjInfo::initDefault( const char* typ )
 
 const MultiID& SeisIOObjInfo::getDefault( const char* typ )
 {
-    mDefineStaticLocalObject( const MultiID, noid, ("") )
+    mDefineStaticLocalObject( const MultiID, noid, ("") );
     const int typidx = getTypes().indexOf( typ );
     return typidx < 0 ? noid : getIDs()[typidx];
 }
