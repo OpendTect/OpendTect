@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const float logof2 = logf(2);
 #define sDefNrDecimalPlaces 3
-#define mFillZValue	0
+#define mFillZValue	setup_.zval_ + 1
 #define mSpecialZValue	setup_.zval_ + 2
 #define mAuxZValue	setup_.zval_ + 3
 #define mAxisZValue	setup_.zval_ + 4
