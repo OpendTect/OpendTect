@@ -74,7 +74,7 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 
 uiString uiDataRootSel::userDataRootString()
 {
-    return tr("Data Root Directory");
+    return tr("Survey Data Root");
 }
 
 
