@@ -19,6 +19,7 @@ ________________________________________________________________________
 class IOObjContext;
 class uiSurveySelect;
 class uiListBox;
+class uiListBoxChoiceIO;
 
 /* allows selection of IOObj in any survey. */
 
@@ -68,11 +69,14 @@ protected:
 
     uiSurveySelect*	survsel_;
     uiListBox*		objfld_;
+    uiListBoxChoiceIO*	objselio_;
 
     void		initGrp(CallBacker*);
     void		survSelCB(CallBacker*);
     void		dClickCB(CallBacker*);
     void		selChgCB(CallBacker*);
+    void		readSelIOCB(CallBacker*);
+    void		writeSelIOCB(CallBacker*);
 
     void		updGrp(bool withsurvsel);
     void		selSurvFromSelection();
