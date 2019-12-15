@@ -12,15 +12,17 @@ ________________________________________________________________________
 #include "uisurvioobjseldlg.h"
 #include "uisurvioobjselgrp.h"
 
-#include "uisurveyselect.h"
-#include "uilistbox.h"
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uilabel.h"
-#include "uibutton.h"
+#include "uilistbox.h"
+#include "uilistboxchoiceio.h"
+#include "uimsg.h"
+#include "uisurveyselect.h"
+
 #include "dbdir.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
-#include "uimsg.h"
 
 
 static void getIOObList( ObjectSet<IOObj>& objs, const SurveyDiskLocation& sdl,
@@ -88,6 +90,10 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
     if ( survsel_ )
 	objfld_->attach( alignedBelow, survsel_ );
 
+    objselio_ = new uiListBoxChoiceIO( *objfld_, ctxt.objectTypeName() );
+    mAttachCB( objselio_->readDone, uiSurvIOObjSelGroup::readSelIOCB );
+    mAttachCB( objselio_->storeRequested, uiSurvIOObjSelGroup::writeSelIOCB );
+
     setHAlignObj( objfld_ );
     mAttachCB( postFinalise(), uiSurvIOObjSelGroup::initGrp );
 }
@@ -136,6 +142,27 @@ void uiSurvIOObjSelGroup::survSelCB( CallBacker* )
 {
     updGrp( false );
     survChange.trigger();
+}
+
+
+void uiSurvIOObjSelGroup::readSelIOCB( CallBacker* )
+{
+    DBKeySet dbkys;
+    for ( int idx=0; idx<objselio_->chosenKeys().size(); idx++ )
+    {
+	const BufferString kystr( objselio_->chosenKeys().get(idx) );
+	if ( DBKey::isValidString(kystr) )
+	    dbkys += DBKey( kystr );
+    }
+    setSelected( dbkys );
+}
+
+
+void uiSurvIOObjSelGroup::writeSelIOCB( CallBacker* )
+{
+    objselio_->keys().setEmpty();
+    for ( int idx=0; idx<ioobjs_.size(); idx++ )
+	objselio_->keys().add( ioobjs_[idx]->key().toString() );
 }
 
 
