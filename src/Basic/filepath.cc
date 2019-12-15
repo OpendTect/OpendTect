@@ -430,12 +430,12 @@ BufferString File::Path::getTempDir()
     BufferString tmpdir = File::getTempPath();
     if ( !File::exists(tmpdir) )
     {
-	BufferString msg( "Temporary directory '", tmpdir, "'does not exist" );
+	BufferString msg( "Temporary folder '", tmpdir, "'does not exist" );
 	UsrMsg( msg );
     }
     else if ( !File::isWritable(tmpdir) )
     {
-	BufferString msg( "Temporary directory '", tmpdir, "'is read-only" );
+	BufferString msg( "Temporary folder '", tmpdir, "'is read-only" );
 	UsrMsg( msg );
     }
 

@@ -117,7 +117,7 @@ class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
 			RecursiveCopier(const char* from,const char* to)
-			    : Executor("Copying Directory")
+			    : Executor("Copying folder")
 			    , src_(from),dest_(to),fileidx_(0)
 			    , totalnr_(0),nrdone_(0)
 			    , msg_(tr("Copying files"))
@@ -695,7 +695,7 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
     if ( !isSane(fnm) )
     {
 	errmsg = od_static_tr( "FilecheckDirectory",
-			       "Please specify a directory name" );
+			       "Please specify a folder name" );
 	return false;
     }
 
