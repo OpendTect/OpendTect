@@ -39,7 +39,7 @@ static BufferString basicSurveyFullPath()
 
 uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
 	: uiDialog(p,uiDialog::Setup(tr("Create New Survey"),
-		    tr("Data root directory: %1").arg(mDataRootDir()),
+		    tr("Survey Data Root: %1").arg(mDataRootDir()),
 		    mODHelpKey(mStartNewSurveySetupHelpID)))
 	, survinfo_(0)
 	, dataroot_(mDataRootDir())
