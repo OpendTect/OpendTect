@@ -139,6 +139,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
     createUI();
+    showAlwaysOnTop();
 }
 
 
