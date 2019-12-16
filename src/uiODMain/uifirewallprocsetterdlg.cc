@@ -47,7 +47,7 @@ uiString getWindowTitle( uiFirewallProcSetter::ActionType acttyp )
 uiString getDlgTitle()
 {
     return od_static_tr( "getDlgTitle",
-	"Please add following rule before launching OpendTect for smooth "
+	"Please add following rule(s) before launching OpendTect for smooth "
 	"running of program.");
 }
 
