@@ -8,6 +8,7 @@
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistatusbar.h"
 
 #include "dirlist.h"
 #include "file.h"
@@ -53,7 +54,7 @@ uiString getDlgTitle()
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
 						    const BufferString& path )
     : uiDialog(p, Setup(getWindowTitle(acttyp), getDlgTitle(),
-					    mODHelpKey(mBatchHostsDlgHelpID)))
+			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
     , acttyp_(acttyp)
     , addremfld_(0)
     , pythonproclistbox_(0)
@@ -72,6 +73,8 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
     odproclistbox_ = new uiListBox( this, su );
     odproclistbox_->addItems( odprocdescs_ );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
+    mAttachCB(odproclistbox_->selectionChanged,
+				uiFirewallProcSetter::statusUpdateODProcCB);
     odproclistbox_->chooseAll();
     uiObject* attachobj = odproclistbox_->attachObj();
     
@@ -83,6 +86,8 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
 	pythonproclistbox_->addItems( getPythonExecList() );
 	pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
 	pythonproclistbox_->attach( alignedBelow, attachobj );
+	mAttachCB(pythonproclistbox_->selectionChanged,
+				uiFirewallProcSetter::statusUpdatePyProcCB);
 	pythonproclistbox_->chooseAll();
 	attachobj = pythonproclistbox_->attachObj();
     }
@@ -99,6 +104,50 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
 
 uiFirewallProcSetter::~uiFirewallProcSetter()
 {
+}
+
+
+void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
+{
+    int selidx = odproclistbox_->currentItem();
+    const int v6procsz = odv6procnms_.size();
+    BufferString procfp;
+    FilePath exefp( exepath_ );
+    const BufferString str = exefp.fullPath();
+    BufferString procnm;
+    if ( selidx < v6procsz )
+    {
+	procnm = *odv6procnms_[selidx];
+	procnm.add( ".exe" );
+	exefp.add( procnm );
+	procfp = exefp.fullPath();
+    }
+    else
+    {
+	selidx -= v6procsz;
+
+	FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
+	odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
+						    .add( GetBinSubDir() );
+	procnm = *odv7procnms_[selidx];
+	procnm.add( ".exe" );
+	odv7fp.add( procnm );
+	procfp = odv7fp.fullPath();
+    }
+
+    uiString msg = tr("Selected process path : %1").arg( procfp );
+    statusBar()->message( msg, 0 );
+}
+
+
+void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
+{
+    const int selidx = pythonproclistbox_->currentItem();
+    FilePath exefp( getPythonInstDir() );
+    exefp.add( *pyprocnms_[selidx] );
+    const BufferString procfp = exefp.fullPath();
+    uiString msg = tr("Selected process path : %1").arg( procfp );
+    statusBar()->message( msg, 0 );
 }
 
 

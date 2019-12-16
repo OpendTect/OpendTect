@@ -40,6 +40,9 @@ protected:
 
     BufferStringSet	    getSelProcList(ProcDesc::DataEntry::Type);
 
+    void		    statusUpdateODProcCB(CallBacker*);
+    void		    statusUpdatePyProcCB(CallBacker*);
+
     ActionType		    acttyp_;
     BufferString	    exepath_;
 
