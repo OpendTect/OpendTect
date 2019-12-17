@@ -20,11 +20,10 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiTools" );
-    OD::ModDeps().ensureLoaded( "uiSeis" );
-    OD::ModDeps().ensureLoaded( "uiODMain" );
     uiMain app( argc, argv );
-
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "uiODMain" );
+    PIM().loadAuto( true );
     SetProgramArgs( argc, argv );
 
     CommandLineParser parser;

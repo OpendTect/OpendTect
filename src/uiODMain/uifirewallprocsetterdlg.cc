@@ -283,7 +283,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	}
 
 	BufferString fincmd = cmd;
-	if ( idx == 0 )
+	if ( idx != ProcDesc::DataEntry::Python )
 	    fincmd.add( "--od " ).add( exepath_ ).addSpace();
 	else
 	    fincmd.add( "--py " ).add( getPythonInstDir() ).addSpace();
