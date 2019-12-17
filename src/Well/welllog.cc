@@ -356,7 +356,7 @@ bool Well::Log::insertAtDah( float dh, float val )
 
 
 //  ----LogInfo----
-bool Well::LogInfo::isOldFormat()
+bool Well::LogInfo::hasDahRange()
 {
     if (!dahstart_ && !dahstop_)
 	return false;

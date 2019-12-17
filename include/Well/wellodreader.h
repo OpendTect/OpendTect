@@ -51,7 +51,7 @@ public:
     virtual bool	getLogInfo() const;
     virtual void	getLogInfo(BufferStringSet& lognms) const;
 
-    bool		isOldFormat() const;
+    bool		hasDahRange() const;
 
     virtual const OD::String& errMsg() const	{ return odIO::errMsg(); }
 
@@ -71,7 +71,7 @@ protected:
     bool		doGetD2T(od_istream&,bool csmdl) const;
     bool		doGetD2T(bool) const;
 
-    static bool		isOldFormat(od_istream&,int&,int);
+    static bool		hasDahRange(od_istream&,int&,int);
     static Log*		rdLogHdr(od_istream&,int&,int);
 
 };

@@ -49,7 +49,7 @@ public:
     virtual bool	getLog(const char* lognm) const	= 0;
     virtual bool	getLogInfo() const = 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
-    virtual bool	isOldFormat() const = 0;
+    virtual bool	hasDahRange() const = 0;
     virtual const OD::String& errMsg() const		= 0;
     Data&		data()				{ return wd_; }
     const Data&		data() const			{ return wd_; }

@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "wellman.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
@@ -30,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldisp.h"
+#include "wellwriter.h"
 #include "od_istream.h"
 
 
@@ -229,8 +231,8 @@ bool Well::Reader::getLogInfo() const
 { return ra_ ? ra_->getLogInfo() : false; }
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
-bool Well::Reader::isOldFormat() const
-{ return ra_ ? ra_->isOldFormat() : false; }
+bool Well::Reader::hasDahRange() const
+{ return ra_ ? ra_->hasDahRange() : false; }
 Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : 0; }
 
@@ -514,7 +516,7 @@ bool Well::odReader::getTrack() const
 
     return isok;
 }
-bool Well::odReader::isOldFormat() const
+bool Well::odReader::hasDahRange() const
 {
     for ( int idx=1;  ; idx++ )
     {
@@ -524,9 +526,10 @@ bool Well::odReader::isOldFormat() const
 	if ( rdHdr(strm,sKeyLog(),version) )
 	{
 	    int bintyp = 0;
-	    return isOldFormat( strm, bintyp, idx-1 );
+	    return hasDahRange( strm, bintyp, idx-1 );
 	}
     }
+    return true;
 }
 
 bool Well::odReader::getLogInfo() const
@@ -620,7 +623,7 @@ bool Well::odReader::getLogs() const
 }
 
 
-bool Well::odReader::isOldFormat( od_istream& strm, int& bintype, int idx )
+bool Well::odReader::hasDahRange( od_istream& strm, int& bintype, int idx )
 {
     ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
@@ -879,16 +882,26 @@ uiString MultiWellReader::uiNrDoneText() const
 int MultiWellReader::nextStep()
 {
     if ( nrdone_ >= totalNr() )
-	return Executor::Finished();
+        return Executor::Finished();
 
-    const MultiID wmid = keys_[sCast(int,nrdone_)];
-    Well::Data* wd = new Well::Data;
-    wd->ref();
-    Well::Reader wrdr( wmid, *wd );
-    if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
-	return Executor::MoreToDo();
+    else
+    {
+        const MultiID wmid = keys_[sCast(int,nrdone_)];
+        Well::Data* wd = new Well::Data;
+        wd->ref();
+        Well::Reader wrdr( wmid, *wd );
+        if ( wrdr.hasDahRange() )
+        {
+            Well::Data* wdw = Well::MGR().get( keys_[sCast(int,nrdone_)] );
+            Well::Writer wllwrt( wmid, *wdw );
+            wllwrt.putLogs();
+        }
 
-    wds_ += wd;
-    nrdone_++;
-    return Executor::MoreToDo();
+        if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
+            return Executor::MoreToDo();
+
+        wds_ += wd;
+        nrdone_++;
+        return Executor::MoreToDo();
+    }
 }

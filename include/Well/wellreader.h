@@ -53,7 +53,7 @@ public:
     bool		getLogInfo() const;
     void		getLogInfo(BufferStringSet& lognms) const;
 
-    bool		isOldFormat() const;	//!< Just checks if log hdrs
+    bool		hasDahRange() const;	//!< Just checks if log hdrs
 			//have dah ranges. If not, need to write first.
 
     const OD::String&	errMsg() const		{ return errmsg_; }
