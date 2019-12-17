@@ -358,8 +358,7 @@ bool Well::Log::insertAtDah( float dh, float val )
 //  ----LogInfo----
 bool Well::LogInfo::hasDahRange()
 {
-    if (!dahstart_ && !dahstop_)
-	return false;
+    return !mIsUdf(dahstart_) && !mIsUdf(dahstop_);
 }
 
 
@@ -373,7 +372,8 @@ void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
 }
 
 
-const Well::LogInfo* Well::LogInfoSet::getByName( const BufferString& lognms ) const
+const Well::LogInfo* Well::LogInfoSet::getByName(
+       			const BufferString& lognms ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
@@ -381,6 +381,8 @@ const Well::LogInfo* Well::LogInfoSet::getByName( const BufferString& lognms ) c
 	if ( lognms == (*this)[idx]->name() )
 	    return (*this)[idx];
     }
+
+    return nullptr;
 }
 
 
@@ -415,6 +417,8 @@ float Well::LogInfoSet::dahStart( const char* lognm ) const
 	if ( (*this)[idx]->name() == lognm )
 	    return (*this)[idx]->dahstart_;
     }
+
+    return mUdf(float);
 }
 
 
@@ -426,6 +430,8 @@ float Well::LogInfoSet::dahStop( const char* lognm ) const
 	if ( (*this)[idx]->name() == lognm )
 	    return (*this)[idx]->dahstop_;
     }
+
+    return mUdf(float);
 }
 
 

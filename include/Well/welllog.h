@@ -120,7 +120,7 @@ public:
     float		dahstart_;
     float		dahstop_;
 
-    bool		isOldFormat();	//checks whether log hdr has dah range
+    bool		hasDahRange();	//checks whether log hdr has dah range
 };
 
 
