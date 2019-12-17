@@ -302,7 +302,8 @@ bool acceptOK( CallBacker* )
 	}
 
 	od_istream strm( fnm_ );
-	ascistream astrm( strm );
+	if ( !usefile )
+	    ascistream astrm( strm );
 	if ( !strm.isOK() )
 	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
 

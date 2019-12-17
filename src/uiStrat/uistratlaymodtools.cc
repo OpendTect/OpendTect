@@ -350,7 +350,11 @@ void uiStratLayModEditTools::setSelContent( const char* sel )
 
 void uiStratLayModEditTools::setDispEach( int nr )
 {
-    if ( eachfld_ ) eachfld_->setValue( nr );
+    if ( !eachfld_ )
+	return;
+
+    NotifyStopper ns( eachfld_->valueChanging );
+    eachfld_->setValue( nr );
 }
 
 
