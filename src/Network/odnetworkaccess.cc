@@ -107,7 +107,8 @@ bool Network::ping( const char* url, uiString& msg )
 
 FileDownloader::FileDownloader( const BufferStringSet& urls,
 				const BufferStringSet& outputpaths )
-    : qeventloop_(0)
+    : SequentialTask("Downloading files")
+    , qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
     , msg_(uiString::emptyString())
@@ -121,7 +122,8 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
 
 
 FileDownloader::FileDownloader( const char* url, DataBuffer* db )
-    : qeventloop_(0)
+    : SequentialTask("Downloading file")
+    , qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
     , msg_(uiString::emptyString())
@@ -136,7 +138,8 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
 
 
 FileDownloader::FileDownloader( const char* url )
-    : qeventloop_(0)
+    : SequentialTask("Downloading file")
+    , qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
     , msg_(uiString::emptyString())
