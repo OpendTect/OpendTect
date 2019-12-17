@@ -666,7 +666,7 @@ void Seis::Provider::applyStepout()
     {
 	const auto& as3d = *as3D();
 	const auto so = as3d.stepout_;
-	if ( so.inl() > 0 && so.crl() > 0 )
+	if ( so.inl() > 0 || so.crl() > 0 )
 	{
 	    targetpositions_ = new BinnedValueSet( *selectedpositions_ );
 	    selectedpositions_->setStepout( as3d.stepout_, as3d.binIDStep() );
