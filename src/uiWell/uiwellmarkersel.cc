@@ -60,15 +60,19 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	, mrkSelDone(this)
 {
     CallBack mrkselcb( mCB(this,uiWellMarkerSel,mrkSel) );
-    uiLabeledComboBox* lcb = 0;
+    uiLabeledComboBox* lcb = nullptr;
     if ( setup_.seltxt_.isEmpty() )
 	topfld_ = new uiComboBox( this, "Top marker" );
     else
     {
 	lcb = new uiLabeledComboBox( this, toUiString(setup_.seltxt_),
-								"Top marker" );
+				     "Top marker" );
 	topfld_ = lcb->box();
     }
+
+    topfld_->setStretch( 0, 0 );
+    topfld_->setHSzPol( uiObject::Medium );
+    topfld_->setToolTip( tr("Top of the zone") );
     topfld_->selectionChanged.notify( mrkselcb );
 
     if ( !setup_.single_ )
@@ -78,11 +82,11 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	    botfld_->attach( rightOf, lcb );
 	else
 	    botfld_->attach( rightOf, topfld_ );
-	botfld_->selectionChanged.notify( mrkselcb );
+
+	botfld_->setStretch( 0, 0 );
 	botfld_->setHSzPol( uiObject::Medium );
-	topfld_->setHSzPol( uiObject::Medium );
-	topfld_->setToolTip( tr("Top of the zone") );
 	botfld_->setToolTip( tr("Bottom of the zone") );
+	botfld_->selectionChanged.notify( mrkselcb );
     }
 
     setHAlignObj( topfld_ );
