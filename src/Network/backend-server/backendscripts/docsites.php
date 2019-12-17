@@ -39,6 +39,10 @@ if ( array_key_exists( $versionkey, $_GET ) &&
 
     if ( is_numeric( $version ) )
     {
+	if ( $version>=660 )
+	{
+	    $docurl = $docurl.'/6.6.0/doc/'.$module.'/Default.htm';
+	}
 	if ( $version>=640 )
 	{
 	    $docurl = $docurl.'/6.4.0/doc/'.$module.'/Default.htm';
