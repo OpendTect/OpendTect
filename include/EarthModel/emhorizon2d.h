@@ -47,6 +47,7 @@ public:
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
     Pos::GeomID			geomID(int idx) const;
+    void			setGeomID(int idx,Pos::GeomID);
 
     PosID			getPosID(const TrcKey&) const;
     TrcKey			getTrcKey(const PosID&) const;

@@ -88,6 +88,13 @@ Pos::GeomID Horizon2DGeometry::geomID( int idx ) const
 }
 
 
+void Horizon2DGeometry::setGeomID( int idx, Pos::GeomID geomid )
+{
+    if ( geomids_.validIdx(idx) )
+	geomids_[idx] = geomid;
+}
+
+
 PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
 {
     mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
