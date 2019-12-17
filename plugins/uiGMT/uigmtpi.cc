@@ -72,7 +72,7 @@ uiGMTIntro( uiParent* p )
     uiPushButton* gmtbut = new uiPushButton( this, "Download GMT",
 					     mCB(this,uiGMTIntro,gmtPush),
 					     true );
-    gmtbut->setToolTip( "Click to go to the Download centre" );
+    gmtbut->setToolTip( "Click to go to the Download center" );
     gmtbut->attach( centeredBelow, lbl );
 }
 
@@ -81,7 +81,7 @@ protected:
 void gmtPush( CallBacker* )
 {
     uiDesktopServices::openUrl( __islinux__
-	? "http://www.opendtect.org/index.php/download.html"
+	? "https://dgbes.com/index.php/download"
 	: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 

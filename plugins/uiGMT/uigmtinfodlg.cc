@@ -28,16 +28,16 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
     setOkText( uiStrings::sContinue() );
 
     uiString msg = tr("You need to install the GMT mapping tool package\n"
-                      "before you can use this utility\n"
-                      "Also make sure that the environment"
-                      " variable GMT_SHAREDIR is to set ");
+		      "before you can use this utility\n"
+		      "Also make sure that the environment"
+		      " variable GMT_SHAREDIR is to set ");
 
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );
 
     uiPushButton* gmtbut = new uiPushButton( this, tr("Download GMT"),
 				      mCB(this,uiGMTInfoDlg,gmtPushCB),true );
-    gmtbut->setToolTip( tr("Click to go to the Download centre") );
+    gmtbut->setToolTip( tr("Click to go to the Download center") );
     gmtbut->attach( centeredBelow, lbl );
 
     chkbut_ = new uiCheckBox( this, tr("Software installed already"),
@@ -58,7 +58,7 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
 void uiGMTInfoDlg::gmtPushCB( CallBacker* )
 {
     uiDesktopServices::openUrl(
-	    __islinux__ ? "http://www.opendtect.org/index.php/download"
+	    __islinux__ ? "https://dgbes.com/index.php/download"
 		: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 
