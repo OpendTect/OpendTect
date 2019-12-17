@@ -20,7 +20,8 @@ mExpClass(uiVis) uiMarkerStyleDlg : public uiDialog
 { mODTextTranslationClass(uiMarkerStyleDlg);
 protected:
 
-			uiMarkerStyleDlg(uiParent*,const uiString& title);
+			uiMarkerStyleDlg(uiParent*,const uiString& title,
+					 bool withnone=false);
 
     uiMarkerStyle3D*	stylefld_;
 

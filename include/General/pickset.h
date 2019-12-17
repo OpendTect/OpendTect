@@ -43,20 +43,20 @@ public:
     {
 			Disp()
 			    : color_(Color::NoColor())
+			    , fillcolor_(Color::NoColor())
+			    , pixsize_(3)
 			    , markertype_(3) // Sphere
+			    , dofill_(false)
 			    , connect_(None)
-			    , pixsize_(3)		{}
+			{}
 	enum Connection { None, Open, Close };
-			mDeclareEnumUtils(Connection);
+			mDeclareEnumUtils(Connection)
 	Color		color_;		//!< marker color
-	Color		linecolor_;	//!< line color
 	Color		fillcolor_;	//!< surface color
 	int		pixsize_;	//!< size in pixels
 	int		markertype_;	//!< MarkerStyle3D
-	int		width_;		//!< line width
-	bool		filldodraw_;	//!< Fill?
-	bool		linedodraw_;	//!< draw line?
-	OD::LineStyle::Type		type_;		//!< line type
+	bool		dofill_;	//!< Fill?
+	OD::LineStyle	linestyle_;		//!< line type
 	Connection	connect_;	//!< connect picks in set order
     };
 
@@ -78,11 +78,8 @@ public:
     size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
-    static const char*	sKeyWidth()		{ return "Line Width"; }
-    static const char*	sKeyLineColor()		{ return "Line Color"; }
     static const char*	sKeyFillColor()		{ return "Surface Color"; }
     static const char*	sKeyFill()		{ return "Fill"; }
-    static const char*	sKeyLine()		{ return "Draw Line"; }
     static const char*	sKeyConnect()		{ return "Connect"; }
 
     void		fillPar(IOPar&) const;

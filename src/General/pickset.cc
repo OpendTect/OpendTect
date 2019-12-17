@@ -440,7 +440,7 @@ protected:
 
 template <class PicksType>
 static typename PicksType::size_type findIdx( const PicksType& picks,
-	                                      const TrcKey& tk )
+					      const TrcKey& tk )
 {
     const typename PicksType::size_type sz = picks.size();
     for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
@@ -651,11 +651,9 @@ bool Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect() );
     pars_.removeWithKey( sKeyStartIdx() );
-    pars_.removeWithKey( sKey::Type() );
-    pars_.removeWithKey( sKeyWidth() );
+    pars_.removeWithKey( sKey::LineStyle() );
     pars_.removeWithKey( sKeyFillColor() );
     pars_.removeWithKey( sKeyFill() );
-    pars_.removeWithKey( sKeyLine() );
 
     return true;
 }
@@ -663,30 +661,25 @@ bool Set::usePar( const IOPar& par )
 
 void Set::fillDisplayPars( IOPar& par ) const
 {
-    BufferString colstr, lncolstr, fillcolstr;
+    BufferString colstr, fillcolstr;
     if ( disp_.color_ != Color::NoColor() )
     {
 	disp_.color_.fill( colstr );
 	par.set( sKey::Color(), colstr );
     }
-    if ( disp_.linecolor_ != Color::NoColor() )
-    {
-	disp_.linecolor_.fill( lncolstr );
-	par.set( sKeyLineColor(), lncolstr );
-    }
+
     if ( disp_.fillcolor_ != Color::NoColor() )
     {
 	disp_.fillcolor_.fill( fillcolstr );
 	par.set( sKeyFillColor(), fillcolstr );
     }
 
+    BufferString lsstr; disp_.linestyle_.toString( lsstr );
+    par.set( sKey::LineStyle(), lsstr );
     par.set( sKey::Size(), disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
-    par.set( sKey::Type(), OD::LineStyle::toString(disp_.type_) );
-    par.set( sKeyWidth(), disp_.width_ );
     par.set( sKeyConnect(), Disp::getConnectionString(disp_.connect_) );
-    par.setYN( sKeyFill(), disp_.filldodraw_ );
-    par.setYN( sKeyLine(), disp_.linedodraw_ );
+    par.setYN( sKeyFill(), disp_.dofill_ );
 }
 
 
@@ -698,12 +691,6 @@ bool Set::useDisplayPars( const IOPar& par )
     else
 	disp_.color_ = Color::Red(); // change default color from none to red
 
-    BufferString lncolstr;
-    if ( par.get(sKeyLineColor(),lncolstr) )
-	disp_.linecolor_.use( lncolstr.buf() );
-    else
-	disp_.linecolor_ = Color::Red();
-
     BufferString fillcolstr;
     if ( par.get(sKeyFillColor(),fillcolstr) )
 	disp_.fillcolor_.use( fillcolstr.buf() );
@@ -714,12 +701,14 @@ bool Set::useDisplayPars( const IOPar& par )
     par.get( sKey::Size(), disp_.pixsize_ );
     par.get( sKeyMarkerType(), disp_.markertype_ );
 
-    disp_.width_ = 3;
-    par.get( sKeyWidth(), disp_.width_ );
-    OD::LineStyle::parseEnum( par, sKey::Type(), disp_.type_ );
+    BufferString lsstr;
+    if ( par.get(sKey::LineStyle(),lsstr) )
+	disp_.linestyle_.fromString( lsstr );
+    else
+	disp_.linestyle_ = OD::LineStyle(OD::LineStyle::Solid,
+					 disp_.pixsize_,disp_.color_);
 
-    par.getYN( sKeyFill(), disp_.filldodraw_ );
-    par.getYN( sKeyLine(), disp_.linedodraw_ );
+    par.getYN( sKeyFill(), disp_.dofill_ );
 
     bool doconnect;
     par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility

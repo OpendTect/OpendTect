@@ -61,12 +61,10 @@ public:
 			~uiSelLineStyle();
 
     void		setStyle(const OD::LineStyle&);
-    const OD::LineStyle&	getStyle() const;
+    const OD::LineStyle& getStyle() const;
 
     void		setColor(const Color&);
     const Color&	getColor() const;
-    bool		doDraw() const;
-    void		setDoDraw(bool);
     void		setWidth(int);
     int			getWidth() const;
     void		setLineWidthBounds( int min, int max );
@@ -83,9 +81,7 @@ protected:
 
     OD::LineStyle&		linestyle_;
 
-    void			initGrp(CallBacker*);
     void			changeCB(CallBacker*);
-    void			needlineCB(CallBacker*);
 private:
 
     void			init(const Setup&);

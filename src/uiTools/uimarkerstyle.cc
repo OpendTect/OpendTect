@@ -167,10 +167,8 @@ void uiMarkerStyle2D::changeCB( CallBacker* )
 uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	    const Interval<int>& rg, int nrexcluded,
 	    const MarkerStyle3D::Type* excluded )
-	: uiGroup(p)
-	, colselfld_( nullptr )
-	, typefld_(nullptr)
-	, szfld_(nullptr)
+    : uiGroup(p)
+    , colselfld_( nullptr )
 {
     StringListInpSpec str;
     for ( int idx=0; MarkerStyle3D::TypeNames()[idx]; idx++ )
@@ -195,19 +193,16 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	types_ += type;
     }
 
-    uiObject* alignobj = 0;
+    uiObject* alignobj = nullptr;
 
     typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
-    typefld_->setWithCheck();
-    typefld_->setChecked( true );
-    mAttachCB( typefld_->checked, uiMarkerStyle3D::needmarkerCB );
     alignobj = typefld_->attachObj();
 
     if ( withcolor )
     {
 	colselfld_ = new uiColorInput( this,
 				uiColorInput::Setup(Color::White())
-				.lbltxt(uiStrings::sColor()) );
+				.lbltxt(uiStrings::sColor()).withdesc(false) );
 	if ( typefld_ )
 	    colselfld_->attach( rightTo, typefld_ );
 	else
@@ -229,17 +224,15 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 
 
 NotifierAccess* uiMarkerStyle3D::sliderMove()
-{ return &szfld_->valueChanged; }
+{ return &szfld_->valueChanging; }
 
 
 NotifierAccess* uiMarkerStyle3D::typeSel()
 { return &typefld_->valuechanged; }
 
-NotifierAccess* uiMarkerStyle3D::checkSel()
-{ return &typefld_->checked; }
 
 NotifierAccess* uiMarkerStyle3D::colSel()
-{ return colselfld_ ? &colselfld_->colorChanged : 0; }
+{ return colselfld_ ? &colselfld_->colorChanged : nullptr; }
 
 
 void uiMarkerStyle3D::getMarkerStyle( MarkerStyle3D& st ) const
@@ -279,30 +272,4 @@ void uiMarkerStyle3D::enableColorSelection( bool yn )
 {
     if ( colselfld_ )
 	colselfld_->setSensitive(yn);
-}
-
-
-void uiMarkerStyle3D::needmarkerCB( CallBacker* )
-{
-    const bool ischecked = typefld_->isChecked();
-    if ( szfld_ )
-	szfld_->setSensitive( ischecked );
-    if ( colselfld_ )
-	colselfld_->setSensitive( ischecked );
-}
-
-
-bool uiMarkerStyle3D::showMarker() const
-{
-    return typefld_ ? typefld_->isChecked() : true;
-}
-
-
-void uiMarkerStyle3D::setShowMarker( bool yn )
-{
-    if ( typefld_ )
-    {
-	typefld_->setChecked( yn );
-	typefld_->setSensitive( yn );
-    }
 }

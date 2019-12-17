@@ -32,7 +32,6 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
     , changed(this)
 {
     init( su );
-    mAttachCB( postFinalise(), uiSelLineStyle::initGrp );
 }
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
@@ -42,7 +41,6 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
     , changed(this)
 {
     init( Setup(ltxt) );
-    mAttachCB( postFinalise(), uiSelLineStyle::initGrp );
 }
 
 
@@ -62,12 +60,8 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     {
 	stylesel_ = new uiGenInput( this, lbltxt,
 				StringListInpSpec(OD::LineStyle::TypeDef()) );
-	stylesel_->setWithCheck();
-	const bool hasstyle = linestyle_.isVisible();
-	stylesel_->setChecked( hasstyle );
 	stylesel_->setValue( linestyle_.type_ );
 	mAttachCB( stylesel_->valuechanged, uiSelLineStyle::changeCB );
-	mAttachCB( stylesel_->checked, uiSelLineStyle::needlineCB );
 	alobj = stylesel_->attachObj();
     }
 
@@ -75,8 +69,8 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     {
 	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
 		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( stylesel_ ? uiStrings::sColor() 
-                              : tr("Line color") ).withdesc( !su.width_ );
+	csu.lbltxt( stylesel_ ? uiStrings::sColor()
+			      : tr("Line color") ).withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
 	mAttachCB( colinp_->colorChanged,uiSelLineStyle::changeCB );
 	if ( stylesel_ )
@@ -88,10 +82,10 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     if ( su.width_ )
     {
 	widthbox_ = new uiLabeledSpinBox( this,
-		    su.color_ || su.drawstyle_ ? tr("Width") 
-                                               : tr("Line width") );
+		    su.color_ || su.drawstyle_ ? tr("Width")
+					       : tr("Line width") );
 	widthbox_->box()->setMinValue( mMIN(cMinWidth,linestyle_.width_) );
-  	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );
+	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );
 	widthbox_->box()->setValue( linestyle_.width_ );
 	if ( colinp_ )
 	    widthbox_->attach( rightTo, colinp_ );
@@ -116,13 +110,6 @@ uiSelLineStyle::~uiSelLineStyle()
     detachAllNotifiers();
     delete &linestyle_;
 }
-
-
-void uiSelLineStyle::initGrp( CallBacker* )
-{
-    needlineCB(nullptr);
-}
-
 
 
 const OD::LineStyle& uiSelLineStyle::getStyle() const
@@ -211,32 +198,4 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
     }
 
     changed.trigger(cb);
-}
-
-
-void uiSelLineStyle::needlineCB( CallBacker* cb )
-{
-    const bool ischecked = stylesel_ && stylesel_->isChecked();
-    if ( colinp_ )
-	colinp_->setSensitive( ischecked );
-    if ( widthbox_ )
-	widthbox_->setSensitive( ischecked );
-
-    changeCB( cb );
-}
-
-
-bool uiSelLineStyle::doDraw() const
-{
-    return stylesel_ ? stylesel_->isChecked() : true;
-}
-
-
-void uiSelLineStyle::setDoDraw( bool yn )
-{
-    if ( stylesel_ )
-    {
-	stylesel_->setChecked( yn );
-	colinp_->setSensitive( yn );
-    }
 }

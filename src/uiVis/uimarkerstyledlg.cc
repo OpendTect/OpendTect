@@ -15,20 +15,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 
 
-uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
-	: uiDialog(p,
-		   uiDialog::Setup(title,tr("Specify marker style properties"),
-				   mNoHelpKey)
-		   .canceltext(uiString::emptyString()).savebutton(true)
-		   .savetext(tr("Save on OK")))
+uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title,
+				    bool withnone )
+	: uiDialog(p,uiDialog::Setup(title,mNoDlgTitle,mNoHelpKey)
+		   .canceltext(uiString::emptyString()))
 {
-    setSaveButtonChecked( true );
-    MarkerStyle3D::Type excludedtypes[] =
+    if ( withnone )
+	stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>(1,15) );
+    else
+    {
+	MarkerStyle3D::Type excludedtypes[] =
 				{ MarkerStyle3D::None };
-    stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
-	    2, excludedtypes );
+	stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
+					 1, excludedtypes );
+    }
+
     mAttachCB( stylefld_->typeSel(), uiMarkerStyleDlg::typeSel );
-    mAttachCB( stylefld_->checkSel(), uiMarkerStyleDlg::typeSel );
     mAttachCB( stylefld_->sliderMove(), uiMarkerStyleDlg::sliderMove );
     mAttachCB( stylefld_->colSel(), uiMarkerStyleDlg::colSel );
 
