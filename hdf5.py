@@ -48,6 +48,10 @@ def getText( infos, ky ):
     return ret.split( "`" )
   return ret
 
+def setArray( infos, ky, arr ):
+  arrstr = '`'.join( map(str,arr) )
+  setAttr( infos, ky, arrstr )
+
 def getBoolValue( infos, ky ):
   return getAttr( infos, ky ) == "Yes"
 
