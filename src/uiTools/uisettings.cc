@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitable.h"
@@ -78,8 +79,8 @@ static void getGrps( BufferStringSet& grps )
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(mToUiStringTodo(nm),
 				     tr("Set User Settings value"),
-                                     mODHelpKey(mSettingsHelpID)) )
-        , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
+				     mODHelpKey(mSettingsHelpID)) )
+	, issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
 {
     setCurSetts();
@@ -552,11 +553,11 @@ mExpClass(uiTools) uiPythonSettings : public uiDialog
 { mODTextTranslationClass(uiPythonSettings);
 public:
 
-uiPythonSettings(uiParent* p, const char* nm)
-	: uiDialog(p, uiDialog::Setup(mToUiStringTodo(nm),
-		tr("Set Python default environment"),mTODOHelpKey))
+uiPythonSettings(uiParent* p, const char* nm )
+	: uiDialog(p, uiDialog::Setup(toUiString(nm),
+		tr("Set Python environment"),mTODOHelpKey))
 {
-    pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
+    pythonsrcfld_ = new uiGenInput(this, tr("Python environment"),
 		StringListInpSpec(OD::PythonSourceDef().strings()));
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
@@ -566,11 +567,11 @@ uiPythonSettings(uiParent* p, const char* nm)
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
     }
 
-    customloc_ = new uiFileInput( this,tr("Custom Environment root"));
+    customloc_ = new uiFileInput( this,tr("Custom environment root"));
     customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
 
-    customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
+    customenvnmfld_ = new uiGenInput( this, tr("Virtual environment"),
 				      StringListInpSpec() );
     customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
@@ -768,7 +769,7 @@ void setCustomEnvironmentNames()
     BufferStringSet envnames;
     const DirList dl( fp.fullPath(), DirList::DirsOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
-        envnames.add( FilePath(dl.fullPath(idx)).baseName() );
+	envnames.add( FilePath(dl.fullPath(idx)).baseName() );
     customenvnmfld_->setEmpty();
     customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
     customenvnmfld_->setChecked( !envnames.isEmpty() );
@@ -776,20 +777,33 @@ void setCustomEnvironmentNames()
 
 void testPythonModules()
 {
+    uiUserShowWait usw( this,
+			tr("Retrieving list of installed Python modules") );
     ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
     const uiRetVal uirv( OD::PythA().getModules(modules) );
     if ( !uirv.isOK() )
     {
-        uiMSG().error( uirv );
-        return;
+	uiMSG().error( uirv );
+	return;
     }
 
     BufferStringSet modstrs;
     for ( int idx=0; idx<modules.size(); idx++ )
-        modstrs.add( modules[idx]->displayStr() );
+	modstrs.add( modules[idx]->displayStr() );
 
-    uiMSG().message( tr("Detected list of Python modules:\n%1")
-                                .arg( modstrs.cat()) );
+    usw.readyNow();
+    uiDialog dlg( this, uiDialog::Setup(tr("Python Installation"),mNoDlgTitle,
+					mNoHelpKey) );
+    dlg.setCtrlStyle( uiDialog::CloseOnly );
+    uiGenInput* pythfld = new uiGenInput( &dlg, tr("Using") );
+    pythfld->setText( OD::PythA().pyVersion() );
+    pythfld->setReadOnly();
+    pythfld->setElemSzPol( uiObject::Wide );
+    uiLabeledListBox* modfld =
+	new uiLabeledListBox( &dlg, tr("Detected modules") );
+    modfld->addItems( modstrs );
+    modfld->attach( alignedBelow, pythfld );
+    dlg.go();
 }
 
 void testCB(CallBacker*)
@@ -810,10 +824,7 @@ void testCB(CallBacker*)
 	return;
     }
 
-    uiMSG().message( tr("Detected Python version: %1")
-			.arg(OD::PythA().pyVersion() ));
-
-    usw.setMessage( tr("Retrieving list of installed Python modules") );
+    usw.readyNow();
     testPythonModules();
 }
 
@@ -841,36 +852,36 @@ bool useScreen()
     uiString envrootstr = tr("Evironment root" );
     if ( source == OD::Internal && internalloc_ )
     {
-        const BufferString envroot( internalloc_->fileName() );
-        if ( !File::exists(envroot) || !File::isDirectory(envroot) )
-        {
-            uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
-            return false;
-        }
+	const BufferString envroot( internalloc_->fileName() );
+	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+	{
+	    uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    return false;
+	}
 
-        const FilePath envrootfp( envroot );
-        if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
-        {
-            uiMSG().error( tr("Invalid environment root") );
-            return false;
-        }
+	const FilePath envrootfp( envroot );
+	if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
+	{
+	    uiMSG().error( tr("Invalid environment root") );
+	    return false;
+	}
     }
     else if ( source == OD::Custom )
     {
-        const BufferString envroot( customloc_->fileName() );
-        if ( !File::exists(envroot) || !File::isDirectory(envroot) )
-        {
-            uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
-            return false;
-        }
+	const BufferString envroot( customloc_->fileName() );
+	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+	{
+	    uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    return false;
+	}
 
-        const FilePath envrootfp( envroot, "envs" );
-        if ( !envrootfp.exists() )
-        {
-            uiMSG().error( tr("%1 does not contains a directory called %2")
-                                .arg(uiStrings::sDirectory()).arg("envs") );
-            return false;
-        }
+	const FilePath envrootfp( envroot, "envs" );
+	if ( !envrootfp.exists() )
+	{
+	    uiMSG().error( tr("%1 does not contains a directory called %2")
+				.arg(uiStrings::sDirectory()).arg("envs") );
+	    return false;
+	}
     }
 
     if ( !chgdsetts_ )
