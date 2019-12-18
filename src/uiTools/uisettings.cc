@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "uifilesel.h"
 #include "uiiconsetsel.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
@@ -86,7 +87,7 @@ uiAdvSettings::uiAdvSettings( uiParent* p, const uiString& titl,
 	: uiDialog(p,uiDialog::Setup(titl,
 			tr("Browse/Edit User-settable properties and values"),
 			mODHelpKey(mSettingsHelpID)) )
-        , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
+	, issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
 	, sipars_(SI().getDefaultPars())
 {
@@ -267,11 +268,11 @@ mExpClass(uiTools) uiPythonSettings : public uiDialog
 { mODTextTranslationClass(uiPythonSettings);
 public:
 
-uiPythonSettings(uiParent* p, const char* nm)
-	: uiDialog(p, uiDialog::Setup(mToUiStringTodo(nm),
-		tr("Set Python default environment"),mTODOHelpKey))
+uiPythonSettings(uiParent* p, const char* nm )
+	: uiDialog(p, uiDialog::Setup(toUiString(nm),
+		tr("Set Python environment"),mTODOHelpKey))
 {
-    pythonsrcfld_ = new uiGenInput(this, tr("Python Environment"),
+    pythonsrcfld_ = new uiGenInput(this, tr("Python environment"),
 		StringListInpSpec(OD::PythonSourceDef().strings()));
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
@@ -282,12 +283,12 @@ uiPythonSettings(uiParent* p, const char* nm)
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
     }
 
-    customloc_ = new uiFileSel( this,tr("Custom Environment root"));
+    customloc_ = new uiFileSel( this,tr("Custom environment root"));
     customloc_->setup().withexamine(false);
     customloc_->setSelectionMode( OD::SelectDirectory );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
 
-    customenvnmfld_ = new uiGenInput( this, tr("Virtual Environment"),
+    customenvnmfld_ = new uiGenInput( this, tr("Virtual environment"),
 				      StringListInpSpec() );
     customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
@@ -479,6 +480,8 @@ void setCustomEnvironmentNames()
 
 void testPythonModules()
 {
+    uiUserShowWait usw( this,
+			tr("Retrieving list of installed Python modules") );
     ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
     const uiRetVal uirv( OD::PythA().getModules(modules) );
     if ( !uirv.isOK() )
@@ -491,8 +494,19 @@ void testPythonModules()
     for ( auto module : modules )
 	modstrs.add( module->displayStr() );
 
-    gUiMsg( this ).message( tr("Detected list of Python modules:\n%1")
-				.arg( modstrs.cat()) );
+    usw.readyNow();
+    uiDialog dlg( this, uiDialog::Setup(tr("Python Installation"),mNoDlgTitle,
+					mNoHelpKey) );
+    dlg.setCtrlStyle( uiDialog::CloseOnly );
+    uiGenInput* pythfld = new uiGenInput( &dlg, tr("Using") );
+    pythfld->setText( OD::PythA().pyVersion() );
+    pythfld->setReadOnly();
+    pythfld->setElemSzPol( uiObject::Wide );
+    uiListBox* modfld = new uiListBox( &dlg );
+    modfld->setLabelText( tr("Detected modules") );
+    modfld->addItems( modstrs );
+    modfld->attach( alignedBelow, pythfld );
+    dlg.go();
 }
 
 void testCB(CallBacker*)
@@ -513,10 +527,7 @@ void testCB(CallBacker*)
 	return;
     }
 
-    gUiMsg( this ).message( tr("Detected Python version: %1")
-			.arg(OD::PythA().pyVersion() ));
-
-    usw.setMessage( tr("Retrieving list of installed Python modules") );
+    usw.readyNow();
     testPythonModules();
 }
 
