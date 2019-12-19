@@ -512,6 +512,14 @@ uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
 }
 
 
+void uiIOObjSelGrp::displayManipGroup( bool yn, bool shrink)
+{
+    uiIOObjManipGroup* grp = getManipGroup();
+    if ( grp )
+	grp->display( yn, shrink );
+}
+
+
 void uiIOObjSelGrp::setSurveyDefaultSubsel( const char* subsel )
 {
     surveydefaultsubsel_ = subsel;
@@ -724,7 +732,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     {
 	PtrMan<Translator> transl = ioobj->createTranslator();
 	BufferString iconnm;
-        if ( transl )
+	if ( transl )
 	    iconnm.set( transl->iconName() );
 	iconnms_.add( iconnm.buf() );
     }
