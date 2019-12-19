@@ -623,8 +623,9 @@ void Well::MarkerSet::moveBlock( idx_type fromidx, idx_type toidxblockstart,
     Well::MarkerSet tomove;
     for ( idx_type idx=fromrg.start; idx<=fromrg.stop; idx++ )
     {
-	Marker& oldmrk = markers_[idx];oldmrk.setName( "" );
+	Marker& oldmrk = markers_[idx];
 	tomove.add( oldmrk );
+	oldmrk.setName( "" );
     }
 
     idx_type toidx = toidxblockstart;
@@ -1250,7 +1251,7 @@ void Well::MarkerRange::getNames( BufferStringSet& nms ) const
 
     Well::MarkerSetIter miter( markerset_, topid_, botid_ );
     while( miter.next() )
-        nms.add( miter.markerName() );
+	nms.add( miter.markerName() );
 }
 
 
