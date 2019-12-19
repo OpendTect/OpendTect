@@ -115,6 +115,7 @@ public:
     uiLineEdit*		getFilterField()		{ return filtfld_; }
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
+    void		displayManipGroup(bool yn=true,bool shrink=false);
     const DBKeySet&	getIOObjIds() const		{ return ioobjids_; }
 
     void		setConfirmOverwrite( bool yn )
