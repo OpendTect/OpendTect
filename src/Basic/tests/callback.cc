@@ -14,8 +14,10 @@
 #include "atomic.h"
 #include "signal.h"
 #include "thread.h"
+#include "timer.h"
 #include <time.h>
 #include "ptrman.h"
+#include "applicationdata.h"
 
 
 class ClassWithNotifier : public CallBacker
@@ -42,6 +44,9 @@ public:
 			{
 			    nrhits_--;
 			}
+    void		timerHit( CallBacker* )
+			    { logStream() << "Timer hit!" << od_endl;
+			      ExitProgram( 0 ); }
 
     Threads::Atomic<int>	nrhits_;
 };
@@ -475,6 +480,16 @@ bool testMulthThreadChaos()
 }
 
 
+static bool testTimer()
+{
+    auto* tmr = new Timer( "Test timer" );
+    auto* rcvr = new NotifiedClass;
+    tmr->tick.notify( mCB(rcvr,NotifiedClass,timerHit) );
+    tmr->start( 0, true );
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -488,5 +503,8 @@ int mTestMainFnName( int argc, char** argv )
       || !InMainThreadTester::test() )
 	return 1;
 
+    ApplicationData ad;
+    testTimer();
+    ad.exec();
     return 0;
 }
