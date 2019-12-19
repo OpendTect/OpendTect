@@ -15,17 +15,23 @@ def getDBList(translnm,alltrlsgrps=False,exenm=dbmanexe,args=None):
   return getDBDict( cmd )
 
 def getInfoFromDBListByNameOrKey(nm_or_key,dblist):
-  for (dbobjnm,objid,objfmt,objtrlgrp,objtyp) in \
-        zip(dblist['Names'],dblist['IDs'],dblist['Formats'], \
-            dblist['TranslatorGroups'],dblist['Types']):
+  for i in range(len(dblist['Names'])):
+    dbobjnm = dblist['Names'][i]
+    objid = dblist['IDs'][i]
+    objfmt = dblist['Formats'][i]
     if dbobjnm != nm_or_key and objid != nm_or_key:
       continue
+    if 'TranslatorGroups' in dblist:
+      objtrlgrp = dblist['TranslatorGroups'][i]
+    if 'Types' in dblist:
+      objtyp = dblist['Types'][i]
     ret = {
       'ID': objid,
       'Name': dbobjnm,
       'Format': objfmt,
-      'TranslatorGroup': objtrlgrp,
     }
+    if len(objtrlgrp) > 0:
+      ret.update({'TranslatorGroup': objtrlgrp})
     if len(objtyp) > 0:
       ret.update({'Type': objtyp})
     return ret
