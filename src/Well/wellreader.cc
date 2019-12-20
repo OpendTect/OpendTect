@@ -882,26 +882,29 @@ uiString MultiWellReader::uiNrDoneText() const
 int MultiWellReader::nextStep()
 {
     if ( nrdone_ >= totalNr() )
-        return Executor::Finished();
+	return Executor::Finished();
 
     else
     {
-        const MultiID wmid = keys_[sCast(int,nrdone_)];
-        Well::Data* wd = new Well::Data;
-        wd->ref();
-        Well::Reader wrdr( wmid, *wd );
-        if ( wrdr.hasDahRange() )
-        {
-            Well::Data* wdw = Well::MGR().get( keys_[sCast(int,nrdone_)] );
-            Well::Writer wllwrt( wmid, *wdw );
-            wllwrt.putLogs();
-        }
+	const MultiID wmid = keys_[sCast(int,nrdone_)];
+	nrdone_++;
+	Well::Data* wd = new Well::Data;
+	wd->ref();
+	Well::Reader wrdr( wmid, *wd );
+	const bool hasdahrg mUnusedVar = wrdr.hasDahRange();
+	/*
+	if ( wrdr.hasDahRange() )
+	{
+	    Well::Data* wdw = Well::MGR().get( keys_[sCast(int,nrdone_)] );
+	    Well::Writer wllwrt( wmid, *wdw );
+	    wllwrt.putLogs();
+	}
+	*/
 
-        if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
-            return Executor::MoreToDo();
+	if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
+	    return Executor::MoreToDo();
 
-        wds_ += wd;
-        nrdone_++;
-        return Executor::MoreToDo();
+	wds_ += wd;
+	return Executor::MoreToDo();
     }
 }
