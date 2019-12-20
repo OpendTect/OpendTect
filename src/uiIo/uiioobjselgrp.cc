@@ -510,6 +510,13 @@ uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
 }
 
 
+void uiIOObjSelGrp::displayManipGroup( bool yn, bool shrink )
+{
+    if ( manipgrpsubj && manipgrpsubj->grp_ )
+	manipgrpsubj->grp_->display( yn, shrink );
+}
+
+
 void uiIOObjSelGrp::setSurveyDefaultSubsel( const char* subsel )
 {
     surveydefaultsubsel_ = subsel;
@@ -607,7 +614,8 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	{
 	    objid = del[idx]->ioobj_->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
-	    const bool isdef = IOObj::isSurveyDefault( objid );
+	    const bool isdef = setup_.allowsetdefault_
+			? IOObj::isSurveyDefault( objid ) : false;
 	    const bool ispl = StreamProvider::isPreLoaded( objid.buf(), true );
 
 	    ioobjnm = ioobj->name();
