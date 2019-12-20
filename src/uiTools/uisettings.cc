@@ -537,13 +537,15 @@ void promptCB( CallBacker* )
 	return;
 
     const BufferString termem = SettingsAccess().getTerminalEmulator();
+    bool immediate = false;
 #ifdef __win__
     OS::MachineCommand cmd( "start" );
     cmd.addArg( termem );
+    immediate = true;
 #else
     OS::MachineCommand cmd( termem );
 #endif
-    OD::PythA().execute( cmd, false );
+    OD::PythA().execute( cmd, immediate );
 }
 
 bool useScreen()
@@ -552,7 +554,7 @@ bool useScreen()
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
-    uiString envrootstr = tr("Evironment root" );
+    uiString envrootstr = tr("Environment root" );
     if ( source == OD::Internal && internalloc_ )
     {
 	const BufferString envroot( internalloc_->fileName() );
