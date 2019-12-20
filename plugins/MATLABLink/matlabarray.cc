@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 -*/
 
+#define nullptr 0
+
 #include "matlabarray.h"
 
 #include "arraynd.h"

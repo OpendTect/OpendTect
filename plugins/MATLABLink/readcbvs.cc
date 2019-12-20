@@ -11,6 +11,8 @@ ________________________________________________________________________
 
 #include "mex.h"
 
+#define nullptr 0
+
 #include "arrayndimpl.h"
 #include "envvars.h"
 #include "file.h"
