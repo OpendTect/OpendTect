@@ -835,12 +835,14 @@ void promptCB( CallBacker* )
 
     const BufferString termem = SettingsAccess().getTerminalEmulator();
     BufferString cmd;
+    bool immediate = false;
 #ifdef __win__
     cmd.set( "start " ).add( termem );
+    immediate = true;
 #else
     cmd.set( termem );
 #endif
-    OD::PythA().execute( OS::MachineCommand(cmd) );
+    OD::PythA().execute( OS::MachineCommand(cmd), immediate );
 }
 
 bool useScreen()
