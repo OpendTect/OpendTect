@@ -851,19 +851,20 @@ bool useScreen()
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
+    uiString envrootstr = tr("Environment root" );
     if ( source == OD::Internal && internalloc_ )
     {
 	const BufferString envroot( internalloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
 	{
-	    uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    uiMSG().error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
 	const FilePath envrootfp( envroot );
 	if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
 	{
-	    uiMSG().error( tr("Invalid environment root") );
+	    uiMSG().error( tr("Invalid %1").arg(envrootstr) );
 	    return false;
 	}
     }
@@ -872,15 +873,15 @@ bool useScreen()
 	const BufferString envroot( customloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
 	{
-	    uiMSG().error( uiStrings::phrSelect(uiStrings::sDirectory()) );
+	    uiMSG().error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
 	const FilePath envrootfp( envroot, "envs" );
 	if ( !envrootfp.exists() )
 	{
-	    uiMSG().error( tr("%1 does not contains a directory called %2")
-				.arg(uiStrings::sDirectory()).arg("envs") );
+	    uiMSG().error( tr("%1 does not contain a folder called %2")
+				.arg(envrootstr).arg("'envs'") );
 	    return false;
 	}
     }
