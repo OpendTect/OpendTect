@@ -840,7 +840,7 @@ void promptCB( CallBacker* )
 #else
     cmd.set( termem );
 #endif
-    OD::PythA().execute( OS::MachineCommand(cmd), false );
+    OD::PythA().execute( OS::MachineCommand(cmd) );
 }
 
 bool useScreen()
@@ -849,7 +849,6 @@ bool useScreen()
     const OD::PythonSource source =
 		OD::PythonSourceDef().getEnumForIndex(sourceidx);
 
-    uiString envrootstr = tr("Evironment root" );
     if ( source == OD::Internal && internalloc_ )
     {
 	const BufferString envroot( internalloc_->fileName() );
