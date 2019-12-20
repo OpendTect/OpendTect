@@ -59,6 +59,7 @@ public:
     int			getType(bool top=true) const;
 				//!< -1=udf/before-first, 0=marker, 1=after-last
 				//!< only useful if setup.withudf
+    void		reset(); //!Sets start to first marker, stop to last
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;

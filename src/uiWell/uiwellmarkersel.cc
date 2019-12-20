@@ -176,6 +176,13 @@ int uiWellMarkerSel::getType( bool top ) const
 }
 
 
+void uiWellMarkerSel::reset()
+{
+    topfld_->setCurrentItem( 0 );
+    botfld_->setCurrentItem( botfld_->size()-1 );
+}
+
+
 void uiWellMarkerSel::usePar( const IOPar& iop )
 {
     if ( !botfld_ )
