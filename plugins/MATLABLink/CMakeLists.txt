@@ -31,6 +31,9 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 	    ${MATLAB_DIR}/bin/glnxa64/libmwmclmcr.so )
     endif()
     add_definitions( -DHAS_MATLAB )
+    if ( WIN32 )
+	add_definitions( -D_XKEYCHECK_H )
+    endif()
 
     set( OD_PLUGIN_ALO_EXEC ${OD_VOLUME_EXECS} )
 
