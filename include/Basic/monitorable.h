@@ -79,6 +79,8 @@ public:
 
     class ChangeData;
 
+
+    mUseType( Threads,				Locker );
     typedef int					ChangeType;
     typedef od_int64				IDType;
     typedef CNotifier<Monitorable,ChangeData>	ChangeDataNotifier;
@@ -156,11 +158,29 @@ public:
     void		transferNotifsTo(const Monitorable&,
 					const CallBacker* onlyfor=0) const;
 
-    mExpClass(Basic)	AccessLocker : public Threads::Locker
+    mExpClass(Basic)	AccessLocker
     {
     public:
+
 			AccessLocker(const Monitorable&,bool forread=true);
-	inline bool	convertToWrite()	{ return convertToWriteLock(); }
+			AccessLocker(const AccessLocker&);
+	AccessLocker&	operator =(const AccessLocker&);
+			~AccessLocker();
+
+	bool		isLocked() const;
+	void		unlockNow();
+	void		reLock(Locker::WaitType wt=Locker::WaitIfLocked);
+	bool		convertToWrite();
+
+	static void	enableLocking(bool yn);
+			//!< don't use unless you understand the implications
+
+	Locker*		theLock()	{ return thelock_; }
+
+    protected:
+
+	Locker*		thelock_	= nullptr;
+
     };
 
 protected:

@@ -10,16 +10,71 @@
 #include "uistrings.h"
 
 static const int maxnrchangerecs_ = 100;
+static bool lockingactive_ = false;
 
 
 mDefineInstanceCreatedNotifierAccess(Monitorable)
 mDefineInstanceCreatedNotifierAccess(SharedObject)
 
 
-Monitorable::AccessLocker::AccessLocker( const Monitorable& obj, bool forread )
-    : Threads::Locker( obj.accesslock_, forread ? Threads::Locker::ReadLock
-						: Threads::Locker::WriteLock )
+void Monitorable::AccessLocker::enableLocking( bool yn )
 {
+    lockingactive_ = yn;
+}
+
+
+Monitorable::AccessLocker::AccessLocker( const Monitorable& obj, bool forread )
+{
+    if ( lockingactive_ )
+	thelock_ = new Locker( obj.accesslock_,
+			forread ? Locker::ReadLock : Locker::WriteLock );
+}
+
+
+Monitorable::AccessLocker::AccessLocker( const AccessLocker& oth )
+    : thelock_(nullptr)
+{
+}
+
+
+Monitorable::AccessLocker::~AccessLocker()
+{
+    delete thelock_;
+}
+
+
+Monitorable::AccessLocker& Monitorable::AccessLocker::operator =(
+					const AccessLocker& oth )
+{
+    if ( &oth != this )
+	{ delete thelock_; thelock_ = nullptr; }
+    return *this;
+}
+
+
+bool Monitorable::AccessLocker::isLocked() const
+{
+    return thelock_ ? thelock_->isLocked() : false;
+}
+
+
+void Monitorable::AccessLocker::unlockNow()
+{
+    if ( thelock_ )
+	thelock_->unlockNow();
+}
+
+
+void Monitorable::AccessLocker::reLock( Locker::WaitType wt )
+{
+    if ( thelock_ )
+	thelock_->reLock( wt );
+}
+
+
+bool Monitorable::AccessLocker::convertToWrite()
+{
+    return thelock_ ? thelock_->convertToWriteLock() : true;
 }
 
 

@@ -53,6 +53,7 @@ static AutoSaved2RealObjectRestorer* autosaved_2_realobj_restorer = 0;
 
 void startAutoSaved2RealObjectRestorer()
 {
+    Monitorable::AccessLocker::enableLocking( true );
     autosaved_2_realobj_restorer = new AutoSaved2RealObjectRestorer;
 }
 
