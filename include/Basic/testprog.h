@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "keystrs.h"
 #include "debug.h"
+#include "monitorable.h"
 #include "ptrman.h"
 #include "od_ostream.h"
 #include "odruncontext.h"
@@ -67,7 +68,8 @@ static inline CommandLineParser& clParser()
 # define mTestProgInits() \
     od_init_test_program( argc, argv ); \
     the_testprog_parser_ = new CommandLineParser; \
-    quiet_ = clParser().hasKey( sKey::Quiet() )
+    quiet_ = clParser().hasKey( sKey::Quiet() ); \
+    Monitorable::AccessLocker::enableLocking( true )
 
 # define mInitCompositeTestProg(mod) \
     mTestProgInits(); \
