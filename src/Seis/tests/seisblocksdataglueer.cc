@@ -29,9 +29,9 @@
     mErrRetIfNotOK( uirv )
 
 #define mAddBlocks( inl, crl ) \
-    mAddBlock( inl, crl, 0.f ) \
-    mAddBlock( inl, crl, 0.02f ) \
-    mAddBlock( inl, crl, 0.04f )
+    mAddBlock( inl, crl, 1.0f ) \
+    mAddBlock( inl, crl, 1.02f ) \
+    mAddBlock( inl, crl, 1.04f )
 
 static DBKey dbky_;
 
