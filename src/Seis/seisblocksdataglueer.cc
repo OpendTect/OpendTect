@@ -335,6 +335,8 @@ uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 
     SeisTrc trc( trcsz_ );
     trc.info().setGeomSystem( is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
+    trc.info().sampling_.start = zrg.start;
+    trc.info().sampling_.step = zrg.step;
     uiRetVal uirv;
     for ( auto lnr=lb.linerg_.start; lnr<=lb.linerg_.stop;
 		lnr+=lb.linerg_.step )
