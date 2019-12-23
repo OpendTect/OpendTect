@@ -48,17 +48,15 @@ uiHorizonSortDlg::~uiHorizonSortDlg()
 { deepUnRef( horizons_ ); }
 
 
-void uiHorizonSortDlg::setConstSelected( const TypeSet<MultiID>& horids )
+void uiHorizonSortDlg::setSelected( const TypeSet<MultiID>& horids )
 {
-    constselids_ = horids;
-    horsel_->removeFromList( horids );
+    horsel_->setSelSurfaceIds( horids );
 }
 
 
 void uiHorizonSortDlg::getSelectedHorizons( TypeSet<MultiID>& horids ) const
 {
     horsel_->getSelSurfaceIds( horids );
-    horids.append( constselids_ );
 }
 
 

@@ -20,9 +20,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 
 
-HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
+HorizonSorter::HorizonSorter( const TypeSet<EM::ObjectID>& ids, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
+    , totalnr_(-1)
+    , nrdone_(0)
+    , iterator_(0)
+    , result_(0)
+    , is2d_(is2d)
+    , message_(tr("Sorting"))
+    , taskrun_(0)
+{
+}
+
+
+HorizonSorter::HorizonSorter( const TypeSet<MultiID>& keys, bool is2d )
+    : Executor("Sort horizons")
+    , unsortedkeys_(keys)
     , totalnr_(-1)
     , nrdone_(0)
     , iterator_(0)
@@ -131,15 +145,15 @@ void HorizonSorter::sort()
 
 		if ( nrbelow > nrabove )
 		{
-		    MultiID mid = sortedids_[idx0];
+		    EM::ObjectID id = sortedids_[idx0];
 		    sortedids_.removeSingle( idx0 );
-		    sortedids_.insert( idx1, mid );
+		    sortedids_.insert( idx1, id );
 		}
 		else if ( nrbelow < nrabove )
 		{
-		    MultiID mid = sortedids_[idx1];
+		    EM::ObjectID id = sortedids_[idx1];
 		    sortedids_.removeSingle( idx1 );
-		    sortedids_.insert( idx0, mid );
+		    sortedids_.insert( idx0, id );
 		}
 		else
 		    continue;
@@ -151,10 +165,26 @@ void HorizonSorter::sort()
 	if ( nrswaps == 0 )
 	    break;
     }
+
+    if ( !unsortedkeys_.isEmpty() )
+    {
+	sortedkeys_.setEmpty();
+	for ( int idx=0; idx<sortedids_.size(); idx++ )
+	{
+	    const int oldidx = unsortedids_.indexOf( sortedids_[idx] );
+	    sortedkeys_ += unsortedkeys_[oldidx];
+	}
+    }
 }
 
 
-void HorizonSorter::getSortedList( TypeSet<MultiID>& ids )
+void HorizonSorter::getSortedList( TypeSet<MultiID>& keys )
+{
+    keys = sortedkeys_;
+}
+
+
+void HorizonSorter::getSortedList( TypeSet<EM::ObjectID>& ids )
 {
     ids = sortedids_;
 }
@@ -163,8 +193,19 @@ void HorizonSorter::getSortedList( TypeSet<MultiID>& ids )
 int HorizonSorter::getNrCrossings( const MultiID& mid1,
 				   const MultiID& mid2 ) const
 {
-    const int idx1 = unsortedids_.indexOf( mid1 );
-    const int idx2 = unsortedids_.indexOf( mid2 );
+    const int idx1 = unsortedkeys_.indexOf( mid1 );
+    const int idx2 = unsortedkeys_.indexOf( mid2 );
+    const int nrabove = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0 );
+    const int nrbelow = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1 );
+    return mMIN(nrabove,nrbelow);
+}
+
+
+int HorizonSorter::getNrCrossings( const EM::ObjectID id1,
+				   const EM::ObjectID id2 ) const
+{
+    const int idx1 = unsortedids_.indexOf( id1 );
+    const int idx2 = unsortedids_.indexOf( id2 );
     const int nrabove = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0 );
     const int nrbelow = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1 );
     return mMIN(nrabove,nrbelow);
@@ -186,19 +227,30 @@ int HorizonSorter::nextStep()
 {
     if ( !nrdone_ )
     {
-	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
-	if ( horreader )
+	if ( unsortedids_.isEmpty() && !unsortedkeys_.isEmpty() )
 	{
-	    if ( taskrun_ )
-		taskrun_->execute( *horreader.ptr() );
-	    else
-		horreader->execute();
+	    PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedkeys_ );
+	    if ( horreader )
+	    {
+		if ( taskrun_ )
+		    taskrun_->execute( *horreader.ptr() );
+		else
+		    horreader->execute();
+	    }
+
+	    for ( int idx=0; idx<unsortedkeys_.size(); idx++ )
+	    {
+		EM::ObjectID id = EM::EMM().getObjectID( unsortedkeys_[idx] );
+		if ( id < 0 )
+		    mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
+
+		unsortedids_ += id;
+	    }
 	}
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
-	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
-	    EM::EMObject* emobj = EM::EMM().getObject( objid );
+	    EM::EMObject* emobj = EM::EMM().getObject( unsortedids_[idx] );
 	    if ( !emobj )
 		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 

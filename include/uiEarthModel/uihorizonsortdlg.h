@@ -36,7 +36,7 @@ public:
     void			getSortedHorizons(
 					ObjectSet<EM::Horizon>&) const;
     void			getSortedHorizonIDs(TypeSet<MultiID>&) const;
-    void			setConstSelected(const TypeSet<MultiID>&);
+    void			setSelected(const TypeSet<MultiID>&);
     TrcKeyZSampling		getBoundingBox() const	{ return bbox_; }
 
 protected:
@@ -51,7 +51,6 @@ protected:
     bool			is2d_;
     bool			loadneeded_;
     TrcKeyZSampling		bbox_;
-    TypeSet<MultiID>		constselids_;
     ObjectSet<EM::Horizon>	horizons_;
     TypeSet<MultiID>		horids_;
 
