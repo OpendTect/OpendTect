@@ -63,7 +63,9 @@ public:
 			uiHorAttribPIMgr(uiODMain*);
 			~uiHorAttribPIMgr();
 
-    void		updateMenu(CallBacker*);
+    void		cleanUp();
+    void		updateMenuCB(CallBacker*);
+    void		shutDownCB(CallBacker*);
     void		makeStratAmp(CallBacker*);
     void		doFlattened(CallBacker*);
     void		doIsochron(CallBacker*);
@@ -110,9 +112,9 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenu );
-    mAttachCB( IOM().applicationClosing, uiHorAttribPIMgr::updateMenu );
-    updateMenu(0);
+    mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenuCB );
+    mAttachCB( IOM().applicationClosing, uiHorAttribPIMgr::shutDownCB );
+    updateMenuCB(0);
 
     polyvolmnuitemhndlr_.addWhenPickSet( false );
 }
@@ -126,8 +128,9 @@ uiHorAttribPIMgr::~uiHorAttribPIMgr()
 }
 
 
-void uiHorAttribPIMgr::updateMenu( CallBacker* )
+void uiHorAttribPIMgr::updateMenuCB( CallBacker* )
 {
+    cleanUp();
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiActionSeparString gridprocstr( "Create Horizon Output" );
     uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
@@ -139,7 +142,14 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 
     itm->getMenu()->insertItem( new uiAction("Isochron ...",
 			    mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
+}
 
+
+void uiHorAttribPIMgr::shutDownCB( CallBacker* )
+{ cleanUp(); }
+
+void uiHorAttribPIMgr::cleanUp()
+{
     deleteAndZeroPtr( stratampdlg_ );
     deleteAndZeroPtr( dpspickdlg_ );
 }
