@@ -1141,18 +1141,15 @@ void uiSurvey::readSurvInfoFromFile()
 }
 
 
-// Needed because uiSurveyInfoEditor will destruct cursurvinfo_ if isnew
-#define mRetSafe(rv) { \
-    if ( isnew ) cursurvinfo_ = 0; \
-    return rv; }
-
-
 bool uiSurvey::doSurvInfoDialog( bool isnew )
 {
     delete impiop_; impiop_ = 0; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *cursurvinfo_, isnew );
+    if ( isnew )
+	cursurvinfo_ = 0; // dlg takes over cursurvinfo_
+
     if ( !dlg.isOK() )
-	mRetSafe( false )
+	return false;
 
     dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
@@ -1160,7 +1157,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 	if ( !isnew )
 	    readSurvInfoFromFile();
 
-	mRetSafe( false )
+	return false;
     }
 
     if ( initialsurveyname_ == selectedSurveyName() )
@@ -1172,7 +1169,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
     impiop_ = dlg.impiop_; dlg.impiop_ = 0;
     impsip_ = dlg.lastsip_;
 
-    mRetSafe( true )
+    return true;
 }
 
 
