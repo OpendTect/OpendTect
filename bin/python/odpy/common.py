@@ -200,7 +200,7 @@ def getBinSubDir():
   if isMac():
     return None
   plfsubdirfp = os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir() )
-  execnm = 'od_main'
+  execnm = 'od_FileBrowser'
   if isWin():
     execnm = execnm+'.exe'
   reltypes = ('Debug','Release','RelWithDebInfo')
