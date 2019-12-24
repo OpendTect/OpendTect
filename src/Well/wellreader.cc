@@ -231,8 +231,6 @@ bool Well::Reader::getLogInfo() const
 { return ra_ ? ra_->getLogInfo() : false; }
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
-bool Well::Reader::hasDahRange() const
-{ return ra_ ? ra_->hasDahRange() : false; }
 Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : 0; }
 
@@ -516,21 +514,7 @@ bool Well::odReader::getTrack() const
 
     return isok;
 }
-bool Well::odReader::hasDahRange() const
-{
-    for ( int idx=1;  ; idx++ )
-    {
-	mGetInpStream( sExtLog(), idx, false, break );
 
-	double version = 0.0;
-	if ( rdHdr(strm,sKeyLog(),version) )
-	{
-	    int bintyp = 0;
-	    return hasDahRange( strm, bintyp, idx-1 );
-	}
-    }
-    return true;
-}
 
 bool Well::odReader::getLogInfo() const
 {
@@ -545,11 +529,8 @@ bool Well::odReader::getLogInfo() const
 	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
 	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
 	    loginfo->logunit_ = log->unitMeasLabel();
-	    if ( !mIsUdf(log->dahStart()) && !mIsUdf(log->dahStop()) )
-	    {
-		loginfo->dahstart_ = log->dahStart();
-		loginfo->dahstop_ = log->dahStop();
-	    }
+	    if ( !log->dahRange().isUdf() )
+		loginfo->dahrg_ = log->dahRange();
 	    wd_.logInfoSet().add( loginfo );
 	}
     }
@@ -623,19 +604,6 @@ bool Well::odReader::getLogs() const
 }
 
 
-bool Well::odReader::hasDahRange( od_istream& strm, int& bintype, int idx )
-{
-    ascistream astrm( strm, false );
-    while ( !atEndOfSection(astrm.next()) )
-    {
-	if ( astrm.hasKeyword(Well::Log::sKeyDahStart()) ||
-		    astrm.hasKeyword(Well::Log::sKeyDahStop()) )
-	    return false;
-    }
-    return true;
-}
-
-
 Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 {
     Well::Log* newlog = new Well::Log;
@@ -653,11 +621,10 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 	if ( astrm.hasKeyword(Well::Log::sKeyStorage()) )
 	    bintype = *astrm.value() == 'B' ? 1
 		    : (*astrm.value() == 'S' ? -1 : 0);
-	if ( astrm.hasKeyword(Well::Log::sKeyDahStart()) )
-	    newlog->setDahStart( astrm.getFValue() );
-	if ( astrm.hasKeyword(Well::Log::sKeyDahStop()) )
-	    newlog->setDahStop( astrm.getFValue() );
+	if ( astrm.hasKeyword(Well::Log::sKeyDahRange()) )
+	    newlog->dahRange().set(astrm.getFValue(0),astrm.getFValue(1));
     }
+
     if ( newlog->name().isEmpty() )
     {
 	BufferString nm( "[" ); nm += idx+1; nm += "]";
@@ -891,16 +858,6 @@ int MultiWellReader::nextStep()
 	Well::Data* wd = new Well::Data;
 	wd->ref();
 	Well::Reader wrdr( wmid, *wd );
-	const bool hasdahrg mUnusedVar = wrdr.hasDahRange();
-	/*
-	if ( wrdr.hasDahRange() )
-	{
-	    Well::Data* wdw = Well::MGR().get( keys_[sCast(int,nrdone_)] );
-	    Well::Writer wllwrt( wmid, *wdw );
-	    wllwrt.putLogs();
-	}
-	*/
-
 	if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
 	    return Executor::MoreToDo();
 

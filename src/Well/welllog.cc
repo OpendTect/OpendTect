@@ -16,12 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
-const char* Well::Log::sKeyDahStart()	{ return "Dah start"; }
-const char* Well::Log::sKeyDahStop()	{ return "Dah stop"; }
+const char* Well::Log::sKeyDahRange()	{ return "Dah range"; }
 
 
 // ---- Well::LogSet
-
 
 void Well::LogSet::getNames( BufferStringSet& nms ) const
 {
@@ -356,14 +354,14 @@ bool Well::Log::insertAtDah( float dh, float val )
 
 
 //  ----LogInfo----
-bool Well::LogInfo::hasDahRange()
+Well::LogInfo::LogInfo( const char* nm )
+    : NamedObject(nm)
 {
-    return !mIsUdf(dahstart_) && !mIsUdf(dahstop_);
+    dahrg_.setUdf();
 }
 
 
 //  ----LogInfoSet----
-
 void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
 {
     const int sz = size();
@@ -372,13 +370,12 @@ void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
 }
 
 
-const Well::LogInfo* Well::LogInfoSet::getByName(
-       			const BufferString& lognms ) const
+const Well::LogInfo* Well::LogInfoSet::getByName( const char* lognm ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( lognms == (*this)[idx]->name() )
+	if ( (*this)[idx]->name() == lognm )
 	    return (*this)[idx];
     }
 
@@ -394,46 +391,30 @@ void Well::LogInfoSet::getUnits( BufferStringSet& logunits ) const
 }
 
 
-void Well::LogInfoSet::getUnit( const char* lognm,
-       				const char* logunit) const
+BufferString Well::LogInfoSet::getUnit( const char* lognm ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( (*this)[idx]->name() == lognm )
-	{
-	    logunit = (*this)[idx]->logunit_;
-	    break;
-	}
+	    return (*this)[idx]->logunit_;
     }
+
+    return "";
 }
 
 
-float Well::LogInfoSet::dahStart( const char* lognm ) const
+Interval<float> Well::LogInfoSet::dahRange( const char* lognm ) const
 {
     const int sz = size();
     for (int idx=0; idx<sz; idx++)
     {
 	if ( (*this)[idx]->name() == lognm )
-	    return (*this)[idx]->dahstart_;
+	    return (*this)[idx]->dahrg_;
     }
 
-    return mUdf(float);
+    return Interval<float>::udf();
 }
-
-
-float Well::LogInfoSet::dahStop( const char* lognm ) const
-{
-    const int sz = size();
-    for (int idx=0; idx<sz; idx++)
-    {
-	if ( (*this)[idx]->name() == lognm )
-	    return (*this)[idx]->dahstop_;
-    }
-
-    return mUdf(float);
-}
-
 
 
 bool Well::LogInfoSet::logIsPresent( const char* nm ) const
