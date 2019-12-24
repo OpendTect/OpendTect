@@ -48,8 +48,11 @@ public:
     virtual Color		textColor(int row,int col) const = 0;
     virtual Color		color(int row,int col) const	= 0;
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
+    virtual uiString		tooltip(int row,int col) const	= 0;
 
     ODAbstractTableModel*	getAbstractModel()	{ return odtablemodel_;}
+    void			beginReset();
+    void			endReset();
 
 protected:
 				uiTableModel();

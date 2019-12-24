@@ -54,6 +54,8 @@ public:
     QVariant		headerData(int rowcol,Qt::Orientation orientation,
 				   int role=Qt::DisplayRole) const;
     bool		setData(const QModelIndex&,const QVariant&,int role);
+    void		beginReset();
+    void		endReset();
 
 protected:
     uiTableModel&	model_;
@@ -109,6 +111,13 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 	return QColor( odcol.rgb() );
     }
 
+    if ( role == Qt::ToolTipRole )
+    {
+	const uiString tt =
+	    model_.tooltip( qmodidx.row(), qmodidx.column() );
+	return tt.getQString();
+    }
+
     return QVariant();
 }
 
@@ -135,6 +144,14 @@ QVariant ODAbstractTableModel::headerData( int rowcol, Qt::Orientation orient,
 
     return QVariant();
 }
+
+
+void ODAbstractTableModel::beginReset()
+{ beginResetModel(); }
+
+void ODAbstractTableModel::endReset()
+{ endResetModel(); }
+
 
 
 // uiTableModel
@@ -171,6 +188,12 @@ uiTableModel::CellData::CellData( const CellData& cd )
 
 uiTableModel::CellData::~CellData()
 { delete qvar_; }
+
+void uiTableModel::beginReset()
+{ odtablemodel_->beginReset(); }
+
+void uiTableModel::endReset()
+{ odtablemodel_->endReset(); }
 
 
 
