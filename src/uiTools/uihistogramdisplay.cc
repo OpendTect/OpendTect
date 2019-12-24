@@ -255,9 +255,9 @@ void uiHistogramDisplay::drawData()
     {
 	uiRectItem* baritem = baritems_.validIdx(idx) ? baritems_[idx] : 0;
 	const float xleft = idx ? (xvals_[idx] + xvals_[idx-1])/2
-	    			: xvals_[idx] - xwidth/2;
+				: xvals_[idx] - xwidth/2;
 	const float xright = idx==nrpts-1 ? xvals_[idx] + xwidth/2
-	    				  : (xvals_[idx] + xvals_[idx+1])/2;
+					  : (xvals_[idx] + xvals_[idx+1])/2;
 	const float origxpix = xax_->getPix( xleft );
 	const float barwidth = xax_->getPix( xright ) - origxpix;
 	const float barheight = yax_->getPix( yvals_[idx] ) - basepix;
@@ -266,12 +266,14 @@ void uiHistogramDisplay::drawData()
 	    baritem->setRect( origxpix, basepix, barwidth, barheight );
 	    continue;
 	}
-	
+
 	baritem = scene().addRect( origxpix, basepix, barwidth, barheight );
 	baritem->setZValue( 30 );
 	baritem->setFillColor( Color(200,160,140) );
 	baritems_ += baritem;
     }
+
+    rePaint();
 }
 
 
