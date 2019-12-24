@@ -529,11 +529,16 @@ bool Well::odReader::getLogInfo() const
 	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
 	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
 	    loginfo->logunit_ = log->unitMeasLabel();
-	    if ( !log->dahRange().isUdf() )
+	    if ( loginfo->dahrg_.isUdf() )
+	    {
+		readLogData( *log, strm, bintyp );
 		loginfo->dahrg_ = log->dahRange();
+	    }
+
 	    wd_.logInfoSet().add( loginfo );
 	}
     }
+
     return true;
 }
 

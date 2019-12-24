@@ -68,8 +68,6 @@ public:
 
     Interval<float>&	valueRange()			{ return range_; }
     const Interval<float>& valueRange() const		{ return range_; }
-    Interval<float>&	dahRange()			{ return dahrange_; }
-    const Interval<float>& dahRange() const		{ return dahrange_; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
     const UnitOfMeasure* unitOfMeasure() const;
@@ -93,7 +91,6 @@ protected:
 
     TypeSet<float>	vals_;
     Interval<float>	range_;
-    Interval<float>	dahrange_;
     BufferString	unitmeaslbl_;
     bool		iscode_;
     IOPar		pars_;
