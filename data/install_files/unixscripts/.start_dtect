@@ -10,6 +10,8 @@ if ( ! $?CSHCMD ) then
     setenv CSHCMD ""
 endif
 
+set CHECK_GL=true
+
 source "__INST_DIR__/bin/init_dtect"
 source "__INST_DIR__/bin/init_dtect_user"
 
