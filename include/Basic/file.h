@@ -54,6 +54,8 @@ mGlobal(Basic) bool		makeWritable(const char*,bool yesno,
 					bool recursive);
 mGlobal(Basic) bool		isExecutable(const char*);
 mGlobal(Basic) bool		makeExecutable(const char*,bool yesno);
+mGlobal(Basic) void		setSystemFileAttrib(const char*,bool yn);
+mGlobal(Basic) bool		hasSystemFileAttrib(const char*);
 mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 					bool recursive);
 mGlobal(Basic) bool		isFileInUse(const char* fnm);

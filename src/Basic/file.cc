@@ -496,6 +496,28 @@ bool isExecutable( const char* fnm )
 }
 
 
+void setSystemFileAttrib( const char* fnm, bool yn )
+{
+#ifdef __win__
+    DWORD attr = GetFileAttributes( fnm );
+    if ( yn )
+	SetFileAttributes( fnm, attr | FILE_ATTRIBUTE_SYSTEM );
+    else
+	SetFileAttributes( fnm, attr & ~FILE_ATTRIBUTE_SYSTEM );
+#endif
+}
+
+
+bool hasSystemFileAttrib( const char* fnm )
+{
+#ifdef __win__
+    DWORD attr = GetFileAttributes( fnm );
+    return attr & FILE_ATTRIBUTE_SYSTEM;
+#else
+    return false;
+#endif
+}
+
 
 bool isFileInUse( const char* fnm )
 {
