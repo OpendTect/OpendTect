@@ -498,6 +498,9 @@ bool isExecutable( const char* fnm )
 
 void setSystemFileAttrib( const char* fnm, bool yn )
 {
+    if ( !File::exists(fnm) )
+	return;
+
 #ifdef __win__
     DWORD attr = GetFileAttributes( fnm );
     if ( yn )
@@ -510,6 +513,9 @@ void setSystemFileAttrib( const char* fnm, bool yn )
 
 bool hasSystemFileAttrib( const char* fnm )
 {
+    if ( !File::exists(fnm) )
+	return false;
+
 #ifdef __win__
     DWORD attr = GetFileAttributes( fnm );
     return attr & FILE_ATTRIBUTE_SYSTEM;
