@@ -593,12 +593,40 @@ bool uiSurvey::rootDirWritable() const
 }
 
 
+static void copyFolderIconIfMissing( const char* basedir, const char* survdir )
+{
+    const FilePath survfp( basedir, survdir );
+    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
+    FilePath dest( survfp, "desktop.ini" );
+    if ( !dest.exists() )
+    {
+	const FilePath src( fp, "desktop.ini" );
+	if ( src.exists() )
+	    File::copy( src.fullPath(), dest.fullPath() );
+    }
+
+    if ( dest.exists() )
+	File::hide( dest.fullPath(), true );
+
+    dest.set( survfp.fullPath() ).add( "OD.ico" );
+    if ( !dest.exists() )
+    {
+	const FilePath src( fp, "OD.ico" );
+	if ( src.exists() )
+	    File::copy( src.fullPath(), dest.fullPath() );
+    }
+
+    File::setSystemFileAttrib( survfp.fullPath(), true );
+}
+
+
 void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
 				const char* excludenm )
 {
     BufferString basedir = dataroot;
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
+
     DirList dl( basedir, DirList::DirsOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -607,8 +635,11 @@ void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
 	    continue;
 
 	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
-	if ( File::exists(fp.fullPath()) )
-	    list.add( dirnm );
+	if ( !File::exists(fp.fullPath()) )
+	    continue;
+
+	list.add( dirnm );
+	copyFolderIconIfMissing( basedir, dirnm );
     }
 
     list.sort();
