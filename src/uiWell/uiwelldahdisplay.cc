@@ -343,7 +343,7 @@ void uiWellDahDisplay::drawCurve( bool first )
     }
 
 
-    if ( first )
+    if ( first && zdata_.wd_ )
 	ld.yax_.annotAtEnd( zdata_.zistime_ ? tr("(ms)") :
 			    SI().depthsInFeet() ? tr("(ft)") : tr("(m)") );
 

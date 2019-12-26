@@ -85,8 +85,8 @@ public:
 	mDefSetupMemb(bool,xannotinpercents)
     };
 
-				    uiWellDahDisplay(uiParent*,const Setup&);
-				    ~uiWellDahDisplay();
+				uiWellDahDisplay(uiParent*,const Setup&);
+				~uiWellDahDisplay();
 
     mStruct(uiWell) DahObjData : public CallBacker
     {
@@ -95,8 +95,8 @@ public:
 	//Set these
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
 	bool			hasData() const { return dahobj_; }
-	bool                    xrev_;
-	int                     zoverlayval_;
+	bool			xrev_;
+	int			zoverlayval_;
 	float			cliprate_;
 	Color			col_;
 	bool			drawascurve_;
@@ -105,11 +105,11 @@ public:
 	int			pointsz_;
 
 	//Get these
-	Interval<float>         zrg_;
-	Interval<float>         valrg_;
-	uiAxisHandler           xax_;
-	uiAxisHandler*          xaxprcts_;
-	uiAxisHandler           yax_;
+	Interval<float>		zrg_;
+	Interval<float>		valrg_;
+	uiAxisHandler		xax_;
+	uiAxisHandler*		xaxprcts_;
+	uiAxisHandler		yax_;
 
 	virtual void		getInfoForDah(float dah,BufferString&) const;
 	void			plotAxis();
@@ -119,10 +119,10 @@ public:
 					const uiWellDahDisplay::Setup&);
 
 	const Well::DahObj*	dahobj_;
-	uiGraphicsItemSet       curveitms_;
-	uiPolyLineItem*         curvepolyitm_;
+	uiGraphicsItemSet	curveitms_;
+	uiPolyLineItem*		curvepolyitm_;
 
-	friend class            uiWellDahDisplay;
+	friend class		uiWellDahDisplay;
     };
 
     mStruct(uiWell) Data
@@ -165,10 +165,10 @@ public:
 				PickData( float dah, Color c=Color::NoColor() )
 				    : dah_(dah), color_(c), val_(mUdf(float)) {}
 
-	bool                    operator ==( const PickData& pd ) const
+	bool			operator ==( const PickData& pd ) const
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
 
-	float                   dah_;
+	float			dah_;
 	Color			color_; //!< default will use the global
 					//setup color
 	float			val_; //this will be a point if defined,
@@ -179,38 +179,39 @@ public:
     void			setZRange(Interval<float> zrg)
 					{ zdata_.zrg_ = zrg; dataChanged();}
 
-    const Data&			zData() 	   { return zdata_; }
-    TypeSet<PickData>&          zPicks()           { return zpicks_; }
-    Well::DisplayProperties::Markers& markerDisp() { return  mrkdisp_; }
+    const Data&			zData() 		{ return zdata_; }
+    TypeSet<PickData>&		zPicks()		{ return zpicks_; }
+    Well::DisplayProperties::Markers& markerDisp()	{ return  mrkdisp_; }
 
     void			reDraw()	{ gatherInfo(); draw(); }
     void			reDrawAnnots()	{ drawMarkers(); drawZPicks(); }
 
     DahObjData&			dahObjData( bool first )
-    				{ return first ? *ld1_ : *ld2_; }
+				{ return first ? *ld1_ : *ld2_; }
 protected:
 
     DahObjData*			ld1_;
     DahObjData*			ld2_;
     Data			zdata_;
-    Setup                       setup_;
-    TypeSet<PickData>           zpicks_;
-    uiGraphicsItemSet       	zpickitms_;
+    Setup			setup_;
+    TypeSet<PickData>		zpicks_;
+    uiGraphicsItemSet		zpickitms_;
 
     mStruct(uiWell) MarkerDraw
     {
-			    MarkerDraw( const Well::Marker& mrk )
+				MarkerDraw( const Well::Marker& mrk )
 				: mrk_(mrk)
 				{}
-			    ~MarkerDraw();
+				~MarkerDraw();
 
-	const Well::Marker&     mrk_;
+	const Well::Marker&	mrk_;
 	OD::LineStyle		ls_;
-	uiTextItem*             txtitm_;
-	uiLineItem*             lineitm_;
+	uiTextItem*		txtitm_;
+	uiLineItem*		lineitm_;
     };
-    ObjectSet<MarkerDraw>       markerdraws_;
-    MarkerDraw*                 getMarkerDraw(const Well::Marker&);
+
+    ObjectSet<MarkerDraw>	markerdraws_;
+    MarkerDraw*			getMarkerDraw(const Well::Marker&);
     Well::DisplayProperties::Markers mrkdisp_;
 
     const Well::D2TModel*	d2T() const 	{ return zdata_.d2T(); }
@@ -219,8 +220,8 @@ protected:
 
     virtual void		draw();
     virtual void		drawCurve(bool);
-    void                        drawMarkers();
-    void                        drawZPicks();
+    void			drawMarkers();
+    void			drawZPicks();
 
     void			setAxisRelations();
     virtual void		gatherInfo();
@@ -231,8 +232,8 @@ protected:
     void			init(CallBacker*);
     void			reSized(CallBacker*);
 
-    friend class                uiWellDisplay;
-    friend class                uiWellDisplayControl;
+    friend class		uiWellDisplay;
+    friend class		uiWellDisplayControl;
 };
 
 
