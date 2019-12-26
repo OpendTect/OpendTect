@@ -272,7 +272,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     jobrunner_->jobFailed.notify( mCB(this,uiMMBatchJobDispatcher,jobFail) );
     jobrunner_->msgAvail.notify( mCB(this,uiMMBatchJobDispatcher,infoMsgAvail));
 
-    setOkText( tr("Finish Now") );
+    setOkText( tr("Finish") );
     setCancelText( uiStrings::sAbort() );
 
     timer_ = new Timer("uiMMBatchJobDispatcher timer");
