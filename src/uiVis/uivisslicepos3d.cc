@@ -111,7 +111,6 @@ void uiSlicePos3DDisp::setBoxRanges()
 	    auto& zsamp = curcs.zsamp_;
 	    const auto startidx = sd.indexOnOrAfter( zsamp.start );
 	    sd.start = zsamp.start = sd.atIndex( startidx );
-	    zsamp.step = sd.step;
 	    zsamp.stop = zsamp.atIndex( sd.nrSteps(zsamp.stop) );
 	}
     }
@@ -126,14 +125,12 @@ void uiSlicePos3DDisp::setBoxRanges()
 	    {
 		const auto startidx = sd.indexOnOrAfter( hsamp.start_.inl() );
 		sd.start = hsamp.start_.inl() = sd.atIndex( startidx );
-		hsamp.step_.inl() = sd.step;
 		hsamp.stop_.inl() = sd.atIndex( sd.nrSteps(hsamp.stop_.inl()) );
 	    }
 	    else
 	    {
 		const auto idx = sd.indexOnOrAfter( hsamp.start_.crl() );
 		sd.start = hsamp.start_.crl() = sd.atIndex(idx);
-		hsamp.step_.crl() = sd.step;
 		hsamp.stop_.crl() = sd.atIndex( sd.nrSteps(hsamp.stop_.crl()) );
 	    }
 	}
