@@ -38,7 +38,7 @@ namespace Well
 
 
 mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
-{ mODTextTranslationClass(uiWellLogToolWin);
+{ mODTextTranslationClass(uiWellLogToolWin)
 public:
 
     mStruct(uiWell) LogData
@@ -68,10 +68,11 @@ public:
 	friend class		uiWellLogToolWin;
     };
 
-				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&);
+				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&,
+						 bool withedit=true);
 				~uiWellLogToolWin();
 
-    bool			needSave() const        { return needsave_; }
+    bool			needSave() const	{ return needsave_; }
 
     void			getLogDatas(ObjectSet<LogData>& lds) const
 				{ lds = logdatas_; }
@@ -96,7 +97,9 @@ protected:
     ObjectSet<uiWellLogDisplay> logdisps_;
     bool			needsave_;
 
+    uiGroup*			createEditGroup();
     void			displayLogs();
+    bool			saveLogs();
 
     void			saveCB(CallBacker*);
     void			actionSelCB(CallBacker*);
@@ -108,11 +111,11 @@ protected:
 
 
 mExpClass(uiWell) uiWellLogToolWinMgr : public uiDialog
-{ mODTextTranslationClass(uiWellLogToolWinMgr);
+{ mODTextTranslationClass(uiWellLogToolWinMgr)
 public:
 			uiWellLogToolWinMgr(uiParent*,
-					    const BufferStringSet* welllnms=0,
-					    const BufferStringSet* lognms=0);
+					const BufferStringSet* welllnms=nullptr,
+					const BufferStringSet* lognms=nullptr);
 protected:
 
     uiMultiWellLogSel*	welllogselfld_;
@@ -123,7 +126,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellLogEditor : public uiDialog
-{ mODTextTranslationClass(uiWellLogEditor);
+{ mODTextTranslationClass(uiWellLogEditor)
 public:
 			uiWellLogEditor(uiParent*,Well::Log&);
 			~uiWellLogEditor();

@@ -177,15 +177,18 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 
 
 
-uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
-    : uiMainWin(p,tr("Log Tools Window"))
+uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
+				    bool withedit )
+    : uiMainWin(p,Setup(tr("Log Tools Window")).nrstatusflds(0))
+    , actionfld_(nullptr)
+    , savefld_(nullptr)
     , logdatas_(logs)
     , needsave_(false)
 {
     uiGroup* displaygrp = new uiGroup( this, "Well display group" );
     displaygrp->setHSpacing( 0 );
     zdisplayrg_ = logdatas_[0]->dahrg_;
-    uiGroup* wellgrp; uiGroup* prevgrp = 0; uiLabel* wellnm;
+    uiGroup* wellgrp; uiGroup* prevgrp = nullptr; uiLabel* wellnm;
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
 	LogData& logdata = *logdatas_[idx];
@@ -208,10 +211,35 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     }
     zdisplayrg_.sort();
 
-    uiGroup* actiongrp = new uiGroup( this, "Action" );
+    uiGroup* editgrp = withedit ? createEditGroup() : nullptr;
+    if ( editgrp )
+	editgrp->attach( ensureBelow, displaygrp );
+
+    uiSeparator* horSepar = new uiSeparator( this );
+    horSepar->attach( stretchedBelow, editgrp ? editgrp : displaygrp );
+
+    okbut_ = uiButton::getStd( this, OD::Ok,
+				mCB(this,uiWellLogToolWin,acceptOK), true );
+    okbut_->attach( leftBorder, 20 );
+    okbut_->attach( ensureBelow, horSepar );
+    okbut_->setSensitive( false );
+
+    uiButton* cancelbut = uiButton::getStd( this, OD::Cancel,
+				mCB(this,uiWellLogToolWin,rejectOK), true );
+    cancelbut->attach( rightBorder, 20 );
+    cancelbut->attach( ensureBelow, horSepar );
+
+    displayLogs();
+}
+
+
+uiGroup* uiWellLogToolWin::createEditGroup()
+{
+    uiGroup* editgrp = new uiGroup( this, "Edit" );
+    uiGroup* actiongrp = new uiGroup( editgrp, "Action" );
     actiongrp->attach( hCentered );
-    actiongrp->attach( ensureBelow, displaygrp );
-    const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
+    const char* acts[] =
+	{ "Remove Spikes", "FFT Filter", "Smooth", "Clip", nullptr };
     uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts,
 						    uiStrings::sAction() );
     actionfld_ = llc->box();
@@ -237,7 +265,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     thresholdfld_->box()->setValue( 3 );
     thresholdfld_->box()->setNrDecimals( 2 );
 
-    const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
+    const char* spk[] =
+	{"Undefined values","Interpolated values","Specify", nullptr };
     replacespikefld_ =
 	new uiLabeledComboBox( actiongrp, spk, tr("Replace spikes by") );
     replacespikefld_->box()->selectionChanged.notify(
@@ -249,7 +278,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );
 
-    uiGroup* savegrp = new uiGroup( this, "Save options" );
+    uiGroup* savegrp = new uiGroup( editgrp, "Save options" );
     savegrp->attach( alignedBelow, actiongrp );
     savefld_ = new uiGenInput( savegrp, tr("On OK"),
 	BoolInpSpec(true,tr("Save logs as new"),tr("Overwrite original logs")));
@@ -259,23 +288,9 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     extfld_->setText( "_edited" );
     extfld_->attach( alignedBelow, savefld_ );
 
-    uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, savegrp );
-
-    okbut_ = uiButton::getStd( this, OD::Ok,
-				mCB(this,uiWellLogToolWin,acceptOK), true );
-    okbut_->attach( leftBorder, 20 );
-    okbut_->attach( ensureBelow, horSepar );
-    okbut_->setSensitive( false );
-
-    uiButton* cancelbut = uiButton::getStd( this, OD::Cancel,
-				mCB(this,uiWellLogToolWin,rejectOK), true );
-    cancelbut->attach( rightBorder, 20 );
-    cancelbut->attach( ensureBelow, horSepar );
-
-    actionSelCB(0);
-    saveCB(0);
-    displayLogs();
+    actionSelCB(nullptr);
+    saveCB(nullptr);
+    return editgrp;
 }
 
 
@@ -321,6 +336,16 @@ void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 
 bool uiWellLogToolWin::acceptOK( CallBacker* )
 {
+    if ( savefld_ && !saveLogs() )
+	return false;
+
+    close();
+    return true;
+}
+
+
+bool uiWellLogToolWin::saveLogs()
+{
     const bool overwrite = !savefld_->getBoolValue();
     if ( overwrite )
     {
@@ -351,12 +376,16 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 	    needsave_ = true;
 	}
     }
-    close(); return true;
+
+    return true;
 }
 
 
 bool uiWellLogToolWin::rejectOK( CallBacker* )
-{ close(); return true; }
+{
+    close();
+    return true;
+}
 
 
 #define mAddErrMsg( msg, well ) \
