@@ -182,10 +182,10 @@ namespace Threads
 
 #define mLockStaticInitLock( nm ) \
 static volatile int nm = 0; \
-Threads::lockSimpleSpinWaitLock( nm )
+Threads::lockSimpleSpinWaitLock( nm );
 
 #define mUnlockStaticInitLock( nm ) \
-Threads::unlockSimpleSpinLock( nm )
+Threads::unlockSimpleSpinLock( nm );
 
 #else
 
