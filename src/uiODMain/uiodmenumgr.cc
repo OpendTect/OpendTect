@@ -944,7 +944,6 @@ void uiODMenuMgr::fillUtilMenu()
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
-    mInsertItem( installmnu_, m3Dots(tr("Python Settings")), mSettPython );
     FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller )
@@ -960,6 +959,7 @@ void uiODMenuMgr::fillUtilMenu()
 	installmnu_->insertSeparator();
     }
 
+    mInsertItem( installmnu_, m3Dots(tr("Python Settings")), mSettPython );
     mInsertItem( installmnu_, m3Dots(tr("Connection Settings")),
 		 mInstConnSettsMnuItm );
     mInsertItem( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
