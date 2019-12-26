@@ -264,7 +264,7 @@ bool uiTableView::isRowHidden( int row ) const
 void uiTableView::setColumnHidden( int col, bool yn )
 { odtableview_->setColumnHidden( col, yn ); }
 
-bool uiTableView::iscolumnHidden( int col ) const
+bool uiTableView::isColumnHidden( int col ) const
 { return odtableview_->isColumnHidden( col ); }
 
 
@@ -299,10 +299,73 @@ void uiTableView::setSelectionMode( SelectionMode sm )
 }
 
 
+void uiTableView::clearSelection()
+{
+    odtableview_->clearSelection();
+}
+
+
+bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    if ( !selmdl->hasSelection() )
+	return false;
+
+    QModelIndexList selection = selmdl->selectedRows();
+    for ( int idx=0; idx<selection.size(); idx++ )
+    {
+	const int selrow = selection[idx].row();
+	if ( !isRowHidden(selrow) )
+	    rows += selrow;
+    }
+
+    return rows.size();
+}
+
+
+bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    if ( !selmdl->hasSelection() )
+	return false;
+
+    QModelIndexList selection = selmdl->selectedColumns();
+    for ( int idx=0; idx<selection.size(); idx++ )
+    {
+	const int selcol = selection[idx].column();
+	if ( !isColumnHidden(selcol) )
+	    cols += selcol;
+    }
+
+    return cols.size();
+}
+
+
+bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    if ( !selmdl->hasSelection() )
+	return false;
+
+    QModelIndexList selection = selmdl->selectedIndexes();
+    for ( int idx=0; idx<selection.size(); idx++ )
+    {
+	const int selrow = selection[idx].row();
+	const int selcol = selection[idx].column();
+	if ( isRowHidden(selrow) || isColumnHidden(selcol) )
+	    continue;
+
+	rcs += RowCol( selrow, selcol );
+    }
+
+    return rcs.size();
+}
+
+
 static DoubleItemDelegate* getDoubleDelegate()
 {
     mDefineStaticLocalObject( PtrMan<DoubleItemDelegate>, del,
-			      = new DoubleItemDelegate );
+			      = new DoubleItemDelegate )
     return del;
 }
 

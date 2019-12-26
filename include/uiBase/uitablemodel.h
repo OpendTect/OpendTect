@@ -80,7 +80,7 @@ public:
     void			setRowHidden(int row,bool);
     bool			isRowHidden(int row) const;
     void			setColumnHidden(int col,bool);
-    bool			iscolumnHidden(int col) const;
+    bool			isColumnHidden(int col) const;
 
     RowCol			mapFromSource(const RowCol&) const;
 				// source model to filter model
@@ -88,6 +88,10 @@ public:
 				// filter model to source model
     void			setSelectionBehavior(SelectionBehavior);
     void			setSelectionMode(SelectionMode);
+    void			clearSelection();
+    bool			getSelectedRows(TypeSet<int>&) const;
+    bool			getSelectedColumns(TypeSet<int>&) const;
+    bool			getSelectedCells(TypeSet<RowCol>&) const;
 
     void			setColumnValueType(int col,CellType);
 
