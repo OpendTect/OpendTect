@@ -102,7 +102,8 @@ public:
 			QtTabletEventFilter()
 			    : mousepressed_( false )
 			    , checklongleft_( false )
-			    , lostreleasefixevent_( 0 )
+			    , lostreleasefixevent_( nullptr )
+			    , islostreleasefixed_(false)
 			{}
 protected:
     bool		eventFilter(QObject*,QEvent*);
@@ -165,7 +166,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
     if ( qme->type()==QEvent::MouseButtonPress )
     {
-	lostreleasefixevent_ = 0;
+	lostreleasefixevent_ = nullptr;
 	islostreleasefixed_ = false;
 	mousebutton_ = qme->button();
     }
@@ -238,13 +239,13 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-const uiFont* uiMain::font_ = 0;
-QApplication* uiMain::app_ = 0;
-uiMain*	uiMain::themain_ = 0;
+const uiFont* uiMain::font_ = nullptr;
+QApplication* uiMain::app_ = nullptr;
+uiMain*	uiMain::themain_ = nullptr;
 
-KeyboardEventHandler* uiMain::keyhandler_ = 0;
-KeyboardEventFilter* uiMain::keyfilter_ = 0;
-QtTabletEventFilter* uiMain::tabletfilter_ = 0;
+KeyboardEventHandler* uiMain::keyhandler_ = nullptr;
+KeyboardEventFilter* uiMain::keyfilter_ = nullptr;
+QtTabletEventFilter* uiMain::tabletfilter_ = nullptr;
 
 
 static void initQApplication()
@@ -273,7 +274,7 @@ uiMain::uiMain( int& argc, char **argv )
 #endif
 
     initQApplication();
-    init( 0, argc, argv );
+    init( nullptr, argc, argv );
 
     const QPixmap pixmap( XpmIconData );
     app_->setWindowIcon( QIcon(pixmap) );
@@ -281,7 +282,7 @@ uiMain::uiMain( int& argc, char **argv )
 
 
 uiMain::uiMain( QApplication* qapp )
-    : mainobj_(0)
+    : mainobj_(nullptr)
 {
     initQApplication();
     app_ = qapp;
@@ -317,7 +318,7 @@ static const char* getStyleFromSettings()
 	return "cleanlooks";
 #endif
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -443,7 +444,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 	app_->setStyleSheet( sheet );
     }
 
-    font_ = 0;
+    font_ = nullptr;
     setFont( *font() , true );
 }
 
@@ -467,7 +468,7 @@ int uiMain::exec()
 
 void* uiMain::thread()
 {
-    return qApp ? qApp->thread() : 0;
+    return qApp ? qApp->thread() : nullptr;
 }
 
 
