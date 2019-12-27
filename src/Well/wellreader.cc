@@ -123,14 +123,14 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
 
 
 Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
-    : ra_(0)
+    : ra_(nullptr)
 {
     init( ioobj, wd );
 }
 
 
 Well::Reader::Reader( const MultiID& ky, Well::Data& wd )
-    : ra_(0)
+    : ra_(nullptr)
 {
     IOObj* ioobj = IOM().get( ky );
     if ( !ioobj )
@@ -186,8 +186,8 @@ bool Well::Reader::get() const
     if ( !wd )
 	return false;
 
-    wd->setD2TModel( 0 );
-    wd->setCheckShotModel( 0 );
+    wd->setD2TModel( nullptr );
+    wd->setCheckShotModel( nullptr );
 
     if ( !getTrack() || !getInfo() )
 	return false;
@@ -232,7 +232,7 @@ bool Well::Reader::getLogInfo() const
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
 Well::Data* Well::Reader::data()
-{ return ra_ ? &ra_->data() : 0; }
+{ return ra_ ? &ra_->data() : nullptr; }
 
 
 bool Well::Reader::getMapLocation( Coord& coord ) const
@@ -252,7 +252,7 @@ Well::odIO::odIO( const char* f, BufferString& e )
     , errmsg_(e)
 {
     FilePath fp( basenm_ );
-    fp.setExtension( 0, true );
+    fp.setExtension( nullptr, true );
     const_cast<BufferString&>(basenm_) = fp.fullPath();
 }
 
@@ -283,7 +283,9 @@ const char* Well::odIO::getMainFileName( const IOObj& ioobj )
 const char* Well::odIO::getMainFileName( const MultiID& mid )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
+
     return getMainFileName( *ioobj );
 }
 
@@ -316,7 +318,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 	msg += astrm.fileType(); msg += "' whereas it should be '";
 	msg += fileky; msg += "'";
 	ErrMsg( msg );
-	return 0;
+	return nullptr;
     }
 
     ver = (double)astrm.majorVersion() +
@@ -346,7 +348,7 @@ Well::odReader::odReader( const char* f, Well::Data& w, BufferString& e )
     , Well::ReadAccess(w)
 {
     FilePath fp( f );
-    fp.setExtension( 0 );
+    fp.setExtension( nullptr );
     wd_.info().setName( fp.fileName() );
 }
 
@@ -362,7 +364,7 @@ Well::odReader::odReader( const IOObj& ioobj, Well::Data& w, BufferString& e )
 
 bool Well::odReader::getInfo() const
 {
-    mGetInpStream( sExtWell(), 0, true, return false );
+    mGetInpStream( sExtWell(), 0, true, return false )
 
     wd_.info().source_.set( getFileName(sExtWell()) );
     return getInfo( strm );
@@ -486,7 +488,7 @@ bool Well::odReader::getTrack( od_istream& strm ) const
 bool Well::odReader::getTrack() const
 {
     bool isold = false;
-    mGetInpStream( sExtTrack(), 0, false, isold = true );
+    mGetInpStream( sExtTrack(), 0, false, isold = true )
     if ( isold )
     {
 	strm.open( getFileName(".well",0) );
@@ -507,7 +509,7 @@ bool Well::odReader::getTrack() const
 	for ( int idx=0; idx<welltrack.size(); idx++ )
 	{
 	    Coord3 pos = welltrack.pos( idx );
-	    pos.z *= mToFeetFactorF;
+	    pos.z *= mToFeetFactorD;
 	    welltrack.setPoint( idx, pos, (float) pos.z );
 	}
     }
@@ -520,7 +522,7 @@ bool Well::odReader::getLogInfo() const
 {
     for ( int idx=1;  ; idx++ )
     {
-	mGetInpStream( sExtLog(), idx, false, break );
+	mGetInpStream( sExtLog(), idx, false, break )
 
 	double version = 0.0;
 	if ( rdHdr(strm,sKeyLog(),version) )
@@ -528,7 +530,8 @@ bool Well::odReader::getLogInfo() const
 	    int bintyp = 0;
 	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
 	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
-	    loginfo->logunit_ = log->unitMeasLabel();
+	    const UnitOfMeasure* uom = log->unitOfMeasure();
+	    loginfo->logunit_ = uom ? uom->symbol() : log->unitMeasLabel();
 	    if ( loginfo->dahrg_.isUdf() )
 	    {
 		readLogData( *log, strm, bintyp );
@@ -555,7 +558,7 @@ void Well::odReader::getLogInfo( BufferStringSet& nms,
 {
     for ( int idx=1;  ; idx++ )
     {
-	mGetInpStream( sExtLog(), idx, false, break );
+	mGetInpStream( sExtLog(), idx, false, break )
 
 	double version = 0.0;
 	if ( rdHdr(strm,sKeyLog(),version) )
@@ -587,7 +590,7 @@ bool Well::odReader::getLog( const char* lognm ) const
     if ( lognmidx<0 ) return false;
 
     const int logfileidx = idxs[lognmidx];
-    mGetInpStream( sExtLog(), logfileidx, true, return false );
+    mGetInpStream( sExtLog(), logfileidx, true, return false )
     return addLog( strm );
 }
 
@@ -598,7 +601,7 @@ bool Well::odReader::getLogs() const
     wd_.logs().setEmpty();
     for ( int idx=1;  ; idx++ )
     {
-	mGetInpStream( sExtLog(), idx, false, break );
+	mGetInpStream( sExtLog(), idx, false, break )
 
 	if ( !addLog(strm) )
 	    mErrStrmOper("read data",
@@ -696,7 +699,7 @@ void Well::odReader::readLogData( Well::Log& wl, od_istream& strm,
 
 bool Well::odReader::getMarkers() const
 {
-    mGetInpStream( sExtMarkers(), 0, true, return false );
+    mGetInpStream( sExtMarkers(), 0, true, return false )
     return getMarkers( strm );
 }
 
@@ -763,7 +766,7 @@ bool Well::odReader::getD2T() const	{ return doGetD2T( false ); }
 bool Well::odReader::getCSMdl() const	{ return doGetD2T( true ); }
 bool Well::odReader::doGetD2T( bool csmdl ) const
 {
-    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, true, return false );
+    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, true, return false )
     return doGetD2T( strm, csmdl );
 }
 
@@ -808,7 +811,7 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 
 bool Well::odReader::getDispProps() const
 {
-    mGetInpStream( sExtDispProps(), 0, true, return false );
+    mGetInpStream( sExtDispProps(), 0, true, return false )
     return getDispProps( strm );
 }
 
