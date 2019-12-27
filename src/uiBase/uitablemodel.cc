@@ -280,7 +280,7 @@ RowCol uiTableView::mapFromSource( const RowCol& rc ) const
 RowCol uiTableView::mapToSource( const RowCol& rc ) const
 {
     QModelIndex proxyidx = qproxymodel_->index( rc.row(), rc.col() );
-    QModelIndex qmi = qproxymodel_->mapFromSource( proxyidx );
+    QModelIndex qmi = qproxymodel_->mapToSource( proxyidx );
     return RowCol( qmi.row(), qmi.column() );
 }
 
