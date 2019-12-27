@@ -40,7 +40,7 @@ bin/*/Debug/*
 bin/*/Release/*
 *.cbp
 *.cd
-*.user
+*.user*
 *.tlog
 *.log
 *.suo
