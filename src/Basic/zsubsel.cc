@@ -438,7 +438,17 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 {
     PtrMan<IOPar> iop = inpiop.subselect( sKeyZSS );
     if ( !iop || iop->isEmpty() )
+    {
+	if ( is3D() )
+	{
+	    if ( first().usePar(inpiop) )
+		si_ = si;
+	    else
+		setToNone( false, si );
+	}
+
 	return;
+    }
 
     int sz = 0;
     iop->get( IOPar::compKey(sKeyZSS,sKey::Size()), sz );
