@@ -89,8 +89,13 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 			    uiFirewallProcSetter::statusUpdatePyProcCB);
     pythonproclistbox_->chooseAll();
     
-    if ( acttyp == PDE::Add || acttyp == PDE::Remove )
-	setOkText( PDE::ActionTypeDef().getUiStringForIndex(acttyp) );
+    if ( ePDD().getActionType() != PDE::AddNRemove )
+    {
+       setOkText( PDE::ActionTypeDef().getUiStringForIndex(
+						 ePDD().getActionType()) );
+       if ( addremfld_ )
+           addremfld_->display( false );
+    }
 }
 
 #define mGetData \
