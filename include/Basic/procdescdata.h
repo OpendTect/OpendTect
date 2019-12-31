@@ -30,7 +30,6 @@ namespace ProcDesc
 				DataEntry() {}
 				~DataEntry()
 				{
-				    int x = 0;
 				}
 	BufferString		execnm_;
 	uiString		desc_;
