@@ -224,7 +224,6 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
 ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 {
     readPars();
-    const int sz = ePDD().size();
     if ( nrprocadded_ == 0 )
 	return ProcDesc::DataEntry::Add;
     else if ( nrprocadded_ == ePDD().size() )
