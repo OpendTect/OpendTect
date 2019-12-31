@@ -16,32 +16,18 @@
 #include "keystrs.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "od_ostream.h"
 #include "pythonaccess.h"
 #include "settings.h"
 
-mDefineEnumUtils(uiFirewallProcSetter,ActionType,"ActionType")
-{
-    "Add", "Remove", "AddNRemove", 0
-};
- template <>
- void EnumDefImpl<uiFirewallProcSetter::ActionType>::init()
- {
-     uistrings_ += uiStrings::sAdd();
-     uistrings_ += uiStrings::sRemove();
-     uistrings_ += tr("Not sure");
- }
+#include "iopar.h"
 
 
-uiString getWindowTitle( uiFirewallProcSetter::ActionType acttyp )
+
+
+uiString getWindowTitle()
 {
-    if ( acttyp == uiFirewallProcSetter::Add )
-	return od_static_tr( "getWindowTitle", "Add Firewall Program Rule" );
-    else if ( acttyp == uiFirewallProcSetter::Remove )
-	return od_static_tr( "getWindowTitle",
-					    "Remove Firewall Program Rule" );
-    else
-	return od_static_tr( "getWindowTitle",
-					"Add/Remove Firewall Program Rule" );
+    return od_static_tr( "getWindowTitle", "Manage Firewall Program Rule" );
 }
 
 uiString getDlgTitle()
@@ -51,59 +37,103 @@ uiString getDlgTitle()
 	"running of program.");
 }
 
-uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, ActionType acttyp,
+//Remove the argument actiontype from the dialog, it will determine on its own
+
+uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 						    const BufferString& path )
-    : uiDialog(p, Setup(getWindowTitle(acttyp), getDlgTitle(),
+    : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(),
 			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
-    , acttyp_(acttyp)
     , addremfld_(0)
     , pythonproclistbox_(0)
+    , odproclistbox_(0)
 {
     if ( path.isEmpty() )
 	exepath_ = GetExecPlfDir();
     else
 	exepath_ = path;
 
-    ePDD().getProcData( odv6procnms_, odprocdescs_, ProcDesc::DataEntry::ODv6 );
-    ePDD().getProcData( odv7procnms_, odprocdescs_, ProcDesc::DataEntry::ODv7 );
-
+    uiObject* attachobj(0);
     uiListBox::Setup su;
+    if ( acttyp == PDE::AddNRemove )
+    {
+	addremfld_ = new uiGenInput( this, uiStrings::sAction(),
+	    BoolInpSpec(true, uiStrings::sAdd(), uiStrings::sRemove()) );
+	mAttachCB( addremfld_->valuechanged,
+				    uiFirewallProcSetter::selectionChgCB );
+	attachobj = addremfld_->attachObj();
+	toadd_ = addremfld_->getBoolValue();
+    }
+    else
+	toadd_ = acttyp == PDE::Add;
+
+    init();
+
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
     odproclistbox_ = new uiListBox( this, su );
+    if ( attachobj )
+	odproclistbox_->attach( alignedBelow, attachobj );
+
     odproclistbox_->addItems( odprocdescs_ );
     odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
     mAttachCB(odproclistbox_->selectionChanged,
 				uiFirewallProcSetter::statusUpdateODProcCB);
     odproclistbox_->chooseAll();
-    uiObject* attachobj = odproclistbox_->attachObj();
+    su.lbl( tr("Python Executables") );
+    pythonproclistbox_ = new uiListBox( this, su );
+    pythonproclistbox_->blockScrolling( false );
+    pythonproclistbox_->addItems( pyprocdescs_ );
+    pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
+    pythonproclistbox_->attach( alignedBelow, odproclistbox_ );
+    mAttachCB(pythonproclistbox_->selectionChanged,
+			    uiFirewallProcSetter::statusUpdatePyProcCB);
+    pythonproclistbox_->chooseAll();
     
-    if ( !getPythonExecList().isEmpty() )
-    {
-	su.lbl( tr("Python Executables") );
-	pythonproclistbox_ = new uiListBox( this, su );
-	pythonproclistbox_->blockScrolling( false );
-	pythonproclistbox_->addItems( getPythonExecList() );
-	pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-	pythonproclistbox_->attach( alignedBelow, attachobj );
-	mAttachCB(pythonproclistbox_->selectionChanged,
-				uiFirewallProcSetter::statusUpdatePyProcCB);
-	pythonproclistbox_->chooseAll();
-	attachobj = pythonproclistbox_->attachObj();
-    }
-    if ( acttyp == AddNRemove )
-    {
-	addremfld_ = new uiGenInput( this, uiStrings::sAction(), 
-	    BoolInpSpec(true, uiStrings::sAdd(), uiStrings::sRemove()) );
-	addremfld_->attach( alignedBelow, attachobj );
-    }
-    else
-	setOkText( acttyp == Add ? uiStrings::sAdd() : uiStrings::sRemove() );
+    if ( acttyp == PDE::Add || acttyp == PDE::Remove )
+	setOkText( PDE::ActionTypeDef().getUiStringForIndex(acttyp) );
+}
+
+#define mGetData \
+    setEmpty(); \
+    PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
+    ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
+    ePDD().getProcData( odv7procnms_, odprocdescs_, PDE::ODv7, acttyp ); \
+    pyprocdescs_ = getPythonExecList(); \
+
+
+void uiFirewallProcSetter::setEmpty()
+{
+    pyprocnms_.setEmpty();
+    pyprocdescs_.setEmpty();
+    odv6procnms_.setEmpty();
+    odv7procnms_.setEmpty();
+    odprocdescs_.setEmpty();
+}
+
+void uiFirewallProcSetter::init()
+{
+    const FilePath fp( exepath_ );
+    const BufferString exceptionlistpath = fp.dirUpTo( fp.nrLevels()-4 );
+    ePDD().setPath( exceptionlistpath );
+    mGetData
 }
 
 
 uiFirewallProcSetter::~uiFirewallProcSetter()
 {
+}
+
+
+void uiFirewallProcSetter::selectionChgCB( CallBacker* )
+{
+    toadd_ = addremfld_->getBoolValue();
+
+    odproclistbox_->setEmpty();
+    pythonproclistbox_->setEmpty();
+
+    mGetData
+    odproclistbox_->addItems( odprocdescs_ );
+    pythonproclistbox_->addItems( pyprocdescs_ );
 }
 
 
@@ -135,8 +165,7 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 	procfp = odv7fp.fullPath();
     }
 
-    uiString msg = tr("Selected process path : %1").arg( procfp );
-    statusBar()->message( msg, 0 );
+    statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
 }
 
 
@@ -146,18 +175,17 @@ void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
     FilePath exefp( getPythonInstDir() );
     exefp.add( *pyprocnms_[selidx] );
     const BufferString procfp = exefp.fullPath();
-    uiString msg = tr("Selected process path : %1").arg( procfp );
-    statusBar()->message( msg, 0 );
+    statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
 }
 
 
 uiStringSet uiFirewallProcSetter::getPythonExecList()
 {
-    pyprocnms_.setEmpty();
-    pyprocdescs_.setEmpty();
 
-    ePDD().getProcData( pyprocnms_, pyprocdescs_,
-						ProcDesc::DataEntry::Python );
+
+    PDE::ActionType acttyp = toadd_  ? PDE::Add : PDE::Remove;
+
+    ePDD().getProcData( pyprocnms_, pyprocdescs_, PDE::Python, acttyp );
 
     if ( pyprocnms_.isEmpty() )
 	return pyprocdescs_;
@@ -176,6 +204,7 @@ uiStringSet uiFirewallProcSetter::getPythonExecList()
 	    pyprocdescs_.removeSingle( idx );
 	    continue;
 	}
+	const BufferString procnm = pyprocnms_.get( idx );
     }
 
     return pyprocdescs_;
@@ -205,33 +234,32 @@ BufferString uiFirewallProcSetter::getPythonInstDir()
 }
 
 
-BufferStringSet uiFirewallProcSetter::getSelProcList(
-					    ProcDesc::DataEntry::Type type )
+BufferStringSet uiFirewallProcSetter::getProcList(
+					    PDE::Type type )
 {
     BufferStringSet proclist;
     TypeSet<int> selidxs;
 
-    const bool isodproc = type == ProcDesc::DataEntry::ODv6 ||
-				type == ProcDesc::DataEntry::ODv7;
+    const bool isodproc = type == PDE::ODv6 ||
+				type == PDE::ODv7;
 
-    const BufferStringSet& procnms =
-	isodproc && type == ProcDesc::DataEntry::ODv6 ? odv6procnms_ :
-	isodproc && type == ProcDesc::DataEntry::ODv7 ? odv7procnms_ :
+    const BufferStringSet& procnms = isodproc && type == PDE::ODv6 ?
+		odv6procnms_ : isodproc && type == PDE::ODv7 ? odv7procnms_ :
 								pyprocnms_;
     if ( isodproc )
     {
 	odproclistbox_->getChosen( selidxs );
     }
-    else if ( type == ProcDesc::DataEntry::Python && pythonproclistbox_ )
+    else if ( type == PDE::Python && pythonproclistbox_ )
 	pythonproclistbox_->getChosen( selidxs );
 
     for ( int idx=0; idx<selidxs.size(); idx++ )
     {
 	int selidx = selidxs[idx];
 	const int v6procsz = odv6procnms_.size();
-	if ( type == ProcDesc::DataEntry::ODv6 && selidx >= v6procsz )
+	if ( type == PDE::ODv6 && selidx >= v6procsz )
 	    continue;
-	else if ( type == ProcDesc::DataEntry::ODv7 )
+	else if ( type == PDE::ODv7 )
 	{
 	    selidx -= v6procsz;
 	    if ( selidx < 0 )
@@ -256,45 +284,48 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
     BufferString cmd;
 
-    bool toadd = acttyp_ == Add;
-    if ( addremfld_ )
-	toadd = addremfld_->getBoolValue();
-
-    if ( toadd )
+    if ( toadd_ )
 	cmd.add(" --add ");
     else
 	cmd.add(" --remove ");
     
     bool errocc = false;
-    for ( int idx=0; idx<ProcDesc::DataEntry::TypeDef().size(); idx++ )
+    IOPar pars;
+    int nrprocsprocessed = 0;
+    for ( int idx=0; idx<PDE::TypeDef().size(); idx++ )
     {
-	const BufferStringSet& procset = getSelProcList(
-			ProcDesc::DataEntry::TypeDef().getEnumForIndex(idx) );
+	const BufferStringSet& procset = getProcList(
+			PDE::TypeDef().getEnumForIndex(idx) );
 	if ( procset.isEmpty() )
 	    continue;
 
-	if ( idx == ProcDesc::DataEntry::ODv7 )
+	FilePath exefp( exepath_ );
+
+	if ( idx == PDE::ODv7 )
 	{
-	    const FilePath exefp( exepath_ );
 	    FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
 	    odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
 							.add( GetBinSubDir() );
-	    exepath_ = odv7fp.fullPath();
+	    exefp = odv7fp.fullPath();
 	}
 
 	BufferString fincmd = cmd;
-	if ( idx != ProcDesc::DataEntry::Python )
+	if ( idx != PDE::Python )
 	    fincmd.add( "--od " ).add( exepath_ ).addSpace();
 	else
 	    fincmd.add( "--py " ).add( getPythonInstDir() ).addSpace();
 
+	BufferStringSet procnmsset;
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
+	{
 	    fincmd.add( procset.get(procidx) ).addSpace();
+	    procnmsset.add( procset.get(procidx) );
+	}
 
 	if ( !ExecODProgram(exepath.fullPath(),fincmd) )
 	{
 	    uiString errmsg;
-	    if ( toadd )
+	    if ( toadd_ )
 		errmsg = uiStrings::phrCannotAdd( tr("%1 process") );
 	    else
 		errmsg = uiStrings::phrCannotRemove( tr("%1 process") );
@@ -306,15 +337,19 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 					"in administrative mode") );
 	    errocc = true;
 	}
+	else
+	{
+	    pars.set( PDE::TypeDef().getKeyForIndex(idx), procnmsset );
+	    nrprocsprocessed++;
+	}
     }
 
     if ( !errocc )
     {
-	if ( toadd )
+	if ( toadd_ )
 	    uiMSG().message( tr("Selected executables successfully added") );
 	else
 	    uiMSG().message( tr("Selected executables successfully removed") );
     }
-
-    return true;
+    return  ePDD().writePars( pars );
 }

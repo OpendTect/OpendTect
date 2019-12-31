@@ -18,38 +18,44 @@ class uiListBox;
 class uiButton;
 class uiGenInput;
 
+
+
 mExpClass(uiODMain) uiFirewallProcSetter : public uiDialog
 { mODTextTranslationClass(uiFireWallProcSetter)
 public:
-    enum ActionType	    { Add, Remove, AddNRemove };
-			    mDeclareEnumUtils(ActionType)
+   typedef ProcDesc::DataEntry PDE;
 
-			    uiFirewallProcSetter(uiParent*,ActionType,
+
+			    uiFirewallProcSetter(uiParent*,PDE::ActionType,
 				const BufferString&path=BufferString::empty());
 			    ~uiFirewallProcSetter();
 protected:
 
     uiListBox*		    odproclistbox_;
     uiListBox*		    pythonproclistbox_;
-    uiListBox*		    deeplearninglistbox_;
     uiGenInput*		    addremfld_;
 
-    bool		    acceptOK(CallBacker*);
     BufferString	    getPythonInstDir();
     uiStringSet		    getPythonExecList();
+    BufferStringSet	    getProcList(ProcDesc::DataEntry::Type);
+    void		    init();
+    void		    setEmpty();
 
-    BufferStringSet	    getSelProcList(ProcDesc::DataEntry::Type);
-
+    bool		    acceptOK(CallBacker*);
     void		    statusUpdateODProcCB(CallBacker*);
     void		    statusUpdatePyProcCB(CallBacker*);
+    void		    selectionChgCB(CallBacker*);
 
-    ActionType		    acttyp_;
+    bool		    toadd_;
     BufferString	    exepath_;
-
     BufferStringSet	    odv6procnms_;
     BufferStringSet	    odv7procnms_;
     uiStringSet		    odprocdescs_;
     BufferStringSet	    pyprocnms_;
     uiStringSet		    pyprocdescs_;
+
+    uiString		    sStatusBarMsg()
+			    { return tr("Selected process path : %1"); }
 };
+
 #endif

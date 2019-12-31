@@ -1648,7 +1648,7 @@ void uiODMenuMgr::showFirewallProcDlg()
     if (__iswin__)
     {
 	uiFirewallProcSetter* dlg = new uiFirewallProcSetter( &appl_,
-					    uiFirewallProcSetter::AddNRemove );
+					    ProcDesc::DataEntry::AddNRemove );
 	dlg->go();
     }
 }

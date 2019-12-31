@@ -9,10 +9,13 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uifirewallprocsetterdlg.h"
 #include "commandlineparser.h"
+#include "file.h"
 #include "moddepmgr.h"
+#include "oddirs.h"
 #include "prog.h"
+#include "procdescdata.h"
+#include "uifirewallprocsetterdlg.h"
 #include "uimain.h"
 #include "uimsg.h"
 
@@ -31,7 +34,7 @@ int main( int argc, char ** argv )
     parser.getNormalArguments( proctyp );
 
     const int proctypidx =
-	    uiFirewallProcSetter::ActionTypeDef().indexOf( proctyp[0]->buf() );
+	    ProcDesc::DataEntry::ActionTypeDef().indexOf( proctyp[0]->buf() );
 
 #ifdef mUseCrashDumper
     //Disable IssueReporter for IssueReporter itself.
@@ -42,7 +45,7 @@ int main( int argc, char ** argv )
 	path = *proctyp[1];
 
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
-	uiFirewallProcSetter::ActionTypeDef().getEnumForIndex(proctypidx),
+	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex(proctypidx),
         path );
 
     app.setTopLevel( dlg );
