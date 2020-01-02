@@ -109,6 +109,10 @@ public:
 
     void		setZFieldName(const char*);
 
+    void		display( bool, bool, bool );
+
+    void		display( bool yn ) { uiStepOutSel::display( yn ); }
+
 protected:
 
     uiSpinBox*		fld3_;

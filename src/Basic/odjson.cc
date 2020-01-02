@@ -415,7 +415,7 @@ static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
 	return new OD::JSON::Array( nextisobj, parent );
 
     OD::JSON::DataType dt = OD::JSON::Boolean;
-    if ( nexttag == Gason::JSON_NUMBER )
+    if ( nexttag == Gason::JSON_NUMBER || nexttag == Gason::JSON_NULL )
 	dt = OD::JSON::Number;
     else if ( nexttag == Gason::JSON_STRING )
 	dt = OD::JSON::String;
@@ -951,6 +951,44 @@ OD::JSON::Object* OD::JSON::Object::gtObjectByKey( const char* ky ) const
 	{ pErrMsg("Request for child Object which is an Array"); return 0; }
 
     return static_cast<Object*>( vs );
+}
+
+
+OD::JSON::ValueSet* OD::JSON::Object::gtChildByKeys(
+					    const BufferStringSet& kys ) const
+{
+    ValueSet* vs = (ValueSet*) this;
+    for ( int idk=0; idk<kys.size(); idk++ )
+    {
+	if ( !vs || vs->isArray() )
+	    return 0;
+	const BufferString& key = kys.get( idk );
+	vs = ( vs->asObject() ).gtChildByKey( key );
+	if ( !vs )
+	    return 0;
+    }
+    return vs;
+}
+
+OD::JSON::Array* OD::JSON::Object::gtArrayByKeys(
+					    const BufferStringSet& kys ) const
+{
+    ValueSet* vs = gtChildByKeys( kys );
+    if ( !vs || !vs->isArray() )
+	return 0;
+    else
+	return static_cast<Array*>( vs );
+}
+
+
+OD::JSON::Object* OD::JSON::Object::gtObjectByKeys(
+					    const BufferStringSet& kys ) const
+{
+    ValueSet* vs = gtChildByKeys( kys );
+    if ( !vs || vs->isArray() )
+	return 0;
+    else
+	return static_cast<Object*>( vs );
 }
 
 
