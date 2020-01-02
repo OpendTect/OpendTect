@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odnetworkreply.h"
 #include "od_ostream.h"
 #include "od_istream.h"
+#include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
 #include "uistrings.h"
@@ -581,15 +582,15 @@ NetworkUserQuery* NetworkUserQuery::getNetworkUserQuery()
 }
 
 
-
 QNetworkAccessManager& ODNA()
 {
-    mDefineStaticLocalObject( QNetworkAccessManager*, odna, = 0 );
-    if ( !odna )
+    mDefineStaticLocalObject(PerThreadObjectRepository<QNetworkAccessManager>*,
+			     odnarepos, = 0);
+    if ( !odnarepos )
     {
-	odna = new QNetworkAccessManager();
+	odnarepos = new PerThreadObjectRepository<QNetworkAccessManager>;
 	Network::setHttpProxyFromSettings();
     }
 
-    return *odna;
+    return odnarepos->getObject();
 }

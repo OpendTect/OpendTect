@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 
-#include "manobjectset.h"
+#include "objectset.h"
 #include "threadlock.h"
 #include "thread.h"
 
@@ -30,8 +30,11 @@ mClass(Basic) PerThreadObjectRepository
 public:
     T&				getObject();
 
+				~PerThreadObjectRepository()
+				{ deepErase( objects_ ); }
+
 private:
-    ManagedObjectSet<T>		objects_;
+    ObjectSet<T>		objects_;
     ObjectSet<const void>	threadids_;
     Threads::Lock		lock_;
 
