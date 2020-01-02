@@ -272,6 +272,18 @@ public:
     mMkGetFn(Array,	getArray, gtArrayByKey )
     mMkGetFn(Object,	getObject, gtObjectByKey )
 #   undef		mMkGetFn
+    inline ValueSet*	getChild( const BufferStringSet& bskey )
+					    { return gtChildByKeys( bskey ); }
+    inline const ValueSet*	getChild( const BufferStringSet& bskey ) const
+					    { return gtChildByKeys( bskey ); }
+    inline Array*	getArray( const BufferStringSet& bskey )
+					    { return gtArrayByKeys( bskey ); }
+    inline const Array* getArray( const BufferStringSet& bskey ) const
+					    { return gtArrayByKeys( bskey ); }
+    inline Object*	getObject( const BufferStringSet& bskey )
+					    { return gtObjectByKeys( bskey ); }
+    inline const Object*	getObject( const BufferStringSet& bskey ) const
+					    { return gtObjectByKeys( bskey ); }
 
     od_int64		getIntValue(const char*) const;
     double		getDoubleValue(const char*) const;
@@ -301,6 +313,9 @@ protected:
     ValueSet*		gtChildByKey(const char*) const;
     Array*		gtArrayByKey(const char*) const;
     Object*		gtObjectByKey(const char*) const;
+    ValueSet*		gtChildByKeys(const BufferStringSet&) const;
+    Array*		gtArrayByKeys(const BufferStringSet&) const;
+    Object*		gtObjectByKeys(const BufferStringSet&) const;
 
     void		set(KeyedValue*);
     void		setVS(const char*,ValueSet*);

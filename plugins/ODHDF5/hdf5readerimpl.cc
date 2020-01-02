@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "file.h"
 #include "iopar.h"
+#include "odjson.h"
 
 #define mCatchErrDuringRead() \
     mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
@@ -156,6 +157,67 @@ HDF5::ODDataType HDF5::ReaderImpl::getDataType() const
     mCatchUnexpected( return ret );
 
     return ret;
+}
+
+
+bool HDF5::ReaderImpl::hasAttribute( const char* attrnm ) const
+{
+    if ( !file_ )
+	return false;
+
+    try
+    {
+	return file_->attrExists( attrnm );
+    }
+    catch ( ... )
+	{ return false; }
+}
+
+
+uiRetVal HDF5::ReaderImpl::readJSonAttribute( const char* attrnm,
+					  OD::JSON::ValueSet* vs ) const
+{
+    uiRetVal uirv;
+    if ( !attrnm )
+    {
+	uirv.set( tr("Valid attribute name required") );
+	return uirv;
+    }
+
+    if ( !vs )
+    {
+	uirv.set( tr("Valid OD::JSON::ValueSet* required") );
+	return uirv;
+    }
+    if ( !hasAttribute( attrnm ) )
+    {
+	uirv.set( tr("No attribute named: %1").arg(attrnm) );
+	return uirv;
+    }
+
+    vs->setEmpty();
+
+    const H5::Attribute attr = file_->openAttribute( attrnm );
+    std::string valstr;
+    attr.read( attr.getDataType(), valstr );
+    uirv = vs->parseJSon( const_cast<char*>( valstr.c_str() ),
+							    valstr.size() );
+    return uirv;
+}
+
+
+BufferString HDF5::ReaderImpl::readAttribute( const char* attrnm ) const
+{
+    BufferString res;
+    if ( hasAttribute( attrnm ) )
+    {
+	const H5::Attribute attr = file_->openAttribute( attrnm );
+	std::string valstr;
+	attr.read( attr.getDataType(), valstr );
+	res.set( valstr.c_str() );
+    }
+
+    return res;
 }
 
 

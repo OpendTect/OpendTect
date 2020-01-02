@@ -222,3 +222,11 @@ void uiStepout3DSel::setZFieldName( const char* nmzfld )
     if ( nmzfld && *nmzfld )
 	fld3_->setName( nmzfld );
 }
+
+
+void uiStepout3DSel::display( bool inl, bool crl, bool z )
+{
+    fld1_->display( inl );
+    fld2_->display( crl );
+    fld3_->display( z );
+}

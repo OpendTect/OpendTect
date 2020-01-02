@@ -19,7 +19,7 @@ namespace HDF5
 
 mExpClass(ODHDF5) ReaderImpl : public Reader
 			   , public AccessImpl
-{
+{ mODTextTranslationClass(ReaderImpl)
 public:
 
 			ReaderImpl();
@@ -37,6 +37,10 @@ public:
     virtual od_int64	curGroupID() const	{ return gtGroupID(); }
 
     virtual ODDataType	getDataType() const;
+
+    virtual bool	hasAttribute(const char*) const;
+    virtual uiRetVal readJSonAttribute(const char*, OD::JSON::ValueSet*) const;
+    virtual BufferString	readAttribute(const char*) const;
 
 protected:
 

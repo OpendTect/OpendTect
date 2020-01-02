@@ -12,6 +12,11 @@ ________________________________________________________________________
 #include "hdf5access.h"
 #include "ranges.h"
 
+namespace OD {
+    namespace JSON {
+	class ValueSet;
+    };
+};
 
 namespace HDF5
 {
@@ -35,6 +40,10 @@ public:
     virtual void	getDataSets(const char*,
 				    BufferStringSet&) const	= 0;
 				//!< Pass a full group name
+    virtual bool	hasAttribute(const char*) const		= 0;
+    virtual uiRetVal	readJSonAttribute(const char*, OD::JSON::ValueSet*)
+								const	= 0;
+    virtual BufferString	readAttribute(const char*) const	= 0;
 
     // use setScope() before reading anything using the functions below
 
