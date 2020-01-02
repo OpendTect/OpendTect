@@ -701,17 +701,9 @@ bool removeDir( const char* dirnm )
     if ( isLink(dirnm) )
 	return QFile::remove( dirnm );
 
-# ifdef __win__
-    return winRemoveDir( dirnm );
-# else
-    BufferString cmd;
-    cmd = "/bin/rm -rf";
-    cmd.add(" \"").add(dirnm).add("\"");
-    bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
-    if ( res ) res = !exists(dirnm);
-    return res;
-# endif
-#endif
+    QDir qdir( dirnm );
+    return qdir.removeRecursively();
+#endif 
 }
 
 
