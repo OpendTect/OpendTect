@@ -28,6 +28,7 @@ mExpClass(uiBase) uiClipboard
 {
 public:
     static void		setText(const uiString&);
+    static void		setText(const char*);
     static void		setImage(const QImage&);
 };
 

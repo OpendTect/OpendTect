@@ -16,17 +16,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 void uiClipboard::setText( const uiString& str )
 {
-     QClipboard* clipboard = QApplication::clipboard();
-     clipboard->clear();
-     QString qstr;
-     str.fillQString( qstr );
-     clipboard->setText( qstr );
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->clear();
+    QString qstr;
+    str.fillQString( qstr );
+    clipboard->setText( qstr );
+}
+
+
+void uiClipboard::setText( const char* txt )
+{
+    uiClipboard::setText( toUiString(txt) );
 }
 
 
 void uiClipboard::setImage( const QImage& img )
 {
-     QClipboard* clipboard = QApplication::clipboard();
-     clipboard->clear();
-     clipboard->setImage( img );
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->clear();
+    clipboard->setImage( img );
 }
