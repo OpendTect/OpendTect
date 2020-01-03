@@ -81,6 +81,7 @@ CMakeFiles
 CMakeScripts
 Makefile
 CMakeCache.txt
+CMakeLists.txt.user*
 CTestCustom.cmake
 *.vcxproj.filters
 *.vcxproj
