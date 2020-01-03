@@ -251,10 +251,14 @@ uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
     }
 
     BufferString appname( jsonobj->getStringValue( sKey::Name() ) );
-    if ( appname==sKey::NN3D() )
-	ODMainWin()->applMgr().editNLA( false );
-    else if ( appname==sKey::NN2D() )
-	ODMainWin()->applMgr().editNLA( true );
+    if ( appname==sKey::NN3D() || appname==sKey::NN2D() )
+    {
+	while ( true )
+	{
+	    if ( !ODMainWin()->applMgr().editNLA( appname==sKey::NN2D() ) )
+		break;
+	}
+    }
     else if ( appname==sKey::UVQ3D() )
 	ODMainWin()->applMgr().uvqNLA( false );
     else if ( appname==sKey::UVQ2D() )
