@@ -38,10 +38,6 @@ def getLog( wllnm, lognm, reload=False, args=None ):
   ret = oddbman.getDBDict( cmd )
   return (ret['MDs'], ret['Values'])
 
-#def getTrack()
-#def getLogNames()
-#def getLog()
-
 def getDBKey( wllnm, reload=False, args=None ):
   global dblist
   dblist = getWellDBList(reload,args)
