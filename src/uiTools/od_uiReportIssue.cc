@@ -26,14 +26,15 @@ int main( int argc, char ** argv )
     //Disable IssueReporter for IssueReporter itself.
     System::CrashDumper::getInstance().setSendAppl( "" );
 #endif
-    uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0 );
 
-    if ( !dlg->reporter().parseCommandLine() )
+    System::IssueReporter reporter;
+    if ( !reporter.parseCommandLine() )
     {
-	uiMSG().error( dlg->reporter().errMsg() );
+	uiMSG().error( reporter.errMsg() );
 	return ExitProgram( 1 );
     }
 
+    uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0, reporter );
     app.setTopLevel( dlg );
     dlg->show();
 

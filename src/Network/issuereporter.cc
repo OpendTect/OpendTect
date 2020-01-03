@@ -182,9 +182,9 @@ bool System::IssueReporter::parseCommandLine()
     parser.getVal( pathkey, path_ );
     isbinary_ = parser.hasKey( "binary" );
 
-    if ( isbinary_ )
-	return setDumpFileName( filename );
+    if ( !setDumpFileName(filename) )
+	return false;
 
     fillBasicReport( filename );
-    return readReport( filename );
+    return isbinary_ ? true : readReport( filename );
 }

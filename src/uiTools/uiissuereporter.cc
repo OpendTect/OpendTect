@@ -13,11 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiissuereporter.h"
 
 #include "envvars.h"
+#include "filepath.h"
 #include "settings.h"
 #include "uiclipboard.h"
 #include "uilabel.h"
 #include "uitextedit.h"
 #include "uibutton.h"
+#include "uidesktopservices.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
@@ -29,9 +31,11 @@ static FixedString sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }
 
 
-uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
+uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
+					System::IssueReporter& reporter )
     : uiDialog( p, uiDialog::Setup(tr("Problem reporter"),
-    mNoDlgTitle,mNoHelpKey) )
+		mNoDlgTitle,mNoHelpKey) )
+    , reporter_(reporter)
 {
     uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
     lblgrp->setFrame( true );
@@ -45,9 +49,17 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
 		"For feedback and/or updates on this issue,\n"
 		"do please also leave your e-mail address\n") );
     plealbl->setAlignment( Alignment::HCenter );
-    uiButton* vrbut = new uiPushButton( this, tr("View report"),
+
+    const bool senddmp = reporter_.isBinary();
+    uiLabel* filelbl = new uiLabel( this, tr("Crash report: ") );
+    uiLabel* filenmlbl = new uiLabel( this, toUiString(reporter.filePath()) );
+    filenmlbl->attach( alignedBelow, lblgrp );
+    filelbl->attach( leftOf, filenmlbl );
+
+    uiButton* vrbut = new uiPushButton( this,
+	    		senddmp ? tr("Open folder") : tr("View report"),
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
-    vrbut->attach( centeredRightOf, lblgrp );
+    vrbut->attach( rightOf, filenmlbl );
 
     uiGroup* usrinpgrp = new uiGroup( this, "User input group" );
     commentfld_ = new uiTextEdit( usrinpgrp );
@@ -65,7 +77,7 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     proxybut->attach( rightOf, emailfld_ );
 
     usrinpgrp->setHAlignObj( emailfld_ );
-    usrinpgrp->attach( alignedBelow, lblgrp );
+    usrinpgrp->attach( alignedBelow, filenmlbl );
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
@@ -97,6 +109,12 @@ bool uiIssueReporterDlg::allowSending() const
 
 void uiIssueReporterDlg::viewReport( const uiString& cap )
 {
+    if ( reporter_.isBinary() )
+    {
+	uiDesktopServices::openUrl( FilePath(reporter_.filePath()).pathOnly() );
+	return;
+    }
+
     BufferString report;
     getReport( report );
 
