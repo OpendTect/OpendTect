@@ -230,11 +230,11 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 	uiString msg = tr("The report could not be sent automatically.\n"
 			  "You can still send it manually by e-mail.\n"
 			  "Please send the file:\n\n%1"
-			  "\n\nto support@opendtect.org.")
+			  "\n\nto support@dgbes.com.")
 		     .arg(filename_);
 
 	msg.append( tr("\n\nWould you like to retry sending the report using "
-	            "different proxy settings?") );
+		    "different proxy settings?") );
 	res = uiMSG().askGoOn( msg );
 	if ( res )
 	    proxySetCB( 0 );

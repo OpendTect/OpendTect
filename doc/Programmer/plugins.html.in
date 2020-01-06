@@ -485,7 +485,7 @@ named 'z0_' in the corresponding DataHolders.</p>
 	    const float trcval = getInputValue( *inputdata_, dataidx_,
 	                                        idx, z0 );
 						outval = action_==0 ? trcval * factor_ + shift_ :
-	                                trcval * trcval;
+						trcval * trcval;
 					}
 	else if ( action_==2 && !horsmooth_ )
 	{
@@ -687,7 +687,7 @@ extracted into the existing OpendTect installation directory. </p>
 auto-extracting installer to do this. For more info on this, see the
 <a href="windows.html#dist">windows</a> documentation.</p>
 
-<p id="text">If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described below. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
+<p id="text">If you want your plugins to be used around the world, then you may want to contact support@dgbes.com to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described below. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
 
 <h3 id="heading3">Preparing for the installation manager</h3>
 <p id="text">

@@ -147,7 +147,7 @@ Before you start, get a good development environment by using the 'Utilities-Cre
 
 <h3 id="heading3">Making it happen</h3>
 <p id="text">
-Along the way, you'll have to do some digging in the include directory or the class documentation to figure out what services are available. You probably won't want to miss the info from the <a href="unix.html">UNIX</a> or <a href="windows.html">windows</a> instruction documentation. The <a href="plugins.html">plugin manual</a>, well, see for yourself. If all you want to do is make batch programs, try <a href="batchprogexample/index.html">batch program doc</a>. And if all else fails, you may even consider sending an e-mail to support@opendtect.org .
+Along the way, you'll have to do some digging in the include directory or the class documentation to figure out what services are available. You probably won't want to miss the info from the <a href="unix.html">UNIX</a> or <a href="windows.html">windows</a> instruction documentation. The <a href="plugins.html">plugin manual</a>, well, see for yourself. If all you want to do is make batch programs, try <a href="batchprogexample/index.html">batch program doc</a>. And if all else fails, you may even consider sending an e-mail to support@dgbes.com .
 </p>
 
 <br>
