@@ -206,6 +206,8 @@ public:
     void		setChosen(const BufferStringSet&);
     void		setChosen(const TypeSet<int>&);
 
+    void		displayItem(int, bool);
+
     bool		isMarked(int) const;
     void		setMarked(int,bool);
 
@@ -244,6 +246,7 @@ private:
     OD::ButtonState	buttonstate_;
     CallBack		savecb_;
     CallBack		retrievecb_;
+    bool		allshown_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));

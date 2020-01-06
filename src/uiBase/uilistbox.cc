@@ -418,7 +418,8 @@ void uiListBoxObj::setEmpty()
     , itemChosen(this) \
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(OD::Alignment::Left) \
-    , allowduplicates_(true)
+    , allowduplicates_(true) \
+    , allshown_(true)
 
 #define mStdConstrEnd \
     lb_->setBackgroundColor( lb_->roBackgroundColor() ); \
@@ -676,6 +677,16 @@ void uiListBox::menuCB( CallBacker* )
     if ( nrchecked > 0 )
 	rightclickmnu_.insertAction(new uiAction(tr("Uncheck all (Ctrl-Z)")),1);
     rightclickmnu_.insertAction(new uiAction(tr("Invert selection")),2);
+
+    if ( nrchecked > 0 )
+    {
+	rightclickmnu_.insertSeparator();
+	if ( allshown_ )
+	    rightclickmnu_.insertItem(new uiAction(tr("Show checked only")), 5);
+	else
+	    rightclickmnu_.insertItem(new uiAction(tr("Show all")), 6);
+    }
+
     const bool needretrieve = retrievecb_.willCall();
     const bool needsave = savecb_.willCall() && nrchecked > 0;
     if ( needretrieve || needsave )
@@ -702,6 +713,20 @@ void uiListBox::menuCB( CallBacker* )
 	retrievecb_.doCall( this );
     else if ( res == 4 )
 	savecb_.doCall( this );
+    else if ( res == 5 || res == 6 )
+    {
+	allshown_ = !allshown_;
+	const int selidx = currentItem();
+	TypeSet<int> checked; getCheckedItems( checked );
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    if ( allshown_ )
+		displayItem( idx, true );
+	    else
+		displayItem( idx, checked.isPresent( idx ) );
+	}
+	setCurrentItem( selidx );
+    }
 
     updateCheckState();
 }
@@ -872,6 +897,16 @@ void uiListBox::insertItem( const uiString& text, const Color& col,
 {
     uiPixmap pm( 64, 64 ); pm.fill( col );
     insertItem( text, pm, index, id );
+}
+
+
+void uiListBox::displayItem( int index, bool yn )
+{
+    if ( index < 0 || index >= size() )
+	return;
+
+    QListWidgetItem* itm = lb_->body().item( index );
+    itm->setHidden( !yn );
 }
 
 
