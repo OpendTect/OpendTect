@@ -1439,9 +1439,9 @@ bool uiVisPartServer::displayedOnlyAtSections( int id ) const
 
 bool uiVisPartServer::usePar( const IOPar& par )
 {
-    int step0=-1, step1=-1, step2=-1;
+    float step0=-1, step1=-1, step2=-1;
     par.get( sKeySliceSteps(), step0, step1, step2 );
-    slicepostools_->setSteps( step0, step1, step2 );
+    slicepostools_->setSteps( mNINT32(step0), mNINT32(step1), step2 );
 
     if ( !visBase::DM().usePar( par ) )
 	return false;
@@ -1559,9 +1559,10 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     fms += cs.zsamp_.stop;
     par.set( sKeyWorkArea(), fms );
 
-    par.set( sKeySliceSteps(), slicepostools_->getStep(OD::InlineSlice),
-			       slicepostools_->getStep(OD::CrosslineSlice),
-			       slicepostools_->getStep(OD::ZSlice) );
+    par.set( sKeySliceSteps(),
+	     sCast(float,slicepostools_->getStep(OD::InlineSlice)),
+	     sCast(float,slicepostools_->getStep(OD::CrosslineSlice)),
+	     slicepostools_->getZStep() );
 
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {

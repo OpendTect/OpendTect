@@ -97,23 +97,30 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
     stopfld_->attach( rightOf, startfld_ );
-    if ( !cansnap_ )
-	{ startfld_->setInterval( limitrg ); stopfld_->setInterval( limitrg ); }
+    if ( nrdecimals==0 )
+    {
+	startfld_->setInterval( izrg );
+	stopfld_->setInterval( izrg );
+    }
     else
-	{ startfld_->setInterval( izrg ); stopfld_->setInterval( izrg ); }
-    startfld_->doSnap( cansnap_ ); stopfld_->doSnap( cansnap_ );
+    {
+	startfld_->setInterval( limitrg );
+	stopfld_->setInterval( limitrg );
+    }
+
+    startfld_->doSnap( cansnap_ );
+    stopfld_->doSnap( cansnap_ );
 
     if ( wstep )
     {
 	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), nrdecimals,
 					 "Z step" );
-	if ( cansnap_ )
+	if ( nrdecimals==0 )
 	    stepfld_->box()->setInterval(
 		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
 	else
 	    stepfld_->box()->setInterval(
-	    StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
-				  mNINT32(limitrg.step)) );
+		StepInterval<float>(limitrg.step,limitrg.width(),limitrg.step));
 	stepfld_->box()->doSnap( cansnap_ );
 	stepfld_->attach( rightOf, stopfld_ );
     }
@@ -189,7 +196,9 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
     StepInterval<float> newzrg;
     adaptRangeToLimits<float>( zrg, limitrg, newzrg );
 
-    if ( cansnap_ )
+    const int nrdecimals =
+	cansnap_ ? 0 : Math::NrSignificantDecimals( limitrg.step );
+    if ( nrdecimals==0 )
     {
 	startfld_->setValue( mNINT32(newzrg.start) );
 	stopfld_->setValue( mNINT32(newzrg.stop) );

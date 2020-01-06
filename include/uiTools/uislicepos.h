@@ -39,7 +39,10 @@ public:
 				  const uiString& z);
     int			getStep(SliceDir) const;
     void		setStep(SliceDir,int step);
-    void		setSteps(int inl,int crl,int z);
+    void		setSteps(int inl,int crl,float z);
+
+    float		getZStep() const;
+    void		setZStep(float);
 
     Notifier<uiSlicePos> positionChg;
 
@@ -52,7 +55,7 @@ protected:
     uiSpinBox*		slicestepbox_;
     uiToolButton*	prevbut_;
     uiToolButton*	nextbut_;
-    int			laststeps_[3];
+    float		laststeps_[3];
     int			zfactor_;
     TrcKeyZSampling	curcs_;
     uiStringSet		boxlabels_;

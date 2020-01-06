@@ -50,7 +50,7 @@ float_complex Math::Sqrt( const float_complex& s )
 unsigned int Math::SetBits( unsigned int curflags, unsigned int mask, bool yn)
 {
     if ( yn )
-        return curflags | mask;
+	return curflags | mask;
 
     return (~mask) & curflags;
 }
@@ -154,8 +154,8 @@ int Math::NrSignificantDecimals( double val )
     int digits = 10; //double precision
     const int magnitude = mCast(int,Floor( Log10( Abs(val) ) ) ) + 1;
     digits -= magnitude;
-    if ( digits < 0 || magnitude > 0 )
-        digits = 0;
+    if ( digits < 0 )
+	digits = 0;
 
     BufferString resstr;
 #ifdef OD_NO_QT
@@ -173,9 +173,9 @@ int Math::NrSignificantDecimals( double val )
     const char* ptrend = str + ret;
     while ( ptrend-- > ptrdot )
     {
-        if ( *ptrend != '0' )
-            break;
-        ret--;
+	if ( *ptrend != '0' )
+	    break;
+	ret--;
     }
 
     return ret-2;

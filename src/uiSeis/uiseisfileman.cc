@@ -74,11 +74,11 @@ static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = 0;
 
 
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
-                       mODHelpKey(mSeisFileMan3DHelpID)
+		       mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     :uiObjFileMan(p,uiDialog::Setup(is2d
-            ? uiStrings::phrManage(tr("2D Seismics"))
-            : uiStrings::phrManage(tr("3D Seismics")),
+	    ? uiStrings::phrManage(tr("2D Seismics"))
+	    : uiStrings::phrManage(tr("3D Seismics")),
 				    mNoDlgTitle,mHelpID)
 				    .nrstatusflds(1).modal(false),
 		  SeisTrcTranslatorGroup::ioContext())
@@ -271,9 +271,7 @@ void uiSeisFileMan::mkFileInfo()
     .add(" range: ").add(cs.hsamp_.start_.line).add(" - ") \
     .add(cs.hsamp_.stop_.line) \
     .add(" [").add(cs.hsamp_.step_.line).add("]")
-#define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 
-    const bool zistm = oinf.isTime();
     const ZDomain::Def& zddef = oinf.zDomainDef();
     TrcKeyZSampling cs;
     if ( !is2d_ )
@@ -289,25 +287,26 @@ void uiSeisFileMan::mkFileInfo()
 	    double area;
 	    if ( oinf.getDefSpaceInfo(spcinfo) )
 	    {
-		area = mCast(double,cs.hsamp_.lineDistance()) *
+		area = sCast(double,cs.hsamp_.lineDistance()) *
 			 cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
 		if ( SI().xyInFeet() )
 		    area *= (mFromFeetFactorD * mFromFeetFactorD);
 	    }
 	    else
 	    {
-		area = SI().getArea( cs.hsamp_.inlRange(),
-				     cs.hsamp_.crlRange() );
+		area = sCast(double,SI().getArea(cs.hsamp_.inlRange(),
+						 cs.hsamp_.crlRange()));
 	    }
 	    txt.add("\nArea: ")
-	       .add( getAreaString(mCast(float,area),SI().xyInFeet(),2,true) );
+	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
 
+	    StepInterval<float> zrg = cs.zsamp_;
+	    zrg.scale( SI().zDomain().userFactor() );
+	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
 	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
-		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
-		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
-		.add(" [");
-	    const double zstep = cs.zsamp_.step * SI().zDomain().userFactor();
-	    txt.addLim( zstep, 5 ) .add("]");
+		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
+		.add(" - ").add( zrg.stop, nrdec )
+		.add(" [").add( zrg.step, nrdec ).add("]");
 	}
     }
 
@@ -343,7 +342,6 @@ void uiSeisFileMan::mkFileInfo()
 		    txt.add( "\nDepth Range " )
 			.add( ZDomain::Depth().unitStr(true) );
 		}
-
 		else
 		{
 		    dispzrg.start = 2 * sizrg.start / topvavg.stop;

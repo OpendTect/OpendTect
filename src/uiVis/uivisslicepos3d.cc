@@ -111,7 +111,7 @@ void uiSlicePos3DDisp::setBoxRanges()
 	    auto& zsamp = curcs.zsamp_;
 	    const auto startidx = sd.indexOnOrAfter( zsamp.start );
 	    sd.start = zsamp.start = sd.atIndex( startidx );
-	    zsamp.stop = zsamp.atIndex( sd.nrSteps(zsamp.stop) );
+	    zsamp.stop = sd.atIndex( sd.nrSteps(zsamp.stop) );
 	}
     }
     else

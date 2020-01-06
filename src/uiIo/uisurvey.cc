@@ -406,8 +406,8 @@ uiSurvey::uiSurvey( uiParent* p )
 	new uiLabel( this,
 		tr("Cannot establish a 'Survey Data Root' directory."
 		"\nOpendTect needs a place to store its files."
-		"\nPlease consult the documentation at opendtect.org,"
-		"\nor contact support@opendtect.org.") );
+		"\nPlease consult the documentation at dgbes.com,"
+		"\nor contact support@dgbes.com.") );
     }
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
@@ -1275,19 +1275,15 @@ void uiSurvey::putToScreen()
 	    crlinfo.add( " - " ).add( si.crlStep() );
 
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
-
-	    bininfo.add( toString(inldist,2) ).add( "/" );
-	    bininfo.add( toString(crldist,2) );
+	    bininfo.add( inldist, 3 ).add( " / " ).add( crldist, 3 );
 	}
 
-	#define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;
-
-	const bool istime = si.zIsTime();
-	mAdd2ZString( si.zRange(false).start );
-	zinfo += " - "; mAdd2ZString( si.zRange(false).stop );
-	zinfo += " - ";
-	const float zstep = si.zRange( false ).step * si.zDomain().userFactor();
-	zinfo.addLim( zstep, 5 );
+	StepInterval<float> sizrg( si.zRange(false) );
+	sizrg.scale( si.zDomain().userFactor() );
+	const int nrdec = Math::NrSignificantDecimals( sizrg.step );
+	zinfo.add( sizrg.start, nrdec ).add( " - " )
+	     .add( sizrg.stop, nrdec ).add( " - " )
+	     .add( sizrg.step, nrdec );
 	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
 	FilePath fp( si.datadir_, si.dirname_ );

@@ -84,31 +84,38 @@ void uiSlicePos::shortcutsChg( CallBacker* )
 
 void uiSlicePos::initSteps( CallBacker* )
 {
-    zfactor_ = mCast( int, SI().zDomain().userFactor() );
     laststeps_[0] = SI().inlStep();
     laststeps_[1] = SI().crlStep();
-    laststeps_[2] = mNINT32( SI().zStep()*zfactor_ );
+    laststeps_[2] = SI().zStep()*SI().zDomain().userFactor();
 }
 
 
 int uiSlicePos::getStep( SliceDir dir ) const
 {
-    return laststeps_[ (int)dir ];
+    const float fstep = laststeps_[ sCast(int,dir) ];
+    return mNINT32( fstep );
 }
 
 
 void uiSlicePos::setStep( SliceDir dir, int step )
 {
-    laststeps_[ (int)dir ] = step;
+    laststeps_[ sCast(int,dir) ] = step;
 }
 
 
-void uiSlicePos::setSteps( int inl, int crl, int z )
+void uiSlicePos::setSteps( int inl, int crl, float z )
 {
     laststeps_[0] = inl>0 ? inl : SI().inlStep();
     laststeps_[1] = crl>0 ? crl : SI().crlStep();
-    laststeps_[2] = z>0 ? z : mNINT32( SI().zStep()*zfactor_ );
+    laststeps_[2] = z>0 ? z : SI().zStep()*zfactor_;
 }
+
+
+float uiSlicePos::getZStep() const
+{ return laststeps_[2]; }
+
+void uiSlicePos::setZStep( float step )
+{ laststeps_[2] = step>0 ? step : SI().zStep()*zfactor_; }
 
 
 void uiSlicePos::setLabels( const uiString& inl, const uiString& crl,
@@ -165,8 +172,7 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 
 void uiSlicePos::sliceStepChanged( uiSlicePos::SliceDir orientation )
 {
-    laststeps_[(int)orientation] = slicestepbox_->getIntValue();
-
+    laststeps_[(int)orientation] = slicestepbox_->getFValue();
     sliceposbox_->setStep( laststeps_[(int)orientation] );
 }
 
