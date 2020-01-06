@@ -410,7 +410,8 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(Alignment::Left) \
     , scrollingblocked_(false) \
-    , allowduplicates_(true)
+    , allowduplicates_(true) \
+    , allshown_(true)
 
 #define mStdConstrEnd \
     lb_->setBackgroundColor( lb_->roBackgroundColor() ); \
@@ -431,7 +432,6 @@ uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm )
 
 uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     : uiGroup(p,nm)
-    , allshown_(true)
     mStdInit(setup.cm_)
 {
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
