@@ -188,6 +188,8 @@ public:
     void		setChosen(const BufferStringSet&);
     void		setChosen(const TypeSet<int>&);
 
+    void		displayItem(int, bool);
+
     bool		isMarked(int) const;
     void		setMarked(int,bool);
 
@@ -227,6 +229,7 @@ private:
     CallBack		savecb_;
     CallBack		retrievecb_;
     bool		scrollingblocked_;
+    bool		allshown_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
