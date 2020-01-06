@@ -9,12 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "fixedstring.h"
+#include "globexpr.h"
 #include "iopar.h"
+#include "odmemory.h"
+#include "perthreadrepos.h"
 #include "separstr.h"
 #include "string2.h"
-#include "globexpr.h"
 #include "uistring.h"
-#include "odmemory.h"
 
 #ifndef OD_NO_QT
 # include <QString>
@@ -903,4 +904,23 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
 
     if ( ptr && *ptr )
 	add( ptr );
+}
+
+
+// StringPair
+StringPair::StringPair( const char* compstr )
+{
+    SeparString sepstr( compstr, separator() );
+    first() = sepstr[0];
+    second() = sepstr[1];
+}
+
+
+const OD::String& StringPair::getCompString() const
+{
+    mDeclStaticString( ret );
+    ret = first();
+    if ( !second().isEmpty() )
+	ret.add( separator() ).add( second() );
+    return ret;
 }
