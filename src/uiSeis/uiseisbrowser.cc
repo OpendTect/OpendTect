@@ -256,13 +256,13 @@ void uiSeisBrowser::createTable()
     const int nrcols = 2*stepout_ + 1;
     tbl_ = new uiTable( this, uiTable::Setup( nrrows, nrcols )
 			     .selmode(uiTable::Multi)
-			     .manualresize( true ), "Seismic data" );
-
+			     .manualresize( false ), "Seismic data" );
     tbl_->valueChanged.notify( mCB(this,uiSeisBrowser,valChgReDraw) );
     tbl_->setStretch( 1, 1 );
     tbl_->setPrefHeight( 400 );
     tbl_->setPrefWidth( 600 );
     tbl_->setTableReadOnly( setup_.readonly_ );
+    tbl_->setColumnResizeMode( uiTable::ResizeToContents );
 }
 
 
@@ -420,7 +420,6 @@ void uiSeisBrowser::fillTable()
 	    fillTableColumn( *(tbufchgdtrcs_.get(chidx)), idx );
     }
 
-    tbl_->resizeRowsToContents();
     const int middlecol = tbuf_.size()/2;
     tbl_->selectColumn( middlecol );
     tbl_->ensureCellVisible( RowCol(0,middlecol) );
