@@ -33,6 +33,7 @@ public:
 				    bool wstep,
 				    const uiString& seltxt=uiString(),
 				    const char* zdomkey=0);
+			~uiSelZRange();
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
@@ -70,6 +71,7 @@ public:
                         uiSelNrRange(uiParent*,Type,bool wstep);
 			uiSelNrRange(uiParent*,StepInterval<int> limit,
 				     bool wstep,const char* fldnm);
+			~uiSelNrRange();
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
@@ -140,6 +142,7 @@ public:
                         uiSelHRange(uiParent*,bool wstep);
 			uiSelHRange(uiParent*,const TrcKeySampling& limiths,
 				    bool wstep);
+			~uiSelHRange();
 
     TrcKeySampling		getSampling() const;
     void		setSampling(const TrcKeySampling&);
@@ -148,6 +151,12 @@ public:
 
     uiSelNrRange*	inlfld_;
     uiSelNrRange*	crlfld_;
+
+    Notifier<uiSelHRange>	rangeChanged;
+
+protected:
+
+    void		valChg(CallBacker*);
 
 };
 

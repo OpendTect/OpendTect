@@ -58,6 +58,12 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 }
 
 
+uiSelZRange::~uiSelZRange()
+{
+    detachAllNotifiers();
+}
+
+
 void uiSelZRange::displayStep( bool yn )
 {
     if ( stepfld_ )
@@ -268,7 +274,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     fldnm_ = nm;
     makeInpFields( rg, wstep, typ==Gen );
     setRange( wrg );
-    preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
+    mAttachCB( preFinalise(), uiSelNrRange::doFinalise );
 }
 
 
@@ -289,7 +295,13 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 {
     makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
-    preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
+    mAttachCB( preFinalise(), uiSelNrRange::doFinalise );
+}
+
+
+uiSelNrRange::~uiSelNrRange()
+{
+    detachAllNotifiers();
 }
 
 
@@ -515,8 +527,11 @@ uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
     : uiGroup(p,"Hor range selection")
     , inlfld_(new uiSelNrRange(this,uiSelNrRange::Inl,wstep))
     , crlfld_(new uiSelNrRange(this,uiSelNrRange::Crl,wstep))
+    , rangeChanged(this)
 {
     crlfld_->attach( alignedBelow, inlfld_ );
+    mAttachCB( inlfld_->rangeChanged, uiSelHRange::valChg );
+    mAttachCB( crlfld_->rangeChanged, uiSelHRange::valChg );
     setHAlignObj( inlfld_ );
 }
 
@@ -526,9 +541,24 @@ uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit,
     : uiGroup(p,"Hor range selection")
     , inlfld_(new uiSelNrRange(this,hslimit.inlRange(),wstep,sKey::Inline()))
     , crlfld_(new uiSelNrRange(this,hslimit.crlRange(),wstep,sKey::Crossline()))
+    , rangeChanged(this)
 {
     crlfld_->attach( alignedBelow, inlfld_ );
+    mAttachCB( inlfld_->rangeChanged, uiSelHRange::valChg );
+    mAttachCB( crlfld_->rangeChanged, uiSelHRange::valChg );
     setHAlignObj( inlfld_ );
+}
+
+
+uiSelHRange::~uiSelHRange()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSelHRange::valChg( CallBacker* )
+{
+    rangeChanged.trigger( this );
 }
 
 
