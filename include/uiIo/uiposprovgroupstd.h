@@ -59,6 +59,7 @@ protected:
     uiPosProvGroup::Setup setup_;
 
     void		initGrp(CallBacker*);
+    void		rangeChgCB(CallBacker*);
     void		samplingCB(CallBacker*);
 };
 

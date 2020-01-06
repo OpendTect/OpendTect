@@ -39,7 +39,7 @@ mImplClassFactory(uiPosProvGroup,factory);
 
 uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
     : uiPosFiltGroup(p,su)
-    , posProvGroupChg(0)
+    , posProvGroupChg(this)
 {
 }
 
@@ -60,11 +60,13 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 	nrrgfld_ =
 	    new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
 	nrrgfld_->setRange( su.tkzs_.hsamp_.crlRange() );
+	mAttachCB( nrrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
 	attobj = nrrgfld_->attachObj();
     }
     else
     {
 	hrgfld_ = new uiSelHRange( this, su.tkzs_.hsamp_, su.withstep_ );
+	mAttachCB( hrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
 	attobj = hrgfld_->attachObj();
     }
 
@@ -72,6 +74,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     {
 	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
 				   uiString(), su.zdomkey_ );
+	mAttachCB( zrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
 	if ( attobj )
 	    zrgfld_->attach( alignedBelow, attobj );
 	attobj = zrgfld_->attachObj();
@@ -252,6 +255,12 @@ void uiRangePosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Range(),
 							uiStrings::sRange() );
+}
+
+
+void uiRangePosProvGroup::rangeChgCB( CallBacker* )
+{
+    posProvGroupChg.trigger();
 }
 
 
