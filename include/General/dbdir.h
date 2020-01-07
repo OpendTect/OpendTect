@@ -180,6 +180,7 @@ public:
     BufferString	name(idx_type) const;
     BufferString	dispName(idx_type) const;
     BufferString	iconName(idx_type) const;
+    BufferStringSet	getParValuesFor(const char*) const;
 
 protected:
 

@@ -39,7 +39,7 @@ public:
 
 protected:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
-					     const IOObjContext&);
+			    const IOObjContext&,const char* ctxtfilt = nullptr);
 
     uiTextEdit*			infofld_;
     uiTextEdit*			notesfld_;
@@ -51,6 +51,7 @@ protected:
     IOObj*			curioobj_;
     IOObjContext&		ctxt_;
     bool			curimplexists_;
+    BufferString		ctxtfilt_;
 
     void			finaliseStartCB(CallBacker*);
     void			saveNotes(CallBacker*);
