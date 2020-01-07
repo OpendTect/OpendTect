@@ -827,7 +827,12 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 		Attrib::Desc::getParamString( as->defString(), "id", idstr );
 		Attrib::DescSet* storedads =
 		    Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
-		storedads->getStoredID( MultiID(idstr.buf()) );
+		int compnr = 0; BufferString compstr;
+		if ( Attrib::Desc::getParamString(as->defString(),
+					Attrib::Desc::sKeyOutput(),compstr) )
+		    getFromString( compnr, compstr, 0 );
+
+		storedads->getStoredID( MultiID(idstr.buf()), compnr, true );
 			// will try to add if fail
 
 		Attrib::SelSpec newas( *as );

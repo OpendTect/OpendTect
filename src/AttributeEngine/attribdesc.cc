@@ -55,6 +55,8 @@ bool InputSpec::operator==(const InputSpec& b) const
 }
 
 
+const char* Desc::sKeyOutput() { return "output"; }
+const char* Desc::sKeyAll() { return "ALL"; }
 const char* Desc::sKeyInlDipComp() { return "Inline Dip"; }
 const char* Desc::sKeyCrlDipComp() { return "Crossline Dip"; }
 const char* Desc::sKeyLineDipComp() { return "Line Dip"; }
@@ -146,7 +148,7 @@ bool Desc::getDefStr( BufferString& res ) const
 	params_[idx]->fillDefStr( res );
     }
 
-    if ( seloutput_!=-1 || stringEndsWith( "|ALL", userref_.buf() ) )
+    if ( seloutput_!=-1 || LineKey(userref_).attrName() == sKeyAll() )
     {
 	res += " output=";
 	res += seloutput_;
@@ -163,7 +165,7 @@ bool Desc::parseDefStr( const char* defstr )
 	return false;
 
     BufferString outputstr;
-    bool res = getParamString( defstr, "output", outputstr );
+    bool res = getParamString( defstr, sKeyOutput(), outputstr );
     selectOutput( res ? outputstr.toInt() : 0 );
 
     BufferStringSet keys, vals;

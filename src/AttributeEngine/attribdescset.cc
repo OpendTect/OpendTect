@@ -550,10 +550,13 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	    {
 		BufferStringSet compnms;
 		SeisIOObjInfo::getCompNames( key, compnms );
-		if ( compnms.size()>1 && compnms.validIdx(selout) )
+		if ( compnms.size()>1 )
 		{
-		    const LineKey lk( ioobj->name(), compnms.get(selout) );
-		    userref = lk.buf();
+		    BufferString compstr( Desc::sKeyAll() );
+		    if ( compnms.validIdx(selout) )
+			compstr = compnms.get( selout );
+
+		    userref = StringPair(ioobj->name(),compstr).second();
 		}
 		else
 		    userref = tentativeuserref;
@@ -950,6 +953,26 @@ DescID DescSet::getFreeID() const
 }
 
 
+DescID DescSet::getStoredID( const MultiID& multiid, int selout ) const
+{
+    for ( int idx=0; idx<descs_.size(); idx++ )
+    {
+	const Desc& dsc = *descs_[idx];
+	if ( !dsc.isStored() )
+	    continue;
+
+	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
+	if ( multiid == keypar.getStringValue() )
+	{
+	    if ( selout < 0 || selout == dsc.selectedOutput() )
+		return dsc.id();
+	}
+    }
+
+    return DescID::undef();
+}
+
+
 DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 			     bool blindcomp, const char* blindcompnm )
 {
@@ -1026,7 +1049,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef();	// "Missing component name"
 
-    newdesc->setUserRef( LineKey(objnm,compnm) );
+    newdesc->setUserRef( StringPair(objnm,compnm).getCompString() );
     newdesc->selectOutput( selout );
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
     keypar.setValue( multiid );

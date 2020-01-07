@@ -141,9 +141,28 @@ void SelSpec::setIDFromRef( const NLAModel& nlamod )
 void SelSpec::setIDFromRef( const DescSet& ds )
 {
     isnla_ = false;
+    const bool isstored = isStored();
     id_ = ds.getID( ref_, true );
     if ( id_ == DescID::undef() )
 	id_ = ds.getID( objref_, true );
+
+    if ( id_ == DescID::undef() && isstored )
+    {
+	// ref_ may have changed, identify with MultiID in defstring_
+	BufferString midstr;
+	if ( Desc::getParamString(defstring_,StorageProvider::keyStr(),midstr) )
+	{
+	    int compnr = 0;
+	    BufferString compstr;
+	    if ( Desc::getParamString(defstring_,Desc::sKeyOutput(),compstr) )
+		getFromString( compnr, compstr, 0 );
+
+	    id_ = ds.getStoredID( MultiID(midstr), compnr );
+	    if ( id_ != DescID::undef() )
+		setRefFromID( ds );
+	}
+    }
+
     BufferString attribname;
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {

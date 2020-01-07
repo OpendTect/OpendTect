@@ -617,10 +617,16 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     }
 
     TypeSet<Attrib::SelSpec> myas( *as );
+    bool selspecchanged = false;
     for ( int idx=0; idx<myas.size(); idx++ )
     {
+	const BufferString oldname = myas[idx].userRef();
 	if ( myas[idx].id() != Attrib::DescID::undef() )
+	{
 	    attrserv_->updateSelSpec( myas[idx] );
+	    if ( (*as)[idx] != myas[idx] )
+		selspecchanged = true;
+	}
 
 	if ( myas[idx].id().isUnselInvalid() )
 	{
@@ -628,6 +634,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    return false;
 	}
     }
+
+    if ( selspecchanged )
+	visserv_->setSelSpecs( visid, attrib, myas );
 
     const DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
     bool res = false;

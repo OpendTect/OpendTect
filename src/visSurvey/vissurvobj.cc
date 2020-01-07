@@ -157,10 +157,20 @@ void SurveyObject::fillPar( IOPar& par ) const
     for ( int attrib=nrattribs-1; attrib>=0; attrib-- )
     {
 	IOPar attribpar;
-	if( !getSelSpec( attrib ) )
+	const TypeSet<Attrib::SelSpec>* specs = getSelSpecs( attrib );
+	if( !specs || specs->isEmpty() )
 	    continue;
 
-	getSelSpec( attrib )->fillPar( attribpar );
+	attribpar.set( sKeyNrVersions(), specs->size() );
+	for ( int vidx=0; vidx<specs->size(); vidx++ )
+	{
+	    IOPar verpar;
+	    (*specs)[vidx].fillPar( verpar );
+	    attribpar.mergeComp( verpar, IOPar::compKey(sKey::Version(),vidx) );
+	}
+
+	if ( specs->size() > 1 )
+	    attribpar.set( sKeySelTexture(), selectedTexture(attrib) );
 
 	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
 	{
@@ -236,9 +246,35 @@ bool SurveyObject::usePar( const IOPar& par )
 
 	const int attribnr = nrAttribs()-1;
 
-	Attrib::SelSpec spec;
-	spec.usePar( *attribpar );
-	setSelSpec( attribnr, spec );
+	int nrvers = 1;
+	if ( !attribpar->get(sKeyNrVersions(),nrvers) )
+	{
+	    Attrib::SelSpec spec;
+	    spec.usePar( *attribpar );
+	    setSelSpec( attribnr, spec );
+	}
+	else
+	{
+	    TypeSet<Attrib::SelSpec> specs;
+	    for ( int vidx=0; vidx<nrvers; vidx++ )
+	    {
+		PtrMan<IOPar> verpar =
+		    attribpar->subselect(IOPar::compKey(sKey::Version(),vidx) );
+		if ( !verpar )
+		    continue;
+
+		Attrib::SelSpec spec;
+		spec.usePar( *verpar );
+		specs += spec;
+	    }
+
+	    if ( !specs.isEmpty() )
+		setSelSpecs( attribnr, specs );
+
+	    int seltexture = 0;
+	    if ( specs.size()>1 && attribpar->get(sKeySelTexture(),seltexture) )
+		selectTexture( attrib, seltexture );
+	}
 
 	PtrMan<IOPar> seqpar = attribpar->subselect( sKeySequence() );
 	ColTab::Sequence seq;

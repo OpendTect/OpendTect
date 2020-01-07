@@ -228,7 +228,8 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 bool uiAttribPartServer::addToDescSet( const char* key, bool is2d )
 {
     //TODO: think of it: stored data can  be at 2 places: also in attrib set...
-    return eDSHolder().getDescSet(is2d,true)->getStoredID( key ).isValid();
+    return eDSHolder().getDescSet(is2d,true)->getStoredID(key,-1,true)
+								.isValid();
 }
 
 
@@ -1436,7 +1437,7 @@ Attrib::DescID uiAttribPartServer::getStoredID( const MultiID& multiid,
 						bool is2d, int selout ) const
 {
     DescSet* ds = eDSHolder().getDescSet( is2d, true );
-    return ds ? ds->getStoredID( multiid, selout ) : DescID::undef();
+    return ds ? ds->getStoredID( multiid, selout, true ) : DescID::undef();
 }
 
 
@@ -1777,7 +1778,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	const int idx = attrinf.ioobjnms_.indexOf(item->text.getFullString());
 	multiid = attrinf.ioobjids_.get(idx);
-	attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid );
+	attribid =
+	    eDSHolder().getDescSet(false,true)->getStoredID( multiid, -1, true);
 	isstored = true;
     }
     else if ( steering3dmnuitem_.findItem(mnuid) )
@@ -1785,7 +1787,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	const MenuItem* item = steering3dmnuitem_.findItem( mnuid );
 	const int idx = attrinf.steernms_.indexOf( item->text.getFullString() );
 	multiid = attrinf.steerids_.get( idx );
-	attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid );
+	attribid =
+	    eDSHolder().getDescSet(false,true)->getStoredID( multiid, -1, true);
 	isstored = true;
     }
     else if ( stored2dmnuitem_.findItem(mnuid) ||
@@ -1801,10 +1804,10 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	multiid = issteering ? attrinf.steerids_.get(idx)
 			     : attrinf.ioobjids_.get(idx);
 	const int selout = issteering ? 1 : -1;
-	attribid =
-	    eDSHolder().getDescSet(true,true)->getStoredID( multiid, selout );
-	    isstored = true;
-	}
+	attribid = eDSHolder().getDescSet(true,true)->getStoredID( multiid,
+								selout, true );
+	isstored = true;
+    }
     else if ( calcmnuitem->findItem(mnuid) )
     {
 	const MenuItem* item = calcmnuitem->findItem(mnuid);
@@ -1826,7 +1829,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	if ( ioobj )
 	{
 	    multiid = ioobj->key();
-	    attribid = eDSHolder().getDescSet(false,true)->getStoredID(multiid);
+	    attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid,
+								       -1,true);
 	    isstored = true;
 	}
     }
@@ -1940,9 +1944,7 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 	DescSet* ads = eDSHolder().getDescSet( is2d, true );
 	if ( selectedcomps.size() == 1 )
 	{
-	    //Using const_cast for compiler but ads won't be modified anyway
-	    attribid = const_cast<DescSet*>(ads)
-			->getStoredID( multiid, selectedcomps[0], false );
+	    attribid = ads->getStoredID( multiid, selectedcomps[0] );
 	    //Trick for old steering cubes: fake good component names
 	    if ( !is2d && issteering )
 	    {

@@ -214,7 +214,8 @@ public:
 				/*!<Fills \akeys and \avals with pairs of
 				    parameters from the defstr. */
 
-    // Will be removed after 6.2
+    static const char* sKeyOutput();
+    static const char* sKeyAll();
     static const char* sKeyInlDipComp();
     static const char* sKeyCrlDipComp();
     static const char* sKeyLineDipComp();

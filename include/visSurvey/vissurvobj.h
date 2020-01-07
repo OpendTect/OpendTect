@@ -354,6 +354,8 @@ public:
     static const char*		sKeyTextTrans()	{ return "Trans"; }
     static const char*		sKeyTC2RGBA()	{ return "TC2RGBA"; }
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
+    static const char*		sKeyNrVersions(){ return "Nr Versions"; }
+    static const char*		sKeySelTexture(){ return "Selected Texture"; }
     static const char*		sKeyAttribs()	{ return "Attrib "; }
     static const char*		sKeyLocked()	{ return "Locked"; }
     static const char*		sKeySurvey()	{ return "Survey"; }

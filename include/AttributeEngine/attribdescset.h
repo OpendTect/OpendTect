@@ -87,8 +87,9 @@ public:
 			      bool usestorinfo=false) const;
     void		getIds(TypeSet<DescID>&) const;
     void		getStoredIds(TypeSet<DescID>&) const;
-    DescID		getStoredID(const MultiID&,int selout=-1,
-				    bool create=true,bool blindcomp=false,
+    DescID		getStoredID(const MultiID&,int selout) const;
+    DescID		getStoredID(const MultiID&,int selout,
+				    bool create,bool blindcomp=false,
 				    const char* blindcompnm=0);
     Desc*		getFirstStored(bool usesteering=true) const;
     MultiID		getStoredKey(const DescID&) const;
