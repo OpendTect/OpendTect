@@ -91,10 +91,12 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     
     if ( ePDD().getActionType() != PDE::AddNRemove )
     {
+	PDE::ActionType scttyp = ePDD().getActionType();
        setOkText( PDE::ActionTypeDef().getUiStringForIndex(
 						 ePDD().getActionType()) );
        if ( addremfld_ )
-           addremfld_->display( false );
+	   addremfld_->display( false );
+       selectionChgCB(0);
     }
 }
 
@@ -131,14 +133,19 @@ uiFirewallProcSetter::~uiFirewallProcSetter()
 
 void uiFirewallProcSetter::selectionChgCB( CallBacker* )
 {
-    toadd_ = addremfld_->getBoolValue();
+    if ( addremfld_->isDisplayed() )
+	toadd_ = addremfld_->getBoolValue();
+    else
+	toadd_ = ePDD().getActionType() == PDE::Add ? true : false;
 
     odproclistbox_->setEmpty();
     pythonproclistbox_->setEmpty();
 
     mGetData
     odproclistbox_->addItems( odprocdescs_ );
+    odproclistbox_->chooseAll();
     pythonproclistbox_->addItems( pyprocdescs_ );
+    pythonproclistbox_->chooseAll();
 }
 
 
@@ -323,7 +330,9 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	BufferStringSet procnmsset;
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
 	{
-	    fincmd.add( procset.get(procidx) ).addSpace();
+	    fincmd.add( procset.get(procidx) );
+	    if ( procidx != procset.size()-1 )
+		fincmd.addSpace();
 	    procnmsset.add( procset.get(procidx) );
 	}
 
