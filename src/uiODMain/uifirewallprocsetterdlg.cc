@@ -91,7 +91,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     
     if ( ePDD().getActionType() != PDE::AddNRemove )
     {
-	PDE::ActionType scttyp = ePDD().getActionType();
        setOkText( PDE::ActionTypeDef().getUiStringForIndex(
 						 ePDD().getActionType()) );
        if ( addremfld_ )
