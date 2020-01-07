@@ -58,7 +58,8 @@ public:
 			    , allowsetdefault_(false)
 			    , withinserters_(true)
 			    , withwriteopts_(true)
-			    , confirmoverwrite_(true)	{}
+			    , confirmoverwrite_(true)
+			    , withctxtfilter_(nullptr)	{}
 
 	mDefSetupMemb(OD::ChoiceMode,choicemode);
 	mDefSetupMemb(bool,allowreloc);
@@ -67,6 +68,7 @@ public:
 	mDefSetupMemb(bool,withinserters);
 	mDefSetupMemb(bool,withwriteopts);
 	mDefSetupMemb(bool,confirmoverwrite);
+	mDefSetupMemb(const char*,withctxtfilter);
 
 	inline bool	isMultiChoice() const
 			{ return ::isMultiChoice( choicemode_ ); }
@@ -161,6 +163,7 @@ protected:
     ObjectSet<uiButton>	insertbuts_;
     ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
+    uiComboBox*		ctxtfiltfld_ = nullptr;
 
     bool		doTimeSort() const;
     void		addModifTime(const IOObj&);
@@ -182,6 +185,7 @@ protected:
     void		makeDefaultCB(CallBacker*);
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
+    void		ctxtChgCB(CallBacker*);
 
 private:
 

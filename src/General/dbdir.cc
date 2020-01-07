@@ -762,6 +762,20 @@ BufferString DBDirEntryList::iconName( idx_type idx ) const
 }
 
 
+BufferStringSet DBDirEntryList::getParValuesFor( const char* parkey ) const
+{
+    BufferStringSet res;
+    for ( idx_type idx=0; idx<size(); idx++ )
+    {
+	const IOObj& entry = *entries_[idx];
+	const char* val = entry.pars().find( parkey );
+	if ( val )
+	    res.addIfNew( val );
+    }
+    return res;
+}
+
+
 void DBDirEntryList::sort()
 {
     BufferStringSet nms; const size_type sz = size();

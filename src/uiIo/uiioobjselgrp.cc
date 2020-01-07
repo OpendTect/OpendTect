@@ -184,6 +184,23 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     mAttachCB( filtfld_->editingFinished, uiIOObjSelGrp::orderChgCB );
     mAttachCB( filtfld_->returnPressed, uiIOObjSelGrp::orderChgCB );
 
+    if ( setup_.withctxtfilter_ )
+    {
+	const DBDirEntryList entrylist( ctio_.ctxt_ );
+	BufferStringSet valstrs = entrylist.getParValuesFor(
+						    setup_.withctxtfilter_ );
+	if ( valstrs.size()>1 )
+	{
+	    valstrs.sort();
+	    uiStringSet uistrset = valstrs.getUiStringSet();
+	    uistrset.insert( 0, tr("All %1").arg( setup_.withctxtfilter_ ) );
+	    ctxtfiltfld_ = new uiComboBox( listfld_, uistrset, "ctxtfilter" );
+	    ctxtfiltfld_->attach( leftOf, filtfld_ );
+	    mAttachCB( ctxtfiltfld_->selectionChanged,
+		       uiIOObjSelGrp::ctxtChgCB );
+	}
+    }
+
     tsortbox_ = new uiCheckBox( listfld_, uiStrings::sTimeSort() );
     didtsort_ = false;
     Settings::common().getYN( sKeyTimeSort, didtsort_ );
@@ -965,4 +982,21 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
     lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<ioobjids_.size(); idx++ )
 	lbchoiceio_->keys().add( ioobjids_[idx].toString() );
+}
+
+
+void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
+{
+    if ( ctxtfiltfld_ )
+    {
+	const int curitm = ctxtfiltfld_->currentItem();
+	if ( curitm <= 0 )
+	    ctio_.ctxt_.toselect_.require_.removeWithKey(
+						    setup_.withctxtfilter_ );
+	else
+	    ctio_.ctxt_.toselect_.require_.set( setup_.withctxtfilter_,
+					    ctxtfiltfld_->itemText( curitm ) );
+
+	fullUpdate( -2 );
+    }
 }
