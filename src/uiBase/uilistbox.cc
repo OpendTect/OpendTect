@@ -682,9 +682,10 @@ void uiListBox::menuCB( CallBacker* )
     {
 	rightclickmnu_.insertSeparator();
 	if ( allshown_ )
-	    rightclickmnu_.insertItem(new uiAction(tr("Show checked only")), 5);
+	    rightclickmnu_.insertAction(new uiAction(tr("Show checked only")),
+					5);
 	else
-	    rightclickmnu_.insertItem(new uiAction(tr("Show all")), 6);
+	    rightclickmnu_.insertAction(new uiAction(tr("Show all")), 6);
     }
 
     const bool needretrieve = retrievecb_.willCall();
