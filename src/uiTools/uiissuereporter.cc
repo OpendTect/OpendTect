@@ -59,7 +59,6 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     uiButton* vrbut = new uiPushButton( this,
 	    		senddmp ? tr("Open folder") : tr("View report"),
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
-    vrbut->attach( rightOf, filenmlbl );
 
     uiGroup* usrinpgrp = new uiGroup( this, "User input group" );
     commentfld_ = new uiTextEdit( usrinpgrp );
@@ -78,6 +77,8 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 
     usrinpgrp->setHAlignObj( emailfld_ );
     usrinpgrp->attach( alignedBelow, filenmlbl );
+    vrbut->attach( ensureBelow, lblgrp );
+    vrbut->attach( rightAlignedAbove, usrinpgrp );
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
