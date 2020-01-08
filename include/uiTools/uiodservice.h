@@ -45,6 +45,7 @@ public:
     virtual		~uiODServiceBase();
 
     bool		isOK() const;
+    bool		hasConnection() const	{ return conn_; }
 
     Network::Authority	getAuthority() const;
     virtual void	stopServer();
