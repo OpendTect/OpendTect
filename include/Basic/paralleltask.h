@@ -41,7 +41,7 @@ class ParallelTaskRunner;
   class CalcClass : public ParallelTask
   {
   public:
-        od_int64	nrIterations() const { return N; }
+	od_int64	nrIterations() const { return N; }
 	int		doWork( od_int64 start, od_int64 stop, int threadid )
 			{
 			for ( int idx=start;idx<=stop &&shouldContinue();idx++ )
@@ -136,7 +136,7 @@ private:
     virtual bool	doFinish(bool success)		{ return success; }
 			/*!<Called after all doWork have finished.
 			    \param success indicates whether all doWork returned
-			           true. */
+				   true. */
 
     friend class			ParallelTaskRunner;
     ProgressMeter*			progressmeter_;
@@ -188,25 +188,25 @@ interp.execute();
 
 #define mDefParallelCalcNoPars(clss,uimsg) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    clss( od_int64 _sz_ ) : sz_(_sz_), reportprogress_(true)	{} \
 
 #define mDefParallelCalc1Par(clss,uimsg,T1,v1) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1		v1##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_ ) \
 		: sz_(_sz_), reportprogress_(true), v1##_(_##v1##_)	{} \
 
 #define mDefParallelCalc2Pars(clss,uimsg,T1,v1,T2,v2) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
 		: sz_(_sz_), reportprogress_(true) \
@@ -214,9 +214,9 @@ interp.execute();
 
 #define mDefParallelCalc3Pars(clss,uimsg,T1,v1,T2,v2,T3,v3) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; \
 	    clss( od_int64 _sz_, \
 		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_ ) \
@@ -225,9 +225,9 @@ interp.execute();
 
 #define mDefParallelCalc4Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \
 	    clss( od_int64 _sz_, \
 		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, T4 _##v4##_ ) \
@@ -238,9 +238,9 @@ interp.execute();
 
 #define mDefParallelCalc5Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_;\
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, \
 				 T4 _##v4##_, T5 _##v5##_ ) \
@@ -250,9 +250,9 @@ interp.execute();
 
 #define mDefParallelCalc6Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5,T6,v6) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_; T6 v6##_;\
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, \
 				 T4 _##v4##_, T5 _##v5##_, T6 _##v6##_ ) \
@@ -264,9 +264,9 @@ interp.execute();
 #define mDefParallelCalc7Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5, \
 			      T6,v6,T7,v7) \
 	class clss : public ParallelTask \
-	{ mODTextTranslationClass(clss); \
+	{ mODTextTranslationClass(clss) \
 	public: \
-	    mDeclareParallelCalcStd(uimsg); \
+	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \
 	    T5 v5##_; T6 v6##_; T7 v7##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, \
