@@ -293,12 +293,12 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
 
     const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
-    BufferString cmd;
+    BufferString cmd = exepath.fullPath();
 
     if ( toadd_ )
-	cmd.add("--add ");
+	cmd.addSpace().add("--add");
     else
-	cmd.add("--remove ");
+	cmd.addSpace().add("--remove");
     
     bool errocc = false;
     IOPar pars;
@@ -322,9 +322,10 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 
 	BufferString fincmd = cmd;
 	if ( idx != PDE::Python )
-	    fincmd.add( "--od " ).add( exepath_ ).addSpace();
+	    fincmd.addSpace().add( "--od " ).add( exepath_ ).addSpace();
 	else
-	    fincmd.add( "--py " ).add( getPythonInstDir() ).addSpace();
+	    fincmd.addSpace().add( "--py " ).add( getPythonInstDir() )
+								.addSpace();
 
 	BufferStringSet procnmsset;
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
@@ -335,7 +336,12 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    procnmsset.add( procset.get(procidx) );
 	}
 
-	if ( !ExecODProgram(exepath.fullPath(),fincmd) )
+	const OS::MachineCommand mc( fincmd );
+	OS::CommandLauncher cl( mc );
+	OS::CommandExecPars cp;
+	cp.prioritylevel( 0 );
+
+	if ( !cl.execute(cp) )
 	{
 	    uiString errmsg;
 	    if ( toadd_ )
