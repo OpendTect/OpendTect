@@ -16,11 +16,11 @@ else if ( ! -d "${bindir}" ) then
 endif
 
 if ( ${HDIR} == mac ) then
-    if ( ! -e ${bindir}/libuiMATLABLink.dylib ) then
+    if ( ! -e "${bindir}/libuiMATLABLink.dylib" ) then
 	exit 0
     endif
 else if ( ${HDIR} == "lux" ) then
-    if ( ! -e ${bindir}/libuiMATLABLink.so ) then
+    if ( ! -e "${bindir}/libuiMATLABLink.so" ) then
 	exit 0
     endif
 endif
