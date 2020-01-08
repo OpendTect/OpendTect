@@ -28,7 +28,7 @@ endif
 #-----------------------------------------------------
 # General initialisation
 
-source ${DTECT_APPL}/bin/mksethdir ${DTECT_APPL}
+source "${DTECT_APPL}/bin/mksethdir" "${DTECT_APPL}"
 
 setenv LANG C
 setenv LC_NUMERIC C
@@ -36,9 +36,9 @@ setenv LC_NUMERIC C
 #-----------------------------------------------------
 # PATH variables
 
-if ( -d ${DTECT_APPL}/bin/${binsubdir}/Release ) then
+if ( -d "${DTECT_APPL}/bin/${binsubdir}/Release" ) then
     set bindir="${DTECT_APPL}/bin/${binsubdir}/Release"
-else if ( -d ${DTECT_APPL}/bin/${binsubdir}/Debug ) then
+else if ( -d "${DTECT_APPL}/bin/${binsubdir}/Debug" ) then
     set bindir="${DTECT_APPL}/bin/${binsubdir}/Debug"
 else
     exit 1
@@ -83,7 +83,7 @@ foreach fil ( odinit.* )
 end
 
 if ( $?CHECK_GL ) then
-    source ${DTECT_APPL}/bin/init_dtect_GL
+    source "${DTECT_APPL}/bin/init_dtect_GL"
 endif
 
 # Put back the user environment
