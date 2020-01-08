@@ -28,7 +28,7 @@ endif
 #-----------------------------------------------------
 # General initialisation
 
-source "${DTECT_APPL}/bin/mksethdir ${DTECT_APPL}"
+source "${DTECT_APPL}/bin/mksethdir" "${DTECT_APPL}"
 
 setenv LANG C
 setenv LC_NUMERIC C
