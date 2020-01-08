@@ -296,9 +296,9 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     BufferString cmd;
 
     if ( toadd_ )
-	cmd.add(" --add ");
+	cmd.add("--add ");
     else
-	cmd.add(" --remove ");
+	cmd.add("--remove ");
     
     bool errocc = false;
     IOPar pars;
@@ -364,5 +364,5 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	else
 	    uiMSG().message( tr("Selected executables successfully removed") );
     }
-    return  ePDD().writePars( pars );
+    return  ePDD().writePars( pars, toadd_ );
 }

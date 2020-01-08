@@ -57,7 +57,7 @@ namespace ProcDesc
 					const DataEntry::Type,
 					const DataEntry::ActionType acttyp);
 	IOPar&			readPars();
-	bool			writePars(const IOPar&);
+	bool			writePars(const IOPar&,bool toadd);
 
     protected:
 	IOPar			pars_;

@@ -110,7 +110,19 @@ IOPar& ProcDesc::Data::readPars()
 }
 
 
-bool ProcDesc::Data::writePars( const IOPar& pars )
+#define mRemoveProcsNUpdateList(finallist,orglist) \
+    for ( int jidx=0; jidx<finallist.size(); jidx++ ) \
+    { \
+	const int idx = orglist.indexOf( finallist.get(jidx) ); \
+	if ( idx < 0 ) \
+	    continue; \
+	orglist.removeSingle( idx ); \
+    } \
+    finallist.setEmpty(); \
+    finallist.append( orglist );
+
+
+bool ProcDesc::Data::writePars( const IOPar& pars, bool toadd )
 {
     const FilePath exceptionfp( path_, "data", "FirewallExceptionList" );
     BufferStringSet v6procs;
@@ -118,11 +130,21 @@ bool ProcDesc::Data::writePars( const IOPar& pars )
     BufferStringSet pyprocs;
 
     pars.get( ProcDesc::DataEntry::sKeyODv6(), v6procs );
-    v6procs.append( addedodv6procs_ );
     pars.get( ProcDesc::DataEntry::sKeyODv7(), v7procs );
-    v7procs.append( addedodv7procs_ );
     pars.get( ProcDesc::DataEntry::sKeyPython(), pyprocs );
-    pyprocs.append( addedpyprocs_ );
+
+    if ( toadd )
+    {
+	v6procs.append( addedodv6procs_ );
+	v7procs.append( addedodv7procs_ );
+	pyprocs.append( addedpyprocs_ );
+    }
+    else
+    {
+	mRemoveProcsNUpdateList( v6procs, addedodv6procs_ )
+	mRemoveProcsNUpdateList( v7procs, addedodv7procs_ )
+	mRemoveProcsNUpdateList( pyprocs, addedpyprocs_ )
+    }
 
     IOPar wrpars;
     wrpars.set( ProcDesc::DataEntry::sKeyODv6(), v6procs );
