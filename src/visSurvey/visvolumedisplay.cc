@@ -90,7 +90,7 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 VolumeDisplay::AttribData::AttribData()
     : as_( *new Attrib::SelSpec )
     , selspec_(new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
-    , cache_( 0 )
+    , cache_( nullptr )
 {}
 
 
@@ -104,17 +104,16 @@ VolumeDisplay::AttribData::~AttribData()
 
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
-    , boxdragger_(visBase::BoxDragger::create())
-    , isinited_(false)
-    , scalarfield_(0)
-//    , volren_(0)
     , boxMoving(this)
-    , datatransform_(0)
-    , datatransformer_(0)
+    , boxdragger_(visBase::BoxDragger::create())
+    , scalarfield_(nullptr)
+    , datatransform_(nullptr)
+    , datatransformer_(nullptr)
     , csfromsession_(true)
-    , eventcatcher_(0)
-    , onoffstatus_(true)
+    , eventcatcher_(nullptr)
+    , isinited_(false)
     , ismanip_(false)
+    , onoffstatus_(true)
 {
     addChild( boxdragger_->osgNode() );
 
@@ -162,7 +161,7 @@ VolumeDisplay::VolumeDisplay()
 VolumeDisplay::~VolumeDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
+    setSceneEventCatcher( nullptr );
 
     deepErase( attribs_ );
 
@@ -174,7 +173,7 @@ VolumeDisplay::~VolumeDisplay()
     boxdragger_->unRef();
     scalarfield_->unRef();
 
-    setZAxisTransform( 0,0 );
+    setZAxisTransform( nullptr, nullptr );
 }
 
 
@@ -185,7 +184,7 @@ void VolumeDisplay::setMaterial( visBase::Material* nm )
     visBase::VisualObjectImpl::setMaterial( nm );
     if ( nm )
 	mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
-    materialChange( 0 );
+    materialChange( nullptr );
 }
 
 #define mSetMaterialProp( prop ) \
@@ -232,7 +231,7 @@ void VolumeDisplay::updateIsoSurfColor()
 }
 
 
-bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
     if ( zat == datatransform_ )
 	return true;
@@ -246,12 +245,12 @@ bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 		       VolumeDisplay::dataTransformCB );
 	}
 	datatransform_->unRef();
-	datatransform_ = 0;
+	datatransform_ = nullptr;
     }
 
     datatransform_ = zat;
     delete datatransformer_;
-    datatransformer_ = 0;
+    datatransformer_ = nullptr;
 
     if ( datatransform_ )
     {
@@ -288,7 +287,7 @@ void VolumeDisplay::dataTransformCB( CallBacker* )
     for ( int attrib=0; attrib<attribs_.size(); attrib++ )
     {
 	if ( attribs_[attrib]->cache_ )
-	    setDataVolume( attrib, attribs_[attrib]->cache_, 0 );
+	    setDataVolume( attrib, attribs_[attrib]->cache_, nullptr );
     }
 }
 
@@ -408,7 +407,7 @@ int VolumeDisplay::addSlice( int dim )
 {
     visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
     slice->ref();
-    slice->setMaterial(0);
+    slice->setMaterial(nullptr);
     slice->setDim(dim);
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
@@ -505,14 +504,14 @@ float VolumeDisplay::defaultIsoValue() const
 }
 
 
-int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
+int VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
 {
     mVisMCSurf* isosurface = mVisMCSurf::create();
     isosurface->ref();
     isosurface->setRightHandSystem( righthandsystem_ );
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
-			 MarchingCubesSurface() );
-    isosurface->setSurface( *surface, tr );
+			 MarchingCubesSurface() )
+    isosurface->setSurface( *surface, taskr );
     isosurface->setName( toUiString("Iso surface") );
 
     isosurfaces_ += isosurface;
@@ -521,11 +520,11 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     isosurfsettings_ += setting;
 
     if ( updateisosurface )
-	updateIsoSurface( isosurfaces_.size()-1, tr );
+	updateIsoSurface( isosurfaces_.size()-1, taskr );
 
     //add before the volume transform
     addChild( isosurface->osgNode() );
-    materialChange( 0 ); //updates new surface's material
+    materialChange( nullptr ); //updates new surface's material
     return isosurface->id();
 }
 
@@ -570,7 +569,7 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 	cs.limitTo( scene_->getTrcKeyZSampling() );
 
     updateDraggerLimits( dragmode );
-    mSetVolumeTransform( ROIVolume, center, width, cs, 0 );
+    mSetVolumeTransform( ROIVolume, center, width, cs, 0 )
 
     if ( dragmode )
 	return;
@@ -579,7 +578,7 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
     if ( !texcs.isDefined() || texcs.isEmpty() )
 	texcs = cs;
 
-    mSetVolumeTransform( TexVolume, texcenter, texwidth, texcs, 1 );
+    mSetVolumeTransform( TexVolume, texcenter, texwidth, texcs, 1 )
 
     texturecs_ = cs;
     scalarfield_->turnOn( false );
@@ -615,20 +614,20 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
     if ( !keepdraggerinsidetexture_ && scene_ )
 	limcs = scene_->getTrcKeyZSampling();
 
-    const StepInterval<float> inlrg( mCast(float,limcs.hsamp_.start_.inl()),
-				     mCast(float,limcs.hsamp_.stop_.inl()),
-				     mCast(float,limcs.hsamp_.step_.inl()) );
-    const StepInterval<float> crlrg( mCast(float,limcs.hsamp_.start_.crl()),
-				     mCast(float,limcs.hsamp_.stop_.crl()),
-				     mCast(float,limcs.hsamp_.step_.crl()) );
+    const StepInterval<float> inlrg( sCast(float,limcs.hsamp_.start_.inl()),
+				     sCast(float,limcs.hsamp_.stop_.inl()),
+				     sCast(float,limcs.hsamp_.step_.inl()) );
+    const StepInterval<float> crlrg( sCast(float,limcs.hsamp_.start_.crl()),
+				     sCast(float,limcs.hsamp_.stop_.crl()),
+				     sCast(float,limcs.hsamp_.step_.crl()) );
 
     boxdragger_->setSpaceLimits( inlrg, crlrg, limcs.zsamp_ );
 
     const int minvoxwidth = 1;
     boxdragger_->setWidthLimits(
-	Interval<float>( mCast(float,minvoxwidth*limcs.hsamp_.step_.inl()),
+	Interval<float>( sCast(float,minvoxwidth*limcs.hsamp_.step_.inl()),
 			 mUdf(float) ),
-	Interval<float>( mCast(float,minvoxwidth*limcs.hsamp_.step_.crl()),
+	Interval<float>( sCast(float,minvoxwidth*limcs.hsamp_.step_.crl()),
 			 mUdf(float) ),
 	Interval<float>( minvoxwidth*limcs.zsamp_.step, mUdf(float) ) );
 
@@ -662,19 +661,19 @@ float VolumeDisplay::isoValue( const mVisMCSurf* mcd ) const
 
 
 void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv,
-				 TaskRunner* tr )
+				 TaskRunner* taskr )
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 )
 	return;
 
     isosurfsettings_[idx].isovalue_ = nv;
-    updateIsoSurface( idx, tr );
+    updateIsoSurface( idx, taskr );
 }
 
 
 mVisMCSurf* VolumeDisplay::getIsoSurface( int idx )
-{ return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : 0; }
+{ return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : nullptr; }
 
 
 int VolumeDisplay::getNrIsoSurfaces()
@@ -705,7 +704,7 @@ char VolumeDisplay::seedAboveIsovalue( const mVisMCSurf* mcd ) const
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 || idx>=isosurfaces_.size() )
-            return -1;
+	    return -1;
 
     return isosurfsettings_[idx].seedsaboveisoval_;
 }
@@ -715,7 +714,7 @@ void VolumeDisplay::setSeedAboveIsovalue( const mVisMCSurf* mcd, bool above )
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 || idx>=isosurfaces_.size() )
-            return;
+	    return;
 
     isosurfsettings_[idx].seedsaboveisoval_ = above;
 }
@@ -741,7 +740,7 @@ void VolumeDisplay::setSeedsID( const mVisMCSurf* mcd, MultiID mid )
 }
 
 
-bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
+bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* taskr )
 {
     // TODO: adapt to multi-attrib
     if ( idx<0 || idx>=isosurfaces_.size() || !attribs_[0]->cache_ ||
@@ -792,34 +791,34 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	float* newdata = newarr.getData();
 	if ( newdata )
 	{
-            for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
+	    for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
 		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval
 						    : threshold-newdata[idy];
 	}
-        else if ( newarr.getStorage() )
-        {
-            ValueSeries<float>* newstor = newarr.getStorage();
-            for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
-            {
+	else if ( newarr.getStorage() )
+	{
+	    ValueSeries<float>* newstor = newarr.getStorage();
+	    for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
+	    {
 		newstor->setValue(idy, mIsUdf(newstor->value(idy))
 			? outsideval : threshold-newstor->value(idy) );
-            }
+	    }
 
-        }
+	}
 	else
 	{
 	    for ( int id0=0; id0<newarr.info().getSize(0); id0++ )
-            {
+	    {
 		for ( int idy=0; idy<newarr.info().getSize(1); idy++ )
-                {
+		{
 		    for ( int idz=0; idz<newarr.info().getSize(2); idz++ )
 		    {
 			float val = newarr.get(id0,idy,idz);
 			val = mIsUdf(val) ? outsideval : threshold-val;
 			newarr.set( id0, idy, idz, val );
 		    }
-                }
-            }
+		}
+	    }
 	}
     }
 
@@ -827,7 +826,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	? isosurfsettings_[idx].isovalue_ : 0;
 
     isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
-						    threshold, tr );
+						    threshold, taskr );
     return true;
 }
 
@@ -860,12 +859,12 @@ mDefParallelCalcBody(
 	,
 	const int iidx = iter[0];
 	const int iidy = iter[1];
-	const int idz = mCast(int,idx);
+	const int idz = sCast(int,idx);
 	newdata_.set( iidx, iidy, idz, threshold_-inpdata_.get(iidx,iidy,idz));
 	, )
 
 
-void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
+void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* taskr )
 {
     // TODO:: adapt to multi-attrib
     const RegularSeisDataPack* cache = attribs_[0]->cache_;
@@ -877,17 +876,17 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	const TrcKeyZSampling& samp = cache->sampling();
 	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->setBoxBoundary(
-		mCast(float,samp.hsamp_.inlRange().stop),
-		mCast(float,samp.hsamp_.crlRange().stop),
+		sCast(float,samp.hsamp_.inlRange().stop),
+		sCast(float,samp.hsamp_.crlRange().stop),
 		samp.zsamp_.stop );
 
 	const SamplingData<float> inlsampling(
-		mCast(float,samp.hsamp_.inlRange().start),
-		mCast(float,samp.hsamp_.inlRange().step) );
+		sCast(float,samp.hsamp_.inlRange().start),
+		sCast(float,samp.hsamp_.inlRange().step) );
 
 	const SamplingData<float> crlsampling(
-		mCast(float,samp.hsamp_.crlRange().start),
-		mCast(float,samp.hsamp_.crlRange().step) );
+		sCast(float,samp.hsamp_.crlRange().start),
+		sCast(float,samp.hsamp_.crlRange().step) );
 
 	SamplingData<float> zsampling ( samp.zsamp_.start, samp.zsamp_.step );
 	isosurfaces_[idx]->setScales( inlsampling, crlsampling, zsampling );
@@ -929,17 +928,18 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		}
 	    }
 
-	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
+	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, *newarr,
+							    0, taskr );
 	}
 	else
 	{
-	    if ( !updateSeedBasedSurface( idx, tr ) )
+	    if ( !updateSeedBasedSurface(idx,taskr) )
 		return;
 	}
     }
 
     updateIsoSurfColor();
-    isosurfaces_[idx]->touch( false, tr );
+    isosurfaces_[idx]->touch( false, taskr );
 }
 
 
@@ -992,7 +992,7 @@ void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
 
 void VolumeDisplay::sliceMoving( CallBacker* cb )
 {
-    mDynamicCastGet( visBase::OrthogonalSlice*, slice, cb );
+    mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb)
     if ( !slice ) return;
 
     slicename_ = mFromUiStringTodo(slice->name());
@@ -1005,24 +1005,14 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( !slice ) return 0;
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
-//    slicepos *= (float) -voltrans_->getScale()[dim];
 
     float pos;
     if ( dim == 2 )
-    {
-//	slicepos += (float) voltrans_->getTranslation()[0];
-	pos = mCast( float, SI().inlRange(true).snap(slicepos) );
-    }
+	pos = sCast( float, SI().inlRange(true).snap(slicepos) );
     else if ( dim == 1 )
-    {
-//	slicepos += (float) voltrans_->getTranslation()[1];
-	pos = mCast( float, SI().crlRange(true).snap(slicepos) );
-    }
+	pos = sCast( float, SI().crlRange(true).snap(slicepos) );
     else
-    {
-//	slicepos += (float) voltrans_->getTranslation()[2];
 	pos = slicepos;
-    }
 
     return pos;
 }
@@ -1039,19 +1029,19 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     int nrslices = 0;
     slice->getSliceInfo( nrslices, rg );
     if ( dim == 2 )
-	pos = (float)cs.hsamp_.inlRange().start;
+	pos = sCast(float,cs.hsamp_.inlRange().start);
     else if ( dim == 1 )
-	pos = (float)cs.hsamp_.crlRange().start;
+	pos = sCast(float,cs.hsamp_.crlRange().start);
     else
-	pos = (float)cs.zsamp_.start;
+	pos = sCast(float,cs.zsamp_.start);
 
 //    pos -= (float) voltrans_->getTranslation()[2-dim];
 //    pos /= (float) -voltrans_->getScale()[dim];
 
-    float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
-    float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
+    const float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
+    const float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
     Coord3 center(0,0,0);
-    center[dim] = draggerpos;
+    center[dim] = sCast(double,draggerpos);
     slice->setCenter( center, false );
     slice->motion.trigger();
 }
@@ -1068,13 +1058,14 @@ SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
 const Attrib::SelSpec* VolumeDisplay::getSelSpec(
 				int attrib, int version ) const
 {
-    return attribs_.validIdx(attrib)? &(*attribs_[attrib]->selspec_)[version]:0;
+    return attribs_.validIdx(attrib) ? &(*attribs_[attrib]->selspec_)[version]
+				     : nullptr;
 }
 
 
 const TypeSet<Attrib::SelSpec>* VolumeDisplay::getSelSpecs( int attrib ) const
 {
-    return attribs_.validIdx(attrib) ? attribs_[attrib]->selspec_ : 0;
+    return attribs_.validIdx(attrib) ? attribs_[attrib]->selspec_ : nullptr;
 }
 
 
@@ -1093,11 +1084,11 @@ void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
 
     *attribs_[attrib]->selspec_ = as;
     DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
-    attribs_[attrib]->cache_ = 0;
+    attribs_[attrib]->cache_ = nullptr;
 
     TrcKeyZSampling emptytkzs( false );
     emptytkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
-    scalarfield_->setScalarField( attrib, 0, true, emptytkzs, 0 );
+    scalarfield_->setScalarField( attrib, nullptr, true, emptytkzs, 0 );
 
     updateAttribEnabling();
 
@@ -1111,15 +1102,15 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( int attrib ) const
 
 
 bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				   TaskRunner* tr )
+				   TaskRunner* taskr )
 {
     if ( !attribs_.validIdx(attrib) )
 	return false;
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack* datapack = dpm.obtain( dpid );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack);
-    const bool res = setDataVolume( attrib, regsdp, tr );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack)
+    const bool res = setDataVolume( attrib, regsdp, taskr );
     if ( !res )
     {
 	dpm.release( dpid );
@@ -1134,14 +1125,14 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 bool VolumeDisplay::setDataVolume( int attrib,
 				   const RegularSeisDataPack* attribdata,
-				   TaskRunner* tr )
+				   TaskRunner* taskr )
 {
     if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
 	return false;
 
     TrcKeyZSampling tkzs = attribdata->sampling();
 
-    const Array3D<float>* usedarray = 0;
+    const Array3D<float>* usedarray = nullptr;
     bool arrayismine = true;
     if ( alreadyTransformed(attrib) || !datatransform_ )
 	usedarray = &attribdata->data();
@@ -1157,7 +1148,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	tkzs.zsamp_ = getTrcKeyZSampling(true,true,0).zsamp_;
 	datatransformer_->setOutputRange( tkzs );
 
-	if ( !TaskRunner::execute( tr, *datatransformer_ ) )
+	if ( !TaskRunner::execute(taskr,*datatransformer_) )
 	{
 	    pErrMsg( "Transform failed" );
 	    return false;
@@ -1174,7 +1165,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
     }
 
     tkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
-    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, tr );
+    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, taskr);
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
@@ -1202,7 +1193,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
 const RegularSeisDataPack* VolumeDisplay::getCacheVolume( int attrib ) const
 {
-    return attribs_.validIdx(attrib) ? attribs_[attrib]->cache_ : 0;
+    return attribs_.validIdx(attrib) ? attribs_[attrib]->cache_ : nullptr;
 }
 
 
@@ -1316,7 +1307,7 @@ bool VolumeDisplay::allowsPicks() const
 }
 
 
-visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
+visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
 {
     VolumeDisplay* vd = new VolumeDisplay;
 
@@ -1325,12 +1316,12 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
     for ( int idx=0; idx<children.size(); idx++ )
 	vd->removeChild( children[idx] );
 
-    vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), tr );
+    vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), taskr );
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
 	const int sliceid = vd->addSlice( slices_[idx]->getDim() );
 	mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-			visBase::DM().getObject(sliceid));
+			visBase::DM().getObject(sliceid))
 	slice->setSliceNr( slices_[idx]->getSliceNr() );
     }
 
@@ -1351,11 +1342,11 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 	    vd->addAttrib();
 
 	vd->setSelSpecs( attrib, *attribs_[attrib]->selspec_ );
-	vd->setDataVolume( attrib, attribs_[attrib]->cache_, tr );
+	vd->setDataVolume( attrib, attribs_[attrib]->cache_, taskr );
 	vd->setColTabMapperSetup( attrib,
-			    scalarfield_->getColTabMapper(attrib).setup_, tr );
+			scalarfield_->getColTabMapper(attrib).setup_, taskr );
 	vd->setColTabSequence( attrib,
-			       *getChannels2RGBA()->getSequence(attrib), tr );
+			*getChannels2RGBA()->getSequence(attrib), taskr );
     }
 
     return vd;
@@ -1430,13 +1421,13 @@ VolumeDisplay::IsosurfaceSetting& VolumeDisplay::IsosurfaceSetting::operator=(
 bool VolumeDisplay::canSetColTabSequence() const
 {
     mDynamicCastGet( const visBase::RGBATextureChannel2RGBA*,
-		     rgba2rgba, getChannels2RGBA() );
+		     rgba2rgba, getChannels2RGBA() )
     return !rgba2rgba;
 }
 
 
 void VolumeDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
-					TaskRunner* tr )
+					TaskRunner* )
 {
     if ( getChannels2RGBA() )
     {
@@ -1449,15 +1440,16 @@ void VolumeDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 
 const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
 {
-    return getChannels2RGBA() ? getChannels2RGBA()->getSequence(attrib) : 0;
+    return getChannels2RGBA() ? getChannels2RGBA()->getSequence(attrib)
+			      : nullptr;
 }
 
 
 void VolumeDisplay::setColTabMapperSetup( int attrib,
 					  const ColTab::MapperSetup& ms,
-					  TaskRunner* tr )
+					  TaskRunner* taskr )
 {
-    scalarfield_->setColTabMapperSetup( attrib, ms, tr );
+    scalarfield_->setColTabMapperSetup( attrib, ms, taskr );
     updateIsoSurfColor();
 }
 
@@ -1505,8 +1497,8 @@ bool VolumeDisplay::usePar( const IOPar& par )
 
 	mappersetup.usePar(*texturepar);
 	sequence.usePar(*texturepar );
-	setColTabMapperSetup( 0, mappersetup, 0 );
-	setColTabSequence( 0, sequence, 0 );
+	setColTabMapperSetup( 0, mappersetup, nullptr );
+	setColTabSequence( 0, sequence, nullptr );
 	if ( !(*attribs_[0]->selspec_)[0].usePar(par) )
 	    return false;
     }
@@ -1577,7 +1569,7 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	    float isovalue;
 	    if ( par.get( str, isovalue ) )
 	    {
-		addIsoSurface( 0, false );
+		addIsoSurface( nullptr, false );
 		isosurfsettings_[idx].isovalue_ = isovalue;
 	    }
 
@@ -1589,12 +1581,12 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	    str = sKeySurfMode(); str += idx;
 	    int smode;
 	    par.get( str, smode );
-	    isosurfsettings_[idx].mode_ = mCast( char, smode );
+	    isosurfsettings_[idx].mode_ = sCast( char, smode );
 
 	    str = sKeySeedsAboveIsov(); str += idx;
 	    int aboveisov;
 	    par.get( str, aboveisov );
-	    isosurfsettings_[idx].seedsaboveisoval_ = mCast( char, aboveisov );
+	    isosurfsettings_[idx].seedsaboveisoval_ = sCast( char, aboveisov );
 
 	    str = sKeySeedsMid(); str += idx;
 	    MultiID mid;
@@ -1632,7 +1624,7 @@ visBase::OrthogonalSlice* VolumeDisplay::getSelectedSlice() const
 	    return const_cast<visBase::OrthogonalSlice*>( slices_[idx] );
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1700,7 +1692,7 @@ bool VolumeDisplay::canAddAttrib( int nr ) const
 	return false;
 
     mDynamicCastGet( const visBase::ColTabTextureChannel2RGBA*, coltabtc2rgba,
-		     getChannels2RGBA() );
+		     getChannels2RGBA() )
     if ( coltabtc2rgba )	// Multiple coltab textures not yet supported
 	return nrAttribs()+nr <= 1;
 
@@ -1804,12 +1796,12 @@ bool VolumeDisplay::swapAttribs( int attrib0, int attrib1 )
 void VolumeDisplay::setAttribTransparency( int attrib, unsigned char trans )
 {
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*,
-		     coltab2rgba, getChannels2RGBA() );
+		     coltab2rgba, getChannels2RGBA() )
     if ( coltab2rgba )
 	coltab2rgba->setTransparency( attrib, trans );
 
     mDynamicCastGet( visBase::RGBATextureChannel2RGBA*,
-		     rgba2rgba, getChannels2RGBA() );
+		     rgba2rgba, getChannels2RGBA() )
     if ( rgba2rgba )
 	rgba2rgba->setTransparency( trans );
 
@@ -1820,12 +1812,12 @@ void VolumeDisplay::setAttribTransparency( int attrib, unsigned char trans )
 unsigned char VolumeDisplay::getAttribTransparency( int attrib ) const
 {
     mDynamicCastGet( const visBase::ColTabTextureChannel2RGBA*,
-		     coltab2rgba, getChannels2RGBA() );
+		     coltab2rgba, getChannels2RGBA() )
     if ( coltab2rgba )
 	return coltab2rgba->getTransparency( attrib );
 
     mDynamicCastGet( const visBase::RGBATextureChannel2RGBA*,
-		     rgba2rgba, getChannels2RGBA() );
+		     rgba2rgba, getChannels2RGBA() )
     if ( rgba2rgba )
 	return rgba2rgba->getTransparency();
 
@@ -1844,13 +1836,13 @@ bool VolumeDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* tc2rgba )
 
 visBase::TextureChannel2RGBA* VolumeDisplay::getChannels2RGBA()
 {
-    return scalarfield_ ? scalarfield_->getChannels2RGBA() : 0;
+    return scalarfield_ ? scalarfield_->getChannels2RGBA() : nullptr;
 }
 
 
 const visBase::TextureChannel2RGBA* VolumeDisplay::getChannels2RGBA() const
 {
-    return scalarfield_ ? scalarfield_->getChannels2RGBA() : 0;
+    return scalarfield_ ? scalarfield_->getChannels2RGBA() : nullptr;
 }
 
 
