@@ -234,9 +234,7 @@ void uiWellMan::fillLogsFld()
 	}
     }
 
-    for ( int idx=0; idx<availablelognms_.size(); idx++)
-	logsfld_->addItem( toUiString(availablelognms_.get(idx)) );
-
+    logsfld_->addItems( availablelognms_ );
     logsfld_->chooseAll( false );
     addlogsbut_->setSensitive( iswritable_ && curwds_.size() == 1 );
     calclogsbut_->setSensitive( iswritable_ );
