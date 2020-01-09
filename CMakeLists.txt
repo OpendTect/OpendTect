@@ -104,6 +104,7 @@ set( OD_PLUGINS
 	uiPreStackViewer
 	CmdDriver
 	uiCOLOP
+	uiCrashMe
 )
 
 
