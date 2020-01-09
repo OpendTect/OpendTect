@@ -536,27 +536,40 @@ void Survey::FullHorSubSel::fillPar( IOPar& iop ) const
 void Survey::FullHorSubSel::usePar( const IOPar& iop, const SurveyInfo* si )
 {
     clearContents();
-    set3D( !iop.isPresent(sNrLinesKey()), si );
+    bool iopis2d = iop.isPresent( sNrLinesKey() ); //From Survey namespace
+    if ( !iopis2d )
+	iopis2d = !iop.isPresent(sKey::SurveyID()); //From Seis::SelData
+
+    set3D( !iopis2d, si );
 
     if ( chss_ )
 	chss_->usePar( iop );
     else
     {
 	size_type nrlines = 0;
-	iop.get( sNrLinesKey(), nrlines );
+	const bool hasnrlines = iop.get( sNrLinesKey(), nrlines );
+	if ( !hasnrlines )
+	    nrlines = 999999;
 	for ( auto idx=0; idx<nrlines; idx++ )
 	{
-	    PtrMan<IOPar> subpar = iop.subselect( toString(idx) );
-	    if ( subpar && !subpar->isEmpty() )
+	    const BufferString subselkey( hasnrlines ? toString(idx)
+				: IOPar::compKey(sKey::Line(),toString(idx)) );
+	    PtrMan<IOPar> subpar = iop.subselect( subselkey );
+	    if ( !subpar || subpar->isEmpty() )
 	    {
-		bool is2d = true; GeomID gid;
-		Survey::SubSel::getInfo( *subpar, is2d, gid );
-		if ( is2d && gid.isValid() )
-		{
-		    auto* lhss = new LineHorSubSel( gid );
-		    lhss->usePar( iop );
-		    lhsss_ += lhss;
-		}
+		if ( hasnrlines )
+		    continue;
+		else
+		    break;
+	    }
+
+	    bool is2d = true; GeomID gid;
+	    Survey::SubSel::getInfo( *subpar, is2d, gid );
+	    if ( is2d && gid.isValid() )
+	    {
+		auto* lhss = new LineHorSubSel( gid );
+		lhss->usePar( *subpar );
+		lhsss_ += lhss;
 	    }
 	}
     }

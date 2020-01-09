@@ -51,10 +51,13 @@ bool Survey::SubSel::getInfo( const IOPar& iop, bool& is2d, GeomID& geomid )
     int igs = (int)OD::VolBasedGeom;
     if ( !iop.get(sKey::GeomSystem(),igs) )
     {
-	if ( !iop.get(sKey::SurveyID(),igs) )
-	    return false;
-	if ( igs < (int)OD::SynthGeom || igs > (int)OD::LineBasedGeom )
-	    igs = (int)OD::VolBasedGeom;
+	if ( iop.get(sKey::SurveyID(),igs) )
+	{
+	    if ( igs < (int)OD::SynthGeom || igs > (int)OD::LineBasedGeom )
+		igs = (int)OD::VolBasedGeom;
+	}
+	else
+	    igs = (int)OD::LineBasedGeom;
     }
 
     is2d = igs == (int)OD::LineBasedGeom;
@@ -541,10 +544,14 @@ bool LineHorSubSel::doUsePar( const IOPar& inpiop )
 
     auto trcrg( trcNrRange() );
     *this = LineHorSubSel( geomid ); // clear to no subselection
-    iop->get( sKey::FirstTrc(), trcrg.start );
-    iop->get( sKey::LastTrc(), trcrg.stop );
-    if ( !iop->get(sKey::StepTrc(),trcrg.step) )
-	iop->get( sKey::StepCrl(), trcrg.step );
+    if ( !iop->get(sKey::FirstTrc(),trcrg.start) ||
+	 !iop->get(sKey::LastTrc(),trcrg.stop) )
+	iop->get(sKey::TrcRange(),trcrg );
+    else
+    {
+	if ( !iop->get(sKey::StepTrc(),trcrg.step) )
+	    iop->get( sKey::StepCrl(), trcrg.step );
+    }
     ssdata_.setOutputPosRange( trcrg );
 
     return true;

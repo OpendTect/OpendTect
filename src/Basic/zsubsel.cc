@@ -11,6 +11,7 @@
 #include "posidxsubsel.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "survsubsel.h"
 #include "uistrings.h"
 
 mUseType( Pos::ZSubSelData, idx_type );
@@ -439,14 +440,39 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
     PtrMan<IOPar> iop = inpiop.subselect( sKeyZSS );
     if ( !iop || iop->isEmpty() )
     {
-	if ( is3D() )
+	//Seis::SelData format
+	const bool iopis2d = !inpiop.isPresent( sKey::SurveyID() );
+	setToNone( iopis2d, si );
+	if ( iopis2d )
 	{
-	    if ( first().usePar(inpiop) )
-		si_ = si;
-	    else
-		setToNone( false, si );
-	}
+	    int idx = 0;
+	    while( true )
+	    {
 
+		iop = inpiop.subselect(
+				IOPar::compKey(sKey::Line(),toString(idx++) ) );
+		if ( !iop )
+		    break;
+		bool is2d = true; GeomID gid;
+		Survey::SubSel::getInfo( *iop, is2d, gid );
+		if ( is2d && gid.isValid() )
+		{
+		    z_steprg_type zrg;
+		    if ( iop->get(sKey::ZRange(),zrg) )
+		    {
+			ZSubSel zss( survInfo().zRange() );
+			zss.setOutputZRange( zrg );
+			set( gid, zss );
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    ZSubSel zss( ZSubSel::surv3D(si) );
+	    zss.usePar( inpiop );
+	    set( zss );
+	}
 	return;
     }
 
