@@ -535,11 +535,19 @@ void Survey::FullHorSubSel::fillPar( IOPar& iop ) const
 
 void Survey::FullHorSubSel::usePar( const IOPar& iop, const SurveyInfo* si )
 {
-    clearContents();
     bool iopis2d = iop.isPresent( sNrLinesKey() ); //From Survey namespace
-    if ( !iopis2d )
+    if ( !iopis2d && !iop.isPresent(sKey::GeomSystem()) )
+    {
 	iopis2d = !iop.isPresent(sKey::SurveyID()); //From Seis::SelData
+	if ( iopis2d )
+	{
+	    const BufferString firstky(sKey::Line(),toString(0),sKey::GeomID());
+	    if ( !iop.isPresent(firstky) )
+		return;
+	}
+    }
 
+    clearContents();
     set3D( !iopis2d, si );
 
     if ( chss_ )
