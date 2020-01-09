@@ -94,6 +94,9 @@ Seis::SelData* Seis::SelData::get( Type t )
 
 Seis::SelData* Seis::SelData::get( const IOPar& iop, const SurveyInfo* si )
 {
+    if ( !iop.isPresent(sKey::Type()) )
+	return nullptr;
+
     const Type t = selTypeOf( iop.find(sKey::Type()) );
     SelData* sd = get( t );
     sd->usePar( iop, si );
