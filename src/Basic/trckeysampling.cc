@@ -1458,7 +1458,16 @@ bool TrcKeyZSampling::usePar( const IOPar& par )
 	return isok && subpars->get( sKey::ZRange(), zsamp_ );
     }
 
-    return isok && par.get( sKey::ZRange(), zsamp_ );
+    bool zok = par.get( sKey::ZRange(), zsamp_ );
+    if ( !zok )
+    {
+	Survey::FullZSubSel fzss;
+	fzss.usePar( par );
+	zok = fzss.nrGeomIDs() > 0;
+	zsamp_ = fzss.first().zRange();
+    }
+
+    return isok && zok;
 }
 
 

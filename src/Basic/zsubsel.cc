@@ -442,17 +442,21 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
     {
 	//Seis::SelData format
 	const bool iopis2d = !inpiop.isPresent( sKey::SurveyID() );
-	setToNone( iopis2d, si );
 	if ( iopis2d )
 	{
 	    int idx = 0;
 	    while( true )
 	    {
-
 		iop = inpiop.subselect(
 				IOPar::compKey(sKey::Line(),toString(idx++) ) );
-		if ( !iop )
+		if ( iop )
+		{
+		    if ( idx == 0 )
+			setToNone( iopis2d, si );
+		}
+		else
 		    break;
+
 		bool is2d = true; GeomID gid;
 		Survey::SubSel::getInfo( *iop, is2d, gid );
 		if ( is2d && gid.isValid() )
@@ -470,25 +474,27 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 	else
 	{
 	    ZSubSel zss( ZSubSel::surv3D(si) );
-	    zss.usePar( inpiop );
-	    set( zss );
+	    if ( zss.usePar(inpiop) )
+	    {
+		setToNone( iopis2d, si );
+		set( zss );
+	    }
 	}
 	return;
     }
 
     int sz = 0;
-    iop->get( IOPar::compKey(sKeyZSS,sKey::Size()), sz );
-    if ( sz < 1 )
+    if ( !iop->get(sKey::Size(),sz) || sz < 1 )
 	return;
 
     si_ = si;
     bool is2d = is2D();
-    iop->getYN( IOPar::compKey(sKeyZSS,sKey::Is2D()), is2d );
+    iop->getYN( sKey::Is2D(), is2d );
 
     setToNone( is2d, si );
     for ( auto idx=0; idx<sz; idx++ )
     {
-	const BufferString baseky( IOPar::compKey(sKeyZSS,idx) );
+	const BufferString baseky( toString(idx) );
 	GeomID gid; z_steprg_type zrg;
 	iop->get( IOPar::compKey(baseky,sKey::GeomID()), gid );
 	iop->get( IOPar::compKey(baseky,sKey::Range()), zrg );
