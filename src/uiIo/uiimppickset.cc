@@ -60,9 +60,10 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     , serv_(pps)
     , import_(imp)
     , fd_(*PickSetAscIO::getDesc(true))
-    , zfld_(0)
-    , constzfld_(0)
-    , dataselfld_(0)
+    , zfld_(nullptr)
+    , constzfld_(nullptr)
+    , dataselfld_(nullptr)
+    , coordsysselfld_(nullptr)
     , importReady(this)
     , storedid_(MultiID::udf())
 {
@@ -139,11 +140,13 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     else
     {
 	filefld_->attach( alignedBelow, objfld_ );
-	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-	coordsysselfld_->attach(alignedBelow, filefld_);
-	const bool shoulddisplay = SI().getCoordSystem() &&
-				    SI().getCoordSystem()->isProjection();
-	coordsysselfld_->display( shoulddisplay );
+	const bool needscrssel = SI().getCoordSystem() &&
+	    			 SI().getCoordSystem()->isProjection();
+	if ( needscrssel )
+	{
+	    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	    coordsysselfld_->attach(alignedBelow, filefld_);
+	}
     }
 }
 
@@ -265,7 +268,8 @@ bool uiImpExpPickSet::doExport()
     BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
-	ps[locidx].toString( buf, true, coordsysselfld_->getCoordSystem() );
+	ps[locidx].toString( buf, true,
+		coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr );
 	*sdo.ostrm << buf.buf() << '\n';
     }
 
