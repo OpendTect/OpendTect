@@ -1222,7 +1222,7 @@ namespace Seis
 {
 
 static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
-			    RawTrcsSequence& databuf,
+			    RawTrcsSequence& databuf, TypeSet<float>& refnrs,
 			    ObjectSet<Scaler>& trcscalers, uiString& errmsg )
 {
     deepErase( trcscalers );
@@ -1241,7 +1241,10 @@ static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
 
 	TrcKey& tk = tks[ipos];
 	if ( tk.is2D() )
+	{
 	    tk.setTrcNr( trcinfo.nr );
+	    refnrs[ipos] = trcinfo.refnr;
+	}
 	else
 	    tk.setPosition( trcinfo.binid );
 
@@ -1272,7 +1275,12 @@ int Seis::SequentialReader::nextStep()
 	submitUdfWriterTasks();
 
     if ( nrdone_ >= totalnr_ )
+    {
+	if ( is2d_ )
+	    dp_->setRefNrs( refnrs_ );
+
 	return Finished();
+    }
 
     if ( Threads::WorkManager::twm().queueSize(queueid_) >
 	 100*Threads::WorkManager::twm().nrThreads() )
@@ -1288,8 +1296,12 @@ int Seis::SequentialReader::nextStep()
     ObjectSet<Scaler>* trcscalers = new ObjectSet<Scaler>;
     trcscalers->allowNull( true );
     if ( databuf ) databuf->setPositions( *tks );
+    TypeSet<float> refnrs;
+    if ( is2d_ )
+	refnrs.setSize( tks->size(), 0.f );
+
     if ( !databuf || !databuf->isOK() ||
-	 !fillTrcsBuffer(rdr_,*tks,*databuf,*trcscalers,msg_) )
+	 !fillTrcsBuffer(rdr_,*tks,*databuf,refnrs,*trcscalers,msg_) )
     {
 	if ( !databuf ) delete tks;
 	delete databuf; delete trcscalers;
@@ -1297,6 +1309,7 @@ int Seis::SequentialReader::nextStep()
 	return ErrorOccurred();
     }
 
+    if ( is2d_ ) refnrs_.append( refnrs );
     ArrayFiller* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_,
 				  compscalers_, outcomponents_, *dp_, is2d_ );

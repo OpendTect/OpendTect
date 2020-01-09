@@ -216,6 +216,7 @@ private:
     SelData*			sd_;
     RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
+    TypeSet<float>		refnrs_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
     PosInfo::CubeData*		trcssampling_;
