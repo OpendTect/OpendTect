@@ -110,6 +110,7 @@ set( OD_PLUGINS
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	CmdDriver
+	uiCrashMe
 )
 
 if ( NOT OD_NO_OSG )
