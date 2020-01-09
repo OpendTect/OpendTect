@@ -122,7 +122,7 @@ public:
 
 protected:
 
-    CubeHorSubSel*	chss_	= 0;
+    CubeHorSubSel*	chss_	= nullptr;
     LineHorSubSelSet&	lhsss_;
 
     void		set3D(bool,const SurveyInfo* si=nullptr);
