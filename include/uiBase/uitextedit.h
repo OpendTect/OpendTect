@@ -74,7 +74,7 @@ private:
 mExpClass(uiBase) uiTextEdit : public uiTextEditBase
 {
 public:
-                        uiTextEdit(uiParent* parnt,const char* nm="Text editor",
+			uiTextEdit(uiParent* parnt,const char* nm="Text editor",
 				   bool readonly=false);
 
     void		setText(const char* txt) { setText( txt, false ); }
@@ -86,6 +86,7 @@ public:
 			    notification. */
     void		setText(const char*,bool trigger_notif);
     void		append(const char*);
+    void		setEmpty()		{ setText(""); }
 
 protected:
 
@@ -104,7 +105,7 @@ mExpClass(uiBase) uiTextBrowser : public uiTextEditBase
 friend class		i_BrowserMessenger;
 public:
 
-                        uiTextBrowser(uiParent*,const char* nm="File browser",
+			uiTextBrowser(uiParent*,const char* nm="File browser",
 				      int maxlns=mUdf(int),
 				      bool forceplaintext=true,
 				      bool logmode=false);
