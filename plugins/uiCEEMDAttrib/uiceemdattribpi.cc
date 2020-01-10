@@ -13,12 +13,12 @@
 mDefODPluginInfo(uiCEEMDAttrib)
 {
     mDefineStaticLocalObject (PluginInfo, retpi, (
-	"uiCEEMD - Complete Ensemble Empirical Mode Decomposition"
-	" Attribute Plugin",
+	"CEEMD (GUI)",
 	"OpendTect",
-	"Paul de Groot",
+	"dGB (Paul de Groot)",
 	"=od",
-	"User Interface for CEEMD Plugin" ));
+	"User Interface for Complete Ensemble Empirical Mode Decomposition "
+	"Plugin" ))
     return &retpi;
 }
 
@@ -26,5 +26,5 @@ mDefODPluginInfo(uiCEEMDAttrib)
 mDefODInitPlugin(uiCEEMDAttrib)
 {
     uiCEEMDAttrib::initClass();
-    return 0;
+    return nullptr;
 }

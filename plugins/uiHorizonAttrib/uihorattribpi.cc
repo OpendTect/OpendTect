@@ -44,21 +44,20 @@ static const char* sKeyContours = "Contours";
 mDefODPluginInfo(uiHorizonAttrib)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Horizon-Attribute",
+	"Horizon-Attribute (GUI)",
 	"OpendTect",
-	"dGB - Nanne Hemstra",
+	"dGB (Nanne Hemstra)",
 	"=od",
-	"The 'Horizon' Attribute allows getting values from horizons.\n"
+	"The 'Horizon' Attribute allows getting values from horizons. "
 	"Not to be confused with calculating attributes on horizons.\n"
-	"It can even be useful to apply the 'Horizon' attribute on horizons.\n"
-	"Also, the Stratal Amplitude and Isochron is provided by this plugin,\n"
-	"as well as the writing of flattened cubes" ) );
+	"Also, the Stratal Amplitude and Isochron is provided by this plugin, "
+	"as well as the writing of flattened cubes" ) )
     return &retpi;
 }
 
 
 class uiHorAttribPIMgr :  public CallBacker
-{ mODTextTranslationClass(uiHorAttribPIMgr);
+{ mODTextTranslationClass(uiHorAttribPIMgr)
 public:
 			uiHorAttribPIMgr(uiODMain*);
 			~uiHorAttribPIMgr();
@@ -237,7 +236,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     uiLabeledListBox* llb =
 	new uiLabeledListBox( this, attrnms,
 		emioobj ? emioobj->name().buf() : uiStrings::sEmptyString(),
-                OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
+		OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     attrlb_ = llb->box();
 }
 
@@ -349,7 +348,7 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
     mDynamicCastGet(uiODHorizonTreeItem*,horitm,parent)
     if ( !horitm )
-        return;
+	return;
 
     uiODDataTreeItem* itm = horitm->addAttribItem();
     mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);

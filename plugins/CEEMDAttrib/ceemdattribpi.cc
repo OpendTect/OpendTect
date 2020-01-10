@@ -15,12 +15,11 @@ mDefODPluginEarlyLoad(CEEMDAttrib)
 mDefODPluginInfo(CEEMDAttrib)
 {
     mDefineStaticLocalObject (PluginInfo, retpi, (
-	"CEEMD - Complete Ensemble Empirical Mode Decomposition"
-	" Attribute Plugin",
+	"CEEMD (Base)",
 	"OpendTect",
-	"Paul de Groot",
+	"dGB (Paul de Groot)",
 	"=od",
-	"CEEMD Plugin" ));
+	"CEEMD - Complete Ensemble Empirical Mode Decomposition Attribute" ));
     return &retpi;
 }
 
@@ -28,6 +27,5 @@ mDefODPluginInfo(CEEMDAttrib)
 mDefODInitPlugin(CEEMDAttrib)
 {
     Attrib::CEEMD::initClass();
-
-    return 0;
+    return nullptr;
 }

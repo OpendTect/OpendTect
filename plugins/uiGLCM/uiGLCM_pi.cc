@@ -19,12 +19,13 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiGLCM)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GLCM (Joanneum Research)",
+	"GLCM (GUI)",
 	"OpendTect",
 	"Christoph Eichkitz",
-	"1.06",
+	"1.0",
 	"Plugin for the calculation of Grey level co-occurrence"
-	" matrix-based attributes" ));
+	" matrix-based attributes.\n"
+	"(Joanneum Research)") )
     return &retpi;
 }
 
@@ -32,5 +33,5 @@ mDefODPluginInfo(uiGLCM)
 mDefODInitPlugin(uiGLCM)
 {
     uiGLCM_attrib::initClass();
-    return 0;
+    return nullptr;
 }
