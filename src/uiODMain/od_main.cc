@@ -40,22 +40,19 @@ int main( int argc, char** argv )
 	std::cerr << GetFullODVersion() << std::endl;
     else
     {
-	if ( !GetEnvVarYN("OD_I_AM_AN_OPENDTECT_DEVELOPER") )
-	{
-	    const char* msg =
-		"OpendTect can be run under one of three licenses:"
-		" (GPL, Commercial, Academic).\n"
-		"Please consult http://opendtect.org/OpendTect_license.txt.";
+	const char* msg =
+	    "OpendTect can be run under one of three licenses:"
+	    " (GPL, Commercial, Academic).\n"
+	    "Please consult http://opendtect.org/OpendTect_license.txt.";
 
-	    std::cerr << msg << std::endl;
+	std::cerr << msg << std::endl;
 #if !defined(__win__) || defined(__msvc__)
-	    gLogFilesRedirectCode = 1;
-	    // Only od_main should make log files, not batch progs.
-	    // Didn't fancy putting anything about this in header files
-	    // Hence the global 'hidden' variable
-	    UsrMsg( msg );
+	gLogFilesRedirectCode = 1;
+	// Only od_main should make log files, not batch progs.
+	// Didn't fancy putting anything about this in header files
+	// Hence the global 'hidden' variable
+	UsrMsg( msg );
 #endif
-	}
 
 #ifdef __mac__
 	BufferString datfile( FilePath(GetSoftwareDir(0),
