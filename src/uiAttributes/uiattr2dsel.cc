@@ -194,8 +194,7 @@ static void getDataNames( const TypeSet<Pos::GeomID> ids,
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	BufferStringSet nms;
-	const char* linenm = Survey::GM().getName( ids[idx] );
-	SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
+	SeisIOObjInfo::getDataSetNamesForLine( ids[idx], nms, o2d );
 	for ( int nmidx=0; nmidx<nms.size(); nmidx++ )
 	    names.addIfNew( nms.get(nmidx) );
     }

@@ -67,6 +67,8 @@ public:
 
     bool		operator ==( const Def& def ) const
 			{ return key_ == def.key_; }
+    bool		operator !=( const Def& def ) const
+			{ return key_ != def.key_; }
 
     // For plugins:
 			Def( const char* ky, const uiString& usrnm,
