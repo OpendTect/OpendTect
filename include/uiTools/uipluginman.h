@@ -14,26 +14,36 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-class uiListBox;
-class uiTextEdit;
+
 class uiCheckBox;
+class uiGenInput;
+class uiTextEdit;
+class uiTreeView;
 
 
 /*!\brief Shows loaded plugins and allows adding */
 
 mExpClass(uiTools) uiPluginMan : public uiDialog
-{  mODTextTranslationClass(uiPluginMan);
+{  mODTextTranslationClass(uiPluginMan)
 public:
 			uiPluginMan(uiParent*);
 
 protected:
 
-    uiListBox*		listfld;
-    uiTextEdit*		infofld;
-    uiCheckBox*		selatstartfld;
+    uiTreeView*		pluginview_;
+    uiCheckBox*		selatstartfld_;
+
+    uiGenInput*		namefld_;
+    uiGenInput*		productfld_;
+    uiGenInput*		creatorfld_;
+    uiGenInput*		filenmfld_;
+    uiGenInput*		versionfld_;
+    uiTextEdit*		infofld_;
+    uiTextEdit*		licensefld_;
 
     bool		rejectOK(CallBacker*);
     void		fillList();
+    void		emptyFields();
     void		selChg(CallBacker*);
     void		loadPush(CallBacker*);
 
