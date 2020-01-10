@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiPluginMan::uiPluginMan( uiParent* p )
 	: uiDialog(p,Setup(tr("Plugins"), mNoDlgTitle,
-                            mODHelpKey(mPluginManHelpID) ) )
+			    mODHelpKey(mPluginManHelpID) ) )
 {
     setCtrlStyle( uiDialog::CloseOnly );
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
@@ -41,10 +41,10 @@ uiPluginMan::uiPluginMan( uiParent* p )
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
     uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
-	    			mCB(this,uiPluginMan,loadPush), false );
+				mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
-    selatstartfld = new uiCheckBox( leftgrp, 
-                                    tr("Select auto-loaded at startup") ); 
+    selatstartfld = new uiCheckBox( leftgrp,
+				    tr("Select auto-loaded at startup") );
     selatstartfld->attach( alignedBelow, loadbut );
     selatstartfld->setChecked(
 	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
@@ -95,19 +95,6 @@ void uiPluginMan::fillList()
 }
 
 
-static bool needDispProdName( const BufferString& prodnm, BufferString usrnm )
-{
-    if ( prodnm.isEmpty() || prodnm == usrnm || prodnm == "OpendTect" )
-	return false;
-
-    char* vendornm = firstOcc( usrnm.getCStr(), '[' );
-    if ( !vendornm )
-	return true;
-    *(vendornm-1) = '\0';
-    return prodnm != usrnm;
-}
-
-
 void uiPluginMan::selChg( CallBacker* )
 {
     const char* nm = listfld->getText();
@@ -127,9 +114,7 @@ void uiPluginMan::selChg( CallBacker* )
     {
 	const PluginInfo& piinf = *data->info_;
 	txt.add( "Created by: " ).add( piinf.creator_ );
-	if ( needDispProdName(piinf.productname_,piinf.dispname_) )
-	    txt.add( "\nProduct: " ).add( piinf.productname_ );
-
+	txt.add( "\nProduct: " ).add( piinf.productname_ );
 	txt.add( "\n\nFilename: " ).add( PIM().getFileName(*data) );
 	if ( piinf.version_ && *piinf.version_ )
 	{
@@ -173,7 +158,7 @@ void uiPluginMan::loadPush( CallBacker* )
 	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, 
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt,
 		      captn );
     if ( !dlg.go() ) return;
 
