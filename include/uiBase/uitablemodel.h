@@ -67,7 +67,7 @@ public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
-    enum CellType		{ Text, NumI, NumF, NumD };
+    enum CellType		{ Text, NumI, NumF, NumD, Color, Date };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();

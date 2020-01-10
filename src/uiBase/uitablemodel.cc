@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 
 #include <QAbstractTableModel>
+#include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTableView>
@@ -39,6 +40,41 @@ QString displayText( const QVariant& val, const QLocale& locale ) const
 
    int		nrdecimals_;
 };
+
+
+class TextItemDelegate : public QStyledItemDelegate
+{
+public:
+TextItemDelegate()
+    : QStyledItemDelegate()
+{}
+
+QWidget* createEditor( QWidget* parent,
+		       const QStyleOptionViewItem&,
+		       const QModelIndex& ) const
+{
+    return new QLineEdit( parent );
+}
+
+
+void setEditorData( QWidget* editor, const QModelIndex& index ) const
+{
+    QString value = index.model()->data(index,Qt::DisplayRole).toString();
+    QLineEdit* lineedit = static_cast<QLineEdit*>(editor);
+    lineedit->setText( value );
+}
+
+
+void setModelData( QWidget* editor, QAbstractItemModel* model,
+		   const QModelIndex& index ) const
+{
+    QLineEdit* lineedit = static_cast<QLineEdit*>(editor);
+    QString txt = lineedit->text();
+    model->setData( index, txt, Qt::EditRole );
+}
+
+};
+
 
 
 class ODAbstractTableModel : public QAbstractTableModel
@@ -362,6 +398,14 @@ bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
 }
 
 
+static TextItemDelegate* getTextDelegate()
+{
+    mDefineStaticLocalObject( PtrMan<TextItemDelegate>, del,
+			      = new TextItemDelegate )
+    return del;
+}
+
+
 static DoubleItemDelegate* getDoubleDelegate()
 {
     mDefineStaticLocalObject( PtrMan<DoubleItemDelegate>, del,
@@ -374,4 +418,6 @@ void uiTableView::setColumnValueType( int col, CellType tp )
 {
     if ( tp==NumD || tp==NumF )
 	odtableview_->setItemDelegateForColumn( col, getDoubleDelegate() );
+    else if ( tp==Text )
+	odtableview_->setItemDelegateForColumn( col, getTextDelegate() );
 }
