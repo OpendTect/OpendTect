@@ -40,7 +40,7 @@ class uiODRequestServerMgr;
 */
 
 mExpClass(uiODMain) uiODMain : public uiMainWin
-{mODTextTranslationClass(uiODMain);
+{mODTextTranslationClass(uiODMain)
 public:
 
 			uiODMain(uiMain&);
@@ -142,6 +142,35 @@ public:
     bool		viewer2DMgrAvailable() const	{ return viewer2dmgr_; }
     void		updateCaption();
 
+};
+
+
+mExpClass(uiODMain) uiPluginInitMgr : public CallBacker
+{
+public:
+    virtual		~uiPluginInitMgr();
+    uiODMain&		appl()				{ return appl_; }
+
+protected:
+			uiPluginInitMgr();
+    virtual void	init();
+
+    virtual void	beforeSurveyChange()		{}
+    virtual void	afterSurveyChange()		{}
+    virtual void	applicationClosing()		{}
+    virtual void	dTectMenuChanged()		{}
+    virtual void	dTectToolbarChanged()		{}
+    virtual void	treeAdded(int sceneid)		{}
+
+    uiODMain&		appl_;
+
+private:
+    void		beforeSurvChgCB(CallBacker*);
+    void		afterSurvChgCB(CallBacker*);
+    void		applCloseCB(CallBacker*);
+    void		menuChgCB(CallBacker*);
+    void		tbChgCB(CallBacker*);
+    void		treeAddCB(CallBacker*);
 };
 
 #endif

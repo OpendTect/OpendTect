@@ -72,7 +72,7 @@ extern "C" const char* GetSettingsDataDir();
 
 static uiODMain* manODMainWin( uiODMain* i )
 {
-    mDefineStaticLocalObject( uiODMain*, theinst, = 0 );
+    mDefineStaticLocalObject( uiODMain*, theinst, = nullptr );
     if ( i ) theinst = i;
     return theinst;
 }
@@ -244,7 +244,7 @@ uiODMain::~uiODMain()
     detachAllNotifiers();
     memtimer_.stop();
     if ( ODMainWin()==this )
-	manODMainWin( 0 );
+	manODMainWin( nullptr );
 
     delete ctabwin_;
     delete &lastsession_;
@@ -833,4 +833,52 @@ void uiODMain::forceExit()
 uiODServiceMgr& uiODMain::serviceMgr()
 {
     return uiODServiceMgr::getMgr();
+}
+
+
+// uiPluginInitMgr
+uiPluginInitMgr::uiPluginInitMgr()
+    : appl_(*ODMainWin())
+{
+    mAttachCB( IOM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
+    mAttachCB( IOM().surveyChanged, uiPluginInitMgr::afterSurvChgCB );
+    mAttachCB( IOM().applicationClosing, uiPluginInitMgr::applCloseCB );
+    mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
+    mAttachCB( appl_.menuMgr().dTectTBChanged, uiPluginInitMgr::tbChgCB );
+    mAttachCB( appl_.sceneMgr().treeAdded, uiPluginInitMgr::treeAddCB );
+}
+
+
+uiPluginInitMgr::~uiPluginInitMgr()
+{
+    detachAllNotifiers();
+}
+
+
+void uiPluginInitMgr::init()
+{
+    dTectMenuChanged();
+    dTectToolbarChanged();
+}
+
+
+void uiPluginInitMgr::beforeSurvChgCB( CallBacker* )
+{ beforeSurveyChange(); }
+
+void uiPluginInitMgr::afterSurvChgCB( CallBacker* )
+{ afterSurveyChange(); }
+
+void uiPluginInitMgr::applCloseCB( CallBacker* )
+{ applicationClosing(); }
+
+void uiPluginInitMgr::menuChgCB( CallBacker* )
+{ dTectMenuChanged(); }
+
+void uiPluginInitMgr::tbChgCB( CallBacker* )
+{ dTectToolbarChanged(); }
+
+void uiPluginInitMgr::treeAddCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,sceneid,cb);
+    treeAdded( sceneid );
 }
