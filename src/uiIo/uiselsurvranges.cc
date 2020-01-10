@@ -293,6 +293,15 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, cbox_(0)
 	, fldnm_(fldnm)
 {
+    if ( fldnm_.isEqual( sKey::Inline() ) ) // TODO Better way is to check
+	lbltxt_ = uiStrings::sInlineRange(); // with uiSelNrRange::Type
+    else if ( fldnm_.isEqual( sKey::Crossline() ) )
+	lbltxt_ = uiStrings::sCrosslineRange();
+    else if ( fldnm_.isEqual( sKey::Trace() ) )
+	lbltxt_ = uiStrings::sTraceRange();
+    else
+	lbltxt_ = toUiString( BufferString(fldnm,sKey::Range()) );
+
     makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
     mAttachCB( preFinalise(), uiSelNrRange::doFinalise );
