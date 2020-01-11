@@ -31,7 +31,7 @@ mDefODPluginInfo(uiCOLOP)
 	"=od",
 	"A link to the COLOP tool.\n"
 	    "This is the User interface of the link. See\n"
-	    "<a href=\"http://peter.zahuczki.hu/index.php/myapps/clp\">"
+	    "http://peter.zahuczki.hu/index.php/myapps/clp"
 	    "\nfor info on COLOP" ));
     return &retpi;
 }
