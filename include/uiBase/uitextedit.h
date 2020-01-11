@@ -25,6 +25,7 @@ class i_ScrollBarMessenger;
 mExpClass(uiBase) uiTextEditBase : public uiObject
 {
 public:
+    void		setEmpty();
     void		readFromFile(const char*,int linecutlen=0);
     bool		saveToFile(const char*,int linelen=0,bool newlns=true);
 
@@ -86,7 +87,6 @@ public:
 			    notification. */
     void		setText(const char*,bool trigger_notif);
     void		append(const char*);
-    void		setEmpty()		{ setText(""); }
 
 protected:
 

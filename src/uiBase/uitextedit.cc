@@ -49,6 +49,12 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
 }
 
 
+void uiTextEditBase::setEmpty()
+{
+    qte().clear();
+}
+
+
 const char* uiTextEditBase::text() const
 {
     result_ = qte().toPlainText();
