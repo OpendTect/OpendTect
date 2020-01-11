@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
-class uiTextEdit;
+class uiTextBrowser;
 class uiTreeView;
 
 
@@ -38,8 +38,8 @@ protected:
     uiGenInput*		creatorfld_;
     uiGenInput*		filenmfld_;
     uiGenInput*		versionfld_;
-    uiTextEdit*		infofld_;
-    uiTextEdit*		licensefld_;
+    uiTextBrowser*	infofld_;
+    uiTextBrowser*	licensefld_;
 
     bool		rejectOK(CallBacker*);
     void		fillList();

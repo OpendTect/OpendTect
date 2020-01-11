@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odver.h"
 #include "od_helpids.h"
+#include "od_istream.h"
 #include "plugins.h"
 #include "separstr.h"
 #include "settings.h"
@@ -84,14 +85,14 @@ uiPluginMan::uiPluginMan( uiParent* p )
     versionfld_->attach( alignedBelow, creatorfld_ );
     versionfld_->attach( ensureRightOf, filenmfld_ );
 
-    infofld_ = new uiTextEdit( rightgrp, "Info", true );
+    infofld_ = new uiTextBrowser( rightgrp, "Info" );
     infofld_->attach( alignedBelow, filenmfld_ );
     infofld_->setPrefHeightInChar( 10 );
     infofld_->setPrefWidth( 10 );
     uiLabel* infolbl = new uiLabel( rightgrp, uiStrings::sInformation() );
     infolbl->attach( leftOf, infofld_ );
 
-    licensefld_ = new uiTextEdit( rightgrp, "License", true );
+    licensefld_ = new uiTextBrowser( rightgrp, "License" );
     licensefld_->attach( alignedBelow, infofld_ );
     licensefld_->setPrefHeightInChar( 10 );
     licensefld_->setPrefWidth( 10 );
@@ -110,23 +111,56 @@ PluginProduct(const char* nm)
 void add( const char* nm )
 { pluginnms_.add( nm ); }
 
+void setIcon( const char* iconnm )
+{
+    if ( iconnm_.isEmpty() )
+	iconnm_ = iconnm;
+}
+
     BufferString	name_;
+    BufferString	iconnm_;
     BufferStringSet	pluginnms_;
 };
 
 
 static int getProductIndex( ObjectSet<PluginProduct>& prods,
-			    const char* prodnm )
+			    const char* pnm, bool createnew )
 {
+    BufferString prodnm = pnm;
+    if ( prodnm.isEmpty() )
+	prodnm = "Other";
+
     for ( int idx=0; idx<prods.size(); idx++ )
     {
 	if ( prods[idx]->name_ == prodnm )
 	    return idx;
     }
 
+    if ( !createnew )
+	return -1;
+
     prods.add( new PluginProduct(prodnm) );
     return prods.size()-1;
 }
+
+
+static void setIcons( ObjectSet<PluginProduct>& products )
+{
+    const FilePath prodlistfp( mGetSWDirDataDir(), "prodlist.txt" );
+    od_istream prodstrm( prodlistfp.fullPath() ) ;
+    while ( prodstrm.isOK() )
+    {
+	BufferString line;
+	prodstrm.getLine( line );
+	const FileMultiString sepline( line );
+	const int pidx = getProductIndex( products, sepline[0], false );
+	if ( pidx < 0 )
+	    continue;
+
+	products[pidx]->setIcon( sepline[1] );
+    }
+}
+
 
 
 void uiPluginMan::fillList()
@@ -137,6 +171,7 @@ void uiPluginMan::fillList()
     PluginProduct* notloaded = new PluginProduct( "Not loaded" );
     ObjectSet<PluginProduct> productlist;
     productlist.add( new PluginProduct("OpendTect") );
+    productlist[0]->iconnm_ = "opendtect";
     for ( int idx=0; idx<lst.size(); idx++ )
     {
 	const PluginManager::Data& data = *lst[idx];
@@ -145,18 +180,22 @@ void uiPluginMan::fillList()
 	else
 	{
 	    const int pidx = getProductIndex( productlist,
-					      data.info_->productname_ );
+					      data.info_->productname_, true );
 	    productlist[pidx]->add( data.info_->dispname_ );
 	}
     }
 
     productlist.add( notloaded );
+    setIcons( productlist );
+
     for ( int pidx=0; pidx<productlist.size(); pidx++ )
     {
 	PluginProduct* prod = productlist[pidx];
 	prod->pluginnms_.sort();
 	uiTreeViewItem* pitm = new uiTreeViewItem( pluginview_,
 				toUiString(prod->name_) );
+	pitm->setIcon( 0,
+		prod->iconnm_.isEmpty() ? "plugin" : prod->iconnm_.buf() );
 	pitm->setSelectable( false );
 	for ( int lidx=0; lidx<prod->pluginnms_.size(); lidx++ )
 	    new uiTreeViewItem( pitm, toUiString(prod->pluginnms_.get(lidx)) );
@@ -166,6 +205,7 @@ void uiPluginMan::fillList()
 
 void uiPluginMan::emptyFields()
 {
+    namefld_->setEmpty();
     productfld_->setEmpty();
     creatorfld_->setEmpty();
     filenmfld_->setEmpty();
