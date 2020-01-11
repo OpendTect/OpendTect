@@ -38,8 +38,8 @@ mDefODPluginInfo(uiImpGPR)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GPR: .DZT import",
 	"OpendTect",
-	"Bert",
-	"0.0.2",
+	"dGB (Bert Bril)",
+	"=od",
 	"Imports GPR data in DZT format."
 	"\nThanks to Matthias Schuh (m.schuh@neckargeo.net) for information,"
 	"\ntest data and comments.") );

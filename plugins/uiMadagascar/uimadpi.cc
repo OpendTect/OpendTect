@@ -26,9 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiMadagascar)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Madagascar link",
+	"Madagascar Link (GUI)",
 	"OpendTect",
-	"dGB (Bert, Raman)",
+	"dGB (Raman Singh)",
 	"3.2",
 	"A link to the Madagascar system."
 	    "\nSee http://opendtect.org/links/madagascar.html"

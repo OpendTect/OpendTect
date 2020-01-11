@@ -42,7 +42,7 @@ static const int cRLMnuIdx = -995;
 mDefODPluginInfo(uiGoogleIO)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Google KML generation",
+	"Google KML",
 	"OpendTect",
 	"dGB",
 	"=od",

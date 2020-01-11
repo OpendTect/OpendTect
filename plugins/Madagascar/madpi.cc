@@ -14,9 +14,9 @@ mDefODPluginEarlyLoad(Madagascar)
 mDefODPluginInfo(Madagascar)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Madagascar (base)",
+	"Madagascar Link (Base)",
 	"OpendTect",
-	"dGB - Bert Bril",
+	"dGB (Raman Singh)",
 	"=od",
 	"The Madagascar batch-level tools.") );
     return &retpi;

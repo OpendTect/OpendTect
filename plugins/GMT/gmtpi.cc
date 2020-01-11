@@ -14,7 +14,7 @@ mDefODPluginEarlyLoad(GMT)
 mDefODPluginInfo(GMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT (base)",
+	"GMT Link (Base)",
 	"OpendTect",
 	"dGB (Raman)",
 	"=od",

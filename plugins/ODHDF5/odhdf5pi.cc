@@ -16,7 +16,7 @@ mDefODPluginEarlyLoad(ODHDF5)
 mDefODPluginInfo(ODHDF5)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,
-	( "HDF5 Support (Base)", "HDF5 File Access",
+	( "HDF5 Support (Base)", "OpendTect",
 	"dGB", "=od",
 	"HDF5 plugin" ) );
     return &retpi;

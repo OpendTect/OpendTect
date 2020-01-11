@@ -13,11 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiVoxelConnectivityFilter)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"VoxelConnectivityFilter",
+	"VoxelConnectivityFilter (GUI)",
 	"OpendTect",
-	"Kristofer",
-	"1.0",
-   	"(c) dGB Beheer BV. Development funded by Tetrale Technologies."));
+	"dGB",
+	"=od",
+   	"(c) dGB Beheer BV.\nDevelopment funded by Tetrale Technologies."));
     return &retpi;
 }
 

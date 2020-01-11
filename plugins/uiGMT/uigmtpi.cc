@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiGMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT link",
+	"GMT Link (GUI)",
 	"OpendTect",
 	"dGB (Raman)",
 	"3.2",
