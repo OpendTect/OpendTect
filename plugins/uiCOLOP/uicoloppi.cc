@@ -25,14 +25,14 @@
 mDefODPluginInfo(uiCOLOP)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"COLOP Link",
+	"COLOP (GUI)",
 	"OpendTect",
-	"dGB (Khushnood)",
-	"6.4",
-	"A link to the COLOP tool."
-	    "\nThis is the User interface of the link."
-	    "\nhttp://peter.zahuczki.hu/index.php/myapps/clp"
-	    "\nsee for info on COLOP" ));
+	"Peter Zahuczki",
+	"=od",
+	"A link to the COLOP tool.\n"
+	    "This is the User interface of the link. See\n"
+	    "<a href=\"http://peter.zahuczki.hu/index.php/myapps/clp\">"
+	    "\nfor info on COLOP" ));
     return &retpi;
 }
 
@@ -47,7 +47,6 @@ public:
     uiODMenuMgr&	mnumgr;
 
     void		doColop(CallBacker*);
-    void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
     void		updateWaveletMan(CallBacker*);
 };
@@ -57,11 +56,9 @@ uiColopLink::uiColopLink( uiODMain& a )
     : mnumgr(a.menuMgr())
     , appl_(a)
 {
-    mAttachCB( mnumgr.dTectTBChanged, uiColopLink::updateToolBar );
     mAttachCB( mnumgr.dTectMnuChanged, uiColopLink::updateMenu );
     mAttachCB( uiSeisWvltMan::instanceCreated(),
 				 uiColopLink::updateWaveletMan );
-    updateToolBar(0);
     updateMenu(0);
     updateWaveletMan(0);
 }
@@ -70,11 +67,6 @@ uiColopLink::uiColopLink( uiODMain& a )
 uiColopLink::~uiColopLink()
 {
     detachAllNotifiers();
-}
-
-
-void uiColopLink::updateToolBar( CallBacker* )
-{
 }
 
 
@@ -123,11 +115,7 @@ void uiColopLink::doColop( CallBacker* )
 
 mDefODInitPlugin(uiCOLOP)
 {
-    mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiColopLink( *ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate COLOP plugin";
-    return 0;
+    mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_,
+			      = new uiColopLink(*ODMainWin()) );
+    return nullptr;
 }
