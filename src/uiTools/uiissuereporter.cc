@@ -32,10 +32,10 @@ static FixedString sKeyAskBeforeSending()
 
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
-					System::IssueReporter& reporter )
+					System::IssueReporter& rep )
     : uiDialog( p, uiDialog::Setup(tr("Problem reporter"),
 		mNoDlgTitle,mNoHelpKey) )
-    , reporter_(reporter)
+    , reporter_(rep)
 {
     uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
     lblgrp->setFrame( true );
@@ -52,7 +52,7 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 
     const bool senddmp = reporter_.isBinary();
     uiLabel* filelbl = new uiLabel( this, tr("Crash report: ") );
-    uiLabel* filenmlbl = new uiLabel( this, toUiString(reporter.filePath()) );
+    uiLabel* filenmlbl = new uiLabel( this, toUiString(reporter_.filePath()) );
     filenmlbl->attach( alignedBelow, lblgrp );
     filelbl->attach( leftOf, filenmlbl );
 

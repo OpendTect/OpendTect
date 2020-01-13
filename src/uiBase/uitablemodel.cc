@@ -49,11 +49,11 @@ TextItemDelegate()
     : QStyledItemDelegate()
 {}
 
-QWidget* createEditor( QWidget* parent,
+QWidget* createEditor( QWidget* prnt,
 		       const QStyleOptionViewItem&,
 		       const QModelIndex& ) const
 {
-    return new QLineEdit( parent );
+    return new QLineEdit( prnt );
 }
 
 
