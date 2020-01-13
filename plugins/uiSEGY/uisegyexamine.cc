@@ -320,6 +320,10 @@ void uiSEGYExamine::updateInp()
 	    tbl_->setValue( rc, val );
 	}
 
+	if ( !trhead.isusable )
+	    tbl_->setColor( RowCol(SEGY::TrcHeader::EntryTrid(),itrc),
+		    	    Color::Red() );
+
 	nrdone++;
 	trc.info().nr = nrdone;
 	tbuf_.add( new SeisTrc(trc) );
