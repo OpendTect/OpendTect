@@ -189,7 +189,7 @@ void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
     {
 	lvhandle_.unusedKey.trigger();
 // Disabled for now. Probably need a 'handled' boolean somewhere.
-//	QTreeWidget::keyPressEvent( ev );
+	QTreeWidget::keyPressEvent( ev );
     }
 }
 
@@ -341,7 +341,7 @@ void uiTreeView::updateCheckStatus( uiTreeViewItem* itm )
 
     const bool needstrigger = itm->isChecked(false) != itm->isChecked(true);
     if ( needstrigger && itm->isCheckable() )
-        itm->setChecked( itm->isChecked(true), true );
+	itm->setChecked( itm->isChecked(true), true );
 }
 
 
@@ -654,7 +654,7 @@ uiTreeViewItem* uiTreeView::findItem( const char* text, int column,
 
     if ( items.isEmpty() && !casesensitive )
     {
-        uiTreeViewItem* nextitem = firstItem();
+	uiTreeViewItem* nextitem = firstItem();
 	while( nextitem )
 	{
 	    if ( !strcmp( nextitem->text( column ), text ) )
@@ -786,7 +786,7 @@ void uiTreeView::translateText()
     updateHeaderLabels();
     for ( int idx=0; idx<nrItems(); idx++ )
     {
-        uiTreeViewItem* itm = getItem( idx );
+	uiTreeViewItem* itm = getItem( idx );
 	if ( itm ) itm->translateText();
     }
 
