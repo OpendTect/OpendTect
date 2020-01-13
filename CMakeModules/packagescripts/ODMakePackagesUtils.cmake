@@ -71,9 +71,7 @@ macro ( create_package PACKAGE_NAME )
 #copying breakpad symbols
 	if ( OD_ENABLE_BREAKPAD )
 	    if( WIN32 )
-		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/symbols/${FILE}.pdb
-				 ${COPYTOLIBDIR}/symbols/${FILE}.pdb )
+		#TODO
 	    elseif( APPLE )
 		#TODO
 	    else()
@@ -150,9 +148,7 @@ macro ( create_package PACKAGE_NAME )
 #copying breakpad symbols
 	if ( OD_ENABLE_BREAKPAD )
 	    if ( WIN32 )
-		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/symbols/${EXE}.pdb
-				 ${COPYTOLIBDIR}/symbols/${EXE}.pdb )
+		#TODO
 	    elseif( APPLE )
 		#TODO
 	    else()
@@ -203,13 +199,7 @@ macro( copy_thirdpartylibs )
     foreach( LIB ${OD_THIRD_PARTY_LIBS} )
 	if ( OD_ENABLE_BREAKPAD )
 	    if ( WIN32 )
-		get_filename_component( PDBFILE ${LIB} NAME_WE )
-		set( PDBFILE ${PDBFILE}.pdb )
-		if ( EXISTS ${COPYFROMLIBDIR}/symbols/${PDBFILE} ) #including thirdparty symbols if present
-		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				     ${COPYFROMLIBDIR}/symbols/${PDBFILE}
-				     ${COPYTOLIBDIR}/symbols/${PDBFILE} )
-		endif()
+		#TODO Not including symbols on windows platform
 	    elseif ( APPLE )
 		#TODO
 	    else()
