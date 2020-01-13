@@ -46,6 +46,8 @@ uiPluginMan::uiPluginMan( uiParent* p )
     pluginview_->setStretch( 0, 2 );
     fillList();
     pluginview_->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
+    pluginview_->returnPressed.notify( mCB(this,uiPluginMan,activateCB) );
+    pluginview_->doubleClicked.notify( mCB(this,uiPluginMan,activateCB) );
 
     uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
 				mCB(this,uiPluginMan,loadPush), false );
@@ -196,7 +198,6 @@ void uiPluginMan::fillList()
 				toUiString(prod->name_) );
 	pitm->setIcon( 0,
 		prod->iconnm_.isEmpty() ? "plugin" : prod->iconnm_.buf() );
-	pitm->setSelectable( false );
 	for ( int lidx=0; lidx<prod->pluginnms_.size(); lidx++ )
 	    new uiTreeViewItem( pitm, toUiString(prod->pluginnms_.get(lidx)) );
     }
@@ -215,17 +216,36 @@ void uiPluginMan::emptyFields()
 }
 
 
+void uiPluginMan::activateCB( CallBacker* )
+{
+    uiTreeViewItem* itm = pluginview_->itemNotified();
+    if ( !itm || itm->nrChildren()==0 )
+	return;
+
+    itm->setOpen( !itm->isOpen() );
+}
+
+
 void uiPluginMan::selChg( CallBacker* )
 {
     emptyFields();
-    if ( !pluginview_->selectedItem() )
+    const uiTreeViewItem* itm = pluginview_->selectedItem();
+    if ( !itm )
 	return;
 
-    const char* nm = pluginview_->selectedItem()->text();
+
+    const char* nm = itm->text();
     if ( !nm || !*nm || *nm == '-' )
 	return;
 
-    BufferString txt;
+    if ( itm->nrChildren() > 0 )
+    {
+	productfld_->setText( nm );
+	infofld_->setText( "Expand tree item to see information on the plugin "
+			   "libraries which belong to this product" );
+	return;
+    }
+
     const PluginManager::Data* data = nullptr;
     if ( *nm != '-' || *(nm+1) != '-' )
 	data = PIM().findDataWithDispName( nm );

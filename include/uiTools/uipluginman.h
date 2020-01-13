@@ -44,6 +44,7 @@ protected:
     bool		rejectOK(CallBacker*);
     void		fillList();
     void		emptyFields();
+    void		activateCB(CallBacker*);
     void		selChg(CallBacker*);
     void		loadPush(CallBacker*);
 
