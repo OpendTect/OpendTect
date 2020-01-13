@@ -55,7 +55,7 @@ void uiCrashMgr::crashCB( CallBacker* )
 
 void uiCrashMgr::doCrash()
 {
-    DBG::forceCrash( true );
+    DBG::forceCrash( false );
 }
 
 
