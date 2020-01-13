@@ -38,7 +38,21 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
     nps->ref();
     descs_ += nps;
     creaters_ += pc;
-};
+}
+
+
+void ProviderFactory::remove( const char* attrnm )
+{
+    const int idx = indexOf( attrnm );
+    if ( !creaters_.validIdx(idx) )
+	return;
+
+    Desc* desc = descs_.removeSingle( idx );
+    if ( desc )
+	desc->unRef();
+
+    creaters_.removeSingle( idx );
+}
 
 
 Provider* ProviderFactory::create( Desc& desc ) const
@@ -89,7 +103,7 @@ void ProviderFactory::updateAllDescsDefaults()
 ProviderFactory& PF()
 {
     mDefineStaticLocalObject(PtrMan<ProviderFactory>, factory,
-                             (new ProviderFactory));
+			     (new ProviderFactory));
     return *factory;
 }
 

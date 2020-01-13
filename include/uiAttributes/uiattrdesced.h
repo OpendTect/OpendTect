@@ -39,7 +39,7 @@ using namespace Attrib;
 mExpClass(uiAttributes) EvalParam
 {
 public:
-    			EvalParam( const char* lbl, const char* par1=0,
+			EvalParam( const char* lbl, const char* par1=0,
 				   const char* par2=0, int idx=mUdf(int) )
 			    : label_(lbl), par1_(par1), par2_(par2), pgidx_(idx)
 			    , evaloutput_(false)	{}
@@ -74,7 +74,7 @@ public:
 
 /*!
 \brief Attribute description editor.
- 
+
   Required functions are declared in the macro mDeclReqAttribUIFns. Two of
   those, attribName() and createInstance() are implemented by the mInitAttribUI
   macro.
@@ -97,8 +97,8 @@ public:
     uiString		errMsgStr(Desc* desc);
     virtual uiString	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
-    			//!< If attribdesc is non-zero, that desc will be
-    			//!< filled. If not, the internal desc will be filled.
+			//!< If attribdesc is non-zero, that desc will be
+			//!< filled. If not, the internal desc will be filled.
 
     virtual int		getOutputIdx(float val) const	{ return (int)val; }
     virtual float	getOutputValue(int idx) const	{ return (float)idx; }
@@ -148,7 +148,7 @@ protected:
     void		fillInp(uiAttrSel*,Desc&,int);
     void		fillInp(uiSteeringSel*,Desc&,int);
     void		fillInp(uiSteerAttrSel*,Desc&,int);
-    
+
     void		putInp(uiAttrSel*,const Desc&,int inpnr);
     void		putInp(uiSteerAttrSel*,const Desc&,int inpnr);
     void		putInp(uiSteeringSel*,const Desc&,int inpnr);
@@ -193,9 +193,9 @@ protected:
     static const char*	sKeyPositionGrp();
     static const char*	sKeyDipGrp();
 
-    static uiString     sInputTypeError(int input); 
+    static uiString     sInputTypeError(int input);
 
-  
+
 
 private:
 
@@ -212,6 +212,7 @@ protected: \
     static int factoryid_; \
 public: \
     static void initClass(); \
+    static void removeClass(); \
     virtual const char* attribName() const; \
     static int factoryID() { return factoryid_; }
 
@@ -222,10 +223,12 @@ int clss::factoryid_ = -1; \
 \
 void clss::initClass() \
 { \
-    if ( factoryid_ < 0 ) \
-	factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
-		     clss::createInstance, (int)domtyp, (int)dimtyp ); \
+    factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
+		 clss::createInstance, (int)domtyp, (int)dimtyp ); \
 } \
+\
+void clss::removeClass() \
+{ uiAF().remove( attr::attribName() ); } \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
 { \
@@ -243,6 +246,6 @@ const char* clss::attribName() const \
 
 #define mInitAttribUI( clss, attr, displaynm, grp ) \
     mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both, \
-	    	      uiAttrDescEd::AnyDim)
+		      uiAttrDescEd::AnyDim)
 
 #endif

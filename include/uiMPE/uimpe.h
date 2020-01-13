@@ -102,6 +102,7 @@ public:
     uiSetupGroup*	create(const char* nm,uiParent*,const char* typestr);
 			/*!<Iterates through all added factory functions
 			    until one of the returns a non-zero pointer. */
+    void		remove(const char* nm);
 
 protected:
     BufferStringSet			names_;

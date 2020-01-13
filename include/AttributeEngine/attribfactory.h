@@ -32,9 +32,10 @@ mExpClass(AttributeEngine) ProviderFactory
 public:
 			ProviderFactory();
 			~ProviderFactory();
-			
+
 			/*Interface from attribs' initClass() */
     void		addDesc( Desc*, ProviderCreater );
+    void		remove(const char* attrnm);
 
     int			size() const			{ return descs_.size();}
     const Desc&		getDesc( int idx ) const	{ return *descs_[idx]; }

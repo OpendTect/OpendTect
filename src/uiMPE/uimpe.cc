@@ -189,6 +189,17 @@ uiSetupGroup* uiSetupGroupFactory::create( const char* name, uiParent* p,
 }
 
 
+void uiSetupGroupFactory::remove( const char* nm )
+{
+    const int idx = names_.indexOf( nm );
+    if ( idx == -1 )
+	return;
+
+    names_.removeSingle( idx );
+    funcs.removeSingle( idx );
+}
+
+
 uiMPEEngine& uiMPE()
 {
     mDefineStaticLocalObject( uiMPEEngine, uiengine,  );
