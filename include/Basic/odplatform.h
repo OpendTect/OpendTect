@@ -28,7 +28,7 @@ public:
 
     static const Platform& local();	//!< This platform
 
-    enum Type	{ Lin32, Lin64, Win32, Win64, Mac };
+    enum Type	{  Lin64=1, Win32, Win64, Mac };
 		mDeclareEnumUtils(Type)
 
     		Platform();		//!< This platform
@@ -50,12 +50,12 @@ public:
     void	set(const char*,bool isshortnm);
     inline void	set( bool iswin, bool is32, bool ismac=false )
     		{ type_ = ismac ? Mac : (iswin	? (is32 ? Win32 : Win64)
-						: (is32 ? Lin32 : Lin64) ); }
+						: Lin64 ); }
 
     inline bool	isWindows() const
 			{ return type_ == Win32 || type_ == Win64; }
     inline bool	isLinux() const
-			{ return type_ == Lin32 || type_ == Lin64; }
+			{ return  type_ == Lin64; }
     inline bool	isMac() const
 			{ return type_ == Mac; }
 

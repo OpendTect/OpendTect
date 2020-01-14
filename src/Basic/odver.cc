@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineEnumUtils(OD::Platform,Type,"Platform")
 {
-	"Linux (32 bits)",
 	"Linux (64 bits)",
 	"Windows (32 bits)",
 	"Windows (64 bits)",
@@ -154,14 +153,14 @@ const OD::Platform& OD::Platform::local()
 OD::Platform::Platform()
     : type_(__ismac__ ?				     Mac
 		      : (__iswin__ ? (__is32bits__ ? Win32 : Win64)
-				   : (__is32bits__ ? Lin32 : Lin64)))
+				   : Lin64))
 {
 }
 
 
 const char* OD::Platform::shortName() const
 {
-    return isLinux()	? (type_ == Lin32 ? "lux32" : "lux64")
+    return isLinux()	?  "lux64"
 	: (isWindows()	? (type_ == Win32 ? "win32" : "win64")
 					  : "mac" );
 }
@@ -180,7 +179,7 @@ void OD::Platform::set( const char* s, bool isshort )
 	const bool iswin = *s == 'w';
 	const bool is64 = *(s+strlen(s)-1) == '4';
 
-	type_ = islin ? (is64 ? Lin64 : Lin32)
+	type_ = islin ? Lin64
 	    : (iswin ? (is64 ? Win64 : Win32)
 		     : Mac);
     }
