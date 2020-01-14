@@ -19,7 +19,14 @@ def getNames( reload=False, args=None ):
 
 def getInfo( wllnm, reload=False, args=None ):
   dbkey = getDBKey( wllnm, reload=reload, args=args )
-  return oddbman.getInfoByNm( dbkey, exenm=wellmanexe,args=args )  
+  return oddbman.getInfoByNm( dbkey, exenm=wellmanexe, args=args )
+
+def getName( dbkey, reload=False, args=None ):
+  cmd = getODCommand(wellmanexe,args)
+  cmd.append( '--info' )
+  cmd.append( dbkey )
+  ret = oddbman.getDBDict( cmd )
+  return ret['Name']
 
 def getLogNames( wllnm, reload=False, args=None ):
   dbkey = getDBKey( wllnm, reload=reload, args=args )
