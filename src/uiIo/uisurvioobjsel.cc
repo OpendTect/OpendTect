@@ -14,9 +14,11 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
+#include "uilistboxfilter.h"
 #include "uimsg.h"
 #include "uisurveyselect.h"
 
@@ -81,16 +83,15 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
     if ( !fixsurv )
 	survsel_ = new uiSurveySelect( this );
 
-    uiListBox::Setup lbsu( ismultisel_ ? OD::ChooseAtLeastOne
-				       : OD::ChooseOnlyOne,
-			   ctxt.uiObjectTypeName(ismultisel_ ? mPlural : 1) );
-    objfld_ = new uiListBox( this, lbsu );
-    objfld_->setHSzPol( uiObject::WideVar );
+    uiIOObjSelGrp::Setup lbsu( ismultisel_ ? OD::ChooseAtLeastOne
+				       : OD::ChooseOnlyOne );
+    objfld_ = new uiIOObjSelGrp( this, ctxt, lbsu );
     objfld_->setStretch( 2, 2 );
     if ( survsel_ )
 	objfld_->attach( alignedBelow, survsel_ );
 
-    objselio_ = new uiListBoxChoiceIO( *objfld_, ctxt.objectTypeName() );
+    objselio_ = new uiListBoxChoiceIO( *objfld_->getListField(),
+						 ctxt.objectTypeName() );
     mAttachCB( objselio_->readDone, uiSurvIOObjSelGroup::readSelIOCB );
     mAttachCB( objselio_->storeRequested, uiSurvIOObjSelGroup::writeSelIOCB );
 
@@ -112,7 +113,8 @@ void uiSurvIOObjSelGroup::initGrp( CallBacker* )
 
     mAttachCB( objfld_->selectionChanged, uiSurvIOObjSelGroup::selChgCB );
     if ( !ismultisel_ )
-	mAttachCB( objfld_->doubleClicked, uiSurvIOObjSelGroup::dClickCB );
+	mAttachCB( objfld_->getListField()->doubleClicked,
+					uiSurvIOObjSelGroup::dClickCB );
     if ( survsel_ )
 	mAttachCB( survsel_->survDirChg, uiSurvIOObjSelGroup::survSelCB );
 }
@@ -267,10 +269,10 @@ void uiSurvIOObjSelGroup::updateObjs()
     getIOObList( ioobjs_, surveyDiskLocation(), ctxt_, nms );
 
     NotifyStopper ns( objfld_->selectionChanged );
-    objfld_->setEmpty();
-    objfld_->addItems( nms );
+    objfld_->getListField()->setEmpty();
+    objfld_->getListField()->addItems( nms );
     if ( !nms.isEmpty() )
-	objfld_->setCurrentItem( 0 );
+	objfld_->getListField()->setCurrentItem( 0 );
 }
 
 
@@ -341,7 +343,7 @@ BufferString uiSurvIOObjSelGroup::mainFileName( int idx ) const
 
 bool uiSurvIOObjSelGroup::evaluateInput()
 {
-    objfld_->getChosen( chosenidxs_ );
+    objfld_->getListField()->getChosen( chosenidxs_ );
     return !chosenidxs_.isEmpty();
 }
 

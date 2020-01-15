@@ -20,6 +20,7 @@ class IOObjContext;
 class uiSurveySelect;
 class uiListBox;
 class uiListBoxChoiceIO;
+class uiIOObjSelGrp;
 
 /* allows selection of IOObj in any survey. */
 
@@ -68,7 +69,7 @@ protected:
     SurveyDiskLocation	survloc_; //!< only used when survey fixed
 
     uiSurveySelect*	survsel_;
-    uiListBox*		objfld_;
+    uiIOObjSelGrp*	objfld_;
     uiListBoxChoiceIO*	objselio_;
 
     void		initGrp(CallBacker*);

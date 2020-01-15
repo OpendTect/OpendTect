@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uilistbox.h"
+#include "uiioobjselgrp.h"
 #include "uisurveyselect.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
@@ -202,7 +203,7 @@ uiSurvSeisSelGroup::uiSurvSeisSelGroup( uiParent* p, const Setup& su,
     compfld_ = new uiListBox( this, lbsu );
     compfld_->setHSzPol( uiObject::SmallVar );
     compfld_->setStretch( 1, 1 );
-    compfld_->attach( centeredRightOf, objfld_ );
+    compfld_->attach( centeredRightOf, objfld_->getListField() );
 
     mAttachCB( postFinalise(), uiSurvSeisSelGroup::initSeisGrp );
 }
@@ -224,7 +225,7 @@ void uiSurvSeisSelGroup::initSeisGrp( CallBacker* )
 
 void uiSurvSeisSelGroup::seisSelChgCB( CallBacker* )
 {
-    const int selidx = objfld_->currentItem();
+    const int selidx = objfld_->getListField()->currentItem();
     if ( selidx >= 0 )
     {
 	if ( prevselidx_ >= 0 )
