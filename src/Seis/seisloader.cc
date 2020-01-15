@@ -447,7 +447,7 @@ void Seis::Loader::setTracePositionsFromProv( const Provider& prov )
     trcposns_->limitTo( reqss_->horSubSel() );
     totalnr_ = trcposns_->totalSize();
     if ( dp_ )
-	dp_->setTracePositions( trcposns_ );
+	dp_->setTracePositions( trcposns_->clone() );
 }
 
 
@@ -513,9 +513,12 @@ void Seis::Loader::submitUdfWriterTasks()
 
     TaskGroup* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+    {
 	udfwriters->addTask(
-		new Array3DUdfTrcRestorer<float>( *trcposns_, reqss_->horSubSel(),
+		new Array3DUdfTrcRestorer<float>( *trcposns_,
+						  reqss_->horSubSel(),
 						  dp_->data(idx) ) );
+    }
 
     CallBack cb = mCB( this, Seis::Loader, udfTracesWrittenCB );
     udftraceswritefinished_ = false;
@@ -618,7 +621,7 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 	dp_->setName( ioobj_->name() );
 	dp_->setSubSel( *reqss_ );
 	if ( trcposns_ && !trcposns_->isEmpty() )
-	    dp_->setTracePositions( trcposns_ );
+	    dp_->setTracePositions( trcposns_->clone() );
 
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
