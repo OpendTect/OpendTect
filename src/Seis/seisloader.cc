@@ -446,7 +446,8 @@ void Seis::Loader::setTracePositionsFromProv( const Provider& prov )
     trcposns_ = prov.possiblePositions().clone();
     trcposns_->limitTo( reqss_->horSubSel() );
     totalnr_ = trcposns_->totalSize();
-    dp_->setTracePositions( trcposns_ );
+    if ( dp_ )
+	dp_->setTracePositions( trcposns_ );
 }
 
 
