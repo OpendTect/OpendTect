@@ -58,7 +58,7 @@ protected:
     int			nrxlines_;
     CoordPol		coordpol_;
     TypeSet<Coord>	trailercoords_;
-    PosInfo::CubeData	lds_;
+    PosInfo::SortedCubeData	lds_;
 
     mutable BinID	curbinid_;
 
