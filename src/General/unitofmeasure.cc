@@ -63,15 +63,13 @@ static IOPar* crNew()
 
 };
 
-static UnitOfMeasureCurDefsMgr* uomcurdefsmgr_ = 0;
-	// shld be static class member but not sure about initialization then
-
 IOPar& UnitOfMeasure::currentDefaults()
 {
-    if ( !uomcurdefsmgr_ )
-	uomcurdefsmgr_ = new UnitOfMeasureCurDefsMgr;
-    return *uomcurdefsmgr_->iop_;
+    mDefineStaticLocalObject( PtrMan<UnitOfMeasureCurDefsMgr>, uomdef,
+			      = new  UnitOfMeasureCurDefsMgr )
+    return *uomdef->iop_;
 }
+
 
 void UnitOfMeasure::saveCurrentDefaults()
 {
