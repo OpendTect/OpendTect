@@ -234,8 +234,8 @@ void uiPluginMan::selChg( CallBacker* )
 	return;
 
 
-    const char* nm = itm->text();
-    if ( !nm || !*nm || *nm == '-' )
+    const BufferString nm = itm->text();
+    if ( nm.isEmpty() )
 	return;
 
     if ( itm->nrChildren() > 0 )
@@ -246,10 +246,7 @@ void uiPluginMan::selChg( CallBacker* )
 	return;
     }
 
-    const PluginManager::Data* data = nullptr;
-    if ( *nm != '-' || *(nm+1) != '-' )
-	data = PIM().findDataWithDispName( nm );
-
+    const PluginManager::Data* data = PIM().findDataWithDispName( nm );
     if ( !data )
     {
 	infofld_->setText( "This plugin was not loaded" );

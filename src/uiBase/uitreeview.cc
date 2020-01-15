@@ -39,7 +39,6 @@ mUseQtnamespace
 static ODQtObjectSet<uiTreeViewItem,QTreeWidgetItem> odqtobjects_;
 
 
-#define mQitemFor(itm)		uiTreeViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiTreeViewItem::itemFor(itm)
 
 class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,QTreeWidget>
@@ -303,6 +302,10 @@ bool uiTreeView::isEmpty() const
 
 void uiTreeView::setEmpty()
 {
+    NotifyStopper ns( selectionChanged );
+    for ( int idx=0; idx<nrItems(); idx++ )
+	delete getItem( idx );
+
     body_->QTreeWidget::clear();
 }
 
