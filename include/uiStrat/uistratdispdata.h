@@ -85,6 +85,11 @@ public:
 			    : name_(nm)
 			    , isdisplayed_(true)
 			    {}
+			~Column()
+			{
+			    deepErase( units_ );
+			    deepErase( levels_ );
+			}
 
 	const BufferString name_;
 	bool		isdisplayed_;
@@ -97,12 +102,7 @@ public:
 
     void		eraseData()
 			{
-			    for ( int idx=0; idx<cols_.size(); idx++ )
-			    {
-				cols_[idx]->units_.erase();
-				cols_[idx]->levels_.erase();
-			    }
-			    cols_.erase();
+			    deepErase( cols_ );
 			}
 
     void		addCol( Column* col )
