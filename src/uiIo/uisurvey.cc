@@ -1275,7 +1275,7 @@ void uiSurvey::putToScreen()
 	    crlinfo.add( " - " ).add( si.crlStep() );
 
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
-	    bininfo.add( inldist, 3 ).add( " / " ).add( crldist, 3 );
+	    bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
 	}
 
 	StepInterval<float> sizrg( si.zRange(false) );
