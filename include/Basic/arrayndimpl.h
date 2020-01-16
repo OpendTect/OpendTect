@@ -857,8 +857,14 @@ void Array4DImpl<T>::updateStorage()
 template <class T> inline
 void Array4DImpl<T>::eraseCache()
 {
+    const size_type n2 = inf_.getSize( 1 );
     for ( int idx=0; idx<cachestor_.size(); idx++ )
-	delete [] cachestor_[idx];
+    {
+	T*** cachestoridx = cachestor_[idx];
+	for ( int idy=0; idy<n2; idy++ )
+	    delete [] cachestoridx[idy];
+	delete [] cachestoridx;
+    }
 
     cachestor_.erase();
     arr4d_ = 0;
