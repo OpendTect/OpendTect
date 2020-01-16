@@ -1359,10 +1359,10 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 
 	const auto i0 = iter.arrIdx( 0 );
 	const auto i1 = iter.arrIdx( 1 );
-	if ( ssout_.validIdxs(i0,i1) )
+	if ( ssout_.isSelectedArrIdx(0,i0) && ssout_.isSelectedArrIdx(1,i1) )
 	{
 	    const T val = in_.get( i0, i1 );
-	    out_.set( ssout_.arrIdx(0,i0), ssout_.arrIdx(1,i1), val );
+	    out_.set( ssout_.subSelIdx(0,i0), ssout_.subSelIdx(1,i1), val );
 	}
     }
 
