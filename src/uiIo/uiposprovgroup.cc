@@ -160,11 +160,10 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Range() );
 
-    if ( samplingfld_ ) {
-	iop.setYN( sKey::Random(), samplingfld_->getBoolValue() );
-	if ( samplingfld_->getBoolValue() )
-	    iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
-    }
+    const bool dorandom = samplingfld_ && samplingfld_->getBoolValue();
+    iop.setYN( sKey::Random(), dorandom );
+    if ( dorandom )
+	iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
 
     TrcKeyZSampling cs; getTrcKeyZSampling( cs );
 

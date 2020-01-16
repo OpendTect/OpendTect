@@ -191,7 +191,7 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 
 void Pos::RangeProvider3D::usePar( const IOPar& iop )
 {
-    dorandom_ = true;
+    dorandom_ = false;
     iop.getYN( sKey::Random(), dorandom_ );
     tkzs_.usePar( iop );
     if ( dorandom_ )
