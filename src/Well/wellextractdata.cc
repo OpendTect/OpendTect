@@ -389,7 +389,7 @@ Well::ExtractParams::ExtractParams( const ExtractParams& ep )
 void Well::ExtractParams::setEmpty()
 {
     ZRangeSelector::setEmpty();
-    zstep_ = SI().depthsInFeet() ? mToFeetFactorF : 1;
+    zstep_ = 1;
     extractzintime_ = false;
     samppol_ = Stats::UseAvg;
 }
@@ -398,7 +398,7 @@ void Well::ExtractParams::setEmpty()
 bool Well::ExtractParams::isOK( uiString* errmsg ) const
 {
     if ( !mIsUdf( zstep_ ) && zstep_ < 0 )
-	 mErrRet( uiStrings::phrEnter(tr("a valid step value")) );
+	 mErrRet( uiStrings::phrEnter(tr("a valid step value")) )
 
     return ZRangeSelector::isOK( errmsg );
 }

@@ -62,7 +62,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 {
     uiWellExtractParams::Setup wsu;
     wsu.withzstep_ = true; wsu.withzintime_ = false;
-    wsu.defmeterstep_ = 0.15;
+    wsu.defmeterstep_ = SI().depthsInFeet() ? 0.5f*mFromFeetFactorF : 0.15f;
     wsu.withextractintime_ = false;
     zrangeselfld_ = new uiWellExtractParams( this, wsu );
 
@@ -97,6 +97,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     sep2->attach( stretchedBelow, zrangeselfld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Log name") );
+    lognmfld_->setElemSzPol( uiObject::Wide );
     lognmfld_->attach( ensureBelow, sep2 );
     lognmfld_->attach( alignedBelow, zrangeselfld_);
 
