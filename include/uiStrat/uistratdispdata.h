@@ -80,6 +80,11 @@ public:
 			    : name_(nm)
 			    , isdisplayed_(true)
 			    {}
+			~Column()
+			{
+			    deepErase( units_ );
+			    deepErase( levels_ );
+			}
 
 	const BufferString name_;
 	bool		isdisplayed_;
