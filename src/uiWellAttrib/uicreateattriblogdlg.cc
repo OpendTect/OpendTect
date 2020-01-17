@@ -72,7 +72,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 			      new uiAttrSel( this, *datasetup_.attrib_ )
 			    : new uiAttrSel( this, 0, uiAttrSelData(false) );
     attribfld_->setNLAModel( datasetup_.nlamodel_ );
-    attribfld_->selectionDone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
+    mAttachCB( attribfld_->selectionDone, uiCreateAttribLogDlg::selDone );
 
     uiSeparator* sep1 = new uiSeparator( this, "Attrib/Well Sep" );
     sep1->attach( stretchedBelow, attribfld_ );
@@ -101,7 +101,13 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     lognmfld_->attach( ensureBelow, sep2 );
     lognmfld_->attach( alignedBelow, zrangeselfld_);
 
-    postFinalise().notify( mCB(this, uiCreateAttribLogDlg, init ) );
+    mAttachCB( postFinalise(), uiCreateAttribLogDlg::init  );
+}
+
+
+uiCreateAttribLogDlg::~uiCreateAttribLogDlg()
+{
+    detachAllNotifiers();
 }
 
 
