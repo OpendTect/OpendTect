@@ -473,7 +473,10 @@ bool FFTFilter::deTrend( Array1DImpl<float>& outp, bool isimag )
     }
 
     if ( !ArrayMath::removeTrend<float,float>(inp,outp) )
+    {
+	delete trend;
 	return false;
+    }
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -487,15 +490,14 @@ bool FFTFilter::deTrend( Array1DImpl<float>& outp, bool isimag )
 
     if ( isimag )
     {
-       if ( trendimag_ ) delete trendimag_;
+	delete trendimag_;
+	trendimag_ = trend;
     }
     else
-       if ( trendreal_ ) delete trendreal_;
-
-    if ( isimag )
-	trendimag_ = trend;
-    else
+    {
+	delete trendreal_;
 	trendreal_ = trend;
+    }
 
     return true;
 }
