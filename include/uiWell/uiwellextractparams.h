@@ -95,7 +95,11 @@ public:
 				    , defmeterstep_(1)
 				    , withsampling_(false)
 				    , withextractintime_(SI().zIsTime())
-				    {}
+				    {
+					if ( SI().depthsInFeet() )
+					    defmeterstep_ =
+						0.5f*mFromFeetFactorF;
+				    }
 
 	mDefSetupMemb(bool,withzrgselparams)
 	mDefSetupMemb(bool,withzstep)
