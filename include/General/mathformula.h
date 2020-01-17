@@ -11,11 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "typeset.h"
-#include "ranges.h"
-#include "uistrings.h"
-class UnitOfMeasure;
 
+#include "ranges.h"
+#include "typeset.h"
+#include "threadlock.h"
+#include "uistrings.h"
+
+class UnitOfMeasure;
 
 namespace Math
 {
@@ -181,13 +183,13 @@ protected:
     TypeSet<int>	recshifts_;
     TypeSet<int>	validxs_;
 
-    mutable TypeSet<double> prevvals_;
-    mutable uiString	errmsg_;
+    mutable TypeSet<double>	prevvals_;
+    mutable uiString		errmsg_;
+    mutable Threads::Lock	formlock_;
 
     int			varNameIdx(const char* varnm) const;
     void		addShift(int,int,int&,TypeSet< TypeSet<int> >&);
 
 };
-
 
 } // namespace Math
