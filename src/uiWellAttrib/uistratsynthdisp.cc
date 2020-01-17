@@ -104,7 +104,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     stratsynthfrtxtitmmgr_.setParam( this, nullptr );
 
     topgrp_ = new uiGroup( this, "Top group" );
-    topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
 
     uiLabeledComboBox* datalblcbx =
@@ -337,16 +336,13 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     lasttool_ = tb;
 }
 
-#define mDelD2TM \
-    delete d2tmodels_; \
-    d2tmodels_ = 0;
 
 void uiStratSynthDisp::cleanSynthetics()
 {
     currentwvasynthetic_ = 0;
     currentvdsynthetic_ = 0;
     curSS().clearSynthetics();
-    mDelD2TM
+    deleteAndZeroPtr( d2tmodels_ );
     wvadatalist_->setEmpty();
     vddatalist_->setEmpty();
 }
@@ -949,14 +945,17 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 						  bool wva )
 {
-    if ( !sd )
-	return;
-
     const bool hadpack = vwr_->hasPack( wva );
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(wva) );
 
-    mDelD2TM
+    if ( !sd )
+    {
+	vwr_->handleChange( FlatView::Viewer::All );
+	return;
+    }
+
+    deleteAndZeroPtr( d2tmodels_ );
 
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
@@ -1002,6 +1001,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().ctab_;
     else
 	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
+
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
@@ -1028,6 +1028,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 							    : sKeySeismics();
     }
 
+
     vwr_->setPack( wva, dp->id(), !hadpack );
     vwr_->setVisible( wva, true );
     control_->setD2TModels( *d2tmodels_ );
@@ -1039,14 +1040,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     else
 	setRelativeViewRect( relzoomwr_ );
 
-    if ( rgnotsaved )
-    {
-	mapper.autosym0_ = false;
-	mapper.type_ = ColTab::MapperSetup::Fixed;
-	dispparsmapper = mapper;
-    }
-
-    levelSnapChanged( 0 );
+    levelSnapChanged( nullptr );
 }
 
 
@@ -1157,7 +1151,7 @@ void uiStratSynthDisp::setPreStackMapper()
 }
 
 
-void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
+void uiStratSynthDisp::selPreStackDataCB( CallBacker* )
 {
     BufferStringSet allgnms, selgnms;
     for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
@@ -1180,42 +1174,41 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
     }
 
     PreStackView::uiViewer2DSelDataDlg seldlg( prestackwin_, allgnms, selgnms );
-    if ( seldlg.go() )
-    {
-	prestackwin_->removeGathers();
-	TypeSet<PreStackView::GatherInfo> newginfos;
-	for ( int synthidx=0; synthidx<selgnms.size(); synthidx++ )
-	{
-	    const SyntheticData* sd =
-		curSS().getSynthetic( selgnms[synthidx]->buf() );
-	    if ( !sd ) continue;
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-	    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
-			    &sd->getPack())
-	    if ( !gsetdp || !presd ) continue;
-	    const PreStack::GatherSetDataPack& angledp = presd->angleData();
-	    for ( int idx=0; idx<ginfos.size(); idx++ )
-	    {
-		PreStackView::GatherInfo ginfo = ginfos[idx];
-		ginfo.gathernm_ = sd->name();
-		const PreStack::Gather* gather = gsetdp->getGather( ginfo.bid_);
-		const PreStack::Gather* anglegather =
-		    angledp.getGather( ginfo.bid_);
-		ginfo.vddpid_ = anglegather->id();
-		ginfo.wvadpid_ = gather->id();
-		newginfos.addIfNew( ginfo );
-	    }
-	}
+    if ( !seldlg.go() )
+	return;
 
-	prestackwin_->setGathers( newginfos, false );
+    prestackwin_->removeGathers();
+    TypeSet<PreStackView::GatherInfo> newginfos;
+    for ( int synthidx=0; synthidx<selgnms.size(); synthidx++ )
+    {
+	const SyntheticData* sd =
+	    curSS().getSynthetic( selgnms[synthidx]->buf() );
+	if ( !sd ) continue;
+	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
+			&sd->getPack())
+	if ( !gsetdp || !presd ) continue;
+	const PreStack::GatherSetDataPack& angledp = presd->angleData();
+	for ( int idx=0; idx<ginfos.size(); idx++ )
+	{
+	    PreStackView::GatherInfo ginfo = ginfos[idx];
+	    ginfo.gathernm_ = sd->name();
+	    const PreStack::Gather* gather = gsetdp->getGather( ginfo.bid_);
+	    const PreStack::Gather* anglegather =
+		angledp.getGather( ginfo.bid_);
+	    ginfo.vddpid_ = anglegather->id();
+	    ginfo.wvadpid_ = gather->id();
+	    newginfos.addIfNew( ginfo );
+	}
     }
 
+    prestackwin_->setGathers( newginfos, false );
 }
 
 
 void uiStratSynthDisp::preStackWinClosedCB( CallBacker* )
 {
-    prestackwin_ = 0;
+    prestackwin_ = nullptr;
 }
 
 
@@ -1242,13 +1235,10 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 {
     SyntheticData* sd = curSS().getSynthetic( wva ? wvadatalist_->text()
 						  : vddatalist_->text() );
-    if ( wva )
-	currentwvasynthetic_ = sd;
-    else
-	currentvdsynthetic_ = sd;
-    SyntheticData* cursynth = wva ? currentwvasynthetic_ : currentvdsynthetic_;
-
-    if ( !cursynth ) return;
+    SyntheticData*& cursynth = wva ? currentwvasynthetic_ : currentvdsynthetic_;
+    cursynth = sd;
+    if ( !cursynth )
+	return;
 
     NotifyStopper notstop( wvltfld_->newSelection );
     if ( wva )
@@ -1257,6 +1247,7 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 	curSS().setWavelet( wvltfld_->getWavelet() );
     }
 }
+
 
 void uiStratSynthDisp::updateFields()
 {
@@ -1352,7 +1343,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	 currentwvasynthetic_ = 0;
      if ( curvdsdnm==synthnm )
 	 currentvdsynthetic_ = 0;
-    mDelD2TM
+    deleteAndZeroPtr( d2tmodels_ );
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
@@ -1442,7 +1433,7 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 	currentwvasynthetic_ = 0;
     if ( curvdsdnm==synthname )
 	currentvdsynthetic_ = 0;
-    mDelD2TM
+    deleteAndZeroPtr( d2tmodels_ );
     altSS().removeSynthetic( synthname );
     synthsChanged.trigger();
     updateSyntheticList( true );
@@ -1655,7 +1646,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     currentwvasynthetic_ = 0;
     currentvdsynthetic_ = 0;
     curSS().clearSynthetics();
-    mDelD2TM
+    deleteAndZeroPtr( d2tmodels_ );
     par.get( sKeyDecimation(), dispeach_);
     int nrsynths = 0;
     if ( stratsynthpar )
