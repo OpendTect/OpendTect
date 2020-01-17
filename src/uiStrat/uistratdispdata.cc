@@ -32,13 +32,7 @@ StratDispData::~StratDispData()
 
 void StratDispData::eraseData()
 {
-    for ( int idx=0; idx<cols_.size(); idx++ )
-    {
-	cols_[idx]->units_.erase();
-	cols_[idx]->levels_.erase();
-    }
-
-    cols_.erase();
+    deepErase( cols_ );
 }
 
 
