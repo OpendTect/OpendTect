@@ -250,6 +250,7 @@ uiODMain::~uiODMain()
     delete &lastsession_;
     delete &sesstimer_;
     delete &memtimer_;
+    delete &newsurvinittimer_;
 
     delete menumgr_;
     delete viewer2dmgr_;
