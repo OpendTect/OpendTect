@@ -951,7 +951,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 
     if ( !sd )
     {
-	vwr_->handleChange( FlatView::Viewer::All );
+	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
 	return;
     }
 
