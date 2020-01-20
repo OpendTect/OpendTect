@@ -312,7 +312,7 @@ void uiODAttribTreeItem::updateColumnText( int col )
 	    return;
 	}
 
-	if ( visserv->getDataPackID(displayID(),attribNr()) ==
+	if ( visserv->getDisplayedDataPackID(displayID(),attribNr()) ==
 							DataPack::cNoID() )
 	    uitreeviewitem_->setIcon( uiODSceneMgr::cColorColumn(), "warning" );
 	else
