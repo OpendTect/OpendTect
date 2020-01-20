@@ -618,4 +618,39 @@ inline bool Sphere::operator ==( const Sphere& s ) const
 }
 
 
+/*!
+\brief Line segment/ray triangle intersection (Moller-Trumbore algorithm).
+Returns Coord3::udf() if no intersection.
+*/
+
+inline Coord3 lineSegmentIntersectsTriangle( Coord3 segStart, Coord3 segEnd,
+			    Coord3 trVert0, Coord3 trVert1, Coord3 trVert2 )
+{
+    Coord3 res = Coord3::udf();
+
+    const Coord3 edge1 = trVert1 - trVert0;
+    const Coord3 edge2 = trVert2 - trVert0;
+    const Coord3 seg = segEnd - segStart;
+    const Coord3 h = seg.cross( edge2 );
+    const double a = edge1.dot( h );
+    if ( mIsZero( a, mDefEps ) )
+	return res;
+
+    const double f = 1.0/a;
+    const Coord3 s = segStart - trVert0;
+    const double u = f * s.dot( h );
+    if ( u<0.0 || u>1.0 )
+	return res;
+
+    const Coord3 q = s.cross( edge1 );
+    const double v = f * seg.dot( q ) ;
+    if ( v<0.0 || u+v>1.0 )
+	return res;
+
+    const double t = f * edge2.dot( q );
+    if ( t>mDefEps && t<1-mDefEps )
+	return res = segStart + seg * t;
+
+    return res;
+}
 #endif

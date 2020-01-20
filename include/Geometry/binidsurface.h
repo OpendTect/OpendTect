@@ -34,6 +34,10 @@ public:
     bool		isEmpty() const { return !depths_; }
 
     Coord3		computePosition(const Coord& param) const;
+    Interval<float>	zRange();
+    Interval<float>	zRange(Coord, Coord) const;
+    Coord3		lineSegmentIntersection(Coord3, Coord3,
+						float zshift=0.0);
 
     void		setArray(const BinID& start,const BinID& step,
 				 Array2D<float>*,bool takeover);
@@ -61,6 +65,7 @@ public:
     Coord3		getKnot(const RowCol&,bool computeifudf) const;
 
     Coord		getKnotCoord(const RowCol&) const;
+    RowCol		getNearestKnotRowCol(Coord) const;
 
 protected:
     void		_setKnot(int idx,const Coord3&);
@@ -69,6 +74,7 @@ protected:
 
     Array2D<float>*	depths_;
     const SurveyInfo*	surveyinfo_;
+    Interval<float>	zrange_;
 };
 
 } // namespace Geometry

@@ -364,6 +364,32 @@ const IndexedShape* FaultBinIDSurfaceIntersector::getShape( bool takeover )
 
 void FaultBinIDSurfaceIntersector::compute()
 {
+    const FaultStickSurface* fss = eshape_.getSurface();
+    BinIDSurface& surf = const_cast<BinIDSurface&>( surf_ );
+    TypeSet<Coord3> res;
+    for ( int ids=0; ids<fss->nrSticks(); ids++ )
+    {
+	const TypeSet<Coord3>& stick = *( fss->getStick( ids ) );
+	for (int iseg=0; iseg<stick.size()-1; iseg++ )
+	{
+	    const Coord3 pos = surf.lineSegmentIntersection( stick[iseg],
+						    stick[iseg+1], zshift_ );
+	    if ( !mIsUdf(pos) )
+		res += pos;
+	}
+    }
+    for ( int ids=fss->nrSticks()-1; ids>=0; ids-- )
+    {
+	const TypeSet<Coord3>& stick = *(fss->getStick( ids ));
+	for (int iseg=stick.size()-1; iseg>0; iseg-- )
+	{
+	    const Coord3 pos = surf.lineSegmentIntersection( stick[iseg-1],
+						    stick[iseg], zshift_ );
+	    if ( !mIsUdf(pos) )
+		res += pos;
+	}
+    }
+/*
     FBIntersectionCalculator calculator( surf_, zshift_, eshape_ );
     if ( !calculator.execute() )
 	return;
@@ -376,6 +402,8 @@ void FaultBinIDSurfaceIntersector::compute()
 	return;
 
     const int possize = optimizeOrder( res );
+*/
+    const int possize = res.size();
 
     IndexedGeometry* geo = !output_ || !output_->getGeometry().size() ? 0 :
 	const_cast<IndexedGeometry*>(output_->getGeometry()[0]);

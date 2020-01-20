@@ -23,6 +23,7 @@ namespace Geometry
 BinIDSurface::BinIDSurface( const BinID& newstep )
     : ParametricSurface( RowCol(0,0), RowCol(newstep) )
     , depths_( 0 )
+    , zrange_(Interval<float>::udf())
 {
 }
 
@@ -30,6 +31,7 @@ BinIDSurface::BinIDSurface( const BinID& newstep )
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
     : ParametricSurface( b.origin_, b.step_ )
     , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : 0 )
+    , zrange_(Interval<float>::udf())
 {
 }
 
@@ -142,6 +144,113 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
     return Coord3(SI().binID2Coord().transform(param), depth );
 }
 
+
+Interval<float> BinIDSurface::zRange()
+{
+    const float* zvals = depths_ ? depths_->getData() : 0;
+    if ( !zvals )
+    {
+	zrange_.setUdf();
+	return Interval<float>::udf();
+    }
+
+    if ( zrange_.isUdf() )
+    {
+	const od_uint64 totalsz = depths_->info().getTotalSz();
+	for ( od_uint64 idx=0; idx<totalsz; idx++ )
+	{
+	    const float val = zvals[idx];
+	    if ( !mIsUdf( val ) )
+	    {
+		if ( zrange_.isUdf() )
+		{
+		    zrange_.start = val;
+		    zrange_.stop = val;
+		}
+		else
+		    zrange_.include( val );
+	    }
+	}
+    }
+    return zrange_;
+}
+
+
+Interval<float> BinIDSurface::zRange( Coord p1, Coord p2 ) const
+{
+    Interval<float> res;
+    res.setUdf();
+    const float* zvals = depths_ ? depths_->getData() : 0;
+    if ( !zvals )
+	return Interval<float>::udf();
+
+    const RowCol rc1 = getNearestKnotRowCol( p1 );
+    const RowCol rc2 = getNearestKnotRowCol( p2 );
+    StepInterval<int> rrg( rc1.first, rc2.first, step_.inl() );
+    rrg.sort();
+    StepInterval<int> crg( rc1.second, rc2.second, step_.crl() );
+    crg.sort();
+    for ( int row=rrg.start; row<=rrg.stop; row+=rrg.step )
+    {
+	for ( int col=crg.start; col<=crg.stop; col+=crg.step )
+	{
+	    const Coord3 pos = getKnot( RowCol( row, col ) );
+	    if ( !mIsUdf( pos ) && !mIsUdf( pos.z ) )
+	    {
+
+		if ( res.isUdf() )
+		{
+		    res.start = pos.z;
+		    res.stop = pos.z;
+		}
+		else
+		    res.include( pos.z );
+	    }
+	}
+    }
+    return res;
+}
+
+
+Coord3 BinIDSurface::lineSegmentIntersection( Coord3 start, Coord3 end,
+					      float zshift )
+{
+    Coord3 res = Coord3::udf();
+
+    const Interval<float> zrg( start.z-zshift, end.z-zshift );
+    if ( !zRange().includes( zrg ) )
+	return res;
+
+    const RowCol bidstart = getNearestKnotRowCol( start );
+    const RowCol bidend = getNearestKnotRowCol( end );
+    StepInterval<int> rrg( bidstart.first, bidend.first, step_.first );
+    rrg.sort();
+    StepInterval<int> crg( bidstart.second, bidend.second, step_.second );
+    crg.sort();
+
+    for ( int row=rrg.start; row<=rrg.stop; row+=rrg.step )
+    {
+	for (int col=crg.start; col<=crg.stop; col+=crg.step )
+	{
+	    Coord3 v00 = getKnot( RowCol( row, col), true );
+	    v00.z += zshift;
+	    Coord3 v01 = getKnot( RowCol( row, col+crg.step ), true );
+	    v01.z += zshift;
+	    Coord3 v11 = getKnot( BinID( row+rrg.step, col+crg.step ), true );
+	    v11.z += zshift;
+	    Coord3 v10 = getKnot( BinID( row+rrg.step, col ), true );
+	    v10.z += zshift;
+	    res = lineSegmentIntersectsTriangle( start, end, v00, v01, v11 );
+	    if ( !mIsUdf(res) )
+		return res;
+	    res = lineSegmentIntersectsTriangle( start, end, v00, v10, v11 );
+	    if ( !mIsUdf(res) )
+		return res;
+	}
+    }
+
+    return res;
+}
 
 BinIDSurface* BinIDSurface::clone() const
 { return new BinIDSurface(*this); }
@@ -444,6 +553,16 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 
 Coord BinIDSurface::getKnotCoord( const RowCol& rc) const
 { return SI().transform(BinID(rc)); }
+
+
+RowCol BinIDSurface::getNearestKnotRowCol( Coord pos ) const
+{
+    const Coord spos = SI().binID2Coord().transformBackNoSnap( pos );
+    const StepInterval<int> rrg = rowRange();
+    const StepInterval<int> crg = colRange();
+
+    return RowCol( rrg.snap( spos.x, -1 ), crg.snap( spos.y, -1 ) );
+}
 
 
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
