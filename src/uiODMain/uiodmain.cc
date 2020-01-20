@@ -219,8 +219,6 @@ uiODMain::uiODMain( uiMain& a )
     , ctabtb_(0)
     , sesstimer_(*new Timer("Session restore timer"))
     , memtimer_(*new Timer("Memory display timer"))
-    , newsurvinittimer_(*new Timer("New survey init timer"))
-    , neednewsurvinit_(false)
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
@@ -250,7 +248,7 @@ uiODMain::uiODMain( uiMain& a )
 	statustt.appendPlainText("| ", true).appendPhrase(
 						tr("CPU: Used/Available") );
     statusBar()->setToolTip( mMemStatusFld, statustt );
-    memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
+    mAttachCB( memtimer_.tick, uiODMain::memTimerCB );
     memtimer_.start( 1000 );
 
     if ( !useallcpus )
@@ -272,6 +270,7 @@ uiODMain::~uiODMain()
     delete &lastsession_;
     delete &sesstimer_;
     delete &memtimer_;
+    delete newsurvinittimer_;
 
     delete menumgr_;
     delete viewer2dmgr_;
@@ -331,10 +330,14 @@ bool uiODMain::ensureGoodSurveySetup()
 
     if ( SI().isFresh() )
     {
-	neednewsurvinit_ = true;
-	newsurvinittimer_.start( 200, true );
-	newsurvinittimer_.tick.notify( mCB(this,uiODMain,newSurvInitTimerCB) );
+	if ( newsurvinittimer_ )
+	    mDetachCB( newsurvinittimer_->tick, uiODMain::newSurvInitTimerCB );
+	delete newsurvinittimer_;
+	newsurvinittimer_ = new Timer( "New survey init timer" );
+	newsurvinittimer_->start( 200, true );
+	mAttachCB( newsurvinittimer_->tick, uiODMain::newSurvInitTimerCB );
     }
+
     return true;
 }
 
@@ -660,8 +663,7 @@ void uiODMain::afterStartupCB( CallBacker* )
 
 void uiODMain::newSurvInitTimerCB( CallBacker* )
 {
-    if ( neednewsurvinit_ )
-	applMgr().handleSurveySelect();
+    applMgr().handleSurveySelect();
 }
 
 
