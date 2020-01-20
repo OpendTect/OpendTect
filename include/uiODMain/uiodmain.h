@@ -120,8 +120,7 @@ private:
 
     Timer&		sesstimer_;
     Timer&		memtimer_;
-    Timer&		newsurvinittimer_;
-    bool		neednewsurvinit_;
+    Timer*		newsurvinittimer_ = nullptr;
     void		autoSaveFail(CallBacker*);
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
