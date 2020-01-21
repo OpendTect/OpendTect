@@ -186,8 +186,7 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
     if ( !attribfld_ ) return;
 
     attribfld_->setEmpty();
-    for ( int idx=0; idx<valnames.size(); idx++)
-	attribfld_->addItem( toUiString(valnames[idx]->buf()) );
+    attribfld_->addItems( valnames );
 }
 
 
