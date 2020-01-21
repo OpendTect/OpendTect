@@ -117,6 +117,8 @@ bool applyFilter( const InterpolationLayerModel& layermodel )
 	zrg.stop = d2t->getTime( mdrg.stop, track );
 	if ( zrg.isUdf() ) return false;
     }
+    else
+	zrg = track.zRange();
 
     ObjectSet<const Well::Log> logs;
     logs += inplog;
