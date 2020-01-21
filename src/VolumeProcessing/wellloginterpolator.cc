@@ -154,6 +154,8 @@ Well::Log* applyFilter( const Well::Data& wd, const Well::Log& log ) const
 	zrg.stop = d2t->getTime( mdrg.stop, track );
 	if ( zrg.isUdf() ) return 0;
     }
+    else
+	zrg = track.zRange();
 
     ObjectSet<const Well::Log> logs;
     logs += &log;
