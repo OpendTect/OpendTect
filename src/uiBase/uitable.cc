@@ -1084,6 +1084,15 @@ Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 }
 
 
+void uiTable::showOuterFrame( bool yn)
+{
+    if ( yn )
+	getWidget()->setStyleSheet("");
+    else
+	getWidget()->setStyleSheet("QTableView{border: none}");
+}
+
+
 const char* uiTable::rowLabel( int row ) const
 {
     QTableWidgetItem* itm = body_->verticalHeaderItem( row );

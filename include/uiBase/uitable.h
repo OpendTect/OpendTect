@@ -290,6 +290,7 @@ public:
     Color		getColor(const RowCol&) const;
     void		setHeaderBackground(int,const Color&,bool isrow);
     Color		getHeaderBackground(int,bool isrow) const;
+    void		showOuterFrame(bool);
 
     int			getIntValue(const RowCol&) const;
     double		getDValue(const RowCol&) const;
