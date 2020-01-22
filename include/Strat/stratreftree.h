@@ -107,6 +107,9 @@ mGlobal(Strat) void setRT(RefTree*);
 //!< replaces (and deletes) the current RT. No write.
 //!< Used by tree manager, and not by *you*. Very very likely not.
 
+mGlobal(Strat) const char* sKeyDefaultTree();
+mGlobal(Strat) bool loadDefaultTree();
+
 
 } // namespace Strat
 

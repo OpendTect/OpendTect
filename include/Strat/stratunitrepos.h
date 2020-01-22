@@ -29,7 +29,7 @@ class RefTree;
 */
 
 mExpClass(Strat) RepositoryAccess
-{ mODTextTranslationClass(RepositoryAccess);
+{ mODTextTranslationClass(RepositoryAccess)
 public:
 
     bool		haveTree() const;

@@ -8,9 +8,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "stratunitrepos.h"
 #include "stratreftree.h"
-#include "safefileio.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "safefileio.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 namespace Strat
@@ -82,6 +83,26 @@ void setRT( RefTree* rt )
 	const int currentidx = refTreeMgr().rts_.indexOf( &RT() );
 	delete refTreeMgr().rts_.replace( currentidx < 0 ? 0 : currentidx, rt );
     }
+}
+
+
+const char* sKeyDefaultTree()
+{ return "Default.Stratigraphic Framework"; }
+
+bool loadDefaultTree()
+{
+    MultiID key = MultiID::udf();
+    SI().pars().get( sKeyDefaultTree(), key );
+    if ( key.isUdf() )
+	return false;
+
+    RepositoryAccess ra;
+    RefTree* tree = ra.read( key );
+    Strat::setRT( tree );
+
+    Strat::LevelSet* levels = LevelSet::read( key );
+    Strat::setLVLS( levels );
+    return tree && levels;
 }
 
 
