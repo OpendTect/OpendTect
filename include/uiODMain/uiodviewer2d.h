@@ -251,6 +251,8 @@ protected:
     void			removeAvailablePacks();
     void			rebuildTree();
 
+    uiString			getInfoTitle() const;
+    void			dispPropChangedCB(CallBacker*);
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
     void			itmSelectionChangedCB(CallBacker*);

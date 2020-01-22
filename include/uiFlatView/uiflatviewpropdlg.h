@@ -27,12 +27,14 @@ class uiGenInput;
 */
 
 mExpClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
-{ mODTextTranslationClass(uiFlatViewPropDlg);
+{ mODTextTranslationClass(uiFlatViewPropDlg)
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
 					  const CallBack& applcb,
-					  const BufferStringSet* anns=0,
-					  int selann=0 );
+					  const BufferStringSet* anns=nullptr,
+					  int selann=0,
+					  bool withdynamictitle=false);
+			~uiFlatViewPropDlg();
 
     FlatView::Viewer&	viewer() 			{ return vwr_; }
 
@@ -45,6 +47,7 @@ public:
 protected:
 
     uiGenInput*		titlefld_;
+    uiGenInput*		titleoptfld_;
     uiFVWVAPropTab*	wvatab_;
     uiFVVDPropTab*	vdtab_;
     uiFVAnnotPropTab*	annottab_;
@@ -52,6 +55,8 @@ protected:
     FlatView::Viewer&	vwr_;
     int			selannot_;
 
+    void		finalizeCB(CallBacker*);
+    void		titleChgCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 

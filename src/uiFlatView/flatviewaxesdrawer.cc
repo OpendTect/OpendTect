@@ -84,7 +84,7 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
     const int axiswidth = getNeededWidth();
     const FlatView::Annotation& annot = vwr_.appearance().annot_;
     if ( annot.haveTitle() )
-	t += axisheight;
+	t += axisheight+2; // title needs some more space
     if ( annot.haveAxisAnnot(false) )
     { l += axiswidth; r += 10; }
     if ( annot.haveAxisAnnot(true) )
@@ -152,7 +152,7 @@ void AxesDrawer::updateViewRect()
 
     if ( !rectitem_ )
 	rectitem_ =  view_.scene().addRect( mCast(float,rect.left()),
-				            mCast(float,rect.top()),
+					    mCast(float,rect.top()),
 					    mCast(float,rect.width()),
 					    mCast(float,rect.height()) );
     else
@@ -168,24 +168,24 @@ void AxesDrawer::updateViewRect()
     {
 	const int right = rect.right();
 	const int bottom = rect.bottom();
-    	uiPoint from( right-10, bottom+9 );
-    	uiPoint to( right, bottom+9 );
+	uiPoint from( right-10, bottom+9 );
+	uiPoint to( right, bottom+9 );
 
 	if ( ad1.reversed_ ) Swap( from, to );
-    	if ( !arrowitem1_ )
+	if ( !arrowitem1_ )
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );
 	arrowitem1_->setVisible( true );
 	arrowitem1_->setPenStyle(
 		OD::LineStyle(OD::LineStyle::Solid,1,annot.color_) );
-    	arrowitem1_->setTailHeadPos( from, to );
+	arrowitem1_->setTailHeadPos( from, to );
 
-    	if ( !axis1nm_ )
+	if ( !axis1nm_ )
 	    axis1nm_ = view_.scene().addItem(
 		    new uiTextItem(mToUiStringTodo(ad1.name_),
 				   mAlignment(Right,Top)) );
-    	else
-    	    axis1nm_->setText( mToUiStringTodo(ad1.name_) );
+	else
+	    axis1nm_->setText( mToUiStringTodo(ad1.name_) );
 
 	axis1nm_->setVisible( true );
 	axis1nm_->setTextColor( annot.color_ );
@@ -240,6 +240,10 @@ void AxesDrawer::updateViewRect()
 		    new uiTextItem(mToUiStringTodo(annot.title_),
 				   mAlignment(HCenter,Top)) );
 	    titletxt_->setTextColor( annot.color_ );
+	    FontData fd = FontList().get( FontData::Graphics2D ).fontData();
+	    fd.setPointSize( fd.pointSize()+2 );
+	    fd.setWeight( FontData::Bold );
+	    titletxt_->setFontData( fd );
 	}
 	else
 	    titletxt_->setText( mToUiStringTodo(annot.title_) );

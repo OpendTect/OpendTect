@@ -213,10 +213,11 @@ int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 
 
 FlatView::Annotation::Annotation( bool drkbg )
-    : color_(drkbg ? Color::White() : Color::Black())
+    : dynamictitle_(false)
+    , color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
-    , editable_(false)
     , showscalebar_(false)
+    , editable_(false)
     , allowuserchange_(true)
     , allowuserchangereversedaxis_(true)
 {

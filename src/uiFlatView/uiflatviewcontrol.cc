@@ -267,8 +267,8 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 	BufferStringSet annots;
 	const int selannot = vwr.getAnnotChoices( annots );
 	propdlg_ = new uiFlatViewPropDlg( parent(), vwr,
-				mCB(this,uiFlatViewControl,applyProperties),
-				annots.size() ? &annots : 0, selannot );
+			mCB(this,uiFlatViewControl,applyProperties),
+			annots.size() ? &annots : nullptr, selannot, true );
 	mAttachCB( propdlg_->windowClosed, uiFlatViewControl::propDlgClosed );
     }
 
@@ -291,14 +291,12 @@ void uiFlatViewControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
-    mDynamicCastGet(uiFlatViewer*,vwr,&propdlg_->viewer());
+    mDynamicCastGet(uiFlatViewer*,vwr,&propdlg_->viewer())
     if ( !vwr ) return;
 
     const bool updateonresize = vwr->updatesBitmapsOnResize();
     vwr->updateBitmapsOnResize( true );
 
-    const int selannot = propdlg_->selectedAnnot();
-    vwr->setAnnotChoice( selannot );
     vwr->handleChange( FlatView::Viewer::Annot |
 		       FlatView::Viewer::DisplayPars );
     vwr->dispPropChanged.trigger();

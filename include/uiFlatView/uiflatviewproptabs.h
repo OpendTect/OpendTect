@@ -186,10 +186,11 @@ protected:
     FlatView::Annotation& annot_;
 
     mExpClass(uiFlatView) AxesGroup : public uiGroup
-    { mODTextTranslationClass(AxesGroup);
+    { mODTextTranslationClass(AxesGroup)
     public:
-			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
-				  const BufferStringSet* annots=0,
+			AxesGroup(uiParent*,OD::Orientation,
+				  FlatView::Annotation::AxisData&,
+				  const BufferStringSet* annots=nullptr,
 				  bool dorevert=true);
 
 	void		putToScreen();

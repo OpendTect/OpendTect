@@ -439,7 +439,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.initialcentre(initialcentre_)
 					.withscalebarbut(true)
 					.managecoltab(!tifs_) );
-
+    mAttachCB( mainvwr.dispPropChanged, uiODViewer2D::dispPropChangedCB );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( viewstdcontrol_->editPushed() )
 	mAttachCB( viewstdcontrol_->editPushed(),
@@ -543,9 +543,18 @@ void uiODViewer2D::createViewWinEditors()
 }
 
 
+void uiODViewer2D::dispPropChangedCB( CallBacker* )
+{
+    FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
+    if ( vwrannot.dynamictitle_ )
+	vwrannot.title_ = getInfoTitle().getFullString();
+    viewwin()->viewer().handleChange( FlatView::Viewer::Annot );
+}
+
+
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    delete treetp_; treetp_ = 0;
+    deleteAndZeroPtr( treetp_ );
     datamgr_->removeAll();
 
     deepErase( auxdataeditors_ );
@@ -841,53 +850,65 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 }
 
 
+uiString uiODViewer2D::getInfoTitle() const
+{
+    uiString info = toUiString("%1: %2");
+    if ( !mIsUdf(rdmlineid_) )
+    {
+	const Geometry::RandomLine* rdmline =
+		    Geometry::RLM().get( rdmlineid_ );
+	if ( rdmline ) info = toUiString( rdmline->name() );
+    }
+    else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    {
+	info.arg( tr("Line") )
+	    .arg( toUiString( Survey::GM().getName(geomID()) ) );
+    }
+    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+    {
+	info.arg( uiStrings::sInline() )
+	    .arg( tkzs_.hsamp_.start_.inl() );
+    }
+    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+    {
+	info.arg( uiStrings::sCrossline() )
+	    .arg( tkzs_.hsamp_.start_.crl() );
+    }
+    else
+    {
+	info.arg( zDomain().userName() )
+	    .arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
+    }
+
+    return info;
+}
+
+
 void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 {
     uiString info;
-    if ( fromvisobjinfo )
+    if ( !fromvisobjinfo )
+	info = getInfoTitle();
+    else
     {
 	BufferString objectinfo;
 	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
 	if ( objectinfo.isEmpty() )
 	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
 	else
-	    info = mToUiStringTodo( objectinfo );
-    }
-    else
-    {
-	info = toUiString("%1: %2");
-	if ( !mIsUdf(rdmlineid_) )
-	{
-	    const Geometry::RandomLine* rdmline =
-			Geometry::RLM().get( rdmlineid_ );
-	    if ( rdmline ) info = mToUiStringTodo( rdmline->name() );
-	}
-	else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	{
-	    info.arg( tr("Line") )
-		.arg( mToUiStringTodo( Survey::GM().getName(geomID()) ) );
-	}
-	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-	{
-	    info.arg( uiStrings::sInline() )
-		.arg( tkzs_.hsamp_.start_.inl() );
-	}
-	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-	{
-	    info.arg( uiStrings::sCrossline() )
-		.arg( tkzs_.hsamp_.start_.crl() );
-	}
-	else
-	{
-	    info.arg( zDomain().userName() )
-		.arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
-	}
+	    info = toUiString( objectinfo );
     }
 
     uiString title = toUiString("%1%2").arg( mToUiStringTodo(basetxt_) )
 				       .arg( info );
-    if ( viewwin() )
-	viewwin()->setWinTitle( title );
+    if ( !viewwin() )
+	return;
+
+    viewwin()->setWinTitle( title );
+
+    FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
+    if ( vwrannot.dynamictitle_ )
+	vwrannot.title_ = info.getFullString();
 }
 
 

@@ -102,7 +102,7 @@ public:
 	TypeSet<Color>	colors_;
     };
 
-    FillGradient		fillgradient_;    
+    FillGradient		fillgradient_;
 
     int				zvalue_; //!<overlay zvalue ( max=on top )
     MouseCursor			cursor_;
@@ -159,6 +159,8 @@ public:
 				~Annotation();
 
     BufferString		title_; //!< color not settable
+    bool			dynamictitle_;
+				//!< allows for setting title dynamically
     Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
