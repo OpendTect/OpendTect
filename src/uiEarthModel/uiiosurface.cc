@@ -89,7 +89,7 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
     attribfld_ = new uiListBox( this, su );
     attribfld_->setStretch( 2, 2 );
-    attribfld_->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
+    attribfld_->itemChosen.notify( mCB(this,uiIOSurface,attrSel) );
 }
 
 
