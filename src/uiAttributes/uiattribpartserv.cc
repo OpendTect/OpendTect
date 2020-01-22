@@ -763,19 +763,21 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 				const RegularSeisDataPack* cache )
 {
     PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
-    if ( !aem ) return 0;
+    if ( !aem || targetspecs_.isEmpty() )
+	return nullptr;
 
+    const bool isnla = targetspecs_[0].isNLA();
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     RegularSeisDataPack* preloadeddatapack = nullptr;
     if ( targetdesc )
     {
-	if ( targetdesc->isStored() && !targetspecs_[0].isNLA() )
+	if ( targetdesc->isStored() && !isnla )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
 	    mDynamicCast( RegularSeisDataPack*, preloadeddatapack,
-						Seis::PLDM().get(mid) );
+						Seis::PLDM().get(mid) )
 	}
 
 	BufferString defstr;
@@ -860,21 +862,24 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    return aem->getDataPackOutput( cubeset );
 	}
 
-	TrcKeyZSampling posstkzs( tkzs );
-	if ( !targetdesc || !targetdesc->descSet() )
-	    return nullptr;
+	if ( !isnla )
+	{
+	    TrcKeyZSampling posstkzs( tkzs );
+	    if ( !targetdesc || !targetdesc->descSet() )
+		return nullptr;
 
-	PtrMan<DescSet> targetdescset =
-		       targetdesc->descSet()->optimizeClone( targetdesc->id() );
-	const bool haspossvol = aem->getPossibleVolume( *targetdescset,
+	    PtrMan<DescSet> targetdescset =
+		targetdesc->descSet()->optimizeClone( targetdesc->id() );
+	    const bool haspossvol = aem->getPossibleVolume( *targetdescset,
 					posstkzs, nullptr, targetdesc->id() );
-	if ( !haspossvol )
-	    return nullptr;
+	    if ( !haspossvol )
+		return nullptr;
+	}
 
 	uiString errmsg;
 	process = aem->createDataPackOutput( errmsg, cache );
 	if ( !process )
-	    { uiMSG().error(errmsg); return 0; }
+	    { uiMSG().error(errmsg); return nullptr; }
 
 	bool displayerrmsg;
 	Settings::common().getYN( sKeyUserSettingAttrErrMsg(), displayerrmsg );
@@ -888,7 +893,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 				  showcrlprogress );
 
 	const bool isstored =
-	    targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
+	    targetdesc && targetdesc->isStored() && !isnla;
 	const bool isinl =
 		    tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Inl;
 	const bool iscrl =
