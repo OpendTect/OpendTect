@@ -190,7 +190,8 @@ uiString HDF5::Access::sHDF5FileNoLongerAccessibe()
 
 uiString HDF5::Access::sHDF5NotAvailable( const char* fnm )
 {
-    return sHDF5NotAvailable().appendPhrase( tr("Needed to access '%1'") );
+    return sHDF5NotAvailable().appendPhrase(
+				    tr("Needed to access '%1'").arg(fnm) );
 }
 
 
