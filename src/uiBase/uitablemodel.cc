@@ -15,18 +15,45 @@ ________________________________________________________________________
 
 #include <QAbstractTableModel>
 #include <QLineEdit>
+#include <QPainter>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTableView>
 
 
-class DoubleItemDelegate : public QStyledItemDelegate
+class ODStyledItemDelegate : public QStyledItemDelegate
+{
+public:
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index ) const override
+{
+    QStyleOptionViewItem myoption = option;
+    if ( option.state & QStyle::State_Selected )
+	myoption.font.setBold( true );
+    else
+	myoption.font.setBold( false );
+    initStyleOption( &myoption, index );
+
+    // Give cells their original background color
+    QVariant background = index.data( Qt::BackgroundRole );
+    if ( background.canConvert<QBrush>() )
+	painter->fillRect( option.rect, background.value<QBrush>() );
+
+    QStyledItemDelegate::paint( painter, myoption, index );
+}
+
+};
+
+
+class DoubleItemDelegate : public ODStyledItemDelegate
 {
 public:
 DoubleItemDelegate()
-    : QStyledItemDelegate()
+    : ODStyledItemDelegate()
     , nrdecimals_(2)
 {}
+
 
 QString displayText( const QVariant& val, const QLocale& locale ) const
 {
@@ -42,22 +69,23 @@ QString displayText( const QVariant& val, const QLocale& locale ) const
 };
 
 
-class TextItemDelegate : public QStyledItemDelegate
+class TextItemDelegate : public ODStyledItemDelegate
 {
 public:
 TextItemDelegate()
-    : QStyledItemDelegate()
+    : ODStyledItemDelegate()
 {}
+
 
 QWidget* createEditor( QWidget* prnt,
 		       const QStyleOptionViewItem&,
-		       const QModelIndex& ) const
+		       const QModelIndex& ) const override
 {
     return new QLineEdit( prnt );
 }
 
 
-void setEditorData( QWidget* editor, const QModelIndex& index ) const
+void setEditorData( QWidget* editor, const QModelIndex& index ) const override
 {
     QString value = index.model()->data(index,Qt::DisplayRole).toString();
     QLineEdit* lineedit = static_cast<QLineEdit*>(editor);
@@ -66,7 +94,7 @@ void setEditorData( QWidget* editor, const QModelIndex& index ) const
 
 
 void setModelData( QWidget* editor, QAbstractItemModel* model,
-		   const QModelIndex& index ) const
+		   const QModelIndex& index ) const override
 {
     QLineEdit* lineedit = static_cast<QLineEdit*>(editor);
     QString txt = lineedit->text();
@@ -238,7 +266,10 @@ class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
 public:
 ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
-{}
+{
+    setStyleSheet( "selection-background-color: rgba(0, 0, 0, 0);"
+		   "selection-color: black;" );
+}
 
 protected:
 };
