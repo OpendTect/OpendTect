@@ -112,10 +112,10 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     , synthdatas_(synths)
 {
     if ( lm.isEmpty() )
-    { 
+    {
     errmsg_ = tr("Input model is empty.\n"
 		 "You need to generate layer models.");
-    return; 
+    return;
     }
 
     TypeSet<DataPack::FullID> fids, psfids;
@@ -128,10 +128,10 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 	    fids += sd.datapackid_;
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
-    { 
+    {
     errmsg_ = tr("Missing or invalid 'datapacks'."
-		 "\nMost likely, no synthetics are available."); 
-    return; 
+		 "\nMost likely, no synthetics are available.");
+    return;
     }
 
     uiAttribDescSetBuild::Setup bsu( true );
@@ -402,7 +402,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	Attrib::Desc& desc = (*ds)[dscidx];
 	if ( !desc.isPS() )
 	    continue;
-	
+
 	mDynamicCastGet(Attrib::EnumParam*,gathertypeparam,
 			desc.getValParam(Attrib::PSAttrib::gathertypeStr()))
 	if ( gathertypeparam->getIntValue()==(int)(Attrib::PSAttrib::Ang) )
@@ -427,7 +427,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 		continue;
 
 	    mDynamicCastGet(const PreStackSyntheticData*,pssd,
-		    	    synthdatas_[inpsdidx])
+			    synthdatas_[inpsdidx])
 	    if ( !pssd )
 		continue;
 
@@ -443,7 +443,7 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 						const Attrib::DescSet& attrs )
 {
     preparePreStackDescs();
-    
+
     uiString errmsg;
     PtrMan<Attrib::EngineMan> aem = createEngineMan( attrs );
     PtrMan<Executor> exec = aem->getTableExtractor(dps,attrs,errmsg,2,false);
@@ -452,7 +452,7 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 	uiMSG().error( errmsg );
 	return false;
     }
-    
+
     exec->setName( "Attributes from Traces" );
     uiTaskRunner dlg( this );
     TaskRunner::execute( &dlg, *exec );
@@ -497,8 +497,8 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 	{
 	    wintitl = tr("%1 %2ms %3").arg(wintitl)
 				      .arg(toUiString(fabs( winms.start )))
-				      .arg(winms.start < 0 ? 
-				      uiStrings::sAbove().toLower() : 
+				      .arg(winms.start < 0 ?
+				      uiStrings::sAbove().toLower() :
 				      uiStrings::sBelow().toLower());
 	}
     }
@@ -516,7 +516,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     if ( stoplvl )
     {
 	wintitl = toUiString("%1 %2").arg(wintitl)
-					.arg(!extrwin.isUdf() && !layerbased ? 
+					.arg(!extrwin.isUdf() && !layerbased ?
 					tr("and down to") : tr("and"));
 	wintitl = toUiString("%1 %2").arg(wintitl)
 					      .arg(stoplvl->name());
@@ -540,7 +540,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     Attrib::DescSet* ds =
 	const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
     ds->removeUnused( false, true );
-    
+
 
     seisattrfld_->descSet().fillPar( uidps->storePars() );
     uidps->show();
@@ -604,6 +604,7 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     if ( !dps )
 	return false;
 
+    dps->setName( "Layer model" );
     DPM(DataPackMgr::PointID()).addAndObtain( dps );
     launchCrossPlot( *dps, lvl, stoplvl, extrwin, zstep );
     DPM(DataPackMgr::PointID()).release( dps->id() );
