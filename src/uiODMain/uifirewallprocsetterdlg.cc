@@ -30,18 +30,26 @@ uiString getWindowTitle()
     return od_static_tr( "getWindowTitle", "Manage Firewall Program Rule" );
 }
 
-uiString getDlgTitle()
+uiString getDlgTitle(ProcDesc::DataEntry::ActionType typ)
 {
-    return od_static_tr( "getDlgTitle",
+    if ( typ == ProcDesc::DataEntry::Add )
+	return od_static_tr( "getDlgTitle",
 	"Please add following rule(s) before launching OpendTect for smooth "
 	"running of program.");
+    else if ( typ == ProcDesc::DataEntry::Remove )
+	return od_static_tr("getDlgTitle",
+	   "Following rule(s) were found to added in Firewall Expception List");
+    else
+	return od_static_tr("getDlgTitle",
+	    "Please add/remove following rule(s) before launching OpendTect "
+	    "for smooth running of program.");
 }
 
 //Remove the argument actiontype from the dialog, it will determine on its own
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 						    const BufferString& path )
-    : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(),
+    : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(acttyp),
 			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
     , addremfld_(0)
     , pythonproclistbox_(0)
@@ -84,11 +92,15 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     pythonproclistbox_->blockScrolling( false );
     pythonproclistbox_->addItems( pyprocdescs_ );
     pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    pythonproclistbox_->attach( alignedBelow, odproclistbox_ );
-    mAttachCB(pythonproclistbox_->selectionChanged,
-			    uiFirewallProcSetter::statusUpdatePyProcCB);
-    pythonproclistbox_->chooseAll();
-    
+    if ( !pyprocdescs_.isEmpty() )
+    {
+	pythonproclistbox_->attach(alignedBelow, odproclistbox_);
+	mAttachCB(pythonproclistbox_->selectionChanged,
+	    uiFirewallProcSetter::statusUpdatePyProcCB);
+	pythonproclistbox_->chooseAll();
+    }
+    pythonproclistbox_->display(!pyprocdescs_.isEmpty());
+    PDE::ActionType ty = ePDD().getActionType();
     if ( ePDD().getActionType() != PDE::AddNRemove )
     {
        setOkText( PDE::ActionTypeDef().getUiStringForIndex(
@@ -132,7 +144,7 @@ uiFirewallProcSetter::~uiFirewallProcSetter()
 
 void uiFirewallProcSetter::selectionChgCB( CallBacker* )
 {
-    if ( addremfld_->isDisplayed() )
+    if ( addremfld_ && addremfld_->isDisplayed() )
 	toadd_ = addremfld_->getBoolValue();
     else
 	toadd_ = ePDD().getActionType() == PDE::Add ? true : false;
@@ -317,12 +329,13 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
 	    odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
 							.add( GetBinSubDir() );
-	    exefp = odv7fp.fullPath();
+	    exefp = odv7fp;
 	}
 
 	BufferString fincmd = cmd;
 	if ( idx != PDE::Python )
-	    fincmd.addSpace().add( "--od " ).add( exepath_ ).addSpace();
+	    fincmd.addSpace().add( "--od " ).add( exefp.fullPath() )
+								   .addSpace();
 	else
 	    fincmd.addSpace().add( "--py " ).add( getPythonInstDir() )
 								.addSpace();
