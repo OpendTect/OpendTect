@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 
 #include <QAbstractTableModel>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QPainter>
 #include <QSortFilterProxyModel>
@@ -267,11 +268,25 @@ public:
 ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
 {
-    setStyleSheet( "selection-background-color: rgba(0, 0, 0, 0);"
+    setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
 		   "selection-color: black;" );
 }
 
 protected:
+
+void keyPressEvent( QKeyEvent* ev ) override
+{
+    if ( !ev )
+	return;
+
+    if ( ev->key() == Qt::Key_Escape )
+    {
+	clearSelection();
+	clearFocus();
+    }
+
+    QTableView::keyPressEvent( ev );
+}
 };
 
 
