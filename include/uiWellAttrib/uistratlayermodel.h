@@ -15,23 +15,26 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uimainwin.h"
 #include "uistring.h"
+
 class CtxtIOObj;
-class Wavelet;
+class ElasticPropSelection;
+class PropertyRef;
+class PropertyRefSelection;
 class SeisTrcBuf;
 class StratSynth;
-class PropertyRef;
 class SyntheticData;
 class TimeDepthModel;
-class PropertyRefSelection;
-class ElasticPropSelection;
-class uiToolBar;
-class uiStratSynthDisp;
-class uiStratLayerModelDisp;
+class Wavelet;
+namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
+
 class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
-class uiStratLayModEditTools;
+class uiStratLayerModelDisp;
 class uiStratLayerModelLMProvider;
-namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
+class uiStratLayModEditTools;
+class uiStratSynthCrossplot;
+class uiStratSynthDisp;
+class uiToolBar;
 
 
 mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
@@ -115,6 +118,7 @@ protected:
     /*mDeprecated*/ bool	mostlyfilledwithbrine_;
     bool			needtoretrievefrpars_;
     bool			automksynth_;
+    uiStratSynthCrossplot*	xplotdlg_;
 
 
     bool			canShowFlattened() const;

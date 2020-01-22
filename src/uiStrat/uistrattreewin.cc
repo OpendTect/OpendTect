@@ -46,8 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Strat;
 
-static const char* sKeyDefStrat = "Default.Stratigraphic Framework";
-
 ManagedObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
 
 static uiStratTreeWin* stratwin = 0;
@@ -139,13 +137,17 @@ uiStratTreeWin::~uiStratTreeWin()
 void uiStratTreeWin::initWin()
 {
     saveLegacyTrees();
-    MultiID key = MultiID::udf();
-    SI().pars().get( sKeyDefStrat, key );
-    if ( key.isUdf() )
-	return;
 
-    treekey_ = key;
-    readTree( treekey_ );
+    if ( Strat::RT().isEmpty() )
+    {
+	MultiID key = MultiID::udf();
+	SI().pars().get( Strat::sKeyDefaultTree(), key );
+	if ( key.isUdf() )
+	    return;
+
+	treekey_ = key;
+	readTree( treekey_ );
+    }
 }
 
 
@@ -556,7 +558,7 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    SI().getPars().set( sKeyDefStrat, treekey_ );
+    SI().getPars().set( Strat::sKeyDefaultTree(), treekey_ );
     SI().savePars();
 
     return askSave();
