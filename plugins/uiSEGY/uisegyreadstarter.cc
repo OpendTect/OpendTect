@@ -434,10 +434,20 @@ void uiSEGYReadStarter::setToolStates()
     if ( coordscalefld_ )
 	coordscalefld_->display( loaddef_.needXY() );
 
-    const bool shoulddisplay = SI().getCoordSystem() &&
-		SI().getCoordSystem()->isProjection() &&
-		usexybut_ && usexybut_->isChecked();
-    coordsysselfld_->display( shoulddisplay || impType().is2D() );
+    bool coordisprojection = SI().getCoordSystem() &&
+		SI().getCoordSystem()->isProjection();
+
+    if ( impType().is2D() )
+    {
+	const bool shoulddisplay = coordisprojection;
+	coordsysselfld_->display( shoulddisplay );
+    }
+    else
+    {
+	const bool isxybutused = usexybut_ && usexybut_->isChecked();
+	const bool shoulddisplay = coordisprojection && isxybutused;
+	coordsysselfld_->display( shoulddisplay );
+    }
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
 }
