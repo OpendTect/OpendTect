@@ -879,6 +879,10 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     if ( !dc->sampling().hsamp_.includes(bid) )
 	return;
 
+    ValueSeriesInterpolator<float>& intpol =
+	const_cast<ValueSeriesInterpolator<float>&>(trc->interpolator());
+    intpol.udfval_ = mUdf(float);
+
     const TrcKeyZSampling& sampling = dc->sampling();
     const int inlidx = sampling.hsamp_.lineRange().nearestIndex( bid.inl() );
     const int crlidx = sampling.hsamp_.trcRange().nearestIndex( bid.crl() );
