@@ -450,6 +450,7 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
     else
     {
 	TrcKeyZSampling possvol;
+	possvol.zsamp_ = globalcs.zsamp_;
 	if ( !possvol.includes(globalcs) )
 	    possvol = globalcs;
 
