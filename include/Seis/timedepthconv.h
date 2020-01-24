@@ -236,7 +236,7 @@ public:
 mExpClass(Seis) LinearD2TTransform : public LinearVelTransform
 { mODTextTranslationClass(LinearD2TTransform);
 public:
-    mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
+    mDefaultFactoryInstantiation( ZAxisTransform, LinearD2TTransform,
 				  "LinearD2T", tr("Linear velocity") );
 
 				LinearD2TTransform(float v0=0, float dv=0);
