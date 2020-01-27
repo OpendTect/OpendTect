@@ -46,7 +46,7 @@ int main( int argc, char ** argv )
 
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
 	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex(proctypidx),
-        path );
+	path, true );
 
     app.setTopLevel( dlg );
     dlg->show();

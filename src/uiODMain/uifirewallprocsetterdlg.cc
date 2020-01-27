@@ -48,7 +48,7 @@ uiString getDlgTitle(ProcDesc::DataEntry::ActionType typ)
 //Remove the argument actiontype from the dialog, it will determine on its own
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
-						    const BufferString& path )
+				const BufferString& path, bool ispopfrominst )
     : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(acttyp),
 			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
     , addremfld_(0)
@@ -79,14 +79,19 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
     odproclistbox_ = new uiListBox( this, su );
-    if ( attachobj )
-	odproclistbox_->attach( alignedBelow, attachobj );
-
-    odproclistbox_->addItems( odprocdescs_ );
-    odproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    mAttachCB(odproclistbox_->selectionChanged,
+    if ( !odprocdescs_.isEmpty() )
+    {
+	if ( attachobj )
+	    odproclistbox_->attach( alignedBelow, attachobj );
+	odproclistbox_->addItems(odprocdescs_);
+	odproclistbox_->setHSzPol(uiObject::SzPolicy::WideMax);
+	mAttachCB(odproclistbox_->selectionChanged,
 				uiFirewallProcSetter::statusUpdateODProcCB);
-    odproclistbox_->chooseAll();
+	odproclistbox_->chooseAll();
+	attachobj = odproclistbox_->attachObj();
+    }
+    odproclistbox_->display( !odprocdescs_.isEmpty() );
+
     su.lbl( tr("Python Executables") );
     pythonproclistbox_ = new uiListBox( this, su );
     pythonproclistbox_->blockScrolling( false );
@@ -94,17 +99,22 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
     if ( !pyprocdescs_.isEmpty() )
     {
-	pythonproclistbox_->attach(alignedBelow, odproclistbox_);
+	if ( attachobj )
+	    pythonproclistbox_->attach( alignedBelow, attachobj );
+
 	mAttachCB(pythonproclistbox_->selectionChanged,
 	    uiFirewallProcSetter::statusUpdatePyProcCB);
 	pythonproclistbox_->chooseAll();
     }
-    pythonproclistbox_->display(!pyprocdescs_.isEmpty());
+    pythonproclistbox_->display( !pyprocdescs_.isEmpty() );
     PDE::ActionType ty = ePDD().getActionType();
-    if ( ePDD().getActionType() != PDE::AddNRemove )
+
+    if ( ispopfrominst && ty == PDE::Remove )
+	return;
+
+    if ( ty != PDE::AddNRemove )
     {
-       setOkText( PDE::ActionTypeDef().getUiStringForIndex(
-						 ePDD().getActionType()) );
+       setOkText( PDE::ActionTypeDef().getUiStringForIndex(ty) );
        if ( addremfld_ )
 	   addremfld_->display( false );
        selectionChgCB(0);
