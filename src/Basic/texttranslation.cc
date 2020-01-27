@@ -237,7 +237,7 @@ bool TextTranslation::LanguageEntry::load()
 
     BufferString locale;
     Settings::common().get( sLocalizationKey(), locale );
-	
+
     if ( locale.isEmpty() )
 	locale = "en";
 
@@ -306,7 +306,7 @@ void TextTranslation::TranslateMgr::reInit()
     pkgnms_.setEmpty();
 
     BufferStringSet localekeys;
-    
+
     QList<QLocale> allLocales = QLocale::matchingLocales( QLocale::AnyLanguage,
 	QLocale::AnyScript, QLocale::AnyCountry );
     for (int i = 0; i < allLocales.size(); i++)
@@ -321,6 +321,8 @@ void TextTranslation::TranslateMgr::reInit()
 	LanguageEntry* le = new LanguageEntry( localekeys.get(iloc), pkgnms_ );
 	if ( le->addToEntry() )
 	    addEntry( le );
+	else
+	    delete le;
     }
 
     if ( !curlocalekey.isEmpty() )

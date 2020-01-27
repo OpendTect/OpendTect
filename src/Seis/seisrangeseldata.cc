@@ -83,6 +83,12 @@ Seis::RangeSelData::~RangeSelData()
 }
 
 
+size_type Seis::RangeSelData::nrGeomIDs() const
+{
+    return fss_.nrGeomIDs();
+}
+
+
 Seis::SelDataPosIter* Seis::RangeSelData::posIter() const
 {
     return new RangeSelDataPosIter( *this );
@@ -91,7 +97,7 @@ Seis::SelDataPosIter* Seis::RangeSelData::posIter() const
 
 void Seis::RangeSelData::clearContents()
 {
-    fss_.setToNone( is2D() );
+    fss_.setEmpty();
 }
 
 
@@ -105,15 +111,7 @@ void Seis::RangeSelData::doCopyFrom( const SelData& sd )
 	fss_ = oth.fss_;
 	forceall_ = oth.forceall_;
     }
-    else if ( !sd.is2D() )
-    {
-	CubeSubSel css;
-	css.setInlRange( pos_steprg_type(sd.inlRange(),SI().inlStep()) );
-	css.setCrlRange( pos_steprg_type(sd.crlRange(),SI().crlStep()) );
-	css.setZRange( sd.zRange() );
-	fss_.set( css );
-    }
-    else
+    else if ( sd.is2D() )
     {
 	const auto nrgids = sd.nrGeomIDs();
 	LineSubSelSet lsss;
@@ -125,6 +123,14 @@ void Seis::RangeSelData::doCopyFrom( const SelData& sd )
 	    lsss.add( lss );
 	}
 	fss_.set( lsss );
+    }
+    else
+    {
+	CubeSubSel css;
+	css.setInlRange( pos_steprg_type(sd.inlRange(),SI().inlStep()) );
+	css.setCrlRange( pos_steprg_type(sd.crlRange(),SI().crlStep()) );
+	css.setZRange( sd.zRange() );
+	fss_.set( css );
     }
 }
 

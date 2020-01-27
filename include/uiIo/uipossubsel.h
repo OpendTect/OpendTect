@@ -24,7 +24,7 @@ class uiPosProvSel;
   like Seis::Selection.
 
   Users can always choose to not subselect at all.
- 
+
  */
 
 
@@ -35,7 +35,7 @@ public:
     struct Setup
     {
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
-	    		  VolumeTypes };
+			  VolumeTypes };
 			Setup( bool is_2d, bool with_z )
 			    : seltxt_( is_2d	? tr("Trace subselection")
 				   : ( with_z	? tr("Volume subselection")
@@ -52,7 +52,7 @@ public:
 	mDefSetupMemb(ChoiceType,choicetype)
     };
 
-    			uiPosSubSel(uiParent*,const Setup&);
+			uiPosSubSel(uiParent*,const Setup&);
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -61,7 +61,7 @@ public:
     const Pos::Provider* curProvider() const;
 
     const TrcKeyZSampling&	envelope() const;
-    const TrcKeyZSampling&	inputLimit() const;
+    TrcKeyZSampling	inputLimit() const;
     void		setInput(const TrcKeyZSampling&,bool chgtype=true);
     void		setInput(const TrcKeyZSampling& initcs,
 				 const TrcKeyZSampling& ioparcs);

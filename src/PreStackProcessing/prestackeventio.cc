@@ -378,7 +378,7 @@ bool EventReader::prepareWork()
 	    usefile = false;
 
 	    TrcKeySampling dummy;
-	    if ( horsel_ && horsel_->getInterSection(filehrg,dummy))
+	    if ( horsel_ && horsel_->getIntersection(filehrg,dummy))
 	    usefile = true;
 
 	    if ( !usefile && bidsel_ )
@@ -1130,7 +1130,7 @@ bool EventPatchReader::hasDataInRange() const
     if ( horsel_ )
     {
 	TrcKeySampling dummy;
-	if ( horsel_->getInterSection( filebbox_, dummy ) )
+	if ( horsel_->getIntersection( filebbox_, dummy ) )
 	    return true;
     }
 

@@ -298,6 +298,8 @@ public:
 				{ return new DPSValueSeries(*this); }
     virtual float		value( od_int64 idx ) const
 				{ return dps_.value( colid_, (RowID)idx ); }
+    od_int64			size() const override
+				{ return dps_.size(); }
 
 protected:
 

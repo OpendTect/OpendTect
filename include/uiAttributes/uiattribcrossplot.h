@@ -62,7 +62,8 @@ protected:
     void			adsChg();
     DBKey			getSelectedID() const;
     void			getLineNames(BufferStringSet&);
-    void			initWin(CallBacker*);
+    void			filterPosProv(bool chosen);
+    void			initDlg(CallBacker*);
     void			lineChecked(CallBacker*);
     void			attrChecked(CallBacker*);
     void			attrChanged(CallBacker*);

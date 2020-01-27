@@ -8,6 +8,7 @@
 #include "survsubsel.h"
 #include "cubesampling.h"
 #include "cubesubsel.h"
+#include "fullsubsel.h"
 #include "keystrs.h"
 #include "linesubsel.h"
 #include "survgeom2d.h"
@@ -145,6 +146,18 @@ bool Survey::HorSubSel::includes( const Bin2D& b2d ) const
 bool Survey::HorSubSel::includes( const TrcKey& tk ) const
 {
     return tk.is2D() ? includes( tk.bin2D() ) : includes( tk.binID() );
+}
+
+
+Pos::IdxPair Survey::HorSubSel::atGlobIdx( totalsz_type gidx ) const
+{
+    const LineHorSubSel* lhss = asLineHorSubSel();
+    const CubeHorSubSel* chss = asCubeHorSubSel();
+    if ( lhss )
+	return lhss->atGlobIdx(gidx).idxPair();
+    if ( chss )
+	return chss->atGlobIdx(gidx);
+    return Pos::IdxPair::udf();
 }
 
 
@@ -494,7 +507,8 @@ bool LineHorSubSel::equals( const SubSel& ss ) const
     if ( !oth )
 	return false;
 
-    return geomid_ == oth->geomid_ && ssdata_ == oth->ssdata_;
+    return geomid_ == oth->geomid_ &&
+	   ssdata_.sameOutputPosRange( oth->ssdata_ );
 }
 
 
@@ -523,6 +537,36 @@ void LineHorSubSel::limitTo( const LineHorSubSel& oth )
     if ( geomid_ != oth.geomid_ )
 	{ pErrMsg("Probably error, geomids do not match"); }
     trcNrSubSel().limitTo( oth.trcNrSubSel() );
+}
+
+
+bool LineHorSubSel::getIntersection( const LineHorSubSel& oth,
+				     LineHorSubSel& out ) const
+{
+    if ( oth.geomID() != geomID() )
+	return false;
+
+    LineHorSubSel lhss1( *this ); lhss1.normalise();
+    LineHorSubSel lhss2( oth );   lhss2.normalise();
+    const pos_steprg_type trcrg1( lhss1.trcNrRange() );
+    const pos_steprg_type trcrg2( lhss2.trcNrRange() );
+    pos_steprg_type commontrcrg;
+    const bool success = Pos::intersect( trcrg1, trcrg2, commontrcrg );
+    if ( success )
+    {
+	out.setGeomID( geomID() );
+	out.setTrcNrRange( commontrcrg );
+    }
+    return true;
+}
+
+
+void LineHorSubSel::normalise()
+{
+    Pos::steprg_type trcnrrg( trcNrRange() );
+    const LineSubSel lss( geomID() );
+    Pos::normalise( trcnrrg, lss.trcDist(false) );
+    setTrcNrRange( trcnrrg );
 }
 
 
@@ -844,7 +888,8 @@ bool CubeHorSubSel::equals( const SubSel& ss ) const
     if ( !oth )
 	return false;
 
-    return ssdata0_ == oth->ssdata0_ && ssdata1_ == oth->ssdata1_;
+    return ssdata0_.sameOutputPosRange( oth->ssdata0_ ) &&
+	   ssdata1_.sameOutputPosRange( oth->ssdata1_ );
 }
 
 
@@ -871,6 +916,39 @@ void CubeHorSubSel::limitTo( const CubeHorSubSel& oth )
 {
     inlSubSel().limitTo( oth.inlSubSel() );
     crlSubSel().limitTo( oth.crlSubSel() );
+}
+
+
+bool CubeHorSubSel::getIntersection( const CubeHorSubSel& oth,
+				     CubeHorSubSel& out ) const
+{
+    CubeHorSubSel chss1( *this ); chss1.normalise();
+    CubeHorSubSel chss2( oth );   chss2.normalise();
+
+    const pos_steprg_type inlrg1( chss1.inlRange() );
+    const pos_steprg_type inlrg2( chss2.inlRange() );
+    const pos_steprg_type crlrg1( chss1.crlRange() );
+    const pos_steprg_type crlrg2( chss2.crlRange() );
+    pos_steprg_type commoninlrg, commoncrlrg;
+
+    const bool success = Pos::intersect(inlrg1,inlrg2,commoninlrg) &&
+			 Pos::intersect(crlrg1,crlrg2,commoncrlrg);
+    if ( success )
+    {
+	out.setInlRange( commoninlrg );
+	out.setCrlRange( commoncrlrg );
+    }
+    return success;
+}
+
+
+void CubeHorSubSel::normalise()
+{
+    Pos::steprg_type inlrg( inlRange() ), crlrg( crlRange() );
+    Pos::normalise( inlrg, SI().inlStep() );
+    Pos::normalise( crlrg, SI().crlStep() );
+    setInlRange( inlrg );
+    setCrlRange( crlrg );
 }
 
 
@@ -992,7 +1070,7 @@ bool LineSubSel::equals( const SubSel& ss ) const
     if ( !oth )
 	return false;
 
-    return hss_ == oth->hss_ && zss_ == oth->zss_;
+    return hss_ == oth->hss_ && zss_.sameOutputPosRange( oth->zss_ );
 }
 
 
@@ -1013,6 +1091,38 @@ void LineSubSel::limitTo( const LineSubSel& oth )
 {
     hss_.limitTo( oth.hss_ );
     zss_.limitTo( oth.zss_ );
+}
+
+
+bool LineSubSel::getIntersection( const LineSubSel& oth, LineSubSel& out ) const
+{
+    if ( !hss_.getIntersection(oth.hss_,out.hss_) )
+	return false;
+
+    ZSampling zsamp1( zRange() );	Pos::normaliseZ( zsamp1 );
+    ZSampling zsamp2( oth.zRange() );	Pos::normaliseZ( zsamp2 );
+    ZSampling zout;
+    const bool success = Pos::intersectF( zsamp1, zsamp2, zout );
+    if ( success )
+	out.setZRange( zout );
+    return success;
+}
+
+
+void LineSubSel::normalise()
+{
+    hss_.normalise();
+    ZSampling zsamp( zRange() );
+    Pos::normaliseZ( zsamp );
+    setZRange( zsamp );
+}
+
+
+
+LineSubSelSet::LineSubSelSet( const IOPar& par )
+{
+    const Survey::FullSubSel fss( par );
+    *this = fss.lineSubSelSet();
 }
 
 
@@ -1120,6 +1230,13 @@ bool LineSubSelSet::hasFullZRange() const
 }
 
 
+void LineSubSelSet::fillPar( IOPar& par ) const
+{
+    const Survey::FullSubSel fss( *this );
+    fss.fillPar( par );
+}
+
+
 void LineSubSelSet::merge( const LineSubSelSet& oth )
 {
     for ( auto othlss : oth )
@@ -1151,6 +1268,14 @@ void LineSubSelSet::limitTo( const LineSubSelSet& oth )
 
     for ( auto lss : torem )
 	removeSingle( indexOf(lss) );
+}
+
+
+void LineSubSelSet::limitTo( const GeomIDSet& gids )
+{
+    for ( int idx=size()-1; idx>=0; idx-- )
+	if ( !gids.isPresent(get(idx)->geomID()) )
+	    removeSingle( idx );
 }
 
 
@@ -1281,7 +1406,7 @@ bool CubeSubSel::equals( const SubSel& ss ) const
     if ( !oth )
 	return false;
 
-    return hss_ == oth->hss_ && zss_ == oth->zss_;
+    return hss_ == oth->hss_ && zss_.sameOutputPosRange( oth->zss_ );
 }
 
 
@@ -1322,6 +1447,31 @@ void CubeSubSel::limitTo( const CubeSubSel& oth )
 void CubeSubSel::setToAll()
 {
     *this = CubeSubSel();
+}
+
+
+bool CubeSubSel::getIntersection( const CubeSubSel& oth,
+				  CubeSubSel& out ) const
+{
+    if ( !hss_.getIntersection(oth.hss_,out.hss_) )
+	return false;
+
+    ZSampling zsamp1( zRange() );	Pos::normaliseZ( zsamp1 );
+    ZSampling zsamp2( oth.zRange() );	Pos::normaliseZ( zsamp2 );
+    ZSampling zout;
+    const bool success = Pos::intersectF( zsamp1, zsamp2, zout );
+    if ( success )
+	out.setZRange( zout );
+    return success;
+}
+
+
+void CubeSubSel::normalise()
+{
+    hss_.normalise();
+    ZSampling zsamp( zRange() );
+    Pos::normaliseZ( zsamp );
+    setZRange( zsamp );
 }
 
 

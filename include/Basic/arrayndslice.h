@@ -242,11 +242,15 @@ const ValueSeries<T>* Array1DSlice<T>::getStorage_() const
     if ( !storage_ || &storage_->source() != source_.getStorage() )
     {
 	delete storage_;
-	storage_ =
-	    new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+	storage_ = new OffsetValueSeries<T>( *source_.getStorage(),
+					     offset_, ArrayND<T>::totalSize() );
     }
     else
+    {
 	storage_->setOffset( offset_ );
+	storage_->setSize( ArrayND<T>::totalSize() );
+    }
+
     return storage_;
 }
 
@@ -339,11 +343,14 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
     if ( !storage_ || &storage_->source() != source_.getStorage() )
     {
 	delete storage_;
-	storage_ =
-	    new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+	storage_ = new OffsetValueSeries<T>( *source_.getStorage(),
+					     offset_, ArrayND<T>::totalSize() );
     }
     else
+    {
 	storage_->setOffset( offset_ );
+	storage_->setSize( ArrayND<T>::totalSize() );
+    }
 
     return storage_;
 }
@@ -437,11 +444,14 @@ const ValueSeries<T>* Array3DSlice<T>::getStorage_() const
     if ( !storage_ || &storage_->source() != source_.getStorage() )
     {
 	delete storage_;
-	storage_ =
-	    new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+	storage_ = new OffsetValueSeries<T>( *source_.getStorage(),
+					     offset_, ArrayND<T>::totalSize() );
     }
     else
+    {
 	storage_->setOffset( offset_ );
+	storage_->setSize( ArrayND<T>::totalSize() );
+    }
 
     return storage_;
 }

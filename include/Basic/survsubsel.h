@@ -100,6 +100,7 @@ public:
     bool			includes(const BinID&) const;
     bool			includes(const Bin2D&) const;
     bool			includes(const TrcKey&) const;
+    Pos::IdxPair		atGlobIdx(totalsz_type) const;
 
     static HorSubSel*		get(const TrcKeySampling&);
     static HorSubSel*		create(const IOPar&,

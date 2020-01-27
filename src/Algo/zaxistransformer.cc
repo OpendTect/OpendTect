@@ -156,7 +156,8 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	else if ( input_->getStorage() )
 	{
 	    const OffsetValueSeries<float> vs( *input_->getStorage(),
-		input_->info().getOffset(inlidx,crlidx,0) );
+		input_->info().getOffset(inlidx,crlidx,0),
+		input_->getSize(2) );
 
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
 	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);

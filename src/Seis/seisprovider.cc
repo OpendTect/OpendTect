@@ -268,7 +268,7 @@ void Seis::Provider::getFullHorSubSel( FullHorSubSel& fhss, bool target ) const
 
 void Seis::Provider::getFullZSubSel( FullZSubSel& fzss ) const
 {
-    fzss.setToNone( is2D() );
+    fzss.setEmpty();
     const auto nrgeomids = nrGeomIDs();
     for ( auto idx=0; idx<nrgeomids; idx++ )
 	fzss.set( geomID(idx), zSubSel(idx) );

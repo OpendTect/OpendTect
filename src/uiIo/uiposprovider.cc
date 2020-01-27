@@ -127,13 +127,19 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	grps_[idx]->attach( alignedBelow, attachobj );
 
     setHAlignObj( grps_[0] );
-    postFinalise().notify( selcb );
+    mAttachCB( postFinalise(), uiPosProvider::initGrp );
 }
 
 
 uiPosProvider::~uiPosProvider()
 {
     detachAllNotifiers();
+}
+
+
+void uiPosProvider::initGrp( CallBacker* cb )
+{
+    selChg(cb);
 }
 
 
@@ -187,7 +193,7 @@ void uiPosProvider::openCB( CallBacker* )
 	mErrRet( tr("No valid subselection found") )
 
     usePar( iop );
-    selChg(0);
+    selChg(nullptr);
 }
 
 
@@ -282,12 +288,9 @@ bool uiPosProvider::hasRandomSampling() const
 
 void uiPosProvider::usePar( const IOPar& iop )
 {
-    if ( !selfld_ )
-	return;
-
     BufferString typ;
     iop.get( sKey::Type(), typ );
-    if ( typ.isEmpty() || typ == sKey::None() )
+    if ( selfld_ && (typ.isEmpty() || typ == sKey::None()) )
 	selfld_->setValue( ((int)0) );
     else
     {
@@ -296,7 +299,8 @@ void uiPosProvider::usePar( const IOPar& iop )
 	    if ( typ == grps_[idx]->name() )
 	    {
 		grps_[idx]->usePar( iop );
-		selfld_->setValue( idx );
+		if ( selfld_ )
+		    selfld_->setValue( idx );
 		return;
 	    }
 	}
@@ -463,9 +467,35 @@ void uiPosProvSel::setInput( const TrcKeyZSampling& initcs,
 }
 
 
-void uiPosProvSel::setInputLimit( const TrcKeyZSampling& cs )
+void uiPosProvSel::setInputLimit( const TrcKeyZSampling& tkzs )
 {
-    setup_.tkzs_ = cs;
+    setup_.fss_ = Survey::FullSubSel( tkzs );
+}
+
+
+void uiPosProvSel::setInputSubSel( const TrcKeyZSampling& tkzs )
+{
+    if ( tkzs.hsamp_.is2D() )
+	pErrMsg("Probably unsupported operation");
+    setup_.fss_ = Survey::FullSubSel( tkzs );
+}
+
+
+TrcKeyZSampling uiPosProvSel::inputLimit() const
+{
+    const Survey::FullSubSel& fss = inputSubSel();
+    TrcKeyZSampling tkzs( fss.geomID(0) );
+    tkzs.hsamp_.set( fss.inlRange(), fss.crlRange() );
+    tkzs.zsamp_ = fss.zRange();
+    return tkzs;
+}
+
+
+const Survey::FullSubSel& uiPosProvSel::inputSubSel() const
+{
+    if ( setup_.fss_.is2D() )
+	pErrMsg("Probably unsupported operation");
+    return setup_.fss_;
 }
 
 
@@ -592,7 +622,7 @@ mDefFn(void,fillPar,IOPar&,iop,const,)
 mDefFn(Pos::Provider*,curProvider,,,,return)
 mDefFn(const Pos::Provider*,curProvider,,,const,return)
 mDefFn(const TrcKeyZSampling&,envelope,,,const,return)
-mDefFn(const TrcKeyZSampling&,inputLimit,,,const,return)
+mDefFn(TrcKeyZSampling,inputLimit,,,const,return)
 mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
 mDefFn(void,setInputLimit,const TrcKeyZSampling&,cs,,)

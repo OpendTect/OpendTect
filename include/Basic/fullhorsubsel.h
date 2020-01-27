@@ -101,7 +101,7 @@ public:
     void		merge(const FullHorSubSel&);
     void		limitTo(const FullHorSubSel&);
 
-    void		setToNone(bool for2d,const SurveyInfo* si=nullptr);
+    void		setEmpty();
     void		setToAll(bool for2d,const SurveyInfo* si=nullptr);
     void		setFull(GeomID,const SurveyInfo* si=nullptr);
     void		set(const CubeHorSubSel&);

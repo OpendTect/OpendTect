@@ -21,12 +21,14 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "posinfo2d.h"
+#include "posinfo2dsurv.h"
 #include "posprovider.h"
 #include "posfilterset.h"
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
-#include "posinfo2dsurv.h"
+#include "survgeommgr.h"
 
 #include "mousecursor.h"
 #include "uidatapointset.h"
@@ -58,17 +60,15 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 
     if ( ads_.is2D() )
     {
-	attrsfld_->itemChosen.notify(
-		mCB(this,uiAttribCrossPlot,attrChecked) );
-	attrsfld_->selectionChanged.notify(
-		mCB(this,uiAttribCrossPlot,attrChanged) );
+	mAttachCB( attrsfld_->itemChosen, uiAttribCrossPlot::attrChecked );
+	mAttachCB( attrsfld_->selectionChanged, uiAttribCrossPlot::attrChanged);
 
 	uiListBox::Setup lsu( OD::ChooseAtLeastOne, tr("Line(s)"),
 			      uiListBox::AboveMid );
 	lnmfld_ = new uiListBox( attrgrp, lsu );
 	lnmfld_->attach( rightTo, attrsfld_ );
-	lnmfld_->itemChosen.notify(
-		mCB(this,uiAttribCrossPlot,lineChecked) );
+	mAttachCB( lnmfld_->itemChosen, uiAttribCrossPlot::lineChecked );
+	mAttachCB( lnmfld_->selectionChanged, uiAttribCrossPlot::lineChecked );
     }
 
     uiGroup* provgrp = new uiGroup( this, "Attribute group" );
@@ -90,7 +90,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     posfiltmodefld_->attach( alignedBelow, posfiltfld_ );
 
     setDescSet( d );
-    postFinalise().notify( mCB(this,uiAttribCrossPlot,initWin) );
+    mAttachCB( postFinalise(), uiAttribCrossPlot::initDlg );
 }
 
 
@@ -107,6 +107,8 @@ void uiAttribCrossPlot::adsChg()
 
     delete attrinfo_;
     attrinfo_ = new Attrib::SelInfo( ads_ );
+    NotifyStopper notifystop( attrsfld_->itemChosen );
+    NotifyStopper notifystop2( attrsfld_->selectionChanged );
     for ( int idx=0; idx<attrinfo_->attrnms_.size(); idx++ )
     {
 	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[idx] );
@@ -139,7 +141,7 @@ void uiAttribCrossPlot::adsChg()
     if ( !attrsfld_->isEmpty() )
 	attrsfld_->setCurrentItem( int(0) );
 
-    attrChanged( 0 );
+    attrChanged( nullptr );
 }
 
 
@@ -149,7 +151,7 @@ uiAttribCrossPlot::~uiAttribCrossPlot()
 }
 
 
-void uiAttribCrossPlot::initWin( CallBacker* )
+void uiAttribCrossPlot::initDlg( CallBacker* )
 {
 }
 
@@ -202,7 +204,10 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
 {
     const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
     if ( selitem < 0 )
+    {
+	filterPosProv( true );
 	return;
+    }
 
     linenmsset_[selitem].erase();
     for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
@@ -210,6 +215,7 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
 	if ( lnmfld_->isChosen(lidx) )
 	    linenmsset_[selitem].addIfNew( lnmfld_->itemText(lidx) );
     }
+    filterPosProv( true );
 }
 
 
@@ -229,6 +235,8 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	    lnmfld_->setChosen( lidx, true );
 	    linenmsset_[lsidx].add( lnmfld_->itemText(lidx) );
 	}
+	if ( !lnmfld_->isEmpty() )
+	    filterPosProv( true );
     }
     else if ( !ischked )
     {
@@ -243,6 +251,8 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 		lnmfld_->setChosen( lidx, false );
 
 	    linenmsset_.removeSingle( selitem );
+	    if ( !lnmfld_->isEmpty() )
+		filterPosProv( true );
 	}
     }
 }
@@ -257,12 +267,50 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     lnmfld_->setEmpty();
 
     BufferStringSet linenames; getLineNames( linenames );
+    for ( const auto linenm : linenames )
+	lnmfld_->addItem( toUiString(*linenm) );
 
-    for ( int lidx=0; lidx<linenames.size(); lidx++ )
+    lnmfld_->chooseAll( false );
+    if ( !lnmfld_->isEmpty() )
     {
-	lnmfld_->addItem( toUiString(linenames.get(lidx)) );
-	lnmfld_->setChosen( lidx, false );
+	lnmfld_->setCurrentItem(0);
+	filterPosProv( false );
     }
+
+    lnmfld_->scrollToTop();
+}
+
+
+void uiAttribCrossPlot::filterPosProv( bool chosen )
+{
+    if ( !lnmfld_ ) return;
+
+    BufferStringSet linenames;
+    if ( chosen )
+	lnmfld_->getChosen( linenames );
+    else
+	lnmfld_->getItems( linenames );
+
+    if ( linenames.isEmpty() )
+	return;
+
+    IOPar parsel;
+    posprovfld_->fillPar( parsel );
+    LineSubSelSet lsss( parsel );
+    GeomIDSet geomids;
+    for ( const auto linenm : linenames )
+    {
+	const Pos::GeomID gid = Survey::GM().getGeomID(*linenm);
+	if ( !lsss.includes(gid) )
+	    lsss.add( new LineSubSel(gid) );
+	geomids.add( gid );
+    }
+
+    lsss.limitTo( geomids );
+    parsel.setEmpty();
+    parsel.set( sKey::Type(), sKey::Range() );
+    lsss.fillPar( parsel );
+    posprovfld_->usePar( parsel );
 }
 
 

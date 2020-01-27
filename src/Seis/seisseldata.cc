@@ -97,6 +97,8 @@ Seis::SelData* Seis::SelData::get( const IOPar& iop, const SurveyInfo* si )
     const Type t = selTypeOf( iop.find(sKey::Type()) );
     SelData* sd = get( t );
     sd->usePar( iop, si );
+    if ( sd->asRange() && sd->asRange()->fullSubSel().nrGeomIDs() < 1 )
+	deleteAndZeroPtr(sd);
     return sd;
 }
 
@@ -110,17 +112,8 @@ Seis::SelData* Seis::SelData::get( const DBKey& dbky )
     const SeisIOObjInfo objinf( *ioobj );
     if ( objinf.isOK() )
     {
-	if ( !objinf.is2D() )
-	{
-	    PtrMan<Survey::GeomSubSel> ss = objinf.getSurvSubSel();
-	    return new RangeSelData( *ss );
-	}
-	Seis2DDataSet ds2d( *objinf.ioObj() );
-	const auto nrlns = ds2d.nrLines();
-	LineSubSelSet lsss;
-	for ( auto iln=0; iln<nrlns; iln++ )
-	    lsss += new LineSubSel( ds2d.geomID(iln) );
-	return new RangeSelData( lsss );
+	PtrMan<Survey::FullSubSel> ss = objinf.getSurvSubSel();
+	return new RangeSelData( *ss );
     }
 
     if ( ioobj->group() == mTranslGroupName(PosVecDataSet) )

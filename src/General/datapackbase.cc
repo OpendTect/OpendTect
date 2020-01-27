@@ -384,16 +384,20 @@ OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
 {
     const Array3D<float>* array = arrays_[comp];
     const auto* stor = array ? array->getStorage() : nullptr;
-    od_int64 offs = 0;
+    od_int64 offs = 0; od_int64 zsz;
     if ( stor )
-	offs = (od_int64)globaltrcidx * array->getSize( 2 );
+    {
+	zsz = array->getSize( 2 );
+	offs = (od_int64)globaltrcidx * zsz;
+    }
     else
     {
-	static Array3DImpl<float> dummy( 1, 1, 1 );
+	zsz = 1;
+	static Array3DImpl<float> dummy( 1, 1, zsz );
 	stor = dummy.getStorage();
     }
 
-    return OffsetValueSeries<float>( *stor, offs );
+    return OffsetValueSeries<float>( *stor, offs, zsz );
 }
 
 

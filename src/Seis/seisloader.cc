@@ -930,8 +930,13 @@ bool Seis::SequentialFSLoader::init()
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
     const SeisIOObjInfo& seisinfo = seissummary_->ioObjInfo();
-    PtrMan<GeomSubSel> usess = reqss_->duplicate();
-    PtrMan<GeomSubSel> avss = seisinfo.getSurvSubSel();
+    PtrMan<Survey::GeomSubSel> usess = reqss_->duplicate();
+    PtrMan<Survey::GeomSubSel> avss = seisinfo.getGeomSubSel( geomid );
+    if ( !usess || !avss )
+    {
+	pErrMsg("Invalid sub-selection");
+	return false;
+    }
     usess->limitTo( *avss );
 
     const DataCharacteristics datasetdc( seissummary_->dataChar() );
@@ -1137,8 +1142,8 @@ Seis::SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
 
     if ( !prov_->is2D() && linerg )
     {
-	SeisIOObjInfo info( ioobj );
-	PtrMan<GeomSubSel> avss = info.getSurvSubSel();
+	const SeisIOObjInfo info( ioobj );
+	PtrMan<Survey::GeomSubSel> avss = info.getGeomSubSel( geomid );
 	Seis::RangeSelData* seldata = new Seis::RangeSelData( *avss );
 	seldata->setInlRange( *linerg );
 	prov_->setSelData( seldata );

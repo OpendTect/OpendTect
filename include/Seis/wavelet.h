@@ -107,6 +107,7 @@ public:
     virtual void	setValue(od_int64 idx,ValueType);
     virtual ValueType*	arr();
     virtual const ValueType* arr() const;
+    od_int64		size() const override	{ return wv_->size(); }
 
     inline ValueSeries<ValueType>*  clone() const
 			{ return new WaveletValueSeries( *wv_ ); }

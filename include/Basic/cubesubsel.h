@@ -97,6 +97,9 @@ public:
 			{ return hss_.binID4RowCol( rc ); }
     RowCol		rowCol4BinID( const BinID& bid ) const
 			{ return hss_.rowCol4BinID( bid ); }
+    bool		getIntersection(const CubeSubSel& oth,
+					CubeSubSel&) const;
+    void		normalise();
 
     void		setInlRange( const pos_steprg_type& rg )
 			{ inlSubSel().setOutputPosRange( rg ); }

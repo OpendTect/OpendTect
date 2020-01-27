@@ -58,6 +58,7 @@ public:
 
     Type		type() const override	{ return Range; }
     bool		is2D() const override	{ return fss_.is2D(); }
+    size_type		nrGeomIDs() const override;
 
     PosIter*		posIter() const override;
     pos_rg_type		inlRange() const override;

@@ -73,6 +73,9 @@ public:
     bool		includes(const Bin2D&) const;
     void		merge(const LineHorSubSel&);
     void		limitTo(const LineHorSubSel&);
+    bool		getIntersection(const LineHorSubSel&,
+					LineHorSubSel&) const;
+    void		normalise();
     void		addStepout( trcnr_type so )
 			{ trcNrSubSel().addStepout(so); }
 
@@ -229,6 +232,9 @@ public:
 
     void		merge(const CubeHorSubSel&);
     void		limitTo(const CubeHorSubSel&);
+    bool		getIntersection(const CubeHorSubSel&,
+					CubeHorSubSel&) const;
+    void		normalise();
     void		addStepout(pos_type,pos_type);
 
     pos_type		inlStart() const { return inlRange().start; }

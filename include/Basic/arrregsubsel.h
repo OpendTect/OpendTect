@@ -265,7 +265,8 @@ public:
     inline idx_type	subSelIdx( idx_type idim, idx_type i ) const
 			{ return ssData(idim).subSelIdx(i); }
     inline bool		validIdxs( idx_type i0, idx_type i1 ) const
-			{ return i0 < size(0) && i1 < size(1); }
+			{ return i0> -1 && i1 > -1 &&
+				 i0 < size(0) && i1 < size(1); }
     inline bool		isSelectedArrIdx( idx_type idim, idx_type i ) const
 			{ return ssData(idim).isSelectedArrIdx(i); }
 
@@ -362,7 +363,8 @@ public:
     inline size_type	size2D() const
 			{ return size( 0 ) * size( 1 ); }
     inline bool		validIdxs( idx_type i0, idx_type i1, idx_type i2 ) const
-			{ return i0 < size(0) && i1 < size(1) && i2 < size(2); }
+			{ return i0 > -1 && i1 > -1 && i2 > -1 &&
+				 i0 < size(0) && i1 < size(1) && i2 < size(2); }
 
     void		clearSubSel( size_type sz0, size_type sz1,
 				     size_type sz2 )

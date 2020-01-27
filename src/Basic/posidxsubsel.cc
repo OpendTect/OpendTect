@@ -28,6 +28,15 @@ bool Pos::IdxSubSelData::operator ==( const Pos::IdxSubSelData& oth ) const
 }
 
 
+bool Pos::IdxSubSelData::sameOutputPosRange( const Pos::IdxSubSelData& oth
+									) const
+{
+    const pos_steprg_type thisrg( outputPosRange() );
+    const pos_steprg_type othrg( oth.outputPosRange() );
+    return thisrg == othrg;
+}
+
+
 bool Pos::IdxSubSelData::hasFullRange() const
 {
     return posStart() == inpposrg_.start && posStop() == inpposrg_.stop;

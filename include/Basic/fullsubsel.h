@@ -132,7 +132,7 @@ public:
     bool		isFlat() const;
     bool		isZSlice() const;
 
-    void		setToNone(bool for2d);
+    void		setEmpty();
     void		setToAll(bool for2d);
     void		setFull(GeomID);
     void		set(const CubeHorSubSel&);

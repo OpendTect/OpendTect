@@ -973,7 +973,8 @@ void Horizon3D::updateNodeSourceArray( const TrcKeySampling hs,
     newnodes->setAll( (char)None );
 
     Array2D<char>*& arr = getNodeSourceArray( arrtype );
-    Array2DCopier<char> nodescopier( *arr, *newnodes, CubeHorSubSel(curhs),
+    CubeHorArrayCopier<char> nodescopier( *arr, *newnodes,
+				     CubeHorSubSel(curhs),
 				     CubeHorSubSel(hs) );
     if ( nodescopier.execute() )
     {

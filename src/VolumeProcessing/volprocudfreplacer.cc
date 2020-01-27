@@ -117,8 +117,8 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 	Array3D<float>& out = output->data( icomp );
 	if ( !canInputAndOutputBeSame() )
 	{
-	    Array3DCopier<float>* copier =
-		new Array3DCopier<float>( input->data(icomp), out,
+	    auto* copier =
+		new CubeArrayCopier<float>( input->data(icomp), out,
 		      *input->subSel().asCubeSubSel(),
 		      *output->subSel().asCubeSubSel() );
 	    tasks->addTask( copier );
@@ -126,12 +126,9 @@ ReportingTask* VolProc::UdfReplacer::createTask()
 		continue;
 	}
 
-	auto* task = new ArrayUdfValReplacer<float>( out );
+	auto* task = new ArrayUdfValReplacer<float>( out, nullptr );
 	task->setReplacementValue( replval_ );
-	const auto* posns = output->tracePositions();
-	if ( posns && !posns->isLinesData() )
-	    task->setPositions( *posns->asCubeData(),
-				*output->horSubSel().asCubeHorSubSel() );
+	task->setSampling( output->horSubSel(), output->tracePositions() );
 	tasks->addTask( task );
     }
 

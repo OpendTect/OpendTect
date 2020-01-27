@@ -95,7 +95,7 @@ public:
     float		value(od_int64) const;
     bool		writable() const		{ return true; }
     const float*	arr() const;
-
+    od_int64		size() const override;
 
 private:
 

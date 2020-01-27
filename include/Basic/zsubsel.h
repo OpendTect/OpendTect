@@ -33,6 +33,7 @@ public:
 		ZSubSelData(const z_steprg_type&);
     bool	operator ==(const ZSubSelData&) const;
 		mImplSimpleIneqOper(ZSubSelData)
+    bool	sameOutputPosRange(const ZSubSelData&) const;
     bool	includes(z_type) const;
     bool	includes(const ZSubSelData&) const;
 
@@ -88,6 +89,8 @@ public:
 			    : ssdata_(rg)	{}
     explicit		ZSubSel(GeomID);
 			mImplSimpleEqOpers1Memb(ZSubSel,ssdata_)
+    bool		sameOutputPosRange( const ZSubSel& oth ) const
+			{ return ssdata_.sameOutputPosRange(oth.ssdata_); }
     bool		includes( const ZSubSel& oth ) const
 			{ return ssdata_.includes( oth.ssdata_ ); }
 
@@ -201,7 +204,7 @@ public:
     void		setFull(GeomID,const SurveyInfo* si=nullptr);
     void		set(const ZSubSel&);		//!< 3D
     void		set(GeomID,const ZSubSel&);
-    void		setToNone(bool is2d,const SurveyInfo* si=nullptr);
+    void		setEmpty();
     void		remove(idx_type);
     void		remove(GeomID);
 

@@ -140,8 +140,8 @@ public:
 
 protected:
 
-    char*		buf_;
-    size_type		len_;
+    char*		buf_	= nullptr;;
+    size_type		len_	= 0;
     const size_type	minlen_;
 
     BufferString&	assignTo(const char*);
@@ -240,7 +240,9 @@ template <class T> inline BufferString& BufferString::set( const T& t )
 { setEmpty(); return add( t ); }
 
 /*!
-\brief A StringPair has two strings, first() and second(). The getCompString() function concatanates the two strings with the pipe character ('|') in between.
+\brief A StringPair has two strings, first() and second().
+The getCompString() function concatanates the two strings with the pipe
+character ('|') in between.
 */
 
 mExpClass(Basic) StringPair

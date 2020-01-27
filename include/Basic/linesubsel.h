@@ -74,6 +74,9 @@ public:
 			{ hss_.clearSubSel(); zss_.clearSubSel(); }
     void		merge(const LineSubSel&);
     void		limitTo(const LineSubSel&);
+    bool		getIntersection(const LineSubSel& oth,
+					LineSubSel&) const;
+    void		normalise();
 
     LineHorSubSel&	lineHorSubSel()		{ return hss_; }
     const LineHorSubSel& lineHorSubSel() const	{ return hss_; }
@@ -114,6 +117,7 @@ public:
     mUseType( LineSubSel,	trcnr_type );
 
 			LineSubSelSet()		{}
+			LineSubSelSet(const IOPar&);
 			LineSubSelSet(const LineHorSubSelSet&);
     bool		operator ==(const LineSubSelSet&) const;
 			mImplSimpleIneqOper(LineSubSelSet)
@@ -124,8 +128,11 @@ public:
     bool		hasAllLines() const;
     bool		hasFullRange() const;
     bool		hasFullZRange() const;
+    void		fillPar(IOPar&) const;
+
     void		merge(const LineSubSelSet&);
     void		limitTo(const LineSubSelSet&);
+    void		limitTo(const GeomIDSet&);
     void		addStepout(trcnr_type);
     void		clearSubSel();
 

@@ -134,7 +134,7 @@ public:
 
     bool		overlaps(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
-    bool		getInterSection(const TrcKeySampling&,
+    bool		getIntersection(const TrcKeySampling&,
 					TrcKeySampling&) const;
 			    //!< Returns false if intersection is empty
 

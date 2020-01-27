@@ -30,6 +30,7 @@
 #include "seistrc.h"
 #include "statrand.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 #include "uiaxishandler.h"
 #include "uibuttongroup.h"

@@ -507,7 +507,7 @@ bool Seis::MultiProvider3D::getRanges( TrcKeyZSampling& sampling ) const
 	else if ( policy_ != RequireAll )
 	    sampling.hsamp_.include( tks );
 	else
-	    sampling.hsamp_.getInterSection( tks, sampling.hsamp_ );
+	    sampling.hsamp_.getIntersection( tks, sampling.hsamp_ );
 
 	mUpdateRange( sampling.zsamp_, prov.zRange(), zpolicy_==Maximum );
     }
