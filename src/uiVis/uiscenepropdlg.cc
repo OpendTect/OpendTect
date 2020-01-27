@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "visscenecoltab.h"
 #include "vissurvscene.h"
 
+#include "cubesubsel.h"
 #include "datainpspec.h"
 #include "fontdata.h"
 #include "od_helpids.h"

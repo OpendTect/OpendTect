@@ -367,7 +367,7 @@ void PluginManager::openALOEntries()
     for ( auto dataptr : data_ )
     {
 	Data& data = *dataptr;
-	data.sla_ = 0;
+	deleteAndZeroPtr( data.sla_ );
 	if ( data.autosource_ == Data::None )
 	    continue;
 
@@ -377,15 +377,14 @@ void PluginManager::openALOEntries()
 	    if ( !data.sla_->errMsg().isEmpty() )
 		ErrMsg( data.sla_->errMsg() );
 
-	    delete data.sla_; data.sla_ = 0;
-
+	    deleteAndZeroPtr( data.sla_ );
 	    if ( data.autosource_ == Data::Both )
 	    {
 		data.autosource_ = data.autosource_ == Data::UserDir
 				    ? Data::AppDir : Data::UserDir;
 		data.sla_ = new SharedLibAccess( getFileName(data) );
 		if ( !data.sla_->isOK() )
-		    { delete data.sla_; data.sla_ = 0; }
+		    { deleteAndZeroPtr( data.sla_ ); }
 	    }
 	}
 

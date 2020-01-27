@@ -47,37 +47,26 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , hrgfld_(nullptr)
-    , zrgfld_(nullptr)
-    , nrrgfld_(nullptr)
-    , samplingfld_(nullptr)
-    , nrsamplesfld_(nullptr)
+    , geomChanged(this)
     , setup_(su)
 {
     uiObject* attobj = nullptr;
+    const Survey::FullSubSel& fss = su.fss_;
     if ( su.is2d_ )
     {
-	nrrgfld_ =
-	    new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
-	nrrgfld_->setRange( su.tkzs_.hsamp_.crlRange() );
-	mAttachCB( nrrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
-	attobj = nrrgfld_->attachObj();
+	const LineSubSelSet lsss( fss.lineSubSelSet() );
+	linergsfld_ = new uiSelSublineSet( this, su.withstep_, su.withz_,&lsss);
+	mAttachCB( linergsfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
+	mAttachCB( linergsfld_->geomChanged, uiRangePosProvGroup::lineChgCB );
+	attobj = linergsfld_->attachObj();
     }
     else
     {
-	hrgfld_ = new uiSelHRange( this, su.tkzs_.hsamp_, su.withstep_ );
-	mAttachCB( hrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
-	attobj = hrgfld_->attachObj();
-    }
-
-    if ( setup_.withz_ )
-    {
-	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
-				   uiString(), su.zdomkey_ );
-	mAttachCB( zrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
-	if ( attobj )
-	    zrgfld_->attach( alignedBelow, attobj );
-	attobj = zrgfld_->attachObj();
+	const CubeSubSel css( fss.cubeSubSel() );
+	volrgfld_ = new uiSelSubvol( this, su.withstep_, setup_.withz_,
+				     su.zdomkey_, &css );
+	mAttachCB( volrgfld_->rangeChanged, uiRangePosProvGroup::rangeChgCB );
+	attobj = volrgfld_->attachObj();
     }
 
     if ( !su.is2d_ && su.withrandom_ )
@@ -107,9 +96,11 @@ uiRangePosProvGroup::~uiRangePosProvGroup()
 }
 
 
-void uiRangePosProvGroup::initGrp( CallBacker* )
+void uiRangePosProvGroup::initGrp( CallBacker* cb )
 {
-    samplingCB( nullptr );
+    if ( volrgfld_ )
+	geomChanged.trigger( Pos::GeomID::get3D() );
+    samplingCB( cb );
 }
 
 
@@ -121,25 +112,13 @@ bool uiRangePosProvGroup::hasRandomSampling() const
 
 void uiRangePosProvGroup::usePar( const IOPar& iop )
 {
-    TrcKeyZSampling cs; getTrcKeyZSampling( cs );
-    cs.usePar( iop );
+    Survey::FullSubSel fss; getSubSel( fss );
+    fss.usePar( iop );
+    if ( volrgfld_ && fss.is3D() )
+	volrgfld_->setSampling( fss.cubeSubSel() );
+    else if ( linergsfld_ && !fss.is3D() )
+	linergsfld_->setSampling( fss.lineSubSelSet() );
 
-    if ( hrgfld_ )
-	hrgfld_->setSampling( cs.hsamp_ );
-    if ( zrgfld_ )
-	zrgfld_->setRange( cs.zsamp_ );
-    if ( nrrgfld_ )
-    {
-	StepInterval<int> trcrg = cs.hsamp_.crlRange();
-	iop.get( IOPar::compKey(sKey::TrcRange(),0), trcrg );
-	nrrgfld_->setRange( trcrg );
-	if ( zrgfld_ )
-	{
-	    StepInterval<float> zrg = cs.zsamp_;
-	    iop.get( IOPar::compKey(sKey::ZRange(),0), zrg );
-	    zrgfld_->setRange( zrg );
-	}
-    }
     if	( samplingfld_ )
     {
 	bool random = true;
@@ -159,93 +138,115 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
 bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Range() );
+    Survey::FullSubSel fss; getSubSel( fss );
+    fss.fillPar( iop );
 
     const bool dorandom = samplingfld_ && samplingfld_->getBoolValue();
     iop.setYN( sKey::Random(), dorandom );
     if ( dorandom )
 	iop.set( sKey::NrValues(), nrsamplesfld_->getIntValue() );
 
-    TrcKeyZSampling cs; getTrcKeyZSampling( cs );
-
-    if ( setup_.is2d_ )
-    {
-	iop.set( IOPar::compKey(sKey::TrcRange(),0), cs.hsamp_.crlRange() );
-	if ( setup_.withz_ )
-	    iop.set( IOPar::compKey(sKey::ZRange(),0), cs.zsamp_ );
-
-	return true;
-    }
-
-    cs.fillPar( iop );
     return true;
 }
 
 
 void uiRangePosProvGroup::getSummary( uiString& txt ) const
 {
-    TrcKeyZSampling cs; getTrcKeyZSampling( cs );
     txt.appendPhrase( setup_.withz_ ? tr("Sub-volume") : tr("Sub-area"),
 				    uiString::Space, uiString::OnSameLine );
 }
 
 
-static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
+static void getExtrDefZSubSel( Pos::ZSubSel& zss )
 {
-    int nrsamps = cs.zsamp_.nrSteps() + 1;
-    if ( nrsamps > 2000 ) cs.zsamp_.step *= 1000;
-    else if ( nrsamps > 200 ) cs.zsamp_.step *= 100;
-    else if ( nrsamps > 20 ) cs.zsamp_.step *= 10;
-    else if ( nrsamps > 10 ) cs.zsamp_.step *= 5;
-    nrsamps = cs.zsamp_.nrSteps() + 1;
+    ZSampling zsamp = zss.zRange();
+    int nrsamps = zsamp.nrSteps() + 1;
+    if ( nrsamps > 2000 ) zsamp.step *= 1000;
+    else if ( nrsamps > 200 ) zsamp.step *= 100;
+    else if ( nrsamps > 20 ) zsamp.step *= 10;
+    else if ( nrsamps > 10 ) zsamp.step *= 5;
+    nrsamps = zsamp.nrSteps() + 1;
+    zss.setOutputZRange( zsamp );
+}
 
-    const int nrextr = mCast( int, cs.hsamp_.totalNr() * nrsamps );
-    int blocks = nrextr / 50000;
-    float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
-    int stepfac = mNINT32(fstepfac);
-    cs.hsamp_.step_.inl() *= stepfac;
-    cs.hsamp_.step_.crl() *= stepfac;
+
+static void getExtrDefHorSubSel( int nrzsamps, Survey::HorSubSel& hss )
+{
+    CubeHorSubSel* chss = hss.asCubeHorSubSel();
+    if ( chss )
+    {
+	const int nrextr = mCast( int, hss.totalSize() * nrzsamps );
+	int blocks = nrextr / 50000;
+	float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
+	int stepfac = mNINT32(fstepfac);
+	auto inlrg = chss->inlRange();
+	auto crlrg = chss->crlRange();
+	inlrg.step *= stepfac;
+	crlrg.step *= stepfac;
+	chss->setInlRange( inlrg );
+	chss->setCrlRange( crlrg );
+    }
+    else
+    {
+	LineHorSubSel* lhss = hss.asLineHorSubSel();
+	if ( !lhss )
+	    return;
+	auto trcrg = lhss->trcNrRange();
+	trcrg.step = 10;
+	lhss->setTrcNrRange( trcrg );
+    }
 }
 
 
 void uiRangePosProvGroup::setExtractionDefaults()
 {
-    TrcKeyZSampling cs( true ); getExtrDefTrcKeyZSampling( cs );
-    if ( hrgfld_ )
-	hrgfld_->setSampling( cs.hsamp_ );
-    if ( nrrgfld_ )
+    Survey::FullSubSel fss; getSubSel( fss );
+    for ( int idx=0; idx<fss.nrGeomIDs(); idx++ )
     {
-	StepInterval<int> rg( nrrgfld_->getRange() );
-	rg.step = 10;
-	nrrgfld_->setRange( rg );
+	Pos::ZSubSel& zss = fss.zSubSel(idx);
+	getExtrDefZSubSel( zss );
+	const int nrzsamps = zss.zRange().nrSteps()+1;
+	Survey::HorSubSel& hss = fss.horSubSel(idx);
+	getExtrDefHorSubSel( nrzsamps, hss );
     }
-    zrgfld_->setRange( cs.zsamp_ );
+
+    if ( volrgfld_ && fss.is3D() )
+	volrgfld_->setSampling( fss.cubeSubSel() );
+    else if ( linergsfld_ && fss.is2D() )
+	linergsfld_->setSampling( fss.lineSubSelSet() );
 }
 
 
-void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
+void uiRangePosProvGroup::getSubSel( Survey::FullSubSel& fss ) const
 {
-    cs = TrcKeyZSampling( OD::UsrWork );
-    BinID hsampStep = cs.hsamp_.step_;
-    Pos::Z_Type zsampStep = cs.zsamp_.step;
-
-    if ( hrgfld_ )
-	cs.hsamp_ = TrcKeySampling( CubeHorSubSel(hrgfld_->getSampling()) );
-    else if ( nrrgfld_ )
+    if ( setup_.is2d_ )
     {
-	auto gid = setup_.tkzs_.hsamp_.getGeomID();
-	if ( !gid.isValid() )
-	    { pErrMsg("GeomID required"); gid = Pos::GeomID::getDefault2D(); }
-	LineHorSubSel lhss( gid );
-	lhss.setTrcNrRange( nrrgfld_->getRange() );
-	cs.hsamp_ = TrcKeySampling( lhss );
+	fss.setEmpty();
+	fss.set( linergsfld_->getSampling() );
     }
-
-    if ( zrgfld_ )
-	cs.zsamp_ = zrgfld_->getRange();
-
-    if ( hasRandomSampling() ) {
-	cs.hsamp_.step_ = hsampStep;
-	cs.zsamp_.step = zsampStep;
+    else
+    {
+	fss = CubeSubSel( OD::UsrWork );
+	BinID hsampStep( fss.cubeHorSubSel().inlStep(),
+			 fss.cubeHorSubSel().crlStep() );
+	Pos::Z_Type zsampStep = fss.zRange().step;
+	auto css = volrgfld_->getSampling();
+	if ( hasRandomSampling() )
+	{
+	    CubeHorSubSel& chss = css.cubeHorSubSel();
+	    auto inlrg = chss.inlRange();
+	    inlrg.step = hsampStep.inl();
+	    auto crlrg = chss.crlRange();
+	    crlrg.step = hsampStep.crl();
+	    chss = CubeHorSubSel( inlrg, crlrg );
+	    if ( volrgfld_->hasZ() )
+	    {
+		ZSampling zrg( volrgfld_->getZRange() );
+		zrg.step = zsampStep;
+		css.setZRange( zrg );
+	    }
+	}
+	fss.set( css );
     }
 }
 
@@ -263,22 +264,29 @@ void uiRangePosProvGroup::rangeChgCB( CallBacker* )
 }
 
 
+void uiRangePosProvGroup::lineChgCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(Pos::GeomID,gid,cb);
+    geomChanged.trigger( gid );
+}
+
+
 void uiRangePosProvGroup::samplingCB( CallBacker* )
 {
     if ( !samplingfld_ )
 	return;
 
-    bool showstep = !samplingfld_->getBoolValue();
-    if ( hrgfld_ )
-	hrgfld_->displayStep( showstep );
-    if ( zrgfld_ )
-	zrgfld_->displayStep( showstep );
-    if ( nrrgfld_ )
-	nrrgfld_->displayStep( showstep );
+    const bool showstep = !samplingfld_->getBoolValue();
+    if ( volrgfld_ )
+	volrgfld_->displayStep( showstep );
+    if ( linergsfld_ )
+	linergsfld_->displayStep( showstep );
     if ( nrsamplesfld_ )
 	nrsamplesfld_->display( !showstep );
+
     posProvGroupChg.trigger();
 }
+
 
 
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
@@ -396,6 +404,24 @@ void uiPolyPosProvGroup::getSummary( uiString& txt ) const
     if ( ioobj )
 	txt.appendPhrase( toUiString("'%1'").arg(toUiString(ioobj->name())),
 				uiString::Space, uiString::OnSameLine );
+}
+
+
+static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
+{
+    int nrsamps = cs.zsamp_.nrSteps() + 1;
+    if ( nrsamps > 2000 ) cs.zsamp_.step *= 1000;
+    else if ( nrsamps > 200 ) cs.zsamp_.step *= 100;
+    else if ( nrsamps > 20 ) cs.zsamp_.step *= 10;
+    else if ( nrsamps > 10 ) cs.zsamp_.step *= 5;
+    nrsamps = cs.zsamp_.nrSteps() + 1;
+
+    const int nrextr = mCast( int, cs.hsamp_.totalNr() * nrsamps );
+    int blocks = nrextr / 50000;
+    float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
+    int stepfac = mNINT32(fstepfac);
+    cs.hsamp_.step_.inl() *= stepfac;
+    cs.hsamp_.step_.crl() *= stepfac;
 }
 
 

@@ -632,12 +632,12 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	TrcKeyZSampling curcs;
 	curcs.zsamp_.setFrom( SI().zRange(OD::UsrWork) );
 	curcs.hsamp_.set( section->displayedRowRange(),
-		       section->displayedColRange() );
+			  section->displayedColRange() );
 
 	uiPosProvider::Setup setup( false, true, false );
 	setup.allownone_ = true;
 	setup.seltxt( tr("Area subselection") );
-	setup.tkzs_ = maxcs;
+	setup.fss_ = Survey::FullSubSel( maxcs );
 
 	uiDialog dlg( getUiParent(),
 	uiDialog::Setup( uiStrings::sPosition(mPlural),

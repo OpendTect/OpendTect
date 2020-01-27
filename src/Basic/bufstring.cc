@@ -48,6 +48,7 @@ BufferString::BufferString( const BufferString& bs )
 {
     if ( !bs.buf_ || !bs.len_ ) return;
 
+    delete [] buf_; //memcheck false positive?
     mTryAlloc( buf_, char [bs.len_] );
     if ( buf_ )
     {
@@ -232,24 +233,26 @@ bool BufferString::setBufSize( size_type newlen )
     if ( buf_ && newlen == len_ )
 	return true;
 
-    char* oldbuf = buf_;
-    mTryAlloc( buf_, char [newlen] );
-    if ( !buf_ )
-	{ buf_ = oldbuf; return false; }
-    else if ( !oldbuf )
-	*buf_ = '\0';
+    mDeclareAndTryAlloc(char*,newbuf,char [newlen] );
+    if ( !newbuf )
+	return false;
+    else if ( !buf_ )
+    {
+	*newbuf = '\0';
+    }
     else
     {
-	size_type newsz = (oldbuf ? strLength( oldbuf ) : 0) + 1;
+	size_type newsz = (buf_ ? strLength( buf_ ) : 0) + 1;
 	if ( newsz > newlen )
 	{
 	    newsz = newlen;
-	    oldbuf[newsz-1] = '\0';
+	    buf_[newsz-1] = '\0';
 	}
-	OD::sysMemCopy( buf_, oldbuf, newsz );
+	OD::sysMemCopy( newbuf, buf_, newsz );
     }
 
-    delete [] oldbuf;
+    delete [] buf_;
+    buf_ = newbuf;
     len_ = newlen;
 
     return true;

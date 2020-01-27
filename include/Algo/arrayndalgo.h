@@ -14,11 +14,15 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "arrayndimpl.h"
 #include "coord.h"
+#include "cubedata.h"
+#include "cubesubsel.h"
 #include "enums.h"
-#include "horsubsel.h"
+#include "linesdata.h"
+#include "linesubsel.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
-#include "cubedata.h"
+#include "posinfo.h"
+#include "survsubsel.h"
 #include "uistrings.h"
 #include "valseries.h"
 
@@ -1283,318 +1287,6 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 }
 
 
-/*!\brief Transfers the common samples from one 2D array to another */
-
-template <class T>
-mClass(Algo) Array2DCopier : public ParallelTask
-{ mODTextTranslationClass(Array2DCopier)
-public:
-
-Array2DCopier( const Array2D<T>& in, Array2D<T>& out,
-		const ArrRegSubSel2D& ssin, const ArrRegSubSel2D& ssout )
-    : in_(in)
-    , out_(out)
-    , ssin_(ssin)
-    , ssout_(ssout)
-    , nr1dslices_(in_.isEmpty() || out_.isEmpty() ? 0 : ssin.size(0))
-    , alreadycopied_(false)
-{
-    if ( nr1dslices_ < 1 || usePlainCopy() )
-    {
-	if ( nr1dslices_ > 0 )
-	    OD::memCopy( out_.getData(), in_.getData(),
-			 in_.totalSize() * sizeof(T) );
-	alreadycopied_ = true;
-    }
-}
-
-uiString nrDoneText() const override
-{
-    return uiStrings::sPositionsDone();
-}
-
-uiString message() const override
-{
-    return tr("Copying data");
-}
-
-protected:
-
-od_int64 totalNr() const override
-{
-    return ssin_.totalSize();
-}
-
-od_int64 nrIterations() const override
-{
-    return usePlainCopy() ? 0 : nr1dslices_;
-}
-
-bool usePlainCopy() const
-{
-    const auto sz0 = in_.getSize( 0 );
-    const auto sz1 = in_.getSize( 1 );
-    return ssin_.isAll(sz0,sz1) && ssout_.isAll(sz0,sz1)
-	&& in_.info() == out_.info()
-	&& in_.getData() && out_.getData();
-}
-
-bool doWork( od_int64 start, od_int64 stop, int ) override
-{
-    if ( alreadycopied_ )
-	return true;
-
-    ArrRegSubSel2DIterator iter( ssin_ );
-    iter.startAt( (int)start, 0 );
-    auto previdx1 = iter.idx1_;
-    while ( iter.next() )
-    {
-	if ( iter.idx1_ != previdx1 )
-	{
-	    addToNrDone( ssin_.size(1) );
-	    previdx1 = iter.idx1_;
-	}
-	if ( iter.idx1_ > stop )
-	    break;
-
-	const auto i0 = iter.arrIdx( 0 );
-	const auto i1 = iter.arrIdx( 1 );
-	if ( ssout_.isSelectedArrIdx(0,i0) && ssout_.isSelectedArrIdx(1,i1) )
-	{
-	    const T val = in_.get( i0, i1 );
-	    out_.set( ssout_.subSelIdx(0,i0), ssout_.subSelIdx(1,i1), val );
-	}
-    }
-
-    return true;
-}
-
-    const Array2D<T>&		in_;
-    Array2D<T>&			out_;
-    const ArrRegSubSel2D&	ssin_;
-    const ArrRegSubSel2D&	ssout_;
-    const int			nr1dslices_;
-    bool			alreadycopied_;
-
-};
-
-
-/*!\brief Transfers the common samples from one 3D array to another */
-
-template <class T>
-mClass(Algo) Array3DCopier : public ParallelTask
-{ mODTextTranslationClass(Array3DCopier)
-public:
-
-Array3DCopier( const Array3D<T>& in, Array3D<T>& out,
-		const ArrRegSubSel3D& ssin, const ArrRegSubSel3D& ssout )
-    : ParallelTask("Array 3D Copier")
-    , ssin_(ssin)
-    , ssout_(ssout)
-    , nr2dslices_(in_.isEmpty() || out_.isEmpty() ? 0 : ssin.size(0))
-    , in_(in)
-    , out_(out)
-    , alreadycopied_(false)
-{
-    if ( nr2dslices_ < 1 || usePlainCopy() )
-    {
-	if ( nr2dslices_ > 0 )
-	    OD::memCopy( out_.getData(), in_.getData(),
-			 in_.totalSize() * sizeof(T) );
-	alreadycopied_ = true;
-    }
-}
-
-uiString message() const override	{ return tr("Copying data"); }
-uiString nrDoneText() const override	{ return uiStrings::sPositionsDone(); }
-
-protected:
-
-bool usePlainCopy() const
-{
-    const auto sz0 = in_.getSize( 0 );
-    const auto sz1 = in_.getSize( 1 );
-    const auto sz2 = in_.getSize( 2 );
-    return ssin_.isAll(sz0,sz1,sz2) && ssout_.isAll(sz0,sz1,sz2)
-	&& in_.info() == out_.info()
-	&& in_.getData() && out_.getData();
-}
-
-od_int64 nrIterations() const override
-{
-    return nr2dslices_;
-}
-
-od_int64 totalNr() const override
-{
-    return ssin_.totalSize();
-}
-
-
-bool doWork( od_int64 start, od_int64 stop, int )
-{
-    if ( alreadycopied_ )
-	return true;
-
-    ArrRegSubSel3DIterator iter( ssin_ );
-    iter.startAt( (int)start, 0 );
-    auto previdx0 = iter.idx0_;
-    while ( iter.next() )
-    {
-	if ( iter.idx0_ != previdx0 )
-	{
-	    addToNrDone( ssin_.size2D() );
-	    previdx0 = iter.idx0_;
-	}
-	if ( iter.idx0_ > stop )
-	    break;
-
-	const auto i0 = iter.arrIdx( 0 );
-	const auto i1 = iter.arrIdx( 1 );
-	const auto i2 = iter.arrIdx( 2 );
-	if ( ssout_.validIdxs(i0,i1,i2) )
-	{
-	    const T val = in_.get( i0, i1, i2 );
-	    out_.set( ssout_.arrIdx(0,i0), ssout_.arrIdx(1,i1),
-		      ssout_.arrIdx(2,i2), val );
-	}
-    }
-
-    return true;
-}
-
-    const Array3D<T>&		in_;
-    Array3D<T>&			out_;
-    const ArrRegSubSel3D&	ssin_;
-    const ArrRegSubSel3D&	ssout_;
-    const od_int64		nr2dslices_;
-    bool			alreadycopied_;
-
-};
-
-
-/*!
-  \brief Polynomial trend with order 0 (mean), 1 (linear) or 2 (parabolic)
-  The trend is derived from a set of values with positions
-  and can be applied thereafter on any other position
-*/
-
-mExpClass(Algo) PolyTrend
-{ mODTextTranslationClass(PolyTrend);
-public:
-				PolyTrend();
-
-    bool			operator==(const PolyTrend&) const;
-
-				enum Order	{ None, Order0, Order1, Order2};
-				mDeclareEnumUtils(Order)
-
-    static const char*		sKeyOrder()	{ return "Polynomial Order"; }
-    static bool			getOrder(int nrpoints,Order&,uiString* =0);
-
-    void			setOrder( PolyTrend::Order t )	{ order_ = t; }
-    template <class IDXABLE> bool	set(const TypeSet<Coord>&,
-					    const IDXABLE& valuelistj);
-				/*!< Use after the order is set!
-				     Sets the trend from a list of values
-				     tied to a list of coordinates */
-
-    Order			getOrder() const	{ return order_; }
-
-    template <class T> void	apply(const Coord& pos,bool dir,T&) const;
-				/*!<Applies the trend to a value tied to
-				    a position */
-				/*!<\param dir: true for detrend,
-						false for restore */
-
-protected:
-
-    Order			order_;
-    double			f0_;
-    double			f1_;
-    double			f2_;
-    double			f11_;
-    double			f12_;
-    double			f22_;
-    Coord			posc_;
-
-    void			initOrder0(const TypeSet<double>&);
-    void			initOrder1(const TypeSet<Coord>&,
-					   const TypeSet<double>&);
-    void			initOrder2(const TypeSet<Coord>&,
-					   const TypeSet<double>&);
-    void			initCenter(const TypeSet<Coord>&);
-
-};
-
-
-
-template <class IDXABLE> inline
-bool PolyTrend::set( const TypeSet<Coord>& poslist, const IDXABLE& vals )
-{
-    auto sz = poslist.size();
-    if ( order_ == PolyTrend::None )
-	return false;
-
-    f0_ = f1_ = f2_ = f11_ = f12_ = f22_ = posc_.x_ = posc_.y_ = 0.;
-    TypeSet<Coord> posnoudf;
-    TypeSet<double> valsnoudf;
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( !poslist[idx].isDefined() || mIsUdf(vals[idx]) )
-	    continue;
-
-	posnoudf += poslist[idx];
-	valsnoudf += (double) vals[idx];
-    }
-
-    sz = valsnoudf.size();
-    getOrder( sz, order_ );
-    if ( order_ == Order0 )
-	initOrder0( valsnoudf );
-    else if ( order_ == Order1 )
-	initOrder1( posnoudf, valsnoudf );
-    else if ( order_ == Order2 )
-	initOrder2( posnoudf, valsnoudf );
-    else
-	return false;
-
-    return true;
-}
-
-
-template <class T> inline
-void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
-{
-    if ( order_ == None || !pos.isDefined() || mIsUdf(val) )
-	return;
-
-    const double fact = dir ? -1. : 1;
-    double inp = (double) val;
-    inp += fact * f0_;
-    if ( order_ == Order0 )
-    {
-	val = (T)inp;
-	return;
-    }
-
-    const double dx = pos.x_ - posc_.x_;
-    const double dy = pos.y_ - posc_.y_;
-    inp += fact * ( f1_ * dx + f2_ * dy );
-    if ( order_ == Order1 )
-    {
-	val = (T)inp;
-	return;
-    }
-
-    const double dx2 = dx * dx;
-    const double dxy = dx * dy;
-    const double dyy = dy * dy;
-    inp += fact * ( f11_ * dx2 + f12_ * dxy + f22_ * dyy );
-    val = (T)inp;
-}
-
-
 /*!<Replaces the undefined samples in a 2D/3D array. Optionally provides
     the list of replaced samples.
     If a PosInfo::CubeData is provided the samples where traces are not present
@@ -1606,132 +1298,150 @@ mClass(Algo) ArrayUdfValReplacer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValReplacer)
 public:
 
-ArrayUdfValReplacer( Array2D<T>& inp )
+ArrayUdfValReplacer( Array2D<T>& inp, LargeValVec<od_int64>* undefidxs )
     : ParallelTask("Array Udf Replacer")
     , inp_(inp)
-{
-}
+    , undefidxs_(undefidxs)
+    , totalnr_(inp.totalSize()/inp.getSize(1))
+{}
 
-ArrayUdfValReplacer( Array3D<T>& inp )
+ArrayUdfValReplacer( Array3D<T>& inp, LargeValVec<od_int64>* undefidxs )
     : ParallelTask("Array Udf Replacer")
     , inp_(inp)
-{
-}
+    , undefidxs_(undefidxs)
+    , totalnr_(inp.totalSize()/inp.getSize(2))
+{}
 
 uiString message() const	{ return tr("Replacing undefined values"); }
-uiString nrDoneText() const
-{
-    return inp_.nrDims() == 2 ? sTracesDone() : tr("Lines handled");
-}
+uiString nrDoneText() const	{ return sTracesDone(); }
 
-void setReplacementValue( T val )
-{
-    replval_ = val;
-}
+void setReplacementValue( T val )	{ replval_ = val; }
 
-// This will be ignored for 2D arrays
-void setPositions( const PosInfo::CubeData& cd, const CubeHorSubSel& hss )
+void setSampling( const Survey::HorSubSel& hss,
+		  const PosInfo::LineCollData* lcd )
 {
-    hss_ = hss; cubedata_ = cd;
-    if ( !cubedata_.isAll(hss_) )
-    {
-	cubedata_.limitTo( hss_ );
-	havesubsel_ = true;
-    }
+    lhss_ = hss.asLineHorSubSel();
+    chss_ = hss.asCubeHorSubSel();
+    lcd_ = lcd;
+    lcd2d_ = lcd ? lcd->asLinesData() : nullptr;
+    lcd3d_ = lcd ? lcd->asCubeData() : nullptr;
 }
 
 protected:
 
-bool doPrepare( int ) override
-{
-    totalnr_ = inp_.getSize( 0 );
-    return true;
-}
-
-od_int64 nrIterations() const override
-{
-    return totalnr_;
-}
+od_int64 nrIterations() const override	{ return totalnr_; }
 
 private:
 
+bool doPrepare( int ) override
+{
+    if ( undefidxs_ )
+	undefidxs_->setEmpty();
+
+    return true;
+}
+
+
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
+    const bool isrect = lcd_ && (lhss_ || chss_)
+		      ? lcd_->isFullyRegular() : true;
+    const ArrayNDInfo& info = inp_.info();
+    const int nrtrcsp = info.getSize( inp_.get1DDim() );
     T* dataptr = inp_.getData();
-    const bool is2d = inp_.nrDims() == 2;
-    od_int64 trcsz = inp_.getSize( 1 );
-    od_int64 slcsz = trcsz;
-    if ( !is2d )
-    {
-	trcsz = inp_.getSize( 2 );
-	slcsz = trcsz * slcsz;
-    }
+    ValueSeries<T>* datastor = inp_.getStorage();
+    const bool hasarrayptr = dataptr;
+    const bool hasstorage = datastor;
+    const bool neediterator = !hasarrayptr && !hasstorage;
+    const od_int64 offset = start * nrtrcsp;
+    dataptr += offset;
+    od_int64 validx = offset;
+    ArrayNDIter* iter = neediterator
+		      ? new ArrayNDIter( info ) : 0;
+    if ( iter )
+	iter->setGlobalPos( offset );
 
-    if ( dataptr && (is2d || !havesubsel_) )
+    const T replval = replval_;
+    for ( od_int64 idx=start; idx<=stop; idx++,
+					 quickAddToNrDone(idx))
     {
-	for ( auto islc=start; islc<=stop; islc++ )
+	const bool hastrcdata = isrect ? true
+			      : (lcd2d_ ? lcd2d_->hasPosition(*lhss_,idx)
+					: lcd3d_->hasPosition(*chss_,idx));
+	if ( hastrcdata )
 	{
-	    const T* endptr = dataptr + (islc+1)*slcsz + 1;
-	    for ( T* curptr=dataptr+islc*slcsz; curptr!=endptr; curptr++ )
-		if ( mIsUdf(*curptr) )
-		    *curptr = replval_;
-	    quickAddToNrDone( islc );
-	}
-	return true;
-    }
-
-    if ( is2d )
-    {
-	auto& arr2d = static_cast<Array2D<T>&>( inp_ );
-	for ( auto islc=start; islc<=stop; islc++ )
-	{
-	    for ( auto ipos=0; ipos<slcsz; ipos++ )
+	    for ( int idz=0; idz<nrtrcsp; idz++ )
 	    {
-		const T val = arr2d.get( islc, ipos );
-		if ( mIsUdf(val) )
-		    arr2d.set( islc, ipos, replval_ );
-	    }
-	    quickAddToNrDone( islc );
-	}
-    }
-    else
-    {
-	auto& arr3d = static_cast<Array3D<T>&>( inp_ );
-	const auto nrtrcs = inp_.getSize( 1 );
-	for ( auto islc=start; islc<=stop; islc++ )
-	{
-	    const PosInfo::LineData* ld = 0;
-	    if ( havesubsel_ )
-	    {
-		const auto lidx = cubedata_.lineIndexOf( islc );
-		if ( lidx < 0 )
-		    continue;
-		ld = cubedata_[lidx];
-	    }
-	    for ( auto itrc=0; itrc<nrtrcs; itrc++ )
-	    {
-		if ( havesubsel_ && !ld->includes(hss_.crl4Idx(itrc)) )
-		    continue;
-		for ( auto isamp=0; isamp<trcsz; isamp++ )
+		const int* pos = iter ? iter->getPos() : 0;
+		const T val = hasarrayptr ? *dataptr
+			    : hasstorage
+				? datastor->value( validx )
+				: inp_.getND( pos );
+		if ( !mIsUdf(val) )
 		{
-		    const T val = arr3d.get( islc, itrc, isamp );
-		    if ( mIsUdf(val) )
-			arr3d.set( islc, itrc, isamp, replval_ );
+		    if ( hasarrayptr ) dataptr++;
+		    else if ( hasstorage ) validx++;
+		    else iter->next();
+
+		    continue;
+		}
+
+		if ( undefidxs_ )
+		{
+		    lck_.lock();
+		    *undefidxs_ += idx*nrtrcsp + idz;
+		    lck_.unLock();
+		}
+
+		if ( hasarrayptr )
+		    *dataptr++ = replval;
+		else if ( hasstorage )
+		    datastor->setValue( validx++, replval );
+		else
+		{
+		    inp_.setND( pos, replval );
+		    iter->next();
 		}
 	    }
-	    quickAddToNrDone( islc );
+	}
+	else
+	{
+	    if ( hasarrayptr )
+	    {
+		dataptr =
+		OD::sysMemValueSet( dataptr, replval, nrtrcsp );
+	    }
+	    else if ( hasstorage )
+	    {
+		for ( int idz=0; idz<nrtrcsp; idz++ )
+		    datastor->setValue( validx++, replval );
+	    }
+	    else
+	    {
+		for ( int idz=0; idz<nrtrcsp; idz++ )
+		{
+		    inp_.setND( iter->getPos(), replval );
+		    iter->next();
+		}
+	    }
 	}
     }
+
+    delete iter;
 
     return true;
 }
 
     ArrayND<T>&			inp_;
     T				replval_	= 0.f;
-    bool			havesubsel_	= false;
-    CubeHorSubSel		hss_;
-    PosInfo::CubeData		cubedata_;
-    od_int64			totalnr_	= 0;
+    LargeValVec<od_int64>*	undefidxs_	= nullptr;
+    const LineHorSubSel*	lhss_		= nullptr;
+    const CubeHorSubSel*	chss_		= nullptr;
+    const PosInfo::LineCollData*	lcd_	= nullptr;
+    const PosInfo::LinesData*	lcd2d_		= nullptr;
+    const PosInfo::CubeData*	lcd3d_		= nullptr;
+    const od_int64		totalnr_;
+    Threads::Mutex		lck_;
 
 };
 
@@ -1864,6 +1574,626 @@ bool doWork( od_int64 start, od_int64 stop, int )
     const od_int64		totalnr_;
 
 };
+
+
+/*!\brief Transfers the common samples from one horizontal 2D array to another*/
+
+template <class T>
+mClass(Algo) CubeHorArrayCopier : public ParallelTask
+{ mODTextTranslationClass(CubeHorCopier)
+public:
+
+CubeHorArrayCopier( const Array2D<T>& in, Array2D<T>& out,
+		    const CubeHorSubSel& chssin, const CubeHorSubSel& chssout )
+    : ParallelTask("CubeHor Array Copier")
+    , chssin_(chssin)
+    , chssout_(chssout)
+    , in_(in)
+    , out_(out)
+{
+    chssin.getIntersection( chssout, commonchss_ );
+    totalnr_ = canCopyAll() ? 1 : commonchss_.nrInl();
+}
+
+uiString message() const override	{ return tr("Copying data"); }
+uiString nrDoneText() const override
+{
+    return tr("%1 %2").arg( uiStrings::sInline(mPlural) )
+		      .arg( uiStrings::sDone().toLower() );
+}
+
+void setReplacementValue( T val )	{ replval_ = val; }
+
+protected:
+
+od_int64 nrIterations() const		{ return totalnr_; }
+
+private:
+
+bool canCopyAll() const
+{
+    return chssout_ == chssin_ && in_.getData() &&
+	   ( out_.getData() || out_.getStorage() );
+}
+
+bool doPrepare( int ) override
+{
+    if ( in_.info().getSize(0) != chssin_.nrInl() ||
+	 in_.info().getSize(1) != chssin_.nrCrl() )
+    {
+	return false;
+    }
+
+    if ( out_.info().getSize(0) != chssout_.nrInl() ||
+	 out_.info().getSize(1) != chssout_.nrCrl() )
+    {
+	mDynamicCastGet(Array2DImpl<T>*,outimpl,&out_)
+	if ( !outimpl || !outimpl->setSize( chssout_.nrInl(),
+					    chssout_.nrCrl() ) )
+	{
+	    return false;
+	}
+
+	out_.setAll( mUdf(T) );
+    }
+
+    alreadycopied_ = false;
+    if ( canCopyAll() )
+    {
+	if ( out_.getData() )
+	{
+	    in_.getAll( out_.getData() );
+	    alreadycopied_ = true;
+	}
+	else if ( out_.getStorage() )
+	{
+	    in_.getAll( *out_.getStorage() );
+	    alreadycopied_ = true;
+	}
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    if ( alreadycopied_ )
+	return true;
+
+    const CubeHorSubSel chssin( chssin_ );
+    const CubeHorSubSel chssout( chssout_ );
+    const CubeHorSubSel chss( commonchss_ );
+
+    const bool usearrayptrs = in_.getData() && out_.getData() &&
+			      in_.getStorage() &&
+			      out_.getStorage();
+    OffsetValueSeries<T>* invals = !usearrayptrs ? 0 :
+	    new OffsetValueSeries<T>( *in_.getStorage(), 0, in_.getSize(2) );
+    OffsetValueSeries<T>* outvals = !usearrayptrs ? 0 :
+	    new OffsetValueSeries<T>( *out_.getStorage(), 0, out_.getSize(2) );
+    const int nrcrl = chss.nrCrl();
+    const od_int64 nrbytes = nrcrl * sizeof(T);
+
+    const int startcrl = chss.crl4Idx( 0 );
+    const int startcrlidyin = chssin.idx4Crl( startcrl );
+    const int startcrlidyout = chssout.idx4Crl( startcrl );
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++)
+    {
+	const int inl = chss.inl4Idx( idx );
+	const int inlidxin = chssin.idx4Inl( inl );
+	const int inlidxout = chssout.idx4Inl( inl );
+	if ( usearrayptrs )
+	{
+	    invals->setOffset(
+		    in_.info().getOffset(inlidxin,startcrlidyin) );
+	    outvals->setOffset(
+		    out_.info().getOffset(inlidxout,startcrlidyout) );
+	    OD::sysMemCopy(outvals->arr(),invals->arr(), nrbytes);
+	    continue;
+	}
+	else
+	{
+	    for ( int idy=0; idy<nrcrl; idy++ )
+	    {
+		const T val = in_.get( inlidxin, startcrlidyin+idy );
+		out_.set( inlidxout, startcrlidyout+idy, val );
+	    }
+	}
+    }
+
+    delete invals;
+    delete outvals;
+
+    return true;
+}
+
+bool doFinish( bool success )
+{
+    if ( !success || mIsUdf(replval_) )
+	return success;
+
+    ArrayUdfValReplacer<T> replacer( out_, nullptr );
+    replacer.setReplacementValue( replval_ );
+
+    return replacer.execute();
+}
+
+    const CubeHorSubSel&	chssin_;
+    const CubeHorSubSel&	chssout_;
+    CubeHorSubSel		commonchss_;
+    od_int64			totalnr_;
+    bool			alreadycopied_ = false;
+
+    const Array2D<T>&		in_;
+    Array2D<T>&			out_;
+    T				replval_ = mUdf(T);
+
+};
+
+
+/*!\brief Transfers the common samples from one Line 2D array to another */
+
+template <class T>
+mClass(Algo) Line2DArrayCopier : public ParallelTask
+{ mODTextTranslationClass(LineArrayCopier)
+public:
+
+Line2DArrayCopier( const Array2D<T>& in, Array2D<T>& out,
+		   const LineSubSel& lssin, const LineSubSel& lssout )
+    : ParallelTask("Line2D Array Copier")
+    , lssin_(lssin)
+    , lssout_(lssout)
+    , in_(in)
+    , out_(out)
+{
+    totalnr_ = canCopyAll() ? 1 : lssout.lineHorSubSel().totalSize();
+}
+
+uiString message() const override	{ return tr("Copying line2d data"); }
+uiString nrDoneText() const override	{ return uiStrings::sPositionsDone(); }
+
+void setReplacementValue( T val )	{ replval_ = val; }
+
+protected:
+
+od_int64 nrIterations() const	{ return totalnr_; }
+
+private:
+
+bool canCopyAll() const
+{
+    return lssout_ == lssin_ && in_.getData() &&
+	   ( out_.getData() || out_.getStorage() );
+}
+
+#undef mGetInfo
+#define mGetInfo() \
+    const Array2DInfoImpl infoin( lssin_.nrTrcs(), lssin_.nrZ() ); \
+    const Array2DInfoImpl infoout( lssout_.nrTrcs(), lssout_.nrZ() );
+
+bool doPrepare( int ) override
+{
+    mGetInfo()
+    if ( in_.info() != infoin )
+	return false;
+
+    if ( out_.info() != infoout && !out_.setInfo(infoout) )
+	return false;
+
+    const auto zrgin( lssin_.zRange() );
+    const auto zrgout( lssout_.zRange() );
+    if ( !zrgin.isCompatible(zrgout) )
+	return false; //Not supported
+
+    out_.setAll( mUdf(T) );
+    alreadycopied_ = false;
+    if ( canCopyAll() )
+    {
+	if ( out_.getData() )
+	{
+	    in_.getAll( out_.getData() );
+	    alreadycopied_ = true;
+	}
+	else if ( out_.getStorage() )
+	{
+	    in_.getAll( *out_.getStorage() );
+	    alreadycopied_ = true;
+	}
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    if ( alreadycopied_ )
+	return true;
+
+    mGetInfo()
+    const LineHorSubSel lhssin( lssin_.lineHorSubSel() );
+    const LineHorSubSel lhssout( lssout_.lineHorSubSel() );
+    const int nrzout = infoout.getSize(1);
+    const ZSampling zsampin( lssin_.zRange() );
+    const ZSampling zsampout( lssout_.zRange() );
+    ZSampling zrg( zsampout );
+    zrg.limitTo( zsampin );
+    const int nrztocopy = zrg.nrSteps() + 1;
+    const int z0in = zsampin.nearestIndex( zrg.start );
+    const int z0out = zsampout.nearestIndex( zrg.start );
+    const od_int64 nrbytes = mCast(od_int64,nrztocopy) * sizeof(T);
+    const T* inptr = in_.getData();
+    T* outptr = out_.getData();
+    const ValueSeries<T>* instor = in_.getStorage();
+    ValueSeries<T>* outstor = out_.getStorage();
+    const bool hasarrayptr = inptr && outptr;
+    const bool hasstorage = instor && outstor;
+    const bool needgetset = !hasarrayptr && !hasstorage;
+
+    const Array1DInfoImpl info1d( infoout.getSize( 0 ) );
+    ArrayNDIter iter( info1d );
+    iter.setGlobalPos( start );
+
+    const od_int64 offsetout = start * nrzout + z0out;
+    outptr += offsetout;
+    od_uint64 validxout = offsetout;
+
+    for ( od_int64 idx=start; idx<=stop; idx++, iter.next(),
+	  outptr+=nrzout, validxout+=nrzout,
+	  quickAddToNrDone(idx) )
+    {
+	const int trcidx = iter[0];
+	const int trcnr = lhssout.trcNr4Idx( trcidx );
+	if ( !lhssin.includes(trcnr) )
+	    continue;
+
+	const int trcidxin = lhssin.idx4TrcNr( trcnr );
+	const od_int64 offsetin = needgetset ? 0
+				: infoin.getOffset( trcidxin, z0in );
+	if ( hasarrayptr )
+	{
+	    OD::sysMemCopy( outptr, inptr+offsetin, nrbytes );
+	}
+	else if ( hasstorage )
+	{
+	    for ( int idz=0; idz<nrztocopy; idz++ )
+	    {
+		outstor->setValue( validxout+idz,
+				   instor->value(offsetin+idz));
+	    }
+	}
+	else
+	{
+	    for ( int idz=0, idzin=z0in; idz<nrztocopy; idz++,
+							idzin++)
+	    {
+		const T val = in_.get( trcidxin, idzin );
+		out_.set( trcidx, idz, val );
+	    }
+	}
+
+    }
+
+    return true;
+}
+
+bool doFinish( bool success )
+{
+    if ( !success || mIsUdf(replval_) )
+	return success;
+
+    ArrayUdfValReplacer<T> replacer( out_, nullptr );
+    replacer.setReplacementValue( replval_ );
+
+    return replacer.execute();
+}
+
+    const LineSubSel&		lssin_;
+    const LineSubSel&		lssout_;
+    od_int64			totalnr_;
+    bool			alreadycopied_ = false;
+
+    const Array2D<T>&		in_;
+    Array2D<T>&			out_;
+    T				replval_ = mUdf(T);
+
+};
+
+
+/*!\brief Transfers the common samples from one 3D array to another */
+
+template <class T>
+mClass(Algo) CubeArrayCopier : public ParallelTask
+{ mODTextTranslationClass(CubeArrayCopier)
+public:
+
+CubeArrayCopier( const Array3D<T>& in, Array3D<T>& out,
+		 const CubeSubSel& cssin, const CubeSubSel& cssout )
+    : ParallelTask("Cube Array Copier")
+    , cssin_(cssin)
+    , cssout_(cssout)
+    , in_(in)
+    , out_(out)
+{
+    totalnr_ = canCopyAll() ? 1 : cssout.cubeHorSubSel().totalSize();
+}
+
+uiString message() const override	{ return tr("Copying cube data"); }
+uiString nrDoneText() const override	{ return uiStrings::sPositionsDone(); }
+
+void setReplacementValue( T val )	{ replval_ = val; }
+
+protected:
+
+od_int64 nrIterations() const		{ return totalnr_; }
+
+private:
+
+bool canCopyAll() const
+{
+    return cssout_ == cssin_ && in_.getData() &&
+	   ( out_.getData() || out_.getStorage() );
+}
+
+
+#undef mGetInfo
+#define mGetInfo() \
+    const Array3DInfoImpl infoin( cssin_.nrInl(), \
+				  cssin_.nrCrl(), cssin_.nrZ() ); \
+    const Array3DInfoImpl infoout( cssout_.nrInl(), \
+				   cssout_.nrCrl(), cssout_.nrZ() );
+
+bool doPrepare( int ) override
+{
+    mGetInfo()
+    if ( in_.info() != infoin )
+	return false;
+
+    if ( out_.info() != infoout && !out_.setInfo(infoout) )
+	return false;
+
+    const auto zrgin( cssin_.zRange() );
+    const auto zrgout( cssout_.zRange() );
+    if ( !zrgin.isCompatible(zrgout) )
+	return false; //Not supported
+
+    out_.setAll( mUdf(T) );
+    alreadycopied_ = false;
+    if ( canCopyAll() )
+    {
+	if ( out_.getData() )
+	{
+	    in_.getAll( out_.getData() );
+	    alreadycopied_ = true;
+	}
+	else if ( out_.getStorage() )
+	{
+	    in_.getAll( *out_.getStorage() );
+	    alreadycopied_ = true;
+	}
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    if ( alreadycopied_ )
+	return true;
+
+    mGetInfo()
+    const CubeHorSubSel chssin( cssin_.cubeHorSubSel() );
+    const CubeHorSubSel chssout( cssout_.cubeHorSubSel() );
+    const int nrzout = infoout.getSize(2);
+    const ZSampling zsampin( cssin_.zRange() );
+    const ZSampling zsampout( cssout_.zRange() );
+    ZSampling zrg( zsampout );
+    zrg.limitTo( zsampin );
+    const int nrztocopy = zrg.nrSteps() + 1;
+    const int z0in = zsampin.nearestIndex( zrg.start );
+    const int z0out = zsampout.nearestIndex( zrg.start );
+    const od_int64 nrbytes = mCast(od_int64,nrztocopy) * sizeof(T);
+    const T* inptr = in_.getData();
+    T* outptr = out_.getData();
+    const ValueSeries<T>* instor = in_.getStorage();
+    ValueSeries<T>* outstor = out_.getStorage();
+    const bool hasarrayptr = inptr && outptr;
+    const bool hasstorage = instor && outstor;
+    const bool needgetset = !hasarrayptr && !hasstorage;
+
+    const Array2DInfoImpl info2d( infoout.getSize( 0 ),
+				  infoout.getSize( 1 ) );
+    ArrayNDIter iter( info2d );
+    iter.setGlobalPos( start );
+
+    const od_int64 offsetout = start * nrzout + z0out;
+    outptr += offsetout;
+    od_uint64 validxout = offsetout;
+
+    for ( od_int64 idx=start; idx<=stop; idx++, iter.next(),
+	  outptr+=nrzout, validxout+=nrzout,
+	  quickAddToNrDone(idx) )
+    {
+	const int inlidx = iter[0];
+	const int crlidx = iter[1];
+	const BinID bid( chssout.binID4RowCol(RowCol(inlidx,crlidx)) );
+	if ( !chssin.includes(bid) )
+	    continue;
+
+	const int inlidxin = chssin.idx4Inl( bid.inl() );
+	const int crlidxin = chssin.idx4Crl( bid.crl() );
+	const od_int64 offsetin = needgetset ? 0
+				: infoin.getOffset( inlidxin, crlidxin, z0in );
+	if ( hasarrayptr )
+	{
+	    OD::sysMemCopy( outptr, inptr+offsetin, nrbytes );
+	}
+	else if ( hasstorage )
+	{
+	    for ( int idz=0; idz<nrztocopy; idz++ )
+	    {
+		outstor->setValue( validxout+idz,
+				   instor->value(offsetin+idz));
+	    }
+	}
+	else
+	{
+	    for ( int idz=0, idzin=z0in; idz<nrztocopy; idz++,
+							idzin++)
+	    {
+		const T val = in_.get( inlidxin, crlidxin, idzin );
+		out_.set( inlidx, crlidx, idz, val );
+	    }
+	}
+
+    }
+
+    return true;
+}
+
+
+bool doFinish( bool success )
+{
+    if ( !success || mIsUdf(replval_) )
+	return success;
+
+    ArrayUdfValReplacer<T> replacer( out_, nullptr );
+    replacer.setReplacementValue( replval_ );
+
+    return replacer.execute();
+}
+
+    const CubeSubSel&		cssin_;
+    const CubeSubSel&		cssout_;
+    od_int64			totalnr_;
+    bool			alreadycopied_ = false;
+
+    const Array3D<T>&		in_;
+    Array3D<T>&			out_;
+    T				replval_ = mUdf(T);
+
+};
+
+
+/*!
+  \brief Polynomial trend with order 0 (mean), 1 (linear) or 2 (parabolic)
+  The trend is derived from a set of values with positions
+  and can be applied thereafter on any other position
+*/
+
+mExpClass(Algo) PolyTrend
+{ mODTextTranslationClass(PolyTrend);
+public:
+				PolyTrend();
+
+    bool			operator==(const PolyTrend&) const;
+
+				enum Order	{ None, Order0, Order1, Order2};
+				mDeclareEnumUtils(Order)
+
+    static const char*		sKeyOrder()	{ return "Polynomial Order"; }
+    static bool			getOrder(int nrpoints,Order&,uiString* =0);
+
+    void			setOrder( PolyTrend::Order t )	{ order_ = t; }
+    template <class IDXABLE> bool	set(const TypeSet<Coord>&,
+					    const IDXABLE& valuelistj);
+				/*!< Use after the order is set!
+				     Sets the trend from a list of values
+				     tied to a list of coordinates */
+
+    Order			getOrder() const	{ return order_; }
+
+    template <class T> void	apply(const Coord& pos,bool dir,T&) const;
+				/*!<Applies the trend to a value tied to
+				    a position */
+				/*!<\param dir: true for detrend,
+						false for restore */
+
+protected:
+
+    Order			order_;
+    double			f0_;
+    double			f1_;
+    double			f2_;
+    double			f11_;
+    double			f12_;
+    double			f22_;
+    Coord			posc_;
+
+    void			initOrder0(const TypeSet<double>&);
+    void			initOrder1(const TypeSet<Coord>&,
+					   const TypeSet<double>&);
+    void			initOrder2(const TypeSet<Coord>&,
+					   const TypeSet<double>&);
+    void			initCenter(const TypeSet<Coord>&);
+
+};
+
+
+
+template <class IDXABLE> inline
+bool PolyTrend::set( const TypeSet<Coord>& poslist, const IDXABLE& vals )
+{
+    auto sz = poslist.size();
+    if ( order_ == PolyTrend::None )
+	return false;
+
+    f0_ = f1_ = f2_ = f11_ = f12_ = f22_ = posc_.x_ = posc_.y_ = 0.;
+    TypeSet<Coord> posnoudf;
+    TypeSet<double> valsnoudf;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( !poslist[idx].isDefined() || mIsUdf(vals[idx]) )
+	    continue;
+
+	posnoudf += poslist[idx];
+	valsnoudf += (double) vals[idx];
+    }
+
+    sz = valsnoudf.size();
+    getOrder( sz, order_ );
+    if ( order_ == Order0 )
+	initOrder0( valsnoudf );
+    else if ( order_ == Order1 )
+	initOrder1( posnoudf, valsnoudf );
+    else if ( order_ == Order2 )
+	initOrder2( posnoudf, valsnoudf );
+    else
+	return false;
+
+    return true;
+}
+
+
+template <class T> inline
+void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
+{
+    if ( order_ == None || !pos.isDefined() || mIsUdf(val) )
+	return;
+
+    const double fact = dir ? -1. : 1;
+    double inp = (double) val;
+    inp += fact * f0_;
+    if ( order_ == Order0 )
+    {
+	val = (T)inp;
+	return;
+    }
+
+    const double dx = pos.x_ - posc_.x_;
+    const double dy = pos.y_ - posc_.y_;
+    inp += fact * ( f1_ * dx + f2_ * dy );
+    if ( order_ == Order1 )
+    {
+	val = (T)inp;
+	return;
+    }
+
+    const double dx2 = dx * dx;
+    const double dxy = dx * dy;
+    const double dyy = dy * dy;
+    inp += fact * ( f11_ * dx2 + f12_ * dxy + f22_ * dyy );
+    val = (T)inp;
+}
 
 
 /*!<Determines the start/end of live data in a 2D/3D array. The returned index

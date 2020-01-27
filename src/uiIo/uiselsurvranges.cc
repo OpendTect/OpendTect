@@ -10,12 +10,16 @@ ________________________________________________________________________
 
 #include "uiselsurvranges.h"
 
+#include "cubesubsel.h"
+#include "linesubsel.h"
 #include "keystrs.h"
 #include "math.h"
+#include "survgeommgr.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
 #include "uibutton.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uispinbox.h"
@@ -25,12 +29,30 @@ static const int cUnLim = 1000000;
 static const float cMaxUnsnappedZStep = 0.999f;
 
 
+uiSelRangeBase::uiSelRangeBase( uiParent* p, const char* grpnm )
+    : uiGroup(p,grpnm)
+    , rangeChanged(this)
+{
+}
+
+
+uiSelRangeBase::~uiSelRangeBase()
+{
+}
+
+
+void uiSelRangeBase::valChg( CallBacker* )
+{
+    rangeChanged.trigger( this );
+}
+
+
+
 #define mDefConstrList(isrel) \
-    uiGroup(p,"Z range selection") \
+    uiSelRangeBase(p,"Z range selection") \
     , stepfld_(0) \
     , isrel_(isrel) \
     , zddef_(ZDomain::Def::get(domky)) \
-    , rangeChanged(this) \
     , othdom_(&zddef_ != &ZDomain::SI()) \
     , cansnap_( !othdom_ \
 	&& SI().zStep() > cMaxUnsnappedZStep / zddef_.userFactor() )
@@ -40,16 +62,16 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 			  const uiString& lbltxt, const char* domky )
     : mDefConstrList(isrel)
 {
-    const StepInterval<float> limitrg( SI().zRange() );
+    const ZSampling limitrg( SI().zRange() );
     makeInpFields( lbltxt, wstep, !othdom_ && !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
-	setRange( StepInterval<float>(0,0,1) );
+	setRange( ZSampling(0,0,1) );
     else if ( !othdom_ )
 	setRange( SI().zRange(OD::UsrWork) );
 }
 
 
-uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
+uiSelZRange::uiSelZRange( uiParent* p, ZSampling limitrg, bool wstep,
 			  const uiString& lbltxt, const char* domky )
 	: mDefConstrList(false)
 {
@@ -72,12 +94,12 @@ void uiSelZRange::displayStep( bool yn )
 
 
 void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
-				 const StepInterval<float>* inplimitrg )
+				 const ZSampling* inplimitrg )
 {
     const float zfac = mCast( float, zddef_.userFactor() );
-    const StepInterval<float>& sizrg( SI().zRange() );
+    const ZSampling& sizrg( SI().zRange() );
 
-    StepInterval<float> limitrg( -mCast(float,cUnLim), mCast(float,cUnLim), 1 );
+    ZSampling limitrg( -mCast(float,cUnLim), mCast(float,cUnLim), 1 );
     if ( inplimitrg )
 	limitrg = *inplimitrg;
     else if ( !othdom_ && limitrg.step > sizrg.step )
@@ -92,7 +114,7 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
     limitrg.scale( zfac );
 
     const int nrdecimals = cansnap_ ? 0 : 2;
-    const StepInterval<int> izrg( mNINT32(limitrg.start),
+    const trcnr_steprg_type izrg( mNINT32(limitrg.start),
 				  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
@@ -117,10 +139,10 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 					 "Z step" );
 	if ( cansnap_ )
 	    stepfld_->box()->setInterval(
-		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
+		trcnr_steprg_type(izrg.step,izrg.width(),izrg.step) );
 	else
 	    stepfld_->box()->setInterval(
-	    StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
+	    trcnr_steprg_type(mNINT32(limitrg.step),mNINT32(limitrg.width()),
 				  mNINT32(limitrg.step)) );
 	stepfld_->box()->doSnap( cansnap_ );
 	stepfld_->attach( rightOf, stopfld_ );
@@ -133,9 +155,9 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 }
 
 
-StepInterval<float> uiSelZRange::getRange() const
+ZSampling uiSelZRange::getRange() const
 {
-    StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(),
+    ZSampling zrg( startfld_->getFValue(), stopfld_->getFValue(),
 			     stepfld_ ? stepfld_->box()->getFValue() : 1 );
     zrg.scale( 1.f / zddef_.userFactor() );
     if ( !stepfld_ )
@@ -188,13 +210,13 @@ static void adaptRangeToLimits( const StepInterval<T>& rg,
 }
 
 
-void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
+void uiSelZRange::setRange( const ZSampling& inpzrg )
 {
-    StepInterval<float> zrg( inpzrg );
+    ZSampling zrg( inpzrg );
     zrg.scale( mCast(float,zddef_.userFactor()) );
 
-    StepInterval<float> limitrg = startfld_->getFInterval();
-    StepInterval<float> newzrg;
+    ZSampling limitrg = startfld_->getFInterval();
+    ZSampling newzrg;
     adaptRangeToLimits<float>( zrg, limitrg, newzrg );
 
     if ( cansnap_ )
@@ -225,12 +247,12 @@ void uiSelZRange::valChg( CallBacker* cb )
 	    stopfld_->setValue( startfld_->getIntValue() );
     }
 
-    rangeChanged.trigger();
+    uiSelRangeBase::valChg( cb );
 }
 
-void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
+void uiSelZRange::setRangeLimits( const ZSampling& zlimits )
 {
-    StepInterval<float> zrg( zlimits );
+    ZSampling zrg( zlimits );
     zrg.scale( mCast(float,zddef_.userFactor()) );
     startfld_->setInterval( zrg );
     stopfld_->setInterval( zrg );
@@ -244,27 +266,25 @@ void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
 
 
 uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
-	: uiGroup(p,typ == Inl ? "In-line range selection"
-		 : (typ == Crl ? "Cross-line range selection"
-			       : "Number range selection"))
-	, stepfld_(0)
-	, icstopfld_(0)
-	, nrstopfld_(0)
+	: uiSelRangeBase(p,typ == Inl ? "In-line range selection"
+			 : (typ == Crl ? "Cross-line range selection"
+				       : (typ == Trc ? "Trace range selection"
+						    :"Number range selection")))
 	, defstep_(1)
 	, checked(this)
-	, rangeChanged(this)
 	, finalised_(false)
 	, checked_(false)
-	, cbox_(0), withchk_(false)
+	, withchk_(false)
 {
-    StepInterval<int> rg( 1, mUdf(int), 1 );
-    StepInterval<int> wrg( rg );
+    trcnr_steprg_type rg( 1, mUdf(int), 1 );
+    trcnr_steprg_type wrg( rg );
     const char* nm = "Number";
     lbltxt_ = uiStrings::sTraceRange();
-    if ( typ != Gen )
+    if ( typ < Trc )
     {
-	TrcKeySampling hs( OD::UsrWork ), whs( OD::FullSurvey );
-	rg = typ == Inl ? hs.inlRange() : hs.crlRange();
+	const CubeSubSel css( OD::UsrWork );
+	const CubeSubSel whs( OD::FullSurvey );
+	rg = typ == Inl ? css.inlRange() : css.crlRange();
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
@@ -278,19 +298,14 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 }
 
 
-uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
+uiSelNrRange::uiSelNrRange( uiParent* p, trcnr_steprg_type limitrg, bool wstep,
 			    const char* fldnm )
-	: uiGroup(p,BufferString(fldnm," range selection"))
-	, stepfld_(0)
+	: uiSelRangeBase(p,BufferString(fldnm," range selection"))
 	, defstep_(limitrg.step)
-	, icstopfld_(0)
-	, nrstopfld_(0)
 	, checked(this)
-	, rangeChanged(this)
 	, finalised_(false)
 	, withchk_(false)
 	, checked_(false)
-	, cbox_(0)
 	, fldnm_(fldnm)
 {
     if ( fldnm_.isEqual( sKey::Inline() ) ) // TODO Better way is to check
@@ -321,7 +336,7 @@ void uiSelNrRange::displayStep( bool yn )
 }
 
 
-void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
+void uiSelNrRange::makeInpFields( trcnr_steprg_type limitrg, bool wstep,
 				  bool isgen )
 {
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
@@ -350,7 +365,7 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
     {
 	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 0,
 					 lbltxt_.getString().add(" step") );
-	stepfld_->box()->setInterval( StepInterval<int>(limitrg.step,
+	stepfld_->box()->setInterval( trcnr_steprg_type(limitrg.step,
 			    limitrg.width() ? limitrg.width() : limitrg.step,
 			    limitrg.step) );
 	stepfld_->box()->doSnap( true );
@@ -399,7 +414,7 @@ void uiSelNrRange::valChg( CallBacker* cb )
 	    startfld_->setValue( getStopVal() );
     }
 
-    rangeChanged.trigger();
+    uiSelRangeBase::valChg( cb );
 }
 
 
@@ -422,17 +437,17 @@ void uiSelNrRange::doFinalise( CallBacker* )
 }
 
 
-StepInterval<int> uiSelNrRange::getRange() const
+uiSelNrRange::trcnr_steprg_type uiSelNrRange::getRange() const
 {
-    return StepInterval<int>( startfld_->getIntValue(), getStopVal(),
+    return trcnr_steprg_type( startfld_->getIntValue(), getStopVal(),
 			stepfld_ ? stepfld_->box()->getIntValue() : defstep_ );
 }
 
 
-void uiSelNrRange::setRange( const StepInterval<int>& rg )
+void uiSelNrRange::setRange( const trcnr_steprg_type& rg )
 {
-    StepInterval<int> limitrg = startfld_->getInterval();
-    StepInterval<int> newrg;
+    trcnr_steprg_type limitrg = startfld_->getInterval();
+    trcnr_steprg_type newrg;
     adaptRangeToLimits<int>( rg, limitrg, newrg );
 
     startfld_->setValue( newrg.start );
@@ -442,7 +457,7 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
 }
 
 
-void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
+void uiSelNrRange::setLimitRange( const trcnr_steprg_type& limitrg )
 {
     startfld_->setInterval( limitrg );
     if ( icstopfld_ )
@@ -487,9 +502,10 @@ void uiSelNrRange::checkBoxSel( CallBacker* cb )
     checked.trigger(this);
 }
 
+
+
 uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
-	: uiGroup(p,"Step selection")
-	, inlfld_(0)
+    : uiGroup(p,"Step selection")
 {
     BinID stp( 0, 1 );
     uiString lbl = tr("Trace Number Step");
@@ -498,14 +514,16 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
     {
 	stp = BinID( SI().inlStep(), SI().crlStep() );
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
-	inlfld_->setInterval( StepInterval<int>(stp.inl(),cUnLim,stp.inl()) );
+	inlfld_->setInterval( uiSelRangeBase::trcnr_steprg_type(stp.inl(),
+							 cUnLim,stp.inl()) );
 	inlfld_->doSnap( true );
 	lbl = toUiString("%1/%2 %3")
 	      .arg(uiStrings::sInline()).arg(uiStrings::sCrossline())
 	      .arg(uiStrings::sSteps());
     }
     crlfld_ = new uiSpinBox( this, 0, "crossline step" );
-    crlfld_->setInterval( StepInterval<int>(stp.crl(),cUnLim,stp.crl()) );
+    crlfld_->setInterval( uiSelRangeBase::trcnr_steprg_type(stp.crl(),cUnLim,
+							    stp.crl()) );
     crlfld_->doSnap( true );
     if ( inlfld_ )
 	crlfld_->attach( rightOf, inlfld_ );
@@ -532,11 +550,11 @@ void uiSelSteps::setSteps( const BinID& bid )
 }
 
 
+
 uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
-    : uiGroup(p,"Hor range selection")
+    : uiSelRangeBase(p,"Hor range selection")
     , inlfld_(new uiSelNrRange(this,uiSelNrRange::Inl,wstep))
     , crlfld_(new uiSelNrRange(this,uiSelNrRange::Crl,wstep))
-    , rangeChanged(this)
 {
     crlfld_->attach( alignedBelow, inlfld_ );
     mAttachCB( inlfld_->rangeChanged, uiSelHRange::valChg );
@@ -545,12 +563,10 @@ uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
 }
 
 
-uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit,
-			  bool wstep )
-    : uiGroup(p,"Hor range selection")
+uiSelHRange::uiSelHRange( uiParent* p, const CubeHorSubSel& hslimit, bool wstep)
+    : uiSelRangeBase(p,"Hor range selection")
     , inlfld_(new uiSelNrRange(this,hslimit.inlRange(),wstep,sKey::Inline()))
     , crlfld_(new uiSelNrRange(this,hslimit.crlRange(),wstep,sKey::Crossline()))
-    , rangeChanged(this)
 {
     crlfld_->attach( alignedBelow, inlfld_ );
     mAttachCB( inlfld_->rangeChanged, uiSelHRange::valChg );
@@ -565,12 +581,6 @@ uiSelHRange::~uiSelHRange()
 }
 
 
-void uiSelHRange::valChg( CallBacker* )
-{
-    rangeChanged.trigger( this );
-}
-
-
 void uiSelHRange::displayStep( bool yn )
 {
     inlfld_->displayStep( yn );
@@ -578,59 +588,299 @@ void uiSelHRange::displayStep( bool yn )
 }
 
 
-TrcKeySampling uiSelHRange::getSampling() const
+CubeHorSubSel uiSelHRange::getSampling() const
 {
-    TrcKeySampling hs( true );
-    hs.set( inlfld_->getRange(), crlfld_->getRange() );
-    return hs;
+    CubeHorSubSel chss( OD::UsrWork );
+    chss.setInlRange( inlfld_->getRange() );
+    chss.setCrlRange( crlfld_->getRange() );
+    return chss;
 }
 
 
-void uiSelHRange::setSampling( const TrcKeySampling& hs )
+void uiSelHRange::setSampling( const CubeHorSubSel& chss )
 {
-    inlfld_->setRange( hs.inlRange() );
-    crlfld_->setRange( hs.crlRange() );
+    inlfld_->setRange( chss.inlRange() );
+    crlfld_->setRange( chss.crlRange() );
 }
 
 
-void uiSelHRange::setLimits( const TrcKeySampling& hs )
+void uiSelHRange::setLimits( const CubeHorSubSel& chss )
 {
-    inlfld_->setLimitRange( hs.inlRange() );
-    crlfld_->setLimitRange( hs.crlRange() );
+    inlfld_->setLimitRange( chss.inlRange() );
+    crlfld_->setLimitRange( chss.crlRange() );
 }
 
 
-uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
-    : uiGroup(p,"Sub vol selection")
-    , hfld_(new uiSelHRange(this,wstep))
-    , zfld_(new uiSelZRange(this,wstep,false,uiString(),zdomkey))
+
+uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, bool withz,
+			  const char* zdomkey, const CubeSubSel* css )
+    : uiSelRangeBase(p,"Sub vol selection")
 {
-    zfld_->attach( alignedBelow, hfld_ );
+    hfld_ = new uiSelHRange( this, wstep );
+    mAttachCB( hfld_->rangeChanged, uiSelSubvol::valChg );
+
+    if ( withz )
+    {
+	zfld_ = new uiSelZRange( this, wstep, false, uiString(), zdomkey );
+	mAttachCB( zfld_->rangeChanged, uiSelSubvol::valChg );
+	zfld_->attach( alignedBelow, hfld_ );
+    }
+
+    if ( css )
+	setSampling( *css );
+
     setHAlignObj( hfld_ );
 }
 
 
-TrcKeyZSampling uiSelSubvol::getSampling() const
+uiSelSubvol::~uiSelSubvol()
 {
-    TrcKeyZSampling cs( false );
-    cs.hsamp_ = hfld_->getSampling();
-    cs.zsamp_ = zfld_->getRange();
-    return cs;
+    detachAllNotifiers();
 }
 
 
-void uiSelSubvol::setSampling( const TrcKeyZSampling& cs )
+CubeSubSel uiSelSubvol::getSampling() const
 {
-    hfld_->setSampling( cs.hsamp_ );
-    zfld_->setRange( cs.zsamp_ );
+    CubeSubSel css;
+    css.clearSubSel();
+    css.cubeHorSubSel() = hfld_->getSampling();
+    if ( hasZ() )
+	css.setZRange( zfld_->getRange() );
+    return css;
 }
 
 
-uiSelSubline::uiSelSubline( uiParent* p, bool wstep )
-    : uiGroup(p,"Sub vol selection")
-    , nrfld_(new uiSelNrRange(this,uiSelNrRange::Gen,wstep))
-    , zfld_(new uiSelZRange(this,wstep))
+ZSampling uiSelSubvol::getZRange() const
 {
-    zfld_->attach( alignedBelow, nrfld_ );
+    ZSampling zrg;
+    if ( hasZ() )
+	zrg = zfld_->getRange();
+    return zrg;
+}
+
+
+void uiSelSubvol::setSampling( const CubeSubSel& css )
+{
+    hfld_->setSampling( css.cubeHorSubSel() );
+    if ( hasZ() )
+	zfld_->setRange( css.zRange() );
+}
+
+
+void uiSelSubvol::displayStep( bool yn )
+{
+    hfld_->displayStep( yn );
+    if ( hasZ() )
+	zfld_->displayStep( yn );
+}
+
+
+
+uiSelSubline::uiSelSubline( uiParent* p, Pos::GeomID gid, bool wstep,
+			    bool withz )
+    : uiSelRangeBase(p,"Sub line selection")
+    , gid_(gid)
+{
+    const LineSubSel lss( gid );
+    nrfld_ = new uiSelNrRange( this, uiSelNrRange::Trc, wstep );
+    nrfld_->setLimitRange( lss.trcNrRange() );
+    mAttachCB( nrfld_->rangeChanged, uiSelSubline::valChg );
+
+    if ( withz )
+    {
+	zfld_ = new uiSelZRange( this, wstep );
+	zfld_->attach( alignedBelow, nrfld_ );
+	mAttachCB( zfld_->rangeChanged, uiSelSubline::valChg );
+    }
+
     setHAlignObj( nrfld_ );
+}
+
+
+uiSelSubline::~uiSelSubline()
+{
+    detachAllNotifiers();
+}
+
+
+LineSubSel uiSelSubline::getSampling() const
+{
+    LineSubSel lss( gid_ );
+    lss.setTrcNrRange( nrfld_->getRange() );
+    if ( hasZ() )
+	lss.setZRange( zfld_->getRange() );
+    return lss;
+}
+
+
+uiSelSubline::trcnr_steprg_type uiSelSubline::getTrcNrRange() const
+{
+    return nrfld_->getRange();
+}
+
+
+ZSampling uiSelSubline::getZRange() const
+{
+    ZSampling zrg;
+    if ( hasZ() )
+	zrg = zfld_->getRange();
+    return zrg;
+}
+
+
+void uiSelSubline::setSampling( const LineSubSel& lss )
+{
+    gid_ = lss.geomID();
+    nrfld_->setRange( lss.trcNrRange() );
+    if ( hasZ() )
+	zfld_->setRange( lss.zRange() );
+}
+
+
+void uiSelSubline::displayStep( bool yn )
+{
+    nrfld_->displayStep( yn );
+    if ( hasZ() )
+	zfld_->displayStep( yn );
+}
+
+
+
+uiSelSublineSet::uiSelSublineSet( uiParent* p, bool withstep, bool withz,
+				  const LineSubSelSet* lsss )
+    : uiSelRangeBase(p,"Sub Geometries selection")
+    , withstep_(withstep)
+    , withz_(withz)
+    , geomChanged(this)
+{
+    BufferStringSet linenms;
+    if ( lsss )
+	getLineNames( *lsss, linenms );
+    linenmsfld_ = new uiGenInput( this,  tr("LineSel"),
+				  StringListInpSpec(linenms) );
+    mAttachCB( linenmsfld_->valuechanged, uiSelSublineSet::lineChgCB );
+    if ( !lsss )
+	return;
+
+    for ( const auto lss : *lsss )
+    {
+	auto linergfld = new uiSelSubline( this, lss->geomID(), withstep,
+					   withz );
+	linergfld->setSampling( *lss );
+	linergfld->attach( alignedBelow, linenmsfld_ );
+	mAttachCB( linergfld->rangeChanged, uiSelSublineSet::valChg );
+	linergsfld_.add( linergfld );
+    }
+
+    setHAlignObj( linenmsfld_->attachObj() );
+    mAttachCB( postFinalise(), uiSelSublineSet::initGrp );
+}
+
+
+uiSelSublineSet::~uiSelSublineSet()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSelSublineSet::initGrp( CallBacker* cb )
+{
+    lineChgCB(cb);
+}
+
+
+void uiSelSublineSet::lineChgCB( CallBacker* cb )
+{
+    if ( linergsfld_.isEmpty() )
+	return;
+
+    const BufferString curlinm( linenmsfld_->text() );
+    uiSelSubline* activefld = nullptr;
+    for ( auto linergfld : linergsfld_ )
+    {
+	const Pos::GeomID gid = linergfld->getGeomID();
+	const BufferString linenm( Survey::GM().getName(gid) );
+	const bool dodisplay = linenm == curlinm;
+	linergfld->display( dodisplay );
+	if ( dodisplay )
+	    activefld = linergfld;
+    }
+
+    geomChanged.trigger( activefld ? activefld->getGeomID() : mUdfGeomID );
+}
+
+
+void uiSelSublineSet::adaptLineSelIfNeeded( const LineSubSelSet& lsss )
+{
+    mDynamicCastGet(const StringListInpSpec*,stringspec,
+		    linenmsfld_->dataInpSpec() )
+    BufferStringSet curlinnms;
+    if ( stringspec )
+    {
+	for ( auto linenm : stringspec->strings() )
+	    curlinnms.add( linenm->getOriginalString() );
+    }
+
+    BufferStringSet linenms;
+    getLineNames( lsss, linenms );
+    if ( linenms == curlinnms )
+	return;
+
+    const BufferString curlinnm( linenmsfld_->text() );
+    const int defidx = linenms.isPresent(curlinnm) ? linenms.indexOf(curlinnm)
+						   : 0;
+    if ( finalised() )
+	linenmsfld_->setEmpty();
+    linenmsfld_->newSpec( StringListInpSpec(linenms), defidx );
+    if ( linenms.isPresent(curlinnm) )
+	linenmsfld_->setText( curlinnm );
+
+    const int prevnrlines = linergsfld_.size();
+    if ( prevnrlines < linenms.size() )
+    {
+	for ( int idx=prevnrlines; idx<linenms.size(); idx++ )
+	{
+	    auto linergfld = new uiSelSubline( this, lsss[idx]->geomID(),
+					       withstep_, withz_ );
+	    linergfld->attach( alignedBelow, linenmsfld_ );
+	    mAttachCB( linergfld->rangeChanged, uiSelSublineSet::valChg );
+	    linergsfld_.add( linergfld );
+	}
+    }
+    else if ( prevnrlines > linenms.size() )
+	linergsfld_.removeRange( linenms.size(), prevnrlines );
+}
+
+
+void uiSelSublineSet::displayStep( bool yn )
+{
+    for ( auto linergfld : linergsfld_ )
+	linergfld->displayStep( yn );
+}
+
+
+LineSubSelSet uiSelSublineSet::getSampling() const
+{
+    LineSubSelSet lsss;
+    for ( const auto linergfld : linergsfld_ )
+	lsss.add( new LineSubSel(linergfld->getSampling()) );
+    return lsss;
+}
+
+
+void uiSelSublineSet::setSampling( const LineSubSelSet& lsss )
+{
+    adaptLineSelIfNeeded( lsss );
+    for ( int idx=0; idx<lsss.size(); idx++ )
+	linergsfld_.get(idx)->setSampling( *lsss[idx] );
+    lineChgCB( nullptr );
+}
+
+
+void uiSelSublineSet::getLineNames( const LineSubSelSet& lsss,
+				 BufferStringSet& linenms )
+{
+    linenms.setEmpty();
+    for ( const auto lss : lsss )
+	linenms.add( Survey::GM().getName( lss->geomID() ) );
 }

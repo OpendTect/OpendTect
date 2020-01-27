@@ -701,6 +701,7 @@ static inline bool inSeries( float v, float start_, float step_ )
 }
 
 
+
 static bool intersectF( float start_1, float stop_1, float step_1,
 			float start_2, float stop_2, float step_2,
 			float& outstart_, float& outstop_, float& outstep_ )
@@ -738,6 +739,48 @@ static bool intersectF( float start_1, float stop_1, float step_1,
 }
 
 
+namespace Pos
+{
+
+void normalise( steprg_type& in, Index_Type defstep )
+{
+    if ( in.start > in.stop )
+	std::swap( in.start, in.stop );
+    if ( in.step < 0 )
+	in.step *= -1;
+    else if ( !in.step )
+	in.step = defstep;
+}
+
+bool intersect( const steprg_type& rg1, const steprg_type& rg2,
+		steprg_type& out )
+{
+    return ::intersect( rg1.start, rg1.stop, rg1.step,
+			rg2.start, rg2.stop, rg2.step,
+			out.start, out.stop, out.step );
+}
+
+void normaliseZ( ZSampling& zsamp )
+{
+    if ( zsamp.start > zsamp.stop )
+	std::swap(zsamp.start,zsamp.stop);
+    if ( zsamp.step < 0 )
+	zsamp.step = -zsamp.step;
+    else if ( !zsamp.step )
+	zsamp.step = SI().zStep();
+}
+
+bool intersectF( const ZSampling& zsamp1, const ZSampling& zsamp2,
+		 ZSampling& out )
+{
+    return ::intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
+			 zsamp2.start, zsamp2.stop, zsamp2.step,
+			 out.start, out.stop, out.step );
+}
+
+} //namespace Pos
+
+
 bool TrcKeySampling::overlaps( const TrcKeySampling& oth,
 			       bool ignoresteps ) const
 {
@@ -750,34 +793,30 @@ bool TrcKeySampling::overlaps( const TrcKeySampling& oth,
     }
 
     TrcKeySampling intertks;
-    return getInterSection( oth, intertks );
+    return getIntersection( oth, intertks );
 }
 
 
-bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
-				   TrcKeySampling& out ) const
+bool TrcKeySampling::getIntersection( const TrcKeySampling& tks,
+				      TrcKeySampling& out ) const
 {
     TrcKeySampling tks1( tks ); tks1.normalise();
     TrcKeySampling tks2( *this ); tks2.normalise();
 
-    return intersect( tks1.start_.lineNr(),
-		      tks1.stop_.lineNr(),
-		      tks1.step_.lineNr(),
-		      tks2.start_.lineNr(),
-		      tks2.stop_.lineNr(),
-		      tks2.step_.lineNr(),
-		      out.start_.lineNr(),
-		      out.stop_.lineNr(),
-		      out.step_.lineNr() )
-	&& intersect( tks1.start_.trcNr(),
-		      tks1.stop_.trcNr(),
-		      tks1.step_.trcNr(),
-		      tks2.start_.trcNr(),
-		      tks2.stop_.trcNr(),
-		      tks2.step_.trcNr(),
-		      out.start_.trcNr(),
-		      out.stop_.trcNr(),
-		      out.step_.trcNr() );
+    const Pos::steprg_type linerg1( tks1.lineRange() );
+    const Pos::steprg_type linerg2( tks2.lineRange() );
+    const Pos::steprg_type trcrg1( tks1.trcRange() );
+    const Pos::steprg_type trcrg2( tks2.trcRange() );
+    Pos::steprg_type linergout, trcrgout;
+
+    const bool success = Pos::intersect( linerg1, linerg2, linergout ) &&
+			 Pos::intersect( linerg2, trcrg2, trcrgout );
+    if ( success )
+    {
+	out.setLineRange( linergout );
+	out.setTrcRange( trcrgout );
+    }
+    return success;
 }
 
 
@@ -1132,28 +1171,17 @@ void TrcKeyZSampling::set2DDef()
 }
 
 
-static void normaliseZ( StepInterval<float>& zsamp )
-{
-    if ( zsamp.start > zsamp.stop )
-	std::swap(zsamp.start,zsamp.stop);
-    if ( zsamp.step < 0 )
-	zsamp.step = -zsamp.step;
-    else if ( !zsamp.step )
-	zsamp.step = SI().zStep();
-}
 
 
 bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
-				    TrcKeyZSampling& out ) const
+				       TrcKeyZSampling& out ) const
 {
-    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_) )
+    if ( !hsamp_.getIntersection(tkzs.hsamp_,out.hsamp_) )
 	return false;
 
-    StepInterval<float> zsamp1( tkzs.zsamp_ );	normaliseZ( zsamp1 );
-    StepInterval<float> zsamp2( zsamp_ );	normaliseZ( zsamp2 );
-    return intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
-		       zsamp2.start, zsamp2.stop, zsamp2.step,
-		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
+    ZSampling zsamp1( tkzs.zsamp_ );	Pos::normaliseZ( zsamp1 );
+    ZSampling zsamp2( zsamp_ );		Pos::normaliseZ( zsamp2 );
+    return Pos::intersectF( zsamp1, zsamp2, out.zsamp_ );
 }
 
 
@@ -1495,25 +1523,18 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 
 void TrcKeySampling::normalise()
 {
-    if ( start_.lineNr() > stop_.lineNr() )
-	std::swap(start_.lineNr(),stop_.lineNr());
-    if ( start_.trcNr() > stop_.trcNr() )
-	std::swap(start_.trcNr(),stop_.trcNr());
-    if ( step_.lineNr() < 0 )
-	step_.lineNr() = -step_.lineNr();
-    else if ( !step_.lineNr() )
-	step_.lineNr() = SI().inlStep();
-    if ( step_.trcNr() < 0 )
-	step_.trcNr() = -step_.trcNr();
-    else if ( !step_.trcNr() )
-	step_.trcNr() = SI().crlStep();
+    Pos::steprg_type linerg( inlRange() ), trcrg( trcRange() );
+    Pos::normalise( linerg, SI().inlStep() );
+    Pos::normalise( trcrg, SI().crlStep() );
+    setLineRange( linerg );
+    setTrcRange( trcrg );
 }
 
 
 void TrcKeyZSampling::normalise()
 {
     hsamp_.normalise();
-    normaliseZ( zsamp_ );
+    Pos::normaliseZ( zsamp_ );
 }
 
 

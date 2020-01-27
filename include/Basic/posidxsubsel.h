@@ -51,6 +51,7 @@ public:
     bool	includes(pos_type) const;
 
     bool	isAll() const	{ return outputPosRange() == inpposrg_; }
+    bool	sameOutputPosRange(const IdxSubSelData&) const;
     bool	hasFullRange() const;
 
     idx_type	idx4Pos(pos_type) const;

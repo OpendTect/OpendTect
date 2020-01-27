@@ -34,6 +34,18 @@ bool Pos::ZSubSelData::operator ==( const Pos::ZSubSelData& oth ) const
 }
 
 
+bool Pos::ZSubSelData::sameOutputPosRange( const ZSubSelData& oth ) const
+{
+    const z_steprg_type thisrg( outputZRange() );
+    const z_steprg_type othrg( oth.outputZRange() );
+    const z_type eps = mIsZero( thisrg.step, mDefEpsF )
+		     ? ( mIsZero( thisrg.width(), mDefEpsF )
+			     ? thisrg.width() * 1e-5f : mDefEpsF )
+		     : thisrg.step * 1e-5f;
+    return thisrg.isEqual( othrg, eps );
+}
+
+
 bool Pos::ZSubSelData::includes( z_type z ) const
 {
     const auto zrg = outputZRange();
@@ -358,12 +370,10 @@ void Survey::FullZSubSel::set( GeomID gid, const ZSubSel& zss )
 }
 
 
-void Survey::FullZSubSel::setToNone( bool is2d, const SurveyInfo* si )
+void Survey::FullZSubSel::setEmpty()
 {
     geomids_.setEmpty();
     zsss_.setEmpty();
-    if ( !is2d )
-	setFull( GeomID::get3D(), si );
 }
 
 
@@ -452,7 +462,7 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 		if ( iop )
 		{
 		    if ( idx == 0 )
-			setToNone( iopis2d, si );
+			setEmpty();
 		}
 		else
 		    break;
@@ -476,7 +486,7 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 	    ZSubSel zss( ZSubSel::surv3D(si) );
 	    if ( zss.usePar(inpiop) )
 	    {
-		setToNone( iopis2d, si );
+		setEmpty();
 		set( zss );
 	    }
 	}
@@ -491,7 +501,7 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
     bool is2d = is2D();
     iop->getYN( sKey::Is2D(), is2d );
 
-    setToNone( is2d, si );
+    setEmpty();
     for ( auto idx=0; idx<sz; idx++ )
     {
 	const BufferString baseky( toString(idx) );

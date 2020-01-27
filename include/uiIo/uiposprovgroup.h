@@ -11,9 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiiocommon.h"
+
 #include "uiposfiltgroup.h"
-#include "trckeyzsampling.h"
+
 #include "factory.h"
+#include "fullsubsel.h"
 
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
@@ -28,17 +30,16 @@ public:
 			    : uiPosFiltGroup::Setup(is_2d)
 			    , withstep_(with_step)
 			    , withz_(with_z)
-			    , tkzs_(!is_2d)
 			    , withrandom_(false)
-			 { if ( is_2d ) tkzs_.set2DDef(); }
+			 {
+			     fss_.setToAll( is_2d );
+			 }
 
 	virtual	~Setup()				{}
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(BufferString,zdomkey)
-	mDefSetupMemb(TrcKeyZSampling,tkzs)
-	mDefSetupMemb(TypeSet< StepInterval<int> >,trcrgs)
-	mDefSetupMemb(TypeSet< StepInterval<float> >,zrgs)
+	mDefSetupMemb(Survey::FullSubSel,fss)
 	mDefSetupMemb(bool,withrandom)
     };
 

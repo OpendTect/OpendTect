@@ -70,7 +70,7 @@ Survey::FullSubSel::FullSubSel( GeomID gid, const SurveyInfo* si )
 Survey::FullSubSel::FullSubSel( const GeomIDSet& gids, const SurveyInfo* si )
     : hss_(gids,si)
 {
-    zss_.setToNone( is2D(), &hss_.survInfo() );
+    zss_.setEmpty();
     for ( auto gid : gids )
 	zss_.setFull( gid, &hss_.survInfo() );
 }
@@ -138,7 +138,7 @@ Survey::FullSubSel::FullSubSel( const LineHorSubSel& lhss )
 Survey::FullSubSel::FullSubSel( const LineSubSelSet& lsss )
     : hss_(lsss)
 {
-    zss_.setToNone( true );
+    zss_.setEmpty();
     for ( auto lss : lsss )
 	zss_.set( lss->geomID(), lss->zSubSel() );
 }
@@ -334,17 +334,17 @@ bool Survey::FullSubSel::isZSlice() const
 }
 
 
-void Survey::FullSubSel::setToNone( bool is2d )
+void Survey::FullSubSel::setEmpty()
 {
-    hss_.setToNone( is2d );
-    zss_.setToNone( is2d );
+    hss_.setEmpty();
+    zss_.setEmpty();
 }
 
 
 void Survey::FullSubSel::setToAll( bool is2d )
 {
     hss_.setToAll( is2d );
-    zss_.setToNone( is2d );
+    zss_.setEmpty();
     fillFullZSS();
 }
 
@@ -425,7 +425,7 @@ void Survey::FullSubSel::setGeomID( GeomID gid )
     hss_.setGeomID( gid );
     setZSSIfNotPresent( gid );
     const auto kpzss = zSubSel( gid );
-    zss_.setToNone( is2D() );
+    zss_.setEmpty();
     zss_.set( gid, kpzss );
 }
 

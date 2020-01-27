@@ -203,7 +203,7 @@ uiSurvSeisSelGroup::uiSurvSeisSelGroup( uiParent* p, const Setup& su,
     compfld_ = new uiListBox( this, lbsu );
     compfld_->setHSzPol( uiObject::SmallVar );
     compfld_->setStretch( 1, 1 );
-    compfld_->attach( centeredRightOf, objfld_->getListField() );
+    compfld_->attach( centeredRightOf, objfld_->attachObj() );
 
     mAttachCB( postFinalise(), uiSurvSeisSelGroup::initSeisGrp );
 }

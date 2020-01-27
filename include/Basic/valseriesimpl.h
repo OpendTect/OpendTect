@@ -22,9 +22,10 @@ template <class T>
 mClass(Basic) OffsetValueSeries : public ValueSeries<T>
 {
 public:
-    inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off );
+    inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off,
+					   od_int64 sz );
     inline		OffsetValueSeries( const ValueSeries<T>& src,
-					   od_int64 off);
+					   od_int64 off, od_int64 sz );
     inline ValueSeries<T>* clone() const;
 
     inline T		value( od_int64 idx ) const;
@@ -34,15 +35,18 @@ public:
     inline bool		writable() const;
     inline bool		canSetAll() const;
     inline void		setAll(T);
+    od_int64		size() const override		{ return cursize_; }
 
     inline od_int64	getOffset() const;
     inline void		setOffset(od_int64 no);
+    inline bool		setSize(od_int64 sz) override;
 
     const ValueSeries<T>&	source() const { return src_; }
 
 protected:
     ValueSeries<T>&	src_;
-    od_int64		off_;
+    od_int64		off_ = 0;
+    od_int64		cursize_ = 0;
     bool		writable_;
 };
 
@@ -83,7 +87,7 @@ public:
 
     bool	reSizeable() const		{ return mine_; }
     inline bool	setSize(od_int64);
-    od_int64	size() const			{ return cursize_; }
+    od_int64	size() const override		{ return cursize_; }
     char	bytesPerItem() const		{ return sizeof(AT); }
 
 protected:
@@ -136,7 +140,7 @@ public:
 
     bool	reSizeable() const		{ return true; }
     inline bool	setSize(od_int64);
-    od_int64	size() const			{ return cursize_; }
+    od_int64	size() const override		{ return cursize_; }
     char	bytesPerItem() const		{ return sizeof(AT); }
 
 protected:
@@ -154,20 +158,24 @@ ValueSeries<RT>* MultiArrayValueSeries<RT,AT>::clone() const
 
 
 template <class T> inline
-OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, od_int64 off )
-    : src_( src ), off_( off ), writable_(true)
+OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, od_int64 off,
+					 od_int64 sz )
+    : src_(src), off_(off), cursize_(sz)
+    , writable_(true)
 {}
 
 
 template <class T> inline
-OffsetValueSeries<T>::OffsetValueSeries(const ValueSeries<T>& src,od_int64 off)
-    : src_( const_cast<ValueSeries<T>& >(src) ), off_( off ), writable_(false)
+OffsetValueSeries<T>::OffsetValueSeries( const ValueSeries<T>& src,
+					 od_int64 off, od_int64 sz )
+    : src_( const_cast<ValueSeries<T>& >(src) ), off_(off), cursize_(sz)
+    , writable_(false)
 {}
 
 
 template <class T> inline
 ValueSeries<T>* OffsetValueSeries<T>::clone() const
-{ return new OffsetValueSeries( src_, off_ ); }
+{ return new OffsetValueSeries( src_, off_, cursize_ ); }
 
 
 template <class T> inline
@@ -188,7 +196,21 @@ template <class T> inline
 void OffsetValueSeries<T>::setAll( T v )
 {
     if ( writable_ )
-	src_.setAll( v );
+    {
+	od_int64 lastidx = off_+cursize_-1;
+	if ( lastidx >= src_.size() )
+	    lastidx = size()-1;
+	od_int64 nrsamps = lastidx - off_ + 1;
+	T* arrvals = arr();
+	if ( arrvals )
+	{
+	    OD::sysMemValueSet( arrvals, v, nrsamps );
+	    return;
+	}
+
+	for ( od_int64 idx=off_; idx<lastidx; idx++ )
+	    src_.setValue( idx, v );
+    }
     else
 	{ pErrMsg("Attempting to write to write-protected array"); }
 }
@@ -216,8 +238,17 @@ od_int64 OffsetValueSeries<T>::getOffset() const
 
 
 template <class T> inline
-void OffsetValueSeries<T>::setOffset(od_int64 no)
+void OffsetValueSeries<T>::setOffset( od_int64 no )
 { off_ = no; }
+
+
+template <class T> inline
+bool OffsetValueSeries<T>::setSize( od_int64 sz )
+{
+    if ( off_+sz >= src_.size() )
+	return false;
+    cursize_ = sz; return true;
+}
 
 
 template <class T> inline

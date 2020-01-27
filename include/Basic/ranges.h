@@ -210,6 +210,13 @@ namespace Pos
 {
     typedef Interval<Index_Type>        rg_type;
     typedef StepInterval<Index_Type>    steprg_type;
+
+    mGlobal(Basic) void normalise(steprg_type&,Index_Type defstep);
+    mGlobal(Basic) bool intersect(const steprg_type&,const steprg_type&,
+				  steprg_type&);
+    mGlobal(Basic) void normaliseZ(ZSampling&);
+    mGlobal(Basic) bool intersectF(const ZSampling&,const ZSampling&,
+				   ZSampling&);
 };
 
 
@@ -748,9 +755,9 @@ T StepInterval<T>::snap( X t, SnapDir dir ) const
 
     const fidx_type fidx = getfIndex( t );
     const int snappedidx = mNINT32(fidx);
-    const fidx_type releps = mIsZero(fidx,1e-6f) ? 1e-6f
-					     : fidx < 0.f ? -fidx*1e-6f
-							  :  fidx*1e-6f;
+    const fidx_type releps = mIsZero(fidx,1e-5f) ? 1e-5f
+					     : fidx < 0.f ? -fidx*1e-5f
+							  :  fidx*1e-5f;
     const int idx = mIsEqual(fidx,snappedidx,releps) ? snappedidx
 			  : mNINT32( dir==OD::SnapDownward ? Math::Floor(fidx)
 							   : Math::Ceil(fidx) );

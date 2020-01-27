@@ -191,6 +191,8 @@ public:
     float*	arr();
     const float* arr() const;
 
+    od_int64	size() const override	{ return trc_.size(); }
+
     bool	copytoArray(Array1D<float>&);
 
     inline ValueSeries<float>*	clone() const;

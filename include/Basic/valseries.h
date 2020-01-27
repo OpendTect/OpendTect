@@ -48,6 +48,7 @@ public:
     virtual T*		arr()				{ return 0; }
     virtual const T*	arr() const			{ return 0; }
 
+    virtual od_int64	size() const			= 0;
     virtual char	bytesPerItem() const		{ return sizeof(T); }
 
     inline T		operator[](od_int64 idx) const	{ return value(idx); }

@@ -13,16 +13,15 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uiposprovgroup.h"
 
-class TrcKeyZSampling;
 class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiPickSetIOObjSel;
 class uiPosSubSel;
 class uiSelSteps;
-class uiSelHRange;
+class uiSelSublineSet;
+class uiSelSubvol;
 class uiSelZRange;
-class uiSelNrRange;
 
 
 /*! \brief UI for RangePosProvider */
@@ -42,7 +41,9 @@ public:
 
     void		setExtractionDefaults();
 
-    void		getTrcKeyZSampling(TrcKeyZSampling&) const;
+    void		getSubSel(Survey::FullSubSel&) const;
+
+    CNotifier<uiRangePosProvGroup,Pos::GeomID>	geomChanged;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
 			{ return new uiRangePosProvGroup(p,s); }
@@ -50,17 +51,21 @@ public:
 
 protected:
 
-    uiSelHRange*	hrgfld_;
-    uiSelZRange*	zrgfld_;
-    uiSelNrRange*	nrrgfld_;
-    uiGenInput*		samplingfld_;
-    uiGenInput*		nrsamplesfld_;
+    uiSelSubvol*	volrgfld_	= nullptr;
+    uiSelSublineSet*	linergsfld_	= nullptr;
+    uiGenInput*		samplingfld_	= nullptr;
+    uiGenInput*		nrsamplesfld_	= nullptr;
 
     uiPosProvGroup::Setup setup_;
 
     void		initGrp(CallBacker*);
     void		rangeChgCB(CallBacker*);
+    void		lineChgCB(CallBacker*);
     void		samplingCB(CallBacker*);
+
+private:
+    static void		getLineNames(const Survey::FullSubSel&,
+				     BufferStringSet&);
 };
 
 

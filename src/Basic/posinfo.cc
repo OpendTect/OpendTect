@@ -363,6 +363,18 @@ const PosInfo::CubeData* PosInfo::LineCollData::asCubeData() const
 }
 
 
+PosInfo::LinesData* PosInfo::LineCollData::asLinesData()
+{
+    return isLinesData() ? static_cast<LinesData*>(this) : nullptr;
+}
+
+
+const PosInfo::LinesData* PosInfo::LineCollData::asLinesData() const
+{
+    return isLinesData() ? static_cast<const LinesData*>(this) : nullptr;
+}
+
+
 bool PosInfo::LineCollData::isLineSorted() const
 {
     if ( isEmpty() )
@@ -557,7 +569,7 @@ void PosInfo::LineCollData::getFullHorSubSel( FullHorSubSel& fhss,
 {
     if ( is2d )
     {
-	fhss.setToNone( true );
+	fhss.setEmpty();
 	for ( int iln=0; iln<size(); iln++ )
 	{
 	    const auto& ld = *get( iln );

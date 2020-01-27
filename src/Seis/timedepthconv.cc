@@ -220,7 +220,8 @@ protected:
 	    arr_.info().getOffset( hrg.lineIdx( trk.lineNr() ),
 				   hrg.trcIdx( trk.trcNr() ), 0 );
 
-	OffsetValueSeries<float> arrvs( *arr_.valueSeries(), offset );
+	OffsetValueSeries<float> arrvs( *arr_.valueSeries(), offset,
+					arr_.getSize(2) );
 
 	const BinID& curbid = trk.position();
 	const int nrz = arr_.getSize( 2 );
@@ -427,8 +428,8 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
-    const OffsetValueSeries<float> vs( *arr.valueSeries(), offset );
     const int zsz = arr.getSize(2);
+    const OffsetValueSeries<float> vs( *arr.valueSeries(), offset, zsz );
 
     const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
@@ -495,8 +496,9 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
-    const OffsetValueSeries<float> vs( *arr.valueSeries(), offset );
     const int zsz = arr.getSize(2);
+    const OffsetValueSeries<float> vs( *arr.valueSeries(), offset,
+				       zsz );
 
     const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,

@@ -296,3 +296,9 @@ float Seis::RawTrcsSequenceValueSeries::value( od_int64 idx ) const
 
 const float* Seis::RawTrcsSequenceValueSeries::arr() const
 { return (float*)seq_.getData(ipos_,icomp_); }
+
+od_int64 Seis::RawTrcsSequenceValueSeries::size() const
+{
+    return seq_.data_.isEmpty() ? 0
+				: seq_.data_.first()->size();
+}

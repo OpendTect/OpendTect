@@ -10,11 +10,13 @@ ________________________________________________________________________
 
 */
 
-#include "seisblocks.h"
 #include "binid.h"
 #include "bin2d.h"
+#include "seisblocks.h"
+#include "seisbuf.h"
 
 class ArrayNDInfo;
+template <class T> class Array1D;
 template <class T> class Array2D;
 template <class T> class Array3D;
 class SeisTrc;
@@ -23,6 +25,7 @@ class SeisTrc;
 namespace Seis
 {
 
+class SelData;
 class Storer;
 
 
@@ -57,7 +60,8 @@ public:
     typedef Array3D<val_type>	Arr3D;
 
 
-		DataGlueer(Storer&);
+		DataGlueer(const SelData&,Storer&);
+		//!< SelData provides the enveloppe of possible samples
 		~DataGlueer();
 
     void	setSteps( pos_type stp, z_type zs )
@@ -74,26 +78,26 @@ public:
 
 protected:
 
+    const SelData&	seissel_;
     Storer&		storer_;
     const ArrayNDInfo*	arrinfo_	    = nullptr;
-    pos_type		trcstep_	    = 1;
     pos_type		linestep_	    = 1;
+    pos_type		trcstep_	    = 1;
     z_type		zstep_;
     int			trcsz_		    = -1;
     Bin2D		curb2d_		    = Bin2D::udf();
     BinID		curbid_		    = BinID::udf();
     ObjectSet<LineBuf>	linebufs_;
+    SeisTrcBuf		trcbuf_;
 
     void	initGeometry(const ArrayNDInfo&);
     void	addPos(const Bin2D&,const Arr2D&,z_type);
     void	addPos(const BinID&,const Arr3D&,z_type);
-    void	mergeZ(const Arr2D&,z_type);
-    void	mergeZ(const Arr3D&,z_type);
     uiRetVal	storeReadyPositions();
 
     LineBuf*	getBuf(pos_type);
     uiRetVal	storeLineBuf(const LineBuf&);
-    void	fillTrace(SeisTrc&);
+    void	fillTrace(SeisTrc&,Array1D<int>&);
 
 };
 

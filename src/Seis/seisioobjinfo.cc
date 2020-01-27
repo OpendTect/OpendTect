@@ -17,11 +17,13 @@
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "fullsubsel.h"
 #include "genc.h"
 #include "globexpr.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "linesubsel.h"
 #include "od_istream.h"
 #include "ptrman.h"
 #include "seistrctr.h"
@@ -405,12 +407,38 @@ od_int64 SeisIOObjInfo::getFileModifTime() const
 }
 
 
-Survey::GeomSubSel* SeisIOObjInfo::getSurvSubSel() const
+Survey::FullSubSel* SeisIOObjInfo::getSurvSubSel() const
 {
+    if ( is2D() )
+    {
+	GeomIDSet geomids;
+	getGeomIDs( geomids );
+	LineSubSelSet lsss;
+	for ( const auto geomid : geomids )
+	{
+	    TrcKeyZSampling tkzs( geomid );
+	    if ( !getRanges(tkzs) )
+		continue;
+	    lsss.add( new LineSubSel(tkzs) );
+	}
+	return new Survey::FullSubSel( lsss );
+    }
+
     TrcKeyZSampling cs( false );
     if ( !getRanges(cs) )
-	return new CubeSubSel;
-    return GeomSubSel::get( cs );
+	return nullptr;;
+    return new Survey::FullSubSel( CubeSubSel(cs) );
+}
+
+
+Survey::GeomSubSel* SeisIOObjInfo::getGeomSubSel( GeomID gid ) const
+{
+    PtrMan<Survey::FullSubSel> fss = getSurvSubSel();
+    if ( !fss || !fss->isPresent(gid) )
+	return nullptr;
+
+    const int ssidx = fss->indexOf(gid);
+    return fss->getGeomSubSel( ssidx );
 }
 
 

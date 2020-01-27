@@ -76,6 +76,7 @@ protected:
     ObjectSet<uiPosProvGroup>	grps_;
     Setup			setup_;
 
+    void			initGrp(CallBacker*);
     void			selChg(CallBacker*);
     void			fullSurvPush(CallBacker*);
     void			openCB(CallBacker*);
@@ -106,7 +107,9 @@ public:
     void		setInput(const TrcKeyZSampling& initcs,
 				 const TrcKeyZSampling& ioparcs);
     void		setInputLimit(const TrcKeyZSampling&);
-    const TrcKeyZSampling&	inputLimit() const	{ return setup_.tkzs_; }
+    TrcKeyZSampling	inputLimit() const;
+    void		setInputSubSel(const TrcKeyZSampling&);
+    const Survey::FullSubSel&	inputSubSel() const;
 
     bool		isAll() const;
     void		setToAll();

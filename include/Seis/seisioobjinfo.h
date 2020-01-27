@@ -24,6 +24,7 @@ class BinnedValueSet;
 class BufferStringSet;
 class SeisIOObjInfo;
 class TrcKeyZSampling;
+namespace Survey { class FullSubSel; }
 namespace ZDomain { class Def; }
 
 namespace Seis
@@ -104,7 +105,6 @@ public:
 
     mUseType( Pos,	GeomID );
     mUseType( Seis,	GeomType );
-    mUseType( Survey,	GeomSubSel );
 
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
@@ -140,7 +140,8 @@ public:
     od_int64		getFileSize() const;
     static od_int64	getFileSize(const char* fnm,int& nrfiles);
     od_int64		getFileModifTime() const;
-    GeomSubSel*		getSurvSubSel() const;
+    Survey::FullSubSel* getSurvSubSel() const;
+    Survey::GeomSubSel* getGeomSubSel(GeomID) const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRegular() const;
     bool		getDataChar(DataCharacteristics&) const;

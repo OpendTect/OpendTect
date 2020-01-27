@@ -59,6 +59,14 @@ PosInfo::LinesData::glob_size_type PosInfo::LinesData::totalSizeInside(
 }
 
 
+bool PosInfo::LinesData::hasPosition( const LineHorSubSel& lhss,
+				      glob_idx_type gidx ) const
+{
+    const Bin2D b2d( lhss.atGlobIdx(gidx) );
+    return includes( b2d );
+}
+
+
 bool PosInfo::LinesData::hasPosition( const LineHorSubSelSet& lhsss,
 				     glob_idx_type gidx ) const
 {

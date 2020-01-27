@@ -578,7 +578,7 @@ StreamData File::LocalFileSystemAccess::createIStream(const char* uri,
     if ( binary )
 	openmode = openmode | std::ios_base::binary;
 
-
+    deleteAndZeroPtr( impl->istrm_ );
 #ifdef __msvc__
     impl->istrm_ = new std::winifstream( impl->fname_, openmode );
 #else

@@ -177,7 +177,8 @@ public:
 
     // Compatibility with other classes:
 
-    inline size_type		size() const	{ return info().getSize(0); }
+    inline total_size_type	size() const override
+				{ return ArrayND<T>::totalSize(); }
     inline T			operator []( idx_type idx ) const
 				{ return get( idx ); }
 
@@ -242,7 +243,7 @@ public:
     void			setND( NDPos pos, T v )
 				{ set( pos[0], pos[1], pos[2], pos[3], v ); }
     T		                getND( NDPos pos ) const
-				{ return get( pos[0], pos[1], pos[2], pos[4] );}
+				{ return get( pos[0], pos[1], pos[2], pos[3] );}
 
     virtual T****		get4DData()		{ return 0; }
     virtual const T****		get4DData() const	{ return 0; }
@@ -325,6 +326,8 @@ public:
 
     const T*		arr() const	{ return array_.getData(); }
     T*			arr()		{ return 0; }
+
+    total_size_type	size() const	{ return array_.totalSize(); }
 
 protected:
 

@@ -176,6 +176,7 @@ Survey::FullHorSubSel::FullHorSubSel( const IOPar& iop, const SurveyInfo* si )
 Survey::FullHorSubSel::~FullHorSubSel()
 {
     clearContents();
+    delete chss_;
     delete &lhsss_;
 }
 
@@ -187,7 +188,10 @@ Survey::FullHorSubSel& Survey::FullHorSubSel::operator=(
     {
 	clearContents();
 	if ( oth.chss_ )
+	{
+	    delete chss_;
 	    chss_ = new CubeHorSubSel( *oth.chss_ );
+	}
 	else
 	    lhsss_ = oth.lhsss_;
     }
@@ -230,7 +234,10 @@ void Survey::FullHorSubSel::set3D( bool yn, const SurveyInfo* si )
     {
 	lhsss_.setEmpty();
 	if ( !chss_ )
+	{
+	    delete chss_;
 	    chss_ = new CubeHorSubSel( si );
+	}
     }
 }
 
@@ -437,10 +444,9 @@ void Survey::FullHorSubSel::setTrcNrRange( const pos_rg_type& rg, idx_type idx )
 }
 
 
-void Survey::FullHorSubSel::setToNone( bool is2d, const SurveyInfo* si )
+void Survey::FullHorSubSel::setEmpty()
 {
     clearContents();
-    set3D( !is2d, si );
 }
 
 
@@ -541,7 +547,8 @@ void Survey::FullHorSubSel::usePar( const IOPar& iop, const SurveyInfo* si )
 	iopis2d = !iop.isPresent(sKey::SurveyID()); //From Seis::SelData
 	if ( iopis2d )
 	{
-	    const BufferString firstky(sKey::Line(),toString(0),sKey::GeomID());
+	    BufferString firstky( IOPar::compKey(sKey::Line(),toString(0) ) );
+	    firstky.set( IOPar::compKey(firstky.buf(),sKey::GeomID() ) );
 	    if ( !iop.isPresent(firstky) )
 		return;
 	}
@@ -720,7 +727,8 @@ const LineHorSubSel& Survey::FullHorSubSel::lineHorSubSel( idx_type idx ) const
 }
 
 
-const LineHorSubSel* Survey::FullHorSubSel::findLineHorSubSel( GeomID geomid ) const
+const LineHorSubSel* Survey::FullHorSubSel::findLineHorSubSel(
+					    GeomID geomid ) const
 {
     return lhsss_.find( geomid );
 }

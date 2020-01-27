@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "seisblocksdataglueer.h"
-#include "seisstorer.h"
+
 #include "arrayndimpl.h"
+#include "seisseldata.h"
+#include "seisstorer.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "uistrings.h"
@@ -58,7 +60,7 @@ public:
     z_type	zStop() const		{ return zsd_.atIndex( nrZ() - 1 ); }
 
 void addData( const StepInterval<pos_type>& lnrs, SeisTrc& trc,
-	      Array1D<float>& contrib )
+	      Array1D<int>& contribs )
 {
     const auto lnr = trc.info().lineNr();
     const auto tnr = trc.info().trcNr();
@@ -67,24 +69,27 @@ void addData( const StepInterval<pos_type>& lnrs, SeisTrc& trc,
 	return;
 
     const auto nrz = nrZ();
-    const auto trcidx0 = trc.info().sampling_.nearestIndex( zStart() );
+    const ZSampling trczrg = trc.zRange();
+    int* contribsarr = contribs.getData();
     if ( is3D() )
     {
 	const auto iinl = lnrs.nearestIndex( lnr );
 	const auto icrl = tnrsd_.nearestIndex( tnr );
 	mDynamicCastGet( Arr3D*, arr3d, arr_ )
-	for ( auto iz=0; iz<nrz; iz++ )
+	for ( int iz=0; iz<nrz; iz++ )
 	{
-	    const auto trcidx = trcidx0 + iz;
-	    const auto curwt = contrib[trcidx];
-	    const auto curval = trc.get( trcidx, 0 );
-	    const auto newwt = 1.0f;
-	    const auto newval = arr3d->get( iinl, icrl, iz );
+	    const auto curwt = zsd_.atIndex(iz);
+	    if ( !trczrg.includes(curwt,false) )
+		continue;
 
-	    const auto nextwt = curwt + newwt;
-	    const auto wtavg = (curwt*curval + newwt*newval) / nextwt;
-	    trc.set( trcidx, wtavg, 0 );
-	    contrib.set( trcidx, nextwt );
+	    float curval = arr3d->get( iinl, icrl, iz );
+	    if ( mIsUdf(curval) )
+		continue;
+
+	    const int trcidx = trczrg.nearestIndex( curwt );
+	    curval += trc.get( trcidx, 0 );
+	    trc.set( trcidx, curval, 0 );
+	    contribsarr[trcidx]++;
 	}
     }
     else
@@ -93,16 +98,18 @@ void addData( const StepInterval<pos_type>& lnrs, SeisTrc& trc,
 	mDynamicCastGet( Arr2D*, arr2d, arr_ )
 	for ( auto iz=0; iz<nrz; iz++ )
 	{
-	    const auto trcidx = trcidx0 + iz;
-	    const auto curwt = contrib[trcidx];
-	    const auto curval = trc.get( trcidx, 0 );
-	    const auto newwt = 1.0f;
-	    const auto newval = arr2d->get( itnr, iz );
+	    const auto curwt = zsd_.atIndex(iz);
+	    if ( !trczrg.includes(curwt,false) )
+		continue;
 
-	    const auto nextwt = curwt + newwt;
-	    const auto wtavg = (curwt*curval + newwt*newval) / nextwt;
-	    trc.set( trcidx, wtavg, 0 );
-	    contrib.set( trcidx, nextwt );
+	    float curval = arr2d->get( itnr, iz );
+	    if ( mIsUdf(curval) )
+		continue;
+
+	    const int trcidx = trczrg.nearestIndex( curwt );
+	    curval += trc.get( trcidx, 0 );
+	    trc.set( trcidx, curval, 0 );
+	    contribsarr[trcidx]++;
 	}
     }
 }
@@ -174,13 +181,13 @@ StepInterval<z_type> zRange() const
 }
 
 
-void fillTrace( SeisTrc& trc, Array1D<float>& contrib )
+void fillTrace( SeisTrc& trc, Array1D<int>& contribs )
 {
     for ( auto* bll : blocklets_ )
     {
 	const StepInterval<pos_type> lnrs( startlnr_, lastLineNr(*bll),
 					   linerg_.step );
-	bll->addData( lnrs, trc, contrib );
+	bll->addData( lnrs, trc, contribs );
     }
 }
 
@@ -190,8 +197,10 @@ void fillTrace( SeisTrc& trc, Array1D<float>& contrib )
 }
 
 
-Seis::Blocks::DataGlueer::DataGlueer( Storer& strr )
-    : storer_(strr)
+Seis::Blocks::DataGlueer::DataGlueer( const SelData& sd, Storer& strr )
+    : seissel_(*sd.clone())
+    , storer_(strr)
+    , trcbuf_(false)
     , zstep_(SI().zStep())
 {
 }
@@ -206,6 +215,8 @@ Seis::Blocks::DataGlueer::~DataGlueer()
 	if ( !uirv.isOK() )
 	    ErrMsg( uirv );
     }
+    delete &seissel_;
+    trcbuf_.deepErase();
     delete arrinfo_;
 }
 
@@ -295,6 +306,13 @@ uiRetVal Seis::Blocks::DataGlueer::finish()
     curbid_ = BinID::udf();
     mSetUdf( curb2d_.trcNr() );
     auto uirv = storeReadyPositions();
+    trcbuf_.sortForWrite( is2D() );
+    while ( !trcbuf_.isEmpty() )
+    {
+	const SeisTrc* trc = trcbuf_.remove(0);
+	storer_.put( *trc );
+	delete trc;
+    }
     uirv.add( storer_.close() );
     return uirv;
 }
@@ -329,39 +347,44 @@ uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions()
 uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 {
     const auto tnrrg = lb.trcNrRange();
-    const auto zrg = lb.zRange();
-    if ( trcsz_ < 0 )
-	trcsz_ = zrg.nrSteps() + 1;
+    const int iln = is2D() ? seissel_.indexOf( Pos::GeomID(lb.startlnr_) ) : 0;
+    const auto zrg = seissel_.zRange( iln );
+    const int nrz = zrg.nrSteps() + 1;
 
-    SeisTrc trc( trcsz_ );
+    SeisTrc trc( nrz );
+    Array1DImpl<int> contribs( nrz );
     trc.info().setGeomSystem( is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
     trc.info().sampling_.start = zrg.start;
     trc.info().sampling_.step = zrg.step;
-    uiRetVal uirv;
-    for ( auto lnr=lb.linerg_.start; lnr<=lb.linerg_.stop;
-		lnr+=lb.linerg_.step )
+    for ( auto lnr=lb.linerg_.start; lnr<=lb.linerg_.stop; lnr+=lb.linerg_.step)
     {
 	trc.info().setLineNr( lnr );
 	for ( auto trcnr=tnrrg.start; trcnr<=tnrrg.stop; trcnr+=trcstep_ )
 	{
 	    trc.info().setTrcNr( trcnr );
+	    if ( !seissel_.isOK(trc.info().trcKey()) )
+		continue;
+
 	    trc.info().calcCoord();
-	    fillTrace( trc );
-	    uirv = storer_.put( trc );
-	    if ( !uirv.isOK() )
-		return uirv;
+	    fillTrace( trc, contribs );
+	    trcbuf_.add( new SeisTrc(trc) );
 	}
     }
 
-    return uirv;
+    return uiRetVal::OK();
 }
 
 
-void Seis::Blocks::DataGlueer::fillTrace( SeisTrc& trc )
+void Seis::Blocks::DataGlueer::fillTrace( SeisTrc& trc, Array1D<int>& contribs )
 {
-    Array1DImpl<float> contrib( trc.size() );
-    contrib.setAll( 0.f );
-
+    trc.zero();
+    contribs.setAll( 0 );
     for ( auto lb : linebufs_ )
-	lb->fillTrace( trc, contrib );
+	lb->fillTrace( trc, contribs );
+    const int* contribvals = contribs.getData();
+    for ( int idz=0; idz<trc.size(); idz++, contribvals++ )
+    {
+	const float val = *contribvals == 0 ? mUdf(float) : trc.get( idz, 0 );
+	trc.set( idz, val, 0 );
+    }
 }

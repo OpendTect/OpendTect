@@ -6,14 +6,16 @@
 
 
 #include "testprog.h"
-#include "seisblocksdataglueer.h"
-#include "seisprovider.h"
-#include "seisstorer.h"
-#include "seistype.h"
+
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "moddepmgr.h"
 #include "plugins.h"
+#include "seisblocksdataglueer.h"
+#include "seisprovider.h"
+#include "seisrangeseldata.h"
+#include "seisstorer.h"
+#include "seistype.h"
 
 
 #define mErrRetIfNotOK( uirv ) \
@@ -64,7 +66,11 @@ static bool testCreate()
     dbky_ = ctio.ioobj_->key();
     Seis::Storer strr( *ctio.ioobj_ );
 
-    Seis::Blocks::DataGlueer dg( strr );
+    const CubeSubSel css( StepInterval<int>(400, 410, 1 ),
+			  StepInterval<int>(600, 620, 1 ),
+			  ZSampling(1.0f,1.5f,0.004f) );
+    const Seis::RangeSelData sd( css );
+    Seis::Blocks::DataGlueer dg( sd, strr );
     dg.setSteps( BinID(2,1), 0.004f );
     uiRetVal uirv;
     Array3DImpl<float> arr( 3, 5, 7 );
@@ -96,6 +102,7 @@ static bool testReadBack()
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+    PIM().loadAuto( true );
     OD::ModDeps().ensureLoaded("Seis");
     PIM().loadAuto( false );
 
