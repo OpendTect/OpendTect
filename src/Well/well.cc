@@ -59,6 +59,16 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
   "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
   "canceledlocation", "injectiondisposalwell", 0 };
 
+mDefineEnumUtils(Well::Info, DepthType, "Depth type")
+{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(), 0 };
+ template <>
+ void EnumDefImpl<Well::Info::DepthType>::init()
+ {
+     uistrings_ += ::toUiString( "MD" );
+     uistrings_ += ::toUiString( "TVD" );
+     uistrings_ += ::toUiString( "TVDSS" );
+ }
+
 int Well::Info::legacyLogWidthFactor()
 {
    const int inlnr = SI().inlRange( true ).nrSteps() + 1;

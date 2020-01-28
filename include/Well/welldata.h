@@ -57,6 +57,12 @@ public:
 			  InjectDispose };
 			mDeclareEnumUtils(WellType);
 
+    enum DepthType	{ MD, TVD, TVDSS };
+			mDeclareEnumUtils(DepthType)
+
+    static const char*	sKeyTVD()	{ return "True Vertical Depth [TVD]"; }
+    static const char*	sKeyMD()	{ return "Measured Depth [MD]"; }
+
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
