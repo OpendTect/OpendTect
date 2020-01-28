@@ -15,11 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
-#include "nrbytes2string.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "veldesc.h"
-#include "odsysmem.h"
 #include "threadwork.h"
 #include "progressmeterimpl.h"
 
@@ -306,15 +304,10 @@ int VolProc::ChainOutput::setupChunking()
     const TrcKeySampling& tks = *volprocouttkscalcscopemgr_.getParam( this );
     outputzrg_ = StepInterval<int>( 0, cs_.zsamp_.nrSteps(), 1 );
     od_uint64 memusage;
+    uiString errmsg;
     if ( !chainexec_->setCalculationScope(tks,cs_.zsamp_,memusage,&nrexecs_) )
-    {
-	NrBytesToStringCreator bytesstrcalc;
-	bytesstrcalc.setUnitFrom( memusage );
-	const BufferString memstr( bytesstrcalc.getString( memusage ) );
-	return retError(
-		tr("Processing aborted; not enough available memory.\n"
-		   "%1 bytes would be required.").arg( memstr ) );
-    }
+	return retError( tr("Processing aborted: %1")
+			.arg( chainexec_->errMsg() ) );
 
     neednextchunk_ = true;
     curexecnr_ = 0;
@@ -337,15 +330,7 @@ int VolProc::ChainOutput::setNextChunk()
     od_uint64 memusage; int nrsubexecs;
     if ( !chainexec_->setCalculationScope(hsamp,cs_.zsamp_,memusage,
 					  &nrsubexecs) )
-    {
-	deleteAndZeroPtr( chainexec_ );
-	NrBytesToStringCreator bytesstrcalc;
-	bytesstrcalc.setUnitFrom( memusage );
-	const BufferString memstr( bytesstrcalc.getString( memusage ) );
-	return retError( tr("Could not set calculation scope."
-		    "\nProbably there is not enough memory available.\n"
-		    "%1 bytes would be required.").arg( memstr ) );
-    }
+	return retError( chainexec_->errMsg() );
     else if ( nrsubexecs > 1 )
     {
 	scopetks.start_.lineNr() = hsamp.start_.lineNr();

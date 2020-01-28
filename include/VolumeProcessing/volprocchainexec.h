@@ -41,21 +41,8 @@ public:
 						    od_uint64& maxmemusage,
 						    int* nrchunks=0);
 
-				/*!< Return 0 if not enough memory for the
-				     execution */
-    mDeprecated int		nrChunks(const TrcKeySampling&,
-					 const StepInterval<int>&,
-					 int extranroutcomps=0);
-    mDeprecated od_int64	computeMaximumMemoryUsage(const TrcKeySampling&,
-						const StepInterval<int>&);
-				//Will be removed after 6.2
-
     uiString			errMsg() const;
     uiString			uiNrDoneText() const;
-
-    mDeprecated bool		setCalculationScope(const TrcKeySampling&,
-						    const StepInterval<int>&);
-    mDeprecated void		setOutputZSampling(const StepInterval<float>&);
 
     const RegularSeisDataPack*	getOutput() const;
     virtual int			nextStep();
@@ -122,8 +109,8 @@ private:
 				    const TypeSet<TrcKeySampling>& epochstks,
 				    const TypeSet<StepInterval<int> >&) const;
     void			adjustStepsNrComponents(bool is2d);
-    bool			needSplit(od_int64 usage,od_int64& freemem,
-					  int& nrchunks) const;
+    bool			checkAndSplit(od_int64 usage,od_int64& freemem,
+					      int& nrchunks) const;
 
     Epoch*			curepoch_;
     bool			isok_;
@@ -135,6 +122,7 @@ private:
     ObjectSet<Epoch>		epochs_;
     Chain::Web			web_;
     int				totalnrepochs_;
+    ObjectSet<TrcKeyZSampling>	stepstkzs_;
 
     const RegularSeisDataPack*	outputdp_;
     JobCommunic*		jobcomm_;

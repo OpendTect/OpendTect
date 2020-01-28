@@ -290,4 +290,15 @@ namespace Threads
 }
 
 
+#if defined __win32__
+#define mMaxContiguousMemSize	0x20000000 // 512 MB (OS limit)
+#elif defined __win64__
+#define mMaxContiguousMemSize	0x800000000 // 32 GB (OS limit)
+#elif defined __mac__
+#define mMaxContiguousMemSize	0x800000000 // 32 GB (arbitrary)
+#else
+#define mMaxContiguousMemSize	0x4000000000 // 256 GB (arbitrary)
+#endif
+
+
 #endif

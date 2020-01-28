@@ -9,17 +9,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocchainexec.h"
 
 #include "jobcommunic.h"
+#include "nrbytes2string.h"
+#include "odplatform.h"
 #include "odsysmem.h"
 #include "posinfo.h"
 #include "seisdatapack.h"
 #include "simpnumer.h" // for getCommonStepInterval
 #include "threadwork.h"
 
-#include "hiddenparam.h"
-
-
-static HiddenParam<VolProc::ChainExecutor,ObjectSet<TrcKeyZSampling>* >
-					    volprocchainexecstepstkzsmgr_( 0 );
 
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
 {
@@ -38,8 +35,6 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
     , curepoch_( 0 )
     , jobcomm_( 0 )
 {
-    volprocchainexecstepstkzsmgr_.setParam( this,
-					new ObjectSet<TrcKeyZSampling> );
     setName( vr.name().getFullString() );
     web_ = chain_.getWeb();
     //TODO Optimize connections, check for identical steps using same inputs
@@ -48,8 +43,7 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
 
 VolProc::ChainExecutor::~ChainExecutor()
 {
-    deepErase( *volprocchainexecstepstkzsmgr_.getParam( this ) );
-    volprocchainexecstepstkzsmgr_.removeAndDeleteParam( this );
+    deepErase( stepstkzs_ );
 
     deepErase( epochs_ );
     if ( curepoch_ )
@@ -69,7 +63,8 @@ uiString VolProc::ChainExecutor::errMsg() const
 
 bool VolProc::ChainExecutor::setCalculationScope( const TrcKeySampling& tks,
 					 const StepInterval<float>& zsamp,
-					 od_uint64& maxmemusage, int* nrchunks )
+					 od_uint64& maxmemusage,
+					 int* nrchunks )
 {
     isok_ = false;
     if ( !scheduleWork() )
@@ -209,19 +204,17 @@ void VolProc::ChainExecutor::updateScheduledStepsSampling(
 					const TrcKeySampling& tks,
 					const StepInterval<float>& zsamp )
 {
-    ObjectSet<TrcKeyZSampling>& stepstkzs =
-				*volprocchainexecstepstkzsmgr_.getParam( this );
-    deepErase( stepstkzs );
+    deepErase( stepstkzs_ );
     for ( int idx=0; idx<chain_.getSteps().size(); idx++ )
     {
-	stepstkzs += new TrcKeyZSampling;
-	stepstkzs[idx]->setEmpty();
+	stepstkzs_ += new TrcKeyZSampling;
+	stepstkzs_[idx]->setEmpty();
     }
 
     const int laststepidx = chain_.indexOf(
 			    chain_.getStepFromID( chain_.outputstepid_ ) );
-    stepstkzs[laststepidx]->hsamp_ = tks;
-    stepstkzs[laststepidx]->zsamp_ = zsamp;
+    stepstkzs_[laststepidx]->hsamp_ = tks;
+    stepstkzs_[laststepidx]->zsamp_ = zsamp;
     for ( int iepoch=0; iepoch<totalnrepochs_; iepoch++ )
     {
 	const ObjectSet<Step>& steps = epochs_[iepoch]->getSteps();
@@ -229,7 +222,7 @@ void VolProc::ChainExecutor::updateScheduledStepsSampling(
 	{
 	    const Step* outstep = steps[istep];
 	    const int outstepidx = chain_.indexOf( outstep );
-	    const TrcKeyZSampling& outtkzs = *stepstkzs[outstepidx];
+	    const TrcKeyZSampling& outtkzs = *stepstkzs_[outstepidx];
 	    TypeSet<Chain::Connection> conns;
 	    web_.getConnections( outstep->getID(), true, conns );
 	    for ( int iconn=0; iconn<conns.size(); iconn++ )
@@ -239,10 +232,10 @@ void VolProc::ChainExecutor::updateScheduledStepsSampling(
 		const int inpstepidx = chain_.indexOf( inpstep );
 		const TrcKeyZSampling tkzs =
 					   outstep->getInputSampling( outtkzs );
-		if ( stepstkzs[inpstepidx]->hsamp_.isDefined() )
-		    stepstkzs[inpstepidx]->include( tkzs );
+		if ( stepstkzs_[inpstepidx]->hsamp_.isDefined() )
+		    stepstkzs_[inpstepidx]->include( tkzs );
 		else
-		    *stepstkzs[inpstepidx] = tkzs;
+		    *stepstkzs_[inpstepidx] = tkzs;
 	    }
 	}
     }
@@ -282,13 +275,11 @@ void VolProc::ChainExecutor::computeComputationScope( Step::ID,
 bool VolProc::ChainExecutor::getCalculationScope( Step::ID stepid,
 						  TrcKeyZSampling& tkzs ) const
 {
-    const ObjectSet<TrcKeyZSampling>& stepstkzs =
-				*volprocchainexecstepstkzsmgr_.getParam( this );
     const int stepidx = chain_.indexOf( chain_.getStepFromID( stepid ) );
-    if ( !stepstkzs.validIdx(stepidx) )
+    if ( !stepstkzs_.validIdx(stepidx) )
 	return false;
 
-    tkzs = *stepstkzs[stepidx];
+    tkzs = *stepstkzs_[stepidx];
 
     return true;
 }
@@ -324,50 +315,65 @@ struct VolumeMemory
 
 } // namespace VolProc
 
-// From ValSeries:
-#if defined __lux32__
-#define mChunkSize	0x20000000
-#elif defined __win32__
-#define mChunkSize	0x20000000
-#else
-#define mChunkSize	0x800000000
-#endif
 
+#define mChunkSize mMaxContiguousMemSize
 
-bool VolProc::ChainExecutor::needSplit( od_int64 memusage,
-					od_int64& freemem, int& nrexecs ) const
+bool VolProc::ChainExecutor::checkAndSplit( od_int64 memusage,
+					od_int64& freemem, int& nrexecs) const
 {
+    const bool cansplit = areSamplesIndependent() && !needsFullVolume();
     od_int64 totmem;
     OD::getSystemMemory( totmem, freemem );
     nrexecs = 1;
+    NrBytesToStringCreator bytesstrcalc;
     if ( memusage >= freemem )
+    {
 	nrexecs = freemem <= 0 ? 0
 			       : mNINT32( Math::Ceil( mCast(double,memusage) /
 					  mCast(double,freemem) ) );
+	if ( nrexecs > 1 && !cansplit )
+	{
+	    bytesstrcalc.setUnitFrom( freemem );
+	    errmsg_ = tr("Not enough memory.\nNeeded: %1\nAvailable: %2\n"
+		     "This process cannot be split into chunks\n")
+			.arg(bytesstrcalc.getString(memusage))
+			.arg(bytesstrcalc.getString(freemem));
+	    return false;
+	}
+    }
 
     //Ensure all datapack arrays have contiguous memory
-    const ObjectSet<TrcKeyZSampling>& stepstkzs =
-				*volprocchainexecstepstkzsmgr_.getParam( this );
     od_int64 maxnrbytesperarray = 0;
-    for ( int idx=0; idx<stepstkzs.size(); idx++ )
+    for ( int idx=0; idx<stepstkzs_.size(); idx++ )
     {
-	const od_int64 arraynrbytes = stepstkzs[idx]->totalNr() * sizeof(float);
+	const od_int64 arraynrbytes = stepstkzs_[idx]->totalNr()*sizeof(float);
 	if ( arraynrbytes > maxnrbytesperarray )
 	    maxnrbytesperarray = arraynrbytes;
     }
 
+    bool limitreached = false;
     while ( maxnrbytesperarray/nrexecs > mChunkSize-1 )
+    {
+	limitreached = true;
 	nrexecs++;
+    }
 
-    return nrexecs > 1;
+    if ( limitreached && !cansplit )
+    {
+	bytesstrcalc.setUnitFrom( mChunkSize );
+	errmsg_ = tr("Maximum size of cube that can be processed on %1: %2\n"
+		 "Size of the output cube: %3\n"
+		 "This process cannot be split into chunks\n")
+			.arg(OD::Platform().longName())
+			.arg(bytesstrcalc.getString(mChunkSize))
+			.arg(bytesstrcalc.getString(maxnrbytesperarray));
+	return false;
+    }
+
+    return true;
 }
 
 #undef mChunkSize
-
-
-int VolProc::ChainExecutor::nrChunks( const TrcKeySampling&,
-				      const StepInterval<int>&, int )
-{ return 0; }
 
 
 int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
@@ -376,12 +382,11 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 {
     memusage = calculateMaximumMemoryUsage( tks, zsamp );
     const od_int64 nrbytes = mCast( od_int64, 1.01f * memusage );
-    const bool cansplit = areSamplesIndependent() && !needsFullVolume();
     od_int64 freemem; int nrexecs;
-    const bool needsplit = needSplit( nrbytes, freemem, nrexecs );
-    if ( (needsplit && !cansplit) || freemem <=0 )
+    if ( !checkAndSplit(nrbytes,freemem,nrexecs) )
 	return 0;
-    else if ( !needsplit )
+
+    if ( nrexecs == 1 )	
 	return 1;
 
     int halfnrlinesperchunk = mNINT32( Math::Ceil( mCast(double,tks.nrLines()) /
@@ -434,19 +439,12 @@ od_int64 VolProc::ChainExecutor::getStepOutputMemory( VolProc::Step::ID stepid,
 { return -1; }
 
 
-od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
-			    const TrcKeySampling&, const StepInterval<int>& )
-{ return 0; }
-
-
 od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
 					const TrcKeySampling& tks,
 					const StepInterval<float>& zsamp )
 {
     updateScheduledStepsSampling( tks, zsamp );
     adjustStepsNrComponents( tks.is2D() );
-    const ObjectSet<TrcKeyZSampling>& stepstkzs =
-				*volprocchainexecstepstkzsmgr_.getParam( this );
 
     TypeSet<VolumeMemory> activevolumes;
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
@@ -463,7 +461,7 @@ od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
 		continue;
 
 	    const int stepoutidx = chain_.indexOf( step );
-	    const TrcKeyZSampling& outtkzs = *stepstkzs[stepoutidx];
+	    const TrcKeyZSampling& outtkzs = *stepstkzs_[stepoutidx];
 	    epochmemsize += step->getComponentMemory( outtkzs, false ) *
 			    step->getNrOutComponents();
 	    epochmemsize += step->extraMemoryUsage( outputidx, outtkzs );
@@ -482,7 +480,7 @@ od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
 		    inputsids += inpstepid;
 		    const Step* inpstep = chain_.getStepFromID( inpstepid );
 		    const int stepinpidx = chain_.indexOf( inpstep );
-		    const TrcKeyZSampling& inptkzs = *stepstkzs[stepinpidx];
+		    const TrcKeyZSampling& inptkzs = *stepstkzs_[stepinpidx];
 		    epochmemsize += inpstep->getComponentMemory(inptkzs,false) *
 			  step->getNrInputComponents( conns[idx].inputslotid_ );
 		}
@@ -511,15 +509,6 @@ od_uint64 VolProc::ChainExecutor::calculateMaximumMemoryUsage(
 
     return res;
 }
-
-
-bool VolProc::ChainExecutor::setCalculationScope( const TrcKeySampling&,
-						  const StepInterval<int>&  )
-{ return false; }
-
-
-void VolProc::ChainExecutor::setOutputZSampling( const StepInterval<float>& )
-{}
 
 
 float VolProc::ChainExecutor::getSampleShift( float ) const
