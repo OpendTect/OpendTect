@@ -25,6 +25,7 @@ class uiIOObjSel;
 class uiLabeledComboBox;
 class uiPickPartServer;
 class uiTableImpDataSel;
+class uiGenInput;
 namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for pickset selection */
@@ -44,7 +45,7 @@ protected:
     uiIOObjSel*		objfld_;
     uiIOObjSel*		horinputfld_;
     uiColorInput*	colorfld_;
-    uiCheckBox*		polyfld_;
+    uiGenInput*		polyfld_;
     uiLabeledComboBox*	zfld_;
     uiLabeledComboBox*  horinpfld_;
     uiGenInput*		constzfld_;

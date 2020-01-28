@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipickpartserv.h"
@@ -66,6 +67,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     , coordsysselfld_(nullptr)
     , importReady(this)
     , storedid_(MultiID::udf())
+    , polyfld_(nullptr)
 {
     setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
 		     uiStrings::sClose() );
@@ -134,7 +136,11 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 				   lbltxt(uiStrings::sColor()) );
 	colorfld_->attach( alignedBelow, objfld_ );
 
-	polyfld_ = new uiCheckBox( this, tr("Import as Polygon") );
+	uiStringSet impoptions;
+	impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyline() )
+	    	  .add( uiStrings::sPolygon() );
+	polyfld_ = new uiGenInput( this, tr("Import as"),
+				   StringListInpSpec(impoptions) );
 	polyfld_->attach( rightTo, colorfld_ );
     }
     else
@@ -201,10 +207,12 @@ bool uiImpExpPickSet::doImport()
     const IOObj* objfldioobj = objfld_->ioobj();
     if ( !objfldioobj ) return false;
     PtrMan<IOObj> ioobj = objfldioobj->clone();
-    const bool ispolygon = polyfld_->isChecked();
-    if ( ispolygon )
+    const int seloption = polyfld_->getIntValue();
+    if ( seloption )
     {
-	ps.disp_.connect_ = Pick::Set::Disp::Close;
+	ps.disp_.connect_ = seloption==1 ? Pick::Set::Disp::Open
+					 : Pick::Set::Disp::Close;
+	ps.disp_.linestyle_.color_ = colorfld_->color();
 	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
     }
     else
@@ -287,10 +295,18 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
     bool ret = import_ ? doImport() : doExport();
     if ( !ret ) return false;
 
-    uiString msg = tr("PointSet successfully %1."
-		      "\n\nDo you want to %2 more PointSets?")
-		 .arg(import_ ? tr("imported") : tr("exported"))
-		 .arg(import_ ? uiStrings::sImport() : uiStrings::sExport());
+    const bool ispolygon = polyfld_ && polyfld_->isChecked();
+    uiString msg = tr("%1 successfully %2."
+		      "\n\nDo you want to %3 more %4?")
+		 .arg( import_ ? (ispolygon ? uiStrings::sPolygon()
+					    : uiStrings::sPointSet())
+			      : tr("Pointset/Polygon") )
+		 .arg( import_ ? tr("imported") : tr("exported") )
+		 .arg( import_ ? (uiStrings::sImport()).toLower()
+			       : (uiStrings::sExport()).toLower() )
+		 .arg( import_ ? (ispolygon ? (uiStrings::sPolygon(2)).toLower()
+					   :(uiStrings::sPointSet(2)).toLower())
+					    : tr("pointsets/polygons") );
     return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }
 

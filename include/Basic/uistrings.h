@@ -434,6 +434,7 @@ public:
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
     static uiString sPointSet(int num=1){ return tr("PointSet",0,num); }
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
+    static uiString sPolyline(int num=1) { return tr("Polyline",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
     static uiString sPreStack()		{ return tr("Prestack"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
