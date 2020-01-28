@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 					const TrcKeyZSampling& outcs,
 					ZAxisTransform& ztf,
-					bool forward,
+					bool ist2d,
 					bool stretchz )
     : seisreader_( 0 )
     , seisreadertdmodel_( 0 )
@@ -42,7 +42,7 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     , outcs_( outcs )
     , ztransform_( &ztf )
     , voiid_( -1 )
-    , ist2d_( forward )
+    , ist2d_( ist2d )
     , stretchz_( stretchz )
     , isvrms_(false)
 {
