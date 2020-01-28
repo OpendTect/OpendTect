@@ -28,7 +28,7 @@ public:
 
     static const Platform& local();	//!< This platform
 
-    enum Type	{  Lin64, Win32, Win64, Mac };
+    enum Type	{ Lin64=1, Win32, Win64, Mac };
 		mDeclareEnumUtils(Type)
 
     		Platform();		//!< This platform
@@ -43,7 +43,7 @@ public:
     bool        operator ==( const Platform::Type& t ) const
 					{ return type_ == t; }
 
-    const char*	longName() const { return getTypeString(type_); }
+    const char*	longName() const { return toString(type_); }
     const char*	shortName() const;	//!< mac, lux32, win64, etc.
 
     static bool	isValidName(const char*,bool isshortnm);
