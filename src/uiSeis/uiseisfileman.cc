@@ -301,7 +301,7 @@ void uiSeisFileMan::mkFileInfo()
 	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
 
 	    StepInterval<float> zrg = cs.zsamp_;
-	    zrg.scale( SI().zDomain().userFactor() );
+	    zrg.scale( zddef.userFactor() );
 	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
 	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
 		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
