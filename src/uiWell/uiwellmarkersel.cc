@@ -96,7 +96,8 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 void uiWellMarkerSel::fillWithAll()
 {
     BufferStringSet nms; TypeSet<Color> colors;
-    Well::MGR().getAllMarkerInfos( nms, colors );
+    TypeSet<Well::Marker::ZType> mds;
+    Well::MGR().getAllMarkerInfos( nms, colors, mds );
     setMarkers( nms, colors );
 }
 
@@ -291,7 +292,8 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 
     markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
     TypeSet<Color> colors;
-    Well::MGR().getAllMarkerInfos( markernms_, colors );
+    TypeSet<Well::Marker::ZType> mds;
+    Well::MGR().getAllMarkerInfos( markernms_, colors, mds );
     markersselgrp_->addItems( markernms_ );
     for ( int idx=0; idx<markernms_.size(); idx++ )
 	markersselgrp_->setColorIcon( idx, colors[idx] );
