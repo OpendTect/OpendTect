@@ -200,7 +200,6 @@ void fillTrace( SeisTrc& trc, Array1D<int>& contribs )
 Seis::Blocks::DataGlueer::DataGlueer( const SelData& sd, Storer& strr )
     : seissel_(*sd.clone())
     , storer_(strr)
-    , trcbuf_(false)
     , zstep_(SI().zStep())
 {
 }
@@ -216,7 +215,6 @@ Seis::Blocks::DataGlueer::~DataGlueer()
 	    ErrMsg( uirv );
     }
     delete &seissel_;
-    trcbuf_.deepErase();
     delete arrinfo_;
 }
 
@@ -306,13 +304,6 @@ uiRetVal Seis::Blocks::DataGlueer::finish()
     curbid_ = BinID::udf();
     mSetUdf( curb2d_.trcNr() );
     auto uirv = storeReadyPositions();
-    trcbuf_.sortForWrite( is2D() );
-    while ( !trcbuf_.isEmpty() )
-    {
-	const SeisTrc* trc = trcbuf_.remove(0);
-	storer_.put( *trc );
-	delete trc;
-    }
     uirv.add( storer_.close() );
     return uirv;
 }
@@ -334,6 +325,7 @@ uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions()
 	if ( !uirv.isOK() )
 	    return uirv;
 
+	lastwrittenline_ = lb->linerg_.stop;
 	nrstored++;
     }
 
@@ -344,9 +336,31 @@ uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions()
 }
 
 
+StepInterval<Seis::Blocks::pos_type> Seis::Blocks::DataGlueer::trcNrRange(
+							pos_type lnr ) const
+{
+    bool initialized = false;
+    StepInterval<pos_type> rg = StepInterval<pos_type>::udf();
+    for ( auto* lb : linebufs_ )
+    {
+	if ( !lb->linerg_.includes(lnr,false) )
+	    continue;
+
+	if ( initialized )
+	    rg.include( lb->trcNrRange(), false );
+	else
+	{
+	    rg = lb->trcNrRange();
+	    initialized = true;
+	}
+    }
+
+    return rg;
+}
+
+
 uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 {
-    const auto tnrrg = lb.trcNrRange();
     const int iln = is2D() ? seissel_.indexOf( Pos::GeomID(lb.startlnr_) ) : 0;
     const auto zrg = seissel_.zRange( iln );
     const int nrz = zrg.nrSteps() + 1;
@@ -356,9 +370,14 @@ uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
     trc.info().setGeomSystem( is2D() ? OD::LineBasedGeom : OD::VolBasedGeom );
     trc.info().sampling_.start = zrg.start;
     trc.info().sampling_.step = zrg.step;
+    uiRetVal uirv;
     for ( auto lnr=lb.linerg_.start; lnr<=lb.linerg_.stop; lnr+=lb.linerg_.step)
     {
+	if ( lnr <= lastwrittenline_ )
+	    continue;
+
 	trc.info().setLineNr( lnr );
+	const auto tnrrg = trcNrRange( lnr );
 	for ( auto trcnr=tnrrg.start; trcnr<=tnrrg.stop; trcnr+=trcstep_ )
 	{
 	    trc.info().setTrcNr( trcnr );
@@ -367,11 +386,13 @@ uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 
 	    trc.info().calcCoord();
 	    fillTrace( trc, contribs );
-	    trcbuf_.add( new SeisTrc(trc) );
+	    uirv = storer_.put( trc );
+	    if ( !uirv.isOK() )
+		return uirv;
 	}
     }
 
-    return uiRetVal::OK();
+    return uirv;
 }
 
 
