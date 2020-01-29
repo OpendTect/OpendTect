@@ -6,10 +6,11 @@
 
 
 #include "serverprogtool.h"
-#include "wellmanager.h"
 #include "wellinfo.h"
-#include "welltrack.h"
 #include "welllog.h"
+#include "wellmanager.h"
+#include "wellmarker.h"
+#include "welltrack.h"
 #include "commandlineparser.h"
 #include "keystrs.h"
 #include "odjson.h"
@@ -23,10 +24,13 @@ static const int cProtocolNr = 1;
 static const char* sListWellsCmd	= ServerProgTool::sListUsrCmd();
 static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sListLogsCmd		= "list-logs";
+static const char* sListMarkersCmd	= "list-markers";
 static const char* sReadTrackCmd	= "read-track";
 static const char* sReadLogCmd		= "read-log";
 
 static const char* sNoTVDArg		= "no-tvd";
+
+using namespace Well;
 
 
 class WellServerTool : public ServerProgTool
@@ -38,21 +42,22 @@ public:
     mUseType( Well, LoadReqs );
     mUseType( Well, Track );
 
-		    WellServerTool(int,char**);
+			WellServerTool(int,char**);
 
-    void	    listWells();
-    void	    getWellInfo();
-    void	    getTrack();
-    void	    listLogs();
-    void	    readLog(const DBKey&,const char*,bool notvd);
+    void		listWells();
+    void		getWellInfo();
+    void		getTrack();
+    void		listLogs();
+    void		listMarkers();
+    void		readLog(const DBKey&,const char*,bool notvd);
 
 protected:
 
     ConstRefMan<Data>	wd_;
 
-    BufferString    getSpecificUsage() const override;
-    void	    getWD(const DBKey&,const LoadReqs&);
-    void	    getWD(const char*,const LoadReqs&);
+    BufferString	getSpecificUsage() const override;
+    void		getWD(const DBKey&,const LoadReqs&);
+    void		getWD(const char*,const LoadReqs&);
 
 };
 
@@ -67,7 +72,7 @@ WellServerTool::WellServerTool( int argc, char** argv )
 void WellServerTool::listWells()
 {
     DBKeySet wellids;
-    Well::MGR().getAll( wellids, false );
+    MGR().getAll( wellids, false );
     set( sKey::Size(), wellids.size() );
     set( sKey::ID(mPlural), wellids );
     BufferStringSet nms;
@@ -81,7 +86,7 @@ void WellServerTool::listWells()
 void WellServerTool::getWD( const DBKey& wellid, const LoadReqs& lreqs )
 {
     uiRetVal uirv;
-    wd_ = Well::MGR().fetch( wellid, lreqs, uirv );
+    wd_ = MGR().fetch( wellid, lreqs, uirv );
     if ( !wd_ )
 	respondError( uirv );
 }
@@ -95,7 +100,7 @@ void WellServerTool::getWD( const char* cmd, const LoadReqs& lreqs )
 
 void WellServerTool::getWellInfo()
 {
-    getWD( sInfoCmd, LoadReqs(Well::Inf) );
+    getWD( sInfoCmd, LoadReqs(Inf) );
 
     set( sKey::ID(), wd_->dbKey() );
     set( sKey::Name(), wd_->name() );
@@ -119,7 +124,7 @@ void WellServerTool::listLogs()
 {
     const DBKey wellid = getDBKey( sListLogsCmd );
     BufferStringSet lognms;
-    Well::MGR().getLogNames( wellid, lognms );
+    MGR().getLogNames( wellid, lognms );
     set( sKey::ID(), wellid );
     set( sKey::Size(), lognms.size() );
     set( sKey::Name(mPlural), lognms );
@@ -127,9 +132,27 @@ void WellServerTool::listLogs()
 }
 
 
+void WellServerTool::listMarkers()
+{
+    const DBKey wellid = getDBKey( sListMarkersCmd );
+    BufferStringSet nms;
+    TypeSet<Color> colors;
+    TypeSet<Marker::ZType> mds;
+    MGR().getAllMarkerInfos( nms, colors, mds );
+    BufferStringSet colstrs;
+    Color::convertToStr( colors, colstrs );
+    set( sKey::ID(), wellid );
+    set( sKey::Size(), nms.size() );
+    set( sKey::Name(mPlural), nms );
+    set( sKey::Color(), colstrs );
+    set( sKey::MD(mPlural), mds );
+    respondInfo( true );
+}
+
+
 void WellServerTool::getTrack()
 {
-    getWD( sReadTrackCmd, LoadReqs(Well::Trck) );
+    getWD( sReadTrackCmd, LoadReqs(Trck) );
 
     const auto& track = wd_->track();
     TypeSet<float> mds, tvds;
@@ -142,7 +165,7 @@ void WellServerTool::getTrack()
 	mds += md;
 	xs += pos.x_;
 	ys += pos.y_;
-	tvds += (float)pos.z_;
+	tvds += sCast(float,pos.z_);
     }
     set( sKey::Size(), mds.size() );
     set( sKey::MD(mPlural), mds );
@@ -157,12 +180,12 @@ void WellServerTool::getTrack()
 void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 			      bool notvd )
 {
-    auto wl = Well::MGR().getLog( wellid, lognm );
+    auto wl = MGR().getLog( wellid, lognm );
     if ( !wl )
 	respondError( "Log not found" );
 
     if ( !notvd )
-	getWD( wellid, LoadReqs(Well::Inf,Well::Trck) );
+	getWD( wellid, LoadReqs(Inf,Trck) );
 
     const auto sz = wl->size();
     set( sKey::Well(), wellid.name() );
@@ -198,6 +221,7 @@ BufferString WellServerTool::getSpecificUsage() const
     addToUsageStr( ret, sListWellsCmd, "" );
     addToUsageStr( ret, sInfoCmd, "well_id" );
     addToUsageStr( ret, sListLogsCmd, "well_id" );
+    addToUsageStr( ret, sListMarkersCmd, "well_id" );
     addToUsageStr( ret, sReadTrackCmd, "well_id" );
     BufferString argstr( "well_id log_name [--", sNoTVDArg, "]" );
     addToUsageStr( ret, sReadLogCmd, argstr );
@@ -219,6 +243,8 @@ int main( int argc, char** argv )
 	st.getTrack();
     else if ( clp.hasKey(sListLogsCmd) )
 	st.listLogs();
+    else if ( clp.hasKey(sListMarkersCmd) )
+	st.listMarkers();
     else if ( clp.hasKey(sReadLogCmd) )
     {
 	clp.setKeyHasValues( sReadLogCmd, 2 );
