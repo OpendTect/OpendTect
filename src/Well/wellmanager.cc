@@ -370,7 +370,8 @@ void Well::Manager::getLogInfo( const ObjID& id, ObjectSet<IOPar>& iops ) const
 
 
 void Well::Manager::getAllMarkerInfos( BufferStringSet& nms,
-					TypeSet<Color>& colors ) const
+				       TypeSet<Color>& colors,
+				       TypeSet<float>& mds ) const
 {
     const DBDirEntryList del( mIOObjContext(Well) );
     const LoadReqs reqs( Mrkrs );
@@ -389,6 +390,7 @@ void Well::Manager::getAllMarkerInfos( BufferStringSet& nms,
 
     result.getNames( nms );
     result.getColors( colors );
+    result.getMDs( mds );
 }
 
 
