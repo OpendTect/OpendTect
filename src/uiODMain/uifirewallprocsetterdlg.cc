@@ -48,7 +48,7 @@ uiString getDlgTitle(ProcDesc::DataEntry::ActionType typ)
 //Remove the argument actiontype from the dialog, it will determine on its own
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
-				const BufferString& path, bool ispopfrominst )
+						    const BufferString& path )
     : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(acttyp),
 			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
     , addremfld_(0)
@@ -58,7 +58,10 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     if ( path.isEmpty() )
 	exepath_ = GetExecPlfDir();
     else
-	exepath_ = path;
+    {
+	FilePath fp( path, "bin", GetPlfSubDir(), "Debug" );
+	exepath_ = fp.fullPath();
+    }
 
     uiObject* attachobj(0);
     uiListBox::Setup su;
@@ -75,6 +78,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	toadd_ = acttyp == PDE::Add;
 
     init();
+    PDE::ActionType ty = ePDD().getActionType();
 
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
@@ -107,10 +111,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	pythonproclistbox_->chooseAll();
     }
     pythonproclistbox_->display( !pyprocdescs_.isEmpty() );
-    PDE::ActionType ty = ePDD().getActionType();
-
-    if ( ispopfrominst && ty == PDE::Remove )
-	return;
 
     if ( ty != PDE::AddNRemove )
     {

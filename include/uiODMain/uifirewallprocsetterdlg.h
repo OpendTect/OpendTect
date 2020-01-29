@@ -27,8 +27,7 @@ public:
 
 
 			    uiFirewallProcSetter(uiParent*,PDE::ActionType,
-				const BufferString&path=BufferString::empty(),
-				bool ispopfrminst=false);
+				const BufferString&path=BufferString::empty());
 			    ~uiFirewallProcSetter();
 protected:
 

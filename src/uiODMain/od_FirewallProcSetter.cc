@@ -20,6 +20,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 
+/*
+Arguments :
+		0 : Process Type
+		1 : Path to OD Dir
+		2 : Bool, Is process launched from installer
+*/
+
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
@@ -43,10 +50,22 @@ int main( int argc, char ** argv )
     BufferString path;
     if ( proctyp.size() > 1 )
 	path = *proctyp[1];
+    bool instlrlaunchedproc = false;
+    if ( proctyp.size() > 2 )
+    {
+	BufferString str = *proctyp[2];
+	instlrlaunchedproc = str.isEqual( "Yes", CaseInsensitive );
+    }
+
+    ePDD().setPath( path );
+
+    ProcDesc::DataEntry::ActionType typ = ePDD().getActionType();
+    if (instlrlaunchedproc && typ == ProcDesc::DataEntry::Remove )
+	return 0;
 
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
 	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex(proctypidx),
-	path, true );
+	path );
 
     app.setTopLevel( dlg );
     dlg->show();
