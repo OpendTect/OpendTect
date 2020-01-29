@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "binid.h"
 #include "bin2d.h"
 #include "seisblocks.h"
-#include "seisbuf.h"
 
 class ArrayNDInfo;
 template <class T> class Array1D;
@@ -87,8 +86,8 @@ protected:
     int			trcsz_		    = -1;
     Bin2D		curb2d_		    = Bin2D::udf();
     BinID		curbid_		    = BinID::udf();
+    pos_type		lastwrittenline_    = -1;
     ObjectSet<LineBuf>	linebufs_;
-    SeisTrcBuf		trcbuf_;
 
     void	initGeometry(const ArrayNDInfo&);
     void	addPos(const Bin2D&,const Arr2D&,z_type);
@@ -98,6 +97,8 @@ protected:
     LineBuf*	getBuf(pos_type);
     uiRetVal	storeLineBuf(const LineBuf&);
     void	fillTrace(SeisTrc&,Array1D<int>&);
+
+    StepInterval<pos_type>	trcNrRange(pos_type lnr) const;
 
 };
 
