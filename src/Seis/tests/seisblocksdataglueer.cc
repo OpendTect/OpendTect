@@ -73,7 +73,7 @@ static bool testCreate()
     Seis::Blocks::DataGlueer dg( sd, strr );
     dg.setSteps( BinID(2,1), 0.004f );
     uiRetVal uirv;
-    Array3DImpl<float> arr( 3, 5, 7 );
+    Array3DImpl<float> arr( 6, 10, 14 );
     BinID bid;
 
     mAddBlocks( 400, 600 )
