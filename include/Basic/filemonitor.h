@@ -32,6 +32,7 @@ public:
     void		watch(const char*);
     void		watch(const BufferStringSet&);
     void		forget(const char*);
+    void		updateWatcher(const char* fnm);
 
     CNotifier<Monitor,BufferString>	dirChanged;
     CNotifier<Monitor,BufferString>	fileChanged;

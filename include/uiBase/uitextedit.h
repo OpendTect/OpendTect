@@ -130,6 +130,8 @@ public:
     void		recordScrollPos();
     void		restoreScrollPos();
 
+    void		updateFilePath(const char* fnm = 0);
+
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
     const char*		lastLink()		{ return lastlink_; }

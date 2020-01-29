@@ -602,6 +602,18 @@ void uiTextBrowser::setSource( const char* src )
 }
 
 
+void uiTextBrowser::updateFilePath( const char* fnm )
+{
+    BufferString newfnm;
+    if ( fnm )
+	newfnm = fnm;
+    else
+	newfnm = textsrc_;
+
+    filemon_->updateWatcher( newfnm );
+}
+
+
 void uiTextBrowser::setMaxLines( int ml )
 { maxlines_ = ml; }
 
