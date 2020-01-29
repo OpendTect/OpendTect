@@ -199,7 +199,7 @@ public:
 
 RockPhysicsFormulaMgr()
 {
-    mAttachCB( IOM().surveyChanged, RockPhysicsFormulaMgr::doNull );
+    mAttachCB( IOM().surveyToBeChanged, RockPhysicsFormulaMgr::doNull );
     mAttachCB( IOM().applicationClosing, RockPhysicsFormulaMgr::doNull );
 }
 
