@@ -59,7 +59,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	exepath_ = GetExecPlfDir();
     else
     {
-	FilePath fp( path, "bin", GetPlfSubDir(), "Debug" );
+	FilePath fp( path, "bin", GetPlfSubDir(), GetBinSubDir() );
 	exepath_ = fp.fullPath();
     }
 
