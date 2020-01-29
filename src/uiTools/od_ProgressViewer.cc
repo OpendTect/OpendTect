@@ -202,6 +202,9 @@ void uiProgressViewer::handleProcessStatus()
 	    txtfld_->setSource( filenm_.str() );
 	}
 
+	if (strm_ && strm_->isOK())
+	    txtfld_->updateFilePath();
+
 	return;
     }
 
