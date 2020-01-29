@@ -517,8 +517,10 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
 	    gasonerr.set( "incomplete input" );
 	else
 	    gasonerr.set( Gason::jsonStrError( status ) );
-	uirv.set( tr("JSON parse error: '%1' at char %2")
-					.arg(gasonerr).arg(endptr-buf+1) );
+
+	int res = endptr-buf+1;
+	uirv.set( tr("JSON parse error: '%1' at position %2")
+			.arg(gasonerr).arg(res) );
 	return intovset;
     }
 
