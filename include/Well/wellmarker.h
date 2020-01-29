@@ -132,6 +132,7 @@ public:
 
     void		getNames(BufferStringSet&) const;
     void		getColors(TypeSet<Color>&) const;
+    void		getMDs(TypeSet<ZType>&) const;
 
     void		fillWithAll(TaskRunner* tskr=0);
     bool		insertNew(const Well::Marker&);
