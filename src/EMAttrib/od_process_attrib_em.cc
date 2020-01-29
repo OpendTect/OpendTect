@@ -77,7 +77,7 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 	mErrRet( "No target attribute found" )
 
     const DescID outid( toInt(res) );
-    if ( initialset.getDesc(outid) < 0 )
+    if ( !initialset.getDesc(outid) )
 	mErrRet( "Target attribute not present in attribute set" )
 
     return true;
