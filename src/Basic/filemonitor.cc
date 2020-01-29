@@ -53,8 +53,7 @@ void File::Monitor::forget( const char* fnm )
 void File::Monitor::updateWatcher(const char* fnm)
 {
 #ifndef OD_NO_QT
-    const bool check = watcher_.files().contains(fnm);
-    if (!watcher_.files().contains(fnm))
+    if ( !watcher_.files().contains(fnm) )
 	watcher_.addPath(fnm);
     else
 	watcher_.fileChg(fnm);
