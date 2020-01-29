@@ -60,7 +60,7 @@ int main( int argc, char ** argv )
     ePDD().setPath( path );
 
     ProcDesc::DataEntry::ActionType typ = ePDD().getActionType();
-    if (instlrlaunchedproc && typ == ProcDesc::DataEntry::Remove )
+    if ( instlrlaunchedproc && typ == ProcDesc::DataEntry::Remove )
 	return 0;
 
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
