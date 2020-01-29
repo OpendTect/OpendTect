@@ -64,6 +64,8 @@ public:
     BufferString	getStdStr(bool withhash=true,int transpopt=0) const;
 			//!< without hash Google KML standard -> order reversed
 			//!< transpopt -1=opacity 0=not 1=transparency
+    static void		convertToStr(const TypeSet<Color>&,BufferStringSet&);
+    static void		convertFromStr(const BufferStringSet&,TypeSet<Color>&);
 
     void		fill(BufferString&) const;
     bool		use(const char*);

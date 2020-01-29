@@ -223,28 +223,28 @@ void Color::getHSV( CompType& h_, CompType& s_, CompType& v_ ) const
 
     if ( !delta )
     {
-        // r == g == b
-        h_ = (CompType)0;
-        s_ = (CompType)0;
-        v_ = (CompType)mNINT32(v*255);
-        return;
+	// r == g == b
+	h_ = (CompType)0;
+	s_ = (CompType)0;
+	v_ = (CompType)mNINT32(v*255);
+	return;
     }
 
     s = delta / max;
 
     switch ( maxid )
     {
-        case 0:
-            h = (fg-fb)/delta; break;
-        case 1:
-            h = 2 + (fb-fr)/delta; break;
-        default: // 2
-            h = 4 + (fr-fg)/delta; break;
+	case 0:
+	    h = (fg-fb)/delta; break;
+	case 1:
+	    h = 2 + (fb-fr)/delta; break;
+	default: // 2
+	    h = 4 + (fr-fg)/delta; break;
     }
 
     h *= 60;                            // degrees
     if ( h < 0 )
-        h += 360;
+	h += 360;
 
     h_ = (CompType)mNINT32(h);
     s_ = (CompType)mNINT32(s*255);
@@ -257,10 +257,10 @@ void Color::setHSV( CompType h_, CompType s_, CompType v_ )
     CompType r_, g_, b_;
     if ( (int)s_ == 0 )
     {
-        // achromatic (grey)
-        r_ = g_ = b_ = v_;
+	// achromatic (grey)
+	r_ = g_ = b_ = v_;
 	set( r_, g_, b_, t() );
-        return;
+	return;
     }
 
     float h = (float)h_ / 60;
@@ -276,19 +276,19 @@ void Color::setHSV( CompType h_, CompType s_, CompType v_ )
 
     switch( i )
     {
-        case 0:
-            fr = v; fg = u; fb = p; break;
-        case 1:
-            fr = q; fg = v; fb = p; break;
-        case 2:
-            fr = p; fg = v; fb = u; break;
-        case 3:
-            fr = p; fg = q; fb = v; break;
-        case 4:
-            fr = u; fg = p; fb = v; break;
-        case 5:
+	case 0:
+	    fr = v; fg = u; fb = p; break;
+	case 1:
+	    fr = q; fg = v; fb = p; break;
+	case 2:
+	    fr = p; fg = v; fb = u; break;
+	case 3:
+	    fr = p; fg = q; fb = v; break;
+	case 4:
+	    fr = u; fg = p; fb = v; break;
+	case 5:
 	default:
-            fr = v; fg = p; fb = q; break;
+	    fr = v; fg = p; fb = q; break;
     }
 
     r_ = (CompType)mNINT32(fr*255);
@@ -382,6 +382,24 @@ BufferString Color::getStdStr( bool withhash, int transpopt ) const
     if ( !isrev ) addTranspToStr( buf, t(), transpopt, curidx );
     buf[curidx] = '\0';
     return BufferString( buf );
+}
+
+
+void Color::convertToStr( const TypeSet<Color>& cols, BufferStringSet& strs )
+{
+    for ( int idx=0; idx<cols.size(); idx++ )
+	strs.add( cols[idx].getStdStr() );
+}
+
+
+void Color::convertFromStr( const BufferStringSet& strs, TypeSet<Color>& cols )
+{
+    Color col;
+    for ( int idx=0; idx<strs.size(); idx++ )
+    {
+	col.setStdStr( strs.get(idx) );
+	cols += col;
+    }
 }
 
 
