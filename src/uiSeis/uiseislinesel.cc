@@ -26,6 +26,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
+#include "fullsubsel.h"
 #include "keystrs.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
@@ -901,40 +902,52 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
     }
 
     clearSelection();
-    PtrMan<IOPar> lspar = par.subselect( "Line" );
-    if ( !lspar ) return;
-
     GeomIDSet selgeomids;
     TypeSet<StepInterval<float> > selzrgs;
     TypeSet<StepInterval<int> > seltrcrgs;
-    for ( int idx=0; idx<1024; idx++ )
+    PtrMan<IOPar> lspar = par.subselect( "Line" );
+    if ( lspar )
     {
-	PtrMan<IOPar> linepar = lspar->subselect( idx );
-	if ( !linepar )
-	    break;
-
-	Pos::GeomID geomid;
-	if ( !linepar->get(sKey::GeomID(),geomid) )
+	for ( int idx=0; idx<1024; idx++ )
 	{
-	    FixedString lnm = linepar->find( sKey::Name() );
-	    const BufferString oldlnm( lsetname, "-", lnm );
-	    geomid = SurvGeom::getGeomID( oldlnm );
+	    PtrMan<IOPar> linepar = lspar->subselect( idx );
+	    if ( !linepar )
+		break;
+
+	    Pos::GeomID geomid;
+	    if ( !linepar->get(sKey::GeomID(),geomid) )
+	    {
+		FixedString lnm = linepar->find( sKey::Name() );
+		const BufferString oldlnm( lsetname, "-", lnm );
+		geomid = SurvGeom::getGeomID( oldlnm );
+	    }
+	    if ( !geomid.isValid() )
+		break;
+
+	    selgeomids += geomid;
+	    StepInterval<int> trcrg;
+	    if ( !linepar->get(sKey::TrcRange(),trcrg) )
+		continue;
+
+	    seltrcrgs += trcrg;
+	    if ( !withz_ )
+		continue;
+
+	    StepInterval<float> zrg;
+	    if ( linepar->get(sKey::ZRange(),zrg) )
+		selzrgs += zrg;
 	}
-	if ( !geomid.isValid() )
-	    break;
-
-	selgeomids += geomid;
-	StepInterval<int> trcrg;
-	if ( !linepar->get(sKey::TrcRange(),trcrg) )
-	    continue;
-
-	seltrcrgs += trcrg;
-	if ( !withz_ )
-	    continue;
-
-	StepInterval<float> zrg;
-	if ( linepar->get(sKey::ZRange(),zrg) )
-	    selzrgs += zrg;
+    }
+    else
+    {
+	const Survey::FullSubSel fss( par );
+	if ( !fss.is2D() ) return;
+	for ( int idx=0; idx<fss.nrGeomIDs(); idx++ )
+	{
+	    selgeomids.add( fss.geomID(idx) );
+	    seltrcrgs.add( fss.trcNrRange(idx) );
+	    selzrgs.add( fss.zRange(idx) );
+	}
     }
 
     setSelGeomIDs( selgeomids );
