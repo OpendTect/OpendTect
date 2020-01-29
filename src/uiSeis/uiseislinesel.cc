@@ -435,6 +435,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     for ( int idx=0; idx<chosenids.size(); idx++ )
 	selidxs_ += geomids_.indexOf( chosenids[idx] );
 
+    updateSummary();
     if ( curselidxs != selidxs_ )
 	selectionChanged.trigger();
 }
@@ -951,9 +952,29 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
     }
 
     setSelGeomIDs( selgeomids );
-    if ( !selzrgs.isEmpty() ) setZRanges( selzrgs );
     if ( !seltrcrgs.isEmpty() ) setTrcRanges( seltrcrgs );
-    isall_ = uiSeis2DLineSel::isAll();
+    if ( !selzrgs.isEmpty() ) setZRanges( selzrgs );
+    if ( !uiSeis2DLineSel::isAll() )
+    {
+	isall_ = false;
+	return;
+    }
+
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+    {
+	const ZSampling& maxzrg = maxzrgs_[selidxs_[idx]];
+	const float epsf = maxzrg.step * 1e-4f;
+	if ( maxtrcrgs_[selidxs_[idx]] != seltrcrgs[idx] ||
+	     !selzrgs[idx].isEqual(maxzrg,epsf) )
+	{
+	    isall_ = false;
+	    updateSummary();
+	    return;
+	}
+    }
+
+    isall_ = true;
+    updateSummary();
 }
 
 
