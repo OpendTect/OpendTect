@@ -904,6 +904,14 @@ void Well::MarkerSet::getColors( TypeSet<Color>& cols ) const
 }
 
 
+void Well::MarkerSet::getMDs( TypeSet<ZType>& mds ) const
+{
+    mLock4Read();
+    for ( idx_type idx=0; idx<size(); idx++ )
+	mds += markers_[idx].dah();
+}
+
+
 void Well::MarkerSet::fillPar( IOPar& iop ) const
 {
     mLock4Read();
