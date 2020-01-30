@@ -418,6 +418,7 @@ void uiODMenuMgr::fillImportMenu()
     mAddImpMnu( Hor, imphor );
     mAddImpMnu( Flt, impfault );
     mAddImpMnu( Fltss, impfaultstick );
+    mAddImpMnu( FltSet, impfltset );
     mAddImpMnu( Wll, impwell );
     mAddImpMnu( Attr, impattr );
     mAddImpMnu( Pick, imppick );
@@ -530,6 +531,7 @@ void uiODMenuMgr::fillExportMenu()
     mAddExpMnu( Hor, exphor );
     mAddExpMnu( Flt, expflt );
     mAddExpMnu( Fltss, expfltss );
+    mAddExpMnu( FltSet, expfltset );
     mAddExpMnu( Pick, exppick );
     mAddExpMnu( Wvlt, expwvlt );
     mAddExpMnu( MDef, expmute );
