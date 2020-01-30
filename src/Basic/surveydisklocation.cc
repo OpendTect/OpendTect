@@ -126,19 +126,58 @@ void SurveyDiskLocation::listSurveys( BufferStringSet& dirnms, const char* bp )
 }
 
 
-void SurveyDiskLocation::fillPar( IOPar& iop ) const
+void SurveyDiskLocation::fillPar( IOPar& iop, bool force ) const
 {
-    iop.set( sKey::Survey(), fullPath() );
+    if ( isCurrentSurvey() )
+    {
+	if ( force )
+	    iop.set( sKey::Survey(), fullPath() );
+	else
+	    iop.set( sKey::Survey(), BufferString::empty() );
+	return;
+    }
+
+    const SurveyDiskLocation& cursurvsdl = currentSurvey();
+    if ( basePath() == cursurvsdl.basePath() )
+	iop.set( sKey::Survey(), dirName() );
+    else
+	iop.set( sKey::Survey(), fullPath() );
 }
 
 
 bool SurveyDiskLocation::usePar( const IOPar& iop )
 {
-    BufferString pth;
-    if ( !iop.get( sKey::Survey(), pth ) )
+    BufferString survdir;
+    if ( !iop.get(sKey::Survey(),survdir) )
 	return false;
-    set( pth );
-    return true;
+
+    if ( survdir.isEmpty() )
+    {
+	setToCurrentSurvey();
+	return true;
+    }
+
+    File::Path fp( survdir );
+    const SurveyDiskLocation sdl( fp );
+    if ( sdl.exists() )
+	{ *this = sdl; return true; }
+    else
+    {
+	const SurveyDiskLocation& cursdl = currentSurvey();
+	fp.set( cursdl.basePath() ).add( survdir );
+	const SurveyDiskLocation relsdl( fp );
+	if ( relsdl.exists() )
+	    { *this = relsdl; return true; }
+	else
+	{
+	    fp.set( cursdl.basePath() ).add( sdl.dirName() );
+	    const SurveyDiskLocation rebasedsdl( fp );
+	    if ( rebasedsdl.exists() )
+		{ *this = rebasedsdl; return true; }
+	}
+    }
+
+    return false;
 }
 
 
