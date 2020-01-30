@@ -234,7 +234,7 @@ bool EMSurfaceProvider::toNextPos()
 	    }
 	} while ( mIsUdf(curz_) ? false : posindexlst_.isPresent(pos) );
 	posindexlst_ += pos;
-	if ( posindexlst_.size() == nrsamples_ )
+	if ( posindexlst_.size() > nrsamples_ )
 	    return false;
     }
     else

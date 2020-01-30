@@ -121,12 +121,12 @@ bool Pos::RangeProvider3D::toNextPos()
 	do
 	{
 	    idx = randGen.getIndex( totalNrTraces );
-	    curzidx_ = randGen.getInt( 0, zsampsz_ );
+	    curzidx_ = randGen.getInt( 0, zsampsz_-1 );
 	    pos = postuple( idx, curzidx_ );
 	} while ( posindexlst_.isPresent(pos) );
 	curbid_ = hsamp.atIndex( idx );
 	posindexlst_ += pos;
-	if ( posindexlst_.size() == nrsamples_ )
+	if ( posindexlst_.size() > nrsamples_ )
 	    return false;
     }
     else
