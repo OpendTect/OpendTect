@@ -442,11 +442,6 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
     botgrp->attach( alignedBelow, topgrp );
     botgrp->attach( ensureBelow, sep );
 
-    /*outmodefld_ = new uiGenInput( botgrp, tr("Output mode"),
-		BoolInpSpec(true, tr("Add columns"), tr("Replace columns")) );
-    outmodefld_->attach( alignedBelow, sep );
-    mAttachCB( outmodefld_->valuechanged, uiFileConvGroup::outModeChg );
-    */
     insertpos_ = new uiGenInput( botgrp, tr("Insert at"),
 			    BoolInpSpec(true, tr("Beginning"), tr("End")) );
     insertpos_->attach( alignedBelow, sep );
@@ -479,8 +474,6 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
     convertbut_->attach( centeredBelow, botgrp );
     convertbut_->attach( ensureBelow, lowersep );
     mAttachCB(convertbut_->activated, uiFileConvGroup::convButPushCB);
-
-    //outModeChg( 0 );
 }
 
 
@@ -502,17 +495,6 @@ void uiFileConvGroup::outTypChg( CallBacker* )
 	outcrdsysselfld_->display( true );
 
 }
-
-/*void uiFileConvGroup::outModeChg( CallBacker* )
-{
-    const bool isaddmode = outmodefld_->getBoolValue();
-    insertpos_->display( isaddmode );
-
-    if ( isaddmode )
-	outtypfld_->setChoiceMode( OD::ChooseAtLeastOne );
-    else
-	outtypfld_->setChoiceMode( OD::ChooseOnlyOne );
-}*/
 
 
 void uiFileConvGroup::llFormatTypChg( CallBacker* )
@@ -618,7 +600,6 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
 	    outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
 					    outcrd, *SI().getCoordSystem() );
-	    //get coordsystem from ascio
 	}
 	else
 	{
@@ -634,7 +615,6 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	    outbid = SI().transform(coord);
 	}
 
-	//const bool addcol = outmodefld_->getBoolValue();
 	const bool addcol = true;
 	const bool convdatainbeg = insertpos_->getBoolValue();
 
