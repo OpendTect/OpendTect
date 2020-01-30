@@ -64,7 +64,7 @@ public:
     void		setEmpty();	    //!< current survey, soft path
     bool		exists() const;
 
-    void		fillPar(IOPar&) const;
+    void		fillPar(IOPar&,bool force=false) const;
     bool		usePar(const IOPar&);
 
     static const SurveyDiskLocation&	currentSurvey();
