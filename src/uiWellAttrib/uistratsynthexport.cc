@@ -68,13 +68,14 @@ uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
 void selItems( CallBacker* )
 {
     uiDialog::Setup su( uiStrings::phrSelect(nm_), mNoDlgTitle,
-                        mODHelpKey(mStartSynthOutSelHelpID) );
+			mODHelpKey(mStartSynthOutSelHelpID) );
     uiDialog dlg( parent(), su );
-    uiListBox* lb = new uiListBox( &dlg, mFromUiStringTodo(nm_) );
-    lb->setMultiChoice( true );
+    uiListBox* lb = new uiListBox( &dlg, nm_.getFullString(),
+				   OD::ChooseAtLeastOne );
     lb->addItems( nms_ );
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	lb->setChosen( selidxs_[idx], true );
+
     if ( dlg.go() )
     {
 	selidxs_.erase();
@@ -125,7 +126,7 @@ virtual BufferString getSummary() const
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
 				 mNoDlgTitle,
-                                 mODHelpKey(mStratSynthExportHelpID) ) )
+				 mODHelpKey(mStratSynthExportHelpID) ) )
     , ss_(ss)
     , randlinesel_(0)
 {
