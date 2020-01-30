@@ -178,6 +178,7 @@ void uiSurvIOObjSelGroup::setSurvey( const SurveyDiskLocation& sdl )
     if ( survsel_ )
 	survsel_->setSurveyDiskLocation( sdl );
 
+    finalise();
     if ( finalised() )
 	updGrp( false );
     else
@@ -541,6 +542,12 @@ void uiSurvIOObjSel::setSelected( const DBKey& dbky )
     }
     else
     {
+	if ( !finalised() )
+	{
+	    updateObjs();
+	    updateUi();
+	}
+
 	const int idxof = gtIdxOf( ioobjs_, dbky );
 	if ( idxof >= 0 )
 	{

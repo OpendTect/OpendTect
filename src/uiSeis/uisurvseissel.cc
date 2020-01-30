@@ -91,6 +91,9 @@ void uiSurvSeisSel::compSelCB( CallBacker* )
 
 void uiSurvSeisSel::setCompNr( int compnr )
 {
+    if ( !finalised() )
+	updateComps();
+
     compfld_->setCurrentItem( compnr );
 }
 
@@ -121,7 +124,10 @@ void uiSurvSeisSel::updateComps()
     if ( !ioobj )
 	return;
 
-    SeisIOObjInfo ioobjinfo( *ioobj );
+    const SeisIOObjInfo ioobjinfo( *ioobj );
+    if ( !ioobjinfo.isOK() )
+	return;
+
     BufferStringSet compnms;
     ioobjinfo.getComponentNames( compnms );
     const int sz = compnms.size();
