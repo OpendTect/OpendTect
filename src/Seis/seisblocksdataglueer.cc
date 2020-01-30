@@ -405,7 +405,9 @@ void Seis::Blocks::DataGlueer::fillTrace( SeisTrc& trc, Array1D<int>& contribs )
     const int* contribvals = contribs.getData();
     for ( int idz=0; idz<trc.size(); idz++, contribvals++ )
     {
-	const float val = *contribvals == 0 ? mUdf(float) : trc.get( idz, 0 );
+	const int contrib = *contribvals;
+	const float val = contrib == 0 ? mUdf(float)
+			: trc.get( idz, 0 )  / contrib;
 	trc.set( idz, val, 0 );
     }
 }
