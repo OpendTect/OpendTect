@@ -132,7 +132,7 @@ else
 	    else
 		echo "Sorry, there was a problem uploading your file.";
 	    
-	    $mail->AddAttachment( $target , date("F j, Y, g:i a T").$filename );
+	    $mail->AddAttachment( $target , $crashid . "_" . $filename );
 	}
 	
         $mail->send();
