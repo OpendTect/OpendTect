@@ -336,7 +336,7 @@ idx=3 : IC
 #define mSetOutVal( idx, leftoutval, rightoutval ) \
 { \
     if ( !leftoutfld##idx##_ || !rightoutfld##idx##_ ) \
-	pErrMsg("Field Does Not Exist"); \
+	{pErrMsg("Field Does Not Exist");} \
     leftoutfld##idx##_->setValue( leftoutval ); \
     rightoutfld##idx##_->setValue( rightoutval ); \
 } \
