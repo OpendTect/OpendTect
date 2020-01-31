@@ -1,9 +1,8 @@
 <?php
 /*
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- AUTHOR   :     K. Tingdahl
- DATE     :     June 2012
-                $Id: crashreport.php,v 1.4 2012/06/29 18:26:51 cvsdgb Exp $
+ AUTHOR   :	K. Tingdahl
+ DATE     :	June 2012
 
  crashreport.php - receives text and file with 'report' and 'dumpfile' as the key.
  If only text is received, it is sent as email. If file is also uploaded along with the 
@@ -64,7 +63,7 @@ else
 
 
 if ( array_key_exists($reportvarname,$_REQUEST) )
-        $report = $_REQUEST[$reportvarname];
+	$report = $_REQUEST[$reportvarname];
 
 
 if ( $report == '' )
@@ -91,10 +90,10 @@ else
 
     //Send e-mail
     $message = "Remote IP:\t".$_SERVER['REMOTE_ADDR']."\n\r".
-                "Remote Host:\t".$_SERVER['REMOTE_HOST']."\n\r".
-                "Time:\t".date("F j, Y, g:i a T")."\n\r".
+		"Remote Host:\t".$_SERVER['REMOTE_HOST']."\n\r".
+		"Time:\t".date("F j, Y, g:i a T")."\n\r".
                 "ID:\t".$crashid."\n\r".
-                "Report: \n\r\n\r".$report;
+		"Report: \n\r\n\r".$report;
 
     $subject = "OpendTect crash report ".date( "F j, Y, g:i a" );
 
@@ -102,12 +101,7 @@ else
             . 'From: Crash Reporter <'. $fromaddress . ">\r\n"
             . 'Reply-To: '. $recipient . "\r\n"
             . 'X-Mailer: PHP/' . phpversion();
-
-    if ( !mail($recipient, $subject, $message, $header) )
-    {
-	echo "Cannot send report to support";
-    }
-
+	
     $mail = new PHPMailer(true);
     try {
         $mail->SMTPDebug = 0;
@@ -126,7 +120,21 @@ else
         $mail->Subject = $subject;
         $mail->Body = $message;
 	$mail->addCustomHeader('Reply-To: '. $recipient);
+	if ( array_key_exists($dumpvarname,$_FILES) )
+	{
+	    if ( !is_dir($dumpfolder) )
+		mkdir( $dumpfolder );
 
+	    $filename = basename( $_FILES[$dumpvarname]['name'] );
+	    $target = $dumpfolder.'/'.$filename;
+	    if ( move_uploaded_file($_FILES[$dumpvarname]['tmp_name'],$target) )
+		echo "The file ".$filename. " has been uploaded";
+	    else
+		echo "Sorry, there was a problem uploading your file.";
+	    
+	    $mail->AddAttachment( $target , date("F j, Y, g:i a T").$filename );
+	}
+	
         $mail->send();
 	echo "Report submitted with ID ".$crashid.".\n\n";
         echo "Thank you for helping us improve OpendTect!\n";
@@ -142,4 +150,3 @@ if ( $dohtml )
     echo "</p> </body> </html>";
 }
 ?>
-
