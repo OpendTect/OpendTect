@@ -170,6 +170,14 @@ bool uiODServiceMgr::isPresent( const Network::Service::ID servid ) const
 }
 
 
+
+bool uiODServiceMgr::isAlive( const Network::Service::ID servid ) const
+{
+    const Network::Service* serv = getService( servid );
+    return serv && serv->isAlive();
+}
+
+
 BufferString uiODServiceMgr::serviceName(
 				    const Network::Service::ID servid ) const
 {

@@ -60,6 +60,7 @@ public:
     static uiODServiceMgr& getMgr();
 
     bool		isPresent(const Network::Service::ID) const;
+    bool		isAlive(const Network::Service::ID) const;
     BufferString	serviceName(const Network::Service::ID) const;
     void		raise(const Network::Service::ID) const;
     void		removeService(const Network::Service::ID);
