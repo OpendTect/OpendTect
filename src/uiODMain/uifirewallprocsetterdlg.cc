@@ -214,8 +214,6 @@ void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
 
 uiStringSet uiFirewallProcSetter::getPythonExecList()
 {
-
-
     PDE::ActionType acttyp = toadd_  ? PDE::Add : PDE::Remove;
 
     ePDD().getProcData( pyprocnms_, pyprocdescs_, PDE::Python, acttyp );
@@ -344,11 +342,11 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 
 	BufferString fincmd = cmd;
 	if ( idx != PDE::Python )
-	    fincmd.addSpace().add( "--od " ).add( exefp.fullPath() )
-								   .addSpace();
+	    fincmd.addSpace().add( "--od " )
+			    .add( exefp.fullPath().quote('\"') ).addSpace();
 	else
-	    fincmd.addSpace().add( "--py " ).add( getPythonInstDir() )
-								.addSpace();
+	    fincmd.addSpace().add( "--py " )
+		.add( getPythonInstDir().quote('\"')).addSpace();
 
 	BufferStringSet procnmsset;
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
