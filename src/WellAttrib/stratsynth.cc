@@ -1313,7 +1313,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		    continue;
 
 		propvals.add( time, propisvel ? 1.f / val : val );
-		layermodels_[idz]->sequence(iseq).setEmpty();
 	    }
 
 	    Array1DImpl<float> proptr( sz );
@@ -1332,6 +1331,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    for ( int idz=0; idz<sz; idz++ )
 		rawtrc->set( idz, proptr.get( idz ), 0 );
+	}
+
+	for ( int idz=0; idz<sz; idz++ )
+	{
+	    if ( !layermodels_.validIdx(idz) || !layermodels_[idz] )
+		continue;
+
+	    layermodels_[idz]->sequence(iseq).setEmpty();
 	}
     }
 
