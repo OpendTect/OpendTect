@@ -20,6 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Network;
 
+#ifdef __win__
+#include <iphlpapi.h>
+#pragma comment( lib, "iphlpapi" )
+#endif
+
 static Threads::Atomic<int> connid;
 
 
@@ -508,14 +513,67 @@ void RequestServer::newConnectionCB(CallBacker* cb)
     newConnection.trigger();
 }
 
+#ifdef __win__
+#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
+#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
+#endif
 
 bool Network::isPortFree( PortNr_Type port, uiString* errmsg )
 {
+#ifdef __win__
+    PMIB_TCPTABLE pTcpTable;
+    pTcpTable = (MIB_TCPTABLE *) MALLOC(sizeof (MIB_TCPTABLE));
+    if ( !pTcpTable )
+	return true;
+    DWORD dwSize = sizeof (MIB_TCPTABLE);
+    DWORD dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE);
+    if ( dwRetVal == ERROR_INSUFFICIENT_BUFFER )
+    {
+        FREE(pTcpTable);
+        pTcpTable = (MIB_TCPTABLE *) MALLOC(dwSize);
+        if ( !pTcpTable ) 
+	    return true;
+    }
+    dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE );
+    if ( dwRetVal != NO_ERROR )
+    {
+	FREE(pTcpTable);
+	return true;
+    }
+    const int nrentries = pTcpTable->dwNumEntries;
+    bool isfound = false;
+    for ( int idx=0; idx<nrentries; idx++ )
+    {
+	const auto entry = pTcpTable->table[idx];
+	if ( entry.dwState != MIB_TCP_STATE_LISTEN )
+	    continue;
+	const auto localport = ntohs((u_short)entry.dwLocalPort);
+	if ( localport == port )
+	{
+	    isfound = true;
+	    break;
+	}
+    }
+
+    if ( pTcpTable != NULL )
+    {
+	FREE(pTcpTable);
+	pTcpTable = NULL;
+    }
+
+    return !isfound;
+#else
     const RequestServer reqserv( port );
     const bool ret = reqserv.isOK();
     if ( errmsg && !reqserv.errMsg().isEmpty() )
 	*errmsg = reqserv.errMsg();
 
     return ret;
+#endif
 }
+
+#ifdef __win__
+#undef MALLOC
+#undef FREE
+#endif
 
