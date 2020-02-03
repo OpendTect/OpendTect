@@ -498,7 +498,10 @@ bool uiStratTreeWin::save( bool saveas )
 
 
 void uiStratTreeWin::setEditable( bool yn )
-{ setIsLocked( !yn ); }
+{
+    setIsLocked( !yn );
+    tb_->setSensitive( lockitem_.id, yn );
+}
 
 
 void uiStratTreeWin::setIsLocked( bool yn )
@@ -510,6 +513,8 @@ void uiStratTreeWin::setIsLocked( bool yn )
     tb_->setIcon( lockitem_.id, yn ? "readonly" : "unlock" );
     tb_->setToolTip( lockitem_.id,
 		     yn ? uiStrings::sUnlock() : uiStrings::sLock() );
+
+    updateButtonSensitivity();
 }
 
 
@@ -599,6 +604,9 @@ void uiStratTreeWin::updateButtonSensitivity()
     treevwtb_->setSensitive( movedownitem_.id,
 		       !islocked && uitree_->canMoveUnit(false) );
 
+    tb_->setSensitive( newitem_.id, !islocked );
+    tb_->setSensitive( openitem_.id, !islocked );
+    tb_->setSensitive( defaultitem_.id, !islocked );
     tb_->setSensitive( saveitem_.id, !islocked );
 
     othertb_->setSensitive( lithoitem_.id, !islocked );

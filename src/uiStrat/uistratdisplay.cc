@@ -254,7 +254,7 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 void uiStratDisplay::doubleClickCB( CallBacker* )
 {
     const StratDispData::Unit* unit = getUnitFromPos();
-    if ( !unit )
+    if ( !unit || islocked_ )
 	return;
 
     uidatawriter_.handleUnitProperties( unit->fullCode() );
