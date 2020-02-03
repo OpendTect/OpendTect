@@ -14,7 +14,6 @@
 #include "uimainwin.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
-#include "uiusershowwait.h"
 
 #include "commandlineparser.h"
 #include "dbman.h"
@@ -485,10 +484,15 @@ uiRetVal uiODService::close()
     return doAction( request );
 }
 
+
 void uiODService::masterCheckCB( CallBacker* cb )
 {
     if ( !isMasterAlive() )
+    {
+	//TODO: only if top dialog is hidden ?
+	// uiMsg ask confirmation ?
 	uiMain::theMain().exit(0);
+    }
 }
 
 
