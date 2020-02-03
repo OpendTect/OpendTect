@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netservice.h"
 #include "pythonaccess.h"
 #include "settings.h"
+#include "timer.h"
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
@@ -404,6 +405,8 @@ uiODService::uiODService( bool assignport )
 
 uiODService::~uiODService()
 {
+    detachAllNotifiers();
+    delete mastercheck_;
     doDeRegister();
 }
 
@@ -414,18 +417,37 @@ bool uiODService::isODMainSlave() const
 }
 
 
+bool uiODService::isMasterAlive() const
+{
+    uiUserShowWait uisv( uiMain::theMain().topLevel(),
+			 tr("Checking status of Master application") );
+    const uiRetVal uirv = sendAction( sKeyStatusEv() );
+    return uirv.isOK();
+}
+
+
 
 uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
 {
     const BufferString action( actobj.getStringValue( sKeyAction()) );
 
     if ( action == sKeyCloseEv() )
+    {
+	if ( mastercheck_ )
+	    mDetachCB( mastercheck_->tick, uiODService::masterCheckCB );
+	else
+	    mastercheck_ = new Timer( "Master status check" );
+	mAttachCB( mastercheck_->tick, uiODService::masterCheckCB );
+	mastercheck_->start( 5000 );
 	return doCloseAct();
+    }
     else if ( action == sKeyRaiseEv() )
     {
 	uiMainWin* mainwin = uiMain::theMain().topLevel();
 	if ( mainwin->isMinimized() || mainwin->isHidden() )
 	{
+	    if ( mastercheck_ )
+		mastercheck_->stop();
 	    mainwin->showNormal();
 	    mainwin->raise();
 	}
@@ -464,6 +486,17 @@ uiRetVal uiODService::close()
     OD::JSON::Object request;
     request.set( sKeyAction(), sKeyCloseEv() );
     return doAction( request );
+}
+
+
+void uiODService::masterCheckCB( CallBacker* cb )
+{
+    if ( !isMasterAlive() )
+    {
+	//TODO: only if top dialog is hidden ?
+	// uiMsg ask confirmation ?
+	uiMain::theMain().exit(0);
+    }
 }
 
 

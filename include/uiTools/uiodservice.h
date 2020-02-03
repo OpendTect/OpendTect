@@ -16,6 +16,7 @@
 #include "networkcommon.h"
 #include "ptrman.h"
 
+class Timer;
 namespace Network {
     class RequestConnection;
     class RequestPacket;
@@ -127,6 +128,7 @@ public:
     virtual		~uiODService();
 
     bool		isODMainSlave() const;
+    bool		isMasterAlive() const;
 
 protected:
 
@@ -148,9 +150,12 @@ private:
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
     void		doPyEnvChange(CallBacker*) override;
+    void		masterCheckCB(CallBacker*);
 
     Network::Authority	odauth_;
     ID			servid_ = 0;
+
+    Timer*		mastercheck_ = nullptr;
 
 };
 
