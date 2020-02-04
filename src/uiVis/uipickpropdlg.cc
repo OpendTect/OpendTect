@@ -167,8 +167,5 @@ void uiPickPropDlg::thresholdChangeCB( CallBacker* )
 
 bool uiPickPropDlg::acceptOK( CallBacker* )
 {
-    if ( !saveButtonChecked() )
-	return true;
-
     return set_.writeDisplayPars();
 }
