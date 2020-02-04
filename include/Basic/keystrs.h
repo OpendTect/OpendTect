@@ -114,7 +114,7 @@ namespace sKey
     inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
     inline FixedString Setup()		{ return "Setup"; }
-    inline FixedString Subsample()	{ return "Subsample"; }
+    inline FixedString Shape()		{ return "Shape"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
     inline FixedString SpaceString()	{ return " "; }
@@ -122,6 +122,7 @@ namespace sKey
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
     inline FixedString StratRef()	{ return "Strat Level"; }
+    inline FixedString Subsample()	{ return "Subsample"; }
     inline FixedString Subsel()		{ return "Subsel"; }
     inline FixedString Surface()	{ return "Surface"; }
     inline FixedString Survey()		{ return "Survey"; }
