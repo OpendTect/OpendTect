@@ -28,7 +28,7 @@ public:
 
     static const Platform& local();	//!< This platform
 
-    enum Type	{ Lin64=1, Win32, Win64, Mac };
+    enum Type	{ Lin64, Win32, Win64, Mac };
 		mDeclareEnumUtils(Type)
 
     		Platform();		//!< This platform
