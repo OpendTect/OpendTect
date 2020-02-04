@@ -479,6 +479,7 @@ void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
     uiArray2DInterpolSel* settings =
 	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );
+    settings->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
     dlg.setGroup( settings );
     if ( !dlg.go() ) return;
 
@@ -487,4 +488,6 @@ void uiEMDataPointSetPickDlg::settCB( CallBacker* )
     if ( !interpol_ ) return;
 
     interpol_->setFillType( Array2DInterpol::Full );
+    interpol_->setRowStep( SI().inlDistance() * tks_.step_.inl() );
+    interpol_->setColStep( SI().crlDistance() * tks_.step_.crl() );
 }
