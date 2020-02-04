@@ -167,7 +167,7 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
 
 uiString uiSeisPartServer::mkDlgCaption( bool forread, bool is2d, bool isps )
 {
-    const uiString tp = uiStrings::sSeismics( is2d, isps, 2 );
+    const uiString tp = uiStrings::sSeismics( is2d, isps, 1 );
     return tr( "%1 %2 simple flat file")
 	.arg( forread
 	    ? uiStrings::phrImport( tp )
