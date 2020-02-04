@@ -120,7 +120,8 @@ public:
     od_int64            totalNr() const;
     uiString		uiNrDoneText() const;
 
-    const Scanner*	scanner() const { return scanner_; }
+    const Scanner*	scanner() const		{ return scanner_; }
+    Scanner*		scanner()		{ return scanner_; }
 
 protected:
 

@@ -60,6 +60,7 @@ protected:
     uiSeisSel*		outimpfld_;
     uiSeisSel*		outscanfld_;
     uiSeisTransfer*	transffld_;
+    uiGenInput*		remnullfld_;
     uiSeis2DLineNameSel* lnmfld_;
     uiGenInput*		docopyfld_;
     uiComboBox*		coordsfromfld_;

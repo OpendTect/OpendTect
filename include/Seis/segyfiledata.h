@@ -81,37 +81,38 @@ public:
     const SamplingData<float>&	getSampling() const { return sampling_; }
     int				getTrcSz() const { return trcsz_; }
 
-				//Auxdata
-    int				nrFiles() const;
-    FixedString			fileName(int) const;
-    bool			isEmpty() const		{ return totalsz_<2; }
-    od_int64			size() const		{ return totalsz_; }
-    bool			isRev0() const		{ return isrev0_; }
-    Seis::GeomType		geomType() const	{ return geom_; }
-    const IOPar&		segyPars() const	{ return segypars_;}
+			//Auxdata
+    int			nrFiles() const;
+    FixedString		fileName(int) const;
+    bool		isEmpty() const			{ return totalsz_<2; }
+    od_int64		size() const			{ return totalsz_; }
+    bool		isRev0() const			{ return isrev0_; }
+    Seis::GeomType	geomType() const		{ return geom_; }
+    const IOPar&	segyPars() const		{ return segypars_;}
+    void		setDiscardNull( bool yn )	{ discardnull_ = yn; }
 
-				//TraceData
-    bool			getDetails(od_int64,Seis::PosKey&,
+			//TraceData
+    bool		getDetails(od_int64,Seis::PosKey&,
 					   bool& usable) const;
-    Coord			get2DCoord(int trcnr) const;
-    TrcIdx			getFileIndex(od_int64) const;
+    Coord		get2DCoord(int trcnr) const;
+    TrcIdx		getFileIndex(od_int64) const;
 
 
     //bool		toNext(TrcIdx&,bool allownull=true,
 				//bool allownotusable=false) const;
 
-    void			setIndexer(Seis::PosIndexer* n);
-				/*!<addTrace will send the trace info to the
-				    indexer. Indexer must be kept alive outside
-				    object. */
+    void		setIndexer(Seis::PosIndexer* n);
+			/*!<addTrace will send the trace info to the
+			    indexer. Indexer must be kept alive outside
+			    object. */
 
-    void			getReport(IOPar&) const;
-    void			dump(od_ostream&) const;
+    void		getReport(IOPar&) const;
+    void		dump(od_ostream&) const;
 
-    bool			usePar(const IOPar& iop);
-				//!<Read auxdata from storage
-    void			fillPar(IOPar& iop) const;
-				//!<Write auxdata
+    bool		usePar(const IOPar& iop);
+			//!<Read auxdata from storage
+    void		fillPar(IOPar& iop) const;
+			//!<Write auxdata
 
 protected:
 
@@ -150,6 +151,7 @@ protected:
     TypeSet<od_int64>		cumsizes_;
     od_int64			totalsz_;
     int				nrusable_;
+    bool			discardnull_;
 
 				//TraceData
     TypeSet<Seis::PosKey>	keys_;

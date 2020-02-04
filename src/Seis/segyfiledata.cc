@@ -34,6 +34,7 @@ static const char* sKeyRev1Marked = "File marked as REV. 1";
 static const char* sKeyNrStanzas = "Nr REV.1 Text stanzas";
 static const char* sKeyStorageType = "Storage type";
 static const char* sKeyNrUsable = "Nr Usable";
+static const char* sKeyDiscardNull = "Discard Null";
 
 
 SEGY::FileDataSet::StoredData::StoredData( const char* filename,
@@ -119,6 +120,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop, ascistream& strm )
     , indexer_( 0 )
     , coords_( 0 )
     , nrusable_( 0 )
+    , discardnull_(false)
 {
     readVersion1( strm );
 }
@@ -134,6 +136,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop,
     , coords_( 0 )
     , nrstanzas_( 0 )
     , nrusable_( 0 )
+    , discardnull_(false)
 {}
 
 
@@ -145,6 +148,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop )
     , coords_( 0 )
     , nrstanzas_( 0 )
     , nrusable_( 0 )
+    , discardnull_(false)
 {}
 
 
@@ -216,6 +220,7 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
     par.get( sKeyTraceSize, trcsz_ );
     par.get( sKeyNrStanzas, nrstanzas_ );
     par.get( sKeyNrUsable, nrusable_ );
+    par.getYN( sKeyDiscardNull, discardnull_ );
 
     return true;
 }
@@ -231,6 +236,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     par.set( sKeyTraceSize, trcsz_ );
     par.set( sKeyNrStanzas, nrstanzas_ );
     par.set( sKeyNrUsable, nrusable_ );
+    par.setYN( sKeyDiscardNull, discardnull_ );
     Seis::putInPar( geom_, par );
 
     FilePath survdirname( GetBaseDataDir() );
@@ -491,7 +497,6 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
 
     return true;
 }
-
 
 
 void SEGY::FileDataSet::setAuxData( const Seis::GeomType& gt,

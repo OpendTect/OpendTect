@@ -726,6 +726,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	}
     }
 
+    trchead_.initRead();
     if ( trchead_.isusable )
 	trchead_.isusable = goodpos;
 

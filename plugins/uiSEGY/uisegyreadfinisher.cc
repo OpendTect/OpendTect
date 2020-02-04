@@ -92,19 +92,20 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
 				 mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
-    , outwllfld_(0)
-    , lognmfld_(0)
-    , inpdomfld_(0)
-    , isfeetfld_(0)
-    , outimpfld_(0)
-    , outscanfld_(0)
-    , transffld_(0)
-    , lnmfld_(0)
-    , batchfld_(0)
-    , docopyfld_(0)
-    , coordsfromfld_(0)
-    , coordfilefld_(0)
-    , coordfileextfld_(0)
+    , outwllfld_(nullptr)
+    , lognmfld_(nullptr)
+    , inpdomfld_(nullptr)
+    , isfeetfld_(nullptr)
+    , outimpfld_(nullptr)
+    , outscanfld_(nullptr)
+    , transffld_(nullptr)
+    , remnullfld_(nullptr)
+    , lnmfld_(nullptr)
+    , batchfld_(nullptr)
+    , docopyfld_(nullptr)
+    , coordsfromfld_(nullptr)
+    , coordfilefld_(nullptr)
+    , coordfileextfld_(nullptr)
 {
     setOkText( uiStrings::sImport() );
     objname_ = FilePath( usrspec ).baseName();
@@ -135,6 +136,11 @@ void uiSEGYReadFinisher::crSeisFields()
     trsu.withnullfill( false ).fornewentry( true );
     transffld_ = new uiSeisTransfer( this, trsu );
     transffld_->attach( alignedBelow, docopyfld_ );
+
+    remnullfld_ = new uiGenInput( this, tr("Null traces"),
+			  BoolInpSpec(true,tr("Discard"),tr("Pass")) );
+    remnullfld_->attach( alignedBelow, docopyfld_ );
+
     if ( is2d )
     {
 	lnmfld_ = new uiSeis2DLineNameSel( this, false );
@@ -313,6 +319,8 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
 	outimpfld_->display( copy );
     if ( transffld_ )
 	transffld_->display( copy );
+    if ( remnullfld_ )
+	remnullfld_->display( !copy );
     if ( outscanfld_ )
 	outscanfld_->display( !copy );
     if ( lnmfld_ )
@@ -447,6 +455,9 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     {
 	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
 			fs_.spec_, false, inioobj.pars() );
+	const bool discardnull =
+		remnullfld_ ? remnullfld_->getBoolValue() : false;
+	indexer->scanner()->fileDataSet().setDiscardNull( discardnull );
 	exec = indexer.ptr();
     }
 
