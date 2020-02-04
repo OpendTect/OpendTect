@@ -726,8 +726,18 @@ float SurveyInfo::zStep() const
 
 int SurveyInfo::nrZDecimals() const
 {
-    return Math::NrSignificantDecimals(
-		sCast(double,zStep()*zDomain().userFactor()) );
+    const double zstep =
+		sCast(double,zStep()*zDomain().userFactor());
+    int nrdec = 0;
+    double decval = zstep;
+    while ( decval > Math::Floor(decval) &&
+	    !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
+    {
+	nrdec++;
+	decval = decval*10 - Math::Floor(decval*10);
+    }
+
+    return nrdec;
 }
 
 
