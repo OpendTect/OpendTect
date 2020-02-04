@@ -597,7 +597,7 @@ macro ( OD_GENERATE_BREAKPAD_SYMBOLS ALLLIBS EXECS)
 	message ( FATAL_EEROR "BREAKPAD_DIR: ${BREAKPAD_DIR} not found" )
     endif()
 
-    set( SYMBOLDIRNM symbols_${OD_PLFSUBDIR}_${FULLVER_NAME} )
+    set( SYMBOLDIRNM symbols_v7_${OD_PLFSUBDIR}_${FULLVER_NAME} )
     if( NOT EXISTS ${PACKAGE_DIR}/${SYMBOLDIRNM} )
 	    file( MAKE_DIRECTORY ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
     endif()

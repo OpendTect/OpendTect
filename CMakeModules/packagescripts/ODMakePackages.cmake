@@ -79,7 +79,7 @@ foreach ( PACKAGE ${PACKAGELIST} )
     endif()
 endforeach()
 if ( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
-    set( SYMBOLDIRNM symbols_${OD_PLFSUBDIR}_${OpendTect_FULL_VERSION} )
+    set( SYMBOLDIRNM symbols_v7_${OD_PLFSUBDIR}_${OpendTect_FULL_VERSION} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/symbols
 		     ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
