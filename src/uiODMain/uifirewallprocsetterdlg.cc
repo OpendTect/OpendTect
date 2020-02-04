@@ -313,7 +313,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
 
     const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
-    BufferString cmd = exepath.fullPath();
+    BufferString cmd = exepath.fullPath().quote( '\"' );;
 
     if ( toadd_ )
 	cmd.addSpace().add("--add");
@@ -323,6 +323,9 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     bool errocc = false;
     IOPar pars;
     int nrprocsprocessed = 0;
+    uiString errmsg;
+    BufferStringSet failedprocnms;
+
     for ( int idx=0; idx<PDE::TypeDef().size(); idx++ )
     {
 	const BufferStringSet& procset = getProcList(
@@ -364,17 +367,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 
 	if ( !cl.execute(cp) )
 	{
-	    uiString errmsg;
-	    if ( toadd_ )
-		errmsg = uiStrings::phrCannotAdd( tr("%1 process") );
-	    else
-		errmsg = uiStrings::phrCannotRemove( tr("%1 process") );
-
-	    uiMSG().errorWithDetails(
-		    errmsg.arg(idx == 0 ? ::toUiString("OpendTect") :
-		    ::toUiString("Python")),
-		    tr("Please make sure OpendTect is running "
-					"in administrative mode") );
+	    failedprocnms.add(procnmsset,false);
 	    errocc = true;
 	}
 	else
@@ -391,5 +384,18 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	else
 	    uiMSG().message( tr("Selected executables successfully removed") );
     }
+    else
+    {
+	if (toadd_)
+	    errmsg = tr("Cannot add following processes : %1");
+	else
+	    errmsg = tr("Cannot remove processes : %1");
+	uiMSG().errorWithDetails(errmsg.arg( failedprocnms.getDispString() ),
+		    tr("Please make sure OpendTect is running "
+		"in administrative mode"));
+
+	return true;
+    }
+
     return  ePDD().writePars( pars, toadd_ );
 }
