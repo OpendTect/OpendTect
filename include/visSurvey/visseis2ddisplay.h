@@ -159,6 +159,8 @@ public:
     visBase::TexturePanelStrip* getTexturePanelStrip() const 
 				{ return panelstrip_; }
 
+    const visBase::Text2*	getVisTextLineName() { return linename_; }
+
 protected:
 				~Seis2DDisplay();
 
