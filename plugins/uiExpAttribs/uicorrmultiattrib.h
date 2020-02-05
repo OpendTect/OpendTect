@@ -29,7 +29,7 @@ protected:
     bool		setInput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
-    uiRetVal		getInput(Attrib::Desc&);
+    bool		getInput(Attrib::Desc&);
 
     uiAttrSel*		inpfld_;
     uiAttrSel*		inpfld2_;

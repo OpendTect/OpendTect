@@ -27,19 +27,15 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-uiWord sDispName()
-{
-    return od_static_tr("sDispName","Multi-Target Correlation");
-}
-
-mInitAttribUI(uiCorrMultiAttrib,CorrMultiAttrib,sDispName(),sExperimentalGrp())
+mInitAttribUI(uiCorrMultiAttrib,CorrMultiAttrib,
+	      "Multi-Target Correlation","Experimental")
 
 
 uiCorrMultiAttrib::uiCorrMultiAttrib(uiParent* p,bool is2d)
 		  : uiAttrDescEd(p,is2d,HelpKey("tut","attrib"))
 {
-    inpfld_ = createInpFld( is2d, tr("Reference Attribute") );
-    inpfld2_ = createInpFld( is2d, uiStrings::sSelAttrib() );
+    inpfld_ = createInpFld( is2d, "Reference Attribute" );
+    inpfld2_ = createInpFld( is2d, "Select Attribute" );
     gatefld_ = new uiGenInput( this, gateLabel(),
 	       FloatInpIntervalSpec().setName("Z start",-28)
 	       .setName("Z stop",28) );
@@ -83,9 +79,9 @@ bool uiCorrMultiAttrib::getParameters(Desc& desc)
 }
 
 
-uiRetVal uiCorrMultiAttrib::getInput(Desc& desc)
+bool uiCorrMultiAttrib::getInput(Desc& desc)
 {
-    uiRetVal uirv = fillInp( inpfld_, desc, 0 );
-    uirv.add( fillInp(inpfld2_,desc,1) );
-    return uirv;
+    fillInp( inpfld_, desc, 0 );
+    fillInp( inpfld2_, desc, 1 );
+    return true;
 }

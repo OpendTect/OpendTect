@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "attribparamgroup.h"
 #include "statruncalc.h"
 #include "survinfo.h"
-#include "array2Dmatrix.h"
 #include "attribprovider.h"
 #include "math2.h"
 
@@ -36,7 +35,7 @@ void CorrMultiAttrib::initClass()
     gate->setLimits( Interval<float>(-1000,1000) );
     gate->setDefaultValue( Interval<float>(-16,16) );
     desc->addParam( gate );
-    desc->addOutputDataType( Seis::UnknownData );
+    desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Input data 1",true) );
     desc->addInput( InputSpec("Input data 2",true) );
 
@@ -91,8 +90,8 @@ bool CorrMultiAttrib::computeData( const DataHolder& output,
 	 !inputdata2_ || inputdata2_->isEmpty() )
 	return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refzstep_),
-	mNINT32(gate_.stop/refzstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
+	mNINT32(gate_.stop/refstep_) );
 
     for ( int sample=0; sample<nrsamples; sample++ )
     {
