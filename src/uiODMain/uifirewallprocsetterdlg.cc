@@ -83,7 +83,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
     odproclistbox_ = new uiListBox( this, su );
-    if ( !odprocdescs_.isEmpty() )
+    if ( addremfld_ || !odprocdescs_.isEmpty() )
     {
 	if ( attachobj )
 	    odproclistbox_->attach( alignedBelow, attachobj );
@@ -94,14 +94,14 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	odproclistbox_->chooseAll();
 	attachobj = odproclistbox_->attachObj();
     }
-    odproclistbox_->display( !odprocdescs_.isEmpty() );
+    odproclistbox_->display( addremfld_ || !odprocdescs_.isEmpty() );
 
     su.lbl( tr("Python Executables") );
     pythonproclistbox_ = new uiListBox( this, su );
     pythonproclistbox_->blockScrolling( false );
     pythonproclistbox_->addItems( pyprocdescs_ );
     pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );
-    if ( !pyprocdescs_.isEmpty() )
+    if ( addremfld_ || !pyprocdescs_.isEmpty() )
     {
 	if ( attachobj )
 	    pythonproclistbox_->attach( alignedBelow, attachobj );
@@ -110,7 +110,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	    uiFirewallProcSetter::statusUpdatePyProcCB);
 	pythonproclistbox_->chooseAll();
     }
-    pythonproclistbox_->display( !pyprocdescs_.isEmpty() );
+    pythonproclistbox_->display( addremfld_|| !pyprocdescs_.isEmpty() );
 
     if ( ty != PDE::AddNRemove )
     {
@@ -121,7 +121,14 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     }
 }
 
+#define mGetAddBool \
+    if ( addremfld_ && addremfld_->isDisplayed() ) \
+	toadd_ = addremfld_->getBoolValue(); \
+    else \
+	toadd_ = ePDD().getActionType() == PDE::Add; \
+
 #define mGetData \
+    mGetAddBool \
     setEmpty(); \
     PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
     ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
@@ -138,27 +145,25 @@ void uiFirewallProcSetter::setEmpty()
     odprocdescs_.setEmpty();
 }
 
+
 void uiFirewallProcSetter::init()
 {
     const FilePath fp( exepath_ );
     const BufferString exceptionlistpath = fp.dirUpTo( fp.nrLevels()-4 );
     ePDD().setPath( exceptionlistpath );
+    PDE::ActionType acttyp1 = ePDD().getActionType();
     mGetData
 }
 
 
 uiFirewallProcSetter::~uiFirewallProcSetter()
 {
+    detachAllNotifiers();
 }
 
 
 void uiFirewallProcSetter::selectionChgCB( CallBacker* )
 {
-    if ( addremfld_ && addremfld_->isDisplayed() )
-	toadd_ = addremfld_->getBoolValue();
-    else
-	toadd_ = ePDD().getActionType() == PDE::Add ? true : false;
-
     odproclistbox_->setEmpty();
     pythonproclistbox_->setEmpty();
 
@@ -214,7 +219,7 @@ void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
 
 uiStringSet uiFirewallProcSetter::getPythonExecList()
 {
-    PDE::ActionType acttyp = toadd_  ? PDE::Add : PDE::Remove;
+    PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove;
 
     ePDD().getProcData( pyprocnms_, pyprocdescs_, PDE::Python, acttyp );
 
@@ -386,7 +391,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
     else
     {
-	if (toadd_)
+	if ( toadd_ )
 	    errmsg = tr("Cannot add following processes : %1");
 	else
 	    errmsg = tr("Cannot remove processes : %1");
