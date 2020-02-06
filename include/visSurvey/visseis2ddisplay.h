@@ -160,6 +160,8 @@ public:
 				{ return panelstrip_; }
     bool			isSection() const { return true; }
 
+    const visBase::Text*	getVisTextLineName() { return linename_; }
+
 protected:
 				~Seis2DDisplay();
 
