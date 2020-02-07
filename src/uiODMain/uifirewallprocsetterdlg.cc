@@ -151,7 +151,6 @@ void uiFirewallProcSetter::init()
     const FilePath fp( exepath_ );
     const BufferString exceptionlistpath = fp.dirUpTo( fp.nrLevels()-4 );
     ePDD().setPath( exceptionlistpath );
-    PDE::ActionType acttyp1 = ePDD().getActionType();
     mGetData
 }
 
