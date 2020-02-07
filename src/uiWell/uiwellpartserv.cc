@@ -360,14 +360,14 @@ void uiWellPartServer::manageWells()
     delete manwelldlg_;
     manwelldlg_ = new uiWellMan( parent() );
     new uiToolButton( manwelldlg_->extraButtonGroup(), "multisimplewell",
-		      tr("Create multiple simple wells"),
+		      tr("Import multiple vertical wells"),
 		      mCB(this,uiWellPartServer,simpImp) );
     manwelldlg_->go();
 }
 
 
 class uiWellRockPhysLauncher : public uiDialog
-{ mODTextTranslationClass(uiWellRockPhysLauncher);
+{ mODTextTranslationClass(uiWellRockPhysLauncher)
 public:
 
 uiWellRockPhysLauncher( uiParent* p )
