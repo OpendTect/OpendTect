@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "atomic.h"
 #include "arraynd.h"
 #include "datainterp.h"
+#include "od_ostream.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "string.h"
@@ -319,6 +320,16 @@ Network::PacketInterpreter* Network::RequestPacket::readJsonHeader(
     Network::PacketInterpreter* interp = new Network::PacketInterpreter(*this);
     BufferString jsonhdrstr( interp->getString() );
     uirv = hdr.parseJSon( jsonhdrstr.getCStr(), jsonhdrstr.size() );
+#ifdef __debug__
+	if ( hdr.isPresent("debug-message") )
+	{
+		BufferStringSet debugmsgs;
+		debugmsgs.unCat( hdr.getStringValue("debug-message") );
+		const BufferString debugmsg( debugmsgs.cat() );
+		if ( !debugmsg.isEmpty() )
+			od_cout() << debugmsg << od_endl;
+	}
+#endif
     return interp;
 }
 
