@@ -140,7 +140,11 @@ void uiODDataTreeItem::keyPressCB( CallBacker* cb )
     mCBCapsuleUnpack(uiKeyDesc,kd,cb);
 
     if ( kd.key()==OD::KB_PageUp || kd.key()==OD::KB_PageDown )
+    {
 	applMgr()->pageUpDownPressed( kd.key()==OD::KB_PageUp );
+	if ( cbcaps )
+	    cbcaps->data.setKey( 0 );
+    }
 }
 
 
