@@ -41,5 +41,7 @@ set(OD_MODULE_SOURCES
 		vistransmgr.cc
 		visvolumedisplay.cc
 		viswelldisplay.cc
+
+		visaxisdisplay.cc
 )
 OD_INIT_MODULE()
