@@ -162,16 +162,24 @@ macro(OD_SETUP_QT)
 	        endif()
 	    endif()
 	    foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
+		if ( APPLE )
+		    set ( DESTDIR ${CMAKE_INSTALL_PREFIX}/Contents/Plugins )
+		else()
+		    set ( DESTDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+		endif()
 		install( DIRECTORY ${QTDIR}/plugins/${QTPLUGIN}
-			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+			 DESTINATION ${DESTDIR}
 			 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 			 USE_SOURCE_PERMISSIONS 
 			 FILES_MATCHING
 			 PATTERN "*.so"
 			 PATTERN "*.dll"
+			 PATTERN "*.dylib"
 			 PATTERN "*d.dll" EXCLUDE
 			 PATTERN "*.pdb" EXCLUDE
-			 PATTERN "*.so.debug" EXCLUDE )
+			 PATTERN "*.so.debug" EXCLUDE
+			 PATTERN "*_debug*" EXCLUDE
+			 PATTERN "*.dSYM" EXCLUDE )
 	    endforeach()
 
 	    if ( WIN32 )
