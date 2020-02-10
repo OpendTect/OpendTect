@@ -244,15 +244,21 @@ macro( copy_thirdpartylibs )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMLIBDIR}/../translations
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/iconengines
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMDATADIR}/imageformats
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/platforms
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
+    if ( APPLE )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/../Plugins
+			 ${DESTINATION_DIR}/Plugins )
+    else()
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/iconengines
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMDATADIR}/imageformats
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/platforms
+		         ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
+    endif()
     if ( UNIX )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/xcbglintegrations
