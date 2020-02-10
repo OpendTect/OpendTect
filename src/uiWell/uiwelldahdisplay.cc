@@ -262,16 +262,6 @@ void uiWellDahDisplay::draw()
 }
 
 
-static const int cMaxNrDahSamples = 2000;
-#define mGetLoopSize(nrsamp,step)\
-    {\
-	if ( nrsamp > cMaxNrDahSamples )\
-	{\
-	    step = (float)nrsamp/cMaxNrDahSamples;\
-	    nrsamp = cMaxNrDahSamples;\
-	}\
-    }
-
 void uiWellDahDisplay::drawCurve( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;

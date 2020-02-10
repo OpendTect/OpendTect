@@ -872,7 +872,6 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
     : Executor("Volume Reader")
     , ioobj_(ioobj.clone())
     , dp_(0)
-    , sd_(0)
     , scaler_(0)
     , rdr_(*new SeisTrcReader(ioobj_))
     , dc_(DataCharacteristics::Auto)

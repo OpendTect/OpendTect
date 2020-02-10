@@ -203,7 +203,6 @@ private:
     StepInterval<int>		ysampling_;
     float			bendpointeps_;
     int				minnrvertices_;
-    int				nrlargestonly_;
     unsigned int		edge_;
     int				xsize_;
     int				ysize_;
@@ -225,7 +224,6 @@ ContourTracer::ContourTracer( ObjectSet<ODPolygon<float> >& contours,
     , ysize_( ysize )
     , edge_( edge )
     , bendpointeps_( bendpointeps )
-    , nrlargestonly_( nrlargestonly )
     , minnrvertices_( minnrvertices )
     , closedonly_( closedonly )
     , totalnr_( 0 )

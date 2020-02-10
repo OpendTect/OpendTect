@@ -43,7 +43,6 @@ private:
     void			qtEventCB(CallBacker*);
 
     uiEventFilter		eventfilter_;
-    int				nractivegestures_;
     QDateTime&			gestureendtime_;
     enum GestureStatus		{ Inactive, Active, Finished };
     GestureStatus		gesturestatus_;

@@ -213,7 +213,6 @@ private:
     IOObj*			ioobj_;
     bool			is2d_;
     SeisTrcReader&		rdr_;
-    SelData*			sd_;
     RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
     TypeSet<float>		refnrs_;

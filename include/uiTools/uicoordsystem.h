@@ -65,7 +65,6 @@ private:
     void			systemChangedCB(CallBacker*);
 
     uiGenInput*			coordsystemsel_;
-    uiLabel*			coordsystemdesc_;
     ObjectSet<uiCoordSystem> coordsystemsuis_;
     ManagedObjectSet<IOPar>	coordsystempars_;
     const SurveyInfo*		si_;

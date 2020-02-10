@@ -309,9 +309,9 @@ void VW2DPickSet::drawAll()
 					: dipstr.getFValue( 0 );
 		const float depth = (dip/1000000) * zfac;
 		const float xdiff = (float) ( curvw.width() *
-			regfdp->is2D() ? 1
+			(regfdp->is2D() ? 1
 				       : (oninl ? SI().crlDistance()
-						: SI().inlDistance()) );
+						: SI().inlDistance()) ) );
 		const float xfac = nrxpixels / xdiff;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );

@@ -53,7 +53,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivariogram.h"
 #include "od_helpids.h"
 
-static const int cNrPosCols = 3;
 static const int cMinPtsForDensity = 20000;
 static const char* sKeyGroups = "Groups";
 

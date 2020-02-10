@@ -344,7 +344,7 @@ bool DecompInput::decompositionLoop(
 		    float min = minima.getValue(mCast(float,idx));
 		    mean = ( (max+min)/2 );
 		    float val = values_[idx];
-		    dosift =+ ( (mean*mean) / (val*val));
+		    dosift += ( (mean*mean) / (val*val));
 		    values_[idx] = values_[idx] - mean;
 		}
 	    }
