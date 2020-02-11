@@ -182,9 +182,9 @@ void setSelected( int icomp, bool yn )
 
 
 uiSurvSeisSelGroupCompEntry& uiSurvSeisSelGroup::getCompEntry(
-					    int objidx ) const
+					    int objidx, bool selected ) const
 {
-    const IOObj& ioobj = *ioobjs_[objidx];
+    const IOObj& ioobj = selected ? *ioObj( objidx ) : *ioobjs_[objidx];;
     uiSurvSeisSelGroupCompEntry* ret = 0;
     for ( uiSurvSeisSelGroupCompEntry* entry : compentries_ )
 	if ( entry->dbky_ == ioobj.key() )
@@ -236,13 +236,15 @@ void uiSurvSeisSelGroup::seisSelChgCB( CallBacker* )
     {
 	if ( prevselidx_ >= 0 )
 	{
-	    uiSurvSeisSelGroupCompEntry& preventry = getCompEntry( prevselidx_);
+	    uiSurvSeisSelGroupCompEntry& preventry = getCompEntry( prevselidx_,
+								   true );
 	    TypeSet<int> chosenidxs;
 	    compfld_->getChosen( chosenidxs );
 	    for ( int icomp=0; icomp<preventry.size(); icomp++ )
 		preventry.setSelected( icomp, chosenidxs.isPresent(icomp) );
 	}
-	const uiSurvSeisSelGroupCompEntry& compentry = getCompEntry( selidx );
+	const uiSurvSeisSelGroupCompEntry& compentry = getCompEntry( selidx,
+								     true );
 	const int sz = compentry.size();
 	compfld_->setEmpty();
 	compfld_->addItems( compentry.nms_ );
@@ -268,7 +270,7 @@ void uiSurvSeisSelGroup::setSelected( const DBKey& dbky, int compnr )
     uiSurvIOObjSelGroup::setSelected( dbky );
     seisSelChgCB( 0 );
 
-    uiSurvSeisSelGroupCompEntry& compentry = getCompEntry( idxof );
+    uiSurvSeisSelGroupCompEntry& compentry = getCompEntry( idxof, false );
     if ( compnr < compentry.size() )
     {
 	compentry.setSelected( compnr, true );
@@ -289,25 +291,25 @@ bool uiSurvSeisSelGroup::evaluateInput()
 
 int uiSurvSeisSelGroup::nrComps( int isel ) const
 {
-    if ( !chosenidxs_.validIdx(isel) )
+    if ( !chosennms_.validIdx(isel) )
 	return 0;
-    return getCompEntry( chosenidxs_[isel] ).size();
+    return getCompEntry( isel, true ).size();
 }
 
 
 bool uiSurvSeisSelGroup::isSelectedComp( int icomp, int isel ) const
 {
-    if ( !chosenidxs_.validIdx(isel) )
+    if ( !chosennms_.validIdx(isel) )
 	return false;
-    return getCompEntry( chosenidxs_[isel] ).isSelected( icomp );
+    return getCompEntry( isel, true ).isSelected( icomp );
 }
 
 
 const char* uiSurvSeisSelGroup::compName( int icomp, int isel ) const
 {
-    if ( chosenidxs_.validIdx(isel) )
+    if ( chosennms_.validIdx(isel) )
     {
-	const auto& entry = getCompEntry( chosenidxs_[isel] );
+	const auto& entry = getCompEntry( isel, true );
 	if ( entry.nms_.validIdx(icomp) )
 	    return entry.nms_.get( icomp ).str();
     }

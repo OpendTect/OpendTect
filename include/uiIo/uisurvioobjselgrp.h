@@ -47,7 +47,7 @@ public:
 
     // Available after evaluateInput():
     SurveyDiskLocation	surveyDiskLocation() const;
-    int			nrSelected() const	{ return chosenidxs_.size(); }
+    int			nrSelected() const	{ return chosennms_.size(); }
     const IOObj*	ioObj(int iselected=0) const;
     DBKey		key(int iselected=0) const;
     BufferString	mainFileName(int iselected=0) const;
@@ -63,7 +63,7 @@ protected:
 
     IOObjContext&	ctxt_;
     ObjectSet<IOObj>	ioobjs_;
-    TypeSet<int>	chosenidxs_;
+    BufferStringSet	chosennms_;
     DBKeySet		seldbkys_;
     const bool		ismultisel_;
     SurveyDiskLocation	survloc_; //!< only used when survey fixed

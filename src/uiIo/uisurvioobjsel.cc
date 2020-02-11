@@ -316,21 +316,27 @@ void uiSurvIOObjSelGroup::setSelection()
 
 const IOObj* uiSurvIOObjSelGroup::ioObj( int idx ) const
 {
-    const int ioobjidx = chosenidxs_.validIdx(idx) ? chosenidxs_[idx] : -1;
-    return ioobjs_.validIdx(ioobjidx) ? ioobjs_[ioobjidx] : 0;
+    if ( !chosennms_.validIdx(idx) )
+	return nullptr;
+
+    const BufferString& chosennm = chosennms_.get( idx );
+    for ( const auto ioobj : ioobjs_ )
+    {
+	if ( ioobj->name() == chosennm )
+	    return ioobj;
+    }
+
+    return nullptr;
 }
 
 
 DBKey uiSurvIOObjSelGroup::key( int idx ) const
 {
-    if ( chosenidxs_.validIdx(idx) )
-    {
-	const int ioobjidx = chosenidxs_[idx];
-	if ( !ioobjs_.validIdx(ioobjidx) )
-	    { pErrMsg("Bad idx"); }
-	else
-	    return ioobjs_[ioobjidx]->key();
-    }
+    const IOObj* ioobj = ioObj( idx );
+    if ( ioobj )
+	return ioobj->key();
+
+    pErrMsg("Bad idx");
     return DBKey();
 }
 
@@ -344,8 +350,8 @@ BufferString uiSurvIOObjSelGroup::mainFileName( int idx ) const
 
 bool uiSurvIOObjSelGroup::evaluateInput()
 {
-    objfld_->getListField()->getChosen( chosenidxs_ );
-    return !chosenidxs_.isEmpty();
+    objfld_->getListField()->getChosen( chosennms_ );
+    return !chosennms_.isEmpty();
 }
 
 
