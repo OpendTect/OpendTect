@@ -426,7 +426,6 @@ bool uiODService::isMasterAlive() const
 }
 
 
-
 uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
 {
     const BufferString action( actobj.getStringValue( sKeyAction()) );
@@ -468,13 +467,13 @@ uiRetVal uiODService::sendAction( const char* action ) const
 
 
 uiRetVal uiODService::sendRequest( const char* reqkey,
-				   const OD::JSON::Object& request ) const
+				  const OD::JSON::Object& reqobj ) const
 {
     if ( !isODMainSlave() )
 	return uiRetVal::OK();
 
     const BufferString servicenm( "ODServiceMGr" );
-    return uiODServiceBase::sendRequest( odauth_, servicenm, reqkey, request );
+    return uiODServiceBase::sendRequest( odauth_, servicenm, reqkey, reqobj );
 }
 
 
@@ -541,6 +540,19 @@ uiRetVal uiODService::doDeRegister()
     servid_ = 0;
 
     return uiRetVal::OK();
+}
+
+
+void uiODService::doAppClosing( CallBacker* cb )
+{
+    deleteAndZeroPtr( mastercheck_ );
+    if ( !isODMainSlave() )
+    {
+	uiODServiceBase::doAppClosing( cb );
+	return;
+    }
+
+    odauth_.setPort( 0 );
 }
 
 

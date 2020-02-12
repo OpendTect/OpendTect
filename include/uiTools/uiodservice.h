@@ -149,6 +149,7 @@ private:
 
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
+    void		doAppClosing(CallBacker*) override;
     void		doPyEnvChange(CallBacker*) override;
     void		masterCheckCB(CallBacker*);
 

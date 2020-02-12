@@ -29,10 +29,10 @@ Timer::Timer( const char* nm )
 
 
 Timer::~Timer()
-{ 
+{
 #ifndef OD_NO_QT
     if ( isActive() )
-	timer_->stop();
+	stop();
 
     comm_->deactivate();
     delete timer_;
@@ -74,7 +74,7 @@ void Timer::start( int msec, bool sshot )
 }
 
 
-void Timer::stop() 
+void Timer::stop()
 {
 #ifndef OD_NO_QT
     timer_->stop();
