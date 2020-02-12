@@ -48,7 +48,7 @@ public:
     };
 
 			uiSelectFromList(uiParent*,const Setup&);
-			~uiSelectFromList()	{}
+			~uiSelectFromList();
 
     int			selection() const	{ return setup_.current_; }
 			//!< -1 = no selection made (cancelled or 0 list items)

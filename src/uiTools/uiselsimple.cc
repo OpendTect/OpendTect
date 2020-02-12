@@ -44,7 +44,13 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	filtfld_->setItems( setup_.items_ );
 
     selfld_->setHSzPol( uiObject::Wide );
-    selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
+    mAttachCB( selfld_->doubleClicked, uiDialog::accept );
+}
+
+
+uiSelectFromList::~uiSelectFromList()
+{
+    detachAllNotifiers();
 }
 
 
