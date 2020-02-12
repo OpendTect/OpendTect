@@ -237,14 +237,14 @@ void uiSurvSeisSelGroup::seisSelChgCB( CallBacker* )
 	if ( prevselidx_ >= 0 )
 	{
 	    uiSurvSeisSelGroupCompEntry& preventry = getCompEntry( prevselidx_,
-								   true );
+								   false );
 	    TypeSet<int> chosenidxs;
 	    compfld_->getChosen( chosenidxs );
 	    for ( int icomp=0; icomp<preventry.size(); icomp++ )
 		preventry.setSelected( icomp, chosenidxs.isPresent(icomp) );
 	}
 	const uiSurvSeisSelGroupCompEntry& compentry = getCompEntry( selidx,
-								     true );
+								     false );
 	const int sz = compentry.size();
 	compfld_->setEmpty();
 	compfld_->addItems( compentry.nms_ );
