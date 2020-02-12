@@ -31,7 +31,7 @@ Timer::~Timer()
 {
 #ifndef OD_NO_QT
     if ( isActive() )
-	timer_->stop();
+	stop();
 
     comm_->deactivate();
     delete timer_;

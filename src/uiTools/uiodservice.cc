@@ -542,6 +542,7 @@ uiRetVal uiODService::doDeRegister()
 
 void uiODService::doAppClosing( CallBacker* cb )
 {
+    deleteAndZeroPtr( mastercheck_ );
     if ( !isODMainSlave() )
     {
 	uiODServiceBase::doAppClosing( cb );
