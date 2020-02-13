@@ -1029,11 +1029,8 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	    ////TODO implement
 	}
 
-	od_uint16 version = *mCast( od_uint16*, headerbuff +
-							mLCentralDirVersion );
-	if ( version > mVerNeedToExtract )
-	    { mErrRet("Failed to unzip ", srcfile_,
-		   "\nVersion of zip format needed to unpack is not supported")}
+	mUnusedVar od_uint16 version =
+	    		*mCast( od_uint16*, headerbuff + mLCentralDirVersion );
 
 	od_uint16 compmethod = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirCompMethod );
@@ -1337,10 +1334,8 @@ int ZipHandler::readLocalFileHeader()
 	mErrRet( "Encrypted file::Not supported", "", "" )
 	    ////TODO implement
 
-    od_uint16 version = *mCast( od_uint16*, headerbuff + mLVerNeedToExtract );
-    if ( version > mVerNeedToExtract )
-	mErrRet("Failed to unzip ", srcfile_,
-	      "\nVersion of zip format needed to unpack is not supported")
+    mUnusedVar od_uint16 version =
+    			*mCast( od_uint16*, headerbuff + mLVerNeedToExtract );
 
     od_uint16 compmethod = *mCast( od_uint16*, headerbuff + mLCompMethod );
     if ( compmethod != mDeflate && compmethod != 0 )
