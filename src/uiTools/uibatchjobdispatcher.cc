@@ -347,8 +347,6 @@ Batch::JobDispatcher& uiSingleBatchJobDispatcherLauncher::gtDsptchr()
 }
 
 
-static const float cPrioBound = 19.0f; // happens to be UNIX choice
-
 
 class uiSingleBatchJobDispatcherPars : public uiDialog
 { mODTextTranslationClass(uiSingleBatchJobDispatcherPars);
