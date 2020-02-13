@@ -26,6 +26,7 @@ public:
     {
     public:
 	CellData();
+	CellData(const QVariant&);
 	CellData(const char*);
 	CellData(int);
 	CellData(float,int nrdec);
@@ -33,7 +34,12 @@ public:
 	CellData(const CellData&);
 	~CellData();
 
-	QVariant*	qvar_;
+	const char*	text() const;
+	float		getFValue() const;
+	double		getDValue() const;
+	int		getIntValue() const;
+
+	QVariant&	qvar_;
     };
 
     enum ItemFlag		{ NoFlags=0, ItemSelectable=1, ItemEditable=2,
@@ -44,12 +50,13 @@ public:
     virtual int			nrRows() const		= 0;
     virtual int			nrCols() const		= 0;
     virtual int			flags(int row,int col) const	= 0;
-    virtual CellData		text(int row,int col) const	= 0;
+    virtual CellData		getCellData(int row,int col) const	= 0;
     virtual Color		textColor(int row,int col) const = 0;
     virtual Color		color(int row,int col) const	= 0;
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const	= 0;
-
+    virtual void		setCellData(int row,int col,
+					    const CellData&) = 0;
     ODAbstractTableModel*	getAbstractModel()	{ return odtablemodel_;}
     void			beginReset();
     void			endReset();

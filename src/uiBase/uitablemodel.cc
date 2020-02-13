@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitablemodel.h"
 
 #include "uiobjbody.h"
+#include "perthreadrepos.h"
 
 #include <QAbstractTableModel>
 #include <QKeyEvent>
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include <QPainter>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
+#include <QStringList>
 #include <QTableView>
 
 
@@ -105,7 +107,6 @@ void setModelData( QWidget* editor, QAbstractItemModel* model,
 };
 
 
-
 class ODAbstractTableModel : public QAbstractTableModel
 {
 public:
@@ -155,11 +156,11 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
     if ( !qmodidx.isValid() )
 	return QVariant();
 
-    if ( role == Qt::DisplayRole )
+    if ( role == Qt::DisplayRole || role == Qt::EditRole )
     {
 	uiTableModel::CellData cd =
-		model_.text( qmodidx.row(), qmodidx.column() );
-	return *cd.qvar_;
+		model_.getCellData( qmodidx.row(), qmodidx.column() );
+	return cd.qvar_;
     }
     if ( role == Qt::BackgroundRole )
     {
@@ -193,6 +194,13 @@ bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
     if ( !qmodidx.isValid() )
 	return false;
 
+    if ( role == Qt::EditRole )
+    {
+	uiTableModel::CellData cd( qvar );
+	model_.setCellData( qmodidx.row(), qmodidx.column(), cd );
+	return true;
+    }
+
     return true;
 }
 
@@ -218,7 +226,6 @@ void ODAbstractTableModel::endReset()
 { endResetModel(); }
 
 
-
 // uiTableModel
 uiTableModel::uiTableModel()
 {
@@ -232,34 +239,54 @@ uiTableModel::~uiTableModel()
 }
 
 
-uiTableModel::CellData::CellData() : qvar_(new QVariant())
+uiTableModel::CellData::CellData() : qvar_(*new QVariant())
 {}
 
-uiTableModel::CellData::CellData( const char* txt ) : qvar_(new QVariant(txt))
+uiTableModel::CellData::CellData( const QVariant& qvar)
+    : qvar_(*new QVariant(qvar))
 {}
 
-uiTableModel::CellData::CellData( int val ) : qvar_(new QVariant(val))
+uiTableModel::CellData::CellData( const char* txt ) : qvar_(*new QVariant(txt))
 {}
 
-uiTableModel::CellData::CellData( float val, int ) : qvar_(new QVariant(val))
+uiTableModel::CellData::CellData( int val ) : qvar_(*new QVariant(val))
 {}
 
-uiTableModel::CellData::CellData( double val, int ) : qvar_(new QVariant(val))
+uiTableModel::CellData::CellData( float val, int ) : qvar_(*new QVariant(val))
+{}
+
+uiTableModel::CellData::CellData( double val, int ) : qvar_(*new QVariant(val))
 {}
 
 uiTableModel::CellData::CellData( const CellData& cd )
-    : qvar_(new QVariant(*cd.qvar_))
+    : qvar_(*new QVariant(cd.qvar_))
 {}
 
 uiTableModel::CellData::~CellData()
-{ delete qvar_; }
+{ delete &qvar_; }
+
+const char* uiTableModel::CellData::text() const
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+    ret = qvar_.toString();
+    return ret.buf();
+}
+
+float uiTableModel::CellData::getFValue() const
+{ return qvar_.toFloat(); }
+
+double uiTableModel::CellData::getDValue() const
+{ return qvar_.toDouble(); }
+
+int uiTableModel::CellData::getIntValue() const
+{ return qvar_.toInt(); }
 
 void uiTableModel::beginReset()
 { odtablemodel_->beginReset(); }
 
 void uiTableModel::endReset()
 { odtablemodel_->endReset(); }
-
 
 
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
