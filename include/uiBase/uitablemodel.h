@@ -50,13 +50,17 @@ public:
     virtual int			nrRows() const		= 0;
     virtual int			nrCols() const		= 0;
     virtual int			flags(int row,int col) const	= 0;
-    virtual CellData		getCellData(int row,int col) const	= 0;
+    virtual CellData		getCellData(int row,int col) const //=0;
+				{
+				    CellData cd;
+				    return cd;
+				}
     virtual Color		textColor(int row,int col) const = 0;
     virtual Color		color(int row,int col) const	= 0;
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const	= 0;
     virtual void		setCellData(int row,int col,
-					    const CellData&) = 0;
+					    const CellData&){};
     ODAbstractTableModel*	getAbstractModel()	{ return odtablemodel_;}
     void			beginReset();
     void			endReset();
