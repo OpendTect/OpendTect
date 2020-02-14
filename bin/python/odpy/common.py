@@ -249,6 +249,9 @@ def getODArgs(args=None):
     ret.update({'proclog': args['logfile'].name})
   if has_stdlog_file():
     ret.update({'syslog': args['sysout'].name})
+#  else:
+#    if has_log_file():
+#      ret.update({'syslog': args['logfile'].name})
   return ret
 
 def getIconFp(nm,args=None):

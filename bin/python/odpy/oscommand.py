@@ -74,9 +74,10 @@ def resumeProcess( proc ):
   if isinstance(proc,psutil.Popen):
     return proc.resume()
 
-def printProcessTime(procnm,isstart,print_fn=std_msg):
-  procstr = 'Process: \'' + procnm + '\''
-  print_fn( procstr )
+def printProcessTime(procnm,isstart,print_fn=std_msg,withprocline=True):
+  if withprocline:
+    procstr = 'Process: \'' + procnm + '\''
+    print_fn( procstr )
   if isstart:
     retstr = 'Started:'
   else:
