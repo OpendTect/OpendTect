@@ -128,6 +128,7 @@ public:
 
     bool		isODMainSlave() const;
     bool		isMasterAlive() const;
+    void		setBackground();
 
 protected:
 
@@ -148,6 +149,7 @@ private:
 
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
+    void		handleMasterCheckTimer(bool start);
     void		doAppClosing(CallBacker*) override;
     void		doPyEnvChange(CallBacker*) override;
     void		masterCheckCB(CallBacker*);

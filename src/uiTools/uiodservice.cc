@@ -429,12 +429,6 @@ uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
 
     if ( action == sKeyCloseEv() )
     {
-	if ( mastercheck_ )
-	    mDetachCB( mastercheck_->tick, uiODService::masterCheckCB );
-	else
-	    mastercheck_ = new Timer( "Master status check" );
-	mAttachCB( mastercheck_->tick, uiODService::masterCheckCB );
-	mastercheck_->start( 5000 );
 	return doCloseAct();
     }
     else if ( action == sKeyRaiseEv() )
@@ -442,8 +436,6 @@ uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
 	uiMainWin* mainwin = uiMain::theMain().topLevel();
 	if ( mainwin->isMinimized() || mainwin->isHidden() )
 	{
-	    if ( mastercheck_ )
-		mastercheck_->stop();
 	    mainwin->showNormal();
 	    mainwin->raise();
 	}
@@ -482,6 +474,31 @@ uiRetVal uiODService::close()
     OD::JSON::Object request;
     request.set( sKeyAction(), sKeyCloseEv() );
     return doAction( request );
+}
+
+
+void uiODService::setBackground()
+{
+    handleMasterCheckTimer( true );
+}
+
+
+void uiODService::handleMasterCheckTimer( bool start )
+{
+    if ( start )
+    {
+	if ( mastercheck_ )
+	    mDetachCB( mastercheck_->tick, uiODService::masterCheckCB );
+	else
+	    mastercheck_ = new Timer( "Master status check" );
+	mAttachCB( mastercheck_->tick, uiODService::masterCheckCB );
+	mastercheck_->start( 5000 );
+    }
+    else
+    {
+	if ( mastercheck_ )
+	    mastercheck_->stop();
+    }
 }
 
 
