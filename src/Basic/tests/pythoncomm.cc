@@ -158,10 +158,8 @@ int mTestMainFnName( int argc, char** argv )
 	    "\n\t** Why does it succeed when run 'by hand'?"
 	    "\n\t** Why does it fail in the continuous integration??" )
 
-    return 0;
-
-    //if ( !OD::PythA().isUsable().isOK() )
-	//return 1;
+    /*if ( !OD::PythA().isUsable().isOK() )
+	return 1;
 
     const BufferString path = createTestDir();
 
@@ -171,7 +169,7 @@ int mTestMainFnName( int argc, char** argv )
 
     File::makeWritable( path, true, true );
     if ( !testRemoveDir(path) )
-	return 1;
+	return 1;*/
 
     return 0;
 }
