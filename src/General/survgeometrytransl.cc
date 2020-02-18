@@ -72,6 +72,8 @@ Geometry2D* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     }
 
     int version = 1;
+    mUnusedVar float avgtrcdist = mUdf(float);
+    mUnusedVar float linelength = mUdf(float);
     ascistream astrm( strm );
     const bool hasheader = astrm.hasStandardHeader();
     if ( !hasheader )
@@ -83,6 +85,16 @@ Geometry2D* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	if ( astrm.hasKeyword(sKey::Version()) )
 	{
 	    version = astrm.getIValue();
+	    astrm.next();
+	}
+	if ( astrm.hasKeyword(sKeyAvgTrcDist()) )
+	{
+	    avgtrcdist = astrm.getFValue();
+	    astrm.next();
+	}
+	if ( astrm.hasKeyword(sKeyLineLength()) )
+	{
+	    linelength = astrm.getFValue();
 	    astrm.next();
 	}
     }
