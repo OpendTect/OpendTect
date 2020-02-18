@@ -77,7 +77,7 @@ protected:
     Threads::Atomic<bool> arrayfillererror_;
     bool		udftraceswritefinished_;
     IOObj*		ioobj_;
-    GeomSubSel*		reqss_;
+    GeomSubSel*		reqss_ = nullptr;
 
     DataCharacteristics dc_;
     TypeSet<int>	components_;
