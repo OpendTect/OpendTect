@@ -45,7 +45,8 @@ public:
 winfilebuf( const char* fnm, ios_base::openmode om )
     : realpos_(0)
 {
-    isok_ = open( fnm, om );
+	std::filebuf* openstrm = open( fnm, om );
+	isok_ = openstrm;
 }
 
 bool		isOK() const	{ return isok_; }
@@ -88,7 +89,7 @@ mClass(Basic) winifstream : public istream
 public:
 
 winifstream( const char* fnm, ios_base::openmode om )
-    : istream(0)
+    : istream(nullptr)
 {
     fb_ = new winfilebuf( fnm, om );
     rdbuf( fb_ );
@@ -103,6 +104,7 @@ winifstream( const char* fnm, ios_base::openmode om )
 {
     if ( !fb_->close() )
 	setstate( ios_base::failbit );
+    delete fb_;
 }
 
 bool is_open()
@@ -121,7 +123,7 @@ mClass(Basic) winofstream : public ostream
 public:
 
 winofstream( const char* fnm, ios_base::openmode om )
-    : ostream(0)
+    : ostream(nullptr)
 {
     fb_ = new winfilebuf( fnm, om );
     rdbuf( fb_ );
@@ -136,6 +138,7 @@ winofstream( const char* fnm, ios_base::openmode om )
 {
     if ( !fb_->close() )
 	setstate( ios_base::failbit );
+    delete fb_;
 }
 
 bool is_open()
