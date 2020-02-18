@@ -336,14 +336,14 @@ Seis::Loader::Loader( const IOObj& ioobj, const GeomSubSel* gss,
     if ( !reqss_ )
     {
 	if ( is2d_ )
-	    reqss_ = new CubeSubSel;
-	else
 	{
 	    GeomIDSet geomids;
 	    info.getGeomIDs( geomids );
 	    reqss_ = new LineSubSel( geomids.isEmpty() ? Pos::GeomID()
-						     : geomids.first() );
+		: geomids.first() );
 	}
+	else
+	    reqss_ = new CubeSubSel;
     }
 
     if ( components )
