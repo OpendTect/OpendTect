@@ -16,6 +16,7 @@
 #include "survgeommgr.h"
 #include "surveydisklocation.h"
 #include "dbman.h"
+#include "oddirs.h"
 
 #include "testprog.h"
 #include "moddepmgr.h"
@@ -330,6 +331,7 @@ int mTestMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded("Seis");
 
     SurveyDiskLocation sdl;
+    sdl.setBasePath( GetBaseDataDir() );
     sdl.setDirName( ProviderTester::survName() );
     const auto uirv = DBM().setDataSource( sdl.fullPath() );
     if ( !uirv.isOK() )
