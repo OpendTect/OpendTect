@@ -748,6 +748,12 @@ bool File::makeWritable( const char* fnm, bool yn, bool recursive )
 }
 
 
+bool File::makeReadOnly( const char* fnm, bool recursive )
+{
+    return File::makeWritable( fnm, false, recursive );
+}
+
+
 bool File::makeExecutable( const char* fnm, bool yn )
 {
     if ( !isSane(fnm) )

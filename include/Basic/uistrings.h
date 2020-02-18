@@ -420,6 +420,7 @@ public:
     static uiWord sFlattened()		{ return tr("Flattened"); }
     static uiWord sFlip()		{ return tr("Flip"); }
     static uiWord sFlipLeftRight()	{ return tr("Flip left/right"); }
+    static uiWord sFolder(int n=1)	{ return tr("Folder",0,n); }
     static uiWord sFont(int n=1)	{ return tr("Font",0,n); }
     static uiWord sFormat()		{ return tr("Format","noun"); }
     static uiWord sFormula()		{ return tr("Formula"); }
