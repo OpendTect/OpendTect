@@ -166,8 +166,7 @@ int mTestMainFnName( int argc, char** argv )
     File::makeReadOnly( path, true );
     if ( testRemoveDir(path) )
 	return 1;
-    uiString errmsgui1;
-    BufferString errmsg1 = OD::PythA().lastOutput(true,&errmsgui1);
+
     File::makeWritable( path, true, true );
     if ( !testRemoveDir(path) )
 	return 1;
