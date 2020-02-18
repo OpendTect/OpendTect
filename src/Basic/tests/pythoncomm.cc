@@ -12,10 +12,14 @@
 #include "file.h"
 #include "filepath.h"
 #include "od_iostream.h"
+#include "oddirs.h"
 #include "oscommand.h"
 #include "pythonaccess.h"
 
 #include <iostream>
+#include "settingsaccess.h"
+
+#define mTestDirNm "TestDir"
 
 /* TODO activate??
 
@@ -111,6 +115,41 @@ int mTestMainFnName( int argc, char** argv )
 
 */
 
+BufferString createTestDir()
+{
+    const File::Path fp( File::Path::getTempDir(), mTestDirNm );
+    File::createDir( fp.fullPath() );
+    const File::Path filefp( fp.fullPath(),
+			    File::Path::getTempFileName("python","txt") );
+    od_ostream strm( filefp.fullPath() );
+    strm << "Testing deletion via python command line";
+    strm.close();
+
+    return fp.fullPath();
+}
+
+bool testRemoveDir( const BufferString& path )
+{
+    bool ret = OD::pythonRemoveDir( path, true ).isOK();
+    if ( ret )
+    {
+	BufferStringSet dirnms;
+	File::listDir( File::Path::getTempDir(), File::DirsInDir, dirnms );
+	if ( dirnms.indexOf(mTestDirNm) >= 0 )
+	    ret = false;
+    }
+
+    if ( !quiet_ )
+    {
+	if ( ret )
+	    od_cout() << "Folder deleted successfully" << od_endl;
+	else
+	    od_cout() << "Folder deletion failed" << od_endl;
+    }
+
+    return ret;
+}
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -118,6 +157,20 @@ int mTestMainFnName( int argc, char** argv )
     mRunStandardTest( true, "TODO: enable this test."
 	    "\n\t** Why does it succeed when run 'by hand'?"
 	    "\n\t** Why does it fail in the continuous integration??" )
+
+    //if ( !OD::PythA().isUsable().isOK() )
+	//return 1;
+
+    const BufferString path = createTestDir();
+
+    File::makeReadOnly( path, true );
+    if ( testRemoveDir(path) )
+	return 1;
+    uiString errmsgui1;
+    BufferString errmsg1 = OD::PythA().lastOutput(true,&errmsgui1);
+    File::makeWritable( path, true, true );
+    if ( !testRemoveDir(path) )
+	return 1;
 
     return 0;
 }
