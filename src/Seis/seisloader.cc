@@ -911,9 +911,11 @@ uiString Seis::SequentialFSLoader::message() const
 bool Seis::SequentialFSLoader::goImpl( od_ostream* strm, bool first, bool last,
 				       int delay )
 {
+    initialized_ = false;
     const bool success = Executor::goImpl( strm, first, last, delay );
     Threads::WorkManager::twm().emptyQueue( queueid_, success );
     releaseDP();
+    deleteAndZeroPtr( seissummary_ );
 
     return success;
 }
