@@ -61,13 +61,13 @@ ZAxisTransform* uiWellT2DTransform::getSelection()
 
 void uiWellT2DTransform::setZRangeCB( CallBacker* )
 {
+    RefMan<ZAxisTransform> trans = getSelection();
     if ( !rangefld_ )
 	return;
 
     if ( !rangechanged_ )
     {
 	StepInterval<float> range( StepInterval<float>::udf() );
-	RefMan<ZAxisTransform> trans = getSelection();
 	if ( trans )
 	{
 	    range = trans->getZInterval( false );
