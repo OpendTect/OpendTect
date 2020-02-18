@@ -133,12 +133,6 @@ void PosInfo::Line2DData::setLineName( const char* lnm )
 {
     lnm_ = lnm;
     geomid_.setInvalid();
-    if ( lnm_.isEmpty() )
-	return;
-
-    const auto& g2d = SurvGeom2D::get( lnm_ );
-    if ( !g2d.isEmpty() )
-	geomid_ = g2d.geomID();
 }
 
 
