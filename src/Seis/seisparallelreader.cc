@@ -959,8 +959,10 @@ uiString Seis::SequentialReader::uiNrDoneText() const
 bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
 				     int delay )
 {
+    initialized_ = false;
     const bool success = Executor::goImpl( strm, first, last, delay );
     Threads::WorkManager::twm().emptyQueue( queueid_, success );
+    deleteAndZeroPtr( seissummary_ );
 
     return success;
 }
