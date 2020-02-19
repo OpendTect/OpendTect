@@ -823,7 +823,7 @@ int SeisIOObjInfo::getComponentInfo( GeomID geomid, BufferStringSet* nms ) const
 	    lidx = 0;
 
 	uiRetVal uirv;
-	Seis2DTraceGetter* getter = dataset->traceGetter(
+	PtrMan<Seis2DTraceGetter> getter = dataset->traceGetter(
 					dataset->geomID(lidx), 0, uirv );
 	if ( !uirv.isOK() )
 	    return 1;
