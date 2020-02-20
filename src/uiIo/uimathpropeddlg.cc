@@ -27,8 +27,9 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     , prs_(*new PropertyRefSelection(prs))
 {
     uiMathFormula::Setup umfsu( tr("Formula (like den * vel)") );
-    umfsu.proptype( prop_.ref().stdType() );
-    umfsu.stortype( "Math Property" );
+    umfsu.proptype( prop_.ref().stdType() )
+	 .stortype( "Math Property" )
+	 .maxnrinps(8);
     formfld_ = new uiMathFormula( this, prop_.getForm(), umfsu );
     formfld_->inpSet.notify( mCB(this,uiMathPropEdDlg,inpSel) );
     formfld_->formSet.notify( mCB(this,uiMathPropEdDlg,formSet) );
@@ -43,7 +44,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     formfld_->setNonSpecInputs( availpropnms );
 
     uiToolButtonSetup tbsu( "rockphys", tr("Choose RockPhysics Formula"),
-		    mCB(this,uiMathPropEdDlg,rockPhysReq), 
+		    mCB(this,uiMathPropEdDlg,rockPhysReq),
 		    uiStrings::sRockPhy() );
     formfld_->addButton( tbsu );
 }
