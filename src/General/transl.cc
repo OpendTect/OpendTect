@@ -437,3 +437,24 @@ bool Translator::renameLargeFile( const char* fnm, const char* newnm,
     spnew.addPathIfNecessary( File::Path(fnm).pathOnly() );
     return sp.rename( spnew.fileName(), cb );
 }
+
+
+bool Translator::removeAssociatedFile( const char* fnm, const char* ext )
+{
+    const BufferString assosfnm( getAssociatedFileName(fnm,ext) );
+    if ( !File::exists(assosfnm) )
+	return true;
+
+    return File::remove( assosfnm );
+}
+
+
+bool Translator::setPermAssociatedFile( const char* fnm, const char* ext,
+			bool setwritable )
+{
+    const BufferString assosfnm( getAssociatedFileName(fnm,ext) );
+    if ( !File::exists(assosfnm) )
+	return true;
+
+    return File::makeWritable( assosfnm, setwritable, false );
+}

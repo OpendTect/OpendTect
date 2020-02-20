@@ -168,6 +168,10 @@ protected:
 						const char* extension);
     static bool			renameAssociatedFile(const char* fnm,
 				    const char* ext,const char* newnm);
+    static bool			removeAssociatedFile(const char* fnm,
+				    const char* ext);
+    static bool			setPermAssociatedFile(const char* fnm,
+				    const char* ext,bool setwritable);
     static bool			renameLargeFile(const char* fnm,
 				    const char* newfnm,const CallBack* cb=0);
 
