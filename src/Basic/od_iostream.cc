@@ -416,7 +416,11 @@ bool od_istream::open( const char* fnm )
 
 bool od_istream::reOpen()
 {
-    return noclose_ ? true : open( fileName() );
+    if ( noclose_ )
+	return true;
+
+    close();
+    return open( fileName() );
 }
 
 
