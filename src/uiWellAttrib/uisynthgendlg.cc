@@ -87,6 +87,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     botpargrp->attach( alignedBelow, toppargrp );
 
     namefld_ = new uiGenInput( botpargrp, uiStrings::sName() );
+    namefld_->setElemSzPol( uiObject::Wide );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
     botpargrp->setHAlignObj( namefld_ );
 

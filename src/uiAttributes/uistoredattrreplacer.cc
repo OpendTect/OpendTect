@@ -314,7 +314,9 @@ uiDataPackReplacerDlg( uiParent* p,
 
 	uiLabeledComboBox* lastinpfld = inpflds_.last();
 	uiString lbl = tr("Input for '%1'").arg( storedkey.storedref_ );
-	inpflds_ += new uiLabeledComboBox( this, dpnms, lbl );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, dpnms, lbl );
+	lcb->box()->setHSzPol( uiObject::Wide );
+	inpflds_ += lcb;
 	if ( lastinpfld )
 	    inpflds_.last()->attach( alignedBelow, lastinpfld );
     }
@@ -645,7 +647,7 @@ void uiStoredAttribReplacer::getStoredIds()
     {
 	const DescID descid = attrset_->getID( idx );
 	Desc* ad = attrset_->getDesc( descid );
-        if ( !ad || !ad->isStored() ) continue;
+	if ( !ad || !ad->isStored() ) continue;
 
 	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
 	LineKey lk( keypar->getStringValue() );
