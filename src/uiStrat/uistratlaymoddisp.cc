@@ -459,7 +459,7 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 	    const Strat::Layer& lay = *seq.layers()[ilay];
 	    float z0 = lay.zTop();
 	    float z1 = lay.zBot();
-	    if ( flattened_ && !lvldpths_.validIdx(selseq-1) )
+	    if ( flattened_ && lvldpths_.validIdx(selseq-1) )
 	    {
 		const float lvldpth = lvldpths_[selseq-1];
 		z0 -= lvldpth;
