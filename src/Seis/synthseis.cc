@@ -112,9 +112,9 @@ bool SynthGenBase::usePar( const IOPar& par )
     return par.getYN( sKeyNMO(), applynmo_ )
 	&& par.getYN( sKeyFourier(), isfourier_ )
 	&& doint
-        && par.get( sKeySurfRefl(), surfreflcoeff_ )
+	&& par.get( sKeySurfRefl(), surfreflcoeff_ )
 	&& par.get( sKeyStretchLimit(), stretchlimit_)
-        && par.get( sKeyMuteLength(), mutelength_ );
+	&& par.get( sKeyMuteLength(), mutelength_ );
 }
 
 
@@ -1009,7 +1009,13 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
     SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
     SeisTrcPropChg stckr( *trc );
     for ( int idx=1; idx<outtrcs_.size(); idx++ )
+    {
+	const SeisTrc* outtrc = outtrcs_[idx];
+	if ( !outtrc || outtrc->isNull() )
+	    continue;
+
 	stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
+    }
 
     return trc;
 }
