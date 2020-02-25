@@ -866,7 +866,8 @@ int MultiWellReader::nextStep()
 	Well::Data* wd = new Well::Data;
 	wd->ref();
 	Well::Reader wrdr( wmid, *wd );
-	if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() )
+	if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() ||
+				!wrdr.getTrack() )
 	    return Executor::MoreToDo();
 
 	wds_ += wd;

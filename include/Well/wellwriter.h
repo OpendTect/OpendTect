@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "bufstring.h"
+#include "bufstringset.h"
+#include "executor.h"
 class IOObj;
 
 namespace Well
@@ -70,5 +72,25 @@ private:
 
 
 }; // namespace Well
+
+
+mExpClass(Well) MultiWellWriter : public Executor
+{ mODTextTranslationClass(MultiWellWriter)
+public:
+				MultiWellWriter(const ObjectSet<Well::Data>&);
+
+    int				nextStep();
+    od_int64			totalNr() const;
+    od_int64			nrDone() const;
+    uiString			uiMessage() const;
+    uiString			uiNrDoneText() const;
+    const BufferStringSet&	failedWells() const;
+
+protected:
+    const ObjectSet<Well::Data>&	wds_;
+    od_int64				nrwells_;
+    od_int64				nrdone_;
+    BufferStringSet			failedwells_;
+};
 
 #endif

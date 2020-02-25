@@ -421,3 +421,47 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
 	mErrRetStrmOper("write well display parameters")
     return true;
 }
+
+
+MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds )
+    : Executor("Saving Wells")
+    , wds_(wds)
+    , nrwells_(wds.size())
+    , nrdone_(0)
+{}
+
+
+od_int64 MultiWellWriter::totalNr() const
+{ return nrwells_; }
+
+od_int64 MultiWellWriter::nrDone() const
+{ return nrdone_; }
+
+uiString MultiWellWriter::uiMessage() const
+{ return tr("Reading well info"); }
+
+uiString MultiWellWriter::uiNrDoneText() const
+{ return tr("Wells read"); }
+
+
+int MultiWellWriter::nextStep()
+{
+    if ( nrdone_ >= totalNr() )
+	return failedwells_.isEmpty() ? Executor::Finished()
+				      : Executor::ErrorOccurred();
+
+    ConstRefMan<Well::Data> wd = wds_[nrdone_];
+    BufferString wellname = wd->name();
+    Well::Writer wrtr( wd->multiID(), *wd );
+    if ( !wrtr.putInfoAndTrack() )
+	failedwells_.addIfNew( wellname );
+
+    nrdone_++;
+    return Executor::MoreToDo();
+}
+
+
+const BufferStringSet& MultiWellWriter::failedWells() const
+{
+    return failedwells_;
+}
