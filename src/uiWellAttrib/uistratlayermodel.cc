@@ -579,8 +579,8 @@ void uiStratLayerModel::setElasticProps()
 	elpropsel_ = new ElasticPropSelection;
 	if ( !elpropsel_->usePar(desc_.getWorkBenchParams()) )
 	{
-	    delete elpropsel_;
-	    elpropsel_ = nullptr;
+	    uiMSG().warning( elpropsel_->errMsg() );
+	    deleteAndZeroPtr( elpropsel_ );
 	}
     }
 
