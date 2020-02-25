@@ -610,6 +610,9 @@ bool ElasticPropSelection::usePar( const IOPar& par )
     if ( !elasticsz ) return false;
 
     deepErase( *this );
+    bool errocc = false;
+    BufferStringSet faultynms;
+    BufferStringSet corrnms;
     for ( int idx=0; idx<elasticsz; idx++ )
     {
 	PtrMan<IOPar> elasticproprefpar =
@@ -619,8 +622,75 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 	elasticproprefpar->get( sKey::Name(), elasticnm );
 	ElasticFormula formulae( 0, 0, ElasticFormula::Type(idx) );
 	formulae.usePar( *elasticproprefpar );
-	(*this) += new ElasticPropertyRef( elasticnm, formulae );
+	
+	if ( !checkForValidSelPropsDesc(formulae,faultynms,corrnms) )
+	{
+	    errocc = true;
+	    continue;
+	}
+	if ( !errocc )
+	    (*this) += new ElasticPropertyRef( elasticnm, formulae );
+
+	if ( errocc )
+	{
+	    errmsg_ = tr("Input model contains faulty description strings for "
+						    "'Selected Properties'.");
+	    errmsg_.append( tr("Output might not be correctly displayed"),
+									true );
+	    errmsg_.append( tr("Following strings are faulty : "), true );
+	    errmsg_.append( toUiString(faultynms.getDispString()), true );
+	    errmsg_.append( 
+		tr("You can try replacing them following strings : ") , true );
+	    errmsg_.append( toUiString(corrnms.getDispString()), true );
+	    return false;
+	}
     }
 
     return true;
+}
+
+
+bool ElasticPropSelection::checkForValidSelPropsDesc(
+		    const ElasticFormula& formula, BufferStringSet& faultynms,
+						    BufferStringSet& corrnms )
+{
+    bool noerror = true;
+    BufferStringSet variables = formula.variables();
+    if ( variables.isEmpty() )
+	return noerror;
+
+    const PropertyRefSelection prs(PropertyRefSelection::getAll(false));
+    BufferStringSet dispnms;
+
+    for ( int idx=0; idx<prs.size(); idx++ )
+	dispnms.add(prs[idx]->name());
+
+    for ( int jidx=0; jidx<variables.size(); jidx++ )
+    {
+	BufferString varnm;
+	varnm = variables.get( jidx );
+	if ( dispnms.indexOf(varnm) < 0 )
+	{
+	    faultynms.add( varnm );
+	    noerror = false;
+	    bool foundmatch = false;
+	    for ( int kidx=0; kidx<dispnms.size(); kidx++ )
+	    {
+		const BufferString dispnm = dispnms.get( kidx );
+		foundmatch = varnm.isEqual( dispnm, CaseInsensitive );
+		if ( foundmatch )
+		{
+		    corrnms.add( dispnm );
+		    break;
+		}
+
+	    }
+	    if ( !foundmatch )
+		corrnms.add( "<No Valid Suggestion>" );
+
+	    continue;
+	}
+    }
+
+    return noerror;
 }

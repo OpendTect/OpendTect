@@ -50,13 +50,19 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    uiString			 errMsg() { return errmsg_; }
+
 protected:
 
     ElasticPropertyRef&		gt(ElasticFormula::Type) const;
     ElasticPropertyRef&		gt(int idx) const;
-
+    bool			checkForValidSelPropsDesc(
+					const ElasticFormula&,
+					BufferStringSet& faultynms,
+					BufferStringSet& corrnms);
     void			mkEmpty();
 
+    uiString			errmsg_;
 };
 
 
