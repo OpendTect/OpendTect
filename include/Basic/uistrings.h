@@ -345,6 +345,7 @@ public:
     static uiString sFilters()		{ return sFilter(mPlural); }
     static uiString sFiltering()	    { return tr("Filtering"); }
     static uiString sFlip()		{ return tr("Flip"); }
+    static uiString sFolder(int n=1)	{ return tr("Folder", 0, n); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
     static uiString sGenerating()	{ return tr("Generating"); }

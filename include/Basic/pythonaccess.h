@@ -109,7 +109,7 @@ namespace OD
 	BufferString	pythversion_;
 	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
-	bool		isUsable(bool force=false,
+	bool		isUsable_(bool force=false,
 				 const char* scriptstr=nullptr,
 				 const char* scriptexpectedout=nullptr);
 	static bool	getInternalEnvironmentLocation(FilePath&,
@@ -153,6 +153,9 @@ namespace OD
     mGlobal(Basic) PythonAccess& PythA();
 
     mGlobal(Basic) bool canDoCUDA(BufferString& maxverstr);
+
+    mGlobal(Basic) uiRetVal pythonRemoveDir(const char* path,
+						    bool waitforfin = false);
 
 } //namespace OD
 

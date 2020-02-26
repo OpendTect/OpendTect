@@ -52,6 +52,7 @@ mGlobal(Basic) bool		isHidden(const char*);
 mGlobal(Basic) bool		isWritable(const char*);
 mGlobal(Basic) bool		makeWritable(const char*,bool yesno,
 					bool recursive);
+mGlobal(Basic) bool		makeReadOnly(const char* fnm, bool recursive);
 mGlobal(Basic) bool		isExecutable(const char*);
 mGlobal(Basic) bool		makeExecutable(const char*,bool yesno);
 mGlobal(Basic) void		setSystemFileAttrib(const char*,bool yn);

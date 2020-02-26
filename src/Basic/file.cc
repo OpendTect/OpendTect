@@ -740,6 +740,12 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
 }
 
 
+bool makeReadOnly(const char* fnm, bool recursive)
+{
+    return File::makeWritable(fnm, false, recursive);
+}
+
+
 bool makeExecutable( const char* fnm, bool yn )
 {
 #if ((defined __win__) || (defined OD_NO_QT) )

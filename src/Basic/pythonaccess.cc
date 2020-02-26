@@ -177,7 +177,8 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
 
     OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
-    const bool isusable = pytha.isUsable( force, scriptstr, scriptexpectedout );
+    const bool isusable = pytha.isUsable_( force, scriptstr,
+							scriptexpectedout );
     if ( isusable )
 	return uiRetVal::OK();
 
@@ -196,7 +197,7 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 }
 
 
-bool OD::PythonAccess::isUsable( bool force, const char* scriptstr,
+bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
     static bool force_external = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
@@ -345,7 +346,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString* stderrstr,
 				uiString* errmsg ) const
 {
-    if ( !const_cast<PythonAccess&>(*this).isUsable(!istested_) )
+    if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, nullptr, nullptr, activatefp_,
@@ -365,7 +366,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				const OS::CommandExecPars& pars,
 				int* pid, uiString* errmsg ) const
 {
-    if ( !const_cast<PythonAccess&>(*this).isUsable(!istested_) )
+    if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
 	return false;
 
     const bool res = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf());
@@ -799,7 +800,7 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 
 bool OD::PythonAccess::retrievePythonVersionStr()
 {
-    if ( !isUsable(!istested_) )
+    if ( !isUsable_(!istested_) )
 	return false;
 
     const BufferString comm( sPythonExecNm(true), " --version" );
@@ -831,7 +832,7 @@ void OD::PythonAccess::envChangeCB( CallBacker* )
 
 uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
-    if ( !isUsable(!istested_) )
+    if ( !isUsable_(!istested_) )
 	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
     static bool force_external_ok = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
@@ -1158,6 +1159,46 @@ bool canDoCUDA( BufferString& maxverstr )
     BufferString glversion;
     const bool hasnv = usesNvidiaCard( &glversion );
     return hasnv && cudaCapable( glversion, &maxverstr );
+}
+
+BufferString removeDirScript(const BufferString& path)
+{
+    BufferStringSet script;
+    script.add( "import shutil" );
+    const BufferString remcmd( "shutil.rmtree(r'", path, "')" );
+    script.add( remcmd );
+    return BufferString( "\"", script.cat(";"), "\"" );
+}
+
+
+uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
+{
+    uiRetVal retval;
+    if ( !File::isDirectory(path) )
+	pFreeFnErrMsg("Not a directory");
+    if ( !File::isWritable(path) )
+    {
+	retval.add( uiStrings::phrCannotRemove(path) );
+	return retval;
+    }
+
+    retval = OD::PythA().isUsable();
+    bool ret;
+    if ( retval.isOK() )
+    {
+	BufferString cmdstr( OD::PythA().sPythonExecNm() );
+	cmdstr.addSpace().add( "-c" ).addSpace().add( removeDirScript(path) );
+	const OS::MachineCommand cmd( cmdstr );
+
+	ret = OD::PythA().execute( cmd, waitforfin );
+    }
+    else
+	ret = File::removeDir( path );
+
+    if ( !ret )
+	retval.add( uiStrings::phrCannotRemove(uiStrings::sFolder()) );
+
+    return retval;
 }
 
 };
