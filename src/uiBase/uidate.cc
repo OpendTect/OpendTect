@@ -59,18 +59,22 @@ DateInfo uiCalendar::getDate() const
 
 uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     : uiGroup( p )
+    , changed(this)
     , label_( !label.isEmpty() ? new uiLabel( this, label ) : 0 )
 {
     dayfld_ = new uiComboBox( this,
 		    BufferStringSet(DateInfo::sAllDaysInMonth()), 0 );
+    mAttachCB( dayfld_->selectionChanged, uiDateSel::changeCB );
     dayfld_->setHSzPol( uiObject::SmallVar );
     if ( label_ ) label_->attach( leftOf, dayfld_ );
 
     monthfld_ = new uiComboBox( this, DateInfo::MonthDef(), 0 );
+    mAttachCB( monthfld_->selectionChanged, uiDateSel::changeCB );
     monthfld_->setHSzPol( uiObject::SmallVar );
     monthfld_->attach( rightOf, dayfld_ );
 
     yearfld_ = new uiLineEdit( this, 0 );
+    mAttachCB( yearfld_->editingFinished, uiDateSel::changeCB );
     yearfld_->setHSzPol( uiObject::SmallVar );
     yearfld_->setMaxLength( 4 );
     yearfld_->attach( rightOf, monthfld_ );
@@ -85,6 +89,18 @@ uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
 	setDate( *di );
     else
 	setDate( DateInfo() );
+}
+
+
+uiDateSel::~uiDateSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiDateSel::changeCB( CallBacker* )
+{
+    changed.trigger();
 }
 
 
