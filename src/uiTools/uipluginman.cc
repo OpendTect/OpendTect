@@ -312,7 +312,7 @@ void uiPluginMan::loadPush( CallBacker* )
 	uiMSG().error( tr("Couldn't load plugin") );
     else
     {
-	loaddir = FilePath(fnm).pathOnly();
+	loaddir = File::Path(fnm).pathOnly();
 	fillList();
 	selChg(nullptr);
     }
