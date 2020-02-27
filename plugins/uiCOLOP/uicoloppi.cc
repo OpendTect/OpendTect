@@ -50,6 +50,9 @@ private:
     void		doColop(CallBacker*);
     void		updateWaveletMan(CallBacker*);
 
+    static uiString	sMenuTxt()
+			{ return tr("COLOP"); }
+
 };
 
 
@@ -73,7 +76,7 @@ void uiColopLink::dTectMenuChanged()
 {
     uiAction* newitem = new uiAction( m3Dots(tr("COLOP")),
 				mCB(this,uiColopLink,doColop) );
-    mnumgr.procMnu()->insertAction( newitem );
+    appl_.menuMgr().procMnu()->insertAction( newitem );
 }
 
 
