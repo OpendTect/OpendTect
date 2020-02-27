@@ -53,29 +53,36 @@ uiString sExportTypLbl()
 mDefODPluginInfo( uiGoogleIO )
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Google KML generation",
-	mODPluginODPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Export to Google services (Maps,Earth)."
+	"Google KML",
+	"OpendTect",
+	"dGB",
+	"=od",
+	"Export to Google programs (Maps,Earth)."
 	    "\nThis plugin adds functionality to generate KML files "
 	    "from Opendtect."));
     return &retpi;
 }
 
 
-class uiGoogleIOMgr : public CallBacker
+class uiGoogleIOMgr : public uiPluginInitMgr
 { mODTextTranslationClass(uiGoogleIOMgr);
 public:
 
-			uiGoogleIOMgr(uiODMain&);
+			uiGoogleIOMgr();
 			~uiGoogleIOMgr();
 
-    uiODMain&		appl_;
+    static void		exportSurv(CallBacker*);
+    static uiString	sMenuTxt()
+			{ return m3Dots(tr("Export to GIS Format")); }
+    static uiString	sUtilTTText()
+			{ return tr("Export to Google Earth/Maps"); }
+
+private:
+
     uiSeis2DFileMan*	cur2dfm_;
     uiVisMenuItemHandler psmnuitmhandler_;
     uiVisMenuItemHandler rlmnuitmhandler_;
 
-    static void		exportSurv(CallBacker*);
 
     void		exportWells(CallBacker*);
     void		exportLines(CallBacker*);
@@ -84,22 +91,17 @@ public:
     void		mkExportWellsIcon(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
 
-    static uiString	sMenuTxt()
-			{ return m3Dots(tr("Export to GIS Format")); }
-    static uiString	sUtilTTText()
-			{ return tr("Export to Google Earth/Maps"); }
-
 };
 
 
-uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
-    : appl_(a)
+uiGoogleIOMgr::uiGoogleIOMgr()
+    : uiPluginInitMgr()
     , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-		    *a.applMgr().visServer(),
+		    *appl_.applMgr().visServer(),
 		   sMenuTxt(),
 		    mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
-			*a.applMgr().visServer(),sMenuTxt(),
+			*appl_.applMgr().visServer(),sMenuTxt(),
 			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
     psmnuitmhandler_.setIcon( "google" );
@@ -107,6 +109,7 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     mAttachCB( uiWellMan::instanceCreated(), uiGoogleIOMgr::mkExportWellsIcon );
     mAttachCB( uiSeis2DFileMan::instanceCreated(),
 	       uiGoogleIOMgr::mkExportLinesIcon );
+    init();
 }
 
 
@@ -216,9 +219,6 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 }
 
 
-static uiGoogleIOMgr* theinst_ = 0;
-
-
 class uiGoogleIOSurveyManagerUtil : public uiSurveyManager::Util
 {
 public:
@@ -249,15 +249,12 @@ mDefODPluginSurvRelToolsLoadFn( uiGoogleIO )
 }
 
 
-mDefODInitPlugin( uiGoogleIO )
+mDefODInitPlugin(uiGoogleIO)
 {
-    if ( theinst_ )
-	return 0;
-
-    theinst_ = new uiGoogleIOMgr( *ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate GoogleIO plugin";
+    mDefineStaticLocalObject( PtrMan<uiGoogleIOMgr>, googleiomgr_,
+				    = new uiGoogleIOMgr() );
 
     mCallODPluginSurvRelToolsLoadFn( uiGoogleIO );
-    return 0;
+
+    return nullptr;
 }

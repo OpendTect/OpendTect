@@ -15,9 +15,11 @@ mDefODPluginEarlyLoad(GMT)
 mDefODPluginInfo(GMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT Access: Generic Mapping Tools (Base)",
-	mODGMTPluginPackage,
-	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
+	"GMT Link (Base)",
+	"OpendTect",
+	"dGB (Raman Singh)",
+	"=od",
+	"GMT mapping tool - base") );
     return &retpi;
 }
 

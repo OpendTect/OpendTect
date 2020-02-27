@@ -15,9 +15,9 @@ mDefODPluginInfo(My_Plugin_Name)
 	"My plugin",
 	"You!",
 	"My version",
-	"My description ..."
+    	"My description ..."
 	    "\n ... which can span many lines."
-	    "\nDon't put commas between those lines though ..." };
+    	    "\nDon't put commas between those lines though ..." };
     return &retpi;
 }
 
@@ -25,6 +25,6 @@ mDefODPluginInfo(My_Plugin_Name)
 mDefODInitPlugin(My_Plugin_Name)
 {
     My_Class* myclss = new My_Class;
-    return 0;
+    return nullptr;
 }
 

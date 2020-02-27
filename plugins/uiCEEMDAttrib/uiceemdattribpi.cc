@@ -1,12 +1,8 @@
 /*+
-________________________________________________________________________
-
-* (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-* AUTHOR   : Paul
-* DATE	   : Dec 2012
-________________________________________________________________________
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : Paul
+ * DATE     : Dec 2012
 -*/
-
 
 #include "uiceemdattribmod.h"
 #include "uiceemdattrib.h"
@@ -17,11 +13,12 @@ ________________________________________________________________________
 mDefODPluginInfo(uiCEEMDAttrib)
 {
     mDefineStaticLocalObject (PluginInfo, retpi, (
-	"CEEMD: Complete Ensemble Empirical Mode Decomposition",
-	mODPluginExtraAttribsPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Provides the Complete Ensemble Empirical Mode Decomposition "
-		"Attribute" ) );
+	"CEEMD (GUI)",
+	"OpendTect",
+	"dGB (Paul de Groot)",
+	"=od",
+	"User Interface for Complete Ensemble Empirical Mode Decomposition "
+	"Plugin" ))
     return &retpi;
 }
 
@@ -29,5 +26,5 @@ mDefODPluginInfo(uiCEEMDAttrib)
 mDefODInitPlugin(uiCEEMDAttrib)
 {
     uiCEEMDAttrib::initClass();
-    return 0;
+    return nullptr;
 }

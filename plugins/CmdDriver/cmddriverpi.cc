@@ -23,12 +23,11 @@ namespace CmdDrive
 mDefODPluginInfo(CmdDriver)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Command Driver", "Command Driver",
-	mODPluginCreator, mODPluginVersion,
+	"Command driver",
+	"OpendTect",
+	"dGB (Bert/Jaap)",
+	"=od",
 	"Used for testing and general 'scripting'." ));
-    retpi.useronoffselectable_ = true;
-    mSetPackageDisplayName( retpi, uiCmdDriverMgr::usrDispNm() );
-    retpi.uidispname_ = retpi.uipackagename_;
     return &retpi;
 }
 
@@ -67,7 +66,7 @@ mDefODInitPlugin(CmdDriver)
     initExtraFunctions();
     initExtraComposers();
 
-    return 0;
+    return nullptr;
 }
 
 }; // namespace CmdDrive

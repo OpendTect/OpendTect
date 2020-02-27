@@ -10,6 +10,7 @@
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
+#include "uiodmain.h"
 #include "uitoolbar.h"
 
 #include "envvars.h"
@@ -20,6 +21,20 @@
 #include "odplugin.h"
 #include "separstr.h"
 #include "staticstring.h"
+
+
+mDefODPluginInfo(uiMadagascar)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Madagascar Link (GUI)",
+	"OpendTect",
+	"dGB (Bert Bril)",
+	"=od",
+	"A link to the Madagascar system."
+	    "\nSee http://opendtect.org/links/madagascar.html"
+	    " for info on Madagascar."));
+    return &retpi;
+}
 
 
 
@@ -37,40 +52,31 @@ static bool checkEnvVars( uiString& msg )
 }
 
 
-class uiMadagascarLinkMgr	: public CallBacker
+class uiMadagascarLinkMgr : public uiPluginInitMgr
 { mODTextTranslationClass(uiMadagascarLinkMgr);
 public:
 
-			uiMadagascarLinkMgr(uiODMain&);
+			uiMadagascarLinkMgr();
 			~uiMadagascarLinkMgr();
 
-    uiODMain&		appl_;
-    uiODMenuMgr&	mnumgr;
-    uiMadagascarMain*	madwin_;
-    bool		ishidden_;
+private:
+
+    uiMadagascarMain*	madwin_ = nullptr;
+    bool		ishidden_ = false;
+
+    void		beforeSurveyChange() override;
+    void		dTectMenuChanged() override;
 
     void		doMain(CallBacker*);
-    void		updateToolBar(CallBacker*);
-    void		updateMenu(CallBacker*);
-    void		survChg(CallBacker*);
     void		winHide(CallBacker*);
-
-    static uiString	pkgDispNm()    { return tr("Madagascar Link"); }
 
 };
 
 
-uiMadagascarLinkMgr::uiMadagascarLinkMgr( uiODMain& a )
-    : mnumgr(a.menuMgr())
-    , madwin_(0)
-    , ishidden_(false)
-    , appl_(a)
+uiMadagascarLinkMgr::uiMadagascarLinkMgr()
+    : uiPluginInitMgr()
 {
-    mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLinkMgr::updateToolBar );
-    mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLinkMgr::updateMenu );
-    mAttachCB( DBM().surveyToBeChanged, uiMadagascarLinkMgr::survChg );
-    updateToolBar(0);
-    updateMenu(0);
+    init();
 }
 
 
@@ -80,22 +86,17 @@ uiMadagascarLinkMgr::~uiMadagascarLinkMgr()
 }
 
 
-void uiMadagascarLinkMgr::updateToolBar( CallBacker* )
+void uiMadagascarLinkMgr::dTectMenuChanged()
 {
-}
-
-
-void uiMadagascarLinkMgr::updateMenu( CallBacker* )
-{
-    delete madwin_; madwin_ = 0; ishidden_ = false;
+    deleteAndZeroPtr( madwin_ ); ishidden_ = false;
     uiAction* newitem = new uiAction( m3Dots(toUiString("Madagascar")),
 				      mCB(this,uiMadagascarLinkMgr,doMain),
 				      "madagascar" );
-    mnumgr.procMnu()->insertAction( newitem );
+    appl_.menuMgr().procMnu()->insertAction( newitem );
 }
 
 
-void uiMadagascarLinkMgr::survChg( CallBacker* )
+void uiMadagascarLinkMgr::beforeSurveyChange()
 {
     if ( !madwin_ ) return;
 
@@ -130,28 +131,12 @@ void uiMadagascarLinkMgr::doMain( CallBacker* )
 }
 
 
-mDefODPluginInfo(uiMadagascar)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Madagascar Link",
-	mMadagascarLinkPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Link to the Madagascar batch-level seismic processing tools." ));
-    retpi.useronoffselectable_ = true;
-    retpi.url_ = "reproducibility.org";
-    mSetPackageDisplayName( retpi, uiMadagascarLinkMgr::pkgDispNm() );
-    return &retpi;
-}
 
 
 mDefODInitPlugin(uiMadagascar)
 {
-    mDefineStaticLocalObject( PtrMan<uiMadagascarLinkMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiMadagascarLinkMgr( *ODMainWin() );
-    if ( !theinst_ )
-	return toString( ODMad::PI().errMsg() );
+    mDefineStaticLocalObject( PtrMan<uiMadagascarLinkMgr>, theinst_,
+				= new uiMadagascarLinkMgr() );
 
     DBMan::CustomDirData cdd( ODMad::cMadDirIDNr(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
@@ -168,5 +153,5 @@ mDefODInitPlugin(uiMadagascar)
 	gUiMsg().error( ODMad::PI().errMsg() );
 #endif
 
-    return 0;
+    return nullptr;
 }

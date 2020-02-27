@@ -19,13 +19,16 @@ ________________________________________________________________________
 #include "corrmultiattrib.h"
 
 
+
 mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Experimental Attributes (Base)",
-	mODPluginExtraAttribsPackage,
-	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
+    mDefineStaticLocalObject( PluginInfo, retpi,
+	( "Experimental Attributes (Base)",
+	"OpendTect",
+	"dGB Earth Sciences (Nanne)",
+	"=od",
+	"" ) );
     return &retpi;
 }
 
@@ -41,5 +44,5 @@ mDefODInitPlugin(ExpAttribs)
     Attrib::IntegratedTrace::initClass();
 #endif
 
-    return 0;
+    return nullptr;
 }

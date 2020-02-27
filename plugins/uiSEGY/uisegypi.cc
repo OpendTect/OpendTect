@@ -32,6 +32,7 @@
 #include "uiseispsman.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
+#include "uiodmain.h"
 #include "uimsg.h"
 #include "uitoolbar.h"
 #include "envvars.h"
@@ -51,28 +52,28 @@ mDefODPluginInfo(uiSEGY)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"SEG-Y support",
-	mODPluginODPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Adds SEG-Y support to OpendTect") );
+	"OpendTect",
+	"dGB (Bert)",
+	"=od",
+	"Supports the SEG-Y format") );
     return &retpi;
 }
 
 
-class uiSEGYMgr	: public CallBacker
+class uiSEGYMgr	: public uiPluginInitMgr
 { mODTextTranslationClass(uiSEGYMgr);
 public:
 
-			uiSEGYMgr(uiODMain*);
+			uiSEGYMgr();
 			~uiSEGYMgr();
 
-    uiODMain*		appl_;
-    uiODMenuMgr&	mnumgr_;
+private:
 
-    uiSEGYReadStarter*	impdlg_;
-    uiSEGYExp*		expdlg_;
+    uiSEGYReadStarter*	impdlg_ = nullptr;
+    uiSEGYExp*		expdlg_ = nullptr;
 
-    void		updateMenu(CallBacker*);
-    void		survChg(CallBacker*);
+    void		dTectMenuChanged() override;
+
     void		edFiles(CallBacker*);
     void		handleImpExpMnu(CallBacker*);
     void		impVSPCB(CallBacker*);
@@ -101,11 +102,8 @@ mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 }
 
 
-uiSEGYMgr::uiSEGYMgr( uiODMain* a )
-    : mnumgr_(a->menuMgr())
-    , appl_(a)
-    , impdlg_(0)
-    , expdlg_(0)
+uiSEGYMgr::uiSEGYMgr()
+    : uiPluginInitMgr()
 {
     uiSEGY::initClasses();
 
@@ -122,9 +120,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     uiSeisPreStackMan::addBrowser( psbdef );
 
     mCallODPluginSurvRelToolsLoadFn( uiSEGY );
-    mAttachCB( DBM().surveyChanged, uiSEGYMgr::updateMenu );
-
-    updateMenu(0);
+    init();
 }
 
 
@@ -140,35 +136,36 @@ uiSEGYMgr::~uiSEGYMgr()
 #define mExpStartID 200
 
 
-void uiSEGYMgr::updateMenu( CallBacker* )
+void uiSEGYMgr::dTectMenuChanged()
 {
-    uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
-    uiMenu* impsgymnu = mnumgr_.addFullSeisSubMenu( impseismnu,
+    auto& mnumgr = appl_.menuMgr();
+    uiMenu* impseismnu = mnumgr.getMnu( true, uiODApplMgr::Seis );
+    uiMenu* impsgymnu = mnumgr.addFullSeisSubMenu( impseismnu,
 		sSEGYString(true), segyiconid_, mHandleCB, mImpStartID );
-    uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
-    mnumgr_.addFullSeisSubMenu( expseismnu,
+    uiMenu* expseismnu = mnumgr.getMnu( false, uiODApplMgr::Seis );
+    mnumgr.addFullSeisSubMenu( expseismnu,
 		sSEGYString(true), segyiconid_, mHandleCB, mExpStartID );
 
-    mnumgr_.impWellLogsMenu()->insertAction(
+    mnumgr.impWellLogsMenu()->insertAction(
 	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB),
 			"vsp0" ) );
-    mnumgr_.createSeisOutputMenu()->insertAction(
+    mnumgr.createSeisOutputMenu()->insertAction(
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
 			    muiSEGYMgrCB(reSortCB), "shuffle_data") );
 
     uiString classicmnutitle = wantClassicTopLevel() ? tr("SEG-Y [Classic]")
 						   : tr("Classic tool");
-    uiMenu* impclassmnu = new uiMenu( appl_, classicmnutitle, "launch" );
+    uiMenu* impclassmnu = new uiMenu( &appl_, classicmnutitle, "launch" );
     (wantClassicTopLevel() ? impseismnu : impsgymnu)->addMenu( impclassmnu );
     impclassmnu->insertAction( new uiAction( uiStrings::sImport(),
 		   muiSEGYMgrCB(impClassicCB), "import") );
     impclassmnu->insertAction( new uiAction( uiStrings::sLink(),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
 
-    int segyimp = mnumgr_.dtectTB()->addButton( segyiconid_,
+    int segyimp = mnumgr.dtectTB()->addButton( segyiconid_,
 						tr("SEG-Y import") );
 
-    uiMenu* mnu = mnumgr_.dtectTB()->addButtonMenu( segyimp,
+    uiMenu* mnu = mnumgr.dtectTB()->addButtonMenu( segyimp,
 						uiToolButton::InstantPopup);
     mnu->insertAction(new uiAction(m3Dots(tr("Single-Vintage")),
 		    mCB(this,uiSEGYMgr,readStarterCB),"singlefile") );
@@ -199,14 +196,14 @@ void uiSEGYMgr::handleImpExpMnu( CallBacker* cb )
 	SEGY::ImpType imptyp( gt );
 	uiSEGYReadStarter::Setup su( false, &imptyp );
 	delete impdlg_;
-	impdlg_ = new uiSEGYReadStarter( appl_, su );
+	impdlg_ = new uiSEGYReadStarter( &appl_, su );
 	impdlg_->setModal( false );
 	impdlg_->go();
     }
     else
     {
 	delete expdlg_;
-	expdlg_ = new uiSEGYExp( appl_, gt );
+	expdlg_ = new uiSEGYExp( &appl_, gt );
 	expdlg_->setModal( false );
 	expdlg_->go();
     }
@@ -217,7 +214,7 @@ void uiSEGYMgr::impVSPCB( CallBacker* )
 {
     const SEGY::ImpType imptyp( true );
     uiSEGYReadStarter::Setup su( false, &imptyp );
-    uiSEGYReadStarter dlg( appl_, su );
+    uiSEGYReadStarter dlg( &appl_, su );
     dlg.go();
 }
 
@@ -225,13 +222,13 @@ void uiSEGYMgr::impVSPCB( CallBacker* )
 void uiSEGYMgr::impClassic( bool islink )
 {
     uiSEGYRead::Setup su( islink ? uiSEGYRead::DirectDef : uiSEGYRead::Import );
-    new uiSEGYRead( appl_, su );
+    new uiSEGYRead( &appl_, su );
 }
 
 
 void uiSEGYMgr::reSortCB( CallBacker* )
 {
-    uiResortSEGYDlg dlg( appl_ );
+    uiResortSEGYDlg dlg( &appl_ );
     dlg.go();
 }
 
@@ -250,7 +247,7 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 void uiSEGYMgr::readStarterCB( CallBacker* )
 {
     delete impdlg_;
-    impdlg_ = new uiSEGYReadStarter( ODMainWin(),
+    impdlg_ = new uiSEGYReadStarter( &appl_,
 				     uiSEGYReadStarter::Setup(false) );
     impdlg_->setModal( false );
     impdlg_->go();
@@ -259,7 +256,7 @@ void uiSEGYMgr::readStarterCB( CallBacker* )
 
 void uiSEGYMgr::bulkImport( CallBacker* )
 {
-    uiSEGYMultiVintageImporter bulkimpdlg( ODMainWin() );
+    uiSEGYMultiVintageImporter bulkimpdlg( &appl_ );
     if ( !bulkimpdlg.nrSelFiles() )
 	return;
 
@@ -268,12 +265,7 @@ void uiSEGYMgr::bulkImport( CallBacker* )
 
 mDefODInitPlugin(uiSEGY)
 {
-    mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = new uiSEGYMgr() );
 
-    theinst_ = new uiSEGYMgr( ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate SEG-Y plugin";
-
-    return 0;
+    return nullptr;
 }
