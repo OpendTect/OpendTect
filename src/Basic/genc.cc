@@ -425,9 +425,9 @@ const char* GetProcessNameForPID( int pid )
     BufferString stdoutput,stderror;
     if ( machcomm.execute(stdoutput,&stderror) )
     {
-	const bool stdout = !stdoutput.isEmpty();
-	BufferString& retstr = stdout ? stdoutput : stderror;
-	if ( !stdout )
+	const bool hasstdout = !stdoutput.isEmpty();
+	BufferString& retstr = hasstdout ? stdoutput : stderror;
+	if ( !hasstdout )
 	    retstr.embed( '<', '>' );
 	procname = retstr;
 	char* ptrfirstspace = procname.find(' ');
