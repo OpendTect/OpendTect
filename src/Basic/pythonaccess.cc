@@ -1178,7 +1178,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	pFreeFnErrMsg("Not a directory");
     if ( !File::isWritable(path) )
     {
-	retval.add( uiStrings::phrCannotRemove(path) );
+	retval.add( uiStrings::phrCannotRemove(::toUiString(path)) );
 	return retval;
     }
 
