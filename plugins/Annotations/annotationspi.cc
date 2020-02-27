@@ -23,8 +23,9 @@ ________________________________________________________________________
 mDefODPluginInfo(Annotations)
 {
     mDefineStaticLocalObject( PluginInfo, retpii , (
-	"Annotations", "Annotations",
-	mODPluginCreator, mODPluginVersion,
+	"Annotations",
+	"dGB Earth Sciences (Nanne)",
+	"=od",
 	"Annotation display utilities."
 	    "\nThis delivers the 'Annotations' item in the tree." ) );
     return &retpii;
@@ -44,6 +45,6 @@ mDefODInitPlugin(Annotations)
     Annotations::ScaleBar::initClass();
     Annotations::ScaleBarDisplay::initClass();
 
-    return 0;
+    return nullptr;
 }
 

@@ -35,44 +35,44 @@ mDefODPluginInfo(uiImpGPR)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GPR: .DZT import",
-	mODPluginODPackage,
-	mODPluginCreator, mODPluginVersion,
+	"OpendTect",
+	"dGB (Bert Bril)",
+	"=od",
 	"Imports GPR data in DZT format."
 	"\nThanks to Matthias Schuh (m.schuh@neckargeo.net) for information,"
 	"\ntest data and comments.") );
-    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 
 
-class uiImpGPRMgr :  public CallBacker
+class uiImpGPRMgr : public uiPluginInitMgr
 {
 public:
 
-			uiImpGPRMgr(uiODMain&);
+			uiImpGPRMgr();
 			~uiImpGPRMgr();
 
-    uiODMain&		appl_;
-    void		updMnu(CallBacker*);
+private:
+
+    void		dTectMenuChanged();
     void		doWork(CallBacker*);
 };
 
 
-uiImpGPRMgr::uiImpGPRMgr( uiODMain& a )
-	: appl_(a)
+
+uiImpGPRMgr::uiImpGPRMgr()
+    : uiPluginInitMgr()
 {
-    mAttachCB( appl_.menuMgr().dTectMnuChanged, uiImpGPRMgr::updMnu );
-    updMnu(0);
+    init();
 }
 
 
 uiImpGPRMgr::~uiImpGPRMgr()
 {
-    detachAllNotifiers();
 }
 
 
-void uiImpGPRMgr::updMnu( CallBacker* )
+void uiImpGPRMgr::dTectMenuChanged()
 {
     appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->insertAction(
 	new uiAction(toUiString(menunm),mCB(this,uiImpGPRMgr,doWork),"gpr"));
@@ -191,12 +191,8 @@ void uiImpGPRMgr::doWork( CallBacker* )
 
 mDefODInitPlugin(uiImpGPR)
 {
-    mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_,
+				= new uiImpGPRMgr() );
 
-    theinst_ = new uiImpGPRMgr( *ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate ImpGPR plugin";
-
-    return 0; // All OK - no error messages
+    return nullptr;
 }

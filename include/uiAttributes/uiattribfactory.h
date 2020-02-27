@@ -94,6 +94,7 @@ public:
     int			add(const uiString& displaynm,const char* attrnm,
 			    const uiString& grpnm,uiAttrDescEdCreateFunc,
 			    int,int,bool synth,bool isgrpdef);
+    void		remove(const char* attrnm);
 
     inline bool		haveSteering() const
 			{ return isPresent( "Curvature" ); }

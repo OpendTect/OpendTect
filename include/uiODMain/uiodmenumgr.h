@@ -53,7 +53,6 @@ public:
     uiMenu*	settMnu()		{ return settmnu_; }
     uiMenu*	toolsMnu()		{ return toolsmnu_; }
     uiMenu*	installMnu()		{ return installmnu_; }
-    uiMenu*	licenseMnu()		{ return licensemenu_; }
     uiMenu*	preLoadMenu()		{ return preloadmnu_; }
     uiMenu*	createSeisOutputMenu()	{ return csomnu_; }
     uiMenu*	createHorOutputMenu()	{ return chomnu_; }
@@ -134,7 +133,6 @@ protected:
     uiMenu*		settmnu_;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
-    uiMenu*		licensemenu_;
     uiMenu*		mmmnu_;
     uiMenu*		csomnu_;
     uiMenu*		chomnu_;
@@ -206,7 +204,6 @@ protected:
     void	updateDTectToolBar(CallBacker*);
     void	updateDTectMnus(CallBacker*);
     void	toggViewMode(CallBacker*);
-    void	showHostIDCB(CallBacker*);
 
     uiAction*	stereooffitm_;
     uiAction*	stereoredcyanitm_;

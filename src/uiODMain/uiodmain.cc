@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
-#include "uiodprestart.h"
+#include "uipluginsel.h"
 #include "uiseispartserv.h"
 #include "uifixinvaliddataroot.h"
 #include "uistrattreewin.h"
@@ -81,7 +81,7 @@ void startAutoSaved2RealObjectRestorer();
 
 static uiODMain* manODMainWin( uiODMain* i )
 {
-    mDefineStaticLocalObject( uiODMain*, theinst, = 0 );
+    mDefineStaticLocalObject( uiODMain*, theinst, = nullptr );
     if ( i ) theinst = i;
     return theinst;
 }
@@ -176,23 +176,24 @@ int ODMain( uiMain& app )
 
     PtrMan<uiODMain> odmain = new uiODMain( app );
     manODMainWin( odmain );
+
     checkScreenRes();
 
     bool dodlg = true;
-    Settings::common().getYN( uiODPreStart::sKeyDoAtStartup(), dodlg );
+    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && !pimdata.isEmpty() )
     {
-	uiODPreStart dlg( ODMainWin() );
+	uiPluginSel dlg( ODMainWin() );
 	dlg.setPopupArea( uiMainWin::Auto );
-	if ( !dlg.go() )
+	if ( dlg.nrPlugins() && !dlg.go() )
 	    return 1;
     }
 
     SetProgramRestarter( ODMainProgramRestarter );
 
     PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
+    OD::ModDeps().ensureLoaded( "uiODMain" );
     odmain->horattrmgr_ = new uiODHorAttribMgr( odmain );
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
@@ -243,7 +244,7 @@ uiODMain::uiODMain( uiMain& a )
     const int odnrcpus = Threads::getNrProcessors();
     const bool useallcpus = systemnrcpus == odnrcpus;
 
-    uiString statustt = tr("System memory: Free/Available");
+    uiString statustt = tr( "System memory: Free/Available" );
     if ( !useallcpus )
 	statustt.appendPlainText("| ", true).appendPhrase(
 						tr("CPU: Used/Available") );
@@ -363,7 +364,9 @@ bool uiODMain::buildUI()
 
 void uiODMain::initScene()
 {
-    scenemgr_->initMenuMgrDepObjs();
+    const bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
+    if ( addscene )
+	scenemgr_->initMenuMgrDepObjs();
     readSettings();
 
     justBeforeGo.trigger();
@@ -685,7 +688,7 @@ void uiODMain::memTimerCB( CallBacker* )
     OD::getSystemMemory( tot, free );
     NrBytesToStringCreator converter;
     converter.setUnitFrom( tot );
-    uiString txt = tr("[free mem] %1/%2%3");
+    uiString txt = tr( "[free mem] %1/%2%3" );
 
     //Use separate calls to avoid the reuse of the converter's buffer
     txt.arg( converter.getString( free, 1, false ) );
@@ -735,8 +738,8 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
     if ( doask && hasSessionChanged() )
     {
 	askedanything = true;
-	int res = uiMSG().askSave( tr("Do you want to save this session?"),
-				   true );
+	const int res =
+	    uiMSG().askSave( tr("Do you want to save this session?"), true );
 	if ( res == 1 )
 	    saveSession();
 	else if ( res == -1 )
@@ -780,7 +783,7 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 
 void uiODMain::updateCaption( CallBacker* )
 {
-    uiString capt = toUiString( "%1 - %2" )
+    uiString capt = toUiString( "%1/%2" )
 	.arg( getProgramString() )
 	.arg( OD::Platform::local().longName() );
 
@@ -817,8 +820,7 @@ bool uiODMain::closeOK()
 		   uiStrings::phrClose(toUiString(programname_) ) ) )
 	return false;
 
-    if ( failed_ )
-	return true;
+    if ( failed_ ) return true;
 
     if ( !restarting_ && !askedanything )
     {
@@ -909,4 +911,52 @@ void uiODMain::exit( bool doconfirm )
 uiODServiceMgr& uiODMain::serviceMgr()
 {
     return uiODServiceMgr::getMgr();
+}
+
+
+// uiPluginInitMgr
+uiPluginInitMgr::uiPluginInitMgr()
+    : appl_(*ODMainWin())
+{
+    mAttachCB( DBM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
+    mAttachCB( DBM().surveyChanged, uiPluginInitMgr::afterSurvChgCB );
+    mAttachCB( DBM().applicationClosing, uiPluginInitMgr::applCloseCB );
+    mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
+    mAttachCB( appl_.menuMgr().dTectTBChanged, uiPluginInitMgr::tbChgCB );
+    mAttachCB( appl_.sceneMgr().treeAdded, uiPluginInitMgr::treeAddCB );
+}
+
+
+uiPluginInitMgr::~uiPluginInitMgr()
+{
+    detachAllNotifiers();
+}
+
+
+void uiPluginInitMgr::init()
+{
+    dTectMenuChanged();
+    dTectToolbarChanged();
+}
+
+
+void uiPluginInitMgr::beforeSurvChgCB( CallBacker* )
+{ beforeSurveyChange(); }
+
+void uiPluginInitMgr::afterSurvChgCB( CallBacker* )
+{ afterSurveyChange(); }
+
+void uiPluginInitMgr::applCloseCB( CallBacker* )
+{ applicationClosing(); }
+
+void uiPluginInitMgr::menuChgCB( CallBacker* )
+{ dTectMenuChanged(); }
+
+void uiPluginInitMgr::tbChgCB( CallBacker* )
+{ dTectToolbarChanged(); }
+
+void uiPluginInitMgr::treeAddCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,sceneid,cb);
+    treeAdded( sceneid );
 }

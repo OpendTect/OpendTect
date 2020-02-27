@@ -11,9 +11,9 @@
 mDefODPluginEarlyLoad(GPUCalc)
 mDefODPluginInfo(GPUCalc)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Graphics card based calculations", mODPluginODPackage,
-	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
+    static PluginInfo retpii = {
+	"Graphics card based calculations", "dGB (Kristofer Tingdahl)", "=dgb",
+	"" };
     return &retpii;
 }
 
@@ -23,6 +23,6 @@ mDefODInitPlugin(GPUCalc)
     const char* nm = GPU::manager().getDevice(0)->name();
     nm = GPU::manager().getDevice( 1 )->name();
 
-    return 0;
+    return nullptr;
 }
 

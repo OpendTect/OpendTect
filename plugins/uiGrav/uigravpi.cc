@@ -19,8 +19,9 @@ mDefODPluginInfo(uiGrav)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Gravity calculation",
-	mODPluginODPackage,
-	mODPluginCreator, mODPluginVersion,
+	"OpendTect",
+	"Bert",
+	"0.0.1",
 	"Calculates gravity between horizons" ) );
     return &retpi;
 }
@@ -69,5 +70,5 @@ mDefODInitPlugin(uiGrav)
     if ( !theinst_ )
 	return "Cannot instantiate Gravity plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr;
 }

@@ -4,17 +4,20 @@
  * DATE     : July 2008
 -*/
 
-#include "matlablinkmod.h"
+
 #include "odplugin.h"
+#include "matlablinkmod.h"
 #include "matlabstep.h"
 
 mDefODPluginEarlyLoad(MATLABLink)
 mDefODPluginInfo(MATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"MATLAB Link (Base)",
-	mMATLABLinkPackage,
-	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
+	"MATLAB (base)",
+	"OpendTect",
+	"dGB Earth Sciences",
+	"=od",
+	"MATLAB - base" ) );
     return &retpi;
 }
 
@@ -22,5 +25,5 @@ mDefODPluginInfo(MATLABLink)
 mDefODInitPlugin(MATLABLink)
 {
     VolProc::MatlabStep::initClass();
-    return 0;
+    return nullptr;
 }

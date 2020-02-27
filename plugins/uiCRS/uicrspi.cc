@@ -18,31 +18,40 @@
 #include "trckeyzsampling.h"
 
 
-class uiCRSMgr : public CallBacker
+mDefODPluginInfo(uiCRS)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Coordinate Reference System (GUI)",
+	"OpendTect",
+	"dGB (Raman Singh)",
+	"=od",
+	"User interface for providing a library of Coordinate Reference Systems"
+	    " that can be set at Survey level" ));
+    return &retpi;
+}
+
+
+
+class uiCRSMgr : public uiPluginInitMgr
 { mODTextTranslationClass(uiCRSMgr)
 public:
-		uiCRSMgr(uiODMain*);
+		uiCRSMgr();
 		~uiCRSMgr();
 
-    void	convertCB(CallBacker*);
-    void	survChg(CallBacker*);
+private:
 
-    uiODMain*	appl_;
-    Coords::uiConvertGeographicPos*	convdlg_;
+    void	beforeSurveyChange() override;
+    void	dTectMenuChanged() override;
+    void	convertCB(CallBacker*);
+
+    Coords::uiConvertGeographicPos*	convdlg_ = nullptr;
 };
 
 
-uiCRSMgr::uiCRSMgr( uiODMain* appl )
-    : appl_(appl)
-    , convdlg_(nullptr)
+uiCRSMgr::uiCRSMgr()
+    : uiPluginInitMgr()
 {
-    uiAction* act = new uiAction( tr("CRS Position Conversion ...") );
-    mAttachCB( act->triggered, uiCRSMgr::convertCB );
-    uiAction* prevact =
-	appl_->menuMgr().toolsMnu()->findAction( "Show Log File" );
-    appl_->menuMgr().toolsMnu()->insertAction( act, -1, prevact );
-
-    mAttachCB( DBM().surveyToBeChanged, uiCRSMgr::survChg );
+    init();
 }
 
 
@@ -53,7 +62,17 @@ uiCRSMgr::~uiCRSMgr()
 }
 
 
-void uiCRSMgr::survChg( CallBacker* )
+void uiCRSMgr::dTectMenuChanged()
+{
+    uiAction* act = new uiAction( tr("CRS Position Conversion ...") );
+    mAttachCB( act->triggered, uiCRSMgr::convertCB );
+    uiAction* prevact =
+	appl_.menuMgr().toolsMnu()->findAction( "Show Log File" );
+    appl_.menuMgr().toolsMnu()->insertAction( act, -1, prevact );
+}
+
+
+void uiCRSMgr::beforeSurveyChange()
 {
     deleteAndZeroPtr( convdlg_ );
 }
@@ -66,40 +85,21 @@ void uiCRSMgr::convertCB( CallBacker* )
     SI().getSampling( survtkzs, OD::UsrWork );
     const Coord centerpos = survtkzs.hsamp_.center().getCoord();
     if ( !convdlg_ )
-	convdlg_ = new Coords::uiConvertGeographicPos( appl_, crs, centerpos );
+	convdlg_ = new Coords::uiConvertGeographicPos( &appl_, crs, centerpos );
     convdlg_->show();
 }
 
 
 mDefODInitPlugin(uiCRS)
 {
-    mDefineStaticLocalObject( PtrMan<uiCRSMgr>, theinst_, = nullptr );
-    if ( theinst_ ) return nullptr;
-
-    theinst_ = new uiCRSMgr( ODMainWin() );
-    if ( !theinst_ )
-	return nullptr;
+    mDefineStaticLocalObject( PtrMan<uiCRSMgr>, theinst_, = new uiCRSMgr() );
 
     Coords::uiProjectionBasedSystem::initClass();
+
     return nullptr;
 }
 
 
-mDefODPluginInfo(uiCRS)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"CRS: Coordinate Reference Systems - powered by PROJ.4",
-	mODCRSPluginPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Provides support for Coordinate Reference Systems "
-		    "using the PROJ.4 services" ) );
-    retpi.useronoffselectable_ = false;
-    retpi.url_ = "proj4.org";
-    mSetPackageDisplayName( retpi,
-			    Coords::uiProjectionBasedSystem::pkgDispNm() );
-    retpi.uidispname_ = retpi.uipackagename_;
-    return &retpi;
-}
 
 mDefODPluginSurvRelToolsLoadFn(uiCRS)
 {

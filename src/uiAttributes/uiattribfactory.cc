@@ -57,6 +57,19 @@ int uiAttributeFactory::add( const uiString& dispnm, const char* attrnm,
 }
 
 
+void uiAttributeFactory::remove( const char* attrnm )
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->attrnm_ == attrnm )
+	{
+	    delete entries_.removeSingle(idx);
+	    return;
+	}
+    }
+}
+
+
 uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const uiString& nm,
 					  bool is2d ) const
 {

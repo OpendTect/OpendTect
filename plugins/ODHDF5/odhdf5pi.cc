@@ -15,10 +15,12 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(ODHDF5)
 mDefODPluginInfo(ODHDF5)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,
-	( "HDF5 Support (Base)", "HDF5 File Access",
-	mODPluginCreator, mODPluginVersion,
-	mODPluginSeeMainModDesc ) );
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"HDF5 Link (Base)",
+	"OpendTect",
+	"dGB (Bert Bril)",
+	"=od",
+	"HDF5 plugin" ) );
     return &retpi;
 }
 
@@ -26,5 +28,5 @@ mDefODPluginInfo(ODHDF5)
 mDefODInitPlugin(ODHDF5)
 {
     HDF5::AccessProviderImpl::initHDF5();
-    return 0;
+    return nullptr;
 }

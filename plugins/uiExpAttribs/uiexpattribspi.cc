@@ -21,10 +21,11 @@ ________________________________________________________________________
 mDefODPluginInfo(uiExpAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Experimental Attributes",
-	mODPluginExtraAttribsPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Use with even more care than usual; low-test stuff." ) );
+	"Experimental Attributes (GUI)",
+	"OpendTect",
+	"dGB",
+	"=od",
+	"" ));
     return &retpi;
 }
 

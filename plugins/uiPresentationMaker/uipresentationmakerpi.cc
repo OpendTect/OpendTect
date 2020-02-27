@@ -7,6 +7,7 @@
 
 
 #include "uimenu.h"
+#include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimsg.h"
 #include "uipresentationmaker.h"
@@ -16,71 +17,85 @@
 #include "odplugin.h"
 
 
-
-class uiPresMakerPIMgr	: public CallBacker
-{ mODTextTranslationClass(uiPresMakerPIMgr)
-public:
-
-				uiPresMakerPIMgr(uiODMain*);
-
-    uiODMain*			appl_;
-    uiPresentationMakerDlg*	dlg_;
-
-    void			updateMenu(CallBacker*);
-    void			mnuCB(CallBacker*);
-
-    static uiString		pkgDispNm()
-				{ return tr("Powerpoint Presentation Maker"); }
-};
-
-
-uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
-    : appl_(a)
-    , dlg_(0)
+mDefODPluginInfo(uiPresentationMaker)
 {
-    mAttachCB( appl_->menuMgr().dTectMnuChanged, uiPresMakerPIMgr::updateMenu );
-    mAttachCB( DBM().applicationClosing, uiPresMakerPIMgr::updateMenu );
-
-    uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
-			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
-    appl_->menuMgr().toolsMnu()->insertAction( action );
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Presentation Maker",
+	"OpendTect",
+	"dGB (Bert Bril)",
+	"=od",
+	"Create Powerpoint presentations from OpendTect") );
+    return &retpi;
 }
 
 
-void uiPresMakerPIMgr::updateMenu( CallBacker* )
+class uiPresMakerPIMgr: public uiPluginInitMgr
+{ mODTextTranslationClass(uiPresMakerPIMgr)
+public:
+
+				uiPresMakerPIMgr();
+
+private:
+
+    uiPresentationMakerDlg*	dlg_ = nullptr;
+
+    void			dTectMenuChanged() override;
+    void			beforeSurveyChange() override;
+    void			applicationClosing() override;
+    void			doCleanup();
+    void			mnuCB(CallBacker*);
+
+};
+
+
+uiPresMakerPIMgr::uiPresMakerPIMgr()
+    : uiPluginInitMgr()
+{
+    init();
+}
+
+
+void uiPresMakerPIMgr::dTectMenuChanged()
+{
+    uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
+			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
+    appl_.menuMgr().toolsMnu()->insertAction( action );
+}
+
+
+void uiPresMakerPIMgr::beforeSurveyChange()
+{
+    doCleanup();
+}
+
+
+void uiPresMakerPIMgr::applicationClosing()
+{
+    doCleanup();
+}
+
+
+void uiPresMakerPIMgr::doCleanup()
 {
     if ( dlg_ )
-	{ dlg_->close(); delete dlg_; dlg_ = 0; }
+	{ dlg_->close(); deleteAndZeroPtr( dlg_ ); }
 }
 
 
 void uiPresMakerPIMgr::mnuCB( CallBacker* )
 {
     if ( !dlg_ )
-	dlg_ = new uiPresentationMakerDlg( appl_ );
+	dlg_ = new uiPresentationMakerDlg( &appl_ );
 
     dlg_->show();
 }
 
 
-mDefODPluginInfo(uiPresentationMaker)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Presentation Maker",
-	"Powerpoint Presentation Maker",
-	mODPluginCreator, mODPluginVersion,
-	"Create Powerpoint presentations from OpendTect") );
-    retpi.useronoffselectable_ = true;
-    mSetPackageDisplayName( retpi, uiPresMakerPIMgr::pkgDispNm() );
-    return &retpi;
-}
-
 
 mDefODInitPlugin(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( uiPresMakerPIMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiPresMakerPIMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, presmgr,
+				= new uiPresMakerPIMgr() );
 
-    return 0;
+    return nullptr;
 }

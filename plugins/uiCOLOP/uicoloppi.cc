@@ -13,6 +13,7 @@
 #include "uiioobjselgrp.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uiseiswvltman.h"
 #include "uitoolbar.h"
@@ -25,47 +26,40 @@
 mDefODPluginInfo(uiCOLOP)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-    "COLOP Link",
-    "OpendTect",
-    "dGB (Khushnood)",
-    "6.4",
-    "A link to the COLOP tool."
-    "\nThis is the User interface of the link."
-    "\nhttp://peter.zahuczki.hu/index.php/myapps/clp see for info on COLOP"));
+	"COLOP (GUI)",
+	"OpendTect",
+	"Peter Zahuczki",
+	"=od",
+	"A link to the COLOP tool.\n"
+	    "This is the User interface of the link. See\n"
+	    "http://peter.zahuczki.hu/index.php/myapps/clp"
+	    "\nfor info on COLOP" ));
     return &retpi;
 }
 
 
-class uiColopLink : public CallBacker
+class uiColopLink : public uiPluginInitMgr
 { mODTextTranslationClass(uiColopLink);
 public:
-			uiColopLink(uiODMain&);
+			uiColopLink();
 			~uiColopLink();
 
-    uiODMain&		appl_;
-    uiODMenuMgr&	mnumgr;
+private:
 
+    void		dTectMenuChanged() override;
     void		doColop(CallBacker*);
-    void		updateToolBar(CallBacker*);
-    void		updateMenu(CallBacker*);
     void		updateWaveletMan(CallBacker*);
 
-    static uiString	sMenuTxt()
-			{ return tr("COLOP"); }
 };
 
 
-uiColopLink::uiColopLink( uiODMain& a )
-    : mnumgr(a.menuMgr())
-    , appl_(a)
+uiColopLink::uiColopLink()
+    : uiPluginInitMgr()
 {
-    mAttachCB( mnumgr.dTectTBChanged, uiColopLink::updateToolBar );
-    mAttachCB( mnumgr.dTectMnuChanged, uiColopLink::updateMenu );
+    init();
     mAttachCB( uiSeisWvltMan::instanceCreated(),
 				 uiColopLink::updateWaveletMan );
-    updateToolBar(0);
-    updateMenu(0);
-    updateWaveletMan(0);
+    updateWaveletMan(nullptr);
 }
 
 
@@ -75,12 +69,7 @@ uiColopLink::~uiColopLink()
 }
 
 
-void uiColopLink::updateToolBar( CallBacker* )
-{
-}
-
-
-void uiColopLink::updateMenu( CallBacker* )
+void uiColopLink::dTectMenuChanged()
 {
     uiAction* newitem = new uiAction( m3Dots(tr("COLOP")),
 				mCB(this,uiColopLink,doColop) );
@@ -126,11 +115,7 @@ void uiColopLink::doColop( CallBacker* )
 
 mDefODInitPlugin(uiCOLOP)
 {
-    mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_, = new uiColopLink() );
 
-    theinst_ = new uiColopLink( *ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate COLOP plugin";
-    return 0;
+    return nullptr;
 }

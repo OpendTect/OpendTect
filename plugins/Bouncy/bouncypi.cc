@@ -13,14 +13,16 @@ mDefODPluginEarlyLoad(Bouncy)
 mDefODPluginInfo(Bouncy)
 {
     mDefineStaticLocalObject( PluginInfo, retpi, (
-	"Bouncy thingy (Base)", mODPluginGamesPackage,
-	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
+	"Bouncy thingy (Non-UI)",
+	"dGB (Karthika)",
+	"4.2",
+    	"Having some fun in OpendTect." ) );
     return &retpi;
 }
 
 
 mDefODInitPlugin(Bouncy)
 {
-    return 0;
+    return nullptr;
 }
 

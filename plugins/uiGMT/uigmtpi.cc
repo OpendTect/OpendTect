@@ -31,9 +31,24 @@
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
+#include "uiodmain.h"
 #include "uitoolbar.h"
 
 #include "odplugin.h"
+
+
+mDefODPluginInfo(uiGMT)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"GMT Link (GUI)",
+	"OpendTect",
+	"dGB (Raman Singh)",
+	"=od",
+	"A link to the GMT mapping tool."
+	    "\nThis is the User interface of the link."
+	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" ));
+    return &retpi;
+}
 
 
 class uiGMTIntro : public uiDialog
@@ -78,52 +93,40 @@ bool acceptOK()
 };
 
 
-class uiGMTMgr :  public CallBacker
+class uiGMTMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiGMTMgr)
 public:
-			uiGMTMgr(uiODMain*);
+			uiGMTMgr();
 			~uiGMTMgr();
 
-    uiODMain*		appl_;
-    uiGMTMainWin*	dlg_;
+private:
 
-    void		updateToolBar(CallBacker*);
-    void		updateMenu(CallBacker*);
+    uiGMTMainWin*	dlg_ = nullptr;
+
+    void		dTectMenuChanged() override;
     void		createMap(CallBacker*);
 
-    static uiString	pkgDispNm()
-			{ return tr("GMT Link"); }
 };
 
 
-uiGMTMgr::uiGMTMgr( uiODMain* a )
-	: appl_(a)
-	, dlg_(0)
+uiGMTMgr::uiGMTMgr()
+    : uiPluginInitMgr()
 {
-    mAttachCB( appl_->menuMgr().dTectTBChanged, uiGMTMgr::updateToolBar );
-    mAttachCB( appl_->menuMgr().dTectMnuChanged, uiGMTMgr::updateMenu );
-    updateToolBar(0);
-    updateMenu(0);
+    init();
 }
 
 
 uiGMTMgr::~uiGMTMgr()
 {
-    detachAllNotifiers();
 }
 
 
-void uiGMTMgr::updateToolBar( CallBacker* )
+void uiGMTMgr::dTectMenuChanged()
 {
-}
-
-
-void uiGMTMgr::updateMenu( CallBacker* )
-{
-    delete dlg_; dlg_ = 0;
+    deleteAndZeroPtr( dlg_ );
     uiAction* act = new uiAction( m3Dots(tr("GMT Mapping Tool")),
 				  mCB(this,uiGMTMgr,createMap), "gmt_logo" );
-    appl_->menuMgr().procMnu()->insertAction( act );
+    appl_.menuMgr().procMnu()->insertAction( act );
 }
 
 
@@ -137,12 +140,12 @@ void uiGMTMgr::createMap( CallBacker* )
 
 	if ( !GMT::hasGMT() || !gmtsharedir )
 	{
-	    uiGMTIntro introdlg( appl_ );
+	    uiGMTIntro introdlg( &appl_ );
 	    if ( !introdlg.go() )
 		return;
 	}
 
-	dlg_ = new uiGMTMainWin( appl_ );
+	dlg_ = new uiGMTMainWin( &appl_ );
     }
 
     dlg_->show();
@@ -150,33 +153,9 @@ void uiGMTMgr::createMap( CallBacker* )
 }
 
 
-mDefODPluginInfo(uiGMT)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT Access",
-	mODGMTPluginPackage,
-	mODPluginCreator, mODPluginVersion,
-	"GMT is a mapping tool originating at the School of Ocean and Earth "
-	"Science and Technology, University of Hawai‘i at Manoa.\n"
-        "This plugin can use the services of an existing GMT installation." ) );
-    retpi.useronoffselectable_ = true;
-    retpi.url_ = "gmt.soest.hawaii.edu";
-    mSetPackageDisplayName( retpi, uiGMTMgr::pkgDispNm() );
-    retpi.uidispname_ = retpi.uipackagename_;
-    return &retpi;
-}
-
-
-
 mDefODInitPlugin(uiGMT)
 {
-    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiGMTMgr( ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate GMT plugin";
-
+    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, gmtmgr_, = new uiGMTMgr() );
     DBMan::CustomDirData cdd( ODGMT::cGMTSelDirIDNr(), ODGMT::sKeyGMT(),
 			      "GMT data" );
     uiRetVal uirv = DBMan::addCustomDataDir( cdd );
@@ -200,6 +179,6 @@ mDefODInitPlugin(uiGMT)
     uiGMTSurfaceGrid::initClass();
     uiGMTNearNeighborGrid::initClass();
 
-    return 0;
+    return nullptr;
 }
 

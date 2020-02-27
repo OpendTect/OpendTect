@@ -212,6 +212,7 @@ protected: \
     static DimensionType dimtyp_; \
 public: \
     static void		initClass(); \
+    static void		removeClass(); \
     static int		factoryID()		{ return factoryid_; } \
     const char*		attribName() const	{ return attrnm_; } \
     uiString		displayName() const	{ return dispname_; } \
@@ -239,6 +240,9 @@ void clss::initClass() \
     dispname_ = dispnm; domtyp_ = domtyp; dimtyp_ = dimtyp; \
     attrnm_ = attr::attribName(); \
 } \
+\
+void clss::removeClass() \
+{ uiAF().remove( attr::attribName() ); } \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
 { \

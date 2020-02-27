@@ -18,7 +18,8 @@ mDefODPluginInfo(Tut)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin (Base)",
 	mODPluginTutorialsPackage,
-	mODPluginCreator, mODPluginVersion,
+	"dGB Earth Sciences",
+	"=od",
 	"Back-end for the plugin that shows simple plugin development basics."
 	"\nThis non-UI part can also be loaded into batch programs." ) );
     return &retpi;

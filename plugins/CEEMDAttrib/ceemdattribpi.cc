@@ -5,7 +5,6 @@
 -*/
 
 
-
 #include "ceemdattribmod.h"
 #include "ceemdattrib.h"
 #include "odplugin.h"
@@ -16,9 +15,11 @@ mDefODPluginEarlyLoad(CEEMDAttrib)
 mDefODPluginInfo(CEEMDAttrib)
 {
     mDefineStaticLocalObject (PluginInfo, retpi, (
-	"CEEMD: Complete Ensemble Empirical Mode Decomposition (Base)",
-	mODPluginExtraAttribsPackage,
-	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
+	"CEEMD (Base)",
+	"OpendTect",
+	"dGB (Paul de Groot)",
+	"=od",
+	"CEEMD - Complete Ensemble Empirical Mode Decomposition Attribute" ));
     return &retpi;
 }
 
@@ -26,6 +27,5 @@ mDefODPluginInfo(CEEMDAttrib)
 mDefODInitPlugin(CEEMDAttrib)
 {
     Attrib::CEEMD::initClass();
-
-    return 0;
+    return nullptr;
 }
