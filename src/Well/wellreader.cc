@@ -884,7 +884,7 @@ int MultiWellReader::nextStep()
     Well::Data* wd = new Well::Data;
     wd->ref();
     Well::Reader wrdr( wmid, *wd );
-    if ( !wrdr.getDispProps() );
+    if ( !wrdr.getDispProps() )
 	errmsg_.append( wrdr.errMsg(), true );
 
     if ( !wrdr.getInfo() )
