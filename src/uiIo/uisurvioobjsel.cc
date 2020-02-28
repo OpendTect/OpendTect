@@ -520,6 +520,17 @@ void uiSurvIOObjSel::selSurvCB( CallBacker* )
 }
 
 
+void uiSurvIOObjSel::refresh()
+{
+    const DBKey curdbky = key();
+    updateObjs();
+    if ( finalised() )
+	updateUi();
+    if ( curdbky.isUsable() )
+	setSelected( curdbky );
+}
+
+
 void uiSurvIOObjSel::setSurvey( const SurveyDiskLocation& sdl )
 {
     if ( sdl == survloc_ )
