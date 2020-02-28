@@ -1146,10 +1146,10 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 {
     uiRetVal retval;
     if ( !File::isDirectory(path) )
-	pFreeFnErrMsg("Not a directory");
+	{pFreeFnErrMsg("Not a directory"); }
     if ( !File::isReadable(path) )
     {
-	retval.add( uiStrings::phrCannotRemove(path)  );
+	retval.add( uiStrings::phrCannotRemove(::toUiString(path)) );
 	return retval;
     }
 
