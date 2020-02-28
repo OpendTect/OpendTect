@@ -28,6 +28,7 @@ class Data;
 class ReadAccess;
 class LogInfo;
 
+
 /*!\brief Reads Well::Data from any data store */
 
 mExpClass(Well) Reader
@@ -77,20 +78,48 @@ private:
 mExpClass(Well) MultiWellReader : public Executor
 { mODTextTranslationClass(MultiWellReader)
 public:
-			MultiWellReader(const TypeSet<MultiID>&,
-					ObjectSet<Well::Data>&);
 
-    int			nextStep();
-    od_int64		totalNr() const;
-    od_int64		nrDone() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    mExpClass(Well) Setup
+    {
+    public:
+			Setup()
+			: track_(false)
+			, logs_(false)
+			, markers_(false)
+			, D2T_(false)
+			, csmdl_(false)
+			, loginfo_(false)
+			{}
+
+	mDefSetupMemb(bool,track)
+	mDefSetupMemb(bool,logs)
+	mDefSetupMemb(bool,markers)
+	mDefSetupMemb(bool,D2T)
+	mDefSetupMemb(bool,csmdl)
+	mDefSetupMemb(bool,loginfo)
+    };
+
+			MultiWellReader(const TypeSet<MultiID>&,
+					ObjectSet<Well::Data>&,	
+					const Setup&);
+
+    int				nextStep();
+    od_int64			totalNr() const;
+    od_int64			nrDone() const;
+    uiString			uiMessage() const;
+    uiString			uiNrDoneText() const;
+    bool			allWellsRead() const { return allwellsread_; }
+				//Can then be used to launch a warning locally
+    const uiString&		errMsg() const		{ return errmsg_; }
 
 protected:
     ObjectSet<Well::Data>&	wds_;
     TypeSet<MultiID>		keys_;
     od_int64			nrwells_;
     od_int64			nrdone_;
+    uiString			errmsg_;
+    bool			allwellsread_ = true;
+    const Setup&		su_;
 };
 
 #endif

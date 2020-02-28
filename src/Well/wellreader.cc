@@ -832,12 +832,14 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 
 // MultiWellReader
 MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
-		ObjectSet<Well::Data>& wds )
+				  ObjectSet<Well::Data>& wds,
+				  const MultiWellReader::Setup& su )
     : Executor("Reading well info")
     , wds_(wds)
     , keys_(keys)
     , nrwells_(keys.size())
     , nrdone_(0)
+    , su_(su)
 {}
 
 
@@ -854,23 +856,50 @@ uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
 
 
+#define mGet( suopt, func ) \
+    if ( su_.suopt ) \
+    { \
+	if ( !wrdr.func ) \
+	{ \
+	    errmsg_.append( wrdr.errMsg(), true ); \
+	    wd->unRef(); \
+	    return MoreToDo(); \
+	} \
+    }
+
+
 int MultiWellReader::nextStep()
 {
     if ( nrdone_ >= totalNr() )
-	return Executor::Finished();
-
-    else
     {
-	const MultiID wmid = keys_[sCast(int,nrdone_)];
-	nrdone_++;
-	Well::Data* wd = new Well::Data;
-	wd->ref();
-	Well::Reader wrdr( wmid, *wd );
-	if ( !wrdr.getInfo() || !wrdr.getMarkers() || !wrdr.getLogInfo() ||
-				!wrdr.getTrack() )
-	    return Executor::MoreToDo();
+	if ( wds_.size() != keys_.size() )
+	    allwellsread_ = false;
 
-	wds_ += wd;
+	return wds_.size() == 0 ? Executor::ErrorOccurred()
+				: Executor::Finished();
+    }
+
+    const MultiID wmid = keys_[sCast(int,nrdone_)];
+    nrdone_++;
+    Well::Data* wd = new Well::Data;
+    wd->ref();
+    Well::Reader wrdr( wmid, *wd );
+    if ( !wrdr.getDispProps() );
+	errmsg_.append( wrdr.errMsg(), true );
+
+    if ( !wrdr.getInfo() )
+    {
+	errmsg_.append( wrdr.errMsg(), true );
+	wd->unRef();
 	return Executor::MoreToDo();
     }
+
+    mGet( track_, getTrack() )
+    mGet( logs_, getLogs() )
+    mGet( markers_, getMarkers() )
+    mGet( D2T_, getD2T() )
+    mGet( csmdl_, getCSMdl() )
+    mGet( loginfo_, getLogInfo() )
+    wds_ += wd;
+    return Executor::MoreToDo();
 }
