@@ -46,6 +46,7 @@ public:
 			//!< only possible if you did not specify surveyfixed
     void		setLblText(const uiString&);
 			//!< only possible if you already passed a lbltxt
+    void		refresh();
 
     SurveyDiskLocation	surveyDiskLocation() const  { return survloc_; }
     const IOObj*	ioObj() const;
