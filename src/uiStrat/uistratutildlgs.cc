@@ -301,6 +301,9 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
     nmfld_ = new uiGenInput( rightgrp, uiStrings::sName(), StringInpSpec() );
     nmfld_->updateRequested.notify( mCB(this,uiStratLithoDlg,renameCB) );
+    uiPushButton* applybut = new uiPushButton( rightgrp, uiStrings::sRename(),
+		      mCB(this,uiStratLithoDlg,renameCB), true );
+    applybut->attach( rightTo, nmfld_ );
 
     isporbox_ = new uiCheckBox( rightgrp, tr("Porous") );
     isporbox_->activated.notify( propchgcb );
@@ -385,6 +388,9 @@ void uiStratLithoDlg::renameCB( CallBacker* )
     if ( !lith || lith->isUdf() ) return;
 
     BufferString nm = nmfld_->text();
+    if ( nm == selfld_->getText() )
+	return;
+
     if ( !uiStratUnitEditDlg::checkWrongChar(nm.getCStr()) )
 	return;
 
