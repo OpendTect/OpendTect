@@ -104,7 +104,8 @@ public:
     static void			addFilePath(const char*,BufferString& cmd);
 				/*!<adds "\ and \" to protect for spaces
 				    in FilePaths */
-
+    static const char*		sDataRootArg()	    { return "dataroot"; }
+    static const char*		sSurveyArg()	    { return "survey"; }
 
 private:
 
