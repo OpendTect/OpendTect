@@ -354,7 +354,7 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     }
     else
     {
-        const int myfnidx = nrfns++;
+	const int myfnidx = nrfns++;
 	fns[myfnidx] = fn;
     }
 }
@@ -716,27 +716,27 @@ mExtern(Basic) const char* GetEnvVarDirListWoOD( const char* ky,
 
     BufferStringSet pathdirs;
     if ( !GetEnvVarDirList(ky,pathdirs,true) )
-        return ret;
+	return ret;
 
     BufferString instdir( GetSoftwareDir(false) );
     if ( instdir.isEmpty() )
-        ret.set( GetEnvVar(ky) );
+	ret.set( GetEnvVar(ky) );
     else
     {
 	File::Path odinstfp( instdir );
 	odinstfp.makeCanonical();
-        BufferStringSet accepteddirs;
-        for ( const auto pathdir : pathdirs )
-        {
+	BufferStringSet accepteddirs;
+	for ( const auto pathdir : pathdirs )
+	{
 	    File::Path pathdirfp( pathdir->buf() );
 	    pathdirfp.makeCanonical();
-            if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
+	    if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
 		 pathdir->contains(instdir) )
 		continue;
 	    if ( filter && pathdir->contains(filter) )
 		continue;
 	    accepteddirs.add( pathdir->buf() );
-        }
+	}
 	ret.set( accepteddirs.cat( BufferString(mEnvVarDirSep) ) );
     }
 
@@ -800,10 +800,6 @@ static void getDataRoot( bool isrequired )
     {
 	dataroot = File::linkEnd( argv_[2] );
 	drootinargs = true;
-	// These args are of no use to anyone else. Let's remove them ...
-	for ( int idx=3; idx<argc_; idx++ )
-	    argv_[idx-2] = argv_[idx];
-	argc_ -= 2;
     }
 
     const uiRetVal uirv = SurveyInfo::isValidDataRoot( dataroot );
