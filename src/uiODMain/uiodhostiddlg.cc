@@ -58,7 +58,7 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     osfld_->setText( OD::Platform().longName() );
     usernmfld_->setText( GetUserNm() );
 
-    auto* but = new uiToolButton( this, "copyobj", tr("Copy to Clipboard"),
+    auto* but = new uiToolButton( this, "clipboard", tr("Copy to Clipboard"),
 				  mCB(this,uiHostIDDlg,copyCB) );
 
     but->attach( rightTo, hostidfld_ );
