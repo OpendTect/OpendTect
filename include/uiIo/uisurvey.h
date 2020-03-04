@@ -117,6 +117,7 @@ protected:
     bool		doSurvInfoDialog(bool isnew);
     void		updateDataRootInSettings();
     void		rollbackNewSurvey(const uiString&);
+    void		copyInfoToClipboard();
 
 private:
     void		fillLeftGroup(uiGroup*);

@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibuttongroup.h"
 #include "uichecklist.h"
+#include "uiclipboard.h"
 #include "uicombobox.h"
 #include "uiconvpos.h"
 #include "uidesktopservices.h"
@@ -76,7 +77,7 @@ static int sMapHeight = 300;
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
     mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurvey::Util> >,
-			      utils, = 0 );
+			      utils, = nullptr )
     if ( !utils )
     {
 	ManagedObjectSet<uiSurvey::Util>* newutils =
@@ -84,6 +85,9 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 	*newutils += new uiSurvey::Util( "xy2ic",od_static_tr("getUtils",
 		"Convert (X,Y) to/from (%1,%2)").arg(uiStrings::sInline())
 		.arg(uiStrings::sCrossline()), CallBack() );
+	*newutils += new uiSurvey::Util( "clipboard",
+		od_static_tr("getUtils","Copy Survey Information to ClipBoard"),
+		CallBack() );
 
 	if ( !utils.setIfNull(newutils) )
 	    delete newutils;
@@ -413,13 +417,13 @@ uiSurvey::uiSurvey( uiParent* p )
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
     mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
+	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) )
     mDefineStaticLocalObject( int, sipidxnav, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider) );
+	    uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider) )
     mDefineStaticLocalObject( int, sipidxcp, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
+	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) )
     mDefineStaticLocalObject( int, sipidxfile, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new uiSurveyFileSIP) );
+	    uiSurveyInfoEditor::addInfoProvider(new uiSurveyFileSIP) )
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiPushButton* datarootbut =
@@ -1081,11 +1085,25 @@ void uiSurvey::utilButPush( CallBacker* cb )
 	uiConvertPos dlg( this, *cursurvinfo_ );
 	dlg.go();
     }
+    else if ( butidx==1 )
+    {
+	copyInfoToClipboard();
+    }
     else
     {
 	Util* util = getUtils()[butidx];
 	util->cb_.doCall( this );
     }
+}
+
+
+void uiSurvey::copyInfoToClipboard()
+{
+    BufferString txt = infofld_->text();
+    txt.addNewLine();
+
+    uiClipboard::setText( txt.buf() );
+    uiMSG().message( tr("Information copied to clipboard") );
 }
 
 
@@ -1234,20 +1252,19 @@ void uiSurvey::putToScreen()
 	return;
     }
 
-    BufferString locinfo( "Location: " );
-    BufferString inlinfo( "In-line range: " );
-    BufferString crlinfo( "Cross-line range: " );
+    BufferString inlinfo( "In-line range:\t" );
+    BufferString crlinfo( "Cross-line range:\t" );
     BufferString zinfo( "Z range" );
-    BufferString bininfo( "Inl/Crl bin size" );
-    BufferString crsinfo( "CRS: " );
-    BufferString areainfo( "Area: " );
-    BufferString survtypeinfo( "Survey type: " );
-    BufferString orientinfo( "In-line Orientation: " );
+    BufferString bininfo( "Inl/Crl bin size:\t" );
+    BufferString crsinfo( "CRS:\t\t" );
+    BufferString areainfo( "Area:\t\t" );
+    BufferString survtypeinfo( "Survey type:\t" );
+    BufferString orientinfo( "In-line Orientation:" );
+    BufferString locinfo( "Location:\t" );
 
     if ( !cursurvinfo_ )
     {
 	notesfld_->setText( "" );
-	zinfo.add( ":" ); bininfo.add( ":" );
     }
     else
     {
@@ -1255,27 +1272,29 @@ void uiSurvey::putToScreen()
 	areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
 	notesfld_->setText( si.comment() );
 
-	zinfo.add( "(" )
+	zinfo.add( " (" )
 	     .add( si.zIsTime() ? ZDomain::Time().unitStr()
 				: getDistUnitString(si.zInFeet(), false) )
-	     .add( "): " );
+	     .add( "):\t" );
 
 	if ( si.getCoordSystem() )
 	    crsinfo.add( si.getCoordSystem()->summary() );
-
-	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
 
 	if ( si.sampling(false).hsamp_.totalNr() > 0 )
 	{
 	    inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
 	    inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
 	    inlinfo.add( " - " ).add( si.inlStep() );
+	    inlinfo.add( "; Total: ").add( si.sampling(false).nrInl() );
 	    crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
 	    crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
 	    crlinfo.add( " - " ).add( si.crlStep() );
+	    crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
 
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
 	    bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
+	    bininfo.add( " (" ).add( si.getXYUnitString(false) )
+		   .add( "/line): " );
 	}
 
 	StepInterval<float> sizrg( si.zRange(false) );
@@ -1284,6 +1303,8 @@ void uiSurvey::putToScreen()
 	zinfo.add( sizrg.start, nrdec ).add( " - " )
 	     .add( sizrg.stop, nrdec ).add( " - " )
 	     .add( sizrg.step, nrdec );
+	zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
+
 	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
 	FilePath fp( si.datadir_, si.dirname_ );
@@ -1298,7 +1319,7 @@ void uiSurvey::putToScreen()
     infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()
 	.add( zinfo ).addNewLine().add( bininfo ).addNewLine()
 	.add( crsinfo ).addNewLine()
-	.add( areainfo ).add( "; ").add( survtypeinfo ).addNewLine()
+	.add( areainfo ).addNewLine().add( survtypeinfo ).addNewLine()
 	.add( orientinfo ).addNewLine().add( locinfo );
     infofld_->setText( infostr );
 

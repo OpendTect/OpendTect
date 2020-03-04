@@ -73,6 +73,8 @@ protected:
     uiGenInput*		inlfld_;
     uiGenInput*		crlfld_;
     uiGenInput*		zfld_;
+    uiLabel*		nrinlslbl_;
+    uiLabel*		nrcrlslbl_;
     uiComboBox*		zunitfld_;
     uiComboBox*		pol2dfld_;
 
@@ -108,6 +110,7 @@ protected:
     void		mkCoordGrp();
     void		mkTransfGrp();
     void		setValues();
+    void		updateLabels();
     void		updStatusBar(const char*);
     bool		setRanges();
     bool		setSurvName();
