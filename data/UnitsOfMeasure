@@ -5,6 +5,9 @@ Fri Mar 15 16:32:41 2013
 Seconds: Time`s`1
 Milliseconds: Time`ms`0.001
 Microseconds: Time`us`1e-6
+-Seconds: Time`s`-1
+-Milliseconds: Time`ms`-0.001
+-Microseconds: Time`us`-1e-6
 Meter: Distance/Depth`m`1
 Feet: Distance/Depth`ft`0.3048
 Inches: Distance/Depth`in`0.0254
