@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodapplmgr.h"
 #include "uiodfaulttoolman.h"
 #include "uiodhelpmenumgr.h"
+#include "uiodhostiddlg.h"
 #include "uiodlangmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
@@ -968,6 +969,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( installmnu_, m3Dots(tr("Setup Distributed Computing")),
 		 mSetupBatchItm);
     mInsertItem( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
+    mInsertItem( installmnu_, tr("Show HostID"), mHostIDInfoItm );
 
     if (__iswin__)
 	mInsertItem( installmnu_, tr("Firewall Add/Remove Process"),
@@ -1494,6 +1496,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
     case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
     case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
+    case mHostIDInfoItm:	showHostID(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
@@ -1720,4 +1723,11 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillAnalMenu();
     fillProcMenu();
     dTectMnuChanged.trigger();
+}
+
+
+void uiODMenuMgr::showHostID()
+{
+    uiHostIDDlg dlg( &appl_ );
+    dlg.go();
 }

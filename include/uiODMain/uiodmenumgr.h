@@ -193,6 +193,7 @@ protected:
     void		mkViewIconsMnu();
     void		addIconMnuItems(const DirList&,uiMenu*,
 					BufferStringSet&);
+    void		showHostID();
 public:
     void		createFaultToolMan();
 };
