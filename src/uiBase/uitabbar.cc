@@ -11,14 +11,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
+#include "uiicon.h"
 
 #include "i_qtabbar.h"
 
 mUseQtnamespace
 
 uiTab::uiTab( uiGroup& grp, const uiString& caption )
-    : caption_( caption.isEmpty() ? mToUiStringTodo(grp.name()) : caption )
-    , grp_( grp )
+    : grp_( grp )
+    , caption_( caption.isEmpty() ? toUiString(grp.name()) : caption )
 {}
 
 
@@ -32,7 +33,7 @@ public:
 			uiTabBarBody( uiTabBar& hndl, uiParent* p,
 				      const char* nm )
 			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,
-				    					nm)
+									nm)
 			    , messenger_(*new i_tabbarMessenger(this,&hndl))
 			    {
 				setHSzPol( uiObject::MedVar );
@@ -56,6 +57,7 @@ private:
 uiTabBar::uiTabBar( uiParent* parnt, const char* nm, const CallBack* cb )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selected( this )
+    , tabToBeClosed(this)
 { if( cb ) selected.notify(*cb); }
 
 
@@ -68,16 +70,34 @@ uiTabBar::~uiTabBar()
 uiTabBarBody& uiTabBar::mkbody( uiParent* parnt, const char* nm )
 {
     body_ = new uiTabBarBody( *this, parnt, nm );
-    return *body_; 
+    return *body_;
 }
+
 
 int uiTabBar::addTab( uiTab* tab )
 {
     mBlockCmdRec;
-    if ( !tab ) return -1;
+    if ( !tab )
+	return -1;
+
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
-    return body_->insertTab( tabs_.size(), tab->getCaption().getQString() );
+    const int tabidx =
+	body_->insertTab( tabs_.size(), tab->getCaption().getQString() );
+    return tabidx;
+}
+
+
+int uiTabBar::insertTab( uiTab* tab, int index )
+{
+    mBlockCmdRec;
+    if ( !tab )
+	return -1;
+
+    tabs_.insertAt( tab, index );
+    const int tabidx =
+	body_->insertTab( index, tab->getCaption().getQString() );
+    return tabidx;
 }
 
 
@@ -89,9 +109,14 @@ void uiTabBar::removeTab( uiTab* tab )
 
     tab->group().display( false );
     tabs_ -= tab;
-
     body_->removeTab( idx );
     delete tab;
+}
+
+
+void uiTabBar::setTabText( int idx, const QString& text )
+{
+    body_->setTabText( idx, text );
 }
 
 
@@ -120,6 +145,34 @@ void uiTabBar::setCurrentTab( int idx )
 {
     mBlockCmdRec;
     body_->setCurrentIndex( idx );
+}
+
+
+void uiTabBar::setTabIcon( int idx, const char* icnnm )
+{
+    const uiIcon icon( icnnm );
+    body_->setTabIcon( idx, icon.qicon() );
+}
+
+
+void uiTabBar::setTabsClosable( bool closable )
+{
+    body_->setTabsClosable( closable );
+}
+
+
+void uiTabBar::showCloseButton( int idx, bool yn, bool shrink )
+{
+    QWidget* qwidget = body_->tabButton( idx, QTabBar::RightSide );
+    if ( !qwidget )
+	return;
+
+    if ( yn )
+	qwidget->show();
+    else if ( shrink )
+	qwidget->resize( 0, 0 );
+    else
+	qwidget->hide();
 }
 
 

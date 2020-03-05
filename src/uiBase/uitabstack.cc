@@ -20,8 +20,8 @@ mUseQtnamespace
 
 uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     : uiGroup( parnt, nm, mnge )
-    , tabbar_( 0 )
-    , tabgrp_( 0 )
+    , tabToBeClosed(this)
+    , tabClosed(this)
 {
     // Don't change the order of these constuctions!
     tabgrp_ = new uiGroup( this, nm );
@@ -32,6 +32,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
 
     tabbar_->selected.notify( mCB(this,uiTabStack,tabSel) );
+    tabbar_->tabToBeClosed.notify( mCB(this,uiTabStack,tabCloseCB) );
 }
 
 
@@ -39,16 +40,17 @@ NotifierAccess& uiTabStack::selChange()
 { return tabbar_->selected; }
 
 
-void uiTabStack::tabSel( CallBacker* cb )
+void uiTabStack::tabSel( CallBacker* )
 {
-    int id = tabbar_->currentTabId();
+    const int id = tabbar_->currentTabId();
     uiGroup* selgrp = page( id );
     ObjectSet<uiTab>& tabs = tabbar_->tabs_;
 
     for ( int idx=0; idx<tabs.size(); idx++ )
     {
-	const bool disp = tabs[idx]->group() == selgrp;
-	tabs[idx]->group().display( disp );
+	uiGroup* grp = &tabs[idx]->group();
+	const bool disp = grp == selgrp;
+	grp->display( disp );
     }
 }
 
@@ -57,13 +59,31 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 {
     if ( !grp ) return;
 
-    const uiString tabcaption = !txt.isEmpty() ? txt 
-						: mToUiStringTodo(grp->name());
+    const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
     uiTab* tab = new uiTab( *grp, tabcaption );
     tabbar_->addTab( tab );
 
     if ( !hAlignObj() )
 	setHAlignObj( grp );
+}
+
+
+int uiTabStack::insertTab( uiGroup* grp, int index, const uiString& txt )
+{
+    if ( !grp ) return -1;
+
+    const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
+    uiTab* tab = new uiTab( *grp, tabcaption );
+    if ( !hAlignObj() )
+	setHAlignObj( grp );
+
+    return tabbar_->insertTab( tab, index );
+}
+
+
+void uiTabStack::setTabText( int idx, const char* nm )
+{
+    tabbar_->setTabText( idx, nm );
 }
 
 
@@ -73,15 +93,15 @@ void uiTabStack::removeTab( uiGroup* grp )
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {
-    int id = indexOf( grp );
-    tabbar_->setTabEnabled( id, yn );
+    const int idx = indexOf( grp );
+    tabbar_->setTabEnabled( idx, yn );
 }
 
 
 bool uiTabStack::isTabEnabled( uiGroup* grp ) const
 {
-    int id = indexOf( grp );
-    return tabbar_->isTabEnabled( id );
+    const int idx = indexOf( grp );
+    return tabbar_->isTabEnabled( idx );
 }
 
 
@@ -116,6 +136,43 @@ void uiTabStack::setCurrentPage( const char* grpnm )
 	    return;
 	}
     }
+}
+
+
+void uiTabStack::setTabIcon( int idx, const char* icnnm )
+{
+    tabbar_->setTabIcon( idx, icnnm );
+}
+
+
+void uiTabStack::setTabsClosable( bool closable )
+{
+    tabbar_->setTabsClosable( closable );
+}
+
+
+void uiTabStack::showCloseButton( uiGroup* grp, bool yn, bool shrink )
+{
+    const int idx = indexOf( grp );
+    tabbar_->showCloseButton( idx, yn, shrink );
+}
+
+
+void uiTabStack::tabCloseCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,tabid,cb);
+    uiGroup* tabgrp = tabbar_->page( tabid );
+    tabToBeClosed.trigger( tabid );
+    removeTab( tabgrp );
+    tabClosed.trigger();
+
+}
+
+
+void uiTabStack::setTabIcon( uiGroup* grp, const char* icnnm )
+{
+    const int idx = indexOf( grp );
+    setTabIcon( idx, icnnm );
 }
 
 
