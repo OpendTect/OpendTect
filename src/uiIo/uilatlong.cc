@@ -383,7 +383,7 @@ uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
     : uiCoordSystem(p,sFactoryDisplayName())
 {
     xyunitfld_ = new uiGenInput( this, tr("Coordinates are in"),
-	    BoolInpSpec(true,toUiString("Meter"),toUiString("Feet")) );
+	    BoolInpSpec(true,uiStrings::sMeter(),uiStrings::sFeet()) );
     setHAlignObj( xyunitfld_ );
 }
 
@@ -415,12 +415,14 @@ uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
 
     coordfld_ = new uiGenInput( this, tr("Coordinate in or near survey"),
 				DoubleInpSpec(), DoubleInpSpec() );
+    coordfld_->setElemSzPol( uiObject::SmallVar );
+
     latlngfld_ = new uiLatLongInp( this );
     latlngfld_->attach( alignedBelow, coordfld_ );
     new uiLabel( this, tr("Corresponds to"), latlngfld_ );
 
     xyunitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
-	    BoolInpSpec(true,toUiString("Meter"),toUiString("Feet")) );
+	    BoolInpSpec(true,uiStrings::sMeter(),uiStrings::sFeet()) );
     xyunitfld_->attach( rightOf, coordfld_ );
 
     setHAlignObj( coordfld_ );

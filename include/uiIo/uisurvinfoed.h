@@ -136,7 +136,6 @@ protected:
     void		updZUnit(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		appButPushed(CallBacker*);
-    void		coordSystemCB(CallBacker*);
 
     static uiString	getSRDString(bool infeet);
     static uiString	getCoordString(bool infeet);

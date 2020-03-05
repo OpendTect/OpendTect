@@ -264,7 +264,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     mAttachCB( zunitfld_->selectionChanged, uiSurveyInfoEditor::updZUnit );
 
     depthdispfld_ = new uiGenInput( rangegrp_, tr("Display depths in"),
-		BoolInpSpec(!depthinft,tr("meter"),tr("feet")) );
+	BoolInpSpec(!depthinft,uiStrings::sMeter(),uiStrings::sFeet()) );
     depthdispfld_->setSensitive( zistime && !si_.xyInFeet() );
     mAttachCB( depthdispfld_->valuechanged,
 	       uiSurveyInfoEditor::depthDisplayUnitSel );
@@ -348,23 +348,23 @@ void uiSurveyInfoEditor::mkTransfGrp()
     trgrp_ = new uiGroup( tabs_->tabGroup(), "I/C to X/Y transformation" );
     uiLabel* dummy = new uiLabel( trgrp_, uiStrings::sEmptyString() );
     x0fld_ = new uiGenInput ( trgrp_, tr("X = "), DoubleInpSpec().setName("X"));
-    x0fld_->setElemSzPol( uiObject::Small );
+    x0fld_->setElemSzPol( uiObject::SmallVar );
     x0fld_->attach( alignedBelow, dummy );
 
     xinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
 				       DoubleInpSpec().setName("Inl") );
-    xinlfld_->setElemSzPol( uiObject::Small );
+    xinlfld_->setElemSzPol( uiObject::SmallVar );
     xcrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
 				      DoubleInpSpec().setName("Crl") );
-    xcrlfld_->setElemSzPol( uiObject::Small );
+    xcrlfld_->setElemSzPol( uiObject::SmallVar );
     y0fld_ = new uiGenInput ( trgrp_, tr("Y = "), DoubleInpSpec().setName("Y"));
-    y0fld_->setElemSzPol( uiObject::Small );
+    y0fld_->setElemSzPol( uiObject::SmallVar );
     yinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
 				      DoubleInpSpec() .setName("Inl"));
-    yinlfld_->setElemSzPol( uiObject::Small );
+    yinlfld_->setElemSzPol( uiObject::SmallVar );
     ycrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
 				      DoubleInpSpec() .setName("Crl"));
-    ycrlfld_->setElemSzPol( uiObject::Small );
+    ycrlfld_->setElemSzPol( uiObject::SmallVar );
     overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule easy settings") );
     overrulefld_->setChecked( false );
     xinlfld_->attach( rightOf, x0fld_ );
@@ -446,6 +446,9 @@ void uiSurveyInfoEditor::setValues()
 	xy1fld_->setValue( c[2] );
 	xy2fld_->setValue( c[1] );
 	xy3fld_->setValue( c4 );
+	xy0fld_->setNrDecimals( 2, 0 ); xy0fld_->setNrDecimals( 2, 1 );
+	xy1fld_->setNrDecimals( 2, 0 ); xy1fld_->setNrDecimals( 2, 1 );
+	xy2fld_->setNrDecimals( 2, 0 ); xy2fld_->setNrDecimals( 2, 1 );
 	xy3fld_->setNrDecimals( 2, 0 ); xy3fld_->setNrDecimals( 2, 1 );
     }
 
@@ -574,6 +577,13 @@ bool uiSurveyInfoEditor::doApply()
     }
     else if ( !setRelation() )
 	return false;
+
+    if ( crssel_->acceptOK() && crssel_->outputSystem() )
+    {
+	coordsystem_ = crssel_->outputSystem();
+	updZUnit( nullptr );
+	xyunitlbl_->setText( getCoordString(xyInFeet()) );
+    }
 
     si_.update3DGeometry();
     survParChanged.trigger();
@@ -929,18 +939,6 @@ void uiSurveyInfoEditor::ic2ChgCB( CallBacker* )
 bool uiSurveyInfoEditor::xyInFeet() const
 {
     return coordsystem_ ? coordsystem_->isFeet() : false;
-}
-
-
-void uiSurveyInfoEditor::coordSystemCB( CallBacker* )
-{
-    Coords::uiCoordSystemDlg dlg( this, true, false, &si_, coordsystem_ );
-    if ( !dlg.go() )
-	return;
-
-    coordsystem_ = dlg.getCoordSystem();
-    updZUnit(0);
-    xyunitlbl_->setText( getCoordString(xyInFeet()) );
 }
 
 
