@@ -393,7 +393,8 @@ void OD::AutoSaver::go()
 
 	ObjectSet<AutoSaveObj> asobjs;
 	Threads::Locker locker( lock_ );
-	asobjs = asobjs_;
+	if ( !asobjs_.isEmpty() )
+	    asobjs = asobjs_;
 	locker.unlockNow();
 	if ( asobjs.isEmpty() )
 	    continue;

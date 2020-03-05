@@ -190,9 +190,8 @@ bool Well::HDF5Writer::putInfoAndTrack() const
     IOPar iop;
     wd_.info().fillPar( iop );
     putDepthUnit( iop );
-    const DataSetKey rootdsky;
-    uiRetVal uirv = wrr_->putInfo( rootdsky, iop );
-    mErrRetIfUiRvNotOK( rootdsky );
+    uiRetVal uirv = wrr_->set( iop );
+    mErrRetIfUiRvNotOK( DataSetKey() );
 
     const size_type sz = wd_.track().size();
     Array2DImpl<double> arr( 4, sz );
@@ -245,7 +244,7 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
     IOPar iop;
     d2t.fillHdrPar( iop );
     putDepthUnit( iop );
-    uirv = wrr_->putInfo( dsky, iop );
+    uirv = wrr_->set( iop, &dsky );
     mErrRetIfUiRvNotOK( dsky );
 
     return true;
@@ -292,7 +291,7 @@ bool Well::HDF5Writer::putLogs() const
     for ( int idx=nrlogs; ; idx++ )
     {
 	dsky.setDataSetName( toString(idx) );
-	if ( rdr->setScope(dsky) )
+	if ( rdr->hasDataSet(dsky) )
 	    setLogAttribs( dsky, 0 );
 	else
 	    break;
@@ -319,7 +318,7 @@ bool Well::HDF5Writer::setLogAttribs( const DataSetKey& dsky,
     iop.setYN( sKeyLogDel(), !wl );
 
     putDepthUnit( iop );
-    uiRetVal uirv = wrr_->putInfo( dsky, iop );
+    uiRetVal uirv = wrr_->set( iop, &dsky );
     return uirv.isOK();
 }
 
@@ -375,7 +374,7 @@ bool Well::HDF5Writer::putMarkers() const
     mErrRetIfUiRvNotOK( dsky );
     IOPar iop;
     putDepthUnit( iop );
-    uirv = wrr_->putInfo( dsky, iop );
+    uirv = wrr_->set( iop, &dsky );
     mErrRetIfUiRvNotOK( dsky );
 
     dsky.setDataSetName( sNamesDSName() );
@@ -406,7 +405,7 @@ bool Well::HDF5Writer::putDispProps() const
     wd_.displayProperties3d().fillPar( iop );
     putDepthUnit( iop );
     const DataSetKey grpdsky( sDispParsGrpName() );
-    uiRetVal uirv = wrr_->putInfo( grpdsky, iop );
+    uiRetVal uirv = wrr_->set( iop, &grpdsky );
     mErrRetIfUiRvNotOK( grpdsky );
 
     return true;

@@ -310,9 +310,8 @@ public:
     virtual uiRetVal	read(Pick::Set&);
     virtual uiRetVal	write(const Pick::Set&);
 
-    HDF5::DataSetKey	dsky_;
-    HDF5::Reader*	rdr_		= 0;
-    HDF5::Writer*	wrr_		= 0;
+    HDF5::Reader*	rdr_		= nullptr;
+    HDF5::Writer*	wrr_		= nullptr;
 
     bool		setPositions(Pick::Set&,uiRetVal&);
     void		setDirs(Pick::Set&);
@@ -327,7 +326,7 @@ public:
     bool		putGeomIDs(const Pick::Set&,uiRetVal&);
 
     template <class T>
-    Array2D<T>*		readFPArr(uiRetVal&);
+    Array2D<T>*		readFPArr(const HDF5::DataSetKey&,uiRetVal&);
 
 };
 
@@ -476,17 +475,21 @@ uiRetVal dgbPickSetTranslatorStreamBackEnd::write( const Pick::Set& ps )
 
 
 template <class T>
-Array2D<T>* dgbPickSetTranslatorHDF5BackEnd::readFPArr( uiRetVal& uirv )
+Array2D<T>* dgbPickSetTranslatorHDF5BackEnd::readFPArr(
+				const HDF5::DataSetKey& dsky, uiRetVal& uirv )
 {
-    ArrayND<T>* arrnd = HDF5::ArrayNDTool<T>::createArray( *rdr_ );
+    ArrayND<T>* arrnd = HDF5::ArrayNDTool<T>::createArray( dsky, *rdr_ );
     mDynamicCastGet( Array2D<T>*, arr2d, arrnd );
     if ( !arr2d )
-	{ uirv = HDF5::Access::sCannotReadDataSet( dsky_ ); return 0; }
+    {
+	uirv.add( HDF5::Access::sCannotReadDataSet( dsky ) );
+	return nullptr;
+    }
 
     HDF5::ArrayNDTool<T> arrtool( *arr2d );
-    uirv = arrtool.getAll( *rdr_ );
+    uirv = arrtool.getAll( dsky, *rdr_ );
     if ( !uirv.isOK() )
-	{ delete arr2d; arr2d = 0; }
+	deleteAndZeroPtr( arr2d );
 
     return arr2d;
 }
@@ -495,11 +498,8 @@ Array2D<T>* dgbPickSetTranslatorHDF5BackEnd::readFPArr( uiRetVal& uirv )
 bool dgbPickSetTranslatorHDF5BackEnd::setPositions( Pick::Set& ps,
 						    uiRetVal& uirv )
 {
-    dsky_.setDataSetName( sKey::Position(mPlural) );
-    if ( !rdr_->setScope(dsky_) )
-	{ uirv = HDF5::Access::sDataSetNotFound( dsky_ ); return false; }
-
-    Array2D<double>* posns = readFPArr<double>( uirv );
+    const HDF5::DataSetKey dsky( nullptr, sKey::Position(mPlural) );
+    Array2D<double>* posns = readFPArr<double>( dsky, uirv );
     if ( !posns )
 	return false;
 
@@ -519,12 +519,9 @@ bool dgbPickSetTranslatorHDF5BackEnd::setPositions( Pick::Set& ps,
 
 void dgbPickSetTranslatorHDF5BackEnd::setDirs( Pick::Set& ps )
 {
-    dsky_.setDataSetName( sKeyDirections );
-    if ( !rdr_->setScope(dsky_) )
-	return;
-
+    const HDF5::DataSetKey dsky( nullptr, sKeyDirections );
     uiRetVal uirv;
-    Array2D<float>* dirs = readFPArr<float>( uirv );
+    Array2D<float>* dirs = readFPArr<float>( dsky, uirv );
     if ( !dirs )
 	return;
 
@@ -545,12 +542,9 @@ void dgbPickSetTranslatorHDF5BackEnd::setDirs( Pick::Set& ps )
 
 void dgbPickSetTranslatorHDF5BackEnd::setGroups( Pick::Set& ps )
 {
-    dsky_.setDataSetName( sKeyGroups );
-    if ( !rdr_->setScope(dsky_) )
-	return;
-
+    const HDF5::DataSetKey dsky( nullptr, sKeyGroups );
     TypeSet<Pick::GroupLabel::ID::IDType> lblids;
-    uiRetVal uirv = rdr_->get( lblids );
+    uiRetVal uirv = rdr_->get( dsky, lblids );
     if ( !uirv.isOK() )
 	return;
 
@@ -567,13 +561,10 @@ void dgbPickSetTranslatorHDF5BackEnd::setGroups( Pick::Set& ps )
 
 void dgbPickSetTranslatorHDF5BackEnd::setTexts( Pick::Set& ps )
 {
-    dsky_.setDataSetName( sKeyLabels );
-    if ( !rdr_->setScope(dsky_) )
-	return;
-
+    const HDF5::DataSetKey dsky( nullptr, sKeyLabels );
     BufferStringSet lbls;
-    uiRetVal uirv = rdr_->get( lbls );
-    if ( !uirv.isOK() )
+    uiRetVal uirv = rdr_->get( dsky, lbls );
+    if ( !uirv.isOK() || lbls.isEmpty() )
 	return;
 
     Pick::SetIter4Edit it( ps );
@@ -595,12 +586,9 @@ void dgbPickSetTranslatorHDF5BackEnd::setGeomIDs( Pick::Set& ps,
 	geomids.setSize( ps.size(), geomid );
     else
     {
-	dsky_.setDataSetName( sKeyGeomIDs );
-	if ( !rdr_->setScope(dsky_) )
-	    return;
-
+	const HDF5::DataSetKey dsky( nullptr, sKeyGeomIDs );
 	GeomIDSet::IntSet ints;
-	uiRetVal uirv = rdr_->get( ints );
+	uiRetVal uirv = rdr_->get( dsky, ints );
 	if ( !uirv.isOK() )
 	    return;
 
@@ -632,9 +620,8 @@ uiRetVal dgbPickSetTranslatorHDF5BackEnd::read( Pick::Set& ps )
     if ( !uirv.isOK() )
 	return uirv;
 
-    rdr_->setScope( dsky_ );
     IOPar iop;
-    uirv = rdr_->getInfo( iop );
+    uirv = rdr_->get( iop );
     if ( uirv.isOK() )
 	ps.usePar( iop );
 
@@ -675,8 +662,8 @@ bool dgbPickSetTranslatorHDF5BackEnd::putPositions( const Pick::Set& ps,
 	posns.set( 2, ipos, pos.z_ );
     }
     HDF5::ArrayNDTool<double> arrtool( posns );
-    dsky_.setDataSetName( sKey::Position(mPlural) );
-    uirv = arrtool.put( *wrr_, dsky_ );
+    const HDF5::DataSetKey dsky( nullptr, sKey::Position(mPlural) );
+    uirv = arrtool.put( *wrr_, dsky );
     return uirv.isOK();
 }
 
@@ -695,8 +682,8 @@ bool dgbPickSetTranslatorHDF5BackEnd::putDirs( const Pick::Set& ps,
 	dirs.set( 2, ipos, dir.phi_ );
     }
     HDF5::ArrayNDTool<float> arrtool( dirs );
-    dsky_.setDataSetName( sKeyDirections );
-    uirv = arrtool.put( *wrr_, dsky_ );
+    const HDF5::DataSetKey dsky( nullptr, sKeyDirections );
+    uirv = arrtool.put( *wrr_, dsky );
     return uirv.isOK();
 }
 
@@ -708,8 +695,8 @@ bool dgbPickSetTranslatorHDF5BackEnd::putGroups( const Pick::Set& ps,
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
 	lblids += psiter.get().groupLabelID().getI();
-    dsky_.setDataSetName( sKeyGroups );
-    uirv = wrr_->put( dsky_, lblids );
+    const HDF5::DataSetKey dsky( nullptr, sKeyGroups );
+    uirv = wrr_->put( dsky, lblids );
     return uirv.isOK();
 }
 
@@ -721,8 +708,8 @@ bool dgbPickSetTranslatorHDF5BackEnd::putTexts( const Pick::Set& ps,
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
 	lbls.add( psiter.get().text() );
-    dsky_.setDataSetName( sKeyLabels );
-    uirv = wrr_->put( dsky_, lbls );
+    const HDF5::DataSetKey dsky( nullptr, sKeyLabels );
+    uirv = wrr_->put( dsky, lbls );
     return uirv.isOK();
 }
 
@@ -734,10 +721,10 @@ bool dgbPickSetTranslatorHDF5BackEnd::putGeomIDs( const Pick::Set& ps,
     Pick::SetIter psiter( ps );
     while ( psiter.next() )
 	geomids += psiter.get().geomID();
-    dsky_.setDataSetName( sKeyGeomIDs );
     GeomIDSet::IntSet ints;
     geomids.getIntSet( ints );
-    uirv = wrr_->put( dsky_, ints );
+    const HDF5::DataSetKey dsky( nullptr, sKeyGeomIDs );
+    uirv = wrr_->put( dsky, ints );
     return uirv.isOK();
 }
 
@@ -769,7 +756,7 @@ uiRetVal dgbPickSetTranslatorHDF5BackEnd::write( const Pick::Set& ps )
     else
 	iop.set( sKeyGeomID, ps.first().trcKey().geomID() );
 
-    uirv = wrr_->putInfo( dsky_, iop );
+    uirv = wrr_->set( iop );
     if ( !uirv.isOK() )
 	return uirv;
 

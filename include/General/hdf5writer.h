@@ -43,52 +43,71 @@ mExpClass(General) Writer : public Access
 {
 public:
 
-			// For normal 'create', use 'open()
     uiRetVal		open4Edit(const char*);
+			//!< For normal 'create', use 'open()
 
-    virtual Reader*	createCoupledReader() const			= 0;
-
-    virtual void	setChunkSize(int)				= 0;
-    virtual void	setEditableCreation(bool yn)			= 0;
-			//!< default is false: no dataset grow/shrink
+    virtual H5::Group*	ensureGroup(const char* grpnm,uiRetVal&) = 0;
+			//!< Creates a new group if necessary
 
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
 				      ODDataType);
     uiRetVal		createDataSet(const DataSetKey&,int,ODDataType);
+    uiRetVal		createTextDataSet(const DataSetKey&);
     uiRetVal		resizeDataSet(const DataSetKey&,const ArrayNDInfo&);
 			//!< You cannot change the 'rank', just the dim sizes
-    bool		deleteObject(const DataSetKey&);
-			//!< after deletion, you can't add it again
-			//!< usually, you need a resize
 
-    uiRetVal		putInfo(const IOPar&); //!< current scope only
-    uiRetVal		putInfo(const DataSetKey&,const IOPar&);
-			    //!< also for file/group info
-
+    uiRetVal		putSlab(const DataSetKey&,const SlabSpec&,const void*);
+    uiRetVal		putAll(const DataSetKey&,const void*);
     template <class T>
     uiRetVal		put(const DataSetKey&,const T*,int sz);
     template <class T>
     uiRetVal		put(const DataSetKey&,const TypeSet<T>&);
     uiRetVal		put(const DataSetKey&,const BufferStringSet&);
 
-    uiRetVal		putAll(const void*);
-    uiRetVal		putSlab(const SlabSpec&,const void*);
+			// null = root scope
+    virtual void	setAttribute(const char* ky,const char* val,
+				     const DataSetKey* =nullptr)	= 0;
+#define mHDF5DeclFns(fnnm,type) \
+    virtual void	fnnm##Attribute(const char*,type,\
+					const DataSetKey* =nullptr)	= 0;
+			mHDF5DeclFns(set,od_int16);
+			mHDF5DeclFns(set,od_uint16);
+			mHDF5DeclFns(set,od_int32);
+			mHDF5DeclFns(set,od_uint32);
+			mHDF5DeclFns(set,od_int64);
+			mHDF5DeclFns(set,od_uint64);
+			mHDF5DeclFns(set,float);
+			mHDF5DeclFns(set,double);
+#undef mHDF5DeclFns
+    uiRetVal		set(const IOPar&,const DataSetKey* =nullptr);
+
+    bool		deleteObject(const DataSetKey&);
+			//!< after deletion, you can't add it again
+			//!< usually, you need a resize
 
     virtual bool	isReader() const	{ return false; }
+    virtual Reader*	createCoupledReader() const			= 0;
 
-protected:
+    virtual void	setChunkSize(int)				= 0;
+    virtual void	setEditableCreation(bool yn)			= 0;
+			//!< default is false: no dataset grow/shrink
 
-    virtual void	crDS(const DataSetKey&,const ArrayNDInfo&,
+private:
+
+    virtual H5::DataSet*	crDS(const DataSetKey&,const ArrayNDInfo&,
 				ODDataType,uiRetVal&)			= 0;
-    virtual void	reSzDS(const DataSetKey&,const ArrayNDInfo&,
+    virtual H5::DataSet*	crTxtDS(const DataSetKey&,uiRetVal&)	= 0;
+    virtual void	reSzDS(const ArrayNDInfo&,H5::DataSet&,
 				uiRetVal&)				= 0;
-    virtual bool	rmObj(const DataSetKey&)			= 0;
+    virtual void	ptSlab(const SlabSpec&,const void*,
+			       H5::DataSet&,uiRetVal&)	= 0;
+    virtual void	ptAll(const void*,H5::DataSet&,uiRetVal&)	= 0;
+    virtual void	ptStrings(const BufferStringSet&,H5::Group&,
+				  H5::DataSet*,const char* dsnm,uiRetVal&) = 0;
 
-    virtual void	ptStrings(const DataSetKey&,const BufferStringSet&,
-				  uiRetVal&)				= 0;
-    virtual void	ptInfo(const IOPar&,uiRetVal&,const DataSetKey*)= 0;
-    virtual void	ptAll(const void*,uiRetVal&)			= 0;
-    virtual void	ptSlab(const SlabSpec&,const void*,uiRetVal&)	= 0;
+    virtual void	ptInfo(const IOPar&,H5::H5Object&,uiRetVal&)	= 0;
+
+    virtual bool	rmObj(const DataSetKey&)			= 0;
 
 };
 
@@ -106,10 +125,10 @@ inline uiRetVal	Writer::put( const DataSetKey& dsky, const T* vals, int sz )
     uiRetVal uirv;
     if ( !vals )
 	return uirv;
-    else if ( !setScope(dsky) )
+    else if ( !hasDataSet(dsky) )
 	uirv = createDataSet( dsky, sz, OD::GetDataRepType<T>() );
     if ( uirv.isOK() )
-	uirv = putAll( vals );
+	uirv = putAll( dsky, vals );
 
     return uirv;
 }

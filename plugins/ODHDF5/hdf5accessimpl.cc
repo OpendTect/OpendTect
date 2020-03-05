@@ -19,13 +19,13 @@ ________________________________________________________________________
 
 HDF5::Reader* HDF5::AccessProviderImpl::getReader() const
 {
-    return new HDF5::ReaderImpl;
+    return new ReaderImpl;
 }
 
 
 HDF5::Writer* HDF5::AccessProviderImpl::getWriter() const
 {
-    return new HDF5::WriterImpl;
+    return new WriterImpl;
 }
 
 
@@ -126,7 +126,7 @@ HDF5::DataSetKey HDF5::AccessImpl::gtScope() const
 
 od_int64 HDF5::AccessImpl::gtGroupID() const
 {
-    const od_int64 grpid = group_.getLocId();
+    const od_int64 grpid = haveGroup() ? group_.getLocId() : -1;
     if ( grpid < 0 )
 	  return acc_.file_ ? acc_.file_->getLocId() : -1;
     return grpid;
@@ -139,42 +139,41 @@ bool HDF5::AccessImpl::atDataSet( const char* dsnm ) const
 }
 
 
-bool HDF5::AccessImpl::selectGroup( const char* grpnm )
+H5::Group* HDF5::AccessImpl::selectGroup( const char* grpnm ) const
 {
     if ( !acc_.file_ )
-	return false;
+	return nullptr;
 
     if ( !grpnm || !*grpnm )
 	grpnm = "/";
     else
     {
 	if ( atGroup(grpnm) )
-	    return true;
+	    return &group_;
 	else if ( *grpnm != '/'
 	  && !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
-	    return false;
+	    return nullptr;
     }
 
     bool haveerr = false;
     try
     {
 	group_ = acc_.file_->openGroup( grpnm );
-	dataset_ = H5::DataSet();
     }
     mCatchAnyNoMsg( haveerr = true )
 
-    return !haveerr;
+    return haveerr ? nullptr : &group_;
 }
 
 
-bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
+H5::DataSet* HDF5::AccessImpl::selectDataSet( const char* dsnm ) const
 {
     if ( !dsnm || !*dsnm )
-	return false;
+	return nullptr;
     else if ( atDataSet(dsnm) )
-	return true;
-    else if( !H5Lexists(group_.getId(),dsnm,H5P_DEFAULT) )
-	return false;
+	return &dataset_;
+    else if ( !haveGroup() || !H5Lexists(group_.getId(),dsnm,H5P_DEFAULT) )
+	return nullptr;
 
     bool haverr = false;
     try
@@ -185,35 +184,65 @@ bool HDF5::AccessImpl::selectDataSet( const char* dsnm )
     }
     mCatchAnyNoMsg( haverr = true )
 
-    return !haverr;
+    return haverr ? nullptr : &dataset_;
 }
 
 
-bool HDF5::AccessImpl::stScope( const DataSetKey& dsky )
+H5::H5Object* HDF5::AccessImpl::stScope( const DataSetKey* dsky )
 {
-    if ( !selectGroup(dsky.groupName()) )
-	return false;
-    else if ( dsky.dataSetEmpty() )
-	return true;
+    H5::Group* ret = stGrpScope( dsky );
+    return !dsky || dsky->dataSetEmpty() ? (H5::H5Object*)ret
+					 : (H5::H5Object*)stDSScope( *dsky );
+}
+
+
+H5::H5Object* HDF5::AccessImpl::stScope( const DataSetKey* dsky ) const
+{
+    AccessImpl& accimpl = const_cast<AccessImpl&>( *this );
+    return accimpl.stScope( dsky );
+}
+
+
+H5::Group* HDF5::AccessImpl::stGrpScope( const DataSetKey* dsky )
+{
+    if ( !dsky )
+	return acc_.file_;
+
+    return selectGroup( dsky->groupName() );
+}
+
+
+H5::Group* HDF5::AccessImpl::stGrpScope( const DataSetKey* dsky ) const
+{
+    AccessImpl& accimpl = const_cast<AccessImpl&>( *this );
+    return accimpl.stGrpScope( dsky );
+}
+
+
+H5::DataSet* HDF5::AccessImpl::stDSScope( const DataSetKey& dsky )
+{
+    if ( !haveGroup() || BufferString(dsky.groupName()) !=
+				FixedString( group_.getObjName().c_str() ) )
+    {
+	H5::Group* grp = stGrpScope( &dsky );
+	if ( !grp )
+	    return nullptr;
+    }
 
     return selectDataSet( dsky.dataSetName() );
+}
+
+
+H5::DataSet* HDF5::AccessImpl::stDSScope( const DataSetKey& dsky ) const
+{
+    AccessImpl& accimpl = const_cast<AccessImpl&>( *this );
+    return accimpl.stDSScope( dsky );
 }
 
 
 bool HDF5::AccessImpl::validH5Obj( const H5::H5Object& obj )
 {
     return obj.getId() >= 0 && !obj.getObjName().empty();
-}
-
-
-bool HDF5::AccessImpl::haveScope( bool needds ) const
-{
-    if ( !haveGroup() )
-	mSelf().stScope( DataSetKey("/") );
-    if ( !haveGroup() )
-	return false;
-
-    return !needds || haveDataSet();
 }
 
 
@@ -238,7 +267,7 @@ void HDF5::AccessImpl::doCloseFile( Access& acc )
 	return;
 
     H5::H5File* h5file = acc.file_;
-    acc.file_ = 0;
+    acc.file_ = nullptr;
     try
     {
 	H5Fclose( h5file->getId() );
