@@ -24,8 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-using namespace Coords;
-
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 class uiLatLongDMSInp : public uiGroup
@@ -232,7 +230,8 @@ class uiLatLong2CoordFileTransDlg : public uiDialog
 { mODTextTranslationClass(uiLatLong2CoordFileTransDlg)
 public:
 
-uiLatLong2CoordFileTransDlg( uiParent* p, ConstRefMan<CoordSystem> coordsys )
+uiLatLong2CoordFileTransDlg( uiParent* p,
+			     ConstRefMan<Coords::CoordSystem> coordsys )
     : uiDialog(p,Setup(tr("Transform file"),
 		       tr("Transform a file, Lat Long <=> X Y"),
 		       mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
@@ -304,7 +303,7 @@ bool acceptOK( CallBacker* )
     uiFileInput*	inpfld_;
     uiGenInput*		tollfld_;
     uiFileInput*	outfld_;
-    ConstRefMan<CoordSystem>  coordsys_;
+    ConstRefMan<Coords::CoordSystem>  coordsys_;
 
 };
 
@@ -377,11 +376,15 @@ bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
 }
 
 
+namespace Coords
+{
+
 uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
     : uiCoordSystem(p,sFactoryDisplayName())
 {
-    xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
-    xyinftfld_->setChecked( false );
+    xyunitfld_ = new uiGenInput( this, tr("Coordinates are in"),
+	    BoolInpSpec(true,toUiString("Meter"),toUiString("Feet")) );
+    setHAlignObj( xyunitfld_ );
 }
 
 
@@ -391,7 +394,7 @@ bool uiUnlocatedXYSystem::initFields( const Coords::CoordSystem* sys )
     if ( !from )
 	return false;
 
-    xyinftfld_->setChecked( from->isFeet() );
+    xyunitfld_->setValue( !from->isFeet() );
     return true;
 }
 
@@ -399,7 +402,7 @@ bool uiUnlocatedXYSystem::initFields( const Coords::CoordSystem* sys )
 bool uiUnlocatedXYSystem::acceptOK()
 {
     RefMan<UnlocatedXY> res = new UnlocatedXY;
-    res->setIsFeet( xyinftfld_->isChecked() );
+    res->setIsFeet( !xyunitfld_->getBoolValue() );
     outputsystem_ = res;
     return true;
 }
@@ -416,10 +419,10 @@ uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
     latlngfld_->attach( alignedBelow, coordfld_ );
     new uiLabel( this, tr("Corresponds to"), latlngfld_ );
 
+    xyunitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+	    BoolInpSpec(true,toUiString("Meter"),toUiString("Feet")) );
+    xyunitfld_->attach( rightOf, coordfld_ );
 
-    xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
-    xyinftfld_->attach( rightOf, coordfld_ );
-    xyinftfld_->setChecked( false );
     setHAlignObj( coordfld_ );
 }
 
@@ -433,7 +436,7 @@ bool uiAnchorBasedXYSystem::initFields( const Coords::CoordSystem* sys )
     coordfld_->setValue( from->refCoord() );
     latlngfld_->set( from->refLatLong() );
 
-    xyinftfld_->setChecked( from->isFeet() );
+    xyunitfld_->setValue( !from->isFeet() );
     return true;
 }
 
@@ -465,9 +468,11 @@ bool uiAnchorBasedXYSystem::acceptOK()
 	return false;
     }
 
-    res->setIsFeet( xyinftfld_->isChecked() );
+    res->setIsFeet( !xyunitfld_->getBoolValue() );
 
     outputsystem_ = res;
 
     return true;
 }
+
+} // namespace Coords

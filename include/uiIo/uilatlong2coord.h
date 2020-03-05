@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uicoordsystem.h"
 
 class LatLong2Coord;
+class uiGenInput;
 class uiLatLongInp;
 
 namespace Coords
@@ -34,7 +35,7 @@ public:
 
 protected:
 
-    uiCheckBox*		xyinftfld_;
+    uiGenInput*		xyunitfld_;
 
     bool		acceptOK();
 
@@ -56,14 +57,13 @@ protected:
 
     uiGenInput*		coordfld_;
     uiLatLongInp*	latlngfld_;
-
-    uiCheckBox*		xyinftfld_;
+    uiGenInput*		xyunitfld_;
 
     bool		acceptOK();
 
 };
 
-} // Namespace Coords
+} // namespace Coords
 
 mExpClass(uiIo) uiLatLong2CoordDlg : public uiDialog
 { mODTextTranslationClass(uiLatLong2CoordDlg);
