@@ -29,7 +29,7 @@ mUseQtnamespace
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>
 {
 public:
-                        uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
+			uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
     virtual		~uiSpinBoxBody();
 
     virtual int		nrTxtLines() const	{ return 1; }
@@ -198,6 +198,15 @@ uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
     body_= new uiSpinBoxBody(*this,parnt, nm);
     return *body_;
 }
+
+
+void uiSpinBox::setReadOnly( bool yn )
+{ body_->setReadOnly( yn ); }
+
+
+bool uiSpinBox::isReadOnly() const
+{ return body_->isReadOnly(); }
+
 
 void uiSpinBox::setSpecialValueText( const char* txt )
 {

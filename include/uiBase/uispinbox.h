@@ -30,6 +30,9 @@ public:
 				  const char* nm="SpinBox");
 			~uiSpinBox();
 
+    void		setReadOnly(bool yn);
+    bool		isReadOnly() const;
+
     void		setNrDecimals(int);
     void		setAlpha(bool);
     bool		isAlpha() const;
