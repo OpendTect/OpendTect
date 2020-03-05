@@ -961,7 +961,8 @@ BinID SurveyInfo::transform( const Coord& c ) const
 
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 {
-    if ( set3binids_[0].inl() )
+    const int firstinl = set3binids_[0].inl();
+    if ( firstinl && !mIsUdf(firstinl) )
     {
 	b[0] = set3binids_[0]; c[0] = set3coords_[0];
 	b[1] = set3binids_[1]; c[1] = set3coords_[1];
