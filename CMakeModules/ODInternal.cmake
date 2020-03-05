@@ -180,7 +180,7 @@ if ( QT_QJPEG_PLUGIN_RELEASE )
     set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 endif()
 
-set( LMHOSTID lmhostid )
+set( LMHOSTID lmutil )
 if( WIN32 )
     if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpegd.dll )
