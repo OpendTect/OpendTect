@@ -132,14 +132,15 @@ od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
     const char* shellnm = GetOSEnvVar( "SHELL" );
     const bool needsbash = shellnm && *shellnm && !firstOcc(shellnm,"bash");
     const char* commptr = comm.buf();
-    if ( needsbash )
-    {
-	cmd += "@bash -c \'";
-	if ( commptr[0] == '@' )
-	    commptr ++;
-    }
+	if (needsbash)
+		cmd += "@bash -c \'";
+	else
+		cmd += "@";
 
     addWrapperComm( cmd );
+	if ( !cmd.isEmpty() && commptr[0] == '@')
+		commptr++;
+
     cmd += commptr;
     cmd += " 2> \"";
     cmd += errfilenm;
