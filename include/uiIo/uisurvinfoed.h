@@ -26,14 +26,15 @@ class uiGroup;
 class uiLabel;
 class uiPushButton;
 class uiSurvInfoProvider;
-namespace Coords { class CoordSystem; }
+class uiTabStack;
+namespace Coords { class CoordSystem; class uiCoordSystemSelGrp; }
 
 /*!
 \brief The survey info editor.
 */
 
 mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
-{ mODTextTranslationClass(uiSurveyInfoEditor);
+{ mODTextTranslationClass(uiSurveyInfoEditor)
 
 public:
 
@@ -78,6 +79,7 @@ protected:
     uiComboBox*		zunitfld_;
     uiComboBox*		pol2dfld_;
 
+    uiTabStack*		tabs_;
     uiGenInput*		x0fld_;
     uiGenInput*		xinlfld_;
     uiGenInput*		xcrlfld_;
@@ -87,14 +89,16 @@ protected:
     uiGenInput*		ic0fld_;
     uiGenInput*		ic1fld_;
     uiGenInput*		ic2fld_;
+    uiGenInput*		ic3fld_;
     uiGenInput*		xy0fld_;
     uiGenInput*		xy1fld_;
     uiGenInput*		xy2fld_;
-    uiGenInput*		coordset;
+    uiGenInput*		xy3fld_;
     uiGroup*		topgrp_;
     uiGroup*		crdgrp_;
     uiGroup*		trgrp_;
     uiGroup*		rangegrp_;
+    uiGroup*		crsgrp_;
     uiComboBox*		sipfld_;
     uiCheckBox*		overrulefld_;
     uiPushButton*	coordsysfld_;
@@ -102,6 +106,7 @@ protected:
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
     uiLabel*		xyunitlbl_;
+    Coords::uiCoordSystemSelGrp* crssel_;
 
     bool		xyInFeet() const;
     bool		dirnamechanged;
@@ -109,6 +114,7 @@ protected:
     void		mkRangeGrp();
     void		mkCoordGrp();
     void		mkTransfGrp();
+    void		mkCRSGrp();
     void		setValues();
     void		updateLabels();
     void		updStatusBar(const char*);
@@ -122,12 +128,12 @@ protected:
     bool		rejectOK(CallBacker*);
     void		updatePar(CallBacker*);
     void		sipCB(CallBacker*);
-    void		doFinalise(CallBacker*);
-    void		setInl1Fld(CallBacker*);
+    void		doFinalize(CallBacker*);
+    void		ic0ChgCB(CallBacker*);
+    void		ic2ChgCB(CallBacker*);
     void		rangeChg(CallBacker*);
     void		depthDisplayUnitSel(CallBacker*);
     void		updZUnit(CallBacker*);
-    void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		appButPushed(CallBacker*);
     void		coordSystemCB(CallBacker*);
