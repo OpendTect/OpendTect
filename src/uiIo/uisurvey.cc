@@ -86,7 +86,7 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 		"Convert (X,Y) to/from (%1,%2)").arg(uiStrings::sInline())
 		.arg(uiStrings::sCrossline()), CallBack() );
 	*newutils += new uiSurvey::Util( "clipboard",
-		od_static_tr("getUtils","Copy Survey Information to ClipBoard"),
+		od_static_tr("getUtils","Copy Survey Information to Clipboard"),
 		CallBack() );
 
 	if ( !utils.setIfNull(newutils) )
@@ -839,7 +839,7 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
 #define mRetRollBackNewSurvey(errmsg) \
 { \
     rollbackNewSurvey(errmsg); \
-    selChange(0); \
+    selChange(nullptr); \
     return; \
 }
 
@@ -927,9 +927,9 @@ void uiSurvey::rmButPushed( CallBacker* )
     }
 
     if ( dirfld_->isEmpty() )
-	setCurrentSurvInfo( 0, true );
+	setCurrentSurvInfo( nullptr, true );
 
-    selChange( 0 );
+    selChange( nullptr );
 }
 
 
@@ -1026,7 +1026,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
     updateDataRootLabel();
     if ( dirfld_->isEmpty() )
     {
-	setCurrentSurvInfo( 0 , true );
+	setCurrentSurvInfo( nullptr , true );
 	return;
     }
 
@@ -1034,7 +1034,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
     if ( ptr && dirfld_->isPresent(ptr) )
 	dirfld_->setCurrentItem( GetSurveyName() );
 
-    selChange( 0 );
+    selChange( nullptr );
 }
 
 
@@ -1097,13 +1097,33 @@ void uiSurvey::utilButPush( CallBacker* cb )
 }
 
 
+static BufferString pointTxt( int idx, const BinID& bid, const Coord& crd )
+{
+    BufferString txt( "Corner ", idx, ":\t" );
+    txt.add( "X: " ).add( crd.x, 2 ).add( " Y: " ).add( crd.y, 2 );
+    txt.add( " IL: " ).add( bid.inl() ).add( " XL: " ).add( bid.crl() );
+    txt.addNewLine();
+    return txt;
+}
+
 void uiSurvey::copyInfoToClipboard()
 {
     BufferString txt = infofld_->text();
-    txt.addNewLine();
+    txt.addNewLine(2);
+
+    const SurveyInfo& si = *cursurvinfo_;
+    txt.add( "Coordinate settings:\n" );
+    BinID bid = si.sampling(false).hsamp_.start_;
+    txt.add( pointTxt(1,bid,si.transform(bid)) );
+    bid.crl() = si.sampling(false).hsamp_.stop_.crl();
+    txt.add( pointTxt(2,bid,si.transform(bid)) );
+    bid = si.sampling(false).hsamp_.stop_;
+    txt.add( pointTxt(3,bid,si.transform(bid)) );
+    bid.crl() = si.sampling(false).hsamp_.start_.crl();
+    txt.add( pointTxt(4,bid,si.transform(bid)) );
 
     uiClipboard::setText( txt.buf() );
-    uiMSG().message( tr("Information copied to clipboard") );
+    uiMSG().message( tr("Survey Information copied to clipboard") );
 }
 
 
@@ -1294,7 +1314,7 @@ void uiSurvey::putToScreen()
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
 	    bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
 	    bininfo.add( " (" ).add( si.getXYUnitString(false) )
-		   .add( "/line): " );
+		   .add( "/line)" );
 	}
 
 	StepInterval<float> sizrg( si.zRange(false) );
