@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "settings.h"
 
-#include  "hiddenparam.h"
+#include "hiddenparam.h"
 
 static HiddenParam<uiGenInput,uiTextValidator*> textvl_(0);
 
@@ -133,7 +133,7 @@ public:
 			{ return idx >= flds_.size() ? 0 : flds_[idx]; }
 
     bool		notifyValueChanged(const CallBack& cb )
-                            { valueChanged.notify(cb); return true; }
+			    { valueChanged.notify(cb); return true; }
 
     Notifier<uiPositionInpFld> valueChanged;
 
@@ -195,8 +195,8 @@ const PositionInpSpec& uiPositionInpFld::posInpSpec() const
 
 void uiPositionInpFld::commitToSetup() const
 {
-    PositionInpSpec::Setup& setup
-	= const_cast<PositionInpSpec&>( posInpSpec() ).setup();
+    PositionInpSpec::Setup& setup =
+	const_cast<PositionInpSpec&>( posInpSpec() ).setup();
     if ( setup.wantcoords_ )
     {
 	setup.coord_.x = flds_[0]->getDValue();
@@ -321,7 +321,7 @@ protected:
 			    return idx ? &stop : &start;
 			}
 
-    virtual bool        update_( const DataInpSpec& nw );
+    virtual bool	update_( const DataInpSpec& nw );
 };
 
 template<class T>
@@ -401,6 +401,7 @@ public:
     virtual int		nElems() const		{ return step_ ? 3 : 2; }
     virtual UserInputObj* element(int idx=0);
     virtual uiObject*	elemObj(int idx=0);
+    virtual void	setReadOnly(bool yn,int idx);
 
     virtual uiObject*	mainObj()	{ return grp_->mainObject(); }
 
@@ -493,7 +494,7 @@ uiIntIntervalInpFld::uiIntIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 
 
 UserInputObj* uiIntIntervalInpFld::element( int idx )
-{ return 0; }
+{ return nullptr; }
 
 
 uiObject* uiIntIntervalInpFld::elemObj( int idx )
@@ -502,9 +503,28 @@ uiObject* uiIntIntervalInpFld::elemObj( int idx )
 }
 
 
+void uiIntIntervalInpFld::setReadOnly( bool yn, int elemidx )
+{
+    if ( elemidx==-1 )
+    {
+	for ( int idx=0; idx<nElems(); idx++ )
+	    setReadOnly( yn, idx );
+
+	return;
+    }
+
+    if ( elemidx==0 )
+	start_->setReadOnly( yn );
+    else if ( elemidx==1 )
+	stop_->setReadOnly( yn );
+    else if ( elemidx==2 && step_ )
+	step_->setReadOnly( yn );
+}
+
+
 bool uiIntIntervalInpFld::update_( const DataInpSpec& dis )
 {
-    mDynamicCastGet(const IntInpIntervalSpec*,iiis,&dis);
+    mDynamicCastGet(const IntInpIntervalSpec*,iiis,&dis)
     if ( !iiis ) return false;
 
     start_->setValue( iiis->getIntValue(0) );
