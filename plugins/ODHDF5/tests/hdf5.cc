@@ -52,27 +52,97 @@ static bool testReadInfo( HDF5::Reader& rdr )
     mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",
 			       BufferString("nrblocks=",grps.size()) );
 
-    HDF5::DataSetKey filedsky;
-    bool scoperes = rdr.setScope( filedsky );
-    mRunStandardTest( scoperes, "Set scope (file)" )
+    mRunStandardTest( rdr.hasGroup(nullptr), "Root as current group" )
 
     IOPar iop;
-    uiRetVal uirv = rdr.getInfo( iop );
-    mAddTestResult( "Get file info" );
+    uiRetVal uirv = rdr.get( iop );
+    mAddTestResult( "Get file info from root attributes" );
 
     const BufferString iopval = iop.find( "File attr" );
     mRunStandardTestWithError( iopval=="file attr value", "File info contents",
 				BufferString("found: '",iopval,"'") );
 
-    HDF5::DataSetKey dsky33( "Component 3", "Block [3]" );
-    scoperes = rdr.setScope( dsky33 );
-    mRunStandardTest( !scoperes, "Set scope (non-existing)" )
+    BufferString attrstr;
+    mRunStandardTest( !rdr.hasAttribute("not an attribute"),
+		      "Does not have non-existing top level attribute" )
+    mRunStandardTest( rdr.hasAttribute("File attribute"),
+		      "Has top level attribute" )
+    mRunStandardTest( rdr.getAttribute("File attribute",attrstr) &&
+		      attrstr == "New attribute value",
+		      "Can read updated top level attribute value" )
+    mRunStandardTest( rdr.hasAttribute("Empty attribute 1") &&
+		      rdr.hasAttribute("Empty attribute 2") &&
+		      rdr.hasAttribute("Empty attribute 3"),
+		      "Has top level empty attributes" )
+    attrstr.setEmpty();
+    mRunStandardTest( rdr.getAttribute("Empty attribute 1",attrstr) &&
+		      attrstr.isEmpty(), "Can read empty attribute string" )
+    attrstr.setEmpty();
+    mRunStandardTest( rdr.getAttribute("Empty attribute 2",attrstr) &&
+		      attrstr.isEmpty(), "Can read empty attribute string" )
+    attrstr.setEmpty();
+    mRunStandardTest( rdr.getAttribute("Empty attribute 3",attrstr) &&
+		      attrstr.isEmpty(), "Can read empty attribute string" )
 
-    dsky33 = HDF5::DataSetKey( "Component 2", "Block [3]" );
-    scoperes = rdr.setScope( dsky33 );
-    mRunStandardTest( scoperes, "Set scope (Comp2,Block3)" )
+    const HDF5::DataSetKey infods( "", "++info++" );
+    mRunStandardTest( rdr.hasDataSet(infods), "Has ++info++ text dataset" )
 
-    PtrMan<ArrayNDInfo> arrinf = rdr.getDataSizes();
+    const HDF5::DataSetKey dskyslb( "Slabby" );
+    mRunStandardTest( !rdr.hasAttribute("not an attribute",&dskyslb),
+		      "Does not have non-existing group attribute" )
+    mRunStandardTest( rdr.hasAttribute("slabby key",&dskyslb),
+		      "Has group attribute" )
+    attrstr.setEmpty();
+    mRunStandardTest( rdr.getAttribute("slabby key",attrstr,&dskyslb) &&
+		      attrstr == "New slabby value",
+		      "Can read updated group attribute value" )
+
+    const HDF5::DataSetKey dsky23( "Component 2", "Block [3]" );
+    iop.setEmpty();
+    uirv = rdr.get( iop, &dsky23 );
+    mAddTestResult( "Get dataset info" );
+    int iblk=0, icomp=0;
+    iop.get( sPropNm, iblk, icomp );
+    mRunStandardTestWithError( iblk==3 && icomp==2, "Dataset info contents",
+		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
+
+    mRunStandardTest( !rdr.hasAttribute("not an attribute",&dsky23),
+		      "Does not have non-existing dataset attribute" )
+    mRunStandardTest( rdr.hasAttribute(sPropNm,&dsky23),
+		      "Has dataset attribute" )
+    attrstr.setEmpty();
+    mRunStandardTest( rdr.getAttribute(sPropNm,attrstr,&dsky23) &&
+		      attrstr == "3`2",
+		      "Can read dataset attribute value" )
+
+    iop.setEmpty();
+    const HDF5::DataSetKey dsky11( "Component 1", "Block [1]" );
+    uirv = rdr.get( iop, &dsky11 );
+    const BufferString iopres( iop.find( "Appel" ) );
+    iop.set( "Appel", "peer" );
+    mRunStandardTestWithError( iopres=="peer", "Attr value in Comp1/Block1",
+				BufferString("iopres=",iopres) );
+
+    return true;
+}
+
+
+static bool testReadData( HDF5::Reader& rdr )
+{
+    HDF5::DataSetKey dsky( "Component 3", "Block [3]" );
+    bool scoperes = rdr.hasDataSet( dsky );
+    mRunStandardTest( !scoperes, "Does not have non-existing group" )
+
+    dsky = HDF5::DataSetKey( "Component 2", "Block [10]" );
+    scoperes = rdr.hasDataSet( dsky );
+    mRunStandardTest( !scoperes, "Does not have non-existing dataset" )
+
+    dsky = HDF5::DataSetKey( "Component 2", "Block [3]" );
+    scoperes = rdr.hasDataSet( dsky );
+    mRunStandardTest( scoperes, "Have existing dataset (Comp2,Block3)" )
+
+    uiRetVal uirv;
+    PtrMan<ArrayNDInfo> arrinf = rdr.getDataSizes( dsky, uirv );
     mRunStandardTest( arrinf, "Get dimensions" )
     const int nrdims = arrinf->nrDims();
     mRunStandardTestWithError( nrdims==nrdims_, "Correct nr dimensions",
@@ -83,36 +153,8 @@ static bool testReadInfo( HDF5::Reader& rdr )
     const int dim2 = arrinf->getSize( 1 );
     mRunStandardTestWithError( dim2==dim2_, "Correct size of 2nd dim",
 				BufferString("dim2=",dim2) )
-
-    iop.setEmpty();
-    uirv = rdr.getInfo( iop );
-    mAddTestResult( "Get dataset info" );
-    int iblk=0, icomp=0;
-    iop.get( sPropNm, iblk, icomp );
-    mRunStandardTestWithError( iblk==3 && icomp==2, "Dataset info contents",
-		BufferString("iblk=",iblk).add(" icomp=").add(icomp) );
-
-    iop.setEmpty();
-    HDF5::DataSetKey dsky11( "Component 1", "Block [1]" );
-    scoperes = rdr.setScope( dsky11 );
-    mAddTestResult( "Set scope to Comp1/Block1" );
-    uirv = rdr.getInfo( iop );
-    const BufferString iopres( iop.find( "Appel" ) );
-    iop.set( "Appel", "peer" );
-    mRunStandardTestWithError( iopres=="peer", "Attr value in Comp1/Block1",
-				BufferString("iopres=",iopres) );
-
-    scoperes = rdr.setScope( dsky33 );
-    mRunStandardTest( scoperes, "Set scope back to (Comp2,Block3)" )
-
-    return true;
-}
-
-
-static bool testReadData( HDF5::Reader& rdr )
-{
     Array2DImpl<float> arr2d( dim1_, dim2_ );
-    uiRetVal uirv = rdr.getAll( arr2d.getData() );
+    uirv = rdr.getAll( dsky, arr2d.getData() );
     mAddTestResult( "Get entire block data" );
     const float arrval = arr2d.get( 6, 15 );
     mRunStandardTestWithError( arrval==30615.f, "Correct value [comp2,6,15]",
@@ -121,8 +163,8 @@ static bool testReadData( HDF5::Reader& rdr )
     TypeSet<HDF5::Reader::idx_type> poss;
     poss += 7; poss += 16;
     float val = 0.f;
-    uirv = rdr.getPoint( poss.arr(), &val );
-    mAddTestResult( "Get single point value" );
+    uirv = rdr.getValue( dsky, poss.arr(), &val );
+    mAddTestResult( "Get single value" );
     mRunStandardTestWithError( val==30716.f, "Correct value [comp2,7,16]",
 				BufferString("val=",val) )
 
@@ -137,8 +179,8 @@ static bool testReadData( HDF5::Reader& rdr )
     }
 
     TypeSet<float> ptvals( nrpts, 0.f );
-    uirv = rdr.getPoints( positions, ptvals.arr() );
-    mAddTestResult( "Get multi point values" );
+    uirv = rdr.getValues( dsky, positions, ptvals.arr() );
+    mAddTestResult( "Get multiple values" );
     mRunStandardTestWithError( ptvals[1]==30106.f, "Correct value [comp2,1,6]",
 				BufferString("ptvals[1]=",ptvals[1]) )
 
@@ -148,13 +190,13 @@ static bool testReadData( HDF5::Reader& rdr )
     dimspec.start_ = 1; dimspec.step_ = 2; dimspec.count_ = nrdim1;
     slabspec += dimspec;
     DBG::setCrashOnProgError( false );
-    uirv = rdr.getSlab( slabspec, valarr );
+    uirv = rdr.getSlab( dsky, slabspec, valarr );
     DBG::setCrashOnProgError( true );
     mRunStandardTest( !uirv.isOK(), "Not accept incorrect SlabSpec" )
 
     dimspec.start_ = 5; dimspec.step_ = 1; dimspec.count_ = nrdim2;
     slabspec += dimspec;
-    uirv = rdr.getSlab( slabspec, valarr );
+    uirv = rdr.getSlab( dsky, slabspec, valarr );
     mAddTestResult( "Get slab values" );
 
     mRunStandardTestWithError( valarr[0]==30105.f,
@@ -174,7 +216,7 @@ static bool testReadData( HDF5::Reader& rdr )
     slabspec += dimspec;
     const char* slabspecmsg = "Should have pErrMsg but no error";
     try {
-	uirv = rdr.getSlab( slabspec, valarr );
+	uirv = rdr.getSlab( dsky, slabspec, valarr );
 	mRunStandardTest( false, slabspecmsg )
     } catch ( ... )
     {
@@ -182,11 +224,10 @@ static bool testReadData( HDF5::Reader& rdr )
     }
     mAddTestResult( "Get slab values again" );
 
-    const HDF5::DataSetKey dsky( "Slabby", "Slabby Data" );
-    bool scoperes = rdr.setScope( dsky );
-    mRunStandardTest( scoperes, "Set scope (Slabby)" )
+    dsky = HDF5::DataSetKey( "Slabby", "Slabby Data" );
+    mRunStandardTest( rdr.hasDataSet(dsky), "Has dataset (Slabby)" )
     Array2DImpl<int> iarr2dx2( dim1_, (short)2*dim2_ );
-    uirv = rdr.getAll( const_cast<int*>(iarr2dx2.getData()) );
+    uirv = rdr.getAll( dsky, const_cast<int*>(iarr2dx2.getData()) );
     mAddTestResult( "Get Slabby values" );
     const int v3_11 = iarr2dx2.get( 3, 11 );
     const int v3_31 = iarr2dx2.get( 3, 31 );
@@ -196,11 +237,10 @@ static bool testReadData( HDF5::Reader& rdr )
 				BufferString("v3_31=",v3_31) )
 
     HDF5::DataSetKey dsky2( "", "ShortArr" );
-    scoperes = rdr.setScope( dsky2 );
-    mRunStandardTest( scoperes, "Set scope (ShortArr)" )
     TypeSet<short> shortvals;
-    uirv = rdr.get( shortvals );
-    mAddTestResult( "Get ShortArr values" );
+    uirv = rdr.get( dsky2, shortvals );
+    mAddTestResult( BufferString( "Get ShortArr values",
+				  dsky2.fullDataSetName()) );
     mRunStandardTestWithError( shortvals.size()==3, "Correct ShortArr size",
 				BufferString("sz=",shortvals.size()) )
     mRunStandardTestWithError( shortvals[0]==10, "Correct ShortArr value [0]",
@@ -208,10 +248,9 @@ static bool testReadData( HDF5::Reader& rdr )
 
     dsky2.setDataSetName( "Strings" );
     BufferStringSet bss;
-    scoperes = rdr.setScope( dsky2 );
-    mRunStandardTest( scoperes, "Set scope (Strings)" )
-    uirv = rdr.get( bss );
-    mAddTestResult( "Get Strings values" );
+    uirv = rdr.get( dsky2, bss );
+    mAddTestResult( BufferString( "Get Strings values for ",
+				  dsky2.fullDataSetName()) );
     mRunStandardTestWithError( bss.get(0)=="Overwritten 1",
 				"Correct Strings value [0]",
 				BufferString("s[0]=",bss.get(0)) )
@@ -251,11 +290,18 @@ static bool testWrite()
     wrr->setChunkSize( chunksz_ );
 
     Array2DImpl<float> arr2d( dim1_, dim2_ );
-    HDF5::DataSetKey dsky;
     IOPar iop;
     iop.set( "File attr", "file attr value" );
-    uirv = wrr->putInfo( dsky, iop );
+    uirv = wrr->set( iop );
     mAddTestResult( "Write file attribute" );
+    wrr->setAttribute( "File attribute", "file attribute value" );
+    wrr->setAttribute( "Empty attribute 1", nullptr );
+    wrr->setAttribute( "Empty attribute 2", "" );
+    wrr->setAttribute( "Empty attribute 3", "Will be edited" );
+
+    HDF5::DataSetKey dsky;
+    BufferStringSet compnms;
+    compnms.add( "Component 1" ).add( "Component 2" );
 
     iop.setEmpty();
     HDF5::ArrayNDTool<float> arrtool( arr2d );
@@ -265,26 +311,36 @@ static bool testWrite()
 	dsky.setDataSetName( BufferString( "Block [", iblk, "]" ) );
 
 	fillArr2D( arr2d, 1000*iblk );
-	dsky.setGroupName( "Component 1" );
+	dsky.setGroupName( compnms.first()->str() );
 	uirv = arrtool.put( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
 	iop.set( sPropNm, iblk, 1 );
-	uirv = wrr->putInfo( dsky, iop );
+	uirv = wrr->set( iop, &dsky );
 	if ( !uirv.isOK() )
 	    break;
 
 	fillArr2D( arr2d, 10000*iblk );
-	dsky.setGroupName( "Component 2" );
+	dsky.setGroupName( compnms.last()->str() );
 	uirv = arrtool.put( *wrr, dsky );
 	if ( !uirv.isOK() )
 	    break;
 	iop.set( sPropNm, iblk, 2 );
-	uirv = wrr->putInfo( dsky, iop );
+	uirv = wrr->set( iop, &dsky );
 	if ( !uirv.isOK() )
 	    break;
     }
     mAddTestResult( "Write blocks" );
+
+    for ( const auto compnm : compnms )
+    {
+	dsky = HDF5::DataSetKey( compnm->str() );
+	wrr->setAttribute( "key string", "value string", &dsky );
+	wrr->setAttribute( "a float", 30.25f, &dsky );
+	wrr->setAttribute( "a double", 30.25, &dsky );
+	wrr->setAttribute( "an integer", -30, &dsky );
+	wrr->setAttribute( "an unsigned short", 30, &dsky );
+    }
 
     Array2DImpl<int> iarr2d( dim1_, dim2_ );
     Array2DImpl<int> iarr2dx2( dim1_, (short)(2*dim2_) );
@@ -300,26 +356,26 @@ static bool testWrite()
     dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim2_;
     slabspec += dimspec;
     fillArr2D( iarr2d, 100 );
-    uirv = iarrtool.putSlab( *wrr, slabspec );
+    uirv = iarrtool.putSlab( *wrr, dsky, slabspec );
     mAddTestResult( "Write Slabby First Slab" );
     slabspec[1].start_ = dim2_;
     fillArr2D( iarr2d, 100 + dim2_ );
-    uirv = iarrtool.putSlab( *wrr, slabspec );
+    uirv = iarrtool.putSlab( *wrr, dsky, slabspec );
     mAddTestResult( "Write Slabby Second Slab" );
-
-    dsky.setGroupName( "Yo" );
     dsky.setDataSetName( "" );
-    mRunStandardTest( !wrr->setScope(dsky), "Set to bad scope (group)" );
+    wrr->setAttribute( "slabby key", "slabby value", &dsky );
+
+    mRunStandardTest( !wrr->hasGroup("Yo"), "Does not have an invalid group" );
     dsky.setGroupName( "Component 1" );
     dsky.setDataSetName( "Apenoot" );
-    mRunStandardTest( !wrr->setScope(dsky), "Set to bad scope (dataset)" );
+    mRunStandardTest( !wrr->hasDataSet(dsky),
+		      "Does not have an invalid dataset" );
 
     dsky.setDataSetName( "Block [1]" );
-    mRunStandardTest( wrr->setScope(dsky), "Set to existing scope" );
     iop.setEmpty();
     iop.set( "Appel", "peer" );
-    uirv = wrr->putInfo( dsky, iop );
-    mAddTestResult( "Write Comp1/Block1 attrib" );
+    uirv = wrr->set( iop, &dsky );
+    mAddTestResult( "Write Comp1/Block1 attrib using an IOPar" );
 
     //Editable
     wrr->setEditableCreation( true );
@@ -341,6 +397,10 @@ static bool testWrite()
     uirv = wrr->put( dsky, bss );
     mAddTestResult( "Write BufferStringSet" );
 
+    dsky.setGroupName( "" ).setDataSetName( "++info++" );
+    uirv = wrr->createTextDataSet( dsky );
+    mAddTestResult( "Created a text dataset" );
+
     return true;
 }
 
@@ -352,7 +412,15 @@ static bool testEdit()
     uiRetVal uirv = wrr->open4Edit( filename_ );
     mAddTestResult( "Open file for edit" );
 
+    PtrMan<HDF5::Reader> rdr = wrr->createCoupledReader();
+    mRunStandardTest( rdr.ptr(), "Can get coupled reader" )
+    mRunStandardTest( rdr->hasAttribute("Empty attribute 3"),
+		      "Has top level attribute to set empty" )
+    rdr = nullptr;
+    wrr->setAttribute( "Empty attribute 3", BufferString::empty() );
+
     HDF5::DataSetKey dsky( "", "ShortArr" );
+    mRunStandardTest( wrr->hasDataSet(dsky), "Has dataset ShortArr" )
     TypeSet<short> ts;
     ts += 10; ts += 20; ts += 30;
     uirv = wrr->resizeDataSet( dsky, Array1DInfoImpl(3) );
@@ -360,13 +428,16 @@ static bool testEdit()
     uirv = wrr->put( dsky, ts );
     mAddTestResult( "Write shrunk ShortArr" );
 
-
     dsky.setDataSetName( "Strings" );
     BufferStringSet bss;
     bss.add( "Overwritten 1" ).add( "Overwritten 2" ).add( "Overwritten 3" );
     bss.add( "" ).add( "Prev is empty" ).add( "Total 6 strings" );
     uirv = wrr->put( dsky, bss );
     mAddTestResult( "Overwrite BufferStringSet with larger" );
+
+    wrr->setAttribute( "File attribute", "New attribute value" );
+    dsky.setGroupName( "Slabby" ).setDataSetName( "" );
+    wrr->setAttribute( "slabby key", "New slabby value", &dsky );
 
     return true;
 }
@@ -403,7 +474,7 @@ static bool testSmallCube()
     mAddTestResult( "Open small cube for read" );
 
     const HDF5::DataSetKey dsky( "Component 1", "5.3" );
-    mRunStandardTest( rdr->setScope(dsky), "Set scope (Small Cube)" )
+    mRunStandardTest( rdr->hasDataSet(dsky), "Has dataset (Small Cube)" )
 
     HDF5::SlabSpec slabspec( 3 );
     slabspec[0].count_ = slabspec[1].count_ = 1;
@@ -412,7 +483,7 @@ static bool testSmallCube()
     for ( int isamp=0; isamp<25; isamp++ )
 	data[isamp] = -999;
 
-    uirv = rdr->getSlab( slabspec, data );
+    uirv = rdr->getSlab( dsky, slabspec, data );
     mAddTestResult( "Read entire first trace in block" );
 
     const short expected_0_0[25] = {
@@ -425,7 +496,7 @@ static bool testSmallCube()
     slabspec[1].start_ = 1;
     slabspec[2].start_ = 10;
     slabspec[2].count_ = 10;
-    uirv = rdr->getSlab( slabspec, data );
+    uirv = rdr->getSlab( dsky, slabspec, data );
     mAddTestResult( "Read another trace (+2 inls, +1 crl, +10 samps)" );
     const short expected_2_1[10] = {
 	2559, -1551, -4620, -2825, -571, 2442, 4799, 3742, 2602, 892 };
@@ -441,8 +512,9 @@ static bool testSmallCube()
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-    OD::ModDeps().ensureLoaded("General");
     PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "General" );
+    PIM().loadAuto( true );
 
     if ( !HDF5::isAvailable() )
     {
@@ -451,6 +523,9 @@ int mTestMainFnName( int argc, char** argv )
     }
 
     filename_.set( File::Path(File::getTempPath(),"test.h5").fullPath() );
+    if ( File::exists(filename_) && !File::remove(filename_) )
+	return 1;
+
     if ( !testSmallCube() )
 	return 1;
 

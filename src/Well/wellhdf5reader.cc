@@ -107,25 +107,17 @@ bool Well::HDF5Reader::ensureFileOpen() const
 
 #define mGetZFac(iop) const float zfac = getZFac( iop )
 
-#define mEnsureSetScope(dsky,act) \
-    if ( !rdr_->setScope(dsky) ) \
+#define mEnsureDataSet(dsky,act) \
+    if ( !rdr_->hasDataSet(dsky) ) \
     { \
-	errmsg_.set( rdr_->sCantSetScope(dsky) ); \
+	errmsg_.set( rdr_->sCannotReadDataSet(dsky) ); \
 	act; \
     }
 
-#define mEnsureScope(dsky) \
-    mEnsureFileOpen(); \
-    mEnsureSetScope( dsky, return false );
-
-
 bool Well::HDF5Reader::getInfo() const
 {
-    const DataSetKey rootdsky;
-    mEnsureScope( rootdsky );
-
     infoiop_.setEmpty();
-    uiRetVal uirv = rdr_->getInfo( infoiop_ );
+    uiRetVal uirv = rdr_->get( infoiop_ );
     mErrRetIfUiRvNotOK( uirv );
 
     wd_.info().usePar( infoiop_ );
@@ -136,12 +128,12 @@ bool Well::HDF5Reader::getInfo() const
 bool Well::HDF5Reader::getTrack() const
 {
     const DataSetKey trackdsky( "", sTrackDSName() );
-    mEnsureScope( trackdsky );
-
-    const size_type sz = rdr_->dimSize( 1 );
+    mEnsureDataSet(trackdsky,return false)
+    uiRetVal uirv;
+    const size_type sz = rdr_->dimSize( trackdsky, 1, uirv );
     Array2DImpl<double> arr( 4, sz );
     HDF5::ArrayNDTool<double> arrtool( arr );
-    uiRetVal uirv = arrtool.getAll( *rdr_ );
+    uirv = arrtool.getAll( trackdsky, *rdr_ );
     mErrRetIfUiRvNotOK( uirv );
 
     Well::Track& trck = wd_.track();
@@ -163,17 +155,17 @@ bool Well::HDF5Reader::doGetD2T( bool csmdl ) const
 {
     const DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
     D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
-    mEnsureScope( dsky );
+    mEnsureDataSet(dsky,return false)
 
     IOPar hdriop;
-    uiRetVal uirv = rdr_->getInfo( hdriop );
+    uiRetVal uirv = rdr_->get( hdriop, &dsky );
     mErrRetIfUiRvNotOK( uirv );
     d2t.useHdrPar( hdriop );
 
-    const size_type sz = rdr_->dimSize( 1 );
+    const size_type sz = rdr_->dimSize( dsky, 1, uirv );
     Array2DImpl<float> arr( 2, sz );
     HDF5::ArrayNDTool<float> arrtool( arr );
-    uirv = arrtool.getAll( *rdr_ );
+    uirv = arrtool.getAll( dsky, *rdr_ );
     mErrRetIfUiRvNotOK( uirv );
 
     d2t.setEmpty();
@@ -222,8 +214,8 @@ bool Well::HDF5Reader::getLogs() const
 
 bool Well::HDF5Reader::getLogPars( const DataSetKey& dsky, IOPar& iop ) const
 {
-    mEnsureSetScope( dsky, return false );
-    uiRetVal uirv = rdr_->getInfo( iop );
+    mEnsureDataSet( dsky, return false );
+    uiRetVal uirv = rdr_->get( iop, &dsky );
     mErrRetIfUiRvNotOK( uirv )
     return !iop.isTrue( sKeyLogDel() );
 }
@@ -237,12 +229,13 @@ Well::Log* Well::HDF5Reader::getWL( const DataSetKey& dsky ) const
 {
     IOPar iop;
     if ( !getLogPars(dsky,iop) )
-	return 0;
+	return nullptr;
 
-    const size_type sz = rdr_->dimSize( 1 );
+    uiRetVal uirv;
+    const size_type sz = rdr_->dimSize( dsky, 1, uirv );
     Array2DImpl<float> arr( 2, sz );
     HDF5::ArrayNDTool<float> arrtool( arr );
-    uiRetVal uirv = arrtool.getAll( *rdr_ );
+    uirv = arrtool.getAll( dsky, *rdr_ );
     mErrRetNullIfUiRvNotOK()
 
     BufferString lognm;
@@ -327,26 +320,25 @@ bool Well::HDF5Reader::getMarkers() const
     typedef MarkerSet::LevelID::IDType LvlIDType;
 
     dsky.setDataSetName( sMDsDSName() );
-    mEnsureScope( dsky );
     TypeSet<ZType> mds;
-    uiRetVal uirv = rdr_->get( mds );
+    uiRetVal uirv = rdr_->get( dsky, mds );
     mErrRetIfUiRvNotOK( uirv );
     IOPar mdiop;
-    uirv = rdr_->getInfo( mdiop );
+    uirv = rdr_->get( mdiop, &dsky );
 
     dsky.setDataSetName( sNamesDSName() );
     BufferStringSet nms;
-    uirv = rdr_->get( nms );
+    uirv = rdr_->get( dsky, nms );
     mErrRetIfUiRvNotOK( uirv )
 
     dsky.setDataSetName( sColorsDSName() );
     BufferStringSet colors;
-    uirv = rdr_->get( colors );
+    uirv = rdr_->get( dsky, colors );
     mErrRetIfUiRvNotOK( uirv )
 
     dsky.setDataSetName( sLvlIDsDSName() );
     TypeSet<LvlIDType> lvlids;
-    uirv = rdr_->get( lvlids );
+    uirv = rdr_->get( dsky, lvlids );
     mErrRetIfUiRvNotOK( uirv )
 
     ms.setEmpty();
@@ -374,9 +366,9 @@ bool Well::HDF5Reader::getMarkers() const
 bool Well::HDF5Reader::getDispProps() const
 {
     const DataSetKey dsky( sDispParsGrpName() );
-    mEnsureScope( dsky );
+    mEnsureDataSet(dsky,return false)
     IOPar iop;
-    uiRetVal uirv = rdr_->getInfo( iop );
+    uiRetVal uirv = rdr_->get( iop, &dsky );
     mErrRetIfUiRvNotOK( uirv )
     wd_.displayProperties3d().usePar( iop );
     wd_.displayProperties2d().usePar( iop );

@@ -29,46 +29,52 @@ public:
 			AccessImpl(WriterImpl&);
     virtual		~AccessImpl();
 
-    const char*		gtFileName() const;
-    DataSetKey		gtScope() const;
-    od_int64		gtGroupID() const;
-
-    static bool		haveErrPrint();
     static void		setErrPrint(bool);	//!< user switch on/off
 
 protected:
 
-    typedef H5::PredType H5DataType;
+    const char*		gtFileName() const;
+    DataSetKey		gtScope() const;
+    od_int64		gtGroupID() const;
 
-			AccessImpl(const AccessImpl&)	= delete;
+    bool		haveGroup() const;
+    bool		haveDataSet() const;
+    bool		atGroup(const char*&) const;
+    bool		atDataSet(const char*) const;
+
+			// no throw
+    void		doCloseFile(Access&);
+
+    H5::Group*		selectGroup(const char*) const;
+    H5::DataSet*	selectDataSet(const char*) const;
+    H5::H5Object*	stScope(const DataSetKey*) const;
+    H5::H5Object*	stScope(const DataSetKey*);
+    H5::Group*		stGrpScope(const DataSetKey*) const;
+    H5::Group*		stGrpScope(const DataSetKey*);
+    H5::DataSet*	stDSScope(const DataSetKey&) const;
+    H5::DataSet*	stDSScope(const DataSetKey&);
+
+    void		selectSlab(H5::DataSpace&,const SlabSpec&,
+				   TypeSet<hsize_t>* pcounts=0) const;
+				//!< can throw, use in try block
+    static bool		haveErrPrint();
+
+    typedef H5::PredType H5DataType;
+    static const H5DataType& h5DataTypeFor(ODDataType);
 
     Access&		acc_;
     mutable H5::Group	group_;
     mutable H5::DataSet	dataset_;
     mutable ArrayNDInfo::nr_dims_type nrdims_;
 
-			// no throw
-    void		doCloseFile(Access&);
-    static const H5DataType& h5DataTypeFor(ODDataType);
-    bool		atGroup(const char*&) const;
-    bool		atDataSet(const char*) const;
-    bool		selectGroup(const char*);
-    bool		selectDataSet(const char*);
-    bool		stScope(const DataSetKey&);
-    bool		haveScope(bool needds=true) const;
-    bool		haveGroup() const;
-    bool		haveDataSet() const;
-    void		selectSlab(H5::DataSpace&,const SlabSpec&,
-				   TypeSet<hsize_t>* pcounts=0) const;
-				//!< can throw, use in try block
+private:
+
+			AccessImpl(const AccessImpl&)	= delete;
 
     static bool		validH5Obj(const H5::H5Object&);
 
     static void		disableErrPrint(); // before action with 'normal' throw
     static void		restoreErrPrint(); // after such an action
-
-private:
-
     static void		enableErrPrint();
 
 };

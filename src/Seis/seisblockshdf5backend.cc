@@ -70,15 +70,14 @@ void Seis::Blocks::HDF5WriteBackEnd::writeGlobalInfo( uiRetVal& uirv )
     if ( !databuf_ )
 	{ uirv.set( uiStrings::phrCannotAllocateMemory() ); return; }
 
-    HDF5::DataSetKey dsky;
-    uirv = hdfwrr_->putInfo( dsky, wrr_.gensectioniop_ );
+    uirv = hdfwrr_->set( wrr_.gensectioniop_ );
     if ( !uirv.isOK() )
 	return;
 
     const int nrsegs = wrr_.cubedata_.totalNrSegments();
     if ( nrsegs > 0 )
     {
-	dsky.setDataSetName( sKey::SeisCubePositions() );
+	const HDF5::DataSetKey dsky( nullptr, sKey::SeisCubePositions() );;
 	Array2DImpl<int> arr( 4, nrsegs );
 	int segnr = 0;
 	for ( int iln=0; iln<wrr_.cubedata_.size(); iln++ )
@@ -123,7 +122,7 @@ void Seis::Blocks::HDF5WriteBackEnd::setColumnInfo(
 	if ( !uirv.isOK() )
 	    return;
 
-	uirv = hdfwrr_->putInfo( dsky, blockiop );
+	uirv = hdfwrr_->set( blockiop, &dsky );
 	if ( !uirv.isOK() )
 	    return;
 
@@ -139,11 +138,6 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
     slabspec_[1].count_ = columndims_.crl();
     slabspec_[2].start_ = block.globIdx().z() * wrr_.dimensions().z();
     slabspec_[2].count_ = block.dims().z();
-
-    const BufferString groupnm = wrr_.componentNames().get( icomp );
-    const HDF5::DataSetKey dsky( groupnm, blockname_ );
-    if ( !hdfwrr_->setScope(dsky) )
-	mPutInternalInUiRv( uirv, "DataSet not present", return )
 
     const DataBuffer::buf_type* bufdata = block.dbuf_.data();
     const int bytespersample = block.dbuf_.bytesPerElement();
@@ -169,7 +163,9 @@ void Seis::Blocks::HDF5WriteBackEnd::putBlock( int icomp, MemBlock& block,
 	}
     }
 
-    uirv = hdfwrr_->putSlab( slabspec_, databuf_ );
+    const BufferString groupnm = wrr_.componentNames().get( icomp );
+    const HDF5::DataSetKey dsky( groupnm, blockname_ );
+    uirv = hdfwrr_->putSlab( dsky, slabspec_, databuf_ );
 }
 
 
@@ -240,17 +236,17 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
     zss_.setOutputZRange( rdr_.zrgintrace_ );
     blockname_.set( globidx_.inl() ).add( "." ).add( globidx_.crl() );
     const HDF5::DataSetKey dsky( rdr_.componentNames().get(0), blockname_ );
-    if ( !hdfrdr_.setScope(dsky) )
+    if ( !hdfrdr_.hasDataSet(dsky) )
 	mRetOnInitialBlockProb( tr("Block is not present") )
 
     IOPar blockiop;
-    uirv = hdfrdr_.getInfo( blockiop );
+    uirv = hdfrdr_.get( blockiop, &dsky );
     if ( !uirv.isOK() )
 	mRetOnInitialBlockProb( uirv )
 
     HLocIdx& start( const_cast<HLocIdx&>(start_) );
     blockiop.get( sKeyStartLoc, start.inl(), start.crl() );
-    PtrMan<ArrayNDInfo> ainf = hdfrdr_.getDataSizes();
+    PtrMan<ArrayNDInfo> ainf = hdfrdr_.getDataSizes( dsky, uirv );
     if ( !ainf )
 	mRetOnInitialBlockProb( tr("Cannot extract block sizes") )
     else if ( ainf->nrDims() != 3 )
@@ -274,7 +270,7 @@ Seis::Blocks::HDF5Column::HDF5Column( const HDF5ReadBackEnd& rdrbe,
 	slabspec_[1].count_ = (idx_type)dims_.crl();
     }
 
-    datatype_ = hdfrdr_.getDataType();
+    datatype_ = hdfrdr_.getDataType( dsky, uirv );
     const int bytesperval = nrBytes( datatype_ );
     if ( !rdr_.interp_ || rdr_.interp_->nrBytes() != bytesperval )
     {
@@ -352,9 +348,9 @@ void Seis::Blocks::HDF5Column::fillTraceData( const BinID& bid, TraceData& td,
 	{
 	    const HDF5::DataSetKey dsky( rdr_.componentNames().get(icomp),
 					 blockname_ );
-	    if ( !hdfrdr_.setScope(dsky) )
-		{ pErrMsg("scope not found"); continue; }
-	    uirv = hdfrdr_.getSlab( slabspec_, buf );
+	    if ( !hdfrdr_.hasDataSet(dsky) )
+		{ pErrMsg("dataset not found"); continue; }
+	    uirv = hdfrdr_.getSlab( dsky, slabspec_, buf );
 	    if ( !uirv.isOK() )
 		return;
 	}
