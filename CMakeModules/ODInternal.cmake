@@ -180,7 +180,7 @@ if ( QT_QJPEG_PLUGIN_RELEASE )
     set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 endif()
 
-set( LMHOSTID lmutil )
+set( LMUTIL lmutil )
 if( WIN32 )
     if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpegd.dll )
@@ -210,38 +210,26 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-    set( LMHOSTID "lmhostid.exe" )
+    set( LMUTIL "lmutil.exe" )
 endif()
 
 install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
 if ( WIN32 )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
-	     CONFIGURATIONS Release )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
-	     CONFIGURATIONS Debug )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}/../lm.dgb )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
 	     CONFIGURATIONS Release )
 else()
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}../lm.dgb/ )
 endif()
 
-if ( NOT EXISTS ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG} )
-    file ( MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG} )
+if ( NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+		   ${CMAKE_BINARY_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/${LMUTIL} )
 endif()
-if ( NOT EXISTS ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE} )
-    file ( MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE} )
-endif()
-
-execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	       ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	       ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE}/ )
-execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	       ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	       ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG}/ )
 
 if( EXISTS ${MSVCPATH} )
     file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
