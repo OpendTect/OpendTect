@@ -1215,6 +1215,16 @@ bool doPrepare( int nrthreads )
 	}
     }
 
+    proplistfilter_.setEmpty();
+    filterprops_ = false;
+    BufferString proplistfilt( GetEnvVar("DTECT_SYNTHROCK_TIMEPROPS") );
+    if ( !proplistfilt.isEmpty() )
+    {
+	if ( proplistfilt != sKey::None() )
+	    proplistfilter_.unCat( proplistfilt.buf(), " " );
+	filterprops_ = true;
+    }
+
     isprepared_ = true;
     resetNrDone();
     return true;
@@ -1263,7 +1273,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	for ( int iprop=1; iprop<props.size(); iprop++ )
 	{
-	    const bool propisvel = props[iprop]->stdType() == PropertyRef::Vel;
+	    const PropertyRef& pr = *props[iprop];
+	    const OD::String& propnm = pr.name();
+	    const PropertyRef::StdType prtype = pr.stdType();
+	    const bool propisvel = prtype == PropertyRef::Vel;
+	    const UnitOfMeasure* uom = UoMR().getDefault( propnm, prtype );
 	    SeisTrcBufDataPack* dp = seisbufdps_[iprop-1];
 	    SeisTrcBuf& trcbuf = dp->trcBuf();
 	    const int bufsz = trcbuf.size();
@@ -1271,8 +1285,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( !rawtrc )
 		continue;
 
+	    if ( filterprops_ && !proplistfilter_.isPresent(propnm) )
+	    {
+		rawtrc->zero();
+		continue;
+	    }
+
 	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
 					     PointBasedMathFunction::EndVal );
+
 	    for ( int idz=0; idz<sz; idz++ )
 	    {
 		const float time = mCast( float, zrg.atIndex(idz) );
@@ -1300,9 +1321,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
 			continue;
 
-		    const PropertyRef* pr = props[iprop];
-		    const UnitOfMeasure* uom =
-			UoMR().getDefault( pr->name(), pr->stdType() );
 		    const float userval =
 			!uom ? mUdf(float) : uom->getUserValueFromSI( val );
 		    propval.addValue( propisvel ? 1.f / userval : userval,
@@ -1351,6 +1369,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     ManagedObjectSet<Strat::LayerModel> layermodels_;
     ObjectSet<SyntheticData>&		synthetics_;
     ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
+    BufferStringSet			proplistfilter_;
+    bool				filterprops_;
     int&				lastsyntheticid_;
     bool				isprepared_;
     bool				useed_;
