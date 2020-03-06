@@ -11,6 +11,7 @@ ___________________________________________________________________
 #include "uiodhostiddlg.h"
 
 #include "bufstring.h"
+#include "generalinfo.h"
 #include "oddirs.h"
 #include "odplatform.h"
 #include "systeminfo.h"
@@ -29,7 +30,7 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 
     BufferStringSet hostids;
     BufferString errmsg;
-    System::getHostIDs( hostids, errmsg );
+    OD::getHostIDs( hostids, errmsg );
     if ( hostids.isEmpty() )
     {
 	setTitleText( uiString::emptyString() );

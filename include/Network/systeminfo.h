@@ -54,9 +54,8 @@ namespace System
     mGlobal(Network) od_uint64		uniqueSystemID();
 					/*!<Deprecated. Please use
 					    macAddressHash(). */
-
-    mGlobal(Network) bool		getHostIDs(BufferStringSet&,
-						   BufferString&);
+    mGlobal(Network) bool		getHostIDs(BufferStringSet& hostids,
+						   BufferString& errmsg);
 }
 
 #endif

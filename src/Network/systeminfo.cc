@@ -20,9 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "generalinfo.h"
 #include "iostrm.h"
 #include "oddirs.h"
-#include "oscommand.h"
 #include "perthreadrepos.h"
 
 #include <QHostAddress>
@@ -318,43 +318,7 @@ const char* getFileSystemName( const char* path )
 
 bool getHostIDs( BufferStringSet& hostids, BufferString& errmsg )
 {
-    hostids.setEmpty();
-    errmsg.setEmpty();
-
-    FilePath lmutilfp( GetSoftwareDir(false), "bin", GetPlfSubDir() );
-    lmutilfp.add( "lm.dgb" ).add( "lmutil" );
-
-#ifdef __win__
-    lmutilfp.setExtension( "exe" );
-#endif
-
-    if ( !lmutilfp.exists() )
-    {
-	lmutilfp.setPath( lmutilfp.dirUpTo(lmutilfp.nrLevels()-3) );
-	if ( !lmutilfp.exists() )
-	{
-	    errmsg.add( "Required executable not found." );
-	    return false;
-	}
-    }
-
-    const BufferString cmd( lmutilfp.fullPath().buf(), " lmhostid -n" );
-    BufferString stdoutput, stderror;
-    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &stdoutput,
-				      &stderror );
-    if ( !res )
-    {
-	errmsg.add( "Failed to get HostID information." );
-	errmsg.addNewLine().add(  stderror );
-	return false;
-    }
-
-    if ( stderror.isEmpty() )
-	hostids.add( stdoutput );
-    else
-	hostids.add( stderror );
-
-    return true;
+    return OD::getHostIDs( hostids, errmsg );
 }
 
 } // namespace System
