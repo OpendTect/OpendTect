@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uisurvmap.h"
 
 #include "uibuttongroup.h"
+#include "uiclipboard.h"
 #include "uicombobox.h"
 #include "uiconvpos.h"
 #include "uicoordsystem.h"
@@ -74,7 +75,7 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
 	: uiDialog(p,uiDialog::Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
 			mNoDlgTitle, mODHelpKey(mNewSurveyByCopyHelpID)))
 	, dataroot_(dataroot)
-	, survdirsfld_(0)
+	, survdirsfld_(nullptr)
 {
     BufferStringSet survdirnms;
     uiSurvey::getDirectoryNames( survdirnms, false, dataroot );
@@ -151,7 +152,7 @@ bool anySurvey() const
 static ObjectSet<uiSurveyManager::Util>& getUtils()
 {
     mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurveyManager::Util> >,
-			      utils, = 0 );
+			      utils, = nullptr );
     if ( !utils )
     {
 	ManagedObjectSet<uiSurveyManager::Util>* newutils =
@@ -159,8 +160,12 @@ static ObjectSet<uiSurveyManager::Util>& getUtils()
 	*newutils += new uiSurveyManager::Util( "xy2ic",
 		od_static_tr("uiSurveyManager_getUtils",
 		"Convert (X,Y) to/from Inline/Crossline"), CallBack() );
+	*newutils += new uiSurveyManager::Util( "clipboard",
+		od_static_tr("getUtils","Copy Survey Information to ClipBoard"),
+		CallBack() );
 
-	utils.setIfNull(newutils,true);
+	if ( !utils.setIfNull(newutils,true) )
+	    delete newutils;
     }
 
     return *utils;
@@ -287,7 +292,7 @@ void uiSurveyManager::mkInfoTabs()
     infotabs_ = new uiTabStack( this, "Survey Info" );
     uiGroup* infogrp = new uiGroup( infotabs_->tabGroup(), "Info" );
     infofld_ = new uiTextEdit( infogrp, "Info", true );
-    infofld_->setPrefHeightInChar( 8 );
+    infofld_->setPrefHeightInChar( 9 );
     infofld_->setStretch( 2, 1 );
     infotabs_->addTab( infogrp );
     infotabs_->setTabIcon( infogrp, "info" );
@@ -517,6 +522,10 @@ void uiSurveyManager::utilButPushed( CallBacker* cb )
 	uiConvertPos dlg( this, *curSI() );
 	dlg.go();
     }
+    else if ( butidx == 1 )
+    {
+	copyInfoToClipboard();
+    }
     else
     {
 	Util* util = getUtils()[butidx];
@@ -525,8 +534,17 @@ void uiSurveyManager::utilButPushed( CallBacker* cb )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+void uiSurveyManager::copyInfoToClipboard()
+{
+    BufferString txt = infofld_->text();
+    txt.addNewLine();
 
+    uiClipboard::setText( toUiString(txt) );
+    gUiMsg( this ).message( tr("Information copied to clipboard") );
+}
+
+
+#define mErrRet(s) { gUiMsg( this ).error(s); return false; }
 
 bool uiSurveyManager::writeSettingsSurveyFile( const char* dirnm )
 {
@@ -605,28 +623,25 @@ void uiSurveyManager::putToScreen()
 	return;
     }
 
-    BufferString locinfo( "Location: " );
-    BufferString inlinfo( "In-line range: " );
-    BufferString crlinfo( "Cross-line range: " );
+    BufferString inlinfo( "In-line range:\t" );
+    BufferString crlinfo( "Cross-line range:\t" );
     BufferString zinfo( "Z range" );
-    BufferString bininfo( "Inl/Crl bin size" );
-    BufferString crsinfo( "CRS: " );
-    BufferString areainfo( "Area: " );
-    BufferString survtypeinfo( "Survey type: " );
-    BufferString orientinfo( "In-line Orientation: " );
+    BufferString bininfo( "Inl/Crl bin size:\t" );
+    BufferString crsinfo( "CRS:\t\t" );
+    BufferString areainfo( "Area:\t\t" );
+    BufferString survtypeinfo( "Survey type:\t" );
+    BufferString orientinfo( "In-line Orientation:" );
+    BufferString locinfo( "Location:\t\t" );
 
     const SurveyInfo& si = *curSI();
     notesfld_->setText( si.comments() );
 
-    zinfo.add( "(" );
+    zinfo.add( " (" );
     if ( si.zIsTime() )
 	zinfo.add( toString(ZDomain::Time().unitStr()) );
     else
 	zinfo.add( getDistUnitString(si.zInFeet(), false) );
-     zinfo.add( "): " );
-
-    bininfo.add( " (" ).add( toString(si.xyUnitString()) )
-	    .add( "/line): " );
+     zinfo.add( "):\t" );
 
     if ( si.getCoordSystem() )
 	crsinfo.add( mFromUiStringTodo(si.getCoordSystem()->summary()) );
@@ -638,14 +653,19 @@ void uiSurveyManager::putToScreen()
 	inlinfo.add( sics.hsamp_.start_.inl() );
 	inlinfo.add( " - ").add( sics.hsamp_.stop_.inl() );
 	inlinfo.add( " - " ).add( si.inlStep() );
+	inlinfo.add( "; Total: ").add( sics.hsamp_.nrInl() );
 	crlinfo.add( sics.hsamp_.start_.crl() );
 	crlinfo.add( " - ").add( sics.hsamp_.stop_.crl() );
 	crlinfo.add( " - " ).add( si.crlStep() );
+	crlinfo.add( "; Total: ").add( sics.hsamp_.nrCrl() );
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
 
-	bininfo.add( getFPStringWithDecimals(inldist,2) ).add( "/" );
+	bininfo.add( getFPStringWithDecimals(inldist,2) ).add( " / " );
 	bininfo.add( getFPStringWithDecimals(crldist,2) );
+	bininfo.add( " (" ).add( toString(si.xyUnitString()) )
+	    .add( "/line)" );
+
 
 	areainfo.add( getAreaString(si.getArea(),si.xyInFeet(),2,true) );
     }
@@ -653,11 +673,13 @@ void uiSurveyManager::putToScreen()
     #define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;
 
     const bool istime = si.zIsTime();
-    mAdd2ZString( si.zRange().start );
-    zinfo += " - "; mAdd2ZString( si.zRange().stop );
+    const ZSampling sizrg = si.zRange();
+    mAdd2ZString( sizrg.start );
+    zinfo += " - "; mAdd2ZString( sizrg.stop );
     zinfo += " - ";
-    const float zstep = si.zRange().step * si.zDomain().userFactor();
+    const float zstep = sizrg.step * si.zDomain().userFactor();
     zinfo.addLim( zstep, 5 );
+    zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
     File::Path fp( si.basePath(), si.dirName() );
@@ -665,13 +687,14 @@ void uiSurveyManager::putToScreen()
     locinfo.add( fp.fullPath() );
 
     const float usrang = Math::degFromNorth( si.angleXInl() );
-    orientinfo.add( toString(usrang) ).add( " Degrees from N" );
+    orientinfo.add( getFPStringWithDecimals(usrang,2) )
+	      .add( " Degrees from N" );
 
     BufferString infostr;
     infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()
 	.add( zinfo ).addNewLine().add( bininfo ).addNewLine()
 	.add( crsinfo ).addNewLine()
-	.add( areainfo ).add( "; ").add( survtypeinfo ).addNewLine()
+	.add( areainfo ).addNewLine().add( survtypeinfo ).addNewLine()
 	.add( orientinfo ).addNewLine().add( locinfo );
     infofld_->setText( infostr );
 

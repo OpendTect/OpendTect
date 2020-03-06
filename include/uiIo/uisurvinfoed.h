@@ -19,6 +19,7 @@ class Grid2D;
 class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
+class uiLabel;
 class uiLabeledComboBox;
 class uiGenInput;
 class uiGrid2DMapObject;
@@ -68,6 +69,8 @@ protected:
     uiGenInput*		inlfld_;
     uiGenInput*		crlfld_;
     uiGenInput*		zfld_;
+    uiLabel*		nrinlslbl_;
+    uiLabel*		nrcrlslbl_;
     uiComboBox*		zunitfld_;
     uiComboBox*		pol2d3dfld_;
 
@@ -106,6 +109,7 @@ protected:
     void		mkLatLongGrp();
 
     void		setValues();
+    void		updateLabels();
     bool		setInlCrlRange();
     bool		setZRange();
     bool		setSurvName();

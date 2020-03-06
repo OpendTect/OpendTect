@@ -310,10 +310,16 @@ void uiSurveyInfoEditor::mkRangeGrp()
 			      uiStrings::phrInline(uiStrings::sRange()), iis );
     inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
     inlfld_->attach( alignedBelow, emptyspace );
+    nrinlslbl_ = new uiLabel( rangegrp_, uiString::empty() );
+    nrinlslbl_->setStretch( 2, 0 );
+    nrinlslbl_->attach( rightTo, inlfld_ );
 
     iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
     crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"), iis );
     crlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
+    nrcrlslbl_ = new uiLabel( rangegrp_, uiString::empty() );
+    nrcrlslbl_->setStretch( 2, 0 );
+    nrcrlslbl_->attach( rightTo, crlfld_ );
 
     zfld_ = new uiGenInput( rangegrp_, tr("Z range"),
 			   DoubleInpIntervalSpec(true).setName("Z Start",0)
@@ -487,6 +493,7 @@ void uiSurveyInfoEditor::setValues()
     StepInterval<int> crlrg( hs.start_.crl(), hs.stop_.crl(), hs.step_.crl() );
     inlfld_->setValue( inlrg );
     crlfld_->setValue( crlrg );
+    updateLabels();
 
     const StepInterval<float>& zrg = si_.zRange();
     const float zfac = mCast( float, si_.zDomain().userFactor() );
@@ -535,6 +542,15 @@ void uiSurveyInfoEditor::setValues()
 		     ? UnitOfMeasure::meterUnit() : UnitOfMeasure::feetUnit();
     refdatumfld_->setValue( getConvertedValue( srd, datauom, displayuom ) );
     updateMap();
+}
+
+
+void uiSurveyInfoEditor::updateLabels()
+{
+    const StepInterval<int> irg( inlfld_->getIStepInterval() );
+    const StepInterval<int> crg( crlfld_->getIStepInterval() );
+    nrinlslbl_->setText( tr("Nr. In-lines: %1").arg(irg.nrSteps()+1) );
+    nrcrlslbl_->setText( tr("Nr. Cross-lines: %1").arg(crg.nrSteps()+1) );
 }
 
 
@@ -954,6 +970,7 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 	setZRange();
     }
 
+    updateLabels();
     updateMap();
 }
 
