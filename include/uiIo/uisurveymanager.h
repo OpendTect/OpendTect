@@ -112,6 +112,7 @@ protected:
     void		launchEditor(bool);
     void		writeCommentsIfChanged();
     bool		rootDirWritable() const;
+    void		copyInfoToClipboard();
 
 private:
 
