@@ -290,25 +290,6 @@ bool HDF5::WriterImpl::rmObj( const DataSetKey& dsky )
 }
 
 
-static void removeAttribsNotInIOPar( const IOPar& iop, H5::H5Object& h5obj )
-{
-    const int nrattrs = h5obj.getNumAttrs();
-    BufferStringSet torem;
-    for ( int idx=0; idx<nrattrs; idx++ )
-    {
-	try {
-	    const H5::Attribute attr = h5obj.openAttribute( (unsigned int)idx );
-	    const std::string attrky = attr.getName();
-	    if ( !iop.isPresent(attrky.c_str()) )
-		torem.add( attrky.c_str() );
-	}
-	catch( ... ) { continue; }
-    }
-
-    for ( int idx=0; idx<torem.size(); idx++ )
-	H5Adelete( h5obj.getId(), torem.get(idx).str() );
-}
-
 
 static bool findAttrib( H5::H5Object& h5obj, const char* ky,H5::Attribute& attr)
 {
@@ -383,7 +364,6 @@ mSetNumAttr(attrnm,double,res)
 void HDF5::WriterImpl::ptInfo( const IOPar& iop, H5::H5Object& h5obj,
 			       uiRetVal& uirv )
 {
-    removeAttribsNotInIOPar( iop, h5obj );
     try
     {
 	for ( int idx=0; idx<iop.size(); idx++ )
