@@ -39,7 +39,9 @@ endif( Qt5Core_FOUND )
 
 cmake_policy( SET CMP0057 NEW )
 if ( WIN32 )
-    cmake_policy( SET CMP0020 OLD )
+    if ( POLICY CMP0020 )
+	cmake_policy( SET CMP0020 NEW )
+    endif()
 endif( WIN32 )
 
 macro(OD_READ_QTMODINFO MOD )

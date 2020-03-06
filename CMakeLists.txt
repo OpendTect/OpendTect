@@ -5,7 +5,7 @@
 #       SVN:		$Id$
 #_______________________________________________________________________________
 
-cmake_minimum_required ( VERSION 2.8.5 )
+cmake_minimum_required ( VERSION 2.8.11 )
 
 set( MAIN_GIT_BRANCH od6.6 )
 
