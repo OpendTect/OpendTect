@@ -1221,7 +1221,7 @@ bool doPrepare( int nrthreads )
     if ( !proplistfilt.isEmpty() )
     {
 	if ( proplistfilt != sKey::None() )
-	    proplistfilter_.unCat( proplistfilt.buf(), " " );
+	    proplistfilter_.unCat( proplistfilt.buf(), "|" );
 	filterprops_ = true;
     }
 
