@@ -10,7 +10,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
+#include "generalinfo.h"
 
 #include "bufstringset.h"
 #include "filepath.h"
