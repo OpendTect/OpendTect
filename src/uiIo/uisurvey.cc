@@ -463,7 +463,7 @@ uiSurvey::uiSurvey( uiParent* p )
     infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
     infofld_ = new uiTextEdit( topgrp, "Info", true );
-    infofld_->setPrefHeightInChar( 8 );
+    infofld_->setPrefHeightInChar( 9 );
     infofld_->setStretch( 2, 1 );
     infofld_->attach( rightTo, infolbl );
     infofld_->attach( ensureBelow, rightgrp );
@@ -1280,7 +1280,7 @@ void uiSurvey::putToScreen()
     BufferString areainfo( "Area:\t\t" );
     BufferString survtypeinfo( "Survey type:\t" );
     BufferString orientinfo( "In-line Orientation:" );
-    BufferString locinfo( "Location:\t" );
+    BufferString locinfo( "Location:\t\t" );
 
     if ( !cursurvinfo_ )
     {
