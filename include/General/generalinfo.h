@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
+#include "commondefs.h"
+
 
 class BufferString;
 class BufferStringSet;
