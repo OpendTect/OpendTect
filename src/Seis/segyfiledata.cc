@@ -581,8 +581,8 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else
     {
-	iop.add( "Inline range", hs.start_.inl(), hs.stop_.inl() );
-	iop.add( "Crossline range", hs.start_.crl(), hs.stop_.crl() );
+	iop.add( "In-line range", hs.start_.inl(), hs.stop_.inl() );
+	iop.add( "Cross-line range", hs.start_.crl(), hs.stop_.crl() );
     }
 
     if ( Seis::isPS(geom_) )

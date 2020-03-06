@@ -809,12 +809,12 @@ void PosInfo::Detector::report( IOPar& iop ) const
     }
     else
     {
-	iop.set( "Inlines",
+	iop.set( "In-lines",
 		getStepRangeStr(start_.inl(),stop_.inl(),step_.inl()) );
-	iop.set( "Crosslines",
+	iop.set( "Cross-lines",
 		getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()));
-	iop.setYN( "Gaps in inlines", inlirreg_ );
-	iop.setYN( "Gaps in crosslines", crlirreg_ );
+	iop.setYN( "Gaps in in-lines", inlirreg_ );
+	iop.setYN( "Gaps in cross-lines", crlirreg_ );
     }
     if ( setup_.isps_ )
     {
