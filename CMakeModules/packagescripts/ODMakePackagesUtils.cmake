@@ -90,7 +90,7 @@ macro ( create_package PACKAGE_NAME )
     endforeach()
 
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
-#Inslall lm 
+#Install lm 
 	foreach( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			      ${COPYFROMDATADIR}/${SPECFILE}
@@ -98,7 +98,7 @@ macro ( create_package PACKAGE_NAME )
 	endforeach()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
-			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm
+			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	if( UNIX )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -608,7 +608,7 @@ elseif( WIN32 )
     set( LIBSBINS ${ALLLIBS} ${EXECS} )
     set( ALLLIBSBINS "" )
     foreach( LIBNM ${LIBSBINS} )
-	if ( ${LIBNM} STREQUAL "lmhostid" )
+	if ( ${LIBNM} STREQUAL "lmutil" )
 	    set( LIBNM "" )
 	endif()
 	set( ALLLIBSBINS ${ALLLIBSBINS} ${LIBNM} )
