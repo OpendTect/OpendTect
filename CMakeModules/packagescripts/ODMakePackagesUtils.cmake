@@ -17,6 +17,7 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	endif()
 
+
 	if( NOT MATLAB_DIR STREQUAL "" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
@@ -104,11 +105,13 @@ macro ( create_package PACKAGE_NAME )
 	    endforeach()
 	endif()
 
-
+	execute_process( COMMAND ${CMAKE_COMMAND} -E
+			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	if( UNIX )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh )
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	    execute_process( COMMAND
 		    ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh
 		    WORKING_DIRECTORY ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
