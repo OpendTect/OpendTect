@@ -222,6 +222,7 @@ protected:
 
     void	showLogFile();
     void	showFirewallProcDlg();
+    void	showHostID();
 
     uiMenu*	addDualAsciiSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,int,bool,

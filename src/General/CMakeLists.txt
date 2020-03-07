@@ -37,6 +37,7 @@ list ( APPEND OD_MODULE_SOURCES
 	flatview.cc
 	fontdata.cc
 	giswriter.cc
+	generalinfo.cc
 	geojson.cc
 	geojsonwriter.cc
 	googlexmlwriter.cc

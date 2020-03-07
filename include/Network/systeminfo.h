@@ -43,4 +43,6 @@ namespace System
 					/*!<Returns the checksum of the first
 					    'valid' mac address.
 					*/
+    mGlobal(Network) bool		getHostIDs(BufferStringSet& hostids,
+					BufferString& errmsg);
 }
