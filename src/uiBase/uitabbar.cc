@@ -164,16 +164,16 @@ void uiTabBar::setTabsClosable( bool closable )
 
 void uiTabBar::showCloseButton( int idx, bool yn, bool shrink )
 {
-    QWidget* qwidget = body_->tabButton( idx, QTabBar::RightSide );
-    if ( !qwidget )
+    QWidget* tabbut = body_->tabButton( idx, QTabBar::RightSide );
+    if ( !tabbut )
 	return;
 
     if ( yn )
-	qwidget->show();
+	tabbut->show();
     else if ( shrink )
-	qwidget->resize( 0, 0 );
+	tabbut->resize( 0, 0 );
     else
-	qwidget->hide();
+	tabbut->hide();
 }
 
 
