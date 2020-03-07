@@ -243,12 +243,12 @@ void HDF5::ReaderImpl::gtValues( const H5::DataSet& h5ds,
 bool HDF5::ReaderImpl::hasAttribute( const char* attrnm,
 				     const DataSetKey* dsky ) const
 {
-    const H5::H5Object* scope = getScope( dsky );
-    if ( !scope )
+    const H5::H5Object* h5scope = getScope( dsky );
+    if ( !h5scope )
 	return false;
     try
     {
-	return scope->attrExists( attrnm );
+	return h5scope->attrExists( attrnm );
     }
     catch ( ... )
 	{ return false; }
