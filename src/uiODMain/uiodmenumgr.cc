@@ -917,7 +917,7 @@ void uiODMenuMgr::fillUtilMenu()
 			    mPluginsMnuItm );
     addAction( installmnu_, tr("Graphics Information"), "info",
 			    mGraphicsInfoItm );
-    addAction( installmnu_, tr("Show HostID"), "info",
+    addAction( installmnu_, tr("Show HostID"), "hostid",
 			    mHostIDInfoItm );
     if ( __iswin__ )
 	addAction( installmnu_, tr("Firewall Add/Remove Process"), "",
