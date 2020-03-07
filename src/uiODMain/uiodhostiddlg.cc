@@ -33,7 +33,7 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     OD::getHostIDs( hostids, errmsg );
     if ( hostids.isEmpty() )
     {
-	setTitleText( uiString::emptyString() );
+	setTitleText( uiString::empty() );
 	uiString msg;
 	msg.append( errmsg.str(), true );
 	msg.append( tr("No HostID found.\n"

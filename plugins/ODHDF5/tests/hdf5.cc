@@ -85,7 +85,6 @@ static bool testReadInfo( HDF5::Reader& rdr )
 		      attrstr.isEmpty(), "Can read empty attribute string" )
     mRunStandardTest( !rdr.hasAttribute( "Attrib to be deleted" ),
 		    "Does not have a removed attribute" )
-    const int nrattrs = rdr.getNrAttributes();
     mRunStandardTest( rdr.getNrAttributes() == 5,
 	    "Correct number of attributes found at top level: 5" )
     BufferStringSet attribnms;
