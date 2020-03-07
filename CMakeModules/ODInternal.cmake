@@ -214,17 +214,19 @@ endif()
 install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
 if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}/../lm.dgb/.
-	     CONFIGURATIONS Release )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}/../lm.dgb/.
-	     CONFIGURATIONS Debug )
+	     DESTINATION ${MISC_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm.dgb )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
 	     CONFIGURATIONS Release )
 else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/../lm.dgb/. )
+	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/../lm.dgb/ )
+endif()
+
+if ( NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+		   ${CMAKE_BINARY_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/${LMUTIL} )
 endif()
 
 if( EXISTS ${MSVCPATH} )
