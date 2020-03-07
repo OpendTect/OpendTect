@@ -530,6 +530,21 @@ bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
     return uirv; \
 }
 
+uiRetVal HDF5::Reader::getAttributeNames( BufferStringSet& nms,
+			const DataSetKey* dsky ) const
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    const H5::H5Object* h5scope = getScope( dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    nms.setEmpty();
+    gtAttribNames( *h5scope, nms );
+    return uirv;
+}
+
 uiRetVal HDF5::Reader::get( IOPar& iop, const DataSetKey* dsky ) const
 {
     uiRetVal uirv;
@@ -555,6 +570,37 @@ uiRetVal HDF5::Writer::set( const IOPar& iop, const DataSetKey* dsky )
 
     if ( !iop.isEmpty() )
 	ptInfo( iop, *h5scope, uirv );
+
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::removeAttribute( const char* nm, const DataSetKey* dsky )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    H5::H5Object* h5scope = setScope( dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    if ( nm && *nm )
+	rmAttrib( nm, *h5scope );
+
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::removeAllAttributes( const DataSetKey* dsky )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    H5::H5Object* h5scope = setScope( dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    rmAllAttribs( *h5scope );
 
     return uirv;
 }

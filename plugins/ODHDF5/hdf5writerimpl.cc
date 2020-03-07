@@ -290,6 +290,34 @@ bool HDF5::WriterImpl::rmObj( const DataSetKey& dsky )
 }
 
 
+void HDF5::WriterImpl::rmAttrib( const char* nm, H5::H5Object& h5obj )
+{
+    if ( !h5obj.attrExists(nm) )
+	return;
+
+    try {
+	H5Adelete( h5obj.getId(), nm );
+    }
+
+    catch( ... ) {}
+}
+
+
+void HDF5::WriterImpl::rmAllAttribs( H5::H5Object& h5obj )
+{
+    const int nrattrs = h5obj.getNumAttrs();
+    for ( int idx=nrattrs-1; idx>=0; idx-- )
+    {
+	try {
+	    const H5::Attribute attr = h5obj.openAttribute( (unsigned int)idx );
+	    const H5std_string attrnm = attr.getName();
+	    H5Adelete( h5obj.getId(), attrnm.c_str() );
+	}
+
+	catch( ... ) { continue; }
+    }
+}
+
 
 static bool findAttrib( H5::H5Object& h5obj, const char* ky,H5::Attribute& attr)
 {

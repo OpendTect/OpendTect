@@ -63,6 +63,9 @@ public:
 			// null = root scope
     virtual bool	hasAttribute(const char*,
 				     const DataSetKey* =nullptr) const	= 0;
+    virtual int		getNrAttributes(const DataSetKey* = nullptr ) const = 0;
+    uiRetVal		getAttributeNames(BufferStringSet&,
+				    const DataSetKey* = nullptr) const;
     virtual bool	getAttribute(const char*,BufferString&,
 				     const DataSetKey* =nullptr) const	= 0;
 #define mHDF5DeclFns(type) \
@@ -103,6 +106,9 @@ private:
 				  uiRetVal&) const			= 0;
     virtual void	gtValues(const H5::DataSet&,const NDPosBufSet&,void*,
 				 uiRetVal&) const			= 0;
+
+    virtual void	gtAttribNames(const H5::H5Object&,
+				BufferStringSet&) const = 0;
 
     virtual void	gtInfo(const H5::H5Object&,IOPar&,
 				uiRetVal&) const			= 0;

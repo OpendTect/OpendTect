@@ -78,6 +78,8 @@ private:
 			mHDF5DeclFns(set,float);
 			mHDF5DeclFns(set,double);
 #undef mHDF5DeclFns
+    void		rmAttrib(const char*,H5::H5Object&) override;
+    void		rmAllAttribs(H5::H5Object&) override;
     void		ptInfo(const IOPar&,H5::H5Object&,uiRetVal&) override;
 
     bool		rmObj(const DataSetKey&) override;

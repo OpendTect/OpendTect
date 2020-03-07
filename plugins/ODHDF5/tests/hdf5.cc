@@ -83,9 +83,22 @@ static bool testReadInfo( HDF5::Reader& rdr )
     attrstr.setEmpty();
     mRunStandardTest( rdr.getAttribute("Empty attribute 3",attrstr) &&
 		      attrstr.isEmpty(), "Can read empty attribute string" )
+    mRunStandardTest( !rdr.hasAttribute( "Attrib to be deleted" ),
+		    "Does not have a removed attribute" )
+    const int nrattrs = rdr.getNrAttributes();
+    mRunStandardTest( rdr.getNrAttributes() == 5,
+	    "Correct number of attributes found at top level: 5" )
+    BufferStringSet attribnms;
+    uirv = rdr.getAttributeNames( attribnms );
+    mAddTestResult( "Retrieve list of top level attribute names" )
+    mRunStandardTest( attribnms.size() == 5 &&
+		attribnms.get(4) == "File attribute",
+		"Attribute names content test" )
 
     const HDF5::DataSetKey infods( "", "++info++" );
     mRunStandardTest( rdr.hasDataSet(infods), "Has ++info++ text dataset" )
+    mRunStandardTest( rdr.getNrAttributes(&infods) == 0,
+		    "No attributes found when none present" )
 
     const HDF5::DataSetKey dskyslb( "Slabby" );
     mRunStandardTest( !rdr.hasAttribute("not an attribute",&dskyslb),
@@ -298,6 +311,7 @@ static bool testWrite()
     wrr->setAttribute( "Empty attribute 1", nullptr );
     wrr->setAttribute( "Empty attribute 2", "" );
     wrr->setAttribute( "Empty attribute 3", "Will be edited" );
+    wrr->setAttribute( "Attrib to be deleted", "" );
 
     HDF5::DataSetKey dsky;
     BufferStringSet compnms;
@@ -400,6 +414,9 @@ static bool testWrite()
     dsky.setGroupName( "" ).setDataSetName( "++info++" );
     uirv = wrr->createTextDataSet( dsky );
     mAddTestResult( "Created a text dataset" );
+    wrr->setAttribute( "Attrib 1 to be removed", "", &dsky );
+    wrr->setAttribute( "Attrib 2 to be removed", "", &dsky );
+    wrr->setAttribute( "Attrib 3 to be removed", "", &dsky );
 
     return true;
 }
@@ -418,6 +435,7 @@ static bool testEdit()
 		      "Has top level attribute to set empty" )
     rdr = nullptr;
     wrr->setAttribute( "Empty attribute 3", BufferString::empty() );
+    wrr->removeAttribute( "Attrib to be deleted" );
 
     HDF5::DataSetKey dsky( "", "ShortArr" );
     mRunStandardTest( wrr->hasDataSet(dsky), "Has dataset ShortArr" )
@@ -438,6 +456,10 @@ static bool testEdit()
     wrr->setAttribute( "File attribute", "New attribute value" );
     dsky.setGroupName( "Slabby" ).setDataSetName( "" );
     wrr->setAttribute( "slabby key", "New slabby value", &dsky );
+
+    dsky.setGroupName( "" ).setDataSetName( "++info++" );
+    uirv = wrr->removeAllAttributes( &dsky );
+    mAddTestResult( "Removed all attributes of dataset ++info++" );
 
     return true;
 }
