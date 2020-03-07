@@ -37,6 +37,11 @@ if ( Qt5Core_FOUND )
 endif( Qt5Core_FOUND )
 
 cmake_policy( SET CMP0057 NEW )
+if ( WIN32 )
+    if ( POLICY CMP0020 )
+	cmake_policy( SET CMP0020 NEW )
+    endif()
+endif()
 
 macro(OD_READ_QTMODINFO MOD )
     get_target_property( QT_BUILD_TYPE ${MOD} IMPORTED_CONFIGURATIONS )
