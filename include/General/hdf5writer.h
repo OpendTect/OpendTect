@@ -67,6 +67,9 @@ public:
 			// null = root scope
     virtual void	setAttribute(const char* ky,const char* val,
 				     const DataSetKey* =nullptr)	= 0;
+    uiRetVal		removeAttribute(const char*,
+				     const DataSetKey* = nullptr);
+    uiRetVal		removeAllAttributes(const DataSetKey* = nullptr);
 #define mHDF5DeclFns(fnnm,type) \
     virtual void	fnnm##Attribute(const char*,type,\
 					const DataSetKey* =nullptr)	= 0;
@@ -104,6 +107,8 @@ private:
     virtual void	ptAll(const void*,H5::DataSet&,uiRetVal&)	= 0;
     virtual void	ptStrings(const BufferStringSet&,H5::Group&,
 				  H5::DataSet*,const char* dsnm,uiRetVal&) = 0;
+    virtual void	rmAttrib(const char*,H5::H5Object&)		= 0;
+    virtual void	rmAllAttribs(H5::H5Object&)			= 0;
 
     virtual void	ptInfo(const IOPar&,H5::H5Object&,uiRetVal&)	= 0;
 

@@ -70,6 +70,10 @@ private:
 
     bool		hasAttribute(const char*,
 				     const DataSetKey* =nullptr) const override;
+    int			getNrAttributes(const DataSetKey* =nullptr) const override;
+    void		gtAttribNames(const H5::H5Object&,
+				BufferStringSet&) const override;
+
     bool		getAttribute(const char*,BufferString&,
 				     const DataSetKey* =nullptr) const override;
 #define mHDF5DeclFns(type) \

@@ -255,6 +255,35 @@ bool HDF5::ReaderImpl::hasAttribute( const char* attrnm,
 }
 
 
+int HDF5::ReaderImpl::getNrAttributes( const DataSetKey* dsky ) const
+{
+    const H5::H5Object* h5scope = getScope( dsky );
+    if ( !h5scope )
+	return 0;
+    try
+    {
+	return h5scope->getNumAttrs();
+    }
+    catch ( ... )
+	{ return 0; }
+}
+
+
+void HDF5::ReaderImpl::gtAttribNames( const H5::H5Object& h5obj,
+			BufferStringSet& nms ) const
+{
+    const int nrattrs = h5obj.getNumAttrs();
+    for ( int idx=0; idx<nrattrs; idx++ )
+    {
+	try {
+	    const H5::Attribute attr = h5obj.openAttribute( (unsigned int)idx );
+	    nms.add( attr.getName().c_str() );
+	}
+
+	catch( ... ) { continue; }
+    }
+}
+
 
 bool HDF5::ReaderImpl::getAttribute( const char* attrnm,
 				     BufferString& res,
