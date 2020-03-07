@@ -303,15 +303,15 @@ static bool findAttrib( H5::H5Object& h5obj, const char* ky,H5::Attribute& attr)
 void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
 				     const DataSetKey* dsky )
 {
-    H5::H5Object* scope = setScope( dsky );
-    if ( !scope )
+    H5::H5Object* h5scope = setScope( dsky );
+    if ( !h5scope )
 	return;
-    setAttribute( ky, val, *scope );
+    setAttribute( ky, val, *h5scope );
 }
 
 
 void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
-				     H5::H5Object& scope )
+				     H5::H5Object& h5scope )
 {
     uiRetVal uirv;
     const H5::DataType reqstrtype = H5::StrType( H5::PredType::C_S1,
@@ -320,20 +320,20 @@ void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
     try
     {
 	H5::Attribute attr;
-	const bool hasattrib = findAttrib( scope, ky, attr );
+	const bool hasattrib = findAttrib( h5scope, ky, attr );
 	bool neednew = !hasattrib;
 	if ( hasattrib )
 	{
 	    if ( attr.getDataType() != reqstrtype ||
 		 attr.getSpace().getId() != reqspace.getId() )
 	    {
-		scope.removeAttr( ky );
+		h5scope.removeAttr( ky );
 		neednew = true;
 	    }
 	}
 
 	if ( neednew )
-	    attr = scope.createAttribute( ky, reqstrtype, reqspace );
+	    attr = h5scope.createAttribute( ky, reqstrtype, reqspace );
 	H5std_string writestr;
 	if ( val && *val )
 	    writestr = H5std_string( val );
