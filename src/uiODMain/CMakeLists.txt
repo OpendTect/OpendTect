@@ -33,6 +33,7 @@ set(OD_MODULE_SOURCES
 	uiodeditattribcolordlg.cc
 	uiodhelpmenumgr.cc
 	uiodhorattribmgr.cc
+	uiodhostiddlg.cc
 	uiodlangmenumgr.cc
 	uiodmain.cc
 	uiodmenumgr.cc

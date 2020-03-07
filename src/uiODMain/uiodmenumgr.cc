@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodfaulttoolman.h"
 #include "uiodhelpmenumgr.h"
+#include "uiodhostiddlg.h"
 #include "uiodlangmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
@@ -916,6 +917,8 @@ void uiODMenuMgr::fillUtilMenu()
 			    mPluginsMnuItm );
     addAction( installmnu_, tr("Graphics Information"), "info",
 			    mGraphicsInfoItm );
+    addAction( installmnu_, tr("Show HostID"), "info",
+			    mHostIDInfoItm );
     if ( __iswin__ )
 	addAction( installmnu_, tr("Firewall Add/Remove Process"), "",
 							    mFirewallProcItm );
@@ -1396,6 +1399,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
     case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
     case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
+    case mHostIDInfoItm:	showHostID(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
@@ -1614,4 +1618,11 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillProcMenu();
     fillSceneMenu();
     dTectMnuChanged.trigger();
+}
+
+
+void uiODMenuMgr::showHostID()
+{
+    uiHostIDDlg dlg( &appl_ );
+    dlg.go();
 }

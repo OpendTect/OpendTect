@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "generalinfo.h"
 #include "iostrm.h"
 #include "oddirs.h"
 #include "staticstring.h"
@@ -293,6 +294,12 @@ const char* getFileSystemName( const char* path )
     pFreeFnErrMsg( "Not implemented yet" );
     return 0;
 #endif
+}
+
+bool getHostIDs( BufferStringSet& hostids, BufferString& errmsg )
+{
+    hostids.setEmpty();
+    return OD::getHostIDs( hostids, errmsg );
 }
 
 } // namespace System
