@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Feb 2018
+ Author:        Bert
+ Date:          Feb 2018
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "factory.h"
 
-namespace H5 { class H5File; }
+namespace H5 { class DataSet; class Group; class H5File; class H5Object; }
 
 #define mDefHDF5FileExt "h5"
 
@@ -25,39 +25,37 @@ namespace HDF5
 class Reader;
 class Writer;
 
-typedef OD::DataRepType ODDataType;
+typedef OD::DataRepType	ODDataType;
 
 
 /*\brief Key to groups and data sets in HDF5 files.
 
   The group name and dataset key correspond to one dataset. Some attributes
-  are valid for an entire group, then leave the dataset name empty. The
-  reader and writer will use a special data set (called
-  sGroupInfoDataSetName()).
+  are valid for an entire group, then leave the dataset name empty.
+  Leave the group name empty (null) for a top level DataSet
 
  */
 
 mExpClass(General) DataSetKey
 {
 public:
-			DataSetKey( const char* grpnm=0, const char* dsnm=0 )
+			DataSetKey( const char* grpnm=nullptr,
+				    const char* dsnm=nullptr )
 			    : dsnm_(dsnm)	{ setGroupName(grpnm); }
 
     inline const char*	groupName() const	{ return grpnm_; }
-    inline void		setGroupName( const char* nm )
-						{ grpnm_.set( nm ); }
+    inline DataSetKey&	setGroupName( const char* nm )
+					{ grpnm_.set( nm ); return *this; }
     bool		hasGroup(const char* nm) const;
 
     inline const char*	dataSetName() const	{ return dsnm_; }
-    inline void		setDataSetName( const char* nm )
-						{ dsnm_.set( nm ); }
+    inline DataSetKey&	setDataSetName( const char* nm )
+					{ dsnm_.set( nm ); return *this; }
     inline bool		dataSetEmpty() const	{ return dsnm_.isEmpty(); }
     inline bool		hasDataSet( const char* nm ) const
 						{ return dsnm_ == nm; }
 
     BufferString	fullDataSetName() const;
-
-    static const char*	sGroupInfoDataSetName() { return "++info++"; }
 
 protected:
 
@@ -94,7 +92,7 @@ public:
 			mTypeDefArrNDTypes;
 
 			SlabSpec()			{}
-			SlabSpec( nr_dims_type nrdims ) { setNrDims( nrdims ); }
+			SlabSpec( nr_dims_type nrdims )	{ setNrDims( nrdims ); }
 
     void		setNrDims( nr_dims_type nrdims )
 			{
@@ -150,16 +148,16 @@ public:
     virtual		~Access();
 
     uiRetVal		open(const char*);
-    virtual const char* fileName() const		= 0;
+    virtual const char*	fileName() const		= 0;
     virtual bool	isReader() const		= 0;
 
     virtual DataSetKey	scope() const			= 0;
-    virtual bool	setScope(const DataSetKey&)	= 0;
-    bool		setInfoScope(const char* grpnm=0);
     virtual od_int64	curGroupID() const		= 0;
 
     bool		isOpen() const			{ return file_; }
     H5::H5File*		getHDF5File()			{ return file_; }
+    bool		hasGroup(const char* grpnm) const;
+    bool		hasDataSet(const DataSetKey&) const;
 
     static uiString	sHDF5PackageDispName();
     static uiString	sHDF5NotAvailable();
@@ -183,8 +181,16 @@ protected:
     H5::H5File*		file_;
     bool		myfile_;
 
-    virtual void	closeFile()				= 0;
-    virtual void	openFile(const char*,uiRetVal&,bool ed) = 0;
+    virtual void	closeFile()					= 0;
+    virtual void	openFile(const char*,uiRetVal&,bool ed)		= 0;
+
+    virtual H5::H5Object*	setScope(const DataSetKey*)		= 0;
+    virtual H5::H5Object*	getScope(const DataSetKey*) const	= 0;
+    virtual H5::Group*		setGrpScope(const DataSetKey*)		= 0;
+    virtual H5::Group*		getGrpScope(const DataSetKey*) const	= 0;
+    virtual H5::DataSet*	setDSScope(const DataSetKey&)		= 0;
+    virtual H5::DataSet*	getDSScope(const DataSetKey&) const	= 0;
+			//!< Returns (new) scope. null for root scope
 
     static uiString	sHDF5Err(const uiString&);
     static uiString	sFileNotOpen();
