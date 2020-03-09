@@ -652,7 +652,8 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 PropertyRef::StdType Well::Log::propType() const
 {
     const UnitOfMeasure* uom = unitOfMeasure();
-    return uom ? uom->propType() : PropertyRef::Other;
+    return uom ? uom->propType() : (  valsarecodes_ ?
+	    PropertyRef::Class : PropertyRef::Other );
 }
 
 
