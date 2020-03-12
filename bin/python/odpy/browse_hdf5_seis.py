@@ -148,7 +148,7 @@ while (cont == "Y") or (cont == "y" ) or (cont == "YES") or (cont == "Yes"):
     cont = "Yes"
   print( "" )
 
-h5file = h5py.File( filenm, "r" )
+h5file = odhdf5.openFile( filenm, 'r' )
 #cubeposidx = list( h5file.keys() ).index("Seismic Cube Positions")
 #cubepos = list(h5file.values())[cubeposidx]
 cubepos = h5file["Seismic Cube Positions"]
