@@ -80,7 +80,7 @@ def preLoad( filenm, attribute=None, sampling=None, fillval=None ):
   nrblockx = blocksrg['Inline'][1]+1
   nrblocky = blocksrg['Crossline'][1]+1
 
-  h5file = h5py.File( filenm, "r" )
+  h5file = odhdf5.openFile( filenm, 'r' )
   datagroup = h5file[attribute]
   if len(datagroup) < 1:
     print( "Empty dataset found" )

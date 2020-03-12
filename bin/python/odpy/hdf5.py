@@ -12,6 +12,9 @@ import h5py
 
 dGBInfoDSName = '++info++'
 
+def openFile( filenm, mode ):
+  return h5py.File( filenm, mode, libver=('earliest', 'v110') )
+
 def getInfoDataSet( h5file_or_grp ):
   try:
     return h5file_or_grp[dGBInfoDSName]
@@ -99,7 +102,7 @@ def getDArray( infos, ky ):
   return getDArray_( getText(infos,ky) )
 
 def getAttribInfo( filenm ):
-  h5file = h5py.File( filenm, "r" )
+  h5file = openFile( filenm, 'r' )
   infods = getInfoDataSet( h5file )
 
   blocksversion = getIntValue(infods,"Blocks.Version")
@@ -152,7 +155,7 @@ def getTransform( info ):
   })
 
 def getSurveyInfo( filenm ):
-  h5file = h5py.File( filenm, "r" )
+  h5file = openFile( filenm, 'r' )
   infods = getInfoDataSet( h5file )
   surveyname = getText(infods,"Name.Survey")
   inlstart = getIntValue(infods,"First In-line")
