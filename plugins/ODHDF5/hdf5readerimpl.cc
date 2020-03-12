@@ -368,7 +368,7 @@ void HDF5::ReaderImpl::gtInfo( const H5::H5Object& h5obj, IOPar& iop,
     try {
 	h5objed.iterateAttrs( add_attr_iop, NULL, &iop );
     }
-    mCatchUnexpected();
+    mCatchUnexpected( return );
 }
 
 
