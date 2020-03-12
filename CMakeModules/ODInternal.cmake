@@ -24,7 +24,7 @@ function( get_buildinsrc REQUIRED_ARG )
     else()
 	set(${REQUIRED_ARG} True PARENT_SCOPE )
     endif()
-endfunction( check_buildinsrc )
+endfunction( get_buildinsrc )
 
 get_buildinsrc( BUILDINSRC )
 
