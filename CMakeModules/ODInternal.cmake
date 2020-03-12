@@ -12,7 +12,23 @@ configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
 configure_file (${CMAKE_SOURCE_DIR}/CMakeModules/templates/.arcconfig.in
 		${CMAKE_SOURCE_DIR}/.arcconfig @ONLY )
 
- if ( NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR ) )
+function( get_buildinsrc REQUIRED_ARG )
+    if ( NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
+	get_filename_component( SRCDIR ${CMAKE_SOURCE_DIR} REALPATH )
+	get_filename_component( BINDIR ${CMAKE_BINARY_DIR} REALPATH )
+	if ( NOT ${SRCDIR} STREQUAL ${BINDIR} )
+	    set(${REQUIRED_ARG} False PARENT_SCOPE )
+	else()
+	    set(${REQUIRED_ARG} True PARENT_SCOPE )
+	endif()
+    else()
+	set(${REQUIRED_ARG} True PARENT_SCOPE )
+    endif()
+endfunction( check_buildinsrc )
+
+get_buildinsrc( BUILDINSRC )
+
+if ( NOT ${BUILDINSRC} )
     if ( UNIX )
 	if ( APPLE )
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
@@ -210,7 +226,7 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-    set( LMUTIL "lmutil.exe" )
+    set( LMUTIL ${LMUTIL}.exe )
 endif()
 
 install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
@@ -225,7 +241,7 @@ else()
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/../lm.dgb/ )
 endif()
 
-if ( NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
+if ( NOT ${BUILDINSRC} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
 		   ${CMAKE_BINARY_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/${LMUTIL} )
