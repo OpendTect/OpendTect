@@ -269,19 +269,37 @@ int HDF5::ReaderImpl::getNrAttributes( const DataSetKey* dsky ) const
 }
 
 
-void HDF5::ReaderImpl::gtAttribNames( const H5::H5Object& h5obj,
-			BufferStringSet& nms ) const
+namespace HDF5
 {
-    const int nrattrs = h5obj.getNumAttrs();
-    for ( int idx=0; idx<nrattrs; idx++ )
-    {
-	try {
-	    const H5::Attribute attr = h5obj.openAttribute( (unsigned int)idx );
-	    nms.add( attr.getName().c_str() );
-	}
 
-	catch( ... ) { continue; }
+static void add_attr_valstr( H5::H5Object& loc, const H5std_string attr_name,
+		       void* operator_data )
+{
+    auto* valstrs = reinterpret_cast<BufferStringSet*>( operator_data );
+    valstrs->add( attr_name.c_str() );
+}
+
+
+static void add_attr_iop( H5::H5Object& loc, const H5std_string attr_name,
+		       void* operator_data )
+{
+    auto* iop = reinterpret_cast<IOPar*>( operator_data );
+    const H5::Attribute attr = loc.openAttribute( attr_name );
+    std::string valstr;
+    attr.read( attr.getDataType(), valstr );
+    iop->set( attr_name.c_str(), valstr.c_str() );
+}
+
+} //namespace HDF5
+
+void HDF5::ReaderImpl::gtAttribNames( const H5::H5Object& h5obj,
+				      BufferStringSet& nms ) const
+{
+    H5::H5Object& h5objed = const_cast<H5::H5Object&>( h5obj );
+    try {
+	h5objed.iterateAttrs( add_attr_valstr, NULL, &nms );
     }
+    catch( ... ) {}
 }
 
 
@@ -346,21 +364,11 @@ void HDF5::ReaderImpl::gtInfo( const H5::H5Object& h5obj, IOPar& iop,
 			       uiRetVal& uirv ) const
 {
     iop.setEmpty();
-    const int nrattrs = h5obj.getNumAttrs();
-    for ( int idx=0; idx<nrattrs; idx++ )
-    {
-	try {
-	    const H5::Attribute attr = h5obj.openAttribute( (unsigned int)idx);
-	    const std::string ky = attr.getName();
-	    if ( ky.empty() )
-		continue;
-
-	    std::string valstr;
-	    attr.read( attr.getDataType(), valstr );
-	    iop.set( ky.c_str(), valstr.c_str() );
-	}
-	mCatchUnexpected( continue );
+    H5::H5Object& h5objed = const_cast<H5::H5Object&>( h5obj );
+    try {
+	h5objed.iterateAttrs( add_attr_iop, NULL, &iop );
     }
+    mCatchUnexpected();
 }
 
 
