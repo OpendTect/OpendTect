@@ -1319,7 +1319,9 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 	return new Math::ExpressionConstant( M_PI );
     if ( workstr.isEqual("euler",CaseInsensitive) )
 	return new Math::ExpressionConstant( 2.7182818284590452353602874713 );
-    else if ( workstr.isEqual("undef",CaseInsensitive) )
+    if ( workstr.isEqual("undef",CaseInsensitive) )
+	return new Math::ExpressionConstant( mUdf(double) );
+    if ( workstr.isEqual("null",CaseInsensitive) )
 	return new Math::ExpressionConstant( mUdf(double) );
 
     if ( findVariable( str, len, ret ) )
