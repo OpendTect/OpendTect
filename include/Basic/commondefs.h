@@ -91,6 +91,9 @@ inline T& getNonConst( const T& t )
 #ifndef M_SQRT2
 #  define M_SQRT2       1.41421356237309504880168872421
 #endif
+#ifndef M_EULER
+#  define M_EULER	2.7182818284590452353602874713
+#endif
 #ifndef M_PIf
 # define M_PIf		3.14159265358979323846f
 #endif
@@ -105,6 +108,9 @@ inline T& getNonConst( const T& t )
 #endif
 #ifndef M_SQRT2f
 #  define M_SQRT2f      1.41421356237309504880168872421f
+#endif
+#ifndef M_EULERf
+#  define M_EULERf	2.7182818284590452353602874713f
 #endif
 
 #ifndef MAXFLOAT
