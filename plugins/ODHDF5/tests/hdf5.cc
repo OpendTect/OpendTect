@@ -44,7 +44,7 @@ static bool testReadInfo( HDF5::Reader& rdr )
 {
     BufferStringSet grps;
     rdr.getGroups( grps );
-    mRunStandardTestWithError( grps.size()==3, "Groups in file",
+    mRunStandardTestWithError( grps.size()==6, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
@@ -270,6 +270,13 @@ static bool testReadData( HDF5::Reader& rdr )
 				"Correct Strings value [3]",
 				BufferString("s[3]=",bss.get(3)) )
 
+    const auto maindsky = HDF5::DataSetKey( "MainGroup" );
+    mRunStandardTest( rdr.hasGroup( maindsky.groupName() ), "Has main group" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
+    mRunStandardTest( rdr.hasGroup( dsky.groupName() ), "Has sub-group A" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky.fullDataSetName(), "GroupB" );
+    mRunStandardTest( rdr.hasGroup( dsky.groupName() ), "Has sub-group B" );
+
     return true;
 }
 
@@ -389,6 +396,16 @@ static bool testWrite()
     iop.set( "Appel", "peer" );
     uirv = wrr->set( iop, &dsky );
     mAddTestResult( "Write Comp1/Block1 attrib using an IOPar" );
+
+    const auto maindsky = HDF5::DataSetKey( "MainGroup" );
+    wrr->ensureGroup( maindsky.groupName(), uirv );
+    mAddTestResult( "Create MainGroup group" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
+    wrr->ensureGroup( dsky.groupName(), uirv );
+    mAddTestResult( "Create sub-group A" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky.fullDataSetName(), "GroupB" );
+    wrr->ensureGroup( dsky.groupName(), uirv );
+    mAddTestResult( "Create sub-group B" );
 
     //Editable
     wrr->setEditableCreation( true );
