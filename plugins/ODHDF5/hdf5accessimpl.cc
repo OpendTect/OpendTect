@@ -8,13 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5readerimpl.h"
-#include "hdf5writerimpl.h"
+
 #include "envvars.h"
 #include "file.h"
+#include "hdf5readerimpl.h"
+#include "hdf5writerimpl.h"
 #include "staticstring.h"
 #include "uistrings.h"
-#include "H5Cpp.h"
 
 
 HDF5::Reader* HDF5::AccessProviderImpl::getReader() const
@@ -150,8 +150,8 @@ H5::Group* HDF5::AccessImpl::selectGroup( const char* grpnm ) const
     {
 	if ( atGroup(grpnm) )
 	    return &group_;
-	else if ( *grpnm != '/'
-	  && !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
+	else if ( FixedString(grpnm) != "/" &&
+	  !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
 	    return nullptr;
     }
 
