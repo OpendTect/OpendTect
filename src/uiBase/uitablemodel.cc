@@ -521,7 +521,7 @@ void uiTableView::setColumnValueType( int col, CellType tp )
 }
 
 
-void uiTableView::setColumnWidth( int col, int width )
+void uiTableView::setColumnWidth( int col, int wdt )
 {
-    odtableview_->setColumnWidth( col, width );
+    odtableview_->setColumnWidth( col, wdt );
 }
