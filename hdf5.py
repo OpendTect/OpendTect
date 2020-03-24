@@ -13,7 +13,7 @@ import h5py
 dGBInfoDSName = '++info++'
 
 def openFile( filenm, mode ):
-  return h5py.File( filenm, mode, libver=('earliest', 'v110') )
+  return h5py.File( filenm, mode, libver=('v110', 'latest') )
 
 def getInfoDataSet( h5file_or_grp ):
   try:
