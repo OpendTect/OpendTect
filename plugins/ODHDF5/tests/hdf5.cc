@@ -39,6 +39,68 @@ static void fillArr2D( Array2D<T>& arr2d, int shft )
 #define mAddTestResult(desc) \
     mRunStandardTestWithError( uirv.isOK(), desc, toString(uirv) )
 
+static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky, HDF5::Writer& wrr )
+{
+    uiRetVal uirv;
+    const int nrbatch = 5000;
+    const int nrattribs = 2;
+    const int nrinl = 8;
+    const int nrcrl = 16;
+    const int nrz = 32;
+    TypeSet<int> arrdims;
+    arrdims += nrbatch;
+    arrdims += nrattribs;
+    arrdims += nrinl;
+    arrdims += nrcrl;
+    arrdims += nrz;
+    PtrMan<ArrayNDInfo> allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
+    Array3DImpl<float> arr( nrinl, nrcrl, nrz );
+    if ( !arr.isOK() )
+    {
+	uirv.add( uiStrings::phrCannotAllocateMemory(arr.totalSize()*sizeof(float)));
+	return uirv;
+    }
+    
+    const HDF5::DataSetKey dsky( grpdsky.fullDataSetName(), "BigData" );
+    uirv = wrr.createDataSet( dsky, *allinfo, OD::F32 );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    HDF5::SlabSpec slabspec;
+    HDF5::SlabDimSpec batchspec; batchspec.count_ = 1;
+    HDF5::SlabDimSpec attribspec; attribspec.count_ = 1;
+    slabspec += batchspec;
+    slabspec += attribspec;
+    slabspec += HDF5::SlabDimSpec();
+    slabspec += HDF5::SlabDimSpec();
+    slabspec += HDF5::SlabDimSpec();
+
+    const float* arrptr = arr.getData();
+    for ( int ibatch=0; ibatch<300; ibatch++ )
+    {
+	slabspec[0].start_ = ibatch;
+	for ( int iattr=0; iattr<nrattribs; iattr++ )
+	{
+	    slabspec[1].start_ = iattr;
+	    const float fact = iattr == 0 ? 1.f : -1.f;
+	    for ( int idx=0; idx<nrinl; idx++ )
+		for ( int idy=0; idy<nrcrl; idy++ )
+		    for ( int idz=0; idz<nrz; idz++ )
+			arr.set( idx, idy, idz, fact*arr.info().getOffset(idx,idy,idz) );
+	    uirv = wrr.putSlab( dsky, slabspec, arrptr );
+	    if ( !uirv.isOK() )
+		return uirv;
+	}
+    }
+
+    arrdims[0] = 15;
+    allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
+    uirv = wrr.resizeDataSet( dsky, *allinfo );
+    //Will crop the dataset, but keeps the remaining data
+
+    return uirv;
+}
+
 
 static bool testReadInfo( HDF5::Reader& rdr )
 {
@@ -403,6 +465,8 @@ static bool testWrite()
     dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
     wrr->ensureGroup( dsky.groupName(), uirv );
     mAddTestResult( "Create sub-group A" );
+    uirv = testCreateLargeDS( dsky, *wrr );
+    mAddTestResult( "Create Large Dataset in sub-group A" )
     dsky = HDF5::DataSetKey::groupKey( maindsky.fullDataSetName(), "GroupB" );
     wrr->ensureGroup( dsky.groupName(), uirv );
     mAddTestResult( "Create sub-group B" );
