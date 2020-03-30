@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <time.h>
 #include <string.h>
 
+#include <QStorageInfo>
 
 const char* FilePath::sPrefSep = ":";
 
@@ -547,3 +548,10 @@ bool FilePath::isEmpty() const
     return prefix_.isEmpty() && lvls_.isEmpty();
 }
 
+
+BufferString FilePath::partitionName()
+{
+    const QStorageInfo qsi( fullPath().buf() );
+    const QString qstrdispnm( qsi.displayName() );
+    return BufferString( qstrdispnm );
+}
