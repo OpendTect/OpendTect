@@ -201,7 +201,9 @@ void uiObjFileMan::selChg( CallBacker* cb )
 {
     saveNotes(0);
     updateFromSelected();
-    const BufferString typestr = curioobj_->pars().find(sKey::Type());
+    BufferString typestr;
+    if ( curioobj_ )
+	typestr = curioobj_->pars().find(sKey::Type());
     if ( !typestr.isEmpty() )
 	selgrp_->setSurveyDefaultSubsel(
 				IOPar::compKey(BufferString::empty(),typestr));
