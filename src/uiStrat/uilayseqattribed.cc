@@ -37,9 +37,9 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
 				   const uiLaySeqAttribEd::Setup& edsu )
     : uiDialog(p,uiDialog::Setup(edsu.isnew_ ? tr("Add attribute")
-                                             : tr("Edit attribute"),
-		                 mToUiStringTodo(gtDlgTitle(lsa,edsu.isnew_)),
-                                 mODHelpKey(mLaySeqAttribEdHelpID) ))
+					     : tr("Edit attribute"),
+				 mToUiStringTodo(gtDlgTitle(lsa,edsu.isnew_)),
+				 mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
     , reftree_(rt)
     , nmchgd_(false)
@@ -52,7 +52,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     {
 	islocalfld_ = new uiGenInput( this, uiStrings::sType(),
 			    BoolInpSpec( false, tr("Sliding"),
-                                         tr("Integrated")) );
+					 tr("Integrated")) );
 	islocalfld_->valuechanged.notify( mCB(this,uiLaySeqAttribEd,slSel) );
     }
 
@@ -65,6 +65,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
 						    tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
+	upscaletypfld_->setHSzPol( uiObject::MedVar );
 	upscaletypfld_-> addItems( Stats::UpscaleTypeNames() );
 	if ( lbl )
 	    lupscfld->attach( alignedBelow, lbl );
@@ -84,7 +85,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	lithofld_->setNrLines( reftree_.lithologies().size() );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
 	    lithofld_->addItem( toUiString(reftree_.lithologies().
-						         getLith(idx).name()) );
+							 getLith(idx).name()) );
 
 	uiStratSelUnits::Setup ssusu( uiStratSelUnits::Multi,
 				      Strat::UnitRefIter::AllNodes );
@@ -233,7 +234,7 @@ bool uiLaySeqAttribEd::getFromScreen()
 	if ( uns.isEmpty() || (!lithofld_->isEmpty() && liths.isEmpty()) )
 	{
 	    uiMSG().error(tr("Please select at least"
-                             " one unit and one lithology"));
+			     " one unit and one lithology"));
 	    return false;
 	}
     }
