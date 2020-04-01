@@ -376,6 +376,7 @@ Seis::Loader::~Loader()
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
     delete ioobj_;
+    delete reqss_;
     deepErase( compscalers_ );
     delete scaler_;
     delete seissummary_;

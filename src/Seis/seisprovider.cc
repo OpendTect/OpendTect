@@ -151,6 +151,7 @@ Seis::Provider::Provider( bool is2d, bool fillposs )
 
 Seis::Provider::~Provider()
 {
+    delete ioobj_;
     delete seldata_;
     delete selectedpositions_;
     delete &possiblepositions_;

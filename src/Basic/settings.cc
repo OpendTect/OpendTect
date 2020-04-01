@@ -22,13 +22,13 @@ static const char* sKeyCommon = "Common";
 #define mGetKey(key) (key && *key ? key : sKeyCommon)
 #define mIsCommon(key) (!key || !*key || FixedString(key)==sKeyCommon)
 
-static PtrMan<ObjectSet<Settings> > theinst_ = 0;
+static PtrMan<ManagedObjectSet<Settings> > theinst_ = 0;
 
-static ObjectSet<Settings>& getSetts()
+static ManagedObjectSet<Settings>& getSetts()
 {
     if ( !theinst_ )
     {
-	ObjectSet<Settings>* ptr = new ObjectSet<Settings>;
+	ManagedObjectSet<Settings>* ptr = new ManagedObjectSet<Settings>;
 	if ( !theinst_.setIfNull(ptr,true) )
 	    delete ptr;
     }
@@ -53,7 +53,7 @@ static BufferString getFileName( const char* key, const char* dtectusr,
 Settings& Settings::fetch( const char* key )
 {
     const char* settkey = mGetKey( key );
-    ObjectSet<Settings>& settlist = getSetts();
+    ManagedObjectSet<Settings>& settlist = getSetts();
     for ( int idx=0; idx<settlist.size(); idx++ )
 	if ( settlist[idx]->hasName(settkey) )
 	    return *settlist[idx];
