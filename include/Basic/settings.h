@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "iopar.h"
 
+template <class T> class ManagedObjectSet;
+
 
 /*!
 \brief Settings class holds the user settings. It is an IOPar.
@@ -62,9 +64,11 @@ protected:
     static Settings*		doFetch(const char*,const char*,const char*,
 					bool);
     bool			doRead(bool);
+
+    friend class ManagedObjectSet<Settings>;
 public:
     void			remove() { delete this; }
-    				//!<Only specialist use i.e. on program closing
+				//!<Only specialist use i.e. on program closing
 };
 
 

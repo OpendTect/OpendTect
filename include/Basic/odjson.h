@@ -80,8 +80,12 @@ public:
 
 protected:
 
-    DataType		type_;
-    OD::Set*		set_;
+    DataType		type_ = Boolean;
+    OD::Set*		set_ = nullptr;
+
+private:
+
+			ValArr()	 = delete;
 
 };
 

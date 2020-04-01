@@ -35,7 +35,7 @@ public:
 	ValueSet* vset_;
     };
     Contents		cont_;
-    int			type_;
+    int			type_ = Number;
 
     virtual bool	isKeyed() const	{ return false; }
 

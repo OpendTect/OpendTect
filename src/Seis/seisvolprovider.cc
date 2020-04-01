@@ -201,6 +201,7 @@ bool Seis::VolFetcher::createTranslator( inl_type inl ) const
     auto* sd = new Seis::RangeSelData( &prov_.dbKey().surveyInfo() );
     sd->zSubSel().limitTo( prov_.zSubSel() );
     newtransl->setSelData( sd );
+    delete sd;
 
     if ( !newtransl->commitSelections() )
 	{ uirv_ = newtransl->errMsg(); delete newtransl; return false; }
