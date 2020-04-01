@@ -506,9 +506,10 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    Coord coord = trc_.info().coord;
 	    mPIEPAdj(Coord,coord,false);
-	    if ( !(*SI().getCoordSystem() == *data_.getCoordSys()) )
-		coord = data_.getCoordSys()->convertFrom(
-					      coord,*SI().getCoordSystem() );
+	    ConstRefMan<Coords::CoordSystem> sicrs = SI().getCoordSystem();
+	    ConstRefMan<Coords::CoordSystem> datacrs = data_.getCoordSys();
+	    if ( sicrs && datacrs && !(*sicrs == *datacrs) )
+		coord = datacrs->convertFrom( coord, *sicrs );
 
 	    binstrm.add( coord.x ).add( coord.y );
 	}
