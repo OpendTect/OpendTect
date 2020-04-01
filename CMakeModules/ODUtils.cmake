@@ -78,7 +78,7 @@ set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
 set ( OD_SURVEY_EXECS od_Edit_Survey od_Manage_Surveys )
 set ( DGB_SR_EXECS od_SynthRock )
 set ( DGB_ML_EXECS od_deeplearn_apply )
-set ( DGB_ML_UIEXECS od_DeepLearning od_DeepLearning_CC od_DeepLearning_EM od_DeepLearning_TM )
+set ( DGB_ML_UIEXECS od_DeepLearning od_DeepLearning_CC od_DeepLearning_EM od_DeepLearning_TM od_DeepLearning_ModelImport )
 
 set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT OFF )
 if ( OSG_DIR )
