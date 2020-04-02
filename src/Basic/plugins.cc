@@ -190,6 +190,12 @@ PluginManager::PluginManager()
 }
 
 
+PluginManager::~PluginManager()
+{
+    deepErase( data_ );
+}
+
+
 static const char* getFnName( const char* libnm, const char* fnbeg,
 			      const char* fnend )
 {

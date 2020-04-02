@@ -53,12 +53,12 @@ od_ostream& od_ostream::nullStream()
 {
     if ( !nullostream )
     {
-#ifndef __win__
-	od_ostream* ptr = new od_ostream( "/dev/null" );
-#else
+#ifdef __win__
 	od_ostream* ptr = new od_ostream( "NUL" );
-#endif
 	ptr->setNoClose();
+#else
+	od_ostream* ptr = new od_ostream( "/dev/null" );
+#endif
 
 	if ( !nullostream.setIfNull(ptr,true) )
 	    delete ptr;

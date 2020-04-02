@@ -153,7 +153,7 @@ public:
     Notifier<DBMan>	surveyChangeOK;
     void		setSurveyChangeUserAbort();
     void		setSurveyChangeAbortReason(uiRetVal);
-    void		applClosing()		{ applicationClosing.trigger();}
+    void		applClosing();
 
     mDeprecated bool	permRemove( const DBKey& ky )
 			{ return removeEntry(ky); }

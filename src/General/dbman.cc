@@ -18,6 +18,7 @@
 #include "survgeommgr.h"
 #include "iosubdir.h"
 #include "safefileio.h"
+#include "settings.h"
 #include "od_iostream.h"
 #include "transl.h"
 #include "keystrs.h"
@@ -105,6 +106,12 @@ void DBMan::setSurveyChangeAbortReason( uiRetVal reason )
 {
     mLock4Write();
     surveychangeabortreason_ = reason;
+}
+
+void DBMan::applClosing()
+{
+    Settings::deleteAll();
+    applicationClosing.trigger();
 }
 
 
