@@ -112,6 +112,11 @@ RequestConnection::~RequestConnection()
 	deleteAndZeroPtr( socket_, ownssocket_ );
     }
 
+    if ( !receivedpackets_.isEmpty() )
+    {
+	pErrMsg("Received packets should be empty");
+    }
+
     if ( sendqueue_.size() )
     {
         pErrMsg("Queue should be empty");
@@ -463,15 +468,16 @@ RefMan<RequestPacket> RequestConnection::getNextAlreadyRead( int reqid )
 {
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
-	RequestPacket* pkg = receivedpackets_[idx];
-	if ( reqid<0 || pkg->requestID()==reqid )
+	RefMan<RequestPacket> pkt = receivedpackets_[idx];
+	if ( reqid<0 || pkt->requestID()==reqid )
 	{
 	    receivedpackets_.removeSingle( idx );
-	    return pkg;
+	    pkt->unRef();
+	    return pkt;
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -485,11 +491,12 @@ RefMan<RequestPacket> RequestConnection::getNextExternalPacket()
 	if ( !ourrequestids_.isPresent(pkt->requestID()) )
 	{
 	    receivedpackets_.removeSingle(idx);
+	    pkt->unRef();
 	    return pkt;
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
