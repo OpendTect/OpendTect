@@ -72,7 +72,7 @@ bool TranslatorGroup::add( Translator* tr )
 
     bool res = false;
 
-    for ( int idx=0; idx<templs_.size(); idx++ )
+    for ( int idx=templs_.size()-1; idx>=0; idx-- )
     {
 	const Translator* oldtr = templs_[idx];
 	if ( oldtr->userName() == tr->userName() )
@@ -85,8 +85,9 @@ bool TranslatorGroup::add( Translator* tr )
 		DBG::message( msg );
 	    }
 	    res = true;
-		    templs_ -= oldtr; break;
-
+	    templs_ -= oldtr;
+	    delete oldtr;
+	    break;
 	}
     }
 

@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "iopar.h"
 
-template <class T> class ManagedObjectSet;
-
 
 /*!
 \brief Settings class holds the user settings. It is an IOPar.
@@ -65,10 +63,10 @@ protected:
 					bool);
     bool			doRead(bool);
 
-    friend class ManagedObjectSet<Settings>;
-public:
-    void			remove() { delete this; }
-				//!<Only specialist use i.e. on program closing
+private:
+
+    static void			deleteAll();
+    friend class DBMan;
 };
 
 

@@ -48,6 +48,7 @@ BatchProgram& BP()
 void BatchProgram::deleteInstance( int retcode )
 {
     delete BatchProgram::inst_;
+    DBM().applClosing();
     ApplicationData::exit( retcode );
 }
 
