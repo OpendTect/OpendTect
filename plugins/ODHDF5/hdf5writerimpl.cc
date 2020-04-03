@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5writerimpl.h"
+
+#include "envvars.h"
 #include "hdf5readerimpl.h"
 #include "uistrings.h"
 #include "arrayndimpl.h"
@@ -17,6 +19,8 @@ ________________________________________________________________________
 static unsigned gzip_pixels_per_block = 16;
 		    // can be an even number [2,32]
 static int gzip_encoding_status = -1;
+static bool allowzip = GetEnvVarYN("OD_HDF5_ALLOWZIP",true);
+static bool allowshuffle = GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true);
 
 #define mUnLim4 H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED
 static hsize_t resizablemaxdims_[24] =
@@ -139,7 +143,8 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
     }
 
     const bool wantchunk = maxdim > maxchunkdim;
-    const bool canzip = gzip_encoding_status>0
+    const bool canzip = allowzip && (mustchunk || wantchunk) &&
+		     gzip_encoding_status>0
 		     && maxdim >= gzip_pixels_per_block;
 
     const H5DataType h5dt = h5DataTypeFor( dt );
@@ -152,7 +157,8 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	if ( canzip )
 	{
 	    proplist.setDeflate( compressionlvl_ );
-	    proplist.setShuffle();
+	    if ( allowshuffle )
+		proplist.setShuffle();
 	}
 	dataset_ = group_.createDataSet( dsky.dataSetName(), h5dt,
 					 dataspace, proplist );
