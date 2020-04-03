@@ -148,11 +148,11 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	H5::DataSpace dataspace( nrdims_, dims.arr(), mDSResizing );
 	H5::DSetCreatPropList proplist;
 	if ( mustchunk || wantchunk )
-	{
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
-	    if ( canzip )
-		proplist.setDeflate( compressionlvl_ );
-
+	if ( canzip )
+	{
+	    proplist.setDeflate( compressionlvl_ );
+	    proplist.setShuffle();
 	}
 	dataset_ = group_.createDataSet( dsky.dataSetName(), h5dt,
 					 dataspace, proplist );
