@@ -993,6 +993,20 @@ bool uiMainWin::isModal() const			{ return body_->isModal(); }
 void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
 
 
+void uiMainWin::showOnTop()
+{
+    QWidget* qw = getWidget(0);
+    if (qw)
+    {
+	Qt::WindowFlags flags = qw->windowFlags();
+	qw->setWindowFlags((flags | Qt::WindowStaysOnTopHint));
+	qw->show();
+	qw->setWindowFlags(flags);
+	qw->show();
+    }
+}
+
+
 void uiMainWin::setCaption( const uiString& txt )
 {
     caption_ = txt;

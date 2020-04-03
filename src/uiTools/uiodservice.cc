@@ -25,6 +25,7 @@
 #include "settings.h"
 #include "timer.h"
 
+
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
 uiODServiceBase::uiODServiceBase( bool assignport )
@@ -434,11 +435,7 @@ uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
     else if ( action == sKeyRaiseEv() )
     {
 	uiMainWin* mainwin = uiMain::theMain().topLevel();
-	if ( mainwin->isMinimized() || mainwin->isHidden() )
-	{
-	    mainwin->showNormal();
-	    mainwin->raise();
-	}
+	mainwin->showOnTop();
     }
 
     return uiODServiceBase::doAction( actobj );

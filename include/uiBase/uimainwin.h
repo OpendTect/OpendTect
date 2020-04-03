@@ -95,6 +95,7 @@ public:
     void		showMaximized();
     void		showMinimized();
     void		showNormal();
+    void		showOnTop();
 
     bool		isMaximized() const;
     bool		isMinimized() const;
