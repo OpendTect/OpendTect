@@ -19,8 +19,6 @@ ________________________________________________________________________
 static unsigned gzip_pixels_per_block = 16;
 		    // can be an even number [2,32]
 static int gzip_encoding_status = -1;
-static bool allowzip = GetEnvVarYN("OD_HDF5_ALLOWZIP",true);
-static bool allowshuffle = GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true);
 
 #define mUnLim4 H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED
 static hsize_t resizablemaxdims_[24] =
@@ -35,12 +33,17 @@ HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
 {
     if ( gzip_encoding_status < 0 )
+    {
 	gzip_encoding_status = H5Zfilter_avail( H5Z_FILTER_DEFLATE ) ? 1 : 0;
-    unsigned int filter_info;
-    H5Zget_filter_info( H5Z_FILTER_DEFLATE, &filter_info );
-    if ( !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
-	 !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED) )
-	gzip_encoding_status = 0;
+	if ( gzip_encoding_status == 1 )
+	{
+	    unsigned int filter_info;
+	    H5Zget_filter_info( H5Z_FILTER_DEFLATE, &filter_info );
+	    if ( !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
+		 !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED) )
+		gzip_encoding_status = 0;
+	}
+    }
 }
 
 
@@ -141,6 +144,9 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	    maxchunkdim = chunkdim;
 	chunkdims += chunkdim;
     }
+
+    static bool allowzip = GetEnvVarYN("OD_HDF5_ALLOWZIP",true);
+    static bool allowshuffle = GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true);
 
     const bool wantchunk = maxdim > maxchunkdim;
     const bool canzip = allowzip && (mustchunk || wantchunk) &&
