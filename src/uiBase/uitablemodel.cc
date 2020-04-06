@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 
 #include <QAbstractTableModel>
+#include <QCheckBox>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPainter>
@@ -162,6 +163,14 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 		model_.getCellData( qmodidx.row(), qmodidx.column() );
 	return cd.qvar_;
     }
+
+    if ( qmodidx.column()==0 && role == Qt::CheckStateRole )
+    {
+	uiTableModel::CellData cd =
+		model_.getCellData( qmodidx.row(), qmodidx.column() );
+	return cd.qvar_;
+    }
+
     if ( role == Qt::BackgroundRole )
     {
 	Color odcol = model_.color( qmodidx.row(), qmodidx.column() );
@@ -198,6 +207,13 @@ bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
     {
 	uiTableModel::CellData cd( qvar );
 	model_.setCellData( qmodidx.row(), qmodidx.column(), cd );
+	return true;
+    }
+
+    if ( role == Qt::CheckStateRole )
+    {
+	uiTableModel::CellData cd( qvar );
+	model_.setChosenRow( qmodidx.row(), qmodidx.column(), cd );
 	return true;
     }
 
@@ -258,12 +274,18 @@ uiTableModel::CellData::CellData( float val, int ) : qvar_(*new QVariant(val))
 uiTableModel::CellData::CellData( double val, int ) : qvar_(*new QVariant(val))
 {}
 
+uiTableModel::CellData::CellData( bool val ) : qvar_(*new QVariant(val))
+{}
+
 uiTableModel::CellData::CellData( const CellData& cd )
     : qvar_(*new QVariant(cd.qvar_))
 {}
 
 uiTableModel::CellData::~CellData()
 { delete &qvar_; }
+
+bool uiTableModel::CellData::getBoolValue() const
+{ return qvar_.toBool(); }
 
 const char* uiTableModel::CellData::text() const
 {
@@ -493,4 +515,10 @@ void uiTableView::setColumnValueType( int col, CellType tp )
 	odtableview_->setItemDelegateForColumn( col, getDoubleDelegate() );
     else if ( tp==Text )
 	odtableview_->setItemDelegateForColumn( col, getTextDelegate() );
+}
+
+
+void uiTableView::setColumnWidth( int col, int width )
+{
+    odtableview_->setColumnWidth( col, width );
 }

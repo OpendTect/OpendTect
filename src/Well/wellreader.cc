@@ -850,7 +850,7 @@ od_int64 MultiWellReader::nrDone() const
 { return nrdone_; }
 
 uiString MultiWellReader::uiMessage() const
-{ return tr("Reading well info"); }
+{ return errmsg_; }
 
 uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
@@ -875,8 +875,13 @@ int MultiWellReader::nextStep()
 	if ( wds_.size() != keys_.size() )
 	    allwellsread_ = false;
 
-	return wds_.size() == 0 ? Executor::ErrorOccurred()
-				: Executor::Finished();
+	if  ( wds_.size() == 0 )
+	{
+	   errmsg_ = tr("No wells to be read");
+	   return  Executor::ErrorOccurred();
+	}
+	else
+	    return Executor::Finished();
     }
 
     const MultiID wmid = keys_[sCast(int,nrdone_)];

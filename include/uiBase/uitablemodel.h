@@ -28,12 +28,14 @@ public:
 	CellData();
 	CellData(const QVariant&);
 	CellData(const char*);
+	CellData(bool);
 	CellData(int);
 	CellData(float,int nrdec);
 	CellData(double,int nrdec);
 	CellData(const CellData&);
 	~CellData();
 
+	bool		getBoolValue() const;
 	const char*	text() const;
 	float		getFValue() const;
 	double		getDValue() const;
@@ -44,7 +46,7 @@ public:
 
     enum ItemFlag		{ NoFlags=0, ItemSelectable=1, ItemEditable=2,
 				  ItemDragEnabled=4, ItemDropEnabled=8,
-				  ItemCheckable=16, ItemEnabled=32 };
+				  ItemIsUserCheckable=16, ItemEnabled=32 };
     virtual			~uiTableModel();
 
     virtual int			nrRows() const		= 0;
@@ -55,6 +57,9 @@ public:
     virtual Color		color(int row,int col) const	= 0;
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const	= 0;
+    virtual int			chosenRowState(int row,int col) = 0;
+    virtual void		setChosenRow(int row,int col,
+					    const CellData&) = 0;
     virtual void		setCellData(int row,int col,
 					    const CellData&){};
     ODAbstractTableModel*	getAbstractModel()	{ return odtablemodel_;}
@@ -74,7 +79,7 @@ public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
-    enum CellType		{ Text, NumI, NumF, NumD, Color, Date };
+    enum CellType		{ Bool, Text, NumI, NumF, NumD, Color, Date };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
@@ -101,6 +106,7 @@ public:
     bool			getSelectedCells(TypeSet<RowCol>&) const;
 
     void			setColumnValueType(int col,CellType);
+    void			setColumnWidth( int col,int width );
 
 protected:
 
