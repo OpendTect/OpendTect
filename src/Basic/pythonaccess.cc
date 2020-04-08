@@ -173,7 +173,7 @@ uiString OD::PythonAccess::pySummary() const
 uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				     const char* scriptexpectedout ) const
 {
-    if ( !force )
+    if ( force )
 	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
 
     OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
@@ -200,7 +200,8 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
-    static bool force_external = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    mDefineStaticLocalObject(bool, force_external,
+				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
     if ( force_external )
 	return (isusable_ = istested_ = true);
     if ( !force )
@@ -469,7 +470,8 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     {
 	strm.add( "SET procnm=%~n0" ).add( od_newline );
 	strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
-	strm.add( "SET pidfile=\"%~dpn0.pid\"" ).add( od_newline ).add( od_newline);
+	strm.add( "SET pidfile=\"%~dpn0.pid\"" )
+	    .add( od_newline ).add( od_newline);
     }
     strm.add( "@CALL \"" );
 #else
@@ -835,7 +837,8 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     if ( !isUsable_(!istested_) )
 	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
-    static bool force_external_ok = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    mDefineStaticLocalObject(bool, force_external_ok,
+				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
     if ( force_external_ok )
 	return uiRetVal::OK();
 
@@ -1186,11 +1189,24 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
     bool ret;
     if ( retval.isOK() )
     {
+	retval.setEmpty();
 	BufferString cmdstr( OD::PythA().sPythonExecNm() );
-	cmdstr.addSpace().add( "-c" ).addSpace().add( removeDirScript(path) );
+	BufferString pathstr( removeDirScript(path) );
+	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
+	cmdstr.addSpace().add( "-c" ).addSpace().add( pathstr );
 	const OS::MachineCommand cmd( cmdstr );
 
 	ret = OD::PythA().execute( cmd, waitforfin );
+
+	uiString errmsg;
+	const BufferString errstr = OD::PythA().lastOutput(true, &errmsg);
+	if ( !errmsg.isEmpty() )
+	    retval.add( errmsg );
+	if ( !errstr.isEmpty() )
+	{
+	    errmsg.setEmpty();
+	    retval.add(  errmsg.append( errstr ) );
+	}
     }
     else
 	ret = File::removeDir( path );
