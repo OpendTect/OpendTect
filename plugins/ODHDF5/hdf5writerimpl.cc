@@ -145,8 +145,10 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	chunkdims += chunkdim;
     }
 
-    static bool allowzip = GetEnvVarYN("OD_HDF5_ALLOWZIP",true);
-    static bool allowshuffle = GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true);
+    mDefineStaticLocalObject(bool, allowzip,
+		= GetEnvVarYN("OD_HDF5_ALLOWZIP",false) );
+    mDefineStaticLocalObject(bool, allowshuffle,
+		= GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true) );
 
     const bool wantchunk = maxdim > maxchunkdim;
     const bool canzip = allowzip && (mustchunk || wantchunk) &&
@@ -163,7 +165,7 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	if ( canzip )
 	{
 	    proplist.setDeflate( compressionlvl_ );
-	    if ( allowshuffle )
+	    if ( allowshuffle && compressionlvl_ > 0 )
 		proplist.setShuffle();
 	}
 	dataset_ = group_.createDataSet( dsky.dataSetName(), h5dt,

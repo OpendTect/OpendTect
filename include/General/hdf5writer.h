@@ -46,7 +46,7 @@ public:
     uiRetVal		open4Edit(const char*);
 			//!< For normal 'create', use 'open()
 
-    void		setCompressionLevel(unsigned)		{}
+    virtual void	setCompressionLevel(unsigned)		{}
 			/*!< Compression level (0-9)
 			See gzip documentation. 0=None */
 

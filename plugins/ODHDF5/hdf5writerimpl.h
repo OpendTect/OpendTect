@@ -29,7 +29,7 @@ private:
 
     Reader*		createCoupledReader() const override;
 
-    void		setCompressionLevel( unsigned lvl )
+    void		setCompressionLevel( unsigned lvl ) override
 			{ compressionlvl_ = lvl; }
 
     const char*		fileName() const override	{ return gtFileName(); }
