@@ -778,10 +778,32 @@ void uiMainWinBody::readSettings()
     const BufferString fnm = getSettingsFileName();
     QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
-    QSize qsz( settings.value("size", QSize(200,200)).toSize() );
-    prefsz_ = uiSize( qsz.width(), qsz.height() );
-    QPoint qpt( settings.value("pos", QPoint(200,200)).toPoint() );
-    prefpos_.setXY( qpt.x(), qpt.y() );
+    QSize qwinsz( settings.value("size", QSize(200,200)).toSize() );
+    prefsz_ = uiSize( qwinsz.width(), qwinsz.height() );
+    QPoint qwinpos( settings.value("pos", QPoint(200,200)).toPoint() );
+    QRect qwinrect( qwinpos, qwinsz );
+
+    QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.size() > 0 ) // resize and reposition window when needed
+    {
+	const QScreen* scrn = screens[0];
+	const QRect vrect = scrn->availableVirtualGeometry();
+	if ( qwinrect.width() > vrect.width() )
+	    prefsz_.setWidth( vrect.width() );
+	if ( qwinrect.height() > vrect.height() )
+	    prefsz_.setHeight( vrect.height() );
+
+	if ( qwinrect.left() < vrect.left() )
+	    qwinpos.setX( vrect.left() );
+	if ( qwinrect.top() < vrect.top() )
+	    qwinpos.setY( 0 );
+	if ( qwinrect.right() > vrect.right() )
+	    qwinpos.setX( vrect.right()-prefsz_.width() );
+	if ( qwinrect.bottom() > vrect.bottom() )
+	    qwinpos.setY( vrect.bottom()-prefsz_.height() );
+    }
+
+    prefpos_.setXY( qwinpos.x(), qwinpos.y() );
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
 
