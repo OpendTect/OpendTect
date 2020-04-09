@@ -9,16 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5writerimpl.h"
+
+#include "envvars.h"
 #include "hdf5readerimpl.h"
 #include "uistrings.h"
 #include "arrayndimpl.h"
 #include "iopar.h"
 
-static unsigned szip_options_mask = H5_SZIP_EC_OPTION_MASK; // entropy coding
-		     // nearest neighbour coding: H5_SZIP_NN_OPTION_MASK
-static unsigned szip_pixels_per_block = 16;
+static unsigned gzip_pixels_per_block = 16;
 		    // can be an even number [2,32]
-static int szip_encoding_status = -1;
+static int gzip_encoding_status = -1;
 
 #define mUnLim4 H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED
 static hsize_t resizablemaxdims_[24] =
@@ -32,8 +32,18 @@ static hsize_t resizablemaxdims_[24] =
 HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
 {
-    if ( szip_encoding_status < 0 )
-	szip_encoding_status = H5Zfilter_avail( H5Z_FILTER_SZIP ) ? 1 : 0;
+    if ( gzip_encoding_status < 0 )
+    {
+	gzip_encoding_status = H5Zfilter_avail( H5Z_FILTER_DEFLATE ) ? 1 : 0;
+	if ( gzip_encoding_status == 1 )
+	{
+	    unsigned int filter_info;
+	    H5Zget_filter_info( H5Z_FILTER_DEFLATE, &filter_info );
+	    if ( !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
+		 !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED) )
+		gzip_encoding_status = 0;
+	}
+    }
 }
 
 
@@ -135,9 +145,15 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	chunkdims += chunkdim;
     }
 
+    mDefineStaticLocalObject(bool, allowzip,
+		= GetEnvVarYN("OD_HDF5_ALLOWZIP",false) );
+    mDefineStaticLocalObject(bool, allowshuffle,
+		= GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true) );
+
     const bool wantchunk = maxdim > maxchunkdim;
-    const bool canzip = szip_encoding_status>0
-		     && maxdim >= szip_pixels_per_block;
+    const bool canzip = allowzip && (mustchunk || wantchunk) &&
+		     gzip_encoding_status>0
+		     && maxdim >= gzip_pixels_per_block;
 
     const H5DataType h5dt = h5DataTypeFor( dt );
     try
@@ -145,10 +161,12 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	H5::DataSpace dataspace( nrdims_, dims.arr(), mDSResizing );
 	H5::DSetCreatPropList proplist;
 	if ( mustchunk || wantchunk )
-	{
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
-	    if ( canzip )
-		proplist.setSzip( szip_options_mask, szip_pixels_per_block );
+	if ( canzip )
+	{
+	    proplist.setDeflate( compressionlvl_ );
+	    if ( allowshuffle && compressionlvl_ > 0 )
+		proplist.setShuffle();
 	}
 	dataset_ = group_.createDataSet( dsky.dataSetName(), h5dt,
 					 dataspace, proplist );

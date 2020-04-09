@@ -29,6 +29,9 @@ private:
 
     Reader*		createCoupledReader() const override;
 
+    void		setCompressionLevel( unsigned lvl ) override
+			{ compressionlvl_ = lvl; }
+
     const char*		fileName() const override	{ return gtFileName(); }
     void		openFile(const char*,uiRetVal&,bool) override;
     void		closeFile() override		{ doCloseFile(*this); }
@@ -88,6 +91,7 @@ private:
     void		setEditableCreation(bool) override;
 
     int			chunksz_ = 64;
+    unsigned		compressionlvl_ = 1;
     bool		createeditable_ = false;
 
 };

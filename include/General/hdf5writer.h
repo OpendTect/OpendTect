@@ -47,6 +47,10 @@ public:
     uiRetVal		open4Edit(const char*);
 			//!< For normal 'create', use 'open()
 
+    virtual void	setCompressionLevel(unsigned)		{}
+			/*!< Compression level (0-9)
+			See gzip documentation. 0=None */
+
     virtual H5::Group*	ensureGroup(const char* grpnm,uiRetVal&) = 0;
 			//!< Creates a new group if necessary
 
