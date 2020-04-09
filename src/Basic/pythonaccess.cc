@@ -125,7 +125,7 @@ uiString OD::PythonAccess::pySummary() const
 uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				     const char* scriptexpectedout ) const
 {
-    if ( !force )
+    if ( force )
 	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
 
     OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
@@ -1157,10 +1157,23 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
     bool ret;
     if ( retval.isOK() )
     {
+	retval.setEmpty();
+	BufferString pathstr( removeDirScript(path) );
+	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
 	OS::MachineCommand cmd = OD::PythA().sPythonExecNm();
-	cmd.addArg( "-c" ).addArg( removeDirScript(path) );
+	cmd.addArg( "-c" ).addArg( pathstr );
 
 	ret = OD::PythA().execute( cmd, waitforfin );
+
+	uiString errmsg;
+	const BufferString errstr = OD::PythA().lastOutput( true, &errmsg );
+	if ( !errmsg.isEmpty() )
+	    retval.add( errmsg );
+	if ( !errstr.isEmpty() )
+	{
+	    errmsg.setEmpty();
+	    retval.add(  errmsg.append( errstr ) );
+	}
     }
     else
 	ret = File::removeDir( path );
