@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class FilePath;
 class Timer;
-class uiODServiceBase;
+class ODServiceBase;
 class uiPythonSettings;
 class uiString;
 
@@ -143,7 +143,7 @@ namespace OD
 	void			envChangeCB(CallBacker*);
 
 	friend class ::uiPythonSettings;
-	friend class ::uiODServiceBase;
+	friend class ::ODServiceBase;
 
     public:
 	void			initProcs(); //Only for init of Basic module

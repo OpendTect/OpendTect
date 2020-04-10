@@ -29,6 +29,7 @@ set ( OD_MODULE_SOURCES
 	oddlsite.cc
 	odnetworkaccess.cc
 	odnetworkreply.cc
+	odservicebase.cc
 	svnaccess.cc
 	systeminfo.cc
 	netserver.cc

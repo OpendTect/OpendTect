@@ -16,6 +16,7 @@
 #include "uiodservice.h"
 
 #include "netservice.h"
+#include "odservicebase.h"
 
 
 /*!\brief The OpendTect service manager
@@ -52,7 +53,7 @@ namespace OD {
     };
 };
 
-mExpClass(uiODMain) uiODServiceMgr : public uiODServiceBase
+mExpClass(uiODMain) uiODServiceMgr : public ODServiceBase
 { mODTextTranslationClass(uiODServiceMgr)
 public:
 
