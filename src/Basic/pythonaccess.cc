@@ -162,17 +162,10 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     isusable_ = false;
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source;
-    const bool hassource =
-	PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
-    const bool usesystem = hassource && source == System;
-    if ( usesystem )
+    PythonSource source = hasInternalEnvironment(false) ? Internal : System;
+    PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
+    if ( source == System )
 	return isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
-    else if ( !hassource )
-    {
-	if ( hasInternalEnvironment(false) )
-	    source = Internal;
-    }
 
     PtrMan<File::Path> externalroot = nullptr;
     PtrMan<BufferString> virtenvnm;
