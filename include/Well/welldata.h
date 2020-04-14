@@ -53,6 +53,9 @@ public:
     const LogSet&		logs() const		{ return logs_; }
     LogSet&			logs()			{ return logs_; }
 
+    const LogInfoSet&		logInfoSet() const	{ return loginfos_; }
+    LogInfoSet&			logInfoSet()		{ return loginfos_; }
+
     const MarkerSet&		markers() const		{ return markers_; }
     MarkerSet&			markers()		{ return markers_; }
 
@@ -109,6 +112,7 @@ protected:
     Info&		info_;
     Track&		track_;
     LogSet&		logs_;
+    LogInfoSet&		loginfos_;
     D2TModel&		d2tmodel_;
     D2TModel&		csmodel_;
     MarkerSet&		markers_;

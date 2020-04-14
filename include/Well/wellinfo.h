@@ -34,6 +34,9 @@ public:
 			  InjectDispose };
 			mDeclareEnumUtils(WellType);
 
+    enum DepthType	{ MD, TVD, TVDSS };
+			mDeclareEnumUtils(DepthType);
+
 			Info(const char* nm=0);
 			~Info();
 			mDeclMonitorableAssignment(Info);
@@ -69,6 +72,9 @@ public:
     static const char*	sKeyCoord();
     static const char*	sKeyKBElev();
     static const char*	sKeyTD();
+    static const char*	sKeyTVD();
+    static const char*	sKeyTVDSS();
+    static const char*	sKeyMD();
     static const char*	sKeyReplVel();
     static const char*	sKeyGroundElev();
     static const char*	sKeyWellName();

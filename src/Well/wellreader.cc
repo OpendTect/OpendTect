@@ -30,6 +30,7 @@
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldisp.h"
+#include "wellwriter.h"
 #include "od_istream.h"
 #include "uistrings.h"
 #include "odversion.h"
@@ -40,13 +41,13 @@ const char* Well::odIO::sKeyTrack()	{ return "Track"; }
 const char* Well::odIO::sKeyLog()	{ return "Well Log"; }
 const char* Well::odIO::sKeyMarkers()	{ return "Well Markers"; }
 const char* Well::odIO::sKeyD2T()	{ return "Depth2Time Model"; }
-const char* Well::odIO::sKeyDispProps()	{ return "Display Properties"; }
+const char* Well::odIO::sKeyDispProps() { return "Display Properties"; }
 const char* Well::odIO::sExtWell()	{ return ".well"; }
 const char* Well::odIO::sExtLog()	{ return ".wll"; }
 const char* Well::odIO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::odIO::sExtD2T()	{ return ".wlt"; }
 const char* Well::odIO::sExtCSMdl()	{ return ".csmdl"; }
-const char* Well::odIO::sExtDispProps()	{ return ".disp"; }
+const char* Well::odIO::sExtDispProps() { return ".disp"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
@@ -228,6 +229,8 @@ bool Well::Reader::getCSMdl() const
 
 
 mImplWRFn(bool,getLog,const char*,lognm,false)
+bool Well::Reader::getLogInfo() const
+{ return ra_ ? ra_->getLogInfo() : false; }
 void Well::Reader::getLogNames( BufferStringSet& lognms ) const
 { if ( ra_ ) ra_->getLogNames( lognms ); }
 void Well::Reader::getLogInfo( ObjectSet<IOPar>& iops ) const
@@ -499,6 +502,34 @@ void Well::odReader::getLogInfo( ObjectSet<IOPar>& iops ) const
 }
 
 
+bool Well::odReader::getLogInfo() const
+{
+    ChangeNotifyBlocker nb( wd_.logInfoSet() );
+
+    IOPar dumiop;
+    for ( int idx=1;  ; idx++ )
+    {
+	mGetInpStream( sExtLog(), idx, false, break );
+
+	if ( rdHdr(strm,sKeyLog()) )
+	{
+	    int bintyp = 0;
+	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1, dumiop );
+	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
+	    loginfo->logunit_ = log->unitMeasLabel();
+	    if ( !log->dahRange().isUdf() )
+	    {
+		readLogData( *log, strm, bintyp );
+		loginfo->dahrg_ = log->dahRange();
+	    }
+
+	    wd_.logInfoSet().add( loginfo );
+	}
+    }
+    return true;
+}
+
+
 bool Well::odReader::getLog( const char* lognm ) const
 {
     BufferStringSet nms;
@@ -549,6 +580,8 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
 	    newlog->setName( val );
 	if ( ky == Well::Log::sKeyUnitLbl() )
 	    newlog->setUnitMeasLabel( val );
+	if ( ky == Well::Log::sKeyDahRange() )
+	    newlog->dahRange().set( astrm.getFValue(0),astrm.getFValue(1) );
 	if ( ky == Well::Log::sKeyStorage() )
 	    bintype = val[0] == 'B' ? 1
 		    : val[0] == 'S' ? -1 : 0;
@@ -772,4 +805,64 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
     wd_.displayProperties2d().usePar( iop );
     wd_.displayProperties3d().usePar( iop );
     return true;
+}
+
+// MultiWellReader
+MultiWellReader::MultiWellReader( const DBKeySet& keys, Well::LoadReqs loadreq )
+    : Executor("Reading well info")
+    , keys_(keys)
+    , nrwells_(keys.size())
+    , nrdone_(0)
+    , loadreq_(loadreq)
+    , msg_(tr("Reading Well Info"))
+{}
+
+
+od_int64 MultiWellReader::totalNr() const
+{ return nrwells_; }
+
+od_int64 MultiWellReader::nrDone() const
+{ return nrdone_; }
+
+uiString MultiWellReader::message() const
+{ return msg_; }
+
+uiString MultiWellReader::nrDoneText() const
+{ return tr("Wells read"); }
+
+
+int MultiWellReader::nextStep()
+{
+    if ( nrdone_ >= totalNr() )
+    {
+	if ( wds_.size() != keys_.size() )
+	    allwellsread_ = false;
+
+	if ( wds_.size() == 0 )
+	{
+	    msg_ = tr("No wells to be read");
+	    return Executor::ErrorOccurred();
+	}
+	else
+	    return Executor::Finished();
+    }
+
+    const DBKey wkey = keys_[sCast(int,nrdone_)];
+    nrdone_++;
+    if ( wkey.isInvalid() )
+	return MoreToDo();
+
+    ConstRefMan<Well::Data> wd;
+    wd = Well::MGR().fetch( wkey, loadreq_ );
+    if ( wd )
+	wds_.add( new ConstRefMan<Well::Data>(wd) );
+
+    return MoreToDo();
+}
+
+
+void MultiWellReader::getDoneWells(
+			ObjectSet<ConstRefMan<Well::Data>>& wds ) const
+{
+    wds = wds_;
 }

@@ -72,6 +72,7 @@ public:
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
+    static const char*	sKeyDahRange();
 
 protected:
 
@@ -112,5 +113,61 @@ public:
 
 };
 
+
+mExpClass(Well) LogInfo : public RefCount::Referenced
+			, public::NamedMonitorable
+{mODTextTranslationClass(Well::LogInfo)
+public:
+
+    typedef float		ZType;
+    typedef Interval<ZType>	ZIntvType;
+
+				LogInfo( const char* nm );
+				mDeclMonitorableAssignment(LogInfo);
+				mDeclInstanceCreatedNotifierAccess(LogInfo);
+
+    BufferString		logunit_;
+    ZIntvType			dahrg_;
+
+protected:
+				~LogInfo();
+};
+
+class LogInfo;
+mExpClass(Well) LogInfoSet : public NamedMonitorable
+{
+public:
+
+    typedef float					ZType;
+    typedef Interval<ZType>				ZIntvType;
+    typedef ObjectSet<Well::LogInfo>::size_type		size_type;
+    typedef size_type					idx_type;
+    typedef RefMan<LogInfo>				LogInfoRefMan;
+    typedef ConstRefMan<LogInfo>			CLogInfoRefMan;
+
+				LogInfoSet();
+				~LogInfoSet();
+				mDeclMonitorableAssignment(LogInfoSet);
+				mDeclInstanceCreatedNotifierAccess(LogInfoSet);
+
+    void			getNames(BufferStringSet&) const;
+    void			getUnits(BufferStringSet&) const;
+
+    CLogInfoRefMan		getByName(const char* lognm) const;
+    LogInfoRefMan		getByName(const char* lognm);
+    BufferString		getUnit(const char* lognm) const;
+    ZIntvType			dahRange(const char* lognm) const;
+    bool			logIsPresent(const char* lognm) const;
+    ObjectSet<Well::LogInfo>	logInfos() const	{ return loginfos_; }
+
+    bool			isEmpty() const		{ return size() == 0; }
+    void			add(LogInfo*);
+    void			setEmpty();
+    size_type			size() const;
+
+private:
+    ObjectSet<Well::LogInfo>		loginfos_;
+    LogInfo*				gtByName(const char*) const;
+};
 
 } // namespace Well
