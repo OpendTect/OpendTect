@@ -927,17 +927,19 @@ void uiODMenuMgr::fillUtilMenu()
 		 mSettShortcutsMnuItm);
 
 #ifdef __debug__
-    const bool enabadvsettings = true;
+    const bool defenabadvsettings = true;
 #else
-    const bool enabadvsettings = GetEnvVarYN( "OD_ENABLE_ADVANCED_SETTINGS" );
+    const bool defenabadvsettings = false;
 #endif
-    uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
+    const bool enabadvsettings = GetEnvVarYN( "OD_ENABLE_ADVANCED_SETTINGS",
+		defenabadvsettings );
     if ( enabadvsettings )
     {
+	uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
 	mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
 	mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
+	settmnu_->insertItem( advmnu );
     }
-    settmnu_->insertItem( advmnu );
 
     toolsmnu_ = new uiMenu( &appl_, uiStrings::sTools() );
     utilmnu_->insertItem( toolsmnu_ );
