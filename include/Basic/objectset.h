@@ -37,6 +37,7 @@ mClass(Basic) ObjectSet : public OD::Set
 public:
 
     typedef int			size_type;
+    typedef size_type		idx_type;
     typedef T			object_type;
 
     inline 			ObjectSet();
@@ -61,7 +62,7 @@ public:
 
     inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
-    inline virtual size_type	indexOf(const T*) const;
+    inline virtual idx_type	indexOf(const T*) const;
     inline T*			first();
     inline const T*		first() const;
     inline T*			last();
@@ -334,7 +335,7 @@ T* ObjectSet<T>::operator[]( const T* t ) const
 
 
 template <class T> inline
-typename ObjectSet<T>::size_type ObjectSet<T>::indexOf( const T* ptr ) const
+typename ObjectSet<T>::idx_type ObjectSet<T>::indexOf( const T* ptr ) const
 {
     return vec_.indexOf( (void*) ptr, true );
 }

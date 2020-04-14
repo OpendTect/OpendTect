@@ -15,6 +15,43 @@ ________________________________________________________________________
 #include "objectset.h"
 
 
+//!Helper class to RefObjectSet and ManagedObjectSet
+template <class T>
+mClass(Basic) ManagedObjectSetBase : public ObjectSet<T>
+{
+public:
+
+    typedef typename ObjectSet<T>::size_type	size_type;
+    typedef typename ObjectSet<T>::idx_type	idx_type;
+
+    virtual bool		isManaged() const	{ return true; }
+
+    inline virtual T*		removeSingle(idx_type,bool kporder=true);
+				/*!<Removes entry and returns 0 */
+    inline virtual void		removeRange(idx_type,idx_type);
+    inline virtual T*		replace(idx_type, T*);
+				/*!<Deletes entry and returns 0 */
+    inline virtual T*		removeAndTake(idx_type,bool kporder=true);
+				/*!<Does not delete the entry. */
+    inline virtual void		erase();
+
+    inline virtual ManagedObjectSetBase<T>& operator-=(T*);
+
+protected:
+
+    typedef void		(*PtrFunc)(T*ptr);
+				ManagedObjectSetBase(PtrFunc delfunc)
+				    : ObjectSet<T>()
+				    , delfunc_( delfunc )
+				{}
+				~ManagedObjectSetBase();
+private:
+
+    PtrFunc			delfunc_;
+};
+
+
+
 /*!
 \brief ObjectSet where the objects contained are owned by this set.
 */
@@ -131,6 +168,81 @@ T* ManagedObjectSet<T>::removeAndTake(int idx, bool kporder )
 {
     return ObjectSet<T>::removeSingle( idx, kporder );
 }
+
+
+/*!ObjectSet for reference counted objects. All members are referenced
+   once when added to the set, and unreffed when removed from the set.
+*/
+
+
+template <class T>
+mClass(Basic) RefObjectSet : public ManagedObjectSetBase<T>
+{
+public:
+
+    typedef typename ObjectSet<T>::size_type	size_type;
+    typedef typename ObjectSet<T>::idx_type	idx_type;
+
+				RefObjectSet();
+				RefObjectSet(const RefObjectSet<T>&);
+				RefObjectSet(const ObjectSet<T>&);
+    virtual RefObjectSet*	clone() const
+				{ return new RefObjectSet(*this); }
+
+    RefObjectSet<T>&		operator=(const ObjectSet<T>&);
+    inline virtual T*		replace(idx_type,T*);
+    inline virtual void		insertAt(T*,idx_type);
+
+protected:
+
+    virtual ObjectSet<T>&	doAdd(T*);
+    static void			unRef( T* ptr ) { unRefPtr(ptr); }
+
+};
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet()
+    : ManagedObjectSetBase<T>( unRef )
+{}
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet( const ObjectSet<T>& os )
+    : ManagedObjectSetBase<T>( unRef )
+{ *this = os; }
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet( const RefObjectSet<T>& os )
+    : ManagedObjectSetBase<T>( unRef )
+{ *this = os; }
+
+
+template <class T> inline
+RefObjectSet<T>& RefObjectSet<T>::operator =(const ObjectSet<T>& os)
+{ ObjectSet<T>::operator=(os); return *this; }
+
+
+template <class T> inline
+T* RefObjectSet<T>::replace( idx_type vidx, T *ptr )
+{
+    refPtr( ptr );
+    return ManagedObjectSetBase<T>::replace( vidx, ptr );
+}
+
+
+template <class T> inline
+void RefObjectSet<T>::insertAt( T *ptr, idx_type vidx )
+{
+    refPtr( ptr );
+    ManagedObjectSetBase<T>::insertAt( ptr, vidx );
+}
+
+
+template <class T> inline
+ObjectSet<T>& RefObjectSet<T>::doAdd( T *ptr )
+{ refPtr( ptr ); return ObjectSet<T>::doAdd(ptr); }
 
 
 #endif

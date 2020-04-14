@@ -51,7 +51,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->attach( alignedBelow, infolbl );
 
     uiString seltext = issteer ? uiStrings::phrInput(tr("SteeringCube")) 
-			       : uiStrings::phrInput(uiStrings::sSeismics());
+			       : uiStrings::phrInput(uiStrings::sSeismicData());
     if ( prevrefnm )
     {
 	seltext = tr("%1\n (replacing '%2')").arg(seltext)
@@ -95,7 +95,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 	    BufferString displaydatanm = seisinpnms.get(idx);
 	    displaydatanm.embed('"','"');
 	    sssu.seltxt( uiStrings::phrInput(toUiString("%1 %2")
-			   .arg(uiStrings::sSeismics())
+			   .arg(uiStrings::sSeismicData())
 			   .arg(displaydatanm ) ) );
 	}
 	else

@@ -149,7 +149,7 @@ uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
 				     const char* action ) const
 {
     const BufferString servicenm( "Service ", service.name() );
-    return uiODServiceBase::sendAction( service.getAuthority(),
+    return ODServiceBase::sendAction( service.getAuthority(),
 					servicenm, action );
 }
 
@@ -159,7 +159,7 @@ uiRetVal uiODServiceMgr::sendRequest( const Network::Service& service,
 				      const OD::JSON::Object& reqinfo ) const
 {
     const BufferString servicenm( "Service ", service.name() );
-    return uiODServiceBase::sendRequest( service.getAuthority(),
+    return ODServiceBase::sendRequest( service.getAuthority(),
 					 servicenm, reqkey, reqinfo );
 }
 
@@ -219,7 +219,7 @@ void uiODServiceMgr::doSurveyChanged( CallBacker* )
 void uiODServiceMgr::doPyEnvChange( CallBacker* )
 {
     OD::JSON::Object sinfo;
-    uiODServiceBase::getPythEnvRequestInfo( sinfo );
+    ODServiceBase::getPythEnvRequestInfo( sinfo );
     for ( int idx=0; idx<services_.size(); idx++ )
     {
 	const uiRetVal uirv = sendRequest( *services_[idx], sKeyPyEnvChangeEv(),
@@ -239,7 +239,7 @@ uiRetVal uiODServiceMgr::doRequest( const OD::JSON::Object& request )
     else if ( request.isPresent(sKeyStart()) )
 	return startApp( request.getObject(sKeyStart()) );
 
-    return uiODServiceBase::doRequest( request );
+    return ODServiceBase::doRequest( request );
 }
 
 

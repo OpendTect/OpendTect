@@ -558,6 +558,12 @@ bool createDir( const char* fnm )
 bool rename( const char* oldname, const char* newname )
 {
 #ifndef OD_NO_QT
+    if ( File::isDirectory(oldname)  )
+    {
+	QDir dir;
+	return dir.rename( oldname, newname );
+    }
+
     return QFile::rename( oldname, newname );
 #else
     pFreeFnErrMsg(not_implemented_str);

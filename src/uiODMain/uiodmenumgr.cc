@@ -246,7 +246,7 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->insertItem( manmnu_ );
 
     preloadmnu_ = new uiMenu( &appl_, tr("Pre-load") );
-    mInsertPixmapItem( preloadmnu_, m3Dots(uiStrings::sSeismics()),
+    mInsertPixmapItem( preloadmnu_, m3Dots(uiStrings::sSeismicData()),
 		 mPreLoadSeisMnuItm, "preload_seis" );
     mInsertPixmapItem( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
 		 mPreLoadHorMnuItm, "preload_horizon" );
@@ -263,7 +263,7 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->clear();
 
     uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttributeSet() );
-    uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismics() );
+    uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismicData() );
     uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* impfaultstick = new uiMenu( &appl_,
@@ -433,7 +433,7 @@ void uiODMenuMgr::fillImportMenu()
 void uiODMenuMgr::fillExportMenu()
 {
     expmnu_->clear();
-    uiMenu* expseis = new uiMenu( &appl_, uiStrings::sSeismics() );
+    uiMenu* expseis = new uiMenu( &appl_, uiStrings::sSeismicData() );
     uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(mPlural) );
@@ -586,9 +586,9 @@ void uiODMenuMgr::fillManMenu()
 		 mManPDFMnuItm, "man_prdfs" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Random Lines")), mManRanLMnuItm,
 			"empty" );
-    add2D3DMenuItem( *manmnu_, "man_seis", uiStrings::sSeismics(),
+    add2D3DMenuItem( *manmnu_, "man_seis", uiStrings::sSeismicData(),
 			mManSeis2DMnuItm, mManSeis3DMnuItm );
-    add2D3DMenuItem( *manmnu_, "man_ps", tr("Seismics Prestack"),
+    add2D3DMenuItem( *manmnu_, "man_ps", tr("Prestack Seismic Data"),
 			mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Sessions")),
 			mManSessMnuItm, "empty" )
