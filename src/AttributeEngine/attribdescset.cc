@@ -1372,7 +1372,9 @@ void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 
 	Desc* newdesc = new Desc( *basedesc );
 	newdesc->selectOutput( seloutputs[idx] );
-	newdesc->setUserRef( seloutnms[idx]->buf() );
+	StringPair userref( newdesc->userRef() );
+	userref.second() = seloutnms[idx]->buf();
+	newdesc->setUserRef( userref.getCompString() );
 	outdescids += addDesc( newdesc );
     }
 }
