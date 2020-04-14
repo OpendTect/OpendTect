@@ -879,11 +879,20 @@ void uiODMenuMgr::fillUtilMenu()
     addAction( settmnu_, uiStrings::sUserSettings(), "settings",
 				mSettingsMnuItm );
 
-    uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
-    addAction( advmnu, tr("Personal Settings"), "unknownperson",
+#ifdef __debug__
+    const bool defenabadvsettings = true;
+#else
+    const bool defenabadvsettings = false;
+#endif
+    const bool enabadvsettings = GetEnvVarYN( "OD_ENABLE_ADVANCED_SETTINGS",
+		    defenabadvsettings );
+    if ( enabadvsettings )
+    {
+	uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
+	addAction( advmnu, tr("Personal Settings"), "unknownperson",
 						mSettAdvPersonal );
-    addAction( advmnu, tr("Python Settings"), "python",	mSettAdvPython );
-    addAction( advmnu, tr("Survey Defaults"), "survey", mSettAdvSurvey );
+	addAction( advmnu, tr("Survey Defaults"), "survey", mSettAdvSurvey );
+    }
 
     toolsmnu_ = addSubMenu( utilmnu_, uiStrings::sTools(), "tools" );
     addAction( toolsmnu_, tr("Batch Programs"), "batchprogs", mBatchProgMnuItm);
@@ -911,6 +920,7 @@ void uiODMenuMgr::fillUtilMenu()
 	installmnu_->insertSeparator();
     }
 
+    addAction( installmnu_, tr("Python Settings"), "python",	mSettAdvPython );
     addAction( installmnu_, tr("Internet Connection Settings"),
 			    "internet_connection", mInstConnSettsMnuItm );
     addAction( installmnu_, uiStrings::sPlugin(mPlural), "plugin",
