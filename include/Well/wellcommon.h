@@ -22,13 +22,15 @@ class D2TModel;
 class Marker;
 class MarkerSet;
 class Log;
+class LogInfo;
 class LogSet;
+class LogInfoSet;
 class Track;
 
-#define mWellNrSubObjTypes 8
+#define mWellNrSubObjTypes 9
 
 enum SubObjType		{ Inf=0, Trck=1, D2T=2, CSMdl=3, Mrkrs=4, Logs=5,
-			    DispProps2D=6, DispProps3D=7 };
+			   LogInfos=6, DispProps2D=7, DispProps3D=8 };
 mGlobal(Well) int	nrSubObjTypes(); //    { return mWellNrSubObjTypes; }
 
 mGlobal(Well) float	getDefaultVelocity();

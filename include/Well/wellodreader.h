@@ -38,6 +38,7 @@ public:
     virtual bool	getCSMdl() const;
     virtual bool	getDispProps() const;
     virtual bool	getLog(const char* lognm) const;
+    virtual bool	getLogInfo() const;
     virtual void	getLogNames(BufferStringSet&) const;
     virtual void	getLogInfo(ObjectSet<IOPar>&) const;
 

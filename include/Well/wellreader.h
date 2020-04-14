@@ -12,12 +12,14 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
+#include "wellmanager.h"
+#include "dbkey.h"
+#include "executor.h"
 #include "ranges.h"
 #include "bufstring.h"
 #include "uistring.h"
 class IOObj;
 class BufferStringSet;
-
 
 namespace Well
 {
@@ -42,6 +44,7 @@ public:
     bool		getCSMdl() const;	//!< Read Checkshot model parts
     bool		getDispProps() const;	//!< Read display props only
     bool		getLog(const char* lognm) const; //!< Read this one only
+    bool		getLogInfo() const;	//!< Read log infos only
     void		getLogNames(BufferStringSet&) const;
     void		getLogInfo(ObjectSet<IOPar>&) const;
 
@@ -71,3 +74,30 @@ public:
 
 
 }; // namespace Well
+
+
+mExpClass(Well) MultiWellReader : public Executor
+{ mODTextTranslationClass(MultiWellReader)
+public:
+
+
+			MultiWellReader(const DBKeySet&, Well::LoadReqs);
+
+    int			nextStep();
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
+    void		getDoneWells(ObjectSet<ConstRefMan<Well::Data>>&) const;
+    bool		allWellsRead() const { return allwellsread_; }
+			//Can then be used to launch a warning locally
+
+protected:
+    ObjectSet<ConstRefMan<Well::Data>>		wds_;
+    DBKeySet					keys_;
+    od_int64					nrwells_;
+    od_int64					nrdone_;
+    uiString					msg_;
+    bool					allwellsread_ = true;
+    Well::LoadReqs				loadreq_;
+};

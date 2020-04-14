@@ -45,6 +45,9 @@ const char* Well::Info::sKeyCounty()	{ return "County"; }
 const char* Well::Info::sKeyCoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeyWellType()	{ return "WellType"; }
 const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
+const char* Well::Info::sKeyTVD()	{ return "True Vertical Depth [TVD]"; }
+const char* Well::Info::sKeyTVDSS()	{ return "Z [TVDSS]"; }
+const char* Well::Info::sKeyMD()	{ return "Measured Depth [MD]"; }
 const char* Well::Info::sKeyKBElev()
 	{ return "Reference Datum Elevation [KB]"; }
 const char* Well::Info::sKeyReplVel()
@@ -72,6 +75,16 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
 { "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
   "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
   "canceledlocation", "injectiondisposalwell", 0 };
+
+mDefineEnumUtils(Well::Info, DepthType, "Depth Type")
+{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(), 0 };
+template <>
+void EnumDefImpl<Well::Info::DepthType>::init()
+{
+    uistrings_ += ::toUiString( "MD" );
+    uistrings_ += ::toUiString( "TVD" );
+    uistrings_ += ::toUiString( "TVDSS" );
+}
 
 template<>
 void EnumDefImpl<Well::Info::WellType>::init()
@@ -201,6 +214,7 @@ mDefineInstanceCreatedNotifierAccess(Well::Data)
     preact info_ postact; \
     preact track_ postact; \
     preact logs_ postact; \
+    preact loginfos_ postact; \
     preact d2tmodel_ postact; \
     preact csmodel_ postact; \
     preact markers_ postact; \
@@ -213,6 +227,7 @@ mDefineInstanceCreatedNotifierAccess(Well::Data)
     , info_(*new Info(nm)) \
     , track_(*new Well::Track) \
     , logs_(*new Well::LogSet) \
+    , loginfos_(*new Well::LogInfoSet) \
     , disp2d_(*new Well::DisplayProperties2D()) \
     , disp3d_(*new Well::DisplayProperties3D()) \
     , d2tmodel_(*new D2TModel) \
@@ -268,6 +283,7 @@ void Well::Data::copyClassData( const Data& oth )
     d2tmodel_ = oth.d2tmodel_;
     markers_ = oth.markers_;
     logs_ = oth.logs_;
+    loginfos_ = oth.loginfos_;
     csmodel_ = oth.csmodel_;
     disp2d_ = oth.disp2d_;
     disp3d_ = oth.disp3d_;
@@ -282,6 +298,7 @@ Monitorable::ChangeType Well::Data::compareClassData( const Data& oth ) const
     d2tmodel_ == oth.d2tmodel_ &&
     markers_ == oth.markers_ &&
     logs_ == oth.logs_ &&
+    loginfos_ == oth.loginfos_ &&
     csmodel_ == oth.csmodel_ &&
     disp2d_ == oth.disp2d_ &&
     disp3d_ == oth.disp3d_ );
@@ -366,6 +383,7 @@ void Well::Data::setEmpty()
     csmodel_.setEmpty();
     markers_.setEmpty();
     logs_.setEmpty();
+    loginfos_.setEmpty();
     d2tmodel_.setEmpty();
     track_.setEmpty();
 }

@@ -173,6 +173,7 @@ bool Well::Manager::readReqData( const ObjID& id, Data& wd,
     mJustTry( D2T, d2TModel, rdr.getD2T() )
     mJustTry( Mrkrs, markers, rdr.getMarkers() )
     mJustTry( Logs, logs, rdr.getLogs() )
+    mJustTry( LogInfos, logInfoSet, rdr.getLogInfo() )
     mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
     if ( lreq.includes(DispProps2D) || lreq.includes(DispProps3D) )
     {
@@ -527,6 +528,7 @@ void Well::Saver::updateLastSavedSubObjDirtyCounts( const Well::Data& wd ) const
     mSetFor( CSMdl, checkShotModel() );
     mSetFor( Mrkrs, markers() );
     mSetFor( Logs, logs() );
+    mSetFor( LogInfos, logInfoSet() );
     mSetFor( DispProps2D, displayProperties2d() );
     mSetFor( DispProps3D, displayProperties3d() );
 }
