@@ -163,12 +163,16 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source;
-    const bool usesystem =
-	!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) ||
-	source == System;
-
+    const bool hassource =
+	PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
+    const bool usesystem = hassource && source == System;
     if ( usesystem )
 	return isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
+    else if ( !hassource )
+    {
+	if ( hasInternalEnvironment(false) )
+	    source = Internal;
+    }
 
     PtrMan<File::Path> externalroot = nullptr;
     PtrMan<BufferString> virtenvnm;
