@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "filepath.h"
 #include "genc.h"
+#include "keyboardevent.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -36,8 +37,10 @@ ________________________________________________________________________
 #include "uiiconsetsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uisplitter.h"
 #include "uitable.h"
@@ -46,6 +49,52 @@ ________________________________________________________________________
 
 
 static const char* sKeyCommon = "<general>";
+
+
+static PtrMan<uiSettingsMgr> uisettsinst_ = nullptr;
+
+uiSettingsMgr& uiSettsMgr()
+{
+    if ( !uisettsinst_ )
+    {
+	auto* ptr = new uiSettingsMgr();
+	if ( !uisettsinst_.setIfNull(ptr,true) )
+	    delete ptr;
+    }
+
+    return *uisettsinst_;
+}
+
+
+uiSettingsMgr::uiSettingsMgr()
+    : applwin_(*uiMain::theMain().topLevel())
+{
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+		uiSettingsMgr::keyPressedCB );
+}
+
+
+uiSettingsMgr::~uiSettingsMgr()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSettingsMgr::keyPressedCB( CallBacker* )
+{
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+    const OD::ButtonState bs =
+	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
+    if ( bs == OD::ControlButton && kbe.key_==OD::KB_T && !kbe.isrepeat_ )
+    {
+	uiMain::keyboardEventHandler().setHandled( true );
+	OD::PythA().openTerminal();
+    }
+}
+
 
 
 static void getGrps( BufferStringSet& grps )
@@ -536,16 +585,7 @@ void promptCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
-    const BufferString termem = SettingsAccess().getTerminalEmulator();
-    bool immediate = false;
-#ifdef __win__
-    OS::MachineCommand cmd( "start" );
-    cmd.addArg( termem );
-    immediate = true;
-#else
-    OS::MachineCommand cmd( termem );
-#endif
-    OD::PythA().execute( cmd, immediate );
+    OD::PythA().openTerminal();
 }
 
 bool useScreen()
@@ -658,7 +698,7 @@ bool acceptOK()
 
 uiDialog* uiAdvSettings::getPythonDlg( uiParent* p )
 {
-    uiDialog* ret = new uiPythonSettings( p, "Set Python Settings" );
+    auto* ret = new uiPythonSettings( p, "Set Python Settings" );
     ret->setModal( false );
     ret->setDeleteOnClose( true );
     return ret;

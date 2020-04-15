@@ -42,4 +42,6 @@ mDefModInitFn(uiTools)
 
     Coords::uiUnlocatedXYSystem::initClass();
     Coords::uiAnchorBasedXYSystem::initClass();
+
+    uiSettsMgr();
 }
