@@ -92,4 +92,27 @@ private:
     uiString		goOnMsg();
 };
 
+
+mExpClass(uiEarthModel) uiImpHorFromZMap final : public uiDialog
+{ mODTextTranslationClass(uiImpHorFromZMap);
+public:
+				uiImpHorFromZMap(uiParent*);
+				~uiImpHorFromZMap();
+
+    bool			doDisplay() const;
+    MultiID			getSelID() const;
+
+    Notifier<uiImpHorFromZMap>	importReady;
+
+protected:
+
+    uiFileInput*	inpfld_;
+    uiIOObjSel*		outputfld_;
+    uiCheckBox*		displayfld_;
+
+    virtual bool	acceptOK(CallBacker*);
+    void		inputChgd(CallBacker*);
+    EM::Horizon3D*	createHor() const;
+};
+
 #endif

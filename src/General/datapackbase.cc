@@ -18,11 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 
-// MapDataPackXYRotater
-class MapDataPackXYRotater : public ParallelTask
+// MapDataPackXYRotator
+class MapDataPackXYRotator : public ParallelTask
 {
 public:
-    MapDataPackXYRotater( MapDataPack& mdp )
+    MapDataPackXYRotator( MapDataPack& mdp )
 	: mdp_( mdp )
     {
 	float anglenorth = mCast(float,
@@ -316,7 +316,7 @@ void MapDataPack::setRange( StepInterval<double> dim0rg,
 
 void MapDataPack::initXYRotArray( TaskRunner* tr )
 {
-    MapDataPackXYRotater rotator( *this );
+    MapDataPackXYRotator rotator( *this );
     TaskRunner::execute( tr, rotator );
 }
 

@@ -60,6 +60,7 @@ ________________________________________________________________________
 #define mImpHor2DAsciiMnuItm	(mFileImpMnu + 32)
 #define mImpBulkHorAsciiMnuIm	(mFileImpMnu + 33)
 #define mImpBulkHor2DAsciiMnuItm (mFileImpMnu + 34)
+#define mImpHorZMapMnuItm	(mFileImpMnu + 35)
 #define mImpWellAsciiTrackMnuItm (mFileImpMnu + 40)
 #define mImpWellAsciiLogsMnuItm	(mFileImpMnu + 41)
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)

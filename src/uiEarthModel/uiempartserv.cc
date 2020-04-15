@@ -103,6 +103,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , imphorattrdlg_(0)
     , imphorgeomdlg_(0)
     , impbulkhordlg_(0)
+    , impzmapdlg_(0)
     , impfltdlg_(0)
     , impfss2ddlg_(0)
     , exphordlg_(0)
@@ -140,28 +141,28 @@ uiEMPartServer::~uiEMPartServer()
     delete impbulkfltdlg_;
     delete impbulkfssdlg_;
     delete impbulk2dhordlg_;
+    delete impzmapdlg_;
 }
 
 
 void uiEMPartServer::survChangedCB( CallBacker* )
 {
-    delete imphorattrdlg_; imphorattrdlg_ = 0;
-    delete imphorgeomdlg_; imphorgeomdlg_ = 0;
-
-    delete impbulkfltdlg_; impbulkfltdlg_ = 0;
-
-    delete impfltdlg_; impfltdlg_ = 0;
-    delete impbulkhordlg_; impbulkhordlg_ = 0;
-    delete exphordlg_; exphordlg_ = 0;
-    delete expfltdlg_; expfltdlg_ = 0;
-    delete man3dhordlg_; man3dhordlg_ = 0;
-    delete man2dhordlg_; man2dhordlg_ = 0;
-    delete ma3dfaultdlg_; ma3dfaultdlg_ = 0;
-    delete manfssdlg_; manfssdlg_ = 0;
-    delete manbodydlg_; manbodydlg_ = 0;
-    delete crhordlg_; crhordlg_ = 0;
-    delete impbulkfssdlg_; impbulkfssdlg_ = 0;
-    delete impbulk2dhordlg_; impbulk2dhordlg_ = 0;
+    deleteAndZeroPtr( imphorattrdlg_ );
+    deleteAndZeroPtr( imphorgeomdlg_ );
+    deleteAndZeroPtr( impzmapdlg_ );
+    deleteAndZeroPtr( impfltdlg_ );
+    deleteAndZeroPtr( impbulkfltdlg_ );
+    deleteAndZeroPtr( impbulkhordlg_ );
+    deleteAndZeroPtr( exphordlg_ );
+    deleteAndZeroPtr( expfltdlg_ );
+    deleteAndZeroPtr( man3dhordlg_ );
+    deleteAndZeroPtr( man2dhordlg_ );
+    deleteAndZeroPtr( ma3dfaultdlg_ );
+    deleteAndZeroPtr( manfssdlg_ );
+    deleteAndZeroPtr( manbodydlg_ );
+    deleteAndZeroPtr( crhordlg_ );
+    deleteAndZeroPtr( impbulkfssdlg_ );
+    deleteAndZeroPtr( impbulk2dhordlg_ );
     deepErase( variodlgs_ );
     manfaultsetdlg_.deleteAndZeroPtrParam( this );
     expfaultsetdlg_.deleteAndZeroPtrParam( this );
@@ -238,7 +239,7 @@ bool uiEMPartServer::import3DHorAttr()
     {
 	imphorattrdlg_ = new uiImportHorizon( parent(), false );
 	imphorattrdlg_->importReady.notify(
-		mCB(this,uiEMPartServer,importReadyCB));
+		mCB(this,uiEMPartServer,importReadyCB) );
     }
 
     return imphorattrdlg_->go();
@@ -261,10 +262,25 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
     {
 	imphorgeomdlg_ = new uiImportHorizon( parent(), true );
 	imphorgeomdlg_->importReady.notify(
-		mCB(this,uiEMPartServer,importReadyCB));
+		mCB(this,uiEMPartServer,importReadyCB) );
     }
 
     return imphorgeomdlg_->go();
+}
+
+
+bool uiEMPartServer::importHorFromZMap()
+{
+    if ( !impzmapdlg_ )
+    {
+	impzmapdlg_ = new uiImpHorFromZMap( parent() );
+	impzmapdlg_->importReady.notify(
+		mCB(this,uiEMPartServer,importReadyCB) );
+    }
+    else
+	impzmapdlg_->raise();
+
+    return impzmapdlg_->go();
 }
 
 
@@ -285,6 +301,10 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
     if ( dlg && dlg->doDisplay() )
 	mid = dlg->getSelID();
+
+    mDynamicCastGet(uiImpHorFromZMap*,zmapdlg,cb)
+    if ( zmapdlg && zmapdlg->doDisplay() )
+	mid = zmapdlg->getSelID();
 
     mDynamicCastGet(uiImportFault*,fltdlg,cb)
     if ( fltdlg && fltdlg->saveButtonChecked() )

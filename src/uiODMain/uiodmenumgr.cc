@@ -353,6 +353,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( imphor3Dasc, m3Dots(tr("Bulk 3D Horizon")),
 	mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphor3Dasc );
+    mInsertItem( imphor, m3Dots(tr("From ZMap")), mImpHorZMapMnuItm );
     mInsertPixmapItem( imphor, have2d ? m3Dots(tr("Attributes 3D")) :
 		   m3Dots(tr("Attributes")), mImpHorAsciiAttribMnuItm, ascic );
 
@@ -1388,6 +1389,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;
     case mImpBulkHorAsciiMnuIm:		mDoOp(Imp,Hor,3); break;
     case mImpBulkHor2DAsciiMnuItm:	mDoOp(Imp,Hor,4); break;
+    case mImpHorZMapMnuItm:		mDoOp(Imp,Hor,5); break;
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpBulkHorAscii3DMnuItm:	mDoOp(Exp,Hor,2); break;
