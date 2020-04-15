@@ -102,7 +102,6 @@ int ZMapImporter::nextStep()
 
     BufferString buf;
     istrm_->getWord( buf );
-    const bool doscale = !buf.contains('.');
     const float zval = toFloat( buf );
     if ( mIsUdf(zval) || mIsEqual(zval,undefval_,mDefEps) )
     {
