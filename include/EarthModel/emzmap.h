@@ -32,6 +32,13 @@ public:
     uiString		uiMessage() const		{ return msg_; }
     uiString		uiNrDoneText() const		{ return nrdonetxt_; }
 
+    const Array2D<float>* data() const			{ return data_; }
+    Array2D<float>*	data()				{ return data_; }
+
+    Coord		minCoord() const;
+    Coord		maxCoord() const;
+    Coord		step() const;
+
 protected:
 
     bool		initHeader();
@@ -64,6 +71,10 @@ protected:
     double		xmax_		= 0.;
     double		ymin_		= 0.;
     double		ymax_		= 0.;
+
+    // derived
+    double		dx_		= 0.;
+    double		dy_		= 0.;
 };
 
 } // namespace EM

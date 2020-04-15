@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "array2dinterpolimpl.h"
+#include "array2dconverter.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "emhorizonascio.h"
@@ -41,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
+#include "emzmap.h"
 #include "file.h"
 #include "filepath.h"
 #include "horizonscanner.h"
@@ -685,4 +687,138 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     horizon->ref();
     delete loader;
     return horizon;
+}
+
+
+
+// uiImpHorFromZMap
+uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("Import Horizon from ZMap"),
+				 mNoDlgTitle,
+				 mODHelpKey(mImportHorAttribHelpID) )
+				 .modal(false))
+    , importReady(this)
+{
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
+    inpfld_ = new uiFileInput( this, tr("ASCII file"),
+		  uiFileInput::Setup(uiFileDialog::Gen)
+		  .withexamine(true).forread(true)
+		  .defseldir(sImportFromPath) );
+    mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
+
+    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+    ctxt.forread = false;
+    outputfld_ = new uiIOObjSel( this, ctxt );
+    outputfld_->attach( alignedBelow, inpfld_ );
+}
+
+
+uiImpHorFromZMap::~uiImpHorFromZMap()
+{
+    detachAllNotifiers();
+}
+
+
+bool uiImpHorFromZMap::doDisplay() const
+{
+    return displayfld_ && displayfld_->isChecked();
+}
+
+
+MultiID uiImpHorFromZMap::getSelID() const
+{
+    MultiID mid = outputfld_->key();
+    return mid;
+}
+
+
+void uiImpHorFromZMap::inputChgd( CallBacker* )
+{
+    const FilePath fnmfp( inpfld_->fileName() );
+    sImportFromPath = fnmfp.pathOnly();
+    outputfld_->setInputText( fnmfp.baseName() );
+}
+
+
+EM::Horizon3D* uiImpHorFromZMap::createHor() const
+{
+    const char* horizonnm = outputfld_->getInput();
+    EM::EMManager& em = EM::EMM();
+    const MultiID mid = getSelID();
+    EM::ObjectID objid = em.getObjectID( mid );
+    if ( objid < 0 )
+	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    if ( !horizon )
+	mErrRet( uiStrings::sCantCreateHor() );
+
+    horizon->change.disable();
+    horizon->setMultiID( mid );
+    horizon->ref();
+    return horizon;
+}
+
+
+bool uiImpHorFromZMap::acceptOK( CallBacker* )
+{
+    const FixedString horfnm = inpfld_->fileName();
+    if ( !File::exists(horfnm) )
+    {
+	uiMSG().error( tr("Can not read input file.") );
+	return false;
+    }
+
+    uiTaskRunner uitr( this );
+    EM::ZMapImporter importer( horfnm );
+    if ( !uitr.execute(importer) )
+    {
+	uiMSG().error( tr("Error reading ZMap file.") );
+	return false;
+    }
+
+    const Array2D<float>* arr2d = importer.data();
+    const Coord mincrd = importer.minCoord();
+    const Coord maxcrd = importer.maxCoord();
+    TrcKeySampling tks; tks.init( false );
+    tks.include( SI().transform(mincrd) );
+    tks.include( SI().transform(maxcrd) );
+    tks.include( SI().transform(Coord(mincrd.x,maxcrd.y)) );
+    tks.include( SI().transform(Coord(maxcrd.x,mincrd.y)) );
+    tks.step_ = SI().sampling(false).hsamp_.step_;
+
+    Array2DFromXYConverter conv( *arr2d, mincrd, importer.step() );
+    conv.setOutputSampling( tks );
+    if ( !uitr.execute(conv) )
+    {
+	uiMSG().error( "Can not convert ZMap grid to Inline/Crossline domain");
+	return false;
+    }
+
+    EM::Horizon3D* hor3d = createHor();
+    hor3d->setArray2D( conv.getOutput(), tks.start_, tks.step_, false );
+    PtrMan<Executor> saver = hor3d->saver();
+    if ( !uitr.execute(*saver) )
+    {
+	uiMSG().error( tr("Can not save output horizon.") );
+	hor3d->unRef();
+	return false;
+    }
+
+    const IOObj* ioobj = outputfld_->ioobj();
+    if ( ioobj )
+    {
+	ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+	ioobj->updateCreationPars();
+	IOM().commitChanges( *ioobj );
+    }
+
+    hor3d->unRef();
+
+    uiString msg = tr("ZMap grid successfully imported."
+		      "\n\nDo you want to import more grids?");
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }

@@ -193,6 +193,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->import3DHorGeom( true );
 	    else if ( opt == 4 )
 		am_.emserv_->importBulk2DHorizon();
+	    else if ( opt == 5 )
+		am_.emserv_->importHorFromZMap();
 	    break;
 	mCase(Exp):
 	    if ( opt == 0 )

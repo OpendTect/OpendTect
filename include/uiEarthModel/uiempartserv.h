@@ -38,6 +38,7 @@ class uiExportHorizon;
 class uiImportFault3D;
 class uiImportFaultStickSet2D;
 class uiImportHorizon;
+class uiImpHorFromZMap;
 class uiSurfaceMan;
 class uiVariogramDisplay;
 
@@ -63,6 +64,7 @@ public:
 			// Services
     bool		import3DHorGeom(bool bulk=false);
     bool		import3DHorAttr();
+    bool		importHorFromZMap();
     bool		export3DHorizon(bool bulk=false);
     bool		export2DHorizon(bool bulk=false);
     bool		importFault();
@@ -210,6 +212,7 @@ protected:
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
     uiBulkHorizonImport* impbulkhordlg_;
+    uiImpHorFromZMap*	impzmapdlg_;
     uiBulkFaultImport*	impbulkfltdlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;

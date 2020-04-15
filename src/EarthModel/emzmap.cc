@@ -12,8 +12,8 @@ ________________________________________________________________________
 #include "emzmap.h"
 
 #include "arrayndimpl.h"
-#include "emhorizon3d.h"
 #include "od_istream.h"
+#include "position.h"
 #include "separstr.h"
 
 #include "uistrings.h"
@@ -23,7 +23,7 @@ namespace EM
 {
 
 ZMapImporter::ZMapImporter( const char* fnm )
-    : Executor("Importing from ZMap")
+    : Executor("Reading ZMap data")
     , fnm_(fnm)
 {
     nrdonetxt_ = tr("Positions done");
@@ -32,12 +32,14 @@ ZMapImporter::ZMapImporter( const char* fnm )
 	return;
 
     data_ = new Array2DImpl<float>( nrrows_, nrcols_ );
+    data_->setAll( mUdf(float) );
 }
 
 
 ZMapImporter::~ZMapImporter()
 {
     delete istrm_;
+    delete data_;
 }
 
 
@@ -57,7 +59,7 @@ bool ZMapImporter::initHeader()
     SeparString ss( buf, ',' );
     if ( ss.size() != 3 )
 	return false;
-    nrnodesperline_ = ss[2];
+    nrnodesperline_ = toInt( ss[2] );
 
 //header line 2
     istrm_->getLine( ss.rep() );
@@ -85,20 +87,48 @@ bool ZMapImporter::initHeader()
 
 // end
     istrm_->getLine( ss.rep() );
+
+    totalnr_ = nrrows_ * nrcols_;
+    dx_ = (xmax_ - xmin_) / (nrcols_-1);
+    dy_ = (ymax_ - ymin_) / (nrrows_-1);
     return true;
 }
 
 
 int ZMapImporter::nextStep()
 {
+    if ( nrdone_ >= totalnr_ )
+	return Finished();
+
     BufferString buf;
     istrm_->getWord( buf );
+    const bool doscale = !buf.contains('.');
+    const float zval = toFloat( buf );
+    if ( mIsUdf(zval) || mIsEqual(zval,undefval_,mDefEps) )
+    {
+	nrdone_++;
+	return MoreToDo();
+    }
 
-    const int row = (int)(nrdone_ % nrrows_);
+    // From ZMap format description:
+    // grid nodes are stored in column major order. The first column of
+    // data is written first, starting at the upper left corner of the grid.
+    const int row = (nrrows_-1) - (int)(nrdone_ % nrrows_);
     const int col = (int)(nrdone_ / nrrows_);
-    data_->set( row, col, toFloat(buf) );
+    data_->set( row, col, zval );
+
     nrdone_++;
     return MoreToDo();
 }
+
+
+Coord ZMapImporter::minCoord() const
+{ return Coord(xmin_,ymin_); }
+
+Coord ZMapImporter::maxCoord() const
+{ return Coord(xmax_,ymax_); }
+
+Coord ZMapImporter::step() const
+{ return Coord( dx_, dy_ ); }
 
 } // namespace EM

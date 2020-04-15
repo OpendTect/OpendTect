@@ -27,6 +27,7 @@ set( OD_MODULE_SOURCES
 	ailayer.cc
 	array1dinterpol.cc
 	array2dinterpol.cc
+	array2dconverter.cc
 	arrayndalgo.cc
 	bendpointfinder.cc
 	bendpoints2coords.cc
