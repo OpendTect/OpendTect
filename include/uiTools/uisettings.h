@@ -30,6 +30,24 @@ class uiTreeView;
 class uiSettingsGroup;
 
 
+mClass(uiTools) uiSettingsMgr : public CallBacker
+{
+public:
+		    uiSettingsMgr();
+		    ~uiSettingsMgr();
+
+
+private:
+
+    void	keyPressedCB(CallBacker*);
+
+    uiMainWin&	applwin_;
+};
+
+
+mGlobal(uiTools) uiSettingsMgr& uiSettsMgr();
+
+
 mExpClass(uiTools) uiSettingsDlg : public uiDialog
 { mODTextTranslationClass(uiSettingsDlg);
 public:

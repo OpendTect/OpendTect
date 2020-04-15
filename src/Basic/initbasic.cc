@@ -10,12 +10,10 @@ ________________________________________________________________________
 
 #include "coordsystem.h"
 #include "debug.h"
-#include "envvars.h"
-#include "filepath.h"
 #include "legal.h"
 #include "moddepmgr.h"
-#include "oddirs.h"
 #include "posinfo2dsurv.h"
+#include "pythonaccess.h"
 #include "sighndl.h"
 
 #ifdef __win__
@@ -65,7 +63,5 @@ mDefModInitFn(Basic)
     legalInformation().addCreator( qtLegalText, "Qt" );
 #endif
 
-    const File::Path pythonfp( BufferString(GetScriptDir()), "python" );
-    const BufferStringSet pythondirs( pythonfp.fullPath() );
-    SetEnvVarDirList( "PYTHONPATH", pythondirs, true );
+    OD::PythonAccess::initClass();
 }

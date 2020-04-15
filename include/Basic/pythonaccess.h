@@ -94,6 +94,7 @@ namespace OD
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
+	bool		openTerminal() const;
 
     private:
 
@@ -143,6 +144,10 @@ namespace OD
 
 	friend class ::uiPythonSettings;
 	friend class ::uiODServiceBase;
+
+	public:
+
+	static void	initClass();
 
     };
 

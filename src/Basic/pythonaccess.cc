@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "oscommand.h"
 #include "separstr.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "string2.h"
 #include "timefun.h"
 #include "timer.h"
@@ -78,6 +78,14 @@ OD::PythonAccess::~PythonAccess()
 {
     detachAllNotifiers();
     delete activatefp_;
+}
+
+
+void OD::PythonAccess::initClass()
+{
+    const File::Path pythonfp( BufferString(GetScriptDir()), "python" );
+    const BufferStringSet pythondirs( pythonfp.fullPath() );
+    SetEnvVarDirList( "PYTHONPATH", pythondirs, true );
 }
 
 
@@ -1020,6 +1028,21 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
     }
 
     return retval;
+}
+
+
+bool OD::PythonAccess::openTerminal() const
+{
+    const BufferString termem = SettingsAccess().getTerminalEmulator();
+    bool immediate = false;
+#ifdef __win__
+    OS::MachineCommand cmd( "start" );
+    cmd.addArg( termem );
+    immediate = true;
+#else
+    OS::MachineCommand cmd( termem );
+#endif
+    return execute( cmd, immediate );
 }
 
 
