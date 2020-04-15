@@ -152,7 +152,7 @@ public:
 protected:
 
     float			getValAtIdx(int,int) const;
-    friend class		MapDataPackXYRotater;
+    friend class		MapDataPackXYRotator;
 
     Array2D<float>*		xyrotarr2d_;
     FlatPosData&		xyrotposdata_;
