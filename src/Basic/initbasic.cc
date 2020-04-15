@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "coordsystem.h"
 #include "debug.h"
-#include "filepath.h"
 #include "legal.h"
 #include "moddepmgr.h"
 #include "oscommand.h"
@@ -77,5 +76,5 @@ mDefModInitFn(Basic)
 #endif
 
     OD::loadLocalization();
-    OD::PythA().initProcs();
+    OD::PythA().initClass();
 }

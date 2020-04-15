@@ -92,6 +92,7 @@ namespace OD
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
+	bool		openTerminal() const;
 
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 
@@ -146,7 +147,7 @@ namespace OD
 	friend class ::ODServiceBase;
 
     public:
-	void			initProcs(); //Only for init of Basic module
+	void			initClass(); //Only for init of Basic module
 
     };
 

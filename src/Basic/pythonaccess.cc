@@ -24,11 +24,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oscommand.h"
 #include "separstr.h"
 #include "procdescdata.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "string2.h"
 #include "timefun.h"
 #include "timer.h"
-#include "thread.h"
 #include "uistrings.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
@@ -85,15 +84,24 @@ OD::PythonAccess::~PythonAccess()
 }
 
 
-void OD::PythonAccess::initProcs()
+void OD::PythonAccess::initClass()
 {
+    const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
+    const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
+    if ( !pythonmodsfp.exists() )
+	return;
+
+    BufferStringSet pythonpaths;
+    GetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
+    if ( pythonpaths.addIfNew(pythonmodsfp.fullPath()) )
+	SetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
     BufferStringSet envnms;
 
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source;
+    PythonSource source = hasInternalEnvironment() ? Internal : System;
     PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
 
     FilePath externalroot;
@@ -1041,6 +1049,21 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 }
 
 
+bool OD::PythonAccess::openTerminal() const
+{
+    const BufferString termem = SettingsAccess().getTerminalEmulator();
+    BufferString cmd;
+    bool immediate = false;
+#ifdef __win__
+    cmd.set( "start " ).add( termem );
+    immediate = true;
+#else
+    cmd.set( termem );
+#endif
+    return execute( OS::MachineCommand(cmd), immediate );
+}
+
+
 
 OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
     : NamedObject("")
@@ -1103,14 +1126,14 @@ static bool usesNvidiaCard( BufferString* glversionstr )
 
 
 //from https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
-static const char* cudastrs[] = { "10.1.105", "10.0.130", "9.2.148 update 1",
+static const char* cudastrs[] = { "10.2.89", "10.1.105", "10.0.130", "9.2.148 update 1",
     "9.2.88", "9.1.85", "9.0.76", "8.0.61 GA2", "8.0.44", "7.5.16", "7.0.28",
 0 };
 #ifdef __win__
-static const float nvidiavers[] = { 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
+static const float nvidiavers[] = { 441.22f, 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
     385.54f, 376.51f, 369.30f, 353.66f, 347.62f };
 #else
-static const float nvidiavers[] = { 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
+static const float nvidiavers[] = { 440.33f, 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
     384.81f, 375.26f, 367.48f, 352.31f, 346.46f };
 #endif
 
@@ -1196,7 +1219,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	ret = OD::PythA().execute( cmd, waitforfin );
 
 	uiString errmsg;
-	const BufferString errstr = OD::PythA().lastOutput(true, &errmsg);
+	const BufferString errstr = OD::PythA().lastOutput( true, &errmsg );
 	if ( !errmsg.isEmpty() )
 	    retval.add( errmsg );
 	if ( !errstr.isEmpty() )

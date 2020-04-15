@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "keyboardevent.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "od_helpids.h"
@@ -33,13 +34,53 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimain.h"
 #include "uimsg.h"
+#include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uivirtualkeyboard.h"
 
 
 static const char* sKeyCommon = "<general>";
+
+
+uiSettingsMgr& uiSettsMgr()
+{
+    mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr );
+    return *theinst.createIfNull();
+}
+
+
+uiSettingsMgr::uiSettingsMgr()
+    : applwin_(*uiMain::theMain().topLevel())
+{
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+		uiSettingsMgr::keyPressedCB );
+}
+
+
+uiSettingsMgr::~uiSettingsMgr()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSettingsMgr::keyPressedCB( CallBacker* )
+{
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+    const OD::ButtonState bs =
+	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
+    if ( bs == OD::ControlButton && kbe.key_==OD::KB_T && !kbe.isrepeat_ )
+    {
+	uiMain::keyboardEventHandler().setHandled( true );
+	OD::PythA().openTerminal();
+    }
+}
+
 
 
 static void getGrps( BufferStringSet& grps )
@@ -596,24 +637,10 @@ virtual ~uiPythonSettings()
 
 private:
 
-void setPythonPath()
-{
-    const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
-    const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
-    if ( !pythonmodsfp.exists() )
-	return;
-
-    BufferStringSet pythonpaths;
-    GetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
-    if ( pythonpaths.addIfNew(pythonmodsfp.fullPath()) )
-	SetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
-}
-
 void initDlg(CallBacker*)
 {
     usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
-    setPythonPath();
     sourceChgCB(0);
 
     mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
@@ -833,16 +860,7 @@ void promptCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
-    const BufferString termem = SettingsAccess().getTerminalEmulator();
-    BufferString cmd;
-    bool immediate = false;
-#ifdef __win__
-    cmd.set( "start " ).add( termem );
-    immediate = true;
-#else
-    cmd.set( termem );
-#endif
-    OD::PythA().execute( OS::MachineCommand(cmd), immediate );
+    OD::PythA().openTerminal();
 }
 
 bool useScreen()
@@ -955,7 +973,7 @@ bool acceptOK( CallBacker* )
 
 uiDialog* uiSettings::getPythonDlg( uiParent* p, const char* nm )
 {
-    uiDialog* ret = new uiPythonSettings( p, nm );
+    auto* ret = new uiPythonSettings( p, nm );
     ret->setModal( false );
     ret->setDeleteOnClose( true );
     return ret;

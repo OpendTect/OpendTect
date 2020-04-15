@@ -34,4 +34,6 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
+
+    uiSettsMgr();
 }

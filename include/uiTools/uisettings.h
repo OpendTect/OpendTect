@@ -26,6 +26,24 @@ class uiGenInput;
 class uiTable;
 
 
+mClass(uiTools) uiSettingsMgr : public CallBacker
+{
+public:
+		    uiSettingsMgr();
+		    ~uiSettingsMgr();
+
+
+private:
+
+    void	keyPressedCB(CallBacker*);
+
+    uiMainWin&	applwin_;
+};
+
+
+mGlobal(uiTools) uiSettingsMgr& uiSettsMgr();
+
+
 mExpClass(uiTools) uiSettings : public uiDialog
 { mODTextTranslationClass(uiSettings);
 public:
