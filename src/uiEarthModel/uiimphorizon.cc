@@ -708,7 +708,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt );
     outputfld_->attach( alignedBelow, inpfld_ );
 }
@@ -792,7 +792,8 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     conv.setOutputSampling( tks );
     if ( !uitr.execute(conv) )
     {
-	uiMSG().error( "Can not convert ZMap grid to Inline/Crossline domain");
+	uiMSG().error( tr("Can not convert ZMap grid to",
+		    	  " Inline/Crossline domain") );
 	return false;
     }
 
