@@ -51,18 +51,10 @@ ________________________________________________________________________
 static const char* sKeyCommon = "<general>";
 
 
-static PtrMan<uiSettingsMgr> uisettsinst_ = nullptr;
-
 uiSettingsMgr& uiSettsMgr()
 {
-    if ( !uisettsinst_ )
-    {
-	auto* ptr = new uiSettingsMgr();
-	if ( !uisettsinst_.setIfNull(ptr,true) )
-	    delete ptr;
-    }
-
-    return *uisettsinst_;
+    mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr );
+    return *theinst.createIfNull();
 }
 
 

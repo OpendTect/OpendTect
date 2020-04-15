@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "oscommand.h"
 #include "separstr.h"
 #include "settingsaccess.h"
@@ -25,7 +26,6 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "timer.h"
 #include "uistrings.h"
-#include "odplatform.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
@@ -33,7 +33,7 @@ const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 
 OD::PythonAccess& OD::PythA()
 {
-    static PtrMan<OD::PythonAccess> theinst = nullptr;
+    mDefineStaticLocalObject( PtrMan<OD::PythonAccess>, theinst, = nullptr );
     return *theinst.createIfNull();
 }
 
@@ -160,7 +160,8 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
-    static bool force_external = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    mDefineStaticLocalObject(bool, force_external,
+				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
     if ( force_external )
 	return (isusable_ = istested_ = true);
     if ( !force )
@@ -482,7 +483,8 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     {
 	strm.add( "SET procnm=%~n0" ).add( od_newline );
 	strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
-	strm.add( "SET pidfile=\"%~dpn0.pid\"" ).add( od_newline ).add( od_newline);
+	strm.add( "SET pidfile=\"%~dpn0.pid\"" )
+	    .add( od_newline ).add( od_newline);
     }
     strm.add( "@CALL \"" );
 #else
@@ -835,7 +837,8 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     if ( !isUsable_(!istested_) )
 	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
-    static bool force_external_ok = GetEnvVarYN( "OD_FORCE_PYTHON_ENV_OK" );
+    mDefineStaticLocalObject(bool, force_external_ok,
+				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
     if ( force_external_ok )
 	return uiRetVal::OK();
 
@@ -851,11 +854,14 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 		    .add(OD::Platform::local().shortName());
 
     fp.add( platSpecificName ).setExtension( "txt" );
-    if ( !fp.exists() ) {
-	fp.setFileName( genericName ).setExtension( "txt" );
+    if ( !fp.exists() )
+    {
+	fp.setFileName( genericName );
+	fp.setExtension( "txt" );
 	if ( !fp.exists() )
 	    return uiRetVal( uiStrings::phrFileDoesNotExist(fp.fullPath() ) );
     }
+
     od_istream strm( fp.fullPath() );
     if ( !strm.isOK() )
 	return uiRetVal( tr("Can't open requirements file: %1").arg(
@@ -1167,7 +1173,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
     uiRetVal retval;
     if ( !File::isDirectory(path) )
 	{pFreeFnErrMsg("Not a directory"); }
-    if ( !File::isReadable(path) )
+    if ( !File::isWritable(path) )
     {
 	retval.add( uiStrings::phrCannotRemove(::toUiString(path)) );
 	return retval;
