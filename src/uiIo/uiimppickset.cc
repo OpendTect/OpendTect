@@ -73,10 +73,8 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 		     uiStrings::sClose() );
     if ( import_ ) enableSaveButton( tr("Display after import") );
 
-    const uiString tp = uiStrings::phrASCII( uiStrings::sFile() );
-    uiString label = import_
-	? uiStrings::sInputASCIIFile()
-	: uiStrings::sOutputASCIIFile();
+    uiString label = import_ ? uiStrings::sInputASCIIFile()
+			     : uiStrings::sOutputASCIIFile();
 
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import_)
@@ -121,7 +119,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	sep->attach( stretchedBelow, constzfld_ );
 
 	dataselfld_ = new uiTableImpDataSel( this, fd_,
-                      mODHelpKey(mTableImpDataSelpicksHelpID) );
+		      mODHelpKey(mTableImpDataSelpicksHelpID) );
 	dataselfld_->attach( alignedBelow, constzfld_ );
 	dataselfld_->attach( ensureBelow, sep );
 
@@ -138,7 +136,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
 	uiStringSet impoptions;
 	impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyline() )
-	    	  .add( uiStrings::sPolygon() );
+		  .add( uiStrings::sPolygon() );
 	polyfld_ = new uiGenInput( this, tr("Import as"),
 				   StringListInpSpec(impoptions) );
 	polyfld_->attach( rightTo, colorfld_ );
@@ -147,7 +145,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     {
 	filefld_->attach( alignedBelow, objfld_ );
 	const bool needscrssel = SI().getCoordSystem() &&
-	    			 SI().getCoordSystem()->isProjection();
+				 SI().getCoordSystem()->isProjection();
 	if ( needscrssel )
 	{
 	    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
@@ -224,7 +222,7 @@ bool uiImpExpPickSet::doImport()
     IOM().commitChanges( *ioobj );
     BufferString errmsg;
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
-	mErrRet(mToUiStringTodo(errmsg));
+	mErrRet( toUiString(errmsg) )
 
     storedid_ = ioobj->key();
     if ( saveButtonChecked() )
@@ -242,8 +240,8 @@ bool uiImpExpPickSet::doImport()
 	{
 	    Pick::Set& oldps = psmgr.get( setidx );
 	    oldps = ps;
-	    psmgr.reportChange( 0, oldps );
-	    psmgr.reportDispChange( 0, oldps );
+	    psmgr.reportChange( nullptr, oldps );
+	    psmgr.reportDispChange( nullptr, oldps );
 	}
 
 	psmgr.setUnChanged( setidx, true );
@@ -261,7 +259,7 @@ bool uiImpExpPickSet::doExport()
     PtrMan<IOObj> ioobj = objfldioobj->clone();
     BufferString errmsg; Pick::Set ps;
     if ( !PickSetTranslator::retrieve(ps,ioobj,true, errmsg) )
-	mErrRet(mToUiStringTodo(errmsg));
+	mErrRet( toUiString(errmsg) )
 
     const char* fname = filefld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();
@@ -315,10 +313,10 @@ bool uiImpExpPickSet::checkInpFlds()
 {
     BufferString filenm = filefld_->fileName();
     if ( import_ && !File::exists(filenm) )
-	mErrRet( tr("Please select input file") );
+	mErrRet( tr("Please select input file") )
 
     if ( !import_ && filenm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::sSelOutpFile() )
 
     if ( !objfld_->commitInput() )
 	return false;
@@ -326,7 +324,7 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( import_ )
     {
 	if ( !dataselfld_->commit() )
-	    mErrRet( tr("Please specify data format") );
+	    mErrRet( tr("Please specify data format") )
 
 	const int zchoice = zfld_->box()->currentItem();
 	if ( zchoice == 1 )
@@ -335,7 +333,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	    if ( SI().zIsTime() ) constz /= 1000;
 
 	    if ( !SI().zRange(false).includes( constz,false ) )
-		mErrRet( tr("Please enter a valid Z value") );
+		mErrRet( tr("Please enter a valid Z value") )
 	}
     }
 
