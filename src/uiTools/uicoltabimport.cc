@@ -98,9 +98,8 @@ void uiColTabImport::choiceSel( CallBacker* )
 
 
 uiString uiColTabImport::getLabel( bool fromusr )
-{  
-    uiString ret = fromusr ? 
-                    tr("User's HOME directory") : uiStrings::sFile();
+{
+    uiString ret = fromusr ? tr("User's HOME folder") : uiStrings::sFile();
     return ret;
 }
 
@@ -118,7 +117,7 @@ void uiColTabImport::usrSel( CallBacker* )
     {
 	uiMSG().error(tr("Please select an existing %1")
 		    .arg(fromuser ? uiStrings::sDirectory().toLower()
-			          : uiStrings::sFile().toLower() ));
+				  : uiStrings::sFile().toLower() ));
 	return;
     }
 
@@ -164,7 +163,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	    if ( !res )
 	    {
 		showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
-			   (uiStrings::sColorTable(), tr("from Selected"), 
+			   (uiStrings::sColorTable(), tr("from Selected"),
 			    uiStrings::sFile())));
 		return;
 	    }
@@ -198,7 +197,7 @@ void uiColTabImport::usrSel( CallBacker* )
 
     if ( listfld_->isEmpty() )
 	showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
-		   (uiStrings::sColorTable(), tr("from Selected"), 
+		   (uiStrings::sColorTable(), tr("from Selected"),
 		    uiStrings::sFile())));
     else
 	showList();
