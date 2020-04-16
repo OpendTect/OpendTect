@@ -32,7 +32,7 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
 			mNoDlgTitle,
 			mODHelpKey(mPreStackEventExportHelpID) ) )
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread_ = true;

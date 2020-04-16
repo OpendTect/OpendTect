@@ -36,14 +36,14 @@ uiEventImport::uiEventImport( uiParent* p )
 				   mODHelpKey(mPreStackEventImportHelpID) ) )
     , fd_(*EventAscIO::getDesc())
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     filefld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 				uiFileInput::Setup(0).forread(true)
 						     .withexamine(true) );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
-                                      mODHelpKey(mTableImpDataSelpicksHelpID));
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
+				      mODHelpKey(mTableImpDataSelpicksHelpID));
     dataselfld_->attach( alignedBelow, filefld_ );
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
