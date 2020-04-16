@@ -452,7 +452,7 @@ uiString uiStrings::sInputSelection()
 { return phrInput( sSelection().toLower() ); }
 
 uiString uiStrings::sInputASCIIFile()
-{ return phrInput( phrASCII( sFile() )); }
+{ return phrInput( phrASCII( sFile().toLower() )); }
 
 uiString uiStrings::sInputParamsMissing()
 { return tr("Input parameters missing"); }
@@ -494,7 +494,7 @@ uiString uiStrings::sOutputSelection()
 { return phrOutput(sSelection().toLower()); }
 
 uiString uiStrings::sOutputASCIIFile()
-{ return phrOutput( phrASCII( sFile() )); }
+{ return phrOutput( phrASCII( sFile().toLower() )); }
 
 uiString uiStrings::sOutputFileExistsOverwrite()
 { return phrExistsConinue( tr("Output file"), true); }
