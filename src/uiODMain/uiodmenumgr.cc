@@ -307,7 +307,7 @@ void uiODMenuMgr::fillImportMenu()
 		       mImpPDFAsciiMnuItm, ascic );
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
-    uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
+    uiMenu* impseissimple = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     if ( have2d )
     {
 	mInsertPixmapItem( impseissimple,
@@ -390,7 +390,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellasc, m3Dots(uiStrings::sMarker(mPlural)),
 		 mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
-    mInsertItem( impwell, m3Dots(tr("Simple Multi-Well")),
+    mInsertItem( impwell, m3Dots(tr("Vertical Multi-Well")),
 		 mImpWellSimpleMnuItm );
 
     uiMenu* impwellbulk = new uiMenu( &appl_, tr("Bulk") );
@@ -460,24 +460,24 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertSeparator();
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
-    uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
+    uiMenu* expseissimple = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     if ( have2d )
     {
 	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Line"))
 			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm,
-			"seismicline2d"	);
+			"seismicline2d"	)
 	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Prestack Data"))
 			: m3Dots(tr("Prestack 2D")), mExpSeisSimplePS2DMnuItm,
-			"prestackdataset2d" );
+			"prestackdataset2d" )
     }
     if ( !only2d )
     {
 	mInsertPixmapItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
 		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm,
-		   "seismiccube" );
+		   "seismiccube" )
 	mInsertPixmapItem( expseissimple, have2d ? m3Dots(tr("Prestack 3D"))
 		   : m3Dots(tr("Prestack Volume")), mExpSeisSimplePS3DMnuItm
-		   , "prestackdataset" );
+		   , "prestackdataset" )
     }
     expseis->insertItem( expseissimple );
     if ( !only2d )
