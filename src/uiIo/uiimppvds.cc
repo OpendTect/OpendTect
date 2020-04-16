@@ -12,27 +12,28 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiimppvds.h"
 
+#include "uibutton.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uibutton.h"
-#include "uitaskrunner.h"
-#include "uitblimpexpdatasel.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uitaskrunner.h"
+#include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
-#include "posvecdatasettr.h"
-#include "ioobj.h"
-#include "file.h"
-#include "od_istream.h"
-#include "datapointset.h"
-#include "posvecdataset.h"
 #include "datacoldef.h"
+#include "datapointset.h"
+#include "file.h"
+#include "filepath.h"
+#include "ioobj.h"
+#include "od_helpids.h"
+#include "od_istream.h"
+#include "posvecdataset.h"
+#include "posvecdatasettr.h"
 #include "statrand.h"
 #include "survinfo.h"
-#include "tabledef.h"
 #include "tableascio.h"
-#include "od_helpids.h"
+#include "tabledef.h"
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
@@ -42,19 +43,19 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     uiFileInput::Setup su( uiFileDialog::Txt );
     su.withexamine(true).examstyle(File::Table).forread(true);
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()), 
-			       su );
+    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(), su );
+    mAttachCB( inpfld_->valuechanged, uiImpPVDS::inputChgd );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
     if ( is2d_ )
 	fd_.bodyinfos_ += new Table::TargetInfo("Trace number", IntInpSpec() );
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                  mODHelpKey(mTableImpDataSelpvdsHelpID)  );
+		  mODHelpKey(mTableImpDataSelpvdsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, tr("First row contains"),
@@ -71,7 +72,15 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 
 uiImpPVDS::~uiImpPVDS()
 {
+    detachAllNotifiers();
     delete &fd_;
+}
+
+
+void uiImpPVDS::inputChgd( CallBacker* )
+{
+    const FilePath fnmfp( inpfld_->fileName() );
+    outfld_->setInputText( fnmfp.baseName() );
 }
 
 
@@ -84,9 +93,11 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 	mErrRet(tr("Please select an existing input file"))
     if ( !dataselfld_->commit() )
 	return false;
+
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	return false;
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::sCantOpenInpFile())

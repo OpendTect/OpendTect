@@ -24,7 +24,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mExpClass(uiIo) uiImpPVDS : public uiDialog 
+mExpClass(uiIo) uiImpPVDS : public uiDialog
 { mODTextTranslationClass(uiImpPVDS);
 public:
 			uiImpPVDS(uiParent*,bool is2d=false);
@@ -40,6 +40,7 @@ protected:
     uiGenInput*		row1isdatafld_;
     uiIOObjSel*		outfld_;
 
+    void		inputChgd(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     bool		getData(od_istream&,Table::FormatDesc&,DataPointSet&);
