@@ -702,7 +702,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
     outputfld_->attach( alignedBelow, inpfld_ );
 }
