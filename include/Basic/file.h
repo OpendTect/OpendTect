@@ -62,7 +62,8 @@ mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 mGlobal(Basic) bool		isFileInUse(const char* fnm);
 
 mGlobal(Basic) bool		createDir(const char*);
-mGlobal(Basic) bool		rename(const char* oldname,const char* newname);
+mGlobal(Basic) bool		rename(const char* oldname,const char* newname,
+				       uiString* errmsg=nullptr);
 mGlobal(Basic) bool		copy(const char* from,const char* to,
 					BufferString* errmsg=0);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
