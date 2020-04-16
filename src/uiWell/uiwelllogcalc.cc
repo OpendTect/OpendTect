@@ -121,7 +121,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 	return;
     }
 
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sCalculate(), uiStrings::sClose() );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
     const CallBack formunitcb( mCB(this,uiWellLogCalc,formUnitSel) );
     const CallBack inpselcb( mCB(this,uiWellLogCalc,inpSel) );
@@ -170,8 +170,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     nmfld_ = new uiGenInput( this, tr("Name for new log") );
     nmfld_->attach( alignedBelow, lcb );
 
-    uiUnitSel::Setup uussu( PropertyRef::Other, uiStrings::phrOutput(
-						       tr("unit of measure")) );
+    uiUnitSel::Setup uussu( PropertyRef::Other,
+			    tr("Output unit of measure") );
     uussu.withnone( true );
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, nmfld_ );
