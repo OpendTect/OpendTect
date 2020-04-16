@@ -36,8 +36,7 @@ namespace PreStack
 
 uiImportMute::uiImportMute( uiParent* p )
     : uiDialog( p,uiDialog::Setup(tr("Import Mute Function"),mNoDlgTitle,
-				  mODHelpKey(mPreStackImportMuteHelpID))
-			    .modal(false))
+				  mODHelpKey(mPreStackImportMuteHelpID)) )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
@@ -61,7 +60,7 @@ uiImportMute::uiImportMute( uiParent* p )
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                      mODHelpKey(mPreStackImportMuteParsHelpID) );
+		      mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
     ctio_.ctxt_.forread_ = false;

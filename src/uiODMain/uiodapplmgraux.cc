@@ -108,21 +108,22 @@ uiParent* uiODApplService::parent() const
 //uiODApplMgrDispatcher
 uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     : am_(a), par_(p)
-    , convposdlg_(0)
-    , mandpsdlg_(0)
-    , man2dgeomdlg_(0)
-    , manpdfdlg_(0)
-    , manrldlg_(0)
-    , mansessiondlg_(0)
-    , impcrossplotdlg_(0)
-    , impmutedlg_(0)
-    , imppdfdlg_(0)
-    , exppdfdlg_(0)
-    , impvelfunc_(0)
-    , exp2dgeomdlg_(0)
-    , imp2dgeomdlg_(0)
-    , batchprocps2ddlg_(0)
-    , batchprocps3ddlg_(0)
+    , convposdlg_(nullptr)
+    , mandpsdlg_(nullptr)
+    , man2dgeomdlg_(nullptr)
+    , manpdfdlg_(nullptr)
+    , manrldlg_(nullptr)
+    , mansessiondlg_(nullptr)
+    , impcrossplotdlg_(nullptr)
+    , expmutedlg_(nullptr)
+    , impmutedlg_(nullptr)
+    , imppdfdlg_(nullptr)
+    , exppdfdlg_(nullptr)
+    , impvelfunc_(nullptr)
+    , exp2dgeomdlg_(nullptr)
+    , imp2dgeomdlg_(nullptr)
+    , batchprocps2ddlg_(nullptr)
+    , batchprocps3ddlg_(nullptr)
 {}
 
 
@@ -328,14 +329,22 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	if ( at == uiODApplMgr::Imp )
 	{
 	    if ( !impmutedlg_ )
+	    {
 		impmutedlg_ = new PreStack::uiImportMute( par_ );
+		impmutedlg_->setModal( false );
+	    }
 
 	    impmutedlg_->show();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
-	    PreStack::uiExportMute dlgexp( par_ );
-	    dlgexp.go();
+	    if ( !expmutedlg_ )
+	    {
+		expmutedlg_ = new PreStack::uiExportMute( par_ );
+		expmutedlg_->setModal( false );
+	    }
+
+	    expmutedlg_->show();
 	}
     break;
     mCase(Vel):
