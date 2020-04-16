@@ -375,9 +375,9 @@ mExternC(Basic) const char* GetLibPlfDir()
     mDeclStaticString( res );
     if ( res.isEmpty() )
 #ifdef __mac__
-        res = FilePath(GetSoftwareDir(0),"Frameworks").fullPath();
+	res = FilePath(GetSoftwareDir(0),"Frameworks").fullPath();
 #else
-        res = FilePath( GetFullExecutablePath() ).pathOnly();
+	res = FilePath( GetFullExecutablePath() ).pathOnly();
 #endif
     return res.buf();
 }
@@ -621,5 +621,27 @@ mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 {
     mDeclStaticString( ret );
     ret = FilePath( GetSettingsDir(), fnm ).fullPath();
+    return ret;
+}
+
+
+mExternC(Basic) const char* GetImagesDir()
+{
+    mDeclStaticString( ret );
+    ret = FilePath( GetDataDir(), "Images" ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+
+    return ret;
+}
+
+
+mExternC(Basic) const char* GetExportDir()
+{
+    mDeclStaticString( ret );
+    ret = FilePath( GetDataDir(), "Export" ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+
     return ret;
 }
