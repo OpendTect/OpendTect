@@ -46,7 +46,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     , outioobj_(0)
     , tmpid_("100010.",IOObj::tmpID())
 {
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );

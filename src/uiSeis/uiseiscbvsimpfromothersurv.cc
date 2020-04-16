@@ -35,7 +35,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 		 .modal(false))
     , import_(0)
 {
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     finpfld_ = new uiGenInput( this, tr("CBVS file name") );
     finpfld_->setElemSzPol( uiObject::Wide );
