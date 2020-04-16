@@ -924,6 +924,20 @@ OD::JSON::ValueSet::idx_type OD::JSON::Object::indexOf( const char* nm ) const
     return -1;
 }
 
+
+void OD::JSON::Object::getSubObjKeys( BufferStringSet& bss ) const
+{
+    for ( auto val : values_ )
+    {
+	if ( !val->isKeyed() )
+	    continue;
+
+	const KeyedValue& kydval = *static_cast<KeyedValue*>( val );
+	bss.add( kydval.key_ );
+    }
+}
+
+
 OD::JSON::ValueSet* OD::JSON::Object::gtChildByKey( const char* ky ) const
 {
     const idx_type idx = indexOf( ky );

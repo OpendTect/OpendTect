@@ -141,6 +141,7 @@ namespace OD
 	static File::Path*	getActivateScript(const File::Path& root);
 	bool			retrievePythonVersionStr();
 	void			envChangeCB(CallBacker*);
+	static void		addUserPythonDirs(BufferStringSet&);
 
 	friend class ::uiPythonSettings;
 	friend class ::uiODServiceBase;
