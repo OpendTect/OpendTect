@@ -276,6 +276,7 @@ public:
     mMkGetFn(Array,	getArray, gtArrayByKey )
     mMkGetFn(Object,	getObject, gtObjectByKey )
 #   undef		mMkGetFn
+    void		getSubObjKeys(BufferStringSet&) const;
     inline ValueSet*	getChild( const BufferStringSet& bskey )
 					    { return gtChildByKeys( bskey ); }
     inline const ValueSet*	getChild( const BufferStringSet& bskey ) const

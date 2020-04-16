@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "file.h"
 #include "genc.h"
 #include "keystrs.h"
+#include "od_istream.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "odplatform.h"
 #include "oscommand.h"
 #include "separstr.h"
@@ -84,8 +86,52 @@ OD::PythonAccess::~PythonAccess()
 void OD::PythonAccess::initClass()
 {
     const File::Path pythonfp( BufferString(GetScriptDir()), "python" );
-    const BufferStringSet pythondirs( pythonfp.fullPath() );
+    BufferStringSet pythondirs( pythonfp.fullPath() );
+    addUserPythonDirs( pythondirs );
     SetEnvVarDirList( "PYTHONPATH", pythondirs, true );
+}
+
+
+void OD::PythonAccess::addUserPythonDirs( BufferStringSet& dirs )
+{
+    BufferString pythonstr( sKey::Python() );
+    pythonstr.toLower();
+    Settings& modsett = Settings::fetch( pythonstr );
+    if ( modsett.isEmpty() )
+	return;
+
+    BufferString fnm;
+    if ( !modsett.get(IOPar::compKey(sKey::User(),sKey::FileName()),fnm) ||
+	  fnm.isEmpty() )
+	return;
+
+    if ( !File::exists(fnm) || !File::isFile(fnm) || !File::isReadable(fnm) )
+	return;
+
+    od_istream istrm( fnm );
+    if ( !istrm.isOK() )
+	return;
+
+    OD::JSON::Object arrdict;
+    const uiRetVal uirv = arrdict.read( istrm );
+    if ( !uirv.isOK() )
+	return;
+
+    BufferStringSet dictkeys;
+    arrdict.getSubObjKeys( dictkeys );
+    for ( const auto dictkey : dictkeys )
+    {
+	const OD::JSON::Object* dirnm = arrdict.getObject( *dictkey );
+	if ( !dirnm )
+	    continue;
+
+	const BufferString path = dirnm->getStringValue( "path" );
+	const File::Path fp( path, dictkey->str() );
+	if ( !fp.exists() )
+	    continue;
+
+	dirs.addIfNew( path ); //Not fp!
+    }
 }
 
 
