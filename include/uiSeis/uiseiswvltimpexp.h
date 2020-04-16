@@ -42,8 +42,8 @@ protected:
     uiGenInput*		scalefld_;
     uiIOObjSel*		wvltfld_;
 
+    void		inputChgd(CallBacker*);
     bool		acceptOK(CallBacker*);
-
 };
 
 
@@ -59,8 +59,8 @@ protected:
     uiFileInput*	outpfld_;
     uiGenInput*		addzfld_;
 
+    void		inputChgd(CallBacker*);
     bool		acceptOK(CallBacker*);
-
 };
 
 
@@ -78,8 +78,8 @@ protected:
     uiIOObjSel*		wvltoutfld_;
     uiGenInput*		scalefld_;
 
+    void		inputChgd(CallBacker*);
     bool		acceptOK(CallBacker*);
-
 };
 
 #endif

@@ -70,30 +70,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs2d(0);
-static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs3d(0);
+static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs2d(nullptr);
+static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs3d(nullptr);
 
 static int seis2dloadaction = 0;
 static const char* sKeyPreLoad()	{ return "PreLoad"; }
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , man2dseisdlg_(0)
-    , man3dseisdlg_(0)
-    , man2dprestkdlg_(0)
-    , man3dprestkdlg_(0)
-    , manwvltdlg_(0)
-    , impcbvsdlg_(0)
-    , impcbvsothsurvdlg_(0)
-    , imp3dseisdlg_(0)
-    , exp3dseisdlg_(0)
-    , imp2dseisdlg_(0)
-    , exp2dseisdlg_(0)
-    , impps3dseisdlg_(0)
-    , expps3dseisdlg_(0)
-    , impps2dseisdlg_(0)
-    , expps2dseisdlg_(0)
-    , expcubeposdlg_(0)
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     mAttachCB( IOM().surveyChanged, uiSeisPartServer::survChangedCB );
@@ -111,6 +95,8 @@ uiSeisPartServer::~uiSeisPartServer()
     delete man2dprestkdlg_;
     delete man3dprestkdlg_;
     delete manwvltdlg_;
+    delete impwvltdlg_;
+    delete expwvltdlg_;
     delete impcbvsdlg_;
     delete impcbvsothsurvdlg_;
     delete imp3dseisdlg_;
@@ -135,6 +121,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( man2dprestkdlg_ );
     deleteAndZeroPtr( man3dprestkdlg_ );
     deleteAndZeroPtr( manwvltdlg_ );
+    deleteAndZeroPtr( impwvltdlg_ );
+    deleteAndZeroPtr( expwvltdlg_ );
     Seis::PLDM().removeAll();
 
     deleteAndZeroPtr( impcbvsdlg_ );
@@ -355,13 +343,13 @@ void uiSeisPartServer::manageSeismics( int opt, bool modal )
     const bool is2d = opt == 1 || opt == 3;
     switch( opt )
     {
-	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan);
+	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan)
 		break;
-	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan);
+	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan)
 		break;
-	case 2: mManageSeisDlg(man3dprestkdlg_,uiSeisPreStackMan);
+	case 2: mManageSeisDlg(man3dprestkdlg_,uiSeisPreStackMan)
 		break;
-	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan);
+	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan)
 		break;
     }
 }
@@ -376,15 +364,25 @@ void uiSeisPartServer::managePreLoad()
 
 void uiSeisPartServer::importWavelets()
 {
-    uiSeisWvltImp dlg( parent() );
-    dlg.go();
+    if ( !impwvltdlg_ )
+    {
+	impwvltdlg_ = new uiSeisWvltImp( parent() );
+	impwvltdlg_->setModal( false );
+    }
+
+    impwvltdlg_->show();
 }
 
 
 void uiSeisPartServer::exportWavelets()
 {
-    uiSeisWvltExp dlg( parent() );
-    dlg.go();
+    if ( !expwvltdlg_ )
+    {
+	expwvltdlg_ = new uiSeisWvltExp( parent() );
+	expwvltdlg_->setModal( false );
+    }
+
+    expwvltdlg_->show();
 }
 
 

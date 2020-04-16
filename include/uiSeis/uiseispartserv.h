@@ -28,6 +28,8 @@ class uiSeisIOSimple;
 class uiSeisImpCBVSFromOtherSurveyDlg;
 class uiSeisExpCubePositionsDlg;
 class uiSeisPreStackMan;
+class uiSeisWvltExp;
+class uiSeisWvltImp;
 class uiSeisWvltMan;
 
 namespace PosInfo { class Line2DData; }
@@ -38,7 +40,7 @@ namespace Geometry { class RandomLine; }
 */
 
 mExpClass(uiSeis) uiSeisPartServer : public uiApplPartServer
-{ mODTextTranslationClass(uiSeisPartServer);
+{ mODTextTranslationClass(uiSeisPartServer)
 public:
 			uiSeisPartServer(uiApplService&);
 			~uiSeisPartServer();
@@ -81,23 +83,25 @@ protected:
     void		survChangedCB(CallBacker*);
     MultiID		getDefault2DDataID() const;
 
-    uiSeisFileMan*	man2dseisdlg_;
-    uiSeisFileMan*	man3dseisdlg_;
-    uiSeisPreStackMan*	man2dprestkdlg_;
-    uiSeisPreStackMan*	man3dprestkdlg_;
-    uiSeisWvltMan*	manwvltdlg_;
+    uiSeisFileMan*	man2dseisdlg_ = nullptr;
+    uiSeisFileMan*	man3dseisdlg_ = nullptr;
+    uiSeisPreStackMan*	man2dprestkdlg_ = nullptr;
+    uiSeisPreStackMan*	man3dprestkdlg_ = nullptr;
+    uiSeisWvltMan*	manwvltdlg_ = nullptr;
+    uiSeisWvltImp*	impwvltdlg_ = nullptr;
+    uiSeisWvltExp*	expwvltdlg_ = nullptr;
 
-    uiSeisIOSimple*	imp3dseisdlg_;
-    uiSeisIOSimple*	exp3dseisdlg_;
-    uiSeisIOSimple*	imp2dseisdlg_;
-    uiSeisIOSimple*	exp2dseisdlg_;
-    uiSeisIOSimple*	impps3dseisdlg_;
-    uiSeisIOSimple*	expps3dseisdlg_;
-    uiSeisIOSimple*	impps2dseisdlg_;
-    uiSeisIOSimple*	expps2dseisdlg_;
-    uiSeisImportCBVS*	impcbvsdlg_;
-    uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_;
-    uiSeisExpCubePositionsDlg*	expcubeposdlg_;
+    uiSeisIOSimple*	imp3dseisdlg_ = nullptr;
+    uiSeisIOSimple*	exp3dseisdlg_ = nullptr;
+    uiSeisIOSimple*	imp2dseisdlg_ = nullptr;
+    uiSeisIOSimple*	exp2dseisdlg_ = nullptr;
+    uiSeisIOSimple*	impps3dseisdlg_ = nullptr;
+    uiSeisIOSimple*	expps3dseisdlg_ = nullptr;
+    uiSeisIOSimple*	impps2dseisdlg_ = nullptr;
+    uiSeisIOSimple*	expps2dseisdlg_ = nullptr;
+    uiSeisImportCBVS*	impcbvsdlg_ = nullptr;
+    uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_ = nullptr;
+    uiSeisExpCubePositionsDlg*	expcubeposdlg_ = nullptr;
 
 private:
     uiString		mkDlgCaption( bool forread, bool is2d, bool isps );

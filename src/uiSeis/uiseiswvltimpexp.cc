@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "oddirs.h"
 #include "od_iostream.h"
@@ -36,20 +37,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Wavelet"),mNoDlgTitle,
-                                 mODHelpKey(mSeisWvltImpHelpID) ))
+				 mODHelpKey(mSeisWvltImpHelpID) ))
     , fd_(*WaveletAscIO::getDesc())
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
-    setOkText( uiStrings::sImport() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
-		      uiStrings::sFile())), uiFileInput::Setup()
-		      .withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
+			uiFileInput::Setup()
+			.withexamine(true).examstyle(File::Table) );
+    mAttachCB( inpfld_->valuechanged, uiSeisWvltImp::inputChgd );
+
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                  mODHelpKey(mSeisWvltImpParsHelpID)  );
+		  mODHelpKey(mSeisWvltImpParsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
     dataselfld_->attach( ensureBelow, sep );
 
@@ -69,13 +72,20 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 
 uiSeisWvltImp::~uiSeisWvltImp()
 {
+    detachAllNotifiers();
+
     delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
+
+void uiSeisWvltImp::inputChgd( CallBacker* )
+{
+    const FilePath fnmfp( inpfld_->fileName() );
+    wvltfld_->setInputText( fnmfp.baseName() );
+}
+
 #define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
-
-
 
 bool uiSeisWvltImp::acceptOK( CallBacker* )
 {
@@ -150,21 +160,36 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
     setOkText( uiStrings::sExport() );
 
     wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
+    mAttachCB( wvltfld_->selectionDone, uiSeisWvltExp::inputChgd );
 
     addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ?
 				     uiStrings::sTime() : uiStrings::sDepth()),
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
 
-    outpfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::phrASCII(
-				uiStrings::sFile())), uiFileInput::Setup()
-				.forread(false) );
+    outpfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
+				uiFileInput::Setup().forread(false)
+				.defseldir(GetExportDir()));
     outpfld_->attach( alignedBelow, addzfld_ );
 }
 
 
 uiSeisWvltExp::~uiSeisWvltExp()
 {
+    detachAllNotifiers();
+}
+
+
+void uiSeisWvltExp::inputChgd( CallBacker* )
+{
+    const IOObj* ioobj = wvltfld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
+    const FilePath fp = ioobj->fullUserExpr();
+    FilePath fnm( GetExportDir(), fp.baseName() );
+    fnm.setExtension( "dat" );
+    outpfld_->setFileName( fnm.fullPath() );
 }
 
 
@@ -203,7 +228,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	mErrRet( tr("Possible error during write.") );
 
     uiString msg = tr("Wavelet successfully exported."
-	              "\nDo you want to export more Wavelets?");
+		      "\nDo you want to export more Wavelets?");
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }
 
@@ -218,6 +243,7 @@ uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
 
     IOObjContext ctxt = mIOObjContext(Wavelet);
     wvltinfld_ = new uiIOObjSel( this, ctxt );
+    mAttachCB( wvltinfld_->selectionDone, uiSeisWvltCopy::inputChgd );
     if ( inioobj )
 	wvltinfld_->setInput( inioobj->key() );
 
@@ -233,12 +259,24 @@ uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
 
 uiSeisWvltCopy::~uiSeisWvltCopy()
 {
+    detachAllNotifiers();
 }
 
 
 MultiID uiSeisWvltCopy::getMultiID() const
 {
     return wvltoutfld_->key();
+}
+
+
+void uiSeisWvltCopy::inputChgd(CallBacker *)
+{
+    const IOObj* ioobj = wvltinfld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
+    const BufferString newnm( ioobj->name(), "_copy" );
+    wvltoutfld_->setInputText( newnm );
 }
 
 
