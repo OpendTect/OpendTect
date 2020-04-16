@@ -266,8 +266,9 @@ static const char* exptypes[] =
     "MD/Value",
     "XYZ/Value",
     "ICZ/Value",
-    0
+    nullptr
 };
+
 static const float cTWTFac  = 1000.f;
 
 
@@ -303,7 +304,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 				  mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
     , logsel_(logsel)
-    , multiwellsnamefld_(0)
+    , multiwellsnamefld_(nullptr)
 {
     const bool zinft = SI().depthsInFeet();
     const uiString lbl = tr( "Depth range %1" ).
@@ -311,13 +312,13 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
-    typefld_ = new uiGenInput( this, uiStrings::phrASCII( uiStrings::sFile()),
+    typefld_ = new uiGenInput( this, uiStrings::sFormat(),
 			      StringListInpSpec(exptypes) );
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
-    Coords::uiCoordSystemSel* coordsysselfld = new Coords::uiCoordSystemSel(
-									this );
+    Coords::uiCoordSystemSel* coordsysselfld =
+				new Coords::uiCoordSystemSel( this );
     coordsysselfld->attach( alignedBelow, typefld_ );
 
     coordsysselfld_.setParam( this, coordsysselfld );
