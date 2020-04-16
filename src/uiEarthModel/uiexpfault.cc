@@ -71,10 +71,10 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
 				 mODHelpKey(mExportFaultHelpID),mTODOHelpKey)))
     , ctio_(mGetCtio(typ))
-    , linenmfld_(0)
+    , linenmfld_(nullptr)
     , issingle_(issingle)
-    , infld_(0)
-    , bulkinfld_(0)
+    , infld_(nullptr)
+    , bulkinfld_(nullptr)
 {
     typ_.setParam( this, new FixedString(typ) );
     setModal( false );
@@ -110,7 +110,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
     zfld_->attach( alignedBelow, coordsysselfld_ );
 
-    uiT2DConvSel::Setup stup( 0, false );
+    uiT2DConvSel::Setup stup( nullptr, false );
     stup.ist2d( SI().zIsTime() );
     transfld_ = new uiT2DConvSel( this, stup );
     transfld_->display( false );
@@ -135,15 +135,14 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::phrASCII(
-			       uiStrings::sFile())),
+    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup().forread(false) );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
 	outfld_->attach( alignedBelow, stickidsfld_ );
 
-    exportCoordSysChgCB(0);
+    exportCoordSysChgCB(nullptr);
 
     dispstr_ = EMFaultStickSetTranslatorGroup::sGroupName() == typ
 	? uiStrings::sFaultStickSet(mGetObjNr)
@@ -160,21 +159,21 @@ uiExportFault::~uiExportFault()
 
 static int stickNr( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid))
     return fss->rowRange().atIndex( stickidx );
 }
 
 
 static int nrSticks( EM::EMObject* emobj, EM::SectionID sid )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid))
     return fss->nrSticks();
 }
 
 
 static int nrKnots( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid))
     const int sticknr = fss->rowRange().atIndex( stickidx );
     return fss->nrKnots( sticknr );
 }
@@ -183,7 +182,7 @@ static int nrKnots( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
 static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
 			int knotidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid))
     const int sticknr = fss->rowRange().atIndex(stickidx);
     const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
     return fss->getKnot( RowCol(sticknr,knotnr) );
@@ -220,7 +219,7 @@ bool uiExportFault::writeAscii()
     if ( !ostrm.isOK() )
 	return false;
 
-    RefMan<ZAxisTransform> zatf = 0;
+    RefMan<ZAxisTransform> zatf = nullptr;
     if ( zfld_->getIntValue()==2 )
     {
 	zatf = transfld_->getSelection();
@@ -381,9 +380,8 @@ bool uiExportFault::writeAscii()
 		    }
 
 		    ostrm << '\n';
-	      }
-	  }
-
+		}
+	    }
 	}
     }
     ostrm.close();
@@ -395,11 +393,8 @@ bool uiExportFault::writeAscii()
 FixedString uiExportFault::getZDomain() const
 {
     FixedString zdomain = ZDomain::SI().key();
-
     if ( zfld_->getIntValue()==2 )
-    {
 	zdomain = transfld_->selectedToDomain();
-    }
 
     return zdomain;
 }
@@ -429,8 +424,8 @@ void uiExportFault::addZChg( CallBacker* )
 void uiExportFault::exportCoordSysChgCB( CallBacker* )
 {
     const bool shoulddisplay = SI().getCoordSystem() &&
-			      SI().getCoordSystem()->isProjection() &&
-						  coordfld_->getBoolValue();
+			       SI().getCoordSystem()->isProjection() &&
+			       coordfld_->getBoolValue();
     coordsysselfld_->display(shoulddisplay);
 }
 
@@ -455,10 +450,10 @@ bool uiExportFault::acceptOK( CallBacker* )
     }
 
     if ( !isobjsel )
-	mErrRet( uiStrings::phrSelect(tr("the input fault")) );
+	mErrRet( uiStrings::phrSelect(tr("the input fault")) )
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( uiStrings::sSelOutpFile() );
+	mErrRet( uiStrings::sSelOutpFile() )
 
     if ( File::exists(outfnm)
       && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))

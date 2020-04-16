@@ -89,10 +89,10 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     ctio_.ctxt_.forread_ = !isgeom_;
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
-		  uiStrings::sFile())), uiFileInput::Setup(uiFileDialog::Gen)
-		  .withexamine(true).forread(true).filter(fltr)
-		  .defseldir(sImportFromPath) );
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
+		uiFileInput::Setup(uiFileDialog::Gen)
+		.withexamine(true).forread(true).filter(fltr)
+		.defseldir(sImportFromPath) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFile );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 

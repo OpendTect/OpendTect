@@ -108,9 +108,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 
     coordsysselfld_.setParam( this, coordsysselfld );
 
-    outfld_ = new uiFileInput( this,
-		  uiStrings::phrOutput(uiStrings::phrASCII(uiStrings::sFile())),
-		  uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
+			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordsysselfld );
 
     if ( !isbulk )

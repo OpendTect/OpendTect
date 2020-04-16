@@ -65,7 +65,7 @@ protected:
     uiCheckBox*		displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
-    void                descChg(CallBacker*);
+    void		descChg(CallBacker*);
     void		inputChgd(CallBacker*);
     void		addAttribCB(CallBacker*);
     void		rmAttribCB(CallBacker*);
