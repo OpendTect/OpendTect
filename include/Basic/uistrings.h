@@ -25,7 +25,7 @@ ________________________________________________________________________
    at a minimum.
 */
 mExpClass(Basic) uiStrings
-{ mODTextTranslationClass(uiStrings);
+{ mODTextTranslationClass(uiStrings)
 public:
 //Phrases
     static uiString phrAdd(const uiString&);
@@ -104,13 +104,13 @@ public:
     //!<"Edit <string>"
     static uiString phrEnter(const uiString&);
     //!<"Enter <string>"
-    static uiString phrErrDuringIO(bool read,const char* objnm=0);
+    static uiString phrErrDuringIO(bool read,const char* objnm=nullptr);
     static uiString phrErrDuringIO(bool read,const uiString&);
-    static uiString phrErrDuringRead( const char* objnm=0 )
+    static uiString phrErrDuringRead( const char* objnm=nullptr )
 		    { return phrErrDuringIO( true, objnm ); }
     static uiString phrErrDuringRead( const uiString& subj )
 		    { return phrErrDuringIO( true, subj ); }
-    static uiString phrErrDuringWrite( const char* objnm=0 )
+    static uiString phrErrDuringWrite( const char* objnm=nullptr )
 		    { return phrErrDuringIO( false, objnm ); }
     static uiString phrErrDuringWrite( const uiString& subj )
 		    { return phrErrDuringIO( false, subj ); }
@@ -308,7 +308,7 @@ public:
     static uiString sDefault()		{ return tr("Default"); }
     static uiString sDefine()		{ return tr("Define"); }
     static uiString sDelete();
-    static uiString sDepth()	        { return tr("Depth"); }
+    static uiString sDepth()		{ return tr("Depth"); }
     static uiString sDip()		{ return tr("Dip"); }
     static uiString sDisabled()		{ return tr("Disabled"); }
     static uiString sDisplay()		{ return tr("Display"); }
@@ -336,23 +336,24 @@ public:
     static uiString sFaultStickSet(int num=1);
     static uiString sFaultSet(int num=1){ return tr("FaultSet",0,num); }
     static uiString sFeet()		{ return tr("Feet"); }
-    static uiString sFile()	        { return tr("File"); }
+    static uiString sFile()		{ return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
-    static uiString sFileName()	        { return tr("File name"); }
+    static uiString sFileName()		{ return tr("File name"); }
     static uiString sFinish()		{ return tr("Finish"); }
     static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }
     static uiString sFiltering()	    { return tr("Filtering"); }
     static uiString sFlip()		{ return tr("Flip"); }
-    static uiString sFolder(int n=1)	{ return tr("Folder", 0, n); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
+    static uiString sFolder(int n=1)	{ return tr("Folder", 0, n); }
+    static uiString sFormat()		{ return tr("Format"); }
     static uiString sFrequency(int num=1);
     static uiString sGenerating()	{ return tr("Generating"); }
     static uiString sGeometry()		{ return tr("Geometry"); }
-    static uiString sGo()	        { return tr("Go"); }
+    static uiString sGo()		{ return tr("Go"); }
     static uiString sGreen()		{ return tr("Green"); }
-    static uiString sGridding()		    { return tr("Gridding"); }
+    static uiString sGridding()		{ return tr("Gridding"); }
     static uiString sHelp();
     static uiString sHeight()		{ return tr("Height"); }
     static uiString sHide()		{ return tr("Hide"); }
@@ -428,9 +429,9 @@ public:
     static uiString sOutput();
     static uiString sOutputSelection();
     static uiString sOutputASCIIFile();
-    static uiString sOverwrite()        { return tr("Overwrite"); }
+    static uiString sOverwrite()	{ return tr("Overwrite"); }
     static uiString sParFile()		{ return tr("Par File"); }
-    static uiString sPause()            { return tr("Pause"); }
+    static uiString sPause()		{ return tr("Pause"); }
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
     static uiString sPercentageDone()	{ return tr("Percentage done"); }
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
@@ -519,7 +520,7 @@ public:
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTitle()		{ return tr("Title"); }
     static uiString sTmpStor()		{ return tr("Temporary storage "
-							       "location :"); }
+								"location :"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTop()		{ return tr("Top"); }
@@ -529,8 +530,8 @@ public:
     static uiString sTrack();
     static uiString sTracking()		{ return tr("Tracking"); }
     static uiString sTransform()	{ return tr("Transform"); }
-    static uiString sTransparency()     { return tr("Transparency"); }
-    static uiString sType()             { return tr("Type"); }
+    static uiString sTransparency()	{ return tr("Transparency"); }
+    static uiString sType()		{ return tr("Type"); }
     static uiString sUndefVal()		{ return tr("Undefined Value"); }
     static uiString sUndo()		{ return tr("Undo"); }
     static uiString sUnit(int num=1)	{ return tr("Unit",0,num); }
@@ -578,8 +579,8 @@ public:
     static uiString sTimeUnitString(bool abbrevated=true);
     /*!< returns "s" or "seconds" */
     static uiString sVolDataName(bool is2d,bool is3d,bool isprestack,
-				     bool both_2d_3d_in_context=false,
-				     bool both_pre_post_in_context=false);
+				 bool both_2d_3d_in_context=false,
+				 bool both_pre_post_in_context=false);
     /*!<Returns names for data volumes such as "2D Data", "Cube",
 	"Prestack Data", and similar */
 };
