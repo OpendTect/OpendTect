@@ -77,7 +77,6 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , interpol_(0)
     , colbut_(0)
     , stratlvlfld_(0)
-    , displayfld_(0)
     , fd_(*EM::Horizon3DAscIO::getDesc())
     , scanner_(0)
     , importReady(this)
@@ -85,6 +84,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     setCaption(isgeom ? uiStrings::phrImport(uiStrings::sHorizon()) :
 			uiStrings::phrImport(mJoinUiStrs(sHorizon(),sData())));
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+    if ( isgeom )
+	enableSaveButton( tr("Display after import") );
+
     setDeleteOnClose( false );
     ctio_.ctxt_.forread_ = !isgeom_;
 
@@ -168,9 +170,6 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				    uiColorInput::Setup(getRandStdDrawColor())
 				    .lbltxt(tr("Base color")) );
 	colbut_->attach( alignedBelow, stratlvlfld_ );
-
-	displayfld_ = new uiCheckBox( this, tr("Display after import") );
-	displayfld_->attach( alignedBelow, colbut_ );
 
 	fillUdfSel(0);
     }
@@ -381,12 +380,6 @@ void uiImportHorizon::fillUdfSel( CallBacker* )
 }
 
 
-bool uiImportHorizon::doDisplay() const
-{
-    return displayfld_ && displayfld_->isChecked();
-}
-
-
 MultiID uiImportHorizon::getSelID() const
 {
     MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
@@ -488,10 +481,10 @@ bool uiImportHorizon::doImport()
 	mSave(taskrunner);
     }
 
-    if ( !doDisplay() )
-	horizon->unRef();
-    else
+    if ( saveButtonChecked() )
 	horizon->unRefNoDelete();
+    else
+	horizon->unRef();
 
     return rv;
 }
@@ -515,7 +508,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	}
     }
 
-    if ( doDisplay() )
+    if ( saveButtonChecked() )
 	importReady.trigger();
 
     uiString msg = tr("3D Horizon successfully imported."
@@ -700,16 +693,17 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     , importReady(this)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+    enableSaveButton( tr("Display after import") );
 
-    inpfld_ = new uiFileInput( this, tr("ASCII file"),
+    inpfld_ = new uiFileInput( this, tr("ZMap file"),
 		  uiFileInput::Setup(uiFileDialog::Gen)
 		  .withexamine(true).forread(true)
 		  .defseldir(sImportFromPath) );
     mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    ctxt.forread_ = false;
-    outputfld_ = new uiIOObjSel( this, ctxt );
+    ctxt.forread = false;
+    outputfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
     outputfld_->attach( alignedBelow, inpfld_ );
 }
 
@@ -717,12 +711,6 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 uiImpHorFromZMap::~uiImpHorFromZMap()
 {
     detachAllNotifiers();
-}
-
-
-bool uiImpHorFromZMap::doDisplay() const
-{
-    return displayfld_ && displayfld_->isChecked();
 }
 
 
@@ -815,7 +803,13 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	IOM().commitChanges( *ioobj );
     }
 
-    hor3d->unRef();
+    if ( saveButtonChecked() )
+    {
+	importReady.trigger();
+	hor3d->unRefNoDelete();
+    }
+    else
+	hor3d->unRef();
 
     uiString msg = tr("ZMap grid successfully imported."
 		      "\n\nDo you want to import more grids?");

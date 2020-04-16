@@ -299,11 +299,11 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
     MultiID mid = MultiID::udf();
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
-    if ( dlg && dlg->doDisplay() )
+    if ( dlg && dlg->saveButtonChecked() )
 	mid = dlg->getSelID();
 
     mDynamicCastGet(uiImpHorFromZMap*,zmapdlg,cb)
-    if ( zmapdlg && zmapdlg->doDisplay() )
+    if ( zmapdlg && zmapdlg->saveButtonChecked() )
 	mid = zmapdlg->getSelID();
 
     mDynamicCastGet(uiImportFault*,fltdlg,cb)

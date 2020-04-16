@@ -44,7 +44,6 @@ public:
 			uiImportHorizon(uiParent*,bool);
 			~uiImportHorizon();
 
-    bool		doDisplay() const;
     MultiID		getSelID() const;
 
     Notifier<uiImportHorizon>	importReady;
@@ -62,7 +61,6 @@ protected:
     uiColorInput*	colbut_;
     uiStratLevelSel*	stratlvlfld_;
     uiIOObjSel*		outputfld_;
-    uiCheckBox*		displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
     void		descChg(CallBacker*);
@@ -99,7 +97,6 @@ public:
 				uiImpHorFromZMap(uiParent*);
 				~uiImpHorFromZMap();
 
-    bool			doDisplay() const;
     MultiID			getSelID() const;
 
     Notifier<uiImpHorFromZMap>	importReady;
@@ -108,7 +105,6 @@ protected:
 
     uiFileInput*	inpfld_;
     uiIOObjSel*		outputfld_;
-    uiCheckBox*		displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
     void		inputChgd(CallBacker*);
