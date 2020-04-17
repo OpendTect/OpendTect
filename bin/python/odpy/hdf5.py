@@ -1,7 +1,7 @@
 #
 # (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : Arnaud
-# DATE     : November 2018
+# AUTHOR   : A. Huck
+# DATE     : Nov 2018
 #
 # tools for reading hdf5 files created by OpendTect
 #
