@@ -201,6 +201,10 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	ret.add( toUiString(stdoutstr) );
     if ( !stderrstr.isEmpty() )
 	ret.add( toUiString(stderrstr) );
+
+    if ( ret.isOK() )
+	ret.add( tr("Not usable") );
+
     return ret;
 }
 
@@ -1229,7 +1233,10 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	}
     }
     else
+    {
+	retval.setEmpty();
 	ret = File::removeDir( path );
+    }
 
     if ( !ret )
 	retval.add( uiStrings::phrCannotRemove(uiStrings::sFolder()) );

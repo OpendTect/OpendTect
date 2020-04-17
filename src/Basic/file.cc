@@ -562,35 +562,35 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     {
 	QDir dir;
 	bool res = dir.rename( oldname, newname );
-	if ( !res )
-	{
-	    BufferString cmd;
+	if ( res )
+	    return true;
+
+	BufferString cmd;
 #ifdef __win__
-	    cmd.add( "move" );
+	cmd.add( "move" );
 #else
-	    cmd.add( "mv" );
+	cmd.add( "mv" );
 #endif
-	    BufferString srcpath( oldname );
-	    BufferString destpath( newname );
-	    OS::CommandLauncher::addQuotesIfNeeded( srcpath );
-	    OS::CommandLauncher::addQuotesIfNeeded( destpath );
-	    cmd.addSpace().add( srcpath ).addSpace().add( destpath );
-	    BufferString stdoutput, stderror;
-	    res = OS::ExecCommand( cmd, OS::Wait4Finish,
-				   &stdoutput, &stderror );
-	    if ( !res && errmsg )
-	    {
-		if ( !stderror.isEmpty() )
-		    errmsg->append( stderror, true );
+	BufferString srcpath( oldname );
+	BufferString destpath( newname );
+	OS::CommandLauncher::addQuotesIfNeeded( srcpath );
+	OS::CommandLauncher::addQuotesIfNeeded( destpath );
+	cmd.addSpace().add( srcpath ).addSpace().add( destpath );
+	BufferString stdoutput, stderror;
+	res = OS::ExecCommand( cmd, OS::Wait4Finish,
+			       &stdoutput, &stderror );
+	if ( !res && errmsg )
+	{
+	    if ( !stderror.isEmpty() )
+		errmsg->append( stderror, true );
 
-		if ( !stdoutput.isEmpty() )
-		    errmsg->append( stdoutput, true );
+	    if ( !stdoutput.isEmpty() )
+		errmsg->append( stdoutput, true );
 
-		errmsg->append( "Failed to rename using system command." );
-	    }
-
-	    return res;
+	    errmsg->append( "Failed to rename using system command." );
 	}
+
+	return res;
     }
 
     return QFile::rename( oldname, newname );
