@@ -1,7 +1,7 @@
 #
 # (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : Arnaud
-# DATE     : November 2018
+# AUTHOR   : A. Huck
+# DATE     : Nov 2018
 #
 # Pre-loads (part of) an HDF5 seismic dataset created by OpendTect, with sampling as:
 # sampling = {
