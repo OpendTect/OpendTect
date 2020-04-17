@@ -359,6 +359,7 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 void uiMain::preInit()
 {
     QApplication::setDesktopSettingsAware( true );
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #if QT_VERSION >= 0x050400
     // Attributes added with Qt5.3 and Qt5.4
     if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
