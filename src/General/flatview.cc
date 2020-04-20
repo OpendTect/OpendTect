@@ -213,7 +213,7 @@ int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 
 
 FlatView::Annotation::Annotation( bool drkbg )
-    : dynamictitle_(false)
+    : dynamictitle_(true)
     , color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
     , showscalebar_(false)

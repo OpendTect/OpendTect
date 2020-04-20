@@ -918,7 +918,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     if ( withdynamictitle )
     {
 	titleoptfld_ = new uiGenInput( grp, tr("Title"),
-	    BoolInpSpec(true,tr("Custom"),tr("Automatic")) );
+	    BoolInpSpec(false,tr("Custom"),tr("Automatic")) );
 	mAttachCB( titleoptfld_->valuechanged, uiFlatViewPropDlg::titleChgCB );
 
 	titlefld_->attach( rightTo, titleoptfld_ );
