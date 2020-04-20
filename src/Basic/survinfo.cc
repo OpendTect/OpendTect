@@ -36,7 +36,10 @@ static const char* sKeyXTransf = "Coord-X-BinID";
 static const char* sKeyYTransf = "Coord-Y-BinID";
 static const char* sKeyDefsFile = ".defs";
 static const char* sKeySurvDefs = "Survey defaults";
+static const char* sKeyLogFile = "survey.log";
+static const char* sKeySurvLog = "Survey log";
 static const char* sKeyLatLongAnchor = "Lat/Long anchor";
+
 const char* SurveyInfo::sKeyInlRange()	    { return "In-line range"; }
 const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
 const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
@@ -48,7 +51,7 @@ const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
-{ "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
+{ "Only 3D", "Both 2D and 3D", "Only 2D", nullptr };
 
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
 #define mXYUnit() (mXYInFeet() ? Feet : Meter)
@@ -589,7 +592,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
     sfio.closeSuccess();
 
     if ( !si->wrapUpRead() )
-    { delete si; return 0; }
+    { delete si; return nullptr; }
 
     return si;
 }
@@ -703,11 +706,11 @@ float SurveyInfo::getArea( const Interval<int>& inlrg,
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
-    const float scale = xyInFeet() ? mFromFeetFactorF : 1;
+    const double scale = xyInFeet() ? mFromFeetFactorD : 1.;
     const double d01 = c00.distTo( c01 ) * scale;
     const double d10 = c00.distTo( c10 ) * scale;
 
-    return (float)( d01*d10 );
+    return sCast(float,d01*d10);
 }
 
 
@@ -791,13 +794,13 @@ Coord SurveyInfo::minCoord( bool work ) const
     const TrcKeyZSampling& cs = sampling(work);
     Coord minc = transform( cs.hsamp_.start_ );
     Coord c = transform( cs.hsamp_.stop_ );
-    mChkCoord(c);
+    mChkCoord(c)
     BinID bid( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
     c = transform( bid );
-    mChkCoord(c);
+    mChkCoord(c)
     bid = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );
     c = transform( bid );
-    mChkCoord(c);
+    mChkCoord(c)
     return minc;
 }
 
@@ -811,13 +814,13 @@ Coord SurveyInfo::maxCoord( bool work ) const
     const TrcKeyZSampling& cs = sampling(work);
     Coord maxc = transform( cs.hsamp_.start_ );
     Coord c = transform( cs.hsamp_.stop_ );
-    mChkCoord(c);
+    mChkCoord(c)
     BinID bid( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
     c = transform( bid );
-    mChkCoord(c);
+    mChkCoord(c)
     bid = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );
     c = transform( bid );
-    mChkCoord(c);
+    mChkCoord(c)
     return maxc;
 }
 
@@ -874,7 +877,7 @@ void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
-    const float eps = 1e-8;
+    const float eps = 1e-8f;
     return cs.hsamp_.includes( bid )
 	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
 }
@@ -1134,6 +1137,7 @@ bool SurveyInfo::write( const char* basedir ) const
 
     fp.set( basedir ); fp.add( dirname_ );
     savePars( fp.fullPath() );
+    saveLog( fp.fullPath() );
     return true;
 }
 
@@ -1159,9 +1163,6 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	for ( int idx=0; idx<par.size(); idx++ )
 	    astream.put( IOPar::compKey(sKey::CoordSys(),par.getKey(idx)),
 			 par.getValue(idx) );
-
-	const_cast<SurveyInfo*>(this)->pars_.mergeComp( par,
-							 sKey::CoordSys() );
     }
     else
 	astream.putYN( sKeyXYInFt(), xyinfeet_ );
@@ -1203,8 +1204,28 @@ void SurveyInfo::savePars( const char* basedir ) const
 	if ( File::exists(defsfnm) )
 	    File::remove( defsfnm );
     }
-    else if ( !pars_.write( defsfnm, sKeySurvDefs ) )
-	uiErrMsg( defsfnm );
+    else if ( !pars_.write(defsfnm,sKeySurvDefs) )
+	uiErrMsg( defsfnm )
+}
+
+
+void SurveyInfo::saveLog( const char* basedir ) const
+{
+    BufferString surveypath;
+    if ( !basedir || !*basedir )
+    {
+	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
+	surveypath = File::exists(storepath) ? storepath.buf() : GetDataDir();
+    }
+    else
+	surveypath = basedir;
+
+    const BufferString logfnm( FilePath(surveypath,sKeyLogFile).fullPath() );
+    if ( logpars_.isEmpty() )
+	return;
+
+    if ( !logpars_.write(logfnm,sKeySurvLog) )
+	uiErrMsg( logfnm )
 }
 
 
@@ -1251,7 +1272,7 @@ float SurveyInfo::angleXInl() const
     Coord xy2 = transform( BinID(inlRange(false).start, crlRange(false).stop) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
-    return mCast(float, Math::Atan2( ydiff, xdiff ) );
+    return sCast(float, Math::Atan2( ydiff, xdiff ) );
 }
 
 
@@ -1261,7 +1282,7 @@ float SurveyInfo::angleXCrl() const
     Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
-    return mCast(float, Math::Atan2( ydiff, xdiff ) );
+    return sCast(float, Math::Atan2( ydiff, xdiff ) );
 }
 
 

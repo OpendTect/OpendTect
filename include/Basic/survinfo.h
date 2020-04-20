@@ -135,7 +135,9 @@ public:
     void		setSeismicReferenceDatum( float d ) { seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
-			/*!<Returns contents of .defs file */
+			//!<Returns contents of .defs file
+    const IOPar&	logPars() const			{ return logpars_; }
+			//!<Return survey creation log
     void		putZDomain(IOPar&) const;
 
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
@@ -161,6 +163,7 @@ protected:
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_;
     IOPar&		pars_;
+    IOPar		logpars_;
     RefMan<Coords::CoordSystem> coordsystem_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
@@ -270,11 +273,14 @@ public:
 			{ return const_cast<SurveyInfo*>(this)->ll2c_; }
     IOPar&		getPars() const
 			{ return const_cast<SurveyInfo*>(this)->pars_; }
+    IOPar&		getLogPars() const
+			{ return const_cast<SurveyInfo*>(this)->logpars_; }
 
-    bool		write(const char* basedir=0) const;
+    bool		write(const char* basedir=nullptr) const;
 			//!< Write to .survey file
-    void		savePars(const char* basedir=0) const;
+    void		savePars(const char* basedir=nullptr) const;
 			//!< Write to .defs file
+    void		saveLog(const char* basedir=nullptr) const;
     static SurveyInfo*	read(const char* survdir);
     static SurveyInfo*	read(const char* path,bool pathisfile);
     void		setRange(const TrcKeyZSampling&,bool);

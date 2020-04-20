@@ -30,8 +30,8 @@ public:
     bool		xyInFeet() const	{ return xyinft_; }
     virtual const char*	iconName() const	{ return "segy"; }
 
-    IOPar*		getImportPars() const
-			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
+    void		fillPar(IOPar&);
+    IOPar*		getImportPars() const;
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
     const uiString	importAskUiQuestion() const;

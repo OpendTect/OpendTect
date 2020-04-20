@@ -826,7 +826,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !sip->getInfo(dlg,cs,crd) )
 	return;
 
-    IOPar& pars = si_.getPars();
+    IOPar& pars = si_.getLogPars();
     sip->fillPar( pars );
     PtrMan<IOPar> crspar = sip->getCoordSystemPars();
     RefMan<Coords::CoordSystem> coordsys =
@@ -865,7 +865,6 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	zinfeet = sip->tdInfo() == uiSurvInfoProvider::DepthFeet;
 
     si_.setZUnit( zistime, zinfeet );
-    pars.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
     si_.setXYInFeet( xyinfeet );
     xyunitlbl_->setText( getCoordString(xyInFeet()) );
 
@@ -1018,14 +1017,18 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* )
 }
 
 
+// uiSurvInfoProvider
+void uiSurvInfoProvider::fillPar( IOPar& par )
+{
+    par.setStdCreationEntries();
+}
 
 // uiCopySurveySIP
-
-static HiddenParam<uiCopySurveySIP,IOPar*> crspars_(0);
+static HiddenParam<uiCopySurveySIP,IOPar*> crspars_(nullptr);
 
 uiCopySurveySIP::uiCopySurveySIP()
 {
-    crspars_.setParam( this, 0 );
+    crspars_.setParam( this, nullptr );
 }
 
 

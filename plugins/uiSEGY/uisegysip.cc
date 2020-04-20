@@ -48,6 +48,19 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 }
 
 
+void uiSEGYSurvInfoProvider::fillPar( IOPar& par )
+{
+    uiSurvInfoProvider::fillPar( par );
+    par.set( sKey::CrFrom(), userfilename_ );
+}
+
+
+IOPar* uiSEGYSurvInfoProvider::getImportPars() const
+{
+    return imppars_.isEmpty() ? nullptr : new IOPar(imppars_);
+}
+
+
 void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
 {
     Seis::GeomType gt = Seis::Vol; Seis::getFromPar( iop, gt );

@@ -317,7 +317,7 @@ bool uiStartNewSurveySetup::isOK()
 }
 
 
-bool uiStartNewSurveySetup::acceptOK( CallBacker* cb )
+bool uiStartNewSurveySetup::acceptOK( CallBacker* )
 {
     if ( !isOK() )
 	return false;
