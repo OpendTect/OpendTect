@@ -625,10 +625,10 @@ mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 }
 
 
-mExternC(Basic) const char* GetImagesDir()
+mExternC(Basic) const char* GetPicturesDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Images" ).fullPath();
+    ret = FilePath( GetDataDir(), "Pictures" ).fullPath();
     if ( !File::exists(ret) )
 	File::createDir( ret );
 

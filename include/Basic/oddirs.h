@@ -187,7 +187,7 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 
 
 mGlobal(Basic) const char* GetScriptsDir(const char*);
-mGlobal(Basic) const char* GetImagesDir();
+mGlobal(Basic) const char* GetPicturesDir();
 mGlobal(Basic) const char* GetExportDir();
 
 
