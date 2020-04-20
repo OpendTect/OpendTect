@@ -45,7 +45,6 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "timer.h"
 
 
-#define mForSurvSetup forsurvsetup
 #define mSurvMapHeight 300
 #define mDefSize 250
 #define mClipSamplerBufSz 100000
@@ -62,6 +61,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 		   : mNoDlgTitle,
 	    mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1)
 					       .modal(forsurvsetup))
+    , forsurvsetup_(forsurvsetup)
     , filereadopts_(0)
     , typfld_(0)
     , useicbut_(0)
@@ -79,7 +79,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , survinfook_(false)
     , timer_(0)
 {
-    if ( mForSurvSetup )
+    if ( forsurvsetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
     else
     {
@@ -104,7 +104,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	fixedimptype_ = *imptyp;
     else
     {
-	typfld_ = new uiSEGYImpType( topgrp_, !mForSurvSetup );
+	typfld_ = new uiSEGYImpType( topgrp_, !forsurvsetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
     }
@@ -132,7 +132,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     botgrp_ = new uiGroup( this, "Bottom group" );
     botgrp_->attach( ensureBelow, sep );
-    if ( mForSurvSetup )
+    if ( forsurvsetup )
     {
 	survmap_ = new uiSurveyMap( botgrp_, true );
 	survmap_->setSurveyInfo( 0 );
@@ -152,10 +152,6 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     setToolStates();
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
 }
-
-
-#undef mForSurvSetup
-#define mForSurvSetup survmap_
 
 
 void uiSEGYReadStarter::createTools()
@@ -201,7 +197,7 @@ void uiSEGYReadStarter::createTools()
     uiObject* lowest = examinegrp->attachObj();
 
     const bool imptypfixed = imptypeFixed();
-    bool needicvsxy = !mForSurvSetup;
+    bool needicvsxy = !forsurvsetup_;
     if ( imptypfixed && fixedimptype_.is2D() )
 	needicvsxy = false;
     if ( needicvsxy )
@@ -309,7 +305,7 @@ void uiSEGYReadStarter::clearDisplay()
     infofld_->clearInfo();
     if ( ampldisp_ )
 	ampldisp_->setEmpty();
-    if ( mForSurvSetup )
+    if ( forsurvsetup_ )
 	survmap_->setSurveyInfo( 0 );
     setToolStates();
 }
@@ -456,7 +452,7 @@ void uiSEGYReadStarter::setToolStates()
 void uiSEGYReadStarter::initWin( CallBacker* )
 {
     typChg( 0 );
-    if ( !mForSurvSetup )
+    if ( !forsurvsetup_ )
 	inpChg( 0 );
 
     if ( filespec_.isEmpty() )
@@ -466,7 +462,7 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	timer_->start( 1, true );
     }
 
-    if ( mForSurvSetup || (imptypeFixed() && fixedimptype_.isVSP()) )
+    if ( forsurvsetup_ || (imptypeFixed() && fixedimptype_.isVSP()) )
 	return;
 
     uiButton* okbut = button( OK );
@@ -492,14 +488,12 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
 	    uiSEGYFileSpec::fileFilter(),
 	    tr("Select (one of) the SEG-Y file(s)") );
-    if ( mForSurvSetup )
+    if ( forsurvsetup_ )
 	dlg.setDirectory( GetBaseDataDir() );
     else
 	dlg.setDirectory( GetDataDir() );
 
-    if ( !dlg.go() )
-	done();
-    else
+    if ( dlg.go() )
     {
 	inpfld_->setFileName( dlg.fileName() );
 	forceRescan( KeepNone );
@@ -556,7 +550,7 @@ void uiSEGYReadStarter::revChg( CallBacker* )
 void uiSEGYReadStarter::runClassic( bool imp )
 {
     const Seis::GeomType gt = impType().geomType();
-    uiSEGYRead::Setup su( mForSurvSetup ? uiSEGYRead::SurvSetup
+    uiSEGYRead::Setup su( forsurvsetup_ ? uiSEGYRead::SurvSetup
 				 : (imp ? uiSEGYRead::Import
 					: uiSEGYRead::DirectDef) );
     if ( imptypeFixed() )
@@ -1035,7 +1029,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
     }
 
-    si.getFromSEGYBody( strm, loaddef_, mForSurvSetup, clipsampler_, trunner );
+    si.getFromSEGYBody( strm, loaddef_, forsurvsetup_, clipsampler_, trunner );
     return true;
 }
 
@@ -1081,7 +1075,7 @@ void uiSEGYReadStarter::displayScanResults()
 	updateAmplDisplay( 0 );
 
     infofld_->setScanInfo( *scaninfos_ );
-    if ( mForSurvSetup )
+    if ( forsurvsetup_ )
 	updateSurvMap();
 }
 
@@ -1113,7 +1107,7 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
     if ( !commit(false) )
 	return false;
 
-    if ( mForSurvSetup )
+    if ( forsurvsetup_ )
     {
 	if ( !survinfook_ )
 	    mErrRet( tr("No valid survey setup found" ) )

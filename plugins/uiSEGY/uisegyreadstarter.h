@@ -69,6 +69,7 @@ public:
 
 protected:
 
+    bool		forsurvsetup_;
     SEGY::FileSpec	filespec_;
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
