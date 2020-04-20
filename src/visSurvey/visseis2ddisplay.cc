@@ -1154,7 +1154,8 @@ void Seis2DDisplay::clearTexture( int attribnr )
 
 void Seis2DDisplay::setAnnotColor( Color col )
 {
-    linename_->getMaterial()->setColor( col );
+    linename_->getMaterial()->setColor( col ); // not sure if this has to be set
+    linename_->text()->setColor( col );
 }
 
 
