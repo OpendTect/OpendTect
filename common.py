@@ -1,10 +1,10 @@
-#
-# (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : A. Huck
-# DATE     : July 2018
-#
-# tools common to all odpy scripts
-#
+"""Common tools for odpy package
+
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+AUTHOR   : A. Huck
+DATE     : July 2018
+
+"""
 
 import sys
 import os
@@ -15,6 +15,36 @@ from datetime import datetime
 import threading
 
 def sTimeUnitString( ismilli=False, abbr=True ):
+  """OpendTect-like time stamp
+
+  Parameters
+  ----------
+  ismilli : bool, optional
+    Include millisecond (default is False)
+  abbr : bool, optional
+    Abbreviated (default is True)
+
+  Returns
+  -------
+  str
+    Time stamp string formatted like done by OpendTect
+
+  Examples
+  --------
+  >>> sTimeUnitString()
+  'Mon 20 Apr 2020, 13:59:54'
+
+  >>> sTimeUnitString( True )
+  'Mon 20 Apr 2020, 13:59:54.001245'
+
+  >>> sTimeUnitString( True, True )
+  'Mon 20 Apr 2020, 13:59:54.001245'
+
+  >>> sTimeUnitString( True, False )
+  'Monday 20 April 2020, 13:59:54'
+
+  """
+
   if abbr:
     fmt = "%a %d %b"
   else:
@@ -43,6 +73,17 @@ if not proclog_logger.hasHandlers():
   proclog_logger.addHandler( handler )
 
 def initLogging(args):
+  """odpy Logger initialization
+
+  Parameters
+  ----------
+  args : dict
+    The members 'logfile' and 'sysout' from the input dictionary
+    are supposed to contain existing filenames which are used
+    to setup the module loggers proclog_logger and syslog_logger
+
+  """
+
   set_log_file( args['logfile'].name, proclog_logger )
   set_log_file( args['sysout'].name, syslog_logger )
 
@@ -85,10 +126,54 @@ def mergeArgs(a,b=None,c=None,d=None,e=None,f=None):
   return msg
 
 def std_msg(a,b=None,c=None,d=None,e=None,f=None):
+  """Print to odpy standard logger
+
+  Parameters
+  ----------
+  a : object or string
+    Message to be printed
+  b-f : object or string, optional
+    Message to be printed
+
+  Returns
+  -------
+  str
+    Concatenated string
+
+  Notes
+  -----
+  All objects are formatted to strings using the str() function
+  All outputs are automatically separated by spaces.
+  Reserved for standard logging information.
+
+  """
+
   msg = mergeArgs(a,b,c,d,e,f)
   get_std_logger().info(msg)
 
 def log_msg(a,b=None,c=None,d=None,e=None,f=None):
+  """Print to odpy processing logger
+
+  Parameters
+  ----------
+  a : object or string
+    Message to be printed
+  b-f : object or string, optional
+    Message to be printed
+
+  Returns
+  -------
+  str
+    Concatenated string
+
+  Notes
+  -----
+  All objects are formatted to strings using the str() function
+  All outputs are automatically separated by spaces.
+  Reserved for processing logging information,
+  i.e. to report progress on a task
+
+  """
   msg = mergeArgs(a,b,c,d,e,f)
   get_log_logger().debug(msg)
 
@@ -131,6 +216,18 @@ def get_log_file():
   return get_handler_filename( get_log_logger() )
 
 def reset_log_file( keeplines=0 ):
+  """Log file reset
+
+  Parameters
+  ----------
+    keeplines : int, optional
+                Number of lines from the top of the file to keep (default is 0)
+
+  Empty the log file pointed at by the processing logger,
+  for instance before starting a new task.
+
+  """
+
   if not has_log_file():
     return
   logfnm = get_log_file()
@@ -150,6 +247,18 @@ def reset_log_file( keeplines=0 ):
   set_log_file( logfnm, proclog_logger )
 
 def redirect_stdout():
+  """Stdout-stderr redirection
+
+  Forces stdout to point to odpy.proclog_logger
+  Forces stderr to point to odpy.syslog_logger
+
+  Notes
+  -----
+  Changes the value of sys.stdout and sys.stderr
+  Should be avoided as much as possible: To be used only when one cannot
+  redirect in any other way.
+
+  """
   if (logconfig is  None) or (not logging.getLogger() == logconfig.root_logger):
     return
   if has_log_file():
@@ -158,6 +267,12 @@ def redirect_stdout():
     sys.stderr = open( get_stdlog_file(), 'a' )
 
 def restore_stdout():
+  """Stdout-stderr restore
+
+  Undo operation of redirect_stdout
+
+  """
+
   if (logconfig is None) or (not logging.getLogger() == logconfig.root_logger):
     return
   if has_log_file():
@@ -166,9 +281,25 @@ def restore_stdout():
     sys.stderr = sys.__stderr__
 
 def isWin():
+  """
+
+  Return
+  ------
+  True if running on any Windows platform
+
+  """
+
   return platform.system() == 'Windows'
 
 def isMac():
+  """
+
+  Return
+  ------
+  True if running on any Mac-OS platform
+
+  """
+
   return platform.system() == 'Darwin'
 
 if platform.python_version() < "3":
@@ -176,6 +307,19 @@ if platform.python_version() < "3":
   sys.exit( 1 )
 
 def getPlfSubDir():
+  """Platform sub-directory
+
+  Platform specific sub-directory as existing
+  in an OpendTect software installation
+  
+  Returns
+  -----
+  str
+    string like: 'lux64', 'win64', 'mac'
+  None if the platform is not supported by OpendTect
+
+  """
+
   system = platform.system()
   arch = platform.architecture()[0]
   if system == 'Linux':
@@ -197,6 +341,24 @@ def getPlfSubDir():
     return None
 
 def getBinSubDir():
+  """Binary sub-directory
+
+  Sub-directory containing the executables in an OpendTect installation
+
+  Returns
+  -------
+  str
+    string like: 'Debug', 'Release', 'RelWithDebInfo'
+  None if no such sub-directory is found.
+
+  Notes
+  -----
+  Assumes that the OpendTect installation contains the 
+  executable 'od_FileBrowser', and that this installation can
+  be located by the function getODSoftwareDir()
+
+  """
+
   if isMac():
     return None
   plfsubdirfp = os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir() )
@@ -210,6 +372,36 @@ def getBinSubDir():
   return None
 
 def getODSoftwareDir(args=None):
+  """OpendTect sofware directory
+
+  Parameters
+  ----------
+  args : dict, optional
+          Dictionary with the member 'dtectexec'. The value
+          for that member should point to the executables folder
+          of the requested application
+
+  Returns
+  -------
+  str
+    Full path to the OpendTect software installation
+
+  Notes
+  -----
+  Retrieved from either the input dictionary
+  or from the current environment by reading
+  the 'DTECT_APPL' or 'DTECT_WINAPPL' variables which
+  are set by OpendTect at runtime.
+  Neither dictionary nor environment variables need to be set
+  if the current module is placed within an OpendTect installation
+
+  Examples
+  --------
+  >>>getODSoftwareDir()
+  'C:\\Program Files\\OpendTect\\6.6.0'
+
+  """
+
   if args != None and 'dtectexec' in args:
     bindir = getExecPlfDir(args)
     return bindir
@@ -229,6 +421,32 @@ def getODSoftwareDir(args=None):
   return curdir
 
 def getExecPlfDir(args=None):
+  """OpendTect executables directory
+
+  Parameters
+  ----------
+  args : dict, optional
+          Dictionary with the member 'dtectexec'. The value
+          for that member should point to the executables folder
+          of the requested application
+
+  Returns
+  -------
+  str
+    Full path to the binaries of an OpendTect installation
+
+  Notes
+  -----
+  Assumes that the software installation can be located with getODSoftwareDir()
+  and that python is running on a platform supported by OpendTect.
+
+  Examples
+  --------
+  >>>getExecPlfDir()
+  'C:\\Program Files\\OpendTect\\6.6.0\\bin\\win64\\Release'
+
+  """
+
   if args != None and 'dtectexec' in args:
     return args['dtectexec'][0]
   appldir = getODSoftwareDir()
@@ -238,6 +456,29 @@ def getExecPlfDir(args=None):
     return os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir(), getBinSubDir())
 
 def getODArgs(args=None):
+  """OpendTect arguments dictionary
+
+  Create a dictionary that contains typical OpendTect
+  command line arguments and the files from this module' loggers
+
+  Parameters
+  ----------
+  args : dict, optional
+          Dictionary with the member 'dtectexec'. The value
+          for that member should point to the executables folder
+          of the requested application
+
+  Returns
+  -------
+  dict
+    A dictionary with the following key-values:
+  'dtectexec' : Full path to the OpendTect installation (see getExecPlfDir)
+  'survey' : The survey directory name, if provided by the input dictionary
+  'proclog' : The log file from proclog_logger if applicable
+  'syslog' : The log file frol syslog_logger if applicable
+
+  """
+
   ret = {
     'dtectexec': [getExecPlfDir(args)]
   }
@@ -255,6 +496,32 @@ def getODArgs(args=None):
   return ret
 
 def getIconFp(nm,args=None):
+  """Path to an OpendTect icon file
+
+  Parameters
+  ----------
+  nm : string
+       Icon file basename (without extension)
+  args : dict, optional
+          Dictionary with the member 'dtectexec'. The value
+          for that member should point to the executables folder
+          of the requested application
+
+  Returns
+  -------
+  str
+    Full path to the icon folder of the OpendTect installation
+
+  Notes
+  -----
+  Assumes that the software installation can be located with getODSoftwareDir()
+
+  Examples
+  --------
+  >>>getIconFp( 'dgbpro' )
+  'C:\\Program Files\\OpendTect\\6.6.0\\data\\icons.Default\\dgbpro.png'
+    
+  """
   oddir = getODSoftwareDir(args)
   ret = os.path.join(oddir,'data','icons.Default',nm)+'.png'
   if os.path.exists(ret):
@@ -282,6 +549,28 @@ def tail(fp,lines=1,strip_empty=False,_buffer=4098):
   return ret
 
 def batchIsFinished( logfile ):
+  """OpendTect batch processing status
+
+  Checks if an OpendTect batch process reached completion by
+  parsing its log file.
+
+  Parameters
+  ----------
+  logfile : str
+            Full path to an existing OpendTect log file.
+
+  Returns
+  -------
+  bool
+    True if the file exists and contains 'Finished batch processing' at its tail.
+
+  Notes
+  -----
+  Instantaneous status. To monitor if the processing finishes,
+  the user must repeatedly call this function.
+
+  """
+
   ret = list()
   with open(logfile) as fd:
     ret = tail(fd,10,True)
@@ -301,6 +590,11 @@ def getTempDir():
     return tempfile.gettempdir()
 
 class Timer(threading.Timer):
+    """Repeated timer
+
+    Timer that restarts automatically after each interval
+    """
+
     def run(self):
         while not self.finished.is_set():
             self.finished.wait(self.interval)
