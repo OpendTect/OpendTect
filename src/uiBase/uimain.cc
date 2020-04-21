@@ -630,6 +630,24 @@ int uiMain::getMinDPI()
 }
 
 
+double uiMain::getDefZoomLevel()
+{
+    mDefineStaticLocalObject(double, defzoom,
+			= GetEnvVarDVal("OD_QTWEBENGINE_ZOOM",mUdf(double)) );
+    if ( !mIsUdf(defzoom) )
+	return defzoom;
+
+    const IdxPair dpi = uiMain::getDPI();
+    const int maxdpi = dpi.first > dpi.second ? dpi.first : dpi.second;
+    if ( maxdpi > 150 )
+	return 2.0;
+    else if ( maxdpi > 120 )
+	return 1.5;
+
+    return 1.;
+}
+
+
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 {
