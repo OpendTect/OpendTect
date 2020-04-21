@@ -466,7 +466,7 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
     enableSaveButton( uiString::empty() );
-    screendpi_ = mCast(float,uiMain::getDPI());
+    screendpi_ = mCast(float,uiMain::getMinDPI());
     mDynamicCastGet(uiMainWin*,mw,p);
     aspectratio_ = 1.0f;
     if ( mw )

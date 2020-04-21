@@ -448,7 +448,7 @@ void uiGraphicsScene::setPixelDensity( float dpi )
 
 float uiGraphicsScene::getDefaultPixelDensity()
 {
-    return uiMain::getDPI();
+    return uiMain::getMinDPI();
 }
 
 
@@ -503,8 +503,9 @@ void uiGraphicsScene::copyToClipBoard()
 		  QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image.fill( qcol.rgb() );
-    image.setDotsPerMeterX( mNINT32(uiMain::getDPI()/0.0254) );
-    image.setDotsPerMeterY( mNINT32(uiMain::getDPI()/0.0254) );
+    const IdxPair dpi = uiMain::getDPI();
+    image.setDotsPerMeterX( mNINT32(dpi.first()/0.0254) );
+    image.setDotsPerMeterY( mNINT32(dpi.second()/0.0254) );
     imagepainter.begin( &image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
