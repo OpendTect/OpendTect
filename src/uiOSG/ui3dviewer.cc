@@ -287,7 +287,7 @@ void ui3DViewerBody::setupHUD()
     hudcamera->setAllowEventFocus(false);
 
     hudscene_ = visBase::DataObjectGroup::create();
-    hudscene_->setPixelDensity( (float) uiMain::getDPI() );
+    hudscene_->setPixelDensity( (float) uiMain::getMinDPI() );
 
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );

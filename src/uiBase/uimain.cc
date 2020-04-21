@@ -616,11 +616,17 @@ void uiMain::repaint()
 }
 
 
-int uiMain::getDPI()
+IdxPair uiMain::getDPI()
 {
-    const int xdpi = QApplication::desktop()->physicalDpiX();
-    const int ydpi = QApplication::desktop()->physicalDpiY();
-    return xdpi > ydpi ? ydpi : xdpi;
+    return IdxPair( QApplication::desktop()->physicalDpiX(),
+		    QApplication::desktop()->physicalDpiY() );
+}
+
+
+int uiMain::getMinDPI()
+{
+    const IdxPair dpi = getDPI();
+    return dpi.first < dpi.second ? dpi.first : dpi.second;
 }
 
 

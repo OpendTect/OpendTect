@@ -503,7 +503,9 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
     const uiFlatViewer& vwr = *vwrs_[0];
     const uiRect bbrect = vwr.getWorld2Ui().transform(vwr.boundingBox());
     const int nrpixels = forx1 ? bbrect.hNrPics() : bbrect.vNrPics();
-    const float nrcms = (mCast(float,nrpixels)/uiMain::getDPI()) * sInchToCMFac;
+    const IdxPair dpi = uiMain::getDPI();
+    const int dpiindir = forx1 ? dpi.first : dpi.second;
+    const float nrcms = (mCast(float,nrpixels)/dpiindir) * sInchToCMFac;
     const int extrastep = forx1 ? 1 : 0;
     //<-- For x2 all points are not considered as flatviewer does not expand
     //<-- boundingbox by extfac_(0.5) along x2 as wiggles are not drawn in
@@ -566,9 +568,11 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 void uiFlatViewStdControl::updateZoomLevel( float x1pospercm, float x2pospercm )
 {
     const uiRect viewrect = vwr_.getViewRect( false );
-    const int screendpi = uiMain::getDPI();
-    const float cmwidth = ((float)viewrect.width()/screendpi) * sInchToCMFac;
-    const float cmheight = ((float)viewrect.height()/screendpi) * sInchToCMFac;
+    const IdxPair screendpi = uiMain::getDPI();
+    const float cmwidth = ((float)viewrect.width()/screendpi.first)
+				* sInchToCMFac;
+    const float cmheight = ((float)viewrect.height()/screendpi.second)
+				* sInchToCMFac;
     const double hwdth = vwr_.posRange(true).step * cmwidth * x1pospercm / 2;
     const double hhght = vwr_.posRange(false).step * cmheight * x2pospercm / 2;
 

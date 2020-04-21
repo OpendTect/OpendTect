@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "presentationspec.h"
 
+#include "idxpair.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -117,9 +118,9 @@ bool SlideContent::setImageSizePos( const SlideLayout& layout )
     uiPixmap pm( imagefnm_ );
     const int widthpix = pm.width();
     const int heightpix = pm.height();
-    const int dpi = uiMain::getDPI();
-    const float width = (float)widthpix / dpi;
-    const float height = (float)heightpix / dpi;
+    const IdxPair dpi = uiMain::getDPI();
+    const float width = (float)widthpix / dpi.first;
+    const float height = (float)heightpix / dpi.second;
 
     const float avwidth = layout.availableWidth();
     const float avheight = layout.availableHeigth();

@@ -239,7 +239,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     , viewers_( vwrs )
     , scenefld_( 0 )
 {
-    screendpi_ = uiMain::getDPI();
+    screendpi_ = uiMain::getMinDPI();
 
     uiObject* fldabove = 0;
     if ( viewers_.size() > 1 )

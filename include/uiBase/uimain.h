@@ -76,7 +76,9 @@ public:
     static void		processEvents(int msec=3000);
 
     static KeyboardEventHandler& keyboardEventHandler();
-    static int		getDPI();
+    static IdxPair	getDPI();
+    static int		getMinDPI();
+    static double	getDefZoomLevel();
 
     static void		useNameToolTip(bool);
     static bool		isNameToolTipUsed();
