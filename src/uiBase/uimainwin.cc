@@ -1560,9 +1560,8 @@ void uiMainWin::copyToClipBoard()
     WId wid = qwin->winId();
     const int width = qwin->frameGeometry().width();
     const int height = qwin->frameGeometry().height();
-    const int dpi = uiMain::getDPI();
     mDefineStaticLocalObject( ImageSaver, imagesaver, );
-    imagesaver.setImageProp( wid, width, height, dpi );
+    imagesaver.setImageProp( wid, width, height, uiMain::getMinDPI() );
 }
 
 
