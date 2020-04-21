@@ -11,8 +11,9 @@ ________________________________________________________________________
 
 #include "uitextedit.h"
 
-#include "uiobjbody.h"
 #include "uifont.h"
+#include "uimain.h"
+#include "uiobjbody.h"
 #include "i_qtextedit.h"
 
 #include "ascstream.h"
@@ -271,6 +272,10 @@ uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
     setPrefHeight( defaultHeight() );
     if ( ro )
 	setBackgroundColor( roBackgroundColor() );
+
+    const int defzoom = mNINT32( uiMain::getDefZoomLevel() );
+    if ( defzoom > 1 )
+	body_->zoomIn( defzoom );
 }
 
 
@@ -432,6 +437,9 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
     }
 
     setBackgroundColor( roBackgroundColor() );
+    const int defzoom = mNINT32( uiMain::getDefZoomLevel() );
+    if ( defzoom > 1 )
+	body_->zoomIn( defzoom );
 }
 
 

@@ -717,9 +717,6 @@ IdxPair uiMain::getDPI()
 {
     return IdxPair( QApplication::desktop()->physicalDpiX(),
 		    QApplication::desktop()->physicalDpiY() );
-/*    const int xdpi = QApplication::desktop()->physicalDpiX();
-    const int ydpi = QApplication::desktop()->physicalDpiY();
-    return xdpi > ydpi ? ydpi : xdpi;*/
 }
 
 
@@ -727,6 +724,24 @@ int uiMain::getMinDPI()
 {
     const IdxPair dpi = getDPI();
     return dpi.first() < dpi.second() ? dpi.first() : dpi.second();
+}
+
+
+double uiMain::getDefZoomLevel()
+{
+    mDefineStaticLocalObject(double, defzoom,
+			= GetEnvVarDVal("OD_QTWEBENGINE_ZOOM",mUdf(double)) );
+    if ( !mIsUdf(defzoom) )
+	return defzoom;
+
+    const IdxPair dpi = uiMain::getDPI();
+    const int maxdpi = dpi.first() > dpi.second() ? dpi.first() : dpi.second();
+    if ( maxdpi > 150 )
+	return 2.0;
+    else if ( maxdpi > 120 )
+	return 1.5;
+
+    return 1.;
 }
 
 
