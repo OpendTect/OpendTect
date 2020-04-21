@@ -11,9 +11,12 @@ ________________________________________________________________________
 
 #include "uiwebengine.h"
 
-#include "uiobjbody.h"
 #include "uifont.h"
+#include "uimain.h"
+#include "uiobjbody.h"
 #include "i_qwebengineview.h"
+
+#include "envvars.h"
 
 #include <QWebEngineView>
 
@@ -56,6 +59,7 @@ uiWebEngineViewBody::uiWebEngineViewBody( uiWebEngine& hndl, uiParent* p,
 uiWebEngine::uiWebEngine( uiParent* parnt, const char* nm )
     : uiWebEngineBase( parnt, nm, mkbody(parnt,nm) )
 {
+    setZoomFactor( uiMain::getDefZoomLevel() );
 }
 
 
@@ -104,4 +108,3 @@ void uiWebEngine::stop()
 {
     body_->stop();
 }
-
