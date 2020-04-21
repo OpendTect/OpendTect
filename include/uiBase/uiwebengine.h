@@ -44,6 +44,7 @@ public:
                         uiWebEngine(uiParent*,const char* nm="Web Browser");
 
 	void		setUrl(const char*);
+	void		setZoomFactor(double);
 
 	void		back();
 	void		forward();

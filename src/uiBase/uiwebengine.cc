@@ -76,6 +76,12 @@ void uiWebEngine::setUrl( const char* urlstr )
 }
 
 
+void uiWebEngine::setZoomFactor( double zoomfact )
+{
+    body_->setZoomFactor( mCast(qreal,zoomfact) );
+}
+
+
 void uiWebEngine::back()
 {
     body_->back();
