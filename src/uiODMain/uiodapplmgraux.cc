@@ -110,6 +110,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     : am_(a), par_(p)
     , convposdlg_(nullptr)
     , mandpsdlg_(nullptr)
+    , manpropsdlg_(nullptr)
     , man2dgeomdlg_(nullptr)
     , manpdfdlg_(nullptr)
     , manrldlg_(nullptr)
@@ -147,6 +148,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
 {
     deleteAndZeroPtr( convposdlg_ );
     deleteAndZeroPtr( mandpsdlg_ );
+    deleteAndZeroPtr( manpropsdlg_ );
     deleteAndZeroPtr( man2dgeomdlg_ );
     deleteAndZeroPtr( manpdfdlg_ );
     deleteAndZeroPtr( mansessiondlg_ );
@@ -418,7 +420,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	    delete mandpsdlg_;
 	    mandpsdlg_ = new uiDataPointSetMan( par_ );
-	    mandpsdlg_->go();
+	    mandpsdlg_->show();
 	}
     break;
     mCase(Body):
@@ -428,8 +430,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Props):
 	if ( at == uiODApplMgr::Man )
 	{
-	    uiManPROPS mandlg( par_ );
-	    mandlg.go();
+	    delete manpropsdlg_;
+	    manpropsdlg_ = new uiManPROPS( par_ );
+	    manpropsdlg_->setModal( false );
+	    manpropsdlg_->show();
 	}
     break;
     mCase(Sess):

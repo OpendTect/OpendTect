@@ -27,6 +27,7 @@ class uiImp2DGeom;
 class uiImpPVDS;
 class uiImpRokDocPDF;
 class uiExpRokDocPDF;
+class uiManPROPS;
 class uiODApplMgr;
 class uiProbDenFuncMan;
 class uiRandomLineMan;
@@ -89,6 +90,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		posDlgClose(CallBacker*);
     uiConvertPos*	convposdlg_;
     uiDataPointSetMan*	mandpsdlg_;
+    uiManPROPS*		manpropsdlg_;
     ui2DGeomManageDlg*	man2dgeomdlg_;
     uiProbDenFuncMan*	manpdfdlg_;
     uiSessionMan*	mansessiondlg_;
