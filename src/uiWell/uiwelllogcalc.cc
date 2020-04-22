@@ -93,7 +93,7 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
-	: uiDialog(p,uiDialog::Setup(tr("Calculate new logs"),
+	: uiDialog(p,uiDialog::Setup(tr("Calculate New Logs"),
 				     mToUiStringTodo(getDlgTitle(wllids)),
 				     mODHelpKey(mWellLogCalcHelpID) ))
 	, superwls_(*new Well::LogSet)
