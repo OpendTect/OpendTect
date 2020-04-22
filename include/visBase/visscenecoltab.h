@@ -54,6 +54,9 @@ public:
 
     virtual void	setPixelDensity(float dpi);
 
+    const ColTab::Sequence& getColTabSequence() const { return sequence_; }
+    bool		isSeqFlipped() const { return flipseq_; }
+    const Interval<float>& getRange() const { return rg_; }
         
 protected:
 			~SceneColTab();
