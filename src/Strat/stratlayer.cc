@@ -595,17 +595,19 @@ Strat::LayerModel::~LayerModel()
 
 Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 {
+    if ( this == &oth )
+	return *this;
+
     setEmpty();
-    if ( this != &oth )
+    proprefs_ = oth.proprefs_;
+    elasticpropsel_ = oth.elasticpropsel_;
+    for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
     {
-	proprefs_ = oth.proprefs_;
-	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
-	{
-	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
-	    newseq->propertyRefs() = proprefs_;
-	    seqs_ += newseq;
-	}
+	auto* newseq = new LayerSequence( *oth.seqs_[iseq] );
+	newseq->propertyRefs() = proprefs_;
+	seqs_ += newseq;
     }
+
     return *this;
 }
 
