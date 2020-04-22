@@ -161,6 +161,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     , movedownbut_(0)
 {
     avfld_ = new uiListBox( this, setup_.avtitle_ );
+    avfld_->box()->setHSzPol( uiObject::Wide );
     avfld_->doubleClicked.notify( mCB(this,uiBuildListFromList,addCB) );
     if ( setup_.withtitles_ && !setup_.avtitle_.isEmpty() )
     {
@@ -173,6 +174,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     addbut->attach( centeredRightOf, avfld_ );
 
     deffld_ = new uiListBox( this, setup_.deftitle_ );
+    deffld_->box()->setHSzPol( uiObject::Wide );
     deffld_->attach( rightTo, avfld_ );
     deffld_->attach( ensureRightOf, addbut );
     deffld_->selectionChanged.notify( mCB(this,uiBuildListFromList,defSelCB) );
