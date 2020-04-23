@@ -34,8 +34,6 @@ bool OD::haveUserSetStyleName()
 BufferString OD::getActiveStyleName()
 {
     BufferString stylenm = getUserSetStyleName();
-    if ( stylenm.isEmpty() )
-	stylenm.set( "default" );
     return stylenm;
 }
 
@@ -90,11 +88,7 @@ BufferString OD::getStyleFile( const char* stylenm, const char* ext )
     mRetIfExists( userstyledir, stylenm );
     mRetIfExists( appstyledir, stylenm );
     mRetIfExists( inststyledir, stylenm );
-    mRetIfExists( userstyledir, "default" );
-    mRetIfExists( appstyledir, "default" );
-    mRetIfExists( inststyledir, "default" );
 
-    pFreeFnErrMsg( "Huh? The default style file should always exist" );
     return BufferString::empty();
 }
 
@@ -114,6 +108,7 @@ static void getStyleNames( const File::Path& dirfp, BufferStringSet& nms )
 void OD::getStyleNames( BufferStringSet& nms )
 {
     nms.setEmpty();
+    nms.add( "default" );
     mDefStyleDirs();
     getStyleNames( userstyledir, nms );
     getStyleNames( appstyledir, nms );
