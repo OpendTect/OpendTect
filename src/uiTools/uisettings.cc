@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimain.h"
 #include "uimsg.h"
+#include "uipathsel.h"
 #include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uitable.h"
@@ -617,10 +618,13 @@ uiPythonSettings(uiParent* p, const char* nm )
     customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
 
+    custompathfld_ = new uiPathSel( this, tr("Custom Module Path") );
+    custompathfld_->attach( alignedBelow, customenvnmfld_ );
+
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
     testbut->setIcon( "test" );
-    testbut->attach( ensureBelow, customenvnmfld_ );
+    testbut->attach( ensureBelow, custompathfld_ );
 
     uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
 			mCB(this,uiPythonSettings,promptCB), true );
@@ -649,6 +653,7 @@ void initDlg(CallBacker*)
     mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
+    mAttachCB( custompathfld_->selChange, uiPythonSettings::parChgCB );
 }
 
 IOPar& curSetts()
@@ -711,6 +716,13 @@ void fillPar( IOPar& par ) const
 		par.removeWithKey( sKey::Name() );
 	}
     }
+    const BufferStringSet paths = custompathfld_->getPaths();
+    if ( !paths.isEmpty() )
+    {
+	IOPar tmp;
+	paths.fillPar( tmp );
+	par.mergeComp( tmp, OD::PythonAccess::sKeyPythonPath() );
+    }
 }
 
 void usePar( const IOPar& par )
@@ -745,6 +757,12 @@ void usePar( const IOPar& par )
 	if ( customenvnmfld_->isChecked() )
 	    customenvnmfld_->setText( envnm );
     }
+    PtrMan<IOPar> pathpar = par.subselect( OD::PythonAccess::sKeyPythonPath() );
+    BufferStringSet paths;
+    if ( pathpar )
+	paths.usePar( *pathpar );
+
+    custompathfld_->setPaths( paths );
 }
 
 bool commitSetts( const IOPar& iop )
@@ -860,7 +878,18 @@ void promptCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
+    BufferStringSet current_python_path;
+    GetEnvVarDirList( "PYTHONPATH", current_python_path, true );
+
+    BufferStringSet new_python_path = OD::PythA().getBasePythonPath();
+    const BufferStringSet setting_paths = custompathfld_->getPaths();
+    new_python_path.add( setting_paths, false );
+
+    SetEnvVarDirList( "PYTHONPATH", new_python_path, false );
+
     OD::PythA().openTerminal();
+
+    SetEnvVarDirList( "PYTHONPATH", current_python_path, false );
 }
 
 bool useScreen()
@@ -962,6 +991,7 @@ bool acceptOK( CallBacker* )
     uiFileInput*	internalloc_ = nullptr;
     uiFileInput*	customloc_;
     uiGenInput*		customenvnmfld_;
+    uiPathSel*		custompathfld_;
 
     IOPar*		chgdsetts_ = nullptr;
     bool		needrestore_ = false;

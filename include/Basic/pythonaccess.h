@@ -72,6 +72,7 @@ namespace OD
 	static const char*	sPythonExecNm(bool v3=false,bool v2=false);
 	static const char*	sKeyPythonSrc();
 	static const char*	sKeyEnviron();
+	static const char*	sKeyPythonPath();
 
 	Notifier<PythonAccess>	envChange;
 
@@ -89,6 +90,8 @@ namespace OD
 	BufferString	getPacmanExecNm() const;
 	uiRetVal	updateModuleInfo(const char* cmd="pip list");
 			/*<! Pass nullptr to auto-detect */
+	void		updatePythonPath();
+	BufferStringSet getBasePythonPath() const;
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
@@ -108,6 +111,7 @@ namespace OD
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
 	BufferString	pythversion_;
+	BufferStringSet pystartpath_;
 	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
 	bool		isUsable_(bool force=false,

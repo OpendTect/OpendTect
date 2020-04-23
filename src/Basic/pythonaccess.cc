@@ -29,9 +29,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "timer.h"
 #include "uistrings.h"
+#include "errmsg.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
+const char* OD::PythonAccess::sKeyPythonPath() { return "PythonPath"; }
 
 
 OD::PythonAccess& OD::PythA()
@@ -84,17 +86,41 @@ OD::PythonAccess::~PythonAccess()
 }
 
 
-void OD::PythonAccess::initClass()
+BufferStringSet OD::PythonAccess::getBasePythonPath() const
 {
+    BufferStringSet pythonpaths = pystartpath_;
     const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
     const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
-    if ( !pythonmodsfp.exists() )
-	return;
 
-    BufferStringSet pythonpaths;
-    GetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
-    if ( pythonpaths.addIfNew(pythonmodsfp.fullPath()) )
-	SetEnvVarDirList( "PYTHONPATH", pythonpaths, true );
+    if ( pythonmodsfp.exists() )
+	pythonpaths.addIfNew( pythonmodsfp.fullPath() );
+
+    return pythonpaths;
+}
+
+void OD::PythonAccess::updatePythonPath()
+{
+    BufferStringSet pythonpaths = getBasePythonPath();
+
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    const PtrMan<IOPar> pathpar = pythonsetts.subselect( sKeyPythonPath() );
+    if ( pathpar )
+    {
+	BufferStringSet settpaths;
+	settpaths.usePar( *pathpar );
+	pythonpaths.add( settpaths, false );
+    }
+
+    SetEnvVarDirList( "PYTHONPATH", pythonpaths, false );
+}
+
+
+void OD::PythonAccess::initClass()
+{
+    GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
+    updatePythonPath();
+
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
     BufferStringSet envnms;
@@ -833,6 +859,7 @@ bool OD::PythonAccess::retrievePythonVersionStr()
 void OD::PythonAccess::envChangeCB( CallBacker* )
 {
     retrievePythonVersionStr();
+    updatePythonPath();
     const uiRetVal uirv = updateModuleInfo( nullptr );
     if ( !uirv.isOK() )
 	msg_.append( uirv );
@@ -1130,15 +1157,15 @@ static bool usesNvidiaCard( BufferString* glversionstr )
 
 
 //from https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
-static const char* cudastrs[] = { "10.2.89", "10.1.105", "10.0.130", "9.2.148 update 1",
-    "9.2.88", "9.1.85", "9.0.76", "8.0.61 GA2", "8.0.44", "7.5.16", "7.0.28",
-0 };
+static const char* cudastrs[] = { "10.2.89", "10.1.105", "10.0.130",
+    "9.2.148 update 1", "9.2.88", "9.1.85", "9.0.76", "8.0.61 GA2", "8.0.44",
+    "7.5.16", "7.0.28", 0 };
 #ifdef __win__
-static const float nvidiavers[] = { 441.22f, 418.96f, 411.31f, 398.26f, 397.44f, 391.29f,
-    385.54f, 376.51f, 369.30f, 353.66f, 347.62f };
+static const float nvidiavers[] = { 441.22f, 418.96f, 411.31f, 398.26f,
+    397.44f, 391.29f, 385.54f, 376.51f, 369.30f, 353.66f, 347.62f };
 #else
-static const float nvidiavers[] = { 440.33f, 418.39f, 410.48f, 396.37f, 396.26f, 390.46f,
-    384.81f, 375.26f, 367.48f, 352.31f, 346.46f };
+static const float nvidiavers[] = { 440.33f, 418.39f, 410.48f, 396.37f,
+    396.26f, 390.46f, 384.81f, 375.26f, 367.48f, 352.31f, 346.46f };
 #endif
 
 static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
