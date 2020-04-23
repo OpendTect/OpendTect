@@ -66,6 +66,7 @@ public:
     uiSize		getScreenSize(int screennr,bool availablesz) const;
     uiSize		desktopSize() const;
 			//!<\returns mUdf(int) if unknown
+    double		getDevicePixelRatio(int screennr) const;
 
     static uiMain&	theMain();
     static void		cleanQtOSEnv();

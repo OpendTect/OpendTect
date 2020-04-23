@@ -681,6 +681,21 @@ uiSize uiMain::desktopSize() const
 }
 
 
+double uiMain::getDevicePixelRatio( int screennr ) const
+{
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
+	return mUdf(double);
+
+    const QScreen* qscreen = screens.at( screennr );
+    if ( !qscreen )
+	return mUdf(double);
+
+    return mCast(double,qscreen->logicalDotsPerInchX()) /
+	   mCast(double,qscreen->physicalDotsPerInchX());
+}
+
+
 uiMain& uiMain::theMain()
 {
     if ( themain_ )
