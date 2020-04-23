@@ -363,6 +363,7 @@ void uiProgressViewer::saveFn( CallBacker* )
 {
     uiFileSelector::Setup fssu( GetProcFileName("log.txt") );
     fssu.setFormat( tr("Progress logs"), "txt" );
+    fssu.setForWrite( true );
     uiFileSelector uifs( this, fssu );
     uifs.caption() = uiStrings::phrSave( uiStrings::sLogs() );
     if ( uifs.go() )
