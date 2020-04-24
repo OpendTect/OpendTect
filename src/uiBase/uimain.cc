@@ -691,9 +691,8 @@ double uiMain::getDevicePixelRatio( int screennr ) const
     if ( !qscreen )
 	return mUdf(double);
 
-    const uiSize screensz( getScreenSize(screennr,false) );
     return mCast(double,qscreen->logicalDotsPerInchX()) /
-	mCast(double,qscreen->physicalDotsPerInchX());
+	   mCast(double,qscreen->physicalDotsPerInchX());
 }
 
 

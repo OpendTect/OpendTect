@@ -36,6 +36,7 @@ public:
 		    uiSettingsMgr();
 		    ~uiSettingsMgr();
 
+    Notifier<uiSettingsMgr> terminalRequested;
 
 private:
 

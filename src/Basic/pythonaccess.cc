@@ -179,8 +179,13 @@ uiString OD::PythonAccess::pySummary() const
 uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				     const char* scriptexpectedout ) const
 {
-    if ( force )
-	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
+    if ( !force && istested_ )
+    {
+	uiRetVal ret;
+	if ( !isusable_ && msg_.isEmpty() )
+	    ret.add( tr("Cannot run Python") );
+	return ret;
+    }
 
     OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
     const bool isusable = pytha.isUsable_( force, scriptstr,
@@ -210,7 +215,7 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
     if ( force_external )
 	return (isusable_ = istested_ = true);
-    if ( !force )
+    if ( !force && istested_ )
 	return isusable_;
 
     istested_ = true;

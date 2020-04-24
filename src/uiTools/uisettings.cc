@@ -60,6 +60,7 @@ uiSettingsMgr& uiSettsMgr()
 
 uiSettingsMgr::uiSettingsMgr()
     : applwin_(*uiMain::theMain().topLevel())
+    , terminalRequested(this)
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
@@ -82,6 +83,7 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
 	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
     if ( bs == OD::ControlButton && kbe.key_==OD::KB_T && !kbe.isrepeat_ )
     {
+	terminalRequested.trigger();
 	uiMain::keyboardEventHandler().setHandled( true );
 	OD::PythA().openTerminal();
     }
