@@ -22,7 +22,7 @@ class QVariant;
 mExpClass(uiBase) uiTableModel
 {
 public:
-    mExpClass(uiBase)	CellData
+    mExpClass(uiBase) CellData
     {
     public:
 	CellData();
@@ -52,16 +52,15 @@ public:
     virtual int			nrRows() const		= 0;
     virtual int			nrCols() const		= 0;
     virtual int			flags(int row,int col) const	= 0;
+    virtual void		setCellData(int row,int col,const CellData&) =0;
     virtual CellData		getCellData(int row,int col) const =0;
+
     virtual Color		textColor(int row,int col) const = 0;
     virtual Color		color(int row,int col) const	= 0;
+    virtual void		setChecked(int row,int col,int val)	{}
+    virtual int			isChecked(int row,int col) const  { return -1; }
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const	= 0;
-    virtual int			chosenRowState(int row,int col) = 0;
-    virtual void		setChosenRow(int row,int col,
-					    const CellData&) = 0;
-    virtual void		setCellData(int row,int col,
-					    const CellData&){};
     ODAbstractTableModel*	getAbstractModel()	{ return odtablemodel_;}
     void			beginReset();
     void			endReset();

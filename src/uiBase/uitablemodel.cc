@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 
 #include <QAbstractTableModel>
+#include <QApplication>
 #include <QCheckBox>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -164,13 +165,6 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 	return cd.qvar_;
     }
 
-    if ( qmodidx.column()==0 && role == Qt::CheckStateRole )
-    {
-	uiTableModel::CellData cd =
-		model_.getCellData( qmodidx.row(), qmodidx.column() );
-	return cd.qvar_;
-    }
-
     if ( role == Qt::BackgroundRole )
     {
 	Color odcol = model_.color( qmodidx.row(), qmodidx.column() );
@@ -193,6 +187,15 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 	return tt.getQString();
     }
 
+    if ( role == Qt::CheckStateRole )
+    {
+	const int val = model_.isChecked( qmodidx.row(), qmodidx.column() );
+	if ( val==-1 ) // no checkbox
+	    return QVariant();
+
+	return val==1 ? Qt::Checked : Qt::Unchecked;
+    }
+
     return QVariant();
 }
 
@@ -212,9 +215,11 @@ bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
 
     if ( role == Qt::CheckStateRole )
     {
-	uiTableModel::CellData cd( qvar );
-	model_.setChosenRow( qmodidx.row(), qmodidx.column(), cd );
-	return true;
+	int val = -1;
+	if ( qvar==Qt::Checked || qvar==Qt::Unchecked )
+	    val = qvar==Qt::Checked ? 1 : 0;
+
+	model_.setChecked( qmodidx.row(), qmodidx.column(), val );
     }
 
     return true;
