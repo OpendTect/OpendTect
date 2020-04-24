@@ -921,7 +921,7 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
     {
 	PtrMan<IOObj> ioobj = Wavelet::getIOObj( synthgenpar.wvltnm_ );
 	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-	if ( !wvlt || (wvlt_->name()==wvlt->name()) )
+	if ( !wvlt || (wvlt_ && wvlt_->name()==wvlt->name()) )
 	    needsetwvlt = true;
 	else
 	    synthgen.setWavelet( wvlt, OD::CopyPtr );
