@@ -625,7 +625,18 @@ mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 }
 
 
-mExternC(Basic) const char* GetPicturesDir()
+mExternC(Basic) const char* GetSurveyExportDir()
+{
+    mDeclStaticString( ret );
+    ret = FilePath( GetDataDir(), "Export" ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+
+    return ret.buf();
+}
+
+
+mExternC(Basic) const char* GetSurveyPicturesDir()
 {
     mDeclStaticString( ret );
     ret = FilePath( GetDataDir(), "Pictures" ).fullPath();
@@ -636,12 +647,13 @@ mExternC(Basic) const char* GetPicturesDir()
 }
 
 
-mExternC(Basic) const char* GetExportDir()
+mExternC(Basic) const char* GetSurveyTempDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Export" ).fullPath();
+    ret = FilePath( GetDataDir(), "Temp" ).fullPath();
     if ( !File::exists(ret) )
 	File::createDir( ret );
 
     return ret;
 }
+

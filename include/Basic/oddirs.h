@@ -187,8 +187,9 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 
 
 mGlobal(Basic) const char* GetScriptsDir(const char*);
-mGlobal(Basic) const char* GetPicturesDir();
-mGlobal(Basic) const char* GetExportDir();
+mGlobal(Basic) const char* GetSurveyExportDir();
+mGlobal(Basic) const char* GetSurveyPicturesDir();
+mGlobal(Basic) const char* GetSurveyTempDir();
 
 
 } // extern "C"

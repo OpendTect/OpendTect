@@ -169,7 +169,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 
     outpfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 				uiFileInput::Setup().forread(false)
-				.defseldir(GetExportDir()));
+				.defseldir(GetSurveyExportDir()));
     outpfld_->attach( alignedBelow, addzfld_ );
 }
 
@@ -187,7 +187,7 @@ void uiSeisWvltExp::inputChgd( CallBacker* )
 	return;
 
     const FilePath fp = ioobj->fullUserExpr();
-    FilePath fnm( GetExportDir(), fp.baseName() );
+    FilePath fnm( GetSurveyExportDir(), fp.baseName() );
     fnm.setExtension( "dat" );
     outpfld_->setFileName( fnm.fullPath() );
 }

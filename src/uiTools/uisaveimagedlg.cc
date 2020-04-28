@@ -215,7 +215,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     dpifld_->attach( alignedBelow, widthfld_ );
 
     if ( dirname_.isEmpty() )
-	dirname_ = GetPicturesDir();
+	dirname_ = GetSurveyPicturesDir();
     fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
