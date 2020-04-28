@@ -317,6 +317,7 @@ struct VolumeMemory
 
 
 #define mChunkSize mMaxContiguousMemSize
+#define mMaxMargin 0x80000000 // 2 GB
 
 bool VolProc::ChainExecutor::checkAndSplit( od_int64 memusage,
 					od_int64& freemem, int& nrexecs) const
@@ -324,6 +325,8 @@ bool VolProc::ChainExecutor::checkAndSplit( od_int64 memusage,
     const bool cansplit = areSamplesIndependent() && !needsFullVolume();
     od_int64 totmem;
     OD::getSystemMemory( totmem, freemem );
+    const od_int64 memmargin = mMIN(freemem/10,mMaxMargin);
+    freemem -= memmargin; //Keep reserved for system and other apps
     nrexecs = 1;
     NrBytesToStringCreator bytesstrcalc;
     if ( memusage >= freemem )
