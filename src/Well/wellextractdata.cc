@@ -1197,5 +1197,17 @@ float Well::LogSampler::getLogVal( const char* lnm, int idz ) const
 }
 
 
+const char* Well::LogSampler::uomLabel( int logidx ) const
+{
+    if ( !logset_.validIdx(logidx) || !logset_[logidx] )
+	return nullptr;
+
+    return logset_[logidx]->unitMeasLabel();
+}
+
+
 int Well::LogSampler::nrZSamples() const
-{ return data_ ? data_->info().getSize(1) : 0; }
+{
+    return data_ ? data_->info().getSize(1) : 0;
+}
+

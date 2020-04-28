@@ -360,18 +360,20 @@ public:
 
 			~LogSampler();
 
-    //avalaible after execution
+    //available after execution
     float		getDah(int idz) const;
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(const char* lognm,int idx) const;
     float		getThickness(int idz) const;
 			//!< Vertical thickness of a sample, not along hole
+    const char*		uomLabel(int logidx) const;
+			//!< Unit of Measure label
 
     uiString		errMsg() const
 			{ return errmsg_.isEmpty() ? uiString::emptyString()
 						   : errmsg_; }
 
-    int		nrZSamples() const;
+    int			nrZSamples() const;
     Interval<float>	zRange() const	{ return zrg_; } //can be in time
 
 protected:
@@ -379,7 +381,7 @@ protected:
 			    bool zrgintime,float zstep, bool extractintime,
 			    Stats::UpscaleType samppol);
 
-    od_int64	nrIterations() const;
+    od_int64		nrIterations() const;
 
     bool			doLog(int logidx);
     bool			doPrepare(int);
