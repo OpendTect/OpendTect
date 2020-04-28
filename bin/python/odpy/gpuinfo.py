@@ -1,22 +1,22 @@
-import numba
+from numba import cuda as numcuda
 
 def is_cuda_available():
-  return numba.cuda.is_available()
+  return numcuda.is_available()
 
 def detect_gpus(printfn=print):
-  printfn( numba.cuda.detect() )
+  printfn( numcuda.detect() )
 
 def nr_gpus():
-  return len(numba.cuda.gpus)
+  return len(numcuda.gpus)
 
 def compute_capability( devnum=0 ):
-  return numba.cuda.gpus[devnum].compute_capability
+  return numcuda.gpus[devnum].compute_capability
 
 def id( devnum=0 ):
-  return numba.cuda.gpus[devnum].id
+  return numcuda.gpus[devnum].id
 
 def name( devnum=0 ):
-  return numba.cuda.gpus[devnum].name
+  return numcuda.gpus[devnum].name
 
 def get_memory_info( devnum=None ):
-  return numba.cuda.current_context(devnum=devnum).get_memory_info()
+  return numcuda.current_context(devnum=devnum).get_memory_info()
