@@ -1202,7 +1202,8 @@ const char* Well::LogSampler::uomLabel( int logidx ) const
     if ( !logset_.validIdx(logidx) || !logset_[logidx] )
 	return nullptr;
 
-    return logset_[logidx]->unitMeasLabel();
+    const UnitOfMeasure* uom = logset_[logidx]->unitOfMeasure();
+    return uom ? uom->symbol() : logset_[logidx]->unitMeasLabel();
 }
 
 
