@@ -380,7 +380,7 @@ void uiODMenuMgr::fillImportMenu()
     impfaultstick->insertItem( impfltss3Dasc );
 
     mInsertItem( impfltset, m3Dots( uiStrings::sASCII() ),
-						    mImpFltSetAsciiMnuItm );
+		 mImpFltSetAsciiMnuItm );
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( impwellasc, m3Dots(uiStrings::sTrack()),
@@ -390,7 +390,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellasc, m3Dots(uiStrings::sMarker(mPlural)),
 		 mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
-    mInsertItem( impwell, m3Dots(tr("Vertical Multi-Well")),
+    mInsertItem( impwell, m3Dots(tr("Well locations")),
 		 mImpWellSimpleMnuItm );
 
     uiMenu* impwellbulk = new uiMenu( &appl_, tr("Bulk") );

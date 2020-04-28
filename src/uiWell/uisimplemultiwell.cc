@@ -56,7 +56,7 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Vertical Wells"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Import Well Locations"),mNoDlgTitle,
 		       mODHelpKey(mSimpleMultiWellCreateHelpID) )
 		 .savebutton(true).savetext(tr("Display after import"))
 		 .modal(false))

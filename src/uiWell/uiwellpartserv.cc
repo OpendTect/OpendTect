@@ -360,7 +360,7 @@ void uiWellPartServer::manageWells()
     delete manwelldlg_;
     manwelldlg_ = new uiWellMan( parent() );
     new uiToolButton( manwelldlg_->extraButtonGroup(), "multisimplewell",
-		      tr("Import multiple vertical wells"),
+		      tr("Import well locations"),
 		      mCB(this,uiWellPartServer,simpImp) );
     manwelldlg_->go();
 }
