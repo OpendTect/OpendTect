@@ -203,7 +203,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
 
     lltypfld_ = new uiGenInput( topgrp, tr("Lat/Long Format"),
 	StringListInpSpec(uiConvertPos::LatLongTypeDef().strings()) );
-    lltypfld_->setElemSzPol( uiObject::Small );
+    lltypfld_->setElemSzPol( uiObject::SmallVar );
     lltypfld_->attach( rightTo, inptypfld_ );
     lltypfld_->setToolTip( sDMSDescStr() );
     mAttachCB(lltypfld_->valuechanged, uiManualConvGroup::llFormatTypChg);
@@ -219,13 +219,13 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     rightinpfld_->attach( rightOf, leftinpfld_ );
 
     const bool isprojcrs = SI().getCoordSystem()->isProjection();
-
     if ( isprojcrs )
     {
 	inpcrdsysselfld_ = new Coords::uiCoordSystemSel( topgrp, true, true,
 	    SI().getCoordSystem(), tr("Input Coordinate System") );
 	inpcrdsysselfld_->attach( alignedBelow, leftinpfld_ );
     }
+
     uiSeparator* sep = new uiSeparator( this, "Inp-Out Sep" );
     sep->setStretch( 2, 2 );
     sep->attach( stretchedBelow, topgrp );
@@ -285,6 +285,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     llFormatTypChg( 0 );
 }
 
+
 uiManualConvGroup::~uiManualConvGroup()
 {
     detachAllNotifiers();
@@ -295,7 +296,7 @@ void uiManualConvGroup::inputTypChg( CallBacker* )
 {
     const int selval = inptypfld_->getIntValue();
     leftinpfld_->setTitleText(
-		    uiConvertPos::DataTypeDef().getUiStringForIndex(selval) );
+	uiConvertPos::DataTypeDef().getUiStringForIndex(selval) );
     if ( inpcrdsysselfld_ )
 	inpcrdsysselfld_->setSensitive( selval != DataSelType::IC );
     lltypfld_->display( selval == DataSelType::LL );
@@ -358,8 +359,10 @@ void uiManualConvGroup::convFromLL()
     if ( !ll.isDefined() )
 	uiMSG().error( tr("Lat-Long value not defined") );
 
-    Coord coord( LatLong::transform(ll, towgs84fld_->isChecked(),
-				    outcrdsysselfld_->getCoordSystem()) );
+    Coord coord;
+    if ( outcrdsysselfld_ )
+	coord = LatLong::transform( ll, towgs84fld_->isChecked(),
+				    outcrdsysselfld_->getCoordSystem() );
 
     LatLong outll = LatLong::transform( coord, towgs84fld_->isChecked() );
     mSetOutVal(1, outll.lat_, outll.lng_)
@@ -379,13 +382,17 @@ void uiManualConvGroup::convFromIC()
 
     const Coord coord( SI().transform(bid) );
 
-    const LatLong ll( LatLong::transform(coord, towgs84fld_->isChecked(),
-			    outcrdsysselfld_->getCoordSystem()) );
-    mSetOutVal(1, ll.lat_, ll.lng_)
+    LatLong ll;
+    if ( outcrdsysselfld_ )
+	ll = LatLong::transform( coord, towgs84fld_->isChecked(),
+				 outcrdsysselfld_->getCoordSystem() );
+    mSetOutVal( 1, ll.lat_, ll.lng_ )
 
-    const Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-	    coord, *inpcrdsysselfld_->getCoordSystem() );
-    mSetOutVal(2, outcrd.x, outcrd.y)
+    Coord outcrd = coord;
+    if ( inpcrdsysselfld_ )
+	outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
+			coord, *inpcrdsysselfld_->getCoordSystem() );
+    mSetOutVal( 2, outcrd.x, outcrd.y )
 }
 
 
@@ -396,16 +403,20 @@ void uiManualConvGroup::convFromXY()
     if ( coord.isUdf() )
 	mErrRet
 
-    const LatLong ll( LatLong::transform(coord, towgs84fld_->isChecked(),
-					outcrdsysselfld_->getCoordSystem()) );
-    mSetOutVal(1, ll.lat_, ll.lng_)
+    LatLong ll;
+    if ( outcrdsysselfld_ )
+	ll = LatLong::transform( coord, towgs84fld_->isChecked(),
+				 outcrdsysselfld_->getCoordSystem() );
+    mSetOutVal( 1, ll.lat_, ll.lng_ )
 
-    const Coord outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-				coord, *inpcrdsysselfld_->getCoordSystem() );
-    mSetOutVal(2, outcrd.x, outcrd.y)
+    Coord outcrd;
+    if ( outcrdsysselfld_ )
+	outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
+			coord, *inpcrdsysselfld_->getCoordSystem() );
+    mSetOutVal( 2, outcrd.x, outcrd.y )
 
     const BinID bid( survinfo_.transform(coord) );
-    mSetOutVal(3, bid.inl(), bid.crl())
+    mSetOutVal( 3, bid.inl(), bid.crl() )
 }
 
 
