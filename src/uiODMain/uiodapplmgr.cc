@@ -620,8 +620,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     bool selspecchanged = false;
     for ( int idx=0; idx<myas.size(); idx++ )
     {
-	const BufferString oldname = myas[idx].userRef();
-	if ( myas[idx].id() != Attrib::DescID::undef() )
+	if ( myas[idx].id() != Attrib::DescID::undef() &&
+	     myas[idx].id() != Attrib::SelSpec::cOtherAttrib() )
 	{
 	    attrserv_->updateSelSpec( myas[idx] );
 	    if ( (*as)[idx] != myas[idx] )
