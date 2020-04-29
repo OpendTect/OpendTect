@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
-mFDQtclass(QTime)
+mFDQtclass(QElapsedTimer)
 
 namespace Time
 {
@@ -31,7 +31,7 @@ namespace Time
 
     protected:
 
-	mQtclass(QTime*)	qtime_;
+	mQtclass(QElapsedTimer*)	qelapstimer_;
 
     };
 
