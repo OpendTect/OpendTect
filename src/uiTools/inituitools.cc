@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uiraytrace1d.h"
-#include "uisettings.h"
 
 mDefModInitFn(uiTools)
 {
@@ -34,6 +33,4 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
-
-    uiSettsMgr();
 }

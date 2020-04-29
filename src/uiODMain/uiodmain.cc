@@ -217,6 +217,8 @@ uiODMain::uiODMain( uiMain& a )
     if ( buildUI() )
 	failed_ = false;
 
+    uiSettsMgr();
+
     mAttachCB( IOM().afterSurveyChange, uiODMain::afterSurveyChgCB );
     mAttachCB( sesstimer_.tick, uiODMain::sessTimerCB );
 
