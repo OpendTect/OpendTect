@@ -186,7 +186,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 							     : idxz+idz;
 		    if ( inparr )
 			value = inparr[ valididxz + valididxc*nrsamples
-					+ valididxi*nrsamples*nrcrosslines ];
+				+ (od_int64) valididxi*nrsamples*nrcrosslines ];
 		    else
 			value = input_.get( valididxi, valididxc, valididxz);
 		    if ( needmed )
