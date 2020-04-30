@@ -28,7 +28,7 @@ using namespace Attrib;
 
 
 mInitAttribUI(uiCorrMultiAttrib,CorrMultiAttrib,
-	      "Multi-Target Correlation","Experimental")
+	      "Attribute-Attribute Correlation","Experimental")
 
 
 uiCorrMultiAttrib::uiCorrMultiAttrib(uiParent* p,bool is2d)
@@ -37,8 +37,8 @@ uiCorrMultiAttrib::uiCorrMultiAttrib(uiParent* p,bool is2d)
     inpfld_ = createInpFld( is2d, "Reference Attribute" );
     inpfld2_ = createInpFld( is2d, "Select Attribute" );
     gatefld_ = new uiGenInput( this, gateLabel(),
-	       FloatInpIntervalSpec().setName("Z start",-28)
-	       .setName("Z stop",28) );
+		FloatInpIntervalSpec().setName("Z start",-28)
+				      .setName("Z stop",28) );
     inpfld2_->attach( alignedBelow, inpfld_ );
     gatefld_->attach( alignedBelow, inpfld2_ );
 
@@ -50,13 +50,13 @@ uiCorrMultiAttrib::~uiCorrMultiAttrib()
 {}
 
 
-bool uiCorrMultiAttrib::setParameters(const Desc& desc)
+bool uiCorrMultiAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != CorrMultiAttrib::attribName() )
 	return false;
 
     mIfGetFloatInterval(CorrMultiAttrib::gateStr(),gate,
-			gatefld_->setValue(gate));
+			gatefld_->setValue(gate))
     return true;
 }
 
@@ -74,7 +74,7 @@ bool uiCorrMultiAttrib::getParameters(Desc& desc)
     if ( desc.attribName() != CorrMultiAttrib::attribName() )
 	return false;
 
-    mSetFloatInterval( CorrMultiAttrib::gateStr(), gatefld_->getFInterval() );
+    mSetFloatInterval( CorrMultiAttrib::gateStr(), gatefld_->getFInterval() )
     return true;
 }
 
