@@ -13,7 +13,7 @@
 
 #ifndef OD_NO_QT
 # include <QDateTime>
-# include <QTime>
+# include <QElapsedTimer>
 #endif
 
 mUseQtnamespace
@@ -23,28 +23,28 @@ namespace Time
 
 Counter::Counter()
 #ifndef OD_NO_QT
-    : qtime_(new QTime)
+    : qelapstimer_(new QElapsedTimer)
 #endif
 {}
 
 Counter::~Counter()
 {
 #ifndef OD_NO_QT
-    delete qtime_;
+    delete qelapstimer_;
 #endif
 }
 
 void Counter::start()
 {
 #ifndef OD_NO_QT
-    qtime_->start();
+    qelapstimer_->start();
 #endif
 }
 
 int Counter::restart()
 {
 #ifndef OD_NO_QT
-    return qtime_->restart();
+    return qelapstimer_->restart();
 #else
     return mUdf(int);
 #endif
@@ -53,7 +53,7 @@ int Counter::restart()
 int Counter::elapsed() const
 {
 #ifndef OD_NO_QT
-    return qtime_->elapsed();
+    return qelapstimer_->elapsed();
 #else
     return mUdf(int);
 #endif
@@ -62,7 +62,6 @@ int Counter::elapsed() const
 
 int getMilliSeconds()
 {
-
 #ifndef OD_NO_QT
     QTime daystart(0,0,0,0);
     return daystart.msecsTo( QTime::currentTime() );
