@@ -347,7 +347,7 @@ uiPythonSettings(uiParent* p, const char* nm )
 
     uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
 			mCB(this,uiPythonSettings,promptCB), true );
-    cmdwinbut->setIcon( "launch" );
+    cmdwinbut->setIcon( "terminal" );
     cmdwinbut->attach( rightOf, testbut );
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
