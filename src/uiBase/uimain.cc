@@ -749,13 +749,6 @@ double uiMain::getDefZoomLevel()
     if ( !mIsUdf(defzoom) )
 	return defzoom;
 
-    const IdxPair dpi = uiMain::getDPI();
-    const int maxdpi = dpi.first() > dpi.second() ? dpi.first() : dpi.second();
-    if ( maxdpi > 150 )
-	return 2.0;
-    else if ( maxdpi > 120 )
-	return 1.5;
-
     return 1.;
 }
 
