@@ -57,6 +57,9 @@ public:
 
     BufferString	fullDataSetName() const;
 
+    static DataSetKey	groupKey(const DataSetKey& parentgrp,const char* subgrpnm);
+    static DataSetKey	groupKey(const char* parentfulldsnm,const char* grpnm);
+
 protected:
 
     BufferString	grpnm_;
