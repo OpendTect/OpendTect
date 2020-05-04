@@ -30,6 +30,7 @@ class uiToolBar;
 class uiTreeItem;
 class uiTreeFactorySet;
 class MouseCursorExchange;
+class RegularFlatDataPack;
 class TaskRunner;
 class Vw2DDataManager;
 class ZAxisTransform;
@@ -91,6 +92,7 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
+    DataPack::ID		createMapDataPack(const RegularFlatDataPack&);
     bool			useStoredDispPars(bool wva);
     bool			isVertical() const	{ return isvertical_; }
 
