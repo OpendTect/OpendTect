@@ -13,7 +13,9 @@ ________________________________________________________________________
 */
 
 #include "basicmod.h"
+
 #include "gendefs.h"
+#include "typeset.h"
 
 /*!
 \brief Contains the information about the size of ArrayND, and
@@ -248,6 +250,7 @@ public:
 
     virtual ArrayNDInfo* clone() const;
     static ArrayNDInfo*	create(int ndim);
+    template <class T> static ArrayNDInfo*	create(const T*,int sz);
 
 			ArrayNDInfoImpl(int ndim);
 			ArrayNDInfoImpl(const ArrayNDInfo&);
@@ -284,6 +287,27 @@ inline int Array2DInfoImpl::getSize( int dim ) const
 inline int Array3DInfoImpl::getSize( int dim ) const
 {
     return dim>2 || dim<0 ? 0 : dimsz_[dim];
+}
+
+
+template <class T> inline
+ArrayNDInfo* ArrayNDInfoImpl::create( const T* sizes, int sz )
+{
+    TypeSet<int> dimszs;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const int dimsz = mNINT32(sizes[idx]);
+	if ( dimsz > 1 )
+	    dimszs += dimsz;
+    }
+    ArrayNDInfo* ret = create( dimszs.size() );
+    if ( !ret )
+	return nullptr;
+
+    for ( int idx=0; idx<ret->getNDim(); idx++ )
+	ret->setSize( idx, dimszs[idx] );
+
+    return ret;
 }
 
 
