@@ -85,6 +85,7 @@ public:
     BufferString	partitionName();
 
     static BufferString	getTempDir();
+    static BufferString	getTempFileName(const char* ext=0,const char* prefix=0);
     static BufferString	getTempName(const char* ext=0);
     static BufferString	mkCleanPath(const char* path, Style fmt);
     static BufferString getTimeStampFileName(const char*ext=0);

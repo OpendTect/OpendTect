@@ -404,11 +404,11 @@ BufferString FilePath::getTempDir()
 }
 
 
-BufferString FilePath::getTempName( const char* ext )
+BufferString FilePath::getTempFileName( const char* ext, const char* prefix )
 {
-    FilePath fp( getTempDir() );
-
     BufferString fname( "od", GetPID() );
+    if ( prefix )
+	fname.insertAt( 0, prefix );
     mDefineStaticLocalObject( int, counter, = 0 );
     time_t time_stamp = time( (time_t*)0 ) + counter++;
     fname += (od_int64)time_stamp;
@@ -419,7 +419,13 @@ BufferString FilePath::getTempName( const char* ext )
 	fname += ext;
     }
 
-    fp.add( fname );
+    return fname;
+}
+
+
+BufferString FilePath::getTempName( const char* ext )
+{
+    const FilePath fp( getTempDir(), getTempFileName(ext) );
     return fp.fullPath();
 }
 
