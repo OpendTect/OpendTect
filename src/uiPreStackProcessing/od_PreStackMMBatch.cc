@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
+    uiMain app( argc, argv );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
@@ -28,7 +29,6 @@ int main( int argc, char ** argv )
 
     OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
 
-    uiMain app( argc, argv );
     uiPreStackMMProc* pmmp = new uiPreStackMMProc( 0, jobpars );
     app.setTopLevel( pmmp );
     pmmp->show();

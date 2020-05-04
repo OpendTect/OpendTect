@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiSeis" );
+    OD::ModDeps().ensureLoaded( "General" );
 
     CommandLineParser parser;
 
@@ -74,6 +74,7 @@ int main( int argc, char ** argv )
     if ( dosubmit )
     {
 	uiMain app( argc, argv );
+	OD::ModDeps().ensureLoaded( "uiSeis" );
 	uiClusterProc* cp = new uiClusterProc( 0, iop );
 
 	app.setTopLevel( cp );
@@ -83,6 +84,8 @@ int main( int argc, char ** argv )
 	delete cp;
 	return ExitProgram( ret );
     }
+
+    OD::ModDeps().ensureLoaded( "uiSeis" );
 
     od_cout() << "Merging output ..." << od_endl;
     TextTaskRunner taskrunner( od_cout() );

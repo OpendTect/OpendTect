@@ -27,7 +27,6 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
 
-    OD::ModDeps().ensureLoaded( "uiTools" );
     TextTranslateMgr::loadTranslations();
 
     CommandLineParser clp( argc, argv );
@@ -59,6 +58,7 @@ int main( int argc, char** argv )
     const BufferString title = args.size() > 1 ? args.get(1).buf() : fnm.buf();
 
     uiMain app( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiTools" );
     uiMainWin* mw = new uiMainWin( 0, toUiString(title.buf()) );
     uiPixmap pm( fnm );
     uiGraphicsView* view = new uiGraphicsView( mw, "Graphics Viewer" );

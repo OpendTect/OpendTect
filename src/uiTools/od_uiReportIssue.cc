@@ -19,8 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiTools" );
     uiMain app( argc, argv );
+
+    OD::ModDeps().ensureLoaded( "uiTools" );
 
 #ifdef mUseCrashDumper
     //Disable IssueReporter for IssueReporter itself.

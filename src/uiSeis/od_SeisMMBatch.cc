@@ -26,9 +26,9 @@ int main( int argc, char ** argv )
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return ExitProgram( 1 );
 
+    uiMain app( argc, argv );
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
-    uiMain app( argc, argv );
     uiSeisMMProc* smmp = new uiSeisMMProc( 0, jobpars );
     app.setTopLevel( smmp );
     smmp->show();

@@ -104,9 +104,8 @@ int main( int argc, char** argv )
     if ( dofork )
 	ForkProcess();
 
-    OD::ModDeps().ensureLoaded( "uiTools" );
-
     uiMain app( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiTools" );
 
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
