@@ -286,7 +286,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
 			  hasattrib, false )
-	const bool withwva = true;
+	const bool withwva = isvert;
 	if ( withwva )
 	{
 	    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dwvaitem_,
@@ -294,7 +294,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	}
 	else
 	{
-	    mResetMenuItem( &view2dwvaitem_ );
+	    mResetMenuItem( &view2dwvaitem_ )
 	}
     }
     else
