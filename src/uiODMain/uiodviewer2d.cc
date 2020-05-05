@@ -273,7 +273,11 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     }
 
     if ( !isVertical() && !mapdp && regfdp )
+    {
 	packid = createMapDataPack( *regfdp );
+	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
+    }
+
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
 
     //updating stuff
