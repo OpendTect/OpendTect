@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitablemodel.h"
 
 #include "uiobjbody.h"
+#include "uipixmap.h"
 #include "perthreadrepos.h"
 
 #include <QAbstractTableModel>
@@ -20,6 +21,7 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPainter>
+#include <QPixmap>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QStringList>
@@ -167,11 +169,20 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
     if ( role == Qt::BackgroundRole )
     {
-	Color odcol = model_.color( qmodidx.row(), qmodidx.column() );
+	Color odcol = model_.cellColor( qmodidx.row(), qmodidx.column() );
 	if ( odcol==Color::NoColor() )
 	    return QVariant();
 
 	return QColor( odcol.rgb() );
+    }
+
+    if ( role == Qt::DecorationRole )
+    {
+	uiPixmap pm = model_.pixmap( qmodidx.row(), qmodidx.column() );
+	if ( pm.isEmpty() )
+	    return QVariant();
+
+	return *pm.qpixmap();
     }
 
     if ( role == Qt::ForegroundRole )
