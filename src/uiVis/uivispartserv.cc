@@ -1833,6 +1833,7 @@ bool uiVisPartServer::calcManipulatedAttribs( int id )
 	calculateAttrib( id, attrib, false );
 
     so->annotateNextUpdateStage( false );
+    triggerTreeUpdate();
     return true;
 }
 
