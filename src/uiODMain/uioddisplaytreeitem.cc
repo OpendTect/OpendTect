@@ -253,7 +253,11 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
     if ( kd.state()==OD::ShiftButton && kd.key()==OD::KB_Delete )
 	deleteObject();
     if ( kd.key()==OD::KB_V && kd.state()==OD::NoButton )
+    {
 	setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
+	if ( cbcaps )
+	    cbcaps->data.setKey( 0 );
+    }
 }
 
 
@@ -335,7 +339,7 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
-    const bool enab = !visserv_->isLocked(displayid_) && 
+    const bool enab = !visserv_->isLocked(displayid_) &&
 	visserv_->canRemoveDisplay( displayid_ );
 
     createMenu( tb, true );
@@ -414,7 +418,7 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
-    const bool enab = !visserv_->isLocked( displayid_ ) && 
+    const bool enab = !visserv_->isLocked( displayid_ ) &&
 	visserv_->canRemoveDisplay( displayid_ );
 
     mAddMenuItem( menu, &removemnuitem_, enab, false );
