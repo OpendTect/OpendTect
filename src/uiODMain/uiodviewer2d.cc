@@ -38,6 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivispartserv.h"
 #include "uimsg.h"
 
+#include "arrayndimpl.h"
+#include "arrayndslice.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "filepath.h"
@@ -268,6 +270,12 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    }
 	}
 	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
+    }
+
+    if ( !isVertical() && !mapdp && regfdp )
+    {
+	packid = createMapDataPack( *regfdp );
+	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
     }
 
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
@@ -701,6 +709,31 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
 	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), userrefs );
     return createFlatDataPack( dpid, 0 );
+}
+
+
+DataPack::ID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
+{
+    const TrcKeyZSampling& tkzs = rsdp.sampling();
+    StepInterval<double> inlrg, crlrg;
+    inlrg.setFrom( tkzs.hsamp_.inlRange() );
+    crlrg.setFrom( tkzs.hsamp_.crlRange() );
+
+    BufferStringSet dimnames;
+    dimnames.add("X").add("Y").add(sKey::Inline()).add(sKey::Crossline());
+
+    Array2DSlice<float> slice2d( rsdp.data() );
+    slice2d.setDimMap( 0, 0 );
+    slice2d.setDimMap( 1, 1 );
+    slice2d.setPos( 2, 0 );
+    slice2d.init();
+
+    MapDataPack* mdp =
+	new MapDataPack( "ZSlice", new Array2DImpl<float>( slice2d ) );
+    mdp->setProps( inlrg, crlrg, true, &dimnames );
+    DPM(DataPackMgr::FlatID()).addAndObtain( mdp );
+    DPM(DataPackMgr::FlatID()).add( mdp );
+    return mdp->id();
 }
 
 

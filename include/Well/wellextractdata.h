@@ -152,8 +152,8 @@ public:
 
     int			nextStep();
     uiString		uiMessage() const	{ return curmsg_; }
-    uiString		uiNrDoneText() const	{ 
-						return tr("Wells inspected"); 
+    uiString		uiNrDoneText() const	{
+						return tr("Wells inspected");
 						}
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
@@ -376,6 +376,8 @@ public:
     int			nrZSamples() const;
     Interval<float>	zRange() const	{ return zrg_; } //can be in time
 
+    uiString		uiNrDoneText() const;
+
 protected:
     void		init (const Well::D2TModel*,const Interval<float>&,
 			    bool zrgintime,float zstep, bool extractintime,
@@ -383,9 +385,9 @@ protected:
 
     od_int64		nrIterations() const;
 
-    bool			doLog(int logidx);
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
+    bool		doLog(int logidx);
+    bool		doPrepare(int);
+    bool		doWork(od_int64,od_int64,int);
 
     const Well::D2TModel*	d2t_;
     const Well::Track&		track_;

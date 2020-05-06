@@ -973,7 +973,8 @@ int Well::SimpleTrackSampler::nextStep()
 Well::LogSampler::LogSampler( const Well::Data& wd,
 			    const Well::ExtractParams& pars,
 			    const BufferStringSet& lognms )
-    : track_( wd.track() )
+    : ParallelTask("Resampling logs")
+    , track_( wd.track() )
 {
     init( wd.d2TModel(), pars.calcFrom(wd,lognms,false), pars.isInTime(),
 	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
@@ -990,7 +991,8 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
 			    float zstep, bool extrintime,
 			    Stats::UpscaleType samppol,
 			    const BufferStringSet& lognms )
-    : track_( wd.track() )
+    : ParallelTask("Resampling logs")
+    , track_( wd.track() )
 {
     init( wd.d2TModel(), zrg, zrgisintime, zstep, extrintime, samppol);
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -1007,12 +1009,12 @@ Well::LogSampler::LogSampler(const Well::D2TModel* d2t,
 			    float zstep, bool extrintime,
 			    Stats::UpscaleType samppol,
 			    const ObjectSet<const Well::Log>& logs )
-    : track_( *track )
+    : ParallelTask("Resampling logs")
+    , track_( *track )
 {
     init( d2t, zrg, zrgisintime, zstep, extrintime, samppol );
     logset_ = logs;
 }
-
 
 
 void Well::LogSampler::init( const Well::D2TModel* d2t,
@@ -1033,6 +1035,12 @@ void Well::LogSampler::init( const Well::D2TModel* d2t,
 Well::LogSampler::~LogSampler()
 {
     delete data_;
+}
+
+
+uiString Well::LogSampler::uiNrDoneText() const
+{
+    return tr("Logs done");
 }
 
 

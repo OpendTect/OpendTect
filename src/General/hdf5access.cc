@@ -58,6 +58,22 @@ bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
 }
 
 
+HDF5::DataSetKey HDF5::DataSetKey::groupKey( const HDF5::DataSetKey& parentgrp, const char* subgrpnm )
+{
+    return groupKey( parentgrp.fullDataSetName(), subgrpnm );
+}
+
+
+HDF5::DataSetKey HDF5::DataSetKey::groupKey( const char* fullparentnm, const char* grpnm )
+{
+    const FilePath grpfp( fullparentnm, grpnm );
+    BufferString grpkynm = grpfp.fullPath( FilePath::Unix );
+    grpkynm.insertAt( 0, "/" );
+    return DataSetKey( grpkynm );
+}
+
+
+
 bool HDF5::Access::isEnvBlocked( const char* typ )
 {
     if ( GetEnvVarYN("OD_NO_HDF5") )

@@ -39,12 +39,74 @@ static void fillArr2D( Array2D<T>& arr2d, int shft )
 #define mAddTestResult(desc) \
     mRunStandardTestWithError( uirv.isOK(), desc, uirv.getText() )
 
+static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky, HDF5::Writer& wrr )
+{
+    uiRetVal uirv;
+    const int nrbatch = 5000;
+    const int nrattribs = 2;
+    const int nrinl = 8;
+    const int nrcrl = 16;
+    const int nrz = 32;
+    TypeSet<int> arrdims;
+    arrdims += nrbatch;
+    arrdims += nrattribs;
+    arrdims += nrinl;
+    arrdims += nrcrl;
+    arrdims += nrz;
+    PtrMan<ArrayNDInfo> allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
+    Array3DImpl<float> arr( nrinl, nrcrl, nrz );
+    if ( !arr.isOK() )
+    {
+	uirv.add( uiStrings::phrCannotAllocateMemory(arr.totalSize()*sizeof(float)));
+	return uirv;
+    }
+    
+    const HDF5::DataSetKey dsky( grpdsky.fullDataSetName(), "BigData" );
+    uirv = wrr.createDataSet( dsky, *allinfo, OD::F32 );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    HDF5::SlabSpec slabspec;
+    HDF5::SlabDimSpec batchspec; batchspec.count_ = 1;
+    HDF5::SlabDimSpec attribspec; attribspec.count_ = 1;
+    slabspec += batchspec;
+    slabspec += attribspec;
+    slabspec += HDF5::SlabDimSpec();
+    slabspec += HDF5::SlabDimSpec();
+    slabspec += HDF5::SlabDimSpec();
+
+    const float* arrptr = arr.getData();
+    for ( int ibatch=0; ibatch<300; ibatch++ )
+    {
+	slabspec[0].start_ = ibatch;
+	for ( int iattr=0; iattr<nrattribs; iattr++ )
+	{
+	    slabspec[1].start_ = iattr;
+	    const float fact = iattr == 0 ? 1.f : -1.f;
+	    for ( int idx=0; idx<nrinl; idx++ )
+		for ( int idy=0; idy<nrcrl; idy++ )
+		    for ( int idz=0; idz<nrz; idz++ )
+			arr.set( idx, idy, idz, fact*arr.info().getOffset(idx,idy,idz) );
+	    uirv = wrr.putSlab( dsky, slabspec, arrptr );
+	    if ( !uirv.isOK() )
+		return uirv;
+	}
+    }
+
+    arrdims[0] = 15;
+    allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
+    uirv = wrr.resizeDataSet( dsky, *allinfo );
+    //Will crop the dataset, but keeps the remaining data
+
+    return uirv;
+}
+
 
 static bool testReadInfo( HDF5::Reader& rdr )
 {
     BufferStringSet grps;
     rdr.getGroups( grps );
-    mRunStandardTestWithError( grps.size()==3, "Groups in file",
+    mRunStandardTestWithError( grps.size()==6, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
@@ -267,6 +329,13 @@ static bool testReadData( HDF5::Reader& rdr )
 				"Correct Strings value [3]",
 				BufferString("s[3]=",bss.get(3)) )
 
+    const auto maindsky = HDF5::DataSetKey( "MainGroup" );
+    mRunStandardTest( rdr.hasGroup( maindsky.groupName() ), "Has main group" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
+    mRunStandardTest( rdr.hasGroup( dsky.groupName() ), "Has sub-group A" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky.fullDataSetName(), "GroupB" );
+    mRunStandardTest( rdr.hasGroup( dsky.groupName() ), "Has sub-group B" );
+
     return true;
 }
 
@@ -386,6 +455,18 @@ static bool testWrite()
     iop.set( "Appel", "peer" );
     uirv = wrr->set( iop, &dsky );
     mAddTestResult( "Write Comp1/Block1 attrib using an IOPar" );
+
+    const auto maindsky = HDF5::DataSetKey( "MainGroup" );
+    wrr->ensureGroup( maindsky.groupName(), uirv );
+    mAddTestResult( "Create MainGroup group" );
+    dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
+    wrr->ensureGroup( dsky.groupName(), uirv );
+    mAddTestResult( "Create sub-group A" );
+    uirv = testCreateLargeDS( dsky, *wrr );
+    mAddTestResult( "Create Large Dataset in sub-group A" )
+    dsky = HDF5::DataSetKey::groupKey( maindsky.fullDataSetName(), "GroupB" );
+    wrr->ensureGroup( dsky.groupName(), uirv );
+    mAddTestResult( "Create sub-group B" );
 
     //Editable
     wrr->setEditableCreation( true );

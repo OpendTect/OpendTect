@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
+#include "errmsg.h"
 #include "perthreadrepos.h"
 #include "winutils.h"
 #include "executor.h"
@@ -558,10 +559,39 @@ bool createDir( const char* fnm )
 bool rename( const char* oldname, const char* newname, uiString* errmsg )
 {
 #ifndef OD_NO_QT
-    if ( File::isDirectory(oldname)  )
-    {
-	QDir dir;
-	bool res = dir.rename( oldname, newname );
+	const FilePath destpath( newname );
+	const FilePath destdir( destpath.pathOnly() );
+	BufferString  errstr;
+	if ( !File::isWritable( destdir.fullPath()) )
+	{
+	    if (errmsg)
+	    {
+		errstr.add( "Folder " ).add( oldname  )
+		      .add( " is not writable" );
+		errmsg->append( errstr );
+	    }
+
+	    return false;
+	}
+
+	if ( destpath.exists() )
+	{
+	    errstr.add( "Destination folder " ).add( destpath.fullPath() )
+		  .add( " already exists." )
+		  .add( "Please remove or rename manually." );
+	    errmsg->append( errstr );
+	    return false;
+	}
+
+	bool res = false;
+	if ( File::isDirectory(oldname) )
+	{
+	    QDir dir;
+	    res = dir.rename(oldname, newname);
+	}
+	else
+	    res = QFile::rename( oldname, newname );
+
 	if ( res )
 	    return true;
 
@@ -571,11 +601,11 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 #else
 	cmd.add( "mv" );
 #endif
-	BufferString srcpath( oldname );
-	BufferString destpath( newname );
-	OS::CommandLauncher::addQuotesIfNeeded( srcpath );
-	OS::CommandLauncher::addQuotesIfNeeded( destpath );
-	cmd.addSpace().add( srcpath ).addSpace().add( destpath );
+	BufferString srcpathstr( oldname );
+	BufferString destpathstr( newname );
+	OS::CommandLauncher::addQuotesIfNeeded(srcpathstr);
+	OS::CommandLauncher::addQuotesIfNeeded(destpathstr);
+	cmd.addSpace().add(srcpathstr).addSpace().add(destpathstr);
 	BufferString stdoutput, stderror;
 	res = OS::ExecCommand( cmd, OS::Wait4Finish,
 			       &stdoutput, &stderror );
@@ -591,9 +621,6 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 	}
 
 	return res;
-    }
-
-    return QFile::rename( oldname, newname );
 #else
     pFreeFnErrMsg(not_implemented_str);
     return false;

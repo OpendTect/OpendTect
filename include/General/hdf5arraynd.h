@@ -25,9 +25,9 @@ public:
 			mTypeDefArrNDTypes;
 
 			ArrayNDTool( const ArrayND<T>& arrnd )
-			    : arrnd_(arrnd)				{}
-			ArrayNDTool( ArrayND<T>& arrnd )
 			    : arrnd_(const_cast<ArrayND<T>&>(arrnd))	{}
+			ArrayNDTool( ArrayND<T>& arrnd )
+			    : arrnd_(arrnd)	{}
 			~ArrayNDTool()
 			    { delete [] workarr_; }
 
