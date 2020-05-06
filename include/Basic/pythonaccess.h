@@ -31,6 +31,7 @@ namespace OS {
 }
 
 
+
 namespace OD
 {
     enum PythonSource
@@ -44,6 +45,9 @@ namespace OD
     public:
 			PythonAccess();
 			~PythonAccess();
+
+	static BufferString sKeyUseExtPyPath()
+				    { return "Use_External_Python_Path"; }
 
 	uiRetVal	isUsable(bool force=false,
 				 const char* scriptstr=nullptr,
@@ -146,6 +150,8 @@ namespace OD
 	static FilePath*	getActivateScript(const FilePath& root);
 	bool			retrievePythonVersionStr();
 	void			envChangeCB(CallBacker*);
+
+	void		    createFireWallExeList(ManagedObjectSet<FilePath>&);
 
 	friend class ::uiPythonSettings;
 	friend class ::ODServiceBase;

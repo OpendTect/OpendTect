@@ -48,7 +48,7 @@ uiString getDlgTitle(ProcDesc::DataEntry::ActionType typ)
 //Remove the argument actiontype from the dialog, it will determine on its own
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
-						    const BufferString& path )
+			const BufferString& path, const BufferString& pypath )
     : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(acttyp),
 			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
     , addremfld_(0)
@@ -62,6 +62,11 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	FilePath fp( path, "bin", GetPlfSubDir(), GetBinSubDir() );
 	exepath_ = fp.fullPath();
     }
+
+    if ( pypath.isEmpty() )
+	pypath_ = getPythonInstDir();
+    else
+	pypath_ = pypath;
 
     uiObject* attachobj(0);
     uiListBox::Setup su;
@@ -89,6 +94,8 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	    odproclistbox_->attach( alignedBelow, attachobj );
 	odproclistbox_->addItems(odprocdescs_);
 	odproclistbox_->setHSzPol(uiObject::SzPolicy::WideMax);
+	mAttachCB(odproclistbox_->leftButtonClicked,
+				uiFirewallProcSetter::statusUpdateODProcCB);
 	mAttachCB(odproclistbox_->selectionChanged,
 				uiFirewallProcSetter::statusUpdateODProcCB);
 	odproclistbox_->chooseAll();
@@ -105,9 +112,10 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     {
 	if ( attachobj )
 	    pythonproclistbox_->attach( alignedBelow, attachobj );
-
+	mAttachCB(pythonproclistbox_->leftButtonClicked,
+			    uiFirewallProcSetter::statusUpdatePyProcCB);
 	mAttachCB(pythonproclistbox_->selectionChanged,
-	    uiFirewallProcSetter::statusUpdatePyProcCB);
+				uiFirewallProcSetter::statusUpdatePyProcCB);
 	pythonproclistbox_->chooseAll();
     }
     pythonproclistbox_->display( addremfld_|| !pyprocdescs_.isEmpty() );
@@ -119,6 +127,11 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	   addremfld_->display( false );
        selectionChgCB(0);
     }
+
+    if ( odproclistbox_->isDisplayed() )
+	mAttachCB(postFinalise(),uiFirewallProcSetter::statusUpdateODProcCB);
+    else
+	mAttachCB(postFinalise(),uiFirewallProcSetter::statusUpdatePyProcCB);
 }
 
 #define mGetAddBool \
@@ -209,7 +222,7 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
 {
     const int selidx = pythonproclistbox_->currentItem();
-    FilePath exefp( getPythonInstDir() );
+    FilePath exefp( pypath_ );
     exefp.add( *pyprocnms_[selidx] );
     const BufferString procfp = exefp.fullPath();
     statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
@@ -225,7 +238,7 @@ uiStringSet uiFirewallProcSetter::getPythonExecList()
     if ( pyprocnms_.isEmpty() )
 	return pyprocdescs_;
 
-    FilePath fp( getPythonInstDir() );
+    FilePath fp( pypath_ );
     fp.add( "envs" );
 
     for ( int idx=pyprocnms_.size()-1; idx>=0; idx-- )
@@ -353,7 +366,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 			    .add( exefp.fullPath().quote('\"') ).addSpace();
 	else
 	    fincmd.addSpace().add( "--py " )
-		.add( getPythonInstDir().quote('\"')).addSpace();
+		.add( pypath_.quote('\"')).addSpace();
 
 	BufferStringSet procnmsset;
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
@@ -371,7 +384,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 
 	if ( !cl.execute(cp) )
 	{
-	    failedprocnms.add(procnmsset,false);
+	    failedprocnms.add( procnmsset,false );
 	    errocc = true;
 	}
 	else

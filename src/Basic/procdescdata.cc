@@ -161,6 +161,17 @@ void ProcDesc::Data::getProcData( BufferStringSet& nms, uiStringSet& descs,
 	getProcsToBeAdded( nms, descs, type );
     else if ( acttyp == DataEntry::Remove )
 	getProcsToBeRemoved( nms, descs, type );
+
+    if ( type == DataEntry::ODv6 )
+    {
+	int idx = nms.indexOf( sKeyODExecNm() );
+
+	if ( idx <  0 )
+	    return;
+
+	nms.swap( idx, 0 );
+	descs.swap( idx, 0 );
+    }
 }
 
 

@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "prog.h"
+#include "pythonaccess.h"
 #include "procdescdata.h"
 #include "uifirewallprocsetterdlg.h"
 #include "uimain.h"
@@ -63,9 +64,19 @@ int main( int argc, char ** argv )
     if ( instlrlaunchedproc && typ == ProcDesc::DataEntry::Remove )
 	return 0;
 
+    BufferString pythonpath;
+    if ( proctyp.size() > 4 )
+    {
+	BufferString str = GetArgV()[ proctyp.size() - 1];
+	bool useextparth = str.isEqual( OD::PythA().sKeyUseExtPyPath(),
+							    CaseInsensitive );
+	if (useextparth)
+	    pythonpath = GetArgV()[ proctyp.size() ];
+    }
+
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
 	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex(proctypidx),
-	path );
+	path, pythonpath );
 
     app.setTopLevel( dlg );
     dlg->show();

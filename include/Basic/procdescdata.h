@@ -19,6 +19,8 @@ class uiString;
 
 namespace ProcDesc
 {
+
+
     mExpClass(Basic) DataEntry
     {
     public:
@@ -58,6 +60,7 @@ namespace ProcDesc
 					const DataEntry::ActionType acttyp);
 	IOPar&			readPars();
 	bool			writePars(const IOPar&,bool toadd);
+	static BufferString sKeyODExecNm() { return "od_start_dtect"; }
 
     protected:
 	IOPar			pars_;

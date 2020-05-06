@@ -27,7 +27,8 @@ public:
 
 
 			    uiFirewallProcSetter(uiParent*,PDE::ActionType,
-				const BufferString&path=BufferString::empty());
+				const BufferString&path=BufferString::empty(),
+			    const BufferString&pypath = BufferString::empty());
 			    ~uiFirewallProcSetter();
 protected:
 
@@ -53,6 +54,7 @@ protected:
     uiStringSet		    odprocdescs_;
     BufferStringSet	    pyprocnms_;
     uiStringSet		    pyprocdescs_;
+    BufferString	    pypath_;
 
     uiString		    sStatusBarMsg()
 			    { return tr("Selected process path : %1"); }

@@ -118,7 +118,7 @@ void OD::PythonAccess::updatePythonPath()
 
 void OD::PythonAccess::initClass()
 {
-    GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
+    GetEnvVarDirList("PYTHONPATH", pystartpath_, true);
     updatePythonPath();
 
 #ifdef __win__
@@ -129,15 +129,31 @@ void OD::PythonAccess::initClass()
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source = hasInternalEnvironment() ? Internal : System;
     PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
-
     FilePath externalroot;
+    const int totnrarg = GetArgC();
+    bool useextparth = false;
+    if ( totnrarg > 4 )
+    {
+	BufferString str = GetArgV()[ totnrarg - 2 ];
+	useextparth = str.isEqual( PythA().sKeyUseExtPyPath(),
+							    CaseInsensitive );
+	if ( useextparth )
+	{
+	    externalroot = GetArgV()[ totnrarg - 1 ];
+	    if ( externalroot.isEmpty() ||
+				!File::exists(externalroot.fullPath()) )
+		return;
+
+	    source = Custom;
+	}
+    }
+
     if ( source == Custom )
     {
 	BufferString virtenvloc;
-	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	if ( !useextparth && pythonsetts.get(sKeyEnviron(),virtenvloc) )
 	    externalroot = virtenvloc;
-	BufferString virtenvnm;
-	pythonsetts.get( sKey::Name(), virtenvnm );
+
 	if ( !getSortedVirtualEnvironmentLoc(fps, envnms, nullptr,
 							    &externalroot) )
 	    return;
@@ -151,15 +167,16 @@ void OD::PythonAccess::initClass()
     for ( int idx=0; idx<fps.size(); idx++ )
     {
 	FilePath* fp = fps[idx];
-	fp->add(sPythonExecNm());
+	fp->add( sPythonExecNm() );
 	if ( !File::exists(fp->fullPath()) )
 	    continue;
 
 	ePDD().add( *envnms[idx],
-	::toUiString("Machine Learning Environment : <%1>").arg(*envnms[idx]),
-	ProcDesc::DataEntry::Python );
+	 ::toUiString("Machine Learning Environment : <%1>").arg(*envnms[idx]),
+	    ProcDesc::DataEntry::Python );
     }
-#endif //
+
+#endif
 }
 
 

@@ -28,6 +28,7 @@ mDefModInitFn(uiODMain)
     VolProc::uiDataTreeItem::initClass();
 
 #ifdef __win__
-    ePDD().add( "od_main", uiODMain::sODDesc(), ProcDesc::DataEntry::ODv6 );
+    ePDD().add( ePDD().sKeyODExecNm(), uiODMain::sODDesc(),
+						ProcDesc::DataEntry::ODv6 );
 #endif
 }
