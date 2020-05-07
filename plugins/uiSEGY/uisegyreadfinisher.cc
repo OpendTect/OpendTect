@@ -367,7 +367,7 @@ bool uiSEGYReadFinisher::doVSP()
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth )
-	    z = wd->d2TModel()->getDah( z, track );
+	    z = wd->d2TModel()->getDah( z/1000., track );
 	else
 	{
 	    if ( inft )
