@@ -102,6 +102,8 @@ namespace OD
 	bool		openTerminal() const;
 
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
+	static void	GetPythonEnvPath(FilePath&);
+	static void	GetPythonEnvBinPath(FilePath&);
 
 
     private:

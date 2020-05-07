@@ -27,15 +27,22 @@ class uiTable;
 
 
 mClass(uiTools) uiSettingsMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiSettingsMgr);
 public:
-		    uiSettingsMgr();
-		    ~uiSettingsMgr();
+		uiSettingsMgr();
+		~uiSettingsMgr();
 
+    void	loadToolBarCmds();
+
+protected:
+    void	doToolBarCmdCB(CallBacker*);
 
 private:
 
     void	keyPressedCB(CallBacker*);
+
+    BufferStringSet	commands_;
+    TypeSet<int>	toolbarids_;
 
     uiMainWin&	applwin_;
 };

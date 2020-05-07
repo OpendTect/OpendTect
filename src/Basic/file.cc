@@ -41,6 +41,7 @@ ________________________________________________________________________
 # include <QFile>
 # include <QFileInfo>
 # include <QProcess>
+# include <QStandardPaths>
 #else
 # include <fstream>
 #endif
@@ -364,6 +365,29 @@ bool isDirectory( const char* fnm )
 #endif
 }
 
+
+BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
+			     bool includesyspath )
+{
+#ifndef OD_NO_QT
+    BufferString ret;
+    if ( includesyspath )
+	ret = QStandardPaths::findExecutable( exenm, QStringList() );
+
+    if ( !paths.isEmpty() )
+    {
+	QStringList qpaths;
+	for ( int idx=0; idx<paths.size(); idx++ )
+	    qpaths.append( (const char*) paths.get( idx ) );
+	const BufferString tmp = QStandardPaths::findExecutable( exenm, qpaths );
+	if ( !tmp.isEmpty() )
+	    ret = tmp;
+    }
+    return ret;
+#else
+    return BufferString::empty();
+#endif
+}
 
 const char* getCanonicalPath( const char* dir )
 {

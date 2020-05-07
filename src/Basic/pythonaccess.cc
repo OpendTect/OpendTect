@@ -788,6 +788,43 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 }
 
 
+void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
+{
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    OD::PythonSource source;
+    if (!OD::PythonSourceDef().parse( pythonsetts,
+				    OD::PythonAccess::sKeyPythonSrc(),source) )
+	source = OD::System;
+
+    if ( source == OD::Custom ) {
+	BufferString virtenvloc, virtenvnm;
+	pythonsetts.get(OD::PythonAccess::sKeyEnviron(),virtenvloc);
+	pythonsetts.get(sKey::Name(),virtenvnm);
+	#ifdef __win__
+	fp = FilePath( virtenvloc, "envs", virtenvnm );
+	#else
+	fp = FilePath( "/", virtenvloc, "envs", virtenvnm );
+	#endif
+    }
+    else if (source == OD::Internal) {
+	getPathToInternalEnv(fp, true);
+	fp.add("envs").add("odmlpython-cpu-mkl");
+	if (!fp.exists())
+	    getPathToInternalEnv(fp, true);
+    }
+}
+
+
+void OD::PythonAccess::GetPythonEnvBinPath( FilePath& fp )
+{
+    GetPythonEnvPath( fp );
+    #ifndef __win__
+    fp.add("bin");
+    #endif
+}
+
+
 void OD::PythonAccess::getPathToInternalEnv( FilePath& fp, bool userdef )
 {
     fp = getInternalEnvPath( userdef );

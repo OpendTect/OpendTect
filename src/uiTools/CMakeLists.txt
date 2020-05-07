@@ -92,6 +92,7 @@ SET( OD_MODULE_SOURCES
 	uitaskrunner.cc
 	uitextfile.cc
 	uitime2depthzaxistrans.cc
+	uitoolbarcmded.cc
 	uitreeitemmanager.cc
 	uiunitsel.cc
 	uivalseriestracker.cc
