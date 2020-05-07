@@ -103,9 +103,6 @@ int RecursiveCopier::nextStep()
 #ifdef OD_NO_QT
     return ErrorOccurred();
 #else
-    if ( fileidx_ >= filelist_.size() )
-	return Finished();
-
     if ( !fileidx_ )
     {
 	if ( File::exists(dest_) && !File::remove(dest_) )
@@ -113,6 +110,9 @@ int RecursiveCopier::nextStep()
 	if( !File::createDir(dest_) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(dest_)) )
     }
+
+    if ( fileidx_ >= filelist_.size() )
+	return Finished();
 
     const BufferString& srcfile = *filelist_[fileidx_];
     QDir srcdir( src_.buf() );
@@ -135,7 +135,7 @@ int RecursiveCopier::nextStep()
 
     fileidx_++;
     nrdone_ += getFileSize( srcfile );
-    return MoreToDo();
+    return fileidx_ >= filelist_.size() ? Finished() : MoreToDo();
 #endif
 }
 
@@ -583,68 +583,107 @@ bool createDir( const char* fnm )
 bool rename( const char* oldname, const char* newname, uiString* errmsg )
 {
 #ifndef OD_NO_QT
-	const FilePath destpath( newname );
-	const FilePath destdir( destpath.pathOnly() );
-	BufferString  errstr;
-	if ( !File::isWritable( destdir.fullPath()) )
-	{
-	    if (errmsg)
-	    {
-		errstr.add( "Folder " ).add( oldname  )
-		      .add( " is not writable" );
-		errmsg->append( errstr );
-	    }
+    if ( !File::exists(oldname) )
+    {
+	if ( errmsg )
+	    errmsg->append( uiStrings::phrDoesntExist(oldname) );
+	return false;
+    }
 
-	    return false;
-	}
-
-	if ( destpath.exists() )
+    const FilePath destpath( newname );
+    if ( destpath.exists() )
+    {
+	if ( errmsg )
 	{
-	    errstr.add( "Destination folder " ).add( destpath.fullPath() )
-		  .add( " already exists." )
-		  .add( "Please remove or rename manually." );
+	    BufferString errstr( "Destination '" );
+	    errstr.add( destpath.fullPath() )
+		.add( "' already exists." )
+		.add( "Please remove or rename manually." );
 	    errmsg->append( errstr );
+	}
+	return false;
+    }
+
+    const FilePath destdir( destpath.pathOnly() );
+    const BufferString targetbasedir( destdir.fullPath() );
+    if ( !File::exists(targetbasedir) )
+    {
+	if ( !File::createDir(targetbasedir) )
+	{
+	    if ( errmsg )
+		errmsg->append( uiStrings::phrCannotCreateDirectory(targetbasedir) );
+	    return false;
+	}
+    }
+#ifdef __unix__
+    else if ( !File::isWritable(targetbasedir) )
+    {
+	if ( errmsg )
+	    errmsg->append( uiStrings::phrCannotWrite(targetbasedir) );
+	return false;
+    }
+#endif
+
+    bool res = QFile::rename( oldname, newname );
+    if ( !res && File::isDirectory(oldname) )
+    {
+	QDir dir;
+	res = dir.rename( oldname, newname );
+	if ( !res )
+	{
+	    const FilePath sourcefp( oldname );
+	    dir.setCurrent( QString(sourcefp.pathOnly()) );
+	    const QString newnm = dir.relativeFilePath( newname );
+	    res = dir.rename( QString(sourcefp.fileName()), newnm );
+	}
+    }
+
+    if ( res )
+	return true;
+
+    BufferString cmd;
+#ifdef __win__
+    const BufferString destdrive = destdir.rootPath();
+    const FilePath sourcefp( oldname );
+    const BufferString sourcedrive = sourcefp.rootPath();
+    if ( destdrive != sourcedrive )
+    {
+	BufferString msgstr;
+	res = File::copyDir( oldname, newname, &msgstr );
+	if ( !res )
+	{
+	    if ( errmsg && !msgstr.isEmpty() )
+		errmsg->append( msgstr );
 	    return false;
 	}
 
-	bool res = false;
-	if ( File::isDirectory(oldname) )
-	{
-	    QDir dir;
-	    res = dir.rename(oldname, newname);
-	}
-	else
-	    res = QFile::rename( oldname, newname );
-
-	if ( res )
-	    return true;
-
-	BufferString cmd;
-#ifdef __win__
-	cmd.add( "move" );
-#else
-	cmd.add( "mv" );
-#endif
-	BufferString srcpathstr( oldname );
-	BufferString destpathstr( newname );
-	OS::CommandLauncher::addQuotesIfNeeded(srcpathstr);
-	OS::CommandLauncher::addQuotesIfNeeded(destpathstr);
-	cmd.addSpace().add(srcpathstr).addSpace().add(destpathstr);
-	BufferString stdoutput, stderror;
-	res = OS::ExecCommand( cmd, OS::Wait4Finish,
-			       &stdoutput, &stderror );
-	if ( !res && errmsg )
-	{
-	    if ( !stderror.isEmpty() )
-		errmsg->append( stderror, true );
-
-	    if ( !stdoutput.isEmpty() )
-		errmsg->append( stdoutput, true );
-
-	    errmsg->append( "Failed to rename using system command." );
-	}
-
+	res = File::removeDir( oldname );
 	return res;
+    }
+    cmd.add( "move" );
+#else
+    cmd.add( "mv" );
+#endif
+    BufferString srcpathstr( oldname );
+    BufferString destpathstr( newname );
+    OS::CommandLauncher::addQuotesIfNeeded(srcpathstr);
+    OS::CommandLauncher::addQuotesIfNeeded(destpathstr);
+    cmd.addSpace().add(srcpathstr).addSpace().add(destpathstr);
+    BufferString stdoutput, stderror;
+    res = OS::ExecCommand( cmd, OS::Wait4Finish,
+			       &stdoutput, &stderror );
+    if ( !res && errmsg )
+    {
+	if ( !stderror.isEmpty() )
+	    errmsg->append( stderror, true );
+
+	if ( !stdoutput.isEmpty() )
+	    errmsg->append( stdoutput, true );
+
+	errmsg->append( "Failed to rename using system command." );
+    }
+
+    return res;
 #else
     pFreeFnErrMsg(not_implemented_str);
     return false;

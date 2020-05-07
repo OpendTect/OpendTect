@@ -555,9 +555,17 @@ bool FilePath::isEmpty() const
 }
 
 
-BufferString FilePath::partitionName()
+BufferString FilePath::partitionName() const
 {
     const QStorageInfo qsi( fullPath().buf() );
     const QString qstrdispnm( qsi.displayName() );
     return BufferString( qstrdispnm );
+}
+
+
+BufferString FilePath::rootPath() const
+{
+    const QStorageInfo qsi( fullPath().buf() );
+    const QString qstrrootpath( qsi.rootPath() );
+    return BufferString( qstrrootpath );
 }

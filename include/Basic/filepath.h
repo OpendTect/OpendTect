@@ -82,7 +82,8 @@ public:
 			//!< nr < 0 returns last dir name
     BufferString	dirUpTo(int) const;
 			//!< nr < 0 returns last dir, including prefix
-    BufferString	partitionName();
+    BufferString	partitionName() const;
+    BufferString	rootPath() const;
 
     static BufferString	getTempDir();
     static BufferString	getTempFileName(const char* ext=0,const char* prefix=0);
