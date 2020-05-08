@@ -27,12 +27,12 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						const BufferStringSet& exenms,
 						bool withcheck,
 						bool mkinvisible )
-: uiGroup(p)
-, mkinvisible_(mkinvisible)
-, checked(this)
-, changed(this)
+    : uiGroup(p)
+    , mkinvisible_(mkinvisible)
+    , checked(this)
+    , changed(this)
 {
-    uiLabeledComboBox* lblcb;
+    uiLabeledComboBox* lblcb = nullptr;
     if ( !exenms.isEmpty() )
     {
 	BufferStringSet found = createUiList( paths, exenms );
@@ -41,11 +41,12 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 	lblcb->setStretch( 2, 1 );
 	exeselfld_ = lblcb->box();
     }
+
     uiFileInput::Setup su;
-    su.defseldir(paths.get(0)).forread(true);
-    #ifdef __win__
+    su.defseldir( paths.get(0) ).forread(true);
+#ifdef __win__
     su.filter("*.exe");
-    #endif
+#endif
     commandfld_ = new uiFileInput( this, tr("Command"), su );
     commandfld_->setElemSzPol( uiObject::WideVar );
     if ( exeselfld_ )
@@ -60,7 +61,7 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     tooltipfld_->attach( alignedBelow, argumentsfld_ );
 
     iconfld_ = new uiToolButton( this, "programmer", tr("Select icon"),
-				  mCB(this,uiToolBarCommandEditor,iconSelCB) );
+				 mCB(this,uiToolBarCommandEditor,iconSelCB) );
     iconfld_->attach( rightOf, commandfld_ );
 
     setHAlignObj( commandfld_ );
@@ -69,11 +70,10 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     {
 	checkbox_ = new uiCheckBox( this, uiString::emptyString() );
 	checkbox_->setChecked( false );
-	if ( exeselfld_ )
-	    checkbox_->attach( leftTo, lblcb );
-	else
-	    checkbox_->attach( leftTo, commandfld_ );
+	exeselfld_ ? checkbox_->attach( leftTo, lblcb )
+	    	   : checkbox_->attach( leftTo, commandfld_ );
     }
+
     mAttachCB(postFinalise(), uiToolBarCommandEditor::initGrp);
 }
 
@@ -95,6 +95,7 @@ void uiToolBarCommandEditor::initGrp( CallBacker* )
 	mAttachCB(checkbox_->activated, uiToolBarCommandEditor::checkCB);
 	checkCB( nullptr );
     }
+
     if ( exeselfld_ )
     {
 	mAttachCB(exeselfld_->selectionChanged,
@@ -113,10 +114,7 @@ void uiToolBarCommandEditor::setChecked( bool yn )
 
 bool uiToolBarCommandEditor::isChecked() const
 {
-    if ( checkbox_ )
-	return checkbox_->isChecked();
-    else
-	return true;
+    return checkbox_ ? checkbox_->isChecked() : true;
 }
 
 
@@ -130,8 +128,10 @@ BufferStringSet uiToolBarCommandEditor::createUiList(
 	if ( !tmp.isEmpty() )
 	    res.add( exenms.get(idx) );
     }
+
     return res;
 }
+
 
 void uiToolBarCommandEditor::clear()
 {
@@ -213,17 +213,20 @@ void uiToolBarCommandEditor::checkCB( CallBacker* )
 {
     if ( !checkbox_ )
 	return;
+
     const bool ischecked = checkbox_->isChecked();
     if ( mkinvisible_ )
     {
 	if ( exeselfld_ )
 	    exeselfld_->display( ischecked );
+
 	advDisplay( ischecked );
     }
     else
     {
 	if ( exeselfld_ )
 	    exeselfld_->setSensitive( ischecked );
+
 	advSetSensitive( ischecked );
     }
 
@@ -263,6 +266,7 @@ void uiToolBarCommandEditor::iconSelCB( CallBacker* )
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, iconfile_, "*.png" );
     if ( ! dlg.go() )
 	return;
+
     iconfile_ = dlg.fileName();
     iconfld_->setIcon( iconfile_ );
 
@@ -291,8 +295,7 @@ void uiToolBarCommandEditor::fillPar( IOPar& par ) const
 void uiToolBarCommandEditor::usePar( const IOPar& par )
 {
     BufferString exenm, cmd, args, tip, iconfile;
-    if ( par.get( sKey::ExeName(), exenm ) && !exenm.isEmpty()
-	 && exeselfld_ )
+    if ( par.get( sKey::ExeName(), exenm ) && !exenm.isEmpty() && exeselfld_ )
     {
 	exeselfld_->setCurrentItem( exenm );
 	setChecked( true );
@@ -305,6 +308,7 @@ void uiToolBarCommandEditor::usePar( const IOPar& par )
 	par.get( sKey::IconFile(), iconfile );
 	if ( exeselfld_ )
 	    exeselfld_->setCurrentItem( "Other" );
+
 	setCommand( cmd );
 	setArguments( args );
 	setToolTip( tip );
