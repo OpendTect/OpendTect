@@ -48,9 +48,9 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 }
 
 
-void uiSEGYSurvInfoProvider::fillPar( IOPar& par )
+void uiSEGYSurvInfoProvider::fillLogPars( IOPar& par )
 {
-    uiSurvInfoProvider::fillPar( par );
+    uiSurvInfoProvider::fillLogPars( par );
     par.set( sKey::CrFrom(), userfilename_ );
 }
 

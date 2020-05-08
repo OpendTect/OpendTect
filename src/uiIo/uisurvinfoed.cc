@@ -827,7 +827,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	return;
 
     IOPar& pars = si_.getLogPars();
-    sip->fillPar( pars );
+    sip->fillLogPars( pars );
     PtrMan<IOPar> crspar = sip->getCoordSystemPars();
     RefMan<Coords::CoordSystem> coordsys =
 		crspar ? Coords::CoordSystem::createSystem( *crspar ) : 0;
@@ -1018,7 +1018,7 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* )
 
 
 // uiSurvInfoProvider
-void uiSurvInfoProvider::fillPar( IOPar& par )
+void uiSurvInfoProvider::fillLogPars( IOPar& par )
 {
     par.setStdCreationEntries();
 }

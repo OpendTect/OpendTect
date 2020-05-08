@@ -30,7 +30,7 @@ public:
     bool		xyInFeet() const	{ return xyinft_; }
     virtual const char*	iconName() const	{ return "segy"; }
 
-    void		fillPar(IOPar&);
+    void		fillLogPars(IOPar&);
     IOPar*		getImportPars() const;
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
