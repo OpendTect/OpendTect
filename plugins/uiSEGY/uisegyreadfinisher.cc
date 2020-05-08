@@ -30,11 +30,13 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "od_ostream.h"
 #include "posinfo2dsurv.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"
 #include "segydirect2d.h"
+#include "segyhdr.h"
 #include "segyscanner.h"
 #include "segytr.h"
 #include "seisimporter.h"
@@ -437,6 +439,28 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 }
 
 
+static void writeSEGYHeader( const IOObj& inioobj, const IOObj& outioobj )
+{
+    FilePath sgyhdr = outioobj.fullUserExpr();
+    sgyhdr.setExtension( "sgyhdr" );
+    od_ostream strm( sgyhdr.fullPath() );
+    if ( !strm.isOK() )
+	return;
+
+    SeisTrcReader rdr( &inioobj );
+    if ( !rdr.prepareWork(Seis::PreScan) )
+	return;
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr.translator())
+    if ( !trans )
+	return;
+
+    const SEGY::TxtHeader& th = *trans->txtHeader();
+    BufferString buf; th.getText( buf );
+    strm << buf << od_endl;
+}
+
+
 bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 				bool doimp )
 {
@@ -476,6 +500,9 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	indexer->scanner()->getReport( rep, &inpiop );
 	uiSEGY::displayReport( parent(), rep );
     }
+
+    if ( doimp )
+	writeSEGYHeader( inioobj, outioobj );
 
     uiSeisIOObjInfo oinf( outioobj, true );
     return oinf.provideUserInfo();

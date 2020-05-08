@@ -76,7 +76,7 @@ static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = 0;
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
 		       mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
-    :uiObjFileMan(p,uiDialog::Setup(is2d
+    : uiObjFileMan(p,uiDialog::Setup(is2d
 	    ? uiStrings::phrManage(tr("2D Seismics"))
 	    : uiStrings::phrManage(tr("3D Seismics")),
 				    mNoDlgTitle,mHelpID)
@@ -123,6 +123,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     attribbut_ = manipgrp->addButton( "attributes", sShowAttributeSet(),
 				      mCB(this,uiSeisFileMan,showAttribSet) );
+    segyhdrbut_ = manipgrp->addButton( "segy", tr("Show SEG-Y EBCDIC Header"),
+				      mCB(this,uiSeisFileMan,showSEGYHeader) );
 
     mTriggerInstanceCreatedNotifier();
     selChg(0);
@@ -217,20 +219,25 @@ void uiSeisFileMan::setToolButtonProperties()
 		       uiStrings::phrManage(uiStrings::sLine(2)))
     }
 
-    if ( attribbut_ )
+    attribbut_->setSensitive( curioobj_ );
+    if ( curioobj_ )
     {
-	attribbut_->setSensitive( curioobj_ );
-	if ( curioobj_ )
-	{
-	     FilePath fp( curioobj_->fullUserExpr() );
-	     fp.setExtension( "proc" );
-	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
-	     mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
-			    toUiString(cursel),uiStrings::sEmptyString(),
-			    sShowAttributeSet())
-	}
-	else
-	    attribbut_->setToolTip( sShowAttributeSet() );
+	 FilePath fp( curioobj_->fullUserExpr() );
+	 fp.setExtension( "proc" );
+	 attribbut_->setSensitive( File::exists(fp.fullPath()) );
+	 mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
+			toUiString(cursel),uiStrings::sEmptyString(),
+			sShowAttributeSet())
+    }
+    else
+	attribbut_->setToolTip( sShowAttributeSet() );
+
+    segyhdrbut_->setSensitive( curioobj_ );
+    if ( curioobj_ )
+    {
+	 FilePath fp( curioobj_->fullUserExpr() );
+	 fp.setExtension( "sgyhdr" );
+	 segyhdrbut_->setSensitive( File::exists(fp.fullPath()) );
     }
 }
 
@@ -500,5 +507,15 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
 
     FilePath fp( curioobj_->fullUserExpr() );
     fp.setExtension( "proc" );
+    File::launchViewer( fp.fullPath(), File::ViewPars() );
+}
+
+
+void uiSeisFileMan::showSEGYHeader( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+
+    FilePath fp( curioobj_->fullUserExpr() );
+    fp.setExtension( "sgyhdr" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
 }

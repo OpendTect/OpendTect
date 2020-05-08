@@ -47,6 +47,7 @@ protected:
     bool		is2d_;
     uiToolButton*	browsebut_;
     uiToolButton*	attribbut_;
+    uiToolButton*	segyhdrbut_;
     uiToolButton*	copybut_;
     uiToolButton*	man2dlinesbut_;
     uiToolButton*	mergecubesbut_;
@@ -57,6 +58,7 @@ protected:
     void		man2DPush(CallBacker*);
     void		manPS(CallBacker*);
     void		showAttribSet(CallBacker*);
+    void		showSEGYHeader(CallBacker*);
 
     virtual void	mkFileInfo();
     virtual void	ownSelChg();
