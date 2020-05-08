@@ -89,6 +89,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     visserv->createToolBars();
 
+    uiSettsMgr().loadToolBarCmds();
+
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
     visserv->selectionmodeChange.notify(

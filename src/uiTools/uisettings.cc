@@ -56,7 +56,7 @@ namespace sKey {
 
 uiSettingsMgr& uiSettsMgr()
 {
-    mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr );
+    mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr )
     return *theinst.createIfNull();
 }
 
@@ -66,7 +66,6 @@ uiSettingsMgr::uiSettingsMgr()
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
-    loadToolBarCmds();
 }
 
 
@@ -96,10 +95,8 @@ void uiSettingsMgr::loadToolBarCmds()
 {
     uiToolBar* tb = applwin_.findToolBar( "User Commands" );
     if ( !tb )
-    {
 	tb = new uiToolBar( &applwin_, toUiString( "User Commands" ) );
-	applwin_.addToolBar( tb );
-    }
+
     tb->clear();
     commands_.erase();
     toolbarids_.erase();
