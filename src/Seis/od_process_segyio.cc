@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
+#include "segyhdr.h"
 #include "segyscanner.h"
 #include "segyfiledef.h"
 #include "scaler.h"
@@ -70,6 +71,16 @@ static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
 }
 
 
+static void writeSEGYHeader( const char* hdr, const IOObj& outioobj )
+{
+    FilePath sgyhdr = outioobj.fullUserExpr();
+    sgyhdr.setExtension( "sgyhdr" );
+    od_ostream strm( sgyhdr.fullPath() );
+    if ( strm.isOK() )
+	strm << hdr << od_endl;
+}
+
+
 static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
@@ -102,7 +113,15 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 	segytr->setCoordSys( crs );
 
     stp->setProcPars( *outpar, is2d );
-    return stp->go( strm );
+    const bool res = stp->go( strm );
+    if ( res && segytr && !is2d )
+    {
+	const SEGY::TxtHeader& th = *segytr->txtHeader();
+	BufferString buf; th.getText( buf );
+	writeSEGYHeader( buf, *outioobj );
+    }
+
+    return res;
 }
 
 
@@ -166,7 +185,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     }
 
     SEGY::FileSpec filespec;
-    if ( !filespec.usePar( iop ) )
+    if ( !filespec.usePar(iop) )
     {
 	strm << "Missing or invalid file name in parameter file\n";
 	return false;
@@ -197,7 +216,6 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     }
 
     report.write( strm, IOPar::sKeyDumpPretty() );
-
     return true;
 }
 
