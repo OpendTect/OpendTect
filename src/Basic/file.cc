@@ -586,7 +586,7 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     if ( !File::exists(oldname) )
     {
 	if ( errmsg )
-	    errmsg->append( uiStrings::phrDoesntExist(oldname) );
+	    errmsg->append( uiStrings::phrDoesntExist(::toUiString(oldname)) );
 	return false;
     }
 
@@ -611,7 +611,8 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 	if ( !File::createDir(targetbasedir) )
 	{
 	    if ( errmsg )
-		errmsg->append( uiStrings::phrCannotCreateDirectory(targetbasedir) );
+		errmsg->append( uiStrings::phrCannotCreateDirectory(
+						toUiString(targetbasedir)) );
 	    return false;
 	}
     }
@@ -619,7 +620,8 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     else if ( !File::isWritable(targetbasedir) )
     {
 	if ( errmsg )
-	    errmsg->append( uiStrings::phrCannotWrite(targetbasedir) );
+	    errmsg->append( uiStrings::phrCannotWrite(
+						toUiString(targetbasedir)) );
 	return false;
     }
 #endif
@@ -828,7 +830,7 @@ bool removeDir( const char* dirnm )
 
     QDir qdir( dirnm );
     return qdir.removeRecursively();
-#endif 
+#endif
 }
 
 
