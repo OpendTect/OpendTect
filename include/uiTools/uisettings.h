@@ -26,7 +26,7 @@ class uiGenInput;
 class uiTable;
 
 
-mClass(uiTools) uiSettingsMgr : public CallBacker
+mExpClass(uiTools) uiSettingsMgr : public CallBacker
 { mODTextTranslationClass(uiSettingsMgr);
 public:
 		uiSettingsMgr();
