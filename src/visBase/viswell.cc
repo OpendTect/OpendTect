@@ -116,6 +116,10 @@ Well::~Well()
     removeChild( track_->osgNode() );
     track_->unRef();
 
+    welltoptxt_->unRef();
+    wellbottxt_->unRef();
+    markernames_->unRef();
+
     markerset_->unRef();
 
     removeLogs();
