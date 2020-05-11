@@ -117,6 +117,10 @@ Well::~Well()
 
     markerset_->unRef();
 
+    welltoptxt_->unRef();
+    wellbottxt_->unRef();
+    markernames_->unRef();
+
     removeLogs();
     leftlogdisplay_->unref();
     rightlogdisplay_->unref();
