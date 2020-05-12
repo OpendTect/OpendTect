@@ -38,7 +38,7 @@ const char* OD::PythonAccess::sKeyPythonPath() { return "PythonPath"; }
 
 OD::PythonAccess& OD::PythA()
 {
-    mDefineStaticLocalObject( PtrMan<OD::PythonAccess>, theinst, = nullptr );
+    mDefineStaticLocalObject( PtrMan<PythonAccess>, theinst, = nullptr );
     return *theinst.createIfNull();
 }
 
@@ -98,6 +98,7 @@ BufferStringSet OD::PythonAccess::getBasePythonPath() const
     return pythonpaths;
 }
 
+
 void OD::PythonAccess::updatePythonPath()
 {
     BufferStringSet pythonpaths = getBasePythonPath();
@@ -118,7 +119,7 @@ void OD::PythonAccess::updatePythonPath()
 
 void OD::PythonAccess::initClass()
 {
-    GetEnvVarDirList("PYTHONPATH", pystartpath_, true);
+    GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
     updatePythonPath();
 
 #ifdef __win__
@@ -224,10 +225,15 @@ uiString OD::PythonAccess::pySummary() const
 uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 				     const char* scriptexpectedout ) const
 {
-    if ( force )
-	return isusable_ ? uiRetVal::OK() : uiRetVal( msg_ );
+    if ( !force && istested_ )
+    {
+	uiRetVal ret;
+	if ( !isusable_ && msg_.isEmpty() )
+	    ret.add( tr("Cannot run Python") );
+	return ret;
+    }
 
-    OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
+    PythonAccess& pytha = const_cast<PythonAccess&>( *this );
     const bool isusable = pytha.isUsable_( force, scriptstr,
 							scriptexpectedout );
     if ( isusable )
@@ -244,10 +250,6 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	ret.add( toUiString(stdoutstr) );
     if ( !stderrstr.isEmpty() )
 	ret.add( toUiString(stderrstr) );
-
-    if ( ret.isOK() )
-	ret.add( tr("Not usable") );
-
     return ret;
 }
 
@@ -255,11 +257,7 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
-    mDefineStaticLocalObject(bool, force_external,
-				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
-    if ( force_external )
-	return (isusable_ = istested_ = true);
-    if ( !force )
+    if ( !force && istested_ )
 	return isusable_;
 
     istested_ = true;
@@ -343,7 +341,10 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	comm.add( " --version" );
 
     const OS::MachineCommand cmd( comm );
-    bool res = doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm );
+    mDefineStaticLocalObject(bool, force_external,
+				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
+    bool res = force_external ? true
+	     : doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm );
     if ( !res )
 	return false;
 
@@ -352,7 +353,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 				       FixedString(scriptexpectedout)
 				     : res)
 		   : !laststdout_.isEmpty() || !laststderr_.isEmpty();
-    if ( !res )
+    if ( !res && !force_external )
 	return false;
 
     bool notrigger;
@@ -792,14 +793,13 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 {
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    OD::PythonSource source;
-    if (!OD::PythonSourceDef().parse( pythonsetts,
-				    OD::PythonAccess::sKeyPythonSrc(),source) )
-	source = OD::System;
+    PythonSource source;
+    if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
+	source = System;
 
-    if ( source == OD::Custom ) {
+    if ( source == Custom ) {
 	BufferString virtenvloc, virtenvnm;
-	pythonsetts.get(OD::PythonAccess::sKeyEnviron(),virtenvloc);
+	pythonsetts.get(sKeyEnviron(),virtenvloc);
 	pythonsetts.get(sKey::Name(),virtenvnm);
 	#ifdef __win__
 	fp = FilePath( virtenvloc, "envs", virtenvnm );
@@ -807,7 +807,7 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 	fp = FilePath( "/", virtenvloc, "envs", virtenvnm );
 	#endif
     }
-    else if (source == OD::Internal) {
+    else if (source == Internal) {
 	getPathToInternalEnv(fp, true);
 	fp.add("envs").add("odmlpython-cpu-mkl");
 	if (!fp.exists())
@@ -927,11 +927,6 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     if ( !isUsable_(!istested_) )
 	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
-    mDefineStaticLocalObject(bool, force_external_ok,
-				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
-    if ( force_external_ok )
-	return uiRetVal::OK();
-
     if ( !msg_.isEmpty() )
 	return uiRetVal( msg_ );
 
@@ -941,7 +936,7 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     genericName.add( "_requirements" );
     BufferString platSpecificName( piname );
     platSpecificName.add( "_requirements_" )
-		    .add(OD::Platform::local().shortName());
+		    .add(Platform::local().shortName());
 
     fp.add( platSpecificName ).setExtension( "txt" );
     if ( !fp.exists() )
@@ -1290,21 +1285,21 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	return retval;
     }
 
-    retval = OD::PythA().isUsable();
+    retval = PythA().isUsable();
     bool ret;
     if ( retval.isOK() )
     {
 	retval.setEmpty();
-	BufferString cmdstr( OD::PythA().sPythonExecNm() );
+	BufferString cmdstr( PythA().sPythonExecNm() );
 	BufferString pathstr( removeDirScript(path) );
 	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
 	cmdstr.addSpace().add( "-c" ).addSpace().add( pathstr );
 	const OS::MachineCommand cmd( cmdstr );
 
-	ret = OD::PythA().execute( cmd, waitforfin );
+	ret = PythA().execute( cmd, waitforfin );
 
 	uiString errmsg;
-	const BufferString errstr = OD::PythA().lastOutput( true, &errmsg );
+	const BufferString errstr = PythA().lastOutput( true, &errmsg );
 	if ( !errmsg.isEmpty() )
 	    retval.add( errmsg );
 	if ( !errstr.isEmpty() )
