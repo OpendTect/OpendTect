@@ -140,7 +140,7 @@ void uiSEGYReadFinisher::crSeisFields()
     transffld_->attach( alignedBelow, docopyfld_ );
 
     remnullfld_ = new uiGenInput( this, tr("Null traces"),
-			  BoolInpSpec(true,tr("Discard"),tr("Pass")) );
+		BoolInpSpec(true,uiStrings::sDiscard(),uiStrings::sPass()) );
     remnullfld_->attach( alignedBelow, docopyfld_ );
 
     if ( is2d )
