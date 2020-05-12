@@ -61,8 +61,8 @@ public:
     virtual bool		getSRD(float&)		{ return false; }
 				//!< return value must be in SI units (meters)
 
-    virtual void		fillPar(IOPar&)		{}
-    virtual void		fillLogPars(IOPar&);
+    virtual void		fillPar(IOPar&) const		{}
+    virtual void		fillLogPars(IOPar&) const;
     virtual bool		isAvailable() const	{ return true; }
 
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };

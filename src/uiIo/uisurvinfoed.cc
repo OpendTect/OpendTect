@@ -1018,10 +1018,12 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* )
 
 
 // uiSurvInfoProvider
-void uiSurvInfoProvider::fillLogPars( IOPar& par )
+void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 {
     par.setStdCreationEntries();
+    par.set( sKey::Type(), usrText() );
 }
+
 
 // uiCopySurveySIP
 static HiddenParam<uiCopySurveySIP,IOPar*> crspars_(nullptr);
@@ -1057,6 +1059,7 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     if ( !seldlg ) return false;
 
     const BufferString fname = seldlg->getSurveyPath();
+    othersurvey_ = fname;
     PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
     if ( !survinfo ) return false;
 
@@ -1089,6 +1092,13 @@ IOPar* uiCopySurveySIP::getCoordSystemPars() const
 
     IOPar* par = new IOPar( *crspars_.getParam( this ) );
     return par;
+}
+
+
+void uiCopySurveySIP::fillLogPars( IOPar& par ) const
+{
+    uiSurvInfoProvider::fillLogPars( par );
+    par.set( sKey::CrFrom(), othersurvey_ );
 }
 
 
@@ -1135,8 +1145,8 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     mDynamicCastGet(uiSurveyFileDlg*,filedlg,dlg)
     if ( !filedlg ) return false;
 
-    const BufferString fname = filedlg->inpfld_->fileName();
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, true );
+    filenm_ = filedlg->inpfld_->fileName();
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( filenm_, true );
     if ( !survinfo ) return false;
 
     cs = survinfo->sampling( false );
@@ -1163,4 +1173,11 @@ IOPar* uiSurveyFileSIP::getCoordSystemPars() const
     IOPar* crspar = new IOPar;
     coordsystem_->fillPar( *crspar );
     return crspar;
+}
+
+
+void uiSurveyFileSIP::fillLogPars( IOPar& par ) const
+{
+    uiSurvInfoProvider::fillLogPars( par );
+    par.set( sKey::CrFrom(), filenm_ );
 }

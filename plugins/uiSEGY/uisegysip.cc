@@ -13,6 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyreadstarter.h"
 #include "uisegyreadfinisher.h"
 
+#include "segyhdrdef.h"
+
+
+uiSEGYSurvInfoProvider::uiSEGYSurvInfoProvider()
+{}
+
+uiSEGYSurvInfoProvider::~uiSEGYSurvInfoProvider()
+{}
 
 
 uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
@@ -48,10 +56,25 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 }
 
 
-void uiSEGYSurvInfoProvider::fillLogPars( IOPar& par )
+static void addBytePars( IOPar& par, const IOPar& imppars, const char* key )
+{
+    int byte = -1;
+    if ( !imppars.get(key,byte) )
+	return;
+
+    byte++;
+    par.set( key, byte );
+}
+
+
+void uiSEGYSurvInfoProvider::fillLogPars( IOPar& par ) const
 {
     uiSurvInfoProvider::fillLogPars( par );
     par.set( sKey::CrFrom(), userfilename_ );
+    addBytePars( par, imppars_, SEGY::TrcHeaderDef::sInlByte() );
+    addBytePars( par, imppars_, SEGY::TrcHeaderDef::sCrlByte() );
+    addBytePars( par, imppars_, SEGY::TrcHeaderDef::sXCoordByte() );
+    addBytePars( par, imppars_, SEGY::TrcHeaderDef::sYCoordByte() );
 }
 
 

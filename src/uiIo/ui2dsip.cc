@@ -37,7 +37,13 @@ static const char* dlgtitle =
 "Specify working area values.\n"
 "No need to be precise, parts can lie outside the ranges.\n"
 "The values will determine the size of the display box,\n"
-"and provide some defaults a.o. for 3D horizon generation.";
+"and provide some defaults e.g. for 3D horizon generation.";
+
+ui2DSurvInfoProvider::ui2DSurvInfoProvider()
+{}
+
+ui2DSurvInfoProvider::~ui2DSurvInfoProvider()
+{}
 
 
 class ui2DDefSurvInfoDlg : public uiDialog
@@ -52,49 +58,43 @@ ui2DDefSurvInfoDlg( uiParent* p )
     FloatInpSpec fis;
     DoubleInpSpec dis;
 
-    uiGroup* maingrp = new uiGroup( this, "Main parameters" );
-    grdspfld_ = new uiGenInput( maingrp, tr("Default grid spacing for horizons")
-				,fis );
-    xrgfld_ = new uiGenInput( maingrp, uiStrings::phrXcoordinate(
-				       uiStrings::sRange()), dis, dis );
-    xrgfld_->attach( alignedBelow, grdspfld_ );
-    yrgfld_ = new uiGenInput( maingrp, uiStrings::phrYcoordinate(
-				       uiStrings::sRange()), dis, dis );
+    xrgfld_ = new uiGenInput( this, uiStrings::phrXcoordinate(
+				       uiStrings::sRange().toLower()),
+			      dis, dis );
+    xrgfld_->setElemSzPol( uiObject::Medium );
+
+    yrgfld_ = new uiGenInput( this, uiStrings::phrYcoordinate(
+				       uiStrings::sRange().toLower()),
+			      dis, dis );
     yrgfld_->attach( alignedBelow, xrgfld_ );
-    ismfld_ = new uiGenInput( maingrp, tr("Above values are in"),
-				      BoolInpSpec(true,uiStrings::sMeter(),
-				      uiStrings::sFeet()) );
+    yrgfld_->setElemSzPol( uiObject::Medium );
+
+    grdspfld_ = new uiGenInput( this,
+				tr("Default grid spacing for horizons"), fis );
+    grdspfld_->attach( alignedBelow, yrgfld_ );
+
+    ismfld_ = new uiGenInput( this, tr("Coordinates are in"),
+	    BoolInpSpec(true,uiStrings::sMeter(),uiStrings::sFeet()) );
     ismfld_->attach( alignedBelow, yrgfld_ );
 
     uiSeparator* optsep = new uiSeparator( this, "Optional" );
-    optsep->attach( stretchedBelow, maingrp );
+    optsep->attach( stretchedBelow, ismfld_ );
 
     uiLabel* zrglbl = new uiLabel( this, tr("Optional:") );
     zrglbl->attach( leftBorder );
     zrglbl->attach( ensureBelow, optsep );
 
-    uiGroup* optgrp = new uiGroup( this, "Optional parameters" );
-
-    const uiString zunitlbl(UnitOfMeasure::surveyDefZUnitAnnot(true,true));
-    zmaxfld_ = new uiGenInput( optgrp,
-	       tr( "[Z-max %1]").arg( zunitlbl), fis );
-    srfld_ = new uiGenInput( optgrp,
-	     tr( "[Default sampling rate %1]").arg(zunitlbl), fis);
-    srfld_->attach( alignedBelow, zmaxfld_ );
-
-    optgrp->attach( alignedBelow, maingrp );
-    optgrp->attach( ensureBelow, optsep );
+    const uiString zunitlbl( UnitOfMeasure::surveyDefZUnitAnnot(true,true) );
+    zfld_ = new uiGenInput( this, tr( "Z range %1").arg( zunitlbl),
+			DoubleInpIntervalSpec(true).setName("Z Start",0)
+						   .setName("Z Stop",1)
+						   .setName("Z step",2) );
+    zfld_->attach( alignedBelow, ismfld_ );
+    zfld_->attach( ensureBelow, zrglbl );
 }
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define cDefaultTWTMax 6000.0f
-#define cDefaultZMaxm 6000.0f
-#define cDefaultZMaxft 10000.0f
-#define cDefautSRms 2.0f
-#define cDefautSRm 5.0f
-#define cDefautSRft 15.0f
-
 
 bool acceptOK( CallBacker* )
 {
@@ -111,27 +111,6 @@ bool acceptOK( CallBacker* )
     if ( mIsUdf(c0) || mIsUdf(c1) )
 	mErrRet(tr("Invalid input coordinates"))
 
-    const bool zintime = SI().zDomain().isTime();
-    const bool zinft = SI().depthsInFeet();
-    const float defzmax = zintime ? cDefaultTWTMax
-				  : ( zinft ? cDefaultZMaxft : cDefaultZMaxm );
-    if ( mIsUdf(zmaxfld_->getfValue()) )
-	zmaxfld_->setValue( defzmax );
-
-    const float defsr = zintime ? cDefautSRms
-				: ( zinft ? cDefautSRft : cDefautSRm );
-    if ( mIsUdf(srfld_->getfValue()) )
-	srfld_->setValue( defsr );
-
-    if ( zmaxfld_->getfValue() < 0 )
-	mErrRet(tr("Z Max should be strictly positive"))
-
-	if (srfld_->getfValue() < 0)
-	mErrRet(tr("The default sampling rate should be strictly positive"))
-
-	    if (zmaxfld_->getfValue() < srfld_->getfValue())
-	mErrRet(tr("Z Max should be larger than the sampling rate"))
-
     return true;
 }
 
@@ -139,8 +118,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		xrgfld_;
     uiGenInput*		yrgfld_;
     uiGenInput*		ismfld_;
-    uiGenInput*		zmaxfld_;
-    uiGenInput*		srfld_;
+    uiGenInput*		zfld_;
 
 };
 
@@ -176,6 +154,13 @@ static bool getRanges( TrcKeyZSampling& cs, Coord crd[3],
 }
 
 
+#define cDefaultZMaxS 6.0f
+#define cDefaultZMaxM 6000.0f
+#define cDefaultZMaxF 10000.0f
+#define cDefaultSrS 0.004f
+#define cDefaultSrM 5.0f
+#define cDefaultSrF 15.0f
+
 bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 				    Coord crd[3] )
 {
@@ -193,15 +178,25 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     if ( !getRanges(cs,crd,c0,c1,grdsp) )
 	return false;
 
-    const float zfac = SI().showZ2UserFactor();
-    cs.zsamp_.start = 0.f;
-    cs.zsamp_.stop = dlg->zmaxfld_->getfValue() / zfac;
-    cs.zsamp_.step = dlg->srfld_->getfValue() / zfac;
+    if ( SI().zIsTime() )
+	cs.zsamp_.set( 0.f, cDefaultZMaxS, cDefaultSrS );
+    else if ( SI().zInFeet() )
+	cs.zsamp_.set( 0.f, cDefaultZMaxF, cDefaultSrF );
+    else
+	cs.zsamp_.set( 0.f, cDefaultZMaxM, cDefaultSrM );
 
     xyft_ = !dlg->ismfld_->getBoolValue();
 
     return true;
 }
+
+
+void ui2DSurvInfoProvider::fillLogPars( IOPar& par ) const
+{
+    uiSurvInfoProvider::fillLogPars( par );
+    par.set( sKey::CrFrom(), "Min/max X/Y coordinates" );
+}
+
 
 
 // uiNavSurvInfoProvider
@@ -319,6 +314,13 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     Coord c1( xrg.stop, yrg.stop );
     const double grdsp = 25.;
     return getRanges(tkzs,crd,c0,c1,grdsp);
+}
+
+
+void uiNavSurvInfoProvider::fillLogPars( IOPar& par ) const
+{
+    uiSurvInfoProvider::fillLogPars( par );
+    par.set( sKey::CrFrom(), "Navigation Data" );
 }
 
 

@@ -20,20 +20,21 @@ namespace Survey { class Geometry2D; }
 mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(ui2DSurvInfoProvider);
 public:
-			ui2DSurvInfoProvider()
-			    : xyft_(false)	{}
+			ui2DSurvInfoProvider();
+			~ui2DSurvInfoProvider();
 
     virtual const char*	usrText() const		{ return "Set for 2D only"; }
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
-    virtual const char*	iconName() const
-					{ return "seismicline2dcollection"; }
+
+    virtual void	fillLogPars(IOPar&) const;
 
     virtual bool	xyInFeet() const	{ return xyft_; }
+    virtual const char*	iconName() const   { return "seismicline2dcollection"; }
 
 protected:
 
-    bool		xyft_;
+    bool		xyft_		= false;
 };
 
 
@@ -50,6 +51,7 @@ public:
 					Coord crd[3]);
     virtual const char*		iconName() const;
 
+    virtual void		fillLogPars(IOPar&) const;
     virtual IOPar*		getImportPars() const;
     virtual void		startImport(uiParent*,const IOPar&);
     virtual const char*		importAskQuestion() const;

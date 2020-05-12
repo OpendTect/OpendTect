@@ -21,8 +21,8 @@ mExpClass(uiSEGY) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(uiSEGYSurvInfoProvider)
 public:
 
-			uiSEGYSurvInfoProvider()
-			    : xyinft_(false)	{}
+			uiSEGYSurvInfoProvider();
+			~uiSEGYSurvInfoProvider();
 
     const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
     uiDialog*		dialog(uiParent*);
@@ -30,14 +30,14 @@ public:
     bool		xyInFeet() const	{ return xyinft_; }
     virtual const char*	iconName() const	{ return "segy"; }
 
-    void		fillLogPars(IOPar&);
+    void		fillLogPars(IOPar&) const;
     IOPar*		getImportPars() const;
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
     const uiString	importAskUiQuestion() const;
 
     IOPar		imppars_;
-    bool		xyinft_;
+    bool		xyinft_			= false;
     BufferString	userfilename_;
 
 };

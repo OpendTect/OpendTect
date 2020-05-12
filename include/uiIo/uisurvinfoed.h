@@ -153,15 +153,18 @@ public:
     virtual const char*	usrText() const	{ return "Copy from other survey"; }
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
-    virtual const char*	iconName() const	{ return "copyobj"; }
+
+    virtual void	fillLogPars(IOPar&) const;
 
     virtual TDInfo	tdInfo() const		{ return tdinf_; }
     virtual bool	xyInFeet() const	{ return inft_; }
+    virtual const char*	iconName() const	{ return "copyobj"; }
 
     IOPar*		getCoordSystemPars() const;
 
 protected:
 
+    BufferString	othersurvey_;
     TDInfo		tdinf_;
     bool		inft_;
     BufferStringSet	survlist_;
@@ -181,21 +184,23 @@ public:
     virtual const char* usrText() const;
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
-    virtual const char* iconName() const	{ return "ascii"; }
+
+    virtual void	fillLogPars(IOPar&) const;
 
     virtual TDInfo	tdInfo() const		{ return tdinf_; }
     virtual bool	xyInFeet() const	{ return inft_; }
+    virtual const char* iconName() const	{ return "ascii"; }
 
     virtual IOPar*	getCoordSystemPars() const;
 
 protected:
 
+    BufferString	filenm_;
     TDInfo		tdinf_;
     bool		inft_;
     BufferString	surveynm_;
     RefMan<Coords::CoordSystem> coordsystem_;
 
 };
-
 
 #endif
