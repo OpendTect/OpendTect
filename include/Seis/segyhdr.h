@@ -46,7 +46,7 @@ public:
     void	clear()			{ clearText(); setLineStarts(); }
 
     void	setUserInfo(const char*);
-    void	setSurveySetupInfo(Coords::CoordSystem*);
+    void	setSurveySetupInfo(const Coords::CoordSystem*);
     void	setPosInfo(const TrcHeaderDef&);
     void	setStartPos(float);
 

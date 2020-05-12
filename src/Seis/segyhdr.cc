@@ -93,7 +93,7 @@ SEGY::TxtHeader::TxtHeader( int rev )
 }
 
 
-void SEGY::TxtHeader::setSurveySetupInfo( Coords::CoordSystem* crs )
+void SEGY::TxtHeader::setSurveySetupInfo( const Coords::CoordSystem* crs )
 {
     BufferString str;
     const char* res = Settings::common().find( "Company" );
@@ -372,11 +372,11 @@ DataCharacteristics SEGY::BinHeader::getDataChar( int nf, bool swpd )
     switch ( nf )
     {
     case 3:
-        dc.setNrBytes( 2 );
+	dc.setNrBytes( 2 );
     case 2:
     break;
     case 8:
-        dc.setNrBytes( 1 );
+	dc.setNrBytes( 1 );
     break;
     case 5:
 	dc.fmt_ = DataCharacteristics::Ieee;
