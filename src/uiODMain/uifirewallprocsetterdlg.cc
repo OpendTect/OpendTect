@@ -137,8 +137,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 #define mGetAddBool \
     if ( addremfld_ && addremfld_->isDisplayed() ) \
 	toadd_ = addremfld_->getBoolValue(); \
-    else \
-	toadd_ = ePDD().getActionType() == PDE::Add; \
 
 #define mGetData \
     mGetAddBool \
