@@ -50,6 +50,21 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
 }
 
 
+void uiTextEditBase::setWidthInChar(int nrchar)
+{
+    QString qstr( nrchar, 'X' );
+    const int width = qte().fontMetrics().width( qstr );
+    setPrefWidth( width+1 );
+}
+
+
+void uiTextEditBase::setHeightInChar( int nrchar )
+{
+    const int height = qte().fontMetrics().height();
+    setPrefHeight( nrchar*height );
+}
+
+
 void uiTextEditBase::setEmpty()
 {
     qte().clear();
@@ -74,7 +89,7 @@ void uiTextEditBase::allowTextSelection( bool yn )
     Qt::TextInteractionFlags flags = qte().textInteractionFlags() & mask;
 
     if ( yn )
-        flags |= selflag;
+	flags |= selflag;
 
     qte().setTextInteractionFlags( flags );
 }
@@ -239,7 +254,7 @@ class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
 {
 public:
 
-                        uiTextEditBody(uiTextEdit&,uiParent*,
+			uiTextEditBody(uiTextEdit&,uiParent*,
 				       const char* nm,bool ro);
 			~uiTextEditBody()	{ delete &messenger_; }
 
@@ -329,7 +344,7 @@ class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
 {
 public:
 
-                        uiTextBrowserBody(uiTextBrowser&,uiParent*,const char*,
+			uiTextBrowserBody(uiTextBrowser&,uiParent*,const char*,
 					  bool plaintxt );
     virtual		~uiTextBrowserBody();
 
@@ -606,7 +621,7 @@ void uiTextBrowser::setSource( const char* src )
 	    readFromFile( src );
     }
     else
-        body_->setSource( QUrl(src) );
+	body_->setSource( QUrl(src) );
 }
 
 

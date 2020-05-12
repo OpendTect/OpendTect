@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibatchjobdispatchersel.h"
 #include "uicompoundparsel.h"
+#include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uifiledlg.h"
 #include "uilabel.h"
@@ -76,8 +77,9 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     rtb->attach( leftOf, wtb );
 
     edfld_ = new uiTextEdit( this, "Hdr edit" );
-    edfld_->setPrefWidthInChar( 81 );
-    edfld_->setPrefHeightInChar( 24 );
+    edfld_->setStretch( 0, 1 );
+    edfld_->setWidthInChar( 80 );
+    edfld_->setPrefHeightInChar( 25 );
     if ( hdr_.isEmpty() )
     {
 	SEGY::TxtHeader th; th.clear();
@@ -178,14 +180,16 @@ BufferString getSummary() const
 
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
-	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),
-				     uiStrings::phrExport( "to SEG-Y"),
-				     mODHelpKey(mSEGYExpHelpID)).modal(false))
-	, geom_(gt)
-	, morebox_(0)
-	, manipbox_(0)
-	, batchfld_(0)
-	, autogentxthead_(true)
+    : uiDialog(p,uiDialog::Setup(tr("Export Seismic Data to SEG-Y"),
+				 mNoDlgTitle,
+				 mODHelpKey(mSEGYExpHelpID)).modal(false))
+    , geom_(gt)
+    , autogentxthead_(true)
+    , morebox_(nullptr)
+    , manipbox_(nullptr)
+    , batchfld_(nullptr)
+    , othercrsfld_(nullptr)
+    , coordsysselfld_(nullptr)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
@@ -201,14 +205,23 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     transffld_ = new uiSeisTransfer( this, tsu );
     transffld_->attach( alignedBelow, seissel_ );
 
-    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    coordsysselfld_->attach( alignedBelow, transffld_ );
-    const bool shoulddisplay = SI().getCoordSystem() &&
-				    SI().getCoordSystem()->isProjection();
-    coordsysselfld_->display( shoulddisplay );
+    uiObject* attachobj = transffld_->attachObj();
+
+    const bool hasproj = SI().getCoordSystem() &&
+			 SI().getCoordSystem()->isProjection();
+    if ( hasproj )
+    {
+	othercrsfld_ = new uiGenInput( this, tr("Export to other CRS"),
+				       BoolInpSpec(false) );
+	othercrsfld_->attach( alignedBelow, transffld_ );
+	mAttachCB( othercrsfld_->valuechanged, uiSEGYExp::crsCB );
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach( alignedBelow, othercrsfld_ );
+	attachobj = coordsysselfld_->attachObj();
+    }
 
     fpfld_ = new uiSEGYFilePars( this, false,0, false );
-    fpfld_->attach( alignedBelow, coordsysselfld_ );
+    fpfld_->attach( alignedBelow, attachobj );
 
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
     txtheadfld_->attach( alignedBelow, fpfld_ );
@@ -249,9 +262,24 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
 void uiSEGYExp::inpSel( CallBacker* )
 {
+    crsCB( nullptr );
     const IOObj* ioobj = seissel_->ioobj(true);
-    if ( ioobj )
-	transffld_->updateFrom( *ioobj );
+    if ( !ioobj )
+	return;
+
+    transffld_->updateFrom( *ioobj );
+
+    const FilePath fp = ioobj->fullUserExpr();
+    FilePath fnm( GetSurveyExportDir(), fp.baseName() );
+    fnm.setExtension( "sgy" );
+    fsfld_->setFileName( fnm.fullPath() );
+}
+
+
+void uiSEGYExp::crsCB( CallBacker* )
+{
+    if ( coordsysselfld_ )
+	coordsysselfld_->display( othercrsfld_->getBoolValue() );
 }
 
 
@@ -418,9 +446,13 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
 
-    SEGY::FilePars filepars = fpfld_->getPars();
-    filepars.setCoordSys( coordsysselfld_->getCoordSystem() );
-    fpfld_->setPars( filepars );
+    const bool usecrs = othercrsfld_ && othercrsfld_->getBoolValue();
+    if ( usecrs )
+    {
+	SEGY::FilePars filepars = fpfld_->getPars();
+	filepars.setCoordSys( coordsysselfld_->getCoordSystem() );
+	fpfld_->setPars( filepars );
+    }
 
     fpfld_->fillPar( outioobj->pars() );
     const bool is2d = Seis::is2D( geom_ );
@@ -439,7 +471,9 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 	transffld_->fillPar( outpars );
 	fpfld_->fillPar( outpars );
 	fsfld_->fillPar( outpars );
-	coordsysselfld_->getCoordSystem()->fillPar( outpars );
+	if ( usecrs )
+	    coordsysselfld_->getCoordSystem()->fillPar( outpars );
+
 // TODO: Support header text
 	js.pars_.mergeComp( outpars, sKey::Output() );
 	batchfld_->start();
@@ -517,7 +551,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	SeisTrcTranslator* transl =
 			const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
 	mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-	if ( segytr )
+	const bool usecrs = othercrsfld_ && othercrsfld_->getBoolValue();
+	if ( segytr && usecrs )
 	    segytr->setCoordSys( coordsysselfld_->getCoordSystem() );
 
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() && segytr )

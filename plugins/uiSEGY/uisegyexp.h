@@ -15,16 +15,17 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "iopar.h"
 #include "uistring.h"
-#include "uicoordsystem.h"
 
 class IOObj;
 class uiBatchJobDispatcherSel;
 class uiCheckBox;
+class uiGenInput;
 class uiSEGYFilePars;
 class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
 class uiSeisSel;
 class uiSeisTransfer;
+namespace Coords { class uiCoordSystemSel; }
 
 
 /*\brief SEG-Y exporting dialog */
@@ -51,9 +52,12 @@ protected:
     uiCheckBox*		morebox_;
     uiCheckBox*		manipbox_;
     uiBatchJobDispatcherSel* batchfld_;
+
+    uiGenInput*		othercrsfld_;
     Coords::uiCoordSystemSel* coordsysselfld_;
 
     void		inpSel(CallBacker*);
+    void		crsCB(CallBacker*);
     void		batchChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
