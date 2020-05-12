@@ -311,6 +311,7 @@ public:
     static uiString sDepth()		{ return tr("Depth"); }
     static uiString sDip()		{ return tr("Dip"); }
     static uiString sDisabled()		{ return tr("Disabled"); }
+    static uiString sDiscard()		{ return tr("Discard"); }
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDistance()		{ return tr("Distance"); }
     static uiString sDone()		{ return tr("Done"); }
@@ -431,6 +432,7 @@ public:
     static uiString sOutputASCIIFile();
     static uiString sOverwrite()	{ return tr("Overwrite"); }
     static uiString sParFile()		{ return tr("Par File"); }
+    static uiString sPass()		{ return tr("Pass"); }
     static uiString sPause()		{ return tr("Pause"); }
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
     static uiString sPercentageDone()	{ return tr("Percentage done"); }
@@ -447,7 +449,7 @@ public:
     static uiString sProbDensFunc(bool abbrevation=false, int num=1);
     static uiString sProgram()		{ return tr("Program"); }
     static uiString sProperties();
-    static uiString sRange(int num=1)	{ return tr("Range",0,1); }
+    static uiString sRange(int num=1)	{ return tr("Range",0,num); }
     static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRed()		{ return tr("Red"); }
