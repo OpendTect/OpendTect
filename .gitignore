@@ -92,6 +92,7 @@ CTestCustom.cmake
 *.opensdf
 *.db
 .vs/*
+qtcsettings.cmake
 
 
 #Temporary files
