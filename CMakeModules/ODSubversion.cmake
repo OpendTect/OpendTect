@@ -9,15 +9,17 @@ if ( EXISTS ${CMAKE_SOURCE_DIR}/.svn )
     set ( OD_FROM_SVN 1 )
 endif()
 
-# the FindSubversion.cmake module is part of the standard distribution
-if ( WIN32 )
-    set ( CMAKE_SYSTEM_PROGRAM_PATH ${CMAKE_SYSTEM_PROGRAM_PATH}
-	    "C:/Program Files/SlikSvn/bin"
-	    "C:/Program Files (x86)/SlikSvn/bin" )
-    #Add more likely paths if need be
-endif()
+if ( OD_FROM_SVN )
+    # the FindSubversion.cmake module is part of the standard distribution
+    if ( WIN32 )
+	set ( CMAKE_SYSTEM_PROGRAM_PATH ${CMAKE_SYSTEM_PROGRAM_PATH}
+		"C:/Program Files/SlikSvn/bin"
+		"C:/Program Files (x86)/SlikSvn/bin" )
+	#Add more likely paths if need be
+    endif()
 
-include(FindSubversion)
+    include(FindSubversion)
+endif( OD_FROM_SVN )
 
 # extract working copy information for SOURCE_DIR into MY_XXX variables
 if ( Subversion_FOUND AND OD_FROM_SVN )
