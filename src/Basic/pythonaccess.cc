@@ -37,7 +37,7 @@ BufferStringSet OD::PythonAccess::pystartpath_{0};
 
 OD::PythonAccess& OD::PythA()
 {
-    mDefineStaticLocalObject( PtrMan<OD::PythonAccess>, theinst, = nullptr );
+    mDefineStaticLocalObject( PtrMan<PythonAccess>, theinst, = nullptr );
     return *theinst.createIfNull();
 }
 
@@ -118,7 +118,7 @@ void OD::PythonAccess::updatePythonPath()
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
-    OD::PythA().updatePythonPath();
+    PythA().updatePythonPath();
 }
 
 
@@ -174,7 +174,7 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 	return ret;
     }
 
-    OD::PythonAccess& pytha = const_cast<OD::PythonAccess&>( *this );
+    PythonAccess& pytha = const_cast<PythonAccess&>( *this );
     const bool isusable = pytha.isUsable_( force, scriptstr,
 							scriptexpectedout );
     if ( isusable )
@@ -198,10 +198,6 @@ uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
 bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 				 const char* scriptexpectedout )
 {
-    mDefineStaticLocalObject(bool, force_external,
-				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
-    if ( force_external )
-	return (isusable_ = istested_ = true);
     if ( !force && istested_ )
 	return isusable_;
 
@@ -285,7 +281,10 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
     else
 	cmd.addFlag( "version" );
 
-    bool res = doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm );
+    mDefineStaticLocalObject(bool, force_external,
+				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
+    bool res = force_external ? true
+	     : doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm );
     if ( !res )
 	return false;
 
@@ -294,7 +293,7 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
 				       FixedString(scriptexpectedout)
 				     : res)
 		   : !laststdout_.isEmpty() || !laststderr_.isEmpty();
-    if ( !res )
+    if ( !res && !force_external )
 	return false;
 
     bool notrigger;
@@ -424,25 +423,25 @@ bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 BufferString OD::PythonAccess::getDataTypeStr( OD::DataRepType typ )
 {
     BufferString ret;
-    if ( typ == OD::F32 )
+    if ( typ == F32 )
 	ret.set( "float32" );
-    else if ( typ == OD::F64 )
+    else if ( typ == F64 )
 	ret.set( "float64" );
-    else if ( typ == OD::SI8 )
+    else if ( typ == SI8 )
 	ret.set( "int8" );
-    else if ( typ == OD::UI8 )
+    else if ( typ == UI8 )
 	ret.set( "uint8" );
-    else if ( typ == OD::SI16 )
+    else if ( typ == SI16 )
 	ret.set( "int16" );
-    else if ( typ == OD::UI16 )
+    else if ( typ == UI16 )
 	ret.set( "uint16" );
-    else if ( typ == OD::SI32 )
+    else if ( typ == SI32 )
 	ret.set( "int32" );
-    else if ( typ == OD::UI32 )
+    else if ( typ == UI32 )
 	ret.set( "uint32" );
-    else if ( typ == OD::SI64 )
+    else if ( typ == SI64 )
 	ret.set( "int64" );
-/*    else if ( typ == OD::UI64 )
+/*    else if ( typ == UI64 )
 	ret.set( "uint64" );*/
 
     return ret;
@@ -451,28 +450,28 @@ BufferString OD::PythonAccess::getDataTypeStr( OD::DataRepType typ )
 
 OD::DataRepType OD::PythonAccess::getDataType( const char* str )
 {
-    OD::DataRepType ret = OD::AutoDataRep;
+    DataRepType ret = AutoDataRep;
     const FixedString typestr( str );
     if ( typestr == "float32" )
-	ret = OD::F32;
+	ret = F32;
     else if ( typestr == "float64" )
-	ret = OD::F64;
+	ret = F64;
     else if ( typestr == "int8" )
-	ret = OD::SI8;
+	ret = SI8;
     else if ( typestr == "uint8" )
-	ret = OD::UI8;
+	ret = UI8;
     else if ( typestr == "int16" )
-	ret = OD::SI16;
+	ret = SI16;
     else if ( typestr == "uint16" )
-	ret = OD::UI16;
+	ret = UI16;
     else if ( typestr == "int32" )
-	ret = OD::SI32;
+	ret = SI32;
     else if ( typestr == "uint32" )
-	ret = OD::UI32;
+	ret = UI32;
     else if ( typestr == "int64" )
-	ret = OD::SI64;
+	ret = SI64;
     else if ( typestr == "uint64" )
-	ret = OD::SI64;
+	ret = SI64;
 
     return ret;
 }
@@ -876,11 +875,6 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     if ( !isUsable_(!istested_) )
 	return uiRetVal( tr("Could not detect a valid Python installation.") );
 
-    mDefineStaticLocalObject(bool, force_external_ok,
-				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
-    if ( force_external_ok )
-	return uiRetVal::OK();
-
     if ( !msg_.isEmpty() )
 	return uiRetVal( msg_ );
 
@@ -890,7 +884,7 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
     genericName.add( "_requirements" );
     BufferString platSpecificName( piname );
     platSpecificName.add( "_requirements_" )
-		    .add(OD::Platform::local().shortName());
+		    .add(Platform::local().shortName());
 
     fp.add( platSpecificName ).setExtension( "txt" );
     if ( !fp.exists() )
@@ -1218,20 +1212,20 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	return retval;
     }
 
-    retval = OD::PythA().isUsable();
+    retval = PythA().isUsable();
     bool ret;
     if ( retval.isOK() )
     {
 	retval.setEmpty();
 	BufferString pathstr( removeDirScript(path) );
 	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
-	OS::MachineCommand cmd = OD::PythA().sPythonExecNm();
+	OS::MachineCommand cmd = PythA().sPythonExecNm();
 	cmd.addArg( "-c" ).addArg( pathstr );
 
-	ret = OD::PythA().execute( cmd, waitforfin );
+	ret = PythA().execute( cmd, waitforfin );
 
 	uiString errmsg;
-	const BufferString errstr = OD::PythA().lastOutput( true, &errmsg );
+	const BufferString errstr = PythA().lastOutput( true, &errmsg );
 	if ( !errmsg.isEmpty() )
 	    retval.add( errmsg );
 	if ( !errstr.isEmpty() )
