@@ -783,14 +783,13 @@ void OD::PythonAccess::GetPythonEnvPath( File::Path& fp )
 {
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    OD::PythonSource source;
-    if (!OD::PythonSourceDef().parse( pythonsetts,
-				    OD::PythonAccess::sKeyPythonSrc(),source) )
-	source = OD::System;
+    PythonSource source;
+    if (!PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(),source) )
+	source = System;
 
-    if ( source == OD::Custom ) {
+    if ( source == Custom ) {
 	BufferString virtenvloc, virtenvnm;
-	pythonsetts.get(OD::PythonAccess::sKeyEnviron(),virtenvloc);
+	pythonsetts.get(sKeyEnviron(),virtenvloc);
 	pythonsetts.get(sKey::Name(),virtenvnm);
 	#ifdef __win__
 	fp = File::Path( virtenvloc, "envs", virtenvnm );
@@ -798,11 +797,14 @@ void OD::PythonAccess::GetPythonEnvPath( File::Path& fp )
 	fp = File::Path( "/", virtenvloc, "envs", virtenvnm );
 	#endif
     }
-    else if (source == OD::Internal) {
-	getInternalEnvironmentLocation(fp, true);
-	fp.add("envs").add("odmlpython-cpu-mkl");
-	if (!fp.exists())
-	    getInternalEnvironmentLocation(fp, true);
+    else if (source == Internal) {
+	ManagedObjectSet<FilePath> fps;
+	BufferStringSet envnms;
+	getSortedVirtualEnvironmentLoc( fps, envnms );
+	if ( fps.size()<1 )
+	    return;
+	fp = *fps[0];
+	fp.add("envs").add(envnms.get(0));
     }
 }
 
