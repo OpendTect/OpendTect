@@ -67,12 +67,10 @@ uiSettingsMgr& uiSettsMgr()
 
 
 uiSettingsMgr::uiSettingsMgr()
-    : applwin_(*uiMain::theMain().topLevel())
-    , terminalRequested(this)
+    : terminalRequested(this)
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
-    loadToolBarCmds();
 }
 
 
@@ -99,15 +97,25 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
 }
 
 
-void uiSettingsMgr::loadToolBarCmds()
+void uiSettingsMgr::loadToolBarCmds( uiMainWin& applwin )
 {
-    uiToolBar* tb = applwin_.findToolBar( "User Commands" );
-    if ( !tb )
+    if ( !usercmdtb_ )
     {
-	tb = new uiToolBar( &applwin_, toUiString( "User Commands" ) );
-	applwin_.addToolBar( tb );
+	usercmdtb_ = applwin.findToolBar( "User Commands" );
+	if ( !usercmdtb_ )
+	    usercmdtb_ = new uiToolBar( &applwin, tr("User Commands") );
     }
-    tb->clear();
+
+    updateUserCmdToolBar();
+}
+
+
+void uiSettingsMgr::updateUserCmdToolBar()
+{
+    if ( !usercmdtb_ )
+	return;
+
+    usercmdtb_->clear();
     commands_.erase();
     toolbarids_.erase();
 
@@ -126,7 +134,7 @@ void uiSettingsMgr::loadToolBarCmds()
 	if ( File::findExecutable( exenm, paths ).isEmpty() )
 	    return;
 
-	int id = tb->addButton( exenm, toUiString(exenm),
+	int id = usercmdtb_->addButton( exenm, toUiString(exenm),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( exenm );
@@ -139,7 +147,7 @@ void uiSettingsMgr::loadToolBarCmds()
 	idepar->get( sKey::Arguments(), args );
 	idepar->get( sKey::ToolTip(), tip );
 	idepar->get( sKey::IconFile(), iconfile );
-	int id = tb->addButton( iconfile, toUiString(tip),
+	int id = usercmdtb_->addButton( iconfile, toUiString(tip),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	cmd.addSpace().add(args);
@@ -153,6 +161,7 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     mDynamicCastGet(uiAction*,action,cb);
     if ( !action )
 	return;
+
     const int tbid = action->getID();
     int idx = toolbarids_.indexOf( tbid );
     if ( !toolbarids_.validIdx( idx ) )
@@ -161,8 +170,7 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     OS::MachineCommand cmd( commands_.get( idx ) );
     uiString err;
     int pid;
-    if (!OD::PythA().execute(cmd, OS::CommandExecPars(OS::RunInBG),
-	&pid, &err))
+    if ( !OD::PythA().execute(cmd,OS::CommandExecPars(OS::RunInBG),&pid, &err) )
     {
 	gUiMsg(nullptr).error(tr("Error starting %1").arg(commands_.get(idx)),
 			      err);
@@ -835,7 +843,7 @@ bool acceptOK()
 	    OD::PythA().istested_ = false;
 	    OD::PythA().envChangeCB( nullptr );
 	    needrestore_ = false;
-	    uiSettsMgr().loadToolBarCmds();
+	    uiSettsMgr().updateUserCmdToolBar();
 	}
     }
     else

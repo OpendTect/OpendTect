@@ -23,6 +23,7 @@ class uiCheckList;
 class uiGenInput;
 class uiIconSetSel;
 class uiLabel;
+class uiMainWin;
 class uiSettingsSubjectTreeItm;
 class uiTable;
 class uiThemeSel;
@@ -36,19 +37,21 @@ public:
 		uiSettingsMgr();
 		~uiSettingsMgr();
 
-    void	loadToolBarCmds();
-    Notifier<uiSettingsMgr> terminalRequested;
+    void	loadToolBarCmds(uiMainWin&);
+    void	updateUserCmdToolBar();
 
-protected:
-    void	doToolBarCmdCB(CallBacker*);
+    Notifier<uiSettingsMgr> terminalRequested;
 
 private:
 
     void	keyPressedCB(CallBacker*);
+    void	doToolBarCmdCB(CallBacker*);
+
     BufferStringSet	commands_;
     TypeSet<int>	toolbarids_;
 
-    uiMainWin&	applwin_;
+    uiToolBar*	usercmdtb_ = nullptr;
+
 };
 
 
