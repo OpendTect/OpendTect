@@ -798,7 +798,7 @@ void OD::PythonAccess::GetPythonEnvPath( File::Path& fp )
 	#endif
     }
     else if (source == Internal) {
-	ManagedObjectSet<FilePath> fps;
+	ManagedObjectSet<File::Path> fps;
 	BufferStringSet envnms;
 	getSortedVirtualEnvironmentLoc( fps, envnms );
 	if ( fps.size()<1 )

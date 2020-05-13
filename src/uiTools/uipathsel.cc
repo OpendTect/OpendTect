@@ -16,11 +16,11 @@ ________________________________________________________________________
 #include "uifileselector.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
-#include "uistrings.h"
+
 
 uiPathListEditor::uiPathListEditor( uiParent* p, const BufferStringSet& paths )
-: uiEditObjectList(p,tr("paths"),true,true)
-, paths_(paths)
+  : uiEditObjectList(p,tr("paths"),true,true)
+  , paths_(paths)
 {
     listfld_->setHSzPol( uiObject::WideMax );
     fillList( 0 );
@@ -79,8 +79,8 @@ void uiPathListEditor::itemSwitch( bool up )
 
 
 uiPathSel::uiPathSel( uiParent* p, const uiString& caption )
-: uiCheckedCompoundParSel(p,uiString::emptyString(),false,uiStrings::sEdit())
-, selChange(this)
+    : uiCheckedCompoundParSel(p,uiString::empty(),false,uiStrings::sEdit())
+    , selChange(this)
 {
     txtfld_->setElemSzPol( uiObject::WideVar );
     txtfld_->setTitleText( caption );
