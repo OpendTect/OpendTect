@@ -83,7 +83,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	toadd_ = acttyp == PDE::Add;
 
     init();
-    PDE::ActionType ty = ePDD().getActionType();
 
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
@@ -120,11 +119,13 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
     }
     pythonproclistbox_->display( addremfld_|| !pyprocdescs_.isEmpty() );
 
+    PDE::ActionType ty = ePDD().getActionType();
     if ( ty != PDE::AddNRemove )
     {
        setOkText( PDE::ActionTypeDef().getUiStringForIndex(ty) );
        if ( addremfld_ )
 	   addremfld_->display( false );
+       toadd_ = ty == PDE::Add;
        selectionChgCB(0);
     }
 
@@ -188,6 +189,9 @@ void uiFirewallProcSetter::selectionChgCB( CallBacker* )
 void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 {
     int selidx = odproclistbox_->currentItem();
+    if ( selidx < 0 )
+	return;
+
     const int v6procsz = odv6procnms_.size();
     BufferString procfp;
     FilePath exefp( exepath_ );
@@ -220,6 +224,9 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
 {
     const int selidx = pythonproclistbox_->currentItem();
+    if ( selidx < 0 )
+	return;
+
     FilePath exefp( pypath_ );
     exefp.add( *pyprocnms_[selidx] );
     const BufferString procfp = exefp.fullPath();

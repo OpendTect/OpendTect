@@ -45,7 +45,7 @@ namespace ProcDesc
     mExpClass(Basic) Data : public ManagedObjectSet<DataEntry>
     {
     public:
-				Data() { nrprocadded_ = 0; }
+				Data() {}
 				~Data() {}
 	Data&			add(DataEntry*);
 	Data&			add(const char*,const uiString&,
@@ -68,7 +68,7 @@ namespace ProcDesc
 	BufferStringSet		addedodv6procs_;
 	BufferStringSet		addedodv7procs_;
 	BufferStringSet		addedpyprocs_;
-	int			nrprocadded_;
+	BufferStringSet		addedprocnms_;
 
 	void			setEmpty();
 	void			getProcsToBeAdded(BufferStringSet& nms,

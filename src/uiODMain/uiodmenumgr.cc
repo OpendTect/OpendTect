@@ -1658,8 +1658,8 @@ void uiODMenuMgr::showFirewallProcDlg()
 {
     if (__iswin__)
     {
-	uiFirewallProcSetter* dlg = new uiFirewallProcSetter( &appl_,
-					    ProcDesc::DataEntry::AddNRemove );
+	PtrMan<uiFirewallProcSetter> dlg = new uiFirewallProcSetter( &appl_,
+						ePDD().getActionType() );
 	dlg->go();
     }
 }

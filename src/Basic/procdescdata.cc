@@ -68,7 +68,7 @@ void ProcDesc::Data::setEmpty()
     addedodv6procs_.setEmpty();
     addedodv7procs_.setEmpty();
     addedpyprocs_.setEmpty();
-    nrprocadded_ = 0;
+    addedprocnms_.setEmpty();
 }
 
 
@@ -88,7 +88,7 @@ ProcDesc::Data& ProcDesc::Data::add( const char* nm, const uiString& desc,
 IOPar& ProcDesc::Data::readPars()
 {
     if ( path_.isEmpty() )
-	path_ = GetExecPlfDir();
+	path_ = GetSoftwareDir( false );
 
     FilePath fp( path_, "data", "FirewallExceptionList" );
 
@@ -103,8 +103,9 @@ IOPar& ProcDesc::Data::readPars()
     pars_.get( ProcDesc::DataEntry::sKeyODv7(), addedodv7procs_ );
     pars_.get( ProcDesc::DataEntry::sKeyPython(), addedpyprocs_ );
 
-    nrprocadded_ = addedodv6procs_.size() + addedodv7procs_.size() +
-						    addedpyprocs_.size();
+    addedprocnms_.add( addedodv6procs_, true );
+    addedprocnms_.add( addedodv7procs_, true );
+    addedprocnms_.add( addedpyprocs_, true );
 
     return pars_;
 }
@@ -257,9 +258,25 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
 ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 {
     readPars();
-    if ( nrprocadded_ == 0 )
+
+    int alreadyadded = 0;
+    for ( int idx=0; idx<ePDD().size(); idx++ )
+    {
+	const BufferString requiredexecnm = ePDD()[idx]->execnm_;
+	for ( int jidx=0; jidx<addedprocnms_.size(); jidx++ )
+	{
+	    const BufferString addedexecnm = addedprocnms_.get(jidx);
+	    if ( requiredexecnm.isEqual(addedexecnm) )
+	    {
+		alreadyadded++;
+		continue;
+	    }
+	}
+    }
+
+    if ( alreadyadded == 0 )
 	return ProcDesc::DataEntry::Add;
-    else if ( nrprocadded_ == ePDD().size() )
+    else if ( alreadyadded == ePDD().size() )
 	return ProcDesc::DataEntry::Remove;
     else
 	return ProcDesc::DataEntry::AddNRemove;
