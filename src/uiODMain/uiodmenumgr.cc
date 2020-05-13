@@ -209,6 +209,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillDtectTB( appman );
     fillVisTB( sceneman );
     fillManTB();
+    uiSettsMgr().loadToolBarCmds( appl_ );
 
     measuretoolman_ = new MeasureToolMan( appl_ );
 }
@@ -1601,6 +1602,7 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 
     fillDtectTB( &applMgr() );
     fillManTB();
+    uiSettsMgr().updateUserCmdToolBar();
 }
 
 
