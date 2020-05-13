@@ -657,7 +657,11 @@ static const char* IDENames[] =
 {
     "jupyter-lab",
     "spyder",
+#ifdef __win__
+    "idle",
+#else
     "idle3",
+#endif
     0
 };
 

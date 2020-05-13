@@ -25,6 +25,7 @@ data/Python_envs.txt
 test/
 Contents/
 plugins/lux64
+packages/
 
 src/*/moc_*
 lib*.dylib

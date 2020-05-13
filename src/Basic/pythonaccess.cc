@@ -819,9 +819,11 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 void OD::PythonAccess::GetPythonEnvBinPath( FilePath& fp )
 {
     GetPythonEnvPath( fp );
-    #ifndef __win__
+#ifdef __win__
+    fp.add("Scripts");
+#else
     fp.add("bin");
-    #endif
+#endif
 }
 
 
