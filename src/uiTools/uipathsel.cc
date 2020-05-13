@@ -79,10 +79,12 @@ void uiPathListEditor::itemSwitch( bool up )
 
 
 uiPathSel::uiPathSel( uiParent* p, const uiString& caption )
-: uiCheckedCompoundParSel(p, caption, false,uiStrings::sEdit())
+: uiCheckedCompoundParSel(p,uiString::emptyString(),false,uiStrings::sEdit())
 , selChange(this)
 {
-    txtfld_->setElemSzPol( uiObject::Wide );
+    txtfld_->setElemSzPol( uiObject::WideVar );
+    txtfld_->setTitleText( caption );
+    cbox_->attach( leftBorder );
     setChecked( false );
     setHAlignObj( txtfld_ );
     mAttachCB(postFinalise(), uiPathSel::initGrp);

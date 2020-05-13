@@ -45,11 +45,18 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uisplitter.h"
 #include "uitable.h"
+#include "uitoolbar.h"
+#include "uitoolbarcmded.h"
 #include "uithemesel.h"
 #include "uitreeview.h"
 
 
 static const char* sKeyCommon = "<general>";
+
+
+namespace sKey {
+    inline FixedString PythonIDE()	{ return "PythonIDE"; }
+};
 
 
 uiSettingsMgr& uiSettsMgr()
@@ -65,6 +72,7 @@ uiSettingsMgr::uiSettingsMgr()
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
+    loadToolBarCmds();
 }
 
 
@@ -90,6 +98,77 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
     }
 }
 
+
+void uiSettingsMgr::loadToolBarCmds()
+{
+    uiToolBar* tb = applwin_.findToolBar( "User Commands" );
+    if ( !tb )
+    {
+	tb = new uiToolBar( &applwin_, toUiString( "User Commands" ) );
+	applwin_.addToolBar( tb );
+    }
+    tb->clear();
+    commands_.erase();
+    toolbarids_.erase();
+
+// Python IDE command
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    PtrMan<IOPar> idepar = pythonsetts.subselect( sKey::PythonIDE() );
+    BufferString exenm, cmd, args, tip, iconfile;
+    File::Path pybinpath;
+    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
+    BufferStringSet paths;
+    paths.add( pybinpath.fullPath() );
+
+    if ( idepar && idepar->get( sKey::ExeName(), exenm ) && !exenm.isEmpty() )
+    {
+	if ( File::findExecutable( exenm, paths ).isEmpty() )
+	    return;
+
+	int id = tb->addButton( exenm, toUiString(exenm),
+				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	toolbarids_ += id;
+	commands_.add( exenm );
+    }
+    else if ( idepar && idepar->get( sKey::Command(), cmd ) && !cmd.isEmpty() )
+    {
+	if ( !File::isExecutable( cmd ) )
+	    return;
+
+	idepar->get( sKey::Arguments(), args );
+	idepar->get( sKey::ToolTip(), tip );
+	idepar->get( sKey::IconFile(), iconfile );
+	int id = tb->addButton( iconfile, toUiString(tip),
+				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	toolbarids_ += id;
+	cmd.addSpace().add(args);
+	commands_.add( cmd );
+    }
+}
+
+
+void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,action,cb);
+    if ( !action )
+	return;
+    const int tbid = action->getID();
+    int idx = toolbarids_.indexOf( tbid );
+    if ( !toolbarids_.validIdx( idx ) )
+	return;
+
+    OS::MachineCommand cmd( commands_.get( idx ) );
+    uiString err;
+    int pid;
+    if (!OD::PythA().execute(cmd, OS::CommandExecPars(OS::RunInBG),
+	&pid, &err))
+    {
+	gUiMsg(nullptr).error(tr("Error starting %1").arg(commands_.get(idx)),
+			      err);
+	return;
+    }
+}
 
 
 static void getGrps( BufferStringSet& grps )
@@ -308,6 +387,19 @@ bool uiAdvSettings::acceptOK()
 }
 
 
+static const char* IDENames[] =
+{
+    "jupyter-lab",
+    "spyder",
+#ifdef __win__
+    "idle",
+#else
+    "idle3",
+#endif
+    0
+};
+
+
 mExpClass(uiTools) uiPythonSettings : public uiDialog
 { mODTextTranslationClass(uiPythonSettings);
 public:
@@ -337,13 +429,32 @@ uiPythonSettings(uiParent* p, const char* nm )
     customenvnmfld_->setWithCheck();
     customenvnmfld_->attach( alignedBelow, customloc_ );
 
+    uiSeparator* sep1 = new uiSeparator( this );
+    sep1->attach( stretchedBelow, customenvnmfld_ );
+
     custompathfld_ = new uiPathSel( this, tr("Custom Module Path") );
     custompathfld_->attach( alignedBelow, customenvnmfld_ );
+    custompathfld_->attach( stretchedBelow, sep1 );
+
+    uiSeparator* sep2 = new uiSeparator( this );
+    sep2->attach( stretchedBelow, custompathfld_ );
+
+    File::Path pybinpath;
+    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
+    BufferStringSet paths;
+    paths.add( pybinpath.fullPath() );
+    BufferStringSet exenms( IDENames );
+    pyidefld_ = new uiToolBarCommandEditor( this,
+					    tr("Python IDE Command"),
+					    paths, exenms, true, false );
+    pyidefld_->attach( alignedBelow, custompathfld_ );
+    pyidefld_->attach( stretchedBelow, sep2 );
+    pyidefld_->setChecked( false );
 
     uiButton* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
     testbut->setIcon( "test" );
-    testbut->attach( ensureBelow, custompathfld_ );
+    testbut->attach( ensureBelow, pyidefld_ );
 
     uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
 			mCB(this,uiPythonSettings,promptCB), true );
@@ -373,6 +484,7 @@ void initDlg(CallBacker*)
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
     mAttachCB( custompathfld_->selChange, uiPythonSettings::parChgCB );
+    mAttachCB( pyidefld_->changed, uiPythonSettings::parChgCB );
 }
 
 IOPar& curSetts()
@@ -435,12 +547,24 @@ void fillPar( IOPar& par ) const
 		par.removeWithKey( sKey::Name() );
 	}
     }
-    const BufferStringSet paths = custompathfld_->getPaths();
-    if ( !paths.isEmpty() )
+
+    if ( custompathfld_->isChecked() )
     {
-	IOPar tmp;
-	paths.fillPar( tmp );
-	par.mergeComp( tmp, OD::PythonAccess::sKeyPythonPath() );
+	const BufferStringSet paths = custompathfld_->getPaths();
+	if ( !paths.isEmpty() )
+	{
+	    IOPar tmp;
+	    paths.fillPar( tmp );
+	    par.mergeComp( tmp, OD::PythonAccess::sKeyPythonPath() );
+	}
+    }
+
+    if ( pyidefld_->isChecked() )
+    {
+	IOPar idecmd;
+	pyidefld_->fillPar( idecmd );
+	if ( !idecmd.isEmpty() )
+	par.mergeComp( idecmd, sKey::PythonIDE() );
     }
 }
 
@@ -477,11 +601,24 @@ void usePar( const IOPar& par )
 	    customenvnmfld_->setText( envnm );
     }
     PtrMan<IOPar> pathpar = par.subselect( OD::PythonAccess::sKeyPythonPath() );
-    BufferStringSet paths;
     if ( pathpar )
+    {
+	BufferStringSet paths;
 	paths.usePar( *pathpar );
+	custompathfld_->setChecked( true );
+	custompathfld_->setPaths( paths );
+    }
+    else
+	custompathfld_->setChecked( false );
 
-    custompathfld_->setPaths( paths );
+    PtrMan<IOPar> idepar = par.subselect( sKey::PythonIDE() );
+    if ( idepar )
+    {
+	pyidefld_->usePar( *idepar );
+	pyidefld_->setChecked( true );
+    }
+    else
+	pyidefld_->setChecked( false );
 }
 
 bool commitSetts( const IOPar& iop )
@@ -698,6 +835,7 @@ bool acceptOK()
 	    OD::PythA().istested_ = false;
 	    OD::PythA().envChangeCB( nullptr );
 	    needrestore_ = false;
+	    uiSettsMgr().loadToolBarCmds();
 	}
     }
     else
@@ -711,6 +849,7 @@ bool acceptOK()
     uiFileSel*		customloc_;
     uiGenInput*		customenvnmfld_;
     uiPathSel*		custompathfld_;
+    uiToolBarCommandEditor*	pyidefld_;
 
     IOPar*		chgdsetts_ = nullptr;
     bool		needrestore_ = false;
