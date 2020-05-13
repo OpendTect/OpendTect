@@ -33,7 +33,7 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
   , checked(this)
   , changed(this)
 {
-    uiLabeledComboBox* lblcb;
+    uiLabeledComboBox* lblcb = nullptr;
     if ( !exenms.isEmpty() )
     {
 	BufferStringSet found = createUiList( paths, exenms );
@@ -46,12 +46,11 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     su.setForWrite()
       .initialselectiondir( paths.get(0) );
 #ifdef __win__
-    su.setFormat( File::Format("exe") );
+    su.setFormat( File::Format("exe") )
       .allowallextensions( false );
 #endif
     commandfld_ = new uiFileSel( this, tr("Command"), su );
-//    commandfld_->setElemSzPol( uiObject::WideVar );
-    if ( exeselfld_ )
+    if ( exeselfld_ && lblcb )
 	commandfld_->attach( alignedBelow, lblcb );
 
     argumentsfld_ = new uiGenInput( this, tr("Arguments"), StringInpSpec() );
@@ -72,7 +71,7 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     {
 	checkbox_ = new uiCheckBox( this, uiString::empty() );
 	checkbox_->setChecked( false );
-	if ( exeselfld_ )
+	if ( exeselfld_ && lblcb )
 	    checkbox_->attach( leftTo, lblcb );
 	else
 	    checkbox_->attach( leftTo, commandfld_ );
