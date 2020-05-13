@@ -89,8 +89,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     visserv->createToolBars();
 
-    uiSettsMgr().loadToolBarCmds();
-
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
     visserv->selectionmodeChange.notify(
@@ -137,6 +135,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillDtectTB( appman );
     fillCoinTB( sceneman );
     fillManTB();
+    uiSettsMgr().loadToolBarCmds( appl_ );
 
     measuretoolman_ = new MeasureToolMan( appl_ );
 }
@@ -1699,6 +1698,7 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 
     fillDtectTB( &applMgr() );
     fillManTB();
+    uiSettsMgr().updateUserCmdToolBar();
 }
 
 

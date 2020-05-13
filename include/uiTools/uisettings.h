@@ -32,19 +32,18 @@ public:
 		uiSettingsMgr();
 		~uiSettingsMgr();
 
-    void	loadToolBarCmds();
-
-protected:
-    void	doToolBarCmdCB(CallBacker*);
+    void	loadToolBarCmds(uiMainWin&);
+    void	updateUserCmdToolBar();
 
 private:
 
     void	keyPressedCB(CallBacker*);
+    void	doToolBarCmdCB(CallBacker*);
 
     BufferStringSet	commands_;
     TypeSet<int>	toolbarids_;
 
-    uiMainWin&	applwin_;
+    uiToolBar*		usercmdtb_ = nullptr;
 };
 
 
