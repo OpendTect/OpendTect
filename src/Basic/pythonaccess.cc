@@ -808,10 +808,13 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 	#endif
     }
     else if (source == Internal) {
-	getPathToInternalEnv(fp, true);
-	fp.add("envs").add("odmlpython-cpu-mkl");
-	if (!fp.exists())
-	    getPathToInternalEnv(fp, true);
+	ManagedObjectSet<FilePath> fps;
+	BufferStringSet envnms;
+	getSortedVirtualEnvironmentLoc( fps, envnms );
+	if ( fps.size()<1 )
+	    return;
+	fp = *fps[0];
+	fp.add("envs").add(envnms.get(0));
     }
 }
 

@@ -106,8 +106,15 @@ void uiSettingsMgr::loadToolBarCmds()
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     const PtrMan<IOPar> idepar = pythonsetts.subselect( sKey::PythonIDE() );
     BufferString exenm, cmd, args, tip, iconfile;
+    FilePath pybinpath;
+    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
+    BufferStringSet paths;
+    paths.add( pybinpath.fullPath() );
+
     if ( idepar && idepar->get( sKey::ExeName(), exenm ) && !exenm.isEmpty() )
     {
+	if ( File::findExecutable( exenm, paths ).isEmpty() )
+	    return;
 	int id = tb->addButton( exenm, toUiString(exenm),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
@@ -115,6 +122,8 @@ void uiSettingsMgr::loadToolBarCmds()
     }
     else if ( idepar && idepar->get( sKey::Command(), cmd ) && !cmd.isEmpty() )
     {
+	if ( !File::isExecutable( cmd ) )
+	    return;
 	idepar->get( sKey::Arguments(), args );
 	idepar->get( sKey::ToolTip(), tip );
 	idepar->get( sKey::IconFile(), iconfile );
