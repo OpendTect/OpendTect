@@ -10,16 +10,18 @@ ________________________________________________________________________
 
 #include "uitoolbarcmded.h"
 
-#include "file.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uidialog.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
-#include "uistrings.h"
 #include "uitoolbutton.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
+
 
 uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						const uiString& seltxt,
@@ -71,7 +73,7 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 	checkbox_ = new uiCheckBox( this, uiString::emptyString() );
 	checkbox_->setChecked( false );
 	exeselfld_ ? checkbox_->attach( leftTo, lblcb )
-	    	   : checkbox_->attach( leftTo, commandfld_ );
+		   : checkbox_->attach( leftTo, commandfld_ );
     }
 
     mAttachCB(postFinalise(), uiToolBarCommandEditor::initGrp);
@@ -218,16 +220,24 @@ void uiToolBarCommandEditor::checkCB( CallBacker* )
     if ( mkinvisible_ )
     {
 	if ( exeselfld_ )
+	{
 	    exeselfld_->display( ischecked );
-
-	advDisplay( ischecked );
+	    if ( ischecked )
+		exeSelChgCB( nullptr );
+	}
+	else
+	    advDisplay( ischecked );
     }
     else
     {
 	if ( exeselfld_ )
+	{
 	    exeselfld_->setSensitive( ischecked );
-
-	advSetSensitive( ischecked );
+	    if ( ischecked )
+		exeSelChgCB( nullptr );
+	}
+	else
+	    advSetSensitive( ischecked );
     }
 
     checked.trigger();
@@ -263,7 +273,16 @@ void uiToolBarCommandEditor::exeSelChgCB( CallBacker* )
 
 void uiToolBarCommandEditor::iconSelCB( CallBacker* )
 {
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, iconfile_, "*.png" );
+    const FilePath iconsdirfp(
+	    GetSetupDataFileDir(ODSetupLoc_ApplSetupPref,false),
+	    "icons.Default" );
+    FilePath iconfp( iconfile_ ); iconfp.setExtension( "png" );
+    if ( iconsdirfp.exists() && !iconfp.isAbsolute() )
+	iconfp.insert( iconsdirfp.fullPath() );
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, iconfp.fullPath(),
+		       "*.png" );
+    if ( iconsdirfp.exists() )
+	dlg.setDirectory( iconsdirfp.fullPath() );
     if ( ! dlg.go() )
 	return;
 
