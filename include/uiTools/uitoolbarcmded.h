@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiComboBox;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiToolButton;
 
@@ -65,7 +65,7 @@ protected:
     uiCheckBox*		checkbox_=nullptr;
     bool		mkinvisible_;
     uiComboBox*		exeselfld_ = nullptr;
-    uiFileInput*	commandfld_;
+    uiFileSel*		commandfld_;
     uiGenInput*		argumentsfld_;
     uiGenInput*		tooltipfld_;
     uiToolButton*	iconfld_;

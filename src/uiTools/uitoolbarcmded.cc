@@ -10,16 +10,17 @@ ________________________________________________________________________
 
 #include "uitoolbarcmded.h"
 
-#include "file.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uidialog.h"
-#include "uifiledlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
-#include "uistrings.h"
 #include "uitoolbutton.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
+
 
 uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						const uiString& seltxt,
@@ -27,10 +28,10 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						const BufferStringSet& exenms,
 						bool withcheck,
 						bool mkinvisible )
-: uiGroup(p)
-, mkinvisible_(mkinvisible)
-, checked(this)
-, changed(this)
+  : uiGroup(p)
+  , mkinvisible_(mkinvisible)
+  , checked(this)
+  , changed(this)
 {
     uiLabeledComboBox* lblcb;
     if ( !exenms.isEmpty() )
@@ -41,13 +42,15 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 	lblcb->setStretch( 2, 1 );
 	exeselfld_ = lblcb->box();
     }
-    uiFileInput::Setup su;
-    su.defseldir(paths.get(0)).forread(true);
-    #ifdef __win__
-    su.filter("*.exe");
-    #endif
-    commandfld_ = new uiFileInput( this, tr("Command"), su );
-    commandfld_->setElemSzPol( uiObject::WideVar );
+    uiFileSel::Setup su;
+    su.setForWrite()
+      .initialselectiondir( paths.get(0) );
+#ifdef __win__
+    su.setFormat( File::Format("exe") );
+      .allowallextensions( false );
+#endif
+    commandfld_ = new uiFileSel( this, tr("Command"), su );
+//    commandfld_->setElemSzPol( uiObject::WideVar );
     if ( exeselfld_ )
 	commandfld_->attach( alignedBelow, lblcb );
 
@@ -67,7 +70,7 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 
     if ( withcheck )
     {
-	checkbox_ = new uiCheckBox( this, uiString::emptyString() );
+	checkbox_ = new uiCheckBox( this, uiString::empty() );
 	checkbox_->setChecked( false );
 	if ( exeselfld_ )
 	    checkbox_->attach( leftTo, lblcb );
@@ -86,7 +89,7 @@ uiToolBarCommandEditor::~uiToolBarCommandEditor()
 
 void uiToolBarCommandEditor::initGrp( CallBacker* )
 {
-    mAttachCB(commandfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
+    mAttachCB(commandfld_->newSelection,uiToolBarCommandEditor::commandChgCB);
     mAttachCB(argumentsfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
     mAttachCB(tooltipfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
 
@@ -217,14 +220,24 @@ void uiToolBarCommandEditor::checkCB( CallBacker* )
     if ( mkinvisible_ )
     {
 	if ( exeselfld_ )
+	{
 	    exeselfld_->display( ischecked );
-	advDisplay( ischecked );
+	    if ( ischecked )
+		exeSelChgCB( nullptr );
+	}
+	else
+	    advDisplay( ischecked );
     }
     else
     {
 	if ( exeselfld_ )
+	{
 	    exeselfld_->setSensitive( ischecked );
-	advSetSensitive( ischecked );
+	    if ( ischecked )
+		exeSelChgCB( nullptr );
+	}
+	else
+	    advSetSensitive( ischecked );
     }
 
     checked.trigger();
@@ -260,8 +273,21 @@ void uiToolBarCommandEditor::exeSelChgCB( CallBacker* )
 
 void uiToolBarCommandEditor::iconSelCB( CallBacker* )
 {
-    uiFileDialog dlg( this, OD::SelectFileForRead, iconfile_, "*.png" );
-    if ( ! dlg.go() )
+    const File::Path iconsdirfp(
+	    GetSetupDataFileDir(ODSetupLoc_ApplSetupPref,false),
+	    "icons.Default" );
+    File::Path iconfp( iconfile_ ); iconfp.setExtension( "png" );
+    if ( iconsdirfp.exists() && !iconfp.isAbsolute() )
+	iconfp.insert( iconsdirfp.fullPath() );
+    uiFileSelectorSetup filesel( OD::SelectFileForRead, iconfp.fullPath() );
+    filesel.contenttype( OD::ImageContent )
+	   .allowallextensions( false );
+    filesel.setFormat( File::Format("png") );
+    if ( iconsdirfp.exists() )
+	filesel.initialselectiondir( iconsdirfp.fullPath() );
+
+    uiFileSelector dlg( this, filesel );
+    if ( !dlg.go() )
 	return;
     iconfile_ = dlg.fileName();
     iconfld_->setIcon( iconfile_ );
