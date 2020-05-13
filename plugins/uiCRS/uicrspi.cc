@@ -41,7 +41,6 @@ public:
 private:
 
     void	beforeSurveyChange() override;
-    void	dTectMenuChanged() override;
     void	convertCB(CallBacker*);
 
     Coords::uiConvertGeographicPos*	convdlg_ = nullptr;
@@ -52,6 +51,11 @@ uiCRSMgr::uiCRSMgr()
     : uiPluginInitMgr()
 {
     init();
+    uiAction* act = new uiAction( tr("CRS Position Conversion ...") );
+    mAttachCB( act->triggered, uiCRSMgr::convertCB );
+    uiAction* prevact =
+	appl_.menuMgr().toolsMnu()->findAction( "Show Log File" );
+    appl_.menuMgr().toolsMnu()->insertAction( act, -1, prevact );
 }
 
 
@@ -59,16 +63,6 @@ uiCRSMgr::~uiCRSMgr()
 {
     detachAllNotifiers();
     deleteAndZeroPtr( convdlg_ );
-}
-
-
-void uiCRSMgr::dTectMenuChanged()
-{
-    uiAction* act = new uiAction( tr("CRS Position Conversion ...") );
-    mAttachCB( act->triggered, uiCRSMgr::convertCB );
-    uiAction* prevact =
-	appl_.menuMgr().toolsMnu()->findAction( "Show Log File" );
-    appl_.menuMgr().toolsMnu()->insertAction( act, -1, prevact );
 }
 
 

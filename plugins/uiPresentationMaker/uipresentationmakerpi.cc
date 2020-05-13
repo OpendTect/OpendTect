@@ -39,7 +39,6 @@ private:
 
     uiPresentationMakerDlg*	dlg_ = nullptr;
 
-    void			dTectMenuChanged() override;
     void			beforeSurveyChange() override;
     void			applicationClosing() override;
     void			doCleanup();
@@ -52,11 +51,6 @@ uiPresMakerPIMgr::uiPresMakerPIMgr()
     : uiPluginInitMgr()
 {
     init();
-}
-
-
-void uiPresMakerPIMgr::dTectMenuChanged()
-{
     uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
 			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
     appl_.menuMgr().toolsMnu()->insertAction( action );
