@@ -41,6 +41,7 @@ ________________________________________________________________________
 # include <QFile>
 # include <QFileInfo>
 # include <QProcess>
+# include <QStandardPaths>
 #endif
 
 
@@ -382,6 +383,32 @@ bool File::isDirectory( const char* fnm )
 bool File::isURI( const char*& fnm )
 {
     return isSane(fnm) && fnmIsURI(fnm);
+}
+
+
+BufferString File::findExecutable( const char* exenm,
+				   const BufferStringSet& paths,
+				   bool includesyspath )
+{
+#ifndef OD_NO_QT
+    BufferString ret;
+    if ( includesyspath )
+	ret = QStandardPaths::findExecutable( exenm, QStringList() );
+
+    if ( !paths.isEmpty() )
+    {
+	QStringList qpaths;
+	for ( const auto path : paths )
+	    qpaths.append( path->str() );
+	const BufferString tmp = QStandardPaths::findExecutable(exenm, qpaths);
+	if ( !tmp.isEmpty() )
+	    ret = tmp;
+    }
+    return ret;
+#else
+    pFreeFnErrMsg(not_implemented_str);
+    return BufferString::empty();
+#endif
 }
 
 

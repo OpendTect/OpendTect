@@ -98,6 +98,9 @@ namespace OD
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 	bool		openTerminal() const;
+	static void	GetPythonEnvPath(File::Path&);
+	static void	GetPythonEnvBinPath(File::Path&);
+
 
     private:
 

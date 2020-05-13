@@ -93,6 +93,7 @@ set( OD_MODULE_SOURCES
 	uitextfile.cc
 	uithemesel.cc
 	uitime2depthzaxistrans.cc
+	uitoolbarcmded.cc
 	uitreeitem.cc
 	uiunitsel.cc
 	uivalseriestracker.cc

@@ -32,6 +32,9 @@ mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
 mGlobal(Basic) bool		isURI(const char*&);
 				//!< if local, will remove 'file://'
+mGlobal(Basic) BufferString	findExecutable(const char* exenm,
+					       const BufferStringSet& paths,
+					       bool includesyspath=true );
 
 mGlobal(Basic) const char*	getCanonicalPath(const char*);
 mGlobal(Basic) const char*	getRelativePath(const char* reltodir,

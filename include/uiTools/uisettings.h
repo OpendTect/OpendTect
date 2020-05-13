@@ -30,17 +30,23 @@ class uiTreeView;
 class uiSettingsGroup;
 
 
-mClass(uiTools) uiSettingsMgr : public CallBacker
-{
+mExpClass(uiTools) uiSettingsMgr : public CallBacker
+{ mODTextTranslationClass(uiSettingsMgr);
 public:
-		    uiSettingsMgr();
-		    ~uiSettingsMgr();
+		uiSettingsMgr();
+		~uiSettingsMgr();
 
+    void	loadToolBarCmds();
     Notifier<uiSettingsMgr> terminalRequested;
+
+protected:
+    void	doToolBarCmdCB(CallBacker*);
 
 private:
 
     void	keyPressedCB(CallBacker*);
+    BufferStringSet	commands_;
+    TypeSet<int>	toolbarids_;
 
     uiMainWin&	applwin_;
 };
