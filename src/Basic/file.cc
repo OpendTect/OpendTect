@@ -379,7 +379,9 @@ BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
 	QStringList qpaths;
 	for ( int idx=0; idx<paths.size(); idx++ )
 	    qpaths.append( (const char*) paths.get( idx ) );
-	const BufferString tmp = QStandardPaths::findExecutable( exenm, qpaths );
+
+	const BufferString tmp = QStandardPaths::findExecutable( exenm,
+								 qpaths );
 	if ( !tmp.isEmpty() )
 	    ret = tmp;
     }
@@ -626,22 +628,49 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     }
 #endif
 
-    bool res = QFile::rename( oldname, newname );
-    if ( !res && File::isDirectory(oldname) )
+    int itatr=0;
+    int nritatr = 10;
+    bool res=false;
+    while ( ++itatr < nritatr )
     {
-	QDir dir;
-	res = dir.rename( oldname, newname );
-	if ( !res )
-	{
-	    const FilePath sourcefp( oldname );
-	    dir.setCurrent( QString(sourcefp.pathOnly()) );
-	    const QString newnm = dir.relativeFilePath( newname );
-	    res = dir.rename( QString(sourcefp.fileName()), newnm );
+	res = QFile::rename( oldname, newname );
+	if ( res )
+	    return true;
+	else if ( !File::exists(oldname) && File::exists(newname) )
+	{// False negative detection.
+	    return true;
 	}
+
+	if ( !res && File::isDirectory(oldname) )
+	{
+	    QDir dir;
+	    res = dir.rename( oldname, newname );
+	    if ( res )
+		return true;
+	    else if ( !File::exists(oldname) && File::exists(newname) )
+		return true;
+	    else
+	    {
+		const FilePath sourcefp( oldname );
+		dir.setCurrent( QString(sourcefp.pathOnly()) );
+		const QString newnm = dir.relativeFilePath( newname );
+		res = dir.rename( QString(sourcefp.fileName()), newnm );
+		if ( res )
+		    return true;
+		else if ( !File::exists(oldname) && File::exists(newname) )
+		    return true;
+	    }
+	}
+
+	Threads::sleep( 0.1 );
     }
 
-    if ( res )
-	return true;
+    if ( !res )
+    { //Trying c rename function
+	rename( oldname, newname );
+	if ( !File::exists(oldname) && File::exists(newname) )
+	    return true;
+    }
 
     BufferString cmd;
 #ifdef __win__
