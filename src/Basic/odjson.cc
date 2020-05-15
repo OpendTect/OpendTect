@@ -326,7 +326,7 @@ bool OD::JSON::ValueSet::getBoolValue( idx_type idx ) const
 	return ret;
     const Value* val = values_[idx];
     if ( val->isValSet() )
-    { pErrMsg(gtvalnotplaindatastr); return ret; }
+	{ pErrMsg(gtvalnotplaindatastr()); return ret; }
 
     switch ( (DataType)val->type_ )
     {
