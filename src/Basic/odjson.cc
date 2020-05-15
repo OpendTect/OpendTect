@@ -319,6 +319,24 @@ OD::JSON::Object* OD::JSON::ValueSet::gtObjectByIdx( idx_type idx ) const
 
 
 
+bool OD::JSON::ValueSet::getBoolValue( idx_type idx ) const
+{
+    bool ret = false;
+    if ( !values_.validIdx(idx) )
+	return ret;
+    const Value* val = values_[idx];
+    if ( val->isValSet() )
+    { pErrMsg(gtvalnotplaindatastr); return ret; }
+
+    switch ( (DataType)val->type_ )
+    {
+    case Boolean:	ret = val->boolVal();  break;
+    default:		ret = false;
+    }
+    return ret;
+}
+
+
 BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 {
     BufferString ret;
@@ -888,6 +906,12 @@ OD::JSON::Object* OD::JSON::Object::gtObjectByKey( const char* ky ) const
 }
 
 
+bool OD::JSON::Object::getBoolValue( const char* ky ) const
+{
+    return ValueSet::getBoolValue( indexOf(ky) );
+}
+
+
 od_int64 OD::JSON::Object::getIntValue( const char* ky ) const
 {
     return ValueSet::getIntValue( indexOf(ky) );
@@ -903,6 +927,17 @@ double OD::JSON::Object::getDoubleValue( const char* ky ) const
 BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 {
     return ValueSet::getStringValue( indexOf(ky) );
+}
+
+
+bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
+{
+    const Array* stringsarr = getArray( ky );
+    if ( !stringsarr || stringsarr->valType() != Data )
+	return false;
+
+    bss = stringsarr->valArr().strings();
+    return !bss.isEmpty();
 }
 
 

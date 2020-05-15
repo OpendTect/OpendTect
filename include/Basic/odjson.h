@@ -129,6 +129,7 @@ public:
     mMkGetFns( Object, object, gtObjectByIdx )
 #undef mMkSubFn
 
+    bool		getBoolValue(idx_type) const;
     od_int64		getIntValue(idx_type) const;
     double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
@@ -263,9 +264,11 @@ public:
     mMkGetFn( Object, getObject, gtObjectByKey )
 #undef	mMkGetFn
 
+    bool		getBoolValue(const char*) const;
     od_int64		getIntValue(const char*) const;
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
+    bool		getStrings(const char*,BufferStringSet&) const;
 
     Array*		set(const char* ky,Array*);
     Object*		set(const char* ky,Object*);
