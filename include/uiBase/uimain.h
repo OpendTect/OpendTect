@@ -45,6 +45,7 @@ public:
     virtual		~uiMain();
 
     virtual int		exec();
+    void		restart();
     void		exit(int retcode=0);
     void*		thread();
 

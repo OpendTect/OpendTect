@@ -36,15 +36,12 @@ mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
 
+mGlobal(Basic) const char* GetExecutableName(void);
+		/*!< returns name of the executable. setProgramArgs
+		     must be called for it to work. */
+
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
-mGlobal(Basic) char** GetArgV(void);
-
-mGlobal(Basic) int GetArgC(void);
-
-mGlobal(Basic) bool AreProgramArgsSet(void);
-
-mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
 
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
@@ -58,11 +55,33 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
-                */
+		*/
+
+mGlobal(Basic) bool IsExiting();
+		/*!<Returns if ExitProgram is called */
 
 typedef void (*PtrAllVoidFn)(void);
 mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
 		/*!< Function will be called on 'ExitProgram' */
+
+mGlobal(Basic) bool StartProgramCopy();
+		/*!< Starts another instance with original arguments. If it
+		     returns false, there is no new program; deal with it. */
+
+typedef void (*ProgramRestartFn)();
+/*!< The default function restart starts a copy, notifies and exits.
+   od_main sets a new one to do user interaction if needed.
+   Code after this call should handle the case that the restart failed. */
+
+mGlobal(Basic) void SetProgramRestarter(ProgramRestartFn);
+/*!< Sets another active ProgramRestartFn called by RestartProgram is called */
+
+mGlobal(Basic) ProgramRestartFn GetBasicProgramRestarter();
+/*!< if StartProgramCopy succeeds, calls ExitProgram. */
+
+mGlobal(Basic) void RestartProgram();
+/*!< Uses the active ProgramRestartFn to make a copy and exit. If copy fails,
+  the function will return. */
 
 mGlobal(Basic) void PutIsLittleEndian(unsigned char*);
 		/*!< Puts into 1 byte: 0=SunSparc/SGI (big), 1=PC (little) */
@@ -94,5 +113,10 @@ inline void EmptyFunction()			{}
 
 }
 
+mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
+				   bool require_valid_dataroot=true);
+mGlobal(Basic) bool AreProgramArgsSet(void);
+mGlobal(Basic) char** GetArgV(void);
+mGlobal(Basic) int& GetArgC(void);
 
 #endif

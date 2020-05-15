@@ -45,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
+#include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
@@ -150,6 +151,15 @@ static void checkScreenRes()
 }
 
 
+void ODMainProgramRestarter()
+{
+    if ( ODMainWin() )
+	ODMainWin()->restart();
+    else
+	{ pFreeFnErrMsg("No ODMainWin(). Cannot restart"); }
+}
+
+
 int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
@@ -171,6 +181,8 @@ int ODMain( int argc, char** argv )
 	if ( dlg.nrPlugins() && !dlg.go() )
 	    return 1;
     }
+
+    SetProgramRestarter( ODMainProgramRestarter );
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
@@ -195,7 +207,6 @@ uiODMain::uiODMain( uiMain& a )
     , menumgr_(0)
     , scenemgr_(0)
     , ctabed_(0)
-    , ctabwin_(0)
     , ctabtb_(0)
     , sesstimer_(*new Timer("Session restore timer"))
     , memtimer_(*new Timer("Memory display timer"))
@@ -204,6 +215,7 @@ uiODMain::uiODMain( uiMain& a )
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
+    , restarting_(false)
     , sessionSave(this)
     , sessionRestoreEarly(this)
     , sessionRestore(this)
@@ -246,7 +258,6 @@ uiODMain::~uiODMain()
     if ( ODMainWin()==this )
 	manODMainWin( nullptr );
 
-    delete ctabwin_;
     delete &lastsession_;
     delete &sesstimer_;
     delete &memtimer_;
@@ -744,7 +755,7 @@ void uiODMain::updateCaption()
 {
     uiString capt = toUiString( "%1/%2" )
 	.arg( getProgramString() )
-	.arg( OD::Platform::local().shortName() );
+	.arg( OD::Platform::local().longName() );
 
     if ( ODInst::getAutoInstType() == ODInst::InformOnly
 	&& ODInst::updatesAvailable() )
@@ -768,11 +779,12 @@ bool uiODMain::closeOK()
     saveSettings();
 
     bool askedanything = false;
+    uiString actstr = restarting_ ? uiStrings::sRestart() : uiStrings::sClose();
     if ( !askStore(askedanything,
-	  uiStrings::phrJoinStrings(uiStrings::sClose(),
-				    toUiString(programname_) ) ) )
+	  uiStrings::phrJoinStrings(actstr,toUiString(programname_)) ) )
     {
-	uiMSG().message(tr("Closing cancelled"));
+	uiMSG().message( restarting_ ? tr("Restart cancelled")
+				     : tr("Closing cancelled"));
 	return false;
     }
 
@@ -780,10 +792,10 @@ bool uiODMain::closeOK()
 
     if ( !askedanything )
     {
-	bool doask = true;
-	Settings::common().getYN( "dTect.Ask close", doask );
-	if ( doask && !uiMSG().askGoOn( tr("Do you want to close %1?")
-				       .arg(programname_)) )
+	if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
+			       .arg(restarting_?"restart":"close")
+				       .arg(programname_),
+			       actstr, uiStrings::sCancel()) )
 	    return false;
     }
 
@@ -796,7 +808,6 @@ void uiODMain::closeApplication()
 {
     IOM().applClosing();
 
-    removeDockWindow( ctabwin_ );
     sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
     delete menumgr_; menumgr_ = 0;
     delete scenemgr_; scenemgr_ = 0;
@@ -814,6 +825,26 @@ uiString uiODMain::getProgramString() const
 uiString uiODMain::getProgramName()
 {
     return toUiString(programname_);
+}
+
+
+void uiODMain::restart()
+{
+    restarting_ = true;
+
+    if ( !closeOK() )
+    {
+	restarting_ = false;
+	return;
+    }
+
+    SetProgramRestarter( GetBasicProgramRestarter() );
+    uiapp_.restart();
+
+    // Re-start failed ...
+    restarting_ = false;
+    uiMSG().error(
+	tr("Failed to restart, please close and launch again manually") );
 }
 
 

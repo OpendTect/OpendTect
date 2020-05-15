@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "ioman.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
@@ -508,6 +509,12 @@ void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
 }
 
 
+void uiMain::restart()
+{
+    RestartProgram();
+}
+
+
 void uiMain::exit( int retcode )
 {
     IOM().applClosing();
@@ -515,6 +522,8 @@ void uiMain::exit( int retcode )
 	{ pErrMsg("Huh?") ; return; }
     app_->exit( retcode );
 }
+
+
 /*!<\brief Tells the application to exit with a return code.
 
     After this function has been called, the application leaves the main

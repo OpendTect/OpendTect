@@ -47,6 +47,7 @@ public:
 			~uiODMain();
 
     bool		go();
+    void		restart();
     void		exit();
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
@@ -98,7 +99,7 @@ protected:
     ODSession*		cursession_;
     ODSession&		lastsession_;
     bool		restoringsess_;
-    uiDockWin*		ctabwin_;
+    bool		restarting_;
     BufferString	programname_;
 
     MultiID		cursessid_;

@@ -50,11 +50,20 @@ static const char* rcsID mUsedVar = "$Id$";
 # define mEnvVarDirSep ':'
 #endif
 
-
 #ifndef OD_NO_QT
 # include <QString>
 # include <QSysInfo>
 #endif
+
+
+static BufferString		initialdir_;
+static int			argc_ = -1;
+static char**			argv_ = 0;
+int& GetArgC()			{ return argc_; }
+char** GetArgV()		{ return argv_; }
+bool AreProgramArgsSet()	{ return argc_ != -1; }
+mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
+				{ argc_ = argc; argv_ = argv; }
 
 
 #ifdef __lux__
@@ -302,6 +311,8 @@ int GetPID()
     return getpid();
 }
 
+static bool is_exiting_ = false;
+
 
 void NotifyExitProgram( PtrAllVoidFn fn )
 {
@@ -316,10 +327,13 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     }
     else
     {
-        const int myfnidx = nrfns++;
+	const int myfnidx = nrfns++;
 	fns[myfnidx] = fn;
     }
 }
+
+
+bool IsExiting() { return is_exiting_; }
 
 
 mExternC(Basic) const char* GetLastSystemErrorMessage()
@@ -391,18 +405,9 @@ const char* getProcessNameForPID( int pid )
     return ret.isEmpty() ? 0 : ret.buf();
 }
 
-int ExitProgram( int ret )
+
+static int doExitProgram( int ret )
 {
-    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
-    {
-	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
-#ifndef __win__
-	system( "date" );
-#endif
-    }
-
-    NotifyExitProgram( (PtrAllVoidFn)(-1) );
-
 // On Mac OpendTect crashes when calling the usual exit and shows error message
 // dyld: odmain bad address of lazy symbol pointer passed to
 // stub_binding_helper
@@ -417,6 +422,65 @@ int ExitProgram( int ret )
     exit(ret);
     return ret; // to satisfy (some) compilers
 #endif
+}
+
+
+int ExitProgram( int ret )
+{
+    is_exiting_ = true;
+    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
+    {
+	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
+#ifndef __win__
+	int dateres mUnusedVar = system( "date" );
+#endif
+    }
+
+    NotifyExitProgram( (PtrAllVoidFn)(-1) );
+
+    return doExitProgram( ret );
+}
+
+
+bool StartProgramCopy()
+{
+    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
+    {
+	std::cerr << "\nCreating Program copy (PID: " << GetPID() << std::endl;
+#ifndef __win__
+	int dateres mUnusedVar = system( "date" );
+#endif
+    }
+
+    OS::MachineCommand machcomm( argv_[0] );
+    for ( int idx=1; idx<argc_; idx++ )
+	machcomm.addArg( argv_[idx] );
+    return machcomm.execute( OS::RunInBG );
+}
+
+
+static void basicProgramRestarter()
+{
+    if ( StartProgramCopy() )
+	ExitProgram( 0 );
+}
+
+
+ProgramRestartFn GetBasicProgramRestarter()
+{
+    return basicProgramRestarter;
+}
+
+ProgramRestartFn program_restarter_ = basicProgramRestarter;
+
+void SetProgramRestarter( ProgramRestartFn fn )
+{
+    program_restarter_ = fn;
+}
+
+void RestartProgram()
+{
+    program_restarter_();
 }
 
 
@@ -613,28 +677,28 @@ mExtern(Basic) const char* GetEnvVarDirListWoOD( const char* ky,
 
     BufferStringSet pathdirs;
     if ( !GetEnvVarDirList(ky,pathdirs,true) )
-        return ret;
+	return ret;
 
     BufferString instdir( GetSoftwareDir(false) );
     if ( instdir.isEmpty() )
-        ret.set( GetEnvVar(ky) );
+	ret.set( GetEnvVar(ky) );
     else
     {
 	FilePath odinstfp( instdir );
 	odinstfp.makeCanonical();
-        BufferStringSet accepteddirs;
-        for ( int idx=0; idx<pathdirs.size(); idx++ )
-        {
+	BufferStringSet accepteddirs;
+	for ( int idx=0; idx<pathdirs.size(); idx++ )
+	{
 	    const BufferString& pathdir = *pathdirs[idx];
 	    FilePath pathdirfp( pathdir.buf() );
 	    pathdirfp.makeCanonical();
-            if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
+	    if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
 		 pathdir.contains(instdir) )
 		continue;
 	    if ( filter && pathdir.contains(filter) )
 		continue;
 	    accepteddirs.add( pathdir.buf() );
-        }
+	}
 	ret.set( accepteddirs.cat( BufferString().add(mEnvVarDirSep) ) );
     }
 
@@ -676,23 +740,6 @@ mExternC(Basic) const char* GetVCSVersion(void)
 { return mVCS_VERSION; }
 
 
-static int argc = -1;
-static BufferString initialdir;
-static char** argv = 0;
-
-
-mExternC(Basic) char** GetArgV(void)
-{ return argv; }
-
-
-mExternC(Basic) int GetArgC(void)
-{ return argc; }
-
-
-mExternC(Basic) bool AreProgramArgsSet(void)
-{ return GetArgC()!=-1; }
-
-
 #ifndef __win__
 static void insertInPath( const char* envkey, const char* dir, const char* sep )
 {
@@ -706,14 +753,18 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
-mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
+mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool )
 {
-    getcwd( initialdir.getCStr(), initialdir.minBufSize() );
+    char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
+    if ( !getcwdres )
+	{ pFreeFnErrMsg("Cannot read current directory"); }
 
-    argc = newargc;
-    argv = newargv;
+    argc_ = argc;
+    argv_ = new char* [argc_];
+    for ( int idx=0; idx<argc_; idx++ )
+	argv_[idx] = argv[idx];
 
-    od_putProgInfo( argc, argv );
+    od_putProgInfo( argc_, argv_ );
 
 #ifndef __win__
     FilePath fp( GetFullExecutablePath() );
@@ -767,7 +818,7 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 	FilePath executable = GetArgV()[0];
 	if ( !executable.isAbsolute() )
 	{
-	    FilePath filepath = initialdir.buf();
+	    FilePath filepath = initialdir_.buf();
 	    filepath.add( GetArgV()[0] );
 	    executable = filepath;
 	}
@@ -778,6 +829,26 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
     return res;
 }
 
+
+mExternC(Basic) const char* GetExecutableName( void )
+{
+    mDefineStaticLocalObject( BufferString, res, );
+    mDefineStaticLocalObject( Threads::Lock, lock, );
+
+    Threads::Locker locker( lock );
+
+    if ( res.isEmpty() )
+    {
+	FilePath fpargv0 = argv_[0];
+	if ( !fpargv0.isAbsolute() )
+	    fpargv0 = FilePath( initialdir_, argv_[0] );
+
+	fpargv0.setExtension( 0 );
+	res = fpargv0.fileName();
+    }
+
+    return res;
+}
 
 mExternC(Basic) void sleepSeconds( double secs )
 {

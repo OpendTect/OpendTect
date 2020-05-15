@@ -176,6 +176,37 @@ OS::MachineCommand::MachineCommand( const char* comm, const char* hostnm )
 }
 
 
+OS::MachineCommand& OS::MachineCommand::addArg( const char* str )
+{
+    if ( str && *str )
+	args_.add( str );
+    return *this;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::addArgs( const BufferStringSet& toadd )
+{
+    args_.append( toadd );
+    return *this;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
+			 const char* str, KeyStyle ks )
+{
+    if ( isOldStyle(ks) )
+	addArg( BufferString( "-", ky ) );
+    else
+    {
+	BufferString res;
+	CommandLineParser::createKey( ky, res );
+	addArg( res );
+    }
+    addArg( str );
+    return *this;
+}
+
+
 bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
 						 bool ignorehostname )
 {
@@ -222,6 +253,13 @@ const char* OS::MachineCommand::getSingleStringRep() const
 #endif
     }
     ret.add( comm_ );
+
+    for ( int idx=0; idx<args_.size(); idx++ )
+    {
+	BufferString str( *args_[idx] );
+	str.replace( " ", "\\ " );
+	ret.addSpace().add( str );
+    }
 
     return ret.buf();
 }
@@ -408,6 +446,24 @@ BufferString OS::MachineCommand::getLocalCommand() const
     ret.add( mFullCommandStr );
 
     return ret;
+}
+
+
+bool OS::MachineCommand::execute( LaunchType lt )
+{
+    return CommandLauncher(*this).execute( lt );
+}
+
+
+bool OS::MachineCommand::execute( const CommandExecPars& execpars )
+{
+    return CommandLauncher(*this).execute( execpars );
+}
+
+
+bool OS::MachineCommand::execute( BufferString& out, BufferString* err )
+{
+    return CommandLauncher(*this).execute( out, err );
 }
 
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+#include "bufstringset.h"
 #include "uistring.h"
 
 mFDQtclass(QProcess);
@@ -26,7 +27,10 @@ namespace OS
 
 
 enum LaunchType	{ Wait4Finish, RunInBG };
+enum KeyStyle	{ NewStyle, OldStyle };
 
+inline bool isBatchProg( OS::LaunchType lt ) { return lt == OS::RunInBG; }
+inline bool isOldStyle( OS::KeyStyle ks ) { return ks == OS::OldStyle; }
 
 /*!\brief Specifies how to execute a command */
 
@@ -90,10 +94,14 @@ public:
 
     inline const char*	command() const			{ return comm_; }
     inline void		setCommand( const char* cm )	{ comm_ = cm; }
-    inline const char*	hostName() const		{ return hname_; }
-    inline void		setHostName( const char* hnm )	{ hname_ = hnm; }
-    inline const char*	remExec() const			{ return remexec_; }
-    inline void		setRemExec( const char* sh )	{ remexec_ = sh; }
+
+
+    MachineCommand&	addArg(const char*);
+    MachineCommand&	addArgs(const BufferStringSet&);
+    MachineCommand&	addFlag( const char* flg, KeyStyle ks=NewStyle )
+			{ return addKeyedArg(flg,nullptr,ks); }
+    MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
+				    KeyStyle ks=NewStyle);
 
     inline bool		isBad() const		{ return comm_.isEmpty(); }
 
@@ -106,8 +114,11 @@ public:
 
     const char*		getSingleStringRep() const;
 
+    inline const char*	hostName() const		{ return hname_; }
+    inline void		setHostName( const char* hnm )	{ hname_ = hnm; }
     bool		hasHostName() const	{ return !hname_.isEmpty(); }
-
+    inline const char*	remExec() const			{ return remexec_; }
+    inline void		setRemExec( const char* sh )	{ remexec_ = sh; }
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
 
@@ -127,9 +138,16 @@ public:
     static const char*	sKeyFG()		{ return "fg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
 
+    bool		execute(LaunchType lt=Wait4Finish);
+    bool		execute(BufferString& output_stdout,
+				BufferString* output_stderr=0);
+				//!< run &, wait until finished, catch output
+    bool		execute(const CommandExecPars&);
+
 protected:
 
     BufferString	comm_;
+    BufferStringSet	args_;
     BufferString	hname_;
     BufferString	remexec_;
 

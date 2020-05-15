@@ -172,6 +172,8 @@ protected:
     void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
 					const uiString& menuitmtxt,
 					int itmid2d=-1,int itmid3d=-1);
+    void		insertAction(uiMenu*,const uiString& txt,int id,
+				     const char* iconnm=nullptr);
 
     uiAction*		stereooffitm_;
     uiAction*		stereoredcyanitm_;
