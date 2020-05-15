@@ -60,6 +60,7 @@ public:
     void		addObject(uiObject*);
 
     void		setLabel(const uiString&);
+    uiString		getDispNm() const;
 
     void		setToggle(int id, bool);
     void		setIcon(int id,const char*);
@@ -97,8 +98,6 @@ public:
     void		addSeparator() { insertSeparator(); }
 
     void		clear();
-
-    uiString		getDispNm();
 
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
