@@ -461,6 +461,7 @@ public:
     static uiString sRequired()		{ return tr("Required"); }
     static uiString sReservoir()	{ return tr("Reservoir"); }
     static uiString sReset()		{ return tr("Reset"); }
+    static uiString sRestart()		{ return tr("Restart"); }
     static uiString sResume()		{ return tr("Resume"); }
     static uiString sRight()		{ return tr("Right"); }
     static uiString sRightClick()	{ return tr("<right-click>"); }
