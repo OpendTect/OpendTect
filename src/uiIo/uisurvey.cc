@@ -1108,11 +1108,13 @@ static BufferString pointTxt( int idx, const BinID& bid, const Coord& crd )
 
 void uiSurvey::copyInfoToClipboard()
 {
-    BufferString txt = infofld_->text();
+    BufferString txt;
+    txt.add( "> Survey Information <\n" );
+    infopars_.dumpPretty( txt );
     txt.addNewLine(2);
 
     const SurveyInfo& si = *cursurvinfo_;
-    txt.add( "Coordinate settings:\n" );
+    txt.add( "> Survey Coordinates <\n" );
     BinID bid = si.sampling(false).hsamp_.start_;
     txt.add( pointTxt(1,bid,si.transform(bid)) );
     bid.crl() = si.sampling(false).hsamp_.stop_.crl();
@@ -1121,6 +1123,13 @@ void uiSurvey::copyInfoToClipboard()
     txt.add( pointTxt(3,bid,si.transform(bid)) );
     bid.crl() = si.sampling(false).hsamp_.start_.crl();
     txt.add( pointTxt(4,bid,si.transform(bid)) );
+
+    const IOPar& logpars = si.logPars();
+    if ( !logpars.isEmpty() )
+    {
+	txt.addNewLine();
+	logpars.dumpPretty( txt );
+    }
 
     uiClipboard::setText( txt.buf() );
     uiMSG().message( tr("Survey Information copied to clipboard") );
@@ -1265,84 +1274,87 @@ void uiSurvey::putToScreen()
     for ( int idx=0; idx<utilbuts_.size(); idx++ )
 	utilbuts_[idx]->setSensitive( hassurveys );
 
-    if ( !hassurveys )
+    if ( !hassurveys || !cursurvinfo_ )
     {
 	notesfld_->setText( uiString::emptyString() );
 	infofld_->setText( uiString::emptyString() );
 	return;
     }
 
-    BufferString inlinfo( "In-line range:\t" );
-    BufferString crlinfo( "Cross-line range:\t" );
-    BufferString zinfo( "Z range" );
-    BufferString bininfo( "Inl/Crl bin size:\t" );
-    BufferString crsinfo( "CRS:\t\t" );
-    BufferString areainfo( "Area:\t\t" );
-    BufferString survtypeinfo( "Survey type:\t" );
-    BufferString orientinfo( "In-line Orientation:" );
-    BufferString locinfo( "Location:\t\t" );
+    BufferString inlinfo;
+    BufferString crlinfo;
+    BufferString zkey, zinfo;
+    BufferString bininfo;
+    BufferString crsinfo;
+    BufferString areainfo;
+    BufferString survtypeinfo;
+    BufferString orientinfo;
+    BufferString locinfo;
 
-    if ( !cursurvinfo_ )
+    const SurveyInfo& si = *cursurvinfo_;
+    areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
+    notesfld_->setText( si.comment() );
+
+    zkey.set( "Z range (" )
+	.add( " (" )
+	.add( si.zIsTime() ? ZDomain::Time().unitStr()
+			   : getDistUnitString(si.zInFeet(), false) )
+	.add( ")" );
+
+    if ( si.getCoordSystem() )
+	crsinfo.add( si.getCoordSystem()->summary() );
+
+    if ( si.sampling(false).hsamp_.totalNr() > 0 )
     {
-	notesfld_->setText( "" );
+	inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
+	inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
+	inlinfo.add( " - " ).add( si.inlStep() );
+	inlinfo.add( "; Total: ").add( si.sampling(false).nrInl() );
+	crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
+	crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
+	crlinfo.add( " - " ).add( si.crlStep() );
+	crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
+
+	const float inldist = si.inlDistance(), crldist = si.crlDistance();
+	bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
+	bininfo.add( " (" ).add( si.getXYUnitString(false) )
+	       .add( "/line)" );
     }
-    else
-    {
-	const SurveyInfo& si = *cursurvinfo_;
-	areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
-	notesfld_->setText( si.comment() );
 
-	zinfo.add( " (" )
-	     .add( si.zIsTime() ? ZDomain::Time().unitStr()
-				: getDistUnitString(si.zInFeet(), false) )
-	     .add( "):\t" );
+    StepInterval<float> sizrg( si.zRange(false) );
+    sizrg.scale( si.zDomain().userFactor() );
+    const int nrdec = Math::NrSignificantDecimals( sizrg.step );
+    zinfo.add( sizrg.start, nrdec ).add( " - " )
+	 .add( sizrg.stop, nrdec ).add( " - " )
+	 .add( sizrg.step, nrdec );
+    zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
-	if ( si.getCoordSystem() )
-	    crsinfo.add( si.getCoordSystem()->summary() );
+    survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
-	if ( si.sampling(false).hsamp_.totalNr() > 0 )
-	{
-	    inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
-	    inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
-	    inlinfo.add( " - " ).add( si.inlStep() );
-	    inlinfo.add( "; Total: ").add( si.sampling(false).nrInl() );
-	    crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
-	    crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
-	    crlinfo.add( " - " ).add( si.crlStep() );
-	    crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
+    FilePath fp( si.datadir_, si.dirname_ );
+    fp.makeCanonical();
+    locinfo.add( fp.fullPath() );
 
-	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
-	    bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
-	    bininfo.add( " (" ).add( si.getXYUnitString(false) )
-		   .add( "/line)" );
-	}
+    const float usrang = Math::degFromNorth( si.angleXInl() );
+    orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
 
-	StepInterval<float> sizrg( si.zRange(false) );
-	sizrg.scale( si.zDomain().userFactor() );
-	const int nrdec = Math::NrSignificantDecimals( sizrg.step );
-	zinfo.add( sizrg.start, nrdec ).add( " - " )
-	     .add( sizrg.stop, nrdec ).add( " - " )
-	     .add( sizrg.step, nrdec );
-	zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
-
-	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
-
-	FilePath fp( si.datadir_, si.dirname_ );
-	fp.makeCanonical();
-	locinfo.add( fp.fullPath() );
-
-	const float usrang = Math::degFromNorth( si.angleXInl() );
-	orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
-    }
+    infopars_.setEmpty();
+    infopars_.set( sKey::Name(), cursurvinfo_->name() );
+    infopars_.set( "In-line range", inlinfo );
+    infopars_.set( "Cross-line range", crlinfo );
+    infopars_.set( zkey, zinfo );
+    infopars_.set( "Inl/Crl bin size", bininfo );
+    infopars_.set( "CRS", crsinfo );
+    infopars_.set( "Area", areainfo );
+    infopars_.set( "Survey type", survtypeinfo );
+    infopars_.set( "In-line Orientation", orientinfo );
+    infopars_.set( "Location", locinfo );
 
     BufferString infostr;
-    infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()
-	.add( zinfo ).addNewLine().add( bininfo ).addNewLine()
-	.add( crsinfo ).addNewLine()
-	.add( areainfo ).addNewLine().add( survtypeinfo ).addNewLine()
-	.add( orientinfo ).addNewLine().add( locinfo );
+    IOPar ip = infopars_;
+    ip.removeWithKey( sKey::Name() );
+    ip.dumpPretty( infostr );
     infofld_->setText( infostr );
-
 }
 
 

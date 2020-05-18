@@ -386,7 +386,7 @@ void uiSurveyInfoEditor::mkCRSGrp()
     crssel_ = new Coords::uiCoordSystemSelGrp( crsgrp_, true, false,
 						&si_, si_.getCoordSystem() );
     tabs_->addTab( crsgrp_ );
-    tabs_->setTabIcon( crsgrp_, "spherewire" );
+    tabs_->setTabIcon( crsgrp_, "crs" );
 }
 
 
@@ -563,6 +563,13 @@ bool uiSurveyInfoEditor::doApply()
     if ( !setSurvName() || !setRanges() )
 	return false;
 
+    if ( crssel_->acceptOK() && crssel_->outputSystem() )
+    {
+	coordsystem_ = crssel_->outputSystem();
+	updZUnit( nullptr );
+	xyunitlbl_->setText( getCoordString(xyInFeet()) );
+    }
+
     if ( !mUseAdvanced() )
     {
 	if ( !setCoords() ) return false;
@@ -577,13 +584,6 @@ bool uiSurveyInfoEditor::doApply()
     }
     else if ( !setRelation() )
 	return false;
-
-    if ( crssel_->acceptOK() && crssel_->outputSystem() )
-    {
-	coordsystem_ = crssel_->outputSystem();
-	updZUnit( nullptr );
-	xyunitlbl_->setText( getCoordString(xyInFeet()) );
-    }
 
     si_.update3DGeometry();
     survParChanged.trigger();

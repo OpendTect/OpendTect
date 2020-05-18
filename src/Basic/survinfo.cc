@@ -486,6 +486,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 
 	//Scrub away old settings (confusing to users)
 	si->getPars().removeWithKey( "Depth in feet" );
+
+	// Read log
+	const FilePath fplog( survdir, sKeyLogFile );
+	si->getLogPars().read( fplog.fullPath(), sKeySurvLog, true );
+	si->getLogPars().setName( sKeySurvLog );
     }
 
     BufferString keyw = astream.keyWord();
