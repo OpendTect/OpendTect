@@ -24,7 +24,7 @@ mDefODPluginInfo(uiPresentationMaker)
 	"OpendTect",
 	"dGB",
 	"1.0",
-	"Create Powerpoint presentations from OpendTect") );
+	"Create PowerPoint presentations from OpendTect") );
     return &retpi;
 }
 
@@ -51,7 +51,7 @@ uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
     mAttachCB( IOM().applicationClosing, uiPresMakerPIMgr::updateMenu );
 
     uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
-			mCB(this,uiPresMakerPIMgr,mnuCB) );
+			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
     appl_->menuMgr().toolsMnu()->insertAction( action );
 }
 
@@ -59,7 +59,10 @@ uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
 void uiPresMakerPIMgr::updateMenu( CallBacker* )
 {
     if ( dlg_ )
-    { dlg_->close(); delete dlg_; dlg_ = 0; }
+    {
+	dlg_->close();
+	deleteAndZeroPtr( dlg_ );
+    }
 }
 
 
