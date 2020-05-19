@@ -30,10 +30,10 @@ ________________________________________________________________________
 
 #include <QApplication>
 #include <QCursor>
-#include <QDesktopWidget>
 #include <QHeaderView>
 #include <QMouseEvent>
 #include <QLabel>
+#include <QScreen>
 
 mUseQtnamespace
 
@@ -372,7 +372,7 @@ QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
     if ( !itm && createnew )
     {
 	itm = new QTableWidgetItem;
-	itm->setBackgroundColor( getQCol(Color::White()) );
+	itm->setBackground( QBrush(getQCol(Color::White())) );
 	setItem( rc.row(), rc.col(), itm );
     }
 
@@ -721,16 +721,20 @@ int uiTable::nrCols() const		{ return body_->columnCount(); }
 
 void uiTable::setPrefHeightInRows( int nrrows )
 {
-    const QDesktopWidget* qdesktop = QApplication::desktop();
-    const QRect geom = qdesktop->availableGeometry();
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() )
+	return;
+    const QRect geom = screens[0]->availableVirtualGeometry();
     body_->setPrefHeightInRows( nrrows, int(geom.height()*0.9) );
 }
 
 
 void uiTable::setPrefWidthInChars( int nrchars )
 {
-    const QDesktopWidget* qdesktop = QApplication::desktop();
-    const QRect geom = qdesktop->availableGeometry();
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() )
+	return;
+    const QRect geom = screens[0]->availableVirtualGeometry();
     body_->setPrefWidthInChars( nrchars, int(geom.width()*0.9) );
 }
 
@@ -1064,7 +1068,7 @@ void uiTable::setCellColor( const RowCol& rc, const Color& col )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
 	if ( itm )
-	    itm->setBackgroundColor( getQCol(col) );
+	    itm->setBackground( QBrush(getQCol(col)) );
     }
 }
 
@@ -1086,12 +1090,12 @@ Color uiTable::getCellColor( const RowCol& rc ) const
 void uiTable::setRowBackground( int rowidx, const Color& col )
 {
     const int nrcols = nrCols();
-    const QColor qcol = getQCol( col );
+    const QBrush qbrush( getQCol(col) );
     for ( int icol=0; icol<nrcols; icol++ )
     {
 	QTableWidgetItem* itm = body_->item( rowidx, icol );
 	if ( itm )
-	    itm->setBackground( qcol );
+	    itm->setBackground( qbrush );
     }
 }
 
@@ -1099,12 +1103,12 @@ void uiTable::setRowBackground( int rowidx, const Color& col )
 void uiTable::setColumnBackground( int colidx, const Color& col )
 {
     const int nrrows = nrRows();
-    const QColor qcol = getQCol( col );
+    const QBrush qbrush( getQCol(col) );
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	QTableWidgetItem* itm = body_->item( irow, colidx );
 	if ( itm )
-	    itm->setBackground( qcol );
+	    itm->setBackground( qbrush );
     }
 }
 
@@ -1114,7 +1118,7 @@ void uiTable::setHeaderBackground( int idx, const Color& col, bool isrow )
     QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
 				  : body_->horizontalHeaderItem( idx);
     if ( itm )
-	itm->setBackground( getQCol(col) );
+	itm->setBackground( QBrush(getQCol(col)) );
 }
 
 
