@@ -36,6 +36,7 @@ protected:
     uiListBox*		dirlistfld_;
 
     void		updateListFld();
+    void		rootCheckCB(CallBacker*);
     void		rootSelCB(CallBacker*);
     void		rootMoveUpCB(CallBacker*);
     void		rootMoveDownCB(CallBacker*);

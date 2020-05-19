@@ -136,6 +136,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     basedirfld_ = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
+    mAttachCB( basedirfld_->valuechanged, uiSetDataDir::rootCheckCB );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
     dirlistfld_ = new uiListBox( this, su );
@@ -155,12 +156,13 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     sortgrp->attach( rightOf, dirlistfld_ );
 
     dirlistfld_->setCurrentItem( curdatadir_ );
-    dirlistfld_->selectionChanged.notify( mCB(this,uiSetDataDir,rootSelCB) );
+    mAttachCB( dirlistfld_->selectionChanged, uiSetDataDir::rootSelCB );
 }
 
 
 uiSetDataDir::~uiSetDataDir()
 {
+    detachAllNotifiers();
 }
 
 
@@ -174,10 +176,26 @@ void uiSetDataDir::updateListFld()
 }
 
 
-void uiSetDataDir::rootSelCB( CallBacker* )
+void uiSetDataDir::rootCheckCB( CallBacker* )
+{
+    // Check if in survey
+    BufferString seldir = basedirfld_->text();
+    const FilePath fpsurvey( seldir, ".survey" );
+    const FilePath fpseis( seldir, "Seismics" );
+    if ( fpsurvey.exists() && fpseis.exists() )
+    {
+	seldir = fpsurvey.dirUpTo( fpsurvey.nrLevels()-3 );
+	basedirfld_->setFileName( seldir );
+    }
+}
+
+
+void uiSetDataDir::rootSelCB( CallBacker* cb )
 {
     const BufferString newdr = dirlistfld_->getText();
     basedirfld_->setFileName( newdr );
+
+    rootCheckCB( cb );
 }
 
 
@@ -228,13 +246,6 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	writeSettings();
 	return true;
     }
-
-    // Check if in survey
-
-    FilePath fpdr( seldir_ );
-    fpdr.setFileName( ".survey" );
-
-
 
     FilePath fpdd( seldir_ ); FilePath fps( GetSoftwareDir(0) );
     const int nrslvls = fps.nrLevels();
