@@ -47,6 +47,8 @@ Horizon2DLine::~Horizon2DLine()
 Horizon2DLine* Horizon2DLine::clone() const
 { return new Horizon2DLine(*this); }
 
+void Horizon2DLine::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+{ geomids = geomids_; }
 
 bool Horizon2DLine::addRow( Pos::GeomID geomid,const TypeSet<Coord>& coords,
 			    int start, int step )

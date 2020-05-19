@@ -21,6 +21,7 @@ ________________________________________________________________________
 //! Check on undefined. Also works when double converted to float and vv
 #define __mIsUndefinedD(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
 #define __mIsUndefinedF(x)         (((x)>9.99999e29f)&&((x)<1.00001e30f))
+#define __mIsUndefinedI(x,udfval)  (((x)>=udfval)||((x)<=-udfval))
 //! Almost MAXINT so unlikely, but not MAXINT to avoid that
 #define __mUndefIntVal            2109876543
 //! Almost MAXINT64 therefore unlikely.
@@ -98,7 +99,8 @@ mClass(Basic) Undef<od_int32>
 public:
     static od_int32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( od_int32 i )	{ return i == __mUndefIntVal; }
+    static bool		isUdf( od_int32 i )
+			{ return i>=__mUndefIntVal || i<=-__mUndefIntVal; }
     static void		setUdf( od_int32& i )	{ i = __mUndefIntVal; }
 };
 
@@ -113,7 +115,7 @@ mClass(Basic) Undef<od_uint32>
 public:
     static od_uint32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( od_uint32 i )	{ return i == __mUndefIntVal; }
+    static bool		isUdf( od_uint32 i )	{ return i >= __mUndefIntVal; }
     static void		setUdf( od_uint32& i )	{ i = __mUndefIntVal; }
 };
 
@@ -128,7 +130,8 @@ mClass(Basic) Undef<od_int64>
 public:
     static od_int64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( od_int64 i )	{ return i == __mUndefIntVal64;}
+    static bool		isUdf( od_int64 i )
+			{ return i>=__mUndefIntVal64 || i<=-__mUndefIntVal64; }
     static void		setUdf( od_int64& i )	{ i = __mUndefIntVal64; }
 };
 
@@ -143,7 +146,7 @@ mClass(Basic) Undef<od_uint64>
 public:
     static od_uint64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( od_uint64 i )	{ return i == __mUndefIntVal64;}
+    static bool		isUdf( od_uint64 i )	{ return i >= __mUndefIntVal64;}
     static void		setUdf( od_uint64& i )	{ i = __mUndefIntVal64; }
 };
 

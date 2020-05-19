@@ -47,7 +47,7 @@ public:
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
     Pos::GeomID			geomID(int idx) const;
-    void			setGeomID(int idx,Pos::GeomID);
+    void			getGeomIDs(TypeSet<Pos::GeomID>&) const;
 
     PosID			getPosID(const TrcKey&) const;
     TrcKey			getTrcKey(const PosID&) const;
@@ -96,7 +96,6 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    TypeSet<Pos::GeomID>	geomids_;
 };
 
 

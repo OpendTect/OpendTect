@@ -432,12 +432,14 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	addChild( ps->osgNode() );
     }
 
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
+    if ( !h2d )
+	return;
+
     TypeSet<Pos::GeomID> geomids;
-    EM::IOObjInfo info( emobject_->multiID() );
-    info.getGeomIDs( geomids );
+    h2d->geometry().getGeomIDs( geomids );
 
     LineRanges linergs;
-    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
     const bool redo = h2d && zaxistransform_ && geomids.isEmpty();
     if ( redo )
     {

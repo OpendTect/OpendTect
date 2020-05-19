@@ -39,6 +39,10 @@ public:
     Horizon2DLine*	clone() const;
     bool		isEmpty() const { return rows_.isEmpty(); }
 
+    int			nrLines() const		 { return geomids_.size(); }
+    Pos::GeomID		geomID(int rowidx) const { return geomids_[rowidx]; }
+    void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
+
     bool		addRow(Pos::GeomID geomid,const TypeSet<Coord>&,
 			       int start,int step);
 			/*!<\returns id of new path. */

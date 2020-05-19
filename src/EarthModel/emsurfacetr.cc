@@ -320,11 +320,13 @@ bool dgbEMSurfaceTranslator::prepRead()
 	if ( mIsUdfGeomID(geomid) || linenm.isEmpty() )
 	    continue;
 
-	sd_.linenames.add( linenm );
-	sd_.geomids.add( geomid );
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
 	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
+	{
+	    sd_.linenames.add( linenm );
+	    sd_.geomids.add( geomid );
 	    sd_.trcranges += reader_->lineTrcRanges(idx);
+	}
     }
 
     const int version = reader_->version();
