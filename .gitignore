@@ -70,7 +70,7 @@ dtect/backoffice-server-upload.sh
 CMakeDoxy*
 
 
-#CMakes stuff
+#CMake stuff
 *.ninja
 .ninja_log
 .ninja_deps
@@ -92,6 +92,7 @@ CTestCustom.cmake
 *.opensdf
 *.db
 .vs/*
+qtcsettings.cmake
 
 
 #Temporary files
