@@ -545,7 +545,8 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* trnr )
 StepInterval<int> HorizonDisplay::geometryRowRange() const
 {
     mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
-    if ( !surface ) return parrowrg_;
+    if ( !surface )
+	return parrowrg_;
 
     return surface->geometry().rowRange();
 }
@@ -1198,6 +1199,10 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
 bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 {
+    mDynamicCastGet(EM::Horizon3D*,horizon,emobject_)
+    if ( !horizon )
+	return false;
+
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
     surf->ref();
     surf->setDisplayTransformation( transformation_ );
@@ -1205,7 +1210,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, trans );
     if ( !emobject_->isEmpty() && trans && !trans->execResult() )
     {
@@ -1301,8 +1305,10 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
     displayonlyatsections_ = yn;
 
-    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-    if ( !hor3d ) return;
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    if ( !hor3d )
+	return;
+
     const bool showlock = showlock_ && hor3d->hasLockedNodes();
 
     if ( lockedpts_ && lockedpts_->size()>0 )
@@ -2135,10 +2141,9 @@ void HorizonDisplay::updateSectionSeeds(
     }
 
     // handle locked points on section
-    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-    if ( !lockedpts_ ||
-	 lockedpts_->size()<=0 ||
-	 !displayonlyatsections_ )
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    if ( !hor3d || !lockedpts_ ||
+	 lockedpts_->size()<=0 || !displayonlyatsections_ )
 	return;
 
     if ( !sectionlockedpts_ )
