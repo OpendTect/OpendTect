@@ -98,12 +98,12 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 {
     if ( needvalidrootdir_ )
     {
-	uiMSG().error( tr("Selected directory is not a valid Data Root") );
+	uiMSG().error( tr("Selected folder is not a valid Data Root") );
 	return false;
     }
 
     const bool res = uiMSG().askGoOn(
-	    tr("Selected directory is not a valid Data Root. Do you still "
+	    tr("Selected folder is not a valid Data Root. Do you still "
 	       "want to search for OpendTect Surveys in this location") );
     return res;
 

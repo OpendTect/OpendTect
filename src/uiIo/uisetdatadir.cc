@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "oddirs.h"
 #include "odinst.h"
@@ -38,8 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 # include "winutils.h"
 #endif
 
-static HiddenParam<uiSetDataDir,uiListBox*> drlistfld(0);
-static HiddenParam<uiSetDataDir,BufferStringSet*> drlist(0);
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
@@ -141,14 +138,11 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 			      .directories(true) );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
-    uiListBox* lb = new uiListBox( this, su );
-    drlistfld.setParam( this, lb );
-    lb->attach( leftAlignedBelow, basedirfld_ );
+    dirlistfld_ = new uiListBox( this, su );
+    dirlistfld_->attach( leftAlignedBelow, basedirfld_ );
 
-    BufferStringSet* dirs = new BufferStringSet;
-    drlist.setParam( this, dirs );
-    getRecentDataRoots( *dirs );
-    addDataRootIfNew( *dirs, curdatadir_ );
+    getRecentDataRoots( dirlist_ );
+    addDataRootIfNew( dirlist_, curdatadir_ );
     updateListFld();
 
     uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
@@ -158,77 +152,64 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 		      mCB(this,uiSetDataDir,rootMoveDownCB) );
     new uiToolButton( sortgrp, "remove", uiStrings::sRemove(),
 		      mCB(this,uiSetDataDir,rootRemoveCB) );
-    sortgrp->attach( rightOf, lb );
+    sortgrp->attach( rightOf, dirlistfld_ );
 
-    lb->setCurrentItem( curdatadir_ );
-    lb->selectionChanged.notify( mCB(this,uiSetDataDir,rootSelCB) );
+    dirlistfld_->setCurrentItem( curdatadir_ );
+    dirlistfld_->selectionChanged.notify( mCB(this,uiSetDataDir,rootSelCB) );
 }
 
 
 uiSetDataDir::~uiSetDataDir()
 {
-    drlistfld.removeParam( this );
-    drlist.removeParam( this );
 }
 
 
 void uiSetDataDir::updateListFld()
 {
-    uiListBox* lb = drlistfld.getParam( this );
-    const BufferString curtext = lb->getText();
-    lb->setEmpty();
-    BufferStringSet* dirs = drlist.getParam( this );
-    for ( int idx=0; idx<dirs->size(); idx++ )
-	lb->addItem( toUiString(dirs->get(idx)) );
+    const BufferString curtext = dirlistfld_->getText();
+    dirlistfld_->setEmpty();
+    dirlistfld_->addItems( dirlist_ );
 
-    lb->setCurrentItem( curtext );
+    dirlistfld_->setCurrentItem( curtext );
 }
 
 
 void uiSetDataDir::rootSelCB( CallBacker* )
 {
-    uiListBox* lb = drlistfld.getParam( this );
-    const BufferString newdr = lb->getText();
-    if ( File::isDirectory(newdr) && File::exists(newdr) )
-	basedirfld_->setFileName( newdr );
+    const BufferString newdr = dirlistfld_->getText();
+    basedirfld_->setFileName( newdr );
 }
 
 
 void uiSetDataDir::rootMoveUpCB( CallBacker* )
 {
-    uiListBox* lb = drlistfld.getParam( this );
-    const int curitm = lb->currentItem();
+    const int curitm = dirlistfld_->currentItem();
     if ( curitm<=0 )
 	return;
 
-    BufferStringSet* dirs = drlist.getParam( this );
-    dirs->swap( curitm, curitm-1 );
+    dirlist_.swap( curitm, curitm-1 );
     updateListFld();
 }
 
 
 void uiSetDataDir::rootMoveDownCB( CallBacker* )
 {
-    uiListBox* lb = drlistfld.getParam( this );
-    const int curitm = lb->currentItem();
-    BufferStringSet* dirs = drlist.getParam( this );
-    if ( curitm<0 || curitm==dirs->size()-1 )
+    const int curitm = dirlistfld_->currentItem();
+    if ( curitm<0 || curitm==dirlist_.size()-1 )
 	return;
 
-    dirs->swap( curitm, curitm+1 );
+    dirlist_.swap( curitm, curitm+1 );
     updateListFld();
 }
 
 
 void uiSetDataDir::rootRemoveCB( CallBacker* )
 {
-    uiListBox* lb = drlistfld.getParam( this );
-    const int curitm = lb->currentItem();
-    BufferStringSet* dirs = drlist.getParam( this );
-    if ( dirs->isEmpty() )
+    const int curitm = dirlistfld_->currentItem();
+    if ( dirlist_.isEmpty() )
 	return;
 
-    delete dirs->removeSingle( curitm );
+    delete dirlist_.removeSingle( curitm );
     updateListFld();
 }
 
@@ -238,7 +219,8 @@ void uiSetDataDir::rootRemoveCB( CallBacker* )
 bool uiSetDataDir::acceptOK( CallBacker* )
 {
     seldir_ = basedirfld_->text();
-    if ( seldir_.isEmpty() || !File::isDirectory(seldir_) )
+    if ( seldir_.isEmpty() || !File::exists(seldir_) ||
+	 !File::isDirectory(seldir_) )
 	mErrRet( tr("Please enter a valid (existing) location") )
 
     if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
@@ -246,6 +228,13 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	writeSettings();
 	return true;
     }
+
+    // Check if in survey
+
+    FilePath fpdr( seldir_ );
+    fpdr.setFileName( ".survey" );
+
+
 
     FilePath fpdd( seldir_ ); FilePath fps( GetSoftwareDir(0) );
     const int nrslvls = fps.nrLevels();
@@ -269,14 +258,13 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 
 bool uiSetDataDir::writeSettings()
 {
-    BufferStringSet* dataroots = drlist.getParam( this );
-    addDataRootIfNew( *dataroots, seldir_ );
+    addDataRootIfNew( dirlist_, seldir_ );
 
     const char* prefix = getPrefix();
     Settings& setts = Settings::fetch( "dataroot" );
     setts.removeSubSelection( prefix );
-    for ( int idx=0; idx<dataroots->size(); idx++ )
-	setts.set( IOPar::compKey(prefix,idx), dataroots->get(idx) );
+    for ( int idx=0; idx<dirlist_.size(); idx++ )
+	setts.set( IOPar::compKey(prefix,idx), dirlist_.get(idx) );
 
     return setts.write( false );
 }

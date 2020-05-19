@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiFileInput;
+class uiListBox;
 
 mExpClass(uiIo) uiSetDataDir : public uiDialog
 { mODTextTranslationClass(uiSetDataDir);
@@ -30,6 +31,9 @@ protected:
     BufferString	seldir_;
     const BufferString	curdatadir_;
     uiFileInput*	basedirfld_;
+
+    BufferStringSet	dirlist_;
+    uiListBox*		dirlistfld_;
 
     void		updateListFld();
     void		rootSelCB(CallBacker*);
