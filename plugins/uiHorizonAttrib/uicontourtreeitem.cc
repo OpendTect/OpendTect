@@ -1157,6 +1157,7 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
 	{
 	    labels_->text(idx)->setJustification(
 		    (visBase::Text::Justification) dlg->getLabelAlignment() );
+	    labels_->text(idx)->setColor( color_ );
 	}
     }
 }
@@ -1277,16 +1278,20 @@ bool uiContourTreeItem::createPolyLines()
 
 bool uiContourTreeItem::setLabels( visBase::Text2* newlabels )
 {
-    if( !material_ )
+    if ( !material_ )
 	return false;
 
     removeLabels();
     labels_ = newlabels;
-    if( !labels_ ) return false;
+    if ( !labels_ )
+	return false;
 
     labels_->ref();
     applMgr()->visServer()->addObject( labels_, sceneID(), false );
     labels_->setMaterial( material_ );
+
+    for ( int idx=0; idx<labels_->nrTexts(); idx++ )
+	labels_->text(idx)->setColor( color_ );
 
     return true;
 }
