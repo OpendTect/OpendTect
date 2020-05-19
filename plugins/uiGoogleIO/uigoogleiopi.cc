@@ -74,8 +74,10 @@ public:
     void		mkExportLinesIcon(CallBacker*);
 
 private:
+    static uiString	sToolTipTxt()
+			{ return tr("Export to Google KML"); }
     static uiString	sMenuTxt()
-    { return m3Dots(tr("Export to Google KML")); }
+			{ return m3Dots(sToolTipTxt()); }
 };
 
 
@@ -128,8 +130,8 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
     if ( !wm ) return;
 
     new uiToolButton( wm->extraButtonGroup(), "google",
-				sMenuTxt(),
-				mCB(this,uiGoogleIOMgr,exportWells) );
+		      sToolTipTxt(),
+		      mCB(this,uiGoogleIOMgr,exportWells) );
 }
 
 
@@ -151,8 +153,8 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     if ( !cur2dfm_ ) return;
 
     fm->getButGroup(false)->addButton( "google",
-				   tr("Export selected lines to Google KML"),
-				   mCB(this,uiGoogleIOMgr,exportLines) );
+			tr("Export selected lines to Google KML"),
+			mCB(this,uiGoogleIOMgr,exportLines) );
 }
 
 
