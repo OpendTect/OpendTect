@@ -17,7 +17,7 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 	- [Dependencies](#dependencies)
 		- [Qt Install](#qt-install)
 		- [OpenSceneGraph Build](#openscenegraph-build)
-		- [osgQt Build](#osgqt-build)
+		- [HDF5 Install](#hdf5-install)
  	- [Windows](#windows)
  	- [MacOS](#macos)
  	- [Linux](#linux)
@@ -25,15 +25,15 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 - [Contacts and More Information](#contacts-and-more-information)
 
 ## Repository Structure
-The repository contains a number of release branches and 3 development branches. The current stable release branch is [6.4.4](https://github.com/OpendTect/OpendTect/tree/od6.4.4)
+The repository contains a number of release branches and 3 development branches. The current stable release branch is [6.4.5](https://github.com/OpendTect/OpendTect/tree/od6.4.5)
 
 The development branches are:
 
 | BRANCH | DESCRIPTION |
 | -------------| ----------------- |
 | [master](https://github.com/OpendTect/OpendTect/tree/master) | This is the bleeding edge where migration of OpendTect to new versions of its major dependencies, Qt and OpenSceneGraph, is tested and major new functionality is added.  |
-| [od6.4](https://github.com/OpendTect/OpendTect/tree/od6.4)  | This is the main development branch  for the next stable release series 6.6. No new features are currently being added to this branch as it is being prepared for release. |
-| [od6.5](https://github.com/OpendTect/OpendTect/tree/od6.5)  |  This branch is used for developing new incremental features against the 6.4 series codebase for future integration into the software.  |
+| [od6.6](https://github.com/OpendTect/OpendTect/tree/od6.6)  | This is the main development branch for the next stable release series 6.6. No new features are currently being added to this branch as it is being prepared for release. |
+| [od6.7](https://github.com/OpendTect/OpendTect/tree/od6.7)  |  This branch is used for developing new incremental features against the 6.6 series codebase for future integration into the software.  |
 
 ## License
 OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html) license.
@@ -43,8 +43,8 @@ OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gp
 
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2017 64 bit. The free community edition is sufficient.
-	- macOS:
-	- Linux: gcc 64 bit version 4.8.5 or higher
+	- macOS: SDK 10.9
+	- Linux: gcc 64 bit version 5.4.0 or higher
 - CMake version 2.8 or higher
 
 ### Dependencies
@@ -52,35 +52,30 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| od6.4.4, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
-| master | [Qt 5.12.3](http://download.qt.io/archive/qt/5.12/5.12.3/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz), [osgQt 3.5.7](https://github.com/openscenegraph/osgQt/archive/3.5.7.tar.gz) |
+| master | [Qt 5.14.2](http://download.qt.io/archive/qt/5.14/5.14.2/), [OpenSceneGraph 3.6.4](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.4.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.7 | [Qt 5.14.2](http://download.qt.io/archive/qt/5.14/5.14.2/), [OpenSceneGraph 3.6.4](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.4.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.6.0, od6.6 | [Qt 5.12.8](http://download.qt.io/archive/qt/5.12/5.12.8/), [OpenSceneGraph 3.6.4](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.4.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.4.5, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
 
--  Desktop msvc2017 64- bit (Windows), XXXXX (macOS) or gcc 64 bit (Linux) 
+-  Desktop msvc2017 64- bit (Windows), SDK 10.9 (macOS) or gcc 64 bit (Linux) 
 -  QtWebEngine
 -  Optionally source code or debug information files
 
 #### OpenSceneGraph Build
 Configure using CMake, compile and install. 
 
-#### osgQt Build
-Configure CMake ensuring to set the following variables:
-
-- DESIRED\_QT\_VERSION=5
-- CMAKE\_PREFIX\_PATH= set this to the location of the Qt cmake folder (Linux: "Qt install location"/gcc_64/lib/cmake)
-- OSG_DIR="OpenSceneGraph install location"
-- OpenGL\_GL\_PREFERENCE=LEGACY  (Linux only)
-
-Compile and install. Note that osgQt will need to be built against the versions of Qt required by the respective OpendTect branch 
+### HDF5 Install
+The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 1.12 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developpers however need to recompile the sources since no debug binary libraries can be downloaded.
 
 ### Windows
 Configure CMake ensuring to set the following variables:
 
 - QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
-- OSGQT= set this to the install location of osgQt for the version of Qt being used
 - OSG_DIR="OpenSceneGraph install location"
+- HDF5_ROOT="HDF5 install location" (optional)
 
 Start msvc2017, open the OpendTect build solution and build.
 
@@ -89,8 +84,8 @@ Start msvc2017, open the OpendTect build solution and build.
 Configure CMake ensuring to set the following variables:
 
 - QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
-- OSGQT= set this to the install location of osgQt for the version of Qt being used
 - OSG_DIR="OpenSceneGraph install location"
+- HDF5_ROOT="HDF5 install location" (optional)
 - OpenGL\_GL\_PREFERENCE=LEGACY 
 - ZLIB\_INCLUDE\_DIR=  set this if not being found by CMake
 - ZLIB\_LIBRARY= set this if not being found by CMake
@@ -101,7 +96,7 @@ Run make in the toplevel folder (i.e. where this README.MD file is located)
 [//]: # (PROBABLY WANT TO EXPAND THIS WITH GUIDANCE ON WHAT TYPE OF CONTRIBUTIONS WILL BE WELCOME AND WHERE  IN THE CODEBASE)
 You can contribute to the enhancement of OpendTect either by:
 
--  providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
+- providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
 - or independently by developing and releasing open source plugins from your own Github or equivalent repository. See the [wmplugins repository](https://github.com/waynegm/OpendTect-Plugins) as an example of this approach.
 
 An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](http://doc.opendtect.org/6.4.0/doc/Programmer/overview.html).
