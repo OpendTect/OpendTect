@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
+#include "coordsystem.h"
 #include "executor.h"
 
 template<class T> class Array2D;
@@ -31,6 +32,8 @@ public:
     od_int64		totalNr() const			{ return totalnr_; }
     uiString		uiMessage() const		{ return msg_; }
     uiString		uiNrDoneText() const		{ return nrdonetxt_; }
+
+    void		setCoordSystem(Coords::CoordSystem*);
 
     const Array2D<float>* data() const			{ return data_; }
     Array2D<float>*	data()				{ return data_; }
@@ -53,6 +56,7 @@ protected:
     BufferString	fnm_;
     bool		initdone_	= false;
     od_istream*		istrm_		= nullptr;
+    RefMan<Coords::CoordSystem>	coordsystem_;
 
     // header line 1
     int			nrnodesperline_	= 0;

@@ -32,8 +32,9 @@ class uiPushButton;
 class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
-namespace Table { class FormatDesc; }
+namespace Coords { class uiCoordSystemSel; }
 namespace EM { class Horizon3D; }
+namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for Horizon Import */
 
@@ -103,12 +104,13 @@ public:
 
 protected:
 
-    uiFileInput*	inpfld_;
-    uiIOObjSel*		outputfld_;
+    uiFileInput*		inpfld_;
+    Coords::uiCoordSystemSel*	crsfld_;
+    uiIOObjSel*			outputfld_;
 
-    virtual bool	acceptOK(CallBacker*);
-    void		inputChgd(CallBacker*);
-    EM::Horizon3D*	createHor() const;
+    virtual bool		acceptOK(CallBacker*);
+    void			inputChgd(CallBacker*);
+    EM::Horizon3D*		createHor() const;
 };
 
 #endif

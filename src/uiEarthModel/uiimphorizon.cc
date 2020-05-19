@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
+#include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
@@ -691,6 +692,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 				 mODHelpKey(mImportHorAttribHelpID) )
 				 .modal(false))
     , importReady(this)
+    , crsfld_(nullptr)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     enableSaveButton( tr("Display after import") );
@@ -699,12 +701,20 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 		  uiFileInput::Setup(uiFileDialog::Gen)
 		  .withexamine(true).forread(true)
 		  .defseldir(sImportFromPath) );
-    mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
+    mAttachCB(inpfld_->valuechanged, uiImpHorFromZMap::inputChgd);
+
+    uiObject* attachobj = inpfld_->attachObj();
+    if ( SI().getCoordSystem() && SI().getCoordSystem()->isProjection() )
+    {
+	crsfld_ = new Coords::uiCoordSystemSel(this, false);
+	crsfld_->attach(alignedBelow, inpfld_);
+	attachobj = crsfld_->attachObj();
+    }
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
     ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
-    outputfld_->attach( alignedBelow, inpfld_ );
+    outputfld_->attach( alignedBelow, attachobj );
 }
 
 
@@ -781,7 +791,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     if ( !uitr.execute(conv) )
     {
 	uiMSG().error( tr("Can not convert ZMap grid to",
-		    	  " Inline/Crossline domain") );
+			  " Inline/Crossline domain") );
 	return false;
     }
 

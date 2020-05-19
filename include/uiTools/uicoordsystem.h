@@ -118,4 +118,4 @@ protected:
 
 };
 
-} //Namespace
+} // namespace Coords

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "position.h"
 #include "separstr.h"
+#include "survinfo.h"
 
 #include "uistrings.h"
 
@@ -43,6 +44,12 @@ ZMapImporter::~ZMapImporter()
 }
 
 
+void ZMapImporter::setCoordSystem( Coords::CoordSystem* crs )
+{
+    coordsystem_ = crs;
+}
+
+
 bool ZMapImporter::initHeader()
 {
     BufferString buf;
@@ -51,7 +58,7 @@ bool ZMapImporter::initHeader()
 	istrm_->getLine( buf );
 	if ( buf.isEmpty() || buf[0]=='!' )
 	    continue;
-	
+
 	break;
     }
 
@@ -81,6 +88,18 @@ bool ZMapImporter::initHeader()
     xmax_ = toDouble( ss[3] );
     ymin_ = toDouble( ss[4] );
     ymax_ = toDouble( ss[5] );
+    const Coords::CoordSystem* fromcrs = coordsystem_;
+    const Coords::CoordSystem* tocrs = SI().getCoordSystem();
+    if ( fromcrs && tocrs )
+    {
+	Coord mincrd( xmin_, ymin_ );
+	mincrd = Coords::CoordSystem::convert( mincrd, *fromcrs, *tocrs );
+	xmin_ = mincrd.x; ymin_ = mincrd.y;
+
+	Coord maxcrd( xmax_, ymax_ );
+	maxcrd = Coords::CoordSystem::convert( maxcrd, *fromcrs, *tocrs );
+	xmax_ = maxcrd.x; ymax_ = mincrd.y;
+    }
 
 //header line 4
     istrm_->getLine( ss.rep() );
