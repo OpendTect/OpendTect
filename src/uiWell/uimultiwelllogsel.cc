@@ -12,16 +12,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimultiwelllogsel.h"
 
+#include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
-#include "wellextractdata.h"
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
+#include "welltransl.h"
 #include "wellwriter.h"
 
 #include "uicombobox.h"
@@ -382,7 +384,9 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 				      const BufferStringSet* wellnms,
 				      const BufferStringSet* lognms )
     : uiWellExtractParams(p,s)
-    , singlewid_(0)
+    , singlewid_(nullptr)
+    , wellsfld_(nullptr)
+    , logsfld_(nullptr)
 {
     init();
     update();
@@ -398,6 +402,8 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 				      const MultiID& singlewid )
     : uiWellExtractParams(p,s)
     , singlewid_(&singlewid)
+    , wellsfld_(nullptr)
+    , logsfld_(nullptr)
 {
     init();
     update();
@@ -484,24 +490,23 @@ void uiMultiWellLogSel::update()
 	wellsfld_->setEmpty();
     }
 
-    logsfld_->setEmpty();
+    if ( logsfld_ )
+	logsfld_->setEmpty();
 
     deepErase( wellobjs_ );
 
-    uiTaskRunner uitr( this );
-    Well::InfoCollector wic( false, false, false );
-    if ( !uitr.execute(wic) )
-	return;
-
+    IOObjContext ctxt = mIOObjContext(Well);
+    IODir iodir( ctxt.getSelKey() );
+    IODirEntryList entries( iodir, ctxt );
+ 
     BufferStringSet wellnms;
-    for ( int iid=0; iid<wic.ids().size(); iid++ )
+    for ( int iid=0; iid<entries.size(); iid++ )
     {
-	const MultiID& mid = *wic.ids()[iid];
-	IOObj* ioobj = IOM().get( mid );
-	if ( !ioobj || ( singlewid_ && mid != *singlewid_ ) )
+	const IOObj* ioobj = entries[iid]->ioobj_;
+	if ( !ioobj || ( singlewid_ && ioobj->key() != *singlewid_ ) )
 	    continue;
 
-	wellobjs_ += ioobj;
+	wellobjs_ += ioobj->clone();
 	wellnms.add( ioobj->name() );
     }
 
@@ -514,6 +519,9 @@ void uiMultiWellLogSel::update()
 
 void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 {
+    if ( !logsfld_ )
+	return;
+
     logsfld_->setEmpty();
     TypeSet<MultiID> mids;
     getSelWellIDs( mids );
