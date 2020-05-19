@@ -78,6 +78,7 @@ protected:
 	if ( !dah_.isEmpty() && ascendingvalonly && v <= vals[dah_.size()-1] )\
 	    return false;\
 	dah_ += dh; vals += val;\
+	return true;\
     }\
     if ( dh < dah_[0] )\
     {\
