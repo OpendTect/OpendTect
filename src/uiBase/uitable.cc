@@ -31,10 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QApplication>
 #include <QClipboard>
 #include <QCursor>
-#include <QDesktopWidget>
 #include <QHeaderView>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QScreen>
 #include <QStyledItemDelegate>
 
 mUseQtnamespace
@@ -753,16 +753,20 @@ int uiTable::nrCols() const		{ return body_->columnCount(); }
 
 void uiTable::setPrefHeightInRows( int nrrows )
 {
-    const QDesktopWidget* qdesktop = QApplication::desktop();
-    const QRect geom = qdesktop->availableGeometry();
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() )
+	return;
+    const QRect geom = screens[0]->availableVirtualGeometry();
     body_->setPrefHeightInRows( nrrows, int(geom.height()*0.9) );
 }
 
 
 void uiTable::setPrefWidthInChars( int nrchars )
 {
-    const QDesktopWidget* qdesktop = QApplication::desktop();
-    const QRect geom = qdesktop->availableGeometry();
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() )
+	return;
+    const QRect geom = screens[0]->availableVirtualGeometry();
     body_->setPrefWidthInChars( nrchars, int(geom.width()*0.9) );
 }
 
@@ -1046,7 +1050,7 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
     mBlockCmdRec;
     QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
     QTableWidgetItem* itm = body_->getItem( rc );
-    if ( itm ) itm->setBackground( qcol );
+    if ( itm ) itm->setBackground( QBrush(qcol) );
     body_->setFocus();
 }
 
@@ -1068,8 +1072,8 @@ void uiTable::setHeaderBackground( int idx, const Color& col, bool isrow )
     if ( !itm )
 	return;
 
-    QColor qcol( col.r(), col.g(), col.b() );
-    itm->setBackground( qcol );
+    const QColor qcol( col.r(), col.g(), col.b() );
+    itm->setBackground( QBrush(qcol) );
 }
 
 
