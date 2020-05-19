@@ -59,8 +59,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 		uiStrings::phrCopy(uiStrings::sWavelet()),
 		mCB(this,uiSeisWvltMan,copyPush) );
     manipgrp->nextButtonOnNewRowCol();
-    manipgrp->addButton( "impfromothsurv", tr("Get from other survey"),
-			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
     disppropbut_ = manipgrp->addButton( "info", mJoinUiStrs(sDisplay(),
 				sProperties()), mCB(this,uiSeisWvltMan,
 				dispProperties) );
@@ -110,24 +108,25 @@ uiSeisWvltMan::~uiSeisWvltMan()
 void uiSeisWvltMan::addButtons()
 {
     uiButtonGroup* grp = extraButtonGroup();
-    uiPushButton* impbut = new uiPushButton( grp, uiStrings::sImport(), false );
-    impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
+    new uiToolButton( grp, "impfromothsurv",
+		      tr("Import Wavelet from other survey"),
+		      mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
 
-    uiPushButton* crbut = new uiPushButton( grp, tr("Generate"), false );
-    crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
-    crbut->attach( rightOf, impbut );
+    new uiToolButton( grp, "import",
+		      tr("Import Wavelet from ASCII file"),
+		      mCB(this,uiSeisWvltMan,impPush) );
 
-    uiPushButton* mergebut = new uiPushButton( grp, tr("Stack"), false );
-    mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
-    mergebut->attach( rightOf, crbut );
+    new uiToolButton( grp, "wavelet", tr("Create Wavelet"),
+		      mCB(this,uiSeisWvltMan,crPush) );
 
-    uiPushButton* extractbut = new uiPushButton( grp, tr("Extract"), false );
-    extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
-    extractbut->attach( rightOf, mergebut );
+    new uiToolButton( grp, "plus", tr("Stack Wavelets"),
+		      mCB(this,uiSeisWvltMan,mrgPush) );
 
-    uiPushButton* matchbut = new uiPushButton( grp, tr("Match"), false );
-    matchbut->activated.notify( mCB(this,uiSeisWvltMan,matchPush) );
-    matchbut->attach( rightOf, extractbut );
+    new uiToolButton( grp, "wavelet_extract", tr("Extract"),
+		      mCB(this,uiSeisWvltMan,extractPush) );
+
+    new uiToolButton( grp, "wavelet_match", tr("Match Wavelets"),
+		      mCB(this,uiSeisWvltMan,matchPush) );
 }
 
 
