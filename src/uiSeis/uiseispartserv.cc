@@ -313,8 +313,8 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
     if ( nrod3d == 1 )
 	return ioobjs[def3didx]->key();
 
-    uiString msg = uiStrings::phrCannotFind( tr("valid default volume."
-						"Do you want to set it now?") );
+    uiString msg = uiStrings::phrCannotFind(
+	tr("valid default volume.\nDo you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
 	return MultiID::udf();
