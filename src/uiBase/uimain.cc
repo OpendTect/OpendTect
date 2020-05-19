@@ -505,12 +505,10 @@ void uiMain::init( QApplication* qap )
 
 bool uiMain::setStyleSheet( const char* fnm )
 {
+    QString filecontents;
     QFile file( fnm );
-    if ( !file.open( QFile::ReadOnly| QFile::Text ) )
-	return false;
-    QString filecontents = QLatin1String( file.readAll() );
-    if ( filecontents.isEmpty() )
-	return false;
+    if ( file.exists() && file.open(QFile::ReadOnly|QFile::Text) )
+	filecontents = QLatin1String( file.readAll() );
 
     app_->setStyleSheet( filecontents );
     return true;
