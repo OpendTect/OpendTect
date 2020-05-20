@@ -18,11 +18,14 @@ endforeach()
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
+    set( OD_DOXYGEN_ODPY_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/odpy/Generated )
+    set( OD_DOXYGEN_ODPY_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile_odpy )
 
     file ( GLOB DOXYGEN_PROGDOC_FILES "${CMAKE_SOURCE_DIR}/doc/Programmer/*.dox" )
     foreach ( OD_DOXYGEN_PROGDOC_FILE ${DOXYGEN_PROGDOC_FILES} )
 	set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${OD_DOXYGEN_PROGDOC_FILE}" )
     endforeach()
+    set( OD_DOXYGEN_ODPY_INPUT ${CMAKE_SOURCE_DIR}/bin/python/odpy )
 
     foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
@@ -42,11 +45,14 @@ macro( OD_BUILD_DOCUMENTATION )
     endforeach()
 
     set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
+    set( TEMPLATE_ODPY ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile_odpy.in )
     set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
 
 	
     configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
+    configure_file( ${TEMPLATE_ODPY}
+		 ${OD_DOXYGEN_ODPY_FILE} @ONLY IMMEDIATE)
     OD_CURRENT_YEAR( YEAR )
     configure_file( ${FOOTER}
 		${PROJECT_BINARY_DIR}/CMakeFiles/doxygenfooter.html @ONLY
@@ -67,9 +73,15 @@ macro( OD_BUILD_DOCUMENTATION )
 			${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			${MAKE_SITEMAP_COMMAND}
 			SOURCES ${OD_DOXYGEN_FILE} )
+    add_custom_target ( doc_odpy
+                        ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_ODPY_FILE}
+                        ${MAKE_SITEMAP_COMMAND}
+                        SOURCES ${OD_DOXYGEN_ODPY_FILE} )
 
     install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION
 	                ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/odpy/Generated/html DESTINATION
+			{MISC_INSTALL_PREFIX}/doc/Programmer/odpy/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
