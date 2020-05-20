@@ -92,7 +92,7 @@ protected:
     void	initGeometry(const ArrayNDInfo&);
     void	addPos(const Bin2D&,const Arr2D&,z_type);
     void	addPos(const BinID&,const Arr3D&,z_type);
-    uiRetVal	storeReadyPositions();
+    uiRetVal	storeReadyPositions(bool force=false);
 
     LineBuf*	getBuf(pos_type);
     uiRetVal	storeLineBuf(const LineBuf&);

@@ -303,13 +303,13 @@ uiRetVal Seis::Blocks::DataGlueer::finish()
 {
     curbid_ = BinID::udf();
     mSetUdf( curb2d_.trcNr() );
-    auto uirv = storeReadyPositions();
+    auto uirv = storeReadyPositions( true );
     uirv.add( storer_.close() );
     return uirv;
 }
 
 
-uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions()
+uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions( bool force )
 {
     uiRetVal uirv;
 
@@ -318,7 +318,7 @@ uiRetVal Seis::Blocks::DataGlueer::storeReadyPositions()
     {
 	auto* lb = linebufs_.get( ilb );
 	const auto lnr = is2D() ? curb2d_.lineNr() : curbid_.inl();
-	if ( lb->linerg_.includes(lnr,false) )
+	if ( !force && lb->linerg_.includes(lnr,false) )
 	    break;
 
 	uirv = storeLineBuf( *lb );
