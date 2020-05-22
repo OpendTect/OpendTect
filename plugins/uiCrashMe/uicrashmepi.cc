@@ -42,13 +42,13 @@ uiCrashMgr::uiCrashMgr( uiODMain& a )
 {
     uiAction* newitem = new uiAction( toUiString("Force Crash!"),
 					  mCB(this,uiCrashMgr,crashCB) );
-    appl.menuMgr().utilMnu()->insertItem( newitem );
+    appl.menuMgr().utilMnu()->insertAction( newitem );
 }
 
 
 void uiCrashMgr::crashCB( CallBacker* )
 {
-    if ( uiMSG().askGoOn(toUiString("Do you want to CRASH OpendTect?")) )
+    if ( gUiMsg().askGoOn(toUiString("Do you want to CRASH OpendTect?")) )
 	doCrash();
 }
 

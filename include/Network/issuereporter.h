@@ -30,6 +30,7 @@ public:
     bool			setDumpFileName(const char* filename);
     BufferString&		getReport()	    { return report_; }
     const OD::String&		getReport() const   { return report_; }
+    bool			isBinary() const    { return isbinary_; }
 
     bool			send();
     const char*			filePath() const    { return crashreportpath_; }
@@ -50,6 +51,7 @@ protected:
     BufferString		report_;
     BufferString                crashreportpath_;
     uiString			message_;
+    bool			isbinary_;
 };
 
 

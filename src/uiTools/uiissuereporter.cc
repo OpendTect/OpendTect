@@ -12,11 +12,13 @@ ________________________________________________________________________
 #include "uiissuereporter.h"
 
 #include "envvars.h"
+#include "filepath.h"
 #include "settings.h"
 #include "uiclipboard.h"
 #include "uilabel.h"
 #include "uitextedit.h"
 #include "uibutton.h"
+#include "uidesktopservices.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
@@ -28,9 +30,11 @@ static FixedString sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }
 
 
-uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
+uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
+					System::IssueReporter& rep )
     : uiDialog( p, uiDialog::Setup(tr("Problem reporter"),
-    mNoDlgTitle,mNoHelpKey) )
+		mNoDlgTitle,mNoHelpKey) )
+    , reporter_(rep)
 {
     uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
     lblgrp->setFrame( true );
@@ -44,17 +48,23 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
 		"For feedback and/or updates on this issue,\n"
 		"do please also leave your e-mail address\n") );
     plealbl->setAlignment( OD::Alignment::HCenter );
-    uiButton* vrbut = new uiPushButton( this, tr("View report"),
+
+    const bool senddmp = reporter_.isBinary();
+    uiLabel* filelbl = new uiLabel( this, tr("Crash report: ") );
+    uiLabel* filenmlbl = new uiLabel( this, toUiString(reporter_.filePath()) );
+    filenmlbl->attach( alignedBelow, lblgrp );
+    filelbl->attach( leftOf, filenmlbl );
+
+    uiButton* vrbut = new uiPushButton( this,
+	    		senddmp ? tr("Open folder") : tr("View report"),
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
-    vrbut->attach( centeredRightOf, lblgrp );
 
     uiGroup* usrinpgrp = new uiGroup( this, "User input group" );
     commentfld_ = new uiTextEdit( usrinpgrp );
     commentfld_->setPrefWidthInChar( 60 );
     commentfld_->setPrefHeightInChar( 8 );
-    new uiLabel( usrinpgrp, tr("Details you wish to share").optional(),
-		    commentfld_ );
-    emailfld_ = new uiGenInput( usrinpgrp, tr("E-mail address").optional() );
+    new uiLabel( usrinpgrp, tr("[Details you wish to share]"), commentfld_ );
+    emailfld_ = new uiGenInput( usrinpgrp, tr("[E-mail address]") );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
 
@@ -65,7 +75,9 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     proxybut->attach( rightOf, emailfld_ );
 
     usrinpgrp->setHAlignObj( emailfld_ );
-    usrinpgrp->attach( alignedBelow, lblgrp );
+    usrinpgrp->attach( alignedBelow, filenmlbl );
+    vrbut->attach( ensureBelow, lblgrp );
+    vrbut->attach( rightAlignedAbove, usrinpgrp );
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
@@ -97,6 +109,12 @@ bool uiIssueReporterDlg::allowSending() const
 
 void uiIssueReporterDlg::viewReport( const uiString& cap )
 {
+    if ( reporter_.isBinary() )
+    {
+	uiDesktopServices::openUrl( FilePath(reporter_.filePath()).pathOnly() );
+	return;
+    }
+
     BufferString report;
     getReport( report );
 

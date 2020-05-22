@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "iopar.h"
 #include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odnetworkaccess.h"
@@ -30,6 +31,7 @@ ________________________________________________________________________
 System::IssueReporter::IssueReporter( const char* host, const char* path )
     : host_( host )
     , path_( path )
+    , isbinary_(false)
 {}
 
 
@@ -177,14 +179,13 @@ bool System::IssueReporter::parseCommandLine()
 
     const BufferString& filename = normalargs.get( 0 );
 
-    host_ = parser.keyedString( hostkey );
-    path_ = parser.keyedString( pathkey );
-    const bool binary = parser.hasKey( "binary" );
+    parser.getKeyedInfo( hostkey, host_ );
+    parser.getKeyedInfo( pathkey, path_ );
+    isbinary_ = parser.hasKey( "binary" );
+
+    if ( !setDumpFileName(filename) )
+	return false;
 
     fillBasicReport( filename );
-
-    if ( binary )
-	return setDumpFileName( filename );
-
-    return readReport( filename );
+    return isbinary_ ? true : readReport( filename );
 }
