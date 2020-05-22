@@ -24,7 +24,8 @@ mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
 {  mODTextTranslationClass(uiIssueReporterDlg);
 public:
     
-				uiIssueReporterDlg( uiParent* );
+				uiIssueReporterDlg(uiParent*,
+						   System::IssueReporter&);
     
     System::IssueReporter&	reporter() { return reporter_; }
     const char*			errMsg() const;
@@ -49,7 +50,7 @@ protected:
     uiTextEdit*			commentfld_;
     uiGenInput*			emailfld_;
     
-    System::IssueReporter	reporter_;
+    System::IssueReporter&	reporter_;
     BufferString		filename_;
 
 };
