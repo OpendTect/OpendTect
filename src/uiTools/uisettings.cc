@@ -721,8 +721,7 @@ void testCB(CallBacker*)
 	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
-    const bool getversion = OD::PythA().retrievePythonVersionStr();
-    if ( !getversion )
+    if ( !OD::PythA().retrievePythonVersionStr() )
     {
 	uiString launchermsg;
 	uiRetVal uirv( tr("Cannot detect python version:\n%1")
@@ -751,7 +750,16 @@ void promptCB( CallBacker* )
 
     SetEnvVarDirList( "PYTHONPATH", new_python_path, false );
 
-    OD::PythA().openTerminal();
+    if ( !OD::PythA().openTerminal() )
+    {
+	uiString launchermsg;
+	uiRetVal uirv( tr("Cannot launch terminal with python:\n%1")
+	    .arg(OD::PythA().lastOutput(true,&launchermsg)) );
+	uirv.add( tr("Python environment not usable") )
+	    .add( launchermsg );
+	gUiMsg( this ).error( uirv );
+	return;
+    }
 
     SetEnvVarDirList( "PYTHONPATH", current_python_path, false );
 }
