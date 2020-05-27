@@ -352,7 +352,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
     res = doscript ?  (testscriptout ? laststdout_ ==
 				       FixedString(scriptexpectedout)
 				     : res)
-		   : !laststdout_.isEmpty() || !laststderr_.isEmpty();
+		   : laststderr_.isEmpty();
     if ( !res && !force_external )
 	return false;
 
