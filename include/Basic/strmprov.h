@@ -106,7 +106,7 @@ protected:
     BufferString	hostname_;
 
     static StreamData	makePLIStream(int);
-    void		mkOSCmd(BufferString&) const;
+    void		mkOSCmd(BufferString& prog,BufferStringSet& args) const;
 
     static void		sendCBMsg(const CallBack*,const char*);
 

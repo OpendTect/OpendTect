@@ -757,20 +757,23 @@ bool File::makeWritable( const char* fnm, bool yn, bool recursive )
 #ifdef OD_NO_QT
     return false;
 #else
-    BufferString cmd;
+    const BufferString filenm( "\"", fnm, "\"" );
+    BufferStringSet args;
 # ifdef __win__
-    cmd = "attrib"; cmd += yn ? " -R " : " +R ";
-    cmd.add("\"").add(fnm).add("\"");
+    const QString qprog( "attrib" );
+    args.add( yn ? "-R" : "+R" ).add( filenm );
     if ( recursive && isDirectory(fnm) )
-	cmd += "\\*.* /S ";
+	args.add( "\\*.*" ).add( "/S" );
 # else
-    cmd = "chmod";
+    const QString qprog( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	cmd += " -R ";
-    cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
+	args.add( "-R" );
+    args.add( yn ? "ug+w" : "a-w" ).add( filenm );
 # endif
 
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+    QStringList qargs;
+    args.fill( qargs );
+    return QProcess::execute( qprog, qargs ) >= 0;
 #endif
 }
 
@@ -791,9 +794,13 @@ bool File::makeExecutable( const char* fnm, bool yn )
 #if ((defined __win__) || (defined OD_NO_QT) )
     return true;
 #else
-    BufferString cmd( "chmod" );
-    cmd.add(yn ? " +r+x \"" : " -x \"").add(fnm).add("\"");
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+    const QString qprog( "chmod" );
+    BufferStringSet args;
+    args.add( yn ? "+r+x" : "-x" )
+	.add( BufferString("\"",fnm,"\"") );
+    QStringList qargs;
+    args.fill( qargs );
+    return QProcess::execute( qprog, qargs ) >= 0;
 #endif
 }
 
@@ -806,11 +813,15 @@ bool File::setPermissions( const char* fnm, const char* perms, bool recursive )
 #if ((defined __win__) || (defined OD_NO_QT) )
     return false;
 #else
-    BufferString cmd( "chmod " );
+    const QString qprog( "chmod" );
+    BufferStringSet args;
     if ( recursive && isDirectory(fnm) )
-	cmd += " -R ";
-    cmd.add( perms ).add( " \"" ).add( fnm ).add( "\"" );
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+	args.add( "-R" );
+    args.add( perms )
+	.add( BufferString("\"",fnm,"\"") );
+    QStringList qargs;
+    args.fill( qargs );
+    return QProcess::execute( qprog, qargs ) >= 0;
 #endif
 }
 

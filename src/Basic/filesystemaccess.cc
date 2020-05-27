@@ -411,20 +411,23 @@ bool File::LocalFileSystemAccess::setWritable( const char* uri, bool yn,
 #ifdef OD_NO_QT
     return false;
 #else
-    BufferString cmd;
+    const BufferString filenm( "\"", fnm, "\"");
+    BufferStringSet args;
 # ifdef __win__
-    cmd = "attrib"; cmd += yn ? " -R " : " +R ";
-    cmd.add("\"").add(fnm).add("\"");
+    const QString qprog( "attrib" );
+    args.add( yn ? "-R" : "+R" ).add( filenm );
     if ( recursive && isDirectory(fnm) )
-	cmd += "\\*.* /S ";
+	args.add( "\\*.*" ).add( "/S" );
 # else
-    cmd = "chmod";
+    const QString qprog( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	cmd += " -R ";
-    cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
+	args.add( "-R" );
+    args.add( yn ? "ug+w" : "a-w" ).add( filenm );
 # endif
 
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+    QStringList qargs;
+    args.fill( qargs );
+    return QProcess::execute( qprog, qargs ) >= 0;
 #endif
 
 

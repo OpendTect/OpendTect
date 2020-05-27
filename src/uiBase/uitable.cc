@@ -281,7 +281,7 @@ void uiTableBody::copy()
 void uiTableBody::paste()
 {
     const QString str = uiClipboard::getText();
-    const QStringList rows = str.split( '\n', QString::SkipEmptyParts );
+    const QStringList rows = str.split( '\n', Qt::SkipEmptyParts );
 
     const int nrrows = rows.count();
     const int nrcols = rows.first().count('\t') + 1;

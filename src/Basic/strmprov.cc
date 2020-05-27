@@ -625,11 +625,14 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     }
 
 #ifndef OD_NO_QT
-    BufferString cmd;
-    mkOSCmd( cmd );
+    BufferString prog; BufferStringSet args;
+    mkOSCmd( prog, args );
+    const QString qprog( prog.buf() );
+    QStringList qargs;
+    args.fill( qargs );
 
     QProcess* process = new QProcess;
-    process->start( cmd.buf(), QIODevice::ReadOnly );
+    process->start( qprog, qargs, QIODevice::ReadOnly );
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
@@ -673,12 +676,15 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	return retsd;
     }
 
-    BufferString cmd;
-    mkOSCmd( cmd );
+    BufferString prog; BufferStringSet args;
+    mkOSCmd( prog, args );
+    const QString qprog( prog.buf() );
+    QStringList qargs;
+    args.fill( qargs );
 
 #ifndef OD_NO_QT
     QProcess* process = new QProcess;
-    process->start( cmd.buf(), QIODevice::WriteOnly );
+    process->start( qprog, qargs, QIODevice::WriteOnly );
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
@@ -690,17 +696,17 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 }
 
 
-void StreamProvider::mkOSCmd( BufferString& cmd ) const
+void StreamProvider::mkOSCmd( BufferString& prog, BufferStringSet& args ) const
 {
     if ( hostname_.isEmpty() )
     {
-	cmd = fname_;
-	OS::CommandLauncher::addShellIfNeeded( cmd );
+	prog = fname_;
+	OS::CommandLauncher::addShellIfNeeded( prog );
     }
     else
     {
-	cmd.set( remExecCmd() ).add( " " ).add( hostname_ )
-				.add( " " ).add( fname_ );
+	prog.set( remExecCmd() );
+	args.add( hostname_ ).add( fname_ );
     }
 }
 

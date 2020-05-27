@@ -136,7 +136,7 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
 	ti.eventtype_ = (TabletInfo::EventType) evtyp;
 	ti.pointertype_ = (TabletInfo::PointerType) qtabev->pointerType();
-	ti.device_ = (TabletInfo::TabletDevice) qtabev->device();
+	ti.device_ = (TabletInfo::TabletDevice) qtabev->deviceType();
 	ti.globalpos_.x_ = qtabev->globalX();
 	ti.globalpos_.y_ = qtabev->globalY();
 	ti.pos_.x_ = qtabev->x();
