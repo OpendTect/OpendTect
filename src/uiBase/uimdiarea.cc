@@ -290,7 +290,7 @@ class ODMdiSubWindow : public QMdiSubWindow
 {
 public:
 ODMdiSubWindow( uiMdiAreaWindow& mdiareawin,
-		QWidget* par=0, Qt::WindowFlags flgs=0 )
+		QWidget* par=nullptr, Qt::WindowFlags flgs=Qt::WindowFlags() )
     : QMdiSubWindow( par, flgs )
     , mdiareawin_( mdiareawin )
 {}
