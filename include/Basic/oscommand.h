@@ -230,7 +230,9 @@ protected:
     qstreambuf*		stdinputbuf_;
 public:
 
-    static void		addShellIfNeeded(BufferString& cmd);
+    static void		addShellIfNeeded(const BufferString& cmd,
+					 BufferString& prog,
+					 BufferStringSet& args);
 			/*!<Analyses the cmd and looks for pipes or redirects.
 			    If these are found, the cmd is converted to a
 			    shell command. */

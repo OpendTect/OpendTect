@@ -700,13 +700,14 @@ void StreamProvider::mkOSCmd( BufferString& prog, BufferStringSet& args ) const
 {
     if ( hostname_.isEmpty() )
     {
-	prog = fname_;
-	OS::CommandLauncher::addShellIfNeeded( prog );
+	BufferString cmd( fname_ );
+	OS::CommandLauncher::addShellIfNeeded( fname_, prog, args );
     }
     else
     {
 	prog.set( remExecCmd() );
-	args.add( hostname_ ).add( fname_ );
+	args.unCat( fname_, " " );
+	args.insertAt( new BufferString(hostname_ ), 0);
     }
 }
 
