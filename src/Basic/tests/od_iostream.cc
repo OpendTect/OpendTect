@@ -151,18 +151,26 @@ bool testPipeOutput()
     StreamProvider prov( command );
     StreamData ostreamdata = prov.makeOStream();
     mRunStandardTest( ostreamdata.oStrm(),
-		      "Creation of standard output stream");
+		      "Creation of standard output stream" );
     PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.oStrm());
+    mRunStandardTestWithError( ostream && ostream->isOK(),
+		      "Opening temporary file for write",
+		       ostream->errMsg().getString().str() );
 
     *ostream << message << " ";
     *ostream << num;
     ostream->close();
 
-    ostream = 0; //Deletes everything
+    ostream = nullptr; //Deletes everything
     Threads::sleep( 1 );
+    mRunStandardTestWithError( File::exists(getTestTempFileName()),
+				"Temporary file is written",
+	BufferString("File '", getTestTempFileName(),"' does not exist").str() )
 
     od_istream istream( getTestTempFileName() );
-    mRunStandardTest( istream.isOK(), "Opening temporary file");
+    mRunStandardTestWithError( istream.isOK(),
+				"Opening temporary file for read",
+				istream.errMsg().getString().str() );
     BufferString streaminput;
 
     istream.getAll( streaminput );
