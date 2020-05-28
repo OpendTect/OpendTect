@@ -104,6 +104,9 @@ void FlareHelpProvider::initHelpSystem( const char* context, const char* path )
     {
 	url = fileprot;
 	url += basefile.fullPath();
+#ifdef __win__
+	url.replace( '\\', '/' );
+#endif
     }
     else
     {
