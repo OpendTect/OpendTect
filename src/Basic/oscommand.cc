@@ -828,35 +828,25 @@ void OS::CommandLauncher::addShellIfNeeded( const BufferString& cmd,
 					    BufferString& prog,
 					    BufferStringSet& args )
 {
-    bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find('>');
+    bool needsshell = args.isPresent("|") ||
+		    args.isPresent("<") ||
+		    args.isPresent(">");
 #ifdef __win__
     if ( !needsshell )
-	needsshell = cmd.startsWith( "echo ", CaseInsensitive );
+	needsshell = cmd.startsWith( "echo", CaseInsensitive );
 #endif
-    args.setEmpty();
     if ( !needsshell )
-    {
-	args.unCat( cmd.str(), " " );
-	prog.set( args.first()->str() );
-	args.removeSingle( 0 );
 	return;
-    }
 
-//    const bool cmdneedsquotes = cmd.firstChar() != '"';
 #ifdef __win__
     prog.set( "cmd" );
-    args.add( "/c" );
+    args.insertAt( new BufferString("/c"), 0 );
+    args.insertAt( new BufferString(cmd), 1 );
 #else
     prog.set( "/bin/sh" );
-    args.add( "-c" );
+    args.insertAt( new BufferString("-c"), 0 );
+    args.insertAt( new BufferString(cmd), 1 );
 #endif
-    BufferString lastarg;
-/*    if ( cmdneedsquotes )
-	lastarg.add( '"' );*/
-    lastarg.add( cmd );
-/*    if ( cmdneedsquotes )
-	lastarg.add( '"' );*/
-    args.add( lastarg );
 }
 
 

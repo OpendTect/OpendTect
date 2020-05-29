@@ -73,7 +73,8 @@ public:
     const char*	hostName() const	{ return hostname_.buf(); }
 
     void	setFileName( const char* fn );
-    void	setCommand(const char* cmd, const char* hostnm=0);
+    void	setCommand(const char* prog,BufferStringSet& args,
+		    const char* hostnm=nullptr);
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
 
@@ -102,6 +103,7 @@ public:
 protected:
 
     BufferString	fname_;
+    BufferStringSet	args_;
     bool		iscomm_;
     BufferString	hostname_;
 

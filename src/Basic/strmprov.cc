@@ -499,7 +499,12 @@ void StreamProvider::set( const char* inp )
 
     const char* pwork = workstr.buf();
     while ( *pwork == '@' )
-	{ iscomm_ = true; pwork++; }
+    {
+	iscomm_ = true; pwork++;
+	pErrMsg("Deprecated. Use setCommand instead");
+	DBG::forceCrash(false);
+	return;
+    }
 
     mSkipBlanks( pwork );
     fname_ = pwork;
@@ -511,7 +516,12 @@ void StreamProvider::set( const char* inp )
     pwork = workstr.buf();
     mSkipBlanks( pwork );
     while ( *pwork == '@' )
-	{ iscomm_ = true; pwork++; }
+    {
+	iscomm_ = true; pwork++;
+	pErrMsg("Deprecated. Use setCommand instead");
+	DBG::forceCrash(false);
+	return;
+    }
 
     fname_ = pwork;
     if ( !iscomm_ )
@@ -527,10 +537,12 @@ void StreamProvider::setFileName( const char* fnm )
 }
 
 
-void StreamProvider::setCommand( const char* cmd, const char* hostnm )
+void StreamProvider::setCommand( const char* prog, BufferStringSet& args,
+		    const char* hostnm )
 {
     iscomm_ = true;
-    fname_.set( cmd );
+    fname_.set( prog );
+    args_ = args;
     hostname_.set( hostnm );
 }
 
@@ -553,6 +565,8 @@ const char* StreamProvider::fullName() const
     }
 
     ret.add( fname_ );
+    if ( !args_.isEmpty() )
+	ret.add( args_.cat( " " ) );
     return ret.buf();
 }
 
@@ -575,7 +589,12 @@ void StreamProvider::addPathIfNecessary( const char* path )
 #define mGetRetSD( retsd ) \
     StreamData retsd; \
     if ( iscomm_ ) \
-	retsd.setFileName( BufferString("@",fname_) ); \
+    { \
+	BufferString fnm( "@", fname_ ); \
+	if ( !args_.isEmpty() ) \
+	    fnm.addSpace().add( args_.cat(" ") ); \
+	retsd.setFileName( fnm.str() ); \
+    } \
     else \
 	retsd.setFileName( mkUnLinked(fname_.buf()) ); \
     if ( isBad() ) \
@@ -625,7 +644,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     }
 
 #ifndef OD_NO_QT
-    BufferString prog; BufferStringSet args;
+    BufferString prog; BufferStringSet args( args_ );
     mkOSCmd( prog, args );
     const QString qprog( prog.buf() );
     QStringList qargs;
@@ -676,7 +695,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	return retsd;
     }
 
-    BufferString prog; BufferStringSet args;
+    BufferString prog; BufferStringSet args( args_ );
     mkOSCmd( prog, args );
     const QString qprog( prog.buf() );
     QStringList qargs;
@@ -706,8 +725,8 @@ void StreamProvider::mkOSCmd( BufferString& prog, BufferStringSet& args ) const
     else
     {
 	prog.set( remExecCmd() );
-	args.unCat( fname_, " " );
 	args.insertAt( new BufferString(hostname_ ), 0);
+	args.insertAt( new BufferString(fname_), 1 );
     }
 }
 
