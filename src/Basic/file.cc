@@ -757,11 +757,10 @@ bool File::makeWritable( const char* fnm, bool yn, bool recursive )
 #ifdef OD_NO_QT
     return false;
 #else
-    const BufferString filenm( "\"", fnm, "\"" );
     BufferStringSet args;
 # ifdef __win__
-    const QString qprog( "attrib" );
-    args.add( yn ? "-R" : "+R" ).add( filenm );
+    const QString qprog( "ATTRIB" );
+    args.add( yn ? "-R" : "+R" ).add( fnm );
     if ( recursive && isDirectory(fnm) )
 	args.add( "\\*.*" ).add( "/S" );
 # else

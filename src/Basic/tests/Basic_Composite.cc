@@ -107,12 +107,12 @@ int testMain( int argc, char** argv )
     mRunSubTest( sets );
     mRunSubTest( string );
     mRunSubTest( survgeom );
-    mRunSubTest( threads );
-    mRunSubTest( threadwork );
     mRunSubTest( cubesampling );
     mRunSubTest( uistring );
     mRunSubTest( various_basic );
 
+    mRunSubTest( threads );
+    mRunSubTest( threadwork );
     mRunSubTest( callback );
 
     return 0;

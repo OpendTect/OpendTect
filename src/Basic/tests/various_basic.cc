@@ -93,6 +93,75 @@ bool testFuncName()
 }
 
 
+BufferString getTestFileName()
+{
+    const File::Path fp( File::Path::getTempDir(),
+	File::Path::getTempFileName( "test with space", "txt" ) );
+    return fp.fullPath();
+}
+
+
+bool testFilePermissions( const char* fnm)
+{
+    mRunStandardTest( !File::exists(fnm) ,
+	"Temporary file does not exist" );
+    od_ostream strm( fnm );
+    strm << "some content";
+    mRunStandardTest( File::isInUse(fnm),
+	"Temporary file is being used" );
+    strm.close();
+
+    mRunStandardTest( !File::isInUse(fnm),
+	"Temporary file is not used" );
+
+    mRunStandardTest( File::exists(fnm) ,
+	"Temporary file is created" );
+    mRunStandardTest( File::isReadable(fnm) ,
+	"Temporary file is readable" );
+    mRunStandardTest( File::makeReadOnly(fnm,true),
+	"Temporary file set read-only" );
+    mRunStandardTest( !File::isWritable(fnm),
+	"Temporary file is read-only" );
+    mRunStandardTest( File::makeWritable(fnm,true,true),
+	"Temporary file set writable" );
+    mRunStandardTest( File::isWritable(fnm),
+	"Temporary file is writable" );
+#ifdef __unix__
+    mRunStandardTest( File::makeExecutable(fnm,true),
+	"Temporary file set executable" );
+    mRunStandardTest( File::isExecutable(fnm),
+	"Temporary file is executable" );
+    mRunStandardTest( File::makeExecutable(fnm,false),
+	"Temporary file set not executable" );
+    mRunStandardTest( !File::isExecutable(fnm),
+	"Temporary file is not executable" );
+#else
+    File::hide( fnm, true );
+    mRunStandardTest( File::isHidden(fnm),
+	"Temporary file is hidden" );
+    File::hide( fnm, false );
+    mRunStandardTest( !File::isHidden(fnm),
+	"Temporary file is not hidden" );
+#endif
+
+    return true;
+}
+
+
+bool testRemoveFile(const char* fnm)
+{
+    if ( !File::exists(fnm) )
+	return true;
+
+    mRunStandardTest( File::makeReadOnly(fnm,true) && !File::remove(fnm),
+	"Temporary file is read-only and cannot be deleted" );
+    mRunStandardTest( File::makeWritable(fnm,true,true) && File::remove(fnm),
+	"Temporary file is writable and can be deleted" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -107,5 +176,10 @@ int mTestMainFnName( int argc, char** argv )
 	|| !test64BitDetection() )
 	return 1;
 
-    return 0;
+    const BufferString fnm = getTestFileName();
+    const bool success = testFilePermissions( fnm );
+    if ( !testRemoveFile(fnm) )
+	return 1;
+
+    return success ? 0 : 1;
 }
