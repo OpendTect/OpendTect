@@ -767,7 +767,7 @@ bool File::makeWritable( const char* fnm, bool yn, bool recursive )
     const QString qprog( "chmod" );
     if ( recursive && isDirectory(fnm) )
 	args.add( "-R" );
-    args.add( yn ? "ug+w" : "a-w" ).add( filenm );
+    args.add( yn ? "ug+w" : "a-w" ).add( fnm );
 # endif
 
     QStringList qargs;
@@ -795,8 +795,7 @@ bool File::makeExecutable( const char* fnm, bool yn )
 #else
     const QString qprog( "chmod" );
     BufferStringSet args;
-    args.add( yn ? "+r+x" : "-x" )
-	.add( BufferString("\"",fnm,"\"") );
+    args.add( yn ? "+r+x" : "-x" ).add( fnm );
     QStringList qargs;
     args.fill( qargs );
     return QProcess::execute( qprog, qargs ) >= 0;
@@ -816,8 +815,7 @@ bool File::setPermissions( const char* fnm, const char* perms, bool recursive )
     BufferStringSet args;
     if ( recursive && isDirectory(fnm) )
 	args.add( "-R" );
-    args.add( perms )
-	.add( BufferString("\"",fnm,"\"") );
+    args.add( perms ).add( fnm );
     QStringList qargs;
     args.fill( qargs );
     return QProcess::execute( qprog, qargs ) >= 0;
