@@ -58,6 +58,24 @@ enum CheckState
 };
 
 
+enum Edge
+{
+    Top=0,
+    Left=1,
+    Right=2,
+    Bottom=3
+};
+
+
+enum Corner
+{
+    TopLeft=0,
+    TopRight=1,
+    BottomLeft=2,
+    BottomRight=3
+};
+
+
 enum StdActionType
 {
     NoIcon=0,
