@@ -622,6 +622,25 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 }
 
 
+void uiRectItem::setRect( float x, float y, float width, float height )
+{
+    qrectitem_->setRect( 0, 0, sCast(double,width), sCast(double,height) );
+    qrectitem_->setPos( sCast(double,x), sCast(double,y) );
+}
+
+
+void uiRectItem::setRect( const uiRect& rect )
+{
+    setRect( rect.left(), rect.top(), rect.width(), rect.height() );
+}
+
+
+void uiRectItem::setRect( const Geom::RectF& rect )
+{
+    setRect( rect.left(), rect.top(), rect.width(), rect.height() );
+}
+
+
 // uiTextItem
 uiTextItem::uiTextItem()
     : uiGraphicsItem( mkODObj() )

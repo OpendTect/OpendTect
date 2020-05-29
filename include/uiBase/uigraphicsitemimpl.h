@@ -262,6 +262,9 @@ public:
 
     QGraphicsRectItem*  qRectItem()	{ return qrectitem_; }
     void		setRect(int x,int y,int width,int height);
+    void		setRect(float x,float y,float width,float height);
+    void		setRect(const uiRect&);
+    void		setRect(const Geom::RectF&);
 
 protected:
 
