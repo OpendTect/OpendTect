@@ -153,7 +153,11 @@ bool testPipeOutput()
 #endif
 
     BufferStringSet args;
+#ifdef __win__
+    args.add( ">" ).add( getTestTempFileName() );
+#else
     args.add( ">" ).add( BufferString("'",getTestTempFileName(),"'") );
+#endif
     StreamProvider prov;
     prov.setCommand( prog, args );
     StreamData ostreamdata = prov.makeOStream();
