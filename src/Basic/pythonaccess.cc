@@ -1236,7 +1236,7 @@ BufferString removeDirScript( const BufferString& path )
 {
     BufferStringSet script;
     script.add( "import shutil" );
-    const BufferString remcmd( "shutil.rmtree(r'", path, "')" );
+    const BufferString remcmd( "shutil.rmtree('", path, "')" );
     script.add( remcmd );
     return BufferString( "\"", script.cat(";"), "\"" );
 }

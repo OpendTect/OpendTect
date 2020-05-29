@@ -19,8 +19,8 @@
 
 static BufferString getTestTempFileName()
 {
-    static BufferString tmpfnm(
-                    File::Path::getTempFullPath("iostrm_test","txt") );
+    static BufferString tmpfnm( File::Path( File::Path::getTempDir(),
+		File::Path::getTempFileName("iostrm test","txt") ).fullPath() );
     return tmpfnm;
 }
 
@@ -153,7 +153,7 @@ bool testPipeOutput()
 #endif
 
     BufferStringSet args;
-    args.add( ">" ).add( getTestTempFileName() );
+    args.add( ">" ).add( BufferString("'",getTestTempFileName(),"'") );
     StreamProvider prov;
     prov.setCommand( prog, args );
     StreamData ostreamdata = prov.makeOStream();

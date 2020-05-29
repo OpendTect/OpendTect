@@ -695,13 +695,13 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	return retsd;
     }
 
+#ifndef OD_NO_QT
     BufferString prog; BufferStringSet args( args_ );
     mkOSCmd( prog, args );
     const QString qprog( prog.buf() );
     QStringList qargs;
     args.fill( qargs );
 
-#ifndef OD_NO_QT
     QProcess* process = new QProcess;
     process->start( qprog, qargs, QIODevice::WriteOnly );
     if ( process->waitForStarted() )
@@ -719,7 +719,6 @@ void StreamProvider::mkOSCmd( BufferString& prog, BufferStringSet& args ) const
 {
     if ( hostname_.isEmpty() )
     {
-	BufferString cmd( fname_ );
 	OS::CommandLauncher::addShellIfNeeded( fname_, prog, args );
     }
     else

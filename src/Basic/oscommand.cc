@@ -836,7 +836,10 @@ void OS::CommandLauncher::addShellIfNeeded( const BufferString& cmd,
 	needsshell = cmd.startsWith( "echo", CaseInsensitive );
 #endif
     if ( !needsshell )
+    {
+	prog.set( cmd );
 	return;
+    }
 
 #ifdef __win__
     prog.set( "cmd" );
@@ -844,8 +847,11 @@ void OS::CommandLauncher::addShellIfNeeded( const BufferString& cmd,
     args.insertAt( new BufferString(cmd), 1 );
 #else
     prog.set( "/bin/sh" );
-    args.insertAt( new BufferString("-c"), 0 );
-    args.insertAt( new BufferString(cmd), 1 );
+    BufferString shcmd( cmd, " " );
+    shcmd.add( args.cat( " " ) );
+    args.setEmpty();
+    args.add( "-c" ).add( shcmd );
+    // The whole command as one arguments. Quotes will be added automatically
 #endif
 }
 
