@@ -52,6 +52,8 @@ protected:
     uiListBox*		outlistfld_;
     uiCheckBox*		outallfld_;
 
+    TypeSet<int>	outputids_;
+
 };
 
 

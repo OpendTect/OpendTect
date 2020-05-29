@@ -68,6 +68,7 @@ public:
     void			setOutputInterestSize(bool preserve=false);
     void			enableAllOutputs(bool yn=true);
     virtual void		getCompNames(BufferStringSet&) const;
+    virtual void		getCompOutputIDs(TypeSet<int>&) const;
 
     virtual bool		isSingleTrace() const;
     virtual bool		usesTracePosition() const;

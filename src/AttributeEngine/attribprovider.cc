@@ -1685,6 +1685,12 @@ void Provider::getCompNames( BufferStringSet& nms ) const
     nms.add( desc_.attribName() );
 }
 
+void Provider::getCompOutputIDs( TypeSet<int>& ids ) const
+{
+    for ( int idx=0; idx<nrOutputs(); idx++ )
+	ids += idx;
+}
+
 
 float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 {

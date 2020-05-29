@@ -39,10 +39,24 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 }
 
 
+static void getOutputIDs( const Desc& desc, TypeSet<int>& ids )
+{
+    ids.erase();
+
+    uiString errmsg;
+    Desc& ds = const_cast<Desc&>(desc);
+    RefMan<Provider> tmpprov = Provider::create( ds, errmsg );
+    if ( !tmpprov )
+	return;
+
+    tmpprov->getCompOutputIDs( ids );
+}
+
+
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup(tr("Multiple attributes selection"),
 			   tr("Select the outputs to compute"),
-                           mODHelpKey(mMultOutSelHelpID) ))
+			   mODHelpKey(mMultOutSelHelpID) ))
 	, outlistfld_(0)
 	, outallfld_(0)
 {
@@ -53,6 +67,8 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
     const bool dodlg = outnames.size() > 1;
     if ( dodlg )
 	createMultOutDlg( outnames );
+
+    getOutputIDs( *tmpdesc, outputids_ );
 
     tmpdesc->unRef();
 }
@@ -72,8 +88,21 @@ void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
 
 void uiMultOutSel::getSelectedOutputs( TypeSet<int>& selouts ) const
 {
-    if ( outlistfld_ )
-	outlistfld_->getChosen( selouts );
+    if ( !outlistfld_ )
+	return;
+
+    TypeSet<int> chosen;
+    outlistfld_->getChosen( chosen );
+
+    for ( int idx=0; idx<chosen.size(); idx++ )
+    {
+	const int chidx = chosen[idx];
+	if ( outputids_.validIdx(chidx) )
+	    selouts += outputids_[chidx];
+    }
+
+    if ( selouts.isEmpty() )
+	selouts = chosen;
 }
 
 
@@ -90,7 +119,7 @@ bool uiMultOutSel::doDisp() const
 }
 
 
-void uiMultOutSel::allSel( CallBacker* c )
+void uiMultOutSel::allSel( CallBacker* )
 {
     outlistfld_->chooseAll( outallfld_->isChecked() );
 }
@@ -140,6 +169,8 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	if ( selcompssz )
 	    targetspecs.erase();
 
+	TypeSet<int> outputids;
+	getOutputIDs( *inpdesc, outputids );
 	for ( int idx=0; idx<selcompssz; idx++ )
 	{
 	    const int compidx = selectedcomps[idx];
@@ -148,6 +179,9 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
 							complist.get(compidx) );
 	    if ( !newdesc ) continue;
+
+	    if ( !outputids.isEmpty() )
+		newdesc->selectOutput( outputids[compidx] );
 
 	    DescID newdid = curdescset->getID( *newdesc );
 	    SelSpec as( 0, newdid );
