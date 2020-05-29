@@ -128,7 +128,7 @@ BufferString createTestDir()
     return fp.fullPath();
 }
 
-bool testRemoveDir( const BufferString& path )
+bool testRemoveDir( const BufferString& path, bool expectedres )
 {
     bool ret = OD::pythonRemoveDir( path, true ).isOK();
     if ( ret )
@@ -139,13 +139,9 @@ bool testRemoveDir( const BufferString& path )
 	    ret = false;
     }
 
-    if ( !quiet_ )
-    {
-	if ( ret )
-	    od_cout() << "Folder deleted successfully" << od_endl;
-	else
-	    od_cout() << "Folder deletion failed" << od_endl;
-    }
+    mRunStandardTest( ret == expectedres,
+	    expectedres ? "Writable folder deleted"
+			: "Read-only folder not deleted" )
 
     return ret;
 }
@@ -155,16 +151,20 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     if ( !OD::PythA().isUsable().isOK() )
+    {
+	if ( !quiet_ )
+	    od_cout() << "Python link is not usable" << od_endl;
 	return 1;
+    }
 
     const BufferString path = createTestDir();
 
     File::makeReadOnly( path, true );
-    if ( testRemoveDir(path) )
+    if ( testRemoveDir(path,false) )
 	return 1;
 
     File::makeWritable( path, true, true );
-    if ( !testRemoveDir(path) )
+    if ( !testRemoveDir(path,true) )
 	return 1;
 
     return 0;
