@@ -258,6 +258,10 @@ protected:
 };
 
 
+typedef PosRectangle<float> RectF;
+typedef PosRectangle<double> RectD;
+
+
 template <class T> inline
 Point2D<T>::Point2D ( T xx , T yy )
     : x(xx), y(yy)
@@ -273,7 +277,7 @@ void Point2D<T>::setXY( T xx, T yy )
 
 template <class T> template <class TT> inline
 void Point2D<T>::setXY( TT xx, TT yy )
-{ x = (T)xx; y = (T)yy; }
+{ x = sCast(T,xx); y = sCast(T,yy); }
 
 template <class T> inline
 Point2D<T>& Point2D<T>::zero()
@@ -362,7 +366,7 @@ void Point2D<T>::swapXY()
 
 template <class T> inline
 double Point2D<T>::abs() const
-{ return ::Math::Sqrt( (double)sqAbs() ); }
+{ return ::Math::Sqrt( sCast(double,sqAbs()) ); }
 
 
 template <class T> inline
@@ -372,7 +376,7 @@ T Point2D<T>::sqAbs() const
 
 template <class T> inline
 double Point2D<T>::distTo( const Point2D<T>& pt ) const
-{ return ::Math::Sqrt( (double)sqDistTo(pt) ); }
+{ return ::Math::Sqrt( sCast(double,sqDistTo(pt)) ); }
 
 
 template <class T> inline
