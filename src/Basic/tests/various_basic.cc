@@ -103,26 +103,25 @@ BufferString getTestFileName()
 
 bool testFilePermissions( const char* fnm)
 {
-    mRunStandardTest( !File::exists(fnm) ,
-	"Temporary file does not exist" );
+    mRunStandardTest( !File::exists(fnm), "Temporary file does not exist" );
     od_ostream strm( fnm );
     strm << "some content";
-    mRunStandardTest( File::isInUse(fnm),
-	"Temporary file is being used" );
+#ifdef __win__
+    mRunStandardTest( File::isInUse(fnm), "Temporary file is being used" );
+#endif
     strm.close();
 
-    mRunStandardTest( !File::isInUse(fnm),
-	"Temporary file is not used" );
+#ifdef __win__
+    mRunStandardTest( !File::isInUse(fnm), "Temporary file is not used" );
+#endif
 
-    mRunStandardTest( File::exists(fnm) ,
-	"Temporary file is created" );
-    mRunStandardTest( File::isReadable(fnm) ,
-	"Temporary file is readable" );
+    mRunStandardTest( File::exists(fnm), "Temporary file is created" );
+    mRunStandardTest( File::isReadable(fnm), "Temporary file is readable" );
     mRunStandardTest( File::makeReadOnly(fnm,true),
 	"Temporary file set read-only" );
     mRunStandardTest( !File::isWritable(fnm),
 	"Temporary file is read-only" );
-    mRunStandardTest( File::makeWritable(fnm,true,true),
+    mRunStandardTest( File::makeWritable(fnm,true,false),
 	"Temporary file set writable" );
     mRunStandardTest( File::isWritable(fnm),
 	"Temporary file is writable" );
@@ -153,9 +152,13 @@ bool testRemoveFile(const char* fnm)
     if ( !File::exists(fnm) )
 	return true;
 
-    mRunStandardTest( File::makeReadOnly(fnm,true) && !File::remove(fnm),
+#ifdef __win__
+    mRunStandardTest( File::makeReadOnly(fnm,false) && !File::remove(fnm),
 	"Temporary file is read-only and cannot be deleted" );
-    mRunStandardTest( File::makeWritable(fnm,true,true) && File::remove(fnm),
+#else
+    // Linux allows removing read-only files, if the parent folder is writable
+#endif
+    mRunStandardTest( File::makeWritable(fnm,true,false) && File::remove(fnm),
 	"Temporary file is writable and can be deleted" );
 
     return true;
