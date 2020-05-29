@@ -762,7 +762,7 @@ bool File::makeWritable( const char* fnm, bool yn, bool recursive )
     const QString qprog( "ATTRIB" );
     args.add( yn ? "-R" : "+R" ).add( fnm );
     if ( recursive && isDirectory(fnm) )
-	args.add( "\\*.*" ).add( "/S" );
+	args.add( "/S" ).add( "/D" );
 # else
     const QString qprog( "chmod" );
     if ( recursive && isDirectory(fnm) )
