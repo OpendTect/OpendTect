@@ -65,10 +65,13 @@ mImplNumberTestFn( testOnlyIntRead, int i; float f,
 bool testPipeInput()
 {
     FixedString message = "OpendTect rules";
-    const BufferString command( "@echo ", message );
-
+    const BufferString prog( "echo" );
+    BufferStringSet args;
+    args.add( "OpendTect" ).add( "rules" );
     {
-	StreamData streamdata = StreamProvider( command ).makeIStream();
+	StreamProvider sprov;
+	sprov.setCommand( prog, args );
+	StreamData streamdata = sprov.makeIStream();
 	mRunStandardTest( streamdata.iStrm(),
 			  "Creation of standard input stream");
 	PtrMan<od_istream> istream = new od_istream(streamdata.iStrm());
@@ -97,7 +100,9 @@ bool testPipeInput()
 			"Force read at end of stream");
     }
     {
-	StreamData streamdata = StreamProvider( command ).makeIStream();
+	StreamProvider sprov;
+	sprov.setCommand( prog, args );
+	StreamData streamdata = sprov.makeIStream();
 	mRunStandardTest( streamdata.iStrm(),
 			  "Creation of standard input stream (binary)");
 	PtrMan<od_istream> istream = new od_istream(streamdata.iStrm());
@@ -140,15 +145,17 @@ bool testPipeOutput()
     BufferString originpstr( message );
     originpstr.add( " " ).add( num );
 
-    BufferString command = "@";
+    BufferString prog;
 #ifdef __win__
-    command.add( "more" );
+    prog.set( "more" );
 #else
-    command.add( "cat" );
+    prog.set( "cat" );
 #endif
 
-    command.add( " > " ).add( getTestTempFileName() );
-    StreamProvider prov( command );
+    BufferStringSet args;
+    args.add( ">" ).add( getTestTempFileName() );
+    StreamProvider prov;
+    prov.setCommand( prog, args );
     StreamData ostreamdata = prov.makeOStream();
     mRunStandardTest( ostreamdata.oStrm(),
 		      "Creation of standard output stream" );
