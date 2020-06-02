@@ -207,7 +207,9 @@ protected:
 				  bool inconsole = false,
 				  bool createstreams=false );
     int			catchError();
-    bool		startDetached(const char*,bool inconsole=false);
+    bool		startDetached(const char* prog,
+				      const BufferStringSet& args,
+				      bool inconsole=false);
     void		startMonitor();
 
     MachineCommand	machcmd_;
@@ -228,6 +230,7 @@ protected:
     qstreambuf*		stdoutputbuf_;
     qstreambuf*		stderrorbuf_;
     qstreambuf*		stdinputbuf_;
+
 public:
 
     static void		addShellIfNeeded(const BufferString& cmd,

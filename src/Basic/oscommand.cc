@@ -530,13 +530,6 @@ static BufferString getUsableCmd( const char* fnm )
 }
 
 
-void OS::CommandLauncher::addQuotesIfNeeded( BufferString& word )
-{
-    if ( word.find(' ') && word.firstChar() != '"' )
-	word.quote( '"' );
-}
-
-
 BufferString OS::MachineCommand::getExecCommand() const
 {
     BufferString prognm = getUsableCmd( prognm_ );
@@ -610,20 +603,6 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
 }
 
 
-bool OS::CommandLauncher::execute( BufferString& out, BufferString* err )
-{
-    CommandExecPars execpars( Wait4Finish );
-    execpars.createstreams( true );
-    if ( !execute(execpars) )
-	return false;
-
-    getStdOutput()->getAll( out );
-    if ( err )
-	getStdError()->getAll( *err );
-    return true;
-}
-
-
 OS::CommandLauncher::~CommandLauncher()
 {
 #ifndef OD_NO_QT
@@ -678,6 +657,20 @@ void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 {
     machcmd_ = cmd;
     reset();
+}
+
+
+bool OS::CommandLauncher::execute( BufferString& out, BufferString* err )
+{
+    CommandExecPars execpars( Wait4Finish );
+    execpars.createstreams( true );
+    if ( !execute(execpars) )
+	return false;
+
+    getStdOutput()->getAll( out );
+    if ( err )
+	getStdError()->getAll( *err );
+    return true;
 }
 
 
@@ -824,6 +817,13 @@ void OS::CommandLauncher::startMonitor()
 }
 
 
+void OS::CommandLauncher::addQuotesIfNeeded( BufferString& word )
+{
+    if ( word.find(' ') && word.firstChar() != '"' )
+	word.quote( '"' );
+}
+
+
 void OS::CommandLauncher::addShellIfNeeded( const BufferString& cmd,
 					    BufferString& prog,
 					    BufferStringSet& args )
@@ -873,11 +873,10 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
     BufferString cmd = inpcmd, prog;
     BufferStringSet args;
     addShellIfNeeded( cmd, prog, args );
-    QStringList preqargs;
-    args.fill( preqargs );
 
     DBG::message( BufferString("About to execute:\n",prog) );
-    DBG::message( BufferString("\nWith arguments: ",args.cat(" ")) );
+    if ( !args.isEmpty() )
+	DBG::message( BufferString("\nWith arguments: ",args.cat(" ")) );
 
 #ifndef OD_NO_QT
     process_ = wt4finish || createstreams ? new QProcess : 0;
@@ -899,23 +898,17 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
 	}
     }
 
+    args.add( machcmd_.args(), true );
     if ( process_ )
     {
+	const QString qprog( prog );
 	QStringList qargs;
-	machcmd_.args().fill( qargs );
-	const QStringList allqargs = preqargs += qargs;
-	process_->start( cmd.str(), allqargs, QIODevice::ReadWrite );
+	args.fill( qargs );
+	process_->start( qprog, qargs, QIODevice::ReadWrite );
     }
     else
     {
-	BufferString cmdline( cmd );
-	for ( auto str : machcmd_.args() )
-	{
-	    BufferString arg( *str );
-	    addQuotesIfNeeded( arg );
-	    cmdline.addSpace().add( arg );
-	}
-	const bool res = startDetached( cmdline, inconsole );
+	const bool res = startDetached( prog, args, inconsole );
 	return res;
     }
 
@@ -949,11 +942,16 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
 }
 
 
-bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
+bool OS::CommandLauncher::startDetached( const char* prog,
+					 const BufferStringSet& args,
+					 bool inconsole )
 {
 #ifdef __win__
     if ( !inconsole )
     {
+	BufferString comm( prog );
+	if ( !args.isEmpty() )
+	    prog.addSpace().add( args.cat(" ") );
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 
@@ -962,7 +960,7 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 	si.cb = sizeof( STARTUPINFO );
 
 	const bool res = CreateProcess( NULL,
-				const_cast<char*>(comm),
+				comm.getCStr(),
 				NULL,   // Process handle not inheritable.
 				NULL,   // Thread handle not inheritable.
 				FALSE,  // Set handle inheritance.
@@ -984,16 +982,15 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 
 #ifndef OD_NO_QT
 
-    CommandLineParser parser( comm );
-    if ( parser.getExecutable().isEmpty() )
+    if ( !prog || !*prog )
 	return false;
 
-    QStringList args;
-    for ( int idx=0; idx<parser.nrArgs(); idx++ )
-	args.append( QString(parser.getArg(idx).str()) );
+    const QString qprog( prog );
+    QStringList qargs;
+    args.fill( qargs );
 
     qint64 qpid = 0;
-    if ( !QProcess::startDetached(parser.getExecutable().str(),args,"",&qpid) )
+    if ( !QProcess::startDetached(qprog,qargs,"",&qpid) )
 	return false;
 
     pid_ = (int)qpid;
