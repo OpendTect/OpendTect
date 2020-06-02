@@ -951,7 +951,7 @@ bool OS::CommandLauncher::startDetached( const char* prog,
     {
 	BufferString comm( prog );
 	if ( !args.isEmpty() )
-	    prog.addSpace().add( args.cat(" ") );
+	    comm.addSpace().add( args.cat(" ") );
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 
