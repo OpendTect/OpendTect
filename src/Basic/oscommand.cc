@@ -1028,7 +1028,7 @@ int OS::CommandLauncher::catchError()
 	    errmsg_ = tr("Read error from process %1");
 	    break;
 	case QProcess::WriteError :
-	    errmsg_ = tr("Read error from process %1");
+	    errmsg_ = tr("Write error from process %1");
 	    break;
 	default :
 	    break;
@@ -1057,7 +1057,7 @@ bool OS::Unsafe__use_MachineCommand_instead( const char* cmd, LaunchType lt )
     mSkipBlanks( args ); mSkipNonBlanks( args );
     *args++ = '\0';
     mSkipBlanks( args );
-    OS::MachineCommand machcomm( prognm, args );
+    MachineCommand machcomm( prognm, args );
     return machcomm.execute( lt );
 }
 
