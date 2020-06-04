@@ -538,8 +538,7 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     if ( background )
 	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
-    strm.add( cmd.program() ).add( " " )
-	.add( cmd.args().cat(" ") );
+    strm.add( cmd.getSingleStringRep() );
     if ( background )
     {
 #ifdef __win__
@@ -883,8 +882,7 @@ bool OD::PythonAccess::retrievePythonVersionStr()
     if ( !isUsable_(!istested_) )
 	return false;
 
-    OS::MachineCommand cmd( sPythonExecNm(true) );
-    cmd.addFlag( "version" );
+    OS::MachineCommand cmd( sPythonExecNm(true), "--version" );
     BufferString laststdout, laststderr;
     const bool res = execute( cmd, laststdout, &laststderr );
     if ( res )
@@ -1044,26 +1042,26 @@ uiRetVal OD::PythonAccess::hasModule( const char* modname,
 }
 
 
-uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
+uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
+					     const char* defarg )
 {
-    BufferString modulecmd( cmd );
-    if ( modulecmd.isEmpty() )
-	modulecmd.set( getPacmanExecNm() ).addSpace().add( "list" );
+    OS::MachineCommand mc( defprog );
+    if ( mc.isBad() )
+    {
+	mc.setProgram( getPacmanExecNm() );
+	mc.addArg( "list" );
+    }
+    else
+	mc.addArg( defarg );
 
     moduleinfos_.setEmpty();
+    if ( mc.args().isEmpty() )
+	return uiRetVal( tr("Invalid command: %1").arg(mc.program()) );
 
-    BufferStringSet cmdstrs;
-    cmdstrs.unCat( modulecmd, " " );
-    if ( cmdstrs.isEmpty() )
-	return uiRetVal( tr("Invalid command: %1").arg(modulecmd) );
-
-    const BufferString prognm( cmdstrs.first()->str() );
-    cmdstrs.removeSingle(0);
-    OS::MachineCommand mc( prognm, cmdstrs );
     BufferString laststdout, laststderr;
     bool res = execute( mc, laststdout, &laststderr );
 #ifdef __unix__
-    if ( !res && prognm == FixedString("pip") )
+    if ( !res && FixedString(mc.program()) == FixedString("pip") )
     {
 	mc.setProgram( "pip3" );
 	res = execute( mc, laststdout, &laststderr );
@@ -1116,8 +1114,7 @@ bool OD::PythonAccess::openTerminal() const
     const BufferString termem = SettingsAccess().getTerminalEmulator();
     bool immediate = false;
 #ifdef __win__
-    OS::MachineCommand cmd( "start" );
-    cmd.addArg( termem );
+    OS::MachineCommand cmd( "start", termem );
     immediate = true;
 #else
     OS::MachineCommand cmd( termem );
@@ -1260,9 +1257,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	retval.setEmpty();
 	BufferString pathstr( removeDirScript(path) );
 	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
-	OS::MachineCommand cmd = PythA().sPythonExecNm();
-	cmd.addArg( "-c" ).addArg( pathstr );
-
+	OS::MachineCommand cmd( PythA().sPythonExecNm(), "-c", pathstr );
 	ret = PythA().execute( cmd, waitforfin );
 
 	uiString errmsg;

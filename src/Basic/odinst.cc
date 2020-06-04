@@ -142,7 +142,13 @@ bool ODInst::canInstall()
 
 #define mMkMachComm( prog, reldir ) \
     OS::MachineCommand machcomm( prog ); \
-    machcomm.addKeyedArg( "instdir", reldir )
+    if ( __ismac__ ) \
+    { \
+	const File::Path instdir( reldir ); \
+	machcomm.addKeyedArg( "instdir", reldir ); \
+    } \
+    else \
+        machcomm.addKeyedArg( "instdir", reldir );
 
 #define mGetFullMachComm(errretstmt) \
     File::Path installerfp( getInstallerPlfDir() ); \
@@ -163,6 +169,11 @@ BufferString ODInst::GetInstallerDir()
     BufferString appldir( GetSoftwareDir(0) );
     if ( File::isLink(appldir) )
 	appldir = File::linkEnd( appldir );
+
+#ifdef __mac__
+    File::Path macpath( appldir );
+    appldir = macpath.pathOnly();
+#endif
 
     File::Path installerfp( appldir );
     installerfp.setFileName( mInstallerDirNm );
@@ -198,7 +209,11 @@ BufferString ODInst::getInstallerPlfDir()
     File::Path installerbasedir( GetInstallerDir() );
     if ( !File::isDirectory(installerbasedir.fullPath()) )
 	return "";
+#ifdef __mac__
+    File::Path installerfp( installerbasedir, "Contents/MacOS" );
+#else
     File::Path installerfp( installerbasedir, "bin", __plfsubdir__, "Release" );
+#endif
     const BufferString path = installerfp.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
 	return installerbasedir.fullPath();

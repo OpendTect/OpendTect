@@ -74,6 +74,25 @@ od_ostream& od_ostream::logStream()
 }
 
 
+static bool isCommand( const char* nm )
+{
+    if ( !nm || !*nm )
+	return false;
+
+    BufferString workstr( nm );
+    if ( workstr.isEmpty() )
+	return false;
+
+    const char* pwork = workstr.buf();
+    bool iscomm = false;
+    while ( *pwork == '@' )
+	{ iscomm = true; pwork++; }
+
+    return iscomm;
+}
+
+
+
 od_stream::od_stream()
 {
 }
@@ -96,7 +115,8 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 {
     if ( isCommand(fnm) )
     {
-	setFromCommand( fnm );
+	pErrMsg( "Deprecated. Set from OS::MachineCommand instead" );
+	DBG::forceCrash(false);
 	return;
     }
 
@@ -111,6 +131,12 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 od_stream::od_stream( const File::Path& fp, bool forwrite, bool useexist )
     : od_stream( fp.fullPath(), forwrite, useexist )
 {}
+
+
+od_stream::od_stream( const OS::MachineCommand& mc, bool editmode )
+{
+    setFromCommand( mc, editmode );
+}
 
 
 od_stream::od_stream( std::ostream* strm )
@@ -212,33 +238,21 @@ void od_stream::addErrMsgTo( uiRetVal& uirv ) const
 }
 
 
-bool od_stream::isCommand( const char* nm )
+
+
+bool od_stream::setFromCommand( const OS::MachineCommand& mc, bool editmode )
 {
-    if ( !nm || !*nm )
-	return false;
-
-    BufferString workstr( nm );
-    if ( workstr.isEmpty() )
-	return false;
-
-    const char* pwork = workstr.buf();
-    bool iscomm = false;
-    while ( *pwork == '@' )
-	{ iscomm = true; pwork++; }
-
-    return iscomm;
-}
-
-
-bool od_stream::setFromCommand( const char* nm )
-{
-    StreamProvider strmprov( nm );
+    StreamProvider strmprov;
+    strmprov.setCommand( mc );
     if ( strmprov.isBad() )
 	return false;
 
-    sd_ = strmprov.makeOStream( nm );
+    if ( editmode )
+	sd_ = strmprov.makeOStream();
+    else
+	sd_ = strmprov.makeIStream();
 
-    return sd_.oStrm();
+    return editmode ? (bool)sd_.oStrm() : (bool)sd_.iStrm();
 }
 
 

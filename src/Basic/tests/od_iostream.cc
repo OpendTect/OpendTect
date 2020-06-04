@@ -65,16 +65,10 @@ mImplNumberTestFn( testOnlyIntRead, int i; float f,
 bool testPipeInput()
 {
     FixedString message = "OpendTect rules";
-    const BufferString prog( "echo" );
-    BufferStringSet args;
-    args.add( "OpendTect" ).add( "rules" );
+    OS::MachineCommand mc( "echo" );
+    mc.addArg( "OpendTect" ).addArg( "rules" );
     {
-	StreamProvider sprov;
-	sprov.setCommand( prog, args );
-	StreamData streamdata = sprov.makeIStream();
-	mRunStandardTest( streamdata.iStrm(),
-			  "Creation of standard input stream");
-	PtrMan<od_istream> istream = new od_istream(streamdata.iStrm());
+	PtrMan<od_istream> istream = new od_istream( mc );
 
 	BufferString streaminput;
 	mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
@@ -100,12 +94,7 @@ bool testPipeInput()
 			"Force read at end of stream");
     }
     {
-	StreamProvider sprov;
-	sprov.setCommand( prog, args );
-	StreamData streamdata = sprov.makeIStream();
-	mRunStandardTest( streamdata.iStrm(),
-			  "Creation of standard input stream (binary)");
-	PtrMan<od_istream> istream = new od_istream(streamdata.iStrm());
+	PtrMan<od_istream> istream = new od_istream( mc );
 
 #define mSize	(100)
 	char streaminput[mSize];
@@ -147,23 +136,17 @@ bool testPipeOutput()
 
     BufferString prog;
 #ifdef __win__
-    prog.set( "more" );
+    OS::MachineCommand mc( "more" );
 #else
-    prog.set( "cat" );
+    OS::MachineCommand mc( "cat" );
 #endif
 
-    BufferStringSet args;
 #ifdef __win__
-    args.add( ">" ).add( getTestTempFileName() );
+    mc.addArg( ">" ).addArg( getTestTempFileName() );
 #else
-    args.add( ">" ).add( BufferString("'",getTestTempFileName(),"'") );
+    mc.addArg( ">" ).addArg( BufferString("'",getTestTempFileName(),"'") );
 #endif
-    StreamProvider prov;
-    prov.setCommand( prog, args );
-    StreamData ostreamdata = prov.makeOStream();
-    mRunStandardTest( ostreamdata.oStrm(),
-		      "Creation of standard output stream" );
-    PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.oStrm());
+    PtrMan<od_ostream> ostream = new od_ostream( mc );
     mRunStandardTestWithError( ostream && ostream->isOK(),
 		      "Opening temporary file for write",
 		       ostream->errMsg().getString().str() );

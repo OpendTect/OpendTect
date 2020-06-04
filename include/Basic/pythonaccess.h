@@ -90,7 +90,8 @@ namespace OD
 
 	uiRetVal	verifyEnvironment(const char* piname);
 	BufferString	getPacmanExecNm() const;
-	uiRetVal	updateModuleInfo(const char* cmd="pip list");
+	uiRetVal	updateModuleInfo(const char* defprog="pip",
+					 const char* defarg="list");
 			/*<! Pass nullptr to auto-detect */
 	void		updatePythonPath();
 	BufferStringSet getBasePythonPath() const;

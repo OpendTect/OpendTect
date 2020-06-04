@@ -72,9 +72,8 @@ public:
     const char*	command() const		{ return fileName(); }
     const char*	hostName() const	{ return hostname_.buf(); }
 
-    void	setFileName( const char* fn );
-    void	setCommand(const char* prog,BufferStringSet& args,
-		    const char* hostnm=nullptr);
+    void	setFileName(const char*);
+    void	setCommand(const OS::MachineCommand&);
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
 

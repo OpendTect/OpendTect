@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "netsocket.h"
 
-#define mErrRet( s ) { uiErrorMsg( s ); exit(0); }
-
 
 RemoteJobExec::RemoteJobExec( const Network::Authority& auth )
     : socket_(*new Network::Socket)

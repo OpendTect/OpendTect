@@ -537,13 +537,12 @@ void StreamProvider::setFileName( const char* fnm )
 }
 
 
-void StreamProvider::setCommand( const char* prog, BufferStringSet& args,
-		    const char* hostnm )
+void StreamProvider::setCommand( const OS::MachineCommand& mc )
 {
     iscomm_ = true;
-    fname_.set( prog );
-    args_ = args;
-    hostname_.set( hostnm );
+    fname_.set( mc.program() );
+    args_ = mc.args();
+    hostname_.setEmpty();
 }
 
 

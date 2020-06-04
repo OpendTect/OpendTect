@@ -112,26 +112,3 @@ protected:
 mGlobal(MMProc) const OD::String& getTempBaseNm();
 mGlobal(MMProc) int mkTmpFileNr();
 
-
-mClass(MMProc) CommandString
-{
-public:
-			CommandString(const HostData& targetmachine,
-				      const char* init=0);
-
-    CommandString&	operator=(const char*);
-
-    void		addFlag(const char* flag,const char* value);
-    void		addFlag(const char* flag,int value);
-    void		addFilePath(const File::Path&);
-
-    const OD::String&	string()		{ return cmd_; }
-
-private:
-
-    void		add(const char*);
-
-    BufferString	cmd_;
-    const HostData&	hstdata_;
-
-};

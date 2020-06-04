@@ -15,15 +15,18 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "oscommand.h"
 
-#ifdef __debug__
-static const char* sRedirect = "";
-#else
-static const char* sRedirect = " >/dev/null2>&1";
-#endif
 
-#define mGetReqFnm() const BufferString reqfnm( File::Path(dir_,fnm).fullPath() )
+static void addRedirect( OS::MachineCommand& mc )
+{
+#ifndef __debug__
+    mc.addArg( ">" ).addArg( "/dev/null" )
+      .addArg( "2" ).addArg( ">" ).addArg( "&1" );
+#endif
+}
+
+#define mGetReqFnm() const BufferString reqfnm( File::Path(dir_,fnm).fullPath())
 #define mExecCmd( stmt, machcomm ) \
-    machcomm.addArg( sRedirect ); \
+    addRedirect( machcomm ); \
     stmt OS::CommandLauncher( machcomm ).execute()
 #define mRetExecCmd( machcomm ) mExecCmd( return, machcomm )
 
@@ -321,7 +324,7 @@ void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
 
     mGetTmpFnm("cvseditors",fnm);
     OS::MachineCommand machcomm( "cvs", "editors", reqfnm, ">", tmpfnm );
-    machcomm.addArg( "2>/dev/null" );
+    machcomm.addArg( "2" ).addArg( ">" ).addArg( "/dev/null" );
     mExecCmd( const bool res =, machcomm );
     if ( !res )
 	mRetRmTempFile()
@@ -354,7 +357,7 @@ void CVSAccess::diff( const char* fnm, BufferString& res ) const
 
     mGetTmpFnm("cvsdiff",fnm);
     OS::MachineCommand machcomm( "cvs", "diff", reqfnm, ">", tmpfnm );
-    machcomm.addArg( "2>/dev/null" );
+    machcomm.addArg( "2" ).addArg( ">" ).addArg( "/dev/null" );
     mExecCmd( const bool commres =, machcomm );
     if ( !commres )
 	mRetRmTempFile()

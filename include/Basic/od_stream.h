@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "od_iosfwd.h"
 #include <iosfwd>
+
 namespace File { class Path; }
+namespace OS { class MachineCommand; }
 
 
 
@@ -96,6 +98,8 @@ protected:
 			od_stream();
 			od_stream(const char*,bool,bool editmode=false);
 			od_stream(const File::Path&,bool,bool editmode=false);
+			od_stream(const OS::MachineCommand&,
+				  bool editmode=false);
 			od_stream(std::ostream*);
 			od_stream(std::ostream&);
 			od_stream(std::istream*);
@@ -111,7 +115,6 @@ protected:
 
 private:
 
-    static bool		isCommand(const char*);
-    bool		setFromCommand(const char*);
+    bool		setFromCommand(const OS::MachineCommand&,bool editmode);
 
 };
