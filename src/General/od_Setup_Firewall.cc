@@ -84,7 +84,7 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 
     OS::MachineCommand cmd( "netsh", "advfirewall", "firewall" );
     cmd.addArg( toadd ? "add" : "delete" )
-       .addArg( rule )
+       .addArg( "rule" )
        .addArg( BufferString("name=\"",procnm,"\"") )
        .addArg( BufferString("program=\"",fp.fullPath(),"\"") );
     if ( toadd )
