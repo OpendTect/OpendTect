@@ -27,9 +27,6 @@
 
 static bool testCmds()
 {
-    if ( true )
-	return true;
-
 #ifdef __win__
     //TODO
 #else
@@ -37,14 +34,15 @@ static bool testCmds()
     OS::MachineCommand machcomm( "ls" );
     machcomm.addFlag( "l", OS::OldStyle );
     if ( quiet_ )
-	machcomm.addArg( ">/dev/null" );
+	machcomm.addArg( ">" ).addArg( "/dev/null" );
     else
-	machcomm.addArg( "|head" ).addArg( "-10" );
+	machcomm.addArg( "|" ).addArg( "head" ).addArg( "-10" );
     mRunStandardTest( machcomm.execute(OS::Wait4Finish),
 		      "OS::MachineCommand::execute wait4finish" );
-    mRunStandardTest( machcomm.execute(OS::RunInBG),
+    OS::CommandExecPars execpars( OS::RunInBG );
+    execpars.createstreams( true );
+    mRunStandardTest( machcomm.execute(execpars),
 		     "OS::MachineCommand::execute not wait4finish" );
-
 #endif
 
     return true;

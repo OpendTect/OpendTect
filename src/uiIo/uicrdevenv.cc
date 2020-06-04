@@ -174,20 +174,27 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     workdirnm = shortpath;
 #endif
 
-    OS::CommandExecPars execpars( OS::Wait4Finish );
-    execpars.isconsoleuiprog( true );
     const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env";
     File::Path fp( swdir, "bin", scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );
     mc.addArg( swdir );
     mc.addArg( workdirnm );
-    OS::CommandLauncher cl( mc );
-    const bool res = cl.execute( execpars );
+    BufferString outmsg, errormsg, msgstr;
+    const bool res = mc.execute(  outmsg, &errormsg );
+    if ( !res )
+    {
+        msgstr.set( "Failed to create Environment " );
+        if ( !outmsg.isEmpty() )
+            msgstr.add( outmsg );
 
-    BufferString cmakefile =
+        if ( !errormsg.isEmpty() )
+            msgstr.add( errormsg );
+    }
+
+    const BufferString cmakefile =
 			File::Path(workdirnm).add("CMakeLists.txt").fullPath();
-    if ( !res || !File::exists(cmakefile) )
-	mErrRet(tr("Creation seems to have failed"))
+    if ( !File::exists(cmakefile) )
+	mErrRet(tr("Creation seems to have failed:\n%1").arg(msgstr))
     else
 	mUiMsg().message( tr("Creation seems to have succeeded.") );
 }

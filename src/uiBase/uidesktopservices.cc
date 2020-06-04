@@ -43,6 +43,18 @@ static const char* sKeyLDLibPath =
 # endif
 #endif
 
+static bool isLinuxSession( const char* sessnm )
+{
+#ifdef __lux__
+    OS::MachineCommand mc( "pidof" );
+    mc.addFlag( "s", OS::OldStyle ).addArg( sessnm );
+
+    return mc.execute();
+#else
+    return false;
+#endif
+}
+
 #define mQUrlCStr(qurl) qurl.toString().toUtf8().data()
 
 static bool openLocalFragmentedUrl( const QUrl& qurl )
@@ -75,16 +87,15 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
 
 #elif defined( __lux__ )
 
-    int res = system( "pidof -s gnome-session" );
-    if ( res==0 )
+    if ( isLinuxSession("gnome-session") )
 	machcomm.setProgram( "gnome-open" );
-
-    res = system( "pidof -s ksmserver" );
-    if ( res==0 )
+    else if ( isLinuxSession("ksmserver") )
     {
 	machcomm.setProgram( "kfmclient" );
 	machcomm.addArg( "exec" );
     }
+    else
+	return false;
 
     if ( machcomm.isBad() )
 	{ ErrMsg( "No system browser found" ); return false; }

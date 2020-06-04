@@ -28,6 +28,8 @@ public:
 			    : od_stream(fnm,false)	{}
 			od_istream( const File::Path& fp )
 			    : od_stream(fp,false)	{}
+			od_istream( const OS::MachineCommand& mc )
+			    : od_stream(mc,false)	{}
 			od_istream( std::istream* s )
 			    : od_stream(s)		{}
 			od_istream( std::istream& s )

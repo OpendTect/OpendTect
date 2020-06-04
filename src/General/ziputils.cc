@@ -104,15 +104,20 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
     bool res = false;
 #ifdef __win__
-    OS::MachineCommand machcomm( "cmd /c unzip", "-o", src, "-d", dest );
+    OS::MachineCommand mc( "cmd" );
+    mc.addArg( "/c" ).addArg( "unzip" )
+      .addKeyedArg( "o", src, OS::OldStyle )
+      .addKeyedArg( "d", dest, OS::OldStyle );
     if ( needfilelist_ )
-	machcomm.addArg( ">" ).addArg( filelistname_ );
+	mc.addArg( ">" ).addArg( filelistname_ );
 #else
-    OS::MachineCommand machcomm( "unzip", "-o", src, "-d", dest );
-    machcomm.addArg( ">" )
+    OS::MachineCommand mc( "unzip" );
+    mc.addKeyedArg( "o", src, OS::OldStyle )
+      .addKeyedArg( "d", dest, OS::OldStyle );
+    mc.addArg( ">" )
 	    .addArg( needfilelist_ ? filelistname_ : "/dev/null" );
 #endif
-    res = machcomm.execute();
+    res = mc.execute();
 
     if ( res && tempfile )
     {
@@ -123,7 +128,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
     if ( !res )
 	errmsg_ = tr("Unzip failed for command: %1")
-			    .arg( machcomm.getExecCommand() );
+			    .arg( mc.getExecCommand() );
     else
         errmsg_.setEmpty();
 

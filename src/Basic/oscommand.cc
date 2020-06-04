@@ -341,9 +341,9 @@ BufferString OS::MachineCommand::getSingleStringRep( bool noremote ) const
 
     for ( auto arg : args_ )
     {
-	BufferString str( *arg );
-	str.replace( " ", "\\ " );
-	ret.addSpace().add( str );
+	BufferString argstr( *arg );
+	CommandLauncher::addQuotesIfNeeded( argstr );
+	ret.addSpace().add( argstr );
     }
 
     return ret.buf();
@@ -871,7 +871,7 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
     }
 
     BufferString cmd = inpcmd, prog;
-    BufferStringSet args;
+    BufferStringSet args( machcmd_.args() );
     addShellIfNeeded( cmd, prog, args );
 
     DBG::message( BufferString("About to execute:\n",prog) );
@@ -898,7 +898,6 @@ bool OS::CommandLauncher::doExecute( const char* inpcmd, bool wt4finish,
 	}
     }
 
-    args.add( machcmd_.args(), true );
     if ( process_ )
     {
 	const QString qprog( prog );

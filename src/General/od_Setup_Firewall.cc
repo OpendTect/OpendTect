@@ -17,10 +17,6 @@ static const int cProtocolNr = 1;
 
 static const char* sAddStr	= "add";
 static const char* sRemoveStr	= "remove";
-static uiString sAddOSCmd() { return toUiString( "netsh advfirewall firewall "
-	    "add rule name=%1 dir=in action=allow program=%2 enable=yes" ); }
-static uiString sDelOSCmd() { return toUiString("netsh advfirewall firewall "
-					    "delete rule name=%1 program=%2"); }
 /*
 Command --add p <procnm1> <procnm2> :  In case process is python related
 Command --add o <procnm1> <procnm2> :  In case process is opendtect related
@@ -86,17 +82,15 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 	fp.add( exenm );
     }
 
-    uiString command = toadd ? sAddOSCmd() : sDelOSCmd();
-    command.arg( procnm.quote('"') ).arg( fp.fullPath() );
+    OS::MachineCommand cmd( "netsh", "advfirewall", "firewall" );
+    cmd.addArg( toadd ? "add" : "delete" )
+       .addArg( rule )
+       .addArg( BufferString("name=\"",procnm,"\"") )
+       .addArg( BufferString("program=\"",fp.fullPath(),"\"") );
+    if ( toadd )
+	cmd.addArg( "enable=yes" );
 
-    OS::MachineCommand cmd( command.getString() );
-
-    OS::CommandExecPars pars;
-    pars.launchtype( OS::LaunchType::RunInBG );
-    pars.prioritylevel( 1 );
-    cmd.execute( pars );
-
-    return true;
+    return cmd.execute( OS::LaunchType::RunInBG );
 }
 
 
