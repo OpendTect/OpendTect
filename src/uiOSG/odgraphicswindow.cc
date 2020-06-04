@@ -430,11 +430,12 @@ void ODGLWidget::mouseMoveEvent( QMouseEvent* ev  )
 void ODGLWidget::wheelEvent( QWheelEvent* ev  )
 {
     setKeyboardModifiers( ev  );
+    const QPoint delta = ev->angleDelta();
     _gw->getEventQueue()->mouseScroll(
-	ev ->orientation() == Qt::Vertical ?
-	    (ev ->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+	delta.y() > delta.x() ?
+	    (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
 			      : osgGA::GUIEventAdapter::SCROLL_DOWN) :
-	    (ev ->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+	    (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
 			      : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
 
@@ -540,12 +541,12 @@ ODGraphicsWindow::ODGraphicsWindow( osg::GraphicsContext::Traits* traits,
 
 
 ODGraphicsWindow::ODGraphicsWindow( ODGLWidget* widget )
-:   _realized(false)
+    : _realized(false)
 {
     _widget = widget;
     _traits = _widget ? createTraits( _widget )
 		      : new osg::GraphicsContext::Traits;
-    init( nullptr, nullptr, 0 );
+    init( nullptr, nullptr, Qt::WindowFlags() );
 }
 
 

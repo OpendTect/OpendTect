@@ -57,17 +57,17 @@ public:
 
 				ODGLWidget(QWidget* parent=nullptr,
 					   const QGLWidget* shareWidget=nullptr,
-					   Qt::WindowFlags f=0,
+					   Qt::WindowFlags f=Qt::WindowFlags(),
 					   bool forwardKeyEvents=false);
 				ODGLWidget(QGLContext* context,
 					   QWidget* parent=nullptr,
 					   const QGLWidget* shareWidget=nullptr,
-					   Qt::WindowFlags f=0,
+					   Qt::WindowFlags f=Qt::WindowFlags(),
 					   bool forwardKeyEvents=false);
 				ODGLWidget(const QGLFormat& format,
 					   QWidget* parent=nullptr,
 					   const QGLWidget* shareWidget=nullptr,
-					   Qt::WindowFlags f=0,
+					   Qt::WindowFlags f=Qt::WindowFlags(),
 					   bool forwardKeyEvents=false);
     virtual			~ODGLWidget();
 
@@ -147,7 +147,7 @@ public:
 				ODGraphicsWindow(osg::GraphicsContext::Traits*,
 						 QWidget* parent=nullptr,
 						 const QGLWidget* shareWidget=0,
-						 Qt::WindowFlags f=0);
+					 Qt::WindowFlags f=Qt::WindowFlags());
 				ODGraphicsWindow(ODGLWidget* widget);
     virtual			~ODGraphicsWindow();
 
