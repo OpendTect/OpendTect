@@ -342,6 +342,16 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 }
 
 
+static QPointF getWheelPosition( const QWheelEvent& ev )
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    return ev.position();
+#else
+    return ev.posF();
+#endif
+}
+
+
 void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
     const QPoint delta = reversemousewheel_ ? -ev->angleDelta()
@@ -352,7 +362,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	const bool haslength = !numsteps.isNull();
 
 	QTransform qtrans = transform();
-	const QPointF& mousepos = ev->position();
+	const QPointF mousepos = ev->position();
 	qtrans.translate( (viewWidth()/2) - mousepos.x(),
 			 (viewHeight()/2) - mousepos.y() );
 
@@ -374,8 +384,9 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	ev->accept();
     }
 
+    const QPointF mousepos = getWheelPosition( *ev );
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
-		   ev->position().x(), ev->position().y(), delta.y() );
+		   mousepos.x(), mousepos.y(), delta.y() );
     mousehandler_.triggerWheel( me );
 /*
   uncomment this conditional to have the default wheel event behaviour, that is,
