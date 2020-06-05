@@ -152,11 +152,12 @@ void uiHistogramSel::drawText()
     const int posy = histogramdisp_->height() / 3;
     minvaltext_->setText( toUiString(cliprg_.start,reqNrDec(cliprg_.start)) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
-    minvaltext_->show();
+    minvaltext_->setVisible( mousedown_ );
 
     maxvaltext_->setText( toUiString(cliprg_.stop,reqNrDec(cliprg_.stop)) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
-    maxvaltext_->show();
+    maxvaltext_->setVisible( mousedown_ );
+    //TODO: Make hiding of min/max text a setup variable.
 }
 
 
