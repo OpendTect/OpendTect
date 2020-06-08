@@ -668,6 +668,8 @@ od_ostream::od_ostream( od_ostream&& o )
 
 od_ostream& od_ostream::operator=( od_ostream&& o )
 {
+    if ( mine_ && !noclose_ )
+	sd_.close();
     sd_ = std::move( o.sd_ );
     return *this;
 }
