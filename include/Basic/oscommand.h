@@ -108,6 +108,11 @@ public:
 			{ return addKeyedArg(flg,nullptr,ks); }
     MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
 				    KeyStyle ks=NewStyle);
+    MachineCommand&	addFileArg(const char*);
+    MachineCommand&	addFileRedirect(const char* fnm,int stdcode=0,
+					bool append=false);
+			/*!< stcode=0: >; stdcode=1: 1>; stdcode=2: 2>
+			   append: >>; otherwise: >		   */
 
 			// convenience:
     template <class T>
