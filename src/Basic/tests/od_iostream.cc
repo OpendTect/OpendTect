@@ -140,12 +140,8 @@ bool testPipeOutput()
 #else
     OS::MachineCommand mc( "cat" );
 #endif
+    mc.addFileRedirect( getTestTempFileName() );
 
-#ifdef __win__
-    mc.addArg( ">" ).addArg( getTestTempFileName() );
-#else
-    mc.addArg( ">" ).addArg( BufferString("'",getTestTempFileName(),"'") );
-#endif
     PtrMan<od_ostream> ostream = new od_ostream( mc );
     mRunStandardTestWithError( ostream && ostream->isOK(),
 		      "Opening temporary file for write",

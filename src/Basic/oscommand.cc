@@ -202,6 +202,34 @@ OS::MachineCommand& OS::MachineCommand::addArg( const char* str )
 }
 
 
+OS::MachineCommand& OS::MachineCommand::addFileArg( const char* fnm )
+{
+   addArg( fnm );
+#ifdef __unix__
+   BufferString& addedarg = *args_.last();
+   if ( !addedarg.startsWith("\'") && addedarg.contains(" ") )
+	addedarg.quote();
+#endif
+    return *this;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::addFileRedirect( const char* fnm,
+						int stdcode, bool append )
+{
+    BufferString redirect;
+    if ( stdcode == 1 )
+	redirect.add( 1 );
+    else if ( stdcode == 2 )
+	redirect.add( 2 );
+    redirect.add( ">" );
+    if ( append )
+	redirect.add( ">" );
+
+    return addArg( redirect ).addFileArg( fnm );
+}
+
+
 OS::MachineCommand& OS::MachineCommand::addArgs( const BufferStringSet& toadd )
 {
     args_.append( toadd );
@@ -828,9 +856,9 @@ void OS::CommandLauncher::addShellIfNeeded( const BufferString& cmd,
 					    BufferString& prog,
 					    BufferStringSet& args )
 {
-    bool needsshell = args.isPresent("|") ||
-		    args.isPresent("<") ||
-		    args.isPresent(">");
+    bool needsshell = args.nearestMatch(">")>=0 ||
+		    args.nearestMatch("<")>=0 ||
+		    args.nearestMatch("|")>=0;
 #ifdef __win__
     if ( !needsshell )
 	needsshell = cmd.startsWith( "echo", CaseInsensitive );
@@ -847,8 +875,7 @@ void OS::CommandLauncher::addShellIfNeeded( const BufferString& cmd,
     args.insertAt( new BufferString(cmd), 1 );
 #else
     prog.set( "/bin/sh" );
-    BufferString shcmd( cmd, " " );
-    shcmd.add( args.cat( " " ) );
+    const BufferString shcmd( cmd, " ", args.cat( " " ) );
     args.setEmpty();
     args.add( "-c" ).add( shcmd );
     // The whole command as one arguments. Quotes will be added automatically
