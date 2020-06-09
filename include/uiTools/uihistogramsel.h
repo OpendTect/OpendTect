@@ -27,6 +27,12 @@ public:
     int				ID() const		{ return id_; }
     void			setID( int id )		{ id_ = id; }
 
+
+    enum SliderTextPolicy	{ Always, OnMove, Never };
+
+    void			setSliderTextPolicy(SliderTextPolicy);
+    SliderTextPolicy		sliderTextPolicy() const;
+
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
 					      int version);
@@ -46,6 +52,7 @@ public:
 protected:
 
     int				id_;
+    SliderTextPolicy		slidertextpol_;
     uiHistogramDisplay*		histogramdisp_;
     uiAxisHandler*		xax_;
 
@@ -62,11 +69,13 @@ protected:
     bool			mousedown_;
 
     virtual void		drawAgain();
+    virtual void		drawLines();
+    virtual void		drawText();
+    virtual void		drawPixmaps()	{}
     virtual void		useClipRange()	{}
+    virtual void		makeSymmetricalIfNeeded(bool)	{}
 
     void			init();
-    void			drawText();
-    void			drawLines();
     bool			changeLinePos(bool pressedonly=false);
 
     void			mousePressed(CallBacker*);

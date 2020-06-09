@@ -29,6 +29,7 @@ uiHistogramSel::uiHistogramSel( uiParent* p,
     , startpix_(mUdf(int))
     , stoppix_(mUdf(int))
     , mousedown_(false)
+    , slidertextpol_(uiHistogramSel::Always)
     , rangeChanged(this)
 {
     uiHistogramDisplay::Setup hsu( su );
@@ -149,15 +150,16 @@ void uiHistogramSel::drawText()
     if ( mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
+    const bool showtext = slidertextpol_ == Always ||
+			( slidertextpol_ == OnMove && mousedown_ );
     const int posy = histogramdisp_->height() / 3;
     minvaltext_->setText( toUiString(cliprg_.start,reqNrDec(cliprg_.start)) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
-    minvaltext_->setVisible( mousedown_ );
+    minvaltext_->setVisible( showtext );
 
     maxvaltext_->setText( toUiString(cliprg_.stop,reqNrDec(cliprg_.stop)) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
-    maxvaltext_->setVisible( mousedown_ );
-    //TODO: Make hiding of min/max text a setup variable.
+    maxvaltext_->setVisible( showtext );
 }
 
 
@@ -166,12 +168,15 @@ void uiHistogramSel::drawLines()
     if ( mIsUdf(startpix_) || mIsUdf(stoppix_) )
 	return;
 
-    const int height = histogramdisp_->height();
-    minhandle_->setLine( startpix_, 0, startpix_, height );
+    uiAxisHandler* yax = histogramdisp_->yAxis(false);
+    const int disph = histogramdisp_->viewHeight();
+    int y0pix = yax ? yax->pixRange().start+2 : 0;
+    int y1pix = yax ? yax->pixRange().stop+1 : disph;
+    minhandle_->setLine( startpix_, y0pix, startpix_, y1pix );
     minhandle_->setCursor( MouseCursor::SizeHor );
     minhandle_->show();
 
-    maxhandle_->setLine( stoppix_, 0, stoppix_, height );
+    maxhandle_->setLine( stoppix_, y0pix, stoppix_, y1pix );
     maxhandle_->setCursor( MouseCursor::SizeHor );
     maxhandle_->show();
 }
@@ -184,6 +189,7 @@ void uiHistogramSel::drawAgain()
 
     drawText();
     drawLines();
+    drawPixmaps();
 }
 
 
@@ -207,6 +213,11 @@ void uiHistogramSel::setSelRange( const Interval<float>& rg )
     drawAgain();
 }
 
+void uiHistogramSel::setSliderTextPolicy( uiHistogramSel::SliderTextPolicy pol )
+{ slidertextpol_ = pol; }
+
+uiHistogramSel::SliderTextPolicy uiHistogramSel::sliderTextPolicy() const
+{ return slidertextpol_; }
 
 bool uiHistogramSel::changeLinePos( bool firstclick )
 {
@@ -242,6 +253,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
 	    return false;
 
 	cliprg_.start = mouseposval;
+	makeSymmetricalIfNeeded( true );
     }
     else
     {
@@ -251,6 +263,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
 	    return false;
 
 	cliprg_.stop = mouseposval;
+	makeSymmetricalIfNeeded( false );
     }
 
     rangeChanged.trigger();
