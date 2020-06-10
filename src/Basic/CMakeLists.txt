@@ -146,18 +146,33 @@ if ( ITTNOTIFY_FOUND )
 endif()
 
 if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
+    if ( UNIX )
+	set ( FILEEXT sh )
+    else()
+	set ( FILEEXT cmd )
+    endif()
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.cmd"
-                    "${PROJECT_BINARY_DIR}/testscripts/script with space.cmd" )
+		    "${CMAKE_SOURCE_DIR}/bin/process_dumpfile.${FILEEXT}"
+		    "${PROJECT_BINARY_DIR}/bin/process_dumpfile.${FILEEXT}" )
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.sh"
-                    "${PROJECT_BINARY_DIR}/testscripts/script with space.sh" )
+		    "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
+		    "${PROJECT_BINARY_DIR}/testscripts/script with space.${FILEEXT}" )
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
                     "${PROJECT_BINARY_DIR}/testscripts/count_to_1000.csh" )
+
+    if ( UNIX )
+	set ( FILEEXT sh )
+    else()
+	set ( FILEEXT bat )
+    endif()
+    execute_process(
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		    "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
+		    "${PROJECT_BINARY_DIR}/bin/od_external.${FILEEXT}" )
 
 endif()
 
