@@ -40,6 +40,7 @@ public:
     inline void		setUnit( const uiString& unit )	{ unitstr_=unit; }
 
     void		setWorld2Ui(const uiWorld2Ui&);
+    void		setAnnotPos(OD::Edge);
 
     void		update();
 
@@ -65,6 +66,8 @@ private:
     void		setPolygons(int,int);
     uiWorld2Ui		w2ui_;
     int			preferablepxwidth_;
+
+    OD::Edge		annotpos_;
 
 };
 #endif

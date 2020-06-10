@@ -24,6 +24,7 @@ uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     , w2ui_(uiWorld2Ui())
     , unitstr_(SI().getUiXYUnitString(true,false))
     , worldwidth_((float)pxwidth)
+    , annotpos_(OD::Top)
 {
     initDefaultScale();
 }
@@ -45,11 +46,11 @@ void uiScaleBarItem::initDefaultScale()
     lowerright_ = new uiRectItem;   addChild( lowerright_ );
 
     const Alignment cenbot = Alignment( Alignment::HCenter, Alignment::Bottom );
-    startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
     addChild( startnr_ );
-    midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
     addChild( midnr_ );
-    stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
     addChild( stopnr_ );
 
     // filling with color
@@ -92,9 +93,15 @@ void uiScaleBarItem::setPolygons( int width, int height )
     lowermid_->setRect( -3*width, height, width, height );
     lowerright_->setRect( -2*width, height, 2*width, height );
 
-    startnr_->setPos( -4.0f*width, 0 );
-    midnr_->setPos( -2.0f * width, 0 );
-    stopnr_->setPos( 0, 0 );
+    const Alignment al = Alignment( Alignment::HCenter,
+		annotpos_==OD::Top ? Alignment::Bottom : Alignment::Top );
+    const int ypos = annotpos_==OD::Top ? 1 : 2*height;
+    startnr_->setPos( -4.0f*width, ypos );
+    midnr_->setPos( -2.0f * width, ypos );
+    stopnr_->setPos( 0, ypos );
+    startnr_->setAlignment( al );
+    midnr_->setAlignment( al );
+    stopnr_->setAlignment( al );
 }
 
 
@@ -104,6 +111,7 @@ void uiScaleBarItem::adjustValues()
     getScale( scalex, scaley );
     worldwidth_ = w2ui_.toWorldX(preferablepxwidth_) - w2ui_.toWorldX(0);
     worldwidth_ *= scalex;
+    worldwidth_ = Math::Abs( worldwidth_ );
 
     float rval = 1.f;
     while ( worldwidth_/10.f > rval )
@@ -114,6 +122,12 @@ void uiScaleBarItem::adjustValues()
     {
 	worldwidth_ = vroundedtotenth;
 	pxwidth_ = mNINT32( Math::Abs( worldwidth_/
-                                       (w2ui_.worldPerPixel().x*scalex) ) );
+				(w2ui_.worldPerPixel().x*scalex) ) );
     }
+}
+
+
+void uiScaleBarItem::setAnnotPos( OD::Edge pos )
+{
+    annotpos_ = pos;
 }
