@@ -19,7 +19,7 @@
 #include <iostream>
 #include "settingsaccess.h"
 
-#define mTestDirNm "TestDir"
+#define mTestDirNm "Test Dir"
 
 /* TODO activate??
 
@@ -117,7 +117,8 @@ int mTestMainFnName( int argc, char** argv )
 
 BufferString createTestDir()
 {
-    const File::Path fp( File::Path::getTempDir(), mTestDirNm );
+    const File::Path fp( File::Path::getTempDir(),
+			File::Path::getTempFileName( mTestDirNm,"" ) );
     File::createDir( fp.fullPath() );
     const File::Path filefp( fp.fullPath(),
 			    File::Path::getTempFileName("python","txt") );
