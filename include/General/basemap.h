@@ -55,6 +55,7 @@ public:
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
     virtual bool		getBoundingBox(BoundingBox&) const;
+    virtual Coord		getTextPos(int shapeidx) const;
     virtual Alignment		getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }
     virtual Color		getColor() const;

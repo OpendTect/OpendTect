@@ -301,14 +301,20 @@ void uiBaseMapObject::update()
 	    if ( !itm ) return;
 
 	    itm->setText( toUiString(shapenm) );
-	    for( int crdidx=0; crdidx<crds.size(); crdidx++ )
+	    Coord txtpos = bmobject_->getTextPos( idx );
+	    if ( txtpos.isUdf() )
 	    {
-		if( !mIsUdf(crds[crdidx]) )
+		for( int crdidx=0; crdidx<crds.size(); crdidx++ )
 		{
-		    itm->setPos( crds[crdidx] );
-		    break;
+		    if( !mIsUdf(crds[crdidx]) )
+		    {
+			txtpos = crds[crdidx];
+			break;
+		    }
 		}
 	    }
+
+	    itm->setPos( txtpos );
 	    const Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
 

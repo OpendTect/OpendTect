@@ -54,6 +54,9 @@ bool BaseMapObject::getBoundingBox( BoundingBox& ) const
 Alignment BaseMapObject::getAlignment( int ) const
 { return Alignment(); }
 
+Coord BaseMapObject::getTextPos(int shapeidx) const
+{ return Coord::udf(); }
+
 Color BaseMapObject::getColor() const
 {
     if ( getFillColor(0) != Color::NoColor() )
