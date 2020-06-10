@@ -38,13 +38,14 @@ public:
 					{ set(s,isshortnm); }
 		Platform( bool iswin, bool is32, bool ismac=false )
 		    			{ set(iswin,is32,ismac); }
-    bool        operator ==( const Platform& p ) const
+    bool	operator ==( const Platform& p ) const
 					{ return type_ == p.type_; }
-    bool        operator ==( const Platform::Type& t ) const
+    bool	operator ==( const Platform::Type& t ) const
 					{ return type_ == t; }
 
     const char*	longName() const { return toString(type_); }
     const char*	shortName() const;	//!< mac, lux32, win64, etc.
+    const char*	osName() const; // Linux, Windows, MacOS
 
     static bool	isValidName(const char*,bool isshortnm);
     void	set(const char*,bool isshortnm);
