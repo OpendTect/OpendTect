@@ -122,14 +122,13 @@ void uiProductTreeItem::checkCB( CallBacker* )
 
 uiPluginSel::uiPluginSel( uiParent* p )
 	: uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
-                            mODHelpKey(mPluginSelHelpID) )
+			mODHelpKey(mPluginSelHelpID) )
 			.savebutton(true)
 			.savetext(tr("Show this dialog at startup")))
 {
-    BufferString titl( "OpendTect V" );
-    titl += GetFullODVersion(); titl +=
-			  tr(": Candidate auto-loaded plugins").getFullString();
-    setCaption( tr(titl) );
+    uiString capt =
+	tr( "OpendTect V%1 : Select Plugins" ).arg( GetFullODVersion() );
+    setCaption( capt );
 
     readVendorList();
 
@@ -148,6 +147,7 @@ uiPluginSel::~uiPluginSel()
     deepErase( products_ );
     deepErase( vendors_ );
 }
+
 
 void uiPluginSel::readVendorList()
 {

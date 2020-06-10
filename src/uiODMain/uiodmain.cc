@@ -753,9 +753,9 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 
 void uiODMain::updateCaption()
 {
-    uiString capt = toUiString( "%1/%2" )
+    uiString capt = toUiString( "%1 (%2)" )
 	.arg( getProgramString() )
-	.arg( OD::Platform::local().longName() );
+	.arg( OD::Platform::local().osName() );
 
     if ( ODInst::getAutoInstType() == ODInst::InformOnly
 	&& ODInst::updatesAvailable() )
@@ -768,7 +768,7 @@ void uiODMain::updateCaption()
     }
 
     if ( !SI().name().isEmpty() )
-	capt.append( ": %1" ).arg( SI().name() );
+	capt.append( " : %1" ).arg( SI().name() );
 
     setCaption( capt );
 }
