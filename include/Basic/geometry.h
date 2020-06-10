@@ -60,6 +60,8 @@ public:
     inline T			sqAbs() const;
     inline double		distTo(const Point2D<T>&) const;
     inline T			sqDistTo(const Point2D<T>&) const;
+    template <class TT>
+    inline Point2D<T>		scale(TT xx,TT yy) const;
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
 
@@ -67,6 +69,9 @@ public:
     T				y;
 };
 
+typedef Point2D<int> PointI;
+typedef Point2D<float> PointF;
+typedef Point2D<double> PointD;
 
 /*!
 \brief %Basic 2D sizes (width/height) class.
@@ -76,7 +81,7 @@ template <class T>
 mClass(Basic) Size2D
 {
 public:
-			Size2D( T w = 0 , T h = 0 );
+			Size2D(T w=0 ,T h=0);
 
     inline bool		operator==(const Size2D<T>&) const;
     inline bool		operator!=(const Size2D<T>&) const;
@@ -251,6 +256,9 @@ public:
 
     inline PosRectangle<T> grownBy(T sidesincreasebyfactor=1) const;
 
+    template <class TT>
+    inline PosRectangle<T> scale(TT xx,TT yy) const;
+
 protected:
 
     inline bool		xOutside(T,T) const;
@@ -258,6 +266,7 @@ protected:
 };
 
 
+typedef PosRectangle<int> RectI;
 typedef PosRectangle<float> RectF;
 typedef PosRectangle<double> RectD;
 
@@ -388,6 +397,12 @@ T Point2D<T>::sqDistTo( const Point2D<T>& pt ) const
 }
 
 
+template <class T> template <class TT> inline
+Point2D<T> Point2D<T>::scale( TT xx, TT yy ) const
+{ return Point2D<T>( x*sCast(T,xx), y*sCast(T,yy) ); }
+
+
+// Size2D
 template <class T> inline
 Size2D<T>::Size2D( T w , T h )
 { width_=w; height_=h; }
@@ -453,6 +468,7 @@ Size2D<T>& Size2D<T>::operator -=( const Size2D<T>& s )
 }
 
 
+// Rectangle
 template <class T> inline
 Rectangle<T>::Rectangle( T l, T t, T r, T b )
     : topleft_( Point2D<T>(l,t))
@@ -685,6 +701,7 @@ bool Rectangle<T>::revY() const
 { return bottom() > top(); }
 
 
+// PixRectangle
 template <class T>
 inline bool PixRectangle<T>::xOutside( T x ) const
 {
@@ -709,6 +726,7 @@ inline bool PixRectangle<T>::isOnSide( const Point2D<T>& pt ) const
 }
 
 
+// PosRectangle
 template <class T>
 inline bool PosRectangle<T>::xOutside( T x, T eps ) const
 {
@@ -826,6 +844,14 @@ inline PosRectangle<T> PosRectangle<T>::grownBy( T f ) const
 			    fwiderPos(this->top(),this->bottom(),f),
 			    fwiderPos(this->right(),this->left(),f),
 			    fwiderPos(this->bottom(),this->top(),f) );
+}
+
+
+template <class T> template <class TT> inline
+PosRectangle<T> PosRectangle<T>::scale( TT xx, TT yy ) const
+{
+    return PosRectangle<T>( this->topleft_.scale(xx,yy),
+			    this->bottomright_.scale(xx,yy) );
 }
 
 
