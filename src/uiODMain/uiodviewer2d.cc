@@ -290,6 +290,9 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
     if ( isnew )
 	viewwin()->start();
+
+    if ( viewwin()->dockParent() )
+	viewwin()->dockParent()->raise();
 }
 
 

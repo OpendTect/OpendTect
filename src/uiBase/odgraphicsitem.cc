@@ -416,10 +416,10 @@ QPointF ODGraphicsTextItem::getAlignment() const
     switch ( val_ )
     {
 	case Qt::AlignBottom:
-	    movey = -1;
+	    movey = -1.1;
 	    break;
 	case Qt::AlignVCenter:
-	    movey = -0.5f;
+	    movey = -0.55f;
 	    break;
     }
 
@@ -477,9 +477,11 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     painter->save();
     painter->resetTransform();
 
+    bool onlynum = false;
+    text_.toInt( &onlynum );
     QFontMetrics qfm( getFont() );
     const float txtwidth = qfm.width( text_ );
-    const float txtheight = qfm.height();
+    const float txtheight = onlynum ? qfm.ascent() : qfm.height();
 
     const float width = txtwidth * cos(paintangle) +
 			txtheight * sin(paintangle);

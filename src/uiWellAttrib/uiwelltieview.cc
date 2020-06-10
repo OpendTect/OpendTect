@@ -173,12 +173,12 @@ uiGroup* uiTieView::displayGroup()
 void uiTieView::initFlatViewer()
 {
     vwr_->setInitialSize( uiSize(520,540) );
-    vwr_->setExtraBorders( uiSize(0,3), uiSize(0,23) ); // trial and error
+    vwr_->setExtraBorders( uiSize(0,-15), uiSize(0,-15) ); // trial and error
     FlatView::Appearance& app = vwr_->appearance();
     app.setDarkBG( false );
     app.setGeoDefaults( true );
     app.annot_.showaux_ = true ;
-    app.annot_.x1_.showannot_ = true;
+    app.annot_.x1_.showannot_ = false;
     app.annot_.x1_.sampling_ = 100;
     app.annot_.x1_.showgridlines_ = false;
     app.annot_.x2_.showannot_ = true;
@@ -186,10 +186,10 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
-    app.annot_.x1_.name_ = data_.sKeySeismic();
+    app.annot_.x1_.name_ = "";
     app.annot_.x2_.name_ =  "TWT";
-    app.annot_.title_ = "Synthetics<--------------------"
-			"------------------------------->Seismics";
+    app.annot_.title_ = "Synthetics                     "
+			"                                Seismics";
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
     vwr_->getMouseEventHandler().movement.notify(
 				mCB(this,uiTieView,setInfoMsg) );

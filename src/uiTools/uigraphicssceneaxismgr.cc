@@ -13,6 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "draw.h"
 #include "axislayout.h"
+#include "uiaxisdata.h"
+#include "uifont.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
@@ -53,7 +55,8 @@ void uiGraphicsSceneAxis::setZValue( int zvalue )
 }
 
 
-void uiGraphicsSceneAxis::setPosition(bool isx,bool istoporleft,bool isinside)
+void uiGraphicsSceneAxis::setPosition( bool isx, bool istoporleft,
+				       bool isinside )
 {
     inside_ = isinside;
     isx_ = isx;
@@ -265,34 +268,42 @@ void uiGraphicsSceneAxis::reDraw()
 }
 
 
-#define mAddMask( var ) \
-var = new uiRectItem(); \
-view_.scene().addItem( var ); \
-var->setFillColor( Color::White() ); \
-var->setPenStyle( lst )
-
 uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     : view_( view )
-    , xaxis_( new uiAxisHandler(&view.scene(),
+    , xaxis_top_(new uiAxisHandler(&view.scene(),
 				uiAxisHandler::Setup(uiRect::Top)
 				.fixedborder(true).nogridline(true).ticsz(5)) )
-    , yaxis_( new uiAxisHandler(&view.scene(),
+    , yaxis_left_(new uiAxisHandler(&view.scene(),
 				uiAxisHandler::Setup(uiRect::Left)
+				.fixedborder(true).ticsz(5)) )
+    , xaxis_bottom_(new uiAxisHandler(&view.scene(),
+				uiAxisHandler::Setup(uiRect::Bottom)
+				.fixedborder(true).nogridline(true).ticsz(5)) )
+    , yaxis_right_(new uiAxisHandler(&view.scene(),
+				uiAxisHandler::Setup(uiRect::Right)
 				.fixedborder(true).ticsz(5)) )
     , uifont_(FontList().get())
 {
-    uifont_.setFontData( xaxis_->setup().fontdata_ );
+    uifont_.setFontData( axis(OD::Top)->setup().fontdata_ );
 
-    xaxis_->setBegin( yaxis_ );
-    yaxis_->setEnd( xaxis_ );
+    axis(OD::Top)->setBegin( axis(OD::Left) );
+    axis(OD::Bottom)->setBegin( axis(OD::Left) );
+    axis(OD::Left)->setEnd( axis(OD::Top) );
+    axis(OD::Right)->setEnd( axis(OD::Top) );
 
     updateFontSizeCB( 0 );
     OD::LineStyle lst; lst.type_ = OD::LineStyle::None;
 
-    mAddMask( topmask_ );
-    mAddMask( bottommask_ );
-    mAddMask( leftmask_ );
-    mAddMask( rightmask_ );
+    topmask_ = view_.scene().addItem( new uiRectItem() );
+    topmask_->setPenStyle( lst );
+    bottommask_ = view_.scene().addItem( new uiRectItem() );
+    bottommask_->setPenStyle( lst );
+    leftmask_ = view_.scene().addItem( new uiRectItem() );
+    leftmask_->setPenStyle( lst );
+    rightmask_ = view_.scene().addItem( new uiRectItem() );
+    rightmask_->setPenStyle( lst );
+    setMaskColor( Color::White() );
+
     mAttachCB( uifont_.changed, uiGraphicsSceneAxisMgr::updateFontSizeCB );
 }
 
@@ -300,15 +311,19 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
 uiGraphicsSceneAxisMgr::~uiGraphicsSceneAxisMgr()
 {
     detachAllNotifiers();
-    delete xaxis_;
-    delete yaxis_;
+    delete xaxis_top_;
+    delete xaxis_bottom_;
+    delete yaxis_left_;
+    delete yaxis_right_;
 }
 
 
 void uiGraphicsSceneAxisMgr::setZValue( int z )
 {
-    xaxis_->setup().zval( z+1 );
-    yaxis_->setup().zval( z+1 );
+    axis(OD::Top)->setup().zval( z+1 );
+    axis(OD::Bottom)->setup().zval( z+1 );
+    axis(OD::Left)->setup().zval( z+1 );
+    axis(OD::Right)->setup().zval( z+1 );
 
     topmask_->setZValue( z );
     bottommask_->setZValue( z );
@@ -317,10 +332,51 @@ void uiGraphicsSceneAxisMgr::setZValue( int z )
 }
 
 
+uiAxisHandler* uiGraphicsSceneAxisMgr::axis( OD::Edge edge )
+{
+    switch ( edge )
+    {
+	case OD::Top :		return xaxis_top_; break;
+	case OD::Bottom :	return xaxis_bottom_; break;
+	case OD::Left :		return yaxis_left_; break;
+	case OD::Right :	return yaxis_right_; break;
+	default :		return nullptr;
+    }
+}
+
+
+const uiAxisHandler* uiGraphicsSceneAxisMgr::axis( OD::Edge edge ) const
+{
+    return const_cast<uiGraphicsSceneAxisMgr*>(this)->axis( edge );
+}
+
+
+void uiGraphicsSceneAxisMgr::enableAxis( OD::Edge edge, bool yn )
+{
+    axis(edge)->setVisible( yn );
+}
+
+
+void uiGraphicsSceneAxisMgr::enableXAxis( bool yn )
+{
+    axis(OD::Top)->setVisible( yn );
+    axis(OD::Bottom)->setVisible( yn );
+}
+
+
+void uiGraphicsSceneAxisMgr::enableYAxis( bool yn )
+{
+    axis(OD::Left)->setVisible( yn );
+    axis(OD::Right)->setVisible( yn );
+}
+
+
 void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
 {
-    xaxis_->updateDevSize();
-    yaxis_->updateDevSize();
+    axis(OD::Top)->updateDevSize();
+    axis(OD::Bottom)->updateDevSize();
+    axis(OD::Left)->updateDevSize();
+    axis(OD::Right)->updateDevSize();
 
     const uiRect fullrect = view_.getViewArea();
 
@@ -332,36 +388,43 @@ void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
     leftmask_->setRect( fullrect.left(), fullrect.top(),
 		       viewrect.left()-fullrect.left(), fullrect.height() );
     rightmask_->setRect( viewrect.right(), fullrect.top(),
-			fullrect.right()-viewrect.right(), fullrect.height());
+			fullrect.right()-viewrect.right()+2, fullrect.height());
 }
 
 
 void uiGraphicsSceneAxisMgr::setBorder( const uiBorder& border )
 {
-    xaxis_->setBorder( border );
-    yaxis_->setBorder( border );
+    axis(OD::Top)->setBorder( border );
+    axis(OD::Bottom)->setBorder( border );
+    axis(OD::Left)->setBorder( border );
+    axis(OD::Right)->setBorder( border );
 }
 
 
 void uiGraphicsSceneAxisMgr::setWorldCoords( const uiWorldRect& wr )
 {
-    xaxis_->setBounds( Interval<float>(mCast(float,wr.left()),
-				       mCast(float,wr.right())) );
-    yaxis_->setBounds( Interval<float>( mCast(float,wr.bottom()),
-					mCast(float,wr.top()) ) );
+    const Interval<float> xrg( sCast(float,wr.left()), sCast(float,wr.right()));
+    axis(OD::Top)->setBounds( xrg );
+    axis(OD::Bottom)->setBounds( xrg );
+
+    const Interval<float> yrg( sCast(float,wr.bottom()), sCast(float,wr.top()));
+    axis(OD::Left)->setBounds( yrg );
+    axis(OD::Right)->setBounds( yrg );
     updateScene();
 }
 
 
 void uiGraphicsSceneAxisMgr::setXLineStyle( const OD::LineStyle& xls )
 {
-    xaxis_->setup().style_ = xls;
+    axis(OD::Top)->setup().style_ = xls;
+    axis(OD::Bottom)->setup().style_ = xls;
 }
 
 
 void uiGraphicsSceneAxisMgr::setYLineStyle( const OD::LineStyle& yls )
 {
-    yaxis_->setup().style_ = yls;
+    axis(OD::Left)->setup().style_ = yls;
+    axis(OD::Right)->setup().style_ = yls;
 }
 
 
@@ -373,7 +436,7 @@ int uiGraphicsSceneAxisMgr::getZValue() const
 
 int uiGraphicsSceneAxisMgr::getNeededWidth() const
 {
-    const int nrchars = yaxis_->getNrAnnotCharsForDisp() + 5;
+    const int nrchars = axis(OD::Left)->getNrAnnotCharsForDisp() + 5;
     return nrchars*uifont_.avgWidth();
 }
 
@@ -391,29 +454,37 @@ NotifierAccess& uiGraphicsSceneAxisMgr::layoutChanged()
 void uiGraphicsSceneAxisMgr::updateFontSizeCB( CallBacker* )
 {
     const FontData& fontdata = uifont_.fontData();
-    xaxis_->setup().fontdata_ = fontdata;
-    yaxis_->setup().fontdata_ = fontdata;
+    axis(OD::Top)->setup().fontdata_ = fontdata;
+    axis(OD::Bottom)->setup().fontdata_ = fontdata;
+    axis(OD::Left)->setup().fontdata_ = fontdata;
+    axis(OD::Right)->setup().fontdata_ = fontdata;
 }
 
 
 void uiGraphicsSceneAxisMgr::setGridLineStyle( const OD::LineStyle& gls )
 {
-    xaxis_->setup().gridlinestyle_ = gls;
-    yaxis_->setup().gridlinestyle_ = gls;
+    axis(OD::Top)->setup().gridlinestyle_ = gls;
+    axis(OD::Bottom)->setup().gridlinestyle_ = gls;
+    axis(OD::Left)->setup().gridlinestyle_ = gls;
+    axis(OD::Right)->setup().gridlinestyle_ = gls;
 }
 
 
 void uiGraphicsSceneAxisMgr::setAnnotInside( bool yn )
 {
-    xaxis_->setup().annotinside_ = yn;
-    yaxis_->setup().annotinside_ = yn;
+    axis(OD::Top)->setup().annotinside_ = yn;
+    axis(OD::Bottom)->setup().annotinside_ = yn;
+    axis(OD::Left)->setup().annotinside_ = yn;
+    axis(OD::Right)->setup().annotinside_ = yn;
 }
 
 
 void uiGraphicsSceneAxisMgr::enableAxisLine( bool yn )
 {
-    xaxis_->setup().noaxisline( !yn );
-    yaxis_->setup().noaxisline( !yn );
+    axis(OD::Top)->setup().noaxisline( !yn );
+    axis(OD::Bottom)->setup().noaxisline( !yn );
+    axis(OD::Left)->setup().noaxisline( !yn );
+    axis(OD::Right)->setup().noaxisline( !yn );
 }
 
 
@@ -421,27 +492,86 @@ void uiGraphicsSceneAxisMgr::setAuxAnnotPositions(
 	const TypeSet<PlotAnnotation>& auxannot, bool forx )
 {
     if ( forx )
-	xaxis_->setAuxAnnot( auxannot );
+    {
+	axis(OD::Top)->setAuxAnnot( auxannot );
+	axis(OD::Bottom)->setAuxAnnot( auxannot );
+    }
     else
-	yaxis_->setAuxAnnot( auxannot );
+    {
+	axis(OD::Left)->setAuxAnnot( auxannot );
+	axis(OD::Right)->setAuxAnnot( auxannot );
+    }
 }
 
 
 void uiGraphicsSceneAxisMgr::setAuxLineStyle( const OD::LineStyle& ls,
 					      bool forx, bool forhl )
 {
-    uiAxisHandler* axis = forx ? xaxis_ : yaxis_;
+    uiAxisHandler* ah1 = forx ? axis(OD::Top) : axis(OD::Left);
+    uiAxisHandler* ah2 = forx ? axis(OD::Bottom) : axis(OD::Right);
     if ( forhl )
-	axis->setup().auxhllinestyle_ = ls;
+    {
+	ah1->setup().auxhllinestyle_ = ls;
+	ah2->setup().auxhllinestyle_ = ls;
+    }
     else
-	axis->setup().auxlinestyle_ = ls;
+    {
+	ah1->setup().auxlinestyle_ = ls;
+	ah2->setup().auxlinestyle_ = ls;
+    }
+}
+
+
+void uiGraphicsSceneAxisMgr::setAnnotInInt( bool xaxis, bool dowant )
+{
+    if ( xaxis )
+    {
+	axis(OD::Top)->setup().annotinint( dowant );
+	axis(OD::Bottom)->setup().annotinint( dowant );
+    }
+    else
+    {
+	axis(OD::Left)->setup().annotinint( dowant );
+	axis(OD::Right)->setup().annotinint( dowant );
+    }
 }
 
 
 void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool yn )
 {
     if ( forx )
-	xaxis_->setup().showauxannot( yn );
+    {
+	axis(OD::Top)->setup().showauxannot( yn );
+	axis(OD::Bottom)->setup().showauxannot( yn );
+    }
     else
-	yaxis_->setup().showauxannot( yn );
+    {
+	axis(OD::Left)->setup().showauxannot( yn );
+	axis(OD::Right)->setup().showauxannot( yn );
+    }
+}
+
+
+void uiGraphicsSceneAxisMgr::setMaskColor( const Color& col )
+{
+    maskcolor_ = col;
+    topmask_->setFillColor( col );
+    bottommask_->setFillColor( col );
+    leftmask_->setFillColor( col );
+    rightmask_->setFillColor( col );
+}
+
+
+Color uiGraphicsSceneAxisMgr::getMaskColor() const
+{
+    return maskcolor_;
+}
+
+
+void uiGraphicsSceneAxisMgr::updateScene()
+{
+    axis(OD::Top)->updateScene();
+    axis(OD::Bottom)->updateScene();
+    axis(OD::Left)->updateScene();
+    axis(OD::Right)->updateScene();
 }

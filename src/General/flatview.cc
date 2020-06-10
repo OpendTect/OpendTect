@@ -181,13 +181,14 @@ FlatView::DataDispPars::Common::Common()
 
 
 FlatView::Annotation::AxisData::AxisData()
-    : reversed_(false)
-    , sampling_( mUdf(float), mUdf(float) )
-    , showannot_( false )
-    , showgridlines_( false )
-    , annotinint_( false )
+    : sampling_(mUdf(float),mUdf(float))
+    , hasannot_(true)
+    , showannot_(false)
+    , showgridlines_(false)
+    , reversed_(false)
+    , annotinint_(false)
+    , factor_(1)
     , showauxannot_(true)
-    , factor_( 1 )
     , auxlinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot)) )
     , auxhllinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot,2,
 					   getRandStdDrawColor())) )
@@ -195,8 +196,9 @@ FlatView::Annotation::AxisData::AxisData()
 
 
 void FlatView::Annotation::AxisData::showAll( bool yn )
-{ showannot_ = showgridlines_ = yn; }
-
+{
+    showannot_ = showgridlines_ = yn;
+}
 
 
 int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const

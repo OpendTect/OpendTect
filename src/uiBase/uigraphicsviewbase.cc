@@ -334,7 +334,6 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
     const int delta = reversemousewheel_ ? -ev->delta() : ev->delta();
 
-
     if ( ev && handle_.scrollZoomEnabled() )
     {
 	const int numsteps = ( delta / 8 ) / 15;
@@ -346,7 +345,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 
 	for ( int idx=0; idx<abs(numsteps); idx++ )
 	{
-	    if ( numsteps > 0 || (mat.m11()>1 && mat.m22()>1) )
+	    if ( numsteps > 0 || (mat.m11()-mDefEps>1 && mat.m22()-mDefEps>1) )
 	    {
 		if ( numsteps > 0 )
 		    mat.scale( 1.2, 1.2 );
@@ -755,8 +754,7 @@ uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
 }
 
 
-const uiPoint uiGraphicsViewBase::mapFromScene(
-					const Geom::Point2D<float>& pt ) const
+uiPoint uiGraphicsViewBase::mapFromScene( const Geom::Point2D<float>& pt ) const
 {
     QPoint qp = body_->mapFromScene( pt.x, pt.y );
     return uiPoint( qp.x(), qp.y() );
@@ -764,12 +762,19 @@ const uiPoint uiGraphicsViewBase::mapFromScene(
 }
 
 
-const Geom::Point2D<float> uiGraphicsViewBase::mapToScene(
-						    const uiPoint& pt ) const
+Geom::Point2D<float> uiGraphicsViewBase::mapToScene( const uiPoint& pt ) const
 {
     QPointF qp = body_->mapToScene( pt.x, pt.y );
     return Geom::Point2D<float>( qp.x(), qp.y() );
 
+}
+
+
+Geom::RectF uiGraphicsViewBase::mapToScene( const uiRect& r ) const
+{
+    const Geom::Point2D<float> tlpt = mapToScene( r.topLeft() );
+    const Geom::Point2D<float> rbpt = mapToScene( r.bottomRight() );
+    return Geom::RectF( tlpt, rbpt );
 }
 
 

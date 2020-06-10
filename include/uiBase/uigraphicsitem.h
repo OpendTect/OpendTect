@@ -22,6 +22,7 @@ ________________________________________________________________________
 class FillPattern;
 class MouseCursor;
 class MouseEvent;
+class uiGraphicsItemSet;
 class uiGraphicsScene;
 namespace OD { class LineStyle; }
 
@@ -76,6 +77,8 @@ public:
     void		removeChild(uiGraphicsItem*,bool withdelete);
     void		removeAll(bool withdelete);
     void		addChild(uiGraphicsItem*);
+    void		addChildSet(uiGraphicsItemSet&);
+    void		removeChildSet(uiGraphicsItemSet&);
 
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
     void		setItemIgnoresTransformations(bool);

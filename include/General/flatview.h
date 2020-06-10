@@ -140,6 +140,7 @@ public:
 
 	BufferString		name_;
 	SamplingData<float>	sampling_;
+	bool			hasannot_;
 	bool			showannot_;
 	bool			showgridlines_;
 	bool			reversed_;

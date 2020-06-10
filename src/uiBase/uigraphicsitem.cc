@@ -360,12 +360,26 @@ void uiGraphicsItem::removeAll( bool withdelete )
 
 void uiGraphicsItem::addChild( uiGraphicsItem* itm )
 {
-    if ( children_.isPresent(itm) )
+    if ( !itm || children_.isPresent(itm) )
 	return;
 
     itm->parent_ = this;
     children_ += itm;
     itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
+}
+
+
+void uiGraphicsItem::addChildSet( uiGraphicsItemSet& set )
+{
+    for ( int idx=0; idx<set.size(); idx++ )
+	addChild( set.get(idx) );
+}
+
+
+void uiGraphicsItem::removeChildSet( uiGraphicsItemSet& set )
+{
+    for ( int idx=0; idx<set.size(); idx++ )
+	removeChild( set.get(idx), false );
 }
 
 

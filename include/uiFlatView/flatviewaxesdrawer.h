@@ -28,7 +28,7 @@ public:
 			AxesDrawer(uiFlatViewer&);
 			~AxesDrawer();
 
-    int			altdim0_;
+    int			altdim0_	= -1;
     void		updateScene();
     void		setZValue(int z);
     void		updateViewRect();
@@ -40,12 +40,12 @@ public:
 protected:
 
     uiFlatViewer&	vwr_;
-    uiRectItem*         rectitem_;
-    uiTextItem*         axis1nm_;
-    uiTextItem*         axis2nm_;
+    uiRectItem*		rectitem_;
+    uiTextItem*		axis1nm_;
+    uiTextItem*		axis2nm_;
     uiTextItem*		titletxt_;
-    uiArrowItem*        arrowitem1_;
-    uiArrowItem*        arrowitem2_;
+    uiArrowItem*	arrowitem1_;
+    uiArrowItem*	arrowitem2_;
     uiScaleBarItem*	scalebaritem_;
     uiBorder		extraborder_;
 

@@ -14,19 +14,20 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "draw.h"
+#include "fontdata.h"
 #include "ranges.h"
 #include "samplingdata.h"
 #include "uigeom.h"
-#include "uifont.h"
-#include "uiaxishandler.h"
 
+class uiAxisHandler;
+class uiBorder;
+class uiFont;
+class uiGraphicsItemGroup;
 class uiGraphicsScene;
 class uiGraphicsView;
-class uiGraphicsItemGroup;
+class uiLineItem;
 class uiRectItem;
 class uiTextItem;
-class uiLineItem;
-class uiBorder;
 
 /*!\brief To draw simple axes for a 2D coordinate system.
 
@@ -59,7 +60,7 @@ public:
 
     void		setPosition(bool isx,bool istoporleft,bool isinside);
     void		setWorldCoords(const Interval<double>&);
-    void                setViewRect(const uiRect&);
+    void		setViewRect(const uiRect&);
 
     void		setZValue(int nv);
     void		turnOn(bool);
@@ -97,7 +98,7 @@ protected:
     uiGraphicsItemGroup*	itmgrp_;
     uiRectItem*			mask_;
 
-    uiRect                      viewrect_;
+    uiRect			viewrect_;
 
     ObjectSet<uiLineItem>	lines_;
     ObjectSet<uiTextItem>	texts_;
@@ -126,10 +127,13 @@ public:
     virtual void	setWorldCoords(const uiWorldRect&);
     void		setWorldCoords(const StepInterval<float>& xrg,
 				       const StepInterval<float>& yrg);
-    void		setViewRect(const uiRect&);
+    virtual void	setViewRect(const uiRect&);
 
-    void		enableXAxis(bool yn) { xaxis_->setVisible(yn); }
-    void		enableYAxis(bool yn) { yaxis_->setVisible(yn); }
+    uiAxisHandler*	axis(OD::Edge);
+    const uiAxisHandler* axis(OD::Edge) const;
+    void		enableAxis(OD::Edge,bool yn=true);
+    void		enableXAxis(bool yn);
+    void		enableYAxis(bool yn);
 
     int			getZValue() const;
     int			getNeededWidth() const;
@@ -143,21 +147,23 @@ public:
     void		setGridLineStyle(const OD::LineStyle&);
     void		setAuxLineStyle(const OD::LineStyle&,bool forx,
 					bool forhl=false);
-    void		setAnnotInInt( bool xaxis, bool dowant )
-			{ xaxis ? xaxis_->setup().annotinint(dowant)
-				: yaxis_->setup().annotinint(dowant); }
+    void		setAnnotInInt(bool xaxis,bool dowant);
     void		showAuxPositions(bool forx,bool yn);
     void		setAuxAnnotPositions(const TypeSet<PlotAnnotation>&,
 						bool forx);
 
-    virtual void	updateScene()
-			{ xaxis_->updateScene(); yaxis_->updateScene(); }
+    void		setMaskColor(const Color&);
+    Color		getMaskColor() const;
+
+    virtual void	updateScene();
     NotifierAccess&	layoutChanged();
 
 protected:
 
-    uiAxisHandler*		xaxis_;
-    uiAxisHandler*		yaxis_;
+    uiAxisHandler*		xaxis_top_;
+    uiAxisHandler*		yaxis_left_;
+    uiAxisHandler*		xaxis_bottom_;
+    uiAxisHandler*		yaxis_right_;
 
     uiFont&			uifont_;
     uiGraphicsView&		view_;
@@ -165,6 +171,8 @@ protected:
     uiRectItem*			bottommask_;
     uiRectItem*			leftmask_;
     uiRectItem*			rightmask_;
+
+    Color			maskcolor_;
 
     void			updateFontSizeCB(CallBacker*);
 };

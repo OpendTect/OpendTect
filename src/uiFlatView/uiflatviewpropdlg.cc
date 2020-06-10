@@ -971,6 +971,8 @@ void uiFlatViewPropDlg::putAllToScreen()
 	titleoptfld_->setValue( !vwr_.appearance().annot_.dynamictitle_ );
     if ( annottab_ )
 	annottab_->setSelAnnot( selannot_ );
+
+    titleChgCB( nullptr );
 }
 
 

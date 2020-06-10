@@ -553,9 +553,24 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	 (!meh->event().rightButton() && !meh->event().leftButton()) )
 	return;
 
-    mGetAuxAnnotIdx
+    uiODViewer2D* curvwr2d = find2DViewer( *meh );
+    if ( !curvwr2d ) return;
 
-    float samplecrdz = mCast(float,coord.z);
+    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
+    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());
+    const Coord3 coord = curvwr.getCoord( wp );
+    if ( coord.isUdf() ) return;
+
+    const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel();
+    const float x1eps  = Math::Abs( sCast(float,wperpixel.x)*sEPSPixWidth );
+    const int x1auxposidx =
+	curvwr.appearance().annot_.x1_.auxPosIdx( sCast(float,wp.x), x1eps );
+    const float x2eps  = Math::Abs( sCast(float,wperpixel.y)*sEPSPixWidth );
+    const int x2auxposidx =
+	curvwr.appearance().annot_.x2_.auxPosIdx( sCast(float,wp.y), x2eps );
+
+
+    float samplecrdz = sCast(float,coord.z);
     SI().snapZ( samplecrdz );
     if ( meh->event().leftButton() )
     {

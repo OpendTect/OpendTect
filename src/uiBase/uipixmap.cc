@@ -244,8 +244,10 @@ void supportedImageFormats( BufferStringSet& formats, bool forread,
     if ( withprintformats )
     {
 	formats.add( sImageFormats[sPDFfmtIdx] );
+#if QT_VERSION < 0x050000
 	formats.add( sImageFormats[sPSfmtIdx] );
 	formats.add( sImageFormats[sEPSfmtIdx] );
+#endif
     }
 }
 

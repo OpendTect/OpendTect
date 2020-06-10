@@ -11,29 +11,49 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "flatviewaxesdrawer.h"
 #include "flatposdata.h"
-#include "uiflatviewer.h"
-#include "uigraphicsview.h"
-#include "uigraphicsscene.h"
-#include "uigraphicsscalebar.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
-#define mRemoveAnnotItem( item )\
-{ view_.scene().removeItem( item ); delete item; item = 0; }
+#include "uiaxishandler.h"
+#include "uiflatviewer.h"
+#include "uifont.h"
+#include "uigraphicsscalebar.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsview.h"
+
+
+static bool isVertical( const uiFlatViewer& vwr )
+{
+    const bool usewva = !vwr.isVisible( false );
+    ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( usewva, true );
+    if ( !fdp )
+	return true;
+
+    FixedString x2dimnm( fdp->dimName(false) );
+    FixedString vwrzdomstr( vwr.zDomain().userName().getFullString() );
+    return x2dimnm == vwrzdomstr ||
+	   stringStartsWithCI("Time",x2dimnm.buf()) ||
+	   stringStartsWithCI("TWT",x2dimnm.buf()) ||
+	   stringStartsWithCI("Z",x2dimnm.buf());
+}
+
+
 
 AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
     : uiGraphicsSceneAxisMgr(vwr.rgbCanvas())
     , vwr_(vwr)
-    , altdim0_(-1)
     , rectitem_(0)
     , axis1nm_(0)
     , axis2nm_(0)
+    , titletxt_(0)
     , arrowitem1_(0)
     , arrowitem2_(0)
     , scalebaritem_(0)
-    , titletxt_(0)
 {}
 
+
+#define mRemoveAnnotItem( item )\
+{ view_.scene().removeItem( item ); delete item; item = 0; }
 
 AxesDrawer::~AxesDrawer()
 {
@@ -52,10 +72,21 @@ void AxesDrawer::updateScene()
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     setAnnotInInt( true, annot.x1_.annotinint_ );
     setAnnotInInt( false, annot.x2_.annotinint_ );
-    xaxis_->setup().noannot( !annot.x1_.showannot_ );
-    yaxis_->setup().noannot( !annot.x2_.showannot_ );
-    xaxis_->setup().nogridline( !annot.x1_.showgridlines_ );
-    yaxis_->setup().nogridline( !annot.x2_.showgridlines_ );
+    axis(OD::Top)->setup().noannot( !annot.x1_.showannot_ );
+    axis(OD::Left)->setup().noannot( !annot.x2_.showannot_ );
+    axis(OD::Bottom)->setup().noannot( !annot.x1_.showannot_ );
+    axis(OD::Right)->setup().noannot( !annot.x2_.showannot_ );
+    axis(OD::Top)->setup().nogridline( !annot.x1_.showgridlines_ );
+    axis(OD::Left)->setup().nogridline( !annot.x2_.showgridlines_ );
+    axis(OD::Bottom)->setup().nogridline( !annot.x1_.showgridlines_ );
+    axis(OD::Right)->setup().nogridline( !annot.x2_.showgridlines_ );
+
+    uiString x2axisstr( toUiString(annot.x2_.name_) );
+    if ( isVertical(vwr_) )
+	x2axisstr.addSpace().append( vwr_.zDomain().uiUnitStr(true) );
+    axis(OD::Left)->setup().caption( x2axisstr );
+    axis(OD::Bottom)->setup().caption( toUiString(annot.x1_.name_) );
+
     updateViewRect();
     uiGraphicsSceneAxisMgr::updateScene();
 }
@@ -82,15 +113,20 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
     int b = withextraborders ? extraborder_.bottom() : 0;
     const int axisheight = getNeededHeight();
     const int axiswidth = getNeededWidth();
+
     const FlatView::Annotation& annot = vwr_.appearance().annot_;
-    if ( annot.haveTitle() )
-	t += axisheight+2; // title needs some more space
-    if ( annot.haveAxisAnnot(false) )
-    { l += axiswidth; r += 10; }
-    if ( annot.haveAxisAnnot(true) )
-    { b += axisheight;	t += axisheight; }
-    if ( scalebaritem_ && annot.showscalebar_ )
-	b += scalebaritem_->getPxHeight()*4;
+    if ( annot.x2_.hasannot_ )
+    {
+	l += axiswidth;
+	r += axiswidth;
+    }
+
+    if ( annot.x1_.hasannot_ )
+    {
+	b += axisheight*3; // Should be enough space for axis caption
+	t += axisheight*3; // Should be enough space for title
+    }
+
     uiBorder annotborder(l,t,r,b);
     return annotborder;
 }
@@ -109,22 +145,6 @@ uiRect AxesDrawer::getViewRect( bool withextraborders ) const
 void AxesDrawer::setExtraBorder( const uiBorder& border )
 {
     extraborder_ = border;
-}
-
-
-static bool isVertical( const uiFlatViewer& vwr )
-{
-    const bool usewva = !vwr.isVisible( false );
-    ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( usewva, true );
-    if ( !fdp )
-	return true;
-
-    FixedString x2dimnm( fdp->dimName(false) );
-    FixedString vwrzdomstr( vwr.zDomain().userName().getFullString() );
-    return x2dimnm == vwrzdomstr ||
-	   stringStartsWithCI("Time",x2dimnm.buf()) ||
-	   stringStartsWithCI("TWT",x2dimnm.buf()) ||
-	   stringStartsWithCI("Z",x2dimnm.buf());
 }
 
 
@@ -161,83 +181,12 @@ void AxesDrawer::updateViewRect()
 
     rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3,annot.color_));
 
-    ArrowStyle arrowstyle;
-    arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
-    uiString userfacstr = vwr_.zDomain().uiUnitStr(true);
-    if ( showx1annot && !ad1.name_.isEmpty() && ad1.name_ != " " )
-    {
-	const int right = rect.right();
-	const int bottom = rect.bottom();
-	uiPoint from( right-10, bottom+9 );
-	uiPoint to( right, bottom+9 );
-
-	if ( ad1.reversed_ ) Swap( from, to );
-	if ( !arrowitem1_ )
-	    arrowitem1_ = view_.scene().addItem(
-		    new uiArrowItem(from,to,arrowstyle) );
-	arrowitem1_->setVisible( true );
-	arrowitem1_->setPenStyle(
-		OD::LineStyle(OD::LineStyle::Solid,1,annot.color_) );
-	arrowitem1_->setTailHeadPos( from, to );
-
-	if ( !axis1nm_ )
-	    axis1nm_ = view_.scene().addItem(
-		    new uiTextItem(mToUiStringTodo(ad1.name_),
-				   mAlignment(Right,Top)) );
-	else
-	    axis1nm_->setText( mToUiStringTodo(ad1.name_) );
-
-	axis1nm_->setVisible( true );
-	axis1nm_->setTextColor( annot.color_ );
-	axis1nm_->setPos( uiPoint(right-11,bottom-1) );
-    }
-    else
-    {
-	if ( arrowitem1_ ) arrowitem1_->setVisible( false );
-	if ( axis1nm_ ) axis1nm_->setVisible( false );
-    }
-
-    if ( showx2annot && !ad2.name_.isEmpty() && ad2.name_ != " " )
-    {
-	const int left = rect.left();
-	const int bottom = rect.bottom();
-	uiPoint from( left , bottom+13 );
-	uiPoint to( left, bottom+3 );
-
-	if ( ad2.reversed_ ) Swap( from, to );
-	if ( !arrowitem2_ )
-	    arrowitem2_ = view_.scene().addItem(
-		    new uiArrowItem(from,to,arrowstyle) );
-	arrowitem2_->setVisible( true );
-	arrowitem2_->setPenColor( annot.color_ );
-	arrowitem2_->setTailHeadPos( from, to );
-
-	uiString x2axisstr( mToUiStringTodo(ad2.name_) );
-	if ( isVertical(vwr_) )
-	    x2axisstr.append( userfacstr );
-
-	if ( !axis2nm_ )
-	    axis2nm_ = view_.scene().addItem(
-		    new uiTextItem( x2axisstr, mAlignment(Left,Top)) );
-	else
-	    axis2nm_->setText( x2axisstr );
-
-	axis2nm_->setVisible( true );
-	axis2nm_->setTextColor( annot.color_ );
-	axis2nm_->setPos( uiPoint(left+4,bottom-1) );
-    }
-    else
-    {
-	if ( arrowitem2_ ) arrowitem2_->setVisible( false );
-	if ( axis2nm_ ) axis2nm_->setVisible( false );
-    }
-
     if ( !annot.title_.isEmpty() && annot.title_ != " " )
     {
 	if ( !titletxt_ )
 	{
 	    titletxt_ = view_.scene().addItem(
-		    new uiTextItem(mToUiStringTodo(annot.title_),
+		    new uiTextItem(toUiString(annot.title_),
 				   mAlignment(HCenter,Top)) );
 	    titletxt_->setTextColor( annot.color_ );
 	    FontData fd = FontList().get( FontData::Graphics2D ).fontData();
@@ -246,7 +195,7 @@ void AxesDrawer::updateViewRect()
 	    titletxt_->setFontData( fd );
 	}
 	else
-	    titletxt_->setText( mToUiStringTodo(annot.title_) );
+	    titletxt_->setText(toUiString(annot.title_) );
 
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();
@@ -257,11 +206,12 @@ void AxesDrawer::updateViewRect()
 
     if ( annot.showscalebar_ )
     {
+	const int sbwidth = 150;
 	if ( !scalebaritem_ )
-	    scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
+	    scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(sbwidth) );
 
-	scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
-							view_.height()-20)) );
+	const int sbheight = scalebaritem_->getPxHeight();
+	scalebaritem_->setPos( uiPoint(rect.right(),rect.top()-sbheight*6) );
     }
 
     if ( scalebaritem_ )

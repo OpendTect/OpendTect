@@ -87,8 +87,9 @@ public:
 				{ return enabscrollzoom_; }
     uiSize			scrollBarSize(bool horizontal) const;
 
-    const uiPoint		mapFromScene(const Geom::Point2D<float>&) const;
-    const Geom::Point2D<float>	mapToScene(const uiPoint&) const;
+    uiPoint			mapFromScene(const Geom::Point2D<float>&) const;
+    Geom::Point2D<float>	mapToScene(const uiPoint&) const;
+    Geom::RectF			mapToScene(const uiRect&) const;
 
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed( bool yn )

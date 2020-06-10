@@ -590,10 +590,10 @@ void uiAxisHandler::updateAxisLine()
 	const int pixpos = setup_.side_ == uiRect::Top
 			 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
-	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(startpix,pixpos,endpix,pixpos) );
-	else
-	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos );
+	    axislineitm_ = scene_->addItem( new uiLineItem() );
+
+	axislineitm_->setLine( startpix, pixpos,
+			       endpix, pixpos );
     }
     else
     {
@@ -602,10 +602,10 @@ void uiAxisHandler::updateAxisLine()
 	const int pixpos = setup_.side_ == uiRect::Left
 			 ? edgepix : width_ - edgepix;
 	if ( !axislineitm_ )
-	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(pixpos,startpix,pixpos,endpix) );
-	else
-	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix );
+	    axislineitm_ = scene_->addItem( new uiLineItem() );
+
+	axislineitm_->setLine( pixpos, startpix,
+			       pixpos, endpix );
     }
 
     axislineitm_->setPenStyle( ls );
@@ -624,7 +624,7 @@ bool uiAxisHandler::reCalcAnnotation()
 
     const bool allocspaceforname = !setup_.noaxisannot_
 				&& !setup_.annotinside_
-				&& !setup_.fixedborder_
+//				&& !setup_.fixedborder_
 				&& !setup_.caption_.isEmpty();
     pxsizeinotherdir_ = 0;
     if ( allocspaceforname )
@@ -679,7 +679,10 @@ void uiAxisHandler::updateName()
 	{ mRemoveFromScene( nameitm_ ); return; }
 
     if ( !nameitm_ )
+    {
 	nameitm_ = scene_->addItem( new uiTextItem( setup_.caption_ ) );
+	ynmtxtvertical_ = false;
+    }
     else
 	nameitm_->setText( setup_.caption_ );
 
@@ -697,7 +700,7 @@ void uiAxisHandler::updateName()
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
 	pt.x = isleft ? namepos : width_-namepos;
-	pt.y = height_/2 - pixAfter();
+	pt.y = pixAfter() + axsz_/2;
 
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( isleft ? -90.f : 90.f );
