@@ -1296,7 +1296,6 @@ void uiSurvey::putToScreen()
     notesfld_->setText( si.comment() );
 
     zkey.set( "Z range (" )
-	.add( " (" )
 	.add( si.zIsTime() ? ZDomain::Time().unitStr()
 			   : getDistUnitString(si.zInFeet(), false) )
 	.add( ")" );
