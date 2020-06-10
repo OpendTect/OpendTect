@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
 
+#include "uiicon.h"
 #include "uimsg.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
@@ -349,6 +350,13 @@ void uiMdiAreaWindow::setIcon( const char* img[] )
     if ( !img ) return;
     const QPixmap pixmap( img );
     qmdisubwindow_->setWindowIcon( QIcon(pixmap) );
+}
+
+
+void uiMdiAreaWindow::setIcon( const char* icnnm )
+{
+    const uiIcon icon( icnnm );
+    qmdisubwindow_->setWindowIcon( icon.qicon() );
 }
 
 

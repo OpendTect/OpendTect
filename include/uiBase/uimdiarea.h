@@ -36,6 +36,7 @@ public:
     const uiString&		getTitle() const { return title_; }
 
     void			setIcon(const char* img[]);
+    void			setIcon(const char* icnnm);
 
     void			show();
     void			close();
@@ -63,7 +64,7 @@ private:
 
 
 mExpClass(uiBase) uiMdiArea : public uiObject
-{ 	
+{
 friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;
 public:
