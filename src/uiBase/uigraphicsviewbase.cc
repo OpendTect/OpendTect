@@ -362,7 +362,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	const bool haslength = !numsteps.isNull();
 
 	QTransform qtrans = transform();
-	const QPointF mousepos = ev->position();
+	const QPointF mousepos = getWheelPosition( *ev );
 	qtrans.translate( (viewWidth()/2) - mousepos.x(),
 			 (viewHeight()/2) - mousepos.y() );
 
