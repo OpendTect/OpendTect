@@ -166,6 +166,12 @@ const char* OD::Platform::shortName() const
 }
 
 
+const char* OD::Platform::osName() const
+{
+    return isLinux() ? "Linux" : (isWindows() ? "Windows" : "MacOS");
+}
+
+
 void OD::Platform::set( const char* s, bool isshort )
 {
     if ( !s || !*s )
