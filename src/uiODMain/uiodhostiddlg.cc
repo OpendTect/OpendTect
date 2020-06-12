@@ -54,7 +54,11 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     usernmfld_->setReadOnly();
     usernmfld_->attach( alignedBelow, osfld_ );
 
-    hostidfld_->setText( hostids.cat() );
+    BufferString hostidstext = hostids.cat( " " );
+    if ( hostids.size() > 1 )
+	hostidstext.quote( '"' );
+
+    hostidfld_->setText( hostidstext );
     hostnmfld_->setText( System::localHostName() );
     osfld_->setText( OD::Platform().longName() );
     usernmfld_->setText( GetUserNm() );

@@ -55,10 +55,12 @@ bool	getHostIDs( BufferStringSet& hostids,
 	return false;
     }
 
-    if ( stderror.isEmpty() )
-	hostids.add( stdoutput );
-    else
-	hostids.add( stderror );
+    BufferString& outputstr = stderror.isEmpty() ? stdoutput : stderror;
+    if ( outputstr.isEmpty() )
+	return false;
+
+    outputstr.unQuote( '"' );
+    hostids.unCat( outputstr, " " );
 
     return true;
 }
