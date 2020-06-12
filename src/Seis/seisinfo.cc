@@ -719,7 +719,7 @@ IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
     if ( gt == Seis::Vol )
     {
 	ret->deftransl_ = BlocksSeisTrcTranslator::translKey();
-	ret->destpolicy_ = IOObjContext::AllowShared;
+	ret->destpolicy_ = IOObjContext::SurveyOnly;
     }
     else if ( gt == Seis::Line )
 	ret->deftransl_ = CBVSSeisTrc2DTranslator::translKey();
