@@ -42,7 +42,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , hadannot_(true)
     , hadannotscale_(true)
     , hadannotgrid_(true)
-    , oldbgcolor_(Color::Black())
+    , oldbgcolor_(Color::Anthracite())
     , annotcolor_(Color::White())
     , oldmarkersize_(5)
     , oldmarkercolor_(Color::White())

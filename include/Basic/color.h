@@ -74,6 +74,7 @@ public:
 
     static Color	NoColor()	{ return Color(0,0,0,255); }
 
+    static Color	Anthracite()	{ return Color(50, 50, 50, 0); }
     static Color	Black()		{ return Color(0,0,0,0); }
     static Color	Blue()		{ return Color(0,0,255,0); }
     static Color	DgbColor()	{ return Color(2,240,4,0); }
