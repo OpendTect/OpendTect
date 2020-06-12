@@ -277,7 +277,11 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
     OS::MachineCommand cmd( sPythonExecNm(true) );
     const bool doscript = scriptstr && *scriptstr;
     if ( doscript )
-	cmd.addArg( "-c" ).addArg( scriptstr );
+    {
+	BufferString script( scriptstr );
+	script.quote( '\"' );
+	cmd.addArg( "-c" ).addArg( script );
+    }
     else
 	cmd.addFlag( "version" );
 
@@ -371,6 +375,24 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 }
 
 
+bool OD::PythonAccess::executeScript( const char* scriptstr,
+				      bool wait4finish ) const
+{
+    BufferString script( scriptstr );
+    script.quote( '\"' );
+    OS::MachineCommand mc( sPythonExecNm(), "-c", script );
+    return execute( mc, wait4finish );
+}
+
+
+bool OD::PythonAccess::executeScript( const BufferStringSet& scriptstrs,
+				      bool wait4finish ) const
+{
+    return executeScript( BufferString(scriptstrs.cat(";")),
+			  wait4finish );
+}
+
+
 BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 {
     if ( cl_.ptr() )
@@ -414,9 +436,8 @@ BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 
 bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 {
-    OS::MachineCommand cmd( sPythonExecNm(true) );
-    cmd.addArg( "-c" ).addArg( BufferString("import ",nm) );
-    return execute( cmd ) && lastOutput(true,nullptr).isEmpty();
+    const BufferString importscript( "import ", nm );
+    return executeScript( importscript ) && lastOutput(true,nullptr).isEmpty();
 }
 
 
@@ -542,7 +563,8 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     BufferStringSet args( cmd.args() );
     for ( auto arg : args )
     {
-	if ( arg->find(' ') && arg->firstChar() != '\'' )
+	if ( arg->find(' ') && arg->firstChar() != '\'' &&
+	     arg->firstChar() != '\"' )
 	    arg->quote();
     }
     strm.add( args.cat(" ") );
@@ -1244,13 +1266,11 @@ bool canDoCUDA( BufferString& maxverstr )
     return hasnv && cudaCapable( glversion, &maxverstr );
 }
 
-BufferString removeDirScript( const BufferString& path )
+
+static BufferStringSet removeDirScript( const BufferString& path )
 {
-    BufferStringSet script;
-    script.add( "import shutil" );
-    const BufferString remcmd( "shutil.rmtree(r'", path, "')" );
-    script.add( remcmd );
-    return BufferString( script.cat(";") );
+    BufferStringSet script( "import shutil" );
+    return script.add( BufferString("shutil.rmtree(r'", path, "')") );
 }
 
 
@@ -1270,9 +1290,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
     if ( retval.isOK() )
     {
 	retval.setEmpty();
-	BufferString pathstr( removeDirScript(path) );
-	OS::MachineCommand cmd( PythA().sPythonExecNm(), "-c", pathstr );
-	ret = PythA().execute( cmd, waitforfin );
+	ret = PythA().executeScript( removeDirScript(path), waitforfin );
 
 	uiString errmsg;
 	const BufferString errstr = PythA().lastOutput( true, &errmsg );
