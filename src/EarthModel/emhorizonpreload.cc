@@ -20,8 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 #include "ptrman.h"
 
-static const MultiID udfmid( "-1" );
-
 namespace EM
 {
 
@@ -130,8 +128,8 @@ const BufferStringSet& HorizonPreLoader::getPreloadedNames() const
 
 const MultiID& HorizonPreLoader::getMultiID( const char* horname ) const
 {
-    const int mididx = loadednms_.indexOf( horname );
-    return mididx < 0 ? udfmid : loadedmids_[mididx];
+    const int loadedhorid = loadednms_.indexOf( horname );
+    return loadedhorid < 0 ? MultiID::udf() : loadedmids_[loadedhorid];
 }
 
 
