@@ -195,7 +195,7 @@ bool ODMad::ProcExec::init()
 		   File::Path(rsfroot).add("bin").add("sfdd").fullPath() ); \
 	} \
 	mc.addArg( "form=ascii_float" ).addPipe() \
-	  .addArg( File::Path(GetExecPlfDir()).add("od_madexec").fullPath(); ) \
+	  .addArg( File::Path(GetExecPlfDir()).add("od_madexec").fullPath() ) \
 	  .addArg( fname );
 #else
     #define mAddNewExec \
@@ -254,7 +254,7 @@ bool ODMad::ProcExec::getProcString( OS::MachineCommand& mc )
 #ifdef __win__
 	    const File::Path fp( rsfroot, "bin", "sfdd" );
 	    if ( mc.isBad() )
-		mc.setProgram( fp.fullPath() )
+		mc.setProgram( fp.fullPath() );
 	    else
 		mc.addArg( fp.fullPath() );
 	    mc.addArg( "form=native_float" ).addPipe();

@@ -415,8 +415,8 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 #endif
     }
 
-    BufferStringSet args;
-    const BufferString prognm = getUsableCmd( prognm_, args );
+    BufferStringSet mcargs;
+    const BufferString prognm = getUsableCmd( prognm_, mcargs );
     const BufferString localhostnm( GetLocalHostName() );
     if ( remexec_.isEmpty() || hname_.isEmpty() || hname_ == localhostnm )
     {
@@ -441,7 +441,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 	ret.addArg( prognm );
     }
 
-    ret.addArgs( args );
+    ret.addArgs( mcargs );
     ret.addArgs( args_ );
     if ( pars && !mIsZero(pars->prioritylevel_,1e-2f) )
 	ret.addKeyedArg( CommandExecPars::sKeyPriority(),pars->prioritylevel_);
@@ -837,7 +837,7 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
     if ( !inconsole )
     {
 	BufferString comm( mc.program() );
-	if ( !args.isEmpty() )
+	if ( !args().isEmpty() )
 	    comm.addSpace().add( mc.args().cat(" ") );
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
