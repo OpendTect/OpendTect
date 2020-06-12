@@ -334,7 +334,7 @@ WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
         RefMan<DataPack> pack = packs_[idx];
         pack.setNoDelete(true);
         if ( pack && pack->id() == dpid )
-            return pack;
+            return WeakPtr<DataPack>( pack );
     }
 
     return 0;
