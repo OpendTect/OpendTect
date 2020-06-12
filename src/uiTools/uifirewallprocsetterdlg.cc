@@ -121,11 +121,11 @@ bool uiFirewallProcSetter::acceptOK()
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
 	    fincmd.addArg( procset.get(procidx) );
 
-	BufferString check = fincmd.getSingleStringRep();
+	BufferString check = fincmd.toString();
 
-	OS::MachineCommand mchcmd( fincmd.getSingleStringRep() );
 	OS::CommandExecPars pars;
 	pars.launchtype( OS::LaunchType::RunInBG );
+	OS::MachineCommand mchcmd( fincmd.toString(&pars) );
 	if ( !mchcmd.execute(pars) )
 	{
 	    uiString errmsg;

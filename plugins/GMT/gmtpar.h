@@ -12,13 +12,13 @@ ________________________________________________________________________
 
 #include "gmtmod.h"
 
-#include "uistring.h"
-#include "manobjectset.h"
-#include "iopar.h"
 #include "gmtdef.h"
+#include "iopar.h"
+#include "manobjectset.h"
 #include "od_ostream.h"
+#include "oscommand.h"
+#include "uistring.h"
 
-class StreamData;
 
 mExpClass(GMT) GMTPar : public IOPar
 {
@@ -28,15 +28,24 @@ public:
 			GMTPar(const IOPar& par)
 			    : IOPar(par) {}
 
-    virtual bool	execute(od_ostream&,const char*)		=0;
-    virtual const char* userRef() const					=0;
+    bool		execute(od_ostream&,const char*);
+
+    virtual const char* userRef() const					= 0;
     virtual bool	fillLegendPar(IOPar&) const	{ return false; }
 
-    BufferString        fileName(const char*) const;
-    bool		execCmd(const BufferString&,od_ostream& logstrm);
-    od_ostream		makeOStream(const BufferString&,od_ostream& logstrm);
+    bool		execCmd(const OS::MachineCommand&,od_ostream& logstrm,
+				const char* fnm=nullptr,bool append=true);
+    od_ostream		makeOStream(const OS::MachineCommand&,
+				    od_ostream& logstrm,
+				    const char* fnm=nullptr,bool append=true);
 
-    static void		addWrapperComm(BufferString&);
+    static OS::MachineCommand	getWrappedComm(const OS::MachineCommand&);
+    static BufferString	getErrFnm();
+
+private:
+
+    virtual bool	doExecute(od_ostream&,const char*)		= 0;
+    static void		checkErrStrm(const char*,od_ostream&);
 
 };
 
@@ -77,12 +86,6 @@ mGlobal(GMT) GMTParFactory& GMTPF();
 
 
 #define mErrStrmRet(s) { strm << s << '\n'; return false; }
-
-#define mGetRangeProjString( str, projkey ) \
-    mGetRangeString( str ) \
-    BufferString projstr; \
-    mGetProjString( projstr, projkey ) \
-    str += " "; str += projstr;
 
 #define mGetRangeString( str ) \
     Interval<float> xrg, yrg, mapdim; \

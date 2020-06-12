@@ -19,16 +19,17 @@ public:
 
     static void		initClass();
 
-    			GMTCoastline(const char* nm)
+			GMTCoastline(const char* nm)
 			    : GMTPar(nm)	{}
 			GMTCoastline(const IOPar& par)
 			    : GMTPar(par) {}
 
-    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
 protected:
+
+    virtual bool	doExecute(od_ostream&,const char*);
 
     static GMTPar*	createInstance(const IOPar&);
     static int		factoryid_;

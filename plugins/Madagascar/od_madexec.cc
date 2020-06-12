@@ -20,9 +20,7 @@ bool BatchProgram::go( od_ostream& strm )
     ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )
     {
-	BufferString cmd = "od_DispMsg --err ";
-	cmd += toString( exec.errMsg() );
-	system( cmd );
+	OD::DisplayErrorMessage( toString(exec.errMsg()) );
 	return false;
     }
 

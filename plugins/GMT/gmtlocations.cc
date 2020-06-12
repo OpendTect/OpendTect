@@ -13,13 +13,12 @@ ________________________________________________________________________
 #include "draw.h"
 #include "envvars.h"
 #include "filepath.h"
+#include "gmt2dlines.h"
 #include "initgmtplugin.h"
-#include "ioobj.h"
 #include "od_ostream.h"
 #include "keystrs.h"
 #include "picksetmanager.h"
 #include "wellmanager.h"
-#include "strmprov.h"
 #include "uistrings.h"
 
 
@@ -186,7 +185,7 @@ bool GMTLocations::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTLocations::execute( od_ostream& strm, const char* fnm )
+bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
 {
     DBKey id;
     get( sKey::ID(), id );
@@ -207,24 +206,27 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     float sz;
     get( sKey::Size(), sz );
     const int shape = ODGMT::ShapeDef().parse( find(ODGMT::sKeyShape()) );
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
+    BufferString sstr( ODGMT::sShapeKeys()[shape] );
+    sstr.add( sz ).insertAt(0,"-S");
+    BufferString w1str( outcolstr ); w1str.insertAt(0,"-W1p,");
 
-    BufferString comm = "@psxy ";
-    BufferString str; mGetRangeProjString( str, "X" );
-    comm += str; comm += " -O -K -S";
-    comm += ODGMT::sShapeKeys()[shape]; comm += sz;
-    comm += " -W1p,"; comm += outcolstr;
+    OS::MachineCommand xymc( "psxy" );
+    xymc.addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" )
+	.addArg( sstr ).addArg( w1str );
+
     if ( dofill )
     {
 	Color fillcol;
 	get( ODGMT::sKeyFillColor(), fillcol );
 	BufferString fillcolstr;
 	mGetColorString( fillcol, fillcolstr );
-	comm += " -G";
-	comm += fillcolstr;
+	xymc.addArg( fillcolstr.insertAt(0,"-G") );
     }
 
-    comm += " 1>> "; comm += fileName( fnm );
-    od_ostream procstrm = makeOStream( comm, strm );
+    od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed to overlay locations")
 
@@ -283,7 +285,7 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
+bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
 {
     DBKey id; get( sKey::ID(), id );
     uiRetVal uirv;
@@ -303,16 +305,19 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     if ( ls.type_ == OD::LineStyle::None && dofill )
 	drawline = false;
 
-    BufferString comm = "@psxy ";
-    BufferString str; mGetRangeProjString( str, "X" );
-    comm += str; comm += " -O -K";
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
+
+    OS::MachineCommand xymc( "psxy" );
+    xymc.addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" );
     if ( ps->connection() == Pick::Set::Disp::Close )
-	comm += " -L";
+	xymc.addArg( "-L" );
 
     if ( drawline )
     {
 	BufferString inpstr; mGetLineStyleString( ls, inpstr );
-	comm += " -W"; comm += inpstr;
+	xymc.addArg( inpstr.insertAt(0,"-W") );
     }
 
     if ( dofill )
@@ -321,12 +326,10 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 	get( ODGMT::sKeyFillColor(), fillcol );
 	BufferString fillcolstr;
 	mGetColorString( fillcol, fillcolstr );
-	comm += " -G";
-	comm += fillcolstr;
+	xymc.addArg( fillcolstr.insertAt(0,"-G") );
     }
 
-    comm += " 1>> "; comm += fileName( fnm );
-    od_ostream procstrm = makeOStream( comm, strm );
+    od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay polylines")
 
     Pick::SetIter psiter( *ps );
@@ -403,7 +406,7 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTWells::execute( od_ostream& strm, const char* fnm )
+bool GMTWells::doExecute( od_ostream& strm, const char* fnm )
 {
     BufferStringSet wellnms;
     strm << "Posting Wells " << " ...  ";
@@ -414,10 +417,14 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     BufferString outcolstr;
     mGetColorString( outcol, outcolstr );
 
-    BufferString comm = "@psxy ";
-    BufferString rgstr; mGetRangeProjString( rgstr, "X" );
-    comm += rgstr; comm += " -O -K -S";
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
 
+    OS::MachineCommand xymc( "psxy" );
+    xymc.addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" );
+
+    BufferString sstr( "-S" );
     bool usewellsymbols = false;
     getYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbols );
     if ( usewellsymbols )
@@ -425,17 +432,22 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 	BufferString wellsymbolnm;
 	get( ODGMT::sKeyWellSymbolName(), wellsymbolnm );
 	BufferString deffilenm = GMTWSR().get( wellsymbolnm )->deffilenm_;
-	comm += "k"; comm += deffilenm;
+	sstr.add( "k" ).add( deffilenm );
     }
     else
     {
 	const int shape = ODGMT::ShapeDef().parse( find(ODGMT::sKeyShape()) );
-	comm += ODGMT::sShapeKeys()[shape];
+	sstr.add( ODGMT::sShapeKeys()[shape] );
     }
+
+    xymc.addArg( sstr );
 
     float sz;
     get( sKey::Size(), sz );
-    comm += " -W"; comm+=sz; comm += "p,"; comm += outcolstr;
+    BufferString wstr( "-W" );
+    wstr.add( sz ).add( "p," ).add( outcolstr );
+    xymc.addArg( wstr );
+
     bool dofill;
     getYN( ODGMT::sKeyFill(), dofill );
     if ( !usewellsymbols && dofill )
@@ -444,12 +456,10 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 	get( ODGMT::sKeyFillColor(), fillcol );
 	BufferString fillcolstr;
 	mGetColorString( fillcol, fillcolstr );
-	comm += " -G";
-	comm += fillcolstr;
+	xymc.addArg( fillcolstr.insertAt(0,"-G") );
     }
 
-    comm += " 1>> "; comm += fileName( fnm );
-    od_ostream procstrm = makeOStream( comm, strm );
+    od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
@@ -488,20 +498,29 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 
     int fontsz = 10;
     get( ODGMT::sKeyFontSize(), fontsz );
-    comm = "@pstext "; comm += rgstr;
-    comm += " -D"; comm += dx; comm += "/"; comm += dy;
-    if ( GMT::hasModernGMT() )
-	comm += " -F+f12p,Sans,"; comm += outcolstr;
-    comm += " -O -K 1>> "; comm += fileName( fnm );
-    procstrm = makeOStream( comm, strm );
+    BufferString darg( "-D" );
+    darg.add( dx ).add( "/" ).add( dy );
+    const bool modern = GMT::hasModernGMT();
+
+    OS::MachineCommand textmc( "pstext" );
+    textmc.addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" )
+	  .addArg( darg );
+    if ( modern )
+    {
+	BufferString farg( "-F" );
+	farg.add( "+f" ).add( fontsz ).add( "p,Helvetica," ).add( outcolstr );
+	farg.add( "+a+j" );
+	textmc.addArg( farg );
+    }
+
+    procstrm = makeOStream( textmc, strm, fnm );
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed to post labels")
 
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
-	Coord pos = surfcoords[idx];
-	procstrm << pos.x_ << " " << pos.y_ << " " << fontsz << " " << 0 << " ";
-	procstrm << 4 << " " << alstr << " " << wellnms.get(idx) << "\n";
+	GMT2DLines::postText( surfcoords[idx], fontsz, 0.f, alstr,
+			      wellnms.get(idx), modern, procstrm );
     }
 
     strm << "Done" << od_endl;

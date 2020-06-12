@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "file.h"
 #include "filepath.h"
+#include "initgmtplugin.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "pickset.h"
@@ -83,7 +85,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTContour::execute( od_ostream& strm, const char* fnm )
+bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
 {
     DBKey id;
     get( sKey::ID(), id );
@@ -130,12 +132,24 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     }
 
     File::Path fp( fnm );
-    fp.setExtension( "cpt" );
-    BufferString cptfnm( dofill ? fp.fullPath()
-				: fp.getTempFullPath("gmtcontour","cpt") );
+    File::Path cptfp;
+    BufferString cptfnm;
+    if ( dofill )
+    {
+	cptfp = fp;
+	cptfp.setExtension( "cpt" );
+	cptfnm.set( cptfp.fileName() );
+	cptfnm.clean( BufferString::AllowDots );
+	cptfp.setFileName( cptfnm );
+    }
+    else
+    {
+	cptfp.setFileName( File::Path::getTempFileName("gmtcontour","cpt")  );
+	cptfnm.set( cptfp.fileName() );
+    }
 
     strm << "Creating color pallette file ...  ";
-    if ( !makeCPT(cptfnm.buf()) )
+    if ( !makeCPT(cptfp.fullPath()) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << od_endl;
@@ -150,15 +164,20 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     Coord topright( mMAX( mMAX(spt1.x_,spt2.x_), mMAX(spt3.x_,spt4.x_) ),
 		    mMAX( mMAX(spt1.y_,spt2.y_), mMAX(spt3.y_,spt4.y_) ) );
     fp.setExtension( "gd1" );
-    BufferString grd100fnm = fileName( fp.fullPath() );
+    BufferString grd100fnm( fp.fileName() );
+    grd100fnm.clean( BufferString::AllowDots );
     BufferString rstr = "-R";
     rstr += botleft.x_; rstr += "/"; rstr += topright.x_; rstr += "/";
     rstr += botleft.y_; rstr += "/"; rstr += topright.y_;
-    BufferString comm = "@blockmean "; comm += rstr;
-    comm += " -I100 | "; addWrapperComm( comm );
-    comm += "surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
-    comm += grd100fnm;
-    od_ostream procstrm = makeOStream( comm, strm );
+
+    OS::MachineCommand blkmc( "blockmean" );
+    blkmc.addArg( rstr ).addArg( "-I100" ).addPipe()
+         .addArg( GMT::sKeyDefaultExec() ).addArg( "surface" )
+	 .addArg( rstr ).addArg( "-I100" ).addArg( "-T0.7" )
+         .addArg( "-N250" )
+	 .addArg( BufferString("-G",grd100fnm) );
+
+    od_ostream procstrm = makeOStream( blkmc, strm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TrcKeySamplingIterator iter( sd.rg );
@@ -182,26 +201,30 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     hor->unRef();
     strm << "Done" << od_endl;
     strm << "Regridding 25 X 25 ...  ";
-    comm = "grdsample ";
-    comm += grd100fnm; comm += " -I25 -G";
+
     fp.setExtension( "gd2" );
-    comm += fileName( fp.fullPath() );
-    if ( !execCmd(comm,strm) )
+    BufferString grd25fnm( fp.fileName() );
+    grd25fnm.clean( BufferString::AllowDots );
+
+    OS::MachineCommand grdsampmc( "grdsample" );
+    grdsampmc.addArg( grd100fnm ).addArg( "-I25" )
+	     .addArg( BufferString("-G",grd25fnm) );
+    if ( !execCmd(grdsampmc,strm) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << od_endl;
 
-    BufferString finalgrd = fileName( fp.fullPath() );
-    BufferString mapprojstr;
-    mGetRangeProjString( mapprojstr, "X" );
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
     if ( dofill )
     {
 	strm << "Filling colors ...  ";
-	comm = "grdimage "; comm += finalgrd;
-	comm += " "; comm += mapprojstr;
-	comm += " -O -Q -C"; comm += fileName( cptfnm );
-	comm += " -K 1>> "; comm += fileName( fnm );
-	if ( !execCmd(comm,strm) )
+	OS::MachineCommand grdmc( "grdimage" );
+	grdmc.addArg( grd25fnm )
+	     .addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" )
+	     .addArg( BufferString("-C",cptfnm) ).addArg( "-Q" );
+	if ( !execCmd(grdmc,strm,fnm) )
 	    mErrStrmRet("Failed")
 
 	strm << "Done" << od_endl;
@@ -214,24 +237,25 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	OD::LineStyle ls; ls.fromString( lskey.str() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
-	comm = "grdcontour "; comm += finalgrd;
-	comm += " "; comm += mapprojstr;
-	comm += " -O -C"; comm += fileName( cptfnm );
 	BufferString colstr; mGetColorString( ls.color_, colstr );
-	comm += " -A+f12p,Sans,"; comm += colstr;
-	comm += " -W"; comm += lsstr;
-	comm += " -K 1>> "; comm += fileName( fnm );
-	if ( !execCmd(comm,strm) )
+	OS::MachineCommand grdcontmc( "grdcontour" );
+	grdcontmc.addArg( grd25fnm )
+	         .addArg( mapprojstr ).addArg( rgstr )
+		 .addArg( "-O" ).addArg( "-K" )
+	         .addArg( BufferString("-C",cptfnm) )
+		 .addArg( BufferString("-A+f12p,Helvetica,",colstr) )
+		 .addArg( lsstr.insertAt(0,"-W") );
+	if ( !execCmd(grdcontmc,strm,fnm) )
 	    mErrStrmRet("Failed")
 
 	strm << "Done" << od_endl;
     }
 
     strm << "Removing temporary grid files ...  ";
-    StreamProvider( grd100fnm ).remove();
-    StreamProvider( finalgrd ).remove();
+    File::remove( File::Path(fp.pathOnly(),grd100fnm).fullPath() );
+    File::remove( File::Path(fp.pathOnly(),grd25fnm).fullPath() );
     if ( !dofill )
-	StreamProvider( cptfnm ).remove();
+	File::remove( cptfnm );
 
     strm << "Done" << od_endl;
     return true;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "draw.h"
+#include "initgmtplugin.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
@@ -26,6 +27,20 @@ ________________________________________________________________________
 
 
 int GMT2DLines::factoryid_ = -1;
+
+void GMT2DLines::postText( const Coord& pos, int fontsz, float angle,
+		      const char* justify, const char* txt, bool modern,
+		      od_ostream& sd, int gmt4fontno )
+{
+    sd << pos.x_ << " " << pos.y_ ;
+    if ( !modern )
+	sd << " " << fontsz;
+    sd << " " << angle;
+    if ( !modern )
+	sd << " " << gmt4fontno;
+    sd << " " << justify << " " << txt << "\n";
+}
+
 
 void GMT2DLines::initClass()
 {
@@ -60,7 +75,7 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
+bool GMT2DLines::doExecute( od_ostream& strm, const char* fnm )
 {
     FixedString namestr = find( sKey::Name() );
     strm << "Posting 2D Lines " << namestr << " ...  ";
@@ -75,15 +90,16 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel(), postlabel );
 
-    BufferString comm = "@psxy ";
-    BufferString rgstr; mGetRangeProjString( rgstr, "X" );
-    comm += rgstr;
-    comm += " -O -K -N";
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
     mGetLineStyleString( ls, lsstr );
-    comm += " -W"; comm += lsstr;
 
-    comm += " 1>> "; comm += fileName( fnm );
-    od_ostream procstrm = makeOStream( comm, strm );
+    OS::MachineCommand xymc( "psxy" );
+    xymc.addArg( mapprojstr ).addArg( rgstr )
+	.addArg( "-O" ).addArg( "-K" ).addArg( "-N" )
+	.addArg( BufferString("-W",lsstr) );
+    od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     for ( int idx=0; idx<geomids.size(); idx++ )
@@ -110,13 +126,23 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	return true;
     }
 
-    int sz = 10;
-    get( ODGMT::sKeyFontSize(), sz );
-    comm = "@pstext "; comm += rgstr;
+    int fontsz = 10;
+    get( ODGMT::sKeyFontSize(), fontsz );
     BufferString colstr; mGetColorString( ls.color_, colstr );
-    comm += " -F+f12p,Sans,"; comm += colstr;
-    comm += " -O -K -N 1>> "; comm += fileName( fnm );
-    procstrm = makeOStream( comm, strm );
+    const bool modern = GMT::hasModernGMT();
+
+    OS::MachineCommand textmc( "pstext" );
+    textmc.addArg( mapprojstr ).addArg( rgstr )
+	  .addArg( "-O" ).addArg( "-K" ).addArg( "-N" );
+    if ( modern )
+    {
+	BufferString farg( "-F" );
+	farg.add( "+f" ).add( fontsz ).add( "p,Helvetica," ).add( colstr );
+	farg.add( "+a+j" );
+	textmc.addArg( farg );
+    }
+
+    procstrm = makeOStream( textmc, strm, fnm );
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 
@@ -138,16 +164,14 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
 	float rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	float perpangle = angle > 0 ? angle - 90 : angle + 90;
-	BufferString al = fabs(angle) > 90 ? "ML " : "MR ";
+	BufferString al( fabs(angle) > 90 ? "ML" : "MR" );
 	bool poststart = true;
 	getYN( ODGMT::sKeyPostStart(), poststart );
 	const float distfactor = xrg.width() / 100;
 	if ( poststart )
 	{
 	    pos -= Coord( distfactor*dx, distfactor*dy );
-	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
-	    procstrm << rotangle << " " << 4;
-	    procstrm << " " << al.buf() << geom2d.name() << "\n";
+	    postText( pos, fontsz, rotangle, al, geom2d.name(),modern,procstrm);
 	}
 
 	bool poststop = false;
@@ -162,10 +186,8 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    angle = Math::toDegrees( angle );
 	    rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	    pos -= Coord( distfactor*dx, distfactor*dy );
-	    al = fabs(angle) > 90 ? "ML " : "MR ";
-	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
-	    procstrm << rotangle << " " << 4;
-	    procstrm << " " << al.buf() << geom2d.name() << "\n";
+	    al.set( fabs(angle) > 90 ? "ML" : "MR" );
+	    postText( pos, fontsz, rotangle, al, geom2d.name(),modern,procstrm);
 	}
 
 	bool postnrs = true;
@@ -174,6 +196,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	{
 	    int labelintv = 100;
 	    get( ODGMT::sKeyLabelIntv(), labelintv );
+	    al.set( "ML" );
 	    for ( int tdx=0; tdx<posns.size(); tdx+=labelintv )
 	    {
 		BufferString lbl = "- "; lbl += posns[tdx].nr_;
@@ -186,9 +209,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 
-		procstrm << posc.x_ << " " << posc.y_ << " " << sz << " " ;
-		procstrm << perpangle << " " << 4;
-		procstrm << " " << "ML " << lbl.buf() << "\n";
+		postText( posc, fontsz, perpangle, al, lbl, modern, procstrm );
 	    }
 	}
     }
@@ -234,7 +255,7 @@ bool GMTRandLines::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
+bool GMTRandLines::doExecute( od_ostream& strm, const char* fnm )
 {
     DBKey id;
     get( sKey::ID(), id );
@@ -256,15 +277,16 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel(), postlabel );
 
-    BufferString comm = "@psxy ";
-    BufferString rgstr; mGetRangeProjString( rgstr, "X" );
-    comm += rgstr;
-    comm += " -O -K -N";
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
     mGetLineStyleString( ls, lsstr );
-    comm += " -W"; comm += lsstr;
 
-    comm += " 1>> "; comm += fileName( fnm );
-    od_ostream procstrm = makeOStream( comm, strm );
+    OS::MachineCommand xymc( "psxy" );
+    xymc.addArg( mapprojstr ).addArg( rgstr )
+	.addArg( "-O" ).addArg( "-K" ).addArg( "-N" )
+	.addArg( BufferString("-W",lsstr) );
+    od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     for ( int idx=0; idx<inprls.size(); idx++ )
@@ -287,13 +309,23 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	return true;
     }
 
-    int sz = 10;
-    get( ODGMT::sKeyFontSize(), sz );
-    comm = "@pstext "; comm += rgstr;
+    int fontsz = 10;
+    get( ODGMT::sKeyFontSize(), fontsz );
     BufferString colstr; mGetColorString( ls.color_, colstr );
-    comm += " -F+f12p,Sans,"; comm += colstr;
-    comm += " -O -K -N 1>> "; comm += fileName( fnm );
-    procstrm = makeOStream( comm, strm );
+    const bool modern = GMT::hasModernGMT();
+
+    OS::MachineCommand textmc( "pstext" );
+    textmc.addArg( mapprojstr ).addArg( rgstr )
+	  .addArg( "-O" ).addArg( "-K" ).addArg( "-N" );
+    if ( modern )
+    {
+	BufferString farg( "-F" );
+	farg.add( "+f" ).add( fontsz ).add( "p,Helvetica," ).add( colstr );
+	farg.add( "+a+j" );
+	textmc.addArg( farg );
+    }
+
+    procstrm = makeOStream( textmc, strm, fnm );
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 
@@ -304,21 +336,22 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	    continue;
 
 	Coord posc = SI().transform( rdl->nodePosition(0) );
-	Coord cvec = SI().transform( rdl->nodePosition(1) ) - posc;
+	const Coord cvec = SI().transform( rdl->nodePosition(1) ) - posc;
 	float angle = mCast(float, Math::Atan2( cvec.y_, cvec.x_ ) );
 	const float dy = cos( angle );
 	const float dx = sin( angle );
 	angle = Math::toDegrees( angle );
 
-	float rotangle = fabs(angle) > 90 ? 180+angle : angle;
-	BufferString al = fabs(angle) > 90 ? "BR " : "BL ";
+	const float rotangle = fabs(angle) > 90 ? 180+angle : angle;
+	const BufferString al( fabs(angle) > 90 ? "BR" : "BL" );
 	const float distfactor = xrg.width() / 100;
 	posc += Coord( -distfactor*dx, distfactor*dy );
-	procstrm << posc.x_ << " " << posc.y_ << " " << sz << " " ;
-	procstrm << rotangle << " " << 4;
-	procstrm << " " << al.buf() << rdl->name() << "\n";
+	GMT2DLines::postText( posc, fontsz, rotangle, al, rdl->name(), modern,
+			      procstrm );
     }
 
     strm << "Done" << od_endl;
     return true;
 }
+
+

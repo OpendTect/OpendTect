@@ -79,12 +79,10 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
 #define mErrRet(s) \
 { deepUnRef( flts_ ); strm << mFromUiStringTodo(s) << od_endl; return false; }
 
-bool GMTFault::execute( od_ostream& strm, const char* fnm )
+bool GMTFault::doExecute( od_ostream& strm, const char* fnm )
 {
-    BufferString comm = "@psxy ";
-    BufferString rgstr; mGetRangeProjString( rgstr, "X" );
-    comm.add( rgstr ).add( " -O -K -N" );
-    comm.add( " 1>> " ).add( fileName( fnm ) );
+    bool usecoloryn = false;
+    getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
 
     uiString errmsg;
     if ( !loadFaults(errmsg) )
@@ -92,13 +90,18 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 
     BufferStringSet styles;
     getLineStyles( styles );
-    if ( styles.size() != flts_.size() )
+    if ( (usecoloryn && styles.size() != flts_.size()) ||
+        (!usecoloryn && styles.size() != 1) )
 	mErrRet(tr("Failed to fetch OD::LineStyles"))
 
-    bool usecoloryn = false;
-    getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
 
-    od_ostream procstrm = makeOStream( comm, strm );
+    OS::MachineCommand xymc( "psxy" );
+    xymc.addArg( mapprojstr ).addArg( rgstr )
+	.addArg( "-O" ).addArg( "-K" ).addArg( "-N" );
+    od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() ) mErrRet(tr("Failed to execute GMT command"));
 
     bool onzslice = false;
@@ -119,7 +122,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	if ( !fltsurf->update(true,0) )
 	    continue;
 
-	strm << "Creating Fault --> " << fault3d->name() << " ...\n";
+	strm << "Posting Fault --> " << fault3d->name() << " ...\n";
 	BufferString clr( " -W" );
 	usecoloryn ? clr.add( styles.get(midx) ) : clr.add( styles.get(0) );
 	procstrm << "> " << clr.buf() << "\n";

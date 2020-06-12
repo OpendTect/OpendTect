@@ -141,7 +141,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     // Catch the 'stdin' pretty name (currently "Std-IO")
     StreamProvider sp;
     fnm = iostrm->fullUserExpr(true);
-    if ( fnm == sp.fullName() )
+    if ( fnm == FixedString(sp.fileName()) )
 	fnm = StreamProvider::sStdIO();
 
     conn_->close( true );

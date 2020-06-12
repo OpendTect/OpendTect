@@ -13,6 +13,8 @@
 
 class TextStreamProgressMeter;
 
+namespace OS { class MachineCommand; }
+
 
 namespace ODMad
 {
@@ -24,10 +26,10 @@ mExpClass(Madagascar) ProcExec : public ::Executor
 public:
 
     enum FlowStage	{ Start, Intermediate, Finish };
-    			mDeclareEnumUtils(FlowStage)
+			mDeclareEnumUtils(FlowStage)
 
-    			ProcExec(const IOPar&,od_ostream&);
-    			~ProcExec();
+			ProcExec(const IOPar&,od_ostream&);
+			~ProcExec();
 
     const IOPar&	pars() const		{ return pars_; }
 
@@ -59,8 +61,8 @@ protected:
 
     TextStreamProgressMeter* progmeter_;
 
-    const char*		getProcString();
-    const char*		getPlotString() const;
+    bool		getProcString(OS::MachineCommand&);
+    bool		getPlotString(OS::MachineCommand&) const;
 
 };
 

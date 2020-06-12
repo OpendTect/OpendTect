@@ -610,9 +610,10 @@ void CrashDumper::sendDump( const char* filename )
 		symboldir.fullPath(), dumphandler.fullPath(), prefix );
     machcomm.addArg( File::Path(GetExecPlfDir(),sendappl_).fullPath() );
 
-    std::cout << machcomm.getSingleStringRep() << std::endl;
+    const OS::CommandExecPars pars( OS::RunInBG );
+    std::cout << machcomm.toString(&pars) << std::endl;
 
-    machcomm.execute( OS::RunInBG );
+    machcomm.execute( pars );
 }
 
 

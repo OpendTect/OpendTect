@@ -372,7 +372,7 @@ bool JobIOMgr::startProg( const char* progname,
     iohdlr_.addJobDesc( machine, ji.descnr_ );
     if ( mDebugOn || logstrm_ )
     {
-	const BufferString msg( "Executing: ", mc.getExecCommand() );
+	const BufferString msg( "Executing: ", mc.toString() );
 	if ( mDebugOn ) DBG::message(msg);
 	mLogMsg(msg)
     }
@@ -382,7 +382,7 @@ bool JobIOMgr::startProg( const char* progname,
     {
 	iohdlr_.removeJobDesc( machine.getHostName(), ji.descnr_ );
 	mErrRet( BufferString("Failed to submit command '",
-			    mc.getExecCommand(), "'") )
+			    mc.toString(), "'") )
     }
 
     return true;

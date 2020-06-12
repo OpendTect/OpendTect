@@ -19,16 +19,17 @@ public:
 
     static void		initClass();
 
-    			GMTContour(const char* nm)
+			GMTContour(const char* nm)
 			    : GMTPar(nm)	{}
 			GMTContour(const IOPar& par)
 			    : GMTPar(par) {}
 
-    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
 protected:
+
+    virtual bool	doExecute(od_ostream&,const char*) override;
 
     static GMTPar*	createInstance(const IOPar&);
     static int		factoryid_;
