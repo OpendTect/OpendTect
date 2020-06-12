@@ -58,6 +58,9 @@ namespace OD
 				const OS::CommandExecPars&,
 				int* pid=nullptr,
 				uiString* errmsg=nullptr) const;
+	bool		executeScript(const char*,bool wait4finish=true) const;
+	bool		executeScript(const BufferStringSet&,
+				      bool wait4finish=true) const;
 
 	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
 	BufferString	pyVersion() const;
