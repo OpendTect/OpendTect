@@ -1104,10 +1104,10 @@ const char* File::getTempPath()
 # endif
 #else
     pFreeFnErrMsg(not_implemented_str);
-# ifndef __win__
-    ret = "/tmp";
-# else
+# ifdef __win__
     ret = "C:\\TEMP";
+# else
+    ret = "/tmp";
 # endif
 #endif
     return ret.buf();
