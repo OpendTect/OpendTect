@@ -60,3 +60,11 @@ def getWellDBList( reload, args=None ):
   dblist = oddbman.getDBList(wlltrlgrp,exenm=wellmanexe,args=args)
   return dblist
 
+def getMarkers( wllnm, reload=False, args=None ):
+  dbkey = getDBKey( wllnm, reload=reload, args=args )
+  cmd = getODCommand(wellmanexe,args)
+  cmd.append( '--list-markers' )
+  cmd.append( dbkey )
+  ret = oddbman.getDBDict( cmd )
+  return (ret['Names'], ret['MDs'], ret['Color'])
+
