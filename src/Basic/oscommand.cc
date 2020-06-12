@@ -837,7 +837,7 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
     if ( !inconsole )
     {
 	BufferString comm( mc.program() );
-	if ( !args().isEmpty() )
+	if ( !mc.args().isEmpty() )
 	    comm.addSpace().add( mc.args().cat(" ") );
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
