@@ -1114,6 +1114,16 @@ const char* getHomePath()
 const char* getTempPath()
 {
     mDeclStaticString( ret );
+    if ( !ret.isEmpty() )
+	return ret.buf();
+
+    const BufferString userpath( GetEnvVar("OD_TMPDIR") );
+    if ( !userpath.isEmpty() && isDirectory(userpath.str()) &&
+	 isWritable(userpath.str()) )
+    {
+	ret.set( userpath );
+	return ret.buf();
+    }
 #ifndef OD_NO_QT
     ret = QDir::tempPath();
 # ifdef __win__
@@ -1122,9 +1132,9 @@ const char* getTempPath()
 #else
     pFreeFnErrMsg(not_implemented_str);
 # ifdef __win__
-    ret = "/tmp";
-# else
     ret = "C:\\TEMP";
+# else
+    ret = "/tmp";
 # endif
 #endif
     return ret.buf();
