@@ -63,22 +63,12 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 {
     File::Path srcfp( src );
     BufferString newsrc = srcfp.fileName();
-    File::Path zipcomfp( GetExecPlfDir(), "zip" );
-    BufferString cmd( zipcomfp.fullPath() );
-    cmd += " -r \"";
-    cmd += dest;
-    cmd += "\"";
-    cmd += " ";
-    cmd += newsrc;
-#ifndef __win__
-    File::changeDir( srcfp.pathOnly() );
-    const bool ret = !system( cmd );
-    File::changeDir( GetSoftwareDir(0) );
-    return ret;
-#else
-    const bool ret = WinUtils::execProc( cmd, true, false, srcfp.pathOnly() );
-    return ret;
-#endif
+    const File::Path zipcomfp( GetExecPlfDir(), "zip" );
+    OS::CommandExecPars pars;
+    pars.workingdir( srcfp.pathOnly() )
+	.isconsoleuiprog( true );
+    OS::MachineCommand mc( zipcomfp.fullPath(), "-r", dest, newsrc );
+    return mc.execute( pars );
 }
 
 bool ZipUtils::doUnZip( const char* src, const char* dest )
@@ -103,19 +93,12 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     }
 
     bool res = false;
-#ifdef __win__
-    OS::MachineCommand mc( "cmd" );
-    mc.addArg( "/c" ).addArg( "unzip" )
-      .addKeyedArg( "o", src, OS::OldStyle )
-      .addKeyedArg( "d", dest, OS::OldStyle );
+    OS::MachineCommand mc( "unzip", "-o", "-d" );
     if ( needfilelist_ )
-	mc.addArg( ">" ).addArg( filelistname_ );
-#else
-    OS::MachineCommand mc( "unzip" );
-    mc.addKeyedArg( "o", src, OS::OldStyle )
-      .addKeyedArg( "d", dest, OS::OldStyle );
-    mc.addArg( ">" )
-	    .addArg( needfilelist_ ? filelistname_ : "/dev/null" );
+	mc.addFileRedirect( filelistname_ );
+#ifdef __unix__
+    else
+	mc.addFileRedirect( "/dev/null" );
 #endif
     res = mc.execute();
 
@@ -128,7 +111,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
     if ( !res )
 	errmsg_ = tr("Unzip failed for command: %1")
-			    .arg( mc.getExecCommand() );
+			    .arg( mc.toString() );
     else
         errmsg_.setEmpty();
 

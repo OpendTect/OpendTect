@@ -46,11 +46,16 @@ Examples:
 mExpClass(Basic) StreamProvider
 {
 public:
-		StreamProvider(const char* nm=0);
-    void	set(const char*);
+		StreamProvider(const char* filenm=nullptr);
+		StreamProvider(const OS::MachineCommand&);
+		~StreamProvider();
 
-    inline bool	isBad() const			{ return fname_.isEmpty(); }
+    void	setFileName(const char*);
+    void	setCommand(const OS::MachineCommand&);
 
+    bool	isBad() const;
+
+    const char*	fileName() const	{ return fname_.buf(); }
     bool	exists(bool forread) const;
     bool	remove(bool recursive=true) const;
     bool	setReadOnly(bool yn) const;
@@ -67,18 +72,11 @@ public:
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
 		    //!< see makeOStream remark
 
-    const char*	fullName() const;
-    const char*	fileName() const	{ return fname_.buf(); }
-    const char*	command() const		{ return fileName(); }
-    const char*	hostName() const	{ return hostname_.buf(); }
-
-    void	setFileName(const char*);
-    void	setCommand(const OS::MachineCommand&);
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
 
-    bool	isFile() const		{ return !iscomm_; }
-    bool	isCommand() const	{ return iscomm_; }
+    bool	isFile() const		{ return !mc_; }
+    bool	isCommand() const	{ return mc_; }
 
     static const char*	sStdIO();
     static const char*	sStdErr();
@@ -102,13 +100,18 @@ public:
 protected:
 
     BufferString	fname_;
-    BufferStringSet	args_;
-    bool		iscomm_;
-    BufferString	hostname_;
+    OS::MachineCommand*	mc_ = nullptr;
 
     static StreamData	makePLIStream(int);
-    void		mkOSCmd(BufferString& prog,BufferStringSet& args) const;
 
     static void		sendCBMsg(const CallBack*,const char*);
+
+private:
+			StreamProvider(const StreamProvider&)	= delete;
+    StreamProvider&	operator=(const StreamProvider&)	= delete;
+
+public:
+
+    mDeprecated void set(const char* inp);
 
 };

@@ -415,7 +415,7 @@ BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 {
     OS::MachineCommand cmd( sPythonExecNm(true) );
-    cmd.addArg( "-c" ).addArg( BufferString("\"import ",nm,"\"") );
+    cmd.addArg( "-c" ).addArg( BufferString("import ",nm) );
     return execute( cmd ) && lastOutput(true,nullptr).isEmpty();
 }
 
@@ -538,7 +538,14 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     if ( background )
 	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
-    strm.add( cmd.getSingleStringRep() );
+    strm.add( cmd.program() ).add( " " );
+    BufferStringSet args( cmd.args() );
+    for ( auto arg : args )
+    {
+	if ( arg->find(' ') && arg->firstChar() != '\'' )
+	    arg->quote();
+    }
+    strm.add( args.cat(" ") );
     if ( background )
     {
 #ifdef __win__
@@ -553,7 +560,8 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #else
 	strm.add( " 2>/dev/null" );
 	strm.add( " &" ).add( od_newline );
-	strm.add( "echo $! > " ).add( getPIDFilePathStr(*ret) );
+	BufferString pidfile( getPIDFilePathStr(*ret) );
+	strm.add( "echo $! > " ).add( pidfile.quote() );
 #endif
     }
     strm.add( od_newline );
@@ -628,11 +636,18 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     if ( !cl_.ptr() )
     {
 	msg_ = tr("Cannot create launcher for command '%1'")
-		    .arg( cmd.getSingleStringRep() );
+		    .arg( cmd.toString(execpars) );
 	return false;
     }
 
-    const bool res = execpars ? cl_->execute( *execpars )
+    OS::CommandExecPars pars;
+    if ( execpars )
+    {
+	pars = *execpars;
+	pars.prioritylevel_ = 0.f;
+    }
+
+    const bool res = execpars ? cl_->execute( pars )
 			      : cl_->execute( laststdout_, &laststderr_ );
     if ( pid )
 	*pid = cl_->processID();
@@ -1235,7 +1250,7 @@ BufferString removeDirScript( const BufferString& path )
     script.add( "import shutil" );
     const BufferString remcmd( "shutil.rmtree(r'", path, "')" );
     script.add( remcmd );
-    return BufferString( "\"", script.cat(";"), "\"" );
+    return BufferString( script.cat(";") );
 }
 
 
@@ -1256,7 +1271,6 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
     {
 	retval.setEmpty();
 	BufferString pathstr( removeDirScript(path) );
-	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
 	OS::MachineCommand cmd( PythA().sPythonExecNm(), "-c", pathstr );
 	ret = PythA().execute( cmd, waitforfin );
 

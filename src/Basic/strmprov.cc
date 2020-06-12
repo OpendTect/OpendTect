@@ -476,103 +476,140 @@ StreamData StreamProvider::makePLIStream( int plid )
 }
 
 
-StreamProvider::StreamProvider( const char* inp )
-    : iscomm_(false)
+StreamProvider::StreamProvider( const char* fnm )
 {
-    set( inp );
+    setFileName( fnm );
+}
+
+
+StreamProvider::StreamProvider( const OS::MachineCommand& mc )
+{
+    setCommand( mc );
+}
+
+
+StreamProvider::~StreamProvider()
+{
+    delete mc_;
+}
+
+
+static const char* extractHostName( const char* str, BufferString& hnm )
+{
+    hnm.setEmpty();
+    if ( !str )
+	return str;
+
+    mSkipBlanks( str );
+    BufferString inp( str );
+    char* ptr = inp.getCStr();
+    const char* rest = str;
+
+#ifdef __win__
+
+    if ( *ptr == '\\' && *(ptr+1) == '\\' )
+    {
+	ptr += 2;
+	char* phnend = firstOcc( ptr, '\\' );
+	if ( phnend ) *phnend = '\0';
+	hnm = ptr;
+	rest += hnm.size() + 2;
+    }
+
+#else
+
+    while ( *ptr && !iswspace(*ptr) && *ptr != ':' )
+	ptr++;
+
+    if ( *ptr == ':' )
+    {
+	if ( *(ptr+1) == '/' && *(ptr+2) == '/' )
+	{
+	    inp.add( "\nlooks like a URL. Not supported (yet)" );
+	    ErrMsg( inp ); rest += FixedString(str).size();
+	}
+	else
+	{
+	    *ptr = '\0';
+	    hnm = inp;
+	    rest += hnm.size() + 1;
+	}
+    }
+
+#endif
+
+    return rest;
 }
 
 
 void StreamProvider::set( const char* inp )
 {
-    hostname_.setEmpty(); fname_.setEmpty();
-    iscomm_ = false;
-    if ( !inp || !*inp )
-	return;
+    fname_.setEmpty();
+    deleteAndZeroPtr( mc_ );
 
     BufferString workstr( inp );
     workstr.trimBlanks();
     if ( workstr.isEmpty() )
-	return; // only spaces: invalid
-    else if ( workstr == sStdIO() || workstr == sStdErr() )
-	{ fname_ = workstr; return; }
+	return;
+
+    if ( workstr == sStdIO() || workstr == sStdErr() )
+	{ fname_.set( workstr ); return; }
 
     const char* pwork = workstr.buf();
     while ( *pwork == '@' )
     {
-	iscomm_ = true; pwork++;
 	pErrMsg("Deprecated. Use setCommand instead");
 	DBG::forceCrash(false);
 	return;
     }
 
     mSkipBlanks( pwork );
-    fname_ = pwork;
+    fname_.set( pwork );
     if ( fname_.startsWith("file://",CaseInsensitive) )
 	{ pwork += 7; fname_ = pwork; }
 
-    workstr = OS::MachineCommand::extractHostName(fname_.buf(),hostname_);
+    BufferString hostname;
+    workstr = extractHostName( fname_.buf(), hostname );
 
     pwork = workstr.buf();
     mSkipBlanks( pwork );
     while ( *pwork == '@' )
     {
-	iscomm_ = true; pwork++;
 	pErrMsg("Deprecated. Use setCommand instead");
 	DBG::forceCrash(false);
 	return;
     }
 
-    fname_ = pwork;
-    if ( !iscomm_ )
-	hostname_.setEmpty();
+    fname_.set( pwork );
 }
 
 
 void StreamProvider::setFileName( const char* fnm )
 {
-    iscomm_ = false;
     fname_.set( fnm );
-    hostname_.setEmpty();
+    deleteAndZeroPtr( mc_ );
 }
 
 
 void StreamProvider::setCommand( const OS::MachineCommand& mc )
 {
-    iscomm_ = true;
-    fname_.set( mc.program() );
-    args_ = mc.args();
-    hostname_.setEmpty();
+    fname_.setEmpty();
+    if ( mc_ )
+	*mc_ = mc;
+    else
+	mc_ = new OS::MachineCommand( mc );
 }
 
 
-const char* StreamProvider::fullName() const
+bool StreamProvider::isBad() const
 {
-    mDeclStaticString( ret );
-    ret.setEmpty();
-
-    if ( iscomm_ )
-    {
-	ret.add( "@" );
-	if ( !hostname_.isEmpty() )
-#ifdef __win__
-	    ret.add( "\\\\" ).add( hostname_ )
-#else
-	    ret.add( hostname_ )
-#endif
-		.add( ":" );
-    }
-
-    ret.add( fname_ );
-    if ( !args_.isEmpty() )
-	ret.add( args_.cat( " " ) );
-    return ret.buf();
+    return fname_.isEmpty() && !mc_;
 }
 
 
 void StreamProvider::addPathIfNecessary( const char* path )
 {
-    if ( isBad() || iscomm_ || !path || ! *path
+    if ( isBad() || mc_ || !path || ! *path
       || fname_ == sStdIO() || fname_ == sStdErr() )
 	return;
 
@@ -587,11 +624,11 @@ void StreamProvider::addPathIfNecessary( const char* path )
 
 #define mGetRetSD( retsd ) \
     StreamData retsd; \
-    if ( iscomm_ ) \
+    if ( mc_ ) \
     { \
-	BufferString fnm( "@", fname_ ); \
-	if ( !args_.isEmpty() ) \
-	    fnm.addSpace().add( args_.cat(" ") ); \
+	BufferString fnm( "@", mc_->program() ); \
+	if ( !mc_->args().isEmpty() ) \
+	    fnm.addSpace().add( mc_->args().cat(" ") ); \
 	retsd.setFileName( fnm.str() ); \
     } \
     else \
@@ -607,14 +644,14 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     if ( fname_ == sStdIO() || fname_ == sStdErr() )
 	{ retsd.setIStrm( &std::cin ); return retsd; }
 
-    if ( !iscomm_ && allowpl )
+    if ( !mc_ && allowpl )
     {
 	const int plid = getPLID( retsd.fileName(), false );
 	if ( plid >= 0 )
 	    return makePLIStream( plid );
     }
 
-    if ( !iscomm_ )
+    if ( !mc_ )
     {
 	bool doesexist = File::exists( retsd.fileName() );
 	if ( !doesexist )
@@ -643,11 +680,10 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     }
 
 #ifndef OD_NO_QT
-    BufferString prog; BufferStringSet args( args_ );
-    mkOSCmd( prog, args );
-    const QString qprog( prog.buf() );
+    const OS::MachineCommand mc = mc_->getExecCommand();
+    const QString qprog( mc.program() );
     QStringList qargs;
-    args.fill( qargs );
+    mc.args().fill( qargs );
 
     QProcess* process = new QProcess;
     process->start( qprog, qargs, QIODevice::ReadOnly );
@@ -671,7 +707,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     else if ( fname_ == sStdErr() )
 	{ retsd.setOStrm( &std::cerr ); return retsd; }
 
-    if ( !iscomm_ )
+    if ( !mc_ )
     {
         std::ios_base::openmode openmode = std::ios_base::out;
         if ( binary )
@@ -695,11 +731,10 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     }
 
 #ifndef OD_NO_QT
-    BufferString prog; BufferStringSet args( args_ );
-    mkOSCmd( prog, args );
-    const QString qprog( prog.buf() );
+    const OS::MachineCommand mc = mc_->getExecCommand();
+    const QString qprog( mc.program() );
     QStringList qargs;
-    args.fill( qargs );
+    mc.args().fill( qargs );
 
     QProcess* process = new QProcess;
     process->start( qprog, qargs, QIODevice::WriteOnly );
@@ -714,26 +749,11 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 }
 
 
-void StreamProvider::mkOSCmd( BufferString& prog, BufferStringSet& args ) const
-{
-    if ( hostname_.isEmpty() )
-    {
-	OS::CommandLauncher::addShellIfNeeded( fname_, prog, args );
-    }
-    else
-    {
-	prog.set( remExecCmd() );
-	args.insertAt( new BufferString(hostname_ ), 0);
-	args.insertAt( new BufferString(fname_), 1 );
-    }
-}
-
-
 bool StreamProvider::exists( bool fr ) const
 {
     if ( isBad() )
 	return false;
-    if ( iscomm_ )
+    if ( mc_ )
 	return fr;
 
     return fname_ == sStdIO() || fname_ == sStdErr() ? true
@@ -743,7 +763,7 @@ bool StreamProvider::exists( bool fr ) const
 
 bool StreamProvider::remove( bool recursive ) const
 {
-    if ( isBad() || iscomm_ )
+    if ( isBad() || mc_ )
 	return false;
 
     return fname_ == sStdIO() || fname_ == sStdErr() ? false
@@ -753,7 +773,7 @@ bool StreamProvider::remove( bool recursive ) const
 
 bool StreamProvider::setReadOnly( bool yn ) const
 {
-    if ( isBad() || iscomm_ )
+    if ( isBad() || mc_ )
 	return false;
 
     return fname_ == sStdIO() || fname_ == sStdErr() ? false :
@@ -763,7 +783,7 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
 bool StreamProvider::isReadOnly() const
 {
-    if ( isBad() || iscomm_ )
+    if ( isBad() || mc_ )
 	return false;
 
     return fname_ == sStdIO() || fname_ == sStdErr() ? false :
@@ -790,14 +810,14 @@ void StreamProvider::sendCBMsg( const CallBack* cb, const char* msg )
 
 bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 {
-    const bool issane = newnm && *newnm && !isBad() && !iscomm_;
+    const bool issane = newnm && *newnm && !isBad() && !mc_;
 
     if ( cb && cb->willCall() )
     {
 	BufferString msg;
 	if ( issane )
 	    mkRelocMsg( fname_, newnm, msg );
-	else if ( iscomm_ )
+	else if ( mc_ )
 	    msg = "Cannot rename commands";
 	else
 	{
@@ -814,7 +834,7 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
     bool isok = fname_ == sStdIO() || fname_ == sStdErr() ? true :
 	    File::rename( fname_, newnm );
     if ( isok )
-	set( newnm );
+	setFileName( newnm );
 
     return isok;
 }

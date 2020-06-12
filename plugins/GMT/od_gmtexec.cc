@@ -15,18 +15,17 @@ ________________________________________________________________________
 #include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "moddepmgr.h"
-
-#include <iostream>
+#include "od_ostream.h"
 
 #define mErrFatalRet(msg) \
 { \
     strm << msg << od_newline; \
     od_ostream tmpstrm( tmpfp.fullPath() ); \
-    outputfp.setFileName( ".gmtcommands4" ); \
+    outputfp.setFileName( GMT::hasModernGMT() ? "gmt.history" \
+					      : ".gmtcommands4" ); \
     if ( File::exists(outputfp.fullPath()) ) \
-	StreamProvider( outputfp.fullPath() ).remove(); \
+	File::remove( outputfp.fullPath() ); \
 	\
     File::changeDir( cwd.buf() ); \
     tmpstrm << "Failed" << od_newline; \
@@ -103,12 +102,14 @@ bool BatchProgram::go( od_ostream& strm )
 
     strm << "Map created successfully" << od_endl;
 
+    File::remove( GMTPar::getErrFnm() );
     outputfp.setFileName( GMT::hasModernGMT() ? "gmt.history"
 					      : ".gmtcommands4" );
-    StreamProvider( outputfp.fullPath() ).remove();
+    File::remove( outputfp.fullPath() );
     File::changeDir( cwd.buf() );
-    StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
-    *sd.oStrm() << "Finished.\n";
+    od_ostream sd( tmpfp.fullPath() );
+    sd << "Finished." << od_endl;
     sd.close();
+
     return true;
 }

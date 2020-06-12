@@ -334,12 +334,16 @@ bool uiBatchProgLaunch::acceptOK()
 	mDynamicCastGet(uiGenInput*,inp,curinp)
 	BufferString val;
 	if ( finp )
+	{
 	    val = finp->fileName();
+	}
 	else if ( inp )
 	{
 	    val = inp->text();
+	    if ( val.isEmpty() )
+		continue;
 	    if ( bpi.args[iinp]->type == BatchProgPar::QWord )
-		val.quote( '\'' );
+		val.quote();
 	}
 
 	mc.addArg( val );
@@ -356,7 +360,7 @@ bool uiBatchProgLaunch::acceptOK()
     OS::CommandLauncher cl( mc );
     if ( !cl.execute( execpars ) )
 	uiMSG().error(tr("Cannot execute command:\n%1")
-			.arg(mc.getExecCommand()));
+			.arg(mc.toString()));
 
     return false;
 }

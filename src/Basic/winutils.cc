@@ -214,11 +214,8 @@ bool WinUtils::copy( const char* from, const char* to, bool isfile,
 {
     if ( isfile && File::getKbSize(from) < 1024 )
     {
-	BufferString cmd;
-	cmd = "copy /Y";
-	cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
-	const bool ret = system( cmd ) != -1;
-	return ret;
+	OS::MachineCommand mc( "copy", "/Y", from, to );
+	return mc.execute();
     }
 
     SHFILEOPSTRUCT fileop;

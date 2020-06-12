@@ -14,6 +14,7 @@
 #include "madstream.h"
 #include "od_ostream.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "progressmeterimpl.h"
 #include "staticstring.h"
 #include "uistrings.h"
@@ -39,9 +40,16 @@ void EnumDefImpl<ODMad::ProcExec::FlowStage>::init()
 
 #include <fstream>
 
-std::ostream* makeOStream( const char* comm )
+std::ostream* makeOStream( const OS::MachineCommand& mc )
 {
-    BufferString cmd( comm );
+    BufferString cmd( mc.program() );
+    BufferStringSet args( mc.args() );
+    for ( auto arg : args )
+    {
+	if ( arg->find( " " ) && !arg->startsWith("\"") )
+	    arg->quote( '\"' );
+	cmd.addSpace().add( arg->str() );
+    }
 
     FILE* fp = _popen(cmd, "w");
     bool ispipe = true;
@@ -56,11 +64,11 @@ std::ostream* makeOStream( const char* comm )
     return ostrm;
 }
 
-#define mGetOStreamFromCmd(cmd) new od_ostream( makeOStream(cmd) )
+#define mGetOStreamFromCmd(mc) new od_ostream( makeOStream(mc) )
 
 #else // UNIX
 
-#define mGetOStreamFromCmd(cmd) new od_ostream( cmd )
+#define mGetOStreamFromCmd(mc) new od_ostream( mc )
 
 #endif
 
@@ -115,31 +123,35 @@ bool ODMad::ProcExec::init()
 	    mErrRet( uiStrings::sParsMissing().addMoreInfo(uiStrings::sInput()))
 
 	ODMad::ProcFlow::IOType inptyp = ODMad::ProcFlow::ioType( *inpar );
-	const char* comm = getProcString();
-	if ( !comm || !*comm )
+	OS::MachineCommand mc;
+	if ( !getProcString(mc) )
 	    return false;
 
-	od_cerr() << "About to execute: " << comm << od_endl;
 	if ( stage_ == Start && ( inptyp == ODMad::ProcFlow::None
 				|| inptyp == ODMad::ProcFlow::SU ) )
 	{
-	    BufferString cmd( comm + 1 );
+	    OS::MachineCommand cmd;
 	    if ( inptyp == ODMad::ProcFlow::SU )
 	    {
 		const BufferString rsfroot = GetEnvVar( "RSFROOT" );
-		cmd = File::Path( rsfroot, "bin", "sfsu2rsf" ).fullPath();
-		cmd += " "; cmd += "tape=";
-		cmd += inpar->find( sKey::FileName() );
-		cmd += " | "; cmd += comm + 1;
+		cmd.setProgram(
+			File::Path( rsfroot, "bin", "sfsu2rsf" ).fullPath() );
+		cmd.addArg( "tape=" ).addArg( inpar->find(sKey::FileName()) )
+		   .addPipe().addArg( mc.program() ).addArgs( mc.args() );
 	    }
+	    else
+		cmd = mc;
 
-	    return !system( cmd.buf() );
+	    od_cerr() << "About to execute: " << cmd.toString() << od_endl;
+	    return cmd.execute();
 	}
 
-	if ( FixedString(comm) == od_stream::sStdIO() )
+	od_cerr() << "About to execute: " << mc.toString() << od_endl;
+
+	if ( FixedString(mc.program()) == od_stream::sStdIO() )
 	    procstream_ = new od_ostream( od_stream::sStdIO() );
 	else
-	    procstream_ = mGetOStreamFromCmd( comm );
+	    procstream_ = mGetOStreamFromCmd( mc );
 
 	if ( !procstream_->isOK() )
 	    mErrRet(tr("Failed to create output stream"))
@@ -149,10 +161,10 @@ bool ODMad::ProcExec::init()
 
 	if ( stage_ == Intermediate )
 	{
-	    BufferString plotcomm = "@";
-	    plotcomm += getPlotString();
-	    od_cerr() << "About to plot: " << plotcomm << od_endl;
-	    plotstream_ = mGetOStreamFromCmd( plotcomm.buf() );
+	    OS::MachineCommand plotmc;
+	    getPlotString( plotmc );
+	    od_cerr() << "About to plot: " << plotmc.toString() << od_endl;
+	    plotstream_ = mGetOStreamFromCmd( plotmc );
 	    if ( !plotstream_->isOK() )
 		mErrRet(tr("Failed to create plot output stream"))
 	    if ( !madstream_->putHeader(*plotstream_) )
@@ -169,33 +181,43 @@ bool ODMad::ProcExec::init()
 
 #ifdef __win__
     #define mAddNewExec \
-        BufferString fname = File::Path::getTempFullPath( "madproc", \
+        const BufferString fname = File::Path::getTempFullPath( "madproc", \
 						sParFileExtension() ); \
 	pars_.write( fname, sKey::Pars() ); \
-	ret += File::Path(rsfroot).add("bin").add("sfdd").fullPath(); \
-	ret += " form=ascii_float | \""; \
-	ret += File::Path(GetExecPlfDir()).add("od_madexec").fullPath(); \
-	ret += "\" "; ret += fname
+	if ( mc.isBad() ) \
+	{ \
+	   mc.setProgram( \
+		   File::Path(rsfroot).add("bin").add("sfdd").fullPath() ); \
+	} \
+	else \
+	{ \
+	   mc.addArg( \
+		   File::Path(rsfroot).add("bin").add("sfdd").fullPath() ); \
+	} \
+	mc.addArg( "form=ascii_float" ).addPipe() \
+	  .addArg( File::Path(GetExecPlfDir()).add("od_madexec").fullPath(); ) \
+	  .addArg( fname );
 #else
     #define mAddNewExec \
-	BufferString fname = File::Path::getTempFullPath( "madproc", \
+	const BufferString fname = File::Path::getTempFullPath( "madproc", \
 						sParFileExtension() ); \
 	pars_.write( fname, sKey::Pars() ); \
-	ret += GetUnixExecScript(); ret += " "; \
-	ret += "od_madexec"; ret += " "; ret += fname
+	if ( mc.isBad() ) \
+	    mc.setProgram( GetUnixExecScript() ); \
+	else \
+	    mc.addArg( GetUnixExecScript() ); \
+	mc.addArg( "od_madexec" ).addArg( fname );
 #endif
 
-const char* ODMad::ProcExec::getProcString()
+bool ODMad::ProcExec::getProcString( OS::MachineCommand& mc )
 {
     const BufferString rsfroot = GetEnvVar( "RSFROOT" );
-    mDeclStaticString( ret );
-    ret = "@";
     ODMad::ProcFlow procflow;
     procflow.usePar( pars_ );
     ODMad::ProcFlow::IOType outtyp = procflow.ioType( false );
     int curprocidx = 0;
     if ( pars_.get(sKeyCurProc(),curprocidx) && curprocidx < 0 )
-	return 0;
+	return false;
 
     if ( !curprocidx )
     {
@@ -209,9 +231,9 @@ const char* ODMad::ProcExec::getProcString()
     if ( !hasprocessing )
     {
 	if ( outtyp == ODMad::ProcFlow::Madagascar )
-	    ret = procflow.output().find( sKey::FileName() );
+	    mc.setProgram( procflow.output().find( sKey::FileName() ) );
 	else if ( outtyp == ODMad::ProcFlow::None )
-	    return 0;
+	    return false;
 	else
 	{
 	    pars_.set( sKeyFlowStage(), toString(Finish) );
@@ -219,29 +241,41 @@ const char* ODMad::ProcExec::getProcString()
 	    mAddNewExec;
 	}
 
-	return ret.buf();
+	return mc.isBad();
     }
 
     bool firstproc = true;
     for ( int pidx=curprocidx; pidx<procflow.size(); pidx++ )
     {
 	if ( !firstproc )
-	    ret += " | ";
+	    mc.addPipe();
 	else
 	{
 #ifdef __win__
-	    ret += File::Path(rsfroot).add("bin").add("sfdd").fullPath();
-	    ret += " form=native_float | ";
+	    const File::Path fp( rsfroot, "bin", "sfdd" );
+	    if ( mc.isBad() )
+		mc.setProgram( fp.fullPath() )
+	    else
+		mc.addArg( fp.fullPath() );
+	    mc.addArg( "form=native_float" ).addPipe();
 #endif
 	    firstproc = false;
 	}
 
 	if ( !procflow[pidx]->isValid() )
-	    ret += procflow[pidx]->getCommand();
+	{
+	    if ( mc.isBad() )
+		mc.setProgram( procflow[pidx]->getCommand() );
+	    else
+		mc.addArg( procflow[pidx]->getCommand() );
+	}
 	else
 	{
 	    const File::Path fp( rsfroot, "bin", procflow[pidx]->getCommand() );
-	    ret += fp.fullPath();
+	    if ( mc.isBad() )
+		mc.setProgram( fp.fullPath() );
+	    else
+		mc.addArg( fp.fullPath() );
 	}
 
 	const char* plotcmd = procflow[pidx]->auxCommand();
@@ -258,10 +292,10 @@ const char* ODMad::ProcExec::getProcString()
 	    pars_.removeWithKey( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
 						 sKey::FileName()) );
 	    pars_.set( sKeyFlowStage(), toString(newstage) );
-	    ret += " | ";
+	    mc.addPipe();
 	    if ( endproc && nooutput )
 	    {
-		ret += getPlotString();
+		getPlotString( mc );
 		break;
 	    }
 
@@ -274,30 +308,29 @@ const char* ODMad::ProcExec::getProcString()
 	{
 	    if ( outtyp == ODMad::ProcFlow::Madagascar )
 	    {
-		ret += " out=stdout > ";
-		ret += procflow.output().find( sKey::FileName() );
+		mc.addArg( "out=stdout" )
+		  .addFileRedirect( procflow.output().find(sKey::FileName()) );
 	    }
 	    else
 	    {
 		pars_.set( sKeyFlowStage(), toString(Finish) );
 		pars_.set( sKey::LogFile(), od_stream::sStdErr() );
-		ret += " | ";
+		mc.addPipe();
 		mAddNewExec;
 	    }
 	}
     }
 
-    return ret.buf();
+    return !mc.isBad();
 }
 
 
-const char* ODMad::ProcExec::getPlotString() const
+bool ODMad::ProcExec::getPlotString( OS::MachineCommand& mc ) const
 {
     const BufferString rsfroot = GetEnvVar( "RSFROOT" );
-    mDeclStaticString( ret );
     int curprocidx = 0;
     if ( !pars_.get(sKeyCurProc(),curprocidx) || curprocidx < 1 )
-	return 0;
+	return false;
 
     ODMad::ProcFlow procflow;
     procflow.usePar( pars_ );
@@ -317,9 +350,8 @@ const char* ODMad::ProcExec::getPlotString() const
     }
 
     fp.add( plotcmd );
-    ret += fp.fullPath();
-    ret += "&";
-    return ret.buf();
+    mc.addArg( fp.fullPath() ).addArg( "&" );
+    return !mc.isBad();
 }
 
 

@@ -119,9 +119,16 @@ bool Batch::SingleJobDispatcher::launch()
     mc.addArg( ioparfp.fullPath(pathstyle) );
     mc.addArgs( jobspec_.clargs_ );
 
+    if ( execlocal || !exechost->isWindows() )
+	jobspec_.execpars_.monitorfnm( logfile );
+
+    mc.setRemExec( remoteexec_ );
+    if ( !execlocal )
+	mc.setHostName( exechost->getHostName() );
+
     if ( DBG::isOn(DBG_MM) )
     {
-	BufferString msg( "Executing: ", mc.getSingleStringRep() );
+	BufferString msg( "Executing: ", mc.toString(&jobspec_.execpars_) );
 	msg.add( " on host " ).add( exechost->getHostName() );
 
 	if ( !execlocal )
@@ -130,13 +137,5 @@ bool Batch::SingleJobDispatcher::launch()
 	DBG::message(msg);
     }
 
-    if ( execlocal || !exechost->isWindows() )
-	jobspec_.execpars_.monitorfnm( logfile );
-
-    mc.setRemExec( remoteexec_ );
-    if ( !execlocal )
-	mc.setHostName( exechost->getHostName() );
-
-    OS::CommandLauncher cl( mc );
-    return cl.execute( jobspec_.execpars_ );
+    return mc.execute( jobspec_.execpars_ );
 }

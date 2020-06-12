@@ -79,7 +79,8 @@ struct ClusterJobInfo
 class ClusterJobSubmitter : public ParallelTask
 {
 public:
-ClusterJobSubmitter( ObjectSet<ClusterJobInfo>& jobs, const char* cmd )
+ClusterJobSubmitter( ObjectSet<ClusterJobInfo>& jobs,
+		     const OS::MachineCommand& cmd )
     : ParallelTask("Cluster Job Submitter")
     , cmd_(cmd)
     , jobs_(jobs)
@@ -98,16 +99,15 @@ bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
-	BufferString jobcmd( cmd_ );
-	jobcmd += " \'";
+	OS::MachineCommand jobcmd( cmd_ );
 	File::Path fp( jobs_[jobstodo_[idx]]->logfnm_ );
 	fp.setExtension( ".scr" );
-	jobcmd += fp.fullPath();
-	jobcmd += "\' &";
-	if ( system(jobcmd) )
+	jobcmd.addArg( fp.fullPath() );
+	if ( !jobcmd.execute(OS::RunInBG) )
 	    continue;
 
 	jobs_[jobstodo_[idx]]->status_ = -1;
+	Threads::sleep( 0.01 );
 	addToNrDone(1);
     }
 
@@ -116,7 +116,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 protected:
 
-    BufferString	cmd_;
+    const OS::MachineCommand&	cmd_;
     ObjectSet<ClusterJobInfo>&	jobs_;
     TypeSet<int>	jobstodo_;
 };
@@ -193,12 +193,26 @@ void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg)
 
 bool submitJobs( TaskRunner* tskr )
 {
-    FixedString submitcmd = pars_.find( "Command" );
-    if ( submitcmd.isEmpty() )
+    const FixedString submitcmdstr = pars_.find( "Command" );
+    if ( submitcmdstr.isEmpty() )
 	return false;
 
-    ClusterJobSubmitter jobsubmitter( jobs_, submitcmd.str() );
-    if ( !TaskRunner::execute( tskr, jobsubmitter ) )
+    OS::MachineCommand submitcmd;
+    BufferStringSet args;
+    args.unCat( submitcmdstr, " " );
+    if ( !args.isEmpty() )
+    {
+	submitcmd.setProgram( args.first()->str() );
+	args.removeSingle(0);
+	if ( !args.isEmpty() )
+	    submitcmd.addArgs( args );
+    }
+
+    if ( submitcmd.isBad() )
+	return false;
+
+    ClusterJobSubmitter jobsubmitter( jobs_, submitcmd );
+    if ( !TaskRunner::execute(tskr,jobsubmitter) )
 	return false;
 
     return true;

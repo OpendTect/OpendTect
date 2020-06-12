@@ -21,17 +21,18 @@ public:
 
     static void		initClass();
 
-    			GMTClip(const char* nm)
+			GMTClip(const char* nm)
 			    : GMTPar(nm)	{}
 			GMTClip(const IOPar& par)
 			    : GMTPar(par) {}
 
-    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		isStart() const;
     bool		fillLegendPar(IOPar&) const;
 
 protected:
+
+    virtual bool	doExecute(od_ostream&,const char*) override;
 
     static GMTPar*	createInstance(const IOPar&);
     static int		factoryid_;

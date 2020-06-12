@@ -17,24 +17,25 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "factory.h"
 
+namespace OS { class MachineCommand; }
+
 
 mExpClass(GMT) GMTArray2DInterpol : public Array2DInterpol
 { mODTextTranslationClass(GMTArray2DInterpol);
 public:
-    				GMTArray2DInterpol();
-    				~GMTArray2DInterpol();
-
-    virtual bool		mkCommand(BufferString&)	=0;
+				~GMTArray2DInterpol();
 
 protected:
-    od_int64			nrIterations() const;
-    od_int64			totalNr() const		{ return nrrows_; }
-    od_int64			nrDone() const		{ return nrdone_; }
-    uiString			message() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
-    int				maxNrThreads() const	{ return 1; }
+				GMTArray2DInterpol();
+
+    od_int64			nrIterations() const override;
+    od_int64			totalNr() const override { return nrrows_; }
+    od_int64			nrDone() const override	{ return nrdone_; }
+    uiString			message() const override;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
+    int				maxNrThreads() const override	{ return 1; }
 
     int				nrdone_;
     uiString		        msg_;
@@ -43,6 +44,11 @@ protected:
     BufferString		path_;
     BufferString		defundefpath_;
     bool*			nodes_;
+
+private:
+
+    virtual bool		fillCommand(OS::MachineCommand&)	= 0;
+
 };
 
 
@@ -52,13 +58,12 @@ public:
     mDefaultFactoryInstantiation(Array2DInterpol,
 				 GMTSurfaceGrid, "Continuous curvature(GMT)",
 				 tr("Continuous curvature(GMT)"))
-    				GMTSurfaceGrid();
+				GMTSurfaceGrid();
 
     static const char*		sType();
     const char*			type() const		{ return sType(); }
     static Array2DInterpol*	create();
 
-    bool			mkCommand(BufferString&);
     uiString			infoMsg() const;
 
     void			setTension(float);
@@ -66,7 +71,10 @@ public:
     bool			fillPar(IOPar&) const;
     float			getTension() const { return tension_; }
 
-protected:
+private:
+
+    bool			fillCommand(OS::MachineCommand&) override;
+
     float			tension_;
 };
 
@@ -77,20 +85,22 @@ public:
     mDefaultFactoryInstantiation(Array2DInterpol,
 				 GMTNearNeighborGrid, "Nearest neighbor(GMT)",
 				 tr("Nearest neighbor(GMT)"))
-    				GMTNearNeighborGrid();
+				GMTNearNeighborGrid();
 
     static const char*		sType();
     const char*			type() const		{ return sType(); }
     static Array2DInterpol*	create();
 
     void			setRadius(float);
-    bool			mkCommand(BufferString&);
     uiString			infoMsg() const;
-    
+
     bool			usePar(const IOPar&);
     bool			fillPar(IOPar&) const;
-    float			 getRadius() const { return radius_; }
+    float			getRadius() const { return radius_; }
 
-protected:
+private:
+
+    bool			fillCommand(OS::MachineCommand&) override;
+
     float			radius_;
 };

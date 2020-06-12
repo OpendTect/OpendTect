@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 mFDQtclass(QProcess);
 class qstreambuf;
+class StreamProvider;
 
 namespace OS
 {
@@ -40,18 +41,17 @@ mExpClass(Basic) CommandExecPars
 {
 public:
 			CommandExecPars( LaunchType lt=Wait4Finish )
-			    : needmonitor_(false)
+			    : launchtype_(lt)
 			    , createstreams_(false)
+			    , needmonitor_(false)
 			    , prioritylevel_(isBatchProg(lt) ? -1.0f : 0.0f)
-			    , launchtype_(lt)
-			    , isconsoleuiprog_(false)	{}
+			    , isconsoleuiprog_(false)	    {}
 
+    mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
     mDefSetupClssMemb(CommandExecPars,bool,createstreams);
     mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
 			    //!< when empty, will be generated (if needed)
-
-    mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
 
     mDefSetupClssMemb(CommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
@@ -59,6 +59,8 @@ public:
     mDefSetupClssMemb(CommandExecPars,bool,isconsoleuiprog);
 			    //!< program uses text-based stdin console input
 			    //!< if true, will ignore monitor settings
+
+    mDefSetupClssMemb(CommandExecPars,BufferString,workingdir);
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -75,6 +77,9 @@ public:
     static int		getMachinePriority(float priolevel,bool iswin);
 };
 
+
+
+class CommandLauncher;
 
 /*!\brief Encapsulates an actual command to execute + the machine to run it on
 
@@ -101,6 +106,8 @@ public:
     const char*		program() const			{ return prognm_; }
     void		setProgram( const char* pn )	{ prognm_.set( pn ); }
     const BufferStringSet& args() const			{ return args_; }
+    BufferString	toString(const CommandExecPars* =nullptr) const;
+			//!< Only for messaging purposes
 
     MachineCommand&	addArg(const char*);
     MachineCommand&	addArgs(const BufferStringSet&);
@@ -108,11 +115,11 @@ public:
 			{ return addKeyedArg(flg,nullptr,ks); }
     MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
 				    KeyStyle ks=NewStyle);
-    MachineCommand&	addFileArg(const char*);
+    MachineCommand&	addPipe()	{ return addArg("|"); }
     MachineCommand&	addFileRedirect(const char* fnm,int stdcode=0,
 					bool append=false);
-			/*!< stcode=0: >; stdcode=1: 1>; stdcode=2: 2>
-			   append: >>; otherwise: >		   */
+			/*!< stcode=0: '>'; stdcode=1: '1>'; stdcode=2: '2>'
+			   append: '>>'; otherwise: '>'		   */
 
 			// convenience:
     template <class T>
@@ -156,24 +163,27 @@ public:
 private:
 
     void		setIsolated(const char* prognm);
+    MachineCommand	getExecCommand(const CommandExecPars* =nullptr) const;
+    void		addShellIfNeeded();
+			/*!<Analyses the cmd and looks for pipes or redirects.
+			    If these are found, the cmd is converted to a
+			    shell command. */
 
     BufferString	prognm_;
     BufferStringSet	args_;
     bool		hostiswin_		= __iswin__;
     BufferString	hname_;
     BufferString	remexec_		= defremexec_;
+    bool		needshell_ = false;
 
     static BufferString	defremexec_;
 
+    friend class CommandLauncher;
+    friend class ::StreamProvider;
+
 public:
 
-    bool		setFromSingleStringRep(const char*,
-						bool ignorehostname=false);
     BufferString	getSingleStringRep(bool noremote=false) const;
-    BufferString	getExecCommand() const;
-
-    static const char*	extractHostName(const char*,BufferString&);
-			//!< returns remaining part
 
 };
 
@@ -208,13 +218,14 @@ public:
 protected:
 
     void		reset();
-    bool		doExecute(const char* comm,bool wait4finish,
-				  bool inconsole = false,
-				  bool createstreams=false );
+    bool		doExecute(const MachineCommand&,bool wait4finish,
+				  bool inconsole=false,
+				  bool createstreams=false,
+				  const char* workingdir=nullptr);
     int			catchError();
-    bool		startDetached(const char* prog,
-				      const BufferStringSet& args,
-				      bool inconsole=false);
+    bool		startDetached(const MachineCommand&,
+				      bool inconsole=false,
+				      const char* workingdir=nullptr);
     void		startMonitor();
 
     MachineCommand	machcmd_;
@@ -238,15 +249,6 @@ protected:
 
 public:
 
-    static void		addShellIfNeeded(const BufferString& cmd,
-					 BufferString& prog,
-					 BufferStringSet& args);
-			/*!<Analyses the cmd and looks for pipes or redirects.
-			    If these are found, the cmd is converted to a
-			    shell command. */
-    static void		addQuotesIfNeeded(BufferString& word);
-			/*!<Checks for spaces in word, and surrounds word
-			    with quotes them if not already done. */
     static void		manageQProcess(QProcess*);
 			/*!<Add a QProcess and it will be deleted one day. */
 };

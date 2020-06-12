@@ -304,8 +304,7 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
     BufferString fnm( su.fs_.fileName() );
     fnm.replace( "*", "+x+" );
     cmd.addArg( fnm );
-    OS::CommandLauncher cl( cmd );
-    return cl.execute( OS::RunInBG );
+    return cmd.execute( OS::RunInBG );
 }
 
 

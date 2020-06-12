@@ -57,17 +57,16 @@ bool GMTClip::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTClip::execute( od_ostream& strm, const char* fnm )
+bool GMTClip::doExecute( od_ostream& strm, const char* fnm )
 {
     bool isstartofclipping = false;
     getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
-    BufferString comm( "@psclip " );
+    OS::MachineCommand clipmc( "psclip" );
     if ( !isstartofclipping )
     {
 	strm << "Terminating clipping ... ";
-	comm += "-C -O -K";
-	comm += " 1>> "; comm += fileName( fnm );
-	if ( !execCmd(comm,strm) )
+	clipmc.addArg( "-O" ).addArg( "-K" ).addArg( "-C" );
+	if ( !execCmd(clipmc,strm,fnm) )
 	    mErrStrmRet("Failed")
 
 	strm << "Done" << od_endl;
@@ -83,11 +82,14 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
     strm << "Activating clipping with polygon " << ps->name() << " ...  ";
     bool clipoutside = false;
     getYN( ODGMT::sKeyClipOutside(), clipoutside );
-    BufferString rangestr; mGetRangeProjString( rangestr, "X" );
-    comm += rangestr;
-    if ( !clipoutside ) comm += " -N";
-    comm += " -O -K 1>> "; comm += fileName( fnm );
-    od_ostream procstrm = makeOStream( comm, strm );
+    BufferString mapprojstr, rgstr;
+    mGetRangeString(rgstr)
+    mGetProjString(mapprojstr,"X")
+    clipmc.addArg( mapprojstr ).addArg( rgstr );
+    clipmc.addArg( "-O" ).addArg( "-K" );
+    if ( !clipoutside )
+	clipmc.addArg( "-N" );
+    od_ostream procstrm = makeOStream( clipmc, strm, fnm );
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 

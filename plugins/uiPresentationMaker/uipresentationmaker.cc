@@ -557,12 +557,12 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
-    BufferString comm( OD::PythonAccess::sPythonExecNm(true) );
-    comm.add( " " ).add(scriptfp.fullPath() );
-    if ( !OD::PythA().execute( OS::MachineCommand( comm ), true ) )
+    OS::MachineCommand mc( OD::PythonAccess::sPythonExecNm(true) );
+    mc.addArg( scriptfp.fullPath() );
+    if ( !OD::PythA().execute(mc) )
     {
 	uiMSG().error( tr("Could not execute\n: "),
-		uiString().set( comm.buf() ),
+		uiString().set( mc.toString() ),
 		tr("\nPlease check the log for error messages.") );
 	return;
     }
