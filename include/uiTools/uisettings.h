@@ -43,6 +43,7 @@ private:
     BufferStringSet	commands_;
     TypeSet<int>	toolbarids_;
 
+    uiMenu*		usercmdmnu_ = nullptr;
     uiToolBar*		usercmdtb_ = nullptr;
 };
 

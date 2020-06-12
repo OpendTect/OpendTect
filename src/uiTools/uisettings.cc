@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimain.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uipathsel.h"
 #include "uiseparator.h"
@@ -98,17 +99,31 @@ void uiSettingsMgr::loadToolBarCmds( uiMainWin& applwin )
 	if ( !usercmdtb_ )
 	    usercmdtb_ = new uiToolBar( &applwin, tr("User Commands") );
     }
-
+    if ( !usercmdmnu_ )
+    {
+	uiMenu* utilmnu = applwin.menuBar()->findAction(
+					uiStrings::sUtilities())->getMenu();
+	uiAction* usercmdact = utilmnu->findAction( tr("User Commands") );
+	if ( usercmdact )
+	    usercmdmnu_ = usercmdact->getMenu();
+	if ( !usercmdmnu_ )
+	{
+	    usercmdmnu_ = new uiMenu( &applwin, tr("User Commands") );
+	    utilmnu->addMenu( usercmdmnu_, utilmnu->findAction(
+					    tr("Installation"))->getMenu() );
+	}
+    }
     updateUserCmdToolBar();
 }
 
 
 void uiSettingsMgr::updateUserCmdToolBar()
 {
-    if ( !usercmdtb_ )
+    if ( !usercmdtb_ || !usercmdmnu_ )
 	return;
 
     usercmdtb_->clear();
+    usercmdmnu_->clear();
     commands_.erase();
     toolbarids_.erase();
 
@@ -130,6 +145,9 @@ void uiSettingsMgr::updateUserCmdToolBar()
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( exenm );
+	uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(exenm),
+				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	usercmdmnu_->insertItem( newitm, id );
     }
     else if ( idepar && idepar->get( sKey::Command(), cmd ) && !cmd.isEmpty() )
     {
@@ -143,6 +161,9 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	toolbarids_ += id;
 	cmd.addSpace().add(args);
 	commands_.add( cmd );
+	uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(tip),
+				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	usercmdmnu_->insertItem( newitm, id );
     }
 }
 
