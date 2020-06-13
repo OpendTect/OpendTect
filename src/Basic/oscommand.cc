@@ -444,7 +444,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
     ret.addArgs( mcargs );
     ret.addArgs( args_ );
-    if ( pars && pars->launchtype != Wait4Finish &&
+    if ( pars && pars->launchtype_ != Wait4Finish &&
 	 !mIsZero(pars->prioritylevel_,1e-2f) )
 	ret.addKeyedArg( CommandExecPars::sKeyPriority(),pars->prioritylevel_);
     ret.addShellIfNeeded();
@@ -838,7 +838,17 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
     {
 	BufferString comm( mc.program() );
 	if ( !mc.args().isEmpty() )
-	    comm.addSpace().add( mc.args().cat(" ") );
+	{
+	    BufferStringSet args( mc.args() );
+	    for ( auto arg : args )
+	    {
+		if ( arg->find(" ") && !arg->startsWith("\"") &&
+		     !arg->startsWith("'") )
+		    arg->quote('\"');
+		comm.addSpace().add( arg->str() );
+	    }
+	}
+
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 

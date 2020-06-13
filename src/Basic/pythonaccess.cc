@@ -564,7 +564,11 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     {
 	if ( arg->find(' ') && arg->firstChar() != '\'' &&
 	     arg->firstChar() != '\"' )
+#ifdef __win__
+	    arg->quote('\"');
+#else
 	    arg->quote();
+#endif
     }
     strm.add( args.cat(" ") );
     if ( background )
