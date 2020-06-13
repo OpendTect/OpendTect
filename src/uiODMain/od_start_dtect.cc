@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "prog.h"
 
-#include "odinst.h"
 #include "oscommand.h"
 
 
@@ -28,5 +27,5 @@ int main( int argc, char** argv )
 {
     OD::SetRunContext( OD::NormalCtxt );
     SetProgramArgs( argc, argv );
-    return ExecODMain( argc, argv );
+    return ExecODMain( argc, argv ) ? 0 : 1;
 }
