@@ -846,6 +846,8 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
 	ZeroMemory( &pi, sizeof(pi) );
 	si.cb = sizeof( STARTUPINFO );
 
+	LPCSTR curdir = workdir && *workdir ? workdir : nullptr;
+
 	const bool res = CreateProcess( NULL,
 				comm.getCStr(),
 				NULL,   // Process handle not inheritable.
@@ -853,7 +855,7 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
 				FALSE,  // Set handle inheritance.
 				CREATE_NO_WINDOW,   // Creation flags.
 				NULL,   // Use parent's environment block.
-				workdir,   // Use parent's starting directory.
+				curdir,   // Use parent's starting directory.
 				&si, &pi );
 
 	if ( res )
