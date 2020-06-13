@@ -334,7 +334,6 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 {
     OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish : OS::RunInBG );
     execpars.createstreams_ = true;
-    execpars.prioritylevel_ = 0.f;
     return execute( cmd, execpars );
 }
 
@@ -662,14 +661,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 	return false;
     }
 
-    OS::CommandExecPars pars;
-    if ( execpars )
-    {
-	pars = *execpars;
-	pars.prioritylevel_ = 0.f;
-    }
-
-    const bool res = execpars ? cl_->execute( pars )
+    const bool res = execpars ? cl_->execute( *execpars )
 			      : cl_->execute( laststdout_, &laststderr_ );
     if ( pid )
 	*pid = cl_->processID();

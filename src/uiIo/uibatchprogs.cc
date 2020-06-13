@@ -353,12 +353,8 @@ bool uiBatchProgLaunch::acceptOK()
     execpars.needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
 	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
 	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
-    if ( pil_[selidx] && inplst.isEmpty() &&
-	 pil_[selidx]->uitype_==BatchProgInfo::NoUI )
-	execpars.prioritylevel_ = 0;
 
-    OS::CommandLauncher cl( mc );
-    if ( !cl.execute( execpars ) )
+    if ( !mc.execute(execpars) )
 	uiMSG().error(tr("Cannot execute command:\n%1")
 			.arg(mc.toString()));
 

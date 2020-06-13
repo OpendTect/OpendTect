@@ -305,7 +305,7 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 JobIOMgr::JobIOMgr( PortNr_Type firstport, float prioritylevel,
 		    od_ostream* logstrm )
     : iohdlr_(*new JobIOHandler(firstport,logstrm))
-    , execpars_(OS::RunInBG)
+    , execpars_(OS::Batch)
     , logstrm_(logstrm)
 {
     for ( int count=0; count<10 && !iohdlr_.ready(); count++ )
