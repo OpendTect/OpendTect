@@ -122,7 +122,7 @@ bool Batch::MMJobDispatcher::launch()
     mc.addArg( parfnm_ );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars ep( jobspec_.execpars_ );
-    ep.needmonitor( false ).launchtype( OS::RunInBG )
+    ep.needmonitor( false ).launchtype( OS::Batch )
 			   .isconsoleuiprog( GetEnvVarYN("DTECT_DEBUG") );
     return cl.execute( ep );
 }

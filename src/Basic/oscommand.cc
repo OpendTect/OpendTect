@@ -117,7 +117,8 @@ void OS::CommandExecPars::usePar( const IOPar& iop )
     sz = fms.size();
     if ( sz > 0 )
     {
-	launchtype_ = *fms[0] == 'W' ? Wait4Finish : RunInBG;
+	launchtype_ = *fms[0] == 'W' ? Wait4Finish
+		    : (fms[0] == "BG" ? RunInBG : Batch );
 	isconsoleuiprog_ = *fms[0] == 'C';
     }
 
@@ -139,7 +140,7 @@ void OS::CommandExecPars::fillPar( IOPar& iop ) const
     fms += monitorfnm_;
     subiop.set( sKeyMonitor, fms );
 
-    fms = launchtype_ == Wait4Finish ? "Wait" : "BG";
+    fms = launchtype_ == Wait4Finish ? "Wait" : (RunInBG ? "BG" : "Batch");
     fms += isconsoleuiprog_ ? "ConsoleUI" : "";
     subiop.set( sKeyProgType, fms );
 
@@ -443,7 +444,8 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
     ret.addArgs( mcargs );
     ret.addArgs( args_ );
-    if ( pars && !mIsZero(pars->prioritylevel_,1e-2f) )
+    if ( pars && pars->launchtype != Wait4Finish &&
+	 !mIsZero(pars->prioritylevel_,1e-2f) )
 	ret.addKeyedArg( CommandExecPars::sKeyPriority(),pars->prioritylevel_);
     ret.addShellIfNeeded();
 
@@ -661,7 +663,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	return false;
     }
 
-    if ( pars.launchtype_==RunInBG )
+    if ( pars.launchtype_ != Wait4Finish )
 	startMonitor();
 
     return ret;
@@ -673,11 +675,9 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
     CommandExecPars execpars( RunInBG );
     execpars.createstreams_ = true;
 	// this has to be done otherwise we cannot pick up any error messages
-    execpars.prioritylevel_ = 0.f;
     pid_ = -1;
     if ( ispyth )
     {
-	execpars.prioritylevel_ = 0.f;
 	if ( !OD::PythA().execute(machcmd_,execpars,&pid_,&errmsg_) )
 	    pid_ = -1;
     }

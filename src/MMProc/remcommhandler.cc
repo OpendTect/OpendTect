@@ -76,7 +76,7 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 	machcomm.addKeyedArg( "jobid", jobid, OS::OldStyle );
     machcomm.addArg( parfile );
 
-    OS::CommandLauncher(machcomm).execute( OS::RunInBG );
+    machcomm.execute( OS::Batch );
 }
 
 
