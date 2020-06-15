@@ -830,71 +830,128 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc, bool wt4finish,
 }
 
 
-bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
-					 bool inconsole, const char* workdir )
+static bool startDetachedLegacy( const OS::MachineCommand& mc,
+	    bool inconsole, const char* workdir, PID_Type& pid )
 {
-#ifdef __win__
-    if ( !inconsole )
-    {
-	BufferString comm( mc.program() );
-	if ( !mc.args().isEmpty() )
-	{
-	    BufferStringSet args( mc.args() );
-	    for ( auto arg : args )
-	    {
-		if ( arg->find(" ") && !arg->startsWith("\"") &&
-		     !arg->startsWith("'") )
-		    arg->quote('\"');
-		comm.addSpace().add( arg->str() );
-	    }
-	}
-
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-
-	ZeroMemory( &si, sizeof(STARTUPINFO) );
-	ZeroMemory( &pi, sizeof(pi) );
-	si.cb = sizeof( STARTUPINFO );
-
-	LPCSTR curdir = workdir && *workdir ? workdir : nullptr;
-
-	const bool res = CreateProcess( NULL,
-				comm.getCStr(),
-				NULL,   // Process handle not inheritable.
-				NULL,   // Thread handle not inheritable.
-				FALSE,  // Set handle inheritance.
-				CREATE_NO_WINDOW,   // Creation flags.
-				NULL,   // Use parent's environment block.
-				curdir,   // Use parent's starting directory.
-				&si, &pi );
-
-	if ( res )
-	{
-	    pid_ = (int)pi.dwProcessId;
-	    CloseHandle( pi.hProcess );
-	    CloseHandle( pi.hThread );
-	}
-
-	return res;
-    }
-#endif
-
 #ifndef OD_NO_QT
 
-    if ( mc.isBad() )
-	return false;
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    return false;
+#else
 
+#ifdef __win__
+    BufferString comm( mc.program() );
+    if ( !mc.args().isEmpty() )
+    {
+	BufferStringSet args( mc.args() );
+	for ( auto arg : args )
+	{
+	    if ( arg->find(" ") && !arg->startsWith("\"") &&
+		!arg->startsWith("'") )
+		arg->quote('\"');
+	    comm.addSpace().add( arg->str() );
+	}
+    }
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory( &si, sizeof(STARTUPINFO) );
+    ZeroMemory( &pi, sizeof(pi) );
+    si.cb = sizeof( STARTUPINFO );
+
+    LPCSTR curdir = workdir && *workdir ? workdir : nullptr;
+    const int wincrflg = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
+    const bool res = CreateProcess( NULL,
+	comm.getCStr(),
+	NULL,   // Process handle not inheritable.
+	NULL,   // Thread handle not inheritable.
+	FALSE,  // Set handle inheritance.
+	wincrflg,   // Creation flags.
+	NULL,   // Use parent's environment block.
+	curdir,   // Use parent's starting directory.
+	&si, &pi );
+
+    if ( res )
+    {
+	pid = (PID_Type)pi.dwProcessId;
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+    }
+
+    return res;
+#else
     const QString qprog( mc.program() );
     QStringList qargs;
     mc.args().fill( qargs );
     const QString qworkdir( workdir );
-
     qint64 qpid = 0;
+
     if ( !QProcess::startDetached(qprog,qargs,qworkdir,&qpid) )
 	return false;
 
-    pid_ = (int)qpid;
+    pid = (PID_Type)qpid;
+
     return true;
+
+#endif
+
+#endif
+
+#endif
+
+    return false;
+}
+
+
+bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
+					 bool inconsole, const char* workdir )
+{
+    if ( mc.isBad() )
+	return false;
+
+#ifndef OD_NO_QT
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    
+    const QString qprog( mc.program() );
+    QStringList qargs;
+    mc.args().fill( qargs );
+    const QString qworkdir( workdir );
+    qint64 qpid = 0;
+
+    QProcess qproc;
+    qproc.setProgram( qprog );
+    qproc.setArguments( qargs );
+    if ( !qworkdir.isEmpty() )
+	qproc.setWorkingDirectory( qworkdir );
+    
+#ifdef __win__
+    if ( inconsole )
+    {
+	qproc.setCreateProcessArgumentsModifier(
+	    [] (QProcess::CreateProcessArguments *args )
+	{
+	    args->flags |= CREATE_NEW_CONSOLE;
+	    args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
+	    args->startupInfo->dwFlags |= STARTF_USESHOWWINDOW;
+	    args->startupInfo->hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+	    args->startupInfo->wShowWindow = SW_SHOW;
+	});
+    }
+#endif
+    
+    if ( !qproc.startDetached(&qpid) )
+	return false;
+
+    pid_ = (PID_Type)qpid;
+    return true;
+
+#else
+
+    return startDetachedLegacy( mc, inconsole, workdir, pid_ );
+
+#endif
 
 #else
 
