@@ -830,15 +830,14 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc, bool wt4finish,
 }
 
 
+#ifndef OD_NO_QT
+#if QT_VERSION < QT_VERSION_CHECK(5,10,0)
+
+namespace OS {
+
 static bool startDetachedLegacy( const OS::MachineCommand& mc,
 	    bool inconsole, const char* workdir, PID_Type& pid )
 {
-#ifndef OD_NO_QT
-
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-    return false;
-#else
-
 #ifdef __win__
     BufferString comm( mc.program() );
     if ( !mc.args().isEmpty() )
@@ -895,13 +894,12 @@ static bool startDetachedLegacy( const OS::MachineCommand& mc,
     return true;
 
 #endif
-
-#endif
-
-#endif
-
-    return false;
 }
+
+} // namespace OS
+
+#endif
+#endif
 
 
 bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
