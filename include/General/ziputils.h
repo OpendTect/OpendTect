@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 #include "generalmod.h"
-#include "bufstringset.h"
+
 #include "executor.h"
 #include "ziphandler.h"
 
@@ -25,9 +25,6 @@ public:
 				ZipUtils(const char* filelistnm=0);
 				~ZipUtils();
    
-    bool			Zip(const char* src,const char* dest);
-    bool			UnZip(const char* scr, const char* dest);
-    uiString			errorMsg() const{ return errmsg_;}
     void			makeFileList(const char* zipfile);
     const BufferStringSet&	getFileList() const	{ return filelist_; }
 
@@ -38,9 +35,6 @@ public:
 					      const char* dest,
 					      uiString& errmsg,
 					      TaskRunner* tskr=0);
-    mDeprecated static bool	unZipFile(const char* ziparchive,
-					  const char* fnm,const char* path,
-					  BufferString& errmsg);
     static bool			unZipFile(const char* ziparchive,
 					  const char* fnm,const char* path,
 					  uiString& errmsg);
@@ -66,10 +60,6 @@ public:
 
 protected:
 
-    bool			doZip(const char* src,const char* dest);
-    bool			doUnZip(const char* src,const char* dest);
-   
-    uiString			errmsg_;
     BufferStringSet		filelist_;
     BufferString		filelistname_;
     bool			needfilelist_ ;

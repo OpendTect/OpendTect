@@ -356,7 +356,7 @@ bool uiBatchProgLaunch::acceptOK()
 
     if ( !mc.execute(execpars) )
 	uiMSG().error(tr("Cannot execute command:\n%1")
-			.arg(mc.toString()));
+			.arg(mc.toString(&execpars)));
 
     return false;
 }

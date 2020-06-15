@@ -26,14 +26,6 @@ ________________________________________________________________________
 
 #define mBytesToMBFactor 1048576
 
-#define mDirCheck( dir ) \
-    if ( !File::exists(dir) ) \
-{ \
-    errmsg_ = uiStrings::phrFileDoesNotExist(dir); \
-    return false; \
-} \
-
-
 
 ZipUtils::ZipUtils( const char* filelistnm )
     : filelistname_(filelistnm)
@@ -43,80 +35,6 @@ ZipUtils::ZipUtils( const char* filelistnm )
 
 ZipUtils::~ZipUtils()
 {}
-
-bool ZipUtils::Zip( const char* src, const char* dest )
-{
-    mDirCheck( src );
-    return doZip( src, dest );
-}
-
-
-bool ZipUtils::UnZip( const char* src, const char* dest )
-{
-    mDirCheck( src );
-    mDirCheck( dest );
-    return doUnZip( src, dest );
-}
-
-
-bool ZipUtils::doZip( const char* src, const char* dest )
-{
-    File::Path srcfp( src );
-    BufferString newsrc = srcfp.fileName();
-    const File::Path zipcomfp( GetExecPlfDir(), "zip" );
-    OS::CommandExecPars pars;
-    pars.workingdir( srcfp.pathOnly() )
-	.isconsoleuiprog( true );
-    OS::MachineCommand mc( zipcomfp.fullPath(), "-r", dest, newsrc );
-    return mc.execute( pars );
-}
-
-bool ZipUtils::doUnZip( const char* src, const char* dest )
-{
-    bool tempfile = false;
-    File::Path orgfnm( filelistname_ );
-    if ( needfilelist_ )
-    {
-	if ( !File::exists( orgfnm.pathOnly() ) )
-	{
-	    tempfile = true;
-	    File::Path listfp( src );
-	    if (  listfp.nrLevels() <= 1 )
-		filelistname_ = orgfnm.fileName();
-	    else
-	    {
-		listfp = listfp.pathOnly();
-		listfp.add( orgfnm.fileName() );
-		filelistname_ = listfp.fullPath();
-	    }
-	}
-    }
-
-    bool res = false;
-    OS::MachineCommand mc( "unzip", "-o", "-d" );
-    if ( needfilelist_ )
-	mc.addFileRedirect( filelistname_ );
-#ifdef __unix__
-    else
-	mc.addFileRedirect( "/dev/null" );
-#endif
-    res = mc.execute();
-
-    if ( res && tempfile )
-    {
-	File::copy( filelistname_, orgfnm.fullPath() );
-	File::remove( filelistname_ );
-	return true;
-    }
-
-    if ( !res )
-	errmsg_ = tr("Unzip failed for command: %1")
-			    .arg( mc.toString() );
-    else
-        errmsg_.setEmpty();
-
-    return res;
-}
 
 
 bool ZipUtils::makeZip( const char* zipfnm, const char* src,
@@ -244,20 +162,6 @@ bool ZipUtils::unZipArchives( const BufferStringSet& archvs,
     {
 	errmsg = execgrp.message();
 	return false;
-    }
-
-    return true;
-}
-
-
-bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
-			  BufferString& errmsg )
-{
-    ZipHandler ziphdler;
-    if ( !ziphdler.unZipFile(srcfnm,fnm,path) )
-    {
-        errmsg = mFromUiStringTodo(ziphdler.errorMsg());
-        return false;
     }
 
     return true;
