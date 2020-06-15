@@ -19,7 +19,7 @@ def getNames( reload=False, args=None ):
 
 def getInfo( wllnm, reload=False, args=None ):
   dbkey = getDBKey( wllnm, reload=reload, args=args )
-  return oddbman.getInfoByNm( dbkey, exenm=wellmanexe, args=args )
+  return oddbman.getInfoByName( dbkey, wlltrlgrp,exenm=wellmanexe, args=args )
 
 def getName( dbkey, reload=False, args=None ):
   cmd = getODCommand(wellmanexe,args)
@@ -67,4 +67,12 @@ def getMarkers( wllnm, reload=False, args=None ):
   cmd.append( dbkey )
   ret = oddbman.getDBDict( cmd )
   return (ret['Names'], ret['MDs'], ret['Color'])
+
+def getTrack( wllnm, reload=False, args=None ):
+  dbkey = getDBKey( wllnm, reload=reload, args=args )
+  cmd = getODCommand(wellmanexe, args)
+  cmd.append( '--read-track' )
+  cmd.append( dbkey )
+  ret = oddbman.getDBDict( cmd )
+  return (ret['MDs'], ret['TVDs'], ret['X-Coords'], ret['Y-Coords'])
 
