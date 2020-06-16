@@ -103,11 +103,12 @@ public:
 			MachineCommand(const MachineCommand&,bool isolated);
 
     const char*		program() const			{ return prognm_; }
-    void		setProgram( const char* pn )	{ prognm_.set( pn ); }
     const BufferStringSet& args() const			{ return args_; }
     BufferString	toString(const CommandExecPars* =nullptr) const;
 			//!< Only for messaging purposes
 
+    MachineCommand&	setProgram( const char* pn )
+			{ prognm_.set( pn ); return *this; }
     MachineCommand&	addArg(const char*);
     MachineCommand&	addArgs(const BufferStringSet&);
     MachineCommand&	addFlag( const char* flg, KeyStyle ks=NewStyle )
