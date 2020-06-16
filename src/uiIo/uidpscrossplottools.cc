@@ -69,8 +69,8 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
     if ( colid_ < cp_.mincolid_ )
 	return;
 
-    renewAxis( toUiString(cp_.uidps_.userName(colid_)), &cp_.scene(), 
-	       cp_.width(), cp_.height(), 0 );
+    renewAxis( toUiString(cp_.uidps_.userName(colid_)), &cp_.scene(),
+	       cp_.viewWidth(), cp_.viewHeight(), 0 );
     handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
 }
 
@@ -121,7 +121,7 @@ float SelectionArea::selectedness( uiPoint pt ) const
 {
     if ( !isInside(pt) )
 	return mUdf(float);
- 
+
     if ( mIsUdf(maxdistest_) )
 	maxdistest_ = maxDisToBorder();
 
@@ -199,7 +199,7 @@ Interval<double> SelectionArea::getValueRange( bool forxaxis, bool alt ) const
 	{
 	    intv.start = worldrect_.bottom();
 	    intv.stop = worldrect_.top();
-	    
+
 	    if ( alt )
 	    {
 		intv.start = altworldrect_.bottom();
@@ -242,13 +242,13 @@ void SelectionGrp::fillPar( IOPar& par ) const
 	BufferString selkey;
 	BufferStringSet attributes;
 	selkey.add( selidx );
-	
+
 	attributes.add( selarea.xaxisnm_ );
 	attributes.add(  selarea.yaxisnm_ );
 	if ( selarea.axistype_ == SelectionArea::Both )
 	    attributes.add( selarea.altyaxisnm_ );
 	par.set( IOPar::compKey(selkey,sKey::Attributes()), attributes );
-	
+
 	if ( selarea.isrectangle_ )
 	{
 	    uiWorldRect rect = selarea.worldrect_;
@@ -312,7 +312,7 @@ void SelectionGrp::usePar( const IOPar& par )
 
 	BufferString rectstr = IOPar::compKey( selkey.str(), sKeyRect );
 	BufferString polygonstr = IOPar::compKey( selkey.str(), sKeyPoly );
-	    
+
 	int posidx = 0;
 	BufferString positionstr = IOPar::compKey( sKeyPos, posidx );
 
@@ -326,7 +326,7 @@ void SelectionGrp::usePar( const IOPar& par )
 
 	    par.get( IOPar::compKey(rectstr,positionstr), ptsrb );
 	    uiWorldRect rect( ptslt[0], ptslt[1], ptsrb[0], ptsrb[1] );
-	    
+
 	    SelectionArea selarea( true );
 	    selarea.id_ = selidx;
 	    selarea.worldrect_ = rect;
@@ -343,7 +343,7 @@ void SelectionGrp::usePar( const IOPar& par )
 	else if ( par.find(IOPar::compKey(polygonstr,positionstr)) )
 	{
 	    ODPolygon<double> worldpoly, altworldpoly;
-	    
+
 	    bool hasalt = false;
 	    while ( par.find(IOPar::compKey(polygonstr.buf(),
 			    		    positionstr.buf())) )

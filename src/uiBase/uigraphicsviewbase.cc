@@ -319,8 +319,8 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 				      newsz.height()-2*sceneborder );
 #else
 	handle_.scene_->setSceneRect( sceneborder, sceneborder,
-				      width()-2*sceneborder,
-				      height()-2*sceneborder );
+				      viewWidth()-2*sceneborder,
+				      viewHeight()-2*sceneborder );
 #endif
     }
 
@@ -623,7 +623,7 @@ void uiGraphicsViewBase::setViewArea( double x, double y, double w, double h )
 uiRect uiGraphicsViewBase::getViewArea() const
 {
     QRectF qselrect( body_->mapToScene(0,0),
-		     body_->mapToScene(width()-1,height()-1) );
+		     body_->mapToScene(viewWidth(),viewHeight()) );
     return uiRect( (int)qselrect.left(), (int)qselrect.top(),
 		   (int)qselrect.right(), (int)qselrect.bottom() );
 }
@@ -634,7 +634,8 @@ void uiGraphicsViewBase::setScene( uiGraphicsScene& scn )
     if ( scene_ ) delete scene_;
     scene_ = &scn;
     scene_->setSceneRect( sceneborder_, sceneborder_,
-			  width()-2*sceneborder_, height()-2*sceneborder_ );
+			  viewWidth()-2*sceneborder_,
+			  viewHeight()-2*sceneborder_ );
     scn.qGraphicsScene()->installEventFilter( new TouchSceneEventFilter );
     body_->setScene( scn.qGraphicsScene() );
 }

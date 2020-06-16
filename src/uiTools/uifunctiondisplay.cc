@@ -129,7 +129,7 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
 	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
-	titleitem_->setPos( uiPoint(width()/2,0) );
+	titleitem_->setPos( uiPoint(viewWidth()/2,0) );
 	titleitem_->setZValue( 2 );
     }
 
@@ -551,7 +551,7 @@ void uiFunctionDisplay::drawBorder()
 void uiFunctionDisplay::draw()
 {
     if ( titleitem_ )
-	titleitem_->setPos( uiPoint(width()/2,0) );
+	titleitem_->setPos( uiPoint(viewWidth()/2,0) );
 
     const bool havey = !yvals_.isEmpty();
     const bool havey2 = !y2yvals_.isEmpty();

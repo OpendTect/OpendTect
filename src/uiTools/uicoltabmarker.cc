@@ -117,7 +117,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 
     RowCol rccolor( rcvalue.row(), 1 );
     const float newpos = ctab_.position(rcvalue.row()-1) +
-			 ( ctab_.position(rcvalue.row()) - 
+			 ( ctab_.position(rcvalue.row()) -
 			   ctab_.position(rcvalue.row()-1) ) / 2;
     Color col( ctab_.color(newpos) );
     table_->setColor( rccolor, col );
@@ -223,8 +223,9 @@ uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
-    scene().setSceneRect( 0, 0, mCast(float,width()), mCast(float,height()) );
-    w2ui_->set( uiRect(0,0,width()-5,height()-5), uiWorldRect(0,255,1,0) );
+    const int w = viewWidth(); const int h = viewHeight();
+    scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
+    w2ui_->set( uiRect(0,0,w-5,h-5), uiWorldRect(0,255,1,0) );
 
     if ( !markerlineitmgrp_ )
     {
@@ -281,7 +282,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
 	mnu.insertItem( new uiAction(tr("Remove color")), 0 );
 	mnu.insertItem( new uiAction(m3Dots(tr("Change color"))), 1 );
     }
-    
+
     mnu.insertItem( new uiAction(m3Dots(tr("Edit Markers"))), 2 );
 
     const int res = mnu.exec();
@@ -390,7 +391,7 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
     if ( changepos > 1 ) changepos = 1;
     if ( changepos < 0 ) changepos = 0;
 
-    float position = mUdf(float); 
+    float position = mUdf(float);
     if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
 	position = (float) ( ctab_.position(selidx_-1) + 1.01*mEps );
     else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )

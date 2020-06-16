@@ -768,8 +768,8 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
 				mAlignment(HCenter,VCenter) ) );
 
 	emptyitm_->setPenColor( Color::Black() );
-	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,
-				    vwr_.rgbCanvas().height() / 2 ) );
+	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().viewWidth()/2,
+				    vwr_.rgbCanvas().viewHeight() / 2 ) );
 	return;
     }
     else if ( emptyitm_ )

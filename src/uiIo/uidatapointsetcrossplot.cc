@@ -690,8 +690,8 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
     setDraw();
 
     const int xpos = isy1 ? x_.axis_->pixBefore()
-			  : width() - x_.axis_->pixAfter() - ctsu.sz_.width();
-    const int ypos = height() - extraborder.bottom() - ctsu.sz_.height();
+			: viewWidth() - x_.axis_->pixAfter() - ctsu.sz_.width();
+    const int ypos = viewHeight() - extraborder.bottom() - ctsu.sz_.height();
     coltabitem->setPos( Geom::Point2D<float>(mCast(float,xpos),
 					     mCast(float,ypos)) );
     ColTab::Sequence ctab = isy1 ? y3ctab_ : y4ctab_;
