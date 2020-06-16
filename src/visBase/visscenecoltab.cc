@@ -55,7 +55,7 @@ SceneColTab::SceneColTab()
     , pixeldensity_( getDefaultPixelDensity() )
 {
     addChild( osgcolorbar_ );
-    
+
     //Set it to something to avoid osg to look for own font
     setAnnotFont( FontData() );
 
@@ -220,6 +220,7 @@ void SceneColTab::updateSequence()
 	rg_.start, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop, colors );
 
     mScalarBar->setScalarsToColors( osgcolorrange );
+    requestSingleRedraw();
 }
 
 
