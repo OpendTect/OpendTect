@@ -130,16 +130,14 @@ void uiObjectItemViewWin::makeSliders()
     versliderfld_->setStretch( 0, 0 );
 
     fittoscreenbut_ = new uiToolButton( this, "exttofullsurv",
-					tr("Fit to screen"),
-                                        mCB(this,uiObjectItemViewWin,
-                                        fitToScreen));
+		tr("Fit to screen"), mCB(this,uiObjectItemViewWin,fitToScreen));
     fittoscreenbut_->attach( centeredBelow, versliderfld_ );
 
     su.isvertical_ = false;
     horsliderfld_ = new uiSlider( this, su, "Horizontal Scale" );
     horsliderfld_->setInterval( sintv );
     horsliderfld_->sliderReleased.notify(
-				    mCB(this,uiObjectItemViewWin,reSizeSld));
+				mCB(this,uiObjectItemViewWin,reSizeSld) );
     horsliderfld_->setStretch( 0, 0 );
     horsliderfld_->attach( leftOf, fittoscreenbut_ );
     horsliderfld_->attach( ensureBelow, mainviewer_ );
@@ -298,21 +296,24 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     if ( screensz.width()<=0 || screensz.height()<=0 )
 	return;
 
-    const uiSize layoutsz(sc->layoutSize().width(),sc->layoutSize().height());
-    if ( layoutsz.width()<=0 || layoutsz.height()<=0 ) return;
-    float xratio = screensz.width()/(float)layoutsz.width();
-    float yratio = screensz.height()/(float)layoutsz.height();
+    const uiSize layoutsz( sc->layoutSize().width(),
+			   sc->layoutSize().height() );
+    if ( layoutsz.width()<=0 || layoutsz.height()<=0 )
+	return;
+
+    const float xratio = screensz.width()/(float)layoutsz.width();
+    const float yratio = screensz.height()/(float)layoutsz.height();
     float newhslval = hslval_*xratio;
     float newvslval = vslval_*yratio;
     scaleVal( newhslval, true, false );
     scaleVal( newvslval, false, false );
-    if ( ( newhslval == hslval_ ) && ( newvslval == vslval_ ) )
+    if ( (newhslval == hslval_) && (newvslval == vslval_) )
 	return;
 
     horsliderfld_->setValue( newhslval );
     versliderfld_->setValue( newvslval );
 
-    zoomratiofld_->setChecked(false);
+    zoomratiofld_->setChecked( false );
     screensz_ = screensz;
     reSizeSld(0);
 }
