@@ -479,6 +479,18 @@ bool isHidden( const char* fnm )
 }
 
 
+bool isReadable( const char* fnm )
+{
+#ifndef OD_NO_QT
+    const QFileInfo qfi( fnm );
+    return qfi.isReadable();
+#else
+    pFreeFnErrMsg(not_implemented_str);
+    return false;
+#endif
+}
+
+
 bool isWritable( const char* fnm )
 {
 #ifndef OD_NO_QT
@@ -553,6 +565,12 @@ bool hasSystemFileAttrib( const char* fnm )
 
 
 bool isFileInUse( const char* fnm )
+{
+    return isInUse( fnm );
+}
+
+
+bool isInUse( const char* fnm )
 {
 #ifdef __win__
     HANDLE handle = CreateFileA( fnm,

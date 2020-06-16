@@ -28,6 +28,7 @@ namespace File
 {
 
 mGlobal(Basic) bool		exists(const char*);
+mGlobal(Basic) bool		isReadable(const char*);
 mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) bool		isDirEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
@@ -62,7 +63,8 @@ mGlobal(Basic) void		setSystemFileAttrib(const char*,bool yn);
 mGlobal(Basic) bool		hasSystemFileAttrib(const char*);
 mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 					bool recursive);
-mGlobal(Basic) bool		isFileInUse(const char* fnm);
+mGlobal(Basic) bool		isInUse(const char* fnm);
+mGlobal(Basic) mDeprecated bool		isFileInUse(const char* fnm);
 
 mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname,
