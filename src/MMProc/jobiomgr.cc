@@ -78,7 +78,7 @@ void CommandString::addFlag( const char* f, const char* v )
 
 void CommandString::addFlag( const char* f, int v )
 {
-    const BufferString flag = CommandLineParser::createKey( f );
+    BufferString flag = CommandLineParser::createKey( f );
     flag.addSpace().add( v );
     add( flag.str() );
 }

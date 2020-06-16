@@ -260,9 +260,7 @@ void CommandLineParser::addKey( const char* key, BufferString& cmd,
     if ( !cmd.isEmpty() )
 	cmd.addSpace();
 
-    BufferString tmpkey;
-    createKey( key, tmpkey );
-    cmd.add( tmpkey );
+    cmd.add( createKey(key) );
     if ( !valstr )
 	return;
 
