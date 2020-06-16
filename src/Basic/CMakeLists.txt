@@ -39,6 +39,7 @@ set( OD_TEST_PROGS
 	threads.cc
 	threadwork.cc
 	uistring.cc
+	various_basic.cc
 )
 
 set( OD_MODULE_SOURCES
