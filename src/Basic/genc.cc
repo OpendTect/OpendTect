@@ -247,6 +247,35 @@ const char* GetOSIdentifier()
 }
 
 
+#ifdef __win__
+
+typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+
+bool is64BitWindows()
+{
+#if _WIN64
+    return true;
+#elif _WIN32
+
+    LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)
+	GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+    if ( fnIsWow64Process )
+    {
+	BOOL res;
+	if ( !fnIsWow64Process( GetCurrentProcess(), &res ) )
+	    return false;
+
+	return res;
+    }
+
+    return false;
+#endif
+}
+#endif
+
+
 static void mUnusedVar GetLocalHostNameNoQt( char* ret )
 {
 #ifdef __win__
