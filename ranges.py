@@ -7,6 +7,7 @@
 #
 
 import collections
+import math
 import odpy.common
 import numpy as np
 
@@ -76,3 +77,67 @@ def printSampling( tkzs ):
   print( getIntervalStr(getLineObj(tkzs),"Inline") )
   print( getIntervalStr(getTraceObj(tkzs),"Crossline") )
   print( getIntervalStr(getZObj(tkzs),"Z") )
+
+def niceNumber(value, round=True):
+  """Return a nicely rounded number.
+    
+    Parameters
+    ----------
+    value : float
+      Input value.
+    round : boolean, optional
+      If true returned number will be rounded otherwise returns the ceiling. The default is True.
+   
+    Returns
+    -------
+    float
+      The nice number.
+   
+    """
+  nicefrac = 0
+  exponent = math.floor(math.log10(value))
+  fraction = value/math.pow(10,exponent)
+  if round:
+    if fraction<1.5:
+      nicefrac = 1
+    elif fraction<3:
+      nicefrac = 2
+    elif fraction<7:
+      nicefrac = 5
+    else:
+      nicefrac = 10
+  else:
+    if fraction<=1:
+      nicefrac = 1
+    elif fraction<=2:
+      nicefrac = 2
+    elif fraction<=5:
+      nicefrac = 5
+    else:
+      nicefrac = 10
+  return nicefrac * math.pow(10, exponent)
+                    
+def niceRange(min, max, maxsteps=10):
+  """ Return a nicely rounded range - good for axes.
+  
+   Parameters
+   ----------
+   min : float
+        Range minimum.
+    max : float
+        Range maximum.
+    maxsteps : int, optional
+        Maximum number of major tick steps desired in output range. The default is 10.
+
+    Returns
+    -------
+    niceMin : float
+       The nicely rounded minimum.
+    niceMax : float
+        The nicely rounded maximum.
+    """
+  range = niceNumber(abs(max-min), False)
+  tickspacing = niceNumber(range/(maxsteps), True)
+  niceMin = math.floor(min/tickspacing)*tickspacing
+  niceMax = math.ceil(max/tickspacing)*tickspacing
+  return (niceMin, niceMax)
