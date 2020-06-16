@@ -3,7 +3,7 @@
  *
  * This library is open source and may be redistributed and/or modified under
  * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
- * (at your option) any later version.  The full license is in LICENSE file
+ * (at your option) any later version.	The full license is in LICENSE file
  * included with this distribution, and on the openscenegraph.org website.
  *
  * This library is distributed in the hope that it will be useful,
@@ -57,17 +57,17 @@ public:
 
 				ODGLWidget(QWidget* parent=nullptr,
 					   const QGLWidget* shareWidget=nullptr,
-					   Qt::WindowFlags f=0,
+					   Qt::WindowFlags f=Qt::WindowFlags(),
 					   bool forwardKeyEvents=false);
 				ODGLWidget(QGLContext* context,
 					   QWidget* parent=nullptr,
 					   const QGLWidget* shareWidget=nullptr,
-					   Qt::WindowFlags f=0,
+					   Qt::WindowFlags f=Qt::WindowFlags(),
 					   bool forwardKeyEvents=false);
 				ODGLWidget(const QGLFormat& format,
 					   QWidget* parent=nullptr,
 					   const QGLWidget* shareWidget=nullptr,
-					   Qt::WindowFlags f=0,
+					   Qt::WindowFlags f=Qt::WindowFlags(),
 					   bool forwardKeyEvents=false);
     virtual			~ODGLWidget();
 
@@ -147,7 +147,7 @@ public:
 				ODGraphicsWindow(osg::GraphicsContext::Traits*,
 						 QWidget* parent=nullptr,
 						 const QGLWidget* shareWidget=0,
-						 Qt::WindowFlags f=0);
+					 Qt::WindowFlags f=Qt::WindowFlags());
 				ODGraphicsWindow(ODGLWidget* widget);
     virtual			~ODGraphicsWindow();
 

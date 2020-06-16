@@ -2,7 +2,7 @@
  *
  * This library is open source and may be redistributed and/or modified under
  * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
- * (at your option) any later version.  The full license is in LICENSE file
+ * (at your option) any later version.	The full license is in LICENSE file
  * included with this distribution, and on the openscenegraph.org website.
  *
  * This library is distributed in the hope that it will be useful,
@@ -284,7 +284,7 @@ bool ODGLWidget::event( QEvent* ev  )
 }
 
 
-void ODGLWidget::setKeyboardModifiers( QInputEvent* ev  )
+void ODGLWidget::setKeyboardModifiers( QInputEvent* ev	)
 {
     int modkey = ev ->modifiers() &
 		 (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
@@ -299,7 +299,7 @@ void ODGLWidget::setKeyboardModifiers( QInputEvent* ev  )
 }
 
 
-void ODGLWidget::resizeEvent( QResizeEvent* ev  )
+void ODGLWidget::resizeEvent( QResizeEvent* ev	)
 {
     if ( _gw == nullptr || !_gw->valid() )
 	return;
@@ -364,7 +364,7 @@ void ODGLWidget::keyReleaseEvent( QKeyEvent* ev  )
     // among others, it closes popup windows on ESC and forwards the event
     // to the parent widgets
     if( _forwardKeyEvents )
-	inherited::keyReleaseEvent( ev  );
+	inherited::keyReleaseEvent( ev	);
 }
 
 
@@ -430,11 +430,12 @@ void ODGLWidget::mouseMoveEvent( QMouseEvent* ev  )
 void ODGLWidget::wheelEvent( QWheelEvent* ev  )
 {
     setKeyboardModifiers( ev  );
+    const QPoint delta = ev->angleDelta();
     _gw->getEventQueue()->mouseScroll(
-	ev ->orientation() == Qt::Vertical ?
-	    (ev ->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+	delta.y() > delta.x() ?
+	    (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
 			      : osgGA::GUIEventAdapter::SCROLL_DOWN) :
-	    (ev ->delta()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+	    (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
 			      : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
 
@@ -497,17 +498,17 @@ bool ODGLWidget::gestureEvent( QGestureEvent* qevent )
 				translateQtGestureState( pinch->state() );
 	if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_BEGAN )
 	{
-	    ev  = _gw->getEventQueue()->touchBegan(
+	    ev	= _gw->getEventQueue()->touchBegan(
 				0, touchPhase, p0[0], p0[1] );
 	}
 	else if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_MOVED )
 	{
-	    ev  = _gw->getEventQueue()->touchMoved(
+	    ev	= _gw->getEventQueue()->touchMoved(
 				0, touchPhase, p0[0], p0[1] );
 	}
 	else
 	{
-	    ev  = _gw->getEventQueue()->touchEnded(
+	    ev	= _gw->getEventQueue()->touchEnded(
 				0, touchPhase, p0[0], p0[1], 1 );
 	}
 
@@ -540,12 +541,12 @@ ODGraphicsWindow::ODGraphicsWindow( osg::GraphicsContext::Traits* traits,
 
 
 ODGraphicsWindow::ODGraphicsWindow( ODGLWidget* widget )
-:   _realized(false)
+    : _realized(false)
 {
     _widget = widget;
     _traits = _widget ? createTraits( _widget )
 		      : new osg::GraphicsContext::Traits;
-    init( nullptr, nullptr, 0 );
+    init( nullptr, nullptr, Qt::WindowFlags() );
 }
 
 
@@ -882,7 +883,7 @@ bool ODGraphicsWindow::realizeImplementation()
     // make this window's context not current
     // note: this must be done as we will probably make the context current
     // from another thread
-    //       and it is not allowed to have one context current in two threads
+    //	     and it is not allowed to have one context current in two threads
     if( !releaseContext() )
 	OSG_WARN << "Window realize: Can not release context." << std::endl;
 
