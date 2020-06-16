@@ -431,12 +431,12 @@ void ODGLWidget::wheelEvent( QWheelEvent* ev  )
 {
     setKeyboardModifiers( ev  );
     const QPoint delta = ev->angleDelta();
+    const bool isvertical = abs(delta.y()) > abs(delta.x());
     _gw->getEventQueue()->mouseScroll(
-	delta.y() > delta.x() ?
-	    (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
-			      : osgGA::GUIEventAdapter::SCROLL_DOWN) :
-	    (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
-			      : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
+	isvertical ? (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+				  : osgGA::GUIEventAdapter::SCROLL_DOWN)
+		   : (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+				  : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
 
 
