@@ -198,8 +198,7 @@ OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
 	addArg( BufferString( "-", ky ) );
     else
     {
-	BufferString res;
-	CommandLineParser::createKey( ky, res );
+	const BufferString res = CommandLineParser::createKey( ky );
 	addArg( res );
     }
     addArg( str );
@@ -433,10 +432,10 @@ BufferString OS::MachineCommand::getLocalCommand() const
 	if ( remexec_ == odRemExecCmd() ) //New mode
 	{
 	    ret.set( remexec_ ).addSpace();
-	    BufferString key;
-	    CommandLineParser::createKey( sKeyRemoteHost(), key );
+	    BufferString key =
+			CommandLineParser::createKey( sKeyRemoteHost() );
 	    ret.add( key ).addSpace().add( hname_ ).addSpace();
-	    CommandLineParser::createKey(sKeyRemoteCmd(), key );
+	    key = CommandLineParser::createKey( sKeyRemoteCmd() );
 	    ret.add( key ).addSpace();
 	}
 	else // Unix to Unix only (ssh/rsh)
