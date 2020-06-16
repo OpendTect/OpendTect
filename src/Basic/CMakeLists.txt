@@ -140,6 +140,10 @@ if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${CMAKE_SOURCE_DIR}/dtect/script with space.sh"
                     "${CMAKE_BINARY_DIR}/dtect/script with space.sh" )
+    execute_process(
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
+                    "${CMAKE_BINARY_DIR}/testscripts/count_to_1000.csh" )
 endif()
 
 

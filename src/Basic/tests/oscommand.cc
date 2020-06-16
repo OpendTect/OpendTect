@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "oscommand.h"
+#include "separstr.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "testprog.h"
@@ -106,6 +107,35 @@ static bool runCommandWithSpace()
 }
 
 
+static bool runCommandWithLongOutput()
+{
+#ifdef __win__
+    return true;
+#else
+    //Run a command that will cause overflow in the input buffer. Output
+    //Should be 100% correct, meaning that no bytes have been skipped or
+    //inserted.
+    //
+    const FilePath scriptfp( GetSoftwareDir(0), "testscripts",
+				 "count_to_1000.csh" );
+    BufferString output;
+    OS::MachineCommand machcomm( scriptfp.fullPath() );
+    machcomm.execute( output );
+
+    SeparString parsedoutput( output.buf(), '\n' );
+    bool res = true;
+    for ( int idx=0; idx<1000; idx++ )
+    {
+	if ( parsedoutput[idx]!=toString( idx+1 ) )
+	    { res = false; break; }
+    }
+
+    mRunStandardTest( res, "Correctly reading long input stream" );
+    return true;
+#endif
+}
+
+
 static void testServer()
 {
     Threads::sleep( 0.5 );
@@ -142,7 +172,8 @@ int main( int argc, char** argv )
 	return 0;
     }
 
-    if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() )
+    if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() ||
+	 !runCommandWithLongOutput() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
