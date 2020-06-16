@@ -306,7 +306,12 @@ void uiTableBody::paste()
 {
     const QString str = QApplication::clipboard()->text();
     //TODO Find better way to handle empty lines.
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    const QStringList rows = str.split( '\n', Qt::SkipEmptyParts );
+#else
     const QStringList rows = str.split( '\n', QString::SkipEmptyParts );
+#endif
+
     const int nrrows = rows.count();
     const int nrcols = rows.first().count('\t') + 1;
     const int startrow = currentRow();

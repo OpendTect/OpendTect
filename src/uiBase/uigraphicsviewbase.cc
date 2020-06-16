@@ -330,38 +330,51 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 }
 
 
+static QPointF getWheelPosition( const QWheelEvent& ev )
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    return ev.position();
+#else
+    return ev.posF();
+#endif
+}
+
+
 void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
-    const int delta = reversemousewheel_ ? -ev->delta() : ev->delta();
-
+    const QPoint delta = reversemousewheel_ ? -ev->angleDelta()
+					    : ev->angleDelta();
     if ( ev && handle_.scrollZoomEnabled() )
     {
-	const int numsteps = ( delta / 8 ) / 15;
+	const QPoint numsteps = delta / 8 / 15;
+	const bool haslength = !numsteps.isNull();
 
-	QMatrix mat = matrix();
-	const QPointF& mousepos = ev->pos();
-	mat.translate( (width()/2) - mousepos.x(),
-		       (height()/2) - mousepos.y() );
+	QTransform qtrans = transform();
+	const QPointF mousepos = getWheelPosition( *ev );
+	qtrans.translate( (viewWidth()/2) - mousepos.x(),
+			 (viewHeight()/2) - mousepos.y() );
 
-	for ( int idx=0; idx<abs(numsteps); idx++ )
+	const int inumsteps = numsteps.manhattanLength();
+	for ( int idx=0; idx<inumsteps; idx++ )
 	{
-	    if ( numsteps > 0 || (mat.m11()-mDefEps>1 && mat.m22()-mDefEps>1) )
+	    if ( haslength || (qtrans.m11()>1 && qtrans.m22()>1) )
 	    {
-		if ( numsteps > 0 )
-		    mat.scale( 1.2, 1.2 );
+		if ( haslength )
+		    qtrans.scale( 1.2, 1.2 );
 		else
-		    mat.scale( 1./1.2, 1./1.2 );
+		    qtrans.scale( 1./1.2, 1./1.2 );
 	    }
 	}
 
-	mat.translate( mousepos.x() - (width()/2),
-		       mousepos.y() - (height()/2) );
-	setMatrix( mat );
+	qtrans.translate( mousepos.x() - (viewWidth()/2),
+			  mousepos.y() - (viewHeight()/2) );
+	setTransform( qtrans );
 	ev->accept();
     }
 
+    const QPointF mousepos = getWheelPosition( *ev );
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
-		   ev->pos().x(), ev->pos().y(), delta );
+		   mousepos.x(), mousepos.y(), delta.y() );
     mousehandler_.triggerWheel( me );
 /*
   uncomment this conditional to have the default wheel event behaviour, that is,

@@ -122,25 +122,29 @@ protected:
 
 bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 {
-    const QTabletEvent* qte = dynamic_cast<QTabletEvent*>( ev );
-    if ( qte )
+    const QTabletEvent* qtabev = dynamic_cast<QTabletEvent*>( ev );
+    if ( qtabev )
     {
 	TabletInfo& ti = TabletInfo::latestState();
 
-	ti.eventtype_ = (TabletInfo::EventType) qte->type();
-	ti.pointertype_ = (TabletInfo::PointerType) qte->pointerType();
-	ti.device_ = (TabletInfo::TabletDevice) qte->device();
-	ti.globalpos_.x = qte->globalX();
-	ti.globalpos_.y = qte->globalY();
-	ti.pos_.x = qte->x();
-	ti.pos_.y = qte->y();
-	ti.pressure_ = qte->pressure();
-	ti.rotation_ = qte->rotation();
-	ti.tangentialpressure_ = qte->tangentialPressure();
-	ti.uniqueid_ = qte->uniqueId();
-	ti.xtilt_ = qte->xTilt();
-	ti.ytilt_ = qte->yTilt();
-	ti.z_ = qte->z();
+	ti.eventtype_ = (TabletInfo::EventType) qtabev->type();
+	ti.pointertype_ = (TabletInfo::PointerType) qtabev->pointerType();
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+	ti.device_ = (TabletInfo::TabletDevice) qtabev->deviceType();
+#else
+	ti.device_ = (TabletInfo::TabletDevice) qtabev->device();
+#endif
+	ti.globalpos_.x = qtabev->globalX();
+	ti.globalpos_.y = qtabev->globalY();
+	ti.pos_.x = qtabev->x();
+	ti.pos_.y = qtabev->y();
+	ti.pressure_ = qtabev->pressure();
+	ti.rotation_ = qtabev->rotation();
+	ti.tangentialpressure_ = qtabev->tangentialPressure();
+	ti.uniqueid_ = qtabev->uniqueId();
+	ti.xtilt_ = qtabev->xTilt();
+	ti.ytilt_ = qtabev->yTilt();
+	ti.z_ = qtabev->z();
 
 	ti.updatePressData();
 	return false;		// Qt will resent it as a QMouseEvent
