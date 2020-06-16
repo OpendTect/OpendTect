@@ -8,17 +8,14 @@
 
 #include "oscommand.h"
 
-#include "file.h"
-#include "genc.h"
 #include "commandlineparser.h"
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
-#include "fixedstring.h"
-#include "iopar.h"
-#include "oddirs.h"
+#include "genc.h"
 #include "od_iostream.h"
+#include "oddirs.h"
 #include "pythonaccess.h"
-#include "staticstring.h"
 #include "separstr.h"
 #include "uistrings.h"
 
@@ -911,7 +908,7 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
 #ifndef OD_NO_QT
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-    
+
     const QString qprog( mc.program() );
     QStringList qargs;
     mc.args().fill( qargs );
@@ -923,7 +920,7 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
     qproc.setArguments( qargs );
     if ( !qworkdir.isEmpty() )
 	qproc.setWorkingDirectory( qworkdir );
-    
+
 #ifdef __win__
     if ( inconsole )
     {
@@ -938,7 +935,7 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
 	});
     }
 #endif
-    
+
     if ( !qproc.startDetached(&qpid) )
 	return false;
 
@@ -1002,18 +999,6 @@ int OS::CommandLauncher::catchError()
 
     return 0;
 #endif
-}
-
-
-bool OS::Unsafe__use_MachineCommand_instead( const char* cmd, LaunchType lt )
-{
-    BufferString prognm( cmd );
-    char* args = prognm.getCStr();
-    mSkipBlanks( args ); mSkipNonBlanks( args );
-    *args++ = '\0';
-    mSkipBlanks( args );
-    MachineCommand machcomm( prognm, args );
-    return machcomm.execute( lt );
 }
 
 

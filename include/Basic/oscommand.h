@@ -180,10 +180,6 @@ private:
     friend class CommandLauncher;
     friend class ::StreamProvider;
 
-public:
-
-    BufferString	getSingleStringRep(bool noremote=false) const;
-
 };
 
 
@@ -226,6 +222,8 @@ protected:
 				      bool inconsole=false,
 				      const char* workingdir=nullptr);
     void		startMonitor();
+    static void		manageQProcess(QProcess*);
+			/*!<Add a QProcess and it will be deleted one day. */
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
@@ -246,17 +244,7 @@ protected:
     qstreambuf*		stderrorbuf_;
     qstreambuf*		stdinputbuf_;
 
-public:
-
-    static void		manageQProcess(QProcess*);
-			/*!<Add a QProcess and it will be deleted one day. */
 };
-
-mGlobal(Basic) bool Unsafe__use_MachineCommand_instead(const char*,
-					LaunchType lt=Wait4Finish);
-mDeprecated inline bool ExecCommand( const char* cmd,
-					LaunchType lt=Wait4Finish )
-{ return Unsafe__use_MachineCommand_instead( cmd, lt ); }
 
 } // namespace OS
 
