@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifndef OD_NO_QT
 # include <QString>
+# include <QStringList>
 #endif
 
 
@@ -851,7 +852,7 @@ void BufferStringSet::usePar( const IOPar& iopar )
 
 void BufferStringSet::fill( uiStringSet& res ) const
 {
-    res.erase();
+    res.setEmpty();
 
     for ( int idx=0; idx<size(); idx++ )
 	res += toUiString( get(idx) );
@@ -861,10 +862,33 @@ void BufferStringSet::fill( uiStringSet& res ) const
 
 void BufferStringSet::use( const uiStringSet& from )
 {
-    erase();
+   setEmpty();
 
     for ( int idx=0; idx<from.size(); idx++ )
 	add( from[idx].getFullString() );
+}
+
+
+void BufferStringSet::use( const mQtclass(QStringList)& from )
+{
+#ifndef OD_NO_QT
+    setEmpty();
+
+    for ( mQtclass(QStringList)::const_iterator iter = from.constBegin();
+                                      iter != from.constEnd(); ++iter )
+        add( (*iter).toLocal8Bit().constData() );
+#endif
+}
+
+
+void BufferStringSet::fill( mQtclass(QStringList)& res ) const
+{
+#ifndef OD_NO_QT
+    res.clear();
+
+    for ( idx_type idx=0; idx<size(); idx++ )
+	res.append( get(idx).str() );
+#endif
 }
 
 
