@@ -1038,6 +1038,14 @@ uiString toUiString( double v, char format, int precision )
 { return uiString().set( toString(v,format,precision) ); }
 
 
+const char* toString( const uiString& uis )
+{
+    mDeclStaticString( retstr );
+    uis.getFullString( &retstr );
+    return retstr.getCStr();
+}
+
+
 uiString od_static_tr( const char* func, const char* text,
 		       const char* disambiguation, int pluralnr )
 {

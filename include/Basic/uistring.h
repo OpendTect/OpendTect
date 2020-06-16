@@ -317,6 +317,7 @@ mGlobal(Basic) uiString toUiString(double,int nrdec);
 mGlobal(Basic) uiString toUiString(float,char format,int precision);
 mGlobal(Basic) uiString toUiString(double,char format,int precision);
 
+mGlobal(Basic) const char* toString(const uiString&);
 
 inline uiString& uiString::addMoreInfo( const uiString& str, bool newline )
 { return appendPhrase( str, MoreInfo, newline? OnNewLine : OnSameLine ); }
