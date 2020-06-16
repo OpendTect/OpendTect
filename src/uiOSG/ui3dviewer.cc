@@ -194,23 +194,24 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody(parnt,0)
     , handle_(h)
     , printpar_(*new IOPar)
+    , wheeldisplaymode_((int)ui3DViewer::OnHover)
     , offscreenrenderswitch_(new osg::Switch)
-    , offscreenrenderhudswitch_(new osg::Switch)
-    , hudview_(0)
-    , hudscene_(0)
+    , compositeviewer_(nullptr)
+    , view_(nullptr)
     , viewport_(new osg::Viewport)
-    , compositeviewer_(0)
-    , axes_(0)
-    , polygonselection_(0)
-    , visscenecoltab_(0)
-    , manipmessenger_(new TrackBallManipulatorMessenger(this))
-    , keybindman_(*new KeyBindMan)
     , stereotype_(None)
     , stereooffset_(0)
-    , wheeldisplaymode_((int)ui3DViewer::OnHover)
+    , hudview_(0)
+    , offscreenrenderhudswitch_(new osg::Switch)
+    , hudscene_(0)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
-    , mapview_(false)
+    , axes_(0)
+    , polygonselection_(0)
+    , manipmessenger_(new TrackBallManipulatorMessenger(this))
     , swapcallback_( 0 )
+    , visscenecoltab_(0)
+    , keybindman_(*new KeyBindMan)
+    , mapview_(false)
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -359,12 +360,18 @@ void ui3DViewerBody::setupTouch()
 }
 
 
+osgGeo::TrackballManipulator* ui3DViewerBody::getCameraManipulator() const
+{
+    if ( !view_ )
+	return nullptr;
+
+    return sCast(osgGeo::TrackballManipulator*,view_->getCameraManipulator());
+}
+
+
 void ui3DViewerBody::setMouseWheelZoomFactor( float factor )
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-    dynamic_cast<osgGeo::TrackballManipulator*>(
-						view_->getCameraManipulator() );
-
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( !manip )
 	return;
 
@@ -377,9 +384,7 @@ void ui3DViewerBody::setMouseWheelZoomFactor( float factor )
 
 float ui3DViewerBody::getMouseWheelZoomFactor() const
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-    dynamic_cast<osgGeo::TrackballManipulator*>(view_->getCameraManipulator() );
-
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( !manip )
 	return false;
 
@@ -389,10 +394,7 @@ float ui3DViewerBody::getMouseWheelZoomFactor() const
 
 void ui3DViewerBody::setReversedMouseWheelDirection( bool reversed )
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	dynamic_cast<osgGeo::TrackballManipulator*>(
-					view_->getCameraManipulator() );
-
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( !manip )
 	return;
 
@@ -407,13 +409,8 @@ void ui3DViewerBody::setReversedMouseWheelDirection( bool reversed )
 
 bool ui3DViewerBody::getReversedMouseWheelDirection() const
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-    dynamic_cast<osgGeo::TrackballManipulator*>(view_->getCameraManipulator() );
-
-    if ( !manip )
-	return false;
-
-    return manip->getWheelZoomFactor()>0;
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
+    return manip ? manip->getWheelZoomFactor()>0 : false;
 }
 
 
@@ -511,7 +508,7 @@ void ui3DViewerBody::enableThumbWheelHandling( bool yn,
 #endif
 	while ( cb && !handler )
 	{
-	    handler = dynamic_cast<osgGeo::ThumbWheelEventHandler*>( cb );
+	    handler = dCast(osgGeo::ThumbWheelEventHandler*,cb);
 	    cb = cb->getNestedCallback();
 	}
 
@@ -714,11 +711,9 @@ void ui3DViewerBody::thumbWheelRotationCB( CallBacker* cb )
     }
     else if ( caller==distancethumbwheel_ )
     {
-        osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-                                                view_->getCameraManipulator() );
+	osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+							getCameraManipulator();
 	float change = -deltaangle/M_PI;
-
 	if ( manip && manip->getWheelZoomFactor()<0 )
 	    change *= -1;
 
@@ -987,11 +982,9 @@ void ui3DViewerBody::viewAll( bool animate )
     if ( !view_ )
 	return;
 
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-        static_cast<osgGeo::TrackballManipulator*>(
-                                        view_->getCameraManipulator() );
-
-    manip->viewAll( view_, animate );
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
+    if ( manip )
+	manip->viewAll( view_, animate );
 
     requestRedraw();
 }
@@ -999,25 +992,16 @@ void ui3DViewerBody::viewAll( bool animate )
 
 void ui3DViewerBody::setAnimationEnabled( bool yn )
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( manip )
 	manip->setAllowThrow( yn );
-} 
+}
 
 
 bool ui3DViewerBody::isAnimationEnabled() const
-{ 
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-    
-    if ( manip )
-	return manip->getAllowThrow();
-
-    return false;
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
+    return manip ? manip->getAllowThrow() : false;
 }
 
 
@@ -1026,10 +1010,7 @@ void ui3DViewerBody::requestRedraw()
     if ( !view_ )
 	return;
 
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-                                               view_->getCameraManipulator() );
-
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     const bool animating = manip->isThrown() || manip->isAnimating();
     if ( !animating )
 	view_->requestRedraw();
@@ -1057,9 +1038,7 @@ void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
 				  const osg::Vec3f& viewdir,
 				  bool usetruedir )
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
 
     osg::Vec3f trueviewdir = viewdir;
     if ( !usetruedir )
@@ -1070,7 +1049,8 @@ void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
 	    trueviewdir = -trueviewdir;
     }
 
-    manip->viewAll( view_, trueviewdir, updir, true );
+    if ( manip )
+	manip->viewAll( view_, trueviewdir, updir, true );
     requestRedraw();
 }
 
@@ -1089,10 +1069,7 @@ void ui3DViewerBody::viewPlaneY()
 
 void ui3DViewerBody::viewPlaneZ()
 {
-    const osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( !manip ) return;
 
     osg::Vec3d oldeye, center, oldup;
@@ -1155,10 +1132,7 @@ void ui3DViewerBody::viewPlaneCrl()
 
 bool ui3DViewerBody::isCameraPerspective() const
 {
-    osgGeo::TrackballManipulator* manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-
+    osgGeo::TrackballManipulator* manip = getCameraManipulator();
     return !manip ? true : manip->isCameraPerspective();
 }
 
@@ -1173,10 +1147,7 @@ void ui3DViewerBody::toggleCameraType()
 {
     if ( mapview_ ) return;
 
-    osgGeo::TrackballManipulator* manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-
+    osgGeo::TrackballManipulator* manip = getCameraManipulator();
     if ( !manip ) return;
 
     manip->setProjectionAsPerspective( !manip->isCameraPerspective() );
@@ -1216,12 +1187,8 @@ void ui3DViewerBody::uiRotate( float angle, bool horizontal )
 
 void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
 {
-    osgGeo::TrackballManipulator* manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-						view_->getCameraManipulator() );
-
+    osgGeo::TrackballManipulator* manip = getCameraManipulator();
     const float rotationtime = manip && manip->isDiscreteZooming() ? 0.2 : 0.0;
-
     float distancediff = df*M_PI;
     if ( manip && manip->getWheelZoomFactor()<0 )
 	distancediff *= -1;
@@ -1311,9 +1278,9 @@ float ui3DViewerBody::getCameraZoom() const
 
 void ui3DViewerBody::fillCameraPos( IOPar& par ) const
 {
-    const osgGeo::TrackballManipulator* manip =
-	 static_cast<osgGeo::TrackballManipulator*>(
-	 view_->getCameraManipulator() );
+    const osgGeo::TrackballManipulator* manip = getCameraManipulator();
+    if ( !manip )
+	return;
 
     const osg::Quat quat = manip->getRotation();
     const double distance = manip->getDistance();
@@ -1342,10 +1309,7 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 	 !par.get( sKeyManipDistance(), distance ) )
 	return false;
 
-    osgGeo::TrackballManipulator* manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-
+    osgGeo::TrackballManipulator* manip = getCameraManipulator();
     if ( !manip ) return false;
 
     manip->setCenter( Conv::to<osg::Vec3d>( center ) );
@@ -1441,9 +1405,7 @@ void ui3DViewerBody::setMapView( bool yn )
     enableThumbWheelHandling( false, horthumbwheel_ );
     enableThumbWheelHandling( false, verthumbwheel_ );
 
-    osgGeo::TrackballManipulator* manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
+    osgGeo::TrackballManipulator* manip = getCameraManipulator();
     if ( manip )
     {
 	manip->setProjectionAsPerspective( false );
@@ -1462,9 +1424,7 @@ void ui3DViewerBody::setMapView( bool yn )
 
 void ui3DViewerBody::enableDragging( bool yn )
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-		static_cast<osgGeo::TrackballManipulator*>(
-					    view_->getCameraManipulator() );
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( !manip )
 	return;
 

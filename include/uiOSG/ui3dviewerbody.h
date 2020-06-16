@@ -173,6 +173,7 @@ protected:
     void				setFocusCB(CallBacker*);
     void				handleGestureEvent(QGestureEvent*);
     static osgViewer::CompositeViewer*	getCompositeViewer();
+    osgGeo::TrackballManipulator*	getCameraManipulator() const;
 
 
     virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
