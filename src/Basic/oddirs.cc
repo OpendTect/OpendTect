@@ -196,6 +196,48 @@ mExternC(Basic) const char* GetScriptsDir( const char* subdir )
 }
 
 
+mExternC(Basic) const char* GetShellScript( const char* nm )
+{
+    mDeclStaticString( res );
+    if ( !nm || !*nm )
+        return GetScriptDir();
+
+    res = FilePath(GetScriptDir(),nm).fullPath();
+    return res.buf();
+}
+
+
+mExternC(Basic) const char* GetPythonScript( const char* nm )
+{
+    BufferStringSet pythondirs;
+    const BufferString fnm( nm );
+    if ( fnm.isEmpty() || !GetEnvVarDirList("PYTHONPATH",pythondirs,true) )
+        return 0;
+
+    mDeclStaticString( res );
+    res.setEmpty();
+    BufferStringSet modulenms;
+    modulenms.add( "odpy" ).add( "dgbpy" );
+    for ( int idx=0; idx<modulenms.size(); idx++ )
+    {
+	for ( int idy=0; idy<pythondirs.size(); idy++ )
+        {
+            const FilePath pythonfp( pythondirs.get(idy).str(),
+				     modulenms.get(idx).str(), fnm );
+            const BufferString scriptfnm( pythonfp.fullPath() );
+            if ( File::exists(scriptfnm) && File::isReadable(scriptfnm) &&
+                 File::isFile(scriptfnm) )
+            {
+                res = scriptfnm;
+                return res.buf();
+            }
+        }
+    }
+
+    return res.buf();
+}
+
+
 mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 {
     mDeclStaticString( res );
