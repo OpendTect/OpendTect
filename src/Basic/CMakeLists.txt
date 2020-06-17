@@ -31,6 +31,7 @@ set( OD_TEST_PROGS
 	memcopying.cc
 	od_iostream.cc
 	oscommand.cc
+	pythoncomm.cc
 	refcount.cc
 	sets.cc
 	string.cc
