@@ -156,6 +156,8 @@ bool ODInst::canInstall()
 	errretstmt; \
     if ( __iswin__ ) \
 	installerfp.add( "od_instmgr.exe" ); \
+    else if( __ismac__ ) \
+	installerfp.add( "od_instmgr" ); \
     else if ( __islinux__ ) \
 	installerfp.add( "run_installer" ); \
     BufferString prog( installerfp.fullPath() ); \
