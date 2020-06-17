@@ -279,7 +279,7 @@ uiGatherDisplay& uiViewer2D::getGatherDisplay( int idx )
 
 void uiViewer2D::reSized( CallBacker* )
 {
-    doReSize( uiSize( width(), height() ) );
+    doReSize( uiSize(viewWidth(),viewHeight()) );
 }
 
 

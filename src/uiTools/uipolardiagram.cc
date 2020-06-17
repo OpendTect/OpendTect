@@ -56,8 +56,8 @@ uiPolarDiagram::~uiPolarDiagram()
 
 void uiPolarDiagram::draw()
 {
-    center_ = uiPoint( width() / 2, height() / 2 );
-    radius_ = mMIN ( width(), height() ) / 2 - 40;
+    center_ = uiPoint( viewWidth()/2, viewHeight()/2 );
+    radius_ = mMIN(viewWidth(),viewHeight()) / 2 - 40;
 
     drawCircles();
     drawSegments();

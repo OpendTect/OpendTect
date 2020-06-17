@@ -284,7 +284,8 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
 void uiObjectItemViewWin::reSizeCB( CallBacker* )
 {
     if ( !fittoscreen_ ) return;
-    const uiSize newscreensz( mainviewer_->width(), mainviewer_->height() );
+    const uiSize newscreensz( mainviewer_->viewWidth(),
+			mainviewer_->height() );
     if ( newscreensz != screensz_ ) fitToScreen(0);
 }
 
@@ -292,7 +293,8 @@ void uiObjectItemViewWin::reSizeCB( CallBacker* )
 void uiObjectItemViewWin::fitToScreen( CallBacker* )
 {
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&mainviewer_->scene())
-    const uiSize screensz( mainviewer_->width(), mainviewer_->height() );
+    const uiSize screensz( mainviewer_->viewWidth(),
+			mainviewer_->viewHeight() );
     if ( screensz.width()<=0 || screensz.height()<=0 )
 	return;
 

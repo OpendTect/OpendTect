@@ -64,8 +64,8 @@ void uiWellStratDisplay::draw()
 	}
     }
 
-    drawer_.xAxis()->setNewDevSize( width(), height() );
-    drawer_.yAxis()->setNewDevSize( height(), width() );
+    drawer_.xAxis()->setNewDevSize( viewWidth(), viewHeight() );
+    drawer_.yAxis()->setNewDevSize( viewHeight(), viewWidth() );
     drawer_.yAxis()->updateScene();
     zdata_.zrg_.sort( false );
     drawer_.setZRange( zdata_.zrg_ );
@@ -78,9 +78,9 @@ void uiWellStratDisplay::draw()
 WellStratUnitGen::WellStratUnitGen( StratDispData& data,
 				    const Well::Data& wd )
     : data_(data)
-    , track_(wd.track())
     , markers_(wd.markers())
     , d2tmodel_(wd.d2TModelPtr())
+    , track_(wd.track())
 {
     uidatagather_ = new uiStratTreeToDisp( data_, false, false );
     uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));

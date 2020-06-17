@@ -43,7 +43,7 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
 		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop,
 				  su.xaxrg_.stop, su.yaxrg_.start ) );
 
-    uiAxisHandler::Setup asu( uiRect::Bottom, width(), height() );
+    uiAxisHandler::Setup asu( uiRect::Bottom, viewWidth(), viewHeight() );
     asu.style( OD::LineStyle::None );
     asu.maxnrchars_ = 8;
     asu.border_ = uiBorder(10,10,10,10);
