@@ -62,6 +62,7 @@ ________________________________________________________________________
 
 static const char* sKeyClipRatio = "Amplitudes.Clip Ratio";
 static const char* sKeyIncludeZeros = "Amplitudes.Include Zeros";
+static BufferString sImportFromPath = GetDataDir();
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     : uiDialog(p,uiDialog::Setup(su.forsurvsetup_
@@ -116,6 +117,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     {
 	uiFileSel::Setup fssu( OD::GeneralContent, filespec_.fileName() );
 	fssu.objtype( tr("SEG-Y") )
+	    .initialselectiondir( sImportFromPath )
 	    .formats( uiSEGYFileSpec::fileFmts() );
 	inpfld_ = new uiFileSel( topgrp_, uiStrings::sInputFile().postFixWord(
 		     toUiString("*=%1").arg(tr("wildcard","usually a '*'")) ),
@@ -570,6 +572,8 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 	fssu.formats( uiSEGYFileSpec::fileFmts() );
 	if ( mForSurvSetup )
 	    fssu.initialselectiondir( GetBaseDataDir() );
+	else
+	    fssu.initialselectiondir( sImportFromPath );
 	uiFileSelector uifs( this, fssu );
 	if ( setup_.vintagecheckmode_ )
 	{
@@ -749,6 +753,9 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 	    userfilename_ = newusrfnm;
 	    execNewScan( ct, fullscan );
 	}
+
+	File::Path fp( newusrfnm );
+	sImportFromPath = fp.pathOnly();
     }
 
     zDomChgCB( 0 );
