@@ -226,6 +226,7 @@ void SceneColTab::updateDisplay()
 		mIsZero(rg.width(false),mDefEps) ? 1 : rg.stop, colors );
 
     mScalarBar->setScalarsToColors( osgcolorrange );
+    requestSingleRedraw();
 }
 
 
