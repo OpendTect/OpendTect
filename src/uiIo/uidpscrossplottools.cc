@@ -68,7 +68,7 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
 	return;
 
     renewAxis( toUiString(cp_.uidps_.userName(colid_)), &cp_.scene(),
-	       cp_.width(), cp_.height(), 0 );
+	       cp_.viewWidth(), cp_.viewHeight(), 0 );
     handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
 }
 
