@@ -20,4 +20,5 @@ set(OD_MODULE_SOURCES
 	gmtprocflow.cc
 	gmtpi.cc)
 set ( OD_MODULE_BATCHPROGS od_gmtexec.cc )
+set ( OD_PLUGIN_ALO_EXEC od_gmtexec )
 OD_INIT_MODULE()

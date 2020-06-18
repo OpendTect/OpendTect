@@ -236,7 +236,7 @@ const char* GetOSIdentifier()
 
 #ifdef __lux__
     OS::MachineCommand machcomm( "lsb_release", "-d" );
-    if ( !machcomm.execute(*tmp,0) )
+    if ( !machcomm.execute(*tmp) )
 	tmp->set( "Unknown Linux");
 #endif
 

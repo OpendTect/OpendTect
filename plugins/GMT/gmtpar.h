@@ -23,10 +23,8 @@ ________________________________________________________________________
 mExpClass(GMT) GMTPar : public IOPar
 {
 public:
-			GMTPar(const char* nm)
-			    : IOPar(nm) {}
-			GMTPar(const IOPar& par)
-			    : IOPar(par) {}
+			GMTPar( const IOPar& par, const char* workdir )
+			    : IOPar(par),workingdir_(workdir)	{}
 
     bool		execute(od_ostream&,const char*);
 
@@ -42,22 +40,26 @@ public:
     static OS::MachineCommand	getWrappedComm(const OS::MachineCommand&);
     static BufferString	getErrFnm();
 
+   const char*		getWorkDir() const	{ return workingdir_.buf(); }
+
 private:
 
     virtual bool	doExecute(od_ostream&,const char*)		= 0;
     static void		checkErrStrm(const char*,od_ostream&);
 
+    BufferString	workingdir_;
+
 };
 
 
-typedef GMTPar* (*GMTParCreateFunc)(const IOPar&);
+typedef GMTPar* (*GMTParCreateFunc)(const IOPar&,const char*);
 
 mExpClass(GMT) GMTParFactory
 {
 public:
 
     int			add(const char* nm, GMTParCreateFunc);
-    GMTPar*		create(const IOPar&) const;
+    GMTPar*		create(const IOPar&,const char* workdir) const;
 
     const char*		name(int) const;
     int			size() const	{ return entries_.size(); }

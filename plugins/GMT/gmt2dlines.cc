@@ -48,9 +48,9 @@ void GMT2DLines::initClass()
 	factoryid_ = GMTPF().add( "2D Lines", GMT2DLines::createInstance );
 }
 
-GMTPar* GMT2DLines::createInstance( const IOPar& iop )
+GMTPar* GMT2DLines::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMT2DLines( iop );
+    return new GMT2DLines( iop, workdir );
 }
 
 
@@ -228,9 +228,9 @@ void GMTRandLines::initClass()
 				  GMTRandLines::createInstance );
 }
 
-GMTPar* GMTRandLines::createInstance( const IOPar& iop )
+GMTPar* GMTRandLines::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTRandLines( iop );
+    return new GMTRandLines( iop, workdir );
 }
 
 

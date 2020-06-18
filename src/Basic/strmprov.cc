@@ -482,9 +482,10 @@ StreamProvider::StreamProvider( const char* fnm )
 }
 
 
-StreamProvider::StreamProvider( const OS::MachineCommand& mc )
+StreamProvider::StreamProvider( const OS::MachineCommand& mc,
+				const char* workdir )
 {
-    setCommand( mc );
+    setCommand( mc, workdir );
 }
 
 
@@ -588,16 +589,19 @@ void StreamProvider::setFileName( const char* fnm )
 {
     fname_.set( fnm );
     deleteAndZeroPtr( mc_ );
+    workingdir_.setEmpty();
 }
 
 
-void StreamProvider::setCommand( const OS::MachineCommand& mc )
+void StreamProvider::setCommand( const OS::MachineCommand& mc,
+				 const char* workdir )
 {
     fname_.setEmpty();
     if ( mc_ )
 	*mc_ = mc;
     else
 	mc_ = new OS::MachineCommand( mc );
+    workingdir_.set( workdir );
 }
 
 
@@ -686,12 +690,20 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     mc.args().fill( qargs );
 
     QProcess* process = new QProcess;
+    if ( !workingdir_.isEmpty() )
+    {
+	const QString qworkdir( workingdir_ );
+	process->setWorkingDirectory( qworkdir );
+    }
+
     process->start( qprog, qargs, QIODevice::ReadOnly );
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
 	retsd.setIStrm( new iqstream( stdiosb ) );
     }
+    else
+	delete process;
 #endif
 
     return retsd;
@@ -737,12 +749,20 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     mc.args().fill( qargs );
 
     QProcess* process = new QProcess;
+    if ( !workingdir_.isEmpty() )
+    {
+	const QString qworkdir( workingdir_ );
+	process->setWorkingDirectory( qworkdir );
+    }
+
     process->start( qprog, qargs, QIODevice::WriteOnly );
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
 	retsd.setOStrm( new oqstream( stdiosb ) );
     }
+    else
+	delete process;
 #endif
 
     return retsd;

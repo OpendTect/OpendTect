@@ -25,9 +25,9 @@ void GMTClip::initClass()
 	factoryid_ = GMTPF().add( "Clipping", GMTClip::createInstance );
 }
 
-GMTPar* GMTClip::createInstance( const IOPar& iop )
+GMTPar* GMTClip::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTClip( iop );
+    return new GMTClip( iop, workdir );
 }
 
 
@@ -51,7 +51,7 @@ const char* GMTClip::userRef() const
 }
 
 
-bool GMTClip::fillLegendPar( IOPar& par ) const
+bool GMTClip::fillLegendPar( IOPar& ) const
 {
     return false;
 }

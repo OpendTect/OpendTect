@@ -40,7 +40,6 @@ ________________________________________________________________________
 # include <QDir>
 # include <QFile>
 # include <QFileInfo>
-# include <QProcess>
 # include <QStandardPaths>
 #endif
 
@@ -118,7 +117,7 @@ class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
 			RecursiveCopier(const char* from,const char* to)
-			    : Executor("Copying folder")
+			    : Executor("Copying Directory")
 			    , src_(from),dest_(to),fileidx_(0)
 			    , totalnr_(0),nrdone_(0)
 			    , msg_(tr("Copying files"))
@@ -156,9 +155,6 @@ int File::RecursiveCopier::nextStep()
 #ifdef OD_NO_QT
     return ErrorOccurred();
 #else
-    if ( fileidx_ >= filelist_.size() )
-	return Finished();
-
     if ( !fileidx_ )
     {
 	if ( File::exists(dest_) && !File::remove(dest_) )
@@ -166,6 +162,9 @@ int File::RecursiveCopier::nextStep()
 	if( !File::createDir(dest_) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(dest_) )
     }
+
+    if ( fileidx_ >= filelist_.size() )
+	return Finished();
 
     const BufferString& srcfile = filelist_.get( fileidx_ );
     QDir srcdir( src_.buf() );
@@ -188,7 +187,7 @@ int File::RecursiveCopier::nextStep()
 
     fileidx_++;
     nrdone_ += getFileSize( srcfile );
-    return MoreToDo();
+    return fileidx_ >= filelist_.size() ? Finished() : MoreToDo();
 #endif
 }
 
@@ -259,7 +258,7 @@ int File::RecursiveDeleter::nextStep()
 	else
 	    res = File::removeDir( filename );
     }
-    else if( File::exists(filename) )
+    else if( File::exists(filename) && !File::isDirectory(filename) )
 	res = File::remove( filename );
 
     if ( !res )
@@ -759,20 +758,18 @@ bool File::makeWritable( const char* fnm, bool yn, bool recursive )
 #else
     BufferStringSet args;
 # ifdef __win__
-    const QString qprog( "ATTRIB" );
-    args.add( yn ? "-R" : "+R" ).add( fnm );
+    OS::MachineCommand mc( "ATTRIB" );
+    mc.addArg( yn ? "-R" : "+R" ).addArg( fnm );
     if ( recursive && isDirectory(fnm) )
-	args.add( "/S" ).add( "/D" );
+	mc.addArg( "/S" ).addArg( "/D" );
 # else
-    const QString qprog( "chmod" );
+    OS::MachineCommand mc( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	args.add( "-R" );
-    args.add( yn ? "ug+w" : "a-w" ).add( fnm );
+	mc.addArg( "-R" );
+    mc.addArg( yn ? "ug+w" : "a-w" ).addArg( fnm );
 # endif
 
-    QStringList qargs;
-    args.fill( qargs );
-    return QProcess::execute( qprog, qargs ) >= 0;
+    return mc.execute();
 #endif
 }
 
@@ -793,12 +790,9 @@ bool File::makeExecutable( const char* fnm, bool yn )
 #if ((defined __win__) || (defined OD_NO_QT) )
     return true;
 #else
-    const QString qprog( "chmod" );
-    BufferStringSet args;
-    args.add( yn ? "+r+x" : "-x" ).add( fnm );
-    QStringList qargs;
-    args.fill( qargs );
-    return QProcess::execute( qprog, qargs ) >= 0;
+    OS::MachineCommand mc( "chmod" );
+    mc.addArg( yn ? "+r+x" : "-x" ).addArg( fnm );
+    return mc.execute();
 #endif
 }
 
@@ -811,14 +805,11 @@ bool File::setPermissions( const char* fnm, const char* perms, bool recursive )
 #if ((defined __win__) || (defined OD_NO_QT) )
     return false;
 #else
-    const QString qprog( "chmod" );
-    BufferStringSet args;
+    OS::MachineCommand mc( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	args.add( "-R" );
-    args.add( perms ).add( fnm );
-    QStringList qargs;
-    args.fill( qargs );
-    return QProcess::execute( qprog, qargs ) >= 0;
+	mc.addArg( "-R" );
+    mc.addArg( perms ).addArg( fnm );
+    return mc.execute();
 #endif
 }
 

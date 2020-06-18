@@ -150,9 +150,9 @@ void GMTLocations::initClass()
 	factoryid_ = GMTPF().add( "Locations", GMTLocations::createInstance );
 }
 
-GMTPar* GMTLocations::createInstance( const IOPar& iop )
+GMTPar* GMTLocations::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTLocations( iop );
+    return new GMTLocations( iop, workdir );
 }
 
 
@@ -252,9 +252,9 @@ void GMTPolyline::initClass()
 	factoryid_ = GMTPF().add( "Polyline", GMTPolyline::createInstance );
 }
 
-GMTPar* GMTPolyline::createInstance( const IOPar& iop )
+GMTPar* GMTPolyline::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTPolyline( iop );
+    return new GMTPolyline( iop, workdir );
 }
 
 
@@ -353,9 +353,9 @@ void GMTWells::initClass()
 	factoryid_ = GMTPF().add( "Wells", GMTWells::createInstance );
 }
 
-GMTPar* GMTWells::createInstance( const IOPar& iop )
+GMTPar* GMTWells::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTWells( iop );
+    return new GMTWells( iop, workdir );
 }
 
 

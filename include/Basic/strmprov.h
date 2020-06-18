@@ -47,11 +47,12 @@ mExpClass(Basic) StreamProvider
 {
 public:
 		StreamProvider(const char* filenm=nullptr);
-		StreamProvider(const OS::MachineCommand&);
+		StreamProvider(const OS::MachineCommand&,
+			       const char* workdir);
 		~StreamProvider();
 
     void	setFileName(const char*);
-    void	setCommand(const OS::MachineCommand&);
+    void	setCommand(const OS::MachineCommand&,const char* workdir);
 
     bool	isBad() const;
 
@@ -101,6 +102,7 @@ protected:
 
     BufferString	fname_;
     OS::MachineCommand*	mc_ = nullptr;
+    BufferString	workingdir_;
 
     static StreamData	makePLIStream(int);
 

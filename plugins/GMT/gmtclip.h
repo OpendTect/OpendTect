@@ -21,10 +21,8 @@ public:
 
     static void		initClass();
 
-			GMTClip(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTClip(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTClip( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
     virtual const char* userRef() const;
     bool		isStart() const;
@@ -34,6 +32,6 @@ protected:
 
     virtual bool	doExecute(od_ostream&,const char*) override;
 
-    static GMTPar*	createInstance(const IOPar&);
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };

@@ -153,7 +153,7 @@ public:
 
     bool		execute(LaunchType lt=Wait4Finish);
     bool		execute(BufferString& output_stdout,
-				BufferString* output_stderr=0);
+				BufferString* output_stderr=nullptr);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
 
@@ -197,7 +197,7 @@ public:
     bool		execute( LaunchType lt=Wait4Finish )
 				{ return execute( CommandExecPars(lt) ); }
     bool		execute(BufferString& output_stdout,
-				BufferString* output_stderr=0);
+				BufferString* output_stderr=nullptr);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
     bool		startServer(bool inpythonenv=false,
@@ -214,10 +214,7 @@ public:
 protected:
 
     void		reset();
-    bool		doExecute(const MachineCommand&,bool wait4finish,
-				  bool inconsole=false,
-				  bool createstreams=false,
-				  const char* workingdir=nullptr);
+    bool		doExecute(const MachineCommand&,const CommandExecPars&);
     int			catchError();
     bool		startDetached(const MachineCommand&,
 				      bool inconsole=false,

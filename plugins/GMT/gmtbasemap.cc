@@ -57,9 +57,9 @@ void GMTBaseMap::initClass()
 	factoryid_ = GMTPF().add( "Basemap", GMTBaseMap::createInstance );
 }
 
-GMTPar* GMTBaseMap::createInstance( const IOPar& iop )
+GMTPar* GMTBaseMap::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTBaseMap( iop );
+    return new GMTBaseMap( iop, workdir );
 }
 
 
@@ -149,9 +149,9 @@ void GMTLegend::initClass()
 	factoryid_ = GMTPF().add( "Legend", GMTLegend::createInstance );
 }
 
-GMTPar* GMTLegend::createInstance( const IOPar& iop )
+GMTPar* GMTLegend::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTLegend( iop );
+    return new GMTLegend( iop, workdir );
 }
 
 
@@ -197,6 +197,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	       .add( ":" );
 
 	File::Path cptfp( fnm );
+	cptfp.setPath( getWorkDir() );
 	cptfp.setExtension( "cpt" );
 	BufferString cptfnm;
 	cptfnm.set( cptfp.fileName() );
@@ -326,9 +327,9 @@ void GMTCommand::initClass()
 	factoryid_ = GMTPF().add( "Advanced", GMTCommand::createInstance );
 }
 
-GMTPar* GMTCommand::createInstance( const IOPar& iop )
+GMTPar* GMTCommand::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTCommand( iop );
+    return new GMTCommand( iop, workdir );
 }
 
 

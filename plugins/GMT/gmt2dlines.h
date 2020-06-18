@@ -19,10 +19,8 @@ public:
 
     static void		initClass();
 
-			GMT2DLines(const char* nm)
-			    : GMTPar(nm)	{}
-			GMT2DLines(const IOPar& par)
-			    : GMTPar(par) {}
+			GMT2DLines( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
@@ -35,7 +33,7 @@ protected:
 
     virtual bool	doExecute(od_ostream&,const char*) override;
 
-    static GMTPar*	createInstance(const IOPar&);
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };
 
@@ -46,10 +44,8 @@ public:
 
     static void		initClass();
 
-			GMTRandLines(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTRandLines(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTRandLines( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
@@ -58,6 +54,6 @@ protected:
 
     virtual bool	doExecute(od_ostream&,const char*) override;
 
-    static GMTPar*	createInstance(const IOPar&);
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };

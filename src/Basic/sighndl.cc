@@ -304,7 +304,8 @@ void SignalHandling::stopRemote( const char* mach, PID_Type pid, bool friendly,
 #else
 
     OS::MachineCommand machcomm( "kill", friendly ? "-TERM" : "-9",
-					toString(pid), ">", "/dev/null" );
+					toString(pid) );
+    machcomm.addFileRedirect( "/dev/null" );
     machcomm.execute( OS::RunInBG );
 
 #endif

@@ -43,9 +43,9 @@ void GMTCoastline::initClass()
 	factoryid_ = GMTPF().add( "Coastline", GMTCoastline::createInstance );
 }
 
-GMTPar* GMTCoastline::createInstance( const IOPar& iop )
+GMTPar* GMTCoastline::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTCoastline( iop );
+    return new GMTCoastline( iop, workdir );
 }
 
 
@@ -86,16 +86,13 @@ bool GMTCoastline::doExecute( od_ostream& strm, const char* fnm )
     if ( !makeLLRangeFile(fp.fullPath(),strm) )
 	mErrStrmRet("Cannot create Lat/Long range file")
 
-    StreamProvider sp( fp.fullPath() );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
+    od_istream sd( fp.fullPath() );
+    if ( !sd.isOK() )
 	mErrStrmRet("Cannot read Lat/Long range file")
 
-    char buf[80];
-    sd.iStrm()->getline( buf, 40, ' ' );
-    BufferString rangestr = buf;
-    sd.close(); sp.remove();
-    *( rangestr.getCStr() + rangestr.size() - 1 ) = '\0';
+    BufferString rangestr( 80, true );
+    sd.getLine( rangestr );
+    sd.close(); File::remove( fp.fullPath() );
     BufferString jmarg( "-JM" ); jmarg.add( mapdim.start ).add( "c" );
     BufferString darg( "-D" ); darg.add( sResKeys[res] );
 
