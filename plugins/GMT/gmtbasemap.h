@@ -19,10 +19,8 @@ public:
 
     static void		initClass();
 
-			GMTBaseMap(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTBaseMap(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTBaseMap( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
     virtual const char* userRef() const			{ return 0; }
 
@@ -30,7 +28,7 @@ protected:
 
     virtual bool	doExecute(od_ostream&,const char*) override;
 
-    static GMTPar*	createInstance(const IOPar&);
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };
 
@@ -41,10 +39,8 @@ public:
 
     static void		initClass();
 
-			GMTLegend(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTLegend(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTLegend( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir)	{}
 
     virtual const char* userRef() const			{ return 0; }
 
@@ -52,7 +48,7 @@ protected:
 
     virtual bool	doExecute(od_ostream&,const char*) override;
 
-    static GMTPar*	createInstance(const IOPar&);
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };
 
@@ -63,10 +59,8 @@ public:
 
     static void		initClass();
 
-			GMTCommand(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTCommand(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTCommand( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
     virtual const char* userRef() const;
 
@@ -74,6 +68,6 @@ protected:
 
     virtual bool	doExecute(od_ostream&,const char*) override;
 
-    static GMTPar*	createInstance(const IOPar&);
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };

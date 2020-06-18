@@ -171,6 +171,7 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
 }
 
 
+
 OS::MachineCommand::MachineCommand( const char* prognm, const char* arg1,
        const char* arg2,const char* arg3, const char* arg4,const char* arg5 )
     : MachineCommand(prognm)
@@ -642,9 +643,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    return false;
     }
 
-    const bool ret = doExecute( mcmd, pars.launchtype_==Wait4Finish,
-				pars.isconsoleuiprog_, pars.createstreams_,
-				pars.workingdir_ );
+    const bool ret = doExecute( mcmd, pars );
     uiString cannotlaunchstr = toUiString( "Cannot launch '%1'" );
     if ( pars.isconsoleuiprog_ )
     {
@@ -738,9 +737,8 @@ void OS::CommandLauncher::startMonitor()
 }
 
 
-bool OS::CommandLauncher::doExecute( const MachineCommand& mc, bool wt4finish,
-				     bool inconsole, bool createstreams,
-				     const char* workingdir )
+bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
+				     const CommandExecPars& pars )
 {
     if ( mc.isBad() )
 	{ errmsg_ = tr("Command is empty"); return false; }
@@ -748,16 +746,16 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc, bool wt4finish,
     if ( process_ )
     {
 	errmsg_ = tr("Process is already running ('%1')")
-				.arg( mc.toString() );
+				.arg( mc.toString(&pars) );
 	return false;
     }
 
     const char* prog = mc.program();
     const BufferStringSet& args = mc.args();
-    DBG::message( BufferString("About to execute:\n",prog) );
-    if ( !args.isEmpty() )
-	DBG::message( BufferString("\nWith arguments: ",args.cat(" ")) );
+    DBG::message( BufferString("About to execute: ",mc.toString(&pars)) );
 
+    const bool wt4finish = pars.launchtype_ == Wait4Finish;
+    const bool createstreams = pars.createstreams_;
 #ifndef OD_NO_QT
     process_ = wt4finish || createstreams ? new QProcess : 0;
 
@@ -778,9 +776,10 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc, bool wt4finish,
 	}
     }
 
+    const BufferString& workingdir = pars.workingdir_;
     if ( process_ )
     {
-	if ( workingdir )
+	if ( !workingdir.isEmpty() )
 	{
 	    const QString qworkdir( workingdir );
 	    process_->setWorkingDirectory( qworkdir );
@@ -793,7 +792,8 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc, bool wt4finish,
     }
     else
     {
-	const bool res = startDetached( mc, inconsole, workingdir );
+	const bool res = startDetached( mc, pars.isconsoleuiprog_,
+					workingdir );
 	return res;
     }
 

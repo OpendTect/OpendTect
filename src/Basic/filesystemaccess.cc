@@ -11,14 +11,10 @@ ________________________________________________________________________
 #include "filesystemaccess.h"
 #include "file.h"
 #include "filepath.h"
-#include "winutils.h"
-#include "genc.h"
+#include "oscommand.h"
 
 
 #ifdef __win__
-# include "winutils.h"
-# include <windows.h>
-# include <istream>
 # include <iostream>
 # ifdef __msvc__
 #  define popen _popen
@@ -27,19 +23,18 @@ ________________________________________________________________________
 #  include "winstreambuf.h"
 # endif
 #else
+# include <fstream>
 # include "sys/stat.h"
 # include <unistd.h>
 # include <utime.h>
 #endif
 
-# include <fstream>
 
 #ifndef OD_NO_QT
 # include <QDateTime>
 # include <QDir>
 # include <QFile>
 # include <QFileInfo>
-# include <QProcess>
 #endif
 
 
@@ -411,23 +406,19 @@ bool File::LocalFileSystemAccess::setWritable( const char* uri, bool yn,
 #ifdef OD_NO_QT
     return false;
 #else
-    const BufferString filenm( "\"", fnm, "\"");
-    BufferStringSet args;
 # ifdef __win__
-    const QString qprog( "attrib" );
-    args.add( yn ? "-R" : "+R" ).add( filenm );
+    OS::MachineCommand mc( "ATTRIB" );
+    mc.addArg( yn ? "-R" : "+R" ).addArg( fnm );
     if ( recursive && isDirectory(fnm) )
-	args.add( "\\*.*" ).add( "/S" );
+	mc.addArg( "/S" ).addArg( "/D" );
 # else
-    const QString qprog( "chmod" );
+    OS::MachineCommand mc( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	args.add( "-R" );
-    args.add( yn ? "ug+w" : "a-w" ).add( filenm );
+	mc.addArg( "-R" );
+    mc.addArg( yn ? "ug+w" : "a-w" ).addArg( fnm );
 # endif
 
-    QStringList qargs;
-    args.fill( qargs );
-    return QProcess::execute( qprog, qargs ) >= 0;
+    return mc.execute();
 #endif
 
 

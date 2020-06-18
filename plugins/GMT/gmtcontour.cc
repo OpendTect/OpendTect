@@ -37,9 +37,9 @@ void GMTContour::initClass()
 	factoryid_ = GMTPF().add( "Contour", GMTContour::createInstance );
 }
 
-GMTPar* GMTContour::createInstance( const IOPar& iop )
+GMTPar* GMTContour::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTContour( iop );
+    return new GMTContour( iop, workdir );
 }
 
 
@@ -132,6 +132,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     }
 
     File::Path fp( fnm );
+    fp.setPath( getWorkDir() );
     File::Path cptfp;
     BufferString cptfnm;
     if ( dofill )

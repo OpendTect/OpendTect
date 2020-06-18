@@ -45,9 +45,6 @@ static BufferString getInstDir()
 # define mRelRootDir getInstDir()
 #else
 # include "unistd.h"
-# ifndef OD_NO_QT
-#  include <QProcess>
-# endif
 #endif
 
 mDefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
@@ -186,10 +183,9 @@ BufferString ODInst::GetInstallerDir()
 void ODInst::startInstManagement()
 {
     mGetFullMachComm(return);
-    const BufferString curpath = File::getCurrentPath();
-    File::changeDir( installerfp.pathOnly() );
-    machcomm.execute( OS::RunInBG );
-    File::changeDir( curpath.buf() );
+    OS::CommandExecPars pars( OS::RunInBG );
+    pars.workingdir( installerfp.pathOnly() );
+    machcomm.execute( pars );
 }
 
 

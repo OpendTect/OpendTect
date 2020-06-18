@@ -55,6 +55,7 @@ uiString GMTArray2DInterpol::message() const
 
 bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
+    workingdir_.set( GetProcFileName(nullptr) );
     mTryAlloc( nodes_, bool[nrcells_] );
     getNodesToFill( 0, nodes_, SilentTaskRunnerProvider() );
     defundefpath_ =
@@ -66,19 +67,17 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
     OS::MachineCommand xyzmc( "xyz2grd" );
     xyzmc.addArg( rgstr ).addArg( garg ).addArg( "-I1" );
     OS::MachineCommand mc = GMTPar::getWrappedComm( xyzmc );
-    StreamProvider sprov;
-    sprov.setCommand( mc );
-    sdmask_ = sprov.makeOStream();
-    if ( !sdmask_.usable() )
+    delete sdmask_;
+    sdmask_ = new od_ostream( mc, workingdir_ );
+    if ( !sdmask_ || !sdmask_->isOK() )
 	return false;
 
     OS::MachineCommand finalmc;
     if ( !fillCommand(finalmc) )
 	return false;
 
-    sprov.setCommand( finalmc );
-    sd_ = sprov.makeOStream();
-    if ( !sd_.usable() )
+    sd_ = new od_ostream( finalmc, workingdir_ );
+    if ( !sd_ || !sd_->isOK() )
 	return false;
 
     return true;
@@ -90,18 +89,18 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     nrdone_ = 0;
     for ( int ridx=mCast(int,start); ridx<stop; ridx++ )
     {
-	if ( !*sd_.oStrm() || !*sdmask_.oStrm() )
+	if ( !sd_ || !sdmask_ )
 	    break;
 
 	for ( int cidx=0; cidx<nrcols_; cidx++ )
 	{
-	    if ( !*sd_.oStrm() || !*sdmask_.oStrm() )
+	    if ( !sd_ || !sdmask_ )
 		break;
 
 	    nodes_[nrcols_*ridx+cidx]
-		? *sdmask_.oStrm() << ridx << " " << cidx << " " << 1
-		: *sdmask_.oStrm() << ridx << " " << cidx << " " << "NaN";
-	    *sdmask_.oStrm() << "\n";
+		? *sdmask_ << ridx << " " << cidx << " " << 1
+		: *sdmask_ << ridx << " " << cidx << " " << "NaN";
+	    *sdmask_ << "\n";
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
@@ -109,15 +108,15 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 
 	    addToNrDone( 1 );
-	    *sd_.oStrm() << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
+	    *sd_ << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
 						     << "\n";
 	}
 
 	nrdone_++;
     }
 
-    sd_.close();
-    sdmask_.close();
+    deleteAndZeroPtr( sd_ );
+    deleteAndZeroPtr( sdmask_ );
 
     BufferString path( path_ );
     path_ = File::Path( GetDataDir() ).add( "Misc" )
@@ -140,13 +139,16 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool GMTArray2DInterpol::doFinish( bool success )
 {
+    deleteAndZeroPtr( sd_ );
+    deleteAndZeroPtr( sdmask_ );
+
     OS::MachineCommand xyzmc( "grd2xyz" );
     xyzmc.addArg( path_ );
     OS::MachineCommand mc = GMTPar::getWrappedComm( xyzmc );
     StreamProvider sprov;
-    sprov.setCommand( mc );
-    sd_ = sprov.makeIStream( true, false );
-    if ( !sd_.usable() )
+    sprov.setCommand( mc, workingdir_ );
+    StreamData sd = sprov.makeIStream( true, false );
+    if ( !sd.usable() )
 	return false;
 
     nrdone_ = 0;
@@ -154,19 +156,19 @@ bool GMTArray2DInterpol::doFinish( bool success )
     FixedString fsrowstr( rowstr ), fscolstr( colstr ), fsvalstr( valstr );
     for ( int ridx=0; ridx<nrrows_; ridx++ )
     {
-	if ( !*sd_.iStrm() )
+	if ( !*sd.iStrm() )
 	    break;
 
 	for ( int cidx=0; cidx<nrcols_; cidx++ )
 	{
-	    if ( !*sd_.iStrm() )
+	    if ( !*sd.iStrm() )
 		break;
 
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
 	    rowstr[0] = colstr[0] = valstr[0] = '\0';
-	    *sd_.iStrm() >> rowstr >> colstr >> valstr;
+	    *sd.iStrm() >> rowstr >> colstr >> valstr;
 	    if ( fsrowstr == sKeyGMTUdf || fscolstr == sKeyGMTUdf
 					|| fsvalstr == sKeyGMTUdf )
 		continue;
@@ -181,7 +183,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
 	nrdone_++;
     }
 
-    sd_.close();
+    sd.close();
     if ( nrdone_ == 0 )
     {
 	msg_ = tr("Invalid positions found");

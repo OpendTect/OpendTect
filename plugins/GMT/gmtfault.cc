@@ -44,9 +44,9 @@ void GMTFault::initClass()
 }
 
 
-GMTPar* GMTFault::createInstance( const IOPar& iop )
+GMTPar* GMTFault::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTFault( iop );
+    return new GMTFault( iop, workdir );
 }
 
 

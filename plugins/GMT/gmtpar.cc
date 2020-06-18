@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
+#include "filepath.h"
 #include "initgmtplugin.h"
 #include "oddirs.h"
 #include "od_istream.h"
@@ -42,7 +43,7 @@ int GMTParFactory::add( const char* nm, GMTParCreateFunc fn )
 }
 
 
-GMTPar* GMTParFactory::create( const IOPar& iop ) const
+GMTPar* GMTParFactory::create( const IOPar& iop, const char* workdir ) const
 {
     const char* grpname = iop.find( ODGMT::sKeyGroupName() );
     if ( !grpname || !*grpname ) return 0;
@@ -50,7 +51,7 @@ GMTPar* GMTParFactory::create( const IOPar& iop ) const
     Entry* entry = getEntry( grpname );
     if ( !entry ) return 0;
 
-    GMTPar* grp = entry->crfn_( iop );
+    GMTPar* grp = entry->crfn_( iop, workdir );
     return grp;
 }
 
@@ -83,6 +84,10 @@ bool GMTPar::execute( od_ostream& strm, const char* fnm )
     checkErrStrm( gmterrfnm, strm );
     File::remove( gmterrfnm );
 
+    const File::Path historyfp( workingdir_,
+	    GMT::hasModernGMT() ? "gmt.history" : ".gmtcommands4" );
+    File::remove( historyfp.fullPath() );
+
     return res;
 }
 
@@ -96,8 +101,11 @@ bool GMTPar::execCmd( const OS::MachineCommand& machcomm, od_ostream& strm,
     const BufferString gmterrfnm( getErrFnm() );
     mc.addFileRedirect( gmterrfnm, 2 );
 
-    DBG::message( DBG_PROGSTART, mc.toString() );
-    if ( mc.execute() )
+    OS::CommandExecPars pars( OS::Wait4Finish );
+    pars.workingdir( workingdir_ );
+
+    DBG::message( DBG_PROGSTART, mc.toString(&pars) );
+    if ( mc.execute(pars) )
 	checkErrStrm( gmterrfnm, strm );
 
     return true;
@@ -115,7 +123,7 @@ od_ostream GMTPar::makeOStream( const OS::MachineCommand& machcomm,
     mc.addFileRedirect( gmterrfnm, 2 );
 
     DBG::message( DBG_PROGSTART, mc.toString() );
-    od_ostream ret( mc );
+    od_ostream ret( mc, workingdir_ );
     checkErrStrm( gmterrfnm, strm );
 
     return ret;

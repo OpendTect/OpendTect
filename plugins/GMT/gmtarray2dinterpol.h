@@ -39,8 +39,8 @@ protected:
 
     int				nrdone_;
     uiString		        msg_;
-    StreamData			sd_;
-    StreamData			sdmask_;
+    od_ostream*			sd_ = nullptr;
+    od_ostream*			sdmask_ = nullptr;
     BufferString		path_;
     BufferString		defundefpath_;
     bool*			nodes_;
@@ -48,6 +48,8 @@ protected:
 private:
 
     virtual bool		fillCommand(OS::MachineCommand&)	= 0;
+
+    BufferString		workingdir_;
 
 };
 

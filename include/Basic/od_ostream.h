@@ -29,8 +29,9 @@ public:
 			    : od_stream(fnm,true,useexist)	{}
 			od_ostream( const File::Path& fp, bool useexist=false )
 			    : od_stream(fp,true,useexist)	{}
-			od_ostream( const OS::MachineCommand& mc )
-			    : od_stream(mc,true)		{}
+			od_ostream( const OS::MachineCommand& mc,
+				    const char* workdir=nullptr )
+			    : od_stream(mc,workdir,true)	{}
 			od_ostream( std::ostream* s )
 			    : od_stream(s)			{}
 			od_ostream( std::ostream& s )

@@ -133,9 +133,10 @@ od_stream::od_stream( const File::Path& fp, bool forwrite, bool useexist )
 {}
 
 
-od_stream::od_stream( const OS::MachineCommand& mc, bool editmode )
+od_stream::od_stream( const OS::MachineCommand& mc, const char* workdir,
+		      bool editmode )
 {
-    setFromCommand( mc, editmode );
+    setFromCommand( mc, workdir, editmode );
 }
 
 
@@ -240,10 +241,11 @@ void od_stream::addErrMsgTo( uiRetVal& uirv ) const
 
 
 
-bool od_stream::setFromCommand( const OS::MachineCommand& mc, bool editmode )
+bool od_stream::setFromCommand( const OS::MachineCommand& mc,
+				const char* workdir, bool editmode )
 {
     StreamProvider strmprov;
-    strmprov.setCommand( mc );
+    strmprov.setCommand( mc, workdir );
     if ( strmprov.isBad() )
 	return false;
 

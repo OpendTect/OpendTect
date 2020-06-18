@@ -23,17 +23,18 @@ mExpClass(Basic) od_istream : public od_stream
 {
 public:
 
-			od_istream()			{}
+			od_istream()				{}
 			od_istream( const char* fnm )
-			    : od_stream(fnm,false)	{}
+			    : od_stream(fnm,false)		{}
 			od_istream( const File::Path& fp )
-			    : od_stream(fp,false)	{}
-			od_istream( const OS::MachineCommand& mc )
-			    : od_stream(mc,false)	{}
+			    : od_stream(fp,false)		{}
+			od_istream( const OS::MachineCommand& mc,
+				    const char* workdir=nullptr )
+			    : od_stream(mc,workdir,false)	{}
 			od_istream( std::istream* s )
-			    : od_stream(s)		{}
+			    : od_stream(s)			{}
 			od_istream( std::istream& s )
-			    : od_stream(s)		{}
+			    : od_stream(s)			{}
 
 			od_istream(const od_istream&) = delete;
 			od_istream(od_istream&&);

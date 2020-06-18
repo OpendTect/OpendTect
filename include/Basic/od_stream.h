@@ -98,7 +98,7 @@ protected:
 			od_stream();
 			od_stream(const char*,bool,bool editmode=false);
 			od_stream(const File::Path&,bool,bool editmode=false);
-			od_stream(const OS::MachineCommand&,
+			od_stream(const OS::MachineCommand&,const char* workdir,
 				  bool editmode=false);
 			od_stream(std::ostream*);
 			od_stream(std::ostream&);
@@ -115,6 +115,7 @@ protected:
 
 private:
 
-    bool		setFromCommand(const OS::MachineCommand&,bool editmode);
+    bool		setFromCommand(const OS::MachineCommand&,
+				       const char* workdir,bool editmode);
 
 };
