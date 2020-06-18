@@ -91,9 +91,9 @@ public:
     static int			manageSurvey()		{ return manSurv(0); }
     void			exportSurveySetup();
 
-    enum ObjType		{ Seis, Hor, Flt, Fltss, FltSet, Wll, Attr, NLA, Pick,
-							Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
-							Body, Props, ColTab, RanL, NrObjTypes };
+    enum ObjType		{ Seis, Hor, Flt, Fltss, FltSet, Wll, Attr, NLA,
+				  Pick, Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS,
+				  Geom, Body, Props, ColTab, RanL, NrObjTypes };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
 				//!< Not all combinations are available ...!

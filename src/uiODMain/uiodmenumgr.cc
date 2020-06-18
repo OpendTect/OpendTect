@@ -1120,27 +1120,24 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
 void uiODMenuMgr::fillManTB()
 {
-    const int seisid =
-	mAddTB(mantb_,"man_seis",
-	       uiStrings::phrManage(uiStrings::sVolDataName(true, true, false)),
-				    false,manSeis);
-    const int horid = mAddTB(mantb_,"man_hor",
-	      uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
-    const int fltid = mAddTB(mantb_,"man_flt",
-	      uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
-    mAddTB(mantb_,"man_wll",
-	   uiStrings::phrManage( uiStrings::sWells()),false,manWll);
-    mAddTB(mantb_,"man_picks", uiStrings::phrManage(
-			toUiString("%1/%2")
-			   .arg(uiStrings::sPointSet(mPlural))
-			   .arg(uiStrings::sPolygon(mPlural))),
-			false,manPick);
-    mAddTB(mantb_,"man_body",
-	   uiStrings::phrManage( tr("Bodies/Regions")),false,manBody);
-    mAddTB(mantb_,"man_wvlt",
-	   uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
-    mAddTB(mantb_,"man_strat",uiStrings::phrManage( uiStrings::sStratigraphy()),
-	   false,manStrat);
+    uiString seisstr = uiStrings::sVolDataName(true,true,false);
+    manids_.seisid_ = mAddTB(mantb_,"man_seis",
+	uiStrings::phrManage(seisstr),false,manSeis);
+    manids_.horid_ = mAddTB(mantb_,"man_hor",
+	uiStrings::phrManage(uiStrings::sHorizon(mPlural)),false,manHor);
+    manids_.fltid_ = mAddTB(mantb_,"man_flt",
+	uiStrings::phrManage(uiStrings::sFault(mPlural)),false,manFlt);
+    manids_.wllid_ = mAddTB(mantb_,"man_wll",
+	uiStrings::phrManage(uiStrings::sWells()),false,manWll);
+    manids_.pickid_ = mAddTB(mantb_,"man_picks", uiStrings::phrManage(
+	toUiString("%1/%2").arg(uiStrings::sPointSet(mPlural))
+			   .arg(uiStrings::sPolygon(mPlural))),false,manPick);
+    manids_.bodyid_ = mAddTB(mantb_,"man_body",
+	uiStrings::phrManage(tr("Bodies/Regions")),false,manBody);
+    manids_.wvltid_ = mAddTB(mantb_,"man_wvlt",
+	uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
+    manids_.stratid_ = mAddTB(mantb_,"man_strat",
+	uiStrings::phrManage(uiStrings::sStratigraphy()),false,manStrat);
 
     uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
     if ( SI().has2D() )
@@ -1155,12 +1152,13 @@ void uiODMenuMgr::fillManTB()
 	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
 		      mManSeisPS3DMnuItm )
     }
-    mantb_->setButtonMenu( seisid, seispopmnu, uiToolButton::InstantPopup );
+    mantb_->setButtonMenu( manids_.seisid_, seispopmnu,
+			   uiToolButton::InstantPopup );
 
     if ( SI().survDataType() != SurveyInfo::No2D )
 	mAddPopUp( tr("Horizon Menu"), tr("2D Horizons"),
 		   tr("3D Horizons"),
-		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
+		   mManHor2DMnuItm, mManHor3DMnuItm, manids_.horid_ );
 
     uiMenu* fltpopmnu = new uiMenu( &appl_, tr("Faults Menu") );
     mAddPopupMnu( fltpopmnu, uiStrings::sFault(mPlural), mManFaultMnuItm )
@@ -1169,7 +1167,28 @@ void uiODMenuMgr::fillManTB()
     if ( SI().has3D() )
 	mAddPopupMnu( fltpopmnu, uiStrings::sFaultSet(mPlural),
 		      mManFaultSetMnuItm )
-    mantb_->setButtonMenu( fltid, fltpopmnu, uiToolButton::InstantPopup );
+    mantb_->setButtonMenu( manids_.fltid_, fltpopmnu,
+			   uiToolButton::InstantPopup );
+}
+
+
+int uiODMenuMgr::manActionID( uiODApplMgr::ObjType tp ) const
+{
+    int id = -1;
+    switch ( tp )
+    {
+    case uiODApplMgr::Seis: id = manids_.seisid_; break;
+    case uiODApplMgr::Hor: id = manids_.horid_; break;
+    case uiODApplMgr::Flt: id = manids_.fltid_; break;
+    case uiODApplMgr::Wll: id = manids_.wllid_; break;
+    case uiODApplMgr::Pick: id = manids_.pickid_; break;
+    case uiODApplMgr::Body: id = manids_.bodyid_; break;
+    case uiODApplMgr::Wvlt: id = manids_.wvltid_; break;
+    case uiODApplMgr::Strat: id = manids_.stratid_; break;
+    default: id = -1;
+    }
+
+    return id;
 }
 
 

@@ -68,6 +68,8 @@ public:
     uiToolBar*		dtectTB()		{ return dtecttb_; }
     uiToolBar*		viewTB()		{ return viewtb_; }
     uiToolBar*		manTB()			{ return mantb_; }
+    int			manActionID(uiODApplMgr::ObjType) const;
+			//! To get access to button in Manage ToolBar
     uiToolBar*		pluginTB();
     uiToolBar*		customTB(const char*);
 
@@ -196,8 +198,18 @@ protected:
     void		addIconMnuItems(const DirList&,uiMenu*,
 					BufferStringSet&);
     void		showHostID();
+
 public:
     void		createFaultToolMan();
+
+private:
+			struct ManageActionIDSet
+			{
+			    int seisid_=-1, horid_=-1, fltid_=-1, wllid_=-1,
+				pickid_=-1, bodyid_=-1, wvltid_=-1, stratid_=-1;
+			};
+
+    ManageActionIDSet	manids_;
 };
 
 
