@@ -82,7 +82,7 @@ void uiSteeringSel::createFields()
     inpfld_->getHistory( inpselhist );
     inpfld_->attach( alignedBelow, typfld_ );
 
-    dirfld_ = new uiGenInput( this, uiStrings::sAzimuth(), FloatInpSpec() );
+    dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"), FloatInpSpec() );
     dirfld_->attach( alignedBelow, typfld_ );
     uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime() ? tr("(us/m)") 
 						            : tr("(degrees)"));
