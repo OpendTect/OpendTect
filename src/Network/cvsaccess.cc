@@ -19,15 +19,18 @@ ________________________________________________________________________
 static void addRedirect( OS::MachineCommand& mc )
 {
 #ifndef __debug__
-    mc.addArg( ">" ).addArg( "/dev/null" )
-      .addArg( "2" ).addArg( ">" ).addArg( "&1" );
+    mc.addFileRedirect( "/dev/null" )
+      .addFileRedirect( "&1", 2 );
 #endif
 }
 
 #define mGetReqFnm() const BufferString reqfnm( File::Path(dir_,fnm).fullPath())
 #define mExecCmd( stmt, machcomm ) \
     addRedirect( machcomm ); \
-    stmt OS::CommandLauncher( machcomm ).execute()
+    OS::CommandExecPars pars( OS::Wait4Finish ); \
+    if ( !dir_.isEmpty() ) \
+	pars.workingdir( dir_ );  \
+    stmt machcomm.execute( pars )
 #define mRetExecCmd( machcomm ) mExecCmd( return, machcomm )
 
 #define mGetTmpFnm(op,fnm) \
@@ -323,8 +326,9 @@ void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
 #else
 
     mGetTmpFnm("cvseditors",fnm);
-    OS::MachineCommand machcomm( "cvs", "editors", reqfnm, ">", tmpfnm );
-    machcomm.addArg( "2" ).addArg( ">" ).addArg( "/dev/null" );
+    OS::MachineCommand machcomm( "cvs", "editors", reqfnm );
+    machcomm.addFileRedirect( tmpfnm )
+	    .addFileRedirect( "/dev/null", 2 );
     mExecCmd( const bool res =, machcomm );
     if ( !res )
 	mRetRmTempFile()
@@ -356,8 +360,9 @@ void CVSAccess::diff( const char* fnm, BufferString& res ) const
 #else
 
     mGetTmpFnm("cvsdiff",fnm);
-    OS::MachineCommand machcomm( "cvs", "diff", reqfnm, ">", tmpfnm );
-    machcomm.addArg( "2" ).addArg( ">" ).addArg( "/dev/null" );
+    OS::MachineCommand machcomm( "cvs", "diff", reqfnm );
+    machcomm.addFileRedirect( tmpfnm )
+	    .addFileRedirect( "/dev/null", 2 );
     mExecCmd( const bool commres =, machcomm );
     if ( !commres )
 	mRetRmTempFile()
