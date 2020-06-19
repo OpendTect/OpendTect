@@ -25,15 +25,7 @@ class BufferStringSet;
 /*!
 \brief Provides I/O stream for file or system command.
 
-To specify a command, start with '@'. Hostname may be added as in OSCommand.
-
 Examples:
- - dgb1:@handle_data
-   @dgb1:handle_data
-   @dgb1:@handle_data
-   @\\dgb1:handle_data
-	Executable handle_data on remote host dgb1 that gets/puts data to/from
-	stdin/stdout.
  - foo.bar
 	File foo.bar in current directory (whatever that may be!).
  - C:\\tmp\xx.txt
