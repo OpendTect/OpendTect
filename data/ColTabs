@@ -638,7 +638,7 @@ Standard color tables
 44.Transparency.0: 0`0
 44.Transparency.1: 1`0
 
-45.Name: OD Seismics 1
+45.Name: OD Seismic 1
 45.Marker color: 0`240`0`0
 45.Undef color: 150`200`150`255
 45.Nr segments: 0
@@ -652,7 +652,7 @@ Standard color tables
 45.Transparency.0: 0`0
 45.Transparency.1: 1`0
 
-46.Name: OD Seismics 2
+46.Name: OD Seismic 2
 46.Marker color: 0`240`0`0
 46.Undef color: 150`200`150`255
 46.Nr segments: 0
@@ -670,7 +670,7 @@ Standard color tables
 46.Transparency.0: 0`0
 46.Transparency.1: 1`0
 
-47.Name: OD Seismics 3
+47.Name: OD Seismic 3
 47.Marker color: 0`240`0`0
 47.Undef color: 150`200`150`255
 47.Nr segments: 0
