@@ -16,6 +16,7 @@ namespace OD { class LineStyle; }
 class uiGenInput;
 class uiSelLineStyle;
 class uiCheckBox;
+class uiComboBox;
 
 mExpClass(uiTools) uiMeasureDlg : public uiDialog
 { mODTextTranslationClass(uiMeasureDlg);
@@ -32,6 +33,7 @@ public:
     Notifier<uiMeasureDlg>	lineStyleChange;
     Notifier<uiMeasureDlg>	clearPressed;
     Notifier<uiMeasureDlg>	velocityChange;
+    Notifier<uiMeasureDlg>	dipUnitChange;
 
 protected:
 
@@ -45,10 +47,13 @@ protected:
     uiGenInput*			distfld_;
     uiGenInput*			dist2fld_;
     uiGenInput*			inlcrldistfld_;
+    uiGenInput*			dipfld_;
+    uiComboBox*			dipunitfld_;
     uiCheckBox*			clearchkbut_;
 
     void			lsChangeCB(CallBacker*);
     void			clearCB(CallBacker*);
     void			stylebutCB(CallBacker*);
     void			velocityChgd(CallBacker*);
+    void			dipUnitSel( CallBacker* );
 };

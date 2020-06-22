@@ -110,6 +110,8 @@ void MeasureToolMan::manageDlg( bool show )
 				mCB(this,MeasureToolMan,lineStyleChangeCB) );
 	    measuredlg_->velocityChange.notify(
 				mCB(this,MeasureToolMan,velocityChangeCB) );
+	    measuredlg_->dipUnitChange.notify(
+				mCB(this,MeasureToolMan,velocityChangeCB) );
 	    measuredlg_->clearPressed.notify( mCB(this,MeasureToolMan,clearCB));
 	    measuredlg_->windowClosed.notify(
 				mCB(this,MeasureToolMan,dlgClosed) );

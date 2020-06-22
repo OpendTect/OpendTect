@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uicombobox.h"
 #include "uiconstvel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -43,6 +44,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , lineStyleChange(this)
     , clearPressed(this)
     , velocityChange(this)
+    , dipUnitChange(this)
 {
     setCtrlStyle( CloseOnly );
     showAlwaysOnTop();
@@ -57,12 +59,14 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiXYUnitString()) );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
+	hdistfld_->setNrDecimals(2);
     hdistfld_->setReadOnly( true );
 
     uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
 			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiZUnitString()) );
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
+	zdistfld_->setNrDecimals( 2 );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
@@ -72,6 +76,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     if ( SI().zIsTime() )
     {
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
+	zdist2fld_->setNrDecimals( 2 );
 	zdist2fld_->attach( alignedBelow, zdistfld_ );
 
 	zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVelocity(),
@@ -84,6 +89,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     uiString distlbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
 		       SI().getUiXYUnitString());
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
+	distfld_->setNrDecimals( 2 );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
@@ -92,6 +98,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	uiString lbl = uiStrings::phrJoinStrings( uiStrings::sDistance(),
 		uiStrings::sDistUnitString(!SI().xyInFeet(),true,true) );
 	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
+	dist2fld_->setNrDecimals( 2 );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );
     }
@@ -102,6 +109,17 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 				     .setName("CrlDist",1) );
     inlcrldistfld_->setReadOnly( true, -1 );
     inlcrldistfld_->attach( alignedBelow, dist2fld_ ? dist2fld_ : distfld_ );
+
+    dipfld_ = new uiGenInput( topgrp, uiStrings::sDip(), FloatInpSpec(0) );
+    dipfld_->setNrDecimals( 2 );
+    dipfld_->setReadOnly( true );
+    dipfld_->attach( alignedBelow, inlcrldistfld_ );
+
+    BufferStringSet unitstrs;
+    unitstrs.add( "degrees" ).add( SI().zIsTime() ? "us/m" : "mm/m" );
+    dipunitfld_ = new uiComboBox( topgrp, unitstrs, "Dip Units" );
+    dipunitfld_->selectionChanged.notify( mCB(this,uiMeasureDlg,dipUnitSel) );
+    dipunitfld_->attach( rightOf, dipfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
     uiPushButton* clearbut = new uiPushButton( botgrp, tr("Clear"),
@@ -189,6 +207,8 @@ void uiMeasureDlg::reset()
     if ( dist2fld_ ) dist2fld_->setValue( 0 );
     distfld_->setValue( 0 );
     inlcrldistfld_->setValue( Interval<int>(0,0) );
+    dipfld_->setEmpty();
+    dipfld_->setSensitive( false );
 }
 
 
@@ -201,7 +221,6 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	reset();
 	return;
     }
-
 
     int totinldist = 0, totcrldist = 0;
     double tothdist = 0, totzdist = 0;
@@ -246,5 +265,41 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
     distfld_->setValue( totrealdist );
     if ( dist2fld_ ) dist2fld_->setValue( convdist );
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
+
+    const bool showdip = points.size() == 2;
+    if ( !showdip )
+	dipfld_->setEmpty();
+    else
+    {
+	if ( SI().xyInFeet() )
+	    tothdist *= mFromFeetFactorD;
+	if ( SI().zInFeet() )
+	    totzdist *= mFromFeetFactorD;
+
+	float dipval = mUdf( float );
+	if ( dipunitfld_->currentItem() == 0 ) // Degrees
+	{
+	    if (SI().zIsTime())
+		totzdist *= velocity / 2;
+
+	    dipval = mIsZero(tothdist,1e-3) ? 90.f
+			: Math::toDegrees( Math::Atan2(totzdist,tothdist) );
+	}
+	else
+	{
+	    const double zfac = SI().zIsTime() ? 1e6 : 1e3;
+	    dipval = totzdist * zfac / tothdist;
+	}
+
+	dipfld_->setValue( dipval );
+    }
+
+    dipfld_->setSensitive( showdip );
     raise();
+}
+
+
+void uiMeasureDlg::dipUnitSel( CallBacker* )
+{
+    dipUnitChange.trigger();
 }
