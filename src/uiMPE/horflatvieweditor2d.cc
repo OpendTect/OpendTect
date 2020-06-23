@@ -648,14 +648,18 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
     const bool wvavisible = editor_->viewer().isVisible(true);
     const bool needsdata = spk.getTrackMode() != spk.DrawBetweenSeeds;
     if ( spk.nrSeeds()>0 && trackedatsel && needsdata )
-	{
+    {
 	uiString vdmsg, wvamsg;
 	const bool vdres = vdvisible &&
 		MPE::engine().pickingOnSameData( curss, *vdselspec_, vdmsg );
 	const bool wvares = wvavisible &&
 		MPE::engine().pickingOnSameData( curss, *wvaselspec_, wvamsg );
-	if ( !vdres && !wvares )
-    {
+	if ( vdres )
+	    pickinvd = true;
+	else if ( wvares )
+	    pickinvd = false;
+	else if ( !vdres && !wvares )
+	{
 	    const bool res = uiMSG().askContinue( vdmsg );
 	    if ( !res )
 		return false;
