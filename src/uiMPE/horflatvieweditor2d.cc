@@ -57,6 +57,7 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , updseedpkingstatus_(this)
     , patchdata_(0)
     , sowingmode_(false)
+    , pickinvd_(true)
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
@@ -297,8 +298,6 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 			  || editor_->isSelActive() )
 	return;
 
-    //if ( !seedpickingon_ ) return;
-
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
     if ( !allowTracking(tracker,emid_) )
 	return;
@@ -311,10 +310,6 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 	return;
 
     seedpicker->setSectionID( emobj->sectionID(0) );
-
-    bool pickinvd = true;
-    if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
-	return;
 
     mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
     if ( !vwr ) return;
@@ -557,14 +552,16 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
 	    return;
     }
 
+    if ( !checkSanity(*tracker,*seedpicker,pickinvd_) )
+	return;
+
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
     mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
     if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
 	return;
 
-    bool pickinvd = true;
-    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
-    if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
+    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd_ );
+    if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo(emobj->id()).currentEventID();

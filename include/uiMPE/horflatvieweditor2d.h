@@ -59,7 +59,7 @@ public:
     void		setSeedPicking(bool);
     void		setTrackerSetupActive( bool yn )
 			{ trackersetupactive_ = yn; }
-    static bool		selectSeedData(const FlatView::AuxDataEditor* editor, 
+    static bool		selectSeedData(const FlatView::AuxDataEditor* editor,
 							      bool& pickinvd);
     void		setLine2DInterSectionSet(const Line2DInterSectionSet*
 							ln2dintersectionset)
@@ -101,7 +101,7 @@ protected:
     void		undo();
     void		redo();
     EMSeedPicker*	getEMSeedPicker() const;
-    
+
 
 	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{
@@ -134,8 +134,8 @@ protected:
     FlatView::AuxData*		patchdata_;
     TypeSet<EM::PosID>		pointselections_;
     bool			sowingmode_;
+    bool			pickinvd_;
     const Line2DInterSectionSet*	line2dintersectionset_;
-
 };
 
 } // namepace MPE
