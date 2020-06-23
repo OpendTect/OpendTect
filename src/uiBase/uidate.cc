@@ -41,9 +41,9 @@ uiCalendar::uiCalendar( uiParent* p )
 
 
 uiCalendarBody& uiCalendar::mkbody( uiParent* p )
-{ 
+{
     body_= new uiCalendarBody(*this,p );
-    return *body_; 
+    return *body_;
 }
 
 void uiCalendar::setDate( const DateInfo& di )
@@ -60,17 +60,21 @@ DateInfo uiCalendar::getDate() const
 
 uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     : uiGroup( p )
-    , label_( !label.isEmpty() ? new uiLabel( this, label ) : 0 )
+    , changed(this)
+    , label_( !label.isEmpty() ? new uiLabel( this, label ) : nullptr )
 {
     dayfld_ = new uiComboBox( this, DateInfo::sAllDaysInMonth(), 0 );
+    mAttachCB( dayfld_->selectionChanged, uiDateSel::changeCB );
     dayfld_->setHSzPol( uiObject::SmallVar );
     if ( label_ ) label_->attach( leftOf, dayfld_ );
 
     monthfld_ = new uiComboBox( this, DateInfo::sFullMonths(), 0 );
+    mAttachCB( monthfld_->selectionChanged, uiDateSel::changeCB );
     monthfld_->setHSzPol( uiObject::SmallVar );
     monthfld_->attach( rightOf, dayfld_ );
 
     yearfld_ = new uiLineEdit( this, 0 );
+    mAttachCB( yearfld_->editingFinished, uiDateSel::changeCB );
     yearfld_->setHSzPol( uiObject::SmallVar );
     yearfld_->setMaxLength( 4 );
     yearfld_->attach( rightOf, monthfld_ );
@@ -85,6 +89,18 @@ uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
 	setDate( *di );
     else
 	setDate( DateInfo() );
+}
+
+
+uiDateSel::~uiDateSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiDateSel::changeCB( CallBacker* )
+{
+    changed.trigger();
 }
 
 
@@ -118,6 +134,7 @@ void uiDateSel::setDate( const DateInfo& di )
     monthfld_->setValue( di.usrMonth()-1 );
     dayfld_->setValue( di.day()-1 );
 }
+
 
 void uiDateSel::showCalendarCB( CallBacker* )
 {
