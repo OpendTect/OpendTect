@@ -8,25 +8,23 @@
 
 #include "batchprog.h"
 
-#include "envvars.h"
+#include "ascstream.h"
 #include "commandlineparser.h"
-#include "file.h"
-#include "genc.h"
 #include "dbman.h"
-#include "iopar.h"
-#include "moddepmgr.h"
-#include "strmprov.h"
+#include "debug.h"
+#include "envvars.h"
+#include "file.h"
 #include "filepath.h"
-#include "sighndl.h"
+#include "genc.h"
 #include "hostdata.h"
-#include "plugins.h"
-#include "strmprov.h"
 #include "ioobjctxt.h"
+#include "iopar.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
-#include "ascstream.h"
-#include "debug.h"
-#include <iostream>
+#include "moddepmgr.h"
+#include "plugins.h"
+#include "sighndl.h"
+#include "od_ostream.h"
 
 #ifndef __win__
 # include "_execbatch.h"
@@ -55,12 +53,7 @@ void BatchProgram::deleteInstance( int retcode )
 
 BatchProgram::BatchProgram()
     : NamedCallBacker("Batch Program")
-    , stillok_(false)
-    , inbg_(false)
-    , sdout_(*new StreamData)
     , iopar_(new IOPar)
-    , comm_(0)
-    , clparser_(0)
 {
     DisableAutoSleep();
 }
@@ -94,7 +87,7 @@ void BatchProgram::init()
     mGetKeyedVal( sKeyJobID, jobid_ );
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
-	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
+	comm_ = new JobCommunic( masterhost, masterport, jobid_ );
 
     BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
@@ -123,7 +116,7 @@ void BatchProgram::init()
 	od_istream odstrm( parfilnm );
 	if ( !odstrm.isOK() )
 	{
-	errorMsg( tr("%1: Cannot open parameter file: %2")
+	    errorMsg( tr("%1: Cannot open parameter file: %2")
 			.arg( clparser_->getExecutableName() )
 			.arg( parfilnm ));
 	    return;
@@ -132,11 +125,10 @@ void BatchProgram::init()
 	ascistream aistrm( odstrm, true );
 	if ( sKey::Pars() != aistrm.fileType() )
 	{
-	errorMsg( tr("%1: Input file %2 is not a parameter file")
+	    errorMsg( tr("%1: Input file %2 is not a parameter file")
 			.arg( clparser_->getExecutableName() )
 			.arg( parfilnm ));
-
-	od_cerr() << aistrm.fileType() << od_endl;
+	    od_cerr() << aistrm.fileType() << od_endl;
 	    return;
 	}
 
@@ -154,7 +146,7 @@ void BatchProgram::init()
 
     BufferString res = iopar_->find( sKey::LogFile() );
     if ( !res )
-	iopar_->set( sKey::LogFile(), StreamProvider::sStdErr() );
+	iopar_->set( sKey::LogFile(), od_stream::sStdIO() );
 
 #define mSetDataRootVar(str) \
 	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
@@ -215,9 +207,11 @@ BatchProgram::~BatchProgram()
 
     killNotify( false );
 
-    sdout_.close();
-    delete &sdout_;
-    delete clparser_;
+    strm_->close();
+    if ( strmismine_ )
+	delete strm_;
+    strm_ = nullptr;
+    deleteAndZeroPtr( clparser_ );
 
     // Do an explicit exitProgram() here, so we are sure the program
     // is indeed ended and we won't get stuck while cleaning up things
@@ -265,11 +259,10 @@ bool BatchProgram::pauseRequested() const
 
 bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 {
-    if ( sdout_.oStrm() )
-	*sdout_.oStrm() << '\n' << toString(msg) << '\n' << std::endl;
-
-    if ( !sdout_.oStrm() || cc_stderr )
-	std::cerr << '\n' << toString(msg) << '\n' << std::endl;
+    if ( strm_ && strm_->isOK() )
+	*strm_ << '\n' << toString(msg) << '\n' << od_endl;
+    if ( cc_stderr )
+	od_cerr() << '\n' << toString(msg) << '\n' << od_endl;
 
     if ( comm_ && comm_->ok() )
 	return comm_->sendErrMsg( toString(msg) );
@@ -280,10 +273,9 @@ bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 
 bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
-    if ( sdout_.oStrm() )
-	*sdout_.oStrm() << '\n' << msg << '\n' << std::endl;
-
-    if ( !sdout_.oStrm() || cc_stdout )
+    if ( strm_ && strm_->isOK() )
+	*strm_ << '\n' << msg << '\n' << od_endl;
+    if ( cc_stdout )
 	od_cout() << '\n' << msg << '\n' << od_endl;
 
     return true;
@@ -303,38 +295,51 @@ bool BatchProgram::initOutput()
     BufferString res = pars().find( sKey::LogFile() );
     if ( res == "stdout" ) res.setEmpty();
 
+    if ( strmismine_ )
+	delete strm_;
+
     if ( res && res=="window" )
     {
-	BufferString cmd = "@";
-	cmd += "\"";
-	cmd += File::Path(GetExecPlfDir()).add("od_ProgressViewer").fullPath();
-	cmd += "\" ";
+	OS::MachineCommand mc(
+	    File::Path(GetExecPlfDir()).add("od_ProgressViewer").fullPath() );
+	mc.addArg( GetPID() );
+	//TODO: make this work, it won't work without an actual log file
 
-	cmd += GetPID();
-	StreamProvider sp( cmd );
-	sdout_ = sp.makeOStream();
-	if ( !sdout_.usable() )
+	strmismine_ = true;
+	strm_ = new od_ostream( mc );
+	if ( !strm_ || !strm_->isOK() )
 	{
-	    std::cerr << name() << ": Cannot open window for output"<<std::endl;
-	    std::cerr << "Using std output instead" << std::endl;
+	    od_cerr() << name() << ": Cannot open window for output" << od_endl;
+	    od_cerr() << "Using std output instead" << od_endl;
+	    deleteAndZeroPtr( strm_ );
 	    res = 0;
 	}
     }
 
     if ( res != "window" )
     {
-	if ( res.isEmpty() )
-	    res = StreamProvider::sStdErr();
-	sdout_ = StreamProvider(res).makeOStream();
-	if ( !sdout_.oStrm() )
+	if ( !res.isEmpty() )
 	{
-	    std::cerr << name() << ": Cannot open log file" << std::endl;
-	    std::cerr << "Using stderror instead" << std::endl;
-            sdout_.setOStrm( &std::cerr );
+	    strmismine_ = true;
+	    strm_ = new od_ostream( res );
+	}
+
+	if ( !strm_ || !strm_->isOK() )
+	{
+	    if ( !res.isEmpty() )
+	    {
+		od_cerr() << name() << ": Cannot open log file" << od_endl;
+		od_cerr() << "Using stdoutput instead" << od_endl;
+	    }
+	    deleteAndZeroPtr( strm_ );
+	    strm_ = &od_cout();
+	    strmismine_ = false;
 	}
     }
 
-    stillok_ = sdout_.usable();
+    stillok_ = strm_ && strm_->isOK();
+    if ( comm_ && strm_ )
+	comm_->setStream( *strm_ );
     if ( stillok_ )
 	PIM().loadAuto( true );
     return stillok_;
@@ -351,7 +356,8 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     {
 	if ( errmsg.isEmpty() )
 	    errmsg = tr("Error getting info from database");
-	*sdout_.oStrm() << toString(errmsg) << std::endl;
+	if ( strm_ )
+	    *strm_ << toString(errmsg) << od_endl;
     }
 
     return ioobj;
