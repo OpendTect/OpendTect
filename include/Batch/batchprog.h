@@ -19,13 +19,13 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "genc.h"
 #include "namedobj.h"
-#include "od_iostream.h"
 #include "oscommand.h"
 #include "prog.h"
 
 class CommandLineParser;
 class IOObj;
 class IOObjContext;
+class od_ostream;
 class MMSockCommunic;
 class JobCommunic;
 class StreamData;
@@ -94,11 +94,11 @@ protected:
     static BatchProgram* inst_;
 
 
-    bool		stillok_;
-    bool		inbg_;
-    StreamData&		sdout_;
-    IOPar*		iopar_;
-    CommandLineParser*	clparser_;
+    bool		stillok_ = false;
+    bool		inbg_ = false;
+    od_ostream*		strm_ = nullptr;
+    IOPar*		iopar_ = nullptr;
+    CommandLineParser*	clparser_ = nullptr;
 
     BufferStringSet	requests_;
 
@@ -111,8 +111,9 @@ protected:
 
 private:
 
-    JobCommunic*	comm_;
+    JobCommunic*	comm_ = nullptr;
     int			jobid_;
+    bool		strmismine_ = true;
 
 };
 

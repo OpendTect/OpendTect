@@ -51,7 +51,7 @@ public:
 			  JobError, HostError, Killed, Timeout };
 
 			JobCommunic(const char* host,PortNr_Type,
-				    int jobid,StreamData&);
+				    int jobid);
 			~JobCommunic();
 
     bool		ok()		{ return stillok_; }
@@ -59,6 +59,8 @@ public:
 
     State		state()	const	{ return stat_; }
     void		setState( State s ) { stat_ = s; }
+
+    void		setStream( od_ostream& strm ) { strm_ = &strm; }
 
     bool		updateState()
 			{
@@ -96,7 +98,7 @@ protected:
     uiString		errmsg_;
     int			jobid_;
     bool		pausereq_;
-    StreamData&		sdout_;
+    od_ostream*		strm_ = nullptr;
     BufferString	progressdetail_;
 
     Network::Socket*	socket_;

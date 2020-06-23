@@ -23,8 +23,7 @@
 #include "mmcommunicdefs.h"
 
 
-JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
-			  StreamData& sout )
+JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     : masterauth_(System::hostAddress(host),port)
     , timestamp_(Time::getMilliSeconds())
     , stillok_(true)
@@ -35,7 +34,6 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
     , failtimeout_(1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",30))
     , pausereq_(false)
     , jobid_(jid)
-    , sdout_(sout)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
     , min_time_between_msgupdates_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",1))
@@ -218,7 +216,8 @@ void JobCommunic::checkMasterTimeout()
 
 void JobCommunic::directMsg( const char* msg )
 {
-    (sdout_.oStrm() ? *sdout_.oStrm() : std::cerr) << msg << std::endl;
+    od_ostream& strm = strm_ && strm_->isOK() ? *strm_ : od_cout();
+    strm << msg << od_endl;
     logMsg( true, msg, "" );
 }
 

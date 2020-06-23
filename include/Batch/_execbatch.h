@@ -103,7 +103,7 @@ void Execute_batch( int* pargc, char** argv )
     bool allok = bp.initOutput();
     if ( allok )
     {
-	od_ostream logstrm( *bp.sdout_.oStrm() );
+	od_ostream& logstrm = bp.strm_ ? *bp.strm_ : od_cout();
 	const int pid = GetPID();
 #ifdef __win__
 	setBatchPriority( *pargc, argv );
