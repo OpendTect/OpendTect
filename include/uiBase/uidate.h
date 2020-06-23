@@ -45,13 +45,17 @@ mExpClass(uiBase) uiDateSel : public uiGroup
 { mODTextTranslationClass(uiDateSel);
 public:
 			uiDateSel(uiParent*,const uiString& label,
-				  const DateInfo* = 0 );
+				  const DateInfo* = nullptr );
+			~uiDateSel();
 
     void		setDate(const DateInfo&);
     bool		getDate(DateInfo&,bool doui) const;
 
+    Notifier<uiDateSel>	changed;
+
 protected:
     void		showCalendarCB(CallBacker*);
+    void		changeCB(CallBacker*);
 
     uiLabel*		label_;
     uiComboBox*		dayfld_;
