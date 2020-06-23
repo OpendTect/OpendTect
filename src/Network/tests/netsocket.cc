@@ -56,8 +56,7 @@ public:
     int			timeout_ = 600;
     const char*		prefix_;
     bool		exitonfinish_;
-    BufferString	serverapp_;
-    BufferString	serverarg_;
+    OS::MachineCommand	servercmd_;
 };
 
 
@@ -68,9 +67,11 @@ bool TestRunner::testNetSocket( bool closeserver )
 
     if ( !connection.connectToHost(auth_,true) )
     {
-	if ( !ExecODProgram(serverapp_,serverarg_) )
+	OS::CommandLauncher cl( servercmd_ );
+	if ( !cl.execute(OS::RunInBG) )
 	{
-	    od_ostream::logStream() << "Cannot start " << serverapp_;
+	    od_ostream::logStream() << "Cannot start " << servercmd_.program()
+				<< ": " << toString(cl.errorMsg()) << od_endl;;
 	    return false;
 	}
 
@@ -166,23 +167,30 @@ int main(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;
+    clparser.setKeyHasValue( "serverapp" );
+    clparser.setKeyHasValue( "timeout" );
+    clparser.setKeyHasValue( Network::Server::sKeyPort() );
 
     PtrMan<TestRunner> runner = new TestRunner;
-    runner->serverapp_ = "test_echoserver";
-    int port = 1025;
-    runner->auth_.setPort( mCast(PortNr_Type,port) );
-    runner->serverarg_.set( "--timeout 600 --" )
-		      .add( Network::Server::sKeyPort() )
-		      .addSpace().add( runner->auth_.getPort() )
-		      .add( " --quiet" );
     runner->prefix_ = "[ No event loop ]\t";
     runner->exitonfinish_ = false;
     runner->noeventloop_ = true;
 
-    clparser.getVal( "serverapp", runner->serverapp_, true );
-    clparser.getVal( "serverarg", runner->serverarg_, true );
+    BufferString serverapp = "test_echoserver";
+    clparser.getVal( "serverapp", serverapp, true );
+    runner->servercmd_.setProgram( serverapp );
+
+    int port = 1025;
+    runner->auth_.setPort( mCast(PortNr_Type,port) );
+    clparser.getVal( "timeout", runner->timeout_, true );
+    runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
+
     if ( clparser.getVal(Network::Server::sKeyPort(),port,false) )
 	runner->auth_.setPort( mCast(PortNr_Type,port) );
+    runner->servercmd_.addKeyedArg( Network::Server::sKeyPort(), port );
+
+    if ( clparser.hasKey("quiet") )
+	runner->servercmd_.addFlag( "quiet" );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );

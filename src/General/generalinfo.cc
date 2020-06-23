@@ -44,10 +44,10 @@ bool	getHostIDs( BufferStringSet& hostids,
 	}
     }
 
-    const BufferString cmd( lmutilfp.fullPath().buf(), " lmhostid -n" );
+    OS::MachineCommand cmd( lmutilfp.fullPath().buf() );
     BufferString stdoutput, stderror;
-    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &stdoutput,
-				      &stderror );
+    cmd.addArg( "lmhostid" ).addFlag( "n", OS::OldStyle );
+    const bool res = cmd.execute( stdoutput, &stderror );
     if ( !res )
     {
 	errmsg.add( "Failed to get HostID information." );

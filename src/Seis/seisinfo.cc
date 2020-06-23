@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "timeser.h"
 #include "ctxtioobj.h"
+#include "od_istream.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seis2dlineio.h"
@@ -40,23 +41,21 @@ const char* SeisPacketInfo::sZRange = "Z range";
 
 static BufferString getUsrInfo()
 {
-    BufferString bs;
+    BufferString ret;
     const char* envstr = GetEnvVar( "DTECT_SEIS_USRINFO" );
-    if ( !envstr || !File::exists(envstr) ) return bs;
+    if ( !envstr || !File::exists(envstr) )
+	return ret;
 
-    StreamData sd = StreamProvider(envstr).makeIStream();
-    if ( sd.usable() )
+    od_istream strm( envstr );
+    BufferString linebuf;
+    while ( strm.isOK() )
     {
-	char buf[1024];
-	while ( *sd.istrm )
-	{
-	    sd.istrm->getline( buf, 1024 );
-	    if ( *(const char*)bs ) bs += "\n";
-	    bs += buf;
-	}
+	strm.getLine( linebuf );
+	if ( !linebuf.isEmpty() )
+	    ret.addNewLine().add( linebuf );
     }
 
-    return bs;
+    return ret;
 }
 
 

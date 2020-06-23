@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "od_ostream.h"
 #include "msgh.h"
+#include "uistring.h"
 #include "fixedstring.h"
 
 #include <iostream>
@@ -55,11 +56,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 
-namespace OD { Export_Basic od_ostream& logMsgStrm(); }
-Export_Basic int gLogFilesRedirectCode = -1; // 0 = stderr, 1 = log file
-static bool crashonprogerror = false;
-static PtrMan<od_ostream> dbglogstrm = 0;
+static const char* sStdErr = "stderr";
+static BufferString log_file_name_ = sStdErr;
+static bool crash_on_programmer_error_ = false;
+static PtrMan<od_ostream> dbg_log_strm_ = nullptr;
 
+
+namespace OD
+{
+
+void SetGlobalLogFile( const char* fnm )
+{
+    log_file_name_.set( fnm );
+}
+
+Export_Basic od_ostream& logMsgStrm();
+class ForcedCrash {};
 
 class StaticStringRepos
 {
@@ -77,13 +89,18 @@ public:
 				}
 
 private:
+
     ObjectSet<const OD::String>	strings_;
     mutable Threads::Lock	lock_;
+
 };
 
-static StaticStringRepos getStaticStringRepos()
+} // namespace OD
+
+
+static OD::StaticStringRepos getStaticStringRepos()
 {
-    mDefineStaticLocalObject( StaticStringRepos, repos, );
+    mDefineStaticLocalObject( OD::StaticStringRepos, repos, );
     return repos;
 }
 
@@ -108,9 +125,9 @@ void od_test_prog_crash_handler(int)
 
 void od_init_test_program(int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     signal(SIGSEGV, od_test_prog_crash_handler );
-    crashonprogerror = true;
+    DBG::setCrashOnProgError( true );
 
     OD::ModDeps().ensureLoaded("Basic");
 }
@@ -156,8 +173,8 @@ namespace DBG
 
 bool setCrashOnProgError( bool yn )
 {
-    const bool res = crashonprogerror;
-    crashonprogerror = yn;
+    const bool res = crash_on_programmer_error_;
+    crash_on_programmer_error_ = yn;
     return res;
 }
 
@@ -195,10 +212,10 @@ static int getMask()
 	BufferString msg;
 	if ( dbglogfnm )
 	{
-	    dbglogstrm = new od_ostream( dbglogfnm );
-	    if ( dbglogstrm && !dbglogstrm->isOK() )
+	    dbg_log_strm_ = new od_ostream( dbglogfnm );
+	    if ( dbg_log_strm_ && !dbg_log_strm_->isOK() )
 	    {
-		dbglogstrm = 0;
+		dbg_log_strm_ = nullptr;
 		msg = "Cannot open debug log file '";
 		msg += dbglogfnm;
 		msg += "': reverting to stdout";
@@ -238,40 +255,42 @@ void forceCrash( bool withdump )
     if ( withdump )
 	SignalHandling::SH().doStop( 6, false ); // 6 = SIGABRT
     else
-	{ char* ptr = 0; *ptr = 0; }
+    {
+	throw( OD::ForcedCrash() );
+    }
 }
 
 
-void message( const char* msg )
+void message( const char* inpmsg )
 {
-    if ( !isOn() ) return;
+    if ( !isOn() )
+	return;
 
-    BufferString msg_;
+    BufferString msg;
     mDefineStaticLocalObject( bool, wantpid,
 			      = GetEnvVarYN("DTECT_ADD_DBG_PID") );
     if ( wantpid )
-    {
-	msg_ = "[";
-	msg_ += GetPID();
-	msg_ += "] ";
-    }
-    msg_ += msg;
+	msg.add( "[" ).add( GetPID() ).add( "] " );
+    msg.add( inpmsg );
 
-    if ( dbglogstrm )
-	*dbglogstrm.ptr() << msg_ << od_endl;
+    if ( dbg_log_strm_ )
+	*dbg_log_strm_ << msg << od_endl;
     else
-	std::cerr << msg_.buf() << std::endl;
+	std::cerr << msg.buf() << std::endl;
 }
 
 
 void message( int flag, const char* msg )
 {
-    if ( isOn(flag) ) message(msg);
+    if ( isOn(flag) )
+	message( msg );
 }
+
 
 void putProgInfo( int argc, char** argv )
 {
-    if ( GetEnvVarYN("OD_NO_PROGINFO") ) return;
+    if ( GetEnvVarYN("OD_NO_PROGINFO") )
+	return;
 
     const bool ison = isOn( DBG_PROGSTART );
 
@@ -288,9 +307,11 @@ void putProgInfo( int argc, char** argv )
     }
     msg += " started on "; msg += GetLocalHostName();
     msg += " at "; msg += Time::getDateTimeString();
-    if ( !ison ) msg += "\n";
+    if ( !ison )
+	msg += "\n";
     message( msg );
-    if ( !ison ) return;
+    if ( !ison )
+	return;
 
     msg = "PID: "; msg += GetPID();
     msg += "; Platform: "; msg += OD::Platform::local().longName();
@@ -336,29 +357,22 @@ public:
 			ErrMsgClass( const char* s, bool p )
 			: MsgClass(s,p?ProgrammerError:Error)	{}
 
-    static bool		printProgrammerErrs;
-
 };
-
-bool ErrMsgClass::printProgrammerErrs =
-# ifdef __debug__
-    true;
-# else
-    false;
-# endif
-
 
 
 namespace OD {
 
 Export_Basic od_ostream& logMsgStrm()
 {
-    mDefineStaticLocalObject( PtrMan<od_ostream>, strm, = 0 );
-    if ( strm )
-	return *strm;
+    mDefineStaticLocalObject( PtrMan<od_ostream>, logstrm, = nullptr );
+    if ( logstrm )
+	return *logstrm;
+
+    if ( GetEnvVarYN("OD_LOG_STDERR") )
+	log_file_name_.set( sStdErr );
 
     BufferString errmsg;
-    if ( gLogFilesRedirectCode > 0 && !GetEnvVarYN("OD_LOG_STDERR") )
+    if ( log_file_name_.isEmpty() )
     {
 	const char* basedd = GetBaseDataDir();
 	if ( !basedd || !*basedd )
@@ -383,27 +397,30 @@ Export_Basic od_ostream& logMsgStrm()
 		fnm += "_";
 		fp.add( fnm.add(FilePath::getTimeStampFileName(".txt")) );
 
-		BufferString logmsgfnm = fp.fullPath();
-
-		strm = new od_ostream( logmsgfnm );
-		if ( !strm->isOK() )
-		{
-		    errmsg.set( "Cannot create log file '" )
-			  .add( logmsgfnm ).add( "'" );
-		    strm = 0;
-		}
+		log_file_name_ = fp.fullPath();
 	    }
 	}
     }
 
-    if ( !strm )
+    if ( !log_file_name_.isEmpty() && log_file_name_ != sStdErr )
     {
-	strm = new od_ostream( std::cerr );
-	if ( !errmsg.isEmpty() )
-	    *strm << errmsg;
+	logstrm = new od_ostream( log_file_name_ );
+	if ( !logstrm->isOK() )
+	{
+	    errmsg.set( "Cannot create log file '" )
+		  .add( log_file_name_ ).add( "'" );
+	    logstrm = 0;
+	}
     }
 
-    return *strm;
+    if ( !logstrm )
+    {
+	logstrm = new od_ostream( std::cout );
+	if ( !errmsg.isEmpty() )
+	    *logstrm << errmsg;
+    }
+
+    return *logstrm;
 }
 
 
@@ -417,7 +434,8 @@ Export_Basic void programmerErrMsg( const char* inpmsg, const char* cname,
 }
 
 
-}
+} //namespace OD
+
 
 
 void UsrMsg( const char* msg, MsgClass::Type t )
@@ -432,15 +450,23 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 }
 
 
-void ErrMsg( const char* msg, bool progr )
+void ErrMsg( const uiString& msg )
 {
-    if ( !msg || !*msg || (progr && !ErrMsgClass::printProgrammerErrs) )
-	return;
+    ErrMsg( toString(msg), false );
+}
 
+
+void ErrMsg( const char* msg, bool isprogrammer )
+{
     if ( !MsgClass::theCB().willCall() )
     {
-	if ( progr )
-	    std::cerr << "(PE) " << msg << std::endl;
+	mDefineStaticLocalObject( bool, wantsilence,
+			= GetEnvVarYN("OD_PROGRAMMER_ERRS_SILENCE",false) );
+	if ( isprogrammer )
+	{
+	    if ( !wantsilence )
+		std::cerr << "(PE) " << msg << std::endl;
+	}
 	else if ( msg && *msg )
 	{
 	    const char* start = *msg == '[' ? "" : "Err: ";
@@ -449,11 +475,11 @@ void ErrMsg( const char* msg, bool progr )
     }
     else
     {
-	ErrMsgClass obj( msg, progr );
+	ErrMsgClass obj( msg, isprogrammer );
 	MsgClass::theCB().doCall( &obj );
     }
 
-    if ( progr && crashonprogerror )
+    if ( isprogrammer && crash_on_programmer_error_ )
 	DBG::forceCrash( false );
 }
 
@@ -578,21 +604,18 @@ void CrashDumper::sendDump( const char* filename )
 
     const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
 
-    BufferString cmd( "\"",script.fullPath(), "\"" );
-    cmd += BufferString( " \"", filename, "\"" );
-    cmd += BufferString( " \"", symboldir.fullPath(), "\"" );
-    cmd += BufferString( " \"", dumphandler.fullPath(), "\"" );
-    cmd += BufferString( " ", prefix );
+    OS::MachineCommand machcomm( script.fullPath(), filename,
+		symboldir.fullPath(), dumphandler.fullPath(), prefix );
     if ( !sendappl_.isEmpty() )
-	cmd += BufferString( " \"",
-		FilePath(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
+	machcomm.addArg( File::Path(GetExecPlfDir(),sendappl_).fullPath() );
 #ifdef __win__
-    cmd += BufferString( " ", "--binary" );
+    machcomm.addFlag( "binary" );
 #endif
 
-    std::cout << cmd.str() << std::endl;
+    const OS::CommandExecPars pars( OS::RunInBG );
+    std::cout << machcomm.toString(&pars) << std::endl;
 
-    ExecCommand( cmd, OS::RunInBG );
+    machcomm.execute( pars );
 }
 
 

@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mmbatchjobdispatch.h"
 #include "envvars.h"
-#include "filepath.h"
 #include "oddirs.h"
 #include "sets.h"
 
@@ -119,15 +118,12 @@ bool Batch::MMJobDispatcher::launch()
     if ( !writeParFile() )
 	return false;
 
-    const BufferString mmprog =
-	FilePath(GetExecPlfDir(),progdefs_[pdidx]->mmprognm_).fullPath();
-    BufferString cmd( "\"", mmprog, "\" " ); cmd.add( jobspec_.clargs_ );
-    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
-    cmd.add( " " ).add( qtdparfnm );
-    OS::MachineCommand mc( cmd );
-    OS::CommandLauncher cl( mc );
+    OS::MachineCommand mc( progdefs_[pdidx]->mmprognm_ );
+    mc.addArgs( jobspec_.clargs_ );
+    mc.addArg( parfnm_ );
+
     OS::CommandExecPars ep( jobspec_.execpars_ );
-    ep.needmonitor( false ).launchtype( OS::RunInBG )
+    ep.needmonitor( false ).launchtype( OS::Batch )
 			   .isconsoleuiprog( GetEnvVarYN("DTECT_DEBUG") );
-    return cl.execute( ep );
+    return mc.execute( ep );
 }

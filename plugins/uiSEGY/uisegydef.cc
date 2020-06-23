@@ -18,12 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "survinfo.h"
 #include "oddirs.h"
+#include "od_istream.h"
 #include "envvars.h"
 #include "settings.h"
 #include "file.h"
 #include "filepath.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "seisioobjinfo.h"
 
 #include "uifileinput.h"
@@ -254,17 +253,16 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
 	return;
 
     const SEGY::FileSpec spec( getSpec() );
-    const char* fnm = spec.fileName();
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    const bool doesexist = sd.usable();
+    od_istream strm( spec.fileName() );
+    const bool doesexist = strm.isOK();
     manipbut_->setSensitive( doesexist );
     if ( !doesexist )
 	return;
 
-    StrmOper::seek( *sd.istrm, 3200, std::ios::beg );
+    strm.setReadPosition( 3200 );
     unsigned char buf[400];
-    StrmOper::readBlock( *sd.istrm, buf, 400 );
-    sd.close();
+    strm.getBin( buf, 400 );
+    strm.close();
     SEGY::BinHeader bh; bh.setInput( buf );
     bh.guessIsSwapped();
     swpd_ = bh.isSwapped();

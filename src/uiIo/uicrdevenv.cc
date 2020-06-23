@@ -169,55 +169,33 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
-#ifdef __mac__
-    FilePath fp( swdir, "Resources" );
-#else
-    FilePath fp( swdir, "bin" );
-#endif
-
-    fp.add( "od_cr_dev_env" );
-    BufferString cmd;
-
-#ifdef __win__
-    fp.setExtension(  "bat" );
-#endif
-
-    cmd.add( fp.fullPath() );
-    OS::CommandLauncher::addQuotesIfNeeded( cmd );
-    OS::CommandLauncher::addQuotesIfNeeded( swdir );
-
-    cmd.addSpace().add( swdir );
-
 #ifdef __win__
     char shortpath[1024];
     GetShortPathName( workdirnm.buf(), shortpath, 1024 );
     workdirnm = shortpath;
 #endif
 
-    const BufferString workdirorig( workdirnm );//Need to keeping
-	//old format of path to check File::exists() later without quotes
-
-    OS::CommandLauncher::addQuotesIfNeeded( workdirnm );
-    cmd.addSpace().add( workdirnm );
-
-    const OS::MachineCommand mc( cmd );
-    OS::CommandLauncher cl( mc );
-    BufferString outmsg, errormsg;
-    const bool res = cl.execute(  outmsg, &errormsg );
+    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env";
+    FilePath fp( swdir, "bin", scriptfnm );
+    OS::MachineCommand mc( fp.fullPath() );
+    mc.addArg( swdir );
+    mc.addArg( workdirnm );
+    BufferString outmsg, errormsg, msgstr;
+    const bool res = mc.execute(  outmsg, &errormsg );
     if ( !res )
     {
-	BufferString msg( "Failed to create Environment " );
+	msgstr.set( "Failed to create Environment " );
 	if ( !outmsg.isEmpty() )
-	    msg.add( outmsg );
+	    msgstr.add( outmsg );
 
 	if ( !errormsg.isEmpty() )
-	    msg.add( errormsg );
+	    msgstr.add( errormsg );
     }
 
     const BufferString cmakefile =
-			FilePath(workdirorig).add("CMakeLists.txt").fullPath();
+			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
     if ( !File::exists(cmakefile) )
-	mErrRet(tr("Creation seems to have failed"))
+	mErrRet(tr("Creation seems to have failed:\n%1").arg(msgstr))
     else
 	uiMSG().message( tr("Creation seems to have succeeded.") );
 }

@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 extern int ODMain(int,char**);
-extern Export_Basic int gLogFilesRedirectCode;
 
 
 int main( int argc, char** argv )
@@ -46,13 +45,8 @@ int main( int argc, char** argv )
 	    "Please consult http://opendtect.org/OpendTect_license.txt.";
 
 	std::cerr << msg << std::endl;
-#if !defined(__win__) || defined(__msvc__)
-	gLogFilesRedirectCode = 1;
-	// Only od_main should make log files, not batch progs.
-	// Didn't fancy putting anything about this in header files
-	// Hence the global 'hidden' variable
+	OD::SetGlobalLogFile( 0 );
 	UsrMsg( msg );
-#endif
 
 #ifdef __mac__
 	BufferString datfile( FilePath(GetSoftwareDir(0),

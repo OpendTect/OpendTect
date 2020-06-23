@@ -21,18 +21,21 @@ public:
 
     static void		initClass();
 
-    			GMT2DLines(const char* nm)
-			    : GMTPar(nm)	{}
-			GMT2DLines(const IOPar& par)
-			    : GMTPar(par) {}
+			GMT2DLines( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
-    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
+    static void		postText(const Coord&,int fontsz,float angle,
+				 const char* justify,const char* txt,
+				 bool modern,od_ostream&,int gmt4fontno=4);
+
 protected:
 
-    static GMTPar*	createInstance(const IOPar&);
+    virtual bool	doExecute(od_ostream&,const char*) override;
+
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };
 
@@ -43,18 +46,17 @@ public:
 
     static void		initClass();
 
-    			GMTRandLines(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTRandLines(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTRandLines( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
-    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
 protected:
 
-    static GMTPar*	createInstance(const IOPar&);
+    virtual bool	doExecute(od_ostream&,const char*) override;
+
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 };
 

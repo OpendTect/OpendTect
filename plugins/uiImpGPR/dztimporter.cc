@@ -69,7 +69,7 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 	    dtype = bits == 16 ? 2 : 0;
     }
 
-    strm.setPosition( data, od_stream::Abs );
+    strm.setReadPosition( data, od_stream::Abs );
     if ( !strm.isOK() )
 	{ emsg = "Cannot read first trace."; mRetFalse; }
 

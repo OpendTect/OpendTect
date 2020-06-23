@@ -555,7 +555,7 @@ bool SEGYSeisTrcTranslator::initRead_()
               .arg(innrsamples_))
 
     offsetcalc_.set( fileopts_ );
-    sConn().iStream().setPosition( cEndTapeHeader );
+    sConn().iStream().setReadPosition( cEndTapeHeader );
     return true;
 }
 
@@ -584,7 +584,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
     so *= (cTraceHeaderBytes + dataBytes() * innrsamples_);
     so += cEndTapeHeader;
     od_istream& strm = sConn().iStream();
-    strm.setPosition( so );
+    strm.setReadPosition( so );
     headerdonenew_ = false;
     return strm.isOK();
 }
@@ -773,7 +773,7 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 	strm.ignore( mSEGYTraceHeaderBytes );
     strm.ignore( innrsamples_ * mBPS(inpcd_) );
     if ( ntrcs > 1 )
-	strm.setPosition( (ntrcs-1)
+	strm.setReadPosition( (ntrcs-1)
 		* (mSEGYTraceHeaderBytes + innrsamples_ * mBPS(inpcd_)) );
 
     headerdonenew_ = false;

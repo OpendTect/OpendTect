@@ -13,11 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "strmdata.h"
+
 #include "bufstringset.h"
 #include "multiid.h"
 #include "executor.h"
 #include "uistring.h"
+class od_istream;
 class SeisTrc;
 class SeisPSImpDataMgr;
 
@@ -96,7 +97,7 @@ protected:
     bool		binary_;
     bool		irregular_;
     bool		endofinput_;
-    StreamData		cursd_;
+    od_istream*		curstrm_;
     BufferStringSet	fnames_;
     BufferStringSet	hdrlines_;
     BufferStringSet	shotattrs_;

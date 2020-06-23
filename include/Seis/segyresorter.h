@@ -81,11 +81,11 @@ protected:
     uiString		msg_;
     od_int64		nrdone_;
     od_int64		totnr_;
-    StreamData		sdout_;
+    od_ostream*		outstrm_;
     Interval<int>	curinlrg_;
     bool		needwritefilehdrs_;
 
-    ObjectSet<StreamData> inpsds_;
+    ObjectSet<od_istream> inpstrms_;
     TypeSet<int>	fidxs_;
     BufferStringSet	inpfnms_;
 

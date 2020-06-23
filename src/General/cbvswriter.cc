@@ -89,10 +89,10 @@ void CBVSWriter::init( const CBVSInfo& i )
     input_rectnreg_ = survgeom_.fullyrectandreg;
 
     const od_stream::Pos cursp = strm_.position();
-    strm_.setPosition( 8 );
+    strm_.setWritePosition( 8 );
     int nrbytes = (int)cursp;
     strm_.addBin( &nrbytes, integersize );
-    strm_.setPosition( cursp );
+    strm_.setWritePosition( cursp );
 }
 
 
@@ -475,9 +475,9 @@ void CBVSWriter::doClose( bool islast )
 
     getRealGeometry();
     const od_stream::Pos kp = strm_.position();
-    strm_.setPosition( geomsp_ );
+    strm_.setWritePosition( geomsp_ );
     writeGeom();
-    strm_.setPosition( kp );
+    strm_.setWritePosition( kp );
 
     if ( !writeTrailer() )
     {
@@ -490,7 +490,7 @@ void CBVSWriter::doClose( bool islast )
     if ( islast )
 	strmclosed_ = true;
     else
-	strm_.setPosition( kp );
+	strm_.setWritePosition( kp );
 }
 
 

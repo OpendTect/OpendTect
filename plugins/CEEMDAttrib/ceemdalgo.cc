@@ -9,13 +9,13 @@
 #include "statruncalc.h"
 #include "statrand.h"
 #include <math.h>
-#include "strmprov.h"
 #include "ceemdtestprogram.h"
 #include "hilberttransform.h"
 #include "arrayndimpl.h"
 #include "undefval.h"
 #include "sorting.h"
 #include "odmemory.h"
+#include "od_iostream.h"
 #include "gridder2d.h"
 #include "survinfo.h"
 
@@ -43,26 +43,25 @@ void DecompInput::testFunction(
 {
     // function dumps the contents of input trace and
     // derived min and max envelops
-    StreamData sd = StreamProvider("testdata.txt").makeOStream();
-	*sd.ostrm << "input" << '\t';
+    od_ostream strm( "testdata.txt" );
+    strm << "input" << '\t';
     for ( int idx=0; idx<size_; idx++ )
     {
 	float val = values_[idx];
-	*sd.ostrm << val << '\t';
+	strm << val << '\t';
     }
-	*sd.ostrm << '\n' << "Envelop max:" << '\t';
+    strm << '\n' << "Envelop max:" << '\t';
     for ( int idx=0; idx<size_; idx++ )
     {
 	float val = maxima.getValue(mCast(float,idx));
-	*sd.ostrm << val << '\t';
+	strm << val << '\t';
    }
-	*sd.ostrm << '\n' << "Envelop min:" << '\t';
+    strm << '\n' << "Envelop min:" << '\t';
     for ( int idx=0; idx<size_; idx++ )
     {
 	float val = minima.getValue(mCast(float,idx));
-	*sd.ostrm << val << '\t';
+	strm << val << '\t';
     }
-	sd.close();
 }
 
 bool DecompInput::dumpComponents(
@@ -71,15 +70,15 @@ bool DecompInput::dumpComponents(
 							realizations ) const
 {
     // write output to file
-    StreamData sd = StreamProvider("components.txt").makeOStream();
- //   *sd.ostrm << "input-average" << '\t';
+    od_ostream strm( "components.txt" );
+ //   strm << "input-average" << '\t';
 
- //   *sd.ostrm << orgminusaverage->averageinput_ << '\t';
+ //   strm << orgminusaverage->averageinput_ << '\t';
  //
  //   for ( int idx=0; idx<size_; idx++ )
  //   {
 	//float val = orgminusaverage->values_[idx];
-	//*sd.ostrm << val << '\t';
+	//strm << val << '\t';
  //   }
 
     for (int real=0; real<realizations.size(); real++)
@@ -88,18 +87,18 @@ bool DecompInput::dumpComponents(
 	for ( int comp=0; comp<realizations[real]->size(); comp++)
 	{
 	    const IMFComponent* currentcomp = (*realizations[real])[comp];
-	    //*sd.ostrm << '\n' <<  currentcomp->name_<< '\t';
-	    //*sd.ostrm << currentcomp->nrzeros_ << '\t';
+	    //strm << '\n' <<  currentcomp->name_<< '\t';
+	    //strm << currentcomp->nrzeros_ << '\t';
 
 	    for ( int idx=0; idx<size_; idx++ )
 	    {
 		float val = currentcomp->values_[idx];
-		*sd.ostrm << val << '\t';
+		strm << val; strm.addTab();
 	    }
-	    *sd.ostrm << '\n';
+	    strm.addNewLine();
 	}
     }
-    sd.close();
+
     return true;
 }
 
@@ -108,8 +107,7 @@ void DecompInput::readComponents(
 {
     int nrsamples = 2001;
     int nrcomp = 11;
-    StreamData sd = StreamProvider("TestData_Components_1-11_MS-DOS.txt")
-								.makeIStream();
+    od_istream strm( "TestData_Components_1-11_MS-DOS.txt" );
     ManagedObjectSet<IMFComponent>* components =
 	new ManagedObjectSet<IMFComponent>();
 
@@ -119,14 +117,13 @@ void DecompInput::readComponents(
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
 	    float val;
-	    *sd.istrm >> val;
+	    strm >> val;
 	    currentcomp->values_[idx] = val;
 	}
 	*components += currentcomp;
     }
-    sd.close();
-    realizations += components;
 
+    realizations += components;
 }
 
 void DecompInput::computeStats(

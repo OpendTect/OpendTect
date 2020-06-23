@@ -168,7 +168,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	if ( !strm.isOK() || !nrsectionsoffset )
 	{ msg_ = sMsgReadError(); return false; }
 
-	strm.setPosition( nrsectionsoffset );
+	strm.setReadPosition( nrsectionsoffset );
 	const int nrsections = readInt32( strm );
 	if ( !strm.isOK() ) { msg_ = sMsgReadError(); return false; }
 
@@ -943,7 +943,7 @@ int dgbSurfaceReader::prepareNewSection( od_istream& strm )
     }
 
     if ( version_==3 )
-	strm.setPosition( sectionoffsets_[sectionindex_] );
+	strm.setReadPosition( sectionoffsets_[sectionindex_] );
 
     nrrows_ = readInt32( strm );
     if ( !strm.isOK() )
@@ -1170,7 +1170,7 @@ bool dgbSurfaceReader::prepareRowRead( od_istream& strm )
     if ( version_!=3 )
 	return true;
 
-    strm.setPosition( rowoffsets_[rowindex_] );
+    strm.setReadPosition( rowoffsets_[rowindex_] );
     return strm.isOK();
 }
 
@@ -1579,9 +1579,9 @@ void dgbSurfaceWriter::finishWriting()
 
 
     const od_stream::Pos secondparoffset = strm.position();
-    strm.setPosition( nrsectionsoffsetoffset_ );
+    strm.setWritePosition( nrsectionsoffsetoffset_ );
     writeInt64( strm, nrsectionsoffset, sEOL() );
-    strm.setPosition( secondparoffset );
+    strm.setWritePosition( secondparoffset );
 
     par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
 
@@ -1824,7 +1824,7 @@ int dgbSurfaceWriter::nextStep()
     rowindex_++;
     if ( rowindex_>=nrrows_ )
     {
-	strm.setPosition( rowoffsettableoffset_ );
+	strm.setWritePosition( rowoffsettableoffset_ );
 	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgWriteError();
@@ -1842,7 +1842,7 @@ int dgbSurfaceWriter::nextStep()
 
 	rowoffsettable_.erase();
 
-	strm.setPosition( 0, od_stream::End );
+	strm.setWritePosition( 0, od_stream::End );
 	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgWriteError();

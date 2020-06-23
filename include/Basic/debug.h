@@ -37,7 +37,6 @@ namespace DBG
     mGlobal(Basic) bool isOn( int flag=0xffff );
     mGlobal(Basic) void message( const char* );     //!< default: to stderr
     mGlobal(Basic) void message( int flag, const char* msg );
-// { if ( isOn(flag) ) message(msg); }
     mGlobal(Basic) void putProgInfo(int,char**);
 			//!< one line; more if isOn()
     mGlobal(Basic) void forceCrash(bool withdump);
@@ -112,6 +111,5 @@ private:
 #define	DBG_SETTINGS	0x0040	// User settings
 #define	DBG_PROGSTART	0x0080	// Program start and stop
 #define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
-
 
 #endif

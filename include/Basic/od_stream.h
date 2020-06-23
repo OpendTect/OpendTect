@@ -13,12 +13,15 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "bufstring.h"
+#include "strmdata.h"
 #include "uistring.h"
 #include "od_iosfwd.h"
 #include <iosfwd>
+
 class FilePath;
-class StreamData;
+namespace OS { class MachineCommand; }
 
 
 
@@ -66,11 +69,11 @@ public:
 				//!< see also below.
     bool			forRead() const;
     bool			forWrite() const;
+    bool			isLocal() const;
 
     enum Ref			{ Abs, Rel, End };
     Pos				position() const;
-    void			setPosition(Pos,Ref r=Abs);
-    Pos				endPosition() const;
+    mDeprecated void		setPosition(Pos,Ref r=Abs);
 
     const char*			fileName() const;
     void			setFileName(const char*);
@@ -79,13 +82,12 @@ public:
     inline const StreamData&	streamData() const		{ return sd_; }
 
     void			setNoClose( bool yn=true )	{ noclose_=yn; }
-    void			releaseStream(StreamData&);
     void			close();
 
     void			addErrMsgTo(BufferString&) const;
-    void			addErrMsgTo(uiString&)const;
+    void			addErrMsgTo(uiString&) const;
     void			addErrMsgTo(uiRetVal&) const;
-    static od_stream*		create(const char*,bool forread,
+    mDeprecated static od_stream*	create(const char*,bool forread,
 					BufferString& errmsg);
 				//!< returns null on failure, never a bad stream
     static od_stream*		create(const char*,bool forread,
@@ -101,20 +103,26 @@ protected:
 			od_stream();
 			od_stream(const char*,bool,bool editmode=false);
 			od_stream(const FilePath&,bool,bool editmode=false);
+			od_stream(const OS::MachineCommand&,const char* workdir,
+				  bool editmode=false);
 			od_stream(std::ostream*);
 			od_stream(std::ostream&);
 			od_stream(std::istream*);
 			od_stream(std::istream&);
-			od_stream(const od_stream&);
-    od_stream&		operator=(const od_stream&);
+    od_stream&		operator=(const od_stream&)		= delete;
 
-    StreamData&		sd_;
-    bool		mine_;
-    bool		noclose_;
+    StreamData		sd_;
+    bool		mine_		= true;
+    bool		noclose_	= false;
     mutable uiString	errmsg_;
 
+    BufferString	noStdStreamPErrMsg() const;
+
+private:
+
+    bool		setFromCommand(const OS::MachineCommand&,
+				       const char* workdir,bool editmode);
+
 };
-
-
 
 #endif

@@ -12,13 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "remjobexec.h"
 
-#include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "netsocket.h"
-
-#define mErrRet( s ) { uiErrorMsg( s ); exit(0); }
 
 
 RemoteJobExec::RemoteJobExec( const Network::Authority& auth )
@@ -63,14 +60,7 @@ void RemoteJobExec::ckeckConnection()
 	const uiString socketmsg = socket_.errMsg();
 	if ( !socketmsg.isEmpty() )
 	    errmsg.add( ": " ).add( socketmsg.getFullString() );
-	mErrRet( errmsg.buf() );
+	OD::DisplayErrorMessage( errmsg );
     }
 }
 
-
-void RemoteJobExec::uiErrorMsg( const char* msg )
-{
-    BufferString cmd( "\"", FilePath(GetExecPlfDir(),"od_DispMsg").fullPath() );
-    cmd.add( "\" --err " ).add( msg );
-    OS::ExecCommand( cmd );
-}

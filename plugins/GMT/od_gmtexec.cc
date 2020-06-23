@@ -16,21 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "timefun.h"
-#include "strmprov.h"
 #include "moddepmgr.h"
-
-#include <iostream>
+#include "od_ostream.h"
 
 #define mErrFatalRet(msg) \
 { \
     strm << msg << od_newline; \
     od_ostream tmpstrm( tmpfp.fullPath() ); \
-    outputfp.setFileName( ".gmtcommands4" ); \
-    if ( File::exists(outputfp.fullPath()) ) \
-	StreamProvider( outputfp.fullPath() ).remove(); \
-	\
-    File::changeDir( cwd.buf() ); \
     tmpstrm << "Failed" << od_newline; \
     tmpstrm << "Failed to create map"; \
     return false; \
@@ -39,15 +31,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    OD::ModDeps().ensureLoaded( "AllNonUi" );
-    GMT::initStdClasses();
+    OD::ModDeps().ensureLoaded( "MPEEngine" );
+    OD::ModDeps().ensureLoaded( "Well" );
+
     const char* psfilenm = pars().find( sKey::FileName() );
-    FilePath outputfp( psfilenm );
-    const BufferString cwd = File::getCurrentPath();
-    if ( cwd.size() > 255 )
+    const BufferString workdir( GetProcFileName(nullptr) );
+    if ( workdir.size() > 255 )
 	mErrStrmRet("Error: Current working directory path length too big")
 
-    File::changeDir( outputfp.pathOnly() );
     if ( !psfilenm || !*psfilenm )
 	mErrStrmRet("Output PS file missing")
 
@@ -61,7 +52,7 @@ bool BatchProgram::go( od_ostream& strm )
 	IOPar* iop = pars().subselect( idx );
 	if ( !iop ) break;
 
-	PtrMan<GMTPar> par = GMTPF().create( *iop );
+	PtrMan<GMTPar> par = GMTPF().create( *iop, workdir );
 	if ( idx == 0 )
 	{
 	    FixedString bmres( par ? par->find(ODGMT::sKeyGroupName()) : 0 );
@@ -99,18 +90,16 @@ bool BatchProgram::go( od_ostream& strm )
 	}
     }
 
-    PtrMan<GMTPar> par = GMTPF().create( legendspar );
+    PtrMan<GMTPar> par = GMTPF().create( legendspar, workdir );
     if ( !par || !par->execute(strm, psfilenm) )
 	strm << "Failed to post legends";
+    par = nullptr;
 
     strm << "Map created successfully" << od_endl;
 
-    outputfp.setFileName( GMT::hasModernGMT() ? "gmt.history"
-					      : ".gmtcommands4" );
-    StreamProvider( outputfp.fullPath() ).remove();
-    File::changeDir( cwd.buf() );
-    StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
-    *sd.ostrm << "Finished.\n";
+    od_ostream sd( tmpfp.fullPath() );
+    sd << "Finished." << od_endl;
     sd.close();
+
     return true;
 }

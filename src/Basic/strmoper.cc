@@ -8,13 +8,16 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmoper.h"
-#include "strmdata.h"
-#include "perthreadrepos.h"
+
 #include "genc.h"
+#include "strmdata.h"
+#include "uistrings.h"
 
 #include <iostream>
 #include <stdio.h>
 #include <limits.h>
+#include <sstream>
+#include <iosfwd>
 
 #include "bufstring.h"
 #include "thread.h"
@@ -66,13 +69,26 @@ void StrmOper::clear( std::ios& strm )
 }
 
 
+static void readPrep(std::istream& strm)
+{
+    if (strm.bad())
+    {
+	sleepSeconds(retrydelay);
+	strm.clear();
+    }
+    else if (strm.eof())
+    {
+	strm.clear();
+    }
+}
+
+
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
-    if ( strm.eof() || strm.fail() || !ptr || mIsUdf(nrbytes) )
+    if ( !ptr || mIsUdf(nrbytes) )
 	return false;
 
-    if ( strm.bad() )
-	strm.clear();
+    readPrep(strm);
 
     strm.read( (char*)ptr, nrbytes );
 
@@ -109,6 +125,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 
     strm.clear();
     strm.write( (const char*)ptr, nrbytes );
+
     if ( strm.good() )
 	return true;
     if ( strm.fail() )
@@ -130,14 +147,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 
 bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
-    if ( strm.eof() )
-       return false;
-
-    if ( strm.bad() )
-    {
-	sleepSeconds( retrydelay );
-	strm.clear();
-    }
+    readPrep(strm);
 
     int ich = strm.peek();
     if ( ich == 255 )
@@ -411,93 +421,159 @@ od_int64 StrmOper::lastNrBytesRead( std::istream& strm )
 }
 
 
-const char* StrmOper::getErrorMessage( std::ios& strm )
+uiString StrmOper::getErrorMessage( std::ios& strm )
 {
-    mDeclStaticString( ret );
+    uiString msg;
     if ( strm.good() )
-	{ ret.setEmpty(); return ret; }
+	{ msg.setEmpty(); return msg; }
 
     if ( strm.rdstate() & std::ios::eofbit )
-	ret = "File ended unexpectedly";
+	msg = od_static_tr( "StrmOperGetErrorMessage",
+			    "File ended unexpectedly " );
     else
     {
-	ret = GetLastSystemErrorMessage();
-	if ( ret.isEmpty() )
+	msg = toUiString( GetLastSystemErrorMessage() );
+	if ( msg.isEmpty() )
 	{
 	    if ( strm.rdstate() & std::ios::failbit )
-		ret = "Recoverable error encountered";
+		msg = od_static_tr( "StrmOperGetErrorMessage",
+				    "Recoverable error encountered " );
 	    else if ( strm.rdstate() & std::ios::badbit )
-		ret = "Unrecoverable error encountered";
+		msg = od_static_tr( "StrmOperGetErrorMessage",
+				    "Unrecoverable error encountered " );
 	    else
-		ret = "Unknown error encountered";
+		msg = od_static_tr( "StrmOperGetErrorMessage",
+				    "Unknown error encountered " );
 	}
     }
 
-    return ret.buf();
+    return msg;
 }
 
 
-const char* StrmOper::getErrorMessage( const StreamData& sd )
+uiString StrmOper::getErrorMessage( const StreamData& sd )
 {
-    mDeclStaticString( ret );
-    ret.setEmpty();
+    uiString msg;
 
-    const int iotyp = sd.istrm ? -1 : (sd.ostrm ? 1 : 0);
+    const bool havestrm = sd.iStrm() || sd.oStrm();
+    BufferString fnmstr( "'", sd.fileName(), "'" );
+    if ( fnmstr == "''" )
+	fnmstr.setEmpty();
 
-    if ( sd.fileName() && *sd.fileName() )
+    if ( !havestrm )
     {
-	if ( iotyp )
-	    ret.add( iotyp > 0 ? "Writing " : "Reading " );
-	ret.add( "'" ).add( sd.fileName() ).add( "': " );
+	if ( fnmstr.isEmpty() )
+	    msg = uiStrings::phrCannotOpenInpFile();
+	else
+	    msg = uiStrings::phrCannotOpen( toUiString(fnmstr).quote(true) );
     }
-
-    if ( iotyp == 0 )
-	ret.add( "Cannot open file" );
     else if ( sd.streamPtr()->good() )
-	ret.add( "Successfully opened" );
+	msg = od_static_tr( "StrmOpergetErrorMessage",
+			    "Successfully opened %1" ).arg( fnmstr );
     else
-	ret.add( getErrorMessage(*sd.streamPtr()) );
+	msg = getErrorMessage( *sd.streamPtr() );
 
-    return ret.buf();
+    if ( !havestrm || !sd.streamPtr()->good() )
+	msg.appendPhrase( uiStrings::phrCheckPermissions() );
+
+    return msg;
 }
 
 
 //---- StreamData ----
 
 
+mStartAllowDeprecatedSection
+StreamData::StreamData() { setImpl(new StreamDataImpl); }
+
+
+StreamData::StreamData( StreamData&& n )
+{
+    setImpl( n.impl_.set( 0, false ) );
+}
+mStopAllowDeprecatedSection
+
+
+StreamData& StreamData::operator=( StreamData&& n )
+{
+    setImpl( n.impl_.set( 0, false ) );
+    return *this;
+}
+
 void StreamData::close()
 {
-    if ( istrm && istrm != &std::cin )
-	delete istrm;
-
-    if ( ostrm )
-    {
-	ostrm->flush();
-	if ( ostrm != &std::cout && ostrm != &std::cerr )
-	    delete ostrm;
-    }
-
-    initStrms();
+    if ( impl_ ) impl_->close();
 }
 
 
 bool StreamData::usable() const
 {
-    return istrm || ostrm;
+    return iStrm() || oStrm();
 }
 
 
 void StreamData::transferTo( StreamData& sd )
 {
-    sd = *this;
-    initStrms();
+    sd.impl_ = impl_.set( 0, false );
+}
+
+
+void StreamData::setFileName( const char* fn )
+{
+    if ( !impl_ )
+	return;
+
+    impl_->fname_ = fn;
+}
+
+
+const char* StreamData::fileName() const
+{
+    if ( !impl_ )
+	return 0;
+
+    return impl_->fname_.buf();
 }
 
 
 std::ios* StreamData::streamPtr() const
 {
-    const std::ios* ret = istrm;
-    if ( !istrm )
-	ret = ostrm;
-    return const_cast<std::ios*>( ret );
+    std::ios* ret = iStrm();
+    if ( !ret )
+	ret = oStrm();
+
+    return ret;
+}
+
+void StreamData::setImpl( StreamDataImpl* n )
+{
+    impl_ = n;
+}
+
+
+void StreamData::setIStrm( std::istream* strm )
+{
+    impl_->istrm_ = strm;
+}
+
+
+void StreamData::setOStrm( std::ostream* strm )
+{
+    impl_->ostrm_ = strm;
+}
+
+
+void StreamData::StreamDataImpl::close()
+{
+    if ( istrm_ && istrm_ != &std::cin )
+	deleteAndZeroPtr( istrm_ );
+
+    if ( ostrm_ )
+    {
+	ostrm_->flush();
+	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr )
+	    deleteAndZeroPtr( ostrm_ );
+	else
+	    ostrm_ = 0;
+    }
 }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "mmprocmod.h"
 
 #include "networkcommon.h"
+#include "oscommand.h"
 
 class CommandString;
 class FilePath;
@@ -22,7 +23,6 @@ class HostData;
 class JobInfo;
 class JobIOHandler;
 template <class T> class ObjQueue;
-namespace OS { class MachineCommand; }
 
 /*!
 \brief Encapsulates status message from a running client.
@@ -99,13 +99,10 @@ protected:
     JobIOHandler&	iohdlr_;
     BufferString	msg_;
     int			niceval_;
+    OS::CommandExecPars execpars_;
 
     bool		mkIOParFile(FilePath&,const FilePath& basefnm,
 				    const HostData&,const IOPar&);
-    void		mkCommand(CommandString&,const HostData&,
-				  const char* progname,const FilePath& basefp,
-				  const FilePath& iopfp,const JobInfo&,
-				  const char* rshcomm);
     void		mkCommand(OS::MachineCommand&,const HostData&,
 				  const char* progname,const FilePath& basefp,
 				  const FilePath& iopfp,const JobInfo&,
@@ -118,6 +115,7 @@ mGlobal(MMProc) const OD::String& getTempBaseNm();
 mGlobal(MMProc) int mkTmpFileNr();
 mGlobal(MMProc) int& MMJob_getTempFileNr();
 
+ //Deprecated, will be removed after 6.6
 
 mClass(MMProc) CommandString
 {

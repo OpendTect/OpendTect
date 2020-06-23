@@ -14,46 +14,60 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
+#include "ptrman.h"
 #include "bufstring.h"
 #include <iosfwd>
 
 
-/*!
-\brief Holds data to use and close an iostream.
+/*!\brief Holds data to use and close an iostream. Usually created by
+  StreamProvider. */
 
-  Usually created by StreamProvider.
-  Need to find out what to do with the pipe in windows.
-*/
 
 mExpClass(Basic) StreamData
 {
 public:
 
-		StreamData()			{ initStrms(); }
-    void	transferTo(StreamData&);	//!< retains file name
+			StreamData();
+			StreamData(const StreamData&)	= delete;
+			StreamData(StreamData&&);
 
-    void	close();
-    bool	usable() const;
+    StreamData&		operator=(const StreamData&)	= delete;
+    StreamData&		operator=(StreamData&&);
 
-    void	setFileName( const char* fn )	{ fname_ = fn; }
-    const char*	fileName() const		{ return fname_; }
+    void mDeprecated	transferTo(StreamData&);	//!< retains file name
 
-    std::ios*	streamPtr()const;
+    void		close();
+    bool		usable() const;
 
-    std::istream* istrm;
-    std::ostream* ostrm;
+    void		setFileName( const char* fn );
+    const char*		fileName() const;
 
-protected:
+    std::ios*		streamPtr() const;
 
-    BufferString fname_;
+    std::istream*	iStrm() const { return impl_->istrm_; }
+    std::ostream*	oStrm() const { return impl_->ostrm_; }
+
+    void		setIStrm( std::istream* );
+    void		setOStrm( std::ostream* );
+
+    //Internal use (unless you're making connectors to weird external streams)
+    mExpClass(Basic) StreamDataImpl
+    {
+    public:
+	virtual void	close();
+	virtual		~StreamDataImpl() {}
+	BufferString	fname_;
+	std::istream*	istrm_ = nullptr;
+	std::ostream*	ostrm_ = nullptr;
+    };
+
+    void setImpl(StreamDataImpl*);
 
 private:
 
-    inline void	initStrms()
-		{ istrm = 0; ostrm = 0; }
-    friend class StreamProvider;
+    PtrMan<StreamDataImpl>	impl_;
 
 };
-
 
 #endif

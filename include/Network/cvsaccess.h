@@ -23,28 +23,29 @@ mExpClass(Network) CVSAccess
 
 public:
 
-    			CVSAccess(const char* dir);
+			CVSAccess(const char* dir);
     virtual		~CVSAccess();
     bool		isOK() const		{ return *host(); }
     const char*		host() const		{ return host_; }
     bool		hostOK() const;
 
-    			// info
+			// info
     bool		isInCVS(const char*) const;
     void		getEntries(const char* subdir,BufferStringSet&) const;
+    const char*		baseDir() const		{ return dir_; }
     const char*		reposDir() const	{ return reposdir_; }
     void		getEditTxts(const char* fnm,BufferStringSet&) const;
     void		diff(const char* fnm,BufferString&) const;
 
-    			// changes locally
+			// changes locally
     bool		update(const char* fnm=0);
     bool		edit(const char*);
     bool		edit(const BufferStringSet&);
 
-    			// sets up for repos change
+			// sets up for repos change
     bool		add(const char*,bool binary=false);
     bool		add(const BufferStringSet&,bool binary=false);
-    			// sets up for repos change and changes locally
+			// sets up for repos change and changes locally
     bool		remove(const char*);
     bool		remove(const BufferStringSet&);
     bool		rename(const char* subdir,const char* from,
@@ -52,7 +53,7 @@ public:
     bool		changeFolder(const char* fnm,const char* fromsubdir,
 				     const char* tosubdir);
 
-    			// changes repository
+			// changes repository
     bool		commit(const char* fnm,const char* msg=0);
     bool		commit(const BufferStringSet&,const char* msg=0);
 

@@ -45,7 +45,7 @@ static int getExitStatus( const char* logfile, BufferString& msg )
     if ( !istream.isOK() )
 	return -1;
 
-    istream.setPosition( -50, od_stream::End );
+    istream.setReadPosition( -50, od_stream::End );
 
     char buf[51];
     if ( !istream.getBin( buf, 50 ) )
@@ -233,7 +233,7 @@ uiClusterProc::uiClusterProc( uiParent* p, const IOPar& iop )
     totalnr_ = proc_.totalNrJobs();
     progbar_->setTotalSteps( totalnr_ );
 
-    uiString labeltxt = sNrDoneText(toUiString("XXXX"), toUiString("XXXX"), 
+    uiString labeltxt = sNrDoneText(toUiString("XXXX"), toUiString("XXXX"),
 							    toUiString("XXXX"));
     label_ = new uiLabel( this, labeltxt );
     label_->attach( alignedBelow, progbar_ );
@@ -254,7 +254,7 @@ uiClusterProc::~uiClusterProc()
 }
 
 
-uiString uiClusterProc::sNrDoneText( const uiString& nrdone, 
+uiString uiClusterProc::sNrDoneText( const uiString& nrdone,
 				const uiString& totnr, const uiString& nrerror )
 {
   return tr( "Number of jobs finished: %1 out of %2 (%3 with error) ")
@@ -268,7 +268,7 @@ void uiClusterProc::progressCB( CallBacker* )
     progbar_->setProgress( nrjobsdone + nrjobswitherr );
     if ( !msg.isEmpty() )
 	msgfld_->append( msg.buf() );
-   uiString labeltxt = sNrDoneText(toUiString(nrjobsdone + nrjobswitherr), 
+   uiString labeltxt = sNrDoneText(toUiString(nrjobsdone + nrjobswitherr),
 			       toUiString(totalnr_), toUiString(nrjobswitherr));
     label_->setText( labeltxt );
     if ( totalnr_ && (nrjobsdone + nrjobswitherr) == totalnr_ )

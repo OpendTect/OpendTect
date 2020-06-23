@@ -33,31 +33,38 @@ bool Batch::SingleJobDispatcherRemote::launch()
 	return false;
 
     const HostDataList hdl( false );
-    const bool hasconfig = !hdl.isEmpty();
     const BufferString localhostnm( GetLocalHostName() );
-    const HostData* localhost = hasconfig ? hdl.find( localhostnm.str() )
-					  : new HostData( localhostnm.str() );
-    const bool remote = !remotehost_.isEmpty();
-    const HostData* machine = hdl.find( remote ? remotehost_.str()
-			       : localhost ? localhost->getHostName() : 0 );
-    if ( !localhost || ( remote && !machine ) )
-	return false;
-
-    const bool unixtorunix = remote && !localhost->isWindows() &&
-			     machine && !machine->isWindows();
-
-    if ( remote )
+    const HostData* localhost = hdl.find( localhostnm.str() );
+    PtrMan<HostData> localhostdestroyer;
+    if ( !localhost )
     {
-	remoteexec_.set( unixtorunix ? hdl.loginCmd()
-				     : OS::MachineCommand::odRemExecCmd() );
+	localhostdestroyer = new HostData( localhostnm );
+	localhost = localhostdestroyer.ptr();
     }
-    else
-	remoteexec_.setEmpty();
 
-    CommandString argstr( machine ? *machine : *localhost );
+    const bool execlocal = remotehost_.isEmpty();
+    const HostData* exechost = localhost;
+    remoteexec_.setEmpty();
+    if ( !execlocal )
+    {
+	exechost = hdl.find( remotehost_ );
+	if ( !exechost )
+	    return false;
+
+	const bool unix2unix = !localhost->isWindows()
+				&& !exechost->isWindows();
+	remoteexec_.set( unix2unix ? hdl.loginCmd()
+				   : OS::MachineCommand::odRemExecCmd() );
+    }
+
     FilePath ioparfp;
     BufferString logfile;
-    if ( remote )
+    if ( execlocal )
+    {
+	ioparfp.set( parfnm_ );
+	jobspec_.pars_.get( sKey::LogFile(), logfile );
+    }
+    else
     {
 	BufferString procdir( GetProcFileName( getTempBaseNm() ) );
 	procdir.add( "_" ).add( MMJob_getTempFileNr() );
@@ -68,62 +75,53 @@ bool Batch::SingleJobDispatcherRemote::launch()
 	if ( !File::exists(procdir) )
 	    File::createDir(procdir);
 
-	BufferString basenm( machine->getHostName() );
+	BufferString basenm( exechost->getHostName() );
 #ifdef __win__
 	basenm.replace( '.',  '_' );
 #endif
 	FilePath basefp( procdir );
 	basefp.add( basenm );
 	BufferString msg;
-	if ( !JobIOMgr::mkIOParFile(basefp,*machine,jobspec_.pars_,ioparfp,msg))
-	{
-	    DBG::message(msg);
-	    return false;
-	}
+	if ( !JobIOMgr::mkIOParFile(basefp,*exechost,jobspec_.pars_,
+				    ioparfp,msg) )
+	    { DBG::message(msg); return false; }
 
-	FilePath logfp( ioparfp ); logfp.setExtension( "log" );
+	FilePath logfp( ioparfp );
+	logfp.setExtension( "log" );
 	logfile = logfp.fullPath();
     }
-    else
+
+    // Build machine command
+    auto pathstyle = FilePath::Local;
+    OS::MachineCommand mc( jobspec_.prognm_ );
+    if ( !execlocal )
     {
-	ioparfp.set( parfnm_ );
-	jobspec_.pars_.get( sKey::LogFile(), logfile );
+	mc.setHostName( exechost->getHostName() );
+	mc.setHostIsWindows( exechost->isWindows() );
+	pathstyle = exechost->pathStyle();
     }
+    mc.addArg( ioparfp.fullPath(pathstyle) );
+    mc.addArgs( jobspec_.clargs_ );
 
-    BufferString cmd( unixtorunix
-	? JobIOMgr::mkRexecCmd( jobspec_.prognm_.str(), *machine, *localhost )
-		: jobspec_.prognm_ );
+    if ( execlocal || !exechost->isWindows() )
+	jobspec_.execpars_.monitorfnm( logfile );
 
-    argstr.addFilePath( ioparfp );
-    jobspec_.clargs_.add( argstr.string() );
-    cmd.addSpace().add( jobspec_.clargs_ );
-
-    if ( !hasconfig )
-	delete localhost;
+    mc.setRemExec( remoteexec_ );
+    if ( !execlocal )
+	mc.setHostName( exechost->getHostName() );
 
     if ( DBG::isOn(DBG_MM) )
     {
-	BufferString msg( "Executing: ", cmd );
-	if ( machine && machine->getHostName() )
-	    msg.add( " on host " ).add( machine->getHostName() );
+	BufferString msg( "Executing: ", mc.toString(&jobspec_.execpars_) );
+	msg.add( " on host " ).add( exechost->getHostName() );
 
-	if ( !remoteexec_.isEmpty() )
+	if ( !execlocal )
 	    msg.add( " using " ).add( remoteexec_.str() ).addNewLine();
 
 	DBG::message(msg);
     }
 
-    if ( ( remote && !machine->isWindows() ) || !remote )
-	jobspec_.execpars_.monitorfnm( logfile );
-
-    OS::MachineCommand mc( cmd );
-    mc.setRemExec( remoteexec_.str() );
-    if ( !remoteexec_.isEmpty() )
-	mc.setHostName( machine->getHostName() );
-
-    OS::CommandLauncher cl( mc );
-
-    return cl.execute( jobspec_.execpars_ );
+    return mc.execute( jobspec_.execpars_ );
 }
 
 mDefModInitFn(MMProc)

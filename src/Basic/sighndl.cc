@@ -298,7 +298,7 @@ void SignalHandling::doStop( int signalnr, bool withcbs )
 }
 
 
-void SignalHandling::stopProcess( int pid, bool friendly )
+void SignalHandling::stopProcess( PID_Type pid, bool friendly )
 {
 #ifdef __win__
     TerminateApp( pid, 0 );
@@ -308,7 +308,7 @@ void SignalHandling::stopProcess( int pid, bool friendly )
 }
 
 
-void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
+void SignalHandling::stopRemote( const char* mach, PID_Type pid, bool friendly,
 				 const char* rshcomm )
 {
     if ( !mach || !*mach )
@@ -318,9 +318,10 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
     pFreeFnErrMsg( "Not impl: stopRemote() for Windows");
 #else
 
-    BufferString cmd( "kill ", friendly ? "-TERM " : "-9 " );
-    cmd.add( pid ).add( " > /dev/null" );
-    OS::ExecCommand( cmd, OS::RunInBG );
+    OS::MachineCommand machcomm( "kill", friendly ? "-TERM" : "-9",
+					toString(pid) );
+    machcomm.addFileRedirect( "/dev/null" );
+    machcomm.execute( OS::RunInBG );
 
 #endif
 }

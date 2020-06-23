@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ziputils.h"
 
 #include "bufstring.h"
+#include "dirlist.h"
 #include "manobjectset.h"
 #include "file.h"
 #include "filepath.h"
@@ -45,6 +46,9 @@ ZipUtils::ZipUtils( const char* filelistnm )
 ZipUtils::~ZipUtils()
 {}
 
+
+mStartAllowDeprecatedSection
+
 bool ZipUtils::Zip( const char* src, const char* dest )
 {
     mDirCheck( src );
@@ -59,81 +63,26 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
     return doUnZip( src, dest );
 }
 
+mStopAllowDeprecatedSection
+
 
 bool ZipUtils::doZip( const char* src, const char* dest )
 {
-    FilePath srcfp( src );
-    BufferString newsrc = srcfp.fileName();
-    FilePath zipcomfp( GetExecPlfDir(), "zip" );
-    BufferString cmd( zipcomfp.fullPath() );
-    cmd += " -r \"";
-    cmd += dest;
-    cmd += "\"";
-    cmd += " ";
-    cmd += newsrc;
-#ifndef __win__
-    File::changeDir( srcfp.pathOnly() );
-    const bool ret = !system( cmd );
-    File::changeDir( GetSoftwareDir(0) );
-    return ret;
-#else
-    const bool ret = execProc( cmd, true, false, srcfp.pathOnly() );
-    return ret;
-#endif
+    BufferStringSet srcfiles;
+    const DirList dl( src );
+    for ( int idx=0; idx<dl.size(); idx++ )
+	srcfiles.add( dl.fullPath(idx) );
+
+    const bool success = makeZip( dest, srcfiles, errmsg_ );
+
+    return success;
 }
 
 bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
-    bool tempfile = false;
-    FilePath orgfnm( filelistname_ );
-    if ( needfilelist_ )
-    {
-	if ( !File::exists( orgfnm.pathOnly() ) )
-	{
-	    tempfile = true;
-	    FilePath listfp( src );
-	    if (  listfp.nrLevels() <= 1 )
-		filelistname_ = orgfnm.fileName();
-	    else
-	    {
-		listfp = listfp.pathOnly();
-		listfp.add( orgfnm.fileName() );
-		filelistname_ = listfp.fullPath();
-	    }
-	}
-    }
+    const bool success = unZipArchive( src, dest, errmsg_ );
 
-    bool res = false;
-#ifdef __win__
-    BufferString cmd( "cmd /c unzip -o \"", src );
-    cmd.add( "\" -d \"" ).add( dest ).add( "\"");
-    if ( needfilelist_ )
-	cmd.add( " > " ).add( "\"" ).add( filelistname_ ).add( "\"" );
-    res = OS::ExecCommand( cmd );
-#else
-    BufferString cmd( "unzip -o ", src );
-    cmd.add( " -d " ).add( dest ).add( " > " )
-	.add( needfilelist_ ? filelistname_ : "/dev/null" );
-    res = !system( cmd );
-#endif
-
-    if ( res && tempfile )
-    {
-	File::copy( filelistname_, orgfnm.fullPath() );
-	File::remove( filelistname_ );
-	return true;
-    }
-
-    if ( !res )
-    {
-	errmsg_ = tr( "Unzip failed in the command: %1").arg( cmd );
-    }
-    else
-    {
-        errmsg_.setEmpty();
-    }
-
-    return res;
+    return success;
 }
 
 

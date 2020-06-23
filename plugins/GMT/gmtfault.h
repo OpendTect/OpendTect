@@ -25,20 +25,20 @@ mExpClass(GMT) GMTFault : public GMTPar
 public:
     static void		initClass();
 
-    			GMTFault(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTFault(const IOPar& par)
-			    : GMTPar(par)	{}
+			GMTFault( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir)	{}
 
-    bool		execute(od_ostream&,const char*);
     const char*		userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
 protected:
-    static GMTPar*	createInstance(const IOPar&);
+
+    bool		doExecute(od_ostream&,const char*) override;
+
+    static GMTPar*	createInstance(const IOPar&,const char*);
     TypeSet<Coord3>	getCornersOfZSlice(float) const;
     bool		calcOnHorizon(const Geometry::ExplFaultStickSurface&,
-	    			      Coord3ListImpl&) const;
+				      Coord3ListImpl&) const;
 
     static int		factoryid_;
     void		getLineStyles(BufferStringSet&);

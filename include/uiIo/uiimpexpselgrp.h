@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplot.h"
 #include "uigroup.h"
 #include "filepath.h"
-#include "strmdata.h"
 
 class BufferStringSet;
 
@@ -30,6 +29,8 @@ class uiGenInput;
 class uiPushButton;
 class uiToolButton;
 class uiDataPointSetCrossPlotter;
+class od_istream;
+class od_ostream;
 
 
 mExpClass(uiIo) uiSGSel : public uiGroup
@@ -128,7 +129,8 @@ protected:
     BufferString		yname_;
     BufferString		y2name_;
 
-    StreamData			sd_;
+    od_istream*			strm_		= nullptr;
+
 };
 
 
@@ -146,7 +148,7 @@ public:
 protected:
 
     uiString			errmsg_;
-    StreamData			sd_;
+    od_ostream*			strm_		= nullptr;
 
 };
 

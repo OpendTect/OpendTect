@@ -181,13 +181,13 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 
 
 #undef mErrRet
-#define mErrRet { strm.setPosition( 0, od_stream::Abs ); return msg; }
+#define mErrRet { strm.setReadPosition( 0, od_stream::Abs ); return msg; }
 
 const char* CBVSReader::check( od_istream& strm )
 {
     if ( strm.isBad() ) return "Input stream cannot be used";
 
-    strm.setPosition( 0, od_stream::Abs );
+    strm.setReadPosition( 0, od_stream::Abs );
     char buf[4]; OD::memZero( buf, 4 );
     strm.getBin( buf, 3 );
     const char* msg = "Input stream cannot be used";
@@ -199,7 +199,7 @@ const char* CBVSReader::check( od_istream& strm )
     char plf; strm.getBin( &plf, 1 );
     if ( plf > 2 ) mErrRet;
 
-    strm.setPosition( 0, od_stream::Abs );
+    strm.setReadPosition( 0, od_stream::Abs );
     return 0;
 }
 
@@ -333,16 +333,16 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
 
 bool CBVSReader::readTrailer()
 {
-    strm_.setPosition( -3, od_stream::End );
+    strm_.setReadPosition( -3, od_stream::End );
     char buf[40];
     strm_.getBin( buf, 3 ); buf[3] = '\0';
     if ( FixedString(buf)!="BGd" ) mErrRet("Missing required file trailer")
 
-    strm_.setPosition( -4-integersize, od_stream::End );
+    strm_.setReadPosition( -4-integersize, od_stream::End );
     strm_.getBin( buf, integersize );
     const int nrbytes = iinterp_.get( buf, 0 );
 
-    strm_.setPosition( -4-integersize-nrbytes, od_stream::End );
+    strm_.setReadPosition( -4-integersize-nrbytes, od_stream::End );
     if ( coordpol_ == InTrailer )
     {
 	strm_.getBin( buf, integersize );
@@ -423,7 +423,7 @@ void CBVSReader::toOffs( od_int64 sp )
 {
     lastposfo_ = sp;
     if ( strm_.position() != sp )
-	strm_.setPosition( lastposfo_, od_stream::Abs );
+	strm_.setReadPosition( lastposfo_, od_stream::Abs );
 }
 
 
@@ -546,7 +546,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	return true;
 
     if ( hinfofetched_ )
-	strm_.setPosition(-auxnrbytes_, od_stream::Rel );
+	strm_.setReadPosition(-auxnrbytes_, od_stream::Rel );
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos)

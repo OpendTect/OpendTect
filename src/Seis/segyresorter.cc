@@ -9,13 +9,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segydirectdef.h"
 #include "segydirecttr.h"
 #include "segytr.h"
-#include "strmprov.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "posfilter.h"
 #include "ioman.h"
 #include "filepath.h"
-#include "strmoper.h"
+#include "od_iostream.h"
 #include "od_istream.h"
 
 SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const MultiID& ky,
@@ -75,6 +74,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     , nrdone_(0)
     , drdr_(0)
     , trcbuf_(0)
+    , outstrm_(0)
     , needwritefilehdrs_(true)
 {
     IOObj* ioobj = IOM().get( setup_.inpkey_ );
@@ -107,7 +107,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 			delete str;
 		    }
 		    else
-			drdr_ = str;	
+			drdr_ = str;
 		}
 	    }
 	    break;
@@ -182,10 +182,8 @@ void SEGY::ReSorter::setFilter( const Pos::Filter& pf )
 int SEGY::ReSorter::wrapUp()
 {
     // close everything
-    sdout_.close();
-    for ( int idx=0; idx<inpsds_.size(); idx++ )
-	inpsds_[idx]->close();
-    deepErase( inpsds_ );
+    delete outstrm_; outstrm_ = 0;
+    deepErase( inpstrms_ );
 
     // prepare for new run ... (if ever needed)
     cdp_.toStart();
@@ -321,9 +319,9 @@ bool SEGY::ReSorter::createOutput( const BinID& bid )
 bool SEGY::ReSorter::openOutputFile()
 {
     const BufferString fnm( setup_.getFileName(curinlrg_) );
-    sdout_.close();
-    sdout_ = StreamProvider(fnm).makeOStream();
-    if ( !sdout_.usable() )
+    delete outstrm_;
+    outstrm_ = new od_ostream( fnm );
+    if ( !outstrm_->isOK() )
     {
 	msg_ = tr( "Cannot open output file:\n%1").arg( fnm );
 	return false;
@@ -370,16 +368,17 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
     {
 	const BufferString fnm(
 			drdr_->getDef()->fileDataSet().fileName(inpfidx) );
-	StreamData* sd = new StreamData( StreamProvider(fnm).makeIStream() );
-	if ( !sd->usable() )
+	od_istream* strm = new od_istream( fnm );
+	if ( !strm->isOK() )
 	{
 	    msg_ = tr( "Cannot open input file:\n%1").arg( fnm );
-	    delete sd; return -1;
+	    delete strm;
+	    return -1;
 	}
 
 	fidxs_ += inpfidx;
-	fidx = inpsds_.size();
-	inpsds_ += sd;
+	fidx = inpstrms_.size();
+	inpstrms_ += strm;
 	inpfnms_.add( fnm );
     }
 
@@ -389,17 +388,17 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 
 bool SEGY::ReSorter::readData( int fidx, int trcidx )
 {
-    od_istream odstrm( *inpsds_[fidx]->istrm );
+    od_istream& odstrm = *inpstrms_[fidx];
     if ( !trcbuf_ )
     {
-	odstrm.setPosition( 0 );
+	odstrm.setReadPosition( 0 );
 	if ( !odstrm.getBin(hdrbuf_,3600) )
 	{
 	    msg_ = tr( "Cannot read SEG-Y file header. Empty file? -\n%1" )
 			.arg( inpfnms_.get(fidx) );
 	    return false;
 	}
-	odstrm.setPosition( 0 );
+	odstrm.setReadPosition( 0 );
 	SEGYSeisTrcTranslator trctr( "SEGY", "SEG-Y" );
 	trctr.usePar( fds().segyPars() );
 	StreamConn* sc = new StreamConn( odstrm );
@@ -413,9 +412,9 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	trcbuf_ = new unsigned char [trcbytes_];
     }
 
-    odstrm.setPosition( 0 );
+    odstrm.setReadPosition( 0 );
     od_stream::Pos pos = 3600 + trcbytes_ * trcidx;
-    odstrm.setPosition( pos );
+    odstrm.setReadPosition( pos );
     if ( !odstrm.getBin(trcbuf_,trcbytes_) )
     {
 	msg_ = tr( "Cannot read trace.\nFile: %1\nTrace: %2" )
@@ -432,18 +431,18 @@ bool SEGY::ReSorter::writeData()
 {
     if ( needwritefilehdrs_ )
     {
-	if ( !StrmOper::writeBlock(*sdout_.ostrm,hdrbuf_,3600) )
+	if ( !outstrm_->addBin(hdrbuf_,3600) )
 	{
 	    msg_ = tr( "Cannot write file header to: %1" )
-		      .arg( sdout_.fileName() );
+		      .arg( outstrm_->fileName() );
 	    return false;
 	}
 	needwritefilehdrs_ = false;
     }
 
-    if ( !StrmOper::writeBlock(*sdout_.ostrm,trcbuf_,trcbytes_) )
+    if ( !outstrm_->addBin(trcbuf_,trcbytes_) )
     {
-	msg_ = tr( "Cannot write trace to:\n%1" ).arg( sdout_.fileName() );
+	msg_ = tr( "Cannot write trace to:\n%1" ).arg( outstrm_->fileName() );
 	return false;
     }
 

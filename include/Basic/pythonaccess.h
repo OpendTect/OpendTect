@@ -63,6 +63,9 @@ namespace OD
 				const OS::CommandExecPars&,
 				int* pid=nullptr,
 				uiString* errmsg=nullptr) const;
+	bool		executeScript(const char*,bool wait4finish=true) const;
+	bool		executeScript(const BufferStringSet&,
+				      bool wait4finish=true) const;
 
 	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
 	BufferString	pyVersion() const;
@@ -92,7 +95,8 @@ namespace OD
 
 	uiRetVal	verifyEnvironment(const char* piname);
 	BufferString	getPacmanExecNm() const;
-	uiRetVal	updateModuleInfo(const char* cmd="pip list");
+	uiRetVal	updateModuleInfo(const char* defprog="pip",
+					 const char* defarg="list");
 			/*<! Pass nullptr to auto-detect */
 	void		updatePythonPath();
 	BufferStringSet getBasePythonPath() const;
@@ -168,7 +172,7 @@ namespace OD
     mGlobal(Basic) bool canDoCUDA(BufferString& maxverstr);
 
     mGlobal(Basic) uiRetVal pythonRemoveDir(const char* path,
-						    bool waitforfin = false);
+						    bool waitforfin=false);
 
 } //namespace OD
 

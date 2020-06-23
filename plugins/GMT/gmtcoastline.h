@@ -21,18 +21,17 @@ public:
 
     static void		initClass();
 
-    			GMTCoastline(const char* nm)
-			    : GMTPar(nm)	{}
-			GMTCoastline(const IOPar& par)
-			    : GMTPar(par) {}
+			GMTCoastline( const IOPar& par, const char* workdir )
+			    : GMTPar(par,workdir) {}
 
-    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
 protected:
 
-    static GMTPar*	createInstance(const IOPar&);
+    virtual bool	doExecute(od_ostream&,const char*);
+
+    static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;
 
     bool		makeLLRangeFile(const char*,od_ostream&);

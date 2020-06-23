@@ -330,6 +330,7 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 JobIOMgr::JobIOMgr( PortNr_Type firstport, int niceval )
     : iohdlr_(*new JobIOHandler(firstport))
     , niceval_(niceval)
+    , execpars_(OS::Batch)
 {
     for ( int count=0; count<10 && !iohdlr_.ready(); count++ )
 	{ sleepSeconds( 0.1 ); }
@@ -347,6 +348,12 @@ JobIOMgr::JobIOMgr( PortNr_Type firstport, int niceval )
 
 	DBG::message( msg );
     }
+
+#ifdef __unix__
+    const StepInterval<int> nicerg(
+		    OS::CommandExecPars::cMachineUserPriorityRange( false ) );
+    execpars_.prioritylevel_ = -1.f * mCast(float,niceval) / nicerg.width();
+#endif
 }
 
 
@@ -383,24 +390,17 @@ bool JobIOMgr::startProg( const char* progname,
     mkCommand( mc, machine, progname, basefp, ioparfp, ji, rshcomm );
 
     iohdlr_.addJobDesc( machine, ji.descnr_ );
-    const BufferString cmd( mc.getLocalCommand() );
     if ( mDebugOn )
     {
-	const BufferString msg( "Executing: ", cmd );
+	const BufferString msg( "Executing: ", mc.toString(&execpars_) );
 	DBG::message(msg);
     }
 
-    OS::CommandLauncher cl( mc );
-    OS::CommandExecPars execpars( true );
-#ifdef __unix__
-    const StepInterval<int> nicerg(
-		    OS::CommandExecPars::cMachineUserPriorityRange( false ) );
-    execpars.prioritylevel_ = -1.f * mCast(float,niceval_) / nicerg.width();
-#endif
-    if ( !cl.execute(execpars) )
+    if ( !mc.execute(execpars_) )
     {
 	iohdlr_.removeJobDesc( machine.getHostName(), ji.descnr_ );
-	mErrRet( BufferString("Failed to submit command '", cmd, "'") )
+	mErrRet( BufferString("Failed to submit command '",
+				mc.toString(&execpars_), "'") )
     }
 
     return true;
@@ -535,15 +535,6 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 #endif
 
 
-void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
-			  const char* progname, const FilePath& basefp,
-			  const FilePath& iopfp, const JobInfo& ji,
-			  const char* rshcomm )
-{
-    OS::MachineCommand mc;
-    mkCommand( mc, machine, progname, basefp, iopfp, ji, rshcomm );
-    cmd = mc.getLocalCommand();
-}
 
 #undef mErrRet
 #define mErrRet() \
@@ -669,6 +660,9 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 			  const FilePath& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
+    mc.setProgram( progname );
+    mc.setHostIsWindows( machine.isWindows() );
+
     const BufferString remhostaddress =
 		       System::hostAddress( machine.getHostName() );
     const HostData& localhost = machine.localHost();
@@ -684,24 +678,19 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 	mc.setHostName( machine.getHostName() );
     }
 
-    CommandString argstr( machine );
+    mc.addKeyedArg( OS::MachineCommand::sKeyMasterHost(),
+		    System::localAddress() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
+    mc.addArg( iopfp.fullPath(machine.pathStyle()) );
+/*
     BufferString cmd;
     if ( unixtounix )
 	cmd.set( JobIOMgr::mkRexecCmd( progname, machine, localhost ) );
-    else
-	cmd.set( progname );
-
-    argstr.addFlag( OS::MachineCommand::sKeyMasterHost(),
-		    System::localAddress() );
-    argstr.addFlag( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
-    argstr.addFlag( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
-    argstr.addFilePath( iopfp );
-    cmd.addSpace().add( argstr.string() );
-
-    mc.setCommand( cmd.str() );
+ */
 }
 
-
+// Keep ?
 BufferString JobIOMgr::mkRexecCmd( const char* prognm,
 				   const HostData& machine,
 				   const HostData& localhost )

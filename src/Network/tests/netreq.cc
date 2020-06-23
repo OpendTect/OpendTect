@@ -259,6 +259,8 @@ int main(int argc, char** argv)
     mInitTestProg();
     ApplicationData app;
     const char* portkey = Network::Server::sKeyPort();
+    clparser.setKeyHasValue( portkey );
+    clparser.setKeyHasValue( "serverapp" );
 
     PtrMan<Tester> runner = new Tester;
     int port = 1025;
@@ -270,12 +272,15 @@ int main(int argc, char** argv)
 
     BufferString echoapp = "test_netreqechoserver";
     clparser.getVal( "serverapp", echoapp );
+    OS::MachineCommand echocmd( echoapp );
+    echocmd.addKeyedArg( portkey, runner->authority_->getPort() );
+    echocmd.addFlag( "quiet" );
 
-    BufferString args( "--", portkey );
-    args.addSpace().add( runner->authority_->getPort() );
-    args.add( " --quiet " );
+    OS::CommandExecPars execpars( OS::RunInBG );
+    OS::CommandLauncher cl( echocmd );
 
-    if ( !clparser.hasKey("noechoapp") && !ExecODProgram( echoapp, args.buf() ))
+    if ( !clparser.hasKey("noechoapp") &&
+	 !cl.execute(execpars) )
     {
 	od_ostream::logStream() << "Cannot start " << echoapp << "\n";
 	ExitProgram( 1 );

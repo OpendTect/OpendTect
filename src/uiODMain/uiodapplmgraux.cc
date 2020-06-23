@@ -644,10 +644,8 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 
 void uiODApplMgrDispatcher::setupBatchHosts()
 {
-    BufferString cmd;
-    CommandLineParser::addFilePath(
-		    FilePath(GetExecPlfDir(), "od_BatchHosts").fullPath(), cmd);
-    OS::CommandLauncher cl = OS::MachineCommand(cmd);
-    OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
-    cl.execute(pars);
+    OS::MachineCommand mc(
+		FilePath(GetExecPlfDir(), "od_BatchHosts").fullPath());
+    const OS::CommandExecPars pars( OS::RunInBG );
+    mc.execute(pars);
 }
