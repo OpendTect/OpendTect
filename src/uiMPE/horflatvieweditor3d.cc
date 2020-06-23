@@ -652,7 +652,11 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 		MPE::engine().pickingOnSameData( curss, *vdselspec_, vdmsg );
 	const bool wvares = wvavisible &&
 		MPE::engine().pickingOnSameData( curss, *wvaselspec_, wvamsg );
-	if ( !vdres && !wvares )
+	if ( vdres )
+	    pickinvd = true;
+	else if ( wvares )
+	    pickinvd = false;
+	else if ( !vdres && !wvares )
 	{
 	    const bool res = uiMSG().askContinue( vdmsg );
 	    if ( !res )
