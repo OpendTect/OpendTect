@@ -20,12 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "samplfunc.h"
 #include "simpnumer.h"
 #include "statrand.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "windowfunction.h"
 #include "odcomplex.h"
+#include "od_ostream.h"
 
-#include <iostream>
 #include <math.h>
 
 namespace Attrib
@@ -141,13 +140,12 @@ Frequency::~Frequency()
 		BufferString filename( "frequency." );
 		filename += Stats::randGen().getIndex(mUdf(int));
 		filename = fp.add( filename ).fullPath();
-		StreamData sd = StreamProvider( filename ).makeOStream();
-		if ( sd.usable() )
+		od_ostream strm( filename );
+		if ( strm.isOK() )
 		{
 		    BufferString bfstr;
 		    desc_.getDefStr(bfstr);
-		    *sd.ostrm << bfstr << '\n';
-		    *sd.ostrm << data;
+		    strm << bfstr << '\n' << data;
 		}
 	    }
 	}

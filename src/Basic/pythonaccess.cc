@@ -333,14 +333,17 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	    return false;
     }
 
-    BufferString comm( sPythonExecNm(true) );
+    OS::MachineCommand cmd( sPythonExecNm(true) );
     const bool doscript = scriptstr && *scriptstr;
     if ( doscript )
-	comm.add( " -c " ).add( scriptstr );
+    {
+	BufferString script( scriptstr );
+	script.quote( '\"' );
+	cmd.addArg( "-c" ).addArg( script );
+    }
     else
-	comm.add( " --version" );
+	cmd.addFlag( "version" );
 
-    const OS::MachineCommand cmd( comm );
     mDefineStaticLocalObject(bool, force_external,
 				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
     bool res = force_external ? true
@@ -390,7 +393,6 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 {
     OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish : OS::RunInBG );
     execpars.createstreams_ = true;
-    execpars.prioritylevel_ = 0.f;
     return execute( cmd, execpars );
 }
 
@@ -428,6 +430,24 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 	*errmsg = msg_;
 
     return res;
+}
+
+
+bool OD::PythonAccess::executeScript( const char* scriptstr,
+				      bool wait4finish ) const
+{
+    BufferString script( scriptstr );
+    script.quote( '\"' );
+    OS::MachineCommand mc( sPythonExecNm(), "-c", script );
+    return execute( mc, wait4finish );
+}
+
+
+bool OD::PythonAccess::executeScript( const BufferStringSet& scriptstrs,
+				      bool wait4finish ) const
+{
+    return executeScript( BufferString(scriptstrs.cat(";")),
+			  wait4finish );
 }
 
 
@@ -474,10 +494,8 @@ BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 
 bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 {
-    BufferString comm( sPythonExecNm(true) );
-    comm.add( " -c \"import " ).add( nm ).add( "\"");
-    const OS::MachineCommand cmd( comm );
-    return execute( cmd ) && lastOutput(true,nullptr).isEmpty();
+    const BufferString importscript( "import ", nm );
+    return executeScript( importscript ) && lastOutput(true,nullptr).isEmpty();
 }
 
 
@@ -496,7 +514,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 {
     if ( !activatefp || !envnm )
     {
-	const OS::MachineCommand cmdret( cmd );
+	const OS::MachineCommand cmdret( cmd, true );
 	cmd = cmdret;
 	return nullptr;
     }
@@ -541,7 +559,20 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     if ( background )
 	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
-    strm.add( cmd.command() );
+    strm.add( cmd.program() ).add( " " );
+    BufferStringSet args( cmd.args() );
+    for ( int idx=0; idx<args.size(); idx++ )
+    {
+	auto* arg = args[idx];
+	if ( arg->find(' ') && arg->firstChar() != '\'' &&
+	     arg->firstChar() != '\"' )
+#ifdef __win__
+	    arg->quote('\"');
+#else
+	    arg->quote();
+#endif
+    }
+    strm.add( args.cat(" ") );
     if ( background )
     {
 #ifdef __win__
@@ -556,7 +587,8 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #else
 	strm.add( " 2>/dev/null" );
 	strm.add( " &" ).add( od_newline );
-	strm.add( "echo $! > " ).add( getPIDFilePathStr(*ret) );
+	BufferString pidfile( getPIDFilePathStr(*ret) );
+	strm.add( "echo $! > " ).add( pidfile.quote() );
 #endif
     }
     strm.add( od_newline );
@@ -565,9 +597,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #ifdef __unix__
     File::makeExecutable( ret->fullPath(), true );
 #endif
-    BufferString cmdstr( ret->fullPath() );
-    OS::CommandLauncher::addQuotesIfNeeded( cmdstr );
-    cmd = OS::MachineCommand( cmdstr );
+    cmd = OS::MachineCommand( ret->fullPath(), true );
 
     return ret;
 }
@@ -588,7 +618,7 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
     else
 	scriptfpret.set( nullptr );
 
-    OS::CommandLauncher* cl = new OS::CommandLauncher( scriptcmd, true );
+    OS::CommandLauncher* cl = new OS::CommandLauncher( scriptcmd );
     return cl;
 }
 
@@ -633,7 +663,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     if ( !cl_.ptr() )
     {
 	msg_ = tr("Cannot create launcher for command '%1'")
-		    .arg( cmd.getSingleStringRep() );
+		    .arg( cmd.toString(execpars) );
 	return false;
     }
 
@@ -653,13 +683,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     if ( !res )
     {
 	if ( cl_->errorMsg().isEmpty() )
-	{
-	    BufferStringSet commandline;
-	    commandline.unCat( cmd.command(), " " );
-	    msg_ = uiStrings::phrCannotStart( commandline.isEmpty()
-					      ? uiStrings::sBatchProgram()
-					      : toUiString(commandline.get(0)));
-	}
+	    msg_ = uiStrings::phrCannotStart( ::toUiString(cmd.program()) );
 	else
 	    msg_ = cl_->errorMsg();
     }
@@ -899,8 +923,7 @@ bool OD::PythonAccess::retrievePythonVersionStr()
     if ( !isUsable_(!istested_) )
 	return false;
 
-    const BufferString comm( sPythonExecNm(true), " --version" );
-    const OS::MachineCommand cmd( comm );
+    OS::MachineCommand cmd( sPythonExecNm(true), "--version" );
     BufferString laststdout, laststderr;
     const bool res = execute( cmd, laststdout, &laststderr );
     if ( res )
@@ -1062,31 +1085,28 @@ uiRetVal OD::PythonAccess::hasModule( const char* modname,
 }
 
 
-uiRetVal OD::PythonAccess::updateModuleInfo( const char* cmd )
+uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
+					     const char* defarg )
 {
-    BufferString modulecmd( cmd );
-    if ( modulecmd.isEmpty() )
-	modulecmd.set( getPacmanExecNm() ).addSpace().add( "list" );
+    OS::MachineCommand mc( defprog );
+    if ( mc.isBad() )
+    {
+	mc.setProgram( getPacmanExecNm() );
+	mc.addArg( "list" );
+    }
+    else
+	mc.addArg( defarg );
 
     moduleinfos_.setEmpty();
+    if ( mc.args().isEmpty() )
+	return uiRetVal( tr("Invalid command: %1").arg(mc.program()) );
 
-    BufferStringSet cmdstrs;
-    cmdstrs.unCat( modulecmd, " " );
-    if ( cmdstrs.isEmpty() )
-	return uiRetVal( tr("Invalid command: %1").arg(modulecmd) );
-
-    const BufferString prognm( cmdstrs.first()->str() );
-    cmdstrs.removeSingle(0);
-    BufferString comm( prognm );
-    comm.addSpace().add( cmdstrs.cat( " " ) );
-    OS::MachineCommand mc( comm );
     BufferString laststdout, laststderr;
     bool res = execute( mc, laststdout, &laststderr );
 #ifdef __unix__
-    if ( !res && prognm == FixedString("pip") )
+    if ( !res && FixedString(mc.program()) == FixedString("pip") )
     {
-	comm.set( "pip3" ).addSpace().add( cmdstrs.cat( " " ) );
-	mc.setCommand( comm );
+	mc.setProgram( "pip3" );
 	res = execute( mc, laststdout, &laststderr );
     }
 #endif
@@ -1137,15 +1157,14 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 bool OD::PythonAccess::openTerminal() const
 {
     const BufferString termem = SettingsAccess().getTerminalEmulator();
-    BufferString cmd;
     bool immediate = false;
 #ifdef __win__
-    cmd.set( "start " ).add( termem );
+    OS::MachineCommand cmd( "start", termem );
     immediate = true;
 #else
-    cmd.set( termem );
+    OS::MachineCommand cmd( termem );
 #endif
-    return execute( OS::MachineCommand(cmd), immediate );
+    return execute( cmd, immediate );
 }
 
 
@@ -1183,10 +1202,9 @@ static const char* sKeyNvidia() { return "NVIDIA"; }
 static bool usesNvidiaCard( BufferString* glversionstr )
 {
     bool ret = false;
-    const OS::MachineCommand cmd( "od_glxinfo" );
-    OS::CommandLauncher cl( cmd );
+    OS::MachineCommand cmd( "od_glxinfo" );
     BufferString stdoutstr;
-    if ( !cl.execute(stdoutstr) || stdoutstr.isEmpty() )
+    if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
 	return false;
 
     BufferStringSet glxinfostrs;
@@ -1269,13 +1287,12 @@ bool canDoCUDA( BufferString& maxverstr )
     return hasnv && cudaCapable( glversion, &maxverstr );
 }
 
-BufferString removeDirScript(const BufferString& path)
+
+static BufferStringSet removeDirScript( const BufferString& path )
 {
     BufferStringSet script;
-    script.add( "import shutil" );
-    const BufferString remcmd( "shutil.rmtree(r'", path, "')" );
-    script.add( remcmd );
-    return BufferString( "\"", script.cat(";"), "\"" );
+    return script.add( "import shutil" )
+		 .add( BufferString("shutil.rmtree(r'", path, "')") );
 }
 
 
@@ -1295,13 +1312,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
     if ( retval.isOK() )
     {
 	retval.setEmpty();
-	BufferString cmdstr( PythA().sPythonExecNm() );
-	BufferString pathstr( removeDirScript(path) );
-	OS::CommandLauncher::addQuotesIfNeeded( pathstr );
-	cmdstr.addSpace().add( "-c" ).addSpace().add( pathstr );
-	const OS::MachineCommand cmd( cmdstr );
-
-	ret = PythA().execute( cmd, waitforfin );
+	ret = PythA().executeScript( removeDirScript(path), waitforfin );
 
 	uiString errmsg;
 	const BufferString errstr = PythA().lastOutput( true, &errmsg );
@@ -1314,10 +1325,7 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	}
     }
     else
-    {
-	retval.setEmpty();
 	ret = File::removeDir( path );
-    }
 
     if ( !ret )
 	retval.add( uiStrings::phrCannotRemove(uiStrings::sFolder()) );

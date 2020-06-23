@@ -14,10 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
-#include "strmoper.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "settings.h"
-#include "timefun.h"
 #include "uistrings.h"
 
 static const char* sKeyTimeOut = "Download.Timout";
@@ -99,16 +97,12 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
     if ( outfnm && *outfnm )
 	return File::copy( inpfnm, outfnm );
 
-    StreamData sd( StreamProvider(inpfnm).makeIStream() );
-    if ( !sd.usable() )
-    {
-	errmsg_ = uiStrings::phrCannotOpen(toUiString(inpfnm));
-	return false;
-    }
+    od_istream strm( inpfnm );
+    if ( !strm.isOK() )
+	{ errmsg_ = uiStrings::phrCannotOpenForRead( inpfnm ); return false; }
 
     BufferString bs;
-    const bool isok = StrmOper::readFile( *sd.istrm, bs );
-    sd.close();
+    const bool isok = strm.getAll( bs );
     if ( isok )
     {
 	databuf_ = new DataBuffer( bs.size(), 1 );

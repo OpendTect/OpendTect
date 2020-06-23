@@ -40,7 +40,6 @@ ________________________________________________________________________
 # include <QDir>
 # include <QFile>
 # include <QFileInfo>
-# include <QProcess>
 # include <QStandardPaths>
 #else
 # include <fstream>
@@ -294,11 +293,12 @@ bool exists( const char* fnm )
     if ( !fnm || !*fnm )
 	return false;
 
+
+
 #ifndef OD_NO_QT
-    return (*fnm == '@' && *(fnm+1)) || QFile::exists( fnm );
-	// support, like od_istream, commands. These start with '@'.
+    return QFile::exists( fnm );
 #else
-    return od_istream(fnm).isOK();
+    return isReadable(fnm);
 #endif
 }
 
@@ -324,7 +324,7 @@ bool isDirEmpty( const char* dirnm )
 bool isFile( const char* fnm )
 {
 #ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
+    const QFileInfo qfi( fnm );
     return qfi.isFile();
 #else
     struct stat st_buf;
@@ -494,20 +494,8 @@ bool isReadable( const char* fnm )
 bool isWritable( const char* fnm )
 {
 #ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    const bool iswritable = qfi.isWritable();
-    if ( !iswritable || !qfi.isDir() || !__iswin__ )
-	return iswritable;
-    else
-    {
-	const FilePath fp( fnm, "testfile" );
-	od_ostream strm( fp.fullPath() );
-	const bool res = strm.isOK();
-	strm.close();
-	File::remove( fp.fullPath() );
-	return res;
-    }
-
+    const QFileInfo qfi( fnm );
+    return qfi.isWritable();
 #else
     struct stat st_buf;
     int status = stat( fnm, &st_buf );
@@ -527,7 +515,7 @@ bool isExecutable( const char* fnm )
 #else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
-    if (status != 0)
+    if ( status != 0 )
 	return false;
 
     return st_buf.st_mode & S_IXUSR;
@@ -690,7 +678,7 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 	    return true;
     }
 
-    BufferString cmd;
+    OS::MachineCommand mc;
 #ifdef __win__
     const BufferString destdrive = destdir.rootPath();
     const FilePath sourcefp( oldname );
@@ -709,18 +697,14 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 	res = File::removeDir( oldname );
 	return res;
     }
-    cmd.add( "move" );
+
+    mc.setProgram( "move" );
 #else
-    cmd.add( "mv" );
+    mc.setProgram( "mv" );
 #endif
-    BufferString srcpathstr( oldname );
-    BufferString destpathstr( newname );
-    OS::CommandLauncher::addQuotesIfNeeded(srcpathstr);
-    OS::CommandLauncher::addQuotesIfNeeded(destpathstr);
-    cmd.addSpace().add(srcpathstr).addSpace().add(destpathstr);
+    mc.addArg( oldname ).addArg( newname );
     BufferString stdoutput, stderror;
-    res = OS::ExecCommand( cmd, OS::Wait4Finish,
-			       &stdoutput, &stderror );
+    res = mc.execute( stdoutput, &stderror );
     if ( !res && errmsg )
     {
 	if ( !stderror.isEmpty() )
@@ -813,25 +797,11 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
     if ( !from || !exists(from) || !to || !*to || exists(to) )
 	return false;
 
-#ifndef OD_NO_QT
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
     if ( !res && errmsg )
 	errmsg->add( copier->uiMessage().getFullString() );
-#else
 
-    BufferString cmd;
-#ifdef __win__
-    cmd = "xcopy /E /I /Q /H ";
-    cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
-#else
-    cmd = "/bin/cp -a ";
-    cmd.add(" '").add(from).add("' '").add(to).add("'");
-#endif
-
-    bool res = !system( cmd );
-    if ( res ) res = exists( to );
-#endif
     return res;
 }
 
@@ -896,20 +866,20 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
 #ifdef OD_NO_QT
     return false;
 #else
-    BufferString cmd;
+    BufferStringSet args;
 # ifdef __win__
-    cmd = "attrib"; cmd += yn ? " -R " : " +R ";
-    cmd.add("\"").add(fnm).add("\"");
+    OS::MachineCommand mc( "ATTRIB" );
+    mc.addArg( yn ? "-R" : "+R" ).addArg( fnm );
     if ( recursive && isDirectory(fnm) )
-	cmd += "\\*.* /S ";
+	mc.addArg( "/S" ).addArg( "/D" );
 # else
-    cmd = "chmod";
+    OS::MachineCommand mc( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	cmd += " -R ";
-    cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
+	mc.addArg( "-R" );
+    mc.addArg( yn ? "ug+w" : "a-w" ).addArg( fnm );
 # endif
 
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+    return mc.execute();
 #endif
 }
 
@@ -925,9 +895,9 @@ bool makeExecutable( const char* fnm, bool yn )
 #if ((defined __win__) || (defined OD_NO_QT) )
     return true;
 #else
-    BufferString cmd( "chmod" );
-    cmd.add(yn ? " +r+x \"" : " -x \"").add(fnm).add("\"");
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+    OS::MachineCommand mc( "chmod" );
+    mc.addArg( yn ? "+r+x" : "-x" ).addArg( fnm );
+    return mc.execute();
 #endif
 }
 
@@ -937,11 +907,11 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
 #if ((defined __win__) || (defined OD_NO_QT) )
     return false;
 #else
-    BufferString cmd( "chmod " );
+    OS::MachineCommand mc( "chmod" );
     if ( recursive && isDirectory(fnm) )
-	cmd += " -R ";
-    cmd.add( perms ).add( " \"" ).add( fnm ).add( "\"" );
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+	mc.addArg( "-R" );
+    mc.addArg( perms ).addArg( fnm );
+    return mc.execute();
 #endif
 }
 
@@ -1032,10 +1002,13 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    const QTime qtime = lastmodif ? qfi.lastModified().time()
-				  : qfi.created().time();
-    const QTime daystart(0,0,0,0);
-    return daystart.secsTo( qtime );
+    return lastmodif ? qfi.lastModified().toTime_t()
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+		     : qfi.birthTime().toTime_t();
+#else
+		     : qfi.created().toTime_t();
+#endif
+
 #else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
@@ -1052,16 +1025,21 @@ od_int64 getTimeInMilliSeconds( const char* fnm, bool lastmodif )
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     const QTime qtime = lastmodif ? qfi.lastModified().time()
-				  : qfi.created().time();
-    const QTime daystart(0,0,0,0);
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+				: qfi.birthTime().time();
+#else
+				: qfi.created().time();
+#endif
+
+    const QTime daystart( 0, 0, 0, 0 );
     return daystart.msecsTo( qtime );
 #else
     struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
+    int status = stat( fnm, &st_buf );
+    if ( status != 0 )
 	return 0;
 
-    return lastmodif ? st_buf.st_mtime*1000 : st_buf.st_ctime*1000;
+    return lastmodif ? st_buf.st_mtime * 1000 : st_buf.st_ctime * 1000;
 #endif
 }
 
@@ -1182,24 +1160,20 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     if ( !exists(fnm) )
 	return false;
 
-    BufferString cmd;
-    CommandLineParser::addFilePath(
-		FilePath(GetExecPlfDir(),"od_FileBrowser").fullPath(), cmd );
-    CommandLineParser::addKey( ViewPars::sKeyFile(), cmd );
-    CommandLineParser::addFilePath( fnm, cmd );
-    CommandLineParser::addKey( ViewPars::sKeyMaxLines(), cmd,
-			       BufferString(::toString(vp.maxnrlines_) ).str());
-    CommandLineParser::addKey( ViewPars::sKeyStyle(), cmd,
-			       ViewStyleDef().getKeyForIndex(vp.style_) );
+    OS::MachineCommand mc( "od_FileBrowser" );
+    mc.addKeyedArg( ViewPars::sKeyFile(), fnm );
+    mc.addKeyedArg( ViewPars::sKeyMaxLines(), vp.maxnrlines_ );
+    mc.addKeyedArg( ViewPars::sKeyStyle(), toString(vp.style_) );
     if ( vp.editable_ )
-	CommandLineParser::addKey( ViewPars::sKeyEdit(), cmd );
+	mc.addFlag( ViewPars::sKeyEdit() );
 
 #ifdef __mac__
-    CommandLineParser::addKey( OS::MachineCommand::sKeyFG(), cmd );
+    mc.addFlag( OS::MachineCommand::sKeyFG() );
 #endif
 
-    OS::CommandLauncher cl = OS::MachineCommand( cmd );
-    OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
+    OS::CommandLauncher cl( mc );
+    OS::CommandExecPars pars;
+    pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
 }
 

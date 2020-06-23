@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
 #include "envvars.h"
+#include "file.h"
+#include "filepath.h"
 #include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -43,7 +45,7 @@ int GMTParFactory::add( const char* nm, GMTParCreateFunc fn )
 }
 
 
-GMTPar* GMTParFactory::create( const IOPar& iop ) const
+GMTPar* GMTParFactory::create( const IOPar& iop, const char* workdir ) const
 {
     const char* grpname = iop.find( ODGMT::sKeyGroupName() );
     if ( !grpname || !*grpname ) return 0;
@@ -51,7 +53,7 @@ GMTPar* GMTParFactory::create( const IOPar& iop ) const
     Entry* entry = getEntry( grpname );
     if ( !entry ) return 0;
 
-    GMTPar* grp = entry->crfn_( iop );
+    GMTPar* grp = entry->crfn_( iop, workdir );
     return grp;
 }
 
@@ -77,100 +79,93 @@ GMTParFactory::Entry* GMTParFactory::getEntry( const char* nm ) const
 }
 
 
-BufferString GMTPar::fileName( const char* fnm ) const
+bool GMTPar::execute( od_ostream& strm, const char* fnm )
 {
-    BufferString fnmchg;
-    if ( __iswin__ ) fnmchg += "\"";
-    fnmchg += fnm;
-    if ( __iswin__ ) fnmchg += "\"";
-    return fnmchg;
+    const bool res = doExecute( strm, fnm );
+    const BufferString gmterrfnm( getErrFnm() );
+    checkErrStrm( gmterrfnm, strm );
+    File::remove( gmterrfnm );
+
+    const FilePath historyfp( workingdir_,
+	    GMT::hasModernGMT() ? "gmt.history" : ".gmtcommands4" );
+    File::remove( historyfp.fullPath() );
+
+    return res;
 }
 
 
-bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
+bool GMTPar::execCmd( const OS::MachineCommand& machcomm, od_ostream& strm,
+		      const char* fnm, bool append )
 {
-    BufferString cmd;
-    const char* errfilenm = GetProcFileName( "gmterr.err" );
-    const char* shellnm = GetOSEnvVar( "SHELL" );
-    const bool needsbash = shellnm && *shellnm && !firstOcc(shellnm,"bash");
-    if ( needsbash )
-	cmd += "bash -c \'";
+    OS::MachineCommand mc = getWrappedComm( machcomm );
+    if ( fnm )
+	mc.addFileRedirect( fnm, 1, append );
+    const BufferString gmterrfnm( getErrFnm() );
+    mc.addFileRedirect( gmterrfnm, 2 );
 
-    const char* commstr = comm.buf();
-    if ( commstr && commstr[0] == '@' )
-	commstr++;
+    OS::CommandExecPars pars( OS::Wait4Finish );
+    pars.workingdir( workingdir_ );
 
-    addWrapperComm( cmd );
-    cmd += commstr;
-    cmd += " 2> \"";
-    cmd += errfilenm;
-    cmd += "\"";
-    if ( needsbash )
-	cmd += "\'";
-
-    DBG::message( DBG_PROGSTART, cmd );
-    if ( system(cmd) )
-    {
-	od_istream errstrm( errfilenm );
-	if ( !errstrm.isOK() )
-	    return true;
-
-	BufferString buf;
-	strm << od_endl;
-	while ( errstrm.getLine(buf) )
-	    strm << buf << od_endl;
-    }
+    DBG::message( DBG_PROGSTART, mc.toString(&pars) );
+    if ( mc.execute(pars) )
+	checkErrStrm( gmterrfnm, strm );
 
     return true;
 }
 
 
-od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
+od_ostream GMTPar::makeOStream( const OS::MachineCommand& machcomm,
+				od_ostream& strm,
+				const char* fnm, bool append )
 {
-    BufferString cmd;
-    const char* errfilenm = GetProcFileName( "gmterr.err" );
-    const char* shellnm = GetOSEnvVar( "SHELL" );
-    const bool needsbash = shellnm && *shellnm && !firstOcc(shellnm,"bash");
-    const char* commptr = comm.buf();
-	if (needsbash)
-		cmd += "@bash -c \'";
-	else
-		cmd += "@";
+    OS::MachineCommand mc = getWrappedComm( machcomm );
+    if ( fnm )
+	mc.addFileRedirect( fnm, 1, append );
+    const BufferString gmterrfnm( getErrFnm() );
+    mc.addFileRedirect( gmterrfnm, 2 );
 
-    addWrapperComm( cmd );
-	if ( !cmd.isEmpty() && commptr[0] == '@')
-		commptr++;
-
-    cmd += commptr;
-    cmd += " 2> \"";
-    cmd += errfilenm;
-    cmd += "\"";
-    if ( needsbash )
-	cmd += "\'";
-
-    DBG::message( DBG_PROGSTART, cmd );
-    od_ostream ret( cmd );
-    if ( !ret.isOK() )
-    {
-	od_istream errstrm( errfilenm );
-	if ( !errstrm.isOK() )
-	    return ret;
-
-	BufferString buf;
-	strm << od_endl;
-	while ( errstrm.getLine(buf) )
-	    strm << buf << od_endl;
-    }
+    DBG::message( DBG_PROGSTART, mc.toString() );
+    od_ostream ret( mc, workingdir_ );
+    checkErrStrm( gmterrfnm, strm );
 
     return ret;
 }
 
 
-void GMTPar::addWrapperComm( BufferString& comm )
+BufferString GMTPar::getErrFnm()
 {
-    const char* wrapper = GMT::sKeyDefaultExec();
-    if ( !wrapper )
+    return BufferString ( GetProcFileName("gmterr.err") );
+}
+
+
+void GMTPar::checkErrStrm( const char* gmterrfnm, od_ostream& strm )
+{
+    od_istream errstrm( gmterrfnm );
+    if ( !errstrm.isOK() )
 	return;
 
-    comm.add( wrapper ).addSpace();
+    BufferString buf;
+    bool first = true;
+    while ( errstrm.getLine(buf) )
+    {
+	if ( first )
+	{
+	    strm << od_endl;
+	    first = false;
+	}
+
+	strm << buf << od_endl;
+    }
+}
+
+
+OS::MachineCommand GMTPar::getWrappedComm( const OS::MachineCommand& mc )
+{
+    OS::MachineCommand ret( GMT::sKeyDefaultExec() );
+    if ( ret.isBad() )
+	return ret;
+
+    ret.addArg( mc.program() );
+    ret.addArgs( mc.args() );
+    return ret;
 }

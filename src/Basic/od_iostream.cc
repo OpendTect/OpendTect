@@ -7,18 +7,22 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "od_strstream.h"
+
+#include "ascstream.h"
+#include "bufstring.h"
+#include "compoundkey.h"
+#include "file.h"
 #include "filepath.h"
+#include "fixedstring.h"
+#include "fixedstreambuf.h"
+#include "iopar.h"
+#include "perthreadrepos.h"
+#include "separstr.h"
 #include "strmprov.h"
 #include "strmoper.h"
-#include "bufstring.h"
-#include "fixedstring.h"
-#include "separstr.h"
-#include "compoundkey.h"
-#include "iopar.h"
-#include "ascstream.h"
-#include "perthreadrepos.h"
-#include "uistring.h"
+#include "uistrings.h"
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string.h>
 
@@ -28,13 +32,13 @@ const char* od_stream::sStdErr()	{ return StreamProvider::sStdErr(); }
 
 od_istream& od_istream::nullStream()
 {
-    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = 0 );
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
     if ( !ret )
     {
-#ifndef __win__
-	od_istream* newret = new od_istream( "/dev/null" );
-#else
+#ifdef __win__
 	od_istream* newret = new od_istream( "NUL:" );
+#else
+	od_istream* newret = new od_istream( "/dev/null" );
 #endif
 	newret->setNoClose();
 
@@ -46,13 +50,13 @@ od_istream& od_istream::nullStream()
 
 od_ostream& od_ostream::nullStream()
 {
-    mDefineStaticLocalObject( PtrMan<od_ostream>, ret, = 0 );
+    mDefineStaticLocalObject( PtrMan<od_ostream>, ret, = nullptr );
     if ( !ret )
     {
-#ifndef __win__
-	od_ostream* newret = new od_ostream( "/dev/null" );
-#else
+#ifdef __win__
 	od_ostream* newret = new od_ostream( "NUL" );
+#else
+	od_ostream* newret = new od_ostream( "/dev/null" );
 #endif
 	newret->setNoClose();
 
@@ -70,85 +74,100 @@ od_ostream& od_ostream::logStream()
 }
 
 
-#define mMkoStrmData(fnm,ex) StreamProvider(fnm).makeOStream(true,ex)
-#define mMkiStrmData(fnm) StreamProvider(fnm).makeIStream()
-#define mInitList(ismine) sd_(*new StreamData), mine_(ismine), noclose_(false)
+static bool isCommand( const char* nm )
+{
+    if ( !nm || !*nm )
+	return false;
+
+    BufferString workstr( nm );
+    if ( workstr.isEmpty() )
+	return false;
+
+    const char* pwork = workstr.buf();
+    bool iscomm = false;
+    while ( *pwork == '@' )
+	{ iscomm = true; pwork++; }
+
+    return iscomm;
+}
+
+
 
 od_stream::od_stream()
-    : mInitList(false)
 {
 }
 
-od_stream::od_stream( const od_stream& oth )
-    : mInitList(false)
+
+od_istream::od_istream( od_istream&& o )
 {
-    *this = oth;
+    sd_ = std::move( o.sd_ );
 }
+
+
+od_istream& od_istream::operator=( od_istream&& o )
+{
+    sd_ = std::move( o.sd_ );
+    return *this;
+}
+
 
 od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
-
-    : mInitList(true)
 {
-    sd_ = forwrite ? mMkoStrmData( fnm, useexist ) : mMkiStrmData( fnm );
+    if ( isCommand(fnm) )
+    {
+	pErrMsg( "Deprecated. Set from OS::MachineCommand instead" );
+	DBG::forceCrash(false);
+	return;
+    }
+
+    if ( forwrite )
+	sd_ = StreamProvider::createOStream( fnm, true, useexist );
+    else
+	sd_ = StreamProvider::createIStream( fnm );
 }
 
 
 od_stream::od_stream( const FilePath& fp, bool forwrite, bool useexist )
-    : mInitList(true)
+    : od_stream( fp.fullPath(), forwrite, useexist )
+{}
+
+
+od_stream::od_stream( const OS::MachineCommand& mc, const char* workdir,
+		      bool editmode )
 {
-    const BufferString fnm( fp.fullPath() );
-    sd_ = forwrite ? mMkoStrmData( fnm, useexist ) : mMkiStrmData( fnm );
+    setFromCommand( mc, workdir, editmode );
 }
 
 
 od_stream::od_stream( std::ostream* strm )
-    : mInitList(true)
 {
-    sd_.ostrm = strm;
+    sd_.setOStrm( strm );
 }
 
 
 od_stream::od_stream( std::istream* strm )
-    : mInitList(true)
 {
-    sd_.istrm = strm;
+    sd_.setIStrm( strm );
 }
 
 
 od_stream::od_stream( std::ostream& strm )
-    : mInitList(false)
 {
-    sd_.ostrm = &strm;
+    mine_ = false;
+    sd_.setOStrm( &strm );
 }
 
 
 od_stream::od_stream( std::istream& strm )
-    : mInitList(false)
 {
-    sd_.istrm = &strm;
+    mine_ = false;
+    sd_.setIStrm( &strm );
 }
 
 
 od_stream::~od_stream()
 {
     close();
-    delete &sd_;
-}
-
-
-od_stream& od_stream::operator =( const od_stream& oth )
-{
-    if ( this != &oth )
-    {
-	close();
-	if ( oth.mine_ && !oth.noclose_ )
-	    oth.sd_.transferTo( sd_ );
-	else
-	    sd_ = oth.sd_;
-	mine_ = oth.mine_;
-	noclose_ = oth.noclose_;
-    }
-    return *this;
 }
 
 
@@ -162,34 +181,31 @@ void od_stream::close()
 bool od_stream::isOK() const
 {
     if ( forWrite() )
-	return sd_.ostrm && sd_.ostrm->good();
+	return sd_.oStrm() && sd_.oStrm()->good();
     else
-	return sd_.istrm && sd_.istrm->good();
+	return sd_.iStrm() && sd_.iStrm()->good();
 }
 
 
 bool od_stream::isBad() const
 {
     if ( forWrite() )
-	return !sd_.ostrm || !sd_.ostrm->good();
+	return !sd_.oStrm() || !sd_.oStrm()->good();
     else
-	return !sd_.istrm || sd_.istrm->bad() || sd_.istrm->fail();
+	return !sd_.iStrm() || sd_.iStrm()->bad() || sd_.iStrm()->fail();
 }
 
 
 bool od_istream::atEOF() const
 {
-    return !sd_.istrm || sd_.istrm->eof();
+    return !sd_.iStrm() || sd_.iStrm()->eof();
 }
 
 
 uiString od_stream::errMsg() const
 {
     if ( errmsg_.isEmpty() )
-    {
-	const char* sysmsg = StrmOper::getErrorMessage( streamData() );
-	return toUiString( sysmsg && *sysmsg ? sysmsg : 0 );
-    }
+	return StrmOper::getErrorMessage( streamData() );
 
     return errmsg_;
 }
@@ -222,12 +238,31 @@ void od_stream::addErrMsgTo( uiRetVal& uirv ) const
 }
 
 
+
+
+bool od_stream::setFromCommand( const OS::MachineCommand& mc,
+				const char* workdir, bool editmode )
+{
+    StreamProvider strmprov;
+    strmprov.setCommand( mc, workdir );
+    if ( strmprov.isBad() )
+	return false;
+
+    if ( editmode )
+	sd_ = strmprov.makeOStream();
+    else
+	sd_ = strmprov.makeIStream();
+
+    return editmode ? (bool)sd_.oStrm() : (bool)sd_.iStrm();
+}
+
+
 od_stream::Pos od_stream::position() const
 {
-    if ( sd_.ostrm )
-	return StrmOper::tell( *sd_.ostrm );
-    else if ( sd_.istrm )
-	return StrmOper::tell( *sd_.istrm );
+    if ( sd_.oStrm() )
+	return StrmOper::tell( *sd_.oStrm() );
+    else if ( sd_.iStrm() )
+	return StrmOper::tell( *sd_.iStrm() );
     return -1;
 }
 
@@ -242,22 +277,58 @@ static std::ios::seekdir getSeekdir( od_stream::Ref ref )
 
 void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
 {
-    if ( sd_.ostrm )
+    if ( sd_.iStrm() )
+	static_cast<od_istream*>(this)->setReadPosition( pos, ref );
+    else if ( sd_.oStrm() )
+	static_cast<od_ostream*>(this)->setWritePosition( pos, ref );
+}
+
+
+void od_istream::setReadPosition( od_stream::Pos pos, od_stream::Ref ref )
+{
+    if ( sd_.iStrm() )
     {
 	if ( ref == Abs )
-	    StrmOper::seek( *sd_.ostrm, pos );
-	else
-	    StrmOper::seek( *sd_.ostrm, pos, getSeekdir(ref) );
-    }
-    else if ( sd_.istrm )
-    {
-	if ( ref == Abs )
-	    StrmOper::seek( *sd_.istrm, pos );
+	    StrmOper::seek( *sd_.iStrm(), pos );
 	else if ( ref == Rel && pos >= 0 )
-	    sd_.istrm->ignore( pos );
+	    sd_.iStrm()->ignore( pos );
 	else
-	    StrmOper::seek( *sd_.istrm, pos, getSeekdir(ref) );
+	    StrmOper::seek( *sd_.iStrm(), pos, getSeekdir(ref) );
     }
+}
+
+
+void od_ostream::setWritePosition( od_stream::Pos pos, od_stream::Ref ref )
+{
+    if ( sd_.oStrm() )
+    {
+	if ( ref == Abs )
+	    StrmOper::seek( *sd_.oStrm(), pos );
+	else
+	    StrmOper::seek( *sd_.oStrm(), pos, getSeekdir(ref) );
+    }
+}
+
+
+od_stream::Pos od_istream::endPosition() const
+{
+    const Pos curpos = position();
+    od_istream& self = *const_cast<od_istream*>( this );
+    self.setReadPosition( 0, End );
+    const Pos ret = position();
+    self.setReadPosition( curpos, Abs );
+    return ret;
+}
+
+
+od_stream::Pos od_ostream::lastWrittenPosition() const
+{
+    const Pos curpos = position();
+    od_ostream& self = *const_cast<od_ostream*>( this );
+    self.setWritePosition( 0, End );
+    const Pos ret = position();
+    self.setWritePosition( curpos, Abs );
+    return ret;
 }
 
 
@@ -265,9 +336,9 @@ const char* od_stream::fileName() const
 {
     if ( sd_.fileName() )
 	return sd_.fileName();
-    if ( sd_.istrm == &std::cin || sd_.ostrm == &std::cout )
+    if ( sd_.iStrm() == &std::cin || sd_.oStrm() == &std::cout )
 	return StreamProvider::sStdIO();
-    else if ( sd_.ostrm == &std::cerr )
+    else if ( sd_.oStrm() == &std::cerr )
 	return StreamProvider::sStdErr();
     return "";
 }
@@ -279,89 +350,107 @@ void od_stream::setFileName( const char* fnm )
 }
 
 
-od_stream::Pos od_stream::endPosition() const
-{
-    const Pos curpos = position();
-    od_stream& self = *const_cast<od_stream*>( this );
-    self.setPosition( 0, End );
-    const Pos ret = position();
-    self.setPosition( curpos, Abs );
-    return ret;
-}
-
-
 bool od_stream::forRead() const
 {
-    return sd_.istrm;
+    return sd_.iStrm();
 }
 
 
 bool od_stream::forWrite() const
 {
-    return sd_.ostrm;
+    return sd_.oStrm();
 }
 
 
-void od_stream::releaseStream( StreamData& out )
+bool od_stream::isLocal() const
 {
-    sd_.transferTo( out );
+    std::streambuf* sb = sd_.iStrm() ? sd_.iStrm()->rdbuf()
+		      : (sd_.oStrm() ? sd_.oStrm()->rdbuf() : 0);
+    if ( !sb )
+	return true;
+
+    mDynamicCastGet(std::filebuf*,sfb,sb)
+    mDynamicCastGet(std::stringbuf*,ssb,sb)
+    mDynamicCastGet(std::fixedstreambuf*,fsb,sb)
+    return sfb || ssb || fsb;
+}
+
+
+BufferString od_stream::noStdStreamPErrMsg() const
+{
+    BufferString msg( "\nstdStream() requested but none available" );
+    msg.add( "\n\tfilename=" ).add( sd_.fileName() );
+    if ( sd_.iStrm() )
+	msg.add( "\n\tistream available" );
+    if ( sd_.oStrm() )
+	msg.add( "\n\tostream available" );
+    msg.add( "\n\tmine_=" ).add( mine_ );
+    msg.add( "\tnoclose_=" ).add( noclose_ );
+    msg.add( "\terrmsg_='" ).add( toString(errmsg_) ).add( "'\n" );
+    return msg;
 }
 
 
 std::istream& od_istream::stdStream()
 {
-    if ( sd_.istrm )
-	return *sd_.istrm;
-    pErrMsg( "stdStream() requested but none available" );
+    if ( sd_.iStrm() )
+	return *sd_.iStrm();
+
+    BufferString msg( noStdStreamPErrMsg(), "\nFile " );
+    const BufferString fnm( sd_.fileName() );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+	msg.add( "does not exist.\n" );
+    else
+	msg.add( "exists.\n" );
+    pErrMsg( msg );
     return nullStream().stdStream();
 }
 
 
 std::ostream& od_ostream::stdStream()
 {
-    if ( sd_.ostrm )
-	return *sd_.ostrm;
-    pErrMsg( "stdStream() requested but none available" );
+    if ( sd_.oStrm() )
+	return *sd_.oStrm();
+    pErrMsg( noStdStreamPErrMsg() );
     return nullStream().stdStream();
+}
+
+
+od_istream& od_cin()
+{
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
+    if ( !ret )
+    {
+	auto* newret = new od_istream( std::cin );
+	newret->setNoClose();
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
+    }
+    return *ret;
 }
 
 
 bool od_istream::open( const char* fnm )
 {
-    od_istream strm( fnm );
-    if ( strm.isOK() )
-	{ *this = strm; return true; }
-    else
-	{ close(); setFileName(fnm); return false; }
+    sd_ = StreamProvider::createIStream( fnm );
+    return isOK();
 }
 
 
 bool od_istream::reOpen()
 {
-    return noclose_ ? true : open( fileName() );
+    if ( noclose_ )
+	return true;
+
+    close();
+    return open( fileName() );
 }
 
 
 bool od_ostream::open( const char* fnm, bool useexist )
 {
-    od_ostream strm( fnm, useexist );
-    if ( strm.isOK() )
-	{ *this = strm; return true; }
-    else
-	{ close(); setFileName(fnm); return false; }
-}
-
-od_stream* od_stream::create( const char* fnm, bool forread,
-			     BufferString& errmsg )
-{
-    uiString uimsg;
-    od_stream* res = create( fnm, forread, uimsg );
-    if ( !res )
-    {
-	errmsg = uimsg.getFullString();
-    }
-
-    return res;
+    sd_ = StreamProvider::createOStream( fnm, true, useexist );
+    return isOK();
 }
 
 
@@ -369,35 +458,26 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 			      uiString& errmsg )
 {
     od_stream* ret = 0;
-    if ( forread )
+    if ( !fnm || !*fnm )
     {
-	if ( !fnm || !*fnm )
-	    return new od_istream( od_istream::nullStream() );
-
-	ret = new od_istream( fnm );
-	if ( !ret )
-	    errmsg = tr("Out of memory");
-	else if ( !ret->isOK() )
-	{
-	    errmsg = tr( "Cannot open %1 for read" ).arg( fnm );
-	    ret->addErrMsgTo( errmsg );
-	    delete ret; return 0;
-	}
+	if ( forread )
+	    return new od_istream( od_istream::nullStream().fileName() );
+	else
+	    return new od_ostream( od_ostream::nullStream().fileName() );
     }
-    else
-    {
-	if ( !fnm || !*fnm )
-	    return new od_ostream( od_ostream::nullStream() );
 
+    if ( forread )
+	ret = new od_istream( fnm );
+    else
 	ret = new od_ostream( fnm );
-	if ( !ret )
-	    errmsg = tr("Out of memory");
-	else if ( !ret->isOK() )
-	{
-	    errmsg = tr( "Cannot open %1 for write" ).arg( fnm );
-	    ret->addErrMsgTo( errmsg );
-	    delete ret; return 0;
-	}
+
+    if ( !ret )
+	errmsg = tr("Out of memory");
+    else if ( !ret->isOK() )
+    {
+	errmsg = uiStrings::phrCannotOpen( fnm, forread );
+	ret->addErrMsgTo( errmsg );
+	delete ret; return 0;
     }
 
     return ret;
@@ -406,15 +486,15 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 
 void od_ostream::flush()
 {
-    if ( sd_.ostrm )
-	sd_.ostrm->flush();
+    if ( sd_.oStrm() )
+	sd_.oStrm()->flush();
 }
 
 
 od_stream::Count od_istream::lastNrBytesRead() const
 {
-    if ( sd_.istrm )
-	return mCast(od_stream::Count,StrmOper::lastNrBytesRead(*sd_.istrm));
+    if ( sd_.iStrm() )
+	return StrmOper::lastNrBytesRead( *sd_.iStrm() );
     return 0;
 }
 
@@ -577,6 +657,21 @@ bool od_istream::getBin( void* buf, od_stream::Count nrbytes )
     if ( nrbytes == 0 || !buf )
 	return true;
     return StrmOper::readBlock( stdStream(), buf, nrbytes );
+}
+
+
+od_ostream::od_ostream( od_ostream&& o )
+{
+    sd_ = std::move( o.sd_ );
+}
+
+
+od_ostream& od_ostream::operator=( od_ostream&& o )
+{
+    if ( mine_ && !noclose_ )
+	sd_.close();
+    sd_ = std::move( o.sd_ );
+    return *this;
 }
 
 

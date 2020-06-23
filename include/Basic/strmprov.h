@@ -22,18 +22,11 @@ class TaskRunner;
 class BufferStringSet;
 
 
+
 /*!
 \brief Provides I/O stream for file or system command.
 
-To specify a command, start with '@'. Hostname may be added as in OSCommand.
-
 Examples:
- - dgb1:@handle_data
-   @dgb1:handle_data
-   @dgb1:@handle_data
-   @\\dgb1:handle_data
-	Executable handle_data on remote host dgb1 that gets/puts data to/from
-	stdin/stdout.
  - foo.bar
 	File foo.bar in current directory (whatever that may be!).
  - C:\\tmp\xx.txt
@@ -46,11 +39,17 @@ Examples:
 mExpClass(Basic) StreamProvider
 {
 public:
-		StreamProvider(const char* nm=0);
-    void	set(const char*);
+		StreamProvider(const char* filenm=nullptr);
+		StreamProvider(const OS::MachineCommand&,
+			       const char* workdir);
+		~StreamProvider();
 
-    inline bool	isBad() const			{ return fname_.isEmpty(); }
+    void	setFileName(const char*);
+    void	setCommand(const OS::MachineCommand&,const char* workdir);
 
+    bool	isBad() const;
+
+    const char* fileName() const	{ return fname_.buf(); }
     bool	exists(bool forread) const;
     bool	remove(bool recursive=true) const;
     bool	setReadOnly(bool yn) const;
@@ -67,18 +66,11 @@ public:
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
 		    //!< see makeOStream remark
 
-    const char*	fullName() const;
-    const char*	fileName() const	{ return fname_.buf(); }
-    const char*	command() const		{ return fileName(); }
-    const char*	hostName() const	{ return hostname_.buf(); }
-
-    void	setFileName( const char* fn );
-    void	setCommand(const char* cmd, const char* hostnm=0);
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
 
-    bool	isFile() const			{ return !iscomm_; }
-    bool	isCommand() const		{ return iscomm_; }
+    bool	isFile() const		{ return !mc_; }
+    bool	isCommand() const	{ return mc_; }
 
     static const char*	sStdIO();
     static const char*	sStdErr();
@@ -102,16 +94,29 @@ public:
 protected:
 
     BufferString	fname_;
-    bool		iscomm_;
-    BufferString	hostname_;
+    OS::MachineCommand* mc_ = nullptr;
+    BufferString	workingdir_;
 
     static StreamData	makePLIStream(int);
-    void		mkOSCmd(BufferString&) const;
 
     static void		sendCBMsg(const CallBack*,const char*);
 
+private:
+			StreamProvider(const StreamProvider&)	= delete;
+    StreamProvider&	operator=(const StreamProvider&)	= delete;
+
+public:
+
+    mDeprecated void set(const char* inp);
+
+    static StreamData createIStream(const char*,bool binary=true);
+			/*!< keep binary==true also for text files unless you
+			     know what you are doing. win32 thing only. */
+    static StreamData createOStream(const char*,bool binary=true,
+				    bool inplaceedit=false);
+			/*!< keep binary==true also for text files unless you
+			     know what you are doing. win32 thing only. */
+
 };
-
-
 
 #endif

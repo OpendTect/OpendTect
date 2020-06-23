@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "picksettr.h"
 #include "randcolor.h"
 #include "od_istream.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
@@ -262,25 +262,23 @@ bool uiImpExpPickSet::doExport()
 	mErrRet( toUiString(errmsg) )
 
     const char* fname = filefld_->fileName();
-    StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() )
+    od_ostream strm( fname );
+    if ( !strm.isOK() )
     {
-	sdo.close();
 	mErrRet(uiStrings::phrCannotOpen(uiStrings::phrOutput(
 		uiStrings::sFile())))
     }
 
-    *sdo.ostrm << std::fixed;
+    strm.stdStream() << std::fixed;
     BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
 	ps[locidx].toString( buf, true,
 		coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr );
-	*sdo.ostrm << buf.buf() << '\n';
+	strm << buf.buf() << '\n';
     }
 
-    *sdo.ostrm << '\n';
-    sdo.close();
+    strm << od_endl;
     return true;
 }
 

@@ -325,7 +325,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     if ( !gmtgrp->fillPar(iop) )
 	return;
 
-    GMTPar* par = GMTPF().create( iop );
+    GMTPar* par = GMTPF().create( iop, nullptr );
     if ( !par ) return;
 
     flowfld_->addItem( par->userRef() );
@@ -353,10 +353,9 @@ void uiGMTMainWin::editCB( CallBacker* )
     if ( !gmtgrp->fillPar(iop) )
 	return;
 
-    GMTPar* par = GMTPF().create( iop );
+    GMTPar* par = GMTPF().create( iop, nullptr );
     flowfld_->setItemText( selidx, par->userRef() );
-    GMTPar* tmppar = pars_.replace( selidx, par );
-    delete tmppar;
+    delete pars_.replace( selidx, par );
     needsave_ = true;
 }
 
@@ -512,7 +511,7 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 	if ( !subpar )
 	    break;
 
-	GMTPar* gmtpar = GMTPF().create( *subpar );
+	GMTPar* gmtpar = GMTPF().create( *subpar, nullptr );
 	if ( !gmtpar )
 	    continue;
 

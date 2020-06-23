@@ -17,9 +17,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oscommand.h"
 #include "dirlist.h"
 
-static const char* sRedirect = " > /dev/null 2>&1";
+
+static void addRedirect( OS::MachineCommand& mc )
+{
+#ifndef __debug__
+    mc.addFileRedirect( "/dev/null" )
+      .addFileRedirect( "&1", 2 );
+#endif
+}
 
 #define mGetReqFnm() const BufferString reqfnm( FilePath(dir_,fnm).fullPath() )
+#define mExecCmd( stmt, machcomm ) \
+    addRedirect( machcomm ); \
+    OS::CommandExecPars pars( OS::Wait4Finish ); \
+    if ( !dir_.isEmpty() ) \
+	pars.workingdir( dir_ );  \
+    stmt machcomm.execute( pars )
+#define mRetExecCmd( machcomm ) mExecCmd( return, machcomm )
 
 #define mGetTmpFnm(op,fnm) \
     const BufferString tmpfnm( \
@@ -67,8 +81,9 @@ bool SVNAccess::isOK() const
 #ifdef __win__
     //TODO
 #else
-    const BufferString cmd( "@ping -q -c 1 -W 2 ", host_, sRedirect );
-    hostreachable = OS::ExecCommand(cmd);
+    OS::MachineCommand machcomm( "ping", "-q", "-c", "1", "-W", "2" );
+    machcomm.addArg( host_ );
+    mExecCmd( hostreachable =, machcomm );
 #endif
     return havesvn_ && hostreachable;
 }
@@ -88,7 +103,7 @@ void SVNAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
     const FilePath fp( dir_, dir, ".svn", "text-base" );
-    DirList dl( fp.fullPath(), DirList::FilesOnly );
+    const DirList dl( fp.fullPath(), DirList::FilesOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );
@@ -105,8 +120,8 @@ bool SVNAccess::update( const char* fnm )
 	return true;
 
     mGetReqFnm();
-    const BufferString cmd( "@svn update ", reqfnm, sRedirect );
-    return OS::ExecCommand(cmd);
+    OS::MachineCommand machcomm( "svn", "update", reqfnm );
+    mRetExecCmd( machcomm );
 }
 
 
@@ -122,15 +137,15 @@ bool SVNAccess::lock( const BufferStringSet& fnms )
     if ( !isOK() )
 	return true;
 
-    BufferString cmd( "@svn edit " );
+    OS::MachineCommand machcomm( "svn", "edit" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
 	mGetReqFnm();
-	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	machcomm.addArg( reqfnm );
     }
-    cmd.add( sRedirect );
-    return OS::ExecCommand(cmd);
+
+    mRetExecCmd( machcomm );
 }
 
 
@@ -148,15 +163,15 @@ bool SVNAccess::add( const BufferStringSet& fnms )
     else if ( !isOK() )
 	return false;
 
-    BufferString cmd( "@svn add" );
+    OS::MachineCommand machcomm( "svn", "add" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
 	mGetReqFnm();
-	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	machcomm.addArg( reqfnm );
     }
-    cmd.add( sRedirect );
-    return OS::ExecCommand(cmd);
+
+    mRetExecCmd( machcomm );
 }
 
 
@@ -176,7 +191,7 @@ bool SVNAccess::remove( const BufferStringSet& fnms )
 	return true;
     const bool isok = isOK();
 
-    BufferString cmd( "@svn delete -f" );
+    OS::MachineCommand machcomm( "svn", "delete", "-f" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
@@ -185,14 +200,13 @@ bool SVNAccess::remove( const BufferStringSet& fnms )
 	else
 	{
 	    mGetReqFnm();
-	    cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	    machcomm.addArg( reqfnm );
 	}
     }
     if ( !isok )
 	return true;
 
-    cmd.add( sRedirect );
-    return OS::ExecCommand(cmd);
+    mRetExecCmd( machcomm );
 }
 
 
@@ -208,11 +222,11 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
     if ( fnms.isEmpty() || !isOK() )
 	return true;
 
-    BufferString cmd( "@svn commit" );
+    OS::MachineCommand machcomm( "svn", "commit" );
     mGetTmpFnm("svncommit",fnms.get(0));
     bool havetmpfile = false;
     if ( !msg || !*msg )
-	cmd.add( " -m \".\"" );
+	machcomm.addArg( "-m" ).addArg( "." );
     else
     {
 	od_ostream strm( tmpfnm );
@@ -220,7 +234,7 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
 	{
 	    strm << msg << od_endl;
 	    havetmpfile = true;
-	    cmd.add( " -F \"" ).add( tmpfnm ).add( "\"" );
+	    machcomm.addArg( "-F" ).addArg( tmpfnm );
 	}
     }
 
@@ -230,12 +244,11 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
 	if ( fnm && *fnm )
 	{
 	    mGetReqFnm();
-	    cmd.add( " \"" ).add( reqfnm ).add( "\"" );
+	    machcomm.addArg( reqfnm );
 	}
     }
 
-    cmd.add( sRedirect );
-    const bool res = OS::ExecCommand(cmd);
+    mExecCmd( const bool res =, machcomm );
     if ( havetmpfile )
 	File::remove( tmpfnm );
     return res;
@@ -250,11 +263,11 @@ bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( subdir ); fromfp.add( from );
     tofp.set( subdir ); tofp.add( to );
-    const BufferString fromfnm( fromfp.fullPath() );
-    const BufferString tofnm( tofp.fullPath() );
-    BufferString cmd( "@svn rename '", fromfnm, "' '" );
-    cmd.add( tofnm ).add( "." ).add( sRedirect );
-    return OS::ExecCommand(cmd);
+
+    OS::MachineCommand machcomm( "svn", "rename" );
+    machcomm.addArg( fromfp.fullPath() )
+	    .addArg( tofp.fullPath() ).addArg( "." );
+    mRetExecCmd( machcomm );
 }
 
 
@@ -270,9 +283,10 @@ bool SVNAccess::changeFolder( const char* fnm, const char* fromsubdir,
     const BufferString fromfnm( fromfp.fullPath() );
     const BufferString tofnm( tofp.fullPath() );
 
-    BufferString cmd( "@svn move '", fromfnm, "' '" );
-    cmd.add( tofnm ).add( "." ).add( sRedirect );
-    return OS::ExecCommand(cmd);
+    OS::MachineCommand machcomm( "svn", "move" );
+    machcomm.addArg( fromfp.fullPath() )
+	    .addArg( tofp.fullPath() ).addArg( "." );
+    mRetExecCmd( machcomm );
 }
 
 
@@ -288,10 +302,11 @@ void SVNAccess::diff( const char* fnm, BufferString& res ) const
     return; //TODO
 #else
 
-    BufferString cmd( "@svn diff ", reqfnm, " > " );
     mGetTmpFnm("svndiff",fnm);
-    cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !OS::ExecCommand(cmd) )
+    OS::MachineCommand machcomm( "svn", "diff", reqfnm );
+    machcomm.addFileRedirect( tmpfnm );
+    mExecCmd( const bool commres =, machcomm );
+    if ( !commres )
 	mRetRmTempFile()
 
     od_istream strm( tmpfnm );

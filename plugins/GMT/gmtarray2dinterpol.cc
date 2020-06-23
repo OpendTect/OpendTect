@@ -54,27 +54,30 @@ uiString GMTArray2DInterpol::uiMessage() const
 }
 
 
-#define mInitGMTComm( bufnm, s ) \
-    bufnm = "@"; GMTPar::addWrapperComm( bufnm ); bufnm.add( s )
-
 bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
+    workingdir_.set( GetProcFileName(nullptr) );
     mTryAlloc( nodes_, bool[nrcells_] );
-    getNodesToFill( 0, nodes_, 0 );
+    getNodesToFill( 0, nodes_, nullptr );
     defundefpath_ = FilePath(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
-    BufferString gmtcmd;
-    mInitGMTComm( gmtcmd, "xyz2grd" );
-    gmtcmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
-			 .add( " -G").add( defundefpath_ ).add( " -I1" );
-    sdmask_ = StreamProvider( gmtcmd ).makeOStream();
-    if ( !sdmask_.usable() )
+    BufferString rgstr( "-R0/" );
+    rgstr.add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
+    const BufferString garg( "-G", defundefpath_ );
+
+    OS::MachineCommand xyzmc( "xyz2grd" );
+    xyzmc.addArg( rgstr ).addArg( garg ).addArg( "-I1" );
+    OS::MachineCommand mc = GMTPar::getWrappedComm( xyzmc );
+    delete sdmask_;
+    sdmask_ = new od_ostream( mc, workingdir_ );
+    if ( !sdmask_ || !sdmask_->isOK() )
 	return false;
 
-    if ( !mkCommand(gmtcmd) )
+    OS::MachineCommand finalmc;
+    if ( !fillCommand(finalmc) )
 	return false;
 
-    sd_ = StreamProvider( gmtcmd ).makeOStream();
-    if ( !sd_.usable() )
+    sd_ = new od_ostream( finalmc, workingdir_ );
+    if ( !sd_ || !sd_->isOK() )
 	return false;
 
     return true;
@@ -86,18 +89,18 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     nrdone_ = 0;
     for ( int ridx=mCast(int,start); ridx<stop; ridx++ )
     {
-	if ( !*sd_.ostrm || !*sdmask_.ostrm )
+	if ( !sd_ || !sdmask_ )
 	    break;
 
 	for ( int cidx=0; cidx<nrcols_; cidx++ )
 	{
-	    if ( !*sd_.ostrm || !*sdmask_.ostrm )
+	    if ( !sd_ || !sdmask_ )
 		break;
 
-	    BufferString str("");
-	  str = str.add(ridx).addSpace().add(cidx).addSpace()
-		   .add(nodes_[nrcols_*ridx+cidx] ? "1" : "NaN");
-	  *sdmask_.ostrm << str << "\n";
+	    nodes_[nrcols_*ridx+cidx]
+		? *sdmask_ << ridx << " " << cidx << " " << 1
+		: *sdmask_ << ridx << " " << cidx << " " << "NaN";
+	    *sdmask_ << "\n";
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
@@ -105,26 +108,26 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 
 	    addToNrDone( 1 );
-	    str = "";
-	const float val = arr_->get(ridx,cidx);
-	  str.add(ridx).addSpace().add(cidx).addSpace().add(val);
-	  *sd_.ostrm << str << "\n";
+	    *sd_ << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
+						     << "\n";
 	}
 
 	nrdone_++;
     }
 
-    sd_.close();
-    sdmask_.close();
+    deleteAndZeroPtr( sd_ );
+    deleteAndZeroPtr( sdmask_ );
 
     BufferString path( path_ );
     path_ = FilePath( GetDataDir() ).add( "Misc" )
 				    .add( "result.grd" ).fullPath();
-    BufferString cmd;
-    mInitGMTComm( cmd, "grdmath " );
-    cmd.add( path ).add( " " ).add( defundefpath_ )
-       .add( " OR = " ).add( path_ );
-    if ( !OS::ExecCommand(cmd) )
+
+
+    OS::MachineCommand grdmc( "grdmath" );
+    grdmc.addArg( path ).addArg( defundefpath_ ).addArg( "OR" )
+	 .addArg( "=" ).addArg( path_ );
+    OS::MachineCommand mc = GMTPar::getWrappedComm( grdmc );
+    if ( !mc.execute() )
 	return false;
 
     File::remove( defundefpath_ );
@@ -136,12 +139,16 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool GMTArray2DInterpol::doFinish( bool success )
 {
-    BufferString cmd;
-    mInitGMTComm( cmd, "grd2xyz " );
-    cmd.add( path_ );
+    deleteAndZeroPtr( sd_ );
+    deleteAndZeroPtr( sdmask_ );
 
-    sd_ = StreamProvider( cmd ).makeIStream( true, false );
-    if ( !sd_.usable() )
+    OS::MachineCommand xyzmc( "grd2xyz" );
+    xyzmc.addArg( path_ );
+    OS::MachineCommand mc = GMTPar::getWrappedComm( xyzmc );
+    StreamProvider sprov;
+    sprov.setCommand( mc, workingdir_ );
+    StreamData sd = sprov.makeIStream( true, false );
+    if ( !sd.usable() )
 	return false;
 
     nrdone_ = 0;
@@ -149,19 +156,19 @@ bool GMTArray2DInterpol::doFinish( bool success )
     FixedString fsrowstr( rowstr ), fscolstr( colstr ), fsvalstr( valstr );
     for ( int ridx=0; ridx<nrrows_; ridx++ )
     {
-	if ( !*sd_.istrm )
+	if ( !*sd.iStrm() )
 	    break;
 
 	for ( int cidx=0; cidx<nrcols_; cidx++ )
 	{
-	    if ( !*sd_.istrm )
+	    if ( !*sd.iStrm() )
 		break;
 
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
 	    rowstr[0] = colstr[0] = valstr[0] = '\0';
-	    *sd_.istrm >> rowstr >> colstr >> valstr;
+	    *sd.iStrm() >> rowstr >> colstr >> valstr;
 	    if ( fsrowstr == sKeyGMTUdf || fscolstr == sKeyGMTUdf
 					|| fsvalstr == sKeyGMTUdf )
 		continue;
@@ -176,7 +183,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
 	nrdone_++;
     }
 
-    sd_.close();
+    sd.close();
     if ( nrdone_ == 0 )
     {
 	msg_ = tr("Invalid positions found");
@@ -235,7 +242,7 @@ bool GMTSurfaceGrid::usePar( const IOPar& par )
 }
 
 
-bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
+bool GMTSurfaceGrid::fillCommand( OS::MachineCommand& mc )
 {
     if ( tension_ < 0 )
     {
@@ -244,12 +251,17 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
     }
 
     path_ = FilePath( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
-    mInitGMTComm( cmd, "surface -I1 " );
-    cmd.add( "-T" ).add( tension_ )
-       .add( " -G" ).add( path_ )
-       .add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
+    BufferString rgstr( "-R0/" );
+    rgstr.add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
+    BufferString tensionstr( "-T" ); tensionstr.add( tension_ );
 
-    return true;
+    OS::MachineCommand locmc( "surface" );
+    locmc.addArg( "-I1" ).addArg( tensionstr )
+	 .addArg( BufferString(path_).insertAt(0,"-G") ).addArg( rgstr );
+
+    mc = GMTPar::getWrappedComm( locmc );
+
+    return !mc.isBad();
 }
 
 
@@ -299,7 +311,7 @@ bool GMTNearNeighborGrid::usePar( const IOPar& par )
 }
 
 
-bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
+bool GMTNearNeighborGrid::fillCommand( OS::MachineCommand& mc )
 {
     if ( radius_ < 0 )
     {
@@ -308,11 +320,16 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
     }
 
     path_ = FilePath( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
-    mInitGMTComm( cmd, "nearneighbor -I1 " );
-    cmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
-       .add( " -S" ).add( radius_ )
-       .add( " -N4/2" )
-       .add( " -G" ).add( path_ );
+    BufferString rgstr( "-R0/" );
+    rgstr.add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 );
+    BufferString radiusstr( "-S" ); radiusstr.add( radius_ );
 
-    return true;
+    OS::MachineCommand locmc( "nearneighbor" );
+    locmc.addArg( "-I1" ).addArg( rgstr )
+	 .addArg( radiusstr ).addArg( "-N4/2" )
+	 .addArg( BufferString(path_).insertAt(0,"-G") ).addArg( rgstr );
+
+    mc = GMTPar::getWrappedComm( locmc );
+
+    return !mc.isBad();
 }

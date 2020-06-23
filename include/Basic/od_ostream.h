@@ -32,14 +32,18 @@ public:
 			    : od_stream(fnm,true,useexist)	{}
 			od_ostream( const FilePath& fp, bool useexist=false )
 			    : od_stream(fp,true,useexist)	{}
+			od_ostream( const OS::MachineCommand& mc,
+				    const char* workdir=nullptr )
+			    : od_stream(mc,workdir,true)	{}
 			od_ostream( std::ostream* s )
 			    : od_stream(s)			{}
 			od_ostream( std::ostream& s )
 			    : od_stream(s)			{}
-			od_ostream( const od_ostream& s )
-			    : od_stream(s)			{}
-    od_ostream&		operator =( const od_ostream& s )
-			    { od_stream::operator =(s); return *this; }
+			od_ostream(const od_ostream&) = delete;
+			od_ostream(od_ostream&&);
+    od_ostream&		operator=(const od_ostream&) = delete;
+    od_ostream&		operator=(od_ostream&&);
+
     bool		open(const char*,bool useexist=false);
 
     od_ostream&		add(char);
@@ -71,6 +75,8 @@ public:
     od_ostream&		add(const IOPar&);
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);
+    od_ostream&		addTab()		{ return add( "\t" ); }
+    od_ostream&		addNewLine()		{ return add( "\n" ); }
 
     od_ostream&		add(const void*); //!< produces pErrMsg but works
     od_ostream&		addPtr(const void*);
@@ -87,16 +93,17 @@ public:
     static od_ostream&	nullStream();
     static od_ostream&	logStream(); //!< used by ErrMsg and UsrMsg
 
-    inline void		setWritePosition( Pos p, Ref r=Abs )
-			{ setPosition( p, r ); }
-    inline Pos		lastWrittenPosition() const
-			{ return endPosition(); }
-
+    void		setWritePosition(Pos,Ref r=Abs);
+    Pos			lastWrittenPosition() const;
 };
 
 
-//!< common access to the user log file, or std::cout in batch progs
-inline mGlobal(Basic) od_ostream& od_cout() { return od_ostream::logStream(); }
+//!< common access to the user log file, or std::cout in other than od_main
+inline od_ostream& od_cout()
+{
+    return od_ostream::logStream();
+}
+
 
 //!< Never redirected
 mGlobal(Basic) od_ostream& od_cerr();
@@ -105,7 +112,9 @@ mGlobal(Basic) od_ostream& od_cerr();
 
 template <class T>
 inline od_ostream& operator <<( od_ostream& s, const T& t )
-{ return s.add( t ); }
+{
+    return s.add( t );
+}
 
 
 inline od_ostream& od_endl( od_ostream& strm )
@@ -115,13 +124,15 @@ inline od_ostream& od_endl( od_ostream& strm )
 }
 
 
-mGlobal(Basic) std::ostream& od_endl( std::ostream& strm );
-//Just to give linker errors
+std::ostream& od_endl(std::ostream&)	= delete;
 
 
 typedef od_ostream& (*od_ostreamFunction)(od_ostream&);
 inline od_ostream& operator <<( od_ostream& s, od_ostreamFunction fn )
-{ return (*fn)( s ); }
+{
+    return (*fn)( s );
+}
+
 
 template <class T>
 inline od_ostream& od_ostream::addBin( const T& t )

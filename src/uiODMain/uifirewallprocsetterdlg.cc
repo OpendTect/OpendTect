@@ -335,13 +335,9 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
 
     const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
-    BufferString cmd = exepath.fullPath().quote( '\"' );;
+    OS::MachineCommand mc( exepath.fullPath() );
 
-    if ( toadd_ )
-	cmd.addSpace().add("--add");
-    else
-	cmd.addSpace().add("--remove");
-    
+    mc.addFlag( toadd_ ? "add" : "remove" );
     bool errocc = false;
     IOPar pars;
     int nrprocsprocessed = 0;
@@ -365,29 +361,19 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    exefp = odv7fp;
 	}
 
-	BufferString fincmd = cmd;
 	if ( idx != PDE::Python )
-	    fincmd.addSpace().add( "--od " )
-			    .add( exefp.fullPath().quote('\"') ).addSpace();
+	    mc.addKeyedArg( "od", exefp.fullPath() );
 	else
-	    fincmd.addSpace().add( "--py " )
-		.add( pypath_.quote('\"')).addSpace();
+	    mc.addKeyedArg( "py", pypath_ );
 
 	BufferStringSet procnmsset;
 	for ( int procidx=0; procidx<procset.size(); procidx++ )
 	{
-	    fincmd.add( procset.get(procidx) );
-	    if ( procidx != procset.size()-1 )
-		fincmd.addSpace();
+	    mc.addArg( procset.get(procidx) );
 	    procnmsset.add( procset.get(procidx) );
 	}
 
-	const OS::MachineCommand mc( fincmd );
-	OS::CommandLauncher cl( mc );
-	OS::CommandExecPars cp;
-	cp.prioritylevel( 0 );
-
-	if ( !cl.execute(cp) )
+	if ( !mc.execute() )
 	{
 	    failedprocnms.add( procnmsset,false );
 	    errocc = true;
@@ -409,9 +395,9 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     else
     {
 	if ( toadd_ )
-	    errmsg = tr("Cannot add following processes : %1");
+	    errmsg = tr("Cannot add following processes: %1");
 	else
-	    errmsg = tr("Cannot remove processes : %1");
+	    errmsg = tr("Cannot remove processes: %1");
 	uiMSG().errorWithDetails(errmsg.arg( failedprocnms.getDispString() ),
 		    tr("Please make sure OpendTect is running "
 		"in administrative mode"));

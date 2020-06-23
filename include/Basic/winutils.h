@@ -22,7 +22,7 @@ ________________________________________________________________________
 # include "shlobj.h"
 #endif
 
-extern "C" 
+extern "C"
 {
     mGlobal(Basic) const char*	getCleanUnxPath( const char* path );
     mGlobal(Basic) const char*	getCleanWinPath( const char* path );
@@ -36,12 +36,12 @@ mGlobal(Basic) bool		winCopy(const char* from,const char* to,
 mGlobal(Basic) bool		winRemoveDir(const char* dirnm);
 
 
-mGlobal(Basic) bool		executeWinProg(const char* comm,
+mGlobal(Basic) mDeprecated bool executeWinProg(const char* comm,
 					       const char* parm,
 					       const char* runin=0);
-mGlobal(Basic) bool		execShellCmd(const char* comm,const char* parm,
+mGlobal(Basic) mDeprecated bool execShellCmd(const char* comm,const char* parm,
 					     const char* runin );
-mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,
+mGlobal(Basic) mDeprecated bool execProc(const char* comm,bool inconsole,
 					 bool inbg,const char* runin);
 
 mGlobal(Basic) unsigned int	getWinVersion();
@@ -57,7 +57,7 @@ mGlobal(Basic) bool		removeRegKey(const char*);
 mGlobal(Basic) void		disableAutoSleep();
 mGlobal(Basic) void		enableAutoSleep();
 /*
-For documentation of the CSIDL values, see: 
+For documentation of the CSIDL values, see:
 
 http://msdn.microsoft.com/library/default.asp?
     url=/library/en-us/shellcc/platform/shell/reference/enums/csidl.asp

@@ -31,15 +31,14 @@ public:
 			  PreStack, SEGY, T2D, TwoDto3D, VelConv, Vol };
 
 			JobSpec(ProcType);
-			JobSpec( const char* pnm=0 )
-			    : prognm_(pnm), execpars_(true)		{}
+			JobSpec(const char* pnm=0);
 			JobSpec(const IOPar&);
 
     static const char*	progNameFor(ProcType);
     static ProcType	procTypeFor(const char*);
 
     BufferString	prognm_;
-    BufferString	clargs_;
+    BufferStringSet	clargs_;
     IOPar		pars_;
     OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
 
@@ -51,7 +50,7 @@ public:
 
 /*!\brief Base class (with factory) for methods to kick-off an OD batch job.
 
-  Subclasses are expected to be ranging from simple single-prcess starters to
+  Subclasses are expected to be ranging from simple single-process starters to
   elaborate cluster-based job splitting monsters.
 
   isSuitedFor() determines whether a certain type of dispatcher can handle any

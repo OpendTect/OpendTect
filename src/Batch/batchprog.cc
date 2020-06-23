@@ -61,6 +61,7 @@ BatchProgram& BP()
 void BatchProgram::deleteInstance( int retcode )
 {
     delete BatchProgram::inst_;
+    IOM().applClosing();
     ApplicationData::exit( retcode );
 }
 
@@ -85,6 +86,7 @@ void BatchProgram::init()
     delete clparser_;
 
     OD::ModDeps().ensureLoaded( "Batch" );
+
     clparser_ = new CommandLineParser;
     clparser_->setKeyHasValue( sKeyMasterHost() );
     clparser_->setKeyHasValue( sKeyMasterPort() );
@@ -155,10 +157,10 @@ void BatchProgram::init()
 	    return;
 	}
 
-
 	iopar_->getFrom( aistrm );
 	odstrm.close();
     }
+
     if ( iopar_->size() == 0 && !simplebatch )
     {
 	errorMsg( tr( "%1: Invalid input file %2")
@@ -288,13 +290,14 @@ bool BatchProgram::pauseRequested() const
 
 bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 {
-    if ( sdout_.ostrm )
-	*sdout_.ostrm << '\n' << msg.getFullString() << '\n' << std::endl;
+    if ( sdout_.oStrm() )
+	*sdout_.oStrm() << '\n' << msg.getFullString() << '\n' << std::endl;
 
-    if ( !sdout_.ostrm || cc_stderr )
+    if ( !sdout_.oStrm() || cc_stderr )
 	std::cerr << '\n' << msg.getFullString() << '\n' << std::endl;
 
-    if ( comm_ && comm_->ok() ) return comm_->sendErrMsg(msg.getFullString());
+    if ( comm_ && comm_->ok() )
+	return comm_->sendErrMsg(msg.getFullString());
 
     return true;
 }
@@ -302,10 +305,10 @@ bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 
 bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
-    if ( sdout_.ostrm )
-	*sdout_.ostrm << '\n' << msg << '\n' << std::endl;
+    if ( sdout_.oStrm() )
+	*sdout_.oStrm() << '\n' << msg << '\n' << std::endl;
 
-    if ( !sdout_.ostrm || cc_stdout )
+    if ( !sdout_.oStrm() || cc_stdout )
 	od_cout() << '\n' << msg << '\n' << od_endl;
 
     return true;
@@ -353,11 +356,11 @@ bool BatchProgram::initOutput()
 	if ( res.isEmpty() )
 	    res = StreamProvider::sStdErr();
 	sdout_ = StreamProvider(res).makeOStream();
-	if ( !sdout_.ostrm )
+	if ( !sdout_.oStrm() )
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
 	    std::cerr << "Using stderror instead" << std::endl;
-	    sdout_.ostrm = &std::cerr;
+	    sdout_.setOStrm( &std::cerr );
 	}
     }
 
@@ -375,7 +378,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     BufferString errmsg;
     IOObj* ioobj = IOM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
     if ( !ioobj && msgiffail && !errmsg.isEmpty() )
-	*sdout_.ostrm << errmsg.buf() << std::endl;
+	*sdout_.oStrm() << errmsg.buf() << std::endl;
 
     return ioobj;
 }

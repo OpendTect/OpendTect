@@ -23,9 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "od_helpids.h"
+#include "od_ostream.h"
 
 namespace PreStack
 {
@@ -87,12 +87,9 @@ bool uiExportMute::writeAscii()
     if ( !retval ) mErrRet( errstr );
 
     const BufferString fname = outfld_->fileName();
-    StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() )
-    {
-	sdo.close();
+    od_ostream strm( fname );
+    if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenOutpFile() );
-    }
 
     const bool isxy = coordfld_->getBoolValue();
 
@@ -109,7 +106,7 @@ bool uiExportMute::writeAscii()
 	for ( int offsetidx=0; offsetidx<offsetvals.size(); offsetidx++ )
 	{
 	    if( !isxy )
-		*sdo.ostrm << binid.inl() << '\t' << binid.crl();
+		strm << binid.inl() << '\t' << binid.crl();
 	    else
 	    {
 		coord = SI().transform( binid );
@@ -119,17 +116,16 @@ bool uiExportMute::writeAscii()
 		// ostreams print doubles awfully
 		str.setEmpty();
 		str += convcoord.x; str += "\t"; str += convcoord.y;
-		*sdo.ostrm << str;
+		strm << str;
 	    }
 
-	    *sdo.ostrm << '\t' << offsetvals[offsetidx] << '\t' <<
+	    strm << '\t' << offsetvals[offsetidx] << '\t' <<
 		       mutedef.getFn( pos ).getValue( offsetvals[offsetidx] );
 
-	    *sdo.ostrm << '\n';
+	    strm << '\n';
 	}
     }
 
-    sdo.close();
     return true;
 }
 

@@ -49,7 +49,7 @@ public:
 
 protected:
 
-    od_istream			strm_;
+    od_istream&			strm_;
     float			udfval_;
     bool			finishedreadingheader_;
 
@@ -84,7 +84,7 @@ public:
 
 protected:
 
-    od_istream			strm_;
+    od_istream&			strm_;
     float			udfval_;
     bool			finishedreadingheader_;
 

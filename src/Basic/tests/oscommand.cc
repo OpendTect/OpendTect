@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "oscommand.h"
 #include "separstr.h"
-#include "strmdata.h"
-#include "strmprov.h"
 #include "testprog.h"
 #include "thread.h"
 
@@ -34,13 +32,17 @@ static bool testCmds()
     //TODO
 #else
 
-#   define mMkCmd(s) BufferString(s,redir)
-    const BufferString redir( quiet ? " >/dev/null" : "| head -10" );
-    mRunStandardTest( OS::ExecCommand(mMkCmd("ls -l"),OS::Wait4Finish),
-		      "OS::ExecCommand wait4finish" );
-    mRunStandardTest( OS::ExecCommand(mMkCmd("ls -l"),OS::RunInBG),
-		     "OS::ExecCommand not wait4finish" );
-
+    OS::MachineCommand machcomm( "ls", "-l" );
+    if ( quiet )
+	machcomm.addFileRedirect( "/dev/null" );
+    else
+	machcomm.addPipe().addArg( "head" ).addArg( "-10" );
+    mRunStandardTest( machcomm.execute(OS::Wait4Finish),
+		      "OS::MachineCommand::execute wait4finish" );
+    OS::CommandExecPars execpars( OS::RunInBG );
+    execpars.createstreams( true );
+    mRunStandardTest( machcomm.execute(execpars),
+		     "OS::MachineCommand::execute not wait4finish" );
 #endif
 
     return true;
@@ -49,12 +51,11 @@ static bool testCmds()
 
 static bool testAllPipes()
 {
-    BufferString cmd( GetFullExecutablePath() );
-    cmd.add( " --testpipes" );
-    const OS::MachineCommand mc( cmd );
+    OS::MachineCommand mc( GetFullExecutablePath() );
+    mc.addFlag( "testpipes" );
     OS::CommandLauncher cl( mc );
-    OS::CommandExecPars cp( false );
-    cp.launchtype( OS::RunInBG ).createstreams( true );
+    OS::CommandExecPars cp( OS::RunInBG );
+    cp.createstreams( true );
 
     mRunStandardTest( cl.execute( cp ), "Launching triple pipes" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
@@ -93,15 +94,16 @@ static bool testAllPipes()
 
 static bool runCommandWithSpace()
 {
-    FilePath scriptname(GetSoftwareDir(0),"dtect", "script with space");
+    FilePath scriptfp( GetSoftwareDir(0), "testscripts",
+			    "script with space");
 #ifdef __win__
-    scriptname.setExtension( "cmd" );
+    scriptfp.setExtension( "cmd" );
 #else
-    scriptname.setExtension( "sh" );
+    scriptfp.setExtension( "sh" );
 #endif
 
-    mRunStandardTest( ExecODProgram(scriptname.fullPath(), 0, OS::Wait4Finish),
-		      "Command with space" );
+    OS::MachineCommand machcomm( scriptfp.fullPath() );
+    mRunStandardTest( machcomm.execute(), "Command with space" );
 
     return true;
 }
@@ -140,12 +142,12 @@ static void testServer()
 {
     Threads::sleep( 0.5 );
 
-    od_istream in ( std::cin );
+    od_istream& in = od_cin();
 
     BufferString input;
     in.getWord( input );
 
-    od_ostream out( std::cout );
+    od_ostream& out = od_cout();
     if ( input==mGoodMessage )
     {
 	out << mGoodReply << od_endl;
@@ -162,7 +164,6 @@ static void testServer()
 
 int main( int argc, char** argv )
 {
-    DBG::turnOn( 0 ); //Turn off all debug-stuff as it screwes the pipes
     mInitTestProg();
 
     if ( clparser.hasKey( "testpipes" ) )

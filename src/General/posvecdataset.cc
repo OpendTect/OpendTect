@@ -272,7 +272,7 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 	return strm;
     }
     BufferString firstword; strm >> firstword;
-    strm.setPosition( 0 );
+    strm.setReadPosition( 0 );
     tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
     if ( !tabstyle )
     {

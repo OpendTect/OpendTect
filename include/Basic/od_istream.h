@@ -25,25 +25,30 @@ mExpClass(Basic) od_istream : public od_stream
 {
 public:
 
-			od_istream()			{}
+			od_istream()				{}
 			od_istream( const char* fnm )
-			    : od_stream(fnm,false)	{}
+			    : od_stream(fnm,false)		{}
 			od_istream( const FilePath& fp )
-			    : od_stream(fp,false)	{}
+			    : od_stream(fp,false)		{}
+			od_istream( const OS::MachineCommand& mc,
+				    const char* workdir=nullptr )
+			    : od_stream(mc,workdir,false)	{}
 			od_istream( std::istream* s )
-			    : od_stream(s)		{}
+			    : od_stream(s)			{}
 			od_istream( std::istream& s )
-			    : od_stream(s)		{}
-			od_istream( const od_istream& s )
-			    : od_stream(s)		{}
-    od_istream&		operator =( const od_istream& s )
-			    { od_stream::operator =(s); return *this; }
+			    : od_stream(s)			{}
+
+			od_istream(const od_istream&) = delete;
+			od_istream(od_istream&&);
+    od_istream&		operator=(const od_istream&) = delete;
+    od_istream&		operator=(od_istream&&);
+
     bool		open(const char*);
     bool		reOpen();
 
     od_istream&		get(char&);
 			/*<!Use this function to get regular text inputs.
-			  If you want to analyze an alien stream char-by-char,
+			  If you want to analyse an alien stream char-by-char,
 			  use peek()-ignore(1) call pairs.*/
 
     od_istream&		get(unsigned char&);
@@ -88,8 +93,8 @@ public:
     bool		skipUntil(char);
     bool		skipWord();
     bool		skipLine();
-    inline void		setReadPosition( Pos p, Ref r=Abs )
-			{ setPosition( p, r ); }
+    void		setReadPosition(Pos,Ref r=Abs);
+    Pos			endPosition() const;
 
     Count		lastNrBytesRead() const;
     std::istream&	stdStream();
@@ -101,6 +106,10 @@ public:
 
 };
 
+
+
+//!< common access to the std::cin
+mGlobal(Basic) od_istream& od_cin();
 
 
 template <class T> inline od_istream& operator >>( od_istream& s, T& t )

@@ -38,9 +38,23 @@ static const char* sKeyLDLibPath =
 # endif
 #endif
 
+static bool isLinuxSession( const char* sessnm )
+{
+#ifdef __lux__
+    OS::MachineCommand mc( "pidof" );
+    mc.addFlag( "s", OS::OldStyle ).addArg( sessnm );
+
+    return mc.execute();
+#else
+    return false;
+#endif
+}
+
+#define mQUrlCStr(qurl) qurl.toString().toUtf8().data()
+
 static bool openLocalFragmentedUrl( const QUrl& qurl )
 {
-    BufferString odcmd;
+    OS::MachineCommand machcomm;
 
 #ifdef __win__
 
@@ -51,43 +65,54 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
 	    DBG::message( browser.buf() );
     }
 
-    QString command = browser.buf();
-
+    QString brcmd( browser.buf() );
     const int index = command.lastIndexOf( "%1" );
-    if ( index != -1 )
-	command.replace( index, 2, qurl.toString() );
-
-    odcmd.set( command );
+    if ( index < 0 )
+    {
+	machcomm.setProgram( browser );
+	machcomm.addArg( mQUrlCStr(qurl) );
+    }
+    else
+    {
+	brcmd.replace( index, 2, qurl.toString() );
+	BufferString workstr( brcmd );
+	char* ptr = workstr.getCStr();
+	mSkipBlanks( ptr ); mSkipNonBlanks( ptr );
+	machcomm.setProgram( ptr );
+	ptr++; mSkipBlanks( ptr );
+	machcomm.addArg( ptr );
+    }
 
 #elif defined( __lux__ )
-    int res = system( "pidof -s gnome-session" );
-    if ( res==0 )
-	odcmd.set( "gnome-open" );
-
-    res = system( "pidof -s ksmserver" );
-    if ( res==0 )
-	odcmd.set( "kfmclient exec" );
-
-    if ( odcmd.isEmpty() )
+    if ( isLinuxSession("gnome-session") )
+	machcomm.setProgram( "gnome-open" );
+    else if ( isLinuxSession("ksmserver") )
+    {
+	machcomm.setProgram( "kfmclient" );
+	machcomm.addArg( "exec" );
+    }
+    else
 	return false;
 
-    odcmd.addSpace().add( qurl.toString() );
+    if ( machcomm.isBad() )
+	{ ErrMsg( "No system browser found" ); return false; }
+
+    machcomm.addArg( mQUrlCStr(qurl) );
 
 #elif defined( __mac__ )
+
+    /* TODO MACENABLE Should work:
+    const char* urlstr = mQUrlCStr( qurl );
+    CFURLRef urlref = CFURLCreateWithBytes ( NULL, (UInt8*)urlstr,
+		    FixedString(urlstr).size(), kCFStringEncodingASCII, NULL );
+    LSOpenCFURLRef( urlref, 0 );
+    CFRelease( urlref );
+    return true;
+    */
     return false;
 #endif
 
-    if ( DBG::isOn(DBG_IO) )
-	DBG::message( BufferString("Local command: ",odcmd) );
-    const bool execres = OS::ExecCommand( odcmd.buf() );
-    if ( !execres )
-    {
-	if ( DBG::isOn(DBG_IO) )
-	    DBG::message( "Could not launch browser" ); // TODO: GetLastError
-	return false;
-    }
-
-    return true;
+    return machcomm.execute( OS::RunInBG );
 }
 
 

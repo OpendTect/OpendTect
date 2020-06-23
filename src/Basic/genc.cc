@@ -236,7 +236,8 @@ const char* GetOSIdentifier()
 #endif
 
 #ifdef __lux__
-    if ( !OS::ExecCommand( "lsb_release -d", OS::Wait4Finish, tmp ) )
+    OS::MachineCommand machcomm( "lsb_release", "-d" );
+    if ( !machcomm.execute(*tmp) )
 	tmp->set( "Unknown Linux");
 #endif
 
@@ -421,13 +422,23 @@ const char* getProcessNameForPID( int pid )
 	procname = procnamebuff;
     }
 #else
-    const BufferString cmd( "ps -p ", pid, " -o command=" );
-    BufferString stdoutput, stderror;
-    OS::ExecCommand( cmd, OS::Wait4Finish, &stdoutput, &stderror );
-    procname = !stdoutput.isEmpty() ? stdoutput : stderror.isEmpty()
-						? "" : stderror;
-    char* ptrfirstspace = procname.find(' ');
-    if ( ptrfirstspace ) *ptrfirstspace = '\0';
+    OS::MachineCommand machcomm( "ps" );
+    machcomm.addKeyedArg( "p", toString(pid), OS::OldStyle )
+	    .addKeyedArg( "o", "command=", OS::OldStyle );
+    BufferString stdoutput,stderror;
+    if ( machcomm.execute(stdoutput,&stderror) )
+    {
+	const bool hasstdout = !stdoutput.isEmpty();
+	BufferString& retstr = hasstdout ? stdoutput : stderror;
+	if ( !hasstdout )
+	    retstr.embed( '<', '>' );
+	procname = retstr;
+	char* ptrfirstspace = procname.find(' ');
+	if ( ptrfirstspace ) *ptrfirstspace = '\0';
+    }
+    else
+	procname.setEmpty().embed( '<', '>' );
+
 #endif
     const FilePath procpath( procname );
     ret = procpath.fileName();

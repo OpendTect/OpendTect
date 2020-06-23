@@ -9,8 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchjobdispatch.h"
 #include "keystrs.h"
 #include "filepath.h"
-#include "strmprov.h"
-#include "oscommand.h"
 #include "oddirs.h"
 #include "ascstream.h"
 #include "dirlist.h"
@@ -25,15 +23,23 @@ mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
 
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
-    : execpars_(true)
+    : execpars_(OS::Batch)
     , prognm_(progNameFor(pt))
 {
     execpars_.needmonitor_ = true;
 }
 
 
+Batch::JobSpec::JobSpec( const char* pnm )
+    : execpars_(OS::Batch)
+    , prognm_(pnm)
+{
+    execpars_.needmonitor_ = true;
+}
+
+
 Batch::JobSpec::JobSpec( const IOPar& iop )
-    : execpars_(true)
+    : execpars_(OS::Batch)
 {
     usePar( iop );
     pars_.removeWithKey( sKey::Survey() );
@@ -49,7 +55,7 @@ void Batch::JobSpec::usePar( const IOPar& iop )
     execpars_.removeFromPar( pars_ );
 
     prognm_ = iop.find( sKeyProgramName );
-    clargs_ = iop.find( sKeyClArgs );
+    iop.get( sKeyClArgs, clargs_ );
     execpars_.usePar( iop );
 }
 
@@ -245,15 +251,15 @@ bool Batch::SingleJobDispatcher::launch()
     if ( !writeParFile() )
 	return false;
 
-    BufferString cmd( jobspec_.prognm_, " ", jobspec_.clargs_ );
-    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
-    cmd.add( qtdparfnm );
-    OS::MachineCommand mc( cmd, remotehost_ );
+    OS::MachineCommand mc( jobspec_.prognm_ );
+    mc.addArgs( jobspec_.clargs_ ).addArg( parfnm_ );
+    if ( !remotehost_.isEmpty() )
+	mc.setHostName( remotehost_ );
     if ( !remoteexec_.isEmpty() )
 	mc.setRemExec( remoteexec_ );
-    OS::CommandLauncher cl( mc );
+
     BufferString logfile;
     jobspec_.pars_.get( sKey::LogFile(), logfile );
     jobspec_.execpars_.monitorfnm( logfile );
-    return cl.execute( jobspec_.execpars_ );
+    return mc.execute( jobspec_.execpars_ );
 }

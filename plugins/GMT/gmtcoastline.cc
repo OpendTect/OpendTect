@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gmtcoastline.h"
 
 #include "draw.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "strmprov.h"
@@ -32,9 +33,9 @@ void GMTCoastline::initClass()
 	factoryid_ = GMTPF().add( "Coastline", GMTCoastline::createInstance );
 }
 
-GMTPar* GMTCoastline::createInstance( const IOPar& iop )
+GMTPar* GMTCoastline::createInstance( const IOPar& iop, const char* workdir )
 {
-    return new GMTCoastline( iop );
+    return new GMTCoastline( iop, workdir );
 }
 
 
@@ -57,13 +58,17 @@ bool GMTCoastline::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
+bool GMTCoastline::doExecute( od_ostream& strm, const char* fnm )
 {
     bool drawcontour, dryfill, wetfill;
     Interval<float> mapdim;
     get( ODGMT::sKeyMapDim(), mapdim );
     getYN( ODGMT::sKeyDryFill(), dryfill );
     getYN( ODGMT::sKeyWetFill(), wetfill );
+    const int res =
+	ODGMT::ResolutionDef().parse( find(ODGMT::sKeyResolution()) );
+    OD::LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle()) );
+    drawcontour = ls.type_ != OD::LineStyle::None;
 
     strm << "Drawing coastline ...  ";
     FilePath fp( fnm );
@@ -71,26 +76,23 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     if ( !makeLLRangeFile(fp.fullPath(),strm) )
 	mErrStrmRet("Cannot create Lat/Long range file")
 
-    StreamProvider sp( fp.fullPath() );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
+    od_istream sd( fp.fullPath() );
+    if ( !sd.isOK() )
 	mErrStrmRet("Cannot read Lat/Long range file")
 
-    char buf[80];
-    sd.istrm->getline( buf, 40, ' ' );
-    BufferString rangestr = buf;
-    sd.close(); sp.remove();
-    *( rangestr.getCStr() + rangestr.size() - 1 ) = '\0';
-    BufferString comm = "pscoast "; comm += rangestr;
-    comm += " -JM"; comm += mapdim.start; comm += "c -D";
-    const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution()) );
-    comm += sResKeys[res];
-    OD::LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle()) );
-    drawcontour = ls.type_ != OD::LineStyle::None;
+    BufferString rangestr( 80, true );
+    sd.getLine( rangestr );
+    sd.close(); File::remove( fp.fullPath() );
+    BufferString jmarg( "-JM" ); jmarg.add( mapdim.start ).add( "c" );
+    BufferString darg( "-D" ); darg.add( sResKeys[res] );
+
+    OS::MachineCommand coastmc( "pscoast" );
+    coastmc.addArg( jmarg ).addArg( rangestr ).addArg( "-O" ).addArg( "-K" )
+	   .addArg( darg );
     if ( drawcontour )
     {
 	BufferString lsstr; mGetLineStyleString( ls, lsstr );
-	comm += " -W"; comm += lsstr;
+	coastmc.addArg( lsstr.insertAt(0,"-W") );
     }
     if ( wetfill )
     {
@@ -98,7 +100,7 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
 	get( ODGMT::sKeyWetFillColor(), wetcol );
 	BufferString wetcolstr;
 	mGetColorString( wetcol, wetcolstr );
-	comm += " -S"; comm += wetcolstr;
+	coastmc.addArg( wetcolstr.insertAt(0,"-S") );
     }
     if ( dryfill )
     {
@@ -106,10 +108,10 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
 	get( ODGMT::sKeyDryFillColor(), drycol );
 	BufferString drycolstr;
 	mGetColorString( drycol, drycolstr );
-	comm += " -G"; comm += drycolstr;
+	coastmc.addArg( drycolstr.insertAt(0,"-G") );
     }
-    comm += " -O -K 1>> "; comm += fileName( fnm );
-    if ( !execCmd(comm,strm) )
+
+    if ( !execCmd(coastmc,strm,fnm) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << od_endl;
@@ -129,27 +131,30 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
 	relzone += 60;
 
     const int minlong = 6 * ( relzone - 1 );
-    BufferString comm = "@mapproject -R";
-    comm += minlong; comm += "/";
-    comm += minlong + 6; comm += "/0/80 -Ju";
-    comm += zone; comm += "/1:1 -I -F -C 1> \"";
-    BufferString tmpfilenm = FilePath::getTempName("dat");
-    comm += tmpfilenm; comm += "\"";
+    BufferString rangestr( "-R" );
+    rangestr.add( minlong ).add( "/" ).add( minlong + 6 ).add( "/0/80" );
+    const BufferString jarg( "-Ju", zone, "/1:1" );
+    const BufferString tmpfilenm( FilePath::getTempName("dat") );
 
-    od_ostream procstrm = makeOStream( comm, strm );
+    OS::MachineCommand mapmc( "mapproject" );
+    mapmc.addArg( jarg ).addArg( rangestr )
+	 .addArg( "-I" ).addArg( "-F" ).addArg( "-C" );
+
+    od_ostream procstrm = makeOStream( mapmc, strm, tmpfilenm, false );
     if ( !procstrm.isOK() ) return false;
 
     procstrm << xrg.start << " " << yrg.start << "\n";
-    procstrm << xrg.stop << " " << yrg.start << "\n";
-    procstrm << xrg.start << " " << yrg.stop << "\n";
-    procstrm << xrg.stop << " " << yrg.stop << "\n";
+    procstrm << xrg.stop  << " " << yrg.start << "\n";
+    procstrm << xrg.start << " " << yrg.stop  << "\n";
+    procstrm << xrg.stop  << " " << yrg.stop  << "\n";
 
     procstrm.close();
-    comm = "minmax \""; comm += tmpfilenm; comm += "\" -I0.0001/0.0001 1> ";
-    comm += fileName( fnm );
-    if ( !execCmd(comm,strm) )
+
+    OS::MachineCommand minmaxmc( "gmtinfo" );
+    minmaxmc.addArg( tmpfilenm ).addArg( "-I0.0001/0.0001" );
+    if ( !execCmd(minmaxmc,strm,fnm,false) )
 	return false;
 
-    StreamProvider(tmpfilenm).remove();
+    File::remove( tmpfilenm );
     return true;
 }

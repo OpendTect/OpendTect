@@ -294,7 +294,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
 	const od_stream::Pos curpos = strm.position();
 	if ( curpos!=cubedatastart )
-	    strm.setPosition( cubedatastart );
+	    strm.setReadPosition( cubedatastart );
 
 	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
 	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm))); }

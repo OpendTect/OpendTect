@@ -18,14 +18,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "ascstream.h"
-#include "separstr.h"
-#include "strmprov.h"
-#include "od_istream.h"
 #include "file.h"
 #include "filepath.h"
 #include "manobjectset.h"
+#include "od_istream.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "oscommand.h"
+#include "separstr.h"
 #include "envvars.h"
 #include "dirlist.h"
 
@@ -208,7 +208,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	{
 	    uiString txt;
 	    const BatchProgPar& bpp = *bpi.args[iarg];
-	    if ( !bpp.mandatory ) 
+	    if ( !bpp.mandatory )
 		txt = toUiString("[%1]").arg(mToUiStringTodo(bpp.desc));
 	    else
 		txt = mToUiStringTodo(bpp.desc);
@@ -329,40 +329,37 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	firstinp = 1;
     }
 
-    BufferString args;
+    OS::MachineCommand mc( prognm );
     for ( int iinp=firstinp; iinp<inplst.size(); iinp++ )
     {
-	uiGenInput* inp = inplst[iinp];
+	uiGroup* curinp = inplst[iinp];
+	mDynamicCastGet(uiFileInput*,finp,curinp)
+	mDynamicCastGet(uiGenInput*,inp,curinp)
 	BufferString val;
-	mDynamicCastGet(uiFileInput*,finp,inp)
 	if ( finp )
 	{
 	    val = finp->fileName();
-	    val.quote( '"' );
 	}
-	else
+	else if ( inp )
 	{
 	    val = inp->text();
+	    if ( val.isEmpty() )
+		continue;
 	    if ( bpi.args[iinp]->type == BatchProgPar::QWord )
-		val.quote( '\'' );
+		val.quote();
 	}
 
-	args.add( " " ).add( val );
+	mc.addArg( val );
     }
 
-    OS::CommandExecPars execpars( true );
-    execpars.launchtype( OS::RunInBG )
-	    .needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
+    OS::CommandExecPars execpars( OS::RunInBG );
+    execpars.needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
 	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
 	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
-    if ( pil_[selidx] && !inplst.size() &&
-	 pil_[selidx]->uitype_==BatchProgInfo::NoUI )
-	execpars.prioritylevel_ = 0;
 
-    OS::MachineCommand mc( BufferString(prognm," ",args) );
-    OS::CommandLauncher cl( mc );
-    if ( !cl.execute( execpars ) )
-	uiMSG().error(tr("Could not execute command:\n%1").arg(mc.command()));
+    if ( !mc.execute(execpars) )
+	uiMSG().error(tr("Cannot execute command:\n%1")
+			.arg(mc.toString(&execpars)));
 
     return false;
 }

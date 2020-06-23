@@ -231,14 +231,6 @@ DataPack::ID PreStackDisplay::preProcess()
 }
 
 
-#define mShowMessage( msg ) \
-{ \
-    BufferString cmd( "\"", \
-	    FilePath(GetExecPlfDir(),"od_DispMsg").fullPath() ); \
-    cmd.add("\" '").add( msg ).add("'"); \
-    OS::ExecCommand( cmd ); \
-}
-
 bool PreStackDisplay::setPosition( const BinID& nb )
 {
     if ( bid_==nb )
@@ -267,7 +259,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 		BufferString msg( "No gather data at the whole section.\n" );
 		msg.add( "Data available at: ").add( rg.start ).add( " - " )
 		    .add( rg.stop ).add( " - " ).add( rg.step );
-		mShowMessage( msg );
+		OD::DisplayErrorMessage( msg );
 	    }
 	    else
 	    {
@@ -276,7 +268,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 	    }
 	}
 	else
-	    mShowMessage( "No gather data at the picked location." )
+	    OD::DisplayErrorMessage( "No gather data at the picked location." );
 
 	if ( !hasdata )
 	{

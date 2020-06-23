@@ -173,6 +173,7 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     mDynamicCastGet(uiAction*,action,cb);
     if ( !action )
 	return;
+
     const int tbid = action->getID();
     int idx = toolbarids_.indexOf( tbid );
     if ( !toolbarids_.validIdx( idx ) )
@@ -181,7 +182,8 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     OS::MachineCommand cmd( commands_.get( idx ) );
     uiString err;
     int pid;
-    if (!OD::PythA().execute(cmd, OS::CommandExecPars(true), &pid, &err)) {
+    if ( !OD::PythA().execute(cmd,OS::CommandExecPars(OS::RunInBG),&pid, &err) )
+    {
 	uiMSG().error(tr("Error starting %1").arg(commands_.get(idx)), err);
 	return;
     }

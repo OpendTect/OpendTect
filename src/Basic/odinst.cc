@@ -120,30 +120,30 @@ bool ODInst::canInstall()
 }
 
 
-#define mDefCmd(errretval) \
-    FilePath installerdir( getInstallerPlfDir() ); \
-    if ( !File::isDirectory(installerdir.fullPath()) ) \
-	return errretval; \
+#define mMkMachComm( prog, reldir ) \
+    OS::MachineCommand machcomm( prog ); \
+    if ( __ismac__ ) \
+    { \
+	const FilePath instdir( reldir ); \
+	machcomm.addKeyedArg( "instdir", reldir ); \
+    } \
+    else \
+	machcomm.addKeyedArg( "instdir", reldir );
+
+#define mGetFullMachComm(errretstmt) \
+    FilePath installerfp( getInstallerPlfDir() ); \
+    if ( !File::isDirectory(installerfp.fullPath()) ) \
+	errretstmt; \
     if ( __iswin__ ) \
-	installerdir.add( "od_instmgr.exe" ); \
+	installerfp.add( "od_instmgr.exe" ); \
     else if( __ismac__ ) \
-	installerdir.add( "od_instmgr" ); \
-    else \
-	installerdir.add( "run_installer" ); \
-    BufferString cmd( installerdir.fullPath() ); \
-    if ( !File::isExecutable(cmd) ) \
-        return errretval; \
-    if ( __ismac__ ) \
-	cmd.quote( '\"' ); \
-    cmd.add( " --instdir " ).add( "\"" ); \
-    if ( __ismac__ ) \
-	{ \
-	    FilePath instdir( mRelRootDir ); \
-	    cmd.add( instdir.pathOnly() ); \
-	} \
-    else \
-	cmd.add( mRelRootDir ); \
-    cmd.add( "\"" ); \
+	installerfp.add( "od_instmgr" ); \
+    else if ( __islinux__ ) \
+	installerfp.add( "run_installer" ); \
+    BufferString prog( installerfp.fullPath() ); \
+    if ( !File::isExecutable(prog) ) \
+	errretstmt; \
+    mMkMachComm( prog, mRelRootDir )
 
 
 BufferString ODInst::GetInstallerDir()
@@ -165,38 +165,23 @@ BufferString ODInst::GetInstallerDir()
 
 void ODInst::startInstManagement()
 {
-#ifndef __win__
-    mDefCmd();
+    mGetFullMachComm(return);
     const BufferString curpath = File::getCurrentPath();
-    File::changeDir( installerdir.pathOnly() );
-    OS::ExecCommand( cmd, OS::RunInBG );
+    File::changeDir( installerfp.pathOnly() );
+    machcomm.execute( OS::RunInBG );
     File::changeDir( curpath.buf() );
-#else
-    FilePath installerdir( getInstallerPlfDir() );
-    if ( installerdir.isEmpty() )
-	return;
-    installerdir.add( "od_instmgr" );
-    BufferString cmd( installerdir.fullPath() );
-    BufferString parm( " --instdir "  );
-    parm.add( "\"" ).add( mRelRootDir ).add( "\"" );
-
-    executeWinProg( cmd, parm, installerdir.pathOnly() );
-#endif
 }
 
 
 void ODInst::startInstManagementWithRelDir( const char* reldir )
 {
 #ifdef __win__
-    FilePath installerdir( getInstallerPlfDir() );
-    if ( installerdir.isEmpty() )
+    FilePath installerfp( getInstallerPlfDir() );
+    if ( installerfp.isEmpty() )
 	return;
-    installerdir.add( "od_instmgr" );
-    BufferString cmd( installerdir.fullPath() );
-    BufferString parm( " --instdir "  );
-    parm.add( "\"" ).add( reldir ).add( "\"" );
-
-    executeWinProg( cmd, parm, installerdir.pathOnly() );
+    installerfp.add( "od_instmgr" );
+    mMkMachComm( installerfp.fullPath(), reldir );
+    machcomm.execute( OS::RunInBG );
 #endif
 }
 
@@ -206,47 +191,30 @@ BufferString ODInst::getInstallerPlfDir()
     FilePath installerbasedir( GetInstallerDir() );
     if ( !File::isDirectory(installerbasedir.fullPath()) )
 	return "";
-#ifndef __mac__
-    FilePath installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
+#ifdef __mac__
+    FilePath installerfp( installerbasedir, "Contents/MacOS" );
 #else
-    FilePath installerdir ( installerbasedir, "Contents/MacOS" );
+    FilePath installerfp( installerbasedir, "bin", __plfsubdir__, "Release" );
 #endif
-    const BufferString path = installerdir.fullPath();
+    const BufferString path = installerfp.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
 	return installerbasedir.fullPath();
 
-    return installerdir.fullPath();
+    return installerfp.fullPath();
 }
 
 
 bool ODInst::runInstMgrForUpdt()
 {
-    mDefCmd(false);
-    cmd.add( " --updcheck_report" );
-    return OS::ExecCommand( cmd, OS::Wait4Finish );
+    return updatesAvailable();
 }
 
 
 bool ODInst::updatesAvailable()
 {
-#ifdef OD_NO_QT
-    return false;
-#else
-    mDefCmd(false); cmd.add( " --updcheck_report" );
-# ifndef __win__
-    const BufferString curpath = File::getCurrentPath();
-    File::changeDir( installerdir.pathOnly() );
-    const int res = QProcess::execute( QString(cmd.buf()) );
-    File::changeDir( curpath.buf() );
-    return res == 1;
-# else
-    FilePath tmp( File::getTempPath(), "od_updt" );
-    mDefineStaticLocalObject(const bool,ret, = File::exists(tmp.fullPath())); 
-    if ( ret )
-	File::remove( tmp.fullPath() );
-    return ret;
-# endif
-#endif
+    mGetFullMachComm(return false);
+    machcomm.addFlag( "updcheck_report" );
+    return machcomm.execute( OS::Wait4Finish );
 }
 
 

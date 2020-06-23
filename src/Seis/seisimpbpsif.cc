@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
 #include "seistrc.h"
-#include "strmprov.h"
 #include "strmoper.h"
 #include "dirlist.h"
 #include "filepath.h"
@@ -18,19 +17,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+#include "od_istream.h"
 #include <iostream>
 
 
 SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
-	: Executor("Importing BPSIF data")
-	, datamgr_(*new SeisPSImpDataMgr(id))
-	, curfileidx_(-1)
-	, nrshots_(0)
-	, nrrejected_(0)
-	, nrrcvpershot_(-1)
-	, binary_(false)
-	, irregular_(false)
-	, endofinput_(false)
+    : Executor("Importing BPSIF data")
+    , datamgr_(*new SeisPSImpDataMgr(id))
+    , curfileidx_(-1)
+    , nrshots_(0)
+    , nrrejected_(0)
+    , curstrm_(0)
+    , nrrcvpershot_(-1)
+    , binary_(false)
+    , irregular_(false)
+    , endofinput_(false)
 {
     if ( !filenm || !*filenm )
 	return;
@@ -56,7 +57,7 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
 
 SeisImpBPSIF::~SeisImpBPSIF()
 {
-    cursd_.close();
+    delete curstrm_;
     delete &datamgr_;
 }
 
@@ -69,9 +70,9 @@ void SeisImpBPSIF::setMaxInlOffset( int mo )
 
 bool SeisImpBPSIF::open( const char* fnm )
 {
-    cursd_.close();
-    cursd_ = StreamProvider(fnm).makeIStream();
-    return cursd_.usable();
+    delete curstrm_;
+    curstrm_ = new od_istream( fnm );
+    return curstrm_->isOK();
 }
 
 
@@ -97,16 +98,17 @@ bool SeisImpBPSIF::openNext()
 
 bool SeisImpBPSIF::readFileHeader()
 {
-    char buf[10];
-    cursd_.istrm->getline( buf, 10 ); removeTrailingBlanks(buf);
-    if ( FixedString(buf)!="#BPSIF#" )
+    BufferString buf;
+    curstrm_->getLine( buf ); removeTrailingBlanks(buf.getCStr());
+    if ( buf != "#BPSIF#" )
 	mErrRet( toUiString(" is not a BPSIF file") )
-    if ( cursd_.istrm->peek() == '\n' ) cursd_.istrm->ignore( 1 );
+    if ( curstrm_->peek() == '\n' )
+	curstrm_->ignore( 1 );
 
     while ( true )
     {
 	BufferString* lineread = new BufferString;
-	if ( !StrmOper::readLine(*cursd_.istrm,lineread) )
+	if ( !curstrm_->getLine(*lineread) )
 	    return false;
 	else if ( lineread->startsWith("#BINARY") )
 	    { binary_ = true; nrrcvpershot_ = toInt(lineread->buf()+9); }
@@ -188,7 +190,7 @@ int SeisImpBPSIF::nextStep()
 
 int SeisImpBPSIF::readAscii()
 {
-    std::istream& strm = *cursd_.istrm;
+    std::istream& strm = curstrm_->stdStream();
     const int nrshotattrs = shotattrs_.size();
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
     tmpltrc.info().sampling.start = SI().zRange(true).start;
@@ -223,7 +225,7 @@ int SeisImpBPSIF::readAscii()
 
 int SeisImpBPSIF::readBinary()
 {
-    std::istream& strm = *cursd_.istrm;
+    std::istream& strm = curstrm_->stdStream();
     const int nrshotattrs = shotattrs_.size();
     const int nrrcvattrs = rcvattrs_.size();
     mAllocVarLenArr( float, vbuf, 2+nrshotattrs );
@@ -303,7 +305,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
     mAllocVarLenArr( float, vbuf, nrrcvvals );
     for ( int idx=0; idx<nrrcvpershot_; idx++ )
     {
-	if ( !StrmOper::readBlock( *cursd_.istrm, vbuf,
+	if ( !StrmOper::readBlock( curstrm_->stdStream(), vbuf,
 				   nrrcvvals*sizeof(float) ) )
 	    return false;
 

@@ -25,15 +25,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "hostdata.h"
 #include "ioman.h"
-#include "iostrm.h"
 #include "iopar.h"
+#include "iostrm.h"
 #include "jobdescprov.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "statrand.h"
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "settings.h"
+#include "statrand.h"
 #include "transl.h"
 #include "od_helpids.h"
 
@@ -354,10 +354,6 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( !createJobScripts(dataroot,instdir) )
 	mErrRet(tr("Failed to split jobs"))
 
-    BufferString localcmd = GetExecScript( false );
-    localcmd.addSpace().add( "od_ClusterProc" ).add( " --dosubmit " )
-	    .add( parfnm_ );
-
     uiString msg = tr("Job scripts have been created successfully.");
     if ( !__iswin__ )
     {
@@ -365,12 +361,12 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	execmsg.append( tr("Execute now?"), true );
 	if ( uiMSG().askGoOn(execmsg) )
 	{
-	    BufferString comm( "@" );
-	    comm += localcmd;
-	    if ( !OS::ExecCommand(comm,OS::RunInBG) )
+	    OS::MachineCommand machcomm( "od_ClusterProc" );
+	    machcomm.addKeyedArg( "dosubmit", parfnm_ );
+	    OS::CommandLauncher cl( machcomm );
+	    if ( !cl.execute(OS::RunInBG) )
 	    {
-		uiMSG().error(
-		    uiStrings::phrCannotStart(uiStrings::sBatchProgram()) );
+		uiMSG().error( cl.errorMsg() );
 		return false;
 	    }
 
