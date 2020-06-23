@@ -273,8 +273,9 @@ float WVAA2DBitMapGenerator::getDim0Offset( float val ) const
 int WVAA2DBitMapGenerator::dim0SubSampling( int nrdisptrcs ) const
 {
     const float nrpixperdim0 = setup_.availableXPix() / mCast(float,nrdisptrcs);
-    float fret = gtPars().minpixperdim0_ / nrpixperdim0;
-    const int ret = mNINT32( fret );
+    const int minpixperdim0 = gtPars().minpixperdim0_;
+    const float fret = minpixperdim0 / nrpixperdim0;
+    const int ret = mNINT32( Math::Ceil(fret) );
     return ret < 2 ? 1 : ret;
 }
 
@@ -282,7 +283,8 @@ int WVAA2DBitMapGenerator::dim0SubSampling( int nrdisptrcs ) const
 void WVAA2DBitMapGenerator::doFill()
 {
     const Interval<int> trcidxs = getDispTrcIdxs();
-    const int dispeach = dim0SubSampling( trcidxs.width()+1 );
+    const int nrtrcs = trcidxs.width()+1;
+    const int dispeach = dim0SubSampling( nrtrcs );
     stripwidth_ = (1 + wvapars().overlap_) * dispeach * setup_.dim0MedianDist();
 
     for ( int idx=0; idx<=trcidxs.width(); idx++ )

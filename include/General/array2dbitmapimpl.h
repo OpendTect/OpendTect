@@ -25,7 +25,7 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 		  , drawrefline_(false)
 		  , filllow_(false)
 		  , fillhigh_(true)
-		  , minpixperdim0_(2)
+		  , minpixperdim0_(5)
 		  , overlap_(0.5)
 		  , reflinevalue_(mUdf(float))
 		  , x1reversed_(false)	{ midvalue_ = 0; }
@@ -119,7 +119,7 @@ public:
 
     VDA2DBitMapGenPars&		vdpars()	{ return gtPars(); }
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
-    
+
     void			linearInterpolate(bool yn)
 				{ gtPars().lininterp_ = yn; }
 
