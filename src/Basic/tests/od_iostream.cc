@@ -11,6 +11,7 @@
 #include "filesystemaccess.h"
 #include "filepath.h"
 #include "ptrman.h"
+#include "staticstring.h"
 #include "strmprov.h"
 #include "thread.h"
 
@@ -19,9 +20,15 @@
 
 static BufferString getTestTempFileName()
 {
-    static BufferString tmpfnm( File::Path( File::Path::getTempDir(),
-		File::Path::getTempFileName("iostrm test","txt") ).fullPath() );
-    return tmpfnm;
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	const File::Path fp( File::Path::getTempDir(),
+		File::Path::getTempFileName("iostrm test","txt") );
+	ret.set( fp.fullPath() );
+    }
+
+    return ret;
 }
 
 #define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }

@@ -496,9 +496,16 @@ BufferString OS::MachineCommand::toString( const OS::CommandExecPars* pars
 }
 
 
-bool OS::MachineCommand::execute( LaunchType lt )
+bool OS::MachineCommand::execute( LaunchType lt, const char* workdir )
 {
-    return CommandLauncher(*this).execute( lt );
+    return CommandLauncher(*this).execute( lt, workdir );
+}
+
+
+bool OS::MachineCommand::execute( BufferString& out, BufferString* err,
+				  const char* workdir )
+{
+    return CommandLauncher(*this).execute( out, err, workdir );
 }
 
 
@@ -507,11 +514,6 @@ bool OS::MachineCommand::execute( const CommandExecPars& execpars )
     return CommandLauncher(*this).execute( execpars );
 }
 
-
-bool OS::MachineCommand::execute( BufferString& out, BufferString* err )
-{
-    return CommandLauncher(*this).execute( out, err );
-}
 
 
 BufferString OS::MachineCommand::runAndCollectOutput( BufferString* errmsg )
@@ -598,10 +600,23 @@ void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 }
 
 
-bool OS::CommandLauncher::execute( BufferString& out, BufferString* err )
+bool OS::CommandLauncher::execute( OS::LaunchType lt, const char* workdir )
+{
+    CommandExecPars execpars( lt );
+    if ( workdir && &workdir )
+	execpars.workingdir( workdir );
+    return execute( execpars );
+}
+
+
+bool OS::CommandLauncher::execute( BufferString& out, BufferString* err,
+				   const char* workdir )
 {
     CommandExecPars execpars( Wait4Finish );
     execpars.createstreams( true );
+    if ( workdir && &workdir )
+	execpars.workingdir( workdir );
+
     if ( !execute(execpars) )
 	return false;
 

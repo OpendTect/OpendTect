@@ -82,15 +82,15 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 	fp.add( exenm );
     }
 
-    OS::MachineCommand cmd( "netsh", "advfirewall", "firewall" );
-    cmd.addArg( toadd ? "add" : "delete" )
+    OS::MachineCommand mc( "netsh", "advfirewall", "firewall" );
+    mc.addArg( toadd ? "add" : "delete" )
        .addArg( "rule" )
        .addArg( BufferString("name=\"",procnm,"\"") )
        .addArg( BufferString("program=\"",fp.fullPath(),"\"") );
     if ( toadd )
-	cmd.addArg( "enable=yes" );
+	mc.addArg( "enable=yes" );
 
-    return cmd.execute( OS::LaunchType::RunInBG );
+    return mc.execute( OS::LaunchType::RunInBG );
 }
 
 

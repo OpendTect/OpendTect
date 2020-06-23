@@ -151,9 +151,11 @@ public:
     static const char*	sKeyFG()		{ return "fg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
 
-    bool		execute(LaunchType lt=Wait4Finish);
+    bool		execute(LaunchType lt=Wait4Finish,
+				const char* workdir=nullptr);
     bool		execute(BufferString& output_stdout,
-				BufferString* output_stderr=nullptr);
+				BufferString* output_stderr=nullptr,
+				const char* workdir=nullptr);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
 
@@ -194,10 +196,11 @@ public:
 
     void		set(const MachineCommand&);
 
-    bool		execute( LaunchType lt=Wait4Finish )
-				{ return execute( CommandExecPars(lt) ); }
+    bool		execute(LaunchType lt=Wait4Finish,
+				const char* workdir=nullptr);
     bool		execute(BufferString& output_stdout,
-				BufferString* output_stderr=nullptr);
+				BufferString* output_stderr=nullptr,
+				const char* workdir=nullptr);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
     bool		startServer(bool inpythonenv=false,

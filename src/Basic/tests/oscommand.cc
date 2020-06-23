@@ -31,12 +31,11 @@ static bool testCmds()
     //TODO
 #else
 
-    OS::MachineCommand machcomm( "ls" );
-    machcomm.addFlag( "l", OS::OldStyle );
+    OS::MachineCommand machcomm( "ls", "-l" );
     if ( quiet_ )
-	machcomm.addArg( ">" ).addArg( "/dev/null" );
+	machcomm.addFileRedirect( "/dev/null" );
     else
-	machcomm.addArg( "|" ).addArg( "head" ).addArg( "-10" );
+	machcomm.addPipe().addArg( "head" ).addArg( "-10" );
     mRunStandardTest( machcomm.execute(OS::Wait4Finish),
 		      "OS::MachineCommand::execute wait4finish" );
     OS::CommandExecPars execpars( OS::RunInBG );
@@ -164,7 +163,6 @@ static void testServer()
 
 int mTestMainFnName( int argc, char** argv )
 {
-    DBG::turnOn( 0 ); //Turn off all debug-stuff as it screwes the pipes
     mInitTestProg();
 
     if ( clParser().hasKey( "testpipes" ) )
