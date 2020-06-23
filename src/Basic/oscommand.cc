@@ -603,7 +603,7 @@ void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 bool OS::CommandLauncher::execute( OS::LaunchType lt, const char* workdir )
 {
     CommandExecPars execpars( lt );
-    if ( workdir && &workdir )
+    if ( workdir && *workdir )
 	execpars.workingdir( workdir );
     return execute( execpars );
 }
@@ -614,7 +614,7 @@ bool OS::CommandLauncher::execute( BufferString& out, BufferString* err,
 {
     CommandExecPars execpars( Wait4Finish );
     execpars.createstreams( true );
-    if ( workdir && &workdir )
+    if ( workdir && *workdir )
 	execpars.workingdir( workdir );
 
     if ( !execute(execpars) )
