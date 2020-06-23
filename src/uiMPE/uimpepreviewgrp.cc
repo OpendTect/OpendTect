@@ -43,9 +43,12 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
     vwr_->setPrefHeight( 200 );
     vwr_->setStretch( 0, 0 );
     vwr_->rgbCanvas().setDragMode( uiGraphicsView::NoDrag );
+    vwr_->rgbCanvas().setSceneBorder( 0 );
     vwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
 				Interval<float>(0.01f,0.01f);
     vwr_->appearance().setGeoDefaults( true );
+    vwr_->appearance().annot_.x1_.hasannot_ = false;
+    vwr_->appearance().annot_.x2_.hasannot_ = false;
 
     OD::LineStyle ls( OD::LineStyle::Solid, 3, Color(0,255,0) );
     minline_ = vwr_->createAuxData( "Min line" );
