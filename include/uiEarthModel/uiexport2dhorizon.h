@@ -30,9 +30,10 @@ mExpClass(uiEarthModel) uiExport2DHorizon : public uiDialog
 public:
 			uiExport2DHorizon(uiParent*,
 					  const ObjectSet<SurfaceInfo>&,
-					  bool isbulk=true);
+					  bool isbulk);
 			~uiExport2DHorizon();
 
+    bool		isBulk() const		{ return isbulk_; }
 
 protected:
 

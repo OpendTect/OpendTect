@@ -34,6 +34,7 @@ class uiBulkFaultImport;
 class uiCreateHorizon;
 class uiExportFault;
 class uiExportHorizon;
+class uiExport2DHorizon;
 class uiImportFault3D;
 class uiImportFaultStickSet2D;
 class uiImportHorizon;
@@ -196,6 +197,7 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
+    void		cleanup();
 
     void		selectSurfaces(ObjectSet<EM::EMObject>&,
 				       const char* type);
@@ -213,16 +215,18 @@ protected:
     uiBulkHorizonImport* impbulkhordlg_;
     uiImpHorFromZMap*	impzmapdlg_;
     uiBulkFaultImport*	impbulkfltdlg_;
+    uiBulkFaultImport*	impfltsetdlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
     uiImportFaultStickSet2D*	impfss2ddlg_;
     uiExportHorizon*	exphordlg_;
+    uiExport2DHorizon*	exp2dhordlg_;
     uiExportFault*	expfltdlg_;
     uiExportFault*	expfltstickdlg_;
+    uiExportFault*	expfltsetdlg_;
     uiCreateHorizon*	crhordlg_;
     uiBulkFaultImport*	impbulkfssdlg_;
     uiBulk2DHorizonImport* impbulk2dhordlg_;
-
 
     TrcKeySampling	selectedrg_;
     bool		disponcreation_;
@@ -232,8 +236,9 @@ protected:
     static const char*  sKeySectionID() { return "Section ID"; }
     uiSurfaceMan*	man2dhordlg_;
     uiSurfaceMan*	man3dhordlg_;
-    uiSurfaceMan*	ma3dfaultdlg_;
+    uiSurfaceMan*	man3dfaultdlg_;
     uiSurfaceMan*	manfssdlg_;
+    uiSurfaceMan*	manfltsetdlg_;
     uiSurfaceMan*	manbodydlg_;
 
     void		displayOnCreateCB(CallBacker*);

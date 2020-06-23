@@ -38,7 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -91,9 +90,6 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
-static HiddenParam<uiEMPartServer,uiSurfaceMan*> manfaultsetdlg_(0);
-static HiddenParam<uiEMPartServer,uiExportFault*> expfaultsetdlg_(0);
-
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , selemid_(-1)
@@ -107,21 +103,23 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , impfltdlg_(0)
     , impfss2ddlg_(0)
     , exphordlg_(0)
+    , exp2dhordlg_(0)
     , expfltdlg_(0)
     , expfltstickdlg_(0)
+    , expfltsetdlg_(0)
     , impfltstickdlg_(0)
     , crhordlg_(0)
     , man3dhordlg_(0)
     , man2dhordlg_(0)
-    , ma3dfaultdlg_(0)
+    , man3dfaultdlg_(0)
+    , manfltsetdlg_(0)
     , manfssdlg_(0)
     , manbodydlg_(0)
     , impbulkfltdlg_(0)
+    , impfltsetdlg_(0)
     , impbulkfssdlg_(0)
     , impbulk2dhordlg_(0)
 {
-    manfaultsetdlg_.setParam( this, 0 );
-    expfaultsetdlg_.setParam( this, 0 );
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
@@ -129,43 +127,38 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
 uiEMPartServer::~uiEMPartServer()
 {
     em_.setEmpty();
-    manfaultsetdlg_.removeParam( this );
-    expfaultsetdlg_.removeParam( this );
-    deepErase( variodlgs_ );
-    delete man3dhordlg_;
-    delete man2dhordlg_;
-    delete ma3dfaultdlg_;
-    delete manfssdlg_;
-    delete manbodydlg_;
-    delete crhordlg_;
-    delete impbulkfltdlg_;
-    delete impbulkfssdlg_;
-    delete impbulk2dhordlg_;
-    delete impzmapdlg_;
+    cleanup();
 }
 
 
 void uiEMPartServer::survChangedCB( CallBacker* )
+{
+    cleanup();
+}
+
+
+void uiEMPartServer::cleanup()
 {
     deleteAndZeroPtr( imphorattrdlg_ );
     deleteAndZeroPtr( imphorgeomdlg_ );
     deleteAndZeroPtr( impzmapdlg_ );
     deleteAndZeroPtr( impfltdlg_ );
     deleteAndZeroPtr( impbulkfltdlg_ );
+    deleteAndZeroPtr( impfltsetdlg_ );
     deleteAndZeroPtr( impbulkhordlg_ );
     deleteAndZeroPtr( exphordlg_ );
     deleteAndZeroPtr( expfltdlg_ );
+    deleteAndZeroPtr( expfltsetdlg_ );
     deleteAndZeroPtr( man3dhordlg_ );
     deleteAndZeroPtr( man2dhordlg_ );
-    deleteAndZeroPtr( ma3dfaultdlg_ );
+    deleteAndZeroPtr( man3dfaultdlg_ );
     deleteAndZeroPtr( manfssdlg_ );
+    deleteAndZeroPtr( manfltsetdlg_ );
     deleteAndZeroPtr( manbodydlg_ );
     deleteAndZeroPtr( crhordlg_ );
     deleteAndZeroPtr( impbulkfssdlg_ );
     deleteAndZeroPtr( impbulk2dhordlg_ );
     deepErase( variodlgs_ );
-    manfaultsetdlg_.deleteAndZeroPtrParam( this );
-    expfaultsetdlg_.deleteAndZeroPtrParam( this );
 }
 
 
@@ -207,7 +200,7 @@ void uiEMPartServer::manage2DHorizons()
 
 void uiEMPartServer::manage3DFaults()
 {
-    mManSurfaceDlg(ma3dfaultdlg_,Flt3D);
+    mManSurfaceDlg(man3dfaultdlg_,Flt3D);
 }
 
 
@@ -219,9 +212,7 @@ void uiEMPartServer::manageFaultStickSets()
 
 void uiEMPartServer::manageFaultSets()
 {
-    uiSurfaceMan* manfaultsetdlg = manfaultsetdlg_.getParam( this );
-    mManSurfaceDlg(manfaultsetdlg,FltSet);
-    manfaultsetdlg_.setParam( this, manfaultsetdlg );
+    mManSurfaceDlg(manfltsetdlg_,FltSet);
 }
 
 
@@ -328,14 +319,20 @@ bool uiEMPartServer::export2DHorizon( bool bulk )
 {
     ObjectSet<SurfaceInfo> hinfos;
     getAllSurfaceInfo( hinfos, true );
-    uiExport2DHorizon dlg( parent(), hinfos, bulk );
-    return dlg.go();
+    delete exp2dhordlg_;
+    exp2dhordlg_ = new uiExport2DHorizon( parent(), hinfos, bulk );
+    exp2dhordlg_->setModal( false );
+    return exp2dhordlg_->go();
 }
 
 
 bool uiEMPartServer::export3DHorizon( bool bulk )
 {
-    exphordlg_ = new uiExportHorizon( parent(), bulk );
+    if ( exphordlg_ && exphordlg_->isBulk()!=bulk )
+	deleteAndZeroPtr( exphordlg_ );
+
+    if ( !exphordlg_ )
+	exphordlg_ = new uiExportHorizon( parent(), bulk );
 
     return exphordlg_->go();
 }
@@ -343,19 +340,20 @@ bool uiEMPartServer::export3DHorizon( bool bulk )
 
 bool uiEMPartServer::importBulkFaults()
 {
-    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
+    if ( !impbulkfltdlg_ )
+	impbulkfltdlg_ = new uiBulkFaultImport( parent(),
 				EMFault3DTranslatorGroup::sGroupName(), false );
-
     return impbulkfltdlg_->go();
 }
 
 
 bool uiEMPartServer::importFaultSet()
 {
-    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
-	EMFaultSet3DTranslatorGroup::sGroupName(), false );
+    if ( !impfltsetdlg_ )
+	impfltsetdlg_ = new uiBulkFaultImport( parent(),
+		EMFaultSet3DTranslatorGroup::sGroupName(), false );
 
-    return impbulkfltdlg_->go();
+    return impfltsetdlg_->go();
 }
 
 
@@ -425,26 +423,34 @@ void uiEMPartServer::importBulk2DFaultStickset()
 
 bool uiEMPartServer::exportFault( bool single )
 {
-    expfltdlg_ = new uiExportFault( parent(),
-			    EMFault3DTranslatorGroup::sGroupName(), single );
+    if ( expfltdlg_ && expfltdlg_->isBulk()==single )
+	deleteAndZeroPtr( expfltdlg_ );
+
+    if ( !expfltdlg_ )
+	expfltdlg_ = new uiExportFault( parent(),
+			EMFault3DTranslatorGroup::sGroupName(), !single );
     return expfltdlg_->go();
 }
 
 
 bool uiEMPartServer::exportFaultStickSet( bool single )
 {
-    expfltstickdlg_ = new uiExportFault( parent(),
-		    EMFaultStickSetTranslatorGroup::sGroupName(), single );
+    if ( expfltstickdlg_ && expfltstickdlg_->isBulk()==single )
+	deleteAndZeroPtr( expfltstickdlg_ );
+
+    if ( !expfltstickdlg_ )
+	expfltstickdlg_ = new uiExportFault( parent(),
+			EMFaultStickSetTranslatorGroup::sGroupName(), !single );
     return expfltstickdlg_->go();
 }
 
 
 bool uiEMPartServer::exportFaultSet()
 {
-    uiExportFault* expfaultsetdlg = new uiExportFault( parent(),
-                    EMFaultSet3DTranslatorGroup::sGroupName(), true );
-    expfaultsetdlg_.setParam( this, expfaultsetdlg );
-    return expfaultsetdlg->go();
+    if ( !expfltsetdlg_ )
+	expfltsetdlg_ = new uiExportFault( parent(),
+			EMFaultSet3DTranslatorGroup::sGroupName(), false );
+    return expfltdlg_->go();
 }
 
 
