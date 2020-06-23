@@ -802,8 +802,8 @@ StreamData StreamProvider::createOStream( const char* fnm,
 	openmode |= std::ios_base::in;
 
 #ifdef __msvc__
-    if ( isHidden(fnm) )
-	hide( fnm, false );
+    if ( File::isHidden(fnm) )
+	File::hide( fnm, false );
 
     impl->ostrm_ = new std::winofstream( fnm, openmode );
 #else
