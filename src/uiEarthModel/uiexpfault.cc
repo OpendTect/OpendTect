@@ -46,7 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static HiddenParam<uiExportFault,FixedString*> typ_(0);
 
 #define mGetObjNr \
-    issingle ? 1 : mPlural \
+    isbulk_ ? mPlural : 1 \
 
 #define mGet( tp, fss, f3d, fset ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
@@ -66,13 +66,13 @@ static HiddenParam<uiExportFault,FixedString*> typ_(0);
 	      uiStrings::phrInput( uiStrings::sFault(mGetObjNr) ), \
 	      uiStrings::phrInput( uiStrings::sFaultSet(mGetObjNr) ) )
 
-uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
+uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
 				 mODHelpKey(mExportFaultHelpID),mTODOHelpKey)))
     , ctio_(mGetCtio(typ))
     , linenmfld_(nullptr)
-    , issingle_(issingle)
+    , isbulk_(isbulk)
     , infld_(nullptr)
     , bulkinfld_(nullptr)
 {
@@ -81,20 +81,21 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
-    uiIOObjSelGrp::Setup su; su.choicemode_ = OD::ChooseAtLeastOne;
-    if ( issingle_ )
-	infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
-    else
-	bulkinfld_ = new uiIOObjSelGrp( this, ctio_, mGetLbl(typ), su );
-
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
-    if ( issingle_ )
-	coordfld_->attach( alignedBelow, infld_ );
-    else
-	coordfld_->attach( alignedBelow, bulkinfld_ );
-
     mAttachCB( coordfld_->valuechanged, uiExportFault::exportCoordSysChgCB );
+
+    uiIOObjSelGrp::Setup su; su.choicemode_ = OD::ChooseAtLeastOne;
+    if ( !isbulk_ )
+    {
+	infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
+	coordfld_->attach( alignedBelow, infld_ );
+    }
+    else
+    {
+	bulkinfld_ = new uiIOObjSelGrp( this, ctio_, mGetLbl(typ), su );
+	coordfld_->attach( alignedBelow, bulkinfld_ );
+    }
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( this );
     coordsysselfld_->attach( alignedBelow, coordfld_);
@@ -191,7 +192,7 @@ static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
 
 bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 {
-    if ( issingle_ )
+    if ( !isbulk_ )
     {
 	const IOObj* ioobj = ctio_.ioobj_;
 	if ( !ioobj ) return false;
@@ -328,7 +329,7 @@ bool uiExportFault::writeAscii()
 		    if ( !crd.isDefined() )
 			continue;
 
-		    if ( !issingle_ || nrobjs > 1 )
+		    if ( isbulk_ || nrobjs > 1 )
 			ostrm << "\""<< objnm <<"\"" << "\t";
 
 		    const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
@@ -441,7 +442,7 @@ bool uiExportFault::acceptOK( CallBacker* )
     BufferStringSet fltnms;
     bool isobjsel(true);
 
-    if ( issingle_ )
+    if ( !isbulk_ )
 	isobjsel = infld_->commitInput();
     else
     {

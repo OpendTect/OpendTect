@@ -29,8 +29,10 @@ namespace Coords { class uiCoordSystemSel; }
 mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
 { mODTextTranslationClass(uiExportHorizon);
 public:
-			uiExportHorizon(uiParent*,bool isbulk=false);
+			uiExportHorizon(uiParent*,bool isbulk);
 			~uiExportHorizon();
+
+    bool		isBulk() const		{ return isbulk_; }
 
 protected:
 

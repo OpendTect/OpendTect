@@ -34,9 +34,10 @@ class uiT2DConvSel;
 mExpClass(uiEarthModel) uiExportFault : public uiDialog
 { mODTextTranslationClass(uiExportFault);
 public:
-			uiExportFault(uiParent*,const char* type,
-							bool issingle=true);
+			uiExportFault(uiParent*,const char* type,bool isbulk);
 			~uiExportFault();
+
+    bool		isBulk() const		{ return isbulk_; }
 
 protected:
 
@@ -61,7 +62,7 @@ protected:
     virtual bool	acceptOK(CallBacker*);
 
     bool		writeAscii();
-    bool		issingle_;
+    bool		isbulk_;
     uiString		dispstr_;
 };
 
