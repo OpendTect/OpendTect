@@ -56,8 +56,8 @@ public:
 	virtual void	close();
 	virtual		~StreamDataImpl() {}
 	BufferString	fname_;
-	std::istream*	istrm_ = 0;
-	std::ostream*	ostrm_ = 0;
+	std::istream*	istrm_ = nullptr;
+	std::ostream*	ostrm_ = nullptr;
     };
 
     void setImpl(StreamDataImpl*);

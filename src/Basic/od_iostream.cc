@@ -29,41 +29,41 @@
 const char* od_stream::sStdIO()	{ return StreamProvider::sStdIO(); }
 const char* od_stream::sStdErr()	{ return StreamProvider::sStdErr(); }
 
-static PtrMan<od_istream> nullistream = 0;
-
 od_istream& od_istream::nullStream()
 {
-    if ( !nullistream )
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
+    if ( !ret )
     {
-#ifndef __win__
-	od_istream* newret = new od_istream( "/dev/null" );
+#ifdef __win__
+	auto* newret = new od_istream( "NUL" );
 #else
-	od_istream* newret = new od_istream( "NUL:" );
+	auto* newret = new od_istream( "/dev/null" );
 #endif
 	newret->setNoClose();
 
-	nullistream.setIfNull(newret,true);
+	if ( !ret.setIfNull(newret,true) )
+	    delete newret;
     }
-    return *nullistream;
+    return *ret;
 }
 
-static PtrMan<od_ostream> nullostream = 0;
 
 od_ostream& od_ostream::nullStream()
 {
-    if ( !nullostream )
+    mDefineStaticLocalObject( PtrMan<od_ostream>, ret, = nullptr );
+    if ( !ret )
     {
 #ifdef __win__
-	od_ostream* ptr = new od_ostream( "NUL" );
-	ptr->setNoClose();
+	auto* newret = new od_ostream( "NUL" );
 #else
-	od_ostream* ptr = new od_ostream( "/dev/null" );
+	auto* newret = new od_ostream( "/dev/null" );
 #endif
+	newret->setNoClose();
 
-	if ( !nullostream.setIfNull(ptr,true) )
-	    delete ptr;
+	if ( !ret.setIfNull(newret,true) )
+	    delete newret;
     }
-    return *nullostream;
+    return *ret;
 }
 
 namespace OD { extern Export_Basic od_ostream& logMsgStrm(); }
@@ -419,8 +419,15 @@ std::ostream& od_ostream::stdStream()
 
 od_istream& od_cin()
 {
-    static od_istream ret( std::cin );
-    return ret;
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
+    if ( !ret )
+    {
+	auto* newret = new od_istream( std::cin );
+	newret->setNoClose();
+	if ( !ret.setIfNull(newret,true) )
+	    delete newret;
+    }
+    return *ret;
 }
 
 
