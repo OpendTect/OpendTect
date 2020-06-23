@@ -36,9 +36,9 @@ od_istream& od_istream::nullStream()
     if ( !ret )
     {
 #ifdef __win__
-	od_istream* newret = new od_istream( "NUL:" );
+	auto* newret = new od_istream( "NUL" );
 #else
-	od_istream* newret = new od_istream( "/dev/null" );
+	auto* newret = new od_istream( "/dev/null" );
 #endif
 	newret->setNoClose();
 
@@ -54,9 +54,9 @@ od_ostream& od_ostream::nullStream()
     if ( !ret )
     {
 #ifdef __win__
-	od_ostream* newret = new od_ostream( "NUL" );
+	auto* newret = new od_ostream( "NUL" );
 #else
-	od_ostream* newret = new od_ostream( "/dev/null" );
+	auto* newret = new od_ostream( "/dev/null" );
 #endif
 	newret->setNoClose();
 

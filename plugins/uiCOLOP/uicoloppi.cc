@@ -102,10 +102,8 @@ void uiColopLink::doColop( CallBacker* )
 	return;
     }
 
-    OS::MachineCommand machcomm( scriptfnm );
-    OS::CommandExecPars execpars( OS::RunInBG );
-    OS::CommandLauncher cl( machcomm, true );
-    if ( !cl.execute(execpars) )
+    OS::MachineCommand machcomm( scriptfnm, true );
+    if ( !machcomm.execute(OS::RunInBG) )
     {
 	uiMSG().error( mINTERNAL("Cannot start COLOP app") );
 	return;
