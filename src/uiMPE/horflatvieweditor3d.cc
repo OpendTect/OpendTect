@@ -53,6 +53,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     , pickedpos_(TrcKey::udf())
     , patchdata_(0)
     , sowingmode_(false)
+    , pickinvd_(true)
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
@@ -312,17 +313,11 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 			  || editor_->isSelActive() )
 	return;
 
-    //if ( !seedpickingon_ ) return;
-
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker )
 	return;
 
     seedpicker->setSectionID( emobj->sectionID(0) );
-
-    bool pickinvd = true;
-    if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
-	return;
 
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
@@ -394,14 +389,16 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	    return;
     }
 
+    if ( !checkSanity(*tracker,*seedpicker,pickinvd_) )
+	return;
+
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
     mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
     if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
 	return;
 
-    bool pickinvd = true;
-    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
-    if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
+    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd_ );
+    if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo(emobj->id()).currentEventID();
@@ -512,6 +509,7 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* cb )
     if ( !mev.leftButton() )
 	return;
 
+    meh->setHandled( true );
     handleMouseClicked( false );
 }
 

@@ -56,7 +56,7 @@ public:
     void		setSeedPicking( bool yn )	{}
     void		setTrackerSetupActive(bool yn)
 			{ trackersetupactive_ = yn; }
-    
+
     Notifier<HorizonFlatViewEditor3D>	updseedpkingstatus_;
 
 protected:
@@ -122,6 +122,7 @@ protected:
     FlatView::AuxData*		patchdata_;
     TypeSet<EM::PosID>		pointselections_;
     bool			sowingmode_;
+    bool			pickinvd_;
 };
 
 } //namespace MPE
