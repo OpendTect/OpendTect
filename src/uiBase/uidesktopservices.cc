@@ -66,7 +66,7 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
     }
 
     QString brcmd( browser.buf() );
-    const int index = command.lastIndexOf( "%1" );
+    const int index = brcmd.lastIndexOf( "%1" );
     if ( index < 0 )
     {
 	machcomm.setProgram( browser );
