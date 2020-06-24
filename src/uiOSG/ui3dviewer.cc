@@ -512,6 +512,7 @@ void ui3DViewerBody::setupView()
 
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
+    this->setBackgroundColor(Color::Anthracite());
 }
 
 

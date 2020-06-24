@@ -45,7 +45,8 @@ void EnumDefImpl<ColTab::Sequence::Status>::init()
     uistrings_ += mEnumTr("Added",0);
 }
 
-static const char* sKeyDefNameSeis = "dTect.Disp.Default Color Table.Seismics";
+static const char* sKeyDefNameSeis =
+			"dTect.Disp.Default Color Table.OD Seismic 1";
 static const char* sKeyDefNameAttrib
 			    = "dTect.Disp.Default Color Table.Attributes";
 static const char* sKeyDefNameOld = "dTect.Color table.Name";
@@ -65,7 +66,7 @@ const char* ColTab::Sequence::sDefaultName( bool for_seismics )
     {
 	Settings::common().get( sKeyDefNameOld, defcoltabnm );
 	if ( defcoltabnm.isEmpty() )
-	    return for_seismics ? "Seismics" : "Viridis";
+	    return for_seismics ? "OD Seismic 1" : "Pastel";
     }
 
     mDeclStaticString( ret );
