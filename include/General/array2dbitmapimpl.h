@@ -23,7 +23,7 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 		  , drawrefline_(false)
 		  , filllow_(false)
 		  , fillhigh_(true)
-		  , minpixperdim0_(2)
+		  , minpixperdim0_(5)
 		  , overlap_(0.5)
 		  , reflinevalue_(mUdf(float))
 		  , x1reversed_(false)	{}
@@ -35,8 +35,8 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
     bool	x1reversed_;	//!< If reversed, draw wiggles flipped
 
     float	overlap_;	//!< If > 0, part of the trace is drawn on
-				//!< both neighbours' display strip
-				//!< If < 0, uses less than entire strip
+    				//!< both neighbours' display strip
+    				//!< If < 0, uses less than entire strip
     float	reflinevalue_;
     int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
