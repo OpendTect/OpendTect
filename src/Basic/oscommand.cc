@@ -492,7 +492,10 @@ BufferString OS::MachineCommand::toString( const OS::CommandExecPars* pars
 									) const
 {
     const MachineCommand mc = getExecCommand( pars );
-    return BufferString( mc.program(), " ", mc.args().cat( " " ) );
+    BufferString ret( mc.program() );
+    if ( !mc.args().isEmpty() )
+	ret.addSpace().add( mc.args().cat( " " ) );
+    return ret;
 }
 
 
