@@ -411,9 +411,10 @@ struct ColorDescriptionData
 
 
 // These are the standard HTML colors
-static const int cNrColDD = 138;
+static const int cNrColDD = 139;
 static const ColorDescriptionData cColDD[] = {
 {	240,	248,	255,	"AliceBlue" },
+{	50,	50,	50,	"Anthracite" },
 {	250,	235,	215,	"AntiqueWhite" },
 {	127,	255,	212,	"Aquamarine" },
 {	240,	255,	255,	"Azure" },
