@@ -195,9 +195,9 @@ class GraphicsWindowIndirect;
 template <class T>
 class OsgIndirectViewWidget : public T
 {
-    typedef 	QWidget inherited;
+    typedef	QWidget inherited;
 public:
-    		OsgIndirectViewWidget(T* parnt)
+		OsgIndirectViewWidget(T* parnt)
 		    : QWidget( parnt )
 		    , forwardKeyEvents_( false )
 		{}
@@ -207,7 +207,7 @@ public:
 
     int		getNumDeferredEvents();
     void	enqueueDeferredEvent(QEvent::Type eventType,
-	    		QEvent::Type removeEventType = QEvent::None);
+			QEvent::Type removeEventType = QEvent::None);
     void	processDeferredEvents();
 
     void	setKeyboardModifiers( QInputEvent* );
@@ -459,14 +459,13 @@ template <class T> inline
 void OsgIndirectViewWidget<T>::wheelEvent( QWheelEvent* qwe )
 {
     setKeyboardModifiers( qwe );
-    gw_->getEventQueue()->mouseScroll( qwe->orientation() == Qt::Vertical
-	    ?  (qwe->delta()>0
-		? osgGA::GUIEventAdapter::SCROLL_UP
-		: osgGA::GUIEventAdapter::SCROLL_DOWN)
-	    : (qwe->delta()>0
-		? osgGA::GUIEventAdapter::SCROLL_LEFT
-		: osgGA::GUIEventAdapter::SCROLL_RIGHT)
-	    );
+    const QPoint delta = qwe->angleDelta();
+    const bool isvertical = abs(delta.y()) > abs(delta.x());
+    gw_->getEventQueue()->mouseScroll(
+	isvertical ? (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+				  : osgGA::GUIEventAdapter::SCROLL_DOWN)
+		   : (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+				  : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
 
 
@@ -487,7 +486,7 @@ GraphicsWindowIndirect::GraphicsWindowIndirect(
     init();
 }
 
-		
+
 GraphicsWindowIndirect::~GraphicsWindowIndirect()
 {
     close();
@@ -513,9 +512,9 @@ bool GraphicsWindowIndirect::init()
 
 
 void GraphicsWindowIndirect::runOperations()
-{ 
+{
     // While in graphics thread this is last chance to do something useful
-    // before graphics thread will execute its operations. 
+    // before graphics thread will execute its operations.
     if (qwidget_->getNumDeferredEvents() > 0)
         qwidget_->processDeferredEvents();
 
