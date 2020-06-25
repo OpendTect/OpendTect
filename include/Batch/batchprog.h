@@ -22,11 +22,11 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "bufstringset.h"
 #include "genc.h"
-#include "od_iostream.h"
 
 class CommandLineParser;
 class IOObj;
 class IOObjContext;
+class od_ostream;
 class MMSockCommunic;
 class JobCommunic;
 class StreamData;
@@ -97,11 +97,11 @@ protected:
     static BatchProgram* inst_;
 
 
-    bool		stillok_;
-    bool		inbg_;
-    StreamData&		sdout_;
-    IOPar*		iopar_;
-    CommandLineParser*	clparser_;
+    bool		stillok_ = false;
+    bool		inbg_ = false;
+    od_ostream*		strm_ = nullptr;
+    IOPar*		iopar_ = nullptr;
+    CommandLineParser*	clparser_ = nullptr;
 
     BufferStringSet	requests_;
     BufferString	finishmsg_;	//Dot NOT use, will be removed after 6.2
@@ -115,8 +115,9 @@ protected:
 
 private:
 
-    JobCommunic*	comm_;
+    JobCommunic*	comm_ = nullptr;
     int			jobid_;
+    bool		strmismine_ = true;
 
 };
 

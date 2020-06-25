@@ -9,29 +9,26 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
 
-#include "envvars.h"
+#include "ascstream.h"
 #include "commandlineparser.h"
+#include "ctxtioobj.h"
+#include "debug.h"
+#include "envvars.h"
 #include "file.h"
+#include "filepath.h"
 #include "genc.h"
+#include "hostdata.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
-#include "moddepmgr.h"
-#include "strmprov.h"
-#include "filepath.h"
-#include "sighndl.h"
-#include "threadwork.h"
-#include "hostdata.h"
-#include "plugins.h"
-#include "strmprov.h"
-#include "ctxtioobj.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
-#include "ascstream.h"
-#include "debug.h"
+#include "moddepmgr.h"
 #include "oscommand.h"
-#include "winutils.h"
-#include <iostream>
+#include "plugins.h"
+#include "sighndl.h"
+#include "strmprov.h"
+#include "threadwork.h"
 
 #ifndef __win__
 # include "_execbatch.h"
@@ -68,12 +65,7 @@ void BatchProgram::deleteInstance( int retcode )
 
 BatchProgram::BatchProgram()
     : NamedObject("")
-    , stillok_(false)
-    , inbg_(false)
-    , sdout_(*new StreamData)
     , iopar_(new IOPar)
-    , comm_(0)
-    , clparser_(0)
 {
 #ifdef __win__
     disableAutoSleep();
@@ -106,7 +98,7 @@ void BatchProgram::init()
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
     {
-	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
+	comm_ = new JobCommunic( masterhost, masterport, jobid_ );
 	Threads::WorkManager::twm().setQuickStop( true );
     }
 
@@ -171,7 +163,7 @@ void BatchProgram::init()
 
     BufferString res = iopar_->find( sKey::LogFile() );
     if ( !res )
-	iopar_->set( sKey::LogFile(), StreamProvider::sStdErr() );
+	iopar_->set( sKey::LogFile(), od_stream::sStdIO() );
 
     res = iopar_->find( sKey::DataRoot() );
     if ( !res.isEmpty() && File::exists(res) )
@@ -240,9 +232,11 @@ BatchProgram::~BatchProgram()
 
     killNotify( false );
 
-    sdout_.close();
-    delete &sdout_;
-    delete clparser_;
+    strm_->close();
+    if ( strmismine_ )
+	delete strm_;
+    strm_ = nullptr;
+    deleteAndZeroPtr( clparser_ );
 
     // Do an explicit exitProgram() here, so we are sure the program
     // is indeed ended and we won't get stuck while cleaning up things
@@ -290,11 +284,10 @@ bool BatchProgram::pauseRequested() const
 
 bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 {
-    if ( sdout_.oStrm() )
-	*sdout_.oStrm() << '\n' << msg.getFullString() << '\n' << std::endl;
-
-    if ( !sdout_.oStrm() || cc_stderr )
-	std::cerr << '\n' << msg.getFullString() << '\n' << std::endl;
+    if ( strm_ && strm_->isOK() )
+	*strm_ << '\n' << msg.getFullString() << '\n' << od_endl;
+    if ( cc_stderr )
+	od_cerr() << '\n' << msg.getFullString() << '\n' << od_endl;
 
     if ( comm_ && comm_->ok() )
 	return comm_->sendErrMsg(msg.getFullString());
@@ -305,10 +298,9 @@ bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 
 bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
-    if ( sdout_.oStrm() )
-	*sdout_.oStrm() << '\n' << msg << '\n' << std::endl;
-
-    if ( !sdout_.oStrm() || cc_stdout )
+    if ( strm_ && strm_->isOK() )
+	*strm_ << '\n' << msg << '\n' << od_endl;
+    if ( cc_stdout )
 	od_cout() << '\n' << msg << '\n' << od_endl;
 
     return true;
@@ -328,6 +320,9 @@ bool BatchProgram::initOutput()
     BufferString res = pars().find( sKey::LogFile() );
     if ( res == "stdout" ) res.setEmpty();
 
+    if ( strmismine_ )
+	delete strm_;
+
     bool hasviewprogress = true;
 #ifdef __cygwin__
     hasviewprogress = false;
@@ -335,36 +330,47 @@ bool BatchProgram::initOutput()
 
     if ( hasviewprogress && res && res=="window" )
     {
-	BufferString cmd = "@";
-	cmd += "\"";
-	cmd += FilePath(GetExecPlfDir()).add("od_ProgressViewer").fullPath();
-	cmd += "\" ";
+	OS::MachineCommand mc(
+	    FilePath(GetExecPlfDir()).add("od_ProgressViewer").fullPath() );
+	mc.addArg( GetPID() );
+	//TODO: make this work, it won't work without an actual log file
 
-	cmd += GetPID();
-	StreamProvider sp( cmd );
-	sdout_ = sp.makeOStream();
-	if ( !sdout_.usable() )
+	strmismine_ = true;
+	strm_ = new od_ostream( mc );
+	if ( !strm_ || !strm_->isOK() )
 	{
-	    std::cerr << name() << ": Cannot open window for output"<<std::endl;
-	    std::cerr << "Using std output instead" << std::endl;
+	    od_cerr() << name() << ": Cannot open window for output" << od_endl;
+	    od_cerr() << "Using std output instead" << od_endl;
+	    deleteAndZeroPtr( strm_ );
 	    res = 0;
 	}
     }
 
     if ( res != "window" )
     {
-	if ( res.isEmpty() )
-	    res = StreamProvider::sStdErr();
-	sdout_ = StreamProvider(res).makeOStream();
-	if ( !sdout_.oStrm() )
+	if ( !res.isEmpty() )
 	{
-	    std::cerr << name() << ": Cannot open log file" << std::endl;
-	    std::cerr << "Using stderror instead" << std::endl;
-	    sdout_.setOStrm( &std::cerr );
+	    strmismine_ = true;
+	    strm_ = new od_ostream( res );
 	}
+
+	if ( !strm_ || !strm_->isOK() )
+	{
+	    if ( !res.isEmpty() )
+	    {
+		od_cerr() << name() << ": Cannot open log file" << od_endl;
+		od_cerr() << "Using stdoutput instead" << od_endl;
+	    }
+	    deleteAndZeroPtr( strm_ );
+	    strm_ = &od_cout();
+	    strmismine_ = false;
+	}
+
     }
 
-    stillok_ = sdout_.usable();
+    stillok_ = strm_ && strm_->isOK();
+    if ( comm_ && strm_ )
+	comm_->setStream( *strm_ );
     if ( stillok_ )
 	PIM().loadAuto( true );
     return stillok_;
@@ -378,7 +384,12 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     BufferString errmsg;
     IOObj* ioobj = IOM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
     if ( !ioobj && msgiffail && !errmsg.isEmpty() )
-	*sdout_.oStrm() << errmsg.buf() << std::endl;
+    {
+	if ( errmsg.isEmpty() )
+	    errmsg.set( "Error getting info from database" );
+	if ( strm_ )
+	    *strm_ << errmsg << od_endl;
+    }
 
     return ioobj;
 }
