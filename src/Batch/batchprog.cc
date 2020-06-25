@@ -30,7 +30,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "threadwork.h"
 
-#ifndef __win__
+#ifdef __win__
+# include "winutils.h"
+#else
 # include "_execbatch.h"
 #endif
 
