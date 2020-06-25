@@ -95,6 +95,7 @@ protected:
 
     void		initSeisGrp(CallBacker*);
     void		seisSelChgCB(CallBacker*);
+    void		refresh();
 
     uiSurvSeisSelGroupCompEntry& getCompEntry(int,bool selected) const;
 

@@ -142,7 +142,7 @@ void uiSurvIOObjSelGroup::selChgCB( CallBacker* )
 
 void uiSurvIOObjSelGroup::survSelCB( CallBacker* )
 {
-    updGrp( false );
+    refresh();
     survChange.trigger();
 }
 

@@ -205,11 +205,11 @@ uiSurvSeisSelGroup::uiSurvSeisSelGroup( uiParent* p, const Setup& su,
 {
     uiListBox::Setup lbsu( ismulti ? OD::ChooseAtLeastOne
 				   : OD::ChooseOnlyOne );
-    lbsu.prefnrlines( 4 );
+    lbsu.prefnrlines( 4 ).lbl( uiStrings::sComponent() )
+	.lblpos(uiListBox::AboveLeft);
     compfld_ = new uiListBox( this, lbsu );
     compfld_->setHSzPol( uiObject::SmallVar );
-    compfld_->setStretch( 1, 1 );
-    compfld_->attach( centeredRightOf, objfld_->attachObj() );
+    compfld_->attach( rightOf, objfld_->attachObj() );
 
     mAttachCB( postFinalise(), uiSurvSeisSelGroup::initSeisGrp );
 }
@@ -253,6 +253,13 @@ void uiSurvSeisSelGroup::seisSelChgCB( CallBacker* )
 	compfld_->display( sz > 1 );
 	prevselidx_ = selidx;
     }
+}
+
+
+void uiSurvSeisSelGroup::refresh()
+{
+    prevselidx_ = -1;
+    updGrp( false );
 }
 
 
