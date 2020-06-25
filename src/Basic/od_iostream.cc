@@ -849,7 +849,7 @@ void od_ostrstream::setEmpty()
 
 od_ostream& od_cerr()
 {
-    mDefineStaticLocalObject( PtrMan<od_ostream>, cout,
+    mDefineStaticLocalObject( PtrMan<od_ostream>, cerr,
 			     (new od_ostream( std::cerr )) );
-    return *cout;
+    return *cerr;
 }

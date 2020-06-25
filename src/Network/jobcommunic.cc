@@ -24,8 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mmcommunicdefs.h"
 
 
-JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
-			  StreamData& sout )
+JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     : masterauth_(System::hostAddress(host),port)
     , timestamp_(Time::getMilliSeconds())
     , stillok_(true)
@@ -36,7 +35,35 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
     , failtimeout_(1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",30))
     , pausereq_(false)
     , jobid_(jid)
-    , sdout_(sout)
+    , lastsucces_(Time::getMilliSeconds())
+    , logstream_(createLogStream())
+{
+    min_time_between_msgupdates_ =
+				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
+    lastupdate_ = timestamp_;
+    dumpSystemInfo();
+    socket_ = new Network::Socket( false );
+    socket_->setTimeout( socktimeout_ );
+
+    const bool ret = socket_->connectToHost( masterauth_ );
+    BufferString logmsg( "Connection to", masterauth_.getHost(), " port " );
+    logmsg.add( masterauth_.getPort() ).add( " : " );
+    logMsg( ret, logmsg, !ret ? "" :socket_->errMsg().getFullString() );
+}
+
+
+JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
+			  StreamData& )
+    : masterauth_(System::hostAddress(host),port)
+    , timestamp_(Time::getMilliSeconds())
+    , stillok_(true)
+    , nrattempts_(0)
+    , maxtries_ (GetEnvVarIVal("DTECT_MM_MSTR_RETRY",10))
+    , socktimeout_(GetEnvVarIVal("DTECT_MM_CL_SOCK_TO",2000))
+    , min_time_between_update_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",10))
+    , failtimeout_(1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",30))
+    , pausereq_(false)
+    , jobid_(jid)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
 {
@@ -231,7 +258,8 @@ void JobCommunic::checkMasterTimeout()
 
 void JobCommunic::directMsg( const char* msg )
 {
-    (sdout_.oStrm() ? *sdout_.oStrm() : std::cerr) << msg << std::endl;
+    od_ostream& strm = strm_ && strm_->isOK() ? *strm_ : od_cout();
+    strm << msg << od_endl;
     logMsg( true, msg, "" );
 }
 
