@@ -355,7 +355,9 @@ idx=3 : IC
 
 void uiManualConvGroup::convFromLL()
 {
-    const LatLong ll( leftinpfld_->getDValue(), rightinpfld_->getDValue() );
+    LatLong ll;
+    ll.setFromString( leftinpfld_->text(), true );
+    ll.setFromString( rightinpfld_->text(), false  );
     if ( !ll.isDefined() )
 	uiMSG().error( tr("Lat-Long value not defined") );
 
