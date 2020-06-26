@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uilatlonginp.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -41,9 +42,9 @@ ________________________________________________________________________
 
 mDefineEnumUtils(uiConvertPos, DataType, "Conversion Type")
 {
-    "Lat-Lon",
-    "Inl-Crl",
     "X-Y",
+    "Inl-Crl",
+    "Lat-Lon",
     0
 };
 
@@ -51,9 +52,9 @@ mDefineEnumUtils(uiConvertPos, DataType, "Conversion Type")
 template<>
 void EnumDefImpl<uiConvertPos::DataType>::init()
 {
-    uistrings_ += uiConvertPos::sLLStr();
-    uistrings_ += uiConvertPos::sICStr();
     uistrings_ += uiConvertPos::sXYStr();
+    uistrings_ += uiConvertPos::sICStr();
+    uistrings_ += uiConvertPos::sLLStr();
 }
 
 
@@ -187,102 +188,88 @@ uiConvertPos::~uiConvertPos()
 }
 
 
-//MANUAL CONVERSION GROUP
+// uiManualConvGroup
 uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     :uiDlgGroup(p, tr("Manual Conversion"))
+    , inpcrdsysselfld_(nullptr)
+    , outcrdsysselfld_(nullptr)
+    , lloutfld_(nullptr)
     , survinfo_(si)
-    , inpcrdsysselfld_(0)
-    , outcrdsysselfld_(0)
 {
-    uiGroup* topgrp = new uiGroup( this, "TopGroup" );
-    topgrp->setVSpacing( 10 );
+    uiGroup* ingrp = new uiGroup( this, "TopGroup" );
 
-    inptypfld_ = new uiGenInput( topgrp, tr("Convert From"),
+    inptypfld_ = new uiGenInput( ingrp, tr("Convert From"),
 	StringListInpSpec(uiConvertPos::DataTypeDef().strings()) );
-    mAttachCB(inptypfld_->valuechanged, uiManualConvGroup::inputTypChg);
+    mAttachCB( inptypfld_->valuechanged, uiManualConvGroup::inputTypChg );
+    ingrp->setHAlignObj( inptypfld_ );
 
-    lltypfld_ = new uiGenInput( topgrp, tr("Lat/Long Format"),
-	StringListInpSpec(uiConvertPos::LatLongTypeDef().strings()) );
-    lltypfld_->setElemSzPol( uiObject::SmallVar );
-    lltypfld_->attach( rightTo, inptypfld_ );
-    lltypfld_->setToolTip( sDMSDescStr() );
-    mAttachCB(lltypfld_->valuechanged, uiManualConvGroup::llFormatTypChg);
-
-    towgs84fld_ = new uiCheckBox( topgrp, tr("Output to WGS84 CRS") );
-    towgs84fld_->setChecked( false );
-    towgs84fld_->attach( rightOf, lltypfld_ );
-
-    leftinpfld_ = new uiGenInput( topgrp, uiString::emptyString() );
-    leftinpfld_->attach( alignedBelow, inptypfld_ );
-
-    rightinpfld_ = new uiGenInput( topgrp, uiString::emptyString() );
-    rightinpfld_->attach( rightOf, leftinpfld_ );
-
+    uiObject* attachobj = inptypfld_->attachObj();
     const bool isprojcrs = SI().getCoordSystem()->isProjection();
     if ( isprojcrs )
     {
-	inpcrdsysselfld_ = new Coords::uiCoordSystemSel( topgrp, true, true,
-	    SI().getCoordSystem(), tr("Input Coordinate System") );
-	inpcrdsysselfld_->attach( alignedBelow, leftinpfld_ );
+	inpcrdsysselfld_ = new Coords::uiCoordSystemSel( ingrp, true, true,
+	    si.getCoordSystem(), tr("Input Coordinate System") );
+	inpcrdsysselfld_->attach( alignedBelow, inptypfld_ );
+	attachobj = inpcrdsysselfld_->attachObj();
     }
 
+    xyinfld_ = new uiGenInput( ingrp, uiConvertPos::sXYStr(),
+				DoubleInpSpec(), DoubleInpSpec() );
+    xyinfld_->setElemSzPol( uiObject::Medium );
+    xyinfld_->attach( alignedBelow, attachobj );
+
+    inlcrlinfld_ = new uiGenInput( ingrp, uiConvertPos::sICStr(),
+				   IntInpSpec(), IntInpSpec() );
+    inlcrlinfld_->setElemSzPol( uiObject::Medium );
+    inlcrlinfld_->attach( alignedBelow, inptypfld_ );
+
+    llinfld_ = new uiLatLongInp( ingrp );
+    llinfld_->attach( alignedBelow, inptypfld_ );
+
+    convertbut_ = new uiPushButton( this, uiStrings::sConvert(), true );
+    convertbut_->attach( centeredBelow, ingrp );
+    mAttachCB(convertbut_->activated,uiManualConvGroup::convButPushCB);
+
+    towgs84fld_ = new uiCheckBox( this, tr("Output to WGS84 CRS") );
+    towgs84fld_->setChecked( false );
+    towgs84fld_->attach( rightOf, convertbut_ );
+
     uiSeparator* sep = new uiSeparator( this, "Inp-Out Sep" );
-    sep->setStretch( 2, 2 );
-    sep->attach( stretchedBelow, topgrp );
+    sep->setStretch( 2, 0 );
+    sep->attach( stretchedBelow, convertbut_ );
 
-    uiGroup* botgrp = new uiGroup( this, "BottomGroup" );
-    botgrp->setVSpacing( 10 );
-    botgrp->attach( alignedBelow, topgrp );
-    botgrp->attach( ensureBelow, sep );
-
-    leftoutfld1_ = new uiGenInput( botgrp, uiConvertPos::sLLStr() );
-    leftoutfld1_->setReadOnly();
+    uiGroup* outgrp = new uiGroup( this, "BottomGroup" );
+    outgrp->attach( alignedBelow, ingrp );
+    outgrp->attach( ensureBelow, sep );
+    outgrp->setVSpacing( 10 );
 
     if ( isprojcrs )
     {
-	outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
+	outcrdsysselfld_ = new Coords::uiCoordSystemSel( outgrp, true, true,
 	    SI().getCoordSystem(), tr("Output Coordinate System") );
-	sep->attach( alignedAbove, outcrdsysselfld_ );
-	leftoutfld1_->attach( alignedBelow, outcrdsysselfld_ );
     }
-    else
-	sep->attach( alignedAbove, leftoutfld1_ );
 
-    rightoutfld1_ = new uiGenInput( botgrp, uiString::emptyString() );
-    rightoutfld1_->setReadOnly();
-    rightoutfld1_->attach( rightOf, leftoutfld1_ );
+    xyoutfld_ = new uiGenInput( outgrp, uiConvertPos::sXYStr(),
+					DoubleInpSpec(), DoubleInpSpec() );
+    xyoutfld_->setElemSzPol( uiObject::Medium );
+    xyoutfld_->setReadOnly( true );
+    outgrp->setHAlignObj( xyoutfld_ );
+    if ( outcrdsysselfld_ )
+	xyoutfld_->attach( alignedBelow, outcrdsysselfld_ );
 
-    lltypelbl_ = new uiLabel( botgrp,
-		    uiConvertPos::LatLongTypeDef().getUiStringForIndex(0) );
-    lltypelbl_->attach( rightOf, rightoutfld1_ );
+    inlcrloutfld_ = new uiGenInput( outgrp, uiConvertPos::sICStr(),
+				    IntInpSpec(), IntInpSpec() );
+    inlcrloutfld_->setElemSzPol( uiObject::Medium );
+    inlcrloutfld_->setReadOnly( true );
+    inlcrloutfld_->attach( alignedBelow, xyoutfld_ );
 
-    leftoutfld2_ = new uiGenInput( botgrp, uiConvertPos::sXYStr() );
-    leftoutfld2_->setReadOnly();
-    leftoutfld2_->attach( alignedBelow, leftoutfld1_ );
-
-    rightoutfld2_ = new uiGenInput( botgrp, uiString::emptyString() );
-    rightoutfld2_->setReadOnly();
-    rightoutfld2_->attach( rightOf, leftoutfld2_ );
-
-    leftoutfld3_ = new uiGenInput( botgrp, uiConvertPos::sICStr() );
-    leftoutfld3_->setReadOnly();
-    leftoutfld3_->attach( alignedBelow, leftoutfld2_ );
-
-    rightoutfld3_ = new uiGenInput( botgrp, uiString::emptyString() );
-    rightoutfld3_->setReadOnly();
-    rightoutfld3_->attach( rightOf, leftoutfld3_ );
-
-    uiSeparator* lowersep = new uiSeparator( this, "LoweSep" );
-    lowersep->setStretch( 2, 2 );
-    lowersep->attach( stretchedBelow, botgrp );
-
-    convertbut_ = new uiPushButton(this, uiStrings::sConvert(), true);
-    convertbut_->attach(centeredBelow, botgrp);
-    convertbut_->attach(ensureBelow, lowersep);
-    mAttachCB(convertbut_->activated, uiManualConvGroup::convButPushCB);
+    if ( inpcrdsysselfld_ )
+    {
+	lloutfld_ = new uiLatLongInp( outgrp );
+	lloutfld_->attach( alignedBelow, inlcrloutfld_ );
+    }
 
     inputTypChg( 0 );
-    llFormatTypChg( 0 );
 }
 
 
@@ -295,130 +282,120 @@ uiManualConvGroup::~uiManualConvGroup()
 void uiManualConvGroup::inputTypChg( CallBacker* )
 {
     const int selval = inptypfld_->getIntValue();
-    leftinpfld_->setTitleText(
-	uiConvertPos::DataTypeDef().getUiStringForIndex(selval) );
+    xyinfld_->display( selval==DataSelType::XY );
+    inlcrlinfld_->display( selval==DataSelType::IC );
+    llinfld_->display( selval==DataSelType::LL );
     if ( inpcrdsysselfld_ )
-	inpcrdsysselfld_->setSensitive( selval != DataSelType::IC );
-    lltypfld_->display( selval == DataSelType::LL );
-    lltypelbl_->display( selval == DataSelType::LL );
-    leftoutfld3_->display( selval != DataSelType::IC );
-    rightoutfld3_->display( selval != DataSelType::IC );
-}
-
-
-void uiManualConvGroup::llFormatTypChg( CallBacker* )
-{
-    const int selval = lltypfld_->getIntValue();
-    lltypelbl_->setText(
-	uiConvertPos::LatLongTypeDef().getUiStringForIndex(selval) );
-    lltypelbl_->setToolTip( selval ? sDMSDescStr() : sDecDescStr() );
-    lltypfld_->setToolTip( selval ? sDMSDescStr() : sDecDescStr() );
+	inpcrdsysselfld_->display( selval==DataSelType::XY );
 }
 
 
 void uiManualConvGroup::convButPushCB( CallBacker* )
 {
     const int selval = inptypfld_->getIntValue();
-
     if ( selval == DataSelType::LL )
 	convFromLL();
     else if ( selval == DataSelType::IC )
 	convFromIC();
     else
 	convFromXY();
+
+    xyoutfld_->setNrDecimals( 1, 0 );
+    xyoutfld_->setNrDecimals( 1, 1 );
 }
 
-/*
-idx=1 : LL
-idx=2 : XY
-idx=3 : IC
-*/
 
-#define mSetOutVal( idx, leftoutval, rightoutval ) \
+#define mErrRet(msg) \
 { \
-    if ( !leftoutfld##idx##_ || !rightoutfld##idx##_ ) \
-	{pErrMsg("Field Does Not Exist");} \
-    leftoutfld##idx##_->setValue( leftoutval ); \
-    rightoutfld##idx##_->setValue( rightoutval ); \
-} \
-
-
-#define mErrRet \
-{ \
-    uiMSG().error( sErrMsg() ); \
+    uiMSG().error( msg ); \
     return; \
 } \
 
-
 //TODO : LAT/LNG <--> LAT/LNG CONVERSION NEEDS BETTER IMPLEMENTATION
-
-
 void uiManualConvGroup::convFromLL()
 {
-    LatLong ll;
-    ll.setFromString( leftinpfld_->text(), true );
-    ll.setFromString( rightinpfld_->text(), false  );
-    if ( !ll.isDefined() )
-	uiMSG().error( tr("Lat-Long value not defined") );
+    if ( !inpcrdsysselfld_ )
+    {
+	mErrRet( tr("No CRS has been set for this survey.\n"
+		    "Please provide a CRS in your survey settings.") );
+    }
 
-    Coord coord;
+    LatLong ll;
+    llinfld_->get( ll );
+    if ( !ll.isDefined() )
+	mErrRet( tr("Lat-Long value not defined") )
+
+    Coord incoord;
+    if ( inpcrdsysselfld_ )
+	incoord = LatLong::transform( ll, towgs84fld_->isChecked(),
+				      survinfo_.getCoordSystem() );
+
+    Coord outcoord;
     if ( outcrdsysselfld_ )
-	coord = LatLong::transform( ll, towgs84fld_->isChecked(),
+	outcoord = LatLong::transform( ll, towgs84fld_->isChecked(),
 				    outcrdsysselfld_->getCoordSystem() );
 
-    LatLong outll = LatLong::transform( coord, towgs84fld_->isChecked() );
-    mSetOutVal(1, outll.lat_, outll.lng_)
+    const LatLong outll = LatLong::transform( incoord,
+					      towgs84fld_->isChecked() );
+    const BinID outbid( SI().transform(incoord) );
 
-    mSetOutVal(2, coord.x, coord.y)
-
-    BinID bid( SI().transform(coord) );
-    mSetOutVal(3, bid.inl(), bid.crl())
+    xyoutfld_->setValue( outcoord );
+    inlcrloutfld_->setValue( outbid );
+    if ( lloutfld_ )
+	lloutfld_->set( outll );
 }
 
 
 void uiManualConvGroup::convFromIC()
 {
-    const BinID bid( leftinpfld_->getFValue(), rightinpfld_->getFValue() );
+    const BinID bid = inlcrlinfld_->getBinID();
     if ( bid.isUdf() )
-	mErrRet
+	mErrRet( sErrMsg() )
 
     const Coord coord( SI().transform(bid) );
 
-    LatLong ll;
-    if ( outcrdsysselfld_ )
-	ll = LatLong::transform( coord, towgs84fld_->isChecked(),
-				 outcrdsysselfld_->getCoordSystem() );
-    mSetOutVal( 1, ll.lat_, ll.lng_ )
+    const LatLong outll = LatLong::transform( coord, towgs84fld_->isChecked(),
+					      survinfo_.getCoordSystem() );
 
     Coord outcrd = coord;
-    if ( inpcrdsysselfld_ )
+    if ( outcrdsysselfld_ )
 	outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-			coord, *inpcrdsysselfld_->getCoordSystem() );
-    mSetOutVal( 2, outcrd.x, outcrd.y )
+				coord, *survinfo_.getCoordSystem() );
+
+    xyoutfld_->setValue( outcrd );
+    inlcrloutfld_->setValue( bid );
+    if ( lloutfld_ )
+	lloutfld_->set( outll );
 }
 
 
 void uiManualConvGroup::convFromXY()
 {
-    const Coord coord( leftinpfld_->getFValue(), rightinpfld_->getFValue() );
-
+    const Coord coord = xyinfld_->getCoord();
     if ( coord.isUdf() )
-	mErrRet
+	mErrRet( sErrMsg() )
 
-    LatLong ll;
-    if ( outcrdsysselfld_ )
-	ll = LatLong::transform( coord, towgs84fld_->isChecked(),
-				 outcrdsysselfld_->getCoordSystem() );
-    mSetOutVal( 1, ll.lat_, ll.lng_ )
+    Coord survcoord = coord;
+    LatLong outll;
+    if ( inpcrdsysselfld_ )
+    {
+	outll = LatLong::transform( coord, towgs84fld_->isChecked(),
+				    inpcrdsysselfld_->getCoordSystem() );
+	survcoord = survinfo_.getCoordSystem()->convertFrom(
+			coord, *inpcrdsysselfld_->getCoordSystem() );
+    }
 
     Coord outcrd;
-    if ( outcrdsysselfld_ )
+    if ( inpcrdsysselfld_ && outcrdsysselfld_ )
 	outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
 			coord, *inpcrdsysselfld_->getCoordSystem() );
-    mSetOutVal( 2, outcrd.x, outcrd.y )
 
-    const BinID bid( survinfo_.transform(coord) );
-    mSetOutVal( 3, bid.inl(), bid.crl() )
+    const BinID outbid( survinfo_.transform(survcoord) );
+
+    xyoutfld_->setValue( outcrd );
+    inlcrloutfld_->setValue( outbid );
+    if ( lloutfld_ )
+	lloutfld_->set( outll );
 }
 
 
@@ -457,7 +434,6 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
 
     insertpos_ = new uiGenInput( botgrp, tr("Insert at"),
 			    BoolInpSpec(true, tr("Beginning"), tr("End")) );
-    insertpos_->attach( alignedBelow, sep );
 
     towgs84fld_ = new uiCheckBox( botgrp, tr("Output to WGS84 CRS") );
     towgs84fld_->setChecked( false );

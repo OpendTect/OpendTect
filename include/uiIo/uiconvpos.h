@@ -24,7 +24,7 @@ class uiComboBox;
 class uiFileInput;
 class uiGenInput;
 class uiFileConvGroup;
-class uiLabel;
+class uiLatLongInp;
 class uiListBox;
 class uiManualConvGroup;
 class uiPushButton;
@@ -45,13 +45,13 @@ public:
 				uiConvertPos(uiParent*, const SurveyInfo&,
 							    bool modal = true);
 				~uiConvertPos();
-    enum DataType		{ LL, IC, XY };
+    enum DataType		{ XY, IC, LL };
 				mDeclareEnumUtils(DataType);
     enum LatLongType		{ Dec, DMS };
 				mDeclareEnumUtils(LatLongType);
     static const uiString	sLLStr() { return tr("Latitude/Longitude"); }
-    static const uiString	sICStr() { return tr("Inline/Crossline"); }
-    static const uiString	sXYStr() { return tr("Cartesian Coordinate"); }
+    static const uiString	sICStr() { return tr("In-line/Cross-line"); }
+    static const uiString	sXYStr() { return tr("X/Y coordinate"); }
 
 private:
 
@@ -66,21 +66,21 @@ typedef uiConvertPos::DataType	    DataSelType;
 mExpClass(uiIo) uiConvPosAscIO : public Table::AscIO
 { mODTextTranslationClass(uiConvPosAscIO)
 public:
-				    uiConvPosAscIO(const Table::FormatDesc&,
-								od_istream&);
+				uiConvPosAscIO(const Table::FormatDesc&,
+						od_istream&);
 
-    static Table::FormatDesc*	    getDesc();
-    bool			    getData(Coord&);
-    float			    udfval_;
-    od_istream&			    strm_;
-    bool			    finishedreadingheader_;
-    DataSelType			    getConvFromTyp();
-    LLType			    getLatLongType();
+    static Table::FormatDesc*	getDesc();
+    bool			getData(Coord&);
+    float			udfval_;
+    od_istream&			strm_;
+    bool			finishedreadingheader_;
+    DataSelType			getConvFromTyp();
+    LLType			getLatLongType();
 
 protected:
-    bool			    isXY() const;
-    bool			    isLL() const;
-    bool			    isIC() const;
+    bool			isXY() const;
+    bool			isLL() const;
+    bool			isIC() const;
 };
 
 
@@ -92,29 +92,25 @@ public:
 				~uiManualConvGroup();
 
 protected:
+    // Input
     uiGenInput*			inptypfld_;
-    uiGenInput*			lltypfld_;
-    uiGenInput*			leftinpfld_;
-    uiGenInput*			rightinpfld_;
-    uiGenInput*			leftoutfld1_;
-    uiGenInput*			rightoutfld1_;
-    uiGenInput*			leftoutfld2_;
-    uiGenInput*			rightoutfld2_;
-    uiGenInput*			leftoutfld3_;
-    uiGenInput*			rightoutfld3_;
-    uiPushButton*		convertbut_;
-    uiLabel*			lltypelbl_;
     Coords::uiCoordSystemSel*	inpcrdsysselfld_;
-    Coords::uiCoordSystemSel*	outcrdsysselfld_;
-    uiCheckBox*			towgs84fld_;
+    uiGenInput*			xyinfld_;
+    uiGenInput*			inlcrlinfld_;
+    uiLatLongInp*		llinfld_;
 
-    Coords::CoordSystem*	inpcoordsys_;
-    Coords::CoordSystem*	outcoordsys_;
+    // Output
+    Coords::uiCoordSystemSel*	outcrdsysselfld_;
+    uiGenInput*			xyoutfld_;
+    uiGenInput*			inlcrloutfld_;
+    uiLatLongInp*		lloutfld_;
+
+    uiPushButton*		convertbut_;
+    uiCheckBox*			towgs84fld_;
 
     const SurveyInfo&		survinfo_;
 
     void			inputTypChg(CallBacker*);
-    void			llFormatTypChg(CallBacker*);
     void			convButPushCB(CallBacker*);
 
     void			convFromLL();
