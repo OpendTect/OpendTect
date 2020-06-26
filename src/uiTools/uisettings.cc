@@ -129,7 +129,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
     BufferStringSet paths;
     paths.add( pybinpath.fullPath() );
 
-    if ( idepar && idepar->get( sKey::ExeName(), exenm ) && !exenm.isEmpty() )
+    if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
 	if ( File::findExecutable( exenm, paths ).isEmpty() )
 	    return;
@@ -141,7 +141,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
     }
     else if ( idepar && idepar->get( sKey::Command(), cmd ) && !cmd.isEmpty() )
     {
-	if ( !File::isExecutable( cmd ) )
+	if ( !File::isExecutable(cmd) )
 	    return;
 
 	idepar->get( sKey::Arguments(), args );
@@ -167,13 +167,17 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     if ( !toolbarids_.validIdx( idx ) )
 	return;
 
-    OS::MachineCommand cmd( commands_.get( idx ) );
-    uiString err;
-    int pid;
-    if ( !OD::PythA().execute(cmd,OS::CommandExecPars(OS::RunInBG),&pid, &err) )
+    OS::MachineCommand mc( commands_.get(idx) );
+    if ( !OD::PythA().execute(mc,false) )
     {
-	gUiMsg(nullptr).error(tr("Error starting %1").arg(commands_.get(idx)),
-			      err);
+	uiString launchermsg;
+	const BufferString errmsg = OD::PythA().lastOutput(true,&launchermsg);
+	uiRetVal uirv( launchermsg );
+	if ( !errmsg.isEmpty() )
+	    uirv.add( toUiString(errmsg) );
+
+	gUiMsg(nullptr).error(tr("Error starting %1").arg(mc.toString()),
+			      uirv);
 	return;
     }
 }
@@ -503,7 +507,7 @@ IOPar& curSetts()
 
 void getChanges()
 {
-    IOPar* workpar = 0;
+    IOPar* workpar = nullptr;
     if ( chgdsetts_ )
 	workpar = chgdsetts_;
     const bool alreadyedited = workpar;
@@ -521,7 +525,7 @@ void getChanges()
     else
     {
 	if ( alreadyedited )
-	    chgdsetts_ = 0;
+	    chgdsetts_ = nullptr;
 	delete workpar;
     }
 }
@@ -736,19 +740,11 @@ void testCB(CallBacker*)
     testPythonModules();
 }
 
+
 void promptCB( CallBacker* )
 {
     if ( !useScreen() )
 	return;
-
-    BufferStringSet current_python_path;
-    GetEnvVarDirList( "PYTHONPATH", current_python_path, true );
-
-    BufferStringSet new_python_path = OD::PythA().getBasePythonPath();
-    const BufferStringSet setting_paths = custompathfld_->getPaths();
-    new_python_path.add( setting_paths, false );
-
-    SetEnvVarDirList( "PYTHONPATH", new_python_path, false );
 
     if ( !OD::PythA().openTerminal() )
     {
@@ -760,9 +756,8 @@ void promptCB( CallBacker* )
 	gUiMsg( this ).error( uirv );
 	return;
     }
-
-    SetEnvVarDirList( "PYTHONPATH", current_python_path, false );
 }
+
 
 bool useScreen()
 {
@@ -816,6 +811,8 @@ bool useScreen()
 	return false;
 
     OD::PythA().istested_ = false;
+    OD::PythA().updatePythonPath();
+
     return true;
 }
 
@@ -828,6 +825,7 @@ bool rejectOK()
     {
 	OD::PythA().istested_ = false;
 	OD::PythA().envChangeCB( nullptr );
+	OD::PythA().updatePythonPath();
     }
     else
 	gUiMsg(this).warning( tr("Cannot restore the initial settings") );
@@ -850,6 +848,7 @@ bool acceptOK()
 	{
 	    OD::PythA().istested_ = false;
 	    OD::PythA().envChangeCB( nullptr );
+	    OD::PythA().updatePythonPath();
 	    needrestore_ = false;
 	    uiSettsMgr().updateUserCmdToolBar();
 	}

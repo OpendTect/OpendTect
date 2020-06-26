@@ -33,7 +33,7 @@ const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 const char* OD::PythonAccess::sKeyPythonPath() { return "PythonPath"; }
 
-BufferStringSet OD::PythonAccess::pystartpath_{0};
+BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
 OD::PythonAccess& OD::PythA()
 {
@@ -85,19 +85,30 @@ OD::PythonAccess::~PythonAccess()
 }
 
 
-BufferStringSet OD::PythonAccess::getBasePythonPath() const
+const BufferStringSet& OD::PythonAccess::getBasePythonPath() const
 {
-    BufferStringSet pythonpaths = pystartpath_;
-    const File::Path pythonmodsfp( BufferString(GetScriptDir()), "python" );
-
-    if ( pythonmodsfp.exists() )
-	pythonpaths.addIfNew( pythonmodsfp.fullPath() );
-
-    return pythonpaths;
+    mDefineStaticLocalObject( PtrMan<BufferStringSet>, theinst, = nullptr );
+    return *theinst.createIfNull();
 }
 
 
-void OD::PythonAccess::updatePythonPath()
+void OD::PythonAccess::addBasePath( const File::Path& fp )
+{
+    if ( fp.exists() )
+    {
+	File::Path cleanfp( fp );
+	cleanfp.makeCanonical();
+	//Only place where it should be updated
+	BufferStringSet& bpythonpath =
+	    const_cast<BufferStringSet&>( getBasePythonPath() );
+	bpythonpath.addIfNew( cleanfp.fullPath() );
+    }
+
+    updatePythonPath();
+}
+
+
+void OD::PythonAccess::updatePythonPath() const
 {
     BufferStringSet pythonpaths = getBasePythonPath();
 
@@ -106,9 +117,18 @@ void OD::PythonAccess::updatePythonPath()
     PtrMan<IOPar> pathpar = pythonsetts.subselect( sKeyPythonPath() );
     if ( pathpar )
     {
-	BufferStringSet settpaths;
+	BufferStringSet settpaths, settpathsadd;
 	settpaths.usePar( *pathpar );
-	pythonpaths.add( settpaths, false );
+	for ( auto settpathstr : settpaths )
+	{
+	    File::Path fp( settpathstr->buf() );
+	    if ( !fp.exists() )
+		continue;
+	    fp.makeCanonical();
+	    settpathsadd.addIfNew( fp.fullPath() );
+	}
+
+	pythonpaths.add( settpathsadd, false );
     }
 
     SetEnvVarDirList( "PYTHONPATH", pythonpaths, false );
@@ -118,7 +138,8 @@ void OD::PythonAccess::updatePythonPath()
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
-    PythA().updatePythonPath();
+    const File::Path pythonmodsfp( BufferString(GetScriptDir()), "python" );
+    PythA().addBasePath( pythonmodsfp );
 }
 
 
@@ -933,7 +954,6 @@ bool OD::PythonAccess::retrievePythonVersionStr()
 void OD::PythonAccess::envChangeCB( CallBacker* )
 {
     retrievePythonVersionStr();
-    updatePythonPath();
     const uiRetVal uirv = updateModuleInfo( nullptr );
     if ( !uirv.isOK() )
 	msg_.append( uirv );

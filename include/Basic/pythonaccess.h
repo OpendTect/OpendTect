@@ -96,8 +96,12 @@ namespace OD
 	uiRetVal	updateModuleInfo(const char* defprog="pip",
 					 const char* defarg="list");
 			/*<! Pass nullptr to auto-detect */
-	void		updatePythonPath();
-	BufferStringSet getBasePythonPath() const;
+
+	void		updatePythonPath() const;
+	const BufferStringSet& getBasePythonPath() const;
+			/*<! Merge of user environment with OpendTect
+			     python modules */
+
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
@@ -159,6 +163,10 @@ namespace OD
 	public:
 
 	static void	initClass();
+
+	void		addBasePath(const File::Path&);
+			/*<! For plugins to update PYTHONPATH
+			     during initialization */
 
     };
 
