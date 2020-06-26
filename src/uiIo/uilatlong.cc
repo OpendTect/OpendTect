@@ -9,19 +9,22 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uilatlong2coord.h"
 #include "uilatlonginp.h"
+
 #include "latlong.h"
-#include "survinfo.h"
-#include "uifileinput.h"
-#include "uilabel.h"
-#include "uitoolbutton.h"
-#include "uibuttongroup.h"
-#include "uilineedit.h"
-#include "uispinbox.h"
-#include "uimsg.h"
 #include "od_iostream.h"
 #include "od_helpids.h"
+#include "survinfo.h"
+
+#include "uibuttongroup.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
+#include "uilabel.h"
+#include "uilatlong2coord.h"
+#include "uilineedit.h"
+#include "uimsg.h"
+#include "uispinbox.h"
+#include "uitoolbutton.h"
 
 
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
@@ -36,13 +39,12 @@ public:
 
 protected:
 
-    bool	islat_;
+    bool		islat_;
 
-    uiSpinBox*	degfld_;
-    uiSpinBox*	minfld_;
-    uiLineEdit*	secfld_;
-    uiCheckBox*	swfld_;
-
+    uiSpinBox*		degfld_;
+    uiSpinBox*		minfld_;
+    uiLineEdit*		secfld_;
+    uiComboBox*		hfld_;
 };
 
 
@@ -66,19 +68,20 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
     uiFloatValidator fv( 0, 59.99f );
-    fv.nrdecimals_ = 2;
+    fv.nrdecimals_ = 4;
     secfld_->setValidator( fv );
 
-    swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) :
-					    uiStrings::sWest(true) );
-    swfld_->attach( rightOf, secfld_ );
-    swfld_->setHSzPol( uiObject::Small );
+    hfld_ = new uiComboBox( this, "Hemisphere" );
+    hfld_->setHSzPol( uiObject::SmallVar );
+    hfld_->attach( rightOf, secfld_ );
+    hfld_->addItem( lat ? uiStrings::sNorth(true) : uiStrings::sEast(true) );
+    hfld_->addItem( lat ? uiStrings::sSouth(true) : uiStrings::sWest(true) );
 }
 
 
 double uiLatLongDMSInp::value() const
 {
-    int sign = swfld_->isChecked() ? -1 : 1;
+    const int sign = hfld_->currentItem()==0 ? 1 : -1;
     const int d = sign * degfld_->getValue();
     const int m = sign * minfld_->getValue();
     const float s = sign * secfld_->getfValue();
@@ -94,7 +97,7 @@ void uiLatLongDMSInp::set( double val )
     int d, m; float s;
     ll.getDMS( islat_, d, m, s );
     const bool issw = val < 0;
-    swfld_->setChecked( issw );
+    hfld_->setCurrentItem( issw ? 1 : 0 );
     const int sign = issw ? -1 : 1;
     degfld_->setValue( sign * d );
     minfld_->setValue( sign * m );
