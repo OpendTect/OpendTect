@@ -132,20 +132,17 @@ int SettingsAccess::getDefaultTexResFactor( int nrres ) const
 
 BufferString SettingsAccess::getTerminalEmulator()
 {
-    const BufferString orgtermcmd( settings_.find( sKey::TermEm() ) );
-    BufferString termcmd( orgtermcmd );
+    const BufferString orgtermcmd = settings_.find( sKey::TermEm() );
+    BufferString termcmd = orgtermcmd;
 #ifdef __win__
     if ( termcmd.isEmpty() )
 	termcmd = "cmd.exe";
 #else
-    const FilePath fp( GetSoftwareDir(true), "bin", "od_find_term.bash" );
-    BufferString cmd( fp.fullPath() );
+    OS::MachineCommand mc( GetShellScript("od_find_term.bash") );
     if ( !termcmd.isEmpty() )
-	cmd.addSpace().add( termcmd );
-    OS::MachineCommand mc( cmd );
+	mc.addArg( termcmd );
     termcmd = mc.runAndCollectOutput();
 #endif
-
     settings_.set( sKey::TermEm(), termcmd );
     if ( termcmd != orgtermcmd )
 	settings_.write( false );
