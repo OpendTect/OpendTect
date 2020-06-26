@@ -35,6 +35,7 @@ const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
 const char* OD::PythonAccess::sKeyPythonPath() { return "PythonPath"; }
 
+BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
 OD::PythonAccess& OD::PythA()
 {
@@ -86,31 +87,50 @@ OD::PythonAccess::~PythonAccess()
 }
 
 
-BufferStringSet OD::PythonAccess::getBasePythonPath() const
+const BufferStringSet& OD::PythonAccess::getBasePythonPath() const
 {
-    BufferStringSet pythonpaths = pystartpath_;
-    const FilePath scriptbinfp( GetSoftwareDir(true), "v7", "bin" );
-    const FilePath pythonmodsfp( scriptbinfp.fullPath(), "python" );
-
-    if ( pythonmodsfp.exists() )
-	pythonpaths.addIfNew( pythonmodsfp.fullPath() );
-
-    return pythonpaths;
+    mDefineStaticLocalObject( PtrMan<BufferStringSet>, theinst, = nullptr );
+    return *theinst.createIfNull();
 }
 
 
-void OD::PythonAccess::updatePythonPath()
+void OD::PythonAccess::addBasePath( const FilePath& fp )
+{
+    if ( fp.exists() )
+    {
+	FilePath cleanfp( fp );
+	cleanfp.makeCanonical();
+	//Only place where it should be updated
+	BufferStringSet& bpythonpath =
+	    const_cast<BufferStringSet&>( getBasePythonPath() );
+	bpythonpath.addIfNew( cleanfp.fullPath() );
+    }
+
+    updatePythonPath();
+}
+
+
+void OD::PythonAccess::updatePythonPath() const
 {
     BufferStringSet pythonpaths = getBasePythonPath();
 
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    const PtrMan<IOPar> pathpar = pythonsetts.subselect( sKeyPythonPath() );
+    PtrMan<IOPar> pathpar = pythonsetts.subselect( sKeyPythonPath() );
     if ( pathpar )
     {
-	BufferStringSet settpaths;
+	BufferStringSet settpaths, settpathsadd;
 	settpaths.usePar( *pathpar );
-	pythonpaths.add( settpaths, false );
+	for ( int idx=0; idx<settpaths.size(); idx++ )
+	{
+	    FilePath fp( settpaths[idx]->buf() );
+	    if ( !fp.exists() )
+		continue;
+	    fp.makeCanonical();
+	    settpathsadd.addIfNew( fp.fullPath() );
+	}
+
+	pythonpaths.add( settpathsadd, false );
     }
 
     SetEnvVarDirList( "PYTHONPATH", pythonpaths, false );
@@ -120,7 +140,8 @@ void OD::PythonAccess::updatePythonPath()
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
-    updatePythonPath();
+    const FilePath pythonmodsfp( GetSoftwareDir(true), "v7", "bin", "python" );
+    PythA().addBasePath( pythonmodsfp );
 
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
@@ -496,6 +517,63 @@ bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 {
     const BufferString importscript( "import ", nm );
     return executeScript( importscript ) && lastOutput(true,nullptr).isEmpty();
+}
+
+
+BufferString OD::PythonAccess::getDataTypeStr( OD::DataRepType typ )
+{
+    BufferString ret;
+    if ( typ == F32 )
+	ret.set( "float32" );
+    else if ( typ == F64 )
+	ret.set( "float64" );
+    else if ( typ == SI8 )
+	ret.set( "int8" );
+    else if ( typ == UI8 )
+	ret.set( "uint8" );
+    else if ( typ == SI16 )
+	ret.set( "int16" );
+    else if ( typ == UI16 )
+	ret.set( "uint16" );
+    else if ( typ == SI32 )
+	ret.set( "int32" );
+    else if ( typ == UI32 )
+	ret.set( "uint32" );
+    else if ( typ == SI64 )
+	ret.set( "int64" );
+/*    else if ( typ == UI64 )
+	ret.set( "uint64" );*/
+
+    return ret;
+}
+
+
+OD::DataRepType OD::PythonAccess::getDataType( const char* str )
+{
+    DataRepType ret = AutoDataRep;
+    const FixedString typestr( str );
+    if ( typestr == "float32" )
+	ret = F32;
+    else if ( typestr == "float64" )
+	ret = F64;
+    else if ( typestr == "int8" )
+	ret = SI8;
+    else if ( typestr == "uint8" )
+	ret = UI8;
+    else if ( typestr == "int16" )
+	ret = SI16;
+    else if ( typestr == "uint16" )
+	ret = UI16;
+    else if ( typestr == "int32" )
+	ret = SI32;
+    else if ( typestr == "uint32" )
+	ret = UI32;
+    else if ( typestr == "int64" )
+	ret = SI64;
+    else if ( typestr == "uint64" )
+	ret = SI64;
+
+    return ret;
 }
 
 
@@ -941,7 +1019,6 @@ bool OD::PythonAccess::retrievePythonVersionStr()
 void OD::PythonAccess::envChangeCB( CallBacker* )
 {
     retrievePythonVersionStr();
-    updatePythonPath();
     const uiRetVal uirv = updateModuleInfo( nullptr );
     if ( !uirv.isOK() )
 	msg_.append( uirv );

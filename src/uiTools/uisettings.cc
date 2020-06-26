@@ -49,20 +49,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyCommon = "<general>";
 
+
 namespace sKey {
     inline FixedString PythonIDE()	{ return "PythonIDE"; }
 };
 
 
-
 uiSettingsMgr& uiSettsMgr()
 {
-    mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr )
+    mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr );
     return *theinst.createIfNull();
 }
 
 
 uiSettingsMgr::uiSettingsMgr()
+    : terminalRequested(this)
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
@@ -85,6 +86,7 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
 	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
     if ( bs == OD::ControlButton && kbe.key_==OD::KB_T && !kbe.isrepeat_ )
     {
+	terminalRequested.trigger();
 	uiMain::keyboardEventHandler().setHandled( true );
 	OD::PythA().openTerminal();
     }
@@ -137,10 +139,11 @@ void uiSettingsMgr::updateUserCmdToolBar()
     BufferStringSet paths;
     paths.add( pybinpath.fullPath() );
 
-    if ( idepar && idepar->get( sKey::ExeName(), exenm ) && !exenm.isEmpty() )
+    if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
 	if ( File::findExecutable( exenm, paths ).isEmpty() )
 	    return;
+
 	int id = usercmdtb_->addButton( exenm, toUiString(exenm),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
@@ -151,8 +154,9 @@ void uiSettingsMgr::updateUserCmdToolBar()
     }
     else if ( idepar && idepar->get( sKey::Command(), cmd ) && !cmd.isEmpty() )
     {
-	if ( !File::isExecutable( cmd ) )
+	if ( !File::isExecutable(cmd) )
 	    return;
+
 	idepar->get( sKey::Arguments(), args );
 	idepar->get( sKey::ToolTip(), tip );
 	idepar->get( sKey::IconFile(), iconfile );
@@ -179,12 +183,17 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     if ( !toolbarids_.validIdx( idx ) )
 	return;
 
-    OS::MachineCommand cmd( commands_.get( idx ) );
-    uiString err;
-    int pid;
-    if ( !OD::PythA().execute(cmd,OS::CommandExecPars(OS::RunInBG),&pid, &err) )
+    OS::MachineCommand mc( commands_.get(idx) );
+    if ( !OD::PythA().execute(mc,false) )
     {
-	uiMSG().error(tr("Error starting %1").arg(commands_.get(idx)), err);
+	uiString launchermsg;
+	const BufferString errmsg = OD::PythA().lastOutput(true,&launchermsg);
+	uiRetVal uirv( launchermsg );
+	if ( !errmsg.isEmpty() )
+	    uirv.add( toUiString(errmsg) );
+
+	uiMSG().error(tr("Error starting %1").arg(mc.toString()),
+			      uirv);
 	return;
     }
 }
@@ -708,6 +717,7 @@ static const char* IDENames[] =
     0
 };
 
+
 mExpClass(uiTools) uiPythonSettings : public uiDialog
 { mODTextTranslationClass(uiPythonSettings);
 public:
@@ -801,7 +811,7 @@ IOPar& curSetts()
 
 void getChanges()
 {
-    IOPar* workpar = 0;
+    IOPar* workpar = nullptr;
     if ( chgdsetts_ )
 	workpar = chgdsetts_;
     const bool alreadyedited = workpar;
@@ -819,7 +829,7 @@ void getChanges()
     else
     {
 	if ( alreadyedited )
-	    chgdsetts_ = 0;
+	    chgdsetts_ = nullptr;
 	delete workpar;
     }
 }
@@ -903,7 +913,6 @@ void usePar( const IOPar& par )
 	if ( customenvnmfld_->isChecked() )
 	    customenvnmfld_->setText( envnm );
     }
-
     PtrMan<IOPar> pathpar = par.subselect( OD::PythonAccess::sKeyPythonPath() );
     if ( pathpar )
     {
@@ -1028,33 +1037,24 @@ void testCB(CallBacker*)
     testPythonModules();
 }
 
+
 void promptCB( CallBacker* )
 {
     if ( !useScreen() )
 	return;
 
-    BufferStringSet current_python_path;
-    GetEnvVarDirList( "PYTHONPATH", current_python_path, true );
-
-    BufferStringSet new_python_path = OD::PythA().getBasePythonPath();
-    const BufferStringSet setting_paths = custompathfld_->getPaths();
-    new_python_path.add( setting_paths, false );
-
-    SetEnvVarDirList( "PYTHONPATH", new_python_path, false );
-
     if ( !OD::PythA().openTerminal() )
     {
 	uiString launchermsg;
 	uiRetVal uirv( tr("Cannot launch terminal with python:\n%1")
-		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
+	    .arg(OD::PythA().lastOutput(true,&launchermsg)) );
 	uirv.add( tr("Python environment not usable") )
 	    .add( launchermsg );
 	uiMSG().error( uirv );
 	return;
     }
-
-    SetEnvVarDirList( "PYTHONPATH", current_python_path, false );
 }
+
 
 bool useScreen()
 {
@@ -1108,6 +1108,8 @@ bool useScreen()
 	return false;
 
     OD::PythA().istested_ = false;
+    OD::PythA().updatePythonPath();
+
     return true;
 }
 
@@ -1120,6 +1122,7 @@ bool rejectOK( CallBacker* )
     {
 	OD::PythA().istested_ = false;
 	OD::PythA().envChangeCB( nullptr );
+	OD::PythA().updatePythonPath();
     }
     else
 	uiMSG().warning( tr("Cannot restore the initial settings") );
@@ -1142,6 +1145,7 @@ bool acceptOK( CallBacker* )
 	{
 	    OD::PythA().istested_ = false;
 	    OD::PythA().envChangeCB( nullptr );
+	    OD::PythA().updatePythonPath();
 	    needrestore_ = false;
 	    uiSettsMgr().updateUserCmdToolBar();
 	}
