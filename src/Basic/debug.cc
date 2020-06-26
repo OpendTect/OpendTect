@@ -607,7 +607,7 @@ void CrashDumper::sendDump( const char* filename )
     OS::MachineCommand machcomm( script.fullPath(), filename,
 		symboldir.fullPath(), dumphandler.fullPath(), prefix );
     if ( !sendappl_.isEmpty() )
-	machcomm.addArg( File::Path(GetExecPlfDir(),sendappl_).fullPath() );
+	machcomm.addArg( FilePath(GetExecPlfDir(),sendappl_).fullPath() );
 #ifdef __win__
     machcomm.addFlag( "binary" );
 #endif
