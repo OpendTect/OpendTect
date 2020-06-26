@@ -99,41 +99,19 @@ bool LatLong::setFromString( const char* str, bool lat )
 {
 // Supports strings formatted as dddmmssssh or ggg.gggggh
 // h is not mandatory
-    //TODO: Look for period in seconds
     BufferString llstr = str;
     if ( llstr.isEmpty() )
 	return false;
 
     char& lastchar = llstr[llstr.size()-1];
-    int charval = int(lastchar);
-    bool isalphabetinend = charval > 64 && charval < 91;
-
-    if ( isalphabetinend && ((lat && lastchar!='N' && lastchar!='S') ||
-	(!lat && lastchar != 'E' && lastchar != 'W')) )
-    {
-	if ( lat )
-	{
-	    lat_ = mUdf( double );
-	    errmsg_ = tr("Latitude is not correctly defined");
-	}
-	else
-	{
-	    lng_ = mUdf( double );
-	    errmsg_ = tr("Longitude is not correctly defined");
-	}
-
-	if ( mIsUdf(lat_) && mIsUdf(lng_) )
-	    errmsg_ = tr("Lat/Long are not correctly defined");
-
-	return false;
-    }
-
     const bool hasSW = lastchar=='S' || lastchar=='W';
     if ( lastchar=='N' || lastchar=='E' || hasSW )
 	lastchar = '\0';
 
-    const char* nrstr = llstr.find( '.' );
-    if ( nrstr )
+    const FixedString nrstr = llstr.find( '.' );
+    const int trailsz = nrstr.size();
+    const int sz = llstr.size() - trailsz; // size of string before .
+    if ( sz < 5 ) // Size never larger than 4 when in degrees
     {
 	double& val = lat ? lat_ : lng_;
 	val = toDouble( llstr );
@@ -146,23 +124,34 @@ bool LatLong::setFromString( const char* str, bool lat )
 
 	// parse seconds
 	BufferString buf;
-	strncpy(buf.getCStr(),llstr.buf()+(len-4),4);
-	buf[4] = '\0';
-	const float secs = toFloat(buf) / 100.f;
+	int parsesz = 4 + trailsz;
+	int offset = parsesz;
+	strncpy(buf.getCStr(),llstr.buf()+(len-offset),parsesz);
+	buf[parsesz] = '\0';
+	float secs = toFloat(buf) / 100.f;
 
 	// parse minutes
 	buf.setEmpty();
-	strncpy(buf.getCStr(),llstr.buf()+(len-6),2);
-	buf[2] = '\0';
-	const int mins = toInt( buf );
+	parsesz = 2;
+	offset += parsesz;
+	strncpy(buf.getCStr(),llstr.buf()+(len-offset),parsesz);
+	buf[parsesz] = '\0';
+	int mins = toInt( buf );
 
 	// parse degrees
 	buf.setEmpty();
-	strncpy(buf.getCStr(),llstr.buf(),len-6);
-	buf[len-6] = '\0';
+	parsesz = len - offset;
+	strncpy(buf.getCStr(),llstr.buf(),parsesz);
+	buf[parsesz] = '\0';
 	int degs = toInt( buf );
 	if ( hasSW && degs>0 )
 	    degs *= -1;
+
+	if ( degs < 0 )
+	{
+	    mins *= -1;
+	    secs *= -1;
+	}
 
 	setDMS( lat, degs, mins, secs );
     }
