@@ -351,8 +351,9 @@ idx=3 : IC
 
 void uiManualConvGroup::convFromLL()
 {
-    const LatLong ll( toString(leftinpfld_->text()),
-					toString(rightinpfld_->text()) );
+    LatLong ll;
+    ll.setFromString( leftinpfld_->text(), true );
+    ll.setFromString( rightinpfld_->text(), false  );
     if ( !ll.isDefined() )
 	uiMSG().error( ll.errMsg() );
 
