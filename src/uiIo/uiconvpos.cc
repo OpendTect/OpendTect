@@ -204,7 +204,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     ingrp->setHAlignObj( inptypfld_ );
 
     uiObject* attachobj = inptypfld_->attachObj();
-    const bool isprojcrs = SI().getCoordSystem()->isProjection();
+    const bool isprojcrs = si.getCoordSystem()->isProjection();
     if ( isprojcrs )
     {
 	inpcrdsysselfld_ = new Coords::uiCoordSystemSel( ingrp, true, true,
@@ -246,7 +246,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     if ( isprojcrs )
     {
 	outcrdsysselfld_ = new Coords::uiCoordSystemSel( outgrp, true, true,
-	    SI().getCoordSystem(), tr("Output Coordinate System") );
+	    si.getCoordSystem(), tr("Output Coordinate System") );
     }
 
     xyoutfld_ = new uiGenInput( outgrp, uiConvertPos::sXYStr(),
@@ -337,7 +337,7 @@ void uiManualConvGroup::convFromLL()
 
     const LatLong outll = LatLong::transform( incoord,
 					      towgs84fld_->isChecked() );
-    const BinID outbid( SI().transform(incoord) );
+    const BinID outbid( survinfo_.transform(incoord) );
 
     xyoutfld_->setValue( outcoord );
     inlcrloutfld_->setValue( outbid );
@@ -352,7 +352,7 @@ void uiManualConvGroup::convFromIC()
     if ( bid.isUdf() )
 	mErrRet( sErrMsg() )
 
-    const Coord coord( SI().transform(bid) );
+    const Coord coord( survinfo_.transform(bid) );
 
     const LatLong outll = LatLong::transform( coord, towgs84fld_->isChecked(),
 					      survinfo_.getCoordSystem() );
@@ -448,7 +448,7 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
     mAttachCB(outtypfld_->itemChosen, uiFileConvGroup::outTypChg);
 
     outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
-		SI().getCoordSystem(), tr("Output Coordinate System") );
+		si.getCoordSystem(), tr("Output Coordinate System") );
     outcrdsysselfld_->attach( alignedBelow, outtypfld_ );
 
     fssu.forread( false );
