@@ -23,13 +23,11 @@ class Timer;
 class ODServiceBase;
 class uiPythonSettings;
 class uiString;
-
 namespace OS {
     class CommandExecPars;
     class CommandLauncher;
     class MachineCommand;
 }
-
 
 
 namespace OD
@@ -73,6 +71,9 @@ namespace OD
 
 	bool		isModuleUsable(const char* nm) const;
 
+	static BufferString	getDataTypeStr(OD::DataRepType);
+	static OD::DataRepType	getDataType(const char*);
+
 	static bool		hasInternalEnvironment(bool allowuserdef=true);
 	static bool		validInternalEnvironment(const FilePath&);
 
@@ -98,13 +99,16 @@ namespace OD
 	uiRetVal	updateModuleInfo(const char* defprog="pip",
 					 const char* defarg="list");
 			/*<! Pass nullptr to auto-detect */
-	void		updatePythonPath();
-	BufferStringSet getBasePythonPath() const;
+
+	void		updatePythonPath() const;
+	const BufferStringSet& getBasePythonPath() const;
+			/*<! Merge of user environment with OpendTect
+			     python modules */
+
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 	bool		openTerminal() const;
-
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 	static void	GetPythonEnvPath(FilePath&);
 	static void	GetPythonEnvBinPath(FilePath&);
@@ -121,7 +125,7 @@ namespace OD
 	mutable BufferString	laststderr_;
 	mutable uiString	msg_;
 	BufferString	pythversion_;
-	BufferStringSet pystartpath_;
+	static BufferStringSet pystartpath_;
 	ManagedObjectSet<ModuleInfo>			moduleinfos_;
 
 	bool		isUsable_(bool force=false,
@@ -162,8 +166,13 @@ namespace OD
 	friend class ::uiPythonSettings;
 	friend class ::ODServiceBase;
 
-    public:
-	void			initClass(); //Only for init of Basic module
+	public:
+
+	static void	initClass();
+
+	void		addBasePath(const FilePath&);
+			/*<! For plugins to update PYTHONPATH
+			     during initialization */
 
     };
 

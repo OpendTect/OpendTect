@@ -35,6 +35,8 @@ public:
     void	loadToolBarCmds(uiMainWin&);
     void	updateUserCmdToolBar();
 
+    Notifier<uiSettingsMgr> terminalRequested;
+
 private:
 
     void	keyPressedCB(CallBacker*);
