@@ -58,13 +58,15 @@ bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
 }
 
 
-HDF5::DataSetKey HDF5::DataSetKey::groupKey( const HDF5::DataSetKey& parentgrp, const char* subgrpnm )
+HDF5::DataSetKey HDF5::DataSetKey::groupKey( const HDF5::DataSetKey& parentgrp,
+					     const char* subgrpnm )
 {
     return groupKey( parentgrp.fullDataSetName(), subgrpnm );
 }
 
 
-HDF5::DataSetKey HDF5::DataSetKey::groupKey( const char* fullparentnm, const char* grpnm )
+HDF5::DataSetKey HDF5::DataSetKey::groupKey( const char* fullparentnm,
+					     const char* grpnm )
 {
     const File::Path grpfp( fullparentnm, grpnm );
     BufferString grpkynm = grpfp.fullPath( File::Path::Unix );
@@ -277,7 +279,10 @@ ArrayNDInfo* HDF5::Reader::getDataSizes( const DataSetKey& dsky,
 {
     const H5::DataSet* dsscope = getDSScope( dsky );
     if ( !dsscope )
+    {
+	uirv = sCantSetScope( dsky );
 	return nullptr;
+    }
 
     return gtDataSizes( *dsscope );
 }
@@ -287,7 +292,13 @@ HDF5::Access::nr_dims_type HDF5::Reader::getNrDims( const DataSetKey& dsky,
 						    uiRetVal& uirv ) const
 {
     const H5::DataSet* dsscope = getDSScope( dsky );
-    return dsscope ? nrDims() : -1;
+    if ( !dsscope )
+    {
+	uirv = sCantSetScope( dsky );
+	return -1;
+    }
+
+    return nrDims();
 }
 
 
