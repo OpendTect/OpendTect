@@ -568,13 +568,15 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	    if ( !ll.isDefined() )
 		continue;
 
-	    Coord coord( LatLong::transform(ll) );
-	    outcrd = Coords::CoordSystem::convert(coord,
-		*SI().getCoordSystem(), *outcrdsysselfld_->getCoordSystem() );
+	    const Coord coord = LatLong::transform( ll, towgs,
+		    				   survinfo_.getCoordSystem() );
+	    outcrd = Coords::CoordSystem::convert( coord,
+		    			*survinfo_.getCoordSystem(),
+					*outcrdsysselfld_->getCoordSystem() );
 
-	    outll = LatLong::transform( coord, towgs );
-
-	    outbid = SI().transform( coord );
+	    outll = LatLong::transform( coord, towgs,
+					outcrdsysselfld_->getCoordSystem() );
+	    outbid = survinfo_.transform( coord );
 	}
 	else if ( fromdatatype == DataSelType::IC )
 	{
@@ -582,26 +584,25 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	    if ( bid.isUdf() )
 		continue;
 
-	    outcrd = SI().transform( bid );
-
+	    outcrd = survinfo_.transform( bid );
 	    outll = LatLong::transform( outcrd, towgs,
 					outcrdsysselfld_->getCoordSystem() );
 
 	    outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-					    outcrd, *SI().getCoordSystem() );
+					  outcrd, *survinfo_.getCoordSystem() );
 	}
 	else
 	{
 	    const Coord coord( firstinp, secondinp );
-	    //this coord is once converted from File CRS to SI().CRS
+	    //this coord is once converted from File CRS to survinfo_.CRS
 
 	    outll = LatLong::transform( coord, towgs,
 				    outcrdsysselfld_->getCoordSystem() );
 
 	    outcrd = outcrdsysselfld_->getCoordSystem()->convertFrom(
-					outcrd, *SI().getCoordSystem() );
+					outcrd, *survinfo_.getCoordSystem() );
 
-	    outbid = SI().transform(coord);
+	    outbid = survinfo_.transform(coord);
 	}
 
 	const bool addcol = true;
