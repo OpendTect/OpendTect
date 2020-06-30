@@ -83,16 +83,6 @@ public:
     static bool		mkIOParFile(const File::Path& basefnm,
 				    const HostData&,const IOPar&,
 				    File::Path&,BufferString& msg);
-    static BufferString mkRexecCmd(const char* prognm,
-				   const HostData& machine,
-				   const HostData& localhost);
-			/*!< Sets up the command to be executed with
-			     GetScriptDir()/exec_prog script.
-			     This latter ensures all the environment is
-			     restored on the remote machine ( rsh/ssh
-			     do NOT forward environment variables such as
-			     LD_LIBRARY_PATH ).
-			     */
 
 protected:
 
@@ -105,6 +95,19 @@ protected:
 				  const char* progname,const File::Path& basefp,
 				  const File::Path& iopfp,const JobInfo&,
 				  const char* rshcomm);
+private:
+
+    void		setRexecCmd(const char* prognm,
+				    const HostData& machine,
+				    const HostData& localhost,
+				    OS::MachineCommand&) const;
+			/*!< Sets up the command to be executed with
+			     GetShellScript(exec_prog) script.
+			     This latter ensures all the environment is
+			     restored on the remote machine ( rsh/ssh
+			     do NOT forward environment variables such as
+			     LD_LIBRARY_PATH ).
+			     */
 
 };
 
