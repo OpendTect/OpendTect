@@ -672,18 +672,15 @@ void uiMMBatchJobDispatcher::handleJobPausing()
 static bool hostOK( const HostData& hd, const char* rshcomm,
 		    BufferString& errmsg )
 {
-    OS::MachineCommand remotecmd( rshcomm );
-    remotecmd.addArg( hd.getIPAddress() );
+    OS::MachineCommand remotecmd;
+    remotecmd.setHostName( hd.getHostName() );
+    remotecmd.setRemExec( rshcomm );
+    remotecmd.setHostIsWindows( hd.isWindows() );
+    BufferString stdoutstr;
 
     OS::MachineCommand checkcmd = OS::MachineCommand( remotecmd );
-    checkcmd.addArg( "whoami" )
-#ifdef __win__
-	    .addFileRedirect( "NUL" );
-#else
-	    .addFileRedirect( "/dev/null" );
-#endif
-
-    if ( !checkcmd.execute() )
+    checkcmd.setProgram( "whoami" );
+    if ( !checkcmd.execute(stdoutstr) || stdoutstr.isEmpty() )
     {
 	errmsg = "Cannot establish a ";
 	errmsg += rshcomm; errmsg += " connection with ";
@@ -692,9 +689,10 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     }
 
     checkcmd = OS::MachineCommand( remotecmd );
-    checkcmd.addArg( "cd" )
-	  .addArg( hd.convPath(HostData::Appl,GetSoftwareDir(0)).fullPath() );
-    if ( !checkcmd.execute() )
+    checkcmd.setProgram( "ls" ).addArg( "-l" )
+	    .addArg( hd.convPath(HostData::Appl,GetSoftwareDir(0)).fullPath() );
+    stdoutstr.setEmpty();
+    if ( !checkcmd.execute(stdoutstr) || stdoutstr.isEmpty() )
     {
 	errmsg = "Cannot find application directory ";
 	errmsg += hd.getHostName(); errmsg += ":";
@@ -704,9 +702,10 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     }
 
     checkcmd = OS::MachineCommand( remotecmd );
-    checkcmd.addArg( "cd" )
+    checkcmd.setProgram( "ls" ).addArg( "-l" )
 	.addArg( hd.convPath(HostData::Data,GetBaseDataDir()).fullPath() );
-    if ( !checkcmd.execute() )
+    stdoutstr.setEmpty();
+    if ( !checkcmd.execute(stdoutstr) || stdoutstr.isEmpty() )
     {
 	errmsg = "Cannot find data directory ";
 	errmsg += hd.getHostName(); errmsg += ":";
