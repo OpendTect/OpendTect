@@ -107,6 +107,12 @@ protected:
 				  const char* progname,const FilePath& basefp,
 				  const FilePath& iopfp,const JobInfo&,
 				  const char* rshcomm);
+private:
+
+    void		setRexecCmd(const char* prognm,
+				    const HostData& machine,
+				    const HostData& localhost,
+				    OS::MachineCommand&) const;
 
 };
 

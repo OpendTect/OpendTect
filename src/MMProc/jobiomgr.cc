@@ -660,9 +660,6 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 			  const FilePath& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
-    mc.setProgram( progname );
-    mc.setHostIsWindows( machine.isWindows() );
-
     const BufferString remhostaddress =
 		       System::hostAddress( machine.getHostName() );
     const HostData& localhost = machine.localHost();
@@ -671,6 +668,7 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
     const bool unixtounix = remote && !localhost.isWindows() &&
 			    !machine.isWindows();
 
+    mc.setHostIsWindows( machine.isWindows() );
     if ( remote )
     {
 	mc.setRemExec( unixtounix ? rshcomm
@@ -678,19 +676,19 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 	mc.setHostName( machine.getHostName() );
     }
 
+    if ( remote && unixtounix )
+	setRexecCmd( progname, machine, localhost, mc );
+    else
+	mc.setProgram( progname );
+
     mc.addKeyedArg( OS::MachineCommand::sKeyMasterHost(),
 		    System::localAddress() );
     mc.addKeyedArg( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
     mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
     mc.addArg( iopfp.fullPath(machine.pathStyle()) );
-/*
-    BufferString cmd;
-    if ( unixtounix )
-	cmd.set( JobIOMgr::mkRexecCmd( progname, machine, localhost ) );
- */
 }
 
-// Keep ?
+
 BufferString JobIOMgr::mkRexecCmd( const char* prognm,
 				   const HostData& machine,
 				   const HostData& localhost )
@@ -701,4 +699,15 @@ BufferString JobIOMgr::mkRexecCmd( const char* prognm,
     BufferString res( execfp.fullPath( machine.pathStyle() ).str() );
 
     return res.addSpace().add( prognm );
+}
+
+
+void JobIOMgr::setRexecCmd( const char* prognm, const HostData& machine,
+		    const HostData& localhost, OS::MachineCommand& mc ) const
+{
+    FilePath execfp( GetShellScript("exec_prog") );
+    execfp = machine.convPath( HostData::Appl, execfp, &localhost );
+    const BufferString res( execfp.fullPath( machine.pathStyle() ).str() );
+
+    mc.setProgram( res ).addArg( prognm );
 }
