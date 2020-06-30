@@ -530,9 +530,6 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 			  const File::Path& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
-    mc.setProgram( progname );
-    mc.setHostIsWindows( machine.isWindows() );
-
     const BufferString remhostaddress =
 		       System::hostAddress( machine.getHostName() );
     const HostData& localhost = machine.localHost();
@@ -541,12 +538,18 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
     const bool unixtounix = remote && !localhost.isWindows() &&
 			    !machine.isWindows();
 
+    mc.setHostIsWindows( machine.isWindows() );
     if ( remote )
     {
 	mc.setRemExec( unixtounix ? rshcomm
 				  : OS::MachineCommand::odRemExecCmd() );
 	mc.setHostName( machine.getHostName() );
     }
+
+    if ( remote && unixtounix )
+	setRexecCmd( progname, machine, localhost, mc );
+    else
+	mc.setProgram( progname );
 
     mc.addKeyedArg( OS::MachineCommand::sKeyMasterHost(),
 		    System::localAddress() );
@@ -556,14 +559,12 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 }
 
 
-BufferString JobIOMgr::mkRexecCmd( const char* prognm,
-				   const HostData& machine,
-				   const HostData& localhost )
+void JobIOMgr::setRexecCmd( const char* prognm, const HostData& machine,
+		    const HostData& localhost, OS::MachineCommand& mc ) const
 {
     File::Path execfp( GetShellScript("exec_prog") );
     execfp = machine.convPath( HostData::Appl, execfp, &localhost );
+    const BufferString res( execfp.fullPath( machine.pathStyle() ).str() );
 
-    BufferString res( execfp.fullPath( machine.pathStyle() ).str() );
-
-    return res.addSpace().add( prognm );
+    mc.setProgram( res ).addArg( prognm );
 }
