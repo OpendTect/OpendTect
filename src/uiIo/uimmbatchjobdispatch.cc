@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "survinfo.h"
 #include "plugins.h"
+#include "plfdefs.h"
 
 
 
@@ -64,7 +65,7 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
     if ( jobpars.isEmpty() )
     {
 	od_cout() << argv[0] << ": Invalid parameter file"
-                  << parfnm << od_endl;
+		  << parfnm << od_endl;
 	return false;
     }
     strm.close();
@@ -72,9 +73,14 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
     if ( bgadd )
 	ForkProcess();
 
-    const char* res = jobpars.find( sKey::Survey() );
-    if ( res && *res && SI().getDirName() != res )
-	IOMan::setSurvey( res );
+    const char* res = jobpars.find( sKey::DataRoot() );
+    if ( res && *res && SI().getDataDirName() != res )
+	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
+
+    res = jobpars.find( sKey::Survey() );
+    if ( res && *res && SI().getDirName() != res && !IOMan::setSurvey(res) )
+	return false;
+
     PIM().loadAuto( false );
     jobpars.set( sKey::FileName(), parfnm );
 
