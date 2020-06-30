@@ -433,16 +433,20 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
     else
     {
 	if ( ret.isBad() )
-	    ret.setProgram( odRemExecCmd() );
+	    ret.setProgram( remexec_ );
 	else
-	    ret.addArg( odRemExecCmd() );
+	    ret.addArg( remexec_ );
 	if ( remexec_ == odRemExecCmd() )
 	{
 	    ret.addKeyedArg( sKeyRemoteHost(), hname_ )
 	       .addFlag( sKeyRemoteCmd() );
 	}
 	else
+	{
 	    ret.addArg( hname_.str() );
+	    if ( prognm.startsWith("od_") )
+		ret.addArg( FilePath(GetShellScript("exec_prog")).fullPath() );
+	}
 	ret.addArg( prognm );
     }
 
@@ -815,8 +819,6 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	return false;
     }
 
-    const char* prog = mc.program();
-    const BufferStringSet& args = mc.args();
     DBG::message( BufferString("About to execute: ",mc.toString(&pars)) );
 
     const bool wt4finish = pars.launchtype_ == Wait4Finish;
@@ -849,10 +851,10 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	    const QString qworkdir( workingdir );
 	    process_->setWorkingDirectory( qworkdir );
 	}
-	//TODO: use inconsole on Windows
-	const QString qprog( prog );
+	//TODO: use inconsole on Windows ?
+	const QString qprog( mc.program() );
 	QStringList qargs;
-	args.fill( qargs );
+	mc.args().fill( qargs );
 	process_->start( qprog, qargs, QIODevice::ReadWrite );
     }
     else
