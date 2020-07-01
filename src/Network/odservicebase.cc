@@ -25,6 +25,8 @@
 
 
 ODServiceBase::ODServiceBase( bool assignport )
+    : externalAction(this)
+    , externalRequest(this)
 {
     const char* skeyport = Network::Server::sKeyPort();
     const char* skeynolisten = Network::Server::sKeyNoListen();
@@ -123,12 +125,13 @@ void ODServiceBase::stopServer()
 uiRetVal ODServiceBase::doAction( const OD::JSON::Object& actobj )
 {
     const BufferString action( actobj.getStringValue( sKeyAction()) );
-    uiRetVal ret;
     if ( action == sKeyStatusEv() )
-	ret.add( tr("Status") );
+	return uiRetVal::OK();
 
+    uirv_ = tr("Unknown action: %1").arg( action );
+    externalAction.trigger( action );
 
-    return ret;
+    return uirv_;
 }
 
 
@@ -139,8 +142,10 @@ uiRetVal ODServiceBase::doRequest( const OD::JSON::Object& request )
     else if ( request.isPresent(sKeySurveyChangeEv()) )
 	return survChangedReq( request );
 
-    return uiRetVal( tr("Unknown JSON packet type: %1")
-	.arg( request.dumpJSon() ) );
+    uirv_ = tr("Unknown JSON packet type: %1").arg( request.dumpJSon() );
+    externalRequest.trigger( request );
+
+    return uirv_;
 }
 
 

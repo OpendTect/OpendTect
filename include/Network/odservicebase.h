@@ -68,20 +68,27 @@ public:
 
     static const char*	sKeyODServer()		{ return "odserver"; }
 
+    CNotifier<ODServiceBase,BufferString>	externalAction;
+    CNotifier<ODServiceBase,OD::JSON::Object>	externalRequest;
+
+    void		setRetVal( const uiRetVal& uirv )	{ uirv_ = uirv;}
+			/* Must be called to set the result of intercepting
+			   either externalAction or externalRequest */
+
 protected:
 			ODServiceBase(bool assignport=true);
 
     static uiRetVal	sendAction(const Network::Authority&,
-	const char* servicenm,const char* action);
+				   const char* servicenm,const char* action);
     static uiRetVal	sendRequest(const Network::Authority&,
-	const char* servicenm,const char* reqkey,
-	const OD::JSON::Object&);
+				    const char* servicenm,const char* reqkey,
+				    const OD::JSON::Object&);
     virtual uiRetVal	doAction(const OD::JSON::Object&);
     virtual uiRetVal	doRequest(const OD::JSON::Object&);
     uiRetVal		doCloseAct();
 
     static const OD::JSON::Object* getSubObj(const OD::JSON::Object&,
-	const char* key);
+					     const char* key);
     uiRetVal		survChangedReq(const OD::JSON::Object&);
     uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
     static void		getPythEnvRequestInfo(OD::JSON::Object&);
@@ -115,5 +122,7 @@ private:
     Network::RequestServer*	server_ = nullptr;
     Network::RequestConnection*		conn_ = nullptr;
     PtrMan<Network::RequestPacket>	packet_;
+
+    uiRetVal		uirv_;
 
 };
