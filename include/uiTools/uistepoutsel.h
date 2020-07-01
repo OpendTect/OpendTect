@@ -114,7 +114,9 @@ public:
     void		display( bool yn ) { uiStepOutSel::display( yn ); }
 
 protected:
-
     uiSpinBox*		fld3_;
+
+private:
+    void		init(const Setup&);
 
 };
