@@ -926,7 +926,13 @@ void uiODMenuMgr::mkViewIconsMnu()
 
 void uiODMenuMgr::fillUtilMenu()
 {
+#ifdef __mac__
+    // Qt disables the 'Settings' menu on Mac, hence a different text
+    settmnu_ = new uiMenu( &appl_, tr("User Settings") );
+#else
     settmnu_ = new uiMenu( &appl_, uiStrings::sSettings() );
+#endif
+
     utilmnu_->insertItem( settmnu_ );
 
     insertAction( settmnu_, m3Dots(tr("Look and Feel")), mSettLkNFlMnuItm );
