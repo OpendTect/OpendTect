@@ -128,7 +128,7 @@ public:
 
     bool		isODMainSlave() const;
     bool		isMasterAlive() const;
-    void		setBackground();
+    void		setBackground(bool yn);
 
 protected:
 

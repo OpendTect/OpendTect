@@ -311,7 +311,7 @@ uiRetVal uiODServiceBase::sendAction( const Network::Authority& auth,
     }
 
     ConstRefMan<Network::RequestPacket> receivedpacket =
-				conn->pickupPacket( packet->requestID(), 2000 );
+			    conn->pickupPacket( packet->requestID(), 15000 );
     if ( !receivedpacket )
 	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
 
@@ -434,8 +434,8 @@ uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
     }
     else if ( action == sKeyRaiseEv() )
     {
-	uiMainWin* mainwin = uiMain::theMain().topLevel();
-	mainwin->showOnTop();
+	uiMain::theMain().topLevel()->showAndActivate();
+	return uiRetVal::OK();
     }
 
     return uiODServiceBase::doAction( actobj );
@@ -474,9 +474,9 @@ uiRetVal uiODService::close()
 }
 
 
-void uiODService::setBackground()
+void uiODService::setBackground( bool yn )
 {
-    handleMasterCheckTimer( true );
+    handleMasterCheckTimer( yn );
 }
 
 
@@ -502,11 +502,7 @@ void uiODService::handleMasterCheckTimer( bool start )
 void uiODService::masterCheckCB( CallBacker* cb )
 {
     if ( !isMasterAlive() )
-    {
-	//TODO: only if top dialog is hidden ?
-	// uiMsg ask confirmation ?
 	uiMain::theMain().exit(0);
-    }
 }
 
 
