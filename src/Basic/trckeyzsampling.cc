@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iopar.h"
 #include "keystrs.h"
+#include "odjson.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom.h"
@@ -658,6 +659,63 @@ void TrcKeySampling::removeInfo( IOPar& par )
     par.removeWithKey( sKey::LastCrl() );
     par.removeWithKey( sKey::StepInl() );
     par.removeWithKey( sKey::StepCrl() );
+}
+
+
+void TrcKeySampling::fillJSON( OD::JSON::Object& obj )
+{
+    if ( is2D() )
+    {
+	OD::JSON::Object localobj;
+	const StepInterval<Index_Type> trcrng(
+	    start_.trcNr(), stop_.trcNr(), step_.trcNr() );
+	obj.set( sKey::TrcRange(), trcrng );
+	obj.set( sKey::GeomID(), start_.lineNr() );
+    }
+    else
+    {
+	const StepInterval<Index_Type> inlrng( start_.lineNr(), stop_.lineNr(),
+	    step_.lineNr() );
+	obj.set( sKey::InlRange(), inlrng );
+	const StepInterval<Index_Type> crlrng( start_.trcNr(), stop_.trcNr(),
+	    step_.trcNr() );
+	obj.set( sKey::CrlRange(), crlrng );
+    }
+
+    obj.set( sKey::SurveyID(), survid_ );
+}
+
+
+bool TrcKeySampling::useJSON( const OD::JSON::Object& obj )
+{
+    StepInterval<Index_Type> rng;
+    if ( is2D() )
+    {
+	obj.get( sKey::TrcRange(), rng );
+	start_.trcNr() = rng.start;
+	stop_.trcNr() = rng.stop;
+	step_.trcNr() = rng.step;
+
+	start_.lineNr() = obj.getIntValue( sKey::GeomID() );
+    }
+    else
+    {
+	obj.get( sKey::InlRange(), rng );
+	start_.lineNr() = rng.start;
+	stop_.lineNr() = rng.stop;
+	step_.lineNr() = rng.step;
+
+	obj.get( sKey::CrlRange(), rng );
+	start_.trcNr() = rng.start;
+	stop_.trcNr() = rng.stop;
+	step_.trcNr() = rng.step;
+    }
+
+    survid_ = obj.getIntValue( sKey::SurveyID() );
+    if ( mIsUdf(survid_) )
+	survid_ = Survey::GM().default3DSurvID();
+
+    return true;
 }
 
 
@@ -1344,6 +1402,22 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 {
     TrcKeySampling::removeInfo( par );
     par.removeWithKey( sKey::ZRange() );
+}
+
+
+void TrcKeyZSampling::fillJSON( OD::JSON::Object& obj )
+{
+    hsamp_.fillJSON( obj );
+
+    obj.set( sKey::ZRange(), zsamp_ );
+}
+
+
+bool TrcKeyZSampling::useJSON( const OD::JSON::Object& obj )
+{
+    hsamp_.useJSON( obj );
+    obj.get( sKey::ZRange(), zsamp_ );
+    return true;
 }
 
 

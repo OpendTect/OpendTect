@@ -94,6 +94,8 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     static void		removeInfo(IOPar&);
+    void		fillJSON(OD::JSON::Object&);
+    bool		useJSON(const OD::JSON::Object&);
 
 //Legacy, don't use
     inline int		inlIdx( int inl ) const { return lineIdx(inl); }

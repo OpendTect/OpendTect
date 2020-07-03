@@ -23,6 +23,13 @@ class SeparString;
 class ascistream;
 class ascostream;
 class uiString;
+namespace OD
+{
+    namespace JSON
+    {
+	class Object;
+    };
+};
 
 /*!
 \brief Generalized set of parameters of the keyword-value type.
@@ -73,6 +80,8 @@ public:
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
+    void		fillJSON(OD::JSON::Object& obj);
+			//!< only save the top level objects
 
     void		remove(int);
     void		removeWithKey(const char* key);

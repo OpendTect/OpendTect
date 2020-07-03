@@ -30,6 +30,7 @@ set( OD_TEST_PROGS
 	math2.cc
 	memcopying.cc
 	od_iostream.cc
+	odjson.cc
 	oscommand.cc
 	pythoncomm.cc
 	refcount.cc
