@@ -8,8 +8,11 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "testprog.h"
+#include "odjson.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
+
+#define mEps 0.0001
 
 #define mDeclTrcKeyZSampling( cs, istart, istop, istep, \
 			       cstart, cstop, cstep, \
@@ -159,6 +162,36 @@ bool testIterator()
 }
 
 
+bool testJSON()
+{
+    mDeclTrcKeyZSampling( cs, 2, 50, 6,
+	10, 100, 9,
+	1.0, 3.0, 0.004 );
+
+    OD::JSON::Object obj;
+    cs.fillJSON( obj );
+
+    TrcKeyZSampling sampling;
+    sampling.useJSON( obj );
+    bool b1 =  cs.hsamp_.inlRange().isEqual(sampling.hsamp_.inlRange(),mEps);
+    bool b2 =  cs.hsamp_.crlRange().isEqual(sampling.hsamp_.crlRange(),mEps);
+    bool b3 =  cs.zsamp_.isEqual(sampling.zsamp_,mEps);
+
+    if ( !(cs.hsamp_.inlRange().start == sampling.hsamp_.inlRange().start) &&
+	!(cs.hsamp_.inlRange().stop == sampling.hsamp_.inlRange().stop) &&
+	!(cs.hsamp_.inlRange().step == sampling.hsamp_.inlRange().step) &&
+	!(cs.hsamp_.crlRange().start == sampling.hsamp_.crlRange().start) &&
+	!(cs.hsamp_.crlRange().stop == sampling.hsamp_.crlRange().stop) &&
+	!(cs.hsamp_.crlRange().step == sampling.hsamp_.crlRange().step) &&
+	!(cs.zsamp_.start == sampling.zsamp_.start) &&
+	!(cs.zsamp_.stop == sampling.zsamp_.stop) &&
+	!(cs.zsamp_.step == sampling.zsamp_.step) )
+	mRetResult( "Checking JSON" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
@@ -170,11 +203,12 @@ int main( int argc, char** argv )
     eSI().setRange( survcs, true ); //For the sanity of SI().
 
     if ( !testInclude()
-      || !testIncludes()
-      || !testEmpty()
-      || !testLimitTo()
-      || !testIsCompatible()
-      || !testIterator() )
+	|| !testIncludes()
+	|| !testEmpty()
+	|| !testLimitTo()
+	|| !testIsCompatible()
+	|| !testIterator()
+	|| !testJSON() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
