@@ -104,6 +104,7 @@ public:
     void		reDraw(bool deep);
     void		go(bool showminimized=false);
     virtual void	show()				{ doShow(); }
+    void		doSetWindowFlags(Qt::WindowFlags,bool yn);
 
     void		move(uiMainWin::PopupArea);
     void		move(int,int);
@@ -176,7 +177,6 @@ private:
     QEventLoop		eventloop_;
 
     bool		modal_;
-    Qt::WindowFlags	getFlags(bool hasparent,bool modal) const;
 
     void		popTimTick(CallBacker*);
     void		getPosForScreenMiddle(int& x,int& y);
@@ -199,7 +199,7 @@ private:
 uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
-	, QMainWindow(mParent,getFlags(p,modal) )
+	, QMainWindow(mParent)
 	, handle_(uimw)
 	, initing_(true)
 	, centralwidget_(0)
@@ -261,16 +261,26 @@ uiMainWinBody::~uiMainWinBody()
 }
 
 
+void uiMainWinBody::doSetWindowFlags( Qt::WindowFlags todoflag, bool yn )
+{
+    const Qt::WindowFlags flags = windowFlags();
+    if ( yn )
+	setWindowFlags( flags | todoflag );
+    else
+    {
+	const uint newflagsi = (uint)flags - (uint)todoflag;
+	const Qt::WindowFlags newflags( newflagsi );
+	setWindowFlags( newflags );
+    }
+}
+
+
 void uiMainWinBody::setModal( bool yn )
 {
     modal_ = yn;
     setWindowModality( yn ? Qt::WindowModal
 			  : Qt::NonModal );
 }
-
-
-Qt::WindowFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
-{ return Qt::WindowFlags( Qt::Window ); }
 
 
 void uiMainWinBody::doShow( bool minimized )
@@ -283,11 +293,15 @@ void uiMainWinBody::doShow( bool minimized )
     managePopupPos();
 
     if ( minimized )
+    {
+	handle_.windowHidden.trigger( handle_ );
 	QMainWindow::showMinimized();
+    }
     else
     {
 	if ( isMinimized() ) showNormal();
 	raise();
+	handle_.windowShown.trigger( handle_ );
 	QMainWindow::show();
     }
 
@@ -626,6 +640,7 @@ void uiMainWinBody::close()
     if ( modal_ )
 	eventloop_.exit();
 
+    handle_.windowHidden.trigger( handle_ );
     QMainWindow::hide();
 
     if ( exitapponclose_ )
@@ -824,7 +839,8 @@ void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
 
 bool uiMainWinBody::event( QEvent* ev )
 {
-    if ( ev->type() == mUsrEvGuiThread )
+    const QEvent::Type qtyp = ev->type();
+    if ( qtyp == mUsrEvGuiThread )
     {
 	mExecMutex( CallBack* actcb = activatecbs_[nractivated_++] );
 	actcb->doCall( this );
@@ -832,12 +848,19 @@ bool uiMainWinBody::event( QEvent* ev )
 	mExecMutex( activatecbs_ -= actcb; nractivated_-- );
 	delete actcb;
     }
-    else if ( ev->type() == mUsrEvPopUpReady )
+    else if ( qtyp == mUsrEvPopUpReady )
     {
 	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
     }
     else
-	return QMainWindow::event( ev );
+    {
+	const bool res = QMainWindow::event( ev );
+	if ( qtyp == QEvent::Show )
+	    handle_.windowShown.trigger( handle_ );
+	else if ( qtyp == QEvent::Hide )
+	    handle_.windowHidden.trigger( handle_ );
+	return res;
+    }
 
     return true;
 }
@@ -869,6 +892,8 @@ void uiMainWinBody::managePopupPos()
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(toString(setup.caption_),0)
     , parent_(p)
+    , windowShown(this)
+    , windowHidden(this)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -894,6 +919,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     : uiParent(toString(cpt),0)
     , parent_(parnt)
     , popuparea_(Middle)
+    , windowShown(this)
+    , windowHidden(this)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -915,6 +942,8 @@ uiMainWin::uiMainWin( const uiString& captn, uiParent* parnt )
     : uiParent(toString(captn),0)
     , parent_(parnt)
     , popuparea_(Middle)
+    , windowShown(this)
+    , windowHidden(this)
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
@@ -991,20 +1020,6 @@ bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
-
-
-void uiMainWin::showOnTop()
-{
-    QWidget* qw = getWidget(0);
-    if (qw)
-    {
-	Qt::WindowFlags flags = qw->windowFlags();
-	qw->setWindowFlags((flags | Qt::WindowStaysOnTopHint));
-	qw->show();
-	qw->setWindowFlags(flags);
-	qw->show();
-    }
-}
 
 
 void uiMainWin::setCaption( const uiString& txt )
@@ -1127,6 +1142,57 @@ uiRect uiMainWin::geometry( bool frame ) const
     //QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
     uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
     return rect;
+}
+
+
+bool uiMainWin::doSetWindowFlags( uint todoflagi, bool setyn )
+{
+    const Qt::WindowFlags todoflag( todoflagi );
+    const Qt::WindowFlags flags = body_->windowFlags();
+    if ( ( setyn &&  (flags & todoflag)) ||
+         (!setyn && !(flags & todoflag)) )
+	return false;
+
+    if ( !isMinimized() && !isHidden() )
+	pErrMsg( "Setting window flags on a displayed widget "
+		 "hides it (see Qt doc)" );
+
+    const bool isfinalised = finalised();
+    body_->doSetWindowFlags( todoflag, setyn );
+    if ( isfinalised )
+	Threads::sleep( 0.3 );
+    return true;
+}
+
+
+bool uiMainWin::showMinMaxButtons( bool yn )
+{ return doSetWindowFlags( Qt::WindowMinMaxButtonsHint, yn ); }
+
+bool uiMainWin::showAlwaysOnTop( bool yn )
+{ return doSetWindowFlags( Qt::WindowStaysOnTopHint, yn ); }
+
+
+void uiMainWin::showAndActivate()
+{
+    if ( isMinimized() || isHidden() )
+	showNormal();
+    activate();
+}
+
+
+void uiMainWin::activate()
+{
+    if ( !finalised() )
+	return;
+
+#ifdef __win__
+# if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
+    QWindowsWindowFunctions::setWindowActivationBehavior(
+			    QWindowsWindowFunctions::AlwaysActivateWindow );
+# endif
+#endif
+
+    body_->activateWindow();
 }
 
 
@@ -2222,22 +2288,6 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     }
 
     ctrlstyle_ = cs;
-}
-
-
-void uiDialog::showMinMaxButtons()
-{
-    Qt::WindowFlags flags = body_->windowFlags();
-    flags |= Qt::WindowMinMaxButtonsHint;
-    body_->setWindowFlags( flags );
-}
-
-
-void uiDialog::showAlwaysOnTop()
-{
-    Qt::WindowFlags flags = body_->windowFlags();
-    flags |= Qt::WindowStaysOnTopHint;
-    body_->setWindowFlags( flags );
 }
 
 

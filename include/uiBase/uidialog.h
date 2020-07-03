@@ -148,8 +148,6 @@ public:
     void		setHelpKey(const HelpKey&);
     virtual HelpKey	helpKey() const;
 
-    void		showMinMaxButtons();
-    void		showAlwaysOnTop();
     enum TitlePos	{ LeftSide, CenterWin, RightSide };
     static TitlePos	titlePos();
     static void		setTitlePos(TitlePos);

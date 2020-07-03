@@ -88,6 +88,13 @@ public:
     void		setIcon(const char* icon_id);
     void		setIconText(const uiString&);
 
+    bool		showMinMaxButtons(bool yn=true);
+    bool		showAlwaysOnTop(bool yn=true);
+			/* Return if changed. Will hide the dialog
+			   if finalised and already shown */
+    void		showAndActivate();
+    void		activate();
+
     virtual void	show();
     void                close();
     void		raise();
@@ -95,7 +102,6 @@ public:
     void		showMaximized();
     void		showMinimized();
     void		showNormal();
-    void		showOnTop();
 
     bool		isMaximized() const;
     bool		isMinimized() const;
@@ -128,6 +134,8 @@ public:
     const ObjectSet<uiToolBar>& toolBars() const;
     const ObjectSet<uiDockWin>& dockWins() const;
 
+    Notifier<uiMainWin>	windowShown;
+    Notifier<uiMainWin> windowHidden;
     Notifier<uiMainWin>	windowClosed;
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
@@ -231,6 +239,10 @@ protected:
 
     static ObjectSet<uiMainWin>	allwins_;
     static bool		haveModalWindows();
+
+private:
+
+    bool		doSetWindowFlags(uint qtwinflag,bool set);
 
 public:
 
