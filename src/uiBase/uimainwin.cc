@@ -68,6 +68,9 @@ ________________________________________________________________________
 #include <QWidget>
 #include <QWindow>
 
+#ifdef __win__
+# include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 mUseQtnamespace
 
@@ -268,7 +271,7 @@ void uiMainWinBody::doSetWindowFlags( Qt::WindowFlags todoflag, bool yn )
 	setWindowFlags( flags | todoflag );
     else
     {
-	const uint newflagsi = (uint)flags - (uint)todoflag;
+	const od_uint32 newflagsi = (od_uint32)flags - (od_uint32)todoflag;
 	const Qt::WindowFlags newflags( newflagsi );
 	setWindowFlags( newflags );
     }
@@ -1145,7 +1148,7 @@ uiRect uiMainWin::geometry( bool frame ) const
 }
 
 
-bool uiMainWin::doSetWindowFlags( uint todoflagi, bool setyn )
+bool uiMainWin::doSetWindowFlags( od_uint32 todoflagi, bool setyn )
 {
     const Qt::WindowFlags todoflag( todoflagi );
     const Qt::WindowFlags flags = body_->windowFlags();

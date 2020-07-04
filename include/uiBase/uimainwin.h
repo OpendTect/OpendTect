@@ -242,7 +242,7 @@ protected:
 
 private:
 
-    bool		doSetWindowFlags(uint qtwinflag,bool set);
+    bool		doSetWindowFlags(od_uint32 qtwinflag,bool set);
 
 public:
 
