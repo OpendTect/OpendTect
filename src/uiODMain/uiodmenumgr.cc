@@ -875,7 +875,13 @@ void uiODMenuMgr::fillViewMenu()
 
 void uiODMenuMgr::fillUtilMenu()
 {
+#ifdef __mac__
+    // Qt disables the 'Settings' menu on Mac, hence a different text
+    settmnu_ = addSubMenu( utilmnu_, tr("User Settings"), "settings" );
+#else
     settmnu_ = addSubMenu( utilmnu_, uiStrings::sSettings(), "settings" );
+#endif
+
     langmnumgr_ = new uiODLangMenuMgr( *this );
     addAction( settmnu_, uiStrings::sUserSettings(), "settings",
 				mSettingsMnuItm );
