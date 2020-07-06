@@ -94,6 +94,14 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
 }
 
 
+uiCmdDriverMgr& uiCmdDriverMgr::getMgr( bool fullodmode )
+{
+    mDefineStaticLocalObject( PtrMan<CmdDrive::uiCmdDriverMgr>, cmdmmgr,
+			      = new CmdDrive::uiCmdDriverMgr(fullodmode) )
+    return *(cmdmmgr.ptr());
+}
+
+
 uiCmdDriverDlg* uiCmdDriverMgr::getCmdDlg()
 {
     if ( !cmddlg_ )
