@@ -47,9 +47,9 @@ static void initExtraComposers()
 
 mDefODInitPlugin(CmdDriver)
 {
-    mDefineStaticLocalObject( uiCmdDriverMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiCmdDriverMgr( true );
+    uiCmdDriverMgr& mgr = uiCmdDriverMgr::getMgr( true );
+
+    mIfNotFirstTime( return nullptr );
 
     mDefineStaticLocalObject( uiAction*, cmdaction, = 0 );
     if ( cmdaction )
@@ -60,7 +60,7 @@ mDefODInitPlugin(CmdDriver)
     cmdaction->setShortcut( "Ctrl+R" );
 
     ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdaction );
-    cmdaction->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
+    cmdaction->triggered.notify( mCB(&mgr,uiCmdDriverMgr,showDlgCB) );
 
     initExtraCommands();
     initExtraFunctions();
