@@ -26,6 +26,7 @@ class SurveyInfo;
 class TrcKeySampling;
 class TrcKeyZSampling;
 
+namespace OD { namespace JSON { class Object; }; };
 
 namespace Survey
 {
@@ -66,12 +67,16 @@ public:
     virtual void		clearSubSel()			= 0;
 
     static bool			getInfo(const IOPar&,bool& is2d,GeomID&);
+    static bool			getInfo(const OD::JSON::Object&,bool& is2d,
+					GeomID&);
 
     bool			is3D() const		{ return !is2D(); }
 
 protected:
 
     static void			fillParInfo(IOPar&,bool is2d,GeomID);
+    static void			fillJSONInfo(OD::JSON::Object&,bool is2d,
+					     GeomID);
 
 };
 
@@ -106,7 +111,9 @@ public:
     static HorSubSel*		create(const IOPar&,
 					const SurveyInfo* si=nullptr);
     bool			usePar(const IOPar&);
+    bool			useJSON(const OD::JSON::Object&);
     void			fillPar(IOPar&) const;
+    void			fillJSON(OD::JSON::Object&) const;
 
     IdxSubSelData&		trcNrSubSel()
 				{ return gtTrcNrSubSel(); }
@@ -137,10 +144,12 @@ protected:
 
     const SurveyInfo*		si_				= nullptr;
 
-    virtual bool		doUsePar(const IOPar&)		= 0;
-    virtual void		doFillPar(IOPar&) const		= 0;
+    virtual bool		doUsePar(const IOPar&)			= 0;
+    virtual bool		doUseJSON(const OD::JSON::Object&)	= 0;
+    virtual void		doFillPar(IOPar&) const			= 0;
+    virtual void		doFillJSON(OD::JSON::Object&) const	= 0;
 
-    virtual IdxSubSelData&	gtTrcNrSubSel() const	= 0;
+    virtual IdxSubSelData&	gtTrcNrSubSel() const			= 0;
 
 };
 
@@ -240,7 +249,9 @@ public:
     static GeomSubSel*	get(const TrcKeyZSampling&);
     static GeomSubSel*	create(const IOPar&);
     virtual bool	usePar(const IOPar&);
+    virtual bool	useJSON(const OD::JSON::Object&);
     virtual void	fillPar(IOPar&) const;
+    virtual void	fillJSON(OD::JSON::Object&) const;
 
     dist_type		trcDist(bool max_else_avg) const;
     void		limitTo(const GeomSubSel&);

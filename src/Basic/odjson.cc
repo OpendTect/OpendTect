@@ -5,14 +5,17 @@
 -*/
 
 #include "odjson.h"
+
+#include "arraynd.h"
 #include "dbkey.h"
+#include "gason.h"
+#include "geomid.h"
 #include "od_iostream.h"
 #include "separstr.h"
-#include "typeset.h"
-#include "arraynd.h"
 #include "stringbuilder.h"
+#include "typeset.h"
 #include "uistrings.h"
-#include "gason.h"
+
 #include <string.h>
 
 
@@ -1049,6 +1052,16 @@ BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 }
 
 
+bool OD::JSON::Object::getGeomID( const char* ky, Pos::GeomID& gid ) const
+{
+    if ( !isPresent(ky) )
+	return false;
+
+    gid.setI( mCast(int,getIntValue(ky)) );
+    return true;
+}
+
+
 bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
 {
     const Array* stringsarr = getArray( ky );
@@ -1124,6 +1137,11 @@ mDefObjectSetVal( const char* )
 void OD::JSON::Object::set( const char* ky, const DBKey& id )
 {
     setVal( ky, id.getString(false) );
+}
+
+void OD::JSON::Object::set( const char* ky, const Pos::GeomID& gid )
+{
+    setVal( ky, gid.getI() );
 }
 
 void OD::JSON::Object::set( const char* ky, const uiString& str )

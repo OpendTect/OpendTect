@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "geomid.h"
 class SurveyInfo;
 
+namespace OD { namespace JSON { class Object; }; };
+
 
 namespace Pos
 {
@@ -128,7 +130,9 @@ public:
     void	clearSubSel()	    { ssdata_.clearSubSel(); }
 
     bool	usePar(const IOPar&);
+    bool	useJSON(const OD::JSON::Object&);
     void	fillPar(IOPar&) const;
+    void	fillJSON(OD::JSON::Object&) const;
 
     static const ZSubSel&   surv3D(const SurveyInfo* si=nullptr);
     static ZSubSel&	    dummy();
@@ -212,7 +216,10 @@ public:
     void		limitTo(const FullZSubSel&);
 
     void		fillPar(IOPar&) const;
+    void		fillJSON(OD::JSON::Object&) const;
     void		usePar(const IOPar&,const SurveyInfo* si=nullptr);
+    void		useJSON(const OD::JSON::Object&,
+			        const SurveyInfo* si=nullptr);
     uiString		getUserSummary() const;
 
 protected:

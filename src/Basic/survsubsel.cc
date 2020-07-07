@@ -11,6 +11,7 @@
 #include "fullsubsel.h"
 #include "keystrs.h"
 #include "linesubsel.h"
+#include "odjson.h"
 #include "survgeom2d.h"
 #include "survgeom3d.h"
 #include "survinfo.h"
@@ -70,6 +71,38 @@ bool Survey::SubSel::getInfo( const IOPar& iop, bool& is2d, GeomID& geomid )
 }
 
 
+bool Survey::SubSel::getInfo( const OD::JSON::Object& obj, bool& is2d,
+			      GeomID& geomid )
+{
+    is2d = false;
+    geomid = GeomID::get3D();
+
+    int igs = (int)OD::VolBasedGeom;
+    if ( obj.isPresent(sKey::GeomSystem()) )
+    {
+	igs = mCast(int,obj.getIntValue(sKey::GeomSystem()));
+    }
+    else
+    {
+	if ( obj.isPresent(sKey::SurveyID()) )
+	{
+	    igs = mCast(int,obj.getIntValue(sKey::SurveyID()));
+	    if ( igs < (int)OD::SynthGeom || igs > (int)OD::LineBasedGeom )
+		igs = (int)OD::VolBasedGeom;
+	}
+	else
+	    igs = (int)OD::LineBasedGeom;
+    }
+
+    is2d = igs == (int)OD::LineBasedGeom;
+    if ( is2d )
+	return obj.getGeomID( sKey::GeomID(), geomid )
+	    && SurvGeom::isUsable( geomid );
+
+    return true;
+}
+
+
 void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 {
     const OD::GeomSystem gs = is2d ? OD::LineBasedGeom : OD::VolBasedGeom;
@@ -78,6 +111,18 @@ void Survey::SubSel::fillParInfo( IOPar& iop, bool is2d, GeomID gid )
 	iop.set( sKey::GeomID(), gid );
     else
 	iop.removeWithKey( sKey::GeomID() );
+}
+
+
+void Survey::SubSel::fillJSONInfo( OD::JSON::Object& obj, bool is2d,
+				   GeomID gid )
+{
+    const OD::GeomSystem gs = is2d ? OD::LineBasedGeom : OD::VolBasedGeom;
+    obj.set( sKey::GeomSystem(), (int)gs );
+    if ( is2d )
+	obj.set( sKey::GeomID(), gid );
+    else
+	obj.remove( sKey::GeomID() );
 }
 
 
@@ -186,10 +231,23 @@ bool Survey::HorSubSel::usePar( const IOPar& iop )
 }
 
 
+bool Survey::HorSubSel::useJSON( const OD::JSON::Object& obj )
+{
+    return doUseJSON( obj );
+}
+
+
 void Survey::HorSubSel::fillPar( IOPar& iop ) const
 {
     fillParInfo( iop, is2D(), geomID() );
     doFillPar( iop );
+}
+
+
+void Survey::HorSubSel::fillJSON( OD::JSON::Object& obj ) const
+{
+    fillJSONInfo( obj, is2D(), geomID() );
+    doFillJSON( obj );
 }
 
 
@@ -382,10 +440,26 @@ bool Survey::GeomSubSel::usePar( const IOPar& iop )
 }
 
 
+bool Survey::GeomSubSel::useJSON( const OD::JSON::Object& obj )
+{
+    if ( !horSubSel().useJSON(obj) )
+	return false;
+    zss_.useJSON( obj );
+    return true;
+}
+
+
 void Survey::GeomSubSel::fillPar( IOPar& iop ) const
 {
     horSubSel().fillPar( iop );
     zss_.fillPar( iop );
+}
+
+
+void Survey::GeomSubSel::fillJSON( OD::JSON::Object& obj ) const
+{
+    horSubSel().fillJSON( obj );
+    zss_.fillJSON( obj );
 }
 
 
@@ -582,8 +656,7 @@ bool LineHorSubSel::doUsePar( const IOPar& inpiop )
     }
 
     auto geomid = geomid_;
-    if ( !iop->get(sKey::GeomID(),geomid)
-      || !SurvGeom::isPresent(geomid) )
+    if ( !iop->get(sKey::GeomID(),geomid) || !SurvGeom::isPresent(geomid) )
 	return false;
 
     auto trcrg( trcNrRange() );
@@ -602,12 +675,42 @@ bool LineHorSubSel::doUsePar( const IOPar& inpiop )
 }
 
 
+bool LineHorSubSel::doUseJSON( const OD::JSON::Object& inpobj )
+{
+    const OD::JSON::Object* obj = &inpobj;
+    if ( !obj->isPresent(sKey::GeomID()) )
+    {
+	obj = inpobj.getObject( sKey::Line() );
+	if ( !obj )
+	    return false;
+    }
+
+    auto geomid = geomid_;
+    if ( !obj->getGeomID(sKey::GeomID(),geomid) ||
+	 !SurvGeom::isPresent(geomid) )
+	return false;
+
+    auto trcrg( trcNrRange() );
+    *this = LineHorSubSel( geomid ); // clear to no subselection
+    obj->get( sKey::TrcRange(), trcrg );
+    ssdata_.setOutputPosRange( trcrg );
+
+    return true;
+}
+
+
 void LineHorSubSel::doFillPar( IOPar& iop ) const
 {
     const auto trcrg( trcNrRange() );
     iop.set( sKey::FirstTrc(), trcrg.start );
     iop.set( sKey::LastTrc(), trcrg.stop );
     iop.set( sKey::StepTrc(), trcrg.step );
+}
+
+
+void LineHorSubSel::doFillJSON( OD::JSON::Object& obj ) const
+{
+    obj.set( sKey::TrcRange(), trcNrRange() );
 }
 
 
@@ -981,6 +1084,18 @@ bool CubeHorSubSel::doUsePar( const IOPar& iop )
 }
 
 
+bool CubeHorSubSel::doUseJSON( const OD::JSON::Object& obj )
+{
+    auto rg( inlRange() );
+    if ( obj.get(sKey::InlRange(),rg) )
+	setInlRange( rg );
+    rg = crlRange();
+    if ( obj.get(sKey::CrlRange(),rg) )
+	setCrlRange( rg );
+    return true;
+}
+
+
 void CubeHorSubSel::doFillPar( IOPar& iop ) const
 {
     const auto inlrg( inlRange() );
@@ -991,6 +1106,13 @@ void CubeHorSubSel::doFillPar( IOPar& iop ) const
     iop.set( sKey::FirstCrl(), crlrg.start );
     iop.set( sKey::LastCrl(), crlrg.stop );
     iop.set( sKey::StepCrl(), crlrg.step );
+}
+
+
+void CubeHorSubSel::doFillJSON( OD::JSON::Object& obj ) const
+{
+    obj.set( sKey::InlRange(), inlRange() );
+    obj.set( sKey::CrlRange(), crlRange() );
 }
 
 

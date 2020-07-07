@@ -97,6 +97,8 @@ protected:
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
+    bool		doUseJSON(const OD::JSON::Object&) override;
+    void		doFillJSON(OD::JSON::Object&) const override;
 
     IdxSubSelData&	gtTrcNrSubSel() const override
 			{ return mNonConst(ssdata_); }
@@ -265,6 +267,8 @@ protected:
 
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
+    bool		doUseJSON(const OD::JSON::Object&) override;
+    void		doFillJSON(OD::JSON::Object&) const override;
 
     IdxSubSelData&	gtTrcNrSubSel() const override
 			{ return mNonConst(ssdata1_); }

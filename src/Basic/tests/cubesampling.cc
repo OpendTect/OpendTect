@@ -7,8 +7,11 @@
 
 
 #include "testprog.h"
+
 #include "cubesampling.h"
+#include "odjson.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 #define mDeclCubeSampling( cs, istart, istop, istep, \
 			       cstart, cstop, cstep, \
@@ -196,6 +199,31 @@ bool testIterator()
 }
 
 
+bool testJSON()
+{
+    mDeclCubeSampling( cs, 2, 50, 6,
+	10, 100, 9,
+	1.0, 3.0, 0.004 );
+    const TrcKeyZSampling tkzs( cs );
+    const CubeSubSel css( cs );
+
+    OD::JSON::Object csobj, tkzsobj, cssobj;
+    cs.fillJSON( csobj );
+    tkzs.fillJSON( tkzsobj );
+    css.fillJSON( cssobj );
+
+    CubeSampling sampling;
+    sampling.useJSON( csobj );
+    TrcKeyZSampling tkzsread;
+    tkzsread.useJSON( tkzsobj );
+    CubeSubSel cssread;
+    cssread.useJSON( cssobj );
+
+    if ( sampling != cs || tkzs != tkzsread )
+	mRetResult( "Checking JSON" );
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -212,7 +240,8 @@ int mTestMainFnName( int argc, char** argv )
       || !testEmpty()
       || !testLimitTo()
       || !testIsCompatible()
-      || !testIterator() )
+      || !testIterator()
+      || !testJSON() )
 	return 1;
 
     return 0;

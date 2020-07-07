@@ -6,9 +6,11 @@
 
 
 #include "testprog.h"
+
 #include "odjson.h"
 #include "stringbuilder.h"
 #include "geometry.h"
+#include "ranges.h"
 
 using namespace OD::JSON;
 
@@ -27,6 +29,8 @@ static const char* jsonstrs[] = {
 
 0
 };
+
+static const char* sKeyInterval()	{ return  "Interval"; }
 
 
 static bool testParseJSON()
@@ -216,6 +220,23 @@ static bool testDumpJSON()
 }
 
 
+bool testInterval()
+{
+    OD::JSON::Object obj;
+    const StepInterval<int> intervalwrite( 10, 20, 5 );
+    obj.set( sKeyInterval(), intervalwrite );
+
+    StepInterval<int> intervalread;
+    obj.get( sKeyInterval(), intervalread );
+    mRunStandardTest( intervalread.start == intervalwrite.start
+	    && intervalread.stop == intervalwrite.stop
+	    && intervalread.step == intervalwrite.step,
+	   "Checking SetInterval And GetInterval" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -224,7 +245,8 @@ int mTestMainFnName( int argc, char** argv )
       || !testUseJSON(false)
       || !testCreateJSON()
       || !testUseJSON(true)
-      || !testDumpJSON() )
+      || !testDumpJSON()
+      || !testInterval() )
 	return 1;
 
     return 0;
