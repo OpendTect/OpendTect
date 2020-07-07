@@ -72,6 +72,8 @@ public:
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+    void		useJSON(const OD::JSON::Object&);
+    void		fillJSON(OD::JSON::Object&) const;
     static void		removeInfo(IOPar&);
 
     HorSampling		hsamp_;

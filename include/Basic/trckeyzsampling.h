@@ -136,7 +136,9 @@ public:
     TrcKeyZSampling&	operator=(const TrcKeyZSampling&);
 
     bool		usePar(const IOPar&);
+    bool		useJSON(const OD::JSON::Object&);
     void		fillPar(IOPar&) const;
+    void		fillJSON(OD::JSON::Object&) const;
     static void		removeInfo(IOPar&);
 
 //Legacy, don't use

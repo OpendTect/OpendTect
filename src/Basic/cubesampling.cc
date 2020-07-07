@@ -11,6 +11,7 @@
 #include "iopar.h"
 #include "keystrs.h"
 #include "linesubsel.h"
+#include "odjson.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -348,6 +349,23 @@ void HorSampling::fillPar( IOPar& pars ) const
 }
 
 
+void HorSampling::useJSON( const OD::JSON::Object& obj )
+{
+    pos_steprg_type inlrg, crlrg;
+    if ( obj.get(sKey::InlRange(),inlrg) )
+	setInlRange( inlrg );
+    if ( obj.get(sKey::CrlRange(),crlrg) )
+	setCrlRange( crlrg );
+}
+
+
+void HorSampling::fillJSON( OD::JSON::Object& obj ) const
+{
+    obj.set( sKey::InlRange(), inlRange() );
+    obj.set( sKey::CrlRange(), crlRange() );
+}
+
+
 void HorSampling::removeInfo( IOPar& par )
 {
     par.removeWithKey( sKey::FirstInl() );
@@ -535,6 +553,20 @@ void CubeSampling::fillPar( IOPar& par ) const
 {
     hsamp_.fillPar( par );
     par.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
+}
+
+
+void CubeSampling::useJSON( const OD::JSON::Object& obj )
+{
+    hsamp_.useJSON( obj );
+    obj.get( sKey::ZRange(), zsamp_ );
+}
+
+
+void CubeSampling::fillJSON( OD::JSON::Object& obj ) const
+{
+    hsamp_.fillJSON( obj );
+    obj.set( sKey::ZRange(), zsamp_ );
 }
 
 

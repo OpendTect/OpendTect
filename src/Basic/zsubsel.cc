@@ -6,8 +6,10 @@
 
 
 #include "zsubsel.h"
+
 #include "iopar.h"
 #include "keystrs.h"
+#include "odjson.h"
 #include "posidxsubsel.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
@@ -216,9 +218,26 @@ bool Pos::ZSubSel::usePar( const IOPar& iop )
 }
 
 
+bool Pos::ZSubSel::useJSON( const OD::JSON::Object& obj )
+{
+    z_steprg_type zrg;
+    if ( !obj.get(sKey::ZRange(),zrg) )
+	return false;
+
+    ssdata_.setOutputZRange( zrg );
+    return true;
+}
+
+
 void Pos::ZSubSel::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::ZRange(), zStart(), zStop(), zStep() );
+}
+
+
+void Pos::ZSubSel::fillJSON( OD::JSON::Object& obj ) const
+{
+    obj.set( sKey::ZRange(), zRange() );
 }
 
 
@@ -445,6 +464,20 @@ void Survey::FullZSubSel::fillPar( IOPar& iop ) const
 }
 
 
+void Survey::FullZSubSel::fillJSON( OD::JSON::Object& obj ) const
+{
+    auto* zssobj = obj.set( sKeyZSS, new OD::JSON::Object );
+    zssobj->set( sKey::Is2D(), is2D() );
+    auto* zsssarr = zssobj->set( sKey::Subsel(), new OD::JSON::Array(true) );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	auto* zsssobj = zsssarr->add( new OD::JSON::Object );
+	zsssobj->set( sKey::GeomID(), geomids_.get( idx ) );
+	zsssobj->set( sKey::Range(), zsss_.get(idx).outputZRange() );
+    }
+}
+
+
 void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 {
     PtrMan<IOPar> iop = inpiop.subselect( sKeyZSS );
@@ -469,7 +502,6 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 
 		bool is2d = true; GeomID gid;
 		Survey::SubSel::getInfo( *iop, is2d, gid );
-		if ( is2d && gid.isValid() )
 		{
 		    z_steprg_type zrg;
 		    if ( iop->get(sKey::ZRange(),zrg) )
@@ -498,9 +530,6 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 	return;
 
     si_ = si;
-    bool is2d = is2D();
-    iop->getYN( sKey::Is2D(), is2d );
-
     setEmpty();
     for ( auto idx=0; idx<sz; idx++ )
     {
@@ -508,6 +537,83 @@ void Survey::FullZSubSel::usePar( const IOPar& inpiop, const SurveyInfo* si )
 	GeomID gid; z_steprg_type zrg;
 	iop->get( IOPar::compKey(baseky,sKey::GeomID()), gid );
 	iop->get( IOPar::compKey(baseky,sKey::Range()), zrg );
+	if ( gid.isValid() )
+	{
+	    ZSubSel zss( survInfo().zRange() );
+	    zss.setOutputZRange( zrg );
+	    set( gid, zss );
+	}
+    }
+}
+
+
+void Survey::FullZSubSel::useJSON( const OD::JSON::Object& inpobj,
+				   const SurveyInfo* si )
+{
+    const OD::JSON::Object* obj = inpobj.getObject( sKeyZSS );
+    if ( !obj )
+    {
+	//Seis::SelData format
+	const bool iopis2d = !inpobj.isPresent( sKey::SurveyID() );
+	if ( iopis2d )
+	{
+	    int idx = 0;
+	    const auto* lineobj = inpobj.getArray( sKey::Line() );
+	    bool first = true;
+	    while( lineobj && true )
+	    {
+		obj = &lineobj->object( idx++ );
+		if ( obj )
+		{
+		    if ( first )
+		    {
+			setEmpty();
+			first = false;
+		    }
+		}
+		else
+		    break;
+
+		bool is2d = true; GeomID gid;
+		Survey::SubSel::getInfo( *obj, is2d, gid );
+		if ( is2d && gid.isValid() )
+		{
+		    z_steprg_type zrg;
+		    if ( obj->get(sKey::ZRange(),zrg) )
+		    {
+			ZSubSel zss( survInfo().zRange() );
+			zss.setOutputZRange( zrg );
+			set( gid, zss );
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    ZSubSel zss( ZSubSel::surv3D(si) );
+	    if ( zss.useJSON(inpobj) )
+	    {
+		setEmpty();
+		set( zss );
+	    }
+	}
+	return;
+    }
+
+    const auto* zssarr = obj->getArray( sKey::Subsel() );
+    if ( !zssarr || zssarr->size() < 1 )
+	return;
+
+    si_ = si;
+
+    setEmpty();
+    const int sz = zssarr->size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	GeomID gid; z_steprg_type zrg;
+	const auto& zssobj = zssarr->object( idx );
+	zssobj.getGeomID( sKey::GeomID(), gid );
+	zssobj.get( sKey::Range(), zrg );
 	if ( gid.isValid() )
 	{
 	    ZSubSel zss( survInfo().zRange() );

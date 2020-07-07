@@ -18,6 +18,7 @@ class DBKeySet;
 class SeparString;
 class StringBuilder;
 namespace Gason { struct JsonNode; }
+namespace Pos { class GeomID; }
 
 
 namespace OD
@@ -296,6 +297,9 @@ public:
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
     bool		getStrings(const char*,BufferStringSet&) const;
+    bool		getGeomID(const char*,Pos::GeomID&) const;
+    template <class T>
+    bool		get(const char*,Interval<T>&) const;
 
     Array*		set(const char* ky,Array*);
     Object*		set(const char* ky,Object*);
@@ -312,7 +316,10 @@ public:
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
     void		set(const char* ky,const DBKey&);
+    void		set(const char* ky,const Pos::GeomID&);
     void		set(const char* ky,const uiString&);
+    template <class T>
+    void		set(const char* ky,const Interval<T>&);
 
     void		remove(const char*);
 
@@ -344,6 +351,39 @@ inline Object& ValueSet::asObject()
 inline const Object& ValueSet::asObject() const
 { return *static_cast<const Object*>( this ); }
 
+template <class T>
+inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const
+{
+    const TypeSet<NumberType> intrvals = getArray( key )->valArr().vals();
+
+    intrvl.start = intrvals[0];
+    intrvl.stop = intrvals[1];
+
+    if ( intrvl.hasStep() )
+    {
+	mDynamicCastGet(StepInterval<T>*,si,&intrvl)
+	    si->step = intrvals[2];
+    }
+    return true;
+}
+
+
+template <class T>
+inline void OD::JSON::Object::set( const char* key, const Interval<T>& intrvl )
+{
+    Array* arr = new Array(DataType::Number);
+    TypeSet<NumberType> intrvals;
+    intrvals.add( intrvl.start ).add( intrvl.stop );
+
+    if ( intrvl.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<T>*,si,&intrvl)
+	    intrvals.add( si->step );
+    }
+
+    arr->set( intrvals );
+    set( key, arr );
+}
 
 } // namespace JSON
 

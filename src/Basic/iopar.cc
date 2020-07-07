@@ -23,6 +23,7 @@
 #include "timefun.h"
 #include "trckey.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -1509,3 +1510,16 @@ int IOPar::odVersion() const
 {
     return 100*majorversion_ + 10*minorversion_;
 }
+
+
+void IOPar::fillJSON( OD::JSON::Object& obj )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	auto key = getKey( idx );
+	auto val = getValue( idx );
+
+	obj.set( key, val );
+    }
+}
+

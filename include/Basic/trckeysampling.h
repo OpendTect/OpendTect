@@ -22,6 +22,8 @@ class LineHorSubSel;
 class CubeHorSubSel;
 class TrcKeyZSampling;
 
+namespace OD { namespace JSON {	class Object; }; };
+
 /*!\brief Horizontal sampling (inline and crossline range and steps).  */
 
 mExpClass(Basic) TrcKeySampling
@@ -151,7 +153,9 @@ public:
     TrcKeySampling&	operator=(const TrcKeySampling&);
 
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
+    bool		useJSON(const OD::JSON::Object&);
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
+    void		fillJSON(OD::JSON::Object&) const;
     static void		removeInfo(IOPar&);
     void		toString(uiPhrase&) const; //!< Nice text for info
 

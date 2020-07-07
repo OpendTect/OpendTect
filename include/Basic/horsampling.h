@@ -15,6 +15,14 @@ class CubeHorSubSel;
 class TrcKeySampling;
 class TrcKeyZSampling;
 
+namespace OD
+{
+    namespace JSON
+    {
+	class Object;
+    };
+};
+
 
 /*!\brief Horizontal sampling (inline and crossline range and steps).
 
@@ -86,6 +94,8 @@ public:
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+    void		useJSON(const OD::JSON::Object&);
+    void		fillJSON(OD::JSON::Object&) const;
     static void		removeInfo(IOPar&);
     void		toString(uiPhrase&) const; //!< Nice text for info
 
