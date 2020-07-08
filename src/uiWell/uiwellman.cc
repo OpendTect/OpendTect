@@ -45,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelldlgs.h"
 #include "uiwelllogimpexp.h"
 #include "uiwelllogcalc.h"
+#include "uiwelllogmerge.h"
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
 #include "uiwelllogdisplay.h"
@@ -87,6 +88,10 @@ uiWellMan::uiWellMan( uiParent* p )
     calclogsbut_ = new uiPushButton( logsbgrp, uiStrings::sCreate(), false);
     calclogsbut_->activated.notify( mCB(this,uiWellMan,calcLogs) );
     calclogsbut_->attach( rightOf, addlogsbut_ );
+    mergelogsbut_ = new uiPushButton( logsbgrp, tr("Merge"), false);
+    mergelogsbut_->activated.notify( mCB(this,uiWellMan,mergeLogs) );
+    mergelogsbut_->attach( rightOf, calclogsbut_ );
+
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsfld_ );
@@ -566,6 +571,28 @@ void uiWellMan::calcLogs( CallBacker* )
     dlg.go();
     if ( dlg.haveNewLogs() )
 	wellsChgd();
+}
+
+
+void uiWellMan::mergeLogs( CallBacker* )
+{
+    if ( curwds_.isEmpty() || currdrs_.isEmpty()
+	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() )
+	return;
+
+    currdrs_[0]->getLogs();
+    uiWellLogMerger dlg( this, curmultiids_ );
+    dlg.go();
+    if ( dlg.haveNewLogs() )
+    {
+	for ( int idx = curmultiids_.size()-1; idx >= 0; idx--	)
+	{
+	    Well::Data* wd = Well::MGR().release(curmultiids_[idx]);
+	    Well::MGR().removeObject( wd );
+	}
+
+	wellsChgd();
+    }
 }
 
 
