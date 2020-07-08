@@ -150,8 +150,6 @@ public:
     void		setHelpKey(const HelpKey&);
     virtual HelpKey	helpKey() const;
 
-    void		showMinMaxButtons();
-    void		showAlwaysOnTop();
     static int		titlePos();
     static void		setTitlePos(int pos);
 			// pos: -1 = left, 0 = center, 1 = right
