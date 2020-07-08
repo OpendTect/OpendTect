@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 			       cstart, cstop, cstep, \
 			       zstart, zstop, zstep) \
     TrcKeyZSampling cs( false ); \
+    cs.hsamp_.survid_ = TrcKey::std3DSurvID(); \
     cs.hsamp_.set( StepInterval<int>(istart,istop,istep), \
 	        StepInterval<int>(cstart,cstop,cstep) ); \
     cs.zsamp_.set( zstart, zstop, zstep );
@@ -173,19 +174,7 @@ bool testJSON()
 
     TrcKeyZSampling sampling;
     sampling.useJSON( obj );
-    bool b1 =  cs.hsamp_.inlRange().isEqual(sampling.hsamp_.inlRange(),mEps);
-    bool b2 =  cs.hsamp_.crlRange().isEqual(sampling.hsamp_.crlRange(),mEps);
-    bool b3 =  cs.zsamp_.isEqual(sampling.zsamp_,mEps);
-
-    if ( !(cs.hsamp_.inlRange().start == sampling.hsamp_.inlRange().start) &&
-	!(cs.hsamp_.inlRange().stop == sampling.hsamp_.inlRange().stop) &&
-	!(cs.hsamp_.inlRange().step == sampling.hsamp_.inlRange().step) &&
-	!(cs.hsamp_.crlRange().start == sampling.hsamp_.crlRange().start) &&
-	!(cs.hsamp_.crlRange().stop == sampling.hsamp_.crlRange().stop) &&
-	!(cs.hsamp_.crlRange().step == sampling.hsamp_.crlRange().step) &&
-	!(cs.zsamp_.start == sampling.zsamp_.start) &&
-	!(cs.zsamp_.stop == sampling.zsamp_.stop) &&
-	!(cs.zsamp_.step == sampling.zsamp_.step) )
+    if ( cs != sampling )
 	mRetResult( "Checking JSON" );
 
     return true;
