@@ -68,6 +68,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QStatusBar>
 #include <QWidget>
 
+#ifdef __win__
+# include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
+
 mUseQtnamespace
 
 
