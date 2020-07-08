@@ -90,6 +90,13 @@ public:
 			//!< Default icon is set in uiMain
     void		setIconText(const uiString&);
 
+    bool		showMinMaxButtons(bool yn=true);
+    bool		showAlwaysOnTop(bool yn=true);
+			/* Return if changed. Will hide the dialog
+			   if finalised and already shown */
+    void		showAndActivate();
+    void		activate();
+
     virtual void	show();
     void                close();
     void		raise();
@@ -129,6 +136,8 @@ public:
     const ObjectSet<uiToolBar>& toolBars() const;
     const ObjectSet<uiDockWin>& dockWins() const;
 
+    Notifier<uiMainWin>	windowShown;
+    Notifier<uiMainWin> windowHidden;
     Notifier<uiMainWin>	windowClosed;
 			//!< triggered when window exits
 
@@ -226,6 +235,10 @@ protected:
     int			languagechangecount_;
 
     BufferString	scripttorun_;
+
+private:
+
+    bool		doSetWindowFlags(od_uint32 qtwinflag,bool set);
 
 public:
 			// Not for casual use
