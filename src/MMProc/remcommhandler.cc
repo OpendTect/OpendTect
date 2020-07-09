@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
 #include "oscommand.h"
 #include "systeminfo.h"
 #include "netserver.h"
@@ -76,7 +76,31 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 	machcomm.addKeyedArg( "jobid", jobid, OS::OldStyle );
     machcomm.addArg( parfile );
 
-    machcomm.execute( OS::Batch );
+    OS::CommandLauncher cl( machcomm );
+    OS::CommandExecPars pars( OS::Batch );
+    pars.createstreams( true );
+    uiRetVal uirv;
+    const bool res = cl.execute( pars );
+    if ( !res )
+    {
+	const uiString errmsg = cl.errorMsg();
+	if ( errmsg.isEmpty() )
+	    uirv.add( tr("Cannot launch '%1'").arg( machcomm.toString(&pars) ));
+	else
+	    uirv.add( errmsg );
+    }
+
+    BufferString stderrstr;
+    od_istream* stderrstrm = cl.getStdError();
+    if ( stderrstrm )
+    {
+	stderrstrm->getAll( stderrstr );
+	if ( !stderrstr )
+	    uirv.add( toUiString(stderrstr) );
+    }
+
+    if ( !uirv.isOK() )
+	mErrRet( uirv.getText() )
 }
 
 
