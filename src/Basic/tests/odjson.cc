@@ -34,9 +34,7 @@ bool getInterval()
 {
     StepInterval<int> interval;
     obj_.get( sKeyInterval(), interval );
-    if ( (interval_.start != interval.start) &&
-	(interval_.stop != interval.stop) &&
-	(interval_.step != interval.step) )
+    if ( !interval_.isEqual(interval,mUdf(int)) )
 	mRetResult( "Checking SetInterval And GetInterval" );
 
     return true;
@@ -46,6 +44,7 @@ bool getInterval()
 int main( int argc, char** argv )
 {
     mInitTestProg();
+
     setInterval();
     if ( !getInterval() )
 	ExitProgram( 1 );
