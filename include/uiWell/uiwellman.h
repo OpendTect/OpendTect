@@ -62,6 +62,7 @@ protected:
     uiToolButton*		logdownbut_;
     uiPushButton*		addlogsbut_;
     uiPushButton*		calclogsbut_;
+    uiPushButton*		mergelogsbut_;
     uiToolButton*		welltrackbut_;
     uiToolButton*		d2tbut_;
     uiToolButton*		csbut_;
@@ -90,6 +91,7 @@ protected:
     void			edChckSh(CallBacker*);
     void			importLogs(CallBacker*);
     void			calcLogs(CallBacker*);
+    void			mergeLogs(CallBacker*);
     void			exportLogs(CallBacker*);
     void			logTools(CallBacker*);
 

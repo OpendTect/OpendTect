@@ -18,45 +18,39 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "commandlineparser.h"
 #include "ioman.h"
-#include "filepath.h"
-#include "netreqconnection.h"
-#include "netreqpacket.h"
 #include "netserver.h"
 #include "netservice.h"
-#include "pythonaccess.h"
-#include "settings.h"
+#include "odjson.h"
 #include "timer.h"
 
 
-/*!\brief Base class for OpendTect Service Manager and external services/apps */
 
-
-
-
-uiODService::uiODService( bool assignport )
+uiODService::uiODService( uiMainWin& mainwin, bool assignport )
    : ODServiceBase(assignport)
 {
-    const CommandLineParser* clp = new CommandLineParser;
+    if ( !isMainService() )
+	return;
+
+    const CommandLineParser clp;
     const char* skeynolisten = Network::Server::sKeyNoListen();
-    if ( !clp->hasKey(skeynolisten) )
+    if ( !clp.hasKey(skeynolisten) )
     {
-	if ( clp->hasKey(sKeyODServer()) )
+	if ( clp.hasKey(sKeyODServer()) )
 	{
 	    BufferString odserverstr;
-	    if ( clp->getVal( sKeyODServer(), odserverstr ) )
+	    if ( clp.getVal(sKeyODServer(),odserverstr) )
 		odauth_.fromString( odserverstr );
 	}
     }
-    delete clp;
+
     doRegister();
+    mAttachCB( mainwin.windowClosed, uiODService::doAppClosing );
 }
 
 
 uiODService::~uiODService()
 {
-    detachAllNotifiers();
-    delete mastercheck_;
-    doDeRegister();
+    doAppClosing( nullptr );
 }
 
 
@@ -75,29 +69,23 @@ bool uiODService::isMasterAlive() const
 }
 
 
-uiRetVal uiODService::doAction( const OD::JSON::Object& actobj )
+bool uiODService::doParseAction( const char* action, uiRetVal& uirv )
 {
-    const BufferString action( actobj.getStringValue( sKeyAction()) );
-
-    if ( action == sKeyCloseEv() )
+    if ( FixedString(action) == sKeyRaiseEv() )
     {
-	return doCloseAct();
-    }
-    else if ( action == sKeyRaiseEv() )
-    {
-	uiMainWin* mainwin = uiMain::theMain().topLevel();
-	if ( mainwin->isMinimized() || mainwin->isHidden() )
-	{
-	    mainwin->showNormal();
-	    mainwin->raise();
-	}
+	uiMain::theMain().topLevel()->showAndActivate();
+	uirv.setOK();
+	return true;
     }
 
-    uiRetVal ret = ODServiceBase::doAction( actobj );
-    if ( ret.isError() )
-	uiMain::theMain().topLevel()->statusBar()->message( ret );
+    return ODServiceBase::doParseAction( action, uirv );
+}
 
-    return ret;
+
+bool uiODService::doParseRequest( const OD::JSON::Object& request,
+				  uiRetVal& uirv )
+{
+    return ODServiceBase::doParseRequest( request, uirv );
 }
 
 
@@ -122,20 +110,9 @@ uiRetVal uiODService::sendRequest( const char* reqkey,
 }
 
 
-uiRetVal uiODService::close()
+void uiODService::setBackground( bool yn )
 {
-    if ( !isODMainSlave() )
-	return uiRetVal::OK();
-
-    OD::JSON::Object request;
-    request.set( sKeyAction(), sKeyCloseEv() );
-    return doAction( request );
-}
-
-
-void uiODService::setBackground()
-{
-    handleMasterCheckTimer( true );
+    handleMasterCheckTimer( yn );
 }
 
 
@@ -161,11 +138,7 @@ void uiODService::handleMasterCheckTimer( bool start )
 void uiODService::masterCheckCB( CallBacker* cb )
 {
     if ( !isMasterAlive() )
-    {
-	//TODO: only if top dialog is hidden ?
-	// uiMsg ask confirmation ?
 	uiMain::theMain().exit(0);
-    }
 }
 
 
@@ -215,14 +188,17 @@ uiRetVal uiODService::doDeRegister()
 
 void uiODService::doAppClosing( CallBacker* cb )
 {
+    detachAllNotifiers();
     deleteAndZeroPtr( mastercheck_ );
-    if ( !isODMainSlave() )
-    {
-	ODServiceBase::doAppClosing( cb );
-	return;
-    }
-
+    doDeRegister();
     odauth_.setPort( 0 );
+    ODServiceBase::doAppClosing( cb );
+}
+
+
+void uiODService::closeApp()
+{
+    uiMain::theMain().exit(0);
 }
 
 
@@ -232,19 +208,9 @@ void uiODService::doPyEnvChange( CallBacker* )
 	return;
 
     OD::JSON::Object sinfo;
-    ODServiceBase::getPythEnvRequestInfo( sinfo );
+    getPythEnvRequestInfo( sinfo );
     const uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
-						sKeyPyEnvChangeEv(), sinfo );
+				       sKeyPyEnvChangeEv(), sinfo );
     if ( !uirv.isOK() )
 	uiMSG().error( uirv );
-}
-
-
-void uiODService::connClosedCB( CallBacker* cb )
-{
-    ODServiceBase::connClosedCB(cb);
-
-    if ( needclose_ )
-	uiMain::theMain().exit(0);
-
 }

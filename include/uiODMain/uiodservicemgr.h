@@ -13,10 +13,9 @@
 
 #include "uiodmainmod.h"
 
+#include "netservice.h"
 #include "uiodservice.h"
 
-#include "netservice.h"
-#include "odservicebase.h"
 
 
 /*!\brief The OpendTect service manager
@@ -47,13 +46,8 @@
 
 class uiMainWin;
 
-namespace OD {
-    namespace JSON {
-	class Object;
-    };
-};
 
-mExpClass(uiODMain) uiODServiceMgr : public ODServiceBase
+mExpClass(uiODMain) uiODServiceMgr : public uiODService
 { mODTextTranslationClass(uiODServiceMgr)
 public:
 
@@ -80,9 +74,10 @@ private:
 
     ObjectSet<Network::Service> services_;
 
-    void		doAppClosing(CallBacker*) override;
+    void		doAppClosing(CallBacker*) override final;
     void		doSurveyChanged(CallBacker*) override;
-    void		doPyEnvChange(CallBacker*) override;
+    void		doPyEnvChange(CallBacker*) override final;
+    void		closeApp() override final;
 
     uiRetVal		addService(const OD::JSON::Object*);
     uiRetVal		removeService(const OD::JSON::Object*);
@@ -95,7 +90,9 @@ private:
     uiRetVal		sendRequest(const Network::Service&,const char*,
 				    const OD::JSON::Object&) const;
 
-    uiRetVal		doRequest(const OD::JSON::Object&) override;
+    bool		doParseAction(const char*,uiRetVal&) override final;
+    bool		doParseRequest(const OD::JSON::Object&,
+				       uiRetVal&) override final;
 
     friend class uiODMain;
 

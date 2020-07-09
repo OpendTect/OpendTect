@@ -12,17 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodservicemgr.h"
 
 #include "uimain.h"
-#include "uimainwin.h"
 #include "uimsg.h"
-#include "uiodmain.h"
 #include "uiodapplmgr.h"
 
 #include "filepath.h"
-#include "ioman.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "netreqconnection.h"
-#include "netreqpacket.h"
+#include "odjson.h"
 
 
 /*!\brief The OpendTect service manager */
@@ -37,7 +33,8 @@ uiODServiceMgr& uiODServiceMgr::getMgr()
 
 
 uiODServiceMgr::uiODServiceMgr()
-    : serviceAdded(this)
+    : uiODService(*uiMain::theMain().topLevel())
+    , serviceAdded(this)
     , serviceRemoved(this)
 {
 }
@@ -46,7 +43,6 @@ uiODServiceMgr::uiODServiceMgr()
 uiODServiceMgr::~uiODServiceMgr()
 {
     doAppClosing( nullptr );
-    deepErase( services_ );
 }
 
 
@@ -195,10 +191,12 @@ void uiODServiceMgr::raise( const Network::Service::ID servid ) const
 }
 
 
-void uiODServiceMgr::doAppClosing( CallBacker* )
+void uiODServiceMgr::doAppClosing( CallBacker* cb )
 {
     for ( int idx=services_.size()-1; idx>=0; idx-- )
 	removeService( services_[idx]->getID() );
+    deepErase( services_ );
+    uiODService::doAppClosing( cb );
 }
 
 
@@ -219,7 +217,7 @@ void uiODServiceMgr::doSurveyChanged( CallBacker* )
 void uiODServiceMgr::doPyEnvChange( CallBacker* )
 {
     OD::JSON::Object sinfo;
-    ODServiceBase::getPythEnvRequestInfo( sinfo );
+    getPythEnvRequestInfo( sinfo );
     for ( int idx=0; idx<services_.size(); idx++ )
     {
 	const uiRetVal uirv = sendRequest( *services_[idx], sKeyPyEnvChangeEv(),
@@ -230,16 +228,45 @@ void uiODServiceMgr::doPyEnvChange( CallBacker* )
 }
 
 
-uiRetVal uiODServiceMgr::doRequest( const OD::JSON::Object& request )
+void uiODServiceMgr::closeApp()
+{
+    auto* mainwin = ODMainWin();
+    if ( mainwin )
+    {
+	mainwin->forceExit();
+	return;
+    }
+
+    uiMain::theMain().exit(0);
+}
+
+
+bool uiODServiceMgr::doParseAction( const char* action, uiRetVal& uirv )
+{
+    return uiODService::doParseAction( action, uirv );
+}
+
+
+bool uiODServiceMgr::doParseRequest( const OD::JSON::Object& request,
+				     uiRetVal& uirv )
 {
     if ( request.isPresent(sKeyRegister()) )
-	return addService( request.getObject(sKeyRegister()) );
+    {
+	uirv = addService( request.getObject(sKeyRegister()) );
+	return true;
+    }
     else if ( request.isPresent(sKeyDeregister()) )
-	return removeService( request.getObject(sKeyDeregister()) );
+    {
+	uirv = removeService( request.getObject(sKeyDeregister()) );
+	return true;
+    }
     else if ( request.isPresent(sKeyStart()) )
-	return startApp( request.getObject(sKeyStart()) );
+    {
+	uirv = startApp( request.getObject(sKeyStart()) );
+	return true;
+    }
 
-    return ODServiceBase::doRequest( request );
+    return uiODService::doParseRequest( request, uirv );
 }
 
 
@@ -252,13 +279,13 @@ uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    if ( !jsonobj->isPresent( sKey::Name() ) )
+    if ( !jsonobj->isPresent(sKey::Name()) )
     {
 	uirv = tr("No application name to start");
 	return uirv;
     }
 
-    BufferString appname( jsonobj->getStringValue( sKey::Name() ) );
+    const BufferString appname( jsonobj->getStringValue( sKey::Name() ) );
     if ( appname==sKey::NN3D() || appname==sKey::NN2D() )
     {
 	while ( true )
@@ -274,32 +301,3 @@ uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
 
     return uiRetVal::OK();
 }
-
-/*
-class uiODRequestServerDlg : public uiDialog
-{ mODTextTranslationClass(uiODRequestServerDlg);
-public:
-    uiODRequestServerDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("External Services"),mNoDlgTitle,mTODOHelpKey))
-    {
-	setCtrlStyle( CloseOnly );
-	setShrinkAllowed(true);
-
-	uiListBox::Setup lsu( OD::ChooseOnlyOne, tr("Service") );
-	servicefld_ = new uiListBox( this, lsu, "Services" );
-
-	butgrp_ = new uiButtonGroup( this, "buttons", OD::Vertical );
-	butgrp_->attach( rightOf, servicefld_ );
-    }
-
-protected:
-    bool acceptOK( CallBacker* )
-    {
-	return true;
-    }
-
-    uiListBox		servicefld_;
-    uiButtonGrp*	butgrp_;
-
-};
-*/
