@@ -228,6 +228,10 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    CubeSampling initcs, initworkcs;
+    SI().getCubeSampling( initcs, OD::FullSurvey );
+    SI().getCubeSampling( initworkcs, OD::UsrWork );
+
     mDeclCubeSampling( survcs, 1, 501, 2,
 			    10, 100, 2,
 			    1.0, 10.0, 0.004 );
@@ -243,6 +247,9 @@ int mTestMainFnName( int argc, char** argv )
       || !testIterator()
       || !testJSON() )
 	return 1;
+
+    si.setRanges( initcs );
+    si.setWorkRanges( initworkcs ); //For the sanity of SI().
 
     return 0;
 }

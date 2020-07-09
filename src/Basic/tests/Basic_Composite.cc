@@ -23,6 +23,10 @@
 #include "commandlineparser.cc"
 
 #undef mTestMainFnName
+#define mTestMainFnName test_main_cubesampling
+#include "cubesampling.cc"
+
+#undef mTestMainFnName
 #define mTestMainFnName test_main_datapack
 #include "datapack.cc"
 
@@ -37,6 +41,10 @@
 #undef mTestMainFnName
 #define mTestMainFnName test_main_math2
 #include "math2.cc"
+
+#undef mTestMainFnName
+#define mTestMainFnName test_main_odjson
+#include "odjson.cc"
 
 #undef mTestMainFnName
 #define mTestMainFnName test_main_refcount
@@ -61,10 +69,6 @@
 #undef mTestMainFnName
 #define mTestMainFnName test_main_threadwork
 #include "threadwork.cc"
-
-#undef mTestMainFnName
-#define mTestMainFnName test_main_cubesampling
-#include "cubesampling.cc"
 
 #undef mTestMainFnName
 #define mTestMainFnName test_main_uistring
@@ -99,15 +103,16 @@ int testMain( int argc, char** argv )
     initSI();
 
     mRunSubTest( commandlineparser );
+    mRunSubTest( cubesampling );
     mRunSubTest( datapack );
     mRunSubTest( dbkey );
     mRunSubTest( geometry );
     mRunSubTest( math2 );
+    mRunSubTest( odjson );
     mRunSubTest( refcount );
     mRunSubTest( sets );
     mRunSubTest( string );
     mRunSubTest( survgeom );
-    mRunSubTest( cubesampling );
     mRunSubTest( uistring );
     mRunSubTest( various_basic );
 
