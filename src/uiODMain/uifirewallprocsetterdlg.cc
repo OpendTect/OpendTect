@@ -353,7 +353,9 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 
 	FilePath exefp( exepath_ );
 
-	if ( idx == PDE::ODv7 )
+	if ( idx == PDE::ODv6 )
+	    const_cast<BufferStringSet&>(procset).add( "od_main" );
+	else if ( idx == PDE::ODv7 )
 	{
 	    FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
 	    odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
