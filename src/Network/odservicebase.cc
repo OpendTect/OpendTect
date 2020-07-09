@@ -11,23 +11,38 @@
 
 #include "odservicebase.h"
 
+#include "applicationdata.h"
 #include "commandlineparser.h"
 #include "ioman.h"
-#include "pythonaccess.h"
-
 #include "filepath.h"
+#include "keystrs.h"
 #include "netreqconnection.h"
 #include "netreqpacket.h"
 #include "netserver.h"
 #include "netservice.h"
+#include "pythonaccess.h"
 #include "settings.h"
-#include "timer.h"
 
 
 ODServiceBase::ODServiceBase( bool assignport )
     : externalAction(this)
     , externalRequest(this)
 {
+    ODServiceBase* mainserv = theMain();
+    server_ = mainserv ? mainserv->server_ : nullptr;
+    if ( server_ )
+    {
+	serverismine_ = false;
+	if ( this != mainserv )
+	{
+	    mAttachCB( mainserv->externalAction,
+		       ODServiceBase::externalActionCB );
+	    mAttachCB( mainserv->externalRequest,
+		       ODServiceBase::externalRequestCB );
+	}
+	return;
+    }
+
     const char* skeyport = Network::Server::sKeyPort();
     const char* skeynolisten = Network::Server::sKeyNoListen();
     PortNr_Type portid = 0;
@@ -36,29 +51,28 @@ ODServiceBase::ODServiceBase( bool assignport )
     Settings::common().get( skeyport, defport );
 
     int clport = 0;
-    const CommandLineParser* clp = new CommandLineParser;
-    if ( !clp->hasKey(skeynolisten) )
+    const CommandLineParser clp;
+    if ( !clp.hasKey(skeynolisten) )
     {
-	if ( clp->hasKey( skeyport ) )
-	    clp->getVal( skeyport, clport );
+	if ( clp.hasKey( skeyport ) )
+	    clp.getVal( skeyport, clport );
 
-	if ( clport > 0 && Network::isPortFree( (PortNr_Type) clport ) )
-	    portid = (PortNr_Type) clport;
-	else if ( assignport && defport>0
-	    && Network::isPortFree((PortNr_Type) defport) )
-	    portid = (PortNr_Type) defport;
-	else if ( assignport )
-	{
-	    uiRetVal uirv;
-	    portid = Network::getUsablePort( uirv );
-	    if ( !uirv.isOK() )
-	    {
-		pErrMsg( "unable to find usable port" );
-		portid = 0;
-	    }
-	}
+        if ( clport > 0 && Network::isPortFree( (PortNr_Type) clport ) )
+            portid = (PortNr_Type) clport;
+        else if ( assignport && defport>0
+                         && Network::isPortFree((PortNr_Type) defport) )
+            portid = (PortNr_Type) defport;
+        else if ( assignport )
+        {
+            uiRetVal uirv;
+            portid = Network::getUsablePort( uirv );
+            if ( !uirv.isOK() )
+            {
+                pErrMsg( "unable to find usable port" );
+                portid = 0;
+            }
+        }
     }
-    delete clp;
 
     if ( portid>0 )
 	startServer( portid );
@@ -69,13 +83,14 @@ ODServiceBase::ODServiceBase( bool assignport )
     mAttachCB( IOM().surveyChanged, ODServiceBase::surveyChangedCB );
     mAttachCB( IOM().applicationClosing, ODServiceBase::appClosingCB );
     mAttachCB( OD::PythA().envChange, ODServiceBase::pyenvChangeCB );
+    mAttachCB( this->externalAction, ODServiceBase::externalActionCB );
+    mAttachCB( this->externalRequest, ODServiceBase::externalRequestCB );
 }
 
 
 ODServiceBase::~ODServiceBase()
 {
-    detachAllNotifiers();
-    stopServer();
+    doAppClosing( nullptr );
 }
 
 
@@ -87,8 +102,13 @@ bool ODServiceBase::isOK() const
 
 Network::Authority ODServiceBase::getAuthority() const
 {
-    return server_ ? server_->getAuthority()
-	: Network::Authority();
+    return server_ ? server_->getAuthority() : Network::Authority();
+}
+
+
+bool ODServiceBase::isMainService() const
+{
+    return this == theMain();
 }
 
 
@@ -113,21 +133,22 @@ void ODServiceBase::startServer( PortNr_Type portid )
 	stopServer();
 	return;
     }
+
+    if ( !theMain() )
+	theMain( this );
 }
 
 
 void ODServiceBase::stopServer()
 {
-    deleteAndZeroPtr( server_ );
+    if ( serverismine_ )
+	deleteAndZeroPtr( server_ );
 }
 
 
 uiRetVal ODServiceBase::doAction( const OD::JSON::Object& actobj )
 {
     const BufferString action( actobj.getStringValue( sKeyAction()) );
-    if ( action == sKeyStatusEv() )
-	return uiRetVal::OK();
-
     uirv_ = tr("Unknown action: %1").arg( action );
     externalAction.trigger( action );
 
@@ -137,28 +158,65 @@ uiRetVal ODServiceBase::doAction( const OD::JSON::Object& actobj )
 
 uiRetVal ODServiceBase::doRequest( const OD::JSON::Object& request )
 {
-    if ( request.isPresent(sKeyPyEnvChangeEv()) )
-	return pythEnvChangedReq( request );
-    else if ( request.isPresent(sKeySurveyChangeEv()) )
-	return survChangedReq( request );
-
     uirv_ = tr("Unknown JSON packet type: %1").arg( request.dumpJSon() );
-    externalRequest.trigger( request );
+    externalRequest.trigger( &request );
 
     return uirv_;
 }
 
 
-uiRetVal ODServiceBase::doCloseAct()
+bool ODServiceBase::doParseAction( const char* action, uiRetVal& uirv )
+{
+    if ( FixedString(action) == sKeyStatusEv() )
+    {
+	uirv = uiRetVal::OK();
+	return true;
+    }
+    else if ( FixedString(action) == sKeyCloseEv() )
+    {
+	uirv = doPrepareForClose();
+	return true;
+    }
+
+    return false;
+}
+
+
+bool ODServiceBase::doParseRequest( const OD::JSON::Object& request,
+				    uiRetVal& uirv )
+{
+    if ( request.isPresent(sKeyPyEnvChangeEv()) )
+    {
+	uirv = pythEnvChangedReq( request );
+	return true;
+    }
+    else if ( request.isPresent(sKeySurveyChangeEv()) )
+    {
+	uirv = survChangedReq( request );
+	return true;
+    }
+
+    return false;
+}
+
+
+uiRetVal ODServiceBase::doPrepareForClose()
 {
     needclose_ = true;
     return uiRetVal::OK();
 }
 
 
+void ODServiceBase::closeApp()
+{
+    IOM().applClosing();
+    ApplicationData::exit( 0 );
+}
+
+
 const OD::JSON::Object* ODServiceBase::getSubObj(
-    const OD::JSON::Object& request,
-    const char* key )
+					const OD::JSON::Object& request,
+					const char* key )
 {
     return request.isPresent(key) ? request.getObject( key ) : nullptr;
 }
@@ -167,7 +225,7 @@ const OD::JSON::Object* ODServiceBase::getSubObj(
 uiRetVal ODServiceBase::survChangedReq( const OD::JSON::Object& request )
 {
     const OD::JSON::Object* paramobj = ODServiceBase::getSubObj( request,
-	sKeySurveyChangeEv() );
+							sKeySurveyChangeEv() );
     if ( paramobj && paramobj->isPresent(sKey::Survey()) )
     {
 	const FilePath surveydir( paramobj->getStringValue(sKey::Survey() ) );
@@ -184,9 +242,9 @@ uiRetVal ODServiceBase::survChangedReq( const OD::JSON::Object& request )
 uiRetVal ODServiceBase::pythEnvChangedReq( const OD::JSON::Object& request )
 {
     const OD::JSON::Object* paramobj = ODServiceBase::getSubObj( request,
-	sKeyPyEnvChangeEv() );
+							sKeyPyEnvChangeEv() );
     if ( paramobj && paramobj->isPresent(sKey::FileName()) &&
-	paramobj->isPresent(sKey::Name()) )
+	 paramobj->isPresent(sKey::Name()) )
     {
 	OD::PythonAccess& pytha = OD::PythA();
 	FilePath prevactivatefp;
@@ -194,7 +252,7 @@ uiRetVal ODServiceBase::pythEnvChangedReq( const OD::JSON::Object& request )
 	    prevactivatefp = *pytha.activatefp_;
 	const BufferString prevvirtenvnm( pytha.virtenvnm_ );
 	const FilePath activatefp(
-	    paramobj->getStringValue(sKey::FileName()) );
+				paramobj->getStringValue(sKey::FileName()) );
 	const BufferString virtenvnm( paramobj->getStringValue(sKey::Name() ) );
 	if ( prevactivatefp != activatefp || prevvirtenvnm != virtenvnm )
 	{
@@ -220,8 +278,8 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 {
     const OD::PythonAccess& pytha = OD::PythA();
     sinfo.set( sKey::FileName(), pytha.activatefp_
-	? pytha.activatefp_->fullPath()
-	: BufferString::empty() );
+				? pytha.activatefp_->fullPath()
+				: BufferString::empty() );
     sinfo.set( sKey::Name(), pytha.virtenvnm_ );
 }
 
@@ -271,7 +329,7 @@ void ODServiceBase::packetArrivedCB( CallBacker* cb )
     }
 
     uirv = request.isPresent(sKeyAction()) ? doAction( request )
-	: doRequest( request );
+					   : doRequest( request );
     if ( uirv.isOK() )
 	sendOK();
     else
@@ -289,15 +347,44 @@ void ODServiceBase::connClosedCB( CallBacker* cb )
     mDetachCB( conn->connectionClosed, ODServiceBase::connClosedCB );
     conn_ = nullptr;
 
+    doConnClosed( cb );
+    if ( needclose_ )
+	closeApp();
+}
+
+
+void ODServiceBase::externalActionCB( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(BufferString,actstr,cb);
+    if ( actstr.isEmpty() )
+	return;
+
+    uiRetVal uirv;
+    if ( doParseAction(actstr.buf(),uirv) )
+	uirv_ = uirv;
+}
+
+
+void ODServiceBase::externalRequestCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const OD::JSON::Object*,reqobj,cb);
+    if ( !reqobj )
+	return;
+
+    uiRetVal uirv;
+    if ( doParseRequest(*reqobj,uirv) )
+	uirv_ = uirv;
 }
 
 
 uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
-    const char* servicenm,
-    const char* action )
+				    const char* servicenm, const char* action )
 {
     PtrMan<Network::RequestConnection> conn =
-	new Network::RequestConnection( auth, false, 2000 );
+		    new Network::RequestConnection( auth, false, 2000 );
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to service %1 on %2")
@@ -317,7 +404,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
     }
 
     ConstPtrMan<Network::RequestPacket> receivedpacket =
-	conn->pickupPacket( packet->requestID(), 2000 );
+		    conn->pickupPacket( packet->requestID(), 15000 );
     if ( !receivedpacket )
 	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
 
@@ -336,12 +423,11 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
 
 
 uiRetVal ODServiceBase::sendRequest( const Network::Authority& auth,
-    const char* servicenm,
-    const char* reqkey,
-    const OD::JSON::Object& reqobj )
+				     const char* servicenm, const char* reqkey,
+				     const OD::JSON::Object& reqobj )
 {
     PtrMan<Network::RequestConnection> conn =
-	new Network::RequestConnection( auth, false, 2000 );
+		    new Network::RequestConnection( auth, false, 2000 );
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to %1 server on %2")
@@ -382,4 +468,20 @@ void ODServiceBase::sendErr( uiRetVal& uirv )
     if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendErr - failed"); }
     packet_.release();
+}
+
+
+void ODServiceBase::doAppClosing( CallBacker* )
+{
+    detachAllNotifiers();
+    stopServer();
+}
+
+
+ODServiceBase* ODServiceBase::theMain( ODServiceBase* newmain )
+{
+    mDefineStaticLocalObject( ODServiceBase*, mainservice, = nullptr )
+    if ( newmain )
+	mainservice = newmain;
+    return mainservice;
 }

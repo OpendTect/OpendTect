@@ -13,10 +13,21 @@
 
 #include "uitoolsmod.h"
 
-#include "networkcommon.h"
 #include "odservicebase.h"
 
+class Timer;
+class uiMainWin;
 
+namespace sKey
+{
+    inline FixedString NN3D()	{ return "NeuralNetwork3D"; }
+    inline FixedString NN2D()	{ return "NeuralNetwork2D"; }
+    inline FixedString UVQ3D()	{ return "NNQuickUVQ3D"; }
+    inline FixedString UVQ2D()	{ return "NNQuickUVQ2D"; }
+};
+
+
+/*!\brief Base class for a GUI service potentially managed by od_main */
 
 mExpClass(uiTools) uiODService : public ODServiceBase
 { mODTextTranslationClass(uiODService)
@@ -28,18 +39,20 @@ public:
 
     bool		isODMainSlave() const;
     bool		isMasterAlive() const;
-    void		setBackground();
+    void		setBackground(bool yn);
 
 protected:
 
-			uiODService(bool assignport=false);
+			uiODService(uiMainWin&,bool assignport=true);
 
     uiRetVal		sendAction(const char* act) const;
     uiRetVal		sendRequest(const char* reqkey,
 				    const OD::JSON::Object&) const;
-    uiRetVal		doAction(const OD::JSON::Object&) override;
-    uiRetVal		close();
+    bool		doParseAction(const char*,uiRetVal&) override;
+    bool		doParseRequest(const OD::JSON::Object&,
+				       uiRetVal&) override;
 
+    void		doAppClosing(CallBacker*) override;
 
 private:
 			uiODService(const uiODService&) = delete;
@@ -51,10 +64,10 @@ private:
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
     void		handleMasterCheckTimer(bool start);
-    void		doAppClosing(CallBacker*) override;
+    void		closeApp() override;
+
     void		doPyEnvChange(CallBacker*) override;
     void		masterCheckCB(CallBacker*);
-    void		connClosedCB(CallBacker*) override;
 
     Network::Authority	odauth_;
     ID			servid_ = 0;
