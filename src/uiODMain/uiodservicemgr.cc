@@ -11,15 +11,13 @@
 #include "uiodservicemgr.h"
 
 #include "uimain.h"
-#include "uimainwin.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 
-#include "dbman.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "netreqconnection.h"
-#include "netreqpacket.h"
+#include "odjson.h"
 
 
 /*!\brief The OpendTect service manager */
@@ -34,7 +32,8 @@ uiODServiceMgr& uiODServiceMgr::getMgr()
 
 
 uiODServiceMgr::uiODServiceMgr()
-    : serviceAdded(this)
+    : uiODService(*uiMain::theMain().topLevel())
+    , serviceAdded(this)
     , serviceRemoved(this)
 {
 }
@@ -43,7 +42,6 @@ uiODServiceMgr::uiODServiceMgr()
 uiODServiceMgr::~uiODServiceMgr()
 {
     doAppClosing( nullptr );
-    deepErase( services_ );
 }
 
 
@@ -146,7 +144,7 @@ uiRetVal uiODServiceMgr::sendAction( const Network::Service& service,
 				     const char* action ) const
 {
     const BufferString servicenm( "Service ", service.name() );
-    return uiODServiceBase::sendAction( service.getAuthority(),
+    return ODServiceBase::sendAction( service.getAuthority(),
 					servicenm, action );
 }
 
@@ -156,7 +154,7 @@ uiRetVal uiODServiceMgr::sendRequest( const Network::Service& service,
 				      const OD::JSON::Object& reqinfo ) const
 {
     const BufferString servicenm( "Service ", service.name() );
-    return uiODServiceBase::sendRequest( service.getAuthority(),
+    return ODServiceBase::sendRequest( service.getAuthority(),
 					 servicenm, reqkey, reqinfo );
 }
 
@@ -192,10 +190,12 @@ void uiODServiceMgr::raise( const Network::Service::ID servid ) const
 }
 
 
-void uiODServiceMgr::doAppClosing( CallBacker* )
+void uiODServiceMgr::doAppClosing( CallBacker* cb )
 {
     for ( int idx=services_.size()-1; idx>=0; idx-- )
 	removeService( services_[idx]->getID() );
+    deepErase( services_ );
+    uiODService::doAppClosing( cb );
 }
 
 
@@ -216,7 +216,7 @@ void uiODServiceMgr::doSurveyChanged( CallBacker* )
 void uiODServiceMgr::doPyEnvChange( CallBacker* )
 {
     OD::JSON::Object sinfo;
-    uiODServiceBase::getPythEnvRequestInfo( sinfo );
+    getPythEnvRequestInfo( sinfo );
     for ( const auto service : services_ )
     {
 	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(),
@@ -227,41 +227,76 @@ void uiODServiceMgr::doPyEnvChange( CallBacker* )
 }
 
 
-uiRetVal uiODServiceMgr::doRequest( const OD::JSON::Object& request )
+void uiODServiceMgr::closeApp()
 {
-    if ( request.isPresent(sKeyRegister()) )
-	return addService( request.getObject(sKeyRegister()) );
-    else if ( request.isPresent(sKeyDeregister()) )
-	return removeService( request.getObject(sKeyDeregister()) );
+    auto* mainwin = ODMainWin();
+    if ( mainwin )
+    {
+	mainwin->exit( false );
+	return;
+    }
 
-    return uiODServiceBase::doRequest( request );
+    uiMain::theMain().exit(0);
 }
 
-/*
- * class uiODRequestServerDlg : public uiDialog
- * { mODTextTranslationClass(uiODRequestServerDlg);
- * public:
- *    uiODRequestServerDlg( uiParent* p )
- *    : uiDialog(p,Setup(tr("External Services"),mNoDlgTitle,mTODOHelpKey))
- *    {
- *	setCtrlStyle( CloseOnly );
- *	setShrinkAllowed(true);
- *
- *	uiListBox::Setup lsu( OD::ChooseOnlyOne, tr("Service") );
- *	servicefld_ = new uiListBox( this, lsu, "Services" );
- *
- *	butgrp_ = new uiButtonGroup( this, "buttons", OD::Vertical );
- *	butgrp_->attach( rightOf, servicefld_ );
- *    }
- *
- * protected:
- *    bool acceptOK( CallBacker* )
- *    {
- *	return true;
- *    }
- *
- *    uiListBox		servicefld_;
- *    uiButtonGrp*	butgrp_;
- *
- * };
- */
+
+bool uiODServiceMgr::doParseAction( const char* action, uiRetVal& uirv )
+{
+    return uiODService::doParseAction( action, uirv );
+}
+
+
+bool uiODServiceMgr::doParseRequest( const OD::JSON::Object& request,
+				     uiRetVal& uirv )
+{
+    if ( request.isPresent(sKeyRegister()) )
+    {
+	uirv = addService( request.getObject(sKeyRegister()) );
+	return true;
+    }
+    else if ( request.isPresent(sKeyDeregister()) )
+    {
+	uirv = removeService( request.getObject(sKeyDeregister()) );
+	return true;
+    }
+    else if ( request.isPresent(sKeyStart()) )
+    {
+	uirv = startApp( request.getObject(sKeyStart()) );
+	return true;
+    }
+
+    return uiODService::doParseRequest( request, uirv );
+}
+
+
+uiRetVal uiODServiceMgr::startApp( const OD::JSON::Object* jsonobj )
+{
+    uiRetVal uirv;
+    if ( !jsonobj )
+    {
+	uirv = tr("Empty startApp request");
+	return uirv;
+    }
+
+    if ( !jsonobj->isPresent(sKey::Name()) )
+    {
+	uirv = tr("No application name to start");
+	return uirv;
+    }
+
+    const BufferString appname( jsonobj->getStringValue( sKey::Name() ) );
+    if ( appname==sKey::NN3D() || appname==sKey::NN2D() )
+    {
+	while ( true )
+	{
+	    if ( !ODMainWin()->applMgr().editNLA( appname==sKey::NN2D() ) )
+		break;
+	}
+    }
+    else if ( appname==sKey::UVQ3D() )
+	ODMainWin()->applMgr().uvqNLA( false );
+    else if ( appname==sKey::UVQ2D() )
+	ODMainWin()->applMgr().uvqNLA( true );
+
+    return uiRetVal::OK();
+}

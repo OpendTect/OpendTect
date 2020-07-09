@@ -12,21 +12,10 @@
 
 #include "uitoolsmod.h"
 
-#include "networkcommon.h"
-#include "ptrman.h"
+#include "odservicebase.h"
 
 class Timer;
-namespace Network {
-    class RequestConnection;
-    class RequestPacket;
-    class RequestServer;
-};
-
-namespace OD {
-    namespace JSON {
-	class Object;
-    };
-};
+class uiMainWin;
 
 namespace sKey
 {
@@ -37,88 +26,9 @@ namespace sKey
 };
 
 
-/*!\brief Base class for OpendTect Service Manager and external services/apps */
+/*!\brief Base class for a GUI service potentially managed by od_main */
 
-mExpClass(uiTools) uiODServiceBase : public CallBacker
-{ mODTextTranslationClass(uiODServiceBase)
-public:
-
-    virtual		~uiODServiceBase();
-
-    bool		isOK() const;
-
-    Network::Authority	getAuthority() const;
-    virtual void	stopServer();
-
-    static const char*	sKeyAction()		{ return "action"; }
-    static const char*	sKeyError()		{ return "error"; }
-    static const char*	sKeyOK()		{ return "ok"; }
-
-    static const char*	sKeyEvent()		{ return "event"; }
-    static const char*	sKeyRegister()		{ return "register"; }
-    static const char*	sKeyDeregister()	{ return "deregister"; }
-    static const char*	sKeyStart()		{ return "start"; }
-
-    static const char*	sKeyCloseEv()		{ return "close"; }
-    static const char*	sKeyHideEv()		{ return "hide"; }
-    static const char*	sKeyPyEnvChangeEv()	{ return "pyenvchange"; }
-    static const char*	sKeyRaiseEv()		{ return "raise"; }
-    static const char*	sKeyStatusEv()		{ return "status"; }
-    static const char*	sKeySurveyChangeEv()	{ return "surveychange"; }
-
-    static const char*	sKeyODServer()		{ return "odserver"; }
-
-protected:
-			uiODServiceBase(bool assignport=true);
-
-    static uiRetVal	sendAction(const Network::Authority&,
-				   const char* servicenm,const char* action);
-    static uiRetVal	sendRequest(const Network::Authority&,
-				    const char* servicenm,const char* reqkey,
-				    const OD::JSON::Object&);
-    virtual uiRetVal	doAction(const OD::JSON::Object&);
-    virtual uiRetVal	doRequest(const OD::JSON::Object&);
-    uiRetVal		doCloseAct();
-
-    static const OD::JSON::Object* getSubObj(const OD::JSON::Object&,
-					     const char* key);
-    uiRetVal		survChangedReq(const OD::JSON::Object&);
-    uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
-    static void		getPythEnvRequestInfo(OD::JSON::Object&);
-
-    void		sendOK();
-    void		sendErr(uiRetVal&);
-
-    virtual void	doSurveyChanged(CallBacker*)		{}
-    virtual void	doAppClosing(CallBacker*)		{}
-    virtual void	doPyEnvChange(CallBacker*)		{}
-    bool		needclose_ = false;
-
-private:
-			uiODServiceBase(const uiODServiceBase&) = delete;
-			uiODServiceBase(uiODServiceBase&&) = delete;
-
-    uiODServiceBase&	operator=(const uiODServiceBase&) = delete;
-    uiODServiceBase&	operator=(uiODServiceBase &&) = delete;
-
-    virtual void	startServer(PortNr_Type);
-
-    void		newConnectionCB(CallBacker*);
-    void		packetArrivedCB(CallBacker*);
-    void		connClosedCB(CallBacker*);
-
-    void		surveyChangedCB(CallBacker*);
-    void		appClosingCB(CallBacker*);
-    void		pyenvChangeCB(CallBacker*);
-
-    Network::RequestServer*	server_ = nullptr;
-    Network::RequestConnection*		conn_ = nullptr;
-    RefMan<Network::RequestPacket>	packet_;
-
-};
-
-
-mExpClass(uiTools) uiODService : public uiODServiceBase
+mExpClass(uiTools) uiODService : public ODServiceBase
 { mODTextTranslationClass(uiODService)
 public:
 
@@ -132,13 +42,16 @@ public:
 
 protected:
 
-			uiODService(bool assignport=false);
+			uiODService(uiMainWin&,bool assignport=true);
 
     uiRetVal		sendAction(const char* act) const;
     uiRetVal		sendRequest(const char* reqkey,
 				    const OD::JSON::Object&) const;
-    uiRetVal		doAction(const OD::JSON::Object&) override;
-    uiRetVal		close();
+    bool		doParseAction(const char*,uiRetVal&) override;
+    bool		doParseRequest(const OD::JSON::Object&,
+				       uiRetVal&) override;
+
+    void		doAppClosing(CallBacker*) override;
 
 private:
 			uiODService(const uiODService&) = delete;
@@ -150,7 +63,8 @@ private:
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
     void		handleMasterCheckTimer(bool start);
-    void		doAppClosing(CallBacker*) override;
+    void		closeApp() override;
+
     void		doPyEnvChange(CallBacker*) override;
     void		masterCheckCB(CallBacker*);
 
