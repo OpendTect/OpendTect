@@ -34,9 +34,9 @@ bool getInterval()
 {
     StepInterval<int> interval;
     obj_.get( sKeyInterval(), interval );
-    if ( (interval_.start == interval.start) &&
-	(interval_.stop == interval.stop) &&
-	(interval_.step == interval.step) )
+    if ( (interval_.start != interval.start) &&
+	(interval_.stop != interval.stop) &&
+	(interval_.step != interval.step) )
 	mRetResult( "Checking SetInterval And GetInterval" );
 
     return true;
