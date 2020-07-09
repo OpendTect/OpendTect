@@ -31,7 +31,6 @@ set( OD_TEST_PROGS
 	file.cc
 	memcopying.cc
 	od_iostream.cc
-	odjson.cc
 	oscommand.cc
 	pythoncomm.cc
 	svnversion.cc

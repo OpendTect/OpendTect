@@ -228,9 +228,7 @@ bool testInterval()
 
     StepInterval<int> intervalread;
     obj.get( sKeyInterval(), intervalread );
-    mRunStandardTest( intervalread.start == intervalwrite.start
-	    && intervalread.stop == intervalwrite.stop
-	    && intervalread.step == intervalwrite.step,
+    mRunStandardTest( intervalread == intervalwrite,
 	   "Checking SetInterval And GetInterval" );
 
     return true;

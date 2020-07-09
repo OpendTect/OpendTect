@@ -168,6 +168,19 @@ int mTestMainFnName( int argc, char** argv )
     if ( SI().name().isEmpty() )
 	return 0;
 
+    CubeSampling initcs, initworkcs;
+    SI().getCubeSampling( initcs, OD::FullSurvey );
+    SI().getCubeSampling( initworkcs, OD::UsrWork );
+
+    CubeSampling survcs( false );
+    survcs.hsamp_.set( StepInterval<int>(100,750,1),
+		       StepInterval<int>(300,1250,1) );
+    survcs.zsamp_.set( 0.f, 1.848f, 0.004f );
+
+    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
+    si.setRanges( survcs );
+    si.setWorkRanges( survcs ); //For the sanity of SI().
+
     if ( !testSubSel() )
 	return 1;
     if ( !testSubGeom3D() )
@@ -178,6 +191,9 @@ int mTestMainFnName( int argc, char** argv )
 	return 1;
     if ( !testFillers() )
 	return 1;
+
+    si.setRanges( initcs );
+    si.setWorkRanges( initworkcs ); //For the sanity of SI().
 
     return 0;
 }
