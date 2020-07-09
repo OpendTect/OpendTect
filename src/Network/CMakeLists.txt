@@ -26,6 +26,7 @@ set ( OD_MODULE_SOURCES
 	oddlsite.cc
 	odhttp.cc
 	odnetworkaccess.cc
+	odservicebase.cc
 	systeminfo.cc
 	webfileaccess.cc
 )
