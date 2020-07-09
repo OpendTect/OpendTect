@@ -17,10 +17,12 @@ ________________________________________________________________________
 
 namespace Network { class Server; }
 
-/*!\brief handles commands to be executed remotely on a different machine. */
+/*!
+\brief Handles commands to be executed remotely on a different machine.
+*/
 
 mExpClass(MMProc) RemCommHandler : public CallBacker
-{
+{ mODTextTranslationClass(RemCommHandler);
 public:
 			RemCommHandler(PortNr_Type);
 			~RemCommHandler();
@@ -34,7 +36,7 @@ protected:
     void		writeLog(const char* msg);
     od_ostream&		logstrm_;
 
-    const PortNr_Type	port_;
     Network::Server&	server_;
+    const PortNr_Type	port_;
 
 };
