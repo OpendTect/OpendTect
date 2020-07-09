@@ -24,7 +24,7 @@ namespace Network { class Server; }
 */
 
 mExpClass(MMProc) RemCommHandler : public CallBacker
-{
+{ mODTextTranslationClass(RemCommHandler);
 public:
 			RemCommHandler(PortNr_Type);
 			~RemCommHandler();
@@ -34,16 +34,13 @@ public:
 protected:
 
     void		dataReceivedCB(CallBacker*);
-    bool		mkCommand(const IOPar&,BufferString&);
-    void		uiErrorMsg(const char*);
-    od_ostream&	createLogFile();
+    od_ostream&		createLogFile();
     void		writeLog(const char* msg);
-    od_ostream&	logstrm_;
+    od_ostream&		logstrm_;
 
     Network::Server&	server_;
     const PortNr_Type	port_;
 
 };
-
 
 #endif
