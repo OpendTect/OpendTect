@@ -11,15 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "testprog.h"
 #include "ranges.h"
 
-#define mRetResult( funcname ) \
-    { \
-	od_cout() << funcname << " failed" << od_endl; \
-	return false; \
-    } \
-    else if ( !quiet ) \
-	od_cout() << funcname << " succeeded" << od_endl; \
-    return true;
-
 const StepInterval<int> interval_( 10, 20, 5 );
 const char* sKeyInterval() { return "Interval"; }
 OD::JSON::Object obj_;
@@ -34,8 +25,8 @@ bool getInterval()
 {
     StepInterval<int> interval;
     obj_.get( sKeyInterval(), interval );
-    if ( !interval_.isEqual(interval,mUdf(int)) )
-	mRetResult( "Checking SetInterval And GetInterval" );
+    mRunStandardTest( interval_ == interval,
+	"Checking SetInterval And GetInterval" );
 
     return true;
 }
