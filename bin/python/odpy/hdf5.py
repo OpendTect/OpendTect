@@ -52,7 +52,10 @@ def getText( infos, ky ):
   return ret
 
 def setArray( infos, ky, arr ):
-  arrstr = '`'.join( map(str,arr) )
+  try:
+    arrstr = '`'.join( map(str,arr) )
+  except TypeError:
+    arrstr = str(arr)
   setAttr( infos, ky, arrstr )
 
 def getBoolValue( infos, ky ):
