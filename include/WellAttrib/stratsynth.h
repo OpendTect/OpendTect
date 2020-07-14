@@ -73,7 +73,7 @@ public:
     SyntheticData*	addDefaultSynthetic();
     int			syntheticIdx(const char* nm) const;
     int			syntheticIdx(const PropertyRef&) const;
-    SyntheticData* 	getSynthetic(const char* nm);
+    SyntheticData*	getSynthetic(const char* nm);
     inline const SyntheticData* getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
@@ -81,13 +81,13 @@ public:
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
-    SyntheticData* 	getSynthetic(int id);
-    SyntheticData* 	getSynthetic(const PropertyRef&);
+    SyntheticData*	getSynthetic(int id);
+    SyntheticData*	getSynthetic(const PropertyRef&);
     inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
 			{ const int idx = syntheticIdx( prf );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
 							   : 0; }
-    SyntheticData* 	getSyntheticByIdx(int idx);
+    SyntheticData*	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics();
     void		generateOtherQuantities();
@@ -102,7 +102,7 @@ public:
 
     void		setWavelet(const Wavelet*);
     const Wavelet*	wavelet() const { return wvlt_; }
-    SynthGenParams&	genParams()  	{ return genparams_; }
+    SynthGenParams&	genParams()	{ return genparams_; }
     const SynthGenParams& genParams() const
 			{ return genparams_; }
 
@@ -129,7 +129,7 @@ public:
     void		setTaskRunner( TaskRunner* t )	{ taskr_ = t; }
     bool		hasTaskRunner() const		{ return taskr_; }
     uiString		errMsg() const;
-    uiString	 	infoMsg() const;
+    uiString		infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
 
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
@@ -138,10 +138,10 @@ protected:
 
     const Strat::LayerModelProvider& lmp_;
     const bool			useed_;
-    const StratSynthLevel* 	level_;
+    const StratSynthLevel*	level_;
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
-    ObjectSet<SyntheticData> 	synthetics_;
+    ObjectSet<SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     int				lastsyntheticid_;
     bool			swaveinfomsgshown_;
@@ -161,8 +161,8 @@ protected:
     void		generateOtherQuantities(
 				const PostStackSyntheticData& sd,
 				const Strat::LayerModel&);
-    SyntheticData* 	generateSD();
-    SyntheticData* 	generateSD( const SynthGenParams&);
+    SyntheticData*	generateSD();
+    SyntheticData*	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
 				    const SynthGenParams&);
     SyntheticData*	createAngleStack(const SyntheticData& sd,

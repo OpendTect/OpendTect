@@ -705,21 +705,17 @@ void MultiTraceSynthGenerator::getSampledRMs(
 
 RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>* ems,
 				      bool ownrms )
-    : forcerefltimes_(false)
-    , rtr_( 0 )
-    , raytracingdone_( false )
+    : raytracingdone_( false )
     , ownraymodels_( ownrms )
-    , raymodels_( 0 )
     , aimodels_( ems )
+    , raymodels_( nullptr )
 {}
 
 
 RaySynthGenerator::RaySynthGenerator( ObjectSet<RayModel>* rms )
-    : forcerefltimes_(false)
-    , rtr_( 0 )
-    , raytracingdone_( true )
+    : raytracingdone_( true )
     , ownraymodels_( false )
-    , aimodels_( 0 )
+    , aimodels_( nullptr )
     , raymodels_( rms )
 {}
 

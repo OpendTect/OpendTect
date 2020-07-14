@@ -165,8 +165,8 @@ float TimeDepthModel::convertTo( const float* dpths, const float* times,
 
 bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 {
-    delete [] depths_; depths_ = 0;
-    delete [] times_; times_ = 0;
+    deleteAndZeroArrPtr( depths_ ) ;
+    deleteAndZeroArrPtr( times_ ) ;
 
     PointBasedMathFunction func;
     for ( int idx=0; idx<sz; idx++ )
@@ -178,7 +178,11 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 
     mTryAlloc( times_, float[func.size()] );
     if ( !times_ )
-	{ errmsg_ = tr("Out of memory"); return false; }
+    {
+	errmsg_ = tr("Out of memory");
+	deleteAndZeroArrPtr( depths_ ) ;
+	return false;
+    }
 
     for ( int idx=0; idx<func.size(); idx++ )
     {
