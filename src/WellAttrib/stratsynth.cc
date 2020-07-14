@@ -266,7 +266,7 @@ StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
 
 StratSynth::~StratSynth()
 {
-    deepErase( synthetics_ );
+    clearSynthetics();
     setLevel( 0 );
 }
 
@@ -956,8 +956,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     }
 
     ObjectSet<SynthRayModel>* rms =
-	synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
-    PtrMan<Seis::RaySynthGenerator> synthgen = 0;
+			synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
+    PtrMan<Seis::RaySynthGenerator> synthgen;
     if ( rms )
 	synthgen = new Seis::RaySynthGenerator( rms );
     else

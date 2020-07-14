@@ -181,7 +181,7 @@ public:
     void			getSampledRMs(
 					ObjectSet<const ReflectivityModel>&);
 
-    uiString			uiMessage() const { 
+    uiString			uiMessage() const {
 				    return m3Dots(tr("Generating synthetics"));
 						  }
 
@@ -189,9 +189,9 @@ public:
 
 protected:
 
-    od_int64	nrIterations() const;
+    od_int64			nrIterations() const;
     bool                        doPrepare(int);
-    virtual bool	doWork(od_int64,od_int64,int);
+    virtual bool		doWork(od_int64,od_int64,int);
 
     const ObjectSet<const ReflectivityModel>*	models_;
     ObjectSet<const ReflectivityModel>		sampledrefmodels_;
@@ -263,7 +263,8 @@ public:
     void		getStackedTraces(SeisTrcBuf&);
 
 protected:
-    RayTracerRunner*		rtr_;
+
+    RayTracerRunner*		rtr_ = nullptr;
     od_int64			nrIterations() const;
     od_int64			nrDone() const;
     uiString			uiNrDoneText() const;
@@ -271,16 +272,16 @@ protected:
     bool                        doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
 
-    bool			ownraymodels_;
+    bool			ownraymodels_ = true;
     uiString			message_;
-    const TypeSet<ElasticModel>* aimodels_;
+    const TypeSet<ElasticModel>* aimodels_ = nullptr;
     TypeSet<float>		offsets_;
     IOPar			raysetup_;
-    ObjectSet<RayModel>*	raymodels_;
+    ObjectSet<RayModel>*	raymodels_ = nullptr;
 
     StepInterval<float>		forcedrefltimes_;
-    bool			forcerefltimes_;
-    bool			raytracingdone_;
+    bool			forcerefltimes_ = false;
+    bool			raytracingdone_ = false;
 };
 
 } // namespace Seis
