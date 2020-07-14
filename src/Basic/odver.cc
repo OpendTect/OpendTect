@@ -120,6 +120,14 @@ const char* GetMSVCVersionStr()
     ret = "Visual Studio 2015 - MSVC 14.0";
 # elif ( _MSC_VER < 1920 )
     ret = "Visual Studio 2017 - MSVC 15.0";
+# elif ( _MSC_VER < 1930 )
+    ret = "Visual Studio 2019 - MSVC 16.2";
+# elif ( _MSC_VER < 1940 )
+    ret = "Visual Studio 2019 - MSVC 16.3";
+# elif ( _MSC_VER < 1950 )
+    ret = "Visual Studio 2019 - MSVC 16.4";
+# elif ( _MSC_VER < 1960 )
+    ret = "Visual Studio 2019 - MSVC 16.5";
 # else
     ret = "CHANGE GetMSVCVersionStr() macro to support newer version";
 # endif
