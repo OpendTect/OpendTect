@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keyboardevent.h"
@@ -42,7 +43,6 @@ ________________________________________________________________________
 #include "texttranslation.h"
 #include "threadlock.h"
 #include "timer.h"
-#include "file.h"
 
 #include <iostream>
 
