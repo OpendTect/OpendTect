@@ -94,8 +94,16 @@ def niceNumber(value, round=True):
       The nice number.
    
     """
+  if value > 0:
+      signfact = 1
+  else:
+      signfact = -1
+  value = np.abs(value)
   nicefrac = 0
-  exponent = math.floor(math.log10(value))
+  try:
+      exponent = math.floor(math.log10(value))
+  except ValueError:
+      return 0
   fraction = value/math.pow(10,exponent)
   if round:
     if fraction<1.5:
@@ -115,7 +123,7 @@ def niceNumber(value, round=True):
       nicefrac = 5
     else:
       nicefrac = 10
-  return nicefrac * math.pow(10, exponent)
+  return nicefrac * math.pow(10, exponent) * signfact
                     
 def niceRange(min, max, maxsteps=10):
   """ Return a nicely rounded range - good for axes.
