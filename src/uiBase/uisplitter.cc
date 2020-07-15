@@ -11,9 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uisplitter.h"
+#include "i_common.h"
 
 #include "uigroup.h"
-#include "uiobjbody.h"
 
 #include <QSplitter>
 
@@ -40,9 +40,9 @@ uiSplitter::uiSplitter( uiParent* p, const char* txt, bool hor )
 
 
 uiSplitterBody& uiSplitter::mkbody( uiParent* p, const char* nm )
-{ 
+{
     body_ = new uiSplitterBody( *this, p, nm );
-    return *body_; 
+    return *body_;
 }
 
 

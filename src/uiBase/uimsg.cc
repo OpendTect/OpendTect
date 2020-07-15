@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uimsg.h"
+#include "q_uiimpl.h"
 
 #include "bufstringset.h"
 #include "mousecursor.h"

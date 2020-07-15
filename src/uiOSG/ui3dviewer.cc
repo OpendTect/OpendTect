@@ -53,9 +53,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <math.h>
 
-#include "i_layout.h"
-#include "i_layoutitem.h"
-
 #include <QTabletEvent>
 #include <QGestureEvent>
 #include <QGesture>

@@ -40,9 +40,6 @@ public:
     int			defaultHeight()		  { return defaultheight_; }
     void		setDefaultHeight( int h ) { defaultheight_ = h; }
 
-    void		setWidthInChar(int nrchar);
-    void		setHeightInChar(int nrchar);
-
     bool		isModified() const;
     void		allowTextSelection(bool);
 

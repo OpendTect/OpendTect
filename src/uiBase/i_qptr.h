@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "threadlock.h"
-#include <QObject>
+#include "i_common.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -34,17 +34,17 @@ public:
 
     QObject*		ptr()				{ return sender_; }
     const QObject*	ptr() const			{ return sender_; }
-    
-    
+
+
 			operator QObject*()		{ return sender_; }
 			operator const QObject*() const	{ return sender_; }
     QObject*		operator->()			{ return sender_; }
     QObject*		operator->() const		{ return sender_; }
     QObject*		operator=(QObject* qo)		{ set( qo ); return qo;}
-    
+
     Threads::Lock&	objLock()			{ return lock_; }
 
-    
+
     void		set(QObject* qo);
 			i_QPtrImpl( QObject* sndr = 0 );
 			~i_QPtrImpl();

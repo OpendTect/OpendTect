@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistatusbar.h"
+#include "q_uiimpl.h"
 #include "uimainwin.h"
 #include "uimain.h"
 #include "uiparentbody.h"

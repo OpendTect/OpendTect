@@ -34,6 +34,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
+
 uiObjectItem::uiObjectItem( uiObject* obj )
     : uiGraphicsItem(mkQtObj())
     , obj_(0)
@@ -690,7 +696,7 @@ uiSize uiTextItem::getTextSize() const
     QFontMetrics qfm( qtextitem_->getFont() );
     // Extra space is added to avoid clipping on some platforms and the value is
     // arbitrarily chosen.
-    return uiSize( qfm.width(text_.getOriginalString())+mExtraSpace,
+    return uiSize( mGetTextWidth(qfm,text_.getOriginalString())+mExtraSpace,
 		   qfm.height()+mExtraSpace );
 }
 

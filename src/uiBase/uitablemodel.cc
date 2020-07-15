@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 
 #include "uitablemodel.h"
+#include "i_common.h"
 
-#include "uiobjbody.h"
 #include "uipixmap.h"
 #include "perthreadrepos.h"
 

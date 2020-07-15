@@ -23,6 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
+
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
 
 
@@ -549,7 +555,7 @@ int uiObjectBody::fontWidthFor( const uiString& str ) const
 	return qstr.size() * fnt_wdt;
     }
 
-    return qw->fontMetrics().width( str.getQString() );
+    return mGetTextWidth(qw->fontMetrics(),toQString(str));
 }
 
 
@@ -559,7 +565,7 @@ int uiObjectBody::fontWidthFor( const char* str ) const
     if ( !qw )
 	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt; }
 
-    return qw->fontMetrics().width( QString( str ) );
+    return mGetTextWidth(qw->fontMetrics(),QString(str));
 }
 
 
@@ -579,7 +585,7 @@ void uiObjectBody::gtFntWdtHgt() const
     QFont qft = QFont();
     QFontMetrics qfm( qft );
     self.fnt_hgt = qfm.lineSpacing() + 2;
-    self.fnt_wdt = qfm.width( QChar('x') );
+    self.fnt_wdt = mGetTextWidth(qfm,QChar('X'));
 
     self.fnt_maxwdt = qfm.maxWidth();
 
@@ -594,7 +600,7 @@ void uiObjectBody::gtFntWdtHgt() const
 	    QChar ch( idx );
 	    if ( ch.isPrint() )
 	    {
-		const int width = qfm.width( ch );
+		const int width = mGetTextWidth(qfm,ch);
 		if ( width>self.fnt_maxwdt )
 		    self.fnt_maxwdt = width;
 	    }

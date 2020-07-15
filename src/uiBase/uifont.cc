@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifont.h"
+#include "q_uiimpl.h"
 
 #include "uimain.h"
 #include "uiparent.h"
@@ -22,6 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QFontMetrics>
 
 mUseQtnamespace
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
 
 static const char* fDefKey = "Font.def";
 
@@ -122,13 +129,13 @@ int uiFont::maxWidth() const
 
 int uiFont::avgWidth() const
 {
-    return qfontmetrics_.width(QChar('x'));
+    return mGetTextWidth(qfontmetrics_,QChar('x'));
 }
 
 
 int uiFont::width(const uiString& str) const
 {
-    return qfontmetrics_.width( str.getQString() );
+    return mGetTextWidth(qfontmetrics_,toQString(str));
 }
 
 

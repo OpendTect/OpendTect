@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifiledlg.h"
+#include "q_uiimpl.h"
 
 #include "envvars.h"
 #include "file.h"
@@ -36,14 +37,10 @@ class ODFileDialog : public QFileDialog
 {
 public:
 
-ODFileDialog( const QString& dirname, const QString& fltr=QString::null,
-	      QWidget* p=0, const char* caption=0, bool modal=false )
+ODFileDialog( const QString& dirname, const QString& fltr, QWidget* p,
+	      const char* caption )
     : QFileDialog(p,caption,dirname,fltr)
-{ setModal( modal ); }
-
-ODFileDialog( QWidget* p=0, const char* caption=0, bool modal=false )
-    : QFileDialog(p,caption)
-{ setModal( modal ); }
+{ setModal( true ); }
 
 };
 
@@ -180,13 +177,13 @@ int uiFileDialog::go()
     const BufferString utfwintitle( caption_.getFullString(), addendum );
     int refnr = beginCmdRecEvent( utfwintitle.buf() );
     PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
-					 qparent, "File dialog", true );
+					 qparent, "File dialog" );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 				: QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(mode_) );
     fd->setWindowTitle( wintitle.getQString() );
-    fd->setConfirmOverwrite( confirmoverwrite_ );
+    fd->setOption( QFileDialog::DontConfirmOverwrite, !confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )

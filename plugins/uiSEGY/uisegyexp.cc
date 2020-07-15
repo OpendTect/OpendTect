@@ -78,8 +78,8 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
 
     edfld_ = new uiTextEdit( this, "Hdr edit" );
     edfld_->setStretch( 0, 1 );
-    edfld_->setWidthInChar( 80 );
-    edfld_->setPrefHeightInChar( 25 );
+    edfld_->setPrefWidthInChar( 81 );
+    edfld_->setPrefHeightInChar( 24 );
     if ( hdr_.isEmpty() )
     {
 	SEGY::TxtHeader th; th.clear();

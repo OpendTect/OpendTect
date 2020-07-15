@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uitreeview.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QTreeWidget>
 
 

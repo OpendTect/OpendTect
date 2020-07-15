@@ -11,9 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiobjectstack.h"
+#include "i_common.h"
 
 #include "uigroup.h"
-#include "uiobjbody.h"
 
 #include <QStackedWidget>
 
@@ -34,9 +34,9 @@ uiObjectStack::uiObjectStack( uiParent* p, const char* txt )
 
 
 uiObjStackBody& uiObjectStack::mkbody( uiParent* p, const char* txt )
-{ 
+{
     body_ = new uiObjStackBody( *this, p, txt );
-    return *body_; 
+    return *body_;
 }
 
 

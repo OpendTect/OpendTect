@@ -367,6 +367,7 @@ uiString& uiString::arg( const T& var )
 }
 
 
-
+#define mGetQStr( qstr, uistring_var ) \
+    QString qstr; (uistring_var).fillQString( qstr )
 
 #endif

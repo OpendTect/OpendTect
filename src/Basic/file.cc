@@ -970,9 +970,17 @@ const char* timeCreated( const char* fnm, const char* fmt )
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     if ( !fmt || !*fmt )
+# if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+	ret = qfi.birthTime().toString( Qt::ISODate );
+# else
 	ret = qfi.created().toString( Qt::ISODate );
+# endif
     else
+# if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+	ret = qfi.birthTime().toString( fmt );
+# else
 	ret = qfi.created().toString( fmt );
+# endif
 #else
     pFreeFnErrMsg(not_implemented_str);
     ret = "<unknown>";

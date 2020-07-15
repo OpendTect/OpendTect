@@ -13,9 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitable.h"
+#include "i_common.h"
 
 #include <QHeaderView>
-#include <QObject>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QWidget>
