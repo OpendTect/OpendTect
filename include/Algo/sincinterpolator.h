@@ -19,6 +19,7 @@ mExpClass(Algo) SincTableManager
 {
 public:
 			SincTableManager()	{};
+			~SincTableManager();
 
     static SincTableManager&	STM();
 

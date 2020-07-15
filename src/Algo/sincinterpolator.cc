@@ -7,6 +7,13 @@
 #define NTAB_MAX	16385.0f
 
 
+SincTableManager::~SincTableManager()
+{
+    deepErase( tables_ );
+}
+
+
+
 SincTableManager::Table::Table( int lsinc ,int nsinc, float emax,
 				float fmax, int lmax )
     : asinc_(nsinc,lsinc)
@@ -51,7 +58,7 @@ const SincTableManager::Table* SincTableManager::getTable( float fmax,
 	lock.unLock();
 	const Table* newtab = makeTable( fmax, lmax );
 	if ( !newtab )
-	    return 0;
+	    return nullptr;
 
 	lock.lock();
 	tabidx = getTableIdx( fmax, lmax );
@@ -114,7 +121,7 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
     SincTableManager::Table* table =
 		new SincTableManager::Table( lsinc, nsinc, emax, fmax, lmax);
     if ( !table || !table->isOK() )
-	return 0;
+	{ delete table; return nullptr; }
 
     for ( int j=0; j<lsinc; ++j )
     {
