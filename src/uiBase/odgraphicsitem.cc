@@ -30,6 +30,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    #define mGetTextWidth(qfm,textstring) qfm.horizontalAdvance( textstring )
+#else
+    #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
+#endif
+
 static void snapToSceneRect( QGraphicsItem* itm )
 {
     if ( itm->x()<0 )
@@ -440,7 +446,7 @@ static int border = 5;
 QRectF ODGraphicsTextItem::boundingRect() const
 {
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( QString(text_) );
+    const float txtwidth = mGetTextWidth(qfm,QString(text_));
     const float txtheight = qfm.height();
 
     const double paintangle = getPaintAngle( transform() );
@@ -480,7 +486,7 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     bool onlynum = false;
     text_.toInt( &onlynum );
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( text_ );
+    const float txtwidth = mGetTextWidth(qfm,text_);
     const float txtheight = onlynum ? qfm.ascent() : qfm.height();
 
     const float width = txtwidth * cos(paintangle) +

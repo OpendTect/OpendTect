@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uislider.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QSlider>
 
 //! Helper class for uislider to relay Qt's messages.

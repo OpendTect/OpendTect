@@ -11,8 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uidate.h"
+#include "i_common.h"
 
-#include "uiobjbody.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uicombobox.h"

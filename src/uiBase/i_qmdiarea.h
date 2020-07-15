@@ -13,10 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "uimdiarea.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QWidget>
-#include <QMdiArea> 
+#include <QMdiArea>
 
 
 //! Helper class for uiMdiArea to relay Qt's messages.
@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_MdiAreaMessenger : public QObject 
+class i_MdiAreaMessenger : public QObject
 {
     Q_OBJECT
     friend class uiMdiAreaBody;
@@ -44,7 +44,7 @@ i_MdiAreaMessenger( QMdiArea* sndr, uiMdiArea* receiver )
 private:
 
     uiMdiArea*	receiver_;
-    QMdiArea*  	sender_;
+    QMdiArea*	sender_;
 
 private slots:
 

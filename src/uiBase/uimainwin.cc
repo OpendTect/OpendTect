@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimainwin.h"
 #include "uidialog.h"
+#include "q_uiimpl.h"
 
 #include "uibody.h"
 #include "uiclipboard.h"
@@ -67,6 +68,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
+#include <QWindow>
 
 #ifdef __win__
 # include <QtPlatformHeaders/QWindowsWindowFunctions>
@@ -172,6 +174,9 @@ public:
     void		activateInGUIThread(const CallBack&,bool busywait);
 
     bool		force_finalise_;
+
+    static QScreen*	primaryScreen();
+    QScreen*		screen(bool usetoplevel=false) const;
 
 protected:
 
@@ -449,9 +454,11 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
 void uiMainWinBody::getPosForScreenMiddle( int& xpos, int& ypos )
 {
-    QDesktopWidget qdw;
-    const int screenwidth = qdw.screen()->width();
-    const int screenheight = qdw.screen()->height();
+    const QScreen* primscreen = primaryScreen();
+    if ( !primscreen ) return;
+    const QRect geom = primscreen->availableGeometry();
+    const int screenwidth = geom.width();
+    const int screenheight = geom.height();
     const int mywidth = QMainWindow::width();
     const int myheight = QMainWindow::height();
 
@@ -466,6 +473,38 @@ static QWidget* getParentWidget( QWidget* qw )
 	qw = qw->parentWidget();
 
     return qw;
+}
+
+
+QScreen* uiMainWinBody::screen( bool usetoplevel ) const
+{
+    QScreen* qscreen = primaryScreen();
+    QWidget* parentwidget = getParentWidget( parentWidget() );
+    if ( !parentwidget && usetoplevel )
+    {
+        uiMainWin* toplevel = uiMain::theMain().topLevel();
+        if ( toplevel )
+            parentwidget = toplevel->qWidget();
+    }
+
+    if ( parentwidget )
+    {
+        const QWindow* qwindow = parentwidget->windowHandle();
+        if ( qwindow )
+        {
+            QScreen* winqscreen = qwindow->screen();
+            if ( winqscreen )
+                qscreen = winqscreen;
+        }
+    }
+
+    return qscreen;
+}
+
+
+QScreen* uiMainWinBody::primaryScreen()
+{
+    return QGuiApplication::primaryScreen();
 }
 
 
@@ -1476,21 +1515,53 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
+#ifdef __win__
+
+    std::string snapshotfile = OD_Win_GetSnapShotFile( filenm );
+    if ( snapshotfile.empty() )
+        return false;
+
+    QPixmap desktopsnapshot;
+
+    if ( !desktopsnapshot.load( snapshotfile.c_str() ) )
+        { ErrMsg( "Generated GDI+ image does not load in Qt" ); return false; }
+
+    File::remove( snapshotfile.c_str() );
+
+#else
+
+    QScreen* qscreen = body_ ? body_->screen() : uiMainWinBody::primaryScreen();
+    if ( !qscreen ) return false;
     const WId desktopwinid = QApplication::desktop()->winId();
-    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
-    QPixmap snapshot = desktopsnapshot;
+    QPixmap desktopsnapshot = qscreen->grabWindow( desktopwinid );
+
+#endif
+
     if ( zoom > 0 )
     {
-	QWidget* qwin = qApp->activeModalWidget();
-	if ( !qwin || zoom==1 )
-	    qwin = body_;
+        QWidget* qwin = qApp->activeModalWidget();
+        if ( !qwin || zoom==1 )
+            qwin = body_;
 
-	const int width = qwin->frameGeometry().width();
-	const int height = qwin->frameGeometry().height();
-	snapshot = desktopsnapshot.copy( qwin->x(), qwin->y(), width, height );
+	#ifdef __win__
+
+        RECT rect = {};
+        GetWindowRect( (HWND)qwin->winId() , &rect );
+        const int width  = rect.right - rect.left;
+        const int height = rect.bottom - rect.top;
+
+#else
+
+        const int width = qwin->frameGeometry().width();
+        /*on windows, it gets width till end of monitor and not entire widget*/
+        const int height = qwin->frameGeometry().height();
+
+#endif
+        desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
+                                                width, height );
     }
 
-    return snapshot.save( QString(filenm), format, quality );
+    return desktopsnapshot.save( QString(filenm), format, quality );
 }
 
 
@@ -1606,7 +1677,9 @@ void setImageProp( WId qwid, const char* fnm, int w, int h, int r )
 protected:
 void shootImageCB( CallBacker* )
 {
-    const QPixmap snapshot = QPixmap::grabWindow( qwinid_ );
+    QScreen* qscreen = uiMainWinBody::primaryScreen();
+    if ( !qscreen ) return;
+    const QPixmap snapshot = qscreen->grabWindow( qwinid_ );
 
     QImage image = snapshot.toImage();
     image = image.scaledToWidth( width_ );

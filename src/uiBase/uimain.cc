@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QIcon>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QScreen>
 #include <QStyleFactory>
 #include <QToolTip>
 #include <QTreeWidget>
@@ -567,16 +568,20 @@ void uiMain::setIcon( const char* iconnm )
 
 
 int uiMain::nrScreens() const
-{ return app_->desktop() ? app_->desktop()->screenCount() : -1; }
+{
+    return QGuiApplication::screens().size();
+}
 
 
 uiSize uiMain::getScreenSize( int screennr, bool available ) const
 {
-    if ( !app_->desktop() )
-	return uiSize( mUdf(int), mUdf(int) );
+    QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
+        return uiSize( mUdf(int), mUdf(int) );
 
-    QRect qrect = available ? app_->desktop()->availableGeometry( screennr )
-			    : app_->desktop()->screenGeometry( screennr );
+    QScreen* qscreen = screens.at( screennr );
+    QRect qrect = available ? qscreen->availableGeometry()
+                            : qscreen->geometry();
     return uiSize( qrect.width(), qrect.height() );
 }
 
@@ -615,11 +620,15 @@ KeyboardEventHandler& uiMain::keyboardEventHandler()
 }
 
 
+mStartAllowDeprecatedSection
+
 void uiMain::flushX()
 {
     if ( app_ )
 	app_->flush();
 }
+
+mStopAllowDeprecatedSection
 
 
 void uiMain::repaint()

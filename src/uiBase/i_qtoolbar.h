@@ -12,8 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include <QToolBar>
 #include "uitoolbar.h"
+#include "i_common.h"
+
+#include <QToolBar>
 
 
 //! Helper class for uiToolBar to relay Qt's messages.

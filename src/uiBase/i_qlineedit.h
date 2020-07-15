@@ -13,12 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "uilineedit.h"
+#include "i_common.h"
 
 #include <QLineEdit>
 
 QT_BEGIN_NAMESPACE
 
-class QString;
 
 //! Helper class for uilineedit to relay Qt's messages.
 /*!

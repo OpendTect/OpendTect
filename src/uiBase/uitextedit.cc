@@ -50,21 +50,6 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
 }
 
 
-void uiTextEditBase::setWidthInChar(int nrchar)
-{
-    QString qstr( nrchar, 'X' );
-    const int widgetwidth = qte().fontMetrics().width( qstr );
-    setPrefWidth( widgetwidth+1 );
-}
-
-
-void uiTextEditBase::setHeightInChar( int nrchar )
-{
-    const int widgetheight = qte().fontMetrics().height();
-    setPrefHeight( nrchar*widgetheight );
-}
-
-
 void uiTextEditBase::setEmpty()
 {
     qte().clear();

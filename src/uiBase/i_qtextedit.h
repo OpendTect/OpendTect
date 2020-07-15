@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitextedit.h"
+#include "i_common.h"
 
 #include <QAbstractSlider>
 #include <QTextEdit>
@@ -25,8 +26,6 @@ ________________________________________________________________________
 */
 
 QT_BEGIN_NAMESPACE
-
-class QString;
 
 class i_TextEditMessenger : public QObject
 {

@@ -14,17 +14,16 @@ ________________________________________________________________________
 
 
 #include "uisystemtrayicon.h"
+#include "i_common.h"
 
-#include <QSystemTrayIcon> 
+#include <QSystemTrayIcon>
 
 //! Helper class for uiSystemTrayIcon to relay Qt's messages.
-/*!
-    Internal object, to hide Qt's signal/slot mechanism.
-*/
+/*! Internal object, to hide Qt's signal/slot mechanism. */
 
 QT_BEGIN_NAMESPACE
 
-class QSystemTrayIconMessenger : public QObject 
+class QSystemTrayIconMessenger : public QObject
 {
 Q_OBJECT
 friend class uiSystemTrayIcon;
@@ -34,7 +33,7 @@ protected:
 QSystemTrayIconMessenger( QSystemTrayIcon* sndr, uiSystemTrayIcon* receiver )
     : sender_(sndr)
     , receiver_(receiver)
-{ 
+{
     connect( sndr, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 	     this, SLOT(activated(QSystemTrayIcon::ActivationReason)) );
     connect( sndr, SIGNAL(messageClicked()), this, SLOT(messageClicked()) );
@@ -43,8 +42,8 @@ QSystemTrayIconMessenger( QSystemTrayIcon* sndr, uiSystemTrayIcon* receiver )
 
 private:
 
-    uiSystemTrayIcon* 	receiver_;
-    QSystemTrayIcon*  	sender_;
+    uiSystemTrayIcon*	receiver_;
+    QSystemTrayIcon*	sender_;
 
 
 private slots:

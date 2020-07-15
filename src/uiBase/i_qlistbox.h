@@ -13,9 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "uilistbox.h"
+#include "i_common.h"
 
 #include <QListWidget>
-#include <QObject>
 
 //! Helper class for uiListBox to relay Qt's messages.
 /*!

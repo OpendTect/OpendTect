@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uidial.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QDial>
 
 //! Helper class for uidial to relay Qt's messages.

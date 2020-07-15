@@ -13,6 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uispinbox.h"
+#include "i_common.h"
+
 #include <QDoubleSpinBox>
 
 //! Helper class for uiSpinBox to relay Qt's messages.
@@ -22,9 +24,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class QString;
-
-class i_SpinBoxMessenger : public QObject 
+class i_SpinBoxMessenger : public QObject
 {
     Q_OBJECT
     friend class uiSpinBoxBody;
@@ -34,7 +34,7 @@ protected:
 					   uiSpinBox* receiver)
 			: sender_(sndr)
 			, receiver_(receiver)
-			{ 
+			{
 			    connect( sndr, SIGNAL(editingFinished()),
 				     this, SLOT(editingFinished()) );
 			    connect(sndr, SIGNAL(valueChanged(double)),
@@ -42,17 +42,17 @@ protected:
 			}
 
     virtual		~i_SpinBoxMessenger() {}
-   
+
 private:
 
     uiSpinBox*		receiver_;
-    QDoubleSpinBox*  	sender_;
+    QDoubleSpinBox*	sender_;
 
 private slots:
 
     void		editingFinished()
 			{ receiver_->notifyHandler( true ); }
-    void 		valueChanged(double)
+    void		valueChanged(double)
 			{ receiver_->notifyHandler( false ); }
 };
 
