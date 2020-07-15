@@ -213,7 +213,10 @@ uiRetVal TimeDepthModel::setModel( const double* dpths, const double* times,
 	mRetNoMem( modsz, double );
     mTryAlloc( times_, double[modsz] );
     if ( !times_ )
+    {
+	deleteAndZeroArrPtr( depths_ );
 	mRetNoMem( modsz, double );
+    }
 
     sz_ = modsz;
     OD::sysMemCopy( times_, func.xVals().arr(), sz_*sizeof(double) );
