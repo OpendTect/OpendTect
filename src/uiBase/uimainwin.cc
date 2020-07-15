@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keyboardevent.h"
@@ -517,8 +518,9 @@ void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
 	return;
     }
 
-    QDesktopWidget qdw;
-    const QRect screenrect = qdw.availableGeometry( parentwidget );
+    const QScreen* qscreen = screen( false );
+    if ( !qscreen ) return;
+    const QRect screenrect = qscreen->availableGeometry();
     const int mywidth = frameGeometry().width();
     const int myheight = frameGeometry().height();
     const QPoint parentcenter = parentwidget->frameGeometry().center();
@@ -535,16 +537,9 @@ void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
 
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
-    QWidget* parentwidget = getParentWidget( parentWidget() );
-    if ( !parentwidget )
-    {
-	uiMainWin* toplevel = uiMain::theMain().topLevel();
-	if ( toplevel )
-	    parentwidget = toplevel->qWidget();
-    }
-
-    QDesktopWidget qdw;
-    const QRect screenrect = qdw.availableGeometry( parentwidget );
+    const QScreen* qscreen = screen( true );
+    if ( !qscreen ) return;
+    const QRect screenrect = qscreen->availableGeometry();
     const int mywidth = frameGeometry().width();
     const int myheight = frameGeometry().height();
     int xpos = 0, ypos = 0;
@@ -1512,6 +1507,8 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 }
 
 
+std::string OD_Win_GetSnapShotFile(const std::string&);
+
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
@@ -1569,7 +1566,7 @@ bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
 			    int screenidx )
 {
 #if QT_VERSION >= 0x050000
-    QList<QScreen*> screens = QGuiApplication::screens();
+    const QList<QScreen*> screens = QGuiApplication::screens();
     if ( screens.isEmpty() ) return false;
 
     const int nrscreens = screens.size();

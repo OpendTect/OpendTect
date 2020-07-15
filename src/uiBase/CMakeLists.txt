@@ -71,6 +71,7 @@ SET(OD_MODULE_SOURCES
 	uiobjbody.cc
 	uiobjectstack.cc
 	uipixmap.cc
+	uiplfspecific.cc
 	uiprogressbar.cc
 	uirgbarray.cc
 	uirubberband.cc
