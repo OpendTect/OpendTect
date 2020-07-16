@@ -107,6 +107,7 @@ mExpClass(Well) LogInfo: public NamedObject
 public:
 
 			LogInfo(const char* nm);
+			LogInfo(const Log&);
 
     BufferString	logunit_;
     Interval<float>	dahrg_;

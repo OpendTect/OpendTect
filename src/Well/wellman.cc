@@ -10,12 +10,66 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
 #include "iodirentry.h"
-#include "welltransl.h"
 #include "ptrman.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "wellreader.h"
 #include "welllogset.h"
 #include "wellmarker.h"
+#include "welltransl.h"
+
+
+Well::LoadReqs::LoadReqs( bool addall )
+{
+    if ( addall )
+        setToAll();
+}
+
+
+Well::LoadReqs::LoadReqs( SubObjType typ )
+{
+    add( typ );
+}
+
+
+Well::LoadReqs::LoadReqs( SubObjType typ1, SubObjType typ2 )
+{
+    add( typ1 ).add( typ2 );
+}
+
+
+Well::LoadReqs::LoadReqs( SubObjType typ1, SubObjType typ2, SubObjType typ3 )
+{
+    add( typ1 ).add( typ2 ).add( typ3 );
+}
+
+
+Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
+{
+    if ( typ != D2T || SI().zIsTime() )
+        reqs_[typ] = 1;
+    if ( typ == Trck )
+        reqs_[Inf] = 1;
+    return *this;
+}
+
+
+Well::LoadReqs Well::LoadReqs::All()
+{
+    LoadReqs ret( false );
+    ret.reqs_.set();
+    if ( !SI().zIsTime() )
+        ret.reqs_[D2T] = 0;
+    return ret;
+}
+
+
+void Well::LoadReqs::include( const LoadReqs& oth )
+{
+    for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
+        if ( oth.reqs_[idx] )
+            reqs_[ idx ] = 1;
+}
 
 
 Well::Man* Well::Man::mgr_ = 0;
@@ -60,27 +114,42 @@ Well::Data* Well::Man::release( const MultiID& key )
 }
 
 
-Well::Data* Well::Man::get( const MultiID& key )
+
+
+Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 {
     msg_.setEmpty();
 
     const int wdidx = gtByKey( key );
     if ( wdidx>=0 )
-	return wells_[wdidx];
+        return wells_[wdidx];
 
     Well::Data* wd = new Well::Data;
     wd->ref();
 
-    Well::Reader wr( key, *wd );
-    if ( !wr.get() )
-    {
-	msg_.set( wr.errMsg() );
-	wd->unRef();
-	return 0;
+    Reader rdr( key, *wd );
+#   define mRetIfFail(typ,subobj,oper) \
+    { \
+        if ( reqs.includes(typ) && !oper ) \
+            { msg_ = rdr.errMsg(); wd->unRef(); return nullptr; } \
     }
+    mRetIfFail( Inf, info, rdr.getInfo() )
+    mRetIfFail( Trck, track, rdr.getTrack() )
+
+#   define mJustTry(typ,subobj,oper) \
+    { \
+        if ( reqs.includes(typ) ) \
+            oper; \
+	}
+    mJustTry( D2T, d2TModel, rdr.getD2T() )
+    mJustTry( Mrkrs, markers, rdr.getMarkers() )
+    mJustTry( Logs, logs, rdr.getLogs() )
+    mJustTry( LogInfos, logInfoSet, rdr.getLogInfo() )
+    mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
+    if ( reqs.includes(DispProps2D) || reqs.includes(DispProps3D) )
+        rdr.getDispProps();
 
     add( key, wd );
-    wd->unRefNoDelete();
     return wd;
 }
 

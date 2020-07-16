@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "bufstring.h"
 #include "uistring.h"
+#include "wellman.h"
 class IOObj;
 class BufferStringSet;
 
@@ -27,6 +28,7 @@ namespace Well
 class Data;
 class ReadAccess;
 class LogInfo;
+class LoadReqs;
 
 
 /*!\brief Reads Well::Data from any data store */
@@ -79,29 +81,9 @@ mExpClass(Well) MultiWellReader : public Executor
 { mODTextTranslationClass(MultiWellReader)
 public:
 
-    mExpClass(Well) Setup
-    {
-    public:
-			Setup()
-			: track_(false)
-			, logs_(false)
-			, markers_(false)
-			, D2T_(false)
-			, csmdl_(false)
-			, loginfo_(false)
-			{}
-
-	mDefSetupMemb(bool,track)
-	mDefSetupMemb(bool,logs)
-	mDefSetupMemb(bool,markers)
-	mDefSetupMemb(bool,D2T)
-	mDefSetupMemb(bool,csmdl)
-	mDefSetupMemb(bool,loginfo)
-    };
-
-			MultiWellReader(const TypeSet<MultiID>&,
-					ObjectSet<Well::Data>&,	
-					const Setup&);
+		    MultiWellReader(const TypeSet<MultiID>&,
+				    ObjectSet<Well::Data>&,
+				    const Well::LoadReqs reqs=Well::LoadReqs());
 
     int				nextStep();
     od_int64			totalNr() const;
@@ -119,7 +101,7 @@ protected:
     od_int64			nrdone_;
     uiString			errmsg_;
     bool			allwellsread_ = true;
-    const Setup&		su_;
+    const Well::LoadReqs	reqs_;
 };
 
 #endif

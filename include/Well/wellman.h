@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "sets.h"
 #include "bufstring.h"
+#include <bitset>
 
 class IOObj;
 class MultiID;
@@ -25,6 +26,42 @@ namespace Well
 {
 
 class Data;
+
+/*\brief Tells the Well Manager what you need to be loaded.*/
+
+#define mWellNrSubObjTypes 9
+
+enum SubObjType		{ Inf=0, Trck=1, D2T=2, CSMdl=3, Mrkrs=4, Logs=5,
+			   LogInfos=6, DispProps2D=7, DispProps3D=8 };
+
+
+mExpClass(Well) LoadReqs
+{
+public:
+
+			LoadReqs(bool addall=true);
+			LoadReqs(SubObjType);
+			LoadReqs(SubObjType,SubObjType);
+			LoadReqs(SubObjType,SubObjType,SubObjType);
+    static LoadReqs	All();
+    bool		operator ==( const LoadReqs& oth ) const
+						{ return reqs_ == oth.reqs_; }
+
+    LoadReqs&		add(SubObjType);
+    LoadReqs&		remove( SubObjType typ ) { reqs_[typ]=0; return *this; }
+    void		setToAll()		{ *this = All(); }
+    void		setEmpty()		{ reqs_.reset(); }
+    void		include(const LoadReqs&);
+
+    bool		includes( SubObjType typ ) const
+						{ return reqs_[typ]; }
+
+protected:
+
+    std::bitset<mWellNrSubObjTypes>		reqs_;
+};
+
+
 
 /*!
 \brief Well manager
@@ -36,7 +73,7 @@ public:
 			~Man();
 
     void		removeObject( const Well::Data* );
-    Data*		get(const MultiID&);
+    Data*		get(const MultiID&, LoadReqs reqs=LoadReqs());
     void		add(const MultiID&,Data*);
 			//!< Data becomes mine
     Data*		release(const MultiID&);
