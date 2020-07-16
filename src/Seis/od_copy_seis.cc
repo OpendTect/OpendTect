@@ -20,10 +20,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "Seis" );
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     PtrMan<IOPar> inpar = pars().subselect( sKey::Input() );
     if ( !inpar || inpar->isEmpty() )
 	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }

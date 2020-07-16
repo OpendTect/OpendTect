@@ -29,8 +29,7 @@ namespace OS
 enum LaunchType { Wait4Finish, RunInBG, Batch };
 enum KeyStyle	{ NewStyle, OldStyle };
 
-inline mDeprecated bool isBatchProg( OS::LaunchType lt )
-			{ return lt == OS::Batch; }
+inline mDeprecated bool isBatchProg( OS::LaunchType lt );
 inline bool isOldStyle( OS::KeyStyle ks ) { return ks == OS::OldStyle; }
 
 /*!\brief Specifies how to execute a command */
@@ -76,7 +75,6 @@ public:
 
     static int		getMachinePriority(float priolevel,bool iswin);
 };
-
 
 
 class CommandLauncher;

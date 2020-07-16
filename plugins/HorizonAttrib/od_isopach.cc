@@ -36,10 +36,15 @@ static bool loadHorizon( const MultiID& mid, od_ostream& strm )
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     strm << "Loading Horizons ..." << od_newline;
     MultiID mid1;
     pars().get( IsochronMaker::sKeyHorizonID(), mid1 );

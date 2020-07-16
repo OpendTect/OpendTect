@@ -19,6 +19,9 @@ static const char* sKeyProgramName = "Program.Name";
 static const char* sKeyClArgs = "Program.Args";
 
 
+mDefineEnumUtils( Batch::JobSpec, LaunchType, "LaunchType" )
+{ "Immediately", "Delay", 0 };
+
 mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
 

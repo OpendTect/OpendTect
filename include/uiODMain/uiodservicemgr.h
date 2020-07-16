@@ -63,20 +63,33 @@ public:
     CNotifier<uiODServiceMgr,Network::Service::ID>	serviceAdded;
     CNotifier<uiODServiceMgr,Network::Service::ID>	serviceRemoved;
 
+protected:
+
+				uiODServiceMgr();
+				uiODServiceMgr(const uiODServiceMgr&) = delete;
+				uiODServiceMgr(uiODServiceMgr&&) = delete;
+				~uiODServiceMgr();
+
+    uiRetVal		sendAction(const Network::Service::ID,
+	const char*) const;
+    uiRetVal		sendAction(const Network::Service&,const char*) const;
+    uiRetVal		sendRequest(const Network::Service&,const char*,
+	const OD::JSON::Object&) const;
+
+    virtual bool	doParseAction(const char*,uiRetVal&);
+    virtual bool	doParseRequest(const OD::JSON::Object&,
+	uiRetVal&);
+
 private:
-			uiODServiceMgr();
-			uiODServiceMgr(const uiODServiceMgr&) = delete;
-			uiODServiceMgr(uiODServiceMgr&&) = delete;
-			~uiODServiceMgr();
 
     uiODServiceMgr&	operator=(const uiODServiceMgr&) = delete;
     uiODServiceMgr&	operator=(uiODServiceMgr &&) = delete;
 
     ObjectSet<Network::Service> services_;
 
-    void		doAppClosing(CallBacker*) override final;
     void		doSurveyChanged(CallBacker*) override;
     void		doPyEnvChange(CallBacker*) override final;
+    void		doAppClosing(CallBacker*) override final;
     void		closeApp() override final;
 
     uiRetVal		addService(const OD::JSON::Object*);
@@ -84,15 +97,6 @@ private:
     uiRetVal		startApp(const OD::JSON::Object*);
     const Network::Service*	getService(const Network::Service::ID) const;
     Network::Service*	getService(const Network::Service::ID);
-    uiRetVal		sendAction(const Network::Service::ID,
-				   const char*) const;
-    uiRetVal		sendAction(const Network::Service&,const char*) const;
-    uiRetVal		sendRequest(const Network::Service&,const char*,
-				    const OD::JSON::Object&) const;
-
-    bool		doParseAction(const char*,uiRetVal&) override final;
-    bool		doParseRequest(const OD::JSON::Object&,
-				       uiRetVal&) override final;
 
     friend class uiODMain;
 

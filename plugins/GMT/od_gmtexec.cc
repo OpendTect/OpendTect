@@ -28,12 +28,15 @@ static const char* rcsID mUsedVar = "$Id$";
     return false; \
 }
 
-
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "MPEEngine" );
     OD::ModDeps().ensureLoaded( "Well" );
+    return true;
+}
 
+bool BatchProgram::doWork( od_ostream& strm )
+{
     const char* psfilenm = pars().find( sKey::FileName() );
     const BufferString workdir( GetProcFileName(nullptr) );
     if ( workdir.size() > 255 )

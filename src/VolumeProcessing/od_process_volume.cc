@@ -64,10 +64,16 @@ void doWork( CallBacker* cb )
 };
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "VolumeProcessing" );
     OD::ModDeps().ensureLoaded( "Well" );
+    return true;
+}
+
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     PtrMan<CommThread> commthrd = 0;
     if ( comm_ )
     {

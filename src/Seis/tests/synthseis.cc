@@ -146,12 +146,17 @@ bool testTracesAmplitudes( od_ostream& strm,
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     mInitBatchTestProg();
     OD::ModDeps().ensureLoaded( "Seis" );
     VrmsRayTracer1D::initClass();
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     // Inputs
     TypeSet<ElasticModel> models;
     const bool singlespike = false;

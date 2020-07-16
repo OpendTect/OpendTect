@@ -43,7 +43,7 @@ ________________________________________________________________________
 	}
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
     if ( odversion < 500 )
@@ -54,7 +54,12 @@ bool BatchProgram::go( od_ostream& strm )
 
     OD::ModDeps().ensureLoaded( "Algo" );
     OD::ModDeps().ensureLoaded( "Seis" );
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     const BufferString typestr(pars().find(Seis2DTo3D::sKeyCreaterType()));
 
     if ( typestr == Seis2DTo3D::getCreatorFormat() || typestr.isEmpty() )

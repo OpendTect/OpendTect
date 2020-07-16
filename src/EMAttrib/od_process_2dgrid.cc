@@ -21,11 +21,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
     OD::ModDeps().ensureLoaded( "Seis" );
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )
 	{ strm << "Incomplete parameter file" << od_endl; return false; }

@@ -1,5 +1,4 @@
-#ifndef uiodservice_h
-#define uiodservice_h
+#pragma once
 /*+
  * ________________________________________________________________________
  *
@@ -75,5 +74,3 @@ private:
     Timer*		mastercheck_ = nullptr;
 
 };
-
-#endif

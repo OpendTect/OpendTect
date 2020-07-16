@@ -39,6 +39,7 @@ namespace sKey
     inline FixedString Attribute2D()	{ return "Attribute2D"; }
     inline FixedString Attributes()	{ return "Attributes"; }
     inline FixedString Azimuth()	{ return "Azimuth"; }
+    inline FixedString Batch()		{ return "Batch"; }
     inline FixedString Binary()		{ return "Binary"; }
     inline FixedString Body()		{ return "Body"; }
     inline FixedString Category()	{ return "Category"; }
@@ -72,9 +73,11 @@ namespace sKey
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString Input()		{ return "Input"; }
+    inline FixedString InputID()	{ return "input_id"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Keys()		{ return "Keys"; }
+    inline FixedString LaunchType()	{ return "LaunchType"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
@@ -95,6 +98,7 @@ namespace sKey
     inline FixedString Offset()		{ return "Offset"; }
     inline FixedString Order()		{ return "Order"; }
     inline FixedString Output()		{ return "Output"; }
+    inline FixedString OutputID()	{ return "output_id"; }
     inline FixedString Pars()		{ return "Parameters"; }
     inline FixedString PickSet()	{ return "PickSet"; }
     inline FixedString PreStackSeis()	{ return "PreStack Seismic"; }

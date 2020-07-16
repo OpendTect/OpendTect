@@ -29,6 +29,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sighndl.h"
 #include "strmprov.h"
 #include "threadwork.h"
+#include "odservicebase.h"
+#include "timer.h"
+#include "odbatchservice.h"
+
+
+#include "netserver.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -68,10 +74,50 @@ void BatchProgram::deleteInstance( int retcode )
 BatchProgram::BatchProgram()
     : NamedObject("")
     , iopar_(new IOPar)
+    , programStarted(this)
+    , startDoWork(this)
 {
+    timer_ = new Timer( "Updating" );
+    mAttachCB( timer_->tick, BatchProgram::eventLoopStarted );
+    ODBatchService& service = ODBatchService::getMgr();
+
+    mAttachCB( service.externalAction, BatchProgram::doWorkCB );
+
+    if ( !timer_->isActive() )
+	timer_->start(0, true);
 #ifdef __win__
     disableAutoSleep();
 #endif
+}
+
+
+void BatchProgram::eventLoopStarted( CallBacker* cb )
+{
+    if ( isStartDoWork() )
+	timer_->stop();
+
+    const BufferString* flnm = new BufferString( strm_->fileName() );
+    programStarted.trigger( flnm );
+
+    if ( isStartDoWork() )
+    {
+	const int ret = BP().isStillOK() ? 0 : 1;
+	BP().deleteInstance( ret );
+    }
+}
+
+
+void BatchProgram::doWorkCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(BufferString,actstr,cb);
+
+    if ( FixedString(actstr) != ODServiceBase::sKeyTransferCmplt() )
+	return;
+    const BufferString* logflnm = new BufferString( fp_.fullPath(),
+								"_log.txt" );
+    startDoWork.trigger( logflnm );
+    const int ret = stillok_ ? 0 : 1;
+    deleteInstance( ret );
 }
 
 
@@ -87,6 +133,8 @@ void BatchProgram::init()
     clparser_->setKeyHasValue( sKeyJobID() );
     clparser_->setKeyHasValue( sKeyDataDir() );
     clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
+    clparser_->setKeyHasValue(	"odserver" );
+    clparser_->setKeyHasValue( Network::Server::sKeyPort() );
 
     inbg_ = clparser_->hasKey( sKeyBG() );
 
@@ -106,6 +154,10 @@ void BatchProgram::init()
 
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );
+    BufferString launchtype;
+    clparser_->getVal( sKey::LaunchType(), launchtype );
+
+    startdoworknow_ = launchtype.isEqual( sKey::Batch() );
 
     BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
@@ -115,7 +167,11 @@ void BatchProgram::init()
 	parfilnm = parfp.fullPath();
 	parfilnm.replace( '%', ' ' );
 	if ( File::exists(parfilnm) )
+	{
+	    fp_ = parfilnm;
+	    fp_.setExtension( 0 );
 	    break;
+	}
 
 	parfilnm.setEmpty();
     }

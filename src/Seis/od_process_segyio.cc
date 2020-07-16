@@ -220,10 +220,14 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Seis");
+    return true;
+}
 
+bool BatchProgram::doWork( od_ostream& strm )
+{
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();
     const bool isexport = task == SEGY::IO::sKeyExport();

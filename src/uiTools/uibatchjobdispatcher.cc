@@ -26,9 +26,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "odbatchservice.h"
+#include "netserver.h"
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-						  const Batch::JobSpec& js )
+				    const Batch::JobSpec& js,
+				    OS::LaunchType launchtype )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(js)
     , optsbut_(0)
@@ -37,13 +40,15 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selectionChange(this)
     , checked(this)
     , jobname_("batch_processing")
+    , launchtype_(launchtype)
 {
     init( optional );
 }
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-					  Batch::JobSpec::ProcType proctyp )
+					Batch::JobSpec::ProcType proctyp,
+					OS::LaunchType launchtype )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(proctyp)
     , optsbut_(0)
@@ -52,6 +57,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selectionChange(this)
     , checked(this)
     , jobname_("batch_processing")
+    , launchtype_(launchtype)
 {
     init( optional );
 }
@@ -59,6 +65,9 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 void uiBatchJobDispatcherSel::init( bool optional )
 {
+    const BufferString launchtyp = OS::Batch == launchtype_ ? sKey::Batch() :
+				   "DataRequired";
+    jobspec_.pars_.add( sKey::LaunchType(), launchtyp );
     Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
     const BufferStringSet& nms = fact.getNames();
@@ -283,6 +292,15 @@ mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
+    ODBatchService& ODSM = ODBatchService::getMgr();
+
+    jobspec_.pars_.add( ODSM.sKeyODServer(),
+					ODSM.getAuthority().toString(true) );
+    uiRetVal uirv;
+    const PortNr_Type servport = Network::getUsablePort( uirv );
+    if ( uirv.isOK() )
+	jobspec_.pars_.add( Network::Server::sKeyPort(), servport );
+
     if ( !dispatcher().go(jobspec_) )
     {
 	uiString errmsg = dispatcher().errMsg();
