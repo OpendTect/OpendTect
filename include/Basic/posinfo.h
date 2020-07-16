@@ -185,6 +185,8 @@ public:
     virtual bool	isFullyRegular() const		= 0;
     glob_size_type	totalSize() const;
     glob_size_type	totalNrSegments() const;
+    glob_size_type      totalSizeInside(const Survey::HorSubSel&) const;
+                                /*!<Only count positions that are inside */
 
     virtual idx_type	lineIndexOf(pos_type lnr,idx_type* newidx=0) const;
     bool		includesLine( pos_type lnr ) const
@@ -195,6 +197,8 @@ public:
     bool		includes(const TrcKey&) const;
 
     bool		isValid(const LineCollDataPos&) const;
+    bool		hasPosition(const Survey::HorSubSel&,
+				    glob_size_type) const;
     bool		toNext(LineCollDataPos&) const;
     bool		toPrev(LineCollDataPos&) const;
     bool		toNextLine(LineCollDataPos&) const;

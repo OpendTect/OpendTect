@@ -74,7 +74,7 @@ protected:
     bool		is2d_;
     RefMan<RegularSeisDataPack> dp_;
     bool		dpismine_;
-    Threads::Atomic<bool> arrayfillererror_;
+    Threads::Atomic<bool> arrayfillererror_ = false;
     bool		udftraceswritefinished_;
     IOObj*		ioobj_;
     GeomSubSel*		reqss_ = nullptr;

@@ -46,15 +46,28 @@ PosInfo::LinesData::glob_size_type PosInfo::LinesData::totalSizeInside(
 					const LineHorSubSelSet& lhsss ) const
 {
     glob_size_type nrpos = 0;
+    for ( auto lhss : lhsss )
+	nrpos += totalSizeInside( *lhss );
+
+    return nrpos;
+}
+
+
+PosInfo::LinesData::glob_size_type PosInfo::LinesData::totalSizeInside(
+					const LineHorSubSel& lhss ) const
+{
+    glob_size_type nrpos = 0;
     for ( auto linedata : *this )
     {
-	const auto* lhss = lhsss.find( GeomID(linedata->linenr_) );
-	if ( lhss )
-	    for ( auto seg : linedata->segments_ )
-		for ( pos_type tnr=seg.start; tnr<=seg.stop; tnr+=seg.step )
-		    if ( lhss->trcNrSubSel().includes(tnr) )
-			nrpos++;
+	if ( GeomID(linedata->linenr_) != lhss.geomID() )
+	    continue;
+
+	for ( auto seg : linedata->segments_ )
+	    for ( pos_type tnr=seg.start; tnr<=seg.stop; tnr+=seg.step )
+		if ( lhss.trcNrSubSel().includes(tnr) )
+		    nrpos++;
     }
+
     return nrpos;
 }
 

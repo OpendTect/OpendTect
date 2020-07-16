@@ -17,6 +17,7 @@
 #include "oddirs.h"
 #include "pythonaccess.h"
 #include "separstr.h"
+#include "settingsaccess.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
@@ -1019,6 +1020,21 @@ int OS::CommandLauncher::catchError()
 
     return 0;
 #endif
+}
+
+
+bool OS::CommandLauncher::openTerminal( const char* workdir )
+{
+    const BufferString termem = SettingsAccess().getTerminalEmulator();
+#ifdef __win__
+    OS::MachineCommand mc( "start", termem );
+    const LaunchType lt = Wait4Finish;
+#else
+    OS::MachineCommand mc( termem );
+    const LaunchType lt = RunInBG;
+#endif
+
+    return mc.execute( lt, workdir );
 }
 
 

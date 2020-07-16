@@ -214,6 +214,8 @@ public:
     od_istream*		getStdError() { return stderror_; }
     od_ostream*		getStdInput() { return stdinput_; }
 
+    static bool		openTerminal(const char* workdir);
+
 protected:
 
     void		reset();

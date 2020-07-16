@@ -1516,18 +1516,14 @@ public:
 Array3DUdfTrcRestorer( const PosInfo::LineCollData& lcd, const HorSubSel& hss,
 		       Array3D<T>& arr )
     : ParallelTask("Udf traces restorer")
-    , lcd_(lcd.clone())
+    , lcd_(lcd)
     , hss_(hss)
     , arr_(arr)
-    , totalnr_(lcd_->size())
+    , totalnr_(lcd.totalSizeInside(hss) == mCast(int,hss.totalSize()) ? 0 :
+	       arr.totalSize()/arr.getSize(2))
 {
-    lcd_->limitTo( hss );
 }
 
-~Array3DUdfTrcRestorer()
-{
-    delete lcd_;
-}
 
 uiString message() const	{ return tr("Restoring undefined values"); }
 uiString nrDoneText() const	{ return sTracesDone(); }
@@ -1538,38 +1534,59 @@ od_int64 nrIterations() const	{ return totalnr_; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
+    const Array3DInfo& info = arr_.info();
+    const int nrtrcsp = info.getSize( arr_.get1DDim() );
     T* dataptr = arr_.getData();
-    const od_int64 trcsz = arr_.getSize( 2 );
-    const od_int64 slcsz = trcsz * arr_.getSize( 1 );
+    ValueSeries<T>* datastor = arr_.getStorage();
+    const bool hasarrayptr = dataptr;
+    const bool hasstorage = datastor;
+    const od_int64 offset = start * nrtrcsp;
+    dataptr += offset;
+    od_uint64 validx = offset;
+    const Array2DInfoImpl hinfo( info.getSize(0),
+				 info.getSize(1) );
+    ArrayNDIter* hiter = !hasarrayptr && !hasstorage
+		       ? new ArrayNDIter( hinfo ) : 0;
+    if ( hiter )
+	hiter->setGlobalPos( start );
 
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	const auto& ld = *lcd_->get( (int)idx );
-	const auto idx0 = hss_.idx4LineNr( ld.linenr_ );
-	T* linestart = dataptr + idx0 * slcsz;
-	PosInfo::LineDataPos ldp;
-	while ( ld.toNext(ldp) )
+	if ( lcd_.hasPosition(hss_,idx) )
 	{
-	    const auto idx1 = hss_.idx4TrcNr( ld.pos(ldp) );
-	    if ( dataptr )
-	    {
-		T* trcdata = linestart + idx1 * trcsz;
-		for ( auto isamp=0; isamp<trcsz; isamp++ )
-		    trcdata[isamp] = mUdf(T);
-	    }
-	    else
-	    {
-		for ( auto isamp=0; isamp<trcsz; isamp++ )
-		    arr_.set( idx0, idx1, isamp, mUdf(T) );
-	    }
+	    if ( hasarrayptr ) dataptr+=nrtrcsp;
+	    else if ( hasstorage ) validx+=nrtrcsp;
+	    else hiter->next();
+
+	    continue;
+	}
+
+	if ( hasarrayptr )
+	{
+	    dataptr =
+		OD::sysMemValueSet( dataptr, mUdf(T), nrtrcsp );
+	}
+	else if ( hasstorage )
+	{
+	    for ( int idz=0; idz<nrtrcsp; idz++ )
+		datastor->setValue( validx++, mUdf(T) );
+	}
+	else
+	{
+	    const int inlidx = (*hiter)[0];
+	    const int crlidx = (*hiter)[1];
+	    for ( int idz=0; idz<nrtrcsp; idz++ )
+		arr_.set( inlidx, crlidx, idz, mUdf(T) );
 	}
     }
+
+    delete hiter;
 
     return true;
 }
 
     Array3D<T>&			arr_;
-    PosInfo::LineCollData*	lcd_;
+    const PosInfo::LineCollData&	lcd_;
     const HorSubSel&		hss_;
     const od_int64		totalnr_;
 
