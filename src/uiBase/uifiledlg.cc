@@ -180,7 +180,11 @@ int uiFileDialog::go()
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 				: QFileDialog::AcceptSave );
-    fd->setFileMode( qmodeForUiMode(mode_) );
+    const QFileDialog::FileMode qfmode = qmodeForUiMode( mode_ );
+    fd->setFileMode( qfmode );
+    if ( qfmode == QFileDialog::Directory )
+	fd->setOption( QFileDialog::ShowDirsOnly );
+
     fd->setWindowTitle( toQString(wintitle) );
     fd->setOption( QFileDialog::DontConfirmOverwrite, !confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
