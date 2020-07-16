@@ -14,10 +14,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "madprocexec.h"
 #include "moddepmgr.h"
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "AttributeEngine" );
+    return true;
+}
 
+bool BatchProgram::doWork( od_ostream& strm )
+{
     ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )
     {

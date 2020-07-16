@@ -47,7 +47,7 @@ mDefSimpleTranslatorSelector(AttribDescSet);
 	}
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
@@ -58,7 +58,12 @@ bool BatchProgram::go( od_ostream& strm )
 
     OD::ModDeps().ensureLoaded( "Attributes" );
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     Attrib::Processor* proc = 0;
     const char* tempdir = pars().find(sKey::TmpStor());
     if ( tempdir && *tempdir )

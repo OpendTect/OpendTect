@@ -316,11 +316,17 @@ static void interpolate( EM::Horizon3D* horizon,
     aem.setAttribSet( &localattribset ); \
     aem.setAttribSpecs( selspecs ); \
 
-bool BatchProgram::go( od_ostream& strm )
+
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
+    return true;
+}
 
+
+bool BatchProgram::doWork( od_ostream& strm )
+{
     if ( clParser().nrArgs() )
     {
 	const bool ismaxstepout = clParser().isPresent( "maxstepout" );

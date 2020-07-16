@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "enums.h"
 #include "generalmod.h"
 #include "factory.h"
 #include "oscommand.h"
@@ -29,6 +30,8 @@ public:
 
     enum ProcType	{ NonODBase, Attrib, AttribEM, Grid2D,
 			  PreStack, SEGY, T2D, TwoDto3D, VelConv, Vol };
+    enum LaunchType	{ Immediately, WithDelay };
+			mDeclareEnumUtils(LaunchType);
 
 			JobSpec(ProcType);
 			JobSpec(const char* pnm=0);

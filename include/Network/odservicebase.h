@@ -52,10 +52,12 @@ public:
     static const char*	sKeyRaiseEv()		{ return "raise"; }
     static const char*	sKeyStatusEv()		{ return "status"; }
     static const char*	sKeySurveyChangeEv()	{ return "surveychange"; }
+    static const char*	sKeyTransferCmplt()	{ return "transfer_complete"; }
+    static const char*	sKeyProcessingDone()	{ return "processing_done"; }
 
     static const char*	sKeyODServer()		{ return "odserver"; }
 
-    CNotifier<ODServiceBase,BufferString>	externalAction;
+    CNotifier<ODServiceBase,BufferString>		externalAction;
     CNotifier<ODServiceBase,const OD::JSON::Object*>	externalRequest;
 
     void		setRetVal( const uiRetVal& uirv )	{ uirv_ = uirv;}

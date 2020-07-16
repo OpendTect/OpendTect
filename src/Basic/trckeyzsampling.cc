@@ -1408,15 +1408,16 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 void TrcKeyZSampling::fillJSON( OD::JSON::Object& obj )
 {
     hsamp_.fillJSON( obj );
-
-    obj.set( sKey::ZRange(), zsamp_ );
+    const BufferString zrgintrvl( sKey::ZRange(), "Interval" );
+    obj.set( zrgintrvl, zsamp_ );
 }
 
 
 bool TrcKeyZSampling::useJSON( const OD::JSON::Object& obj )
 {
     hsamp_.useJSON( obj );
-    obj.get( sKey::ZRange(), zsamp_ );
+    const BufferString zrgintrvl( sKey::ZRange(), "Interval" );
+    obj.get( zrgintrvl, zsamp_ );
     return true;
 }
 

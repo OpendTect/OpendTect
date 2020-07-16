@@ -42,7 +42,6 @@ static const char* sKeyProgType = "ProgramType";
 static const char* sKeyPriorityLevel = "PriorityLevel";
 static const char* sKeyWorkDir = "WorkingDirectory";
 
-
 //
 class QProcessManager
 {
@@ -452,6 +451,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
     ret.addArgs( mcargs );
     ret.addArgs( args_ );
+
     if ( pars && pars->launchtype_ != Wait4Finish &&
 	 !mIsZero(pars->prioritylevel_,1e-2f) )
 	ret.addKeyedArg( CommandExecPars::sKeyPriority(),pars->prioritylevel_);
@@ -842,7 +842,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
 	}
     }
-
+    BufferString str = mc.toString();
     const BufferString& workingdir = pars.workingdir_;
     if ( process_ )
     {

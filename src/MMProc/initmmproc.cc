@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hostdata.h"
 #include "jobiomgr.h"
 #include "mmbatchjobdispatch.h"
+#include "netserver.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "procdescdata.h"
@@ -121,6 +122,21 @@ bool Batch::SingleJobDispatcherRemote::launch()
 	DBG::message(msg);
     }
 
+    if ( jobspec_.pars_.hasKey( "odserver" ) )
+    {
+	BufferString val;
+	jobspec_.pars_.get( "odserver", val );
+	mc.addKeyedArg( "odserver", val );
+	val.setEmpty();
+	jobspec_.pars_.get( Network::Server::sKeyPort(), val );
+	mc.addKeyedArg( Network::Server::sKeyPort(), val );
+    }
+
+    BufferString launchtype;
+    jobspec_.pars_.get( sKey::LaunchType(), launchtype );
+    mc.addKeyedArg( sKey::LaunchType(), launchtype );
+
+    BufferString str = mc.toString( );
     return mc.execute( jobspec_.execpars_ );
 }
 

@@ -28,6 +28,7 @@ set ( OD_MODULE_SOURCES
 	netreqpacket.cc
 	oddlsite.cc
 	odnetworkaccess.cc
+	odbatchservice.cc
 	odnetworkreply.cc
 	odservicebase.cc
 	svnaccess.cc

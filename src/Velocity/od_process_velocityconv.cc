@@ -26,10 +26,15 @@ static const char* rcsID mUsedVar = "$Id$";
     return false; \
 }
 
-bool BatchProgram::go( od_ostream& strm )
+
+bool BatchProgram::initWork( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Velocity");
+    return true;
+}
 
+bool BatchProgram::doWork( od_ostream& strm )
+{
     MultiID inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
 	mErrRet( "Cannot read input volume id" )

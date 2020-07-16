@@ -16,6 +16,7 @@
 
 #include "namedobj.h"
 #include "networkcommon.h"
+#include "enums.h"
 
 class FilePath;
 
@@ -40,9 +41,11 @@ typedef int		ProcID;
 namespace Network
 {
 
+
 mExpClass(Network) Service : public NamedObject
 {  mODTextTranslationClass(Service);
 public:
+
     typedef ProcID	ID;
 
 			Service(PortNr_Type,const char* hostnm=nullptr);

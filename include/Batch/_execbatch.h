@@ -121,14 +121,9 @@ void Execute_batch( int* pargc, char** argv )
 		<< od_endl;
 	logstrm << "Processing on: " << GetLocalHostName() << od_endl;
 	logstrm << "Process ID: " << pid << od_endl;
-	allok = bp.go( logstrm );
     }
 
-    bp.stillok_ = allok;
-    const int ret = allok ? 0 : 1;
-    BatchProgram::deleteInstance( ret );
-
-    ApplicationData::exit( ret );	// never reached.
+    bp.stillok_ = true;
 }
 
 #endif

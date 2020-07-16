@@ -330,7 +330,8 @@ inline const Object& ValueSet::asObject() const
 template <class T>
 inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const
 {
-    const TypeSet<NumberType> intrvals = getArray( key )->valArr().vals();
+    const Array* arr = getArray( key );
+    const TypeSet<NumberType> intrvals = arr->valArr().vals();
 
     intrvl.start = intrvals[0];
     intrvl.stop = intrvals[1];

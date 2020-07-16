@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "batchjobdispatch.h"
+#include "netservice.h"
 
 class uiBatchJobDispatcherLauncher;
 class uiButton;
@@ -31,9 +32,11 @@ public:
 
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
 					Batch::JobSpec::ProcType pt
-						=Batch::JobSpec::NonODBase);
+				    =Batch::JobSpec::NonODBase,
+				    OS::LaunchType type=OS::Batch);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-						const Batch::JobSpec&);
+				    const Batch::JobSpec&,
+				    OS::LaunchType type=OS::Batch);
 
     void		jobSpecUpdated();
     void		setJobSpec(const Batch::JobSpec&);
@@ -60,6 +63,7 @@ protected:
 
     BufferString	jobname_;
     Batch::JobSpec	jobspec_;
+    OS::LaunchType	launchtype_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 
     void		init(bool optional);

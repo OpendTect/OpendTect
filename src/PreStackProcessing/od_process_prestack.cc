@@ -37,16 +37,26 @@ using namespace PreStack;
 { delete procman; procman = 0; writer = 0; }
 
 
-bool BatchProgram::go( od_ostream& strm )
+bool BatchProgram::initWork( od_ostream& strm )
+{
+    const int odversion = pars().odVersion();
+    if ( odversion < 320 )
+    {
+	errorMsg( toUiString("\nCannot execute pre-3.2 par files") );
+	return false;
+    }
+
+    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
+    return true;
+}
+
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     PtrMan<SeisPSWriter> writer = 0;
     ProcessManager* procman = 0;
 
-    const int odversion = pars().odVersion();
-    if ( odversion < 320 )
-    { mRetError("\nCannot execute pre-3.2 par files"); }
 
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );

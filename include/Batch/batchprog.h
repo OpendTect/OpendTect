@@ -18,18 +18,23 @@ ________________________________________________________________________
 #include "batchmod.h"
 
 #include "applicationdata.h"
+#include "batchjobdispatch.h"
 #include "prog.h"
 #include "namedobj.h"
 #include "bufstringset.h"
 #include "genc.h"
+#include "file.h"
+#include "odbatchservice.h"
 
 class CommandLineParser;
+class FilePath;
 class IOObj;
 class IOObjContext;
 class od_ostream;
 class MMSockCommunic;
 class JobCommunic;
 class StreamData;
+class Timer;
 
 /*!
 \brief Main object for 'standard' batch programs.
@@ -48,6 +53,36 @@ class StreamData;
   be accessed.
 */
 
+#define mRetJobErr(s) \
+{  \
+    if ( comm_ ) comm_->setState( JobCommunic::JobError ); \
+    mRetError(s) \
+}
+
+
+#define mRetError(s) \
+{ errorMsg(toUiString(s)); mDestroyWorkers; return false; }
+
+#define mRetHostErr(s) \
+{  \
+    if ( comm_ ) comm_->setState( JobCommunic::HostError ); \
+	mRetError(s) \
+}
+
+#define mStrmWithProcID(s) \
+strm << "\n[" << process_id << "]: " << s << "." << od_newline
+
+#define mMessage(s) \
+strm << s << '.' << od_newline
+
+#define mSetCommState(State) \
+if ( comm_ ) \
+{ \
+    comm_->setState( JobCommunic::State ); \
+    if ( !comm_->updateState() ) \
+	mRetHostErr( comm_->errMsg() ) \
+}
+
 mClass(Prog) BatchProgram : public NamedObject
 { mODTextTranslationClass(BatchProgram);
     mGlobal(Batch) friend	BatchProgram& BP();
@@ -59,9 +94,7 @@ public:
 
     const CommandLineParser&	clParser()	{ return *clparser_; }
 
-			//! This method must be defined by user
-    bool		go(od_ostream& log_stream);
-
+    bool		isStartDoWork() { return startdoworknow_; }
     mExp(Batch) IOObj*	getIOObjFromPars(const char* keybase,bool mknew,
 					 const IOObjContext& ctxt,
 					 bool msgiffail=true) const;
@@ -74,6 +107,7 @@ public:
 
     mExp(Batch) static void	deleteInstance(int retcode);
 
+    void		removeAllNotifiers() { detachAllNotifiers(); }
 
     static const char*	sKeyMasterHost();
     static const char*	sKeyMasterPort();
@@ -83,6 +117,17 @@ public:
     static const char*	sKeyFinishMsg() { return "Finished batch processing."; }
     static const char*	sKeySurveyDir() { return "surveydir"; }
     static const char*	sKeySimpleBatch() { return "noparfile"; }
+
+    bool		isStillOK() { return stillok_; }
+    void		setStillOK( bool yn ) { stillok_ = yn; }
+    bool		initWork(od_ostream& log_stream);
+			//Implementation will be updated
+	    //! This method must be defined by user when using service manager
+    bool		doWork(od_ostream& log_stream);
+				//! This method must be defined by user
+
+    CNotifier<BatchProgram,const BufferString*>     programStarted;
+    CNotifier<BatchProgram,const BufferString*>     startDoWork;
 
 protected:
 
@@ -115,9 +160,14 @@ protected:
 
 private:
 
-    JobCommunic*	comm_ = nullptr;
-    int			jobid_;
-    bool		strmismine_ = true;
+    JobCommunic*		comm_ = nullptr;
+    int				jobid_;
+    bool			strmismine_ = true;
+    Timer*			timer_;
+    FilePath			fp_;
+    bool			startdoworknow_;
+    void			eventLoopStarted(CallBacker*);
+    void			doWorkCB(CallBacker*);
 
 };
 
@@ -125,48 +175,65 @@ private:
 void Execute_batch(int*,char**);
 mGlobal(Batch) BatchProgram& BP();
 
-#define mRetJobErr(s) \
-{  \
-    if ( comm_ ) comm_->setState( JobCommunic::JobError ); \
-    mRetError(s) \
-}
-
-
-#define mRetError(s) \
-{ errorMsg(toUiString(s)); mDestroyWorkers; return false; }
-
-#define mRetHostErr(s) \
-{  \
-    if ( comm_ ) comm_->setState( JobCommunic::HostError ); \
-	mRetError(s) \
-}
-
-#define mStrmWithProcID(s) \
-strm << "\n[" << process_id << "]: " << s << "." << od_newline
-
-#define mMessage(s) \
-strm << s << '.' << od_newline
-
-#define mSetCommState(State) \
-if ( comm_ ) \
-{ \
-    comm_->setState( JobCommunic::State ); \
-    if ( !comm_->updateState() ) \
-	mRetHostErr( comm_->errMsg() ) \
-}
-
 #ifdef __prog__
 # ifdef __win__
 #  include "_execbatch.h"
 # endif
+
+    static void eventLoopStartedCB(CallBacker*cb)
+    {
+	if ( !BP().isStillOK() )
+	{
+	    BP().removeAllNotifiers();
+	    BatchProgram::deleteInstance( 0 );
+	    return;
+	}
+	mCBCapsuleUnpack(const BufferString*,flnm, cb);
+	od_ostream strm( *flnm, true );
+	if ( strm.isOK() && BP().initWork(strm) && BP().isStartDoWork() )
+	    BP().setStillOK( BP().doWork(strm) );
+
+	deleteAndZeroPtr( flnm );
+    }
+
+    static void doWorkCB( CallBacker* cb )
+    {
+	mCBCapsuleUnpack(const BufferString*,flnm, cb);
+
+	od_ostream strm( *flnm, true );
+
+	if ( !File::exists(*flnm) || !strm.isOK() )
+	{
+	    deleteAndZeroPtr( flnm );
+	    return;
+	}
+
+	BP().setStillOK( BP().doWork(strm) );
+
+	if ( BP().isStillOK() )
+	{
+	    ODBatchService& odsm = ODBatchService::getMgr();
+	    odsm.processingComplete();
+	}
+
+	deleteAndZeroPtr( flnm );
+    }
+
+
     int main( int argc, char** argv )
     {
 	SetProgramArgs( argc, argv );
 	ApplicationData app;
 	Execute_batch( &argc, argv );
+	BP().programStarted.notify( mSCB(eventLoopStartedCB) );
+	if ( !BP().isStartDoWork() )
+	    BP().startDoWork.notify( mSCB(doWorkCB) );
+
 	const int ret = ApplicationData::exec();
+
 	return ExitProgram( ret );
     }
+
 
 #endif // __prog__
 
