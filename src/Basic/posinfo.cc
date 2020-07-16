@@ -452,6 +452,28 @@ glob_size_type PosInfo::LineCollData::totalSize() const
 }
 
 
+glob_size_type PosInfo::LineCollData::totalSizeInside(
+					const Survey::HorSubSel& hss ) const
+{
+    if ( isCubeData() )
+    {
+	const CubeData* cd = asCubeData();
+	const CubeHorSubSel* chss = hss.asCubeHorSubSel();
+	if ( chss )
+	    return cd->totalSizeInside( *chss );
+    }
+    else
+    {
+	const LinesData* ld = asLinesData();
+	const LineHorSubSel* lhss = hss.asLineHorSubSel();
+	if ( lhss )
+	    return ld->totalSizeInside( *lhss );
+    }
+
+    return 0;
+}
+
+
 glob_size_type PosInfo::LineCollData::totalNrSegments() const
 {
     glob_size_type nrseg = 0;
@@ -740,6 +762,28 @@ bool PosInfo::LineCollData::isValid( const LineCollDataPos& lcdp ) const
     if ( lcdp.segnr_ < 0 || lcdp.segnr_ >= segs.size() )
 	return false;
     return lcdp.sidx_ >= 0 && lcdp.sidx_ <= segs[lcdp.segnr_].nrSteps();
+}
+
+
+bool PosInfo::LineCollData::hasPosition( const Survey::HorSubSel& hss,
+					    glob_size_type idx ) const
+{
+    if ( isCubeData() )
+    {
+	const CubeData* cd = asCubeData();
+	const CubeHorSubSel* chss = hss.asCubeHorSubSel();
+	if ( chss )
+	    return cd->hasPosition( *chss, idx );
+    }
+    else
+    {
+	const LinesData* ld = asLinesData();
+	const LineHorSubSel* lhss = hss.asLineHorSubSel();
+	if ( lhss )
+	    return ld->hasPosition( *lhss, idx );
+    }
+
+    return false;
 }
 
 

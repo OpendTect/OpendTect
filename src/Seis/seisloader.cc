@@ -320,7 +320,6 @@ Seis::Loader::Loader( const IOObj& ioobj, const GeomSubSel* gss,
     , ioobj_(ioobj.clone())
     , dc_(OD::AutoDataRep)
     , queueid_(Threads::WorkManager::cDefaultQueueID())
-    , arrayfillererror_(false)
     , udftraceswritefinished_(true)
 {
     compscalers_.setNullAllowed( true );
@@ -509,15 +508,17 @@ void Seis::Loader::submitUdfWriterTasks()
 {
     if ( !trcposns_ || trcposns_->isLinesData() )
 	return;
-    if ( trcposns_->totalSize() >= reqss_->totalSize() )
+    const Survey::HorSubSel& reqhss = reqss_->horSubSel();
+    const PosInfo::CubeData& cubeposns = *trcposns_->asCubeData();
+    if ( cubeposns.totalSizeInside(*reqhss.asCubeHorSubSel()) >=
+	 reqhss.totalSize() )
 	return;
 
     TaskGroup* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
 	udfwriters->addTask(
-		new Array3DUdfTrcRestorer<float>( *trcposns_,
-						  reqss_->horSubSel(),
+		new Array3DUdfTrcRestorer<float>( *trcposns_, reqhss,
 						  dp_->data(idx) ) );
     }
 

@@ -59,6 +59,7 @@ public:
     LineCollDataPos	lineCollPos( const Bin2D& b2d ) const
 			{ return LineCollData::lineCollPos(b2d); }
     glob_size_type	totalSizeInside(const LineHorSubSelSet&) const;
+    glob_size_type	totalSizeInside(const LineHorSubSel&) const;
     bool		hasPosition(const LineHorSubSel&,glob_idx_type) const;
     bool		hasPosition(const LineHorSubSelSet&,
 				    glob_idx_type) const;
