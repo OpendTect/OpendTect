@@ -50,7 +50,7 @@ static QFileDialog::FileMode qmodeForUiMode( OD::FileSelectionMode mode )
     switch( mode )
     {
     case OD::SelectFileForRead		: return QFileDialog::ExistingFile;
-    case OD::SelectDirectory		: return QFileDialog::DirectoryOnly;
+    case OD::SelectDirectory		: return QFileDialog::Directory;
     case OD::SelectMultiFile		: return QFileDialog::ExistingFiles;
     default				: return QFileDialog::AnyFile;
     }
