@@ -861,19 +861,6 @@ uiString MultiWellReader::uiMessage() const
 uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
 
-/*
-#define mGet( suopt, func ) \
-    if ( su_.suopt ) \
-    { \
-	if ( !wrdr.func ) \
-	{ \
-	    errmsg_.append( wrdr.errMsg(), true ); \
-	    wd->unRef(); \
-	    return MoreToDo(); \
-	} \
-    }
-*/
-
 int MultiWellReader::nextStep()
 {
     if ( nrdone_ >= totalNr() )
