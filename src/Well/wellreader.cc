@@ -630,7 +630,10 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 	    bintype = *astrm.value() == 'B' ? 1
 		    : (*astrm.value() == 'S' ? -1 : 0);
 	if ( astrm.hasKeyword(Well::Log::sKeyDahRange()) )
-	    newlog->dahRange().set(astrm.getFValue(0),astrm.getFValue(1));
+	{
+	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
+	    newlog->addValue( astrm.getFValue(1), mUdf(float) );
+	}
     }
 
     if ( newlog->name().isEmpty() )
@@ -667,6 +670,9 @@ bool Well::odReader::addLog( od_istream& strm ) const
 
     if ( wd_.track().isEmpty() )
 	getTrack();
+
+    auto* newloginfo = new Well::LogInfo( *newlog );
+    wd_.logInfoSet().add( newloginfo );
 
     return addToLogSet( newlog );
 }
@@ -833,13 +839,13 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 // MultiWellReader
 MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
 				  ObjectSet<Well::Data>& wds,
-				  const MultiWellReader::Setup& su )
+				  const Well::LoadReqs reqs )
     : Executor("Reading well info")
     , wds_(wds)
     , keys_(keys)
     , nrwells_(keys.size())
     , nrdone_(0)
-    , su_(su)
+    , reqs_(reqs)
 {}
 
 
@@ -855,7 +861,7 @@ uiString MultiWellReader::uiMessage() const
 uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
 
-
+/*
 #define mGet( suopt, func ) \
     if ( su_.suopt ) \
     { \
@@ -866,7 +872,7 @@ uiString MultiWellReader::uiNrDoneText() const
 	    return MoreToDo(); \
 	} \
     }
-
+*/
 
 int MultiWellReader::nextStep()
 {
@@ -886,25 +892,6 @@ int MultiWellReader::nextStep()
 
     const MultiID wmid = keys_[sCast(int,nrdone_)];
     nrdone_++;
-    Well::Data* wd = new Well::Data;
-    wd->ref();
-    Well::Reader wrdr( wmid, *wd );
-    if ( !wrdr.getDispProps() )
-	errmsg_.append( wrdr.errMsg(), true );
-
-    if ( !wrdr.getInfo() )
-    {
-	errmsg_.append( wrdr.errMsg(), true );
-	wd->unRef();
-	return Executor::MoreToDo();
-    }
-
-    mGet( track_, getTrack() )
-    mGet( logs_, getLogs() )
-    mGet( markers_, getMarkers() )
-    mGet( D2T_, getD2T() )
-    mGet( csmdl_, getCSMdl() )
-    mGet( loginfo_, getLogInfo() )
-    wds_ += wd;
+    wds_ += Well::MGR().get( wmid, reqs_ );
     return Executor::MoreToDo();
 }

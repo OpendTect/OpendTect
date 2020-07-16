@@ -362,6 +362,14 @@ Well::LogInfo::LogInfo( const char* nm )
 }
 
 
+Well::LogInfo::LogInfo( const Log& lg )
+    : NamedObject(lg.name())
+{
+    dahrg_ = lg.dahRange();
+    logunit_ = lg.unitMeasLabel();
+}
+
+
 //  ----LogInfoSet----
 void Well::LogInfoSet::getNames( BufferStringSet& lognms ) const
 {
