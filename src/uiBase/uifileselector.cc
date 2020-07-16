@@ -362,7 +362,12 @@ bool uiLocalFileSelTool::doSelection()
     }
     fd->setAcceptMode( isForRead(setup_.selmode_) ? QFileDialog::AcceptOpen
 						 : QFileDialog::AcceptSave );
-    fd->setFileMode( qmodeForUiMode(setup_.selmode_) );
+
+    const QFileDialog::FileMode qfmode = qmodeForUiMode( setup_.selmode_ );
+    fd->setFileMode( qfmode );
+    if ( qfmode == QFileDialog::Directory )
+	fd->setOption( QFileDialog::ShowDirsOnly );
+
     fd->setWindowTitle( toQString(wintitle) );
     fd->setOption(QFileDialog::DontConfirmOverwrite,!setup_.confirmoverwrite_);
     if ( !setup_.initialselectiondir_.isEmpty() )
