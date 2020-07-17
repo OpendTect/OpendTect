@@ -13,7 +13,7 @@ import signal
 import subprocess
 import json
 
-from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg, sTimeUnitString
+from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg, sTimeUnitString, log_msg
 
 def getODCommand(execnm,args=None):
   """OpendTect command
@@ -278,6 +278,10 @@ def startAndWait( cmd ):
     raise
   return completedproc
 
+def log_subprocess_output(pipe):
+    for line in iter(pipe.readline, b''):
+        log_msg(line.decode('utf-8').strip('\n'))
+
 def startDetached( cmd ):
   """Run a command in the background with psutil
 
@@ -291,18 +295,21 @@ def startDetached( cmd ):
     * The command is executed by the Popen function of the psutil module.
     * Since the command is run as a daemon, it does not block the execution of the script.
     * stdout is captured and forwarded to odpy.proclog_logger.
-    * stderr is captured and forwarded to odpy.syslog_logger.
+    * stderr is captured and forwarded to odpy.proclog_logger.
 
   """
 
   try:
+    runningproc = None
     if isWin():
-      runningproc = psutil.Popen( cmd, stdout=get_log_stream(), \
-                                       stderr=get_std_stream() )
+      runningproc = psutil.Popen( cmd, stdout=subprocess.PIPE, \
+                                       stderr=subprocess.STDOUT )
     else:
       runningproc = psutil.Popen( cmd, start_new_session=True, \
-                                     stdout=get_log_stream(), \
-                                     stderr=get_std_stream() )
+                                       stdout=subprocess.PIPE, \
+                                       stderr=subprocess.STDOUT )
+    with runningproc.stdout:
+      log_subprocess_output(runningproc.stdout)
   except subprocess.CalledProcessError as err:
     std_msg( 'Failed: ', err )
     raise
