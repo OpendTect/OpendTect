@@ -49,14 +49,11 @@ static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
 {
     switch( mode )
     {
-    case uiFileDialog::AnyFile		: return QFileDialog::AnyFile;
     case uiFileDialog::ExistingFile	: return QFileDialog::ExistingFile;
     case uiFileDialog::Directory	: return QFileDialog::Directory;
-    case uiFileDialog::DirectoryOnly	: return QFileDialog::DirectoryOnly;
     case uiFileDialog::ExistingFiles	: return QFileDialog::ExistingFiles;
+    default				: return QFileDialog::AnyFile;
     }
-
-    return QFileDialog::AnyFile;
 }
 
 #define mCommon \
@@ -174,15 +171,19 @@ int uiFileDialog::go()
     BufferString addendum;
     const uiString wintitle =
 	uiMainWin::uniqueWinTitle( caption_, 0, &addendum );
-    const BufferString utfwintitle( caption_.getFullString(), addendum );
+    const BufferString utfwintitle( toString(caption_), addendum );
     int refnr = beginCmdRecEvent( utfwintitle.buf() );
     PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog" );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 				: QFileDialog::AcceptSave );
-    fd->setFileMode( qmodeForUiMode(mode_) );
-    fd->setWindowTitle( wintitle.getQString() );
+    const QFileDialog::FileMode qfmode = qmodeForUiMode( mode_ );
+    fd->setFileMode( qfmode );
+    if ( qfmode == QFileDialog::Directory )
+	fd->setOption( QFileDialog::ShowDirsOnly );
+
+    fd->setWindowTitle( toQString(wintitle) );
     fd->setOption( QFileDialog::DontConfirmOverwrite, !confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
@@ -198,8 +199,8 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == uiStrings::sSave().getQString() ||
-	     qpb->text() == uiStrings::sOpen().getQString() ||
+	if ( qpb->text() == toQString(uiStrings::sSave()) ||
+	     qpb->text() == toQString(uiStrings::sOpen()) ||
 	     qpb->text() == "Choose" )
 	     qpb->setText( "OK" );
     }
