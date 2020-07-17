@@ -78,7 +78,6 @@ static uiStringSet hdrtyps()
 
 #define mHdr1GFLineLen 102
 #define mDataGFLineLen 148
-#define mGFUndefValue 3.4028235E+38
 
 
 mExpClass(uiEarthModel) write3DHorASCII : public Executor
@@ -173,8 +172,8 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
 {
     char buf[mDataGFLineLen+2];
     const float crl = mCast( float, bid.crl() );
-    const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
-    const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
+    const float gfval = (float) ( mIsUdf(val) ? MAXFLOAT : val );
+    const float depth = (float) ( mIsUdf(z) ? MAXFLOAT : z );
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	  crd.x_, crd.y_, segid, 14, depth,
 	  crl, crl, bid.crl(), gfval, bid.inl(),
