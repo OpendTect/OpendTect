@@ -342,24 +342,30 @@ static QPointF getWheelPosition( const QWheelEvent& ev )
 
 void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
+    if ( !ev )
+	return QGraphicsView::wheelEvent( ev );
+
     const QPoint delta = reversemousewheel_ ? -ev->angleDelta()
 					    : ev->angleDelta();
-    if ( ev && handle_.scrollZoomEnabled() )
+    if ( handle_.scrollZoomEnabled() )
     {
+	const bool isvertical = abs(delta.y()) > abs(delta.x());
+	const bool zoomin = isvertical && delta.y()>0;
 	const QPoint numsteps = delta / 8 / 15;
-	const bool haslength = !numsteps.isNull();
 
 	QTransform qtrans = transform();
 	const QPointF mousepos = getWheelPosition( *ev );
 	qtrans.translate( (viewWidth()/2) - mousepos.x(),
 			 (viewHeight()/2) - mousepos.y() );
 
+	const double m11 = qtrans.m11();
+	const double m22 = qtrans.m22();
 	const int inumsteps = numsteps.manhattanLength();
 	for ( int idx=0; idx<inumsteps; idx++ )
 	{
-	    if ( haslength || (qtrans.m11()>1 && qtrans.m22()>1) )
+	    if ( zoomin || (m11-mDefEps>1 && m22-mDefEps>1) )
 	    {
-		if ( haslength )
+		if ( zoomin )
 		    qtrans.scale( 1.2, 1.2 );
 		else
 		    qtrans.scale( 1./1.2, 1./1.2 );
