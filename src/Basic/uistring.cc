@@ -465,6 +465,7 @@ const QString& uiString::getQString() const
 const QString& uiString::fillQString( QString& res ) const
 {
     Threads::Locker datalocker( datalock_ );
+    mEnsureData;
     Threads::Locker contentlocker( data_->contentlock_ );
 
     res = getQStringInternal();
