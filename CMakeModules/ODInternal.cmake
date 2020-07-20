@@ -223,7 +223,17 @@ if( WIN32 )
 	else()
 	    set( MSVCVERSTR "Professional" )
 	endif()
-	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio/2017/${MSVCVERSTR}/VC/Redist/MSVC/14.16.27012/x64/Microsoft.VC141.CRT" )
+
+	string( SUBSTRING ${MSVC_TOOLSET_VERSION} 0 2 VERNUMBER )
+	if ( ${MSVC_TOOLSET_VERSION} EQUAL 142 )
+	    set( SYSDIR "C:/Program Files (x86)/Microsoft Visual Studio/2019" )
+	elseif ( ${MSVC_TOOLSET_VERSION} EQUAL 141 )
+	    set( SYSDIR "C:/Program Files (x86)/Microsoft Visual Studio/2017" )
+	endif()
+	file(  GLOB WINSYSDIR "${SYSDIR}/${MSVCVERSTR}/VC/Redist/MSVC/${VERNUMBER}.[0-9]*" )
+
+	set( MSVCPATH  ${WINSYSDIR}/x64/Microsoft.VC${MSVC_TOOLSET_VERSION}.CRT)
+
     endif()
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
