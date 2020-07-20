@@ -24,10 +24,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "genc.h"
 #include "file.h"
+#include "filepath.h"
 #include "odbatchservice.h"
 
 class CommandLineParser;
-class FilePath;
 class IOObj;
 class IOObjContext;
 class od_ostream;
