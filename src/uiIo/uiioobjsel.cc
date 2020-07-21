@@ -665,6 +665,7 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
 	.withwriteopts( setup_.withwriteopts_ )
 	.withinserters( setup_.withinserters_ );
     uiIOObjSelDlg* ret = new uiIOObjSelDlg( this, sdsu, workctio_ );
+    ret->setCaption( uiStrings::phrLoad(setup_.seltxt_) );
     uiIOObjSelGrp* selgrp = ret->selGrp();
     if ( selgrp )
     {
