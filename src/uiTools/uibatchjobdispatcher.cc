@@ -67,7 +67,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
 {
     const BufferString launchtyp = OS::Batch == launchtype_ ? sKey::Batch() :
 				   "DataRequired";
-    jobspec_.pars_.add( sKey::LaunchType(), launchtyp );
+    jobspec_.pars_.set( sKey::LaunchType(), launchtyp );
     Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
     const BufferStringSet& nms = fact.getNames();
