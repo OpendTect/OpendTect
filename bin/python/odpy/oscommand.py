@@ -12,6 +12,7 @@ import psutil
 import signal
 import subprocess
 import json
+import threading
 
 from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg, sTimeUnitString, log_msg
 
@@ -308,8 +309,8 @@ def startDetached( cmd ):
       runningproc = psutil.Popen( cmd, start_new_session=True, \
                                        stdout=subprocess.PIPE, \
                                        stderr=subprocess.STDOUT )
-    with runningproc.stdout:
-      log_subprocess_output(runningproc.stdout)
+    t = threading.Thread(target=log_subprocess_output, args=(runningproc.stdout,))
+    t.start()
   except subprocess.CalledProcessError as err:
     std_msg( 'Failed: ', err )
     raise
