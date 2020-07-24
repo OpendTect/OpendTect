@@ -17,6 +17,7 @@
 #include <osgViewer/ViewerBase>
 #include <QInputEvent>
 #include <QPointer>
+#include <QWindow>
 
 #if (QT_VERSION>=QT_VERSION_CHECK(4, 6, 0))
 # define USE_GESTURES
@@ -150,6 +151,7 @@ ODGLWidget::ODGLWidget( QWidget* prnt, const QGLWidget* sharewidget,
     , _touchEventsEnabled(false)
     , _forwardKeyEvents( forwardkeyevents )
 {
+    setAttribute(Qt::WA_NativeWindow);
     _devicePixelRatio = GETDEVICEPIXELRATIO();
 }
 
@@ -162,6 +164,7 @@ ODGLWidget::ODGLWidget( QGLContext* glctxt, QWidget* prnt,
     , _touchEventsEnabled(false)
     , _forwardKeyEvents(forwardKeyEvents)
 {
+    setAttribute(Qt::WA_NativeWindow);
     _devicePixelRatio = GETDEVICEPIXELRATIO();
 }
 
@@ -174,6 +177,7 @@ ODGLWidget::ODGLWidget( const QGLFormat& glformat, QWidget* prnt,
     , _touchEventsEnabled(false)
     , _forwardKeyEvents(forwardKeyEvents)
 {
+    setAttribute(Qt::WA_NativeWindow);
     _devicePixelRatio = GETDEVICEPIXELRATIO();
 }
 
@@ -943,6 +947,9 @@ bool ODGraphicsWindow::releaseContextImplementation()
 
 void ODGraphicsWindow::swapBuffersImplementation()
 {
+    if ( !_widget || !_widget->windowHandle()->isExposed() )
+	return;
+
 // FIXME: the processDeferredEvents should really be executed in a
 // GUI (main) thread context but I couln't find any reliable way to do this.
 // For now, lets hope non of *GUI thread only operations* will be executed
@@ -987,7 +994,8 @@ QtWindowingSystem()
 // Access the Qt windowing system through this singleton class.
 static QtWindowingSystem* getInterface()
 {
-    static QtWindowingSystem* qtInterface = new QtWindowingSystem;
+    mDefineStaticLocalObject( QtWindowingSystem*, qtInterface,
+			      (new QtWindowingSystem) );
     return qtInterface;
 }
 
