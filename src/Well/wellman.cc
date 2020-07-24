@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellreader.h"
 #include "welllogset.h"
+#include "welllog.h"
 #include "wellmarker.h"
 #include "welltransl.h"
 
@@ -192,10 +193,18 @@ int Well::Man::gtByKey( const MultiID& key ) const
 }
 
 
-bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
+bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
+			     bool forceLoad )
 {
     nms.setEmpty();
-    if ( MGR().isLoaded(ky) )
+    if ( MGR().isLoaded(ky) && forceLoad )
+    {
+	RefMan<Well::Data> wd = MGR().get( ky, Well::LoadReqs(Well::LogInfos) );
+	if ( !wd )
+	    return false;
+	wd->logInfoSet().getNames( nms );
+    }
+    else if ( MGR().isLoaded(ky) )
     {
 	RefMan<Well::Data> wd = MGR().get( ky );
 	if ( !wd )

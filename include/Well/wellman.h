@@ -84,7 +84,8 @@ public:
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
-    static bool		getLogNames(const MultiID&,BufferStringSet&);
+    static bool		getLogNames(const MultiID&,BufferStringSet&,
+				    bool forceLoad=false);
     static bool		getMarkerNames(BufferStringSet&);
 
 protected:
