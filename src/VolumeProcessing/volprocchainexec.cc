@@ -111,17 +111,15 @@ void VolProc::ChainExecutor::adjustStepsNrComponents( bool is2d )
 		const int nrinputs = step->getNrInputs();
 		TypeSet<Chain::Connection> conns;
 		web_.getConnections( step->getID(), true, conns );
-		int nroutcomps = 0;
 		for ( int slotidx=0; slotidx<nrinputs; slotidx++ )
 		{
 		    const Step::ID inpstepid = conns[slotidx].outputstepid_;
 		    const Step* inpstep = chain_.getStepFromID( inpstepid );
 		    const int stepnrinpcomp = inpstep->getNrOutComponents();
 		    step->setInpNrComps( slotidx, stepnrinpcomp );
-		    nroutcomps += stepnrinpcomp;
 		}
 
-		step->setOutputNrComps( nroutcomps );
+		step->setOutputNrComps( step->getNrInputComponents(0) );
 	    }
 
 	    //Set good defaults for legacy steps:
