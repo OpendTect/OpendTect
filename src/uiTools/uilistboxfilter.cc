@@ -41,7 +41,10 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
 {
     if ( &nms != &availitems_ )
 	availitems_ = nms;
+
     const BufferString cursel( lb_.getText() );
+    BufferStringSet chosennms;
+    getChosen( chosennms );
     lb_.setEmpty();
 
     const char* filt = text();
@@ -57,6 +60,11 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
 	lb_.setCurrentItem( cursel );
     else if ( !lb_.isEmpty() )
 	lb_.setCurrentItem( 0 );
+
+    if ( !chosennms.isEmpty() )
+	lb_.setChosen( chosennms );
+
+    lb_.itemChosen.trigger( -1 );
 }
 
 
@@ -102,6 +110,12 @@ void uiListBoxFilter::getChosen( TypeSet<int>& idxs ) const
 	const int chidx = chidxs[idx];
 	idxs += availitems_.indexOf( lb_.textOfItem(chidx) );
     }
+}
+
+
+void uiListBoxFilter::getChosen( BufferStringSet& nms ) const
+{
+    lb_.getChosen( nms );
 }
 
 
