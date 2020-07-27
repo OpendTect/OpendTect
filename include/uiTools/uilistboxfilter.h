@@ -32,6 +32,7 @@ public:
 
     int			getCurrent() const;
     void		getChosen(TypeSet<int>&) const;
+    void		getChosen(BufferStringSet&) const;
     int			nrChosen() const;
 
     void		removeItem(int);
