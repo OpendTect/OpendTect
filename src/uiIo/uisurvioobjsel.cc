@@ -112,6 +112,7 @@ void uiSurvIOObjSelGroup::initGrp( CallBacker* )
     updGrp( true );
 
     mAttachCB( objfld_->selectionChanged, uiSurvIOObjSelGroup::selChgCB );
+    mAttachCB( objfld_->itemChanged, uiSurvIOObjSelGroup::itemChgCB );
     if ( !ismultisel_ )
 	mAttachCB( objfld_->getListField()->doubleClicked,
 					uiSurvIOObjSelGroup::dClickCB );
@@ -131,6 +132,12 @@ void uiSurvIOObjSelGroup::insert( uiObject& obj )
 void uiSurvIOObjSelGroup::dClickCB( CallBacker* )
 {
     dClicked.trigger();
+}
+
+
+void uiSurvIOObjSelGroup::itemChgCB( CallBacker* )
+{
+    refresh();
 }
 
 

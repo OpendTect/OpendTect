@@ -76,6 +76,7 @@ protected:
     void		survSelCB(CallBacker*);
     void		dClickCB(CallBacker*);
     void		selChgCB(CallBacker*);
+    void		itemChgCB(CallBacker*);
     void		readSelIOCB(CallBacker*);
     void		writeSelIOCB(CallBacker*);
 
