@@ -231,6 +231,7 @@ void uiFuncSelDraw::funcSelChg(CallBacker *)
     const int nrchecked = funclistfld_->nrChosen();
     if ( nrchecked > 1 ) return;
 
+    NotifyStopper ns1( funclistfld_->selectionChanged );
     funclistfld_->chooseAll( false );
     funclistfld_->setChosen( funclistfld_->currentItem() );
 }
