@@ -48,6 +48,7 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     : uiIOObjManipGroupSubj(sg->listfld_->box())
     , selgrp_(sg)
     , manipgrp_(0)
+    , itemChanged(this)
 {
     mAttachCB( selgrp_->selectionChanged, uiIOObjSelGrpManipSubj::selChg );
     mAttachCB( selgrp_->itemChosen, uiIOObjSelGrpManipSubj::selChg );
@@ -84,6 +85,7 @@ const BufferStringSet& names() const
 void chgsOccurred()
 {
     selgrp_->fullUpdate( selgrp_->listfld_->currentItem() );
+    itemChanged.trigger();
 }
 
 void selChg( CallBacker* )
@@ -99,6 +101,8 @@ void relocStart( const char* msg )
     uiIOObjSelGrp*	selgrp_;
     uiIOObjManipGroup*	manipgrp_;
 
+    Notifier<uiIOObjManipGroupSubj> itemChanged;
+
 };
 
 
@@ -108,7 +112,8 @@ void relocStart( const char* msg )
     , lbchoiceio_(0) \
     , newStatusMsg(this) \
     , selectionChanged(this) \
-    , itemChosen(this)
+    , itemChosen(this) \
+    , itemChanged(this)
 
 
 // Note: don't combine first and second constructor making the uiString default
@@ -307,7 +312,6 @@ void uiIOObjSelGrp::mkManipulators()
 	mAttachCB( inserter->objectInserted, uiIOObjSelGrp::objInserted );
 	inserters_ += inserter;
     }
-
     insbutgrp->attach( centeredLeftOf, listfld_ );
 }
 
@@ -823,6 +827,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     mAttachCB( listfld_->selectionChanged, uiIOObjSelGrp::selChg );
     mAttachCB( listfld_->itemChosen, uiIOObjSelGrp::choiceChg );
     mAttachCB( listfld_->deleteButtonPressed, uiIOObjSelGrp::delPress );
+    mAttachCB( manipgrpsubj->itemChanged, uiIOObjSelGrp::itemChg );
 
     if ( ctio_.ctxt_.forread_ )
 	selChg( 0 );
@@ -856,6 +861,12 @@ void uiIOObjSelGrp::selChg( CallBacker* )
 	wrtrselfld_->use( *ioobj );
 
     selectionChanged.trigger();
+}
+
+
+void uiIOObjSelGrp::itemChg( CallBacker* )
+{
+    itemChanged.trigger();
 }
 
 

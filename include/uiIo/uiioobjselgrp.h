@@ -132,6 +132,7 @@ public:
 
     Notifier<uiIOObjSelGrp> selectionChanged;
     Notifier<uiIOObjSelGrp> itemChosen;
+    Notifier<uiIOObjSelGrp> itemChanged;
     Notifier<uiIOObjSelGrp> newStatusMsg;
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
@@ -174,6 +175,7 @@ protected:
     void		triggerStatusMsg(const char*);
 
     void		setInitial(CallBacker*);
+    void		itemChg(CallBacker*);
     void		selChg(CallBacker*);
     void		choiceChg(CallBacker*);
     void		refreshCB(CallBacker*);
