@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "mouseevent.h"
 #include "settingsaccess.h"
+#include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uimouseeventblockerbygesture.h"
 
@@ -816,4 +817,65 @@ bool uiGraphicsViewBase::print()
     painter.setRenderHint( QPainter::Antialiasing );
     body_->render( &painter );
     return true;
+}
+
+
+// uiGraphicsViewMask
+uiGraphicsViewMask::uiGraphicsViewMask( uiGraphicsViewBase& vw )
+    : uiGraphicsItem()
+    , view_(vw)
+    , border_(100)
+{
+    OD::LineStyle lst; lst.type_ = OD::LineStyle::None;
+    topmask_ = new uiRectItem(); addChild( topmask_ );
+    topmask_->setPenStyle( lst );
+    bottommask_ = new uiRectItem(); addChild( bottommask_ );
+    bottommask_->setPenStyle( lst );
+    leftmask_ = new uiRectItem(); addChild( leftmask_ );
+    leftmask_->setPenStyle( lst );
+    rightmask_ = new uiRectItem(); addChild( rightmask_ );
+    rightmask_->setPenStyle( lst );
+    setMaskColor( Color::White() );
+}
+
+
+uiGraphicsViewMask::~uiGraphicsViewMask()
+{}
+
+
+void uiGraphicsViewMask::setBorder( int b )
+{
+    border_ = b;
+}
+
+
+void uiGraphicsViewMask::setMaskColor( const Color& col )
+{
+    maskcolor_ = col;
+    topmask_->setFillColor( col );
+    bottommask_->setFillColor( col );
+    leftmask_->setFillColor( col );
+    rightmask_->setFillColor( col );
+}
+
+
+void uiGraphicsViewMask::update()
+{
+    const uiRect vwrect( 0, 0, view_.viewWidth(), view_.viewHeight() );
+
+    uiRect mask = vwrect; mask.setBottom( mask.top()+border_ );
+    const Geom::RectF topmaskrect = view_.mapToScene(mask);
+    topmask_->setRect( topmaskrect );
+
+    mask = vwrect; mask.setTop( mask.bottom()-border_ );
+    const Geom::RectF bottommaskrect = view_.mapToScene(mask);
+    bottommask_->setRect( bottommaskrect );
+
+    mask = vwrect; mask.setRight( mask.left()+border_ );
+    const Geom::RectF leftmaskrect = view_.mapToScene(mask);
+    leftmask_->setRect( leftmaskrect );
+
+    mask = vwrect; mask.setLeft( mask.right()-border_ );
+    const Geom::RectF rightmaskrect = view_.mapToScene(mask);
+    rightmask_->setRect( rightmaskrect );
 }
