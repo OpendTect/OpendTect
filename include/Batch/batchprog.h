@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "genc.h"
 #include "file.h"
-#include "filepath.h"
 #include "odbatchservice.h"
 
 class CommandLineParser;
@@ -99,6 +98,8 @@ public:
 					 const IOObjContext& ctxt,
 					 bool msgiffail=true) const;
 
+    od_ostream&		getLogStream() { return strm_ ? *strm_ : od_cout(); }
+
 			//! pause requested (via socket) by master?
     mExp(Batch) bool	pauseRequested() const;
 
@@ -126,8 +127,8 @@ public:
     bool		doWork(od_ostream& log_stream);
 				//! This method must be defined by user
 
-    CNotifier<BatchProgram,const BufferString*>     programStarted;
-    CNotifier<BatchProgram,const BufferString*>     startDoWork;
+    Notifier<BatchProgram>     programStarted;
+    Notifier<BatchProgram>     startDoWork;
 
 protected:
 
@@ -164,7 +165,6 @@ private:
     int				jobid_;
     bool			strmismine_ = true;
     Timer*			timer_;
-    FilePath			fp_;
     bool			startdoworknow_;
     void			eventLoopStarted(CallBacker*);
     void			doWorkCB(CallBacker*);
@@ -188,35 +188,22 @@ mGlobal(Batch) BatchProgram& BP();
 	    BatchProgram::deleteInstance( 0 );
 	    return;
 	}
-	mCBCapsuleUnpack(const BufferString*,flnm, cb);
-	od_ostream strm( *flnm, true );
-	if ( strm.isOK() && BP().initWork(strm) && BP().isStartDoWork() )
-	    BP().setStillOK( BP().doWork(strm) );
 
-	deleteAndZeroPtr( flnm );
+	if ( BP().getLogStream().isOK() && BP().initWork(BP().getLogStream())
+						&& BP().isStartDoWork() )
+	    BP().setStillOK( BP().doWork(BP().getLogStream()) );
+
     }
 
     static void doWorkCB( CallBacker* cb )
     {
-	mCBCapsuleUnpack(const BufferString*,flnm, cb);
-
-	od_ostream strm( *flnm, true );
-
-	if ( !File::exists(*flnm) || !strm.isOK() )
-	{
-	    deleteAndZeroPtr( flnm );
-	    return;
-	}
-
-	BP().setStillOK( BP().doWork(strm) );
+	BP().setStillOK( BP().doWork(BP().getLogStream()) );
 
 	if ( BP().isStillOK() )
 	{
 	    ODBatchService& odsm = ODBatchService::getMgr();
 	    odsm.processingComplete();
 	}
-
-	deleteAndZeroPtr( flnm );
     }
 
 
