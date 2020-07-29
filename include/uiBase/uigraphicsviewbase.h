@@ -13,12 +13,14 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
+#include "uigraphicsitem.h"
 #include "uiobj.h"
 
 class Alignment;
-class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
+class uiRectItem;
 class GestureEventHandler;
 class KeyboardEventHandler;
 class MouseEventHandler;
@@ -133,6 +135,28 @@ protected:
     bool			enabscrollzoom_;
     void			rubberBandCB(CallBacker*);
 
+};
+
+
+mExpClass(uiBase) uiGraphicsViewMask : public uiGraphicsItem
+{
+public:
+				uiGraphicsViewMask(uiGraphicsViewBase&);
+				~uiGraphicsViewMask();
+
+    void			setBorder(int);
+    void			setMaskColor(const Color&);
+    void			update();
+
+protected:
+    uiGraphicsViewBase&		view_;
+    uiRectItem*			topmask_;
+    uiRectItem*			bottommask_;
+    uiRectItem*			leftmask_;
+    uiRectItem*			rightmask_;
+
+    Color			maskcolor_;
+    int				border_;
 };
 
 #endif
