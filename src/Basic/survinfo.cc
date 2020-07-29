@@ -403,7 +403,9 @@ bool SurveyInfo::usePar( const IOPar& par )
 	setSurvDataType( p2d3d );
     }
 
-    coordsystem_ = Coords::CoordSystem::createSystem( par );
+    PtrMan<IOPar> crspar = par.subselect( sKey::CoordSys() );
+    if ( crspar )
+	coordsystem_ = Coords::CoordSystem::createSystem( *crspar );
 
     if ( !coordsystem_ )
     {
@@ -1163,16 +1165,17 @@ void SurveyInfo::fillPar( IOPar& par ) const
     }
 
     par.removeSubSelection( sKey::CoordSys() );
-    coordsystem_->fillPar( par );
+    IOPar crspar;
+    coordsystem_->fillPar( crspar );
+    par.mergeComp( crspar, sKey::CoordSys() );
 
     // To prevent overwring by v6.0 and older
-    const_cast<SurveyInfo*>(this)->defpars_.removeSubSelection(
-							sKey::CoordSys() );
-    coordsystem_->fillPar( const_cast<SurveyInfo*>(this)->defpars_ );
+    IOPar& defpars = const_cast<SurveyInfo*>(this)->defpars_;
+    defpars.removeSubSelection( sKey::CoordSys() );
+    defpars.mergeComp( crspar, sKey::CoordSys() );
 
     // Needed by v6.0 and older
     par.setYN( sKeyXYInFt(), xyInFeet() );
-
     par.set( sKeySeismicRefDatum(), seisrefdatum_ );
 }
 
@@ -1409,11 +1412,13 @@ void SurveyInfo::readSavedCoordSystem() const
     astream.next();
     const IOPar survpar( astream );
 
-    const IOPar* iop2use = &survpar;
-    if ( !iop2use->hasSubSelection(sKey::CoordSys()) )
-	iop2use = &defpars_;
-    RefMan<Coords::CoordSystem> newsys
-		    = Coords::CoordSystem::createSystem( *iop2use );
+
+    PtrMan<IOPar> crspar = survpar.subselect( sKey::CoordSys() );
+    if ( !crspar )
+	defpars_.subselect( sKey::CoordSys() );
+
+    RefMan<Coords::CoordSystem> newsys = !crspar ? 0
+		    		: Coords::CoordSystem::createSystem( *crspar );
     if ( newsys )
 	const_cast<SurveyInfo*>(this)->coordsystem_ = newsys;
 
