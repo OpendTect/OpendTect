@@ -95,8 +95,7 @@ void BatchProgram::eventLoopStarted( CallBacker* cb )
     if ( isStartDoWork() )
 	timer_->stop();
 
-    const BufferString* flnm = new BufferString( strm_->fileName() );
-    programStarted.trigger( flnm );
+    programStarted.trigger();
 
     if ( isStartDoWork() )
     {
@@ -112,9 +111,7 @@ void BatchProgram::doWorkCB( CallBacker* cb )
 
     if ( FixedString(actstr) != ODServiceBase::sKeyTransferCmplt() )
 	return;
-    const BufferString* logflnm = new BufferString( fp_.fullPath(),
-								"_log.txt" );
-    startDoWork.trigger( logflnm );
+    startDoWork.trigger();
     const int ret = stillok_ ? 0 : 1;
     deleteInstance( ret );
 }
@@ -166,11 +163,7 @@ void BatchProgram::init()
 	parfilnm = parfp.fullPath();
 	parfilnm.replace( '%', ' ' );
 	if ( File::exists(parfilnm) )
-	{
-	    fp_ = parfilnm;
-	    fp_.setExtension( 0 );
 	    break;
-	}
 
 	parfilnm.setEmpty();
     }
