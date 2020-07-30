@@ -51,6 +51,7 @@ static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
     {
     case uiFileDialog::ExistingFile	: return QFileDialog::ExistingFile;
     case uiFileDialog::Directory	: return QFileDialog::Directory;
+    case uiFileDialog::DirectoryOnly	: return QFileDialog::Directory;
     case uiFileDialog::ExistingFiles	: return QFileDialog::ExistingFiles;
     default				: return QFileDialog::AnyFile;
     }
