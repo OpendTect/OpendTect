@@ -212,9 +212,12 @@ bool ODInst::runInstMgrForUpdt()
 
 bool ODInst::updatesAvailable()
 {
+    return false; //TODO:Get exit code of od_instmgr
+    /*
     mGetFullMachComm(return false);
     machcomm.addFlag( "updcheck_report" );
     return machcomm.execute( OS::Wait4Finish );
+    */
 }
 
 
