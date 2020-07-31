@@ -153,7 +153,7 @@ void BatchProgram::init()
     BufferString launchtype;
     clparser_->getVal( sKey::LaunchType(), launchtype );
 
-    startdoworknow_ = launchtype.isEqual( sKey::Batch() );
+    startdoworknow_ = launchtype.isEmpty() || launchtype == sKey::Batch();
 
     BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
