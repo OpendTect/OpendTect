@@ -22,6 +22,9 @@ class BufferStringSet;
 
 namespace ODInst
 {
+    mGlobal(Basic) const char*	sKeyHasUpdate();
+    mGlobal(Basic) const char*	sKeyHasNoUpdate();
+
     mGlobal(Basic) BufferString	GetInstallerDir();
     mGlobal(Basic) BufferString GetRelInfoDir();
     mGlobal(Basic) bool		canInstall();
