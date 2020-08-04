@@ -146,6 +146,17 @@ bool ODInst::canInstall()
     mMkMachComm( prog, mRelRootDir )
 
 
+const char* ODInst::sKeyHasUpdate()
+{
+    return "Updates available";
+}
+
+
+const char* ODInst::sKeyHasNoUpdate()
+{
+    return "No updates available";
+}
+
 BufferString ODInst::GetInstallerDir()
 {
     BufferString appldir( GetSoftwareDir(0) );
@@ -214,7 +225,11 @@ bool ODInst::updatesAvailable()
 {
     mGetFullMachComm(return false);
     machcomm.addFlag( "updcheck_report" );
-    return machcomm.execute( OS::Wait4Finish );
+    BufferString stdout;
+    if ( !machcomm.execute(stdout) || stdout.isEmpty() )
+	return false;
+
+    return stdout == sKeyHasUpdate();
 }
 
 
