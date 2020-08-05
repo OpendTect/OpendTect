@@ -42,19 +42,18 @@ public:
 
     virtual bool	getInfo() const;
     virtual bool	getTrack() const;
-    virtual bool	getLogs() const;
+    virtual bool	getLogs(bool needjustinfo=false) const;
     virtual bool	getMarkers() const;	//needs to read Track too
     virtual bool	getD2T() const;
     virtual bool	getCSMdl() const;
     virtual bool	getDispProps() const;
     virtual bool	getLog(const char* lognm) const;
-    virtual bool	getLogInfo() const;
     virtual void	getLogInfo(BufferStringSet& lognms) const;
 
     virtual const OD::String& errMsg() const	{ return odIO::errMsg(); }
 
     bool		getInfo(od_istream&) const;
-    bool		addLog(od_istream&) const;
+    bool		addLog(od_istream&, bool needjustinfo=false) const;
     bool		getMarkers(od_istream&) const;
     bool		getD2T(od_istream&) const;
     bool		getCSMdl(od_istream&) const;

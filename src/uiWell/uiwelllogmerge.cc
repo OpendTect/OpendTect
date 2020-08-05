@@ -211,7 +211,6 @@ uiWellLogMerger::~uiWellLogMerger()
 {
     detachAllNotifiers();
     delete logdisp_;
-    deepErase( outlgs_ );
 }
 
 
@@ -408,6 +407,7 @@ bool uiWellLogMerger::writeNewLog()
 {
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
+	Well::MGR().get(wellids_[idx])->logs().add( outlgs_[idx] );
 	Well::Writer wtr( wellids_[idx], *Well::MGR().get( wellids_[idx] ) );
 	if ( !wtr.putLog(*outlgs_[idx]) )
 	    return false;

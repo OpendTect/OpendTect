@@ -173,7 +173,6 @@ Well::Data::Data( const char* nm )
     : info_(nm)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
-    , loginfos_(*new Well::LogInfoSet)
     , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
     , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
     , d2tmodel_(0)
@@ -197,7 +196,6 @@ Well::Data::~Data()
 {
     delete &track_;
     delete &logs_;
-    delete &loginfos_;
     delete &disp2d_;
     delete &disp3d_;
     delete d2tmodel_;

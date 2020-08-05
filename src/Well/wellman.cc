@@ -51,6 +51,8 @@ Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
         reqs_[typ] = 1;
     if ( typ == Trck )
         reqs_[Inf] = 1;
+    if ( typ == Logs )
+	reqs_[LogInfos] = 0;
     return *this;
 }
 
@@ -61,6 +63,8 @@ Well::LoadReqs Well::LoadReqs::All()
     ret.reqs_.set();
     if ( !SI().zIsTime() )
         ret.reqs_[D2T] = 0;
+
+    ret.reqs_[LogInfos] = 0;
     return ret;
 }
 
@@ -68,8 +72,22 @@ Well::LoadReqs Well::LoadReqs::All()
 void Well::LoadReqs::include( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
+    {
         if ( oth.reqs_[idx] )
             reqs_[ idx ] = 1;
+    }
+
+    if ( reqs_[Logs] )
+	reqs_[LogInfos] = 0;
+}
+
+
+bool Well::LoadReqs::includes( const LoadReqs& oth ) const
+{
+    for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
+        if ( oth.reqs_[idx] && !reqs_[idx] )
+            return false;
+    return true;
 }
 
 
@@ -94,6 +112,7 @@ void Well::Man::removeObject( const Well::Data* wd )
     if ( idx < 0 ) return;
 
     wells_.removeSingle( idx );
+    loadstates_.removeSingle( idx );
 }
 
 
@@ -111,10 +130,9 @@ Well::Data* Well::Man::release( const MultiID& key )
     const int idx = gtByKey( key );
     if ( idx < 0 ) return 0;
 
+    loadstates_.removeSingle( idx );
     return wells_.removeSingle( idx );
 }
-
-
 
 
 Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
@@ -122,17 +140,47 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
     msg_.setEmpty();
 
     const int wdidx = gtByKey( key );
-    if ( wdidx>=0 )
-        return wells_[wdidx];
+    Well::Data* wd = wdidx < 0 ? 0 : wells_[wdidx];
+    if ( wd && loadstates_[wdidx].includes(reqs) )
+        return wd;
 
-    Well::Data* wd = new Well::Data;
-    wd->ref();
+    if ( wdidx >=0 )
+    {
+	wd->ref();
+	reqs.include( loadstates_[wdidx] );
+	if ( !readReqData(key, wd, reqs) )
+	{
+	    wd->unRef();
+	    return nullptr;
+	}
 
+	loadstates_[wdidx] = reqs;
+    }
+    else 
+    {
+	wd = new Well::Data;
+	wd->ref();
+	if ( !readReqData(key, wd, reqs) )
+	{
+	    wd->unRef();
+	    return nullptr;
+	}
+
+	loadstates_ += reqs;
+    }
+
+    add( key, wd );
+    return wd;
+}
+
+
+bool Well::Man::readReqData( const MultiID& key, Well::Data* wd, LoadReqs reqs )
+{
     Reader rdr( key, *wd );
 #   define mRetIfFail(typ,subobj,oper) \
     { \
         if ( reqs.includes(typ) && !oper ) \
-            { msg_ = rdr.errMsg(); wd->unRef(); return nullptr; } \
+            { msg_ = rdr.errMsg(); wd->unRef(); return false; } \
     }
     mRetIfFail( Inf, info, rdr.getInfo() )
     mRetIfFail( Trck, track, rdr.getTrack() )
@@ -141,17 +189,16 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
     { \
         if ( reqs.includes(typ) ) \
             oper; \
-	}
+        }
     mJustTry( D2T, d2TModel, rdr.getD2T() )
     mJustTry( Mrkrs, markers, rdr.getMarkers() )
     mJustTry( Logs, logs, rdr.getLogs() )
-    mJustTry( LogInfos, logInfoSet, rdr.getLogInfo() )
+    mJustTry( LogInfos, logInfoSet, rdr.getLogs(true) )
     mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
     if ( reqs.includes(DispProps2D) || reqs.includes(DispProps3D) )
         rdr.getDispProps();
 
-    add( key, wd );
-    return wd;
+    return true;
 }
 
 
@@ -168,14 +215,7 @@ bool Well::Man::reload( const MultiID& key )
 
     Well::Data* wd = wells_[wdidx];
     wd->ref();
-    Well::Reader wr( key, *wd );
-    if ( !wr.get() )
-    {
-	msg_.set( wr.errMsg() );
-	wd->unRef();
-	return false;
-    }
-
+    readReqData( key, wd, loadstates_[wdidx] );
     wd->reloaded.trigger();
     wd->unRef();
     return true;
@@ -202,7 +242,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 	RefMan<Well::Data> wd = MGR().get( ky, Well::LoadReqs(Well::LogInfos) );
 	if ( !wd )
 	    return false;
-	wd->logInfoSet().getNames( nms );
+	wd->logs().getNames( nms );
     }
     else if ( MGR().isLoaded(ky) )
     {

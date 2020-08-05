@@ -54,15 +54,18 @@ const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 static const char* sOperReadD2T = "read valid Time/Depth relation";
 
 
-bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
+bool Well::ReadAccess::addToLogSet( Well::Log* newlog, bool needjustinfo ) const
 {
     if ( !newlog )
 	return false;
 
-    newlog->removeTopBottomUdfs();
-    newlog->updateAfterValueChanges();
-    if ( newlog->isEmpty() )
-	return false;
+    if ( !needjustinfo && newlog->isEmpty() )
+    {
+	newlog->removeTopBottomUdfs();
+	newlog->updateAfterValueChanges();
+	if ( newlog->isEmpty() )
+	    return false;
+    }
 
     wd_.logs().add( newlog );
     return true;
@@ -172,9 +175,9 @@ bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 
 mImplSimpleWRFn(getInfo)
 mImplSimpleWRFn(getTrack)
-mImplSimpleWRFn(getLogs)
 mImplSimpleWRFn(getMarkers)
 mImplSimpleWRFn(getDispProps)
+mImplWRFn(bool,getLogs,bool,needjustinfo,false)
 
 
 bool Well::Reader::get() const
@@ -227,8 +230,6 @@ bool Well::Reader::getCSMdl() const
 
 
 mImplWRFn(bool,getLog,const char*,lognm,false)
-bool Well::Reader::getLogInfo() const
-{ return ra_ ? ra_->getLogInfo() : false; }
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
 Well::Data* Well::Reader::data()
@@ -518,34 +519,6 @@ bool Well::odReader::getTrack() const
 }
 
 
-bool Well::odReader::getLogInfo() const
-{
-    for ( int idx=1;  ; idx++ )
-    {
-	mGetInpStream( sExtLog(), idx, false, break )
-
-	double version = 0.0;
-	if ( rdHdr(strm,sKeyLog(),version) )
-	{
-	    int bintyp = 0;
-	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
-	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
-	    const UnitOfMeasure* uom = log->unitOfMeasure();
-	    loginfo->logunit_ = uom ? uom->symbol() : log->unitMeasLabel();
-	    if ( loginfo->dahrg_.isUdf() )
-	    {
-		readLogData( *log, strm, bintyp );
-		loginfo->dahrg_ = log->dahRange();
-	    }
-
-	    wd_.logInfoSet().add( loginfo );
-	}
-    }
-
-    return true;
-}
-
-
 void Well::odReader::getLogInfo( BufferStringSet& nms ) const
 {
     TypeSet<int> idxs;
@@ -595,7 +568,7 @@ bool Well::odReader::getLog( const char* lognm ) const
 }
 
 
-bool Well::odReader::getLogs() const
+bool Well::odReader::getLogs( bool needjustinfo ) const
 {
     bool rv = true;
     wd_.logs().setEmpty();
@@ -603,7 +576,7 @@ bool Well::odReader::getLogs() const
     {
 	mGetInpStream( sExtLog(), idx, false, break )
 
-	if ( !addLog(strm) )
+	if ( !addLog(strm, needjustinfo) )
 	    mErrStrmOper("read data",
 		    ErrMsg(errmsg_); errmsg_.setEmpty(); rv = false; continue)
     }
@@ -631,6 +604,7 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 		    : (*astrm.value() == 'S' ? -1 : 0);
 	if ( astrm.hasKeyword(Well::Log::sKeyDahRange()) )
 	{
+	////	newlog->dahRange().set(astrm.getFValue(0),astrm.getFValue(1));
 	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
 	    newlog->addValue( astrm.getFValue(1), mUdf(float) );
 	}
@@ -649,7 +623,7 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 }
 
 
-bool Well::odReader::addLog( od_istream& strm ) const
+bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyLog(),version) )
@@ -660,21 +634,27 @@ bool Well::odReader::addLog( od_istream& strm ) const
     if ( !newlog )
 	mErrRetStrmOper( "read log" )
 
-    readLogData( *newlog, strm, bintype );
-
-    if ( SI().zInFeet() && version<4.195 )
+    if ( !needjustinfo )
     {
-	for ( int idx=0; idx<newlog->size(); idx++ )
-	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
+	newlog->removeTopBottomUdfs();
+	newlog->updateAfterValueChanges();
     }
 
-    if ( wd_.track().isEmpty() )
-	getTrack();
+    if ( newlog->isEmpty() )
+    {
+	readLogData( *newlog, strm, bintype );
 
-    auto* newloginfo = new Well::LogInfo( *newlog );
-    wd_.logInfoSet().add( newloginfo );
+	if ( SI().zInFeet() && version<4.195 )
+	{
+	    for ( int idx=0; idx<newlog->size(); idx++ )
+		newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
+	}
 
-    return addToLogSet( newlog );
+	if ( wd_.track().isEmpty() )
+	    getTrack();
+    }
+
+    return addToLogSet( newlog, needjustinfo );
 }
 
 

@@ -102,32 +102,6 @@ protected:
 };
 
 
-mExpClass(Well) LogInfo: public NamedObject
-{mODTextTranslationClass(Well::LogInfo)
-public:
-
-			LogInfo(const char* nm);
-			LogInfo(const Log&);
-
-    BufferString	logunit_;
-    Interval<float>	dahrg_;
-};
-
-
-mExpClass(Well) LogInfoSet : public ObjectSet<Well::LogInfo>
-{
-public:
-    void			getNames(BufferStringSet&) const;
-    void			getUnits(BufferStringSet&) const;
-
-    const Well::LogInfo*	getByName(const char* lognm) const;
-    BufferString		getUnit(const char* lognm) const;
-    Interval<float>		dahRange(const char* lognm) const;
-    bool			logIsPresent(const char* lognm) const;
-};
-
-
-
 } // namespace Well
 
 #endif
