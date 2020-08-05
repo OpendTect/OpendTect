@@ -200,31 +200,12 @@ set( LMUTIL lmutil )
 if( WIN32 )
     if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpegd.dll )
+        set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} )
     elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg.dll )
+	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} )
     endif()
-    if( ${OD_PLFSUBDIR} STREQUAL "win32" )
-	set( MSVCPATH "C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/redist/x86/Microsoft.VC120.CRT" )
-    elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
-	set( MSVCVERSTR "" )
-	string( FIND ${CMAKE_CXX_COMPILER} "Community" ISCOMMUNITY )
-	if ( NOT ${ISCOMMUNITY} EQUAL -1 )
-	    set( MSVCVERSTR "Community" )
-	else()
-	    set( MSVCVERSTR "Professional" )
-	endif()
-
-	string( SUBSTRING ${MSVC_TOOLSET_VERSION} 0 2 VERNUMBER )
-	if ( ${MSVC_TOOLSET_VERSION} EQUAL 142 )
-	    set( SYSDIR "C:/Program Files (x86)/Microsoft Visual Studio/2019" )
-	elseif ( ${MSVC_TOOLSET_VERSION} EQUAL 141 )
-	    set( SYSDIR "C:/Program Files (x86)/Microsoft Visual Studio/2017" )
-	endif()
-	file(  GLOB WINSYSDIR "${SYSDIR}/${MSVCVERSTR}/VC/Redist/MSVC/${VERNUMBER}.[0-9]*" )
-
-	set( MSVCPATH  ${WINSYSDIR}/x64/Microsoft.VC${MSVC_TOOLSET_VERSION}.CRT)
-
-    endif()
+    include( InstallRequiredSystemLibraries )
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
@@ -262,16 +243,6 @@ if ( NOT ${BUILDINSRC} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		   ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
 		   ${CMAKE_BINARY_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/${LMUTIL} )
-endif()
-
-if( EXISTS ${MSVCPATH} )
-    file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
-    foreach( DLL ${MSVCDLLS} )
-	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
-	get_filename_component( FILENAME ${DLL} NAME )
-	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
-	list( APPEND MSVCDLLLIST ${FILENAME} )
-    endforeach()
 endif()
 
 FILE( GLOB SCRIPTS ${CMAKE_SOURCE_DIR}/bin/od_* )
