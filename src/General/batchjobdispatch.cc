@@ -19,9 +19,6 @@ static const char* sKeyProgramName = "Program.Name";
 static const char* sKeyClArgs = "Program.Args";
 
 
-mDefineEnumUtils( Batch::JobSpec, LaunchType, "LaunchType" )
-{ "Immediately", "Delay", 0 };
-
 mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
 
@@ -56,7 +53,6 @@ void Batch::JobSpec::usePar( const IOPar& iop )
     pars_.removeWithKey( sKeyProgramName );
     pars_.removeWithKey( sKeyClArgs );
     execpars_.removeFromPar( pars_ );
-
     prognm_ = iop.find( sKeyProgramName );
     iop.get( sKeyClArgs, clargs_ );
     execpars_.usePar( iop );
@@ -68,6 +64,7 @@ void Batch::JobSpec::fillPar( IOPar& iop ) const
     iop = pars_;
     iop.set( sKeyProgramName, prognm_ );
     iop.set( sKeyClArgs, clargs_ );
+
     execpars_.fillPar( iop );
 }
 
