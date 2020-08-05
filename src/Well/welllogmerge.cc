@@ -185,7 +185,6 @@ int Well::LogMerger::merge()
 	outputlog_.insertAtDah( logsamp_->getDah(idx), vals[idx] );
     }
 
-    wd_->logs().add( &outputlog_ );
     deleteAndZeroPtr( logsamp_ );
     return nrDone() >= totalNr() ? Finished() : MoreToDo();
 }

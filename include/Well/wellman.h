@@ -55,6 +55,7 @@ public:
 
     bool		includes( SubObjType typ ) const
 						{ return reqs_[typ]; }
+    bool		includes(const LoadReqs&) const;
 
 protected:
 
@@ -74,6 +75,7 @@ public:
 
     void		removeObject( const Well::Data* );
     Data*		get(const MultiID&, LoadReqs reqs=LoadReqs());
+    bool		readReqData(const MultiID&, Well::Data*, LoadReqs);
     void		add(const MultiID&,Data*);
 			//!< Data becomes mine
     Data*		release(const MultiID&);
@@ -96,6 +98,7 @@ protected:
 
     ObjectSet<Data>	wells_;
     BufferString	msg_;
+    mutable TypeSet<LoadReqs>	loadstates_;
 
     int			gtByKey(const MultiID&) const;
 };
