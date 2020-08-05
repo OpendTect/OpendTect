@@ -30,8 +30,6 @@ public:
 
     enum ProcType	{ NonODBase, Attrib, AttribEM, Grid2D,
 			  PreStack, SEGY, T2D, TwoDto3D, VelConv, Vol };
-    enum LaunchType	{ Immediately, WithDelay };
-			mDeclareEnumUtils(LaunchType);
 
 			JobSpec(ProcType);
 			JobSpec(const char* pnm=0);
@@ -43,6 +41,7 @@ public:
     BufferString	prognm_;
     BufferStringSet	clargs_;
     IOPar		pars_;
+    OS::LaunchType	launchtype_ = OS::Batch;
     OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
 
     void		usePar(const IOPar&);

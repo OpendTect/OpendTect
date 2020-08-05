@@ -30,8 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netserver.h"
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-				    const Batch::JobSpec& js,
-				    OS::LaunchType launchtype )
+				    const Batch::JobSpec& js )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(js)
     , optsbut_(0)
@@ -40,15 +39,13 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selectionChange(this)
     , checked(this)
     , jobname_("batch_processing")
-    , launchtype_(launchtype)
 {
     init( optional );
 }
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-					Batch::JobSpec::ProcType proctyp,
-					OS::LaunchType launchtype )
+					Batch::JobSpec::ProcType proctyp )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(proctyp)
     , optsbut_(0)
@@ -57,7 +54,6 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selectionChange(this)
     , checked(this)
     , jobname_("batch_processing")
-    , launchtype_(launchtype)
 {
     init( optional );
 }
@@ -65,9 +61,6 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 void uiBatchJobDispatcherSel::init( bool optional )
 {
-    const BufferString launchtyp = OS::Batch == launchtype_ ? sKey::Batch() :
-				   "DataRequired";
-    jobspec_.pars_.set( sKey::LaunchType(), launchtyp );
     Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
     const BufferStringSet& nms = fact.getNames();

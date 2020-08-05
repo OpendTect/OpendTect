@@ -32,11 +32,9 @@ public:
 
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
 					Batch::JobSpec::ProcType pt
-				    =Batch::JobSpec::NonODBase,
-				    OS::LaunchType type=OS::Batch);
+				    =Batch::JobSpec::NonODBase);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-				    const Batch::JobSpec&,
-				    OS::LaunchType type=OS::Batch);
+				    const Batch::JobSpec&);
 
     void		jobSpecUpdated();
     void		setJobSpec(const Batch::JobSpec&);
@@ -63,7 +61,6 @@ protected:
 
     BufferString	jobname_;
     Batch::JobSpec	jobspec_;
-    OS::LaunchType	launchtype_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 
     void		init(bool optional);
