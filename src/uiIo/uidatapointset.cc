@@ -239,8 +239,16 @@ int uiDataPointSet::nrPosCols() const
 int uiDataPointSet::initVars()
 {
     sortcol_ = statscol_ = xcol_ = ycol_ = y2col_ = -1;
-    delete xplotwin_; xplotwin_ = 0;
-    delete statswin_; statswin_ = 0;
+    if ( xplotwin_ )
+    {
+	xplotwin_->close();
+	xplotwin_ = nullptr;
+    }
+    if ( statswin_ )
+    {
+	statswin_->close();
+	statswin_ = nullptr;
+    }
 
     mCleanRunCalcs;
 
@@ -260,7 +268,10 @@ uiDataPointSet::~uiDataPointSet()
     detachAllNotifiers();
     deepErase( variodlgs_ );
     removeSelPts( 0 );
-    delete xplotwin_;
+    if ( xplotwin_ )
+	xplotwin_->close();
+    if ( statswin_ )
+	statswin_->close();
 }
 
 
@@ -1018,14 +1029,14 @@ void uiDataPointSet::redoAll()
 
 void uiDataPointSet::xplotClose( CallBacker* )
 {
-   delete xplotwin_;  xplotwin_ = 0;
+    xplotwin_ = nullptr;
     disptb_->setSensitive( xplottbid_, true );
 }
 
 
 void uiDataPointSet::statsClose( CallBacker* )
 {
-    delete statswin_; statswin_ = 0;
+    statswin_ = nullptr;
 }
 
 
@@ -1317,8 +1328,16 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 {
     removeSelPts( 0 );
     mDPM.release( dps_.id() );
-    delete xplotwin_; xplotwin_ = 0;
-    delete statswin_; statswin_ = 0;
+    if ( xplotwin_ )
+    {
+	xplotwin_->close();
+	xplotwin_ = nullptr;
+    }
+    if ( statswin_ )
+    {
+	statswin_->close();
+	statswin_ = nullptr;
+    }
     return true;
 }
 
