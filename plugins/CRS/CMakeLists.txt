@@ -1,7 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	CRS
-# 	May 2017	Raman
+#	Makefile :	CRS
+#	May 2017	Raman
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
@@ -17,8 +17,8 @@ set( OD_TEST_PROGS
 	    crs.cc )
 
 set ( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} ${OD_VOLUME_EXECS} ${OD_SEIS_EXECS}
-    			 ${OD_PRESTACK_EXECS} ${OD_ZAXISTRANSFORM_EXECS} 
-			 ${DGB_ML_EXECS} ${DGB_ML_UIEXECS} ${DGB_SR_EXECS} )
+			 ${OD_PRESTACK_EXECS} ${OD_ZAXISTRANSFORM_EXECS} 
+			 ${DGB_ML_EXECS} ${DGB_ML_UIEXECS} ${DGB_SR_EXECS} ${DGB_PRO_UIEXECS})
 
 OD_INIT_MODULE()
 
