@@ -225,11 +225,11 @@ bool ODInst::updatesAvailable()
 {
     mGetFullMachComm(return false);
     machcomm.addFlag( "updcheck_report" );
-    BufferString stdout;
-    if ( !machcomm.execute(stdout) || stdout.isEmpty() )
+    BufferString stdoutstr;
+    if ( !machcomm.execute(stdoutstr) || stdoutstr.isEmpty() )
 	return false;
 
-    return stdout == sKeyHasUpdate();
+    return stdoutstr == sKeyHasUpdate();
 }
 
 
