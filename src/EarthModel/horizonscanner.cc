@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "emhorizon3d.h"
 #include "posinfodetector.h"
+#include "ptrman.h"
 #include "iopar.h"
 #include "od_istream.h"
 #include "survinfo.h"
@@ -188,12 +189,12 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
 
 bool HorizonScanner::reInitAscIO( const char* fnm )
 {
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
+    ascio_ = new EM::Horizon3DAscIO( fd_, fnm );
+    if ( !ascio_ || !ascio_->isOK() )
+    {
+	deleteAndZeroPtr( ascio_ );
 	return false;
-
-    ascio_ = new EM::Horizon3DAscIO( fd_, strm );
-    if ( !ascio_ ) return false;
+    }
     return true;
 }
 

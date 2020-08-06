@@ -29,11 +29,11 @@ mExpClass(EarthModel) Horizon3DAscIO : public Table::AscIO
 {
 public:
 				Horizon3DAscIO( const Table::FormatDesc& fd,
-						od_istream& strm )
+						const char* filenm )
 				    : Table::AscIO(fd)
 				    , udfval_(mUdf(float))
 				    , finishedreadingheader_(false)
-				    , strm_(strm)		    {}
+				    , strm_(filenm) {}
 
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
@@ -42,6 +42,7 @@ public:
 					   const BufferStringSet&);
 
     bool			isXY() const;
+    bool			isOK() const { return strm_.isOK(); }
     int				getNextLine(Coord&,TypeSet<float>&);
 
     static const char*		sKeyFormatStr();
@@ -49,7 +50,7 @@ public:
 
 protected:
 
-    od_istream&			strm_;
+    od_istream			strm_;
     float			udfval_;
     bool			finishedreadingheader_;
 
