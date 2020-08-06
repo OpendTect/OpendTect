@@ -149,12 +149,13 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
 
 bool Horizon2DScanner::reInitAscIO( const char* fnm )
 {
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
+    deleteAndZeroPtr( ascio_ );
+    ascio_ = new EM::Horizon2DAscIO( fd_, fnm );
+    if ( !ascio_ || !ascio_->isOK() )
+    {
+	deleteAndZeroPtr( ascio_ );
 	return false;
-
-    delete ascio_;
-    ascio_ = new EM::Horizon2DAscIO( fd_, strm );
+    }
     return true;
 }
 
