@@ -554,9 +554,15 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	return nullptr;
     }
 
+	BufferString temppath( File::getTempPath() );
+	if ( temppath.find(' ') )
+		temppath.quote();
+
 #ifdef __win__
     strm.add( "@SETLOCAL" ).add( od_newline );
     strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
+
+	strm.add( "SET TMPDIR=" ).add( temppath ).add( od_newline );
     if ( background )
     {
 	strm.add( "SET procnm=%~n0" ).add( od_newline );
@@ -567,6 +573,7 @@ File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     strm.add( "@CALL \"" );
 #else
     strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline );
+	strm.add( "export TMPDIR=" ).add( temppath ).add( od_newline );
     strm.add( "source " );
 #endif
     strm.add( activatefp->fullPath() );
