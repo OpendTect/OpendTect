@@ -51,7 +51,7 @@ static bool isPickSetPolygon( const MultiID& mid )
 
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem( uiStrings::sPointSet())
+    : uiODParentTreeItem( uiStrings::sPointSet())
 {
     mAttachCB( Pick::Mgr().setToBeRemoved,
 		uiODPickSetParentTreeItem::setRemovedCB );
@@ -457,7 +457,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
 
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
-    : uiODTreeItem( uiStrings::sPolygon() )
+    : uiODParentTreeItem( uiStrings::sPolygon() )
 {
 
     mAttachCB( Pick::Mgr().setToBeRemoved,

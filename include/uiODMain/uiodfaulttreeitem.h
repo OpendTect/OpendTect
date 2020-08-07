@@ -25,19 +25,15 @@ class DataPointSet;
 namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 
 
-mExpClass(uiODMain) uiODFaultParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODFaultParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODFaultParentTreeItem)
-    typedef uiODTreeItem inheritedClass;
 public:
 			uiODFaultParentTreeItem();
 			~uiODFaultParentTreeItem();
 
 protected:
-			mMenuOnAnyButton
     const char*		iconName() const;
     bool		showSubMenu();
-    const char* 	parentType() const
-			{ return typeid(uiODTreeTop).name(); }
 };
 
 
@@ -94,11 +90,15 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODFaultStickSetParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODFaultStickSetParentTreeItem)
-    mDefineItemMembers( FaultStickSetParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
+mExpClass(uiODMain) uiODFaultStickSetParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODFaultStickSetParentTreeItem)
+public:
+			uiODFaultStickSetParentTreeItem();
+			~uiODFaultStickSetParentTreeItem();
+
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
 };
 
 
@@ -147,6 +147,7 @@ mExpClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
 public:
 			uiODFaultSurfaceDataTreeItem(EM::ObjectID,
 				const char* parenttype);
+			~uiODFaultSurfaceDataTreeItem();
 
     void		setDataPointSet(const DataPointSet&);
 

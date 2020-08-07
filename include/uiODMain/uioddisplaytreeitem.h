@@ -22,7 +22,7 @@ namespace Attrib { class SelSpec; }
 
 
 mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODDisplayTreeItem);
+{ mODTextTranslationClass(uiODDisplayTreeItem)
 public:
 
     static bool		create(uiTreeItem*,uiODApplMgr*,int displayid);
@@ -36,6 +36,7 @@ public:
     bool		showSubMenu();
     virtual bool	actModeWhenSelected() const	{ return false; }
     void		updateCheckStatus();
+    void		show(bool);
 
     int			displayID() const		{ return displayid_; }
 
@@ -92,6 +93,5 @@ public:
     virtual bool	isOnlyAtSections() const
 			{ return displayedOnlyAtSections(); }
 };
-
 
 #endif

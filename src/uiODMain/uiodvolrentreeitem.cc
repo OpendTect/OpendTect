@@ -55,7 +55,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODVolrenParentTreeItem::uiODVolrenParentTreeItem()
-    : uiODTreeItem( uiStrings::sVolume() )
+    : uiODParentTreeItem( uiStrings::sVolume() )
 {
     //Check if there are any volumes already in the scene
 }
@@ -113,10 +113,6 @@ bool uiODVolrenParentTreeItem::showSubMenu()
 
 const char* uiODVolrenParentTreeItem::iconName() const
 { return "tree-vol"; }
-
-
-const char* uiODVolrenParentTreeItem::parentType() const
-{ return typeid(uiODTreeTop).name(); }
 
 
 

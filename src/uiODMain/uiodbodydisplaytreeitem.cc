@@ -69,7 +69,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
-    : uiODTreeItem( uiStrings::sBody() )
+    : uiODParentTreeItem( uiStrings::sBody() )
+{}
+
+
+uiODBodyDisplayParentTreeItem::~uiODBodyDisplayParentTreeItem()
 {}
 
 
@@ -577,6 +581,10 @@ uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_(tr("Z values"))
     , isochronmnuitem_(tr("Vertical thickness"))
+{}
+
+
+uiODBodyDisplayDataTreeItem::~uiODBodyDisplayDataTreeItem()
 {}
 
 

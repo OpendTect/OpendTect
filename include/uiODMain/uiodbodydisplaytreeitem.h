@@ -24,13 +24,16 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 		      class RandomPosBodyDisplay; }
 
 
-mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODTreeItem
-{
-    mODTextTranslationClass(uiODBodyDisplayParentTreeItem);
-    mDefineItemMembers( BodyDisplayParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
-    void loadBodies();
+mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODBodyDisplayParentTreeItem)
+public:
+			uiODBodyDisplayParentTreeItem();
+			~uiODBodyDisplayParentTreeItem();
+
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    void		loadBodies();
 };
 
 
@@ -45,11 +48,11 @@ public:
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODBodyDisplayTreeItem);
+{ mODTextTranslationClass(uiODBodyDisplayTreeItem)
 public:
-    			uiODBodyDisplayTreeItem(int,bool dummy);
-    			uiODBodyDisplayTreeItem(const EM::ObjectID&);
-    			~uiODBodyDisplayTreeItem();
+			uiODBodyDisplayTreeItem(int,bool dummy);
+			uiODBodyDisplayTreeItem(const EM::ObjectID&);
+			~uiODBodyDisplayTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
     void		setOnlyAtSectionsDisplay(bool);
@@ -91,9 +94,11 @@ public:
 
 
 mExpClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
-{ mODTextTranslationClass(uiODBodyDisplayDataTreeItem);
+{ mODTextTranslationClass(uiODBodyDisplayDataTreeItem)
 public:
-    			uiODBodyDisplayDataTreeItem(const char* parenttype);
+			uiODBodyDisplayDataTreeItem(const char* parenttype);
+			~uiODBodyDisplayDataTreeItem();
+
 protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
@@ -102,7 +107,5 @@ protected:
     MenuItem		depthattribmnuitem_;
     MenuItem		isochronmnuitem_;
 };
-
-
 
 #endif

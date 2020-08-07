@@ -115,6 +115,10 @@ uiODTreeItem::uiODTreeItem( const uiString& nm )
 {}
 
 
+uiODTreeItem::~uiODTreeItem()
+{}
+
+
 bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
     if ( item!=uitreeviewitem_ )
@@ -276,8 +280,78 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
 }
 
 
-// uiODSceneTreeItem
+// uiODParentTreeItem
+uiODParentTreeItem::uiODParentTreeItem( const uiString& nm )
+    : uiODTreeItem(nm)
+{}
 
+
+uiODParentTreeItem::~uiODParentTreeItem()
+{
+    detachAllNotifiers();
+}
+
+
+bool uiODParentTreeItem::init()
+{
+    if ( !uiODTreeItem::init() )
+	return false;
+
+    mAttachCB( checkStatusChange(), uiODParentTreeItem::checkCB );
+    return true;
+}
+
+
+bool uiODParentTreeItem::anyButtonClick( uiTreeViewItem* itm )
+{
+    if ( itm==uitreeviewitem_ )
+    {
+	select();
+	showSubMenu();
+	return true;
+    }
+
+    return uiODTreeItem::anyButtonClick( itm );
+}
+
+
+void uiODParentTreeItem::show( bool yn )
+{
+    const bool doshow = yn && isChecked();
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODParentTreeItem*,pitm,getChild(idx))
+	if ( pitm ) pitm->show( doshow );
+	mDynamicCastGet(uiODDisplayTreeItem*,itm,getChild(idx))
+	if ( itm ) itm->show( doshow );
+    }
+}
+
+
+const char* uiODParentTreeItem::parentType() const
+{ return typeid(uiODTreeTop).name(); }
+
+
+int uiODParentTreeItem::uiTreeViewItemType() const
+{
+    return uiTreeViewItem::CheckBox;
+}
+
+
+void uiODParentTreeItem::checkCB( CallBacker* )
+{
+    const bool doshow = isChecked() && areAllParentsChecked();
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODParentTreeItem*,pitm,getChild(idx))
+	if ( pitm ) pitm->show( doshow );
+	mDynamicCastGet(uiODDisplayTreeItem*,itm,getChild(idx))
+	if ( itm ) itm->show( doshow && itm->isChecked() );
+    }
+}
+
+
+// uiODSceneTreeItem
 uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, int id )
     : uiODTreeItem(nm)
     , displayid_(id)

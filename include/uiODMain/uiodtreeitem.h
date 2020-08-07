@@ -25,13 +25,15 @@ class ui3DViewer;
 
 
 mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
-{ mODTextTranslationClass(uiODTreeItem);
+{ mODTextTranslationClass(uiODTreeItem)
 public:
-			uiODTreeItem(const uiString&);
+    virtual		~uiODTreeItem();
     bool		anyButtonClick(uiTreeViewItem*);
 
     int			sceneID() const;
+
 protected:
+			uiODTreeItem(const uiString&);
 
     uiODApplMgr*	applMgr();
     ui3DViewer*		viewer();
@@ -48,7 +50,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODTreeTop : public uiTreeTopItem
-{ mODTextTranslationClass(uiODTreeTop);
+{ mODTextTranslationClass(uiODTreeTop)
 public:
 			uiODTreeTop(ui3DViewer*,uiTreeView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
@@ -76,41 +78,33 @@ protected:
 };
 
 
+mExpClass(uiODMain) uiODParentTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiODParentTreeItem)
+public:
+    virtual		~uiODParentTreeItem();
+
+    virtual bool	showSubMenu() = 0;
+    bool		anyButtonClick(uiTreeViewItem*);
+    void		show(bool yn);
+
+protected:
+			uiODParentTreeItem(const uiString&);
+    virtual bool	init();
+
+    virtual const char* iconName() const = 0;
+    const char*		parentType() const;
+    virtual int		uiTreeViewItemType() const;
+    virtual void	checkCB(CallBacker*);
+};
+
 
 mExpClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
-{ mODTextTranslationClass(uiODTreeItemFactory);
+{ mODTextTranslationClass(uiODTreeItemFactory)
 public:
 
-    virtual uiTreeItem*	createForVis(int visid,uiTreeItem*) const
-    				{ return 0; }
+    virtual uiTreeItem* createForVis(int visid,uiTreeItem*) const
+				{ return 0; }
 
 };
-
-
-#define mShowMenu		bool showSubMenu();
-#define mMenuOnAnyButton	bool anyButtonClick(uiTreeViewItem* lv) \
-{ \
-    if ( lv==uitreeviewitem_ ) { select(); showSubMenu(); return true; } \
-    return inheritedClass::anyButtonClick( lv ); \
-}
-
-#define mDefineItemMembers( type, inherited, parentitem ) \
-    typedef uiOD##inherited inheritedClass; \
-protected: \
-    virtual const char* iconName() const; \
-    const char*     	parentType() const \
-			{ return typeid(uiOD##parentitem).name();} \
-public: \
-                        uiOD##type##TreeItem()
-
-#define mDefineItem( type, inherited, parentitem, extrapublic ) \
-mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
-{ mODTextTranslationClass(uiOD##type##TreeItem)\
-    mDefineItemMembers( type, inherited, parentitem ); \
-    extrapublic;	\
-};
-
-
-
 
 #endif

@@ -20,14 +20,17 @@ namespace Pick		{ class Set; }
 
 
 
-mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODPickSetParentTreeItem);
-    mDefineItemMembers( PickSetParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
-    void addPickSet(Pick::Set*);
-    void setRemovedCB(CallBacker*);
-    ~uiODPickSetParentTreeItem();
+mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODPickSetParentTreeItem)
+public:
+			uiODPickSetParentTreeItem();
+			~uiODPickSetParentTreeItem();
+
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    void		addPickSet(Pick::Set*);
+    void		setRemovedCB(CallBacker*);
 };
 
 
@@ -77,14 +80,17 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODPolygonParentTreeItem);
-    mDefineItemMembers( PolygonParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
-    ~uiODPolygonParentTreeItem();
-    void addPolygon(Pick::Set*);
-    void setRemovedCB(CallBacker*);
+mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODPolygonParentTreeItem)
+public:
+			uiODPolygonParentTreeItem();
+			~uiODPolygonParentTreeItem();
+
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    void		addPolygon(Pick::Set*);
+    void		setRemovedCB(CallBacker*);
 
 };
 

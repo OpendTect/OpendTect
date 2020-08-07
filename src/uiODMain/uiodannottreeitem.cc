@@ -129,7 +129,7 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 // Base uiODAnnotTreeItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type )
-    : uiODTreeItem(type)
+    : uiODParentTreeItem(type)
     , typestr_(type)
 {}
 

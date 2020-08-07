@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "pickset.h"
 
 mExpClass(uiODMain) uiODAnnotParentTreeItem : public uiTreeItem
-{ mODTextTranslationClass(uiODAnnotParentTreeItem);
+{ mODTextTranslationClass(uiODAnnotParentTreeItem)
 public:
 			uiODAnnotParentTreeItem();
 			~uiODAnnotParentTreeItem();
@@ -34,7 +34,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODAnnotTreeItemFactory);
+{ mODTextTranslationClass(uiODAnnotTreeItemFactory)
 public:
     const char*		name() const   { return getName(); }
     static const char*	getName()
@@ -44,16 +44,14 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODAnnotTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODAnnotTreeItem);
-    typedef uiODTreeItem  inheritedClass;
+mExpClass(uiODMain) uiODAnnotTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODAnnotTreeItem)
 public:
-				uiODAnnotTreeItem(const uiString&);
 				~uiODAnnotTreeItem();
 
-				mMenuOnAnyButton;
-
 protected:
+				uiODAnnotTreeItem(const uiString&);
+
     bool			readPicks(Pick::Set&);
     virtual const char*		parentType() const;
     virtual bool		init();

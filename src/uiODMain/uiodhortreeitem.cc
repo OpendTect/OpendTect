@@ -65,8 +65,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
-    : uiODTreeItem(
-	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()))
+    : uiODParentTreeItem(tr("3D Horizon"))
     , newmenu_(uiStrings::sNew())
     , trackitem_(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx)
     , constzitem_(m3Dots(tr("With Constant Z")),mConstIdx)
@@ -772,8 +771,11 @@ int uiODHorizonTreeItem::reloadEMObject()
 
 
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
-    : uiODTreeItem(
-	uiStrings::phrJoinStrings(uiStrings::s2D(),uiStrings::sHorizon()) )
+    : uiODParentTreeItem(tr("2D Horizon"))
+{}
+
+
+uiODHorizon2DParentTreeItem::~uiODHorizon2DParentTreeItem()
 {}
 
 
@@ -932,6 +934,10 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
     initMenuItems();
     displayid_=id;
 }
+
+
+uiODHorizon2DTreeItem::~uiODHorizon2DTreeItem()
+{}
 
 
 void uiODHorizon2DTreeItem::initMenuItems()
