@@ -258,6 +258,35 @@ bool testEmptyStringComparison()
     return true;
 }
 
+
+bool testGetFromString()
+{
+    const char* str = "080";
+    int val = 0;
+    mRunStandardTest( getFromString(val,str,0), "Parse integer string" );
+    mRunStandardTest( val==80, "Parse integer string correctly" );
+
+    str = "0009866543578873800";
+    od_int64 vall = 0;
+    mRunStandardTest( getFromString(vall,str,0), "Parse int_64  string" );
+    mRunStandardTest( vall==9866543578873800, "Parse int_64 string correctly" );
+
+    str = "008738.04";
+    float valf = 0;
+    mRunStandardTest( getFromString(valf,str,0.0f), "Parse float string" );
+    mRunStandardTest( mIsEqual(valf,8738.04,1e-3),
+	    	      "Parse float string correctly" );
+
+    str = "000986654.4380";
+    double vald = 0;
+    mRunStandardTest( getFromString(vald,str,0.0), "Parse double string" );
+    mRunStandardTest( mIsEqual(vald,986654.4380,1e-5),
+	    	      "Parse double string correctly" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
@@ -268,7 +297,8 @@ int main( int argc, char** argv )
       || !testBufferStringFns()
       || !testOccFns()
       || !testLimFToStringFns()
-      || !testEmptyStringComparison() )
+      || !testEmptyStringComparison()
+      || !testGetFromString() )
 	ExitProgram( 1 );
 
     BufferStringSet strs;
