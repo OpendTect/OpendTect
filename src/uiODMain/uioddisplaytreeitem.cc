@@ -196,6 +196,19 @@ void uiODDisplayTreeItem::updateCheckStatus()
 }
 
 
+void uiODDisplayTreeItem::show( bool yn )
+{
+    bool doshow = yn && isChecked();
+    visserv_->turnOn( displayid_, doshow );
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODDataTreeItem*,dataitm,getChild(idx))
+	if ( dataitm ) dataitm->show( doshow );
+    }
+}
+
+
 void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 {
     const char* iconname = islocked ? "lock" : uiIcon::None();
@@ -241,8 +254,15 @@ bool uiODDisplayTreeItem::showSubMenu()
 
 void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
+    const bool doshow = isChecked() && areAllParentsChecked();
     if ( !visserv_->isSoloMode() )
-	visserv_->turnOn( displayid_, isChecked() );
+	visserv_->turnOn( displayid_, doshow );
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODDataTreeItem*,dataitm,getChild(idx))
+	if ( dataitm ) dataitm->show( doshow );
+    }
 }
 
 

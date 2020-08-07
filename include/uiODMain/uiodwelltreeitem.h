@@ -22,20 +22,17 @@ ________________________________________________________________________
 class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 
-mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODWellParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODWellParentTreeItem)
-    typedef uiODTreeItem	inheritedClass;
 public:
 			uiODWellParentTreeItem();
+			~uiODWellParentTreeItem();
 
 protected:
 
-			mMenuOnAnyButton
-    const char*		iconName() const;
-    bool		showSubMenu();
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiODTreeTop).name(); }
     bool 		constlogsize_;
 };
 
@@ -52,9 +49,9 @@ public:
 mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODWellTreeItem)
 public:
-    			uiODWellTreeItem( int );
-    			uiODWellTreeItem( const MultiID& mid );
-    			~uiODWellTreeItem();
+			uiODWellTreeItem( int );
+			uiODWellTreeItem( const MultiID& mid );
+			~uiODWellTreeItem();
 
 protected:
     void		initMenuItems();
@@ -84,6 +81,5 @@ protected:
     MenuItem		amplspectrummnuitem_;
     ObjectSet<MenuItem>	logmnuitems_;
 };
-
 
 #endif

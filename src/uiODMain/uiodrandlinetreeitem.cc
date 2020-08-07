@@ -138,8 +138,12 @@ uiTreeItem*
 
 
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
-    : uiODTreeItem( uiStrings::sRandomLine() )
+    : uiODParentTreeItem( uiStrings::sRandomLine() )
     , rdlpolylinedlg_(0)
+{}
+
+
+uiODRandomLineParentTreeItem::~uiODRandomLineParentTreeItem()
 {}
 
 
@@ -387,6 +391,10 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp, int rlid )
     saveasmnuitem_.iconfnm = "saveas";
     displayid_ = id;
 }
+
+
+uiODRandomLineTreeItem::~uiODRandomLineTreeItem()
+{}
 
 
 bool uiODRandomLineTreeItem::init()

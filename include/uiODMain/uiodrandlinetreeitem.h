@@ -21,25 +21,27 @@ class uiRandomLinePolyLineDlg;
 namespace Geometry { class RandomLineSet; }
 
 
-mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODTreeItem
-{
-    mODTextTranslationClass(uiODRandomLineParentTreeItem);
-    mDefineItemMembers( RandomLineParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
+mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODRandomLineParentTreeItem)
+public:
+			uiODRandomLineParentTreeItem();
+			~uiODRandomLineParentTreeItem();
 
-    bool			load(const IOObj&,int);
-    bool			addStored(int);
-    void			genRandLine(int);
-    void			genFromContours();
-    void			genFromExisting();
-    void			genFromPolygon();
-    void			genFromTable();
-    void			genFromWell();
-    void			loadRandLineFromWell(CallBacker*);
-    void			genFromPicks();
-    void			rdlPolyLineDlgCloseCB(CallBacker*);
-    void			removeChild(uiTreeItem*);
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    bool		load(const IOObj&,int);
+    bool		addStored(int);
+    void		genRandLine(int);
+    void		genFromContours();
+    void		genFromExisting();
+    void		genFromPolygon();
+    void		genFromTable();
+    void		genFromWell();
+    void		loadRandLineFromWell(CallBacker*);
+    void		genFromPicks();
+    void		rdlPolyLineDlgCloseCB(CallBacker*);
+    void		removeChild(uiTreeItem*) override;
     uiRandomLinePolyLineDlg*	rdlpolylinedlg_;
 };
 
@@ -64,6 +66,7 @@ public:
 
 			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty,
 					       int rlid_=-1);
+			~uiODRandomLineTreeItem();
 
     bool		init();
     bool		displayDefaultData();

@@ -17,26 +17,21 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
-mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODVolrenParentTreeItem);
-    typedef uiODTreeItem	inheritedClass;
+mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODVolrenParentTreeItem)
 public:
 			uiODVolrenParentTreeItem();
 			~uiODVolrenParentTreeItem();
 
-
 protected:
-			mMenuOnAnyButton
-    bool		showSubMenu();
-
-    const char*		iconName() const;
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
     bool		canAddVolumeToScene();
-    const char*		parentType() const;
 };
 
 
 mExpClass(uiODMain) uiODVolrenTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODVolrenTreeItemFactory);
+{ mODTextTranslationClass(uiODVolrenTreeItemFactory)
 public:
     const char*		name() const   { return getName(); }
     static const char*	getName();
@@ -46,7 +41,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODVolrenTreeItem);
+{ mODTextTranslationClass(uiODVolrenTreeItem)
 public:
 			uiODVolrenTreeItem(int displayid_=-1,bool rgba=false);
     bool		showSubMenu();

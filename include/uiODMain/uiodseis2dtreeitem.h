@@ -20,32 +20,35 @@ ________________________________________________________________________
 class uiMenu;
 class uiTaskRunner;
 
+mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODLine2DParentTreeItem)
+public:
+			uiODLine2DParentTreeItem();
+			~uiODLine2DParentTreeItem();
 
+    static const char*	sKeyRightClick();
+    static const char*	sKeyUnselected();
 
-
-mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODLine2DParentTreeItem)
-    mDefineItemMembers( Line2DParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
-    bool                handleSubMenu(int);
-    bool                loadDefaultData();
-    bool                selectLoadAttribute(const TypeSet<Pos::GeomID>&,
+protected:
+    bool		loadDefaultData();
+    bool		selectLoadAttribute(const TypeSet<Pos::GeomID>&,
 			    const char* attrnm=sKeyRightClick(),int attridx=-1);
-    static const char*  sKeyRightClick();
-    static const char*  sKeyUnselected();
-    uiMenu*             replaceattritm_;
-    uiMenu*             removeattritm_;
-    uiMenu*             dispattritm_;
-    uiMenu*             hideattritm_;
-    uiMenu*             editcoltabitm_;
+    uiMenu*		replaceattritm_;
+    uiMenu*		removeattritm_;
+    uiMenu*		dispattritm_;
+    uiMenu*		hideattritm_;
+    uiMenu*		editcoltabitm_;
     void		setTopAttribName(const char*);
+
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    bool		handleSubMenu(int);
 };
 
 
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(Line2DTreeItemFactory);
+{ mODTextTranslationClass(Line2DTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -55,7 +58,7 @@ public:
 
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiOD2DLineTreeItem);
+{ mODTextTranslationClass(uiOD2DLineTreeItem)
 public:
 			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1,
 					   bool rgba=false);
@@ -93,9 +96,11 @@ private:
 
 
 mExpClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
-{ mODTextTranslationClass(uiOD2DLineSetAttribItem);
+{ mODTextTranslationClass(uiOD2DLineSetAttribItem)
 public:
 			uiOD2DLineSetAttribItem(const char* parenttype);
+			~uiOD2DLineSetAttribItem();
+
     bool		displayStoredData(const char*,int component,
 					  uiTaskRunner&);
     void		setAttrib(const Attrib::SelSpec&,

@@ -20,10 +20,11 @@ ________________________________________________________________________
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
 mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
-{ mODTextTranslationClass(mODTextTranslationClass);
+{ mODTextTranslationClass(mODTextTranslationClass)
 public:
-    			uiODAttribTreeItem( const char* parenttype );
-			~uiODAttribTreeItem();
+			uiODAttribTreeItem(const char* parenttype);
+    virtual		~uiODAttribTreeItem();
+
     static uiString	createDisplayName( int visid, int attrib );
     static void		createSelMenu(MenuItem&,int visid,int attrib,
 	    			      int sceneid);
@@ -31,6 +32,7 @@ public:
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
     static uiString	sKeyUseColSettingsMenuTxt();
+
 protected:
 
     bool		anyButtonClick(uiTreeViewItem*);

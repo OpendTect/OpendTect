@@ -31,7 +31,7 @@ public:
 
     enum Type		{ Empty, Select, Default, RGBA };
 
-			~uiODPlaneDataTreeItem();
+    virtual		~uiODPlaneDataTreeItem();
 
     bool		init();
     void		setAtWellLocation(const Well::Data&);
@@ -81,12 +81,16 @@ protected:
 };
 
 
+// In-line items
+mExpClass(uiODMain) uiODInlineParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODInlineParentTreeItem);
+public:
+			uiODInlineParentTreeItem();
+			~uiODInlineParentTreeItem();
 
-mExpClass(uiODMain) uiODInlineParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODInlineParentTreeItem);
-    mDefineItemMembers( InlineParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
 };
 
 
@@ -104,6 +108,7 @@ mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
 			uiODInlineTreeItem(int displayid,Type);
+			~uiODInlineTreeItem();
 
 protected:
     const char*		parentType() const
@@ -111,11 +116,16 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODCrosslineParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODCrossineParentTreeItem);
-    mDefineItemMembers( CrosslineParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
+// Cross-line items
+mExpClass(uiODMain) uiODCrosslineParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODCrosslineParentTreeItem);
+public:
+			uiODCrosslineParentTreeItem();
+			~uiODCrosslineParentTreeItem();
+
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
 };
 
 
@@ -133,6 +143,7 @@ mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
 			uiODCrosslineTreeItem(int displayid,Type);
+			~uiODCrosslineTreeItem();
 
 protected:
     const char*		parentType() const
@@ -140,12 +151,16 @@ protected:
 };
 
 
+// Z slice items
+mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODZsliceParentTreeItem);
+public:
+			uiODZsliceParentTreeItem();
+			~uiODZsliceParentTreeItem();
 
-mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODZsliceParentTreeItem);
-    mDefineItemMembers( ZsliceParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
+protected:
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
 };
 
 
@@ -163,11 +178,11 @@ mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
 			uiODZsliceTreeItem(int displayid,Type);
+			~uiODZsliceTreeItem();
 
 protected:
     const char*		parentType() const
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
 };
-
 
 #endif

@@ -19,8 +19,8 @@ class uiODPSEventsTreeItem;
 namespace PreStack { class EventManager; }
 namespace visSurvey { class PSEventDisplay; }
 
-mExpClass(uiODMain) uiODPSEventsParentTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODPSEventsParentTreeItem);
+mExpClass(uiODMain) uiODPSEventsParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODPSEventsParentTreeItem)
 public:
 				uiODPSEventsParentTreeItem();
 				~uiODPSEventsParentTreeItem();
@@ -52,6 +52,7 @@ mExpClass(uiODMain) uiODPSEventsTreeItem : public uiODDisplayTreeItem
 public:
 			uiODPSEventsTreeItem(const MultiID& key,const char*);
 			~uiODPSEventsTreeItem();
+
     void		updateScaleFactor(float);
     void		updateColorMode(int mode);
 

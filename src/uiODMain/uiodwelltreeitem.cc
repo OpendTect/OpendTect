@@ -36,10 +36,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODWellParentTreeItem::uiODWellParentTreeItem()
-    : uiODTreeItem( uiStrings::sWell() )
+    : uiODParentTreeItem( uiStrings::sWell() )
     , constlogsize_(true)
 {
 }
+
+
+uiODWellParentTreeItem::~uiODWellParentTreeItem()
+{}
 
 
 const char* uiODWellParentTreeItem::iconName() const

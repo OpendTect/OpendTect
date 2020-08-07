@@ -31,9 +31,9 @@ namespace ColTab { class Sequence; }
 mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODDataTreeItem)
 public:
-				uiODDataTreeItem(const char* parenttype);
 				~uiODDataTreeItem();
 
+    virtual void		show(bool yn)		{}
     virtual bool		select();
     int				displayID() const;
     int				attribNr() const;
@@ -51,6 +51,7 @@ public:
     void			prepareForShutdown();
 
 protected:
+				uiODDataTreeItem(const char* parenttype);
 
     int				uiTreeViewItemType() const;
     virtual bool		init();
@@ -88,7 +89,7 @@ protected:
     MenuItem			displaymnuitem_;
     MenuItem			removemnuitem_;
     MenuItem			changetransparencyitem_;
-    MenuItem                    statisticsitem_;
+    MenuItem			statisticsitem_;
     MenuItem			amplspectrumitem_;
     MenuItem			fkspectrumitem_;
     MenuItem			view2dwvaitem_;

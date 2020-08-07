@@ -65,7 +65,7 @@ static const char* sKeySelecting()
 
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
-    : uiODTreeItem( tr("2D Line") )
+    : uiODParentTreeItem( tr("2D Line") )
     , replaceattritm_(nullptr)
     , removeattritm_(nullptr)
     , dispattritm_(nullptr)
@@ -73,6 +73,10 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     , editcoltabitm_(nullptr)
 {
 }
+
+
+uiODLine2DParentTreeItem::~uiODLine2DParentTreeItem()
+{}
 
 
 const char* uiODLine2DParentTreeItem::iconName() const
@@ -871,6 +875,10 @@ uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     , steeringitm_(tr("Steering 2D Data"))
     , zattritm_(tr("ZDomain Attrib 2D Data"))
     , attrnoneitm_(uiStrings::sNone())
+{}
+
+
+uiOD2DLineSetAttribItem::~uiOD2DLineSetAttribItem()
 {}
 
 

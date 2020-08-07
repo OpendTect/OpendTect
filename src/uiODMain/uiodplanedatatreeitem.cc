@@ -655,6 +655,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 }
 
 
+// In-line items
 uiTreeItem*
     uiODInlineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
@@ -673,7 +674,11 @@ uiTreeItem*
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODTreeItem( uiStrings::sInline() )
+    : uiODParentTreeItem( uiStrings::sInline() )
+{}
+
+
+uiODInlineParentTreeItem::~uiODInlineParentTreeItem()
 {}
 
 
@@ -699,7 +704,11 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
 {}
 
 
+uiODInlineTreeItem::~uiODInlineTreeItem()
+{}
 
+
+// Cross-line items
 uiTreeItem*
     uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
@@ -717,7 +726,11 @@ uiTreeItem*
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODTreeItem( uiStrings::sCrossline() )
+    : uiODParentTreeItem( uiStrings::sCrossline() )
+{}
+
+
+uiODCrosslineParentTreeItem::~uiODCrosslineParentTreeItem()
 {}
 
 
@@ -743,7 +756,11 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
 {}
 
 
+uiODCrosslineTreeItem::~uiODCrosslineTreeItem()
+{}
 
+
+// Z-slice items
 uiTreeItem*
     uiODZsliceTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
@@ -762,7 +779,11 @@ uiTreeItem*
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODTreeItem( uiStrings::sZSlice() )
+    : uiODParentTreeItem( uiStrings::sZSlice() )
+{}
+
+
+uiODZsliceParentTreeItem::~uiODZsliceParentTreeItem()
 {}
 
 
@@ -786,3 +807,7 @@ uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }
+
+
+uiODZsliceTreeItem::~uiODZsliceTreeItem()
+{}

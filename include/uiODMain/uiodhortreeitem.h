@@ -18,9 +18,8 @@ ________________________________________________________________________
 
 class uEMHorizonShiftDialog;
 
-mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODHorizonParentTreeItem)
-    typedef uiODTreeItem inheritedClass;
 public:
 			uiODHorizonParentTreeItem();
 			~uiODHorizonParentTreeItem();
@@ -31,12 +30,9 @@ public:
     MenuItem		newmenu_;
 
 protected:
-			mMenuOnAnyButton
     const char*		iconName() const;
     bool		showSubMenu();
     virtual bool	addChld(uiTreeItem*,bool,bool);
-    const char* parentType() const
-			{ return typeid(uiODTreeTop).name(); }
 
     void		sort();
     MenuItem		trackitem_;
@@ -103,15 +99,20 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODTreeItem
-{   mODTextTranslationClass(uiODHorizon2DParentTreeItem);
-    mDefineItemMembers( Horizon2DParent, TreeItem, TreeTop );
-    mShowMenu;
-    mMenuOnAnyButton;
-    void            sort();
-    virtual void    removeChild(uiTreeItem*);
-    bool            addChld(uiTreeItem* child, bool below, bool downwards );
+mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODParentTreeItem
+{ mODTextTranslationClass(uiODHorizon2DParentTreeItem)
+public:
+			uiODHorizon2DParentTreeItem();
+			~uiODHorizon2DParentTreeItem();
 
+protected:
+
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    void		sort();
+    virtual void	removeChild(uiTreeItem*) override;
+    bool		addChld(uiTreeItem* child,bool below,
+				bool downwards) override;
 };
 
 
@@ -130,6 +131,7 @@ mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 public:
 			uiODHorizon2DTreeItem(int visid,bool dummy);
 			uiODHorizon2DTreeItem(const EM::ObjectID&);
+			~uiODHorizon2DTreeItem();
 
 protected:
     void		initMenuItems();

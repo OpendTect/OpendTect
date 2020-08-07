@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
-    : uiODTreeItem( uiStrings::sFault() )
+    : uiODParentTreeItem( uiStrings::sFault() )
 {
 }
 
@@ -425,7 +425,11 @@ bool uiODFaultTreeItem::isOnlyAtSections() const
 
 // uiODFaultStickSetParentTreeItem
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
-    : uiODTreeItem( uiStrings::sFaultStickSet() )
+    : uiODParentTreeItem( uiStrings::sFaultStickSet() )
+{}
+
+
+uiODFaultStickSetParentTreeItem::~uiODFaultStickSetParentTreeItem()
 {}
 
 
@@ -692,6 +696,10 @@ uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
     , algomnuitem_(tr("Smooth"))
     , changed_(false)
     , emid_(objid)
+{}
+
+
+uiODFaultSurfaceDataTreeItem::~uiODFaultSurfaceDataTreeItem()
 {}
 
 
