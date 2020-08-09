@@ -116,6 +116,9 @@ bool Well::LogMerger::goImpl( od_ostream* strm, bool first, bool last,
 
 int Well::LogMerger::prepare()
 {
+    if ( lognms_.isEmpty() )
+	return ErrorOccurred();
+
     nrdone_++;
     outputlog_.setEmpty();
     outputlog_.setUnitMeasLabel(wd_->logs()
