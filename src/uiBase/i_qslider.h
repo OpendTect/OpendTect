@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uislider.h"
-#include "i_common.h"
 
 #include <QSlider>
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "i_common.h"
 
 #include <QGraphicsItem>
 #include <QPolygonF>

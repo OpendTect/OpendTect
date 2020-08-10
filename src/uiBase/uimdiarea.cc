@@ -14,10 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiicon.h"
 #include "uimsg.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "bufstringset.h"
-#include "perthreadrepos.h"
 #include "keystrs.h"
+#include "perthreadrepos.h"
 
 #include <QApplication>
 #include <QCloseEvent>

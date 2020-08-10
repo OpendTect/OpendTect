@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uispinbox.h"
-#include "i_common.h"
 
 #include <QDoubleSpinBox>
 

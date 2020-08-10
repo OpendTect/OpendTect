@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uimdiarea.h"
-#include "i_common.h"
 
 #include <QWidget>
 #include <QMdiArea>

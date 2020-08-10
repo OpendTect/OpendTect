@@ -10,23 +10,23 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicombobox.h"
+#include "i_qcombobox.h"
+
 #include "uiicon.h"
 #include "uilabel.h"
 #include "uilineedit.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "uivirtualkeyboard.h"
 
 #include "datainpspec.h"
 #include "mouseevent.h"
 
-#include "i_qcombobox.h"
-
 #include <QAbstractItemView>
 #include <QContextMenuEvent>
 #include <QLineEdit>
-#include <QSize>
 #include <QRegExpValidator>
+#include <QSize>
 
 mUseQtnamespace
 
@@ -62,7 +62,7 @@ private:
 void uiComboBoxBody::contextMenuEvent( QContextMenuEvent* ev )
 {
     if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
-	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
+	handle_.popupVirtualKeyboard( ev->globalX(), ev->globalY() );
     else
 	QComboBox::contextMenuEvent( ev );
 }

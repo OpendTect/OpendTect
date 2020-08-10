@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 
 #include "uisystemtrayicon.h"
-#include "i_common.h"
 
 #include <QSystemTrayIcon>
 

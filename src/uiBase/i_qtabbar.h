@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uitabbar.h"
-#include "i_common.h"
 
 #include <QTabBar>
 

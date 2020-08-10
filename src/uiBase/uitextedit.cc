@@ -11,11 +11,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uitextedit.h"
+#include "i_qtextedit.h"
 
 #include "uifont.h"
 #include "uimain.h"
-#include "uiobjbody.h"
-#include "i_qtextedit.h"
+#include "uiobjbodyimpl.h"
 
 #include "ascstream.h"
 #include "rowcol.h"

@@ -10,7 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidockwin.h"
-#include "q_uiimpl.h"
+
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
@@ -20,37 +20,29 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-class uiDockWinBody : public uiParentBody, public QDockWidget
+class uiDockWinBody : public uiCentralWidgetBody, public QDockWidget
 {
 public:
-			uiDockWinBody( uiDockWin& handle, uiParent* parnt,
-				       const uiString& caption);
-
+			uiDockWinBody(uiDockWin&,uiParent*,
+				      const uiString& caption);
     virtual		~uiDockWinBody();
+
     void		construct();
 
-#define mHANDLE_OBJ     uiDockWin
-#define mQWIDGET_BASE   QDockWidget
-#define mQWIDGET_BODY   QDockWidget
-#define UIBASEBODY_ONLY
-#define UIPARENT_BODY_CENTR_WIDGET
-#include                "i_uiobjqtbody.h"
-
 protected:
+    virtual const QWidget*	qwidget_() const { return this; }
+    virtual void		finalise();
 
-    virtual void	finalise();
+    uiDockWin&			handle_;
 };
 
 
 
 uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 			      const uiString& nm )
-    : uiParentBody( nm.getFullString() )
-    , QDockWidget( nm.getQString() )
-    , handle_( uidw )
-    , initing_( true )
-    , centralwidget_( 0 )
-
+    : uiCentralWidgetBody(nm.getFullString())
+    , QDockWidget(nm.getQString())
+    , handle_(uidw)
 {
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable |
 			      QDockWidget::DockWidgetFloatable );
@@ -60,7 +52,7 @@ uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 
 void uiDockWinBody::construct()
 {
-    centralwidget_ = new uiGroup( &handle(), "uiDockWin central widget" );
+    centralwidget_ = new uiGroup( &handle_, "uiDockWin central widget" );
     setWidget( centralwidget_->body()->qwidget() );
 
     centralwidget_->setIsMain(true);
