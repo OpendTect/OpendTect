@@ -139,8 +139,8 @@ void onOff( CallBacker* )
 
 void coordChg( CallBacker* )
 {
-    const Coord3 tlcoord( tlfld_->getCoord(), zposfld_->getValue() );
-    const Coord3 brcoord( brfld_->getCoord(), zposfld_->getValue() );
+    const Coord3 tlcoord( tlfld_->getCoord(), zposfld_->getFValue() );
+    const Coord3 brcoord( brfld_->getCoord(), zposfld_->getFValue() );
     dlg_->setCoord( istop_, tlcoord, brcoord );
 }
 

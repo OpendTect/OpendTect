@@ -98,14 +98,14 @@ private:
 
     void			releaseMemory();
     int				computeLatestEpoch(Step::ID) const;
-    mDeprecated void		computeComputationScope(Step::ID stepid,
+    mDeprecatedDef void		computeComputationScope(Step::ID stepid,
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
     bool			getCalculationScope(Step::ID stepid,
 						    TrcKeyZSampling&) const;
-    mDeprecated float		getSampleShift(float) const;
+    mDeprecatedDef float	getSampleShift(float) const;
     int				getStepEpochIndex(Step::ID) const;
-    mDeprecated od_int64	getStepOutputMemory(Step::ID,int nr,
+    mDeprecatedDef od_int64	getStepOutputMemory(Step::ID,int nr,
 				    const TypeSet<TrcKeySampling>& epochstks,
 				    const TypeSet<StepInterval<int> >&) const;
     void			adjustStepsNrComponents(bool is2d);

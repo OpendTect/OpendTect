@@ -365,7 +365,7 @@ bool acceptOK( CallBacker* )
 
     if ( lmrgr.opt_ == Seis2DLineMerger::MatchCoords )
     {
-	lmrgr.snapdist_ = snapdistfld_->getdValue();
+	lmrgr.snapdist_ = snapdistfld_->getDValue();
 	if ( mIsUdf(lmrgr.snapdist_) || lmrgr.snapdist_ < 0 )
 	    mErrRet( tr("Please specify a valid snap distance") );
     }

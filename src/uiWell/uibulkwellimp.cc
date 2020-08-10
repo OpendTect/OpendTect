@@ -167,7 +167,7 @@ void uiBulkTrackImport::addD2T( uiString& errmsg )
 {
     if ( !SI().zIsTime() ) return;
 
-    const float vel = velocityfld_->getfValue();
+    const float vel = velocityfld_->getFValue();
     if ( vel<=0 || mIsUdf(vel) )
     {
 	errmsg = tr("Please enter a positive velocity "
@@ -322,7 +322,7 @@ void uiBulkLogImport::lasSel( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
-	info.undefval = udffld_->getfValue();
+	info.undefval = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 
 	wellstable_->setText( RowCol(idx,0), info.wellnm );
@@ -354,7 +354,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
-	info.undefval = udffld_->getfValue();
+	info.undefval = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{

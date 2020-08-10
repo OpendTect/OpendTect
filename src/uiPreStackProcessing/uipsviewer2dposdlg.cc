@@ -155,7 +155,7 @@ void uiGatherPosSliceSel::reDoTable()
     posseltbl_->setColumnLabels( gathernms_ );
     StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
 					      : tkzs_.hsamp_.inlRange();
-    trcrg.step = stepfld_->box()->getValue();
+    trcrg.step = stepfld_->box()->getIntValue();
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
 
@@ -212,7 +212,7 @@ void uiGatherPosSliceSel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
     tkzs_ = cs;
     if ( issynthetic_ )
 	tkzs_.hsamp_.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
-					       stepfld_->box()->getValue()) );
+					      stepfld_->box()->getIntValue()) );
     uiSliceSel::setTrcKeyZSampling( cs );
 }
 
@@ -342,7 +342,7 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     stepfld_->box()->setInterval( steprg );
     stepfld_->box()->setValue( rgstep );
 
-    trcrg.step = stepfld_->box()->getValue();
+    trcrg.step = stepfld_->box()->getIntValue();
     if ( is2d_ || isinl_ )
 	tkzs_.hsamp_.setCrlRange( trcrg );
     else
@@ -370,7 +370,7 @@ void uiGatherPosSliceSel::getSelGatherInfos( TypeSet<GatherInfo>& gatherinfos )
 
 
 int uiGatherPosSliceSel::step() const
-{ return stepfld_->box()->getValue(); }
+{ return stepfld_->box()->getIntValue(); }
 
 
 void uiGatherPosSliceSel::setStep( int ns )
@@ -414,7 +414,7 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
     StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
 					      : tkzs_.hsamp_.inlRange();
     TrcKeyZSampling cs( true );
-    trcrg.step = stepfld_->box()->getValue();
+    trcrg.step = stepfld_->box()->getIntValue();
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {
 	BufferString gathernm = gathernms_.get( colidx );

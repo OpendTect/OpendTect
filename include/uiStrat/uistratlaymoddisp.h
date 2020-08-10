@@ -71,10 +71,10 @@ public:
     uiFlatViewer*	getViewer() { return &vwr_; }
     bool		isFlattened() const		{ return flattened_; }
     void		setFlattened(bool yn,bool trigger=true);
-    mDeprecated bool	isFluidReplOn() const		{ return fluidreplon_; }
-    mDeprecated void	setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    mDeprecated bool	isBrineFilled() const		{return isbrinefilled_;}
-    mDeprecated void	setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
+    mDeprecatedDef bool isFluidReplOn() const		{ return fluidreplon_; }
+    mDeprecatedDef void setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
+    mDeprecatedDef bool isBrineFilled() const		{return isbrinefilled_;}
+    mDeprecatedDef void setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
     void		displayFRText(bool yn,bool isbrine);
 
     float		getLayerPropValue(const Strat::Layer&,
@@ -112,7 +112,7 @@ protected:
 
     bool			haveAnyZoom() const;
     uiGraphicsScene&		scene() const;
-    mDeprecated void		displayFRText();
+    mDeprecatedDef void		displayFRText();
     virtual void		drawSelectedSequence()		= 0;
 
     int				getClickedModelNr() const;

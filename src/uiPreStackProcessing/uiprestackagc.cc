@@ -55,7 +55,7 @@ bool uiAGC::acceptOK( CallBacker* )
 {
     if ( !processor_ ) return true;
 
-    const float width = windowfld_->getfValue();
+    const float width = windowfld_->getFValue();
     if ( mIsUdf(width) )
     {
 	uiMSG().error(tr("Window width is not set"));
@@ -63,7 +63,7 @@ bool uiAGC::acceptOK( CallBacker* )
     }
 
     processor_->setWindow( Interval<float>( -width/2, width/2 ) );
-    const float lowenergymute = lowenergymute_->getfValue();
+    const float lowenergymute = lowenergymute_->getFValue();
     if ( mIsUdf(lowenergymute) ) processor_->setLowEnergyMute( mUdf(float) );
     else
     {

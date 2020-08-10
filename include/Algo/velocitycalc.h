@@ -103,10 +103,12 @@ public:
     static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
 				   const ValueSeries<double>& times,
 				   double* depths);
-    static bool mDeprecated calcDepths(const ValueSeries<float>& vels,
+			 /*!<\param vels Velocity as Vint in time */
+
+			mDeprecatedDef
+    static bool		calcDepths(const ValueSeries<float>& vels,
 				   int velsz,const ValueSeries<float>& times,
 				   float* depths);
-			 /*!<\param vels Velocity as Vint in time */
 
     static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
 				  const ValueSeries<float>& depth,float* times);
@@ -212,7 +214,8 @@ public:
 mGlobal(Algo) bool computeDix(const float* Vrms, double t0, float v0,
 			const double* t, int nrlayers, float* Vint);
 
-mGlobal(Algo) bool mDeprecated computeDix(const float* Vrms, float t0, float v0,
+mDeprecatedDef
+mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0,
 			const float* t, int nrlayers, float* Vint);
 
 /*!
@@ -267,7 +270,8 @@ mGlobal(Algo) bool computeDix(const float* Vrms,const SamplingData<double>& sd,
 mGlobal(Algo) bool computeDix(const float* Vrms, double t0, float v0,
 				const double* t, int nrlayers, float* Vint);
 
-mGlobal(Algo) bool mDeprecated computeDix(const float* Vrms, float t0, float v0,
+mDeprecatedDef
+mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0,
 				const float* t, int nrlayers, float* Vint);
 
 
@@ -283,8 +287,9 @@ mGlobal(Algo) bool computeVrms(const float* Vint,const SamplingData<double>& sd,
 mGlobal(Algo) bool computeVrms(const float* Vint,double t0,const double* t,
 			       int nrlayers, float* Vrms);
 
-mGlobal(Algo) bool mDeprecated computeVrms(const float* Vint,float t0,
-				    const float* t, int nrlayers, float* Vrms);
+mDeprecatedDef
+mGlobal(Algo) bool computeVrms(const float* Vint,float t0,const float* t,
+				int nrlayers, float* Vrms);
 
 
 /*!Given an irregularly sampled Vrms, create a regularly sampled one. The
@@ -296,7 +301,8 @@ mGlobal(Algo) bool sampleVrms(const float* Vin,double t0_in,float v0_in,
 			const SamplingData<double>& sd_out,
 			float* Vout, int nr_out);
 
-mGlobal(Algo) bool mDeprecated sampleVrms(const float* Vin,float t0_in,
+mDeprecatedDef
+mGlobal(Algo) bool sampleVrms(const float* Vin,float t0_in,
 			float v0_in,const float* t_in, int nr_in,
 			const SamplingData<double>& sd_out,
 			float* Vout, int nr_out);
@@ -306,7 +312,8 @@ mGlobal(Algo) bool mDeprecated sampleVrms(const float* Vin,float t0_in,
 mGlobal(Algo) bool computeVavg(const float* Vint,const double* t,int nrvels,
 			       float* Vavg);
 
-mGlobal(Algo) bool mDeprecated computeVavg(const float* Vint, float t0,
+mDeprecatedDef
+mGlobal(Algo) bool computeVavg(const float* Vint, float t0,
 				const float* t, int nrvels, float* Vavg);
 
 //!Converts a number of layers with Vavg to Vint velocities.
@@ -314,7 +321,8 @@ mGlobal(Algo) bool mDeprecated computeVavg(const float* Vint, float t0,
 mGlobal(Algo) bool computeVint(const float* Vavg,const double* t,int nrvels,
 			       float* Vint);
 
-mGlobal(Algo) bool mDeprecated computeVint(const float* Vavg, float t0,
+mDeprecatedDef
+mGlobal(Algo) bool computeVint(const float* Vavg, float t0,
 				const float* t, int nrvels, float* Vint);
 
 
@@ -324,9 +332,10 @@ mGlobal(Algo) bool mDeprecated computeVint(const float* Vavg, float t0,
 
 mGlobal(Algo) bool sampleVint(const float* Vint,const double* t_in,int nr_in,
 			const SamplingData<double>& sd_out,float* Vout,
-			int nr_out);
+			 int nr_out);
 
-mGlobal(Algo) bool mDeprecated sampleVint(const float* Vint,const float* t_in,
+mDeprecatedDef
+mGlobal(Algo) bool sampleVint(const float* Vint,const float* t_in,
 			int nr_in,
 			const SamplingData<double>& sd_out, float* Vout,
 			int nr_out);
@@ -339,7 +348,8 @@ mGlobal(Algo) bool sampleVavg(const float* Vavg,const double* t_in,int nr_in,
 			const SamplingData<double>& sd_out,float* Vout,
 			int nr_out);
 
-mGlobal(Algo) bool mDeprecated sampleVavg(const float* Vavg, const float* t_in,
+mDeprecatedDef
+mGlobal(Algo) bool sampleVavg(const float* Vavg, const float* t_in,
 			int nr_in,
 			const SamplingData<double>& sd_out, float* Vout,
 			int nr_out);
@@ -368,7 +378,8 @@ mGlobal(Algo) void resampleZ(const double* zarr,const double* tord_in,int nr_in,
 			const SamplingData<double>& sd_out,int nr_out,
 			double* zsampled);
 
-mGlobal(Algo) void mDeprecated resampleZ(const float* zarr,const float* tord_in,
+mDeprecatedDef
+mGlobal(Algo) void resampleZ(const float* zarr,const float* tord_in,
 			int nr_in,
 			const SamplingData<double>& sd_out, int nr_out,
 			float* zsampled);
@@ -381,7 +392,8 @@ mGlobal(Algo) void sampleEffectiveThomsenPars(const float* vinarr,
 	const double* t_in,int nr_in,const SamplingData<double>& sd_out,
 	int nr_out,float* voutarr);
 
-mGlobal(Algo) void mDeprecated sampleEffectiveThomsenPars(const float* vinarr,
+mDeprecatedDef
+mGlobal(Algo) void sampleEffectiveThomsenPars(const float* vinarr,
 	const float* t_in,int nr_in,const SamplingData<double>& sd_out,
 	int nr_out,float* voutarr);
 
@@ -393,7 +405,8 @@ mGlobal(Algo) void sampleIntvThomsenPars(const float* inarr,const double* t_in,
 				int nr_in,const SamplingData<double>& sd_out,
 				int nr_out,float* outarr);
 
-mGlobal(Algo) void mDeprecated sampleIntvThomsenPars(const float* inarr,
+mDeprecatedDef
+mGlobal(Algo) void sampleIntvThomsenPars(const float* inarr,
 				const float* t_in,int nr_in,
 				const SamplingData<double>& sd_out,int nr_out,
 				float* outarr);
@@ -404,7 +417,8 @@ mGlobal(Algo) void resampleContinuousData(const double* in,const double* t_in,
 				int nr_in,const SamplingData<double>& sd_out,
 				int nr_out,double* outarr);
 
-mGlobal(Algo) void mDeprecated resampleContinuousData(const float* inarr,
+mDeprecatedDef
+mGlobal(Algo) void resampleContinuousData(const float* inarr,
 				const float* t_in,
 				int nr_in,const SamplingData<double>& sd_out,
 				int nr_out,float* outarr);

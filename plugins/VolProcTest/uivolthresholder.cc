@@ -45,7 +45,7 @@ bool uiVolumeThresholder::acceptOK( CallBacker* )
     if ( thresholdfld_->isUndef( 0 ) )
 	return false;
 
-    thresholdstep_->setThreshold( thresholdfld_->getfValue() );
+    thresholdstep_->setThreshold( thresholdfld_->getFValue() );
     return true;
 }
 

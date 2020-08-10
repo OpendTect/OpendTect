@@ -549,7 +549,7 @@ void uiODAnnotSubItem::scaleChg( CallBacker* cb )
 {
     mDynamicCastGet(uiSlider*,slider,cb);
     if ( !slider ) return;
-    const float newscale = defscale_ * slider->getValue();
+    const float newscale = defscale_ * slider->getFValue();
     setScale( newscale );
 }
 

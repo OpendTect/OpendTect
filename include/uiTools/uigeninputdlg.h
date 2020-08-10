@@ -75,8 +75,10 @@ private:
     void		build();
 
 public:
-    /*mDeprecated*/ float	getfValue(int i=0)	{ return getFValue(i); }
-    /*mDeprecated*/ double	getdValue(int i=0)	{ return getDValue(i); }
+    mDeprecated ("Use getFValue")
+    float	getfValue(int i=0)	{ return getFValue(i); }
+    mDeprecated ("Use getDValue")
+    double	getdValue(int i=0)	{ return getDValue(i); }
 };
 
 
@@ -109,8 +111,10 @@ protected:
     uiGenInputGrp*	group;
 
 public:
-    /*mDeprecated*/ float	getfValue(int i=0)	{ return getFValue(i); }
-    /*mDeprecated*/ double	getdValue(int i=0)	{ return getDValue(i); }
+    mDeprecated		("Use getFValue")
+    float		getfValue(int i=0)	{ return getFValue(i); }
+    mDeprecated		("Use getDValue")
+    double		getdValue(int i=0)	{ return getDValue(i); }
 };
 
 #endif

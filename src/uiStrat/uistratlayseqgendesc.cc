@@ -288,7 +288,7 @@ void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
 
 void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
 {
-    float topz = topdepthfld_->getfValue();
+    float topz = topdepthfld_->getFValue();
     if ( zinft_ ) topz *= mFromFeetFactorF;
     editdesc_.setStartDepth( topz );
 }
@@ -656,7 +656,7 @@ bool getRange()
     const UnitOfMeasure* un = unfld_->getUnit();
     if ( !isRg() )
     {
-	const float val = valfld_->getfValue();
+	const float val = valfld_->getFValue();
 	if ( mIsUdf(val) )
 	    return false;
 	rg_.start = !un ? val : un->getSIValue( val );

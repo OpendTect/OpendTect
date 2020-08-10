@@ -37,7 +37,7 @@ uiBouncySettingsDlg::uiBouncySettingsDlg( uiParent* p,
     color2sel_->attach( alignedBelow, color1sel_ );
     color2sel_->colorChanged.notify( chgCB );
 
-    uiGroup* inlcrlgrp = new uiGroup( this, "InlCrl group" );     
+    uiGroup* inlcrlgrp = new uiGroup( this, "InlCrl group" );
     inlcrlgrp->attach( leftAlignedBelow, color2sel_ );
     inlfld_ = new uiGenInput( inlcrlgrp, "In-line", 
 	    IntInpSpec().setName("Inl-field") );
@@ -93,7 +93,7 @@ void uiBouncySettingsDlg::inl_crlChangedCB( CallBacker* )
 	 ( strcmp( crlfld_->text(), "" ) == 0 ) )
     {
 	xfld_->setText( "" ); yfld_->setText( "" );
-    	return;
+	return;
     }
 
     BinID binid( inlfld_->getIntValue(), crlfld_->getIntValue() );
@@ -115,7 +115,7 @@ void uiBouncySettingsDlg::inl_crlChangedCB( CallBacker* )
 
 void uiBouncySettingsDlg::x_yChangedCB( CallBacker* )
 {
-     Coord coord( xfld_->getdValue(), yfld_->getdValue() );
+     Coord coord( xfld_->getDValue(), yfld_->getDValue() );
      if ( coord == Coord::udf() )
      {
 	 inlfld_->setText( "" ); crlfld_->setText( "" );
@@ -157,7 +157,7 @@ visBeachBall::BallProperties uiBouncySettingsDlg::getBallProperties() const
 {
     return visBeachBall::BallProperties( "", radiusfld_->getIntValue(),
 	   color1sel_->color(), color2sel_->color(), 
-	   Coord3( xfld_->getdValue(), yfld_->getdValue(), 0.5 ), 0.5 );
+	   Coord3( xfld_->getDValue(), yfld_->getDValue(), 0.5 ), 0.5 );
 }
 
 

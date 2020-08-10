@@ -64,7 +64,9 @@ mGlobal(Basic) bool		hasSystemFileAttrib(const char*);
 mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 					bool recursive);
 mGlobal(Basic) bool		isInUse(const char* fnm);
-mGlobal(Basic) mDeprecated bool		isFileInUse(const char* fnm);
+
+mDeprecated			("Use isInUse instead")
+mGlobal(Basic) bool		isFileInUse(const char* fnm);
 
 mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname,

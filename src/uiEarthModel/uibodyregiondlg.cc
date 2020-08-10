@@ -902,21 +902,21 @@ bool uiBodyRegionDlg::createImplicitBody()
 
 	    mDynamicCastGet(uiSpinBox*, shiftdownfld,
 		    table_->getCellObject(RowCol(idx,cHorShiftDownCol)) );
-	    if ( !shiftupfld->getValue() && !shiftdownfld->getValue() )
+	    if ( !shiftupfld->getIntValue() && !shiftdownfld->getIntValue() )
 		mRetErr(tr("You did not choose any horizon shift"));
 
 	    duplicatehoridx = idx;
 	    sides += mBelow;
-	    horshift += -shiftupfld->getValue()/SI().zScale();
+	    horshift += -shiftupfld->getIntValue()/SI().zScale();
 	    sides += mAbove;
-	    horshift += shiftdownfld->getValue()/SI().zScale();
+	    horshift += shiftdownfld->getIntValue()/SI().zScale();
 	}
 	else
 	{
 	    sides += mCast(char,selbox->currentItem());
 	    mDynamicCastGet(uiSpinBox*, shiftfld,
 		    table_->getCellObject(RowCol(idx,cRelLayerCol)) );
-	    horshift += shiftfld ? shiftfld->getValue()/SI().zScale() : 0;
+	    horshift += shiftfld ? shiftfld->getIntValue()/SI().zScale() : 0;
 	}
 
 	if ( !hasfaults )

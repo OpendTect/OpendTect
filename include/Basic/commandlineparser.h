@@ -96,7 +96,8 @@ public:
     const OD::String&		getExecutable() const;
     const OD::String&		getExecutableName() const;
 
-    static mDeprecated void	createKey(const char* key,BufferString& res)
+    mDeprecated			("Use BufferString createKey(const char*)")
+    static void			createKey(const char* key,BufferString& res)
 				{ res = "--"; res += key; }
     static BufferString		createKey( const char* key )
 				{ return BufferString("--",key); }

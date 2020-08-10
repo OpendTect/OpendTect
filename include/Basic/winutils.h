@@ -35,13 +35,15 @@ mGlobal(Basic) bool		winCopy(const char* from,const char* to,
 					bool isfile,bool ismove=false);
 mGlobal(Basic) bool		winRemoveDir(const char* dirnm);
 
+#define mDeprecatedMachCmd mDeprecated("Use MachineCommand")
 
-mGlobal(Basic) mDeprecated bool executeWinProg(const char* comm,
+mDeprecatedMachCmd mGlobal(Basic) bool executeWinProg(const char* comm,
 					       const char* parm,
 					       const char* runin=0);
-mGlobal(Basic) mDeprecated bool execShellCmd(const char* comm,const char* parm,
-					     const char* runin );
-mGlobal(Basic) mDeprecated bool execProc(const char* comm,bool inconsole,
+mDeprecatedMachCmd mGlobal(Basic) bool execShellCmd(const char* comm,
+						const char* parm,
+						const char* runin );
+mDeprecatedMachCmd mGlobal(Basic) bool execProc(const char* comm,bool inconsole,
 					 bool inbg,const char* runin);
 
 mGlobal(Basic) unsigned int	getWinVersion();

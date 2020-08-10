@@ -342,7 +342,7 @@ void uiWellLogMerger::applyCB( CallBacker* )
 	uiMSG().message( tr("A log with this name already exists."
 		"\nPlease enter a different name for the new log") );
 
-    zsampling_ = srfld_->getfValue();
+    zsampling_ = srfld_->getFValue();
     if ( mIsUdf(zsampling_) )
 	uiMSG().message(
 		tr("Please provide the Z sample rate for the  output log") );

@@ -40,7 +40,7 @@ uiRandPosFiltGroup::uiRandPosFiltGroup( uiParent* p,
 
 void uiRandPosFiltGroup::usePar( const IOPar& iop )
 {
-    const float initialperc = percpassfld_->getfValue();
+    const float initialperc = percpassfld_->getFValue();
     float perc = mIsUdf(initialperc) ? initialperc : initialperc * 0.01f;
     iop.get( Pos::RandomFilter::ratioStr(), perc );
     if ( !mIsUdf(perc) ) perc *= 100;
@@ -52,7 +52,7 @@ void uiRandPosFiltGroup::usePar( const IOPar& iop )
 bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Random() );
-    const float perc = percpassfld_->getfValue();
+    const float perc = percpassfld_->getFValue();
     iop.set( Pos::RandomFilter::ratioStr(), perc*0.01 );
     return true;
 }
@@ -60,7 +60,7 @@ bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
 
 void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
 {
-    txt += "Rand ["; txt += percpassfld_->getfValue(); txt += "]"; 
+    txt += "Rand ["; txt += percpassfld_->getFValue(); txt += "]";
 }
 
 
@@ -83,7 +83,7 @@ uiSubsampPosFiltGroup::uiSubsampPosFiltGroup( uiParent* p,
 
 void uiSubsampPosFiltGroup::usePar( const IOPar& iop )
 {
-    int nr = eachfld_->getValue();
+    int nr = eachfld_->getIntValue();
     iop.get( Pos::SubsampFilter::eachStr(), nr );
     eachfld_->setValue( nr );
 }
@@ -92,14 +92,14 @@ void uiSubsampPosFiltGroup::usePar( const IOPar& iop )
 bool uiSubsampPosFiltGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Subsample() );
-    iop.set( Pos::SubsampFilter::eachStr(), eachfld_->getValue() );
+    iop.set( Pos::SubsampFilter::eachStr(), eachfld_->getIntValue() );
     return true;
 }
 
 
 void uiSubsampPosFiltGroup::getSummary( BufferString& txt ) const
 {
-    const int nr = eachfld_->getValue();
+    const int nr = eachfld_->getIntValue();
     txt += "Each "; txt += nr; txt += getRankPostFix( nr );
 }
 

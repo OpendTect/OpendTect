@@ -181,7 +181,7 @@ public:
     static bool		isCompatibleType(const char* omftypestr1,
 					 const char* omftypestr2);
 
-			mDeprecated SeisIOObjInfo(const char* ioobjnm);
+			mDeprecatedDef SeisIOObjInfo(const char* ioobjnm);
 protected:
 
     Seis::GeomType	geomtype_;

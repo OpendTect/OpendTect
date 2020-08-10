@@ -76,7 +76,7 @@ double uiFlatDPPosSel::getPos() const
 {
     if ( !posvalfld_ ) return -1.0;
     StepInterval<double> x1rg = fdp_->posData().range( true );
-    const int idx = x1rg.getIndex( possldr_->getValue() );
+    const int idx = x1rg.getIndex( possldr_->getFValue() );
     const double posval = fdp_->getAltDim0Value( 0, idx );
     return posval;
 }
@@ -85,7 +85,7 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 {
     if ( !posvalfld_ ) return;
     StepInterval<double> x1rg = fdp_->posData().range( true );
-    const int idx = x1rg.getIndex( possldr_->getValue() );
+    const int idx = x1rg.getIndex( possldr_->getFValue() );
     const double posval =
 	fdp_->getAltDim0Value( altdimnmflds_->currentItem(), idx );
     posvalfld_->setValue( posval );
@@ -291,14 +291,14 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
     if ( trcnrfld_ || fdpposfld_ )
     {
 	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
-			       : trcnrfld_->box()->getValue();
+			       : trcnrfld_->box()->getIntValue();
 	cs.hsamp_.set( cs.hsamp_.inlRange(),
 		       StepInterval<int>( trcnr, trcnr, 1 ) );
     }
     else
     {
-	int inlnr = inlfld_->box()->getValue();
-	int crlnr = crlfld_->getValue();
+	int inlnr = inlfld_->box()->getIntValue();
+	int crlnr = crlfld_->getIntValue();
 	cs.hsamp_.set( StepInterval<int>( inlnr, inlnr, 1 ),
 		    StepInterval<int>( crlnr, crlnr, 1 ) );
     }

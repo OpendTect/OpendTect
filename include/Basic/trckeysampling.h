@@ -167,9 +167,9 @@ public:
 			{ return lineOK(bid.inl(), ignoresteps ) &&
 				 trcOK(bid.crl(), ignoresteps ); }
 
-    mDeprecated BinID&	start;
-    mDeprecated BinID&	stop;
-    mDeprecated BinID&	step;
+    mDeprecated("Use start_ instead") BinID&		start;
+    mDeprecated("Use stop_ instead")  BinID&		stop;
+    mDeprecated("Use step_ instead")  BinID&		step;
 
     void		shrinkTo(const TrcKeySampling& innertks);
     void		growTo(const TrcKeySampling& outertks);

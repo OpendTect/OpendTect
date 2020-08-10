@@ -245,7 +245,7 @@ void uiSlicePos::prevCB( CallBacker* )
     if ( type == OD::InlineSlice || type == OD::CrosslineSlice )
 	posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
     else
-	posbox->setValue( posbox->getValue()-stepbox->getValue() );
+	posbox->setValue( posbox->getFValue()-stepbox->getFValue() );
 }
 
 
@@ -258,5 +258,5 @@ void uiSlicePos::nextCB( CallBacker* )
     if ( type == OD::InlineSlice || type == OD::CrosslineSlice )
 	posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
     else
-	posbox->setValue( posbox->getValue()+stepbox->getValue() );
+	posbox->setValue( posbox->getFValue()+stepbox->getFValue() );
 }

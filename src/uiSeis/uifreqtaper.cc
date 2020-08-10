@@ -346,7 +346,7 @@ void uiFreqTaperGrp::sliderChanged( CallBacker* )
 {
     mStopFreqNotifiers()
 
-    float sval = sliderfld_->getValue();
+    float sval = sliderfld_->getFValue();
     if ( isminactive_ )
 	inffreqfld_->setValue( sval );
     else

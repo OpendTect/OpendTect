@@ -25,14 +25,10 @@ ________________________________________________________________________
 mExpClass(General) ZipUtils
 { mODTextTranslationClass(zipUtils);
 public:
-				ZipUtils(const char* filelistnm=0);
-				~ZipUtils();
-   
-    mDeprecated bool		Zip(const char* src,const char* dest);
-    mDeprecated bool		UnZip(const char* scr, const char* dest);
-    mDeprecated uiString	errorMsg() const{ return errmsg_;}
-    void			makeFileList(const char* zipfile);
-    const BufferStringSet&	getFileList() const	{ return filelist_; }
+
+    static bool			makeFileList(const char* zipfilenm,
+					     BufferStringSet& list,
+					     uiString& errmsg);
 
     static bool			unZipArchive(const char* src,const char* dest,
 					     uiString& errmsg,
@@ -64,11 +60,22 @@ public:
 						ZipHandler::CompLevel c=
 						ZipHandler::Normal);
 
+#define mMyDeprecated \
+mDeprecated("Use the static functions, see header file for details")
+
+    mMyDeprecated		ZipUtils(const char* filelistnm=0);
+				~ZipUtils();
+   
+    mMyDeprecated bool		Zip(const char* src,const char* dest);
+    mMyDeprecated bool		UnZip(const char* scr, const char* dest);
+    mMyDeprecated uiString	errorMsg() const{ return errmsg_;}
+
+    mMyDeprecated void			 makeFileList(const char* zipfile);
+    mMyDeprecated const BufferStringSet& getFileList() const
+					 { return filelist_; }
+
 protected:
 
-    mDeprecated  bool		doZip(const char* src,const char* dest);
-    mDeprecated bool		doUnZip(const char* src,const char* dest);
-   
     uiString			errmsg_;
     BufferStringSet		filelist_;
     BufferString		filelistname_;

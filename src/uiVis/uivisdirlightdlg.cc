@@ -201,17 +201,17 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
 
     pd_ = new uiPolarDiagram( pddlg_ );
     pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()),
-		    dipfld_->getValue() );
+		    dipfld_->getFValue() );
     pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
 }
 
 
 float uiDirLightDlg::getDiffuseIntensity() const
 {
-    float diffuseintensity = cameradirintensityfld_->getValue();
+    float diffuseintensity = cameradirintensityfld_->getFValue();
     if ( diffuseintensity < 0 || diffuseintensity>100 )
 	cameradirintensityfld_->setValue( 100 );
-    return cameradirintensityfld_->getValue() / 100;
+    return cameradirintensityfld_->getFValue() / 100;
 }
 
 
@@ -332,11 +332,11 @@ void uiDirLightDlg::saveInitInfo()
 	if ( !dosave ) continue;
 
         initinfo_[idx].azimuth_ = mCast(float, azimuthfld_->dial()->getValue());
-	initinfo_[idx].dip_ = dipfld_->getValue();
-	initinfo_[ idx ].dirintensity_ = dirintensityfld_->getValue();
+	initinfo_[idx].dip_ = dipfld_->getFValue();
+	initinfo_[ idx ].dirintensity_ = dirintensityfld_->getFValue();
 	initinfo_[ idx ].cameraintensity_ =
-	    cameradirintensityfld_->getValue();
-	initinfo_[idx].ambintensity_ = cameraambintensityfld_->getValue();
+	    cameradirintensityfld_->getFValue();
+	initinfo_[idx].ambintensity_ = cameraambintensityfld_->getFValue();
     }
 
     //initlighttype_ = lighttypefld_->getBoolValue();
@@ -380,13 +380,13 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 	cameradirintensityfld_->setValue( getCameraLightIntensity(idx) );
         if ( resetinitinfo )
 	    initinfo_[idx].cameraintensity_ =
-		cameradirintensityfld_->getValue();
+		cameradirintensityfld_->getFValue();
 
 	// ambient intensity
 	cameraambintensityfld_->setValue( getCameraAmbientIntensity( idx ) );
         if ( resetinitinfo )
 	    initinfo_[idx].ambintensity_ =
-		cameraambintensityfld_->getValue();
+		cameraambintensityfld_->getFValue();
 
 	// directional light
         visBase::Light* dl = getDirLight( idx );
@@ -455,7 +455,7 @@ void uiDirLightDlg::setDirLight()
 	float az_rad = Angle::convert( Angle::UsrDeg,
 		(float) (azimuthfld_->dial()->getValue()), Angle::Rad );
 	float dip_rad = Angle::convert( Angle::Deg,
-		dipfld_->getValue() - 180, Angle::Rad );
+		dipfld_->getFValue() - 180, Angle::Rad );
 	  // offset for observed deviation
 
 	float x = cos( az_rad ) * cos( dip_rad );
@@ -466,7 +466,7 @@ void uiDirLightDlg::setDirLight()
 
 	// swap the direction sign let it towards to light source 
 	dl->setDirection( -x, -y, -z );
-	dl->setDiffuse( dirintensityfld_->getValue() / 100 );
+	dl->setDiffuse( dirintensityfld_->getFValue() / 100 );
     }
 }
 
@@ -484,11 +484,11 @@ void uiDirLightDlg::cameraAmbientChangedCB( CallBacker* )
     if  ( !initinfo_.size() )
 	return;
 
-    float intensity = cameraambintensityfld_->getValue();
+    float intensity = cameraambintensityfld_->getFValue();
     if ( intensity<0 || intensity>100 )
 	cameraambintensityfld_->setValue(100);
 
-    intensity = cameraambintensityfld_->getValue() / 100 ;
+    intensity = cameraambintensityfld_->getFValue() / 100 ;
     const bool lightall = scenefld_->box()->currentItem()==0;
 
     for ( int idx=0; idx<initinfo_.size(); idx++ )
@@ -555,11 +555,11 @@ void uiDirLightDlg::validateInput()
     if ( az<0 || az>360 )
 	azimuthfld_->dial()->setValue( mInitAzimuth );
 
-    const float dip = dipfld_->getValue();
+    const float dip = dipfld_->getFValue();
     if ( dip<0 || dip>90 )
 	dipfld_->setValue( mInitDip );
 
-    const float intensity = dirintensityfld_->getValue();
+    const float intensity = dirintensityfld_->getFValue();
     if ( intensity<0 || intensity>100 )
 	dirintensityfld_->setValue( mInitIntensity );
 }
@@ -572,7 +572,7 @@ bool uiDirLightDlg::isInSync()
 	float az, dip;
 	pd_->getValues( &az, &dip );
 	if ( az != azimuthfld_->dial()->getValue() ||
-		dip != dipfld_->getValue() )
+		dip != dipfld_->getFValue() )
 	    return false;
     }
 
@@ -685,7 +685,7 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* c )
     else if ( !pd_->hasFocus() )
     {
 	pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()),
-		dipfld_->getValue() );
+		dipfld_->getFValue() );
         setDirLight();
     }
 }

@@ -170,10 +170,10 @@ private:
     //For 6.2 only (HiddenParam set):
 public:
 
-    mDeprecated virtual od_int64 getOuputMemSize(int) const;
-    mDeprecated virtual od_int64 getProcTimeExtraMemory() const { return 0; }
+    mDeprecatedDef virtual od_int64 getOuputMemSize(int) const;
+    mDeprecatedDef virtual od_int64 getProcTimeExtraMemory() const { return 0; }
 
-    mDeprecated static od_int64 getBaseMemoryUsage(const TrcKeySampling&,
+    mDeprecatedDef static od_int64 getBaseMemoryUsage(const TrcKeySampling&,
 						   const StepInterval<int>&);
 protected:
     od_uint64			getComponentMemory(const TrcKeySampling&,

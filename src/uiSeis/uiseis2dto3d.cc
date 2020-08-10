@@ -134,7 +134,7 @@ void uiSeis2DTo3D::fillParamsPar( IOPar& par )
     {
 	par.set( Seis2DTo3D::sKeyStepout(), winfld_->getIInterval() );
 	par.setYN( Seis2DTo3D::sKeyReUse(), reusetrcsbox_->isChecked() );
-	par.set( Seis2DTo3D::sKeyMaxVel(), velfiltfld_->getfValue() );
+	par.set( Seis2DTo3D::sKeyMaxVel(), velfiltfld_->getFValue() );
     }
 }
 

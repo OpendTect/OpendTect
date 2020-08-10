@@ -54,7 +54,7 @@ public:
 
 			JobCommunic(const char* host,PortNr_Type,
 				    int jobid);
-    mDeprecated		JobCommunic(const char* host,PortNr_Type,
+    mDeprecatedDef	JobCommunic(const char* host,PortNr_Type,
 				    int jobid,StreamData&);
 			~JobCommunic();
 

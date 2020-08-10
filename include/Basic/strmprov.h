@@ -107,7 +107,7 @@ private:
 
 public:
 
-    mDeprecated void set(const char* inp);
+    mDeprecatedDef void set(const char* inp);
 
     static StreamData createIStream(const char*,bool binary=true);
 			/*!< keep binary==true also for text files unless you

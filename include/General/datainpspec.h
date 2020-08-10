@@ -155,8 +155,10 @@ private:
     static const char*	valuestr;
 
 public:
-    /*mDeprecated*/ double getdValue(int idx=0) const { return getDValue(idx); }
-    /*mDeprecated*/ float  getfValue(int idx=0) const { return getFValue(idx); }
+    mDeprecated		("Use getDValue")
+    double		getdValue(int idx=0) const { return getDValue(idx); }
+    mDeprecated		("Use getFValue")
+    float		getfValue(int idx=0) const { return getFValue(idx); }
 };
 
 

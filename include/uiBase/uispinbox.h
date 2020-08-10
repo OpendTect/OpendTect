@@ -123,10 +123,15 @@ private:
     void		snapToStep(CallBacker*);
 
 public:
-// deprecated, do not use
-    /*mDeprecated*/ int	getValue() const	{ return getIntValue(); }
-    /*mDeprecated*/ float	getfValue() const	{ return getFValue(); }
-    /*mDeprecated*/ double	getdValue() const	{ return getDValue(); }
+
+    mDeprecated		("Use getIntValue")
+    int			getValue() const	{ return getIntValue(); }
+
+    mDeprecated		("Use getFValue")
+    float		getfValue() const	{ return getFValue(); }
+
+    mDeprecated		("Use getDValue")
+    double		getdValue() const	{ return getDValue(); }
 };
 
 

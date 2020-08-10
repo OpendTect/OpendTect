@@ -1608,12 +1608,6 @@ inline float_complex getSum( const ArrayND<float_complex>& in, bool noudf,
 { return mUdf(float_complex); }
 
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline T mDeprecated getSum( const ArrayND<T>& in, bool noudf )
-{ return getSum<T>( in, noudf, true ); }
-
-
 
 /*!\brief returns the average amplitude of the array */
 
@@ -1629,12 +1623,6 @@ inline T getAverage( const ArrayND<T>& in, bool noudf, bool parallel )
     return mCast(T,avgexec.getSum());
 }
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline T mDeprecated getAverage( const ArrayND<T>& in, bool noudf )
-{ return getAverage<T>( in, noudf, true ); }
-
-
 
 //!Specialization for complex numbers.
 template <>
@@ -1645,13 +1633,6 @@ inline float_complex getAverage<float_complex>(const ArrayND<float_complex>& in,
     const float_complex sumvals = getSum( in, noudf, parallel );
     return mIsUdf(sumvals) ? mUdf(float_complex) : sumvals / mCast(float,sz);
 }
-
-/*!\brief will be removed after 6.0 */
-template <>
-inline float_complex mDeprecated getAverage<float_complex>(
-				 const ArrayND<float_complex>& in, bool noudf )
-{ return getAverage<float_complex>( in, noudf, true ); }
-
 
 
 template <class T>
@@ -1678,19 +1659,6 @@ inline void getScaledArray( const ArrayND<T>& in, ArrayND<T>* out_, double fact,
 }
 
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getScaled( const ArrayND<T>& in, ArrayND<T>* out_,
-				   T fact, T shift, bool noudf, bool parallel )
-{ return getScaledArray( in, out_, fact, shift, noudf, parallel ); }
-
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getScaled( const ArrayND<T>& in, ArrayND<T>* out_,
-				   T fact, T shift, bool noudf )
-{ return getScaledArray( in, out_, fact, shift, noudf, true ); }
-
 
 template <class T>
 mDefParallelCalc6Pars(SumExec,
@@ -1716,20 +1684,6 @@ inline void getSumArrays( const ArrayND<T>& in1, const ArrayND<T>& in2,
 }
 
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				ArrayND<T>& out, T fact1, T fact2, bool noudf,
-				bool parallel )
-{ getSumArrays( in1, in2, out, fact1, fact2, noudf, parallel ); }
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				ArrayND<T>& out, T fact1, T fact2, bool noudf )
-{ getSumArrays( in1, in2, out, fact1, fact2, noudf, true ); }
-
-
 
 template <class T>
 mDefParallelCalc4Pars(ProdExec,
@@ -1753,12 +1707,6 @@ inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     prodexec.executeParallel( parallel );
 }
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getProduct( const ArrayND<T>& in1,const ArrayND<T>& in2,
-				    ArrayND<T>& out, bool noudf )
-{ return getProduct<T>( in1, in2, out, noudf, true ); }
-
 
 
 /*!\brief computes the sum array between two arrays */
@@ -1771,13 +1719,6 @@ inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
     ArrOperExec<double,T> sumexec( in1, &in2, noudf, setup, out );
     sumexec.executeParallel( parallel );
 }
-
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				ArrayND<T>& out, bool noudf )
-{ return getSum<T>( in1, in2, out, noudf, true ); }
 
 
 /*!\brief returns the sum of product amplitudes between two vectors */
@@ -1810,13 +1751,6 @@ inline double getSumProductD( const ArrayND<T>& in1, const ArrayND<T>& in2,
     return sumprodexec.getSum();
 }
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated void getSumProduct( const ArrayND<T>& in1,
-				       const ArrayND<T>& in2, bool noudf )
-{ return getSumProduct<T>( in1, in2, noudf, true ); }
-
-
 
 /*!\brief returns the sum of squarred amplitudes of the array */
 
@@ -1831,11 +1765,6 @@ inline T getSumSq( const ArrayND<T>& in, bool noudf, bool parallel )
 
     return mCast(T,sumsqexec.getSum());
 }
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated T getSumSq( const ArrayND<T>& in, bool noudf )
-{ return getSumSq<T>( in, noudf, true ); }
 
 
 /*!\brief return the Norm-2 of the array */
@@ -1867,12 +1796,6 @@ inline double getNorm2D( const ArrayND<T>& in, bool noudf, bool parallel )
 }
 
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated T getNorm2( const ArrayND<T>& in, bool noudf )
-{ return getNorm2<T>( in, noudf, true ); }
-
-
 /*!\brief return the RMS of the array */
 
 template <class T>
@@ -1888,11 +1811,6 @@ inline T getRMS( const ArrayND<T>& in, bool noudf, bool parallel )
 
     return mCast(T,rmsexec.getSum());
 }
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated T getRMS( const ArrayND<T>& in, bool noudf )
-{ return getRMS<T>( in, noudf, true ); }
 
 
 /*!\brief returns the residual differences of two arrays */
@@ -1913,12 +1831,6 @@ inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
     return mCast(T,residualexec.getSum());
 }
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline mDeprecated T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				  bool noudf )
-{ return getResidual<T>( in1, in2, noudf, true ); }
-
 
 /*!\brief returns the sum of squarred differences of two arrays */
 
@@ -1937,12 +1849,6 @@ inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
     return mCast(T,sumxmy2exec.getSum());
 }
 
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline T mDeprecated getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				 bool noudf )
-{ return getSumXMY2<T>( in1, in2, noudf, true ); }
-
 
 /*!\brief returns the sum of summed squarred amplitudes of two arrays */
 
@@ -1959,12 +1865,6 @@ inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
 
     return mCast(T,sumx2py2exec.getSum());
 }
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline T mDeprecated getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				  bool noudf )
-{ return getSumX2PY2<T>( in1, in2, noudf, true ); }
 
 
 /*!\brief returns the sum of subtracted squarred amplitudes of two arrays */
@@ -1983,12 +1883,6 @@ inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
 
     return mCast(T,sumx2my2exec.getSum());
 }
-
-/*!\brief will be removed after 6.0 */
-template <class T>
-inline T mDeprecated getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2,
-				  bool noudf )
-{ return getSumX2MY2<T>( in1, in2, noudf, true ); }
 
 
 /*!\brief returns the intercept and gradient of two arrays */

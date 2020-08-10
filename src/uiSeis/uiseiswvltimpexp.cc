@@ -130,7 +130,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	    wvlt->setCenterSample( maxsamp );
     }
 
-    const float fac = scalefld_->getfValue();
+    const float fac = scalefld_->getFValue();
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 
@@ -291,7 +291,7 @@ bool uiSeisWvltCopy::acceptOK( CallBacker* )
     if ( !wvlt )
 	mErrRet( uiStrings::phrCannotRead( uiStrings::sWavelet()) )
 
-    const float fac = scalefld_->getfValue();
+    const float fac = scalefld_->getFValue();
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 

@@ -366,9 +366,11 @@ private:
     mutable uiSize	lastsz;
 
 public:
-    /*mDeprecated*/ double	getdValue( const RowCol& rc ) const
+    mDeprecated		("Use getDValue")
+    double		getdValue( const RowCol& rc ) const
 			{ return getDValue( rc ); }
-    /*mDeprecated*/ float	getfValue( const RowCol& rc ) const
+    mDeprecated		("Use getFValue")
+    float		getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
 
     void	       setPrefWidthInChars(int);

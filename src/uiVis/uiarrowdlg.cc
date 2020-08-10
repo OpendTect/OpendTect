@@ -91,7 +91,7 @@ void uiArrowDialog::setScale( float scale )
 
 float uiArrowDialog::getScale() const
 {
-    return scalefld_->getValue();
+    return scalefld_->getFValue();
 }
 
 
