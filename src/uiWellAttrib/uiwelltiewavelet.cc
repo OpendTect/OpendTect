@@ -153,6 +153,8 @@ void uiWavelet::initWaveletViewer()
     app.ddpars_.wva_.refline_ = Color::Black();
     app.ddpars_.wva_.mappersetup_.symmidval_ = 0;
     app.setDarkBG( false );
+    app.annot_.x1_.hasannot_ = false;
+    app.annot_.x2_.hasannot_ = false;
     viewer_->setInitialSize( uiSize(80,100) );
     viewer_->setStretch( 1, 2 );
 }
