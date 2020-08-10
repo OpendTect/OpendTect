@@ -349,7 +349,7 @@ bool getFromScreen( bool permissive )
     {
 	if ( isglob )
 	{
-	    float scl = sclflds_[idx]->getfValue();
+	    float scl = sclflds_[idx]->getFValue();
 	    if ( scl <= 0 )
 	    {
 		if ( permissive ) continue;

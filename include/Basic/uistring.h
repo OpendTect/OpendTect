@@ -179,11 +179,13 @@ private:
 public:
 
 		//Only for expert users
+
+#define mDeprecatedAutoUiString mDeprecated("Use toUiString instead")
 #ifdef mNoAutoUiString
-    mDeprecated			uiString(const char* inp);
-    mDeprecated			uiString(const OD::String&);
-    mDeprecated uiString&	operator=(const char*);
-    mDeprecated uiString&	operator=(const OD::String&);
+    mDeprecatedAutoUiString		uiString(const char* inp);
+    mDeprecatedAutoUiString		uiString(const OD::String&);
+    mDeprecatedAutoUiString uiString&	operator=(const char*);
+    mDeprecatedAutoUiString uiString&	operator=(const OD::String&);
 #else
 				uiString(const char*);
 				uiString(const OD::String&);
@@ -334,7 +336,8 @@ inline uiString& uiString::addMoreInfo( const T& t )
 
 
 //Legacy Will be removed
-mGlobal(Basic) mDeprecated inline uiString mkUiString(const char* var)
+mDeprecatedAutoUiString mGlobal(Basic)
+inline uiString mkUiString(const char* var)
 { return toUiString(var); }
 
 /*!Adds translation of strings outside of classes for the "od" application. It

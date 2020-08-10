@@ -207,33 +207,31 @@ Always defined:
 #undef mUnusedVar
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
+#else
+# define mUnusedVar
+#endif
 
-//Support for deprecation under gcc is fully available in gcc 4.6
-# if __GNUC__ > 4 || (__GNUC__ == 6 && __GNUC_MINOR__ > 0 )
-#  define mDeprecated __attribute__ ((deprecated))
+//C++14 fully supports the 'deprecated' tag along with a message
+
+#define mDeprecated(msg) [[deprecated]]
+#define mDeprecatedDef	mDeprecated("See header file for alternatives")
+#define mDeprecatedObs	mDeprecated("This is obsolete now")
+
+#if defined( __gnuc__ )
 #  define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
     _Pragma ( "GCC diagnostic ignored \"-Wdeprecated-declarations\"" )
 #  define mStopAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic pop" )
-# else
-#  ifdef __clang__
-#   define mDeprecated __attribute__ ((deprecated))
-#  else
-#   define mDeprecated
-#  endif
+#elif defined( __msvc__ )
+#  define mStartAllowDeprecatedSection \
+    __pragma( warning( push ) ) \
+    __pragma( warning( disable : 4996 ) )
+#  define mStopAllowDeprecatedSection \
+    __pragma( warning( pop ) )
+#else
 #  define mStartAllowDeprecatedSection
 #  define mStopAllowDeprecatedSection
-# endif
-#else
-# define mUnusedVar
-# if defined( __win__ )
-#  define mDeprecated __declspec(deprecated)
-# else
-#  define mDeprecated
-# endif
-# define mStartAllowDeprecatedSection
-# define mStopAllowDeprecatedSection
 #endif
 
 #ifdef __win__

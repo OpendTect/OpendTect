@@ -99,11 +99,14 @@ protected:
     int				columnOf(bool hdr,int iinf,int ielem) const;
 
 public:
-    mDeprecated float		getfValue(int idx,float udf=mUdf(float)) const
+    mDeprecated			("Use getFValue")
+    float			getfValue(int idx,float udf=mUdf(float)) const
 				{ return getFValue( idx, udf ); }
-    mDeprecated double		getdValue(int idx,double udf=mUdf(double)) const
+    mDeprecated			("Use getDValue")
+    double			getdValue(int idx,double udf=mUdf(double)) const
 				{ return getDValue( idx, udf ); }
-    mDeprecated const char*	text(int ifld) const { return getText(ifld); }
+    mDeprecated			("Use getText")
+    const char*			text(int ifld) const { return getText(ifld); }
 };
 
 

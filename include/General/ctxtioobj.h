@@ -98,9 +98,9 @@ public:
 	const char*			desc_;
 					//!< Can be converted to StdSelType
 
-	mDeprecated const char*&	id;
-	mDeprecated const char*&	dirnm;
-	mDeprecated const char*&	desc;
+	mDeprecated("Use id_")		const char*&	id;
+	mDeprecated("Use dirnm_")	const char*&	dirnm;
+	mDeprecated("Use desc_")	const char*&	desc;
     };
 
     static int			totalNrStdDirs();
@@ -119,15 +119,15 @@ public:
     void		fixTranslator( const char* trusrnm )
 			{ deftransl_ = toselect_.allowtransls_ = trusrnm; }
 
-    mDeprecated StdSelType&		stdseltype;
-    mDeprecated const TranslatorGroup*& trgroup;
-    mDeprecated int&			newonlevel;
-    mDeprecated bool&			multi;
-    mDeprecated bool&			forread;
-    mDeprecated MultiID&		selkey;
-    mDeprecated bool&			maydooper;
-    mDeprecated BufferString&		deftransl;
-    mDeprecated IOObjSelConstraints&	toselect;
+    mDeprecated("Use stdseltype_")	StdSelType&		stdseltype;
+    mDeprecated("Use trgroup_")		const TranslatorGroup*& trgroup;
+    mDeprecated("Use newonlevel_")	int&			newonlevel;
+    mDeprecated("Use multi_")		bool&			multi;
+    mDeprecated("Use forread_")		bool&			forread;
+    mDeprecated("Use selkey_")		MultiID&		selkey;
+    mDeprecated("Use maydooper_")	bool&			maydooper;
+    mDeprecated("Use deftransl_")	BufferString&		deftransl;
+    mDeprecated("Use toselect_")	IOObjSelConstraints&	toselect;
 };
 
 
@@ -175,9 +175,9 @@ public:
     IOPar*			iopar_;
 
     //Legacy
-    mDeprecated IOObjContext&	ctxt;
-    mDeprecated IOObj*&		ioobj;
-    mDeprecated IOPar*&		iopar;
+    mDeprecated("Use ctxt_")	IOObjContext&	ctxt;
+    mDeprecated("Use ioobj_")	IOObj*&		ioobj;
+    mDeprecated("Use iopar_")	IOPar*&		iopar;
 };
 
 

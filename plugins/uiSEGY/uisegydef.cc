@@ -542,7 +542,7 @@ void setChecked( bool yn ) const
 
 int byteNr() const
 {
-    return isChecked() ? bytefld_->getValue()-1 : -1;
+    return isChecked() ? bytefld_->getIntValue()-1 : -1;
 }
 
 inline bool isSmall() const
@@ -1097,7 +1097,7 @@ void uiSEGYFileOpts::setToggled( IOPar& iop, const char* key,
 	if ( !isz )
 	    iop.set( key, inp->text() );
 	else
-	    iop.set( key, inp->getfValue() / SI().zDomain().userFactor() );
+	    iop.set( key, inp->getFValue() / SI().zDomain().userFactor() );
     }
 }
 

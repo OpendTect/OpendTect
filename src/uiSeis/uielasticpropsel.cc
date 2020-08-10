@@ -77,7 +77,7 @@ void uiElasticPropSelGrp::uiSelInpGrp::selVarCB( CallBacker* )
 
 const char* uiElasticPropSelGrp::uiSelInpGrp::textOfVariable() const
 {
-    return isactive_ ? isconstant_ ? toString( ctefld_->getfValue() )
+    return isactive_ ? isconstant_ ? toString( ctefld_->getFValue() )
 				   : inpfld_->text()
 		     : 0;
 }

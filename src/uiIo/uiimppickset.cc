@@ -190,7 +190,7 @@ bool uiImpExpPickSet::doImport()
     const char* psnm = objfld_->getInput();
     Pick::Set ps( psnm );
     const int zchoice = zfld_->box()->currentItem();
-    float constz = zchoice==1 ? constzfld_->getfValue() : 0;
+    float constz = zchoice==1 ? constzfld_->getFValue() : 0;
     if ( SI().zIsTime() ) constz /= 1000;
 
     ps.disp_.color_ = colorfld_->color();
@@ -327,7 +327,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	const int zchoice = zfld_->box()->currentItem();
 	if ( zchoice == 1 )
 	{
-	    float constz = constzfld_->getfValue();
+	    float constz = constzfld_->getFValue();
 	    if ( SI().zIsTime() ) constz /= 1000;
 
 	    if ( !SI().zRange(false).includes( constz,false ) )

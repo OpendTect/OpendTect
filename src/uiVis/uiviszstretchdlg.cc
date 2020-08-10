@@ -280,7 +280,7 @@ void uiZStretchDlg::sliderMove( CallBacker* )
 {
     const bool stretchall = scenefld_ && scenefld_->box()->currentItem()==0;
     const float uifactor = getSelectedSceneUiFactor();
-    const float slval = sliderfld_->getValue()/uifactor;
+    const float slval = sliderfld_->getFValue()/uifactor;
 
     visSurvey::Scene* scene =  getSelectedScene();
     const int id = sceneids_.indexOf( scene->id() );

@@ -114,8 +114,8 @@ public:
     void			add(const Seis::PosKey&, od_int64 offset );
 				//!<Adds the pk to index. Called from reIndex
 
-    /* mDeprecated */ void	empty();
-    void			setEmpty()	{ empty(); }
+    mDeprecated("Use setEmpty") void		empty()		{ setEmpty(); }
+    void			setEmpty();
 
 protected:
 

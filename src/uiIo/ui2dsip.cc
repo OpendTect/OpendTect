@@ -98,7 +98,7 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
 bool acceptOK( CallBacker* )
 {
-    const float grdsp = grdspfld_->getfValue();
+    const float grdsp = grdspfld_->getFValue();
     if ( mIsUdf(grdsp) )
 	mErrRet( tr("Invalid grid spacing") )
     else if ( grdsp < 0 )
@@ -106,8 +106,8 @@ bool acceptOK( CallBacker* )
     else if ( grdsp < 0.1 )
 	mErrRet( tr("Grid spacing should be > 0.1") )
 
-    const Coord c0( xrgfld_->getdValue(0), yrgfld_->getdValue(0) );
-    const Coord c1( xrgfld_->getdValue(1), yrgfld_->getdValue(1) );
+    const Coord c0( xrgfld_->getDValue(0), yrgfld_->getDValue(0) );
+    const Coord c1( xrgfld_->getDValue(1), yrgfld_->getDValue(1) );
     if ( mIsUdf(c0) || mIsUdf(c1) )
 	mErrRet(tr("Invalid input coordinates"))
 
@@ -170,11 +170,11 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
     else if ( dlg->uiResult() != 1 ) return false; // cancelled
 
-    Coord c0( dlg->xrgfld_->getdValue(0), dlg->yrgfld_->getdValue(0) );
-    Coord c1( dlg->xrgfld_->getdValue(1), dlg->yrgfld_->getdValue(1) );
+    Coord c0( dlg->xrgfld_->getDValue(0), dlg->yrgfld_->getDValue(0) );
+    Coord c1( dlg->xrgfld_->getDValue(1), dlg->yrgfld_->getDValue(1) );
     if ( c0.x > c1.x ) Swap( c0.x, c1.x );
     if ( c0.y > c1.y ) Swap( c0.y, c1.y );
-    const double grdsp = dlg->grdspfld_->getdValue();
+    const double grdsp = dlg->grdspfld_->getDValue();
     if ( !getRanges(cs,crd,c0,c1,grdsp) )
 	return false;
 

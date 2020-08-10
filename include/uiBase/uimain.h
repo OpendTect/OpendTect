@@ -67,7 +67,7 @@ public:
     static const char**	XpmIconData;
     static void		cleanQtOSEnv();
 
-    static mDeprecated void	flushX();
+    mDeprecatedDef static void	flushX();
     static void		repaint();
 
     /*!  Processes pending events for maxtime milliseconds

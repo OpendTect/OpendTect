@@ -29,7 +29,7 @@ namespace OS
 enum LaunchType { Wait4Finish, RunInBG, Batch };
 enum KeyStyle	{ NewStyle, OldStyle };
 
-inline mDeprecated bool isBatchProg( OS::LaunchType lt );
+mDeprecatedObs inline bool isBatchProg( OS::LaunchType lt );
 inline bool isOldStyle( OS::KeyStyle ks ) { return ks == OS::OldStyle; }
 
 /*!\brief Specifies how to execute a command */
@@ -44,7 +44,9 @@ public:
 			    , needmonitor_(false)
 			    , prioritylevel_(lt==Batch ? -1.0f : 0.0f)
 			    , isconsoleuiprog_(false)	    {}
-    mDeprecated explicit CommandExecPars(bool isbatchprog);
+
+    mDeprecated		("Use CommandExecPars(LaunchType) instead")
+    explicit		CommandExecPars(bool isbatchprog);
 
     mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
     mDefSetupClssMemb(CommandExecPars,bool,createstreams);
@@ -128,10 +130,10 @@ public:
 				     KeyStyle ks=NewStyle )
 			{ return addKeyedArg(ky,::toString(t),ks);}
 
-    mDeprecated const char*	command() const;
-    mDeprecated void	setCommand(const char*);
-    mDeprecated const char*	getSingleStringRep() const;
-    mDeprecated bool	setFromSingleStringRep(const char*,
+    mDeprecatedDef const char*	command() const;
+    mDeprecatedDef void setCommand(const char*);
+    mDeprecatedDef const char*	getSingleStringRep() const;
+    mDeprecatedDef bool setFromSingleStringRep(const char*,
 						bool ignorehostname=false);
 			/*!<\returns !isBad().
 			   Assumes that arguments are space separated,
@@ -194,7 +196,7 @@ private:
 
 public:
 
-    mDeprecated BufferString	getSingleStringRep(bool noremote=false) const;
+    mDeprecatedDef BufferString getSingleStringRep(bool noremote=false) const;
 
 };
 
@@ -261,11 +263,11 @@ private:
     void		adaptForV7(const OS::MachineCommand&);
 
 public:
-    static mDeprecated void addShellIfNeeded(BufferString& cmd);
+    mDeprecatedDef static void addShellIfNeeded(BufferString& cmd);
 			/*!<Analyses the cmd and looks for pipes or redirects.
 			    If these are found, the cmd is converted to a
 			    shell command. */
-    static mDeprecated void addQuotesIfNeeded(BufferString& cmd);
+    mDeprecatedDef static void addQuotesIfNeeded(BufferString& cmd);
 			/*!<Checks for spaces in command, and surrounds command
 			    with quotes them if not already done. */
     static void		manageQProcess(QProcess*);
@@ -274,7 +276,7 @@ public:
 
 
 /*! convenience function; for specific options use the CommandLauncher */
-mGlobal(Basic) mDeprecated bool ExecCommand(const char* cmd,
+mDeprecatedDef mGlobal(Basic) bool ExecCommand(const char* cmd,
 				LaunchType lt=Wait4Finish,
 				BufferString* stdoutput=0,
 				BufferString* stderror=0);
@@ -283,7 +285,7 @@ mGlobal(Basic) mDeprecated bool ExecCommand(const char* cmd,
 } // namespace OS
 
 /*! convenience function executing a program from the OD bindir */
-mGlobal(Basic) mDeprecated bool ExecODProgram(const char* prognm,
+mDeprecatedDef mGlobal(Basic) bool ExecODProgram(const char* prognm,
 				  const char* args=0,
 				  OS::LaunchType lt=OS::RunInBG);
 

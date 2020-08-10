@@ -192,7 +192,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     lfi.logunits.setEmpty();
     lfi.lognms.setEmpty();
 
-    lfi.undefval = udffld_->getfValue();
+    lfi.undefval = udffld_->getFValue();
 
     const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
     const Interval<float> usrzrg = intvfld_->getFInterval();

@@ -69,7 +69,7 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
-    mDeprecated bool	setOutputComponents(const TypeSet<int>&);
+    mDeprecatedDef bool setOutputComponents(const TypeSet<int>&);
 			/*!< Will be removed after 6.2 */
 
     void		 setDataPack(RegularSeisDataPack*);
@@ -172,7 +172,7 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
-    mDeprecated bool	setOutputComponents(const TypeSet<int>&);
+    mDeprecatedDef bool setOutputComponents(const TypeSet<int>&);
 			/*!< Will be removed after 6.2 */
 
     void		setComponentScaler(const Scaler&,int compidx);

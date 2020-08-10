@@ -142,7 +142,8 @@ private:
     int			sliderValue(float) const;
 
 public:
-    /*mDeprecated*/ float	getValue() const	{ return getFValue(); }
+    mDeprecated		("Use getFValue")
+    float		getValue() const	{ return getFValue(); }
 };
 
 #endif

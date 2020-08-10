@@ -217,13 +217,13 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 
 void uiSelZRange::valChg( CallBacker* cb )
 {
-    if ( !isrel_ && startfld_->getValue() > stopfld_->getValue() )
+    if ( !isrel_ && startfld_->getFValue() > stopfld_->getFValue() )
     {
 	const bool chgstart = cb == stopfld_;
 	if ( chgstart )
-	    startfld_->setValue( stopfld_->getValue() );
+	    startfld_->setValue( stopfld_->getFValue() );
 	else
-	    stopfld_->setValue( startfld_->getValue() );
+	    stopfld_->setValue( startfld_->getFValue() );
     }
 
     rangeChanged.trigger();
@@ -354,7 +354,7 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
 int uiSelNrRange::getStopVal() const
 {
     if ( icstopfld_ )
-	return icstopfld_->getValue();
+	return icstopfld_->getIntValue();
 
     const char* txt = nrstopfld_->text();
     return txt && *txt ? toInt(txt) : mUdf(int);
@@ -377,11 +377,11 @@ void uiSelNrRange::setStopVal( int nr )
 
 void uiSelNrRange::valChg( CallBacker* cb )
 {
-    if ( startfld_->getValue() > getStopVal() )
+    if ( startfld_->getIntValue() > getStopVal() )
     {
 	const bool chgstop = cb == startfld_;
 	if ( chgstop )
-	    setStopVal( startfld_->getValue() );
+	    setStopVal( startfld_->getIntValue() );
 	else
 	    startfld_->setValue( getStopVal() );
     }
@@ -413,8 +413,8 @@ void uiSelNrRange::doFinalise( CallBacker* )
 
 StepInterval<int> uiSelNrRange::getRange() const
 {
-    return StepInterval<int>( startfld_->getValue(), getStopVal(),
-			stepfld_ ? stepfld_->box()->getValue() : defstep_ );
+    return StepInterval<int>( startfld_->getIntValue(), getStopVal(),
+			stepfld_ ? stepfld_->box()->getIntValue() : defstep_ );
 }
 
 
@@ -508,7 +508,8 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 
 BinID uiSelSteps::getSteps() const
 {
-    return BinID( inlfld_ ? inlfld_->getValue() : 0, crlfld_->getValue() );
+    return BinID( inlfld_ ? inlfld_->getIntValue() : 0,
+		  crlfld_->getIntValue() );
 }
 
 

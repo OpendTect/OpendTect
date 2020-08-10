@@ -199,8 +199,8 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     if ( selidx_ == cMarkersFld )
     {
 	mDefWMS;
-	params_->setTopMarker( wms->getText(true), abovefld_->getfValue(0,0) );
-	params_->setBotMarker( wms->getText(false), belowfld_->getfValue(0,0) );
+	params_->setTopMarker( wms->getText(true), abovefld_->getFValue(0,0) );
+	params_->setBotMarker( wms->getText(false), belowfld_->getFValue(0,0) );
     }
     else
     {
@@ -360,12 +360,12 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
 
     if ( dostep_ )
     {
-	float step = depthstepfld_->getfValue();
+	float step = depthstepfld_->getFValue();
 	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
 	step = uom ? uom->getSIValue(step) : step;
 	if ( params().extractzintime_ )
 	{
-	    step = timestepfld_->getfValue();
+	    step = timestepfld_->getFValue();
 	    step /= ztimefac_;
 	}
 	params().zstep_ = step;

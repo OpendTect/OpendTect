@@ -375,12 +375,12 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
 
     if ( matchpolfld_->currentItem()==1 )
     {
-	if ( mIsUdf(distfld_->getfValue()) || distfld_->getfValue()<0 )
+	if ( mIsUdf(distfld_->getFValue()) || distfld_->getFValue()<0 )
 	{
 	    uiMSG().error(tr("Choose a proper horizontal search radius"));
 	    return false;
 	}
-	else if ( mIsUdf(zgatefld_->getfValue()) || zgatefld_->getfValue()<0 )
+	else if ( mIsUdf(zgatefld_->getFValue()) || zgatefld_->getFValue()<0 )
 	{
 	    uiMSG().error(tr("Choose a proper vertical search radius"));
 	    return false;
@@ -416,9 +416,9 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     checkForSameColNms( newcolnms );
     uiTaskRunner taskrunner( this );
     dpsmrfprop.setOverWriteUndef( overwritefld_->getBoolValue() );
-    dpsmrfprop.setMaxAllowedHorDist( distfld_->getfValue() );
+    dpsmrfprop.setMaxAllowedHorDist( distfld_->getFValue() );
     dpsmrfprop.setMaxAllowedZDist(
-	    zgatefld_->getfValue()/SI().zDomain().userFactor() );
+	    zgatefld_->getFValue()/SI().zDomain().userFactor() );
     
     DPSMerger merger( dpsmrfprop ); 
     merger.addNewCols( newcolnms );

@@ -48,7 +48,7 @@ public:
     void		getParameters(BufferStringSet& nms,
 				      BufferStringSet& vals) const;
 
-    mDeprecated virtual od_int64	getProcTimeExtraMemory() const
+    mDeprecatedDef virtual od_int64	getProcTimeExtraMemory() const
 			{ return 0; }
 
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,

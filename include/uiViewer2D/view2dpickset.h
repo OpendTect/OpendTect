@@ -47,8 +47,8 @@ protected:
     void		dataChangedCB(CallBacker*);
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
-    mDeprecated void	updateSetIdx(const TrcKeyZSampling&);
-    mDeprecated void	updateSetIdx(const TrcKeyPath&);
+    mDeprecatedDef void updateSetIdx(const TrcKeyZSampling&);
+    mDeprecatedDef void updateSetIdx(const TrcKeyPath&);
 
     Pick::Set*			pickset_;
     bool			isselected_;

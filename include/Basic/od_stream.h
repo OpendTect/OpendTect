@@ -73,7 +73,9 @@ public:
 
     enum Ref			{ Abs, Rel, End };
     Pos				position() const;
-    mDeprecated void		setPosition(Pos,Ref r=Abs);
+
+    mDeprecated			("Use setReadPosition/setWritePosition")
+    void			setPosition(Pos,Ref r=Abs);
 
     const char*			fileName() const;
     void			setFileName(const char*);
@@ -87,7 +89,9 @@ public:
     void			addErrMsgTo(BufferString&) const;
     void			addErrMsgTo(uiString&) const;
     void			addErrMsgTo(uiRetVal&) const;
-    mDeprecated static od_stream*	create(const char*,bool forread,
+
+    mDeprecated			("Use the one with uiString&")
+    static od_stream*		create(const char*,bool forread,
 					BufferString& errmsg);
 				//!< returns null on failure, never a bad stream
     static od_stream*		create(const char*,bool forread,

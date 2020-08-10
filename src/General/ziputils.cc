@@ -52,7 +52,12 @@ mStartAllowDeprecatedSection
 bool ZipUtils::Zip( const char* src, const char* dest )
 {
     mDirCheck( src );
-    return doZip( src, dest );
+    BufferStringSet srcfiles;
+    const DirList dl( src );
+    for ( int idx=0; idx<dl.size(); idx++ )
+	srcfiles.add( dl.fullPath(idx) );
+
+    return makeZip( dest, srcfiles, errmsg_ );
 }
 
 
@@ -60,29 +65,22 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
 {
     mDirCheck( src );
     mDirCheck( dest );
-    return doUnZip( src, dest );
+    return unZipArchive( src, dest, errmsg_ );
 }
 
 mStopAllowDeprecatedSection
 
-
-bool ZipUtils::doZip( const char* src, const char* dest )
+bool ZipUtils::makeFileList( const char* zipfilenm, BufferStringSet& list,
+			     uiString& errmsg )
 {
-    BufferStringSet srcfiles;
-    const DirList dl( src );
-    for ( int idx=0; idx<dl.size(); idx++ )
-	srcfiles.add( dl.fullPath(idx) );
+    ZipArchiveInfo zipinfo( zipfilenm );
+    if ( !zipinfo.getAllFnms(list) )
+    {
+	errmsg = toUiString( zipinfo.errorMsg() );
+	return false;
+    }
 
-    const bool success = makeZip( dest, srcfiles, errmsg_ );
-
-    return success;
-}
-
-bool ZipUtils::doUnZip( const char* src, const char* dest )
-{
-    const bool success = unZipArchive( src, dest, errmsg_ );
-
-    return success;
+    return true;
 }
 
 

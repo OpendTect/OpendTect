@@ -78,7 +78,7 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
 
 void uiSeisWvltRotDlg::act( CallBacker* )
 {
-    const float dphase = sliderfld_->getValue();
+    const float dphase = sliderfld_->getFValue();
     float* wvltsamps = wvlt_->samples();
     const float* orgwvltsamps = orgwvlt_->samples();
     const int wvltsz = wvlt_->size();
@@ -226,7 +226,7 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
     }
     else
     {
-	float var = sliderfld_->getValue();
+	float var = sliderfld_->getFValue();
 	timedrawer_->setWindows( 1-var/100 );
 
 	if ( !timedrawer_->getFuncValues() ) return;

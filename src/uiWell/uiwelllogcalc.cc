@@ -312,7 +312,7 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
 
 void uiWellLogCalc::feetSel( CallBacker* )
 {
-    zsampintv_ = srfld_->getfValue();
+    zsampintv_ = srfld_->getFValue();
     if ( !mIsUdf(zsampintv_) )
     {
 	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactorF : mFromFeetFactorF;
@@ -365,7 +365,7 @@ void uiWellLogCalc::setUnits4Log( int inpidx )
 
 void uiWellLogCalc::fillSRFld( int inpidx )
 {
-    float sr = srfld_->getfValue();
+    float sr = srfld_->getFValue();
     if ( !mIsUdf(sr) )
 	return;
 
@@ -428,7 +428,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	mErrRet(tr("A log with this name already exists."
 		"\nPlease enter a different name for the new log"))
 
-    zsampintv_ = srfld_->getfValue();
+    zsampintv_ = srfld_->getFValue();
     if ( mIsUdf(zsampintv_) )
 	mErrRet(tr("Please provide the Z sample rate for the  output log"))
     if ( ftbox_->isChecked() )

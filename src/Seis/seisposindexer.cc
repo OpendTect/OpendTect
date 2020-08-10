@@ -52,14 +52,14 @@ Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
 
 Seis::PosIndexer::~PosIndexer()
 {
-    empty();
+    setEmpty();
     delete strm_;
     delete int32interp_;
     delete int64interp_;
 }
 
 
-void Seis::PosIndexer::empty()
+void Seis::PosIndexer::setEmpty()
 {
     inls_.erase();
     inlfileoffsets_.erase();
@@ -366,7 +366,7 @@ bool Seis::PosIndexer::readHeader(
 	DataInterpreter<od_int64>* int64interp,
 	DataInterpreter<float>* floatinterp )
 {
-    empty();
+    setEmpty();
     strm_->getBin( is2d_ );
     strm_->getBin( isps_ );
 
@@ -636,7 +636,7 @@ TypeSet<od_int64> Seis::PosIndexer::findAll( const Seis::PosKey& pk ) const
 
 void Seis::PosIndexer::reIndex()
 {
-    empty();
+    setEmpty();
 
     const od_int64 sz = pkl_.size();
 

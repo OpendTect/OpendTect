@@ -57,7 +57,8 @@ uiSceneColorbarMgr::~uiSceneColorbarMgr()
 
 void uiSceneColorbarMgr::sizeChangedCB( CallBacker* )
 {
-    scenecoltab_->setSize( widthfld_->getValue(), heightfld_->getValue() );
+    scenecoltab_->setSize( widthfld_->getIntValue(),
+			   heightfld_->getIntValue() );
 }
 
 

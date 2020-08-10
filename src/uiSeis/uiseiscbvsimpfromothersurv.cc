@@ -117,7 +117,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
-    int cellsz = issinc_ ? cellsizefld_->box()->getValue() : 0;
+    int cellsz = issinc_ ? cellsizefld_->box()->getIntValue() : 0;
     TrcKeyZSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );
     import_->setOutput( const_cast<IOObj&>(*outioobj) );

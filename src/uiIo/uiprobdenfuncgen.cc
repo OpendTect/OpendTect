@@ -131,7 +131,7 @@ void uiProbDenFuncGen::choiceSel( CallBacker* )
 bool uiProbDenFuncGen::acceptOK( CallBacker* )
 {
     const int choice = choicefld_->firstChecked();
-    const int nrdims = nrdimfld_->getValue();
+    const int nrdims = nrdimfld_->getIntValue();
 
     if ( choice == 1 )
     {
@@ -248,7 +248,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
 
 #define mGetCCValue(ifld) \
 { \
-    float cc = ccflds_[ifld]->getfValue(); \
+    float cc = ccflds_[ifld]->getFValue(); \
     if ( mIsUdf(cc) ) cc = 0; \
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() ) \
 	mErrRet( mToUiStringTodo(sGaussianCCRangeErrMsg()) ) \
@@ -258,7 +258,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
 
 bool uiProbDenFuncGenSampled::getFromScreen()
 {
-    nrbins_= nrbinsfld_->getValue();
+    nrbins_= nrbinsfld_->getIntValue();
     od_int64 totalbins = nrbins_;
     totalbins = Math::IntPowerOf( totalbins, nrdims_ );
     if (totalbins > 100000
@@ -276,8 +276,8 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	    mErrRet(tr("Please enter a name for each variable"))
 
 	Interval<float> rg;
-	rg.start = rgflds_[idim]->getfValue(0);
-	rg.stop = rgflds_[idim]->getfValue(1);
+	rg.start = rgflds_[idim]->getFValue(0);
+	rg.stop = rgflds_[idim]->getFValue(1);
 	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
 	    mErrRet(tr("Please fill all variable ranges"))
 	rg.sort();
@@ -286,8 +286,8 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	if ( !isGauss() )
 	    continue;
 
-	float exp = expstdflds_[idim]->getfValue(0);
-	float stdev = expstdflds_[idim]->getfValue(1);
+	float exp = expstdflds_[idim]->getFValue(0);
+	float stdev = expstdflds_[idim]->getFValue(1);
 	if ( mIsUdf(exp) || mIsUdf(stdev) )
 	    mErrRet(tr("Please fill all expectations and standard deviations"))
 	exps_ += exp; stds_ += stdev;

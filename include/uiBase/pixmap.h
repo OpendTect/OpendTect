@@ -14,6 +14,6 @@ ________________________________________________________________________
 
 #include "uipixmap.h"
 
-mDeprecated typedef uiPixmap ioPixmap;
+mDeprecated("Use uiPixmap")	typedef uiPixmap ioPixmap;
 
 #endif

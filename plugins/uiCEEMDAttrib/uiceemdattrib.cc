@@ -116,9 +116,9 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     BufferStringSet strs( methodStr );
     const char* method = methodfld_->text();
     mSetEnum( CEEMD::emdmethodStr(), strs.indexOf(method) );
-    const float stopimf = stopimffld_->getfValue();
+    const float stopimf = stopimffld_->getFValue();
     mSetFloat( CEEMD::stopimfStr(), stopimf );
-    const float stopsift = stopsiftfld_->getfValue();
+    const float stopsift = stopsiftfld_->getFValue();
     mSetFloat( CEEMD::stopsiftStr(), stopsift );
     mSetInt( CEEMD::maxnrimfStr(), maximffld_->getIntValue() );
     mSetInt( CEEMD::maxsiftStr(), maxsiftfld_->getIntValue() );
@@ -335,13 +335,13 @@ void uiCEEMDAttrib::getPrevSel()
 	const char* sellnm = positiondlg_->linesfld_->box()->text();
 	prevpar_.set( sKey::LineName(), sellnm );
 	prevpar_.set( sKey::TraceNr(),
-		      positiondlg_->trcnrfld_->box()->getValue() );
+		      positiondlg_->trcnrfld_->box()->getIntValue() );
 	return;
     }
 
     BinID bid;
-    bid.inl() = positiondlg_->inlfld_->box()->getValue();
-    bid.crl() = positiondlg_->crlfld_->getValue();
+    bid.inl() = positiondlg_->inlfld_->box()->getIntValue();
+    bid.crl() = positiondlg_->crlfld_->getIntValue();
     prevpar_.set( sKey::Position(), bid );
 }
 
@@ -392,9 +392,9 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
 {
     mSetParam(Enum,method,CEEMD::emdmethodStr(),
 	      methodfld_->getIntValue() )
-    mSetParam(Float,stopimf,CEEMD::stopimfStr(),stopimffld_->getfValue())
+    mSetParam(Float,stopimf,CEEMD::stopimfStr(),stopimffld_->getFValue())
     mSetParam(Int,maxsift,CEEMD::maxsiftStr(), maxsiftfld_->getIntValue())
-    mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getfValue())
+    mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getFValue())
     mSetParam(Int,maximf,CEEMD::maxnrimfStr(), maximffld_->getIntValue())
     mSetParam(Float,outputfreq,CEEMD::outputfreqStr(),
 	zIsTime() ? 1.f : 0.001f)

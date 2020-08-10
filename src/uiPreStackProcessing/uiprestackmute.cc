@@ -83,7 +83,7 @@ bool uiMute::acceptOK( CallBacker* )
 	}
     }
 
-    processor_->setTaperLength( taperlenfld_->getfValue() );
+    processor_->setTaperLength( taperlenfld_->getFValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
     return true;
 }

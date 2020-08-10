@@ -141,9 +141,12 @@ protected:
     virtual bool		isEqual(const Param&) const;
 
 public:
-    /*mDeprecated*/ float	getfValue(int idx=0) const
+				mDeprecated("Use getFValue instead")
+    float			getfValue(int idx=0) const
 				{ return getFValue( idx ); }
-    /*mDeprecated*/ double	getdValue(int idx=0) const
+
+				mDeprecated("Use getDValue instead")
+    double			getdValue(int idx=0) const
 				{ return getDValue( idx ); }
 };
 

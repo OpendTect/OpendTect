@@ -82,9 +82,9 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
 double uiLatLongDMSInp::value() const
 {
     const int sign = hfld_->currentItem()==0 ? 1 : -1;
-    const int d = sign * degfld_->getValue();
-    const int m = sign * minfld_->getValue();
-    const float s = sign * secfld_->getfValue();
+    const int d = sign * degfld_->getIntValue();
+    const int m = sign * minfld_->getIntValue();
+    const float s = sign * secfld_->getFValue();
     LatLong ll; ll.setDMS( islat_, d, m, s );
     return islat_ ? ll.lat_ : ll.lng_;
 }
@@ -162,8 +162,8 @@ void uiLatLongInp::get( LatLong& ll, bool isdec ) const
 {
     if ( isdec )
     {
-	ll.lat_ = latdecfld_->getdValue();
-	ll.lng_ = lngdecfld_->getdValue();
+	ll.lat_ = latdecfld_->getDValue();
+	ll.lng_ = lngdecfld_->getDValue();
     }
     else
     {

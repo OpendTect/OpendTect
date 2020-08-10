@@ -268,17 +268,17 @@ void uiMaterialGrp::sliderMove( CallBacker* cb )
     if ( !sldr ) return;
 
     if ( sldr == ambslider_ )
-	material_->setAmbience( ambslider_->getValue()/100 );
+	material_->setAmbience( ambslider_->getFValue()/100 );
     else if ( sldr == diffslider_ )
-	material_->setDiffIntensity( diffslider_->getValue()/100 );
+	material_->setDiffIntensity( diffslider_->getFValue()/100 );
     else if ( sldr == specslider_ )
-	material_->setSpecIntensity( specslider_->getValue()/100 );
+	material_->setSpecIntensity( specslider_->getFValue()/100 );
     else if ( sldr == emisslider_ )
-	material_->setEmmIntensity( emisslider_->getValue()/100 );
+	material_->setEmmIntensity( emisslider_->getFValue()/100 );
     else if ( sldr == shineslider_ )
-	material_->setShininess( shineslider_->getValue()/100 );
+	material_->setShininess( shineslider_->getFValue()/100 );
     else if ( sldr == transslider_ )
-	material_->setTransparency( transslider_->getValue()/100 );
+	material_->setTransparency( transslider_->getFValue()/100 );
 }
 
 void uiMaterialGrp::colorChangeCB(CallBacker*)

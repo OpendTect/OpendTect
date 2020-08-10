@@ -111,8 +111,8 @@ bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
 	return false;
     
     mSetFloatInterval( Coherency::sKeyGate(), tgfld->getFInterval() );
-    mSetFloat( Coherency::sKeyMaxDip(), maxdipfld->getfValue() );
-    mSetFloat( Coherency::sKeyDDip(), deltadipfld->getfValue() );
+    mSetFloat( Coherency::sKeyMaxDip(), maxdipfld->getFValue() );
+    mSetFloat( Coherency::sKeyDDip(), deltadipfld->getFValue() );
     if ( !is1fld )
     {
 	mSetInt( Coherency::sKeyType(), 1 );

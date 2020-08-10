@@ -35,7 +35,7 @@ public:
     StreamData&		operator=(const StreamData&)	= delete;
     StreamData&		operator=(StreamData&&);
 
-    void mDeprecated	transferTo(StreamData&);	//!< retains file name
+    mDeprecatedObs void transferTo(StreamData&);	//!< retains file name
 
     void		close();
     bool		usable() const;

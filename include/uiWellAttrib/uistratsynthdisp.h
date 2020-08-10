@@ -93,7 +93,7 @@ public:
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
 
-    mDeprecated void	modelChanged();
+    mDeprecatedDef void modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
     void		reDisplayPostStackSynthetic(bool wva=true);
@@ -111,7 +111,7 @@ public:
     void		makeInfoMsg(BufferString& msg,IOPar&);
 
     void		showFRResults();
-    mDeprecated void	setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
+    mDeprecatedDef void setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn )  { autoupdate_ = yn; }
     void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
     bool		doForceUpdate() const	  { return forceupdate_; }
@@ -186,7 +186,7 @@ protected:
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
-    mDeprecated void	displayFRText();
+    mDeprecatedDef void displayFRText();
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*,
 						  bool wva=true);
