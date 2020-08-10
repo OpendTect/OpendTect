@@ -11,12 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidial.h"
 #include "i_qdial.h"
-#include "uiobjbody.h"
-#include "i_layout.h"
 
-#include "ranges.h"
 #include "uilabel.h"
 #include "uilineedit.h"
+#include "uiobjbodyimpl.h"
+
+#include "ranges.h"
 
 mUseQtnamespace
 
@@ -26,8 +26,7 @@ class uiDialBody : public uiObjBodyImpl<uiDial,QDial>
 {
 public:
 
-                        uiDialBody(uiDial&,uiParent*,const char*);
-
+			uiDialBody(uiDial&,uiParent*,const char*);
     virtual		~uiDialBody()		{ delete &messenger_; }
 
     virtual int	nrTxtLines() const	{ return 1; }

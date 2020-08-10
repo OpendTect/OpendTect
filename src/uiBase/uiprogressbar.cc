@@ -11,17 +11,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiprogressbar.h"
-#include "i_common.h"
 
-#include	<QProgressBar>
+#include "uiobjbodyimpl.h"
+#include <QProgressBar>
 
 mUseQtnamespace
 
 class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
 {
 public:
-
-                        uiProgressBarBody( uiProgressBar& hndle,
+			uiProgressBarBody( uiProgressBar& hndle,
 					   uiParent* parnt, const char* nm )
 			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
 				(hndle,parnt,nm)

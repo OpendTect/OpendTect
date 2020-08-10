@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uitable.h"
-#include "i_common.h"
 
 #include <QHeaderView>
 #include <QTableWidget>

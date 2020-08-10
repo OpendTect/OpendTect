@@ -28,11 +28,9 @@ mExpClass(uiBase) uiParent : public uiBaseObject
 friend class uiParentBody;
 friend class uiObjectBody;
 public:
-			uiParent(const char* nm,uiParentBody*);
-
     void		addChild(uiBaseObject&);
     void		manageChld(uiBaseObject&,uiObjectBody&);
-    void                attachChild(constraintType tp,uiObject* child,
+    void		attachChild(constraintType tp,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal);
 
@@ -52,14 +50,14 @@ public:
 #define mIfMO()		if ( mainObject() ) mainObject()
 #define mRetMO(fn,val)	return mainObject() ? mainObject()->fn() : val;
 
-    void                attach( constraintType t, int margin=-1 )
-                            { mIfMO()->attach(t,margin); }
-    void                attach( constraintType t, uiParent* oth, int margin=-1,
-                                bool reciprocal=true)
-                            { attach(t,oth->mainObject(),margin,reciprocal); }
+    void		attach( constraintType t, int margin=-1 )
+			{ mIfMO()->attach(t,margin); }
+    void		attach( constraintType t, uiParent* oth, int margin=-1,
+				bool reciprocal=true)
+			{ attach(t,oth->mainObject(),margin,reciprocal); }
     void		attach( constraintType t, uiObject* oth, int margin=-1,
-                                bool reciprocal=true)
-                            { attach_(t,oth,margin,reciprocal); }
+				bool reciprocal=true)
+			{ attach_(t,oth,margin,reciprocal); }
 
 
     virtual void	display( bool yn, bool shrk=false,
@@ -112,10 +110,11 @@ public:
     void		translateText();
 
 protected:
+			uiParent(const char* nm,uiParentBody*);
 
-    virtual void        attach_( constraintType t, uiObject* oth, int margin=-1,
-                                bool reciprocal=true)
-                            { mIfMO()->attach(t,oth,margin,reciprocal); }
+    virtual void	attach_(constraintType t, uiObject* oth, int margin=-1,
+				bool reciprocal=true)
+			{ mIfMO()->attach(t,oth,margin,reciprocal); }
 
 #undef mIfMO
 #undef mRetMO

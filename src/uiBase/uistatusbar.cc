@@ -10,19 +10,17 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistatusbar.h"
-#include "q_uiimpl.h"
-#include "uimainwin.h"
-#include "uimain.h"
-#include "uiparentbody.h"
-#include "uistrings.h"
 
 #include "uibody.h"
-
-#include <qstatusbar.h>
-#include <qlabel.h>
-#include <qtooltip.h>
-
+#include "uimainwin.h"
+#include "uimain.h"
+#include "uistrings.h"
 #include "envvars.h"
+
+#include <QStatusBar>
+#include <QLabel>
+#include <QToolTip>
+
 static Threads::Atomic<int> nodispatall_( -1 );
 
 mUseQtnamespace

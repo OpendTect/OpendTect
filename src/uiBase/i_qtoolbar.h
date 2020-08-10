@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolbar.h"
-#include "i_common.h"
 
 #include <QToolBar>
 

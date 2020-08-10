@@ -41,8 +41,6 @@ mExpClass(uiBase) uiObject : public uiBaseObject
     friend class	i_LayoutItem;
 
 public:
-			uiObject(uiParent*,const char* nm);
-			uiObject(uiParent*,const char* nm,uiObjectBody&);
 			~uiObject();
 
 /*! \brief How should the object's size behave?
@@ -170,6 +168,9 @@ public:
     static int		iconSize();
 
 protected:
+			uiObject(uiParent*,const char* nm);
+			uiObject(uiParent*,const char* nm,uiObjectBody&);
+
 			//! hook. Accepts/denies closing of window.
     virtual bool	closeOK()	{ closed.trigger(); return true; }
 

@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uigraphicsviewbase.h"
-#include "i_common.h"
 
 #include "draw.h"
 #include "mouseevent.h"
@@ -19,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uimouseeventblockerbygesture.h"
+#include "uiobjbodyimpl.h"
 
 #include <QApplication>
 #include <QGesture>
