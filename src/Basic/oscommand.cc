@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 #ifdef __win__
+# include "shellapi.h"
 # include "winutils.h"
 # include <windows.h>
 # include <stdlib.h>
@@ -811,6 +812,15 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 {
     if ( mc.isBad() )
 	{ errmsg_ = tr("Command is empty"); return false; }
+
+#ifdef __win__
+    if ( pars.runasadmin_ )
+    {
+        const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
+            mc.args().cat(" "), pars.workingdir_, SW_SHOW );
+        return (int)res > HINSTANCE_ERROR;
+    }
+#endif
 
     if ( process_ )
     {
