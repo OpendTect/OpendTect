@@ -63,7 +63,7 @@ protected:
 					BufferString& errmsg) const;
 			//!< D2TModel will become mine and may even be deleted
 
-    /*mDeprecated*/ bool updateDTModel(D2TModel*,const Track&,float,bool) const;
+    mDeprecatedDef bool updateDTModel(D2TModel*,const Track&,float,bool) const;
 
 };
 

@@ -108,6 +108,7 @@ static HiddenParam<VolProc::Step,TypeSet<int>*>  volprocstepnrinpcompsmgr_(0);
 static HiddenParam<VolProc::Step,int>	volprocstepnroutcompsmgr_(0);
 static HiddenParam<VolProc::Step,StepInterval<float>* >  volprocstepzsampmgr_(0);
 
+mStartAllowDeprecatedSection
 
 VolProc::Step::Step()
     : chain_( 0 )
@@ -141,6 +142,7 @@ VolProc::Step::~Step()
     DPM( DataPackMgr::SeisID() ).release( output_ );
 }
 
+mStopAllowDeprecatedSection
 
 void VolProc::Step::setHStep( const BinID& bid )
 { volprocstephstepmgr_.setParam( this, bid ); }

@@ -275,16 +275,19 @@ private:
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
 
 public:
-    /*mDeprecated*/ double getdValue( int nr=0, double uv=mUdf(double) ) const
+    mDeprecated		("Use getDValue")
+    double		getdValue( int nr=0, double uv=mUdf(double) ) const
 			    { return getDValue( nr, uv ); }
-    /*mDeprecated*/ double getdValue( float undefval ) const
+    mDeprecated		("Use getDValue")
+    double 		getdValue( float undefval ) const
 			    { return getDValue(0,undefval); }
-    /*mDeprecated*/ float getfValue( int nr=0, float udfval=mUdf(float) ) const
+
+    mDeprecated		("Use getFValue")
+    float 		getfValue( int nr=0, float udfval=mUdf(float) ) const
 			    { return getFValue( nr, udfval ); }
-    /*mDeprecated*/ float getfValue( float undefval ) const
+    mDeprecated		("Use getFValue")
+    float 		getfValue( float undefval ) const
 			    { return getFValue(0,undefval); }
-    /*mDeprecated*/ bool isChecked();
-    /*mDeprecated*/ bool isCheckable()		{ return withchk_ || cbox_; }
 };
 
 
