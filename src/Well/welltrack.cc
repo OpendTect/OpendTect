@@ -224,12 +224,14 @@ bool Well::Track::insertAtDah( float dh, float zpos )
 	dah_.insert( 0, dh );
 	Coord3 crd( pos_[0] ); crd.z = mCast(double,zpos);
 	pos_.insert( 0, crd );
+	return true;
     }
     if ( dh > dah_[size()-1] )
     {
 	dah_ += dh;
 	Coord3 crd( pos_[size()-1] ); crd.z = zpos;
 	pos_ += crd;
+	return true;
     }
 
     const int insertidx = indexOf( dh );
@@ -349,7 +351,15 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
 
     const Interval<double> zrange = zRangeD();
     if ( !zrange.includes(z,false) )
+    {
+	if ( z < pos_[0].z && dah_[0] > epsf )
+	{
+	    const float retdah = z + getKbElev();
+	    return retdah > -1*epsf ? retdah : mUdf(float);
+	}
+
 	return mUdf(float);
+    }
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
