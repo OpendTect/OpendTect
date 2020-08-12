@@ -162,7 +162,7 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 
 	loadstates_[wdidx] = reqs;
     }
-    else 
+    else
     {
 	wd = new Well::Data;
 	wd->ref();
@@ -183,26 +183,24 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 bool Well::Man::readReqData( const MultiID& key, Well::Data* wd, LoadReqs reqs )
 {
     Reader rdr( key, *wd );
-#   define mRetIfFail(typ,subobj,oper) \
-    { \
-        if ( reqs.includes(typ) && !oper ) \
-            { msg_ = rdr.errMsg(); wd->unRef(); return false; } \
-    }
-    mRetIfFail( Inf, info, rdr.getInfo() )
-    mRetIfFail( Trck, track, rdr.getTrack() )
+    if ( reqs.includes(Inf) && !rdr.getInfo() )
+    { msg_ = rdr.errMsg(); return false; }
 
-#   define mJustTry(typ,subobj,oper) \
-    { \
-        if ( reqs.includes(typ) ) \
-            oper; \
-        }
-    mJustTry( D2T, d2TModel, rdr.getD2T() )
-    mJustTry( Mrkrs, markers, rdr.getMarkers() )
-    mJustTry( Logs, logs, rdr.getLogs() )
-    mJustTry( LogInfos, logInfoSet, rdr.getLogs(true) )
-    mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
+    if ( reqs.includes(Trck) && !rdr.getTrack() )
+    { msg_ = rdr.errMsg(); return false; }
+
+    if ( reqs.includes(D2T) )
+	rdr.getD2T();
+    if ( reqs.includes(Mrkrs) )
+	rdr.getMarkers();
+    if ( reqs.includes(Logs) )
+	rdr.getLogs();
+    if ( reqs.includes(LogInfos) )
+	rdr.getLogs( true );
+    if ( reqs.includes(CSMdl) )
+	rdr.getCSMdl();
     if ( reqs.includes(DispProps2D) || reqs.includes(DispProps3D) )
-        rdr.getDispProps();
+	rdr.getDispProps();
 
     return true;
 }
