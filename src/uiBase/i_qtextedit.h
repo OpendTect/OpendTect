@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uitextedit.h"
-#include "i_common.h"
 
 #include <QAbstractSlider>
 #include <QTextEdit>

@@ -11,22 +11,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uitable.h"
+#include "i_qtable.h"
 
 #include "uicombobox.h"
 #include "uifont.h"
 #include "uilabel.h"
 #include "uimenu.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uivirtualkeyboard.h"
-#include "uilabel.h"
 
 #include "bufstringset.h"
 #include "convert.h"
 #include "perthreadrepos.h"
 #include "i_layoutitem.h"
-#include "i_qtable.h"
 
 #include <QApplication>
 #include <QClipboard>

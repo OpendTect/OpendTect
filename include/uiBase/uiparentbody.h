@@ -24,18 +24,12 @@ mClass(uiBase) uiParentBody : public uiBody, public NamedObject
 {
 friend class uiObjectBody;
 public:
-			//uiParentBody( const char* nm = "uiParentBody")
-			uiParentBody( const char* nm )
-			    : NamedObject( nm )
-			    , finalised_( false )
-			{}
-
     virtual		~uiParentBody()		{ deleteAllChildren(); }
 
     virtual void	addChild( uiBaseObject& child )
-			{ 
+			{
 			    if ( children_.isPresent(&child ) )	return;
-			    children_ += &child; 
+			    children_ += &child;
 			    child.deleteNotify(mCB(this,uiParentBody,childDel));
 			}
 
@@ -46,7 +40,7 @@ public:
 			    manageChld_(child,b);
 			}
 
-    virtual void	attachChild( constraintType tp, uiObject* child, 
+    virtual void	attachChild( constraintType tp, uiObject* child,
 				     uiObject* other, int margin,
 				     bool reciprocal ) =0;
 
@@ -64,12 +58,17 @@ public:
     		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
 
 protected:
+			uiParentBody( const char* nm )
+			    : NamedObject( nm )
+			    , finalised_( false )
+			{}
+
     void	deleteAllChildren()
 		{
 		    //avoid the problems from childDel() removal from
 		    //children_
 		    ObjectSet<uiBaseObject> childrencopy = children_;
-		    children_.erase(); 
+		    children_.erase();
 		    deepErase( childrencopy );
 		}
 
@@ -87,6 +86,28 @@ protected:
 private:
 
     bool			finalised_;
+};
+
+
+mExpClass(uiBase) uiCentralWidgetBody : public uiParentBody
+{
+public:
+    virtual			~uiCentralWidgetBody();
+
+    uiGroup*			uiCentralWidg() { return centralwidget_; }
+    virtual void		addChild(uiBaseObject&);
+    virtual void		manageChld_(uiBaseObject&,uiObjectBody&);
+    virtual void		attachChild(constraintType,uiObject* child,
+					    uiObject* other,int margin,
+					    bool reciprocal);
+
+protected:
+				uiCentralWidgetBody(const char* nm);
+
+    virtual const QWidget*	managewidg_() const;
+
+    bool			initing_;
+    uiGroup*			centralwidget_;
 };
 
 #endif

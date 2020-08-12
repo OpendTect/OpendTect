@@ -10,10 +10,11 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitabbar.h"
-#include "uiobjbody.h"
-#include "uiicon.h"
-
 #include "i_qtabbar.h"
+
+#include "uiicon.h"
+#include "uiobjbodyimpl.h"
+
 
 mUseQtnamespace
 

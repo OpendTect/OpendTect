@@ -43,7 +43,8 @@ public:
 			    , createstreams_(false)
 			    , needmonitor_(false)
 			    , prioritylevel_(lt==Batch ? -1.0f : 0.0f)
-			    , isconsoleuiprog_(false)	    {}
+			    , isconsoleuiprog_(false)
+                , runasadmin_(false)     {}
 
     mDeprecated		("Use CommandExecPars(LaunchType) instead")
     explicit		CommandExecPars(bool isbatchprog);
@@ -60,6 +61,10 @@ public:
     mDefSetupClssMemb(CommandExecPars,bool,isconsoleuiprog);
 			    //!< program uses text-based stdin console input
 			    //!< if true, will ignore monitor settings
+
+    mDefSetupClssMemb(CommandExecPars,bool,runasadmin);
+                //!< launch in a new session as admin
+                //!< Windows only.
 
     mDefSetupClssMemb(CommandExecPars,BufferString,workingdir);
 

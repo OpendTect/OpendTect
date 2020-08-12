@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiaction.h"
-#include "i_common.h"
 
 #include <QAction>
 #include <iostream>

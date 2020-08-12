@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "threadlock.h"
-#include "i_common.h"
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 

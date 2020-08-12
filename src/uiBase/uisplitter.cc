@@ -11,9 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uisplitter.h"
-#include "i_common.h"
 
 #include "uigroup.h"
+#include "uiobjbodyimpl.h"
 
 #include <QSplitter>
 

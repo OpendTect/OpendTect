@@ -20,7 +20,6 @@ mFDQtclass(QWidget)
 mExpClass(uiBase) uiBody
 {
 public:
-				uiBody()				{}
     virtual			~uiBody()				{}
 
     virtual void		finalise()				{}
@@ -34,9 +33,11 @@ public:
     				     { return qwidget_();}
 				//! can return 0
     inline mQtclass(QWidget*) qwidget()
-                            {return const_cast<mQtclass(QWidget*)>(qwidget_());}
+			{return const_cast<mQtclass(QWidget*)>(qwidget_());}
 
 protected:
+				uiBody()				{}
+
     virtual const mQtclass(QWidget*)	qwidget_() const		=0;
 
 };
@@ -51,13 +52,7 @@ template <class C, class T>
 mClass(uiBase) uiBodyImpl : public uiBody
 {
 public:
-                        uiBodyImpl( C& hndle, uiParent* parnt, T& qthng ) 
-			    : uiBody()
-			    , qthing_(&qthng)
-			    , handle_(hndle)
-			    {}
-
-
+    virtual		~uiBodyImpl()			{ delete qthing_; }
 
     T*			qthing()			{ return qthing_; }
     const T*		qthing() const			{ return qthing_; }
@@ -65,9 +60,13 @@ public:
     inline const C&	handle()			{ return handle_; }
 
 protected:
-			~uiBodyImpl()			{ delete qthing_; }
+			uiBodyImpl( C& hndle, uiParent* parnt, T& qthng )
+			    : uiBody()
+			    , qthing_(&qthng)
+			    , handle_(hndle)
+			    {}
 
-    virtual const mQtclass(QWidget*) qwidget_() const		
+    virtual const mQtclass(QWidget*) qwidget_() const
 			   {return dynamic_cast<mQtclass(QWidget*)>( qthing_ );}
 
     T*			qthing_;

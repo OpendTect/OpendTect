@@ -14,16 +14,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "datainpspec.h"
 #include "mouseevent.h"
-#include "uibody.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uivirtualkeyboard.h"
 
-#include <QSize>
 #include <QCompleter>
 #include <QContextMenuEvent>
-#include <QIntValidator>
 #include <QDoubleValidator>
+#include <QIntValidator>
 #include <QRegExpValidator>
+#include <QSize>
 
 mUseQtnamespace
 
@@ -62,7 +61,7 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt,
 void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
 {
     if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
-	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
+	handle_.popupVirtualKeyboard( ev->globalX(), ev->globalY() );
     else
 	QLineEdit::contextMenuEvent( ev );
 }

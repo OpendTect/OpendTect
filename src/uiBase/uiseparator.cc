@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiseparator.h"
-#include "i_common.h"
+#include "uiobjbodyimpl.h"
 
 #include <QFrame>
 
