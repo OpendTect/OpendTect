@@ -1,5 +1,4 @@
-#ifndef mantisdatabase_h
-#define mantisdatabase_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -196,6 +195,4 @@ protected:
 
 
 } // namespace
-
-#endif
 

@@ -1,5 +1,4 @@
-#ifndef bufstringset_h
-#define bufstringset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ public:
 };
 
 
-#endif

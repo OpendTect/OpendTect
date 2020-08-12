@@ -1,5 +1,4 @@
-#ifndef stratsynthgenparams_h
-#define stratsynthgenparams_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ bool operator==( const SynthGenParams& gp ) const
 };
 
 
-#endif

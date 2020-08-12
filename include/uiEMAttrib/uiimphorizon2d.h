@@ -1,5 +1,4 @@
-#ifndef uiimphorizon2d_h
-#define uiimphorizon2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

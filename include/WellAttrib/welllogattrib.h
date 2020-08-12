@@ -1,5 +1,4 @@
-#ifndef welllogattrib_h
-#define welllogattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

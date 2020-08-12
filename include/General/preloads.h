@@ -1,5 +1,4 @@
-#ifndef preloads_h
-#define preloads_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -19,4 +18,3 @@ mDeclEmptyTranslatorBundle(General,PreLoads,dgb,"preloads")
 mDeclEmptyTranslatorBundle(General,PreLoadSurfaces,dgb,"preloads")
 
 
-#endif

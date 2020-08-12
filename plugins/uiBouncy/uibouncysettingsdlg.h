@@ -1,5 +1,4 @@
-#ifndef uibouncysettingsdlg_h
-#define uibouncysettingsdlg_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
@@ -50,6 +49,4 @@ protected:
 };
 
 };
-
-#endif
 

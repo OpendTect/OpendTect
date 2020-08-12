@@ -1,5 +1,4 @@
-#ifndef view2ddataman_h
-#define view2ddataman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ public:
     void			getObjectIDs(TypeSet<int>&) const;
 };
 
-#endif

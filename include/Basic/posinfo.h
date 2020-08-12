@@ -1,5 +1,4 @@
-#ifndef posinfo_h
-#define posinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -241,4 +240,3 @@ public:
 
 } // namespace PosInfo
 
-#endif

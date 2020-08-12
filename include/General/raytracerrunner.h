@@ -1,5 +1,4 @@
-#ifndef raytracerrunner_h
-#define raytracerrunner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     od_int64			totalnr_;
 };
 
-#endif

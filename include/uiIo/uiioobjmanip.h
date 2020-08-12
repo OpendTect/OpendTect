@@ -1,5 +1,4 @@
-#ifndef uiioobjmanip_h
-#define uiioobjmanip_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ protected:
 };
 
 
-#endif

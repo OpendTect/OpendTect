@@ -1,5 +1,4 @@
-#ifndef vissurvscene_h
-#define vissurvscene_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -287,4 +286,3 @@ public:
 } // namespace visSurvey
 
 
-#endif

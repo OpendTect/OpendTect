@@ -1,5 +1,4 @@
-#ifndef axislayout_h
-#define axislayout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -157,4 +156,3 @@ T AxisLayout<T>::findEnd( T datastop ) const
     return sd_.start + (rev ? -wdth : wdth);
 }
 
-#endif

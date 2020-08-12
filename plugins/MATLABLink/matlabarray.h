@@ -1,5 +1,4 @@
-#ifndef matlabarray_h
-#define matlabarray_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
     od_int64		totalnr_;
 };
 
-#endif

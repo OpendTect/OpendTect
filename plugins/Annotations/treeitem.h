@@ -1,5 +1,4 @@
-#ifndef treeitem_h
-#define treeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -263,4 +262,3 @@ mDefineParentItem(ScaleBar,"ScaleBar",1000);
 
 }; // namespace Annotations
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef trckeyzsampling_h
-#define trckeyzsampling_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -170,4 +169,3 @@ inline int dimension( TrcKeyZSampling::Dir slctype,
 typedef TrcKeyZSampling CubeSampling;
 
 
-#endif

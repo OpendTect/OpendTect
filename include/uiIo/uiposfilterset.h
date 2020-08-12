@@ -1,5 +1,4 @@
-#ifndef uiposfilterset_h
-#define uiposfilterset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -78,4 +77,3 @@ protected:
 };
 
 
-#endif

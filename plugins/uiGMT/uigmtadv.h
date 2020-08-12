@@ -1,5 +1,4 @@
-#ifndef uigmtadv_h
-#define uigmtadv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
     uiLineEdit*		inpfld_;
 };
 
-#endif

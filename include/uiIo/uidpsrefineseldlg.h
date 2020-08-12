@@ -1,5 +1,4 @@
-#ifndef uidpsrefineseldlg_h
-#define uidpsrefineseldlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
     uiTable*			vartable_;
 };
 
-#endif

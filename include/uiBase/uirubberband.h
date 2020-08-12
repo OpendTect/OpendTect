@@ -1,5 +1,4 @@
-#ifndef uirubberband_h
-#define uirubberband_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
     void		handleEv(mQtclass(QMouseEvent*),bool);
 };
 
-#endif

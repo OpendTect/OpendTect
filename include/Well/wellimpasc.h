@@ -1,5 +1,4 @@
-#ifndef wellimpasc_h
-#define wellimpasc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -251,4 +250,3 @@ protected:
 
 } // namespace Well
 
-#endif

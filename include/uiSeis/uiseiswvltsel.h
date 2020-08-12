@@ -1,5 +1,4 @@
-#ifndef uiseiswvltsel_h
-#define uiseiswvltsel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -68,4 +67,3 @@ public:
     Wavelet*		getWavelet(bool noerr) const;
 };
 
-#endif

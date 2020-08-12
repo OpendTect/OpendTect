@@ -1,5 +1,4 @@
-#ifndef seisdatapackfromdps_h
-#define seisdatapackfromdps_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uihor2dfrom3ddlg_h
-#define uihor2dfrom3ddlg_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -43,4 +42,3 @@ protected:
    
 };
 
-#endif

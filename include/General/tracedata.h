@@ -1,5 +1,4 @@
-#ifndef tracedata_h
-#define tracedata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ protected:
 
 
 
-#endif

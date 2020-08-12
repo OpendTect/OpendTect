@@ -1,5 +1,4 @@
-#ifndef uistratsynthcrossplot_h
-#define uistratsynthcrossplot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
 
 
 
-#endif

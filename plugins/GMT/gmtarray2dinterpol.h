@@ -1,5 +1,4 @@
-#ifndef gmtarray2dinterpol_h
-#define gmtarray2dinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ private:
     float			radius_;
 };
 
-#endif

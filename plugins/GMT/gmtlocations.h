@@ -1,5 +1,4 @@
-#ifndef gmtloc_h
-#define gmtloc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
     static int		factoryid_;
 };
 
-#endif

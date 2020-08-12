@@ -1,5 +1,4 @@
-#ifndef expmodgraddip_h
-#define expmodgraddip_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ protected:
     friend class	ExtremeDipAttrib::Task::Input;
 };
 
-#endif

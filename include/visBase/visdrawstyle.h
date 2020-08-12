@@ -1,5 +1,4 @@
-#ifndef visdrawstyle_h
-#define visdrawstyle_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
 };
 
 
-#endif

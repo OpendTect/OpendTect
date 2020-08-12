@@ -1,5 +1,4 @@
-#ifndef uiseis2dto3d_h
-#define uiseis2dto3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
 };
 
 
-#endif

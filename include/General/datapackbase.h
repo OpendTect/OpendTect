@@ -1,5 +1,4 @@
-#ifndef datapackbase_h
-#define datapackbase_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -274,4 +273,3 @@ protected:
     int					rdlid_;
 };
 
-#endif

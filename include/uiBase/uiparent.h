@@ -1,5 +1,4 @@
-#ifndef uiparent_h
-#define uiparent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -122,4 +121,3 @@ protected:
     virtual uiObject*	mainobject()	{ return 0; }
 };
 
-#endif

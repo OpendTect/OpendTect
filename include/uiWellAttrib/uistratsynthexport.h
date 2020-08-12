@@ -1,5 +1,4 @@
-#ifndef uistratsynthexport_h
-#define uistratsynthexport_h
+#pragma once
 /*+
  ________________________________________________________________________
 
@@ -77,4 +76,3 @@ protected:
 
 };
 
-#endif

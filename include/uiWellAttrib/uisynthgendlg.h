@@ -1,5 +1,4 @@
-#ifndef uisynthgendlg_h
-#define uisynthgendlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
     void			finaliseDone(CallBacker*);
 };
 
-#endif

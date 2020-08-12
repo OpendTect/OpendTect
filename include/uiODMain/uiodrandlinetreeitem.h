@@ -1,5 +1,4 @@
-#ifndef uiodrandlinetreeitem_h
-#define uiodrandlinetreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ protected:
 };
 
 
-#endif

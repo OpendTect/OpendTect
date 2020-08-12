@@ -1,5 +1,4 @@
-#ifndef uisemblanceattrib_h
-#define uisemblanceattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

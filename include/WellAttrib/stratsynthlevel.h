@@ -1,5 +1,4 @@
-#ifndef stratsynthlevel_h
-#define stratsynthlevel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ public:
 };
 
 
-#endif

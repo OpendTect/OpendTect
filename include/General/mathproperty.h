@@ -1,5 +1,4 @@
-#ifndef mathproperty_h
-#define mathproperty_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 };
 
 
-#endif

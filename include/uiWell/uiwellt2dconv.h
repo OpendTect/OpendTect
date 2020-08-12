@@ -1,5 +1,4 @@
-#ifndef uiwellt2dconv_h
-#define uiwellt2dconv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
     WellT2DTransform*		transform_;
 };
 
-#endif

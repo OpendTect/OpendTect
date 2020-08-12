@@ -1,5 +1,4 @@
-#ifndef picksetmgr_h
-#define picksetmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ inline Pick::SetMgr& Pick::Mgr()
 }
 
 
-#endif

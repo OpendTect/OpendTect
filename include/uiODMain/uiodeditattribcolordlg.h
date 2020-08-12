@@ -1,5 +1,4 @@
-#ifndef uiodeditattribcolordlg_h
-#define uiodeditattribcolordlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
 	bool			acceptOK(CallBacker*);
 };
 
-#endif

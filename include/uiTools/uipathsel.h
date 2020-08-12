@@ -1,5 +1,4 @@
-#ifndef uipathsel_h
-#define uipathsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     BufferStringSet	paths_;
 };
 
-#endif

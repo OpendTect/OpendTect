@@ -1,5 +1,4 @@
-#ifndef perthreadrepos_h
-#define perthreadrepos_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -79,4 +78,3 @@ T& PerThreadObjectRepository<T>::getObject()
     return *objects_[idx];
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uibuildlistfromlist_h
-#define uibuildlistfromlist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -121,4 +120,3 @@ protected:
 };
 
 
-#endif

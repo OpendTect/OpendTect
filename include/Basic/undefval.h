@@ -1,5 +1,4 @@
-#ifndef undefval_h
-#define undefval_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -300,4 +299,3 @@ mGlobal(Basic) bool isUdfImpl(double);
       (!__mIsUndefinedF(fval) && Math::IsNormalNumber(fval)) )
 
 
-#endif

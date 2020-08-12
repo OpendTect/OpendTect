@@ -1,5 +1,4 @@
-#ifndef prestackmutedeftransl_h
-#define prestackmutedeftransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ public:
 };
 
 
-#endif

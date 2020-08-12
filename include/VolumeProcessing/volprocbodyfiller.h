@@ -1,5 +1,4 @@
-#ifndef volprocbodyfiller_h
-#define volprocbodyfiller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

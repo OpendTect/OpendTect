@@ -1,5 +1,4 @@
-#ifndef attrfact_h
-#define attrfact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -25,4 +24,3 @@ uiString AttribDescSetTranslatorGroup::sTypeName(int num)
 { return uiStrings::sAttribute(num); }
 
 
-#endif

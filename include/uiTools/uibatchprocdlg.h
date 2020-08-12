@@ -1,5 +1,4 @@
-#ifndef uibatchprocdlg_h
-#define uibatchprocdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
     uiBatchJobDispatcherSel*	batchjobfld_;
 };
 
-#endif

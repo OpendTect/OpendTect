@@ -1,5 +1,4 @@
-#ifndef sortedtable_h
-#define sortedtable_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -209,4 +208,3 @@ void SortedPointers<T>::erase()
 }
 
 
-#endif

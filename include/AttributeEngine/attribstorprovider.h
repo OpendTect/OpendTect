@@ -1,5 +1,4 @@
-#ifndef attribstorprovider_h
-#define attribstorprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ protected:
 
 }; // namespace Attrib
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seisscanner_h
-#define seisscanner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef explicitmarchingcubes_h
-#define explicitmarchingcubes_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -118,4 +117,3 @@ public:
     static const MarchingCubeLookupTable& get();
 };
 
-#endif

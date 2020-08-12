@@ -1,5 +1,4 @@
-#ifndef uiwellmarkersel_h
-#define uiwellmarkersel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -125,4 +124,3 @@ private:
     void		fltrMarkerNamesCB(CallBacker*);
 };
 
-#endif

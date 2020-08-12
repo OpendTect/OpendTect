@@ -1,5 +1,4 @@
-#ifndef array1dinterpol_h
-#define array1dinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
     void		extrapolate(bool start);
 };
 
-#endif

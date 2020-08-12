@@ -1,5 +1,4 @@
-#ifndef volprocthresholder_h
-#define volprocthresholder_h
+#pragma once
 
 /*+
 _________________________________________________________________________
@@ -50,5 +49,3 @@ protected:
 
 
 };
-#endif
-

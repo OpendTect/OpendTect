@@ -1,5 +1,4 @@
-#ifndef factory_h
-#define factory_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -511,4 +510,3 @@ virtual const char* factoryKeyword() const { return kw; }
 #undef mCreateImpl
 #undef mAddCreator
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisurvinfoed_h
-#define uisurvinfoed_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -203,4 +202,3 @@ protected:
 
 };
 
-#endif

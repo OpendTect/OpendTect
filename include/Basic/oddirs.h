@@ -1,5 +1,4 @@
-#ifndef oddirs_h
-#define oddirs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -200,4 +199,3 @@ mGlobal(Basic) const char* GetSurveyTempDir();
 
 } // extern "C"
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef objectfinder_h
-#define objectfinder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
 }; // namespace CmdDrive
 
 
-#endif

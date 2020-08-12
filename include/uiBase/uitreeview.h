@@ -1,5 +1,4 @@
-#ifndef uitreeview_h
-#define uitreeview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -372,4 +371,3 @@ private:
     mQtclass(QTreeWidgetItemIterator*)	iter_;
 };
 
-#endif

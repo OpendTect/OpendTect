@@ -1,5 +1,4 @@
-#ifndef generalinfo_h
-#define generalinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -28,4 +27,3 @@ mGlobal(General) bool	getHostIDs( BufferStringSet& hostids,
 				    BufferString& errmsg );
 } //namespace OD
 
-#endif

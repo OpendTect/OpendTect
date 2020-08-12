@@ -1,5 +1,4 @@
-#ifndef visrgbatexturechannel2rgba_h
-#define visrgbatexturechannel2rgba_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ protected:
 }; //namespace
 
 
-#endif

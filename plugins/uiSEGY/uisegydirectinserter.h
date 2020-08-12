@@ -1,5 +1,4 @@
-#ifndef uisegydirectinserter_h
-#define uisegydirectinserter_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -85,4 +84,3 @@ protected:
     void		scanComplete(CallBacker*);
 
 };
-#endif

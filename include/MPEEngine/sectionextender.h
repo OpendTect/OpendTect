@@ -1,5 +1,4 @@
-#ifndef sectionextender_h
-#define sectionextender_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
 
 } // namespace MPE
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef view2dfault_h
-#define view2dfault_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     Notifier<VW2DFault>		deselted_;
 };
 
-#endif

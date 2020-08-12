@@ -1,5 +1,4 @@
-#ifndef uibodyregiondlg_h
-#define uibodyregiondlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
 };
 
 
-#endif

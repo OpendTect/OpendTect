@@ -1,5 +1,4 @@
-#ifndef uigmtcontour_h
-#define uigmtcontour_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
     bool		loadHor();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiflatviewcontrol_h
-#define uiflatviewcontrol_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -123,4 +122,3 @@ protected:
 
 };
 
-#endif

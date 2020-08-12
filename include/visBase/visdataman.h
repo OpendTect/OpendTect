@@ -1,5 +1,4 @@
-#ifndef visdataman_h
-#define visdataman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -78,4 +77,3 @@ mGlobal(visBase) DataManager& DM();
 };
 
 
-#endif

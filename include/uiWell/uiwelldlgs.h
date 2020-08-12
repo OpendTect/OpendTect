@@ -1,5 +1,4 @@
-#ifndef uiwelldlgs_h
-#define uiwelldlgs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -214,4 +213,3 @@ protected:
     uiMultiWellSel*	wellfld_;
 };
 
-#endif

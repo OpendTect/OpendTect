@@ -1,5 +1,4 @@
-#ifndef trigonometry_h
-#define trigonometry_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -653,4 +652,3 @@ inline Coord3 lineSegmentIntersectsTriangle( Coord3 segStart, Coord3 segEnd,
 
     return res;
 }
-#endif

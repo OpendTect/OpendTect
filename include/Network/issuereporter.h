@@ -1,5 +1,4 @@
-#ifndef issuereporter_h
-#define issuereporter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 
 } //Namespace
 
-#endif

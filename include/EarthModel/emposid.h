@@ -1,5 +1,4 @@
-#ifndef emposid_h
-#define emposid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -106,4 +105,3 @@ inline void PosID::setSubID( SubID id )
 } // namespace EM
 
 
-#endif

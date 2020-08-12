@@ -1,5 +1,4 @@
-#ifndef velocityfunctionstored_h
-#define velocityfunctionstored_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 
 } // namespace Vel
 
-#endif

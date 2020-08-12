@@ -1,5 +1,4 @@
-#ifndef horizon2dscanner_h
-#define horizon2dscanner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
 };
 
 
-#endif

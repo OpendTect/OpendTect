@@ -1,5 +1,4 @@
-#ifndef horizon3dextender_h
-#define horizon3dextender_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ public:
 
 } // namespace MPE
 
-#endif

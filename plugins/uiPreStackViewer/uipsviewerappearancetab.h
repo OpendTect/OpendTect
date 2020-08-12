@@ -1,5 +1,4 @@
-#ifndef uipsviewerappearancetab_h
-#define uipsviewerappearancetab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 
 } // namespace
 
-#endif

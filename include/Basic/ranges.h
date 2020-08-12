@@ -1,5 +1,4 @@
-#ifndef ranges_h
-#define ranges_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -827,4 +826,3 @@ mDefFltisCompat(float,1e-5f)
 mDefFltisCompat(double,1e-10)
 // Do not change the above releps values as they originate from the types.
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seistrc_h
-#define seistrc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -186,4 +185,3 @@ protected:
 inline ValueSeries<float>* SeisTrcValueSeries::clone() const
 { return new SeisTrcValueSeries( trc_, icomp_ ); }
 
-#endif

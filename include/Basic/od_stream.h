@@ -1,5 +1,4 @@
-#ifndef od_stream_h
-#define od_stream_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ private:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef hdf5reader_h
-#define hdf5reader_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -137,4 +136,3 @@ inline uiRetVal Reader::get( const DataSetKey& dsky, TypeSet<T>& vals ) const
 
 } // namespace HDF5
 
-#endif

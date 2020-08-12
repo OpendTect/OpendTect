@@ -1,5 +1,4 @@
-#ifndef posfilterstd_h
-#define posfilterstd_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -164,4 +163,3 @@ public:
 
 } // namespace
 
-#endif

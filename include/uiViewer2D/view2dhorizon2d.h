@@ -1,5 +1,4 @@
-#ifndef view2dhorizon2d_h
-#define view2dhorizon2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
     const Line2DInterSectionSet*		line2dintersectionset_;
 };
 
-#endif

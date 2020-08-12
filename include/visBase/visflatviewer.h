@@ -1,5 +1,4 @@
-#ifndef visflatviewer_h
-#define visflatviewer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 }; // Namespace
 
 
-#endif

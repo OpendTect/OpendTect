@@ -1,5 +1,4 @@
-#ifndef houghtransform_h
-#define houghtransform_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -144,4 +143,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef volprocchain_h
-#define volprocchain_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -147,4 +146,3 @@ private:
 
 #include "volprocchainexec.h" // this include will go after 6.0
 
-#endif

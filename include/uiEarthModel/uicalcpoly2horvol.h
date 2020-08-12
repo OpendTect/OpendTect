@@ -1,5 +1,4 @@
-#ifndef uicalcpoly2horvol_h
-#define uicalcpoly2horvol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 };
 
 
-#endif

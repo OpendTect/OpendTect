@@ -1,5 +1,4 @@
-#ifndef uisegyimptype_h
-#define uisegyimptype_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 
 
 
-#endif

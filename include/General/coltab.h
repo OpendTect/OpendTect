@@ -1,5 +1,4 @@
-#ifndef coltab_h
-#define coltab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ namespace ColTab
     mGlobal(General) bool	    defHistEq();
 }
 
-#endif

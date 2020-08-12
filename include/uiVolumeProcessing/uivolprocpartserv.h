@@ -1,5 +1,4 @@
-#ifndef uivolprocpartserv_h
-#define uivolprocpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     VolProc::uiBatchSetup*	volprocdlg2d_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisegymanip_h
-#define uisegymanip_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -95,4 +94,3 @@ protected:
 };
 
 
-#endif

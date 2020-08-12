@@ -1,5 +1,4 @@
-#ifndef uiodseis2dtreeitem_h
-#define uiodseis2dtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ protected:
     MenuItem		attrnoneitm_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef datacoldef_h
-#define datacoldef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ public:
 };
 
 
-#endif

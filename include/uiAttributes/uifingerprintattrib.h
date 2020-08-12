@@ -1,5 +1,4 @@
-#ifndef uifingerprintattrib_h
-#define uifingerprintattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef agc_h
-#define agc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -206,4 +205,3 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
     return true;
 }
 
-#endif

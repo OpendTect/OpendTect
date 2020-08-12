@@ -1,5 +1,4 @@
-#ifndef uiwellwriteopts_h
-#define uiwellwriteopts_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -33,4 +32,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uibatchprogs_h
-#define uibatchprogs_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -47,4 +46,3 @@ protected:
 };
 
 
-#endif

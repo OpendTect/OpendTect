@@ -1,5 +1,4 @@
-#ifndef welltiecshot_h
-#define welltiecshot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -29,4 +28,3 @@ public:
 
 } // namespace WellTie
 
-#endif

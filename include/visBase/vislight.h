@@ -1,5 +1,4 @@
-#ifndef vislight_h
-#define vislight_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ private:
 
 } //visBase
 
-#endif

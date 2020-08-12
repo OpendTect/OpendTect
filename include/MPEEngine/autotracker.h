@@ -1,5 +1,4 @@
-#ifndef autotracker_h
-#define autotracker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ protected:
 
 } // namespace MPE
 
-#endif

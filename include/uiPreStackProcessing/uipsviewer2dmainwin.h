@@ -1,5 +1,4 @@
-#ifndef uipsviewer2dmainwin_h
-#define uipsviewer2dmainwin_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -232,4 +231,3 @@ protected:
 
 }; //namespace
 
-#endif

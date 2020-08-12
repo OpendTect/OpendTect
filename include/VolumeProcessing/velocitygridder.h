@@ -1,5 +1,4 @@
-#ifndef velocitygridder_h
-#define velocitygridder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -83,4 +82,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

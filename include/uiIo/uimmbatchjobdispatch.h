@@ -1,5 +1,4 @@
-#ifndef uimmbatchjobdispatch_h
-#define uimmbatchjobdispatch_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -104,4 +103,3 @@ private:
 
 };
 
-#endif

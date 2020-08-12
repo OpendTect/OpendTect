@@ -1,5 +1,4 @@
-#ifndef uidpsaddcolumndlg_h
-#define uidpsaddcolumndlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
     bool			withmathop_;
 };
 
-#endif

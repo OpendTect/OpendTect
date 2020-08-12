@@ -1,5 +1,4 @@
-#ifndef uiseedpropdlg_h
-#define uiseedpropdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -37,4 +36,3 @@ protected:
     void		updateMarkerStyle();
 };
 
-#endif

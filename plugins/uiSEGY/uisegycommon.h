@@ -1,5 +1,4 @@
-#ifndef uisegycommon_h
-#define uisegycommon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ void displayReport(uiParent*,const IOPar&,const char* fnm=0);
 
 
 
-#endif

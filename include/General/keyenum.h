@@ -1,5 +1,4 @@
-#ifndef keyenum_h
-#define keyenum_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -366,4 +365,3 @@ namespace OD
 
 } // namespace OD
 
-#endif

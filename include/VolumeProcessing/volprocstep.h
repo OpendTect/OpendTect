@@ -1,5 +1,4 @@
-#ifndef volprocstep_h
-#define volprocstep_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -192,4 +191,3 @@ private:
 
 } // namespace VolProc
 
-#endif

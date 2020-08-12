@@ -1,5 +1,4 @@
-#ifndef volprocmgr_h
-#define volprocmgr_h
+#pragma once
 
 /*+
 ___________________________________________________________________________
@@ -41,4 +40,3 @@ protected:
 
 };
 
-#endif

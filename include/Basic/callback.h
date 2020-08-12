@@ -1,5 +1,4 @@
-#ifndef callback_h
-#define callback_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -461,4 +460,3 @@ Notifier<clss>& clss::instanceCreated() \
     instanceCreated().trigger( this )
 
 
-#endif

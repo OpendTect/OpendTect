@@ -1,5 +1,4 @@
-#ifndef seiscbvsps_h
-#define seiscbvsps_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -207,4 +206,3 @@ protected:
 };
 
 
-#endif

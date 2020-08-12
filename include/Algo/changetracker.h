@@ -1,5 +1,4 @@
-#ifndef changetracker_h
-#define changetracker_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -129,4 +128,3 @@ inline bool ChangeTracker::update( T& val, const U& newval )
 }
 
 
-#endif

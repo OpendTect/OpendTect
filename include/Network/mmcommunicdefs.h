@@ -1,5 +1,4 @@
-#ifndef mmcommunicdefs_h
-#define mmcommunicdefs_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -45,4 +44,3 @@ Defines for MM job communication status tags and codes
 #define mRSP_UNDEF	'U'
 
 
-#endif

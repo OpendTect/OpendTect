@@ -1,5 +1,4 @@
-#ifndef seismscprov_h
-#define seismscprov_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -165,4 +164,3 @@ protected:
     bool		calcTrcDist(const Pos::GeomID);
 };
 
-#endif

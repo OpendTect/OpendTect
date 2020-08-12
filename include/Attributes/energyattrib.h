@@ -1,5 +1,4 @@
-#ifndef energyattrib_h
-#define energyattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

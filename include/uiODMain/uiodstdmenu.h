@@ -1,5 +1,4 @@
-#ifndef uiodstdmenu_h
-#define uiodstdmenu_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -258,4 +257,3 @@ ________________________________________________________________________
 #define mShortcutsMnuItm	(mHelpMnuBase + 9)
 #define mLegalMnuItm		(mHelpMnuBase + 10)
 
-#endif

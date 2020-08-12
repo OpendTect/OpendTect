@@ -1,5 +1,4 @@
-#ifndef posinfo2dsurv_h
-#define posinfo2dsurv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -176,4 +175,3 @@ public:
 
 } // namespace PosInfo
 
-#endif

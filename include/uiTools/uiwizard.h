@@ -1,5 +1,4 @@
-#ifndef uiwizard_h
-#define uiwizard_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ private:
     void		doFinalise(CallBacker*);
 };
 
-#endif

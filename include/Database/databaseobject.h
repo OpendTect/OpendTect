@@ -1,5 +1,4 @@
-#ifndef databaseobject_h
-#define databaseobject_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -237,4 +236,3 @@ const char* DatabaseColumn<T>::dataString( const T& val ) const
 } //namespace
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seisdatapackzaxistransformer_h
-#define seisdatapackzaxistransformer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     DataPack::ID*		outputid_;
 };
 
-#endif

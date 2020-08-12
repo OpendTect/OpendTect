@@ -1,5 +1,4 @@
-#ifndef stratsinglaygen_h
-#define stratsinglaygen_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 
 }; // namespace Strat
 
-#endif

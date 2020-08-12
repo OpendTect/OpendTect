@@ -1,5 +1,4 @@
-#ifndef uiwellattribsel_h
-#define uiwellattribsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ protected:
 
 
 
-#endif

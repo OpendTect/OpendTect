@@ -1,5 +1,4 @@
-#ifndef uigmtcoastline_h
-#define uigmtcoastline_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     void		utmSel(CallBacker*);
 };
 
-#endif

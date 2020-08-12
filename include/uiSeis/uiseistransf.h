@@ -1,5 +1,4 @@
-#ifndef uiseistransf_h
-#define uiseistransf_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -93,4 +92,3 @@ public:
 };
 
 
-#endif

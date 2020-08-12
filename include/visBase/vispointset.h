@@ -1,5 +1,4 @@
-#ifndef vispointset_h
-#define vispointset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 } // namespace visBase
 
 
-#endif

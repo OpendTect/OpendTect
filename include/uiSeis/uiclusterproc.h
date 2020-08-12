@@ -1,5 +1,4 @@
-#ifndef uiclusterproc_h
-#define uiclusterproc_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -52,4 +51,3 @@ protected:
     bool		submitJobs();
 };
 
-#endif

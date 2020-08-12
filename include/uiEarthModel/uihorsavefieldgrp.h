@@ -1,5 +1,4 @@
-#ifndef uihorsavefieldgrp_h
-#define uihorsavefieldgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ protected:
 };
 
 
-#endif

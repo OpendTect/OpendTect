@@ -1,5 +1,4 @@
-#ifndef vishorizonsection_h
-#define vishorizonsection_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -239,4 +238,3 @@ protected:
 
 } // namespace visBase
 
-#endif

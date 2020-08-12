@@ -1,5 +1,4 @@
-#ifndef uicrossattrevaluatedlg_h
-#define uicrossattrevaluatedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
 };
 
 
-#endif

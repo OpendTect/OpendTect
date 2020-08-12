@@ -1,5 +1,4 @@
-#ifndef threadwork_h
-#define threadwork_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -251,4 +250,3 @@ inline bool Threads::Work::doRun()
     return true;
 }
 
-#endif

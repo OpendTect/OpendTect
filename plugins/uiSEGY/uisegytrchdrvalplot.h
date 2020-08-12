@@ -1,5 +1,4 @@
-#ifndef uisegytrchdrvalplot_h
-#define uisegytrchdrvalplot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 };
 
 
-#endif

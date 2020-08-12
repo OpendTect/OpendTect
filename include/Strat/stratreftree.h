@@ -1,5 +1,4 @@
-#ifndef stratreftree_h
-#define stratreftree_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -114,4 +113,3 @@ mGlobal(Strat) bool loadDefaultTree();
 } // namespace Strat
 
 
-#endif

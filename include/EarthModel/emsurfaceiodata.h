@@ -1,5 +1,4 @@
-#ifndef emsurfaceiodata_h
-#define emsurfaceiodata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ public:
 
 } // namespace EM
 
-#endif

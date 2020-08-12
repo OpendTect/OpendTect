@@ -1,5 +1,4 @@
-#ifndef uiapplserv_h
-#define uiapplserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ private:
 };
 
 
-#endif

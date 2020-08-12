@@ -1,5 +1,4 @@
-#ifndef uibaseobject_h
-#define uibaseobject_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ public:
 };
 
 
-#endif

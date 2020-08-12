@@ -1,5 +1,4 @@
-#ifndef vistext_h
-#define vistext_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -122,4 +121,3 @@ protected:
 
 }; // Namespace
 
-#endif

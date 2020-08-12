@@ -1,5 +1,4 @@
-#ifndef pca_h
-#define pca_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -157,4 +156,3 @@ void PCA::getEigenVector(int idy, IDXABL& vec ) const
 	vec[idx] = covariancematrix_.get(idx, eigenvecindexes_[idy] );
 }
 
-#endif

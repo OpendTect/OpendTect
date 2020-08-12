@@ -1,5 +1,4 @@
-#ifndef mmexecproxy_h
-#define mmexecproxy_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 }; // namespace MMProc
 
 
-#endif

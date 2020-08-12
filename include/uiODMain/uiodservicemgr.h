@@ -1,5 +1,4 @@
-#ifndef uiodservicemgr_h
-#define uiodservicemgr_h
+#pragma once
 /*+
  * ________________________________________________________________________
  *
@@ -101,4 +100,3 @@ private:
     friend class uiODMain;
 
 };
-#endif

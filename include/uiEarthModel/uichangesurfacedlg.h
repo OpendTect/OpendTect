@@ -1,5 +1,4 @@
-#ifndef uichangesurfacedlg_h
-#define uichangesurfacedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
 };
 
 
-#endif

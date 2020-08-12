@@ -1,5 +1,4 @@
-#ifndef arraynd_h
-#define arraynd_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -539,4 +538,3 @@ void ArrayND<T>::getAll( T* ptr ) const
 }
 
 
-#endif

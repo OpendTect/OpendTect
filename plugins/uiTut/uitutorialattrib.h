@@ -1,5 +1,4 @@
-#ifndef uitutorialattrib_h
-#define uitutorialattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

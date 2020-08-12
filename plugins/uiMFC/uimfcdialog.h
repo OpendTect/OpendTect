@@ -1,5 +1,4 @@
-#ifndef uimfcdialog_h
-#define uimfcdialog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ protected:
 
 bool initMFCDialog( HWND hwnd );
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uidial_h
-#define uidial_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -108,4 +107,3 @@ protected:
     void                sliderMove(CallBacker*);
 };
 
-#endif

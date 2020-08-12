@@ -1,5 +1,4 @@
-#ifndef externalattrib_h
-#define externalattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&,
 
 } // namespace Attrib
 
-#endif

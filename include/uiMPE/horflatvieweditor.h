@@ -1,5 +1,4 @@
-#ifndef horflatvieweditor_h
-#define horflatvieweditor_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ public:
 
 } // namespace MPE
 
-#endif

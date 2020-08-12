@@ -1,5 +1,4 @@
-#ifndef objectset_h
-#define objectset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -487,4 +486,3 @@ template <class T> inline const T* ObjectSet<T>::last() const
 { return isEmpty() ? 0 : (*this)[size()-1]; }
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef horizonscanner_h
-#define horizonscanner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
 };
 
 
-#endif

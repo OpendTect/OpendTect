@@ -1,5 +1,4 @@
-#ifndef uiseisamplspectrum_h
-#define uiseisamplspectrum_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -30,4 +29,3 @@ public:
 					      int version=0);
 };
 
-#endif

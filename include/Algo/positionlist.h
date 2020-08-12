@@ -1,5 +1,4 @@
-#ifndef positionlist_h
-#define positionlist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -146,4 +145,3 @@ protected:
 };
 
 
-#endif

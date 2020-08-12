@@ -1,5 +1,4 @@
-#ifndef vispseventdisplay_h
-#define vispseventdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

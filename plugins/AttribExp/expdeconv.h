@@ -1,5 +1,4 @@
-#ifndef expdeconv_h
-#define expdeconv_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -194,4 +193,3 @@ protected:
     friend class			DeConvolveAttrib::Task::Input;
 };
 
-#endif

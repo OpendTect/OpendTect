@@ -1,5 +1,4 @@
-#ifndef uihorizonsortdlg_h
-#define uihorizonsortdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
 
 };
 
-#endif

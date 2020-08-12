@@ -1,5 +1,4 @@
-#ifndef uireferenceattrib_h
-#define uireferenceattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

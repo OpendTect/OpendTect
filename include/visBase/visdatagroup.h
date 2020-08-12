@@ -1,5 +1,4 @@
-#ifndef visdatagroup_h
-#define visdatagroup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 
 } //namespace
 
-#endif

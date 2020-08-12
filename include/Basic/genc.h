@@ -1,5 +1,4 @@
-#ifndef genc_h
-#define genc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -123,4 +122,3 @@ mGlobal(Basic) bool AreProgramArgsSet(void);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
 
-#endif

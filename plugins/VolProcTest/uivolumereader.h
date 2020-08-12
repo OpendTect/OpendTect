@@ -1,5 +1,4 @@
-#ifndef uivolumereader_h
-#define uivolumereader_h
+#pragma once
 
 /*+
 
@@ -45,4 +44,3 @@ protected:
 
 
 };
-#endif

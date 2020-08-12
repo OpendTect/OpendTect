@@ -1,5 +1,4 @@
-#ifndef uidpsoverlayattrdlg_h
-#define uidpsoverlayattrdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -46,4 +45,3 @@ protected:
 
 };
 
-#endif

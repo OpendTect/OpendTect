@@ -1,5 +1,4 @@
-#ifndef ui3dviewerbody_h
-#define ui3dviewerbody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -229,4 +228,3 @@ protected:
     bool				mapview_;
 };
 
-#endif

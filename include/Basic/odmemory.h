@@ -1,5 +1,4 @@
-#ifndef odmemory_h
-#define odmemory_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -493,4 +492,3 @@ inline void memValueSet( T* arr, T val , od_int64 sz, TaskRunner* taskrun )
 } // namespace OD
 
 
-#endif

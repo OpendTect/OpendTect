@@ -1,5 +1,4 @@
-#ifndef viswell_h
-#define viswell_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -267,4 +266,3 @@ private:
 
 } // namespace visBase
 
-#endif

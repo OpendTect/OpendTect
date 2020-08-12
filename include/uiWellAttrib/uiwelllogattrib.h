@@ -1,5 +1,4 @@
-#ifndef uiwelllogattrib_h
-#define uiwelllogattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
 			mDeclReqAttribUIFns
 };
 
-#endif

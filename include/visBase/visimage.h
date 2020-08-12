@@ -1,5 +1,4 @@
-#ifndef visimage_h
-#define visimage_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 
 };
 
-#endif

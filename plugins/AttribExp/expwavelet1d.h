@@ -1,5 +1,4 @@
-#ifndef expwavelet1d_h
-#define expwavelet1d_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -163,4 +162,3 @@ protected:
     friend class	Wavelet1DAttrib::Task::Input;
 };
 
-#endif

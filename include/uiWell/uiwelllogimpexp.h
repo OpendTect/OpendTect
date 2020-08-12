@@ -1,5 +1,4 @@
-#ifndef uiwelllogimpexp_h
-#define uiwelllogimpexp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 };
 
 
-#endif

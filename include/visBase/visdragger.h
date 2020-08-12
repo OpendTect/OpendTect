@@ -1,5 +1,4 @@
-#ifndef visdragger_h
-#define visdragger_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ public:
 
 } // namespace visBase
 
-#endif

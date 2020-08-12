@@ -1,5 +1,4 @@
-#ifndef randomlinegeom_h
-#define randomlinegeom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -189,4 +188,3 @@ mGlobal(Geometry) RandomLineManager& RLM();
 
 } // namespace Geometry
 
-#endif

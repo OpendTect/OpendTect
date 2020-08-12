@@ -1,5 +1,4 @@
-#ifndef iopar_h
-#define iopar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -344,4 +343,3 @@ inline void IOPar::set( const char* k, const SamplingData<T>& sd )
 }
 
 
-#endif

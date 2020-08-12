@@ -1,5 +1,4 @@
-#ifndef winutils_h
-#define winutils_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -370,4 +369,3 @@ http://msdn.microsoft.com/library/default.asp?
 
 #endif /* __win__ */
 
-#endif

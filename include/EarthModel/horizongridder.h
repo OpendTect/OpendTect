@@ -1,5 +1,4 @@
-#ifndef horizongridder_h
-#define horizongridder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -162,4 +161,3 @@ public:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef latlong_h
-#define latlong_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uivismenuitemhandler_h
-#define uivismenuitemhandler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
     bool		addwhenpickset_;
 };
 
-#endif

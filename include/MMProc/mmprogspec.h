@@ -1,5 +1,4 @@
-#ifndef mmprogspec_h
-#define mmprogspec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ mGlobal(MMProc) ObjectSet<ProgSpec>& PRSPS();
 }; // namespace MMProc
 
 
-#endif

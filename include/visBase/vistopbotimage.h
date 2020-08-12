@@ -1,5 +1,4 @@
-#ifndef vistopbotimage_h
-#define	vistopbotimage_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
 
 } // namespace visBase
 
-#endif

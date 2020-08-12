@@ -1,5 +1,4 @@
-#ifndef visnodestate_h
-#define visnodestate_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ private:
 
 };
 
-#endif

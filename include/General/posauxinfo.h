@@ -1,5 +1,4 @@
-#ifndef posauxinfo_h
-#define posauxinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef volprocsmoother_h
-#define volprocsmoother_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -79,4 +78,3 @@ private:
 
 } // namespace VolProc
 
-#endif

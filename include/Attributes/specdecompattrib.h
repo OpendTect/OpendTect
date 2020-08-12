@@ -1,5 +1,4 @@
-#ifndef specdecompattrib_h
-#define specdecompattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
 }; // namespace Attrib
 
 
-#endif

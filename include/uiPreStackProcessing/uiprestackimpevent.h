@@ -1,5 +1,4 @@
-#ifndef uiprestackimpevent_h
-#define uiprestackimpevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 
 }; //namespace
 
-#endif

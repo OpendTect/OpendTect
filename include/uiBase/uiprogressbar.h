@@ -1,5 +1,4 @@
-#ifndef uiprogressbar_h
-#define uiprogressbar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ private:
     uiProgressBarBody&	mkbody(uiParent*,const char*);
 };
 
-#endif

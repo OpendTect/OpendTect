@@ -1,5 +1,4 @@
-#ifndef attribprocessor_h
-#define attribprocessor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -105,4 +104,3 @@ public:
 } // namespace Attrib
 
 
-#endif

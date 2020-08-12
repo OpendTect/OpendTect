@@ -1,5 +1,4 @@
-#ifndef attribparamgroup_h
-#define attribparamgroup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -273,4 +272,3 @@ void ParamGroup<PT>::fillDefStr( BufferString& res ) const
 
 }//namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef paralleltask_h
-#define paralleltask_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -287,4 +286,3 @@ interp.execute();
 	    } \
 	};
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uigridder2d_h
-#define uigridder2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ mDefineFactory2Param( uiTools, uiDlgGroup, uiParent*, Gridder2D*,
 		      uiGridder2DFact );
 
 
-#endif

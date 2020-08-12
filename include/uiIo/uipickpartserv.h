@@ -1,5 +1,4 @@
-#ifndef uipickpartserv_h
-#define uipickpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -116,4 +115,3 @@ protected:
     bool                        mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
 };
 
-#endif

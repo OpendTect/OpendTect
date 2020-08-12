@@ -1,5 +1,4 @@
-#ifndef jobinfo_h
-#define jobinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 };
 
 
-#endif

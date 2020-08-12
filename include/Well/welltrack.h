@@ -1,5 +1,4 @@
-#ifndef welltrack_h
-#define welltrack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 
 }; // namespace Well
 
-#endif

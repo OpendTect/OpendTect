@@ -1,5 +1,4 @@
-#ifndef uiparentbody_h
-#define uiparentbody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -110,4 +109,3 @@ protected:
     uiGroup*			centralwidget_;
 };
 
-#endif

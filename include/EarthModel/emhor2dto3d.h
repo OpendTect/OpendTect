@@ -1,5 +1,4 @@
-#ifndef emhor2dto3d_h
-#define emhor2dto3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 
 } // namespace EM
 
-#endif

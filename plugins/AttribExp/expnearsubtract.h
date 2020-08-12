@@ -1,5 +1,4 @@
-#ifndef expnearsubtract_h
-#define expnearsubtract_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -148,4 +147,3 @@ protected:
     friend class	NearSubtractAttrib::Task::Input;
 };
 
-#endif

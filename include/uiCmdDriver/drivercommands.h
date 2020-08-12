@@ -1,5 +1,4 @@
-#ifndef drivercommands_h
-#define drivercommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ mStartDeclCmdClass( uiCmdDriver, End, StealthCmd )		mEndDeclCmdClass
 
 }; // namespace CmdDrive
 
-#endif

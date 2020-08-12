@@ -1,5 +1,4 @@
-#ifndef envvars_h
-#define envvars_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ mGlobal(Basic) const char* GetEnvVarDirListWoOD(const char* ky,
 		/*!< Returns the value of an environment variable
 		     without any path inside the OpendTect installation */
 
-#endif

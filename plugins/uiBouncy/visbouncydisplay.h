@@ -1,5 +1,4 @@
-#ifndef visbouncydisplay_h
-#define visbouncydsiplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -102,6 +101,4 @@ protected:
 
 };
 };
-
-#endif
 

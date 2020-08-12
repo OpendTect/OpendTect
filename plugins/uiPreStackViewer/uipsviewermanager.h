@@ -1,5 +1,4 @@
-#ifndef uipsviewermanager_h
-#define uipsviewermanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 
 } // namespace
 
-#endif

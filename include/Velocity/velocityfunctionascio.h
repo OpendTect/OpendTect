@@ -1,5 +1,4 @@
-#ifndef velocityfunctionascio_h
-#define velocityfunctionascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
 } // namespace Vel
 
 
-#endif

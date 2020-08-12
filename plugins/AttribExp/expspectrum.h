@@ -1,5 +1,4 @@
-#ifndef expspectrum_h
-#define expspectrum_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -156,4 +155,3 @@ protected:
     friend class	TraceSpectrumAttrib::Task::Input;
 };
 
-#endif

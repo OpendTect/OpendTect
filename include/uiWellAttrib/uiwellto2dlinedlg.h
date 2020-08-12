@@ -1,5 +1,4 @@
-#ifndef uiwellto2dlinedlg_h
-#define uiwellto2dlinedlg_h
+#pragma once
 
 /*+
   ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 
 };
 
-#endif

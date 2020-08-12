@@ -1,5 +1,4 @@
-#ifndef uilatlong2coord_h
-#define uilatlong2coord_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

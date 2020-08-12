@@ -1,5 +1,4 @@
-#ifndef fixedstring_h
-#define fixedstring_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -101,4 +100,3 @@ inline FixedString& FixedString::operator=(const OD::String&)
 #endif
 
 
-#endif

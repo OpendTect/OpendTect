@@ -1,5 +1,4 @@
-#ifndef faultstickset_h
-#define faultstickset_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 
 };
 
-#endif

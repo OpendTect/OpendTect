@@ -1,5 +1,4 @@
-#ifndef stratsynth_h
-#define stratsynth_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -186,4 +185,3 @@ public:
 				int dispeach) const;
 };
 
-#endif

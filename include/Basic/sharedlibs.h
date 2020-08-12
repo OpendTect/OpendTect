@@ -1,5 +1,4 @@
-#ifndef sharedlibs_h
-#define sharedlibs_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -55,4 +54,3 @@ protected:
 };
 
 
-#endif

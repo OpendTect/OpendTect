@@ -1,5 +1,4 @@
-#ifndef visrandomtrackdisplay_h
-#define visrandomtrackdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -307,4 +306,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

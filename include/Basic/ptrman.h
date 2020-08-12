@@ -1,5 +1,4 @@
-#ifndef ptrman_h
-#define ptrman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -479,4 +478,3 @@ ConstRefMan<T>&	ConstRefMan<T>::operator=(const T* p)
     return *this;
 }
 
-#endif

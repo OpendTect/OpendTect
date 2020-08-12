@@ -1,5 +1,4 @@
-#ifndef geeditorimpl_h
-#define geeditorimpl_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ public:
 };
 };
 
-#endif

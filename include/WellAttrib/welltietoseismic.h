@@ -1,5 +1,4 @@
-#ifndef welltietoseismic_h
-#define welltietoseismic_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

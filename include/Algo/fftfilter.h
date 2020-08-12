@@ -1,5 +1,4 @@
-#ifndef fftfilter_h
-#define fftfilter_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -107,4 +106,3 @@ protected:
 				    Array1DImpl<float>& outp) const;
 };
 
-#endif

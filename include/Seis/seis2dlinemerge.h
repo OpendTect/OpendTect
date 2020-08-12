@@ -1,5 +1,4 @@
-#ifndef seis2dlinemerge_h
-#define seis2dlinemerge_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -87,4 +86,3 @@ protected:
 };
 
 
-#endif

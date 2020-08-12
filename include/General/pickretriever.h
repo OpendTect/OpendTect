@@ -1,5 +1,4 @@
-#ifndef pickretriever_h
-#define pickretriever_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

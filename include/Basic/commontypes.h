@@ -1,5 +1,4 @@
-#ifndef commontypes_h
-#define commontypes_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -88,4 +87,3 @@ typedef double		Distance_Type;
 
 }
 
-#endif

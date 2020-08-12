@@ -1,5 +1,4 @@
-#ifndef surfaceinfo_h
-#define surfaceinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -33,4 +32,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseisfmtscale_h
-#define uiseisfmtscale_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -56,4 +55,3 @@ protected:
 };
 
 
-#endif

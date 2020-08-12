@@ -1,5 +1,4 @@
-#ifndef uiseispreloadmgr_h
-#define uiseispreloadmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
     uiGenInput*			torgfld_;
 };
 
-#endif

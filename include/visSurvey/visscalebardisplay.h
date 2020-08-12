@@ -1,5 +1,4 @@
-#ifndef visscalebardisplay_h
-#define visscalebardisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

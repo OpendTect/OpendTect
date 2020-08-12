@@ -1,5 +1,4 @@
-#ifndef uiodvw2dfaultsstreeitem_h
-#define uiodvw2dfaultsstreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ protected:
 
 };
 
-#endif

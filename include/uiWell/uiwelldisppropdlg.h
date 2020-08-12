@@ -1,5 +1,4 @@
-#ifndef uiwelldisppropdlg_h
-#define uiwelldisppropdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseismulticubeps_h
-#define uiseismulticubeps_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
     bool		acceptOK(CallBacker*);
 };
 
-#endif

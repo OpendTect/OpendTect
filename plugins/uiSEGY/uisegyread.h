@@ -1,5 +1,4 @@
-#ifndef uisegyread_h
-#define uisegyread_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ protected:
 };
 
 
-#endif

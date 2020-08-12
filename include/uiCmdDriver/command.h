@@ -1,5 +1,4 @@
-#ifndef command_h
-#define command_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -831,4 +830,3 @@ protected:
 
 }; // namespace CmdDrive
 
-#endif

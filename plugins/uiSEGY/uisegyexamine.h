@@ -1,5 +1,4 @@
-#ifndef uisegyexamine_h
-#define uisegyexamine_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -91,4 +90,3 @@ protected:
     IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
 
 
-#endif

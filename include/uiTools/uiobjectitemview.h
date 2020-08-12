@@ -1,5 +1,4 @@
-#ifndef uiobjectitemview_h
-#define uiobjectitemview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
     ObjectSet<uiObjectItem>	objectitems_;
 };
 
-#endif

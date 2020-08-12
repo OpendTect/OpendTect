@@ -1,5 +1,4 @@
-#ifndef threadlock_h
-#define threadlock_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -139,4 +138,3 @@ mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 } // namespace Threads
 
 
-#endif

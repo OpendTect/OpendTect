@@ -1,5 +1,4 @@
-#ifndef uiodannottreeitem_h
-#define uiodannottreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -229,4 +228,3 @@ mDefineParentItem(Image,mToUiStringTodo("Image"),1000,"tree-image");
 mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000,"tree-scalebar");
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef iodirentry_h
-#define iodirentry_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 };
 
 
-#endif

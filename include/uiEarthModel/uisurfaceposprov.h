@@ -1,5 +1,4 @@
-#ifndef uisurfaceposprov_h
-#define uisurfaceposprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

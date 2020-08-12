@@ -1,5 +1,4 @@
-#ifndef uistratsynthdisp_h
-#define uistratsynthdisp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -248,4 +247,3 @@ protected:
     StepInterval<float>	limitsampling_;
 };
 
-#endif

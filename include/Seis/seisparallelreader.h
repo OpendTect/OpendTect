@@ -1,5 +1,4 @@
-#ifndef seisparallelreader_h
-#define seisparallelreader_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -325,4 +324,3 @@ private:
 
 } // namespace Seis
 
-#endif

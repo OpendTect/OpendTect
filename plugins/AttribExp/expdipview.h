@@ -1,5 +1,4 @@
-#ifndef expdipview_h
-#define expdipview_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ protected:
     friend class	DipViewAttrib::Task::Input;
 };
 
-#endif

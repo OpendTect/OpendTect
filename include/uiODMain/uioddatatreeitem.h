@@ -1,5 +1,4 @@
-#ifndef uioddatatreeitem_h
-#define uioddatatreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ protected:
     uiFKSpectrum*		fkspectrumwin_;
 };
 
-#endif

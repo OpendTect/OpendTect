@@ -1,5 +1,4 @@
-#ifndef uiodviewer2dposgrp_h
-#define uiodviewer2dposgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ protected:
     void		getSelAttrSamp(TrcKeyZSampling&);
 };
 
-#endif

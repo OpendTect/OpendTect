@@ -1,5 +1,4 @@
-#ifndef uiwelllogcalc_h
-#define uiwelllogcalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
 };
 
 
-#endif

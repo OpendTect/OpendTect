@@ -1,5 +1,4 @@
-#ifndef uimultoutsel_h
-#define uimultoutsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
     uiListBox*		selfld_;
 };
 
-#endif

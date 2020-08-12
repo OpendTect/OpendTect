@@ -1,5 +1,4 @@
-#ifndef uisurvmap_h
-#define uisurvmap_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ protected:
     virtual void	reDraw(bool deep=true);
 };
 
-#endif

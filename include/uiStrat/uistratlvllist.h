@@ -1,5 +1,4 @@
-#ifndef uistratlvllist_h
-#define uistratlvllist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ private:
     static const char*	sNoLevelTxt()		{return "--- None ---"; }
 };
 
-#endif

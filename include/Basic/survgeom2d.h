@@ -1,5 +1,4 @@
-#ifndef survgeom2d_h
-#define survgeom2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 
 } // namespace Survey
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef texttranslator_h
-#define texttranslator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -116,4 +115,3 @@ namespace OD
 mGlobal(Basic) void	loadLocalization();
 }
 
-#endif

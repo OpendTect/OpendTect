@@ -1,5 +1,4 @@
-#ifndef networkcommon_h
-#define networkcommon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ private:
 
 } // namespace Network
 
-#endif

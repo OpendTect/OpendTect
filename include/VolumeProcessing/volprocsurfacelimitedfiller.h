@@ -1,5 +1,4 @@
-#ifndef volprocsurfacelimitedfiller_h
-#define volprocsurfacelimitedfiller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -170,4 +169,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

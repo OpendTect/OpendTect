@@ -1,5 +1,4 @@
-#ifndef pythonaccess_h
-#define pythonaccess_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -185,6 +184,4 @@ namespace OD
 
 } //namespace OD
 
-
-#endif
 

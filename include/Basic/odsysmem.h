@@ -1,5 +1,4 @@
-#ifndef odsysmem_h
-#define odsysmem_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -21,4 +20,3 @@ namespace OD
 }
 
 
-#endif

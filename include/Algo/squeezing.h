@@ -1,5 +1,4 @@
-#ifndef squeezing_h
-#define squeezing_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -122,4 +121,3 @@ inline T DataSqueezer<T>::value( T v ) const
 
 
 
-#endif

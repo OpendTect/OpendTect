@@ -1,5 +1,4 @@
-#ifndef dpsdensitycalc_h
-#define dpsdensitycalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
     float				getVal(int colid,int rowid) const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uimpewizard_h
-#define uimpewizard_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -125,4 +124,3 @@ private:
 
 }; // namespace MPE
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiodvw2dpicksettreeitem_h
-#define uiodvw2dpicksettreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -93,4 +92,3 @@ protected:
 };
 
 
-#endif

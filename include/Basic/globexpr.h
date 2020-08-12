@@ -1,5 +1,4 @@
-#ifndef globexpr_h
-#define globexpr_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 };
 
 
-#endif

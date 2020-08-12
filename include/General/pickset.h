@@ -1,5 +1,4 @@
-#ifndef pickset_h
-#define pickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -190,4 +189,3 @@ public:
 #include "picksetmgr.h"
 
 
-#endif

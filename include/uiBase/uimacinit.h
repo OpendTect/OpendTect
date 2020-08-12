@@ -1,5 +1,4 @@
-#ifndef uiinitmac_h
-#define uiinitmac_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -21,4 +20,3 @@ mGlobal(uiBase) void uiInitMac();
 #endif
 
 
-#endif

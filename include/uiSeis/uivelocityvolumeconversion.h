@@ -1,5 +1,4 @@
-#ifndef uivelocityvolumeconversion_h
-#define uivelocityvolumeconversion_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
 
 
 
-#endif

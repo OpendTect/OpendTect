@@ -1,5 +1,4 @@
-#ifndef cmddriverdlg_h
-#define cmddriverdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -110,4 +109,3 @@ private:
 }; // namespace CmdDrive
 
 
-#endif

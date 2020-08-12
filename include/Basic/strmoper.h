@@ -1,5 +1,4 @@
-#ifndef strmoper_h
-#define strmoper_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -56,4 +55,3 @@ namespace StrmOper
 }
 
 
-#endif

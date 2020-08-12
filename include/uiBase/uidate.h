@@ -1,5 +1,4 @@
-#ifndef uidate_h
-#define uidate_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
 
 
 
-#endif

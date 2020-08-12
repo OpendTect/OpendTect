@@ -1,5 +1,4 @@
-#ifndef uiodbodydisplaytreeitem_h
-#define uiodbodydisplaytreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -108,4 +107,3 @@ protected:
     MenuItem		isochronmnuitem_;
 };
 
-#endif

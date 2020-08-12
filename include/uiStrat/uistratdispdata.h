@@ -1,5 +1,4 @@
-#ifndef uistratdispdata_h
-#define uistratdispdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -211,4 +210,3 @@ public:
     uiTreeViewItem*	setCurrentTreeItem(const char*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef dataclipper_h
-#define dataclipper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -163,4 +162,3 @@ protected:
 };
 
 
-#endif

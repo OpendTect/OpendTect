@@ -1,5 +1,4 @@
-#ifndef uifont_h
-#define uifont_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -135,4 +134,3 @@ private:
 
 #define FontList    uiFontList::getInst
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseisfileman_h
-#define uiseisfileman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -68,4 +67,3 @@ protected:
 
 };
 
-#endif

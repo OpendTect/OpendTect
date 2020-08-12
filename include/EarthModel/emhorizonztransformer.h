@@ -1,5 +1,4 @@
-#ifndef emhorizonztransformer_h
-#define emhorizonztransformer_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -56,4 +55,3 @@ protected:
 
 } // namespace EM
 
-#endif

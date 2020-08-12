@@ -1,5 +1,4 @@
-#ifndef visannot_h
-#define visannot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -127,4 +126,3 @@ private:
 
 } // namespace visBase
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visaxisdisplay_h
-#define visaxisdisplay_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -33,5 +32,3 @@ public:
 };
 
 } // namespace visSurvey
-
-#endif

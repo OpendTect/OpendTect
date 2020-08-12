@@ -1,5 +1,4 @@
-#ifndef uiodlangmenumgr_h
-#define uiodlangmenumgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -38,4 +37,3 @@ protected:
     uiMenu*		langmnu_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef view2dseismic_h
-#define view2dseismic_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ protected:
 };
 
 
-#endif

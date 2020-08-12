@@ -1,5 +1,4 @@
-#ifndef mpeengine_h
-#define mpeengine_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -229,4 +228,3 @@ mGlobal(MPEEngine) Engine&	engine();
 
 } // namespace MPE
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seisresampler_h
-#define seisresampler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 };
 
 
-#endif

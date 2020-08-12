@@ -1,5 +1,4 @@
-#ifndef uiwelldisplay_h
-#define uiwelldisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ protected:
     void 			closeWin(CallBacker*);
 };
 
-#endif

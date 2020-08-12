@@ -1,5 +1,4 @@
-#ifndef uishortcutsmgr_h
-#define uishortcutsmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -149,4 +148,3 @@ protected:
     uiString		extralbl_;
 };
 
-#endif

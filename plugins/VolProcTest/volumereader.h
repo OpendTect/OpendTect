@@ -1,5 +1,4 @@
-#ifndef volumereader_h
-#define volumereader_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 
 
 };
-#endif

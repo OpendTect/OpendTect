@@ -1,5 +1,4 @@
-#ifndef uicreatepicks_h
-#define uicreatepicks_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -144,4 +143,3 @@ protected:
 };
 
 
-#endif

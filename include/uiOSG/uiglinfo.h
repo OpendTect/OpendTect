@@ -1,5 +1,4 @@
-#ifndef uiglinfo_h
-#define uiglinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 mGlobal(uiOSG) uiGLInfo& uiGLI();
 
 
-#endif

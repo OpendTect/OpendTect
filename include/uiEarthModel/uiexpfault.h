@@ -1,5 +1,4 @@
-#ifndef uiexpfault_h
-#define uiexpfault_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
     uiString		dispstr_;
 };
 
-#endif

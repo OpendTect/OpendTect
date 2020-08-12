@@ -1,5 +1,4 @@
-#ifndef seiszaxisstretcher_h
-#define seiszaxisstretcher_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -87,4 +86,3 @@ protected:
 
 };
 
-#endif

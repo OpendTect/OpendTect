@@ -1,5 +1,4 @@
-#ifndef seisimpbpsif_h
-#define seisimpbpsif_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -119,4 +118,3 @@ protected:
 };
 
 
-#endif

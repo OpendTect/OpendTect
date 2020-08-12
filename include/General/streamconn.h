@@ -1,5 +1,4 @@
-#ifndef streamconn_h
-#define streamconn_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ private:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef odplugin_h
-#define odplugin_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -37,4 +36,3 @@ extern "C" {
     mExternC(pinm) int Get##pinm##PluginType() { return PI_AUTO_INIT_EARLY; }
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef velocityfunctioninterval_h
-#define velocityfunctioninterval_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 
 } // namespace Vel
 
-#endif

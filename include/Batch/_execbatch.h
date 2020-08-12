@@ -1,5 +1,4 @@
-#ifndef _execbatch_h
-#define _execbatch_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -126,4 +125,3 @@ void Execute_batch( int* pargc, char** argv )
     bp.stillok_ = true;
 }
 
-#endif

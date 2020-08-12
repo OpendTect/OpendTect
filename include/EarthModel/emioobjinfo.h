@@ -1,5 +1,4 @@
-#ifndef emioobjinfo_h
-#define emioobjinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -106,4 +105,3 @@ protected:
 
 } // namespace EM
 
-#endif

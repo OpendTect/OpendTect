@@ -1,5 +1,4 @@
-#ifndef uilineedit_h
-#define uilineedit_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -175,4 +174,3 @@ private:
 
 };
 
-#endif

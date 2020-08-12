@@ -1,5 +1,4 @@
-#ifndef uiodplanedatatreeitem_h
-#define uiodplanedatatreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -185,4 +184,3 @@ protected:
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
 };
 
-#endif

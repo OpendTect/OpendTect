@@ -1,5 +1,4 @@
-#ifndef uiflatauxdataeditorlist_h
-#define uiflatauxdataeditorlist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
     bool					isrectangleselection_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiprestkcopy_h
-#define uiprestkcopy_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

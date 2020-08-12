@@ -1,5 +1,4 @@
-#ifndef uipsviewerposdlg_h
-#define uipsviewerposdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 
 } // namespace 
 
-#endif

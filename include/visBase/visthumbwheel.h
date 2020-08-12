@@ -1,5 +1,4 @@
-#ifndef visthumbwheel_h
-#define visthumbwheel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 } // namespace visBase
 
-#endif

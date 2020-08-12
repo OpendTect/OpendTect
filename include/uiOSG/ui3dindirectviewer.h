@@ -1,5 +1,4 @@
-#ifndef ui3dindirectviewer_h
-#define ui3dindirectviewer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ protected:
     GraphicsWindowIndirect*	graphicswin_;    
 };
 
-#endif

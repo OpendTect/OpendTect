@@ -1,5 +1,4 @@
-#ifndef uiprestackprocessorsel_h
-#define uiprestackprocessorsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef convert_h
-#define convert_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -226,4 +225,3 @@ namespace Conv \
 }
 
 
-#endif

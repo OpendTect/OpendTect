@@ -1,5 +1,4 @@
-#ifndef geom2dascio_h
-#define geom2dascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 					 float& spnr,bool isxy,bool conv) const;
 };
 
-#endif

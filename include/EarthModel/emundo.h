@@ -1,5 +1,4 @@
-#ifndef emundo_h
-#define emundo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -162,4 +161,3 @@ protected:
 
 } // namespace EM
 
-#endif

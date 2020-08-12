@@ -1,5 +1,4 @@
-#ifndef uiarray2dinterpol_h
-#define uiarray2dinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -179,4 +178,3 @@ protected:
     int				nrsteps_;
     uiGenInput*                 nrstepsfld_;
 };
-#endif

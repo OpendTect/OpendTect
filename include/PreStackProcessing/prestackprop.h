@@ -1,5 +1,4 @@
-#ifndef prestackprop_h
-#define prestackprop_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ public:
 
 } // namespace PreStack
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiodfaulttoolman_h
-#define uiodfaulttoolman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -231,4 +230,3 @@ protected:
 };
 
 
-#endif

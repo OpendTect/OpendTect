@@ -1,5 +1,4 @@
-#ifndef gmt2dlines_h
-#define gmt2dlines_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 };
 
 
-#endif

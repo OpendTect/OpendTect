@@ -1,5 +1,4 @@
-#ifndef velocitypicks_h
-#define velocitypicks_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -225,4 +224,3 @@ mGlobal(Velocity) PicksMgr& VPM();
 
 } // namespace Vel
 
-#endif

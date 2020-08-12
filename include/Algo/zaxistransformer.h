@@ -1,5 +1,4 @@
-#ifndef zaxistransformer_h
-#define zaxistransformer_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -69,4 +68,3 @@ public:
 
 
 
-#endif

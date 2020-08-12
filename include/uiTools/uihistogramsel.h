@@ -1,5 +1,4 @@
-#ifndef uihistogramsel_h
-#define uihistogramsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
     void			histDRChanged(CallBacker*);
 };
 
-#endif

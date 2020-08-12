@@ -1,5 +1,4 @@
-#ifndef view2dhorizon3d_h
-#define view2dhorizon3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 };
 
 
-#endif

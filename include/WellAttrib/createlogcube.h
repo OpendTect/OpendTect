@@ -1,5 +1,4 @@
-#ifndef createlogcube_h
-#define createlogcube_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ protected:
     void			addUniqueTrace(const SeisTrc&,SeisTrcBuf&)const;
 };
 
-#endif

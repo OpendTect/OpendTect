@@ -1,5 +1,4 @@
-#ifndef vissurvobj_h
-#define vissurvobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -395,4 +394,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

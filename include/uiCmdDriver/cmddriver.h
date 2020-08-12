@@ -1,5 +1,4 @@
-#ifndef cmddriver_h
-#define cmddriver_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -334,4 +333,3 @@ public:
 }; // namespace CmdDrive
 
 
-#endif

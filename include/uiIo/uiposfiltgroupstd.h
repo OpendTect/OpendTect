@@ -1,5 +1,4 @@
-#ifndef uiposfiltgroupstd_h
-#define uiposfiltgroupstd_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 };
 
 
-#endif

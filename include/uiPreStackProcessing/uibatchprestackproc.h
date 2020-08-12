@@ -1,5 +1,4 @@
-#ifndef uibatchprestackproc_h
-#define uibatchprestackproc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 }; //namespace
 
 
-#endif

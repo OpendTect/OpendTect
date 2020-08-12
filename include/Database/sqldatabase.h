@@ -1,5 +1,4 @@
-#ifndef sqldatabase_h
-#define sqldatabase_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,6 +106,4 @@ public:
 };
 
 } // namespace
-
-#endif
 

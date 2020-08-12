@@ -1,5 +1,4 @@
-#ifndef uisplitter_h
-#define uisplitter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ private:
     uiSplitterBody&	mkbody(uiParent*,const char*);
 };
 
-#endif

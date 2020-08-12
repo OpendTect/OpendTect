@@ -1,5 +1,4 @@
-#ifndef uiodsysadm_h
-#define uiodsysadm_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef odnetworkreply_h
-#define odnetworkreply_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ protected:
 
 };
 
-#endif

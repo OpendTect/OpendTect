@@ -1,5 +1,4 @@
-#ifndef process_time2depth_h
-#define process_time2depth_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -26,4 +25,3 @@ struct ProcessTime2Depth
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uifiledlg_h
-#define uifiledlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -116,4 +115,3 @@ private:
     void		endCmdRecEvent(int refnr, bool ok);
 };
 
-#endif

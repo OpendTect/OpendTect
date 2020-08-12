@@ -1,5 +1,4 @@
-#ifndef uivisplanedatadisplaydragprop_h
-#define uivisplanedatadisplaydragprop_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -35,4 +34,3 @@ protected:
     const int				initialpanstate_;
 };
 
-#endif

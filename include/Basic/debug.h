@@ -1,5 +1,4 @@
-#ifndef debug_h
-#define debug_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ private:
 #define	DBG_PROGSTART	0x0080	// Program start and stop
 #define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
 
-#endif

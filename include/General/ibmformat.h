@@ -1,5 +1,4 @@
-#ifndef ibmformat_h
-#define ibmformat_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ public:
 };
 
 
-#endif

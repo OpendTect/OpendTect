@@ -1,5 +1,4 @@
-#ifndef visrandompos2body_h
-#define visrandompos2body_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

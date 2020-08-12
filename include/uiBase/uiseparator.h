@@ -1,5 +1,4 @@
-#ifndef uiseparator_H
-#define uiseparator_H
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ private:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef isocontourtracer_h
-#define isocontourtracer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
 };
 
 
-#endif

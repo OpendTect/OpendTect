@@ -1,5 +1,4 @@
-#ifndef volprocvolreader_h
-#define volprocvolreader_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

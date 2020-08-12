@@ -1,5 +1,4 @@
-#ifndef uiodviewer2dmgr_h
-#define uiodviewer2dmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -214,4 +213,3 @@ public:
     void			setupCurInterpItem(uiODViewer2D*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseisbrowser_h
-#define uiseisbrowser_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -138,4 +137,3 @@ private:
 };
 
 
-#endif

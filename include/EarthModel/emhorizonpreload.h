@@ -1,5 +1,4 @@
-#ifndef emhorizonpreload_h
-#define emhorizonpreload_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ mGlobal(EarthModel) HorizonPreLoader& HPreL();
 
 } //namespace EM
 
-#endif

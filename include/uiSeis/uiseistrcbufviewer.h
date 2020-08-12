@@ -1,5 +1,4 @@
-#ifndef uiseistrcbufviewer_h
-#define uiseistrcbufviewer_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -57,4 +56,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visevent_h
-#define visevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ protected:
 }; // Namespace
 
 
-#endif

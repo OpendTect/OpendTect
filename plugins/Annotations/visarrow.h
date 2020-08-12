@@ -1,5 +1,4 @@
-#ifndef visarrow_h
-#define visarrow_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 
 } // namespace visBase
 
-#endif

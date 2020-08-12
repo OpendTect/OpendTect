@@ -1,5 +1,4 @@
-#ifndef stratlaymodgen_h
-#define stratlaymodgen_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
 
 }; // namespace Strat
 
-#endif

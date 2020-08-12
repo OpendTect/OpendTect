@@ -1,5 +1,4 @@
-#ifndef propertyref_h
-#define propertyref_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -203,4 +202,3 @@ public:
 };
 
 
-#endif

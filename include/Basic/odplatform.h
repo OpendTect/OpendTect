@@ -1,5 +1,4 @@
-#ifndef odplatform_h
-#define odplatform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
 #define mPlfShortName(ptyp) mPlf(ptyp).shortName()
 
 
-#endif

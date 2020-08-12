@@ -1,5 +1,4 @@
-#ifndef horizon3dseedpicker_h
-#define horizon3dseedpicker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ private:
 
 } // namespace MPE
 
-#endif

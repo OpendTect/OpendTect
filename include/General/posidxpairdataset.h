@@ -1,5 +1,4 @@
-#ifndef posidxpairdataset_h
-#define posidxpairdataset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -285,4 +284,3 @@ inline bool IdxPairDataSet::SPos::operator <( const SPos& oth ) const
 } // namespace Pos
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uistratlvlsel_h
-#define uistratlvlsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 };
 
 
-#endif

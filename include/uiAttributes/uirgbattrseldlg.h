@@ -1,5 +1,4 @@
-#ifndef uirgbattrseldlg_h
-#define uirgbattrseldlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -39,4 +38,3 @@ protected:
 
 };
 
-#endif

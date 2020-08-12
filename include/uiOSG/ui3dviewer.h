@@ -1,5 +1,4 @@
-#ifndef ui3dviewer_h
-#define ui3dviewer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ private:
 
 };
 
-#endif

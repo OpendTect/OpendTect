@@ -1,5 +1,4 @@
-#ifndef velocitycalc_h
-#define velocitycalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -447,4 +446,3 @@ mGlobal(Algo) bool convertToVintIfNeeded(const float* inpvel,
 mGlobal(Algo) SamplingData<double> getDoubleSamplingData(
 						    const SamplingData<float>&);
 
-#endif

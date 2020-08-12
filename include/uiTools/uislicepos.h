@@ -1,5 +1,4 @@
-#ifndef uislicepos_h
-#define uislicepos_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
     void		nextCB(CallBacker*);
 };
 
-#endif

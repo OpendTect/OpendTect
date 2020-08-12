@@ -1,5 +1,4 @@
-#ifndef oscommand_h
-#define oscommand_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -304,4 +303,3 @@ mGlobal(Basic) void DisplayErrorMessage(const char*);
 } // namespace OD
 
 
-#endif

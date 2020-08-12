@@ -1,5 +1,4 @@
-#ifndef uiodmain_h
-#define uiodmain_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -174,4 +173,3 @@ private:
     void		treeAddCB(CallBacker*);
 };
 
-#endif

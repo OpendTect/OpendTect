@@ -1,5 +1,4 @@
-#ifndef offsetazimuth_h
-#define offsetazimuth_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 };
 
 
-#endif

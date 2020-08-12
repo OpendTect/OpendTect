@@ -1,5 +1,4 @@
-#ifndef attribprovider_h
-#define attribprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -441,4 +440,3 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
     Attrib::PF().addDesc( desc, createInstance ); \
     desc->unRef();
 
-#endif

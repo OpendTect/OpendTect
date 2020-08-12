@@ -1,5 +1,4 @@
-#ifndef polygon_h
-#define polygon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -814,4 +813,3 @@ void ODPolygon<T>::keepBendPoints( float eps )
 	poly_ += poly_.first();
 }
 
-#endif

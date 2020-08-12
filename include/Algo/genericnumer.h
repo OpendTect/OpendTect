@@ -1,5 +1,4 @@
-#ifndef genericnumer_h
-#define genericnumer_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -259,4 +258,3 @@ inline void reverseArray( A* in, int sz, A* out=0 )
 }
 
 
-#endif

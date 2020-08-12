@@ -1,5 +1,4 @@
-#ifndef odimage_h
-#define odimage_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ public:
 
 }; // namespace OD
 
-#endif

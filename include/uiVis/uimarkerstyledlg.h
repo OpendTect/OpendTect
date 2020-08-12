@@ -1,5 +1,4 @@
-#ifndef uimarkerstyledlg_h
-#define uimarkerstyledlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -34,4 +33,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uistratlaymoddisp_h
-#define uistratlaymoddisp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -132,4 +131,3 @@ protected:
 				//!< returns whether layermodel has changed
 };
 
-#endif

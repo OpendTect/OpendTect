@@ -1,5 +1,4 @@
-#ifndef uiimphorizon_h
-#define uiimphorizon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ protected:
     EM::Horizon3D*		createHor() const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uispecdecompattrib_h
-#define uispecdecompattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ protected:
 
 };
 
-#endif

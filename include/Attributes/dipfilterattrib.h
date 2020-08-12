@@ -1,5 +1,4 @@
-#ifndef dipfilterattrib_h
-#define dipfilterattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -138,4 +137,3 @@ protected:
 }; // namespace Attrib
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiwelldispprop_h
-#define uiwelldispprop_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -216,4 +215,3 @@ protected:
 
 };
 
-#endif

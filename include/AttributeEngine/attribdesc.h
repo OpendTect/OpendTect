@@ -1,5 +1,4 @@
-#ifndef attribdesc_h
-#define attribdesc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -356,4 +355,3 @@ protected:
 #define mGetDouble( var, varstring ) \
     mGetDoubleFromDesc( desc_, var, varstring )
 
-#endif

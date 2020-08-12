@@ -1,5 +1,4 @@
-#ifndef uivolthresholder_h
-#define uivolthresholder_h
+#pragma once
 
 /*+
 
@@ -40,4 +39,3 @@ protected:
 
 
 }; //namespace
-#endif

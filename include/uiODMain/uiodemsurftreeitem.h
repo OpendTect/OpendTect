@@ -1,5 +1,4 @@
-#ifndef uiodemsurftreeitem_h
-#define uiodemsurftreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -108,4 +107,3 @@ protected:
 };
 
 
-#endif

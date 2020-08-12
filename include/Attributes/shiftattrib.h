@@ -1,5 +1,4 @@
-#ifndef shiftattrib_h
-#define shiftattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

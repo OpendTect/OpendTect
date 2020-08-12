@@ -1,5 +1,4 @@
-#ifndef uisetdatadir_h
-#define uisetdatadir_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -49,4 +48,3 @@ protected:
 
 };
 
-#endif

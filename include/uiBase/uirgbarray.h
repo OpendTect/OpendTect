@@ -1,5 +1,4 @@
-#ifndef uirgbarray_h
-#define uirgbarray_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ private:
     OD::RGBImage*	loadImage(const char*,uiString&) const;
 };
 
-#endif

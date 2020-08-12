@@ -1,5 +1,4 @@
-#ifndef uiposprovgroupstd_h
-#define uiposprovgroupstd_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -133,4 +132,3 @@ protected:
 };
 
 
-#endif

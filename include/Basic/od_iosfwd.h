@@ -1,5 +1,4 @@
-#ifndef od_iosfwd_h
-#define od_iosfwd_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -25,4 +24,3 @@ typedef od_int64	od_stream_Pos;
 #define od_newline	'\n'
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef hostdata_h
-#define hostdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -161,4 +160,3 @@ protected:
 
 #undef mRetNoneIfEmpty
 
-#endif

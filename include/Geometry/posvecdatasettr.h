@@ -1,5 +1,4 @@
-#ifndef posvecdatasettr_h
-#define posvecdatasettr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ public:
 };
 
 
-#endif

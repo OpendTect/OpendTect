@@ -1,5 +1,4 @@
-#ifndef seis2dto3d_h
-#define seis2dto3d_h
+#pragma once
 
 
 /*+
@@ -188,4 +187,3 @@ protected:
     float               avgminval_;
 };
 
-#endif

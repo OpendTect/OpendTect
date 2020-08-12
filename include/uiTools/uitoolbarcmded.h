@@ -1,5 +1,4 @@
-#ifndef uitoolbarcmded_h
-#define uitoolbarcmded_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 
 };
 
-#endif

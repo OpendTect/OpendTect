@@ -1,5 +1,4 @@
-#ifndef uicontourtreeitem_h
-#define uicontourtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ private:
 
 };
 
-#endif

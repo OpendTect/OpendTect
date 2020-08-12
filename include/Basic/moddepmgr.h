@@ -1,5 +1,4 @@
-#ifndef moddepmgr_h
-#define moddepmgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -78,4 +77,3 @@ extern "C" void od_##nm##_initStdClasses()
 
 } // namespace OD
 
-#endif

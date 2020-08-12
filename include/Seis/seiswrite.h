@@ -1,5 +1,4 @@
-#ifndef seiswrite_h
-#define seiswrite_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -172,4 +171,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseispreloadmgr_h
-#define uiseispreloadmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiraytracer_h
-#define uiraytracer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -114,4 +113,3 @@ protected:
 };
 
 
-#endif

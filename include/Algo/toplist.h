@@ -1,5 +1,4 @@
-#ifndef toplist_h
-#define toplist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -126,4 +125,3 @@ void TopList<VT,AVT>::addValue( VT val, AVT aval )
 	    values_.removeSingle(mysize);
     }
 }
-#endif

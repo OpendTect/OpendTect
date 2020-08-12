@@ -1,5 +1,4 @@
-#ifndef namedobj_h
-#define namedobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ private:
 };
 
 
-#endif

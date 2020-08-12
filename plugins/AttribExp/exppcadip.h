@@ -1,5 +1,4 @@
-#ifndef exppcadip_h
-#define exppcadip_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -166,4 +165,3 @@ protected:
     friend class	PCADipAttrib::Task::Input;
 };
 
-#endif

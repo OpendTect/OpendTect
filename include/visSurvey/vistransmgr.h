@@ -1,5 +1,4 @@
-#ifndef vistransmgr_h
-#define vistransmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ mGlobal(visSurvey) SceneTransformManager& STM();
 } // namespace visSurvey
 
 
-#endif

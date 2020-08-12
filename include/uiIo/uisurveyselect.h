@@ -1,5 +1,4 @@
-#ifndef uisurveyselect_h
-#define uisurveyselect_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
     bool		needvalidrootdir_;
 };
 
-#endif

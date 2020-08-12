@@ -1,5 +1,4 @@
-#ifndef seisrandlineto2d_h
-#define seisrandlineto2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef emfaultstickset_h
-#define emfaultstickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
 
 } // namespace EM
 
-#endif

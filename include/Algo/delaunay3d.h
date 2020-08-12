@@ -1,5 +1,4 @@
-#ifndef delaunay3d_h
-#define delaunay3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -170,4 +169,3 @@ protected:
 };
 
 
-#endif

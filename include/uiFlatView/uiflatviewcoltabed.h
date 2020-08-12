@@ -1,5 +1,4 @@
-#ifndef uiflatviewcoltabed_h
-#define uiflatviewcoltabed_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
     void			colTabChanged(CallBacker*);
 };
 
-#endif

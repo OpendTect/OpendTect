@@ -1,5 +1,4 @@
-#ifndef coord_h
-#define coord_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -264,4 +263,3 @@ inline Coord3 Coord3::normalize() const
 }
 
 
-#endif

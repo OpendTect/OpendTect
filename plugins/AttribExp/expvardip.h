@@ -1,5 +1,4 @@
-#ifndef expvardip_h
-#define expvardip_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -179,4 +178,3 @@ protected:
     friend class	MinVarianceDipAttrib::Task::Input;
 };
 
-#endif
