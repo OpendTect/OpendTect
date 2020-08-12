@@ -237,6 +237,10 @@ bool Well::Track::insertAtDah( float dh, float zpos )
     const int insertidx = indexOf( dh );
     if ( insertidx<0 )
 	return false;
+
+    if ( mIsEqual(dh,dah_[insertidx],1e-3) )
+	return true;
+
     Coord3 prevcrd( pos_[insertidx] );
     Coord3 nextcrd( pos_[insertidx+1] );
     Coord3 crd( ( prevcrd + nextcrd )/2 );
