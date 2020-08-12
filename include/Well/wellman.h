@@ -73,7 +73,8 @@ public:
 			~Man();
 
     void		removeObject( const Well::Data* );
-    Data*		get(const MultiID&, LoadReqs reqs=LoadReqs());
+    Data*		get(const MultiID&);
+    Data*		get(const MultiID&,LoadReqs);
     bool		readReqData(const MultiID&, Well::Data*, LoadReqs);
     void		add(const MultiID&,Data*);
 			//!< Data becomes mine
