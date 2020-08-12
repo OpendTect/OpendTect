@@ -135,6 +135,12 @@ Well::Data* Well::Man::release( const MultiID& key )
 }
 
 
+Well::Data* Well::Man::get( const MultiID& key )
+{
+    return get( key, Well::LoadReqs() );
+}
+
+
 Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 {
     msg_.setEmpty();
