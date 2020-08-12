@@ -71,7 +71,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     {
 	const uiString vellbl = tr("Temporary model velocity %1" )
 				  .arg( VelocityDesc::getVelUnit( true ));
-	const float vel = getGUIDefaultVelocity();
+	const float vel = uiD2TModelGroup::getDefaultTemporaryVelocity();
 	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
 	velocityfld_->attach( alignedBelow, dataselfld_ );
     }
@@ -127,6 +127,8 @@ static bool getInfo( const char* wellnm, float& kb, Well::Info& info )
 }
 
 
+#define mDefEpsZ 1e-3
+
 void uiBulkTrackImport::readFile( od_istream& istrm )
 {
     BulkTrackAscIO aio( *fd_, istrm );
@@ -157,8 +159,45 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	if ( depthistvd )
 	    crd.z -= kb;
 
-	if ( crd.isDefined() )
-	    wd->track().addPoint( crd.coord(), (float) crd.z, md );
+	if ( !crd.isDefined() )
+	    continue;
+
+	Well::Track& track = wd->track();
+	if ( mIsUdf(md) )
+	    track.insertPoint( crd );
+	else
+	{
+	    if ( track.isEmpty() || md > track.dah(track.size()-1) )
+		track.addPoint( crd, md );
+	    else if ( md < track.dah(track.size()-1) + mDefEpsZ )
+	    {
+		const bool inserted = track.insertAtDah( md, (float) crd.z );
+		if ( inserted )
+		{
+		    const int idx = track.indexOf( md );
+		    if ( idx > -1 )
+			const_cast<Coord3&>( track.pos(idx) ) = crd;
+		}
+	    }
+	}
+    }
+
+    for ( int widx=0; widx<wells_.size(); widx++ )
+    {
+	Well::Data* wd = wells_[widx];
+	Well::Track& track = wd->track();
+	const float firstmd = track.dah(0);
+	if ( track.isEmpty() || firstmd < mDefEpsZ )
+	    continue;
+
+	const Coord3 surfloc = track.pos(0);
+	const bool inserted = track.insertAtDah( 0.f, -1.f*track.getKbElev() );
+	if ( inserted )
+	{
+	    const int idx = track.indexOf( 0.f );
+	    if ( idx > -1 )
+		const_cast<Coord3&>( track.pos(idx) ).coord() = surfloc.coord();
+	}
     }
 }
 

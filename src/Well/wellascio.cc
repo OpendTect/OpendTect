@@ -468,16 +468,15 @@ BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
 
 Table::FormatDesc* BulkTrackAscIO::getDesc()
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
+    auto* fd = new Table::FormatDesc( "BulkWellTrack" );
     fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
+    auto* zti = Table::TargetInfo::mkDepthPosition( true );
     zti->form(0).setName( Well::Info::sKeyTVDSS() );
-    zti->add( new Table::TargetInfo::Form("TVD",FloatInpSpec()) );
+    zti->add( new Table::TargetInfo::Form( "TVD", FloatInpSpec()) );
     fd->bodyinfos_ += zti;
-    Table::TargetInfo* mdti =
-	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
-				PropertyRef::Dist );
+    auto* mdti = new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
+					PropertyRef::Dist );
     mdti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += mdti;
     fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
