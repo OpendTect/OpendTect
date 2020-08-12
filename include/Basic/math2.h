@@ -1,5 +1,4 @@
-#ifndef math2_h
-#define math2_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -140,4 +139,3 @@ mGlobal(Basic) int NrSignificantDecimals(double);
 } // namespace Math
 
 
-#endif

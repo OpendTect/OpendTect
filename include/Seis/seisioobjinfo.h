@@ -1,5 +1,4 @@
-#ifndef seisioobjinfo_h
-#define seisioobjinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -196,4 +195,3 @@ protected:
 };
 
 
-#endif

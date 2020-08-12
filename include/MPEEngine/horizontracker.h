@@ -1,5 +1,4 @@
-#ifndef horizontracker_h
-#define horizontracker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -146,4 +145,3 @@ protected:
 
 } // namespace MPE
 
-#endif

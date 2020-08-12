@@ -1,5 +1,4 @@
-#ifndef uicoltabmarker_h
-#define uicoltabmarker_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -77,4 +76,3 @@ protected:
     void                        markerChgd(CallBacker*);
 };
 
-#endif

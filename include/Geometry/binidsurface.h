@@ -1,5 +1,4 @@
-#ifndef binidsurface_h
-#define binidsurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
 } // namespace Geometry
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef arrayndalgo_h
-#define arrayndalgo_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -2496,4 +2495,3 @@ private:
     const od_int64		totalnr_;
 };
 
-#endif

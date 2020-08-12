@@ -1,5 +1,4 @@
-#ifndef uimultiwelllogsel_h
-#define uimultiwelllogsel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -183,4 +182,3 @@ protected:
     void		updateLogsFldCB(CallBacker*);
 };
 
-#endif

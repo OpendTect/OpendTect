@@ -1,5 +1,4 @@
-#ifndef flatview_h
-#define flatview_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -478,4 +477,3 @@ public:
 
 } // namespace FlatView
 
-#endif

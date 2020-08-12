@@ -1,5 +1,4 @@
-#ifndef stratlevel_h
-#define stratlevel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -207,4 +206,3 @@ mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basen
 
 } // namespace Strat
 
-#endif

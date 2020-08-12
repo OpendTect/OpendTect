@@ -1,5 +1,4 @@
-#ifndef uigraphicsscene_h
-#define uigraphicsscene_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -170,4 +169,3 @@ protected:
 };
 
 
-#endif

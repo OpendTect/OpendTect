@@ -1,5 +1,4 @@
-#ifndef mantistables_h
-#define mantistables_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -149,6 +148,4 @@ protected:
 };
 
 } // namespace
-
-#endif
 

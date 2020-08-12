@@ -1,5 +1,4 @@
-#ifndef uiproxydlg_h
-#define uiproxydlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

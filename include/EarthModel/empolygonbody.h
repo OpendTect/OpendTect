@@ -1,5 +1,4 @@
-#ifndef empolygonbody_h
-#define empolygonbody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ protected:
 
 } // namespace EM
 
-#endif

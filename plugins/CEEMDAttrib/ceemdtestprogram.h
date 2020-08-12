@@ -1,5 +1,4 @@
-#ifndef ceemdtestprogram_h
-#define ceemdtestprogram_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Paul
@@ -302,4 +301,3 @@ namespace Attrib
 
 }; // namespace Attrib
 
-#endif

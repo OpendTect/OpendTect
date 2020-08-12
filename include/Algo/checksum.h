@@ -1,5 +1,4 @@
-#ifndef checksum_h
-#define checksum_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -26,4 +25,3 @@ mGlobal(Algo) od_uint64 checksum64(const unsigned char*,od_uint64 arrsize,
 mGlobal(Algo) void initChecksum();
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef stratunitrepos_h
-#define stratunitrepos_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ public:
 
 } // namespace Strat
 
-#endif

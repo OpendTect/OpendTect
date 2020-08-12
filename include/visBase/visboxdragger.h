@@ -1,5 +1,4 @@
-#ifndef visboxdragger_h
-#define visboxdragger_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ protected:
 
 };
 	
-#endif

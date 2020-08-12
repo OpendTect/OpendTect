@@ -1,5 +1,4 @@
-#ifndef uivisemobj_h
-#define uivisemobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
     BufferString	coltabnm_;
 };
 
-#endif

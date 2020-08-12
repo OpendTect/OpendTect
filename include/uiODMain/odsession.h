@@ -1,5 +1,4 @@
-#ifndef odsession_h
-#define odsession_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ protected:
     void			mkFileInfo();
 };
 
-#endif

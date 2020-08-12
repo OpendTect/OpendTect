@@ -1,5 +1,4 @@
-#ifndef uisurfacesel_h
-#define uisurfacesel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ protected:
 };
 
 
-#endif

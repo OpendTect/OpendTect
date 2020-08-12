@@ -1,5 +1,4 @@
-#ifndef wellelasticmodelcomputer_h
-#define wellelasticmodelcomputer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -89,4 +88,3 @@ protected:
 }; // namespace Well
 
 
-#endif

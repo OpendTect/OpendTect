@@ -1,5 +1,4 @@
-#ifndef refcount_h
-#define refcount_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -342,4 +341,3 @@ inline void ReferenceCounter::unRefDontInvalidate()
 #undef mDeclareCounters
 
 
-#endif

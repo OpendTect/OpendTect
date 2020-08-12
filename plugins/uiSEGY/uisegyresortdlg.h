@@ -1,5 +1,4 @@
-#ifndef uisegyresortdlg_h
-#define uisegyresortdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 };
 
 
-#endif

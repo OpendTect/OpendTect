@@ -1,5 +1,4 @@
-#ifndef uiscalebaritem_h
-#define uiscalebaritem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 };
 
 
-#endif

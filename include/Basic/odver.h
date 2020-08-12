@@ -1,5 +1,4 @@
-#ifndef odver_h
-#define odver_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ mGlobal(Basic) const BufferStringSet&	GetLegalInformation();
 mGlobal(Basic) void			AddLegalInformation(const char*);
 
 
-#endif

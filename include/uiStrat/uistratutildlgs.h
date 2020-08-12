@@ -1,5 +1,4 @@
-#ifndef uistratutildlgs_h
-#define uistratutildlgs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -191,4 +190,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef vistristripset_h
-#define vistristripset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -28,4 +27,3 @@ public:
 };
 
 
-#endif

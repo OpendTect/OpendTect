@@ -1,5 +1,4 @@
-#ifndef uiexport2dhorizon_h
-#define uiexport2dhorizon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

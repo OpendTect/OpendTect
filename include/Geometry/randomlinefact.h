@@ -1,5 +1,4 @@
-#ifndef randomlinefact_h
-#define randomlinefact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -20,4 +19,3 @@ uiString RandomLineSetTranslatorGroup::sTypeName( int num )
 { return uiStrings::sRandomLine( num ); }
 
 
-#endif

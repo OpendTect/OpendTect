@@ -1,5 +1,4 @@
-#ifndef expfact_h
-#define expfact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ static int id;
 };
 
 
-#endif

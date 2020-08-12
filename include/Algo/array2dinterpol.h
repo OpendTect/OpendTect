@@ -1,5 +1,4 @@
-#ifndef array2dinterpol_h
-#define array2dinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -162,4 +161,3 @@ protected:
     bool			croppoly_;
 };
 
-#endif

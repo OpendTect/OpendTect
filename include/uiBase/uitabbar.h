@@ -1,5 +1,4 @@
-#ifndef uitabbar_h
-#define uitabbar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
     uiString		caption_;
 };
 
-#endif

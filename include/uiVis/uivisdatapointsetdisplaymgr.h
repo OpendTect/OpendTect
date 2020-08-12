@@ -1,5 +1,4 @@
-#ifndef uivisdatapointsetdisplaymgr_h
-#define uivisdatapointsetdisplaymgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ protected:
     void	handleMenuCB(CallBacker*);
 };
 
-#endif

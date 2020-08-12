@@ -1,5 +1,4 @@
-#ifndef vistexturechannel2voldata_h
-#define vistexturechannel2voldata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
 } //namespace
 
 
-#endif

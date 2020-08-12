@@ -1,5 +1,4 @@
-#ifndef poly2horvol_h
-#define poly2horvol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef datachar_H
-#define datachar_H
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -96,4 +95,3 @@ public:
 
 #undef mDeclConstr
 
-#endif

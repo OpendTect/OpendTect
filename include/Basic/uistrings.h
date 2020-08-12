@@ -1,5 +1,4 @@
-#ifndef uistrings_h
-#define uistrings_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -610,4 +609,3 @@ public:
 #define mRetInternalInUiRv( uirv, msg ) \
     mPutInternalInUiRv( uirv, msg, return uirv )
 
-#endif

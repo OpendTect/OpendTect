@@ -1,5 +1,4 @@
-#ifndef vistexturecoords_h
-#define vistexturecoords_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ protected:
 
 }; //namespace
 
-#endif

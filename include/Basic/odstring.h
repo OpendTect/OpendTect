@@ -1,5 +1,4 @@
-#ifndef odstring_h
-#define odstring_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -120,4 +119,3 @@ template <class T> inline bool String::operator <( const T& t ) const
 } // namespace OD
 
 
-#endif

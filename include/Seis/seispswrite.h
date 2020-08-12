@@ -1,5 +1,4 @@
-#ifndef seispswrite_h
-#define seispswrite_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ public:
 };
 
 
-#endif

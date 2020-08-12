@@ -1,5 +1,4 @@
-#ifndef emsurfacetr_h
-#define emsurfacetr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -318,4 +317,3 @@ public:
 };
 
 
-#endif

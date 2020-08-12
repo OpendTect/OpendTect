@@ -1,5 +1,4 @@
-#ifndef horizonmerger_h
-#define horizonmerger_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ private:
 
 } // namespace EM
 
-#endif

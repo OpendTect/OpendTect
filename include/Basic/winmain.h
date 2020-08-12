@@ -1,5 +1,4 @@
-#ifndef winmain_h
-#define winmain_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -25,5 +24,3 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return res;
 }
 
-#endif
-	

@@ -1,5 +1,4 @@
-#ifndef uistaticsdesc_h
-#define uistaticsdesc_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -41,4 +40,3 @@ protected:
 };
 
 
-#endif

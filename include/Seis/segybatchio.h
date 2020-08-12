@@ -1,5 +1,4 @@
-#ifndef segybatchio_h
-#define segybatchio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ namespace IO
 } // namespace SEGY
 
 
-#endif

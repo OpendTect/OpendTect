@@ -1,5 +1,4 @@
-#ifndef uimpeman_h
-#define uimpeman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ protected:
     LockedDisplayTimer*		lockeddisplaytimer_;
 };
 
-#endif

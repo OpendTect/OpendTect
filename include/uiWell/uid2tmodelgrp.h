@@ -1,5 +1,4 @@
-#ifndef uid2tmodelgrp_h
-#define uid2tmodelgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ mGlobal(uiWell)	float	getGUIDefaultVelocity();
 			   Replaced by Vel::getGUIDefaultVelocity() */
 
 
-#endif

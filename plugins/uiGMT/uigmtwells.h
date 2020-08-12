@@ -1,5 +1,4 @@
-#ifndef uigmtwells_h
-#define uigmtwells_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ protected:
     void		fillItems();
 };
 
-#endif

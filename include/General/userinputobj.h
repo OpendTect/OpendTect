@@ -1,5 +1,4 @@
-#ifndef userinputobj_h
-#define userinputobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -128,4 +127,3 @@ protected:
 
 };
 
-#endif

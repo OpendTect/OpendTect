@@ -1,5 +1,4 @@
-#ifndef horizonsorter_h
-#define horizonsorter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seis2ddata_h
-#define seis2ddata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ private:
     bool		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 };
 
-#endif

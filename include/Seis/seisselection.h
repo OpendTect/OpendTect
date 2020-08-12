@@ -1,5 +1,4 @@
-#ifndef seisselection_h
-#define seisselection_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -140,4 +139,3 @@ inline bool isEmpty( const SelData* sd )
 
 } // namespace
 
-#endif

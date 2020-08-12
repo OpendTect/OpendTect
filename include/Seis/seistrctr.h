@@ -1,5 +1,4 @@
-#ifndef seistrctr_h
-#define seistrctr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -328,4 +327,3 @@ public:
 };
 
 
-#endif

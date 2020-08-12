@@ -1,5 +1,4 @@
-#ifndef multiid_h
-#define multiid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ public:
     inline bool		isUdf() const		{ return *this == udf(); }
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seispsread_h
-#define seispsread_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

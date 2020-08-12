@@ -1,5 +1,4 @@
-#ifndef ui2dsip_h
-#define ui2dsip_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -63,4 +62,3 @@ protected:
     ObjectSet<Survey::Geometry2D>	geoms_;
 };
 
-#endif

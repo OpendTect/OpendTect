@@ -1,5 +1,4 @@
-#ifndef interpollayermodel_h
-#define interpollayermodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ private:
 
 };
 
-#endif

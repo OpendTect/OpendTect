@@ -1,5 +1,4 @@
-#ifndef filespec_h
-#define filespec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -78,4 +77,3 @@ protected:
 };
 
 
-#endif

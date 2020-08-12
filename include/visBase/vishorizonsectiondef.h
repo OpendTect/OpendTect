@@ -1,5 +1,4 @@
-#ifndef vishorizonsectiondef_h
-#define vishorizonsectiondef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ enum	GeometryType{ Triangle = 0, Line,Point, WireFrame };
     const StepInterval<int>  crg = section op userchangedisplayrg_ ?\
     section op displaycrg_ : section op geometry_->colRange();\
 
-#endif

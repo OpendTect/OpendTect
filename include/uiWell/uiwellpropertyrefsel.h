@@ -1,5 +1,4 @@
-#ifndef uiwellpropertyrefsel_h
-#define uiwellpropertyrefsel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -111,4 +110,3 @@ protected:
 };
 
 
-#endif

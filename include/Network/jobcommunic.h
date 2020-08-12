@@ -1,5 +1,4 @@
-#ifndef JobCommunic_h
-#define JobCommunic_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -143,4 +142,3 @@ private:
 #undef mReturn
 #undef mTryMaxtries
 
-#endif

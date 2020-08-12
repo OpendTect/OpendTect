@@ -1,5 +1,4 @@
-#ifndef uimaterialdlg_h
-#define uimaterialdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -119,4 +118,3 @@ protected:
     visBase::VisualObject*	visobj_;
 };
 
-#endif

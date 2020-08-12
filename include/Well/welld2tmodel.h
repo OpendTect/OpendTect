@@ -1,5 +1,4 @@
-#ifndef welld2tmodel_h
-#define welld2tmodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -131,4 +130,3 @@ mGlobal(Well) float	getDefaultVelocity();
 
 }; // namespace Well
 
-#endif

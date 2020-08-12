@@ -1,5 +1,4 @@
-#ifndef uihorizontracksetup_h
-#define uihorizontracksetup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -186,4 +185,3 @@ protected:
 
 } // namespace MPE
 
-#endif

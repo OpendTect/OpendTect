@@ -1,5 +1,4 @@
-#ifndef wellposprovider_h
-#define wellposprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ public:
 
 } // namespace Pos
 
-#endif

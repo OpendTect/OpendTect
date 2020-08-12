@@ -1,5 +1,4 @@
-#ifndef uipsviewersettingdlg_h
-#define uipsviewersettingdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
 
 }; //namespace 
 
-#endif

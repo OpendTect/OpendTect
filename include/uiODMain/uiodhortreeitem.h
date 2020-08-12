@@ -1,5 +1,4 @@
-#ifndef uiodhortreeitem_h
-#define uiodhortreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -152,4 +151,3 @@ protected:
     MenuItem		interpolatemnuitem_;
 };
 
-#endif

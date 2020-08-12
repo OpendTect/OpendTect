@@ -1,5 +1,4 @@
-#ifndef uiseisexpcubepositions_h
-#define uiseisexpcubepositions_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -42,4 +41,3 @@ private:
     bool		dontask_ = true;
 };
 
-#endif

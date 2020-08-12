@@ -1,5 +1,4 @@
-#ifndef uiprestackattrib_h
-#define uiprestackattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 			mDeclReqAttribUIFns
 };
 
-#endif

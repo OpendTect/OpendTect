@@ -1,5 +1,4 @@
-#ifndef seispreload_h
-#define seispreload_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ mGlobal(Seis) PreLoadDataManager& PLDM();
 
 } // namespace Seis
 
-#endif

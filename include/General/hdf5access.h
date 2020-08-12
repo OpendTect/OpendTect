@@ -1,5 +1,4 @@
-#ifndef hdf5access_h
-#define hdf5access_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -246,4 +245,3 @@ inline const char* sWellType()		{ return "Wells"; }
 
 } // namespace HDF5
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiworld2ui_h
-#define uiworld2ui_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -164,4 +163,3 @@ Geom::Point2D<TT> uiWorld2Ui::transform( const Geom::Point2D<FT>& ptin,
 			      transformY<TT,FT>(ptin.y,toworld) );
 }
 
-#endif

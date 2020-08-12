@@ -1,5 +1,4 @@
-#ifndef visannotimage_h
-#define visannotimage_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 
 } // namespace
 
-#endif

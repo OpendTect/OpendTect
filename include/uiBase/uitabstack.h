@@ -1,5 +1,4 @@
-#ifndef uitabstack_h
-#define uitabstack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
     void		tabCloseCB(CallBacker* cb);
 };
 
-#endif

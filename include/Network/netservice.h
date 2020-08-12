@@ -1,5 +1,4 @@
-#ifndef netservice_h
-#define netservice_h
+#pragma once
 
 /*+
  _________________________________________________________________________
@@ -100,4 +99,3 @@ private:
 };
 
 };
-#endif

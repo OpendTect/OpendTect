@@ -1,5 +1,4 @@
-#ifndef uiodapplmgr_h
-#define uiodapplmgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -321,4 +320,3 @@ public:
     void			launch2DViewer(CallBacker*);
 };
 
-#endif

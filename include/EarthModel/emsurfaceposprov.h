@@ -1,5 +1,4 @@
-#ifndef emsurfaceposprov_h
-#define emsurfaceposprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -370,4 +369,3 @@ protected:
 
 } // namespace Pos
 
-#endif

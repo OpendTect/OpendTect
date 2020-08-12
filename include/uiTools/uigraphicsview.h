@@ -1,5 +1,4 @@
-#ifndef uigraphicsview_h
-#define uigraphicsview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
     uiCrossHairItem*		crosshairitem_;
 };
 
-#endif

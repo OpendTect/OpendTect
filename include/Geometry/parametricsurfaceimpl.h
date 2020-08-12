@@ -1,5 +1,4 @@
-#ifndef parametricsurfaceimpl_h
-#define parametricsurfaceimpl_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
 mReplaceVariable( variable )
 
 
-#endif

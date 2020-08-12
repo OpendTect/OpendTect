@@ -1,5 +1,4 @@
-#ifndef mathformulatransl_h
-#define mathformulatransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -16,4 +15,3 @@ ________________________________________________________________________
 
 mDeclEmptyTranslatorBundle(General,MathFormula,od,"formula")
 
-#endif

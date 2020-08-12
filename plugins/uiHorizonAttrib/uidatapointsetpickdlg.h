@@ -1,5 +1,4 @@
-#ifndef uidatapointsetpickdlg_h
-#define uidatapointsetpickdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -89,4 +88,3 @@ protected:
     TrcKeySampling		tks_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef atomic_h
-#define atomic_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -873,4 +872,3 @@ mImplAtomicPointerOperator( operator--(int), old-1, old );
 
 } //namespace
 
-#endif

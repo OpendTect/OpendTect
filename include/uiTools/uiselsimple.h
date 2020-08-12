@@ -1,5 +1,4 @@
-#ifndef uiselsimple_h
-#define uiselsimple_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -156,4 +155,3 @@ protected:
 };
 
 
-#endif

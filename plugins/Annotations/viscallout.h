@@ -1,5 +1,4 @@
-#ifndef viscallout_h
-#define viscallout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -149,4 +148,3 @@ protected:
 
 } // namespace
 
-#endif

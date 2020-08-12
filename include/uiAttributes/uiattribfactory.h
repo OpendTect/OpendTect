@@ -1,5 +1,4 @@
-#ifndef uiattribfactory_h
-#define uiattribfactory_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 mGlobal(uiAttributes) uiAttributeFactory& uiAF();
 
 
-#endif

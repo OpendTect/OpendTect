@@ -1,5 +1,4 @@
-#ifndef stratamp_h
-#define stratamp_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -80,4 +79,3 @@ private:
 
     uiString			msg_;
 };
-#endif

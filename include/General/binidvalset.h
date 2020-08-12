@@ -1,5 +1,4 @@
-#ifndef binidvalset_h
-#define binidvalset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 };
 
 
-#endif

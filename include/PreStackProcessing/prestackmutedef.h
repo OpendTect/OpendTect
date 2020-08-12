@@ -1,5 +1,4 @@
-#ifndef prestackmutedef_h
-#define prestackmutedef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

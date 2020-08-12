@@ -1,5 +1,4 @@
-#ifndef visscenecoltab_h
-#define visscenecoltab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 } // class visBase
 
 
-#endif

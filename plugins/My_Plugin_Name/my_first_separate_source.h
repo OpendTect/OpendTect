@@ -1,5 +1,4 @@
-#ifndef my_first_separate_source_h
-#define my_first_separate_source_h
+#pragma once
 /*+
  * (C) Your_copyright
  * AUTHOR   : You!
@@ -22,6 +21,4 @@ protected:
     int			my_variable_;
 
 };
-
-#endif
 

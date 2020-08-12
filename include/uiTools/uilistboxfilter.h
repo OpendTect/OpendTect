@@ -1,5 +1,4 @@
-#ifndef uilistboxfilter_h
-#define uilistboxfilter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
 
 
 
-#endif

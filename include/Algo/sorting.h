@@ -1,5 +1,4 @@
-#ifndef sorting_h
-#define sorting_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -631,4 +630,3 @@ bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
 }
 
 
-#endif

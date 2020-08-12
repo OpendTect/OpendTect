@@ -1,5 +1,4 @@
-#ifndef seiseventsnapper_h
-#define seiseventsnapper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
     SeisMSCProvider*		mscprov_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef expdiscfilter_h
-#define expdiscfilter_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -234,4 +233,3 @@ protected:
     friend class	DiscFilterAttrib::Task::Input;
 };
 
-#endif

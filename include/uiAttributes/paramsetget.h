@@ -1,5 +1,4 @@
-#ifndef paramsetget_h
-#define paramsetget_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -180,4 +179,3 @@ if ( valparam##var ) \
 }
 
 
-#endif

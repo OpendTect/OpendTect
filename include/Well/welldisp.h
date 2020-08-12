@@ -1,5 +1,4 @@
-#ifndef welldisp_h
-#define welldisp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -204,4 +203,3 @@ protected:
 
 } // namespace
 
-#endif

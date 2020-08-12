@@ -1,5 +1,4 @@
-#ifndef uimenu_h
-#define uimenu_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ public:
 				const char* iconfilenm=0);
 };
 
-#endif

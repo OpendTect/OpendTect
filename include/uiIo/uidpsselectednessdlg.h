@@ -1,5 +1,4 @@
-#ifndef uidpsselectednessdlg_h
-#define uidpsselectednessdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
 };
 
 
-#endif

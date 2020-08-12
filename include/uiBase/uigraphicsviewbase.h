@@ -1,5 +1,4 @@
-#ifndef uigraphicsviewbase_h
-#define uigraphicsviewbase_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -159,4 +158,3 @@ protected:
     int				border_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef flatauxdataeditor_h
-#define flatauxdataeditor_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -257,4 +256,3 @@ protected:
 
 }; // namespace FlatView
 
-#endif

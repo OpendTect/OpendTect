@@ -1,5 +1,4 @@
-#ifndef uiwellattribpartserv_h
-#define uiwellattribpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ private:
 
 };
 
-#endif

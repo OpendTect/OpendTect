@@ -1,5 +1,4 @@
-#ifndef survgeom_h
-#define survgeom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -212,4 +211,3 @@ public:
 #define mIsUdfGeomID(geomid)	(geomid == mUdfGeomID)
 //To cut the long story short.
 
-#endif

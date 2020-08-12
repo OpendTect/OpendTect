@@ -1,5 +1,4 @@
-#ifndef uiseisiosimple_h
-#define uiseisiosimple_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
@@ -96,4 +95,3 @@ private:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiwindowgrabber_h
-#define uiwindowgrabber_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -79,4 +78,3 @@ protected:
 };
 
 
-#endif

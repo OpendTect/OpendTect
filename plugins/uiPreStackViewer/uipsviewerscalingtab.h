@@ -1,5 +1,4 @@
-#ifndef uipsviewerscalingtab_h
-#define uipsviewerscalingtab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 
 } // namespace
 
-#endif

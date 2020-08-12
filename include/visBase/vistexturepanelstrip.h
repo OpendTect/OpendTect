@@ -1,5 +1,4 @@
-#ifndef vistexturepanelstrip_h
-#define vistexturepanelstrip_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -130,4 +129,3 @@ private:
 
 };
 
-#endif

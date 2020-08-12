@@ -1,5 +1,4 @@
-#ifndef uiwelltiecontrolview_h
-#define uiwelltiecontrolview_h
+#pragma once
 
 /*+
   ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

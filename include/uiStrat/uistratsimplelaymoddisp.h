@@ -1,5 +1,4 @@
-#ifndef uistratsimplelaymoddisp_h
-#define uistratsimplelaymoddisp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ protected:
 };
 
 
-#endif

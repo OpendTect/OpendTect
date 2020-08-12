@@ -1,5 +1,4 @@
-#ifndef geom2dintersections_h
-#define geom2dintersections_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ protected:
     int			counter_;
 };
 
-#endif

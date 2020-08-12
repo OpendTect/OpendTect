@@ -1,5 +1,4 @@
-#ifndef dztimporter_h
-#define dztimporter_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -100,4 +99,3 @@ protected:
 } // namespace DZT
 
 
-#endif

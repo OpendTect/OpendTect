@@ -1,5 +1,4 @@
-#ifndef uiosgfont_h
-#define uiosgfont_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -24,4 +23,3 @@ public:
     osgText::Font*		createFont(const FontData&);
 };
 
-#endif

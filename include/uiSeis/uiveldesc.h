@@ -1,5 +1,4 @@
-#ifndef uiveldesc_h
-#define uiveldesc_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -174,4 +173,3 @@ public:
 
 
 
-#endif

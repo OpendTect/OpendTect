@@ -1,5 +1,4 @@
-#ifndef mmassetmgr_h
-#define mmassetmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ mGlobal(MMProc) const ObjectSet<MMProc::AssetMgr>& ASMGRS();
 
 }; // namespace MMProc
 
-#endif

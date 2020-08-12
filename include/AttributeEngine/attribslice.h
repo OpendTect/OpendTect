@@ -1,5 +1,4 @@
-#ifndef attribslice_h
-#define attribslice_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -74,4 +73,3 @@ public:
 
 }; //namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef wellodwriter_h
-#define wellodwriter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -79,4 +78,3 @@ private:
 
 }; // namespace Well
 
-#endif

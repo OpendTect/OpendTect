@@ -1,5 +1,4 @@
-#ifndef uistratselunits_h
-#define uistratselunits_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 };
 
 
-#endif

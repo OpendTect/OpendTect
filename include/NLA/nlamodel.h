@@ -1,5 +1,4 @@
-#ifndef nlamodel_h
-#define nlamodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ public:
 
 mGlobal(NLA) bool isEmpty(const NLAModel* mdl);
 
-#endif

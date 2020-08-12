@@ -1,5 +1,4 @@
-#ifndef waveletattrib_h
-#define waveletattrib_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -56,4 +55,3 @@ protected:
     void		getWaveletArrForPhase(Array1DImpl<float>&) const;
 };
 
-#endif

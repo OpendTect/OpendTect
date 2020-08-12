@@ -1,5 +1,4 @@
-#ifndef spectrogram_h
-#define spectrogram_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef tablecommands_h
-#define tablecommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -180,4 +179,3 @@ mEndDeclComposerClass
 
 }; // namespace CmdDrive
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uifontsel_h
-#define uifontsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiodhostiddlg_h
-#define uiodhostiddlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -29,4 +28,3 @@ protected:
     uiGenInput*		usernmfld_;
 };
 
-#endif

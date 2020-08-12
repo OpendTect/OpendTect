@@ -1,5 +1,4 @@
-#ifndef arrayndslice_h
-#define arrayndslice_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -285,4 +284,3 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
 
 
 
-#endif

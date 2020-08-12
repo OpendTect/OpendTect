@@ -1,5 +1,4 @@
-#ifndef od_helpids_h
-#define od_helpids_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -491,4 +490,3 @@ external/doc_csh instance of it.
 #define		mPrepNLADataHelpID				0x11400000
 #define		mLithCodeManHelpID				0x11400001
 
-#endif

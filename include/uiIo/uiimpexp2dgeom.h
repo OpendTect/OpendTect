@@ -1,5 +1,4 @@
-#ifndef uiimpexp2dgeom_h
-#define uiimpexp2dgeom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
     TypeSet<Pos::GeomID>	geomidset_;
 };
 
-#endif

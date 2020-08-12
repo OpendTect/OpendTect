@@ -1,5 +1,4 @@
-#ifndef wellreader_h
-#define wellreader_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ protected:
     const Well::LoadReqs	reqs_;
 };
 
-#endif

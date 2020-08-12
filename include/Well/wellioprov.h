@@ -1,5 +1,4 @@
-#ifndef wellioprov_h
-#define wellioprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
 mGlobal(Well) WellDataIOProviderFactory& WDIOPF();
 
 
-#endif

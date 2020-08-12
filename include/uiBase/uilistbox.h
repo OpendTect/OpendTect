@@ -1,5 +1,4 @@
-#ifndef uilistbox_h
-#define uilistbox_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -308,4 +307,3 @@ protected:
 };
 
 
-#endif

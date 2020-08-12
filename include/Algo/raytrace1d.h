@@ -1,5 +1,4 @@
-#ifndef raytrace1d_h
-#define raytrace1d_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -147,4 +146,3 @@ protected:
 };
 
 
-#endif

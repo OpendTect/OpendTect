@@ -1,5 +1,4 @@
-#ifndef keybindings_h
-#define keybindings_h
+#pragma once
 
 /*+
  ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
     osg::ref_ptr<osgGeo::TrackballManipulator> manipulator_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef cmdfunction_h
-#define cmdfunction_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -148,4 +147,3 @@ mStartDeclFunClass( CurWindow,	Function )	mEndDeclFunClass
 }; // namespace CmdDrive
 
 
-#endif

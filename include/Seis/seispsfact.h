@@ -1,5 +1,4 @@
-#ifndef seispsfact_h
-#define seispsfact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ defineTranslator(CBVS,SeisPS2D,"CBVS");
 defineTranslator(SEGYDirect,SeisPS2D,mSEGYDirectTranslNm);
 
 
-#endif

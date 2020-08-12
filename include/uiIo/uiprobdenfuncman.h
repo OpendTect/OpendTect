@@ -1,5 +1,4 @@
-#ifndef uiprobdenfuncman_h
-#define uiprobdenfuncman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -34,4 +33,3 @@ protected:
 
 };
 
-#endif

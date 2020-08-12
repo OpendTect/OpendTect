@@ -1,5 +1,4 @@
-#ifndef uimainwin_h
-#define uimainwin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -246,4 +245,3 @@ public:
     static uiMainWin*	programmedActiveWindow();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef maddefs_h
-#define maddefs_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -76,4 +75,3 @@ mGlobal(Madagascar) ProgInfo& PI();
 
 } // namespace ODMad
 
-#endif

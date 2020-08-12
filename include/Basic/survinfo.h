@@ -1,5 +1,4 @@
-#ifndef survinfo_h
-#define survinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -310,4 +309,3 @@ mExternC( Basic ) const char* GetSurveyName(void);
 
 
 
-#endif

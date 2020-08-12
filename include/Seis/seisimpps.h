@@ -1,5 +1,4 @@
-#ifndef seisimpps_h
-#define seisimpps_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef horizonmodifier_h
-#define horizonmodifier_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 };
 
 
-#endif

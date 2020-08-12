@@ -1,5 +1,4 @@
-#ifndef timeser_H
-#define timeser_H
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ mGlobal(Algo) void Hilbert(int n,float* x,float* y);
 }
 
 
-#endif

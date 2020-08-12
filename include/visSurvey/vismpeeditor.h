@@ -1,5 +1,4 @@
-#ifndef vismpeeditor_h
-#define vismpeeditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -135,4 +134,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

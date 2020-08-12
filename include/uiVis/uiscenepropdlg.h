@@ -1,5 +1,4 @@
-#ifndef uiscenepropdlg_h
-#define uiscenepropdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -77,4 +76,3 @@ protected:
     uiGenInput*			wheelmodefld_;
 };
 
-#endif

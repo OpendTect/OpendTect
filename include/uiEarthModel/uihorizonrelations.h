@@ -1,5 +1,4 @@
-#ifndef uihorizonrelations_h
-#define uihorizonrelations_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
     void		makeWatertightCB(CallBacker*);
 };
 
-#endif

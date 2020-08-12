@@ -1,5 +1,4 @@
-#ifndef arrayndstacker_h
-#define arrayndstacker_h
+#pragma once
 
 /*+
 
@@ -111,4 +110,3 @@ protected:
 
 //TODO implement the ND version
 
-#endif

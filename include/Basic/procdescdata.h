@@ -1,5 +1,4 @@
-#ifndef procdescdata_h
-#define procdescdata_h
+#pragma once
 
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -84,4 +83,3 @@ mGlobal(Basic) const ProcDesc::Data&	    PDD();
 
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef emfault_h
-#define emfault_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -150,4 +149,3 @@ protected:
 } // namespace EM
 
 
-#endif

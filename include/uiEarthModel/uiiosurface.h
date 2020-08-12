@@ -1,5 +1,4 @@
-#ifndef uiiosurface_h
-#define uiiosurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -290,4 +289,3 @@ protected:
     BufferString		seldatanm_;
 };
 
-#endif

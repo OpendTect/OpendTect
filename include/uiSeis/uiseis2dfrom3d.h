@@ -1,5 +1,4 @@
-#ifndef uiseis2dfrom3d_h
-#define uiseis2dfrom3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
     uiSeisSel*		data2dfld_;
 };
 
-#endif

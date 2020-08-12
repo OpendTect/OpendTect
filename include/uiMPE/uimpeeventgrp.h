@@ -1,5 +1,4 @@
-#ifndef uimpeeventgrp_h
-#define uimpeeventgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 
 } // namespace MPE
 
-#endif

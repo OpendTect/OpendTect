@@ -1,5 +1,4 @@
-#ifndef uipickpropdlg_h
-#define uipickpropdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -53,4 +52,3 @@ protected:
     visSurvey::PickSetDisplay*	psd_;
 };
 
-#endif

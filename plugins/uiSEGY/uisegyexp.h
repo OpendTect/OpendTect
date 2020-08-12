@@ -1,5 +1,4 @@
-#ifndef uisegyexp_h
-#define uisegyexp_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -70,4 +69,3 @@ protected:
 };
 
 
-#endif

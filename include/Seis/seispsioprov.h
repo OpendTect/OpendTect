@@ -1,5 +1,4 @@
-#ifndef seispsioprov_h
-#define seispsioprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -209,4 +208,3 @@ public:
 };
 
 
-#endif

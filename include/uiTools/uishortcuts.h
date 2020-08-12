@@ -1,5 +1,4 @@
-#ifndef uishortcuts_h
-#define uishortcuts_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
     uiShortcutsList&	scl_;
 };
 
-#endif

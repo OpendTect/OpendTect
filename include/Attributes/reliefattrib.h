@@ -1,5 +1,4 @@
-#ifndef reliefattrib_h
-#define reliefattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

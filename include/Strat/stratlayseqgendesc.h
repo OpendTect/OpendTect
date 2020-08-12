@@ -1,5 +1,4 @@
-#ifndef stratlayseqgendesc_h
-#define stratlayseqgendesc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 
 }; // namespace Strat
 
-#endif

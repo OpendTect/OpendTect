@@ -1,5 +1,4 @@
-#ifndef uigmtmainwin_h
-#define uigmtmainwin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ private:
     uiString		getCaptionStr() const;
 };
 
-#endif

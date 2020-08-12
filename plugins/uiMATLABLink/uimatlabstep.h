@@ -1,5 +1,4 @@
-#ifndef uimatlabstep_h
-#define uimatlabstep_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

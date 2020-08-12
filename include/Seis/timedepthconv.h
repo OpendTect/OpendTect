@@ -1,5 +1,4 @@
-#ifndef timedepthconv_h
-#define timedepthconv_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -254,4 +253,3 @@ public:
 				{ return false; }
 };
 
-#endif

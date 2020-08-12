@@ -1,5 +1,4 @@
-#ifndef horsampling_h
-#define horsampling_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -22,4 +21,3 @@ typedef TrcKeySampling HorSampling;
 //!Old name, use the new one in all new code
 typedef TrcKeySamplingIterator HorSamplingIterator;
 
-#endif

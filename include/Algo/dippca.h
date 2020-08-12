@@ -1,5 +1,4 @@
-#ifndef dippca_h
-#define dippca_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ protected:
     const float			zdist_;
 };
 
-#endif

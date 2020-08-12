@@ -1,5 +1,4 @@
-#ifndef syntheticdataimpl_h
-#define syntheticdataimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -146,4 +145,3 @@ protected:
 };
 
 
-#endif

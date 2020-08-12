@@ -1,5 +1,4 @@
-#ifndef emfault3dpainter_h
-#define emfault3dpainter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ public:
 
 } //namespace EM
 
-#endif

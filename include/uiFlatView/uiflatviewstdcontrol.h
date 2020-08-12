@@ -1,5 +1,4 @@
-#ifndef uiflatviewstdcontrol_h
-#define uiflatviewstdcontrol_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -183,4 +182,3 @@ protected:
     void		setVwrCursor(uiFlatViewer&,const MouseCursor&);
 };
 
-#endif

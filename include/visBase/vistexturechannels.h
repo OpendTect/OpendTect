@@ -1,5 +1,4 @@
-#ifndef vistexturechannels_h
-#define vistexturechannels_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ public:
 
 }; // Namespace
 
-#endif

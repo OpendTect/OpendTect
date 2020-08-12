@@ -1,5 +1,4 @@
-#ifndef gmtclip_h
-#define gmtclip_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ protected:
     static int		factoryid_;
 };
 
-#endif

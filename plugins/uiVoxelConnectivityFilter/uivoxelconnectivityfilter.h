@@ -1,5 +1,4 @@
-#ifndef uivoxelconnectivityfilter_h
-#define uivoxelconnectivityfilter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 }; //namespace
 
-#endif

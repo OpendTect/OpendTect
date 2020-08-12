@@ -1,5 +1,4 @@
-#ifndef rawarray_h
-#define rawarray_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -42,4 +41,3 @@ protected:
 };
 
 
-#endif

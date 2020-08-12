@@ -1,5 +1,4 @@
-#ifndef uiconstvel_h
-#define uiconstvel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -42,4 +41,3 @@ public:
 };
 
 
-#endif

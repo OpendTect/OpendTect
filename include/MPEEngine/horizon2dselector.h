@@ -1,5 +1,4 @@
-#ifndef horizon2dselector_h
-#define horizon2dselector_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
 
 } // namespace MPE
 
-#endif

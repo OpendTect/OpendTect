@@ -1,5 +1,4 @@
-#ifndef uiattrsrchprocfiles_h
-#define uiattrsrchprocfiles_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -28,4 +27,3 @@ protected:
 
 };
 
-#endif

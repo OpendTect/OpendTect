@@ -1,5 +1,4 @@
-#ifndef trckeyvalue_h
-#define trckeyvalue_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -60,4 +59,3 @@ public:
 inline bool TrcKeyValue::isDefined() const
 { return !tk_.isUdf() && !mIsUdf(val_); }
 
-#endif

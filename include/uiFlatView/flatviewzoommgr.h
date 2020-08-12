@@ -1,5 +1,4 @@
-#ifndef flatviewzoommgr_h
-#define flatviewzoommgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -98,4 +97,3 @@ protected:
 } // namespace FlatView
 
 
-#endif

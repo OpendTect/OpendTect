@@ -1,5 +1,4 @@
-#ifndef cubicbeziersurface_h
-#define cubicbeziersurface_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ protected:
 
 };
 
-#endif

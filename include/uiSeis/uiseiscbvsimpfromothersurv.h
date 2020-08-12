@@ -1,5 +1,4 @@
-#ifndef uiseiscbvsimpfromothersurv_h
-#define uiseiscbvsimpfromothersurv_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -44,4 +43,3 @@ protected:
     void		interpSelDone(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uigmtpolyline_h
-#define uigmtpolyline_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
     void		objSel(CallBacker*);
 };
 
-#endif

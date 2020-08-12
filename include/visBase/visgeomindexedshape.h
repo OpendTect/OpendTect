@@ -1,5 +1,4 @@
-#ifndef visgeomindexedshape_h
-#define visgeomindexedshape_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ protected:
 
 };
 	
-#endif

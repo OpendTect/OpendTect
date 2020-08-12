@@ -1,5 +1,4 @@
-#ifndef uiemattribpartserv_h
-#define uiemattribpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -125,4 +124,3 @@ protected:
     void			readyForDisplayCB(CallBacker*);
 };
 
-#endif

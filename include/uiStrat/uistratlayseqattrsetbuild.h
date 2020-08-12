@@ -1,5 +1,4 @@
-#ifndef uistratlayseqattrsetbuild_h
-#define uistratlayseqattrsetbuild_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 };
 
 
-#endif

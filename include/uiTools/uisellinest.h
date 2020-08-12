@@ -1,5 +1,4 @@
-#ifndef uisellinest_h
-#define uisellinest_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ private:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uislider_h
-#define uislider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -146,4 +145,3 @@ public:
     float		getValue() const	{ return getFValue(); }
 };
 
-#endif

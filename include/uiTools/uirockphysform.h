@@ -1,5 +1,4 @@
-#ifndef uirockphysform_h
-#define uirockphysform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 };
 
 
-#endif

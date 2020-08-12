@@ -1,5 +1,4 @@
-#ifndef prestackanglecomputer_h
-#define prestackanglecomputer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -175,4 +174,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

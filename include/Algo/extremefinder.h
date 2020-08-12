@@ -1,5 +1,4 @@
-#ifndef extremefinder_h
-#define extremefinder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -237,4 +236,3 @@ private:
 };
 
 
-#endif

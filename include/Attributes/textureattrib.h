@@ -1,5 +1,4 @@
-#ifndef textureattrib_h
-#define textureattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

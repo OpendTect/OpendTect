@@ -1,5 +1,4 @@
-#ifndef emdatapack_h
-#define emdatapack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -105,4 +104,3 @@ protected:
 
 } // namespace EM
 
-#endif

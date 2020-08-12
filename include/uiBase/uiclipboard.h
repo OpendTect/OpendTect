@@ -1,5 +1,4 @@
-#ifndef uiclipboard_h
-#define uiclipboard_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -33,4 +32,3 @@ public:
 };
 
 
-#endif

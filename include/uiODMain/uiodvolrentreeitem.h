@@ -1,5 +1,4 @@
-#ifndef uiodvolrentreeitem_h
-#define uiodvolrentreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -106,4 +105,3 @@ protected:
     MenuItem		convertisotobodymnuitem_;
 };
 
-#endif

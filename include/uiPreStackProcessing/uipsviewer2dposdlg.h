@@ -1,5 +1,4 @@
-#ifndef uipsviewer2dposdlg_h
-#define uipsviewer2dposdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -135,4 +134,3 @@ protected:
 
 }; //namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef property_h
-#define property_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -215,4 +214,3 @@ protected:
     float		gtAvgVal() const;
 };
 
-#endif

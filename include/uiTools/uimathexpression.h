@@ -1,5 +1,4 @@
-#ifndef uimathexpression_h
-#define uimathexpression_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
 };
 
 
-#endif

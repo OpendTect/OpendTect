@@ -1,5 +1,4 @@
-#ifndef matlablibmgr_h
-#define matlablibmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 
 mGlobal(MATLABLink) MatlabLibMgr& MLM();
 
-#endif

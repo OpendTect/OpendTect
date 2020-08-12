@@ -1,5 +1,4 @@
-#ifndef commondefs_h
-#define commondefs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -301,4 +300,3 @@ namespace Threads
 #endif
 
 
-#endif

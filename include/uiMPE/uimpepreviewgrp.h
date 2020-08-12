@@ -1,5 +1,4 @@
-#ifndef uimpepreviewgrp_h
-#define uimpepreviewgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 
 } // namespace MPE
 
-#endif

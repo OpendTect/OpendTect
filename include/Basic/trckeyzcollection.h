@@ -1,5 +1,4 @@
-#ifndef trckeyzcollection_h
-#define trckeyzcollection_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ mExpClass(Basic) TableTrcKeySelection : public TrcKeySelection
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uifkspectrum_h
-#define uifkspectrum_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
     uiToolButton*		maxsetbut_;
 };
 
-#endif

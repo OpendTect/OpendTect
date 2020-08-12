@@ -1,5 +1,4 @@
-#ifndef separstr_h
-#define separstr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ public:
 
 };
 
-#endif

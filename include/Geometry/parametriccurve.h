@@ -1,5 +1,4 @@
-#ifndef parametriccurve_h
-#define parametriccurve_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ public:
 
 };
 
-#endif

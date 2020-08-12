@@ -1,5 +1,4 @@
-#ifndef welltieunitfactors_h
-#define welltieunitfactors_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

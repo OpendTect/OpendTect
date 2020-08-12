@@ -1,5 +1,4 @@
-#ifndef ctxtioobj_h
-#define ctxtioobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -181,4 +180,3 @@ public:
 };
 
 
-#endif

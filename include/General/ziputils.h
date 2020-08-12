@@ -1,6 +1,4 @@
-
-#ifndef ziputils_h
-#define ziputils_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -139,4 +137,3 @@ protected:
 };
 
 
-#endif

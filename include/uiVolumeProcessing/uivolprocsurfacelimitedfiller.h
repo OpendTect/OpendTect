@@ -1,5 +1,4 @@
-#ifndef uivolprocsurfacelimitedfiller_h
-#define uivolprocsurfacelimitedfiller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

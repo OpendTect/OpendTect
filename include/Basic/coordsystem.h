@@ -1,5 +1,4 @@
-#ifndef coordsystem_h
-#define coordsystem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -177,4 +176,3 @@ private:
 
 } // namespace Coords
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef zaxistransform_h
-#define zaxistransform_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -165,4 +164,3 @@ protected:
 
 };
 
-#endif

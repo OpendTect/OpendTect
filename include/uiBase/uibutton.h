@@ -1,5 +1,4 @@
-#ifndef uibutton_h
-#define uibutton_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -176,4 +175,3 @@ protected:
 
 };
 
-#endif

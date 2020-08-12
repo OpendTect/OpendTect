@@ -1,5 +1,4 @@
-#ifndef welltiepickset_h
-#define welltiepickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected :
 
 } // namespace WellTie
 
-#endif

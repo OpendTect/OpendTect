@@ -1,5 +1,4 @@
-#ifndef visrandomtrackdragger_h
-#define visrandomtrackdragger_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -173,4 +172,3 @@ public:
 
 } // namespace visBase
 
-#endif

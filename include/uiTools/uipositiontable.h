@@ -1,5 +1,4 @@
-#ifndef uipositiontable_h
-#define uipositiontable_h
+#pragma once
 
 /*+
  ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     bool		withz_;
 };
 
-#endif

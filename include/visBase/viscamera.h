@@ -1,5 +1,4 @@
-#ifndef viscamera_h
-#define viscamera_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ private:
 };
 
 
-#endif

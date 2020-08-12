@@ -1,5 +1,4 @@
-#ifndef visfaultdisplay_h
-#define visfaultdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -298,4 +297,3 @@ protected:
 };
 
 
-#endif

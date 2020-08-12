@@ -1,5 +1,4 @@
-#ifndef seispsmerge_h
-#define seispsmerge_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
 };
 
 
-#endif

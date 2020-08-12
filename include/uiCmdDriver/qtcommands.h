@@ -1,5 +1,4 @@
-#ifndef qtcommands_h
-#define qtcommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ mStartDeclComposerClass( uiCmdDriver, QFileDlg,CmdComposer,uiMainWin )
 
 }; // namespace CmdDrive
 
-#endif

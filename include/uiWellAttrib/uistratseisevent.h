@@ -1,5 +1,4 @@
-#ifndef uistratseisevent_h
-#define uistratseisevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uipicksetman_h
-#define uipicksetman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ protected:
 
 };
 
-#endif

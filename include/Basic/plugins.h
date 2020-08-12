@@ -1,5 +1,4 @@
-#ifndef plugins_h
-#define plugins_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -159,4 +158,3 @@ private:
 mGlobal(Basic) PluginManager& PIM();
 
 
-#endif

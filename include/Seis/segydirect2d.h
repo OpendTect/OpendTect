@@ -1,5 +1,4 @@
-#ifndef segydirect2d_h
-#define segydirect2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -119,4 +118,3 @@ public:
 
 };
 
-#endif

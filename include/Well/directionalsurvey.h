@@ -1,5 +1,4 @@
-#ifndef directionalsurvey_h
-#define directionalsurvey_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -39,4 +38,3 @@ protected:
 
 } // namespace Well
 
-#endif

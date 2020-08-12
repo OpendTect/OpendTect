@@ -1,5 +1,4 @@
-#ifndef uiobjectitemviewwin_h
-#define uiobjectitemviewwin_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -187,4 +186,3 @@ protected:
 };
 
 
-#endif

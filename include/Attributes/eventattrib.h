@@ -1,5 +1,4 @@
-#ifndef eventattrib_h
-#define eventattrib_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -90,4 +89,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

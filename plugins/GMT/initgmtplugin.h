@@ -1,5 +1,4 @@
-#ifndef initgmtplugin_h
-#define initgmtplugin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ namespace GMT
     mGlobal(GMT) const char* sKeyDefaultExec();
 
 }
-#endif

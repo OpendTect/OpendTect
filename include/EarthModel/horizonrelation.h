@@ -1,5 +1,4 @@
-#ifndef horizonrelation_h
-#define horizonrelation_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ public:
 
 } // namespace EM
 
-#endif

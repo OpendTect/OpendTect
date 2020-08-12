@@ -1,5 +1,4 @@
-#ifndef uivolprocattrib_h
-#define uivolprocattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
 			mDeclReqAttribUIFns
 };
 
-#endif

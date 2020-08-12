@@ -1,5 +1,4 @@
-#ifndef horizoneditor_h
-#define horizoneditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 
 } // namespace MPE
 
-#endif

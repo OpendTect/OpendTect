@@ -1,5 +1,4 @@
-#ifndef visscalebar_h
-#define visscalebar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ protected:
 
 } // namespace Annotations
 
-#endif

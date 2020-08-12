@@ -1,5 +1,4 @@
-#ifndef hdf5writer_h
-#define hdf5writer_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -145,4 +144,3 @@ inline uiRetVal	Writer::put( const DataSetKey& dsky, const T* vals, int sz )
 
 } // namespace HDF5
 
-#endif

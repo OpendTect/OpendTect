@@ -1,5 +1,4 @@
-#ifndef odsessionfact_h
-#define odsessionfact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -22,4 +21,3 @@ uiString ODSessionTranslatorGroup::sTypeName(int num)
 { return uiStrings::sSession(num); }
 
 
-#endif

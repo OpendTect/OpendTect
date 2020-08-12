@@ -1,5 +1,4 @@
-#ifndef referenceattrib_h
-#define referenceattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 
 }; // namespace Attrib
 
-#endif

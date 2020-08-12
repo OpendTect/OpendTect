@@ -1,5 +1,4 @@
-#ifndef uislicesel_h
-#define uislicesel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -142,4 +141,3 @@ protected:
     IOPar		prevpar_;
 };
 
-#endif

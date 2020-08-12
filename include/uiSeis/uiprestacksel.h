@@ -1,5 +1,4 @@
-#ifndef uiprestacksel_h
-#define uiprestacksel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -70,4 +69,3 @@ protected:
 };
 
 
-#endif

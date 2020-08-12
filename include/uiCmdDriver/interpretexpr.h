@@ -1,5 +1,4 @@
-#ifndef interpretexpr_h
-#define interpretexpr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 }; // namespace CmdDrive
 
 
-#endif

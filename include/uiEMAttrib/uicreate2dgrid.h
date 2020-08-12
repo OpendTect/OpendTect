@@ -1,5 +1,4 @@
-#ifndef uicreate2dgrid_h
-#define uicreate2dgrid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -169,4 +168,3 @@ protected:
 };
 
 
-#endif

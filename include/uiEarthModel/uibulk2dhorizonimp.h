@@ -1,5 +1,4 @@
-#ifndef uibulk2dhorizonimp_h
-#define uibulk2dhorizonimp_h
+#pragma once
 
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -33,4 +32,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiflatviewslicepos_h
-#define uiflatviewslicepos_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 };
 
 
-#endif

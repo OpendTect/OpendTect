@@ -1,5 +1,4 @@
-#ifndef uicrdevenv_h
-#define uicrdevenv_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -33,4 +32,3 @@ protected:
     bool		acceptOK(CallBacker*);
 };
 
-#endif

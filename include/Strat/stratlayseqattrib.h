@@ -1,5 +1,4 @@
-#ifndef stratlayseqattrib_h
-#define stratlayseqattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
 
 }; // namespace Strat
 
-#endif

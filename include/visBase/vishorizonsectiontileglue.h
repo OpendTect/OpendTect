@@ -1,5 +1,4 @@
-#ifndef vishorizonsectiontileglue_h
-#define vishorizonsectiontileglue_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 
 }
 
-#endif

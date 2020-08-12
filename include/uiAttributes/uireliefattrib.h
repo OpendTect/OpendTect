@@ -1,5 +1,4 @@
-#ifndef uireliefattrib_h
-#define uireliefattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 			mDeclReqAttribUIFns
 };
 
-#endif

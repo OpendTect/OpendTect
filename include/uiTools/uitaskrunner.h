@@ -1,5 +1,4 @@
-#ifndef uitaskrunner_h
-#define uitaskrunner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ protected:
     void		init();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiwelldisplaymarkeredit_h
-#define uiwelldisplaymarkeredit_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef prestackgather_h
-#define prestackgather_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -180,4 +179,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

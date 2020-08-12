@@ -1,5 +1,4 @@
-#ifndef linesetposinfo_h
-#define linesetposinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -92,4 +91,3 @@ protected:
 
 } // namespace PosInfo
 
-#endif

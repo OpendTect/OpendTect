@@ -1,5 +1,4 @@
-#ifndef uiseiseventsnapper_h
-#define uiseiseventsnapper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
 
 };
 
-#endif

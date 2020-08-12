@@ -1,5 +1,4 @@
-#ifndef uiviszstretchdlg_h
-#define uiviszstretchdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -76,4 +75,3 @@ protected:
 
 };
 
-#endif

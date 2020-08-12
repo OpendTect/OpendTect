@@ -1,5 +1,4 @@
-#ifndef emobjectselremoval_h
-#define emobjectselremoval_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 
 } // namespace EM
 
-#endif

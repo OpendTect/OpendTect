@@ -1,5 +1,4 @@
-#ifndef uiposprovgroup_h
-#define uiposprovgroup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ public:
 
 };
 
-#endif

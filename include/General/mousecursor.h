@@ -1,5 +1,4 @@
-#ifndef mousecursor_h
-#define mousecursor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -152,4 +151,3 @@ protected:
 };
 
 
-#endif

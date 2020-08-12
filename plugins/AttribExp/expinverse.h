@@ -1,5 +1,4 @@
-#ifndef expdeinverse_h
-#define expdeinverse_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -206,4 +205,3 @@ protected:
     friend class	InverseAttrib::Task::Input;
 };
 
-#endif

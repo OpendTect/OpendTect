@@ -1,5 +1,4 @@
-#ifndef isopachmaker_h
-#define isopachmaker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
     bool			inmsec_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visemobjdisplay_h
-#define visemobjdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -229,4 +228,3 @@ public:
 
 } // namespace visSurvey
 
-#endif

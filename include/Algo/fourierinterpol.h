@@ -1,5 +1,4 @@
-#ifndef fourierinterpol_h
-#define fourierinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -180,4 +179,3 @@ protected:
 };
 
 
-#endif

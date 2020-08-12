@@ -1,5 +1,4 @@
-#ifndef visprestackdisplay_h
-#define visprestackdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -166,4 +165,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

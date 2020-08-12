@@ -1,5 +1,4 @@
-#ifndef string2_h
-#define string2_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -171,4 +170,3 @@ mGlobal(Basic) char* truncateString(char* str, int maxlen );
 	 * " ..." will be appended". */
 
 
-#endif

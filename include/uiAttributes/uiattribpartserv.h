@@ -1,5 +1,4 @@
-#ifndef uiattribpartserv_h
-#define uiattribpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -282,4 +281,3 @@ protected:
 						const Attrib::Desc*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef expgraddip_h
-#define expgraddip_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ protected:
     friend class	GradientDipAttrib::Task::Input;
 };
 
-#endif

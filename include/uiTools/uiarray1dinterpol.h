@@ -1,5 +1,4 @@
-#ifndef uiarray1dinterpol_h
-#define uiarray1dinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     uiComboBox*				methodsel_;
 };
 
-#endif

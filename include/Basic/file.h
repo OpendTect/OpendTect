@@ -1,5 +1,4 @@
-#ifndef file_h
-#define file_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -137,4 +136,3 @@ mGlobal(Basic) bool		launchViewer(const char*,
 } // namespace File
 
 
-#endif

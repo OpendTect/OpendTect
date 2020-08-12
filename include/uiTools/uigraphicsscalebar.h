@@ -1,5 +1,4 @@
-#ifndef uigraphicsscalebar_h
-#define uigraphicsscalebar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ private:
     OD::Edge		annotpos_;
 
 };
-#endif

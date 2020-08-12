@@ -1,5 +1,4 @@
-#ifndef progressmeterimpl_h
-#define progressmeterimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef explplaneintersection_h
-#define explplaneintersection_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
 
 };
 
-#endif

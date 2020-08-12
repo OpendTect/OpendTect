@@ -1,5 +1,4 @@
-#ifndef uibodyposprovgroup_h
-#define uibodyposprovgroup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
     uiPosSubSel*                outsidergfld_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visvolorthoslice_h
-#define visvolorthoslice_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 
 };
 	
-#endif

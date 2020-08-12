@@ -1,5 +1,4 @@
-#ifndef embodytr_h
-#define embodytr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ mDefineIndividualBodyTranslator(randpos)
 
 
 
-#endif

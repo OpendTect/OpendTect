@@ -1,5 +1,4 @@
-#ifndef trckeysampling_h
-#define trckeysampling_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -255,4 +254,3 @@ inline Pos::TraceID TrcKeySampling::traceID( int tidx ) const
 }
 
 
-#endif

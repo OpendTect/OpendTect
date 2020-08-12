@@ -1,5 +1,4 @@
-#ifndef uistratreftree_h
-#define uistratreftree_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -102,4 +101,3 @@ protected:
 };
 
 
-#endif

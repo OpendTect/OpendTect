@@ -1,5 +1,4 @@
-#ifndef uiioobjseldlg_h
-#define uiioobjseldlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ private:
 };
 
 
-#endif

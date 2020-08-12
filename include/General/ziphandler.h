@@ -1,5 +1,4 @@
-#ifndef ziphandler_h
-#define ziphandler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -184,4 +183,3 @@ protected:
 };
 
 
-#endif

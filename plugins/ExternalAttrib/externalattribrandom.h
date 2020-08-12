@@ -1,5 +1,4 @@
-#ifndef externalattribrandom_h
-#define externalattribrandom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
 
 }; //namespace
 
-#endif

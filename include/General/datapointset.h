@@ -1,5 +1,4 @@
-#ifndef datapointset_h
-#define datapointset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -286,4 +285,3 @@ protected:
     const TrcKeyZSampling*	sampling_;
 };
 
-#endif

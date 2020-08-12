@@ -1,5 +1,4 @@
-#ifndef uiwaveletmatchdlg_h
-#define uiwaveletmatchdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -50,4 +49,3 @@ protected:
     Wavelet&		outputwvlt_;
 };
 
-#endif

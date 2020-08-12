@@ -1,5 +1,4 @@
-#ifndef uihorizonmergedlg_h
-#define uihorizonmergedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
     uiSurfaceWrite*	outfld_;
 };
 
-#endif

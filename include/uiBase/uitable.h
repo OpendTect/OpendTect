@@ -1,5 +1,4 @@
-#ifndef uitable_h
-#define uitable_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -376,4 +375,3 @@ public:
     void	       setPrefWidthInChars(int);
 };
 
-#endif

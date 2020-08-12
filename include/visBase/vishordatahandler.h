@@ -1,5 +1,4 @@
-#ifndef vishordatahandler_h
-#define vishordatahandler_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -50,4 +49,3 @@ private:
 
 };
 }
-#endif

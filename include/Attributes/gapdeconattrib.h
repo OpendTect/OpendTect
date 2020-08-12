@@ -1,5 +1,4 @@
-#ifndef gapdeconattrib_h
-#define gapdeconattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -83,4 +82,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

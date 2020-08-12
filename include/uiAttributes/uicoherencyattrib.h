@@ -1,5 +1,4 @@
-#ifndef uicoherencyattrib_h
-#define uicoherencyattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 };
 
 
-#endif

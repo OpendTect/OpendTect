@@ -1,5 +1,4 @@
-#ifndef uiimpexpselgrp_h
-#define uiimpexpselgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -224,4 +223,3 @@ protected:
 
 };
 
-#endif

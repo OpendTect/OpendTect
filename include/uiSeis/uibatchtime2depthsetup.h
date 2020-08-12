@@ -1,5 +1,4 @@
-#ifndef uibatchtime2depthsetup_h
-#define uibatchtime2depthsetup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 };
 
 
-#endif

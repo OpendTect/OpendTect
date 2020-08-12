@@ -1,5 +1,4 @@
-#ifndef uiprestackmute_h
-#define uiprestackmute_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

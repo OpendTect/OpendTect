@@ -1,5 +1,4 @@
-#ifndef waveletio_h
-#define waveletio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef bodyvolumecalc_h
-#define bodyvolumecalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     Threads::Lock	lock_;
 };
 
-#endif

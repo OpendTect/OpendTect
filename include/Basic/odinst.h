@@ -1,5 +1,4 @@
-#ifndef odinst_h
-#define odinst_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ namespace ODInst
 #define mInstallerDirNm "Installer"
 #endif
 
-#endif

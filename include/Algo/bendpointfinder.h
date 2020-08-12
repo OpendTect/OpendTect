@@ -1,5 +1,4 @@
-#ifndef bendpointfinder_h
-#define bendpointfinder_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -141,4 +140,3 @@ protected:
     const Coord3	scale_;
 };
 
-#endif

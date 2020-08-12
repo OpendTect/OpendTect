@@ -1,5 +1,4 @@
-#ifndef uifirewallprocsetterdlg_h
-#define uifirewallprocsetterdlg_h
+#pragma once
 
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -60,4 +59,3 @@ protected:
 			    { return tr("Selected process path : %1"); }
 };
 
-#endif

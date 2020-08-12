@@ -1,5 +1,4 @@
-#ifndef hiddenparam_h
-#define hiddenparam_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -200,4 +199,3 @@ void HiddenParam<O,V>::deleteAndZeroPtrParam( O* obj )
     params_[idx] = 0;
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef indexedshape_h
-#define indexedshape_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -257,4 +256,3 @@ public:
 
 }; //namespace
 
-#endif

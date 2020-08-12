@@ -1,5 +1,4 @@
-#ifndef menubutcommands_h
-#define menubutcommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -188,4 +187,3 @@ mEndDeclComposerClass
 
 }; // namespace CmdDrive
 
-#endif

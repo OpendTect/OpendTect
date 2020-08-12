@@ -1,5 +1,4 @@
-#ifndef uiodwelltreeitem_h
-#define uiodwelltreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
     ObjectSet<MenuItem>	logmnuitems_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef sqlquery_h
-#define sqlquery_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -189,6 +188,4 @@ protected:
 
 
 } // namespace
-
-#endif
 

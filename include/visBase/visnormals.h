@@ -1,5 +1,4 @@
-#ifndef visnormals_h
-#define visnormals_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ protected:
 
 };
 
-#endif

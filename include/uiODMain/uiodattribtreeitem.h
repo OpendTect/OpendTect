@@ -1,5 +1,4 @@
-#ifndef uiodattribtreeitem_h
-#define uiodattribtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 };
 
 
-#endif

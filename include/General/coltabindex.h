@@ -1,5 +1,4 @@
-#ifndef coltabindex_h
-#define coltabindex_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 
 } // namespace ColTab
 
-#endif

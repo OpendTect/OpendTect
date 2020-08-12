@@ -1,5 +1,4 @@
-#ifndef netreqpacket_h
-#define netreqpacket_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -432,4 +431,3 @@ inline bool PacketInterpreter::atEndOfPkt() const
 }; //Namespace Network
 
 
-#endif

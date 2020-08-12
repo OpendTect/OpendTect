@@ -1,5 +1,4 @@
-#ifndef seisposkey_h
-#define seisposkey_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -115,4 +114,3 @@ inline bool PosKey::operator ==( const PosKey& pk ) const
 };
 
 
-#endif

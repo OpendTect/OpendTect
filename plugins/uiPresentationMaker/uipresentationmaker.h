@@ -1,5 +1,4 @@
-#ifndef uipresentationmaker_h
-#define uipresentationmaker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ protected:
     uiFileInput*	outputfld_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef qrsolv_h
-#define qrsolv_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -217,4 +216,3 @@ const Array2DImpl<T>* QRSolver<T>::getR() const
      return arr;
 }
 
-#endif

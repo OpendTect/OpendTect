@@ -1,5 +1,4 @@
-#ifndef netserver_h
-#define netserver_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ protected:
 } // namespace Network
 
 
-#endif

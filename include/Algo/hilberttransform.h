@@ -1,5 +1,4 @@
-#ifndef hilberttransform_h
-#define hilberttransform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
     mutable uiString    errmsg_;
 };
 
-#endif

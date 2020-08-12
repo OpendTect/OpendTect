@@ -1,5 +1,4 @@
-#ifndef seisposindexer_h
-#define seisposindexer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -168,4 +167,3 @@ protected:
 
 } // namespace
 
-#endif

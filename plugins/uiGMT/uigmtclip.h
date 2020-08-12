@@ -1,5 +1,4 @@
-#ifndef uigmtclip_h
-#define uigmtclip_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 };
 
 
-#endif

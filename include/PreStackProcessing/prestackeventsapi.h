@@ -1,5 +1,4 @@
-#ifndef prestackeventsapi_h
-#define prestackeventsapi_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -87,4 +86,3 @@ int mGlobal(PreStackProcessing) dGBPreStackEventsGetHorizonID( int handle, int e
 };
 
 
-#endif

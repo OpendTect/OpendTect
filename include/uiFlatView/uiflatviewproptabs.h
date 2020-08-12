@@ -1,5 +1,4 @@
-#ifndef uiflatviewproptabs_h
-#define uiflatviewproptabs_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -239,4 +238,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef picksettr_h
-#define picksettr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ public:
 };
 
 
-#endif

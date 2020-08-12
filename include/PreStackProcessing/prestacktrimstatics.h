@@ -1,5 +1,4 @@
-#ifndef prestacktrimstatics_h
-#define prestacktrimstatics_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef arrayndimpl_h
-#define arrayndimpl_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -899,4 +898,3 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
     return true;
 }
 
-#endif

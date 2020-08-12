@@ -1,5 +1,4 @@
-#ifndef visfaultsticksetdisplay_h
-#define visfaultsticksetdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -183,4 +182,3 @@ public:
 
 } // namespace VisSurvey
 
-#endif

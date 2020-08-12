@@ -1,5 +1,4 @@
-#ifndef algoexport_h
-#define algoexport_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -26,4 +25,3 @@ mExportTemplClassInst(Algo) MathFunction<float,float>;
 
 # endif
 
-#endif

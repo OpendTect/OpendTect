@@ -1,5 +1,4 @@
-#ifndef marchingcubeseditor_h
-#define marchingcubeseditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -83,4 +82,3 @@ private:
     bool			doFinish(bool);
 };
 
-#endif

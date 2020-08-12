@@ -1,5 +1,4 @@
-#ifndef velocityfunctiongrid_h
-#define velocityfunctiongrid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -118,4 +117,3 @@ protected:
 
 } // namespace Vel
 
-#endif

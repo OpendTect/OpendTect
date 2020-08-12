@@ -1,5 +1,4 @@
-#ifndef uistratextlayseqgendesc_h
-#define uistratextlayseqgendesc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ public: \
     virtual void	descHasChanged()
     
 
-#endif

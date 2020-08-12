@@ -1,5 +1,4 @@
-#ifndef emsurfaceio_h
-#define emsurfaceio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -369,4 +368,3 @@ protected:
 
 };
 
-#endif

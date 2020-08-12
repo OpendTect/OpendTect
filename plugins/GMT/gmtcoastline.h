@@ -1,5 +1,4 @@
-#ifndef gmtcoastline_h
-#define gmtcoastline_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
     bool		makeLLRangeFile(const char*,od_ostream&);
 };
 
-#endif

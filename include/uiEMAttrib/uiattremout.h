@@ -1,5 +1,4 @@
-#ifndef uiattremout_h
-#define uiattremout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
     uiBatchJobDispatcherSel* batchfld_;
 };
 
-#endif

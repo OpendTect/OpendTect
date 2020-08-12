@@ -1,5 +1,4 @@
-#ifndef simpnumer_H
-#define simpnumer_H
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -448,4 +447,3 @@ inline bool is8BitesData( const T* vals, od_int64 sz,
     return true;
 }
 
-#endif

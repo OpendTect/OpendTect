@@ -1,5 +1,4 @@
-#ifndef madio_h
-#define madio_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -56,4 +55,3 @@ protected:
 
 } // namespace
 
-#endif

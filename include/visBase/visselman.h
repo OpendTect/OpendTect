@@ -1,5 +1,4 @@
-#ifndef visselman_h
-#define visselman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 
 } // namespace visBase
 
-#endif

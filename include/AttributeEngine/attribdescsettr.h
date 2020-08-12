@@ -1,5 +1,4 @@
-#ifndef attribdescsettr_h
-#define attribdescsettr_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -79,4 +78,3 @@ public:
 };
 
 
-#endif

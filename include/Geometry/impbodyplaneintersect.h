@@ -1,5 +1,4 @@
-#ifndef impbodyplaneintersect_h
-#define impbodyplaneintersect_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 };
 
 
-#endif

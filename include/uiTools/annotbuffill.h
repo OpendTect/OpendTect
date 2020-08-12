@@ -1,5 +1,4 @@
-#ifndef annotbuffill_h
-#define annotbuffill_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
 };
 
 
-#endif

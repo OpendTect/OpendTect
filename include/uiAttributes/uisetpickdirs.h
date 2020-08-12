@@ -1,5 +1,4 @@
-#ifndef uisetpickdirs_h
-#define uisetpickdirs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

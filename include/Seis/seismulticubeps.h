@@ -1,5 +1,4 @@
-#ifndef seismulticubeps_h
-#define seismulticubeps_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ public:
 };
 
 
-#endif

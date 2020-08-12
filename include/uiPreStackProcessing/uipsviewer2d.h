@@ -1,5 +1,4 @@
-#ifndef uiprestackviewer2d_h
-#define uiprestackviewer2d_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -99,4 +98,3 @@ public:
 
 }; //namespace
 
-#endif

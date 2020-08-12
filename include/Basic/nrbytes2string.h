@@ -1,5 +1,4 @@
-#ifndef nrbytes2string_h
-#define nrbytes2string_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ protected:
 };
 
 
-#endif

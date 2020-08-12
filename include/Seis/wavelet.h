@@ -1,5 +1,4 @@
-#ifndef wavelet_h
-#define wavelet_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -151,4 +150,3 @@ inline ValueSeries<float>* WaveletValueSeries::clone() const
 { return new WaveletValueSeries( wv_ ); }
 
 
-#endif

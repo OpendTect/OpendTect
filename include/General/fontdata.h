@@ -1,5 +1,4 @@
-#ifndef fontdata_h
-#define fontdata_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -75,4 +74,3 @@ protected:
     bool		italic_;
 };
 
-#endif

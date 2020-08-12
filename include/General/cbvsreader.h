@@ -1,5 +1,4 @@
-#ifndef cbvsreader_h
-#define cbvsreader_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ private:
 };
 
 
-#endif

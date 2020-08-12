@@ -1,5 +1,4 @@
-#ifndef uiwindowfunctionsel_h
-#define uiwindowfunctionsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 };
 
 
-#endif

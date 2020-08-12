@@ -1,5 +1,4 @@
-#ifndef uiprestackprocessor_h
-#define uiprestackprocessor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
 
 }; //namespace
 
-#endif

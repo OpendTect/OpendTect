@@ -1,5 +1,4 @@
-#ifndef emmarchingcubessurface_h
-#define emmarchingcubessurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 
 } // namespace EM
 
-#endif

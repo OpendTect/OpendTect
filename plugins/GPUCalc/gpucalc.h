@@ -1,5 +1,4 @@
-#ifndef gpucalc_h
-#define gpucalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,6 +85,4 @@ mGlobal(GPUCalc) GPUManager& manager();
 
 }; // namespace
 
-
-#endif
 

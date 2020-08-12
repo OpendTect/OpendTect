@@ -1,5 +1,4 @@
-#ifndef arrayndinfo_h
-#define arrayndinfo_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -311,4 +310,3 @@ ArrayNDInfo* ArrayNDInfoImpl::create( const T* sizes, int sz )
 }
 
 
-#endif

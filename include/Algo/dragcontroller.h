@@ -1,5 +1,4 @@
-#ifndef dragcontroller_h
-#define dragcontroller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 };
 
 
-#endif

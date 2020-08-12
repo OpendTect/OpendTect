@@ -1,5 +1,4 @@
-#ifndef attribdataholder_h
-#define attribdataholder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -122,4 +121,3 @@ public:
 }; //Namespace
 
 
-#endif

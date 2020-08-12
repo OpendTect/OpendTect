@@ -1,5 +1,4 @@
-#ifndef repos_h
-#define repos_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ protected:
 
 }; // namespace Repos
 
-#endif

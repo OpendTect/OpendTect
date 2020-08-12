@@ -1,5 +1,4 @@
-#ifndef zaxistransformutils_h
-#define zaxistransformutils_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     DataPointSet*		dps_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef synthseis_h
-#define synthseis_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -286,4 +285,3 @@ protected:
 
 } // namespace Seis
 
-#endif

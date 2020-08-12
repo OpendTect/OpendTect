@@ -1,5 +1,4 @@
-#ifndef uimapperrangeeditor_h
-#define uimapperrangeeditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
     void			wheelMoved(CallBacker*);
 };
 
-#endif

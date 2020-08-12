@@ -1,5 +1,4 @@
-#ifndef wellwriter_h
-#define wellwriter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -93,4 +92,3 @@ protected:
     BufferStringSet			failedwells_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uimpepartserv_h
-#define uimpepartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -174,4 +173,3 @@ public:
     void			fillTrackerSettings(int trackerid);
 };
 
-#endif

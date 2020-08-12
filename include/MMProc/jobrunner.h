@@ -1,5 +1,4 @@
-#ifndef jobrunner_h
-#define jobrunner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -166,4 +165,3 @@ protected:
     void			handleExitStatus(JobInfo&);
 };
 
-#endif

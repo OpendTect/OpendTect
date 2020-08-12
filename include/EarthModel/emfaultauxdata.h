@@ -1,5 +1,4 @@
-#ifndef emfaultauxdata_h
-#define emfaultauxdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 } // namespace EM
 
 
-#endif

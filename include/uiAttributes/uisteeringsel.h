@@ -1,5 +1,4 @@
-#ifndef uisteeringsel_h
-#define uisteeringsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
     virtual void		typeSel(CallBacker*);
 };
 
-#endif

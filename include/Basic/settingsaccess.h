@@ -1,5 +1,4 @@
-#ifndef settingsaccess_h
-#define settingsaccess_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     Settings&			settings_;
 };
 
-#endif

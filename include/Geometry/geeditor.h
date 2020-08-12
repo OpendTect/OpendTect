@@ -1,5 +1,4 @@
-#ifndef geeditor_h
-#define geeditor_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 
 };
 
-#endif

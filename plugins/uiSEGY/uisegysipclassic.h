@@ -1,5 +1,4 @@
-#ifndef uisegysipclassic_h
-#define uisegysipclassic_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -46,6 +45,4 @@ public:
 
 };
 
-
-#endif
 

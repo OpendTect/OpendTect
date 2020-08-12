@@ -1,5 +1,4 @@
-#ifndef uibasemap_h
-#define uibasemap_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -133,4 +132,3 @@ private:
     uiWorld2Ui&			w2ui_;
 };
 
-#endif

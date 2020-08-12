@@ -1,5 +1,4 @@
-#ifndef uidialog_h
-#define uidialog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -168,4 +167,3 @@ protected:
 
 };
 
-#endif

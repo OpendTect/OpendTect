@@ -1,5 +1,4 @@
-#ifndef seiscube2linedata_h
-#define seiscube2linedata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 };
 
 
-#endif

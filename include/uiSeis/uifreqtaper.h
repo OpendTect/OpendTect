@@ -1,5 +1,4 @@
-#ifndef uifreqtaper_h
-#define uifreqtaper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -236,4 +235,3 @@ protected :
     void		setSelFreqs(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiissuereporter_h
-#define uiissuereporter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 };
 
 
-#endif

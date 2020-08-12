@@ -1,5 +1,4 @@
-#ifndef uivalseriestracker_h
-#define uivalseriestracker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
     IOPar			restorepars_;
 };
 			       
-#endif

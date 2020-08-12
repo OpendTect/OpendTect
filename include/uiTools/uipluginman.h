@@ -1,5 +1,4 @@
-#ifndef uipluginman_h
-#define uipluginman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiattrtrcselout_h
-#define uiattrtrcselout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ private:
 
 };
 
-#endif

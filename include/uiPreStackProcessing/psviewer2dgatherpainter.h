@@ -1,5 +1,4 @@
-#ifndef psviewer2dgatherpainter_h
-#define psviewer2dgatherpainter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 }; //namespace
 
-#endif

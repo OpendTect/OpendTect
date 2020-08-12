@@ -1,5 +1,4 @@
-#ifndef uibatchlaunch_h
-#define uibatchlaunch_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -82,4 +81,3 @@ private:
 };
 
 
-#endif

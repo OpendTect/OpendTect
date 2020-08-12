@@ -1,5 +1,4 @@
-#ifndef uimdiarea_h
-#define uimdiarea_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -105,4 +104,3 @@ public:
     bool		paralyse(bool yn);
 };
 
-#endif

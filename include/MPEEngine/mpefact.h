@@ -1,5 +1,4 @@
-#ifndef mpefact_h
-#define mpefact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -17,4 +16,3 @@ ________________________________________________________________________
 defineTranslatorGroup(MPESetup,"Tracking setup");
 defineTranslator(dgb,MPESetup,mDGBKey);
 
-#endif

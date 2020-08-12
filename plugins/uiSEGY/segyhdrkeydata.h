@@ -1,5 +1,4 @@
-#ifndef segyhdrkeydata_h
-#define segyhdrkeydata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -116,4 +115,3 @@ protected:
 } // namespace SEGY
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiodtreeitem_h
-#define uiodtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ public:
 
 };
 
-#endif

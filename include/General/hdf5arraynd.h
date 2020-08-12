@@ -1,5 +1,4 @@
-#ifndef hdf5arraynd_h
-#define hdf5arraynd_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -187,4 +186,3 @@ inline uiRetVal ArrayNDTool<T>::putSlab( Writer& wrr, const DataSetKey& dsky,
 
 } // namespace HDF5
 
-#endif

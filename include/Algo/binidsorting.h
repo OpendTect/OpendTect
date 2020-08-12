@@ -1,5 +1,4 @@
-#ifndef binidsorting_h
-#define binidsorting_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
 
 };
 
-#endif

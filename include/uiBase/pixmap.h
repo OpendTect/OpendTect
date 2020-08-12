@@ -1,5 +1,4 @@
-#ifndef pixmap_h
-#define pixmap_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -16,4 +15,3 @@ ________________________________________________________________________
 
 mDeprecated("Use uiPixmap")	typedef uiPixmap ioPixmap;
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef applicationdata_h
-#define applicationdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
 };
 
 
-#endif

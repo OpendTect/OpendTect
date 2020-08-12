@@ -1,5 +1,4 @@
-#ifndef uicrossplotman_h
-#define uicrossplotman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ public:
 
 };
 
-#endif

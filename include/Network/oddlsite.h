@@ -1,5 +1,4 @@
-#ifndef oddlsite_h
-#define oddlsite_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -92,4 +91,3 @@ protected:
 
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef identifierman_h
-#define identifierman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
 }; // namespace CmdDrive
 
 
-#endif

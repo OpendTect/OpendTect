@@ -1,5 +1,4 @@
-#ifndef batchprog_h
-#define batchprog_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -224,4 +223,3 @@ mGlobal(Batch) BatchProgram& BP();
 
 #endif // __prog__
 
-#endif

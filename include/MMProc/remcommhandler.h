@@ -1,5 +1,4 @@
-#ifndef remcommhandler_h
-#define remcommhandler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 
 };
 
-#endif

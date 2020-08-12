@@ -1,5 +1,4 @@
-#ifndef uisurvey_h
-#define uisurvey_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -126,4 +125,3 @@ private:
     void		fillRightGroup(uiGroup*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uipropvalfld_h
-#define uipropvalfld_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -54,4 +53,3 @@ protected:
 };
 
 
-#endif

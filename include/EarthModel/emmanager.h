@@ -1,5 +1,4 @@
-#ifndef emmanager_h
-#define emmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -157,4 +156,3 @@ mGlobal(EarthModel) bool canOverwrite(const MultiID&);
 
 } // namespace EM
 
-#endif

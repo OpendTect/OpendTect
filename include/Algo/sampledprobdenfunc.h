@@ -1,5 +1,4 @@
-#ifndef sampledprobdenfunc_h
-#define sampledprobdenfunc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -226,4 +225,3 @@ public:
 };
 
 
-#endif

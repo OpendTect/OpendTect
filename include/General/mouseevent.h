@@ -1,5 +1,4 @@
-#ifndef mouseevent_h
-#define mouseevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -321,4 +320,3 @@ private:
     bool			    ishandled_;
 };
 
-#endif

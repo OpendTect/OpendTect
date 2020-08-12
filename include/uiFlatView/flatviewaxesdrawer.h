@@ -1,5 +1,4 @@
-#ifndef flatviewaxesdrawer_h
-#define flatviewaxesdrawer_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -53,4 +52,3 @@ protected:
     void		setScaleBarWorld2UI(const uiWorldRect&);
 };
 
-#endif

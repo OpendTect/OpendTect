@@ -1,5 +1,4 @@
-#ifndef vistexturerect_h
-#define vistexturerect_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -118,4 +117,3 @@ public:
 
 };
 
-#endif

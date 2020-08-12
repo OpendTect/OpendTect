@@ -1,5 +1,4 @@
-#ifndef uirandlinegen_h
-#define uirandlinegen_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -119,4 +118,3 @@ protected:
 };
 
 
-#endif

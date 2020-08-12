@@ -1,5 +1,4 @@
-#ifndef testprog_h
-#define testprog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ else \
 	mRunStandardTestWithError( test, desc, BufferString().str() )
 
 
-#endif

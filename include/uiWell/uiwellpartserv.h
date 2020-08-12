@@ -1,5 +1,4 @@
-#ifndef uiwellpartserv_h
-#define uiwellpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -127,4 +126,3 @@ protected:
 
 };
 
-#endif

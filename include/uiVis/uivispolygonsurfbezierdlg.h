@@ -1,5 +1,4 @@
-#ifndef uivispolygonsurfbezierdlg_h
-#define uivispolygonsurfbezierdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -39,4 +38,3 @@ protected:
 };
 
 
-#endif

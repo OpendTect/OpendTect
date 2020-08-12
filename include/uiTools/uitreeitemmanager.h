@@ -1,5 +1,4 @@
-#ifndef uitreeitemmanager_h
-#define uitreeitemmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -355,4 +354,3 @@ void inline uiTreeItem::setPropertyPtr( const char* propertykey, void* val )
     properties_.setPtr( propertykey, val );
 }
 
-#endif

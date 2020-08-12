@@ -1,5 +1,4 @@
-#ifndef expnodc_h
-#define expnodc_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ protected:
     friend class	NoDCAttrib::Task::Input;
 };
 
-#endif

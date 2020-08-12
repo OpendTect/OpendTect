@@ -1,5 +1,4 @@
-#ifndef uivolprocchain_h
-#define uivolprocchain_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ private:
 
 } // namespace VolProc
 
-#endif

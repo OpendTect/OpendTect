@@ -1,5 +1,4 @@
-#ifndef uiflatauxdatadisplay_h
-#define uiflatauxdatadisplay_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -59,4 +58,3 @@ protected:
 
 } // namespace FlatView
 
-#endif

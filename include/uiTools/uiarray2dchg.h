@@ -1,5 +1,4 @@
-#ifndef uiarray2dchg_h
-#define uiarray2dchg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -54,4 +53,3 @@ public:
 
 
 
-#endif

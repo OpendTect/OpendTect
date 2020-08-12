@@ -1,5 +1,4 @@
-#ifndef ascstream_h
-#define ascstream_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -144,4 +143,3 @@ inline bool atEndOfSection( const ascistream& strm )
 { return strm.atEOS(); }
 
 
-#endif

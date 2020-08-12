@@ -1,5 +1,4 @@
-#ifndef uidatapointsetmerger_h
-#define uidatapointsetmerger_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -140,4 +139,3 @@ protected:
     void			matchPolChangedCB(CallBacker*);
 };
 
-#endif

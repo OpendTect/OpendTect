@@ -1,5 +1,4 @@
-#ifndef uitutvolproc_h
-#define uitutvolproc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ private:
 
 } // namespace VolProc
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef vislines_h
-#define vislines_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -29,4 +28,3 @@ public:
 
 } //namspace visBase
 
-#endif

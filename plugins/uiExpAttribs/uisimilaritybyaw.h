@@ -1,5 +1,4 @@
-#ifndef uiSimilaritybyaw_h
-#define uiSimilaritybyaw_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ protected:
     uiGenInput*		attributefld_;
 };
 
-#endif

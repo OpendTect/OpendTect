@@ -1,5 +1,4 @@
-#ifndef uiodvolproctreeitem_h
-#define uiodvolproctreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

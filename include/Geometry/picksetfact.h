@@ -1,5 +1,4 @@
-#ifndef picksetfact_h
-#define picksetfact_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -21,4 +20,3 @@ defineTranslator(dgb,PickSet,mDGBKey)
 uiString PickSetTranslatorGroup::sTypeName( int num)
 { return uiStrings::sPointSet( num ); }
 
-#endif

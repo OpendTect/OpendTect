@@ -1,5 +1,4 @@
-#ifndef uiempartserv_h
-#define uiempartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -240,4 +239,3 @@ protected:
     void		displayOnCreateCB(CallBacker*);
 };
 
-#endif

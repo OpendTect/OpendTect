@@ -1,5 +1,4 @@
-#ifndef seiscbvs_h
-#define seiscbvs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -114,4 +113,3 @@ private:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef emfault3d_h
-#define emfault3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ public:
 } // namespace EM
 
 
-#endif

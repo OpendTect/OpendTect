@@ -1,5 +1,4 @@
-#ifndef gravhorcalc_h
-#define gravhorcalc_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -73,4 +72,3 @@ protected:
 } // namespace Grav
 
 
-#endif
