@@ -17,7 +17,7 @@ class uiTableImpDataSel;
 class BufferStringSet;
 
 namespace Table { class FormatDesc; }
-namespace Well  { class Data; class D2TModel; class MarkerSet; }
+namespace Well  { class Data; class D2TModel; class MarkerSet; class Track; }
 class D2TModelData;
 
 
@@ -30,15 +30,16 @@ public:
 protected:
 
     void		readFile(od_istream&);
-    void		addD2T(uiString&);
     void		write(uiStringSet&);
     bool		acceptOK(CallBacker*);
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
-    uiGenInput*		velocityfld_;
+    uiGenInput*		velocityfld_ = nullptr;
 
     ObjectSet<Well::Data> wells_;
+    ObjectSet<Well::Track> origtracks_;
+    TypeSet<Interval<float> > mdrgs_;
     Table::FormatDesc*	fd_;
 };
 

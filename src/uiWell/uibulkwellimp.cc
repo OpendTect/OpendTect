@@ -57,6 +57,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , velocityfld_(0)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+    origtracks_.allowNull();
 
     inpfld_ = new uiFileInput( this,
 		      uiStrings::sInputFile(),
@@ -82,6 +83,7 @@ uiBulkTrackImport::~uiBulkTrackImport()
 {
     delete fd_;
     deepUnRef( wells_ );
+    deepErase( origtracks_ );
 }
 
 
@@ -106,27 +108,6 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 }
 
 
-static bool getInfo( const char* wellnm, float& kb, Well::Info& info )
-{
-    PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
-    if ( !ioobj ) return false;
-
-    RefMan<Well::Data> wd = new Well::Data;
-    Well::Reader wr( *ioobj, *wd );
-    const bool res = wr.getInfo() && wr.getTrack();
-    if ( !res ) return false;
-
-    kb = wd->track().getKbElev();
-    if ( mIsUdf(kb) )
-	kb = 0;
-
-    IOPar pars;
-    wd->info().fillPar( pars );
-    info.usePar( pars );
-    return true;
-}
-
-
 #define mDefEpsZ 1e-3
 
 void uiBulkTrackImport::readFile( od_istream& istrm )
@@ -141,17 +122,53 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	if ( wellnm.isEmpty() )
 	    continue;
 
-	Well::Data* wd = 0;
+	Well::Data* wd = nullptr;
 	const int widx = getWellIdx( wells_, wellnm );
 	if ( wells_.validIdx(widx) )
 	    wd = wells_[widx];
 	else
 	{
-	    wd = new Well::Data( wellnm );
-	    wd->ref();
-	    getInfo( wellnm, kb, wd->info() );
-	    if ( !uwi.isEmpty() )
-		wd->info().uwid = uwi;
+	    PtrMan<IOObj> ioobj = findIOObj( wellnm, uwi );
+	    if ( ioobj )
+	    {
+		Well::LoadReqs reqs( Well::Inf, Well::Trck );
+		if ( SI().zIsTime() )
+		    reqs.add( Well::D2T );
+		wd = Well::MGR().get( ioobj->key(), reqs );
+		if ( wd )
+		{
+		    wd->ref();
+		    Well::Track& track = wd->track();
+		    kb = track.getKbElev();
+		    double sum = 0.;
+		    for ( int idx=0; idx<track.size(); idx++ )
+			sum += track.pos(idx).coord().abs();
+		    if ( mIsZero(sum,1e-1) )
+		    {
+			origtracks_ += new Well::Track( track );
+			mdrgs_ += track.dahRange();
+			track.setEmpty();
+		    }
+		    else
+		    {
+			origtracks_ += nullptr;
+			mdrgs_ += Interval<float>::udf();
+		    }
+		}
+		else
+		    kb = 0.f;
+	    }
+
+	    if ( !wd )
+	    {
+		wd = new Well::Data( wellnm );
+		kb = 0.f;
+		wd->ref();
+		if ( !uwi.isEmpty() )
+		    wd->info().uwid = uwi;
+		origtracks_ += nullptr;
+		mdrgs_ += Interval<float>::udf();
+	    }
 
 	    wells_ += wd;
 	}
@@ -186,54 +203,39 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
     {
 	Well::Data* wd = wells_[widx];
 	Well::Track& track = wd->track();
-	const float firstmd = track.dah(0);
-	if ( track.isEmpty() || firstmd < mDefEpsZ )
-	    continue;
-
-	const Coord3 surfloc = track.pos(0);
-	const bool inserted = track.insertAtDah( 0.f, -1.f*track.getKbElev() );
-	if ( inserted )
+	if ( track.isEmpty() )
 	{
-	    const int idx = track.indexOf( 0.f );
-	    if ( idx > -1 )
-		const_cast<Coord3&>( track.pos(idx) ).coord() = surfloc.coord();
+	    if ( origtracks_[widx] )
+		track = *origtracks_[widx];
+	    continue;
 	}
-    }
-}
 
-
-void uiBulkTrackImport::addD2T( uiString& errmsg )
-{
-    if ( !SI().zIsTime() ) return;
-
-    const float vel = velocityfld_->getFValue();
-    if ( vel<=0 || mIsUdf(vel) )
-    {
-	errmsg = tr("Please enter a positive velocity "
-		    "for generating the D2T model");
-	return;
-    }
-
-    for ( int idx=0; idx<wells_.size(); idx++ )
-    {
-	RefMan<Well::Data> wd = wells_[idx];
-	Well::D2TModel* d2t = new Well::D2TModel;
-	d2t->makeFromTrack(  wd->track(), vel, wd->info().replvel );
-	wd->setD2TModel( d2t );
+	Well::LASImporter lasimp;
+	lasimp.setData( wd );
+	bool adjusted = false;
+	const Interval<float>& origmdrg = mdrgs_[widx];
+	Interval<float> mdrg( 0, track.td() );
+	if ( !origmdrg.isUdf() && track.td()-mDefEpsZ < origmdrg.stop )
+	    mdrg.stop = origmdrg.stop;
+	lasimp.adjustTrack( mdrg, false, adjusted );
     }
 }
 
 
 void uiBulkTrackImport::write( uiStringSet& errors )
 {
+    const bool zistime = SI().zIsTime();
+    const double vel = velocityfld_ ? velocityfld_->getDValue() : mUdf(double);
+
     // TODO: Check if name exists, ask user to overwrite or give new name
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	RefMan<Well::Data> wd = wells_[idx];
-	PtrMan<IOObj> ioobj = IOM().getLocal(wd->name(),
-					     ctio->ctxt_.trgroup_->groupName());
-	if ( !ioobj )
+	Well::Data* wd = wells_[idx];
+	PtrMan<IOObj> ioobj = IOM().get( wd->name(),
+					 ctio->ctxt_.trgroup_->groupName() );
+	const bool newwell = !ioobj;
+	if ( newwell )
 	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )
 	{
@@ -242,10 +244,39 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	    continue;
 	}
 
+	bool writed2t = false;
+	if ( zistime )
+	{
+	    const Well::Track& track = wd->track();
+	    const Well::D2TModel* d2torig = wd->d2TModel();
+	    if ( newwell || !d2torig || d2torig->size() < 2 ||
+		 (d2torig->size()==2 &&
+		  mIsEqual(d2torig->getVelocityForDah(track.td(),track),
+		  (double)uiD2TModelGroup::getDefaultTemporaryVelocity(),1) ))
+	    {
+		auto* d2t = new Well::D2TModel;
+		d2t->makeFromTrack(  wd->track(), vel, wd->info().replvel );
+		wd->setD2TModel( d2t );
+		writed2t = true;
+	    }
+	    else if ( !newwell )
+	    {
+		uiString errmsg;
+		writed2t = wd->d2TModel()->ensureValid( *wd, errmsg );
+	    }
+	}
+
 	Well::Writer ww( *ioobj, *wd );
-	if ( !ww.put() )
+	if ( !ww.putInfoAndTrack() )
 	{
 	    uiString msg = uiStrings::phrCannotCreate(
+		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
+	    errors.add( msg );
+	}
+
+	if ( writed2t && !ww.putD2T() )
+	{
+	    uiString msg = uiStrings::phrCannotEdit(
 		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
 	    errors.add( msg );
 	}
@@ -269,6 +300,16 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrInput(mJoinUiStrs(sFile(),sName())) )
 
+    if ( SI().zIsTime() )
+    {
+	const double vel = velocityfld_->getDValue();
+	if ( vel<=0. || mIsUdf(vel))
+	{
+	    mErrRet( tr("Please enter a positive velocity "
+			"for generating the D2T model") )
+	}
+    }
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenInpFile() )
@@ -276,14 +317,18 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     if ( !dataselfld_->commit() )
 	return false;
 
+    deepUnRef( wells_ );
+    deepErase( origtracks_ );
+    mdrgs_.setEmpty();
+
     readFile( strm );
-    uiString errmsg;
-    addD2T( errmsg );
-    if ( !errmsg.isEmpty() )
-	mErrRet( errmsg );
 
     uiStringSet errors;
     write( errors );
+
+    deepUnRef( wells_ );
+    deepErase( origtracks_ );
+    mdrgs_.setEmpty();
 
     if ( errors.isEmpty() )
     {
