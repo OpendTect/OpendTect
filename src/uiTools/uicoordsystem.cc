@@ -22,16 +22,17 @@ ________________________________________________________________________
 namespace Coords
 {
 
-mImplFactory1Param( uiCoordSystem, uiParent*,
-		    uiCoordSystem::factory );
+// uiCoordSystem
+mImplFactory1Param( uiCoordSystem, uiParent*, uiCoordSystem::factory );
 
 
 uiCoordSystem::uiCoordSystem( uiParent* p, const uiString& caption )
     : uiDlgGroup( p, caption )
-    , si_( 0 )
+    , si_(nullptr)
 {}
 
 
+// uiCoordSystemSelGrp
 uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 					      bool onlyorthogonal,
 					      bool projectiononly,
@@ -81,10 +82,6 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	coordsystemsel_->attach( leftBorder );
 	mAttachCB( coordsystemsel_->valuechanged,
 	       uiCoordSystemSelGrp::systemChangedCB);
-    }
-    else
-    {
-	coordsystemsel_ = 0;
     }
 
     if ( coordsystemsel_ )
@@ -151,6 +148,37 @@ bool uiCoordSystemSelGrp::acceptOK()
 }
 
 
+void uiCoordSystemSelGrp::fillFromSI()
+{
+    ConstRefMan<CoordSystem> crs = si_ ? si_->getCoordSystem() : nullptr;
+    if ( crs )
+	fillFrom( *crs );
+}
+
+
+void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
+{
+    crs.ref();
+    const BufferString systemnm = crs.factoryKeyword();
+    for ( int idx=0; idx<coordsystemsuis_.size(); idx++ )
+    {
+	uiCoordSystem* uics = coordsystemsuis_[idx];
+	if ( !uics ) continue;
+
+	const bool hit = systemnm == uics->factoryKeyword();
+	uics->display( hit );
+	if ( hit )
+	{
+	    coordsystemsel_->setValue( idx );
+	    uics->initFields( &crs );
+	}
+    }
+
+    crs.unRef();
+}
+
+
+// uiCoordSystemDlg
 uiCoordSystemDlg::uiCoordSystemDlg( uiParent* p, bool orthogonalonly,
 			bool projectiononly, const SurveyInfo* si,
 			const CoordSystem* coordsys )
@@ -206,12 +234,13 @@ bool uiCoordSystemDlg::ensureGeographicTransformOK( uiParent* p,
 }
 
 
-uiCoordSystemSel::uiCoordSystemSel( uiParent* p, bool orthogonalonly,
-			   bool projectiononly,
-			   const CoordSystem* coordsys, const uiString& seltxt )
+// uiCoordSystemSel
+uiCoordSystemSel::uiCoordSystemSel( uiParent* p,
+			bool orthogonalonly, bool projectiononly,
+			const CoordSystem* coordsys, const uiString& seltxt )
     : uiCompoundParSel(p,seltxt)
-    , orthogonalonly_(orthogonalonly), projectiononly_(projectiononly)
-    , dlg_(0)
+    , orthogonalonly_(orthogonalonly)
+    , projectiononly_(projectiononly)
 {
     if ( coordsys )
 	coordsystem_ = coordsys->clone();

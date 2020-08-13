@@ -56,20 +56,23 @@ public:
 						const SurveyInfo*,
 						const Coords::CoordSystem*);
 				~uiCoordSystemSelGrp();
-    RefMan<CoordSystem>	outputSystem() { return outputsystem_; }
+
+    RefMan<CoordSystem>		outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
     bool			acceptOK();
+    void			fillFromSI();
+    void			fillFrom(const Coords::CoordSystem&);
 
 private:
 
     void			systemChangedCB(CallBacker*);
 
-    uiGenInput*			coordsystemsel_;
-    ObjectSet<uiCoordSystem> coordsystemsuis_;
+    uiGenInput*			coordsystemsel_		= nullptr;
+    ObjectSet<uiCoordSystem>	coordsystemsuis_;
     ManagedObjectSet<IOPar>	coordsystempars_;
     const SurveyInfo*		si_;
 
-    RefMan<CoordSystem>	outputsystem_;
+    RefMan<CoordSystem>		outputsystem_;
 };
 
 
@@ -103,18 +106,18 @@ public:
 				const CoordSystem* crs=SI().getCoordSystem(),
 				const uiString& seltxt=uiStrings::sCoordSys());
 
-    RefMan<CoordSystem> getCoordSystem()	{ return coordsystem_; }
+    RefMan<CoordSystem>		getCoordSystem()	{ return coordsystem_; }
 
 protected:
 
-    uiCoordSystemDlg* dlg_;
+    uiCoordSystemDlg*		dlg_ = nullptr;
 
-    RefMan<CoordSystem> coordsystem_;
-    bool		orthogonalonly_;
-    bool		projectiononly_;
+    RefMan<CoordSystem>		coordsystem_;
+    bool			orthogonalonly_;
+    bool			projectiononly_;
 
-    BufferString	getSummary() const;
-    void		selCB(CallBacker*);
+    BufferString		getSummary() const;
+    void			selCB(CallBacker*);
 
 };
 
