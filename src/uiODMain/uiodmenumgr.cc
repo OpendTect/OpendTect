@@ -895,7 +895,8 @@ void uiODMenuMgr::fillUtilMenu()
 		    defenabadvsettings );
     if ( enabadvsettings )
     {
-	uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
+	uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(),
+				     "advanced" );
 	addAction( advmnu, tr("Personal Settings"), "unknownperson",
 						mSettAdvPersonal );
 	addAction( advmnu, tr("Survey Defaults"), "survey", mSettAdvSurvey );
@@ -904,6 +905,8 @@ void uiODMenuMgr::fillUtilMenu()
     toolsmnu_ = addSubMenu( utilmnu_, uiStrings::sTools(), "tools" );
     addAction( toolsmnu_, tr("Batch Programs"), "batchprogs", mBatchProgMnuItm);
     addAction( toolsmnu_, tr("Position Conversion"), "xy2ic", mPosconvMnuItm );
+    addAction( toolsmnu_, tr("CRS Position Conversion"), "crs",
+	       mCRSPosconvMnuItm );
 
     BufferString develverstr;
     GetSpecificODVersion( "devel", develverstr );
@@ -927,7 +930,7 @@ void uiODMenuMgr::fillUtilMenu()
 	installmnu_->insertSeparator();
     }
 
-    addAction( installmnu_, tr("Python Settings"), "python",	mSettAdvPython );
+    addAction( installmnu_, tr("Python Settings"), "python", mSettAdvPython );
     addAction( installmnu_, tr("Internet Connection Settings"),
 			    "internet_connection", mInstConnSettsMnuItm );
     addAction( installmnu_, uiStrings::sPlugin(mPlural), "plugin",
@@ -1418,6 +1421,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
     case mHostIDInfoItm:	showHostID(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
+    case mCRSPosconvMnuItm:	applMgr().crsPosConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;

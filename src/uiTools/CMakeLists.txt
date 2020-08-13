@@ -106,6 +106,7 @@ set( OD_MODULE_SOURCES
 	uizaxistransform.cc
 	uizrangeinput.cc
 	uipolardiagram.cc
+	uicrssystem.cc
 )
 if ( WIN32 )
 	set( OD_MODULE_SOURCES ${OD_MODULE_SOURCES} uifirewallprocsetterdlg.cc )

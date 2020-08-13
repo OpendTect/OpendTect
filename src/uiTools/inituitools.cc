@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibatchjobdispatcherlauncher.h"
 #include "uicoltabsel.h"
 #include "uicoordsystem.h"
+#include "uicrssystem.h"
 #include "uifontsel.h"
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
@@ -42,6 +43,7 @@ mDefModInitFn(uiTools)
 
     Coords::uiUnlocatedXYSystem::initClass();
     Coords::uiAnchorBasedXYSystem::initClass();
+    Coords::uiProjectionBasedSystem::initClass();
 
     uiSettsMgr();
 }
