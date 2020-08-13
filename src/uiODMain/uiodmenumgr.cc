@@ -315,7 +315,7 @@ void uiODMenuMgr::fillImportMenu()
 		       mImpPDFAsciiMnuItm, ascic );
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
-    uiMenu* impseissimple = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
+    uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File") );
     if ( have2d )
     {
 	insertAction( impseissimple,
@@ -388,7 +388,7 @@ void uiODMenuMgr::fillImportMenu()
     impfaultstick->insertItem( impfltss3Dasc );
 
     insertAction( impfltset, m3Dots( uiStrings::sASCII() ),
-		 mImpFltSetAsciiMnuItm );
+		 mImpFltSetAsciiMnuItm, ascic );
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     insertAction( impwellasc, m3Dots(uiStrings::sTrack()),
@@ -522,7 +522,8 @@ void uiODMenuMgr::fillExportMenu()
     insertAction( expfltssasc, m3Dots(tr("Bulk FaultStickSets")),
 	mExpBulkFltSSAsciiMnuItm );
     expfltss->insertItem( expfltssasc );
-    insertAction( expfltset, m3Dots(uiStrings::sASCII()), mExpFltSetAsciiMnuItm);
+    insertAction( expfltset, m3Dots(uiStrings::sASCII()),
+	    	  mExpFltSetAsciiMnuItm, ascic );
     insertAction( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
     insertAction( exppick, sascii, mExpPickAsciiMnuItm, ascic );
     insertAction( expwvlt, sascii, mExpWvltAsciiMnuItm, ascic );
