@@ -12,7 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
 #include "bufstringset.h"
+#include "coord.h"
 #include "ranges.h"
 #include "tableascio.h"
 #include "typeset.h"
@@ -45,11 +47,6 @@ public:
     mExpClass(Well) FileInfo
     { mODTextTranslationClass(FileInfo)
     public:
-			FileInfo()
-			    : zrg(mUdf(float),mUdf(float))
-			    , depthcolnr(-1)
-			    , revz(false)
-			    , undefval(-999.25)	{}
 			~FileInfo()		{}
 
 	int		size() const		{ return lognms.size(); }
@@ -57,17 +54,28 @@ public:
 	BufferStringSet	logcurves;
 	BufferStringSet	logunits;
 	BufferStringSet	lognms;
-	Interval<float>	zrg;
-	bool		revz;
-	int		depthcolnr;
-	float		undefval;
+	Interval<float>	zrg = Interval<float>::udf();
+	bool		revz = false;
+	int		depthcolnr = -1;
+	float		undefval = -999.25f;
 	BufferString	zunitstr;
 
-	BufferString	wellnm; //!< only info; not used by getLogs
-	BufferString	uwi; //!< only info, not used by getLogs
+			//!< only info; not used by getLogs
+	BufferString	comp_;
+	BufferString	wellnm;
+	BufferString	state_;
+	BufferString	county_;
+	BufferString	srvc_;
+	BufferString	uwi;
+	Coord		loc_ = Coord::udf();
+	double		kbelev_ = mUdf(double);
+	double		glelev_ = mUdf(double);
     };
 
     void		setData( Data* wd )	    { wd_ = wd; }
+    void		copyInfo(const FileInfo&,bool& changed);
+    void		adjustTrack(const Interval<float>& zrg,bool istvdss,
+				    bool& changed);
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(od_istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
@@ -89,6 +97,7 @@ protected:
     bool		useconvs_;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
+    static void		parseLocation(const char*,const char*,Coord&);
     const char*		getLogData(od_istream&,const BoolTypeSet&,
 				   const FileInfo&,bool,int,int);
 

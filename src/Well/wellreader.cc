@@ -471,12 +471,12 @@ bool Well::odReader::getOldTimeWell( od_istream& strm ) const
 
 bool Well::odReader::getTrack( od_istream& strm ) const
 {
-    Coord3 c, c0; float dah;
+    Coord3 c; float dah;
     wd_.track().setEmpty();
     while ( strm.isOK() )
     {
 	strm >> c.x >> c.y >> c.z >> dah;
-	if ( !strm.isOK() || c.distTo(c0) < 1 ) break;
+	if ( !strm.isOK() ) break;
 	wd_.track().addPoint( c, (float) c.z, dah );
     }
     if ( wd_.track().isEmpty() )

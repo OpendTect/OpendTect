@@ -178,14 +178,44 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("STOP") )
 		lfi.zrg.stop = toFloat(val2);
 	    if ( mIsKey("NULL") )
-		lfi.undefval = toFloat( val1 );
+		lfi.undefval = toFloat(val1);
+	    if ( mIsKey("COMP") )
+	    {
+		lfi.comp_ = val1;
+		if ( val2 && *val2 ) { lfi.comp_ += " "; lfi.comp_ += val2; }
+	    }
 	    if ( mIsKey("WELL") )
 	    {
 		lfi.wellnm = val1;
 		if ( val2 && *val2 ) { lfi.wellnm += " "; lfi.wellnm += val2; }
 	    }
-	    if ( mIsKey("UWI") || mIsKey("API") )
+	    if ( (mIsKey("EKB") || mIsKey("EDF")) && mIsUdf(lfi.kbelev_))
+		lfi.kbelev_ = toDouble(val2);
+	    if ( mIsKey("EGL") )
+		lfi.glelev_ = toDouble(val2);
+	    if ( (mIsKey("CTRY") || mIsKey("STAT")) && lfi.state_.isEmpty() &&
+		 (val1 && *val1) )
+	    {
+		lfi.state_ = val1;
+		if ( val2 && *val2 ) { lfi.state_ += " "; lfi.state_ += val2; }
+	    }
+	    if ( (mIsKey("CNTY") || mIsKey("PROV")) && lfi.county_.isEmpty() &&
+		 (val1 && *val1) )
+	    {
+		lfi.county_ = val1;
+		if ( val2 && *val2 ) { lfi.county_ += " "; lfi.county_ += val2; }
+	    }
+	    if ( mIsKey("LOC") )
+		parseLocation( val1, val2, lfi.loc_ );
+	    if ( mIsKey("UWI") )
 		lfi.uwi = val1;
+	    if ( mIsKey("API") && lfi.uwi.isEmpty() )
+		lfi.uwi = val1;
+	    if ( mIsKey("SRVC") )
+	    {
+		lfi.srvc_ = val1;
+		if ( val2 && *val2 ) { lfi.srvc_ += " "; lfi.srvc_ += val2; }
+	    }
 	break;
 	default:
 	break;
@@ -207,6 +237,11 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    lfi.zrg.start = unmeas->internalValue(lfi.zrg.start);
 	if ( !mIsUdf(lfi.zrg.stop) )
 	    lfi.zrg.stop = unmeas->internalValue(lfi.zrg.stop);
+	if ( !mIsUdf(lfi.kbelev_) )
+	    lfi.kbelev_ = unmeas->internalValue(lfi.kbelev_);
+	if ( !mIsUdf(lfi.glelev_) )
+	    lfi.glelev_ = unmeas->internalValue(lfi.glelev_);
+	//TODO: Position unit conversion ?
     }
 
     if ( !strm.isOK() )
@@ -227,7 +262,7 @@ void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
     removeTrailingBlanks( startptr );
     if ( !ptr ) return;
 
-    info = firstOcc( ptr, ':' );
+    info = firstOcc( ptr, ':' ); //TODO: handle DATE
     if ( info )
     {
 	*info++ = '\0';
@@ -242,6 +277,158 @@ void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
     {
 	*val2++ = '\0';
 	mTrimBlanks(val2);
+    }
+}
+
+
+void Well::LASImporter::parseLocation( const char* startptr1,
+				       const char* startptr2, Coord& ret )
+{
+    const BufferString locstr( startptr1, startptr2 );
+    if ( locstr.isEmpty() )
+	return;
+
+    const char* startptr = locstr.str();
+    mSkipBlanks(startptr)
+    while ( *startptr && !( (*startptr >= '0' && *startptr <= '9') ||
+			     *startptr == '-' || *startptr == '+' ||
+			     *startptr == 'E' || *startptr == 'N' ||
+	                     *startptr == '\'' || *startptr == '"' ) )
+    {
+	startptr++;
+	mSkipBlanks(startptr)
+    }
+    if ( !startptr )
+	return;
+
+    BufferString word( 64, true );
+    char* wordbuf = word.getCStr();
+    startptr = (char*)getNextWord( startptr, wordbuf );
+    Coord pos;
+    LatLong ll;
+    bool islatlong = locstr.contains('N') || locstr.contains('S') ||
+		     locstr.contains('E') || locstr.contains('W');
+    if ( isNumberString(wordbuf) )
+    {
+	const double posd = toDouble(wordbuf);
+	if ( Math::Abs(posd) < 360. )
+	{
+	    ll.lat_ = posd;
+	    islatlong = true;
+	}
+	else
+	    pos.x = posd;
+    }
+    else if ( islatlong )
+	ll.setFromString( wordbuf, true );
+
+    while ( *startptr && !( (*startptr >= '0' && *startptr <= '9') ||
+			     *startptr == '-' || *startptr == '+' ||
+			     *startptr == 'E' || *startptr == 'N' ||
+	                     *startptr == '\'' || *startptr == '"' ) )
+    {
+	startptr++;
+	mSkipBlanks(startptr)
+    }
+    if ( !startptr )
+	return;
+
+    startptr = (char*)getNextWord( startptr, wordbuf );
+    if ( isNumberString(wordbuf) )
+    {
+	const double posd = toDouble(wordbuf);
+	if ( Math::Abs(posd) < 361. )
+	{
+	    ll.lng_ = posd;
+	    islatlong = true;
+	}
+	else
+	    pos.y = posd;
+    }
+    else if ( islatlong )
+	ll.setFromString( wordbuf, false );
+
+    if ( islatlong )
+    {
+	pos = LatLong::transform( ll );
+	if ( !pos.isDefined() )
+	{
+	    pos.x = ll.lat_;
+	    pos.y = ll.lng_;
+	}
+    }
+
+    if ( pos.isDefined() )
+	ret = pos;
+}
+
+
+void Well::LASImporter::copyInfo( const FileInfo& inf, bool& changed )
+{
+    if ( !wd_ )
+	return;
+
+    Well::Info& winf = wd_->info();
+    if ( !inf.state_.isEmpty() && winf.state.isEmpty() )
+    {
+	winf.state = inf.state_;
+	changed = true;
+    }
+    if ( !inf.county_.isEmpty() && winf.county.isEmpty() )
+    {
+	winf.county = inf.county_;
+	changed = true;
+    }
+    if ( !inf.srvc_.isEmpty() && winf.oper.isEmpty() )
+    {
+	winf.oper = inf.srvc_;
+	changed = true;
+    }
+    if ( !mIsUdf(inf.glelev_) && !mIsZero(inf.glelev_,1e-2f) &&
+	  mIsUdf(winf.groundelev) )
+    {
+	winf.groundelev = inf.glelev_;
+	changed = true;
+    }
+}
+
+
+void Well::LASImporter::adjustTrack( const Interval<float>& zrg, bool istvdss,
+				     bool& changed )
+{
+    if ( !wd_ )
+	return;
+
+    Well::Track& track = wd_->track();
+    if ( ( istvdss && track.zRange().includes(zrg)) ||
+	 (!istvdss && track.dahRange().includes(zrg)) )
+	return;
+
+    const float firsttrackz = istvdss ? track.zRange().start
+				      : track.dahRange().start;
+    const float lasttrackz = istvdss ? track.zRange().stop
+				     : track.dahRange().stop;
+    if ( firsttrackz > zrg.start )
+    {
+	const Coord3 surfloc = track.pos(0);
+	const bool inserted = track.insertAtDah( 0.f, -1.f*track.getKbElev() );
+	if ( inserted )
+	{
+	    const int idx = track.indexOf( 0.f );
+	    if ( idx > -1 )
+		const_cast<Coord3&>( track.pos(idx) ).coord() = surfloc.coord();
+	    changed = true;
+	}
+    }
+
+    if ( lasttrackz < zrg.stop )
+    {
+	Coord3 lastpos = track.pos( track.size()-1 );
+	const float lastmd = track.td();
+	const double zdiff = zrg.stop - (istvdss ? lasttrackz : lastmd);
+	lastpos.z += zdiff;
+	track.addPoint( lastpos, istvdss ? lastmd + zdiff : zrg.stop );
+	changed = true;
     }
 }
 

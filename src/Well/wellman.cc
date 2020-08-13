@@ -182,12 +182,16 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 
 bool Well::Man::readReqData( const MultiID& key, Well::Data* wd, LoadReqs reqs )
 {
+    if ( !wd )
+	return false;
+
+    wd->ref();
     Reader rdr( key, *wd );
     if ( reqs.includes(Inf) && !rdr.getInfo() )
-    { msg_ = rdr.errMsg(); return false; }
+    { msg_ = rdr.errMsg(); wd->unRef(); return false; }
 
     if ( reqs.includes(Trck) && !rdr.getTrack() )
-    { msg_ = rdr.errMsg(); return false; }
+    { msg_ = rdr.errMsg(); wd->unRef(); return false; }
 
     if ( reqs.includes(D2T) )
 	rdr.getD2T();
@@ -201,6 +205,8 @@ bool Well::Man::readReqData( const MultiID& key, Well::Data* wd, LoadReqs reqs )
 	rdr.getCSMdl();
     if ( reqs.includes(DispProps2D) || reqs.includes(DispProps3D) )
 	rdr.getDispProps();
+
+    wd->unRef();
 
     return true;
 }
