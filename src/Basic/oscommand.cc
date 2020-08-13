@@ -816,8 +816,18 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 #ifdef __win__
     if ( pars.runasadmin_ )
     {
+        BufferString argsstr;
+        for ( int idx=0; idx<mc.args().size(); idx++ )
+        {
+            BufferString arg( mc.args().get(idx) );
+            if ( arg.find(" ") )
+                arg.quote('\"');
+            if ( !argsstr.isEmpty() )
+                argsstr.addSpace();
+            argsstr.add( arg );
+        }
         const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
-            mc.args().cat(" "), pars.workingdir_, SW_SHOW );
+            argsstr, pars.workingdir_, SW_SHOW );
         return (int)res > HINSTANCE_ERROR;
     }
 #endif
