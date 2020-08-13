@@ -98,15 +98,16 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 #endif
 
-#ifdef __debug__
     if ( !errmsg_.isEmpty() )
 	ErrMsg( errmsg_ );
-#endif
 
     if( DBG::isOn(DBG_PROGSTART) )
     {
 	BufferString msg( "Attempt to get open handle for sh lib " );
 	msg += lnm; msg += handle_ ? " succeeded" : " failed";
+	if ( !handle_ && !errmsg_.isEmpty() )
+	    msg.add( ": " ).add( errmsg_ );
+
 	DBG::message( msg );
     }
 }
