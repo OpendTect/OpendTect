@@ -208,7 +208,10 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("LOC") )
 		parseLocation( val1, val2, lfi.loc_ );
 	    if ( mIsKey("UWI") )
+	    {
 		lfi.uwi = val1;
+		if ( val2 && *val2 ) { lfi.uwi += " "; lfi.uwi += val2; }
+	    }
 	    if ( mIsKey("API") && lfi.uwi.isEmpty() )
 		lfi.uwi = val1;
 	    if ( mIsKey("SRVC") )
