@@ -146,6 +146,7 @@ public:
     void		setupBatchHosts();
     void		pluginMan();
     void		posConversion();
+    void		crsPosConversion();
     void		crDevEnv();
     void		manageShortcuts();
     void		startInstMgr();

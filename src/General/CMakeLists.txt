@@ -4,7 +4,7 @@
 # 	July 1995	Bert
 #_______________________________________________________________________________
 
-set ( OD_MODULE_DEPS Algo )
+set ( OD_MODULE_DEPS Algo CRS )
 
 list ( APPEND OD_TEST_PROGS General_Composite.cc )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )

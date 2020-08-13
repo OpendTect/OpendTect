@@ -1,15 +1,18 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile :	uiCRS
+#	Makefile :	CRS
 #	May 2017	Raman
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( OD_MODULE_DEPS uiODMain CRS )
-set( OD_IS_PLUGIN yes)
+set( OD_USEPROJ4 1 )
+set( OD_MODULE_DEPS Basic )
 set( OD_MODULE_SOURCES 
-	    uicrssystem.cc
-	    uicrspi.cc )
+	    crsproj.cc
+	    crssystem.cc
+	    initcrs.cc )
 
-set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} ${OD_SURVEY_EXECS} )
+set( OD_TEST_PROGS
+	    crs.cc )
+
 OD_INIT_MODULE()

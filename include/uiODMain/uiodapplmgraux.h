@@ -33,6 +33,7 @@ class uiVelSel;
 class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
+namespace Coords { class uiConvertGeographicPos; }
 namespace File { class Path; }
 namespace Vel { class uiImportVelFunc; }
 namespace PreStack
@@ -69,6 +70,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		doOperation(int,int,int);
     void		manPreLoad(int);
     void		posConversion();
+    void		crsPosConversion();
 
     void		processPreStack(bool is2d);
     void		process2D3D(int opt);
@@ -83,28 +85,29 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		openXPlot();
     void		createCubeFromWells();
     void		deleteDlgs();
-
     void		posDlgClose(CallBacker*);
-    uiConvertPos*	convposdlg_;
-    uiDataPointSetMan*	mandpsdlg_;
-    ui2DGeomManageDlg*	man2dgeomdlg_;
-    uiProbDenFuncMan*	manpdfdlg_;
-    uiSessionMan*	mansessiondlg_;
-    uiRandomLineMan*	manrldlg_;
-    uiImpPVDS*		impcrossplotdlg_;
-    uiExp2DGeom*	exp2dgeomdlg_;
-    uiImp2DGeom*	imp2dgeomdlg_;
-    uiImpRokDocPDF*	imppdfdlg_;
-    uiExpRokDocPDF*	exppdfdlg_;
-	uiColSeqImport* impcolseqdlg_;
+
+    uiConvertPos*		convposdlg_;
+    uiDataPointSetMan*		mandpsdlg_;
+    ui2DGeomManageDlg*		man2dgeomdlg_;
+    uiProbDenFuncMan*		manpdfdlg_;
+    uiSessionMan*		mansessiondlg_;
+    uiRandomLineMan*		manrldlg_;
+    uiImpPVDS*			impcrossplotdlg_;
+    uiExp2DGeom*		exp2dgeomdlg_;
+    uiImp2DGeom*		imp2dgeomdlg_;
+    uiImpRokDocPDF*		imppdfdlg_;
+    uiExpRokDocPDF*		exppdfdlg_;
+    uiColSeqImport*		impcolseqdlg_;
     PreStack::uiImportMute*	impmutedlg_;
     PreStack::uiExportMute*	expmutedlg_;
     Vel::uiImportVelFunc*	impvelfunc_;
-    uiODApplMgr&	am_;
-    uiParent*		par_;
-    ObjectSet<uiDataPointSet> uidpsset_;
+    uiODApplMgr&		am_;
+    uiParent*			par_;
+    ObjectSet<uiDataPointSet>	uidpsset_;
     PreStack::uiBatchProcSetup* batchprocps2ddlg_;
     PreStack::uiBatchProcSetup* batchprocps3ddlg_;
+    Coords::uiConvertGeographicPos* convgeoposdlg_;
 };
 
 

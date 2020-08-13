@@ -57,7 +57,7 @@ endif()
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
-	Basic Algo General
+	Basic CRS Algo General
 	Strat Network Batch
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
@@ -78,7 +78,6 @@ endif()
 
 set( OD_PLUGINS
 	CEEMDAttrib
-    	CRS
 	ExpAttribs
 	GLCM
 	GMT
@@ -91,7 +90,6 @@ set( OD_PLUGINS
 	VoxelConnectivityFilter
 	uiCEEMDAttrib
 	uiCOLOP
-	uiCRS
 	uiDPSDemo
 	uiExpAttribs
 	uiGLCM

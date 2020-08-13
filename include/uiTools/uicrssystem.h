@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicrsmod.h"
+#include "uitoolsmod.h"
 #include "uicoordsystem.h"
 #include "uidialog.h"
 
@@ -26,7 +26,7 @@ namespace Coords
 
 class uiConvertGeographicPos;
 
-mExpClass(uiCRS) uiProjectionBasedSystem : public uiCoordSystem
+mExpClass(uiTools) uiProjectionBasedSystem : public uiCoordSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiCoordSystem,
@@ -68,7 +68,7 @@ protected:
 };
 
 
-mExpClass(uiCRS) uiConvertGeographicPos : public uiDialog
+mExpClass(uiTools) uiConvertGeographicPos : public uiDialog
 { mODTextTranslationClass(uiConvertGeographicPos);
 
 public:

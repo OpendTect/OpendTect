@@ -5,7 +5,7 @@
 -*/
 
 
-#include "odplugin.h"
+#include "moddepmgr.h"
 #include "crssystem.h"
 #include "legal.h"
 #include "survinfo.h"
@@ -51,26 +51,12 @@ static uiString* legalText()
 }
 
 
-mDefODPluginEarlyLoad(CRS)
-mDefODPluginInfo(CRS)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Coordinate Reference System (Base)",
-	"OpendTect",
-	"dGB (Raman)",
-	"=od",
-	"Coordinate Reference System - base" ));
-    return &retpi;
-}
-
-
-mDefODInitPlugin(CRS)
+mDefModInitFn(CRS)
 {
     Coords::ProjectionBasedSystem::initClass();
     Coords::ProjectionRepos::initStdRepos();
     SI().readSavedCoordSystem();
 
     legalInformation().addCreator( legalText, "PROJ.4" );
-    return 0;
 }
 
