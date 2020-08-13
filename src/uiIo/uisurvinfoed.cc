@@ -807,11 +807,11 @@ bool uiSurveyInfoEditor::setRelation()
 }
 
 
-void uiSurveyInfoEditor::updatePar( CallBacker* cb )
+void uiSurveyInfoEditor::updatePar( CallBacker* )
 {}
 
 
-void uiSurveyInfoEditor::sipCB( CallBacker* cb )
+void uiSurveyInfoEditor::sipCB( CallBacker* )
 {
     const int sipidx = sipfld_ ? sipfld_->currentItem() : 0;
     if ( sipidx < 1 ) return;
@@ -848,6 +848,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     {
 	si_.setCoordSystem( coordsys );
 	coordsystem_ = coordsys;
+	crssel_->fillFromSI();
     }
 
     const bool xyinfeet = si_.getCoordSystem()->isFeet();
