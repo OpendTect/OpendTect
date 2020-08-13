@@ -49,15 +49,17 @@ public:
 			uiBulkLogImport(uiParent*);
 			~uiBulkLogImport();
 
-protected:
+private:
 
     bool		acceptOK(CallBacker*);
     void		lasSel(CallBacker*);
+    void		nameSelChg(CallBacker*);
 
     uiFileInput*	inpfld_;
-    uiGenInput*		istvdfld_;
+    uiGenInput*		ismdfld_;
     uiGenInput*		udffld_;
     uiGenInput*		lognmfld_;
+    uiGenInput*		welluwinmfld_;
     uiTable*		wellstable_;
 };
 

@@ -309,32 +309,40 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
 		  uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiBulkLogImport,lasSel) );
+    mAttachCB( inpfld_->valuechanged, uiBulkLogImport::lasSel );
 
-    istvdfld_ = new uiGenInput( this, tr("Depth values are"),
-		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
-    istvdfld_->attach( alignedBelow, inpfld_ );
+    ismdfld_ = new uiGenInput( this, tr("Depth values are"),
+		    BoolInpSpec(true,tr("MD"),tr("TVDSS")) );
+    ismdfld_->attach( alignedBelow, inpfld_ );
 
     const float defundefval = -999.25;
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
 		    FloatInpSpec(defundefval));
-    udffld_->attach( alignedBelow, istvdfld_ );
+    udffld_->attach( alignedBelow, ismdfld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Name log after"),
 		BoolInpSpec(false,tr("Curve"),tr("Description")) );
     lognmfld_->attach( alignedBelow, udffld_ );
 
-    BufferStringSet colnms;
-    colnms.add( "Well name in LAS" ).add( "Well name in OpendTect" );
-    wellstable_ = new uiTable( this, uiTable::Setup(3,2), "Wells" );
-    wellstable_->setColumnLabels( colnms );
+    welluwinmfld_ = new uiGenInput( this, tr("Using UWI as well name"),
+	    BoolInpSpec(false,uiStrings::sYes(),uiStrings::sNo()) );
+    welluwinmfld_->attach( alignedBelow, lognmfld_ );
+    mAttachCB( welluwinmfld_->valuechanged, uiBulkLogImport::nameSelChg );
+
+    wellstable_ = new uiTable( this, uiTable::Setup(3,3), "Wells" );
+    wellstable_->setColumnLabel( 0, tr("Well name in LAS") );
+    wellstable_->setColumnLabel( 1, tr("Well UWI in LAS") );
+    wellstable_->setColumnLabel( 2, tr("Well name in OpendTect") );
     wellstable_->setColumnReadOnly( 0, true );
-    wellstable_->attach( ensureBelow, lognmfld_ );
+    wellstable_->setColumnReadOnly( 1, true );
+    wellstable_->attach( ensureBelow, welluwinmfld_ );
 }
 
 
 uiBulkLogImport::~uiBulkLogImport()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 static void getWellNames( BufferStringSet& wellnms )
@@ -356,6 +364,7 @@ void uiBulkLogImport::lasSel( CallBacker* )
     BufferStringSet wellnms;
     wellnms.add( "-- (Do not import)" );
     getWellNames( wellnms );
+    const bool useuwiasnm = welluwinmfld_->getBoolValue();
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
@@ -365,13 +374,101 @@ void uiBulkLogImport::lasSel( CallBacker* )
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 
 	wellstable_->setText( RowCol(idx,0), info.wellnm );
+	wellstable_->setText( RowCol(idx,1), info.uwi );
 
+	BufferStringSet listwellnms( wellnms );
+	if ( !info.wellnm.isEmpty() )
+	    listwellnms.addIfNew( info.wellnm );
+	if ( !info.uwi.isEmpty() )
+	    listwellnms.addIfNew( info.uwi );
 	uiComboBox* wellsbox = new uiComboBox( 0, "Select Well" );
-	wellsbox->addItems( wellnms );
-	wellstable_->setCellObject( RowCol(idx,1), wellsbox );
-	const int selidx = wellnms.nearestMatch( info.wellnm );
+	wellsbox->addItems( listwellnms );
+	wellstable_->setCellObject( RowCol(idx,2), wellsbox );
+
+	const BufferString& welllasnm = useuwiasnm ? info.uwi : info.wellnm;
+	const BufferString& othwellnm = useuwiasnm ? info.wellnm : info.uwi;
+	const BufferString wellnm = welllasnm.isEmpty() ? othwellnm : welllasnm;
+	const int selidx = listwellnms.nearestMatch( wellnm );
 	wellsbox->setCurrentItem( selidx<0 ? 0 : selidx );
     }
+
+    wellstable_->resizeColumnToContents( 0 );
+}
+
+
+void uiBulkLogImport::nameSelChg( CallBacker* )
+{
+    const bool useuwiasnm = welluwinmfld_->getBoolValue();
+    for ( int idx=0; idx<wellstable_->nrRows(); idx++ )
+    {
+	uiObject* uiobj = wellstable_->getCellObject( RowCol(idx,2) );
+	mDynamicCastGet(uiComboBox*,wellsbox,uiobj)
+	if ( !wellsbox )
+	    continue;
+
+	const BufferString wellnm = wellstable_->text(RowCol(idx,0));
+	const BufferString uwinm = wellstable_->text(RowCol(idx,1));
+	if ( (useuwiasnm && uwinm.isEmpty()) ||
+	     (!useuwiasnm && wellnm.isEmpty()) )
+	    continue;
+
+	wellsbox->setCurrentItem( useuwiasnm ? uwinm.str() : wellnm.str() );
+    }
+}
+
+
+static bool createNewWell( const Well::LASImporter::FileInfo& info,
+			   const char* wellnm, uiStringSet& errors )
+{
+    RefMan<Well::Data> wd = new Well::Data( wellnm );
+    Well::Track& track = wd->track();
+    Coord3 wellhead( 0., 0., 0. );
+    if ( info.loc_.isDefined() )
+	wellhead.coord() = info.loc_;
+    if ( !mIsUdf(info.kbelev_) )
+	wellhead.z = -1. * info.kbelev_;
+    Coord3 welltd( wellhead );
+    welltd.z = info.zrg.stop - welltd.z;
+
+    track.addPoint( wellhead, 0.f );
+    track.addPoint( welltd, info.zrg.stop );
+    wd->info().uwid = info.uwi;
+
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
+    PtrMan<IOObj> ioobj = mkEntry( *ctio, wd->name() );
+    if ( !ioobj )
+    {
+	errors.add( uiStrings::phrCannotCreateDBEntryFor(
+		    toUiString(wd->name())) );
+	return false;
+    }
+
+    Well::Writer ww( *ioobj.ptr(), *wd );
+    if ( !ww.putInfoAndTrack() )
+    {
+	uiString msg = uiStrings::phrCannotCreate(
+		toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
+	errors.add( msg );
+	return false;
+    }
+
+    if ( SI().zIsTime() )
+    {
+	auto* d2tmodel = new Well::D2TModel;
+	d2tmodel->makeFromTrack( track,
+				 uiD2TModelGroup::getDefaultTemporaryVelocity(),
+				 wd->info().replvel );
+	wd->setD2TModel( d2tmodel );
+	if ( !ww.putD2T() )
+	{
+	    uiString msg = uiStrings::phrCannotCreate(
+		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
+	    errors.add( msg );
+	    return false;
+	}
+    }
+
+    return true;
 }
 
 
@@ -385,8 +482,9 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	return false;
     }
 
-    const bool zistvd = istvdfld_->getBoolValue();
+    const bool zistvdss = !ismdfld_->getBoolValue();
     const bool usecurvenms = lognmfld_->getBoolValue();
+    const bool useuwiasnm = welluwinmfld_->getBoolValue();
     uiStringSet errors;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
@@ -402,36 +500,49 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const uiObject* uiobj = wellstable_->getCellObject( RowCol(idx,1) );
+	const uiObject* uiobj = wellstable_->getCellObject( RowCol(idx,2) );
 	mDynamicCastGet(const uiComboBox*,cb,uiobj)
 	if ( cb && cb->currentItem()==0 )
 	    continue;
 
-	const BufferString wellnm = cb ? cb->text() : info.wellnm.buf();
-	const IOObj* ioobj = findIOObj( wellnm, info.uwi );
+	const BufferString wellnm = cb ? cb->text()
+				       : (useuwiasnm ? info.uwi.buf()
+						     : info.wellnm.buf() );
+	PtrMan<IOObj> ioobj = findIOObj( wellnm, info.uwi );
 	if ( !ioobj )
 	{
-	    errors.add(tr("%1: Cannot find %2").arg(fnm).arg(wellnm));
-	    continue;
+	    if ( createNewWell(info,wellnm,errors) )
+		ioobj = findIOObj( wellnm, info.uwi );
+
+	    if ( !ioobj )
+	    {
+		errors.add(tr("%1: Cannot find %2").arg(fnm).arg(wellnm));
+		continue;
+	    }
 	}
 
 	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot find well information in database")
-		     .arg(info.wellnm));
+		     .arg(wellnm));
 	    continue;
 	}
 
 	lasimp.setData( wd );
+	bool newwellinfo = false, adjustedwelltrack = false;
+	lasimp.copyInfo( info, newwellinfo );
+	lasimp.adjustTrack( info.zrg, zistvdss, adjustedwelltrack );
 	if ( usecurvenms )
 	    info.lognms = info.logcurves; // Hack
-	errmsg = lasimp.getLogs( fnm, info, zistvd, usecurvenms );
+	errmsg = lasimp.getLogs( fnm, info, zistvdss, usecurvenms );
 	if ( !errmsg.isEmpty() )
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );
 
 	Well::Writer wtr( *ioobj, *wd );
+	if ( newwellinfo || adjustedwelltrack )
+	    wtr.putInfoAndTrack();
 	wtr.putLogs();
     }
 
@@ -635,7 +746,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const IOObj* ioobj = findIOObj( wellnm, wellnm );
+	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
 	if ( !ioobj )
 	{
 	    delete d2tdata.removeSingle(idx,true);
