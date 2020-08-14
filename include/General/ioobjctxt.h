@@ -35,6 +35,7 @@ public:
 
     IOPar&		require_;
     IOPar&		dontallow_;
+    bool		allowmissing_; //what to do if a require_ key is absent
 
     BufferString	allowtransls_;	//!< FileMultiString of glob expressions
     bool		allownonuserselectable_; //!< allow 'alien' like SEG-Y
