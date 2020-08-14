@@ -108,39 +108,54 @@ bool ODInst::canInstall()
 }
 
 
-#define mMkMachComm( prog, reldir ) \
-    OS::MachineCommand machcomm( prog ); \
-    if ( __ismac__ ) \
-    { \
-	const FilePath instdir( reldir ); \
-	machcomm.addKeyedArg( "instdir", reldir ); \
-    } \
-    else \
-	machcomm.addKeyedArg( "instdir", reldir );
+namespace ODInst {
 
-#define mGetFullMachComm(errretstmt) \
-    FilePath installerfp( getInstallerPlfDir() ); \
-    if ( !File::isDirectory(installerfp.fullPath()) ) \
-	errretstmt; \
-    if ( __iswin__ ) \
-	installerfp.add( "od_instmgr.exe" ); \
-    else if( __ismac__ ) \
-	installerfp.add( "od_instmgr" ); \
-    else if ( __islinux__ ) \
-    { \
-	installerfp.add( "run_installer" ); \
-	if ( !installerfp.exists() ) \
-	{ \
-	    FilePath odinstmgrfp( installerfp ); \
-	    odinstmgrfp.setFileName( "od_instmgr" ); \
-	    if ( odinstmgrfp.exists() ) \
-		installerfp = odinstmgrfp; \
-	} \
-    } \
-    const BufferString prog( installerfp.fullPath() ); \
-    if ( !File::isExecutable(prog) ) \
-	errretstmt; \
-    mMkMachComm( prog, mRelRootDir )
+static OS::MachineCommand makeMachComm( const char* prog, const char* reldir )
+{
+    OS::MachineCommand mc( prog );
+    mc.addKeyedArg( "instdir", reldir );
+    return mc;
+}
+
+static OS::MachineCommand getFullMachComm( const char* reldir )
+{
+    OS::MachineCommand mc;
+    FilePath installerfp( getInstallerPlfDir() );
+    if ( !File::isDirectory(installerfp.fullPath()) )
+	return mc;
+    if ( __iswin__ )
+	installerfp.add( "od_instmgr.exe" );
+    else if( __ismac__ )
+	installerfp.add( "od_instmgr" );
+    else if ( __islinux__ )
+    {
+	installerfp.add( "run_installer" );
+	if ( !installerfp.exists() )
+	{
+	    FilePath odinstmgrfp( installerfp );
+	    odinstmgrfp.setFileName( "od_instmgr" );
+	    if ( odinstmgrfp.exists() )
+		installerfp = odinstmgrfp;
+	}
+    }
+
+    return makeMachComm( installerfp.fullPath(), reldir );
+}
+
+static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
+{
+    OS::CommandExecPars pars( OS::RunInBG );
+    pars.workingdir( FilePath(mc.program()).pathOnly() );
+    pars.runasadmin( !File::isWritable(reldir) );
+    return mc.execute( pars );
+}
+
+};
+
+#define mGetFullMachComm(reldir,errretstmt) \
+    OS::MachineCommand machcomm = getFullMachComm( reldir ); \
+    if ( machcomm.isBad() || !File::isExecutable(machcomm.program()) ) \
+        errretstmt
 
 
 const char* ODInst::sKeyHasUpdate()
@@ -195,24 +210,15 @@ BufferString ODInst::GetInstallerDir()
 
 void ODInst::startInstManagement()
 {
-    mGetFullMachComm(return);
-    const BufferString curpath = File::getCurrentPath();
-    File::changeDir( installerfp.pathOnly() );
-    machcomm.execute( OS::RunInBG );
-    File::changeDir( curpath.buf() );
+    mGetFullMachComm(mRelRootDir,return);
+    submitCommand( machcomm, mRelRootDir );
 }
 
 
 void ODInst::startInstManagementWithRelDir( const char* reldir )
 {
-#ifdef __win__
-    FilePath installerfp( getInstallerPlfDir() );
-    if ( installerfp.isEmpty() )
-	return;
-    installerfp.add( "od_instmgr" );
-    mMkMachComm( installerfp.fullPath(), reldir );
-    machcomm.execute( OS::RunInBG );
-#endif
+    mGetFullMachComm(reldir,return);
+    submitCommand( machcomm, reldir );
 }
 
 
@@ -251,7 +257,7 @@ bool ODInst::runInstMgrForUpdt()
 
 bool ODInst::updatesAvailable()
 {
-    mGetFullMachComm(return false);
+    mGetFullMachComm(mRelRootDir,return false);
     machcomm.addFlag( "updcheck_report" );
     BufferString stdoutstr;
     if ( !machcomm.execute(stdoutstr) || stdoutstr.isEmpty() )
