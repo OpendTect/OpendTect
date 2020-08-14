@@ -92,6 +92,7 @@ IOObjSelConstraints::IOObjSelConstraints()
     : require_(*new IOPar)
     , dontallow_(*new IOPar)
     , allownonuserselectable_(false)
+    ,allowmissing_(false)
 {
 }
 
@@ -101,6 +102,7 @@ IOObjSelConstraints::IOObjSelConstraints( const IOObjSelConstraints& oth )
     , dontallow_(*new IOPar(oth.dontallow_))
     , allowtransls_(oth.allowtransls_)
     , allownonuserselectable_(oth.allownonuserselectable_)
+    , allowmissing_(oth.allowmissing_)
 {
 }
 
@@ -121,6 +123,7 @@ IOObjSelConstraints& IOObjSelConstraints::operator =(
 	dontallow_ = oth.dontallow_;
 	allowtransls_ = oth.allowtransls_;
 	allownonuserselectable_ = oth.allownonuserselectable_;
+	allowmissing_ = oth.allowmissing_;
     }
     return *this;
 }
@@ -132,6 +135,7 @@ void IOObjSelConstraints::clear()
     dontallow_.setEmpty();
     allowtransls_.setEmpty();
     allownonuserselectable_ = false;
+    allowmissing_ = false;
 }
 
 
@@ -177,6 +181,8 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 	    const BufferString fmsstr( fms[ifms] );
 	    const bool fmsstrisempty = fmsstr.isEmpty();
 	    if ( fmsstrisempty && valisempty )
+		isok = true;
+	    else if ( allowmissing_ && valisempty )
 		isok = true;
 	    else if ( fmsstrisempty != valisempty )
 		continue;
