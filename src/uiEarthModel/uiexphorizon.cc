@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 #include "uibutton.h"
+#include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
