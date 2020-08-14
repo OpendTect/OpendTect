@@ -13,10 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "survinfo.h"
 #include "welldata.h"
-#include "wellreader.h"
-#include "welllogset.h"
 #include "welllog.h"
+#include "welllogset.h"
 #include "wellmarker.h"
+#include "wellreader.h"
+#include "welltrack.h"
 #include "welltransl.h"
 
 
@@ -103,6 +104,7 @@ Well::Man& Well::MGR()
 
 Well::Man::~Man()
 {
+    deepUnRef( wells_ );
 }
 
 
@@ -120,8 +122,22 @@ void Well::Man::add( const MultiID& key, Well::Data* wll )
 {
     if ( !wll ) return;
 
+    wll->ref();
     wll->setMultiID( key );
     wells_ += wll;
+    LoadReqs reqs( Well::Inf );
+    if ( !wll->track().isEmpty() )
+	reqs.add( Well::Trck );
+    if ( wll->d2TModel() && !wll->d2TModel()->isEmpty() )
+	reqs.add( Well::D2T );
+    if ( wll->checkShotModel() && !wll->checkShotModel()->isEmpty() )
+	reqs.add( Well::CSMdl );
+    if ( !wll->markers().isEmpty() )
+	reqs.add( Well::Mrkrs );
+    if ( !wll->logs().isEmpty() )
+	reqs.add( Well::Logs );
+
+    loadstates_ += reqs;
 }
 
 
@@ -131,7 +147,9 @@ Well::Data* Well::Man::release( const MultiID& key )
     if ( idx < 0 ) return 0;
 
     loadstates_.removeSingle( idx );
-    return wells_.removeSingle( idx );
+    Well::Data* ret = wells_.removeSingle( idx );
+    ret->unRef();
+    return ret;
 }
 
 
@@ -146,36 +164,32 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
     msg_.setEmpty();
 
     const int wdidx = gtByKey( key );
-    Well::Data* wd = wdidx < 0 ? 0 : wells_[wdidx];
+    Well::Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && loadstates_[wdidx].includes(reqs) )
         return wd;
 
     if ( wdidx >=0 )
     {
-	wd->ref();
 	reqs.include( loadstates_[wdidx] );
-	if ( !readReqData(key, wd, reqs) )
-	{
-	    wd->unRef();
+	if ( !readReqData(key,wd,reqs) )
 	    return nullptr;
-	}
 
 	loadstates_[wdidx] = reqs;
+	return wd;
     }
-    else
+
+    wd = new Well::Data;
+    wd->ref();
+    if ( !readReqData(key,wd,reqs) )
     {
-	wd = new Well::Data;
-	wd->ref();
-	if ( !readReqData(key, wd, reqs) )
-	{
-	    wd->unRef();
-	    return nullptr;
-	}
-
-	loadstates_ += reqs;
+	wd->unRef();
+	return nullptr;
     }
 
-    add( key, wd );
+    wd->setMultiID( key );
+    wells_ += wd;
+    loadstates_ += reqs;
+
     return wd;
 }
 
