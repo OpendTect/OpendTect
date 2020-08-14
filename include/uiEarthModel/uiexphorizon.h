@@ -14,15 +14,15 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "fixedstring.h"
-#include "uiioobjselgrp.h"
-#include "uicoordsystem.h"
 
 class uiFileInput;
 class uiGenInput;
+class uiIOObjSelGrp;
 class uiSurfaceRead;
 class uiUnitSel;
 class uiPushButton;
 class uiT2DConvSel;
+namespace Coords { class uiCoordSystemSel; }
 
 /*! \brief Dialog for horizon export */
 
@@ -31,7 +31,6 @@ mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
 public:
 			uiExportHorizon(uiParent*,bool isbulk=false);
 			~uiExportHorizon();
-
 
 protected:
 
