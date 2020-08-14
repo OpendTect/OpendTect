@@ -11,6 +11,8 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "odinst.h"
+
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -125,8 +127,17 @@ bool ODInst::canInstall()
     else if( __ismac__ ) \
 	installerfp.add( "od_instmgr" ); \
     else if ( __islinux__ ) \
+    { \
 	installerfp.add( "run_installer" ); \
-    BufferString prog( installerfp.fullPath() ); \
+	if ( !installerfp.exists() ) \
+	{ \
+	    FilePath odinstmgrfp( installerfp ); \
+	    odinstmgrfp.setFileName( "od_instmgr" ); \
+	    if ( odinstmgrfp.exists() ) \
+		installerfp = odinstmgrfp; \
+	} \
+    } \
+    const BufferString prog( installerfp.fullPath() ); \
     if ( !File::isExecutable(prog) ) \
 	errretstmt; \
     mMkMachComm( prog, mRelRootDir )
@@ -145,7 +156,7 @@ const char* ODInst::sKeyHasNoUpdate()
 
 BufferString ODInst::GetInstallerDir()
 {
-    BufferString appldir( GetSoftwareDir(0) );
+    BufferString appldir( GetSoftwareDir(false) );
     if ( File::isLink(appldir) )
 	appldir = File::linkTarget( appldir );
 
@@ -156,7 +167,29 @@ BufferString ODInst::GetInstallerDir()
 
     FilePath installerdir( appldir );
     installerdir.setFileName( mInstallerDirNm );
-    return installerdir.fullPath();
+    if ( !File::isDirectory(installerdir.fullPath()) )
+	installerdir = appldir;
+
+    FilePath relinfosubdir( installerdir );
+#ifdef __mac__
+    relinfosubdir.add( "Contents" ).add( "Resources" );
+#endif
+    relinfosubdir.add( "relinfo" );
+    if ( !relinfosubdir.exists() )
+	return BufferString::empty();
+
+    const DirList dl( relinfosubdir.fullPath(), DirList::FilesOnly );
+    bool isvalid = false;
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	if ( dl.get(idx).contains("instmgr") )
+	{
+	    isvalid = true;
+	    break;
+	}
+    }
+
+    return isvalid ? installerdir.fullPath() : BufferString::empty();
 }
 
 
@@ -185,22 +218,20 @@ void ODInst::startInstManagementWithRelDir( const char* reldir )
 
 BufferString ODInst::getInstallerPlfDir()
 {
-    FilePath installerbasedir(GetInstallerDir());
-    if (!File::isDirectory(installerbasedir.fullPath()))
-    {
-        installerbasedir = GetSoftwareDir(false);
-        const FilePath develfp(installerbasedir, "CMakeCache.txt");
-        if (!develfp.exists())
-            return BufferString::empty();
-    }
+    const FilePath installerbasedir( GetInstallerDir() );
+    if ( !installerbasedir.exists() )
+	return BufferString::empty();
+
 #ifdef __mac__
-    FilePath installerfp(installerbasedir, "Contents/MacOS");
+    FilePath installerfp( installerbasedir, "Contents/MacOS" );
 #else
-    FilePath installerfp(installerbasedir, "bin", __plfsubdir__, "Release");
-    if (!installerfp.exists())
+    FilePath installerfp( installerbasedir, "bin", __plfsubdir__, "Release" );
+    if ( !installerfp.exists() )
     {
-        installerfp.set(installerfp.dirUpTo(installerfp.nrLevels() - 2))
-                    .add("Debug");   
+	FilePath dbginstallerfp( installerfp );
+	dbginstallerfp.setFileName( "Debug" );
+	if ( dbginstallerfp.exists() )
+	    installerfp = dbginstallerfp;
     }
 
 #endif

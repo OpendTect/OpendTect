@@ -9,6 +9,8 @@ include/Basic/buildinfo.h
 external/*/*
 external/proj4
 external/osgGeo
+external/MikePlugins
+external/shapelib
 .arcconfig
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
@@ -103,6 +105,9 @@ qtcsettings.cmake
 
 #Link to v7 application
 v7
+
+#Other
+relinfo/ver.*
 
 #Platform dependent files
 # Windows
