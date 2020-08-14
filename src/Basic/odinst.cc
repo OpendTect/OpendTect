@@ -23,26 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
-#define mRelRootDir GetSoftwareDir(1)
+#define mRelRootDir GetSoftwareDir(true)
 
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
 #include "winutils.h"
-static BufferString getInstDir()
-{
-    BufferString dirnm( _getcwd(NULL,0) );
-    char* termchar = 0;
-    termchar = dirnm.find( "\\bin\\win" );
-    if ( !termchar )
-	termchar = dirnm.find( "\\bin\\Win" );
-
-    if ( termchar )
-	*termchar = '\0';
-    return dirnm;
-}
-#undef mRelRootDir
-# define mRelRootDir getInstDir()
 #else
 # include "unistd.h"
 # ifndef OD_NO_QT
@@ -199,13 +185,24 @@ void ODInst::startInstManagementWithRelDir( const char* reldir )
 
 BufferString ODInst::getInstallerPlfDir()
 {
-    FilePath installerbasedir( GetInstallerDir() );
-    if ( !File::isDirectory(installerbasedir.fullPath()) )
-	return "";
+    FilePath installerbasedir(GetInstallerDir());
+    if (!File::isDirectory(installerbasedir.fullPath()))
+    {
+        installerbasedir = GetSoftwareDir(false);
+        const FilePath develfp(installerbasedir, "CMakeCache.txt");
+        if (!develfp.exists())
+            return BufferString::empty();
+    }
 #ifdef __mac__
-    FilePath installerfp( installerbasedir, "Contents/MacOS" );
+    FilePath installerfp(installerbasedir, "Contents/MacOS");
 #else
-    FilePath installerfp( installerbasedir, "bin", __plfsubdir__, "Release" );
+    FilePath installerfp(installerbasedir, "bin", __plfsubdir__, "Release");
+    if (!installerfp.exists())
+    {
+        installerfp.set(installerfp.dirUpTo(installerfp.nrLevels() - 2))
+                    .add("Debug");   
+    }
+
 #endif
     const BufferString path = installerfp.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
