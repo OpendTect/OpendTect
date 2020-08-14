@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-#include "odinst.h"
 #include "oscommand.h"
 
 
@@ -28,6 +27,5 @@ static bool ExecODMain( int argc, char** argv )
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
-    ODInst::runInstMgrForUpdt();
     return ExecODMain( argc, argv ) ? 0 : 1;
 }
