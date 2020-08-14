@@ -76,9 +76,9 @@ public:
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);
     bool		readReqData(const MultiID&, Well::Data*, LoadReqs);
-    void		add(const MultiID&,Data*);
+    mDeprecated("Use get instead") void add(const MultiID&,Data*);
 			//!< Data becomes mine
-    Data*		release(const MultiID&);
+    mDeprecated("Use removeObject instead") Data* release(const MultiID&);
 			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&);
