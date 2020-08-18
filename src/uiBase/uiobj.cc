@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "perthreadrepos.h"
 
+#include "q_uiimpl.h"
+
 #include <QEvent>
 
 mUseQtnamespace
@@ -436,7 +438,7 @@ void uiObject::updateToolTip(CallBacker*)
 	qwidget()->setToolTip( namestr.buf() );
     }
     else
-	qwidget()->setToolTip( tooltip_.getQString() );
+	qwidget()->setToolTip( toQString(tooltip_) );
 }
 
 

@@ -16,6 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiparentbody.h"
 
 #include "perthreadrepos.h"
+
+#include "q_uiimpl.h"
+
 #include <QDockWidget>
 
 mUseQtnamespace
@@ -41,12 +44,12 @@ protected:
 uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 			      const uiString& nm )
     : uiCentralWidgetBody(nm.getFullString())
-    , QDockWidget(nm.getQString())
+    , QDockWidget(toQString(nm))
     , handle_(uidw)
 {
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable |
 			      QDockWidget::DockWidgetFloatable );
-    setObjectName( nm.getQString() );
+    setObjectName( toQString(nm) );
 }
 
 
@@ -118,7 +121,7 @@ uiString uiDockWin::getDockName() const
 }
 
 void uiDockWin::setDockName( const uiString& nm )
-{ body_->qwidget()->setObjectName( nm.getQString() ); }
+{ body_->qwidget()->setObjectName( toQString(nm) ); }
 
 uiGroup* uiDockWin::topGroup()
 { return body_->uiCentralWidg(); }

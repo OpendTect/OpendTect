@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainpspec.h"
 #include "mouseevent.h"
 
+#include "q_uiimpl.h"
+
 #include <QAbstractItemView>
 #include <QContextMenuEvent>
 #include <QLineEdit>
@@ -211,7 +213,7 @@ void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 {
     if ( index >= 0 && index < body_->count() )
     {
-	body_->setItemText( index, itemstrings_[index].getQString() );
+	body_->setItemText( index, toQString(itemstrings_[index]) );
 	body_->setItemIcon( index, *pixmap.qpixmap() );
     }
 }
@@ -278,7 +280,7 @@ const char* uiComboBox::textOfItem( int idx ) const
 	return enumdef_->getKeyForIndex( idx );
 
     if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
-	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
+	 body_->itemText(idx)==toQString(itemstrings_[idx])) )
     {
 	rettxt_ = itemstrings_[idx].getFullString();
     }
@@ -324,7 +326,7 @@ void uiComboBox::setItemText( int idx, const uiString& txt )
     if ( idx >= 0 && idx < body_->count() )
     {
 	adjustWidth( txt );
-	body_->setItemText( idx, txt.getQString() );
+	body_->setItemText( idx, toQString(txt) );
 	itemstrings_[idx] = txt;
     }
 }
@@ -377,7 +379,7 @@ void uiComboBox::addItem( const uiString& txt, int id )
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->addItem( txt.getQString() );
+    body_->addItem( toQString(txt) );
     itemids_ += id;
     itemstrings_ += txt;
 }
@@ -409,7 +411,7 @@ void uiComboBox::insertItem( const uiString& txt, int index, int id )
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->insertItem( index, txt.getQString() );
+    body_->insertItem( index, toQString(txt) );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
 }
@@ -420,7 +422,7 @@ void uiComboBox::insertItem( const uiPixmap& pm, const uiString& txt,
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->insertItem( index, *pm.qpixmap(), txt.getQString() );
+    body_->insertItem( index, *pm.qpixmap(), toQString(txt) );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
 }
@@ -502,7 +504,7 @@ void uiComboBox::translateText()
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	body_->setItemText( idx, itemstrings_[idx].getQString() );
+	body_->setItemText( idx, toQString(itemstrings_[idx]) );
     }
 }
 

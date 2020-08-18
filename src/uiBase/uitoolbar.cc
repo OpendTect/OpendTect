@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "menuhandler.h"
 #include "separstr.h"
 
+#include "q_uiimpl.h"
+
 #include <QToolBar>
 #include <QToolButton>
 #include "i_qtoolbar.h"
@@ -43,10 +45,10 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     , buttonClicked(this)
     , orientationChanged(this)
     , toolbarmenuaction_(0)
-    , qtoolbar_(new QToolBar(nm.getQString(), parnt ? parnt->getWidget() : 0))
+    , qtoolbar_(new QToolBar(toQString(nm), parnt ? parnt->getWidget() : 0))
 {
     label_ = nm;
-    qtoolbar_->setObjectName( nm.getQString() );
+    qtoolbar_->setObjectName( toQString(nm) );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
@@ -132,7 +134,7 @@ void uiToolBar::addObject( uiObject* obj )
 void uiToolBar::setLabel( const uiString& lbl )
 {
     label_ = lbl;
-    qtoolbar_->setWindowTitle( lbl.getQString() );
+    qtoolbar_->setWindowTitle( toQString(lbl) );
     setName( lbl.getFullString() );
 }
 
@@ -293,7 +295,7 @@ void uiToolBar::clear()
 void uiToolBar::translateText()
 {
     if ( !label_.isEmpty() )
-	qtoolbar_->setWindowTitle( label_.getQString() );
+	qtoolbar_->setWindowTitle( toQString(label_) );
 
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
 	addedobjects_[idx]->translateText();

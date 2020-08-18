@@ -62,14 +62,14 @@ bool TestTranslator::testTranslation()
     uiString hor3d =
 	uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() );
 
-    qres = hor3d.getQString();
+    hor3d.fillQString( qres );
     res = qres;
     mRunStandardTest( res=="3D Horizon", "Translation content (Horizon)");
 
     hor3d =
      uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon(mPlural) );
 
-    qres = hor3d.getQString();
+    hor3d.fillQString( qres );
     res = qres;
     mRunStandardTest( res=="3D Horizons", "Translation content (Horizons)");
 
@@ -85,23 +85,24 @@ bool testArg()
 		.arg( 5 )
 		.arg( 9 );
 
-    mRunStandardTest( composite.getFullString()=="4 plus 5 is 9",
+    mRunStandardTest( composite.getFullString() == "4 plus 5 is 9",
 		      "Composite test" );
 
     const char* desoutput = "Hello Dear 1";
+    QString qstr, qstr2;
 
     uiString string = toUiString( "Hello %1 %2").arg( "Dear" ).arg(toString(1));
-    mRunStandardTest( string.getQString()==QString( desoutput ),
-		     "Standard argument order");
+    string.fillQString( qstr );
+    mRunStandardTest( qstr==QString( desoutput ), "Standard argument order");
 
     string = toUiString( "Hello %2 %1").arg( toString( 1 ) ).arg( "Dear" );
-    mRunStandardTest( string.getQString()==QString(desoutput),
-		     "Reversed argument order");
+    string.fillQString( qstr );
+    mRunStandardTest( qstr==QString(desoutput), "Reversed argument order");
 
     string = toUiString( "Hello %1 %2");
     string.arg( "Dear" ).arg( toString(1) );
-    mRunStandardTest( string.getQString()==QString(desoutput),
-		     "In-place");
+    string.fillQString( qstr );
+    mRunStandardTest( qstr==QString(desoutput), "In-place");
 
 
     BufferString expargs = string.getFullString();
@@ -112,7 +113,8 @@ bool testArg()
     cloned = string;
     cloned.makeIndependent();
 
-    mRunStandardTest( string.getQString()==cloned.getQString(), "copyFrom" );
+    string.fillQString( qstr ); cloned.fillQString( qstr2 );
+    mRunStandardTest( qstr==qstr2, "copyFrom" );
 
     uiString part1 = toUiString( "Part 1" );
     part1.append( ", Part 2", false );
@@ -187,7 +189,8 @@ bool testQStringAssignment()
 bool testNumberStrings()
 {
     uiString string = toUiString( 0.9, 3 );
-    QString qstr = string.getQString();
+    QString qstr;
+    string.fillQString( qstr );
     BufferString bstr( qstr );
     mRunStandardTest( bstr=="0.900", "Number string" );
 
@@ -195,7 +198,7 @@ bool testNumberStrings()
     qstr = QString::fromWCharArray( wbuf );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="0.900", "Number string from wchar" );
-    
+
     return true;
 }
 
@@ -203,7 +206,7 @@ bool testNumberStrings()
 bool testLargeNumberStrings()
 {
     uiString string = toUiString( 12500 );
-    QString qstr = string.getQString();
+    QString qstr; string.fillQString( qstr );
     BufferString bstr( qstr );
     mRunStandardTest( bstr=="12500", "Large number string" );
 
@@ -211,7 +214,7 @@ bool testLargeNumberStrings()
     qstr = QString::fromWCharArray( wbuf );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="12500", "Large number string from wchar" );
-    
+
     return true;
 }
 
@@ -237,7 +240,7 @@ bool testOptionStrings()
 {
     uiString strings[] = { toUiString( "One" ), toUiString( "Two" ),
 			    toUiString( "Three" ), toUiString( "Four" ),
-   			    uiString() };
+			    uiString() };
     uiStringSet options( strings );
 
     mRunStandardTest(
@@ -260,7 +263,7 @@ bool testHexEncoding()
     uiString str;
     mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
 	              str.getFullString()=="Qt is great!",
-	   	      "Reading hard-coded string" );
+		      "Reading hard-coded string" );
 
 
     BufferString msg( "Espana" );
@@ -269,9 +272,10 @@ bool testHexEncoding()
     uiString original( toUiString(msg) );
     BufferString encoding;
     original.getHexEncoded( encoding );
-    
-    mRunStandardTest( str.setFromHexEncoded( encoding ) &&
-		      original.getQString()==str.getQString(),
+    str.setFromHexEncoded( encoding );
+    QString qstr; str.fillQString( qstr );
+    QString orgqstr; original.fillQString( orgqstr );
+    mRunStandardTest( str.setFromHexEncoded( encoding ) && orgqstr==qstr,
 		      "Reading encoded string" );
 
     return true;

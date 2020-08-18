@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uistrings.h"
 
+#include "q_uiimpl.h"
+
 #include <QApplication>
 #include <QColorDialog>
 #include <QLabel>
@@ -83,7 +85,7 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
     const int refnr = ::beginCmdRecEvent( utfwintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
-    qdlg.setWindowTitle( wintitle.getQString() );
+    qdlg.setWindowTitle( toQString(wintitle) );
     if ( withtransp )
     {
         qdlg.setOption( QColorDialog::ShowAlphaChannel );

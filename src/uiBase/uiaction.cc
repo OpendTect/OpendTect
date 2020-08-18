@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "texttranslator.h"
 
+#include "q_uiimpl.h"
 
 #include <limits.h>
 
@@ -128,7 +129,7 @@ void uiAction::init( const uiString& txt )
 {
     mAttachCB( TrMgr().languageChange, uiAction::translateCB );
     text_ = txt;
-    qaction_ = new QAction( text_.getQString(), 0 );
+    qaction_ = new QAction( toQString(text_), 0 );
     msgr_ = new i_ActionMessenger( qaction_, this );
     uiactionlist_ += this;
 
@@ -146,7 +147,7 @@ void uiAction::setShortcut( const char* sctxt )
 void uiAction::setText( const uiString& txt )
 {
     text_ = txt;
-    qaction_->setText( text_.getQString() );
+    qaction_->setText( toQString(text_) );
     updateToolTip();
 }
 
@@ -160,7 +161,7 @@ const uiString& uiAction::text() const
 void uiAction::setIconText( const uiString& txt )
 {
     icontext_ = txt;
-    qaction_->setIconText( icontext_.getQString() );
+    qaction_->setIconText( toQString(icontext_) );
 }
 
 
@@ -196,7 +197,7 @@ void uiAction::updateToolTip( CallBacker* )
     }
     else
     {
-	qaction_->setToolTip( tooltip_.getQString() );
+	qaction_->setToolTip( toQString(tooltip_) );
     }
 }
 
@@ -272,8 +273,8 @@ void uiAction::reloadIcon()
 
 void uiAction::translateCB( CallBacker* cb )
 {
-    qaction_->setText( text_.getQString() );
-    qaction_->setIconText( icontext_.getQString() );
+    qaction_->setText( toQString(text_) );
+    qaction_->setIconText( toQString(icontext_) );
     updateToolTip();
 }
 

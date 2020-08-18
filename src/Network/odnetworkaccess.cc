@@ -354,11 +354,10 @@ bool Network::uploadFile( const char* url, const char* localfname,
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
-    if ( !res ) errmsg = up.uiMessage();
+    if ( !res )
+	errmsg = up.uiMessage();
     else if ( retmsg )
-    {
-	retmsg->setFrom( up.uiMessage().getQString() );
-    }
+	*retmsg = up.uiMessage();
     return res;
 }
 
@@ -374,11 +373,10 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     DataUploader up( url, db, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
-    if ( !res ) errmsg = up.uiMessage();
+    if ( !res )
+	errmsg = up.uiMessage();
     else if ( retmsg )
-    {
-	retmsg->setFrom( up.uiMessage().getQString() );
-    }
+	*retmsg = up.uiMessage();
     return res;
 }
 

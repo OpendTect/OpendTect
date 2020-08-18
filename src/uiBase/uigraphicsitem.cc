@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "odgraphicsitem.h"
 
+#include "q_uiimpl.h"
+
 #include <QBrush>
 #include <QCursor>
 #include <QGraphicsItem>
@@ -230,7 +232,7 @@ uiRect uiGraphicsItem::boundingRect() const
 		    qgraphicsitem_->childrenBoundingRect()) );
     QRectF qr = qpr | qcr;
     return uiRect( mNINT32(qr.left()), mNINT32(qr.top()),
-	    	   mNINT32(qr.right()), mNINT32(qr.bottom()) );
+		   mNINT32(qr.right()), mNINT32(qr.bottom()) );
 }
 
 void uiGraphicsItem::setPos( float x, float y )
@@ -315,7 +317,7 @@ void uiGraphicsItem::updateTransform()
  * void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
 {
     qgraphicsitem_->setTransform( QTransform().translate(x,y)
-	   			  .scale(sx,sy).translate(-x,-y) );
+				  .scale(sx,sy).translate(-x,-y) );
 }
 */
 
@@ -539,7 +541,7 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 void uiGraphicsItem::setToolTip( const uiString& tt )
 {
     tooltip_ = tt;
-    qgraphicsitem_->setToolTip( tt.getQString() );
+    qgraphicsitem_->setToolTip( toQString(tt) );
 }
 
 
@@ -571,7 +573,7 @@ int uiGraphicsItem::getZValue() const
 
 void uiGraphicsItem::translateText()
 {
-    qgraphicsitem_->setToolTip( tooltip_.getQString() );
+    qgraphicsitem_->setToolTip( toQString(tooltip_) );
 }
 
 

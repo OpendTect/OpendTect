@@ -260,7 +260,10 @@ bool uiStringData::fillQString( QString& res,
 	else if ( translator )
 	    arguments_[idx].translate( *translator, thearg );
 	else
-	    thearg = arguments_[idx].getQString();
+	{
+	    mGetQStr( qstr, arguments_[idx] );
+	    thearg = qstr;
+	}
 
 	res = res.arg( thearg );
     }
@@ -579,32 +582,32 @@ uiString& uiString::set( const char* str )
 }
 
 
-bool uiString::operator>(const uiString& b ) const
+bool uiString::operator>(const uiString& oth ) const
 {
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
 	return false;
 
-    const QString& aqstr = getQString();
-    const QString& bqstr = b.getQString();
-    return aqstr > bqstr;
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs > othqs;
 #else
     return true;
 #endif
 }
 
 
-bool uiString::operator<(const uiString& b ) const
+bool uiString::operator<(const uiString& oth ) const
 {
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
 	return true;
 
-    const QString& aqstr = getQString();
-    const QString& bqstr = b.getQString();
-    return aqstr < bqstr;
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs < othqs;
 #else
     return true;
 #endif
@@ -843,7 +846,10 @@ uiStringSet::uiStringSet( const uiString* strings )
 void uiStringSet::fill( QStringList& qlist ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	qlist.append( (*this)[idx].getQString() );
+    {
+	mGetQStr( qstr, (*this)[idx] );
+	qlist.append( qstr );
+    }
 }
 
 
@@ -926,7 +932,7 @@ uiString uiStringSet::cat( const char* sepstr ) const
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
-    const QString qstr = getQString();
+    mGetQStr( qstr, *this );
     const QString hex( qstr.toUtf8().toHex() );
 
     str = BufferString( hex );
@@ -1065,7 +1071,8 @@ uiString getUiYesNoString( bool res )
 
 int uiString::size() const
 {
-    return getQString().size();
+    mGetQStr( qstr, *this );
+    return qstr.size();
 }
 
 

@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 #include "settings.h"
 
+#include "q_uiimpl.h"
+
 #include <QFont>
 #include <QFontDialog>
 #include <QFontMetrics>
@@ -387,7 +389,7 @@ static bool getFont( mQtclass(QFont)& qfontout,
     bool ok = false;
     qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
 			par ? par->getWidget() : 0,
-			nm.getQString() );
+			toQString(nm) );
     return ok;
 }
 

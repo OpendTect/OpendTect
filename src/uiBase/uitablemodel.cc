@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "perthreadrepos.h"
 
+#include "q_uiimpl.h"
+
 #include <QAbstractTableModel>
 #include <QApplication>
 #include <QCheckBox>
@@ -195,7 +197,7 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
     {
 	const uiString tt =
 	    model_.tooltip( qmodidx.row(), qmodidx.column() );
-	return tt.getQString();
+	return toQString(tt);
     }
 
     if ( role == Qt::CheckStateRole )
@@ -244,7 +246,7 @@ QVariant ODAbstractTableModel::headerData( int rowcol, Qt::Orientation orient,
     {
 	uiString str = model_.headerText( rowcol,
 	    orient==Qt::Horizontal ? OD::Horizontal : OD::Vertical );
-	return str.getQString();
+	return toQString(str);
     }
 
     return QVariant();
