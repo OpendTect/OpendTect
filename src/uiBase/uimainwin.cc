@@ -46,6 +46,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #include "timer.h"
 
+#include "q_uiimpl.h"
+
 #include <iostream>
 
 #include <QAbstractButton>
@@ -701,8 +703,7 @@ void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
     Qt::DockWidgetArea dwa = Qt::LeftDockWidgetArea;
     if ( dock == uiMainWin::Right ) dwa = Qt::RightDockWidgetArea;
     else if ( dock == uiMainWin::Top ) dwa = Qt::TopDockWidgetArea;
-    else if ( dock == uiMainWin::Bottom ) dwa =
-					     Qt::BottomDockWidgetArea;
+    else if ( dock == uiMainWin::Bottom ) dwa = Qt::BottomDockWidgetArea;
     addDockWidget( dwa, dwin.qwidget() );
     if ( dock == uiMainWin::TornOff )
 	dwin.setFloating( true );
@@ -969,7 +970,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText( setup.caption_.isEmpty()
 		? "OpendTect"
-		: setup.caption_.getQString() );
+		: toQString(setup.caption_) );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
@@ -997,7 +998,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( caption_.isEmpty()
 			     ? "OpendTect"
-			     : caption_.getQString() );
+			     : toQString(caption_) );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 
     mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
@@ -1088,7 +1089,7 @@ void uiMainWin::setCaption( const uiString& txt )
 void uiMainWin::updateCaption()
 {
     uniquecaption_ = uniqueWinTitle(caption_,body_,0);
-    body_->setWindowTitle( uniquecaption_.getQString() );
+    body_->setWindowTitle( toQString(uniquecaption_) );
 }
 
 
@@ -1255,7 +1256,7 @@ void uiMainWin::setIcon( const uiPixmap& pm )
 { body_->setWindowIcon( *pm.qpixmap() ); }
 
 void uiMainWin::setIconText( const uiString& txt)
-{ body_->setWindowIconText( txt.getQString() ); }
+{ body_->setWindowIconText( toQString(txt) ); }
 
 void uiMainWin::saveSettings()
 { body_->saveSettings(); }
@@ -1477,7 +1478,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	    res = beginning;
 	}
 
-	QString wintitle = res.getQString();
+	QString wintitle = toQString(res);
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
 	{

@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "i_layoutitem.h"
 
+#include "q_uiimpl.h"
+
 #include <QApplication>
 #include <QClipboard>
 #include <QCursor>
@@ -834,7 +836,7 @@ void uiTable::setText( const RowCol& rc, const uiString& txt )
     if ( !cellobj )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
-	itm->setText( txt.getQString() );
+	itm->setText( toQString(txt) );
     }
     else
     {
@@ -1181,15 +1183,15 @@ const char* uiTable::columnLabel( int col ) const
 void uiTable::setColumnLabel( int col, const uiString& label )
 {
     QTableWidgetItem& itm = body_->getRCItem( col, false );
-    itm.setText( label.getQString() );
-    itm.setToolTip( label.getQString() );
+    itm.setText( toQString(label) );
+    itm.setToolTip( toQString(label) );
 }
 
 
 void uiTable::setColumnToolTip( int col, const uiString& tt )
 {
     QTableWidgetItem& itm = body_->getRCItem( col, false );
-    itm.setToolTip( tt.getQString() );
+    itm.setToolTip( toQString(tt) );
 }
 
 
@@ -1227,7 +1229,7 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
     if ( !cellobj )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
-	itm->setToolTip( tt.getQString() );
+	itm->setToolTip( toQString(tt) );
     }
     else
 	cellobj->setToolTip( mToUiStringTodo(tt) );

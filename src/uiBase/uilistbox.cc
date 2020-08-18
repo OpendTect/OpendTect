@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "color.h"
 
+#include "q_uiimpl.h"
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 
@@ -156,12 +158,12 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
 static void createQString( QString& qs, const uiString& str, bool mark )
 {
     if ( !mark )
-	qs = str.getQString();
+	qs = toQString(str);
     else
     {
 	const char* markstr = ":";
 	qs = markstr;
-	qs += str.getQString();
+	qs += toQString(str);
 	qs += markstr;
     }
 }

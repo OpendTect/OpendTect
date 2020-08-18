@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiicon.h"
 #include "uiobjbodyimpl.h"
 
+#include "q_uiimpl.h"
+
 
 mUseQtnamespace
 
@@ -84,7 +86,7 @@ int uiTabBar::addTab( uiTab* tab )
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
     const int tabidx =
-	body_->insertTab( tabs_.size(), tab->getCaption().getQString() );
+	body_->insertTab( tabs_.size(), toQString(tab->getCaption()) );
     return tabidx;
 }
 
@@ -97,7 +99,7 @@ int uiTabBar::insertTab( uiTab* tab, int index )
 
     tabs_.insertAt( tab, index );
     const int tabidx =
-	body_->insertTab( index, tab->getCaption().getQString() );
+	body_->insertTab( index, toQString(tab->getCaption()) );
     return tabidx;
 }
 

@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "varlenarray.h"
 
+#include "q_uiimpl.h"
+
 #include <iostream>
 #include <QScrollBar>
 #include <QTextDocument>
@@ -310,7 +312,7 @@ void uiTextEdit::setText( const OD::String& txt )
 void uiTextEdit::setText( const uiString& txt )
 {
     NotifyStopper ns( textChanged );
-    qte().setText( txt.getQString() );
+    qte().setText( toQString(txt) );
     body_->setReadOnly( true );
     setBackgroundColor( roBackgroundColor() );
 }

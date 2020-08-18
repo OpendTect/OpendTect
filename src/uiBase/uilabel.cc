@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "perthreadrepos.h"
 
+#include "q_uiimpl.h"
+
 #include <QLabel>
 
 mUseQtnamespace
@@ -80,7 +82,7 @@ void uiLabel::init( const uiString& txt, uiObject* buddy )
     setText( txt );
     setTextSelectable( true );
 
-    const QString& qstr = txt.getQString();
+    const QString qstr = toQString(txt);
     const int nrnewlines = qstr.count( "\n" );
     if ( nrnewlines>0 )
 	setPrefHeightInChar( nrnewlines+1 );
@@ -129,7 +131,7 @@ void uiLabel::updateWidth()
 void uiLabel::setText( const uiString& txt )
 {
     text_ = txt;
-    QString qstr = text_.getQString();
+    QString qstr = toQString(text_);
     if ( isrequired_ ) addRequiredChar( qstr );
     body_->setText( qstr );
     updateWidth();
@@ -140,7 +142,7 @@ void uiLabel::setText( const uiString& txt )
 void uiLabel::makeRequired( bool yn )
 {
     isrequired_ = yn;
-    QString qstr = text_.getQString();
+    QString qstr = toQString(text_);
     if ( qstr.isEmpty() ) return;
 
     if ( isrequired_ ) addRequiredChar( qstr );
@@ -152,7 +154,7 @@ void uiLabel::makeRequired( bool yn )
 void uiLabel::translateText()
 {
     uiObject::translateText();
-    QString qstr = text_.getQString();
+    QString qstr = toQString(text_);
     if ( isrequired_ ) addRequiredChar( qstr );
     body_->setText( qstr );
     updateWidth();

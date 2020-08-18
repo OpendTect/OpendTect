@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odiconfile.h"
 #include "perthreadrepos.h"
 
+#include "q_uiimpl.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -54,7 +55,7 @@ uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
     , qbut_(qbut)
     , uibut_(uibut)
 {
-    qbut_.setText( txt.getQString() );
+    qbut_.setText( toQString(txt) );
     setHSzPol( uiObject::SmallVar );
 }
 
@@ -177,7 +178,7 @@ public: \
 ui##nm##Body( uiButton& uibut, uiParent* parnt, const uiString& txt ) \
     : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
 { \
-    setText( txt.getQString() ); \
+    setText( toQString(txt) ); \
     constr_code; \
 } \
  \
@@ -185,7 +186,7 @@ ui##nm##Body( uiButton& uibut, const uiPixmap& pm, \
 	      uiParent* parnt, const uiString& txt ) \
     : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
 { \
-    setText( txt.getQString() ); \
+    setText( toQString(txt) ); \
     constr_code; \
 } \
  \
@@ -274,14 +275,14 @@ void uiButton::setIconScale( float val )
 void uiButton::setText( const uiString& txt )
 {
     text_ = txt;
-    qButton()->setText( text_.getQString() );
+    qButton()->setText( toQString(text_) );
 }
 
 
 void uiButton::translateText()
 {
     uiObject::translateText();
-    qButton()->setText( text_.getQString() );
+    qButton()->setText( toQString(text_) );
 }
 
 
@@ -444,7 +445,7 @@ bool uiPushButton::isFlat() const
 
 void uiPushButton::updateIconSize()
 {
-    const QString buttxt = text_.getQString();
+    const QString buttxt = toQString(text_);
     int butwidth = qButton()->width();
     const int butheight = qButton()->height();
     if ( !buttxt.isEmpty() )
@@ -463,7 +464,7 @@ void uiPushButton::translateText()
 
 void uiPushButton::updateText()
 {
-    QString newtext = text_.getQString();
+    QString newtext = toQString(text_);
     if ( !newtext.isEmpty() && !immediate_ )
 	newtext.append( " ..." );
 

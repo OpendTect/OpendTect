@@ -151,7 +151,9 @@ public:
 				/*!< The translation. Result becomes owner's and
 				    should be deleted using the [] operator. */
     const char*			getOriginalString() const;
-    const mQtclass(QString)&	getQString() const;
+    mDeprecated("Use fillQString")
+	const mQtclass(QString)&	getQString() const;
+
 				/*!<Returns reference, so could be unsafe */
     const mQtclass(QString)&	fillQString(QString&) const;
 				/*!<Fully thread-safe. Returns input*/

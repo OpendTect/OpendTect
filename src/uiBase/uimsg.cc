@@ -30,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistring.h"
 #include "uistrings.h"
 
+#include "q_uiimpl.h"
+
 #undef Ok
 #include <QCheckBox>
 #include <QLayout>
@@ -185,8 +187,8 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 
     QMessageBox* mb = new QMessageBox( parent );
     mb->setIcon( (QMessageBox::Icon)icon );
-    mb->setWindowTitle( title.getQString() );
-    mb->setText( txt.getQString() );
+    mb->setWindowTitle( toQString(title) );
+    mb->setText( toQString(txt) );
     addStayOnTopFlag( *mb );
 
     const bool withics = uiButton::haveCommonPBIcons();
@@ -195,7 +197,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !yestxt.isEmpty() )
     {
 	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
-	yesbut->setText(yestxt.getQString() );
+	yesbut->setText(toQString(yestxt) );
 	if ( withics )
 	{
 	    uiIcon icn( "ok" );
@@ -207,7 +209,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !notxt.isEmpty() )
     {
 	QPushButton* nobut = mb->addButton( QMessageBox::No );
-	nobut->setText( notxt.getQString() );
+	nobut->setText( toQString(notxt) );
 	if ( withics )
 	{
 	    uiIcon icn( "stop" );
@@ -219,7 +221,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !cncltxt.isEmpty() )
     {
 	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
-	rejbut->setText( cncltxt.getQString() );
+	rejbut->setText( toQString(cncltxt) );
 	if ( withics )
 	{
 	    uiIcon icn( "cancel" );
@@ -231,7 +233,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( notagain && mb->layout() )
     {
 	*notagain = new QCheckBox();
-	(*notagain)->setText( uiMsg::sDontShowAgain().getQString() );
+	(*notagain)->setText( toQString(uiMsg::sDontShowAgain()) );
 	mDynamicCastGet(QGridLayout*,grid,mb->layout())
 	if ( grid )
 	    grid->addWidget( *notagain, grid->rowCount(), 0, 1,
@@ -418,7 +420,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 	    detailed = tr( "%1\n%2" ).arg( old ).arg( strings[idx] );
 	}
 
-	mb->setDetailedText( detailed.getQString() );
+	mb->setDetailedText( toQString(detailed) );
     }
 
     mb->exec();

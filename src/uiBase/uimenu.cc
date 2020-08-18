@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "menuhandler.h"
 #include "texttranslator.h"
 
+#include "q_uiimpl.h"
+
 #include <climits>
 
 #include <QCursor>
@@ -109,7 +111,7 @@ static CallBackSet& interceptors_ = *new CallBackSet;
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)(txt.getQString(),p ? p->getWidget() : 0))
+    , qmenu_( new mQtclass(QMenu)(toQString(txt),p ? p->getWidget() : 0))
     , text_(txt)
 {
     setIcon( pmnm );
@@ -120,7 +122,7 @@ uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
 uiMenu::uiMenu( const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(txt.getQString()))
+    , qmenu_(new mQtclass(QMenu)(toQString(txt)))
     , text_(txt)
 {
     setIcon( pmnm );
@@ -131,7 +133,7 @@ uiMenu::uiMenu( const uiString& txt, const char* pmnm )
 uiMenu::uiMenu( const MenuItem& itm )
     : uiBaseObject(itm.text.getFullString())
     , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(itm.text.getQString()))
+    , qmenu_(new mQtclass(QMenu)(toQString(itm.text)))
     , text_(itm.text)
 {
     setIcon( itm.iconfnm );

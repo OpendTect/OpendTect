@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uirgbarray.h"
 
+#include "q_uiimpl.h"
+
 #include <QMutex>
 #include <QBrush>
 #include <QPainter>
@@ -704,14 +706,14 @@ uiSize uiTextItem::getTextSize() const
 void uiTextItem::setText( const uiString& txt )
 {
     text_ = txt;
-    qtextitem_->setText( text_.getQString() );
+    qtextitem_->setText( toQString(text_) );
 }
 
 
 void uiTextItem::translateText()
 {
     uiGraphicsItem::translateText();
-    qtextitem_->setText( text_.getQString() );
+    qtextitem_->setText( toQString(text_) );
 }
 
 
@@ -856,7 +858,7 @@ void uiAdvancedTextItem::setFont( const FontData& fd )
 
 void uiAdvancedTextItem::setPlainText( const uiString& txt )
 {
-    qtextitem_->setPlainText( txt.getQString() );
+    qtextitem_->setPlainText( toQString(txt) );
 }
 
 

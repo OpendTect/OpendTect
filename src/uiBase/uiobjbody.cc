@@ -18,7 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
+
 #include "q_uiimpl.h"
+
 #include <QPixmap>
 
 mUseQtnamespace
@@ -502,12 +504,12 @@ uiSize uiObjectBody::actualsize( bool include_border ) const
 
 void uiObjectBody::setToolTip( const uiString& txt )
 {
-    qwidget()->setToolTip( txt.getQString() );
+    qwidget()->setToolTip( toQString(txt) );
 }
 
 
 void uiObjectBody::uisetCaption( const uiString& str )
-    { qwidget()->setWindowTitle( str.getQString() ); }
+    { qwidget()->setWindowTitle( toQString(str) ); }
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
     { return new i_uiLayoutItem( mngr , *this ); }
