@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "multiid.h"
+#include "perthreadrepos.h"
 
 
 bool testPointerCast()
@@ -96,11 +97,12 @@ bool testFuncName()
 }
 
 
-BufferString getTestFileName()
+static BufferString getTestFileName()
 {
-    const FilePath fp( FilePath::getTempDir(),
-	FilePath::getTempFileName( "test with space", "txt" ) );
-    return fp.fullPath();
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = FilePath::getTempFullPath( "test with space", "txt" );
+    return ret;
 }
 
 

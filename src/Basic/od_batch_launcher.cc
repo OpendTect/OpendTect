@@ -38,7 +38,7 @@ int main( int argc, char** argv )
 	clp.getVal( sKeyMonitorFileNm, monitorfnm );
 	if ( monitorfnm.isEmpty() )
 	{
-	    monitorfnm = FilePath::getTempName("txt");
+	    monitorfnm = FilePath::getTempFullPath("batch","txt");
 	    redirectoutput = true;
 	}
     }

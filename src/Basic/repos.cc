@@ -78,9 +78,7 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
     switch ( src )
     {
     case Repos::Temp: {
-	FilePath fp( FilePath::getTempName(0) );
-	fp.setFileName( basenm_ );
-	ret = fp.fullPath();
+	ret = FilePath( FilePath::getTempDir(), basenm_ ).fullPath();
     } break;
     case Repos::Survey: {
 	mSetRet(GetDataDir,true);

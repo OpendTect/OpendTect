@@ -60,7 +60,7 @@ int main( int argc, char** argv )
     FilePath tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;
-    FilePath zipfilename( FilePath::getTempName("zip") );
+    FilePath zipfilename( FilePath::getTempFullPath("zip_test","zip") );
     FilePath outputdir( zipfilename.pathOnly() );
     outputdir.add( "F3_Test_Survey" );
 

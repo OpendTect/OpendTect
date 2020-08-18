@@ -134,7 +134,7 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     BufferString rangestr( "-R" );
     rangestr.add( minlong ).add( "/" ).add( minlong + 6 ).add( "/0/80" );
     const BufferString jarg( "-Ju", zone, "/1:1" );
-    const BufferString tmpfilenm( FilePath::getTempName("dat") );
+    const BufferString tmpfilenm( FilePath::getTempFullPath("gmtcoast","dat"));
 
     OS::MachineCommand mapmc( "mapproject" );
     mapmc.addArg( jarg ).addArg( rangestr )

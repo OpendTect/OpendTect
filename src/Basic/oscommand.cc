@@ -704,7 +704,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	monitorfnm_ = pars.monitorfnm_;
 	if ( monitorfnm_.isEmpty() )
 	{
-	    monitorfnm_ = FilePath::getTempName("txt");
+	    monitorfnm_ = FilePath::getTempFullPath( "mon", "txt" );
 	    redirectoutput_ = true;
 	}
 

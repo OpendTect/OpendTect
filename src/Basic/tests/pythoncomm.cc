@@ -24,8 +24,7 @@
 
 BufferString createTestDir()
 {
-    const FilePath fp( FilePath::getTempDir(),
-			FilePath::getTempFileName( mTestDirNm,"" ) );
+    const FilePath fp( FilePath::getTempFullPath(mTestDirNm,0) );
     File::createDir( fp.fullPath() );
     const FilePath filefp( fp.fullPath(),
 			    FilePath::getTempFileName("python","txt") );

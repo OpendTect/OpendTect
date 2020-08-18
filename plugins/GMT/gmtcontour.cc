@@ -153,7 +153,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     }
     else
     {
-	cptfp.setFileName( FilePath::getTempFileName("gmtcontour_","cpt")  );
+	cptfp.setFileName( FilePath::getTempFileName("gmtcontour","cpt")  );
 	cptfnm.set( cptfp.fileName() );
     }
 
