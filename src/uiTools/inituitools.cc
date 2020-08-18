@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarray2dinterpol.h"
 #include "uibatchjobdispatcherlauncher.h"
 #include "uifontsel.h"
+#include "uicrssystem.h"
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uiraytrace1d.h"
@@ -34,6 +35,7 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
+    Coords::uiProjectionBasedSystem::initClass();
 
     uiSettsMgr();
 }

@@ -10,6 +10,8 @@
 
 #include "crsproj.h"
 #include "od_iostream.h"
+#include "oddirs.h"
+#include "filepath.h"
 #include "bufstringset.h"
 #include "separstr.h"
 #include "typeset.h"
@@ -510,4 +512,19 @@ void Coords::ProjectionRepos::getAuthKeys( BufferStringSet& keys )
 	const Coords::ProjectionRepos* repos = reposset_[idx];
 	keys.add( repos->key_ );
     }
+}
+
+void Coords::ProjectionRepos::initStdRepos()
+{
+    FilePath fp( mGetSetupFileName("CRS") );
+    Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
+				toUiString("Standard EPSG Projectons") );
+    fp.add( "epsg" );
+    repos->readFromFile( fp.fullPath() );
+    Coords::ProjectionRepos::addRepos( repos );
+
+    repos = new Coords::ProjectionRepos( "ESRI", toUiString("ESRI Projectons"));
+    fp.setFileName( "esri" );
+    repos->readFromFile( fp.fullPath() );
+    Coords::ProjectionRepos::addRepos( repos );
 }

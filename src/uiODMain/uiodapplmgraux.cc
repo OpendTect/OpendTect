@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicoltabman.h"
 #include "uiconvpos.h"
 #include "uicreatelogcubedlg.h"
+#include "uicrssystem.h"
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
 #include "uifontsel.h"
@@ -109,6 +110,7 @@ uiParent* uiODApplService::parent() const
 uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     : am_(a), par_(p)
     , convposdlg_(nullptr)
+    , convgeoposdlg_(nullptr)
     , mandpsdlg_(nullptr)
     , manpropsdlg_(nullptr)
     , man2dgeomdlg_(nullptr)
@@ -147,6 +149,7 @@ void uiODApplMgrDispatcher::survChg( bool before )
 void uiODApplMgrDispatcher::deleteDlgs()
 {
     deleteAndZeroPtr( convposdlg_ );
+    deleteAndZeroPtr( convgeoposdlg_ );
     deleteAndZeroPtr( mandpsdlg_ );
     deleteAndZeroPtr( manpropsdlg_ );
     deleteAndZeroPtr( man2dgeomdlg_ );
@@ -498,6 +501,20 @@ void uiODApplMgrDispatcher::posConversion()
     }
     convposdlg_->show();
 }
+
+
+void uiODApplMgrDispatcher::crsPosConversion()
+{
+    ConstRefMan<Coords::CoordSystem> crs = SI().getCoordSystem();
+    TrcKeyZSampling survtkzs = SI().sampling( true );
+    const Coord centerpos = survtkzs.hsamp_.center().getCoord();
+    if ( !convgeoposdlg_ )
+       convgeoposdlg_ = new Coords::uiConvertGeographicPos( par_, crs,
+							    centerpos );
+
+    convgeoposdlg_->show();
+}
+
 
 
 void uiODApplMgrDispatcher::posDlgClose( CallBacker* )

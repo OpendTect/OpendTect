@@ -53,7 +53,7 @@ OD_ADD_OSGGEO()
 
 
 set( OD_MODULES
-	Basic Algo General
+	Basic CRS Algo General
 	Strat Network Batch
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
@@ -69,7 +69,6 @@ set( OD_MODULES
 
 set( OD_PLUGINS
 	CEEMDAttrib
-	CRS
 	ExpAttribs
 	GLCM
 	GMT
@@ -82,7 +81,6 @@ set( OD_PLUGINS
 	Tut
 	VoxelConnectivityFilter
 	uiCEEMDAttrib
-	uiCRS
 	uiDPSDemo
 	uiExpAttribs
 	uiGLCM
