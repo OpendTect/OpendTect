@@ -10,17 +10,19 @@ ________________________________________________________________________
 
 
 #include "uitextedit.h"
+#include "i_qtextedit.h"
 
 #include "uifont.h"
 #include "uimain.h"
-#include "uiobjbody.h"
-#include "i_qtextedit.h"
+#include "uiobjbodyimpl.h"
 
 #include "ascstream.h"
 #include "filemonitor.h"
 #include "rowcol.h"
 #include "strmprov.h"
 #include "varlenarray.h"
+
+#include "q_uiimpl.h"
 
 #include <iostream>
 #include <QScrollBar>

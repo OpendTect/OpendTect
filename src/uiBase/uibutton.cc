@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "objdisposer.h"
 #include "odiconfile.h"
 
+#include "q_uiimpl.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -106,6 +107,10 @@ uiButtonTemplBody( uiButton& uibut, uiParent* p, const uiString& txt )
 }
 
 
+virtual const QWidget* qwidget_() const
+{ return this; }
+
+
 void keyPressEvent( QKeyEvent* qke )
 {
     if ( qke && qke->key() == Qt::Key_Space )
@@ -135,10 +140,29 @@ void customEvent( QEvent* ev )
 }
 
 
+virtual void setFont( const QFont& )
+{
+    if ( !uifont() ) { pErrMsg("no uifont!"); return; }
+    QAbstractButton::setFont( uifont()->qFont() );
+}
 
-#define mHANDLE_OBJ	uiButton
-#define mQWIDGET_BODY	QAbstractButton
-#include "i_uiobjqtbody.h"
+
+virtual void fontChange( const QFont& oldFont )
+{ uiBody::fontchanged(); }
+
+
+virtual void closeEvent( QCloseEvent* e )
+{
+    if ( uiCloseOK() )
+	QAbstractButton::closeEvent(e);
+}
+
+
+protected:
+virtual uiObject& uiObjHandle()
+{ return handle_; }
+
+    uiButton&		handle_;
 
 };
 

@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 
 #include "uiprogressbar.h"
-#include "i_common.h"
 
+#include "uiobjbodyimpl.h"
 #include	<QProgressBar>
 
 mUseQtnamespace
@@ -19,7 +19,6 @@ mUseQtnamespace
 class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
 {
 public:
-
                         uiProgressBarBody( uiProgressBar& hndle,
 					   uiParent* parnt, const char* nm )
 			    : uiObjBodyImpl<uiProgressBar,QProgressBar>

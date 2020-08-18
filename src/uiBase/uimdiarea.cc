@@ -12,8 +12,11 @@ ________________________________________________________________________
 #include "i_qmdiarea.h"
 
 #include "uimsg.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
+
 #include "staticstring.h"
+
+#include "q_uiimpl.h"
 
 #include <QApplication>
 #include <QCloseEvent>

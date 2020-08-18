@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uirgbarray.h"
 
+#include "q_uiimpl.h"
+
 #include <QMutex>
 #include <QBrush>
 #include <QPainter>

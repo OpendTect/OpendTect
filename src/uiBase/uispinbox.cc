@@ -9,13 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uispinbox.h"
-#include "uilabel.h"
-
 #include "i_qspinbox.h"
+
+#include "uilabel.h"
+#include "uiobjbodyimpl.h"
+#include "uivirtualkeyboard.h"
+
 #include "mouseevent.h"
 #include "staticstring.h"
-#include "uiobjbody.h"
-#include "uivirtualkeyboard.h"
+
+#include "q_uiimpl.h"
 
 #include <QContextMenuEvent>
 #include <QLineEdit>
@@ -153,7 +156,7 @@ bool uiSpinBoxBody::isModified() const
 void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
 {
     if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
-	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
+	handle_.popupVirtualKeyboard( ev->globalX(), ev->globalY() );
     else
 	QDoubleSpinBox::contextMenuEvent( ev );
 }

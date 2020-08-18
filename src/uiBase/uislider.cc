@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "uislider.h"
 #include "i_qslider.h"
-#include "uiobjbody.h"
 
 #include "uilabel.h"
 #include "uilineedit.h"
+#include "uiobjbodyimpl.h"
 #include "uispinbox.h"
 
 #include "datainpspec.h"

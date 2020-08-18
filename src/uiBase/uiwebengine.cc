@@ -10,11 +10,11 @@ ________________________________________________________________________
 
 
 #include "uiwebengine.h"
+#include "i_qwebengineview.h"
 
 #include "uifont.h"
 #include "uimain.h"
-#include "uiobjbody.h"
-#include "i_qwebengineview.h"
+#include "uiobjbodyimpl.h"
 
 #include "envvars.h"
 

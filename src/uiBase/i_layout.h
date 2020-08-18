@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "uilayout.h"
-#include "i_common.h"
 #include "uigeom.h"
 #include "uiobj.h"
 #include "sets.h"
@@ -23,7 +22,9 @@ ________________________________________________________________________
 class resizeItem;
 class Timer;
 
-//!  internal enum used to determine in which direction a widget can be stretched and to check which outer limit must be checked
+//! internal enum used to determine in which direction a widget
+
+//! can be stretched and to check which outer limit must be checked
 enum stretchLimitTp { left=1, right=2, above=4, below=8,
 		      rightLimit=16, bottomLimit=32 };
 

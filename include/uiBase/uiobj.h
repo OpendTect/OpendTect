@@ -62,8 +62,6 @@ mExpClass(uiBase) uiObject : public uiBaseObject
     friend class	i_LayoutItem;
 
 public:
-			uiObject(uiParent*,const char* nm);
-			uiObject(uiParent*,const char* nm,uiObjectBody&);
 			~uiObject();
 
     enum		SzPolicy    //!< see class comments
@@ -140,6 +138,8 @@ public:
 			    { return const_cast<uiObject*>(this)->parent(); }
 
 protected:
+			uiObject(uiParent*,const char* nm);
+			uiObject(uiParent*,const char* nm,uiObjectBody&);
 
     uiString		tooltip_;
     uiObjEventFilter*	uiobjeventfilter_;

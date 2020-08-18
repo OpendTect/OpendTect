@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uitreeview.h"
+#include "i_qtreeview.h"
 
 #include "uiicon.h"
 #include "uimain.h"
 #include "uimenu.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "uishortcutsmgr.h"
 #include "uistrings.h"
@@ -22,7 +23,7 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "texttranslation.h"
 
-#include "i_qtreeview.h"
+#include "q_uiimpl.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>

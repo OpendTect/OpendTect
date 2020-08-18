@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uicolor.h"
-#include "q_uiimpl.h"
 
 #include "uibody.h"
 #include "uibutton.h"
@@ -21,6 +20,8 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uispinbox.h"
 #include "uistrings.h"
+
+#include "q_uiimpl.h"
 
 #include <QApplication>
 #include <QColorDialog>

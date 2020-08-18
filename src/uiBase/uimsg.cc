@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 
 #include "uimsg.h"
-#include "q_uiimpl.h"
 
 #include "bufstringset.h"
 #include "filepath.h"
@@ -32,6 +31,8 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uistring.h"
 #include "uistrings.h"
+
+#include "q_uiimpl.h"
 
 #undef Ok
 #include <QCheckBox>

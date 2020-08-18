@@ -9,19 +9,20 @@ ________________________________________________________________________
 -*/
 
 #include "uistatusbar.h"
-#include "q_uiimpl.h"
-#include "uimainwin.h"
-#include "uimain.h"
-#include "uiparentbody.h"
-#include "uistrings.h"
 
 #include "uibody.h"
+#include "uimainwin.h"
+#include "uimain.h"
 
-#include <qstatusbar.h>
-#include <qlabel.h>
-#include <qtooltip.h>
-
+#include "uistrings.h"
 #include "envvars.h"
+
+#include "q_uiimpl.h"
+
+#include <QStatusBar>
+#include <QLabel>
+#include <QToolTip>
+
 static Threads::Atomic<int> nodispatall_( -1 );
 
 mUseQtnamespace

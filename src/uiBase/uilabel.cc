@@ -10,12 +10,12 @@ ________________________________________________________________________
 
 
 #include "uilabel.h"
-#include "i_common.h"
 
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "uistring.h"
 
+#include "q_uiimpl.h"
 
 #include <QLabel>
 

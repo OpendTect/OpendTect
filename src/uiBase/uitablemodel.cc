@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 #include "uitablemodel.h"
 
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "perthreadrepos.h"
 #include "staticstring.h"
-#include "i_common.h"
 
 #include <QAbstractTableModel>
 #include <QCheckBox>
