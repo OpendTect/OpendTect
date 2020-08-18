@@ -10,7 +10,12 @@ ________________________________________________________________________
 
 -*/
 
+#ifdef  __win__
+#pragma message ("IOMan and IOM() are replaced by DBMan and DBM(). "
+							    "Include dbman.h")
+#else
 #warning "IOMan and IOM() are replaced by DBMan and DBM(). Include dbman.h"
+#endif
 #include "dbman.h"
 typedef DBMan IOMan;
 mGlobal(General) mDeprecated inline DBMan&	IOM()	{ return DBM(); }
