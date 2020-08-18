@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uimainwin.h"
 #include "uidialog.h"
-#include "q_uiimpl.h"
 
 #include "uibody.h"
 #include "uiclipboard.h"
@@ -43,6 +42,8 @@ ________________________________________________________________________
 #include "texttranslation.h"
 #include "threadlock.h"
 #include "timer.h"
+
+#include "q_uiimpl.h"
 
 #include <iostream>
 
@@ -80,23 +81,15 @@ static uiMainWin*	programmedactivewin_ = 0;
 
 
 
-class uiMainWinBody : public uiParentBody , public QMainWindow
+class uiMainWinBody : public uiCentralWidgetBody , public QMainWindow
 { mODTextTranslationClass(uiMainWinBody)
 friend class		uiMainWin;
 public:
 			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
 				      const char* nm,bool modal);
-
-    void		construct(int nrstatusflds,bool wantmenubar);
-
     virtual		~uiMainWinBody();
 
-#define mHANDLE_OBJ	uiMainWin
-#define mQWIDGET_BASE	QMainWindow
-#define mQWIDGET_BODY	QMainWindow
-#define UIBASEBODY_ONLY
-#define UIPARENT_BODY_CENTR_WIDGET
-#include		"i_uiobjqtbody.h"
+    void		construct(int nrstatusflds,bool wantmenubar);
 
 public:
 
@@ -142,6 +135,8 @@ public:
 
 protected:
 
+    virtual const QWidget*	qwidget_() const { return this; }
+
     virtual void	finalise()	{ finalise(false); }
     virtual void	finalise(bool trigger_finalise_start_stop);
     void		closeEvent(QCloseEvent*);
@@ -174,6 +169,7 @@ protected:
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiDockWin> dockwins_;
     uiString		windowtitle_;
+    uiMainWin&		handle_;
 
 private:
 
@@ -201,11 +197,9 @@ private:
 #define mParent p && p->pbody() ? p->pbody()->qwidget() : 0
 uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
-	: uiParentBody(nm)
+	: uiCentralWidgetBody(nm)
 	, QMainWindow(mParent)
 	, handle_(uimw)
-	, initing_(true)
-	, centralwidget_(0)
 	, statusbar_(0)
 	, menubar_(0)
 	, toolbarsmnu_(0)
@@ -373,7 +367,7 @@ void uiMainWinBody::doShow( bool minimized )
 
 void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 {
-    centralwidget_ = new uiGroup( &handle(), "OpendTect Main Window" );
+    centralwidget_ = new uiGroup( &handle_, "OpendTect Main Window" );
     setCentralWidget( centralwidget_->body()->qwidget() );
 
     centralwidget_->setIsMain(true);
@@ -384,7 +378,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
     {
 	QStatusBar* mbar= statusBar();
 	if ( mbar )
-	    statusbar_ = new uiStatusBar( &handle(),
+	    statusbar_ = new uiStatusBar( &handle_,
 					  "MainWindow StatusBar handle", *mbar);
 	else
 	    { pErrMsg("No statusbar returned from Qt"); }
@@ -399,11 +393,11 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
     {
 	QMenuBar* qmenubar = menuBar();
 	if ( qmenubar )
-	    menubar_ = new uiMenuBar( &handle(), "MenuBar", qmenubar );
+	    menubar_ = new uiMenuBar( &handle_, "MenuBar", qmenubar );
 	else
 	    { pErrMsg("No menubar returned from Qt"); }
 
-	toolbarsmnu_ = new uiMenu( &handle(), uiStrings::sToolBar(mPlural) );
+	toolbarsmnu_ = new uiMenu( &handle_, uiStrings::sToolBar(mPlural) );
     }
 
     initing_ = false;
@@ -656,7 +650,7 @@ void uiMainWinBody::removeDockWin( uiDockWin* dwin )
     if ( !dwin )
 	return;
 
-    removeDockWidget( dwin->getDockWidget() );
+    removeDockWidget( dwin->qwidget() );
     dockwins_ -= dwin;
 }
 
@@ -670,7 +664,7 @@ void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 	dwa = Qt::TopDockWidgetArea;
     else if ( dock == uiMainWin::Bottom )
 	dwa = Qt::BottomDockWidgetArea;
-    addDockWidget( dwa, dwin.getDockWidget() );
+    addDockWidget( dwa, dwin.qwidget() );
     if ( dock == uiMainWin::TornOff )
 	dwin.setFloating( true );
     dockwins_ += &dwin;
@@ -1124,7 +1118,7 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
     uiMainWinBody* _mwb = dynamic_cast<uiMainWinBody*>( mwimpl );
     if ( !_mwb ) return 0;
 
-    return &_mwb->handle();
+    return &_mwb->handle_;
 }
 
 
@@ -1248,7 +1242,7 @@ uiMainWin* uiMainWin::activeWindow()
     uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_aw);
     if ( !_awb )	return 0;
 
-    return &_awb->handle();
+    return &_awb->handle_;
 }
 
 
@@ -1275,7 +1269,7 @@ uiMainWin* uiMainWin::activeModalWindow()
     uiMainWinBody* mwb = dynamic_cast<uiMainWinBody*>( amw );
     if ( !mwb )	return 0;
 
-    return &mwb->handle();
+    return &mwb->handle_;
 }
 
 

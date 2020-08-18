@@ -22,12 +22,6 @@ mClass(uiBase) uiParentBody : public uiBody, public NamedCallBacker
 {
 friend class uiObjectBody;
 public:
-			//uiParentBody( const char* nm = "uiParentBody")
-			uiParentBody( const char* nm )
-			    : NamedCallBacker( nm )
-			    , finalised_( false )
-			{}
-
     virtual		~uiParentBody()
 			{ sendDelNotif(); deleteAllChildren(); }
 
@@ -64,6 +58,10 @@ public:
 		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
 
 protected:
+			uiParentBody( const char* nm )
+			    : NamedCallBacker( nm )
+			    , finalised_( false )
+			{}
 
     void	deleteAllChildren()
 		{
@@ -89,3 +87,26 @@ private:
 
     bool			finalised_;
 };
+
+
+mExpClass(uiBase) uiCentralWidgetBody : public uiParentBody
+{
+public:
+    virtual			~uiCentralWidgetBody();
+
+    uiGroup*			uiCentralWidg() { return centralwidget_; }
+    virtual void		addChild(uiBaseObject&);
+    virtual void		manageChld_(uiBaseObject&,uiObjectBody&);
+    virtual void		attachChild(ConstraintType,uiObject* child,
+					    uiObject* other,int margin,
+					    bool reciprocal);
+
+protected:
+				uiCentralWidgetBody(const char* nm);
+
+    virtual const QWidget*	managewidg_() const;
+
+    bool			initing_;
+    uiGroup*			centralwidget_;
+};
+

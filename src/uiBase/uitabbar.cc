@@ -9,10 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uitabbar.h"
-#include "uiobjbody.h"
-#include "uiicon.h"
-
 #include "i_qtabbar.h"
+
+#include "uiicon.h"
+#include "uiobjbodyimpl.h"
+
+#include "q_uiimpl.h"
+
 
 mUseQtnamespace
 

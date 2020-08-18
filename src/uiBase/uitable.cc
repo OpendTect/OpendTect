@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 #include "uitable.h"
+#include "i_qtable.h"
 
 #include "uiclipboard.h"
 #include "uicolor.h"
@@ -17,7 +18,7 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uilabel.h"
 #include "uimenu.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uivirtualkeyboard.h"
@@ -26,7 +27,8 @@ ________________________________________________________________________
 #include "convert.h"
 #include "staticstring.h"
 #include "i_layoutitem.h"
-#include "i_qtable.h"
+
+#include "q_uiimpl.h"
 
 #include <QApplication>
 #include <QCursor>

@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 
 #include "uiobjectstack.h"
-#include "i_common.h"
 
 #include "uigroup.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 
 #include <QStackedWidget>
 

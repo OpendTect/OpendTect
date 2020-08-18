@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uimenu.h"
-#include "q_uiimpl.h"
 
 #include "uiaction.h"
 #include "uibody.h"
@@ -22,6 +21,8 @@ ________________________________________________________________________
 
 #include "menuhandler.h"
 #include "texttranslation.h"
+
+#include "q_uiimpl.h"
 
 #include <climits>
 

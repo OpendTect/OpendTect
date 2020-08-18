@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
+#include "q_uiimpl.h"
 #include <QPixmap>
 
 mUseQtnamespace

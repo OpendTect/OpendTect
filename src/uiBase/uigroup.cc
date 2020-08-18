@@ -49,27 +49,23 @@ protected:
 };
 
 
-class uiGroupObjBody  : public uiObjectBody, public QFrame
+class uiGroupObjBody : public uiObjectBody, public QFrame
 {
     friend class		uiMainWin;
     friend class		uiDialog;
     friend class		i_LayoutMngr;
     friend class		i_uiGroupLayoutItem;
     friend			uiGroup* gtDynamicCastToGrp(QWidget*);
+
 public:
 				uiGroupObjBody(uiGroupObj&,uiParent*,
 					       const char*);
 
-#define mHANDLE_OBJ	uiGroupObj
-#define mQWIDGET_BASE		QFrame
-#define mQWIDGET_BODY	QFrame
-#include		"i_uiobjqtbody.h"
+    virtual const QWidget*	qwidget_() const { return this; }
 
-public:
-
-    virtual void	reDraw( bool deep );
-    void			setPrntBody (uiGroupParentBody* pb)
-				    { prntbody_ = pb; }
+    virtual void		reDraw( bool deep );
+    void			setPrntBody( uiGroupParentBody* pb )
+				{ prntbody_ = pb; }
 
     virtual int			stretch( bool hor, bool ) const;
 
@@ -77,13 +73,18 @@ public:
 
     // Hack: Prevents scenewindow movements while trying to rotate
     virtual void		mouseMoveEvent(QMouseEvent*)	{}
+    virtual void		setFont(const QFont&);
+    virtual void		fontChange(const QFont&);
+    virtual void		closeEvent(QCloseEvent*);
 
 protected:
 
     virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mgr );
 
     virtual void		finalise_();
+    virtual uiObject&		uiObjHandle()		{ return handle_; }
 
+    uiGroupObj&			handle_;
 };
 
 
@@ -103,8 +104,7 @@ public:
     virtual		~uiGroupParentBody()
 			{
 			    handle_.body_ = 0;
-			    if( loMngr )
-				{ delete loMngr; loMngr=0; }
+			    if( loMngr) { delete loMngr; loMngr=0; }
 			}
 
     void		setHSpacing( int space )
@@ -342,6 +342,27 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
 }
 
 void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
+
+
+void uiGroupObjBody::setFont( const QFont& )
+{
+    if ( !uifont() ) { pErrMsg("no uifont!"); return; }
+    QFrame::setFont( uifont()->qFont() );
+}
+
+
+void uiGroupObjBody::fontChange( const QFont& oldFont )
+{
+    uiBody::fontchanged();
+}
+
+
+void uiGroupObjBody::closeEvent( QCloseEvent *e )
+{
+    if ( uiCloseOK() )
+	QFrame::closeEvent(e);
+}
+
 
 
 // ----- i_uiGroupLayoutItem -----

@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "timer.h"
 
+#include "q_uiimpl.h"
+
 #include <QEvent>
 
 mUseQtnamespace
@@ -124,6 +126,7 @@ void uiParent::translateText()
 }
 
 
+// uiParentBody
 uiParentBody* uiParent::pbody()
 {
     return dynamic_cast<uiParentBody*>( body() );
@@ -148,6 +151,55 @@ void uiParentBody::clearChildren()
 }
 
 
+
+// uiCentralWidgetBody
+uiCentralWidgetBody::uiCentralWidgetBody( const char* nm )
+    : uiParentBody(nm)
+    , initing_(true)
+    , centralwidget_(nullptr)
+{}
+
+
+uiCentralWidgetBody::~uiCentralWidgetBody()
+{}
+
+
+void uiCentralWidgetBody::addChild( uiBaseObject& child )
+{
+    if ( !initing_ && centralwidget_ )
+	centralwidget_->addChild( child );
+    else
+	uiParentBody::addChild( child );
+}
+
+
+void uiCentralWidgetBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
+{
+    if ( !initing_ && centralwidget_ )
+	centralwidget_->manageChld( o, b );
+}
+
+
+void uiCentralWidgetBody::attachChild ( ConstraintType tp,
+					uiObject* child,
+					uiObject* other, int margin,
+					bool reciprocal )
+{
+    if ( !centralwidget_ || !child || initing_ )
+	return;
+
+    centralwidget_->attachChild( tp, child, other, margin, reciprocal);
+}
+
+
+const QWidget* uiCentralWidgetBody::managewidg_() const
+{
+    return initing_ ? qwidget_() : centralwidget_->pbody()->managewidg();
+}
+
+
+
+// uiObjEventFilter
 class uiObjEventFilter : public QObject
 {
 public:

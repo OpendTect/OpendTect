@@ -9,19 +9,21 @@ ________________________________________________________________________
 -*/
 
 #include "uilistbox.h"
+#include "i_qlistbox.h"
 
 #include "uibutton.h"
 #include "uifont.h"
 #include "uiicon.h"
 #include "uilabel.h"
 #include "uimenu.h"
-#include "uiobjbody.h"
+#include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 
 #include "bufstringset.h"
 #include "color.h"
 
-#include "i_qlistbox.h"
+#include "q_uiimpl.h"
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 

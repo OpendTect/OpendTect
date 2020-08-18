@@ -26,8 +26,6 @@ mExpClass(uiBase) uiParent : public uiBaseObject
 friend class uiParentBody;
 friend class uiObjectBody;
 public:
-			uiParent(const char* nm,uiParentBody*);
-
     void		addChild(uiBaseObject&);
     void		manageChld(uiBaseObject&,uiObjectBody&);
     void		attachChild(ConstraintType tp,uiObject* child,
@@ -105,6 +103,7 @@ public:
     void		translateText();
 
 protected:
+			uiParent(const char* nm,uiParentBody*);
 
     virtual void	attach_( ConstraintType t, uiObject* oth, int margin=-1,
 				bool reciprocal=true)

@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "separstr.h"
 
+#include "q_uiimpl.h"
+
 #include <QToolBar>
 #include <QToolButton>
 #include "i_qtoolbar.h"

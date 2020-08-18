@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "texttranslation.h"
 
+#include "q_uiimpl.h"
 
 #include <limits.h>
 

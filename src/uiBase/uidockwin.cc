@@ -9,46 +9,40 @@ ________________________________________________________________________
 -*/
 
 #include "uidockwin.h"
-#include "q_uiimpl.h"
+
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
+
+#include "q_uiimpl.h"
 
 #include <QDockWidget>
 
 mUseQtnamespace
 
-class uiDockWinBody : public uiParentBody, public QDockWidget
+class uiDockWinBody : public uiCentralWidgetBody, public QDockWidget
 {
 public:
-			uiDockWinBody( uiDockWin& handle, uiParent* parnt,
-				       const uiString& caption);
-
+			uiDockWinBody(uiDockWin&,uiParent*,
+				      const uiString& caption);
     virtual		~uiDockWinBody();
+
     void		construct();
 
-#define mHANDLE_OBJ     uiDockWin
-#define mQWIDGET_BASE   QDockWidget
-#define mQWIDGET_BODY   QDockWidget
-#define UIBASEBODY_ONLY
-#define UIPARENT_BODY_CENTR_WIDGET
-#include                "i_uiobjqtbody.h"
-
 protected:
+    virtual const QWidget*	qwidget_() const { return this; }
+    virtual void		finalise();
 
-    virtual void	finalise();
+    uiDockWin&		handle_;
 };
 
 
 
 uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 			      const uiString& nm )
-    : uiParentBody( toString(nm) )
-    , QDockWidget( toQString(nm) )
-    , handle_( uidw )
-    , initing_( true )
-    , centralwidget_( 0 )
-
+    : uiCentralWidgetBody(toString(nm))
+    , QDockWidget(toQString(nm))
+    , handle_(uidw)
 {
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable |
 			      QDockWidget::DockWidgetFloatable );
@@ -58,7 +52,7 @@ uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 
 void uiDockWinBody::construct()
 {
-    centralwidget_ = new uiGroup( &handle(), "uiDockWin central widget" );
+    centralwidget_ = new uiGroup( &handle_, "uiDockWin central widget" );
     setWidget( centralwidget_->body()->qwidget() );
 
     centralwidget_->setIsMain(true);
@@ -124,14 +118,10 @@ uiString uiDockWin::getDockName() const
 }
 
 void uiDockWin::setDockName( const uiString& nm )
-{
-    body_->qwidget()->setObjectName( toQString(nm) );
-}
+{ body_->qwidget()->setObjectName( toQString(nm) ); }
 
 uiGroup* uiDockWin::topGroup()
-{
-    return body_->uiCentralWidg();
-}
+{ return body_->uiCentralWidg(); }
 
 
 uiMainWin* uiDockWin::mainwin()
@@ -150,14 +140,8 @@ void uiDockWin::setFloating( bool yn )
 bool uiDockWin::isFloating() const
 { return body_->isFloating(); }
 
-
-QDockWidget* uiDockWin::getDockWidget()
+QDockWidget* uiDockWin::qwidget()
 { return body_; }
-
-
-QWidget* uiDockWin::getWidget(int)
-{ return getDockWidget(); }
-
 
 void uiDockWin::setMinimumWidth( int width )
 { if ( body_ ) body_->setMinimumWidth( width ); }

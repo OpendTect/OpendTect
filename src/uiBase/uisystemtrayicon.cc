@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uistring.h"
 
+#include "q_uiimpl.h"
+
 mUseQtnamespace
 
 uiSystemTrayIcon::uiSystemTrayIcon( const uiIcon& icon )

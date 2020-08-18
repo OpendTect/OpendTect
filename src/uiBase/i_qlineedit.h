@@ -10,7 +10,6 @@ ________________________________________________________________________
 -*/
 
 #include "uilineedit.h"
-#include "i_common.h"
 
 #include <QLineEdit>
 

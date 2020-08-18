@@ -24,7 +24,7 @@ mExpClass(uiBase) uiDockWin : public uiParent
 public:
 			uiDockWin(uiParent* parnt=0,
                               const uiString& caption=uiString::empty() );
-    
+
     virtual		~uiDockWin();
 
     void		setGroup(uiGroup*);
@@ -33,8 +33,8 @@ public:
     void		setDockName(const uiString&);
     uiString		getDockName() const;
 
-    uiGroup* 		topGroup();
-    const uiGroup* 	topGroup() const 
+    uiGroup*		topGroup();
+    const uiGroup*	topGroup() const
 			    { return const_cast<uiDockWin*>(this)->topGroup(); }
 
     virtual uiMainWin*	mainwin();
@@ -45,8 +45,7 @@ public:
     void		setMinimumWidth(int);
 
     int			getNrWidgets() const		{ return 1; }
-    mQtclass(QWidget*)	getWidget(int);
-    mQtclass(QDockWidget*) getDockWidget();
+    mQtclass(QDockWidget*)	qwidget();
 
 protected:
 

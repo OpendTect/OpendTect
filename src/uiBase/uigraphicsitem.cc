@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 #include "odgraphicsitem.h"
 
+#include "q_uiimpl.h"
+
 #include <QBrush>
 #include <QCursor>
 #include <QGraphicsItem>

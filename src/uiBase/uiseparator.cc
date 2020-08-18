@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 
 #include "uiseparator.h"
-#include "i_common.h"
 
+#include "uiobjbodyimpl.h"
 #include <QFrame>
 
 mUseQtnamespace
