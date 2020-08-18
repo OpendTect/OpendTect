@@ -119,14 +119,14 @@ static bool getScriptForScons( BufferString& str )
 	return false;
 
 #ifdef __win__
-    BufferString scriptfile = FilePath::getTempName( "bat" );
+    BufferString scriptfile = FilePath::getTempFullPath( "mad_scons", "bat" );
     od_ostream ostrm( scriptfile );
     ostrm << "@echo off" << od_endl;
     ostrm << "Pushd " << fp.pathOnly() << od_endl;
     ostrm << sconsfp.fullPath() << od_endl;
     ostrm << "Popd" << od_endl;
 #else
-    BufferString scriptfile = FilePath::getTempName();
+    BufferString scriptfile = FilePath::getTempFullPath( "mad_scons", 0 );
     od_ostream ostrm( scriptfile );
     ostrm << "#!/bin/csh -f" << od_endl;
     ostrm << "pushd " << fp.pathOnly() << od_endl;
@@ -287,7 +287,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
 	    posfnm = fp.fullPath();
     }
     else if ( !forread )
-	posfnm = FilePath::getTempName( "pos" );
+	posfnm = FilePath::getTempFullPath( "mad", "pos" );
 
     return posfnm;
 }

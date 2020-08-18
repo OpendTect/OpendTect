@@ -1419,7 +1419,7 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
 	dotpath = dlg.fileName();
     }
 
-    const BufferString fnm = FilePath::getTempName( "dot" );
+    const BufferString fnm = FilePath::getTempFullPath( "attrs", "dot" );
     const char* attrnm = IOM().nameOf( setid_ );
     attrset_->exportToDot( attrnm, fnm );
 

@@ -85,10 +85,12 @@ public:
     BufferString	rootPath() const;
 
     static BufferString	getTempDir();
-    static BufferString	getTempFileName(const char* ext=0,const char* prefix=0);
-    static BufferString	getTempName(const char* ext=0);
-    static BufferString	mkCleanPath(const char* path, Style fmt);
-    static BufferString getTimeStampFileName(const char*ext=0);
+    static BufferString	getTempFileName(const char* typ,const char* ext);
+    static BufferString getTempFullPath(const char* typ,const char* ext);
+    static BufferString getTimeStampFileName(const char* ext);
+    mDeprecated("Use getTempFullPath instead") static BufferString	getTempName( const char* ext=0 )
+			{ return getTempFullPath(0,ext); }
+    static BufferString	mkCleanPath(const char* path,Style fmt);
 
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
@@ -106,4 +108,13 @@ protected:
     void		trueDirIfLink();
 };
 
+
+mGlobal(Basic) inline const char* sSeismicSubDir()      { return "Seismics"; }
+mGlobal(Basic) inline const char* sWellSubDir()         { return "WellInfo"; }
+mGlobal(Basic) inline const char* sSurfaceSubDir()      { return "Surfaces"; }
+
+mGlobal(Basic) inline const char* sParFileExtension()   { return "par"; }
+mGlobal(Basic) inline const char* sInfoFileExtension()  { return "info"; }
+mGlobal(Basic) inline const char* sProcFileExtension()  { return "proc"; }
+mGlobal(Basic) inline const char* sStatsFileExtension() { return "stats"; }
 

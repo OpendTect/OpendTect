@@ -597,7 +597,8 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	return nullptr;
     }
 
-    FilePath* ret = new FilePath( FilePath::getTempName() );
+    FilePath* ret = new FilePath(
+			FilePath::getTempFullPath("runpython",nullptr) );
     if ( !ret )
 	return nullptr;
 #ifdef __win__
