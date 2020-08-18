@@ -22,11 +22,7 @@ static BufferString getTestTempFileName()
 {
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
-    {
-	const File::Path fp( File::Path::getTempDir(),
-		File::Path::getTempFileName("iostrm test","txt") );
-	ret.set( fp.fullPath() );
-    }
+	ret = File::Path::getTempFullPath( "iostrm test", "txt" );
 
     return ret;
 }
