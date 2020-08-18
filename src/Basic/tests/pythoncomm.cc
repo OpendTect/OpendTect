@@ -117,7 +117,7 @@ int mTestMainFnName( int argc, char** argv )
 
 BufferString createTestDir()
 {
-    const File::Path fp( FilePath::getTempFullPath(mTestDirNm,0) );
+    const File::Path fp( File::Path::getTempFullPath(mTestDirNm,0) );
     File::createDir( fp.fullPath() );
     const File::Path filefp( fp.fullPath(),
 			    File::Path::getTempFileName("python","txt") );
