@@ -48,7 +48,7 @@ Network::Service::~Service()
 }
 
 
-bool Network::Service::operator ==( const Network::Service& oth ) const
+bool Network::Service::operator ==( const Service& oth ) const
 {
     if ( &oth == this )
 	return true;
@@ -59,7 +59,7 @@ bool Network::Service::operator ==( const Network::Service& oth ) const
 }
 
 
-bool Network::Service::operator !=( const Network::Service& oth ) const
+bool Network::Service::operator !=( const Service& oth ) const
 {
     return !(*this == oth);
 }
@@ -144,8 +144,8 @@ bool Network::Service::fillJSON( const Authority& auth,
     const PID_Type pid = GetPID();
     const BufferString servnm( GetProcessNameForPID(pid) );
     jsonobj.set( sKeyServiceName(), servnm );
-    jsonobj.set( Network::Server::sKeyHostName(), auth.getHost() );
-    jsonobj.set( Network::Server::sKeyPort(), auth.getPort() );
+    jsonobj.set( Server::sKeyHostName(), auth.getHost() );
+    jsonobj.set( Server::sKeyPort(), auth.getPort() );
     jsonobj.set( sKeyPID(), pid );
 
     return true;
@@ -155,7 +155,7 @@ bool Network::Service::fillJSON( const Authority& auth,
 BufferString Network::Service::getServiceName( const OD::JSON::Object& jsonobj )
 {
     return jsonobj.isPresent( sKeyServiceName() )
-		? jsonobj.getStringValue(Network::Server::sKeyHostName())
+		? jsonobj.getStringValue(Server::sKeyHostName())
 		: BufferString::empty();
 }
 
@@ -176,14 +176,14 @@ uiRetVal Network::Service::useJSON( const OD::JSON::Object& jsonobj )
 	uirv.add(tr("missing key: %1").arg(sKeyServiceName()));
 
     if ( jsonobj.isPresent( Server::sKeyHostName() ) )
-	setHostName( jsonobj.getStringValue(Network::Server::sKeyHostName()) );
+	setHostName( jsonobj.getStringValue(Server::sKeyHostName()) );
     else
-	uirv.add(tr("missing key: %1").arg(Network::Server::sKeyHostName()));
+	uirv.add(tr("missing key: %1").arg(Server::sKeyHostName()));
 
     if ( jsonobj.isPresent( Server::sKeyPort() ) )
-	setPort( jsonobj.getIntValue( Network::Server::sKeyPort() ) );
+	setPort( jsonobj.getIntValue( Server::sKeyPort() ) );
     else
-	uirv.add(tr("missing key: %1").arg(Network::Server::sKeyPort()));
+	uirv.add(tr("missing key: %1").arg(Server::sKeyPort()));
 
     if ( jsonobj.isPresent( sKeyPID() ) )
 	pid_ = jsonobj.getIntValue( sKeyPID() );

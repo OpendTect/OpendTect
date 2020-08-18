@@ -89,6 +89,7 @@ JobIOHandler( PortNr_Type firstport, od_ostream* logstrm )
     , usedport_(0)
     , ready_(false)
     , logstrm_(logstrm)
+    , server_(false)
 {
     mAttachCB( server_.readyRead, JobIOHandler::socketCB );
     listen( firstport_ );

@@ -32,9 +32,9 @@ public:
 
     virtual		~ODServiceBase();
 
-    bool		isOK() const;
+    bool		isOK(bool islocal) const;
 
-    Network::Authority	getAuthority() const;
+    Network::Authority	getAuthority(bool islocal) const;
     virtual void	stopServer();
 
     static const char*	sKeyAction()		{ return "action"; }
@@ -52,7 +52,7 @@ public:
     static const char*	sKeyRaiseEv()		{ return "raise"; }
     static const char*	sKeyStatusEv()		{ return "status"; }
     static const char*	sKeySurveyChangeEv()	{ return "surveychange"; }
-
+    static const char*	sKeyProcessingDone()	{ return "processing_done"; }
     static const char*	sKeyODServer()		{ return "odserver"; }
 
     CNotifier<ODServiceBase,BufferString>	externalAction;
@@ -63,9 +63,12 @@ public:
 			   either externalAction or externalRequest */
 
 protected:
-			ODServiceBase(bool assignport=true);
+		    ODServiceBase(const char* hostname,bool assignport = true);
+		    explicit ODServiceBase(bool islocal,
+			const char* servernm=nullptr,bool assignport=true);
 
     bool		isMainService() const;
+    virtual void	startServer(const Network::Authority&);
 
     static uiRetVal	sendAction(const Network::Authority&,
 				   const char* servicenm,const char* action);
@@ -102,7 +105,9 @@ private:
     ODServiceBase&	operator=(const ODServiceBase&) = delete;
     ODServiceBase&	operator=(ODServiceBase &&) = delete;
 
-    virtual void	startServer(PortNr_Type);
+    void		init(bool islocal,const char* hostname,
+							    bool assignport);
+
     uiRetVal		doAction(const OD::JSON::Object&);
     uiRetVal		doRequest(const OD::JSON::Object&);
     uiRetVal		survChangedReq(const OD::JSON::Object&);
@@ -119,13 +124,15 @@ private:
     void		surveyChangedCB(CallBacker*);
     void		pyenvChangeCB(CallBacker*);
 
-    Network::RequestServer*	server_ = nullptr;
-    bool		serverismine_ = true;
-    Network::RequestConnection*		conn_ = nullptr;
-    RefMan<Network::RequestPacket>	packet_;
-    bool		needclose_ = false;
-    uiRetVal		uirv_;
-
+    Network::RequestServer*	    tcpserver_ = nullptr;
+    Network::RequestServer*	    localserver_ = nullptr;
+    bool			    serverismine_ = true;
+    Network::RequestConnection*     tcpconn_ = nullptr;
+    Network::RequestConnection*     localconn_ = nullptr;
+    RefMan<Network::RequestPacket>  packet_;
+    bool			    needclose_ = false;
+    uiRetVal			    uirv_;
+    Threads::Lock		    lock_;
     static ODServiceBase* theMain(ODServiceBase* newmain=nullptr);
 
 

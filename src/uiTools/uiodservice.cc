@@ -24,8 +24,23 @@
 
 
 
-uiODService::uiODService( uiMainWin& mainwin, bool assignport )
-   : ODServiceBase(assignport)
+uiODService::uiODService( uiMainWin& mainwin, bool islocal,
+				const char* servernm, bool assignport )
+    : ODServiceBase(islocal, servernm, assignport)
+{
+    init( mainwin, islocal );
+}
+
+
+uiODService::uiODService(uiMainWin& mainwin, const char* hostname,
+							    bool assignport)
+    : ODServiceBase(hostname, assignport)
+{
+    init( mainwin, true );
+}
+
+
+void uiODService::init( uiMainWin& mainwin, bool islocal )
 {
     if ( !isMainService() )
 	return;
@@ -38,9 +53,15 @@ uiODService::uiODService( uiMainWin& mainwin, bool assignport )
 	clp.setKeyHasValue( sKeyODServer() );
 	if ( clp.hasKey(sKeyODServer()) )
 	{
+	    //TODO for local server
 	    BufferString odserverstr;
 	    if ( clp.getKeyedInfo(sKeyODServer(),odserverstr) )
-		odauth_.fromString( odserverstr );
+	    {
+		if ( islocal )
+		    odauth_.localFromString( odserverstr.buf() );
+		else
+		    odauth_.fromString( odserverstr );
+	    }
 	}
     }
 
@@ -149,7 +170,7 @@ uiRetVal uiODService::doRegister()
 	return uiRetVal::OK();
 
     OD::JSON::Object sinfo;
-    Network::Service::fillJSON( getAuthority(), sinfo );
+    Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
 						  sKeyRegister(), sinfo );
     if ( !uirv.isOK() )
@@ -171,7 +192,7 @@ uiRetVal uiODService::doDeRegister()
 	return uiRetVal::OK();
 
     OD::JSON::Object sinfo;
-    Network::Service::fillJSON( getAuthority(), sinfo );
+    Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
 						  sKeyDeregister(), sinfo );
     if ( !uirv.isOK() )

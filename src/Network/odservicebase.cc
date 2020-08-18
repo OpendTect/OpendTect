@@ -24,13 +24,33 @@
 #include "settings.h"
 
 
-ODServiceBase::ODServiceBase( bool assignport )
+ODServiceBase::ODServiceBase( bool islocal, const char* servernm,
+							    bool assignport )
     : externalAction(this)
     , externalRequest(this)
 {
+    init(islocal, servernm, assignport);
+}
+
+
+ODServiceBase::ODServiceBase( const char* hostname, bool assignport )
+    : externalAction(this)
+    , externalRequest(this)
+{
+    init(true, hostname, assignport);
+}
+
+
+void ODServiceBase::init(bool islocal, const char* hostname,
+    bool assignport)
+{
     ODServiceBase* mainserv = theMain();
-    server_ = mainserv ? mainserv->server_ : nullptr;
-    if ( server_ )
+    if ( islocal )
+	localserver_ = mainserv ? mainserv->localserver_ : nullptr;
+    else
+	tcpserver_ = mainserv ? mainserv->tcpserver_ : nullptr;
+
+    if ( tcpserver_ || localserver_ )
     {
 	serverismine_ = false;
 	if ( this != mainserv )
@@ -77,10 +97,20 @@ ODServiceBase::ODServiceBase( bool assignport )
     }
 
     if ( portid>0 )
-	startServer( portid );
+    {
+	const Network::Authority& auth = islocal ?
+				Network::Authority::getLocal( hostname ) :
+				Network::Authority( nullptr, portid );
 
-    if ( server_ )
-	mAttachCB( server_->newConnection, ODServiceBase::newConnectionCB );
+
+	startServer( auth );
+    }
+
+    if ( islocal )
+	mAttachCB( localserver_->newConnection,
+					    ODServiceBase::newConnectionCB );
+    else
+	mAttachCB( tcpserver_->newConnection, ODServiceBase::newConnectionCB );
 
     mAttachCB( DBM().surveyChanged, ODServiceBase::surveyChangedCB );
     mAttachCB( DBM().applicationClosing, ODServiceBase::appClosingCB );
@@ -96,15 +126,17 @@ ODServiceBase::~ODServiceBase()
 }
 
 
-bool ODServiceBase::isOK() const
+bool ODServiceBase::isOK( bool islocal	) const
 {
-    return getAuthority().hasAssignedPort();
+    return getAuthority( islocal  ).hasAssignedPort();
 }
 
 
-Network::Authority ODServiceBase::getAuthority() const
+Network::Authority ODServiceBase::getAuthority( bool islocal  ) const
 {
-    return server_ ? server_->getAuthority() : Network::Authority();
+    Network::RequestServer* server = islocal ? localserver_ :
+	tcpserver_;
+    return server ? server->getAuthority() : Network::Authority();
 }
 
 
@@ -126,10 +158,17 @@ void ODServiceBase::pyenvChangeCB( CallBacker* cb )
 { doPyEnvChange(cb); }
 
 
-void ODServiceBase::startServer( PortNr_Type portid )
+void ODServiceBase::startServer( const Network::Authority& auth )
 {
-    server_ = new Network::RequestServer( portid );
-    if ( !server_ || !server_->isOK() )
+    if ( auth.isLocal() )
+	localserver_ = new Network::RequestServer( auth.getServerName() );
+    else
+	tcpserver_ = new Network::RequestServer( auth, Network::Any );
+
+    const Network::RequestServer* server = auth.isLocal() ? localserver_ :
+							    tcpserver_;
+
+    if ( !server || !server->isOK() )
     {
 	pErrMsg( "startServer - failed" );
 	stopServer();
@@ -144,7 +183,10 @@ void ODServiceBase::startServer( PortNr_Type portid )
 void ODServiceBase::stopServer()
 {
     if ( serverismine_ )
-	deleteAndZeroPtr( server_ );
+    {
+	deleteAndZeroPtr( tcpserver_ );
+	deleteAndZeroPtr( localserver_ );
+    }
 }
 
 
@@ -285,7 +327,12 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 
 void ODServiceBase::newConnectionCB( CallBacker* )
 {
-    Network::RequestConnection* conn = server_->pickupNewConnection();
+    Network::RequestConnection* conn = localserver_ ?
+	localserver_->pickupNewConnection() : nullptr;
+    if (!conn)
+	conn = tcpserver_->pickupNewConnection();
+
+
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
@@ -303,14 +350,14 @@ void ODServiceBase::packetArrivedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
 
-    conn_ = static_cast<Network::RequestConnection*>( cber );
-    if ( !conn_ )
+    tcpconn_ = static_cast<Network::RequestConnection*>(cber);
+    if ( !tcpconn_ )
 	return;
 
-    packet_ = conn_->pickupPacket( reqid, 2000 );
+    packet_ = tcpconn_->pickupPacket( reqid, 2000 );
     if ( !packet_ )
     {
-	packet_ = conn_->getNextExternalPacket();
+	packet_ = tcpconn_->getNextExternalPacket();
 	if ( !packet_ )
 	{
 	    pErrMsg("packetArrivedCB - no packet");
@@ -343,7 +390,8 @@ void ODServiceBase::connClosedCB( CallBacker* cb )
 
     mDetachCB( conn->packetArrived, ODServiceBase::packetArrivedCB );
     mDetachCB( conn->connectionClosed, ODServiceBase::connClosedCB );
-    conn_ = nullptr;
+    tcpconn_ = nullptr;
+    localconn_ = nullptr;
 
     doConnClosed( cb );
     if ( needclose_ )
@@ -451,7 +499,7 @@ void ODServiceBase::sendOK()
     response.set( sKeyOK(), BufferString::empty() );
     if ( packet_ )
 	packet_->setPayload( response );
-    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+    if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendOK - failed"); }
     packet_ = nullptr;
 }
@@ -463,7 +511,7 @@ void ODServiceBase::sendErr( uiRetVal& uirv )
     response.set( sKeyError(), uirv.getText() );
     if ( packet_ )
 	packet_->setPayload( response );
-    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+    if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendErr - failed"); }
     packet_ = nullptr;
 }

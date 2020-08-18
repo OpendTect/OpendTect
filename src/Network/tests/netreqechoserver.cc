@@ -24,8 +24,8 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( PortNr_Type port, unsigned short timeout )
-	: server_(port)
+    RequestEchoServer( const char* servernm, unsigned short timeout )
+	: server_(servernm)
 	, timeout_( timeout )
     {
 	mAttachCB( server_.newConnection, RequestEchoServer::newConnectionCB );
@@ -89,7 +89,7 @@ public:
 	BufferString packetstring;
 
 	packet->getStringPayload( packetstring );
-	if ( packetstring==Network::Server::sKeyKillword() )
+	if ( packetstring==Server::sKeyKillword() )
 	{
 	    logStream() << "Kill requested " << od_endl;
 	    CallBack::addToMainThread(
@@ -101,8 +101,7 @@ public:
 	}
 	else if ( packetstring=="New" )
 	{
-	    RefMan<Network::RequestPacket> newpacket =
-		new Network::RequestPacket;
+	    RefMan<RequestPacket> newpacket = new RequestPacket;
 	    BufferString sentmessage = "The answer is 42";
 	    newpacket->setIsNewRequest();
 	    newpacket->setStringPayload( sentmessage );
@@ -180,12 +179,12 @@ int mTestMainFnName(int argc, char** argv)
 
     ApplicationData app;
 
-    int startport = 1025;
-    clParser().getKeyedInfo( Network::Server::sKeyPort(), startport );
+    BufferString servernm;
+    clParser().getKeyedInfo( sKey::ServerNm(), servernm );
     int timeout = 120;
     clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
-    Network::RequestEchoServer server( mCast(PortNr_Type,startport),
+    Network::RequestEchoServer server( servernm,
 				       mCast(unsigned short,timeout) );
 
     logStream() << "Listening to port " << server.server_.server()->port()

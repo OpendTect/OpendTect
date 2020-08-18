@@ -25,6 +25,7 @@ set ( OD_MODULE_SOURCES
 	netsocket.cc
 	oddlsite.cc
 	odhttp.cc
+	odbatchservice.cc
 	odnetworkaccess.cc
 	odservicebase.cc
 	systeminfo.cc

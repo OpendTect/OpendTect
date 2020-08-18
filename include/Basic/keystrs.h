@@ -94,6 +94,7 @@ namespace sKey
     inline FixedString Model()		{ return "Model"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
+    inline FixedString Local()		{ return "Local"; }
     inline FixedString Log(int n=1)	{ return n < 2 ? "Log" : "Logs"; }
     inline FixedString LogFile()	{ return "Log file"; }
     inline FixedString Name(int n=1)	{ return n<2 ? "Name" : "Names"; }
@@ -130,6 +131,8 @@ namespace sKey
     inline FixedString Selection()	{ return "Selection"; }
     inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
+    inline FixedString Server()		{ return "Server"; }
+    inline FixedString ServerNm()	{ return "Server_Name"; }
     inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
