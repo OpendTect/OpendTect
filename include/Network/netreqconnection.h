@@ -41,7 +41,7 @@ struct PacketSendData;
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
-			RequestConnection(const Authority&,
+			RequestConnection(const Authority&,bool islocal,
 					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
@@ -137,6 +137,9 @@ mExpClass(Network) RequestServer : public CallBacker
 public:
 
 				RequestServer(PortNr_Type,SpecAddr=Any);
+				RequestServer(const char* servernm);
+				RequestServer(const Authority&,
+							SpecAddr = Any);
 				~RequestServer();
 
     bool			isOK() const;
@@ -160,6 +163,9 @@ private:
 
     Threads::Lock		lock_;
     Server*			server_;
+
+    uiString			TCPErrMsg() const;
+    uiString			LocalErrMsg() const;
 
 };
 

@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 mFDQtclass(QTcpSocket)
 mFDQtclass(QTcpServer)
+mFDQtclass(QLocalSocket)
+mFDQtclass(QLocalServer)
 mFDQtclass(QTcpServerComm)
 
 
@@ -24,16 +26,18 @@ namespace Network
 class Socket;
 
 mExpClass(Network) Server : public CallBacker
-{
+{ mODTextTranslationClass(Server)
 public:
-			Server();
+			Server(bool islocal);
 			~Server();
 
     bool		listen(SpecAddr=Any,PortNr_Type port=0);
 			//!<If Any, server will listen to all network interfaces
+    bool		listen(const char* servernm, uiRetVal& ret);
     bool		isListening() const;
     PortNr_Type		port() const;
     Authority		authority() const;
+    bool		isLocal() const { return qlocalserver_; }
 
     void		close();
     bool		hasPendingConnections() const;
@@ -52,6 +56,7 @@ public:
 
     mQtclass(QTcpSocket)* nextPendingConnection();
 			//!<Use when you want to access Qt object directly
+    mQtclass(QLocalSocket)* nextPendingLocalConnection();
 
     bool		waitForNewConnection(int msec);
 			//!<Useful when no event loop available
@@ -69,7 +74,8 @@ protected:
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
 
-    mQtclass(QTcpServer)* qtcpserver_;
+    mQtclass(QTcpServer)* qtcpserver_	    = nullptr;
+    mQtclass(QLocalServer)* qlocalserver_   = nullptr;
     mQtclass(QTcpServerComm)* comm_;
     mutable BufferString errmsg_;
     ObjectSet<Socket>	sockets_;

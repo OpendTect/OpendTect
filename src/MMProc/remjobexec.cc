@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 
 RemoteJobExec::RemoteJobExec( const Network::Authority& auth )
-    : socket_(*new Network::Socket)
+    : socket_(*new Network::Socket(false))
     , auth_(auth)
     , par_(*new IOPar)
     , isconnected_(false)

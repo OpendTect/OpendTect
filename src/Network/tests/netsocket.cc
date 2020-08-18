@@ -61,7 +61,7 @@ public:
 
 bool TestRunner::testNetSocket( bool closeserver )
 {
-    Network::Socket connection( !noeventloop_ );
+    Network::Socket connection( true, !noeventloop_ );
     connection.setTimeout( timeout_ );
 
     if ( !connection.connectToHost(auth_,true) )

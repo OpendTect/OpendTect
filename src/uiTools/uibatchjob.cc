@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "hostdata.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "netserver.h"
+#include "odbatchservice.h"
 #include "oddirs.h"
 #include "singlebatchjobdispatch.h"
 
@@ -288,10 +290,18 @@ mImplClassFactory( uiBatchJobDispatcherLauncher, factory )
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
+    ODBatchService& ODSM = ODBatchService::getMgr( false );
+    jobspec_.pars_.add( ODSM.sKeyODServer(),
+				ODSM.getAuthority(false).toString(false) );
+    uiRetVal uirv;
+    const PortNr_Type servport = Network::getUsablePort(uirv);
+    if (uirv.isOK())
+	jobspec_.pars_.add(Network::Server::sKeyPort(), servport);
+
     if ( !dispatcher().go(jobspec_) )
     {
-	uiRetVal uirv( tr("Cannot start program %1").arg(jobspec_.prognm_) );
-	uirv.add( dispatcher().errMsg() );
+	uiRetVal ret( tr("Cannot start program %1").arg(jobspec_.prognm_) );
+	ret.add( dispatcher().errMsg() );
 	gUiMsg(p).error( uirv );
 	return false;
     }

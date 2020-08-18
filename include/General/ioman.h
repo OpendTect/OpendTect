@@ -11,8 +11,7 @@ ________________________________________________________________________
 -*/
 
 #ifdef  __win__
-#pragma message ("IOMan and IOM() are replaced by DBMan and DBM(). "
-							    "Include dbman.h")
+#pragma message ("IOMan and IOM() are replaced by DBMan and DBM(). Include dbman.h")
 #else
 #warning "IOMan and IOM() are replaced by DBMan and DBM(). Include dbman.h"
 #endif

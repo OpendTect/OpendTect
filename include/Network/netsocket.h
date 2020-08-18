@@ -17,7 +17,10 @@ ________________________________________________________________________
 
 template <class T> class DataInterpreter;
 mFDQtclass(QTcpSocket)
+mFDQtclass(QLocalSocket)
 mFDQtclass(QTcpSocketComm)
+
+#define mTimeOut 30000
 
 
 namespace Network
@@ -41,8 +44,9 @@ mExpClass(Network) Socket : public CallBacker
 { mODTextTranslationClass(Socket);
 
 public:
-		Socket(bool haveeventloop=true);
+		Socket(bool islocal,bool haveeventloop=true);
 		Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
+		Socket(mQtclass(QLocalSocket)*,bool haveeventloop = true);
 		~Socket();
 
     void	setTimeout(int ms) { timeout_ = ms; }
@@ -57,6 +61,7 @@ public:
     od_int64	bytesAvailable() const;
     uiString	errMsg() const	{ return errmsg_; }
     void	abort();	//!<Just stops all pending operations.
+    bool	isLocal() const { return qlocalsocket_;  }
 
     bool	writeChar(char);
     bool	writeShort(short);
@@ -115,14 +120,19 @@ private:
 
     mutable uiString		errmsg_;
     mutable Threads::Lock	lock_;
+    QString			getSocketErrMsg() const;
 
     int				timeout_;
     bool			noeventloop_;
 
-    mQtclass(QTcpSocket)*	qtcpsocket_;
+    mQtclass(QTcpSocket)*	qtcpsocket_	= nullptr;
+    mQtclass(QLocalSocket)*	qlocalsocket_ = nullptr;
     bool			ownssocket_;
 
     mQtclass(QTcpSocketComm)*	socketcomm_;
+
+    uiString		       readErrMsg() const;
+    uiString		       noConnErrMsg() const;
 
     const Threads::ThreadID	thread_;
 };
