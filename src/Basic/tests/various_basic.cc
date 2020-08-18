@@ -9,6 +9,7 @@
 #include "testprog.h"
 
 #include "dbkey.h"
+#include "staticstring.h"
 
 
 bool testPointerCast()
@@ -93,11 +94,12 @@ bool testFuncName()
 }
 
 
-BufferString getTestFileName()
+static BufferString getTestFileName()
 {
-    const File::Path fp( File::Path::getTempDir(),
-	File::Path::getTempFileName( "test with space", "txt" ) );
-    return fp.fullPath();
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = File::Path::getTempFullPath( "test with space", "txt" );
+    return ret;
 }
 
 
