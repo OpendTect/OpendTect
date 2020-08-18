@@ -45,7 +45,6 @@ set( OD_MODULE_SOURCES
 	uiioobjsel.cc
 	uiioobjselgrp.cc
 	uiioobjselwritetransl.cc
-	uilatlong.cc
 	uilistboxchoiceio.cc
 	uimanprops.cc
 	uimathformula.cc

@@ -223,7 +223,7 @@ void uiProjectionBasedSystem::infoCB( CallBacker* )
 				     .add( pid.id() ).addNewLine();
     disptxt.add( Projection::getInfoText(defstrs_.get(dispidxs_[selidx])) );
 
-    uiDialog dlg( this, uiDialog::Setup(projselfld_->textOfItem(selidx),
+    uiDialog dlg( this, uiDialog::Setup(tr(projselfld_->textOfItem(selidx)),
 					mNoDlgTitle,mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiLabel* infolbl = new uiLabel( &dlg, toUiString(disptxt) );

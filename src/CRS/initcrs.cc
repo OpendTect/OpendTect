@@ -5,7 +5,7 @@
 -*/
 
 
-#include "odplugin.h"
+#include "moddepmgr.h"
 #include "crssystem.h"
 #include "filepath.h"
 #include "legal.h"
@@ -53,36 +53,11 @@ static uiString* legalText()
 }
 
 
-mDefODPluginEarlyLoad(CRS)
-mDefODPluginInfo(CRS)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Coordinate Reference System (base)",
-	"OpendTect",
-	"dGB (Raman)",
-	"=od",
-	"Coordinate Reference System - base" ));
-    return &retpi;
-}
-
-
-mDefODInitPlugin(CRS)
+mDefModInitFn(CRS)
 {
     Coords::ProjectionBasedSystem::initClass();
-    FilePath fp( mGetSetupFileName("CRS") );
-    Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
-				toUiString("Standard EPSG Projectons") );
-    fp.add( "epsg" );
-    repos->readFromFile( fp.fullPath() );
-    Coords::ProjectionRepos::addRepos( repos );
-
-    repos = new Coords::ProjectionRepos( "ESRI", toUiString("ESRI Projectons"));
-    fp.setFileName( "esri" );
-    repos->readFromFile( fp.fullPath() );
-    Coords::ProjectionRepos::addRepos( repos );
-
+    Coords::ProjectionRepos::initStdRepos();
     SI().readSavedCoordSystem();
 
     legalInformation().addCreator( legalText, "PROJ.4" );
-    return 0;
 }

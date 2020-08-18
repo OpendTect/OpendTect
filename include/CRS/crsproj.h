@@ -116,6 +116,7 @@ public:
     static const ObjectSet<ProjectionRepos>&	reposSet()
 						{ return reposset_; }
     static void					getAuthKeys(BufferStringSet&);
+    static void					initStdRepos();
 
 protected:
 

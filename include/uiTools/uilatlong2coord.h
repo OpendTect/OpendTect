@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uicoordsystem.h"
 
@@ -21,7 +21,7 @@ class uiLatLongInp;
 namespace Coords
 {
 
-mExpClass(uiIo) uiUnlocatedXYSystem : public uiCoordSystem
+mExpClass(uiTools) uiUnlocatedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiUnlocatedXYSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiCoordSystem, uiUnlocatedXYSystem,
@@ -41,7 +41,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiAnchorBasedXYSystem : public uiCoordSystem
+mExpClass(uiTools) uiAnchorBasedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiAnchorBasedXYSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiCoordSystem, uiAnchorBasedXYSystem,
@@ -64,7 +64,7 @@ protected:
 
 } // namespace Coords
 
-mExpClass(uiIo) uiLatLong2CoordDlg : public uiDialog
+mExpClass(uiTools) uiLatLong2CoordDlg : public uiDialog
 { mODTextTranslationClass(uiLatLong2CoordDlg);
 public:
 			uiLatLong2CoordDlg(uiParent*,const LatLong2Coord&,

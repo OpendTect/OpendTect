@@ -514,7 +514,8 @@ void uiODMenuMgr::fillExportMenu()
     exphor->insertItem( exphor3Dasc );
     uiMenu* expfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     insertAction( expfltasc, m3Dots(tr("Single Fault")), mExpFltAsciiMnuItm );
-    insertAction( expfltasc, m3Dots(tr("Bulk Faults")), mExpBulkFltAsciiMnuItm );
+    insertAction( expfltasc, m3Dots(tr("Bulk Faults")),
+		  mExpBulkFltAsciiMnuItm );
     expflt->insertItem( expfltasc );
     uiMenu* expfltssasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     insertAction( expfltssasc, m3Dots(tr("Single FaultStickSet")),
@@ -959,7 +960,10 @@ void uiODMenuMgr::fillUtilMenu()
     utilmnu_->insertItem( toolsmnu_ );
 
     insertAction( toolsmnu_, m3Dots(tr("Batch Programs")), mBatchProgMnuItm );
-    insertAction( toolsmnu_, m3Dots(tr("Position Conversion")), mPosconvMnuItm );
+    insertAction( toolsmnu_, m3Dots(tr("Position Conversion")),
+		  mPosconvMnuItm );
+    insertAction( toolsmnu_, m3Dots(tr("CRS Position Conversion")),
+		  mCRSPosconvMnuItm, "crs" );
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
@@ -999,7 +1003,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
-	insertAction( utilmnu_, m3Dots(tr("Show Log File")), mShwLogFileMnuItm );
+	insertAction( utilmnu_, m3Dots(tr("Show Log File")),mShwLogFileMnuItm );
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -1535,6 +1539,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
     case mHostIDInfoItm:	showHostID(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
+    case mCRSPosconvMnuItm:	applMgr().crsPosConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;

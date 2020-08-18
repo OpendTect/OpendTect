@@ -106,6 +106,8 @@ SET( OD_MODULE_SOURCES
 	uizaxistransform.cc
 	uizrangeinput.cc
 	uipolardiagram.cc
+	uilatlong.cc
+	uicrssystem.cc
 )
 
 set( OD_MODULE_GUI_PROGS

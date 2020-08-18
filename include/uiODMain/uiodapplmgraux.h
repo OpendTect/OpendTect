@@ -35,6 +35,7 @@ class uiVelSel;
 class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
+namespace Coords { class uiConvertGeographicPos; }
 namespace PreStack
 { class uiExportMute; class uiImportMute; class uiBatchProcSetup; }
 namespace Vel { class uiImportVelFunc; }
@@ -70,6 +71,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		doOperation(int,int,int);
     void		manPreLoad(int);
     void		posConversion();
+    void		crsPosConversion();
 
     void		processPreStack(bool is2d);
     void		process2D3D(int opt);
@@ -107,6 +109,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     ObjectSet<uiDataPointSet> uidpsset_;
     PreStack::uiBatchProcSetup* batchprocps2ddlg_;
     PreStack::uiBatchProcSetup* batchprocps3ddlg_;
+    Coords::uiConvertGeographicPos*	convgeoposdlg_;
 };
 
 

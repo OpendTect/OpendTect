@@ -6,7 +6,7 @@
 #_______________________________________________________________________________
 add_definitions( -DmNoAutoUiString )
 
-set ( OD_MODULE_DEPS Algo )
+set ( OD_MODULE_DEPS Algo CRS )
 if ( NOT DEFINED WIN32 )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()
