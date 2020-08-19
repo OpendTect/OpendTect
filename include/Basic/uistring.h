@@ -94,7 +94,14 @@ public:
 		uiString(const uiString&);	//!< no copy, ref counted
 		~uiString();
 
+    bool	operator==( const uiString& oth ) const
+						{ return isEqualTo(oth); }
+    bool	operator!=( const uiString& oth ) const
+						{ return !isEqualTo(oth); }
+    uiString&	operator=(const uiString&);	//!< no copy, ref counted
+
     uiString&	set(const char*);
+    uiString&	set( const uiString& s )	{ return (*this = s); }
     bool	isSet() const			{ return !isEmpty(); }
     bool	isEmpty() const;
     void	setEmpty();
@@ -103,7 +110,6 @@ public:
 		    This is applied before eventual arguments. */
     bool	operator!() const		{ return isEmpty(); }
 
-    uiString&	operator=(const uiString&);	//!< no copy, ref counted
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
     int		size() const;
@@ -196,12 +202,7 @@ public:
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */
 
-    bool	operator==(const uiString& b) const;
-		//!<Don't use, will force crash. Only here to keep TypeSet happy
-    bool	operator!=(const uiString& b) const { return !(*this==b); }
-		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	isEqualTo(const uiString& oth) const;
-		//!<Do use, but only if unavoidable
 
     static const char*	sODLocalizationApplication() { return "od"; }
 

@@ -562,7 +562,7 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     if ( !OD::PythA().execute(mc) )
     {
 	uiMSG().error( tr("Could not execute\n: "),
-		uiString().set( mc.toString() ),
+		uiString().set( toUiString(mc.toString()) ),
 		tr("\nPlease check the log for error messages.") );
 	return;
     }

@@ -120,7 +120,7 @@ public:
     };
 
 			uiTable(uiParent*,const Setup&,const char* nm);
-    virtual 		~uiTable();
+    virtual		~uiTable();
 
     const char*		text(const RowCol&) const;
     void		setText(const RowCol&,const char*);
@@ -170,7 +170,7 @@ public:
     void		setColumnResizeMode(ResizeMode);
 			//!<Default is Stretch
     void		setRowResizeMode(ResizeMode);
-    			//!<Default is ResizeToContents
+			//!<Default is ResizeToContents
     void		setColumnStretchable(int,bool);
     void		setRowStretchable(int,bool);
     bool		isColumnStretchable(int) const;
@@ -225,10 +225,10 @@ public:
 			{ return RowCol( currentRow(), currentCol() ); }
     void		setSelected(const RowCol&,bool yn=true);
     void		selectRow(int row);
-    void 		selectColumn(int col);
-    void 		selectItems(const TypeSet<RowCol>&,bool);
+    void		selectColumn(int col);
+    void		selectItems(const TypeSet<RowCol>&,bool);
     void		removeAllSelections();
-    void 		ensureCellVisible(const RowCol&);
+    void		ensureCellVisible(const RowCol&);
 
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
@@ -259,7 +259,7 @@ public:
     void		setLabelBGColor(int,Color,bool isrow);
 
 
-    Setup&		setup() 		{ return setup_; }
+    Setup&		setup()		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
 
     const RowCol&	notifiedCell() const	{ return notifcell_; }
@@ -292,9 +292,11 @@ public:
     void		showOuterFrame(bool);
 
     int			getIntValue(const RowCol&) const;
+    od_int64		getInt64Value(const RowCol&) const;
     double		getDValue(const RowCol&) const;
     float		getFValue(const RowCol&) const;
     void		setValue(const RowCol&,int);
+    void		setValue(const RowCol&,od_int64);
     void		setValue(const RowCol&,float);
     void		setValue(const RowCol&,float,int nrdec);
     void		setValue(const RowCol&,double);

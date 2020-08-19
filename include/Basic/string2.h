@@ -44,12 +44,12 @@ mGlobal(Basic) const char* toString(double,int nrdec);
 mGlobal(Basic) const char* toString(double,char format,int precision);
 mGlobal(Basic) const char* toStringLim(double,int maxtxtwdth);
 mGlobal(Basic) const char* toStringPrecise(double);
+mGlobal(Basic) const char* toString(bool);
+mGlobal(Basic) const char* toString(signed char);
+mGlobal(Basic) const char* toString(unsigned char);
 mGlobal(Basic) const char* toString(short);
 mGlobal(Basic) const char* toString(unsigned short);
 mGlobal(Basic) const char* toString(const char*);
-mGlobal(Basic) const char* toString(unsigned char);
-mGlobal(Basic) const char* toString(signed char);
-mGlobal(Basic) const char* toString(bool);
 mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 
@@ -60,8 +60,11 @@ mGlobal(Basic) bool getFromString(double&,const char*,double udfval);
 mGlobal(Basic) bool getFromString(bool&,const char*);
 mGlobal(Basic) bool yesNoFromString(const char*);
 
-inline bool toBool( const char* s, bool defval=true )
-{ return s && *s ? yesNoFromString(s) : defval; }
+inline int toInt( const char* s, int defval=0 )
+{ int ret = defval; getFromString( ret, s, ret ); return ret; }
+
+inline od_int64 toInt64( const char* s, od_int64 defval=0 )
+{ od_int64 ret = defval; getFromString( ret, s, ret ); return ret; }
 
 inline float toFloat( const char* s, float defval=0 )
 { float ret = defval; getFromString( ret, s, ret ); return ret; }
@@ -69,12 +72,8 @@ inline float toFloat( const char* s, float defval=0 )
 inline double toDouble( const char* s, double defval=0 )
 { double ret = defval; getFromString( ret, s, ret ); return ret; }
 
-inline int toInt( const char* s, int defval=0 )
-{ int ret = defval; getFromString( ret, s, ret ); return ret; }
-
-inline od_int64 toInt64( const char* s, od_int64 defval=0 )
-{ od_int64 ret = defval; getFromString( ret, s, ret ); return ret; }
-
+inline bool toBool( const char* s, bool defval=true )
+{ return s && *s ? yesNoFromString(s) : defval; }
 
 /*!\brief Advances given pointer to first non-whitespace */
 #define mSkipBlanks(ptr) \
@@ -168,5 +167,4 @@ mGlobal(Basic) const char* getAreaString(float m2,bool xyinfeet,int precision,
 mGlobal(Basic) char* truncateString(char* str, int maxlen );
 	/*!<If str is longer than maxlen-4, string will be truncated and a
 	 * " ..." will be appended". */
-
 

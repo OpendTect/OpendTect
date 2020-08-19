@@ -168,10 +168,10 @@ static int findUglyRoundOff( char* str, bool isdouble )
 	    return -1;
     }
 
-    char* hit = firstOcc( decstartptr, isdouble ? "00000" : "000" );
+    char* hit = lastOcc( decstartptr, isdouble ? "000" : "000" );
     if ( !hit )
     {
-	hit = firstOcc( decstartptr, isdouble ? "99999" : "999" );
+	hit = lastOcc( decstartptr, isdouble ? "999" : "999" );
 	if ( !hit )
 	    return -1;
     }
@@ -183,29 +183,6 @@ static int findUglyRoundOff( char* str, bool isdouble )
     if ( *hit == '9' ) nrdec--;
     if ( nrdec < 0 ) nrdec = 0;
     return nrdec;
-}
-
-
-static void enforceNrDecimals( char* str, int nrdec )
-{
-    char* ptrdot = firstOcc( str, '.' );
-    if ( !ptrdot )
-	return; // huh?
-
-    char* ptrend = firstOcc( ptrdot, 'e' );
-    if ( !ptrend )
-    {
-	ptrend = firstOcc( ptrdot, 'E' );
-	if ( !ptrend )
-	    ptrend = ptrdot + FixedString(ptrdot).size();
-    }
-
-    int actualnrdec = ptrend - (ptrdot + 1);
-    while ( actualnrdec > nrdec )
-    {
-	rmSingleCharFromString( ptrdot + 1 + nrdec );
-	actualnrdec--;
-    }
 }
 
 
@@ -269,65 +246,74 @@ static void finalCleanupNumberString( char* str )
 
 
 template <class T>
-static const char* getPreciseStringFromFPNumber( T inpval )
+static const char* getStringFromNumber( T val, char format, int precision )
 {
-    if ( !Math::IsNormalNumber(inpval) )
-	return "<bad number>";
+#ifdef OD_NO_QT
+    return toString( val );
+#else
+    mDeclStaticString( retstr );
+    retstr = QString::number( val, format, precision );
+    return retstr.getCStr();
+#endif
+}
 
+
+#define mDetermineValueProps() \
+    const bool scientific = (val > (T)-0.001 && val < (T)0.001) \
+                        || val < (T)(-1.e8) || val >= (T)(1.e8); \
+    const char fmt = scientific ? 'g' : 'f'
+
+template <class T>
+static const char* getPreciseStringFromFPNumber( T val, bool isdouble )
+{
     mDeclStaticString( retstr );
     char* str = retstr.getCStr();
+    if ( !val )
+        mSetStrTo0( str, return str )
+    else if ( mIsUdf(val) || mIsUdf(-val) )
+        return sKey::FloatUdf();
 
-    if ( !inpval )
-	mSetStrTo0(str,return str)
-
-    const bool isneg = inpval < 0;
-    const T val = isneg ? -inpval : inpval;
-    if ( mIsUdf(val) )
-	return sKey::FloatUdf();
-
-    const bool scientific = val < (T)0.001 || val >= (T)1e8;
-    const char* fmtend = scientific ? "g" : "f";
-    const BufferString fmt( "%.8", fmtend );
-
-    if ( isneg ) *str = '-';
-    sprintf( isneg ? str+1 : str, fmt.buf(), val );
+    mDetermineValueProps();
+    const int prec = isdouble ? 15 : 7;
+    retstr = getStringFromNumber( val, fmt, prec );
     finalCleanupNumberString( str );
+    BufferString qcstr( retstr );
+    char* qcstrptr = qcstr.getCStr();
+    char* expptr = firstOcc( qcstrptr, 'e' );
+    if ( !expptr )
+	expptr = firstOcc( qcstrptr, 'E' );
+    if ( expptr )
+	*expptr = '\0';
+
+    if ( !qcstr.isEmpty() && qcstr.size() >= prec+1 )
+    {
+	const char& secondlastchar = qcstr[qcstr.size()-2];
+	if ( secondlastchar == '0' || secondlastchar == '9' )
+	{
+	    retstr = getStringFromNumber( val, fmt, prec-1 );
+	    finalCleanupNumberString( str );
+	}
+    }
+
     return str;
 }
 
 
 template <class T>
-static const char* getStringFromFPNumber( T inpval, bool isdouble )
+static const char* getStringFromFPNumber( T val, bool isdouble )
 {
     mDeclStaticString( retstr );
+    retstr = getPreciseStringFromFPNumber( val, isdouble );
     char* str = retstr.getCStr();
 
-    if ( !inpval )
-	mSetStrTo0(str,return str)
-
-    const bool isneg = inpval < 0;
-    const T val = isneg ? -inpval : inpval;
-    if ( mIsUdf(val) )
-	return sKey::FloatUdf();
-
-    const bool scientific = val < (T)0.001 || val >= (T)1e8;
-    const char* fmtend = scientific ? "g" : "f";
-    const BufferString fmt( "%.8", fmtend );
-
-    if ( isneg ) *str = '-';
-    sprintf( isneg ? str+1 : str, fmt.buf(), val );
     const int nrdec = findUglyRoundOff( str, isdouble );
     if ( nrdec >= 0 )
     {
-	const BufferString newfmt( "%.", scientific ? nrdec+1 : nrdec, fmtend );
-	//For %.#f: # = nr decimals, for %.#g: # = nr significant digits.
-
-	sprintf( isneg ? str+1 : str, newfmt.buf(), val );
-	enforceNrDecimals( str, nrdec );
+        mDetermineValueProps();
+        retstr = getStringFromNumber( val, fmt, nrdec+1 );
     }
 
     finalCleanupNumberString( str );
-
     return str;
 }
 
@@ -352,19 +338,6 @@ static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
     const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
     retstr = QString::number( inpval, *fmtend, nrdec );
     return str;
-#endif
-}
-
-
-template <class T>
-static const char* getStringFromNumber( T val, char format, int precision )
-{
-#ifdef OD_NO_QT
-    return toString( val );
-#else
-    mDeclStaticString( retstr );
-    retstr = QString::number( val, format, precision );
-    return retstr.getCStr();
 #endif
 }
 
@@ -881,10 +854,10 @@ const char* toString( const CompoundKey& key )
 { return key.buf(); }
 
 const char* toStringPrecise( float f )
-{ return getPreciseStringFromFPNumber( f ); }
+{ return getPreciseStringFromFPNumber( f, false ); }
 
 const char* toStringPrecise( double d )
-{ return getPreciseStringFromFPNumber( d ); }
+{ return getPreciseStringFromFPNumber( d, true ); }
 
 template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )

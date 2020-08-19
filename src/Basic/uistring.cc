@@ -335,7 +335,8 @@ uiString::uiString( const OD::String& str )
     , debugstr_( 0 )
 #endif
 {
-    set(str);
+    if ( !str.isEmpty() )
+	set( str.str() );
 }
 
 
@@ -820,22 +821,6 @@ void uiString::makeIndependent()
 }
 
 
-bool uiString::operator==( const uiString& b ) const
-{
-#ifdef __debug__
-    DBG::forceCrash( false );
-    return true;
-#else
-    Threads::Locker datalocker( datalock_ );
-    if ( data_==b.data_ )
-	return true;
-
-    const BufferString myself = getFullString();
-    return myself == b.getFullString();
-#endif
-}
-
-
 uiStringSet::uiStringSet( const uiString* strings )
 {
     for ( int idx=0; !strings[idx].isEmpty(); idx++ )
@@ -906,8 +891,7 @@ uiString uiStringSet::createOptionString( bool use_and,
     if ( glue.isEmpty() )
 	return uiString();
 
-    uiString res;
-    res.set( glue );
+    uiString res = toUiString( glue );
 
     for ( int idx=0; idx<arguments.size(); idx++ )
 	res.arg( arguments[idx] );
@@ -942,8 +926,12 @@ void uiString::getHexEncoded( BufferString& str ) const
 
 bool uiString::isEqualTo( const uiString& oth ) const
 {
-    const BufferString othbuf = oth.getFullString();
-    return othbuf == getFullString();
+    if ( this == &oth )
+	return true;
+
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs == othqs;
 }
 
 

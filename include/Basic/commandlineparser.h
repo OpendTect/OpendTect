@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "convert.h"
 #include "genc.h"
 #include "bufstringset.h"
 #include "typeset.h"
@@ -138,7 +139,9 @@ bool CommandLineParser::getVal( const char* key, T& val,
     if ( !argv_.validIdx( validx ) || isKey(validx) )
 	return false;
 
-    return getFromString( val, argv_[validx]->buf(), mUdf(T) );
+    val = Conv::to<T>( argv_[validx]->buf() );
+
+    return acceptnone ? !mIsUdf(val) : true;
 }
 
 
