@@ -615,9 +615,6 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
     if ( ext == "pdf" )
 	mw->saveAsPDF( fileinputfld_->fileName(),(int)sizepix_.width(),
 		       (int)sizepix_.height(),dpifld_->box()->getIntValue());
-    else if ( ext == "ps" || ext == "eps" )
-	mw->saveAsPS( fileinputfld_->fileName(),(int)sizepix_.width(),
-		      (int)sizepix_.height(),dpifld_->box()->getIntValue());
     else
 	mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
 		       (int)sizepix_.height(), dpifld_->box()->getIntValue());

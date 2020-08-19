@@ -4,9 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          31/05/2000
- RCS:           $Id$
+ Author:	A.H. Lammertink
+ Date:		31/05/2000
 ________________________________________________________________________
 
 -*/
@@ -20,9 +19,9 @@ mFDQtclass(QWidget)
 class uiDockWin;
 class uiGroup;
 class uiMainWinBody;
+class uiMenu;
 class uiMenuBar;
 class uiObject;
-class uiMenu;
 class uiStatusBar;
 class uiToolBar;
 class Timer;
@@ -66,16 +65,16 @@ public:
     //! Dock Selector
     enum Dock
     {
-            Top,        /*!< above the central uiGroup, below the menubar. */
-            Bottom,     /*!< below the central uiGroup, above the status bar.*/
-            Right,      /*!< to the right of the central uiGroup. */
-            Left,       /*!< to the left of the central uiGroup.  */
-            Minimized,  /*!< the toolbar is not shown - all handles of
-                             minimized toolbars are drawn in one row below
-                             the menu bar. */
-	    TornOff,	/*!< the dock window floats as its own top level window
+	Top,	    /*!< above the central uiGroup, below the menubar. */
+	Bottom,     /*!< below the central uiGroup, above the status bar.*/
+	Right,	    /*!< to the right of the central uiGroup. */
+	Left,	    /*!< to the left of the central uiGroup.  */
+	Minimized,  /*!< the toolbar is not shown - all handles of
+			 minimized toolbars are drawn in one row below
+			 the menu bar. */
+	TornOff,	/*!< the dock window floats as its own top level window
 			     which always stays on top of the main window. */
-	    Unmanaged	/*!< not managed by a uiMainWin */
+	Unmanaged	/*!< not managed by a uiMainWin */
     };
 
     uiStatusBar*	statusBar();
@@ -97,7 +96,7 @@ public:
     void		activate();
 
     virtual void	show();
-    void                close();
+    void		close();
     void		raise();
 
     void		showMaximized();
@@ -192,10 +191,10 @@ public:
     void		activateInGUIThread(const CallBack&,
 					    bool busywait=true);
     void		saveImage(const char* fnm,int w,int h,int res);
-    void		saveAsPDF(const char* fnm,int w,int h,int res)
-			{ saveAsPDF_PS( fnm, true, w, h, res ); }
+    void		saveAsPDF(const char* fnm,int w,int h,int res);
+    mDeprecatedObs
     void		saveAsPS(const char* fnm,int w,int h,int res)
-			{ saveAsPDF_PS( fnm, false, w, h, res ); }
+			{ saveAsPDF( fnm, w, h, res ); }
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
     Notifier<uiMainWin> afterPopup;
@@ -214,7 +213,7 @@ protected:
 
     void		saveSettings();
     void		readSettings();
-    void		saveAsPDF_PS(const char* fnm,bool aspdf,int w,int h,
+    void		saveAsPDF_PS(const char* fnm,int w,int h,
 				     int res);
 
     void		copyToClipBoardCB(CallBacker*);
