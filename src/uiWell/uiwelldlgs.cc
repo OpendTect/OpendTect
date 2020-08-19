@@ -670,7 +670,7 @@ void uiWellTrackDlg::updatePos( bool isx )
 	if ( mIsUdf(tblpos) )
 	    continue;
 
-	tbl_->setValue( RowCol(irow,icol), tblpos + shift );
+	tbl_->setValue( RowCol(irow,icol), tblpos + shift, 2 );
     }
 
     updNow(); //write the new table data back to the track
@@ -1013,7 +1013,7 @@ int uiD2TModelDlg::getVintCol() const
 void uiD2TModelDlg::setDepthValue( int irow, int icol, float val )
 {
     if ( icol == getTimeCol() ) return;
-    tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true) );
+    tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true), 2 );
 }
 
 
@@ -1031,7 +1031,7 @@ float uiD2TModelDlg::getDepthValue( int irow, int icol ) const
 
 void uiD2TModelDlg::setTimeValue( int irow, float val )
 {
-    tbl_->setValue( RowCol(irow,getTimeCol()), mConvertTimeVal(val,true) );
+    tbl_->setValue( RowCol(irow,getTimeCol()), mConvertTimeVal(val,true), 2 );
 }
 
 

@@ -152,15 +152,15 @@ BufferString& BufferString::add( const mQtclass(QString)& qstr )
 }
 
 
-BufferString& BufferString::addPrecise( float f )
+BufferString& BufferString::add( float f, int nrdec )
 {
-    return add( toStringPrecise( f ) );
+    return add( toString( f, nrdec ) );
 }
 
 
-BufferString& BufferString::addPrecise( double d )
+BufferString& BufferString::add( double d, int nrdec )
 {
-    return add( toStringPrecise( d ) );
+    return add( toString( d, nrdec ) );
 }
 
 

@@ -94,17 +94,21 @@ public:
     BufferString&	set( const OD::String& s )	{ return set(s.str()); }
     template <class T>
     BufferString&	set(const T&);
+    BufferString&	set(float,int nrdec);
+    BufferString&	set(double,int nrdec);
+    BufferString&	setLim(float,int maxnrchars);
+    BufferString&	setLim(double,int maxnrchars);
 
     BufferString&	add(char);
     BufferString&	add(const char*);
-    BufferString&	add(const QString&);
     BufferString&	add( const OD::String& s )	{ return add(s.str()); }
+    BufferString&	add(const QString&);
     template <class T>
     BufferString&	add(const T&);
+    BufferString&	add(float,int nrdec);
+    BufferString&	add(double,int nrdec);
     BufferString&	addLim(float,size_type maxnrchars);
     BufferString&	addLim(double,size_type maxnrchars);
-    BufferString&	addPrecise(float);
-    BufferString&	addPrecise(double);
 
     BufferString&	addSpace(size_type nrspaces=1);
     BufferString&	addTab(size_type nrtabs=1);
@@ -238,6 +242,19 @@ inline BufferString& BufferString::set( const char* s )
 
 template <class T> inline BufferString& BufferString::set( const T& t )
 { setEmpty(); return add( t ); }
+
+inline BufferString& BufferString::set( float f, int nrdec )
+{ setEmpty(); return add( f, nrdec ); }
+
+inline BufferString& BufferString::set( double d, int nrdec )
+{ setEmpty(); return add( d, nrdec ); }
+
+inline BufferString& BufferString::setLim( float f, int maxnrchars )
+{ setEmpty(); return addLim( f, maxnrchars ); }
+
+inline BufferString& BufferString::setLim( double d, int maxnrchars )
+{ setEmpty(); return addLim( d, maxnrchars ); }
+
 
 /*!
 \brief A StringPair has two strings, first() and second().

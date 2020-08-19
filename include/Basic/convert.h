@@ -28,10 +28,13 @@ inline void set( T& _to, const F& fr )
 template <class T, class F>
 inline T to( const F& fr )
 {
-    T ret; Values::setUdf( ret );
-    set<T,F>( ret, fr );
+    T ret;
+    Values::setUdf(ret);
+    set<T,F>(ret,fr);
+
     return ret;
 }
+
 
 //! template based type converstion, with check for undef
 template <class T, class F>
@@ -60,11 +63,11 @@ inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 //----- specialisations 1: simple types -> const char*
 
 template <>
-inline void set( const char*& _to, const od_int16& i )
+inline void set( const char*& _to, const short& i )
     { _to = toString(i); }
 
 template <>
-inline void set( const char*& _to, const od_uint16& i )
+inline void set( const char*& _to, const unsigned short& i )
     { _to = toString(i); }
 
 template <>
@@ -99,52 +102,52 @@ inline void set( const char*& _to, const double& d )
 //----- specialisations 2: floating point types -> integer types
 
 template <>
-inline void set( od_int16& _to, const float& f )
-    { _to = mRounded(od_int16,f); }
+inline void set( short& _to, const float& f )
+    { _to = mRounded(short,f); }
+
+template <>
+inline void set( unsigned short& _to, const float& f )
+    { _to = mRounded(od_uint16,f); }
 
 template <>
 inline void set( od_int32& _to, const float& f )
     { _to = mRounded(od_int32,f); }
 
 template <>
-inline void set( od_int64& _to, const float& f )
-    { _to = mRounded(od_int64,f); }
-
-template <>
-inline void set( od_uint16& _to, const float& f )
-    { _to = mRounded(od_uint16,f); }
-
-template <>
 inline void set( od_uint32& _to, const float& f )
     { _to = mRounded(od_uint32,f); }
+
+template <>
+inline void set( od_int64& _to, const float& f )
+    { _to = mRounded(od_int64,f); }
 
 template <>
 inline void set( od_uint64& _to, const float& f )
     { _to = mRounded(od_uint64,f); }
 
 template <>
-inline void set( od_uint16& _to, const double& f )
+inline void set( short& _to, const double& f )
+    { _to = mRounded(short,f); }
+
+template <>
+inline void set( unsigned short& _to, const double& f )
     { _to = mRounded(od_uint16,f); }
-
-template <>
-inline void set( od_int16& _to, const double& f )
-    { _to = mRounded(od_int16,f); }
-
-template <>
-inline void set( od_uint32& _to, const double& f )
-    { _to = mRounded(od_uint32,f); }
 
 template <>
 inline void set( od_int32& _to, const double& f )
     { _to = mRounded(od_int32,f); }
 
 template <>
-inline void set( od_uint64& _to, const double& f )
-    { _to = mRounded(od_uint64,f); }
+inline void set( od_uint32& _to, const double& f )
+    { _to = mRounded(od_uint32,f); }
 
 template <>
 inline void set( od_int64& _to, const double& f )
     { _to = mRounded(od_int64,f); }
+
+template <>
+inline void set( od_uint64& _to, const double& f )
+    { _to = mRounded(od_uint64,f); }
 
 
 //----- specialisations 3: strings and simple types -> bool
@@ -182,9 +185,9 @@ template <> mGlobal(Basic) void set(type&,const char* const&); \
 template <> mGlobal(Basic) void set(type&,const FixedString&); \
 template <> mGlobal(Basic) void set(type&,const BufferString&)
 
-mConvDeclFromStrToSimpleType(od_int16);
-mConvDeclFromStrToSimpleType(od_uint16);
-mConvDeclFromStrToSimpleType(od_int32);
+mConvDeclFromStrToSimpleType(short);
+mConvDeclFromStrToSimpleType(unsigned short);
+mConvDeclFromStrToSimpleType(int);
 mConvDeclFromStrToSimpleType(od_uint32);
 mConvDeclFromStrToSimpleType(od_int64);
 mConvDeclFromStrToSimpleType(od_uint64);
@@ -192,3 +195,46 @@ mConvDeclFromStrToSimpleType(double);
 mConvDeclFromStrToSimpleType(float);
 
 } // namespace Conv
+
+
+//! macro useful for implementation of string -> your type
+
+#define mConvDefFromStrToSimpleType(type,function) \
+namespace Conv \
+{ \
+    template <> void set( type& _to, const char* const& s ) \
+    { \
+	if ( !s || !*s ) { return; } \
+    \
+	char* endptr = 0; \
+	type tmpval = (type) function; \
+	if ( s != endptr ) \
+	    _to = (type) tmpval; \
+	else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+    } \
+    template <> void set( type& _to, const FixedString& s ) \
+    { \
+	if ( s.isEmpty() ) { return; } \
+    \
+	char* endptr = 0; \
+	type tmpval = (type) function; \
+	if ( s.str() != endptr ) \
+	    _to = (type) tmpval; \
+	else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+    } \
+    template <> void set( type& _to, const BufferString& s ) \
+    { \
+	if ( s.isEmpty() ) { return; } \
+    \
+	char* endptr = 0; \
+	type tmpval = (type) function; \
+	if ( s.str() != endptr ) \
+	    _to = (type) tmpval; \
+	else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+    } \
+}
+
+

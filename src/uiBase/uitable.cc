@@ -1277,46 +1277,26 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
 }
 
 
-template <class T>
-T uiTable::getValueImpl( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str )
-	return mUdf(T);
-
-    return Conv::to<T>( str );
-}
-
-
 int uiTable::getIntValue( const RowCol& rc ) const
-{ return getValueImpl<int>( rc ); }
-int uiTable::getInt64Value( const RowCol& rc ) const
-{ return getValueImpl<od_int64>( rc ); }
+{ const char* str = text(rc); return toInt( str, mUdf(int) ); }
+od_int64 uiTable::getInt64Value( const RowCol& rc ) const
+{ const char* str = text(rc); return toInt64( str, mUdf(int) ); }
 float uiTable::getFValue( const RowCol& rc ) const
-{ return getValueImpl<float>( rc ); }
+{ const char* str = text(rc); return toFloat( str, mUdf(float) ); }
 double uiTable::getDValue( const RowCol& rc ) const
-{ return getValueImpl<double>( rc ); }
-
-
-template <class T> void uiTable::setValueImpl( const RowCol& rc, T val,
-					       int nrdec )
-{
-    BufferString valstr;
-    if ( !mIsUdf(val) )
-	valstr = nrdec<0 ? toString(val) : getFPStringWithDecimals(val,nrdec);
-
-    setText( rc, valstr );
-}
+{ const char* str = text(rc); return toDouble( str, mUdf(double) ); }
 
 
 void uiTable::setValue( const RowCol& rc, int val )
-{ setValueImpl( rc, val, -1 ); }
+{ setText( rc, toString(val) ); }
 void uiTable::setValue( const RowCol& rc, od_int64 val )
-{ setValueImpl( rc, val, -1 ); }
+{ setText( rc, toString(val) ); }
 void uiTable::setValue( const RowCol& rc, float val, int nrdec )
-{ setValueImpl( rc, val, nrdec ); }
+{ setText( rc, mIsUdf(val) ? ""
+			: (nrdec < 0 ? toString(val) : toString(val,nrdec) )); }
 void uiTable::setValue( const RowCol& rc, double val, int nrdec )
-{ setValueImpl( rc, val, nrdec ); }
+{ setText( rc, mIsUdf(val) ? ""
+			: (nrdec < 0 ? toString(val) : toString(val,nrdec) )); }
 
 
 void uiTable::setSelectionMode( SelectionMode m )

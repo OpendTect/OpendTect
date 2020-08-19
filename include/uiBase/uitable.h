@@ -298,7 +298,7 @@ public:
     Color		getHeaderBackground(int,bool isrow) const;
 
     int			getIntValue(const RowCol&) const;
-    int			getInt64Value(const RowCol&) const;
+    od_int64		getInt64Value(const RowCol&) const;
     double		getDValue(const RowCol&) const;
     float		getFValue(const RowCol&) const;
     void		setValue(const RowCol&,int);
@@ -366,11 +366,6 @@ protected:
 
     static uiString	sAfter()	{ return tr("after"); }
     static uiString	sBefore()	{ return tr("before"); }
-
-    template <class T>
-    void		setValueImpl(const RowCol&,T,int nrdec);
-    template <class T>
-    T			getValueImpl(const RowCol&) const;
 
 private:
 

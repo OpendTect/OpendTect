@@ -183,6 +183,26 @@ void* operator new[]( std::size_t sz )
 #endif
 
 
+#define mConvDefFromStrToShortType(type,fn) \
+namespace Conv { \
+    template <> void set( type& _to, const char* const& s ) \
+	{ _to = (type)fn(s); } \
+    template <> void set( type& _to, const FixedString& s ) \
+	{ if ( !s.isEmpty() ) { _to = (type)fn(s.str()); } } \
+    template <> void set( type& _to, const BufferString& s ) \
+	{ if ( !s.isEmpty() ) { _to = (type)fn(s.str()); } } \
+}
+
+mConvDefFromStrToShortType( short, atoi )
+mConvDefFromStrToShortType( unsigned short, atoi )
+mConvDefFromStrToSimpleType( int, (int)strtol(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_int64, strtoll(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_uint64, strtoull(s,&endptr,0) )
+mConvDefFromStrToSimpleType( double, strtod(s,&endptr) )
+mConvDefFromStrToSimpleType( float, strtof(s,&endptr) )
+
+
 static Threads::Lock& getEnvVarLock()
 {
     mDefineStaticLocalObject( Threads::Lock, lock, (false) );
