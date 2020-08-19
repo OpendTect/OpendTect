@@ -40,7 +40,6 @@ If you don't want to use the help system, simply pass null ('0').
 
 mExpClass(uiBase) uiDialog : public uiMainWin
 {
-    // impl: uimainwin.cc
     friend class	uiDialogBody;
 
 public:
@@ -157,9 +156,9 @@ public:
 
 protected:
 
-    virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject
-    virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept
-    virtual bool        doneOK(int)	     { return true; } //!< confirm exit
+    virtual bool	rejectOK(CallBacker*){ return true;}//!< confirm reject
+    virtual bool	acceptOK(CallBacker*){ return true;}//!< confirm accept
+    virtual bool	doneOK(int)	     { return true; } //!< confirm exit
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;

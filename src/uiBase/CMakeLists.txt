@@ -34,6 +34,7 @@ SET(OD_MODULE_SOURCES
 	i_layoutitem.cc
 	inituibase.cc
 	odgraphicsitem.cc
+	odwindow.cc
 	qptr.cc
 	uiaction.cc
 	uibutton.cc
@@ -45,6 +46,7 @@ SET(OD_MODULE_SOURCES
 	uidate.cc
 	uidesktopservices.cc
 	uidial.cc
+	uidialog.cc
 	uidockwin.cc
 	uieventfilter.cc
 	uifiledlg.cc
