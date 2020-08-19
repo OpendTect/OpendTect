@@ -34,7 +34,6 @@ set( OD_TEST_PROGS
 	oscommand.cc
 	pythoncomm.cc
 	svnversion.cc
-	string.cc
 	Basic_Composite.cc
 )
 
