@@ -50,20 +50,13 @@ mExpClass(General) HelpKey
 public:
 			HelpKey(const char* providername,const char* arg)
 			    : providername_( providername ), argument_(arg) {}
-                        HelpKey() : providername_( 0 )                      {}
+			HelpKey() : providername_( 0 )		{}
 
-    static HelpKey      emptyHelpKey();
+    static HelpKey	emptyHelpKey();
     bool		isEmpty() const;
 
     const char* 	providername_;
     BufferString 	argument_;
-
-
-			//This constructor is for legacy stuff. Remove.
-			HelpKey(const char* arg)
-			    : providername_("od")
-			    , argument_( arg )
-			{}
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
