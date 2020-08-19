@@ -25,7 +25,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
-#define mRelRootDir GetSoftwareDir(true)
+#ifdef __mac__
+    #define mRelRootDir \
+    FilePath( GetSoftwareDir(true) ).pathOnly()
+#else
+	#define mRelRootDir GetSoftwareDir(true)
+#endif
 
 #ifdef __win__
 #include <Windows.h>
