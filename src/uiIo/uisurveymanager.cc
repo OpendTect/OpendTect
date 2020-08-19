@@ -658,8 +658,7 @@ void uiSurveyManager::putToScreen()
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
 
-	bininfo.add( getFPStringWithDecimals(inldist,2) ).add( " / " );
-	bininfo.add( getFPStringWithDecimals(crldist,2) );
+	bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
 	bininfo.add( " (" ).add( toString(si.xyUnitString()) )
 	    .add( "/line)" );
 
@@ -684,8 +683,7 @@ void uiSurveyManager::putToScreen()
     locinfo.add( fp.fullPath() );
 
     const float usrang = Math::degFromNorth( si.angleXInl() );
-    orientinfo.add( getFPStringWithDecimals(usrang,2) )
-	      .add( " Degrees from N" );
+    orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
 
     BufferString infostr;
     infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()

@@ -142,18 +142,16 @@ bool testQStringAssignment()
 
 bool testNumberStrings()
 {
-    /* These tests will fail miserably if a non-C LOCALE is set.
-
     uiString string = toUiString( 0.9, 3 );
     QString qstr;
+    string.fillQString( qstr );
     BufferString bstr( qstr );
-    mRunStandardTest( bstr=="0.9", "Number string" );
+    mRunStandardTest( bstr=="0.900", "Number string" );
 
     ArrPtrMan<wchar_t> wbuf = string.createWCharString();
     qstr = QString::fromWCharArray( wbuf );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="0.900", "Number string from wchar" );
-    */
 
     return true;
 }

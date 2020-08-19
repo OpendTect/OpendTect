@@ -101,9 +101,11 @@ template <class T>
 static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
 {
     const BufferString bstostring = toString( val );
-    BufferString testname( flt ? "Float precision " : "Double precision ", val);
-
-    mRunTest( testname.buf(), bstostring == strval );
+    const BufferString testname( flt ? "Float precision " : "Double precision ",
+				 val);
+    T retval;
+    Conv::set<T>( retval, bstostring );
+    mRunTest( testname.buf(), bstostring == strval && retval==val )
 
     return true;
 }
@@ -113,7 +115,7 @@ static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
     fval = (float)val; \
     if ( !doTestStringPrecisionInAscII(fval,strval,true) ) return false
 #define mTestStringPrecisionD(val,strval) \
-    dval = (double)val; \
+    dval = val; \
     if ( !doTestStringPrecisionInAscII(dval,strval,false) ) return false
 
 
@@ -136,16 +138,24 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionD( 0.1, "0.1" );
     mTestStringPrecisionD( 0.05, "0.05" );
     mTestStringPrecisionD( 0.001, "0.001" );
-    mTestStringPrecisionF( 0.023, "0.023" );
+    mTestStringPrecisionD( 0.023, "0.023" );
     mTestStringPrecisionD( 0.0001, "0.0001" );
     mTestStringPrecisionD( 0.00001, "1e-5" );
     mTestStringPrecisionD( 0.00000001, "1e-8" );
     mTestStringPrecisionD( 12.345, "12.345" );
     mTestStringPrecisionD( -123456., "-123456" );
     mTestStringPrecisionD( -1.2345e11, "-123450000000" );
+    mTestStringPrecisionD( 1.2345e11, "123450000000" );
     mTestStringPrecisionD( 1.2345e16, "1.2345e16" );
-    mTestStringPrecisionD( 1.5999999917e-5, "1.6e-5" );
-    mTestStringPrecisionD( 1.5000000017e-5, "1.5e-5" );
+    mTestStringPrecisionD( 1.6e-5, "1.6e-5" );
+    mTestStringPrecisionD( 1.5e-5, "1.5e-5" );
+    mTestStringPrecisionD( 55.0554844553, "55.0554844553" );
+    mTestStringPrecisionD( 55.05548445533, "55.05548445533" );
+    mTestStringPrecisionD( 55.05548445535, "55.05548445535" );
+    mTestStringPrecisionD( 55.055484455333, "55.055484455333" );
+    mTestStringPrecisionD( 55.055484455335, "55.055484455335" );
+    mTestStringPrecisionD( 55.0554844553334, "55.0554844553334" );
+    mTestStringPrecisionD( 5.50554844553e50, "5.50554844553e50" );
     return true;
 }
 
@@ -293,10 +303,40 @@ static bool testEmptyStringComparison()
     return true;
 }
 
+
 static void printBufStr( const char* pfx, BufferString bs )
 {
     od_cout() << pfx << ": '" << bs << "'" << od_endl;
 }
+
+
+bool testGetFromString()
+{
+    const char* str = "080";
+    int val = 0;
+    mRunStandardTest( getFromString(val,str,0), "Parse integer string" );
+    mRunStandardTest( val==80, "Parse integer string correctly" );
+
+    str = "0009866543578873800";
+    od_int64 vall = 0;
+    mRunStandardTest( getFromString(vall,str,0), "Parse int_64  string" );
+    mRunStandardTest( vall==9866543578873800, "Parse int_64 string correctly" );
+
+    str = "008738.04";
+    float valf = 0;
+    mRunStandardTest( getFromString(valf,str,0.0f), "Parse float string" );
+    mRunStandardTest( mIsEqual(valf,8738.04,1e-3),
+		      "Parse float string correctly" );
+
+    str = "000986654.4380";
+    double vald = 0;
+    mRunStandardTest( getFromString(vald,str,0.0), "Parse double string" );
+    mRunStandardTest( mIsEqual(vald,986654.4380,1e-5),
+		      "Parse double string correctly" );
+
+    return true;
+}
+
 
 #include "integerid.h"
 
@@ -322,7 +362,8 @@ int mTestMainFnName( int argc, char** argv )
       || !testBufferStringFns()
       || !testOccFns()
       || !testLimFToStringFns()
-      || !testEmptyStringComparison() )
+      || !testEmptyStringComparison()
+      || !testGetFromString() )
 	return 1;
 
     BufferStringSet strs;
