@@ -141,7 +141,7 @@ bool CommandLineParser::getVal( const char* key, T& val,
 
     val = Conv::to<T>( argv_[validx]->buf() );
 
-    return acceptnone ? !mIsUdf(val) : true;
+    return !mIsUdf(val);
 }
 
 
