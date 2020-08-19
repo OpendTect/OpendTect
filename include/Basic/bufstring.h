@@ -46,6 +46,8 @@ public:
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString&);
     template <class T>
+    inline explicit	BufferString(const T&);
+    template <class T>
     inline		BufferString(const char*,const T&,const char* s=0);
 			BufferString(const QString&);
     virtual		~BufferString();
@@ -77,6 +79,8 @@ public:
 			//!< fill old C-style char buf
 
     inline char&	operator []( int idx )	{ return getCStr()[idx]; }
+    inline char&	first()			{ return getCStr()[0]; }
+    inline char&	last()			{ return getCStr()[size()-1]; }
     char*		find(char);
     char*		find(const char*);
     inline const char*	find(char) const;
@@ -191,6 +195,11 @@ inline BufferString::BufferString( const char* s )
     : mBufferStringSimpConstrInitList	{ assignTo(s); }
 inline BufferString::BufferString( const OD::String& s )
     : mBufferStringSimpConstrInitList	{ assignTo(s.str()); }
+
+template <class T> inline
+BufferString::BufferString( const T& t )
+    : mBufferStringSimpConstrInitList
+{ add( t ); }
 
 template <class T> inline
 BufferString::BufferString( const char* s1, const T& t, const char* s2 )

@@ -14,11 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 
 
+#undef mRunTest
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
 
 static bool testTruncate()
 {
-    BufferString longstring( "Hello world! Lets solve all powerty today!");
+    BufferString longstring( "Hello world! Lets solve all poverty today!");
     truncateString( longstring.getCStr(), 16 );
 
     mRunStandardTest( longstring=="Hello world! ...", "Truncate string" );
@@ -61,9 +62,11 @@ template <class T>
 static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
 {
     const BufferString bstostring = toString( val );
-    BufferString testname( flt ? "Float precision " : "Double precision ", val);
-
-    mRunTest( testname.buf(), bstostring == strval );
+    const BufferString testname( flt ? "Float precision " : "Double precision ",
+				 val);
+    T retval;
+    Conv::set<T>( retval, bstostring );
+    mRunTest( testname.buf(), bstostring == strval && retval==val )
 
     return true;
 }
@@ -73,7 +76,7 @@ static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
     fval = (float)val; \
     if ( !doTestStringPrecisionInAscII(fval,strval,true) ) return false
 #define mTestStringPrecisionD(val,strval) \
-    dval = (double)val; \
+    dval = val; \
     if ( !doTestStringPrecisionInAscII(dval,strval,false) ) return false
 
 
@@ -85,13 +88,10 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionF( 0.05f, "0.05" );
     mTestStringPrecisionF( 0.001f, "0.001" );
     mTestStringPrecisionF( 0.023f, "0.023" );
-    //TODO: we want it like this, but one release machine produces 1e-4
-    // mTestStringPrecisionF( 0.0001f, "0.0001" );
+    mTestStringPrecisionF( 0.0001f, "0.0001" );
     mTestStringPrecisionF( 0.00001f, "1e-5" );
     mTestStringPrecisionF( 0.00000001f, "1e-8" );
-    //TODO we want this to pass; for know we do not have a good solution to
-    //please nice strings lovers and those who need precision
-//    mTestStringPrecisionF( 12.345, "12.345" );
+    mTestStringPrecisionF( 12.345, "12.345" );
     mTestStringPrecisionF( -123456., "-123456" );
     mTestStringPrecisionF( -1.2345e11, "-1.2345e11" );
     mTestStringPrecisionF( 1.2345e11, "1.2345e11" );
@@ -99,16 +99,24 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionD( 0.1, "0.1" );
     mTestStringPrecisionD( 0.05, "0.05" );
     mTestStringPrecisionD( 0.001, "0.001" );
-    mTestStringPrecisionF( 0.023, "0.023" );
+    mTestStringPrecisionD( 0.023, "0.023" );
     mTestStringPrecisionD( 0.0001, "0.0001" );
     mTestStringPrecisionD( 0.00001, "1e-5" );
     mTestStringPrecisionD( 0.00000001, "1e-8" );
     mTestStringPrecisionD( 12.345, "12.345" );
     mTestStringPrecisionD( -123456., "-123456" );
-    mTestStringPrecisionD( -1.2345e11, "-1.2345e11" );
-    mTestStringPrecisionD( 1.2345e11, "1.2345e11" );
-    mTestStringPrecisionD( 1.5999999917e-5, "1.6e-5" );
-    mTestStringPrecisionD( 1.5000000017e-5, "1.5e-5" );
+    mTestStringPrecisionD( -1.2345e11, "-123450000000" );
+    mTestStringPrecisionD( 1.2345e11, "123450000000" );
+    mTestStringPrecisionD( 1.2345e16, "1.2345e16" );
+    mTestStringPrecisionD( 1.6e-5, "1.6e-5" );
+    mTestStringPrecisionD( 1.5e-5, "1.5e-5" );
+    mTestStringPrecisionD( 55.0554844553, "55.0554844553" );
+    mTestStringPrecisionD( 55.05548445533, "55.05548445533" );
+    mTestStringPrecisionD( 55.05548445535, "55.05548445535" );
+    mTestStringPrecisionD( 55.055484455333, "55.055484455333" );
+    mTestStringPrecisionD( 55.055484455335, "55.055484455335" );
+    mTestStringPrecisionD( 55.0554844553334, "55.0554844553334" );
+    mTestStringPrecisionD( 5.50554844553e50, "5.50554844553e50" );
     return true;
 }
 
@@ -246,7 +254,7 @@ static bool testLimFToStringFns()
     return true;
 }
 
-bool testEmptyStringComparison()
+static bool testEmptyStringComparison()
 {
     BufferString bfstr;
     mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
@@ -256,6 +264,12 @@ bool testEmptyStringComparison()
     mRunStandardTest( mid=="", "Empty string comparison - MultiID");
 
     return true;
+}
+
+
+static void printBufStr( const char* pfx, BufferString bs )
+{
+    od_cout() << pfx << ": '" << bs << "'" << od_endl;
 }
 
 
@@ -275,13 +289,13 @@ bool testGetFromString()
     float valf = 0;
     mRunStandardTest( getFromString(valf,str,0.0f), "Parse float string" );
     mRunStandardTest( mIsEqual(valf,8738.04,1e-3),
-	    	      "Parse float string correctly" );
+		      "Parse float string correctly" );
 
     str = "000986654.4380";
     double vald = 0;
     mRunStandardTest( getFromString(vald,str,0.0), "Parse double string" );
     mRunStandardTest( mIsEqual(vald,986654.4380,1e-5),
-	    	      "Parse double string correctly" );
+		      "Parse double string correctly" );
 
     return true;
 }
@@ -313,6 +327,13 @@ int main( int argc, char** argv )
     {
 	FixedString str( 0 );
 	od_cout() << "Should be empty: '" << str << "'" << od_endl;
+	BufferString str4point9( 4.9f );
+	printBufStr( "4.9 string", str4point9 );
+	printBufStr( "0 (conv to (const char*)0)", 0 );
+	/* These do not compile because of the explicit constructor:
+	    printBufStr( "literal 4.9f", 4.9f );
+	    const int int0 = 0; printBufStr( "int variable", int0 );
+	*/
     }
 
     return ExitProgram( 0 );

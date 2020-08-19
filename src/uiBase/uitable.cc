@@ -1237,58 +1237,28 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
 
 
 int uiTable::getIntValue( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str ) return mUdf(int);
-
-    return Conv::to<int>( str );
-}
-
-
-double uiTable::getDValue( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str ) return mUdf(double);
-
-    return Conv::to<double>(str);
-}
-
-
+{ const char* str = text(rc); return toInt( str, mUdf(int) ); }
+od_int64 uiTable::getInt64Value( const RowCol& rc ) const
+{ const char* str = text(rc); return toInt64( str, mUdf(int) ); }
 float uiTable::getFValue( const RowCol& rc ) const
-{
-    const char* str = text( rc );
-    if ( !str || !*str ) return mUdf(float);
-
-    return Conv::to<float>(str);
-}
+{ const char* str = text(rc); return toFloat( str, mUdf(float) ); }
+double uiTable::getDValue( const RowCol& rc ) const
+{ const char* str = text(rc); return toDouble( str, mUdf(double) ); }
 
 
 void uiTable::setValue( const RowCol& rc, int val )
-{
-    BufferString txt( Conv::to<const char*>(val) );
-    setText( rc, txt.buf() );
-}
-
-
+{ setText( rc, toString(val) ); }
+void uiTable::setValue( const RowCol& rc, od_int64 val )
+{ setText( rc, toString(val) ); }
 void uiTable::setValue( const RowCol& rc, float val )
-{
-    setValue( rc, val, -1 );
-}
-
-
+{ setValue( rc, val, -1 ); }
 void uiTable::setValue( const RowCol& rc, float val, int nrdec )
 {
     setText( rc, mIsUdf(val) ? ""
 			: (nrdec<0 ? toString(val) : toString(val,nrdec)) );
 }
-
-
 void uiTable::setValue( const RowCol& rc, double val )
-{
-    setValue( rc, val, -1 );
-}
-
-
+{ setValue( rc, val, -1 ); }
 void uiTable::setValue( const RowCol& rc, double val, int nrdec )
 {
     setText( rc, mIsUdf(val) ? ""

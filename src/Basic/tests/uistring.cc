@@ -159,14 +159,12 @@ bool testIsEqual()
     const uiString a2 = toUiString( "A" );
     const uiString b = toUiString( "B" );
 
-    mRunStandardTest( a.isEqualTo(a2),
-	    "Is equal is true for equal strings, test 1" );
-    mRunStandardTest( !a.isEqualTo(b),
+    mRunStandardTest( a == a2, "Is equal is true for equal strings, test 1" );
+    mRunStandardTest( a != b,
 	    "Is equal is false for different strings, test 1" );
 
-    mRunStandardTest( a2.isEqualTo(a),
-	    "Is equal is true for equal strings, test 2" );
-    mRunStandardTest( !b.isEqualTo(a),
+    mRunStandardTest( a2 == a, "Is equal is true for equal strings, test 2" );
+    mRunStandardTest( b != a,
 	    "Is equal is false for different strings, test 2" );
 
     return true;
