@@ -444,9 +444,12 @@ macro( create_develpackages )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/dtect
 		     ${COPYTODATADIR}/dtect )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/../Debug/platforms
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
+    if ( WIN32 )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		 ${COPYFROMLIBDIR}/../Debug/platforms
+		 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
+    endif()
+
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
