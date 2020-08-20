@@ -247,29 +247,25 @@ macro( copy_thirdpartylibs )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMLIBDIR}/../translations
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/iconengines
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/imageformats
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${COPYFROMLIBDIR}/platforms
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
+
     if ( APPLE )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/../Plugins
-			 ${DESTINATION_DIR}/Plugins )
-    else()
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/iconengines
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMDATADIR}/imageformats
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/platforms
-		         ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
-    endif()
-    if ( UNIX )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/xcbglintegrations
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
-    else ()
+    elseif (WIN32 )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/styles
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/styles )
+    else()
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/xcbglintegrations
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
     endif()
 
     if ( EXISTS ${COPYFROMLIBDIR}/../resources )
@@ -464,9 +460,12 @@ macro( create_develpackages )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/dtect
 		     ${COPYTODATADIR}/dtect )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/../Debug/platforms
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
+    if ( WIN32 )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/../Debug/platforms
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
+    endif()
+
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
