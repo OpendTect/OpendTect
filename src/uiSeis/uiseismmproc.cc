@@ -177,7 +177,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 
 	inlperjobfld_ = new uiGenInput( specparsgroup_,
 			tr("Nr of inlines per job"),
-			IntInpSpec(nrinlperjob_) );
+			IntInpSpec(nrinlperjob_,1,100) );
 	inlperjobfld_->setSensitive( !doresume );
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
 	saveasdeffld_ = new uiCheckBox( specparsgroup_,
@@ -226,9 +226,6 @@ bool uiSeisMMProc::initWork( bool retry )
 	if ( inlperjobfld_ )
 	{
 	    nrinlperjob_ = inlperjobfld_->getIntValue();
-	    if ( nrinlperjob_ < 1 ) nrinlperjob_ = 1;
-	    if ( nrinlperjob_ > 100 ) nrinlperjob_ = 100;
-	    inlperjobfld_->setValue( nrinlperjob_ );
 	    inlperjobfld_->setSensitive( false );
 
 	    if ( saveasdeffld_ && saveasdeffld_->isChecked() )
