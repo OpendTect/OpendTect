@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
+#include "file.h"
 #include "msgh.h"
 #include "q_uiimpl.h"
 #include "texttranslator.h"
@@ -34,6 +35,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QPainter>
 #include <QPrinter>
 #include <QScreen>
+
+#ifdef __win__
+# include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 mUseQtnamespace
 

@@ -33,10 +33,6 @@ ________________________________________________________________________
 #include <QWindow>
 
 
-#ifdef __win__
-# include <QtPlatformHeaders/QWindowsWindowFunctions>
-#endif
-
 mUseQtnamespace
 
 
