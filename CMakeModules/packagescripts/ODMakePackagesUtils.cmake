@@ -256,14 +256,16 @@ macro( copy_thirdpartylibs )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMLIBDIR}/platforms
 		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
-    if ( UNIX )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/xcbglintegrations
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
-    else ()
+
+    if ( APPLE )
+    elseif (WIN32 )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/styles
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/styles )
+    else()
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/xcbglintegrations
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
     endif()
 
     if ( EXISTS ${COPYFROMLIBDIR}/../resources )
@@ -458,9 +460,12 @@ macro( create_develpackages )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/dtect
 		     ${COPYTODATADIR}/dtect )
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/../Debug/platforms
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
+    if ( WIN32 )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/../Debug/platforms
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
+    endif()
+
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}

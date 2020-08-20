@@ -12,7 +12,7 @@ set( LIBLIST Algo AttributeEngine Attributes Basic Batch EarthModel General
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
 	     uiWell uiWellAttrib uiSysAdm visBase visSurvey uiCmdDriver )
 
-set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer
+set( EXECLIST od_cbvs_browse od_osgfileviewer
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
 	      od_process_prestack od_process_segyio od_process_time2depth
 	      od_process_velocityconv od_process_volume
@@ -22,6 +22,11 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer
 	      od_uiReportIssue od_gmtexec od_madexec
 	      od_process_2dto3d od_BatchHosts od_copy_seis od_PreStackMMBatch
 	      od_mmptestbatch od_MMPTestLaunch od_Edit_Survey od_Manage_Surveys od_DBMan )
+
+if ( NOT APPLE )
+    set( EXECLIST ${EXECLIST} od_glxinfo )
+endif()
+
 
 set( PLUGINS VoxelConnectivityFilter uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
