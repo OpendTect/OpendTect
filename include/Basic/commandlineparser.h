@@ -202,7 +202,7 @@ bool CommandLineParser::getKeyedInfo( const char* ky, T& val,
     bool found;
     const char* str = gtVal( ky, argnr, found );
     if ( found )
-	{ val = Conv::to<T>( str ); return acceptnone ? !mIsUdf(val) : true; }
+	{ val = Conv::to<T>( str ); return !mIsUdf(val); }
     return acceptnone;
 }
 

@@ -373,9 +373,9 @@ const char* CommandLineParser::gtVal( const char* key, int valnr,
 
     const int nrvalsidx = keyswithvalue_.indexOf( key );
     if ( nrvalsidx < 0 )
-	{ pErrMsg("Valued key not registered"); }
+	{ pErrMsg("Valued key not registered"); found = false; return ""; }
     if ( valnr >= nrvalues_[nrvalsidx] )
-	{ pErrMsg("Value number unannounced"); }
+	{ pErrMsg("Value number unannounced"); found = false; return ""; }
 
     int validx = keyidx + 1 + valnr;
     if ( !argv_.validIdx(validx) )
