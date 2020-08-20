@@ -7,6 +7,7 @@
 
 
 #include "testprog.h"
+
 #include "typeset.h"
 
 bool testStringParsing()
@@ -45,6 +46,7 @@ bool testNormalOperation( const CommandLineParser& clparser )
     const char* createkeystr = "--create";
     const char* createstr = createkeystr+2;
     const char* inbgkeystr = "--bg";
+    const char* inbgstr = inbgkeystr+2;
     const char* file1str = "file1.cc";
     const char* file2str = "file2.cc";
     const char* file3str = "file3.cc";
@@ -107,6 +109,10 @@ bool testNormalOperation( const CommandLineParser& clparser )
 		      flagfile)==false, "Non-existing string" );
     mRunStandardTest( testparser.getKeyedInfo("nonexistingkey", flagfile, true),
 			"Non-existing value - accept none" );
+    const bool docrash = DBG::setCrashOnProgError( false );
+    mRunStandardTest( testparser.getKeyedInfo(inbgstr, createint)==false,
+		"Non existing integer. Should issue a PE message." );
+    DBG::setCrashOnProgError( docrash );
 
     BufferStringSet normalargs;
     testparser.getNormalArguments( normalargs );
