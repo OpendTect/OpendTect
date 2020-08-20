@@ -241,14 +241,16 @@ macro( copy_thirdpartylibs )
 			 ${COPYFROMLIBDIR}/platforms
 		         ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
     endif()
-    if ( UNIX )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/xcbglintegrations
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
-    else ()
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+
+    if (APPLE )
+    elseif ( WIN32 )
+ 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/styles
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/styles )
+    else()
+ 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/xcbglintegrations
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
     endif()
 
     if ( EXISTS ${COPYFROMLIBDIR}/../resources )
