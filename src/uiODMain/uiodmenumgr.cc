@@ -235,7 +235,7 @@ void uiODMenuMgr::fillSurveyMenu()
     uiMenu* sessionitm = new uiMenu( &appl_, tr("Session") ) ;
     insertAction( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm,
 		  "save" );
-    insertAction( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm );
+    insertAction( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm, "open" );
     insertAction( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm );
     surveymnu_->insertItem( sessionitm );
     surveymnu_->insertSeparator();
@@ -961,9 +961,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     insertAction( toolsmnu_, m3Dots(tr("Batch Programs")), mBatchProgMnuItm );
     insertAction( toolsmnu_, m3Dots(tr("Position Conversion")),
-		  mPosconvMnuItm );
-    insertAction( toolsmnu_, m3Dots(tr("CRS Position Conversion")),
-		  mCRSPosconvMnuItm, "crs" );
+		  mPosconvMnuItm, "crs" );
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
