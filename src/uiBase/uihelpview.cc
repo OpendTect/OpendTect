@@ -126,52 +126,9 @@ void FlareHelpProvider::initODHelp()
     initHelpSystem( "od", "od_userdoc" );
     initHelpSystem( "wf", "HTML_WF" );
     initHelpSystem( "tm", "HTML_TM" );
-    //initHelpSystem( "appman", "appmandoc" );
+    initHelpSystem( "admin", "admindoc" );
+    initHelpSystem( "dev", "Programmer" );
 }
-
-
-// DevDocHelp
-void DevDocHelp::initClass()
-{
-    HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() );
-}
-
-
-BufferString DevDocHelp::getUrl() const
-{
-    const BufferString classpkgver( ODInst::getPkgVersion("classdoc") );
-    const bool foundclspkg = !classpkgver.isEmpty() &&
-			     !classpkgver.find( "error" );
-    if ( !foundclspkg )
-	return BufferString( sKey::EmptyString() );
-
-    FilePath basefile = mGetProgrammerDocDir();
-    basefile.add( "index.html" );
-    if ( !File::exists( basefile.fullPath()) )
-	return BufferString( sKey::EmptyString() );
-
-    return BufferString( fileprot, basefile.fullPath(FilePath::Unix) );
-}
-
-
-void DevDocHelp::provideHelp( const char* arg ) const
-{
-    BufferString url = getUrl();
-
-    if ( url.isEmpty() )
-	uiMSG().error(tr("Cannot open developer's documentation"));
-    else
-	uiDesktopServices::openUrl( url );
-}
-
-
-bool DevDocHelp::hasHelp( const char* arg ) const
-{ return !getUrl().isEmpty(); }
-
-
-HelpProvider* DevDocHelp::createInstance()
-{ return new DevDocHelp; }
-
 
 
 // WebsiteHelp
@@ -183,6 +140,7 @@ HelpProvider* WebsiteHelp::createInstance()
 
 const char* WebsiteHelp::sKeyFactoryName()	{ return "website"; }
 const char* WebsiteHelp::sKeySupport()		{ return "support"; }
+const char* WebsiteHelp::sKeyVideos()		{ return "videos"; }
 const char* WebsiteHelp::sKeyAttribMatrix()	{ return "attribmatrix"; }
 
 void WebsiteHelp::provideHelp( const char* arg ) const
@@ -193,6 +151,8 @@ void WebsiteHelp::provideHelp( const char* arg ) const
 	url = "https://www.dgbes.com/index.php/software/attributes-table";
     else if ( argstr == sKeySupport() )
 	url = "https://dgbes.com/index.php/support";
+    else if ( argstr == sKeyVideos() )
+	url = "http://videos.opendtect.org";
 
     if ( url.isEmpty() )
 	uiMSG().error( tr("Cannot open website page") );

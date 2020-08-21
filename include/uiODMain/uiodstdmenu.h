@@ -254,7 +254,8 @@ ________________________________________________________________________
 #define mSupportMnuItm		(mHelpMnuBase + 5)
 #define mWorkflowsMnuItm	(mHelpMnuBase + 6)
 #define mTrainingManualMnuItm	(mHelpMnuBase + 7)
-#define mAttribMatrixMnuItm	(mHelpMnuBase + 8)
-#define mShortcutsMnuItm	(mHelpMnuBase + 9)
-#define mLegalMnuItm		(mHelpMnuBase + 10)
+#define mTrainingVideosMnuItm	(mHelpMnuBase + 8)
+#define mAttribMatrixMnuItm	(mHelpMnuBase + 9)
+#define mShortcutsMnuItm	(mHelpMnuBase + 10)
+#define mLegalMnuItm		(mHelpMnuBase + 11)
 
