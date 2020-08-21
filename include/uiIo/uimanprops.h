@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Jun 2011
- RCS:           $Id$
+ Author:	Bert
+ Date:		Jun 2011
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidlggroup.h"
 #include "uivarwizarddlg.h"
+class Mnemonic;
 class PropertyRef;
 class PropertyRefSet;
 class PropertyRefSelection;
@@ -85,7 +86,7 @@ public:
 						 PropertyRefSelection&,
 						 const char* lbltxt=0);
     bool		structureChanged() const
-    			{ return proprefgrp_->structureChanged(); }
+			{ return proprefgrp_->structureChanged(); }
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     

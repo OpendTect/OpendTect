@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "factory.h"
 
 class PropertySet;
+class Mnemonic;
 
 
 /*!\brief A (usually petrophysical) property of some object.
@@ -32,7 +33,7 @@ mExpClass(General) Property
 public:
 
 			Property( const PropertyRef& pr )
-			: ref_(pr), lastval_(mUdf(float)) {}
+			: ref_(pr), lastval_(mUdf(float)), mn_(nullptr) {}
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
     virtual		~Property()			{}
@@ -94,6 +95,7 @@ public:
 protected:
 
     const PropertyRef&	ref_;
+    const Mnemonic*	mn_;
     mutable float	lastval_;
 
     virtual float	gtVal(EvalOpts) const		= 0;
