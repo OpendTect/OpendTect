@@ -89,9 +89,10 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	const BufferString selname = fillfrom ? fillfrom->factoryKeyword() : "";
 	for ( int idx=0; idx<coordsystemsuis_.size(); idx++ )
 	{
-	    if ( coordsystemsuis_[idx] )
-		coordsystemsuis_[idx]->attach( alignedBelow, coordsystemsel_ );
+	    if ( !coordsystemsuis_[idx] )
+		continue;
 
+	    coordsystemsuis_[idx]->attach( alignedBelow, coordsystemsel_ );
 	    if ( selname==coordsystemsuis_[idx]->factoryKeyword() )
 	    {
 		coordsystemsel_->setValue(idx);
