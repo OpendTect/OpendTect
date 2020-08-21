@@ -27,7 +27,6 @@ mDefModInitFn(uiBase)
     uiCursorManager::initClass();
     FlareHelpProvider::initODHelp();
 
-    DevDocHelp::initClass();
     WebsiteHelp::initClass();
     uiRGBImageLoader::initClass();
 

@@ -33,11 +33,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "osgver.h"
 
 
-#define mInsertItem(mnu,txt,id,sc) \
+#define mInsertItem(mnu,txt,id,icn,sc) \
 { \
     uiAction* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
     mnu->insertItem( itm, id ); \
     itm->setShortcut( sc ); \
+    itm->setIcon( icn ); \
 }
 
 
@@ -47,24 +48,23 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 {
     docmnu_ = new uiMenu( tr("Documentation") );
     helpmnu_->addMenu( docmnu_ );
-    mInsertItem( docmnu_, tr("OpendTect"), mUserDocMnuItm, "F1" );
+    mInsertItem( docmnu_, tr("OpendTect User Documentation"), mUserDocMnuItm,
+		 "documentation", "F1" );
+    mInsertItem( docmnu_, tr("Programmer's Manual"), mProgrammerMnuItm,
+		 "programmer", 0 );
+    mInsertItem( docmnu_, tr("Administrator's Manual"), mAdminMnuItm, 0, 0 );
 
-    if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( docmnu_, tr("Programmer"), mProgrammerMnuItm, 0 );
-
-    if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
-	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
-
-    mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Training Manual"), mTrainingManualMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Attributes Table"), mAttribMatrixMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0, 0 );
+    mInsertItem( helpmnu_, tr("Training Manual"), mTrainingManualMnuItm, 0, 0 );
+    mInsertItem( helpmnu_, tr("Videos"), mTrainingVideosMnuItm, "video", 0 );
+    mInsertItem( helpmnu_, tr("Attributes Table"), mAttribMatrixMnuItm,
+		 "attributematrix", 0 );
+    mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0, 0 );
     mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
-		 mShortcutsMnuItm, "?" );
-    mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0);
-
+		 mShortcutsMnuItm, "keyboard", "?" );
     if ( legalInformation().size() )
-	mInsertItem( helpmnu_, tr("Legal"), mLegalMnuItm, 0);
+	mInsertItem( helpmnu_, tr("Legal"), mLegalMnuItm, "legal", 0);
+    mInsertItem( helpmnu_, tr("About OpendTect"), mAboutMnuItm, "about", 0 );
 }
 
 
@@ -91,11 +91,11 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	case mAdminMnuItm:
 	{
-	    HelpProvider::provideHelp( HelpKey("appman",0) );
+	    HelpProvider::provideHelp( HelpKey("admin",0) );
 	} break;
 	case mProgrammerMnuItm:
 	{
-	    HelpProvider::provideHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0));
+	    HelpProvider::provideHelp( HelpKey("dev",0) );
 	} break;
 	case mSupportMnuItm:
 	{
@@ -111,6 +111,13 @@ void uiODHelpMenuMgr::handle( int id )
 	{
 	    HelpProvider::provideHelp( HelpKey("wf",0) );
 	} break;
+	case mTrainingVideosMnuItm:
+	{
+	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+			       WebsiteHelp::sKeyVideos() );
+	    HelpProvider::provideHelp( key );
+	} break;
+
 	case mAttribMatrixMnuItm:
 	{
 	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
