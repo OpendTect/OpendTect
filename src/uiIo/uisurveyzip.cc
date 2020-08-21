@@ -47,20 +47,19 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     if ( !File::exists(destdir) )
     {
 	uiMSG().error( od_static_tr("uiSurvey_UnzipFile","%1\ndoes not exist")
-					       .arg(toUiString(destdir)) );
+				.arg(toUiString(destdir)) );
 	return false;
     }
     if ( !File::isDirectory(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_UnzipFile",
-		      "%1\nis not a directory").arg(toUiString(destdir)) );
+	uiMSG().error( od_static_tr("uiSurvey_UnzipFile","%1\nis not a folder.")
+				.arg(toUiString(destdir)) );
 	return false;
     }
     if ( !File::isWritable(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_UnzipFile",
-				    "%1 \nis not writable")
-			            .arg(toUiString(destdir)) );
+	uiMSG().error( od_static_tr("uiSurvey_UnzipFile","%1 \nis not writable")
+				.arg(toUiString(destdir)) );
 	return false;
     }
 

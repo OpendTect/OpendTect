@@ -501,7 +501,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     if ( File::exists(fnmout) )
     {
 	uiString msg = tr("Cannot copy %1 to %2"
-			  "\nbecause target directory exists")
+			  "\nbecause target folder exists.")
 		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
@@ -530,7 +530,7 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     if ( File::exists(fnmout) )
     {
 	uiString msg = tr("Cannot rename %1 to %2"
-			  "\nbecause target directory exists")
+			  "\nbecause target folder exists.")
 		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
@@ -538,8 +538,8 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     File::rename( fnmin, fnmout );
     if ( !File::exists(fnmout) )
     {
-	uiString msg = tr("Rename %1 to %2 failed\n"
-			  "See startup window for details")
+	uiString msg = tr("Rename %1 to %2 failed.\n"
+			  "See startup window for details.")
 		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
@@ -652,7 +652,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     if ( (dirnamechanged || storepathchanged) && File::exists(newdir) )
     {
-	uiMSG().error( tr("The new target directory exists.\n"
+	uiMSG().error( tr("The new target folder exists.\n"
 		       "Please enter another survey name or location.") );
 	return false;
     }
@@ -905,7 +905,7 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 	BufferString dirnm( dlg.fileName() );
 	if ( !File::isWritable(dirnm) )
 	{
-	    uiMSG().error( tr("Directory is not writable") );
+	    uiMSG().error( tr("Folder is not writable") );
 	    return;
 	}
 	updStatusBar( dirnm );

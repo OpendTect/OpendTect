@@ -7,12 +7,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
+
+#include "ascstream.h"
+#include "file.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "iosubdir.h"
-#include "ascstream.h"
-#include "separstr.h"
 #include "safefileio.h"
-#include "filepath.h"
+#include "separstr.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -171,7 +173,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 IOObj* IODir::getObj( const MultiID& ky )
 {
     BufferString dirnm( IOM().rootDir() );
-    if ( dirnm.isEmpty() )
+    if ( dirnm.isEmpty() || !File::isDirectory(dirnm) )
 	return 0;
 
     int nrkeys = ky.nrKeys();

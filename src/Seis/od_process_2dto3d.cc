@@ -70,11 +70,11 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( !tempdir.isEmpty() )
 	{
 	    if ( !File::exists(tempdir) )
-		mRetFileProb(sKey::TmpStor(),tempdir,"does not exist")
+		mRetFileProb(sKey::TmpStor(),tempdir,"does not exist.")
 	    else if ( !File::isDirectory(tempdir) )
-		mRetFileProb(sKey::TmpStor(),tempdir,"is not a directory")
+		mRetFileProb(sKey::TmpStor(),tempdir,"is not a folder.")
 	    else if ( !File::isWritable(tempdir) )
-		mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable")
+		mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable.")
 	}
 
 	const FixedString selspec = pars().find(

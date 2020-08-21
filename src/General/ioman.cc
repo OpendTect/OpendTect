@@ -66,7 +66,14 @@ void IOMan::init()
     state_ = Bad;
     if ( rootdir_.isEmpty() )
     {
-	msg_ = "Directory for data storage is not set";
+	msg_ = "Survey Data Root is not set";
+	return;
+    }
+
+    if ( !File::isDirectory(rootdir_) )
+    {
+	msg_ = "Survey Data Root does not exist or is not a folder:\n";
+	msg_ += rootdir_;
 	return;
     }
 

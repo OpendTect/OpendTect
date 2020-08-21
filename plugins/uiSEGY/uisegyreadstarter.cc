@@ -999,7 +999,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 	    {
 		if ( emiterr )
 		    uiMSG().error(
-			    tr("SEG-Y file not found in survey directory") );
+			    tr("SEG-Y file not found in survey.") );
 		return false;
 	    }
 	}

@@ -116,7 +116,7 @@ void uiColTabImport::usrSel( CallBacker* )
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error(tr("Please select an existing %1")
-		    .arg(fromuser ? uiStrings::sDirectory().toLower()
+		    .arg(fromuser ? uiStrings::sFolder().toLower()
 				  : uiStrings::sFile().toLower() ));
 	return;
     }
@@ -128,7 +128,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	fp.add( ".od" );
 	if ( !File::exists(fp.fullPath()) )
 	{
-	    showMessage( tr("No '.od' directory found in directory") );
+	    showMessage( tr("No '.od' folder found in selected home folder.") );
 	    return;
 	}
 	else

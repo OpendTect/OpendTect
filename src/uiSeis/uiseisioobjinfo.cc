@@ -122,7 +122,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	BufferString fsysname = System::getFileSystemName( ioObj()->dirName() );
 	if ( fsysname == "FAT32" )
 	{
-	    uiMSG().error( tr("Target directory has a FAT32 File System.\n"
+	    uiMSG().error( tr("Target folder has a FAT32 File System.\n"
 			      "Files larger than 4GB are not supported") );
 	    return false;
 	}

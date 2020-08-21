@@ -233,7 +233,7 @@ void uiFileInput::doSelect( CallBacker* )
     uiString seltyp( usegendlg && selmodset_
 	    && (selmode_ == uiFileDialog::Directory
 	     || selmode_ == uiFileDialog::DirectoryOnly)
-	    ? uiStrings::sDirectory().toLower() : uiStrings::sFile().toLower());
+	    ? uiStrings::sFolder().toLower() : uiStrings::sFile().toLower());
     uiString capt( forread_ ? tr("Choose input %1 %2")
 			    : tr("Specify output %1 %2" ) );
     capt.arg( objtype_ );

@@ -122,7 +122,7 @@ void writePush( CallBacker* )
 
     fp.set( dlg.fileName() );
     if ( !File::isWritable(fp.pathOnly()) )
-	{ uiMSG().error(tr("Cannot write to this directory")); return; }
+	{ uiMSG().error(tr("Cannot write to this folder")); return; }
     const BufferString fnm( fp.fullPath() );
     if ( File::exists(fnm) && !File::isWritable(fnm) )
 	{ uiMSG().error(tr("Cannot write to this file")); return; }

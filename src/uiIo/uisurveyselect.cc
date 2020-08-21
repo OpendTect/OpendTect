@@ -205,13 +205,13 @@ bool uiSurveySelect::getFullSurveyPath( BufferString& fullpath ) const
 void uiSurveySelect::setSurveyPath( const char* fullpath )
 {
     if ( !File::exists(fullpath) )
-	mErrRet(tr("Selected directory does not exist.\n"
-		   "Please specify the full path"));
-    if (!File::isDirectory(fullpath))
-	mErrRet(uiStrings::phrSelect(tr("a valid directory")));
-    if (!File::exists(FilePath(fullpath, SurveyInfo::sKeySetupFileName()).
-	fullPath()))
-	mErrRet(tr("This is not an OpendTect survey directory"));
+	mErrRet(tr("Selected folder does not exist.\n"
+		   "Please specify the full path."));
+    if ( !File::isDirectory(fullpath) )
+	mErrRet(uiStrings::phrSelect(tr("a valid folder.")));
+    if ( !File::exists(
+		FilePath(fullpath,SurveyInfo::sKeySetupFileName()).fullPath()) )
+	mErrRet(tr("This is not an OpendTect survey."));
 
     setInputText( fullpath );
 }

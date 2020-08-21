@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 #include "uiwellsel.h"
 
+#include "oddirs.h"
 #include "od_iostream.h"
 #include "od_helpids.h"
 #include "unitofmeasure.h"
@@ -306,6 +307,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     , logsel_(logsel)
     , multiwellsnamefld_(nullptr)
 {
+    setOkCancelText( uiStrings::sExport(), uiStrings::sCancel() );
+
     const bool zinft = SI().depthsInFeet();
     const uiString lbl = tr( "Depth range %1" ).
 	arg( uiStrings::sDistUnitString( zinft, true, true) );
@@ -346,15 +349,14 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells
-				? mJoinUiStrs(sFile(),sDirectory())
-				: uiStrings::phrOutput(uiStrings::sFile()),
-			      uiFileInput::Setup().forread(false)
-						  .directories(multiwells) );
+    outfld_ = new uiFileInput( this,
+			multiwells ? tr("Output folder") : tr("Output file"),
+			uiFileInput::Setup().forread(false)
+						.directories(multiwells) );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
-	outfld_->setFileName( IOM().rootDir() );
+	outfld_->setFileName( GetSurveyExportDir() );
 	multiwellsnamefld_ = new uiGenInput( this, tr("File name suffix") );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
 	multiwellsnamefld_->setText( "logs.dat" );
@@ -368,6 +370,7 @@ uiExportLogs::~uiExportLogs()
 {
     coordsysselfld_.removeParam( this );
 }
+
 
 void uiExportLogs::setDefaultRange( bool zinft )
 {
@@ -405,6 +408,7 @@ void uiExportLogs::typeSel( CallBacker* )
     zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
     coordsysselfld_.getParam(this)->display( typefld_->getIntValue() == 1 );
 }
+
 
 bool uiExportLogs::acceptOK( CallBacker* )
 {

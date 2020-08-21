@@ -408,7 +408,7 @@ uiSurvey::uiSurvey( uiParent* p )
     if ( dataroot_.isEmpty() )
     {
 	new uiLabel( this,
-		tr("Cannot establish a 'Survey Data Root' directory."
+		tr("Cannot establish a 'Survey Data Root' folder."
 		"\nOpendTect needs a place to store its files."
 		"\nPlease consult the documentation at dgbes.com,"
 		"\nor contact support@dgbes.com.") );
@@ -829,7 +829,7 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
     {
 	const uiString tousr = haverem ? tr("New survey removed because:\n%1")
 		.arg(mToUiStringTodo(errmsg))
-		: tr("New survey directory is invalid because:\n%1")
+		: tr("New survey folder is invalid because:\n%1")
 		.arg(mToUiStringTodo(errmsg) );
 	uiMSG().error( tousr );
     }
@@ -903,7 +903,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    uiString msg = tr("This will delete the entire survey directory:\n\t%1"
+    uiString msg = tr("This will delete the entire survey folder:\n\t%1"
 		      "\nFull path: %2").arg(selnm).arg(truedirnm);
     if ( !uiMSG().askRemove(msg) ) return;
 

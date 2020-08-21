@@ -45,7 +45,7 @@ void uiPathListEditor::editReq( bool isadd )
     }
 
     uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, current_itm, nullptr,
-		      uiStrings::sDirectory() );
+		      uiStrings::sFolder() );
     if ( !dlg.go() )
 	return;
 

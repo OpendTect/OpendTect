@@ -263,14 +263,14 @@ bool SeisCBVSPSIO::dirNmOK( bool forread ) const
 
     if ( forread )
     {
-	errmsg_ = tr( "Directory '%1' does not exist").arg( dirnm_ );
+	errmsg_ = tr( "Folder '%1' does not exist").arg( dirnm_ );
 	return false;
     }
 
     File::createDir( dirnm_ );
     if ( !File::isDirectory(dirnm_) )
     {
-	errmsg_ = tr( "Cannot create directory '%1'").arg( dirnm_ );
+	errmsg_ = tr( "Cannot create folder '%1'").arg( dirnm_ );
 	return false;
     }
 
@@ -388,7 +388,7 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     if ( posdata_.size() < 1 )
     {
 	errmsg_ =
-	    tr( "Directory '%1' contains no usable prestack data files" )
+	    tr( "Folder '%1' contains no usable prestack data files" )
 	       .arg( dirnm_ );
 	return;
     }

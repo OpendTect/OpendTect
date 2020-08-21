@@ -117,7 +117,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     {
 	addbut->setSensitive( false );
 	uiString errmsg = tr("Selected Batch Host %1 is not writable.")
-	    .arg(diriswritable ? uiStrings::sFile() : uiStrings::sDirectory());
+	    .arg(diriswritable ? uiStrings::sFile() : uiStrings::sFolder());
 
 #ifdef __win__
 	uiString details;

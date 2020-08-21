@@ -57,7 +57,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 			     tr("Create/Edit Multi-Cube data store"),
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
 	editbut_ = manipgrp->addButton( "browseseis",
-			tr("Change file/directory names in SEG-Y file %1"),
+			tr("Change file/folder names in SEG-Y file %1"),
 			mCB(this,uiSeisPreStackMan,editPush) );
     }
 

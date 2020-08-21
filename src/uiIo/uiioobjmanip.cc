@@ -421,7 +421,11 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     chiostrm.copyFrom( &iostrm );
     const char* newdir = dlg.fileName();
     if ( !File::isDirectory(newdir) )
-    { uiMSG().error(tr("Selected path is not a directory")); return false; }
+    {
+	uiMSG().error(tr("Selected location does not exist "
+			 "or is not a folder."));
+	return false;
+    }
 
     FilePath fp( oldfnm ); fp.setPath( newdir );
     chiostrm.fileSpec().setFileName( fp.fullPath() );
