@@ -109,7 +109,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
+    bdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
 
@@ -121,7 +121,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSeisPreStackMan::BrowserDef* psbdef = new uiSeisPreStackMan::BrowserDef(
 				SEGYDirectSeisPS3DTranslator::translKey() );
-    psbdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
+    psbdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
     psbdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisPreStackMan::addBrowser( psbdef );
 

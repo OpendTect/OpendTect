@@ -376,9 +376,9 @@ Export_Basic od_ostream& logMsgStrm()
     {
 	const char* basedd = GetBaseDataDir();
 	if ( !basedd || !*basedd )
-	    errmsg = "Directory for data storage is not set\n";
+	    errmsg = "Survey Data Root folder is not set\n";
 	else if ( !File::isDirectory(basedd) )
-	    errmsg = "Directory for data storage is invalid\n";
+	    errmsg = "Survey Data Root folder is invalid\n";
 	else
 	{
 	    FilePath fp( basedd, "LogFiles" );
@@ -386,7 +386,7 @@ Export_Basic od_ostream& logMsgStrm()
 	    if ( !File::exists(dirnm) )
 		File::createDir( dirnm );
 	    if ( !File::isDirectory(dirnm) )
-		errmsg = "Cannot create proper directory for log file";
+		errmsg = "Cannot create proper folder for log file";
 	    else
 	    {
 		const FilePath pfp( GetPersonalDir() );

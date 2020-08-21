@@ -325,7 +325,7 @@ bool EventReader::prepareWork()
     const BufferString fnm( ioobj_->fullUserExpr(true) );
     if ( !File::isDirectory(fnm.buf()) )
     {
-	errmsg_ = tr("Error: %1 is not a directory").arg(fnm);
+	errmsg_ = tr("Error: %1 is not a (valid) folder.").arg(fnm);
 	return false;
     }
 
@@ -755,7 +755,7 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
     const BufferString fromnm( from_->fullUserExpr(true) );
     if ( !File::isDirectory(fromnm.buf()) )
     {
-	errmsg_ = tr("Input file %1 is not a directory.")
+	errmsg_ = tr("Input %1 is not a folder.")
 		.arg(fromnm.buf());
 	return;
     }
@@ -811,7 +811,7 @@ int EventDuplicator::nextStep()
     const BufferString tonm( to_->fullUserExpr(true) );
     if ( !File::isDirectory(tonm.buf()) )
     {
-	errmsg_ = tr("%1 is not a directory")
+	errmsg_ = tr("%1 is not a (valid) folder")
 		.arg(tonm.buf());
 
 	return ErrorOccurred();

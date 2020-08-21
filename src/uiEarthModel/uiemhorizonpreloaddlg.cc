@@ -184,7 +184,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
     FilePath fp( ioobj->fullUserExpr(true) );
-    info.add( "Directory: " ).add( fp.pathOnly() ).add ( "\n" );
+    info.add( "Location: " ).add( fp.pathOnly() ).add ( "\n" );
     info.add( "File: " ).add( fp.fileName() ).add( "\n" );
     info.add( "File size in KB: " )
 	.add( File::getKbSize(ioobj->fullUserExpr(true)) );

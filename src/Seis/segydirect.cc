@@ -632,7 +632,7 @@ int SEGY::FileIndexer::nextStep()
 	    }
 	    if ( !File::isWritable(outfile) )
 	    {
-		msg_ = tr( "Output directory is not writable:\n%1")
+		msg_ = tr( "Output folder is not writable:\n%1")
 			   .arg(outfile);
 		return ErrorOccurred();
 	    }

@@ -310,7 +310,7 @@ BufferString uiObjFileMan::getFileInfo()
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
 	if ( isdir )
 	{
-	    txt.add( "Directory name: " ).add( usrnm );
+	    txt.add( "Folder name: " ).add( usrnm );
 	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
 	    txt.add( "\nNumber of files: " ).add( nrfiles );
 	}

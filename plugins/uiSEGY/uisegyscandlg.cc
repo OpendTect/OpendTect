@@ -149,10 +149,10 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	    {
 		File::createDir(pathnm);
 		if ( !File::isDirectory(pathnm) )
-		    mErrRet("Cannot create directory for output:\n",pathnm)
+		    mErrRet("Cannot create folder for output:\n",pathnm)
 	    }
 	    if ( !File::isWritable(pathnm) )
-		mErrRet("Output directory is not writable:\n",pathnm)
+		mErrRet("Output folder is not writable:\n",pathnm)
 	}
 	else
 	{

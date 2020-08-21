@@ -643,8 +643,8 @@ mExternC(Basic) const char* GetSettingsDir()
 		File::remove( dirnm );
 	    if ( !File::createDir(dirnm) )
 	    {
-		std::cerr << "Fatal: Cannot create '.od' directory in home "
-		    "directory:\n" << dirnm.buf() << std::endl;
+		std::cerr << "Fatal: Cannot create '.od' folder in home "
+		    "folder:\n" << dirnm.buf() << std::endl;
 		ExitProgram( 1 );
 	    }
 	    if ( od_debug_isOn(DBG_SETTINGS) )

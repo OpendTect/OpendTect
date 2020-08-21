@@ -97,7 +97,7 @@ bool uiSeisExpCubePositionsDlg::doExport( const PosInfo::CubeData& cd,
 {
     const FilePath filepath( filenm );
     if ( !File::isWritable(filepath.pathOnly()) )
-	mErrRet( uiStrings::phrCannotWrite( uiStrings::sDirectory() ) )
+	mErrRet( uiStrings::phrCannotWrite( uiStrings::sFolder() ) )
 
     if ( File::exists(filenm) )
     {

@@ -90,7 +90,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 
     jobsfld_ = new uiListBox( topgrp, "Stored Batch Job" );
     jobsfld_->box()->setPrefHeightInChar( 10 );
-    jobsfld_->addItem( tr("Scanning Proc directory ....") );
+    jobsfld_->addItem( tr("Scanning Proc folder ....") );
     mAttachCB( jobsfld_->selectionChanged, uiStartBatchJobDialog::itmSel );
 
     vwfilebut_ = new uiToolButton( topgrp, "info", tr("View/Edit job file"),

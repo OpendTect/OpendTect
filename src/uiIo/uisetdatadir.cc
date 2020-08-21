@@ -84,7 +84,7 @@ static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
-	: uiDialog(p,uiDialog::Setup(tr("Set OpendTect Survey Data Root"),
+	: uiDialog(p,uiDialog::Setup(tr("Set OpendTect's Survey Data Root"),
 				     tr("Specify a Data Root folder"),
 				     mODHelpKey(mSetDataDirHelpID) ))
 	, curdatadir_(GetBaseDataDir())
@@ -97,13 +97,13 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     {
 	if ( oldok )
 	{
-	    titletxt =	tr("Locate an OpendTect Data Root folder\n");
+	    titletxt = uiString::emptyString();
 	    basedirnm = curdatadir_;
 	}
 	else
 	{
 	    titletxt = tr("OpendTect needs a place to store your projects.\n"
-			"\nThe current OpendTect Data Root is invalid.\n"
+			"\nThe current Survey Data Root is invalid.\n"
 			"Please locate a valid Data Root folder or\n"
 			"select a recent Data Root");
 
@@ -116,11 +116,11 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     {
 	titletxt =
 	    tr("OpendTect needs a place to store your projects:"
-	    " the OpendTect Data Root.\n\n"
+	    " the Survey Data Root.\n\n"
 	    "You have not yet specified a location for it,\n"
 	    "and there is no 'DTECT_DATA' set in your environment.\n\n"
-	    "Please specify where the OpendTect Data Root should\n"
-	    "be created or select an existing OpendTect Data Root.\n"
+	    "Please specify where the Survey Data Root should\n"
+	    "be created or select an existing Survey Data Root folder.\n"
 #ifndef __win__
 	    "\nNote that you can still put surveys and "
 	    "individual cubes on other disks;\nbut this is where the "
@@ -132,7 +132,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     }
     setTitleText( titletxt );
 
-    const uiString basetxt = tr("OpendTect Data Root");
+    const uiString basetxt = tr("Survey Data Root");
     basedirfld_ = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
@@ -140,7 +140,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
     dirlistfld_ = new uiListBox( this, su );
-    dirlistfld_->attach( leftAlignedBelow, basedirfld_ );
+    dirlistfld_->attach( alignedBelow, basedirfld_ );
 
     getRecentDataRoots( dirlist_ );
     addDataRootIfNew( dirlist_, curdatadir_ );
