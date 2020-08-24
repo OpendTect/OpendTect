@@ -416,13 +416,14 @@ void uiIOObjSel::setInput( const MultiID& mid )
 {
     workctio_.setObj( IOM().get( mid ) );
     uiIOSelect::setInput( mid.buf() );
+    if ( workctio_.ioobj_ && wrtrselfld_ )
+        wrtrselfld_->use(*workctio_.ioobj_);
 }
 
 
-void uiIOObjSel::setInput( const IOObj& ioob )
+void uiIOObjSel::setInput( const IOObj& ioobj )
 {
-    workctio_.setObj( ioob.clone() );
-    uiIOSelect::setInput( ioob.key() );
+    setInput( ioobj.key() );
 }
 
 
@@ -631,8 +632,6 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	workctio_.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	newSelection( dlg );
-	if ( wrtrselfld_ )
-	    wrtrselfld_->use( *workctio_.ioobj_ );
 	selok_ = true;
     }
 
