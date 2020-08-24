@@ -42,25 +42,26 @@ OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gp
 ### Requirements
 
 - A C++ compiler and compilation tool chain:
-	- Windows: msvc2017 64 bit. The free community edition is sufficient.
-	- macOS: SDK 10.9
+	- Windows: msvc2019 64 bit (>= v16.7.2). The free community edition is sufficient.
+	- macOS: SDK 10.14
 	- Linux: gcc 64 bit version 5.4.0 or higher
 - CMake version 2.8 or higher
+- The c++14 version is enabled by default on all platforms.
 
 ### Dependencies
 To build the software you need to also download and install/build a few dependencies which probably are not installed in your system. The version of dependencies varies between the branches. The Qt dependencies are available in binary installers, the others have to be built from source.
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| master | [Qt 5.14.2](http://download.qt.io/archive/qt/5.14/5.14.2/), [OpenSceneGraph 3.6.4](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.4.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.7 | [Qt 5.14.2](http://download.qt.io/archive/qt/5.14/5.14.2/), [OpenSceneGraph 3.6.4](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.4.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.6.0, od6.6 | [Qt 5.12.8](http://download.qt.io/archive/qt/5.12/5.12.8/), [OpenSceneGraph 3.6.4](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.4.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| master | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.7 | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.6.0, od6.6 | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.4.5, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
 
--  Desktop msvc2017 64- bit (Windows), SDK 10.9 (macOS) or gcc 64 bit (Linux) 
+-  Desktop msvc2019 64- bit (Windows), SDK 10.14 (macOS) or gcc 64 bit (Linux) 
 -  QtWebEngine
 -  Optionally source code or debug information files
 
