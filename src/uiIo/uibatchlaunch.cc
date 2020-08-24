@@ -59,7 +59,7 @@ uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
 {
     nrinl_ = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, tr("Default number of inlines per job"),
-				IntInpSpec(nrinl_,1,10000) );
+				IntInpSpec(nrinl_,1,100) );
 
     enabclusterproc_ = enabClusterProc();
     clusterfld_ = new uiGenInput( this, tr("Enable cluster processing"),
