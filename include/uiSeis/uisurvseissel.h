@@ -77,7 +77,7 @@ public:
 				       bool selmulti=false,bool fixsurv=false);
 			~uiSurvSeisSelGroup();
 
-    void		setSelected(const DBKey&,int compnr);
+    void		setSelected(const DBKey&,int compnr, bool add=false);
 
     virtual bool	evaluateInput();
 
