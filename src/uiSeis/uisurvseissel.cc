@@ -263,9 +263,9 @@ void uiSurvSeisSelGroup::refresh()
 }
 
 
-void uiSurvSeisSelGroup::setSelected( const DBKey& dbky, int compnr )
+void uiSurvSeisSelGroup::setSelected( const DBKey& dbky, int compnr, bool add )
 {
-    if ( survsel_->surveyDiskLocation() != dbky.surveyDiskLocation() )
+    if ( survsel_ && survsel_->surveyDiskLocation()!=dbky.surveyDiskLocation() )
 	setSurvey( dbky.surveyDiskLocation() );
     else if ( ioobjs_.isEmpty() )
 	updateObjs();
@@ -274,7 +274,7 @@ void uiSurvSeisSelGroup::setSelected( const DBKey& dbky, int compnr )
     if ( idxof < 0 )
 	return;
 
-    uiSurvIOObjSelGroup::setSelected( dbky );
+    uiSurvIOObjSelGroup::setSelected( dbky, add );
     seisSelChgCB( 0 );
 
     uiSurvSeisSelGroupCompEntry& compentry = getCompEntry( idxof, false );

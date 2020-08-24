@@ -40,7 +40,7 @@ public:
 
     int			indexOf(const DBKey&);
 
-    void		setSelected(const DBKey&);
+    void		setSelected(const DBKey&, bool add=false);
     void		setSelected(const DBKeySet&);
 
     virtual bool	evaluateInput();

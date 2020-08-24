@@ -216,9 +216,10 @@ int uiSurvIOObjSelGroup::indexOf( const DBKey& dbky )
 }
 
 
-void uiSurvIOObjSelGroup::setSelected( const DBKey& dbky )
+void uiSurvIOObjSelGroup::setSelected( const DBKey& dbky, bool add )
 {
-    seldbkys_.setEmpty();
+    if ( !add )
+	seldbkys_.setEmpty();
     seldbkys_.add( dbky );
     if ( finalised() )
 	updGrp( true );
