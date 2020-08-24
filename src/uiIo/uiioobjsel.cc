@@ -473,13 +473,14 @@ void uiIOObjSel::setInput( const DBKey& dbky )
 {
     workctio_.setObj( dbky.getIOObj() );
     uiIOSelect::setInput( dbky.toString() );
+    if ( workctio_.ioobj_ && wrtrselfld_ )
+        wrtrselfld_->use(*workctio_.ioobj_);
 }
 
 
-void uiIOObjSel::setInput( const IOObj& ioob )
+void uiIOObjSel::setInput( const IOObj& ioobj )
 {
-    workctio_.setObj( ioob.clone() );
-    uiIOSelect::setInput( ioob.key().toString() );
+    setInput( ioobj.key() );
 }
 
 
@@ -680,8 +681,6 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	workctio_.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	newSelection( dlg );
-	if ( wrtrselfld_ )
-	    wrtrselfld_->use( *workctio_.ioobj_ );
 	selok_ = true;
     }
 
