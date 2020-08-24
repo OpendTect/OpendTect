@@ -17,7 +17,6 @@ list ( APPEND OD_MODULE_SOURCES
 	array2dbitmap.cc
 	basemap.cc
 	batchjobdispatch.cc
-	beachballdata.cc
 	bidvsetarrayadapter.cc
 	bitmap2rgb.cc
 	bitmapmgr.cc
