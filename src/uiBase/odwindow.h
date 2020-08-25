@@ -183,6 +183,8 @@ public:
     bool		separator() const	{ return setup_.separator_; }
     void		setHelpKey(const HelpKey& key) { setup_.helpkey_ = key;}
     HelpKey		helpKey() const { return setup_.helpkey_; }
+    void		setVideoKey(const HelpKey& key) { setup_.videokey_ = key;}
+    HelpKey		videoKey() const { return setup_.videokey_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
 
@@ -218,6 +220,7 @@ protected:
     uiButton*		cnclbut_;
     uiButton*		applybut_;
     uiButton*		helpbut_;
+    uiButton*		videobut_;
     uiToolButton*	creditsbut_;
 
     uiCheckBox*		savebutcb_;
@@ -237,7 +240,6 @@ private:
     void		initChildren();
     uiObject*		createChildren();
     void		layoutChildren(uiObject*);
-    void		layoutChildrenOld(uiObject*);
 
     uiDialog&		dlghandle_;
 };

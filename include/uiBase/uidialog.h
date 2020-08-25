@@ -55,6 +55,7 @@ public:
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title)
 			, helpkey_(help_key)
+			, videokey_(HelpKey::emptyHelpKey())
 			, savetext_(uiStrings::sSaveAsDefault())
 			, oktext_( uiStrings::sOk() )
 			, canceltext_( uiStrings::sCancel() )
@@ -70,6 +71,7 @@ public:
 	mDefSetupMemb(uiString,wintitle)
 	mDefSetupMemb(uiString,dlgtitle)
 	mDefSetupMemb(HelpKey,helpkey)
+	mDefSetupMemb(HelpKey,videokey)
 	mDefSetupMemb(uiString,savetext)
 	mDefSetupMemb(uiString,oktext)
 	mDefSetupMemb(uiString,canceltext)
@@ -147,6 +149,8 @@ public:
     bool		separator() const;
     void		setHelpKey(const HelpKey&);
     virtual HelpKey	helpKey() const;
+    void		setVideoKey(const HelpKey&);
+    HelpKey		videoKey() const;
 
     static int		titlePos();
     static void		setTitlePos(int pos);

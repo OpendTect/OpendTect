@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uidockwin.h"
+#include "uihelpview.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimenu.h"
@@ -809,13 +810,19 @@ void uiMainWinBody::managePopupPos()
 uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
     : uiMainWinBody(hndle,parnt,s.wintitle_.getFullString(),s.modal_)
-    , dlggrp_(0)
-    , setup_(s)
-    , okbut_(0), cnclbut_(0), applybut_(0)
-    , savebutcb_(0),  savebuttb_(0)
-    , helpbut_(0), creditsbut_(0)
-    , titlelbl_(0), result_(0)
+    , result_(0)
     , initchildrendone_(false)
+    , dlggrp_(nullptr)
+    , setup_(s)
+    , okbut_(nullptr)
+    , cnclbut_(nullptr)
+    , applybut_(nullptr)
+    , helpbut_(nullptr)
+    , videobut_(nullptr)
+    , creditsbut_(nullptr)
+    , savebutcb_(nullptr)
+    , savebuttb_(nullptr)
+    , titlelbl_(nullptr)
     , dlghandle_(hndle)
 {
     setContentsMargins( 10, 2, 10, 2 );
@@ -1042,10 +1049,7 @@ void uiDialogBody::finalise( bool )
 void uiDialogBody::initChildren()
 {
     uiObject* lowestobject = createChildren();
-    if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
-	layoutChildrenOld( lowestobject );
-    else
-	layoutChildren( lowestobject );
+    layoutChildren( lowestobject );
 
     if ( okbut_ )
     {
@@ -1093,8 +1097,10 @@ uiObject* uiDialogBody::createChildren()
 	    savebutcb_->setChecked( setup_.savechecked_ );
 	}
     }
-    mDynamicCastGet( uiDialog&, dlg, handle_ );
-    if ( !dlg.helpKey().isEmpty() )
+
+    mDynamicCastGet(uiDialog&,dlg,handle_)
+    const HelpKey helpkey = dlg.helpKey();
+    if ( !helpkey.isEmpty() )
     {
 	mDefineStaticLocalObject( bool, shwhid,
 				  = GetEnvVarYN("DTECT_SHOW_HELP") );
@@ -1103,13 +1109,22 @@ uiObject* uiDialogBody::createChildren()
 #endif
 
 	helpbut_ = uiButton::getStd( centralwidget_, OD::Help,
-				mCB(this,uiDialogBody,provideHelp), true );
+				mCB(this,uiDialogBody,provideHelp), true,
+				uiString::emptyString() );
 	if ( shwhid )
-	    helpbut_->setToolTip( uiStrings::phrJoinStrings(
-	    mToUiStringTodo(dlg.helpKey().providername_),
-	    mToUiStringTodo(dlg.helpKey().argument_)) );
+	    helpbut_->setToolTip( HelpProvider::description(helpkey) );
 	else
 	    helpbut_->setToolTip( tr("Help on this window") );
+    }
+
+    const HelpKey videokey = dlg.videoKey();
+    if ( !videokey.isEmpty() )
+    {
+	videobut_ = uiButton::getStd( centralwidget_, OD::Video,
+				mCB(this,uiDialogBody,provideHelp), true,
+				uiString::emptyString() );
+	uiString tt = HelpProvider::description( videokey );
+	videobut_->setToolTip( tt );
     }
 
     if ( !setup_.menubar_ && !setup_.dlgtitle_.isEmpty() )
@@ -1117,8 +1132,8 @@ uiObject* uiDialogBody::createChildren()
 	titlelbl_ = new uiLabel( centralwidget_, setup_.dlgtitle_ );
 	titlelbl_->setHSzPol( uiObject::WideVar );
 	uiObject* obj = setup_.separator_
-			    ? (uiObject*) new uiSeparator(centralwidget_)
-			    : (uiObject*) titlelbl_;
+			    ? (uiObject*)new uiSeparator(centralwidget_)
+			    : (uiObject*)titlelbl_;
 
 	if ( obj != titlelbl_ )
 	{
@@ -1128,6 +1143,7 @@ uiObject* uiDialogBody::createChildren()
 		titlelbl_->attach( rightBorder );
 	    obj->attach( stretchedBelow, titlelbl_, -2 );
 	}
+
 	if ( setup_.mainwidgcentered_ )
 	    dlggrp_->attach( centeredBelow, obj );
 	else
@@ -1135,8 +1151,8 @@ uiObject* uiDialogBody::createChildren()
     }
 
     uiObject* lowestobj = dlggrp_->mainObject();
-    if ( setup_.separator_ && ( okbut_ || cnclbut_ || savebutcb_ ||
-			       savebuttb_ || helpbut_) )
+    if ( setup_.separator_ && (okbut_ || cnclbut_ || savebutcb_ ||
+			       savebuttb_ || helpbut_ || videobut_) )
     {
 	uiSeparator* horSepar = new uiSeparator( centralwidget_ );
 	horSepar->attach( stretchedBelow, dlggrp_, -2 );
@@ -1172,6 +1188,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
 
     uiObject* prevbut = 0;
+    attachButton( videobut_, prevbut, lowestobj );
     attachButton( helpbut_, prevbut, lowestobj );
     attachButton( applybut_, prevbut, lowestobj );
     attachButton( rightbut, prevbut, lowestobj );
@@ -1191,77 +1208,10 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 }
 
 
-void uiDialogBody::layoutChildrenOld( uiObject* lowestobj )
+void uiDialogBody::provideHelp( CallBacker* cb )
 {
-    uiObject* leftbut = setup_.okcancelrev_ ? cnclbut_ : okbut_;
-    uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
-    uiObject* exitbut = okbut_ ? okbut_ : cnclbut_;
-    uiObject* centerbut = helpbut_;
-    uiObject* extrabut = savebuttb_;
-
-    if ( !okbut_ || !cnclbut_ )
-    {
-	leftbut = rightbut = 0;
-	if ( exitbut )
-	{
-	    centerbut = exitbut;
-	    extrabut = helpbut_;
-	    leftbut = savebuttb_;
-	}
-    }
-
-    if ( !centerbut )
-    {
-	centerbut = extrabut;
-	extrabut = 0;
-    }
-
-#define mCommonLayout(but) \
-    but->attach( ensureBelow, lowestobj ); \
-    but->attach( bottomBorder, vborderdist )
-
-    if ( leftbut )
-    {
-	mCommonLayout(leftbut);
-	leftbut->attach( leftBorder, hborderdist );
-    }
-
-    if ( rightbut )
-    {
-	mCommonLayout(rightbut);
-	rightbut->attach( rightBorder, hborderdist );
-	if ( leftbut )
-	    rightbut->attach( ensureRightOf, leftbut );
-    }
-
-    if ( centerbut )
-    {
-	mCommonLayout(centerbut);
-	centerbut->attach( hCentered );
-	if ( leftbut )
-	    centerbut->attach( ensureRightOf, leftbut );
-	if ( rightbut )
-	    centerbut->attach( ensureLeftOf, rightbut );
-    }
-
-    if ( savebutcb_ )
-    {
-	savebutcb_->attach( extrabut ? leftOf : rightOf, exitbut );
-	if ( centerbut && centerbut != exitbut )
-	    centerbut->attach( ensureRightOf, savebutcb_ );
-	if ( rightbut && rightbut != exitbut )
-	    rightbut->attach( ensureRightOf, savebutcb_ );
-    }
-
-    if ( extrabut )
-	extrabut->attach( rightOf, centerbut );
-}
-
-
-void uiDialogBody::provideHelp( CallBacker* )
-{
-    mDynamicCastGet( uiDialog&, dlg, handle_ );
-    HelpProvider::provideHelp( dlg.helpKey() );
+    mDynamicCastGet(uiDialog&,dlg,handle_)
+    HelpProvider::provideHelp( cb==helpbut_ ? dlg.helpKey() : dlg.videoKey() );
 }
 
 

@@ -82,6 +82,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
+    setVideoKey( mODVideoKey(mImportHorAttribHelpID) );
     setCaption(isgeom ? uiStrings::phrImport(uiStrings::sHorizon()) :
 			uiStrings::phrImport(mJoinUiStrs(sHorizon(),sData())));
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );

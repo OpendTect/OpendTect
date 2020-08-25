@@ -92,3 +92,25 @@ private:
     void			provideHelp(const char* arg) const;
 };
 
+
+//! HelpProvider for videos
+mExpClass(uiBase) VideoProvider : public HelpProvider
+{
+public:
+    static void			init();
+    static void			initClass(const char* context,
+					  const char* indexfilename);
+    uiString			description(const char* arg) const;
+
+private:
+				VideoProvider(const char* idxfnm);
+
+    static HelpProvider*	createInstance();
+    bool			hasHelp(const char* arg) const;
+    void			provideHelp(const char* arg) const;
+    int				indexOf(const char* arg) const;
+
+    BufferString		indexfilenm_;
+    IOPar			videolinks_;
+};
+
