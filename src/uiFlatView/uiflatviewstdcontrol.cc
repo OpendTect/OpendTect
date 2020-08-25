@@ -159,36 +159,36 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withzoombut_ || setup.isvertical_ )
     {
-	mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
+	mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"))
 	rubbandzoombut_->setToggleButton( true );
     }
 
     if ( setup.withzoombut_ )
     {
-	mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"));
-	mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
+	mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"))
+	mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"))
     }
 
     if ( setup.isvertical_ )
     {
-	mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"));
-	mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"));
+	mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"))
+	mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"))
     }
 
     if ( setup.withzoombut_ || setup.isvertical_ )
     {
-	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
+	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"))
 	if ( setup.withfixedaspectratio_ )
 	{
 	    mDefBut(fittoscrnbut_,"exttofullsurv",fitToScreenCB,
-		    tr("Fit to screen"));
+		    tr("Fit to screen"))
 	}
     }
 
     if ( setup.withhomebutton_ )
     {
 	mDefBut(sethomezoombut_,"set_homezoom",homeZoomOptSelCB,
-		tr("Set home zoom"));
+		tr("Set home zoom"))
 	const CallBack optcb = mCB(this,uiFlatViewStdControl,homeZoomOptSelCB);
 	uiMenu* mnu = new uiMenu( tb_, tr("Zoom level options") );
 	mnu->insertAction( new uiAction(tr("Set local home zoom"),
@@ -199,7 +199,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					optcb,"man_homezoom"), sManHZIdx );
 	sethomezoombut_->setMenu( mnu, uiToolButton::InstantPopup );
 	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
-		tr("Go to home zoom"));
+		tr("Go to home zoom"))
 	gotohomezoombut_->setSensitive( !mIsUdf(defx1pospercm_) &&
 					!mIsUdf(defx2pospercm_) );
     }
@@ -207,7 +207,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     if ( setup.withflip_ )
     {
 	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,
-			      uiStrings::sFlipLeftRight());
+			      uiStrings::sFlipLeftRight())
     }
 
     if ( setup.withsnapshot_ )
@@ -219,12 +219,20 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withscalebarbut_ )
     {
-	mDefBut(scalebarbut_,"scale",viewScaleBarCB,tr("View scale bar"));
+	mDefBut(scalebarbut_,"scale",displayScaleBarCB,tr("Display Scale Bar"))
 	scalebarbut_->setToggleButton();
     }
 
+#ifdef __debug__
+    if ( setup.withcoltabinview_ )
+    {
+	mDefBut(coltabbut_,"colorbar",displayColTabCB,tr("Display Color Bar"))
+	coltabbut_->setToggleButton();
+    }
+#endif
+
     tb_->addSeparator();
-    mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
+    mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set Display Parameters"));
 
     if ( setup.withcoltabed_ )
     {
@@ -671,7 +679,7 @@ void uiFlatViewStdControl::flipCB( CallBacker* )
 }
 
 
-void uiFlatViewStdControl::viewScaleBarCB( CallBacker* )
+void uiFlatViewStdControl::displayScaleBarCB( CallBacker* )
 {
     const bool doshowscalebar = scalebarbut_->isOn();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
@@ -688,6 +696,13 @@ void uiFlatViewStdControl::viewScaleBarCB( CallBacker* )
 	vwr.updateBitmapsOnResize( updateonresize );
 	updateZoomLevel( x1pospercm, x2pospercm );
     }
+}
+
+
+void uiFlatViewStdControl::displayColTabCB( CallBacker* )
+{
+    vwr_.appearance().annot_.showcolorbar_ = coltabbut_->isOn();
+    vwr_.handleChange( FlatView::Viewer::Annot );
 }
 
 

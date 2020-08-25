@@ -79,19 +79,20 @@ void uiColTabItem::adjustLabel()
 	    setup_.startal_.hPos() == Alignment::HCenter? rect.centre().x
 	 : (setup_.startal_.hPos() == Alignment::Left	? rect.left()
 							: rect.right());
-	al = Alignment( Alignment::opposite(setup_.startal_.hPos()),
-			setup_.startal_.vPos() );
-	minvalitm_->setAlignment( al );
-	minvalitm_->setPos( mCast(float,startx), mCast(float,rect.top()) );
-
 	const int stopx =
 	    setup_.stopal_.hPos() == Alignment::HCenter ? rect.centre().x
 	 : (setup_.stopal_.hPos() == Alignment::Left	? rect.left()
 							: rect.right());
+
+	al = Alignment( Alignment::opposite(setup_.startal_.hPos()),
+			setup_.startal_.vPos() );
+	minvalitm_->setAlignment( al );
+	minvalitm_->setPos( mCast(float,startx), mCast(float,rect.bottom()) );
+
 	al = Alignment( Alignment::opposite(setup_.stopal_.hPos()),
 			setup_.stopal_.vPos() );
 	maxvalitm_->setAlignment( al );
-	maxvalitm_->setPos( mCast(float,stopx), mCast(float,rect.bottom()) );
+	maxvalitm_->setPos( mCast(float,stopx), mCast(float,rect.top()) );
     }
 }
 

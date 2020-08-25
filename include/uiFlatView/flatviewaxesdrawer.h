@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssceneaxismgr.h"
 
+class uiColTabItem;
 class uiFlatViewer;
 class uiScaleBarItem;
 
@@ -46,6 +47,7 @@ protected:
     uiArrowItem*	arrowitem1_;
     uiArrowItem*	arrowitem2_;
     uiScaleBarItem*	scalebaritem_;
+    uiColTabItem*	colorbaritem_;
     uiBorder		extraborder_;
 
     void		transformAndSetAuxAnnotation(bool forx1);

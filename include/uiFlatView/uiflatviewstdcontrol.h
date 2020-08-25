@@ -61,38 +61,41 @@ public:
 			    , withcoltabed_(true)
 			    , withedit_(false)
 			    , withhanddrag_(true)
-			    , withsnapshot_(true)
 			    , withflip_(true)
+			    , withsnapshot_(true)
 			    , withrubber_(true)
+			    , withhomebutton_(false)
 			    , withzoombut_(true)
-			    , withscalebarbut_(false)
 			    , isvertical_(false)
 			    , withfixedaspectratio_(false)
-			    , withhomebutton_(false)
 			    , managecoltab_(true)
+			    , withcoltabinview_(true)
 			    , initialx1pospercm_(mUdf(float))
 			    , initialx2pospercm_(mUdf(float))
+			    , withscalebarbut_(false)
 			    , initialcentre_(uiWorldPoint::udf())
-			    , tba_(-1)	{}
+			    , tba_(-1)
+			    {}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,withhanddrag)
-	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
 	mDefSetupMemb(HelpKey,helpkey)
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
+	mDefSetupMemb(bool,withhomebutton)
 	mDefSetupMemb(bool,withzoombut)
 	mDefSetupMemb(bool,isvertical)
 	mDefSetupMemb(bool,withfixedaspectratio)
 	mDefSetupMemb(bool,managecoltab)
-	mDefSetupMemb(bool,withhomebutton)
+	mDefSetupMemb(bool,withcoltabinview)
 	mDefSetupMemb(float,initialx1pospercm)
 	mDefSetupMemb(float,initialx2pospercm)
 	mDefSetupMemb(bool,withscalebarbut)
 	mDefSetupMemb(uiWorldPoint,initialcentre);
+	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
     };
 
 			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
@@ -130,6 +133,7 @@ protected:
     uiToolButton*	sethomezoombut_;
     uiToolButton*	gotohomezoombut_;
     uiToolButton*	scalebarbut_;
+    uiToolButton*	coltabbut_;
     uiToolButton*	fittoscrnbut_;
     uiToolButton*	parsbut_;
     uiToolButton*	editbut_;
@@ -161,7 +165,8 @@ protected:
     void		keyPressCB(CallBacker*);
     void		homeZoomOptSelCB(CallBacker*);
     void		fitToScreenCB(CallBacker*);
-    void		viewScaleBarCB(CallBacker*);
+    void		displayScaleBarCB(CallBacker*);
+    void		displayColTabCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*)	{}
     virtual void	wheelMoveCB(CallBacker*);
@@ -172,10 +177,10 @@ protected:
 
     virtual bool	handleUserClick(int vwridx);
 
-    uiMenuHandler&      menu_;
+    uiMenuHandler&	menu_;
     MenuItem		propertiesmnuitem_;
-    void                createMenuCB(CallBacker*);
-    void                handleMenuCB(CallBacker*);
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
 
     HelpKey		helpkey_;
 
