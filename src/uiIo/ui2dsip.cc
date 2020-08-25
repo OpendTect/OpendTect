@@ -52,7 +52,7 @@ public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"),
-				 mToUiStringTodo(dlgtitle),
+				 toUiString(dlgtitle),
 				 mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
     FloatInpSpec fis;
@@ -75,7 +75,7 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
     ismfld_ = new uiGenInput( this, tr("Coordinates are in"),
 	    BoolInpSpec(true,uiStrings::sMeter(),uiStrings::sFeet()) );
-    ismfld_->attach( alignedBelow, yrgfld_ );
+    ismfld_->attach( alignedBelow, grdspfld_ );
 
     uiSeparator* optsep = new uiSeparator( this, "Optional" );
     optsep->attach( stretchedBelow, ismfld_ );
@@ -165,10 +165,15 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 				    Coord crd[3] )
 {
     xyft_ = false;
-    if ( !din ) return false;
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
-    if ( !dlg ) { pErrMsg("Huh?"); return false; }
-    else if ( dlg->uiResult() != 1 ) return false; // cancelled
+    if ( !dlg )
+    {
+	pErrMsg("Huh?");
+	return false;
+    }
+
+    if ( dlg->uiResult() != 1 )
+	return false; // cancelled
 
     Coord c0( dlg->xrgfld_->getDValue(0), dlg->yrgfld_->getDValue(0) );
     Coord c1( dlg->xrgfld_->getDValue(1), dlg->yrgfld_->getDValue(1) );
@@ -178,12 +183,20 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     if ( !getRanges(cs,crd,c0,c1,grdsp) )
 	return false;
 
+    const StepInterval<float> zrg = dlg->zfld_->getFStepInterval();
+    const bool hasstart = !mIsUdf(zrg.start);
+    const bool hasstop = !mIsUdf(zrg.stop);
+    const bool hasstep = !mIsUdf(zrg.step);
+    const float start = hasstart ? zrg.start : 0.f;
     if ( SI().zIsTime() )
-	cs.zsamp_.set( 0.f, cDefaultZMaxS, cDefaultSrS );
+	cs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
+			hasstep ? zrg.step/1000 : cDefaultSrS );
     else if ( SI().zInFeet() )
-	cs.zsamp_.set( 0.f, cDefaultZMaxF, cDefaultSrF );
+	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
+		hasstep ? zrg.step : cDefaultSrF );
     else
-	cs.zsamp_.set( 0.f, cDefaultZMaxM, cDefaultSrM );
+	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxM,
+		hasstep ? zrg.step : cDefaultSrM );
 
     xyft_ = !dlg->ismfld_->getBoolValue();
 
