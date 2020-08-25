@@ -9,6 +9,8 @@
 #include "uidialog.h"
 
 class uiFileInput;
+class uiGenInput;
+class uiIOObjSel;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
@@ -29,7 +31,12 @@ protected:
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
+    uiGenInput* sortsticksfld_ = nullptr;
+    uiIOObjSel* fltsetnmfld_ = nullptr;
+
     Table::FormatDesc*	fd_;
     bool		isfss_;
+    bool        is2dfss_;
+    bool        isfltset_;
 };
 

@@ -82,12 +82,13 @@ mExpClass(Basic) TaskGroup : public Task
 {
 public:
 			TaskGroup();
-			~TaskGroup() { deepErase( tasks_ ); cleanUp(); }
+            ~TaskGroup();
+
     void		addTask( Task* );
 			//Becomes mine
 
     void		setParallel(bool);
-    void		showCumulativeCount(bool yn);
+    void		showCumulativeCount( bool yn ) { cumulativecount_ = yn; }
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
@@ -108,11 +109,10 @@ protected:
 
     ObjectSet<Task>	tasks_;
     int			curtask_;
+    bool        cumulativecount_ = false;
 
     mutable Threads::Lock lock_;
 
-private:
-    void		cleanUp();
 };
 
 

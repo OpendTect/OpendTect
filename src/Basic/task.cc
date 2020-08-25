@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "paralleltask.h"
 
-#include "hiddenparam.h"
 #include "progressmeter.h"
 #include "ptrman.h"
 #include "threadwork.h"
@@ -137,26 +136,19 @@ uiString Task::uiNrDoneText() const
 }
 
 
-static HiddenParam<TaskGroup,char> cumulativecount_(false);
 
 TaskGroup::TaskGroup()
     : curtask_(-1)
     , lock_(true)
 {
-    cumulativecount_.setParam( this, false );
 }
 
 
-void TaskGroup::cleanUp()
+TaskGroup::~TaskGroup()
 {
-    cumulativecount_.removeParam( this );
+    deepErase(tasks_);
 }
 
-
-void TaskGroup::showCumulativeCount( bool yn )
-{
-    cumulativecount_.setParam( this, yn );
-}
 
 
 void TaskGroup::addTask( Task* t )
@@ -188,7 +180,7 @@ void TaskGroup::getTasks( TaskGroup& oth )
 od_int64 TaskGroup::nrDone() const
 {
     Threads::Locker locker( lock_ );
-    if ( !cumulativecount_.getParam(this) )
+    if ( !cumulativecount_ )
 	return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
 
     od_int64 res = 0;
@@ -201,7 +193,7 @@ od_int64 TaskGroup::nrDone() const
 od_int64 TaskGroup::totalNr() const
 {
     Threads::Locker locker( lock_ );
-    if ( !cumulativecount_.getParam(this) )
+    if ( !cumulativecount_ )
 	return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
 
     od_int64 res = 0;

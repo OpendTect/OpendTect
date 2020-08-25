@@ -34,8 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 
-#include "hiddenparam.h"
-
 #include <string.h>
 
 namespace Seis
@@ -332,10 +330,6 @@ protected:
 }; // namespace Seis
 
 
-static HiddenParam<Seis::ParallelReader,ObjectSet<TrcKeySampling>* >
-						seisparardrtksmgr_(0);
-static HiddenParam<Seis::ParallelReader,const PosInfo::CubeData*>
-						seisparardrcubedatamgr_(0);
 
 Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 				      const TrcKeyZSampling& tkzs )
@@ -344,8 +338,6 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
     , tkzs_(tkzs)
     , ioobj_( ioobj.clone() )
 {
-    seisparardrtksmgr_.setParam( this, new ObjectSet<TrcKeySampling> );
-    seisparardrcubedatamgr_.setParam( this, 0 );
     const SeisIOObjInfo seisinfo( ioobj );
     const int nrcomponents = seisinfo.nrComponents();
     for ( int idx=0; idx<nrcomponents; idx++ )
@@ -360,8 +352,7 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 	{
 	    cubedata.limitTo( tkzs.hsamp_ );
 	    totalnr_ = cubedata.totalSize();
-	    seisparardrcubedatamgr_.setParam( this,
-					new PosInfo::SortedCubeData(cubedata) );
+        trcssampling_ = new PosInfo::SortedCubeData( cubedata );
 	}
 	else
 	    totalnr_ = tkzs.hsamp_.totalNr();
@@ -383,7 +374,6 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,BinIDValueSet& bidvals,
     , ioobj_( ioobj.clone() )
     , totalnr_( bidvals.totalSize() )
 {
-    seisparardrtksmgr_.setParam( this, new ObjectSet<TrcKeySampling> );
     errmsg_ = uiStrings::phrReading( tr("%1 \'%2\'")
 			    .arg( uiStrings::sVolDataName(false,true,false) )
 			    .arg( ioobj_->uiName() ) );
@@ -395,12 +385,8 @@ Seis::ParallelReader::~ParallelReader()
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete ioobj_;
 
-    ObjectSet<TrcKeySampling>* tkss = seisparardrtksmgr_.getParam( this );
-    deepErase( *tkss );
-    delete tkss;
-    seisparardrtksmgr_.removeParam( this );
-    delete seisparardrcubedatamgr_.getParam( this );
-    seisparardrcubedatamgr_.removeParam( this );
+    deepErase( tks_ );
+    delete trcssampling_;
 }
 
 
@@ -459,16 +445,14 @@ uiString Seis::ParallelReader::uiMessage() const
 
 void Seis::ParallelReader::submitUdfWriterTasks()
 {
-    const PosInfo::CubeData* trcssampling =
-				seisparardrcubedatamgr_.getParam( this );
-    if ( !trcssampling || trcssampling->totalSize() >= tkzs_.hsamp_.totalNr() )
+    if ( !trcssampling_ || trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
 	return;
 
     TaskGroup* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
 	udfwriters->addTask(
-		new Array3DUdfTrcRestorer<float>( *trcssampling, tkzs_.hsamp_,
+		new Array3DUdfTrcRestorer<float>( *trcssampling_, tkzs_.hsamp_,
 						  dp_->data(idx) ) );
     }
 
@@ -502,10 +486,8 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 	dp_->setName( ioobj_->name() );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
 	dp_->setSampling( tkzs_ );
-	const PosInfo::CubeData* trcssampling =
-				 seisparardrcubedatamgr_.getParam( this );
-	if ( trcssampling )
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling) );
+	if (trcssampling_)
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
 
 	uiString errmsg;
 	if ( !addComponents(*dp_,*ioobj_,components_,errmsg) )
@@ -525,10 +507,9 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 
     submitUdfWriterTasks();
 
-    ObjectSet<TrcKeySampling>& tkss = *seisparardrtksmgr_.getParam( this );
-    deepErase( tkss );
+    deepErase( tks_ );
     for ( int idx=0; idx<nrthreads; idx++ )
-	tkss += new TrcKeySampling( tkzs_.hsamp_.getLineChunk(nrthreads,idx) );
+        tks_ += new TrcKeySampling( tkzs_.hsamp_.getLineChunk(nrthreads,idx) );
 
 
     errmsg_ = uiStrings::phrReading( tr("%1 \'%2\'")
@@ -541,12 +522,10 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 
 bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
 {
-    if ( !seisparardrtksmgr_.getParam(this) ||
-	 !seisparardrtksmgr_.getParam(this)->validIdx(threadid) )
+    if ( !tks_.validIdx(threadid) )
 	return false;
 
-    const TrcKeySampling& tks =
-			*(*seisparardrtksmgr_.getParam( this ))[threadid];
+    const TrcKeySampling& tks = *tks_[threadid];
 
     SeisTrcReader rdr( ioobj_ );
     rdr.setSelData( new Seis::RangeSelData(tks) );
@@ -636,7 +615,6 @@ bool Seis::ParallelReader::doFinish( bool success )
 { return success; }
 
 
-static HiddenParam<Seis::ParallelReader2D,TypeSet<int>*> seisparardrtrcnrsmgr_(0);
 
 // ParallelReader2D (probably replace by a Sequential reader)
 Seis::ParallelReader2D::ParallelReader2D( const IOObj& ioobj,Pos::GeomID geomid,
@@ -648,7 +626,6 @@ Seis::ParallelReader2D::ParallelReader2D( const IOObj& ioobj,Pos::GeomID geomid,
     , scaler_(0)
     , dp_(0)
 {
-    seisparardrtrcnrsmgr_.setParam( this, new TypeSet<int> );
     if ( comps )
 	components_ = *comps;
 
@@ -674,9 +651,6 @@ Seis::ParallelReader2D::~ParallelReader2D()
     delete scaler_;
 
     DPM( DataPackMgr::SeisID() ).release( dp_ );
-
-    delete seisparardrtrcnrsmgr_.getParam( this );
-    seisparardrtrcnrsmgr_.removeParam( this );
 }
 
 
@@ -715,8 +689,7 @@ bool Seis::ParallelReader2D::init()
     if ( !rdr.prepareWork() )
 	{ msg_ = rdr.errMsg(); return false; }
 
-    TypeSet<int>& trcnrs = *seisparardrtrcnrsmgr_.getParam( this );
-    trcnrs.setEmpty();
+    trcnrs_.setEmpty();
     SeisTrcInfo trcinfo;
     int res;
     do
@@ -729,7 +702,7 @@ bool Seis::ParallelReader2D::init()
 	else if ( res == 2 )
 	    continue;
 
-	trcnrs.addIfNew( trcinfo.nr );
+    trcnrs_.addIfNew( trcinfo.nr );
     } while ( res==1 );
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
@@ -775,16 +748,15 @@ od_int64 Seis::ParallelReader2D::nrIterations() const
 
 bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop, int )
 {
-    TypeSet<int> trcnrs( *seisparardrtrcnrsmgr_.getParam(this) );
     if ( stop < totalnr_ )
-	trcnrs.removeRange( mCast(int,stop+1), mCast(int,totalnr_) );
+        trcnrs_.removeRange( mCast(int,stop+1), mCast(int,totalnr_) );
     if ( start > 0 )
-	trcnrs.removeRange( 0, mCast(int,start-1) );
+        trcnrs_.removeRange( 0, mCast(int,start-1) );
 
-    if ( trcnrs.isEmpty() )
+    if ( trcnrs_.isEmpty() )
 	return true;
 
-    Interval<int> trcrg( trcnrs[0], trcnrs[trcnrs.size()-1] );
+    Interval<int> trcrg(trcnrs_[0], trcnrs_[trcnrs_.size()-1] );
     trcrg.sort();
 
     SeisTrcReader rdr( ioobj_ );

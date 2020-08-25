@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
-#include "hiddenparam.h"
 #include "keyboardevent.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -49,24 +48,20 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyVW2DTrcsPerCM()	{ return "Viewer2D.TrcsPerCM"; }
 static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
-static HiddenParam<uiFlatViewZoomLevelDlg,uiGenInput*> unitflds(0);
-
 uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 			float& x1pospercm, float& x2pospercm, bool isvertical )
     : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiString::emptyString(),
 				 mNoHelpKey))
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)
-    , x2fld_(0)
 {
     const bool usesi = !SI().xyInFeet();
-    uiGenInput* unitfld = new uiGenInput( this, uiStrings::sUnit(),
+    unitflds_ = new uiGenInput( this, uiStrings::sUnit(),
 			BoolInpSpec(usesi,tr("cm"),tr("inches")) );
-    unitfld->valuechanged.notify( mCB(this,uiFlatViewZoomLevelDlg,unitChgCB) );
-    unitflds.setParam( this, unitfld );
+    unitflds_->valuechanged.notify( mCB(this,uiFlatViewZoomLevelDlg,unitChgCB) );
 
     x1fld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
-    x1fld_->attach( alignedBelow, unitfld );
+    x1fld_->attach( alignedBelow, unitflds_ );
 
     if ( isvertical )
     {
@@ -85,7 +80,6 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 
 uiFlatViewZoomLevelDlg::~uiFlatViewZoomLevelDlg()
 {
-    unitflds.removeParam( this );
 }
 
 
@@ -99,7 +93,7 @@ void uiFlatViewZoomLevelDlg::finalizeDoneCB(CallBacker*)
 
 void uiFlatViewZoomLevelDlg::unitChgCB( CallBacker* )
 {
-    const bool incm = unitflds.getParam(this)->getBoolValue();
+    const bool incm = unitflds_->getBoolValue();
     const float fact = incm ? 1.f : 2.54f;
 
     x1fld_->setValue( x1pospercm_*fact );
@@ -114,7 +108,7 @@ void uiFlatViewZoomLevelDlg::unitChgCB( CallBacker* )
 
 bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
 {
-    const bool incm = unitflds.getParam(this)->getBoolValue();
+    const bool incm = unitflds_->getBoolValue();
     const float fact = incm ? 1.f : 2.54f;
     x1pospercm_ = x1fld_->getFValue() / fact;
     x2pospercm_ = x2fld_ ? x2fld_->getFValue()/fact : x1pospercm_;

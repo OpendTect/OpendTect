@@ -68,8 +68,8 @@ public:
     virtual bool	includes( const Coord& c, float z ) const
 			{ return Provider3D::includes(c,z); }
 
-    void		setUseAreaInside(bool);
-    bool		usesAreaInside() const;
+    void		setUseAreaInside( bool yn ) { useinside_ = yn; }
+    bool		usesAreaInside() const { return useinside_; }
 
     static const char*	sInside()		{ return "Inside"; }
     static const char*	sBoundingBox()		{ return "Bounding Box"; }
@@ -80,6 +80,7 @@ protected:
     StepInterval<float>	zrg_;
     TrcKeySampling&	hs_;
     MultiID		mid_;
+    bool        useinside_ = true;
 
     BinID		curbid_;
     float		curz_;

@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibatchtime2depthsetup.h"
 
 #include "ctxtioobj.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "process_time2depth.h"
@@ -25,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiveldesc.h"
 #include "od_helpids.h"
 
-static HiddenParam<uiBatchTime2DepthSetup,uiSeis2DSubSel*> subselfld_(0);
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     : uiDialog(p,Setup(uiString::emptyString(),mNoDlgTitle,
@@ -79,16 +77,14 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, sssu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
 
-    subselfld_.setParam( this, 0 );
     uiObject* attachobj = 0;
     if ( is2d )
     {
 	Seis::SelSetup selsu( true );
 	selsu.multiline(true).withoutz(true).withstep(false);
-	uiSeis2DSubSel* subsel = new uiSeis2DSubSel( this, selsu );
-	subsel->attach( alignedBelow, inputtimesel_ );
-	subselfld_.setParam( this, subsel );
-	attachobj = subsel->attachObj();
+    subselfld_ = new uiSeis2DSubSel( this, selsu );
+    subselfld_->attach( alignedBelow, inputtimesel_ );
+	attachobj = subselfld_->attachObj();
     }
     else
     {
@@ -123,7 +119,6 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
 
 uiBatchTime2DepthSetup::~uiBatchTime2DepthSetup()
 {
-    subselfld_.removeParam( this );
 }
 
 
@@ -212,9 +207,8 @@ bool uiBatchTime2DepthSetup::fillPar()
 	possubsel_->fillPar( par );
     else
     {
-	uiSeis2DSubSel* subsel = subselfld_.getParam( this );
-	if ( subsel )
-	    subsel->fillPar( par );
+	if ( subselfld_ )
+        subselfld_->fillPar( par );
     }
 
     StepInterval<float> zrange;

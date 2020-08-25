@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uizaxistransform.h"
 
 #include "datainpspec.h"
-#include "hiddenparam.h"
 #include "refcount.h"
 #include "zaxistransform.h"
 
@@ -21,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 
-static HiddenParam<uiZAxisTransform,char> is2dzat_(0);
 
 mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
 		    const char*, uiZAxisTransform::factory );
@@ -36,13 +34,11 @@ bool uiZAxisTransform::isField( const uiParent* p )
 uiZAxisTransform::uiZAxisTransform( uiParent* p )
     : uiDlgGroup( p, uiStrings::sEmptyString() )
 {
-    is2dzat_.setParam( this, false );
 }
 
 
 uiZAxisTransform::~uiZAxisTransform()
 {
-    is2dzat_.removeParam( this );
 }
 
 
@@ -53,17 +49,6 @@ void uiZAxisTransform::enableTargetSampling()
 bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
 { return false; }
 
-
-void uiZAxisTransform::setIs2D( bool yn )
-{
-    is2dzat_.setParam( this, yn );
-}
-
-
-bool uiZAxisTransform::is2D() const
-{
-    return is2dzat_.getParam( this );
-}
 
 
 // uiZAxisTransformSel

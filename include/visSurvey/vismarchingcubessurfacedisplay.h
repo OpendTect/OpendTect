@@ -129,6 +129,7 @@ protected:
     EM::MarchingCubesSurface*			emsurface_;
     Attrib::SelSpec				selspec_; // Not used
     ObjectSet<DataPointSet>			cache_;
+    TypeSet<Attrib::SelSpec>        selspecs_;
 
     bool					usestexture_;
     bool					validtexture_;

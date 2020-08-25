@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -70,9 +69,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs2d(nullptr);
-static HiddenParam<uiSeisPartServer,uiBatchTime2DepthSetup*> t2ddlgs3d(nullptr);
-
 static int seis2dloadaction = 0;
 static const char* sKeyPreLoad()	{ return "PreLoad"; }
 
@@ -81,9 +77,6 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     mAttachCB( IOM().surveyChanged, uiSeisPartServer::survChangedCB );
-
-    t2ddlgs2d.setParam( this, 0 );
-    t2ddlgs3d.setParam( this, 0 );
 }
 
 
@@ -108,9 +101,8 @@ uiSeisPartServer::~uiSeisPartServer()
     delete impps2dseisdlg_;
     delete expps2dseisdlg_;
     delete expcubeposdlg_;
-
-    t2ddlgs2d.removeAndDeleteParam( this );
-    t2ddlgs3d.removeAndDeleteParam( this );
+    delete t2ddlgs2d_;
+    delete t2ddlgs3d_;
 }
 
 
@@ -137,8 +129,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( expps2dseisdlg_ );
     deleteAndZeroPtr( expcubeposdlg_ );
 
-    t2ddlgs2d.deleteAndZeroPtrParam( this );
-    t2ddlgs3d.deleteAndZeroPtrParam( this );
+    deleteAndZeroPtr( t2ddlgs2d_ );
+    deleteAndZeroPtr( t2ddlgs3d_ );
 }
 
 
@@ -508,8 +500,8 @@ void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 
 void uiSeisPartServer::processTime2Depth( bool is2d ) const
 {
-    uiBatchTime2DepthSetup* dlg = is2d ? t2ddlgs2d.getParam( this )
-				       : t2ddlgs3d.getParam( this );
+    uiBatchTime2DepthSetup* dlg = is2d ? t2ddlgs2d_
+				       : t2ddlgs3d_;
     if ( !dlg )
     {
 	dlg = new uiBatchTime2DepthSetup( parent(), is2d );
@@ -517,9 +509,9 @@ void uiSeisPartServer::processTime2Depth( bool is2d ) const
 
 	uiSeisPartServer* myself = const_cast<uiSeisPartServer*>(this);
 	if ( is2d )
-	    t2ddlgs2d.setParam( myself, dlg );
+        myself->t2ddlgs2d_ = dlg;
 	else
-	    t2ddlgs3d.setParam( myself, dlg );
+        myself->t2ddlgs3d_ = dlg;
     }
 
     dlg->show();

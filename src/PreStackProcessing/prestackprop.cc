@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linear.h"
 #include "math2.h"
 
-#include "hiddenparam.h"
 
 namespace PreStack
 {
@@ -49,8 +48,6 @@ mDefineEnumUtils(PropCalc,LSQType,"Axis type")
 };
 
 
-static HiddenParam<PropCalc,int> anglevalinradiansmgr_(0);
-static HiddenParam<PropCalc,Interval<float>* > propcalcxaxismgr_(0);
 
 PropCalc::PropCalc( const Setup& s )
     : setup_(s)
@@ -59,22 +56,12 @@ PropCalc::PropCalc( const Setup& s )
     , outermutes_( 0 )
     , angledata_( 0 )
 {
-    anglevalinradiansmgr_.setParam( this, 0 );
-    propcalcxaxismgr_.setParam( this, new Interval<float> );
 }
 
 
 PropCalc::~PropCalc()
 {
-    anglevalinradiansmgr_.removeParam( this );
-    propcalcxaxismgr_.removeAndDeleteParam( this );
     removeGather();
-}
-
-
-void PropCalc::setAngleValuesInRadians( bool yn )
-{
-    anglevalinradiansmgr_.setParam( this, yn ? 1 : 0 );
 }
 
 
@@ -180,7 +167,6 @@ void PropCalc::init()
     if ( dolsq && useangle )
 	const_cast<PropCalc&>( *this ).setup_.offsaxis_ = Sinsq;
 
-    Interval<float>& axisvalsrg_ = *propcalcxaxismgr_.getParam( this );
     if ( useangle )
     {
 	axisvalsrg_.start = setup_.anglerg_.start;
@@ -204,11 +190,10 @@ void PropCalc::init()
 	if ( !getAngleFromMainGather() && !angledata_ )
 	    { pErrMsg("Wrongly set"); DBG::forceCrash(false); }
 #endif
-	const bool angleunitisrad = anglevalinradiansmgr_.getParam( this ) == 1;
 	eps = 1e-2f;
 	if ( dostack )
 	{
-	    if ( angleunitisrad )
+	    if ( anglevalinradians_ )
 	    {
 		axisvalsrg_.scale( mDeg2RadF );
 		eps *= mDeg2RadF;
@@ -245,9 +230,6 @@ float PropCalc::getVal( float z ) const
     if ( !gather_ )
 	return mUdf(float);
 
-    const bool anglevalinradians = anglevalinradiansmgr_.getParam( this ) == 1;
-    const Interval<float>& axisvalsrg_ = *propcalcxaxismgr_.getParam( this );
-
     const bool dostack = setup_.calctype_ == Stats;
     const bool useangle = setup_.useangle_;
     const int nroffsets = gather_->size( !gather_->offsetDim() );
@@ -258,7 +240,7 @@ float PropCalc::getVal( float z ) const
 	axisvals.setCapacity( nroffsets, false );
 
     const bool scalexvals = useangle
-			  ? ( dostack ? false : !anglevalinradians)
+			  ? ( dostack ? false : !anglevalinradians_)
 			  : false;
 
     const StepInterval<double> si = gather_->posData().range(!gather_->zDim());

@@ -17,6 +17,7 @@ class uiBatchJobDispatcherSel;
 class uiGenInput;
 class uiZAxisTransformSel;
 class uiSeisSel;
+class uiSeis2DSubSel;
 class uiPosSubSel;
 
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
@@ -42,6 +43,7 @@ protected:
 
     uiSeisSel*			inputtimesel_;
     uiSeisSel*			inputdepthsel_;
+    uiSeis2DSubSel*     subselfld_ = nullptr;
 
     uiPosSubSel*		possubsel_;
 

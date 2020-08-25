@@ -56,9 +56,6 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "wellwriter.h"
 
 #include "coordsystem.h"
-#include "hiddenparam.h"
-
-static HiddenParam<uiSEGYReadFinisher,Coords::CoordSystem*> coordsys_(0);
 
 #define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
 
@@ -411,7 +408,7 @@ void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
 
 void uiSEGYReadFinisher::setCoordSystem( Coords::CoordSystem* crs )
 {
-    coordsys_.setParam( this, crs );
+    coordsys_ = crs;
 }
 
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
@@ -421,9 +418,8 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
     SeisTrcTranslator* transl =
 	      const_cast<SeisTrcTranslator*>(rdr->reader().seisTranslator());
     mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-    Coords::CoordSystem* crs = coordsys_.getParam( this );
-    if ( segytr && crs )
-	segytr->setCoordSys( crs );
+    if ( segytr && coordsys_)
+	segytr->setCoordSys( coordsys_ );
 
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
@@ -585,8 +581,8 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
     fs_.fillPar( jobpars );
 
     IOPar outpars;
-    if ( coordsys_.getParam(this) )
-	coordsys_.getParam(this)->fillPar( outpars );
+    if ( coordsys_ )
+	coordsys_->fillPar( outpars );
     if ( transffld_ )
 	transffld_->fillPar( outpars );
 
@@ -637,8 +633,8 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
     }
 
     IOPar outpars;
-    if ( coordsys_.getParam(this) )
-	coordsys_.getParam(this)->fillPar( outpars );
+    if ( coordsys_ )
+	coordsys_->fillPar( outpars );
     outFld(doimp)->fillPar( outpars );
     jobpars.mergeComp( outpars, sKey::Output() );
 

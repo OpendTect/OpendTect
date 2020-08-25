@@ -21,13 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "progressmeterimpl.h"
 
-#include "hiddenparam.h"
-
-static HiddenParam<VolProc::ChainOutput,TrcKeySampling*>
-					volprocouttkscalcscopemgr_(0);
-static HiddenParam<VolProc::ChainOutput,TrcKeySampling*>
-					volprocouttkscalcdonemgr_(0);
-
 
 VolProc::ChainOutput::ChainOutput()
     : Executor("Volume Processing Output")
@@ -43,17 +36,14 @@ VolProc::ChainOutput::ChainOutput()
     , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
     , jobcomm_(0)
+    , tkscalcscope_(cs_.hsamp_)
 {
-    volprocouttkscalcscopemgr_.setParam( this, new TrcKeySampling(cs_.hsamp_));
-    volprocouttkscalcdonemgr_.setParam( this, new TrcKeySampling );
     progressmeter_ = &progresskeeper_;
 }
 
 
 VolProc::ChainOutput::~ChainOutput()
 {
-    volprocouttkscalcscopemgr_.removeAndDeleteParam( this );
-    volprocouttkscalcdonemgr_.removeAndDeleteParam( this );
     delete wrr_;
     deepErase( storers_ );
 
@@ -198,8 +188,8 @@ int VolProc::ChainOutput::nextStep()
 
     if ( nrexecs_<0 )
     {
-	*volprocouttkscalcscopemgr_.getParam( this ) = cs_.hsamp_;
-	volprocouttkscalcdonemgr_.getParam( this )->init(false);
+    tkscalcscope_ = cs_.hsamp_;
+    tkscalcdone_.init(false);
 	return setupChunking();
     }
     else if ( neednextchunk_ )
@@ -301,7 +291,7 @@ int VolProc::ChainOutput::setupChunking()
     /* chain_.zstep_ is not used, but setting it for external plugin builders
        in case they read chain_.getZStep() */
 
-    const TrcKeySampling& tks = *volprocouttkscalcscopemgr_.getParam( this );
+    const TrcKeySampling& tks = tkscalcscope_;
     outputzrg_ = StepInterval<int>( 0, cs_.zsamp_.nrSteps(), 1 );
     od_uint64 memusage;
     uiString errmsg;
@@ -325,7 +315,7 @@ int VolProc::ChainOutput::setNextChunk()
 	    return ErrorOccurred();
     }
 
-    TrcKeySampling& scopetks = *volprocouttkscalcscopemgr_.getParam( this );
+    TrcKeySampling& scopetks = tkscalcscope_;
     const TrcKeySampling hsamp( scopetks.getLineChunk(nrexecs_,curexecnr_) );
     od_uint64 memusage; int nrsubexecs;
     if ( !chainexec_->setCalculationScope(hsamp,cs_.zsamp_,memusage,
@@ -338,8 +328,7 @@ int VolProc::ChainOutput::setNextChunk()
     }
     else
     {
-	TrcKeySampling& calcdonetks =
-				*volprocouttkscalcdonemgr_.getParam( this );
+	TrcKeySampling& calcdonetks = tkscalcdone_;
 	if ( calcdonetks.isEmpty() )
 	    calcdonetks = hsamp;
 	else

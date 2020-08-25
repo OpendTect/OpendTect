@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
-#include "hiddenparam.h"
 #include "mpeengine.h"
 #include "randomlinegeom.h"
 #include "survinfo.h"
@@ -292,8 +291,6 @@ uiTreeItem*
 
 
 // uiODHorizonTreeItem
-static HiddenParam<uiODHorizonTreeItem,MenuItem*> addinlitm(0);
-static HiddenParam<uiODHorizonTreeItem,MenuItem*> addcrlitm(0);
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
 					  bool atsect )
@@ -316,8 +313,6 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 
 uiODHorizonTreeItem::~uiODHorizonTreeItem()
 {
-    addinlitm.removeAndDeleteParam( this );
-    addcrlitm.removeAndDeleteParam( this );
 }
 
 
@@ -340,10 +335,10 @@ void uiODHorizonTreeItem::initMenuItems()
     lockmnuitem_.text = uiStrings::sLock();
     unlockmnuitem_.text = uiStrings::sUnlock();
 
-    MenuItem* inlitm = new MenuItem( tr("Add In-line"), 10003 );
-    MenuItem* crlitm = new MenuItem( tr("Add Cross-line"), 10002 );
-    addinlitm.setParam( this, inlitm );
-    addcrlitm.setParam( this, crlitm );
+	addinlitm_.text = tr("Add In-line");
+	addinlitm_.placement = 10003;
+	addcrlitm_.text = tr("Add Cross-line");
+	addcrlitm_.placement = 10002;
 }
 
 
@@ -538,22 +533,20 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &unlockmnuitem_ );
     }
 
-    MenuItem* inlitem = addinlitm.getParam( this );
-    MenuItem* crlitem = addcrlitm.getParam( this );
     if ( uimenu->getMenuType() != uiMenuHandler::fromScene() )
     {
-	mResetMenuItem( inlitem );
-	mResetMenuItem( crlitem );
+	mResetMenuItem( &addinlitm_ );
+	mResetMenuItem( &addcrlitm_ );
     }
     else
     {
 	const Coord3 pickedpos = uimenu->getPickedPos();
 	const TrcKey tk( SI().transform(pickedpos) );
-	inlitem->text = tr("Add In-line %1").arg( tk.lineNr() );
-	crlitem->text = tr("Add Cross-line %1").arg( tk.trcNr() );
+	addinlitm_.text = tr("Add In-line %1").arg( tk.lineNr() );
+	addcrlitm_.text = tr("Add Cross-line %1").arg( tk.trcNr() );
 
-	mAddMenuItem( menu, inlitem, true, false );
-	mAddMenuItem( menu, crlitem, true, false );
+	mAddMenuItem( menu, &addinlitm_, true, false );
+	mAddMenuItem( menu, &addcrlitm_, true, false );
     }
 }
 
@@ -718,12 +711,12 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	hor3d->lockAll();
     else if ( mnuid==unlockmnuitem_.id )
 	hor3d->unlockAll();
-    else if ( mnuid==addinlitm.getParam(this)->id ||
-	      mnuid==addcrlitm.getParam(this)->id )
+    else if ( mnuid== addinlitm_.id ||
+	      mnuid== addcrlitm_.id )
     {
 	const Coord3 pickedpos = uimenu->getPickedPos();
 	const TrcKey tk( SI().transform(pickedpos) );
-	const bool isinl = mnuid == addinlitm.getParam(this)->id;
+	const bool isinl = mnuid == addinlitm_.id;
 	ODMainWin()->sceneMgr().addInlCrlItem(
 		isinl ? OD::InlineSlice : OD::CrosslineSlice,
 		isinl ? tk.inl() : tk.crl(), sceneID() );

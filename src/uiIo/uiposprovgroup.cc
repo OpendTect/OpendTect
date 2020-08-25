@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "file.h"
-#include "hiddenparam.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -257,8 +256,6 @@ void uiRangePosProvGroup::samplingCB( CallBacker* )
 
 
 // uiPolyPosProvGroup
-static HiddenParam<uiPolyPosProvGroup,uiGenInput*> ioflds(nullptr);
-static HiddenParam<uiPolyPosProvGroup,uiPosSubSel*> bbflds(nullptr);
 
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
@@ -285,17 +282,15 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 	attachobj = zrgfld_;
     }
 
-    uiGenInput* inoutfld = new uiGenInput( this, tr("Use Positions"),
+    inoutfld_ = new uiGenInput( this, tr("Use Positions"),
 			BoolInpSpec(true,tr("Inside"),tr("Outside")) );
-    inoutfld->valuechanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
-    ioflds.setParam( this, inoutfld );
+    inoutfld_->valuechanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
 
-    uiPosSubSel* bboxfld = new uiPosSubSel( this,
+    bboxfld_ = new uiPosSubSel( this,
 			uiPosSubSel::Setup(false,su.withz_) );
-    bbflds.setParam( this, bboxfld );
 
-    inoutfld->attach( alignedBelow, attachobj );
-    bboxfld->attach( alignedBelow, inoutfld );
+    inoutfld_->attach( alignedBelow, attachobj );
+    bboxfld_->attach( alignedBelow, inoutfld_);
 
     inoutCB( nullptr );
 
@@ -306,16 +301,12 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 uiPolyPosProvGroup::~uiPolyPosProvGroup()
 {
     delete ctio_.ioobj_; delete &ctio_;
-    ioflds.removeParam( this );
-    bbflds.removeParam( this );
 }
 
 
 void uiPolyPosProvGroup::inoutCB( CallBacker* )
 {
-    uiGenInput* iofld = ioflds.getParam( this );
-    uiPosSubSel* bbfld = bbflds.getParam( this );
-    bbfld->display( !iofld->getBoolValue() );
+    bboxfld_->display( !inoutfld_->getBoolValue() );
 }
 
 
@@ -340,12 +331,9 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 	zrgfld_->setRange( zrg );
     }
 
-    uiGenInput* iofld = ioflds.getParam( this );
-    uiPosSubSel* bbfld = bbflds.getParam( this );
-
     bool inside = true;
     iop.getYN( mGetPolyKey(Pos::PolyProvider3D::sInside()), inside );
-    iofld->setValue( inside );
+    inoutfld_->setValue( inside );
     inoutCB( nullptr );
 
     TrcKeyZSampling tkzs;
@@ -353,7 +341,7 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 	iop.subselect( mGetPolyKey(Pos::PolyProvider3D::sBoundingBox()) );
     if ( bbpar )
 	tkzs.usePar( *bbpar );
-    bbfld->setInput( tkzs );
+    bboxfld_->setInput( tkzs );
 }
 
 
@@ -370,12 +358,10 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::ZRange()),
 	zrgfld_ ? zrgfld_->getRange() : SI().zRange(true) );
 
-    uiGenInput* iofld = ioflds.getParam( this );
-    uiPosSubSel* bbfld = bbflds.getParam( this );
     iop.setYN( mGetPolyKey(Pos::PolyProvider3D::sInside()),
-	       iofld->getBoolValue() );
+        inoutfld_->getBoolValue() );
     IOPar bbpar;
-    bbfld->envelope().fillPar( bbpar );
+    bboxfld_->envelope().fillPar( bbpar );
     iop.mergeComp( bbpar, mGetPolyKey(Pos::PolyProvider3D::sBoundingBox()) );
     return true;
 }
@@ -383,8 +369,7 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 
 void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 {
-    uiGenInput* iofld = ioflds.getParam( this );
-    txt.set( iofld->getBoolValue() ? "Inside " : "Outside " ).add( "polygon" );
+    txt.set(inoutfld_->getBoolValue() ? "Inside " : "Outside " ).add( "polygon" );
     const IOObj* ioobj = polyfld_->ioobj( true );
     if ( ioobj )
 	txt.add( " '" ).add( ioobj->name() ).add( "." );

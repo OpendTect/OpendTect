@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdesc.h"
 #include "attribengman.h"
 #include "attriboutput.h"
-#include "hiddenparam.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -31,8 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "od_helpids.h"
 
-static HiddenParam<uiAttrEMOut,TypeSet<Attrib::DescID>*> outdescids_(nullptr);
-static HiddenParam<uiAttrEMOut,BufferStringSet*> outdescnms_(nullptr);
 
 using namespace Attrib;
 
@@ -54,9 +51,6 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
     attrfld_ = new uiAttrSel( pargrp_, *ads_, "Quantity to output" );
     attrfld_->setNLAModel( nlamodel_ );
     attrfld_->selectionDone.notify( mCB(this,uiAttrEMOut,attribSel) );
-
-    outdescids_.setParam( this, new TypeSet<Attrib::DescID> );
-    outdescnms_.setParam( this, new BufferStringSet );
 }
 
 
@@ -64,15 +58,12 @@ uiAttrEMOut::~uiAttrEMOut()
 {
     delete ads_;
     delete nlamodel_;
-
-    outdescids_.removeAndDeleteParam( this );
-    outdescnms_.removeAndDeleteParam( this );
 }
 
 
 void uiAttrEMOut::getDescNames( BufferStringSet& nms ) const
 {
-    nms = *outdescnms_.getParam( this );
+    nms = outdescnms_;
 }
 
 
@@ -104,7 +95,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
 	    return nullptr;
     }
 
-    BufferStringSet& seloutnms = *outdescnms_.getParam( this );
+    BufferStringSet& seloutnms = outdescnms_;
     seloutnms.erase();
     TypeSet<int> seloutputs;
     const DescID targetid =
@@ -170,12 +161,11 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
 
 bool uiAttrEMOut::fillPar( IOPar& iopar )
 {
-    TypeSet<Attrib::DescID>* outdescids = outdescids_.getParam( this );
-    outdescids->setEmpty();
+    outdescids_.setEmpty();
 
     BufferString outputnm;
     iopar.get( sKey::Target(), outputnm );
-    DescSet* clonedset = getTargetDescSet( *outdescids, outputnm.buf() );
+    DescSet* clonedset = getTargetDescSet( outdescids_, outputnm.buf() );
     if ( !clonedset )
 	return false;
 
@@ -204,8 +194,6 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 			      const char* idlbl, const char* outid )
 {
-    const TypeSet<Attrib::DescID>& outdescids = *outdescids_.getParam( this );
-
     iopar.set( IOPar::compKey( sKey::Output(), sKey::Type()), outtyp );
     BufferString key;
     BufferString tmpkey;
@@ -213,13 +201,13 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 			      ( IOPar::compKey(sKey::Output(), 0) ) );
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), DescSet::highestIDStr() );
-    iopar.set( key, outdescids.size() );
+    iopar.set( key, outdescids_.size() );
 
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
-    for ( int idx=0; idx<outdescids.size(); idx++ )
+    for ( int idx=0; idx< outdescids_.size(); idx++ )
     {
 	key = IOPar::compKey( tmpkey.buf(), idx );
-	iopar.set( key, outdescids[idx].asInt() );
+	iopar.set( key, outdescids_[idx].asInt() );
     }
 
     key = IOPar::compKey( keybase.buf(), idlbl );

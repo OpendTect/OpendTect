@@ -24,13 +24,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "posvecdataset.h"
 #include "typeset.h"
 
-static HiddenParam<uiEMAttribPartServer,uiCreate2DGrid*> crgriddlg_(nullptr);
 
 static const DataColDef	siddef_( "Section ID" );
 
@@ -39,28 +37,12 @@ const DataColDef& uiEMAttribPartServer::sidDef() const
 
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , nlamodel_(nullptr)
-    , descset_(nullptr)
-    , horshiftdlg_(nullptr)
-    , shiftidx_(10)
-    , attribidx_(0)
-    , uiimphor2ddlg_(nullptr)
-    , uiseisevsnapdlg_(nullptr)
-    , aroundhor2ddlg_(nullptr)
-    , aroundhor3ddlg_(nullptr)
-    , betweenhor2ddlg_(nullptr)
-    , betweenhor3ddlg_(nullptr)
-    , surfattr2ddlg_(nullptr)
-    , surfattr3ddlg_(nullptr)
 {
-    crgriddlg_.setParam( this, nullptr );
 }
 
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
-    crgriddlg_.removeAndDeleteParam( this );
-
     delete horshiftdlg_;
     delete aroundhor2ddlg_;
     delete aroundhor3ddlg_;
@@ -68,6 +50,7 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
     delete betweenhor3ddlg_;
     delete surfattr2ddlg_;
     delete surfattr3ddlg_;
+	delete crgriddlg_;
 }
 
 
@@ -164,11 +147,10 @@ void uiEMAttribPartServer::import2DHorizon()
 
 void uiEMAttribPartServer::create2DGrid( const Geometry::RandomLine* rdl )
 {
-    crgriddlg_.deleteAndZeroPtrParam( this );
-    uiCreate2DGrid* dlg = new uiCreate2DGrid( parent(), rdl );
-    dlg->setModal( false );
-    crgriddlg_.setParam( this, dlg );
-    dlg->show();
+	delete crgriddlg_;
+	crgriddlg_ = new uiCreate2DGrid( parent(), rdl );
+	crgriddlg_->setModal( false );
+	crgriddlg_->show();
 }
 
 

@@ -53,7 +53,7 @@ public:
     bool			allShown() const	{ return showall_; }
     virtual void		setOnlyAtSectionsDisplay(bool);
     virtual bool		displayedOnlyAtSections() const;
-    void			allowDoubleClick(bool yn);
+    void			allowDoubleClick( bool yn ) { allowdoubleclicks_ = yn; }
 
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
@@ -165,6 +165,7 @@ protected:
     Coord3			undoloccoord_;
     bool			undomove_;
     bool			selectionmodel_;
+    bool            allowdoubleclicks_ = true;
 
 };
 

@@ -93,6 +93,8 @@ protected:
 
     RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
+    ObjectSet<TrcKeySampling>   tks_;
+    PosInfo::CubeData* trcssampling_ = nullptr;
 
     IOObj*			ioobj_;
     od_int64			totalnr_;
@@ -136,6 +138,7 @@ protected:
 
     RegularSeisDataPack*	dp_;
     TypeSet<int>		components_;
+    TypeSet<int>        trcnrs_;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;

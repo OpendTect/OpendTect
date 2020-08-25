@@ -60,7 +60,8 @@ public:
     {
 			Point(Pos::GeomID id,int mynr,int linenr)
 			    : line(id),mytrcnr(mynr),linetrcnr(linenr)
-			{ setMyGeomID(-1); }
+                , mygeomids_(-1)
+			{}
 			Point(Pos::GeomID myid,Pos::GeomID lineid,
 			      int mynr,int linenr);
 			Point(const Point&);
@@ -72,11 +73,10 @@ public:
 	bool		operator<(const Point& oth) const
 			{ return mytrcnr < oth.mytrcnr; }
 
-	void		setMyGeomID(Pos::GeomID);
-	Pos::GeomID	getMyGeomID() const;
 	bool		isOpposite(const Point&) const;
 
 	Pos::GeomID	line;	// Intersecting line.
+    Pos::GeomID mygeomids_;
 	int		mytrcnr;
 	int		linetrcnr;
     };

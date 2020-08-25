@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "hiddenparam.h"
 #include "stratamp.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -31,8 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "od_helpids.h"
 
-
-static HiddenParam<uiStratAmpCalc,uiGenInput*> classfld_(nullptr);
 
 static const char* statstrs[] =
 	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
@@ -50,15 +47,14 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
     mAttachCB( inpfld_->selectionDone, uiStratAmpCalc::inpSel );
 
-    uiGenInput* classfld = new uiGenInput( this,
+    classfld_ = new uiGenInput( this,
 		tr("Values are classifications"), BoolInpSpec(false) );
-    classfld->attach( alignedBelow, inpfld_ );
-    classfld_.setParam( this, classfld );
+    classfld_->attach( alignedBelow, inpfld_ );
 
     winoption_= new uiGenInput( this, tr("Window Option"),
 		BoolInpSpec(true,tr("Single Horizon"),tr("Double Horizon")) );
     mAttachCB( winoption_->valuechanged, uiStratAmpCalc::choiceSel );
-    winoption_->attach( alignedBelow, classfld );
+    winoption_->attach( alignedBelow, classfld_ );
 
     horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon() );
     mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
@@ -117,7 +113,6 @@ uiStratAmpCalc::~uiStratAmpCalc()
     detachAllNotifiers();
     delete horctio1_.ioobj_; delete &horctio1_;
     delete horctio2_.ioobj_; delete &horctio2_;
-    classfld_.removeParam( this );
 }
 
 
@@ -258,7 +253,7 @@ bool uiStratAmpCalc::fillPar()
 	     bothorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
 
-    const bool isclass = classfld_.getParam(this)->getBoolValue();
+    const bool isclass = classfld_->getBoolValue();
     iop.setYN( StratAmpCalc::sKeyIsClassification(), isclass );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 

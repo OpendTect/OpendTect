@@ -49,8 +49,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "waveletio.h"
 
-#include "hiddenparam.h"
-
 #include <stdio.h>
 
 static const int cMarkerSize = 6;
@@ -64,9 +62,6 @@ static const char* sKeyNone()		{ return "None"; }
 static const char* sKeyRainbow()	{ return "Rainbow"; }
 static const char* sKeySeismics()	{ return "Seismics"; }
 static const char* sKeyDecimation()	{ return "Decimation"; }
-
-
-static HiddenParam<uiStratSynthDisp,uiTextItem*> stratsynthfrtxtitmmgr_(0);
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
@@ -101,8 +96,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
 {
-    stratsynthfrtxtitmmgr_.setParam( this, nullptr );
-
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setStretch( 2, 0 );
 
@@ -200,7 +193,6 @@ uiStratSynthDisp::~uiStratSynthDisp()
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
-    stratsynthfrtxtitmmgr_.removeParam( this );
 }
 
 
@@ -555,25 +547,23 @@ void uiStratSynthDisp::displayFRText()
 
 void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
 {
-    uiTextItem* frtxtitm = stratsynthfrtxtitmmgr_.getParam( this );
-    if ( !frtxtitm )
+    if ( !frtxtitm_ )
     {
 	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
 	const uiPoint pos( mNINT32( scene.width()/2 ),
 			   mNINT32( scene.height()-10 ) );
-	frtxtitm = scene.addItem(
+    frtxtitm_ = scene.addItem(
 				new uiTextItem(pos,uiString::emptyString(),
 					       mAlignment(HCenter,VCenter)) );
-	frtxtitm->setPenColor( Color::Black() );
-	frtxtitm->setZValue( 999999 );
-	frtxtitm->setMovable( true );
-	stratsynthfrtxtitmmgr_.setParam( this, frtxtitm );
+    frtxtitm_->setPenColor( Color::Black() );
+    frtxtitm_->setZValue( 999999 );
+    frtxtitm_->setMovable( true );
     }
 
-    frtxtitm->setVisible( yn );
+    frtxtitm_->setVisible( yn );
     if ( yn )
     {
-	frtxtitm->setText( isbrine ? tr("Brine filled")
+        frtxtitm_->setText( isbrine ? tr("Brine filled")
 				   : tr("Hydrocarbon filled") );
     }
 }
@@ -581,14 +571,13 @@ void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
 
 void uiStratSynthDisp::updateTextPosCB( CallBacker* )
 {
-    uiTextItem* frtxtitm = stratsynthfrtxtitmmgr_.getParam( this );
-    if ( !frtxtitm )
+    if ( !frtxtitm_)
 	return;
 
     const uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
     const uiPoint pos( mNINT32( scene.width()/2 ),
 		       mNINT32( scene.height()-10 ) );
-    frtxtitm->setPos( pos );
+    frtxtitm_->setPos( pos );
 }
 
 

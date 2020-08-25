@@ -20,6 +20,7 @@ class BufferStringSet;
 class TrcKeyZSampling;
 class IOPar;
 class SeisTrcBuf;
+class uiBatchTime2DepthSetup;
 class uiFlatViewWin;
 class uiSeisFileMan;
 class uiSeisImportCBVS;
@@ -81,6 +82,9 @@ protected:
     bool		ioSeis(int,bool);
     void		survChangedCB(CallBacker*);
     MultiID		getDefault2DDataID() const;
+
+    uiBatchTime2DepthSetup* t2ddlgs2d_ = nullptr;
+    uiBatchTime2DepthSetup* t2ddlgs3d_ = nullptr;
 
     uiSeisFileMan*	man2dseisdlg_ = nullptr;
     uiSeisFileMan*	man3dseisdlg_ = nullptr;

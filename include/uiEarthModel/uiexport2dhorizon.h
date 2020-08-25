@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiioobjselgrp.h"
+
 class SurfaceInfo;
 class uiListBox;
 class uiComboBox;
@@ -21,6 +22,7 @@ class uiGenInput;
 class uiCheckList;
 class uiFileInput;
 class od_ostream;
+namespace Coords { class uiCoordSystemSel; }
 
 
 /*! \brief Dialog for 2D horizon export */
@@ -50,9 +52,11 @@ protected:
     void		horChg(CallBacker*);
     bool		doExport();
     void		writeHeader(od_ostream&);
+
 protected:
 
     uiIOObjSelGrp*	bulkinfld_;
+    Coords::uiCoordSystemSel* coordsysselfld_ = nullptr;
 
     bool		isbulk_;
     bool		getInputMultiIDs(TypeSet<MultiID>&);

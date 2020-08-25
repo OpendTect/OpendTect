@@ -49,6 +49,7 @@ protected:
     uiGenInput*		selfld_;
     uiGenInput*		foldfld_;
     uiGenInput*		attribnamefld_;
+    uiGenInput*     classfld_;
     uiAttrSel*		inpfld_;
     uiIOObjSel*		horfld1_;
     uiIOObjSel*		horfld2_;

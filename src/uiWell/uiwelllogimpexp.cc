@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
@@ -37,9 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellwriter.h"
 #include "ioobj.h"
 #include "ioman.h"
-
-#include "hiddenparam.h"
-#include "uicoordsystem.h"
 
 
 static const float defundefval = -999.25;
@@ -295,7 +293,6 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
     return tr( "For %1 export %2" ).arg( wllstxt ).arg( logstxt );
 }
 
-static HiddenParam<uiExportLogs,Coords::uiCoordSystemSel*> coordsysselfld_(0);
 
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
@@ -320,14 +317,11 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
-    Coords::uiCoordSystemSel* coordsysselfld =
-				new Coords::uiCoordSystemSel( this );
-    coordsysselfld->attach( alignedBelow, typefld_ );
-
-    coordsysselfld_.setParam( this, coordsysselfld );
+    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+    coordsysselfld_->attach( alignedBelow, typefld_ );
 
     zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
-    zunitgrp_->attach( alignedBelow, coordsysselfld );
+    zunitgrp_->attach( alignedBelow, coordsysselfld_ );
     uiLabel* zlbl = new uiLabel( this,
 				 uiStrings::phrOutput( uiStrings::sZUnit() ));
     zlbl->attach( leftOf, zunitgrp_ );
@@ -368,7 +362,6 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 
 uiExportLogs::~uiExportLogs()
 {
-    coordsysselfld_.removeParam( this );
 }
 
 
@@ -406,7 +399,7 @@ void uiExportLogs::typeSel( CallBacker* )
 {
     zunitgrp_->setSensitive( 2, typefld_->getIntValue() );
     zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
-    coordsysselfld_.getParam(this)->display( typefld_->getIntValue() == 1 );
+    coordsysselfld_->display( typefld_->getIntValue() == 1 );
 }
 
 
@@ -508,8 +501,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const UnitOfMeasure* outunit =
 	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
 
-    const Coords::CoordSystem* outcrs = coordsysselfld_.getParam(this)->
-				    getCoordSystem();
+    const Coords::CoordSystem* outcrs = coordsysselfld_->getCoordSystem();
     const Coords::CoordSystem* syscrs = SI().getCoordSystem();
     const bool needsconversion = !(*outcrs == *syscrs);
 

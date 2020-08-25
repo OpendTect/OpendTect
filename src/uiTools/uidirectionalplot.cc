@@ -20,14 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "dataclipper.h"
-#include "hiddenparam.h"
 #include "mouseevent.h"
 
 
 #define mDefMarkerZValue 2
 #define mHLMarkerZValue 3
 
-static HiddenParam<uiDirectionalPlot,int> nrequicircles_(0);
 
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
 {
@@ -73,8 +71,6 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     draw();
-
-    nrequicircles_.setParam( this, 3 );
 }
 
 
@@ -94,7 +90,6 @@ uiDirectionalPlot::~uiDirectionalPlot()
     delete scalestartitm_;
     delete scalestopitm_;
     delete coltabitm_;
-    nrequicircles_.removeParam( this );
 }
 
 
@@ -189,20 +184,19 @@ void uiDirectionalPlot::draw()
 
 void uiDirectionalPlot::setNrEquicircles( int nrcircles )
 {
-    nrequicircles_.setParam( this, nrcircles );
+    nrequicircles_ = nrcircles;
 }
 
 
 void uiDirectionalPlot::drawGrid()
 {
-    const int nrcircles = nrequicircles_.getParam( this );
-    const float dr = 1.f / (nrcircles+1);
+    const float dr = 1.f / (nrequicircles_ +1);
 
     if ( outercircleitm_ )
     {
 	outercircleitm_->setPos( center_ );
 	outercircleitm_->setRadius( radius_ );
-	for ( int idx=0; idx<nrcircles; idx++ )
+	for ( int idx=0; idx< nrequicircles_; idx++ )
 	{
 	    const float rad = (dr + dr*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
@@ -214,7 +208,7 @@ void uiDirectionalPlot::drawGrid()
 	outercircleitm_ = scene().addItem( new uiCircleItem(center_,radius_) );
 	outercircleitm_->setPenStyle( setup_.circlels_ );
 	outercircleitm_->setZValue( 0 );
-	for ( int idx=0; idx<nrcircles; idx++ )
+	for ( int idx=0; idx< nrequicircles_; idx++ )
 	{
 	    const float rad = (dr + dr*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem(

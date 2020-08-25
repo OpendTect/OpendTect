@@ -148,7 +148,7 @@ public:
     bool			usingNeighborsInIsolatedLine() const;
 
     void			setLineWidth(int);
-    int				getLineWidth() const;
+    int				getLineWidth() const { return linewidths_; }
 
 protected:
 				~HorizonSection();
@@ -186,6 +186,7 @@ protected:
     RowCol			origin_;
 
     bool			userchangedisplayrg_;
+    int             linewidths_ = 1;
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
     StepInterval<int>		texturerowrg_;

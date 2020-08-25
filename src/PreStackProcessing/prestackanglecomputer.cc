@@ -23,13 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 
-#include "hiddenparam.h"
-
 
 namespace PreStack
 {
-
-static HiddenParam<AngleComputer,int> gathercorrectedparammgr_( 0 );
 
 mDefineEnumUtils(AngleComputer,smoothingType,"Smoothing Type")
 {
@@ -57,25 +53,17 @@ AngleComputer::AngleComputer()
     , trckey_(TrcKey::std3DSurvID(),BinID(0,0))
     , maxthickness_(25.f)
 {
-    gathercorrectedparammgr_.setParam( this, 1 );
 }
 
 
 AngleComputer::~AngleComputer()
 {
     delete raytracer_;
-    gathercorrectedparammgr_.removeParam( this );
 }
 
 
 void AngleComputer::setOutputSampling( const FlatPosData& os )
 { outputsampling_  = os; }
-
-
-void AngleComputer::setGatherIsNMOCorrected( bool yn )
-{
-    gathercorrectedparammgr_.setParam( this, yn ? 1 : 0 );
-}
 
 
 void AngleComputer::setRayTracer( const IOPar& raypar )
@@ -315,18 +303,17 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const RayTracer1D* rt = curRayTracer();
     if ( !rt ) return false;
 
-    const bool iscorrected_ = gathercorrectedparammgr_.getParam( this ) == 1;
     const int nrlayers = rt->getModel().size();
     mAllocVarLenArr( float, depths, nrlayers );
     mAllocVarLenArr( float, times, nrlayers );
     if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
     const bool zistime = SI().zIsTime();
-    if ( !zistime || iscorrected_ )
+    if ( !zistime || gatheriscorrected_ )
     {
 	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 	    depths[layeridx] = rt->getDepth( layeridx );
 
-	if ( iscorrected_ )
+	if (gatheriscorrected_)
 	{
 	    TimeDepthModel tdmodel; rt->getZeroOffsTDModel( tdmodel );
 	    for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
@@ -364,7 +351,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
 	    const float zval = zistime
-		  ? (iscorrected_ ? times[layeridx]
+		  ? (gatheriscorrected_ ? times[layeridx]
 				  : rt->getTime(layeridx,ofsidx))
 		  : depths[layeridx];
 	    sinanglevals.add( zval, sinangle );

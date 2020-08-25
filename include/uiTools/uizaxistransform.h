@@ -43,8 +43,8 @@ public:
 				   construction.
 				 */
 
-    void			setIs2D(bool);
-    bool			is2D() const;
+    void			setIs2D( bool yn ) { is2dzat_ = yn; }
+    bool			is2D() const { return is2dzat_; }
 
 protected:
     static bool 		isField(const uiParent*);
@@ -54,6 +54,7 @@ protected:
 
     uiGenInput* 		rangefld_;
     bool			rangechanged_;
+    bool            is2dzat_ = false;
 };
 
 

@@ -63,7 +63,9 @@ protected:
     MultiID			chainid_;
     MultiID			outid_;
     TrcKeyZSampling		cs_;
-    IOPar*			chainpar_;
+    TrcKeySampling     tkscalcscope_;
+    TrcKeySampling     tkscalcdone_;
+    IOPar* chainpar_;
 
     Chain*			chain_;
     ChainExecutor*		chainexec_;

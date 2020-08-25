@@ -38,21 +38,24 @@ class Gather;
 */
 
 mExpClass(PreStackProcessing) AngleComputer
-{ mRefCountImpl(AngleComputer)
+{
+    mRefCountImpl(AngleComputer)
 public:
-				AngleComputer();
+    AngleComputer();
 
-    enum smoothingType		{ None, MovingAverage, FFTFilter };
-				mDeclareEnumUtils(smoothingType)
+    enum smoothingType { None, MovingAverage, FFTFilter };
+    mDeclareEnumUtils(smoothingType)
 
-    virtual Gather*		computeAngles() = 0;
+        virtual Gather* computeAngles() = 0;
     virtual bool		isOK() const = 0;
-    void			setTrcKey( const TrcKey& tk )
-				{ trckey_ = tk; }
+    void			setTrcKey(const TrcKey & tk)
+    {
+        trckey_ = tk;
+    }
 
     void			setOutputSampling(const FlatPosData&);
-    void			setRayTracer(const IOPar& raypar);
-    void			setGatherIsNMOCorrected(bool yn);
+    void			setRayTracer(const IOPar & raypar);
+    void			setGatherIsNMOCorrected( bool yn ) { gatheriscorrected_ = yn; }
     void			setNoSmoother();
 			    /*!<\param length Filter length in survey Z unit*/
     void			setMovingAverageSmoother(float length,
@@ -90,6 +93,7 @@ protected:
     float			maxthickness_;
     bool			needsraytracing_;
     TrcKey			trckey_;
+    bool            gatheriscorrected_ = true;
 };
 
 

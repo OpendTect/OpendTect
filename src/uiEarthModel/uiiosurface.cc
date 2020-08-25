@@ -34,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -880,15 +879,15 @@ public:
 
 
 //uiFaultParSel
-HiddenParam<uiFaultParSel,char> isfltset_(0);
+
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     : uiCompoundParSel(p,toUiString("**********")) //Hack So that textfld_ label is correctly updated
     , is2d_(is2d)
+    , isfltset_(false)
     , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
 {
-    isfltset_.setParam( this, false );
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
 
     clearbut_ = new uiPushButton(this, uiStrings::sClear(), true);
@@ -904,20 +903,19 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
 uiFaultParSel::~uiFaultParSel()
 {
     detachAllNotifiers();
-    isfltset_.removeParam( this );
 }
 
 
 void uiFaultParSel::updateOnSelChg( bool isfltset )
 {
-    isfltset_.setParam( this, isfltset );
+    isfltset_ = isfltset;
     updateOnSelChgCB(0);
 }
 
 
 void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
 {
-    setSelText( isfltset_.getParam(this) ? uiStrings::sFaultSet( mPlural )
+    setSelText( isfltset_ ? uiStrings::sFaultSet( mPlural )
 					    : uiStrings::sFault( mPlural ) );
 }
 
@@ -990,7 +988,7 @@ void uiFaultParSel::doDlg( CallBacker* )
     else
     {
 	PtrMan<CtxtIOObj> ctio =
-		isfltset_.getParam( this ) ? mMkCtxtIOObj(EMFaultSet3D) :
+		isfltset_ ? mMkCtxtIOObj(EMFaultSet3D) :
 		is2d_ ? mMkCtxtIOObj(EMFaultStickSet) : mMkCtxtIOObj(EMFault3D);
 	uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sFault()) );
 			     sdsu.multisel( true );

@@ -236,6 +236,7 @@ protected:
     void			doDlg(CallBacker*);
     void			updateOnSelChgCB(CallBacker*);
     bool			is2d_;
+    bool            isfltset_;
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
     TypeSet<Pos::GeomID>	geomids_;

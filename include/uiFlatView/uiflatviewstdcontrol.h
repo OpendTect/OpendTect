@@ -37,7 +37,8 @@ protected:
     float&		x2pospercm_;
 
     uiGenInput*		x1fld_;
-    uiGenInput*		x2fld_;
+    uiGenInput*		x2fld_ = nullptr;
+    uiGenInput*     unitflds_;
     uiCheckBox*		saveglobalfld_;
 
     void		finalizeDoneCB(CallBacker*);

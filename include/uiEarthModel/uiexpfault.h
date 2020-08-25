@@ -64,5 +64,6 @@ protected:
     bool		writeAscii();
     bool		isbulk_;
     uiString		dispstr_;
+    FixedString   typ_;
 };
 

@@ -184,6 +184,7 @@ protected:
 				'2' - auto interpreted.
 				'3' - Gridding.
 				enum NodeSourceType*/
+    StepInterval<int>       trackingsampling_;
 };
 
 } // namespace EM

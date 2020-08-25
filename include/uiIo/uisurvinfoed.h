@@ -167,6 +167,7 @@ protected:
     TDInfo		tdinf_;
     bool		inft_;
     BufferStringSet	survlist_;
+    IOPar* crspars_ = nullptr;
 
 public:
 			//Do NOT use, for ABI compatibility only

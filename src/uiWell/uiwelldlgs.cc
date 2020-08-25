@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "file.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -103,7 +102,6 @@ uiString getDlgTitle( const MultiID& wllky )
 	setbut->attach( rightOf, fld ); \
     }
 
-static HiddenParam<uiWellTrackDlg,uiGenInput*> glflds(nullptr);
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,mGetDlgSetup(d,tr("Well Track"),mWellTrackDlgHelpID))
@@ -168,11 +166,10 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
     if ( !writable_ ) kbelevfld_->setReadOnly( true );
 
-    uiGenInput* glfld = new uiGenInput( actgrp, Well::Info::sGroundElev(),
+    glfld_ = new uiGenInput( actgrp, Well::Info::sGroundElev(),
 					FloatInpSpec(mUdf(float)) );
-    glfld->attach( alignedBelow, kbelevfld_ );
-    if ( !writable_ ) glfld->setReadOnly( true );
-    glflds.setParam( this, glfld );
+    glfld_->attach( alignedBelow, kbelevfld_ );
+    if ( !writable_ ) glfld_->setReadOnly( true );
 
     uiButton* readbut = !writable_ ? 0
 		: new uiPushButton( this, uiStrings::sImport(),
@@ -203,8 +200,6 @@ uiWellTrackDlg::~uiWellTrackDlg()
 {
     delete orgtrack_;
     delete &fd_;
-
-    glflds.removeParam( this );
 }
 
 
@@ -282,8 +277,7 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     kbelevfld_->setTitleText(
 		tr("%1 %2 ").arg( Well::Info::sKBElev() ).arg(depthunit) );
 
-    uiGenInput* glfld = glflds.getParam( this );
-    glfld->setTitleText(
+    glfld_->setTitleText(
 		tr("%1 %2 ").arg( Well::Info::sGroundElev() ).arg(depthunit) );
 
     if ( track_.size() > 1 )
@@ -296,7 +290,7 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     wellheadyfld_->setValue( wellhead.y );
 
     kbelevfld_->setValue( mConvertVal(track_.getKbElev(),true) );
-    glfld->setValue( mConvertVal(wd_.info().groundelev,true) );
+    glfld_->setValue( mConvertVal(wd_.info().groundelev,true) );
 }
 
 
@@ -567,7 +561,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 {
     wd_.info().uwid = uwifld_->text();
     wd_.info().groundelev =
-	mConvertVal(glflds.getParam(this)->getFValue(),false);
+	mConvertVal(glfld_->getFValue(),false);
 
     track_.setEmpty();
     const int nrrows = tbl_->nrRows();

@@ -27,10 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "color.h"
 
-#include "hiddenparam.h"
-
-static HiddenParam<EM::Horizon2D,StepInterval<int>*> trackingsampling(0);
-
 
 namespace EM
 {
@@ -371,16 +367,14 @@ Horizon2D::Horizon2D( EMManager& emm )
     : Horizon(emm)
     , geometry_(*this)
     , nodesource_( 0 )
+    , trackingsampling_(0,0,0)
 {
     geometry_.addSection( "", false );
-    trackingsampling.setParam( this, new StepInterval<int>(0,0,0) );
 }
 
 
 Horizon2D::~Horizon2D()
 {
-    delete trackingsampling.getParam( this );
-    trackingsampling.removeParam( this );
 }
 
 
@@ -395,7 +389,7 @@ void Horizon2D::initNodeSourceArray( const TrcKey& tk )
     const int size = trcrg.nrSteps()+1;
     nodesource_ = new Array1DImpl<char>( size );
     nodesource_->setAll('0');
-    *trackingsampling.getParam(this) = trcrg;
+    trackingsampling_ = trcrg;
 }
 
 
@@ -428,11 +422,10 @@ bool Horizon2D::setZAndNodeSourceType( const TrcKey& tk, float z,
 
 void Horizon2D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
 {
-    const StepInterval<int>* sampling = trackingsampling.getParam( this );
-    if ( !nodesource_ || !sampling )
+    if ( !nodesource_ )
 	return;
 
-    const int idx = sampling->getIndex( tk.trcNr() );
+    const int idx = trackingsampling_.getIndex( tk.trcNr() );
     if ( nodesource_->info().validPos(idx) )
 	nodesource_->getData()[idx] = (char)type;
 }
@@ -448,11 +441,10 @@ bool Horizon2D::isNodeSourceType( const PosID& posid,
 
 bool Horizon2D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
 {
-    const StepInterval<int>* sampling = trackingsampling.getParam( this );
-    if ( !nodesource_ || !sampling )
+    if ( !nodesource_ )
 	return false;
 
-    const int idx = sampling->getIndex( tk.trcNr() );
+    const int idx = trackingsampling_.getIndex( tk.trcNr() );
     return nodesource_->info().validPos(idx) ?
 	nodesource_->getData()[idx]==(char)type : false;
 }
