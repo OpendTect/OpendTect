@@ -179,7 +179,7 @@ void uiBulkFaultImport::init()
     {
 	IOObjContext ctxt = mIOObjContext(EMFaultSet3D);
 	ctxt.forread_ = false;
-	uiIOObjSel* fltsetnmfld_ = new uiIOObjSel( this, ctxt,
+	fltsetnmfld_ = new uiIOObjSel( this, ctxt,
 				uiStrings::phrOutput(uiStrings::sFaultSet()) );
 	fltsetnmfld_->attach( alignedBelow, dataselfld_ );
 
