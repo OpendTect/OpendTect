@@ -40,6 +40,7 @@ protected:
     uiLabel*		proglbl_;
 
     Timer&		tim_;
+    int         prevtime_ = 0;
     BufferString	execnm_;
     int			symbidx_;
 

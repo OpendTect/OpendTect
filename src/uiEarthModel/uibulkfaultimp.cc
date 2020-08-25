@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
-#include "hiddenparam.h"
 #include "emfsstofault3d.h"
 #include "emfaultset3d.h"
 #include "uiioobjsel.h"
@@ -127,23 +126,15 @@ static const char* sKeyFileOrder()	{ return "File order"; }
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID), mTODOHelpKey )
 
-static HiddenParam<uiBulkFaultImport,char> is2dfss_(0);
-static HiddenParam<uiBulkFaultImport,char> isfltset_(0);
-
-static HiddenParam<uiBulkFaultImport,uiGenInput*> sortsticksfld_(nullptr);
-static HiddenParam<uiBulkFaultImport,uiIOObjSel*> fltsetnmfld_(nullptr);
-
-
-uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Multiple Faults"),mNoDlgTitle,
-				 mODHelpKey(mBulkFaultImportHelpID))
-		 .modal(false))
-    , fd_(BulkFaultAscIO::getDesc(false,false))
-    , isfss_(false)
+uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
+	: uiDialog(p, uiDialog::Setup(tr("Import Multiple Faults"), mNoDlgTitle,
+		mODHelpKey(mBulkFaultImportHelpID))
+		.modal(false))
+	, fd_(BulkFaultAscIO::getDesc(false, false))
+	, isfss_(false)
+	, isfltset_(false)
+	, is2dfss_(false)
 {
-    isfltset_.setParam( this, false );
-    is2dfss_.setParam( this, false );
-    fltsetnmfld_.setParam( this, nullptr );
     init();
 }
 
@@ -157,10 +148,9 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
 				mGetHelpKey(type)).modal(false))
     , fd_(BulkFaultAscIO::getDesc(mGet(type,true,false,false),is2d))
     , isfss_(mGet(type,true,false,false))
+    , isfltset_(mGet(type,false,false,true))
+	, is2dfss_(is2d)
 {
-    isfltset_.setParam( this, mGet(type,false,false,true) );
-    is2dfss_.setParam( this, is2d );
-    fltsetnmfld_.setParam( this, nullptr );
     init();
 }
 
@@ -177,24 +167,21 @@ void uiBulkFaultImport::init()
     BufferStringSet sticksortopt;
     sticksortopt.add( sKeyGeometric() )
 		.add( sKeyIndexed() ).add( sKeyFileOrder() );
-    uiGenInput* sortsticksfld = new uiGenInput( this, tr("Stick sorting"),
+    sortsticksfld_ = new uiGenInput( this, tr("Stick sorting"),
 				     StringListInpSpec(sticksortopt) );
-    sortsticksfld->attach( alignedBelow, inpfld_ );
-
-    sortsticksfld_.setParam( this, sortsticksfld );
+	sortsticksfld_->attach( alignedBelow, inpfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 		mODHelpKey(mTableImpDataSelwellsHelpID) );
-    dataselfld_->attach( alignedBelow, sortsticksfld );
+    dataselfld_->attach( alignedBelow, (uiObject*)sortsticksfld_ );
 
-    if ( isfltset_.getParam(this) )
+    if ( isfltset_ )
     {
 	IOObjContext ctxt = mIOObjContext(EMFaultSet3D);
 	ctxt.forread_ = false;
-	uiIOObjSel* fssetnmfld = new uiIOObjSel( this, ctxt,
+	uiIOObjSel* fltsetnmfld_ = new uiIOObjSel( this, ctxt,
 				uiStrings::phrOutput(uiStrings::sFaultSet()) );
-	fssetnmfld->attach( alignedBelow, dataselfld_ );
-	fltsetnmfld_.setParam( this, fssetnmfld );
+	fltsetnmfld_->attach( alignedBelow, dataselfld_ );
 
 	mAttachCB( inpfld_->valuechanged, uiBulkFaultImport::inpChangedCB );
     }
@@ -205,10 +192,6 @@ uiBulkFaultImport::~uiBulkFaultImport()
 {
     detachAllNotifiers();
     delete fd_;
-    is2dfss_.removeParam( this );
-    isfltset_.removeParam( this );
-    sortsticksfld_.removeParam( this );
-    fltsetnmfld_.removeParam( this );
 }
 
 
@@ -350,9 +333,8 @@ static void updateFaultStickSet( EM::Fault* flt,
 
 void uiBulkFaultImport::inpChangedCB( CallBacker* )
 {
-    if ( !fltsetnmfld_.getParam( this ) )
-	return;
-    fltsetnmfld_.getParam( this )->setInput( MultiID(inpfld_->baseName()) );
+    if ( fltsetnmfld_ )
+		fltsetnmfld_->setInput( MultiID(inpfld_->baseName()) );
 }
 
 
@@ -368,11 +350,8 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     if ( !dataselfld_->commit() )
 	return false;
 
-    const bool isfltset = isfltset_.getParam( this );
-    const bool is2d = is2dfss_.getParam( this );
-
     ManagedObjectSet<FaultPars> pars;
-    BulkFaultAscIO aio( *fd_, strm, is2d );
+    BulkFaultAscIO aio( *fd_, strm, is2dfss_ );
     readInput( aio, pars );
 
     // TODO: Check if name exists, ask user to overwrite or give new name
@@ -381,19 +360,19 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
 						    : EM::Fault3D::typeStr();
     BufferString savernm = isfss_ ? "Saving FaultStickSets" :
-			    isfltset ? "Saving FaultSet" :"Saving Faults";
+		isfltset_ ? "Saving FaultSet" :"Saving Faults";
 
     EM::FaultSet3D* fltset = nullptr;
 
-    if ( isfltset )
+    if (isfltset_)
     {
-	const IOObj* ioobj = fltsetnmfld_.getParam( this )->ioobj();
+	const IOObj* ioobj = fltsetnmfld_->ioobj();
 	if ( !ioobj )
 	    return false;
 	EM::ObjectID oid = EM::EMM().createObject( EM::FaultSet3D::typeStr(),
 								ioobj->name() );
 	mDynamicCast( EM::FaultSet3D*, fltset, EM::EMM().getObject( oid ) );
-	if ( isfltset && !fltset )
+	if (isfltset_ && !fltset )
 	    return false;
     }
 
@@ -403,7 +382,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	EM::EMManager& em = EM::EMM();
 	RefMan<EM::EMObject> emobj = nullptr;
 	EM::ObjectID emid;
-	if ( isfltset )
+	if (isfltset_)
 	    emobj = em.createTempObject( typestr );
 	else
 	{
@@ -418,9 +397,9 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
 	ManagedObjectSet<EM::FaultStick> faultsticks;
 	fillFaultSticks( *pars[idx], faultsticks );
-	updateFaultStickSet( flt, faultsticks, is2d );
+	updateFaultStickSet( flt, faultsticks, is2dfss_ );
 
-	if ( !isfltset )
+	if ( !isfltset_)
 	    saver.add( emobj->saver() );
 	else
 	{
@@ -429,7 +408,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	}
     }
 
-    if ( isfltset )
+    if (isfltset_)
 	saver.add( fltset->saver() );
 
     if ( TaskRunner::execute( &taskr, saver ) )
@@ -437,7 +416,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	uiString msg = tr("%1 succesfully imported.\n\n"
 			"Do you want to import more %1?").arg(isfss_ ?
 	    uiStrings::sFaultStickSet(mPlural) :
-	    isfltset ? uiStrings::sFaultSet() : uiStrings::sFault(mPlural));
+				isfltset_ ? uiStrings::sFaultSet() : uiStrings::sFault(mPlural));
 
 	bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );

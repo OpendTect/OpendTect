@@ -57,6 +57,7 @@ public:
 protected:
 
     Stats::Type			stattyp_;
+    bool        isclassification_ = false;
     SeisTrcReader*		rdr_;
     bool			usesstored_;
     const EM::Horizon3D*	tophorizon_;

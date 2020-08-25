@@ -17,6 +17,7 @@ class DirList;
 class MeasureToolMan;
 class uiODFaultToolMan;
 class uiODHelpMenuMgr;
+class uiODLangMenuMgr;
 class uiMenu;
 class uiToolBar;
 class uiAction;
@@ -126,6 +127,7 @@ protected:
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
     uiMenu*		csoitm_;
+    uiODLangMenuMgr* langmnumgr_ = nullptr;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;
 

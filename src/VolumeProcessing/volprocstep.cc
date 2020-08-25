@@ -9,8 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocchain.h"
 #include "seisdatapack.h"
 
-#include "hiddenparam.h"
-
 
 namespace VolProc
 {
@@ -102,12 +100,6 @@ protected:
 
 
 
-static HiddenParam<VolProc::Step,BinID>  volprocstephstepmgr_(BinID(0,0));
-static HiddenParam<VolProc::Step,int>	volprocstepvstepmgr_(0);
-static HiddenParam<VolProc::Step,TypeSet<int>*>  volprocstepnrinpcompsmgr_(0);
-static HiddenParam<VolProc::Step,int>	volprocstepnroutcompsmgr_(0);
-static HiddenParam<VolProc::Step,StepInterval<float>* >  volprocstepzsampmgr_(0);
-
 mStartAllowDeprecatedSection
 
 VolProc::Step::Step()
@@ -116,26 +108,15 @@ VolProc::Step::Step()
     , id_( cUndefID() )
     , tks_(false)
     , zrg_(StepInterval<int>::udf())
+    , hstep_(0,0)
 {
-    volprocstephstepmgr_.setParam( this, BinID(0,0) );
-    volprocstepvstepmgr_.setParam( this, 0 );
-    volprocstepnrinpcompsmgr_.setParam( this, new TypeSet<int> );
-    *volprocstepnrinpcompsmgr_.getParam( this ) += 0;
-    volprocstepnroutcompsmgr_.setParam( this, 1 );
-    volprocstepzsampmgr_.setParam( this, new StepInterval<float> );
-
+    nrinpcomps_ += 0;
     inputs_.allowNull();
 }
 
 
 VolProc::Step::~Step()
 {
-    volprocstephstepmgr_.removeParam( this );
-    volprocstepvstepmgr_.removeParam( this );
-    volprocstepnrinpcompsmgr_.removeAndDeleteParam( this );
-    volprocstepnroutcompsmgr_.removeParam( this );
-    volprocstepzsampmgr_.removeAndDeleteParam( this );
-
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
 
@@ -144,47 +125,22 @@ VolProc::Step::~Step()
 
 mStopAllowDeprecatedSection
 
-void VolProc::Step::setHStep( const BinID& bid )
-{ volprocstephstepmgr_.setParam( this, bid ); }
-
-void VolProc::Step::setVStep( int step )
-{ volprocstepvstepmgr_.setParam( this, step ); }
-
 void VolProc::Step::setInpNrComps( InputSlotID slotid, int nr )
 {
-    TypeSet<int>& nrcomps = *volprocstepnrinpcompsmgr_.getParam( this );
     for ( int idx=0; idx<=slotid; idx++ )
     {
-	if ( nrcomps.size() <= idx )
-	    nrcomps += 0;
+	if (nrinpcomps_.size() <= idx )
+        nrinpcomps_ += 0;
     }
 
-    nrcomps[slotid] = nr;
+    nrinpcomps_[slotid] = nr;
 }
-
-
-void VolProc::Step::setOutputNrComps( int nr )
-{ volprocstepnroutcompsmgr_.setParam( this, nr ); }
 
 
 int VolProc::Step::getNrInputComponents( InputSlotID slotid ) const
 {
-    const TypeSet<int>& nrcomps = *volprocstepnrinpcompsmgr_.getParam( this );
-    return nrcomps[slotid];
+    return nrinpcomps_[slotid];
 }
-
-
-int VolProc::Step::getNrOutComponents() const
-{
-    return volprocstepnroutcompsmgr_.getParam( this );
-}
-
-
-const StepInterval<float>& VolProc::Step::getZSampling() const
-{
-    return *volprocstepzsampmgr_.getParam( this );
-}
-
 
 
 void VolProc::Step::resetInput()
@@ -315,8 +271,7 @@ bool VolProc::Step::validOutputSlotID( OutputSlotID slotid ) const
 TrcKeySampling VolProc::Step::getInputHRg( const TrcKeySampling& hr ) const
 {
     TrcKeySampling res( hr );
-    const BinID& bid = volprocstephstepmgr_.getParam( this );
-    res.expand( bid.inl(), bid.crl() );
+    res.expand( hstep_.inl(), hstep_.crl() );
 
     return res;
 }
@@ -337,7 +292,7 @@ StepInterval<float> VolProc::Step::getInputZSamp(
 					const StepInterval<float>& zsamp ) const
 {
     StepInterval<float> res( zsamp );
-    res.widen( res.step * volprocstepvstepmgr_.getParam( this ) );
+    res.widen( res.step * vstep_ );
 
     return res;
 }
@@ -375,7 +330,7 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 od_uint64 VolProc::Step::extraMemoryUsage( OutputSlotID slotid,
 					   const TrcKeyZSampling& tkzs ) const
 {
-    *volprocstepzsampmgr_.getParam( this ) = tkzs.zsamp_;
+    const_cast<Step&>(*this).zsamp_ = tkzs.zsamp_;
     StepInterval<int> unusedzrg;
 
     return extraMemoryUsage( slotid, tkzs.hsamp_, unusedzrg );
@@ -387,7 +342,7 @@ od_uint64 VolProc::Step::getComponentMemory( const TrcKeySampling& tks,
 {
     TrcKeyZSampling usedtkzs;
     usedtkzs.hsamp_ = tks;
-    usedtkzs.zsamp_ = *volprocstepzsampmgr_.getParam( this );
+    usedtkzs.zsamp_ = zsamp_;
 
     return getComponentMemory( usedtkzs, input );
 }

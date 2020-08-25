@@ -13,10 +13,12 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiposprovgroup.h"
+
 class CtxtIOObj;
 class TrcKeyZSampling;
 class uiGenInput;
 class uiIOObjSel;
+class uiPosSubSel;
 class uiSelSteps;
 class uiSelHRange;
 class uiSelZRange;
@@ -94,6 +96,8 @@ protected:
     uiIOObjSel*		polyfld_;
     uiSelSteps*		stepfld_;
     uiSelZRange*	zrgfld_;
+    uiGenInput*     inoutfld_;
+    uiPosSubSel*    bboxfld_;
 
 };
 

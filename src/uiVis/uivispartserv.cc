@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "flatview.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -97,8 +96,6 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
-static HiddenParam<uiVisPartServer,uiSurvTopBotImageDlg*> topbotdlg(nullptr);
-
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -157,8 +154,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
     PickRetriever::setInstance( pickretriever_ );
-
-    topbotdlg.setParam( this, nullptr );
 }
 
 
@@ -205,7 +200,7 @@ uiVisPartServer::~uiVisPartServer()
     delete multirgeditwin_;
     delete dirlightdlg_;
 
-    topbotdlg.removeParam( this );
+    delete topbotdlg_;
     setMouseCursorExchange( 0 );
 }
 
@@ -1126,7 +1121,7 @@ bool uiVisPartServer::deleteAllObjects()
 	deleteAndZeroPtr( multirgeditwin_ );
     }
 
-    topbotdlg.deleteAndZeroPtrParam( this );
+    deleteAndZeroPtr( topbotdlg_ );
 
     scenes_.erase();
     nrscenesChange.trigger();
@@ -1315,12 +1310,11 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
 
 void uiVisPartServer::setTopBotImg( int sceneid )
 {
-    topbotdlg.deleteAndZeroPtrParam( this );
-    uiSurvTopBotImageDlg* dlg = new uiSurvTopBotImageDlg( appserv().parent(),
+    delete topbotdlg_;
+    topbotdlg_ = new uiSurvTopBotImageDlg( appserv().parent(),
 							  getScene(sceneid) );
-    topbotdlg.setParam( this, dlg );
-    dlg->setModal( false );
-    dlg->show();
+    topbotdlg_->setModal( false );
+    topbotdlg_->show();
 }
 
 

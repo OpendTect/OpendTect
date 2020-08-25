@@ -92,6 +92,8 @@ protected:
     MenuItem		delchildrenmnuitem_;
     MenuItem		lockmnuitem_;
     MenuItem		unlockmnuitem_;
+    MenuItem        addinlitm_;
+    MenuItem        addcrlitm_;
 
     bool		rgba_;
     bool		atsections_;

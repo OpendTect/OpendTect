@@ -59,7 +59,8 @@ public:
     const Coord3&		getPos() const;
     int				getObjID() const;
     EM::ObjectID		getEMObjID() const; // avail when clicked on hor
-    int				getEMVisID() const; // avail when clicked on hor
+    int				getEMVisID() const { return emvisids_; }
+                    // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
@@ -109,6 +110,7 @@ protected:
     Attrib::SelSpec			attrsel_;
     const TrcKeyPath*			rdltkpath_;
     int					rdlid_;
+    int                 emvisids_ = -1;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID				geomid_;

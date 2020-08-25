@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
@@ -59,7 +58,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
-static HiddenParam<uiSurfaceMan,uiToolButton*> manfltsetbut_(0);
 
 mDefineEnumUtils(uiSurfaceMan,Type,"Surface type")
 {
@@ -144,7 +142,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manfltsetbut_.setParam( this, 0 );
 
     if ( type_ != Body )
 	copybut_ = manipgrp->addButton( "copyobj", tr("Copy to new object"),
@@ -214,11 +211,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == FltSet )
     {
-	uiToolButton* manfltsetbut = manipgrp->addButton( "man_flt",
+	manselsetbut_ = manipgrp->addButton( "man_flt",
 			    uiStrings::phrManage(uiStrings::sFault(mPlural)),
 			    mCB(this,uiSurfaceMan,manFltSetCB) );
-	manfltsetbut->setSensitive( false );
-	manfltsetbut_.setParam( this, manfltsetbut );
+    manselsetbut_->setSensitive( false );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -228,7 +224,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 
 uiSurfaceMan::~uiSurfaceMan()
 {
-    manfltsetbut_.removeParam( this );
 }
 
 
@@ -650,9 +645,8 @@ void uiSurfaceMan::mkFileInfo()
 	txt = "Nr Faults: ";
 	txt += dl.size();
 	txt += "\n";
-	uiToolButton* manfltsetbut = manfltsetbut_.getParam( this );
-	if ( manfltsetbut )
-	    manfltsetbut->setSensitive( dl.size() );
+	if ( manselsetbut_ )
+        manselsetbut_->setSensitive( dl.size() );
     }
     else if ( type_ == Body )
     {

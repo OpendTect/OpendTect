@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "polyposprovider.h"
 
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -22,15 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-static HiddenParam<Pos::PolyProvider3D,char> useinside(0);
-
 Pos::PolyProvider3D::PolyProvider3D()
     : poly_(*new ODPolygon<float>)
     , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
     , mid_(MultiID::udf())
 {
-    useinside.setParam( this, true );
 }
 
 
@@ -39,29 +35,15 @@ Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& pp )
     , hs_(pp.hs_)
     , zrg_(pp.zrg_)
     , mid_ (pp.mid_)
+    , useinside_(pp.useinside_)
 {
-    useinside.setParam( this, true );
 }
 
 
 Pos::PolyProvider3D::~PolyProvider3D()
 {
-    useinside.removeParam( this );
-
     delete &poly_;
     delete &hs_;
-}
-
-
-void Pos::PolyProvider3D::setUseAreaInside( bool yn )
-{
-    useinside.setParam( this, yn );
-}
-
-
-bool Pos::PolyProvider3D::usesAreaInside() const
-{
-    return useinside.getParam( this );
 }
 
 
@@ -73,7 +55,7 @@ Pos::PolyProvider3D& Pos::PolyProvider3D::operator=( const PolyProvider3D& pp )
 	hs_ = pp.hs_;
 	zrg_ = pp.zrg_;
 	mid_ = pp.mid_;
-	setUseAreaInside( pp.usesAreaInside() );
+    useinside_ = pp.useinside_;
     }
 
     return *this;

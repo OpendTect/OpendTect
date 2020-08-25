@@ -51,6 +51,7 @@ protected:
     uiToolButton*	createregbodybut_;
     uiToolButton*	volestimatebut_;
     uiToolButton*	switchvalbut_;
+    uiToolButton*   manselsetbut_ = nullptr;
 
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);

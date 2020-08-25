@@ -241,6 +241,7 @@ protected:
     uiString		titletext_;
     uiCheckBox*		cbox_;
     uiButton*		selbut_;
+    uiTextValidator* textvl_ = nullptr;
 
 			//! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);

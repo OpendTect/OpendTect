@@ -55,6 +55,8 @@ protected:
     MultiID		nlaid_;
     Attrib::DescID	nladescid_;
     const NLAModel*	nlamodel_;
+    TypeSet<Attrib::DescID> outdescids_;
+    BufferStringSet outdescnms_;
 
     uiAttrSel*		attrfld_;
     uiBatchJobDispatcherSel* batchfld_;

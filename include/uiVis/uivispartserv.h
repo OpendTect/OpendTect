@@ -36,6 +36,7 @@ class uiMenuHandler;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
 class uiSlicePos3DDisp;
+class uiSurvTopBotImageDlg;
 class uiToolBar;
 class uiTreeItemTBHandler;
 class uiVisModeMgr;
@@ -426,6 +427,7 @@ protected:
 
     uiMPEMan*			mpetools_;
     uiSlicePos3DDisp*		slicepostools_;
+    uiSurvTopBotImageDlg* topbotdlg_ = nullptr;
 
     uiMultiMapperRangeEditWin*	multirgeditwin_;
     bool			mapperrgeditinact_;

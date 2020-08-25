@@ -85,6 +85,7 @@ protected:
     FlatView::ZoomMgr	zoommgr_;
     bool		haverubber_;
     IOPar		infopars_;
+    bool        initdone_ = false;
 
     uiFlatViewPropDlg*  propdlg_;
 

@@ -24,6 +24,7 @@ class uiListBox;
 class uiTable;
 class uiWellSel;
 
+namespace Coords { class uiCoordSystemSel; }
 namespace Well { class Log; class Data; }
 
 
@@ -74,6 +75,7 @@ protected:
     uiGenInput*		zrangefld_;
     uiFileInput*	outfld_;
     uiGenInput*		multiwellsnamefld_;
+    Coords::uiCoordSystemSel* coordsysselfld_;
 
     void		setDefaultRange(bool);
     void		writeHeader(od_ostream&,const Well::Data&);

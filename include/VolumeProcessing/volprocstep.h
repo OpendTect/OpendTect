@@ -142,18 +142,24 @@ protected:
 
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 
-    const StepInterval<float>&	getZSampling() const;
-    void			setHStep(const BinID&);
-    void			setVStep(int);
+    const StepInterval<float>& getZSampling() const { return zsamp_; }
+    void			setHStep( const BinID& bid ) { hstep_ = bid; }
+    void			setVStep( int zstep ) { vstep_ = zstep;  }
     void			setInpNrComps(InputSlotID,int);
-    void			setOutputNrComps(int);
+    void			setOutputNrComps(int nr) { nroutcomps_ = nr; }
 
     int				getNrInputComponents(InputSlotID) const;
-    int				getNrOutComponents() const;
+    int				getNrOutComponents() const { return nroutcomps_; }
 
 private:
 
     RegularSeisDataPack*	output_;
+
+    BinID           hstep_;
+    int             vstep_ = 0;
+    TypeSet<int>    nrinpcomps_;
+    int             nroutcomps_ = 1;
+    StepInterval<float> zsamp_;
 
     void			setChain(Chain&);
 

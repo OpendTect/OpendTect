@@ -33,6 +33,7 @@ class uiSynthGenDlg;
 class uiSeisWaveletSel;
 class uiStratLayerModel;
 class uiSynthSlicePos;
+class uiTextItem;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; class LayerModelProvider; }
@@ -163,6 +164,7 @@ protected:
     uiComboBox*		levelsnapselfld_;
     uiSynthGenDlg*	synthgendlg_;
     uiSynthSlicePos*	offsetposfld_;
+    uiTextItem*     frtxtitm_ = nullptr;
     PtrMan<TaskRunner>	taskrunner_;
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 

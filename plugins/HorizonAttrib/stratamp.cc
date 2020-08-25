@@ -31,9 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "od_ostream.h"
 
-#include "hiddenparam.h"
-
-static HiddenParam<StratAmpCalc,char> isclassification_( 0 );
 
 const char* StratAmpCalc::sKeySingleHorizonYN()	{ return "Is single horizon"; }
 const char* StratAmpCalc::sKeyTopHorizonID()	{ return "Top horizon"; }
@@ -73,7 +70,6 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     if ( bothor ) bothor->ref();
 
     descset_ = new Attrib::DescSet( false );
-    isclassification_.setParam( this, 0 );
 
     msg_ = tr("Computing trace statistics");
 }
@@ -86,8 +82,6 @@ StratAmpCalc::~StratAmpCalc()
     delete descset_;
     delete proc_;
     delete rdr_;
-
-    isclassification_.removeParam( this );
 }
 
 
@@ -104,9 +98,8 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
 	return -1;
 
-    bool isclassification = false;
-    pars.getYN( sKeyIsClassification(), isclassification );
-    isclassification_.setParam( this, isclassification );
+    isclassification_ = false;
+    pars.getYN( sKeyIsClassification(), isclassification_ );
 
     addtotop_ = false;
     pars.getYN( sKeyAddToTopYN(), addtotop_ );
@@ -237,13 +230,12 @@ int StratAmpCalc::nextStep()
     if ( mIsUdf(z1) || mIsUdf(z2) )
 	return Executor::MoreToDo();
 
-    const bool isclassification = isclassification_.getParam( this );
     const StepInterval<float> zrg = trc->zRange();
     z1 += tophorshift_;
-    const float snappedz1 = isclassification ? zrg.snap( z1, 1 ) : z1;
+    const float snappedz1 = isclassification_ ? zrg.snap( z1, 1 ) : z1;
 
     z2 += bothorshift_;
-    const float snappedz2 = isclassification ? zrg.snap( z2, -1 ) : z2;
+    const float snappedz2 = isclassification_ ? zrg.snap( z2, -1 ) : z2;
     StepInterval<float> sampintv( snappedz1, snappedz2, zrg.step );
     sampintv.sort();
     sampintv.limitTo( zrg );

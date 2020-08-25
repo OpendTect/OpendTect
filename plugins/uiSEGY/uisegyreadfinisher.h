@@ -50,6 +50,7 @@ protected:
     FullSpec		fs_;
     BufferString	objname_;
     MultiID		outputid_;
+    Coords::CoordSystem* coordsys_ = nullptr;
 
     uiIOObjSel*		outwllfld_;
     uiComboBox*		lognmfld_;

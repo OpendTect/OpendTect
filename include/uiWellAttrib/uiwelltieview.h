@@ -22,6 +22,7 @@ class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcBufDataPack;
 class uiFunctionDisplay;
+class uiGroup;
 class uiLabel;
 class uiLineItem;
 class uiPolyLineItem;
@@ -58,7 +59,7 @@ public:
     void			enableCtrlNotifiers(bool);
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
-    uiGroup*			displayGroup();
+    uiGroup* displayGroup()      { return logdispgrp_; }
 
     Notifier<uiTieView>		infoMsgChanged;
 
@@ -84,6 +85,7 @@ protected:
     ObjectSet<uiTextItem>	hortxtnms_;
     ObjectSet<uiTextItem>	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
+    uiGroup*            logdispgrp_;
 
     uiLineItem*			linelog1_;
     uiLineItem*			linelog2_;

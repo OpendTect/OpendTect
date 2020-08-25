@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 
 #include "fixedstring.h"
-#include "hiddenparam.h"
 #include "keystrs.h"
 #include "settings.h"
 #include "thread.h"
@@ -58,7 +57,7 @@ static uiParent* getParent( uiParent* p )
     return p;
 }
 
-static HiddenParam<uiTaskRunner,int> prevtime_(0);
+
 
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog( getParent(prnt),
@@ -94,15 +93,12 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     statusBar()->addMsgFld( tr("Number done"), Alignment::Left, 1 );
     statusBar()->addMsgFld( tr("ETA"), Alignment::Right, 1 );
 
-    prevtime_.setParam( this, 0 );
     setForceFinalise( true );
 }
 
 
 uiTaskRunner::~uiTaskRunner()
 {
-    prevtime_.removeParam( this );
-
     if ( thread_ )
 	{ thread_->waitForFinish(); deleteAndZeroPtr(thread_); }
     delete &tim_;
@@ -119,7 +115,7 @@ bool uiTaskRunner::execute( Task& t )
     task_ = &t; state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
     prevmessage_ = uiStrings::sEmptyString();
-    prevtime_.setParam( this, Time::getMilliSeconds() );
+    prevtime_ = Time::getMilliSeconds();
     if ( statusBar() )
 	statusBar()->message( prevmessage_, 0 );
     prevnrdonetext_ = prevmessage_;
@@ -228,7 +224,7 @@ void uiTaskRunner::updateFields()
 
 	if ( curnrdone > 0 )
 	{
-	    const int tdiff = newtime - prevtime_.getParam(this);
+	    const int tdiff = newtime - prevtime_;
 	    const float curtodo = sCast(float,totalnr-nrdone);
 	    od_int64 etasec = mNINT64(tdiff * (curtodo/curnrdone) / 1000.f);
 	    const BufferString eta = Time::getTimeString( etasec, 2 );
@@ -252,7 +248,7 @@ void uiTaskRunner::updateFields()
     proglbl_->display( !disppb );
     progbar_->display( disppb );
 
-    prevtime_.setParam( this, newtime );
+    prevtime_ = newtime;
 }
 
 

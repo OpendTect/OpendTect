@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
@@ -605,19 +604,16 @@ void MPEClickCatcher::allowPickBasedReselection()
 
 
 // MPEClickInfo
-static HiddenParam<MPEClickInfo,int> emvisids_(0);
 
 MPEClickInfo::MPEClickInfo()
     : pickednode_(TrcKey::udf())
 {
     clear();
-    emvisids_.setParam( this, -1 );
 }
 
 
 MPEClickInfo::~MPEClickInfo()
 {
-    emvisids_.removeParam( this );
 }
 
 
@@ -659,10 +655,6 @@ int MPEClickInfo::getObjID() const
 
 EM::ObjectID MPEClickInfo::getEMObjID() const
 { return clickedemobjid_; }
-
-
-int MPEClickInfo::getEMVisID() const
-{ return emvisids_.getParam(this); }
 
 
 const TrcKeyZSampling& MPEClickInfo::getObjCS() const
@@ -717,7 +709,7 @@ void MPEClickInfo::clear()
     doubleclicked_ = false;
     rdltkpath_ = 0;
     rdlid_ = -1;
-    emvisids_.setParam( this, -1 );
+	emvisids_ = -1;
 }
 
 
@@ -762,7 +754,7 @@ void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
 
 
 void MPEClickInfo::setEMVisID( int visid )
-{ emvisids_.setParam( this, visid ); }
+{ emvisids_ = visid; }
 
 
 void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )

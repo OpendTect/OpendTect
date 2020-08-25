@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "geom2dintersections.h"
 
 #include "bendpointfinder.h"
-#include "hiddenparam.h"
 #include "survgeom2d.h"
 #include "trigonometry.h"
 
@@ -80,15 +79,14 @@ int BendPointFinder2DGeomSet::nextStep()
 
 
 // Line2DInterSection
-static HiddenParam<Line2DInterSection::Point,Pos::GeomID> mygeomids(0);
 
 Line2DInterSection::Point::Point( Pos::GeomID myid, Pos::GeomID lineid,
 				  int mynr,int linenr )
     : line(lineid)
     , mytrcnr(mynr)
     , linetrcnr(linenr)
+	, mygeomids_(myid)
 {
-    setMyGeomID( myid );
 }
 
 
@@ -96,22 +94,15 @@ Line2DInterSection::Point::Point( const Point& pt )
     : line(pt.line)
     , mytrcnr(pt.mytrcnr)
     , linetrcnr(pt.linetrcnr)
+	, mygeomids_(pt.mygeomids_)
 {
-    setMyGeomID( pt.getMyGeomID() );
 }
-
-
-void Line2DInterSection::Point::setMyGeomID( Pos::GeomID geomid )
-{ mygeomids.setParam( this, geomid ); }
-
-Pos::GeomID Line2DInterSection::Point::getMyGeomID() const
-{ return mygeomids.getParam( this ); }
 
 
 bool Line2DInterSection::Point::isOpposite( const Point& pt ) const
 {
-    return getMyGeomID()==pt.line &&
-	   line==pt.getMyGeomID() &&
+    return mygeomids_==pt.line &&
+	   line==pt.mygeomids_ &&
 	   mytrcnr==pt.linetrcnr &&
 	   linetrcnr==pt.mytrcnr;
 }

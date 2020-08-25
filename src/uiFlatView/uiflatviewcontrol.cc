@@ -16,10 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
-#include "hiddenparam.h"
 #include "mouseevent.h"
-
-static HiddenParam<uiFlatViewControl,char> initdone(0);
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
@@ -30,7 +27,6 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     , zoomChanged(this)
     , rubberBandUsed(this)
 {
-    initdone.setParam( this, 0 );
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
 	mAttachCB( vwr.attachObj()->parent()->postFinalise(),
@@ -46,7 +42,6 @@ uiFlatViewControl::~uiFlatViewControl()
 {
     detachAllNotifiers();
     deleteAndZeroPtr( propdlg_ );
-    initdone.removeParam( this );
 }
 
 
@@ -101,10 +96,10 @@ TypeSet<uiWorldRect> uiFlatViewControl::getBoundingBoxes() const
 
 void uiFlatViewControl::initZoom( CallBacker* )
 {
-    if ( initdone.getParam(this) )
+    if ( initdone_ )
 	return;
 
-    initdone.setParam( this, true );
+    initdone_ = true;
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	setViewToCustomZoomLevel( *vwrs_[idx] );
 }

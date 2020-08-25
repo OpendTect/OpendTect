@@ -115,6 +115,7 @@ protected:
     Interval<float>		posrg_;
     Interval<float>		valrg_;
     int				maxcount_;
+    int             nrequicircles_ = 3;
     uiPoint			center_;
     int				radius_;
     int				cursector_;

@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 #include "flatposdata.h"
-#include "hiddenparam.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbufadapters.h"
@@ -43,8 +42,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-static HiddenParam<uiTieView,uiGroup*> logdispgrp_( 0 );
-
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     : vwr_(vwr)
     , parent_(p)
@@ -60,8 +57,6 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     , nrtrcs_(5)
     , infoMsgChanged(this)
 {
-    logdispgrp_.setParam( this, 0 );
-
     initFlatViewer();
     initLogViewers();
     initWellControl();
@@ -80,8 +75,6 @@ uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
-
-    logdispgrp_.removeParam( this );
 }
 
 
@@ -143,13 +136,12 @@ void uiTieView::redrawLogsAuxDatas()
 
 void uiTieView::initLogViewers()
 {
-    uiGroup* grp = new uiGroup( parent_, "Log Display" );
-    grp->setBorder(0);
-    logdispgrp_.setParam( this, grp );
+    logdispgrp_ = new uiGroup( parent_, "Log Display" );
+    logdispgrp_->setBorder(0);
     for ( int idx=0; idx<2; idx++ )
     {
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
-	uiWellLogDisplay* logdisp = new uiWellLogDisplay( grp, wldsu );
+	uiWellLogDisplay* logdisp = new uiWellLogDisplay( logdispgrp_, wldsu );
 	logsdisp_ += logdisp;
 	logdisp->setSceneBorder( 2 );
 	logdisp->setPrefWidth( vwr_->prefHNrPics()/2 );
@@ -160,13 +152,7 @@ void uiTieView::initLogViewers()
     }
     logsdisp_[0]->attach( leftOf, logsdisp_[1] );
 
-    grp->attach( leftOf, vwr_ );
-}
-
-
-uiGroup* uiTieView::displayGroup()
-{
-    return logdispgrp_.getParam( this );
+    logdispgrp_->attach( leftOf, vwr_ );
 }
 
 

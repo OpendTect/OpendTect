@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
@@ -1027,18 +1026,15 @@ void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 
 
 // uiCopySurveySIP
-static HiddenParam<uiCopySurveySIP,IOPar*> crspars_(nullptr);
 
 uiCopySurveySIP::uiCopySurveySIP()
 {
-    crspars_.setParam( this, nullptr );
 }
 
 
 void uiCopySurveySIP::reset()
 {
-    if ( crspars_.hasParam(this) )
-	crspars_.removeAndDeleteParam( this );
+    deleteAndZeroPtr(crspars_);
 }
 
 
@@ -1077,10 +1073,8 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
     IOPar* crspar = new IOPar;
     crs->fillPar( *crspar );
-    if ( crspars_.hasParam(this) )
-	delete crspars_.getParam( this );
-
-    crspars_.setParam( this, crspar );
+	delete crspars_;
+    crspars_ = crspar;
 
     return true;
 }
@@ -1088,11 +1082,10 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 
 IOPar* uiCopySurveySIP::getCoordSystemPars() const
 {
-    if ( !crspars_.hasParam(this) )
+    if ( !crspars_ )
        return 0;
 
-    IOPar* par = new IOPar( *crspars_.getParam( this ) );
-    return par;
+    return new IOPar( *crspars_ );
 }
 
 

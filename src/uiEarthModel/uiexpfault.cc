@@ -41,9 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "uit2dconvsel.h"
 #include "zaxistransform.h"
-#include "hiddenparam.h"
 
-static HiddenParam<uiExportFault,FixedString*> typ_(0);
 
 #define mGetObjNr \
     isbulk_ ? mPlural : 1 \
@@ -75,8 +73,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     , isbulk_(isbulk)
     , infld_(nullptr)
     , bulkinfld_(nullptr)
+	, typ_(typ)
 {
-    typ_.setParam( this, new FixedString(typ) );
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -468,10 +466,10 @@ bool uiExportFault::acceptOK( CallBacker* )
     }
     uiString msg = tr( "%1 successfully exported.\n\n"
 		    "Do you want to export more %2?" ).arg(dispstr_)
-		    .arg(*typ_.getParam(this) ==
+		    .arg(typ_ ==
 				EMFaultStickSetTranslatorGroup::sGroupName()
 	? uiStrings::sFaultStickSet(mPlural)
-	: (*typ_.getParam(this) == EMFaultSet3DTranslatorGroup::sGroupName()
+	: (typ_ == EMFaultSet3DTranslatorGroup::sGroupName()
 	    ? uiStrings::sFaultSet(mPlural) : uiStrings::sFaultSet(mPlural)) );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );

@@ -98,6 +98,8 @@ protected:
     Gather*		angledata_;
 
     Setup		setup_;
+	bool		anglevalinradians_ = false;
+	Interval<float>	axisvalsrg_;
 
 private:
 
@@ -107,7 +109,8 @@ private:
 
 public:
 
-    void		setAngleValuesInRadians(bool yn);
+	void		setAngleValuesInRadians( bool yn )
+				{ anglevalinradians_ = yn; }
 };
 
 } // namespace PreStack
