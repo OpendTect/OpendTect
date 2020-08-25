@@ -841,6 +841,12 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	    anchoredsystem->setIsFeet( sip->xyInFeet() );
 	    coordsys = anchoredsystem;
 	}
+	else
+	{
+	    RefMan<Coords::UnlocatedXY> crs = new Coords::UnlocatedXY();
+	    crs->setIsFeet( sip->xyInFeet() );
+	    coordsys = crs;
+	}
     }
 
     if ( coordsys )
@@ -855,14 +861,15 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     bool zistime = si_.zIsTime();
     if ( tdinfo != uiSurvInfoProvider::Uknown )
 	zistime = tdinfo == uiSurvInfoProvider::Time;
+
     bool zinfeet = !depthdispfld_->getBoolValue();
     if ( zistime )
     {
 	if ( xyinfeet )
 	    zinfeet = true;
     }
-    else
-	zinfeet = sip->tdInfo() == uiSurvInfoProvider::DepthFeet;
+    else if ( tdinfo != uiSurvInfoProvider::Uknown )
+	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
 
     si_.setZUnit( zistime, zinfeet );
     si_.setXYInFeet( xyinfeet );
