@@ -545,6 +545,7 @@ public:
     static uiString sValue(int num=1)	{ return tr("Value",0,num); }
     static uiString sVelocity()		{ return tr("Velocity"); }
     static uiString sVertical()		{ return tr("Vertical"); }
+    static uiString sVideo()		{ return tr("Video"); }
     static uiString sVolume();
     static uiString sVolumep(int num=1);
     static uiString sView()		{ return tr("View"); }

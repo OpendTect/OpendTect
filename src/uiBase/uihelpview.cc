@@ -167,3 +167,81 @@ bool WebsiteHelp::hasHelp( const char* arg ) const
     return  argstr == sKeyAttribMatrix() ||
 	    argstr == sKeySupport();
 }
+
+
+// VideoProvider
+static IOPar sVideoIndexFiles;
+
+VideoProvider::VideoProvider( const char* idxfnm )
+    : indexfilenm_(idxfnm)
+{
+    videolinks_.read( idxfnm, "Video definitions" );
+}
+
+
+void VideoProvider::init()
+{
+    const BufferString fnm = GetDocFileDir( "Videos.od" );
+    VideoProvider::initClass( "odvideo", fnm );
+}
+
+
+void VideoProvider::initClass( const char* context, const char* indexfnm )
+{
+    HelpProvider::factory().addCreator( createInstance, context );
+    sVideoIndexFiles.set( context, indexfnm );
+}
+
+
+HelpProvider* VideoProvider::createInstance()
+{
+    const char* name = factory().currentName();
+    return new VideoProvider( sVideoIndexFiles.find(name) );
+}
+
+
+int VideoProvider::indexOf( const char* arg ) const
+{
+    int idx = 1;
+    while ( true )
+    {
+	BufferString helpid;
+	const bool res =
+	    videolinks_.get( IOPar::compKey(toString(idx),sKey::ID()), helpid );
+	if ( !res )
+	    return -1;
+
+	if ( helpid == arg )
+	    return idx;
+
+	idx++;
+    }
+
+    return -1;
+}
+
+
+bool VideoProvider::hasHelp( const char* arg ) const
+{
+    const int helpidx = indexOf( arg );
+    return helpidx >= 0;
+}
+
+
+void VideoProvider::provideHelp( const char* arg ) const
+{
+    const int helpidx = indexOf( arg );
+    BufferString url;
+    videolinks_.get( IOPar::compKey(toString(helpidx),"Url"), url );
+    if ( !url.isEmpty() )
+	uiDesktopServices::openUrl( url );
+}
+
+
+uiString VideoProvider::description( const char* arg ) const
+{
+    const int helpidx = indexOf( arg );
+    BufferString info;
+    videolinks_.get( IOPar::compKey(toString(helpidx),"Title"), info );
+    return toUiString(info);
+}

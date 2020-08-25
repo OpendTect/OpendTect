@@ -94,7 +94,8 @@ enum StdActionType
     SaveAs,
     Select,
     Settings,
-    Unload
+    Unload,
+    Video
 };
 
 } // namespace OD

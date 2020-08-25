@@ -36,11 +36,12 @@ public:
 
     static void 	provideHelp(const HelpKey&);
     static bool 	hasHelp(const HelpKey&);
-
+    static uiString	description(const HelpKey&);
 
 private:
     virtual bool	hasHelp(const char* arg) const		= 0;
     virtual void	provideHelp(const char* arg) const	= 0;
+    virtual uiString	description(const char* arg) const;
 };
 
 
@@ -60,5 +61,6 @@ public:
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
+#define mODVideoKey( arg ) HelpKey( "odvideo", #arg )
 
 

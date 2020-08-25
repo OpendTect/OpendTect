@@ -325,6 +325,7 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
 	mGetDefs(Select)
 	mGetDefs(Settings)
 	mGetDefs(Unload)
+	mGetDefs(Video)
 	default:
 	break;
     }

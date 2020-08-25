@@ -13,23 +13,39 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mImplFactory( HelpProvider, HelpProvider::factory );
 
-void HelpProvider::provideHelp( const HelpKey& helpkey )
+void HelpProvider::provideHelp( const HelpKey& key )
 {
-    PtrMan<HelpProvider> provider = factory().create( helpkey.providername_ );
+    PtrMan<HelpProvider> provider = factory().create( key.providername_ );
     if ( !provider )
 	return;
 
-    provider->provideHelp( helpkey.argument_ );
+    provider->provideHelp( key.argument_ );
 }
 
 
-bool HelpProvider::hasHelp( const HelpKey& helpkey )
+bool HelpProvider::hasHelp( const HelpKey& key )
 {
-    PtrMan<HelpProvider> provider = factory().create( helpkey.providername_ );
+    PtrMan<HelpProvider> provider = factory().create( key.providername_ );
     if ( !provider )
 	return false;
 
-    return provider->hasHelp( helpkey.argument_ );
+    return provider->hasHelp( key.argument_ );
+}
+
+
+uiString HelpProvider::description( const HelpKey& key )
+{
+    PtrMan<HelpProvider> provider = factory().create( key.providername_ );
+    if ( !provider )
+	return uiString::emptyString();
+
+    return provider->description( key.argument_ );
+}
+
+
+uiString HelpProvider::description( const char* arg ) const
+{
+    return toUiString( "%1 - %2" ).arg(factory().currentName()).arg(arg);
 }
 
 
