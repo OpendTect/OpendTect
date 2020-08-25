@@ -775,7 +775,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
 	{
 	    IOM().to( "100010" );
-	    impsip_->startImport( parent(), *impiop_ );
+	    impsip_->startImport( this, *impiop_ );
 	}
     }
 
