@@ -211,6 +211,9 @@ int VideoProvider::indexOf( const char* arg ) const
 	if ( !res )
 	    return -1;
 
+	if ( helpid.startsWith("0x") )
+	    helpid = std::stoi( helpid.buf(), 0, 0 );
+
 	if ( helpid == arg )
 	    return idx;
 

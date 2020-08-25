@@ -61,6 +61,6 @@ public:
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
-#define mODVideoKey( arg ) HelpKey( "odvideo", #arg )
+#define mODVideoKey( arg ) HelpKey( "odvideo", ::toString(arg) )
 
 
