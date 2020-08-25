@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaxishandler.h"
 #include "uiflatviewer.h"
 #include "uifont.h"
+#include "uigraphicscoltab.h"
 #include "uigraphicsscalebar.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
@@ -42,18 +43,19 @@ static bool isVertical( const uiFlatViewer& vwr )
 AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
     : uiGraphicsSceneAxisMgr(vwr.rgbCanvas())
     , vwr_(vwr)
-    , rectitem_(0)
-    , axis1nm_(0)
-    , axis2nm_(0)
-    , titletxt_(0)
-    , arrowitem1_(0)
-    , arrowitem2_(0)
-    , scalebaritem_(0)
+    , rectitem_(nullptr)
+    , axis1nm_(nullptr)
+    , axis2nm_(nullptr)
+    , titletxt_(nullptr)
+    , arrowitem1_(nullptr)
+    , arrowitem2_(nullptr)
+    , scalebaritem_(nullptr)
+    , colorbaritem_(nullptr)
 {}
 
 
 #define mRemoveAnnotItem( item )\
-{ view_.scene().removeItem( item ); delete item; item = 0; }
+{ view_.scene().removeItem( item ); deleteAndZeroPtr( item ); }
 
 AxesDrawer::~AxesDrawer()
 {
@@ -64,6 +66,7 @@ AxesDrawer::~AxesDrawer()
     mRemoveAnnotItem( axis2nm_ );
     mRemoveAnnotItem( titletxt_ );
     mRemoveAnnotItem( scalebaritem_ );
+    mRemoveAnnotItem( colorbaritem_ );
 }
 
 
@@ -102,6 +105,7 @@ void AxesDrawer::setZValue( int z )
     if ( arrowitem2_ ) arrowitem2_->setZValue( z+1 );
     if ( titletxt_ ) titletxt_->setZValue( z+1 );
     if ( scalebaritem_ ) scalebaritem_->setZValue( z+1 );
+    if ( colorbaritem_ ) colorbaritem_->setZValue( z+1 );
 }
 
 
@@ -218,6 +222,21 @@ void AxesDrawer::updateViewRect()
     {
 	scalebaritem_->setVisible( annot.showscalebar_ );
 	scalebaritem_->update();
+    }
+
+    if ( annot.showcolorbar_ )
+    {
+	if ( !colorbaritem_ )
+	{
+	    uiColTabItem::Setup itmsetup( false );
+	    colorbaritem_ = view_.scene().addItem( new uiColTabItem(itmsetup) );
+	}
+
+	colorbaritem_->setPos( uiPoint(rect.left(),rect.top()-20) );
+    }
+    if ( colorbaritem_ )
+    {
+	colorbaritem_->setVisible( annot.showcolorbar_ );
     }
 
     setZValue( uiGraphicsSceneAxisMgr::getZValue() );

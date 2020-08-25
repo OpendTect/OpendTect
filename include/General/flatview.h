@@ -167,6 +167,7 @@ public:
 
     bool			showaux_;
     bool			showscalebar_;
+    bool			showcolorbar_;
     bool			editable_;
     bool			allowuserchange_;
     bool			allowuserchangereversedaxis_;
