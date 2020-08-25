@@ -23,6 +23,11 @@ function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, 
     global $DLSITES_PERIOD_TABLE_PREFIX;
     global $DLSITES_IP_API_KEY;
 
+    // last char Z needs to be removed due to changes of timestamp formatting in MySQL
+    if ( substr($time, -1) === "Z" ) {
+    	$time = substr($time, 0, -1);
+    }
+
     $tablename = $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX.$tablename;
 
     $query = "CREATE TABLE IF NOT EXISTS `$tablename` ("
