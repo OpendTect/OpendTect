@@ -18,8 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 #include "ctxtioobj.h"
+#include "filepath.h"
 #include "keystrs.h"
 #include "uimain.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "pickset.h"
@@ -60,6 +62,12 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
 	setmgr_.set( ioobj->key(), ps );
 	return true;
     }
+
+    const IODir iodir( ctio->ctxt_.getSelKey() );
+    FilePath fp = iodir.dirName(); fp.add( ".omf" );
+    uiMSG().error( tr("Cannot add PointSet to database.\n"
+		      "Please check write permission of\n%1")
+		    .arg(fp.fullPath()) );
 
     delete ps; ps = 0;
     return false;
