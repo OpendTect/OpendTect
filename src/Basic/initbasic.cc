@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "coordsystem.h"
 #include "debug.h"
+#include "file.h"
 #include "legal.h"
 #include "moddepmgr.h"
 #include "posinfo2dsurv.h"
@@ -49,6 +50,8 @@ mDefModInitFn(Basic)
     //process. This could be if this process is started through
     //forking from a process that had affinity set.
     Threads::setCurrentThreadProcessorAffinity(-1);
+
+    File::initTempDir();
 
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();
