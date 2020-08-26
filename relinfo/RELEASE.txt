@@ -2,9 +2,45 @@ OpendTect V6.6.x : Release info
 
 ----
 
-V6.6.0beta6: July 29, 2020
+v6.6.0beta8: August 26, 2020
+* Fix for displaying Initial and Deterministic wavelets in
+  Cross-checking parameters window
+* Scene tree items now have checkboxes 
+* Fixed computation of integrated time-depth model for cropped well tracks
+* Some improvements in Bulk well track import
+	-Supported Unsorted points
+	-Datafiles missing the well head location (MD=0)
+	-Tool can be used to add points on an existing track.
+
+* Some improvements in bulk log import
+	-Added an option to name wells by their UWI instead of the well name
+	-If the track is shorter than the MD range in the LAS file,
+	 it will get extended.
+	-More information like Position, Ground level elevation, Operator,
+	 State and Country are retrieved from the LAS file
+
+* Fixed occasional crash when loading the well
+* Fixed text for Import Simple file menu item
+* Fixed copying CRS information while creating new survey from
+  the existing survey
+* Channges in help menu:
+	-Added new item ‘Videos’ 
+	-Modified link to Admin and Programmer manual
+	-Added icons to menu items
+* Fixed crash while editing survey
+* Removed  "CRS Position Conversion" menu item
+   ( Same tools are included in the position conversion menu item )
+
+V6.6.0beta7: August 07, 2020
 * Introduced well log merger tool in well manager window
 * Fix for crash in Edge Preserving Smoother for very large datasets
+* The location of temporary files created by OpendTect can be se
+  with the OD_TMPDIR environment variable
+* The location of temporary files used by OpendTect is forwardded to the
+  python processes launched by OpendTect
+* Fixed crash during 3D horizon import
+* Fixed crash when crossplot window is closed
+
 
 V6.6.0beta5: July 15, 2020
 * Fix for missing 'Settings' menu on MAC platform
