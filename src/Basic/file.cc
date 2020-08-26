@@ -10,25 +10,26 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
-#include "fileview.h"
-#include "filesystemaccess.h"
 
-#include "filepath.h"
 #include "bufstringset.h"
 #include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
-#include "staticstring.h"
 #include "executor.h"
-#include "ptrman.h"
-#include "od_istream.h"
+#include "filepath.h"
+#include "filesystemaccess.h"
+#include "fileview.h"
+#include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "ptrman.h"
+#include "staticstring.h"
 #include "timefun.h"
 #include "uistrings.h"
 
 
 #ifdef __win__
+# include "winutils.h"
 # include <direct.h>
 #else
 # include "sys/stat.h"
@@ -1075,13 +1076,23 @@ const char* File::getHomePath()
 }
 
 
+namespace File {
+    const char* sKeyODTMPDIR() { return "OD_TMPDIR"; }
+    BufferString& temppathstr()
+    {
+        mDeclStaticString(ret);
+        return ret;
+    }
+}
+
+
 const char* File::getTempPath()
 {
-    mDeclStaticString( ret );
+    BufferString& ret = temppathstr();
     if ( !ret.isEmpty() )
 	return ret.buf();
 
-    const BufferString userpath( GetEnvVar("OD_TMPDIR") );
+    const BufferString userpath( GetEnvVar(sKeyODTMPDIR()) );
     if ( !userpath.isEmpty() && isDirectory(userpath.str()) &&
 	 isWritable(userpath.str()) )
     {
@@ -1143,4 +1154,68 @@ bool File::launchViewer( const char* fnm, const ViewPars& vp )
     OS::CommandExecPars pars;
     pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
+}
+
+
+#ifdef __win__
+namespace File {
+
+    static bool canApplyScript( const char* scriptfnm )
+    {
+        od_ostream strm( scriptfnm );
+        if ( !strm.isOK() )
+            return false;
+
+        strm.add( "ECHO OFF" ).addNewLine()
+            .add( "ECHO \'Expected output\'");
+        strm.close();
+
+        OS::MachineCommand cmd( scriptfnm );
+        BufferString stdoutstr, stderrstr;
+        const bool res = cmd.execute( stdoutstr, &stderrstr );
+        remove( scriptfnm );
+        return !res || !stderrstr.contains("is blocked by group policy");
+    }
+} // namespace
+#endif
+
+bool File::initTempDir()
+{
+#ifdef __win__
+
+    if ( !WinUtils::hasAppLocker() )
+        return true;
+
+    BufferString tempfnm =
+        Path::getTempFullPath( "applocker_test", "bat" );
+    if ( canApplyScript(tempfnm) )
+        return true;
+
+    Path logfp( GetBaseDataDir() );
+    if ( !logfp.exists() )
+        return false;
+
+    logfp.add( "LogFiles" );
+    BufferString targetpath( logfp.fullPath() );
+    if ( !exists(targetpath) && !createDir(targetpath) )
+        return false;
+    if ( isWritable(targetpath) && !makeWritable(targetpath,true,false) )
+        return false;
+
+    logfp.add( "Temp" ); targetpath.set( logfp.fullPath() );
+    if ( !exists(targetpath) && !createDir(targetpath))
+        return false;
+    if ( isWritable(targetpath) && !makeWritable(targetpath,true,false) )
+        return false;
+
+    tempfnm = Path( targetpath,
+        Path::getTempFileName("applocker_test", "bat") ).fullPath();
+    const bool res = canApplyScript( tempfnm );
+    if ( res )
+        temppathstr().set( logfp.fullPath() );
+
+    return res;
+#else
+    return true;
+#endif
 }

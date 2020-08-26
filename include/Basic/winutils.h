@@ -31,6 +31,11 @@ mGlobal(Basic) bool		removeDir(const char* dirnm);
 
 mGlobal(Basic) unsigned int	getWinVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
+mGlobal(Basic) const char* getWinEdition();
+mGlobal(Basic) const char* getWinProductName();
+
+mGlobal(Basic) bool			canHaveAppLocker();
+mGlobal(Basic) bool			hasAppLocker();
 mGlobal(Basic) const char*	getSpecialFolderLocation(int csidl);
 mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
@@ -39,6 +44,10 @@ mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
 mGlobal(Basic) bool		setRegKeyVal(const char* ky, const char* vanrnm,
 					     const char *val);
 mGlobal(Basic) bool		removeRegKey(const char*);
+mGlobal(Basic) bool		readKey(const HKEY,const char* path,
+								const char* ky,BufferString&,
+								LPDWORD dwFlags=NULL,
+								LPDWORD dwType=NULL);
 
 } // namespace WinUtils
 

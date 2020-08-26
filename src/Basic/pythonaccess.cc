@@ -971,8 +971,12 @@ void OD::PythonAccess::envChangeCB( CallBacker* )
 
 uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
-    if ( !isUsable_(!istested_) )
-	return uiRetVal( tr("Could not detect a valid Python installation.") );
+	if (!isUsable_(!istested_))
+	{
+		uiRetVal ret = tr("Could not detect a valid Python installation:\n%1")
+			.arg( lastOutput(true,nullptr) );
+		return ret.add( tr("Python environment not usable") );
+	}
 
     if ( !msg_.isEmpty() )
 	return uiRetVal( msg_ );

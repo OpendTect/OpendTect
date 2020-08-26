@@ -109,5 +109,8 @@ mGlobal(Basic) const char*	getHomePath();
 mGlobal(Basic) const char*	getTempPath();
 mGlobal(Basic) const char*	getRootPath(const char* path);
 
+					/* Internal use only: */
+mGlobal(Basic) bool			initTempDir();
+
 
 } // namespace File
