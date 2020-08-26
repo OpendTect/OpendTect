@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odplatform.h"
 #include "envvars.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 #include "oscommand.h"
 #include "settings.h"
 #include "perthreadrepos.h"
@@ -107,9 +107,23 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 const char* ODInst::sKeyAutoInst() { return ODInst::AutoInstTypeDef().name(); }
 
 
-bool ODInst::canInstall()
+bool ODInst::canInstall( const char* dirnm )
 {
-    return File::isWritable( mRelRootDir );
+    if ( !File::isWritable(dirnm) )
+        return false;
+
+#ifdef __win__
+    const FilePath testfp(dirnm,
+        FilePath::getTempFileName("test_odinst", "txt"));
+    od_ostream strm(testfp);
+    const bool res = strm.isOK();
+    if ( File::exists(strm.fileName()) )
+        File::remove( strm.fileName() );
+
+    return res;
+#else
+    return true;
+#endif
 }
 
 
@@ -147,11 +161,13 @@ static OS::MachineCommand getFullMachComm( const char* reldir )
     return makeMachComm( installerfp.fullPath(), reldir );
 }
 
+
 static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
 {
     OS::CommandExecPars pars( OS::RunInBG );
     pars.workingdir( FilePath(mc.program()).pathOnly() );
-    pars.runasadmin( !File::isWritable(reldir) );
+    pars.runasadmin( !canInstall(reldir) ||
+                     !canInstall(pars.workingdir_) );
     return mc.execute( pars );
 }
 
