@@ -261,6 +261,54 @@ const char* getFullWinVersion()
 }
 
 
+const char* WinUtils::getWinEdition()
+{
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+    {
+	if ( !readKey(HKEY_LOCAL_MACHINE,
+		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		      "EditionID", ret) )
+	    ret.set( "Unknown edition" );
+    }
+
+    return ret;
+}
+
+
+const char* WinUtils::getWinProductName()
+{
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+    {
+	if ( !readKey(HKEY_LOCAL_MACHINE,
+		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		      "ProductName", ret) )
+	    ret.set( "Unknown product name" );
+    }
+
+    return ret;
+}
+
+
+bool WinUtils::canHaveAppLocker()
+{
+    const BufferString editionnm( getWinEdition() );
+    return editionnm.matches( "Enterprise" );
+}
+
+
+bool WinUtils::hasAppLocker()
+{
+    mDefineStaticLocalObject(bool, forceapplockertest,
+	    = GetEnvVarYN("OD_EMULATE_APPLOCKER", false));
+    if ( forceapplockertest )
+	return true;
+
+    return canHaveAppLocker();
+}
+
+
 bool execShellCmd( const char* comm, const char* parm, const char* runin )
 {
    int res = (int) ShellExecute( NULL, "runas",
@@ -390,6 +438,28 @@ bool removeRegKey( const char* ky )
     regkey.sync();
     return regkey.status() == QSettings::NoError;
 }
+
+
+bool WinUtils::readKey( const HKEY hkey, const char* path, const char* key,
+			BufferString& ret,
+			LPDWORD dwFlagsRet, LPDWORD dwTypeRet )
+{
+    BYTE Value_data[1024];
+    DWORD Value_size = sizeof(Value_data);
+    const DWORD dwFlags = dwFlagsRet ? *dwFlagsRet : RRF_RT_ANY;
+    DWORD dwType;
+    const LSTATUS retcode = RegGetValueA( hkey, path, key, dwFlags,
+	    &dwType, &Value_data, &Value_size );
+    if ( retcode != ERROR_SUCCESS)
+	return false;
+
+    ret.set( (const char*)Value_data );
+    if ( dwTypeRet )
+	*dwTypeRet = dwType;
+
+    return true;
+}
+
 
 void disableAutoSleep()
 {

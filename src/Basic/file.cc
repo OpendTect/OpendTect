@@ -11,23 +11,23 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
-#include "filepath.h"
+
 #include "bufstringset.h"
 #include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "errmsg.h"
-#include "perthreadrepos.h"
-#include "winutils.h"
 #include "executor.h"
+#include "filepath.h"
+#include "perthreadrepos.h"
 #include "ptrman.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "uistrings.h"
-#include "od_ostream.h"
 
 #ifdef __win__
+#include "winutils.h"
 # include <direct.h>
 #else
 # include "sys/stat.h"
@@ -1115,13 +1115,22 @@ const char* getHomePath()
 }
 
 
+const char* sKeyODTMPDIR() { return "OD_TMPDIR"; }
+
+BufferString& temppathstr()
+{
+    mDeclStaticString(ret);
+    return ret;
+}
+
+
 const char* getTempPath()
 {
-    mDeclStaticString( ret );
+    BufferString& ret = temppathstr();
     if ( !ret.isEmpty() )
 	return ret.buf();
 
-    const BufferString userpath( GetEnvVar("OD_TMPDIR") );
+    const BufferString userpath( GetEnvVar(sKeyODTMPDIR()) );
     if ( !userpath.isEmpty() && isDirectory(userpath.str()) &&
 	 isWritable(userpath.str()) )
     {
@@ -1183,6 +1192,126 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     OS::CommandExecPars pars;
     pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
+}
+
+
+#ifdef __win__
+static bool canApplyScript( const char* scriptfnm )
+{
+    od_ostream strm( scriptfnm );
+    if ( !strm.isOK() )
+	return false;
+
+    strm.add( "ECHO OFF" ).addNewLine()
+	.add( "ECHO \'Expected output\'");
+    strm.close();
+
+    OS::MachineCommand cmd( scriptfnm );
+    BufferString stdoutstr, stderrstr;
+    const bool res = cmd.execute( stdoutstr, &stderrstr );
+    remove( scriptfnm );
+    return !res || !stderrstr.contains("is blocked by group policy");
+}
+#endif
+
+bool initTempDir()
+{
+#ifdef __win__
+    if ( !WinUtils::hasAppLocker() )
+        return true;
+
+    FilePath targetfp( getTempPath(),
+                FilePath::getTempFileName("applocker_test", "bat") );
+    BufferString tempfnm = targetfp.fullPath();
+    if ( canApplyScript(tempfnm) )
+        return true;
+
+    BufferStringSet errmsgs( BufferString(
+        "AppLocker prevents executing scripts in the folder: '",
+        targetfp.pathOnly(), "'" ) );
+    errmsgs.add("Some functionality of OpendTect might not work");
+
+    const BufferString basedatadirstr( GetBaseDataDir() );
+    if ( !File::isDirectory(basedatadirstr) )
+    {
+        errmsgs.insertAt(
+            new BufferString("Data root is not set and thus cannot be used "
+            "to store temporary files."), 1 );
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
+
+    targetfp.set( GetBaseDataDir() ).add( "LogFiles" );
+    BufferString targetpath( targetfp.fullPath() );
+    bool logfpexists = exists( targetpath );
+    bool logfpcreated = logfpexists || (!logfpexists && createDir(targetpath) );
+    bool logfwritable = isWritable( targetpath );
+    bool logfpmadewritable = logfwritable || (!logfwritable &&
+			     makeWritable( targetpath, true, false) );
+    if ( !logfpcreated || !logfpmadewritable )
+    {
+        errmsgs.insertAt(
+            new BufferString("Cannot redirect temporary files to '",
+                targetpath,
+                "' to store temporary files."), 1);
+        errmsgs.insertAt(
+            new BufferString("Cannot create that directory, "
+                "please check permissions"), 2 );
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
+
+    targetfp.add( "Temp" ); targetpath.set( targetfp.fullPath() );
+    logfpexists = exists( targetpath );
+    logfpcreated = logfpexists || (!logfpexists && createDir(targetpath));
+    logfwritable = isWritable( targetpath );
+    logfpmadewritable = logfwritable || (!logfwritable &&
+			makeWritable( targetpath, true, false ));
+    if ( !logfpcreated || !logfpmadewritable )
+    {
+        errmsgs.insertAt(
+            new BufferString("Cannot redirect temporary files to '",
+                targetpath,
+                "' to store temporary files."), 1);
+        errmsgs.insertAt(
+            new BufferString("Cannot create that directory, "
+                "please check permissions"), 2);
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
+
+    tempfnm = FilePath( targetpath,
+        FilePath::getTempFileName("applocker_test", "bat") ).fullPath();
+    const bool res = canApplyScript( tempfnm );
+    if ( !res )
+    {
+        errmsgs.insertAt(
+            new BufferString("AppLocker also prevents executing scripts "
+                "in the replacement folder: '",
+                targetfp.fullPath(), "'"), 1);
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
+
+    temppathstr().set( targetfp.fullPath() );
+
+    OS::MachineCommand mc( "Echo", true );
+    BufferString stdoutstr, stderrstr;
+    mc.execute( stdoutstr, &stderrstr );
+    if ( stderrstr.contains("is blocked by group policy") )
+    {
+        errmsgs.get(0).set(stderrstr);
+        errmsgs.insertAt( new BufferString(
+            "AppLocker prevents executing the script '",
+                   mc.program(), "'" ), 1 );
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
+
+    return res;
+#else
+    return true;
+#endif
 }
 
 } // namespace File

@@ -1022,6 +1022,7 @@ void testCB(CallBacker*)
 	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
+    OD::PythA().istested_ = false;
     if ( !OD::PythA().retrievePythonVersionStr() )
     {
 	uiString launchermsg;
