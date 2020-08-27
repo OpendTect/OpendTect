@@ -33,8 +33,6 @@ mFDQtclass(QMenu)
 mExpClass(uiBase) uiButton : public uiObject
 {
 public:
-			uiButton(uiParent*,const uiString&,const CallBack*,
-				 uiObjectBody&);
     virtual		~uiButton()		{}
 
     virtual void	setText(const uiString&);
@@ -63,6 +61,8 @@ public:
 						{ havecommonpbics_ = yn; }
 
 protected:
+			uiButton(uiParent*,const uiString&,const CallBack*,
+				 uiObjectBody&);
 
     uiString		text_;
     float		iconscale_;
