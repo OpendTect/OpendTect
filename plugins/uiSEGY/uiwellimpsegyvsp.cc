@@ -82,7 +82,7 @@ void selPush( CallBacker* )
     if ( !rdr )
     {
 	if ( !emsg.isEmpty() )
-	    uiMSG().warning( emsg );
+	    uiMSG().warning( toUiString(emsg) );
 	return;
     }
 
