@@ -30,7 +30,6 @@ enum stretchLimitTp { left=1, right=2, above=4, below=8,
 		      rightLimit=16, bottomLimit=32 };
 
 
-typedef TypeSet<uiConstraint> constraintList;
 class i_LayoutItem;
 
 enum LayoutMode { minimum=0, preferred=1, setGeom=2, all=3 };
@@ -76,7 +75,6 @@ class i_LayoutMngr : public mQtclass(QLayout), public NamedObject
 public:
 			i_LayoutMngr(mQtclass(QWidget*) prnt,
 				     const char* name,uiObjectBody& mngbdy);
-
     virtual		~i_LayoutMngr();
 
     virtual void	addItem(mQtclass(QLayoutItem*));
@@ -105,26 +103,26 @@ public:
     void		childrenClear(uiObject*);
     bool		isChild(uiObject*);
 
-    int                 childStretch(bool hor) const;
+    int			childStretch(bool hor) const;
 
-    int			borderSpace() const	{ return borderspc; }
+    int			borderSpace() const	{ return borderspc_; }
     int			horSpacing() const;
-    int			verSpacing() const	{ return vspacing; }
+    int			verSpacing() const	{ return vspacing_; }
 
-    void		setHSpacing(int s)	{ hspacing = s; }
-    void		setVSpacing(int s)	{ vspacing = s; }
-    void		setBorderSpace(int s)	{ borderspc = s; }
+    void		setHSpacing(int s)	{ hspacing_ = s; }
+    void		setVSpacing(int s)	{ vspacing_ = s; }
+    void		setBorderSpace(int s)	{ borderspc_ = s; }
 
-    void		setIsMain( bool yn )	    { ismain = yn; }
+    void		setIsMain( bool yn )	{ ismain_ = yn; }
     void		layoutChildren(LayoutMode,bool finalLoop=false);
 
 private:
 
     void		setGeometry( const mQtclass(QRect&) );
 
-    inline void	doLayout( LayoutMode m, const mQtclass(QRect&) r ) const
-                        { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
-    void		doLayout( LayoutMode m, const mQtclass(QRect&) );
+    inline void		doLayout( LayoutMode m, const mQtclass(QRect&) r ) const
+			{ const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
+    void		doLayout(LayoutMode,const mQtclass(QRect&));
 
     void		itemDel( CallBacker* );
 
@@ -137,27 +135,27 @@ private:
 
     uiRect		childrenRect(LayoutMode);
 
-    ObjectSet<i_LayoutItem> childrenlist;
+    ObjectSet<i_LayoutItem> childrenlist_;
 
-    uiRect		layoutpos[ nLayoutMode ];
-    mQtclass(QRect)	prefGeometry;
+    uiRect		layoutpos_[nLayoutMode];
+    mQtclass(QRect)	prefgeometry_;
 
-    bool		minimumDone;
-    bool		preferredDone;
-    bool		prefposStored;
-    bool		ismain;
+    bool		minimumdone_;
+    bool		preferreddone_;
+    bool		prefposstored_;
+    bool		ismain_;
 
-    int		hspacing;
-    int		vspacing;
-    int		borderspc;
+    int			hspacing_;
+    int			vspacing_;
+    int			borderspc_;
 
-    uiObjectBody&	managedBody;
+    uiObjectBody&	managedbody_;
 
     void		startPoptimer();
     void		popTimTick(CallBacker*);
-    Timer&		poptimer;
-    bool		popped_up;
-    bool		timer_running;
+    Timer&		poptimer_;
+    bool		poppedup_;
+    bool		timerrunning_;
 
 };
 

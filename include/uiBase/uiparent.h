@@ -75,10 +75,10 @@ public:
     void		setCaption(const uiString& c) { mIfMO()->setCaption(c);}
     void		setCursor(const MouseCursor& c) {mIfMO()->setCursor(c);}
 
-    uiSize		actualsize( bool include_border) const
+    uiSize		actualSize( bool include_border) const
 			{
 			    if ( mainObject() )
-				return mainObject()->actualsize(include_border);
+				return mainObject()->actualSize(include_border);
 			    return uiSize();
 			}
 
@@ -119,5 +119,9 @@ protected:
 #undef mRetMO
 
     virtual uiObject*	mainobject()	{ return 0; }
-};
 
+public:
+    mDeprecated("Use actualSize")
+    uiSize		actualsize(bool inclborder=true) const
+			{ return actualSize(inclborder); }
+};

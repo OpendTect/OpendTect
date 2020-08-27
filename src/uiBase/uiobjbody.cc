@@ -496,9 +496,9 @@ int uiObjectBody::stretch( bool hor, bool retUndef ) const
 }
 
 
-uiSize uiObjectBody::actualsize( bool include_border ) const
+uiSize uiObjectBody::actualSize( bool include_border ) const
 {
-    return layoutItem_->actualsize( include_border );
+    return layoutItem_->actualSize( include_border );
 }
 
 
