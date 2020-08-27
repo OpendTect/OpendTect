@@ -75,6 +75,16 @@ struct PluginInfo
 	, lictype_(lt)
     {}
 
+    PluginInfo()
+	: dispname_("Plugin Name")
+	, productname_("OpendTect")
+	, creator_("Developer")
+	, version_("v0.0")
+	, text_("Plugin information text")
+	, licmsg_("License message")
+	, lictype_(GPL)
+    {}
+
     const char*	dispname_;
     const char*	productname_;
     const char*	creator_;
