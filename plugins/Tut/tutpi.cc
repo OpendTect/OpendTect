@@ -7,27 +7,37 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tutseistools.h"
+#include "tutmod.h"
 #include "tutorialattrib.h"
 #include "tutvolproc.h"
 #include "odplugin.h"
 
+mExternC(Tut) int GetTutPluginType();
+mExternC(Tut) PluginInfo* GetTutPluginInfo();
+mExternC(Tut) const char* InitTutPlugin(int,char**);
 
-mDefODPluginEarlyLoad(Tut)
-mDefODPluginInfo(Tut)
+
+int GetTutPluginType()
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Tutorial plugin Base",
-	"OpendTect",
-	"dGB (Raman/Bert)",
-	"3.2",
-    	"Back-end for the plugin that shows simple plugin development basics."
-    	"\nThis non-UI part can also be loaded into od_process_attrib." ) );
-    return &retpi;
+    return PI_AUTO_INIT_EARLY;
 }
 
 
-mDefODInitPlugin(Tut)
+PluginInfo* GetTutPluginInfo()
+{
+    mDefineStaticLocalObject( PluginInfo, info, );
+    info.dispname_ = "Tutorial plugin Base";
+    info.productname_ = "OpendTect";
+    info.creator_ = "dGB (Raman/Bert)";
+    info.version_ = "3.2";
+    info.text_ =
+    	"Back-end for the plugin that shows simple plugin development basics."
+	"\nThis non-UI part can also be loaded into od_process_attrib.";
+    return &info;
+}
+
+
+const char* InitTutPlugin( int argc, char** argv )
 {
     Attrib::Tutorial::initClass();
     VolProc::TutOpCalculator::initClass();
