@@ -403,6 +403,7 @@ uiSurvey::uiSurvey( uiParent* p )
     , cursurvremoved_(false)
     , freshsurveyselected_(false)
 {
+    setVideoKey( mODVideoKey(mSurveyHelpID) );
     const CallBack selchgcb( mCB(this,uiSurvey,selChange) );
 
     if ( dataroot_.isEmpty() )
