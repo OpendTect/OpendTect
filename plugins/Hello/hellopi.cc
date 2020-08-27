@@ -11,8 +11,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplugin.h"
 #include "od_ostream.h"
 
-mDefODInitPlugin(Hello)
+mExternC(Hello) int GetHelloPluginType();
+mExternC(Hello) PluginInfo* GetHelloPluginInfo();
+mExternC(Hello) const char* InitHelloPlugin(int,char**);
+
+
+int GetHelloPluginType()
+{
+    return PI_AUTO_INIT_EARLY;
+}
+
+
+PluginInfo* GetHelloPluginInfo()
+{
+    mDefineStaticLocalObject( PluginInfo, info, );
+    info.dispname_ = "Hello World";
+    return &info;
+}
+
+
+const char* InitHelloPlugin( int argc, char** argv )
 {
     od_cout() << "Hello world" << od_endl;
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }

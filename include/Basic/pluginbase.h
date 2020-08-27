@@ -77,8 +77,8 @@ struct PluginInfo
 
     PluginInfo()
 	: dispname_("Plugin Name")
-	, productname_("OpendTect")
-	, creator_("Developer")
+	, productname_("New Product")
+	, creator_("A Developer")
 	, version_("v0.0")
 	, text_("Plugin information text")
 	, licmsg_("License message")
