@@ -1182,37 +1182,96 @@ namespace File {
 bool File::initTempDir()
 {
 #ifdef __win__
-
     if ( !WinUtils::hasAppLocker() )
         return true;
 
-    BufferString tempfnm =
-        Path::getTempFullPath( "applocker_test", "bat" );
+    Path targetfp( getTempPath(),
+                Path::getTempFileName("applocker_test", "bat") );
+    BufferString tempfnm = targetfp.fullPath();
     if ( canApplyScript(tempfnm) )
         return true;
 
-    Path logfp( GetBaseDataDir() );
-    if ( !logfp.exists() )
-        return false;
+    BufferStringSet errmsgs( BufferString(
+        "AppLocker prevents executing scripts in the folder: '",
+        targetfp.pathOnly(), "'" ) );
+    errmsgs.add("Some functionality of OpendTect might not work");
 
-    logfp.add( "LogFiles" );
-    BufferString targetpath( logfp.fullPath() );
-    if ( !exists(targetpath) && !createDir(targetpath) )
+    const BufferString basedatadirstr( GetBaseDataDir() );
+    if ( !File::isDirectory(basedatadirstr) )
+    {
+        errmsgs.insertAt(
+            new BufferString("Data root is not set and thus cannot be used "
+            "to store temporary files."), 1 );
+        OD::DisplayErrorMessage( errmsgs.cat() );
         return false;
-    if ( isWritable(targetpath) && !makeWritable(targetpath,true,false) )
-        return false;
+    }
 
-    logfp.add( "Temp" ); targetpath.set( logfp.fullPath() );
-    if ( !exists(targetpath) && !createDir(targetpath))
+    targetfp.set( GetBaseDataDir() ).add( "LogFiles" );
+    BufferString targetpath( targetfp.fullPath() );
+    bool logfpexists = exists( targetpath );
+    bool logfpcreated = logfpexists || (!logfpexists && createDir( targetpath ) );
+    bool logfwritable = isWritable( targetpath );
+    bool logfpmadewritable = logfwritable || (!logfwritable &&
+        makeWritable(targetpath, true, false) );
+    if ( !logfpcreated || !logfpmadewritable )
+    {
+        errmsgs.insertAt(
+            new BufferString("Cannot redirect temporary files to '",
+                targetpath,
+                "' to store temporary files."), 1);
+        errmsgs.insertAt(
+            new BufferString("Cannot create that directory, "
+                "please check permissions"), 2 );
+        OD::DisplayErrorMessage(errmsgs.cat());
         return false;
-    if ( isWritable(targetpath) && !makeWritable(targetpath,true,false) )
+    }
+
+    targetfp.add( "Temp" ); targetpath.set( targetfp.fullPath() );
+    logfpexists = exists(targetpath);
+    logfpcreated = logfpexists || (!logfpexists && createDir(targetpath));
+    logfwritable = isWritable(targetpath);
+    logfpmadewritable = logfwritable || (!logfwritable &&
+        makeWritable(targetpath, true, false));
+    if ( !logfpcreated || !logfpmadewritable )
+    {
+        errmsgs.insertAt(
+            new BufferString("Cannot redirect temporary files to '",
+                targetpath,
+                "' to store temporary files."), 1);
+        errmsgs.insertAt(
+            new BufferString("Cannot create that directory, "
+                "please check permissions"), 2);
+        OD::DisplayErrorMessage( errmsgs.cat() );
         return false;
+    }
 
     tempfnm = Path( targetpath,
         Path::getTempFileName("applocker_test", "bat") ).fullPath();
     const bool res = canApplyScript( tempfnm );
-    if ( res )
-        temppathstr().set( logfp.fullPath() );
+    if ( !res )
+    {
+        errmsgs.insertAt(
+            new BufferString("AppLocker also prevents executing scripts "
+                "in the replacement folder: '",
+                targetfp.fullPath(), "'"), 1);
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
+
+    temppathstr().set( targetfp.fullPath() );
+
+    OS::MachineCommand mc( "Echo", true );
+    BufferString stdoutstr, stderrstr;
+    mc.execute( stdoutstr, &stderrstr );
+    if ( stderrstr.contains("is blocked by group policy") )
+    {
+        errmsgs.first()->set(stderrstr);
+        errmsgs.insertAt( new BufferString(
+            "AppLocker prevents executing the script '",
+                   mc.program(), "'" ), 1 );
+        OD::DisplayErrorMessage( errmsgs.cat() );
+        return false;
+    }
 
     return res;
 #else
