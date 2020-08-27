@@ -1217,7 +1217,7 @@ static bool canApplyScript( const char* scriptfnm )
 bool initTempDir()
 {
 #ifdef __win__
-    if ( !WinUtils::hasAppLocker() )
+    if ( !hasAppLocker() )
         return true;
 
     FilePath targetfp( getTempPath(),
@@ -1226,7 +1226,8 @@ bool initTempDir()
     if ( canApplyScript(tempfnm) )
         return true;
 
-    BufferStringSet errmsgs( BufferString(
+    BufferStringSet errmsgs;
+    errmsgs.add( BufferString(
         "AppLocker prevents executing scripts in the folder: '",
         targetfp.pathOnly(), "'" ) );
     errmsgs.add("Some functionality of OpendTect might not work");

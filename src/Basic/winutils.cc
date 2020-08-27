@@ -261,7 +261,7 @@ const char* getFullWinVersion()
 }
 
 
-const char* WinUtils::getWinEdition()
+const char* getWinEdition()
 {
     mDeclStaticString(ret);
     if ( ret.isEmpty() )
@@ -276,7 +276,7 @@ const char* WinUtils::getWinEdition()
 }
 
 
-const char* WinUtils::getWinProductName()
+const char* getWinProductName()
 {
     mDeclStaticString(ret);
     if ( ret.isEmpty() )
@@ -291,14 +291,14 @@ const char* WinUtils::getWinProductName()
 }
 
 
-bool WinUtils::canHaveAppLocker()
+bool canHaveAppLocker()
 {
     const BufferString editionnm( getWinEdition() );
     return editionnm.matches( "Enterprise" );
 }
 
 
-bool WinUtils::hasAppLocker()
+bool hasAppLocker()
 {
     mDefineStaticLocalObject(bool, forceapplockertest,
 	    = GetEnvVarYN("OD_EMULATE_APPLOCKER", false));
@@ -440,7 +440,7 @@ bool removeRegKey( const char* ky )
 }
 
 
-bool WinUtils::readKey( const HKEY hkey, const char* path, const char* key,
+bool readKey( const HKEY hkey, const char* path, const char* key,
 			BufferString& ret,
 			LPDWORD dwFlagsRet, LPDWORD dwTypeRet )
 {
