@@ -4,42 +4,38 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
-#include "odplugin.h"
-#include "uimsg.h"
 #include "uihellomod.h"
 
-#ifdef PLAN_A
+#include "odplugin.h"
 
-mDefODInitPlugin(uiHello)
+#include "uidialog.h"
+#include "uigeninput.h"
+#include "uimenu.h"
+#include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
+#include "uistrings.h"
+
+mExternC(uiHello) int GetuiHelloPluginType();
+mExternC(uiHello) PluginInfo* GetuiHelloPluginInfo();
+mExternC(uiHello) const char* InituiHelloPlugin(int,char**);
+
+int GetuiHelloPluginType()
 {
-    uiMSG().message( "Hello world" );
-    return 0; // All OK - no error messages
+    return PI_AUTO_INIT_LATE;
 }
 
 
-#else /* PLAN_A is not defined */
-
-
-#include "odplugin.h"
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
-#include "uimenu.h"
-#include "uidialog.h"
-#include "uigeninput.h"
-#include "uistrings.h"
-
-mDefODPluginInfo(uiHello)
+PluginInfo* GetuiHelloPluginInfo()
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"uiHello plugin - plan B",
-	"OpendTect",
-	"Bert",
-	"1.1.1",
-	"This is the more extensive variant of the uiHello example.\n"
-	"See the plugin manual for details.") );
-    return &retpi;
+    mDefineStaticLocalObject( PluginInfo, info, )
+    info.dispname_ = "Hello World plugin (GUI)";
+    info.productname_ = "Hello World";
+    info.creator_ = "Nanne";
+    info.version_ = "1.1.1";
+    info.text_ = "This is the GUI variant of the uiHello example.\n"
+		 "See the plugin manual for details.";
+    return &info;
 }
 
 
@@ -49,20 +45,19 @@ mDefODPluginInfo(uiHello)
 class uiHelloMgr :  public CallBacker
 { mODTextTranslationClass(uiHelloMgr);
 public:
-
 			uiHelloMgr(uiODMain&);
 
-    uiODMain&		appl;
+    uiODMain&		appl_;
     void		dispMsg(CallBacker*);
 };
 
 
 uiHelloMgr::uiHelloMgr( uiODMain& a )
-	: appl(a)
+	: appl_(a)
 {
     uiAction* newitem = new uiAction( m3Dots(tr("Display Hello Message")),
 					  mCB(this,uiHelloMgr,dispMsg) );
-    appl.menuMgr().utilMnu()->insertItem( newitem );
+    appl_.menuMgr().utilMnu()->insertItem( newitem );
 }
 
 
@@ -74,52 +69,56 @@ uiHelloMsgBringer( uiParent* p )
     : uiDialog(p,Setup("Hello Message Window","Specify hello message",
 			mNoHelpKey))
 {
-    txtfld = new uiGenInput( this, "Hello message",
+    txtfld_ = new uiGenInput( this, tr("Hello message"),
 				StringInpSpec("Hello world") );
-    typfld = new uiGenInput( this, "Message type",
-				BoolInpSpec(true,uiStrings::sInfo(),
-					    "Warning") );
-    typfld->attach( alignedBelow, txtfld );
+
+    typfld_ = new uiGenInput( this, tr("Message type"),
+		BoolInpSpec(true,uiStrings::sInfo(),uiStrings::sWarning()) );
+    typfld_->attach( alignedBelow, txtfld_ );
+
+    closefld_ = new uiGenInput( this, tr("Close window"), BoolInpSpec(false) );
+    closefld_->attach( alignedBelow, typfld_ );
 }
 
 bool acceptOK( CallBacker* )
 {
-    const char* typedtxt = txtfld->text();
+    const char* typedtxt = txtfld_->text();
     if ( ! *typedtxt )
     {
 	uiMSG().error( tr("Please type a message text") );
 	return false;
     }
-    if ( typfld->getBoolValue() )
+    if ( typfld_->getBoolValue() )
 	uiMSG().message( typedtxt );
     else
 	uiMSG().warning( typedtxt );
-    return true;
+
+    const bool doclose = closefld_->getBoolValue();
+    return doclose;
 }
 
-    uiGenInput*	txtfld;
-    uiGenInput*	typfld;
+    uiGenInput*	txtfld_;
+    uiGenInput*	typfld_;
+    uiGenInput*	closefld_;
 
 };
 
 
 void uiHelloMgr::dispMsg( CallBacker* )
 {
-    uiHelloMsgBringer dlg( &appl );
+    uiHelloMsgBringer dlg( &appl_ );
     dlg.go();
 }
 
 
-mDefODInitPlugin(uiHello)
+const char* InituiHelloPlugin( int argc, char** argv )
 {
-    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_, = nullptr );
+    if ( theinst_ ) return nullptr;
 
     theinst_ = new uiHelloMgr( *ODMainWin() );
     if ( !theinst_ )
 	return "Cannot instantiate Hello plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }
-
-#endif /* ifdef PLAN_A */

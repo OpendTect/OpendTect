@@ -33,18 +33,30 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cTutIdx = -1100;
 
+mExternC(uiTut) int GetuiTutPluginType();
+mExternC(uiTut) PluginInfo* GetuiTutPluginInfo();
+mExternC(uiTut) const char* InituiTutPlugin(int,char**);
 
-mDefODPluginInfo(uiTut)
+
+int GetuiTutPluginType()
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Tutorial plugin",
-	"OpendTect",
-	"dGB (Raman/Bert)",
-	"3.2",
-	"Shows some simple plugin development basics."
-	    "\nCan be loaded into od_main only.") );
-    return &retpi;
+    return PI_AUTO_INIT_LATE;
 }
+
+
+PluginInfo* GetuiTutPluginInfo()
+{
+    mDefineStaticLocalObject( PluginInfo, info, );
+    info.dispname_ = "Tutorial plugin (GUI)";
+    info.productname_ = "Tutorial";
+    info.creator_ = "dGB (Raman/Bert)";
+    info.version_ = "3.2";
+    info.text_ =
+	"Shows some simple plugin development basics.\n"
+	"Can be loaded into od_main only.";
+    return &info;
+}
+
 
 
 class uiTutMgr :  public CallBacker
@@ -162,10 +174,12 @@ static HelpProvider* createInstance()
 
 };
 
-mDefODInitPlugin(uiTut)
+
+const char* InituiTutPlugin( int argc, char** argv )
 {
-    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = nullptr );
+    if ( theinst_ )
+	return nullptr;
 
     theinst_ = new uiTutMgr( ODMainWin() );
     if ( !theinst_ )
@@ -175,5 +189,5 @@ mDefODInitPlugin(uiTut)
     TutHelpProvider::initClass();
     VolProc::uiTutOpCalculator::initClass();
 
-    return 0;
+    return nullptr;
 }
