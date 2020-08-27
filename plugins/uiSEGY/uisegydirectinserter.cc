@@ -10,13 +10,15 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegydirectinserter.h"
+
 #include "segydirecttr.h"
 #include "seis2dlineio.h"
-#include "uitoolbutton.h"
-#include "uisegyread.h"
 #include "uibutton.h"
 #include "uimainwin.h"
 #include "uimsg.h"
+#include "uisegyread.h"
+#include "uistrings.h"
+#include "uitoolbutton.h"
 
 #define mSEGYDirectVolTranslInstance mTranslTemplInstance(SeisTrc,SEGYDirect)
 
@@ -39,7 +41,8 @@ uiToolButtonSetup* uiSEGYDirectVolInserter::getButtonSetup() const
     uiSEGYDirectVolInserter* self = const_cast<uiSEGYDirectVolInserter*>(this);
     uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
 						    tr("Scan a SEG-Y file"),
-	    mCB(self,uiSEGYDirectVolInserter,startScan), "SEG-Y" );
+		mCB(self,uiSEGYDirectVolInserter,startScan),
+		uiStrings::sSEGY() );
     return ret;
 }
 
@@ -96,9 +99,9 @@ uiSEGYDirect2DInserter::~uiSEGYDirect2DInserter()
 uiToolButtonSetup* uiSEGYDirect2DInserter::getButtonSetup() const
 {
     uiSEGYDirect2DInserter* self = const_cast<uiSEGYDirect2DInserter*>(this);
-    uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
-						    tr("Scan a SEG-Y file"),
-	    mCB(self,uiSEGYDirect2DInserter,startScan), "SEG-Y" );
+    uiToolButtonSetup* ret = new uiToolButtonSetup(
+	"segydirect_ins", tr("Scan a SEG-Y file"),
+	mCB(self,uiSEGYDirect2DInserter,startScan), uiStrings::sSEGY() );
     return ret;
 }
 
@@ -155,9 +158,9 @@ uiToolButtonSetup* uiSEGYDirectPS3DInserter::getButtonSetup() const
 {
     uiSEGYDirectPS3DInserter* self =
 				   const_cast<uiSEGYDirectPS3DInserter*>(this);
-    uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
-						    tr("Scan a SEG-Y file"),
-	    mCB(self,uiSEGYDirectPS3DInserter,startScan), "SEG-Y" );
+    uiToolButtonSetup* ret = new uiToolButtonSetup(
+	"segydirect_ins", tr("Scan a SEG-Y file"),
+	mCB(self,uiSEGYDirectPS3DInserter,startScan), uiStrings::sSEGY() );
     return ret;
 }
 

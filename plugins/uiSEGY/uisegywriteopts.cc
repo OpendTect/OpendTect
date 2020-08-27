@@ -56,12 +56,12 @@ uiSEGYDirectPS3DOpts::uiSEGYDirectPS3DOpts( uiParent* p )
 {
     parsfld_ = new uiSEGYFilePars( this, false, 0, false );
 
-    nrinlpfilefld_ = new uiGenInput( this, mNrInlKey, IntInpSpec(100,1) );
+    nrinlpfilefld_ = new uiGenInput( this, tr("Number of inlines per file"),
+				     IntInpSpec(100,1) );
     nrinlpfilefld_->attach( alignedBelow, parsfld_ );
 
     setHAlignObj( parsfld_ );
 }
-
 
 
 void uiSEGYDirectPS3DOpts::use( const IOPar& iop )

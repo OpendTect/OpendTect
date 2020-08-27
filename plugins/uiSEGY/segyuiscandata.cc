@@ -122,7 +122,7 @@ SEGY::TrcHeader* SEGY::BasicFileInfo::getTrcHdr( od_istream& strm ) const
 
 
 #define mErrRetWithFileName(s) \
-    return uiString( "File:\n%1\n" s ).arg( strm.fileName() );
+    return toUiString( "File:\n%1\n%2" ).arg( strm.fileName() ).arg(s);
 
 
 uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
