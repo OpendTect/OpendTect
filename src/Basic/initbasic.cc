@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "coordsystem.h"
 #include "debug.h"
+#include "file.h"
 #include "legal.h"
 #include "moddepmgr.h"
 #include "oscommand.h"
@@ -61,6 +62,8 @@ mDefModInitFn(Basic)
     // "is used to configure the output of formatted I/O functions"
 #endif
 #endif
+
+    File::initTempDir();
 
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();

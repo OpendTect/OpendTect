@@ -132,6 +132,9 @@ public:
 mGlobal(Basic) bool		launchViewer(const char*,
 					const ViewPars& vp=ViewPars());
 
+				/* Internal use only: */
+mGlobal(Basic) bool		initTempDir();
+
 
 } // namespace File
 
