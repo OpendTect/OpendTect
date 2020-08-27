@@ -3,9 +3,12 @@ Video definitions
 Mon Aug 24 11:09:12 2020
 !
 OpendTect Videos
-1.ID: 0x10400002
-1.Title: Training workflow: Import Data - Horizon
-1.Url: https://youtu.be/2E4XlH3GVf4
-2.ID: 0x10700000
-2.Title: Training workflow: Import Data - Well Data
-2.Url: https://youtu.be/AehSqiDEnvk
+1.ID: 0x00003001
+1.Title: Training workflow: Survey Setup & Load SEG-Y
+1.Url: https://youtu.be/ZBx7PPzSLiE
+2.ID: 0x10400002
+2.Title: Training workflow: Import Data - Horizon
+2.Url: https://youtu.be/2E4XlH3GVf4
+3.ID: 0x10700000
+3.Title: Training workflow: Import Data - Well Data
+3.Url: https://youtu.be/AehSqiDEnvk
