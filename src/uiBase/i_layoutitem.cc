@@ -846,7 +846,7 @@ const uiObject* i_LayoutItem::objLayouted() const
 }
 
 
-inline const uiObjectBody* i_LayoutItem::bodyLayouted() const
+const uiObjectBody* i_LayoutItem::bodyLayouted() const
 {
     return const_cast<i_LayoutItem*>(this)->bodyLayouted();
 }
