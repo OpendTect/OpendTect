@@ -561,14 +561,14 @@ void uiObject::setPrefHeightInChar( float h )
 void uiObject::setStretch( int hor, int ver )
      {mBody()->setStretch(hor,ver); }
 
-void uiObject::attach ( constraintType tp, int margin )
+void uiObject::attach( constraintType tp, int margin )
     { mBody()->attach(tp, (uiObject*)0, margin); }
 
-void uiObject::attach ( constraintType tp, uiObject* other, int margin,
+void uiObject::attach( constraintType tp, uiObject* other, int margin,
 			bool reciprocal )
     { mBody()->attach(tp, other, margin, reciprocal); }
 
-void uiObject::attach ( constraintType tp, uiParent* other, int margin,
+void uiObject::attach( constraintType tp, uiParent* other, int margin,
 			bool reciprocal )
     { mBody()->attach(tp, other, margin, reciprocal); }
 
@@ -612,13 +612,12 @@ const uiFont* uiObject::font() const
     { return mConstBody()->uifont(); }
 
 
-uiSize uiObject::actualsize( bool include_border ) const
-    { return mConstBody()->actualsize( include_border ); }
+uiSize uiObject::actualSize( bool include_border ) const
+    { return mConstBody()->actualSize( include_border ); }
 
 
 void uiObject::setCaption( const uiString& c )
     { mBody()->uisetCaption(c); }
-
 
 
 void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )

@@ -96,7 +96,7 @@ public:
 			    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-    virtual uiSize	minimumsize() const; //!< \reimp
+    virtual uiSize	minimumSize() const; //!< \reimp
     virtual int		nrTxtLines() const
 			{ return prefnrlines_ > 0 ? prefnrlines_
 						  : uiListBox::cDefNrLines(); }
@@ -247,7 +247,7 @@ void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
 }
 
 
-uiSize uiListBoxBody::minimumsize() const
+uiSize uiListBoxBody::minimumSize() const
 {
     const int totHeight = fontHeight() * prefnrlines_;
     const int totWidth  = fontWidth( true ) * fieldwidth_;

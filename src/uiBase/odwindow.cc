@@ -1075,14 +1075,15 @@ void uiDialogBody::initChildren()
 
 uiObject* uiDialogBody::createChildren()
 {
+    uiGroup* butgrp = new uiGroup( centralwidget_, "OK-Cancel" );
     if ( !setup_.oktext_.isEmpty() )
-	okbut_ = uiButton::getStd( centralwidget_, OD::Ok, CallBack(),
+	okbut_ = uiButton::getStd( butgrp, OD::Ok, CallBack(),
 				   true, setup_.oktext_ );
     if ( !setup_.canceltext_.isEmpty() )
-	cnclbut_ = uiButton::getStd( centralwidget_, OD::Cancel,
+	cnclbut_ = uiButton::getStd( butgrp, OD::Cancel,
 				     CallBack(), true, setup_.canceltext_ );
     if ( setup_.applybutton_ )
-	applybut_ = uiButton::getStd( centralwidget_, OD::Apply,
+	applybut_ = uiButton::getStd( butgrp, OD::Apply,
 				mCB(this,uiDialogBody,applyCB), true,
 				   setup_.applytext_ );
 
@@ -1108,7 +1109,7 @@ uiObject* uiDialogBody::createChildren()
 	shwhid = true;
 #endif
 
-	helpbut_ = uiButton::getStd( centralwidget_, OD::Help,
+	helpbut_ = uiButton::getStd( butgrp, OD::Help,
 				mCB(this,uiDialogBody,provideHelp), true,
 				uiString::emptyString() );
 	if ( shwhid )
@@ -1120,7 +1121,7 @@ uiObject* uiDialogBody::createChildren()
     const HelpKey videokey = dlg.videoKey();
     if ( !videokey.isEmpty() )
     {
-	videobut_ = uiButton::getStd( centralwidget_, OD::Video,
+	videobut_ = uiButton::getStd( butgrp, OD::Video,
 				mCB(this,uiDialogBody,provideHelp), true,
 				uiString::emptyString() );
 	uiString tt = HelpProvider::description( videokey );
@@ -1159,6 +1160,9 @@ uiObject* uiDialogBody::createChildren()
 	lowestobj = horSepar;
     }
 
+    butgrp->attach( ensureBelow, lowestobj );
+    butgrp->attach( rightBorder, 1 );
+
     return lowestobj;
 }
 
@@ -1166,17 +1170,12 @@ uiObject* uiDialogBody::createChildren()
 static const int hborderdist = 1;
 static const int vborderdist = 5;
 
-static void attachButton( uiObject* but, uiObject*& prevbut,
-			  uiObject* lowestobj )
+static void attachButton( uiObject* but, uiObject*& prevbut )
 {
     if ( !but ) return;
 
-    but->attach( ensureBelow, lowestobj );
-    but->attach( bottomBorder, vborderdist );
     if ( prevbut )
 	but->attach( leftOf, prevbut );
-    else
-	but->attach( rightBorder, hborderdist );
 
     prevbut = but;
 }
@@ -1188,12 +1187,12 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
 
     uiObject* prevbut = 0;
-    attachButton( videobut_, prevbut, lowestobj );
-    attachButton( helpbut_, prevbut, lowestobj );
-    attachButton( applybut_, prevbut, lowestobj );
-    attachButton( rightbut, prevbut, lowestobj );
-    attachButton( leftbut, prevbut, lowestobj );
-    attachButton( creditsbut_, prevbut, lowestobj );
+    attachButton( videobut_, prevbut );
+    attachButton( helpbut_, prevbut );
+    attachButton( applybut_, prevbut );
+    attachButton( rightbut, prevbut );
+    attachButton( leftbut, prevbut );
+    attachButton( creditsbut_, prevbut );
 
     uiObject* savebut = savebutcb_;
     if ( !savebut ) savebut = savebuttb_;
@@ -1202,8 +1201,6 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	savebut->attach( ensureBelow, lowestobj );
 	savebut->attach( bottomBorder, vborderdist );
 	savebut->attach( leftBorder, hborderdist );
-	if ( prevbut )
-	    savebut->attach( ensureLeftOf, prevbut );
     }
 }
 

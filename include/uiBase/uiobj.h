@@ -133,7 +133,7 @@ public:
     void		deepRedraw(CallBacker* =0)	{ reDraw( true ); }
     void		reDraw(bool deep);
 
-    uiSize		actualsize(bool include_border=true) const;
+    uiSize		actualSize(bool include_border=true) const;
 
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const
@@ -183,8 +183,12 @@ protected:
     uiObjEventFilter*	uiobjeventfilter_;
 
 private:
-
     uiParent*		parent_;
+
+public:
+    mDeprecated("Use actualSize")
+    uiSize		actualsize(bool inclborder=true) const
+			{ return actualSize(inclborder); }
 };
 
 
