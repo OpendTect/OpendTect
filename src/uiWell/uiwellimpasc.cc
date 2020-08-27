@@ -54,6 +54,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     , havetrckbox_(0)
     , vertwelllbl_(0)
 {
+    setVideoKey( mODVideoKey(mWellImportAscHelpID) );
     enableSaveButton( tr("Display after import") );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
