@@ -206,6 +206,15 @@ if( WIN32 )
 	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} )
     endif()
     include( InstallRequiredSystemLibraries )
+    list(GET CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS 0 SYSDLL )
+    get_filename_component( SYSDLLPATH ${SYSDLL} PATH ) 
+    file( GLOB MSVCDLLS ${SYSDLLPATH}/*.dll )
+    foreach( DLL ${MSVCDLLS} )
+	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
+	get_filename_component( FILENAME ${DLL} NAME )	
+	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
+	list( APPEND MSVCDLLLIST ${FILENAME} )
+    endforeach()
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
