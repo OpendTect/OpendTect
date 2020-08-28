@@ -230,6 +230,24 @@ bool winRemoveDir( const char* dirnm )
 }
 
 
+namespace WinUtils {
+bool isFileInUse( const char* fnm )
+{
+    HANDLE handle = CreateFileA( fnm,
+                                 GENERIC_READ | GENERIC_WRITE,
+                                 0,
+                                 0,
+                                 OPEN_EXISTING,
+                                 0,
+                                 0 );
+    const bool ret = handle == INVALID_HANDLE_VALUE;
+    CloseHandle( handle );
+    return ret;
+}
+
+} //namespace
+
+
 unsigned int getWinVersion()
 {
     DWORD dwVersion = 0;

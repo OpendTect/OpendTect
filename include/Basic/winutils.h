@@ -34,6 +34,10 @@ mGlobal(Basic) bool		winCopy(const char* from,const char* to,
 					bool isfile,bool ismove=false);
 mGlobal(Basic) bool		winRemoveDir(const char* dirnm);
 
+namespace WinUtils {
+mGlobal(Basic) bool		isFileInUse(const char* fnm);
+}
+
 #define mDeprecatedMachCmd mDeprecated("Use MachineCommand")
 
 mDeprecatedMachCmd mGlobal(Basic) bool executeWinProg(const char* comm,
