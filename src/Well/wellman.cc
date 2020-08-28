@@ -189,7 +189,7 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
     wd->setMultiID( key );
     wells_ += wd;
     loadstates_ += reqs;
-
+    wd->unRefNoDelete();
     return wd;
 }
 
