@@ -133,8 +133,8 @@ bool ODServiceBase::isOK( bool islocal ) const
 
 Network::Authority ODServiceBase::getAuthority( bool islocal ) const
 {
-    PtrMan<Network::RequestServer> server = islocal ? localserver_ :
-							    tcpserver_;
+    Network::RequestServer* server =
+		islocal ? localserver_ : tcpserver_;
     return server ? server->getAuthority() : Network::Authority();
 }
 
