@@ -53,10 +53,11 @@ public:
 			    : providername_( providername ), argument_(arg) {}
 			HelpKey() : providername_( 0 )		{}
 
+    bool		operator==(const HelpKey&) const;
     static HelpKey	emptyHelpKey();
     bool		isEmpty() const;
 
-    const char* 	providername_;
+    BufferString 	providername_;
     BufferString 	argument_;
 };
 

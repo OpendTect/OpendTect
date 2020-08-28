@@ -44,6 +44,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
+    setVideoKey( mODVideoKey(mImportVelFuncHelpID) );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),

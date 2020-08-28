@@ -897,6 +897,8 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				.modal(false) );
     setupdlg->showAlwaysOnTop();
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );
+    setupdlg->setVideoKey( mODVideoKey("horint3d") );
+    setupdlg->setVideoKey( mODVideoKey("horint2d") );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg,
 						  emobj->getTypeStr() );

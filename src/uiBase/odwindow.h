@@ -183,8 +183,8 @@ public:
     bool		separator() const	{ return setup_.separator_; }
     void		setHelpKey(const HelpKey& key) { setup_.helpkey_ = key;}
     HelpKey		helpKey() const { return setup_.helpkey_; }
-    void		setVideoKey(const HelpKey& key) { setup_.videokey_ = key;}
-    HelpKey		videoKey() const { return setup_.videokey_; }
+    void		setVideoKey(const HelpKey&);
+    HelpKey		videoKey(int idx) const;
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
 
@@ -197,6 +197,7 @@ public:
     virtual void	attachChild(constraintType,uiObject* child,
 				    uiObject* other,int margin,bool reciprocal);
     void		provideHelp(CallBacker*);
+    void		showVideo(CallBacker*);
     void		showCredits(CallBacker*);
 
     const uiDialog::Setup& getSetup() const	{ return setup_; }
@@ -227,6 +228,8 @@ protected:
     uiToolButton*	savebuttb_;
 
     uiLabel*		titlelbl_;
+
+    TypeSet<HelpKey>	videokeys_;
 
     void		_done(int);
 

@@ -830,6 +830,9 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     Qt::WindowFlags flags = windowFlags();
     flags |= Qt::Dialog;
     setWindowFlags( flags );
+
+    if ( !s.videokey_.isEmpty() )
+	setVideoKey( s.videokey_ );
 }
 
 
@@ -1118,14 +1121,30 @@ uiObject* uiDialogBody::createChildren()
 	    helpbut_->setToolTip( tr("Help on this window") );
     }
 
-    const HelpKey videokey = dlg.videoKey();
-    if ( !videokey.isEmpty() )
+    const HelpKey videokey = videoKey(0);
+    if ( !videokey.isEmpty() && HelpProvider::hasHelp(videokey) )
     {
-	videobut_ = uiButton::getStd( butgrp, OD::Video,
-				mCB(this,uiDialogBody,provideHelp), true,
+	const CallBack cb = mCB(this,uiDialogBody,showVideo);
+	videobut_ = uiButton::getStd( butgrp, OD::Video, cb, true,
 				uiString::emptyString() );
-	uiString tt = HelpProvider::description( videokey );
-	videobut_->setToolTip( tt );
+	if ( videokeys_.size()==1 )
+	{
+	    uiString tt = HelpProvider::description( videokey );
+	    videobut_->setToolTip( tt );
+	}
+	else
+	{
+	    uiMenu* menu = new uiMenu();
+	    for ( int idx=0; idx<videokeys_.size(); idx++ )
+	    {
+		const HelpKey& curkey = videokeys_[idx];
+		uiString txt = HelpProvider::description( curkey );
+		menu->insertItem( new uiAction(txt,cb), idx );
+	    }
+	    mDynamicCastGet(uiToolButton*,vb,videobut_)
+	    if ( vb )
+		vb->setMenu( menu, uiToolButton::InstantPopup );
+	}
     }
 
     if ( !setup_.menubar_ && !setup_.dlgtitle_.isEmpty() )
@@ -1205,10 +1224,20 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 }
 
 
-void uiDialogBody::provideHelp( CallBacker* cb )
+void uiDialogBody::provideHelp( CallBacker* )
 {
-    mDynamicCastGet(uiDialog&,dlg,handle_)
-    HelpProvider::provideHelp( cb==helpbut_ ? dlg.helpKey() : dlg.videoKey() );
+    HelpProvider::provideHelp( helpKey() );
+}
+
+
+void uiDialogBody::showVideo( CallBacker* cb )
+{
+    int videoidx = 0;
+    mDynamicCastGet(uiAction*,action,cb)
+    if ( action )
+	videoidx = action->getID();
+
+    HelpProvider::provideHelp( videoKey(videoidx) );
 }
 
 
@@ -1216,4 +1245,17 @@ void uiDialogBody::applyCB( CallBacker* cb )
 {
     mDynamicCastGet(uiDialog&,dlg,handle_);
     dlg.applyPushed.trigger( cb );
+}
+
+
+void uiDialogBody::setVideoKey( const HelpKey& key )
+{
+    if ( !key.isEmpty() && HelpProvider::hasHelp(key) )
+	videokeys_.addIfNew( key );
+}
+
+
+HelpKey uiDialogBody::videoKey( int idx ) const
+{
+    return videokeys_.validIdx(idx) ? videokeys_[idx] : HelpKey();
 }

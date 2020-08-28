@@ -57,7 +57,7 @@ namespace WellTie
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismics"),
 		tr("Select Data to tie Well to Seismic"),
-                mODHelpKey(mWellTiMgrDlemgHelpID) )
+		mODHelpKey(mWellTiMgrDlemgHelpID) )
 		.savebutton(true)
 		.savechecked(false)
 		.modal(false))
@@ -71,6 +71,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, wd_(0)
 	, elpropsel_(*new ElasticPropSelection(false))
 {
+    setVideoKey( mODVideoKey(mWellTiMgrDlemgHelpID) );
     setCtrlStyle( RunAndClose );
 
     const IOObjContext wellctxt = mIOObjContext(Well);
