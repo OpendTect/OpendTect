@@ -109,21 +109,7 @@ const char* ODInst::sKeyAutoInst() { return ODInst::AutoInstTypeDef().name(); }
 
 bool ODInst::canInstall( const char* dirnm )
 {
-    if ( !File::isWritable(dirnm) )
-        return false;
-
-#ifdef __win__
-    const FilePath testfp(dirnm,
-        FilePath::getTempFileName("test_odinst", "txt"));
-    od_ostream strm(testfp);
-    const bool res = strm.isOK();
-    if ( File::exists(strm.fileName()) )
-        File::remove( strm.fileName() );
-
-    return res;
-#else
-    return true;
-#endif
+    return File::isWritable( dirnm );
 }
 
 

@@ -495,7 +495,27 @@ bool isWritable( const char* fnm )
 {
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    return qfi.isWritable();
+    bool iswritable = qfi.isWritable();
+# ifdef __unix__
+    return iswritable;
+# else
+    if ( !iswritable )
+	return iswritable;
+
+    //TODO: Do the following only for the users member of admin group
+    const bool isdir = qfi.isDir();
+    const bool useexisting = !isdir && qfi.exists();
+    FilePath fp( fnm );
+    if ( isdir )
+	fp.add( FilePath::getTempFileName("test_writable", "txt") );
+    od_ostream strm( fp, useexisting );
+    iswritable = strm.isOK();
+    strm.close();
+    if ( isdir || (!isdir && !useexisting) )
+	File::remove( strm.fileName() );
+
+    return iswritable;
+# endif
 #else
     struct stat st_buf;
     int status = stat( fnm, &st_buf );
@@ -560,17 +580,11 @@ bool isFileInUse( const char* fnm )
 
 bool isInUse( const char* fnm )
 {
+    if ( !exists(fnm) )
+	return false;
+
 #ifdef __win__
-    HANDLE handle = CreateFileA( fnm,
-				 GENERIC_READ | GENERIC_WRITE,
-				 0,
-				 0,
-				 OPEN_EXISTING,
-				 0,
-				 0 );
-    const bool ret = handle == INVALID_HANDLE_VALUE;
-    CloseHandle( handle );
-    return ret;
+    return WinUtils::isFileInUse( fnm );
 #else
     return false;
 #endif
