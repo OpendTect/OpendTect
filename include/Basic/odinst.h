@@ -22,7 +22,7 @@ namespace ODInst
 {
     mGlobal(Basic) BufferString	GetInstallerDir();
     mGlobal(Basic) BufferString GetRelInfoDir();
-    mGlobal(Basic) bool		canInstall();
+    mGlobal(Basic) bool		canInstall(const char* dirnm);
     mGlobal(Basic) void		startInstManagement();
     mGlobal(Basic) void		startInstManagementWithRelDir(const char*);
 

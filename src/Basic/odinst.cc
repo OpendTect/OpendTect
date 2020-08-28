@@ -131,9 +131,9 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 const char* ODInst::sKeyAutoInst() { return ODInst::AutoInstTypeDef().name(); }
 
 
-bool ODInst::canInstall()
+bool ODInst::canInstall( const char* dirnm )
 {
-    return File::isWritable( mRelRootDir );
+    return File::isWritable( dirnm );
 }
 
 

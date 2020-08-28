@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "filesystemaccess.h"
+
 #include "file.h"
 #include "filepath.h"
+#include "od_ostream.h"
 #include "oscommand.h"
 
 
@@ -429,7 +431,27 @@ bool File::LocalFileSystemAccess::isWritable( const char* uri ) const
 {
     mGetFileNameAndRetFalseIfEmpty();
     const QFileInfo qfi( fnm.buf() );
-    return qfi.isWritable();
+    bool iswritable = qfi.isWritable();
+#ifdef __unix__
+    return iswritable;
+#else
+    if ( !iswritable )
+        return iswritable;
+
+    //TODO: Do the following only for the users member of admin group
+    const bool isdir = qfi.isDir();
+    const bool useexisting = !isdir && qfi.exists();
+    Path fp( fnm );
+    if ( isdir )
+        fp.add( Path::getTempFileName("test_writable", "txt") );
+    od_ostream strm( fp, useexisting );
+    iswritable = strm.isOK();
+    strm.close();
+    if ( isdir || (!isdir && !useexisting) )
+        File::remove( strm.fileName() );
+
+    return iswritable;
+#endif
 }
 
 

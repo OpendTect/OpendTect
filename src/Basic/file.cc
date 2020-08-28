@@ -535,20 +535,14 @@ bool File::isExecutable( const char* fnm )
 
 bool File::isInUse( const char* fnm )
 {
+    if ( !exists(fnm) )
+        return false;
+
 #ifdef __win__
     if ( isURI(fnm) )
 	return false;
 
-    HANDLE handle = CreateFileA( fnm,
-				 GENERIC_READ | GENERIC_WRITE,
-				 0,
-				 0,
-				 OPEN_EXISTING,
-				 0,
-				 0 );
-    const bool ret = handle == INVALID_HANDLE_VALUE;
-    CloseHandle( handle );
-    return ret;
+    return WinUtils::fileInUse(fnm);
 #else
     return false;
 #endif
