@@ -516,7 +516,7 @@ bool Network::Socket::waitForConnected() const
     if ( isLocal() )
     {
 	QLocalSocket::LocalSocketState state = qlocalsocket_->state();
-	if ( sCast(int,state) > sCast(int,QAbstractSocket::UnconnectedState) )
+	if ( state > QLocalSocket::UnconnectedState )
 	{
 	    qlocalsocket_->waitForConnected( timeout_ );
 	    state = qlocalsocket_->state();
