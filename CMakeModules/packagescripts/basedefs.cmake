@@ -5,7 +5,7 @@
 #RCS:           $Id$
 
 #OpenDtect libraries
-set( LIBLIST Algo AttributeEngine Attributes Basic Batch EarthModel General
+set( LIBLIST Algo AttributeEngine Attributes Basic Batch CRS EarthModel General
 	     Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
 	     PreStackProcessing EMAttrib ExpAttribs Well WellAttrib uiAttributes uiBase uiOSG
 	     uiEarthModel uiEMAttrib uiExpAttribs uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
@@ -36,7 +36,7 @@ set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackVie
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
 	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGY uiPresentationMaker
-	     CRS uiCRS CEEMDAttrib uiCEEMDAttrib )
+	     CEEMDAttrib uiCEEMDAttrib )
 
 if( NOT MATLAB_DIR STREQUAL "" )
     set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )
