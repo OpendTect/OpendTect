@@ -27,6 +27,7 @@ namespace WinUtils
 mGlobal(Basic) bool		copy(const char* from,const char* to,
 					bool isfile,bool ismove=false);
 mGlobal(Basic) bool		removeDir(const char* dirnm);
+mGlobal(Basic) bool		fileInUse(const char* fnm);
 
 
 mGlobal(Basic) unsigned int	getWinVersion();

@@ -254,6 +254,20 @@ bool WinUtils::removeDir( const char* dirnm )
     return !res;
 }
 
+bool WinUtils::fileInUse( const char* fnm )
+{
+    HANDLE handle = CreateFileA(fnm,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        0,
+        OPEN_EXISTING,
+        0,
+        0);
+    const bool ret = handle == INVALID_HANDLE_VALUE;
+    CloseHandle(handle);
+    return ret;
+}
+
 
 unsigned int WinUtils::getWinVersion()
 {
