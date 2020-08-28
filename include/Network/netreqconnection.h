@@ -141,6 +141,8 @@ mExpClass(Network) RequestServer : public CallBacker
 public:
 
 				RequestServer(PortNr_Type,SpecAddr=Any);
+				RequestServer(const char* servernm);
+				RequestServer(const Authority&,SpecAddr=Any);
 				~RequestServer();
 
     bool			isOK() const;
@@ -164,7 +166,8 @@ private:
 
     Threads::Lock		lock_;
     Server*			server_;
-
+    uiString			TCPErrMsg() const;
+    uiString			LocalErrMsg() const;
 };
 
 

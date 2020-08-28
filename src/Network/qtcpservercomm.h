@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include <QTcpServer>
+#include <QLocalServer>
 #include "netserver.h"
 
 /*\brief QTcpServer communication class
@@ -38,6 +39,17 @@ QTcpServerComm( QTcpServer* qtcpserver, Network::Server* netserver )
     connect( qtcpserver, SIGNAL(newConnection()), this, SLOT(notifNewConn()) );
 }
 
+
+QTcpServerComm( QLocalServer* qlocalserver, Network::Server* netserver )
+    : qlocalserver_(qlocalserver)
+    , netserver_(netserver)
+{
+    if ( !qlocalserver || !netserver )
+	return;
+    connect( qlocalserver, SIGNAL(newConnection()), this,
+						    SLOT(notifNewConn()) );
+}
+
 private slots:
 
 void notifNewConn()
@@ -47,7 +59,8 @@ void notifNewConn()
 
 private:
 
-    QTcpServer*		qtcpserver_;
+    QTcpServer*		qtcpserver_	= nullptr;
+    QLocalServer*	qlocalserver_	= nullptr;
     Network::Server*	netserver_;
 
 };

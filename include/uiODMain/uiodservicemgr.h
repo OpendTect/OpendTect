@@ -50,8 +50,8 @@ mExpClass(uiODMain) uiODServiceMgr : public uiODService
 { mODTextTranslationClass(uiODServiceMgr)
 public:
 
-    static void		setFor(uiMainWin&);
-    static uiODServiceMgr& getMgr();
+    static void		setFor(uiMainWin&,bool islocal);
+    static uiODServiceMgr& getMgr(bool islocal);
 
     bool		isPresent(const Network::Service::ID) const;
     bool		isAlive(const Network::Service::ID) const;
@@ -64,7 +64,7 @@ public:
 
 protected:
 
-				uiODServiceMgr();
+				uiODServiceMgr(bool islocal);
 				uiODServiceMgr(const uiODServiceMgr&) = delete;
 				uiODServiceMgr(uiODServiceMgr&&) = delete;
 				~uiODServiceMgr();

@@ -78,7 +78,7 @@ BatchProgram::BatchProgram()
 {
     timer_ = new Timer( "Updating" );
     mAttachCB( timer_->tick, BatchProgram::eventLoopStarted );
-    ODBatchService& service = ODBatchService::getMgr();
+    ODBatchService& service = ODBatchService::getMgr( false );
 
     mAttachCB( service.externalAction, BatchProgram::doWorkCB );
 

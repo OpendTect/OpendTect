@@ -41,6 +41,7 @@ public:
     BufferStringSet	clargs_;
     IOPar		pars_;
     OS::LaunchType	launchtype_ = OS::Batch;
+    BufferString	servernm_;
     OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
 
     void		usePar(const IOPar&);

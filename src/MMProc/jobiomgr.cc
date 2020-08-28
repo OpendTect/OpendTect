@@ -131,6 +131,7 @@ JobIOHandler( PortNr_Type firstport )
     , firstport_(firstport)
     , usedport_(0)
     , ready_(false)
+    , server_(false)
 {
     mAttachCB( server_.readyRead, JobIOHandler::socketCB );
     listen( firstport_ );

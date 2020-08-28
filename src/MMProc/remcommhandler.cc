@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 RemCommHandler::RemCommHandler( PortNr_Type port )
     : port_(port)
-    , server_(*new Network::Server)
+    , server_(*new Network::Server(false))
     , logstrm_(createLogFile())
 {
     mAttachCB( server_.readyRead, RemCommHandler::dataReceivedCB );

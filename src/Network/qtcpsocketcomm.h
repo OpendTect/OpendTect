@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include <QTcpSocket>
+#include <QLocalSocket>
 #include "netsocket.h"
 
 /*\brief QTcpSocket communication class
@@ -39,6 +40,16 @@ QTcpSocketComm( QTcpSocket* qtcpsocket, Network::Socket* netsocket )
     connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(trigReadyRead()) );
 }
 
+
+QTcpSocketComm( QLocalSocket* qlocalsocket, Network::Socket* netsocket )
+    : qlocalsocket_(qlocalsocket)
+    , netsocket_(netsocket)
+{
+    connect( qlocalsocket, SIGNAL(disconnected()), this,
+					    SLOT(trigDisconnect()) );
+    connect( qlocalsocket, SIGNAL(readyRead()), this, SLOT(trigReadyRead()) );
+}
+
 private slots:
 
 void trigDisconnect()
@@ -56,7 +67,8 @@ void trigReadyRead()
 
 private:
 
-    QTcpSocket*		qtcpsocket_;
+    QTcpSocket*		qtcpsocket_	= nullptr;
+    QLocalSocket*	qlocalsocket_	= nullptr;
     Network::Socket*	netsocket_;
 
 };

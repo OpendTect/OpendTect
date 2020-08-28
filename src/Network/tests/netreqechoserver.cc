@@ -25,8 +25,8 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( PortNr_Type port, unsigned short timeout )
-	: server_(port)
+    RequestEchoServer( const char* servernm, unsigned short timeout )
+	: server_(servernm)
 	, timeout_( timeout )
     {
 	mAttachCB( server_.newConnection, RequestEchoServer::newConnectionCB );
@@ -92,7 +92,7 @@ public:
 	BufferString packetstring;
 
 	packet->getStringPayload( packetstring );
-	if ( packetstring==Network::Server::sKeyKillword() )
+	if ( packetstring==Server::sKeyKillword() )
 	{
 	    if ( !quiet )
 		od_cout() << "Kill requested " << od_endl;
@@ -106,7 +106,7 @@ public:
 	}
 	else if ( packetstring=="New" )
 	{
-	    Network::RequestPacket newpacket;
+	    RequestPacket newpacket;
 	    BufferString sentmessage = "The answer is 42";
 	    newpacket.setIsNewRequest();
 	    newpacket.setStringPayload( sentmessage );
@@ -185,13 +185,13 @@ int main(int argc, char** argv)
 
     ApplicationData app;
 
-    int startport = 1025;
-    clparser.getVal( Network::Server::sKeyPort(), startport );
+    BufferString servernm;
+    clparser.getVal( sKey::ServerNm(), servernm );
 
     int timeout = 120;
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
-    Network::RequestEchoServer server( mCast(PortNr_Type,startport),
+    Network::RequestEchoServer server( servernm,
 				       mCast(unsigned short,timeout) );
 
     if ( !quiet )

@@ -22,28 +22,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "timer.h"
 
-
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
 
 
 
-ODBatchService::ODBatchService( bool assignport )
-    : ODServiceBase(assignport)
+ODBatchService::ODBatchService( bool islocal, const char* servernm,
+							    bool assignport )
+    : ODServiceBase(islocal,servernm,assignport)
 {
-    const CommandLineParser* clp = new CommandLineParser;
-    const char* skeynolisten = Network::Server::sKeyNoListen();
-    if ( !clp->hasKey(skeynolisten) )
-    {
-	if ( clp->hasKey(sKeyODServer()) )
-	{
-	    BufferString odserverstr;
-	    if ( clp->getVal( sKeyODServer(), odserverstr ) )
-		odauth_.fromString( odserverstr );
-	}
-    }
-    delete clp;
-    doRegister();
+    init( islocal );
+}
+
+
+ODBatchService::ODBatchService( const char* hostname, bool assignport)
+    : ODServiceBase(hostname,assignport)
+{
+    init( true );
 }
 
 
@@ -55,14 +50,38 @@ ODBatchService::~ODBatchService()
 }
 
 
+void ODBatchService::init( bool islocal )
+{
+    const CommandLineParser* clp = new CommandLineParser;
+    const char* skeynolisten = Network::Server::sKeyNoListen();
+    if ( !clp->hasKey(skeynolisten) )
+    {
+	if ( clp->hasKey(sKeyODServer()) )
+	{
+	    BufferString odserverstr;
+	    if ( clp->getVal( sKeyODServer(), odserverstr ) )
+	    {
+		if ( islocal )
+		    odauth_.localFromString( odserverstr );
+		else
+		    odauth_.fromString( odserverstr, islocal );
+	    }
+	}
+    }
+    delete clp;
+
+    doRegister();
+}
+
+
 bool ODBatchService::isODMainSlave() const
 {
     return odauth_.hasAssignedPort();
 }
 
-ODBatchService& ODBatchService::getMgr()
+ODBatchService& ODBatchService::getMgr(bool islocal) // always local;
 {
-    mDefineStaticLocalObject(ODBatchService,mgrInstance,);
+    mDefineStaticLocalObject(ODBatchService,mgrInstance,(islocal));
     return mgrInstance;
 }
 
@@ -126,7 +145,7 @@ uiRetVal ODBatchService::doRegister()
 	return uiRetVal::OK();
 
     OD::JSON::Object sinfo;
-    Network::Service::fillJSON( getAuthority(), sinfo );
+    Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
 	sKeyRegister(), sinfo );
     if ( !uirv.isOK() )
@@ -148,7 +167,7 @@ uiRetVal ODBatchService::doDeRegister()
 	return uiRetVal::OK();
 
     OD::JSON::Object sinfo;
-    Network::Service::fillJSON( getAuthority(), sinfo );
+    Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
 	sKeyDeregister(), sinfo );
     if ( !uirv.isOK() )

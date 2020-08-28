@@ -84,6 +84,7 @@ namespace sKey
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
     inline FixedString LineNames()	{ return "Line names"; }
+    inline FixedString Local()		{ return "Local"; }
     inline FixedString Log()		{ return "Log"; }
     inline FixedString LogFile()	{ return "Log file"; }
     inline FixedString Name()		{ return "Name"; }
@@ -116,6 +117,8 @@ namespace sKey
     inline FixedString Selection()	{ return "Selection"; }
     inline FixedString SelectionStatus(){ return "Selection status"; }
     inline FixedString Series()		{ return "Series"; }
+    inline FixedString Server()		{ return "Server"; }
+    inline FixedString ServerNm()	{ return "Server_Name"; }
     inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Shape()		{ return "Shape"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }

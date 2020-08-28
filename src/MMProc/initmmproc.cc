@@ -132,8 +132,8 @@ bool Batch::SingleJobDispatcherRemote::launch()
 	mc.addKeyedArg( Network::Server::sKeyPort(), val );
     }
 
-    const BufferString launchtype = OS::Batch == jobspec_.launchtype_ ?	
-						sKey::Batch() : "NetworkComm";
+    const bool isbatch = OS::Batch == jobspec_.launchtype_;
+    const BufferString launchtype =  isbatch ? sKey::Batch() : "NetworkComm";
     mc.addKeyedArg( sKey::LaunchType(), launchtype );
 
     BufferString str = mc.toString( );

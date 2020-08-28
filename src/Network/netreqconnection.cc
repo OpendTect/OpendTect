@@ -31,18 +31,18 @@ static Threads::Atomic<int> connid;
 RequestConnection::RequestConnection( const Authority& authority,
 				      bool multithreaded,
 				      int timeout )
-    : socket_( 0 )
-    , ownssocket_( true )
-    , connectionClosed( this )
-    , packetArrived( this )
-    , id_( connid++ )
+    : socket_(0)
+    , ownssocket_(true)
+    , connectionClosed(this)
+    , packetArrived(this)
+    , id_(connid++)
     , authority_(new Authority(authority))
-    , socketthread_( 0 )
-    , timeout_( timeout )
-    , stopflag_( 0 )
-    , packettosend_( 0 )
-    , threadreadstatus_( None )
-    , triggerread_( false )
+    , socketthread_(0)
+    , timeout_(timeout)
+    , stopflag_(0)
+    , packettosend_(0)
+    , threadreadstatus_(None)
+    , triggerread_(false)
 {
     if ( multithreaded )
     {
@@ -59,7 +59,7 @@ RequestConnection::RequestConnection( const Authority& authority,
 }
 
 
-RequestConnection::RequestConnection( Network::Socket* sock )
+RequestConnection::RequestConnection( Socket* sock )
     : socket_( sock )
     , ownssocket_( false )
     , connectionClosed( this )
@@ -163,7 +163,7 @@ void RequestConnection::connectToHost()
 	return;
     }
 
-    Network::Socket* newsocket = new Network::Socket( false );
+    auto* newsocket = new Socket( authority_->isLocal() );
 
     if ( timeout_ > 0 )
 	newsocket->setTimeout( timeout_ );
@@ -220,8 +220,8 @@ bool RequestConnection::readFromSocket()
     while ( isOK() )
     {
 	PtrMan<RequestPacket> nextreceived = new RequestPacket;
-	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
-	if ( readres==Network::Socket::ReadError )
+	Socket::ReadStatus readres = socket_->read( *nextreceived );
+	if ( readres==Socket::ReadError )
 	{
 	    errmsg_ = socket_->errMsg();
 	    socket_->disconnectFromHost();
@@ -229,7 +229,7 @@ bool RequestConnection::readFromSocket()
 		errmsg_ = tr("Error reading from socket");
 	    return false;
 	}
-	else if ( readres==Network::Socket::ReadOK )
+	else if ( readres==Socket::ReadOK )
 	{
 	    if ( !nextreceived->isOK() )
 	    {
@@ -451,7 +451,7 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 
 
 RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
-    : server_( new Network::Server )
+    : server_( new Server(Network::isLocal(specaddr)) )
     , newConnection( this )
 {
     if ( !server_ )
@@ -459,7 +459,47 @@ RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
     if ( !server_->listen(specaddr,servport) )
-	errmsg_ = tr("Cannot start listening on port %1").arg( servport );
+	errmsg_ = TCPErrMsg().arg( servport );
+}
+
+
+RequestServer::RequestServer( const char* servernm )
+    : server_(new Server(true))
+    , newConnection(this)
+{
+    if ( !server_ )
+	return;
+
+    mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
+    uiRetVal ret;
+    if ( !server_->listen(servernm,ret) )
+    {
+	errmsg_ = LocalErrMsg().arg( servernm );
+	errmsg_.append( ret, true );
+    }
+}
+
+
+RequestServer::RequestServer( const Network::Authority& auth, SpecAddr spcadr )
+    : newConnection(this)
+{
+    server_ = new Server( auth.isLocal() );
+
+    if ( !server_ )
+	return;
+
+    mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
+    const bool islocal = auth.isLocal();
+    uiRetVal ret;
+    const bool islistening = islocal ?
+				server_->listen( auth.getServerName(), ret ) :
+				server_->listen( spcadr, auth.getPort() );
+
+    if ( !islistening )
+	errmsg_ = islocal ?
+		LocalErrMsg().arg(auth.getServerName()).append(ret,true) :
+					    TCPErrMsg().arg(auth.getPort());
+
 }
 
 
@@ -469,6 +509,19 @@ RequestServer::~RequestServer()
 
     deepErase( pendingconns_ );
     delete server_;
+}
+
+
+
+uiString RequestServer::TCPErrMsg() const
+{
+    return tr("Cannot start listening on port %1","port id<number>");
+}
+
+
+uiString RequestServer::LocalErrMsg() const
+{
+    return tr("Cannot start listening to %1","server name");
 }
 
 
@@ -495,7 +548,7 @@ RequestConnection* RequestServer::pickupNewConnection()
 void RequestServer::newConnectionCB(CallBacker* cb)
 {
     mCBCapsuleUnpack(int,socketid,cb);
-    Network::Socket* sock = server_->getSocket(socketid);
+    auto* sock = server_->getSocket(socketid);
 
     if ( !sock )
 	return;
@@ -529,9 +582,9 @@ bool Network::isPortFree( PortNr_Type port, uiString* errmsg )
     DWORD dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE);
     if ( dwRetVal == ERROR_INSUFFICIENT_BUFFER )
     {
-        FREE(pTcpTable);
-        pTcpTable = (MIB_TCPTABLE *) MALLOC(dwSize);
-        if ( !pTcpTable ) 
+	FREE(pTcpTable);
+	pTcpTable = (MIB_TCPTABLE *) MALLOC(dwSize);
+	if ( !pTcpTable )
 	    return true;
     }
     dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE );

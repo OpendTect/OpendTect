@@ -22,23 +22,44 @@
 #include "netservice.h"
 #include "pythonaccess.h"
 #include "settings.h"
+#include "od_ostream.h"
 
 
-ODServiceBase::ODServiceBase( bool assignport )
+ODServiceBase::ODServiceBase( bool islocal, const char* servernm,
+							    bool assignport )
     : externalAction(this)
     , externalRequest(this)
 {
+    init( islocal, servernm, assignport );
+}
+
+
+ODServiceBase::ODServiceBase( const char* hostname, bool assignport )
+    : externalAction(this)
+    , externalRequest(this)
+{
+    init( true, hostname, assignport );
+}
+
+
+void ODServiceBase::init( bool islocal, const char* hostname,
+							    bool assignport )
+{
     ODServiceBase* mainserv = theMain();
-    server_ = mainserv ? mainserv->server_ : nullptr;
-    if ( server_ )
+    if ( islocal )
+	localserver_ = mainserv ? mainserv->localserver_ : nullptr;
+    else
+	tcpserver_ = mainserv ? mainserv->tcpserver_ : nullptr;
+
+    if ( tcpserver_ || localserver_ )
     {
 	serverismine_ = false;
 	if ( this != mainserv )
 	{
 	    mAttachCB( mainserv->externalAction,
-		       ODServiceBase::externalActionCB );
+					ODServiceBase::externalActionCB );
 	    mAttachCB( mainserv->externalRequest,
-		       ODServiceBase::externalRequestCB );
+				    ODServiceBase::externalRequestCB );
 	}
 	return;
     }
@@ -57,34 +78,44 @@ ODServiceBase::ODServiceBase( bool assignport )
 	if ( clp.hasKey( skeyport ) )
 	    clp.getVal( skeyport, clport );
 
-        if ( clport > 0 && Network::isPortFree( (PortNr_Type) clport ) )
-            portid = (PortNr_Type) clport;
-        else if ( assignport && defport>0
-                         && Network::isPortFree((PortNr_Type) defport) )
-            portid = (PortNr_Type) defport;
-        else if ( assignport )
-        {
-            uiRetVal uirv;
-            portid = Network::getUsablePort( uirv );
-            if ( !uirv.isOK() )
-            {
-                pErrMsg( "unable to find usable port" );
-                portid = 0;
-            }
-        }
+	if ( clport > 0 && Network::isPortFree( (PortNr_Type) clport ) )
+	    portid = (PortNr_Type) clport;
+	else if ( assignport && defport>0
+	    && Network::isPortFree((PortNr_Type) defport) )
+	    portid = (PortNr_Type) defport;
+	else if ( assignport )
+	{
+	    uiRetVal uirv;
+	    portid = Network::getUsablePort( uirv );
+	    if ( !uirv.isOK() )
+	    {
+		pErrMsg( "unable to find usable port" );
+		portid = 0;
+	    }
+	}
     }
 
     if ( portid>0 )
-	startServer( portid );
+    {
+	const Network::Authority& auth = islocal ?
+			    Network::Authority::getLocal( hostname ) :
+				    Network::Authority( nullptr, portid );
 
-    if ( server_ )
-	mAttachCB( server_->newConnection, ODServiceBase::newConnectionCB );
+	startServer( auth );
+    }
+
+    if ( islocal )
+	mAttachCB( localserver_->newConnection,
+					    ODServiceBase::newConnectionCB );
+    else
+	mAttachCB( tcpserver_->newConnection, ODServiceBase::newConnectionCB );
 
     mAttachCB( IOM().surveyChanged, ODServiceBase::surveyChangedCB );
     mAttachCB( IOM().applicationClosing, ODServiceBase::appClosingCB );
     mAttachCB( OD::PythA().envChange, ODServiceBase::pyenvChangeCB );
     mAttachCB( this->externalAction, ODServiceBase::externalActionCB );
     mAttachCB( this->externalRequest, ODServiceBase::externalRequestCB );
+
 }
 
 
@@ -94,15 +125,17 @@ ODServiceBase::~ODServiceBase()
 }
 
 
-bool ODServiceBase::isOK() const
+bool ODServiceBase::isOK( bool islocal ) const
 {
-    return getAuthority().hasAssignedPort();
+    return getAuthority( islocal ).hasAssignedPort();
 }
 
 
-Network::Authority ODServiceBase::getAuthority() const
+Network::Authority ODServiceBase::getAuthority( bool islocal ) const
 {
-    return server_ ? server_->getAuthority() : Network::Authority();
+    PtrMan<Network::RequestServer> server = islocal ? localserver_ :
+							    tcpserver_;
+    return server ? server->getAuthority() : Network::Authority();
 }
 
 
@@ -124,10 +157,15 @@ void ODServiceBase::pyenvChangeCB( CallBacker* cb )
 { doPyEnvChange(cb); }
 
 
-void ODServiceBase::startServer( PortNr_Type portid )
+void ODServiceBase::startServer( const Network::Authority& auth )
 {
-    server_ = new Network::RequestServer( portid );
-    if ( !server_ || !server_->isOK() )
+    if ( auth.isLocal() )
+	localserver_ = new Network::RequestServer( auth.getServerName() );
+    else
+	tcpserver_ = new Network::RequestServer( auth, Network::Any );
+
+    if ( (!localserver_ || !localserver_->isOK() ) &&
+			(!tcpserver_ || !tcpserver_->isOK()) )
     {
 	pErrMsg( "startServer - failed" );
 	stopServer();
@@ -142,7 +180,10 @@ void ODServiceBase::startServer( PortNr_Type portid )
 void ODServiceBase::stopServer()
 {
     if ( serverismine_ )
-	deleteAndZeroPtr( server_ );
+    {
+	deleteAndZeroPtr( tcpserver_ );
+	deleteAndZeroPtr( localserver_ );
+    }
 }
 
 
@@ -286,7 +327,12 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 
 void ODServiceBase::newConnectionCB( CallBacker* )
 {
-    Network::RequestConnection* conn = server_->pickupNewConnection();
+    //Threads::Locker lckr( lock_ );
+
+    Network::RequestConnection* conn = localserver_->pickupNewConnection();
+    if ( !conn )
+	conn = tcpserver_->pickupNewConnection();
+
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
@@ -304,14 +350,14 @@ void ODServiceBase::packetArrivedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
 
-    conn_ = static_cast<Network::RequestConnection*>( cber );
-    if ( !conn_ )
+    tcpconn_ = static_cast<Network::RequestConnection*>( cber );
+    if ( !tcpconn_ )
 	return;
 
-    packet_ = conn_->pickupPacket( reqid, 2000 );
+    packet_ = tcpconn_->pickupPacket( reqid, 2000 );
     if ( !packet_ )
     {
-	packet_ = conn_->getNextExternalPacket();
+	packet_ = tcpconn_->getNextExternalPacket();
 	if ( !packet_ )
 	{
 	    pErrMsg("packetArrivedCB - no packet");
@@ -345,7 +391,8 @@ void ODServiceBase::connClosedCB( CallBacker* cb )
 
     mDetachCB( conn->packetArrived, ODServiceBase::packetArrivedCB );
     mDetachCB( conn->connectionClosed, ODServiceBase::connClosedCB );
-    conn_ = nullptr;
+    tcpconn_ = nullptr;
+    localconn_ = nullptr;
 
     doConnClosed( cb );
     if ( needclose_ )
@@ -384,7 +431,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
 				    const char* servicenm, const char* action )
 {
     PtrMan<Network::RequestConnection> conn =
-		    new Network::RequestConnection( auth, false, 2000 );
+			new Network::RequestConnection( auth, false, 2000 );
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to service %1 on %2")
@@ -453,7 +500,7 @@ void ODServiceBase::sendOK()
     response.set( sKeyOK(), BufferString::empty() );
     if ( packet_ )
 	packet_->setPayload( response );
-    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+    if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendOK - failed"); }
     packet_.release();
 }
@@ -465,7 +512,7 @@ void ODServiceBase::sendErr( uiRetVal& uirv )
     response.set( sKeyError(), uirv.getText() );
     if ( packet_ )
 	packet_->setPayload( response );
-    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+    if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendErr - failed"); }
     packet_.release();
 }

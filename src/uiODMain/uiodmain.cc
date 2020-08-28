@@ -632,7 +632,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 
 void uiODMain::afterStartupCB( CallBacker* )
 {
-    uiODServiceMgr::setFor( *this );
+    uiODServiceMgr::setFor( *this, false );
 }
 
 
@@ -864,7 +864,7 @@ void uiODMain::forceExit()
 
 uiODServiceMgr& uiODMain::serviceMgr()
 {
-    return uiODServiceMgr::getMgr();
+    return uiODServiceMgr::getMgr( false );
 }
 
 
