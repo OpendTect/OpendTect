@@ -79,7 +79,7 @@ mExpClass(Well) MultiWellReader : public Executor
 { mODTextTranslationClass(MultiWellReader)
 public:
 
-		    MultiWellReader(const TypeSet<MultiID>&,
+				MultiWellReader(const TypeSet<MultiID>&,
 				    ObjectSet<Well::Data>&,
 				    const Well::LoadReqs reqs=Well::LoadReqs());
 

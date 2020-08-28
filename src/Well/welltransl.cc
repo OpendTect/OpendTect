@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellodwriter.h"
 #include "welldata.h"
 #include "wellextractdata.h"
+#include "wellman.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filepath.h"
@@ -96,6 +97,12 @@ bool odWellTranslator::implRename( const IOObj* ioobj, const char* newnm,
     mRename(Well::odIO::sExtWellTieSetup(),0,)
     for ( int idx=1; ; idx++ )
 	mRename(Well::odIO::sExtLog(),idx,if ( !exists ) break)
+
+    if ( Well::MGR().isLoaded(ioobj->key()) )
+    {
+	Well::Data* wd = Well::MGR().get( ioobj->key() );
+	if ( wd ) wd->setName( ioobj->name() );
+    }
 
     return true;
 }
