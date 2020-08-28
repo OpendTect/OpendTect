@@ -353,5 +353,12 @@ bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
     if ( oldsp.exists(true) )
 	oldsp.rename( newfp.fullPath().buf(), cb );
 
+    const int setidx = Pick::Mgr().indexOf( ioobj->key() );
+    if ( setidx>= 0 )
+    {
+	Pick::Set& ps = Pick::Mgr().get( setidx );
+	ps.setName( ioobj->name() );
+    }
+
     return res;
 }

@@ -108,6 +108,7 @@ public:
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	entryRemoved;	    //!< CallBacker: CBCapsule<MultiID>
     Notifier<IOMan>	entryAdded;
+    Notifier<IOMan>	entryChanged;
     Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
     Notifier<IOMan>	surveyChanged;      //!< To restore OD to normal state
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
