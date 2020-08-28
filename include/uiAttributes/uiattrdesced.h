@@ -84,7 +84,11 @@ mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
 public:
 
     virtual		~uiAttrDescEd();
-    HelpKey		helpKey()			{ return helpkey_; }
+
+    HelpKey		helpKey() const			{ return helpkey_; }
+    HelpKey		videoKey() const		{ return videokey_; }
+    void		setVideoKey( const HelpKey& k )	{ videokey_ = k; }
+
     void		setDesc(Desc*,DescSetMan*);
     void		setDescSet( DescSet* ds )	{ ads_ = ds; }
     Desc*		curDesc()			{ return desc_; }
@@ -141,7 +145,7 @@ protected:
     virtual bool	setOutput(const Desc&)		{ return true; }
     virtual bool	getOutput(Desc&);
 
-    virtual bool        areUIParsOK()			{ return true; }
+    virtual bool	areUIParsOK()			{ return true; }
 
     void		fillOutput(Desc&,int selout);
     void		fillInp(uiAttrSel*,Desc&,int);
@@ -152,7 +156,7 @@ protected:
     void		putInp(uiSteerAttrSel*,const Desc&,int inpnr);
     void		putInp(uiSteeringSel*,const Desc&,int inpnr);
 
-    bool                needInputUpdate() const		{ return needinpupd_; }
+    bool		needInputUpdate() const		{ return needinpupd_; }
 
     uiString		zDepLabel(const uiString& pre,
 				  const uiString& post) const;
@@ -172,10 +176,11 @@ protected:
     Desc*		getInputDescFromDP(uiAttrSel*) const;
 
     HelpKey		helpkey_;
+    HelpKey		videokey_;
     BufferString	attrnm_;
     DomainType		domtyp_;
     DimensionType	dimtyp_;
-    uiString            errmsg_;
+    uiString		errmsg_;
     DescSet*		ads_;
     bool		is2d_;
     bool		needinpupd_;
@@ -192,7 +197,7 @@ protected:
     static const char*	sKeyPositionGrp();
     static const char*	sKeyDipGrp();
 
-    static uiString     sInputTypeError(int input);
+    static uiString	sInputTypeError(int input);
 
 
 

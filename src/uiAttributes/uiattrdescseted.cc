@@ -266,6 +266,9 @@ void uiAttribDescSetEd::createGroups()
     uiToolButton* matrixbut = new uiToolButton( degrp, "attributematrix",
 	tr("Attribute Matrix"), mCB(this,uiAttribDescSetEd,showMatrix) );
     matrixbut->attach( rightTo, helpbut_ );
+    videobut_ = new uiToolButton( degrp, "video", uiStrings::sVideo(),
+				mCB(this,uiAttribDescSetEd,videoButPush) );
+    videobut_->attach( rightTo, matrixbut );
 
     attrnmfld_ = new uiGenInput( rightgrp, uiStrings::sAttribName() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
@@ -553,6 +556,13 @@ void uiAttribDescSetEd::helpButPush( CallBacker* )
 }
 
 
+void uiAttribDescSetEd::videoButPush( CallBacker* )
+{
+    uiAttrDescEd* curdesced = curDescEd();
+    HelpProvider::provideHelp( curdesced->videoKey() );
+}
+
+
 void uiAttribDescSetEd::rmPush( CallBacker* )
 {
     Desc* curdesc = curDesc();
@@ -724,8 +734,19 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	const bool dodisp = de == curde;
 	de->display( dodisp );
     }
+
     dummydesc->unRef();
     updating_fields_ = false;
+
+    bool hasvideo = false;
+    if ( curDescEd() )
+    {
+	const HelpKey videokey = curDescEd()->videoKey();
+	hasvideo = HelpProvider::hasHelp( videokey );
+	if ( hasvideo )
+	    videobut_->setToolTip( HelpProvider::description(videokey) );
+    }
+    videobut_->display( hasvideo );
 }
 
 

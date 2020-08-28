@@ -49,6 +49,13 @@ uiString HelpProvider::description( const char* arg ) const
 }
 
 
+// HelpKey
+bool HelpKey::operator==( const HelpKey& oth ) const
+{
+    return providername_==oth.providername_ && argument_==oth.argument_;
+}
+
+
 bool HelpKey::isEmpty() const
 {
     return !providername_ || !*providername_;

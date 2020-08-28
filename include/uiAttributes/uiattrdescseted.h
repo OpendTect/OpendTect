@@ -116,6 +116,7 @@ protected:
     uiGenInput*			attrnmfld_;
     uiGenInput*			attrsetfld_;
     uiToolButton*		helpbut_;
+    uiToolButton*		videobut_;
     uiToolButton*		moveupbut_;
     uiToolButton*		movedownbut_;
     uiToolButton*		sortbut_;
@@ -129,6 +130,7 @@ protected:
     void			moveUpDownCB(CallBacker*);
     void			sortPush(CallBacker*);
     void			helpButPush(CallBacker*);
+    void			videoButPush(CallBacker*);
 
     void			autoSet(CallBacker*);
     void			newSet(CallBacker*);

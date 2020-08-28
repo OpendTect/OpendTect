@@ -150,7 +150,7 @@ public:
     void		setHelpKey(const HelpKey&);
     virtual HelpKey	helpKey() const;
     void		setVideoKey(const HelpKey&);
-    HelpKey		videoKey() const;
+    HelpKey		videoKey(int idx=0) const;
 
     static int		titlePos();
     static void		setTitlePos(int pos);
