@@ -104,6 +104,12 @@ Well::Man& Well::MGR()
 
 Well::Man::~Man()
 {
+    cleanup();
+}
+
+
+void Well::Man::cleanup()
+{
     deepUnRef( wells_ );
 }
 

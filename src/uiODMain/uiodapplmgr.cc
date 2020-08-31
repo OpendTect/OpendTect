@@ -382,10 +382,11 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 	{ IOM().setChangeSurveyBlocked( true ); return; }
 
     if ( nlaserv_ ) nlaserv_->reset();
-    delete attrserv_; attrserv_ = 0;
-    delete emattrserv_; emattrserv_ = 0;
-    delete volprocserv_; volprocserv_ = 0;
-    delete mpeserv_; mpeserv_ = 0;
+    deleteAndZeroPtr( attrserv_ );
+    deleteAndZeroPtr( emattrserv_ );
+    deleteAndZeroPtr( volprocserv_ );
+    deleteAndZeroPtr( mpeserv_ );
+    deleteAndZeroPtr( wellserv_ );
     if ( appl_.sceneMgrAvailable() )
 	sceneMgr().cleanUp( false );
 }
