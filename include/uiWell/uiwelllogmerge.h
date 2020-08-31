@@ -73,7 +73,7 @@ private:
 
     void			updateLogViewer();
     bool			merge();
-    bool			write();
+    bool			write(const char*);
     bool			convert();
 
     void			logSetCB(CallBacker*);
