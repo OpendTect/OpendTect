@@ -64,6 +64,48 @@ PortNr_Type Network::getUsablePort( uiRetVal& uirv, PortNr_Type portnr,
 }
 
 
+namespace Network {
+
+static QHostAddress::SpecialAddress qtSpecAddr( SpecAddr specaddress )
+{
+    if ( specaddress == Any )
+	return QHostAddress::Any;
+    else if ( specaddress == IPv4 )
+	return QHostAddress::AnyIPv4;
+    else if ( specaddress == IPv6 )
+	return QHostAddress::AnyIPv6;
+    else if ( specaddress == Broadcast )
+	return QHostAddress::Broadcast;
+    else if ( specaddress == LocalIPv4 || specaddress == Local )
+	return QHostAddress::LocalHost;
+    else if ( specaddress == LocalIPv6 )
+	return QHostAddress::LocalHostIPv6;
+
+    return QHostAddress::Null;
+}
+
+static SpecAddr specAddrFromQt( QHostAddress qaddr )
+{
+    if ( qaddr == QHostAddress::Any )
+	return Any;
+    else if ( qaddr == QHostAddress::AnyIPv4 )
+	return IPv4;
+    else if ( qaddr == QHostAddress::AnyIPv6 )
+	return IPv6;
+    else if ( qaddr == QHostAddress::Broadcast )
+	return Broadcast;
+    else if ( qaddr == QHostAddress::LocalHost )
+	return LocalIPv4;
+    else if ( qaddr == QHostAddress::LocalHostIPv6 )
+	return LocalIPv6;
+
+    return None;
+}
+
+};
+
+
+
 Network::Authority::Authority( const char* host, PortNr_Type port,
 			       bool resolveipv6 )
     : qhost_(*new QString)
@@ -74,11 +116,11 @@ Network::Authority::Authority( const char* host, PortNr_Type port,
 }
 
 
-Network::Authority::Authority(const BufferString& servernm)
+Network::Authority::Authority( const BufferString& servernm )
     : qhost_(*new QString)
     , qhostaddr_(*new QHostAddress)
 {
-    localFromString(servernm);
+    localFromString( servernm );
 }
 
 
@@ -132,6 +174,16 @@ BufferString Network::Authority::getServerName() const
     return servernm_;
 }
 
+
+Network::SpecAddr Network::Authority::serverAddress() const
+{
+    if ( isLocal() )
+	return Local;
+
+    return specAddrFromQt( qhostaddr_ );
+}
+
+
 bool Network::Authority::isUsable() const
 {
     if ( isLocal() )
@@ -141,9 +193,9 @@ bool Network::Authority::isUsable() const
 }
 
 
-Network::Authority Network::Authority::getLocal(const char* servernm)
+Network::Authority Network::Authority::getLocal( const char* servernm )
 {
-    return Authority(BufferString(servernm));
+    return Authority( BufferString(servernm) );
 }
 
 
@@ -155,7 +207,7 @@ bool Network::Authority::addressIsValid() const
 
 void Network::Authority::setLocalAddress()
 {
-    qhostaddr_.setAddress(QHostAddress::LocalHost);
+    qhostaddr_.setAddress( QHostAddress::LocalHost );
 }
 
 
@@ -221,7 +273,7 @@ void Network::Authority::fromString( const char* str, bool resolveipv6 )
 void Network::Authority::localFromString(const char* str)
 {
     servernm_ = str;
-    qhostaddr_.setAddress(QHostAddress::LocalHost);
+    qhostaddr_.setAddress( QHostAddress::LocalHost );
     port_ = 0;
 }
 
@@ -241,7 +293,7 @@ BufferString Network::Authority::toString( bool external ) const
 BufferString Network::Authority::getHost( bool external ) const
 {
     BufferString ret;
-    if ((external && isLocal()))
+    if ( external && isLocal() )
 	return ret;
 
     if ( isLocal() )
@@ -365,39 +417,23 @@ Network::Server::~Server()
 }
 
 
-namespace Network {
-
-static QHostAddress::SpecialAddress qtSpecAddr( SpecAddr specaddress )
-{
-    if ( specaddress == Any )
-	return QHostAddress::Any;
-    else if ( specaddress == IPv4 )
-	return QHostAddress::AnyIPv4;
-    else if ( specaddress == IPv6 )
-	return QHostAddress::AnyIPv6;
-    else if ( specaddress == Broadcast )
-	return QHostAddress::Broadcast;
-    else if ( specaddress == LocalIPv4 )
-	return QHostAddress::LocalHost;
-    else if ( specaddress == LocalIPv6 )
-	return QHostAddress::LocalHostIPv6;
-
-    return QHostAddress::Null;
-}
-
-};
-
-
 bool Network::Server::listen( SpecAddr specaddress, PortNr_Type prt )
 {
-    if ( isLocal() )
-	return qlocalserver_->listen( toString(prt) );
+    if ( qtcpserver_ )
+	return qtcpserver_->listen( QHostAddress(qtSpecAddr(specaddress)), prt);
 
-    return qtcpserver_->listen( QHostAddress(qtSpecAddr(specaddress)), prt );
+    if ( isLocal() || Network::isLocal(specaddress) )
+    {
+	pErrMsg("Wrong listen function called on local server");
+	return false;
+    }
+
+    DBG::forceCrash(false);
+    return false;
 }
 
 
-bool Network::Server::listen(const char* servernm, uiRetVal& ret )
+bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 {
     if ( !isLocal() )
     {
@@ -406,8 +442,7 @@ bool Network::Server::listen(const char* servernm, uiRetVal& ret )
     }
 
     const bool canlisten = qlocalserver_->listen(servernm);
-
-    if (!canlisten)
+    if ( !canlisten )
 	ret.set(tr("%1 server name is already in use").arg(servernm));
 
     return canlisten;
@@ -436,16 +471,16 @@ PortNr_Type Network::Server::port() const
 
 Network::Authority Network::Server::authority() const
 {
-    BufferString addr;
     if ( isLocal() )
+    {
 	return Authority::getLocal(
 				BufferString(qlocalserver_->serverName()) );
-    else
-    {
-	const QHostAddress qaddr = qtcpserver_->serverAddress();
-	if (qaddr.protocol() > QAbstractSocket::UnknownNetworkLayerProtocol)
-	    addr.set(qaddr.toString());
     }
+
+    const QHostAddress qaddr = qtcpserver_->serverAddress();
+    BufferString addr;
+    if ( qaddr.protocol() > QAbstractSocket::UnknownNetworkLayerProtocol )
+	addr.set( qaddr.toString() );
 
     return Authority( addr, port() );
 }
@@ -496,11 +531,11 @@ void Network::Server::notifyNewConnection()
     if ( !hasPendingConnections() )
 	return;
 
-    Network::Socket* socket(nullptr);
+    Socket* socket = nullptr;
     if ( isLocal() )
-	socket = new Socket( nextPendingLocalConnection(), isLocal() );
+	socket = new Socket( nextPendingLocalConnection() );
     else
-	socket = new Socket( nextPendingConnection(), isLocal() );
+	socket = new Socket( nextPendingConnection() );
 
     socket->readyRead.notify( mCB(this, Server, readyReadCB) );
     mAttachCB( socket->disconnected, Network::Server::disconnectCB );
@@ -567,14 +602,14 @@ void Network::Server::read( int id, IOPar& par ) const
 
 int Network::Server::write( int id, const IOPar& par )
 {
-    Network::Socket* socket = getSocket( id );
+    Socket* socket = getSocket( id );
     return socket ? socket->write( par ) : 0;
 }
 
 
 int Network::Server::write( int id, const char* str )
 {
-    Network::Socket* socket = getSocket( id );
+    Socket* socket = getSocket( id );
     return socket ? socket->write( FixedString(str) ) : 0;
 }
 

@@ -45,8 +45,8 @@ mExpClass(Network) Socket : public CallBacker
 
 public:
 		Socket(bool islocal,bool haveeventloop=true);
-		Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
-		Socket(mQtclass(QLocalSocket)*,bool haveeventloop = true);
+    explicit	Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
+    explicit	Socket(mQtclass(QLocalSocket)*,bool haveeventloop=true);
 		~Socket();
 
     void	setTimeout(int ms) { timeout_ = ms; }

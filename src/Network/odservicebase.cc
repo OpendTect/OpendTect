@@ -29,7 +29,7 @@ ODServiceBase::ODServiceBase( bool islocal, const char* servernm,
     : externalAction(this)
     , externalRequest(this)
 {
-    init(islocal, servernm, assignport);
+    init( islocal, servernm, assignport );
 }
 
 
@@ -37,12 +37,11 @@ ODServiceBase::ODServiceBase( const char* hostname, bool assignport )
     : externalAction(this)
     , externalRequest(this)
 {
-    init(true, hostname, assignport);
+    init( false, hostname, assignport );
 }
 
 
-void ODServiceBase::init(bool islocal, const char* hostname,
-    bool assignport)
+void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
 {
     ODServiceBase* mainserv = theMain();
     if ( islocal )
@@ -160,13 +159,11 @@ void ODServiceBase::pyenvChangeCB( CallBacker* cb )
 
 void ODServiceBase::startServer( const Network::Authority& auth )
 {
+    auto* server = new Network::RequestServer( auth );
     if ( auth.isLocal() )
-	localserver_ = new Network::RequestServer( auth.getServerName() );
+	localserver_ = server;
     else
-	tcpserver_ = new Network::RequestServer( auth, Network::Any );
-
-    const Network::RequestServer* server = auth.isLocal() ? localserver_ :
-							    tcpserver_;
+	tcpserver_ = server;
 
     if ( !server || !server->isOK() )
     {
@@ -327,12 +324,10 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 
 void ODServiceBase::newConnectionCB( CallBacker* )
 {
-    Network::RequestConnection* conn = localserver_ ?
-	localserver_->pickupNewConnection() : nullptr;
-    if (!conn)
-	conn = tcpserver_->pickupNewConnection();
-
-
+    //TODO: Capsule to tell us from which server is comes
+    Network::RequestConnection* conn = localserver_
+	    ? localserver_->pickupNewConnection()
+	    : tcpserver_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
@@ -349,6 +344,7 @@ void ODServiceBase::newConnectionCB( CallBacker* )
 void ODServiceBase::packetArrivedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
+    //TODO: no local server packet pickup?
 
     tcpconn_ = static_cast<Network::RequestConnection*>(cber);
     if ( !tcpconn_ )

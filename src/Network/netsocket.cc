@@ -52,7 +52,6 @@ Network::Socket::Socket( bool islocal, bool haveevloop )
 
 Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     : qtcpsocket_(s)
-    , socketcomm_(0)
     , timeout_(mTimeOut)
     , noeventloop_( !haveevloop )
     , disconnected( this )
@@ -67,14 +66,13 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
 
 Network::Socket::Socket( QLocalSocket* s, bool haveevloop )
     : qlocalsocket_(s)
-    , socketcomm_(0)
     , timeout_(30000)
     , noeventloop_(!haveevloop)
     , disconnected(this)
     , readyRead(this)
     , error(this)
-    , ownssocket_(false)
-    , thread_(Threads::currentThread())
+    , ownssocket_( false )
+    , thread_( Threads::currentThread() )
 {
     socketcomm_ = new QTcpSocketComm( qlocalsocket_, this );
 }

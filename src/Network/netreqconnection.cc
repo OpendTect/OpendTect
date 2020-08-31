@@ -43,17 +43,14 @@ struct PacketSendData : public RefCount::Referenced
 static Threads::Atomic<int> connid;
 
 
-RequestConnection::RequestConnection( const Authority& authority, bool islocal,
-				      bool multithreaded,
-				      int timeout )
-    : socket_( 0 )
+RequestConnection::RequestConnection( const Authority& authority,
+				      bool multithreaded, int timeout )
+    : socket_( nullptr )
     , ownssocket_( true )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
     , authority_(new Authority(authority))
-    , socketthread_( 0 )
-    , eventloop_( 0 )
     , timeout_( timeout )
 {
     if ( multithreaded )
@@ -68,7 +65,7 @@ RequestConnection::RequestConnection( const Authority& authority, bool islocal,
 	while ( !eventloop_ )
 	    eventlooplock.wait(); //Wait for thread to create connection.
         eventlooplock.unLock();
-	eventlooplock_ = 0;
+	eventlooplock_ = nullptr;
     }
     else
     {
@@ -83,8 +80,6 @@ RequestConnection::RequestConnection( Socket* sock )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
-    , socketthread_( 0 )
-    , eventloop_( 0 )
     , timeout_( 0 )
 {
     if ( !sock )
@@ -189,8 +184,7 @@ void RequestConnection::connectToHost( bool witheventloop )
 	return;
     }
 
-    auto* newsocket = new Network::Socket( authority_->isLocal(),
-							witheventloop );
+    auto* newsocket = new Socket( authority_->isLocal(), witheventloop );
 
     if ( timeout_ > 0 )
 	newsocket->setTimeout( timeout_ );
@@ -264,7 +258,7 @@ bool RequestConnection::readFromSocket()
 	    const od_int32 receivedid = nextreceived->requestID();
 	    Threads::MutexLocker locker ( lock_ );
 	    if ( nextreceived->isNewRequest() ||
-		 ourrequestids_.isPresent( receivedid ) )
+		 ourrequestids_.isPresent(receivedid) )
 	    {
 		receivedpackets_ += nextreceived.release();
 		lock_.signal( true );
@@ -521,9 +515,12 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 
 
 RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
-    : server_( new Network::Server(Network::isLocal(specaddr)) )
+    : server_( new Server(isLocal(specaddr)) )
     , newConnection( this )
 {
+    if ( isLocal(specaddr) )
+	pErrMsg( "Using wrong constructor for local request server" );
+
     if ( !server_ )
 	return;
 
@@ -533,43 +530,23 @@ RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
 }
 
 
-RequestServer::RequestServer(const char* servernm)
-    : server_(new Server(true))
+RequestServer::RequestServer( const Authority& auth )
+    : server_(new Server(auth.isLocal()))
     , newConnection(this)
 {
-    if (!server_)
+    if ( !server_ )
 	return;
 
-    mAttachCB(server_->newConnection, RequestServer::newConnectionCB);
-
-    uiRetVal ret;
-    if ( !server_->listen(servernm, ret) )
-    {
-	errmsg_ = LocalErrMsg().arg(servernm);
-	errmsg_.append(ret, true);
-    }
-}
-
-
-RequestServer::RequestServer(const Network::Authority& auth, SpecAddr spcadr)
-    : newConnection(this)
-{
-    server_ = new Server(auth.isLocal());
-
-    if (!server_)
-	return;
-
-    mAttachCB(server_->newConnection, RequestServer::newConnectionCB);
+    mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
     const bool islocal = auth.isLocal();
     uiRetVal ret;
     const bool islistening = islocal ?
-	server_->listen(auth.getServerName(),ret) :
-	server_->listen(spcadr, auth.getPort());
+		    server_->listen( auth.getServerName(), ret ) :
+		    server_->listen( auth.serverAddress(), auth.getPort() );
 
-    if (!islistening)
-	errmsg_ = islocal ? LocalErrMsg().arg(auth.getServerName()) :
-	TCPErrMsg().arg(auth.getPort());
-
+    if ( !islistening )
+	errmsg_ = islocal ? LocalErrMsg().arg(auth.getServerName())
+			  : TCPErrMsg().arg(auth.getPort());
 }
 
 
