@@ -653,7 +653,7 @@ bool isPortFree( PortNr_Type port, uiString* errmsg )
     {
         FREE(pTcpTable);
         pTcpTable = (MIB_TCPTABLE *) MALLOC(dwSize);
-        if ( !pTcpTable ) 
+        if ( !pTcpTable )
 	    return true;
     }
     dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE );
@@ -685,7 +685,7 @@ bool isPortFree( PortNr_Type port, uiString* errmsg )
 
     return !isfound;
 #else
-    const RequestServer reqserv( port, islocal_ );
+    const RequestServer reqserv( port );
     const bool ret = reqserv.isOK();
     if ( errmsg && !reqserv.errMsg().isEmpty() )
 	errmsg->set( reqserv.errMsg() );
