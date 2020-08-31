@@ -41,7 +41,7 @@ struct PacketSendData;
 mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
-			RequestConnection(const Authority&,bool islocal,
+			RequestConnection(const Authority&,
 					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
@@ -99,9 +99,9 @@ private:
 
     Authority*			authority_ = nullptr;
 
-    Threads::Thread*		socketthread_;
-    QEventLoop*			eventloop_;
-    Threads::ConditionVar*	eventlooplock_;
+    Threads::Thread*		socketthread_	= nullptr;
+    QEventLoop*			eventloop_	= nullptr;
+    Threads::ConditionVar*	eventlooplock_	= nullptr;
 
     ObjectSet<PacketSendData>	sendqueue_;
     void			sendQueueCB(CallBacker*);
@@ -137,9 +137,7 @@ mExpClass(Network) RequestServer : public CallBacker
 public:
 
 				RequestServer(PortNr_Type,SpecAddr=Any);
-				RequestServer(const char* servernm);
-				RequestServer(const Authority&,
-							SpecAddr = Any);
+				RequestServer(const Authority&);
 				~RequestServer();
 
     bool			isOK() const;

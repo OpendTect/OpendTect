@@ -66,6 +66,7 @@ public:
     bool		isLocal() const { return !servernm_.isEmpty();	}
     static Authority	getLocal(const char*);
     BufferString	getServerName() const;
+    SpecAddr		serverAddress() const;
 
     BufferString	toString(bool external=false) const;
     BufferString	getUserInfo() const		{ return userinfo_; }
