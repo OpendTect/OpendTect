@@ -285,14 +285,14 @@ mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
-    ODBatchService& ODSM = ODBatchService::getMgr();
+    /*ODBatchService& ODSM = ODBatchService::getMgr();
 
     jobspec_.pars_.add( ODSM.sKeyODServer(),
 					ODSM.getAuthority().toString(true) );
     uiRetVal uirv;
     const PortNr_Type servport = Network::getUsablePort( uirv );
     if ( uirv.isOK() )
-	jobspec_.pars_.add( Network::Server::sKeyPort(), servport );
+	jobspec_.pars_.add( Network::Server::sKeyPort(), servport );*/
 
     if ( !dispatcher().go(jobspec_) )
     {
