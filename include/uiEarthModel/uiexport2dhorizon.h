@@ -46,7 +46,7 @@ protected:
     uiCheckList*	optsfld_;
     uiGenInput*		headerfld_;
 
-    const ObjectSet<SurfaceInfo>&	hinfos_;
+    ObjectSet<SurfaceInfo>	hinfos_;
 
     virtual bool	acceptOK(CallBacker*);
     void		horChg(CallBacker*);

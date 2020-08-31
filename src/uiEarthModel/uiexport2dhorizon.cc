@@ -111,6 +111,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 
 uiExport2DHorizon::~uiExport2DHorizon()
 {
+    deepErase( hinfos_ );
 }
 
 

@@ -147,6 +147,7 @@ void uiEMPartServer::cleanup()
     deleteAndZeroPtr( impfltsetdlg_ );
     deleteAndZeroPtr( impbulkhordlg_ );
     deleteAndZeroPtr( exphordlg_ );
+    deleteAndZeroPtr( exp2dhordlg_ );
     deleteAndZeroPtr( expfltdlg_ );
     deleteAndZeroPtr( expfltsetdlg_ );
     deleteAndZeroPtr( man3dhordlg_ );
