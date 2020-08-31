@@ -102,7 +102,7 @@ bool Well::LogMerger::goImpl( od_ostream* strm, bool first, bool last,
 {
     if ( !wd_ )
     {
-	msg_ = tr("Failed to read well %1").arg(wd_->name());
+	msg_ = tr("Failed to read well");
 	return false;
     }
 
