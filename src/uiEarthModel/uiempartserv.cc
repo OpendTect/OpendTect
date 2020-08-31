@@ -450,7 +450,7 @@ bool uiEMPartServer::exportFaultSet()
     if ( !expfltsetdlg_ )
 	expfltsetdlg_ = new uiExportFault( parent(),
 			EMFaultSet3DTranslatorGroup::sGroupName(), false );
-    return expfltdlg_->go();
+    return expfltsetdlg_->go();
 }
 
 
