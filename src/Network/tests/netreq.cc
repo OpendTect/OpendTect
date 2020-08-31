@@ -52,8 +52,7 @@ public:
 
     bool runTest( bool sendkill, bool multithreaded )
     {
-	Network::RequestConnection conn( *authority_,true, true,
-							    multithreaded );
+	Network::RequestConnection conn( *authority_, false, multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
 	      toString(conn.errMsg()) );
@@ -139,8 +138,8 @@ public:
 	    //
 	    //Further, the errorcode should be set correctly.
 
-	    Network::RequestConnection conn2( *authority_, true, true,
-							    multithreaded );
+	    Network::RequestConnection conn2( *authority_, false,
+					      multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
 	      toString(conn.errMsg()) );
