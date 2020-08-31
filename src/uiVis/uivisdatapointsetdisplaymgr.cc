@@ -650,8 +650,14 @@ void uiVisDataPointSetDisplayMgr::updateColorsOnly( DispID id )
 
 void uiVisDataPointSetDisplayMgr::clearDisplays()
 {
+    for ( int idx=0; idx<allsceneids_.size(); idx++ )
+	visserv_.setMoreObjectsToDoHint( allsceneids_[idx], true );
+
     for ( int idx=ids_.size()-1; idx>=0; idx-- )
 	removeDisplay( ids_[idx] );
+
+    for ( int idx=0; idx<allsceneids_.size(); idx++ )
+	visserv_.setMoreObjectsToDoHint( allsceneids_[idx], false );
 }
 
 
