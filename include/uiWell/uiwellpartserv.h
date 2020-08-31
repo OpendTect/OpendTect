@@ -111,6 +111,7 @@ protected:
     const char*			multiid_;
     bool			allapplied_;
 
+    void			cleanup();
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);

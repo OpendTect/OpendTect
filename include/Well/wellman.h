@@ -72,6 +72,7 @@ mExpClass(Well) Man
 public:
 			~Man();
 
+    void		cleanup();
     void		removeObject( const Well::Data* );
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);

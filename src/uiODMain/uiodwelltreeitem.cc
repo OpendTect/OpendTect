@@ -212,7 +212,8 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
-    applMgr()->wellServer()->closePropDlg( mid_ );
+    if ( applMgr()->wellServer() )
+	applMgr()->wellServer()->closePropDlg( mid_ );
     deepErase( logmnuitems_ );
 }
 

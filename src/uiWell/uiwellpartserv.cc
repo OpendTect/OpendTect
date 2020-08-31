@@ -73,24 +73,24 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , impbulkmrkrdlg_(0)
     , impbulkd2tdlg_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiWellPartServer,survChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
 }
 
 
 uiWellPartServer::~uiWellPartServer()
 {
-    delete rdmlinedlg_;
-    delete manwelldlg_;
-    delete impsimpledlg_;
-    delete impbulktrackdlg_;
-    delete impbulklogdlg_;
-    delete impbulkmrkrdlg_;
-    delete impbulkd2tdlg_;
-    deepErase( wellpropdlgs_ );
+    detachAllNotifiers();
+    cleanup();
 }
 
 
 void uiWellPartServer::survChangedCB( CallBacker* )
+{
+    cleanup();
+}
+
+
+void uiWellPartServer::cleanup()
 {
     deleteAndZeroPtr( manwelldlg_ );
     deleteAndZeroPtr( impsimpledlg_ );
@@ -100,6 +100,8 @@ void uiWellPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( impbulkd2tdlg_ );
     deleteAndZeroPtr( rdmlinedlg_ );
     deepErase( wellpropdlgs_ );
+
+    Well::MGR().cleanup();
 }
 
 
