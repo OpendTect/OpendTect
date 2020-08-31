@@ -62,7 +62,9 @@ ipch
 *.makeRelWithDebInfo
 *.build
 *.xcodeproj
+*.recipe
 compile_commands.json
+CMakeSettings.json
 
 #Doxygen stuff
 CMakeModules/Doxyfile
