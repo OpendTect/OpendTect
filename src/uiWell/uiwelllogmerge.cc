@@ -388,7 +388,7 @@ void uiWellLogMerger::applyCB( CallBacker* )
 
     if ( !merge() )
     {
-	uiMSG().error( "Could not merge logs" );
+	uiMSG().error( tr("Could not merge logs") );
 	return;
     }
 
