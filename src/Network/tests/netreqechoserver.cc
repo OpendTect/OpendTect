@@ -24,8 +24,8 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( const char* servernm, unsigned short timeout )
-	: server_(servernm)
+    RequestEchoServer( PortNr_Type port, unsigned short timeout )
+	: server_(port)
 	, timeout_( timeout )
     {
 	mAttachCB( server_.newConnection, RequestEchoServer::newConnectionCB );
@@ -179,12 +179,12 @@ int mTestMainFnName(int argc, char** argv)
 
     ApplicationData app;
 
-    BufferString servernm;
-    clParser().getKeyedInfo( sKey::ServerNm(), servernm );
+    int startport = 1025;
+    clParser().getKeyedInfo( Network::Server::sKeyPort(), startport );
     int timeout = 120;
     clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
-    Network::RequestEchoServer server( servernm,
+    Network::RequestEchoServer server( mCast(PortNr_Type,startport),
 				       mCast(unsigned short,timeout) );
 
     logStream() << "Listening to port " << server.server_.server()->port()
