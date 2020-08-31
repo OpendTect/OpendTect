@@ -64,9 +64,8 @@ static uiString getDlgUiTitle( const TypeSet<MultiID>& wllids )
 uiWellLogMerger::uiWellLogMerger( uiParent* p,
 				  const TypeSet<MultiID>& wllids,
 				  const BufferStringSet* chosenlognms )
-	: uiDialog( p , uiDialog::Setup(tr("Merge logs"),
-				getDlgUiTitle(wllids), mNoHelpKey)
-				.oktext(uiStrings::sSave())
+    : uiDialog(p,uiDialog::Setup(tr("Merge logs"),getDlgUiTitle(wllids),
+				 mTODOHelpKey)
 				.applybutton(true).applytext(tr("Merge")) )
     , wellids_( wllids )
     , havenew_(false)
@@ -79,6 +78,7 @@ uiWellLogMerger::uiWellLogMerger( uiParent* p,
 	return;
     }
 
+    setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );
     if ( chosenlognms )
 	chosenlognms_ = *chosenlognms;
 
@@ -136,7 +136,7 @@ uiGroup* uiWellLogMerger::createParGrp( bool withlogsel )
 	selectedlogsfld_->addItems( chosenlognms_ );
 
     movebuttons_ = new uiGroup( grp, "move buttons" );
-    uiLabel* movelbl = new uiLabel( movebuttons_, tr("Change \n priority") );
+    uiLabel* movelbl = new uiLabel( movebuttons_, tr("Change\npriority") );
     CallBack cbm = mCB(this,uiWellLogMerger,moveButPush);
     moveupward_ = new uiToolButton( movebuttons_, uiToolButton::UpArrow,
 				    tr("Move Up"), cbm );
@@ -164,7 +164,7 @@ uiGroup* uiWellLogMerger::createParGrp( bool withlogsel )
     intrapolatefld_->setChecked( true );
     intrapolatefld_->attach( rightOf, extrapolatefld_ );
 
-    overlapfld_ = new uiGenInput( grp, tr("Overlap Action"),
+    overlapfld_ = new uiGenInput( grp, tr("If logs overlap"),
 		StringListInpSpec( Well::LogMerger::OverlapActionDef()) );
     overlapfld_->attach( alignedBelow, extrapolatefld_ ) ;
     mAttachCB( overlapfld_->valuechanged, uiWellLogMerger::overlapCB );
@@ -185,8 +185,6 @@ uiGroup* uiWellLogMerger::createParGrp( bool withlogsel )
     outunfld_ = new uiUnitSel( grp, uussu );
     outunfld_->inpFld()->setHSzPol( uiObject::MedVar );
     outunfld_->attach( alignedBelow, nmfld_ );
-
-    movebuttons_->display( false );
 
     mAttachCB( applyPushed, uiWellLogMerger::applyCB );
     return grp;
@@ -242,9 +240,11 @@ void uiWellLogMerger::finalizeCB( CallBacker* )
 	    if ( log )
 		outunfld_->setPropType( log->propType() );
 	}
-	
+
 	applyCB( nullptr );
     }
+
+    overlapCB( nullptr );
 }
 
 
@@ -285,14 +285,11 @@ void uiWellLogMerger::logSetCB( CallBacker* )
 }
 
 
-void uiWellLogMerger::overlapCB( CallBacker* cb )
+void uiWellLogMerger::overlapCB( CallBacker* )
 {
     const int overlapaction = overlapfld_->getIntValue();
     action_= Well::LogMerger::OverlapActionDef().getEnumForIndex(overlapaction);
-    if ( action_ == Well::LogMerger::UseAverage )
-	movebuttons_->display( false );
-    else if ( action_ == Well::LogMerger::UseOneLog )
-	movebuttons_->display( true );
+    movebuttons_->display( action_ == Well::LogMerger::UseOneLog );
 }
 
 
@@ -409,22 +406,37 @@ bool uiWellLogMerger::acceptOK( CallBacker* )
 	return false;
     }
 
-    const BufferString newnm = nmfld_->text();
+    const BufferString newnm = getOutputLogName();
     if ( newnm.isEmpty() )
     {
 	uiMSG().message( tr("Please provide a name for the new log") );
 	return false;
     }
 
-    // not sufficient
-    if ( chosenlognms_.isPresent(newnm) )
+    uiString msg;
+    for ( int idx=0; idx<wellids_.size(); idx++ )
     {
-	uiMSG().message( tr("A log with this name already exists."
-		"\nPlease enter a different name for the new log") );
-	return false;
+	BufferStringSet lognms;
+	Well::MGR().getLogNames( wellids_[idx], lognms );
+	if ( !lognms.isPresent(newnm) )
+	    continue;
+
+	if ( msg.isEmpty() )
+	    msg = tr("A log with this name already exists for well(s):");
+	msg.append( IOM().nameOf(wellids_[idx]), true );
     }
 
-    write();
+    bool dowrite = true;
+    if ( !msg.isEmpty() )
+    {
+	msg.append( "\n\nDo you want to overwrite this log?" );
+	dowrite = uiMSG().askGoOn( msg, uiStrings::sOverwrite(),
+					uiStrings::sCancel() );
+    }
+
+    if ( dowrite )
+	write( newnm );
+
     return false;
 }
 
@@ -455,11 +467,13 @@ bool uiWellLogMerger::merge()
 }
 
 
-bool uiWellLogMerger::write()
+bool uiWellLogMerger::write( const char* lognm )
 {
+    int nrlogswritten = 0;
     uiStringSet msgs;
     for ( int idx=0; idx<outlogs_.size(); idx++ )
     {
+	outlogs_[idx]->setName( lognm );
 	Well::Data* wd = Well::MGR().get( wellids_[idx] );
 	bool res = false;
 	if ( wd )
@@ -467,6 +481,9 @@ bool uiWellLogMerger::write()
 	    wd->logs().add( outlogs_[idx] );
 	    Well::Writer wtr( wellids_[idx], *wd );
 	    res = wtr.putLog( *outlogs_[idx] );
+	    if ( res )
+		nrlogswritten++;
+
 	}
 
 	msgs.add( tr("%1 %2 to %3")
@@ -475,12 +492,21 @@ bool uiWellLogMerger::write()
 	    .arg(IOM().nameOf(wellids_[idx])) );
     }
 
-    uiDialog dlg( this,
-	uiDialog::Setup(tr("Log merge results"),mNoDlgTitle,mTODOHelpKey) );
-    dlg.setCtrlStyle( uiDialog::CloseOnly );
-    uiTextEdit* fld = new uiTextEdit( &dlg, "Text", true );
-    fld->setText( msgs.cat() );
-    dlg.go();
+    if ( !havenew_ )
+	havenew_ = nrlogswritten > 0;
+
+    if ( msgs.size() < 6 )
+	uiMSG().message( msgs.cat() );
+    else
+    {
+	uiDialog dlg( this,
+	    uiDialog::Setup(tr("Log merge results"),mNoDlgTitle,mNoHelpKey) );
+	dlg.setCtrlStyle( uiDialog::CloseOnly );
+	uiTextEdit* fld = new uiTextEdit( &dlg, "Text", true );
+	fld->setText( msgs.cat() );
+	dlg.go();
+    }
+
     return true;
 }
 
