@@ -144,6 +144,8 @@ if ( ITTNOTIFY_FOUND )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
 endif()
 
+set( ADD_ODPY_DEPS False )
+
 if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
     if ( UNIX )
 	set ( FILEEXT sh )
@@ -172,8 +174,19 @@ if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		    "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
 		    "${PROJECT_BINARY_DIR}/bin/od_external.${FILEEXT}" )
+    add_custom_target( update_odpy
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     "${CMAKE_SOURCE_DIR}/bin/python"
+		     "${PROJECT_BINARY_DIR}/bin/python"
+		COMMENT "Copying odpy python module" )
+    set( ADD_ODPY_DEPS True )
 
 endif()
 
 OD_INIT_MODULE()
+
+if ( ${ADD_ODPY_DEPS} )
+    add_dependencies( Basic update_odpy )
+endif()
+
 
