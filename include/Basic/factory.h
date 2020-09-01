@@ -252,10 +252,10 @@ protected:
     const int idx = indexOf( ky ); \
     if ( idx < 0 ) \
 	return 0; \
+    lastcreatedidx_ = idx; \
     T* ret = toret; \
     if ( ret ) \
     { \
-	lastcreatedidx_ = idx; \
 	mSelf().objectCreated.trigger( ret ); \
     } \
     return ret;
