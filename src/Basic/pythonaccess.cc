@@ -134,11 +134,27 @@ void OD::PythonAccess::updatePythonPath() const
     SetEnvVarDirList( "PYTHONPATH", pythonpaths, false );
 }
 
+namespace OD {
+	static File::Path getBasePythonDir()
+	{
+		const File::Path licfp(BufferString(GetSoftwareDir(false)),
+						"LICENSE.txt");
+		const File::Path ret(BufferString(GetScriptDir()), "python");
+		if ( licfp.exists() )
+			return ret;
+
+		File::Path fp(__FILE__);
+		fp.set(fp.dirUpTo(fp.nrLevels() - 4))
+		  .add("bin").add("python");
+		return fp.exists() ? fp : ret;
+	}
+}
+
 
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
-    const File::Path pythonmodsfp( BufferString(GetScriptDir()), "python" );
+	const File::Path pythonmodsfp = OD::getBasePythonDir();
     PythA().addBasePath( pythonmodsfp );
 }
 
