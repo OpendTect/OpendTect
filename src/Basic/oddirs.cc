@@ -145,8 +145,8 @@ mExternC(Basic) const char* GetDataDir()
 
     mDeclStaticString( ret );
     ret = File::Path( basedir, survnm ).fullPath();
-/*    if ( od_debug_isOn(DBG_SETTINGS) )
-	mPrDebug( "GetDataDir", ret );*/
+    if ( od_debug_isOn(DBG_SETTINGS) )
+	mPrDebug( "GetDataDir", ret );
     return ret.buf();
 }
 
