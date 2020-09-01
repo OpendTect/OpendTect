@@ -61,16 +61,19 @@ static bool isInOrderedWinList( const uiMainWin* uimw )
 
 static bool hasChildWindows( uiMainWin& curwin )
 {
+    winlistmutex_.lock();
     for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
     {
 	uiMainWin* mw = orderedwinlist_[idx];
 	if ( mw->parent()==&curwin && mw->isModal() )
 	{
 	    mw->raise();
+	    winlistmutex_.unLock();
 	    return true;
 	}
     }
 
+    winlistmutex_.unLock();
     return false;
 }
 
@@ -122,6 +125,7 @@ uiMainWinBody::~uiMainWinBody()
 {
     winlistmutex_.lock();
     orderedwinlist_ -= &handle_;
+    winlistmutex_.unLock();
 
     deleteAllChildren(); //delete them now to make sure all ui objects
 			 //are deleted before their body counterparts
@@ -143,7 +147,6 @@ uiMainWinBody::~uiMainWinBody()
 
     delete statusbar_;
     delete menubar_;
-    winlistmutex_.unLock();
 }
 
 
