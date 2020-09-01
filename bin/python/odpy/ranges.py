@@ -103,7 +103,7 @@ def niceNumber(value, round=True):
   try:
       exponent = math.floor(math.log10(value))
   except ValueError:
-      return 0
+      return value*signfact
   fraction = value/math.pow(10,exponent)
   if round:
     if fraction<1.5:
@@ -144,7 +144,10 @@ def niceRange(min, max, maxsteps=10):
     niceMax : float
         The nicely rounded maximum.
     """
-  range = niceNumber(abs(max-min), False)
+  range = abs(max-min)
+  if math.isclose(min, max, rel_tol=1e-5):
+      range = 0.2 * abs(min)
+  range = niceNumber(range, False)
   tickspacing = niceNumber(range/(maxsteps), True)
   niceMin = math.floor(min/tickspacing)*tickspacing
   niceMax = math.ceil(max/tickspacing)*tickspacing
