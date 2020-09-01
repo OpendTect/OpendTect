@@ -2,6 +2,36 @@ OpendTect V6.6.x : Release info
 
 ----
 
+v6.6.0beta9: September 01, 2020
+* Fixed crash while exporting FaultSet
+* Fixed crash while changing 2D Horizons in export 2D Horizons window
+* Fix for working on SEG-Y import window after setting survey from SEG-Y
+* Fixed a few bugs related to creating a new survey for 2D only:
+	- Layout
+	- setting of CRS
+	- setting of Z unit
+	- setting of Z-range
+* Fix for python link error "System cannot find the drive specified"
+* Made python link aware of AppLocker policy on Windows platform
+* Some improvements in videos links:
+* Added support for multiple videos in one dialog 
+* Added video keys to for attribute videos
+* Added Video to survey dialog
+* Added video button to well import window
+* Fixed problem when renaming Wells and PointSets via manager
+* Fix for removing wells from memory when switching surveys
+* Fixed issues in well log merge workflow
+* Updated Examine icon
+* Fixed bug to check if new log already exists.
+
+OpendTect Installer:
+* More improvements for Installer
+	- Added version number to start menu items
+	- Using major version name instead of installation directory name
+	- Common entry for OpendTect Installer in start menu
+	- Different locations for start menu/Desktop entries for admin and
+	  non-admin modes
+
 v6.6.0beta8: August 26, 2020
 * Fix for displaying Initial and Deterministic wavelets in
   Cross-checking parameters window
