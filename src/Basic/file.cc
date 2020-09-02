@@ -495,26 +495,16 @@ bool isWritable( const char* fnm )
 {
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    bool iswritable = qfi.isWritable();
+    const bool iswritable = qfi.isWritable();
 # ifdef __unix__
     return iswritable;
 # else
-    if ( !iswritable )
+    if ( !iswritable || WinUtils::IsUserAnAdmin() )
 	return iswritable;
 
-    //TODO: Do the following only for the users member of admin group
-    const bool isdir = qfi.isDir();
-    const bool useexisting = !isdir && qfi.exists();
-    FilePath fp( fnm );
-    if ( isdir )
-	fp.add( FilePath::getTempFileName("test_writable", "txt") );
-    od_ostream strm( fp, useexisting );
-    iswritable = strm.isOK();
-    strm.close();
-    if ( isdir || (!isdir && !useexisting) )
-	File::remove( strm.fileName() );
+    return WinUtils::pathContainsTrustedInstaller(fnm)
+	    ? false : iswritable;
 
-    return iswritable;
 # endif
 #else
     struct stat st_buf;
