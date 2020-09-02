@@ -96,7 +96,11 @@ bool uiDialog::separator() const		{ return mBody->separator(); }
 void uiDialog::setHelpKey( const HelpKey& key ) { mBody->setHelpKey(key); }
 HelpKey uiDialog::helpKey() const		{ return mBody->helpKey(); }
 void uiDialog::setVideoKey( const HelpKey& key ) { mBody->setVideoKey(key); }
+void uiDialog::setVideoKey( const HelpKey& key, int idx )
+						{ mBody->setVideoKey(key,idx); }
 HelpKey uiDialog::videoKey(int idx) const	{ return mBody->videoKey(idx); }
+int uiDialog::nrVideos() const			{ return mBody->nrVideos(); }
+void uiDialog::removeVideo( int idx )		{ mBody->removeVideo(idx); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
 void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
 bool uiDialog::isModal() const			{ return mBody->isModal(); }

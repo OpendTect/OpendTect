@@ -183,8 +183,10 @@ public:
     bool		separator() const	{ return setup_.separator_; }
     void		setHelpKey(const HelpKey& key) { setup_.helpkey_ = key;}
     HelpKey		helpKey() const { return setup_.helpkey_; }
-    void		setVideoKey(const HelpKey&);
+    void		setVideoKey(const HelpKey&,int idx=-1);
     HelpKey		videoKey(int idx) const;
+    int			nrVideos() const;
+    void		removeVideo(int);
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
 

@@ -1251,14 +1251,31 @@ void uiDialogBody::applyCB( CallBacker* cb )
 }
 
 
-void uiDialogBody::setVideoKey( const HelpKey& key )
+void uiDialogBody::setVideoKey( const HelpKey& key, int idx )
 {
+    const bool valididx = videokeys_.validIdx( idx );
     if ( !key.isEmpty() && HelpProvider::hasHelp(key) )
-	videokeys_.addIfNew( key );
+    {
+	if ( valididx )
+	    videokeys_[idx] = key;
+	else
+	    videokeys_.addIfNew( key );
+    }
 }
 
 
 HelpKey uiDialogBody::videoKey( int idx ) const
 {
     return videokeys_.validIdx(idx) ? videokeys_[idx] : HelpKey();
+}
+
+
+int uiDialogBody::nrVideos() const
+{ return videokeys_.size(); }
+
+
+void uiDialogBody::removeVideo( int idx )
+{
+    if ( videokeys_.validIdx(idx) )
+	videokeys_.removeSingle( idx );
 }
