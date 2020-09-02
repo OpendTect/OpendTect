@@ -10,11 +10,12 @@
 #include "winutils.h"
 
 #include "bufstring.h"
-#include "genc.h"
 #include "debug.h"
+#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "oscommand.h"
 #include "ptrman.h"
 #include "staticstring.h"
@@ -424,6 +425,45 @@ bool WinUtils::belongsToTrusterInstaller( const char* fnm )
 }
 
 
+bool WinUtils::serviceIsRunning( const char* nm )
+{
+    return getServiceStatus(nm) == SERVICE_RUNNING;
+}
+
+
+int WinUtils::getServiceStatus( const char* nm )
+{
+    SC_HANDLE theService, scm;
+    SERVICE_STATUS m_SERVICE_STATUS;
+    SERVICE_STATUS_PROCESS ssStatus;
+    DWORD dwBytesNeeded;
+
+    scm = OpenSCManager(nullptr, nullptr, SC_MANAGER_ENUMERATE_SERVICE);
+    if (!scm) {
+            return 0;
+    }
+
+    theService = OpenService(scm, nm, SERVICE_QUERY_STATUS);
+    if (!theService) {
+        CloseServiceHandle(scm);
+        return 0;
+    }
+
+    auto result = QueryServiceStatusEx(theService, SC_STATUS_PROCESS_INFO,
+        reinterpret_cast<LPBYTE>(&ssStatus), sizeof(SERVICE_STATUS_PROCESS),
+        &dwBytesNeeded);
+
+    CloseServiceHandle(theService);
+    CloseServiceHandle(scm);
+
+    if (result == 0) {
+        return 0;
+    }
+
+    return ssStatus.dwCurrentState;
+}
+
+
 unsigned int WinUtils::getWinVersion()
 {
     DWORD dwVersion = 0;
@@ -494,7 +534,16 @@ const char* WinUtils::getWinProductName()
 bool WinUtils::canHaveAppLocker()
 {
     const BufferString editionnm( getWinEdition() );
-    return editionnm.matches( "Enterprise" );
+    if ( !editionnm.matches("Enterprise") )
+        return false;
+
+    const File::Path applockercachefp(getSpecialFolderLocation(
+                        CSIDL_SYSTEM), "AppLocker" );
+
+    const DirList dl( applockercachefp.fullPath(),
+                      File::FilesInDir );
+    return dl.isEmpty() ? serviceIsRunning("AppIDSvc")
+                        : true;
 }
 
 

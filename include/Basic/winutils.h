@@ -40,6 +40,10 @@ mGlobal(Basic) const char*	getWinProductName();
 
 mGlobal(Basic) bool		canHaveAppLocker();
 mGlobal(Basic) bool		hasAppLocker();
+mGlobal(Basic) bool		serviceIsRunning(const char* nm);
+						/* See SERVICE_STATUS_PROCESS.dwCurrentState
+							for possible values*/
+mGlobal(Basic) int		getServiceStatus(const char* nm);
 mGlobal(Basic) const char*	getSpecialFolderLocation(int csidl);
 mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
