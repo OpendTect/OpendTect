@@ -11,6 +11,10 @@
 #include "dbkey.h"
 #include "staticstring.h"
 
+#ifdef __win__
+# include "winutils.h"
+#endif
+
 
 bool testPointerCast()
 {
@@ -143,6 +147,17 @@ bool testFilePermissions( const char* fnm)
     File::hide( fnm, false );
     mRunStandardTest( !File::isHidden(fnm),
 	"Temporary file is not hidden" );
+
+    bool res = File::isWritable("C:\\temp");
+    res = File::isWritable("C:\\Program Files");
+    res = File::isWritable("C:\\Program Files\\OpendTect");
+    res = File::isWritable("C:\\Program Files\\OpendTect\\6.6.0");
+    res = File::isWritable("C:\\Program Files\\OpendTect\\6.6.0\\bla");
+    res = File::isWritable(
+	"C:\\Program Files\\OpendTect\\6.6.0\\relinfo\\ver.base_win64.txt");
+    res = File::isWritable("D:\\ODData");
+    res = File::isWritable("E:\\surveys");
+    res = File::isWritable("F:");
 #endif
 
     return true;
@@ -155,6 +170,8 @@ bool testRemoveFile(const char* fnm)
 	return true;
 
 #ifdef __win__
+    mRunStandardTest(WinUtils::belongsToStdUser(fnm),
+		    "WinUtils test ownership" );
     mRunStandardTest( File::makeReadOnly(fnm,false) && !File::remove(fnm),
 	"Temporary file is read-only and cannot be deleted" );
 #else
