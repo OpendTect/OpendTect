@@ -231,11 +231,15 @@ bool VideoProvider::hasHelp( const char* arg ) const
 }
 
 
+static const char* sVideoBaseUrl = "http://videos.opendtect.org/?id=";
+
 void VideoProvider::provideHelp( const char* arg ) const
 {
     const int helpidx = indexOf( arg );
     BufferString url;
     videolinks_.get( IOPar::compKey(toString(helpidx),"Url"), url );
+    if ( url.isNumber(true) )
+	url = BufferString( sVideoBaseUrl, url );
     if ( !url.isEmpty() )
 	uiDesktopServices::openUrl( url );
 }
