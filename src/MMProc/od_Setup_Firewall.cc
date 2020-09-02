@@ -101,8 +101,12 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
        .addArg( "rule" )
        .addArg( BufferString("name=\"",procnm,"\"") )
        .addArg( BufferString("program=\"",fp.fullPath(),"\"") );
-    if ( toadd )
+    if (toadd)
+    {
 	mc.addArg( "enable=yes" );
+	mc.addArg( "dir=in" );
+	mc.addArg( "action=allow" );
+    }
 
     return mc.execute( OS::LaunchType::RunInBG );
 }
