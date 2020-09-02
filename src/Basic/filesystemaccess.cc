@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #ifdef __win__
 # include <iostream>
+# include "winutils.h"
 # ifdef __msvc__
 #  define popen _popen
 #  define pclose _pclose
@@ -431,26 +432,17 @@ bool File::LocalFileSystemAccess::isWritable( const char* uri ) const
 {
     mGetFileNameAndRetFalseIfEmpty();
     const QFileInfo qfi( fnm.buf() );
-    bool iswritable = qfi.isWritable();
+    const bool iswritable = qfi.isWritable();
 #ifdef __unix__
     return iswritable;
 #else
-    if ( !iswritable )
-        return iswritable;
+    if ( !iswritable ||
+	 !WinUtils::NTUserBelongsToAdminGrp() ||
+	  WinUtils::IsUserAnAdmin() )
+	return iswritable;
 
-    //TODO: Do the following only for the users member of admin group
-    const bool isdir = qfi.isDir();
-    const bool useexisting = !isdir && qfi.exists();
-    Path fp( fnm );
-    if ( isdir )
-        fp.add( Path::getTempFileName("test_writable", "txt") );
-    od_ostream strm( fp, useexisting );
-    iswritable = strm.isOK();
-    strm.close();
-    if ( isdir || (!isdir && !useexisting) )
-        File::remove( strm.fileName() );
-
-    return iswritable;
+    return WinUtils::pathContainsTrustedInstaller(fnm)
+		? false : iswritable;
 #endif
 }
 

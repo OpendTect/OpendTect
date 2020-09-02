@@ -25,30 +25,39 @@ namespace WinUtils
 {
 
 mGlobal(Basic) bool		copy(const char* from,const char* to,
-					bool isfile,bool ismove=false);
+				     bool isfile,bool ismove=false);
 mGlobal(Basic) bool		removeDir(const char* dirnm);
 mGlobal(Basic) bool		fileInUse(const char* fnm);
-
+mGlobal(Basic) bool		belongsToStdUser(const char* fnm);
+mGlobal(Basic) bool		belongsToAdmin(const char* fnm);
+mGlobal(Basic) bool		belongsToTrusterInstaller(const char* fnm);
+mGlobal(Basic) bool		pathContainsTrustedInstaller(const char* fnm);
 
 mGlobal(Basic) unsigned int	getWinVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
-mGlobal(Basic) const char* getWinEdition();
-mGlobal(Basic) const char* getWinProductName();
+mGlobal(Basic) const char*	getWinEdition();
+mGlobal(Basic) const char*	getWinProductName();
 
-mGlobal(Basic) bool			canHaveAppLocker();
-mGlobal(Basic) bool			hasAppLocker();
+mGlobal(Basic) bool		canHaveAppLocker();
+mGlobal(Basic) bool		hasAppLocker();
 mGlobal(Basic) const char*	getSpecialFolderLocation(int csidl);
 mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
 						  BufferString& errmsg);
 
+				/*<! Depends on the running process
+				    Does not return true if the process is
+				    not start with elevated privileges */
+mGlobal(Basic) bool		IsUserAnAdmin();
+mGlobal(Basic) bool		NTUserBelongsToAdminGrp();
+
 mGlobal(Basic) bool		setRegKeyVal(const char* ky, const char* vanrnm,
 					     const char *val);
 mGlobal(Basic) bool		removeRegKey(const char*);
 mGlobal(Basic) bool		readKey(const HKEY,const char* path,
-								const char* ky,BufferString&,
-								LPDWORD dwFlags=NULL,
-								LPDWORD dwType=NULL);
+					const char* ky,BufferString&,
+					LPDWORD dwFlags=NULL,
+					LPDWORD dwType=NULL);
 
 } // namespace WinUtils
 
