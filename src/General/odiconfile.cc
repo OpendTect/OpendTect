@@ -125,25 +125,27 @@ const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
 
 bool OD::IconFile::findIcons( const char* id, bool indef )
 {
-
     const BufferString& dirnm = indef ? deficdirnm_ : icdirnm_;
     FilePath fp( dirnm, BufferString(id,".png") );
     const BufferString simplefnm( fp.fullPath() );
-    bool havesimple = false;
     if ( File::exists(simplefnm) )
-    {
 	nms_.add( simplefnm );
-	havesimple = true;
+
+    BufferStringSet iconsubnms;
+    ::Settings::common().get( "Icon sizes", iconsubnms );
+    iconsubnms.addIfNew( "small" );
+
+    for ( int idx=0; idx<iconsubnms.size(); idx++ )
+    {
+	FilePath fpsz( dirnm );
+	BufferString fnm( id, ".", iconsubnms.get(idx) );
+	fnm.add( sFileNameEnd );
+	fpsz.add( fnm );
+	if ( fpsz.exists() )
+	    nms_.add( fpsz.fullPath() );
     }
 
-    DirList dl( dirnm, DirList::FilesOnly, BufferString(id,".*",sFileNameEnd) );
-    if ( dl.isEmpty() )
-	return havesimple;
-
-    for ( int idx=0; idx<dl.size(); idx++ )
-	nms_.add( dl.fullPath(idx) );
-
-    return true;
+    return nms_.size();
 }
 
 
