@@ -572,7 +572,7 @@ bool canHaveAppLocker()
 
     const DirList dl( applockercachefp.fullPath(),
                       DirList::FilesOnly );
-    return dl.isEmpty() ? serviceIsRunning("AppIDSvc")
+    return dl.isEmpty() ? WinUtils::serviceIsRunning("AppIDSvc")
                         : true;
 }
 
