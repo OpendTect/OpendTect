@@ -59,6 +59,8 @@ public:
 			    , withinserters_(true)
 			    , withwriteopts_(true)
 			    , confirmoverwrite_(true)
+			    , withsort_(false)
+			    , withrefresh_(true)
 			    , withctxtfilter_(nullptr)	{}
 
 	mDefSetupMemb(OD::ChoiceMode,choicemode);
@@ -68,6 +70,8 @@ public:
 	mDefSetupMemb(bool,withinserters);
 	mDefSetupMemb(bool,withwriteopts);
 	mDefSetupMemb(bool,confirmoverwrite);
+	mDefSetupMemb(bool,withsort);
+	mDefSetupMemb(bool,withrefresh);
 	mDefSetupMemb(const char*,withctxtfilter);
 
 	inline bool	isMultiChoice() const
@@ -151,12 +155,12 @@ protected:
     TypeSet<od_int64>	modiftimes_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_;
-    bool		didtsort_;
+    bool		didtsort_ = false;
 
     uiListBox*		listfld_;
     uiGenInput*		nmfld_;
     uiLineEdit*		filtfld_;
-    uiCheckBox*		tsortbox_;
+    uiCheckBox*		tsortbox_ = nullptr;
     uiIOObjSelGrpManipSubj* manipgrpsubj;
     uiIOObjSelWriteTranslator* wrtrselfld_;
     uiToolButton*	mkdefbut_;
