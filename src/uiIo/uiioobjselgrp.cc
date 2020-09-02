@@ -206,18 +206,37 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	}
     }
 
-    tsortbox_ = new uiCheckBox( listfld_, uiStrings::sTimeSort() );
     didtsort_ = false;
-    Settings::common().getYN( sKeyTimeSort, didtsort_ );
-    tsortbox_->setChecked( didtsort_ );
-    tsortbox_->setHSzPol( uiObject::SmallVar );
-    mAttachCB( tsortbox_->activated, uiIOObjSelGrp::sortChgCB );
 
-    uiToolButton* refreshbut = new uiToolButton( listfld_,
-		"refresh", tr("Refresh"), mCB(this,uiIOObjSelGrp,refreshCB) );
-    refreshbut->attach( rightAlignedAbove, listfld_->box() );
-    tsortbox_->attach( leftOf, refreshbut );
-    filtfld_->attach( leftOf, tsortbox_ );
+    if ( setup_.withsort_ )
+    {
+	tsortbox_ = new uiCheckBox( listfld_, uiStrings::sTimeSort() );
+	Settings::common().getYN( sKeyTimeSort, didtsort_ );
+	tsortbox_->setChecked( didtsort_ );
+	tsortbox_->setHSzPol( uiObject::SmallVar );
+	mAttachCB( tsortbox_->activated, uiIOObjSelGrp::sortChgCB );
+    }
+
+    uiToolButton* refreshbut = nullptr;
+    if ( setup_.withrefresh_ )
+    {
+	refreshbut = new uiToolButton( listfld_,
+		    "refresh", tr("Refresh"), mCB(this,uiIOObjSelGrp,refreshCB) );
+	refreshbut->attach( rightAlignedAbove, listfld_->box() );
+    }
+
+    if ( tsortbox_ )
+    {
+	if ( refreshbut )
+	    tsortbox_->attach( leftOf, refreshbut );
+	else
+	    tsortbox_->attach( rightAlignedAbove, listfld_->box() );
+	filtfld_->attach( leftOf, tsortbox_ );
+    }
+    else if ( refreshbut )
+	filtfld_->attach( leftOf, refreshbut );
+    else
+	listfld_->box()->attach( alignedBelow, filtfld_ );
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
@@ -603,7 +622,7 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 
 bool uiIOObjSelGrp::doTimeSort() const
 {
-    return tsortbox_->isChecked();
+    return tsortbox_ ? tsortbox_->isChecked() : false;
 }
 
 
@@ -666,7 +685,7 @@ void uiIOObjSelGrp::fillListBox()
     const BufferString prevsel( listfld_->getText() );
     listfld_->setEmpty();
 
-    const bool dotsort = tsortbox_->isChecked();
+    const bool dotsort = doTimeSort();
     const int sz = ioobjids_.size();
     if ( sz > 1 )
     {
