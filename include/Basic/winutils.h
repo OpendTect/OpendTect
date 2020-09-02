@@ -35,7 +35,23 @@ mGlobal(Basic) bool		winCopy(const char* from,const char* to,
 mGlobal(Basic) bool		winRemoveDir(const char* dirnm);
 
 namespace WinUtils {
+
 mGlobal(Basic) bool		isFileInUse(const char* fnm);
+mGlobal(Basic) bool		belongsToStdUser(const char* fnm);
+mGlobal(Basic) bool		belongsToAdmin(const char* fnm);
+mGlobal(Basic) bool		belongsToTrusterInstaller(const char* fnm);
+mGlobal(Basic) bool		pathContainsTrustedInstaller(const char* fnm);
+
+				/*<! Depends on the running process
+				    Does not return true if the process is
+				    not start with elevated privileges */
+mGlobal(Basic) bool		IsUserAnAdmin();
+mGlobal(Basic) bool		NTUserBelongsToAdminGrp();
+mGlobal(Basic) bool		serviceIsRunning(const char* nm);
+				/* See SERVICE_STATUS_PROCESS.dwCurrentState
+				    for possible values*/
+mGlobal(Basic) int		getServiceStatus(const char* nm);
+
 }
 
 #define mDeprecatedMachCmd mDeprecated("Use MachineCommand")

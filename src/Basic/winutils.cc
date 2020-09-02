@@ -12,15 +12,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "debug.h"
+#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
+#include "filepath.h"
 #include "perthreadrepos.h"
+#include "ptrman.h"
 #include "string2.h"
 
 #ifdef __win__
 # include <windows.h>
-# include <shlobj.h>
 # include <process.h>
+# include <aclapi.h>
 
 // registry stuff
 # include <regstr.h>
@@ -231,6 +234,7 @@ bool winRemoveDir( const char* dirnm )
 
 
 namespace WinUtils {
+
 bool isFileInUse( const char* fnm )
 {
     HANDLE handle = CreateFileA( fnm,
@@ -245,7 +249,255 @@ bool isFileInUse( const char* fnm )
     return ret;
 }
 
-} //namespace
+
+mClass(Basic) SecurityID
+{
+public:
+	    SecurityID( bool ismine )
+		: ismine_(ismine)
+	    {}
+	    ~SecurityID()
+	    {
+		if ( ismine_ && sid_ )
+		    FreeSid( sid_ );
+	    }
+
+    bool	isOK() const { return sid_; }
+
+    bool operator==( const SecurityID& oth ) const
+    { return EqualSid(sid_, oth.sid_); }
+    bool operator!=( const SecurityID& oth ) const
+    { return !(*this == oth); }
+
+     PSID	 sid_ = nullptr;
+
+private:
+    bool	ismine_;
+
+};
+
+const SecurityID& getAdminSID()
+{
+    mDefineStaticLocalObject(PtrMan<SecurityID>, ret,
+			     = new SecurityID(true) );
+    if ( !ret->isOK() )
+    {
+	PSID sid = NULL;
+	SID_IDENTIFIER_AUTHORITY ntAuth = SECURITY_NT_AUTHORITY;
+	if ( AllocateAndInitializeSid(&ntAuth, 2,
+	     SECURITY_BUILTIN_DOMAIN_RID,
+	     DOMAIN_ALIAS_RID_ADMINS,
+	     0, 0, 0, 0, 0, 0, &sid))
+	    ret->sid_ = sid;
+    }
+    return *ret.ptr();
+}
+
+const SecurityID& getTrustedInstallerSID()
+{
+    mDefineStaticLocalObject(PtrMan<SecurityID>, ret,
+			     = new SecurityID(true) );
+    if ( !ret->isOK() )
+    {
+	PSID sid = NULL;
+	SID_IDENTIFIER_AUTHORITY ntAuth = SECURITY_NT_AUTHORITY;
+	if ( AllocateAndInitializeSid(&ntAuth, 6,
+	    SECURITY_SERVICE_ID_BASE_RID,
+	    SECURITY_TRUSTED_INSTALLER_RID1,
+	    SECURITY_TRUSTED_INSTALLER_RID2,
+	    SECURITY_TRUSTED_INSTALLER_RID3,
+	    SECURITY_TRUSTED_INSTALLER_RID4,
+	    SECURITY_TRUSTED_INSTALLER_RID5,
+	    0, 0, &sid) )
+	    ret->sid_ = sid;
+    }
+    return *ret.ptr();
+}
+
+SecurityID getFileSID( const char* fnm )
+{
+    // Get the handle of the file object.
+    const DWORD dwFlagsAndAttributes = File::isFile(fnm)
+	? FILE_ATTRIBUTE_NORMAL
+	: (File::isDirectory(fnm) ? FILE_FLAG_BACKUP_SEMANTICS
+	    : FILE_ATTRIBUTE_NORMAL);
+    HANDLE hFile = CreateFile(
+	TEXT(fnm),
+	GENERIC_READ,
+	FILE_SHARE_READ,
+	NULL,
+	OPEN_EXISTING,
+	dwFlagsAndAttributes,
+	NULL);
+
+    SecurityID ret( false );
+    if ( hFile == INVALID_HANDLE_VALUE )
+	return ret;
+
+    // Get the owner SID of the file.
+    PSECURITY_DESCRIPTOR pSD = NULL;
+    const DWORD dwRtnCode = GetSecurityInfo(
+	hFile,
+	SE_FILE_OBJECT,
+	OWNER_SECURITY_INFORMATION,
+	&ret.sid_,
+	NULL,
+	NULL,
+	NULL,
+	&pSD);
+
+    if ( dwRtnCode != ERROR_SUCCESS )
+	ret.sid_ = nullptr;
+
+    CloseHandle(hFile);
+
+    return ret;
+}
+
+
+bool pathContainsTrustedInstaller( const char* fnm )
+{
+    const FilePath fp( fnm );
+    for ( int idx=0; idx<fp.nrLevels(); idx++ )
+    {
+	const BufferString filenm( fp.dirUpTo(idx) );
+	if ( belongsToTrusterInstaller(filenm) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+bool belongsToStdUser( const char* fnm )
+{
+    const SecurityID retSid = getFileSID( fnm );
+    if ( !retSid.isOK() ||
+	 !getAdminSID().isOK() ||
+	 !getTrustedInstallerSID().isOK() )
+	return true;
+    return retSid != getAdminSID() &&
+	   retSid != getTrustedInstallerSID();
+}
+
+
+bool belongsToAdmin( const char* fnm )
+{
+    const SecurityID retSid = getFileSID( fnm );
+    if ( !retSid.isOK() || !getAdminSID().isOK() )
+	return false;
+    return retSid == getAdminSID();
+}
+
+
+bool belongsToTrusterInstaller( const char* fnm )
+{
+    const SecurityID retSid = getFileSID( fnm );
+    if ( !retSid.isOK() ||
+	 !getTrustedInstallerSID().isOK() )
+	return false;
+    return retSid == getTrustedInstallerSID();
+}
+
+
+bool serviceIsRunning( const char* nm )
+{
+    return getServiceStatus(nm) == SERVICE_RUNNING;
+}
+
+
+int getServiceStatus( const char* nm )
+{
+    SC_HANDLE theService, scm;
+    SERVICE_STATUS m_SERVICE_STATUS;
+    SERVICE_STATUS_PROCESS ssStatus;
+    DWORD dwBytesNeeded;
+
+    scm = OpenSCManager(nullptr, nullptr, SC_MANAGER_ENUMERATE_SERVICE);
+    if (!scm) {
+            return 0;
+    }
+
+    theService = OpenService(scm, nm, SERVICE_QUERY_STATUS);
+    if (!theService) {
+        CloseServiceHandle(scm);
+        return 0;
+    }
+
+    auto result = QueryServiceStatusEx(theService, SC_STATUS_PROCESS_INFO,
+        reinterpret_cast<LPBYTE>(&ssStatus), sizeof(SERVICE_STATUS_PROCESS),
+        &dwBytesNeeded);
+
+    CloseServiceHandle(theService);
+    CloseServiceHandle(scm);
+
+    if (result == 0) {
+        return 0;
+    }
+
+    return ssStatus.dwCurrentState;
+}
+
+
+bool NTUserBelongsToAdminGrp()
+{
+    mDefineStaticLocalObject(int, res, = -2);
+    //-2: not tested, -1: cannot determine
+    if ( res > -2 )
+	return res == 1;
+
+    if ( IsUserAnAdmin() )
+    {
+	res = 1;
+	return true;
+    }
+
+    byte rawGroupList[4096];
+    TOKEN_GROUPS& groupList = *((TOKEN_GROUPS*)rawGroupList);
+    HANDLE hTok;
+    if ( !OpenThreadToken(GetCurrentThread(),TOKEN_QUERY,false,&hTok) )
+    {
+	if ( !OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&hTok) )
+	{
+	    res = -1;
+	    return false;
+	}
+    }
+
+    // normally, I should get the size of the group list first, but ...
+    DWORD lstsz = sizeof rawGroupList;
+    if ( !GetTokenInformation(hTok,TokenGroups,&groupList,lstsz,&lstsz) )
+    {
+	res = -1;
+	return false;
+    }
+
+    if ( !getAdminSID().isOK() )
+	{ res = -1; return false; }
+
+    // now, loop through groups in token and compare
+    res = 0;
+    for ( int idx=0; idx<groupList.GroupCount; idx++)
+    {
+	if (EqualSid(getAdminSID().sid_, groupList.Groups[idx].Sid))
+	{
+	    res = 1;
+	    break;
+	}
+    }
+
+    CloseHandle( hTok );
+    return res == 1;
+}
+
+
+bool IsUserAnAdmin()
+{
+    mDefineStaticLocalObject(bool, isadmin, = ::IsUserAnAdmin() );
+    return isadmin;
+}
+
+} //namespace WinUtils
 
 
 unsigned int getWinVersion()
@@ -312,7 +564,16 @@ const char* getWinProductName()
 bool canHaveAppLocker()
 {
     const BufferString editionnm( getWinEdition() );
-    return editionnm.matches( "Enterprise" );
+    if ( !editionnm.matches("Enterprise") )
+        return false;
+
+    const FilePath applockercachefp(GetSpecialFolderLocation(
+                        CSIDL_SYSTEM), "AppLocker" );
+
+    const DirList dl( applockercachefp.fullPath(),
+                      DirList::FilesOnly );
+    return dl.isEmpty() ? serviceIsRunning("AppIDSvc")
+                        : true;
 }
 
 
