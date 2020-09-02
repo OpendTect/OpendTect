@@ -329,7 +329,8 @@ void ODServiceBase::newConnectionCB( CallBacker* )
 {
     //Threads::Locker lckr( lock_ );
 
-    Network::RequestConnection* conn = localserver_->pickupNewConnection();
+    Network::RequestConnection* conn =
+	localserver_ ? localserver_->pickupNewConnection() : nullptr;
     if ( !conn )
 	conn = tcpserver_->pickupNewConnection();
 
