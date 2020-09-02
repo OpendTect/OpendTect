@@ -70,15 +70,12 @@ protected:
 
     uiSurveySelect*	survsel_;
     uiIOObjSelGrp*	objfld_;
-    uiListBoxChoiceIO*	objselio_;
 
     void		initGrp(CallBacker*);
     void		survSelCB(CallBacker*);
     void		dClickCB(CallBacker*);
     void		selChgCB(CallBacker*);
     void		itemChgCB(CallBacker*);
-    void		readSelIOCB(CallBacker*);
-    void		writeSelIOCB(CallBacker*);
 
     void		updGrp(bool withsurvsel);
     void		selSurvFromSelection();
