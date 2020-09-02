@@ -170,6 +170,7 @@ bool testRemoveFile(const char* fnm)
 	return true;
 
 #ifdef __win__
+    //Will fail if run with elevated privileges (should not be tried anyway)
     mRunStandardTest(WinUtils::belongsToStdUser(fnm),
 		    "WinUtils test ownership" );
     mRunStandardTest( File::makeReadOnly(fnm,false) && !File::remove(fnm),
