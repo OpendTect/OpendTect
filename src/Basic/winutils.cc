@@ -273,7 +273,7 @@ bool WinUtils::fileInUse( const char* fnm )
 
 namespace WinUtils
 {
-    mExpClass(Basic) SecurityID
+    mClass(Basic) SecurityID
     {
     public:
 		SecurityID( bool ismine )

@@ -436,9 +436,7 @@ bool File::LocalFileSystemAccess::isWritable( const char* uri ) const
 #ifdef __unix__
     return iswritable;
 #else
-    if ( !iswritable ||
-	 !WinUtils::NTUserBelongsToAdminGrp() ||
-	  WinUtils::IsUserAnAdmin() )
+    if ( !iswritable || WinUtils::IsUserAnAdmin() )
 	return iswritable;
 
     return WinUtils::pathContainsTrustedInstaller(fnm)
