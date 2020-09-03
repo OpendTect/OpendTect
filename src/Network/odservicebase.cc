@@ -286,13 +286,7 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 
 void ODServiceBase::newConnectionCB( CallBacker* )
 {
-    //Threads::Locker lckr( lock_ );
-
-    Network::RequestConnection* conn =
-	localserver_ ? localserver_->pickupNewConnection() : nullptr;
-    if ( !conn )
-	conn = tcpserver_->pickupNewConnection();
-
+    Network::RequestConnection* conn = server_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
