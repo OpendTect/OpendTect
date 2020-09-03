@@ -76,28 +76,14 @@ public:
 };
 
 
-/*! HelpProvider for the developers documentation. */
-mExpClass(uiBase) DevDocHelp : public HelpProvider
-{ mODTextTranslationClass(DevDocHelp);
-public:
-    static void		initClass();
-
-    static const char*		sKeyFactoryName() { return "oddevdoc"; }
-
-private:
-    BufferString		getUrl() const;
-    static HelpProvider*	createInstance();
-    bool			hasHelp(const char* arg) const;
-    void			provideHelp(const char* arg) const;
-};
-
 /*! HelpProvider for website pages */
 mExpClass(uiBase) WebsiteHelp : public HelpProvider
 { mODTextTranslationClass(WebsiteHelp);
 public:
-    static void		initClass();
+    static void			initClass();
     static const char*		sKeyFactoryName();
     static const char*		sKeySupport();
+    static const char*		sKeyVideos();
     static const char*		sKeyAttribMatrix();
 
 private:
@@ -105,3 +91,26 @@ private:
     bool			hasHelp(const char* arg) const;
     void			provideHelp(const char* arg) const;
 };
+
+
+//! HelpProvider for videos
+mExpClass(uiBase) VideoProvider : public HelpProvider
+{
+public:
+    static void			init();
+    static void			initClass(const char* context,
+					  const char* indexfilename);
+    uiString			description(const char* arg) const;
+
+private:
+				VideoProvider(const char* idxfnm);
+
+    static HelpProvider*	createInstance();
+    bool			hasHelp(const char* arg) const;
+    void			provideHelp(const char* arg) const;
+    int				indexOf(const char* arg) const;
+
+    BufferString		indexfilenm_;
+    IOPar			videolinks_;
+};
+

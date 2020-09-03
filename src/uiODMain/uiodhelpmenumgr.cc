@@ -45,13 +45,11 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr& mm )
 					"od", mUserDocMnuItm );
     act->setShortcut( "F1" );
 
-    if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mnumgr_.addAction( docmnu_, tr("Programmer"), "programmer",
-			   mProgrammerDocMnuItm );
+    mnumgr_.addAction( docmnu_, tr("Programmer"), "programmer",
+			mProgrammerDocMnuItm );
 
-    if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
-	mnumgr_.addAction( docmnu_, tr("System Administration"),
-			    "sysadm", mAdminDocMnuItm );
+    mnumgr_.addAction( docmnu_, tr("System Administration"),
+			"sysadm", mAdminDocMnuItm );
 
     mAddHelpAction( tr("How-To Instructions"), mWorkflowsMnuItm, "howto" );
     mAddHelpAction( tr("Training Manual"), mTrainingManualMnuItm, "training" );
@@ -93,11 +91,11 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	case mAdminDocMnuItm:
 	{
-	    HelpProvider::provideHelp( HelpKey("appman",0) );
+	    HelpProvider::provideHelp( HelpKey("admin",0) );
 	} break;
 	case mProgrammerDocMnuItm:
 	{
-	    HelpProvider::provideHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0));
+	    HelpProvider::provideHelp( HelpKey("dev",0) );
 	} break;
 	case mSupportMnuItm:
 	{

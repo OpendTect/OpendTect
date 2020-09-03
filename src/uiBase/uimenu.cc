@@ -115,18 +115,21 @@ static uiParent* gtParent( uiParent* p )
 }
 
 
-uiMenu::uiMenu()
-    : uiBaseObject("")
-    , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)())
-{
-}
-
-
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( toString(txt) )
     , submenuaction_( 0 )
     , qmenu_( new mQtclass(QMenu)(toQString(txt), gtParent(p)->getWidget(0) ))
+    , text_(txt)
+{
+    setIcon( pmnm );
+    useStyleSheet();
+}
+
+
+uiMenu::uiMenu( const uiString& txt, const char* pmnm )
+    : uiBaseObject( toString(txt) )
+    , submenuaction_( 0 )
+    , qmenu_(new mQtclass(QMenu)(toQString(txt)))
     , text_(txt)
 {
     setIcon( pmnm );

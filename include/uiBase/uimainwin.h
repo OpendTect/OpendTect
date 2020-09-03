@@ -96,7 +96,7 @@ public:
     void		activate();
 
     virtual void	show();
-    void                close();
+    void		close();
     void		raise();
 
     void		showMaximized();
@@ -224,9 +224,9 @@ protected:
     void		languageChangeCB(CallBacker*);
     void		setForceFinalise(bool);
 
-    uiMainWinBody*	body_			= 0;
+    uiMainWinBody*	body_			= nullptr;
     uiParent*		parent_;
-    Timer*		afterpopuptimer_	= 0;
+    Timer*		afterpopuptimer_	= nullptr;
 
     PopupArea		popuparea_		= Auto;
 
@@ -237,7 +237,6 @@ protected:
 
     BufferString	scripttorun_;
 
-    static ObjectSet<uiMainWin>	allwins_;
     static bool		haveModalWindows();
 
 private:

@@ -693,7 +693,7 @@ public:
     static uiWord sRow(int n=1)		{ return tr("Row",0,n); }
     static uiWord sRun()		{ return tr("Run"); }
     static uiWord sSample(int n=1)	{ return tr("Sample",0,n); }
-    static uiWord sSampleIntrvl(int n=1){ return tr("Sample Interval",0,1); }
+    static uiWord sSampleIntrvl(int n=1){ return tr("Sample Interval",0,n); }
     static uiWord sSave()		{ return tr("Save"); }
     static uiWord sSaveAs()		{ return tr("Save As"); }
     static uiWord sSaveAsDefault()	{ return tr("Save as Default"); }
@@ -867,6 +867,7 @@ public:
     static uiWord sVelRange()		{ return tr("Velocity Range"); }
     static uiWord sVertex(int n=1)	{ return tr("Vertex",0,n); }
     static uiWord sVertical()		{ return tr("Vertical"); }
+    static uiWord sVideo()		{ return tr("Video"); }
     static uiWord sView()		{ return tr("View"); }
     static uiWord sVintage()		{ return tr("Vintage"); }
     static uiWord sVisualization()	{ return tr("Visualization"); }
