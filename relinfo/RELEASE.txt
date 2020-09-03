@@ -1,6 +1,14 @@
 OpendTect V6.6.x : Release info
 
 ----
+v6.6.0beta9b: September 03, 2020
+* System may hang when removing inline after scrolling from position window,
+  fixed it
+* Added some additional tutorial video links
+* For windows users:
+	There is now an executable to uninstall OpendTect, instead of a script
+* Fixed setting of firewall rules
+* Minor changes to start menu items
 
 v6.6.0beta9: September 01, 2020
 * Fixed crash while exporting FaultSet
