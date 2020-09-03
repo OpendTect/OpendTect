@@ -55,6 +55,7 @@ public:
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title)
 			, helpkey_(help_key)
+			, videokey_(HelpKey::emptyHelpKey())
 			, savetext_(uiStrings::sSaveAsDefault())
 			, oktext_( uiStrings::sOk() )
 			, canceltext_( uiStrings::sCancel() )
@@ -70,6 +71,7 @@ public:
 	mDefSetupMemb(uiString,wintitle)
 	mDefSetupMemb(uiString,dlgtitle)
 	mDefSetupMemb(HelpKey,helpkey)
+	mDefSetupMemb(HelpKey,videokey)
 	mDefSetupMemb(uiString,savetext)
 	mDefSetupMemb(uiString,oktext)
 	mDefSetupMemb(uiString,canceltext)
@@ -91,8 +93,8 @@ public:
 			Setup( const char* window_title,
 			       const char* dialog_title,
 			       int help_id )
-                            : helpkey_(mNoHelpKey)
-                        {}
+			    : helpkey_(mNoHelpKey)
+			{}
 			//!< Makes sure you cannot use '0' for help ID.
 			//!< Use mTODOHelpKey or mNoHelpKey instead
 
@@ -147,6 +149,10 @@ public:
     bool		separator() const;
     void		setHelpKey(const HelpKey&);
     virtual HelpKey	helpKey() const;
+    void		setVideoKey(const HelpKey&,int idx=-1);
+    HelpKey		videoKey(int idx=0) const;
+    int			nrVideos() const;
+    void		removeVideo(int);
 
     enum TitlePos	{ LeftSide, CenterWin, RightSide };
     static TitlePos	titlePos();

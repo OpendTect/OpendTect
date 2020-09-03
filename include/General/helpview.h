@@ -35,11 +35,12 @@ public:
 
     static void 	provideHelp(const HelpKey&);
     static bool 	hasHelp(const HelpKey&);
-
+    static uiString	description(const HelpKey&);
 
 private:
     virtual bool	hasHelp(const char* arg) const		= 0;
     virtual void	provideHelp(const char* arg) const	= 0;
+    virtual uiString	description(const char* arg) const;
 };
 
 
@@ -49,20 +50,15 @@ mExpClass(General) HelpKey
 public:
 			HelpKey(const char* providername,const char* arg)
 			    : providername_( providername ), argument_(arg) {}
-                        HelpKey() : providername_( 0 )                      {}
+			HelpKey() {}
 
-    static HelpKey      emptyHelpKey();
+    bool		operator==(const HelpKey&) const;
+    static HelpKey	emptyHelpKey();
     bool		isEmpty() const;
 
-    const char* 	providername_;
+    BufferString 	providername_;
     BufferString 	argument_;
-
-
-			//This constructor is for legacy stuff. Remove.
-			HelpKey(const char* arg)
-			    : providername_("od")
-			    , argument_( arg )
-			{}
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
+#define mODVideoKey( arg ) HelpKey( "odvideo", ::toString(arg) )

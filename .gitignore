@@ -22,6 +22,7 @@ data/dgbAttribs/
 data/localizations/*.qm
 data/localizations/generated
 data/Python_envs.txt
+doc/Videos.dgb
 test/
 Contents/
 plugins/lux64

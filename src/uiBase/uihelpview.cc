@@ -10,15 +10,17 @@ ________________________________________________________________________
 
 #include "uihelpview.h"
 
-#include "iopar.h"
-#include "oddirs.h"
-#include "filepath.h"
-#include "file.h"
 #include "uidesktopservices.h"
-#include "odinst.h"
-#include "odversion.h"
-#include "odnetworkaccess.h"
 #include "uimsg.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "oddirs.h"
+#include "odinst.h"
+#include "odnetworkaccess.h"
+#include "odversion.h"
 
 
 SimpleHelpProvider::SimpleHelpProvider( const char* baseurl, const char* fnm )
@@ -102,6 +104,9 @@ void FlareHelpProvider::initHelpSystem( const char* context, const char* path )
     {
 	url = fileprot;
 	url += basefile.fullPath();
+#ifdef __win__
+	url.replace( '\\', '/' );
+#endif
     }
     else
     {
@@ -121,52 +126,9 @@ void FlareHelpProvider::initODHelp()
     initHelpSystem( "od", "od_userdoc" );
     initHelpSystem( "wf", "HTML_WF" );
     initHelpSystem( "tm", "HTML_TM" );
-    //initHelpSystem( "appman", "appmandoc" );
+    initHelpSystem( "admin", "admindoc" );
+    initHelpSystem( "dev", "Programmer" );
 }
-
-
-// DevDocHelp
-void DevDocHelp::initClass()
-{
-    HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() );
-}
-
-
-BufferString DevDocHelp::getUrl() const
-{
-    const BufferString classpkgver( ODInst::getPkgVersion("classdoc") );
-    const bool foundclspkg = !classpkgver.isEmpty() &&
-			     !classpkgver.find( "error" );
-    if ( !foundclspkg )
-	return BufferString::empty();
-
-    File::Path basefile = mGetProgrammerDocDir();
-    basefile.add( "index.html" );
-    if ( !File::exists( basefile.fullPath()) )
-	return BufferString::empty();
-
-    return BufferString( fileprot, basefile.fullPath() );
-}
-
-
-void DevDocHelp::provideHelp( const char* arg ) const
-{
-    BufferString url = getUrl();
-
-    if ( url.isEmpty() )
-	gUiMsg(0).error(tr("Cannot open developer's documentation"));
-    else
-	uiDesktopServices::openUrl( url );
-}
-
-
-bool DevDocHelp::hasHelp( const char* arg ) const
-{ return !getUrl().isEmpty(); }
-
-
-HelpProvider* DevDocHelp::createInstance()
-{ return new DevDocHelp; }
-
 
 
 // WebsiteHelp
@@ -178,6 +140,7 @@ HelpProvider* WebsiteHelp::createInstance()
 
 const char* WebsiteHelp::sKeyFactoryName()	{ return "website"; }
 const char* WebsiteHelp::sKeySupport()		{ return "support"; }
+const char* WebsiteHelp::sKeyVideos()		{ return "videos"; }
 const char* WebsiteHelp::sKeyAttribMatrix()	{ return "attribmatrix"; }
 
 void WebsiteHelp::provideHelp( const char* arg ) const
@@ -188,6 +151,8 @@ void WebsiteHelp::provideHelp( const char* arg ) const
 	url = "https://www.dgbes.com/index.php/software/attributes-table";
     else if ( argstr == sKeySupport() )
 	url = "https://dgbes.com/index.php/support";
+    else if ( argstr == sKeyVideos() )
+	url = "http://videos.opendtect.org";
 
     if ( url.isEmpty() )
 	gUiMsg().error( tr("Cannot open website page") );
@@ -201,4 +166,89 @@ bool WebsiteHelp::hasHelp( const char* arg ) const
     const FixedString argstr = arg;
     return  argstr == sKeyAttribMatrix() ||
 	    argstr == sKeySupport();
+}
+
+
+// VideoProvider
+static IOPar sVideoIndexFiles;
+
+VideoProvider::VideoProvider( const char* idxfnm )
+    : indexfilenm_(idxfnm)
+{
+    videolinks_.read( idxfnm, "Video definitions" );
+}
+
+
+void VideoProvider::init()
+{
+    const BufferString fnm = GetDocFileDir( "Videos.od" );
+    VideoProvider::initClass( "odvideo", fnm );
+}
+
+
+void VideoProvider::initClass( const char* context, const char* indexfnm )
+{
+    HelpProvider::factory().addCreator( createInstance, context );
+    sVideoIndexFiles.set( context, indexfnm );
+}
+
+
+HelpProvider* VideoProvider::createInstance()
+{
+    const char* name = factory().keyOfLastCreated();
+    return new VideoProvider( sVideoIndexFiles.find(name) );
+}
+
+
+int VideoProvider::indexOf( const char* arg ) const
+{
+    int idx = 1;
+    while ( true )
+    {
+	BufferString helpid;
+	const bool res =
+	    videolinks_.get( IOPar::compKey(toString(idx),sKey::ID()), helpid );
+	if ( !res )
+	    return -1;
+
+	if ( helpid.startsWith("0x") )
+	    helpid = Conv::to<int>( helpid.buf() );
+
+	if ( helpid == arg )
+	    return idx;
+
+	idx++;
+    }
+
+    return -1;
+}
+
+
+bool VideoProvider::hasHelp( const char* arg ) const
+{
+    const int helpidx = indexOf( arg );
+    return helpidx >= 0;
+}
+
+
+static const char* sVideoBaseUrl = "http://videos.opendtect.org/?id=";
+
+void VideoProvider::provideHelp( const char* arg ) const
+{
+    const int helpidx = indexOf( arg );
+    BufferString url;
+    videolinks_.get( IOPar::compKey(toString(helpidx),"Url"), url );
+    if ( url.isNumber(true) )
+	url = BufferString( sVideoBaseUrl, url );
+    if ( !url.isEmpty() )
+	uiDesktopServices::openUrl( url );
+}
+
+
+uiString VideoProvider::description( const char* arg ) const
+{
+    const int helpidx = indexOf( arg );
+    BufferString info;
+    videolinks_.get( IOPar::compKey(toString(helpidx),"Title"), info );
+    return toUiString(info);
 }

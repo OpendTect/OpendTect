@@ -68,9 +68,9 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 
 public:
 
-			uiMenu(uiParent*,
-			       const uiString& txt=uiString::empty(),
+			uiMenu(const uiString& txt=uiString::empty(),
 			       const char* icnm=0);
+			uiMenu(const MenuItem&);
 			~uiMenu();
 
     uiMenu*		addSubMenu(uiParent*,const uiString&,const char* icnm);
@@ -113,7 +113,6 @@ public:
 
 private:
 
-			uiMenu();
     void		setAction(uiAction*);
 
     uiString		text_;
@@ -143,6 +142,8 @@ public:
     static void		removeInterceptor(const CallBack&);
     void		doIntercept(bool yn,uiAction* activateitm = 0);
 
-			uiMenu(const MenuItem&);
-
+			uiMenu(uiParent*,
+				const uiString& txt=uiString::empty(),
+				const char* iconfilenm=0);
 };
+

@@ -119,6 +119,7 @@ const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
 	mCaseRet(Select,selectfromlist)
 	mCaseRet(Settings,options)
 	mCaseRet(Unload,unload)
+	mCaseRet(Video,video)
 	default: break;
     }
 
