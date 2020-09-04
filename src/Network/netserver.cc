@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 #include <QLocalServer>
 
+#include "hiddenparam.h"
+
 
 static Threads::Atomic<PortNr_Type> lastusableport_ = 0;
 
@@ -65,11 +67,16 @@ PortNr_Type Network::getUsablePort( uiRetVal& uirv, PortNr_Type portnr,
 }
 
 
+static HiddenParam<Network::Authority,BufferString*>
+					netauthservernmmgr_( nullptr );
+
+
 Network::Authority::Authority( const char* host, PortNr_Type port,
 							bool resolveipv6 )
     : qhost_(*new QString)
     , qhostaddr_(*new QHostAddress)
 {
+    netauthservernmmgr_.setParam( this, new BufferString() );
     setHost( host, resolveipv6 );
     setPort( port );
 }
@@ -79,6 +86,7 @@ Network::Authority::Authority( const BufferString& servernm )
     : qhost_(*new QString)
     , qhostaddr_(*new QHostAddress)
 {
+    netauthservernmmgr_.setParam( this, new BufferString() );
     localFromString( servernm );
 }
 
@@ -95,6 +103,7 @@ Network::Authority::~Authority()
 {
     delete &qhost_;
     delete &qhostaddr_;
+    netauthservernmmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -108,7 +117,7 @@ Network::Authority& Network::Authority::operator=( const Authority& oth )
     qhost_ = oth.qhost_;
     qhostaddr_ = oth.qhostaddr_;
     hostisaddress_ = oth.hostisaddress_;
-    servernm_ = oth.servernm_;
+    setServerName( oth.getServerName() );
     return *this;
 }
 
@@ -123,13 +132,20 @@ bool Network::Authority::operator==( const Authority& oth ) const
 	   qhost_ == oth.qhost_ &&
 	   hostisaddress_ == oth.hostisaddress_ &&
 	   userinfo_ == oth.userinfo_ &&
-	   servernm_ == oth.servernm_;
+	   *netauthservernmmgr_.getParam( this ) ==
+	   *netauthservernmmgr_.getParam( &oth );
+}
+
+
+void Network::Authority::setServerName( const char* nm )
+{
+    netauthservernmmgr_.getParam( this )->set( nm );
 }
 
 
 BufferString Network::Authority::getServerName() const
 {
-    return servernm_;
+    return *netauthservernmmgr_.getParam( this );
 }
 
 bool Network::Authority::isUsable() const
@@ -214,7 +230,7 @@ void Network::Authority::fromString( const char* str, bool resolveipv6 )
 
 void Network::Authority::localFromString( const char* str )
 {
-    servernm_ = str;
+    setServerName( str );
     qhostaddr_.setAddress( QHostAddress::LocalHost );
     port_ = 0;
 }
@@ -330,14 +346,30 @@ static int getNewID()
 }
 
 
+static HiddenParam<Network::Server,QLocalServer*>
+					netserverqlocservmgr_(nullptr);
+
+Network::Server::Server()
+    : newConnection(this)
+    , readyRead(this)
+    , qtcpserver_(new QTcpServer())
+{
+    netserverqlocservmgr_.setParam( this, nullptr );
+    comm_ = new QTcpServerComm( qtcpserver_, this );
+}
+
+
 Network::Server::Server( bool islocal )
     : newConnection(this)
     , readyRead(this)
+    , qtcpserver_(nullptr)
 {
+    netserverqlocservmgr_.setParam( this, nullptr );
     if ( islocal )
     {
-	qlocalserver_ = new QLocalServer();
-	comm_ = new QTcpServerComm( qlocalserver_, this );
+	auto* qlocalserver = new QLocalServer();
+	netserverqlocservmgr_.setParam( this, qlocalserver );
+	comm_ = new QTcpServerComm( qlocalserver, this );
     }
     else
     {
@@ -353,7 +385,7 @@ Network::Server::~Server()
     if ( isListening() )
 	close();
     delete qtcpserver_;
-    delete qlocalserver_;
+    netserverqlocservmgr_.removeAndDeleteParam( this );
     delete comm_;
     deepErase( sockets2bdeleted_ );
 }
@@ -382,10 +414,17 @@ static QHostAddress::SpecialAddress qtSpecAddr( SpecAddr specaddress )
 };
 
 
+QLocalServer* Network::Server::localServer() const
+{ return netserverqlocservmgr_.getParam( this ); }
+
+QLocalServer* Network::Server::localServer()
+{ return netserverqlocservmgr_.getParam( this ); }
+
+
 bool Network::Server::listen( SpecAddr specaddress, PortNr_Type prt )
 {
     if ( isLocal() )
-	return qlocalserver_->listen( toString(prt) );
+	return localServer()->listen( toString(prt) );
 
     return qtcpserver_->listen( QHostAddress(qtSpecAddr(specaddress)), prt );
 }
@@ -399,7 +438,7 @@ bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 	return false;
     }
 
-    const bool canlisten = qlocalserver_->listen( servernm );
+    const bool canlisten = localServer()->listen( servernm );
 
     if ( !canlisten )
 	ret.set( tr("%1 server name is already in use").arg(servernm) );
@@ -411,7 +450,7 @@ bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 bool Network::Server::isListening() const
 {
     if ( isLocal() )
-	return qlocalserver_->isListening();
+	return localServer()->isListening();
 
     return qtcpserver_->isListening();
 }
@@ -432,7 +471,7 @@ Network::Authority Network::Server::authority() const
     BufferString addr;
     if ( isLocal() )
 	return Authority::getLocal(
-				BufferString(qlocalserver_->serverName()) );
+				BufferString(localServer()->serverName()) );
     else
     {
 	const QHostAddress qaddr = qtcpserver_->serverAddress();
@@ -446,7 +485,7 @@ Network::Authority Network::Server::authority() const
 void Network::Server::close()
 {
     if ( isLocal() )
-	qlocalserver_->close();
+	localServer()->close();
     else
 	qtcpserver_->close();
 }
@@ -455,7 +494,7 @@ void Network::Server::close()
 const char* Network::Server::errorMsg() const
 {
     if ( isLocal() )
-	errmsg_ = qlocalserver_->errorString().toLatin1().constData();
+	errmsg_ = localServer()->errorString().toLatin1().constData();
     else
 	errmsg_ = qtcpserver_->errorString().toLatin1().constData();
     return errmsg_.buf();
@@ -465,7 +504,7 @@ const char* Network::Server::errorMsg() const
 bool Network::Server::hasPendingConnections() const
 {
     if ( isLocal() )
-	return qlocalserver_->hasPendingConnections();
+	return localServer()->hasPendingConnections();
 
     return qtcpserver_->hasPendingConnections();
 }
@@ -478,7 +517,7 @@ QTcpSocket* Network::Server::nextPendingConnection()
 
 QLocalSocket* Network::Server::nextPendingLocalConnection()
 {
-    return qlocalserver_->nextPendingConnection();
+    return localServer()->nextPendingConnection();
 }
 
 

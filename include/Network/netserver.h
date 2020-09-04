@@ -29,16 +29,17 @@ class Socket;
 mExpClass(Network) Server : public CallBacker
 { mODTextTranslationClass(Server)
 public:
+			Server();
 			Server(bool islocal);
 			~Server();
 
     bool		listen(SpecAddr=Any,PortNr_Type port=0);
 			//!<If Any, server will listen to all network interfaces
-    bool		listen(const char* servernm,uiRetVal&ret);
+    bool		listen(const char* servernm,uiRetVal&);
     bool		isListening() const;
     PortNr_Type		port() const;
     Authority		authority() const;
-    bool		isLocal() const { return qlocalserver_; }
+    bool		isLocal() const { return !qtcpserver_; }
 
     void		close();
     bool		hasPendingConnections() const;
@@ -75,9 +76,11 @@ protected:
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
 
-    mQtclass(QTcpServer)* qtcpserver_		= nullptr;
-    mQtclass(QLocalServer)* qlocalserver_	= nullptr;
-    mQtclass(QTcpServerComm)* comm_		= nullptr;
+    mQtclass(QLocalServer)*	localServer() const;
+    mQtclass(QLocalServer)*	localServer();
+
+    mQtclass(QTcpServer)* qtcpserver_;
+    mQtclass(QTcpServerComm)* comm_;
     mutable BufferString errmsg_;
     ObjectSet<Socket>	sockets_;
     TypeSet<int>	ids_;

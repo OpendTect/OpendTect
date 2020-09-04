@@ -63,7 +63,7 @@ public:
     Authority&		operator=(const Authority&);
     bool		operator==(const Authority&) const;
 
-    bool		isLocal() const { return !servernm_.isEmpty(); }
+    bool		isLocal() const { return !getServerName().isEmpty(); }
     static Authority	getLocal(const char*);
     BufferString	getServerName() const;
 
@@ -92,11 +92,11 @@ private:
     BufferString	userinfo_;
     PortNr_Type		port_;
 
+    void		setServerName(const char*);
+
     bool		hostisaddress_;
     mQtclass(QHostAddress)&	qhostaddr_;
     mQtclass(QString)&	qhost_;
-
-    BufferString	servernm_;
 
     friend class Socket;
 

@@ -46,7 +46,8 @@ mExpClass(Network) Socket : public CallBacker
 { mODTextTranslationClass(Socket);
 
 public:
-		Socket(bool islocal,bool haveeventloop=true);
+		Socket(bool haveeventloop=true);
+		Socket(bool islocal,bool haveeventloop);
 		Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
 		Socket(mQtclass(QLocalSocket)*,bool haveeventloop=true);
 		~Socket();
@@ -63,7 +64,7 @@ public:
     od_int64	bytesAvailable() const;
     uiString	errMsg() const	{ return errmsg_; }
     void	abort();	//!<Just stops all pending operations.
-    bool	isLocal() const { return qlocalsocket_; }
+    bool	isLocal() const;
 
     bool	writeChar(char);
     bool	writeShort(short);

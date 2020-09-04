@@ -32,8 +32,10 @@ public:
 
     virtual		~ODServiceBase();
 
+    bool		isOK() const;
     bool		isOK(bool islocal) const;
 
+    Network::Authority	getAuthority() const;
     Network::Authority	getAuthority(bool islocal) const;
     virtual void	stopServer();
 
@@ -65,13 +67,14 @@ public:
 			   either externalAction or externalRequest */
 
 protected:
+			ODServiceBase(bool assignport=true);
 			ODServiceBase(const char* hostname,
-						bool assignport=true);
+						bool assignport);
 			explicit ODServiceBase(bool islocal,
 			    const char* servernm=nullptr,bool assignport=true);
 
     bool		isMainService() const;
-    virtual void	startServer(const Network::Authority&);
+    void		startServer(const Network::Authority&);
 
     static uiRetVal	sendAction(const Network::Authority&,
 				   const char* servicenm,const char* action);
@@ -101,6 +104,9 @@ protected:
 
     virtual void	closeApp();
 
+    Network::RequestServer*	localServer() const;
+    Network::RequestServer*	localServer();
+
 private:
 			ODServiceBase(const ODServiceBase&) = delete;
 			ODServiceBase(ODServiceBase&&) = delete;
@@ -108,6 +114,7 @@ private:
     ODServiceBase&	operator=(const ODServiceBase&) = delete;
     ODServiceBase&	operator=(ODServiceBase &&) = delete;
 
+    virtual void	startServer(PortNr_Type);
     void		init(bool islocal,const char* hostname,
 							    bool assignport);
 
@@ -127,15 +134,13 @@ private:
     void		surveyChangedCB(CallBacker*);
     void		pyenvChangeCB(CallBacker*);
 
-    Network::RequestServer*	tcpserver_ = nullptr;
-    Network::RequestServer*	localserver_ = nullptr;
+    Network::RequestServer*	server_ = nullptr;
     bool		serverismine_ = true;
-    Network::RequestConnection*		tcpconn_ = nullptr;
-    Network::RequestConnection*		localconn_ = nullptr;
+    Network::RequestConnection*		conn_ = nullptr;
     PtrMan<Network::RequestPacket>	packet_;
     bool		needclose_ = false;
     uiRetVal		uirv_;
-    Threads::Lock	lock_;
+
     static ODServiceBase* theMain(ODServiceBase* newmain=nullptr);
 
 

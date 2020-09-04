@@ -27,6 +27,7 @@ public:
 
     virtual			~ODBatchService();
 
+    static ODBatchService&	getMgr();
     static ODBatchService&	getMgr(bool islocal);
 
     bool			isODMainSlave() const;
@@ -36,10 +37,11 @@ public:
 
 protected:
 
+				ODBatchService(bool assignport=false);
 			ODBatchService(const char* hostname,
-			    bool assignport=true);
+			    bool assignport);
 			explicit ODBatchService(bool islocal,
-			    const char* servernm=nullptr,bool assignport=true);
+			    const char* servernm,bool assignport);
 
     uiRetVal			sendAction(const char* act) const;
     uiRetVal			sendRequest(const char* reqkey,

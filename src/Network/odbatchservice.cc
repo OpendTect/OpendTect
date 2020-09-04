@@ -27,6 +27,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
+ODBatchService::ODBatchService( bool assignport )
+    : ODServiceBase(true,"batchserv",assignport)
+{ /*Not used, only for compatibility */ }
+
+
 ODBatchService::ODBatchService( bool islocal, const char* servernm,
 							    bool assignport )
     : ODServiceBase(islocal,servernm,assignport)
@@ -78,6 +83,13 @@ bool ODBatchService::isODMainSlave() const
 {
     return odauth_.hasAssignedPort();
 }
+
+
+ODBatchService& ODBatchService::getMgr() // always local;
+{
+    return getMgr( true );
+}
+
 
 ODBatchService& ODBatchService::getMgr(bool islocal) // always local;
 {

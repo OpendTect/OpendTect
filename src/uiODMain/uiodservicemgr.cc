@@ -25,15 +25,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Network;
 
-uiODServiceMgr& uiODServiceMgr::getMgr( bool islocal )
+uiODServiceMgr& uiODServiceMgr::getMgr()
 {
-    mDefineStaticLocalObject(uiODServiceMgr,mgrInstance,(islocal));
+    mDefineStaticLocalObject(uiODServiceMgr,mgrInstance,);
     return mgrInstance;
 }
 
 
-uiODServiceMgr::uiODServiceMgr( bool islocal )
-    : uiODService(*uiMain::theMain().topLevel(),islocal)
+uiODServiceMgr::uiODServiceMgr()
+    : uiODService(*uiMain::theMain().topLevel(),true)
     , serviceAdded(this)
     , serviceRemoved(this)
 {
@@ -46,10 +46,10 @@ uiODServiceMgr::~uiODServiceMgr()
 }
 
 
-void uiODServiceMgr::setFor( uiMainWin& win, bool islocal )
+void uiODServiceMgr::setFor( uiMainWin& win )
 {
     if ( &win == uiMain::theMain().topLevel() )
-	getMgr( islocal );
+	getMgr();
 }
 
 
