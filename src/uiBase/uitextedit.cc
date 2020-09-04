@@ -299,7 +299,8 @@ void uiTextEdit::setText( const char* txt, bool trigger_notif )
 {
     NotifyStopper ns( textChanged );
     if ( trigger_notif ) ns.restore();
-    qte().setText( txt );
+    qte().setPlainText( txt );
+    qte().setFontUnderline( false );
 }
 
 
