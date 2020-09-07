@@ -63,7 +63,7 @@ private:
     uiODService&	operator=(const uiODService&) = delete;
     uiODService&	operator=(uiODService &&) = delete;
 
-    void		init(uiMainWin&,bool);
+    void		initService(uiMainWin&,bool);
 
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();

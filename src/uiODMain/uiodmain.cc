@@ -699,7 +699,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 
 void uiODMain::afterStartupCB( CallBacker* )
 {
-    uiODServiceMgr::setFor( *this, false );
+    uiODServiceMgr::setFor( *this );
     uiCOLTAB().asParent()->display( false );
     startAutoSaved2RealObjectRestorer();
 }
@@ -951,7 +951,7 @@ void uiODMain::exit( bool doconfirm )
 
 uiODServiceMgr& uiODMain::serviceMgr()
 {
-    return uiODServiceMgr::getMgr( false );
+    return uiODServiceMgr::getMgr();
 }
 
 

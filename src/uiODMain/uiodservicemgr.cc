@@ -18,24 +18,29 @@
 #include "keystrs.h"
 #include "oddirs.h"
 #include "odjson.h"
+#include "genc.h"
+#include "systeminfo.h"
+#include "netsocket.h"
 
 
 /*!\brief The OpendTect service manager */
 
 using namespace Network;
 
-uiODServiceMgr& uiODServiceMgr::getMgr( bool islocal )
+uiODServiceMgr& uiODServiceMgr::getMgr()
 {
-    mDefineStaticLocalObject(uiODServiceMgr,mgrInstance,(islocal));
+    mDefineStaticLocalObject(uiODServiceMgr,mgrInstance,);
     return mgrInstance;
 }
 
 
-uiODServiceMgr::uiODServiceMgr( bool islocal )
-    : uiODService(*uiMain::theMain().topLevel(),islocal)
+uiODServiceMgr::uiODServiceMgr()
+    : uiODService(*uiMain::theMain().topLevel(),false)
     , serviceAdded(this)
     , serviceRemoved(this)
 {
+    BufferString servernm( Socket::sKeyLocalHost() );
+    init( true, servernm, false );
 }
 
 
@@ -45,10 +50,10 @@ uiODServiceMgr::~uiODServiceMgr()
 }
 
 
-void uiODServiceMgr::setFor( uiMainWin& win, bool islocal )
+void uiODServiceMgr::setFor( uiMainWin& win )
 {
     if ( &win == uiMain::theMain().topLevel() )
-	getMgr( islocal );
+	getMgr();
 }
 
 
@@ -61,7 +66,8 @@ uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    Network::Service* service = new Network::Service( *jsonobj );
+    Network::Service* service = new Network::Service( *jsonobj,	
+							getAuthority( true ) );
     if ( !service->isOK() )
     {
 	uirv = service->message();
@@ -75,7 +81,8 @@ uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 }
 
 
-uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj )
+uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj,
+								bool islocal )
 {
     uiRetVal uirv;
     if ( !jsonobj )
@@ -84,7 +91,7 @@ uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    const Network::Service service( *jsonobj );
+    const Network::Service service( *jsonobj, getAuthority(islocal) );
     if ( service.isOK() )
 	removeService( service.getID() );
 
@@ -256,7 +263,7 @@ bool uiODServiceMgr::doParseRequest( const OD::JSON::Object& request,
     }
     else if ( request.isPresent(sKeyDeregister()) )
     {
-	uirv = removeService( request.getObject(sKeyDeregister()) );
+	uirv = removeService( request.getObject(sKeyDeregister()), true );
 	return true;
     }
     else if ( request.isPresent(sKeyStart()) )

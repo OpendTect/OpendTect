@@ -73,7 +73,6 @@ public:
     BufferString	getHost(bool external=false) const;
     PortNr_Type		getPort() const			{ return port_; }
     bool		addressIsValid() const;
-    bool		hasAssignedPort() const		{ return port_ > 0; }
     bool		isUsable() const;
     bool		portIsFree(uiString* errmsg =nullptr) const;
 
@@ -98,6 +97,9 @@ private:
     mQtclass(QString)&		qhost_;
 
     BufferString	    servernm_;
+
+    bool		hasAssignedPort() const { return port_ > 0; }
+
 
     friend class Socket;
 

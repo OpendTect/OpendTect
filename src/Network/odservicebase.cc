@@ -49,7 +49,7 @@ void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
     else
 	tcpserver_ = mainserv ? mainserv->tcpserver_ : nullptr;
 
-    if ( tcpserver_ || localserver_ )
+    if ( (!islocal&&tcpserver_) || (islocal&&localserver_) )
     {
 	serverismine_ = false;
 	if ( this != mainserv )
@@ -95,11 +95,11 @@ void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
         }
     }
 
-	const Network::Authority auth = islocal ?
+    const Network::Authority auth = islocal ?
 				Network::Authority::getLocal( hostname ) :
 				Network::Authority( hostname, portid );
-    if ( auth.isUsable() )
-        startServer( auth );
+    if ( !startServer(auth) )
+	return;
 
     if ( islocal )
 	mAttachCB( localserver_->newConnection,
@@ -123,7 +123,7 @@ ODServiceBase::~ODServiceBase()
 
 bool ODServiceBase::isOK( bool islocal	) const
 {
-    return getAuthority( islocal  ).hasAssignedPort();
+    return getAuthority( islocal  ).isUsable();
 }
 
 
@@ -153,8 +153,11 @@ void ODServiceBase::pyenvChangeCB( CallBacker* cb )
 { doPyEnvChange(cb); }
 
 
-void ODServiceBase::startServer( const Network::Authority& auth )
+bool ODServiceBase::startServer( const Network::Authority& auth )
 {
+    if ( !auth.isUsable() )
+	return false;
+
     auto* server = new Network::RequestServer( auth );
     if ( auth.isLocal() )
 	localserver_ = server;
@@ -165,11 +168,13 @@ void ODServiceBase::startServer( const Network::Authority& auth )
     {
 	pErrMsg( "startServer - failed" );
 	stopServer();
-	return;
+	return false;
     }
 
     if ( !theMain() )
 	theMain( this );
+
+    return true;
 }
 
 
@@ -318,14 +323,12 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 }
 
 
-void ODServiceBase::newConnectionCB( CallBacker* cb )
+void ODServiceBase::newConnectionCB( CallBacker* )
 {
-    //TODO: protect against concurrent access
-    mDynamicCastGet(Network::RequestServer*,reqserv,cb);
-    if ( !reqserv )
-        return;
-
-    Network::RequestConnection* conn = reqserv->pickupNewConnection();
+    //TODO: Capsule to tell us from which server is comes
+    Network::RequestConnection* conn = localserver_
+	    ? localserver_->pickupNewConnection()
+	    : tcpserver_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
@@ -378,7 +381,7 @@ void ODServiceBase::packetArrivedCB( CallBacker* cb )
 
 void ODServiceBase::connClosedCB( CallBacker* cb )
 {
-    mDynamicCastGet(Network::RequestConnection*,conn,cb);
+    Network::RequestConnection* conn = (Network::RequestConnection*) cb;
     if ( !conn )
 	return;
 
