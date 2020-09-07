@@ -95,6 +95,7 @@ Network::Authority::Authority( const Authority& oth )
     : qhost_(*new QString)
     , qhostaddr_(*new QHostAddress)
 {
+    netauthservernmmgr_.setParam( this, new BufferString() );
     *this = oth;
 }
 
