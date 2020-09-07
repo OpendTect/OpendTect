@@ -50,8 +50,8 @@ mExpClass(uiODMain) uiODServiceMgr : public uiODService
 { mODTextTranslationClass(uiODServiceMgr)
 public:
 
-    static void		setFor(uiMainWin&,bool);
-    static uiODServiceMgr& getMgr(bool);
+    static void		setFor(uiMainWin&);
+    static uiODServiceMgr& getMgr();
 
     bool		isPresent(const Network::Service::ID) const;
     bool		isAlive(const Network::Service::ID) const;
@@ -63,7 +63,7 @@ public:
     CNotifier<uiODServiceMgr,Network::Service::ID>	serviceRemoved;
 
 private:
-			uiODServiceMgr(bool islocal);
+			uiODServiceMgr();
 			uiODServiceMgr(const uiODServiceMgr&) = delete;
 			uiODServiceMgr(uiODServiceMgr&&) = delete;
 			~uiODServiceMgr();
@@ -79,7 +79,7 @@ private:
     void		closeApp() override final;
 
     uiRetVal		addService(const OD::JSON::Object*);
-    uiRetVal		removeService(const OD::JSON::Object*);
+    uiRetVal		removeService(const OD::JSON::Object*, bool islocal);
     uiRetVal		startApp(const OD::JSON::Object*);
     const Network::Service*	getService(const Network::Service::ID) const;
     Network::Service*	getService(const Network::Service::ID);

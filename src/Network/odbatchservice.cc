@@ -48,21 +48,14 @@ void ODBatchService::init( bool islocal )
 {
     const CommandLineParser* clp = new CommandLineParser;
     const char* skeynolisten = Network::Server::sKeyNoListen();
-    if (!clp->hasKey(skeynolisten))
+    if (!clp->hasKey( skeynolisten ))
     {
-	if (clp->hasKey(sKeyODServer()))
+	if (clp->hasKey( sKeyODServer() ))
 	{
-	    BufferString odserverstr;
-	    if (clp->getKeyedInfo(sKeyODServer(), odserverstr))
-	    {
-		if (islocal)
-		    odauth_.localFromString( odserverstr );
-		else
-		    odauth_.fromString( odserverstr, islocal );
-	    }
+	    BufferString srvrnm;
+	    if (clp->getKeyedInfo( sKeyODServer(), srvrnm ))
+		odauth_.localFromString( srvrnm );
 	}
-
-
     }
     delete clp;
 
@@ -81,7 +74,7 @@ ODBatchService::~ODBatchService()
 bool ODBatchService::isODMainSlave() const
 {
     //return true;
-    return odauth_.hasAssignedPort();
+    return odauth_.isUsable();
 }
 
 ODBatchService& ODBatchService::getMgr( bool islocal )

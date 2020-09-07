@@ -28,7 +28,7 @@ uiODService::uiODService( uiMainWin& mainwin, bool islocal,
 				const char* servernm, bool assignport )
     : ODServiceBase(islocal, servernm, assignport)
 {
-    init( mainwin, islocal );
+    initService( mainwin, islocal );
 }
 
 
@@ -36,11 +36,11 @@ uiODService::uiODService(uiMainWin& mainwin, const char* hostname,
 							    bool assignport)
     : ODServiceBase(hostname, assignport)
 {
-    init( mainwin, true );
+    initService( mainwin, true );
 }
 
 
-void uiODService::init( uiMainWin& mainwin, bool islocal )
+void uiODService::initService( uiMainWin& mainwin, bool islocal )
 {
     if ( !isMainService() )
 	return;
@@ -78,7 +78,7 @@ uiODService::~uiODService()
 
 bool uiODService::isODMainSlave() const
 {
-    return odauth_.hasAssignedPort();
+    return odauth_.isUsable();
 }
 
 

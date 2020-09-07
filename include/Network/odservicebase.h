@@ -62,13 +62,16 @@ public:
 			/* Must be called to set the result of intercepting
 			   either externalAction or externalRequest */
 
+    void		init( bool islocal, const char* hostname,
+							bool assignport );
+
 protected:
 		    ODServiceBase(const char* hostname,bool assignport = true);
 		    explicit ODServiceBase(bool islocal,
 			const char* servernm=nullptr,bool assignport=true);
 
     bool		isMainService() const;
-    virtual void	startServer(const Network::Authority&);
+    bool		startServer(const Network::Authority&);
 
     static uiRetVal	sendAction(const Network::Authority&,
 				   const char* servicenm,const char* action);
@@ -104,9 +107,6 @@ private:
 
     ODServiceBase&	operator=(const ODServiceBase&) = delete;
     ODServiceBase&	operator=(ODServiceBase &&) = delete;
-
-    void		init(bool islocal,const char* hostname,
-							    bool assignport);
 
     uiRetVal		doAction(const OD::JSON::Object&);
     uiRetVal		doRequest(const OD::JSON::Object&);
