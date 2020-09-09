@@ -239,7 +239,6 @@ void ODServiceBase::startServer( const Network::Authority& auth )
     if ( !auth.isUsable() )
 	return;
 
-    auto* server = new Network::RequestServer( auth );
     if ( auth.isLocal() )
 	odservbaselocservmgr_.setParam( this,
 		new Network::RequestServer( auth.getServerName() ) );
