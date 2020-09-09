@@ -31,10 +31,19 @@ void Well::LogSet::getNames( BufferStringSet& nms ) const
 void Well::LogSet::add( Well::Log* wl )
 {
     if ( !wl ) return;
-    if ( getLog(wl->name()) ) return;
-
-    logs_ += wl;
-    updateDahIntv( *wl );
+    Well::Log* log = getLog( wl->name() );
+    if ( !log )
+    {
+	logs_ += wl;
+	updateDahIntv( *wl );
+    }
+    else
+    {
+	log->removeTopBottomUdfs();
+	log->updateAfterValueChanges();
+	if ( log->isEmpty() )
+	    *log = *wl;
+    }
 }
 
 
