@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odjson.h"
 
-
 /*!\brief The OpendTect service manager */
 
 using namespace Network;
@@ -37,6 +36,7 @@ uiODServiceMgr::uiODServiceMgr()
     , serviceAdded(this)
     , serviceRemoved(this)
 {
+    initMainService( true, nullptr, false );
 }
 
 
@@ -62,7 +62,8 @@ uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    Network::Service* service = new Network::Service( *jsonobj );
+    Network::Service* service = new Network::Service( *jsonobj,
+						    getAuthority(true) );
     if ( !service->isOK() )
     {
 	uirv = service->message();
@@ -85,7 +86,7 @@ uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    const Network::Service service( *jsonobj );
+    const Network::Service service( *jsonobj, getAuthority(true) );
     if ( service.isOK() )
 	removeService( service.getID() );
 
@@ -252,6 +253,7 @@ bool uiODServiceMgr::doParseRequest( const OD::JSON::Object& request,
 {
     if ( request.isPresent(sKeyRegister()) )
     {
+	// Here it should know if calling for a local server or TCP
 	uirv = addService( request.getObject(sKeyRegister()) );
 	return true;
     }

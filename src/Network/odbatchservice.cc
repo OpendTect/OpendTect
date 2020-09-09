@@ -29,7 +29,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 ODBatchService::ODBatchService( bool assignport )
     : ODServiceBase(true,"batchserv",assignport)
-{ /*Not used, only for compatibility */ }
+{
+    init ( true );
+    /*Not used, only for compatibility */
+}
 
 
 ODBatchService::ODBatchService( bool islocal, const char* servernm,
@@ -63,16 +66,12 @@ void ODBatchService::init( bool islocal )
     {
 	if ( clp->hasKey(sKeyODServer()) )
 	{
-	    BufferString odserverstr;
-	    if ( clp->getVal( sKeyODServer(), odserverstr ) )
-	    {
-		if ( islocal )
-		    odauth_.localFromString( odserverstr );
-		else
-		    odauth_.fromString( odserverstr, islocal );
-	    }
+	    BufferString srvrnm;
+	    clp->getVal( sKeyODServer(), srvrnm );
+	    odauth_.localFromString( srvrnm );
 	}
     }
+
     delete clp;
 
     doRegister();
@@ -81,8 +80,9 @@ void ODBatchService::init( bool islocal )
 
 bool ODBatchService::isODMainSlave() const
 {
-    return odauth_.hasAssignedPort();
+    return odauth_.isUsable();
 }
+
 
 
 ODBatchService& ODBatchService::getMgr() // always local;
@@ -91,9 +91,9 @@ ODBatchService& ODBatchService::getMgr() // always local;
 }
 
 
-ODBatchService& ODBatchService::getMgr(bool islocal) // always local;
+ODBatchService& ODBatchService::getMgr( bool ) // always local;
 {
-    mDefineStaticLocalObject(ODBatchService,mgrInstance,(islocal));
+    mDefineStaticLocalObject(ODBatchService,mgrInstance,);
     return mgrInstance;
 }
 

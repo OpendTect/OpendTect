@@ -200,7 +200,7 @@ mGlobal(Batch) BatchProgram& BP();
 
 	if ( BP().isStillOK() )
 	{
-	    ODBatchService& odsm = ODBatchService::getMgr( true );
+	    ODBatchService& odsm = ODBatchService::getMgr();
 	    odsm.processingComplete();
 	}
     }

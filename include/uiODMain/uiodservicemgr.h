@@ -16,7 +16,6 @@
 #include "uiodservice.h"
 
 
-
 /*!\brief The OpendTect service manager
  Manage communication between ODMain and external services/apps so that
  the external app can show behaviour/state consistent with ODMain. Items
@@ -65,6 +64,7 @@ public:
 protected:
 
 				uiODServiceMgr();
+
 				uiODServiceMgr(const uiODServiceMgr&) = delete;
 				uiODServiceMgr(uiODServiceMgr&&) = delete;
 				~uiODServiceMgr();

@@ -37,7 +37,7 @@ public:
 
 protected:
 
-				ODBatchService(bool assignport=false);
+			ODBatchService(bool assignport=false);
 			ODBatchService(const char* hostname,
 			    bool assignport);
 			explicit ODBatchService(bool islocal,

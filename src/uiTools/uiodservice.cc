@@ -52,15 +52,12 @@ void uiODService::init( uiMainWin& mainwin, bool islocal )
     {
 	if ( clp.hasKey(sKeyODServer()) )
 	{
-	    //TODO for local server
 	    BufferString odserverstr;
-	    if ( clp.getVal(sKeyODServer(),odserverstr) )
-	    {
-		if ( islocal )
-		    odauth_.localFromString( odserverstr );
-		else
-		    odauth_.fromString( odserverstr );
-	    }
+	    clp.getVal( sKeyODServer(), odserverstr );
+	    if ( islocal )
+		odauth_.localFromString( odserverstr );
+	    else
+		odauth_.fromString( odserverstr );
 	}
     }
 
@@ -77,7 +74,7 @@ uiODService::~uiODService()
 
 bool uiODService::isODMainSlave() const
 {
-    return odauth_.hasAssignedPort();
+    return odauth_.isUsable();
 }
 
 

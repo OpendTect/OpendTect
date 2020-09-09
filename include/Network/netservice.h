@@ -48,7 +48,7 @@ public:
     typedef ProcID	ID;
 
 			Service(PortNr_Type,const char* hostnm=nullptr);
-			Service(const OD::JSON::Object&);
+			Service(const OD::JSON::Object&,const Authority&);
 			Service(const Service&)		= delete;
 			~Service();
 

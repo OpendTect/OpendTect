@@ -285,9 +285,11 @@ mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
-    ODBatchService& ODSM = ODBatchService::getMgr( false );
+    ODBatchService& ODSM = ODBatchService::getMgr( true );
     jobspec_.pars_.add( ODSM.sKeyODServer(),
-				    ODSM.getAuthority(false).toString(false) );
+			    ODSM.getAuthority( true ).toString( false ) );
+
+
     uiRetVal uirv;
     const PortNr_Type servport = Network::getUsablePort( uirv );
     if ( uirv.isOK() )
@@ -297,7 +299,7 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
     {
 	uiString errmsg = dispatcher().errMsg();
 	uiMSG().error(
-		errmsg.isSet() ? errmsg : tr("Cannot start required program") );
+	    errmsg.isSet() ? errmsg : tr("Cannot start required program") );
 	return false;
     }
 

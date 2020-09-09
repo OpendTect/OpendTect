@@ -32,9 +32,9 @@ Network::Service::Service( PortNr_Type portid, const char* hostnm  )
 }
 
 
-Network::Service::Service( const OD::JSON::Object& par )
+Network::Service::Service( const OD::JSON::Object& par, const Authority& auth )
     : NamedObject()
-    , auth_(GetLocalHostName())
+    , auth_(auth)
 {
     setPID( GetPID() );
     msg_ = useJSON( par );
@@ -74,7 +74,7 @@ bool Network::Service::isOK() const
 
 bool Network::Service::isEmpty() const
 {
-    return !auth_.hasAssignedPort();
+    return !auth_.isUsable();
 }
 
 bool Network::Service::isPortValid() const

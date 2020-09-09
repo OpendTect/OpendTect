@@ -72,7 +72,6 @@ public:
     BufferString	getHost(bool external=false) const;
     PortNr_Type		getPort() const			{ return port_; }
     bool		addressIsValid() const;
-    bool		hasAssignedPort() const		{ return port_ > 0; }
     bool		isUsable() const;
     bool		portIsFree(uiString* errmsg =nullptr) const;
 
@@ -82,7 +81,7 @@ public:
     void		setHost(const char*,bool resolveipv6=false);
     void		setPort( PortNr_Type port )   { port_ = port; }
     void		setFreePort(uiRetVal&);
-
+    bool		hasAssignedPort() const { return port_ > 0; }
 
 private:
 			explicit Authority(const BufferString& servernm);
@@ -98,6 +97,7 @@ private:
     mQtclass(QHostAddress)&	qhostaddr_;
     mQtclass(QString)&	qhost_;
 
+    //Look if these are actually required
     friend class Socket;
 
 };

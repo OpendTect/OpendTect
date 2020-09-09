@@ -64,6 +64,13 @@ ODServiceBase::ODServiceBase( const char* hostname, bool assignport )
 }
 
 
+void ODServiceBase::initMainService( bool islocal, const char* hostname,
+    bool assignport )
+{
+    init( islocal, hostname, assignport );
+}
+
+
 void ODServiceBase::init( bool islocal, const char* hostname,
 							    bool assignport )
 {
@@ -76,7 +83,7 @@ void ODServiceBase::init( bool islocal, const char* hostname,
     else
 	server_ = mainserv ? mainserv->server_ : nullptr;
 
-    if ( server_ || localServer() )
+    if ( isServerOK() )
     {
 	serverismine_ = false;
 	if ( this != mainserv )
@@ -120,7 +127,7 @@ void ODServiceBase::init( bool islocal, const char* hostname,
 	}
     }
 
-    if ( portid>0 )
+    if ( portid>0 || islocal )
     {
 	BufferString servernm( hostname );
 	if ( islocal && servernm.isEmpty() )
@@ -128,8 +135,9 @@ void ODServiceBase::init( bool islocal, const char* hostname,
 	const Network::Authority auth = islocal ?
 			    Network::Authority::getLocal( servernm ) :
 				    Network::Authority( nullptr, portid );
-
 	startServer( auth );
+	if ( !isServerOK() )
+	    return;
     }
 
     if ( islocal )
@@ -175,7 +183,7 @@ bool ODServiceBase::isOK() const
 
 bool ODServiceBase::isOK( bool islocal ) const
 {
-    return getAuthority( islocal ).hasAssignedPort();
+    return getAuthority( islocal ).isUsable();
 }
 
 
@@ -228,14 +236,17 @@ void ODServiceBase::startServer( PortNr_Type portid )
 
 void ODServiceBase::startServer( const Network::Authority& auth )
 {
+    if ( !auth.isUsable() )
+	return;
+
+    auto* server = new Network::RequestServer( auth );
     if ( auth.isLocal() )
 	odservbaselocservmgr_.setParam( this,
 		new Network::RequestServer( auth.getServerName() ) );
     else
 	server_ = new Network::RequestServer( auth, Network::Any );
 
-    if ( (!localServer() || !localServer()->isOK() ) &&
-	 (!server_ || !server_->isOK()) )
+    if ( !isServerOK() )
     {
 	pErrMsg( "startServer - failed" );
 	stopServer();
@@ -246,6 +257,18 @@ void ODServiceBase::startServer( const Network::Authority& auth )
 	theMain( this );
 }
 
+
+bool ODServiceBase::isServerOK() const
+{
+    if (server_)
+	return server_->isOK();
+
+    const Network::RequestServer* localserver = localServer();
+    if ( localserver )
+	return localserver->isOK();
+
+    return false;
+}
 
 void ODServiceBase::stopServer()
 {

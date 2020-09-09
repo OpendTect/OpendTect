@@ -62,9 +62,12 @@ public:
     CNotifier<ODServiceBase,BufferString>		externalAction;
     CNotifier<ODServiceBase,const OD::JSON::Object*>	externalRequest;
 
-    void		setRetVal( const uiRetVal& uirv )	{ uirv_ = uirv;}
+    void		setRetVal( const uiRetVal& uirv )    { uirv_ = uirv;}
 			/* Must be called to set the result of intercepting
 			   either externalAction or externalRequest */
+
+    void		initMainService(bool islocal,const char* hostname,
+							    bool assignport);
 
 protected:
 			ODServiceBase(bool assignport=true);
@@ -117,13 +120,12 @@ private:
     virtual void	startServer(PortNr_Type);
     void		init(bool islocal,const char* hostname,
 							    bool assignport);
-
     uiRetVal		doAction(const OD::JSON::Object&);
     uiRetVal		doRequest(const OD::JSON::Object&);
     uiRetVal		survChangedReq(const OD::JSON::Object&);
     uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
     uiRetVal		doPrepareForClose();
-
+    bool		isServerOK() const;
     void		newConnectionCB(CallBacker*);
     void		packetArrivedCB(CallBacker*);
     void		externalActionCB(CallBacker*);
