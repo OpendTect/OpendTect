@@ -279,6 +279,7 @@ if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
     else()
 	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
     endif()
+    list( APPEND OD_THIRD_PARTY_LIBS libstdc++.so.6  libgcc_s.so.1 )
 endif()
 
 OD_CURRENT_DATE( DATE )
