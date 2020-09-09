@@ -46,12 +46,14 @@ for helpid in ${helpids}
 do
   count=`grep ${helpid} ${tmpfile} 2> /dev/null | wc -l`
   if [ ${count} -lt 1 ]; then
-      if [ ${haserror} -ne 1 ]; then
+      if [[ ${haserror} -ne 1 ]] && ! [[ ${helpid} == mDeepLearning* ]]; then
           echo -n "The following HelpIDs are found in ${headerfile} but are not"
 	  echo " found in any source-code:"
 	  haserror=1
       fi
-      echo " ${helpid}"
+      if ! [[ ${helpid} == mDeepLearning* ]]; then
+          echo " ${helpid}"
+      fi
   fi
 done
 

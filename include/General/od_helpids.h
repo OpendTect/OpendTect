@@ -7,11 +7,6 @@ ________________________________________________________________________
  Date:		March 2014
 ________________________________________________________________________
 
-NOTE: This file belongs to the documentation package and is copied into
-include/General at build from external/doc_csh/ at build. Any changes in the
-include/General copy will be discarded at build. Make changes in the copy at
-external/doc_csh instance of it.
-
 -*/
 
 //General 000
@@ -61,11 +56,6 @@ external/doc_csh instance of it.
 #define		mhandleExistingGeometryHelpID			0x00004014
 #define		mSEGYReadStarterHelpID				0x00004015
 #define		mSingleBatchJobDispatcherParsHelpID		0x00004016
-// General Installation 05
-#define		mODInstMgrHelpID				0x00005001
-#define		mODInstPkgMgrHelpID				0x00005002
-#define		mODInstMgrcheckInstDirHelpID			0x00005003
-#define		mODInstMgrgetPackageChoiceHelpID		0x00005004
 //Object-Management 008
 // Object-Management Basic 00
 #define		mSetDataDirHelpID				0x00800001
