@@ -415,7 +415,7 @@ BinID PosInfo::CubeData::centerPos() const
 }
 
 
-BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
+BinID PosInfo::CubeData::nearestBinID( const BinID& bid, idx_type mxoff ) const
 {
     if ( isEmpty() )
 	return BinID(0,0);
@@ -433,7 +433,7 @@ BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
 
     BinID ret( 0, 0 );
     pos_type minnroff = mUdf( pos_type );
-    for ( idx_type idx=inlidx-2; idx<=inlidx+2; idx++ )
+    for ( idx_type idx=inlidx-mxoff; idx<=inlidx+mxoff; idx++ )
     {
 	if ( !validIdx(idx) )
 	    continue;

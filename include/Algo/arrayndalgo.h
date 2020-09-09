@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "cubedata.h"
 #include "cubesubsel.h"
 #include "enums.h"
+#include "horsubsel.h"
 #include "linesdata.h"
 #include "linesubsel.h"
 #include "mathfunc.h"
@@ -2424,5 +2425,111 @@ bool doWork( od_int64 start, od_int64 stop, int )
     bool			havesubsel_	    = false;
 
     const od_int64		totalnr_;
+
+};
+
+
+/*!<Pads/extends data in a 3D array by copying the nearest trace */
+
+template <class T>
+mClass(Algo) Array3DNearPadder : public ParallelTask
+{ mODTextTranslationClass(Array3DNearPadder)
+public:
+
+    mUseType( Survey, HorSubSel );
+
+    Array3DNearPadder( int padsize, const PosInfo::LineCollData& lcd,
+		       const CubeSubSel& css, Array3D<T>& arr )
+    : ParallelTask("Padding by nearest trace")
+    , lcd_(lcd)
+    , css_(css)
+    , arr_(arr)
+    , padsize_(padsize)
+    {
+	const HorSubSel& hss = css.horSubSel();
+	if ( lcd_.totalSizeInside(hss)==mCast(int,hss.totalSize()) )
+	    totalnr_ = 0;
+	else
+	    totalnr_ = arr_.totalSize()/arr_.getSize(2);
+
+    }
+
+
+    uiString message() const	{ return tr("Padding by nearest trace"); }
+    uiString nrDoneText() const { return sTracesDone(); }
+
+protected:
+
+    od_int64 nrIterations() const	{ return totalnr_; }
+
+    bool doWork( od_int64 start, od_int64 stop, int )
+    {
+	const Array3DInfoImpl info( css_.nrInl(), css_.nrCrl(), css_.nrZ() );
+	const CubeHorSubSel chss( css_.cubeHorSubSel() );
+	const int nrtrcsp = info.getSize(2);
+
+	T* arrptr = arr_.getData();
+	ValueSeries<T>* datastor = arr_.getStorage();
+	const bool hasarrayptr = arrptr;
+	const bool hasstorage = datastor;
+
+	const Array2DInfoImpl hinfo( info.getSize(0), info.getSize(1) );
+	ArrayNDIter hiter( hinfo );
+	hiter.setGlobalPos( start );
+
+	const od_int64 nbytes = nrtrcsp * sizeof(T);
+	const PosInfo::CubeData* cd = lcd_.asCubeData();
+
+	for ( od_int64 idx=start; idx<=stop; idx++, hiter.next() )
+	{
+	    const int inlidx = hiter[0];
+	    const int crlidx = hiter[1];
+	    const BinID bid( chss.binID4RowCol(RowCol(inlidx,crlidx)) );
+
+	    if ( cd->includes( bid ) )
+		continue;
+
+	    const BinID nrbid = cd->nearestBinID( bid, padsize_ );
+	    if ( abs((bid-nrbid).inl())>padsize_ ||
+		 abs((bid-nrbid).crl())>padsize_ )
+		continue;
+
+	    const int nrinlidx = chss.idx4Inl( nrbid.inl() );
+	    const int nrcrlidx = chss.idx4Crl( nrbid.crl() );
+
+	    if ( hasarrayptr )
+	    {
+		const od_int64 off = info.getOffset( inlidx, crlidx, 0 );
+		const od_int64 nroff = info.getOffset( nrinlidx, nrcrlidx, 0 );
+		OD::sysMemCopy( arrptr+off, arrptr+nroff, nbytes );
+	    }
+	    else if ( hasstorage )
+	    {
+		const od_int64 off = info.getOffset( inlidx, crlidx, 0 );
+		const od_int64 nroff = info.getOffset( nrinlidx, nrcrlidx, 0 );
+		for ( int idz=0; idz<nrtrcsp; idz++ )
+		{
+		    const T val = datastor->value( nroff+idz );
+		    datastor->setValue( off+idz, val );
+		}
+	    }
+	    else
+	    {
+		for ( int idz=0; idz<nrtrcsp; idz++ )
+		{
+		    const T val = arr_.get( nrinlidx, nrcrlidx, idz );
+		    arr_.set( inlidx, crlidx, idz, val );
+		}
+	    }
+	}
+
+	return true;
+    }
+
+    Array3D<T>&			arr_;
+    const PosInfo::LineCollData&	lcd_;
+    const CubeSubSel&		css_;
+    od_int64			totalnr_;
+    int				padsize_;
 
 };
