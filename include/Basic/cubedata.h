@@ -72,7 +72,7 @@ public:
 			{ return getFullHorSubSel( fss, false ); }
 
     BinID		minStep() const;
-    BinID		nearestBinID(const BinID&) const;
+    BinID		nearestBinID(const BinID&, idx_type maxoffset=2) const;
     BinID		centerPos() const;  //!< not exact
 
     bool		includes( const BinID& bid ) const
