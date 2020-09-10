@@ -53,6 +53,8 @@ uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
     uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
 			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
     appl_->menuMgr().toolsMnu()->insertAction( action );
+
+    updateMenu( nullptr );
 }
 
 
@@ -63,6 +65,9 @@ void uiPresMakerPIMgr::updateMenu( CallBacker* )
 	dlg_->close();
 	deleteAndZeroPtr( dlg_ );
     }
+
+    appl_->menuMgr().dtectTB()->addButton( "ppt", tr("Presentation Maker"),
+					   mCB(this,uiPresMakerPIMgr,mnuCB) );
 }
 
 
