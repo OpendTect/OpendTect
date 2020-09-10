@@ -56,6 +56,7 @@ set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/
 # replace paths in miniconda3 dir
 echo "Setting up miniconda3..."
 foreach instrepldir ( $instrepldirs)
+    if (  -d  "${condainstdir}/${instrepldir}" )  then
 	if ( ! -w "${condainstdir}/${instrepldir}" ) then
 		chmod og+w ${condainstdir}/${instrepldir}
 	endif
@@ -69,6 +70,7 @@ foreach instrepldir ( $instrepldirs)
         else
                 echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
         endif
+    endif
 end
 
 # replace paths in environment dirs
@@ -83,8 +85,9 @@ if ("$envdirs" != "") then
                 endif
                 set origdir=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
                 foreach envrepldir ( $envrepldirs )
+		    if (  -d  ${envrepldir} ) then
 			if ( ! -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
-				chmod og+w "${condainstdir}/envs/${envdir}/{envrepldir}"
+				chmod og+w "${condainstdir}/envs/${envdir}/${envrepldir}"
 			endif
                         if ( -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
                                 foreach fil (`ls --hide='~*' $condainstdir/envs/$envdir/$envrepldir`)
@@ -96,6 +99,7 @@ if ("$envdirs" != "") then
                         else
                                 echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
                         endif
+		    endif
                 end
         end
 endif
