@@ -1,7 +1,7 @@
 [![OpendTect header logo][header-img]](https://dgbes.com/index.php/software#free)
 [![Example][example-img]]()
 
-OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Geo_Radar data. The software is written in C++ and the same codebase compiles and runs on [Windows, MacOS and Linux](https://dgbes.com/index.php/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/index.php/services/research-development#develop-your-own-plugins) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/index.php/download).
+OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on [Windows, MacOS and Linux](https://dgbes.com/index.php/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/index.php/services/research-development#develop-your-own-plugins) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/index.php/download).
 
 This source code is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html) license. Commercial and Academic licenses are offered by [dGB Earth Sciences](https://dgbes.com) for [OpendTect Pro](https://dgbes.com/index.php/software#commercial), an extension of OpendTect that adds special functions for professional users and the potential to [rent or purchase commercial plugins](https://prostore.dgbes.com/) offering access to [unique seismic interpretation workflows](https://dgbes.com/index.php/software/plugins). The differences in functionality of the open source OpendTect, commercial OpendTect Pro and commercial plugins is compared [here](https://dgbes.com/index.php/software/supported-functionality).
 
@@ -77,7 +77,7 @@ Configure CMake ensuring to set the following variables:
 - OSG_DIR="OpenSceneGraph install location"
 - HDF5_ROOT="HDF5 install location" (optional)
 
-Start msvc2017, open the OpendTect build solution and build.
+Start Visual Studio 2019, open the OpendTect build solution and build.
 
 ### MacOS
 ### Linux
@@ -99,13 +99,13 @@ You can contribute to the enhancement of OpendTect either by:
 - providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
 - or independently by developing and releasing open source plugins from your own Github or equivalent repository. See the [wmplugins repository](https://github.com/waynegm/OpendTect-Plugins) as an example of this approach.
 
-An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](http://doc.opendtect.org/6.4.0/doc/Programmer/overview.html).
+An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](http://doc.opendtect.org/6.6.0/doc/Programmer/Default.htm#6_principles_and_best_practices_in_opendtect_coding.htm)
 
 ## Contacts and More Information
 
 - [dGB Earth Sciences](https://dgbes.com/index.php/contact)
 - [OpendTect Documentation](https://dgbes.com/index.php/support#documentation)
-- [OpendTect Programmer's Manual](http://doc.opendtect.org/6.4.0/doc/Programmer/index.html)
+- [OpendTect Programmer's Manual](http://doc.opendtect.org/6.6.0/doc/Programmer/Default.htm)
 - [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
 [header-img]: doc/pics/opendtect_header.png
