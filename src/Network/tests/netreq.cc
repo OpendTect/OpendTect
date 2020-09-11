@@ -52,7 +52,7 @@ public:
 
     bool runTest( bool sendkill, bool multithreaded )
     {
-	Network::RequestConnection conn( *authority_, false, multithreaded );
+	Network::RequestConnection conn( *authority_, multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
 	      toString(conn.errMsg()) );
@@ -138,7 +138,7 @@ public:
 	    //
 	    //Further, the errorcode should be set correctly.
 
-	    Network::RequestConnection conn2( *authority_, false,
+	    Network::RequestConnection conn2( *authority_,
 					      multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
@@ -275,13 +275,13 @@ int mTestMainFnName(int argc, char** argv)
     clParser().getKeyedInfo( "serverapp", echoapp );
     OS::MachineCommand echocmd( echoapp );
     echocmd.addKeyedArg( portkey, runner->authority_->getPort() );
-    echocmd.addFlag( "quiet" );
+    //if ( clParser().hasKey("quiet") )
+	echocmd.addFlag( "quiet" );
 
     OS::CommandExecPars execpars( OS::RunInBG );
     OS::CommandLauncher cl( echocmd );
 
-    if ( !clParser().hasKey("noechoapp")
-      && !cl.execute(execpars))
+    if ( !clParser().hasKey("noechoapp") && !cl.execute(execpars) )
     {
 	od_ostream::logStream() << "Cannot start " << echoapp << "\n";
 	return 1;
@@ -295,7 +295,7 @@ int mTestMainFnName(int argc, char** argv)
     CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
 
-    runner = 0;
+    runner = nullptr;
 
     return retval;
 }

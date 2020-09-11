@@ -114,7 +114,7 @@ public:
 		  << " sent packet "
 		  << packet->subID() << " size " << packet->payloadSize()
 		  << od_endl;
-	    packet = 0;
+	    packet = nullptr;
 	}
     }
 
