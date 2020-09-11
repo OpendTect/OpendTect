@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "oddirs.h"
 #include "odjson.h"
+#include "odver.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -1083,6 +1084,7 @@ void IOPar::setToUser( const char* keyw )
 
 void IOPar::setStdCreationEntries()
 {
+    set( sKey::Version(), GetFullODVersion() );
     setToDateTime( sKey::CrAt() );
     setToUser( sKey::CrBy() );
 }
