@@ -487,7 +487,7 @@ int ExitProgram( int ret )
     is_exiting_ = true;
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
-	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
+	std::cerr << "\nExitProgram (PID: " << GetPID() << ")" << std::endl;
 #ifndef __win__
 	int dateres mUnusedVar = system( "date" );
 #endif

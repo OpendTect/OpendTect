@@ -69,12 +69,12 @@ bool TestRunner::testNetSocket( bool closeserver )
 	OS::CommandLauncher cl( servercmd_ );
 	if ( !cl.execute(OS::RunInBG) )
 	{
-	    od_ostream::logStream() << "Cannot start " << servercmd_.program()
-				<< ": " << toString(cl.errorMsg()) << od_endl;
+	    logStream() << "Cannot start " << servercmd_.program()
+			<< ": " << toString(cl.errorMsg()) << od_endl;
 	    return false;
 	}
 
-	Threads::sleep( 15 );
+	Threads::sleep( 5 );
     }
     else
     {
@@ -218,7 +218,7 @@ int mTestMainFnName(int argc, char** argv)
     CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
     const int res = app.exec();
 
-    runner = 0;
+    runner = nullptr;
 
     return res;
 }
