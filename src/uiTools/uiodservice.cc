@@ -24,23 +24,22 @@
 
 
 
-uiODService::uiODService( uiMainWin& mainwin, bool islocal,
-				const char* servernm, bool assignport )
-    : ODServiceBase(islocal, servernm, assignport)
+uiODService::uiODService( uiMainWin& mainwin )
+   : ODServiceBase()
 {
-    initService( mainwin, islocal );
+    init( mainwin, true );
 }
 
 
-uiODService::uiODService(uiMainWin& mainwin, const char* hostname,
-							    bool assignport)
-    : ODServiceBase(hostname, assignport)
+uiODService::uiODService( uiMainWin& mainwin, bool assignport,
+			  Network::SpecAddr spec )
+    : ODServiceBase(assignport,spec)
 {
-    initService( mainwin, true );
+    init( mainwin, false );
 }
 
 
-void uiODService::initService( uiMainWin& mainwin, bool islocal )
+void uiODService::init( uiMainWin& mainwin, bool islocal )
 {
     if ( !isMainService() )
 	return;
@@ -53,12 +52,11 @@ void uiODService::initService( uiMainWin& mainwin, bool islocal )
 	clp.setKeyHasValue( sKeyODServer() );
 	if ( clp.hasKey(sKeyODServer()) )
 	{
-	    //TODO for local server
 	    BufferString odserverstr;
 	    if ( clp.getKeyedInfo(sKeyODServer(),odserverstr) )
 	    {
 		if ( islocal )
-		    odauth_.localFromString( odserverstr.buf() );
+		    odauth_.localFromString( odserverstr );
 		else
 		    odauth_.fromString( odserverstr );
 	    }

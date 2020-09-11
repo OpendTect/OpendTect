@@ -33,7 +33,7 @@ public:
 
     bool		listen(SpecAddr=Any,PortNr_Type port=0);
 			//!<If Any, server will listen to all network interfaces
-    bool		listen(const char* servernm, uiRetVal& ret);
+    bool		listen(const char* servernm,uiRetVal&);
     bool		isListening() const;
     PortNr_Type		port() const;
     Authority		authority() const;

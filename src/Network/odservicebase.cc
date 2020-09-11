@@ -15,6 +15,7 @@
 #include "commandlineparser.h"
 #include "dbman.h"
 #include "filepath.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "netreqconnection.h"
 #include "netreqpacket.h"
@@ -24,24 +25,37 @@
 #include "settings.h"
 
 
-ODServiceBase::ODServiceBase( bool islocal, const char* servernm,
-							    bool assignport )
+ODServiceBase::ODServiceBase()
     : externalAction(this)
     , externalRequest(this)
 {
-    init( islocal, servernm, assignport );
+    addLocalServer();
 }
 
 
-ODServiceBase::ODServiceBase( const char* hostname, bool assignport )
+ODServiceBase::ODServiceBase( bool assignport, Network::SpecAddr spec )
     : externalAction(this)
     , externalRequest(this)
 {
-    init( false, hostname, assignport );
+    addTCPServer( assignport, spec );
 }
 
 
-void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
+bool ODServiceBase::addLocalServer()
+{
+    init( true );
+    return isOK( true );
+}
+
+
+bool ODServiceBase::addTCPServer( bool assignport, Network::SpecAddr spec )
+{
+    init( false, assignport, spec );
+    return isOK( false );
+}
+
+
+void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 {
     ODServiceBase* mainserv = theMain();
     if ( islocal )
@@ -49,7 +63,7 @@ void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
     else
 	tcpserver_ = mainserv ? mainserv->tcpserver_ : nullptr;
 
-    if ( (!islocal&&tcpserver_) || (islocal&&localserver_) )
+    if ( isServerOK(islocal) )
     {
 	serverismine_ = false;
 	if ( this != mainserv )
@@ -83,7 +97,7 @@ void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
         else if ( assignport && defport>0
                          && Network::isPortFree((PortNr_Type) defport) )
             portid = (PortNr_Type) defport;
-        else if ( assignport )
+        else if ( assignport && !islocal )
         {
             uiRetVal uirv;
             portid = Network::getUsablePort( uirv );
@@ -95,10 +109,15 @@ void ODServiceBase::init( bool islocal, const char* hostname, bool assignport )
         }
     }
 
-    const Network::Authority auth = islocal ?
-				Network::Authority::getLocal( hostname ) :
-				Network::Authority( hostname, portid );
-    if ( !startServer(auth) )
+    if ( portid>0 || islocal )
+    {
+	Network::RequestServer* server = islocal
+	    ? new Network::RequestServer( BufferString("odservice:",GetPID()) )
+	    : new Network::RequestServer( portid, spec );
+	useServer( server, islocal );
+    }
+
+    if ( !isServerOK(islocal) )
 	return;
 
     if ( islocal )
@@ -127,10 +146,10 @@ bool ODServiceBase::isOK( bool islocal	) const
 }
 
 
-Network::Authority ODServiceBase::getAuthority( bool islocal  ) const
+Network::Authority ODServiceBase::getAuthority( bool islocal ) const
 {
-    Network::RequestServer* server = islocal ? localserver_ :
-	tcpserver_;
+    Network::RequestServer* server =
+		islocal ? localserver_ : tcpserver_;
     return server ? server->getAuthority() : Network::Authority();
 }
 
@@ -153,18 +172,20 @@ void ODServiceBase::pyenvChangeCB( CallBacker* cb )
 { doPyEnvChange(cb); }
 
 
-bool ODServiceBase::startServer( const Network::Authority& auth )
+bool ODServiceBase::useServer( Network::RequestServer* server, bool islocal )
 {
-    if ( !auth.isUsable() )
+    if ( !server || !server->isOK() )
+    {
+	delete server;
 	return false;
+    }
 
-    auto* server = new Network::RequestServer( auth );
-    if ( auth.isLocal() )
+    if ( islocal )
 	localserver_ = server;
     else
 	tcpserver_ = server;
 
-    if ( !server || !server->isOK() )
+    if ( !isServerOK(islocal) )
     {
 	pErrMsg( "startServer - failed" );
 	stopServer();
@@ -175,6 +196,15 @@ bool ODServiceBase::startServer( const Network::Authority& auth )
 	theMain( this );
 
     return true;
+}
+
+
+bool ODServiceBase::isServerOK( bool islocal ) const
+{
+    if ( islocal )
+	return localserver_ ? localserver_->isOK() : false;
+
+    return tcpserver_ ? tcpserver_->isOK() : false;
 }
 
 
@@ -431,7 +461,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to service %1 on %2")
-	    .arg(servicenm).arg(auth.toString(true)) );
+			    .arg(servicenm).arg(auth.toString()) );
     }
 
     RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
@@ -443,7 +473,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
     if ( !conn->sendPacket(*packet) )
     {
 	return uiRetVal(tr("Message failure to service %1 on %2")
-	    .arg(servicenm).arg(auth.toString(true)) );
+			    .arg(servicenm).arg(auth.toString()) );
     }
 
     ConstRefMan<Network::RequestPacket> receivedpacket =
@@ -474,7 +504,7 @@ uiRetVal ODServiceBase::sendRequest( const Network::Authority& auth,
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to %1 server on %2")
-	    .arg(servicenm).arg(auth.toString(true)) );
+			    .arg(servicenm).arg(auth.toString()) );
     }
 
     RefMan<Network::RequestPacket> packet = new Network::RequestPacket;

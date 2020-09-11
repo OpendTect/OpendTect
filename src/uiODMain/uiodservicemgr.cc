@@ -18,10 +18,6 @@
 #include "keystrs.h"
 #include "oddirs.h"
 #include "odjson.h"
-#include "genc.h"
-#include "systeminfo.h"
-#include "netsocket.h"
-
 
 /*!\brief The OpendTect service manager */
 
@@ -35,12 +31,10 @@ uiODServiceMgr& uiODServiceMgr::getMgr()
 
 
 uiODServiceMgr::uiODServiceMgr()
-    : uiODService(*uiMain::theMain().topLevel(),false)
+    : uiODService(*uiMain::theMain().topLevel())
     , serviceAdded(this)
     , serviceRemoved(this)
 {
-    BufferString servernm( Socket::sKeyLocalHost() );
-    init( true, servernm, false );
 }
 
 
@@ -66,8 +60,7 @@ uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    Network::Service* service = new Network::Service( *jsonobj,	
-							getAuthority( true ) );
+    auto* service = new Network::Service( *jsonobj, getAuthority(true) );
     if ( !service->isOK() )
     {
 	uirv = service->message();
@@ -81,8 +74,7 @@ uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 }
 
 
-uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj,
-								bool islocal )
+uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj )
 {
     uiRetVal uirv;
     if ( !jsonobj )
@@ -91,7 +83,7 @@ uiRetVal uiODServiceMgr::removeService( const OD::JSON::Object* jsonobj,
 	return uirv;
     }
 
-    const Network::Service service( *jsonobj, getAuthority(islocal) );
+    const Network::Service service( *jsonobj, getAuthority(true) );
     if ( service.isOK() )
 	removeService( service.getID() );
 
@@ -258,12 +250,13 @@ bool uiODServiceMgr::doParseRequest( const OD::JSON::Object& request,
 {
     if ( request.isPresent(sKeyRegister()) )
     {
+	// Here it should know if calling for a local server or TCP
 	uirv = addService( request.getObject(sKeyRegister()) );
 	return true;
     }
     else if ( request.isPresent(sKeyDeregister()) )
     {
-	uirv = removeService( request.getObject(sKeyDeregister()), true );
+	uirv = removeService( request.getObject(sKeyDeregister()) );
 	return true;
     }
     else if ( request.isPresent(sKeyStart()) )

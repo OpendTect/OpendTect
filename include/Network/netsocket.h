@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 #include "networkcommon.h"
 
+#include "threadlock.h"
 #include "uistring.h"
 
 template <class T> class DataInterpreter;
 mFDQtclass(QTcpSocket)
 mFDQtclass(QLocalSocket)
 mFDQtclass(QTcpSocketComm)
-
-#define mTimeOut 30000
 
 
 namespace Network
@@ -119,10 +118,10 @@ private:
 				//!<\note Lock should be locked when calling
 
     mutable uiString		errmsg_;
-    mutable Threads::Lock	lock_;
     QString			getSocketErrMsg() const;
+    mutable Threads::Lock	lock_;
 
-    int				timeout_;
+    int				timeout_ = 30000;
     bool			noeventloop_;
 
     mQtclass(QTcpSocket)*	qtcpsocket_	= nullptr;

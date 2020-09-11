@@ -136,8 +136,9 @@ mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
 
+				RequestServer(const char* servernm);
 				RequestServer(PortNr_Type,SpecAddr=Any);
-				RequestServer(const Authority&);
+				RequestServer(const Authority&,SpecAddr=Any);
 				~RequestServer();
 
     bool			isOK() const;

@@ -41,11 +41,9 @@ public:
     void		setBackground(bool yn);
 
 protected:
-
-		    uiODService(uiMainWin&, const char* hostname,
-							bool assignport=true);
-		    explicit uiODService(uiMainWin&, bool islocal,
-			    const char* servernm=nullptr,bool assignport=true);
+			uiODService(uiMainWin&);
+    explicit		uiODService(uiMainWin&,bool assignport,
+				    Network::SpecAddr=Network::Any);
 
     uiRetVal		sendAction(const char* act) const;
     uiRetVal		sendRequest(const char* reqkey,
@@ -63,7 +61,7 @@ private:
     uiODService&	operator=(const uiODService&) = delete;
     uiODService&	operator=(uiODService &&) = delete;
 
-    void		initService(uiMainWin&,bool);
+    void		init(uiMainWin&,bool);
 
     uiRetVal		doRegister();
     uiRetVal		doDeRegister();
