@@ -34,3 +34,8 @@ set ( OD_MODULE_SOURCES
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc webstreamsource.cc )
 OD_INIT_MODULE()
+
+# The test programs are independant, but it is handy to compile the server app
+# when the client app is build and run as the target:
+add_dependencies( test_netreq test_netreqechoserver )
+add_dependencies( test_netsocket test_echoserver )

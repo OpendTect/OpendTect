@@ -66,7 +66,7 @@ public:
 		break;
 	    }
 
-	    logStream() << "\nEchoing " << readsize << " bytes" << od_endl;
+	    //logStream() << "\nEchoing " << readsize << " bytes" << od_endl;
 
 	    const char* writeptr = data;
 	    const FixedString writestr( writeptr+sizeof(int) );
