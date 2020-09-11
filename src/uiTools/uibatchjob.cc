@@ -290,19 +290,14 @@ mImplClassFactory( uiBatchJobDispatcherLauncher, factory )
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
-    ODBatchService& ODSM = ODBatchService::getMgr( false );
+    ODBatchService& ODSM = ODBatchService::getMgr();
     jobspec_.pars_.add( ODSM.sKeyODServer(),
-				ODSM.getAuthority(false).toString(false) );
-    uiRetVal uirv;
-    const PortNr_Type servport = Network::getUsablePort(uirv);
-    if (uirv.isOK())
-	jobspec_.pars_.add(Network::Server::sKeyPort(), servport);
-
+			ODSM.getAuthority( true ).toString() );
     if ( !dispatcher().go(jobspec_) )
     {
 	uiRetVal ret( tr("Cannot start program %1").arg(jobspec_.prognm_) );
 	ret.add( dispatcher().errMsg() );
-	gUiMsg(p).error( uirv );
+	gUiMsg(p).error( ret );
 	return false;
     }
 

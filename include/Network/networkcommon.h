@@ -28,8 +28,7 @@ namespace Network
 
 class Socket;
 
-enum SpecAddr { Any, IPv4, IPv6, Broadcast, LocalIPv4, LocalIPv6, Local,
-									None };
+enum SpecAddr { Any, IPv4, IPv6, Broadcast, LocalIPv4, LocalIPv6, None };
 
 
 mGlobal(Network) PortNr_Type getUsablePort(uiRetVal&,PortNr_Type firstport =0,
@@ -39,7 +38,6 @@ mGlobal(Network) PortNr_Type getUsablePort(uiRetVal&,PortNr_Type firstport =0,
 mGlobal(Network) PortNr_Type getUsablePort(PortNr_Type firstport=0);
 mGlobal(Network) bool isPortFree(PortNr_Type port,uiString* errmsg=nullptr);
 mGlobal(Network) PortNr_Type getNextCandidatePort();
-mGlobal(Network) bool isLocal(SpecAddr);
 
 
 /*\brief
@@ -68,9 +66,9 @@ public:
     BufferString	getServerName() const;
     SpecAddr		serverAddress() const;
 
-    BufferString	toString(bool external=false) const;
+    BufferString	toString() const;
     BufferString	getUserInfo() const		{ return userinfo_; }
-    BufferString	getHost(bool external=false) const;
+    BufferString	getHost() const;
     PortNr_Type		getPort() const			{ return port_; }
     bool		addressIsValid() const;
     bool		isUsable() const;
@@ -81,7 +79,6 @@ public:
     void		setUserInfo( const char* inf )	{ userinfo_ = inf; }
     void		setHost(const char*,bool resolveipv6=false);
     void		setPort( PortNr_Type port )	{ port_ = port; }
-    void		setLocalAddress();
     void		setFreePort(uiRetVal&);
 
 private:
@@ -96,7 +93,7 @@ private:
     mQtclass(QHostAddress)&	qhostaddr_;
     mQtclass(QString)&		qhost_;
 
-    BufferString	    servernm_;
+    BufferString	servernm_;
 
     bool		hasAssignedPort() const { return port_ > 0; }
 

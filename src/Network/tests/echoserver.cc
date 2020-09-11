@@ -22,9 +22,9 @@ class EchoServer : public CallBacker
 {
 public:
     EchoServer( PortNr_Type startport, unsigned short timeout )
-	: server_(false)
-	, close_( false )
+	: close_( false )
 	, timeout_( timeout )
+	, server_(false)
     {
 	mAttachCB( server_.readyRead, EchoServer::dataArrivedCB );
 

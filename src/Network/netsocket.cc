@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "systeminfo.h"
 
 #include <limits.h>
-#include <QLocalSocket>
 
 #include "qtcpsocketcomm.h"
+#include <QLocalSocket>
 
 # define mCheckThread \
     if ( thread_!=Threads::currentThread() ) \
@@ -29,8 +29,7 @@ ________________________________________________________________________
 
 
 Network::Socket::Socket( bool islocal, bool haveevloop )
-    : timeout_(mTimeOut)
-    , noeventloop_( !haveevloop )
+    : noeventloop_( !haveevloop )
     , disconnected( this )
     , error( this )
     , readyRead( this )
@@ -52,7 +51,6 @@ Network::Socket::Socket( bool islocal, bool haveevloop )
 
 Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     : qtcpsocket_(s)
-    , timeout_(mTimeOut)
     , noeventloop_( !haveevloop )
     , disconnected( this )
     , readyRead( this )
@@ -66,7 +64,6 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
 
 Network::Socket::Socket( QLocalSocket* s, bool haveevloop )
     : qlocalsocket_(s)
-    , timeout_(30000)
     , noeventloop_(!haveevloop)
     , disconnected(this)
     , readyRead(this)
@@ -83,7 +80,13 @@ Network::Socket::~Socket()
     socketcomm_->disconnect();
     mCheckThread;
     socketcomm_->deleteLater();
-    if ( ownssocket_ ) qtcpsocket_->deleteLater();
+    if ( ownssocket_ )
+    {
+	if ( qtcpsocket_ )
+	    qtcpsocket_->deleteLater();
+	if ( qlocalsocket_ )
+	    qlocalsocket_->deleteLater();
+    }
 }
 
 
@@ -103,12 +106,10 @@ bool Network::Socket::connectToHost( const Authority& auth, bool wait )
 	    return false;
 	}
 
-	qlocalsocket_->connectToServer(toString(auth.getPort()));
-
+	qlocalsocket_->connectToServer( auth.getServerName().buf() );
     }
     else
     {
-
 	const QAbstractSocket::SocketState state = qtcpsocket_->state();
 	if ( state != QAbstractSocket::UnconnectedState )
 	{
@@ -117,12 +118,12 @@ bool Network::Socket::connectToHost( const Authority& auth, bool wait )
 	}
 
 	const PortNr_Type port = auth.getPort();
-	if (auth.addressIsValid())
-	    qtcpsocket_->connectToHost(auth.qhostaddr_, port);
+	if ( auth.addressIsValid() )
+	    qtcpsocket_->connectToHost( auth.qhostaddr_, port );
 	else
-	    qtcpsocket_->connectToHost(auth.qhost_, port);
+	    qtcpsocket_->connectToHost( auth.qhost_, port );
 
-	if (wait)
+	if ( wait )
 	    return waitForConnected();
     }
 
@@ -149,12 +150,10 @@ bool Network::Socket::disconnectFromHost( bool wait )
     }
     else
     {
-
 	qtcpsocket_->disconnectFromHost();
 	const QAbstractSocket::SocketState state = qtcpsocket_->state();
-	if (wait && state != QAbstractSocket::UnconnectedState)
+	if ( wait && state != QAbstractSocket::UnconnectedState )
 	    res = qtcpsocket_->waitForDisconnected( timeout_ );
-
     }
 
     if ( res )
@@ -171,8 +170,8 @@ bool Network::Socket::isBad() const
     if ( isLocal() )
     {
 	const QLocalSocket::LocalSocketState state = qlocalsocket_->state();
-	return state == QLocalSocket::UnconnectedState
-	    || state == QLocalSocket::ClosingState;
+	return state == QLocalSocket::UnconnectedState ||
+	       state == QLocalSocket::ClosingState;
     }
 
     const QAbstractSocket::SocketState state = qtcpsocket_->state();
@@ -195,30 +194,26 @@ bool Network::Socket::isConnected() const
 
 od_int64 Network::Socket::bytesAvailable() const
 {
-    od_int64 res = isLocal() ? qlocalsocket_->bytesAvailable() :
-					    qtcpsocket_->bytesAvailable();
+    od_int64 res = isLocal() ? qlocalsocket_->bytesAvailable()
+			     : qtcpsocket_->bytesAvailable();
     if ( res || !noeventloop_ )
 	return res;
 
     //Force a trigger if noeventloop. Not really needed, but
     //Makes it safer. Could be any time, but 1ms will do.
-
     if ( isLocal() )
-	qlocalsocket_->waitForReadyRead(1);
+	qlocalsocket_->waitForReadyRead( 1 );
     else
 	qtcpsocket_->waitForReadyRead( 1 );
 
-    res = isLocal() ? qlocalsocket_->bytesAvailable() :
-						qtcpsocket_->bytesAvailable();
-
-    return res;
+    return isLocal() ? qlocalsocket_->bytesAvailable()
+		    : qtcpsocket_->bytesAvailable();
 }
 
 
 void Network::Socket::abort()
 {
     mCheckThread;
-
     if ( isLocal() )
 	qlocalsocket_->abort();
     else
@@ -228,8 +223,8 @@ void Network::Socket::abort()
 
 QString Network::Socket::getSocketErrMsg() const
 {
-    return isLocal() ? qlocalsocket_->errorString() :
-						qtcpsocket_->errorString();
+    return isLocal() ? qlocalsocket_->errorString()
+		     : qtcpsocket_->errorString();
 }
 
 
@@ -300,11 +295,11 @@ bool Network::Socket::waitForWrite( bool forall ) const
 {
     if ( isLocal() )
     {
-	while (qlocalsocket_->bytesToWrite())
+	while ( qlocalsocket_->bytesToWrite() )
 	{
 	    od_int64 oldpayload = qlocalsocket_->bytesToWrite();
 
-	    qlocalsocket_->waitForBytesWritten(timeout_);
+	    qlocalsocket_->waitForBytesWritten( timeout_ );
 
 	    if ( oldpayload == qlocalsocket_->bytesToWrite() )
 	    {
@@ -312,7 +307,7 @@ bool Network::Socket::waitForWrite( bool forall ) const
 		return false;
 	    }
 
-	    if (!forall)
+	    if ( !forall )
 		break;
 	}
     }
@@ -330,10 +325,11 @@ bool Network::Socket::waitForWrite( bool forall ) const
 		return false;
 	    }
 
-	    if (!forall)
+	    if ( !forall )
 		break;
 	}
     }
+
     return true;
 }
 
@@ -418,12 +414,6 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
     }
 
     return ReadOK;
-}
-
-
-uiString Network::Socket::noConnErrMsg() const
-{
-    return tr("No connection");
 }
 
 
@@ -523,6 +513,11 @@ Network::Socket::ReadStatus Network::Socket::read(
 }
 
 
+uiString Network::Socket::noConnErrMsg() const
+{
+    return tr("No connection");
+}
+
 
 bool Network::Socket::waitForConnected() const
 {
@@ -537,10 +532,10 @@ bool Network::Socket::waitForConnected() const
 	{
 	    qlocalsocket_->waitForConnected(timeout_);
 	    state = qlocalsocket_->state();
-	    if (state == QLocalSocket::ConnectedState)
+	    if ( state == QLocalSocket::ConnectedState )
 		return true;
 
-	    errmsg_.setFrom(qlocalsocket_->errorString());
+	    errmsg_.setFrom( qlocalsocket_->errorString() );
 
 	    return false;
 	}
@@ -548,14 +543,14 @@ bool Network::Socket::waitForConnected() const
     else
     {
 	QAbstractSocket::SocketState state = qtcpsocket_->state();
-	if (state > QAbstractSocket::UnconnectedState)
+	if ( state > QAbstractSocket::UnconnectedState )
 	{
-	    qtcpsocket_->waitForConnected(timeout_);
+	    qtcpsocket_->waitForConnected( timeout_ );
 	    state = qtcpsocket_->state();
-	    if (state == QAbstractSocket::ConnectedState)
+	    if ( state == QAbstractSocket::ConnectedState )
 		return true;
 
-	    errmsg_.setFrom(qtcpsocket_->errorString());
+	    errmsg_.setFrom( qtcpsocket_->errorString() );
 
 	    return false;
 	}
@@ -578,7 +573,7 @@ bool Network::Socket::waitForNewData() const
     {
 	while ( !qlocalsocket_->bytesAvailable() )
 	{
-	    qlocalsocket_->waitForReadyRead(timeout_);
+	    qlocalsocket_->waitForReadyRead( timeout_ );
 
 	    if ( !qlocalsocket_->bytesAvailable() )
 	    {
@@ -589,11 +584,10 @@ bool Network::Socket::waitForNewData() const
     }
     else
     {
-	while (!qtcpsocket_->bytesAvailable())
+	while ( !qtcpsocket_->bytesAvailable() )
 	{
-	    qtcpsocket_->waitForReadyRead(timeout_);
-
-	    if (!qtcpsocket_->bytesAvailable())
+	    qtcpsocket_->waitForReadyRead( timeout_ );
+	    if ( !qtcpsocket_->bytesAvailable() )
 	    {
 		errmsg_ = readErrMsg();
 		return false;

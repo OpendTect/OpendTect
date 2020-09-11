@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "uistrings.h"
 
-#include <QObject>
-#include <QCoreApplication>
+#include <QEventLoop>
 #include <QTcpSocket>
+
+using namespace Network;
 
 #ifdef __win__
 #include <iphlpapi.h>
@@ -515,25 +516,40 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 
 
 RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
-    : server_( new Server(isLocal(specaddr)) )
+    : server_(new Server(false))
     , newConnection( this )
 {
-    if ( isLocal(specaddr) )
-	pErrMsg( "Using wrong constructor for local request server" );
-
     if ( !server_ )
 	return;
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
     if ( !server_->listen(specaddr,servport) )
-	errmsg_ = TCPErrMsg().arg(servport);
+	errmsg_ = TCPErrMsg().arg( servport );
 }
 
 
-RequestServer::RequestServer( const Authority& auth )
-    : server_(new Server(auth.isLocal()))
+RequestServer::RequestServer( const char* servernm )
+    : server_(new Server(true))
     , newConnection(this)
 {
+    if ( !server_ )
+	return;
+
+    mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
+    uiRetVal ret;
+    if ( !server_->listen(servernm,ret) )
+    {
+	errmsg_ = LocalErrMsg().arg( servernm );
+	errmsg_.append( ret, true );
+    }
+}
+
+
+RequestServer::RequestServer( const Network::Authority& auth, SpecAddr spcadr )
+    : newConnection(this)
+{
+    server_ = new Server( auth.isLocal() );
+
     if ( !server_ )
 	return;
 
@@ -541,12 +557,14 @@ RequestServer::RequestServer( const Authority& auth )
     const bool islocal = auth.isLocal();
     uiRetVal ret;
     const bool islistening = islocal ?
-		    server_->listen( auth.getServerName(), ret ) :
-		    server_->listen( auth.serverAddress(), auth.getPort() );
+				server_->listen( auth.getServerName(), ret ) :
+				server_->listen( spcadr, auth.getPort() );
 
     if ( !islistening )
-	errmsg_ = islocal ? LocalErrMsg().arg(auth.getServerName())
-			  : TCPErrMsg().arg(auth.getPort());
+	errmsg_ = islocal ?
+		LocalErrMsg().arg(auth.getServerName()).append(ret,true) :
+					    TCPErrMsg().arg(auth.getPort());
+
 }
 
 
@@ -561,13 +579,13 @@ RequestServer::~RequestServer()
 
 uiString RequestServer::TCPErrMsg() const
 {
-    return tr("Cannot start listening on port %1", "port id<number>");
+    return tr("Cannot start listening on port %1","port id<number>");
 }
 
 
 uiString RequestServer::LocalErrMsg() const
 {
-    return tr("Cannot start listening to %1", "server name");
+    return tr("Cannot start listening to %1","server name");
 }
 
 
