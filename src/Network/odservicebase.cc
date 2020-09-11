@@ -13,8 +13,8 @@
 
 #include "applicationdata.h"
 #include "commandlineparser.h"
-#include "ioman.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "keystrs.h"
 #include "netreqconnection.h"
 #include "netreqpacket.h"
@@ -22,7 +22,6 @@
 #include "netservice.h"
 #include "pythonaccess.h"
 #include "settings.h"
-#include "od_ostream.h"
 
 #include "hiddenparam.h"
 
@@ -33,46 +32,41 @@ static HiddenParam<ODServiceBase,Network::RequestConnection*>
 					odservbaselocalconnmgr_(nullptr);
 
 
-ODServiceBase::ODServiceBase( bool assignport )
+ODServiceBase::ODServiceBase( bool )
     : externalAction(this)
     , externalRequest(this)
 {
     odservbaselocservmgr_.setParam( this, nullptr );
     odservbaselocalconnmgr_.setParam( this, nullptr );
-    init( false, nullptr, assignport );
+    addLocalServer();
 }
 
 
-ODServiceBase::ODServiceBase( bool islocal, const char* servernm,
-							    bool assignport )
+ODServiceBase::ODServiceBase( bool assignport, Network::SpecAddr spec )
     : externalAction(this)
     , externalRequest(this)
 {
     odservbaselocservmgr_.setParam( this, nullptr );
     odservbaselocalconnmgr_.setParam( this, nullptr );
-    init( islocal, servernm, assignport );
+    addTCPServer( assignport, spec );
 }
 
 
-ODServiceBase::ODServiceBase( const char* hostname, bool assignport )
-    : externalAction(this)
-    , externalRequest(this)
+bool ODServiceBase::addLocalServer()
 {
-    odservbaselocservmgr_.setParam( this, nullptr );
-    odservbaselocalconnmgr_.setParam( this, nullptr );
-    init( true, hostname, assignport );
+    init( true );
+    return isOK( true );
 }
 
 
-void ODServiceBase::initMainService( bool islocal, const char* hostname,
-    bool assignport )
+bool ODServiceBase::addTCPServer( bool assignport, Network::SpecAddr spec )
 {
-    init( islocal, hostname, assignport );
+    init( false, assignport, spec );
+    return isOK( false );
 }
 
 
-void ODServiceBase::init( bool islocal, const char* hostname,
-							    bool assignport )
+void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 {
     ODServiceBase* mainserv = theMain();
     if ( islocal )
@@ -83,15 +77,15 @@ void ODServiceBase::init( bool islocal, const char* hostname,
     else
 	server_ = mainserv ? mainserv->server_ : nullptr;
 
-    if ( isServerOK() )
+    if ( isServerOK(islocal) )
     {
 	serverismine_ = false;
 	if ( this != mainserv )
 	{
 	    mAttachCB( mainserv->externalAction,
-					ODServiceBase::externalActionCB );
+		       ODServiceBase::externalActionCB );
 	    mAttachCB( mainserv->externalRequest,
-				    ODServiceBase::externalRequestCB );
+		       ODServiceBase::externalRequestCB );
 	}
 	return;
     }
@@ -112,10 +106,10 @@ void ODServiceBase::init( bool islocal, const char* hostname,
 
 	if ( clport > 0 && Network::isPortFree( (PortNr_Type) clport ) )
 	    portid = (PortNr_Type) clport;
-	else if ( assignport && defport>0
-	    && Network::isPortFree((PortNr_Type) defport) )
+	else if ( assignport && defport>0 &&
+		  Network::isPortFree((PortNr_Type) defport) )
 	    portid = (PortNr_Type) defport;
-	else if ( assignport )
+	else if ( assignport && !islocal )
 	{
 	    uiRetVal uirv;
 	    portid = Network::getUsablePort( uirv );
@@ -129,20 +123,17 @@ void ODServiceBase::init( bool islocal, const char* hostname,
 
     if ( portid>0 || islocal )
     {
-	BufferString servernm( hostname );
-	if ( islocal && servernm.isEmpty() )
-	    servernm.set( "odservice:" ).add( GetPID() );
-	const Network::Authority auth = islocal ?
-			    Network::Authority::getLocal( servernm ) :
-				    Network::Authority( nullptr, portid );
-	startServer( auth );
-	if ( !isServerOK() )
-	    return;
+	Network::RequestServer* server = islocal
+	    ? new Network::RequestServer( BufferString("odservice:",GetPID()) )
+	    : new Network::RequestServer( portid, spec );
+	useServer( server, islocal );
     }
 
+    if ( !isServerOK(islocal) )
+	return;
+
     if ( islocal )
-	mAttachCB( localServer()->newConnection,
-					    ODServiceBase::newConnectionCB );
+	mAttachCB( localServer()->newConnection,ODServiceBase::newConnectionCB);
     else
 	mAttachCB( server_->newConnection, ODServiceBase::newConnectionCB );
 
@@ -151,14 +142,13 @@ void ODServiceBase::init( bool islocal, const char* hostname,
     mAttachCB( OD::PythA().envChange, ODServiceBase::pyenvChangeCB );
     mAttachCB( this->externalAction, ODServiceBase::externalActionCB );
     mAttachCB( this->externalRequest, ODServiceBase::externalRequestCB );
-
 }
 
 
 ODServiceBase::~ODServiceBase()
 {
     doAppClosing( nullptr );
-    odservbaselocservmgr_.removeParam( this );
+    odservbaselocservmgr_.removeAndDeleteParam( this );
     odservbaselocalconnmgr_.removeAndDeleteParam( this );
 }
 
@@ -234,40 +224,42 @@ void ODServiceBase::startServer( PortNr_Type portid )
 }
 
 
-void ODServiceBase::startServer( const Network::Authority& auth )
+bool ODServiceBase::useServer( Network::RequestServer* server, bool islocal )
 {
-    if ( !auth.isUsable() )
-	return;
+    if ( !server || !server->isOK() )
+    {
+	delete server;
+	return false;
+    }
 
-    if ( auth.isLocal() )
-	odservbaselocservmgr_.setParam( this,
-		new Network::RequestServer( auth.getServerName() ) );
+    if ( islocal )
+	odservbaselocservmgr_.setParam( this, server );
     else
-	server_ = new Network::RequestServer( auth, Network::Any );
+	server_ = server;
 
-    if ( !isServerOK() )
+    if ( !isServerOK(islocal) )
     {
 	pErrMsg( "startServer - failed" );
 	stopServer();
-	return;
+	return false;
     }
 
     if ( !theMain() )
 	theMain( this );
+
+    return true;
 }
 
 
-bool ODServiceBase::isServerOK() const
+bool ODServiceBase::isServerOK( bool local ) const
 {
-    if (server_)
-	return server_->isOK();
+    if ( !local )
+	return server_ ? server_->isOK() : false;
 
     const Network::RequestServer* localserver = localServer();
-    if ( localserver )
-	return localserver->isOK();
-
-    return false;
+    return localserver ? localserver->isOK() : false;
 }
+
 
 void ODServiceBase::stopServer()
 {
@@ -419,13 +411,10 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 
 void ODServiceBase::newConnectionCB( CallBacker* )
 {
-    //Threads::Locker lckr( lock_ );
-
-    Network::RequestConnection* conn = localServer() ?
-			localServer()->pickupNewConnection() : nullptr;
-    if ( !conn )
-	conn = server_->pickupNewConnection();
-
+    //TODO: Capsule to tell us from which server is comes
+    Network::RequestConnection* conn = localServer()
+	    ? localServer()->pickupNewConnection()
+	    : server_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
@@ -442,6 +431,7 @@ void ODServiceBase::newConnectionCB( CallBacker* )
 void ODServiceBase::packetArrivedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
+    //TODO: no local server packet pickup?
 
     conn_ = static_cast<Network::RequestConnection*>( cber );
     if ( !conn_ )
@@ -524,11 +514,11 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
 				    const char* servicenm, const char* action )
 {
     PtrMan<Network::RequestConnection> conn =
-			new Network::RequestConnection( auth, false, 2000 );
+		    new Network::RequestConnection( auth, false, 2000 );
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to service %1 on %2")
-	    .arg(servicenm).arg(auth.toString(true)) );
+			    .arg(servicenm).arg(auth.toString()) );
     }
 
     PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;
@@ -540,7 +530,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
     if ( !conn->sendPacket(*packet) )
     {
 	return uiRetVal(tr("Message failure to service %1 on %2")
-	    .arg(servicenm).arg(auth.toString(true)) );
+			    .arg(servicenm).arg(auth.toString()) );
     }
 
     ConstPtrMan<Network::RequestPacket> receivedpacket =
@@ -571,7 +561,7 @@ uiRetVal ODServiceBase::sendRequest( const Network::Authority& auth,
     if ( !conn || !conn->isOK() )
     {
 	return uiRetVal(tr("Cannot connect to %1 server on %2")
-	    .arg(servicenm).arg(auth.toString(true)) );
+			    .arg(servicenm).arg(auth.toString()) );
     }
 
     PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;

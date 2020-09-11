@@ -28,7 +28,7 @@ namespace Network
 
 class Socket;
 
-enum SpecAddr { Any, IPv4, IPv6, Broadcast, LocalIPv4, LocalIPv6, Local, None };
+enum SpecAddr { Any, IPv4, IPv6, Broadcast, LocalIPv4, LocalIPv6, None };
 
 
 mGlobal(Network) PortNr_Type getUsablePort(uiRetVal&,PortNr_Type firstport =0,
@@ -38,8 +38,6 @@ mGlobal(Network) PortNr_Type getUsablePort(uiRetVal&,PortNr_Type firstport =0,
 mGlobal(Network) PortNr_Type getUsablePort(PortNr_Type firstport=0);
 mGlobal(Network) bool isPortFree(PortNr_Type port,uiString* errmsg=nullptr);
 mGlobal(Network) PortNr_Type getNextCandidatePort();
-mGlobal(Network) bool isLocal(SpecAddr);
-
 
 
 /*\brief
@@ -56,7 +54,7 @@ mExpClass(Network) Authority
 { mODTextTranslationClass(Authority);
 public:
 			Authority(const char* host=nullptr,
-					PortNr_Type=0,bool resolveipv6=false);
+				  PortNr_Type=0,bool resolveipv6=false);
 			Authority(const Authority&);
 			~Authority();
 
@@ -66,6 +64,7 @@ public:
     bool		isLocal() const { return !getServerName().isEmpty(); }
     static Authority	getLocal(const char*);
     BufferString	getServerName() const;
+    SpecAddr		serverAddress() const;
 
     BufferString	toString(bool external=false) const;
     BufferString	getUserInfo() const		{ return userinfo_; }
@@ -79,7 +78,7 @@ public:
     void		localFromString(const char*);
     void		setUserInfo( const char* inf )	{ userinfo_ = inf; }
     void		setHost(const char*,bool resolveipv6=false);
-    void		setPort( PortNr_Type port )   { port_ = port; }
+    void		setPort( PortNr_Type port )	{ port_ = port; }
     void		setFreePort(uiRetVal&);
     bool		hasAssignedPort() const { return port_ > 0; }
 
@@ -95,7 +94,7 @@ private:
 
     bool		hostisaddress_;
     mQtclass(QHostAddress)&	qhostaddr_;
-    mQtclass(QString)&	qhost_;
+    mQtclass(QString)&		qhost_;
 
     //Look if these are actually required
     friend class Socket;
@@ -104,4 +103,3 @@ private:
 
 
 } // namespace Network
-

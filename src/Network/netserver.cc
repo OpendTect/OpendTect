@@ -19,8 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "qtcpservercomm.h"
 #include <QHostAddress>
-#include <QString>
 #include <QLocalServer>
+#include <QString>
 
 #include "hiddenparam.h"
 
@@ -33,12 +33,6 @@ PortNr_Type Network::getNextCandidatePort()
     if ( lastusableport_ == 0 )
 	lastusableport_ = (PortNr_Type)GetEnvVarIVal( "OD_START_PORT", 20049 );
     return lastusableport_ + 1;
-}
-
-
-bool Network::isLocal( SpecAddr spec )
-{
-    return spec == Local;
 }
 
 
@@ -67,12 +61,74 @@ PortNr_Type Network::getUsablePort( uiRetVal& uirv, PortNr_Type portnr,
 }
 
 
+namespace Network {
+
+static QHostAddress::SpecialAddress qtSpecAddr( SpecAddr specaddress )
+{
+    if ( specaddress == Any )
+	return QHostAddress::Any;
+    else if ( specaddress == IPv4 )
+	return QHostAddress::AnyIPv4;
+    else if ( specaddress == IPv6 )
+	return QHostAddress::AnyIPv6;
+    else if ( specaddress == Broadcast )
+	return QHostAddress::Broadcast;
+    else if ( specaddress == LocalIPv4 )
+	return QHostAddress::LocalHost;
+    else if ( specaddress == LocalIPv6 )
+	return QHostAddress::LocalHostIPv6;
+
+    return QHostAddress::Null;
+}
+
+static SpecAddr specAddrFromQt( QHostAddress qaddr )
+{
+    if ( qaddr == QHostAddress::Any )
+	return Any;
+    else if ( qaddr == QHostAddress::AnyIPv4 )
+	return IPv4;
+    else if ( qaddr == QHostAddress::AnyIPv6 )
+	return IPv6;
+    else if ( qaddr == QHostAddress::Broadcast )
+	return Broadcast;
+    else if ( qaddr == QHostAddress::LocalHost )
+	return LocalIPv4;
+    else if ( qaddr == QHostAddress::LocalHostIPv6 )
+	return LocalIPv6;
+
+    return None;
+}
+
+static QHostAddress anyQAddr()
+{
+    return QHostAddress( QHostAddress::Any );
+}
+
+static QHostAddress anyIPv4QAddr()
+{
+    return QHostAddress( QHostAddress::AnyIPv4 );
+}
+
+static QHostAddress anyIPv6QAddr()
+{
+    return QHostAddress( QHostAddress::AnyIPv6 );
+}
+
+static bool isAnyQAddr( const QHostAddress& qaddr )
+{
+    return qaddr.isEqual( anyQAddr() ) ||
+	   qaddr.isEqual( anyIPv4QAddr() ) ||
+	   qaddr.isEqual( anyIPv6QAddr() );
+}
+
+};
+
 static HiddenParam<Network::Authority,BufferString*>
 					netauthservernmmgr_( nullptr );
 
 
 Network::Authority::Authority( const char* host, PortNr_Type port,
-							bool resolveipv6 )
+			       bool resolveipv6 )
     : qhost_(*new QString)
     , qhostaddr_(*new QHostAddress)
 {
@@ -119,6 +175,7 @@ Network::Authority& Network::Authority::operator=( const Authority& oth )
     qhostaddr_ = oth.qhostaddr_;
     hostisaddress_ = oth.hostisaddress_;
     setServerName( oth.getServerName() );
+
     return *this;
 }
 
@@ -148,6 +205,16 @@ BufferString Network::Authority::getServerName() const
 {
     return *netauthservernmmgr_.getParam( this );
 }
+
+
+Network::SpecAddr Network::Authority::serverAddress() const
+{
+    if ( isLocal() )
+	return None;
+
+    return specAddrFromQt( qhostaddr_ );
+}
+
 
 bool Network::Authority::isUsable() const
 {
@@ -232,43 +299,44 @@ void Network::Authority::fromString( const char* str, bool resolveipv6 )
 void Network::Authority::localFromString( const char* str )
 {
     setServerName( str );
-    qhostaddr_.setAddress( QHostAddress::LocalHost );
+    qhostaddr_.setAddress( QHostAddress::Null );
     port_ = 0;
 }
 
 
-BufferString Network::Authority::toString( bool external ) const
+BufferString Network::Authority::toString( bool ) const
 {
     BufferString ret( userinfo_ );
     if ( !ret.isEmpty() )
 	ret.add( "@" );
-    ret.add( getHost(external) );
+    ret.add( getHost() );
     if ( port_ > 0 )
 	ret.add( ":" ).add( port_ );
     return ret;
 }
 
 
-BufferString Network::Authority::getHost( bool external ) const
+BufferString Network::Authority::getHost( bool ) const
 {
-    BufferString ret;
-    if ( (external && isLocal()) )
-	return ret;
-
     if ( isLocal() )
+	return getServerName();
+
+    if ( !addressIsValid() )
+	return BufferString::empty();
+
+    if ( qhostaddr_.isLoopback() )
 	return Socket::sKeyLocalHost();
 
-    if ( external && hostisaddress_ )
+    const BufferString qhostaddrstr( qhostaddr_.toString() );
+    BufferString ret;
+    if ( hostisaddress_ )
     {
-	const BufferString ipaddr( qhostaddr_.toString() );
-	ret.set( System::hostName(ipaddr) );
-	if ( ret.isEmpty() )
-	    ret.set( GetLocalHostName() );
-    }
-    else if ( addressIsValid() && !external )
-    {
-	const bool ipv6 =
-			qhostaddr_.protocol() == QAbstractSocket::IPv6Protocol;
+	if ( isAnyQAddr(qhostaddr_) )
+	    return GetLocalHostName();
+
+	const QAbstractSocket::NetworkLayerProtocol protocol =
+							qhostaddr_.protocol();
+	const bool ipv6 = protocol == QAbstractSocket::IPv6Protocol;
 	if ( ipv6 )
 	    ret.add( "[" );
 	ret.add( qhostaddr_.toString() );
@@ -276,7 +344,12 @@ BufferString Network::Authority::getHost( bool external ) const
 	    ret.add( "]" );
     }
     else
-	ret.add( qhost_ );
+    {
+	const BufferString qhoststr( qhost_ );
+	const BufferString hostnm( System::hostAddress(qhoststr) );
+	if ( !hostnm.isEmpty() )
+	    ret.set( qhost_ );
+    }
 
     return ret;
 }
@@ -301,7 +374,10 @@ void Network::Authority::setHostAddress( const char* host, bool resolveipv6 )
     hostnm.trimBlanks();
 
     qhost_ = hostnm;
-    qhostaddr_.setAddress( qhost_ );
+    if ( hostnm.isEmpty() )
+	qhostaddr_.setAddress( QHostAddress::Any );
+    else
+	qhostaddr_.setAddress( qhost_ );
 
     const QAbstractSocket::NetworkLayerProtocol prtocolval =
 							qhostaddr_.protocol();
@@ -392,29 +468,6 @@ Network::Server::~Server()
 }
 
 
-namespace Network {
-
-static QHostAddress::SpecialAddress qtSpecAddr( SpecAddr specaddress )
-{
-    if ( specaddress == Any )
-	return QHostAddress::Any;
-    else if ( specaddress == IPv4 )
-	return QHostAddress::AnyIPv4;
-    else if ( specaddress == IPv6 )
-	return QHostAddress::AnyIPv6;
-    else if ( specaddress == Broadcast )
-	return QHostAddress::Broadcast;
-    else if ( specaddress == LocalIPv4 )
-	return QHostAddress::LocalHost;
-    else if ( specaddress == LocalIPv6 )
-	return QHostAddress::LocalHostIPv6;
-
-    return QHostAddress::Null;
-}
-
-};
-
-
 QLocalServer* Network::Server::localServer() const
 { return netserverqlocservmgr_.getParam( this ); }
 
@@ -424,10 +477,17 @@ QLocalServer* Network::Server::localServer()
 
 bool Network::Server::listen( SpecAddr specaddress, PortNr_Type prt )
 {
-    if ( isLocal() )
-	return localServer()->listen( toString(prt) );
+    if ( qtcpserver_ )
+	return qtcpserver_->listen( QHostAddress(qtSpecAddr(specaddress)), prt);
 
-    return qtcpserver_->listen( QHostAddress(qtSpecAddr(specaddress)), prt );
+    if ( isLocal() )
+    {
+	pErrMsg("Wrong listen function called on local server");
+	return false;
+    }
+
+    DBG::forceCrash(false);
+    return false;
 }
 
 
@@ -435,12 +495,11 @@ bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 {
     if ( !isLocal() )
     {
-	pErrMsg( "It needs a valid server anme to listen to" );
+	pErrMsg( "It needs a valid server name to listen to" );
 	return false;
     }
 
     const bool canlisten = localServer()->listen( servernm );
-
     if ( !canlisten )
 	ret.set( tr("%1 server name is already in use").arg(servernm) );
 
@@ -469,17 +528,18 @@ PortNr_Type Network::Server::port() const
 
 Network::Authority Network::Server::authority() const
 {
-    BufferString addr;
     if ( isLocal() )
+    {
 	return Authority::getLocal(
 				BufferString(localServer()->serverName()) );
-    else
-    {
-	const QHostAddress qaddr = qtcpserver_->serverAddress();
-	if ( qaddr.protocol() > QAbstractSocket::UnknownNetworkLayerProtocol )
-	    addr.set( qaddr.toString() );
-	return Authority( addr, port() );
     }
+
+    const QHostAddress qaddr = qtcpserver_->serverAddress();
+    BufferString addr;
+    if ( qaddr.protocol() > QAbstractSocket::UnknownNetworkLayerProtocol )
+	addr.set( qaddr.toString() );
+
+    return Authority( addr, port() );
 }
 
 
@@ -526,14 +586,15 @@ void Network::Server::notifyNewConnection()
 {
     if ( !hasPendingConnections() )
 	return;
+
     Socket* socket = nullptr;
     if ( isLocal() )
-	socket = new Socket( nextPendingLocalConnection(), isLocal() );
+	socket = new Socket( nextPendingLocalConnection() );
     else
-	socket = new Socket( nextPendingConnection(), isLocal() );
+	socket = new Socket( nextPendingConnection() );
 
-    socket->readyRead.notify( mCB(this,Server,readyReadCB));
-    mAttachCB( socket->disconnected, Server::disconnectCB);
+    socket->readyRead.notify( mCB(this,Server,readyReadCB) );
+    mAttachCB( socket->disconnected, Server::disconnectCB );
     sockets_ += socket;
     const int id = getNewID();
     ids_ += id;
@@ -596,7 +657,7 @@ void Network::Server::read( int id, IOPar& par ) const
 
 int Network::Server::write( int id, const IOPar& par )
 {
-    Network::Socket* socket = getSocket( id );
+    Socket* socket = getSocket( id );
     return socket ? socket->write( par ) : 0;
 }
 

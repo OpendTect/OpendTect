@@ -78,7 +78,6 @@ protected:
 
     mQtclass(QLocalServer)*	localServer() const;
     mQtclass(QLocalServer)*	localServer();
-
     mQtclass(QTcpServer)* qtcpserver_;
     mQtclass(QTcpServerComm)* comm_;
     mutable BufferString errmsg_;
@@ -91,5 +90,3 @@ protected:
 };
 
 } // namespace Network
-
-

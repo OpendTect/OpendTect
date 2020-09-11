@@ -59,25 +59,24 @@ public:
 
     static const char*	sKeyODServer()		{ return "odserver"; }
 
-    CNotifier<ODServiceBase,BufferString>		externalAction;
+    CNotifier<ODServiceBase,BufferString>	externalAction;
     CNotifier<ODServiceBase,const OD::JSON::Object*>	externalRequest;
 
-    void		setRetVal( const uiRetVal& uirv )    { uirv_ = uirv;}
+    void		setRetVal( const uiRetVal& uirv )	{ uirv_ = uirv;}
 			/* Must be called to set the result of intercepting
 			   either externalAction or externalRequest */
 
-    void		initMainService(bool islocal,const char* hostname,
-							    bool assignport);
-
 protected:
 			ODServiceBase(bool assignport=true);
-			ODServiceBase(const char* hostname,
-						bool assignport);
-			explicit ODServiceBase(bool islocal,
-			    const char* servernm=nullptr,bool assignport=true);
+			/* Main constructor returns a local service */
+			explicit ODServiceBase(bool assignport,
+					       Network::SpecAddr);
+			/* Constructor for a TCP-based server */
 
     bool		isMainService() const;
-    void		startServer(const Network::Authority&);
+    bool		addLocalServer();
+    bool		addTCPServer(bool assignport=true,
+				     Network::SpecAddr=Network::Any);
 
     static uiRetVal	sendAction(const Network::Authority&,
 				   const char* servicenm,const char* action);
@@ -117,15 +116,17 @@ private:
     ODServiceBase&	operator=(const ODServiceBase&) = delete;
     ODServiceBase&	operator=(ODServiceBase &&) = delete;
 
+    void		init(bool islocal,bool assignport=true,
+			     Network::SpecAddr=Network::Any);
+    bool		useServer(Network::RequestServer*,bool islocal);
     virtual void	startServer(PortNr_Type);
-    void		init(bool islocal,const char* hostname,
-							    bool assignport);
+
     uiRetVal		doAction(const OD::JSON::Object&);
     uiRetVal		doRequest(const OD::JSON::Object&);
     uiRetVal		survChangedReq(const OD::JSON::Object&);
     uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
     uiRetVal		doPrepareForClose();
-    bool		isServerOK() const;
+    bool		isServerOK(bool local) const;
     void		newConnectionCB(CallBacker*);
     void		packetArrivedCB(CallBacker*);
     void		externalActionCB(CallBacker*);

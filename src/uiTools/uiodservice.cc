@@ -25,19 +25,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-uiODService::uiODService( uiMainWin& mainwin, bool islocal,
-					const char* servernm, bool assignport )
-   : ODServiceBase(islocal,servernm,assignport)
+uiODService::uiODService( uiMainWin& mainwin, bool )
+   : ODServiceBase()
 {
-    init( mainwin, islocal );
+    init( mainwin, true );
 }
 
 
-uiODService::uiODService( uiMainWin& mainwin, const char* hostname,
-						bool assignport )
-    : ODServiceBase(hostname,assignport)
+uiODService::uiODService( uiMainWin& mainwin, bool assignport,
+			  Network::SpecAddr spec )
+    : ODServiceBase(assignport,spec)
 {
-    init( mainwin, true );
+    init( mainwin, false );
 }
 
 

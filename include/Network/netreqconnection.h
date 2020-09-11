@@ -140,8 +140,8 @@ mExpClass(Network) RequestServer : public CallBacker
 { mODTextTranslationClass(RequestServer);
 public:
 
-				RequestServer(PortNr_Type,SpecAddr=Any);
 				RequestServer(const char* servernm);
+				RequestServer(PortNr_Type,SpecAddr=Any);
 				RequestServer(const Authority&,SpecAddr=Any);
 				~RequestServer();
 
@@ -166,8 +166,10 @@ private:
 
     Threads::Lock		lock_;
     Server*			server_;
+
     uiString			TCPErrMsg() const;
     uiString			LocalErrMsg() const;
+
 };
 
 

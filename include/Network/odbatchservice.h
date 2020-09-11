@@ -28,7 +28,6 @@ public:
     virtual			~ODBatchService();
 
     static ODBatchService&	getMgr();
-    static ODBatchService&	getMgr(bool islocal);
 
     bool			isODMainSlave() const;
     bool			isMasterAlive() const;
@@ -37,11 +36,7 @@ public:
 
 protected:
 
-			ODBatchService(bool assignport=false);
-			ODBatchService(const char* hostname,
-			    bool assignport);
-			explicit ODBatchService(bool islocal,
-			    const char* servernm,bool assignport);
+				ODBatchService(bool assignport=false);
 
     uiRetVal			sendAction(const char* act) const;
     uiRetVal			sendRequest(const char* reqkey,
@@ -59,7 +54,7 @@ private:
     ODBatchService&		operator=(const ODBatchService&) = delete;
     ODBatchService&		operator=(ODBatchService &&) = delete;
 
-    void			init(bool islocal);
+    void			init();
 
     void			handleMasterCheckTimer(bool start);
     void			doAppClosing(CallBacker*) override;

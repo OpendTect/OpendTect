@@ -23,8 +23,6 @@ mFDQtclass(QLocalSocket)
 mFDQtclass(QTcpSocketComm)
 
 
-#define mTimeOut 30000
-
 namespace Network
 {
 
@@ -124,11 +122,10 @@ private:
     int				timeout_;
     bool			noeventloop_;
 
-    mQtclass(QTcpSocket)*	qtcpsocket_ = nullptr;
-    mQtclass(QLocalSocket)*	qlocalsocket_ = nullptr;
+    mQtclass(QTcpSocket)*	qtcpsocket_;
     bool			ownssocket_;
 
-    mQtclass(QTcpSocketComm)*	socketcomm_ = nullptr;
+    mQtclass(QTcpSocketComm)*	socketcomm_;
 
     uiString			readErrMsg() const;
     uiString			noConnErrMsg() const;

@@ -27,26 +27,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-ODBatchService::ODBatchService( bool assignport )
-    : ODServiceBase(true,"batchserv",assignport)
+ODBatchService::ODBatchService( bool )
+    : ODServiceBase()
 {
-    init ( true );
-    /*Not used, only for compatibility */
-}
-
-
-ODBatchService::ODBatchService( bool islocal, const char* servernm,
-							    bool assignport )
-    : ODServiceBase(islocal,servernm,assignport)
-{
-    init( islocal );
-}
-
-
-ODBatchService::ODBatchService( const char* hostname, bool assignport)
-    : ODServiceBase(hostname,assignport)
-{
-    init( true );
+    init();
 }
 
 
@@ -58,7 +42,7 @@ ODBatchService::~ODBatchService()
 }
 
 
-void ODBatchService::init( bool islocal )
+void ODBatchService::init()
 {
     const CommandLineParser* clp = new CommandLineParser;
     const char* skeynolisten = Network::Server::sKeyNoListen();
@@ -84,14 +68,7 @@ bool ODBatchService::isODMainSlave() const
 }
 
 
-
-ODBatchService& ODBatchService::getMgr() // always local;
-{
-    return getMgr( true );
-}
-
-
-ODBatchService& ODBatchService::getMgr( bool ) // always local;
+ODBatchService& ODBatchService::getMgr()
 {
     mDefineStaticLocalObject(ODBatchService,mgrInstance,);
     return mgrInstance;
@@ -159,7 +136,7 @@ uiRetVal ODBatchService::doRegister()
     OD::JSON::Object sinfo;
     Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
-	sKeyRegister(), sinfo );
+						sKeyRegister(), sinfo );
     if ( !uirv.isOK() )
     {
 	uirv.add( tr("Registration of service: %1 failed")

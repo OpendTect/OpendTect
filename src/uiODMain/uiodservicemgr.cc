@@ -32,11 +32,10 @@ uiODServiceMgr& uiODServiceMgr::getMgr()
 
 
 uiODServiceMgr::uiODServiceMgr()
-    : uiODService(*uiMain::theMain().topLevel(),true)
+    : uiODService(*uiMain::theMain().topLevel())
     , serviceAdded(this)
     , serviceRemoved(this)
 {
-    initMainService( true, nullptr, false );
 }
 
 
@@ -62,8 +61,7 @@ uiRetVal uiODServiceMgr::addService( const OD::JSON::Object* jsonobj )
 	return uirv;
     }
 
-    Network::Service* service = new Network::Service( *jsonobj,
-						    getAuthority(true) );
+    auto* service = new Network::Service( *jsonobj, getAuthority(true) );
     if ( !service->isOK() )
     {
 	uirv = service->message();

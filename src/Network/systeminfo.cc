@@ -125,7 +125,7 @@ const char* localAddress( bool ipv4only )
 const char* hostName( const char* ip )
 {
     mDeclStaticString( str );
-    const QHostInfo qhi = QHostInfo::fromName( ip );
+    const QHostInfo qhi = QHostInfo::fromName( QString(ip) );
     str = qhi.hostName();
     if ( str == ip )
 	str.setEmpty();

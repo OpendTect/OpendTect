@@ -31,7 +31,7 @@ static Threads::Atomic<int> connid;
 RequestConnection::RequestConnection( const Authority& authority,
 				      bool multithreaded,
 				      int timeout )
-    : socket_(0)
+    : socket_(nullptr)
     , ownssocket_(true)
     , connectionClosed(this)
     , packetArrived(this)
@@ -451,7 +451,7 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 
 
 RequestServer::RequestServer( PortNr_Type servport, SpecAddr specaddr )
-    : server_( new Server(Network::isLocal(specaddr)) )
+    : server_(new Server(false))
     , newConnection( this )
 {
     if ( !server_ )
@@ -510,7 +510,6 @@ RequestServer::~RequestServer()
     deepErase( pendingconns_ );
     delete server_;
 }
-
 
 
 uiString RequestServer::TCPErrMsg() const
