@@ -335,9 +335,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     }
 
     const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
-    OS::MachineCommand mc( exepath.fullPath() );
 
-    mc.addFlag( toadd_ ? "add" : "remove" );
     bool errocc = false;
     IOPar pars;
     int nrprocsprocessed = 0;
@@ -362,6 +360,10 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 							.add( GetBinSubDir() );
 	    exefp = odv7fp;
 	}
+
+	OS::MachineCommand mc( exepath.fullPath() );
+
+	mc.addFlag( toadd_ ? "add" : "remove" );
 
 	if ( idx != PDE::Python )
 	    mc.addKeyedArg( "od", exefp.fullPath() );
