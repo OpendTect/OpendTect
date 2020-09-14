@@ -40,7 +40,7 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
 {
     lastupdate_ = timestamp_;
     dumpSystemInfo();
-    socket_ = new Network::Socket( false );
+    socket_ = new Network::Socket( false, false );
     socket_->setTimeout( socktimeout_ );
 
     const bool ret = socket_->connectToHost( masterauth_ );
