@@ -37,7 +37,7 @@ RequestConnection::RequestConnection( const Authority& authority,
     , packetArrived(this)
     , id_(connid++)
     , authority_(new Authority(authority))
-    , socketthread_(0)
+    , socketthread_(nullptr)
     , timeout_(timeout)
     , stopflag_(0)
     , packettosend_(0)
@@ -163,7 +163,7 @@ void RequestConnection::connectToHost()
 	return;
     }
 
-    auto* newsocket = new Socket( authority_->isLocal() );
+    auto* newsocket = new Socket( authority_->isLocal(), isMultiThreaded() );
 
     if ( timeout_ > 0 )
 	newsocket->setTimeout( timeout_ );

@@ -42,7 +42,7 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
     lastupdate_ = timestamp_;
     dumpSystemInfo();
-    socket_ = new Network::Socket( false );
+    socket_ = new Network::Socket( false, false );
     socket_->setTimeout( socktimeout_ );
 
     const bool ret = socket_->connectToHost( masterauth_ );
@@ -71,7 +71,7 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
     lastupdate_ = timestamp_;
     dumpSystemInfo();
-    socket_ = new Network::Socket( false );
+    socket_ = new Network::Socket( false, false );
     socket_->setTimeout( socktimeout_ );
 
     const bool ret = socket_->connectToHost( masterauth_ );
