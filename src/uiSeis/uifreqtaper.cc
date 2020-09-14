@@ -65,9 +65,14 @@ FreqTaperSetup::~FreqTaperSetup()
 
 
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
-    : uiDialog( p, uiDialog::Setup(tr("Frequency taper"),
-			     tr("Select taper parameters at cut-off frequency"),
-				    mODHelpKey(mFreqTaperDlgHelpID) ))
+    : uiDialog( p, uiDialog::Setup(
+			SI().zDomain().isTime() ?
+			    tr("Frequency taper") :
+			    tr("Wavenumber taper"),
+			SI().zDomain().isTime() ?
+			    tr("Select taper parameters at cut-off frequency") :
+			    tr("Select taper parameters at cut-off wavenumber"),
+			mODHelpKey(mFreqTaperDlgHelpID) ))
     , tkzs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
@@ -84,8 +89,11 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
     uiFuncTaperDisp::Setup su;
     su.leftrg_ = freqtapsu.minfreqrg_;
     su.rightrg_ = freqtapsu.maxfreqrg_;
-    su.logscale_ = true;
+    su.logscale_ = false;
     su.is2sided_ = true;
+    const bool zistime = SI().zDomain().isTime();
+    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
+    su.xrg(Interval<float>(0.0, nyq));
 
     drawer_ = new uiFuncTaperDisp( this, su );
     tapergrp_ = new uiFreqTaperGrp( this, freqtapsu, drawer_ );
@@ -228,10 +236,12 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	spec.setData( arr2d  );
 	delete funcvals_;
 	funcvals_ = new Array1DImpl<float>( 0 );
-	spec.getSpectrumData( *funcvals_ );
+	spec.getSpectrumData( *funcvals_, true );
 	drawer_->setup().fillbelowy2_ = true;
-	drawer_->setFunction( *funcvals_, spec.getPosRange() );
-	drawer_->yAxis(true)->setCaption( tr("Power (dB)") );
+	const bool zistime = SI().zDomain().isTime();
+	Interval<float> posrange = spec.getPosRange();
+	posrange.scale(zistime ? 1.0f : 1000.0f);
+	drawer_->setFunction( *funcvals_, posrange );
     }
 }
 
@@ -273,7 +283,12 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     varinpfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,taperChged) );
     varinpfld_->setElemSzPol( uiObject::Small );
 
-    inffreqfld_ = new uiGenInput( this, tr("Start/Stop frequency(Hz)"),
+    const bool zistime = SI().zDomain().isTime();
+    inffreqfld_ = new uiGenInput( this, zistime ?
+					    tr("Start/Stop frequency(Hz)") :
+					SI().depthsInFeet() ?
+					    tr("Start/Stop wavenumber(/kft)") :
+					    tr("Start/Stop wavenumber(/km)"),
 				    FloatInpSpec().setName("Min frequency") );
     inffreqfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
     inffreqfld_->attach( rightOf, varinpfld_ );

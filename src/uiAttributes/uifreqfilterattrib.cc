@@ -58,6 +58,9 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     su.label_ = "Window/Taper";
     su.winname_ = 0;
 
+    const bool zistime = SI().zDomain().isTime();
+    const bool zismeter = SI().zDomain().isDepth() && !SI().depthsInFeet();
+
     for ( int idx=0; idx<2; idx++ )
     {
 	if ( idx )
@@ -65,7 +68,9 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    su.label_ = "Taper";
 	    su.onlytaper_ = true;
 	    su.with2fldsinput_ = true;
-	    su.inpfldtxt_ = "Min/max frequency(Hz)";
+	    su.inpfldtxt_ = zistime ? "Min/max Frequency(Hz)" :
+			    zismeter ? "Min/max Wavenumber(/km)" :
+				       "Min/max Wavenumber(/kft)";
 
 	    FreqTaperSetup freqsu;
 	    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
@@ -78,7 +83,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    winflds_ += new uiWindowFunctionSel( this, su );
 	winflds_[idx]->display (false);
     }
-    uiString seltxt = tr( "Specify Frequency Taper" );
+    uiString seltxt = zistime ? tr( "Specify Frequency Taper" ) :
+				tr( "Specify Wavenumber Taper" );
     freqwinselfld_ = new uiCheckBox( this, seltxt );
     freqwinselfld_->attach( alignedBelow, winflds_[0] );
     freqwinselfld_->activated.notify( mCB(this,uiFreqFilterAttrib,freqWinSel) );
@@ -147,11 +153,18 @@ void uiFreqFilterAttrib::freqChanged( CallBacker* )
 void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
 {
     mDynamicCastGet( uiFreqTaperSel*, tap, winflds_[1] );
+    const bool zistime = SI().zDomain().isTime();
+    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
+
     if ( tap )
     {
 	const bool costaper = FixedString(tap->windowName()) == "CosTaper";
 	Interval<float> frg( freqfld_->freqRange() );
-	if ( costaper ) { frg.start-=5; frg.stop+=10; }
+	if ( costaper )
+	{
+	    frg.start -= nyq * 0.04;
+	    frg.stop += nyq * 0.08;
+	}
 	tap->setInputFreqValue( frg.start > 0 ? frg.start : 0, 0 );
 	tap->setInputFreqValue( frg.stop , 1 );
     }
@@ -260,10 +273,13 @@ bool uiFreqFilterAttrib::getInput( Desc& desc )
 void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     const int passtype = (int)freqfld_->filterType();
+    const bool zistime = SI().zDomain().isTime();
     if ( passtype != 0 )
-	params += EvalParam( "Min frequency", FreqFilter::minfreqStr() );
+	params += EvalParam( zistime ? "Min Frequency" : "Min Wavenumber",
+			     FreqFilter::minfreqStr() );
     if ( passtype != 1 )
-	params += EvalParam( "Max frequency", FreqFilter::maxfreqStr() );
+	params += EvalParam( zistime ? "Max Frequency" : "Max Wavenumber",
+			     FreqFilter::maxfreqStr() );
     if ( !isfftfld_->getBoolValue() )
 	params += EvalParam( "Nr poles", FreqFilter::nrpolesStr() );
 }
@@ -286,25 +302,39 @@ bool uiFreqFilterAttrib::areUIParsOK()
     }
 
     mDynamicCastGet(uiFreqTaperSel*,taper,winflds_[1]);
+    const bool zistime = SI().zDomain().isTime();
+
     if ( isfft && taper )
     {
 	Interval<float> freqresvar = taper->freqValues();
 	if ( freqresvar.start < 0 )
 	{
-	    errmsg_= tr("min frequency cannot be negative");
+	    errmsg_= zistime ?
+			    tr("min frequency cannot be negative") :
+			    tr("min wavenumber cannot be negative");
 	    mErrWinFreqMsg()
 	}
 
 	if ( freqresvar.start > freqfld_->freqRange().start )
 	{
-	    errmsg_ = tr("Taper min frequency must be lower than this of the"
-		" filter frequency.\n Please select a different frequency.");
+	    errmsg_ = zistime ?
+			    tr("Taper min frequency must be lower than the"
+			       " minimum filter frequency.\n Please select"
+			       " a different frequency.") :
+			    tr("Taper min wavenumber must be lower than the"
+			       " minimum filter wavenumber.\n Please select"
+			       " a different wavenumber.");
 	    mErrWinFreqMsg()
 	}
 	if ( freqresvar.stop < freqfld_->freqRange().stop )
 	{
-	    errmsg_ = tr("Taper max frequency must be higher than this of the"
-		" filter frequency.\n Please select a different frequency.");
+	    errmsg_ = zistime ?
+			    tr("Taper max frequency must be higher than the"
+			       " maximum filter frequency.\n Please select"
+			       " a different frequency.") :
+			    tr("Taper max wavenumber must be higher than the"
+			       " maximum filter wavenumber.\n Please select"
+			       " a different wavenumber.");
 	    mErrWinFreqMsg()
 	}
     }
@@ -314,12 +344,16 @@ bool uiFreqFilterAttrib::areUIParsOK()
     {
 	if ( mIsZero(freqfld_->freqRange().width(),1e-3) )
 	{
-	    errmsg_ = tr("min and max frequencies should be different");
+	    errmsg_ = zistime ?
+			tr("min and max frequencies should be different") :
+			tr("min and max wavenumbers should be different");
 	    return false;
 	}
 	else if ( freqfld_->freqRange().isRev() )
 	{
-	    errmsg_ = tr("Min frequency must be lower than max frequency");
+	    errmsg_ = zistime ?
+			tr("Min frequency must be lower than max frequency") :
+			tr("Min wavenumber must be lower than max wavenumber");
 	    return false;
 	}
     }

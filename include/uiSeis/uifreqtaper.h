@@ -74,12 +74,20 @@ public:
     {
 			Setup()
 			    : is2sided_(false)
-			    , datasz_((int)(0.5/SI().zStep()))
+			    , datasz_((int)(0.5/SI().zStep() *
+				    (SI().zDomain().isTime() ? 1.0f : 1000.0f)))
 			    , logscale_(false)
 			    {
 				xaxcaption_ = uiStrings::phrJoinStrings(
-					  uiStrings::sFrequency(), tr("(Hz)"));
-				yaxcaption_ = tr("Gain Factor (dB)");
+					    SI().zDomain().isTime() ?
+						    uiStrings::sFrequency() :
+						    uiStrings::sWaveNumber(),
+					    SI().zDomain().isTime() ?
+						    tr("(Hz)") :
+					    SI().depthsInFeet() ?
+						    tr("(/kft)") :
+						    tr("(/km)") );
+				yaxcaption_ = tr("Amplitude");
 				noxgridline_ = true;
 				noygridline_ = true;
 				ywidth_ = 2;

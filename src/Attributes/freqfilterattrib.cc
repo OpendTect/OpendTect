@@ -37,7 +37,9 @@ mAttrDefCreateInstance(FreqFilter)
 
 void FreqFilter::initClass()
 {
-    mAttrStartInitClassWithUpdate
+    mAttrStartInitClassWithDescAndDefaultsUpdate
+    const bool zistime = SI().zDomain().isTime();
+    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
 
     //Note: Ordering must be the same as numbering!
     EnumParam* filtertype_ = new EnumParam( filtertypeStr() );
@@ -49,12 +51,12 @@ void FreqFilter::initClass()
 
     FloatParam* minfreq_ = new FloatParam( minfreqStr() );
     minfreq_->setLimits( Interval<float>(0,mUdf(float)) );
-    minfreq_->setDefaultValue(15);
+    minfreq_->setDefaultValue( nyq * 0.12 );
     desc->addParam( minfreq_ );
 
     FloatParam* maxfreq_ = new FloatParam( maxfreqStr() );
     maxfreq_->setLimits( Interval<float>(0,mUdf(float)) );
-    maxfreq_->setDefaultValue(50);
+    maxfreq_->setDefaultValue( nyq * 0.4);
     desc->addParam( maxfreq_ );
 
     IntParam* nrpoles_ = new IntParam( nrpolesStr() );
@@ -87,13 +89,13 @@ void FreqFilter::initClass()
 
     FloatParam* freqf1_ = new FloatParam( freqf1Str() );
     freqf1_->setLimits( Interval<float>(0,mUdf(float)) );
-    freqf1_->setDefaultValue( 10 );
+    freqf1_->setDefaultValue( nyq * 0.08 );
     freqf1_->setRequired( false );
     desc->addParam( freqf1_ );
 
     FloatParam* freqf4_ = new FloatParam( freqf4Str() );
     freqf4_->setLimits( Interval<float>(0,mUdf(float)) );
-    freqf4_->setDefaultValue( 60 );
+    freqf4_->setDefaultValue( nyq * 0.48 );
     freqf4_->setRequired( false );
     desc->addParam( freqf4_ );
 
@@ -134,6 +136,16 @@ void FreqFilter::updateDesc( Desc& desc )
     desc.inputSpec(1).enabled_ = isfft;
 }
 
+
+void FreqFilter::updateDefaults( Desc& desc )
+{
+    const bool zistime = SI().zDomain().isTime();
+    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
+    desc.getValParam( minfreqStr() )->setDefaultValue( nyq * 0.12 );
+    desc.getValParam( maxfreqStr() )->setDefaultValue( nyq * 0.4 );
+    desc.getValParam( freqf1Str() )->setDefaultValue( nyq * 0.08 );
+    desc.getValParam( freqf4Str() )->setDefaultValue( nyq * 0.48 );
+}
 
 
 FreqFilter::FreqFilter( Desc& ds )
@@ -228,6 +240,8 @@ bool FreqFilter::computeData( const DataHolder& output, const BinID& relpos,
 void FreqFilter::butterWorthFilter( const DataHolder& output,
 				    int z0, int nrsamples )
 {
+    const bool zistime = SI().zDomain().isTime();
+
     int nrsamp = nrsamples;
     int csamp = z0;
     if ( nrsamples < mMINNRSAMPLES )
@@ -251,7 +265,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     if ( filtertype_ == FFTFilter::LowPass )
     {
-	float cutoff = refstep_ * maxfreq_;
+	float cutoff = refstep_ * maxfreq_ / (zistime ? 1.0f : 1000.0f);
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, outp );
 	reverseArray( outp.ptr(), nrsamp );
 	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
@@ -259,7 +273,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     }
     else if ( filtertype_ == FFTFilter::HighPass )
     {
-	float cutoff = refstep_ * minfreq_;
+	float cutoff = refstep_ * minfreq_ / (zistime ? 1.0f : 1000.0f);
 	BFhighpass( nrpoles_, cutoff, nrsamp, data, outp );
 	reverseArray( outp.ptr(), nrsamp );
 	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
@@ -267,15 +281,15 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     }
     else
     {
-	float cutoff = refstep_ * maxfreq_;
+	float cutoff = refstep_ * maxfreq_ / (zistime ? 1.0f : 1000.0f);
 	mAllocLargeVarLenArr( float, tmp, nrsamp );
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, tmp );
-	cutoff = refstep_ * minfreq_;
+	cutoff = refstep_ * minfreq_ / (zistime ? 1.0f : 1000.0f);
 	BFhighpass( nrpoles_, cutoff, nrsamp, tmp, outp );
 	reverseArray( outp.ptr(), nrsamp );
-	cutoff = refstep_ * maxfreq_;
+	cutoff = refstep_ * maxfreq_ / (zistime ? 1.0f : 1000.0f);
 	BFlowpass( nrpoles_, cutoff, nrsamp, outp, outp );
-	cutoff = refstep_ * minfreq_;
+	cutoff = refstep_ * minfreq_ / (zistime ? 1.0f : 1000.0f);
 	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
 	reverseArray( outp.ptr(), nrsamp );
     }
@@ -296,6 +310,8 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
 void FreqFilter::fftFilter( const DataHolder& output, int z0, int nrsamples )
 {
+    const bool zistime = SI().zDomain().isTime();
+
     signal_.setInfo( Array1DInfoImpl( nrsamples ) );
     bool isimagudf = false;
     Array1DImpl<float> realsignal( nrsamples );
@@ -316,11 +332,16 @@ void FreqFilter::fftFilter( const DataHolder& output, int z0, int nrsamples )
 	    return;
 
     if ( filtertype_ == FFTFilter::HighPass )
-	filter.setHighPass( freqf1_, minfreq_ );
+	filter.setHighPass( freqf1_ / (zistime ? 1.0f : 1000.0f),
+			    minfreq_ / (zistime ? 1.0f : 1000.0f) );
     else if ( filtertype_ == FFTFilter::LowPass )
-	filter.setLowPass( maxfreq_, freqf4_ );
+	filter.setLowPass( maxfreq_ / (zistime ? 1.0f : 1000.0f),
+			   freqf4_ / (zistime ? 1.0f : 1000.0f) );
     else if ( filtertype_ == FFTFilter::BandPass )
-	filter.setBandPass( freqf1_, minfreq_, maxfreq_, freqf4_ );
+	filter.setBandPass( freqf1_ / (zistime ? 1.0f : 1000.0f),
+			    minfreq_ / (zistime ? 1.0f : 1000.0f),
+			    maxfreq_ / (zistime ? 1.0f : 1000.0f),
+			    freqf4_ / (zistime ? 1.0f : 1000.0f) );
 
     if ( isimagudf )
     {

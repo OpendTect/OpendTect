@@ -65,6 +65,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     asu.nogridline( asu.noaxisline_ ? true : setup_.noygridline_ );
     asu.side( uiRect::Left );
     asu.annotinint_ = setup_.yannotinint_;
+    xax_->setBounds(setup_.xrg_);
     yax_ = new uiAxisHandler( &scene(), asu );
     asu.noaxisline( setup_.noy2axis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty2_ );

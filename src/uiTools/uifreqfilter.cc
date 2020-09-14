@@ -13,12 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifreqfilter.h"
 #include "uigeninput.h"
+#include "survinfo.h"
 
 
 uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     : uiGroup( p, "Frequency Filter Selection")
     , parchanged(this)  
 {
+    const bool zistime = SI().zDomain().isTime();
     const char** typestrs = FFTFilter::TypeNames();
     typefld_ = new uiGenInput(this, tr("Filter type"), 
                               StringListInpSpec(typestrs));
@@ -27,8 +29,8 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
     freqfld_ = new uiGenInput( this, sMinMax(), 
-	    FloatInpSpec().setName("Min frequency"),
-	    FloatInpSpec().setName("Max frequency") );
+	    FloatInpSpec().setName(zistime?"Min frequency":"Min wavenumber"),
+	    FloatInpSpec().setName(zistime?"Max frequency":"Max wavenumber") );
     freqfld_->setElemSzPol( uiObject::Small );
     freqfld_->attach( alignedBelow, typefld_ );
     freqfld_->valuechanged.notify(mCB(this,uiFreqFilterSelFreq,getFromScreen));
@@ -36,7 +38,9 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
 
     setHAlignObj( freqfld_ );
 
-    set( 15, 50, FFTFilter::LowPass );
+    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
+    set( nyq*0.1, nyq*0.4, FFTFilter::LowPass );
+
 
     postFinalise().notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
 }
@@ -50,7 +54,13 @@ void uiFreqFilterSelFreq::parChgCB( CallBacker* )
 
 const uiString uiFreqFilterSelFreq::sMinMax()
 { 
-    return tr("Min/max %1(Hz)").arg(uiStrings::sFrequency(true)); 
+    const bool zistime = SI().zDomain().isTime();
+    const bool zismeter = SI().zDomain().isDepth() && !SI().depthsInFeet();
+    return zistime ?
+		tr("Min/max %1(Hz)").arg(uiStrings::sFrequency(true)) :
+	   zismeter ?
+		tr("Min/max %1(/km)").arg(uiStrings::sWaveNumber(true)) :
+		tr("Min/max %1(/kft)").arg(uiStrings::sWaveNumber(true));
 }
 
 
