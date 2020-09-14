@@ -91,6 +91,7 @@ public:
 	packet->getStringPayload( packetstring );
 	if ( packetstring==Server::sKeyKillword() )
 	{
+	    conn->socket()->disconnectFromHost();
 	    logStream() << "Kill requested " << od_endl;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
@@ -110,7 +111,7 @@ public:
 	else
 	{
 	    conn->sendPacket( *packet );
-	    od_cout() << "Request " << packet->requestID()
+	    logStream() << "Request " << packet->requestID()
 		  << " sent packet "
 		  << packet->subID() << " size " << packet->payloadSize()
 		  << od_endl;
