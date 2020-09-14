@@ -81,7 +81,7 @@ public:
 		{
 		    socket->disconnectFromHost();
 		    CallBack::addToMainThread(
-					 mCB(this,EchoServer,closeServerCB) );
+			    mCB(this,EchoServer,closeServerCB) );
 		    return;
 		}
 
@@ -135,11 +135,16 @@ int mTestMainFnName(int argc, char** argv)
     int timeout = 120;
     clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
-    Network::EchoServer server( mCast(PortNr_Type,startport),
-				mCast(unsigned short,timeout) );
+    PtrMan<Network::EchoServer> tester
+		= new Network::EchoServer( mCast(PortNr_Type,startport),
+					   mCast(unsigned short,timeout) );
 
-    logStream() << "Listening to port " << server.server_.port()
-		  << " with a " << server.timeout_ << " second timeout\n";
+    logStream() << "Listening to port " << tester->server_.port()
+		  << " with a " << tester->timeout_ << " second timeout\n";
 
-    return app.exec();
+    const int retval = app.exec();
+
+    tester = nullptr;
+
+    return retval;
 }
