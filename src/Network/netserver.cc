@@ -454,17 +454,22 @@ bool Network::Server::listen( SpecAddr specaddress, PortNr_Type prt )
 
 bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 {
+    if ( qlocalserver_ )
+    {
+	const bool canlisten = qlocalserver_->listen( servernm );
+	if ( !canlisten )
+	    ret.set( tr("%1 server name is already in use").arg(servernm) );
+	return canlisten;
+    }
+
     if ( !isLocal() )
     {
-	pErrMsg( "It needs a valid server name to listen to" );
+	pErrMsg( "Wrong listen function called on TCP-IP server" );
 	return false;
     }
 
-    const bool canlisten = qlocalserver_->listen(servernm);
-    if ( !canlisten )
-	ret.set(tr("%1 server name is already in use").arg(servernm));
-
-    return canlisten;
+    DBG::forceCrash(false);
+    return false;
 }
 
 
@@ -591,7 +596,7 @@ void Network::Server::disconnectCB( CallBacker* cb )
     }
 
     const int delidx = sockets2bdeleted_.indexOf( socket );
-    if ( delidx>=0 )
+    if ( delidx < 0 )
 	sockets2bdeleted_ += socket;
 }
 

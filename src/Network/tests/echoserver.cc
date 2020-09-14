@@ -69,11 +69,22 @@ public:
 	    //logStream() << "\nEchoing " << readsize << " bytes" << od_endl;
 
 	    const char* writeptr = data;
-	    const FixedString writestr( writeptr+sizeof(int) );
-	    if ( writestr.startsWith(Network::Server::sKeyKillword()) )
+	    if ( readsize > 0 && readsize < 10 )
 	    {
-		CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
-		return;
+		const char* strptr = writeptr;
+		/*With threads: the string size and string data come together,
+		  the string being preceded by an integer */
+		if ( readsize > sizeof(int) )
+		    strptr += sizeof(int);
+		const FixedString writestr( strptr );
+		if ( writestr.startsWith(Network::Server::sKeyKillword()) )
+		{
+		    socket->disconnectFromHost();
+		    CallBack::addToMainThread(
+					 mCB(this,EchoServer,closeServerCB) );
+		    return;
+		}
+
 	    }
 
 	    const od_int64 nrtowrite = readsize;

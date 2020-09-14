@@ -12,6 +12,7 @@
 #include "odsysmem.h"
 #include "odmemory.h"
 #include "oscommand.h"
+#include "sighndl.h"
 #include "statrand.h"
 #include "testprog.h"
 
@@ -55,7 +56,6 @@ public:
     int			timeout_ = 600;
     const char*		prefix_;
     bool		exitonfinish_;
-    OS::MachineCommand	servercmd_;
 };
 
 
@@ -63,23 +63,6 @@ bool TestRunner::testNetSocket( bool closeserver )
 {
     Network::Socket connection( false, !noeventloop_ );
     connection.setTimeout( timeout_ );
-
-    if ( !connection.connectToHost(auth_,true) )
-    {
-	OS::CommandLauncher cl( servercmd_ );
-	if ( !cl.execute(OS::RunInBG) )
-	{
-	    logStream() << "Cannot start " << servercmd_.program()
-			<< ": " << toString(cl.errorMsg()) << od_endl;
-	    return false;
-	}
-
-	Threads::sleep( 5 );
-    }
-    else
-    {
-	connection.abort();
-    }
 
     const Network::Authority nonexisting( "non_existing_host",
 				mCast(PortNr_Type,20000) );
@@ -158,6 +141,17 @@ bool TestRunner::testNetSocket( bool closeserver )
 }
 
 
+static void terminateServer( const PID_Type pid )
+{
+    Threads::sleep( 0.1 );
+    if ( !isProcessAlive(pid) )
+	return;
+
+    logStream() << "Terminating zombie server with PID: " << pid << od_endl;
+    SignalHandling::stopProcess( pid );
+}
+
+
 // Should operate against a server that echos all input back to sender, which
 // can be specified by --serverapp "application". If no serverapp is given,
 // echoserver is started
@@ -177,19 +171,13 @@ int mTestMainFnName(int argc, char** argv)
 
     BufferString serverapp = "test_echoserver";
     clParser().getKeyedInfo( "serverapp", serverapp, true );
-    runner->servercmd_.setProgram( serverapp );
 
     int port = 1025;
     runner->auth_.setPort( mCast(PortNr_Type,port) );
     clParser().getKeyedInfo( "timeout", runner->timeout_, true );
-    runner->servercmd_.addKeyedArg( "timeout", runner->timeout_ );
 
     if ( clParser().getKeyedInfo(Network::Server::sKeyPort(),port,false) )
 	runner->auth_.setPort( mCast(PortNr_Type,port) );
-    runner->servercmd_.addKeyedArg( Network::Server::sKeyPort(), port );
-
-    if ( clParser().hasKey("quiet") )
-	runner->servercmd_.addFlag( "quiet" );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );
@@ -207,8 +195,31 @@ int mTestMainFnName(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    if ( !runner->testNetSocket() )
+    OS::MachineCommand mc( serverapp );
+    mc.addKeyedArg( "timeout", runner->timeout_ );
+    mc.addKeyedArg( Network::Server::sKeyPort(), port );
+    if ( clParser().hasKey("quiet") )
+	mc.addFlag( "quiet" );
+
+    const OS::CommandExecPars execpars( OS::RunInBG );
+    OS::CommandLauncher cl( mc );
+    if ( !cl.execute(execpars) )
+    {
+	od_ostream::logStream() << "Cannot start " << mc.toString(&execpars);
+	od_ostream::logStream() << ": " << toString(cl.errorMsg()) << od_endl;
 	return 1;
+    }
+
+    Threads::sleep( 1 );
+    const PID_Type serverpid = cl.processID();
+    mRunStandardTest( (isProcessAlive(serverpid)),
+	    BufferString( "Server started with PID: ", serverpid ) );
+
+    if ( !runner->testNetSocket(false) )
+    {
+	terminateServer( serverpid );
+	return 1;
+    }
 
     //Now with a running event loop
 
@@ -216,9 +227,13 @@ int mTestMainFnName(int argc, char** argv)
     runner->exitonfinish_ = true;
     runner->noeventloop_ = false;
     CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
-    const int res = app.exec();
+    const int retval = app.exec();
 
     runner = nullptr;
 
-    return res;
+    Threads::sleep( 1 );
+    mRunStandardTest( (!isProcessAlive(serverpid)), "Server has been stopped" );
+    terminateServer( serverpid );
+
+    return retval;
 }

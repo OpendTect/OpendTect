@@ -64,7 +64,7 @@ public:
 			*/
 
     RefMan<RequestPacket> pickupPacket(od_int32 reqid,int timeout /* in ms */,
-				     int* errorcode=0);
+				     int* errorcode=nullptr);
 			/*!<Must be called from same thread as construcor unless
 			    'multithreaded' flag was set on constructor.
 			*/
