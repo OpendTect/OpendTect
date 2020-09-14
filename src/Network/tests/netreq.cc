@@ -9,8 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "applicationdata.h"
 #include "oscommand.h"
 #include "ptrman.h"
-#include "testprog.h"
+#include "sighndl.h"
 #include "string.h"
+#include "testprog.h"
 #include "varlenarray.h"
 
 #include "netreqconnection.h"
@@ -254,6 +255,17 @@ public:
 };
 
 
+static void terminateServer( const PID_Type pid )
+{
+    Threads::sleep( 0.1 );
+    if ( !isProcessAlive(pid) )
+        return;
+
+    od_cout() << "Terminating zombie server with PID: " << pid << od_endl;
+    SignalHandling::stopProcess( pid );
+}
+
+
 int main(int argc, char** argv)
 {
     mInitTestProg();
@@ -272,29 +284,40 @@ int main(int argc, char** argv)
 
     BufferString echoapp = "test_netreqechoserver";
     clparser.getVal( "serverapp", echoapp );
-    OS::MachineCommand echocmd( echoapp );
-    echocmd.addKeyedArg( portkey, runner->authority_->getPort() );
-    echocmd.addFlag( "quiet" );
 
-    OS::CommandExecPars execpars( OS::RunInBG );
-    OS::CommandLauncher cl( echocmd );
+    OS::MachineCommand mc( echoapp );
+    mc.addKeyedArg( portkey, runner->authority_->getPort() );
+//    if ( clParser().hasKey("quiet") )
+	mc.addFlag( "quiet" );
 
-    if ( !clparser.hasKey("noechoapp") &&
-	 !cl.execute(execpars) )
+    const OS::CommandExecPars execpars( OS::RunInBG );
+    OS::CommandLauncher cl( mc );
+    if ( !clparser.hasKey("noechoapp") && !cl.execute(execpars) )
     {
-	od_ostream::logStream() << "Cannot start " << echoapp << "\n";
+	od_ostream::logStream() << "Cannot start " << mc.toString(&execpars);
+	od_ostream::logStream() << ": " << toString(cl.errorMsg()) << od_endl;
 	ExitProgram( 1 );
     }
 
-    Threads::sleep( 20 );
+    Threads::sleep( 1 );
+    const PID_Type serverpid = cl.processID();
+    mRunStandardTest( (isProcessAlive(serverpid)),
+	    BufferString( "Server started with PID: ", serverpid ) );
 
     if ( !runner->runTest(false,false) )
+    {
+	terminateServer( serverpid );
 	ExitProgram( 1 );
+    }
 
     CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
 
-    runner = 0;
+    runner = nullptr;
+
+    Threads::sleep( 1 );
+    mRunStandardTest( (!isProcessAlive(serverpid)), "Server has been stopped" );
+    terminateServer( serverpid );
 
     ExitProgram( retval );
 }

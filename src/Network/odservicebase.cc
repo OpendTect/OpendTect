@@ -413,8 +413,8 @@ void ODServiceBase::newConnectionCB( CallBacker* )
 {
     //TODO: Capsule to tell us from which server is comes
     Network::RequestConnection* conn = localServer()
-	    ? localServer()->pickupNewConnection()
-	    : server_->pickupNewConnection();
+				? localServer()->pickupNewConnection()
+				: server_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");

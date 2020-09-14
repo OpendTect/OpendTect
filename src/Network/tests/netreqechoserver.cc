@@ -94,6 +94,7 @@ public:
 	packet->getStringPayload( packetstring );
 	if ( packetstring==Server::sKeyKillword() )
 	{
+	    conn->socket()->disconnectFromHost();
 	    if ( !quiet )
 		od_cout() << "Kill requested " << od_endl;
 
@@ -115,10 +116,11 @@ public:
 	else
 	{
 	    conn->sendPacket( *packet );
-	    od_cout() << "Request " << packet->requestID()
-		  << " sent packet "
-		  << packet->subID() << " size " << packet->payloadSize()
-		  << od_endl;
+	    if ( !quiet )
+		od_cout() << "Request " << packet->requestID()
+		      << " sent packet "
+		      << packet->subID() << " size " << packet->payloadSize()
+		      << od_endl;
 	    packet.release();
 	}
     }

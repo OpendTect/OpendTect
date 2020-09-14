@@ -493,9 +493,9 @@ bool Network::Server::listen( SpecAddr specaddress, PortNr_Type prt )
 
 bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 {
-    if ( !isLocal() )
+    if ( qtcpserver_ )
     {
-	pErrMsg( "It needs a valid server name to listen to" );
+	pErrMsg( "Wrong listen function called on TCP-IP server" );
 	return false;
     }
 
@@ -570,6 +570,7 @@ bool Network::Server::hasPendingConnections() const
     return qtcpserver_->hasPendingConnections();
 }
 
+
 QTcpSocket* Network::Server::nextPendingConnection()
 {
     return qtcpserver_->nextPendingConnection();
@@ -630,7 +631,7 @@ void Network::Server::disconnectCB( CallBacker* cb )
     }
 
     const int delidx = sockets2bdeleted_.indexOf( socket );
-    if ( delidx>=0 )
+    if ( delidx < 0 )
 	sockets2bdeleted_ += socket;
 }
 
