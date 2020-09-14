@@ -193,14 +193,19 @@ int main(int argc, char** argv)
     int timeout = 120;
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
-    Network::RequestEchoServer server( mCast(PortNr_Type,startport),
-				       mCast(unsigned short,timeout) );
+    PtrMan<Network::RequestEchoServer> tester =
+		new Network::RequestEchoServer( mCast(PortNr_Type,startport),
+						mCast(unsigned short,timeout) );
 
     if ( !quiet )
     {
-	od_cout() << "Listening to port " << server.server_.server()->port()
-		  << " with a " << server.timeout_ << " second timeout\n";
+	od_cout() << "Listening to port " << tester->server_.server()->port()
+		  << " with a " << tester->timeout_ << " second timeout\n";
     }
 
-    ExitProgram( app.exec() );
+    const int retval = app.exec();
+
+    tester = nullptr;
+
+    ExitProgram( retval );
 }

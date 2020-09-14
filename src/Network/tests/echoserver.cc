@@ -86,6 +86,7 @@ public:
 			    mCB(this,EchoServer,closeServerCB) );
 		    return;
 		}
+
 	    }
 
 	    const od_int64 nrtowrite = readsize;
@@ -136,14 +137,19 @@ int main(int argc, char** argv)
     int timeout = 120;
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
-    Network::EchoServer server( mCast(PortNr_Type,startport),
-				mCast(unsigned short,timeout) );
+    PtrMan<Network::EchoServer> tester
+		= new Network::EchoServer( mCast(PortNr_Type,startport),
+					   mCast(unsigned short,timeout) );
 
     if ( !quiet )
     {
-	od_cout() << "Listening to port " << server.server_.port()
-		  << " with a " << server.timeout_ << " second timeout\n";
+	od_cout() << "Listening to port " << tester->server_.port()
+		  << " with a " << tester->timeout_ << " second timeout\n";
     }
 
-    ExitProgram( app.exec() );
+    const int retval = app.exec();
+
+    tester = nullptr;
+
+    ExitProgram( retval );
 }

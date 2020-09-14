@@ -36,13 +36,13 @@ static const char* rcsID mUsedVar = "$Id$";
 static HiddenParam<Network::Socket,QLocalSocket*> netsocketqlocalmgr_(nullptr);
 
 Network::Socket::Socket( bool haveevloop )
-    : timeout_(mTimeOut)
-    , noeventloop_(!haveevloop)
+    : noeventloop_(!haveevloop)
     , disconnected(this)
     , readyRead(this)
     , ownssocket_(true)
     , thread_(Threads::currentThread())
     , qtcpsocket_(new QTcpSocket())
+    , timeout_(mTimeOut)
 {
     netsocketqlocalmgr_.setParam( this, nullptr );
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
@@ -50,14 +50,13 @@ Network::Socket::Socket( bool haveevloop )
 
 
 Network::Socket::Socket( bool islocal, bool haveevloop )
-    : socketcomm_(0)
-    , timeout_(mTimeOut)
-    , noeventloop_(!haveevloop)
+    : noeventloop_(!haveevloop)
     , disconnected(this)
     , readyRead(this)
     , qtcpsocket_(nullptr)
     , ownssocket_(true)
     , thread_(Threads::currentThread())
+    , timeout_(mTimeOut)
 {
     netsocketqlocalmgr_.setParam( this, nullptr );
     if ( islocal )
@@ -77,12 +76,12 @@ Network::Socket::Socket( bool islocal, bool haveevloop )
 
 Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     : qtcpsocket_(s)
-    , timeout_(mTimeOut)
     , noeventloop_(!haveevloop)
     , disconnected(this)
     , readyRead(this)
     , ownssocket_(false)
     , thread_(Threads::currentThread())
+    , timeout_(mTimeOut)
 {
     netsocketqlocalmgr_.setParam( this, nullptr );
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
@@ -399,6 +398,12 @@ bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
     if ( !pkt.isOK() )
 	return false;
 
+#ifdef __debug__
+    const int maxsz = RequestPacket::systemSizeLimit();
+    if ( maxsz > 0 && pkt.totalSize() > maxsz )
+	{ pErrMsg( BufferString("Pkt exceeds max size: ",pkt.totalSize()) ); }
+#endif
+
     Threads::Locker locker( lock_ );
     if ( !writeArray( pkt.getRawHeader(), pkt.headerSize(), waitfor ) ||
 	   !writeArray( pkt.payload(), pkt.payloadSize(), waitfor ) )
@@ -431,6 +436,7 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
 	od_int64 readsize = bytestoread;
 	if ( readsize>maxbuffersize )
 	    readsize = maxbuffersize;
+
 	const od_int64 bytesread = isLocal() ?
 			    qlocalsocket->read( buf, readsize ) :
 					    qtcpsocket_->read( buf, readsize );

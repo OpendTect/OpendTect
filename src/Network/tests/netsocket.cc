@@ -230,7 +230,7 @@ int main(int argc, char** argv)
     CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
     const int retval = app.exec();
 
-    runner = 0;
+    runner = nullptr;
 
     Threads::sleep( 1 );
     mRunStandardTest( (!isProcessAlive(serverpid)), "Server has been stopped" );
