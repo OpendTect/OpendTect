@@ -37,10 +37,14 @@ static BufferString packetString( const char* prefix,
 class Tester : public CallBacker
 {
 public:
+
+    Tester( const Network::Authority& auth )
+	: authority_(auth)
+    {}
+
     ~Tester()
     {
 	detachAllNotifiers();
-	delete authority_;
 	CallBack::removeFromThreadCalls( this );
     }
 
@@ -53,7 +57,7 @@ public:
 
     bool runTest( bool sendkill, bool multithreaded )
     {
-	Network::RequestConnection conn( *authority_, multithreaded );
+	Network::RequestConnection conn( authority_, multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
 	      toString(conn.errMsg()) );
@@ -139,7 +143,7 @@ public:
 	    //
 	    //Further, the errorcode should be set correctly.
 
-	    Network::RequestConnection conn2( *authority_,
+	    Network::RequestConnection conn2( authority_,
 					      multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
@@ -246,20 +250,20 @@ public:
 
 
     Threads::ConditionVar	condvar_;
-    bool			unexpectedarrived_;
+    bool			unexpectedarrived_ = false;
 
-    Network::RequestConnection* conn_;
-    bool			sendres_;
+    Network::RequestConnection* conn_ = nullptr;
+    bool			sendres_ = false;
 
     BufferString		prefix_;
-    Network::Authority*		authority_ = nullptr;
+    Network::Authority		authority_;
 };
 
 
 static void terminateServer( const PID_Type pid )
 {
     Threads::sleep( 0.1 );
-    if ( !isProcessAlive(pid) )
+    if ( pid < 1 || !isProcessAlive(pid) )
         return;
 
     logStream() << "Terminating zombie server with PID: " << pid << od_endl;
@@ -267,44 +271,53 @@ static void terminateServer( const PID_Type pid )
 }
 
 
-int mTestMainFnName(int argc, char** argv)
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
     ApplicationData app;
-    const char* portkey = Network::Server::sKeyPort();
-    clParser().setKeyHasValue( portkey );
-    clParser().setKeyHasValue( "serverapp" );
 
-    PtrMan<Tester> runner = new Tester;
-    int port = 1025;
-    clParser().getKeyedInfo( portkey, port, true );
-    delete runner->authority_;
-    runner->authority_ = new Network::Authority(
-	Network::Socket::sKeyLocalHost(), mCast(PortNr_Type,port) );
-    runner->prefix_ = "[singlethreaded] ";
-
-    BufferString echoapp = "test_netreqechoserver";
-    clParser().getKeyedInfo( "serverapp", echoapp );
-
-    OS::MachineCommand mc( echoapp );
-    mc.addKeyedArg( portkey, runner->authority_->getPort() );
-//    if ( clParser().hasKey("quiet") )
-	mc.addFlag( "quiet" );
-
-    const OS::CommandExecPars execpars( OS::RunInBG );
-    OS::CommandLauncher cl( mc );
-    if ( !clParser().hasKey("noechoapp") && !cl.execute(execpars) )
+    Network::Authority auth;
+    auth.setFrom( clParser(), "test_netreq",
+		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth.isUsable() )
     {
-	od_ostream::logStream() << "Cannot start " << mc.toString(&execpars);
-	od_ostream::logStream() << ": " << toString(cl.errorMsg()) << od_endl;
+	od_ostream& strm = od_ostream::logStream();
+	strm << "Incorrect authority '" << auth.toString() << "'";
+	strm << "for starting the server" << od_endl;
 	return 1;
     }
 
-    Threads::sleep( 1 );
-    const PID_Type serverpid = cl.processID();
-    mRunStandardTest( (isProcessAlive(serverpid)),
-	   BufferString( "Server started with PID: ", serverpid ) );
+    PID_Type serverpid = -1;
+    if ( !clParser().hasKey("noechoapp") )
+    {
+	BufferString echoapp = "test_netreqechoserver";
+	clParser().setKeyHasValue( "serverapp" );
+	clParser().getKeyedInfo( "serverapp", echoapp );
 
+	OS::MachineCommand mc( echoapp );
+	auth.addTo( mc );
+	//if ( clParser().hasKey(sKey::Quiet()) )
+	    mc.addFlag( sKey::Quiet() );
+
+	const OS::CommandExecPars execpars( OS::RunInBG );
+	OS::CommandLauncher cl(mc);
+	if ( !cl.execute(execpars) )
+	{
+	    od_ostream& strm = od_ostream::logStream();
+	    strm << "Cannot start " << mc.toString( &execpars );
+	    strm << ": " << toString(cl.errorMsg()) << od_endl;
+	    return 1;
+	}
+
+	Threads::sleep( 1 );
+	serverpid = cl.processID();
+	mRunStandardTest( (isProcessAlive(serverpid)),
+			BufferString("Server started with PID: ", serverpid) );
+    }
+
+    PtrMan<Tester> runner = new Tester( auth );
+    runner->prefix_ = "[singlethreaded] ";
     if ( !runner->runTest(false,false) )
     {
 	terminateServer( serverpid );
@@ -318,9 +331,13 @@ int mTestMainFnName(int argc, char** argv)
 
     runner = nullptr;
 
-    Threads::sleep( 1 );
-    mRunStandardTest( (!isProcessAlive(serverpid)), "Server has been stopped" );
-    terminateServer( serverpid );
+    if ( serverpid > 0 )
+    {
+	Threads::sleep(1);
+	mRunStandardTest( (!isProcessAlive(serverpid)),
+			  "Server has been stopped" );
+	terminateServer( serverpid );
+    }
 
     return retval;
 }
