@@ -58,6 +58,7 @@ public:
     void		raise(const Network::Service::ID) const;
     void		removeService(const Network::Service::ID);
 
+
     CNotifier<uiODServiceMgr,Network::Service::ID>	serviceAdded;
     CNotifier<uiODServiceMgr,Network::Service::ID>	serviceRemoved;
 
@@ -70,10 +71,12 @@ protected:
 			~uiODServiceMgr();
 
     uiRetVal		sendAction(const Network::Service::ID,
-				   const char*) const;
+						const char*) const;
     uiRetVal		sendAction(const Network::Service&,const char*) const;
     uiRetVal		sendRequest(const Network::Service&,const char*,
-				    const OD::JSON::Object&) const;
+					    const OD::JSON::Object&) const;
+    uiRetVal		sendRequest(const Network::Service::ID, const char*,
+						const OD::JSON::Object& ) const;
 
     virtual bool	doParseAction(const char*,uiRetVal&);
     virtual bool	doParseRequest(const OD::JSON::Object&,uiRetVal&);

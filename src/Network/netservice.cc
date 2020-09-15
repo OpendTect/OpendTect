@@ -36,7 +36,6 @@ Network::Service::Service( const OD::JSON::Object& par, const Authority& auth )
     : NamedObject()
     , auth_(auth)
 {
-    setPID( GetPID() );
     msg_ = useJSON( par );
 }
 
@@ -171,26 +170,26 @@ Network::Service::ID Network::Service::getID( const OD::JSON::Object& jsonobj )
 uiRetVal Network::Service::useJSON( const OD::JSON::Object& jsonobj )
 {
     uiRetVal uirv;
-    if ( jsonobj.isPresent( sKeyServiceName() ) )
+    if ( jsonobj.isPresent(sKeyServiceName()) )
 	setName( jsonobj.getStringValue( sKeyServiceName() ) );
     else
 	uirv.add(tr("missing key: %1").arg(sKeyServiceName()));
 
-    if ( jsonobj.isPresent( Server::sKeyHostName() ) )
+    if ( jsonobj.isPresent(Server::sKeyHostName()) )
 	setHostName( jsonobj.getStringValue(Server::sKeyHostName()) );
     else
 	uirv.add(tr("missing key: %1").arg(Server::sKeyHostName()));
 
-    if ( jsonobj.isPresent( Server::sKeyPort() ) )
+    if ( jsonobj.isPresent(Server::sKeyPort()) )
 	setPort( jsonobj.getIntValue( Server::sKeyPort() ) );
     else
 	uirv.add(tr("missing key: %1").arg(Server::sKeyPort()));
 
-    if ( jsonobj.isPresent( sKeyPID() ) )
+    if ( jsonobj.isPresent(sKeyPID()) )
 	pid_ = jsonobj.getIntValue( sKeyPID() );
 
-    if ( jsonobj.isPresent( sKeyLogFile() ) )
-	setLogFile( jsonobj.getStringValue( sKeyLogFile() ) );
+    if ( jsonobj.isPresent(sKeyLogFile()) )
+	setLogFile( jsonobj.getStringValue(sKeyLogFile()) );
 
     return uirv;
 }

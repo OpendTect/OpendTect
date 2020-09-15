@@ -287,7 +287,8 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
     ODBatchService& ODSM = ODBatchService::getMgr();
     jobspec_.pars_.add( ODSM.sKeyODServer(),
-			ODSM.getAuthority(true).toString() );
+			    ODSM.getAuthority( true ).getServerName() );
+
     if ( !dispatcher().go(jobspec_) )
     {
 	uiString errmsg = dispatcher().errMsg();

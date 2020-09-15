@@ -107,7 +107,6 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 	mc.addArg( "dir=in" );
 	mc.addArg( "action=allow" );
     }
-
     return mc.execute( OS::LaunchType::RunInBG );
 }
 

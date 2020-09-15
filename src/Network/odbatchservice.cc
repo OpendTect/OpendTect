@@ -22,15 +22,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "timer.h"
 
+
+#include "od_ostream.h"
+
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
 
 
 
-
-ODBatchService::ODBatchService( bool )
+ODBatchService::ODBatchService( bool assignport )
     : ODServiceBase()
 {
-    init();
+    init ();
 }
 
 
@@ -114,7 +116,9 @@ uiRetVal ODBatchService::close()
 
 void ODBatchService::processingComplete()
 {
-    sendAction( sKeyProcessingDone() );
+    OD::JSON::Object obj;
+    obj.set( sKey::ID(), servid_ );
+    sendRequest( sKeyProcessingDone(), obj );
 }
 
 
@@ -133,8 +137,11 @@ uiRetVal ODBatchService::doRegister()
     if ( !isODMainSlave() )
 	return uiRetVal::OK();
 
+    const BufferString servernm = getAuthority(true).getServerName();
+
     OD::JSON::Object sinfo;
-    Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
+    sinfo.set( sKey::ServerNm(), servernm );
+    Network::Service::fillJSON( getAuthority(true), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
 						sKeyRegister(), sinfo );
     if ( !uirv.isOK() )
@@ -156,7 +163,7 @@ uiRetVal ODBatchService::doDeRegister()
 	return uiRetVal::OK();
 
     OD::JSON::Object sinfo;
-    Network::Service::fillJSON( getAuthority(odauth_.isLocal()), sinfo );
+    Network::Service::fillJSON( getAuthority(true), sinfo );
     uiRetVal uirv = ODServiceBase::sendRequest( odauth_, "ODMain",
 	sKeyDeregister(), sinfo );
     if ( !uirv.isOK() )

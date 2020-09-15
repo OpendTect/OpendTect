@@ -34,6 +34,8 @@ public:
 
     void			processingComplete();
 
+    ID				getServiceID() { return servid_;  }
+
 protected:
 
 				ODBatchService(bool assignport=false);

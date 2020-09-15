@@ -129,6 +129,16 @@ Network::Service* uiODServiceMgr::getService(
 }
 
 
+uiRetVal uiODServiceMgr::sendRequest( const Network::Service::ID servid,
+		    const char* reqkey, const OD::JSON::Object& reqinfo ) const
+{
+    const Network::Service* service = getService( servid );
+
+    return sendRequest( *service, reqkey, reqinfo );
+
+}
+
+
 uiRetVal uiODServiceMgr::sendAction( const Network::Service::ID servid,
 				     const char* action ) const
 {

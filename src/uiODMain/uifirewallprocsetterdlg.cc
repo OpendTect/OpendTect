@@ -376,7 +376,6 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    mc.addArg( procset.get(procidx) );
 	    procnmsset.add( procset.get(procidx) );
 	}
-
 	if ( !mc.execute() )
 	{
 	    failedprocnms.add( procnmsset,false );

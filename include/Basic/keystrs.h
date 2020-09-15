@@ -63,6 +63,7 @@ namespace sKey
     inline FixedString EmptyString()	{ return ""; }
     inline FixedString Factor()		{ return "Factor"; }
     inline FixedString Fault()		{ return "Fault"; }
+    inline FixedString FaultStick()	{ return "FaultStick"; }
     inline FixedString FileName()	{ return "File name"; }
     inline FixedString Filter()		{ return "Filter"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
@@ -70,6 +71,7 @@ namespace sKey
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Histogram()	{ return "Histogram"; }
     inline FixedString Horizon()	{ return "Horizon"; }
+    inline FixedString Horizon2D()	{ return "Horizon2D"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString Input()		{ return "Input"; }
     inline FixedString InputID()	{ return "input_id"; }

@@ -331,6 +331,8 @@ template <class T>
 inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const
 {
     const Array* arr = getArray( key );
+    if ( !arr )
+	return false;
     const TypeSet<NumberType> intrvals = arr->valArr().vals();
 
     intrvl.start = intrvals[0];
