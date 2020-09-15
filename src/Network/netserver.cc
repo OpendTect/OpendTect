@@ -611,6 +611,7 @@ Network::Authority Network::Server::authority() const
     {
         const BufferString servernm( localServer()->serverName() );
         ret.localFromString( servernm );
+        return ret;
     }
 
     const QHostAddress qaddr = qtcpserver_->serverAddress();
