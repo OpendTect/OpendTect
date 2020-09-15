@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "applicationdata.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "genc.h"
 #include "od_ostream.h"
 #include "timer.h"
 #include "testprog.h"
@@ -22,23 +21,20 @@ namespace Network
 class EchoServer : public CallBacker
 {
 public:
-    EchoServer( PortNr_Type startport, unsigned short timeout )
-	: close_( false )
+    EchoServer( const Network::Authority& auth, unsigned short timeout )
+	: server_(auth.isLocal())
 	, timeout_( timeout )
-	, server_(false)
     {
-	mAttachCB( server_.readyRead, EchoServer::dataArrivedCB );
+	uiRetVal uirv;
+	const bool islistening = auth.isLocal()
+		? server_.listen( auth.getServerName(), uirv )
+		: server_.listen( auth.serverAddress(), auth.getPort() );
+	if ( islistening )
+	    mAttachCB( server_.readyRead, EchoServer::dataArrivedCB );
 
-	PortNr_Type port = startport;
-	const PortNr_Type maxport = 10000;
-	while ( !close_ && !server_.listen( Any, port++ ) &&
-		port<maxport )
-	{}
-
-	mAttachCB( timer_.tick, EchoServer::timerTick );
-
-	lastactivity_ = time( 0 );
-	timer_.start( 1000, false );
+	mAttachCB(timer_.tick, EchoServer::timerTick);
+	lastactivity_ = time(0);
+	timer_.start(1000, false);
     }
 
     ~EchoServer()
@@ -109,13 +105,20 @@ public:
 
 	    CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
 	}
+
+	if ( !server_.isListening() )
+	{
+		od_cout() << "Server error: " << server_.errorMsg() << od_endl;
+		CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
+	}
+
     }
 
     Network::Server		server_;
     Timer			timer_;
     time_t			lastactivity_;
     time_t			timeout_;
-    bool			close_;
+    bool			close_ = false;
 };
 
 } //Namespace
@@ -126,24 +129,33 @@ int main(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( !clparser.hasKey(Network::Server::sKeyPort()) )
-	ExitProgram( 0 );
+    if ( clparser.nrArgs() == 1 && clparser.hasKey(sKey::Quiet()) )
+	return  0;
 
     ApplicationData app;
 
-    int startport = 1025;
-    clparser.getVal( Network::Server::sKeyPort(), startport );
+    const Network::Authority auth = Network::Authority::getFrom( clparser,
+	  "test_netsocket",
+		Network::Socket::sKeyLocalHost(), PortNr_Type(1025));
+    if ( !auth.isUsable() )
+    {
+	od_ostream& strm = od_ostream::logStream();
+	strm << "Incorrect authority '" << auth.toString() << "'";
+	strm << "for starting the server" << od_endl;
+	return 1;
+    }
 
-    int timeout = 120;
+    int timeout = 600;
+    clparser.setKeyHasValue( Network::Server::sKeyTimeout() );
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
     PtrMan<Network::EchoServer> tester
-		= new Network::EchoServer( mCast(PortNr_Type,startport),
+		= new Network::EchoServer( auth,
 					   mCast(unsigned short,timeout) );
 
     if ( !quiet )
     {
-	od_cout() << "Listening to port " << tester->server_.port()
+	od_cout() << "Listening to " << auth.toString()
 		  << " with a " << tester->timeout_ << " second timeout\n";
     }
 

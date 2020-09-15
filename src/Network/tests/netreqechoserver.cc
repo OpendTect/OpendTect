@@ -25,16 +25,11 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( PortNr_Type port, unsigned short timeout )
-	: server_(port)
+    RequestEchoServer( const Network::Authority& auth, unsigned short timeout )
+	: server_(auth)
 	, timeout_( timeout )
     {
 	mAttachCB( server_.newConnection, RequestEchoServer::newConnectionCB );
-
-	Threads::sleep( 1 );
-	if ( !server_.isOK() )
-	    closeServerCB( 0 );
-
 	mAttachCB( timer_.tick, RequestEchoServer::timerTick );
 
 	lastactivity_ = time( 0 );
@@ -131,7 +126,7 @@ public:
 	if ( !quiet )
 	    od_cout() << "Connection " << conn->ID() << " closed." << od_endl;
 	CallBack::addToMainThread(
-		mCB(this,RequestEchoServer,cleanupOldConnections));
+			mCB(this,RequestEchoServer,cleanupOldConnections));
     }
 
 
@@ -164,6 +159,14 @@ public:
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
+
+	if ( !server_.isOK() )
+	{
+	    od_cout() << "Server error: "
+		      << toString(server_.errMsg()) << od_endl;
+	    CallBack::addToMainThread(
+			mCB(this,RequestEchoServer,closeServerCB) );
+	}
     }
 
 
@@ -182,24 +185,33 @@ int main(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( !clparser.hasKey(Network::Server::sKeyPort()) )
-	ExitProgram( 0 );
+    if ( clparser.nrArgs() == 1 && clparser.hasKey(sKey::Quiet()) )
+	return 0;
 
     ApplicationData app;
 
-    int startport = 1025;
-    clparser.getVal( Network::Server::sKeyPort(), startport );
+    const Network::Authority auth = Network::Authority::getFrom( clparser,
+		  "test_netreq",
+		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth.isUsable() )
+    {
+	od_ostream& strm = od_ostream::logStream();
+	strm << "Incorrect authority '" << auth.toString() << "'";
+	strm << "for starting the server" << od_endl;
+	return 1;
+    }
 
-    int timeout = 120;
+    int timeout = 600;
+    clparser.setKeyHasValue( Network::Server::sKeyTimeout() );
     clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
     PtrMan<Network::RequestEchoServer> tester =
-		new Network::RequestEchoServer( mCast(PortNr_Type,startport),
+		new Network::RequestEchoServer( auth,
 						mCast(unsigned short,timeout) );
 
     if ( !quiet )
     {
-	od_cout() << "Listening to port " << tester->server_.server()->port()
+	od_cout() << "Listening to " << auth.toString()
 		  << " with a " << tester->timeout_ << " second timeout\n";
     }
 
