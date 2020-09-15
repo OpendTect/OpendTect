@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurveyzip.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
+#include "uitabstack.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -43,15 +44,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "angles.h"
 #include "ctxtioobj.h"
-#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "latlong.h"
 #include "mousecursor.h"
 #include "nrbytes2string.h"
@@ -62,6 +64,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "survinfo.h"
 #include "systeminfo.h"
+#include "trckeyzsampling.h"
+
+static HiddenParam<uiSurvey,uiTextEdit*> logflds_( nullptr );
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
@@ -230,12 +235,12 @@ SurveyInfo::Pol2D pol2D() const
 			       : SurveyInfo::Only2D;
 }
 
-void pol2dChg( CallBacker* cb )
+void pol2dChg( CallBacker* )
 {
     fillSipsFld( has2D(), has3D() );
 }
 
-void zdomainChg( CallBacker* cb )
+void zdomainChg( CallBacker* )
 {
     zinfeetfld_->display( !isTime() );
 }
@@ -459,30 +464,33 @@ uiSurvey::uiSurvey( uiParent* p )
     leftgrp->attach( ensureBelow, sep1 );
     rightgrp->attach( rightOf, leftgrp );
 
-    uiLabel* infolbl = new uiLabel( topgrp, uiString::emptyString() );
-    infolbl->setPixmap( "info" );
-    infolbl->setToolTip( tr("Survey Information") );
-    infolbl->attach( alignedBelow, leftgrp );
-    infofld_ = new uiTextEdit( topgrp, "Info", true );
-    infofld_->setPrefHeightInChar( 9 );
-    infofld_->setStretch( 2, 1 );
-    infofld_->attach( rightTo, infolbl );
-    infofld_->attach( ensureBelow, rightgrp );
+    uiTabStack* tabs = new uiTabStack( this, "Info tabs" );
 
-    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
-    uiLabel* notelbl = new uiLabel( botgrp, uiStrings::sEmptyString() );
-    notelbl->setPixmap( uiPixmap("notes") );
-    notelbl->setToolTip( tr("Notes") );
-    notelbl->setMaximumWidth( 32 );
+    uiGroup* infogrp = new uiGroup( tabs->tabGroup(), "Info Group" );
+    infofld_ = new uiTextEdit( infogrp, "Info", true );
+    infofld_->setPrefHeightInChar( 10 );
+    infofld_->setStretch( 2, 2 );
+    tabs->addTab( infogrp, uiStrings::sInformation() );
+    tabs->setTabIcon( 0, "info" );
 
-    notesfld_ = new uiTextEdit( botgrp, "Survey Notes" );
-    notesfld_->attach( rightTo, notelbl );
-    notesfld_->setPrefHeightInChar( 5 );
+    uiGroup* notesgrp = new uiGroup( tabs->tabGroup(), "Notes Group" );
+    notesfld_ = new uiTextEdit( notesgrp, "Survey Notes" );
+    notesfld_->setPrefHeightInChar( 10 );
     notesfld_->setStretch( 2, 2 );
+    tabs->addTab( notesgrp, tr("Notes") );
+    tabs->setTabIcon( 1, "notes" );
+
+    uiGroup* loggrp = new uiGroup( tabs->tabGroup(), "Log Group" );
+    auto* logfld = new uiTextEdit( loggrp, "Survey Log", true );
+    logflds_.setParam( this, logfld );
+    logfld->setPrefHeightInChar( 10 );
+    logfld->setStretch( 2, 2 );
+    tabs->addTab( loggrp, tr("Log") );
+    tabs->setTabIcon( 2, "logfile" );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );
-    splitter->addGroup( botgrp );
+    splitter->addGroup( tabs );
 
     putToScreen();
     updateDataRootLabel();
@@ -493,6 +501,8 @@ uiSurvey::uiSurvey( uiParent* p )
 
 uiSurvey::~uiSurvey()
 {
+    logflds_.removeParam( this );
+
     ObjectSet<uiSurvInfoProvider>& survprovs =
 					uiSurveyInfoEditor::survInfoProvs();
     for ( int idx=0; idx<survprovs.size(); idx++ )
@@ -1264,6 +1274,22 @@ void uiSurvey::selChange( CallBacker* )
 }
 
 
+static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
+{
+    if ( rmname )
+	par.setName( "" );
+
+    int keyidx = par.indexOf( sKey::CrAt() );
+    if ( keyidx>=0 ) par.setKey( keyidx, "Created at" );
+    keyidx = par.indexOf( sKey::CrBy() );
+    if ( keyidx>=0 ) par.setKey( keyidx, "Created by" );
+    keyidx = par.indexOf( sKey::CrFrom() );
+    if ( keyidx>=0 ) par.setKey( keyidx, "Created from" );
+
+    par.dumpPretty( txt );
+}
+
+
 void uiSurvey::putToScreen()
 {
     if ( !survmap_ ) return;
@@ -1279,6 +1305,7 @@ void uiSurvey::putToScreen()
     {
 	notesfld_->setText( uiString::emptyString() );
 	infofld_->setText( uiString::emptyString() );
+	logflds_.getParam(this)->setText( uiString::emptyString() );
 	return;
     }
 
@@ -1295,6 +1322,18 @@ void uiSurvey::putToScreen()
     const SurveyInfo& si = *cursurvinfo_;
     areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
     notesfld_->setText( si.comment() );
+
+    BufferString logtxt;
+    const IOPar& logpars = si.logPars();
+    if ( !logpars.isEmpty() )
+    {
+	IOPar logcp = logpars;
+	sMakeLogParsPretty( logcp, logtxt, true );
+    }
+    else
+	logtxt.set( "No log available" );
+
+    logflds_.getParam(this)->setText( logtxt );
 
     zkey.set( "Z range (" )
 	.add( si.zIsTime() ? ZDomain::Time().unitStr()
