@@ -6,7 +6,6 @@
 
 
 #include "applicationdata.h"
-#include "genc.h"
 #include "netserver.h"
 #include "netsocket.h"
 #include "od_ostream.h"
