@@ -20,6 +20,10 @@ template <class T> class Array2D;
 template <class T> class Array3D;
 class SeisTrc;
 
+namespace PosInfo
+{
+    class LineCollData;
+};
 
 namespace Seis
 {
@@ -32,7 +36,6 @@ namespace Blocks
 {
 
 class LineBuf;
-
 
 /*!\brief Takes in 'small' tiles or blocks of (seismic) data and makes
   sure they are merged and written to storage.
@@ -52,6 +55,7 @@ public:
 
     mUseType( Seis,		Storer );
     mUseType( IdxPair,		pos_type );
+    mUseType( PosInfo,		LineCollData );
     typedef float		val_type;
     typedef float		z_type;
     typedef int			idx_type;
@@ -71,6 +75,8 @@ public:
     uiRetVal	addData(const Bin2D&,z_type,const Arr2D&);
     uiRetVal	addData(const BinID&,z_type,const Arr3D&);
 
+    void	setTracePositions( const LineCollData* );
+
     bool	is2D() const;
 
     uiRetVal	finish(); //!< Has to be called; check return value!
@@ -88,6 +94,7 @@ protected:
     BinID		curbid_		    = BinID::udf();
     pos_type		lastwrittenline_    = -1;
     ObjectSet<LineBuf>	linebufs_;
+    LineCollData*	lcd_		    = nullptr;
 
     void	initGeometry(const ArrayNDInfo&);
     void	addPos(const Bin2D&,const Arr2D&,z_type);

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "seisblocksdataglueer.h"
 
 #include "arrayndimpl.h"
+#include "posinfo.h"
 #include "seisseldata.h"
 #include "seisstorer.h"
 #include "seistrc.h"
@@ -216,6 +217,7 @@ Seis::Blocks::DataGlueer::~DataGlueer()
     }
     delete &seissel_;
     delete arrinfo_;
+    deleteAndZeroPtr( lcd_ );
 }
 
 
@@ -381,7 +383,8 @@ uiRetVal Seis::Blocks::DataGlueer::storeLineBuf( const LineBuf& lb )
 	for ( auto trcnr=tnrrg.start; trcnr<=tnrrg.stop; trcnr+=trcstep_ )
 	{
 	    trc.info().setTrcNr( trcnr );
-	    if ( !seissel_.isOK(trc.info().trcKey()) )
+	    if ( !seissel_.isOK(trc.info().trcKey()) ||
+		(lcd_ && !lcd_->includes(trc.info().trcKey())) )
 		continue;
 
 	    trc.info().calcCoord();
@@ -410,4 +413,12 @@ void Seis::Blocks::DataGlueer::fillTrace( SeisTrc& trc, Array1D<int>& contribs )
 			: trc.get( idz, 0 )  / contrib;
 	trc.set( idz, val, 0 );
     }
+}
+
+
+void Seis::Blocks::DataGlueer::setTracePositions( const LineCollData* lcd )
+{
+    deleteAndZeroPtr( lcd_ );
+    if ( lcd )
+	lcd_ = lcd->clone();
 }
