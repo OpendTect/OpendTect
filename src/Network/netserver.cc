@@ -11,9 +11,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netserver.h"
 
+#include "commandlineparser.h"
 #include "envvars.h"
 #include "genc.h"
 #include "netsocket.h"
+#include "oscommand.h"
 #include "separstr.h"
 #include "systeminfo.h"
 
@@ -126,6 +128,14 @@ static bool isAnyQAddr( const QHostAddress& qaddr )
 static HiddenParam<Network::Authority,BufferString*>
 					netauthservernmmgr_( nullptr );
 
+Network::Authority::Authority( const BufferString& servernm )
+    : qhost_(*new QString)
+    , qhostaddr_(*new QHostAddress)
+{
+    netauthservernmmgr_.setParam(this, new BufferString());
+    localFromString( servernm );
+}
+
 
 Network::Authority::Authority( const char* host, PortNr_Type port,
 			       bool resolveipv6 )
@@ -135,15 +145,6 @@ Network::Authority::Authority( const char* host, PortNr_Type port,
     netauthservernmmgr_.setParam( this, new BufferString() );
     setHost( host, resolveipv6 );
     setPort( port );
-}
-
-
-Network::Authority::Authority( const BufferString& servernm )
-    : qhost_(*new QString)
-    , qhostaddr_(*new QHostAddress)
-{
-    netauthservernmmgr_.setParam( this, new BufferString() );
-    localFromString( servernm );
 }
 
 
@@ -221,13 +222,12 @@ bool Network::Authority::isUsable() const
     if ( isLocal() )
 	return true;
 
-    return hasAssignedPort();
-}
-
-
-Network::Authority Network::Authority::getLocal( const char* servernm )
-{
-    return Authority( BufferString(servernm) );
+    bool ret = hasAssignedPort();
+#ifdef __win__
+    if ( ret )
+        ret = isPortFree( port_ );
+#endif
+    return ret;
 }
 
 
@@ -415,6 +415,67 @@ void Network::Authority::setHostAddress( const char* host, bool resolveipv6 )
 }
 
 
+void Network::Authority::addTo( OS::MachineCommand& mc, const char* ky ) const
+{
+    if ( ky && *ky )
+    {
+        mc.addKeyedArg( ky, toString() )
+          .addFlag( Server::sKeyLocal() );
+        return;
+    }
+
+    mc.addKeyedArg( Server::sKeyHostName(), getHost() );
+    if ( isLocal() )
+        mc.addFlag( Server::sKeyLocal() );
+    else
+        mc.addKeyedArg( Server::sKeyPort(), getPort() );
+}
+
+
+Network::Authority Network::Authority::getFrom(const CommandLineParser& parser,
+			    const char* defservernm, const char* defhostnm,
+			    PortNr_Type defport )
+{
+    CommandLineParser& eparser = const_cast<CommandLineParser&>( parser );
+    eparser.setKeyHasValue( Server::sKeyHostName() );
+    eparser.setKeyHasValue( Server::sKeyPort() );
+
+    Authority ret;
+    const bool localtcp = parser.hasKey( Server::sKeyLocal() );
+    if ( localtcp )
+    {
+        BufferString servernm( defservernm );
+        parser.getVal(Server::sKeyHostName(), servernm );
+        servernm = getAppServerName( servernm );
+        ret.localFromString( servernm );
+        return ret;
+    }
+    else
+    {
+        BufferString hostnm( defhostnm );
+        parser.getVal( Server::sKeyHostName(), hostnm);
+        PortNr_Type port = defport;
+        int portint;
+        if ( parser.getVal(Server::sKeyPort(),portint) )
+            port = mCast(PortNr_Type,portint);
+        port = Network::getUsablePort( port );
+        ret.setHost( hostnm, false );
+        ret.setPort( port );
+        return ret;
+    }
+}
+
+
+BufferString Network::Authority::getAppServerName( const char* nm )
+{
+    BufferString ret(nm);
+    if ( ret.isEmpty() )
+        ret.set("opendtect");
+    ret.add( ":" ).add( GetPID() );
+    return ret;
+}
+
+
 static int sockid = 0;
 
 static int getNewID()
@@ -478,7 +539,21 @@ QLocalServer* Network::Server::localServer()
 bool Network::Server::listen( SpecAddr specaddress, PortNr_Type prt )
 {
     if ( qtcpserver_ )
-	return qtcpserver_->listen( QHostAddress(qtSpecAddr(specaddress)), prt);
+    {
+#ifdef __win__
+        const bool wasportfree = isPortFree(prt);
+#else
+        const bool wasportfree = true;
+#endif
+        const bool ret = wasportfree &&
+            qtcpserver_->listen(QHostAddress(qtSpecAddr(specaddress)), prt);
+        if ( !ret )
+        {
+            errmsg_.set("Cannot list to port ").add(prt);
+            close();
+        }
+        return ret;
+    }
 
     if ( isLocal() )
     {
@@ -501,7 +576,10 @@ bool Network::Server::listen( const char* servernm, uiRetVal& ret )
 
     const bool canlisten = localServer()->listen( servernm );
     if ( !canlisten )
-	ret.set( tr("%1 server name is already in use").arg(servernm) );
+	{
+		ret.set( tr("%1 server name is already in use").arg(servernm) );
+		close();
+	}
 
     return canlisten;
 }
@@ -528,10 +606,11 @@ PortNr_Type Network::Server::port() const
 
 Network::Authority Network::Server::authority() const
 {
+    Authority ret;
     if ( isLocal() )
     {
-	return Authority::getLocal(
-				BufferString(localServer()->serverName()) );
+        const BufferString servernm( localServer()->serverName() );
+        ret.localFromString( servernm );
     }
 
     const QHostAddress qaddr = qtcpserver_->serverAddress();
@@ -539,7 +618,9 @@ Network::Authority Network::Server::authority() const
     if ( qaddr.protocol() > QAbstractSocket::UnknownNetworkLayerProtocol )
 	addr.set( qaddr.toString() );
 
-    return Authority( addr, port() );
+    ret.setHost( addr );
+    ret.setPort( port() );
+    return ret;
 }
 
 

@@ -124,7 +124,8 @@ void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
     if ( portid>0 || islocal )
     {
 	Network::RequestServer* server = islocal
-	    ? new Network::RequestServer( BufferString("odservice:",GetPID()) )
+	    ? new Network::RequestServer( 
+                Network::Authority::getAppServerName("odservice") )
 	    : new Network::RequestServer( portid, spec );
 	useServer( server, islocal );
     }

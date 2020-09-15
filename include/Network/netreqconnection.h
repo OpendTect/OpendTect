@@ -142,7 +142,7 @@ public:
 
 				RequestServer(const char* servernm);
 				RequestServer(PortNr_Type,SpecAddr=Any);
-				RequestServer(const Authority&,SpecAddr=Any);
+				RequestServer(const Authority&);
 				~RequestServer();
 
     bool			isOK() const;

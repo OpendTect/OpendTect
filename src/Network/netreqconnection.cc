@@ -480,7 +480,7 @@ RequestServer::RequestServer( const char* servernm )
 }
 
 
-RequestServer::RequestServer( const Network::Authority& auth, SpecAddr spcadr )
+RequestServer::RequestServer( const Network::Authority& auth )
     : newConnection(this)
 {
     server_ = new Server( auth.isLocal() );
@@ -493,7 +493,8 @@ RequestServer::RequestServer( const Network::Authority& auth, SpecAddr spcadr )
     uiRetVal ret;
     const bool islistening = islocal ?
 				server_->listen( auth.getServerName(), ret ) :
-				server_->listen( spcadr, auth.getPort() );
+				server_->listen( auth.serverAddress(),
+                                 auth.getPort() );
 
     if ( !islistening )
 	errmsg_ = islocal ?
