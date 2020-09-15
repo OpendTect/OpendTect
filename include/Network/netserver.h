@@ -67,6 +67,7 @@ public:
     static const char*	sKeyPort()		{ return "port"; }
     static const char*	sKeyTimeout()		{ return "timeout"; }
     static const char*	sKeyKillword()		{ return "kill"; }
+    static const char*  sKeyLocal()		{ return "local"; }
 
 protected:
 

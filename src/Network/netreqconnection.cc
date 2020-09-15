@@ -545,26 +545,26 @@ RequestServer::RequestServer( const char* servernm )
 }
 
 
-RequestServer::RequestServer( const Network::Authority& auth, SpecAddr spcadr )
+RequestServer::RequestServer( const Network::Authority& auth )
     : newConnection(this)
 {
     server_ = new Server( auth.isLocal() );
-
     if ( !server_ )
 	return;
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
     const bool islocal = auth.isLocal();
     uiRetVal ret;
-    const bool islistening = islocal ?
-				server_->listen( auth.getServerName(), ret ) :
-				server_->listen( spcadr, auth.getPort() );
-
+    const bool islistening = islocal
+			   ? server_->listen( auth.getServerName(), ret )
+			   : server_->listen( auth.serverAddress(),
+					      auth.getPort() );
     if ( !islistening )
-	errmsg_ = islocal ?
-		LocalErrMsg().arg(auth.getServerName()).append(ret,true) :
-					    TCPErrMsg().arg(auth.getPort());
-
+    {
+	errmsg_ = islocal
+	    ? LocalErrMsg().arg(auth.getServerName()).append(ret, true)
+	    : TCPErrMsg().arg(auth.getPort());
+    }
 }
 
 

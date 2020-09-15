@@ -33,8 +33,8 @@ class TestRunner : public CallBacker
 {
 public:
 
-    TestRunner()
-	: auth_(Network::Socket::sKeyLocalHost(),(PortNr_Type)1025)
+    TestRunner( const Network::Authority& auth )
+        : authority_(auth)
     {}
 
     ~TestRunner()
@@ -51,11 +51,11 @@ public:
 	if ( exitonfinish_ ) ApplicationData::exit( testresult ? 0 : 1 );
     }
 
-    bool		noeventloop_;
-    Network::Authority	auth_;
+    bool		noeventloop_ = true;
+    Network::Authority	authority_;
     int			timeout_ = 600;
     const char*		prefix_;
-    bool		exitonfinish_;
+    bool		exitonfinish_ = true;
 };
 
 
@@ -67,9 +67,9 @@ bool TestRunner::testNetSocket( bool closeserver )
     const Network::Authority nonexisting( "non_existing_host",
 				mCast(PortNr_Type,20000) );
     mRunSockTest( !connection.connectToHost(nonexisting,true),
-		  "Connect to non-existing host" );
+		  "Not connecting to non-existing host" );
 
-    mRunSockTest( connection.connectToHost(auth_,true),
+    mRunSockTest( connection.connectToHost(authority_,true),
 		  "Connect to echo server" );
 
     BufferString writebuf = "Hello world";
@@ -144,7 +144,7 @@ bool TestRunner::testNetSocket( bool closeserver )
 static void terminateServer( const PID_Type pid )
 {
     Threads::sleep( 0.1 );
-    if ( !isProcessAlive(pid) )
+    if ( pid < 1 || !isProcessAlive(pid) )
 	return;
 
     logStream() << "Terminating zombie server with PID: " << pid << od_endl;
@@ -159,25 +159,19 @@ static void terminateServer( const PID_Type pid )
 int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
+
     ApplicationData app;
-    clParser().setKeyHasValue( "serverapp" );
-    clParser().setKeyHasValue( "timeout" );
-    clParser().setKeyHasValue( Network::Server::sKeyPort() );
 
-    PtrMan<TestRunner> runner = new TestRunner;
-    runner->prefix_ = "[ No event loop ]\t";
-    runner->exitonfinish_ = false;
-    runner->noeventloop_ = true;
-
-    BufferString serverapp = "test_echoserver";
-    clParser().getKeyedInfo( "serverapp", serverapp, true );
-
-    int port = 1025;
-    runner->auth_.setPort( mCast(PortNr_Type,port) );
-    clParser().getKeyedInfo( "timeout", runner->timeout_, true );
-
-    if ( clParser().getKeyedInfo(Network::Server::sKeyPort(),port,false) )
-	runner->auth_.setPort( mCast(PortNr_Type,port) );
+    Network::Authority auth;
+    auth.setFrom( clParser(), "test_netsocket",
+		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth.isUsable() )
+    {
+        od_ostream& strm = od_ostream::logStream();
+        strm << "Incorrect authority '" << auth.toString() << "'";
+        strm << "for starting the server" << od_endl;
+        return 1;
+    }
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );
@@ -195,26 +189,40 @@ int mTestMainFnName(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    OS::MachineCommand mc( serverapp );
-    mc.addKeyedArg( "timeout", runner->timeout_ );
-    mc.addKeyedArg( Network::Server::sKeyPort(), port );
-    if ( clParser().hasKey("quiet") )
-	mc.addFlag( "quiet" );
+    PtrMan<TestRunner> runner = new TestRunner( auth );
 
-    const OS::CommandExecPars execpars( OS::RunInBG );
-    OS::CommandLauncher cl( mc );
-    if ( !cl.execute(execpars) )
+    PID_Type serverpid = -1;
+    if ( !clParser().hasKey("noechoapp") )
     {
-	od_ostream::logStream() << "Cannot start " << mc.toString(&execpars);
-	od_ostream::logStream() << ": " << toString(cl.errorMsg()) << od_endl;
-	return 1;
+        BufferString serverapp = "test_netsocketechoserver";
+        clParser().setKeyHasValue( "serverapp" );
+        clParser().getKeyedInfo( "serverapp", serverapp, true );
+
+        OS::MachineCommand mc( serverapp );
+        auth.addTo( mc );
+        mc.addKeyedArg( "timeout", runner->timeout_ );
+        //if ( clParser().hasKey(sKey::Quiet()) )
+	    mc.addFlag( sKey::Quiet() );
+
+        const OS::CommandExecPars execpars( OS::RunInBG );
+        OS::CommandLauncher cl( mc );
+        if ( !cl.execute(execpars) )
+        {
+	    od_ostream& strm = od_ostream::logStream();
+	    strm << "Cannot start " << mc.toString(&execpars);
+	    strm << ": " << toString(cl.errorMsg()) << od_endl;
+	    return 1;
+	}
+
+        Threads::sleep( 1 );
+        serverpid = cl.processID();
+        mRunStandardTest( (isProcessAlive(serverpid)),
+		    BufferString( "Server started with PID: ", serverpid ) );
     }
 
-    Threads::sleep( 1 );
-    const PID_Type serverpid = cl.processID();
-    mRunStandardTest( (isProcessAlive(serverpid)),
-	    BufferString( "Server started with PID: ", serverpid ) );
-
+    runner->prefix_ = "[ No event loop ]\t";
+    runner->exitonfinish_ = false;
+    runner->noeventloop_ = true;
     if ( !runner->testNetSocket(false) )
     {
 	terminateServer( serverpid );
@@ -231,9 +239,13 @@ int mTestMainFnName(int argc, char** argv)
 
     runner = nullptr;
 
-    Threads::sleep( 1 );
-    mRunStandardTest( (!isProcessAlive(serverpid)), "Server has been stopped" );
-    terminateServer( serverpid );
+    if ( serverpid > 0 )
+    {
+        Threads::sleep(1);
+        mRunStandardTest( (!isProcessAlive(serverpid)),
+			  "Server has been stopped" );
+        terminateServer( serverpid );
+    }
 
     return retval;
 }

@@ -24,16 +24,11 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( PortNr_Type port, unsigned short timeout )
-	: server_(port)
+    RequestEchoServer( const Network::Authority& auth, unsigned short timeout )
+	: server_(auth)
 	, timeout_( timeout )
     {
 	mAttachCB( server_.newConnection, RequestEchoServer::newConnectionCB );
-
-	Threads::sleep( 1 );
-	if ( !server_.isOK() )
-	    closeServerCB( 0 );
-
 	mAttachCB( timer_.tick, RequestEchoServer::timerTick );
 
 	lastactivity_ = time( 0 );
@@ -56,7 +51,7 @@ public:
 	    return;
 
 	logStream() << "New connection " << newconn->ID()
-		      << " on port " << server_.server()->port() << od_endl;
+		    << " on port " << server_.server()->port() << od_endl;
 
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
@@ -124,7 +119,7 @@ public:
 	RequestConnection* conn = (RequestConnection*) cb;
 	logStream() << "Connection " << conn->ID() << " closed." << od_endl;
 	CallBack::addToMainThread(
-		mCB(this,RequestEchoServer,cleanupOldConnections));
+			mCB(this,RequestEchoServer,cleanupOldConnections));
     }
 
 
@@ -155,6 +150,14 @@ public:
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
+
+	if ( !server_.isOK() )
+	{
+	    od_cout() << "Server error: "
+		      << toString(server_.errMsg()) << od_endl;
+	    CallBack::addToMainThread(
+			mCB(this,RequestEchoServer,closeServerCB) );
+	}
     }
 
 
@@ -173,23 +176,31 @@ int mTestMainFnName(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( !clParser().hasKey(Network::Server::sKeyPort()) )
+    if ( clParser().nrArgs() == 1 && clParser().hasKey(sKey::Quiet()) )
 	return 0;
-    clParser().setKeyHasValue( Network::Server::sKeyPort() );
-    clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
 
     ApplicationData app;
 
-    int startport = 1025;
-    clParser().getKeyedInfo( Network::Server::sKeyPort(), startport );
-    int timeout = 120;
+    Network::Authority auth;
+    auth.setFrom( clParser(), "test_netreq",
+		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth.isUsable() )
+    {
+	od_ostream& strm = od_ostream::logStream();
+	strm << "Incorrect authority '" << auth.toString() << "'";
+	strm << "for starting the server" << od_endl;
+	return 1;
+    }
+
+    int timeout = 600;
+    clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
     clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
     PtrMan<Network::RequestEchoServer> tester =
-		new Network::RequestEchoServer( mCast(PortNr_Type,startport),
+		new Network::RequestEchoServer( auth,
 						mCast(unsigned short,timeout) );
 
-    logStream() << "Listening to port " << tester->server_.server()->port()
+    logStream() << "Listening to " << auth.toString()
 		  << " with a " << tester->timeout_ << " second timeout\n";
 
     const int retval = app.exec();
