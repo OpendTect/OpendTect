@@ -265,7 +265,7 @@ static void terminateServer( const PID_Type pid )
     if ( pid < 1 || !isProcessAlive(pid) )
         return;
 
-    logStream() << "Terminating zombie server with PID: " << pid << od_endl;
+    errStream() << "Terminating zombie server with PID: " << pid << od_endl;
     SignalHandling::stopProcess( pid );
 }
 
@@ -281,7 +281,7 @@ int mTestMainFnName( int argc, char** argv )
 		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
     if ( !auth.isUsable() )
     {
-	od_ostream& strm = od_ostream::logStream();
+	od_ostream& strm = errStream();
 	strm << "Incorrect authority '" << auth.toString() << "'";
 	strm << "for starting the server" << od_endl;
 	return 1;
@@ -296,14 +296,14 @@ int mTestMainFnName( int argc, char** argv )
 
 	OS::MachineCommand mc( echoapp );
 	auth.addTo( mc );
-	//if ( clParser().hasKey(sKey::Quiet()) )
+	//if ( quiet_ )
 	    mc.addFlag( sKey::Quiet() );
 
 	const OS::CommandExecPars execpars( OS::RunInBG );
 	OS::CommandLauncher cl(mc);
 	if ( !cl.execute(execpars) )
 	{
-	    od_ostream& strm = od_ostream::logStream();
+	    od_ostream& strm = errStream();
 	    strm << "Cannot start " << mc.toString( &execpars );
 	    strm << ": " << toString(cl.errorMsg()) << od_endl;
 	    return 1;
