@@ -432,23 +432,22 @@ void Network::Authority::addTo( OS::MachineCommand& mc, const char* ky ) const
 }
 
 
-Network::Authority Network::Authority::getFrom(const CommandLineParser& parser,
-			    const char* defservernm, const char* defhostnm,
-			    PortNr_Type defport )
+Network::Authority& Network::Authority::setFrom(const CommandLineParser& parser,
+			    const char* defservernm,
+			    const char* defhostnm, PortNr_Type defport )
 {
     CommandLineParser& eparser = const_cast<CommandLineParser&>( parser );
     eparser.setKeyHasValue( Server::sKeyHostName() );
     eparser.setKeyHasValue( Server::sKeyPort() );
 
-    Authority ret;
     const bool localtcp = parser.hasKey( Server::sKeyLocal() );
     if ( localtcp )
     {
         BufferString servernm( defservernm );
         parser.getVal(Server::sKeyHostName(), servernm );
         servernm = getAppServerName( servernm );
-        ret.localFromString( servernm );
-        return ret;
+        localFromString( servernm );
+        return *this;
     }
     else
     {
@@ -459,9 +458,9 @@ Network::Authority Network::Authority::getFrom(const CommandLineParser& parser,
         if ( parser.getVal(Server::sKeyPort(),portint) )
             port = mCast(PortNr_Type,portint);
         port = Network::getUsablePort( port );
-        ret.setHost( hostnm, false );
-        ret.setPort( port );
-        return ret;
+        setHost( hostnm, false );
+        setPort( port );
+        return *this;
     }
 }
 
