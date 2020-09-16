@@ -55,10 +55,9 @@ mGlobal(Network) PortNr_Type getNextCandidatePort();
 mExpClass(Network) Authority
 { mODTextTranslationClass(Authority);
 public:
-    explicit Authority(const BufferString& servernm);
-
-			Authority(const char* host=nullptr,PortNr_Type=0,
-				  bool resolveipv6=false);
+    explicit		Authority(const BufferString& servernm);
+			Authority(const char* host=nullptr,
+				  PortNr_Type=0,bool resolveipv6=false);
 			Authority(const Authority&);
 			~Authority();
 
@@ -79,16 +78,18 @@ public:
 
     void		fromString(const char*,bool resolveipv6=false);
     Authority&		localFromString(const char*);
-    Authority&		setUserInfo( const char* inf )
-			{ userinfo_ = inf; return *this; }
+    Authority&		setUserInfo(const char*);
     Authority&		setHost(const char*,bool resolveipv6=false);
-    Authority&		setPort(PortNr_Type port)
-			{ port_ = port; return *this; }
+    Authority&		setPort(PortNr_Type);
     void		setFreePort(uiRetVal&);
-    Authority& setFrom(const CommandLineParser&,const char* defservnm=nullptr,
-		       const char* defhostnm=nullptr,PortNr_Type defport=0);
 
-    void		addTo(OS::MachineCommand&,const char* ky=nullptr) const;
+    Authority&		setFrom(const CommandLineParser&,
+				const char* defservnm=nullptr,
+				const char* defhostnm=nullptr,
+				PortNr_Type defport=0);
+
+    void		addTo(OS::MachineCommand&,
+			      const char* ky=nullptr) const;
 
     static BufferString getAppServerName(const char* nm=nullptr);
 

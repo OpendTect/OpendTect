@@ -189,7 +189,7 @@ int mTestMainFnName(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    PtrMan<TestRunner> runner = new TestRunner( auth );
+    TestRunner runner( auth );
 
     PID_Type serverpid = -1;
     if ( !clParser().hasKey("noechoapp") )
@@ -200,7 +200,7 @@ int mTestMainFnName(int argc, char** argv)
 
         OS::MachineCommand mc( serverapp );
         auth.addTo( mc );
-        mc.addKeyedArg( "timeout", runner->timeout_ );
+        mc.addKeyedArg( "timeout", runner.timeout_ );
         //if ( clParser().hasKey(sKey::Quiet()) )
 	    mc.addFlag( sKey::Quiet() );
 
@@ -220,10 +220,10 @@ int mTestMainFnName(int argc, char** argv)
 		    BufferString( "Server started with PID: ", serverpid ) );
     }
 
-    runner->prefix_ = "[ No event loop ]\t";
-    runner->exitonfinish_ = false;
-    runner->noeventloop_ = true;
-    if ( !runner->testNetSocket(false) )
+    runner.prefix_ = "[ No event loop ]\t";
+    runner.exitonfinish_ = false;
+    runner.noeventloop_ = true;
+    if ( !runner.testNetSocket(false) )
     {
 	terminateServer( serverpid );
 	return 1;
@@ -231,13 +231,11 @@ int mTestMainFnName(int argc, char** argv)
 
     //Now with a running event loop
 
-    runner->prefix_ = "[ With event loop ]\t";
-    runner->exitonfinish_ = true;
-    runner->noeventloop_ = false;
-    CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
+    runner.prefix_ = "[ With event loop ]\t";
+    runner.exitonfinish_ = true;
+    runner.noeventloop_ = false;
+    CallBack::addToMainThread( mCB(&runner,TestRunner,testCallBack) );
     const int retval = app.exec();
-
-    runner = nullptr;
 
     if ( serverpid > 0 )
     {

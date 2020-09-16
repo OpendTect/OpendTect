@@ -340,12 +340,20 @@ BufferString Network::Authority::getHost() const
 }
 
 
+Network::Authority& Network::Authority::setUserInfo( const char* inf )
+{ userinfo_ = inf; return *this; }
+
+
 Network::Authority& Network::Authority::setHost( const char* nm,
                                         bool resolveipv6 )
 {
     setHostAddress( nm, resolveipv6 );
     return *this;
 }
+
+
+Network::Authority& Network::Authority::setPort( PortNr_Type port )
+{ port_ = port; return *this; }
 
 
 void Network::Authority::setFreePort( uiRetVal& uirv )
@@ -420,8 +428,8 @@ void Network::Authority::addTo( OS::MachineCommand& mc, const char* ky ) const
 
 
 Network::Authority& Network::Authority::setFrom(const CommandLineParser& parser,
-			    const char* defservernm, const char* defhostnm,
-			    PortNr_Type defport )
+			    const char* defservernm,
+			    const char* defhostnm, PortNr_Type defport )
 {
     parser.setKeyHasValue( Server::sKeyHostName() );
     parser.setKeyHasValue( Server::sKeyPort() );

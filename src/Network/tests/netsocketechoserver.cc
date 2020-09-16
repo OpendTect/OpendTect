@@ -8,11 +8,8 @@
 #include "applicationdata.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "od_ostream.h"
 #include "timer.h"
 #include "testprog.h"
-
-#include <time.h>
 
 namespace Network
 {
@@ -131,8 +128,8 @@ int mTestMainFnName(int argc, char** argv)
     ApplicationData app;
 
     Network::Authority auth;
-    auth.setFrom(clParser(), "test_netsocket",
-		Network::Socket::sKeyLocalHost(), PortNr_Type(1025));
+    auth.setFrom( clParser(), "test_netsocket",
+		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
     if ( !auth.isUsable() )
     {
 	od_ostream& strm = od_ostream::logStream();
@@ -143,18 +140,14 @@ int mTestMainFnName(int argc, char** argv)
 
     int timeout = 600;
     clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
-    clParser().getKeyedInfo(Network::Server::sKeyTimeout(), timeout);
+    clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
-    PtrMan<Network::EchoServer> tester
-		= new Network::EchoServer( auth,
-					   mCast(unsigned short,timeout) );
+    Network::EchoServer tester( auth, mCast(unsigned short,timeout) );
 
     logStream() << "Listening to " << auth.toString()
-		  << " with a " << tester->timeout_ << " second timeout\n";
+		<< " with a " << tester.timeout_ << " second timeout\n";
 
     const int retval = app.exec();
-
-    tester = nullptr;
 
     return retval;
 }
