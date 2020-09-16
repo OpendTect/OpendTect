@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 template <class T> class DataInterpreter;
+mFDQtclass(QObject)
 mFDQtclass(QTcpSocket)
 mFDQtclass(QLocalSocket)
 mFDQtclass(QTcpSocketComm)
@@ -107,7 +108,7 @@ public:
 
     Threads::ThreadID		thread() const { return thread_; }
 
-    mQtclass(QTcpSocket)*	qSocket() { return qtcpsocket_; }
+    mQtclass(QObject)*		qSocket();
 private:
 
     bool			waitForConnected() const;
@@ -124,7 +125,7 @@ private:
     int				timeout_ = 30000;
     bool			noeventloop_;
 
-    mQtclass(QTcpSocket)*	qtcpsocket_	= nullptr;
+    mQtclass(QTcpSocket)*	qtcpsocket_   = nullptr;
     mQtclass(QLocalSocket)*	qlocalsocket_ = nullptr;
     bool			ownssocket_;
 
