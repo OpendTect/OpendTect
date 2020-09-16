@@ -9,11 +9,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "applicationdata.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "od_ostream.h"
 #include "timer.h"
 #include "testprog.h"
 
-#include <time.h>
+#ifdef __win__
+# include "time.h"
+#endif
 
 namespace Network
 {
@@ -63,7 +64,7 @@ public:
 		break;
 	    }
 
-	    //od_cout() << "\nEchoing " << readsize << " bytes" << od_endl;
+	    //logStream() << "\nEchoing " << readsize << " bytes" << od_endl;
 
 	    const char* writeptr = data;
 	    if ( readsize > 0 && readsize < 10 )
@@ -124,10 +125,6 @@ public:
 int main(int argc, char** argv)
 {
     mInitTestProg();
-
-    //Make standard test-runs just work fine.
-    if ( clParser().nrArgs() == 1 && clParser().hasKey(sKey::Quiet()) )
-	return  0;
 
     ApplicationData app;
 

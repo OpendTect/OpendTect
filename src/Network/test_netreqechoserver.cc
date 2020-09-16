@@ -17,7 +17,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "testprog.h"
 #include "timer.h"
 
-#include <time.h>
+#ifdef __win__
+# include "time.h"
+#endif
+
 
 namespace Network
 {
@@ -175,10 +178,6 @@ int main(int argc, char** argv)
 {
     mInitTestProg();
 
-    //Make standard test-runs just work fine.
-    if ( clParser().nrArgs() == 1 && clParser().hasKey(sKey::Quiet()) )
-	return 0;
-
     ApplicationData app;
 
     PtrMan<Network::Authority> auth = new Network::Authority;
@@ -186,7 +185,7 @@ int main(int argc, char** argv)
 		   Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
     if ( !auth->isUsable() )
     {
-	od_ostream& strm = od_ostream::logStream();
+	od_ostream& strm = errStream();
 	strm << "Incorrect authority '" << auth->toString() << "'";
 	strm << "for starting the server" << od_endl;
 	return 1;
