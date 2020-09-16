@@ -11,6 +11,10 @@
 #include "timer.h"
 #include "testprog.h"
 
+#ifdef __win__
+# include "time.h"
+#endif
+
 namespace Network
 {
 
