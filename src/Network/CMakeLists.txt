@@ -32,7 +32,7 @@ set ( OD_MODULE_SOURCES
 	webfileaccess.cc
 )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
-set ( OD_NIGHTLY_TEST_PROGS netreq.cc netreqechoserver netsocket.cc netsocketechoserver webstreamsource.cc )
+set ( OD_NIGHTLY_TEST_PROGS netreq.cc netreqechoserver.cc netsocket.cc netsocketechoserver.cc webstreamsource.cc )
 OD_INIT_MODULE()
 
 # The test programs are independant, but it is handy to compile the server app
