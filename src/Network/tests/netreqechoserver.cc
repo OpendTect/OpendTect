@@ -12,11 +12,9 @@
 #include "netreqconnection.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "ptrman.h"
 #include "testprog.h"
 #include "timer.h"
 
-#include <time.h>
 
 namespace Network
 {
@@ -196,16 +194,12 @@ int mTestMainFnName(int argc, char** argv)
     clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
     clParser().getKeyedInfo( Network::Server::sKeyTimeout(), timeout );
 
-    PtrMan<Network::RequestEchoServer> tester =
-		new Network::RequestEchoServer( auth,
-						mCast(unsigned short,timeout) );
+    Network::RequestEchoServer tester( auth, mCast(unsigned short,timeout) );
 
     logStream() << "Listening to " << auth.toString()
-		  << " with a " << tester->timeout_ << " second timeout\n";
+		<< " with a " << tester.timeout_ << " second timeout\n";
 
     const int retval = app.exec();
-
-    tester = nullptr;
 
     return retval;
 }

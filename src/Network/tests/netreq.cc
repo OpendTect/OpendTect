@@ -7,7 +7,6 @@
 
 #include "applicationdata.h"
 #include "oscommand.h"
-#include "ptrman.h"
 #include "sighndl.h"
 #include "string.h"
 #include "testprog.h"
@@ -316,9 +315,9 @@ int mTestMainFnName( int argc, char** argv )
 			BufferString("Server started with PID: ", serverpid) );
     }
 
-    PtrMan<Tester> runner = new Tester( auth );
-    runner->prefix_ = "[singlethreaded] ";
-    if ( !runner->runTest(false,false) )
+    Tester runner( auth );
+    runner.prefix_ = "[singlethreaded] ";
+    if ( !runner.runTest(false,false) )
     {
 	terminateServer( serverpid );
 	return 1;
@@ -326,10 +325,8 @@ int mTestMainFnName( int argc, char** argv )
 
     //Now with a running event loop
 
-    CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
+    CallBack::addToMainThread( mCB(&runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
-
-    runner = nullptr;
 
     if ( serverpid > 0 )
     {
