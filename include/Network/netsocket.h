@@ -18,8 +18,9 @@ ________________________________________________________________________
 #include "uistring.h"
 
 template <class T> class DataInterpreter;
-mFDQtclass(QTcpSocket)
 mFDQtclass(QLocalSocket)
+mFDQtclass(QObject)
+mFDQtclass(QTcpSocket)
 mFDQtclass(QTcpSocketComm)
 
 
@@ -106,6 +107,8 @@ public:
 				      read immediately */
 
     const void*			thread() const { return thread_; }
+
+    mQtclass(QObject)*		qSocket();
 private:
 
     bool			waitForConnected() const;

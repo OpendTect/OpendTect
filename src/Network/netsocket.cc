@@ -562,6 +562,13 @@ uiString Network::Socket::noConnErrMsg() const
 }
 
 
+QObject* Network::Socket::qSocket()
+{
+    return qtcpsocket_ ? (QObject*)qtcpsocket_
+		       : (QObject*)netsocketqlocalmgr_.getParam( this );
+}
+
+
 bool Network::Socket::waitForConnected() const
 {
     if ( isConnected() )
