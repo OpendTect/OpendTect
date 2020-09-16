@@ -13,8 +13,8 @@ ________________________________________________________________________
 
  The macro mInitTestProg() will take care of:
  1) Initialisation of program args
- 2) A file-scope variable 'bool quiet': whether progress info is required
- 3) A command line parser 'CommandLineParser clparser'
+ 2) A file-scope variable 'bool quiet_': whether progress info is required
+ 3) A command line parser 'CommandLineParser& clParser()'
 
 -*/
 
