@@ -236,7 +236,7 @@ mExpClass(Strat) LeafUnitRef : public UnitRef
 {
 public:
 
-			LeafUnitRef(NodeUnitRef*,int lithidx=-1,
+			LeafUnitRef(NodeUnitRef*,int lithid=-1,
 				    const char* desc=0);
     virtual bool	isUndef() const;
 
@@ -253,7 +253,7 @@ public:
 
 protected:
 
-    int			lith_;
+    int			lith_; // Lithology::ID
 
     virtual void	fill( BufferString& bs ) const	{ doFill(bs,lith_); }
     virtual void	use( const char* s )	{ doUse(s,&lith_); }

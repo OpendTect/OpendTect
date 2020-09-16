@@ -86,6 +86,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	sellithbut->attach( rightTo, unitlithfld_->box() );
 
 	lithids_.erase();
+	TypeSet<int> lithidxs;
 	for ( int idx=0; idx<unit.nrRefs(); idx++ )
 	{
 	    const Strat::LeafUnitRef& lur =
@@ -93,10 +94,14 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	    const int lithoidx =
 		Strat::RT().lithologies().indexOf( lur.lithology() );
 	    if ( lithoidx >= 0 )
-		lithids_ += lithoidx;
+	    {
+		lithidxs += lithoidx;
+		lithids_ += lur.lithology();
+	    }
 	}
-	if ( lithids_.size() )
-	    unitlithfld_->setChosen( lithids_ );
+
+	if ( lithidxs.size() )
+	    unitlithfld_->setChosen( lithidxs );
 	else if ( !unitlithfld_->isEmpty() )
 	    unitlithfld_->setCurrentItem( 0 );
     }
@@ -113,8 +118,6 @@ void uiStratUnitEditDlg::putToScreen()
     colfld_->setColor( unit_.color() );
     agestartfld_->setValue( unit_.timeRange().start );
     agestopfld_->setValue( unit_.timeRange().stop );
-    if ( unit_.isLeaved() )
-	unitlithfld_->setChosen( lithids_ );
 }
 
 
@@ -128,8 +131,19 @@ void uiStratUnitEditDlg::getFromScreen()
     unit_.setTimeRange( rg );
 
     lithids_.erase();
-    if ( unit_.isLeaved() )
-	unitlithfld_->getChosen( lithids_ );
+    if ( !unit_.isLeaved() )
+	return;
+
+    TypeSet<int> lithidxs;
+    unitlithfld_->getChosen( lithidxs );
+    for ( int idx=0; idx<lithidxs.size(); idx++ )
+    {
+	const int lithidx = lithidxs[idx];
+	if ( lithidx<0 || lithidx>=Strat::RT().lithologies().size() )
+	    continue;
+
+	lithids_ += Strat::RT().lithologies().getLith(lithidx).id();
+    }
 }
 
 
