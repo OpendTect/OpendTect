@@ -32,7 +32,7 @@ public:
 
 };
 
-#define mPrElems(msg ) if ( !quiet ) { \
+#define mPrElems(msg ) if ( !quiet_ ) { \
     od_cout() << msg << od_endl << '\t'; \
     for ( int idx=0; idx<des.size(); idx++ ) \
 	{ mPrintFunc; od_cout() << " | "; } \
@@ -40,14 +40,14 @@ public:
 
 #define mErrRet(msg ) \
 { \
-    if ( !quiet ) { \
+    if ( !quiet_ ) { \
     mPrElems("-> Failure ..." ) \
     od_cout() << msg << " failed.\n"; } \
     return 1; \
 }
 
 #define mRetAllOK() \
-    if ( !quiet ) { \
+    if ( !quiet_ ) { \
     od_cout() << "All OK.\n" << od_endl; } \
     return 0;
 
@@ -241,7 +241,7 @@ class TestClass
 
     ~TestClass()
     {
-	deleted_ = true; 
+	deleted_ = true;
     }
 
     bool& deleted_;

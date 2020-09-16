@@ -16,12 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTest( testname, test ) \
 if ( !(test) ) \
 { \
-    od_cout() << "Test " << testname << " FAILED\n"; \
+    handleTestResult( false, testname ); \
     return false; \
 } \
-else if ( !quiet ) \
+else\
 { \
-    od_cout() << "Test " << testname << " - SUCCESS\n"; \
+    handleTestResult( true, testname ); \
 }
 
 #define mRunTest( test ) \
@@ -119,7 +119,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     BufferStringSet normalargs;
-    clparser.getNormalArguments(normalargs);
+    clParser().getNormalArguments(normalargs);
 
     if ( normalargs.isEmpty() )
 	{ od_cout() << "No input file specified"; ExitProgram( 1 ); }

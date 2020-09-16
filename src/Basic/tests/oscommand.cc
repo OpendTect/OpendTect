@@ -33,7 +33,7 @@ static bool testCmds()
 #else
 
     OS::MachineCommand machcomm( "ls", "-l" );
-    if ( quiet )
+    if ( quiet_ )
 	machcomm.addFileRedirect( "/dev/null" );
     else
 	machcomm.addPipe().addArg( "head" ).addArg( "-10" );
@@ -166,7 +166,7 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( clparser.hasKey( "testpipes" ) )
+    if ( clParser().hasKey( "testpipes" ) )
     {
 	testServer();
 

@@ -12,12 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
-    if ( !quiet ) \
-	od_cout() << testname << ": OK\n"; \
+    handleTestResult( true, testname ); \
 } \
 else \
 { \
-    od_cout() << testname << ": Failed\n"; \
+    handleTestResult( false, testname ); \
     return false; \
 } \
 

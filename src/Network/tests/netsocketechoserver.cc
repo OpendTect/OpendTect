@@ -59,8 +59,7 @@ public:
 
 	    if ( socket->readArray(data,readsize) != Network::Socket::ReadOK )
 	    {
-		if ( !quiet )
-		    od_cout() << "Read error" << od_endl;
+		errStream() << "Read error" << od_endl;
 		break;
 	    }
 
@@ -100,16 +99,14 @@ public:
 	const time_t curtime = time( 0 );
 	if ( curtime-lastactivity_>timeout_ )
 	{
-	    if ( !quiet )
-		od_cout() << "Timeout" << od_endl;
-
+	    logStream() << "Timeout" << od_endl;
 	    CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
 	}
 
 	if ( !server_.isListening() )
 	{
-		od_cout() << "Server error: " << server_.errorMsg() << od_endl;
-		CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
+	    errStream() << "Server error: " << server_.errorMsg() << od_endl;
+	    CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
 	}
 
     }
@@ -129,36 +126,33 @@ int main(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( clparser.nrArgs() == 1 && clparser.hasKey(sKey::Quiet()) )
+    if ( clParser().nrArgs() == 1 && clParser().hasKey(sKey::Quiet()) )
 	return  0;
 
     ApplicationData app;
 
-    const Network::Authority auth = Network::Authority::getFrom( clparser,
-	  "test_netsocket",
-		Network::Socket::sKeyLocalHost(), PortNr_Type(1025));
-    if ( !auth.isUsable() )
+    PtrMan<Network::Authority> auth = new Network::Authority;
+    auth->setFrom( clParser(), "test_netsocket",
+		   Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth->isUsable() )
     {
-	od_ostream& strm = od_ostream::logStream();
-	strm << "Incorrect authority '" << auth.toString() << "'";
+	od_ostream& strm = errStream();
+	strm << "Incorrect authority '" << auth->toString() << "'";
 	strm << "for starting the server" << od_endl;
 	return 1;
     }
 
     int timeout = 600;
-    clparser.setKeyHasValue( Network::Server::sKeyTimeout() );
-    clparser.getVal( Network::Server::sKeyTimeout(), timeout );
+    clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
+    clParser().getVal( Network::Server::sKeyTimeout(), timeout );
 
     PtrMan<Network::EchoServer> tester
-		= new Network::EchoServer( auth,
+		= new Network::EchoServer( *auth.ptr(),
 					   mCast(unsigned short,timeout) );
+    logStream() << "Listening to " << auth->toString()
+	        << " with a " << tester->timeout_ << " second timeout\n";
 
-    if ( !quiet )
-    {
-	od_cout() << "Listening to " << auth.toString()
-		  << " with a " << tester->timeout_ << " second timeout\n";
-    }
-
+    auth = nullptr;
     const int retval = app.exec();
 
     tester = nullptr;

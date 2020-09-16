@@ -18,13 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 { \
 if ( !command ) \
 { \
-    od_cout() << testname << " failed!\n" << err.getFullString(); \
+    errStream() << testname << " failed!\n" << err.getFullString(); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
     ExitProgram(1); \
 } \
-else if ( !quiet ) \
-    od_cout() << testname << " Succeeded!\n"; \
+else \
+    logStream() << testname << " Succeeded!\n"; \
 }
 
 
@@ -40,14 +40,14 @@ else if ( !quiet ) \
     if ( File::getFileSize(dest.fullPath()) != \
 					  File::getFileSize(src.fullPath()) ) \
     { \
-	od_cout() << "Data integrety check failed!\n" \
+	errStream() << "Data integrety check failed!\n" \
 			       << dest.fullPath(); \
 	File::remove( zipfilename.fullPath() ); \
 	File::removeDir( outputdir.fullPath() ); \
 	ExitProgram(1); \
     } \
-    else if ( !quiet ) \
-	od_cout() << "Data integrety check succeeded!\n"; \
+    else \
+	logStream() << "Data integrety check succeeded!\n"; \
 }
 
 
@@ -56,7 +56,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     BufferString basedir;
-    clparser.getVal("datadir", basedir );
+    clParser().getVal("datadir", basedir );
     FilePath tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;

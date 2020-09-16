@@ -51,9 +51,8 @@ public:
 	if ( !newconn )
 	    return;
 
-	if ( !quiet )
-	    od_cout() << "New connection " << newconn->ID()
-		      << " on port " << server_.server()->port() << od_endl;
+	logStream() << "New connection " << newconn->ID()
+		    << " on port " << server_.server()->port() << od_endl;
 
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
@@ -77,12 +76,10 @@ public:
 		return;
 	}
 
-	if ( !quiet )
-	    od_cout() << "Request " << packet->requestID()
-		  << " received packet "
-	          << packet->subID() << " size " << packet->payloadSize()
-		  << od_endl;
-
+	logStream() << "Request " << packet->requestID()
+		    << " received packet "
+		    << packet->subID() << " size " << packet->payloadSize()
+		    << od_endl;
 
 	BufferString packetstring;
 
@@ -90,9 +87,7 @@ public:
 	if ( packetstring==Server::sKeyKillword() )
 	{
 	    conn->socket()->disconnectFromHost();
-	    if ( !quiet )
-		od_cout() << "Kill requested " << od_endl;
-
+	    logStream() << "Kill requested " << od_endl;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
@@ -111,8 +106,7 @@ public:
 	else
 	{
 	    conn->sendPacket( *packet );
-	    if ( !quiet )
-		od_cout() << "Request " << packet->requestID()
+	    logStream() << "Request " << packet->requestID()
 		      << " sent packet "
 		      << packet->subID() << " size " << packet->payloadSize()
 		      << od_endl;
@@ -123,8 +117,7 @@ public:
     void connClosedCB( CallBacker* cb )
     {
 	RequestConnection* conn = (RequestConnection*) cb;
-	if ( !quiet )
-	    od_cout() << "Connection " << conn->ID() << " closed." << od_endl;
+	logStream() << "Connection " << conn->ID() << " closed." << od_endl;
 	CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,cleanupOldConnections));
     }
@@ -153,17 +146,15 @@ public:
 	const time_t curtime = time( 0 );
 	if ( curtime-lastactivity_>timeout_ )
 	{
-	    if ( !quiet )
-		od_cout() << "Timeout" << od_endl;
-
+	    logStream() << "Timeout" << od_endl;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
 
 	if ( !server_.isOK() )
 	{
-	    od_cout() << "Server error: "
-		      << toString(server_.errMsg()) << od_endl;
+	    errStream() << "Server error: "
+		        << toString(server_.errMsg()) << od_endl;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB) );
 	}
@@ -185,36 +176,34 @@ int main(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( clparser.nrArgs() == 1 && clparser.hasKey(sKey::Quiet()) )
+    if ( clParser().nrArgs() == 1 && clParser().hasKey(sKey::Quiet()) )
 	return 0;
 
     ApplicationData app;
 
-    const Network::Authority auth = Network::Authority::getFrom( clparser,
-		  "test_netreq",
-		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
-    if ( !auth.isUsable() )
+    PtrMan<Network::Authority> auth = new Network::Authority;
+    auth->setFrom( clParser(), "test_netreq",
+		   Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth->isUsable() )
     {
 	od_ostream& strm = od_ostream::logStream();
-	strm << "Incorrect authority '" << auth.toString() << "'";
+	strm << "Incorrect authority '" << auth->toString() << "'";
 	strm << "for starting the server" << od_endl;
 	return 1;
     }
 
     int timeout = 600;
-    clparser.setKeyHasValue( Network::Server::sKeyTimeout() );
-    clparser.getVal( Network::Server::sKeyTimeout(), timeout );
+    clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
+    clParser().getVal( Network::Server::sKeyTimeout(), timeout );
 
     PtrMan<Network::RequestEchoServer> tester =
-		new Network::RequestEchoServer( auth,
+		new Network::RequestEchoServer( *auth.ptr(),
 						mCast(unsigned short,timeout) );
 
-    if ( !quiet )
-    {
-	od_cout() << "Listening to " << auth.toString()
-		  << " with a " << tester->timeout_ << " second timeout\n";
-    }
+    logStream() << "Listening to " << auth->toString()
+	        << " with a " << tester->timeout_ << " second timeout\n";
 
+    auth = nullptr;
     const int retval = app.exec();
 
     tester = nullptr;

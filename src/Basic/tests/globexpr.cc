@@ -17,7 +17,7 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( quiet || argc != 3 )
+    if ( quiet_ || argc != 3 )
 	return ExitProgram( 0 );
 
     BufferString tomatch( argv[1] );

@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mPrintResult(func) \
 { \
-    if ( quiet ) \
+    if ( !quiet_ ) \
     { \
 	od_cout() << "\nData type in test: " << valtype; \
 	od_cout() << "\n====================\n"; \
@@ -66,7 +66,7 @@ bool testAtomic( const char* valtype )
     bool stopflag = false;
     Threads::Atomic<T> atomic( 0 );
 
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	od_cout() << "\nData type in test: " << valtype;
 	od_cout() << "\n====================\n";
@@ -138,7 +138,7 @@ bool testAtomic( const char* valtype )
 
     stopflag = true;
 
-    if ( !quiet )
+    if ( !quiet_ )
 	od_cout() << "\n";
 
     return true;
@@ -153,7 +153,7 @@ bool testAtomic( const char* valtype )
 { \
     if ( (test) ) \
     { \
-	if ( !quiet ) \
+	if ( !quiet_ ) \
 	{ \
 	    od_cout() << desc << ":"; \
 	    od_cout() << " OK\n"; \
@@ -267,7 +267,7 @@ struct LockerTester : public CallBacker
 template <class T> inline
 bool testLock( bool testcount, const char* type )
 {
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	od_cout() << "\n" << type << " tests\n====================\n";
     }

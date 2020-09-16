@@ -133,7 +133,7 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( clparser.hasKey("expr") )
+    if ( clParser().hasKey("expr") )
 	parsePassedExpr( argv[2] );
     else
     {

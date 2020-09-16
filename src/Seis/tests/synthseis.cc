@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ailayer.h"
 #include "batchprog.h"
-#include "commandlineparser.h"
 #include "factory.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -29,15 +28,11 @@ static const char* sKeyWaveletID()	{ return "Wavelet"; }
 #define mTest( testname, test, message ) \
 if ( (test)==true ) \
 { \
-    if ( !quiet ) \
-	strm << testname << ": OK" << od_newline; \
+    handleTestResult( true, testname ); \
 } \
 else \
 { \
-    strm << testname << ": Failed" << od_newline; \
-    if ( message ) \
-	strm << message << od_newline; \
-    \
+    handleTestResult( false, testname, message ); \
     return false; \
 }
 

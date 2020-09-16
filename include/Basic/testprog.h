@@ -28,13 +28,49 @@ ________________________________________________________________________
 #  include "winmain.h"
 # endif
 
-
+// Kept for ABI, do not use
 static mUsedVar bool quiet = true;
 static mUsedVar PtrMan<CommandLineParser> theparser = 0;
+//
+
+static bool quiet_ mUnusedVar = true;
+static PtrMan<CommandLineParser> the_testprog_parser_ mUnusedVar = nullptr;
+
+static inline CommandLineParser& clParser()
+{
+    return *the_testprog_parser_;
+}
+
+
+# define mRunSubTest( nm ) \
+    tstStream() << "\n\n\n->" << #nm << " subtest\n\n"; \
+    status = test_main_##nm( argc, argv ); \
+    if ( status != 0 ) \
+        return status
+
+#define mTestProgInits() \
+    od_init_test_program( argc, argv ); \
+    the_testprog_parser_ = new CommandLineParser; \
+    quiet_ = clParser().hasKey( sKey::Quiet() ); \
+    CommandLineParser& parser mUnusedVar = *the_testprog_parser_; \
+    quiet = quiet_;
+
+# define mInitCompositeTestProg(mod) \
+    mTestProgInits(); \
+    tstStream() << "** '" << #mod << "' composite test\n\n"; \
+    int status
+
+#define mExitTestProg( var )
+
+# define mInitTestProg() mTestProgInits()
+# define mInitBatchTestProg() \
+    int argc = GetArgC(); char** argv = GetArgV(); \
+    mInitTestProg()
+
 
 static inline mUsedVar od_ostream& tstStream( bool err=false )
 {
-    if ( !quiet || err )
+    if ( !quiet_ || err )
     {
 	if ( err )
 	    od_ostream::logStream() << "[FAIL] ";
@@ -43,39 +79,32 @@ static inline mUsedVar od_ostream& tstStream( bool err=false )
     return od_ostream::nullStream();
 }
 
+static inline mUnusedVar od_ostream& logStream()
+{
+    return tstStream( false );
+}
 
-#define mInitTestProg() \
-    od_init_test_program( argc, argv ); \
-    theparser = new CommandLineParser; \
-    CommandLineParser& clparser = *theparser; \
-    quiet = clparser.hasKey( sKey::Quiet() )
+static inline mUnusedVar od_ostream& errStream()
+{
+    return tstStream( true );
+}
 
-#define mExitTestProg( var )
+inline bool handleTestResult( bool isok, const char* desc, const char* emsg=0 )
+{
+    if ( isok )
+        logStream() << "[OK] " << desc << od_endl;
+    else
+    {
+        if ( !emsg )
+            emsg = "<no details>";
+        errStream() << desc << ": " << emsg << od_endl;
+    }
 
-#define mInitBatchTestProg() \
-    int argc = GetArgC(); char** argv = GetArgV(); \
-    mInitTestProg()
-
-#define mRunStandardTestWithError( test, desc, err ) \
-if ( !quiet ) \
-    od_ostream::logStream() << desc;  \
-if ( (test) ) \
-{ \
-    if ( !quiet ) \
-	od_ostream::logStream() << " - SUCCESS\n"; \
-} \
-else \
-{ \
-    if ( quiet ) \
-	od_ostream::logStream() << desc; \
-    od_ostream::logStream() << " - FAIL"; \
-    if ( err ) \
-	od_ostream::logStream() << ": " << err << "\n"; \
-\
-    return false; \
+    return isok;
 }
 
 #define mRunStandardTest( test, desc ) \
-	mRunStandardTestWithError( test, desc, BufferString().str() )
+    { if ( !handleTestResult((test),desc) ) return false; }
 
-
+#define mRunStandardTestWithError( test, desc, err ) \
+    { if ( !handleTestResult((test),desc,err) ) return false; }

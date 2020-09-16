@@ -66,8 +66,7 @@ int main( int argc, char** argv )
 
     if ( !OD::PythA().isUsable().isOK() )
     {
-	if ( !quiet )
-	    od_cout() << "Python link is not usable" << od_endl;
+	logStream() << "Python link is not usable" << od_endl;
 	return 1;
     }
 

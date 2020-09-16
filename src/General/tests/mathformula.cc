@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 	{ od_cout() << "Fail:\n" << #var <<'='<< var << \
 	    ", not " << val << od_endl; return false; }
 #define mTestValSucces(var,val) \
-    if ( !quiet ) od_cout() << "Success: " << #var <<'='<< var << od_endl
+    logStream() << "Success: " << #var <<'='<< var << od_endl
 
 #define mTestVal(var,val) \
     if ( var != val ) mTestValErr(var,val) mTestValSucces(var,val)
@@ -30,14 +30,14 @@ static bool testSimpleFormula()
 {
      const char* expr = "c0 * x + y - this[-2]";
 
-    if ( !quiet )
+    if ( !quiet_ )
 	od_cout() << "Expression: '" << expr << "'\n";
 
     Math::Formula tryform( false, expr );
     if ( tryform.isOK() )
 	{ od_cout() << "Fail:\n" << expr
 	    << " should not parse in single mode" << od_endl; return false; }
-    if ( !quiet )
+    if ( !quiet_ )
 	od_cout() << "OK, single mode err msg='" << tryform.errMsg() << "'\n";
 
     Math::Formula form( true, expr );
@@ -72,7 +72,7 @@ static bool testSimpleFormula()
     val = form.getValue( inpvals, true );
     mTestValF(val,0.00556168);
 
-    if ( !quiet )
+    if ( !quiet_ )
     {
 	IOPar iop;
 	form.fillPar( iop );
@@ -96,7 +96,7 @@ static bool testRepeatingVar()
 {
      const char* expr = "x[-1] + 2*y + out[-1] + x[1] + aap";
 
-    if ( !quiet )
+    if ( !quiet_ )
 	od_cout() << "Expression: '" << expr << "'\n";
 
     Math::SpecVarSet svs;

@@ -26,11 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mRetResult( funcname ) \
     { \
-	od_cout() << funcname << " failed" << od_endl; \
+	errStream() << funcname << " failed" << od_endl; \
 	return false; \
     } \
-    else if ( !quiet ) \
-	od_cout() << funcname << " succeeded" << od_endl; \
+    else \
+	logStream() << funcname << " succeeded" << od_endl; \
     return true;
 
 

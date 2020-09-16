@@ -130,7 +130,7 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testNormalOperation(clparser) || !testStringParsing() )
+    if ( !testNormalOperation(clParser()) || !testStringParsing() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );

@@ -16,12 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mPrintTestResult( queuetypename, testname ) \
 {\
-    od_cout() << queuetypename << "\"" testname "\" Failure\n";\
+    errStream() << queuetypename << "\"" testname "\"" << od_endl;\
     return false;\
 }\
-else if ( !quiet )\
+else \
 {\
-    od_cout() << queuetypename << "\"" testname "\" Success\n";\
+    logStream() << queuetypename << "\"" testname "\" Success" << od_endl;\
 }
 
 #define mAddWork( work, queueid ) \

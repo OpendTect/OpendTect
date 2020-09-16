@@ -18,12 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
-    if ( !quiet ) \
-	od_ostream::logStream() << testname << ": OK\n"; \
+    handleTestResult( true, testname ); \
 } \
 else \
 { \
-    od_ostream::logStream() << testname << ": Failed\n"; \
+    handleTestResult( false, testname ); \
     return false; \
 }
 
@@ -77,7 +76,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     BufferStringSet normalargs;
-    clparser.getNormalArguments(normalargs);
+    clParser().getNormalArguments(normalargs);
 
     if ( !testCoordList2D() )
 	ExitProgram( 1 );

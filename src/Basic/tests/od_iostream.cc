@@ -37,7 +37,7 @@ static bool fnnm() \
     decls; \
     act; \
     const bool isok = (cond); \
-    if ( !quiet ) \
+    if ( !quiet_ ) \
     { \
 	od_cout() << #fnnm << "[" << #cond << "]" \
 		  << (isok ? " OK" : " Fail") << od_endl; \

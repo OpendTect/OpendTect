@@ -34,10 +34,6 @@ class TestRunner : public CallBacker
 {
 public:
 
-    TestRunner( const Network::Authority& auth )
-        : authority_(auth)
-    {}
-
     ~TestRunner()
     {
 	detachAllNotifiers();
@@ -148,7 +144,7 @@ static void terminateServer( const PID_Type pid )
     if ( pid < 1 || !isProcessAlive(pid) )
 	return;
 
-    od_cout() << "Terminating zombie server with PID: " << pid << od_endl;
+    errStream() << "Terminating zombie server with PID: " << pid << od_endl;
     SignalHandling::stopProcess( pid );
 }
 
@@ -163,12 +159,13 @@ int main(int argc, char** argv)
 
     ApplicationData app;
 
-    const Network::Authority auth = Network::Authority::getFrom( clparser,
-          "test_netsocket",
+    PtrMan<TestRunner> runner = new TestRunner;
+    Network::Authority& auth = runner->authority_;
+    auth.setFrom( clParser(), "test_netsocket",
 		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
     if ( !auth.isUsable() )
     {
-        od_ostream& strm = od_ostream::logStream();
+        od_ostream& strm = errStream();
         strm << "Incorrect authority '" << auth.toString() << "'";
         strm << "for starting the server" << od_endl;
         return 1;
@@ -190,26 +187,24 @@ int main(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    PtrMan<TestRunner> runner = new TestRunner( auth );
-
     PID_Type serverpid = -1;
-    if ( !clparser.hasKey("noechoapp") )
+    if ( !clParser().hasKey("noechoapp") )
     {
         BufferString serverapp = "test_netsocketechoserver";
-        clparser.setKeyHasValue( "serverapp" );
-        clparser.getVal( "serverapp", serverapp, true );
+        clParser().setKeyHasValue( "serverapp" );
+        clParser().getVal( "serverapp", serverapp, true );
 
         OS::MachineCommand mc( serverapp );
         auth.addTo( mc );
         mc.addKeyedArg( "timeout", runner->timeout_ );
-        //if ( clparser.hasKey(sKey::Quiet()) )
+        //if ( quiet_ )
 	    mc.addFlag( sKey::Quiet() );
 
         const OS::CommandExecPars execpars( OS::RunInBG );
         OS::CommandLauncher cl( mc );
         if ( !cl.execute(execpars) )
         {
-	    od_ostream& strm = od_ostream::logStream();
+	    od_ostream& strm = errStream();
 	    strm << "Cannot start " << mc.toString(&execpars);
 	    strm << ": " << toString(cl.errorMsg()) << od_endl;
 	    return 1;
@@ -226,6 +221,7 @@ int main(int argc, char** argv)
     runner->noeventloop_ = true;
     if ( !runner->testNetSocket(false) )
     {
+	runner = nullptr;
 	terminateServer( serverpid );
 	ExitProgram( 1 );
     }

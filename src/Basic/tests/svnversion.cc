@@ -19,12 +19,9 @@ int main( int argc, char** argv )
 
     if ( !version || !*version )
     {
-	if ( !quiet )
-	{
-	    od_cout() << "Invalid vcs revision. "
-		    "Cmake could probably not find svn command-client. "
-		    "Take a look in CMakeModules/ODSubversion.cmake.\n";
-	}
+	logStream() << "Invalid vcs revision. "
+		"Cmake could probably not find svn command-client. "
+		"Take a look in CMakeModules/ODSubversion.cmake.\n";
 	ExitProgram( 1 );
     }
 
