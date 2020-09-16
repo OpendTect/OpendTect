@@ -519,6 +519,12 @@ uiString Network::Socket::noConnErrMsg() const
 }
 
 
+QObject* Network::Socket::qSocket()
+{
+    return isLocal() ? (QObject*)qlocalsocket_ : (QObject*)qtcpsocket_;
+}
+
+
 bool Network::Socket::waitForConnected() const
 {
     if ( isConnected() )
