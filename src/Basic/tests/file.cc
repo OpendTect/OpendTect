@@ -181,16 +181,13 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    BufferStringSet normalargs;
-    clParser().getNormalArguments(normalargs);
+    File::Path fp( __FILE__ );
+    fp.setExtension( "par" );
+    if ( !fp.exists() )
+	{ errStream() << "Input file not found"; return 1; }
 
-    if ( normalargs.isEmpty() )
-	{ od_cout() << "No input file specified"; return 1; }
-
-    const BufferString parfile = *normalargs.last();
-
-    if ( !testReadContent()
-      || !testIStream( parfile.buf() ) )
+    const BufferString parfile( fp.fullPath() );
+    if ( !testReadContent() || !testIStream( parfile.buf() ) )
 	return 1;
 
     if ( !testFilePathParsing() )
