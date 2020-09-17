@@ -4,22 +4,23 @@
  * DATE     : Nov 2016
 -*/
 
-#include "seisstorer.h"
-#include "seisprovider.h"
-#include "seisprovidertester.h"
+#include "batchprog.h"
+#include "testprog.h"
+
 #include "ctxtioobj.h"
 #include "cubedata.h"
-#include "seisstorer.h"
+#include "dbman.h"
+#include "moddepmgr.h"
 #include "seisbuf.h"
+#include "seisprovider.h"
+#include "seisprovidertester.h"
+#include "seisstorer.h"
+#include "seisstorer.h"
 #include "seistrc.h"
 #include "survgeom2d.h"
 #include "survgeommgr.h"
 #include "surveydisklocation.h"
-#include "dbman.h"
-#include "oddirs.h"
 
-#include "testprog.h"
-#include "moddepmgr.h"
 
 /* Program creates Vol, VolPS, Line and LinePS seismic data.
 
@@ -325,33 +326,23 @@ static bool createLinePS()
 }
 
 
-int mTestMainFnName( int argc, char** argv )
+bool BatchProgram::go( od_ostream& )
 {
-    mInitTestProg();
+    mInitBatchTestProg();
     OD::ModDeps().ensureLoaded("Seis");
 
-    SurveyDiskLocation sdl;
-    sdl.setBasePath( GetBaseDataDir() );
-    sdl.setDirName( ProviderTester::survName() );
-    const auto uirv = DBM().setDataSource( sdl.fullPath() );
-    if ( !uirv.isOK() )
-    {
-	tstStream(true) << toString(uiString(uirv)) << od_endl;
-	ExitProgram( 1 );
-    }
-
     if ( !fillTrcBuf() )
-	ExitProgram( 1 );
+	return false;
     else if ( !createVol() )
-	ExitProgram( 1 );
+	return false;
     else if ( !createVolPS() )
-	ExitProgram( 1 );
+	return false;
     else if ( !createLineGeoms() )
-	ExitProgram( 1 );
+	return false;
     else if ( !createLines() )
-	ExitProgram( 1 );
+	return false;
     else if ( !createLinePS() )
-	ExitProgram( 1 );
+	return false;
 
-    return ExitProgram( 0 );
+    return true;
 }
