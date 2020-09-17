@@ -71,7 +71,7 @@ public:
 
     inline			ManagedObjectSet(const ObjectSet<T>&);
 
-    ManagedObjectSet<T>&	operator=(const ObjectSet<T>& os);
+    ManagedObjectSet<T>&	operator=(const ObjectSet<T>&);
 
     inline virtual void		append(const ObjectSet<T>&);
 
