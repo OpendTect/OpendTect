@@ -285,8 +285,8 @@ mExpClass(Basic) Thread
 {
 public:
 
-				Thread(void (*)(void*),const char* nm=0);
-				Thread(const CallBack&,const char* nm=0);
+				Thread(void (*)(void*),const char* nm=nullptr);
+				Thread(const CallBack&,const char* nm=nullptr);
     virtual			~Thread();
 
     ThreadID			threadID() const;

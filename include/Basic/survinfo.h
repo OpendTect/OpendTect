@@ -81,7 +81,7 @@ public:
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
     inline float	showZ2UserFactor() const
-			{ return (float)zDomain().userFactor(); }
+			{ return float(zDomain().userFactor()); }
 
     bool		zIsTime() const;
 			//!<Legacy, don't use. Use zDomain().isTime()
@@ -251,7 +251,7 @@ public:
     BufferString	getDataDirName() const	{ return datadir_; }
     void		updateDirName(); //!< May be used after setName()
 
-			mDeclareEnumUtils(Pol2D);
+			mDeclareEnumUtils(Pol2D)
     Pol2D		survDataType() const	{ return survdatatype_; }
     void		setSurvDataType( Pol2D typ )
 			{ survdatatype_ = typ; survdatatypeknown_ = true; }

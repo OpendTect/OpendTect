@@ -23,13 +23,13 @@ ________________________________________________________________________
 //--- FP rounding and equality
 
 template <class RT,class T>
-inline RT roundOff( T x )	{ return (RT)(x); }
+inline RT roundOff( T x )	{ return RT(x); }
 
 template <class RT>
-inline RT roundOff( double x )	{ return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
+inline RT roundOff( double x )	{ return RT((x)>0 ? (x)+.5 : (x)-.5); }
 
 template <class RT>
-inline RT roundOff( float x )	{ return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
+inline RT roundOff( float x )	{ return RT((x)>0 ? (x)+.5f : (x)-.5f); }
 
 template <class fT,class eT>
 inline bool isFPZero( fT v, eT eps )		{ return v < eps && v > -eps; }

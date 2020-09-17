@@ -7,8 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
-
 
 #include "arrayndslice.h"
 #include "varlenarray.h"
@@ -18,14 +16,16 @@ ArrayNDSliceBase::ArrayNDSliceBase( ArrayNDInfo* localinfo,
 				    const ArrayNDInfo& sourceinfo )
     : info_( *localinfo )
     , sourceinfo_( sourceinfo )
-    , position_( sourceinfo.getNDim(), -1 )
     , vardim_( localinfo->getNDim(), -1 )
+    , position_( sourceinfo.getNDim(), -1 )
     , offset_( -1 )
 { }
 
 
 ArrayNDSliceBase::~ArrayNDSliceBase()
-{ delete &info_; }
+{
+    delete &info_;
+}
 
 
 bool ArrayNDSliceBase::setPos( int dim, int pos )

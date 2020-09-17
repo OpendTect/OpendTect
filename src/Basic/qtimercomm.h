@@ -23,7 +23,7 @@ QT_BEGIN_NAMESPACE
   Internal object, to hide Qt's signal/slot mechanism.
 */
 
-class QTimerComm : public QObject 
+class QTimerComm : public QObject
 {
     Q_OBJECT
     friend class	::Timer;
@@ -44,21 +44,21 @@ virtual	~QTimerComm()
 { deactivate(); }
 
 
-void deactivate() 
+void deactivate()
 {
-    if ( qtimer_ && magic_ == 0xdeadbeef ) 
+    if ( qtimer_ && magic_ == 0xdeadbeef )
 	qtimer_->stop();
 
-    qtimer_ = 0;
-    timer_ = 0;
+    qtimer_ = nullptr;
+    timer_ = nullptr;
     magic_ = 0;
 }
 
 private slots:
 
 void timeout()
-{ 
-    if ( timer_ && magic_ == 0xdeadbeef ) 
+{
+    if ( timer_ && magic_ == 0xdeadbeef )
 	timer_->notifyHandler();
 }
 

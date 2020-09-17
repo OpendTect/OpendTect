@@ -763,7 +763,7 @@ inline bool PosRectangle<T>::isInside( const Point2D<T>& pt, T eps ) const
 
 template <class T>
 inline T iwiderPos( int x1, int x2, double f )
-{ return (T)mNINT32(x1 + f * (x1 - x2)); }
+{ return sCast(T,mNINT32(x1 + f * (x1 - x2))); }
 
 
 template <class T>

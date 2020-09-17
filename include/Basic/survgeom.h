@@ -66,7 +66,8 @@ public:
     static Coord	toCoord(const TrcKey&);
 
     virtual TrcKey	getTrace(const Coord&,float maxdist) const;
-    virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
+    virtual TrcKey	nearestTrace(const Coord&,
+				     float* distance=nullptr) const = 0;
 
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
 
@@ -75,10 +76,10 @@ public:
 				{ return UnRelated; }
 
     //Convenience functions for the most commone geometries
-    virtual Geometry2D*		as2D()			{ return 0; }
+    virtual Geometry2D*		as2D()			{ return nullptr; }
     const Geometry2D*		as2D() const;
 
-    virtual Geometry3D*		as3D()			{ return 0; }
+    virtual Geometry3D*		as3D()			{ return nullptr; }
     const Geometry3D*		as3D() const;
 
 protected:

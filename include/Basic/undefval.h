@@ -160,7 +160,7 @@ mClass(Basic) Undef<bool>
 public:
     static bool		val()			{ return false; }
     static bool		hasUdf()		{ return false; }
-    static bool		isUdf( bool b )		{ return false; }
+    static bool		isUdf( bool )		{ return false; }
     static void		setUdf( bool& b )	{ b = false; }
 };
 
@@ -248,7 +248,7 @@ bool isUdf( const T& t )
 }
 
 template <class T> inline
-const T& udfVal( const T& t )
+const T& udfVal( const T& )
 {
     mDefineStaticLocalObject( T, u, = Undef<T>::val() );
     return u;
