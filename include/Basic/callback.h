@@ -43,8 +43,6 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 typedef void (*StaticCallBackFunction)(CallBacker*);
 #define mSCB(fn) CallBack( (static_cast<StaticCallBackFunction>(&fn)) )
 
-class QCallBackEventReceiver;
-
 
 /*!\brief CallBacks object-oriented (object + method).
 
@@ -216,9 +214,6 @@ private:
     bool		notifyShutdown(const NotifierAccess*,bool wait) const;
 			/*!<\returns false only if wait and no lock could be
 				     obtained. */
-
-    ObjectSet<QCallBackEventReceiver>	receivers_;
-    Threads::Lock			receiverslock_;
 
     ObjectSet<NotifierAccess>		attachednotifiers_;
     mutable Threads::Lock		attachednotifierslock_;
