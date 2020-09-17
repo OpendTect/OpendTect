@@ -4,14 +4,16 @@
  * DATE     : Nov 2016
 -*/
 
+#include "batchprog.h"
+#include "testprog.h"
+
+#include "cubesubsel.h"
+#include "linesubsel.h"
+#include "moddepmgr.h"
 #include "seisprovidertester.h"
 #include "seisprovider.h"
 #include "trckey.h"
-#include "cubesubsel.h"
-#include "linesubsel.h"
 
-#include "testprog.h"
-#include "moddepmgr.h"
 
 /*!
 
@@ -129,19 +131,19 @@ static bool testPS2D()
 }
 
 
-int mTestMainFnName( int argc, char** argv )
+bool BatchProgram::go( od_ostream& )
 {
-    mInitTestProg();
+    mInitBatchTestProg();
     OD::ModDeps().ensureLoaded("Seis");
 
     if ( !testVol() )
-	ExitProgram( 1 );
+	return false;
     if ( !testLine() )
-	ExitProgram( 1 );
+	return false;
     if ( !testPS3D() )
-	ExitProgram( 1 );
+	return false;
     if ( !testPS2D() )
-	ExitProgram( 1 );
+	return false;
 
-    return ExitProgram( 0 );
+    return true;
 }
