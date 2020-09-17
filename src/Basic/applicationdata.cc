@@ -2,10 +2,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : March 1994
- * FUNCTION : general utilities
 -*/
-
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 
@@ -13,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "ptrman.h"
 
-#ifndef OD_NO_QT
 #include <QCoreApplication>
 
 ApplicationData::ApplicationData()
@@ -65,34 +61,3 @@ void ApplicationData::setOrganizationDomain( const char* domain )
 
 void ApplicationData::setApplicationName( const char* nm )
 { QCoreApplication::setApplicationName( nm ); }
-
-
-#else //No QT
-ApplicationData::ApplicationData()
-{ }
-
-
-ApplicationData::~ApplicationData()
-{
-}
-
-
-int ApplicationData::exec()
-{ return 1; }
-
-
-void ApplicationData::exit( int retcode )
-{ }
-
-void ApplicationData::setOrganizationName( const char* nm )
-{ }
-
-
-void ApplicationData::setOrganizationDomain( const char* domain )
-{ }
-
-
-void ApplicationData::setApplicationName( const char* nm )
-{ }
-
-#endif

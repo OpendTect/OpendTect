@@ -48,7 +48,8 @@ public:
     template <class T>
     inline explicit	BufferString(const T&);
     template <class T>
-    inline		BufferString(const char*,const T&,const char* s=0);
+    inline		BufferString(const char*,const T&,
+				     const char* s=nullptr);
 			BufferString(const QString&);
     virtual		~BufferString();
     inline BufferString& operator=( const BufferString& b )
@@ -75,7 +76,7 @@ public:
 
     inline char*	getCStr()
     { return const_cast<char*>(const_cast<BufferString*>(this)->gtBuf()); }
-    void                fill(char*,int maxnrchar) const;
+    void		fill(char*,int maxnrchar) const;
 			//!< fill old C-style char buf
 
     inline char&	operator []( int idx )	{ return getCStr()[idx]; }
@@ -123,7 +124,7 @@ public:
     BufferString&	replace(char from,char to);
     BufferString&	replace(const char* from,const char* to);
     BufferString&	remove(char);
-    inline BufferString& remove( const char* s )	{ return replace(s,0); }
+    inline BufferString& remove( const char* s )  { return replace(s,nullptr); }
     BufferString&	trimBlanks(); //!< removes front and back whitespaces
 
     BufferString&	insertAt(int idx, const char*);
@@ -157,7 +158,7 @@ protected:
 private:
 
     void		init();
-    inline void		destroy()	{ delete [] buf_; buf_ = 0; }
+    inline void		destroy()	{ delete [] buf_; buf_ = nullptr; }
     BufferString&	addArr32Chars(const char*,int);
 
 public:
@@ -187,7 +188,7 @@ inline bool operator!=(const char*,const BufferString&)
 
 
 #define mBufferStringSimpConstrInitList \
-    minlen_(mMaxFilePathLength+1), buf_(0), len_(0)
+    buf_(nullptr), len_(0), minlen_(mMaxFilePathLength+1)
 
 inline BufferString::BufferString()
     : mBufferStringSimpConstrInitList	{}
@@ -207,7 +208,7 @@ BufferString::BufferString( const char* s1, const T& t, const char* s2 )
 { *this += s1; *this += t; *this += s2; }
 
 inline const char* BufferString::gtStr() const
-{ return buf_ && *buf_ ? const_cast<char*>( buf_ ) : 0; }
+{ return buf_ && *buf_ ? const_cast<char*>( buf_ ) : nullptr; }
 
 inline bool BufferString::operator==( const BufferString& s ) const
 { return isEqual( s.buf_ ); }

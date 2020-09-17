@@ -26,21 +26,28 @@ mExpClass(Basic) GlobExpr
 {
 public:
 
-			GlobExpr( const char* s = 0, bool casesens=true )
-			: expr_(""), errmsg_(0), ci_(!casesens)	{ set(s); }
+			GlobExpr( const char* s=nullptr, bool casesens=true )
+			: expr_(""), errmsg_(nullptr), ci_(!casesens)
+			{ set(s); }
 			GlobExpr( const GlobExpr& ge )
-			: expr_(ge.expr_), errmsg_(0), ci_(ge.ci_) {}
+			: expr_(ge.expr_), errmsg_(nullptr), ci_(ge.ci_) {}
     GlobExpr&		operator=( const GlobExpr& ge )
-			{ expr_ = ge.expr_; errmsg_ = 0; ci_ = ge.ci_;
-			  return *this; }
+			{
+			    expr_ = ge.expr_;
+			    errmsg_ = nullptr;
+			    ci_ = ge.ci_;
+			    return *this;
+			}
     bool		operator==( const GlobExpr& ge ) const
-			{ return expr_ == ge.expr_ && ci_ == ge.ci_; }
+			{
+			    return expr_ == ge.expr_ && ci_ == ge.ci_;
+			}
 
     void		setCaseInSensitive( bool yn=true )	{ ci_ = yn; }
 
     void		set(const char*);
     inline		operator const char*() const
-			{ return (const char*)expr_; }
+			{ return expr_; }
 
     inline bool		matches( const char* t ) const
 			{ return matches( expr_, t,

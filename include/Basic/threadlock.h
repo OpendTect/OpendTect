@@ -63,9 +63,9 @@ public:
 
 
     // For thread-specialists:
-    inline bool			isMutex() const		{ return (bool)mutex_; }
-    inline bool			isSpinLock() const	{ return (bool)splock_;}
-    inline bool			isRWLock() const	{ return (bool)rwlock_;}
+    inline bool			isMutex() const		{ return bool(mutex_); }
+    inline bool			isSpinLock() const	{ return bool(splock_);}
+    inline bool			isRWLock() const	{ return bool(rwlock_);}
     inline Mutex&		mutex()			{ return *mutex_; }
     inline SpinLock&		spinLock()		{ return *splock_; }
     inline ReadWriteLock&	readWriteLock()		{ return *rwlock_; }

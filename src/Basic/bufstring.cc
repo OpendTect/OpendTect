@@ -23,10 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 
-BufferString::BufferString( int sz, bool mknull )
-    : minlen_(sz)
+BufferString::BufferString( int sz, bool /*mknull*/ )
+    : buf_(nullptr)
     , len_(0)
-    , buf_(0)
+    , minlen_(sz)
 {
     if ( sz < 1 ) return;
 
@@ -37,9 +37,9 @@ BufferString::BufferString( int sz, bool mknull )
 
 
 BufferString::BufferString( const BufferString& bs )
-    : minlen_(bs.minlen_)
+    : buf_(nullptr)
     , len_(0)
-    , buf_(0)
+    , minlen_(bs.minlen_)
 {
     if ( !bs.buf_ || !bs.len_ ) return;
 
@@ -102,7 +102,7 @@ BufferString& BufferString::assignTo( const char* s )
     if ( buf_ == s ) return *this;
 
     if ( !s ) s = "";
-    setBufSize( (unsigned int)(strlen(s) + 1) );
+    setBufSize( sCast( unsigned int, (strlen(s) + 1) ) );
     char* ptr = buf_;
     while ( *s ) *ptr++ = *s++;
     *ptr = '\0';
@@ -492,7 +492,7 @@ void BufferString::init()
 {
     len_ = minlen_;
     if ( len_ < 1 )
-	buf_ = 0;
+	buf_ = nullptr;
     else
     {
 	mTryAlloc( buf_, char[len_] );
