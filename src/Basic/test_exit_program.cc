@@ -13,6 +13,6 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     logStream() << "Exiting with return code 1" << od_endl;
-    return ExitProgram( 1 );
+    return 1;
 }
 
