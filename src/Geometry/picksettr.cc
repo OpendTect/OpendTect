@@ -38,7 +38,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    if ( !tr ) { bs = "Selected object is not a PointSet"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -58,7 +58,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    if ( !tr ) { bs = "Selected object is not a PointSet"; return false; }
 
     bs = "";
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
@@ -92,9 +92,9 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from Pick Set file";
+	return "Cannot read from PointSet file";
     else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
-	return "Input file is not a Pick Set";
+	return "Input file is not a PointSet";
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( atEndOfSection(astrm) )
 	return "Input file contains no pick sets";
@@ -167,7 +167,7 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PickSet) );
     if ( !astrm.isOK() )
-	return "Cannot write to output Pick Set file";
+	return "Cannot write to output PointSet file";
 
     BufferString str;
     IOPar par;
@@ -185,7 +185,7 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 
     astrm.newParagraph();
     return astrm.isOK() ? 0
-	:  "Error during write to output Pick Set file";
+	:  "Error during write to output PointSet file";
 }
 
 

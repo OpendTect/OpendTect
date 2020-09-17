@@ -75,22 +75,22 @@ class uiFPAdvancedDlg: public uiDialog
 					const BufferStringSet&);
 			~uiFPAdvancedDlg();
 
-    void                prepareNumGroup(uiGroup*,const BufferStringSet&);
-    void                rangeSel(CallBacker*);
-    void                calcPush(CallBacker*);
-    bool                acceptOK(CallBacker*);
+    void		prepareNumGroup(uiGroup*,const BufferStringSet&);
+    void		rangeSel(CallBacker*);
+    void		calcPush(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
-    uiButtonGroup*      rangesgrp_;
-    uiRadioButton*      picksetbut_;
-    uiIOObjSel*         picksetfld_;
+    uiButtonGroup*		rangesgrp_;
+    uiRadioButton*		picksetbut_;
+    uiIOObjSel*			picksetfld_;
 
-    ObjectSet<uiGenInput>       valflds_;
-    ObjectSet<uiGenInput>       minmaxflds_;
-    ObjectSet<uiSpinBox>        wgtflds_;
+    ObjectSet<uiGenInput>	valflds_;
+    ObjectSet<uiGenInput>	minmaxflds_;
+    ObjectSet<uiSpinBox>	wgtflds_;
 
-    calcFingParsObject& calcobj_;
-    CtxtIOObj&          ctio_;
-    uiString		errmsg_;
+    calcFingParsObject&		calcobj_;
+    CtxtIOObj&			ctio_;
+    uiString			errmsg_;
 };
 
 
@@ -103,13 +103,16 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     calcobj_ = new calcFingParsObject( this );
 
     refgrp_ = new uiButtonGroup( this, "", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( refgrp_,
-                                                  uiStrings::sManual() );
+    uiRadioButton* manualbut =
+		new uiRadioButton( refgrp_, uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+
     refposbut_ = new uiRadioButton( refgrp_,tr("Reference position"));
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+
     picksetbut_ = new uiRadioButton( refgrp_, uiStrings::sPointSet() );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+
     uiLabel* lbl = new uiLabel( this, tr("Get values from") );
     lbl->attach( centeredLeftOf, refgrp_ );
 
@@ -593,7 +596,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    errmsg = tr("Please choose the pickset from which\n"
+	    errmsg = tr("Please choose the PointSet from which\n"
 	    "the values will be extracted");
 	    return 0;
 	}
@@ -603,8 +606,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	if ( values.isEmpty() )
 	{
-	    errmsg = tr("Cannot extract values at PickSet locations."
-		     " PickSet might be empty.");
+	    errmsg = tr("Cannot extract values at PointSet locations."
+		     " PointSet might be empty.");
 	    return 0;
 	}
 
@@ -772,7 +775,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    errmsg_ = tr("Please choose the pickset from which\n"
+	    errmsg_ = tr("Please choose the PointSet from which\n"
 			 "the ranges will be computed");
 	    mRetIfErr;
 	}

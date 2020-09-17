@@ -144,7 +144,7 @@ public:
 	ascostream astream( ((StreamConn*)conn_)->oStream() );
 	astream.putHeader( RandomPosBody::typeStr() );
 	if ( !astream.isOK() )
-	    mRetErr( "Cannot write to output Pick Set file" );
+	    mRetErr( "Cannot write to output Body file" );
 
 	IOPar pars;
 	rdposbody.fillPar( pars );

@@ -103,7 +103,7 @@ void uiPickSetMan::mkFileInfo()
 
 	const int sz = ps.size();
 	if ( sz < 1 )
-	    txt.add( havetype ? " <empty>" : "Empty Pick Set." );
+	    txt.add( havetype ? " <empty>" : "Empty PointSet." );
 	else
 	{
 	    txt.add( havetype ? " <" : "Size: " );
