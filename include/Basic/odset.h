@@ -45,7 +45,7 @@ public:
     inline void		setEmpty()		{ erase(); }
 
     static inline od_int32	maxIdx32()	{ return 2147483647; }
-    static inline od_int64	maxIdx64()	{ return 9223372036854775807LL; }
+    static inline od_int64	maxIdx64()	{ return 9223372036854775807LL;}
 };
 
 } // namespace

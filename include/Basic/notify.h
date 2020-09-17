@@ -32,8 +32,8 @@ public:
     inline bool		isEmpty() const	      { return cbs_.isEmpty(); }
     inline void		setEmpty()	      { cbs_.setEmpty(); }
     inline bool		isEnabled() const     { return !cbs_.hasAnyDisabled(); }
-    inline void		enable( bool yn=true ){ return cbs_.disableAll(!yn); }
-    inline void		disable()	      { return cbs_.disableAll(true); }
+    inline void		enable( bool yn=true ){ cbs_.disableAll(!yn); }
+    inline void		disable()	      { cbs_.disableAll(true); }
 
     bool		willCall(const CallBacker*) const;
 			/*!<\returns true if the callback list contains
