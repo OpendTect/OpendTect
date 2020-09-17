@@ -22,15 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "timer.h"
 
-
-#include "od_ostream.h"
-
 /*!\brief Base class for OpendTect Service Manager and external services/apps */
-
-
 
 ODBatchService::ODBatchService( bool assignport )
     : ODServiceBase()
+    , actionNotifier( this )
 {
     init ();
 }

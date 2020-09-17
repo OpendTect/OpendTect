@@ -54,8 +54,6 @@ public:
     static const char*	sKeyRaiseEv()		{ return "raise"; }
     static const char*	sKeyStatusEv()		{ return "status"; }
     static const char*	sKeySurveyChangeEv()	{ return "surveychange"; }
-    static const char*	sKeyTransferCmplt()	{ return "transfer_complete"; }
-    static const char*	sKeyProcessingDone()	{ return "processing_done"; }
 
     static const char*	sKeyODServer()		{ return "odserver"; }
 

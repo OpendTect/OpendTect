@@ -128,6 +128,7 @@ public:
 
     Notifier<BatchProgram>     programStarted;
     Notifier<BatchProgram>     startDoWork;
+    Notifier<BatchProgram>     endWork;
 
 protected:
 
@@ -167,6 +168,7 @@ private:
     bool			startdoworknow_;
     void			eventLoopStarted(CallBacker*);
     void			doWorkCB(CallBacker*);
+    void			endWorkCB(CallBacker*);
 
 };
 
@@ -205,6 +207,13 @@ mGlobal(Batch) BatchProgram& BP();
 	}
     }
 
+    static void endWorkCB( CallBacker* cb )
+    {
+	BP().removeAllNotifiers();
+	const int ret = BP().isStillOK() ? 0 : 1;
+	BatchProgram::deleteInstance( ret );
+    }
+
 
     int main( int argc, char** argv )
     {
@@ -213,8 +222,10 @@ mGlobal(Batch) BatchProgram& BP();
 	Execute_batch( &argc, argv );
 	BP().programStarted.notify( mSCB(eventLoopStartedCB) );
 	if ( !BP().isStartDoWork() )
+	{
 	    BP().startDoWork.notify( mSCB(doWorkCB) );
-
+	    BP().endWork.notify( mSCB(endWorkCB) );
+	}
 	const int ret = ApplicationData::exec();
 
 	return ExitProgram( ret );

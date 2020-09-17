@@ -36,6 +36,12 @@ public:
 
     ID				getServiceID() { return servid_;  }
 
+    CNotifier<ODBatchService,BufferString>	actionNotifier;
+
+    static const char* sKeyTransferCmplt()  { return "transfer_complete"; }
+    static const char* sKeyProcessingDone() { return "processing_done"; }
+    static const char* sKeyEndProgram()     { return "end_program"; }
+
 protected:
 
 				ODBatchService(bool assignport=false);

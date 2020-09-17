@@ -75,12 +75,14 @@ BatchProgram::BatchProgram()
     , iopar_(new IOPar)
     , programStarted(this)
     , startDoWork(this)
+    , endWork(this)
 {
     timer_ = new Timer( "Updating" );
     mAttachCB( timer_->tick, BatchProgram::eventLoopStarted );
 
     ODBatchService& service = ODBatchService::getMgr();
-    mAttachCB( service.externalAction, BatchProgram::doWorkCB );
+    mAttachCB( service.actionNotifier, BatchProgram::doWorkCB );
+    mAttachCB( service.actionNotifier, BatchProgram::endWorkCB );
 
     if ( !timer_->isActive() )
 	timer_->start(0, true);
@@ -109,11 +111,21 @@ void BatchProgram::doWorkCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,actstr,cb);
 
-    if ( FixedString(actstr) != ODServiceBase::sKeyTransferCmplt() )
+    if ( FixedString( actstr ) != ODBatchService::sKeyTransferCmplt() )
 	return;
+
     startDoWork.trigger();
-    const int ret = stillok_ ? 0 : 1;
-    deleteInstance( ret );
+}
+
+
+void BatchProgram::endWorkCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(BufferString,actstr,cb);
+
+    if ( FixedString( actstr ) != ODBatchService::sKeyEndProgram() )
+	return;
+
+    endWork.trigger();
 }
 
 
