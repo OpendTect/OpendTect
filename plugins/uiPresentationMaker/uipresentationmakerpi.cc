@@ -29,52 +29,55 @@ mDefODPluginInfo(uiPresentationMaker)
 }
 
 
-class uiPresMakerPIMgr	: public CallBacker
+class uiPresMakerPIMgr	: public uiPluginInitMgr
 { mODTextTranslationClass(uiPresMakerPIMgr)
 public:
+				uiPresMakerPIMgr();
 
-				uiPresMakerPIMgr(uiODMain*);
-
-    uiODMain*			appl_;
     uiPresentationMakerDlg*	dlg_;
 
-    void			updateMenu(CallBacker*);
+    void			dTectMenuChanged() override;
+    void			beforeSurveyChange() override { cleanup(); }
+    void			applicationClosing() override { cleanup(); }
+
+    void			cleanup();
     void			mnuCB(CallBacker*);
 };
 
 
-uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
-    : appl_(a)
-    , dlg_(0)
+uiPresMakerPIMgr::uiPresMakerPIMgr()
+    : uiPluginInitMgr()
+    , dlg_(nullptr)
 {
-    mAttachCB( appl_->menuMgr().dTectMnuChanged, uiPresMakerPIMgr::updateMenu );
-    mAttachCB( IOM().applicationClosing, uiPresMakerPIMgr::updateMenu );
-
     uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
 			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
-    appl_->menuMgr().toolsMnu()->insertAction( action );
+    appl().menuMgr().toolsMnu()->insertAction( action );
 
-    updateMenu( nullptr );
+    init();
 }
 
 
-void uiPresMakerPIMgr::updateMenu( CallBacker* )
+void uiPresMakerPIMgr::dTectMenuChanged()
+{
+    appl().menuMgr().dtectTB()->addButton( "ppt", tr("Presentation Maker"),
+					   mCB(this,uiPresMakerPIMgr,mnuCB) );
+}
+
+
+void uiPresMakerPIMgr::cleanup()
 {
     if ( dlg_ )
     {
 	dlg_->close();
 	deleteAndZeroPtr( dlg_ );
     }
-
-    appl_->menuMgr().dtectTB()->addButton( "ppt", tr("Presentation Maker"),
-					   mCB(this,uiPresMakerPIMgr,mnuCB) );
 }
 
 
 void uiPresMakerPIMgr::mnuCB( CallBacker* )
 {
     if ( !dlg_ )
-	dlg_ = new uiPresentationMakerDlg( appl_ );
+	dlg_ = new uiPresentationMakerDlg( &appl() );
 
     dlg_->show();
 }
@@ -82,9 +85,8 @@ void uiPresMakerPIMgr::mnuCB( CallBacker* )
 
 mDefODInitPlugin(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( uiPresMakerPIMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiPresMakerPIMgr( ODMainWin() );
-
-    return 0;
+    mDefineStaticLocalObject( uiPresMakerPIMgr*, mgr, = nullptr );
+    if ( mgr ) return nullptr;
+    mgr = new uiPresMakerPIMgr();
+    return nullptr;
 }
