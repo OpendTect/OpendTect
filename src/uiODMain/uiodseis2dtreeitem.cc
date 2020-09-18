@@ -1077,6 +1077,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	    if ( needsetattrid )
 		visserv->setSelObjectId( displayID(), -1 );
 
+	    s2d->showPanel( true );
 	    updateColumnText(0);
 	    return rescalc;
 	}
