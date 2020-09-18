@@ -703,7 +703,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     else if ( curvwr.isVisible(false) )
 	vwr2d->setUpView( vwr2d->createDataPack(false), false );
 
-    if ( vwr2d->viewControl() )
+    if ( vwr2d->viewControl() && control )
 	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );
 
     for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
@@ -716,7 +716,9 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     if ( geom2dids_.size() > 0 )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
-    vwr2d->viewControl()->setEditMode( curvwr2d.viewControl()->isEditModeOn() );
+
+    if ( vwr2d->viewControl() && control )
+	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );
 }
 
 
