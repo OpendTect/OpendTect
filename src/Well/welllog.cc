@@ -162,6 +162,20 @@ Well::Log& Well::Log::operator =( const Well::Log& wl )
 }
 
 
+bool Well::Log::isLoaded() const
+{
+// no values
+    if ( isEmpty() )
+	return false;
+
+// only contains dah range
+    if ( size()==2 && mIsUdf(value(0)) && mIsUdf(value(1)) )
+	return false;
+
+    return true;
+}
+
+
 static bool valIsCode( float val, float eps )
 {
     if ( mIsUdf(val) )

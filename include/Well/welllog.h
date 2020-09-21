@@ -52,6 +52,8 @@ public:
 			: DahObj("")			{ *this = t; }
     Log&		operator =(const Log&);
 
+    bool		isLoaded() const;
+
     float		value( int idx ) const		{ return vals_[idx]; }
     void		setValue(int idx,float val);
 

@@ -604,7 +604,6 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 		    : (*astrm.value() == 'S' ? -1 : 0);
 	if ( astrm.hasKeyword(Well::Log::sKeyDahRange()) )
 	{
-	////	newlog->dahRange().set(astrm.getFValue(0),astrm.getFValue(1));
 	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
 	    newlog->addValue( astrm.getFValue(1), mUdf(float) );
 	}
