@@ -195,3 +195,25 @@ void IODirEntryList::getIOObjNames( BufferStringSet& nms ) const
 	    nms.add( ioobj->name() );
     }
 }
+
+
+BufferStringSet IODirEntryList::getValuesFor( const char* key ) const
+{
+    BufferStringSet res;
+    for ( idx_type idx=0; idx<size(); idx++ )
+    {
+	const IOObj* ioobj = (*this)[idx]->ioobj_;
+	if ( ioobj )
+	{
+	    BufferString val;
+	    if ( ioobj->group() == key )
+		val = ioobj->translator();
+	    else if ( ioobj->pars().get( key, val ) )
+		continue;
+
+	    if ( !val.isEmpty() )
+		res.addIfNew( val );
+	}
+    }
+    return res;
+}

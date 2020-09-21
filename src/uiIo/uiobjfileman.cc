@@ -34,11 +34,13 @@ static const int cPrefHeight = 10;
 static const int cPrefWidth = 75;
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
-			    const IOObjContext& ctxt )
+			    const IOObjContext& ctxt,
+			    const char* ctxtfilter )
     : uiDialog(p,s)
     , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
     , curimplexists_(false)
+    , ctxtfilter_(ctxtfilter)
 {
     ctxt_.toselect_.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
@@ -60,6 +62,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
+    sgsu.withctxtfilter( ctxtfilter_ );
+
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(),
 									sgsu );
     selgrp_->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );

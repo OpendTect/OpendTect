@@ -61,6 +61,8 @@ public:
     int			indexOf( const IODirEntry* e ) const
 			{ return ObjectSet<IODirEntry>::indexOf(e); }
     void		getIOObjNames(BufferStringSet&) const;
+    BufferStringSet	getValuesFor( const char* key ) const;
+	//!<key can be either the translator group name or an omf metadata key
 
     MultiID		lastiokey;
     IOObjContext&	ctxt;

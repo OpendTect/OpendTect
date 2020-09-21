@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "ascstream.h"
 
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uilineedit.h"
@@ -116,7 +117,6 @@ void relocStart( const char* msg )
 // Note: don't combine first and second constructor making the uiString default
 // that will make things compile that shouldn't
 
-
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c )
     : muiIOObjSelGrpConstructorCommons
 { init(); }
@@ -134,8 +134,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 { init( seltxt ); }
-
-
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c )
     : muiIOObjSelGrpConstructorCommons
 { init(); }
@@ -184,10 +182,28 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
+    filtfld_->setElemSzPol( uiObject::SmallVar );
     filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    listfld_->box()->attach( centeredBelow, filtfld_ );
-
-    topgrp_->setHAlignObj( listfld_ );
+    const BufferString withctxtfilter( setup_.withctxtfilter_ );
+    if ( !withctxtfilter.isEmpty() )
+    {
+	const IODir iodir( ctio_.ctxt_.getSelKey() );
+	const IODirEntryList entrylist( iodir, ctio_.ctxt_ );
+	BufferStringSet valstrs = entrylist.getValuesFor( withctxtfilter );
+	if ( valstrs.size()>1 )
+	{
+	    valstrs.sort();
+	    BufferString* firstline = new BufferString("All ");
+	    firstline->add( withctxtfilter );
+	    valstrs.insertAt( firstline, 0 );
+	    ctxtfiltfld_ = new uiComboBox( listfld_, "ctxtfilter" );
+	    ctxtfiltfld_->addItems( valstrs );
+	    ctxtfiltfld_->attach( leftOf, filtfld_ );
+	    mAttachCB( ctxtfiltfld_->selectionChanged,
+		       uiIOObjSelGrp::ctxtChgCB );
+	}
+    }
+    listfld_->box()->attach( rightAlignedBelow, filtfld_ );
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
@@ -901,4 +917,31 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
     lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<ioobjids_.size(); idx++ )
 	lbchoiceio_->keys().add( ioobjids_[idx]->buf() );
+}
+
+
+void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
+{
+    const BufferString withctxtfilter( setup_.withctxtfilter_ );
+    if ( ctxtfiltfld_ )
+    {
+	const int curitm = ctxtfiltfld_->currentItem();
+	if ( withctxtfilter == ctio_.ctxt_.trgroup_->groupName() )
+	{
+	    if ( curitm <= 0 )
+		ctio_.ctxt_.toselect_.allowtransls_ = BufferString::empty();
+	    else
+		ctio_.ctxt_.toselect_.allowtransls_ =
+					    ctxtfiltfld_->textOfItem( curitm );
+	}
+	else
+	{
+	    if ( curitm <= 0 )
+		ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
+	    else
+		ctio_.ctxt_.toselect_.require_.set( withctxtfilter,
+					ctxtfiltfld_->textOfItem( curitm ) );
+	}
+	fullUpdate( -2 );
+    }
 }

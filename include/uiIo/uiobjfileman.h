@@ -37,7 +37,9 @@ public:
 
 protected:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
-					     const IOObjContext&);
+					     const IOObjContext&,
+					     const char* ctxtfilt = nullptr);
+	//!<ctxtfilt can be either a translator group name or omf metadata key
 
     uiTextEdit*			infofld_;
     uiTextEdit*			notesfld_;
@@ -49,6 +51,7 @@ protected:
     IOObj*			curioobj_;
     IOObjContext&		ctxt_;
     bool			curimplexists_;
+    BufferString		ctxtfilter_;
 
     void			finaliseStartCB(CallBacker*);
     void			saveNotes(CallBacker*);

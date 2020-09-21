@@ -21,6 +21,7 @@ class IOObj;
 class CtxtIOObj;
 class Translator;
 class IOObjContext;
+class uiComboBox;
 class uiGenInput;
 class uiIOObjManipGroup;
 class uiIOObjSelGrp;
@@ -50,13 +51,14 @@ public:
     {
     public:
 			Setup( OD::ChoiceMode cm=OD::ChooseOnlyOne )
-			    : choicemode_(cm)
-			    , allowreloc_(false)
-			    , allowremove_(true)
-			    , allowsetdefault_(false)
-			    , withinserters_(true)
-			    , withwriteopts_(true)
-			    , confirmoverwrite_(true)	{}
+			: choicemode_(cm)
+			, allowreloc_(false)
+			, allowremove_(true)
+			, allowsetdefault_(false)
+			, withinserters_(true)
+			, withwriteopts_(true)
+			, confirmoverwrite_(true)
+			, withctxtfilter_(BufferString()) {}
 
 	mDefSetupMemb(OD::ChoiceMode,choicemode);
 	mDefSetupMemb(bool,allowreloc);
@@ -65,10 +67,11 @@ public:
 	mDefSetupMemb(bool,withinserters);
 	mDefSetupMemb(bool,withwriteopts);
 	mDefSetupMemb(bool,confirmoverwrite);
+	mDefSetupMemb(BufferString, withctxtfilter);
+	//!<key can be either a translator group name or omf metadata key
 
 	inline bool	isMultiChoice() const
 			{ return ::isMultiChoice( choicemode_ ); }
-
     };
 
 #   define		mDefuiIOObjSelGrpConstructors(ctxtclss) \
@@ -156,6 +159,7 @@ protected:
     ObjectSet<uiButton>	insertbuts_;
     ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
+    uiComboBox*		ctxtfiltfld_ = nullptr;
 
     void		fillListBox();
     IOObj*		getIOObj(int);
@@ -173,6 +177,8 @@ protected:
     void		makeDefaultCB(CallBacker*);
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
+    void		ctxtChgCB(CallBacker*);
+
 
 private:
 
