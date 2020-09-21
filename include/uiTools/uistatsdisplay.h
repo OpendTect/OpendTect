@@ -48,7 +48,7 @@ public:
     void			setData(const Array2D<float>*);
     void			setDataName(const char*);
 
-    uiHistogramDisplay*         funcDisp()        { return histgramdisp_; }
+    uiHistogramDisplay*		funcDisp()	{ return histgramdisp_; }
     void			setMarkValue(float,bool forx);
 
     void			putN();
@@ -65,6 +65,7 @@ protected:
     const Setup			setup_;
 
     void			setData(const Stats::ParallelCalc<float>&);
+    void			finalizeCB(CallBacker*);
 };
 
 

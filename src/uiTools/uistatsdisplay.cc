@@ -33,10 +33,10 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     : uiGroup( p, "Statistics display group" )
     , setup_(su)
-    , histgramdisp_(0)
-    , minmaxfld_(0)
-    , countfld_(0)
-    , namefld_(0)
+    , histgramdisp_(nullptr)
+    , minmaxfld_(nullptr)
+    , countfld_(nullptr)
+    , namefld_(nullptr)
 {
     const bool putcountinplot = mPutCountInPlot();
     if ( setup_.withplot_ )
@@ -46,25 +46,22 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	histgramdisp_ = new uiHistogramDisplay( this, fsu );
     }
 
-    uiSeparator* sep = 0;
-    if ( setup_.withplot_ && setup_.withtext_ )
-    {
-	sep = new uiSeparator( this, "Hor sep" );
-	sep->attach( stretchedBelow, histgramdisp_ );
-    }
-
     if ( setup_.withtext_ )
     {
-	if ( setup_.withname_ )
-	    namefld_ = new uiLabel( this, tr("Data Name") );
-
 	uiGroup* valgrp = new uiGroup( this, "Values group" );
 	if ( setup_.withname_ )
-	    valgrp->attach( alignedBelow, namefld_ );
+	{
+	    namefld_ = new uiLabel( this, tr("Data Name") );
+	    if ( setup_.withplot_ )
+		histgramdisp_->attach( alignedBelow, namefld_ );
+	    else
+		valgrp->attach( alignedBelow, namefld_ );
+	}
+
 	minmaxfld_ = new uiGenInput( valgrp, tr("Value range"),
 				     FloatInpSpec(), FloatInpSpec() );
 	minmaxfld_->setReadOnly();
-	avgstdfld_ = new uiGenInput( valgrp, tr("Mean/Std Deviation"),
+	avgstdfld_ = new uiGenInput( valgrp, tr("Mean/Std deviation"),
 				     DoubleInpSpec(), DoubleInpSpec() );
 	avgstdfld_->attach( alignedBelow, minmaxfld_ );
 	avgstdfld_->setReadOnly();
@@ -79,15 +76,31 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	    countfld_->attach( alignedBelow, medrmsfld_ );
 	}
 
-	if ( sep )
-	{
-	    valgrp->attach( centeredBelow, histgramdisp_ );
-	    valgrp->attach( ensureBelow, sep );
-	}
+	valgrp->setHAlignObj( minmaxfld_ );
+
+	if ( histgramdisp_ )
+	    valgrp->attach( leftAlignedBelow, histgramdisp_ );
     }
 
     if ( putcountinplot )
 	putN();
+
+    postFinalise().notify( mCB(this,uiStatsDisplay,finalizeCB) );
+}
+
+
+void uiStatsDisplay::finalizeCB( CallBacker* )
+{
+    if ( !setup_.withtext_ )
+	return;
+
+    const int nrdec = 4;
+    minmaxfld_->setNrDecimals( nrdec, 0 );
+    minmaxfld_->setNrDecimals( nrdec, 1 );
+    avgstdfld_->setNrDecimals( nrdec, 0 );
+    avgstdfld_->setNrDecimals( nrdec, 1 );
+    medrmsfld_->setNrDecimals( nrdec, 0 );
+    medrmsfld_->setNrDecimals( nrdec, 1 );
 }
 
 
@@ -128,10 +141,10 @@ bool uiStatsDisplay::setDataPackID(
 
 	    const float* array = arr3d->getData();
 	    if ( array )
-		rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
+		rc.setValues( array, int(arr3d->info().getTotalSz()) );
 	    else
 	    {
-		valarr.setCapacity(mCast(int,arr3d->info().getTotalSz()),false);
+		valarr.setCapacity( int(arr3d->info().getTotalSz()), false );
 		const int sz0 = arr3d->info().getSize( 0 );
 		const int sz1 = arr3d->info().getSize( 1 );
 		const int sz2 = arr3d->info().getSize( 2 );
@@ -166,10 +179,10 @@ bool uiStatsDisplay::setDataPackID(
 
 	    if ( array->getData() )
 		rc.setValues( array->getData(),
-				mCast(int,array->info().getTotalSz()) );
+				int(array->info().getTotalSz()) );
 	    else
 	    {
-		valarr.setCapacity(mCast(int,array->info().getTotalSz()),false);
+		valarr.setCapacity( int(array->info().getTotalSz()), false );
 		const int sz2d0 = array->info().getSize( 0 );
 		const int sz2d1 = array->info().getSize( 1 );
 		for ( int idx0=0; idx0<sz2d0; idx0++ )
@@ -260,13 +273,12 @@ void uiStatsDisplay::setMarkValue( float val, bool forx )
 
 void uiStatsDisplay::putN()
 {
-    if ( !histgramdisp_ )
-	return;
-
-    histgramdisp_->putN();
+    if ( histgramdisp_ )
+	histgramdisp_->putN();
 }
 
 
+// uiStatsDisplayWin
 uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 					const uiStatsDisplay::Setup& su,
 					int nr, bool ismodal )
@@ -274,19 +286,61 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
     , statnmcb_(0)
     , currentdispidx_(-1)
 {
+    if ( su.withplot_ && nr <= 8 )
+    {
+	const int maxonrow = 4;
+	const int nrrows = mNINT32( Math::Ceil(float(nr)/maxonrow) );
+	const int nrcols = mNINT32( Math::Ceil(float(nr)/nrrows) );
+	const int total = nrrows * nrcols;
+
+	uiSeparator* sep = nullptr;
+	for ( int idx=0; idx<total; idx++ )
+	{
+	    auto* disp = new uiStatsDisplay( this, su );
+	    disp->setName( BufferString("Statistics Group ",idx) );
+	    if ( disp->funcDisp() )
+		disp->funcDisp()->getMouseEventHandler().movement.notify(
+				mCB(this,uiStatsDisplayWin,mouseMoveCB) );
+	    disps_ += disp;
+	    if ( idx==0 )
+		continue;
+
+	    if ( idx==nrcols )
+	    {
+		sep = new uiSeparator( this, "Horizontal Separator" );
+		sep->attach( stretchedBelow, disps_[0] );
+	    }
+
+	    if ( idx>=nrcols)
+	    {
+		disp->attach( alignedBelow, disps_[idx-nrcols] );
+		disp->attach( ensureBelow, sep );
+	    }
+
+	    if ( idx%nrcols != 0 )
+		disp->attach( rightTo, disps_[idx-1] );
+
+	    disp->display( idx<nr );
+	}
+
+	return;
+    }
+
+    uiStatsDisplay::Setup sucopy( su );
     uiLabeledComboBox* lblcb=0;
     if ( nr > 1 )
     {
-	lblcb = new uiLabeledComboBox( this, uiStrings::phrSelect(
-							   uiStrings::sData()));
+	lblcb = new uiLabeledComboBox( this, tr("Select data") );
 	statnmcb_ = lblcb->box();
+	statnmcb_->setHSzPol( uiObject::MedVar );
+	sucopy.withname(false);
     }
 
     for ( int idx=0; idx<nr; idx++ )
     {
-	uiStatsDisplay* disp = new uiStatsDisplay( this, su );
+	auto* disp = new uiStatsDisplay( this, sucopy );
 	if ( statnmcb_ )
-	    disp->attach( rightAlignedBelow, lblcb );
+	    disp->attach( ensureBelow, lblcb );
 
 	if ( disp->funcDisp() )
 	{
@@ -318,13 +372,19 @@ void uiStatsDisplayWin::mouseMoveCB( CallBacker* cb )
     mDynamicCastGet(MouseEventHandler*,meh,cb)
     if ( !meh ) return;
 
-    uiHistogramDisplay* disp = disps_.validIdx( currentdispidx_ )
-		? disps_[currentdispidx_]->funcDisp() : 0;
-    if ( !disp ) return;
+    Geom::Point2D<float> val;
+    const Geom::Point2D<int>& pos = meh->event().pos();
+    for ( int idx=0; idx<disps_.size(); idx++ )
+    {
+	uiHistogramDisplay* disp = disps_[idx]->funcDisp();
+	if ( !disp || meh != &disp->getMouseEventHandler() )
+	     continue;
 
-    const Geom::Point2D<int>& pos = disp->getMouseEventHandler().event().pos();
-    Geom::Point2D<float> val = disp->getFuncXY( pos.x, false );
-    uiString str = tr("Values/Count: %1/%2").arg(toUiString(val.x,4)).
+	val = disp->getFuncXY( pos.x, false );
+	break;
+    }
+
+    uiString str = tr("Value / Count:  %1 / %2").arg(toUiString(val.x,4)).
 		   arg(toUiString(val.y,0));
     toStatusBar( str );
 }

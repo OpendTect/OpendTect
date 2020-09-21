@@ -48,6 +48,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     // Assuming max number of texture layers is 8
     const int nrcols = nr < 5 ? nr : (nr<7 ? 3 : 4);
     const int nrrows = nr < 5 ? 1  : 2;
+    const int total = nrcols * nrrows;
     const bool withstatsdlg = nrrows == 2;
     if ( withstatsdlg )
     {
@@ -56,10 +57,9 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 		       mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
     }
 
-    for ( int idx=0; idx<nr; idx++ )
+    for ( int idx=0; idx<total; idx++ )
     {
-	uiMapperRangeEditor* rangeeditor =
-				new uiMapperRangeEditor( this, idx );
+	auto* rangeeditor = new uiMapperRangeEditor( this, idx );
 	rangeeditor->rangeChanged.notify(
 		mCB(this,uiMultiMapperRangeEditWin,rangeChanged) );
 	rangeeditor->sequenceChanged.notify(
@@ -76,10 +76,12 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 	if ( !withstatsdlg )
 	{
 	    uiStatsDisplay::Setup sds; sds.withplot(false).withname(false);
-	    uiStatsDisplay* sd = new uiStatsDisplay( this, sds );
+	    uiStatsDisplay* sd = new uiStatsDisplay( rangeeditor, sds );
 	    statsdisplays_ += sd;
-	    sd->attach( alignedBelow, rangeeditor );
+	    sd->attach( alignedBelow, &rangeeditor->getDisplay() );
 	}
+
+	rangeeditor->display( idx<nr );
     }
 
     dpm_.packToBeRemoved.notifyIfNotNotified(
@@ -179,7 +181,7 @@ void uiMultiMapperRangeEditWin::mouseMoveCB( CallBacker* cb )
 	}
     }
 
-    uiString str = tr("Value / Count: %1 / %2").arg(toUiString(val.x,4)).
+    uiString str = tr("Value / Count:  %1 / %2").arg(toUiString(val.x,4)).
 		   arg(toUiString(val.y,0));
     toStatusBar( str );
 }
