@@ -63,7 +63,7 @@ protected:
     uiGenInput*			linefld_;
     TypeSet<Pos::GeomID>	geomidset_;
 
-    Pos::GeomID		geomid_;
+    Pos::GeomID		geomid_;	// not used
     bool		readonly_;
 };
 

@@ -110,18 +110,25 @@ void ui2DGeomManageDlg::mkFileInfo()
     const BufferString linenm = curioobj_->name();
     const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
 
     if ( geom2d )
     {
 	const StepInterval<int> trcrg = geom2d->data().trcNrRange();
+	Interval<float> sprg; sprg.setUdf();
+	if ( !geom2d->spnrs().isEmpty() )
+	    sprg.set( geom2d->spnrs().first(), geom2d->spnrs().last() );
 	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
 	const BufferString lengthstr = toString(geom2d->lineLength(),0);
 	const BufferString unitstr = SI().getXYUnitString();
 	txt.add( "Number of traces: " ).add( trcrg.nrSteps()+1 )
 	   .add( "\nTrace range: " ).add( trcrg.start ).add( " - " )
-	   .add( trcrg.stop )
-	   .add( "\nAverage distance: " ).add( diststr ).addSpace().add(unitstr)
+	   .add( trcrg.stop );
+	if ( !sprg.isUdf() )
+	    txt.add( "\nShotpoint range: ").add( sprg.start ).add( " - " )
+		.add( sprg.stop );
+
+	txt.add( "\nAverage distance: " ).add( diststr ).addSpace().add(unitstr)
 	   .add( "\nLine length: " ).add( lengthstr ).addSpace().add(unitstr)
 	   .addNewLine();
     }
@@ -274,6 +281,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
 			const TypeSet<Pos::GeomID>& geomidset, bool readonly )
     : uiDialog(p,uiDialog::Setup(tr("Edit Line Geometry"),mNoDlgTitle,
 				  mODHelpKey(mManageLineGeomDlgHelpID)))
+    , geomidset_(geomidset)
     , readonly_(readonly)
 {
     if ( readonly )
@@ -293,13 +301,10 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
 
     linefld_= new uiGenInput( this, uiStrings::sLineName(),
 			StringListInpSpec(linenms));
-    mAttachCB( linefld_->valuechanged,uiManageLineGeomDlg::lineSel );
+    mAttachCB( linefld_->valuechanged, uiManageLineGeomDlg::lineSel );
     linefld_->attach( hCentered );
-    geomidset_ = geomidset;
 
-
-    const Survey::Geometry* geom = Survey::GM()
-				.getGeometry( geomidset[0]);
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomidset[0]);
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
 
     const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
@@ -318,7 +323,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
     rgfld_ = new uiGenInput( this, zlbl, spec );
     rgfld_->attach( centeredBelow, table_ );
     StepInterval<float> zrg = geom2d->data().zRange();
-    zrg.scale( mCast(float,SI().zDomain().userFactor()) );
+    zrg.scale( sCast(float,SI().zDomain().userFactor()) );
     rgfld_->setValue( zrg );
     rgfld_->setReadOnly( readonly );
 
@@ -351,7 +356,11 @@ void uiManageLineGeomDlg::impGeomCB( CallBacker* )
     if ( readonly_ )
 	return;
 
-    const BufferString linenm = Survey::GM().getName( geomid_ );
+    const int lineidx = linefld_->getIntValue();
+    if ( !geomidset_.validIdx(lineidx) )
+	return;
+
+    const BufferString linenm = Survey::GM().getName( geomidset_[lineidx] );
     uiImp2DGeom dlg( this, linenm );
     if ( !dlg.go() )
 	return;
@@ -377,10 +386,11 @@ void uiManageLineGeomDlg::expGeomCB( CallBacker* )
 
 void uiManageLineGeomDlg::lineSel( CallBacker* )
 {
-
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,Survey::GM()
-			.getGeometry(geomidset_[linefld_->getIntValue()]));
-    fillTable( *geom2d );
+    const int lineidx = linefld_->getIntValue();
+    const Survey::Geometry* geom = geomidset_.validIdx(lineidx) ?
+	Survey::GM().getGeometry(geomidset_[lineidx]) : nullptr;
+    if ( geom && geom->as2D() )
+	fillTable( *geom->as2D() );
 }
 
 
@@ -427,8 +437,10 @@ bool uiManageLineGeomDlg::acceptOK( CallBacker* )
 			    "This will affect all associated data.")))
 	return false;
 
-    mDynamicCastGet(Survey::Geometry2D*,geom2d,
-		    Survey::GMAdmin().getGeometry(geomid_) )
+    const int lineidx = linefld_->getIntValue();
+    Survey::Geometry* geom = geomidset_.validIdx(lineidx) ?
+	Survey::GMAdmin().getGeometry(geomidset_[lineidx]) : nullptr;
+    Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d )
 	return true;
 
@@ -448,7 +460,7 @@ bool uiManageLineGeomDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    newzrg.scale( 1.f/mCast(float,SI().zDomain().userFactor()) );
+    newzrg.scale( 1.f/sCast(float,SI().zDomain().userFactor()) );
     geom2d->dataAdmin().setZRange( newzrg );
     geom2d->touch();
 

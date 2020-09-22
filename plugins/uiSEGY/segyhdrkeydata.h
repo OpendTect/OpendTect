@@ -34,6 +34,7 @@ public:
     Interval<int>	inlrg_;
     Interval<int>	crlrg_;
     Interval<int>	trcnrrg_;
+    Interval<int>	refnrrg_;
     Interval<double>	xrg_;
     Interval<double>	yrg_;
     Interval<float>	offsrg_;

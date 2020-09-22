@@ -758,21 +758,31 @@ uiSEGYHdrEntrySettings( uiParent* p )
     const SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get();
     inlrgfld_ = new uiGenInput( this, tr("Usable Inline Number range"),
 				IntInpIntervalSpec(hec.inlrg_) );
+
     crlrgfld_ = new uiGenInput( this, tr("Usable Crossline Number range"),
 				IntInpIntervalSpec(hec.crlrg_) );
     crlrgfld_->attach( alignedBelow, inlrgfld_ );
+
     trcnrrgfld_ = new uiGenInput( this, tr("Usable 2D Trace Number range"),
 				IntInpIntervalSpec(hec.trcnrrg_) );
     trcnrrgfld_->attach( alignedBelow, crlrgfld_ );
+
+    spnrrgfld_ = new uiGenInput( this, tr("Usable 2D SP Number range"),
+				IntInpIntervalSpec(hec.refnrrg_) );
+    spnrrgfld_->attach( alignedBelow, trcnrrgfld_ );
+
     xrgfld_ = new uiGenInput( this, tr("Usable X-coordinate value range"),
 				DoubleInpIntervalSpec(hec.xrg_) );
-    xrgfld_->attach( alignedBelow, trcnrrgfld_ );
+    xrgfld_->attach( alignedBelow, spnrrgfld_ );
+
     yrgfld_ = new uiGenInput( this, tr("Usable Y-coordinate value range"),
 				DoubleInpIntervalSpec(hec.yrg_) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
+
     offsrgfld_ = new uiGenInput( this, tr("Usable Offset value range"),
 				FloatInpIntervalSpec(hec.offsrg_) );
     offsrgfld_->attach( alignedBelow, yrgfld_ );
+
     azimuthrgfld_ = new uiGenInput( this, tr("Usable Azimuth value range"),
 				    FloatInpIntervalSpec(hec.azimuthrg_) );
     azimuthrgfld_->attach( alignedBelow, offsrgfld_ );
@@ -784,6 +794,7 @@ bool acceptOK( CallBacker* )
     hec.inlrg_ = inlrgfld_->getIInterval();
     hec.crlrg_ = crlrgfld_->getIInterval();
     hec.trcnrrg_ = trcnrrgfld_->getIInterval();
+    hec.refnrrg_ = spnrrgfld_->getIInterval();
     hec.xrg_ = xrgfld_->getDInterval();
     hec.yrg_ = yrgfld_->getDInterval();
     hec.offsrg_ = offsrgfld_->getFInterval();
@@ -796,6 +807,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		inlrgfld_;
     uiGenInput*		crlrgfld_;
     uiGenInput*		trcnrrgfld_;
+    uiGenInput*		spnrrgfld_;
     uiGenInput*		xrgfld_;
     uiGenInput*		yrgfld_;
     uiGenInput*		offsrgfld_;

@@ -29,6 +29,7 @@ SEGY::HdrEntryConstraints::HdrEntryConstraints()
     : inlrg_(1,200000000)
     , crlrg_(1,200000000)
     , trcnrrg_(1,200000000)
+    , refnrrg_(0,200000000)
     , xrg_(.1,1e10)
     , yrg_(.1,1e10)
     , offsrg_(0.f,100000.f)
@@ -52,6 +53,7 @@ void SEGY::HdrEntryConstraints::usePar( const IOPar& iop )
     iop.get( mGetKey(Inline), inlrg_ );
     iop.get( mGetKey(Crossline), crlrg_ );
     iop.get( mGetKey(TrcNr), trcnrrg_ );
+    iop.get( mGetKey(SPNr), refnrrg_ );
     iop.get( mGetKey(X), xrg_ );
     iop.get( mGetKey(Y), yrg_ );
     iop.get( mGetKey(Offset), offsrg_ );
@@ -64,6 +66,7 @@ void SEGY::HdrEntryConstraints::fillPar( IOPar& iop ) const
     iop.set( mGetKey(Inline), inlrg_ );
     iop.set( mGetKey(Crossline), crlrg_ );
     iop.set( mGetKey(TrcNr), trcnrrg_ );
+    iop.set( mGetKey(SPNr), refnrrg_ );
     iop.set( mGetKey(X), xrg_ );
     iop.set( mGetKey(Y), yrg_ );
     iop.set( mGetKey(Offset), offsrg_ );
@@ -278,15 +281,15 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
     {
 	const HdrEntry& he = *hdrdef[ihe];
 
-	int val = he.getValue( buf, isswpd );
-	if ( val == 0 )
-	    refnr_.reject( ihe );
+	const int val = he.getValue( buf, isswpd );
+	const int absval = Math::Abs(val);
 
 	mRejectFromRange(inl_,val,inlrg_);
 	mRejectFromRange(crl_,val,crlrg_);
 	mRejectFromRange(trcnr_,val,trcnrrg_);
-	mRejectFromRange(x_,Math::Abs(val),xrg_);
-	mRejectFromRange(y_,Math::Abs(val),yrg_);
+	mRejectFromRange(refnr_,absval,refnrrg_);
+	mRejectFromRange(x_,absval,xrg_);
+	mRejectFromRange(y_,absval,yrg_);
 
 	inl_.add( ihe, val ); crl_.add( ihe, val );
 	trcnr_.add( ihe, val ); refnr_.add( ihe, val );
@@ -295,9 +298,7 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
 	mRejectFromRange(azimuth_,val,azimuthrg_);
 	azimuth_.add( ihe, val );
 
-	if ( val < 0 )
-	    val = -val;
-	mRejectFromRange(offs_,val,offsrg_);
+	mRejectFromRange(offs_,absval,offsrg_);
 	offs_.add( ihe, val );
     }
 }
