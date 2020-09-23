@@ -36,11 +36,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "settings.h"
 #include "od_helpids.h"
+#include "uilabel.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
 
 static const MultiID udfmid( "-1" );
 
+static const char* dGBToDispStorageStr()    { return "OpendTect";  }
 
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
@@ -173,6 +175,11 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
 }
 
+uiObject* uiIOObjSelGrp::getFilterFieldAttachObj()
+{
+    return ctxtfiltfld_ ? ctxtfiltfld_ : filtfld_->attachObj();
+}
+
 
 void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 {
@@ -190,20 +197,27 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	const IODir iodir( ctio_.ctxt_.getSelKey() );
 	const IODirEntryList entrylist( iodir, ctio_.ctxt_ );
 	BufferStringSet valstrs = entrylist.getValuesFor( withctxtfilter );
+	const int idx = valstrs.indexOf( mDGBKey );
+	if ( idx > -1 )
+	    valstrs.get(idx).set( dGBToDispStorageStr() );
+	//This is strictly for display purpose without changing the key
 	if ( valstrs.size()>1 )
 	{
 	    valstrs.sort();
 	    BufferString* firstline = new BufferString("All ");
 	    firstline->add( withctxtfilter );
 	    valstrs.insertAt( firstline, 0 );
+	    auto* lbl = new uiLabel( listfld_, uiStrings::sType() );
 	    ctxtfiltfld_ = new uiComboBox( listfld_, "ctxtfilter" );
 	    ctxtfiltfld_->addItems( valstrs );
-	    ctxtfiltfld_->attach( leftOf, filtfld_ );
+	    ctxtfiltfld_->attach( alignedBelow, filtfld_ );
+	    lbl->attach( leftOf, ctxtfiltfld_ );
 	    mAttachCB( ctxtfiltfld_->selectionChanged,
 		       uiIOObjSelGrp::ctxtChgCB );
 	}
     }
-    listfld_->box()->attach( rightAlignedBelow, filtfld_ );
+    listfld_->box()->attach( centeredBelow, getFilterFieldAttachObj() );
+    topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
@@ -931,8 +945,12 @@ void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
 	    if ( curitm <= 0 )
 		ctio_.ctxt_.toselect_.allowtransls_ = BufferString::empty();
 	    else
-		ctio_.ctxt_.toselect_.allowtransls_ =
-					    ctxtfiltfld_->textOfItem( curitm );
+	    {
+		BufferString currnm = ctxtfiltfld_->textOfItem( curitm );
+		if ( currnm.isEqual(dGBToDispStorageStr()) )
+		    currnm = mDGBKey;
+		ctio_.ctxt_.toselect_.allowtransls_ = currnm;
+	    }
 	}
 	else
 	{

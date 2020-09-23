@@ -73,7 +73,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     uiToolButton* refreshbut =
 	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),
 			  mCB(this,uiObjFileMan,updateCB) );
-    refreshbut->attach( rightTo, selgrp_->getFilterField() );
+    refreshbut->attach( rightBorder, selgrp_->getFilterFieldAttachObj() );
 
     extrabutgrp_ = new uiButtonGroup( listgrp_, "Extra Buttons",
 				      OD::Horizontal );

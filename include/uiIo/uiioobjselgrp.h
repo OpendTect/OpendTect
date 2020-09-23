@@ -113,7 +113,7 @@ public:
 
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }
-    uiGenInput*		getFilterField()		{ return filtfld_; }
+    uiObject*		getFilterFieldAttachObj();
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     void		displayManipGroup(bool yn,bool shrink=false);
