@@ -222,11 +222,10 @@ void uiSEGYReadStarter::createTools()
 
     if ( !imptypeFixed() || fixedimptype_.is2D() )
     {
-	keepzsampbox_ = new uiCheckBox( toolgrp, tr("File Z's") );
-	keepzsampbox_->setHSzPol( uiObject::Small );
+	keepzsampbox_ = new uiCheckBox( toolgrp, tr("Use file Z's") );
 	keepzsampbox_->setToolTip(
 		tr("Use Z sampling as it appears in each SEG-Y file") );
-	keepzsampbox_->setChecked( false );
+	keepzsampbox_->setChecked( true );
 	keepzsampbox_->activated.notify(
 			mCB(this,uiSEGYReadStarter,keepZChg) );
 	keepzsampbox_->attach( alignedBelow, lowest );
