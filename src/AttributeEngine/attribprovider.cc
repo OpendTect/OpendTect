@@ -810,6 +810,28 @@ BinID Provider::getCurrentPosition() const
 }
 
 
+Coord Provider::getCurrentCoord() const
+{
+    return getCoord( currentbid_ );
+}
+
+
+Coord Provider::getCoord( const BinID& bid ) const
+{
+    Coord crd;
+    if ( is2D() )
+    {
+	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+	if ( geom )
+	    crd = geom->toCoord( bid );
+    }
+    else
+	crd = SI().transform( bid );
+
+    return crd;
+}
+
+
 void Provider::updateCurrentInfo()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )

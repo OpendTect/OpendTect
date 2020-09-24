@@ -50,7 +50,7 @@ protected:
     bool			allowParallelComputation() const;
 
     const Interval<float>*	desZMargin(int input,int) const;
-    const Interval<int>*        reqZSampMargin(int input,int) const;
+    const Interval<int>*	reqZSampMargin(int input,int) const;
 
 private:
     ObjectSet<const DataHolder>	inputdata_;
