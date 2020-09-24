@@ -63,22 +63,23 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	    mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1)
 					       .modal(forsurvsetup))
     , forsurvsetup_(forsurvsetup)
-    , filereadopts_(0)
-    , typfld_(0)
-    , useicbut_(0)
-    , usexybut_(0)
-    , keepzsampbox_(0)
-    , coordscalefld_(0)
-    , ampldisp_(0)
-    , survmap_(0)
+    , filereadopts_(nullptr)
+    , typfld_(nullptr)
+    , linenamefld_(nullptr)
+    , useicbut_(nullptr)
+    , usexybut_(nullptr)
+    , keepzsampbox_(nullptr)
+    , coordscalefld_(nullptr)
+    , ampldisp_(nullptr)
+    , survmap_(nullptr)
     , detectrev0flds_(true)
     , userfilename_("_") // any non-empty non-existing
-    , scaninfos_(0)
+    , scaninfos_(nullptr)
     , clipsampler_(*new DataClipSampler(100000))
     , lastscanwasfull_(false)
-    , survinfo_(0)
+    , survinfo_(nullptr)
     , survinfook_(false)
-    , timer_(0)
+    , timer_(nullptr)
 {
     if ( forsurvsetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
@@ -101,6 +102,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     editbut_->attach( rightOf, inpfld_ );
     editbut_->setSensitive( false );
 
+    uiObject* attachobj = inpfld_->attachObj();
+
     if ( imptyp )
 	fixedimptype_ = *imptyp;
     else
@@ -108,13 +111,26 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	typfld_ = new uiSEGYImpType( topgrp_, !forsurvsetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
+	attachobj = typfld_->attachObj();
+    }
+
+    if ( typfld_ || fixedimptype_.is2D() )
+    {
+	auto* lnmfld = new uiLabeledSpinBox( topgrp_,
+					 tr("Line name from wildcard #") );
+	linenamefld_ = lnmfld->box();
+	linenamefld_->setMinValue( 1 );
+	if ( typfld_ )
+	    lnmfld->attach( rightTo, typfld_ );
+	else
+	{
+	    lnmfld->attach( alignedBelow, inpfld_ );
+	    attachobj = lnmfld->attachObj();
+	}
     }
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( topgrp_ );
-    if ( typfld_ )
-	coordsysselfld_->attach( alignedBelow, typfld_ );
-    else
-	coordsysselfld_->attach( alignedBelow, inpfld_ );
+    coordsysselfld_->attach( alignedBelow, attachobj );
 
     mAttachCB( coordsysselfld_->butPush, uiSEGYReadStarter::coordSysChangedCB );
     coordsysselfld_->display( impType().is2D() );
@@ -605,6 +621,13 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 
     FilePath fp( newusrfnm );
     sImportFromPath = fp.pathOnly();
+
+    if ( linenamefld_ )
+    {
+	const int nrwc = userfilename_.count( '*' );
+	linenamefld_->setInterval( 1, nrwc );
+	linenamefld_->setSensitive( nrwc > 1 );
+    }
 }
 
 
@@ -1149,6 +1172,8 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
     dlg.setCoordSystem( coordsysselfld_->getCoordSystem() );
+    const int wcidx = linenamefld_ ? linenamefld_->getIntValue()-1 : -1;
+    dlg.setWildcardIndexForLineName( wcidx );
     dlg.go();
 
     return false;
