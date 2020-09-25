@@ -140,7 +140,7 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
     uiString txt( tr("Input ('%1' will become line name)")
 				    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
     uiFileSel::Setup fssu( fp.fullPath() );
-    fssu.objtype( tr("SEG-Y") );
+    fssu.objtype( uiStrings::sSEGY() );
     fnmfld_ = new uiFileSel( this, txt, fssu );
 }
 

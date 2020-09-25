@@ -41,10 +41,8 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-static uiMainWin*	programmedactivewin_ = 0;
+static uiMainWin*		programmedactivewin_ = nullptr;
 
-
-// uiMainWin
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(toString(setup.caption_),0)
     , parent_(p)
@@ -126,7 +124,7 @@ uiMainWin::~uiMainWin()
     }
 
     if ( programmedactivewin_ == this )
-	programmedactivewin_ = parent() ? parent()->mainwin() : 0;
+	programmedactivewin_ = parent() ? parent()->mainwin() : nullptr;
 
     delete afterpopuptimer_;
 }

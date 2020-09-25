@@ -29,8 +29,7 @@ ObjectSet<Settings>& getSetts()
     if ( !theinst_ )
     {
 	ObjectSet<Settings>* ptr = new ObjectSet<Settings>;
-	if ( !theinst_.setIfNull(ptr,true) )
-	    delete ptr;
+	theinst_.setIfNull(ptr,true);
     }
 
     return *theinst_;

@@ -111,9 +111,9 @@ inline bool String::operator!=( const char* s ) const
 { return !isEqual( s ); }
 
 inline bool String::operator >( const String& oth ) const
-{ return *this > gtStr(); }
+{ return *this > oth.gtStr(); }
 inline bool String::operator <( const String& oth ) const
-{ return *this < gtStr(); }
+{ return *this < oth.gtStr(); }
 
 template <class T> inline bool String::operator==( const T& t ) const
 { return isEqual( toString(t) ); }

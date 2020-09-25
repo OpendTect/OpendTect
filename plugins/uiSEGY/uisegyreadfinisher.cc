@@ -82,9 +82,7 @@ uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs, bool issingle )
 
 uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 {
-    uiString ret( tr("Importing %1") );
-    ret.arg( usrspec );
-    return ret;
+    return tr("Importing %1").arg( usrspec );
 }
 
 

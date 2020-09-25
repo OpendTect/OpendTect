@@ -29,19 +29,15 @@ public:
     virtual uiString	read(ODGMT::ProcFlow&,Conn&)	= 0;
     virtual uiString	write(const ODGMT::ProcFlow&,Conn&) = 0;
 
-    static bool		retrieve(ODGMT::ProcFlow&,const IOObj*,BufferString&);
-    static bool		store(const ODGMT::ProcFlow&,const IOObj*,
-			      BufferString&);
     static bool		retrieve(ODGMT::ProcFlow&,const IOObj*,uiString&);
-    static bool		store(const ODGMT::ProcFlow&,const IOObj*,
-			      uiString&);
+    static bool		store(const ODGMT::ProcFlow&,const IOObj*,uiString&);
 
 };
 
 
 mExpClass(GMT) dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
-{ mODTextTranslationClass(dgbODGMTProcFlowTranslator)
-  isTranslator(dgb,ODGMTProcFlow)
+{   isTranslator(dgb,ODGMTProcFlow);
+    mODTextTranslationClass(dgbODGMTProcFlowTranslator);
 public:
 
 			mDefEmptyTranslatorConstructor(dgb,ODGMTProcFlow)

@@ -36,12 +36,12 @@ deleted = false; \
 voiddo; \
 if ( !(test) || delstatus!=deleted || (rc>=0 && rc!=refclass->nrRefs() )) \
 { \
-    errStream() << "Test " << #voiddo << " " << #test << " FAILED\n"; \
+    errStream() << "[FAIL] Test " << #voiddo << " " << #test << od_endl; \
     return false; \
 } \
 else \
 { \
-    logStream() << "Test " << #voiddo << " " << #test << " - SUCCESS\n"; \
+    logStream() << "[OK] Test " << #voiddo << " " << #test << od_endl; \
 }
 
 

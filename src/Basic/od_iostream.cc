@@ -41,8 +41,7 @@ od_istream& od_istream::nullStream()
 #endif
 	newret->setNoClose();
 
-	if ( !ret.setIfNull(newret,true) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
     return *ret;
 }
@@ -60,8 +59,7 @@ od_ostream& od_ostream::nullStream()
 #endif
 	newret->setNoClose();
 
-	if ( !ret.setIfNull(newret,true) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
     return *ret;
 }
@@ -424,8 +422,7 @@ od_istream& od_cin()
     {
 	auto* newret = new od_istream( std::cin );
 	newret->setNoClose();
-	if ( !ret.setIfNull(newret,true) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
     return *ret;
 }

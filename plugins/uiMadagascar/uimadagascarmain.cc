@@ -320,7 +320,7 @@ bool uiMadagascarMain::askSave( bool withcancel )
 void uiMadagascarMain::updateCaption()
 {
     const char* flowname = procflow_.name();
-    uiString cptn = tr("Madagascar processing [%1]")
+    const uiString cptn = tr("Madagascar processing [%1]")
         .arg( flowname && *flowname ? flowname : "New Flow" );
 
     setCaption( cptn );

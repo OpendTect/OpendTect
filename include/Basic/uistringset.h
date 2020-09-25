@@ -61,6 +61,8 @@ public:
     uiStringSet&	operator +=( const uiString& s ) { return add(s); }
     void		removeSingle(idx_type,bool keep_order=true);
     void		removeRange(idx_type,idx_type);
+    void		swap( idx_type i1, idx_type i2 )
+						{ strs_.swap( i1, i2 ); }
 
     uiString		cat(muiStringAppendDefArgs) const;
     uiStringSet		getNonEmpty() const;

@@ -70,7 +70,7 @@ public:
     float		getPolygonOffsetFactor() const;
     float		getPolygonOffsetUnits() const;
 
-    void		setName(const char*);
+    void		setName(const char*) override;
 
     Notifier<Scene>	nameChanged;
     Notifier<Scene>	contextIsUp;
