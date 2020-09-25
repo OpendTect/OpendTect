@@ -35,7 +35,7 @@ public:
     bool		isOK(bool islocal) const;
 
     Network::Authority	getAuthority(bool islocal) const;
-    virtual void	stopServer();
+    virtual void	stopServer(bool islocal);
 
     static const char*	sKeyAction()		{ return "action"; }
     static const char*	sKeyError()		{ return "error"; }
@@ -119,6 +119,7 @@ private:
     uiRetVal		pythEnvChangedReq(const OD::JSON::Object&);
     uiRetVal		doPrepareForClose();
     bool		isServerOK(bool local) const;
+    bool&		serverIsMine(bool islocal);
     void		newConnectionCB(CallBacker*);
     void		packetArrivedCB(CallBacker*);
     void		externalActionCB(CallBacker*);
@@ -131,7 +132,8 @@ private:
 
     Network::RequestServer*	    tcpserver_ = nullptr;
     Network::RequestServer*	    localserver_ = nullptr;
-    bool			    serverismine_ = true;
+    bool			    tcpserverismine_ = true;
+    bool			    localserverismine_ = true;
     Network::RequestConnection*     tcpconn_ = nullptr;
     Network::RequestConnection*     localconn_ = nullptr;
     RefMan<Network::RequestPacket>  packet_;

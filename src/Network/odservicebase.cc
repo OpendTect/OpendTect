@@ -54,6 +54,10 @@ bool ODServiceBase::addTCPServer( bool assignport, Network::SpecAddr spec )
 }
 
 
+bool& ODServiceBase::serverIsMine( bool islocal )
+{ return islocal ? localserverismine_ : tcpserverismine_; }
+
+
 void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 {
     ODServiceBase* mainserv = theMain();
@@ -64,7 +68,7 @@ void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 
     if ( isServerOK(islocal) )
     {
-	serverismine_ = false;
+	serverIsMine(islocal) = false;
 	if ( this != mainserv )
 	{
 	    mAttachCB( mainserv->externalAction,
@@ -186,7 +190,7 @@ bool ODServiceBase::useServer( Network::RequestServer* server, bool islocal )
     if ( !isServerOK(islocal) )
     {
 	pErrMsg( "startServer - failed" );
-	stopServer();
+	stopServer( islocal );
 	return false;
     }
 
@@ -206,12 +210,14 @@ bool ODServiceBase::isServerOK( bool islocal ) const
 }
 
 
-void ODServiceBase::stopServer()
+void ODServiceBase::stopServer( bool islocal )
 {
-    if ( serverismine_ )
+    if ( serverIsMine(islocal) )
     {
-	deleteAndZeroPtr( tcpserver_ );
-	deleteAndZeroPtr( localserver_ );
+	if ( islocal )
+	    deleteAndZeroPtr( localserver_ );
+	else
+	    deleteAndZeroPtr( tcpserver_ );
     }
 }
 
@@ -548,7 +554,8 @@ void ODServiceBase::sendErr( uiRetVal& uirv )
 void ODServiceBase::doAppClosing( CallBacker* )
 {
     detachAllNotifiers();
-    stopServer();
+    stopServer( true );
+    stopServer( false );
 }
 
 

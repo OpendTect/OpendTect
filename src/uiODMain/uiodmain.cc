@@ -267,7 +267,6 @@ uiODMain::~uiODMain()
     delete viewer2dmgr_;
     delete scenemgr_;
     delete applmgr_;
-    serviceMgr().stopServer();
 }
 
 
