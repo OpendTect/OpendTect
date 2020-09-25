@@ -105,7 +105,7 @@ public:
     Notifier<BaseMapObject>			changed;
     Notifier<BaseMapObject>			stylechanged;
     Notifier<BaseMapObject>			zvalueChanged;
-    CNotifier<BaseMapObject,const uiString&>	nameChanged;
+    CNotifier<BaseMapObject,BufferString>	nameChanged;
 
 protected:
     int				depth_;
