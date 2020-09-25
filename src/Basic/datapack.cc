@@ -31,8 +31,6 @@ float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 Threads::Lock DataPackMgr::mgrlistlock_;
 ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 
-Threads::Atomic<int> curid( DataPack::cNoID() );
-
 #ifdef __debug__
 # define mTrackDPMsg(msg) \
     if ( trackDataPacks() ) \
@@ -55,9 +53,40 @@ static bool trackDataPacks()
 }
 
 
+mDefineInstanceCreatedNotifierAccess(DataPack)
+static Threads::Atomic<int> curdpidnr( 0 );
+
+DataPack::DataPack( const char* categry )
+    : NamedCallBacker("<?>")
+    , category_(categry)
+    , nrusers_( 0 )
+    , manager_( 0 )
+    , id_(getNewID())
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+DataPack::DataPack( const DataPack& dp )
+    : NamedCallBacker( dp.name().buf() )
+    , category_( dp.category_ )
+    , nrusers_( 0 )
+    , manager_( 0 )
+    , id_(getNewID())
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+DataPack::~DataPack()
+{
+    sendDelNotif();
+}
+
+
 DataPack::ID DataPack::getNewID()
 {
-    return ++curid;
+    return ++curdpidnr;
 }
 
 

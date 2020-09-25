@@ -38,19 +38,9 @@ public:
     typedef MultiID	FullID;
     inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
-			DataPack( const char* categry )
-			    : NamedCallBacker("<?>")
-			    , category_(categry)
-			    , nrusers_( 0 )
-			    , manager_( 0 )
-			    , id_(getNewID())	{}
-			DataPack( const DataPack& dp )
-			    : NamedCallBacker( dp.name().buf() )
-			    , category_( dp.category_ )
-			    , nrusers_( 0 )
-			    , manager_( 0 )
-			    , id_(getNewID())	{}
-    virtual		~DataPack()		{}
+			DataPack(const char* categry);
+			DataPack(const DataPack&);
+    virtual		~DataPack();
 
     ID			id() const		{ return id_; }
     FullID		fullID( int mgrid ) const { return FullID(mgrid,id()); }
@@ -69,6 +59,8 @@ public:
 
     void		release();
     DataPack*		obtain();
+
+			mDeclInstanceCreatedNotifierAccess(DataPack);
 
 protected:
 

@@ -206,6 +206,7 @@ private:
 public:
 
 	// These fns are rarely used by non-specialist classes.
+			mDeclInstanceCreatedNotifierAccess(SurveyInfo);
 
     void		setWorkRange(const TrcKeyZSampling&);
     Notifier<SurveyInfo> workRangeChg;

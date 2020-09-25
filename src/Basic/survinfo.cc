@@ -349,6 +349,7 @@ SurveyInfo* SurveyInfo::popSI()
 }
 
 
+mDefineInstanceCreatedNotifierAccess(SurveyInfo)
 
 SurveyInfo::SurveyInfo()
     : tkzs_(*new TrcKeyZSampling(false))
@@ -374,6 +375,8 @@ SurveyInfo::SurveyInfo()
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
     tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
+
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -388,11 +391,14 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     , workRangeChg(this)
 {
     *this = si;
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 SurveyInfo::~SurveyInfo()
 {
+    sendDelNotif();
+
     delete &pars_;
     delete &ll2c_;
     delete &tkzs_;
