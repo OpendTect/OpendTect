@@ -67,6 +67,7 @@ public:
     virtual void		reDraw( bool deep );
     void			setPrntBody( uiGroupParentBody* pb )
 				{ prntbody_ = pb; }
+
     virtual int			stretch( bool hor, bool ) const;
 
     uiGroupParentBody*		prntbody_;
@@ -490,6 +491,7 @@ uiGroup::~uiGroup()
 	body_ = 0;
 	delete bd;
     }
+    detachAllNotifiers();
 }
 
 
@@ -662,7 +664,11 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
 
 
 uiGroupObj::~uiGroupObj()
-{ if ( uigrp_ ) { uigrp_->grpobj_ = 0; delete uigrp_; }  }
+{
+    if ( uigrp_ )
+	{ uigrp_->grpobj_ = 0; delete uigrp_; }
+    detachAllNotifiers();
+}
 
 
 const ObjectSet<uiBaseObject>* uiGroupObj::childList() const

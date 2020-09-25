@@ -45,7 +45,8 @@ mUseQtnamespace
 static uiMainWin*		programmedactivewin_ = nullptr;
 
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
-    : uiParent(setup.caption_.getFullString(),0)
+    : uiParent(toString(setup.caption_),0)
+    , parent_(p)
     , windowShown(this)
     , windowHidden(this)
     , windowClosed(this)
@@ -54,19 +55,17 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , afterPopup(this)
     , runScriptRequest(this)
     , body_(nullptr)
-    , parent_(p)
     , afterpopuptimer_(nullptr)
     , popuparea_(Middle)
     , caption_(setup.caption_)
     , languagechangecount_( TrMgr().changeCount() )
 {
-    body_ = new uiMainWinBody( *this, p, setup.caption_.getFullString(),
-			       setup.modal_ );
+    const BufferString bodynm( toString(setup.caption_) );
+    body_ = new uiMainWinBody( *this, p, bodynm, setup.modal_ );
     setBody( body_ );
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText( setup.caption_.isEmpty()
-		? "OpendTect"
-		: toQString(setup.caption_) );
+		? QString("OpendTect") : toQString(setup.caption_) );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
@@ -74,7 +73,9 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
 
 uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 		      int nrstatusflds, bool withmenubar, bool modal )
-    : uiParent(cpt.getFullString(),0)
+    : uiParent(toString(cpt),0)
+    , parent_(parnt)
+    , popuparea_(Middle)
     , windowShown(this)
     , windowHidden(this)
     , windowClosed(this)
@@ -83,26 +84,25 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     , afterPopup(this)
     , runScriptRequest(this)
     , body_(nullptr)
-    , parent_(parnt)
     , afterpopuptimer_(nullptr)
-    , popuparea_(Middle)
     , caption_(cpt)
     , languagechangecount_( TrMgr().changeCount() )
 {
-    body_ = new uiMainWinBody( *this, parnt, caption_.getFullString(), modal );
+    body_ = new uiMainWinBody( *this, parnt, toString(caption_), modal );
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( caption_.isEmpty()
-			     ? "OpendTect"
-			     : toQString(caption_) );
+			     ? QString("OpendTect") : toQString(caption_) );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 
     mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
 }
 
 
-uiMainWin::uiMainWin( uiString nm, uiParent* parnt )
-    : uiParent(nm.getFullString(),0)
+uiMainWin::uiMainWin( uiString captn, uiParent* parnt )
+    : uiParent(toString(captn),0)
+    , parent_(parnt)
+    , popuparea_(Middle)
     , windowShown(this)
     , windowHidden(this)
     , windowClosed(this)
@@ -111,10 +111,8 @@ uiMainWin::uiMainWin( uiString nm, uiParent* parnt )
     , afterPopup(this)
     , runScriptRequest(this)
     , body_(nullptr)
-    , parent_(parnt)
     , afterpopuptimer_(nullptr)
-    , popuparea_(Middle)
-    , caption_(nm)
+    , caption_(captn)
     , languagechangecount_( TrMgr().changeCount() )
 {
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
@@ -250,7 +248,7 @@ void uiMainWin::toStatusBar( const uiString& txt, int fldidx, int msecs )
     uiStatusBar* sb = statusBar();
     if ( sb )
 	sb->message( txt, fldidx, msecs );
-    else if ( txt.isSet() )
+    else if ( !txt.isEmpty() )
 	UsrMsg(txt.getFullString());
 }
 
@@ -563,7 +561,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	    res = beginning;
 	}
 
-	QString wintitle = toQString(res);
+	QString wintitle = toQString( res );
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
 	{

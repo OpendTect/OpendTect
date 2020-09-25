@@ -272,30 +272,6 @@ static void initQApplication()
 }
 
 
-uiMain::uiMain( int& argc, char **argv )
-    : mainobj_(0)
-{
-#ifdef __mac__
-    uiInitMac();
-#endif
-
-    initQApplication();
-    init( nullptr, argc, argv );
-
-    const QPixmap pixmap( XpmIconData );
-    app_->setWindowIcon( QIcon(pixmap) );
-}
-
-
-uiMain::uiMain( QApplication* qapp )
-    : mainobj_(nullptr)
-{
-    initQApplication();
-    app_ = qapp;
-    const QPixmap pixmap( XpmIconData );
-    app_->setWindowIcon( QIcon(pixmap) );
-}
-
 
 static const char* getStyleFromSettings()
 {
@@ -328,12 +304,6 @@ static const char* getStyleFromSettings()
 }
 
 
-void uiMain::cleanQtOSEnv()
-{
-    UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
-}
-
-
 #if QT_VERSION >= 0x050000
 static void qtMessageOutput( QtMsgType type, const QMessageLogContext&,
 			     const QString& msg )
@@ -359,6 +329,47 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 	default:
 	    break;
     }
+}
+
+
+uiMain::uiMain( int& argc, char **argv )
+    : mainobj_(nullptr)
+{
+#ifdef __mac__
+    uiInitMac();
+#endif
+
+    initQApplication();
+    init( nullptr, argc, argv );
+
+    const QPixmap pixmap( XpmIconData );
+    app_->setWindowIcon( QIcon(pixmap) );
+}
+
+
+uiMain::uiMain( QApplication* qapp )
+    : mainobj_(nullptr)
+{
+    initQApplication();
+    app_ = qapp;
+    const QPixmap pixmap( XpmIconData );
+    app_->setWindowIcon( QIcon(pixmap) );
+}
+
+
+uiMain::~uiMain()
+{
+    detachAllNotifiers();
+    delete keyhandler_;
+    delete keyfilter_;
+    delete tabletfilter_;
+    delete app_;
+}
+
+
+void uiMain::cleanQtOSEnv()
+{
+    UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
 }
 
 
@@ -406,7 +417,6 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     QLocale::setDefault( QLocale::c() );
     if ( app_ )
 	{ pErrMsg("You already have a uiMain object!"); return; }
-
     themain_ = this;
 
     if ( DBG::isOn(DBG_UI) && !qap )
@@ -453,15 +463,6 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     font_ = nullptr;
     setFont( *font() , true );
-}
-
-
-uiMain::~uiMain()
-{
-    delete app_;
-    delete keyhandler_;
-    delete keyfilter_;
-    delete tabletfilter_;
 }
 
 
@@ -767,8 +768,7 @@ bool uiMain::directRendering()
 }
 
 
-
-bool isMainThread( const void* thread )
+bool isMainThread(Threads::ThreadID thread)
 {
     return uiMain::theMain().thread() == thread;
 }

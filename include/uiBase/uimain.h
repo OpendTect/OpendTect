@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigeom.h"
 #include "color.h"
+#include "notify.h"
 
 mFDQtclass(QApplication)
 mFDQtclass(QWidget)
@@ -26,7 +27,7 @@ class KeyboardEventHandler;
 class KeyboardEventFilter;
 
 
-mExpClass(uiBase) uiMain
+mExpClass(uiBase) uiMain : public CallBacker
 {
 public:
 
@@ -102,6 +103,5 @@ protected:
 };
 
 
-mGlobal(uiBase) bool isMainThread(const void*);
+mGlobal(uiBase) bool isMainThread(Threads::ThreadID);
 mGlobal(uiBase) bool isMainThreadCurrent();
-

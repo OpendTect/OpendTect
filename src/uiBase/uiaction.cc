@@ -449,7 +449,7 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
     for ( int idx=0; idx<actions_.size(); idx++ )
     {
 	uiAction* itm = actions_[idx];
-	if ( itm->text().getFullString().startsWith(itmtxt,CaseInsensitive) )
+	if ( itm->text().getString().startsWith(itmtxt,CaseInsensitive) )
 	    return itm;
     }
 
@@ -459,8 +459,7 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
 
 uiAction* uiActionContainer::findAction( const uiString& itmtxt )
 {
-    const BufferString txt = itmtxt.getFullString().buf();
-    return findAction( txt.buf() );
+    return findAction( itmtxt.getString() );
 }
 
 
