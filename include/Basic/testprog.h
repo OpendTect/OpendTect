@@ -104,7 +104,9 @@ inline bool handleTestResult( bool isok, const char* desc, const char* emsg=0 )
 }
 
 #define mRunStandardTest( test, desc ) \
-    { if ( !handleTestResult((test),desc) ) return false; }
+    { const bool testres = test; \
+	if ( !handleTestResult(testres,desc) ) return false; }
 
 #define mRunStandardTestWithError( test, desc, err ) \
-    { if ( !handleTestResult((test),desc,err) ) return false; }
+    { const bool testres = test ; \
+      if ( !handleTestResult(testres,desc,err) ) return false; }
