@@ -28,7 +28,7 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 
 #define mRunSockTest( test, msg ) \
     mRunStandardTestWithError( (test), BufferString( prefix_, msg ), \
-			       connection.errMsg().getFullString()  )
+			       toString(connection.errMsg()) )
 
 class TestRunner : public CallBacker
 {
@@ -58,7 +58,7 @@ public:
 
 bool TestRunner::testNetSocket( bool closeserver )
 {
-    Network::Socket connection( false, !noeventloop_ );
+    Network::Socket connection( authority_.isLocal(), !noeventloop_ );
     connection.setTimeout( timeout_ );
 
     const Network::Authority nonexisting( "non_existing_host",
