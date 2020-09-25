@@ -234,7 +234,7 @@ static const UnitOfMeasure* getDisplayUnit( uiCheckBox* zinfeet )
 	     getConvertedValue(val,getDisplayUnit(zinftfld_),mDataUom(true)) ) )
 
 void uiWellTrackDlg::fillTable( CallBacker* )
-{ fillTable( nullptr ); }
+{ fillTable(); }
 
 bool uiWellTrackDlg::fillTable()
 {
