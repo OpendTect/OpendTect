@@ -488,11 +488,16 @@ bool uiStratTreeWin::save( bool saveas )
     }
 
     if ( saveok )
+    {
 	needsave_ = false;
+	uitree_->setNoChg();
+	lvllist_->setNoChg();
+    }
+    else
+	uiMSG().warning( tr("Stratigraphic framework not saved") );
 
     updateCaption();
 
-// TODO: message when !saveok
     return saveok;
 }
 
