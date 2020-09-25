@@ -52,8 +52,18 @@ public:
 	if ( !newconn )
 	    return;
 
-	logStream() << "New connection " << newconn->ID()
-		    << " on port " << server_.server()->port() << od_endl;
+	if ( server_.server()->isLocal() )
+	{
+	    logStream() << "New connection " << newconn->ID()
+			<< " on local server: "
+			<< server_.server()->authority().getServerName()
+			<< od_endl;
+	}
+	else
+	{
+	    logStream() << "New connection " << newconn->ID()
+			<< " on port " << server_.server()->port() << od_endl;
+	}
 
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
