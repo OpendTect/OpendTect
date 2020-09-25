@@ -41,21 +41,21 @@ static const char* sKeyScaled = "Scaled";
 #define mDefaultSnapdist (1e-4f);
 
 Wavelet::Wavelet( const char* nm )
-	: NamedObject(nm)
-	, cidx_(0)
-	, dpos_(SeisTrcInfo::defaultSampleInterval(true))
-	, sz_(0)
-	, samps_(0)
-	, intpol_(0)
+    : NamedCallBacker(nm)
+    , cidx_(0)
+    , dpos_(SeisTrcInfo::defaultSampleInterval(true))
+    , sz_(0)
+    , samps_(0)
+    , intpol_(0)
 {
 }
 
 
 Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
-	: dpos_(sr)
-	, sz_(0)
-	, samps_(0)
-	, intpol_(0)
+    : dpos_(sr)
+    , sz_(0)
+    , samps_(0)
+    , intpol_(0)
 {
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
@@ -91,9 +91,9 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 
 
 Wavelet::Wavelet( const Wavelet& wv )
-	: sz_(0)
-	, samps_(0)
-	, intpol_(0)
+    : sz_(0)
+    , samps_(0)
+    , intpol_(0)
 {
     *this = wv;
 }
@@ -211,8 +211,7 @@ const ValueSeriesInterpolator<float>& Wavelet::interpolator() const
 	newdefintpol->smooth_ = true;
 	newdefintpol->extrapol_ = false;
 	newdefintpol->udfval_ = 0;
-	if ( !defintpol.setIfNull(newdefintpol) )
-	    delete newdefintpol;
+	defintpol.setIfNull(newdefintpol,true);
     }
     ValueSeriesInterpolator<float>& ret
 	= const_cast<ValueSeriesInterpolator<float>&>(

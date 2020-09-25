@@ -189,7 +189,7 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "evalcrossattr",crossEvalAttrs,tr("Cross attributes evaluate"));
     mAddButton( "xplot", crossPlot, tr("Cross-Plot attributes") );
     const int dotidx = mAddButton( "dot", exportToDotCB, tr("View as graph") );
-    uiMenu* mnu = new uiMenu(0);
+    uiMenu* mnu = new uiMenu( nullptr, uiString::emptyString() );
     mnu->insertAction( new uiAction(tr("Graphviz Installation"),
 	mCB(this,uiAttribDescSetEd,dotPathCB)) );
     toolbar_->setButtonMenu( dotidx, mnu );
@@ -1111,7 +1111,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     if ( !dirnm || !File::exists(dirnm) )
 	return;
 
-    DirList attrdl( dirnm, DirList::DirsOnly, "*Attribs" );
+    DirList attrdl( dirnm, File::DirsInDir, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
 	FilePath fp( dirnm, attrdl.get(idx), "index" );

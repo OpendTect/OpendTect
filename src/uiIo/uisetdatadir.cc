@@ -227,7 +227,7 @@ void uiSetDataDir::rootRemoveCB( CallBacker* )
     if ( dirlist_.isEmpty() )
 	return;
 
-    delete dirlist_.removeSingle( curitm );
+    dirlist_.removeSingle( curitm );
     updateListFld();
 }
 
@@ -356,7 +356,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	offerunzipsurv = true;
 	if ( !DirList(datadir).isEmpty() )
 	{
-	    DirList survdl( datadir, DirList::DirsOnly );
+	    DirList survdl( datadir, File::DirsInDir );
 	    bool hasvalidsurveys = false;
 	    for ( int idx=0; idx<survdl.size(); idx++ )
 	    {

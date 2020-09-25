@@ -2,7 +2,7 @@
 
 /*+
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2008
@@ -21,14 +21,14 @@ class uiLabeledSpinBox;
 
 namespace visSurvey { class PreStackDisplay; }
 
-namespace PreStackView 
-{ 
+namespace PreStackView
+{
 
 mClass(uiPreStackViewer) uiViewer3DPositionDlg : public uiDialog
 { mODTextTranslationClass(uiViewer3DPositionDlg);
-public:			
+public:
 
-    			uiViewer3DPositionDlg(uiParent*,
+			uiViewer3DPositionDlg(uiParent*,
 					      visSurvey::PreStackDisplay&);
 			~uiViewer3DPositionDlg();
 
@@ -43,10 +43,10 @@ protected:
     uiCheckBox*		applybox_;
     uiPushButton*	applybut_;
     uiLabel*		steplbl_;
-    BufferString	ootxt_;
+    uiString		ootxt_;
 
     void		updateFieldDisplay();
-    
+
     void		ooBoxSel(CallBacker*);
     void		applBoxSel(CallBacker*);
     void		posChg(CallBacker*);
@@ -55,12 +55,12 @@ protected:
 
     void		stepCB(CallBacker*);
     void		atStart(CallBacker*);
-    bool		applyCB(CallBacker*);
+    void		applyCB(CallBacker*);
 
     bool		rejectOK(CallBacker*);
 
     visSurvey::PreStackDisplay& viewer_;
 };
 
-} // namespace 
+} // namespace
 

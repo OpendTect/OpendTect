@@ -322,7 +322,7 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
 						const BinIDValueSet* bivset,
 						const TrcKeyZSampling& tkzs,
 						const ZDomain::Info& zinfo,
-						const BufferStringSet& names )
+						const BufferStringSet* names )
 {
     if ( !bivset || !tkzs.isDefined() || tkzs.nrZ()!=1 )
 	return DataPack::cNoID();
@@ -332,8 +332,9 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
     regsdp->setSampling( tkzs );
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
-	const char* name = names.validIdx(idx-1) ? names[idx-1]->buf()
-						 : sKey::EmptyString().buf();
+	const char* name = names && names->validIdx(idx-1)
+			 ? names->get(idx-1).buf()
+			 : sKey::EmptyString().buf();
 	regsdp->addComponent( name );
 	BinIDValueSet::SPos pos;
 	BinID bid;

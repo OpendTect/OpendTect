@@ -12,57 +12,89 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "callback.h"
+#include "notify.h"
 #include "bufstring.h"
 
 
-/*!
-\brief Object with a name.
+/*!\brief object with a name. */
 
-  The NamedObject has a name and it can notify another NamedObject when it is
-  about to be deleted. The name may either be a string of the object itself,
-  or the name of another object, linked directly. This not only saves memory,
-  but allows for names that are fundamentally linked.
-
-  The name() function delivers a string that can be displayed to users in lists,
-  trees, etc, and it is usable as a key. For displaying as annotation, use
-  annotName(). This string is clean from keying details, just as users would
-  expect it on maps etc.
-
-*/
-
-mExpClass(Basic) NamedObject : public CallBacker
+mExpClass(Basic) ObjectWithName
 {
 public:
 
-			NamedObject(const char* nm=0);
-			NamedObject(const NamedObject* linkedto);
-			NamedObject(const NamedObject&);
-    virtual		~NamedObject();
-    void		setLinkedTo(NamedObject*);
+    typedef OD::String		name_type;
+
+    virtual			~ObjectWithName()			{}
+
+    virtual const name_type&	name() const		= 0;
+
+    inline bool			hasName( const char* nm ) const
+				{ return name() == nm; }
+    inline bool			hasName( const name_type& nm ) const
+				{ return name() == nm; }
+
+    void			putNameInPar(IOPar&) const;
+
+};
+
+/*!\brief object with a name. */
+
+mExpClass(Basic) NamedObject : public ObjectWithName
+{
+public:
+
+			NamedObject( const char* nm=0 )
+			    : name_(nm)			{}
+			NamedObject( const NamedObject& oth )
+			    : name_(oth.getName())	{}
+    virtual		~NamedObject()			{}
+    NamedObject&	operator =(const NamedObject&);
     bool		operator ==( const NamedObject& oth ) const
-			{ return name() == oth.name(); }
+			{ return name_ == oth.getName(); }
 
-    virtual const OD::String& name() const
-			{ return name_ ? *name_ : linkedto_->name(); }
-    virtual const OD::String& annotName() const
-			{ return linkedto_ ? linkedto_->annotName() : name();}
+    virtual const name_type& name() const		{ return name_; }
+    virtual BufferString getName() const		{ return name_; }
+    virtual void	setName( const char* nm )	{ name_ = nm; }
 
-    virtual void	setName(const char*);
-    void		setCleanName(const char*); //!< cleans string first
-
-    void		deleteNotify(const CallBack&);
+    bool		getNameFromPar(const IOPar&);
 
 protected:
 
-    BufferString*	name_;
-    NamedObject*	linkedto_;
-    CallBackSet*	delnotify_;
-
-private:
-
-    void		cbRem(NamedObject*);
+    BufferString	name_;
 
 };
 
 
+/*!\brief CallBacker object with a name. Use if you want your object to be
+  able to send and receive CallBack's, but Monitorable is not an option.*/
+
+mExpClass(Basic) NamedCallBacker : public CallBacker
+				 , public NamedObject
+{
+public:
+
+			NamedCallBacker(const char* nm=0);
+			NamedCallBacker(const NamedCallBacker&);
+
+    inline bool		operator ==( const NamedCallBacker& oth ) const
+			{ return name_ == oth.getName(); }
+    inline bool		operator ==( const NamedObject& oth ) const
+			{ return name_ == oth.getName(); }
+
+    virtual Notifier<NamedCallBacker>&	objectToBeDeleted() const
+			{ return mSelf().delnotif_; }
+
+protected:
+
+    Notifier<NamedCallBacker>	delnotif_;
+    mutable Threads::Atomic<bool> delalreadytriggered_;
+    void			sendDelNotif() const;
+
+};
+
+
+mGlobal(Basic) inline bool operator >( const ObjectWithName& obj1,
+				       const ObjectWithName& obj2 )
+{
+    return obj1.name() > obj2.name();
+}

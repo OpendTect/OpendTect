@@ -555,13 +555,13 @@ Task* VoxelConnectivityFilter::createTask()
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !input || input->isEmpty() )
     {
-	errmsg_ = "No input provided.";
+	errmsg_ = tr("No input provided.");
 	return 0;
     }
 
     if ( !output || output->isEmpty() )
     {
-	errmsg_ = "No output provided.";
+	errmsg_ = tr("No output provided.");
 	return 0;
     }
 
@@ -586,10 +586,11 @@ void VoxelConnectivityFilter::fillPar( IOPar& par ) const
 }
 
 
-#define mTryParse( parcmd, errstr ) \
+#define mTryParse( parcmd, keystr ) \
     if ( !parcmd ) \
     { \
-	errmsg_ = errstr; \
+	errmsg_ = uiStrings::sParsMissing(); \
+	errmsg_.addMoreInfo( ::toUiString(keystr) ); \
 	return false; \
     }
 

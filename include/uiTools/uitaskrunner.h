@@ -24,13 +24,16 @@ namespace Threads { class Thread; }
 
 mExpClass(uiTools) uiTaskRunner : public uiDialog
 		   , public TaskRunner
-{  mODTextTranslationClass(uiTaskRunner);
+{ mODTextTranslationClass(uiTaskRunner);
 public:
 			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();
 
-    bool		execute(Task& t);
-    uiString		lastMsg() const 	{ return prevmessage_; }
+    virtual bool	execute(Task& t);
+    virtual void	emitErrorMessage(const uiString&,bool) const;
+
+    uiString		lastMsg() const	{ return prevmessage_; }
+    uiRetVal		errorWithDetails() const	{ return errdetails_; }
     int			getState() const	{ return state_; }
     void		displayMsgOnError(bool yn)	{ dispmsgonerr_ = yn; }
 
@@ -51,11 +54,12 @@ protected:
     int			prevpercentage_;
     uiString		prevmessage_;
     uiString		prevnrdonetext_;
+    uiRetVal		errdetails_;
     bool		dispmsgonerr_;
 
-    Threads::Lock	statelock_;	
+    Threads::Lock	statelock_;
     int			state_; //-1 finished in error
-    				// 0 finished without error
+				// 0 finished without error
 				// 1 running
     Threads::Thread*	thread_;
     Threads::Lock	uitaskrunnerthreadlock_;
@@ -70,5 +74,5 @@ protected:
     virtual bool        rejectOK(CallBacker*);
 
     void		init();
-};
 
+};

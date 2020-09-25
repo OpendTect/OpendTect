@@ -11,14 +11,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gmtprocflowtr.h"
 #include "ascstream.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
-uiString ODGMTProcFlowTranslatorGroup::sTypeName(int num)
-{ return tr("GMT process flow",0,num); }
-
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,
 					ctxt->selkey_ = ODGMT::sKeyGMTSelKey())
+
+uiString ODGMTProcFlowTranslatorGroup::sTypeName(int num)
+{ return tr("GMT process flow",0,num); }
+
 
 
 ODGMT::ProcFlow::ProcFlow( const char* nm )
@@ -41,73 +43,79 @@ int ODGMTProcFlowTranslatorGroup::selector( const char* key )
 
 
 bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
-					BufferString& bs )
+					uiString& str )
 {
-    if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
-    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
+    if ( !ioobj ) { str = uiStrings::phrCannotFind(tr("object in data base"));
+								return false; }
+    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> trans,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a GMT flow"; return false; }
+    if ( !trans ) { str = tr("Selected object is not a GMT flow");
+								return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( pf, *conn );
-    return bs.isEmpty();
+	{ str = ioobj->phrCannotOpenObj(); return false; }
+    str = trans->read( pf, *conn );
+    return str.isEmpty();
 }
 
 
 bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
-				     const IOObj* ioobj, BufferString& bs )
+				     const IOObj* ioobj, uiString& str )
 {
-    if ( !ioobj ) { bs = "No object to store flow in data base"; return false; }
-    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
+    if ( !ioobj ) { str = uiStrings::phrCannotCreateDBEntryFor(
+					tr("current flow")); return false; }
+    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> trans,
 		 ioobj->createTranslator());
 
-    if ( !tr ) { bs = "Selected object is not a GMT flow"; return false;}
+    if ( !trans ) { str = tr("Selected object is not a GMT flow");
+								return false;}
 
-    bs = "";
+    str = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
+	{ str = ioobj->phrCannotOpenObj(); return false; }
     else
-	bs = tr->write( pf, *conn );
+	str = trans->write( pf, *conn );
 
-    return bs.isEmpty();
+    return str.isEmpty();
 }
 
 
-const char* dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
+uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return mINTERNAL("bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from input file";
+	return uiStrings::phrCannotRead(tr("from input file"));
     if ( !astrm.isOfFileType(mTranslGroupName(ODGMTProcFlow)) )
-	return "Input file is not a Processing flow";
+	return tr("Input file is not a GMT Processing flow");
     if ( atEndOfSection(astrm) )
 	astrm.next();
     if ( atEndOfSection(astrm) )
-	return "Input file is empty";
+	return tr("Input file is empty");
 
     pf.setName( IOM().nameOf(conn.linkedTo()) );
     pf.pars().getFrom( astrm );
-    return 0;
+    return uiString::emptyString();
 }
 
 
-const char* dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
-						Conn& conn )
+uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
+					    Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return mINTERNAL("bad connection");
 
+    const uiString filtypstr = tr("GMT flow file");
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODGMTProcFlow) );
     if ( !astrm.isOK() )
-	return "Cannot write to output GMT flow file";
+	return uiStrings::phrCannotWrite( filtypstr );
 
     pf.pars().putTo( astrm );
-    return astrm.isOK() ? 0 : "Error during write to GMT flow file";
+    return astrm.isOK() ? uiString::emptyString()
+			: uiStrings::phrErrDuringWrite( filtypstr );
 }

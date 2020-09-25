@@ -516,7 +516,7 @@ void uiODMenuMgr::fillExportMenu()
 	mExpBulkFltSSAsciiMnuItm );
     expfltss->insertItem( expfltssasc );
     insertAction( expfltset, m3Dots(uiStrings::sASCII()),
-	    	  mExpFltSetAsciiMnuItm, ascic );
+		  mExpFltSetAsciiMnuItm, ascic );
     insertAction( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
     insertAction( exppick, sascii, mExpPickAsciiMnuItm, ascic );
     insertAction( expwvlt, sascii, mExpWvltAsciiMnuItm, ascic );
@@ -902,9 +902,9 @@ void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
 
 void uiODMenuMgr::mkViewIconsMnu()
 {
-    DirList dlsett( GetSettingsDir(), DirList::DirsOnly, "icons.*" );
-    DirList dlsite( mGetApplSetupDataDir(), DirList::DirsOnly, "icons.*" );
-    DirList dlrel( mGetSWDirDataDir(), DirList::DirsOnly, "icons.*" );
+    DirList dlsett( GetSettingsDir(), File::DirsInDir, "icons.*" );
+    DirList dlsite( mGetApplSetupDataDir(), File::DirsInDir, "icons.*" );
+    DirList dlrel( mGetSWDirDataDir(), File::DirsInDir, "icons.*" );
     if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
 	return;
 

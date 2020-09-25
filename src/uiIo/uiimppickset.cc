@@ -94,8 +94,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
     if ( import_ )
     {
-	zfld_ = new uiLabeledComboBox( this, tr("Get Z values from") );
-	zfld_->box()->addItems( zoptions );
+	zfld_ = new uiLabeledComboBox( this, zoptions,tr("Get Z values from") );
 	zfld_->box()->selectionChanged.notify( mCB(this,uiImpExpPickSet,
 				formatSel) );
 	zfld_->attach( alignedBelow, filefld_ );
@@ -135,7 +134,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	colorfld_->attach( alignedBelow, objfld_ );
 
 	uiStringSet impoptions;
-	impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyline() )
+	impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyLine() )
 		  .add( uiStrings::sPolygon() );
 	polyfld_ = new uiGenInput( this, tr("Import as"),
 				   StringListInpSpec(impoptions) );

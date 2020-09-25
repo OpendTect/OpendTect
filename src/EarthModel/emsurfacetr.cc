@@ -47,8 +47,7 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 	newctxt->stdseltype_ = IOObjContext::Surf;
 	newctxt->trgroup_ = &theInst();
 
-        if ( !ctxt.setIfNull( newctxt ) )
-            delete newctxt;
+        ctxt.setIfNull( newctxt, true );
     }
 
     return *ctxt;
@@ -69,8 +68,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 	newctxt->stdseltype_ = IOObjContext::Surf;
 	newctxt->trgroup_ = &theInst();
 
-        if ( !ctxt.setIfNull( newctxt ) )
-            delete newctxt;
+        ctxt.setIfNull( newctxt, true );
     }
 
     return *ctxt;
@@ -534,7 +532,7 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     : Executor("Reading FaultSet")
     , fltset_(fltset)
     , curidx_(0)
-    , dl_(ioobj.fullUserExpr(),DirList::FilesOnly,"*.flt")
+    , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
 {
     fltset_.setName( ioobj.name() );
     fltset_.setMultiID( ioobj.key() );

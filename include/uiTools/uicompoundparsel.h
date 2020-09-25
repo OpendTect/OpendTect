@@ -58,6 +58,18 @@ private:
     void			crTextFld(const uiString&);
     void			finishCreation(const uiString&,const uiString&);
 
+public:
+    mDeprecated		("Use uiString")
+			uiCompoundParSel( uiParent* p, const char* seltxt,
+					  OD::StdActionType t=OD::Select )
+			  : uiCompoundParSel(p,toUiString(seltxt),t)	{}
+    mDeprecated		("Use uiString")
+			uiCompoundParSel( uiParent* p, const char* seltxt,
+					  const char* buttxt,
+					  const char* icid=0 )
+			  : uiCompoundParSel(p,toUiString(seltxt),
+					     toUiString(buttxt),icid)	{}
+
 };
 
 

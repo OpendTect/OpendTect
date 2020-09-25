@@ -98,7 +98,8 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
-	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
+	    uiAction* trackexistingmnu =
+				new uiAction( toUiString(emobject->name()) );
 	    trackexistingmnu->setEnabled( cantrack );
 	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
 	}
@@ -447,7 +448,7 @@ void uiODVw2DHor2DTreeItem::renameVisObj()
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
     for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
     applMgr()->visServer()->triggerTreeUpdate();
 }
 

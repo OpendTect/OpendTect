@@ -89,6 +89,15 @@ protected:
     void		updSteer(CallBacker*);
 public:
     void		showSubselFld(bool showselfld);
+
+    mDeprecated		("Use uiString")
+    Executor*		getTrcProc( const IOObj& from, const IOObj& to,
+				    const char* executor_txt,
+				    const char* work_txt,
+				    const char* linenm2d_overrule=0 ) const
+			{ return getTrcProc(from,to,executor_txt,
+				    toUiString(work_txt),linenm2d_overrule); }
+
 };
 
 

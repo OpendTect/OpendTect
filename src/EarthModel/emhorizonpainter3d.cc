@@ -62,7 +62,7 @@ HorizonPainter3D::~HorizonPainter3D()
     removeSelections();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 
-    CallBack::removeFromMainThread( this );
+    CallBack::removeFromThreadCalls( this );
 }
 
 
@@ -308,7 +308,7 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 void HorizonPainter3D::horChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 

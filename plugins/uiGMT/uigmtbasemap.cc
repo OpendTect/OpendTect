@@ -28,10 +28,10 @@ static const int cTitleBoxWidth = 36;
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     : uiDlgGroup(p,tr("Basemap"))
 {
-    titlefld_ = new uiGenInput( this, tr("Map title"), 
+    titlefld_ = new uiGenInput( this, tr("Map title"),
                                 StringInpSpec("Basemap") );
 
-    xrgfld_ = new uiGenInput( this, "X range",
+    xrgfld_ = new uiGenInput( this, tr("X range"),
 			      IntInpIntervalSpec(false) );
     xrgfld_->setElemSzPol( uiObject::Medium );
     xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );

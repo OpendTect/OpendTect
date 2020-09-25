@@ -130,7 +130,7 @@ public:
     static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,
-					    const BufferStringSet& compnames=0);
+				    const BufferStringSet* compnames=nullptr);
 
     Attrib::DescID	getStoredID(const MultiID&,bool is2d,
 				    int selout=-1) const;

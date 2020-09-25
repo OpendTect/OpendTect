@@ -59,7 +59,7 @@ public:
 
     bool		acceptOK(CallBacker*);
     NotifierAccess*	enterClose();
-    			/*!<\returns notifier when a simple text field is
+			/*!<\returns notifier when a simple text field is
 			             displayed. An eventual notifier will
 				     trigger if the user presses enter is
 				     pressed. */
@@ -110,9 +110,20 @@ protected:
     uiGenInputGrp*	group;
 
 public:
+    mDeprecated		("Use uiString")
+			uiGenInputDlg( uiParent* p, const char* dlgtitle,
+					const char* fldtxt, DataInpSpec* s=0 )
+			  : uiGenInputDlg(p,toUiString(dlgtitle),
+					  toUiString(fldtxt),s)		{}
+    mDeprecated		("Use uiString")
+			uiGenInputDlg( uiParent* p, const char* dlgtitle,
+				       ObjectSet<uiGenInputDlgEntry>* dles )
+			    : uiGenInputDlg(p,toUiString(dlgtitle),dles) {}
+
     mDeprecated		("Use getFValue")
     float		getfValue(int i=0)	{ return getFValue(i); }
     mDeprecated		("Use getDValue")
     double		getdValue(int i=0)	{ return getDValue(i); }
+
 };
 

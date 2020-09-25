@@ -50,8 +50,7 @@ IOObjContext& StoredFunctionSource::ioContext()
 	newret->setName( "RMO picks" );
 	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction() );
 
-	if ( !ret.setIfNull(newret) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
 
     return *ret;

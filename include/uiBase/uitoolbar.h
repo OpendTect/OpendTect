@@ -47,6 +47,9 @@ public:
 
 			uiToolBar(uiParent*,const uiString& nm,
 				  ToolBarArea d=Top,bool newline=false);
+			uiToolBar( uiParent* p, const char* nm,
+				   ToolBarArea d=Top, bool newline=false )
+			    : uiToolBar(p,toUiString(nm),d,newline)	{}
 			~uiToolBar();
 
     uiParent*		parent()			{ return parent_; }
@@ -138,5 +141,12 @@ public:
 
     void		addButton(uiButton*);
 			//!<Legacy, use addObject instead
+
+    mDeprecated		("Use uiString")
+    int			addButton( const char* fnm,const char* tooltip,
+				   const CallBack& cb =CallBack(),
+				   bool toggle=false, int id=-1 )
+			{ return addButton(fnm,toUiString(tooltip),
+					   cb,toggle,id); }
 };
 

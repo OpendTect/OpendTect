@@ -342,7 +342,7 @@ uiString uiODDisplayTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
 		const_cast<uiODDisplayTreeItem*>(this)->applMgr()->visServer();
-    return cvisserv->getObjectName( displayid_ );
+    return cvisserv->getUiObjectName( displayid_ );
 }
 
 

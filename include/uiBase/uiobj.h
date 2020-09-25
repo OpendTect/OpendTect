@@ -186,9 +186,13 @@ private:
     uiParent*		parent_;
 
 public:
-    mDeprecated("Use actualSize")
+    mDeprecated		("Use actualSize")
     uiSize		actualsize(bool inclborder=true) const
 			{ return actualSize(inclborder); }
+
+    mDeprecated		("Use uiString")
+    void		setToolTip( const char* txt )
+			{ setToolTip(toUiString(txt)); }
 };
 
 

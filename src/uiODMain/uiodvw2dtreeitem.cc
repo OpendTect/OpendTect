@@ -505,9 +505,9 @@ void uiODVw2DTreeItem::renameVisObj()
     const MultiID midintree = applMgr()->EMServer()->getStorageID( emid );
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
-    name_ = ::toUiString( applMgr()->EMServer()->getName( emid ) );
+    name_ = applMgr()->EMServer()->getUiName( emid );
     for ( int idx = 0; idx<visobjids.size(); idx++ )
-      applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+      applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
     applMgr()->visServer()->triggerTreeUpdate();
 }

@@ -36,8 +36,8 @@ public:
 			{
 			    if ( this != &sd )
 			    {
-				deepCopy( inputs_, sd.inputs_ );
-				deepCopy( outputs_, sd.outputs_ );
+				inputs_ = sd.inputs_;
+				outputs_ = sd.outputs_;
 				hiddensz_ = sd.hiddensz_;
 				classification_ = sd.classification_;
 			    }
@@ -46,8 +46,8 @@ public:
 
     inline void		clear()
 			{
-			    deepErase(inputs_); deepErase(outputs_);
-			    hiddensz_.erase(); hiddensz_ += 0;
+			    inputs_.setEmpty(); outputs_.setEmpty();
+			    hiddensz_.setEmpty(); hiddensz_ += 0;
 			    classification_ = false;
 			}
 

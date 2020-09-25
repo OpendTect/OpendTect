@@ -43,7 +43,7 @@ public:
 				PreStackDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PreStackDisplay,
-				    "PreStackDisplay", 
+				    "PreStackDisplay",
 				    toUiString(sFactoryKeyword()) );
 
     void			allowShading(bool yn);
@@ -84,7 +84,7 @@ public:
     bool			setSeis2DDisplay(Seis2DDisplay*,int trcnr);
     void			setTraceNr(int trcnr);
     int				traceNr() const	  { return trcnr_; }
-    const char*			lineName() const;
+    BufferString		lineName() const;
 
     bool                        displayAutoWidth() const { return autowidth_; }
     void                        displaysAutoWidth(bool yn);

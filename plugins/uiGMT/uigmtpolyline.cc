@@ -42,7 +42,7 @@ uiGMTOverlayGrp* uiGMTPolylineGrp::createInstance( uiParent* p )
 
 
 uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Polyline")
+    : uiGMTOverlayGrp(p,uiStrings::sPolyLine())
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
     ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
@@ -53,11 +53,11 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, inpfld_ );
 
-    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle(this, OD::LineStyle(), uiStrings::sLineStyle());
     lsfld_->attach( alignedBelow, namefld_ );
 
     fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
-	   				.lbltxt(tr("Fill Color"))
+					.lbltxt(tr("Fill Color"))
                                         .withcheck(true) );
     fillcolfld_->attach( alignedBelow, lsfld_ );
 }

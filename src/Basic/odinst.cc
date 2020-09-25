@@ -200,7 +200,7 @@ BufferString ODInst::GetInstallerDir()
     if ( !relinfosubdir.exists() )
 	return BufferString::empty();
 
-    const DirList dl( relinfosubdir.fullPath(), DirList::FilesOnly );
+    const DirList dl( relinfosubdir.fullPath(), File::FilesInDir );
     bool isvalid = false;
     for ( int idx=0; idx<dl.size(); idx++ )
     {

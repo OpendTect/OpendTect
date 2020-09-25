@@ -204,7 +204,10 @@ int Write3DHorASCII::nextStep()
 	return Executor::Finished();
 
     if ( !setup_.issingle_ )
-	stream_ << hor_->name().quote('\"') << od_tab;
+    {
+	BufferString hornm( hor_->name() );
+	stream_ << hornm.quote('\"') << od_tab;
+    }
 
     Coord3 crd = hor_->getPos( posid );
     const BinID bid = SI().transform( crd.coord() );

@@ -32,10 +32,8 @@ public:
 
     virtual		~ODServiceBase();
 
-    bool		isOK() const;
     bool		isOK(bool islocal) const;
 
-    Network::Authority	getAuthority() const;
     Network::Authority	getAuthority(bool islocal) const;
     virtual void	stopServer();
 
@@ -65,10 +63,10 @@ public:
 			   either externalAction or externalRequest */
 
 protected:
-			ODServiceBase(bool assignport=true);
+			ODServiceBase();
 			/* Main constructor returns a local service */
 			explicit ODServiceBase(bool assignport,
-					       Network::SpecAddr);
+					       Network::SpecAddr=Network::Any);
 			/* Constructor for a TCP-based server */
 
     bool		isMainService() const;
@@ -104,9 +102,6 @@ protected:
 
     virtual void	closeApp();
 
-    Network::RequestServer*	localServer() const;
-    Network::RequestServer*	localServer();
-
 private:
 			ODServiceBase(const ODServiceBase&) = delete;
 			ODServiceBase(ODServiceBase&&) = delete;
@@ -117,7 +112,6 @@ private:
     void		init(bool islocal,bool assignport=true,
 			     Network::SpecAddr=Network::Any);
     bool		useServer(Network::RequestServer*,bool islocal);
-    virtual void	startServer(PortNr_Type);
 
     uiRetVal		doAction(const OD::JSON::Object&);
     uiRetVal		doRequest(const OD::JSON::Object&);
@@ -135,12 +129,14 @@ private:
     void		surveyChangedCB(CallBacker*);
     void		pyenvChangeCB(CallBacker*);
 
-    Network::RequestServer*	server_ = nullptr;
-    bool		serverismine_ = true;
-    Network::RequestConnection*		conn_ = nullptr;
-    PtrMan<Network::RequestPacket>	packet_;
-    bool		needclose_ = false;
-    uiRetVal		uirv_;
+    Network::RequestServer*	    tcpserver_ = nullptr;
+    Network::RequestServer*	    localserver_ = nullptr;
+    bool			    serverismine_ = true;
+    Network::RequestConnection*     tcpconn_ = nullptr;
+    Network::RequestConnection*     localconn_ = nullptr;
+    RefMan<Network::RequestPacket>  packet_;
+    bool			    needclose_ = false;
+    uiRetVal			    uirv_;
 
     static ODServiceBase* theMain(ODServiceBase* newmain=nullptr);
 

@@ -90,18 +90,16 @@ void EMObject::prepareForDelete() const
 }
 
 
-BufferString EMObject::name() const
-{
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    return ioobj ? BufferString(ioobj->name()) : objname_;
-}
-
-
 void EMObject::setNewName()
 { setName("<New EM Object>"); }
 
 void EMObject::setMultiID( const MultiID& mid )
-{ storageid_ = mid; }
+{
+    storageid_ = mid;
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    if ( ioobj )
+	name_ = ioobj->name();
+}
 
 
 int EMObject::sectionIndex( const SectionID& sid ) const

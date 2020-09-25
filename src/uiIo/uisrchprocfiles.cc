@@ -35,7 +35,7 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
     ctio_.ctxt_.forread_ = true;
 
     dirfld = new uiFileInput( this, tr("Folder to search in"),
-	    	 uiFileInput::Setup(GetProcFileName(0)).directories(true) );
+		 uiFileInput::Setup(GetProcFileName(0)).directories(true) );
     maskfld = new uiGenInput( this, tr("Filename subselection"), "*.par" );
     maskfld->attach( alignedBelow, dirfld );
     objfld = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(tr(
@@ -71,12 +71,12 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     if ( key.isEmpty() ) return;
 
     uiMsgMainWinSetter msgwinsetter( this );
-    	// Otherwise the error box pulls up OD main win. No idea why.
+	// Otherwise the error box pulls up OD main win. No idea why.
 
     toStatusBar( mJoinUiStrs(sScanning(),sFolder()));
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );
-    DirList dl( dirnm, DirList::FilesOnly, msk.isEmpty() ? 0 : msk.buf() );
+    DirList dl( dirnm, File::FilesInDir, msk.isEmpty() ? 0 : msk.buf() );
     if ( dl.size() == 0 )
 	mRet(uiStrings::phrCannotFind(uiStrings::sFile()))
 

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "rowcol.h"
 #include "draw.h"
+#include "uistrings.h"
 
 class BufferStringSet;
 class uiPixmap;
@@ -56,8 +57,8 @@ public:
 
 		    Setup(int nrrows=-1,int nrcols=-1)
 			: size_(nrrows,nrcols)
-			, rowdesc_("Row")
-			, coldesc_("Column")
+			, rowdesc_(uiStrings::sRow())
+			, coldesc_(uiStrings::sColumn())
 			, insertrowallowed_(true)
 			, removerowallowed_(true)
 			, rowgrow_(false) //!< can extra rows be added by user?
@@ -87,8 +88,8 @@ public:
 				{}
 
 	mDefSetupMemb(RowCol,size)
-	mDefSetupMemb(BufferString,rowdesc)
-	mDefSetupMemb(BufferString,coldesc)
+	mDefSetupMemb(uiString,rowdesc)
+	mDefSetupMemb(uiString,coldesc)
 	mDefSetupMemb(bool,rowgrow)
 	mDefSetupMemb(bool,colgrow)
 	mDefSetupMemb(bool,insertrowallowed)
@@ -117,6 +118,11 @@ public:
 	    insertcolallowed_ = removecolallowed_ = colgrow_ = !yn;
 	    return *this;
 	}
+
+	Setup& rowdesc( const char* desc )
+			{ rowdesc_ = toUiString(desc); return *this; }
+	Setup& coldesc( const char* desc )
+			{ coldesc_ = toUiString(desc); return *this; }
     };
 
 			uiTable(uiParent*,const Setup&,const char* nm);
@@ -233,20 +239,19 @@ public:
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row()); }
-    void		setRowLabel(int,const char*); // also sets tooltip
+    void		setRowLabel(int,const uiString&); // also sets tooltip
     void		setRowLabels(const char**);
-    void		setRowLabels(const BufferStringSet&);
-    void		setRowLabel( const RowCol& rc, const char* lbl )
+    void		setRowLabels(const uiStringSet&);
+    void		setRowLabel( const RowCol& rc, const uiString& lbl )
 			    { setRowLabel( rc.row(), lbl ); }
-    void		setRowToolTip(int,const char*);
+    void		setRowToolTip(int,const uiString&);
     void		setTopLeftCornerLabel(const uiString&);
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col()); }
     void		setColumnLabel(int,const uiString&); //also sets tooltip
-    void		setColumnLabels(const char**);
-    void		setColumnLabels(const BufferStringSet&);
+    void		setColumnLabels(const uiStringSet&);
     void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const uiString&);
@@ -373,6 +378,26 @@ public:
     mDeprecated		("Use getFValue")
     float		getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
+
+    mDeprecated		("Use uiString")
+    void		setRowLabel( int idx, const char* lbl )
+			{ setRowLabel(idx,toUiString(lbl)); }
+    mDeprecated		("Use uiString")
+    void		setRowLabels(const BufferStringSet&);
+    mDeprecated		("Use uiString")
+    void		setRowLabel( const RowCol& rc, const char* lbl )
+			    { setRowLabel( rc.row(), toUiString(lbl) ); }
+    mDeprecated		("Use uiString")
+    void		setRowToolTip( int idx, const char* tt )
+			{ setRowToolTip(idx,toUiString(tt)); }
+
+    mDeprecated		("Use uiString")
+    void		setColumnLabel( int idx, const char* lbl )
+			{ setColumnLabel(idx,toUiString(lbl)); }
+    mDeprecated		("Use uiString")
+    void		setColumnLabels(const char**);
+    mDeprecated		("Use uiString")
+    void		setColumnLabels(const BufferStringSet&);
 
     void	       setPrefWidthInChars(int);
 };

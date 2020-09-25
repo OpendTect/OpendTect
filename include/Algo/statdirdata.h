@@ -72,9 +72,9 @@ public:
 
     void		init(int nrsectors,int nrparts);
 
-    SectorPartData&	get( int isect, int ipart )
+    SectorPartData&	getPartData( int isect, int ipart )
 			{ return (*((*this)[isect]))[ipart]; }
-    const SectorPartData& get( int isect, int ipart ) const
+    const SectorPartData& getPartData( int isect, int ipart ) const
 			{ return (*((*this)[isect]))[ipart]; }
     inline int		nrSectors() const
 			{ return size(); }

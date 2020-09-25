@@ -329,17 +329,23 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 }
 
 
-#define mErrRet(s) { errmsg = s; return errmsg.buf(); }
-#define mErrRet2(x,y) { errmsg = x; errmsg += y; return errmsg.buf(); }
-
 const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 					    Coord crd[3] ) const
 {
-    mDeclStaticString( errmsg );
+    mDeclStaticString( ret );
+    const uiString msg = getSurvInfoWithMsg( hs, crd );
+    ret.set( toString(msg) );
+    return ret.buf();
+}
+
+
+uiString PosInfo::Detector::getSurvInfoWithMsg( TrcKeySampling& hs,
+					        Coord crd[3] ) const
+{
     if ( setup_.is2d_ )
     {
 	if ( nruniquepos_ < 2 )
-	    mErrRet( "Not enough unique positions found" )
+	    return uiStrings::phrCannotFind(tr("enough unique positions"));
 
 	double grdsp = 4. * avgdist_;
 	if ( grdsp < 50 ) grdsp = 50;
@@ -369,16 +375,16 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
     else
     {
 	if ( nruniquepos_ < 3 )
-	    mErrRet( "Not enough unique positions found" )
+	    return uiStrings::phrCannotFind(tr("enough unique positions"));
 
 	hs.start_ = start_; hs.stop_ = stop_; hs.step_ = step_;
 
 	if ( hs.start_.inl() == hs.stop_.inl() )
-	    mErrRet2("The input data contains only one in-line: ",
-		      hs.start_.inl())
+	    return tr("The input data contains only one in-line: %1").arg(
+                      hs.start_.inl());
 	else if ( hs.start_.crl() == hs.stop_.crl() )
-	    mErrRet2("The input data contains only one cross-line: ",
-		    hs.start_.crl())
+	    return tr("The input data contains only one cross-line: %1").arg(
+                    hs.start_.crl());
 
 	const CrdBidOffs llnstart( userCBO(llnstart_) );
 	const CrdBidOffs llnstop( userCBO(llnstop_) );
@@ -396,9 +402,9 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 
 	Pos::IdxPair2Coord b2c;
 	if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl()) )
-	    return "The input data does not contain the required information\n"
-		"to establish a relation between\nthe inline/crossline system\n"
-		"and the coordinates.";
+	    return tr("The input data does not contain the required information"
+                "\nto establish a relation between the inline/crossline system "
+                "and the coordinates.");
 
 	// what coords would have been on the corners
 	crd[0] = b2c.transform( hs.start_ );
@@ -406,7 +412,7 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 	crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
     }
 
-    return 0;
+    return uiString::empty();
 }
 
 

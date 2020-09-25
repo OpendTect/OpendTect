@@ -48,7 +48,7 @@ BinID SeisTrcReaderSet::getBinID( int irdr, const SeisTrcInfo& ti ) const
 }
 
 
-int SeisTrcReaderSet::get( ObjectSet<SeisTrcInfo>& tis )
+int SeisTrcReaderSet::getTrcInfos( ObjectSet<SeisTrcInfo>& tis )
 {
     if ( isEmpty() )
 	return 0;
@@ -76,7 +76,7 @@ int SeisTrcReaderSet::get( ObjectSet<SeisTrcInfo>& tis )
 }
 
 
-bool SeisTrcReaderSet::get( ObjectSet<SeisTrc>& trcs )
+bool SeisTrcReaderSet::getTrcs( ObjectSet<SeisTrc>& trcs )
 {
     if ( isEmpty() )
 	return false;

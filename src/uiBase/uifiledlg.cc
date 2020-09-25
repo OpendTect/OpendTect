@@ -239,7 +239,7 @@ int uiFileDialog::go()
 
 void uiFileDialog::getFileNames( BufferStringSet& fnms ) const
 {
-    deepCopy( fnms, filenames_ );
+    fnms = filenames_;
 }
 
 
@@ -345,7 +345,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     if ( !externalfilenames_ )
 	return 0;
 
-    deepErase( filenames_ );
+    filenames_.setEmpty();
     fn.setEmpty();
 
     if ( externalfilenames_->isEmpty() )

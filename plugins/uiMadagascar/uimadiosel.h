@@ -29,7 +29,7 @@ public:
     void		usePar(const IOPar&);
     void		useParIfNeeded(const IOPar&);
     bool		fillPar( IOPar& iop ) const
-    			{ iop.merge(iop_); return iop_.size(); }
+			{ iop.merge(iop_); return iop_.size(); }
 
     Notifier<uiMadIOSel>	selectionMade;
 protected:
@@ -50,7 +50,7 @@ public:
 			uiMadIOSelDlg(uiParent*,IOPar&,bool isinp);
 
     inline bool		isInp() const
-    			{ return isinp_; }
+			{ return isinp_; }
     bool		isNone() const;
     bool		isMad() const;
     bool		isSU() const;
@@ -62,13 +62,14 @@ public:
 				 : (ODMad::ProcFlow::IOType)geomType());
 			}
 
-    			// Functions only valid if isOD()
+			// Functions only valid if isOD()
     Seis::GeomType	geomType() const;
     uiSeisSel*		seisSel(Seis::GeomType);
     uiSeisSubSel*	seisSubSel(Seis::GeomType);
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&);
+    uiString		sSelFileErrMsg(const uiString&);
 
 protected:
 

@@ -51,7 +51,7 @@ Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
 
     mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
     if ( !surface ) return 0;
-    
+
     return new Geometry::StickSetEditor(
 			*const_cast<Geometry::FaultStickSurface*>(surface) );
 }
@@ -173,7 +173,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 	return mUdf(float);
 
     avgpos /= count;
- 
+
     return (float)(mCustomScale(avgpos).Coord::distTo(mCustomScale(mousepos)));
 }
 
@@ -231,7 +231,7 @@ float FaultEditor::panelIntersectDist(
 
     const double onestepdist =
 		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
-	
+
     if ( fabs(d0) < 0.5*onestepdist )
 	d0 = 0.0;
     if ( fabs(d1) < 0.5*onestepdist )
@@ -301,11 +301,11 @@ int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
 
     return res;
 }
-		
+
 
 void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 		      const Coord3& mousepos, const Coord3* posnormal ) const
-{ 
+{
     insertpid = EM::PosID::udf();
 
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
@@ -372,7 +372,7 @@ const EM::PosID FaultEditor::getNearstStick( EM::SectionID& sid,
 
 bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet(EM::Fault3D*,fault,&emobject);
+    mDynamicCastGet(EM::Fault3D*,fault,emobject_.ptr());
     bool change = false;
     for ( int sectionidx=fault->nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -426,7 +426,7 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
-    EM::SectionID selsid = mUdf(EM::SectionID); 
+    EM::SectionID selsid = mUdf(EM::SectionID);
     int selstick = mUdf(int);
     float mindist = mUdf(float);
 
@@ -454,7 +454,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 	    if ( mIsUdf(mindist) || fabs(dist)<fabs(mindist) )
 	    {
 		mindist = dist;
- 		selstick = curstick;
+		selstick = curstick;
 		selsid = cursid;
 	    }
 	}
@@ -473,7 +473,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
 		      const Coord3& mousepos, const Coord3* posnormal ) const
 {
-    EM::SectionID selsid = mUdf(EM::SectionID); 
+    EM::SectionID selsid = mUdf(EM::SectionID);
     int selstick = mUdf(int);
     float mindist = mUdf(float);
     Coord3 normal = Coord3::udf();
@@ -508,7 +508,7 @@ bool FaultEditor::getInsertStick( int& stick, EM::SectionID& sid,
 	    if ( mIsUdf(mindist) || fabs(dist)<fabs(mindist) )
 	    {
 		mindist = dist;
- 		selstick = stickidx==-1 ? sticknr : sticknr+rowrange.step;
+		selstick = stickidx==-1 ? sticknr : sticknr+rowrange.step;
 		selsid = cursid;
 	    }
 	}
@@ -636,10 +636,10 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 }
 
 
-void FaultEditor::cloneMovingNode()
+void FaultEditor::cloneMovingNode( CallBacker* )
 {
     setLastClicked( movingnode );
-    mDynamicCastGet( EM::Fault3D*, emfault, &emobject );
+    mDynamicCastGet( EM::Fault3D*, emfault, emobject_.ptr() );
     EM::Fault3DGeometry& fg = emfault->geometry();
     const EM::SectionID& sid = movingnode.sectionID();
     const int sticknr = movingnode.getRowCol().row();
@@ -647,7 +647,7 @@ void FaultEditor::cloneMovingNode()
 
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;
-    bool makenewstick = false; 
+    bool makenewstick = false;
     getInteractionInfo( makenewstick, insertpid, startpos, &normal );
     if ( makenewstick || insertpid.isUdf() )
 	return;
@@ -658,12 +658,12 @@ void FaultEditor::cloneMovingNode()
 	return;
     }
 
-    // Performs knot insertion without changing PosID of moving node 
+    // Performs knot insertion without changing PosID of moving node
     emfault->setBurstAlert( true );
     const StepInterval<int> colrg = fss->colRange( sticknr );
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
-	const RowCol currc( sticknr, col ); 
+	const RowCol currc( sticknr, col );
 	const RowCol prevrc( sticknr, col-colrg.step );
 	const EM::PosID prevpid( emfault->id(), sid, prevrc.toInt64() );
 

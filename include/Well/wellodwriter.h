@@ -27,12 +27,11 @@ class Log;
 
 mExpClass(Well) odWriter : public odIO
 			 , public WriteAccess
-{
+{ mODTextTranslationClass(Well::odWriter);
 public:
 
-			odWriter(const IOObj&,const Data&,BufferString& errmsg);
-			odWriter(const char* fnm,const Data&,
-				 BufferString& errmsg);
+			odWriter(const IOObj&,const Data&,uiString& errmsg);
+			odWriter(const char* fnm,const Data&,uiString& errmsg);
 
     bool		put() const;
 
@@ -45,7 +44,7 @@ public:
     virtual bool	putDispProps() const;
     virtual bool	putLog(const Log&) const;
 
-    virtual const OD::String& errMsg() const	{ return odIO::errMsg(); }
+    virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 
     bool		putInfoAndTrack(od_ostream&) const;
     bool		putMarkers(od_ostream&) const;
@@ -72,6 +71,9 @@ protected:
 private:
 
     void		init();
+
+    void		setStrmErrMsg(od_stream&,const uiString&) const;
+    uiString		startWriteStr() const;
 
 };
 

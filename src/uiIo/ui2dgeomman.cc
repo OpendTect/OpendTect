@@ -311,8 +311,9 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
     table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
     table_->attach( ensureBelow, linefld_ );
     table_->setPrefWidth( 400 );
-    BufferStringSet collbls;
-    collbls.add("Trace Number").add("SP Number").add("X").add("Y");
+    uiStringSet collbls;
+    collbls.add( uiStrings::sTraceNumber() ).add( uiStrings::sSPNumber() )
+           .add( uiStrings::sX() ).add( uiStrings::sY() );
     table_->setColumnLabels( collbls );
     if ( readonly )
 	table_->setTableReadOnly( true );

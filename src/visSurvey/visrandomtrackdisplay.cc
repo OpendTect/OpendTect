@@ -96,13 +96,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     }
 
     namenr_ = highestnamenr+1;
-    setName( uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
-					toUiString(namenr_)) );
 
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
-
 
     dragger_->ref();
     addChild( dragger_->osgNode() );
@@ -150,8 +147,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 		       mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
 
-    Geometry::RandomLine* rl =
-	new Geometry::RandomLine( mFromUiStringTodo(name()) );
+    auto* rl = new Geometry::RandomLine( getName() );
     setRandomLineID( rl->ID() );
     rl_->addNode( start );
     rl_->addNode( stop );
@@ -202,9 +198,9 @@ RandomTrackDisplay::~RandomTrackDisplay()
 }
 
 
-const char* RandomTrackDisplay::getRandomLineName() const
+BufferString RandomTrackDisplay::getRandomLineName() const
 {
-    return mFromUiStringTodo(name()).buf();
+    return getName();
 }
 
 
@@ -222,7 +218,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->ref();
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
-    setName( mToUiStringTodo(rl_->name()) );
+    setName( rl_->name() );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids, true );
@@ -485,7 +481,7 @@ void RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& bids,
 
     updatePanelStripPath();
 
-    movingnotifystopper.restore();
+    movingnotifystopper.enableNotification();
     moving_.trigger();
 }
 
@@ -1046,7 +1042,7 @@ void RandomTrackDisplay::acceptManipulation()
     dragger_->showAllPanels( false );
     ismanip_ = false;
 
-    movingnotifystopper.restore();
+    movingnotifystopper.enableNotification();
     moving_.trigger();
 
 }
@@ -1483,7 +1479,7 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
     if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
-    uiString linename;
+    BufferString linename;
     par.get( sKey::Name(), linename );
     if ( !linename.isEmpty() ) setName( linename );
 
@@ -1522,7 +1518,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 					  Coord3& pos, BufferString& val,
 					  BufferString& info ) const
 {
-    info = mFromUiStringTodo(name());
+    info = getName();
     getValueString( pos, val );
 }
 

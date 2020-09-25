@@ -427,9 +427,9 @@ const char* dgbSurfaceReader::dbInfo() const
 
 dgbSurfaceReader::~dgbSurfaceReader()
 {
-    deepErase( sectionnames_ );
-    deepErase( linenames_ );
-    deepErase( auxdatanames_ );
+    sectionnames_.setEmpty();
+    linenames_.setEmpty();
+    auxdatanames_.setEmpty();
     deepErase( auxdataexecs_ );
 
     delete par_;

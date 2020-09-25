@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "unitofmeasure.h"
 #include "od_ostream.h"
 
@@ -258,28 +259,33 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 }
 
 
-#define mErrRet(s) { errmsg = s; return strm; }
 
 
-static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
-			    bool& tabstyle )
+static od_istream getUiInpStrm( const char* fnm, uiString& errmsg,
+			      bool& tabstyle )
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-    {
-	errmsg.set( "Cannot open Cross-Plot Data file: " ).add( fnm );
-	strm.addErrMsgTo( errmsg );
-	return strm;
-    }
+	errmsg = uiStrings::phrCannotOpenForRead( fnm );
     BufferString firstword; strm >> firstword;
     strm.setReadPosition( 0 );
     tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
     if ( !tabstyle )
     {
-	ascistream astrm( strm );
-	if ( !astrm.isOfFileType(mPosVecDataSetFileType) )
-	    errmsg.set( "Invalid Cross-Plot Data file: " ).add( fnm );
+        ascistream astrm( strm );
+        if ( !astrm.isOfFileType(mPosVecDataSetFileType) )
+            errmsg = uiStrings::phrInvalid(uiStrings::sInputFile().toLower());
     }
+    return strm;
+}
+
+
+static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
+			      bool& tabstyle )
+{
+    uiString msg;
+    od_istream strm = getUiInpStrm( fnm, msg, tabstyle );
+    msg.getFullString( &errmsg );
     return strm;
 }
 
@@ -361,14 +367,19 @@ bool PosVecDataSet::getIOPar( const char* fnm, IOPar& iop, BufferString& emsg )
     return true;
 }
 
-#undef mErrRet
-#define mErrRet(s) { errmsg = s; return false; }
-
 
 bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 {
+    uiString msg;
+    const bool ret = getFrom( fnm, msg );
+    msg.getFullString( &errmsg );
+    return ret;
+}
+
+bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
+{
     bool tabstyle = false;
-    od_istream strm = getInpStrm( fnm, errmsg, tabstyle );
+    od_istream strm = getUiInpStrm( fnm, errmsg, tabstyle );
     if ( !strm.isOK() )
 	return false;
 
@@ -451,15 +462,24 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { errmsg = s; return false; }
-
 bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
+			   bool tabstyle ) const
+{
+    uiString msg;
+    const bool ret = putTo( fnm, msg, tabstyle );
+    msg.getFullString( &errmsg );
+    return ret;
+}
+
+bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 			   bool tabstyle ) const
 {
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet("Cannot open output file")
+    {
+	errmsg = uiStrings::phrCannotOpenForWrite(fnm);
+	return false;
+    }
 
     BufferString str;
     if ( tabstyle )
@@ -479,7 +499,10 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     {
 	ascostream astrm( strm );
 	if ( !astrm.putHeader(mPosVecDataSetFileType) )
-	    mErrRet("Cannot write header to output file")
+	{
+	    errmsg = uiStrings::phrCannotWrite(tr("header to output file"));
+	    return false;
+	}
 
 	if ( *name() )
 	    astrm.put( sKey::Name(), name() );
@@ -523,7 +546,11 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 	}
 	strm << '\n';
 	if ( !strm.isOK() )
-	    mErrRet("Error during write of data")
+	{
+	    errmsg = uiStrings::phrCannotWrite(uiStrings::sData().toLower());
+	    delete [] vals;
+	    return false;
+	}
     }
     delete [] vals;
 

@@ -54,7 +54,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static const char* trackcollbls[] = { "X", "Y", "Z", "MD", 0 };
 static const int nremptyrows = 5;
 static const int cXCol = 0;
 static const int cYCol = 1;
@@ -113,7 +112,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, origgl_(d.info().groundelev)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
-					.rowdesc("Point")
+					.rowdesc(uiStrings::sPoint())
 					.rowgrow(true)
 					.insertrowallowed(true)
 					.removerowallowed(true)
@@ -121,7 +120,12 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 					.defrowlbl(true)
 					.removeselallowed(false),
 			"Well Track Table" );
-    tbl_->setColumnLabels( trackcollbls );
+    uiStringSet collbls;
+    collbls.add( uiStrings::sX().withSurvXYUnit() )
+           .add( uiStrings::sY().withSurvXYUnit() )
+           .add( uiStrings::sZ() )
+           .add( uiStrings::sMD() );
+    tbl_->setColumnLabels( collbls );
     tbl_->setNrRows( nremptyrows );
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
@@ -229,7 +233,10 @@ static const UnitOfMeasure* getDisplayUnit( uiCheckBox* zinfeet )
  mDataUom(true)->internalValue( \
 	     getConvertedValue(val,getDisplayUnit(zinftfld_),mDataUom(true)) ) )
 
-bool uiWellTrackDlg::fillTable( CallBacker* )
+void uiWellTrackDlg::fillTable( CallBacker* )
+{ fillTable( nullptr ); }
+
+bool uiWellTrackDlg::fillTable()
 {
     RowCol curcell( tbl_->currentCell() );
 
@@ -557,7 +564,10 @@ void uiWellTrackDlg::readNew( CallBacker* )
 }
 
 
-bool uiWellTrackDlg::updNow( CallBacker* )
+void uiWellTrackDlg::updNow( CallBacker* )
+{ updNow(); }
+
+bool uiWellTrackDlg::updNow()
 {
     wd_.info().uwid = uwifld_->text();
     wd_.info().groundelev =
@@ -747,7 +757,7 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
     if ( !writable_ )
 	return true;
 
-    if ( !updNow(0) )
+    if ( !updNow() )
 	return false;
 
     const int nrpts = track_.size();
@@ -807,11 +817,11 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     const bool zinfeet = zinftfld_ ? zinftfld_->isChecked() : false;
     const BufferString depthunit = getDistUnitString( zinfeet, true );
 
-    strm << trackcollbls[0] << SI().getXYUnitString() << od_tab;
-    strm << trackcollbls[1] << SI().getXYUnitString() << od_tab;
-    strm << trackcollbls[2] << depthunit << od_tab;
-    strm << "TVD" << depthunit << od_tab;
-    strm << trackcollbls[3] << depthunit << od_newline;
+    strm << sKey::X() << SI().getXYUnitString() << od_tab;
+    strm << sKey::Y() << SI().getXYUnitString() << od_tab;
+    strm << sKey::Z() << depthunit << od_tab;
+    strm << sKey::TVD() << depthunit << od_tab;
+    strm << sKey::MD() << depthunit << od_newline;
 
     const float kbdepth = -1.f * track_.getKbElev();
     for ( int idx=0; idx<track_.size(); idx++ )
@@ -863,7 +873,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     BufferStringSet header;
     getColLabels( header );
-    tbl_->setColumnLabels( header );
+    tbl_->setColumnLabels( header.getUiStringSet() );
     tbl_->setNrRows( nremptyrows );
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
     tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
@@ -1062,7 +1072,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     tbl_->setNrRows( dtsz + nremptyrows );
     BufferStringSet header;
     getColLabels( header );
-    tbl_->setColumnLabels( header );
+    tbl_->setColumnLabels( header.getUiStringSet() );
 
     const float kbelev = wd_.track().getKbElev();
     const float groundevel = wd_.info().groundelev;
@@ -1806,7 +1816,7 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
     if ( !res )
 	return false;
 
-    name_ = newnm;
+    wellname_ = newnm;
     return true;
 }
 
@@ -1819,8 +1829,6 @@ const Color& uiNewWellDlg::getWellColor()
 
 //============================================================================
 
-static const char* collbls[] = { "Well name","Log name",
-				 "Unit of measure", 0 };
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, ObjectSet<Well::LogSet> wls,
 				  const BufferStringSet wellnms,
 				  const BufferStringSet lognms )
@@ -1843,6 +1851,10 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
     uominfotbl_->setPrefWidth( 520 );
     uominfotbl_->setPrefHeight( 400 );
     uominfotbl_->setTableReadOnly( true );
+    uiStringSet collbls;
+    collbls.add( tr("Well name") )
+           .add( tr("Log name") )
+           .add( tr("Unit of measure") );
     uominfotbl_->setColumnLabels( collbls );
     uominfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
     const int nrwls = wls.size();

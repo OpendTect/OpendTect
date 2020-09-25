@@ -276,7 +276,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     mDynamicCastGet( const EM::Horizon*, hor, emobject_ );
     if ( hor && editor_ )
     {
-	editor_->sower().setSequentSowMask( 
+	editor_->sower().setSequentSowMask(
 	    true, OD::ButtonState(OD::LeftButton+OD::ControlButton) );
     }
 
@@ -319,7 +319,7 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
 {
     if ( !emobject_ ) return false;
 
-    setName( emobject_->uiName() );
+    setName( emobject_->name() );
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
@@ -517,12 +517,12 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
 	emchangedata_.addCallBackData( &cbdata );
     }
-    
+
     mEnsureExecutedInMainThread( EMObjectDisplay::emChangeCB );
 
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
-	const EM::EMObjectCallbackData* cbdata = 
+	const EM::EMObjectCallbackData* cbdata =
 	    emchangedata_.getCallBackData(idx);
 	if ( !cbdata )
 	    continue;
@@ -619,7 +619,7 @@ void EMObjectDisplay::getObjectInfo( BufferString& info ) const
     if ( !emobject_ ) return;
 
     info = emobject_->getTypeStr(); info += ": ";
-    info += mFromUiStringTodo(name());
+    info += name();
 }
 
 
@@ -632,7 +632,7 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( !emobject_ ) return;
 
     info = emobject_->getTypeStr(); info += ": ";
-    info += mFromUiStringTodo(name());
+    info += name();
 
     const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
 
@@ -672,7 +672,7 @@ void EMObjectDisplay::fillPar( IOPar& par ) const
 const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
 {
     const int attribindex = posattribs_.indexOf( EM::EMObject::sSeedNode() );
-    if ( attribindex==-1 || posattribmarkers_.size()<attribindex ) 
+    if ( attribindex==-1 || posattribmarkers_.size()<attribindex )
 	return 0;
 
     return posattribmarkers_[attribindex];
@@ -691,7 +691,7 @@ bool EMObjectDisplay::usePar( const IOPar& par )
     if ( !ioobj )
     {
 	errmsg_ = "Cannot locate object ";
-	errmsg_ += mFromUiStringTodo(name());
+	errmsg_ += name();
 	errmsg_ += " (";
 	errmsg_ += parmid_;
 	errmsg_ += ")";
@@ -818,7 +818,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
 
     Undo& undo = EM::EMM().undo( emobject_->id() );
     const int lastid = undo.currentEventID();
- 
+
     emobject_->removeSelected( selectionids_ );
 
     if ( lastid!=undo.currentEventID() )
@@ -906,8 +906,8 @@ void EMObjectDisplay::updateSelections()
     Color selectioncolor =  Color::Orange();
     if ( hor2d || hor3d )
     {
-	selectioncolor = hor3d ? hor3d->getSelectionColor() :	
-	    hor2d->getSelectionColor();    
+	selectioncolor = hor3d ? hor3d->getSelectionColor() :
+	    hor2d->getSelectionColor();
     }
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )

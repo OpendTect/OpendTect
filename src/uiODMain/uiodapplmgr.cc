@@ -155,7 +155,7 @@ MouseCursorExchange& uiODApplMgr::mouseCursorExchange()
 { return mousecursorexchange_; }
 
 
-void uiODApplMgr::mainWinUpCB( CallBacker* cb ) const
+void uiODApplMgr::mainWinUpCB( CallBacker* cb )
 {
     if ( !Convert_OD4_Data_To_OD5() )
 	manageSurvey();
@@ -1651,7 +1651,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
-	if ( !res.isEqualTo(uiNLAPartServer::sKeyUsrCancel()) )
+	if ( res != uiNLAPartServer::sKeyUsrCancel() )
 	    uiMSG().warning( res );
 
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
@@ -1913,7 +1913,7 @@ void uiODApplMgr::storeEMObject()
     visserv_->findObject( mid, ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
-    visserv_->setObjectName( ids[idx], emserv_->getUiName(emid) );
+	visserv_->setUiObjectName( ids[idx], emserv_->getUiName(emid) );
 
     mpeserv_->saveSetup( mid );
     sceneMgr().updateTrees();

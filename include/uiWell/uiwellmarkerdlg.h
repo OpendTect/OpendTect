@@ -39,7 +39,7 @@ public:
     bool			getMarkerSet(Well::MarkerSet&) const;
     static void			exportMarkerSet(uiParent* p,
 						const Well::MarkerSet& mset,
-						const Well::Track& trck, 
+						const Well::Track& trck,
 						uiCheckBox* cb=0 );
 protected:
 
@@ -50,6 +50,7 @@ protected:
 
     //TODO will go with the Strat level Sel
 
+    void			getColLabels(uiStringSet&) const;
     void			getColLabels(BufferStringSet&) const;
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
@@ -63,7 +64,7 @@ protected:
     bool			getFromScreen();
     void			markerChangedCB(CallBacker*);
     void			markerAddedCB(CallBacker*);
-    bool			setAsRegMarkersCB(CallBacker*);
+    void			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
     void			exportCB(CallBacker*);
     bool			getKey(MultiID&) const;

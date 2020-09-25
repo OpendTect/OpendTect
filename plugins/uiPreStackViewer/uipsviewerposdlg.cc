@@ -27,14 +27,15 @@ namespace PreStackView
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      visSurvey::PreStackDisplay& vwr )
-    : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,
+    : uiDialog( p, Setup(toUiString(vwr.getObjectName()),mNoDlgTitle,
                          mODHelpKey(mViewer3DPositionsDlgHelpID) )
 			.modal(false) )
     , viewer_(vwr)
     , applybox_(0)
     , applybut_(0)
 {
-    ootxt_ = is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr";
+    ootxt_ = is3D() ? (isInl() ? uiStrings::sCrossline() : uiStrings::sInline())
+                               : uiStrings::sTraceNumber();
     setCtrlStyle( CloseOnly );
 
     oobox_ = new uiCheckBox( this, ootxt_ );
@@ -166,7 +167,7 @@ void uiViewer3DPositionDlg::posChg( CallBacker* c )
 }
 
 
-bool uiViewer3DPositionDlg::applyCB( CallBacker* )
+void uiViewer3DPositionDlg::applyCB( CallBacker* )
 {
     const int location = posfld_->getIntValue();
     if ( is3D() )
@@ -176,7 +177,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	if ( isInl() )
 	{
 	    if ( newpos.crl()==location )
-		return true;
+		return;
 
 	    const StepInterval<int> crlrg = SI().crlRange( true );
 	    if ( crlrg.includes( location, false ) )
@@ -186,13 +187,13 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		uiString msg = tr("The cross-line should be between %1 and %2")
 			     .arg(crlrg.start).arg(crlrg.stop);
 		uiMSG().error( msg );
-		return false;
+		return;
 	    }
 	}
 	else
 	{
 	    if ( newpos.inl()==location )
-		return true;
+		return;
 
 	    const StepInterval<int> inlrg = SI().inlRange( true );
 	    if ( inlrg.includes( location, false ) )
@@ -202,7 +203,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		uiString msg = tr("The in-line should be between %1 and %2")
 			     .arg(inlrg.start).arg(inlrg.stop);
 		uiMSG().error( msg );
-		return false;
+		return;
 	    }
 	}
 
@@ -214,7 +215,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
     else
     {
 	if ( !viewer_.getSeis2DDisplay() || location==viewer_.traceNr() )
-	    return true;
+	    return;
 
 	const Interval<int> trcrg =
 	    viewer_.getSeis2DDisplay()->getTraceNrRange();
@@ -223,14 +224,12 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    uiString msg = tr("The trace number should be between %1 and %2")
 			 .arg(trcrg.start).arg(trcrg.stop);
 	    uiMSG().error( msg );
-	    return false;
+	    return;
 	}
 
 	viewer_.setTraceNr( location );
 	posfld_->setValue( viewer_.traceNr() );
     }
-
-    return true;
 }
 
 

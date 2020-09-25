@@ -33,7 +33,7 @@ If you don't want to use the help system, simply pass null ('0').
 */
 
 
-#define mNoDlgTitle	uiString::emptyString()
+#define mNoDlgTitle	uiString::empty()
 #define mTODOHelpKey	HelpKey( nullptr, ::toString(-1) )
 #define mNoHelpKey	HelpKey::emptyHelpKey()
 
@@ -98,6 +98,26 @@ public:
 			//!< Makes sure you cannot use '0' for help ID.
 			//!< Use mTODOHelpKey or mNoHelpKey instead
 
+	public:
+	mDeprecated	("Use uiString")
+			Setup( const char* window_title,
+			       const char* dialog_title,
+			       const HelpKey& help_key )
+			  : Setup(toUiString(window_title),
+				  toUiString(dialog_title),help_key)	{}
+	mDeprecated	("Use uiString")
+			Setup( const char* window_title,
+			       const uiString& dialog_title,
+			       const HelpKey& help_key )
+			  : Setup(toUiString(window_title),dialog_title,
+				  help_key)				{}
+	mDeprecated	("Use uiString")
+			Setup( const uiString& window_title,
+			       const char* dialog_title,
+			       const HelpKey& help_key )
+			  : Setup(window_title,toUiString(dialog_title),
+				  help_key)				{}
+
     };
 
     enum		Button { OK, CANCEL, APPLY, HELP, CREDITS, SAVE };
@@ -108,14 +128,14 @@ public:
     int			go();
     int			goMinimized();
 
-    void		reject( CallBacker* cb =0);
-    void		accept( CallBacker* cb =0);
-    void		done(int ret=0);
-			//!< 0=Cancel, 1=OK, other=user defined
+    void		reject(CallBacker* cb=0);
+    void		accept(CallBacker* cb=0);
+    enum DoneResult	{ Rejected=0, Accepted=1 };
+    void		done(DoneResult);
 
-    void		setHSpacing( int );
-    void		setVSpacing( int );
-    void		setBorder( int );
+    void		setHSpacing(int);
+    void		setVSpacing(int);
+    void		setBorder(int);
 
     void		setModal(bool yn);
     bool		isModal() const;
@@ -135,8 +155,8 @@ public:
 			//! Save button enabled when set to non-empty
     void		enableSaveButton(
 			    const uiString& txt=uiStrings::sSaveAsDefault());
-			//! 0: cancel; 1: OK
     int			uiResult() const;
+				//!< -1 running, otherwise (int)DoneResult
 
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
@@ -155,9 +175,9 @@ public:
     int			nrVideos() const;
     void		removeVideo(int);
 
-    static int		titlePos();
-    static void		setTitlePos(int pos);
-			// pos: -1 = left, 0 = center, 1 = right
+    enum TitlePos	{ LeftSide, CenterWin, RightSide };
+    static TitlePos	titlePos();
+    static void		setTitlePos(TitlePos);
 
     Notifier<uiDialog>	applyPushed;
 
@@ -169,7 +189,27 @@ protected:
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
-    static int		titlepos_;
+    static TitlePos	titlepos_;
+
+public:
+    mDeprecated		("Use uiString")
+    void		setTitleText( const char* txt )
+			{ setTitleText(toUiString(txt)); }
+    mDeprecated		("Use uiString")
+    void		setOkCancelText( const char* ok,const char* cnl )
+			{ setOkCancelText(toUiString(ok),toUiString(cnl)); }
+    mDeprecated		("Use uiString")
+    void		setOkText( const char* txt )
+			{ setOkText(toUiString(txt)); }
+    mDeprecated		("Use uiString")
+    void		setCancelText( const char* txt )
+			{ setCancelText(toUiString(txt)); }
+    mDeprecated		("Use with argument")
+    void		done()			{ done( Rejected ); }
+    mDeprecated		("Use with enum")
+    void		done( int i )		{ done( DoneResult(i) ); }
+    mDeprecated		("Use with enum")
+    static void		setTitlePos( int i )
+			{ setTitlePos( TitlePos(i+1) ); }
 
 };
-

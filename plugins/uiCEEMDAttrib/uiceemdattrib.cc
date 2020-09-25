@@ -56,23 +56,23 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 
     setHAlignObj( inpfld_ );
 
-    methodfld_ = new uiGenInput( this, "Method",
+    methodfld_ = new uiGenInput( this, tr("Method"),
 		StringListInpSpec(methodStr) );
     methodfld_->attach( alignedBelow, inpfld_ );
 
-    maximffld_ = new uiGenInput( this, "Maximum no. IMFs", IntInpSpec() );
+    maximffld_ = new uiGenInput( this, tr("Maximum no. IMFs"), IntInpSpec() );
     maximffld_->setElemSzPol(uiObject::Small);
     maximffld_->attach( alignedBelow, methodfld_ );
 
-    stopimffld_ = new uiGenInput( this, "IMF threshhold", FloatInpSpec() );
+    stopimffld_ = new uiGenInput( this, tr("IMF threshhold"), FloatInpSpec() );
     stopimffld_->setElemSzPol(uiObject::Small);
     stopimffld_->attach( rightOf, maximffld_ );
 
-    maxsiftfld_ = new uiGenInput( this, "Maximum no. Sifts", IntInpSpec() );
+    maxsiftfld_ = new uiGenInput( this, tr("Maximum no. Sifts"), IntInpSpec() );
     maxsiftfld_->setElemSzPol(uiObject::Small);
     maxsiftfld_->attach( alignedBelow, maximffld_ );
 
-    stopsiftfld_ = new uiGenInput( this, "Sift threshhold", FloatInpSpec() );
+    stopsiftfld_ = new uiGenInput( this, tr("Sift threshhold"), FloatInpSpec());
     stopsiftfld_->setElemSzPol(uiObject::Small);
     stopsiftfld_->attach( rightOf, maxsiftfld_ );
 
@@ -81,7 +81,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
     tfpanelbut_->attach( alignedBelow, maxsiftfld_ );
 
-    attriboutputfld_ = new uiGenInput( this, "Output",
+    attriboutputfld_ = new uiGenInput( this, uiStrings::sOutput(),
 		StringListInpSpec(attriboutputStr) );
     CallBack cboutsel = mCB(this, uiCEEMDAttrib, outSel);
     attriboutputfld_->valuechanged.notify(cboutsel);
@@ -98,7 +98,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 					mCB(this,uiCEEMDAttrib,stepChg));
     prevpar_.setEmpty();
 
-    outputcompfld_ = new uiGenInput( this, "Output IMF Component Nr.",
+    outputcompfld_ = new uiGenInput( this, tr("Output IMF Component Nr."),
 	IntInpSpec() );
     outputcompfld_->setElemSzPol(uiObject::Small);
     outputcompfld_->attach( alignedBelow, attriboutputfld_ );
@@ -248,7 +248,7 @@ void uiCEEMDAttrib::panelTFPush( CallBacker* cb )
 {
     if ( inpfld_->attribID() == DescID::undef() )
     {
-	uiMSG().error( "Please, first, fill in the Input Data field" );
+	uiMSG().error( tr("Please, first, fill in the Input Data field") );
 	return;
     }
 

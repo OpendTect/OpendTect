@@ -52,7 +52,7 @@ EMTracker::~EMTracker()
 
 
 BufferString EMTracker::objectName() const
-{ return emobject_ ? emobject_->name() : 0; }
+{ return emobject_ ? emobject_->name() : BufferString::empty(); }
 
 
 

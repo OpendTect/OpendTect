@@ -39,16 +39,35 @@ const WellDataIOProvider* WellDataIOProviderFactory::provider(
 Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
 	    Well::Data& wd, BufferString& e ) const
 {
+    uiString errmsg;
+    Well::ReadAccess* ret = getReadAccess( ioobj, wd, errmsg );
+    errmsg.getFullString( &e );
+    return ret;
+}
+
+
+Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
+	    Well::Data& wd, uiString& errmsg ) const
+{
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
-    return prov ? prov->makeReadAccess(ioobj,wd,e) : 0;
+    return prov ? prov->makeReadAccess(ioobj,wd,errmsg) : 0;
 }
 
 
 Well::WriteAccess* WellDataIOProviderFactory::getWriteAccess(
 	    const IOObj& ioobj, const Well::Data& wd, BufferString& e ) const
 {
+    uiString errmsg;
+    Well::WriteAccess* ret = getWriteAccess( ioobj, wd, errmsg );
+    errmsg.getFullString( &e );
+    return ret;
+}
+
+Well::WriteAccess* WellDataIOProviderFactory::getWriteAccess(
+	    const IOObj& ioobj, const Well::Data& wd, uiString& errmsg ) const
+{
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
-    return prov ? prov->makeWriteAccess(ioobj,wd,e) : 0;
+    return prov ? prov->makeWriteAccess(ioobj,wd,errmsg) : 0;
 }
 
 
@@ -59,11 +78,11 @@ public:
 			    : WellDataIOProvider("OpendTect")	{}
 
     Well::ReadAccess*	makeReadAccess( const IOObj& ioobj,
-				Well::Data& wd, BufferString& e ) const
-			{ return new Well::odReader(ioobj,wd,e); }
+				Well::Data& wd, uiString& errmsg ) const
+			{ return new Well::odReader(ioobj,wd,errmsg); }
     Well::WriteAccess*	makeWriteAccess( const IOObj& ioobj,
-				const Well::Data& wd, BufferString& e ) const
-			{ return new Well::odWriter(ioobj,wd,e); }
+				const Well::Data& wd, uiString& errmsg ) const
+			{ return new Well::odWriter(ioobj,wd,errmsg); }
 
     static int		factid_;
 };

@@ -402,11 +402,10 @@ void uiSeisBrowser::fillTable()
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
 	zvalstr.set( info.sd_.atIndex(idx)*zfac, nrdec );
-	tbl_->setRowLabel( idx, zvalstr );
-
-	BufferString tt;
-	tt.add( idx+1 ).add( getRankPostFix(idx+1) ).add( " sample at " )
-	  .add( zvalstr ).add( zunstr );
+	tbl_->setRowLabel( idx, toUiString(zvalstr) );
+	uiString tt;
+        tt = toUiString("%1%2 sample at %3").arg(idx+1)
+                    .arg(getRankPostFix(idx+1)).arg(zvalstr).withUnit(zunstr);
 	tbl_->setRowToolTip( idx, tt );
     }
 

@@ -21,7 +21,7 @@ class IOObj;
 template <class T> class ValueSeriesInterpolator;
 
 
-mExpClass(Seis) Wavelet : public NamedObject
+mExpClass(Seis) Wavelet : public NamedCallBacker
 { mODTextTranslationClass(Wavelet);
 public:
 			Wavelet(const char* nm=0);

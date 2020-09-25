@@ -900,12 +900,12 @@ void uiSEGYReadStarter::updateSurvMap()
 
     survinfo_ = survmap_->getEmptySurvInfo();
     survinfo_->setName( "No valid scan available" );
-    const char* stbarmsg = "";
+    uiString stbarmsg;
     if ( scaninfos_ && !scaninfos_->isEmpty() )
     {
 	Coord crd[3]; TrcKeyZSampling cs;
-	stbarmsg = scaninfos_->piDetector().getSurvInfo( cs.hsamp_, crd );
-	if ( !stbarmsg )
+	stbarmsg = scaninfos_->piDetector().getSurvInfoWithMsg( cs.hsamp_, crd);
+	if ( stbarmsg.isEmpty() )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
 	    survinfo_->setRange( cs, false );
@@ -914,18 +914,19 @@ void uiSEGYReadStarter::updateSurvMap()
 	    bid[0].crl() = cs.hsamp_.start_.crl();
 	    bid[1].inl() = cs.hsamp_.stop_.inl();
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
-	    stbarmsg = survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+	    stbarmsg = survinfo_->set3PtsWithMsg( crd, bid,
+						  cs.hsamp_.stop_.crl() );
 	}
-	if ( stbarmsg )
-	    survinfo_->setName( "<Inadequate data>" );
-	else
+	if ( stbarmsg.isEmpty() )
 	{
 	    survinfook_ = true;
 	    survinfo_->setName( "Resulting survey setup" );
 	}
+	else
+	    survinfo_->setName( "<Inadequate data>" );
     }
 
-    toStatusBar( mToUiStringTodo(stbarmsg) );
+    toStatusBar( stbarmsg );
     survmap_->setSurveyInfo( survinfo_ );
 }
 
@@ -973,7 +974,7 @@ bool uiSEGYReadStarter::getFileSpec()
 	    mErrRet(uiStrings::phrSpecify(tr(
 			    "the absolute file name when using a wildcard.")) )
 
-	DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
+	DirList dl( fp.pathOnly(), File::FilesInDir, fp.fileName() );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	    filespec_.fnames_.add( dl.fullPath(idx) );
 

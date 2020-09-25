@@ -31,12 +31,12 @@ public:
 
     virtual bool		canWrite() const	{ return false; }
 
-    virtual Well::ReadAccess*	makeReadAccess( const IOObj&, Well::Data&,
-						BufferString& ) const
+    virtual Well::ReadAccess*	makeReadAccess(const IOObj&,Well::Data&,
+					       uiString&) const
 				{ return 0; }
-    virtual Well::WriteAccess*	makeWriteAccess( const IOObj&,
-						 const Well::Data&,
-						 BufferString& ) const
+    virtual Well::WriteAccess*	makeWriteAccess(const IOObj&,
+						const Well::Data&,
+						uiString&) const
 				{ return 0; }
 
     const OD::String&		type() const		{ return type_; }
@@ -63,13 +63,22 @@ public:
     // Convenience functions
     const WellDataIOProvider*	provider(const char* typ) const;
     Well::ReadAccess*		getReadAccess(const IOObj&,Well::Data&,
-						BufferString&) const;
+					      uiString&) const;
     Well::WriteAccess*		getWriteAccess(const IOObj&,const Well::Data&,
-						BufferString&) const;
+					       uiString&) const;
 
 protected:
 
     ManagedObjectSet<WellDataIOProvider> provs_;
+
+public:
+    mDeprecated			("Use uiString")
+    Well::ReadAccess*		getReadAccess(const IOObj&,Well::Data&,
+						BufferString&) const;
+
+    mDeprecated			("Use uiString")
+    Well::WriteAccess*		getWriteAccess(const IOObj&,const Well::Data&,
+						BufferString&) const;
 
 };
 

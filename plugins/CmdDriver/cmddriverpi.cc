@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "cmddrivermod.h"
+
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uicmddrivermgr.h"
 #include "odplugin.h"
-#include "cmddrivermod.h"
-//#include "coincommands.h"
+#include "uistrings.h"
 
 
 namespace CmdDrive
@@ -55,7 +56,7 @@ mDefODInitPlugin(CmdDriver)
 
     mDefineStaticLocalObject( uiAction*, cmdmnuitm, = 0 );
     if ( cmdmnuitm ) return 0;
-    cmdmnuitm = new uiAction( "Command Driver ..." );
+    cmdmnuitm = new uiAction( m3Dots(uiCmdDriverMgr::usrDispNm()) );
 
     ODMainWin()->menuMgr().toolsMnu()->insertItem( cmdmnuitm );
     cmdmnuitm->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
@@ -64,7 +65,7 @@ mDefODInitPlugin(CmdDriver)
     initExtraFunctions();
     initExtraComposers();
 
-    return 0;
+    return nullptr;
 }
 
 } // namespace CmdDrive

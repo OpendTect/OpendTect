@@ -29,7 +29,7 @@ namespace MPE
 mExpClass(MPEEngine) FaultEditor : public ObjectEditor
 {
 public:
-    				FaultEditor(EM::Fault3D&);
+				FaultEditor(EM::Fault3D&);
 
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
@@ -42,7 +42,7 @@ public:
 
     void			setZScale(float);
     void			setScaleVector(const Coord3& v);
-    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     void			getInteractionInfo(bool& makenewstick,
 				    EM::PosID& insertpid,const Coord3& pos,
@@ -76,7 +76,7 @@ protected:
 
     int				getLastClickedStick() const;
 
-    void			cloneMovingNode();
+    void			cloneMovingNode(CallBacker*);
 
     Coord3			sowingpivot_;
     TypeSet<Coord3>		sowinghistory_;

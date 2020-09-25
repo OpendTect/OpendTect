@@ -198,7 +198,7 @@ Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 	    dims->crl() = getNextDim( startptr );
 	    dims->z() = getNextDim( startptr );
 	}
-	def_dims_.setIfNull( dims );
+	def_dims_.setIfNull( dims, true );
     }
     return *def_dims_;
 }

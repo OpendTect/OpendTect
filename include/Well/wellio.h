@@ -49,14 +49,14 @@ public:
     static const char*	getMainFileName(const IOObj&);
     static const char*	getMainFileName(const MultiID&);
 
-    const OD::String&	errMsg() const		{ return errmsg_; }
+    const uiString&	errMsg() const		{ return errmsg_; }
 
 protected:
 
 
-			odIO(const char*,BufferString&);
+			odIO(const char*,uiString&);
 
-    BufferString&	errmsg_;
+    uiString&		errmsg_;
     const BufferString	basenm_;
 
 public:

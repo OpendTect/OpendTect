@@ -273,7 +273,7 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 			       TypeSet<Coord3>& trackpos )
 {
     trackpos.erase();
-    setName(  mToUiStringTodo(wd->name()) );
+    setName(  wd->name() );
 
     if ( wd->track().size() < 1 )
 	return;
@@ -920,7 +920,7 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
-    setName( mToUiStringTodo(wd->name()) );
+    setName( wd->name() );
     if ( !pseudotrack_ )
 	return;
 

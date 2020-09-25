@@ -57,11 +57,14 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , issw_(false)
     , fileSelected(this)
 {
-    SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
+    SEGY::FileSpec spec;
+    if ( su.pars_ )
+	spec.usePar( *su.pars_ );
 
-    BufferString disptxt( forread_ ? "Input" : "Output" );
-    disptxt += " SEG-Y file";
-    if ( needmulti_ ) disptxt += "(s)";
+    uiString disptxt;
+    uiString filetym = needmulti_ ? tr("SEG-Y files") : tr("SEG-Y file");
+    disptxt = forread_ ? uiStrings::phrInput(filetym) :
+                                                uiStrings::phrOutput(filetym);
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.forread( forread_ ).filter( fileFilter() ).objtype( tr("SEG-Y") );
     fnmfld_ = new uiFileInput( this, disptxt, fisu );
@@ -288,7 +291,7 @@ void uiSEGYFileSpec::manipFile( CallBacker* )
 //--- uiSEGYFilePars ----
 
 
-static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
+static uiGenInput* mkOverruleFld( uiGroup* grp, const uiString& txt,
 				  const IOPar* iop, const char* key,
 				  bool isz, bool isint=false )
 {
@@ -305,8 +308,9 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     {
 	if ( !mIsUdf(val) && isz ) val *= SI().zDomain().userFactor();
 	FloatInpSpec fis( val );
-	BufferString fldtxt( txt );
-	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnitString(); }
+	uiString fldtxt( txt );
+	if ( isz )
+	    fldtxt.withSurvZUnit();
 	inp = new uiGenInput( grp, fldtxt, fis );
     }
 
@@ -321,10 +325,11 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
-      "open", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
+      "open", uiSEGYFilePars::sRetSavedGrp(), mCB(this,clss,readParsPush) );\
     rtb->attach( rightOf, sep ); \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-      "save", "Save setup", mCB(this,clss,writeParsPush) );\
+		  "save", uiStrings::phrSave(uiStrings::sSetup().toLower()), \
+		  mCB(this,clss,writeParsPush) );\
     stb->attach( alignedBelow, rtb ); \
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
@@ -344,7 +349,8 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
 
     uiGroup* grp = new uiGroup( this, "Main uiSEGYFilePars group" );
     if ( forread )
-	nrsamplesfld_ = mkOverruleFld( grp, "Overrule SEG-Y number of samples",
+	nrsamplesfld_ = mkOverruleFld( grp,
+				      tr("Overrule SEG-Y number of samples"),
 				      iop, FilePars::sKeyNrSamples(),
 				      false, true );
 
@@ -358,7 +364,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
 	int bs = 0;
 	if ( iop ) iop->get( FilePars::sKeyByteSwap(), bs );
 	const char* strs[] = { "No", "Only data", "All", "Only headers", 0 };
-	const char* txt = forread ? "Bytes swapped" : "Swap bytes";
+	const uiString txt = forread ? tr("Bytes swapped") : tr("Swap bytes");
 	byteswapfld_ = new uiGenInput( grp, txt, StringListInpSpec(strs) );
 	byteswapfld_->setValue( bs );
 	byteswapfld_->attach( alignedBelow, fmtfld_ );
@@ -470,10 +476,10 @@ uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
     const char* fldnm = ky;
     bytefld_ = new uiSpinBox( this, 0, BufferString(fldnm," value") );
     if ( !isopt )
-	new uiLabel( this, fldnm, bytefld_ );
+	new uiLabel( this, toUiString(fldnm), bytefld_ );
     else
     {
-	isselbox_ = new uiCheckBox( this, fldnm );
+	isselbox_ = new uiCheckBox( this, toUiString(fldnm) );
 	bytefld_->attach( rightOf, isselbox_ );
 	isselbox_->setChecked( true );
 	isselbox_->activated.notify( mCB(this,uiSEGYByteSpec,byteChck) );
@@ -483,7 +489,7 @@ uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
 
     if ( wsz )
     {
-	BoolInpSpec bszspec( !he_.issmall_, "4", "2" );
+	BoolInpSpec bszspec( !he_.issmall_, toUiString("4"), toUiString("2") );
 	issmallfld_ = new uiCheckBox( this, tr(" 2 bytes") );
 	issmallfld_->attach( rightOf, bytefld_ );
     }
@@ -605,7 +611,7 @@ bool getVals()
     mDefSaveRetrTBs(uiSEGYFileOpts,grp); \
 \
     uiToolButton* pstb = new uiToolButton( grp->attachObj()->parent(), \
-			     "prescan","Pre-scan the file(s)", \
+			     "prescan",sPreScanFiles(), \
 				    mCB(this,uiSEGYFileOpts,preScanPush) );\
     pstb->attach( alignedBelow, stb ); \
 \
@@ -821,13 +827,13 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    xcoorddeffld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_ = new uiGenInput( grp, tr("Coordinate source"),
 			     BoolInpSpec(false,tr("'Nr X Y' file"),
-					 tr("Generate")) );
+					 uiStrings::sGenerate()) );
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
-	    coordsfnmfld_ = new uiFileInput( grp, "Name",
+	    coordsfnmfld_ = new uiFileInput( grp, uiStrings::sName(),
 			uiFileInput::Setup(uiFileDialog::Gen)
-			.forread(forread_).objtype("Bend Points") );
+			.forread(forread_).objtype(tr("Bend Points")) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
 					    StringInpSpec("crd") );
@@ -903,15 +909,17 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar& iop )
     mDeclGroup( "Overrule group" );
 
     scalcofld_ = mkOverruleFld( grp,
-		    "Overrule SEG-Y coordinate scaling", &iop,
+		    tr("Overrule SEG-Y coordinate scaling"), &iop,
 		    FileReadOpts::sKeyCoordScale(), false );
-    BufferString overrulestr = "Overrule SEG-Y start ";
-    overrulestr += SI().zIsTime() ? "time" : "depth";
+    uiString overrulestr = tr("Overrule SEG-Y start %1",
+                                    "Overrule SEG-Y start time")
+                        .arg(SI().zIsTime() ? uiStrings::sTime().toLower() :
+                                        uiStrings::sDepth().toLower());
     timeshiftfld_ = mkOverruleFld( grp, overrulestr, &iop,
 			    FileReadOpts::sKeyTimeShift(),
 			    true );
     timeshiftfld_->attach( alignedBelow, scalcofld_ );
-    sampleratefld_ = mkOverruleFld( grp, "Overrule SEG-Y sample rate", &iop,
+    sampleratefld_ = mkOverruleFld( grp, tr("Overrule SEG-Y sample rate"), &iop,
 			    FileReadOpts::sKeySampleIntv(), true );
     sampleratefld_->attach( alignedBelow, timeshiftfld_ );
 

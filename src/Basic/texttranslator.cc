@@ -39,7 +39,7 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
     , localename_( localename )
 #endif
 {
-    translators_.allowNull( true );
+    translators_.setNullAllowed();
     const BufferString filename = BufferString()
 	.add(uiString::sODLocalizationApplication())
 	.add(TextTranslateMgr::cApplicationEnd())
@@ -122,7 +122,7 @@ bool TextTranslatorLanguage::load()
 
     FilePath basedir;
     TextTranslateMgr::GetLocalizationDir(basedir);
-    DirList dl( basedir.fullPath(), DirList::FilesOnly, filenamesearch.buf() );
+    DirList dl( basedir.fullPath(), File::FilesInDir, filenamesearch.buf() );
 
     for( int idx=0; idx<dl.size(); idx++ )
     {
@@ -173,15 +173,16 @@ mGlobal(Basic) TextTranslateMgr& TrMgr()
     {
 	if ( lock.convertToWriteLock() )
 	{
-	    TextTranslateMgr* newmgr = new TextTranslateMgr;
-	    if ( trmgr.setIfNull(newmgr) )
+	    if ( trmgr.setIfNull(new TextTranslateMgr,true) )
+	    {
+//		trmgr->reInit();
 		return *trmgr;
-	    else
-		delete newmgr;
+	    }
 	}
 
 	//Fallback, not thread safe
 	trmgr = new TextTranslateMgr;
+//	trmgr->reInit();
     }
     return *trmgr;
 }
@@ -352,7 +353,7 @@ void loadLocalization()
 {
     FilePath basedir;
     TextTranslateMgr::GetLocalizationDir( basedir );
-    DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
+    DirList dl( basedir.fullPath(), File::FilesInDir, "*.qm");
 
     QList<QLocale> allLocales = QLocale::matchingLocales(
             QLocale::AnyLanguage,

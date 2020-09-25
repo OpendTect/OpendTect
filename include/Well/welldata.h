@@ -39,12 +39,12 @@ class DisplayProperties;
 \brief Information about a certain well.
 */
 
-mExpClass(Well) Info : public ::NamedObject
+mExpClass(Well) Info : public NamedCallBacker
 { mODTextTranslationClass(Well::Info)
 public:
 
 			Info( const char* nm )
-			    : ::NamedObject(nm)
+			    : NamedCallBacker(nm)
 			    , replvel(Well::getDefaultVelocity())
 			    , groundelev(mUdf(float))
 			    , welltype_(None)
@@ -115,7 +115,7 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public NamedObject
+mExpClass(Well) Data : public NamedCallBacker
 { mRefCountImplWithDestructor(Data, virtual ~Data(),
 {prepareForDelete(); delete this; } );
 public:

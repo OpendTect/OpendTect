@@ -136,7 +136,7 @@ void uiStartBatchJobDialog::fillList( CallBacker* )
     NotifyStopper ns( jobsfld_->selectionChanged );
     jobsfld_->setEmpty();
     filenames_.setEmpty();
-    DirList dl( GetProcFileName(0), DirList::FilesOnly, "*.par" );
+    DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	filenames_.add( dl.fullPath(idx) );
@@ -150,7 +150,7 @@ void uiStartBatchJobDialog::fillList( CallBacker* )
     if ( !hasjobs )
 	return;
 
-    ns.enable();
+    ns.enableNotification();
     jobsfld_->setCurrentItem( 0 );
 }
 

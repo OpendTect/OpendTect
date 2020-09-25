@@ -72,7 +72,6 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 
 uiNLAPartServer::~uiNLAPartServer()
 {
-    deepErase( inpnms_ );
     delete uidps_;
     if ( dps_ )
 	mDPM.release( dps_->id() );

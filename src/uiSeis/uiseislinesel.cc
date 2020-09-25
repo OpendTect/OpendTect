@@ -282,7 +282,7 @@ void uiSeis2DLineSel::getSelGeomIDs( TypeSet<Pos::GeomID>& selids ) const
 
 void uiSeis2DLineSel::getSelLineNames( BufferStringSet& selnms ) const
 {
-    deepErase( selnms );
+    selnms.setEmpty();
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	selnms.add( lnms_.get(selidxs_[idx]) );
 }
@@ -414,8 +414,8 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
 
 void uiSeis2DLineSel::clearAll()
 {
-    deepErase( lnms_ );
-    geomids_.erase();
+    lnms_.setEmpty();
+    geomids_.setEmpty();
     clearSelection();
 }
 

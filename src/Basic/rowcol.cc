@@ -75,8 +75,7 @@ const TypeSet<RowCol>& RowCol::clockWiseSequence()
 	(*newclockwisedirs) += RowCol( 0, -1);
 	(*newclockwisedirs) += RowCol( -1,-1);
 
-	if ( !clockwisedirs_.setIfNull(newclockwisedirs) )
-	    delete newclockwisedirs;
+	clockwisedirs_.setIfNull(newclockwisedirs,true);
     }
 
     return *clockwisedirs_;

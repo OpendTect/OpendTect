@@ -30,7 +30,7 @@ DZT::FileHeader::FileHeader()
 }
 
 
-bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
+bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
 {
     // From 0, (u)shorts:
     mRdVal(tag); mRdVal(data); mRdVal(nsamp); mRdVal(bits); mRdVal(zero);
@@ -54,11 +54,23 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
     emsg.setEmpty();
 #define mRetFalse nsamp = 0; return false
     if ( nsamp < 1 )
-	{ emsg = "Zero Nr of samples found."; mRetFalse; }
+    {
+	emsg = od_static_tr("getFrom","Zero Nr of samples found.");
+	mRetFalse;
+    }
     if ( range < 1 )
-	{ emsg = "Zero trace length found."; mRetFalse; }
+    {
+	emsg = od_static_tr("getFrom", "Zero trace length found.");
+	mRetFalse;
+    }
     if ( data < 128 )
-	{ emsg.add("Invalid data offset found: ").add(data); mRetFalse; }
+    {
+	uiString invaliddataphr = od_static_tr("getFrom",
+		"Invalid data offset found: %1").arg(data);
+	emsg.appendPhrase( invaliddataphr, uiString::Space,
+		uiString::OnSameLine);
+	mRetFalse;
+    }
 
     // dtype cannot be trusted, it seems
     if ( bits < 32 )
@@ -71,7 +83,10 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 
     strm.setReadPosition( data, od_stream::Abs );
     if ( !strm.isOK() )
-	{ emsg = "Cannot read first trace."; mRetFalse; }
+    {
+	emsg = uiStrings::phrCannotRead(od_static_tr("getFrom",
+							    "first trace."));
+    }
 
     return true;
 }
@@ -104,7 +119,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     if ( !istream_.isOK() )
 	return;
 
-    BufferString msg;
+    uiString msg;
     if ( !fh_.getFrom( istream_, msg ) )
     {
 	msg_ = msg;

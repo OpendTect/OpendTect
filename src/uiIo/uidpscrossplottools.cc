@@ -155,12 +155,12 @@ double SelectionArea::minDisToBorder( uiPoint pt ) const
     {
 	const int min_dist_vert_lines =
 	    (pt.x-rect_.left()) < (rect_.right()-pt.x) ? pt.x-rect_.left()
-	    					       : rect_.right()-pt.x;
+						       : rect_.right()-pt.x;
 	const int min_dist_hor_lines =
 	    (pt.y-rect_.top()) < (rect_.bottom()-pt.y) ? pt.y-rect_.top()
-	    					       : rect_.bottom()-pt.y;
+						       : rect_.bottom()-pt.y;
 	return min_dist_vert_lines > min_dist_hor_lines ? min_dist_hor_lines
-	    						: min_dist_vert_lines;
+							: min_dist_vert_lines;
     }
 
     return poly_.distTo( pt );
@@ -297,7 +297,7 @@ void SelectionGrp::fillPar( IOPar& par ) const
 
 void SelectionGrp::usePar( const IOPar& par )
 {
-    if ( !par.get(sKey::Name(),*name_) || !par.get(sKey::Color(),col_) )
+    if ( !par.get(sKey::Name(),name_) || !par.get(sKey::Color(),col_) )
 	return;
 
     int nrselareas = 0;
@@ -346,7 +346,7 @@ void SelectionGrp::usePar( const IOPar& par )
 
 	    bool hasalt = false;
 	    while ( par.find(IOPar::compKey(polygonstr.buf(),
-			    		    positionstr.buf())) )
+					    positionstr.buf())) )
 	    {
 		TypeSet<double> pt;
 		par.get( IOPar::compKey(polygonstr,positionstr), pt );

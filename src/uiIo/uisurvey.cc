@@ -94,8 +94,7 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 		od_static_tr("getUtils","Copy Survey Information to Clipboard"),
 		CallBack() );
 
-	if ( !utils.setIfNull(newutils) )
-	    delete newutils;
+	utils.setIfNull(newutils,true);
 
     }
     return *utils;
@@ -519,7 +518,7 @@ uiSurvey::~uiSurvey()
 }
 
 
-static void osrbuttonCB( void* )
+static void osrbuttonCB( CallBacker* )
 {
     uiDesktopServices::openUrl( "https://opendtect.org/osr" );
 }
@@ -642,7 +641,7 @@ void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
 
-    DirList dl( basedir, DirList::DirsOnly );
+    DirList dl( basedir, File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& dirnm = dl.get( idx );
@@ -668,7 +667,7 @@ void uiSurvey::updateSurveyNames()
     BufferString basedir = dataroot_;
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
-    DirList dl( basedir, DirList::DirsOnly );
+    DirList dl( basedir, File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& dirnm = dl.get( idx );

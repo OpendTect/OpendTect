@@ -48,7 +48,7 @@ ColTab::Sequence::Sequence()
 
 
 ColTab::Sequence::Sequence( const char* nm )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , mInitStdMembs(Color::LightGrey(),Color::DgbColor())
     , nrsegments_( 0 )
     , colorChanged(this)
@@ -65,7 +65,7 @@ ColTab::Sequence::Sequence( const char* nm )
 
 
 ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
-    : NamedObject(ctab)
+    : NamedCallBacker(ctab)
     , r_(ctab.r_)
     , g_(ctab.g_)
     , b_(ctab.b_)

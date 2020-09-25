@@ -53,7 +53,7 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Contour")
+    : uiGMTOverlayGrp(p,uiStrings::sContour())
     , sd_(*new EM::SurfaceIOData)
     , hor_(0)
     , lsfld_(0)
@@ -78,20 +78,20 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     rgfld_->attach( alignedBelow, lcb );
 
     nrcontourfld_ = new uiGenInput( this, tr("Number of contours"),
-	    			    IntInpSpec() );
+				    IntInpSpec() );
     nrcontourfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     nrcontourfld_->attach( alignedBelow, rgfld_ );
 
     resetbut_ = new uiPushButton( this, tr("Reset range"),
-	    			  mCB(this,uiGMTContourGrp,resetCB), false );
+				  mCB(this,uiGMTContourGrp,resetCB), false );
     resetbut_->attach( rightTo, nrcontourfld_ );
     resetbut_->setSensitive( false );
 
     linefld_ = new uiCheckBox( this, tr("Draw contour lines"),
-	   		       mCB(this,uiGMTContourGrp,drawSel) );
+			       mCB(this,uiGMTContourGrp,drawSel) );
     linefld_->setChecked( true );
     fillfld_ = new uiCheckBox( this, tr("Fill Color"),
-	    		       mCB(this,uiGMTContourGrp,drawSel) );
+			       mCB(this,uiGMTContourGrp,drawSel) );
     fillfld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->attach( leftOf, fillfld_ );
 
@@ -284,7 +284,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     {
 	const EM::PosID posid( hor_->id(), sid, bid.toInt64() );
 	const float val = isz ? (float) hor_->getPos( posid ).z
-	    		      : hor_->auxdata.getAuxDataVal( dataidx, posid );
+			      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )
 	    rg.include( val, false );
     }
@@ -317,7 +317,7 @@ bool uiGMTContourGrp::loadHor()
     if ( id < 0 || !EM::EMM().getObject(id)->isFullyLoaded() )
     {
 	PtrMan<EM::SurfaceIODataSelection> sel =
-	    				new EM::SurfaceIODataSelection( sd_ );
+					new EM::SurfaceIODataSelection( sd_ );
 	PtrMan<Executor> exec = EM::EMM().objectLoader( ioobj->key(), sel );
 	if ( !exec )
 	    return false;

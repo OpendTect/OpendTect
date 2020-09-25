@@ -71,7 +71,7 @@ void BatchProgram::deleteInstance( int retcode )
 
 
 BatchProgram::BatchProgram()
-    : NamedObject("")
+    : NamedCallBacker("")
     , iopar_(new IOPar)
     , programStarted(this)
     , startDoWork(this)
@@ -155,10 +155,7 @@ void BatchProgram::init()
     clparser_->getVal( sKeyJobID(), jobid_ );
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
-    {
 	comm_ = new JobCommunic( masterhost, masterport, jobid_ );
-	Threads::WorkManager::twm().setQuickStop( true );
-    }
 
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );

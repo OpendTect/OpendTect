@@ -31,7 +31,7 @@ class WriteAccess;
  */
 
 mExpClass(Well) Writer
-{
+{ mODTextTranslationClass(Well::Writer);
 public:
 
 			Writer(const MultiID&,const Data&);
@@ -49,7 +49,7 @@ public:
     bool		putDispProps() const;	//!< Write display pars only
     bool		putLog(const Log&) const;
 
-    const OD::String&	errMsg() const		{ return errmsg_; }
+    const uiString&	errMsg() const		{ return errmsg_; }
 
     bool		isFunctional() const;
 
@@ -59,7 +59,7 @@ public:
 protected:
 
     WriteAccess*	wa_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     bool		putTrack() const;
 

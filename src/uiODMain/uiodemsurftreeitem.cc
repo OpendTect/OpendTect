@@ -316,8 +316,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	MultiID storedmid;
 	ems->storeObject( emid_, true, storedmid,
 		(float) visserv_->getTranslation(displayID()).z);
-	applMgr()->visServer()->setObjectName( displayid_,
-	    ems->getUiName(emid_) );
+	applMgr()->visServer()->setUiObjectName( displayid_,
+						 ems->getUiName(emid_) );
 
 	const MultiID midintree = ems->getStorageID(emid_);
 	EM::EMM().getObject(emid_)->setMultiID( storedmid );
@@ -374,12 +374,11 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !horizon ) return;
 
-    const uiString scenenm = tr("Flattened on '%1'").arg( horizon->uiName() );
-
+	const uiString scenenm = tr("Flattened on '%1'").arg( horizon->name() );
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();
-    ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
+	ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
     }
 }
 
@@ -461,8 +460,8 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
-    applMgr()->visServer()->setObjectName( displayid_,
-					   ems->getUiName(emid_) );
+    applMgr()->visServer()->setUiObjectName( displayid_,
+					     ems->getUiName(emid_) );
     const MultiID mid = ems->getStorageID(emid_);
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );

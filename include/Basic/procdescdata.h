@@ -53,7 +53,6 @@ namespace ProcDesc
 	void			setPath(const BufferString&);
 	DataEntry::ActionType	getActionType();
 
-	const DataEntry*	get(const char*);
 	void			getProcData(BufferStringSet&,uiStringSet&,
 					const DataEntry::Type,
 					const DataEntry::ActionType acttyp);

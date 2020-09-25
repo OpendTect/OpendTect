@@ -62,7 +62,7 @@ public:
     static DataPack::ID		createDataPackForZSlice(const BinIDValueSet*,
 						const TrcKeyZSampling&,
 						const ZDomain::Info&,
-						const BufferStringSet& nms=0);
+					    const BufferStringSet* nms=nullptr);
 				/*!< Creates RegularSeisDataPack from
 				BinIDValueSet for z-slices in z-axis transformed
 				domain. nrComponents() in the created datapack

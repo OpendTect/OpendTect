@@ -247,9 +247,7 @@ const char* GetOSIdentifier()
 	tmp->set( "Unknown Linux");
 #endif
 
-    if ( !ret.setIfNull(tmp) )
-	delete tmp;
-
+    ret.setIfNull( tmp, true );
     return ret->buf();
 }
 

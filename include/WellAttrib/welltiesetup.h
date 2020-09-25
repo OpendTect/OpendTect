@@ -87,7 +87,7 @@ public:
 mExpClass(WellAttrib) IO : public Well::odIO
 {
 public:
-				IO( const char* f, BufferString& errmsg )
+				IO( const char* f, uiString& errmsg )
 				: Well::odIO(f,errmsg)	{}
 
     static const char*		sKeyWellTieSetup();
@@ -107,7 +107,7 @@ public:
 
 protected:
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     bool			putIOPar(const IOPar&,const char*,
 					 od_ostream&) const;
@@ -128,7 +128,7 @@ public:
 
 protected:
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     IOPar*			getIOPar(const char*,od_istream&) const;
 

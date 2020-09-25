@@ -93,8 +93,7 @@ Setup& Setup::defaults()
 	Setup* newret = new Setup;
 	newret->usePar( setts );
 
-	if ( !ret.setIfNull(newret) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
 
     return *ret;

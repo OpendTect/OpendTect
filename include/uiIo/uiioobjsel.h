@@ -41,8 +41,8 @@ public:
     mExpClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
-			Setup(const uiString& seltext=uiString::emptyString())
-			    : uiIOSelect::Setup(seltext)
+			Setup(const uiString& seltxt=uiString::empty())
+			    : uiIOSelect::Setup(seltxt)
 			    , confirmoverwr_(true)
 			    , withinserters_(true)
 			    , withwriteopts_(true)
@@ -52,10 +52,14 @@ public:
 	mDefSetupMemb(bool,withinserters) //!< only if forread
 	mDefSetupMemb(bool,withwriteopts) //!< only if !forread
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
+
+	mDeprecated	("Use uiString" )
+			Setup( const char * txt )
+			  : Setup(toUiString(txt))		{}
     };
 
 			uiIOObjSel(uiParent*,const IOObjContext&,
-			       const uiString& seltxt=uiString::emptyString());
+			       const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiIOObjSel();
 
@@ -138,7 +142,7 @@ default).
 */
 
 			uiIOObjSel(uiParent*,CtxtIOObj&,
-				const uiString& seltxt=uiString::emptyString());
+				const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
     bool		commitInput();
     bool		doCommitInput(bool&);

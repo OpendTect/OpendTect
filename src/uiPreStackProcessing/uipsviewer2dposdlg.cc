@@ -41,7 +41,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     , is2d_(is2d)
 {
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
-	cs.defaultDir()==TrcKeyZSampling::Inl ? uiSliceSel::Inl 
+	cs.defaultDir()==TrcKeyZSampling::Inl ? uiSliceSel::Inl
 					      : uiSliceSel::Crl;
     setCtrlStyle( RunAndClose );
 
@@ -152,7 +152,7 @@ void uiGatherPosSliceSel::reDoTable()
 	    posseltbl_->clearCellObject( RowCol(row,col) );
     }
 
-    posseltbl_->setColumnLabels( gathernms_ );
+    posseltbl_->setColumnLabels( gathernms_.getUiStringSet() );
     StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
 					      : tkzs_.hsamp_.inlRange();
     trcrg.step = stepfld_->box()->getIntValue();
@@ -160,7 +160,7 @@ void uiGatherPosSliceSel::reDoTable()
     posseltbl_->setNrRows( nrrows );
 
     uiString lbl = tr("%1 Nr").arg(issynthetic_ ? tr("Model")
-			      : is2d_ ? uiStrings::sTrace() : isinl_ ? 
+			      : is2d_ ? uiStrings::sTrace() : isinl_ ?
 			      uiStrings::sCrossline() : uiStrings::sInline() );
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {

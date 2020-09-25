@@ -24,7 +24,7 @@ namespace Geometry
 {
 
 RandomLine::RandomLine( const char* nm )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , nameChanged(this)
     , nodeChanged(this)
     , zrangeChanged(this)

@@ -325,7 +325,7 @@ void uiCopyFaultSet::inpSelCB( CallBacker* )
 	return;
 
     surflist_->setEmpty();
-    DirList dl( selobj->fullUserExpr(), DirList::FilesOnly, "*.flt" );
+    DirList dl( selobj->fullUserExpr(), File::FilesInDir, "*.flt" );
     if ( dl.isEmpty() )
 	return;
 

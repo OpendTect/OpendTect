@@ -22,15 +22,16 @@ namespace visSurvey { class FaultDisplay; }
 
 mExpClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
 { mODTextTranslationClass(uiFaultDisplayOptGrp);
-public: 
-    		 		uiFaultDisplayOptGrp(uiParent*,
+public:
+		 		uiFaultDisplayOptGrp(uiParent*,
 						     visSurvey::FaultDisplay*);
     bool			acceptOK();
 
 protected:
 
-    bool			applyCB(CallBacker*);
+    void			applyCB(CallBacker*);
     void			algChg(CallBacker*);
+    bool			apply();
 
     uiGenInput*			algfld_;
     uiPushButton*		applybut_;

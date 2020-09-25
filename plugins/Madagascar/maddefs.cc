@@ -100,7 +100,7 @@ ProgInfoScanner( ODMad::ProgInfo& pi )
     pi_.scanned_ = true;
     if ( !pi_.errmsg_.isEmpty() ) return;
 
-    dl_ = new DirList( pi_.defdir_, DirList::FilesOnly, "*.txt" );
+    dl_ = new DirList( pi_.defdir_, File::FilesInDir, "*.txt" );
     totnr_ = dl_->size();
     if ( totnr_ < 1 )
     {
@@ -239,14 +239,14 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 	{
 	    strm.getLine( line );
 	    groups_.addIfNew( line );
-	    def->group_ = find( groups_, line );
+	    def->group_ = find( groups_.getStringSet(), line );
 	}
     }
 
     if ( !def->group_ )
     {
 	groups_.addIfNew( "<unknown>" );
-	def->group_ = find( groups_, "<unknown>" );
+	def->group_ = find( groups_.getStringSet(), "<unknown>" );
     }
 
     defs_ += def;

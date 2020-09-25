@@ -466,7 +466,7 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
 void uiODSceneTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cNameColumn() )
-	name_ = applMgr()->visServer()->getObjectName( displayid_ );
+	name_ = applMgr()->visServer()->getUiObjectName( displayid_ );
 
     uiTreeItem::updateColumnText( col );
 }

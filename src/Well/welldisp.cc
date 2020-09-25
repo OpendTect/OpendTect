@@ -103,7 +103,7 @@ Well::DisplayProperties& Well::DisplayProperties::operator = (
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	    *logs_[idx] = *dp.logs_[idx];
 
-    deepCopy( markers_.selmarkernms_, dp.markers_.selmarkernms_ );
+    markers_.selmarkernms_ = dp.markers_.selmarkernms_;
     return *this;
 
 }
@@ -400,8 +400,7 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 	Well::DisplayProperties* newret = new DisplayProperties;
 	newret->usePar( setts );
 
-	if ( !ret.setIfNull(newret) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
 
     return *ret;

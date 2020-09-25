@@ -72,7 +72,6 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     OD::LineStyle stickls( OD::LineStyle::Solid, 3 );
     stickdrawstyle_->setLineStyle( stickls );
     addChild( sticks_->osgNode() );
-    sticks_->setName( uiStrings::sFaultStickSet() );
 
     activestick_->ref();
     activestickdrawstyle_ = activestick_->addNodeState(new visBase::DrawStyle);
@@ -198,7 +197,10 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     fault_->ref();
 
     if ( !emfss->name().isEmpty() )
-	setName( emfss->uiName() );
+    {
+	setName( emfss->name() );
+	sticks_->setName( emfss->name() );
+    }
 
     hideallknots_ = !fault_->isEmpty();
 

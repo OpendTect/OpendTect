@@ -37,7 +37,7 @@ mUseQtnamespace
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
 			    uiObjectBody& mngbdy )
     : QLayout(parnt)
-    , NamedObject(nm)
+    , NamedCallBacker(nm)
     , minimumdone_(false), preferreddone_(false), ismain_(false)
     , prefposstored_(false)
     , managedbody_(mngbdy), hspacing_(-1), borderspc_(0)
@@ -60,6 +60,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
 
 i_LayoutMngr::~i_LayoutMngr()
 {
+    detachAllNotifiers();
     delete &poptimer_;
 }
 
@@ -68,7 +69,7 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 {
     if ( !itm ) return;
 
-    itm->deleteNotify( mCB(this,i_LayoutMngr,itemDel) );
+    mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
     childrenlist_ += itm;
 }
 

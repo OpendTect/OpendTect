@@ -107,7 +107,7 @@ void uiSeisWaveletSel::setInput( const MultiID& mid )
 }
 
 
-const char* uiSeisWaveletSel::getName() const
+BufferString uiSeisWaveletSel::getName() const
 {
     return nmfld_->text();
 }

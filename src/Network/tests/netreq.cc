@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 #include "oscommand.h"
-#include "ptrman.h"
 #include "sighndl.h"
 #include "string.h"
 #include "testprog.h"
@@ -42,7 +41,7 @@ public:
     ~Tester()
     {
 	detachAllNotifiers();
-	CallBack::removeFromMainThread( this );
+	CallBack::removeFromThreadCalls( this );
     }
 
     void runEventLoopTest(CallBacker*)
@@ -57,20 +56,20 @@ public:
 	Network::RequestConnection conn( authority_, multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 	conn_ = &conn;
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 
-	PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;
+	RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
 	BufferString sentmessage = "Hello World";
 	packet->setIsNewRequest();
 	packet->setStringPayload( sentmessage );
 
 	mRunStandardTestWithError( conn.sendPacket( *packet ),
 	      packetString( prefix_, "Sending", packet ),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 
-	PtrMan<Network::RequestPacket> largepacket = new Network::RequestPacket;
+	RefMan<Network::RequestPacket> largepacket = new Network::RequestPacket;
 	largepacket->setIsNewRequest();
 	mAllocLargeVarLenArr( char, payload, mLargePayload+1 );
 	memset( payload, ' ', mLargePayload );
@@ -80,9 +79,9 @@ public:
 
 	mRunStandardTestWithError( conn.sendPacket( *largepacket ),
 	      packetString( prefix_, "Sending large packet", largepacket ),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 
-	PtrMan<Network::RequestPacket> packet2 = new Network::RequestPacket;
+	RefMan<Network::RequestPacket> packet2 = new Network::RequestPacket;
 	packet2->setRequestID( packet->requestID() );
 	packet2->setSubID( 1 );
 	BufferString sentmessage2 = "Peace on Earth!";
@@ -90,14 +89,14 @@ public:
 
 	mRunStandardTestWithError( conn.sendPacket( *packet2 ),
 	  packetString( prefix_, "Sending", packet2 ),
-	  conn.errMsg().getFullString() );
+	  toString(conn.errMsg()) );
 
-	PtrMan<Network::RequestPacket> receivedpacket = 0;
+	RefMan<Network::RequestPacket> receivedpacket = 0;
 
 	mRunStandardTestWithError(
 	    receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
 	    packetString( prefix_, "Receiving", packet ),
-	    conn.errMsg().getFullString() );
+	    toString(conn.errMsg()) );
 
 	BufferString receivedmessage1;
 	receivedpacket->getStringPayload( receivedmessage1 );
@@ -109,7 +108,7 @@ public:
 	mRunStandardTestWithError(
 		 receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
 		 packetString( prefix_, "Receiving", packet2 ),
-		 conn.errMsg().getFullString() );
+		 toString(conn.errMsg()) );
 
 	BufferString receivedmessage2;
 	receivedpacket->getStringPayload( receivedmessage2 );
@@ -121,7 +120,7 @@ public:
 	mRunStandardTestWithError(
 	    receivedpacket=conn.pickupPacket( largepacket->requestID(), 20000 ),
 	    packetString( prefix_, "Receiving large", largepacket ),
-	    conn.errMsg().getFullString() );
+	    toString(conn.errMsg()) );
 
 	BufferString receivedlongmessage;
 	receivedpacket->getStringPayload( receivedlongmessage );
@@ -144,16 +143,16 @@ public:
 					      multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 
-	    PtrMan<Network::RequestPacket> disconnectpacket =
+	    RefMan<Network::RequestPacket> disconnectpacket =
 						new Network::RequestPacket;
 	    disconnectpacket->setIsNewRequest();
 	    disconnectpacket->setStringPayload( "Disconnect" );
 
 	    mRunStandardTestWithError( conn2.sendPacket( *disconnectpacket ),
 	      packetString( prefix_, "Sending disconnect", disconnectpacket ),
-	      conn2.errMsg().getFullString() );
+	      toString(conn2.errMsg()) );
 
 	    int errorcode = 0;
 	    mRunStandardTest(
@@ -169,14 +168,14 @@ public:
 
 	if ( sendkill )
 	{
-	    PtrMan<Network::RequestPacket> killpacket =
+	    RefMan<Network::RequestPacket> killpacket =
 						new Network::RequestPacket;
 	    killpacket->setStringPayload( Network::Server::sKeyKillword() );
 	    killpacket->setIsNewRequest();
 
 	    mRunStandardTestWithError( conn.sendPacket( *killpacket ),
 			  BufferString( prefix_, "Sending kill packet"),
-			   conn.errMsg().getFullString() );
+			   toString(conn.errMsg()) );
 	}
 
 	return true;
@@ -187,7 +186,7 @@ public:
     {
 	mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
 	mDynamicCastGet(Network::RequestConnection*, conn, cber );
-	PtrMan<Network::RequestPacket> packet = conn->getNextExternalPacket();
+	RefMan<Network::RequestPacket> packet = conn->getNextExternalPacket();
 	if ( packet )
 	{
 	    Threads::MutexLocker locker( condvar_ );
@@ -200,7 +199,8 @@ public:
     bool sendPacketInOtherThread()
     {
 	sendres_ = false;
-	Threads::Thread thread( mCB(this,Tester,threadSend) );
+	Threads::Thread thread( mCB(this,Tester,threadSend),
+				"threadSend thread" );
 	thread.waitForFinish();
 	return sendres_;
     }
@@ -212,7 +212,7 @@ public:
 
     bool sendMessageInThread()
     {
-	PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;
+	RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
 	BufferString sentmessage = "Hello World";
 	packet->setIsNewRequest();
 	packet->setStringPayload( sentmessage );
@@ -220,14 +220,14 @@ public:
 	mRunStandardTestWithError(
 	      conn_->sendPacket( *packet )==conn_->isMultiThreaded(),
 	      packetString( prefix_, "Sending from other thread", packet ),
-	      conn_->errMsg().getFullString() );
+	      toString(conn_->errMsg()) );
 
-	PtrMan<Network::RequestPacket> receivedpacket =
+	RefMan<Network::RequestPacket> receivedpacket =
 	    conn_->pickupPacket( packet->requestID(), 20000 );
 	mRunStandardTestWithError(
 	    ((bool) receivedpacket)==conn_->isMultiThreaded(),
 	    packetString( prefix_, "Receiving from other thread", packet ),
-	    conn_->errMsg().getFullString() );
+	    toString(conn_->errMsg()) );
 
 	if ( receivedpacket )
 	{

@@ -244,8 +244,8 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
     else
     {
 	Survey::Geometry::ID gid = trckey.geomID();
-	RefMan<const Survey::Geometry> keysurv = Survey::GM().getGeometry(gid);
-
+	ConstRefMan<Survey::Geometry> keysurv =
+					    Survey::GM().getGeometry( gid );
 	if ( !keysurv )
 	    return false;
 
@@ -257,8 +257,8 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	{
 	    const Survey::Geometry::ID horgid =
 		TrcKey(horizon_->getSurveyID(),BinID(-1,-1)).geomID();
-	    RefMan<const Survey::Geometry> horsurv =
-		Survey::GM().getGeometry( horgid );
+	    ConstRefMan<Survey::Geometry> horsurv =
+					    Survey::GM().getGeometry( horgid );
 	    hortrckey = horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
 	}
 	else if ( hor2d )
@@ -266,7 +266,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	    float bestdist2 = mUdf(float);
 	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
 	    {
-		RefMan<const Survey::Geometry> horsurv =
+		ConstRefMan<Survey::Geometry> horsurv =
 		    Survey::GM().getGeometry( hor2d->geometry().geomID(idx) );
 		if ( !horsurv ) continue;
 

@@ -24,16 +24,17 @@ namespace visSurvey { class PolygonBodyDisplay; };
 mExpClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
 { mODTextTranslationClass(uiVisPolygonSurfBezierDlg);
 public:
-    					uiVisPolygonSurfBezierDlg(uiParent*,
+					uiVisPolygonSurfBezierDlg(uiParent*,
 						visSurvey::PolygonBodyDisplay*);
     bool				acceptOK();
 protected:
-    bool				applyCB(CallBacker*);
+    void				applyCB(CallBacker*);
+    bool				apply();
 
     visSurvey::PolygonBodyDisplay*	plg_;
     Geometry::PolygonSurface*		surf_;
 
-    uiGenInput*         		bezierfld_;
+    uiGenInput*		bezierfld_;
     uiPushButton*			applybut_;
 };
 

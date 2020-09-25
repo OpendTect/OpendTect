@@ -45,10 +45,9 @@ mExpClass(Network) Socket : public CallBacker
 { mODTextTranslationClass(Socket);
 
 public:
-		Socket(bool haveeventloop=true);
-		Socket(bool islocal,bool haveeventloop);
-		Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
-		Socket(mQtclass(QLocalSocket)*,bool haveeventloop=true);
+		Socket(bool islocal,bool haveeventloop=true);
+    explicit	Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
+    explicit	Socket(mQtclass(QLocalSocket)*,bool haveeventloop=true);
 		~Socket();
 
     void	setTimeout(int ms) { timeout_ = ms; }
@@ -63,7 +62,7 @@ public:
     od_int64	bytesAvailable() const;
     uiString	errMsg() const	{ return errmsg_; }
     void	abort();	//!<Just stops all pending operations.
-    bool	isLocal() const;
+    bool	isLocal() const { return qlocalsocket_;  }
 
     bool	writeChar(char);
     bool	writeShort(short);
@@ -105,8 +104,10 @@ public:
     Notifier<Socket> readyRead;    /*!<Note that object may or may not be
 				      locked, so you may not be able to
 				      read immediately */
+    Notifier<Socket> error;
 
-    const void*			thread() const { return thread_; }
+
+    Threads::ThreadID		thread() const { return thread_; }
 
     mQtclass(QObject)*		qSocket();
 private:
@@ -122,21 +123,20 @@ private:
     QString			getSocketErrMsg() const;
     mutable Threads::Lock	lock_;
 
-    int				timeout_;
+    int				timeout_ = 30000;
     bool			noeventloop_;
 
-    mQtclass(QTcpSocket)*	qtcpsocket_;
+    mQtclass(QTcpSocket)*	qtcpsocket_   = nullptr;
+    mQtclass(QLocalSocket)*	qlocalsocket_ = nullptr;
     bool			ownssocket_;
 
     mQtclass(QTcpSocketComm)*	socketcomm_;
 
-    uiString			readErrMsg() const;
-    uiString			noConnErrMsg() const;
+    uiString		       readErrMsg() const;
+    uiString		       noConnErrMsg() const;
 
-    const void*			thread_;
+    const Threads::ThreadID	thread_;
 };
 
 
 } // namespace Network
-
-

@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "file.h"
 #include "bufstringset.h"
 
 
@@ -23,24 +24,31 @@ mExpClass(Basic) DirList : public BufferStringSet
 {
 public:
 
-    enum Type		{ AllEntries, FilesOnly, DirsOnly };
+    typedef File::DirListType	DLType;
 
-			DirList(const char*,Type t=AllEntries,
+			DirList(const char*,DLType t=File::AllEntriesInDir,
 				const char* msk=0);
 				/*!< msk can be a glob expression */
 
     void		update();
 
-    Type		type() const		{ return type_; }
+    DLType		type() const		{ return type_; }
     const char*		dirName() const		{ return dir_; }
     const char*		dirMask() const		{ return mask_; }
     const char*		fullPath(int) const;
 
+    BufferString&	dir()	{ return dir_; }
+
 private:
 
-    Type		type_;
+    DLType		type_;
     BufferString	dir_;
     BufferString	mask_;
+
+public:
+
+    enum		Type { AllEntries, FilesOnly, DirsOnly };
+    mDeprecatedDef	DirList(const char*,Type,const char* msk=0);
 
 };
 

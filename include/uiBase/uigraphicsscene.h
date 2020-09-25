@@ -35,7 +35,7 @@ class uiPolyLineItem;
 class uiRectItem;
 class uiObjectItem;
 
-mExpClass(uiBase) uiGraphicsScene : public NamedObject
+mExpClass(uiBase) uiGraphicsScene : public NamedCallBacker
 {
 public:
 				uiGraphicsScene(const char*);

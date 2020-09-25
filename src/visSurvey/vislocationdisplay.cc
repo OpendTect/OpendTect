@@ -114,7 +114,7 @@ void LocationDisplay::setSet( Pick::Set* ps )
     }
 
     set_ = ps;
-    setName( mToUiStringTodo(set_->name()) );
+    setName( set_->name() );
 
     if ( picksetmgr_ )
     {
@@ -785,9 +785,8 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = set_ && set_->isPolygon() ? "Polygon: " : "PointSet: ";
-    str += mFromUiStringTodo(name());
-    return str;
+    return BufferString( set_->isPolygon() ? "Polygon: " : "PointSet: ",
+			 getName() );
 }
 
 
@@ -1034,7 +1033,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 	    PickSetTranslator::retrieve( *newps, ioobj, true, bs );
 
 	if ( !newps->name() || !*newps->name() )
-	    newps->setName( mFromUiStringTodo(name()) );
+	    newps->setName( getName() );
 
 	newps->disp_.markertype_ = markertype;
 	newps->disp_.pixsize_ = pixsize;

@@ -117,7 +117,6 @@ void uiCrossAttrEvaluateDlg::doFinalise( CallBacker* )
 uiCrossAttrEvaluateDlg::~uiCrossAttrEvaluateDlg()
 {
     delete &attrset_;
-    deepErase( lbls_ );
 }
 
 

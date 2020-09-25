@@ -39,7 +39,7 @@ class PlaneDraggerCallbackHandler : public osgManipulator::DraggerCallback
 
 public:
 
-    PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )  
+    PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )
 	: dragger_(dragger)
 	, moved_(false)
 	, dodragcontrol_(false)
@@ -420,8 +420,8 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 {
     const float abs = scale.abs();
     Coord3 newscale( scale[0] ? scale[0] : abs,
-    		     scale[1] ? scale[1] : abs,
-    		     scale[2] ? scale[2] : abs );
+		     scale[1] ? scale[1] : abs,
+		     scale[2] ? scale[2] : abs );
     sizes_[dim_] = newscale;
 
     if ( alldims )
@@ -468,7 +468,6 @@ void DepthTabPlaneDragger::setDim( int newdim )
     NotifyStopper stopper( changed );
     setSize( sizes_[dim_], false );
     setCenter( centers_[dim_], false );
-    stopper.restore();
 }
 
 

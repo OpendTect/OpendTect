@@ -122,6 +122,11 @@ protected:
     void		examineFile(CallBacker*);
     void		isFinalised(CallBacker*);
     void		fnmEntered(CallBacker*);
+
+public:
+   mDeprecated		("Use uiString")
+			uiFileInput(uiParent*,const char* seltxt,
+				    const Setup&);
 };
 
 

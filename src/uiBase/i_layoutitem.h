@@ -22,7 +22,7 @@ ________________________________________________________________________
 mFDQtclass(QLayoutItem)
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
+mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedCallBacker
 {
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
@@ -38,7 +38,7 @@ public:
     virtual int			horAlign(LayoutMode m ) const
 				    { return curpos(m).left(); }
     virtual int			center(LayoutMode,bool hor=true) const;
-    virtual uiSize 		minimumSize() const;
+    virtual uiSize		minimumSize() const;
     uiSize			prefSize() const;
 
     virtual void		invalidate();
@@ -46,11 +46,11 @@ public:
     virtual void		initChildLayout(LayoutMode)	{}
 
     uiSize			actualSize(bool include_border = true) const;
-    				//!< live objs: use uiObject::width() etc
+				//!< live objs: use uiObject::width() etc
 
-    inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; }
+    inline const i_LayoutMngr&	mngr() const 		{ return mngr_; }
 
-    inline const uiRect& 	curpos(LayoutMode m) const
+    inline const uiRect&	curpos(LayoutMode m) const
 				{ return layoutpos_[m];}
     inline uiRect&		curpos(LayoutMode m)
 				{ return layoutpos_[m];}
@@ -64,7 +64,7 @@ protected:
 
     uiRect			layoutpos_[nLayoutMode];
 
-    int 			stretch(bool hor) const;
+    int			stretch(bool hor) const;
     virtual void		commitGeometrySet(bool);
 
     void			initLayout(LayoutMode,int mngrtop,int mngrleft);
@@ -85,7 +85,7 @@ protected:
     virtual const mQtclass(QWidget*)	qwidget_() const;
     virtual const mQtclass(QWidget*)	managewidg_() const;
 
-    inline i_LayoutMngr& 	mngr()			{ return mngr_; }
+    inline i_LayoutMngr&	mngr()			{ return mngr_; }
 
     bool			isAligned() const;
 
@@ -97,7 +97,7 @@ private:
     TypeSet<uiConstraint>	constraintlist_;
 
 #ifdef __debug__
-    int 			isPosOk(uiConstraint*,int,bool);
+    int			isPosOk(uiConstraint*,int,bool);
 #endif
     bool			prefszdone_;
     uiSize			prefsz_;
@@ -118,7 +118,7 @@ public:
 
     virtual		~i_uiLayoutItem();
 
-    virtual uiSize 	minimumSize() const;
+    virtual uiSize	minimumSize() const;
 
     virtual uiObject*	  objLayouted()	{ return &uiobjbody_.uiObjHandle(); }
     virtual uiObjectBody* bodyLayouted(){ return &uiobjbody_; }

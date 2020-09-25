@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "networkmod.h"
 
 #include "bufstring.h"
-#include "callback.h"
+#include "notify.h"
 #include "uistring.h"
 
 mFDQtclass(QString)
@@ -64,25 +64,24 @@ public:
     Authority&		operator=(const Authority&);
     bool		operator==(const Authority&) const;
 
-    bool		isLocal() const { return !getServerName().isEmpty(); }
+    bool		isLocal() const { return !servernm_.isEmpty();	}
     BufferString	getServerName() const;
     SpecAddr		serverAddress() const;
 
-    BufferString	toString(bool external=false) const;
+    BufferString	toString() const;
     BufferString	getUserInfo() const		{ return userinfo_; }
-    BufferString	getHost(bool external=false) const;
+    BufferString	getHost() const;
     PortNr_Type		getPort() const			{ return port_; }
     bool		addressIsValid() const;
     bool		isUsable() const;
     bool		portIsFree(uiString* errmsg =nullptr) const;
 
     void		fromString(const char*,bool resolveipv6=false);
-    void		localFromString(const char*);
-    void		setUserInfo( const char* inf )	{ userinfo_ = inf; }
-    void		setHost(const char*,bool resolveipv6=false);
-    void		setPort( PortNr_Type port )	{ port_ = port; }
+    Authority&		localFromString(const char*);
+    Authority&		setUserInfo(const char*);
+    Authority&		setHost(const char*,bool resolveipv6=false);
+    Authority&		setPort(PortNr_Type);
     void		setFreePort(uiRetVal&);
-    bool		hasAssignedPort() const { return port_ > 0; }
 
     Authority&		setFrom(const CommandLineParser&,
 				const char* defservnm=nullptr,
@@ -100,13 +99,15 @@ private:
     BufferString	userinfo_;
     PortNr_Type		port_;
 
-    void		setServerName(const char*);
-
     bool		hostisaddress_;
     mQtclass(QHostAddress)&	qhostaddr_;
     mQtclass(QString)&		qhost_;
 
-    //Look if these are actually required
+    BufferString	servernm_;
+
+    bool		hasAssignedPort() const { return port_ > 0; }
+
+
     friend class Socket;
 
 };

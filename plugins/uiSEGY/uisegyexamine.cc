@@ -94,9 +94,9 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
 	const int tidx = icol + 1;
-	BufferString tt( "Trace header info from ", tidx );
-	tt.add( getRankPostFix(tidx) ).add( " trace" );
-	tbl_->setColumnLabel( icol, toString(tidx) );
+	uiString tt( tr("Trace header info from %1 %2 trace").arg(tidx)
+                                                .arg(getRankPostFix(tidx)) );
+	tbl_->setColumnLabel( icol, toUiString(tidx) );
 	tbl_->setColumnToolTip( icol, tt );
 	tbl_->setColumnReadOnly( icol, true );
     }
@@ -117,13 +117,12 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     hsplit->addGroup( txtgrp );
     hsplit->addGroup( logrp );
 
-    toStatusBar( setup_.fs_.dispName(), 1 );
-    outInfo( "Opening input" );
+    toStatusBar( toUiString(setup_.fs_.dispName()), 1 );
+    outInfo( tr("Opening input") );
     rdr_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
 
-    BufferString str( "Reading first " );
-    str += su.nrtrcs_; str += " traces ...";
+    uiString str( m3Dots(tr("Reading first %1 traces").arg(su.nrtrcs_)) );
     outInfo( str );
 
     afterPopup.notify( mCB(this,uiSEGYExamine,updateInput) );
@@ -162,16 +161,17 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 }
 
 
-#define mGetWinTile() \
-    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() ); \
-    BufferString wintitle( "First ", tbuf_.size(), " traces from " ); \
-    wintitle.add( fnm )
+uiString uiSEGYExamine::sGetWinTitle()
+{
+    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() );
+
+    return tr("First %1 traces from %2").arg( tbuf_.size() ).arg( fnm );
+}
 
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
-    mGetWinTile();
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
-				uiSeisTrcBufViewer::Setup(wintitle) );
+				uiSeisTrcBufViewer::Setup(sGetWinTitle()) );
     vwr->selectDispTypes( true, true );
     vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "sample value" );
     vwr->start(); vwr->handleBufChange();
@@ -180,13 +180,12 @@ void uiSEGYExamine::dispSeis( CallBacker* )
 
 void uiSEGYExamine::dispHist( CallBacker* )
 {
-    mGetWinTile();
     SeisTrcBufArray2D a2d( &tbuf_, 0 );
     uiStatsDisplay::Setup su; su.withname( false );
     uiStatsDisplayWin* mw = new uiStatsDisplayWin( this, su, 1, false );
     mw->statsDisplay(0)->setData( &a2d );
     mw->setDeleteOnClose( true );
-    mw->setCaption( wintitle );
+    mw->setCaption( sGetWinTitle() );
     mw->show();
 }
 
@@ -320,7 +319,7 @@ void uiSEGYExamine::updateInp()
 
 	if ( !trhead.isusable )
 	    tbl_->setColor( RowCol(SEGY::TrcHeader::EntryTrid(),itrc),
-		    	    Color::Red() );
+			    Color::Red() );
 
 	nrdone++;
 	trc.info().nr = nrdone;
@@ -343,7 +342,7 @@ void uiSEGYExamine::updateInp()
 	str += "  ----";
 	txtinfo_ += str;
     }
-    outInfo( "" );
+    outInfo( uiString::empty() );
     txtfld_->setText( txtinfo_ );
 }
 
@@ -367,10 +366,10 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
     for ( int ival=0; ival<nrvals; ival++ )
     {
 	const SEGY::HdrEntry& he( *hdef[ival] );
-	BufferString rownm( "", ((int)he.bytepos_)+1 );
-	rownm.add( " [" ).add( he.name() ).add( "]" );
+	uiString rownm = toUiString("%1 [%2]").arg(((int)he.bytepos_)+1)
+                                                            .arg(he.name());
 	tbl_->setRowLabel( ival, rownm );
-	tbl_->setRowToolTip( ival, he.description() );
+	tbl_->setRowToolTip( ival, mToUiStringTodo(he.description()) );
     }
 
     tbl_->resizeRowsToContents();
@@ -384,7 +383,7 @@ bool uiSEGYExamine::rejectOK(CallBacker*)
 }
 
 
-void uiSEGYExamine::outInfo( const char* txt )
+void uiSEGYExamine::outInfo( const uiString& txt )
 {
     toStatusBar( txt, 0 );
 }

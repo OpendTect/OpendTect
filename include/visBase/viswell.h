@@ -57,7 +57,7 @@ public:
     mStruct(visBase) BasicParams
     {
 				BasicParams(){}
-	uiString		name_;
+	BufferString		name_;
 	Color			col_;
 	int			size_;
     };
@@ -202,7 +202,7 @@ public:
     /// for pdf3d
     const visBase::MarkerSet*	getMarkerSet() const { return markerset_; }
     bool			hasLog(Side side) const;
-    uiString			getLogName(Side side) const;
+    BufferString		getLogName(Side side) const;
     bool			getLogOsgData(LogStyle style,Side side,
 					      TypeSet<Coord3>&coords,
 					      TypeSet<Color>& colors,
@@ -239,15 +239,11 @@ protected:
     int				voiidx_;
     bool			displaytube_[2];
     bool			displaylog_[2];
-    uiStringSet			lognames_;
+    BufferStringSet		lognames_;
 
 private:
 
-    void			updateText(Text* tx, const uiString& chr,
-					   const Coord3* pos,
-					   const FontData& fnt);
-				/*! \don't use it any more, only for keep ABI*/
-    void			updateTextNew(Text* tx,const uiString& chr,
+    void			updateText(Text* vistxt,const char* txt,
 					   const Coord3* pos,
 					   const FontData& fnt,
 					   bool sizedynamic = true);

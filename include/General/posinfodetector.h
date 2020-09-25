@@ -113,7 +113,7 @@ public:
     bool		crlSorted() const;
     void		getCubeData(CubeData&) const;
 			//!< if crlSorted(), inl and crl are swapped
-    const char*		getSurvInfo(TrcKeySampling&,Coord crd[3]) const;
+    uiString		getSurvInfoWithMsg(TrcKeySampling&,Coord crd[3]) const;
 
     StepInterval<int>	getRange(bool inldir=false) const;
     bool		haveStep(bool) const; // to check during detection
@@ -169,6 +169,10 @@ protected:
 
     CrdBidOffs		workCBO(const CrdBidOffs&) const;
     CrdBidOffs		userCBO(const CrdBidOffs&) const;
+
+public:
+    mDeprecated		("Use uiString")
+    const char*		getSurvInfo(TrcKeySampling&,Coord crd[3]) const;
 
 };
 

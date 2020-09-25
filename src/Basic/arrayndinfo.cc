@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "typeset.h"
 
 
@@ -339,4 +339,29 @@ bool ArrayNDIter::inc( int dim )
     }
 
     return true;
+}
+
+
+void* getArrayND( const ArrayNDInfo& info, const OD::DataRepType typ )
+{
+    if ( typ == OD::F32 || typ == OD::AutoDataRep )
+	return ArrayNDImpl<float>::create( info );
+    else if ( typ == OD::F64 )
+	return ArrayNDImpl<double>::create( info );
+    else if ( typ == OD::SI32 )
+	return ArrayNDImpl<od_int32>::create( info );
+    else if ( typ == OD::UI32 )
+	return ArrayNDImpl<od_uint32>::create( info );
+    else if ( typ == OD::SI16 )
+	return ArrayNDImpl<od_int16>::create( info );
+    else if ( typ == OD::UI16 )
+	return ArrayNDImpl<od_uint16>::create( info );
+    else if ( typ == OD::SI8 )
+	return ArrayNDImpl<signed char>::create( info );
+    else if ( typ == OD::UI8 )
+	return ArrayNDImpl<unsigned char>::create( info );
+    else if ( typ == OD::SI64 )
+	return ArrayNDImpl<od_int64>::create( info );
+
+    return nullptr;
 }

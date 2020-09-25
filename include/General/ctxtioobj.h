@@ -143,17 +143,21 @@ mExpClass(General) CtxtIOObj : public NamedObject
 public:
     mStartAllowDeprecatedSection
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
-			    : NamedObject(""), ctxt_(ct), ioobj_(o), iopar_(0)
+			    : NamedObject(ct), ctxt_(ct), ioobj_(o) , iopar_(0)
 			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
-			{ setLinkedTo(&ctxt_); }
+			{ if ( o ) setName(o->name()); }
 			CtxtIOObj( const CtxtIOObj& ct )
-			    : NamedObject(""), ctxt_(ct.ctxt_)
+			    : NamedObject(ct), ctxt_(ct.ctxt_)
 			    , ioobj_(ct.ioobj_?ct.ioobj_->clone():0)
 			    , iopar_(ct.iopar_?new IOPar(*ct.iopar_):0)
 			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
-			{ setLinkedTo(&ctxt_); }
+			{}
     mStopAllowDeprecatedSection
     void		destroyAll();
+
+    virtual const OD::String& name() const      { return ctxt_.name(); }
+    virtual void        setName(const char* nm) { ctxt_.setName(nm); }
+    virtual BufferString getName() const        { return ctxt_.getName(); }
 
     void		setObj(IOObj*); //!< destroys previous
     void		setObj(const MultiID&); //!< destroys previous

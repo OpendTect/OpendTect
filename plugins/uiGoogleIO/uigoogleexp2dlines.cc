@@ -43,13 +43,13 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     const int nrsel = sellnms_.size();
 
     if ( !allsel_ )
-	putallfld_ = new uiGenInput( this, uiStrings::sExport(), 
+	putallfld_ = new uiGenInput( this, uiStrings::sExport(),
                                      BoolInpSpec(true,uiStrings::sAll(),
 		    nrsel > 1 ? tr("Selected lines"):tr("Selected line")) );
 
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
-    putlnmfld_ = new uiGenInput( this, "Put line names",
+    putlnmfld_ = new uiGenInput( this, tr("Put line names"),
 				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 1 );
     if ( putallfld_ )

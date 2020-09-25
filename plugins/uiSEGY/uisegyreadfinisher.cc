@@ -80,9 +80,7 @@ uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
 
 uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 {
-    uiString ret( "Importing %1" );
-    ret.arg( usrspec );
-    return ret;
+    return tr("Importing %1").arg( usrspec );
 }
 
 
@@ -127,7 +125,7 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool is2d = Seis::is2D( gt );
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
-    docopyfld_ = new uiGenInput( this, "Copy data",
+    docopyfld_ = new uiGenInput( this, tr("Copy data"),
 	    BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
     docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
 
@@ -241,7 +239,7 @@ void uiSEGYReadFinisher::crVSPFields()
     const char* doms[] = { "TWT", "TVDSS", "MD", 0 };
     inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(doms) );
     inpdomfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );
-    isfeetfld_ = new uiCheckBox( this, "in Feet" );
+    isfeetfld_ = new uiCheckBox( this, tr("in Feet") );
     isfeetfld_->attach( rightOf, inpdomfld_ );
     isfeetfld_->setChecked( fs_.zinfeet_ );
 

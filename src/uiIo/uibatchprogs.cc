@@ -107,13 +107,13 @@ BatchProgInfoList::BatchProgInfoList()
 	BufferString dirnm = mGetApplSetupDataDir();
 	if ( !dirnm.isEmpty() )
 	{
-	    const DirList dlsite( dirnm, DirList::FilesOnly,searchkey);
+	    const DirList dlsite( dirnm, File::FilesInDir,searchkey);
 	    for ( int idx=0; idx<dlsite.size(); idx++ )
 		getEntries( dlsite.fullPath(idx) );
 	}
 
 	dirnm = mGetSWDirDataDir();
-	DirList dlrel( dirnm, DirList::FilesOnly, searchkey );
+	DirList dlrel( dirnm, File::FilesInDir, searchkey );
 	for ( int idx=0; idx<dlrel.size(); idx++ )
 	    getEntries( dlrel.fullPath(idx) );
     }

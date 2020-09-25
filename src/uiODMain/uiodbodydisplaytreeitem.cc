@@ -499,13 +499,13 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( saveas && notempty )
 	{
 	    if ( plg_ )
-		plg_->setName( applMgr()->EMServer()->getUiName(emid_) );
+		plg_->setName( applMgr()->EMServer()->getName(emid_) );
 
 	    if ( rpb_ )
-		rpb_->setName( applMgr()->EMServer()->getUiName(emid_) );
+		rpb_->setName( applMgr()->EMServer()->getName(emid_) );
 
 	    if ( mcd_ )
-		mcd_->setName( applMgr()->EMServer()->getUiName(emid_) );
+		mcd_->setName( applMgr()->EMServer()->getName(emid_) );
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}

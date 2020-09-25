@@ -131,7 +131,7 @@ Scene::~Scene()
 
     Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
 
-    if ( camera_ ) 
+    if ( camera_ )
 	camera_->unRef();
 
     if ( osgsceneroot_ )
@@ -196,7 +196,7 @@ void Scene::setCameraAmbientLight( float value )
 float Scene::getCameraAmbientLight() const
 {
     if ( !camera_ ) return 1.0f;
-    const osg::Light* headlight = 
+    const osg::Light* headlight =
 	camera_->osgCamera()->getView()->getLight();
     const osg::Vec4 ambient = headlight->getAmbient();
     return ambient[0];
@@ -209,7 +209,7 @@ Light* Scene::getDirectionalLight() const
 }
 
 
-void Scene::setName( const uiString& newname )
+void Scene::setName( const char* newname )
 {
     DataObjectGroup::setName( newname );
     nameChanged.trigger();

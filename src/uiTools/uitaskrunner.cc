@@ -45,14 +45,16 @@ static const char* noprogbardispsymbs[] =
 static const int noprogbardispnrsymbs = 29;
 #endif
 
+
+
 /*!If there is a main window up, we should always use that window as parent.
    Only if main window does not exist, use the provided parent. */
 
-static uiParent* getParent( uiParent* p )
+static uiParent* getTRParent( uiParent* p )
 {
     uiParent* res = uiMainWin::activeWindow();
     if ( res )
-	return res;
+        return res;
 
     return p;
 }
@@ -60,10 +62,10 @@ static uiParent* getParent( uiParent* p )
 
 
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
-    : uiDialog( getParent(prnt),
-		uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
+    : uiDialog( getTRParent(prnt),
+                uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
-	.oktext(uiStrings::sPause().addSpace(2))
+	.oktext(uiStrings::sPause().appendPlainText("   "))
 	.canceltext(uiStrings::sAbort()) )
     , task_(nullptr)
     , thread_(nullptr)
@@ -114,7 +116,7 @@ bool uiTaskRunner::execute( Task& t )
 
     task_ = &t; state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
-    prevmessage_ = uiStrings::sEmptyString();
+    prevmessage_ = uiString::empty();
     prevtime_ = Time::getMilliSeconds();
     if ( statusBar() )
 	statusBar()->message( prevmessage_, 0 );
@@ -136,8 +138,17 @@ void uiTaskRunner::onFinalise( CallBacker* )
 
     tim_.start( 100, true );
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
-    thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork),
-	BufferString("uiTaskRunner ",name()).buf() );
+    BufferString nm( "Task: ", task_ ? task_->name() : "<none>" );
+    thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork), nm );
+}
+
+
+void uiTaskRunner::emitErrorMessage( const uiString& msg, bool wrn ) const
+{
+    if ( wrn )
+	uiMSG().warning( msg );
+    else
+	uiMSG().error( msg );
 }
 
 
@@ -163,11 +174,8 @@ void uiTaskRunner::updateFields()
     const int newtime = Time::getMilliSeconds();
     const uiString nrdonetext = task_->uiNrDoneText();
 #ifdef __debug__
-    if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
-    {
-	pErrMsg("Nr Done is not an acceptable name in a UI. "
-		"Make class implement uiNrDoneText");
-    }
+    if ( nrdonetext.getString() == "Nr Done" )
+	{ pErrMsg("Task executed in UI needs valid nrDoneText"); }
 #endif
     const uiString message = task_->uiMessage();
 
@@ -177,14 +185,12 @@ void uiTaskRunner::updateFields()
 	return;
     }
 
-    if ( BufferString(prevmessage_.getFullString() )
-	    != BufferString(message.getFullString() ) )
+    if ( prevmessage_.getString() != message.getString() )
     {
 	sb.message( message, 0 );
 	prevmessage_ = message;
     }
-    if ( BufferString(prevnrdonetext_.getFullString() )
-	    != BufferString(nrdonetext.getFullString() ) )
+    if ( prevnrdonetext_.getString() != nrdonetext.getString() )
     {
 	sb.message( nrdonetext, 1 );
 	prevnrdonetext_ = nrdonetext;
@@ -195,7 +201,7 @@ void uiTaskRunner::updateFields()
     if ( nrdonechg )
     {
 	prevnrdone_ = nrdone;
-	uiString str = toUiString(nrdone);
+	uiString str = toUiString( nrdone );
 	sb.message( str, 2 );
     }
 
@@ -285,19 +291,25 @@ void uiTaskRunner::timerTick( CallBacker* )
     if ( state<1 )
     {
 	uiString message;
+	uiRetVal errdetails;
 
 	Threads::Locker trlckr( uitaskrunnerthreadlock_,
 				Threads::Locker::DontWaitForLock );
 	if ( trlckr.isLocked() )
 	{
+	    if ( task_ ) errdetails = task_->errorWithDetails();
 	    message = finalizeTask();
 	    trlckr.unlockNow();
 	}
 
-	if ( state<0 && dispmsgonerr_ )
-	    uiMSG().error( message );
+	if ( state<0 )
+	{
+	    errdetails_ = errdetails;
+	    if ( dispmsgonerr_ )
+		uiMSG().error( errdetails_ );
+	}
 
-	done( state<0 ? 0 : 1 );
+	done( state<0 ? uiDialog::Rejected : uiDialog::Accepted );
 	return;
     }
 

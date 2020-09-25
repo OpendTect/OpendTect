@@ -251,7 +251,7 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 }
 
 
-const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos, 
+const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
     Pos::GeomID pickedgeomid, const Coord3* normal ) const
 {
     EM::PosID pid = EM::PosID::udf();
@@ -264,14 +264,14 @@ const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
 
     if ( getNearestStick(sticknr,sid,&pickedmid,"",pickedgeomid,pos, normal) )
 	getPidsOnStick( pid, sticknr, sid, pos );
-    
+
     return pid;
 }
 
 
 bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet(EM::FaultStickSet*,emfss,&emobject);
+    mDynamicCastGet(EM::FaultStickSet*,emfss,emobject_.ptr());
     bool change = false;
     for ( int sectionidx=emfss->nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -493,10 +493,10 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 }
 
 
-void FaultStickSetEditor::cloneMovingNode()
+void FaultStickSetEditor::cloneMovingNode( CallBacker* )
 {
     setLastClicked( movingnode );
-    mDynamicCastGet( EM::FaultStickSet*, emfss, &emobject );
+    mDynamicCastGet( EM::FaultStickSet*, emfss, emobject_.ptr() );
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
     const EM::SectionID& sid = movingnode.sectionID();
     const int sticknr = movingnode.getRowCol().row();

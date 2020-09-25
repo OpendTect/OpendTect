@@ -379,7 +379,7 @@ SurveyInfo::SurveyInfo()
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
-    : NamedObject( si )
+    : NamedCallBacker( si )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
@@ -646,7 +646,7 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 
 void SurveyInfo::updateDirName()
 {
-    if ( !name_  || name_->isEmpty() )
+    if ( name_.isEmpty() )
 	return;
 
     dirname_ = name();
@@ -999,14 +999,24 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 				 int xline )
 {
+    mDeclStaticString( ret );
+    const uiString msg = set3PtsWithMsg( c, b, xline );
+    ret.set( ::toString(msg) );
+    return ret.buf();
+}
+
+
+uiString SurveyInfo::set3PtsWithMsg( const Coord c[3], const BinID b[2],
+				     int xline )
+{
     if ( b[1].inl() == b[0].inl() )
-	return "Need two different in-lines";
+	return tr("Need two different in-lines");
     if ( b[0].crl() == xline )
-	return "No Cross-line range present";
+	return tr("No Cross-line range present");
 
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
-	return "Cannot construct a valid transformation matrix from this input"
-	       "\nPlease check whether the data is on a single straight line.";
+	return tr("Cannot construct a valid transformation matrix from this "
+         "input.\nPlease check whether the data is on a single straight line.");
 
     set3binids_[0] = b[0];
     set3binids_[1] = b[1];
@@ -1014,7 +1024,7 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
     set3coords_[0] = c[0];
     set3coords_[1] = c[1];
     set3coords_[2] = c[2];
-    return 0;
+    return uiString::empty();
 }
 
 

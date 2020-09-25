@@ -62,8 +62,8 @@ void uiUnitSel::init()
     propfld_ = 0;
     if ( setup_.selproptype_ )
     {
-	propfld_ = new uiComboBox( this, "Properties" );
-	propfld_->addItems( PropertyRef::StdTypeNames() );
+	propfld_ = new uiComboBox( this, PropertyRef::StdTypeNames(),
+				   "Properties" );
 	propfld_->setCurrentItem( (int)setup_.ptype_ );
 	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
     }

@@ -452,7 +452,7 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 
 void ErrMsg( const uiString& msg )
 {
-    ErrMsg( toString(msg), false );
+    ErrMsg( msg.getFullString(), false );
 }
 
 

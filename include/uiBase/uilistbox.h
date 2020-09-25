@@ -143,6 +143,8 @@ public:
     void		addItem(const uiString&,bool marked=false,int id=-1);
     void		addItem(const uiString&,const uiPixmap&,int id=-1);
     void		addItem(const uiString&,const Color&,int id=-1);
+    void		addItem( const char* str, bool marked=false, int id=-1 )
+				{ addItem( toUiString(str), marked, id ); }
     void		addItems(const char**);
     void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
@@ -163,6 +165,8 @@ public:
     int			indexOf(const char*) const;	//!< First match
     const char*		textOfItem(int) const;
     void		setItemText(int,const uiString&);
+    void		setItemText( int idx, const char* txt )
+			{ setItemText( idx, toUiString(txt) ); }
     void		getItems(BufferStringSet&) const;
 
     int			currentItem() const;

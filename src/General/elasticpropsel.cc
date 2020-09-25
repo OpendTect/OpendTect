@@ -99,8 +99,7 @@ ElasticFormulaRepository& ElFR()
 	newrepos->addRockPhysicsFormulas();
 	newrepos->addPreDefinedFormulas();
 
-        if ( !elasticrepos.setIfNull( newrepos ) )
-            delete newrepos;
+        elasticrepos.setIfNull( newrepos, true );
     }
 
     return *elasticrepos;
@@ -146,7 +145,8 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 	for ( int idfor=0; idfor<fnms.size(); idfor ++ )
 	{
 	    BufferString elasnm = fnms.get( idfor );
-	    const RockPhysics::Formula* rpf = ROCKPHYSFORMS().get( elasnm );
+	    const RockPhysics::Formula* rpf =
+					ROCKPHYSFORMS().getByName( elasnm );
 	    if ( !rpf ) continue;
 
 	    ElasticFormula fm( elasnm, rpf->def_, tp );
@@ -310,7 +310,7 @@ bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const ElasticPropertyRef& epr = get( idx );
+	const ElasticPropertyRef& epr = getByIdx( idx );
 	const char* propnm = epr.name();
 	const BufferStringSet& vars = epr.formula().variables();
 	if ( vars.isEmpty() )
@@ -335,7 +335,7 @@ bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 	    if ( idpr == idx )
 		continue;
 
-	    const ElasticPropertyRef& elpr = get( idpr );
+	    const ElasticPropertyRef& elpr = getByIdx( idpr );
 	    const char* nm = elpr.name();
 	    const ElasticFormula& form = elpr.formula();
 	    if ( vars.isPresent(nm) && form.variables().isPresent( propnm ) )
@@ -393,7 +393,7 @@ void ElasticPropGuess::guessQuantity( const PropertyRefSelection& pps,
 bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
 					ElasticFormula::Type tp )
 {
-    ElasticFormula& fm = elasticprops_.get( tp ).formula();
+    ElasticFormula& fm = elasticprops_.getByType( tp ).formula();
     if ( !fm.variables().isEmpty() )
 	return false;
 
@@ -435,9 +435,12 @@ bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
 void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
 			      const float* vals,int sz) const
 {
-    const ElasticPropertyRef& denref = elasticprops_.get(ElasticFormula::Den);
-    const ElasticPropertyRef& pvref = elasticprops_.get(ElasticFormula::PVel);
-    const ElasticPropertyRef& svref = elasticprops_.get(ElasticFormula::SVel);
+    const ElasticPropertyRef& denref =
+				elasticprops_.getByType(ElasticFormula::Den);
+    const ElasticPropertyRef& pvref =
+				elasticprops_.getByType(ElasticFormula::PVel);
+    const ElasticPropertyRef& svref =
+				elasticprops_.getByType(ElasticFormula::SVel);
 
     den  = getVal( denref.formula(), vals, sz );
     pvel = getVal( pvref.formula(), vals, sz );
@@ -477,7 +480,7 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 	else if ( elasticprops_.isPresent(var) && ef.name() != var )
 	{
 	    const int propidx = elasticprops_.indexOf(var);
-	    val = getVal( elasticprops_.get(propidx), vals, sz );
+	    val = getVal( elasticprops_.getByIdx(propidx), vals, sz );
 	}
 
 	if ( !expr )
@@ -499,14 +502,14 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 
 
 
-ElasticPropSelection* ElasticPropSelection::get( const MultiID& mid )
+ElasticPropSelection* ElasticPropSelection::getByDBKey( const MultiID& mid )
 {
     const IOObj* obj = mid.isEmpty() ? 0 : IOM().get( mid );
-    return obj ? get( obj ) : 0;
+    return obj ? getByIOObj( obj ) : 0;
 }
 
 
-ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
+ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
     PtrMan<ElasticPropSelectionTranslator> translator =
@@ -532,9 +535,9 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 	    IOPar iop; iop.getFrom( astream );
 	    ElasticFormula::Type tp;
 	    ElasticFormula::parseEnumType( iop.find( sKeyType ), tp );
-	    eps->get( tp ).formula().usePar( iop );
+	    eps->getByType( tp ).formula().usePar( iop );
 	    BufferString nm; iop.get( sKeyPropertyName, nm );
-	    eps->get( tp ).setName(nm);
+	    eps->getByType( tp ).setName(nm);
 	}
 	if ( !astream.isOK() )
 	    ErrMsg( "Problem reading Elastic property selection from file" );
@@ -568,8 +571,8 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
 	IOPar iop;
 	for ( int idx=0; idx<size(); idx++ )
 	{
-	    iop.set( sKeyPropertyName, get(idx).name() );
-	    get(idx).formula().fillPar( iop );
+	    iop.set( sKeyPropertyName, getByIdx(idx).name() );
+	    getByIdx(idx).formula().fillPar( iop );
 	    iop.putTo( astream ); iop.setEmpty();
 	}
 	if ( astream.isOK() )
@@ -591,8 +594,8 @@ void ElasticPropSelection::fillPar( IOPar& par ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	IOPar elasticproprefpar;
-	elasticproprefpar.set( sKey::Name(), get(idx).name().buf() );
-	get(idx).formula().fillPar( elasticproprefpar );
+	elasticproprefpar.set( sKey::Name(), getByIdx(idx).name().buf() );
+	getByIdx(idx).formula().fillPar( elasticproprefpar );
 	elasticpar.mergeComp( elasticproprefpar,
 			      IOPar::compKey(sKeyElastic,idx) );
     }
@@ -622,7 +625,7 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 	elasticproprefpar->get( sKey::Name(), elasticnm );
 	ElasticFormula formulae( 0, 0, ElasticFormula::Type(idx) );
 	formulae.usePar( *elasticproprefpar );
-	
+
 	if ( !checkForValidSelPropsDesc(formulae,faultynms,corrnms) )
 	{
 	    errocc = true;
@@ -639,7 +642,7 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 									true );
 	    errmsg_.append( tr("Following strings are faulty : "), true );
 	    errmsg_.append( toUiString(faultynms.getDispString()), true );
-	    errmsg_.append( 
+	    errmsg_.append(
 		tr("You can try replacing them following strings : ") , true );
 	    errmsg_.append( toUiString(corrnms.getDispString()), true );
 	    return false;

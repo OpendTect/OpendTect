@@ -1173,7 +1173,7 @@ void uiTreeViewItem::setChecked( bool yn, bool trigger )
 
     mTreeViewBlockCmdRec;
     NotifyStopper ns( stateChanged );
-    if ( trigger ) ns.restore();
+    if ( trigger ) ns.enableNotification();
     qItem()->setCheckState( 0, yn ? Qt::Checked : Qt::Unchecked );
     checked_ = yn;
     stateChanged.trigger();

@@ -50,15 +50,14 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
 
     uiGroup* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, inpfld_ );
-    vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc("X")
+    vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc(uiStrings::sX())
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3.0f*uiObject::baseFldSize())
 					.maxcolwdt(3.5f*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );
-    const char* xcollbls[] = { "Select input for", 0 };
-    vartable_->setColumnLabels( xcollbls );
+    vartable_->setColumnLabels( uiStrings::sInput() );
     vartable_->setNrRows( 2 );
     vartable_->setStretch( 2, 0 );
     vartable_->setRowResizeMode( uiTable::Fixed );
@@ -119,7 +118,7 @@ void uiDPSRefineSelDlg::updateDisplay()
 	uiComboBox* varsel = new uiComboBox( 0, colnms_, "Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
 	   varsel->setCurrentItem( cColIds(dcolids_[idx]) );
-	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
+	vartable_->setRowLabel( idx, toUiString(mathobj_->uniqueVarName(idx)) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }
 

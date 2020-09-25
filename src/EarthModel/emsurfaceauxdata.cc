@@ -51,8 +51,8 @@ SurfaceAuxData::~SurfaceAuxData()
 
 void SurfaceAuxData::removeAll()
 {
-    deepErase( auxdatanames_ );
-    deepErase( auxdatainfo_ );
+    auxdatanames_.setEmpty();
+    auxdatainfo_.setEmpty();
     auxdatashift_.erase();
     auxdatatypes_.erase();
 

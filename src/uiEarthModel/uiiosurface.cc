@@ -729,11 +729,13 @@ public:
 					    mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
-	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";
+	const uiString& fltnm = fltpar.is2d_ ? uiStrings::sFaultStickSet()
+                                             : uiStrings::sFault();
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).
 		rowdesc(fltnm).defrowlbl("").selmode(uiTable::Multi).
 		rightclickdisabled(true), "Fault Boundary Table");
-	const char* collbls[] = { "Name", "Boundary Type", 0 };
+	uiStringSet collbls;
+        collbls.add( uiStrings::sName() ).add( tr("Boundary Type") );
 	table_->setColumnLabels( collbls );
 	table_->setTableReadOnly( true );
 	table_->setPrefHeight( 150 );

@@ -30,7 +30,7 @@ class DataPackMgr;
   'Fault surface'
 */
 
-mExpClass(Basic) DataPack : public NamedObject
+mExpClass(Basic) DataPack : public NamedCallBacker
 {
 public:
 
@@ -39,13 +39,13 @@ public:
     inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
 			DataPack( const char* categry )
-			    : NamedObject("<?>")
+			    : NamedCallBacker("<?>")
 			    , category_(categry)
 			    , nrusers_( 0 )
 			    , manager_( 0 )
 			    , id_(getNewID())	{}
 			DataPack( const DataPack& dp )
-			    : NamedObject( dp.name().buf() )
+			    : NamedCallBacker( dp.name().buf() )
 			    , category_( dp.category_ )
 			    , nrusers_( 0 )
 			    , manager_( 0 )
@@ -63,7 +63,7 @@ public:
     static ID		cNoID()			{ return 0; }
     static ID		cUdfID()		{ return -1; }
 
-    virtual bool	isOK() const 		{ return true; }
+    virtual bool	isOK() const		{ return true; }
 
     Threads::Lock&	updateLock() const	{ return updatelock_; }
 
@@ -80,7 +80,7 @@ protected:
     mutable Threads::Lock	updatelock_;
     const DataPackMgr*		manager_;
 
-    static ID		getNewID(); 	//!< ensures a global data pack ID
+    static ID		getNewID();	//!< ensures a global data pack ID
     static float	sKb2MbFac();	//!< 1 / 1024
 
     void		setCategory( const char* c )

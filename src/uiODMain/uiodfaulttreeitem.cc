@@ -375,7 +375,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	if ( saveas && faultdisplay_ &&
 	     !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
 	{
-	    faultdisplay_->setName( applMgr()->EMServer()->getUiName(emid_));
+	    faultdisplay_->setName( applMgr()->EMServer()->getName(emid_));
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -675,7 +675,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	const uiString emname = applMgr()->EMServer()->getUiName(emid_);
+	const BufferString emname = applMgr()->EMServer()->getName(emid_);
 	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
 	    faultsticksetdisplay_->setName( emname );

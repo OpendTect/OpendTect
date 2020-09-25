@@ -56,7 +56,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb )
     : mInit
 {
     init( txt );
-    attachCB( triggered, cb );
+    triggered.notify( cb );
 }
 
 
@@ -66,7 +66,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 {
     init( txt );
     setIcon( icon );
-    attachCB( triggered, cb );
+    triggered.notify( cb );
 }
 
 
@@ -76,7 +76,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 {
     init( txt );
     setIcon( iconfile );
-    attachCB( triggered, cb );
+    triggered.notify( cb );
 }
 
 
@@ -99,7 +99,7 @@ uiAction::uiAction( const MenuItem& itm )
     if ( !itm.iconfnm.isEmpty() )
 	setIcon( itm.iconfnm );
     if ( itm.cb.willCall() )
-	attachCB( triggered, itm.cb );
+	triggered.notify( itm.cb );
 }
 
 

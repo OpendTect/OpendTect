@@ -19,17 +19,19 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-mClass(uiBase) uiParentBody : public uiBody, public NamedObject
+mClass(uiBase) uiParentBody : public uiBody, public NamedCallBacker
 {
 friend class uiObjectBody;
 public:
-    virtual		~uiParentBody()		{ deleteAllChildren(); }
+    virtual		~uiParentBody()
+			{ sendDelNotif(); deleteAllChildren(); }
 
     virtual void	addChild( uiBaseObject& child )
 			{
 			    if ( children_.isPresent(&child ) )	return;
 			    children_ += &child;
-			    child.deleteNotify(mCB(this,uiParentBody,childDel));
+			    mAttachCB( child.objectToBeDeleted(),
+				       uiParentBody::childDel );
 			}
 
 			//! child becomes mine.
@@ -46,19 +48,19 @@ public:
     const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
 
     bool		finalised() const	{ return finalised_; }
-    virtual void 	finalise()		{ finaliseChildren(); }
-    void      		finaliseChildren();	// body: uiobj.cc
-    void      		clearChildren();	// body: uiobj.cc
+    virtual void	finalise()		{ finaliseChildren(); }
+    void		finaliseChildren();	// body: uiobj.cc
+    void		clearChildren();	// body: uiobj.cc
 
 			//! widget to be used as parent for QWidgets
     inline const mQtclass(QWidget*) managewidg() const	{ return managewidg_();}
 			//! widget to be used as parent for QWidgets
     inline mQtclass(QWidget*)	managewidg()
-    		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
+		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
 
 protected:
 			uiParentBody( const char* nm )
-			    : NamedObject( nm )
+			    : NamedCallBacker( nm )
 			    , finalised_( false )
 			{}
 

@@ -29,7 +29,8 @@ namespace PreStackView
 
 uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
 	visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
-    : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), "Scaling", false)
+    : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), uiStrings::sScaling(),
+				 false)
     , applyall_( false )
     , savedefault_( false )
     , mgr_( mgr )
@@ -78,7 +79,7 @@ FlatView::DataDispPars::Common& uiViewer3DScalingTab::commonPars()
 
 bool uiViewer3DScalingTab::acceptOK()
 {
-    if ( !applyButPushedCB(0) )
+    if ( !apply() )
 	return false;
 
     if ( useclipfld_->getIntValue() && saveAsDefault() )
@@ -101,7 +102,13 @@ bool uiViewer3DScalingTab::acceptOK()
 }
 
 
-bool uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
+void uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
+{
+    apply();
+}
+
+
+bool uiViewer3DScalingTab::apply()
 {
     if ( !settingCheck() )
 	return false;

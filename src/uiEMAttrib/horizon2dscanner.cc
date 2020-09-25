@@ -260,7 +260,6 @@ int Horizon2DScanner::nextStep()
 
 bool Horizon2DScanner::getLineNames( BufferStringSet& nms ) const
 {
-    deepErase( nms );
     nms = validnms_;
     return nms.size();
 }

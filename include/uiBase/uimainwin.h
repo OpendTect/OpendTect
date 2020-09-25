@@ -242,5 +242,9 @@ public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
+
+    mDeprecated		("Use uiString")
+    void		setCaption( const char* str )
+			{ setCaption(toUiString(str)); }
 };
 

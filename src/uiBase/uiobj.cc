@@ -69,17 +69,16 @@ mDefineEnumUtils(uiRect,Side,"Side") { "Left", "Top", "Right", "Bottom", 0 };
 #define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
 
 uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , finaliseStart(this)
     , finaliseDone(this)
-    , tobeDeleted(this)
     , cmdrecrefnr_(0)
     , body_(b)
 {}
 
 
 uiBaseObject::~uiBaseObject()
-{ tobeDeleted.trigger(); }
+{ sendDelNotif(); }
 
 
 void uiBaseObject::finalise()
@@ -163,7 +162,7 @@ uiParent::uiParent( const char* nm, uiParentBody* b )
 void uiParent::addChild( uiBaseObject& child )
 {
     mDynamicCastGet(uiBaseObject*,thisuiobj,this);
-    if ( thisuiobj && child == thisuiobj ) return;
+    if ( thisuiobj && &child == thisuiobj ) return;
     if ( !body() )
 	{ pErrMsg("uiParent has no body!"); return; }
 

@@ -17,7 +17,7 @@ mClass(uiGoogleIO) uiGoogleExportRandomLine : public uiDialog
 public:
 
 			uiGoogleExportRandomLine(uiParent*,
-					const TypeSet<Coord>&,const uiString&);
+					const TypeSet<Coord>&,const char*);
 
 protected:
 

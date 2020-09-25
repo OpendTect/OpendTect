@@ -88,7 +88,7 @@ public:
     virtual void	setPenColor(const Color&,bool usetransp=false);
     virtual void	setFillColor(const Color&,bool usetransp=false);
     virtual void	setGradientFill(int x1,int y1,int x2, int y2,
-	    				const TypeSet<float>& stops,
+					const TypeSet<float>& stops,
 					const TypeSet<Color>& colors);
 			/*!< Creates a linear gradient from (x1,y1) to (x2,y2).
 			 stops are values between 0 and 1 on the gradient line
@@ -153,8 +153,6 @@ public:
 			uiGraphicsItemSet()		{}
 
     void		add( uiGraphicsItem* itm )	{ (*this) += itm; }
-    uiGraphicsItem*	get( int idx )			{ return (*this)[idx]; }
-    const uiGraphicsItem* get( int idx ) const		{ return (*this)[idx]; }
 
     void		setZValue(int); //<! z value decides the stacking order
     void		setVisible(bool yn);

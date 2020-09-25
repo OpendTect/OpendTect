@@ -67,6 +67,20 @@ private:
     int				id_; // Used by toolbar
 
     uiMenu*			uimenu_;
+
+public:
+    mDeprecated			("use uiString")
+				uiToolButton( uiParent* p,const char* filenm,
+					      const char* tooltip,
+					      const CallBack& cb )
+				   : uiToolButton(p,filenm,toUiString(tooltip),
+						  cb)	{}
+    mDeprecated			("use uiString")
+				uiToolButton( uiParent* p, ArrowType typ,
+					      const char* tooltip,
+					      const CallBack& cb )
+				  : uiToolButton(p,typ,toUiString(tooltip),
+						 cb)			{}
 };
 
 
@@ -85,7 +99,8 @@ public:
 			    , ison_(false)
 			    , isimmediate_(false)
 			    , arrowtype_(uiToolButton::NoArrow)
-			    , name_(!nm.isEmpty() ? nm : tt){}
+			    , name_(!nm.isEmpty() ? nm : tt)
+			{}
 
     mDefuiTBSUMemb(BufferString,icid);
     mDefuiTBSUMemb(uiString,tooltip);
@@ -102,6 +117,18 @@ public:
 			//!< pushbutton if name_ != tooltip_ and !istoggle_
     uiToolButton*	getToolButton(uiParent*) const;
     uiPushButton*	getPushButton(uiParent*,bool withicon=true) const;
+
+public:
+    mDeprecated		("Use uiString")
+			uiToolButtonSetup( const char* ic, const char* tt,
+					   const CallBack& cb,
+					   const char* nm = nullptr )
+			  : uiToolButtonSetup(ic,toUiString(tt),cb,
+					      toUiString(nm))		{}
+    mDeprecated		("Use uiString")
+			uiToolButtonSetup( const char* ic, const uiString& tt,
+					   const CallBack& cb, const char* nm )
+			  : uiToolButtonSetup(ic,tt,cb,toUiString(nm))	{}
 
 };
 

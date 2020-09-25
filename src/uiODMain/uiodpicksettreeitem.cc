@@ -281,7 +281,7 @@ void uiODPickSetTreeItem::setChg( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
-    if ( psd ) psd->setName( mToUiStringTodo(ps->name()) );
+    if ( psd ) psd->setName( ps->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
@@ -493,7 +493,8 @@ void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
     {
 	mDynamicCastGet(uiODPolygonTreeItem*,itm,children_[idx])
 	if ( !itm ) continue;
-	if ( itm->getSet() == ps )
+	const Pick::Set* pickset = &itm->getSet();
+	if ( pickset == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -634,7 +635,7 @@ void uiODPolygonTreeItem::setChg( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
-    if ( psd ) psd->setName(mToUiStringTodo( ps->name() ) );
+    if ( psd ) psd->setName( ps->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 

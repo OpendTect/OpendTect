@@ -233,7 +233,7 @@ void uiTieWin::drawFields()
     sep2->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
-			mCB(this,uiTieWin,acceptOK), true );
+			mCB(this,uiTieWin,okPushCB), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, sep2 );
 
@@ -246,7 +246,7 @@ void uiTieWin::drawFields()
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, sep2 );
     uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
-			mCB(this,uiTieWin,rejectOK), true );
+			mCB(this,uiTieWin,cancelPushCB), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, sep2 );
 }
@@ -282,7 +282,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     applybut_->attach( rightOf, eventtypefld_ );
 
     undobut_ = new uiPushButton( taskgrp, uiStrings::sUndo(),
-	   mCB(this,uiTieWin,undoPushed), true );
+				   mCB(this,uiTieWin,undoPushed), true );
     undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
 
@@ -393,12 +393,11 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 }
 
 
-bool uiTieWin::saveDataPushed( CallBacker* )
+void uiTieWin::saveDataPushed( CallBacker* )
 {
     uiSaveDataDlg dlg( this, server_ );
     dlg.go();
     wvltfld_->rebuildList();
-    return true;
 }
 
 
@@ -453,10 +452,10 @@ void uiTieWin::checkIfPick( CallBacker* )
 }
 
 
-bool uiTieWin::undoPushed( CallBacker* cb )
+void uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
-	mErrRetYN( tr("Cannot go back to previous model") );
+	mErrRet( tr("Cannot go back to previous model") );
 
     server_.updateExtractionRange();
     doWork( cb );
@@ -467,23 +466,22 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
-    return true;
 }
 
 
-bool uiTieWin::matchHorMrks( CallBacker* )
+void uiTieWin::matchHorMrks( CallBacker* )
 {
     PickSetMgr& pmgr = server_.pickMgr();
-    mGetWD(return false)
+    mGetWD(return)
     if ( !wd || !wd->markers().size() )
-	mErrRetYN( tr("No Well marker found") )
+	mErrRet( tr("No Well marker found") )
 
     uiString msg = tr("No horizon loaded, do you want to load some ?");
     const Data& data = server_.data();
     if ( !data.horizons_.size() )
     {
 	if ( !uiMSG().askGoOn( msg ) )
-	    return false;
+	    return;
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
@@ -496,14 +494,13 @@ bool uiTieWin::matchHorMrks( CallBacker* )
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());
     if ( pcs.isEmpty() )
-	mErrRetYN( tr("No match between markers and horizons") )
+	mErrRet( tr("No match between markers and horizons") )
     for ( int idx=0; idx<pcs.size(); idx ++ )
     {
 	pmgr.addPick( pcs[idx].z1_, true );
 	pmgr.addPick( pcs[idx].z2_, false );
     }
     drawer_->drawUserPicks();
-    return true;
 }
 
 
@@ -529,11 +526,10 @@ void uiTieWin::wvltSelCB( CallBacker* )
 }
 
 
-bool uiTieWin::rejectOK( CallBacker* )
+void uiTieWin::cancelPushCB( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
     close();
-    return true;
 }
 
 
@@ -546,7 +542,7 @@ void uiTieWin::cleanUp( CallBacker* )
 }
 
 
-bool uiTieWin::acceptOK( CallBacker* )
+void uiTieWin::okPushCB( CallBacker* )
 {
     uiString errmsg = tr("This will overwrite your depth/time model, "
 			 "do you want to continue?");
@@ -555,13 +551,11 @@ bool uiTieWin::acceptOK( CallBacker* )
 	drawer_->enableCtrlNotifiers( false );
 	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
-	    mErrRetYN(tr("Cannot write new depth/time model"))
+	    mErrRet(tr("Cannot write new depth/time model"))
 
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
 	    Well::MGR().reload( server_.wellID() );
     }
-
-    return false;
 }
 
 

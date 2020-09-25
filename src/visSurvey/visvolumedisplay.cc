@@ -412,7 +412,7 @@ int VolumeDisplay::addSlice( int dim )
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
 
-    slice->setName( dim==cTimeSlice() ? uiStrings::sTime() :
+    slice->setUiName( dim==cTimeSlice() ? uiStrings::sTime() :
 		   (dim==cCrossLine()
 		    ? uiStrings::sCrossline()
 		    : uiStrings::sInline()) );
@@ -512,7 +512,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
 			 MarchingCubesSurface() )
     isosurface->setSurface( *surface, taskr );
-    isosurface->setName( toUiString("Iso surface") );
+    isosurface->setUiName( toUiString("Iso surface") );
 
     isosurfaces_ += isosurface;
     IsosurfaceSetting setting;
@@ -995,7 +995,7 @@ void VolumeDisplay::sliceMoving( CallBacker* cb )
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb)
     if ( !slice ) return;
 
-    slicename_ = mFromUiStringTodo(slice->name());
+    slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
 }
 
@@ -1545,11 +1545,11 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	slices_ += os;
 	addChild( os->osgNode() );
 	// set correct dimensions ...
-	if ( mFromUiStringTodo(os->name())==sKeyInline() )
+	if ( os->name() == FixedString(sKeyInline()) )
 	    os->setDim( cInLine() );
-	else if ( mFromUiStringTodo(os->name())==sKeyCrossLine() )
+	else if ( os->name() == FixedString(sKeyCrossLine()) )
 	    os->setDim( cCrossLine() );
-	else if ( mFromUiStringTodo(os->name())==sKeyTime() )
+	else if ( os->name() == FixedString(sKeyTime()) )
 	    os->setDim( cTimeSlice() );
     }
 

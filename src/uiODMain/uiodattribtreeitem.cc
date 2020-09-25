@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -285,7 +285,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
     if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
 	dispname = uiStrings::sRightClick();
     else if ( !as )
-	dispname = visserv->getObjectName( visid );
+	dispname = visserv->getUiObjectName( visid );
     else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
 	dispname = uiString::emptyString();
 

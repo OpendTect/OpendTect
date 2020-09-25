@@ -159,7 +159,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     uiGroup* tblgrp = new uiGroup( this );
     if ( linefld_ )	tblgrp->attach( alignedBelow, linefld_ );
     else		tblgrp->attach( alignedBelow, statsfld_ );
-    table_ = new uiTable( tblgrp, uiTable::Setup().rowdesc("Attribute")
+    table_ = new uiTable( tblgrp, uiTable::Setup()
+				.rowdesc(uiStrings::sAttribute())
 				.rowgrow(true)
 				.minrowhgt(1.5)
 				.maxrowhgt(1.8)
@@ -171,8 +172,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 				.maxcolwdt(4.f*uiObject::baseFldSize()),
 			  "Reference attributes table" );
 
-    const char* collbls[] = { "Reference attributes", 0 };
-    table_->setColumnLabels( collbls );
+    table_->setColumnLabel( 0, tr("Reference attribute") );
     table_->setNrRows( cInitNrRows );
     table_->setStretch( 2, 0 );
     table_->setToolTip(tr("Right-click to add, insert or remove an attribute"));

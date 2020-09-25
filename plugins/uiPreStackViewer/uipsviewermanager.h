@@ -61,8 +61,8 @@ protected:
     uiFlatViewMainWin*	create2DViewer(const uiString&,int dpid);
 
     int			getSceneID(int mnid);
-    static void		getSeis2DTitle(int trnr,const uiString&,uiString&);
-    static void		getSeis3DTitle(const BinID&,const uiString&,uiString&);
+    static void		getSeis2DTitle(int trnr,const char*,uiString&);
+    static void		getSeis3DTitle(const BinID&,const char*,uiString&);
     bool		add3DViewer(const uiMenuHandler*,int scnid,int mnuidx);
     void		removeViewWin(int dpid);
     void		createMenuCB(CallBacker*);

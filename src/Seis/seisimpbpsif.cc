@@ -45,7 +45,7 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
 	fnames_.add( fp.fullPath() );
     else
     {
-	DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
+	DirList dl( fp.pathOnly(), File::FilesInDir, fp.fileName() );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	    fnames_.add( dl.fullPath(idx) );
     }

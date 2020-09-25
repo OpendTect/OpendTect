@@ -46,7 +46,7 @@ public:
 				    toUiString(sFactoryKeyword()))
 
     void			setGeomID(Pos::GeomID geomid);
-    const char*			getLineName() const;
+    BufferString		getLineName() const;
     Pos::GeomID			getGeomID() const	   { return geomid_; }
 
     void			setGeometry(const PosInfo::Line2DData&);
@@ -155,7 +155,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    visBase::TexturePanelStrip* getTexturePanelStrip() const 
+    visBase::TexturePanelStrip* getTexturePanelStrip() const
 				{ return panelstrip_; }
 
     const visBase::Text2*	getVisTextLineName() { return linename_; }

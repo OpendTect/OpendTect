@@ -64,7 +64,7 @@ SetMgr& SetMgr::getMgr( const char* nm )
 
 
 SetMgr::SetMgr( const char* nm )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
     , setDispChanged(this)
@@ -185,7 +185,11 @@ void SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
     if ( setidx >= 0 )
     {
 	changed_[setidx] = true;
-	locationChanged.trigger( const_cast<ChangeData*>( &cd ), sender );
+	mDynamicCastGet(Pick::SetMgr*,picksetmgr,sender);
+	Notifier<Pick::SetMgr> notif( picksetmgr ? picksetmgr->locationChanged
+						 : nullptr );
+	NotifyStopper ns( notif, this );
+	locationChanged.trigger( const_cast<ChangeData*>( &cd ) );
     }
 }
 
@@ -196,7 +200,11 @@ void SetMgr::reportChange( CallBacker* sender, const Set& s )
     if ( setidx >= 0 )
     {
 	changed_[setidx] = true;
-	setChanged.trigger( const_cast<Set*>(&s), sender );
+	mDynamicCastGet(Pick::SetMgr*,picksetmgr,sender);
+	Notifier<Pick::SetMgr> notif( picksetmgr ? picksetmgr->setChanged
+						 : nullptr );
+	NotifyStopper ns( notif, this );
+	setChanged.trigger( const_cast<Set*>(&s) );
     }
 }
 
@@ -205,7 +213,13 @@ void SetMgr::reportDispChange( CallBacker* sender, const Set& s )
 {
     const int setidx = pss_.indexOf( &s );
     if ( setidx >= 0 )
-	setDispChanged.trigger( const_cast<Set*>(&s), sender );
+    {
+	mDynamicCastGet(Pick::SetMgr*,picksetmgr,sender);
+	Notifier<Pick::SetMgr> notif( picksetmgr ? picksetmgr->setDispChanged
+						 : nullptr );
+	NotifyStopper ns( notif, this );
+	setDispChanged.trigger( const_cast<Set*>(&s) );
+    }
 }
 
 
@@ -439,19 +453,19 @@ protected:
 // Both Pick set types
 
 template <class PicksType>
-static typename PicksType::size_type findIdx( const PicksType& picks,
-					      const TrcKey& tk )
+static typename Pick::Set::LocID findIdx( const PicksType& picks,
+					  const TrcKey& tk )
 {
     const typename PicksType::size_type sz = picks.size();
-    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
+    for ( typename Pick::Set::LocID idx=0; idx<sz; idx++ )
 	if ( picks.get(idx).trcKey() == tk )
 	    return idx;
     return -1;
 }
 
 template <class PicksType>
-static typename PicksType::size_type getNearestLocation( const PicksType& ps,
-				    const Coord3& pos, bool ignorez )
+static typename Pick::Set::LocID getNearestLocation( const PicksType& ps,
+					  const Coord3& pos, bool ignorez )
 {
     const typename PicksType::size_type sz = ps.size();
     if ( sz < 2 )
@@ -459,12 +473,12 @@ static typename PicksType::size_type getNearestLocation( const PicksType& ps,
     if ( pos.isUdf() )
 	return 0;
 
-    typename PicksType::size_type ret = 0;
+    typename Pick::Set::LocID ret = 0;
     const Coord3& p0 = ps.get( ret ).pos();
     double minsqdist = p0.isUdf() ? mUdf(double)
 		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
 
-    for ( typename PicksType::size_type idx=1; idx<sz; idx++ )
+    for ( typename Pick::Set::LocID idx=1; idx<sz; idx++ )
     {
 	const Coord3& curpos = ps.get( idx ).pos();
 	if ( pos.isUdf() )
@@ -486,7 +500,7 @@ static typename PicksType::size_type getNearestLocation( const PicksType& ps,
 { "None", "Open", "Close", 0 };
 
 Set::Set( const char* nm )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , pars_(*new IOPar)
     , readonly_(false)
 {
@@ -609,19 +623,19 @@ float Set::getXYArea( int setidx ) const
 }
 
 
-Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
+Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
 {
     return findIdx( *this, tk );
 }
 
 
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
+Pick::Set::LocID Pick::Set::nearestLocation( const Coord& pos ) const
 {
     return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
 }
 
 
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
+Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 						 bool ignorez ) const
 {
     return getNearestLocation( *this, pos, ignorez );
@@ -753,7 +767,7 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 }
 
 
-void Set::insertWithUndo( int idx, const Pick::Location& loc )
+void Set::insertWithUndo( LocID idx, const Pick::Location& loc )
 {
     insert( idx, loc );
     addUndoEvent( Insert, idx, loc );
@@ -767,7 +781,7 @@ void Set::appendWithUndo( const Pick::Location& loc )
  }
 
 
-void Set::removeSingleWithUndo( int idx )
+void Set::removeSingleWithUndo( LocID idx )
 {
     const Pick::Location pos = (*this)[idx];
     addUndoEvent( Remove, idx, pos );
@@ -775,8 +789,8 @@ void Set::removeSingleWithUndo( int idx )
 }
 
 
-void Set::moveWithUndo( int idx, const Pick::Location& undoloc,
-    const Pick::Location& loc )
+void Set::moveWithUndo( LocID idx, const Pick::Location& undoloc,
+			const Pick::Location& loc )
 {
     if ( size()<idx ) return;
     (*this)[idx] = undoloc;
@@ -791,6 +805,13 @@ bool Set::isSizeLargerThanThreshold() const
     Settings::common().getYN( sKeyUseThreshold(), usethreshold );
     return usethreshold && size() >= getSizeThreshold();
 }
+
+
+Location& Set::get( LocID idx )
+{ return (*this)[idx]; }
+
+const Location& Set::get( LocID idx ) const
+{ return (*this)[idx]; }
 
 
 } // namespace Pick
@@ -867,7 +888,7 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
     return true;
 }
 
-
+/*
 Pick::List& Pick::List::add( const Location& loc, bool mkcopy )
 {
     if ( mkcopy )
@@ -878,20 +899,28 @@ Pick::List& Pick::List::add( const Location& loc, bool mkcopy )
 }
 
 
-Pick::List::size_type Pick::List::find( const TrcKey& tk ) const
+Pick::List::LocID Pick::List::find( const TrcKey& tk ) const
 {
     return findIdx( *this, tk );
 }
 
 
-Pick::List::size_type Pick::List::nearestLocation( const Coord& pos ) const
+Pick::List::LocID Pick::List::nearestLocation( const Coord& pos ) const
 {
     return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
 }
 
 
-Pick::List::size_type Pick::List::nearestLocation( const Coord3& pos,
+Pick::List::LocID Pick::List::nearestLocation( const Coord3& pos,
 						 bool ignorez ) const
 {
     return getNearestLocation( *this, pos, ignorez );
 }
+
+
+Pick::Location& Pick::List::get( LocID idx )
+{ return *(*this)[idx]; }
+
+
+const Pick::Location& Pick::List::get( LocID idx ) const
+{ return *(*this)[idx]; } */

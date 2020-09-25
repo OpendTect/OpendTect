@@ -26,7 +26,7 @@ template <class T> class ODPolygon;
 /*!Object that can be painted in a basemap. */
 
 
-mExpClass(General) BaseMapObject : public NamedObject
+mExpClass(General) BaseMapObject : public NamedCallBacker
 {
 public:
 

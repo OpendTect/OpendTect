@@ -21,14 +21,13 @@ const char* ODMad::ProcFlow::sKeyProc()		{ return "Proc"; }
 const char* ODMad::ProcFlow::sKeyNrProcs()	{ return "Nr Procs"; }
 
 defineTranslatorGroup(ODMadProcFlow, "Madagascar process flow" );
-
+defineTranslator(dgb,ODMadProcFlow,mDGBKey);
+mDefSimpleTranslatorioContextWithExtra(ODMadProcFlow,None,
+					ctxt->selkey_ = ODMad::sKeyMadSelKey())
 
 uiString ODMadProcFlowTranslatorGroup::sTypeName(int)
 { return tr("Madagascar process flow"); }
 
-defineTranslator(dgb,ODMadProcFlow,mDGBKey);
-mDefSimpleTranslatorioContextWithExtra(ODMadProcFlow,None,
-					ctxt->selkey_ = ODMad::sKeyMadSelKey())
 
 
 ODMad::ProcFlow::ProcFlow( const char* nm )
@@ -171,74 +170,80 @@ int ODMadProcFlowTranslatorGroup::selector( const char* key )
 
 
 bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
-					BufferString& bs )
+					uiString& str )
 {
-    if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
-    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
+    if ( !ioobj ) { str = uiStrings::phrCannotFind(tr("object in data base"));
+								return false; }
+    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> trans,
 		 ioobj->createTranslator());
-    if ( !tr )
-	{ bs = "Selected object is not a processing flow"; return false; }
+    if ( !trans ) { str = tr("Selected object is not a Madagascar flow");
+								return false; }
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( pf, *conn );
-    return bs.isEmpty();
+	{ str = ioobj->phrCannotOpenObj(); return false; }
+    str = trans->read( pf, *conn );
+    return str.isEmpty();
 }
 
 
 bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
-				     const IOObj* ioobj, BufferString& bs )
+				     const IOObj* ioobj, uiString& str )
 {
-    if ( !ioobj ) { bs = "No object to store flow in data base"; return false; }
-    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
+    if ( !ioobj ) { str = uiStrings::phrCannotFind(tr("object in data base"));
+								return false; }
+    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> trans,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Processing flow"; return false;}
+    if ( !trans ) { str = tr("Selected object is not a Madagascar flow");
+								return false; }
 
-    bs = "";
+    str = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
+	{ str = ioobj->phrCannotOpenObj(); return false; }
     else
-	bs = tr->write( pf, *conn );
+	str = trans->write( pf, *conn );
 
-    return bs.isEmpty();
+    return str.isEmpty();
 }
 
 
-const char* dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
+uiString dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return mINTERNAL("bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from input file";
+	return uiStrings::phrCannotRead(tr("from input file"));
     if ( !astrm.isOfFileType(mTranslGroupName(ODMadProcFlow)) )
-	return "Input file is not a Processing flow";
+	return tr("Input file is not a Madagascar Processing flow");
     if ( atEndOfSection(astrm) )
 	astrm.next();
     if ( atEndOfSection(astrm) )
-	return "Input file is empty";
+	return tr("Input file is empty");
 
     pf.setName( IOM().nameOf(conn.linkedTo()) );
     IOPar iop( astrm ); pf.usePar( iop );
-    return 0;
+    return uiString::emptyString();
 }
 
 
-const char* dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
-						Conn& conn )
+uiString dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
+					    Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return mINTERNAL("bad connection");
 
+    const uiString filtypstr = tr("Madagscar flow file");
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODMadProcFlow) );
     if ( !astrm.isOK() )
-	return "Cannot write to output Processing flow file";
+	return uiStrings::phrCannotWrite( filtypstr );
 
     IOPar par;
     pf.fillPar( par );
     par.putTo( astrm );
-    return astrm.isOK() ? 0 : "Error during write to Processing flow file";
+    return astrm.isOK() ? uiString::emptyString()
+                        : uiStrings::phrErrDuringWrite( filtypstr );
 }

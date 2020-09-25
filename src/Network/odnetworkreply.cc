@@ -30,51 +30,44 @@ ODNetworkReply::ODNetworkReply( QNetworkReply* qnr, QEventLoop* qel )
 {
     qnetworkreply_ = qnr;
     qnetworkreplyconn_ = new QNetworkReplyConn(qnetworkreply_, this);
-    error.notify( mCB(this,ODNetworkReply,errorOccurred) );
-    finished.notify( mCB(this,ODNetworkReply,finish) );
-    readyRead.notify( mCB(this,ODNetworkReply,dataAvailable) );
-    uploadProgress.notify( mCB(this,ODNetworkReply,uploadStatus) );
+    mAttachCB( error, ODNetworkReply::errorOccurred );
+    mAttachCB( finished, ODNetworkReply::finish );
+    mAttachCB( readyRead, ODNetworkReply::dataAvailable );
+    mAttachCB( uploadProgress, ODNetworkReply::uploadStatus );
 }
 
 
 ODNetworkReply::~ODNetworkReply()
 {
+    detachAllNotifiers();
     delete qnetworkreply_;
     delete qnetworkreplyconn_;
 }
 
 
-bool ODNetworkReply::errorOccurred(CallBacker*)
+void ODNetworkReply::errorOccurred(CallBacker*)
 {
     if ( qeventloop_->isRunning() )
 	qeventloop_->exit();
-
-    return true;
 }
 
 
-bool ODNetworkReply::finish(CallBacker*)
+void ODNetworkReply::finish(CallBacker*)
 {
     if ( qeventloop_->isRunning() )
 	qeventloop_->exit();
-
-    return true;
 }
 
 
-bool ODNetworkReply::dataAvailable( CallBacker* )
+void ODNetworkReply::dataAvailable( CallBacker* )
 {
     if ( qeventloop_->isRunning() )
 	qeventloop_->exit();
-
-    return true;
 }
 
 
-bool ODNetworkReply::uploadStatus( CallBacker* )
+void ODNetworkReply::uploadStatus( CallBacker* )
 {
     if ( qeventloop_->isRunning() )
 	qeventloop_->exit();
-
-    return true;
 }

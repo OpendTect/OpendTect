@@ -107,8 +107,8 @@ protected:
 mExpClass(Geometry) Line2DInterSectionSet : public ObjectSet<Line2DInterSection>
 {
 public:
-    const Line2DInterSection*	get(Pos::GeomID) const;
 
+    const Line2DInterSection*	getByGeomID(Pos::GeomID) const;
     void		getAll(TypeSet<Line2DInterSection::Point>&) const;
 };
 

@@ -240,8 +240,9 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
     mGetFloat( maxlimit_, maxlimitStr() );
     if ( mIsEqual(minlimit_,maxlimit_,1e-3) )
     {
-	errmsg_ = "Minimum and Maximum values cannot be the same.\n";
-	errmsg_ = "Values represent the clipping range of the input.";
+	errmsg_ = tr("Minimum and Maximum values cannot be the same.");
+	errmsg_.addMoreInfo(
+		tr("Values represent the clipping range of the input."), true );
 	return;
     }
 

@@ -66,7 +66,7 @@ class uiHelloMsgBringer : public uiDialog
 public:
 
 uiHelloMsgBringer( uiParent* p )
-    : uiDialog(p,Setup("Hello Message Window","Specify hello message",
+    : uiDialog(p,Setup(tr("Hello Message Window"),tr("Specify hello message"),
 			mNoHelpKey))
 {
     txtfld_ = new uiGenInput( this, tr("Hello message"),
@@ -89,9 +89,9 @@ bool acceptOK( CallBacker* )
 	return false;
     }
     if ( typfld_->getBoolValue() )
-	uiMSG().message( typedtxt );
+	uiMSG().message( toUiString(typedtxt) );
     else
-	uiMSG().warning( typedtxt );
+	uiMSG().warning( toUiString(typedtxt) );
 
     const bool doclose = closefld_->getBoolValue();
     return doclose;

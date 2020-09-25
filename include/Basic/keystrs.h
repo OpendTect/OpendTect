@@ -82,13 +82,15 @@ namespace sKey
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
-    inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
     inline FixedString LineNames()	{ return "Line names"; }
     inline FixedString Local()		{ return "Local"; }
     inline FixedString Log()		{ return "Log"; }
     inline FixedString LogFile()	{ return "Log file"; }
+    inline FixedString MD(int n=1)      { return n<2 ? "MD" : "MDs"; }
+    inline FixedString Marker()         { return "Marker"; }
+    inline FixedString MarkerStyle()    { return "Marker Style"; }
     inline FixedString Name()		{ return "Name"; }
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
@@ -144,6 +146,9 @@ namespace sKey
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
+    inline FixedString TVD(int n=1)     { return n<2 ? "TVD" : "TVDs"; }
+    inline FixedString TVDSS()          { return "TVDSS"; }
+    inline FixedString TWT()            { return "TWT"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString TwoD()		{ return "2D"; }
     inline FixedString Thickness()	{ return "Thickness"; }
@@ -158,11 +163,15 @@ namespace sKey
     inline FixedString WaveletID()	{ return "Wavelet ID"; }
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
+    inline FixedString X()              { return "X"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
     inline FixedString XOffset()	{ return "X Offset"; }
+    inline FixedString Y()              { return "Y"; }
+    inline FixedString Y2()             { return "Y2"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
     inline FixedString YOffset()	{ return "Y Offset"; }
     inline FixedString Yes()		{ return "Yes"; }
+    inline FixedString Z()              { return "Z"; }
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }

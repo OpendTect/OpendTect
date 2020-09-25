@@ -136,7 +136,7 @@ const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib,
 	return 0;
 
     if ( mIsUdf(version) || version<0
-	    		 || version >= channels_->nrVersions(attrib) )
+			 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
 
     return &channels_->getColTabMapperSetup( attrib, version );
@@ -314,9 +314,9 @@ void MPEDisplay::moveMPEPlane( int nr )
     drg->getSpaceLimits( sx, sy, sz );
 
     center.x = 0.5 * ( SI().inlRange(true).snap( center.x - width.x/2 ) +
-	    	       SI().inlRange(true).snap( center.x + width.x/2 ) );
+		       SI().inlRange(true).snap( center.x + width.x/2 ) );
     center.y = 0.5 * ( SI().crlRange(true).snap( center.y - width.y/2 ) +
-	    	       SI().crlRange(true).snap( center.y + width.y/2 ) );
+		       SI().crlRange(true).snap( center.y + width.y/2 ) );
     center.z = 0.5 * ( SI().zRange(true).snap( center.z - width.z/2 ) +
 		       SI().zRange(true).snap( center.z + width.z/2 ) );
 
@@ -612,7 +612,7 @@ void MPEDisplay::updateBoxSpace()
     const Interval<float> survcrlrg( mCast(float,hs.start_.crl()),
 					mCast(float,hs.stop_.crl()) );
     const Interval<float> survzrg( SI().zRange(true).start,
-	    			   SI().zRange(true).stop );
+				   SI().zRange(true).stop );
 
     boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
 
@@ -1008,7 +1008,7 @@ void MPEDisplay::setSliceDimension( int sliceidx, int dim )
     if ( slices_.validIdx(sliceidx) && dim>=0 && dim<3 )
     {
 	slices_[sliceidx]->setDim( dim );
-	slices_[sliceidx]->setName( dim==cTimeSlice() ? uiStrings::sTime() :
+	slices_[sliceidx]->setUiName( dim==cTimeSlice() ? uiStrings::sTime() :
 				    dim==cCrossLine()
 					? uiStrings::sCrossline()
 					: uiStrings::sInline() );
@@ -1131,7 +1131,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb);
     if ( !slice ) return;
 
-    slicename_ = mFromUiStringTodo(slice->name());
+    slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
 
     if ( isSelected() ) return;

@@ -181,7 +181,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
     emsurface_->setPreferredColor( getColor() );
-    emsurface_->setName( mFromUiStringTodo(name()) );
+    emsurface_->setName( name() );
 
     materialChangeCB( 0 );
     return true;
@@ -463,7 +463,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 {
     val = sKey::EmptyString();
     info = "Body: ";
-    info += mFromUiStringTodo(name());
+    info += name();
 
     int valididx = -1;
     for ( int idx=0; idx<cache_.size(); idx++ )
@@ -543,8 +543,8 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
     {
 	getMaterial()->setColor( emsurface_->preferredColor() );
 	if ( !emsurface_->name().isEmpty() )
-	    setName( emsurface_->uiName() );
-	else setName( tr("<New body>") );
+	    setName( emsurface_->name() );
+	else setName( "<New body>" );
 
 	if ( !displaysurface_ )
 	{

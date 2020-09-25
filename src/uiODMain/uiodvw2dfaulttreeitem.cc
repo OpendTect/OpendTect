@@ -351,7 +351,7 @@ void uiODVw2DFaultTreeItem::renameVisObj()
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
     for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
     applMgr()->visServer()->triggerTreeUpdate();
 }
 

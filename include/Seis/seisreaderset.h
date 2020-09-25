@@ -31,9 +31,9 @@ public:
 
     bool		prepareWork(Seis::ReadMode rm=Seis::Prod);
 
-    int			get(ObjectSet<SeisTrcInfo>&);
-    				//!< not optional: has to be called explicitly
-    bool		get(ObjectSet<SeisTrc>&);
+    int			getTrcInfos(ObjectSet<SeisTrcInfo>&);
+				//!< not optional: has to be called explicitly
+    bool		getTrcs(ObjectSet<SeisTrc>&);
 
     void		setComponent(int);
 

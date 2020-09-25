@@ -15,8 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "atomic.h"
 #include "signal.h"
 #include "thread.h"
+#include "timer.h"
 #include <time.h>
 #include "ptrman.h"
+#include "applicationdata.h"
 
 
 class ClassWithNotifier : public CallBacker
@@ -43,6 +45,9 @@ public:
 			{
 			    nrhits_--;
 			}
+    void		timerHit( CallBacker* )
+			    { logStream() << "[OK] Timer hit!" << od_endl;
+			      ExitProgram( 0 ); }
 
     Threads::Atomic<int>	nrhits_;
 };
@@ -66,15 +71,11 @@ bool testNormalOp()
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==3, "Normal callback" );
 
-    mRunStandardTest( notifier.notifier.disable(),
-		     "Return value of disable call" );
-    mRunStandardTest( !notifier.notifier.disable(),
-		     "Return value of disable call on disabled notifier" );
+    notifier.notifier.disable();
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==3 , "Trigger disabled notifier" );
 
-    mRunStandardTest( !notifier.notifier.enable(),
-		      "Return value of enable call on disabled notifier" );
+    notifier.notifier.enable();
 
     NotifyStopper* stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
@@ -97,6 +98,10 @@ bool testNormalOp()
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==5,
 		     "Removed notify-stopper on disabled notifier" );
+
+    notifier.notifier.enable();
+    mRunStandardTest( notifier.notifier.isEnabled(),
+		     "No longer disabled notifier" );
 
     return true;
 }
@@ -198,7 +203,7 @@ public:
 
     ~InMainThreadTester()
     {
-        CallBack::removeFromMainThread( this );
+        CallBack::removeFromThreadCalls( this );
 
     }
 
@@ -212,7 +217,7 @@ public:
     }
 
 
-    Threads::AtomicPointer<const void>	callingthread_;
+    Threads::Atomic<Threads::ThreadID>	callingthread_;
 };
 
 
@@ -251,7 +256,7 @@ bool testLateDetach()
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     delete notified;
 
-    logStream() << "Detaching deleted notifier - SUCCESS\n";
+    logStream() << "[OK] Detaching deleted notifier\n";
 
     return true;
 }
@@ -267,7 +272,7 @@ bool testDetachBeforeRemoval()
     delete notified;
     delete notifier;
 
-    logStream() << "Detach before removal - SUCCESS\n";
+    logStream() << "[OK] Detach before removal\n";
 
     return true;
 }
@@ -278,10 +283,12 @@ bool testDetachBeforeRemoval()
 class NotifierOwner : public CallBacker
 {
 public:
+
     NotifierOwner()
 	: stopflag_( false ), seed_( 5323 )
     {
-	thread_ = new Threads::Thread( mCB(this,NotifierOwner,modifyNotifiers));
+	thread_ = new Threads::Thread( mCB(this,NotifierOwner,modifyNotifiers),
+					"NotifierOwner" );
     }
     ~NotifierOwner()
     {
@@ -354,7 +361,8 @@ public:
     ReceiversOwner( NotifierOwner& no )
 	: stopflag_( false ), seed_( 1234 ), notifierowner_( no )
     {
-	thread_ = new Threads::Thread(mCB(this,ReceiversOwner,modifyRecievers));
+	thread_ = new Threads::Thread(mCB(this,ReceiversOwner,modifyRecievers),
+					"ReceiversOwner" );
     }
 
     ~ReceiversOwner()
@@ -450,8 +458,8 @@ void handler(int sig)
 
 bool testMulthThreadChaos()
 {
-    od_cout() << "Multithreaded chaos:";
-    od_cout().flush();
+    logStream() << "Multithreaded chaos:";
+    logStream().flush();
 
     {
 	NotifierOwner notifierlist;
@@ -468,7 +476,17 @@ bool testMulthThreadChaos()
 	receiverslist.stop();
     } //All variables out of scope here
 
-    od_cout() << " - SUCCESS\n";
+    logStream() << " - [OK]\n";
+    return true;
+}
+
+
+static bool testTimer()
+{
+    auto* tmr = new Timer( "Test timer" );
+    auto* rcvr = new NotifiedClass;
+    tmr->tick.notify( mCB(rcvr,NotifiedClass,timerHit) );
+    tmr->start( 0, true );
     return true;
 }
 
@@ -486,5 +504,8 @@ int main( int argc, char** argv )
       || !InMainThreadTester::test() )
 	ExitProgram( 1 );
 
+    ApplicationData ad;
+    testTimer();
+    ad.exec();
     return ExitProgram( 0 );
 }

@@ -97,17 +97,17 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	, dpspickdlg_(0)
 	, stratampdlg_(0)
 	, flattenmnuitemhndlr_(
-		mMkPars("Write Flattened cube ...",doFlattened),"Workflows")
+		mMkPars(tr("Write Flattened cube ..."),doFlattened),"Workflows")
 	, isochronmnuitemhndlr_(
-		mMkPars("Calculate Isochron ...",doIsochron),"Workflows")
+		mMkPars(tr("Calculate Isochron ..."),doIsochron),"Workflows")
 	, contourmnuitemhndlr_(
-		mMkPars("Contour Display",doContours),"Add",995)
+		mMkPars(tr("Contour Display"),doContours),"Add",995)
 	, horvolmnuitemhndlr_(
-		mMkPars("Calculate Volume ...",calcHorVol),"Workflows")
+		mMkPars(tr("Calculate Volume ..."),calcHorVol),"Workflows")
 	, pickdatamnuitemhndlr_(
-		mMkPars("Pick Horizon Data ...",pickData),"Workflows")
+		mMkPars(tr("Pick Horizon Data ..."),pickData),"Workflows")
 	, polyvolmnuitemhndlr_(
-		*a->applMgr().visServer(),"Calculate Volume ...",
+		*a->applMgr().visServer(),tr("Calculate Volume ..."),
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
@@ -136,10 +136,10 @@ void uiHorAttribPIMgr::updateMenuCB( CallBacker* )
     if ( !itm || !itm->getMenu() ) return;
 
     if ( SI().has3D() )
-	itm->getMenu()->insertItem( new uiAction("Stratal Amplitude ...",
+	itm->getMenu()->insertItem( new uiAction(tr("Stratal Amplitude ..."),
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    itm->getMenu()->insertItem( new uiAction("Isochron ...",
+    itm->getMenu()->insertItem( new uiAction(tr("Isochron ..."),
 			    mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
 }
 
@@ -221,11 +221,12 @@ void uiHorAttribPIMgr::doIsochronThruMenu( CallBacker* )
 
 
 class uiSelContourAttribDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSelContourAttribDlg);
 public:
 
 uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
-    : uiDialog(p,uiDialog::Setup("Select Attribute to contour", 0, mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Select Attribute to contour"),
+				mNoDlgTitle,mNoHelpKey))
 {
     const MultiID mid = EM::EMM().getMultiID( id );
     PtrMan<IOObj> emioobj = IOM().get( mid );
@@ -233,11 +234,11 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     BufferStringSet attrnms;
     attrnms.add( uiContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
-    uiLabeledListBox* llb =
-	new uiLabeledListBox( this, attrnms,
-		emioobj ? emioobj->name().buf() : uiStrings::sEmptyString(),
-		OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    attrlb_ = llb->box();
+
+    const uiString lbl = toUiString( emioobj->name() );
+    uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
+    attrlb_ = new uiListBox( this, su );
+    attrlb_->addItems( attrnms );
 }
 
 int nrAttribs() const { return attrlb_->size(); }
@@ -258,7 +259,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 
     EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( !hor ) { uiMSG().error("Internal: cannot find horizon"); return; }
+    if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
 
     uiSelContourAttribDlg dlg( appl_, emobj->id() );
     if ( dlg.nrAttribs()>1 && !dlg.go() )
@@ -320,7 +321,7 @@ void uiHorAttribPIMgr::calcHorVol( CallBacker* )
 
     EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( !hor ) { uiMSG().error("Internal: cannot find horizon"); return; }
+    if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
     uiCalcHorPolyVol dlg( appl_, *hor );
     dlg.go();
 }

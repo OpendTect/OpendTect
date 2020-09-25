@@ -14,9 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netreqpacket.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "ptrman.h"
 #include "timefun.h"
 #include "uistrings.h"
+
+#include <QEventLoop>
+#include <QTcpSocket>
 
 using namespace Network;
 
@@ -25,36 +27,51 @@ using namespace Network;
 #pragma comment( lib, "iphlpapi" )
 #endif
 
+namespace Network
+{
+
+struct PacketSendData : public RefCount::Referenced
+{
+    PacketSendData(const RequestPacket&,bool wait);
+    ConstRefMan<RequestPacket>  packet_;
+    bool                        waitforfinish_;
+
+    enum SendStatus             { NotAttempted, Sent, Failed };
+    SendStatus			sendstatus_;
+				//Protected by connections' lock_
+};
+
+
 static Threads::Atomic<int> connid;
 
 
 RequestConnection::RequestConnection( const Authority& authority,
-				      bool multithreaded,
-				      int timeout )
-    : socket_(nullptr)
-    , ownssocket_(true)
-    , connectionClosed(this)
-    , packetArrived(this)
-    , id_(connid++)
+				      bool multithreaded, int timeout )
+    : socket_( nullptr )
+    , ownssocket_( true )
+    , connectionClosed( this )
+    , packetArrived( this )
+    , id_( connid++ )
     , authority_(new Authority(authority))
-    , socketthread_(nullptr)
-    , timeout_(timeout)
-    , stopflag_(0)
-    , packettosend_(0)
-    , threadreadstatus_(None)
-    , triggerread_(false)
+    , timeout_( timeout )
 {
     if ( multithreaded )
     {
-	Threads::MutexLocker locker( lock_ );
 	socketthread_ =
 	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc),
 				 "RequestConnection socket thread" );
-	lock_.wait(); //Wait for thread to create connection.
+
+	Threads::ConditionVar eventlooplock;
+        eventlooplock.lock();
+	eventlooplock_ = &eventlooplock;
+	while ( !eventloop_ )
+	    eventlooplock.wait(); //Wait for thread to create connection.
+        eventlooplock.unLock();
+	eventlooplock_ = nullptr;
     }
     else
     {
-	 connectToHost();
+	 connectToHost( false );
     }
 }
 
@@ -65,12 +82,7 @@ RequestConnection::RequestConnection( Socket* sock )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
-    , socketthread_( 0 )
     , timeout_( 0 )
-    , stopflag_( 0 )
-    , packettosend_( 0 )
-    , threadreadstatus_( None )
-    , triggerread_( false )
 {
     if ( !sock )
 	return;
@@ -85,12 +97,9 @@ RequestConnection::~RequestConnection()
     detachAllNotifiers();
 
     delete authority_;
-    if ( socketthread_ )
+    if ( eventloop_ )
     {
-	lock_.lock();
-	stopflag_ = true;
-	lock_.signal( true );
-	lock_.unLock();
+	eventloop_->exit();
 
 	socketthread_->waitForFinish();
 	deleteAndZeroPtr( socketthread_ );
@@ -100,8 +109,23 @@ RequestConnection::~RequestConnection()
 	deleteAndZeroPtr( socket_, ownssocket_ );
     }
 
-    deepErase( receivedpackets_ );
+    if ( !receivedpackets_.isEmpty() )
+    {
+	pErrMsg("Received packets should be empty");
+    }
+
+    if ( sendqueue_.size() )
+    {
+        pErrMsg("Queue should be empty");
+    }
 }
+
+
+PacketSendData::PacketSendData( const RequestPacket& packet, bool wait )
+    : packet_( &packet )
+    , waitforfinish_( wait )
+    , sendstatus_( NotAttempted )
+{}
 
 
 void RequestConnection::socketThreadFunc( CallBacker* )
@@ -112,44 +136,43 @@ void RequestConnection::socketThreadFunc( CallBacker* )
 	return;
     }
 
-    connectToHost();
+    connectToHost( true );
 
+    mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
+    mAttachCB(socket_->readyRead,RequestConnection::dataArrivedCB);
+    QEventLoop* eventloop = new QEventLoop( socket_->qSocket() );
+
+    createReceiverForCurrentThread();
+
+
+    //Tell constructor we are up and running!
+    eventlooplock_->lock();
+    eventloop_ = eventloop;
+    eventlooplock_->signal( true );
+    eventlooplock_->unLock();
+
+    eventloop_->exec();
+
+
+    //Go through send queue and make sure eventual waiting threads are
+    //notified
     lock_.lock();
-    while ( !stopflag_ )
-    {
-	lock_.unLock();
-	const bool hasdata = socket_->bytesAvailable();
-	lock_.lock();
 
-	if ( triggerread_ || hasdata )
-	{
-	    lock_.unLock();
-	    readFromSocket();
-	    lock_.lock();
-	    triggerread_ = false;
-	    lock_.signal( true );
-	    continue;
-	}
+    for ( int idx=0; idx<sendqueue_.size(); idx++ )
+	sendqueue_[idx]->sendstatus_ = PacketSendData::Failed;
 
-	if ( packettosend_ && !sendingfinished_ )
-	{
-	    sendresult_ = doSendPacket( *packettosend_, sendwithwait_ );
-	    sendingfinished_ = true;
+    lock_.signal( true );
 
-	    lock_.signal( true );
-	    continue;
-	}
+    deepUnRef( sendqueue_ );
+    lock_.unLock();
 
-	//Wait 100 ms. We should in principle be able to wait infinitly
-	//if everything is 100% correct. This is however safer
-	lock_.wait( 100 );
-    }
-
+    removeReceiverForCurrentThread();
+    deleteAndZeroPtr( eventloop_ );
     deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
-void RequestConnection::connectToHost()
+void RequestConnection::connectToHost( bool witheventloop )
 {
     if ( socket_ )
     {
@@ -163,7 +186,7 @@ void RequestConnection::connectToHost()
 	return;
     }
 
-    auto* newsocket = new Socket( authority_->isLocal(), isMultiThreaded() );
+    auto* newsocket = new Socket( authority_->isLocal(), witheventloop );
 
     if ( timeout_ > 0 )
 	newsocket->setTimeout( timeout_ );
@@ -172,10 +195,7 @@ void RequestConnection::connectToHost()
 	mAttachCB(newsocket->disconnected,RequestConnection::connCloseCB);
 
     Threads::MutexLocker locker( lock_ );
-
     socket_ = newsocket;
-    //Tell eventual constructor waiting that we have at least tried to connect
-    lock_.signal( true );
 }
 
 
@@ -204,14 +224,20 @@ PortNr_Type RequestConnection::port() const
 }
 
 
-void RequestConnection::connCloseCB( CallBacker* )
+bool RequestConnection::stillTrying() const
 {
-    connectionClosed.trigger();
+    //TODO
+    return false;
 }
 
 
-void RequestConnection::flush()
+void RequestConnection::connCloseCB( CallBacker* )
 {
+    lock_.lock();
+    lock_.signal(true);  //isOK has changed
+    lock_.unLock();
+
+    connectionClosed.trigger();
 }
 
 
@@ -219,17 +245,10 @@ bool RequestConnection::readFromSocket()
 {
     while ( isOK() )
     {
-	PtrMan<RequestPacket> nextreceived = new RequestPacket;
+	RefMan<RequestPacket> nextreceived = new RequestPacket;
 	Socket::ReadStatus readres = socket_->read( *nextreceived );
-	if ( readres==Socket::ReadError )
-	{
-	    errmsg_ = socket_->errMsg();
-	    socket_->disconnectFromHost();
-	    if ( errmsg_.isEmpty() )
-		errmsg_ = tr("Error reading from socket");
-	    return false;
-	}
-	else if ( readres==Socket::ReadOK )
+
+	if ( readres==Socket::ReadOK )
 	{
 	    if ( !nextreceived->isOK() )
 	    {
@@ -241,7 +260,7 @@ bool RequestConnection::readFromSocket()
 	    const od_int32 receivedid = nextreceived->requestID();
 	    Threads::MutexLocker locker ( lock_ );
 	    if ( nextreceived->isNewRequest() ||
-		 ourrequestids_.isPresent( receivedid ) )
+		 ourrequestids_.isPresent(receivedid) )
 	    {
 		receivedpackets_ += nextreceived.release();
 		lock_.signal( true );
@@ -249,9 +268,22 @@ bool RequestConnection::readFromSocket()
 
 		packetArrived.trigger(receivedid);
 	    }
+	    else
+	    {
+		pErrMsg("Invalid packet arrived");
+	    }
+	}
+	else //Error or timeout
+	{
+	    errmsg_ = socket_->errMsg();
+	    socket_->disconnectFromHost();
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = uiStrings::phrErrDuringRead( tr("socket","network") );
+	    return false;
 	}
 
-	if ( !socket_->bytesAvailable() ) //Not sure this works
+	//Break the loop when there is nothing left to read
+	if ( !socket_->bytesAvailable() )
 	    return true;
     }
 
@@ -264,6 +296,55 @@ bool RequestConnection::doSendPacket( const RequestPacket& pkt,
 {
     if ( !isOK() )
 	return	false;
+
+    lock_.unLock();
+    const bool result = socket_->write( pkt, waitforfinish );
+    lock_.lock();
+
+    if ( !result )
+	requestEnded( pkt.requestID() );
+
+    return result;
+}
+
+
+void RequestConnection::sendQueueCB(CallBacker*)
+{
+    lock_.lock();
+    RefObjectSet<PacketSendData> localqueue = sendqueue_;
+    deepUnRef( sendqueue_ );
+    lock_.unLock();
+
+    for ( int idx=0; idx<localqueue.size(); idx++ )
+    {
+	if ( localqueue[idx]->sendstatus_!=PacketSendData::NotAttempted )
+	   //Threadsafe as only I will set it
+	   //apart from constructor
+	    continue;
+
+	lock_.lock();
+
+	localqueue[idx]->sendstatus_ = doSendPacket( *localqueue[idx]->packet_,
+					       localqueue[idx]->waitforfinish_ )
+	     ? PacketSendData::Sent
+	     : PacketSendData::Failed;
+
+	lock_.signal( true );
+	lock_.unLock();
+    }
+}
+
+
+bool RequestConnection::sendPacket( const RequestPacket& pkt,
+				    bool waitforfinish )
+{
+    if ( !pkt.isOK() )
+	return false;
+
+    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+	return false;
+
+    Threads::MutexLocker locker( lock_ );
 
     const od_int32 reqid = pkt.requestID();
 
@@ -279,62 +360,39 @@ bool RequestConnection::doSendPacket( const RequestPacket& pkt,
 	}
     }
 
-    lock_.unLock();
-    const bool result = socket_->write( pkt, waitforfinish );
-    lock_.lock();
-
-    if ( !result )
-	requestEnded( pkt.requestID() );
-
-    return result;
-}
-
-
-
-bool RequestConnection::sendPacket( const RequestPacket& pkt,
-				    bool waitforfinish )
-{
-    if ( !pkt.isOK() )
-	return false;
-
-    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
-	return false;
-
-    Threads::MutexLocker locker( lock_ );
     //We're non-threaded. Just send
     if ( !socketthread_ )
     {
 	return doSendPacket( pkt, waitforfinish );
     }
 
-    //Someone else is sending now. Wait
-    while ( packettosend_ )
-	lock_.wait();
+    RefMan<PacketSendData> senddata = new PacketSendData(pkt,waitforfinish);
+    sendqueue_ += senddata;
+    senddata->ref(); //Class assumes all objects in sendqueue is reffed
 
-    //Setup your batch job and poke thread
-    packettosend_ = &pkt;
-    sendwithwait_ = waitforfinish;
-    sendingfinished_ = false;
-    lock_.signal( true );
+    //Trigger thread if I'm first. If size is larger, it should already be
+    //triggered
+    if ( sendqueue_.size()==1 )
+    {
+	CallBack::addToThread( socketthread_->threadID(),
+			   mCB(this, RequestConnection, sendQueueCB) );
+    }
 
-    //Wait for sending to finish
-    while ( !sendingfinished_ )
+    if ( !waitforfinish )
+	return true;
+
+    while ( !socket_
+	    && senddata->sendstatus_==PacketSendData::NotAttempted )
     {
 	lock_.wait();
     }
 
-    //Pickup sending result
-    const bool result = sendresult_;
-
-    //Tell someone who may be waiting that he can send now.
-    packettosend_ = 0;
-    lock_.signal( true );
-
-    return result;
+    return senddata->sendstatus_==PacketSendData::Sent;
 }
 
 
-RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
+RefMan<RequestPacket> RequestConnection::pickupPacket( od_int32 reqid,
+						int timeout,
 						int* errorcode )
 {
     if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
@@ -348,7 +406,7 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	return 0;
     }
 
-    RequestPacket* pkt = getNextAlreadyRead( reqid );
+    RefMan<RequestPacket> pkt = getNextAlreadyRead( reqid );
     if ( !pkt )
     {
 	const int starttm = Time::getMilliSeconds();
@@ -377,8 +435,6 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	    }
 	    else
 	    {
-		triggerread_ = true;
-		lock_.signal( true );
 		lock_.wait( remaining );
 
 		locker.unLock();
@@ -405,29 +461,39 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 }
 
 
-RequestPacket* RequestConnection::getNextAlreadyRead( int reqid )
+RefMan<RequestPacket> RequestConnection::getNextAlreadyRead( int reqid )
 {
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
-	if ( reqid < 0 || receivedpackets_[idx]->requestID()==reqid )
-	    return receivedpackets_.removeSingle( idx );
+	RefMan<RequestPacket> pkt = receivedpackets_[idx];
+	if ( reqid<0 || pkt->requestID()==reqid )
+	{
+	    receivedpackets_.removeSingle( idx );
+	    pkt->unRef();
+	    return pkt;
+	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-RequestPacket* RequestConnection::getNextExternalPacket()
+RefMan<RequestPacket> RequestConnection::getNextExternalPacket()
 {
     Threads::MutexLocker locker( lock_ );
 
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
-	RequestPacket* pkt = receivedpackets_[idx];
+	RefMan<RequestPacket> pkt = receivedpackets_[idx];
 	if ( !ourrequestids_.isPresent(pkt->requestID()) )
-	    return receivedpackets_.removeSingle(idx);
+	{
+	    receivedpackets_.removeSingle(idx);
+	    pkt->unRef();
+	    return pkt;
+	}
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -438,7 +504,7 @@ void RequestConnection::requestEnded( od_int32 reqid )
     for ( int idx=receivedpackets_.size()-1; idx>=0; idx-- )
     {
 	if ( receivedpackets_[idx]->requestID()==reqid )
-	    delete receivedpackets_.removeSingle( idx );
+	    receivedpackets_.removeSingle( idx );
     }
 }
 
@@ -484,23 +550,22 @@ RequestServer::RequestServer( const Network::Authority& auth )
     : newConnection(this)
 {
     server_ = new Server( auth.isLocal() );
-
     if ( !server_ )
 	return;
 
     mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
     const bool islocal = auth.isLocal();
     uiRetVal ret;
-    const bool islistening = islocal ?
-				server_->listen( auth.getServerName(), ret ) :
-				server_->listen( auth.serverAddress(),
-                                 auth.getPort() );
-
+    const bool islistening = islocal
+			   ? server_->listen( auth.getServerName(), ret )
+			   : server_->listen( auth.serverAddress(),
+					      auth.getPort() );
     if ( !islistening )
-	errmsg_ = islocal ?
-		LocalErrMsg().arg(auth.getServerName()).append(ret,true) :
-					    TCPErrMsg().arg(auth.getPort());
-
+    {
+	errmsg_ = islocal
+	    ? LocalErrMsg().arg(auth.getServerName()).append(ret, true)
+	    : TCPErrMsg().arg(auth.getPort());
+    }
 }
 
 
@@ -571,7 +636,7 @@ void RequestServer::newConnectionCB(CallBacker* cb)
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 #endif
 
-bool Network::isPortFree( PortNr_Type port, uiString* errmsg )
+bool isPortFree( PortNr_Type port, uiString* errmsg )
 {
 #ifdef __win__
     PMIB_TCPTABLE pTcpTable;
@@ -582,9 +647,9 @@ bool Network::isPortFree( PortNr_Type port, uiString* errmsg )
     DWORD dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE);
     if ( dwRetVal == ERROR_INSUFFICIENT_BUFFER )
     {
-	FREE(pTcpTable);
-	pTcpTable = (MIB_TCPTABLE *) MALLOC(dwSize);
-	if ( !pTcpTable )
+        FREE(pTcpTable);
+        pTcpTable = (MIB_TCPTABLE *) MALLOC(dwSize);
+        if ( !pTcpTable )
 	    return true;
     }
     dwRetVal = GetTcpTable( pTcpTable, &dwSize, TRUE );
@@ -619,7 +684,7 @@ bool Network::isPortFree( PortNr_Type port, uiString* errmsg )
     const RequestServer reqserv( port );
     const bool ret = reqserv.isOK();
     if ( errmsg && !reqserv.errMsg().isEmpty() )
-	*errmsg = reqserv.errMsg();
+	errmsg->set( reqserv.errMsg() );
 
     return ret;
 #endif
@@ -630,3 +695,4 @@ bool Network::isPortFree( PortNr_Type port, uiString* errmsg )
 #undef FREE
 #endif
 
+}; //Network

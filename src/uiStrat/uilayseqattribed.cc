@@ -63,10 +63,10 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	if ( edsu.allowintegr_ )
 	    lbl = new uiLabel( localgrp_, uiString::emptyString() );
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
-						    tr("From depth intervals"));
+						Stats::UpscaleTypeNames(),
+						tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
 	upscaletypfld_->setHSzPol( uiObject::MedVar );
-	upscaletypfld_-> addItems( Stats::UpscaleTypeNames() );
 	if ( lbl )
 	    lupscfld->attach( alignedBelow, lbl );
 	localgrp_->setHAlignObj( lupscfld );

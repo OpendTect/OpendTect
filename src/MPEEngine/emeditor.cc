@@ -29,22 +29,19 @@ mImplFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
 
 
 ObjectEditor::ObjectEditor( EM::EMObject& emobj )
-    : emobject(emobj)
+    : emobject_(&emobj)
     , editpositionchange(this)
     , movingnode( -1,-1,-1 )
     , snapafteredit( true )
     , nrusers(0)
 {
-    emobject.ref();
 }
 
 
 ObjectEditor::~ObjectEditor()
 {
-    CallBack::removeFromMainThread( this );
-
+    CallBack::removeFromThreadCalls( this );
     deepErase( geeditors );
-    emobject.unRef();
 }
 
 
@@ -64,7 +61,7 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
     alongmovingnodesstart.erase();
     snapafterthisedit = false;
 
-    if ( pid.objectID()!=emobject.id() )
+    if ( pid.objectID()!=emobject_->id() )
     {
 	movingnode = EM::PosID(-1,-1,-1);
 	return;
@@ -85,7 +82,7 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
 
     alongmovingnodesstart.erase();
     for ( int idx=0; idx<alongmovingnodes.size(); idx++ )
-	alongmovingnodesstart += emobject.getPos(alongmovingnodes[idx]);
+	alongmovingnodesstart += emobject_->getPos(alongmovingnodes[idx]);
 
     nodeclonecountdown = nodecloningenabled ? 3 : -1;
 }
@@ -144,8 +141,8 @@ void ObjectEditor::finishEdit()
 
 bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
 {
-    if ( pid.objectID()!=emobject.id() ||
-	 MPE::engine().getTrackerByObject(emobject.id())==-1 )
+    if ( pid.objectID()!=emobject_->id() ||
+	 MPE::engine().getTrackerByObject(emobject_->id())==-1 )
 	return false;
 
     const TrcKeyZSampling& trackvolume = MPE::engine().activeVolume();
@@ -154,7 +151,7 @@ bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
     getAlongMovingNodes( pid, nodes, 0 );
     for ( int idx=0; idx<nodes.size(); idx++ )
     {
-	const Coord3 pos = emobject.getPos(nodes[idx]);
+	const Coord3 pos = emobject_->getPos(nodes[idx]);
 	const BinID bid = SI().transform(pos);
 
 	if ( !trackvolume.hsamp_.includes( bid ) )
@@ -177,16 +174,16 @@ void ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 {
     ids.erase();
 
-    for ( int idx=0; idx<emobject.nrSections(); idx++ )
+    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
-	const EM::SectionID sectionid =  emobject.sectionID(idx);
+	const EM::SectionID sectionid =  emobject_->sectionID(idx);
 	const Geometry::ElementEditor* ge = getEditor( sectionid );
 	if ( !ge ) continue;
 
 	TypeSet<GeomPosID> gepids;
 	ge->getEditIDs( gepids );
 	for ( int idy=0; idy<gepids.size(); idy++ )
-	    ids += EM::PosID( emobject.id(), sectionid, gepids[idy] );
+	    ids += EM::PosID( emobject_->id(), sectionid, gepids[idy] );
     }
 }
 
@@ -198,7 +195,7 @@ bool ObjectEditor::removeEditID( const EM::PosID& ) { return false; }
 
 
 Coord3 ObjectEditor::getPosition( const EM::PosID& pid ) const
-{ return emobject.getPos( pid ); }
+{ return emobject_->getPos( pid ); }
 
 
 bool ObjectEditor::setPosition( const EM::PosID& pid,  const Coord3& np )
@@ -207,7 +204,7 @@ bool ObjectEditor::setPosition( const EM::PosID& pid,  const Coord3& np )
     if ( addtoundo )
 	changedpids += pid;
 
-    return emobject.setPos( pid, np, addtoundo );
+    return emobject_->setPos( pid, np, addtoundo );
 }
 
 #define mMayFunction( func ) \
@@ -284,7 +281,8 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
     const int editoridx = sections.indexOf(sectionid);
 
     const Geometry::Element* ge =
-	const_cast<const EM::EMObject*>(&emobject)->sectionGeometry(sectionid);
+	const_cast<const EM::EMObject*>(emobject_.ptr())->sectionGeometry(
+								sectionid);
 
     if ( !ge && editoridx!=-1 )
     {

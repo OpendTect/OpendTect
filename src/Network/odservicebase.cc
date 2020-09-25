@@ -23,21 +23,11 @@
 #include "pythonaccess.h"
 #include "settings.h"
 
-#include "hiddenparam.h"
 
-
-static HiddenParam<ODServiceBase,Network::RequestServer*>
-					odservbaselocservmgr_(nullptr);
-static HiddenParam<ODServiceBase,Network::RequestConnection*>
-					odservbaselocalconnmgr_(nullptr);
-
-
-ODServiceBase::ODServiceBase( bool )
+ODServiceBase::ODServiceBase()
     : externalAction(this)
     , externalRequest(this)
 {
-    odservbaselocservmgr_.setParam( this, nullptr );
-    odservbaselocalconnmgr_.setParam( this, nullptr );
     addLocalServer();
 }
 
@@ -46,8 +36,6 @@ ODServiceBase::ODServiceBase( bool assignport, Network::SpecAddr spec )
     : externalAction(this)
     , externalRequest(this)
 {
-    odservbaselocservmgr_.setParam( this, nullptr );
-    odservbaselocalconnmgr_.setParam( this, nullptr );
     addTCPServer( assignport, spec );
 }
 
@@ -70,12 +58,9 @@ void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 {
     ODServiceBase* mainserv = theMain();
     if ( islocal )
-    {
-	odservbaselocservmgr_.setParam( this,
-				mainserv ? mainserv->localServer() : nullptr );
-    }
+	localserver_ = mainserv ? mainserv->localserver_ : nullptr;
     else
-	server_ = mainserv ? mainserv->server_ : nullptr;
+	tcpserver_ = mainserv ? mainserv->tcpserver_ : nullptr;
 
     if ( isServerOK(islocal) )
     {
@@ -124,8 +109,8 @@ void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
     if ( portid>0 || islocal )
     {
 	Network::RequestServer* server = islocal
-	    ? new Network::RequestServer( 
-                Network::Authority::getAppServerName("odservice") )
+	    ? new Network::RequestServer(
+                Network::Authority::getAppServerName("odservice"))
 	    : new Network::RequestServer( portid, spec );
 	useServer( server, islocal );
     }
@@ -134,9 +119,10 @@ void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 	return;
 
     if ( islocal )
-	mAttachCB( localServer()->newConnection,ODServiceBase::newConnectionCB);
+	mAttachCB( localserver_->newConnection,
+					    ODServiceBase::newConnectionCB );
     else
-	mAttachCB( server_->newConnection, ODServiceBase::newConnectionCB );
+	mAttachCB( tcpserver_->newConnection, ODServiceBase::newConnectionCB );
 
     mAttachCB( IOM().surveyChanged, ODServiceBase::surveyChangedCB );
     mAttachCB( IOM().applicationClosing, ODServiceBase::appClosingCB );
@@ -149,45 +135,19 @@ void ODServiceBase::init( bool islocal, bool assignport, Network::SpecAddr spec)
 ODServiceBase::~ODServiceBase()
 {
     doAppClosing( nullptr );
-    odservbaselocservmgr_.removeAndDeleteParam( this );
-    odservbaselocalconnmgr_.removeAndDeleteParam( this );
 }
 
 
-Network::RequestServer* ODServiceBase::localServer() const
+bool ODServiceBase::isOK( bool islocal	) const
 {
-    return odservbaselocservmgr_.getParam( this );
-}
-
-
-Network::RequestServer* ODServiceBase::localServer()
-{
-    return odservbaselocservmgr_.getParam( this );
-}
-
-
-bool ODServiceBase::isOK() const
-{
-    return isOK( false );
-}
-
-
-bool ODServiceBase::isOK( bool islocal ) const
-{
-    return getAuthority( islocal ).isUsable();
-}
-
-
-Network::Authority ODServiceBase::getAuthority() const
-{
-    return getAuthority( false );
+    return getAuthority( islocal  ).isUsable();
 }
 
 
 Network::Authority ODServiceBase::getAuthority( bool islocal ) const
 {
     Network::RequestServer* server =
-		islocal ? localServer() : server_;
+		islocal ? localserver_ : tcpserver_;
     return server ? server->getAuthority() : Network::Authority();
 }
 
@@ -210,21 +170,6 @@ void ODServiceBase::pyenvChangeCB( CallBacker* cb )
 { doPyEnvChange(cb); }
 
 
-void ODServiceBase::startServer( PortNr_Type portid )
-{
-    server_ = new Network::RequestServer( portid );
-    if ( !server_ || !server_->isOK() )
-    {
-        pErrMsg( "startServer - failed" );
-        stopServer();
-        return;
-    }
-
-    if ( !theMain() )
-        theMain( this );
-}
-
-
 bool ODServiceBase::useServer( Network::RequestServer* server, bool islocal )
 {
     if ( !server || !server->isOK() )
@@ -234,9 +179,9 @@ bool ODServiceBase::useServer( Network::RequestServer* server, bool islocal )
     }
 
     if ( islocal )
-	odservbaselocservmgr_.setParam( this, server );
+	localserver_ = server;
     else
-	server_ = server;
+	tcpserver_ = server;
 
     if ( !isServerOK(islocal) )
     {
@@ -252,13 +197,12 @@ bool ODServiceBase::useServer( Network::RequestServer* server, bool islocal )
 }
 
 
-bool ODServiceBase::isServerOK( bool local ) const
+bool ODServiceBase::isServerOK( bool islocal ) const
 {
-    if ( !local )
-	return server_ ? server_->isOK() : false;
+    if ( islocal )
+	return localserver_ ? localserver_->isOK() : false;
 
-    const Network::RequestServer* localserver = localServer();
-    return localserver ? localserver->isOK() : false;
+    return tcpserver_ ? tcpserver_->isOK() : false;
 }
 
 
@@ -266,8 +210,8 @@ void ODServiceBase::stopServer()
 {
     if ( serverismine_ )
     {
-	deleteAndZeroPtr( server_ );
-	odservbaselocservmgr_.deleteAndZeroPtrParam( this );
+	deleteAndZeroPtr( tcpserver_ );
+	deleteAndZeroPtr( localserver_ );
     }
 }
 
@@ -413,13 +357,13 @@ void ODServiceBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 void ODServiceBase::newConnectionCB( CallBacker* )
 {
     //TODO: Capsule to tell us from which server is comes
-    Network::RequestConnection* conn = localServer()
-				? localServer()->pickupNewConnection()
-				: server_->pickupNewConnection();
+    Network::RequestConnection* conn = localserver_
+				     ? localserver_->pickupNewConnection()
+				     : tcpserver_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
 	BufferString err("newConnectionCB - connection error: ");
-	err.add( conn->errMsg().getFullString() );
+	err += conn->errMsg();
 	pErrMsg(err);
 	return;
     }
@@ -434,14 +378,14 @@ void ODServiceBase::packetArrivedCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
     //TODO: no local server packet pickup?
 
-    conn_ = static_cast<Network::RequestConnection*>( cber );
-    if ( !conn_ )
+    tcpconn_ = static_cast<Network::RequestConnection*>(cber);
+    if ( !tcpconn_ )
 	return;
 
-    packet_ = conn_->pickupPacket( reqid, 2000 );
+    packet_ = tcpconn_->pickupPacket( reqid, 2000 );
     if ( !packet_ )
     {
-	packet_ = conn_->getNextExternalPacket();
+	packet_ = tcpconn_->getNextExternalPacket();
 	if ( !packet_ )
 	{
 	    pErrMsg("packetArrivedCB - no packet");
@@ -454,7 +398,6 @@ void ODServiceBase::packetArrivedCB( CallBacker* cb )
     if ( !uirv.isOK() )
     {
 	sendErr( uirv );
-	packet_.release();
 	return;
     }
 
@@ -475,8 +418,8 @@ void ODServiceBase::connClosedCB( CallBacker* cb )
 
     mDetachCB( conn->packetArrived, ODServiceBase::packetArrivedCB );
     mDetachCB( conn->connectionClosed, ODServiceBase::connClosedCB );
-    conn_ = nullptr;
-    odservbaselocalconnmgr_.deleteAndZeroPtrParam( this );
+    tcpconn_ = nullptr;
+    localconn_ = nullptr;
 
     doConnClosed( cb );
     if ( needclose_ )
@@ -522,7 +465,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
 			    .arg(servicenm).arg(auth.toString()) );
     }
 
-    PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;
+    RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
     packet->setIsNewRequest();
     OD::JSON::Object request;
     request.set( sKeyAction(), action );
@@ -534,7 +477,7 @@ uiRetVal ODServiceBase::sendAction( const Network::Authority& auth,
 			    .arg(servicenm).arg(auth.toString()) );
     }
 
-    ConstPtrMan<Network::RequestPacket> receivedpacket =
+    ConstRefMan<Network::RequestPacket> receivedpacket =
 		    conn->pickupPacket( packet->requestID(), 15000 );
     if ( !receivedpacket )
 	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
@@ -565,7 +508,7 @@ uiRetVal ODServiceBase::sendRequest( const Network::Authority& auth,
 			    .arg(servicenm).arg(auth.toString()) );
     }
 
-    PtrMan<Network::RequestPacket> packet = new Network::RequestPacket;
+    RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
     packet->setIsNewRequest();
     OD::JSON::Object request;
     request.set( reqkey, reqobj.clone() );
@@ -584,9 +527,9 @@ void ODServiceBase::sendOK()
     response.set( sKeyOK(), BufferString::empty() );
     if ( packet_ )
 	packet_->setPayload( response );
-    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+    if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendOK - failed"); }
-    packet_.release();
+    packet_ = nullptr;
 }
 
 
@@ -596,9 +539,9 @@ void ODServiceBase::sendErr( uiRetVal& uirv )
     response.set( sKeyError(), uirv.getText() );
     if ( packet_ )
 	packet_->setPayload( response );
-    if ( packet_ && conn_ && !conn_->sendPacket(*packet_.ptr()) )
+    if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
     { pErrMsg("sendErr - failed"); }
-    packet_.release();
+    packet_ = nullptr;
 }
 
 

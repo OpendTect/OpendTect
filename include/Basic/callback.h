@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "sets.h"
 #include "threadlock.h"
+class NotifierAccess;
 
 /*!
   In any OO system callbacks to an unknown client must be possible. To be able
@@ -35,292 +36,208 @@ class CallBacker;
 
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
-#define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
+#define mCBFn(fn) (static_cast<CallBackFunction>(&fn))
 
 //!> To make your CallBack. Used in many places, especially the UI.
-#define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss,fn))
+#define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss::fn))
 
 typedef void (*StaticCallBackFunction)(CallBacker*);
-#define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
+#define mSCB(fn) CallBack( (static_cast<StaticCallBackFunction>(&fn)) )
 
 
-/*!
-\brief CallBacks object-oriented (object + method).
+/*!\brief CallBacks object-oriented (object + method).
 
   CallBack is nothing more than a function pointer + optionally an object to
   call it on. It may be null, in which case doCall() will simply do nothing.
   If you want to be able to send a CallBack, you must provide a 'sender'
   CallBacker* (usually 'this').
+
+  You can disable a CallBack, but if you do make sure you enable it again
+  using disable(false), as it works with a counter (so that disabling can be
+  nested).
+
 */
 
 mExpClass(Basic) CallBack
 {
 public:
     static void		initClass();
-
-			CallBack( CallBacker* o=0, CallBackFunction f=0 )
-			    : obj_( o ), fn_( f ), sfn_( 0 )	{}
+			CallBack()
+			    : cberobj_(0), fn_(0), sfn_(0)	{}
+			CallBack( CallBacker* o, CallBackFunction f )
+			    : cberobj_(o), fn_(f), sfn_(0)	{}
 			CallBack( StaticCallBackFunction f )
-			    : obj_( 0 ), fn_( 0 ), sfn_( f )	{}
-    inline int		operator==( const CallBack& c ) const
-			{ return obj_==c.obj_ && fn_==c.fn_ && sfn_==c.sfn_; }
-    inline int		operator!=( const CallBack& cb ) const
-			{ return !(*this==cb); }
+			    : cberobj_(0), fn_(0), sfn_(f)	{}
+    bool		operator==(const CallBack&) const;
+    bool		operator!=(const CallBack&) const;
 
-    inline bool		willCall() const
-			{ return (obj_ && fn_) || sfn_; }
+    bool		willCall() const;
     void		doCall(CallBacker*) const;
+    bool		isDisabled() const		{ return disablecount_;}
+    void		disable(bool yn=true) const;
+    void		enable() const			{ disable(false); }
 
-    inline CallBacker*			cbObj()			{ return obj_; }
-    inline const CallBacker*		cbObj() const		{ return obj_; }
-    inline CallBackFunction		cbFn() const		{ return fn_; }
-    inline StaticCallBackFunction	scbFn() const		{ return sfn_; }
+    inline CallBacker*			cbObj()		{ return cberobj_; }
+    inline const CallBacker*		cbObj() const	{ return cberobj_; }
+    inline CallBackFunction		cbFn() const	{ return fn_; }
+    inline StaticCallBackFunction	scbFn() const	{ return sfn_; }
 
-    static bool		addToMainThread(const CallBack&, CallBacker* =0);
-                        /*!< Unconditionally add this to main event loop.
-                         For thread safety, the removeFromMainThread()
-                         must be called in the destructor. */
+    static bool addToMainThread(const CallBack&, CallBacker* =0);
+		/*!< Unconditionally add this to main event loop.
+		     For thread safety, the removeFromThreadCalls()
+		     must be called in the destructor. */
+    static bool addToThread(Threads::ThreadID,const CallBack&,
+				    CallBacker* = 0);
+		/*!< Unconditionally add this to event loop of the other thread.
+		     For thread safety, the removeFromThreadCalls()
+		     must be called in the destructor. */
 
-    static bool		callInMainThread(const CallBack&, CallBacker* =0);
-                        /*!<If in main thread or no event-loop is present, it
-                            will be called directly. Otherwise, it will be
-                            put on event loop.
-                            For thread safety, the removeFromMainThread()
-                            must be called in the destructor.
-                            \returns true if the callback was called directly.
+    static bool callInMainThread(const CallBack&, CallBacker* =0);
+		/*!<If in main thread or no event-loop is present, it
+		    will be called directly. Otherwise, it will be
+		    put on event loop.
+		    For thread safety, the removeFromThreadCalls()
+		    must be called in the destructor.
+		    \returns true if the callback was called directly.
                         */
-    static void		removeFromMainThread(const CallBacker*);
+
+    static void removeFromThreadCalls(const CallBacker*);
+		/* Removes callbacker from all event loops in all threads*/
 
 
     // See also mEnsureExecutedInMainThread macro
 
-protected:
+private:
 
-    CallBacker*				obj_;
+    CallBacker*				cberobj_;
     CallBackFunction			fn_;
     StaticCallBackFunction		sfn_;
+    mutable Threads::Atomic<int>	disablecount_;
+    static Threads::ThreadID		mainthread_;
 
 public:
 
     // Usually only called from mEnsureExecutedInMainThread:
 
-    static bool				queueIfNotInMainThread(CallBack,
-							CallBacker* =0);
-					/*!< If not in main thread, queue it.
-					   return whether CB was queued. */
+    static bool			queueIfNotInMainThread(CallBack,
+						CallBacker* =0);
+				/*!< If not in main thread, queue it.
+				   return whether CB was queued. */
 
+    mDeprecated("Use removeFromThreadCalls")
+		static void removeFromMainThread( const CallBacker* cber )
+		{ removeFromThreadCalls( cber ); }
 };
 
 #define mMainThreadCall( func ) \
-CallBack::callInMainThread( CallBack( this, ((CallBackFunction)(&func) ) ), 0)
+CallBack::callInMainThread( CallBack( this, mCBFn(func) ), 0)
 
 #define mEnsureExecutedInMainThread( func ) \
     if ( CallBack::queueIfNotInMainThread( \
-	CallBack( this, ((CallBackFunction)(&func) ) ), 0 ) )  \
+	CallBack( this, mCBFn(func) ), 0 ) )  \
 	return
 
+#define mEnsureExecutedInMainThreadWithCapsule( func, caps ) \
+    CallBack cb( this, mCBFn(func) ); \
+    if ( CallBack::queueIfNotInMainThread(cb,caps->clone()) ) \
+	return;
 
-/*!
-\brief TypeSet of CallBacks with a few extras.
-*/
+/*!\brief TypeSet of CallBacks with a few extras.  */
 
-mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
-{ mRefCountImpl(CallBackSet)
+mExpClass(Basic) CallBackSet : public RefCount::Referenced
+			     , public TypeSet<CallBack>
+{
 public:
 		CallBackSet();
 		CallBackSet(const CallBackSet&);
     CallBackSet& operator=(const CallBackSet&);
 
-    void	doCall(CallBacker*,CallBacker* exclude=0);
-		/*!<\param enabledflag: if non-null, content will be checked
-		  between each call, caling will stop if false.
-		     \note Will lock in the apropriate moment. */
+    void	doCall(CallBacker*);
+		//!< it is possible to remove another callback during the doCall
+    void	disableAll(bool yn=true);
+    bool	hasAnyDisabled() const;
 
-    void	removeWith(CallBacker*);
-		//!<\note Should be locked before calling
+    void	removeWith(const CallBacker*);
+		//!<\note lock lock_ before calling
     void	removeWith(CallBackFunction);
-		//!<\note Should be locked before calling
+		//!<\note lock lock_ before calling
     void	removeWith(StaticCallBackFunction);
-		//!<\note Should be locked before calling
+		//!<\note lock lock_ before calling
+    void	transferTo(CallBackSet& to,const CallBacker* onlyfor=0,
+					   const CallBacker* notfor=0);
+		//!<\note lock lock_ before calling, also to's lock_
 
-    inline bool	isEnabled() const { return enabled_; }
-    bool	doEnable( bool yn=true );
-    		//!<Returns old state
+    mutable Threads::Lock   lock_;
 
-    mutable Threads::Lock   	lock_;
-private:
-    bool			enabled_;
-};
-
-
-/*!
-\brief Interface class for Notifier. See comments there.
-*/
-
-mExpClass(Basic) NotifierAccess
-{
-
-    friend class	NotifyStopper;
-    friend class	CallBacker;
-
-public:
-
-			NotifierAccess(const NotifierAccess&);
-			NotifierAccess();
-    virtual		~NotifierAccess();
-
-    void		notify(const CallBack&,bool first=false);
-    bool		notifyIfNotNotified(const CallBack&);
-			//!\returns true if it was added
-    void		remove(const CallBack&);
-    bool		removeWith(CallBacker*,bool wait=true);
-			//!<\returns false only if wait and no lock could be got
-
-    inline bool	isEnabled() const	{ return cbs_.isEnabled(); }
-    inline bool	enable( bool yn=true )	{ return cbs_.doEnable(yn); }
-    inline bool	disable()		{ return cbs_.doEnable(false); }
-
-    inline bool	isEmpty() const 	{ return cbs_.isEmpty(); }
-    bool		willCall(CallBacker*) const;
-			/*!<\returns true if the callback list contains
-			     CallBacker. */
-
-
-    CallBackSet&	cbs_;
-    CallBacker*		cber_;
-
-    bool		isShutdownSubscribed(CallBacker*) const;
-			//!<Only for debugging purposes, don't use
 protected:
-    static void		doTrigger(CallBackSet&,CallBacker* c,
-	    			  CallBacker* exclude);
-    void		addShutdownSubscription(CallBacker*);
-    bool		removeShutdownSubscription(CallBacker*, bool wait);
-			//!<\returns false only if wait and no lock could be got
 
-			/*!\returns previous status */
+		~CallBackSet();
 
-    ObjectSet<CallBacker>	shutdownsubscribers_;
-    mutable Threads::Lock	shutdownsubscriberlock_;
 };
 
 
-/*!
-  Class to help setup a callback handling.
-
-  What we have discovered is that the two things:
-  - providing a notification of an event to the outside world
-  - asking a notification of a certain object
-  are strongly coupled. Qt has its Signal/Slot pair, but we found that too
-  inflexible. Enter Notifier. You declare a Notifier to announce to the
-  world that they can be notified of something. The 'receiving' object can
-  then call the notify() method to 'register' the event notification. The
-  sending object just calls trigger(). Note that it is most used in the
-  UI, but it is equally usable in batch stuff. In general, it provides a
-  rigorous uncoupling.
-
-  Simply declare a Notifier<T> in the interface, like:
-  \code
-  Notifier<MyClass>	buttonClicked;
-  \endcode
-
-  Then users of the class can issue:
-
-  \code
-  mAttachCB( myclass.buttonClicked, TheClassOfThis::theMethodToBeCalle );
-  \endcode
-
-  The notifier is then attached, the connection will be remove when either the
-  notifier or the called object is deleted.
-
-  The callback is issued when you call the trigger() method, like:
-  \code
-  buttonClicked.trigger();
-  \endcode
-
-  The notification can be temporary stopped using disable()/enable() pair,
-  or by use of a NotifyStopper, which automatically restores the callback
-  when going out of scope.
-
-  The best practice is to remove the callbacks in the destructor, as otherwise,
-  you may get random crashes. Either, remove them one by one in the destructor,
-  or call detachAllNotifiers(), which will remove notifiers that are attached
-  using the mAttachCB macro.
-*/
-
-
-template <class T>
-mClass(Basic) Notifier : public NotifierAccess
-{
-public:
-
-    void		trigger( T& t )	{ trigger(&t); }
-
-			// Following functions are usually used by T class only:
-			Notifier( T* c )			{ cber_ = c; }
-
-    inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
-			{ doTrigger( cbs_, c ? c : cber_, exclude ); }
-};
-
-
-/*!
-\brief To be able to send and/or receive CallBacks, inherit from this class.
-*/
+/*!\brief Inherit from this class to be able to send and/or receive CallBacks */
 
 mExpClass(Basic) CallBacker
 {
     friend class	NotifierAccess;
+
 public:
 			CallBacker();
 			CallBacker(const CallBacker&);
     virtual		~CallBacker();
 
-    bool		attachCB(NotifierAccess&,const CallBack&,
-				 bool onlyifnew=false);
+    bool		attachCB(const NotifierAccess&,const CallBack&,
+				 bool onlyifnew=false) const;
 			/*!<Adds cb to notifier, and makes sure
 			    it is removed later when object is
 			    deleted.
 			    \returns if it was attached. */
-    bool		attachCB(NotifierAccess* notif,const CallBack& cb,
-				 bool onlyifnew=false)
-			{ return notif ? attachCB(*notif,cb,onlyifnew):false; }
+    bool		attachCB(const NotifierAccess* notif,const CallBack& cb,
+				 bool onlyifnew=false) const;
 			/*!<\note Attaches only if \param notif is not null.*/
 
-    void		detachCB(NotifierAccess&,const CallBack&);
+    void		detachCB(const NotifierAccess&,const CallBack&) const;
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
-    void		detachCB(NotifierAccess* notif,const CallBack& cb)
+    void		detachCB( const NotifierAccess* notif,
+				  const CallBack& cb ) const
 			{ if ( notif ) detachCB( *notif, cb ); }
 			/*!<\note Detaches only if \param notif is not null.*/
 
-    bool		isNotifierAttached(NotifierAccess*) const;
+    bool		isNotifierAttached(const NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use
+    virtual bool	isCapsule() const	{ return false; }
 
-protected:
-    void		detachAllNotifiers();
+    void		detachAllNotifiers() const;
 			//!<Call from the destructor of your inherited object
 private:
 
-    bool		notifyShutdown(NotifierAccess*,bool wait);
-			//!<\returns false only if wait and no lock could be got
+    bool		notifyShutdown(const NotifierAccess*,bool wait) const;
+			/*!<\returns false only if wait and no lock could be
+				     obtained. */
 
-    ObjectSet<NotifierAccess>	attachednotifiers_;
-    mutable Threads::Lock	attachednotifierslock_;
+    ObjectSet<NotifierAccess>		attachednotifiers_;
+    mutable Threads::Lock		attachednotifierslock_;
+
+public:
+
+    void				stopReceivingNotifications() const
+					{ detachAllNotifiers(); }
+
+    static void				createReceiverForCurrentThread();
+					/*!<Must be called if you wish to send
+					   callbacks to this thread. */
+    static void				removeReceiverForCurrentThread();
+					/*!<Call from your thread before it
+					    closes if you have called
+					    createReceiverForCurrentThread()
+					    in the thread. */
+
 };
 
 
-#define mAttachCB( notifier, func ) \
-attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ), false )
-
-#define mAttachCBIfNotAttached( notifier, func ) \
-attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ), true )
-
-#define mDetachCB( notifier, func ) \
-detachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )
-
-/*!
-\brief Capsule class to wrap any class into a CallBacker.
+/*!\brief Capsule class to wrap any class into a CallBacker.
 
   Callback functions are defined as:
   void clss::func( CallBacker* )
@@ -330,21 +247,27 @@ detachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )
   available.
 */
 
-template <class T>
+template <class PLT>
 mClass(Basic) CBCapsule : public CallBacker
 {
 public:
-    CBCapsule( T d, CallBacker* c )
-    : data(d), caller(c)	{}
 
-    T			data;
+    typedef PLT		PayLoadType;
+
+			CBCapsule( PLT d, CallBacker* c )
+			    : data(d), caller(c)	{}
+
+    PLT			data;
     CallBacker*		caller;
+
+    CBCapsule<PLT>*	clone() const
+			    { return new CBCapsule<PLT>(data,caller); }
+    virtual bool	isCapsule() const		{ return true; }
+
 };
 
 
-/*!
-\ingroup Basic
-\brief Unpacking data from capsule.
+/*!\ingroup Basic \brief Unpacking data from capsule.
 
   If you have a pointer to a capsule cb, this:
   \code
@@ -365,98 +288,16 @@ public:
   \endcode
 */
 
-#define mCBCapsuleGet(T,var,cb) \
-CBCapsule<T>* var = dynamic_cast< CBCapsule<T>* >( cb );
+#define mCBCapsuleGet(PayLoadType,var,cb) \
+CBCapsule<PayLoadType>* var = dynamic_cast< CBCapsule<PayLoadType>* >( cb );
 
-#define mCBCapsuleUnpack(T,var,cb) \
-mCBCapsuleGet(T,cb##caps,cb) \
-T var = cb##caps->data
+#define mCBCapsuleUnpack(PayLoadType,var,cb) \
+mCBCapsuleGet(PayLoadType,cb##caps,cb) \
+PayLoadType var = cb##caps->data
 
-#define mCBCapsuleUnpackWithCaller(T,var,cber,cb) \
-mCBCapsuleGet(T,cb##caps,cb) \
-T var = cb##caps->data; \
+#define mCBCapsuleUnpackWithCaller(PayLoadType,var,cber,cb) \
+mCBCapsuleGet(PayLoadType,cb##caps,cb) \
+PayLoadType var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
 
-
-/*!
-\brief Notifier with automatic capsule creation.
-
-  When non-callbacker data needs to be passed, you can put it in a capsule.
-
-  You'll need to define:
-
-  \code
-  CNotifier<MyClass,const uiMouseEvent&>	mousepress;
-  \endcode
-*/
-
-template <class T,class C>
-mClass(Basic) CNotifier : public NotifierAccess
-{
-public:
-
-    void		trigger( C c, T& t )		{ trigger(c,&t); }
-
-// Following functions are usually used by T class only:
-
-			CNotifier( T* cb )	{ cber_ = cb; }
-
-    inline void		trigger( C c, CallBacker* cb=0 )
-			{
-			    CBCapsule<C> caps( c, cb ? cb : cber_ );
-			    doTrigger( cbs_, &caps, 0 );
-			}
-};
-
-
-/*!
-\brief Temporarily disables a Notifier.
-
-  Notifiers can be disabled. To do that temporarily, use NotifyStopper.
-  If the Stopper goes out of scope, the callback is re-enabled. like:
-
-  \code
-  void xxx:doSomething()
-  {
-      NotifyStopper stopper( a_notifier );
-      // Doing things that would otherwise trigger Notifier.
-      // On exit, Notifier gets re-enabled automatically.
-  }
-  \endcode
-*/
-
-mExpClass(Basic) NotifyStopper
-{
-public:
-		NotifyStopper( NotifierAccess& na );
-    		~NotifyStopper();
-
-    void        enable();    
-    void        disable();    
-    void	restore();
-
-protected:
-
-    NotifierAccess&	thenotif_;
-    bool		oldst_;
-
-};
-
-
-// Set of macros to add an instanceCreated() notifier
-// This can provide a notification of any instance of a class being produced
-
-#define mDeclInstanceCreatedNotifierAccess(clss) \
-    static Notifier<clss>&	instanceCreated()
-
-#define mDefineInstanceCreatedNotifierAccess(clss) \
-Notifier<clss>& clss::instanceCreated() \
-{ \
-    mDefineStaticLocalObject( Notifier<clss>, theNotif, (0)); \
-    return theNotif; \
-}
-
-#define mTriggerInstanceCreatedNotifier() \
-    instanceCreated().trigger( this )
-
-
+#include "notify.h"

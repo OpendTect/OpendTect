@@ -232,8 +232,7 @@ const IOObjContext& PolygonBody::getIOObjContext() const
 	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
 	newres->fixTranslator( typeStr() );
 
-	if ( !res.setIfNull(newres) )
-	    delete newres;
+	res.setIfNull(newres,true);
     }
 
     return *res;
@@ -273,9 +272,9 @@ void PolygonBody::fillBodyPar( IOPar& par ) const
 
 
 Executor* PolygonBody::saver()
-{   
+{
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    return saver( ioobj ); 
+    return saver( ioobj );
 }
 
 

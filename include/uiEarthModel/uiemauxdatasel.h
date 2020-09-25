@@ -30,7 +30,7 @@ public:
 protected:
 
     virtual BufferString	getSummary() const;
-    bool			butPushCB(CallBacker*);
+    void			butPushCB(CallBacker*);
 
     MultiID			hormid_;
     const char*			auxdatanm_;

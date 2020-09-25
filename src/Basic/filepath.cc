@@ -104,15 +104,19 @@ BufferString FilePath::getFullLongPath( const FilePath& fp )
 }
 
 
-FilePath& FilePath::set( const char* _fnm )
+FilePath& FilePath::set( const char* inpfnm )
 {
-    BufferString fnmbs( _fnm );
-    lvls_.erase(); prefix_ = ""; isabs_ = false;
-    if ( !_fnm ) return *this;
+    lvls_.erase();
+    prefix_.setEmpty();
+    isabs_ = false;
+    if ( !inpfnm || !*inpfnm )
+	return *this;
 
+    BufferString fnmbs( inpfnm );
     const char* fnm = fnmbs.buf();
     mSkipBlanks( fnm );
-    if ( !*fnm ) return *this;
+    if ( !*fnm )
+	return *this;
 
     const char* ptr = firstOcc( fnm, *sPrefSep );
     if ( ptr )
@@ -141,8 +145,8 @@ FilePath& FilePath::set( const char* _fnm )
     }
 
     isabs_ = *fnm == '\\' || *fnm == '/';
-
     if ( isabs_ ) fnm++;
+
     addPart( fnm );
     compress();
     return *this;
@@ -164,12 +168,13 @@ FilePath& FilePath::add( const char* fnm )
 
 FilePath& FilePath::insert( const char* fnm )
 {
-    if ( !fnm || !*fnm ) return *this;
-    ObjectSet<BufferString> oldlvls;
-    oldlvls.append( lvls_ );
-    lvls_.ObjectSet<BufferString>::erase();
+    if ( !fnm || !*fnm )
+	return *this;
+
+    BufferStringSet oldlvls( lvls_ );
+    lvls_.setEmpty();
     set( fnm );
-    lvls_.ObjectSet<BufferString>::append( oldlvls );
+    lvls_.append( oldlvls );
     return *this;
 }
 

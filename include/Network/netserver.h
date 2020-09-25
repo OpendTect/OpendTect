@@ -29,7 +29,6 @@ class Socket;
 mExpClass(Network) Server : public CallBacker
 { mODTextTranslationClass(Server)
 public:
-			Server();
 			Server(bool islocal);
 			~Server();
 
@@ -39,7 +38,7 @@ public:
     bool		isListening() const;
     PortNr_Type		port() const;
     Authority		authority() const;
-    bool		isLocal() const { return !qtcpserver_; }
+    bool		isLocal() const { return qlocalserver_; }
 
     void		close();
     bool		hasPendingConnections() const;
@@ -69,7 +68,7 @@ public:
     static const char*	sKeyPort()		{ return "port"; }
     static const char*	sKeyTimeout()		{ return "timeout"; }
     static const char*	sKeyKillword()		{ return "kill"; }
-    static const char* sKeyLocal()          { return "local"; }
+    static const char*	sKeyLocal()		{ return "local"; }
 
 protected:
 
@@ -77,9 +76,8 @@ protected:
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
 
-    mQtclass(QLocalServer)*	localServer() const;
-    mQtclass(QLocalServer)*	localServer();
-    mQtclass(QTcpServer)* qtcpserver_;
+    mQtclass(QTcpServer)* qtcpserver_	    = nullptr;
+    mQtclass(QLocalServer)* qlocalserver_   = nullptr;
     mQtclass(QTcpServerComm)* comm_;
     mutable BufferString errmsg_;
     ObjectSet<Socket>	sockets_;

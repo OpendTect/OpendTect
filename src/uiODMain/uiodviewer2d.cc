@@ -710,7 +710,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 	return DataPack::cNoID();
 
     const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), userrefs );
+	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
     return createFlatDataPack( dpid, 0 );
 }
 
@@ -930,7 +930,7 @@ void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 	BufferString objectinfo;
 	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
 	if ( objectinfo.isEmpty() )
-	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
+	    info = appl_.applMgr().visServer()->getUiObjectName( visid_ );
 	else
 	    info = toUiString( objectinfo );
     }

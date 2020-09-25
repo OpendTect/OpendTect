@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mUseQtnamespace
 
 Timer::Timer( const char* nm )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , tick(this)
 #ifndef OD_NO_QT
     , timer_(new QTimer(0))

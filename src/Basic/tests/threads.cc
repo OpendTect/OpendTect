@@ -7,11 +7,12 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "thread.h"
-#include "atomic.h"
 #include "testprog.h"
+
+#include "atomic.h"
 #include "callback.h"
 #include "limits.h"
+#include "thread.h"
 
 
 #define mPrintResult(func) \
@@ -20,20 +21,24 @@ static const char* rcsID mUsedVar = "$Id$";
     { \
 	od_cout() << "\nData type in test: " << valtype; \
 	od_cout() << "\n====================\n"; \
+	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
     } \
-    od_cout() << "Atomic = " << atomic.get() << " in function: "; \
     od_cout() << func << " failed!\n"; \
     stopflag = true; \
     return false; \
 } \
 else \
 { \
-	od_cout() << "Atomic = " << atomic.get() << " in function: "; \
+    if ( !quiet_ ) \
+    { \
+	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
 	od_cout() << func << " OK\n"; \
+    } \
 }
 
+#undef mRunTest
 #define mRunTest( func, finalval ) \
-    if ( (func)==false || atomic.get()!=finalval ) \
+    if ( (func)==false || atomic.load()!=finalval ) \
 	mPrintResult( #func )
 
 #define mTestVal 100
@@ -90,12 +95,12 @@ bool testAtomic( const char* valtype )
     AtomicIncrementer<T> inc1( atomic, stopflag );
     AtomicIncrementer<T> inc2( atomic, stopflag );
 
-    Threads::Thread t1( mCB(&inc1,AtomicIncrementer<T>,doRun) );
-    Threads::Thread t2( mCB(&inc2,AtomicIncrementer<T>,doRun) );
+    Threads::Thread t1( mCB(&inc1,AtomicIncrementer<T>,doRun), "t1" );
+    Threads::Thread t2( mCB(&inc2,AtomicIncrementer<T>,doRun), "t2" );
 
     int count = 10000000;
     bool successfound = false, failurefound = false;
-    curval = atomic.get();
+    curval = atomic.load();
     for ( int idx=0; idx<count; idx++ )
     {
 	if ( atomic.setIfValueIs( curval, mTestVal, &curval ) )
@@ -116,7 +121,7 @@ bool testAtomic( const char* valtype )
     int idx;
     for ( idx=0; idx<count; idx++ )
     {
-	curval = atomic.get();
+	curval = atomic.load();
 	if ( atomic.setIfValueIs(curval,mTestVal,&curval ) )
 	    successfound = true;
 	else
@@ -187,12 +192,11 @@ bool testAtomicSetIfValueIs()
 
 bool testAtomicPointer()
 {
-    Threads::AtomicPointer<const void> curthread;
-    const void* storage = curthread.getStorage();
+    Threads::AtomicPointer<void> curthread;
+
     curthread = Threads::currentThread();
 
-    mRunStandardTest(storage==curthread.getStorage(), "Atomic pointer sanity");
-    mRunStandardTest(curthread==Threads::currentThread(),
+    mRunStandardTest(curthread == Threads::currentThread(),
 		     "Atomic Pointer assignment");
 
 
@@ -216,7 +220,7 @@ struct LockerTester : public CallBacker
 	, res_( false )
 	, hastried_( false )
 	, canunlock_( false )
-	, thread_( mCB( this, LockerTester, tryLock ) )
+	, thread_( mCB( this, LockerTester, tryLock ), "locktest thread" )
     {
 	hastriedlock_.lock();
 	while ( !hastried_ )

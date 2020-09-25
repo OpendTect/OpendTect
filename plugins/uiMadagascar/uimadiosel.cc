@@ -30,13 +30,13 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
-	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
-		    BufferString("Specify the ",isinp?"input to":"output of",
-					 " the processing flow"), 
+        : uiDialog(p, Setup(tr("Processing %1").arg(isinp?"input":"output"),
+			    tr("Specify the %1 the processing flow").arg(isinp?
+			    tr("input to"):tr("output of")),
                                          mODHelpKey(mMadIOSelDlgHelpID) ) )
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
-    	, idx3d_(-1), idx2d_(-1)
+	, idx3d_(-1), idx2d_(-1)
 	, iop_(iop)
         , isinp_(isinp)
 {
@@ -61,9 +61,9 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 
     mAdd( sKey::None(), idxnone_ );
 
-    typfld_ = new uiGenInput( this, isinp ? uiStrings::sInput() 
+    typfld_ = new uiGenInput( this, isinp ? uiStrings::sInput()
                                           : uiStrings::sOutput(),
-	    		      StringListInpSpec(seistypes) );
+			      StringListInpSpec(seistypes) );
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( have3d )
     {
@@ -106,11 +106,11 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 
     uiFileInput::Setup fisu;
     fisu.defseldir( ODMad::FileSpec::defPath() ).forread( isinp );
-    madfld_ = new uiFileInput( this, "Select file", fisu );
+    madfld_ = new uiFileInput( this, tr("Select file"), fisu );
     madfld_->attach( alignedBelow, typfld_ );
 
-    sconsfld_ = new uiCheckBox( this, "SCons script",
-	    			mCB(this,uiMadIOSelDlg,sconsCB) );
+    sconsfld_ = new uiCheckBox( this, tr("SCons script"),
+				mCB(this,uiMadIOSelDlg,sconsCB) );
     sconsfld_->attach( rightTo, madfld_ );
 
     postFinalise().notify( mCB(this,uiMadIOSelDlg,initWin) );
@@ -213,7 +213,7 @@ void uiMadIOSelDlg::selChg( CallBacker* )
     uiSeisSubSel* subsel = seisSubSel( gt );
     if ( !ioobj )
 	subsel->clear();
-    
+
     subsel->setInput( *ioobj );
 }
 
@@ -293,9 +293,17 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 }
 
 
+uiString uiMadIOSelDlg::sSelFileErrMsg( const uiString& inptext )
+{
+    return uiStrings::phrSelect(toUiString("%1 %2").arg(isinp_ ?
+           uiStrings::sInput().toLower() : uiStrings::sOutput().toLower())
+           .arg(inptext));
+}
+
+
 #define mErrRet(s) \
 { \
-    uiMSG().error( "Please select the ", isinp_ ? "input " : "output ", s ); \
+    uiMSG().error( uiMadIOSelDlg::sSelFileErrMsg(s) ); \
     return false; \
 }
 
@@ -327,7 +335,7 @@ bool uiMadIOSelDlg::acceptOK( CallBacker* )
 
 
 uiMadIOSel::uiMadIOSel( uiParent* p, bool isinp )
-	: uiCompoundParSel(p,isinp ? "INPUT" : "OUTPUT")
+	: uiCompoundParSel(p,tr(isinp ? "INPUT" : "OUTPUT"))
 	, iop_(BufferString("Madagascar ",isinp?"input":"output"," selection"))
 	, isinp_(isinp)
         , selectionMade(this)

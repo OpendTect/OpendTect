@@ -37,7 +37,7 @@ public:
     ~TestRunner()
     {
 	detachAllNotifiers();
-	CallBack::removeFromMainThread( this );
+	CallBack::removeFromThreadCalls( this );
     }
 
     bool	testNetSocket(bool closeserver=false);

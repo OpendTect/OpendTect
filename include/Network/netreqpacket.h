@@ -12,10 +12,20 @@ ________________________________________________________________________
 -*/
 
 #include "networkmod.h"
+
+#include "arrayndimpl.h"
+#include "arrayndinfo.h"
 #include "bufstringset.h"
+#include "commontypes.h"
 #include "odjson.h"
+#include "pythonaccess.h"
+#include "refcount.h"
+#include "uistringset.h"
 
 #define mRequestPacketHeaderSize		10
+
+class IOPar;
+template <class T> class ArrayND;
 
 
 namespace Network
@@ -39,20 +49,26 @@ class PacketInterpreter;
 
   */
 
-mExpClass(Network) RequestPacket
-{ mODTextTranslationClass(RequestPacket);
+mExpClass(Network) RequestPacket : public RefCount::Referenced
+{ mODTextTranslationClass(RequestPacket)
 public:
 			RequestPacket(od_int32 payloadsize=0);
-			~RequestPacket();
+			RequestPacket(const RequestPacket&);
 
     od_int32		requestID() const;
     bool		isNewRequest() const { return subID()==cBeginSubID(); }
     bool		isRequestEnd() const { return subID()<cMoreSubID(); }
     bool		isError() const      { return subID()==cErrorSubID(); }
-    od_int32		payloadSize() const;
     const void*		payload() const;
+
     void		getStringPayload(BufferString&) const;
     uiRetVal		getPayload(OD::JSON::Object&) const;
+    uiRetVal		getPayload(IOPar&) const;
+    template <class T> ArrayND<T>*	getPayload(uiRetVal&) const;
+    PtrMan<PacketInterpreter>	getPayload(ObjectSet<ArrayNDInfo>&,
+				   TypeSet<OD::DataRepType>&) const;
+
+    od_int32		payloadSize() const;
     od_int32		totalSize() const
 			{ return payloadSize() + mRequestPacketHeaderSize; }
 
@@ -63,8 +79,12 @@ public:
 
     void*		allocPayload(od_int32 size);
     void		setPayload(void*,od_int32 size); //!< buf becomes mine
-    bool		setPayload(const OD::JSON::Object&);
     void		setStringPayload(const char*);
+    bool		setPayload(const OD::JSON::Object&);
+    bool		setPayload(const IOPar&);
+    template <class T> bool	setPayload(const ArrayND<T>&);
+    PtrMan<PacketFiller>	setPayload(const ObjectSet<ArrayNDInfo>&,
+				   const TypeSet<OD::DataRepType>&);
 
     void		addErrMsg(BufferString&) const;
 
@@ -73,6 +93,7 @@ public:
     static void		setSystemSizeLimit(od_int32);	//< no limit set to 0
 
 protected:
+			~RequestPacket();
 
     union Header
     {
@@ -85,12 +106,14 @@ protected:
 
 
     Header		header_;
-    char*		payload_;
+    char*		payload_ = nullptr;
 
     static od_int16	cBeginSubID()		{ return -1; }
     static od_int16	cMoreSubID()		{ return -2; }
     static od_int16	cEndSubID()		{ return -4; }
     static od_int16	cErrorSubID()		{ return -8; }
+
+private:
 
     friend class	PacketFiller;
     friend class	PacketInterpreter;
@@ -137,24 +160,16 @@ public:
     static int		sizeFor(const T&);
     template <class T>
     static int		sizeFor(const T*,int nrelems,bool rawmode=false);
-    static int		sizeFor(bool);
     static int		sizeFor(const char*);
-    static int		sizeFor(const FixedString&);
-    static int		sizeFor(const BufferString&);
-    static int		sizeFor(const OD::String&);
-    static int		sizeFor(const BufferStringSet&);
 
     template <class T> const PacketFiller&
 			put(const T&) const;
     template <class T> const PacketFiller&
 			put(const T*,int nrelems,bool rawmode=false) const;
-    const PacketFiller&	put(const char*) const;
-    const PacketFiller&	put(bool) const;
-    const PacketFiller& put(const FixedString&) const;
-    const PacketFiller& put(const BufferString&) const;
-    const PacketFiller&	put(const OD::String&) const;
-    const PacketFiller&	put(const BufferStringSet&) const;
+    template <class T> const PacketFiller&
+			put(const ArrayND<T>&,bool rawmode=false) const;
 
+    const PacketFiller& put(const char*) const;
     const PacketFiller&	putBytes(const void*,int nrbytes) const;
 
 protected:
@@ -188,9 +203,10 @@ public:
     inline BufferString		getString() const;
 
     template <class T> void	getArr(T*,int maxsz,bool rawmode=false) const;
+    template <class T>	void	getArr(ArrayND<T>&,bool rawmode=false) const;
+    inline void			getSet(BufferStringSet&,int maxsz=-1) const;
     template <class T> void	getSet(TypeSet<T>&,int maxsz=-1,
 					bool rawmode=false) const;
-    inline void			getSet(BufferStringSet&,int maxsz=-1) const;
 
     inline void			move( int nrb ) const	{ curpos_ += nrb; }
     inline void			moveTo( int pos ) const { curpos_ = pos; }
@@ -208,14 +224,48 @@ protected:
 };
 
 
+
+template <class T> inline
+bool RequestPacket::setPayload( const ArrayND<T>& arr )
+{
+    ObjectSet<ArrayNDInfo> infos;
+    TypeSet<OD::DataRepType> types;
+    infos.add( (ArrayNDInfo*)&arr.info() );
+    types += OD::GetDataRepType<T>();
+    PtrMan<PacketFiller> filler = setPayload( infos, types );
+    if ( !filler )
+	return false;
+
+    filler->put( arr, true );
+    return true;
+}
+
+
+template <class T> inline
+ArrayND<T>* RequestPacket::getPayload( uiRetVal& uirv ) const
+{
+    ObjectSet<ArrayNDInfo> infos;
+    TypeSet<OD::DataRepType> types;
+    PtrMan<PacketInterpreter> interp = getPayload( infos, types );
+    if ( !interp || infos.isEmpty() )
+	{ deepErase( infos ); return nullptr; }
+
+    ArrayND<T>* ret = (ArrayND<T>*)getArrayND( *infos.first(), types[0] );
+    deepErase( infos );
+    if ( !ret || !ret->isOK() )
+	{ delete ret; return nullptr; }
+
+    interp->getArr( *ret, true );
+
+    return ret;
+}
+
+
+
 template <class T>
 inline int PacketFiller::sizeFor( const T& var )
 {
     return sizeof(T);
-}
-inline int PacketFiller::sizeFor( bool var )
-{
-    return sizeFor( ((int)var) );
 }
 
 template <class T>
@@ -224,26 +274,27 @@ inline int PacketFiller::sizeFor( const T* arr, int nrelems, bool rawmode )
     return (rawmode ? 0 : sizeof(int)) + nrelems * sizeof(T);
 }
 
-inline int PacketFiller::sizeFor( const char* str )
+template <>
+inline int PacketFiller::sizeFor( const bool& var )
 {
-    return sizeFor( FixedString(str) );
+    return sizeFor( ((int)var) );
 }
 
-inline int PacketFiller::sizeFor( const FixedString& str )
-{
-    return sizeFor( (const OD::String&) str );
-}
-
-inline int PacketFiller::sizeFor( const BufferString& str )
-{
-    return sizeFor( (const OD::String&) str );
-}
-
+template <>
 inline int PacketFiller::sizeFor( const OD::String& str )
 {
     return sizeof(int) + str.size();
 }
 
+template <>
+inline int PacketFiller::sizeFor( const BufferString& str )
+{ return sizeFor( (const OD::String&) str ); }
+
+template <>
+inline int PacketFiller::sizeFor( const FixedString& str )
+{ return sizeFor( (const OD::String&) str ); }
+
+template <>
 inline int PacketFiller::sizeFor( const BufferStringSet& bss )
 {
     int ret = sizeof(int);
@@ -252,11 +303,9 @@ inline int PacketFiller::sizeFor( const BufferStringSet& bss )
     return ret;
 }
 
-
-inline const PacketFiller& PacketFiller::put( bool var ) const
+inline int PacketFiller::sizeFor( const char* str )
 {
-    const int toput = var ? 1 : 0;
-    return put( toput );
+    return sizeFor( FixedString(str) );
 }
 
 
@@ -265,6 +314,7 @@ inline const PacketFiller& PacketFiller::put( const T& var ) const
 {
     return putBytes( &var, sizeof(T) );
 }
+
 
 template <class T>
 inline const PacketFiller& PacketFiller::put( const T* arr, int nrelems,
@@ -275,21 +325,35 @@ inline const PacketFiller& PacketFiller::put( const T* arr, int nrelems,
     return putBytes( arr, nrelems * sizeof(T) );
 }
 
-inline const PacketFiller& PacketFiller::put( const char* str ) const
+template <class T>
+inline const PacketFiller& PacketFiller::put( const ArrayND<T>& arr,
+					      bool rawmode ) const
 {
-    return put( FixedString(str) );
+    if ( arr.getData() )
+	return put( arr.getData(), arr.totalSize(), rawmode );
+
+    if ( !rawmode )
+	put( arr.totalSize() );
+
+    ArrayNDIter iter( arr.info() );
+    do
+    {
+	const T val = arr.getND( iter.getPos() );
+	put( val );
+    } while( iter.next() );
+
+    return *this;
 }
 
-inline const PacketFiller& PacketFiller::put( const FixedString& str ) const
+
+template <>
+inline const PacketFiller& PacketFiller::put( const bool& var ) const
 {
-    return put( (const OD::String&) str );
+    const int toput = var ? 1 : 0;
+    return put( toput );
 }
 
-inline const PacketFiller& PacketFiller::put( const BufferString& str ) const
-{
-    return put( (const OD::String&) str );
-}
-
+template <>
 inline const PacketFiller& PacketFiller::put( const OD::String& str ) const
 {
     const int sz = str.size();
@@ -297,6 +361,15 @@ inline const PacketFiller& PacketFiller::put( const OD::String& str ) const
     return putBytes( str.str(), sz );
 }
 
+template <>
+inline const PacketFiller& PacketFiller::put( const BufferString& str ) const
+{ return put( (const OD::String&) str ); }
+
+template <>
+inline const PacketFiller& PacketFiller::put( const FixedString& str ) const
+{ return put( (const OD::String&) str ); }
+
+template <>
 inline const PacketFiller& PacketFiller::put( const BufferStringSet& bss ) const
 {
     const int sz = bss.size();
@@ -305,6 +378,9 @@ inline const PacketFiller& PacketFiller::put( const BufferStringSet& bss ) const
 	put( bss.get(idx) );
     return *this;
 }
+
+inline const PacketFiller& PacketFiller::put( const char* str ) const
+{ return put( FixedString(str) ); }
 
 inline const PacketFiller& PacketFiller::putBytes( const void* ptr,
 						   int sz ) const
@@ -378,6 +454,32 @@ inline void PacketInterpreter::getArr( T* arr, int maxsz, bool rawmode ) const
 }
 
 template <class T>
+inline void PacketInterpreter::getArr( ArrayND<T>& arr, bool rawmode ) const
+{
+    if ( arr.getData() )
+    {
+	getArr( arr.getData(), arr.totalSize(), rawmode );
+	return;
+    }
+
+    int arrsz = mCast(int,arr.totalSize());
+    if ( !rawmode )
+    {
+	get( arrsz );
+	if ( arrsz != arr.totalSize() )
+	    return;
+    }
+
+    ArrayNDIter iter( arr.info() );
+    T val;
+    do
+    {
+	get( val );
+	arr.setND( iter.getPos(), val );
+    } while( iter.next() );
+}
+
+template <class T>
 inline void PacketInterpreter::getSet( TypeSet<T>& ts, int maxsz,
 					bool rawmode ) const
 {
@@ -429,5 +531,3 @@ inline bool PacketInterpreter::atEndOfPkt() const
 { return curpos_ >= pkt_.payloadSize(); }
 
 }; //Namespace Network
-
-

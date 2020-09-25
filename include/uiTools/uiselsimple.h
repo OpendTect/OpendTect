@@ -31,19 +31,27 @@ public:
     mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
-			Setup( const uiString& wintitl,
-			       const uiStringSet& its )
-		: uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
+			Setup( const uiString& wintitl, const uiStringSet& its )
+			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			    , items_(its)
 			    , current_(0)		{}
 			Setup( const uiString& wintitl,
 			       const BufferStringSet& its )
-		: uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
+			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			    , current_(0)		{ its.fill(items_); }
 
 	mDefSetupMemb(int,current);
 
 	uiStringSet	items_;
+
+    public:
+    mDeprecated		("Use uiString")
+			Setup( const char* wintitl, const char* its )
+			  : Setup(toUiString(wintitl),toUiString(its))   {}
+    mDeprecated		("Use uiString")
+			Setup( const char* wintitl,
+			       const BufferStringSet& its )
+			  : Setup(toUiString(wintitl),its)		 {}
 
     };
 
@@ -85,14 +93,24 @@ public:
     public:
 			Setup( const uiString& wintitl,
 			       const BufferStringSet& its )
-	    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
-			, items_(its)
-			, inptxt_( uiStrings::sName())	{}
+			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
+			    , items_(its)
+			    , inptxt_( uiStrings::sName())	{}
 
 	mDefSetupMemb(BufferString,deflt);
 	mDefSetupMemb(uiString,inptxt);
 
 	const BufferStringSet&	items_;
+
+    public:
+	mDeprecated	("Use uiString")
+			Setup( const char* wintitl,
+			       const BufferStringSet& its )
+			  : Setup(toUiString(wintitl),its)	{}
+	mDeprecated	("Use uiString")
+	Setup&		inptxt( const char* txt )
+			{ return inptxt( toUiString(txt) ); }
+
 
     };
 

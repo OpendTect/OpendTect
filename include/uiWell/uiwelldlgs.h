@@ -68,9 +68,11 @@ protected:
     Coord3		origpos_;
     float		origgl_;
 
-    bool		fillTable(CallBacker* cb=0);
+    void		fillTable(CallBacker* cb);
+    bool		fillTable();
     void		fillSetFields(CallBacker* cb=0);
-    bool		updNow(CallBacker*);
+    void		updNow(CallBacker*);
+    bool		updNow();
     void		readNew(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
@@ -158,12 +160,12 @@ public:
 			~uiNewWellDlg();
 
     const Color&	getWellColor();
-    const char*		getName() const	{ return name_; }
+    const char*		getWellName() const	{ return wellname_; }
 
 protected:
 
     uiColorInput*	colsel_;
-    BufferString	name_;
+    BufferString	wellname_;
     BufferStringSet*	nms_;
 
     virtual bool	acceptOK(CallBacker*);

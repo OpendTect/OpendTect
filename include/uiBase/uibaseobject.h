@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiBody;
 mFDQtclass(QWidget)
 
-mExpClass(uiBase) uiBaseObject : public NamedObject
+mExpClass(uiBase) uiBaseObject : public NamedCallBacker
 {
 public:
 				uiBaseObject(const char* nm, uiBody* = 0);
@@ -42,19 +42,15 @@ public:
     void			endCmdRecEvent(int refnr,const char* msg=0);
 
     int	 /* refnr */		beginCmdRecEvent(od_uint64 id,
-	    					 const char* msg=0);
+						 const char* msg=0);
     void			endCmdRecEvent(od_uint64 id,int refnr,
 					       const char* msg=0);
-
-    Notifier<uiBaseObject>	tobeDeleted;
-				//!< triggered in destructor
 
     virtual Notifier<uiBaseObject>& preFinalise()
 				{ return finaliseStart; }
     virtual Notifier<uiBaseObject>& postFinalise()
 				{ return finaliseDone; }
-    
-    
+
     virtual mQtclass(QWidget*)	getWidget() { return 0; }
     const mQtclass(QWidget*)	getWidget() const;
 
@@ -65,7 +61,7 @@ protected:
     Notifier<uiBaseObject>	finaliseStart;
 				//!< triggered when about to start finalising
     Notifier<uiBaseObject>	finaliseDone;
-    				//!< triggered when finalising finished
+				//!< triggered when finalising finished
 
 private:
     int				cmdrecrefnr_;
@@ -74,11 +70,11 @@ private:
 
 
 /*
-CmdRecorder annotation to distinguish real user actions from actions 
+CmdRecorder annotation to distinguish real user actions from actions
 performed by program code. Should be used at start of each (non-const)
 uiObject function that calls any uiBody/Qt function that may trigger a
 signal received by the corresponding Messenger class (see i_q****.h).
-Apart from a few notify handler functions, it will do no harm when 
+Apart from a few notify handler functions, it will do no harm when
 using this annotation unnecessarily.
 */
 
@@ -87,11 +83,11 @@ using this annotation unnecessarily.
 mExpClass(uiBase) CmdRecStopper
 {
 public:
-    				CmdRecStopper(const uiBaseObject*);
+				CmdRecStopper(const uiBaseObject*);
 				~CmdRecStopper();
 
     static void			clearStopperList(const CallBacker* cmdrec);
-    				//!< will clear after all cmdrecs have called
+				//!< will clear after all cmdrecs have called
 
     static bool			isInStopperList(const uiBaseObject* obj);
 };

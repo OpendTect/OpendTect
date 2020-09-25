@@ -106,7 +106,7 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
     if ( listbox_->size()==1 )
        listbox_->setChosen( 0, true );
 
-    block.restore();
+    block.enableNotification();
     listbox_->selectionChanged.trigger();
     change_.trigger();
 }
@@ -153,7 +153,7 @@ void uiFlatViewAuxDataEditorList::setSelection(
 
     NotifyStopper block( listbox_->selectionChanged );
     listbox_->chooseAll( false );
-    block.restore();
+    block.enableNotification();
 
     listbox_->setChosen( idx, true );
     change_.trigger();

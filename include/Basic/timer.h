@@ -21,7 +21,7 @@ mFDQtclass(QTimerComm)
 \brief Timer class.
 */
 
-mExpClass(Basic) Timer : public NamedObject
+mExpClass(Basic) Timer : public NamedCallBacker
 {
 public :
 			Timer(const char* nm="Timer");
@@ -43,9 +43,9 @@ public :
 protected:
     mQtclass(QTimer*)		timer_;
     mQtclass(QTimerComm*)		comm_;
-    ScriptPolicy	scriptpolicy_;		
+    ScriptPolicy	scriptpolicy_;
 
-public:	
+public:
 				// Not for casual use
 
     ScriptPolicy		scriptPolicy() const;

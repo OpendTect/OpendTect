@@ -356,7 +356,7 @@ uiString uiODHorizonTreeItem::createDisplayName() const
     const uiVisPartServer* cvisserv =
 	const_cast<uiODHorizonTreeItem*>(this)->visserv_;
 
-    uiString res = cvisserv->getObjectName( displayid_ );
+    uiString res = cvisserv->getUiObjectName( displayid_ );
 
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {

@@ -53,7 +53,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	    visBase::DM().getObject(sceneids_[0]) );
     if ( !scene ) return;
 
-    const float initslval = 
+    const float initslval =
 	scene->getFixedZStretch()*scene->getTempZStretch();
 
     zstretches_ +=  initslval;
@@ -66,7 +66,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,thescene,
 			    visBase::DM().getObject(sceneids_[idx]))
-	    scenenms.add( thescene->name() );
+	    scenenms.add( thescene->uiName() );
 	    if ( idx>0 )
 	    {
 		const float inival =
@@ -133,7 +133,7 @@ void uiZStretchDlg::doFinalise( CallBacker* )
 void uiZStretchDlg::sceneSel( CallBacker* )
 {
     int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
-    if ( sceneidx<0 ) 
+    if ( sceneidx<0 )
 	sceneidx = 0;
 
     updateSliderValues( sceneidx );
@@ -227,7 +227,7 @@ void uiZStretchDlg::setOneZStretchToAllScenes( float zstretch, bool permanent )
 }
 
 
-void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches, 
+void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches,
     bool permanent )
 {
     if ( zstretches.size() != sceneids_.size() )
@@ -243,7 +243,7 @@ void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches,
 }
 
 
-void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch, 
+void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
     bool permanent )
 {
     if ( !scene )
@@ -261,7 +261,7 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
     }
 
     if ( savefld_ && savefld_->isChecked() )
-	SI().getPars().set( 
+	SI().getPars().set(
 	    IOPar::compKey("Z Scale",scene->zDomainInfo().key()), zstretch );
 
     const int id = sceneids_.indexOf( scene->id() );
@@ -305,7 +305,7 @@ visSurvey::Scene* uiZStretchDlg::getSelectedScene() const
 }
 
 
-float uiZStretchDlg::getSelectedSceneZStretch() const 
+float uiZStretchDlg::getSelectedSceneZStretch() const
 {
     const visSurvey::Scene* scene = getSelectedScene();
     if ( !scene )

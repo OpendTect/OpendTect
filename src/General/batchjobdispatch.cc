@@ -158,7 +158,7 @@ void Batch::JobDispatcher::getDefParFilename( const char* prognm,
 
 void Batch::JobDispatcher::getJobNames( BufferStringSet& nms )
 {
-    DirList dl( GetProcFileName(0), DirList::FilesOnly, "*.par" );
+    DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
     for ( int idx=0; idx<dl.size(); idx++ )
 	nms.add( getJobName(dl.get(idx)) );
 }

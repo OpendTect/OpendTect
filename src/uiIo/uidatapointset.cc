@@ -542,7 +542,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 	else
 	    rownm += pos.binid_.toString();
     }
-    tbl_->setRowLabel( tid, rownm );
+    tbl_->setRowLabel( tid, toUiString(rownm) );
     fillingtable_ = false;
 }
 

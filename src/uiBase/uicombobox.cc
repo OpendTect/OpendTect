@@ -117,7 +117,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     , curwidth_(0)
     , enumdef_(0)
 {
-    addItems( uids );
+    addItems( BufferStringSet(uids) );
 }
 
 
@@ -389,6 +389,13 @@ void uiComboBox::addItems( const BufferStringSet& bss )
 {
     for ( int idx=0; idx<bss.size(); idx++ )
 	addItem( toUiString( bss.get(idx).str() ) );
+}
+
+
+void uiComboBox::addItems( const char* arr[] )
+{
+    const BufferStringSet bss( arr );
+    addItems( bss );
 }
 
 

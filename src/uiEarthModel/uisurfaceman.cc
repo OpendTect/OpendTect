@@ -647,7 +647,7 @@ void uiSurfaceMan::mkFileInfo()
     }
     else if ( type_ == FltSet )
     {
-	DirList dl( curioobj_->fullUserExpr(), DirList::FilesOnly, "*.flt" );
+	DirList dl( curioobj_->fullUserExpr(), File::FilesInDir, "*.flt" );
 	txt = "Nr Faults: ";
 	txt += dl.size();
 	txt += "\n";
@@ -730,7 +730,8 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 {
     tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
 			"Stratigraphy Table" );
-    BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Marker" );
+    uiStringSet lbls; lbls.add( uiStrings::sName() ).add( uiStrings::sColor() )
+                          .add( uiStrings::sLevel() );
     tbl_->setColumnLabels( lbls );
     tbl_->setTableReadOnly( true );
     tbl_->setRowResizeMode( uiTable::Interactive );
@@ -919,7 +920,7 @@ uiFltSetMan( uiParent* p, const IOObj& ioobj )
     :uiDialog(p,uiDialog::Setup(tr("FaultSet management"),
         uiStrings::phrManage( uiStrings::sFault(mPlural)),mTODOHelpKey ))
     , ioobj_(ioobj)
-    , dl_(ioobj.fullUserExpr(),DirList::FilesOnly,"*.flt")
+    , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
 {
     setCtrlStyle( CloseOnly );
 

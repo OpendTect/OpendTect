@@ -32,24 +32,24 @@ public:
 				~ElasticPropSelection();
     ElasticPropSelection&	operator =(const ElasticPropSelection&);
 
-    ElasticPropertyRef&		get( int idx )		{ return gt(idx); }
-    const ElasticPropertyRef&	get( int idx ) const	{ return gt(idx); }
-    ElasticPropertyRef&		get( ElasticFormula::Type tp )
+    ElasticPropertyRef&		getByIdx( int idx )	{ return gt(idx); }
+    const ElasticPropertyRef&	getByIdx( int idx ) const { return gt(idx); }
+    ElasticPropertyRef&		getByType( ElasticFormula::Type tp )
 							{ return gt(tp); }
-    const ElasticPropertyRef&	get( ElasticFormula::Type tp ) const
+    const ElasticPropertyRef&	getByType( ElasticFormula::Type tp ) const
 							{ return gt(tp); }
 
-    static ElasticPropSelection* get(const MultiID&);
-    static ElasticPropSelection* get(const IOObj*);
-    bool	put(const IOObj*) const;
+    static ElasticPropSelection* getByDBKey(const MultiID&);
+    static ElasticPropSelection* getByIOObj(const IOObj*);
+    bool			put(const IOObj*) const;
 
-    bool			isValidInput(uiString*  
+    bool			isValidInput(uiString*
 				errmsg = 0) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    uiString			 errMsg() { return errmsg_; }
+    uiString			errMsg() { return errmsg_; }
 
 protected:
 

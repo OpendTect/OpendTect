@@ -179,7 +179,7 @@ bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* taskr )
     visBase::PolyLine3D* pl = visBase::PolyLine3D::create();
     pl->ref();
     pl->setDisplayTransformation( transformation_ );
-    pl->setName( toUiString("PolyLine3D") );
+    pl->setUiName( tr("PolyLine3D") );
     pl->setLineStyle( drawstyle_->lineStyle() );
     addChild( pl->osgNode() );
     lines_ += pl;

@@ -119,7 +119,8 @@ uiPreStackAttrib::~uiPreStackAttrib()
 
 void uiPreStackAttrib::getStatTypeNames( BufferStringSet& stattypenames )
 {
-    stattypenames = Stats::TypeNames();
+    stattypenames.setEmpty();
+    stattypenames.add( Stats::TypeNames() );
     const char* countstr = Stats::toString( Stats::Count );
     const int countidx = stattypenames.indexOf( countstr );
     if ( countidx > -1 )

@@ -81,7 +81,7 @@ if ( comm_ ) \
 	mRetHostErr( comm_->errMsg() ) \
 }
 
-mClass(Prog) BatchProgram : public NamedObject
+mClass(Prog) BatchProgram : public NamedCallBacker
 { mODTextTranslationClass(BatchProgram);
     mGlobal(Batch) friend	BatchProgram& BP();
 

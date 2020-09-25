@@ -81,7 +81,11 @@ protected:
 					 const SEGYSeisTrcTranslator&);
     bool		rejectOK(CallBacker*);
 
-    void		outInfo(const char*);
+    void		outInfo(const uiString&);
+
+public:
+
+    uiString		sGetWinTitle();
 
 };
 

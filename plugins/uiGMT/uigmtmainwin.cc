@@ -104,7 +104,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = FilePath(GetDataDir()).add("Misc").fullPath();
-    filefld_ = new uiFileInput( this, "Output file",
+    filefld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(false).filter("*.ps").defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
@@ -126,7 +126,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     batchfld_->setJobName( "GMT_Proc" );
     batchfld_->display( false );
 
-    uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
+    uiToolBar* toolbar = new uiToolBar( this, tr("Flow Tools") );
     toolbar->addButton( "new", tr("New flow"),
 			mCB(this,uiGMTMainWin,newFlow) );
     toolbar->addButton( "open", tr("Open Flow"),
@@ -188,7 +188,7 @@ void uiGMTMainWin::openFlow( CallBacker* )
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg; ODGMT::ProcFlow pf;
+	uiString emsg; ODGMT::ProcFlow pf;
 	if ( !ODGMTProcFlowTranslator::retrieve(pf,ctio_.ioobj_,emsg) )
 	    uiMSG().error( emsg );
 	else
@@ -207,7 +207,7 @@ void uiGMTMainWin::saveFlow( CallBacker* )
     if ( !dlg.go() ) return;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    BufferString emsg; ODGMT::ProcFlow pf;
+    ODGMT::ProcFlow pf;
     IOPar& par = pf.pars();
 
     BufferString fnm = filefld_->fileName();
@@ -227,6 +227,7 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 	par.mergeComp( *pars_[ldx], numkey );
     }
 
+    uiString emsg;
     if ( !ODGMTProcFlowTranslator::store(pf,ctio_.ioobj_,emsg) )
 	uiMSG().error( emsg );
     else

@@ -22,10 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "qtcpsocketcomm.h"
 #include <QLocalSocket>
 
-#include "hiddenparam.h"
-
-#define mTimeOut 30000
-
 # define mCheckThread \
     if ( thread_!=Threads::currentThread() ) \
     { \
@@ -33,90 +29,65 @@ static const char* rcsID mUsedVar = "$Id$";
     }
 
 
-static HiddenParam<Network::Socket,QLocalSocket*> netsocketqlocalmgr_(nullptr);
-
-Network::Socket::Socket( bool haveevloop )
-    : noeventloop_(!haveevloop)
-    , disconnected(this)
-    , readyRead(this)
-    , ownssocket_(true)
-    , thread_(Threads::currentThread())
-    , qtcpsocket_(new QTcpSocket())
-    , timeout_(mTimeOut)
-{
-    netsocketqlocalmgr_.setParam( this, nullptr );
-    socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
-}
-
-
 Network::Socket::Socket( bool islocal, bool haveevloop )
-    : noeventloop_(!haveevloop)
-    , disconnected(this)
-    , readyRead(this)
-    , qtcpsocket_(nullptr)
-    , ownssocket_(true)
-    , thread_(Threads::currentThread())
-    , timeout_(mTimeOut)
+    : noeventloop_( !haveevloop )
+    , disconnected( this )
+    , error( this )
+    , readyRead( this )
+    , ownssocket_( true )
+    , thread_( Threads::currentThread() )
 {
-    netsocketqlocalmgr_.setParam( this, nullptr );
     if ( islocal )
     {
-
-	auto* qlocalsocket = new QLocalSocket();
-	netsocketqlocalmgr_.setParam( this, qlocalsocket );
-	socketcomm_ = new QTcpSocketComm( qlocalsocket, this );
+	qlocalsocket_ = new QLocalSocket();
+	socketcomm_ = new QTcpSocketComm(qlocalsocket_, this);
     }
     else
     {
 	qtcpsocket_ = new QTcpSocket();
-	socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
+	socketcomm_ = new QTcpSocketComm(qtcpsocket_, this);
     }
 }
 
 
 Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     : qtcpsocket_(s)
-    , noeventloop_(!haveevloop)
-    , disconnected(this)
-    , readyRead(this)
-    , ownssocket_(false)
-    , thread_(Threads::currentThread())
-    , timeout_(mTimeOut)
+    , noeventloop_( !haveevloop )
+    , disconnected( this )
+    , readyRead( this )
+    , ownssocket_( false )
+    , error( this )
+    , thread_( Threads::currentThread() )
 {
-    netsocketqlocalmgr_.setParam( this, nullptr );
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
 }
 
 
 Network::Socket::Socket( QLocalSocket* s, bool haveevloop )
-    : timeout_(mTimeOut)
+    : qlocalsocket_(s)
     , noeventloop_(!haveevloop)
     , disconnected(this)
     , readyRead(this)
-    , qtcpsocket_(nullptr)
-    , ownssocket_(false)
-    , thread_(Threads::currentThread())
+    , error(this)
+    , ownssocket_( false )
+    , thread_( Threads::currentThread() )
 {
-    netsocketqlocalmgr_.setParam( this, s );
-    socketcomm_ = new QTcpSocketComm( s, this );
+    socketcomm_ = new QTcpSocketComm( qlocalsocket_, this );
 }
 
 
 Network::Socket::~Socket()
 {
-    mCheckThread;
     socketcomm_->disconnect();
+    mCheckThread;
     socketcomm_->deleteLater();
     if ( ownssocket_ )
     {
 	if ( qtcpsocket_ )
 	    qtcpsocket_->deleteLater();
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	if ( qlocalsocket )
-	    qlocalsocket->deleteLater();
-	netsocketqlocalmgr_.setParam( this, nullptr );
+	if ( qlocalsocket_ )
+	    qlocalsocket_->deleteLater();
     }
-    netsocketqlocalmgr_.removeParam( this );
 }
 
 
@@ -129,15 +100,14 @@ bool Network::Socket::connectToHost( const Authority& auth, bool wait )
 
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	const QLocalSocket::LocalSocketState state = qlocalsocket->state();
+	const QLocalSocket::LocalSocketState state = qlocalsocket_->state();
 	if ( state != QLocalSocket::UnconnectedState )
 	{
 	    errmsg_ = tr("Trying to connect already used connection.");
 	    return false;
 	}
 
-	qlocalsocket->connectToServer( auth.getServerName().buf() );
+	qlocalsocket_->connectToServer( auth.getServerName().buf() );
     }
     else
     {
@@ -174,11 +144,10 @@ bool Network::Socket::disconnectFromHost( bool wait )
     bool res = true;
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	qlocalsocket->disconnectFromServer();
-	const QLocalSocket::LocalSocketState state = qlocalsocket->state();
+	qlocalsocket_->disconnectFromServer();
+	const QLocalSocket::LocalSocketState state = qlocalsocket_->state();
 	if ( wait && state != QLocalSocket::UnconnectedState )
-	    res = qlocalsocket->waitForDisconnected( timeout_ );
+	    res = qlocalsocket_->waitForDisconnected( timeout_ );
     }
     else
     {
@@ -201,8 +170,7 @@ bool Network::Socket::isBad() const
 {
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	const QLocalSocket::LocalSocketState state = qlocalsocket->state();
+	const QLocalSocket::LocalSocketState state = qlocalsocket_->state();
 	return state == QLocalSocket::UnconnectedState ||
 	       state == QLocalSocket::ClosingState;
     }
@@ -217,8 +185,7 @@ bool Network::Socket::isConnected() const
 {
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	const QLocalSocket::LocalSocketState state = qlocalsocket->state();
+	const QLocalSocket::LocalSocketState state = qlocalsocket_->state();
 	return state == QLocalSocket::ConnectedState;
     }
 
@@ -228,8 +195,7 @@ bool Network::Socket::isConnected() const
 
 od_int64 Network::Socket::bytesAvailable() const
 {
-    QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-    od_int64 res = isLocal() ? qlocalsocket->bytesAvailable()
+    od_int64 res = isLocal() ? qlocalsocket_->bytesAvailable()
 			     : qtcpsocket_->bytesAvailable();
     if ( res || !noeventloop_ )
 	return res;
@@ -237,11 +203,11 @@ od_int64 Network::Socket::bytesAvailable() const
     //Force a trigger if noeventloop. Not really needed, but
     //Makes it safer. Could be any time, but 1ms will do.
     if ( isLocal() )
-	qlocalsocket->waitForReadyRead( 1 );
+	qlocalsocket_->waitForReadyRead( 1 );
     else
 	qtcpsocket_->waitForReadyRead( 1 );
 
-    return isLocal() ? qlocalsocket->bytesAvailable()
+    return isLocal() ? qlocalsocket_->bytesAvailable()
 		    : qtcpsocket_->bytesAvailable();
 }
 
@@ -250,21 +216,15 @@ void Network::Socket::abort()
 {
     mCheckThread;
     if ( isLocal() )
-	netsocketqlocalmgr_.getParam( this )->abort();
+	qlocalsocket_->abort();
     else
 	qtcpsocket_->abort();
 }
 
 
-bool Network::Socket::isLocal() const
-{
-    return !qtcpsocket_;
-}
-
-
 QString Network::Socket::getSocketErrMsg() const
 {
-    return isLocal() ? netsocketqlocalmgr_.getParam( this )->errorString()
+    return isLocal() ? qlocalsocket_->errorString()
 		     : qtcpsocket_->errorString();
 }
 
@@ -287,26 +247,26 @@ bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
     Threads::Locker locker( lock_ );
     od_int64 bytestowrite = sz;
 
-    QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
     while ( bytestowrite )
     {
 	od_int64 writesize = bytestowrite;
 	bool forcewait = wait;
-	const od_int64 sockbytetowrite	= isLocal() ?
-		    qlocalsocket->bytesToWrite() : qtcpsocket_->bytesToWrite();
-	if ( bytestowrite+sockbytetowrite > maxbuffersize )
+	const od_int64 sockbytetowrite = isLocal() ?
+		qlocalsocket_->bytesToWrite() : qtcpsocket_->bytesToWrite();
+
+	if ( bytestowrite+sockbytetowrite >maxbuffersize )
 	{
-	    writesize = maxbuffersize-sockbytetowrite;
+	    writesize = maxbuffersize - sockbytetowrite;
 	    forcewait = true;
 	}
 
-	const od_int64 byteswritten = isLocal() ?
-		    qlocalsocket->write( buf, writesize ) :
-					qtcpsocket_->write( buf, writesize );
+	const od_int64 byteswritten =  isLocal()  ?
+				    qlocalsocket_->write(buf, writesize) :
+				    qtcpsocket_->write(buf, writesize);
 	if ( byteswritten == -1 )
 	{
 	    if ( isLocal() )
-		errmsg_.setFrom( qlocalsocket->errorString() );
+		errmsg_.setFrom( qlocalsocket_->errorString() );
 	    else
 		errmsg_.setFrom( qtcpsocket_->errorString() );
 	    return false;
@@ -336,14 +296,13 @@ bool Network::Socket::waitForWrite( bool forall ) const
 {
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	while ( qlocalsocket->bytesToWrite() )
+	while ( qlocalsocket_->bytesToWrite() )
 	{
-	    od_int64 oldpayload = qlocalsocket->bytesToWrite();
+	    od_int64 oldpayload = qlocalsocket_->bytesToWrite();
 
-	    qlocalsocket->waitForBytesWritten( timeout_ );
+	    qlocalsocket_->waitForBytesWritten( timeout_ );
 
-	    if ( oldpayload==qlocalsocket->bytesToWrite() )
+	    if ( oldpayload == qlocalsocket_->bytesToWrite() )
 	    {
 		errmsg_ = tr("Write timeout");
 		return false;
@@ -359,7 +318,7 @@ bool Network::Socket::waitForWrite( bool forall ) const
 	{
 	    od_int64 oldpayload = qtcpsocket_->bytesToWrite();
 
-	    qtcpsocket_->waitForBytesWritten( timeout_ );
+	    qtcpsocket_->waitForBytesWritten(timeout_);
 
 	    if ( oldpayload == qtcpsocket_->bytesToWrite() )
 	    {
@@ -430,19 +389,18 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
 
     od_int64 bytestoread = sz;
 
-    QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
     while ( bytestoread )
     {
 	od_int64 readsize = bytestoread;
 	if ( readsize>maxbuffersize )
 	    readsize = maxbuffersize;
 
-	const od_int64 bytesread = isLocal() ?
-			    qlocalsocket->read( buf, readsize ) :
-					    qtcpsocket_->read( buf, readsize );
+	const od_int64 bytesread =  isLocal()  ?
+	    qlocalsocket_->read(buf, readsize) :
+					    qtcpsocket_->read(buf, readsize);
 	if ( bytesread == -1 )
 	{
-	    errmsg_.setFrom( getSocketErrMsg() );
+	    errmsg_.setFrom( qtcpsocket_->errorString() );
 	    return ReadError;
 	}
 
@@ -564,8 +522,7 @@ uiString Network::Socket::noConnErrMsg() const
 
 QObject* Network::Socket::qSocket()
 {
-    return qtcpsocket_ ? (QObject*)qtcpsocket_
-		       : (QObject*)netsocketqlocalmgr_.getParam( this );
+    return isLocal() ? (QObject*)qlocalsocket_ : (QObject*)qtcpsocket_;
 }
 
 
@@ -577,16 +534,15 @@ bool Network::Socket::waitForConnected() const
     //Have we started at something?
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	QLocalSocket::LocalSocketState state = qlocalsocket->state();
+	QLocalSocket::LocalSocketState state = qlocalsocket_->state();
 	if ( state > QLocalSocket::UnconnectedState )
 	{
-	    qlocalsocket->waitForConnected( timeout_ );
-	    state = qlocalsocket->state();
+	    qlocalsocket_->waitForConnected(timeout_);
+	    state = qlocalsocket_->state();
 	    if ( state == QLocalSocket::ConnectedState )
 		return true;
 
-	    errmsg_.setFrom( qlocalsocket->errorString() );
+	    errmsg_.setFrom( qlocalsocket_->errorString() );
 
 	    return false;
 	}
@@ -622,12 +578,11 @@ bool Network::Socket::waitForNewData() const
 {
     if ( isLocal() )
     {
-	QLocalSocket* qlocalsocket = netsocketqlocalmgr_.getParam( this );
-	while ( !qlocalsocket->bytesAvailable() )
+	while ( !qlocalsocket_->bytesAvailable() )
 	{
-	    qlocalsocket->waitForReadyRead( timeout_ );
+	    qlocalsocket_->waitForReadyRead( timeout_ );
 
-	    if ( !qlocalsocket->bytesAvailable() )
+	    if ( !qlocalsocket_->bytesAvailable() )
 	    {
 		errmsg_ = readErrMsg();
 		return false;

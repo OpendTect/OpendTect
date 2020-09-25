@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 BaseMapObject::BaseMapObject( const char* nm )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , changed(this)
     , leftClicked(this)
     , rightClicked(this)

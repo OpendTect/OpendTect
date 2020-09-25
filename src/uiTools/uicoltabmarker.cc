@@ -43,15 +43,16 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
     , markersChanged(this)
 {
     table_ = new uiTable( this, uiTable::Setup(ctab_.size(),2)
-	    					.rowgrow(true)
-	    					.rowdesc("Marker")
+						.rowgrow(true)
+						.rowdesc(uiStrings::sMarker())
 						.defrowlbl(true)
-	   					.manualresize(true)
+						.manualresize(true)
 						.removeselallowed(false),
 			  "Marker table");
-    BufferStringSet columnlabels;
-    columnlabels.add("Position").add("Color");
-    table_->setColumnLabels( columnlabels );
+    uiStringSet columnlables;
+    columnlables.add( uiStrings::sPosition() )
+		.add( uiStrings::sColor() );
+    table_->setColumnLabels( columnlables );
     table_->setColumnReadOnly( cColorCol, true );
     fillTable();
 

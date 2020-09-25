@@ -157,7 +157,7 @@ public:
 				makeRecursiveFileList( dirname_, filelist_  );
 			    }
 			    else
-				filelist_.copy( *externallist );
+				filelist_ = *externallist;
 
 			    totalnr_ = filelist_.size();
 			}
@@ -227,7 +227,7 @@ Executor* getRecursiveDeleter( const char* dirname,
 void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 			    bool followlinks )
 {
-    DirList files( dir, DirList::FilesOnly );
+    DirList files( dir, File::FilesInDir );
     for ( int idx=0; idx<files.size(); idx++ )
     {
 	if ( !followlinks )
@@ -236,7 +236,7 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 	    filelist.addIfNew( files.fullPath(idx) );
     }
 
-    DirList dirs( dir, DirList::DirsOnly );
+    DirList dirs( dir, File::DirsInDir );
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	BufferString curdir( dirs.fullPath(idx) );
@@ -589,6 +589,38 @@ bool createDir( const char* fnm )
     pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
+}
+
+
+bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
+	      const char* mask )
+{
+    if ( !isDirectory(dirnm) )
+	return false;
+
+    QDir qdir( dirnm );
+    if ( mask && *mask )
+    {
+	QStringList filters;
+	filters << mask;
+	qdir.setNameFilters( filters );
+    }
+
+    QDir::Filters dirfilters;
+    if ( dlt == FilesInDir )
+	dirfilters = QDir::Files | QDir::Hidden;
+    else if ( dlt == DirsInDir )
+	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
+    else
+	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
+				| QDir::Hidden;
+
+    QStringList qlist = qdir.entryList( dirfilters );
+    for ( int idx=0; idx<qlist.size(); idx++ )
+	fnames.add( qlist[idx] );
+
+    fnames.sort();
+    return true;
 }
 
 

@@ -164,7 +164,7 @@ int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
     OD::ModDeps().ensureLoaded( "uiBase" );
-    uiDialog::setTitlePos( -1 );
+    uiDialog::setTitlePos( uiDialog::LeftSide );
 
     PtrMan<uiODMain> odmain = new uiODMain( *new uiMain(argc,argv) );
     manODMainWin( odmain );

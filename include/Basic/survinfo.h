@@ -41,8 +41,8 @@ namespace Coords { class CoordSystem; }
   at the bottom part of the class too for some more public functions.
 */
 
-mExpClass(Basic) SurveyInfo : public NamedObject
-{
+mExpClass(Basic) SurveyInfo : public NamedCallBacker
+{ mODTextTranslationClass(SurveyInfo);
 
     mGlobal(Basic) friend const SurveyInfo&	SI();
 
@@ -283,6 +283,9 @@ public:
     static SurveyInfo*	read(const char* survdir);
     static SurveyInfo*	read(const char* path,bool pathisfile);
     void		setRange(const TrcKeyZSampling&,bool);
+    uiString		set3PtsWithMsg(const Coord c[3],const BinID b[2],
+				       int xline);
+    mDeprecated		("Use set3PtsWithMsg")
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
     bool		setCoordSystem(Coords::CoordSystem*);

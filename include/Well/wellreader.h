@@ -54,7 +54,8 @@ public:
     bool		getLog(const char* lognm) const; //!< Read this one only
     void		getLogInfo(BufferStringSet& lognms) const;
 
-    const OD::String&	errMsg() const		{ return errmsg_; }
+    const uiString&	errMsg() const		{ return errmsg_; }
+
     Well::Data*		data();
     const Well::Data*	data() const
 			{ return const_cast<Reader*>(this)->data(); }
@@ -64,7 +65,7 @@ public:
 protected:
 
     ReadAccess*		ra_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
 private:
 

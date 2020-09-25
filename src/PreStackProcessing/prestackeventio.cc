@@ -340,7 +340,7 @@ bool EventReader::prepareWork()
     BufferString mask = "*.";
     mask += PSEventTranslatorGroup::sDefExtension();
 
-    const DirList dirlist( fnm.buf(), DirList::FilesOnly, mask.buf() );
+    const DirList dirlist( fnm.buf(), File::FilesInDir, mask.buf() );
     for ( int idx=0; idx<dirlist.size(); idx++ )
     {
 	if ( File::isEmpty( dirlist.fullPath(idx) ) )
@@ -777,7 +777,7 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
 	return;
     }
 
-    const DirList dirlist( fromnm.buf(), DirList::FilesOnly, "*" );
+    const DirList dirlist( fromnm.buf(), File::FilesInDir, "*" );
     for ( int idx=0; idx<dirlist.size(); idx++ )
 	filestocopy_.add( dirlist.fullPath( idx ) );
 

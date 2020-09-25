@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
-    : uiDialog(p,Setup("DataPointSet picking",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("DataPointSet picking"),mNoDlgTitle,
 			mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
     , dps_(*new DataPointSet(false,false))
@@ -52,21 +52,21 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
     setCtrlStyle( CloseOnly );
 
     tb_ = new uiToolBar( this, "ToolBar" );
-    pickbutid_ = tb_->addButton( "seedpickmode", 0,
+    pickbutid_ = tb_->addButton( "seedpickmode", uiString::emptyString(),
 	mCB(this,uiDataPointSetPickDlg,pickModeCB), true );
-    tb_->addButton( "open", "Open DataPointSet",
+    tb_->addButton( "open", tr("Open DataPointSet"),
 	mCB(this,uiDataPointSetPickDlg,openCB) );
-    savebutid_ = tb_->addButton( "save", "Save DataPointSet",
+    savebutid_ = tb_->addButton( "save", tr("Save DataPointSet"),
 	mCB(this,uiDataPointSetPickDlg,saveCB) );
-    tb_->addButton( "saveas", "Save DataPointSet As",
+    tb_->addButton( "saveas", tr("Save DataPointSet As"),
 	mCB(this,uiDataPointSetPickDlg,saveasCB) );
 
     table_ = new uiTable( this, uiTable::Setup(10,6), "Position table" );
     table_->setPrefWidth( 500 );
-    BufferStringSet lbls;
-    lbls.add(sKey::Inline()).add(sKey::Crossline())
-	.add(sKey::XCoord()).add(sKey::YCoord()).add("Z")
-	.add("Value");
+    uiStringSet lbls;
+    lbls.add( uiStrings::sInline() ).add( uiStrings::sCrossline() )
+	.add( uiStrings::sX() ).add( uiStrings::sY() )
+	.add( uiStrings::sZ() ).add( uiStrings::sValue() );
     table_->setColumnLabels( lbls );
     table_->valueChanged.notify( mCB(this,uiDataPointSetPickDlg,valChgCB) );
     table_->rowClicked.notify( mCB(this,uiDataPointSetPickDlg,rowClickCB) );
@@ -167,7 +167,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !ioobj ) return;
 
     PosVecDataSet pvds;
-    BufferString errmsg;
+    uiString errmsg;
     const bool rv = pvds.getFrom( ioobj->fullUserExpr(true), errmsg );
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
@@ -195,7 +195,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     changed_ = false;
     updateButtons();
 
-    setCaption( ioobj->name() );
+    setCaption( toUiString(ioobj->name()) );
 }
 
 
@@ -218,13 +218,13 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
     if ( !ioobj ) return;
 
     PosVecDataSet pvds;
-    BufferString errmsg;
+    uiString errmsg;
     const bool rv = dps_.dataSet().putTo( ioobj->fullUserExpr(true),
 					  errmsg, false );
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
 
-    setCaption( ioobj->name() );
+    setCaption( toUiString(ioobj->name()) );
     changed_ = false;
     updateButtons();
 }
@@ -371,15 +371,16 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
     , interpol_(0)
     , dataidx_(-1)
 {
-    setCaption( "Surface data picking" );
+    setCaption( toUiString("Surface data picking") );
 
-    uiPushButton* interpolbut = new uiPushButton( this, "Interpolate", true );
+    auto* interpolbut = new uiPushButton( this, tr("Interpolate"), true );
     interpolbut->activated.notify(
 	mCB(this,uiEMDataPointSetPickDlg,interpolateCB) );
     interpolbut->attach( alignedBelow, table_ );
 
-    uiToolButton* settbut = new uiToolButton( this, "settings",
-	"Interpolation settings", mCB(this,uiEMDataPointSetPickDlg,settCB) );
+    auto* settbut = new uiToolButton( this, "settings",
+				tr("Interpolation settings"),
+				mCB(this,uiEMDataPointSetPickDlg,settCB) );
     settbut->attach( rightOf, interpolbut );
 
     emdps_.dataSet().add( new DataColDef("Section ID") );
@@ -454,20 +455,20 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 	const int crlidx = tks_.crlIdx( pos.binid_.crl() );
 	const float* vals = dps_.getValues( idx );
 	arr.set( inlidx, crlidx, vals[0] );
-    }		     
+    }
 
     uiTaskRunner uitr( this );
     if ( !interpol_->setArray(arr,&uitr) )
 	return;
-    
+
     if ( !uitr.execute(*interpol_) )
 	return;
-    
+
     BinIDValueSet& bivs = emdps_.bivSet();
     BIDValSetArrAdapter adapter( bivs, 2, tks_.step_ );
     Array2DCopier<float> copier( arr, tks_, tks_, adapter );
     copier.executeParallel( true );
-   
+
     readyForDisplay.trigger();
 }
 
@@ -475,7 +476,7 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this,
-		uiDialog::Setup( "Interpolate Horizon Data",
+		uiDialog::Setup( tr("Interpolate Horizon Data"),
 		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
     uiArray2DInterpolSel* settings =
 	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );

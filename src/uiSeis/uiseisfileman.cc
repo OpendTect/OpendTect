@@ -81,8 +81,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 	    : uiStrings::phrManage(tr("3D Seismics")),
 				    mNoDlgTitle,mHelpID)
 				    .nrstatusflds(1).modal(false),
-		  SeisTrcTranslatorGroup::ioContext(),
-		  is2d ? "2D Seismic Data" : "Seismic Data" )
+		  SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
     , man2dlinesbut_(0)
@@ -407,7 +406,7 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
     nrfiles = 0;
     if ( File::isDirectory(filenm) )
     {
-	DirList dl( filenm, DirList::FilesOnly );
+	DirList dl( filenm, File::FilesInDir );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    FilePath filepath = dl.fullPath( idx );

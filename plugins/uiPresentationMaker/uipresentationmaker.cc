@@ -368,17 +368,13 @@ static void createSlideName( BufferString& slidename )
     const int visid = visserv->getSelObjectId();
     visserv->getObjectInfo( visid, slidename );
     if ( slidename.isEmpty() )
-    {
-	uiString objnm = visserv->getObjectName( visid );
-	slidename = objnm.getFullString();
-    }
+	slidename = toString( visserv->getUiObjectName(visid) );
 
     const int attrib = visserv->getSelAttribNr();
     if ( attrib >= 0 )
     {
-	uiString dispnm =
-		uiODAttribTreeItem::createDisplayName( visid, attrib );
-	BufferString attribnm = dispnm.getFullString();
+	BufferString attribnm = toString(
+		uiODAttribTreeItem::createDisplayName(visid,attrib) );
 	if ( attribnm.isEmpty() )
 	{
 	    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );

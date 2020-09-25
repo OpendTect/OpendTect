@@ -47,7 +47,9 @@ public:
     virtual bool	getDispProps() const		= 0;
     virtual bool	getLog(const char* lognm) const	= 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
-    virtual const OD::String& errMsg() const		= 0;
+
+    virtual const uiString& errMsg() const		= 0;
+
     Data&		data()				{ return wd_; }
     const Data&		data() const			{ return wd_; }
 
@@ -58,6 +60,8 @@ protected:
     bool		addToLogSet(Log*, bool needjustinfo=false) const;
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					uiString& errmsg) const;
+
+    mDeprecated		("use UiString")
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					BufferString& errmsg) const;
 			//!< D2TModel will become mine and may even be deleted

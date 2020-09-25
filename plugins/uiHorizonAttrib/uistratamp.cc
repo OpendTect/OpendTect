@@ -66,7 +66,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     BufferString lbltxt = "Z Offset ";
     lbltxt += SI().getZUnitString(); lbltxt += " Top";
-    tophorshiftfld_ = new uiGenInput( this, lbltxt,
+    tophorshiftfld_ = new uiGenInput( this, toUiString(lbltxt),
 				      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );

@@ -137,7 +137,7 @@ void uiDirectionalPlot::gatherInfo()
 	    if ( isempty_ )
 	    {
 		isempty_ = false;
-		const Stats::SectorPartData& spd = data_.get(isect,0);
+		const Stats::SectorPartData& spd = data_.getPartData(isect,0);
 		posrg_.start = posrg_.stop = spd.pos_;
 		maxcount_ = spd.count_;
 	    }
@@ -587,7 +587,7 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
     if ( part<0 ) part = 0;
     if ( part>=nrparts ) part = nrparts-1;
 
-    count = data_.get( sector, part ).count_;
+    count = data_.getPartData( sector, part ).count_;
     ang = (float)azimuth;
     if ( nrparts>1 )
 	pos = data_.setup_.usrposrg_.start +

@@ -19,15 +19,15 @@ namespace SEGY { class HdrEntry; }
 
 
 mExpClass(uiSEGY) uiSEGYTrcHdrValPlot : public uiGroup
-{
+{ mODTextTranslationClass(uiSEGYTrcHdrValPlot);
 public:
 
-    			uiSEGYTrcHdrValPlot(uiParent*,bool singlehdr=true,
+			uiSEGYTrcHdrValPlot(uiParent*,bool singlehdr=true,
 					    int firsttrcnr=1);
     virtual		~uiSEGYTrcHdrValPlot();
 
     void		setData(const SEGY::HdrEntry&,
-	    			const float*,int sz,bool first=true);
+				const float*,int sz,bool first=true);
 
 protected:
 

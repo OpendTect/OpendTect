@@ -141,10 +141,10 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
     BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken() );
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
-    BufferString txt( "Input ('" ); txt += uiSEGYFileSpec::sKeyLineNmToken();
-    txt += "' will become line name)";
+    uiString txt( tr("Input ('%1' will become line name)")
+                                    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
     uiFileInput::Setup fisu( fp.fullPath() );
-    fisu.forread( true ).objtype( tr("SEG-Y") );
+    fisu.forread( true ).objtype( uiStrings::sSEGY() );
     fnmfld_ = new uiFileInput( this, txt, fisu );
 }
 
@@ -204,7 +204,7 @@ bool doImp( const FilePath& fp )
     mask.replace( uiSEGYFileSpec::sKeyLineNmToken(), "*" );
     FilePath maskfp( fp ); maskfp.setFileName( mask );
     const int nrtok = mask.count( '*' );
-    DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );
+    DirList dl( fp.pathOnly(), File::FilesInDir, mask );
     if ( dl.size() < 1 )
     {
 	uiMSG().error( tr("Cannot find any match for file name") );

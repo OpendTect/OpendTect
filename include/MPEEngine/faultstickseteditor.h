@@ -76,7 +76,7 @@ protected:
 
     int				getLastClickedStick() const;
 
-    void			cloneMovingNode();
+    void			cloneMovingNode(CallBacker*);
 
     const TypeSet<EM::PosID>*	editpids_;
 

@@ -8,11 +8,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
 
-#include "threadlock.h"
-#include "perthreadrepos.h"
 #include "atomic.h"
-#include "math.h"
 #include "limits.h"
+#include "math.h"
+#include "perthreadrepos.h"
+#include "ptrman.h"
+#include "threadlock.h"
 
 
 // Thread::Lock interface
@@ -50,19 +51,19 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
     {
 	if ( oth.mutex_ )
 	    { *mutex_ = *oth.mutex_; return *this; }
-	delete mutex_;
+	deleteAndZeroPtr( mutex_ );
     }
     else if ( splock_ )
     {
 	if ( oth.splock_ )
 	    { *splock_ = *oth.splock_; return *this; }
-	delete splock_;
+	deleteAndZeroPtr( splock_ );
     }
     else
     {
 	if ( oth.rwlock_ )
 	    { *rwlock_ = *oth.rwlock_; return *this; }
-	delete rwlock_;
+	deleteAndZeroPtr( rwlock_ );
     }
 
     mutex_ = oth.mutex_ ? new Mutex(*oth.mutex_) : 0;
@@ -75,7 +76,10 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 
 Threads::Lock::~Lock()
 {
-    delete mutex_; delete splock_; delete rwlock_;
+    //Put to zero to force crash if used again.
+    deleteAndZeroPtr( mutex_ );
+    deleteAndZeroPtr( splock_ );
+    deleteAndZeroPtr( rwlock_ );
 }
 
 
@@ -114,10 +118,13 @@ void Threads::Locker::reLock( Threads::Locker::WaitType wt )
 	    lock_.spinLock().lock();
 	else if ( lock_.isMutex() )
 	    lock_.mutex().lock();
-	else if ( isread_ )
-	    lock_.readWriteLock().readLock();
-	else
-	    lock_.readWriteLock().writeLock();
+	else if ( lock_.isRWLock() )
+	{
+	    if ( isread_ )
+		lock_.readWriteLock().readLock();
+	    else
+		lock_.readWriteLock().writeLock();
+	}
     }
     else
     {
@@ -125,10 +132,13 @@ void Threads::Locker::reLock( Threads::Locker::WaitType wt )
 	    needunlock_ = lock_.spinLock().tryLock();
 	else if ( lock_.isMutex() )
 	    needunlock_ = lock_.mutex().tryLock();
-	else if ( isread_ )
-	    needunlock_ = lock_.readWriteLock().tryReadLock();
-	else
-	    needunlock_ = lock_.readWriteLock().tryWriteLock();
+	else if ( lock_.isRWLock() )
+	{
+	    if ( isread_ )
+		needunlock_ = lock_.readWriteLock().tryReadLock();
+	    else
+		needunlock_ = lock_.readWriteLock().tryWriteLock();
+	}
     }
 }
 
@@ -142,10 +152,13 @@ void Threads::Locker::unlockNow()
 	lock_.spinLock().unLock();
     else if ( lock_.isMutex() )
 	lock_.mutex().unLock();
-    else if ( isread_ )
-	lock_.readWriteLock().readUnLock();
-    else
-	lock_.readWriteLock().writeUnLock();
+    else if ( lock_.isRWLock() )
+    {
+	if ( isread_ )
+	    lock_.readWriteLock().readUnLock();
+	else
+	    lock_.readWriteLock().writeUnLock();
+    }
 
     needunlock_ = false;
 }
@@ -153,7 +166,8 @@ void Threads::Locker::unlockNow()
 
 bool Threads::Locker::convertToWriteLock()
 {
-    if ( isread_ || !lock_.isRWLock() ) return true;
+    if ( isread_ || !lock_.isRWLock() )
+	return true;
 
     const bool isok = lock_.readWriteLock().convReadToWriteLock();
     if ( isok )
@@ -162,11 +176,15 @@ bool Threads::Locker::convertToWriteLock()
 }
 
 bool Threads::lockSimpleSpinWaitLock(volatile int& lock)
-{ return lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked ); }
+{
+    return lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
+}
 
 
-void Threads::unlockSimpleSpinLock(volatile int& lock)
-{ lock = 0; }
+void Threads::unlockSimpleSpinLock( volatile int& lock )
+{
+    lock = 0;
+}
 
 
 bool Threads::lockSimpleSpinLock( volatile int& lock,
@@ -258,7 +276,7 @@ Threads::Mutex::Mutex( const Mutex& m )
 Threads::Mutex::~Mutex()
 {
 #ifndef OD_NO_QT
-    delete qmutex_;
+    deleteAndZeroPtr( qmutex_ );
 #endif
 
 #ifdef __debug__
@@ -344,7 +362,7 @@ Threads::SpinLock::~SpinLock()
 
 void Threads::SpinLock::lock()
 {
-    const void* currentthread = currentThread();
+    const ThreadID currentthread = currentThread();
     if ( recursive_ && lockingthread_ == currentthread )
     {
 	count_ ++;
@@ -352,8 +370,10 @@ void Threads::SpinLock::lock()
     }
 
     mPrepareIttNotify( lockingthread_ );
-    while ( !lockingthread_.setIfEqual( 0, currentthread ) )
-	;
+    ThreadID null_pointer = 0;
+    while ( !lockingthread_.compare_exchange_weak(null_pointer,currentthread ) )
+	null_pointer = 0;
+
 
     mIttNotifyAcquired( lockingthread_ );
 
@@ -381,7 +401,7 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
-    const void* currentthread = currentThread();
+    ThreadID currentthread = currentThread();
     if ( recursive_ && lockingthread_ == currentthread )
     {
 	count_ ++;
@@ -389,7 +409,8 @@ bool Threads::SpinLock::tryLock()
     }
 
     mPrepareIttNotify( lockingthread_ );
-    if ( lockingthread_.setIfEqual(0, currentthread) )
+    ThreadID oldthread = 0;
+    if ( lockingthread_.setIfValueIs(oldthread, currentthread) )
     {
 	mIttNotifyAcquired( lockingthread_ );
 	count_ ++;
@@ -400,6 +421,75 @@ bool Threads::SpinLock::tryLock()
     mIttNotifyCancel( lockingthread_ );
     return false;
 }
+
+
+
+Threads::SpinRWLock::SpinRWLock()
+    : count_( 0 )
+{
+    mSetupIttNotify( count_, "Threads::SpinRWLock" );
+}
+
+
+Threads::SpinRWLock::SpinRWLock( const Threads::SpinRWLock& oth )
+    : count_( 0 )
+
+{
+    mSetupIttNotify( count_, "Threads::SpinRWLock" );
+}
+
+
+Threads::SpinRWLock::~SpinRWLock()
+{
+    mDestroyIttNotify( count_ );
+}
+
+void Threads::SpinRWLock::readLock()
+{
+    mPrepareIttNotify( count_ );
+    int prevval = count_;
+    int newval;
+    do
+    {
+	if ( prevval == -1 ) //Writelocked
+	    prevval = 0;
+
+	newval = prevval+1;
+    } while ( !count_.compare_exchange_weak( prevval, newval ) );
+
+    mIttNotifyAcquired( count_ );
+}
+
+
+void Threads::SpinRWLock::readUnlock()
+{
+    count_--;
+    mIttNotifyReleasing( count_ );
+}
+
+
+void Threads::SpinRWLock::writeLock()
+{
+    mPrepareIttNotify( count_ );
+
+    int curval;
+    do
+    {
+	curval = 0;
+    } while ( !count_.compare_exchange_weak( curval, -1 ));
+
+    mIttNotifyAcquired( count_ );
+}
+
+
+void Threads::SpinRWLock::writeUnlock()
+{
+    count_ = 0;
+
+    mIttNotifyReleasing( count_ );
+}
+
+
 
 #define mUnLocked	0
 #define mPermissive	-1
@@ -607,7 +697,8 @@ bool Threads::Barrier::waitForAll( bool unlock )
 {
     if ( nrthreads_==-1 )
     {
-	mErrMsg("Nr threads not set")
+	pErrMsg("Nr threads not set");
+	DBG::forceCrash(true);
 	return false;
     }
 
@@ -687,7 +778,11 @@ Threads::ConditionVar::ConditionVar( const ConditionVar& )
 Threads::ConditionVar::~ConditionVar()
 {
 #ifndef OD_NO_QT
-    delete cond_;
+# ifdef __debug__
+    if (count_)
+	pErrMsg("Deleting condition variable with waiting threads.");
+# endif
+    deleteAndZeroPtr( cond_ );
 #endif
 }
 
@@ -760,6 +855,9 @@ protected:
 				func_( 0 );
 			    else
 				cb_.doCall( 0 );
+
+			    //Just to be sure....
+			    CallBacker::removeReceiverForCurrentThread();
 			}
 
     ThreadFunc		func_;
@@ -786,7 +884,7 @@ Threads::Thread::~Thread()
 {
 #ifndef OD_NO_QT
     thread_->wait();
-    delete thread_;
+    deleteAndZeroPtr( thread_ );
 #endif
 }
 
@@ -803,7 +901,7 @@ Threads::Thread::Thread( const CallBack& cb, const char* nm )
 }
 
 
-const void* Threads::Thread::threadID() const
+Threads::ThreadID Threads::Thread::threadID() const
 {
     return thread_;
 }
@@ -823,7 +921,7 @@ const char* Threads::Thread::getName() const
 }
 
 
-const void* Threads::currentThread()
+Threads::ThreadID Threads::currentThread()
 {
 #ifndef OD_NO_QT
     return QThread::currentThread();
@@ -883,7 +981,7 @@ void Threads::setCurrentThreadProcessorAffinity( int cpunum )
     }
     else
     {
-	DWORD_PTR zero = 0;
+	const DWORD_PTR zero = 0;
 	mask = ~zero;
     }
 
@@ -968,4 +1066,34 @@ void Threads::sleep( double tm )
     ThreadBody::sleep( tm );
 #endif
 
+}
+
+
+bool Threads::atomicSetIfValueIs( volatile int& val, int curval, int newval,
+				  int* actualvalptr )
+{
+# ifdef __win__
+
+    const int oldval = InterlockedCompareExchange( (volatile long*)&val, newval,
+						   curval );
+    if ( oldval != curval )
+    {
+	if ( actualvalptr ) *actualvalptr = oldval;
+        return false;
+    }
+
+    return true;
+
+# else
+
+    const int oldval = __sync_val_compare_and_swap( &val, curval, newval );
+    if ( oldval != curval )
+    {
+	if ( actualvalptr ) *actualvalptr = oldval;
+        return false;
+    }
+
+    return true;
+
+#endif
 }

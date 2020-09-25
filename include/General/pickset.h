@@ -29,9 +29,11 @@ namespace Pick
 
 /*!\brief Set of picks with something in common */
 
-mExpClass(General) Set : public NamedObject, public TypeSet<Location>
+mExpClass(General) Set : public NamedCallBacker, public TypeSet<Location>
 {
 public:
+    typedef idx_type	LocID;
+
 			Set(const char* nm=0);
 			Set(const Set&);
 			~Set();
@@ -72,9 +74,9 @@ public:
     void		getLocations(ObjectSet<const Location>&,int idx=0)const;
     float		getXYArea(int idx=0) const;
 			//!<Only for closed polygons. Returns in m^2.
-    size_type		find(const TrcKey&) const;
-    size_type		nearestLocation(const Coord&) const;
-    size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
+    LocID		find(const TrcKey&) const;
+    LocID		nearestLocation(const Coord&) const;
+    LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
     static const char*	sKeyFillColor()		{ return "Surface Color"; }
@@ -87,14 +89,14 @@ public:
     bool		useDisplayPars(const IOPar&);
     bool		writeDisplayPars() const;
 
-    void		removeSingleWithUndo(size_type idx);
-    void		insertWithUndo(size_type,const Pick::Location&);
+    void		removeSingleWithUndo(LocID);
+    void		insertWithUndo(LocID,const Pick::Location&);
     void		appendWithUndo(const Pick::Location&);
-    void		moveWithUndo(size_type,const Pick::Location&,
+    void		moveWithUndo(LocID,const Pick::Location&,
 					const Pick::Location&);
 
-    inline Location&	get( size_type idx )		{ return (*this)[idx]; }
-    inline const Location& get( size_type idx ) const	{ return (*this)[idx]; }
+    Location&		get(LocID);
+    const Location&	get(LocID) const;
 
     void		setReadOnly( bool yn )		{ readonly_ = yn; }
     bool		isReadOnly() const		{ return readonly_; }
@@ -117,18 +119,19 @@ public:
 private:
 
     enum EventType	{ Insert, PolygonClose, Remove, Move };
-    void		addUndoEvent(EventType,size_type,const Pick::Location&);
+    void		addUndoEvent(EventType,LocID,const Pick::Location&);
 
     TypeSet<int>	startidxs_;
     bool		readonly_;
 
 };
-
 /*!\brief ObjectSet of Pick::Location's. Does not manage. */
 
+/*
 mExpClass(General) List : public ObjectSet<Location>
 {
 public:
+    typedef idx_type	LocID;
 
 			List()				{}
 			List( const Pick::Set& ps )	{ addAll( ps ); }
@@ -139,14 +142,14 @@ public:
 
     inline bool		is2D() const;
     inline Pos::SurvID	getSurvID() const;
-    size_type		find(const TrcKey&) const;
-    size_type		nearestLocation(const Coord&) const;
-    size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
+    LocID		find(const TrcKey&) const;
+    LocID		nearestLocation(const Coord&) const;
+    LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
 
-    inline Location&	get( size_type idx )		{ return *(*this)[idx];}
-    inline const Location& get( size_type idx ) const	{ return *(*this)[idx];}
+    Location&		get(LocID);
+    const Location&	get(LocID) const;
 
-};
+};*/
 
 
 template <class PicksType>
@@ -160,11 +163,11 @@ inline bool getSurvID( const PicksType& picks )
 {
     return picks.isEmpty() ? false : picks.get(0).trcKey().survID();
 }
-
+/*
 inline bool Pick::List::is2D() const		{ return Pick::is2D( *this ); }
 inline Pos::SurvID Pick::List::getSurvID() const
 { return Pick::getSurvID( *this ); }
-
+*/
 
 } // namespace Pick
 

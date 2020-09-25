@@ -62,5 +62,19 @@ private:
     uiString		text_;
 
     bool		isrequired_;
+
+public:
+    mDeprecated		("Use uiString")
+			uiLabel( uiParent* p, const char* txt )
+			  : uiLabel(p,toUiString(txt))	{}
+    mDeprecated		("Use uiString")
+			uiLabel( uiParent* p, const char* txt, uiObject* uiobj)
+			  : uiLabel(p,toUiString(txt),uiobj)	{}
+    mDeprecated		("Use uiString")
+			uiLabel( uiParent* p, const char* txt, uiGroup* uigrp )
+			  : uiLabel(p,toUiString(txt),uigrp)	{}
+    mDeprecated		("Use uiString")
+    void		setText( const char* txt )
+			{ setText(toUiString(txt)); }
 };
 

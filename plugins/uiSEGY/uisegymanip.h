@@ -33,13 +33,15 @@ mExpClass(uiSEGY) uiSEGYFileManip : public uiDialog
 { mODTextTranslationClass(uiSEGYFileManip);
 public:
 
-    			uiSEGYFileManip(uiParent*,const char* filenm);
-    			~uiSEGYFileManip();
+			uiSEGYFileManip(uiParent*,const char* filenm);
+			~uiSEGYFileManip();
 
     const char*		fileName() const	{ return fname_; }
     inline od_istream&	strm()			{ return *strm_; }
 
     od_int64		traceBytes() const;
+
+    static uiString	sByte()		{ return uiStrings::sByte(); }
 
 protected:
 
@@ -47,7 +49,7 @@ protected:
     SEGY::TxtHeader&	txthdr_;
     SEGY::BinHeader&	binhdr_;
     SEGY::HdrCalcSet&	calcset_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     BoolTypeSet		trchdrdefined_;
     od_istream*		strm_;
     od_int64		filesize_;

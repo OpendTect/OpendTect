@@ -11,23 +11,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistring.h"
 
-#include "bufstring.h"
+#include "bufstringset.h"
 #include "envvars.h"
-#include "keystrs.h"
+#include "geometry.h"
 #include "od_iostream.h"
 #include "odmemory.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
 #include "refcount.h"
+#include "survinfo.h"
 #include "texttranslator.h"
-#include "typeset.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
-# include <QString>
-# include <QStringList>
-# include <QTranslator>
 # include <QLocale>
+# include <QRegularExpression>
+# include <QString>
+# include <QTranslator>
 #endif
 
 #define mForceUpdate (-1)
@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #else
 
-static char* getNewDebugStr( char* strvar, const OD::String& newstr )
+static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 {
     delete [] strvar;
     const od_int64 newsz = newstr.size();
@@ -48,28 +48,32 @@ static char* getNewDebugStr( char* strvar, const OD::String& newstr )
     return strvar;
 }
 
-# define mSetDBGStr debugstr_ = getNewDebugStr( debugstr_, getFullString() )
+# define mSetDBGStr { \
+    debugstr_ = getNewDebugStr( debugstr_, getString() ); }
 
 #endif
 
-const uiString uiString::emptystring_( toUiString(sKey::EmptyString()) );
 
+const uiString uiString::emptystring_( toUiString("") );
+uiString uiString::dummystring_;
 #ifndef OD_NO_QT
 static const QString emptyqstring;
 #endif
 
-class uiStringData
-{ mRefCountImplNoDestructor(uiStringData)
+
+class uiStringData : public RefCount::Referenced
+{
   friend class uiString;
 public:
+
     uiStringData( const char* originalstring, const char* context,
-		  const char* application,
+		  const char* packagekey,
 		  const char* disambiguation, int pluralnr )
 	: originalstring_( originalstring )
 	, translationcontext_( context )
 	, translationpluralnumber_( pluralnr )
 	, translationdisambiguation_( disambiguation )
-	, application_( application )
+	, packagekey_( packagekey )
 	, contentlock_( true )
 	, changecount_( mForceUpdate )
 	, tolower_( false )
@@ -84,15 +88,15 @@ public:
 	translationpluralnumber_ = d.translationpluralnumber_;
 	translationdisambiguation_ = d.translationdisambiguation_;
 	arguments_ = d.arguments_;
-	application_ = d.application_;
+	packagekey_ = d.packagekey_;
 	changecount_ = mForceUpdate;
 	tolower_ = d.tolower_;
     }
 
-    void addLegacyVersion( const uiString& legacy )
+    void addAlternateVersion( const uiString& altstr )
     {
 	Threads::Locker contentlocker( contentlock_ );
-        legacyversions_.add( legacy );
+        alternateversions_.add( altstr );
 	changecount_ = mForceUpdate;
     }
 
@@ -105,7 +109,7 @@ public:
 #endif
     }
 
-    void getFullString( BufferString& ) const;
+    void getFullString(BufferString&) const;
 
     void set(const char* orig);
     bool fillQString(QString&,const QTranslator* translator,
@@ -120,9 +124,9 @@ public:
 #endif
 
     BufferString		originalstring_;
-    uiStringSet			legacyversions_;
+    uiStringSet			alternateversions_;
     BufferString		translationcontext_;
-    const char*			application_;
+    const char*			packagekey_;
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
     bool			tolower_;
@@ -135,16 +139,16 @@ void uiStringData::set( const char* orig )
 {
     Threads::Locker contentlocker( contentlock_ );
     originalstring_ = orig;
-    arguments_.erase();
-    legacyversions_.erase();
+    arguments_.setEmpty();
+    alternateversions_.setEmpty();
     translationcontext_.setEmpty();
-    application_ = 0;
+    packagekey_ = 0;
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
     changecount_ = mForceUpdate;
     tolower_ = false;
 #ifndef OD_NO_QT
-    qstring_ = sKey::EmptyString().buf();
+    qstring_.clear();
 #endif
 }
 
@@ -178,31 +182,22 @@ void uiStringData::getFullString( BufferString& ret ) const
 }
 
 
-void uiString::fillUTF8String( BufferString& res ) const
-{
-    QString qres;
-    fillQString( qres );
-    res.set( qres );
-}
-
 
 bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator,
-				bool notranslation) const
+				bool notranslation ) const
 {
 #ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
     if ( !originalstring_ || !*originalstring_ )
-    {
-	return false;
-    }
+        return true;
 
     bool translationres = false;
 
     const QTranslator* usedtrans = translator;
 
     if ( !notranslation && !usedtrans )
-	usedtrans = TrMgr().getQTranslator( application_ );
+	usedtrans = TrMgr().getQTranslator( packagekey_ );
 
     if ( !notranslation && usedtrans && !translationcontext_.isEmpty() )
     {
@@ -212,20 +207,17 @@ bool uiStringData::fillQString( QString& res,
 
 	if ( res.size() && QString(originalstring_.buf())!=res )
             translationres = true;
+	else if ( !alternateversions_.isEmpty() )
+	{
+	    for ( int idx=0; idx<alternateversions_.size(); idx++ )
+	    {
+		QString alttrans;
+		if ( alternateversions_.get(idx)
+					.translate(*usedtrans,alttrans) )
+		    { res = alttrans; translationres = true; break; }
+	    }
+	}
 
-        if ( legacyversions_.size() && !translationres )
-        {
-            for ( int idx=0; idx<legacyversions_.size(); idx++ )
-            {
-                QString legacytrans;
-		if ( legacyversions_[idx].translate( *usedtrans, legacytrans) )
-                {
-                    res = legacytrans;
-                    translationres = true;
-                    break;
-                }
-            }
-        }
 	mDefineStaticLocalObject(bool,dbgtransl,
 				 = GetEnvVarYN("OD_DEBUG_TRANSLATION"));
 	if ( dbgtransl )
@@ -245,9 +237,7 @@ bool uiStringData::fillQString( QString& res,
     }
 
     if ( res.isEmpty() )
-    {
 	res = originalstring_;
-    }
 
     if ( tolower_ )
 	res = res.toLower();
@@ -256,14 +246,15 @@ bool uiStringData::fillQString( QString& res,
     {
 	QString thearg;
 	if ( notranslation )
-	    thearg = arguments_[idx].getFullString().buf();
-	else if ( translator )
-	    arguments_[idx].translate( *translator, thearg );
-	else
 	{
-	    mGetQStr( qstr, arguments_[idx] );
-	    thearg = qstr;
+	    BufferString str;
+	    arguments_.get(idx).getFullString( &str );
+	    thearg = str.buf();
 	}
+	else if ( translator )
+	    arguments_.get(idx).translate( *translator, thearg );
+	else
+	    arguments_.get(idx).fillQString( thearg );
 
 	res = res.arg( thearg );
     }
@@ -285,31 +276,18 @@ if ( !data_ ) \
 uiString::uiString()
     : data_( 0 )
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
-{}
-
-uiString::uiString( const char* str )
-    : data_( 0	)
-    , datalock_( true )
-#ifdef __debug__
-    , debugstr_( 0 )
-#endif
 {
-    set(str);
 }
 
 
 uiString::uiString( const char* originaltext, const char* context,
-		    const char* application,
+		    const char* packagekey,
 		    const char* disambiguation, int pluralnr )
-    : data_( new uiStringData(originaltext, context, application,
+    : data_( new uiStringData(originaltext, context, packagekey,
 			      disambiguation, pluralnr ))
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     refPtr( data_ );
     mSetDBGStr;
@@ -319,24 +297,10 @@ uiString::uiString( const char* originaltext, const char* context,
 uiString::uiString( const uiString& str )
     : data_( str.data_ )
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     refPtr( data_ );
     mSetDBGStr;
-}
-
-
-uiString::uiString( const OD::String& str )
-    : data_( 0 )
-    , datalock_( true )
-#ifdef __debug__
-    , debugstr_( 0 )
-#endif
-{
-    if ( !str.isEmpty() )
-	set( str.str() );
 }
 
 
@@ -344,18 +308,16 @@ uiString::~uiString()
 {
     unRefAndZeroPtr(data_);
 
-#ifdef __debug__
     delete [] debugstr_;
-#endif
 }
 
 
-void uiString::addLegacyVersion( const uiString& legacy )
+void uiString::addAlternateVersion( const uiString& altstr )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
     mEnsureData;
-    data_->addLegacyVersion( legacy );
+    data_->addAlternateVersion( altstr );
 }
 
 
@@ -384,7 +346,7 @@ void uiString::setEmpty()
 }
 
 
-uiString& uiString::toLower(bool yn)
+uiString& uiString::toLower( bool yn )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
@@ -422,7 +384,7 @@ const OD::String& uiString::getFullString( BufferString* res ) const
 
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
-	*res = sKey::EmptyString();
+	res->setEmpty();
     else
 	data_->getFullString( *res );
     return *res;
@@ -438,42 +400,35 @@ bool uiString::isCacheValid() const
 
     for ( int idx=0; idx<data_->arguments_.size(); idx++ )
     {
-	if ( !data_->arguments_[idx].isCacheValid() )
+	if ( !data_->arguments_.get(idx).isCacheValid() )
 	    return false;
     }
-#endif
-
     return true;
-}
-
-
-const QString& uiString::getQString() const
-{
-    Threads::Locker datalocker( datalock_ );
-    if ( !data_ )
-    {
-#ifndef OD_NO_QT
-	return emptyqstring;
 #else
-	QString* ptr = 0;
-	return *ptr;
+    return false;
 #endif
-    }
-
-    Threads::Locker contentlocker( data_->contentlock_ );
-
-    return getQStringInternal();
 }
 
 
 const QString& uiString::fillQString( QString& res ) const
 {
-    Threads::Locker datalocker( datalock_ );
-    mEnsureData;
-    Threads::Locker contentlocker( data_->contentlock_ );
-
-    res = getQStringInternal();
+    if ( !data_ )
+	res.clear();
+    else
+    {
+	Threads::Locker datalocker( datalock_ );
+	Threads::Locker contentlocker( data_->contentlock_ );
+	res = getQStringInternal();
+    }
     return res;
+}
+
+
+void uiString::fillUTF8String( BufferString& res ) const
+{
+    QString qres;
+    fillQString( qres );
+    res.set( qres );
 }
 
 
@@ -552,18 +507,6 @@ void uiString::setFrom( const QString& qstr )
 }
 
 
-uiString& uiString::operator=( const OD::String& str )
-{
-    return set( str.str() );
-}
-
-
-uiString& uiString::operator=( const char* str )
-{
-    return set( str );
-}
-
-
 uiString& uiString::set( const char* str )
 {
     Threads::Locker datalocker( datalock_ );
@@ -583,13 +526,9 @@ uiString& uiString::set( const char* str )
 }
 
 
-bool uiString::operator>(const uiString& oth ) const
+bool uiString::operator>( const uiString& oth ) const
 {
 #ifndef OD_NO_QT
-    Threads::Locker datalocker( datalock_ );
-    if ( !data_ )
-	return false;
-
     mGetQStr( myqs, *this );
     mGetQStr( othqs, oth );
     return myqs > othqs;
@@ -599,19 +538,80 @@ bool uiString::operator>(const uiString& oth ) const
 }
 
 
-bool uiString::operator<(const uiString& oth ) const
+bool uiString::operator<( const uiString& oth ) const
 {
 #ifndef OD_NO_QT
-    Threads::Locker datalocker( datalock_ );
-    if ( !data_ )
-	return true;
-
     mGetQStr( myqs, *this );
     mGetQStr( othqs, oth );
     return myqs < othqs;
 #else
-    return true;
+    return false;
 #endif
+}
+
+
+bool uiString::isEqualTo( const uiString& oth ) const
+{
+    if ( this == &oth )
+	return true;
+
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs == othqs;
+}
+
+
+bool uiString::isPlainAscii() const
+{
+#ifdef OD_NO_QT
+    return true;
+#else
+    mGetQStr( qstr, *this );
+    return !qstr.contains( QRegularExpression(
+		QStringLiteral( "[^\\x{0000}-\\x{007F}]") ) );
+#endif
+}
+
+
+void uiString::encodeStorageString( BufferString& ret ) const
+{
+    BufferString hexenc; getHexEncoded( hexenc );
+    const int sz = hexenc.size();
+    ret.set( mStoreduiStringPreamble ).add( sz ).add( ':' ).add( hexenc );
+}
+
+
+int uiString::useEncodedStorageString( const char* inpstr )
+{
+    BufferString bufstr( inpstr );
+    int len = bufstr.size();
+    char* str = bufstr.getCStr();
+    const char* preamb = mStoreduiStringPreamble;
+    if ( len < 4 || *str != *preamb || *(str+1) != *(preamb+1) )
+	return -1;
+
+    char* ptrhex = firstOcc( str+2, ':' );
+    if ( !ptrhex )
+	return -1;
+    else
+	*ptrhex++ = '\0';
+
+    len = toInt( str+2 );
+    if ( len < 1 )
+	{ setEmpty(); return ptrhex-str; }
+
+    BufferString hexstr( len+1, true );
+    char* hexstrptr = hexstr.getCStr();
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( !*ptrhex )
+	    return -1;
+
+	*hexstrptr = *ptrhex;
+	hexstrptr++; ptrhex++;
+    }
+
+    return setFromHexEncoded( hexstr ) ? ptrhex-str : -1;
 }
 
 
@@ -628,36 +628,19 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
-uiString& uiString::append( const uiString& txt, bool withnewline )
+uiString& uiString::setArg( int nr, const uiString& newarg )
 {
     Threads::Locker datalocker( datalock_ );
-    uiString self( *this );
-    self.makeIndependent();
+    makeIndependent();
     mEnsureData;
-
-    //To keep it alive if it is replaced in the operator=
-    RefMan<uiStringData> tmpptr = data_;
-    Threads::Locker contentlocker( tmpptr->contentlock_ );
-
-
-    if ( isEmpty() )
-	withnewline = false;
-
-    *this = toUiString( withnewline ? "%1\n%2" : "%1%2" )
-		.arg( self ).arg( txt );
-
+    Threads::Locker contentlocker( data_->contentlock_ );
+    if ( data_->arguments_.validIdx(nr) )
+    {
+	data_->arguments_.get(nr) = newarg;
+	data_->changecount_ = mForceUpdate;
+    }
     mSetDBGStr;
     return *this;
-}
-
-
-uiString& uiString::append( const OD::String& a, bool withnewline )
-{ return append( a.str(), withnewline ); }
-
-
-uiString& uiString::append( const char* newarg, bool withnewline )
-{
-    return append( toUiString(newarg), withnewline );
 }
 
 
@@ -734,7 +717,7 @@ uiString& uiString::embed( const char* open,const char* close )
     RefMan<uiStringData> tmpptr = data_;
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
-    if	( isEmpty() || self.isEmpty() )
+    if ( isEmpty() || self.isEmpty() )
 	return *this;
 
     BufferString fmtstr;
@@ -752,6 +735,75 @@ uiString& uiString::quote( bool single )
 {
     const char* qustr = single ? "'" : "\"";
     return embed(qustr,qustr);
+}
+
+
+uiString& uiString::parenthesize()
+{
+    return embed("(",")");
+}
+
+
+uiString& uiString::optional()
+{
+    return embed("[","]");
+}
+
+
+uiString& uiString::embedFinalState()
+{
+    return embed("<",">");
+}
+
+
+uiString& uiString::appendPhrases( const uiStringSet& strs,
+				   SeparType septyp, AppendType apptyp )
+{
+    return appendPhrase( strs.cat(septyp,apptyp), septyp, apptyp );
+}
+
+
+uiString& uiString::appendPlainText( const OD::String& odstr, bool addspace,
+				     bool addquotes )
+{
+    return appendPlainText( odstr.str(), addspace, addquotes );
+}
+
+
+uiString& uiString::appendPlainText( const char* str, bool addspace,
+				     bool addquotes )
+{
+    if ( !addquotes )
+	return constructWordWith( toUiString(str), addspace );
+
+    const BufferString toadd( "'", str, "'" );
+    return appendPlainText( toadd, addspace, false );
+}
+
+
+uiString& uiString::withUnit( const uiString& unstr )
+{
+    if ( !unstr.isEmpty() )
+	*this = toUiString("%1 (%2)").arg( *this ).arg( unstr );
+    return *this;
+}
+
+
+uiString& uiString::withSurvZUnit()
+{
+    return withUnit( SI().getUiZUnitString(false) );
+}
+
+
+uiString& uiString::withSurvXYUnit()
+{
+    return withUnit( SI().getUiXYUnitString(true,false) );
+}
+
+
+uiString& uiString::withSurvDepthUnit()
+{
+    return withUnit( SI().depthsInFeet() ? "ft" : "m" );
 }
 
 
@@ -773,32 +825,33 @@ bool uiString::translate( const QTranslator& qtr , QString& res ) const
 uiString uiString::getOrderString( int val )
 {
     int nr = val;
-    if ( nr < 0 ) nr = -nr;
+    if ( nr < 0 )
+	nr = -nr;
 
     if ( nr > 20 )
 	nr = nr % 10;
 
-    uiString rets[] = { tr("th", "zeroth"), //0
-			tr("st", "first"), //1
-			tr("nd", "second"), //2
-			tr("rd", "third" ), //3
-			tr("th", "fourth" ), //4
-			tr("th", "fifth" ), //5
-			tr("th", "sixth" ), //6
-			tr("th", "seventh" ), //7
-			tr("th", "eighth" ), //8
-			tr("th", "ninth"), //9
-			tr("th", "tenth" ), //10
-			tr("th", "eleventh"), //11
-			tr("th", "twelfth"), //12
-			tr("th", "thirteenth"), //13
-			tr("th", "fourteenth"), //14
-			tr("th", "fifteenth"), //15
-			tr("th", "sixteenth"), //16
-			tr("th", "seventeenth"), //17
-			tr("th", "eighteenth"), //18
-			tr("th", "nineteenth"), //19
-			tr("th", "twentieth") }; //20
+    uiString rets[] = { tr("th", "zeroth"),
+			tr("st", "first"),
+			tr("nd", "second"),
+			tr("rd", "third" ),
+			tr("th", "fourth" ),
+			tr("th", "fifth" ),
+			tr("th", "sixth" ),
+			tr("th", "seventh" ),
+			tr("th", "eighth" ),
+			tr("th", "ninth"),
+			tr("th", "tenth" ),
+			tr("th", "eleventh"),
+			tr("th", "twelfth"),
+			tr("th", "thirteenth"),
+			tr("th", "fourteenth"),
+			tr("th", "fifteenth"),
+			tr("th", "sixteenth"),
+			tr("th", "seventeenth"),
+			tr("th", "eighteenth"),
+			tr("th", "nineteenth"),
+			tr("th", "twentieth") };
     return toUiString( "%1%2" ).arg( val ).arg( rets[nr] );
 }
 
@@ -806,7 +859,7 @@ uiString uiString::getOrderString( int val )
 void uiString::makeIndependent()
 {
     Threads::Locker datalocker( datalock_ );
-    if ( !data_ || data_->refcount_.count()==1 )
+    if ( !data_ || data_->nrRefs()==1 )
 	return;
 
     RefMan<uiStringData> olddata = data_;
@@ -821,117 +874,13 @@ void uiString::makeIndependent()
 }
 
 
-uiStringSet::uiStringSet( const uiString* strings )
-{
-    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
-	add( strings[idx] );
-}
-
-
-void uiStringSet::fill( QStringList& qlist ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	mGetQStr( qstr, (*this)[idx] );
-	qlist.append( qstr );
-    }
-}
-
-
-
-uiString uiStringSet::createOptionString( bool use_and,
-					  int maxnr, char space ) const
-{
-    BufferString glue;
-
-    const char* percentage = "%";
-    uiStringSet arguments;
-    const char spacestring[] = { space, 0 };
-
-    arguments += toUiString(spacestring);
-    bool firsttime = true;
-
-    int nritems = 0;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( (*this)[idx].isEmpty() )
-	    continue;
-
-	nritems++;
-	arguments += (*this)[idx];
-	if ( firsttime )
-	{
-	    glue.add( percentage );
-	    glue.add( arguments.size() );
-
-            firsttime = false;
-	}
-	else if ( idx==size()-1 )
-	{
-	    if ( size()==2 )
-		glue.add( use_and ? " and%1%" : " or%1%" );
-	    else
-		glue.add( use_and ? ", and%1%" : ", or%1%");
-
-	    glue.add( arguments.size() );
-	}
-	else
-	{
-	    glue.add(",%1%");
-	    glue.add( arguments.size() );
-
-	    if ( maxnr>1 && maxnr<=nritems )
-	    {
-		glue.add( ",%1...");
-		break;
-	    }
-	}
-    }
-
-    if ( glue.isEmpty() )
-	return uiString();
-
-    uiString res = toUiString( glue );
-
-    for ( int idx=0; idx<arguments.size(); idx++ )
-	res.arg( arguments[idx] );
-
-    return res;
-}
-
-
-uiString uiStringSet::cat( const char* sepstr ) const
-{
-    uiString str;
-    for (int idx=0; idx<size(); idx++)
-    {
-	if (idx)
-	    str.append( toUiString(sepstr) );
-    str.append((*this)[idx]);
-    }
-    return str;
-}
-
-
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
     mGetQStr( qstr, *this );
     const QString hex( qstr.toUtf8().toHex() );
-
     str = BufferString( hex );
 #endif
-}
-
-
-bool uiString::isEqualTo( const uiString& oth ) const
-{
-    if ( this == &oth )
-	return true;
-
-    mGetQStr( myqs, *this );
-    mGetQStr( othqs, oth );
-    return myqs == othqs;
 }
 
 
@@ -947,7 +896,15 @@ bool uiString::setFromHexEncoded( const char* str )
 }
 
 
-uiString toUiString( const char* var )	{ return uiString().set( var ); }
+BufferString uiString::getString() const
+{
+    BufferString ret;
+    getFullString( &ret );
+    return ret;
+}
+
+
+uiString toUiString( const char* var ) { return uiString().set( var ); }
 uiString toUiString( const uiString& var ) { return var; }
 
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
@@ -960,9 +917,9 @@ static uiString toUiStringWithPrecisionImpl( ODT v, int prec )
     const QLocale* locale = TrMgr().getQLocale();
     if ( locale && locale->script()==QLocale::ArabicScript )
     {
-	uiString res;
-	res.setFrom( locale->toString((QT) v, 'g', prec) );
-	return res;
+        uiString res;
+        res.setFrom( locale->toString((QT) v, 'g', prec) );
+        return res;
     }
 #endif
 
@@ -1033,11 +990,15 @@ uiString toUiString( double v, char format, int precision )
 { return uiString().set( toString(v,format,precision) ); }
 
 
-const char* toString( const uiString& uis )
+uiString toUiString( const Coord& c )
 {
-    mDeclStaticString( retstr );
-    uis.getFullString( &retstr );
-    return retstr.getCStr();
+    return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x) )
+				  .arg( mRounded(od_int64,c.y) );
+}
+
+uiString toUiString( const BufferStringSet& bss )
+{
+    return toUiString( bss.getDispString(-1,false) );
 }
 
 
@@ -1051,12 +1012,6 @@ uiString od_static_tr( const char* func, const char* text,
 }
 
 
-uiString getUiYesNoString( bool res )
-{
-    return res ? uiStrings::sYes() : uiStrings::sNo();
-}
-
-
 int uiString::size() const
 {
     mGetQStr( qstr, *this );
@@ -1064,166 +1019,42 @@ int uiString::size() const
 }
 
 
- uiString& uiString::addSpace( int nr )
- {
-     uiString spaces;
-     for(int i=0; i<nr; i++)
-	 spaces.append(toUiString(" "));
-
-     return  (*this).append(spaces);
- }
-
-
-//uiRetVal
-const uiRetVal uiRetVal::ok_;
-
-uiRetVal::uiRetVal( const uiString& str )
-{ msgs_.add( str ); }
-
-uiRetVal::uiRetVal( const uiStringSet& strs )
-    : msgs_(strs)
-{}
-
-uiRetVal::uiRetVal( const uiRetVal& oth )
-    : msgs_(oth.msgs_)
-{}
-
-uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
-{ return set( oth ); }
-
-uiRetVal& uiRetVal::operator =( const uiString& str )
-{ return set( str ); }
-
-uiRetVal& uiRetVal::operator =( const uiStringSet& strs )
-{ return set( strs ); }
-
-
-uiRetVal::operator uiString() const
+uiString toUiString( const QString& qs )
 {
-    Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() ? uiString::emptyString() : msgs_.cat();
+    uiString ret;
+    ret.setFrom( qs );
+    return ret;
 }
 
 
-bool uiRetVal::isOK() const
+const char* toString( const uiString& uis )
 {
-    Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() || msgs_[0].isEmpty();
+    mDeclStaticString( retstr );
+    retstr = uis.getString();
+    return retstr.getCStr();
 }
 
 
-bool uiRetVal::isMultiMessage() const
+uiString getUiYesNoString( bool res )
 {
-    Threads::Locker locker( lock_ );
-    return msgs_.size() > 1;
+    return res ? uiStrings::sYes() : uiStrings::sNo();
 }
 
 
-uiStringSet uiRetVal::messages() const
+const QString& uiString::getQString() const
 {
-    Threads::Locker locker( lock_ );
-    return msgs_;
-}
-
-
-uiRetVal& uiRetVal::set( const uiRetVal& oth )
-{
-    if ( this != &oth )
+    Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
     {
-	Threads::Locker locker( lock_ );
-	msgs_ = oth.msgs_;
-    }
-    return *this;
-}
-
-
-uiRetVal& uiRetVal::set( const uiString& str )
-{
-    Threads::Locker locker( lock_ );
-    msgs_.setEmpty();
-    msgs_.add( str );
-    return *this;
-}
-
-
-uiRetVal& uiRetVal::set( const uiStringSet& strs )
-{
-    Threads::Locker locker( lock_ );
-    msgs_ = strs;
-    return *this;
-}
-
-
-uiRetVal& uiRetVal::setEmpty()
-{
-    Threads::Locker locker( lock_ );
-    msgs_.setEmpty();
-    return *this;
-}
-
-
-uiRetVal& uiRetVal::setOK()
-{
-    return setEmpty();
-}
-
-
-uiRetVal& uiRetVal::add( const uiRetVal& oth )
-{
-    if ( this != &oth )
-    {
-	Threads::Locker locker( lock_ );
-	msgs_.append( oth.msgs_ );
-    }
-    return *this;
-}
-
-
-uiRetVal& uiRetVal::add( const uiString& str )
-{
-    Threads::Locker locker( lock_ );
-    msgs_.add( str );
-    return *this;
-}
-
-
-uiRetVal& uiRetVal::add( const uiStringSet& strs )
-{
-    Threads::Locker locker( lock_ );
-    msgs_.append( strs );
-    return *this;
-}
-
-
-BufferString uiRetVal::getText() const
-{
-    uiString uistr;
-    if ( !isMultiMessage() )
-	uistr = *this;
-    else
-    {
-	Threads::Locker locker( lock_ );
-	uistr = msgs_.cat();
+#ifndef OD_NO_QT
+	return emptyqstring;
+#else
+	QString* ptr = 0;
+	return *ptr;
+#endif
     }
 
-    return BufferString( uistr.getFullString() );
-}
+    Threads::Locker contentlocker( data_->contentlock_ );
 
-
-bool uiRetVal::isSingleWord( const uiString& str ) const
-{
-    Threads::Locker locker( lock_ );
-    return msgs_.size() == 1 && msgs_[0].isEqualTo( str );
-}
-
-
-bool isFinished( const uiRetVal& uirv )
-{
-    return uirv.isSingleWord( uiStrings::sFinished() );
-}
-
-
-bool isCancelled( const uiRetVal& uirv )
-{
-    return uirv.isSingleWord( uiStrings::sCancelled() );
+    return getQStringInternal();
 }

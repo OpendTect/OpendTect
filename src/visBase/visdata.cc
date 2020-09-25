@@ -49,18 +49,41 @@ bool DataObject::isTraversalEnabled( unsigned int tt ) const
 }
 
 
-uiString DataObject::name() const
+const OD::String& visBase::DataObject::name() const
 {
-    return name_;
+    mDeclStaticString( ret );
+    ret = getName();
+    return ret;
 }
 
 
-void DataObject::setName( const uiString& nm )
+BufferString visBase::DataObject::getName() const
 {
-    if ( osgnode_ )
-	osgnode_->setName( nm.getFullString() );
+    return uiname_.isEmpty() ? NamedCallBacker::getName()
+                             : BufferString( uiname_.getFullString() );
+}
 
-    name_ = nm;
+
+uiString visBase::DataObject::uiName() const
+{
+    return uiname_.isEmpty() ? toUiString( NamedCallBacker::getName() )
+                             : uiname_;
+}
+
+
+void visBase::DataObject::setUiName( const uiString& uinm )
+{
+    uiname_ = uinm;
+    if ( osgnode_ )
+        osgnode_->setName( uiname_.getFullString() );
+}
+
+
+void visBase::DataObject::setName( const char* nm )
+{
+    NamedCallBacker::setName( nm );
+    if ( osgnode_ )
+        osgnode_->setName( nm );
 }
 
 
@@ -266,7 +289,7 @@ void DataObject::updateOsgNodeData()
 {
     if ( osgnode_ )
     {
-	osgnode_->setName( name_.getFullString() );
+	osgnode_->setName( name_ );
 	osgnode_->setUserValue( idstr, id() );
     }
 
@@ -291,11 +314,11 @@ bool DataObject::isSelected() const
 
 
 void DataObject::setDisplayTransformation( const mVisTrans* trans )
-{   
+{
     if ( trans!=getDisplayTransformation() )
 	{ pErrMsg("Not implemented"); }
-}   
-    
+}
+
 
 bool DataObject::serialize( const char* filename, bool binary )
 {

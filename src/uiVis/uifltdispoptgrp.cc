@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiFaultDisplayOptGrp::uiFaultDisplayOptGrp( uiParent* p,
-	visSurvey::FaultDisplay* fd )
+					    visSurvey::FaultDisplay* fd )
     : uiDlgGroup( p, tr("Construction algorithms") )
     , fltdisp_( fd )
 {
@@ -45,7 +45,13 @@ void uiFaultDisplayOptGrp::algChg( CallBacker* )
 }
 
 
-bool uiFaultDisplayOptGrp::applyCB( CallBacker* )
+void uiFaultDisplayOptGrp::applyCB( CallBacker* )
+{
+    apply();
+}
+
+
+bool uiFaultDisplayOptGrp::apply()
 {
     if ( !fltdisp_ )
 	return false;
@@ -57,4 +63,4 @@ bool uiFaultDisplayOptGrp::applyCB( CallBacker* )
 
 
 bool uiFaultDisplayOptGrp::acceptOK()
-{ return applyCB(0); }
+{ return apply(); }

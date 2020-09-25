@@ -26,8 +26,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     , propertyChange(this)
 {
     setCancelText(uiString::emptyString());
-    typefld_ = new uiLabeledComboBox( this, uiStrings::sType() );
-    typefld_->box()->addItems( arrowtypes );
+    typefld_ = new uiLabeledComboBox( this, arrowtypes, uiStrings::sType() );
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );
 
@@ -37,8 +36,8 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     linestylefld_->attach( alignedBelow, typefld_ );
 
     scalefld_ = new uiSlider( this,
-	    		uiSlider::Setup(tr("Scale")).nrdec(1).logscale(true),
-	   		"Size" );
+			uiSlider::Setup(tr("Scale")).nrdec(1).logscale(true),
+			"Size" );
     scalefld_->setMinValue( 0.1 );
     scalefld_->setMaxValue( 10 );
     scalefld_->setValue( 1 );

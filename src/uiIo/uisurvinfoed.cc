@@ -777,8 +777,8 @@ bool uiSurveyInfoEditor::setCoords()
     c[1] = xy2fld_->getCoord();
     c[2] = xy1fld_->getCoord();
 
-    const char* msg = si_.set3Pts( c, b, xline );
-    if ( msg ) { uiMSG().error( mToUiStringTodo(msg) ); return false; }
+    const uiString msg = si_.set3PtsWithMsg( c, b, xline );
+    if ( !msg.isEmpty() ) { uiMSG().error( msg ); return false; }
     else if ( mUseAdvanced() )
 	si_.gen3Pts();
 
@@ -893,7 +893,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     bid[0].crl() = cs.hsamp_.start_.crl();
     bid[1].inl() = cs.hsamp_.stop_.inl();
     bid[1].crl() = cs.hsamp_.stop_.crl();
-    si_.set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+    si_.set3PtsWithMsg( crd, bid, cs.hsamp_.stop_.crl() );
     setValues();
     if ( !havez )
 	zfld_->clear();

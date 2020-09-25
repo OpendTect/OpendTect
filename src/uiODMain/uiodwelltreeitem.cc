@@ -145,7 +145,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
-	wd->setName( mToUiStringTodo(wellname));
+	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
@@ -420,7 +420,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const bool res = applMgr()->wellServer()->storeWell(
-		    wd->getWellCoords(), mFromUiStringTodo(wd->name()), mid_ );
+			 wd->getWellCoords(), wd->name(), mid_ );
 	if ( res )
 	{
 	    wd->setChanged( false );
@@ -454,11 +454,13 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	uiString warnstr = tr("This well has changed since the last save.\n\n"
 			      "Do you want to save it?");
 	int retval = uiMSG().askSave( warnstr, withcancel );
-	if ( !retval ) return true;
-	else if ( retval == -1 ) return false;
+	if ( !retval )
+	    return true;
+	else if ( retval == -1 )
+	    return false;
 	else
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
-					mFromUiStringTodo(wd->name()), mid_ );
+						wd->name(), mid_ );
     }
 
     return true;

@@ -468,7 +468,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     {
 	const int colnr = idx + (idx >= lfi.depthcolnr ? 1 : 0);
 	const BufferString& lognm = lognms.get(idx);
-	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
+	const bool ispresent = lfi.lognms.isPresent( lognm );
 	if ( !ispresent )
 	    continue;
 	if ( wd_->logs().getLog(lognm) )

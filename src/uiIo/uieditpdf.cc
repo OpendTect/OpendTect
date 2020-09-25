@@ -155,7 +155,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
     {
 	mGetRowIdx(irow);
 	const float rowval = andpdf->sampling(nrdims_<2?0:1).atIndex(rowidx);
-	tbl_->setRowLabel( irow, toString(rowval) );
+	tbl_->setRowLabel( irow, toUiString(rowval) );
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp, "Buttons", OD::Vertical );
@@ -422,7 +422,7 @@ void uiEditSampledProbDenFunc::setToolTips()
 
     mMkTT(nrdims_ > 1 ? 1 : 0)
     for ( int irow=0; irow<nrrows; irow++ )
-	tbl_->setRowToolTip( irow, tt );
+	tbl_->setRowToolTip( irow, toUiString(tt) );
 }
 
 
@@ -681,7 +681,7 @@ void uiEditGaussianProbDenFunc::updateCorrList( int cursel )
     else if ( cursel < 0 )
 	cursel = 0;
 
-    stopper.restore();
+    stopper.enableNotification();
     defcorrsfld_->setCurrentItem( cursel );
 }
 

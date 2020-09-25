@@ -208,7 +208,7 @@ static void getGrps( BufferStringSet& grps )
     if ( needdot ) msk += ".*";
     BufferString pythonstr(sKey::Python());
     pythonstr.toLower();
-    DirList dl( GetSettingsDir(), DirList::FilesOnly, msk );
+    DirList dl( GetSettingsDir(), File::FilesInDir, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );
@@ -977,7 +977,7 @@ void setCustomEnvironmentNames()
 	return;
 
     BufferStringSet envnames;
-    const DirList dl( fp.fullPath(), DirList::DirsOnly );
+    const DirList dl( fp.fullPath(), File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
 	envnames.add( FilePath(dl.fullPath(idx)).baseName() );
     customenvnmfld_->setEmpty();

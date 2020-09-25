@@ -37,12 +37,13 @@ mDefODPluginInfo(uiMadagascar)
 }
 
 
-static bool checkEnvVars( BufferString& msg )
+static bool checkEnvVars( uiString& msg )
 {
     BufferString rsfdir = GetEnvVar( "RSFROOT" );
     if ( rsfdir.isEmpty() || !File::isDirectory(rsfdir.buf()) )
     {
-	msg = "RSFROOT is either not set or invalid";
+	msg = od_static_tr("Madagascarlink_checkEnvVars",
+					"RSFROOT is either not set or invalid");
 	return false;
     }
 
@@ -121,7 +122,7 @@ void uiMadagascarLink::winHide( CallBacker* )
 
 void uiMadagascarLink::doMain( CallBacker* )
 {
-    BufferString errmsg;
+    uiString errmsg;
     if ( !checkEnvVars(errmsg) )
     {
 	uiMSG().error( errmsg );

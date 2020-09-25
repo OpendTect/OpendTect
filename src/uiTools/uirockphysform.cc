@@ -253,7 +253,7 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
     const char* txt = nmfld_->text();
     if ( !txt || !*txt ) return;
 
-    const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
+    const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
     if ( !fm )
 	{ uiMSG().error( tr("Internal: formula not found") ); return;}
 
@@ -289,7 +289,7 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
     if ( !txt || !*txt )
 	{ uiMSG().error( tr("No formula name selected") ); return false; }
 
-    const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
+    const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
     if ( !fm )
 	{ uiMSG().error( tr("Internal: formula not found") ); return false; }
     const RockPhysics::Formula& rpfm = *fm;

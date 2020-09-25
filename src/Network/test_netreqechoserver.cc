@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netreqconnection.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "ptrman.h"
 #include "testprog.h"
 #include "timer.h"
 
@@ -43,7 +42,7 @@ public:
     ~RequestEchoServer()
     {
 	detachAllNotifiers();
-	CallBack::removeFromMainThread( this );
+	CallBack::removeFromThreadCalls( this );
     }
 
 
@@ -71,7 +70,7 @@ public:
 
 	RequestConnection* conn = static_cast<RequestConnection*>( cber );
 
-	PtrMan<RequestPacket> packet = conn->pickupPacket( reqid, 200 );
+	RefMan<RequestPacket> packet = conn->pickupPacket( reqid, 200 );
 	if ( !packet )
 	{
 	    packet = conn->getNextExternalPacket();
@@ -100,11 +99,11 @@ public:
 	}
 	else if ( packetstring=="New" )
 	{
-	    RequestPacket newpacket;
+	    RefMan<RequestPacket> newpacket = new RequestPacket;
 	    BufferString sentmessage = "The answer is 42";
-	    newpacket.setIsNewRequest();
-	    newpacket.setStringPayload( sentmessage );
-	    conn->sendPacket( newpacket );
+	    newpacket->setIsNewRequest();
+	    newpacket->setStringPayload( sentmessage );
+	    conn->sendPacket( *newpacket );
 	}
 	else
 	{
@@ -113,7 +112,7 @@ public:
 		      << " sent packet "
 		      << packet->subID() << " size " << packet->payloadSize()
 		      << od_endl;
-	    packet.release();
+	    packet = nullptr;
 	}
     }
 

@@ -102,10 +102,19 @@ uiString uiStrings::phrCannotOpenForWrite( const char* fnm )
 uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
 { return phrCannotFind( tr("database entry for %1").arg( string ) ); }
 
+uiString uiStrings::phrCannotFindDBEntry( const MultiID& dbkey )
+{ return phrCannotFind( tr("database entry for %1").arg( dbkey ) ); }
+
 uiString uiStrings::phrCannotRead( const uiString& string )
 { return tr("Cannot read %1").arg( string ); }
 
+uiString uiStrings::phrCannotRead( const char* string )
+{ return tr("Cannot read %1").arg( string ); }
+
 uiString uiStrings::phrCannotRemove( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotRemove()).arg(string); }
+
+uiString uiStrings::phrCannotRemove( const char* string )
 { return toUiString(joinstring).arg(sCannotRemove()).arg(string); }
 
 uiString uiStrings::phrCannotWrite( const uiString& string )

@@ -27,10 +27,10 @@ namespace Geometry
 
 class RandomLineSet;
 
-mExpClass(Geometry) RandomLine : public NamedObject
+mExpClass(Geometry) RandomLine : public NamedCallBacker
 { mRefCountImpl(RandomLine)
 public:
-    			RandomLine(const char* nm=0);
+			RandomLine(const char* nm=0);
 
     int			ID() const		{ return id_; }
 
@@ -61,7 +61,7 @@ public:
 			//!<Deprecated in coming versions of OD
 
     void		setZRange( const Interval<float>& rg )
-    			{ zrange_ = rg; zrangeChanged.trigger(); }
+			{ zrange_ = rg; zrangeChanged.trigger(); }
     Interval<float>	zRange() const		{ return zrange_; }
 
     void		setMultiID(const MultiID&);
@@ -122,7 +122,7 @@ mExpClass(Geometry) RandomLineSet
 {
 public:
 
-    			RandomLineSet();
+			RandomLineSet();
 			RandomLineSet(const RandomLine&,double dist,
 				      bool parallel);
 			//!< dist in XY units

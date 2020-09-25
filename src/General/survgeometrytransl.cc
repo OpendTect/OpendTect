@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 static const char* sKeyFileType()	{ return "2D Geometry"; }
 static const char* sKeyAvgTrcDist()	{ return "Average Trc Distance"; }
@@ -27,7 +28,7 @@ mDefSimpleTranslatorSelector(SurvGeom2D)
 mDefSimpleTranslatorioContext(SurvGeom2D,Geom)
 
 uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
-{ return tr( "Geometry", nullptr, num ); }
+{ return uiStrings::sGeometry(num); }
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )

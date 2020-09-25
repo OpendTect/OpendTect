@@ -136,7 +136,7 @@ DataPointSet::DataRow DPSMerger::getDataRow( int srowid, int mrowid )
 	int mastercolid = mastercolids[col];
 	if ( mastercolid>mdr.data().size()-1 )
 	    mdr.data_ += sdr.data()[slavecolids[col]];
-	
+
 	const float masterval = mdr.data_[mastercolid];
 	const float slaveval = sdr.data()[slavecolids[col]];
 	if ( prop_.overWriteUndef() && (mIsUdf(masterval) || mIsUdf(slaveval)))
@@ -163,7 +163,7 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 	mastercolids_ += mastercolid;
 	slavecolids_ += slavecolid;
     }
-    else 
+    else
     {
 	const int idx = mastercolids_.indexOf( mastercolid );
 	slavecolids_[idx] = slavecolid;
@@ -183,7 +183,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     setPrefHeight( 500 );
     DPM( DataPackMgr::PointID() ).addAndObtain( mdps_ );
     DPM( DataPackMgr::PointID() ).addAndObtain( sdps_ );
- 
+
     uiString capt = uiStrings::phrMerge(tr("'%1' with '%2'")
 			       .arg(toUiString(mdps->name()))
 			       .arg(toUiString(sdps_->name())));
@@ -206,7 +206,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 				         uiStrings::sAll()),tr("ignore all")));
     addcoloptfld_->attach( leftAlignedBelow, tbllbl );
     addcoloptfld_->attach( ensureBelow, tbl_ );
-    
+
     BufferStringSet matchopts;
     matchopts.add( "Exact match" );
     matchopts.add( "Nearby match" );
@@ -227,14 +227,14 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     distfld_->setElemSzPol( uiObject::Small );
     distfld_->attach( alignedBelow, mlcbox );
     distfld_->setValue( SI().inlDistance() );
-    
+
     uiString ztxt = tr("and vertical distance %1 of")
 						  .arg(SI().getUiZUnitString());
     zgatefld_ = new uiGenInput( this, ztxt, FloatInpSpec() );
     zgatefld_->setElemSzPol( uiObject::Small );
     zgatefld_->attach( rightTo, distfld_ );
     zgatefld_->setValue( SI().zStep()*SI().zDomain().userFactor() );
-    
+
     BufferStringSet replaceopts;
     BufferString opt1( "Keep '" ); opt1 += mdps_->name(); opt1 += "'";
     replaceopts.add( opt1 );
@@ -258,7 +258,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     ctio_.ctxt_.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(
 						    uiStrings::sCrossPlot()) );
-    outfld_->attach( alignedBelow, overwritefld_ ); 
+    outfld_->attach( alignedBelow, overwritefld_ );
 
     matchPolChangedCB( 0 );
     attribChangedCB( 0 );
@@ -291,12 +291,12 @@ void uiDataPointSetMerger::setTable()
 
     const int nrcols = mdps_->nrCols();
     tbl_->setNrRows( nrcols );
-    
+
     for ( int rowidx=0; rowidx<nrcols; rowidx++ )
     {
 	BufferString colnm( mdps_->colName(rowidx) );
-	BufferString celltxt( "Couple '");
-	celltxt += colnm; celltxt += "' to";
+	uiString celltxt = tr("Couple '%1' to").arg(colnm);
+        tbl_->setRowLabel( rowidx, celltxt );
 	tbl_->setRowLabel( rowidx, celltxt );
 	uiComboBox* cb = new uiComboBox( 0, colnames, "Attributes" );
 	cb->selectionChanged.notify(
@@ -304,7 +304,7 @@ void uiDataPointSetMerger::setTable()
 	const int nearmatchidx = colnames.nearestMatch( colnm );
 	if ( nearmatchidx>= 0 )
 	    cb->setCurrentItem( nearmatchidx );
-	
+
 	tbl_->setCellObject( RowCol(rowidx,0), cb );
     }
 }
@@ -350,7 +350,7 @@ BufferStringSet uiDataPointSetMerger::checkForNewColumns() const
 
     for ( int colidx=0; colidx<scolids.size(); colidx++ )
 	newcolnames.add( sdps_->colName(scolids[colidx]) );
-    
+
     return newcolnames;
 }
 
@@ -419,8 +419,8 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     dpsmrfprop.setMaxAllowedHorDist( distfld_->getFValue() );
     dpsmrfprop.setMaxAllowedZDist(
 	    zgatefld_->getFValue()/SI().zDomain().userFactor() );
-    
-    DPSMerger merger( dpsmrfprop ); 
+
+    DPSMerger merger( dpsmrfprop );
     merger.addNewCols( newcolnms );
     TaskRunner::execute( &taskrunner, merger );
 

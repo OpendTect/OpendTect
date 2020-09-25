@@ -82,7 +82,7 @@ int uiDialog::goMinimized()
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
 void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }
-void uiDialog::done( int i )			{ mBody->done( i ); }
+void uiDialog::done( DoneResult res )		{ mBody->done( res ); }
 void uiDialog::setHSpacing( int s )		{ mBody->setHSpacing(s); }
 void uiDialog::setVSpacing( int s )		{ mBody->setVSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
@@ -117,6 +117,6 @@ bool uiDialog::saveButtonChecked() const
 bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
 
-int uiDialog::titlepos_ = 0; // default is centered.
-int uiDialog::titlePos()			{ return titlepos_; }
-void uiDialog::setTitlePos( int p )		{ titlepos_ = p; }
+uiDialog::TitlePos uiDialog::titlepos_ = CenterWin;
+uiDialog::TitlePos uiDialog::titlePos()			{ return titlepos_; }
+void uiDialog::setTitlePos( TitlePos p )		{ titlepos_ = p; }

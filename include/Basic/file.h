@@ -67,6 +67,9 @@ mGlobal(Basic) bool		isInUse(const char* fnm);
 mDeprecated			("Use isInUse instead")
 mGlobal(Basic) bool		isFileInUse(const char* fnm);
 
+enum DirListType		{ AllEntriesInDir, FilesInDir, DirsInDir };
+mGlobal(Basic) bool		listDir(const char*,DirListType,
+				    BufferStringSet& fnames,const char* mask=0);
 mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname,
 				       uiString* errmsg=nullptr);

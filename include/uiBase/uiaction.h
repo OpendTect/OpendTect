@@ -130,6 +130,24 @@ private:
     void			init(const uiString&);
 
 public:
+    mDeprecated		("use uiString")
+			uiAction( const char* nm )
+			  :uiAction(toUiString(nm)) {}
+    mDeprecated		("use uiString")
+			uiAction( const char* nm, const CallBack& cb )
+			  :uiAction(toUiString(nm),cb) {}
+    mDeprecated		("use uiString")
+			uiAction( const char* nm, const CallBack& cb,
+				  const uiIcon& icon )
+			  :uiAction(toUiString(nm),cb,icon) {}
+    mDeprecated		("use uiString")
+			uiAction( const char* nm, const CallBack& cb,
+				  const char* icon )
+			  :uiAction(toUiString(nm),cb,icon) {}
+    mDeprecated		("use uiString")
+			uiAction( const char* nm, const char* icon )
+			  :uiAction(toUiString(nm),icon) {}
+
     //! Not for casual use
     static void         addCmdRecorder(const CallBack&);
     static void         removeCmdRecorder(const CallBack&);
@@ -160,7 +178,7 @@ public:
     uiAction*			findAction(const uiActionSeparString&);
     uiAction*			findAction(const char* itmtxt);
     uiAction*			findAction(const uiString& itmtxt);
-    				//!<The full string of the text will be used
+				//!<The full string of the text will be used
     uiAction*			findAction(int id);
     uiAction*			findAction(const uiMenu*);
     uiAction*			findAction( const FixedString& fs )

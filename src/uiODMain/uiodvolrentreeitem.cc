@@ -393,7 +393,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	    new visSurvey::MarchingCubesDisplay;
 
 	uiString newname = tr( "Iso %1").arg( vd->isoValue( mcs ) );
-	mcdisplay->setName( newname );
+	mcdisplay->setUiName( newname );
 	if ( !mcdisplay->setVisSurface(mcs) )
 	{
 	    vd->removeChild( surfobjid );
@@ -589,7 +589,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	    new visSurvey::MarchingCubesDisplay;
 
 	uiString newname = tr( "Iso %1").arg( vd->isoValue( isosurface ) );
-	mcdisplay->setName( newname );
+	mcdisplay->setUiName( newname );
 
 	if ( !mcdisplay->setVisSurface( isosurface ) )
 	{

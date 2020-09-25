@@ -546,7 +546,7 @@ bool uiOD2DLineTreeItem::init()
 	return false;
 
     s2d->setGeomID( geomid_ );
-    s2d->setName( mToUiStringTodo(geom2d->getName()) );
+    s2d->setName( geom2d->getName() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
@@ -593,7 +593,7 @@ bool uiOD2DLineTreeItem::init()
 
 uiString uiOD2DLineTreeItem::createDisplayName() const
 {
-    return visserv_->getObjectName(displayid_);
+    return visserv_->getUiObjectName(displayid_);
 }
 
 
@@ -792,7 +792,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
 	}
 
 	uiTaskRunner uitr( ODMainWin() );
-	LineKey lk( mFromUiStringTodo(s2d->name()) );
+	const LineKey lk( s2d->name() );
 	dpid = calc->createAttrib( tkzs, lk, &uitr );
     }
     else
@@ -893,8 +893,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
     as.set2DFlag();
-    BufferString objnm =
-	mFromUiStringTodo(visserv_->getObjectName( displayID() ));
+    const uiString uiobjnm = visserv_->getUiObjectName( displayID() );
+    const BufferString objnm = uiobjnm.getFullString();
 
     BufferStringSet datasets;
     seisserv->get2DStoredAttribs( objnm, datasets, 0 );

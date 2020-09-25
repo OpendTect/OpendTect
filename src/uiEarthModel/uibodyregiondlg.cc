@@ -649,10 +649,13 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     uiTable::Setup tsu( 4, 4 );
     uiGroup* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, singlehorfld_ );
-    table_ = new uiTable( tblgrp, tsu.rowdesc("Boundary").defrowlbl(true),"Sf");
-    BufferStringSet lbls;
-    lbls.add("Name").add("Region location")
-	.add("Relative horizon shift").add(" ");
+    table_ = new uiTable( tblgrp, tsu.rowdesc(tr("Boundary"))
+				     .defrowlbl(true),"Sf");
+    uiStringSet lbls;
+    lbls.add( uiStrings::sName() )
+	.add( mJoinUiStrs( sRegion(), sLocation().toLower() ) )
+	.add( tr("Relative horizon shift") )
+	.add( uiString::empty() );
     table_->setColumnLabels( lbls );
     table_->setPrefWidth( 600 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -694,12 +697,13 @@ void uiBodyRegionDlg::horModChg( CallBacker* )
     surfacelist_.erase();
 
     const bool singlehormod = singlehorfld_->getBoolValue();
-    BufferStringSet lbls;
-    lbls.add("Name").add("Region location");
+    uiStringSet lbls;
+    lbls.add( uiStrings::sName() )
+	.add( mJoinUiStrs( sRegion(), sLocation().toLower() ) );
     if ( singlehormod )
-	lbls.add("Relative shift up").add("Relative shift down");
+	lbls.add( tr("Relative shift up") ).add( tr("Relative shift down") );
     else
-	lbls.add("Relative horizon shift").add("  ");
+	lbls.add( tr("Relative horizon shift") ).add( uiString::empty() );
 
     table_->setColumnLabels( lbls );
     table_->resizeColumnsToContents();

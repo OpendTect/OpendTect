@@ -244,7 +244,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
     if ( !rtd )
 	return false;
 
-    rtd->setName( ioobj.uiName() );
+    rtd->setName( ioobj.name() );
     itm->displayDefaultData();
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -305,7 +305,7 @@ void uiODRandomLineParentTreeItem::genFromTable()
 
 	NotifyStopper notifystopper( visBase::DM().selMan().updateselnotifier );
 	rtd->getRandomLine()->setNodePositions( newbids );
-	notifystopper.restore();
+	notifystopper.enableNotification();
 
 	table->getZRange( zrg );
 	zrg.scale( 1.f/SI().zDomain().userFactor() );
@@ -604,8 +604,8 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 		uiMSG().error( mToUiStringTodo(bs) );
 	    else
 	    {
-		uiString rdlname = ioobj->uiName();
-		applMgr()->visServer()->setObjectName( displayID(), rdlname );
+		const uiString rdlname = ioobj->uiName();
+		applMgr()->visServer()->setUiObjectName( displayID(), rdlname );
 		rtd->getRandomLine()->setName( rdlname.getFullString() );
 
 		updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -613,12 +613,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	else if ( mnuid == saveas2dmnuitem_.id )
 	{
-	    rln->setName( mFromUiStringTodo(rtd->name()) );
+	    rln->setName( rtd->name() );
 	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
 	}
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
-	    rln->setName( mFromUiStringTodo(rtd->name()) );
+	    rln->setName( rtd->name() );
 	    applMgr()->EMAttribServer()->create2DGrid( rln );
 	}
     }
@@ -654,7 +654,7 @@ void uiODRandomLineTreeItem::editNodes()
 
     NotifyStopper notifystopper( visBase::DM().selMan().updateselnotifier );
     rtd->getRandomLine()->setNodePositions( newbids );
-    notifystopper.restore();
+    notifystopper.enableNotification();
 
     table->getZRange( zrg );
     zrg.scale( 1.f/SI().zDomain().userFactor() );

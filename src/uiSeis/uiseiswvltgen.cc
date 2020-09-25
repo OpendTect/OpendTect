@@ -145,8 +145,7 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
     centerfld_->attach( rightOf, normalizefld_ );
 
-    centerchoicefld_ = new uiLabeledComboBox( this, tr("at") );
-    centerchoicefld_->box()->addItems( centernms );
+    centerchoicefld_ = new uiLabeledComboBox( this, centernms, tr("at") );
     centerchoicefld_->box()->selectionChanged.notify(
 					mCB(this,uiSeisWvltMerge,reloadAll) );
     centerchoicefld_->box()->setHSzPol( uiObject::MedVar );
@@ -277,7 +276,7 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 void uiSeisWvltMerge::reloadWvlts()
 {
     deepErase( wvltset_ ); stackedwvlt_ = 0;
-    deepErase( namelist_ );
+    namelist_.setEmpty();
 
     const IODir iodir( ctio_.ctxt_.getSelKey() );
     const IODirEntryList del( iodir, ctio_.ctxt_ );

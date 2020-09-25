@@ -195,6 +195,8 @@ protected:
 \brief Implementation of ArrayND.
 */
 
+mGlobal(Basic) void* getArrayND(const ArrayNDInfo&,const OD::DataRepType);
+
 template <class T>
 mClass(Basic) ArrayNDImpl : public ArrayND<T>, public ArrayImplBase<T>
 { typedef ArrayImplBase<T> base;

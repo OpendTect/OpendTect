@@ -132,7 +132,7 @@ public:
       enum State  { Good, Bad, Ugly };
 		  mDeclareEnumUtils(State)
       enum Type   { Yes, No, Maybe };
-       	          mDeclareEnumUtils(Type)
+	          mDeclareEnumUtils(Type)
 
 		  // rest of class
   };
@@ -161,7 +161,7 @@ public:
   {
   public:
 
-      enum 			  State { Good, Bad, Ugly };
+      enum			  State { Good, Bad, Ugly };
       static const EnumDef&       StateDef();
       static const char**         StateNames();
       static bool                 parseEnum(const char*, State& );
@@ -188,7 +188,7 @@ public:
   const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
 
   const EnumDef MyClass::StateDefinition_("My class state",
-	  					MyClass::Statenames,1);
+						MyClass::Statenames,1);
 
   bool MyClass::parseEnum(const char* txt, State& res ) \
   { \
@@ -289,8 +289,7 @@ const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
     { \
 	EnumDefImpl<prefix::enm>* newdef = \
 	    new EnumDefImpl<prefix::enm>(prettynm,prefix::enm##Keys_,deflen); \
-	if ( !enm##Definition_.setIfNull( newdef ) ) \
-	    delete newdef; \
+	enm##Definition_.setIfNull( newdef,true ); \
     } \
  \
     return *enm##Definition_; \

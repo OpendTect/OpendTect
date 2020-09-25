@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    i_LayoutMngr* 	loMngr();
+    i_LayoutMngr*	loMngr();
 
     uiGroupParentBody&	grpprntbody;
 
@@ -52,9 +52,9 @@ protected:
 
 class uiGroupObjBody : public uiObjectBody, public QFrame
 {
-    friend class 		uiMainWin;
-    friend class 		uiDialog;
-    friend class 		i_LayoutMngr;
+    friend class		uiMainWin;
+    friend class		uiDialog;
+    friend class		i_LayoutMngr;
     friend class		i_uiGroupLayoutItem;
     friend			uiGroup* gtDynamicCastToGrp(QWidget*);
 
@@ -90,9 +90,9 @@ protected:
 
 class uiGroupParentBody : public uiParentBody
 {
-    friend class 	uiMainWin;
-    friend class 	uiDialog;
-    friend class 	i_LayoutMngr;
+    friend class	uiMainWin;
+    friend class	uiDialog;
+    friend class	i_LayoutMngr;
     friend class	i_uiGroupLayoutItem;
     friend class	uiGroupObjBody;
     friend		uiGroup* gtDynamicCastToGrp( QWidget*);
@@ -134,7 +134,7 @@ public:
 
 protected:
 
-    i_LayoutMngr* 	lomngr_;
+    i_LayoutMngr*	lomngr_;
 
     uiObject*		hcenterobj_;
     uiObject*		halignobj_;
@@ -186,7 +186,7 @@ uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
     , objbody_( objbdy )
 {
     lomngr_ = new i_LayoutMngr( objbdy.qwidget(), nm, objbdy );
-    lomngr_->deleteNotify( mCB(this,uiGroupParentBody,mngrDel) );
+    mAttachCB( lomngr_->objectToBeDeleted(), uiGroupParentBody::mngrDel );
 }
 
 
@@ -294,7 +294,7 @@ void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
 
 // ----- uiGroupObjBody -----
 uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
-	    			    const char* nm )
+				    const char* nm )
     : uiObjectBody( parnt, nm )
     , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
     , handle_( hndle )
@@ -656,8 +656,8 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
 
-    uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
-    body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
+    mAttachCB( uigrp_->objectToBeDeleted(), uiGroupObj::grpDel );
+    mAttachCB( body_->objectToBeDeleted(), uiGroupObj::bodyDel );
 }
 
 

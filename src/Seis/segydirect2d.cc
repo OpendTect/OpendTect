@@ -130,7 +130,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 					   const char* newnm ) const
 {
     const BufferString msk( "*.", sExtSEGDirect );
-    DirList dl( obj.fullUserExpr(), DirList::FilesOnly, msk );
+    DirList dl( obj.fullUserExpr(), File::FilesInDir, msk );
     bool ret = true;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -156,7 +156,7 @@ bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 {
     geomids.erase();
     const BufferString msk( "*.", sExtSEGDirect );
-    DirList dl( obj.fullUserExpr(), DirList::FilesOnly, msk );
+    DirList dl( obj.fullUserExpr(), File::FilesInDir, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );

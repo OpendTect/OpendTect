@@ -93,10 +93,10 @@ void ExecutorGroup::findNextSumStop()
     {
 	for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
 	{
-	    if ( !executors_[idx]->uiNrDoneText().isEqualTo(
-			executors_[idx-1]->uiNrDoneText()) ||
-		 !executors_[idx]->uiMessage().isEqualTo(
-			executors_[idx-1]->uiMessage()) )
+	    const Executor& exec = *executors_[idx];
+	    const Executor& prevexec = *executors_[idx-1];
+	    if ( exec.uiNrDoneText() != prevexec.uiNrDoneText() ||
+		 exec.uiMessage() != prevexec.uiMessage() )
 	    {
 		sumstop_ = idx-1;
 		return;

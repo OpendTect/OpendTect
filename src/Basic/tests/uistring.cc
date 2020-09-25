@@ -10,11 +10,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistring.h"
 #include "testprog.h"
 #include "uistrings.h"
-#include "texttranslator.h"
-#include "filepath.h"
 #include "oddirs.h"
 
 #include <QString>
+#include <QByteArray>
 #include <QTranslator>
 
 
@@ -31,52 +30,6 @@ bool testSetEmpty()
     return true;
 }
 
-class TestTranslator
-{ mTextTranslationClass( TestTranslator, "test_uistring" );
-public:
-    static bool testTranslation();
-
-};
-
-
-bool TestTranslator::testTranslation()
-{
-    uiString a = tr("I am an A");
-    uiString b = tr("I am a B" );
-    uiString join = uiStrings::phrJoinStrings( a, b );
-
-    QTranslator trans;
-    FilePath path;
-    TextTranslateMgr::GetLocalizationDir( path );
-    path.add( "uistring.qm" );
-    mRunStandardTest( trans.load( QString(path.fullPath().buf())),
-		    "Load test translation");
-
-    QString qres;
-    mRunStandardTest( join.translate( trans, qres ),
-		      "Run translation" );
-
-    BufferString res( qres );
-    mRunStandardTest( res=="A B", "Translation content");
-
-    uiString hor3d =
-	uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() );
-
-    hor3d.fillQString( qres );
-    res = qres;
-    mRunStandardTest( res=="3D Horizon", "Translation content (Horizon)");
-
-    hor3d =
-     uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon(mPlural) );
-
-    hor3d.fillQString( qres );
-    res = qres;
-    mRunStandardTest( res=="3D Horizons", "Translation content (Horizons)");
-
-    return true;
-}
-
-
 
 bool testArg()
 {
@@ -85,7 +38,7 @@ bool testArg()
 		.arg( 5 )
 		.arg( 9 );
 
-    mRunStandardTest( composite.getFullString() == "4 plus 5 is 9",
+    mRunStandardTest( composite.getString() == "4 plus 5 is 9",
 		      "Composite test" );
 
     const char* desoutput = "Hello Dear 1";
@@ -105,7 +58,7 @@ bool testArg()
     mRunStandardTest( qstr==QString(desoutput), "In-place");
 
 
-    BufferString expargs = string.getFullString();
+    BufferString expargs = toString( string );
 
     mRunStandardTest( expargs==desoutput, "Argument expansion" );
 
@@ -116,14 +69,21 @@ bool testArg()
     string.fillQString( qstr ); cloned.fillQString( qstr2 );
     mRunStandardTest( qstr==qstr2, "copyFrom" );
 
-    uiString part1 = toUiString( "Part 1" );
-    part1.append( ", Part 2", false );
-    mRunStandardTest(
-	    FixedString(part1.getFullString())=="Part 1, Part 2", "append" );
-    part1.append( ", Part 2", true );
-    mRunStandardTest(
-	    FixedString(part1.getFullString())=="Part 1, Part 2\n, Part 2",
-			"append with newline" );
+    const uiString part1 = toUiString( "Part 1" );
+    const uiString part2 = toUiString( "Part 2" );
+    uiString res = part1; res.constructWordWith( part2 );
+    mRunStandardTest( res == toUiString("Part 1Part 2"),
+				"constructWordWith(no space)" );
+    res = part1; res.constructWordWith( part2, true );
+    mRunStandardTest( res == toUiString("Part 1 Part 2"),
+				"constructWordWith(with space)" );
+    res = part1; res.appendAfterList( part2 );
+    mRunStandardTest( res == toUiString("Part 1\nPart 2"), "appendAfterList()");
+    res = part1; res.appendPhraseSameLine( part2 );
+    mRunStandardTest( res == toUiString("Part 1. Part 2"),
+				"appendPhraseSameLine(Unrelated)" );
+    res = part1; res.appendPhrase( part2 );
+    mRunStandardTest( res == toUiString("Part 1.\nPart 2"), "appendPhrase()" );
 
     return true;
 }
@@ -135,18 +95,15 @@ bool testSharedData()
     uiString b = a;
 
     b.arg( "s" );
-    mRunStandardTest( b.getFullString()=="Hello Worlds" &&
-		      BufferString(a.getFullString())!=
-		      BufferString(b.getFullString()), "arg on copy" );
+    mRunStandardTest( b.getString() == "Hello Worlds" &&
+		      a.getString() != toString(b), "arg on copy" );
 
     uiString c = b;
     c = toUiString("Another message");
-    mRunStandardTest( BufferString(c.getFullString())!=
-		      BufferString(b.getFullString()),
-		      "assignment of copy" );
+    mRunStandardTest( c.getString() != toString(b), "assignment of copy" );
 
     uiString d = b;
-    mRunStandardTest( d.getOriginalString()==b.getOriginalString(),
+    mRunStandardTest( d.getOriginalString() == b.getOriginalString(),
 		      "Use of same buffer on normal operations" );
 
     return true;
@@ -177,7 +134,7 @@ bool testQStringAssignment()
     uiString string;
     string.setFrom( QString( message ) );
 
-    BufferString res = string.getFullString();
+    BufferString res = toString( string );
     mRunStandardTest( res==message, "QString assignment" );
 
     return true;
@@ -219,14 +176,12 @@ bool testLargeNumberStrings()
 
 bool testToLower()
 {
-    uiString string = uiStrings::phrJoinStrings( uiStrings::sInput(),
-					    uiStrings::sHorizon().toLower() );
-    BufferString bstr = string.getFullString();
+    uiString string = uiStrings::phrInput( uiStrings::sHorizon().toLower() );
+    BufferString bstr = toString( string );
     mRunStandardTest( bstr=="Input horizon", "To lower" );
 
-    uiString string2 = uiStrings::phrJoinStrings( uiStrings::sInput(),
-						 uiStrings::sHorizon() );
-    bstr = string2.getFullString();
+    uiString string2 = uiStrings::phrInput( uiStrings::sHorizon() );
+    bstr = toString( string2 );
     mRunStandardTest( bstr=="Input Horizon", "To lower does not affect orig" );
 
 
@@ -236,21 +191,35 @@ bool testToLower()
 
 bool testOptionStrings()
 {
-    uiString strings[] = { toUiString( "One" ), toUiString( "Two" ),
-			    toUiString( "Three" ), toUiString( "Four" ),
-			    uiString() };
-    uiStringSet options( strings );
+    uiStringSet options;
+    options.add( toUiString( "One" ) )
+	   .add( toUiString( "Two" ) )
+	   .add( toUiString( "Three" ) )
+	   .add( toUiString( "Four" ) )
+	   .add( uiString() );
 
     mRunStandardTest(
-	    options.createOptionString( true, -1, ' ').getFullString()==
-	              "One, Two, Three, and Four", "createOptionString and" );
+	    options.createOptionString(true,-1,false).getString() ==
+	      "One, Two, Three and Four", "createOptionString and" );
     mRunStandardTest(
-	    options.createOptionString( false, -1, ' ').getFullString()==
-	              "One, Two, Three, or Four", "createOptionString or" );
+	    options.createOptionString(false,-1,false).getString() ==
+	      "One, Two, Three or Four", "createOptionString or" );
 
     mRunStandardTest(
-	    options.createOptionString( false, 3, ' ').getFullString()==
-	              "One, Two, Three, ...", "createOptionString limited" );
+	    options.createOptionString(false,3,false).getString() ==
+	      "One, Two, Three or ...", "createOptionString limited" );
+
+    mRunStandardTest(
+	    options.createOptionString(true,-1,true).getString() ==
+	      "One\nTwo\nThree and\nFour", "createOptionString nl and" );
+    mRunStandardTest(
+	    options.createOptionString(false,-1,true).getString() ==
+	      "One\nTwo\nThree or\nFour", "createOptionString nl or" );
+
+    mRunStandardTest(
+	    options.createOptionString(false,3,true).getString() ==
+	      "One\nTwo\nThree\nor ...", "createOptionString nl limited" );
+
 
     return true;
 }
@@ -260,7 +229,7 @@ bool testHexEncoding()
 {
     uiString str;
     mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
-	              str.getFullString()=="Qt is great!",
+	              str.getString() == "Qt is great!",
 		      "Reading hard-coded string" );
 
 
@@ -279,6 +248,23 @@ bool testHexEncoding()
     return true;
 }
 
+bool fromBufferStringSetToUiStringSet()
+{
+    BufferStringSet strset;
+    strset.add("A");
+    strset.add("B");
+    strset.add("C");
+    uiStringSet uistrset = strset.getUiStringSet();
+
+    BufferString str = strset.cat( " " );
+    uiString uistr = uistrset.cat( uiString::Space, uiString::OnSameLine );
+
+    mRunStandardTest( str == toString(uistr), "Comparing BuffStrSet "
+				    "UiStrSet" );
+    return true;
+
+}
+
 
 int main( int argc, char** argv )
 {
@@ -287,7 +273,7 @@ int main( int argc, char** argv )
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings()
-	 || !testToLower() || !TestTranslator::testTranslation() )
+	 || !testToLower() || !fromBufferStringSetToUiStringSet() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

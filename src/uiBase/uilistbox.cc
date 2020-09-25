@@ -586,7 +586,7 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
 	nrleft--;
     }
 
-    deepErase( txts );
+    txts.setEmpty();
 }
 
 
@@ -740,7 +740,7 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
     NotifyStopper nsic( itemChosen );
     mListBoxBlockCmdRec;
     lb_->body().setCurrentRow( itmidx );
-    nsic.restore();
+    nsic.enableNotification();
 
     itemChosen.trigger( itmidx );
     updateCheckState();

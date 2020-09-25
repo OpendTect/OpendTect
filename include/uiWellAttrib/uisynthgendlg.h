@@ -46,8 +46,8 @@ protected:
 
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
-    uiGenInput*  		angleinpfld_;
-    uiGenInput*  		namefld_;
+    uiGenInput*		angleinpfld_;
+    uiGenInput*		namefld_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
     uiPushButton*		revertbut_;
@@ -59,7 +59,7 @@ protected:
     void			getPSNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);
     void			typeChg(CallBacker*);
-    bool			genNewCB(CallBacker*);
+    void			genNewCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			removeSyntheticsCB(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);

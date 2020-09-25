@@ -40,7 +40,8 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
     deffp.add( "survbounds" ).setExtension( "kml" );
     uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() );
     fiinpsu.forread( false ).filter( "*.kml" );
-    fnmfld_ = new uiFileInput( this, "Output file", fiinpsu );
+    fnmfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()),
+				fiinpsu );
     fnmfld_->attach( alignedBelow, hghtfld_ );
 }
 

@@ -481,7 +481,7 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 	{
 	    uiString errmsg = tr("Cannot find input file:\n%1")
 			    .arg(fnm);
-	    deepErase( filenames );
+	    filenames.setEmpty();
 	    mErrRet( errmsg );
 	}
     }

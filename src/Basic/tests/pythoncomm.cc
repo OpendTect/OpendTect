@@ -40,7 +40,7 @@ bool testRemoveDir( const BufferString& path, bool expectedres )
     bool ret = OD::pythonRemoveDir( path, true ).isOK();
     if ( ret )
     {
-	const DirList dl( FilePath::getTempDir(), DirList::DirsOnly );
+	const DirList dl( FilePath::getTempDir(), File::DirsInDir );
 
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{

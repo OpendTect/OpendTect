@@ -350,7 +350,6 @@ void uiEvaluateDlg::doFinalise( CallBacker* )
 
 uiEvaluateDlg::~uiEvaluateDlg()
 {
-    deepErase( lbls_ );
 }
 
 

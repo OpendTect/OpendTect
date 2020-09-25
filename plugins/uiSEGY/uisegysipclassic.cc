@@ -53,7 +53,8 @@ void start( CallBacker* )
 void atEnd( CallBacker* )
 {
     sr_->fillPar( sip_->imppars_ );
-    done( sr_->state() != uiSEGYRead::cCancelled() ? 1 : 0 );
+    done( sr_->state() == uiSEGYRead::cCancelled() ?
+			uiDialog::Rejected : uiDialog::Accepted );
 }
 
     uiSEGYRead*				sr_;
@@ -117,7 +118,8 @@ bool uiSEGYClassicSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
     if ( Seis::is2D(scanner->geomType()) )
 	return false;
 
-    BufferString errmsg = scanner->posInfoDetector().getSurvInfo(cs.hsamp_,crd);
+    uiString errmsg = scanner->posInfoDetector().getSurvInfoWithMsg(
+							cs.hsamp_, crd );
     if ( !errmsg.isEmpty() )
 	{ mShowErr( errmsg ); return false; }
 

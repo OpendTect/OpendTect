@@ -58,18 +58,18 @@ only if the uiGenInput has not been finalised yet.
 mExpClass(uiTools) uiGenInput : public uiGroup
 {mODTextTranslationClass(uiGenInput)
 public:
-			uiGenInput( uiParent* p, const uiString& disptxt
-				  , const char* inputStr=0 );
+			uiGenInput(uiParent* p,const uiString& disptxt,
+				   const char* inputStr=nullptr);
 
-			uiGenInput( uiParent* p, const uiString& disptxt,
-			    const DataInpSpec& );
+			uiGenInput(uiParent* p,const uiString& disptxt,
+				   const DataInpSpec&);
 
-			uiGenInput( uiParent* p, const uiString&,
-			    const DataInpSpec& ,const DataInpSpec& );
+			uiGenInput(uiParent* p,const uiString&,
+				   const DataInpSpec&,const DataInpSpec&);
 
-			uiGenInput( uiParent* p, const uiString&,
-			    const DataInpSpec&, const DataInpSpec&,
-			    const DataInpSpec& );
+			uiGenInput(uiParent* p,const uiString&,
+				   const DataInpSpec&,const DataInpSpec&,
+				   const DataInpSpec& );
 
     virtual		~uiGenInput();
 
@@ -275,18 +275,35 @@ private:
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
 
 public:
+    mDeprecated		("Use uiString")
+			uiGenInput(uiParent* p,const char* disptxt,
+				   const char* inputStr=nullptr);
+
+    mDeprecated		("Use uiString")
+			uiGenInput(uiParent* p,const char* disptxt,
+				   const DataInpSpec&);
+
+    mDeprecated		("Use uiString")
+			uiGenInput(uiParent* p,const char* disptxt,
+				   const DataInpSpec&,const DataInpSpec&);
+
+    mDeprecated		("Use uiString")
+			uiGenInput(uiParent* p,const char* disptxt,
+				   const DataInpSpec&,const DataInpSpec&,
+				   const DataInpSpec& );
+
     mDeprecated		("Use getDValue")
     double		getdValue( int nr=0, double uv=mUdf(double) ) const
 			    { return getDValue( nr, uv ); }
     mDeprecated		("Use getDValue")
-    double 		getdValue( float undefval ) const
+    double		getdValue( float undefval ) const
 			    { return getDValue(0,undefval); }
 
     mDeprecated		("Use getFValue")
-    float 		getfValue( int nr=0, float udfval=mUdf(float) ) const
+    float		getfValue( int nr=0, float udfval=mUdf(float) ) const
 			    { return getFValue( nr, udfval ); }
     mDeprecated		("Use getFValue")
-    float 		getfValue( float undefval ) const
+    float		getfValue( float undefval ) const
 			    { return getFValue(0,undefval); }
 };
 

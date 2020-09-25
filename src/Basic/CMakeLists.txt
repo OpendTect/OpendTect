@@ -97,6 +97,7 @@ set( OD_MODULE_SOURCES
 	pythonaccess.cc
 	qstreambuf.cc
 	repos.cc
+	refcount.cc
 	rowcol.cc
 	safefileio.cc
 	separstr.cc
@@ -118,6 +119,7 @@ set( OD_MODULE_SOURCES
 	trckeyzsampling.cc
 	uistring.cc
 	uistrings.cc
+	uistringset.cc
 	winutils.cc
 	zdomain.cc
 )

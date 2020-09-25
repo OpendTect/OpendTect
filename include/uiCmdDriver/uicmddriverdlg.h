@@ -23,7 +23,7 @@ class uiPushButton;
 
 namespace CmdDrive
 {
-   
+
 class CmdDriver;
 class CmdRecorder;
 class InteractSpec;
@@ -62,10 +62,10 @@ public:
 protected:
 
     void			selChgCB(CallBacker*);
-    bool			selectGoCB(CallBacker*);
+    void			selectGoCB(CallBacker*);
     void			selectAbortCB(CallBacker*);
     void			selectPauseCB(CallBacker*);
-    bool			selectStartRecordCB(CallBacker*);
+    void			selectStartRecordCB(CallBacker*);
     void			selectStopRecordCB(CallBacker*);
     void			interactCB(CallBacker*);
     bool			rejectOK(CallBacker*);

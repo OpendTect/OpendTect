@@ -297,10 +297,17 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 
 void uiTextEdit::setText( const char* txt, bool trigger_notif )
 {
-    NotifyStopper ns( textChanged );
-    if ( trigger_notif ) ns.restore();
-    qte().setPlainText( txt );
-    qte().setFontUnderline( false );
+    if ( trigger_notif )
+    {
+	qte().setPlainText( txt );
+	qte().setFontUnderline( false );
+    }
+    else
+    {
+	NotifyStopper ns( textChanged, this );
+	qte().setPlainText( txt );
+	qte().setFontUnderline( false );
+    }
 }
 
 

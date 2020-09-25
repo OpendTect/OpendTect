@@ -74,11 +74,12 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     advbut->attach( rightBorder );
 
     uiTable::Setup tsu( -1, 5 );
-    tsu.rowdesc("Host").defrowlbl(true).selmode(uiTable::SingleRow);
+    tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(uiTable::SingleRow);
     table_ = new uiTable( this, tsu, "Batch Hosts" );
-    BufferStringSet collbls;
-    collbls.add( "IP address" ).add( "Hostname" ).add( "Display Name" )
-	   .add( "Platform" ).add("Survey Data Root");
+    uiStringSet collbls;
+    collbls.add( tr("IP address") ).add( uiStrings::sHostName() )
+       .add( tr("Display Name") ).add( uiStrings::sPlatform() )
+       .add( tr("Survey Data Root") );
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );

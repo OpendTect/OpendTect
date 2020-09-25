@@ -252,12 +252,14 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
 	asd->setDeleteOnClose( true );
 	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID(),0);
-	BufferString capt( "Amplitude spectrum for " );
-	capt += psv->getObjectName();
-	capt += " at ";
-	if ( psv->is3DSeis() )
-	    { capt += psv->getPosition().inl(); capt += "/"; }
-	capt += psv->getPosition().crl();
+	const uiString pos = psv->is3DSeis()
+	    ? toUiString( "%1/%2").arg(psv->getPosition().inl())
+				  .arg( psv->getPosition().crl() )
+	    : toUiString( psv->getPosition().crl() );
+
+	const uiString capt = tr("Amplitude spectrum for %1 at %2")
+	    .arg( psv->getObjectName() )
+	    .arg( pos );
 	asd->setCaption( capt );
 	asd->show();
     }
@@ -669,7 +671,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
 	uiString title;
 	if ( is3d )
-	    getSeis3DTitle( bid, ioobj->uiName(), title );
+	    getSeis3DTitle( bid, ioobj->name(), title );
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
@@ -689,14 +691,14 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::getSeis2DTitle( int tracenr, const uiString& nm,
+void uiViewer3DMgr::getSeis2DTitle( int tracenr, const char* nm,
 				    uiString& title )
 {
     title = tr("Gather from [%1] at trace %2").arg( nm ).arg( tracenr );
 }
 
 
-void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const uiString& name,
+void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const char* name,
 				    uiString& title )
 {
     title = tr("Gather from [%1] at %2" ).arg( name ).arg( bid.toString() );

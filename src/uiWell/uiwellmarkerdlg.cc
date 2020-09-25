@@ -49,12 +49,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cNrEmptyRows = 5;
 
-static const char* sKeyName()		{ return "Name"; }
-static const char* sKeyMD()		{ return "MD"; }
-static const char* sKeyTVD()		{ return "TVD"; }
-static const char* sKeyTVDSS()		{ return "TVDSS"; }
-static const char* sKeyColor()		{ return "Color"; }
-static const char* sKeyRegMarker()	{ return "Regional marker"; }
+static const char* sKeyMD()             { return sKey::MD(); }
+static const char* sKeyTVD()            { return sKey::TVD(); }
+static const char* sKeyTVDSS()          { return sKey::TVDSS(); }
 static const int cNameCol  = 0;
 static const int cDepthCol = 1;
 static const int cTVDCol = 2;
@@ -63,29 +60,28 @@ static const int cColorCol = 4;
 static const int cLevelCol = 5;
 
 
-static void getColumnLabels( BufferStringSet& lbls, uiCheckBox* unfld,
-				bool withlvls )
+static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
+			     bool withlvls )
 {
-    const bool zinfeet = unfld ? unfld->isChecked() : SI().depthsInFeet();
+    lbls.add( uiStrings::sName() );
+    if ( unfld )
+    {
+	const bool zinfeet = unfld ? unfld->isChecked() : SI().depthsInFeet();
+	const uiString zunituistr = toUiString(getDistUnitString(zinfeet,true));
+	lbls.add( uiStrings::phrJoinStrings(uiStrings::sMD(),zunituistr) );
+	lbls.add( uiStrings::phrJoinStrings(uiStrings::sTVD(),zunituistr) );
+	lbls.add( uiStrings::phrJoinStrings(uiStrings::sTVDSS(),zunituistr) );
+    }
+    else
+    {
+	lbls.add( uiStrings::sMD().withSurvZUnit() )
+	    .add( uiStrings::sTVD().withSurvZUnit() )
+	    .add( uiStrings::sTVDSS().withSurvZUnit() );
+    }
 
-    lbls.add( sKeyName() );
-    BufferString curlbl;
-
-    curlbl = sKeyMD();
-    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
-    lbls.add( curlbl );
-
-    curlbl = sKeyTVD();
-    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
-    lbls.add( curlbl );
-
-    curlbl = sKeyTVDSS();
-    curlbl.addSpace().add( getDistUnitString(zinfeet,true) );
-    lbls.add( curlbl );
-
-    lbls.add( sKeyColor() );
+    lbls.add( uiStrings::sColor() );
     if ( withlvls )
-	lbls.add( sKeyRegMarker() );
+	lbls.add( uiStrings::sRegionalMarker() );
 }
 
 
@@ -95,9 +91,9 @@ static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
 						.rowgrow(editable).defrowlbl("")
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
-    BufferStringSet colnms;
-    getColumnLabels( colnms, 0, editable );
-    ret->setColumnLabels( colnms );
+    uiStringSet lbls;
+    getColumnLabels( lbls, nullptr, editable );
+    ret->setColumnLabels( lbls );
     ret->setColumnResizeMode( uiTable::ResizeToContents );
     ret->setColumnStretchable( cLevelCol, true );
     ret->setNrRows( nrrows );
@@ -140,12 +136,12 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 	return;
     }
 
-    BufferStringSet colnms;
+    uiStringSet colnms;
     getColumnLabels( colnms, cb, false );
-    strm << colnms.get( cDepthCol ) << od_tab
-	 << colnms.get( cTVDCol ) << od_tab
-	 << colnms.get( cTVDSSCol ) << od_tab
-	 << colnms.get( cNameCol ) << od_newline;
+    strm << colnms.get( cDepthCol ).getFullString() << od_tab
+	 << colnms.get( cTVDCol ).getFullString() << od_tab
+	 << colnms.get( cTVDSSCol ).getFullString() << od_tab
+	 << colnms.get( cNameCol ).getFullString() << od_newline;
 
     const float kbelev = trck.getKbElev();
     const float zfac = uiMarkerDlgzFactor( cb );
@@ -182,7 +178,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 			  "Well Marker Table" );
     BufferStringSet header;
     getColLabels( header );
-    table_->setColumnLabels( header );
+    table_->setColumnLabels( header.getUiStringSet() );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
@@ -235,9 +231,16 @@ uiMarkerDlg::~uiMarkerDlg()
 }
 
 
-void uiMarkerDlg::getColLabels( BufferStringSet& lbls ) const
+void uiMarkerDlg::getColLabels( uiStringSet& lbls ) const
 {
     getColumnLabels( lbls, unitfld_, true );
+}
+
+
+void uiMarkerDlg::getColLabels( BufferStringSet& lbls ) const
+{
+    uiStringSet uilbls; getColLabels( uilbls );
+    lbls.use( uilbls );
 }
 
 
@@ -324,7 +327,7 @@ float uiMarkerDlg::zFactor() const
 void uiMarkerDlg::unitChangedCB( CallBacker* )
 {
     NotifyStopper notifystop( table_->valueChanged );
-    BufferStringSet colnms;
+    uiStringSet colnms;
     getColLabels( colnms );
     table_->setColumnLabels( colnms );
     const float zfac = unitfld_->isChecked() ? mToFeetFactorF
@@ -474,7 +477,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     if ( havelvl )
     {
 	table_->setColor( RowCol(irow,cColorCol), levelsel->getColor() );
-	table_->setText( RowCol(irow,cNameCol), levelsel->getName() );
+	table_->setText( RowCol(irow,cNameCol), levelsel->getLevelName() );
     }
 
     table_->setCellReadOnly( RowCol(irow,cNameCol), havelvl );
@@ -674,26 +677,26 @@ protected:
 };
 
 
-bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
+void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 {
     Well::MarkerSet mset;
-    if ( !getMarkerSet( mset ) ) return false;
+    if ( !getMarkerSet( mset ) ) return;
 
     if ( !mset.size() )
     {
 	uiMSG().message( tr("No markers available") );
-	return false;
+	return;
     }
 
     uiMarkersList dlg( this, mset );
-    if ( !dlg.go() ) return false;
+    if ( !dlg.go() ) return;
 
     TypeSet<int> selitems;
     dlg.getSelIDs( selitems );
     if ( !selitems.size() )
     {
 	uiMSG().message( tr("No markers selected.") );
-	return false;
+	return;
     }
 
     Strat::LevelSet& lvls = Strat::eLVLS();
@@ -715,7 +718,7 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 		   "Press Continue to update properties.")
 	      .arg(mid > 1 ? tr("are ") : tr("is ")));
 	const bool res = uiMSG().askContinue( msg );
-	if ( !res ) return false;
+	if ( !res ) return;
     }
 
     for ( int idx=0; idx<selitems.size(); idx++ )
@@ -728,7 +731,6 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     }
 
     setMarkerSet( mset, false );
-    return true;
 }
 
 

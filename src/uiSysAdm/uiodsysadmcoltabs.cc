@@ -28,11 +28,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
     : uiDialog(p,uiDialog::Setup(
-         uiStrings::phrManage( uiStrings::sColorTable(mPlural)),0,mNoHelpKey))
+         uiStrings::phrManage( uiStrings::sColorTable(mPlural)),
+	 uiString::emptyString(),mNoHelpKey))
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );
-    
+
     uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(), false );
     addbut->activated.notify( mCB(this,uiODSysAdmColorTabs,addPush) );
     addbut->attach( alignedBelow, listfld );

@@ -136,5 +136,14 @@ public:
 			uiMenu(uiParent*,
 				const uiString& txt=uiString::emptyString(),
 				const char* iconfilenm=0);
+
+    mDeprecated		("Use uiString")
+			uiMenu( const char* mnunm, const char* iconnm=nullptr )
+			  : uiMenu(toUiString(mnunm),iconnm)	{}
+    mDeprecated		("Use uiString")
+			uiMenu( uiParent* p,
+				const char* mnunm, const char* iconnm=nullptr )
+			  : uiMenu(p,toUiString(mnunm),iconnm)	{}
+
 };
 

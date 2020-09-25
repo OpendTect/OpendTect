@@ -171,9 +171,7 @@ const PropertyRef& PropertyRef::undef()
 	newudf->aliases().add( "unknown" );
 	newudf->disp_.color_ = Color::LightGrey();
 
-	if ( !udf.setIfNull(newudf) )
-	    delete newudf;
-
+	udf.setIfNull(newudf,true);
     }
     return *udf;
 }

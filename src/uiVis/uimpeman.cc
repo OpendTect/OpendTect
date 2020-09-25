@@ -678,7 +678,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActivePath( clickcatcher_->info().getObjTKPath() );
 	    engine.setActiveRandomLineID(
 		    clickcatcher_->info().getObjRandomLineID() );
-	    notifystopper.restore();
+	    notifystopper.enableNotification();
 
 	    if ( clickedas )
 	    {

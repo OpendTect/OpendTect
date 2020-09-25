@@ -32,7 +32,7 @@ the service access point.
 */
 
 
-mExpClass(General) IODir : public NamedObject
+mExpClass(General) IODir : public NamedCallBacker
 {
 public:
 			IODir(const char*);

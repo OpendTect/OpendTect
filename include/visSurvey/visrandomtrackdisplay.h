@@ -159,7 +159,7 @@ public:
     void			setSceneEventCatcher(visBase::EventCatcher*);
     visBase::TexturePanelStrip* getTexturePanelStrip() const
 				{ return panelstrip_; }
-    const char*			getRandomLineName() const;
+    BufferString		getRandomLineName() const;
 
 
     Notifier<RandomTrackDisplay> moving_;

@@ -48,7 +48,7 @@ mGlobal(General) int defaultSelector(const char*,const char*);
   static int selector(const char*);
      -> whether a certain group name matches. Can usually return defaultSelector
   static const IOObjContext& ioContext();
-     -> Returns the IO context. See ctxtioobj.h for details.
+     -> Returns the IO context. See ioobjctxt.h for details.
 
  */
 
@@ -161,9 +161,11 @@ protected:
     TranslatorGroup*		group_;
 
 public:
+
     static uiString		sNoIoobjMsg();
     static uiString		sBadConnection();
     uiString			sSelObjectIsWrongType();
+
 };
 
 
@@ -371,5 +373,3 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 #define mSelHist(trgrp) \
 	trgrp##TranslatorGroup::theInst().selHist()
-
-

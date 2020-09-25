@@ -10,9 +10,14 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqpacket.h"
+
 #include "atomic.h"
-#include "settings.h"
+#include "arraynd.h"
+#include "datainterp.h"
+#include "od_ostream.h"
 #include "ptrman.h"
+#include "settings.h"
+#include "string.h"
 
 
 static Threads::Atomic<int> curreqid_;
@@ -43,8 +48,21 @@ void Network::RequestPacket::setSystemSizeLimit( od_int32 val )
 #define mSubID_		(header_.int16s_[4])
 
 
+Network::RequestPacket::RequestPacket( const Network::RequestPacket& b )
+    : header_( b.header_ )
+{
+    const od_int32 payloadsize = b.payloadSize();
+    if ( payloadsize )
+    {
+	void* newpayload = allocPayload( payloadsize );
+	memcpy( newpayload, b.payload(), payloadsize );
+	setPayload( newpayload, payloadsize );
+    }
+}
+
+
+
 Network::RequestPacket::RequestPacket( od_int32 payloadsize )
-    : payload_( 0 )
 {
     setPayload( allocPayload(payloadsize), payloadsize );
     setSubID( cMoreSubID() );
@@ -53,7 +71,9 @@ Network::RequestPacket::RequestPacket( od_int32 payloadsize )
 
 
 Network::RequestPacket::~RequestPacket()
-{ deleteAndZeroArrPtr( payload_ ); }
+{
+    delete [] payload_;
+}
 
 
 bool Network::RequestPacket::isOK() const
@@ -123,14 +143,14 @@ OD::JSON::Object Network::RequestPacket::getDefaultJsonHeader( bool fortxt,
 
 
 Network::PacketFiller* Network::RequestPacket::finalize(
-    const OD::JSON::Object& extendedhdr )
+					const OD::JSON::Object& extendedhdr )
 {
     BufferString hdrstr;
     extendedhdr.dumpJSon( hdrstr );
     const od_int64 paysz = extendedhdr.getIntValue("content-length");
 
     const od_int32 payloadsz =
-    mCast(od_int32, PacketFiller::sizeFor(hdrstr) + paysz);
+			mCast(od_int32, PacketFiller::sizeFor(hdrstr) + paysz);
     void* payloadptr = allocPayload( payloadsz );
     if ( !payloadptr )
 	return nullptr;
@@ -139,7 +159,6 @@ Network::PacketFiller* Network::RequestPacket::finalize(
 
     PacketFiller* filler = new PacketFiller( *this );
     filler->put( hdrstr );
-
     return filler;
 }
 
@@ -202,6 +221,54 @@ bool Network::RequestPacket::setPayload( const OD::JSON::Object& req )
 }
 
 
+bool Network::RequestPacket::setPayload( const IOPar& req )
+{
+    BufferString reqstr;
+    req.putTo( reqstr );
+
+    OD::JSON::Object hdr = getDefaultJsonHeader( true,
+						 PacketFiller::sizeFor(reqstr));
+    hdr.set( "content-type", "text/iopar" );
+    PtrMan<PacketFiller> filler = finalize( hdr );
+    if ( !filler )
+	return false;
+
+    filler->put( reqstr );
+    return true;
+}
+
+
+PtrMan<Network::PacketFiller> Network::RequestPacket::setPayload(
+					 const ObjectSet<ArrayNDInfo>& infos,
+					 const TypeSet<OD::DataRepType>& types )
+{
+    OD::JSON::Array* shapes = new OD::JSON::Array( OD::JSON::ValueSet::Data );
+    OD::JSON::Array* dtypes = new OD::JSON::Array( OD::JSON::String );
+    od_int64 totsz = 0;
+    for ( int idx=0; idx<infos.size(); idx++ )
+    {
+	const ArrayNDInfo& info = *infos.get( idx );
+	const OD::DataRepType type = types[idx];
+	const DataCharacteristics dc( type );
+	totsz += info.getTotalSz() * dc.nrBytes();
+	OD::JSON::Array* shape =
+	    shapes->add( new OD::JSON::Array(OD::JSON::Number) );
+	TypeSet<ArrayNDInfo::dim_idx_type> ndpos;
+	for ( ArrayNDInfo::nr_dims_type idim=0; idim<info.getNDim(); idim++ )
+	    ndpos += info.getSize( idim );
+	shape->set( ndpos );
+	dtypes->add( OD::PythonAccess::getDataTypeStr(type) );
+    }
+
+    OD::JSON::Object hdr = getDefaultJsonHeader( false, totsz ); //More size?
+    hdr.set( "content-type", "binary/array" );
+    hdr.set( "array-shape", shapes );
+    hdr.set( "content-encoding", dtypes );
+    PtrMan<PacketFiller> filler = finalize( hdr );
+    return filler;
+}
+
+
 const void* Network::RequestPacket::payload() const
 {
     return payload_;
@@ -248,15 +315,24 @@ void Network::RequestPacket::getStringPayload( BufferString& str ) const
 
 
 Network::PacketInterpreter* Network::RequestPacket::readJsonHeader(
-    OD::JSON::Object& hdr,
-    uiRetVal& uirv ) const
-    {
-	Network::PacketInterpreter* interp =
-				    new Network::PacketInterpreter(*this);
-	BufferString jsonhdrstr( interp->getString() );
-	uirv = hdr.parseJSon( jsonhdrstr.getCStr(), jsonhdrstr.size() );
-	return interp;
-    }
+						OD::JSON::Object& hdr,
+						uiRetVal& uirv ) const
+{
+    Network::PacketInterpreter* interp = new Network::PacketInterpreter(*this);
+    BufferString jsonhdrstr( interp->getString() );
+    uirv = hdr.parseJSon( jsonhdrstr.getCStr(), jsonhdrstr.size() );
+#ifdef __debug__
+	if ( hdr.isPresent("debug-message") )
+	{
+		BufferStringSet debugmsgs;
+		debugmsgs.unCat( hdr.getStringValue("debug-message") );
+		const BufferString debugmsg( debugmsgs.cat() );
+		if ( !debugmsg.isEmpty() )
+			od_cout() << debugmsg << od_endl;
+	}
+#endif
+    return interp;
+}
 
 
 uiRetVal Network::RequestPacket::getPayload( OD::JSON::Object& json ) const
@@ -278,6 +354,54 @@ uiRetVal Network::RequestPacket::getPayload( OD::JSON::Object& json ) const
 
     BufferString jsonstr( interp->getString() );
     return json.parseJSon( jsonstr.getCStr(), jsonstr.size() );
+}
+
+
+uiRetVal Network::RequestPacket::getPayload( IOPar& par ) const
+{
+    OD::JSON::Object hdr;
+    uiRetVal uirv;
+    PtrMan<PacketInterpreter> interp = readJsonHeader( hdr, uirv );
+    if ( !interp || !uirv.isOK() )
+	return uirv;
+
+    const BufferString type( hdr.getStringValue("content-type") );
+    if ( type != "text/iopar" )
+    {
+	uirv = tr("Incorrect return type");
+	uirv.add( tr("Expected: %1").arg("text/iopar") );
+	uirv.add( tr("Received: %1").arg(type) );
+	return uirv;
+    }
+
+    const BufferString ioparstr( interp->getString() );
+    par.getFrom( ioparstr.str() );
+    return uirv;
+}
+
+
+PtrMan<Network::PacketInterpreter> Network::RequestPacket::getPayload(
+				ObjectSet<ArrayNDInfo>& infos,
+				TypeSet<OD::DataRepType>& types ) const
+{
+    uiRetVal uirv;
+    OD::JSON::Object hdr;
+    Network::PacketInterpreter* interpreter = readJsonHeader( hdr, uirv );
+    if ( !interpreter || !hdr.isPresent("array-shape") )
+	return nullptr;
+
+    const auto shapes = hdr.getArray("array-shape");
+    const auto dtypes = hdr.getArray( "content-encoding" );
+    for ( int idx=0; idx<shapes->size(); idx++ )
+    {
+	const TypeSet<double>& shape = shapes->array(idx).valArr().vals();
+	ArrayNDInfo* info = ArrayNDInfoImpl::create( shape.arr(), shape.size());
+	infos += info;
+	types += OD::PythonAccess::getDataType(
+					dtypes->valArr().strings().get(idx) );
+    }
+
+    return interpreter;
 }
 
 

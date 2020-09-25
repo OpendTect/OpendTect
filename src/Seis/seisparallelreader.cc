@@ -1424,8 +1424,7 @@ const ValueSeriesInterpolator<float>&
 	newintpol->extrapol_ = false;
 	newintpol->udfval_ = 0;
 
-	if ( !intpol_.setIfNull(newintpol) )
-	    delete newintpol;
+	intpol_.setIfNull(newintpol,true);
     }
 
     intpol_->maxidx_ = info_.nrsamppertrc_ - 1;

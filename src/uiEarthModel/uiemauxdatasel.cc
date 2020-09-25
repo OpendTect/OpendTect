@@ -30,7 +30,7 @@ uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 }
 
 
-bool uiEMAuxDataSel::butPushCB( CallBacker* )
+void uiEMAuxDataSel::butPushCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Horizon/Attributes Selection"),
                                         uiStrings::sEmptyString(),mNoHelpKey) );
@@ -44,19 +44,18 @@ bool uiEMAuxDataSel::butPushCB( CallBacker* )
     surfacefld->setSelAttributes( attribname );
 
     if ( !dlg.go() )
-	return false;
+	return;
 
     if ( surfacefld->selIOObj() )
-	return false;
+	return;
 
     hormid_ = surfacefld->selIOObj()->key();
     BufferStringSet selattribs;
     surfacefld->getSelAttributes( selattribs );
     if ( selattribs.size() <=0 )
-	return false;
+	return;
 
     auxdatanm_ = selattribs.get( 0 );
-    return true;
 }
 
 

@@ -85,7 +85,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     uiGroup* directionallightgrp = new uiGroup(this,"Directional light group");
     directionallightgrp->attach( alignedBelow,cameralightgrp );
-  
+
     dirintensityfld_ = new uiSlider( directionallightgrp,
 	uiSlider::Setup( tr( "Light intensity (%)" ) ).
 	withedit( true ).nrdec( 1 ).logscale( false ),
@@ -98,7 +98,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     uiLabel* dirlabel=new uiLabel(directionallightgrp,tr("Directional light"));
     dirlabel->attach( centeredAbove,dirintensityfld_ );
-    
+
     const CallBack chgCB( mCB( this,uiDirLightDlg,fieldChangedCB ) );
 
     dipfld_ = new uiSlider( directionallightgrp,
@@ -119,7 +119,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     azimuthfld_->dial()->setInterval( StepInterval<int>( 0,360,5 ) );
     azimuthfld_->setSpacing( 66 );
 
-    showpdfld_ = new uiPushButton( 
+    showpdfld_ = new uiPushButton(
 	directionallightgrp,tr( "Show polar diagram" ),false );
     showpdfld_->attach( centeredBelow,azimuthfld_ );
 
@@ -249,7 +249,7 @@ bool uiDirLightDlg::updateSceneSelector()
 			visserv_->getObject(initinfo_[idx].sceneid_));
 	if ( scene )
 	{
-	    scenenms.add( scene->name() );
+	    scenenms.add( scene->uiName() );
 	    scene->nameChanged.notify(
 		    mCB(this,uiDirLightDlg,sceneNameChangedCB) );
 	}
@@ -460,11 +460,11 @@ void uiDirLightDlg::setDirLight()
 
 	float x = cos( az_rad ) * cos( dip_rad );
 	float y = sin( az_rad ) * cos( dip_rad );
-	float z = sin (dip_rad ); 
-	
+	float z = sin (dip_rad );
+
 	RefMan<visBase::Light> dl = getDirLight( idx );
 
-	// swap the direction sign let it towards to light source 
+	// swap the direction sign let it towards to light source
 	dl->setDirection( -x, -y, -z );
 	dl->setDiffuse( dirintensityfld_->getFValue() / 100 );
     }
@@ -725,7 +725,7 @@ void uiDirLightDlg::sceneNameChangedCB( CallBacker* cb )
     const int offset = initinfo_.size()>1 ? 1 : 0;
     for ( int idx=0; idx<initinfo_.size(); idx++ )
 	if ( scene->id() == initinfo_[idx].sceneid_ )
-	    scenefld_->box()->setItemText( idx+offset, scene->name() );
+	    scenefld_->box()->setItemText( idx+offset, scene->uiName() );
 }
 
 

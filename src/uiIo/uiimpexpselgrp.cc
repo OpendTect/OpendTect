@@ -29,11 +29,11 @@ static const char* rcsID mUsedVar = "";
 #include "color.h"
 #include "ctxtioobj.h"
 #include "file.h"
+#include "ioman.h"
 #include "odver.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "od_iostream.h"
-#include "survinfo.h"
 #include "timefun.h"
 #include "od_helpids.h"
 
@@ -203,9 +203,12 @@ bool getSelGrpSetNames( BufferStringSet& nms )
 
 static SGSelGrpManager* sgm = 0;
 
+struct SGSelGrpManDeleter : public CallBacker
+{
+void doDel( CallBacker* )
+{ delete sgm; sgm = 0; }
+};
 
-struct SGSelGrpManDeleter : public NamedObject
-{ void doDel( CallBacker* ) { delete sgm; sgm = 0; } };
 
 static SGSelGrpManager& SGM()
 {
@@ -213,8 +216,7 @@ static SGSelGrpManager& SGM()
     {
 	sgm = new SGSelGrpManager();
 	mDefineStaticLocalObject( SGSelGrpManDeleter, sgsmd, );
-	const_cast<SurveyInfo&>(SI()).deleteNotify(
-		mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
+	IOM().surveyToBeChanged.notify( mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
     }
 
     return *sgm;
@@ -309,7 +311,7 @@ uiRenameDlg( uiParent* p, const char* nm )
     namefld_->setText( nm );
 }
 
-const char* getName()
+const char* getNewName()
 { return namefld_->text(); }
 
     uiGenInput*			namefld_;
@@ -325,9 +327,9 @@ void uiSGSelGrp::renameSelGrps( CallBacker* )
     if ( dlg.go() )
     {
 	const int idx = nms.indexOf( listfld_->getText() );
-	if ( mIsUdf(idx) || idx < 0 || !dlg.getName() )
+	if ( mIsUdf(idx) || idx < 0 || !dlg.getNewName() )
 	    return;
-	SGM().renameSelGrpSet( listfld_->getText(), dlg.getName() );
+	SGM().renameSelGrpSet( listfld_->getText(), dlg.getNewName() );
 	fillListBox();
     }
 }

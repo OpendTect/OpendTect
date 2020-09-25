@@ -35,7 +35,7 @@ static const PosInfo::Line2DKey udfl2dkey(
 			mUdf(IdxPair::IdxType), mUdf(IdxPair::IdxType) );
 static bool cWriteAscii = false;
 static PosInfo::Survey2D* s2dpos_inst = 0;
-namespace PosInfo { struct Survey2DDeleter : public NamedObject {
+namespace PosInfo { struct Survey2DDeleter : public NamedCallBacker {
 	void doDel( CallBacker* ) { delete s2dpos_inst; s2dpos_inst = 0; } }; }
 
 
@@ -89,7 +89,7 @@ const PosInfo::Survey2D& S2DPOS()
     {
 	s2dpos_inst = new PosInfo::Survey2D;
 	mDefineStaticLocalObject( PosInfo::Survey2DDeleter, s2dd, );
-	const_cast<SurveyInfo&>(SI()).deleteNotify(
+	const_cast<SurveyInfo&>(SI()).objectToBeDeleted().notify(
 			mCB(&s2dd,PosInfo::Survey2DDeleter,doDel) );
     }
     return *s2dpos_inst;

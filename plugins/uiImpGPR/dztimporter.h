@@ -33,13 +33,14 @@ struct FileHeader
 
 			FileHeader();
 
-    bool		getFrom(od_istream&,BufferString&);
+    mDeprecatedDef bool	getFrom(od_istream&,BufferString&);
+    bool		getFrom(od_istream&,uiString&);
     inline bool		isOK() const		{ return nsamp > 0; }
 
     inline int		traceNr( int trcidx ) const
 			{ return nrdef_.atIndex(trcidx); }
     inline int		nrBytesPerSample() const
-    			{ return bits / 8; }
+			{ return bits / 8; }
     inline int		nrBytesPerTrace() const
 			{ return nsamp * nrBytesPerSample(); }
     void		fillInfo(SeisTrcInfo&,int trcidx) const;
@@ -69,7 +70,7 @@ public:
 			~Importer();
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Traces handled"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
 

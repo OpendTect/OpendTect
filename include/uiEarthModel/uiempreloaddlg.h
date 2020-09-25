@@ -41,8 +41,8 @@ mExpClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
 public:
 			uiHorizonPreLoadDlg(uiParent*);
 protected:
-    bool		add3DPushCB(CallBacker*);
-    bool		add2DPushCB(CallBacker*);
+    void		add3DPushCB(CallBacker*);
+    void		add2DPushCB(CallBacker*);
     bool		loadHorizon(bool);
     void		unloadPushCB(CallBacker*);
     void		selCB(CallBacker*);

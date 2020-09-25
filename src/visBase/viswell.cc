@@ -102,7 +102,7 @@ Well::Well()
     {
 	displaytube_[idx]= false;
 	displaylog_[idx] = false;
-	lognames_ += uiString::emptyString();
+	lognames_.add( "" );
     }
     markerset_->addPolygonOffsetNodeState();
 }
@@ -293,29 +293,20 @@ const OD::LineStyle& Well::lineStyle() const
 }
 
 
-void Well::updateText( Text* txt, const uiString& chr, const Coord3* pos,
-		       const FontData& fnt)
+void Well::updateText( Text* vistxt, const char* txt, const Coord3* pos,
+		       const FontData& fnt, bool sizedynamic )
 {
-    updateTextNew( txt, chr, pos, fnt, true );
-}
-
-
-void Well::updateTextNew( Text* txt, const uiString& chr, const Coord3* pos,
-    const FontData& fnt, bool sizedynamic )
-{
-    txt->setText( chr );
-    txt->setFontData( fnt, getPixelDensity() );
-    txt->setPosition( *pos );
-    txt->setCharacterSizeMode( sizedynamic ? Text::Object : Text::Screen );
-    txt->setAxisAlignment( Text::OnScreen );
+    vistxt->setText( toUiString(txt) );
+    vistxt->setFontData( fnt, getPixelDensity() );
+    vistxt->setPosition( *pos );
+    vistxt->setCharacterSizeMode( sizedynamic ? Text::Object : Text::Screen );
+    vistxt->setAxisAlignment( Text::OnScreen );
 }
 
 
 void Well::setWellName( const TrackParams& tp )
 {
-    uiString label =
-	uiStrings::phrJoinStrings( tp.name_, uiStrings::sTrack().toLower() );
-    track_->setName( label );
+    track_->setName( tp.name_ );
 
     if ( welltoptxt_->nrTexts()<1 )
 	 welltoptxt_->addText();
@@ -336,15 +327,13 @@ void Well::setWellName( const TrackParams& tp )
 	crdbot.z = track_->getCoordinates()->getPos( nrpos-1 ).z;
 
     welltoptxt_->text(0)->setJustification( Text::Bottom );
-    updateTextNew( welltoptxt_->text(0),
-		   tp.isdispabove_ ? tp.name_ : uiString::emptyString(),
-		   &crdtop, tp.font_, tp.nmsizedynamic_ );
+    updateText( welltoptxt_->text(0), tp.isdispabove_ ? tp.name_.str() : 0,
+		&crdtop, tp.font_, tp.nmsizedynamic_ );
     welltoptxt_->text(0)->setColor( tp.col_ );
 
     wellbottxt_->text(0)->setJustification( Text::Top );
-    updateTextNew( wellbottxt_->text(0),
-		   tp.isdispbelow_ ? tp.name_ : uiString::emptyString(),
-		   &crdbot, tp.font_, tp.nmsizedynamic_ );
+    updateText( wellbottxt_->text(0), tp.isdispbelow_ ? tp.name_.str() : 0,
+		&crdbot, tp.font_, tp.nmsizedynamic_ );
     wellbottxt_->text(0)->setColor( tp.col_ );
 }
 
@@ -424,8 +413,7 @@ void Well::addMarker( const MarkerParams& mp )
     txt->setColor( mp.namecol_ );
     txt->setJustification( Text::BottomLeft );
 
-    updateTextNew( txt, toUiString(mp.name_), &markerpos,
-		   mp.font_, mp.nmsizedynamic_ );
+    updateText( txt, mp.name_, &markerpos, mp.font_, mp.nmsizedynamic_ );
 
     return;
 }
@@ -601,8 +589,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
     showLog( showlogs_, lp.side_ );
 
     displaylog_[(int)lp.side_] = true;
-    lognames_[(int)lp.side_] = lp.name_;
-
+    lognames_.get( (int)lp.side_ ) = lp.name_;
 }
 
 
@@ -910,16 +897,17 @@ bool Well::hasLog( Side side ) const
 }
 
 
-uiString Well::getLogName( Side side ) const
+BufferString Well::getLogName( Side side ) const
 {
     if ( displaylog_[(int)side] )
-	return lognames_[(int)side];
+	return lognames_.get( (int)side );
 
-    return uiString::emptyString();
+    return BufferString::empty();
 }
 
 void Well::showLogName( bool yn )
-{}
+{
+}
 
 
 bool Well::logNameShown() const

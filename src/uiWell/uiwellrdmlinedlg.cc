@@ -149,9 +149,8 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	    }
 	    selwellstbl_->setText( RowCol(emptyrow,0),
 				   wellsbox_->textOfItem(idx));
-	    uiComboBox* box = new uiComboBox( 0, "Type" );
+	    uiComboBox* box = new uiComboBox( 0, sTypes, "Type" );
 	    selwellstbl_->setCellObject( RowCol(emptyrow,1), box );
-	    box->addItems( sTypes );
 	    box->setValue( 0 );
 	    wellsbox_->removeItem(idx);
 	    lastusedidx = idx;
@@ -281,8 +280,7 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 #define mInsertRow(rowidx,text,val)\
 	selwellstbl_->insertRows( rowidx, 1 );\
 	selwellstbl_->setText( RowCol(rowidx,0), text );\
-	uiComboBox* newbox = new uiComboBox(0,"Type"); \
-	newbox->addItems( sTypes ); \
+	uiComboBox* newbox = new uiComboBox(0,sTypes,"Type"); \
 	newbox->setValue( val ); \
 	selwellstbl_->setCellObject( RowCol(rowidx,1), newbox );
 

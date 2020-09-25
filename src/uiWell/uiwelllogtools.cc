@@ -334,13 +334,10 @@ void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 }
 
 
-bool uiWellLogToolWin::acceptOK( CallBacker* )
+void uiWellLogToolWin::acceptOK( CallBacker* )
 {
-    if ( savefld_ && !saveLogs() )
-	return false;
-
+    closeok_ = savefld_ ? saveLogs() : true;
     close();
-    return true;
 }
 
 
@@ -381,10 +378,10 @@ bool uiWellLogToolWin::saveLogs()
 }
 
 
-bool uiWellLogToolWin::rejectOK( CallBacker* )
+void uiWellLogToolWin::rejectOK( CallBacker* )
 {
+    closeok_ = true;
     close();
-    return true;
 }
 
 
@@ -597,15 +594,15 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
-    BufferString mdlbl( "MD " );
-    mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
-    BufferString loglbl( log_.name() );
-    BufferString uomstr = log_.unitOfMeasure() ? log_.unitOfMeasure()->symbol()
-					       : log_.unitMeasLabel();
-    if ( !uomstr.isEmpty() )
-	loglbl.add( " (" ).add( uomstr.buf() ).add( ")" );
+    uiString mdlbl = toUiString("MD %1").arg(toUiString(SI().xyUnit()) );
+    uiString loglbl = toUiString(log_.name());
+    const uiString uomlbl = log_.unitOfMeasure()
+			  ? mToUiStringTodo( log_.unitOfMeasure()->symbol() )
+			  : mToUiStringTodo( log_.unitMeasLabel() );
+    if ( !uomlbl.isEmpty() )
+	loglbl = toUiString("%1 (%2)").arg(loglbl).arg(uomlbl);
 
-    BufferStringSet colnms; colnms.add(mdlbl).add(loglbl);
+    uiStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );
 
     fillTable();

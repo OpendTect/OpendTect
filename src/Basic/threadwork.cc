@@ -7,9 +7,11 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "threadwork.h"
+
+#include "sighndl.h"
 #include "task.h"
 #include "thread.h"
-#include "sighndl.h"
+
 #include <signal.h>
 
 
@@ -18,7 +20,6 @@ namespace Threads
 
 const Threads::WorkManager* thetwm = 0;
 static Threads::Atomic<int> freetwmid( 0 );
-
 
 static void shutdownTWM()
 {
@@ -33,11 +34,7 @@ Threads::WorkManager& WorkManager::twm()
     {
 	Threads::WorkManager* newtwm =
 	    new Threads::WorkManager( Threads::getNrProcessors()*2 );
-	if ( !twm_.setIfNull( newtwm ) )
-	{
-	    delete newtwm;
-	}
-	else
+	if ( twm_.setIfNull( newtwm,true ) )
 	{
 	    thetwm = newtwm;
 	    NotifyExitProgram( &shutdownTWM );
@@ -49,14 +46,15 @@ Threads::WorkManager& WorkManager::twm()
 
 
 class SimpleWorker : public CallBacker
-{
+{ mODTextTranslationClass(SimpleWorker)
 public:
 			SimpleWorker() : exitstatus_( false )	{}
     virtual		~SimpleWorker()				{}
 
-    void		runWork(Work& w,CallBack* cb)
+    void		runWork( Work& work, CallBack* cb )
 			{
-			    exitstatus_ = w.doRun();
+			    exitstatus_ = work.execute();
+			    fillMessage( work );
 			    if ( cb ) cb->doCall( this );
 			}
 
@@ -65,8 +63,15 @@ public:
 			     i.e. from the cb or
 			     Threads::WorkManager::imFinished()
 			*/
+    uiString		errMsg() const		{ return msg_; }
+
 protected:
+
+    void		fillMessage( const ::Threads::Work& work )
+			{ msg_ = work.errMsg(); }
+
     bool		exitstatus_;
+    uiString		msg_;
 };
 
 
@@ -93,9 +98,9 @@ public:
 			//!< regardless of which task we are working on
     const ::Threads::Work* getTask() const { return &task_; }
 
-    const void*		threadID() const { return thread_->threadID(); }
+    Threads::ThreadID	threadID() const { return thread_->threadID(); }
 
-protected:
+private:
 
     void		doWork(CallBacker*);
     void		exitWork(CallBacker*);
@@ -112,7 +117,6 @@ protected:
 
     Thread*		thread_;
 
-private:
     long		spacefiller_[24];
 };
 
@@ -120,7 +124,8 @@ private:
 
 
 Threads::WorkThread::WorkThread( WorkManager& man )
-    : manager_( man )
+    : SimpleWorker()
+    , manager_( man )
     , controlcond_( *new Threads::ConditionVar )
     , thread_( 0 )
     , queueid_( -1 )
@@ -128,9 +133,9 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     , cancelflag_( false )
 {
     spacefiller_[0] = 0; //to avoid warning of unused
-    
+
     //controlcond_.lock();
-    // No need to lock here, as object is fully setup, and 
+    // No need to lock here, as object is fully setup, and
     // since we are in the constructor, no-one knows aout us
     //
     const BufferString name( "TWM ", toString( man.twmid_ ) );
@@ -158,7 +163,6 @@ Threads::WorkThread::~WorkThread()
 
 	thread_->waitForFinish();
 	delete thread_;
-	thread_ = 0;
     }
 
     delete &controlcond_;
@@ -193,22 +197,22 @@ void Threads::WorkThread::doWork( CallBacker* )
 	while ( task_.isOK() && !exitflag_ )
 	{
 	    controlcond_.unLock(); //Allow someone to set the exitflag
-	    bool retval = cancelflag_ ? false : task_.doRun();
+	    const bool retval = cancelflag_ ? false : task_.execute();
 	    controlcond_.lock();
 	    exitstatus_ = retval;
-
+	    fillMessage( task_ );
 	    finishedcb_.doCall( this );
 	    manager_.workloadcond_.lock();
 	    bool isidle = false;
 
-	    task_ = 0;
+	    task_ = Threads::Work();
 
 	    const int idx =
 		manager_.reportFinishedAndAskForMore( this, queueid_ );
 	    if ( idx==-1 )
 	    {
 		queueid_ = -1;
-		finishedcb_ = CallBack(0,0);
+		finishedcb_ = CallBack();
 		isidle = true;
 	    }
 	    else
@@ -259,7 +263,7 @@ void Threads::WorkThread::assignTask(const ::Threads::Work& newtask,
     if ( task_.isOK() )
     {
 	pErrMsg( "Trying to set existing task");
-	::Threads::Work taskcopy = newtask;
+	::Threads::Work taskcopy( newtask );
 	taskcopy.destroy();
 	controlcond_.unLock();
 	return;
@@ -281,7 +285,6 @@ Threads::WorkManager::WorkManager( int nrthreads )
     , isShuttingDown( this )
     , freeid_( cDefaultQueueID() )
     , twmid_( freetwmid++ )
-    , quickstop_(false)
 {
     addQueue( MultiThread, "Default queue" );
 
@@ -304,7 +307,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
 
 Threads::WorkManager::~WorkManager()
 {
-    if ( this==thetwm && queueids_.size() && !quickstop_ )
+    if ( this==thetwm && queueids_.size() )
     {
 	pErrMsg("Default queue is not empty. "
 		"Please call twm().shutdown() before exiting main program,"
@@ -319,25 +322,9 @@ Threads::WorkManager::~WorkManager()
 
 void Threads::WorkManager::shutdown()
 {
-    if ( quickstop_ )
-	return;
-
     isShuttingDown.trigger();
 
-    if ( queueids_.size()>1 )
-    {
-	BufferString msg("Not all queues were removed. Remaining queues: ");
-	for ( int idx=1; idx<queueids_.size(); idx++ )
-	{
-	    if ( idx>1 )
-		msg.add( ", " );
-	    msg.add( queuenames_[idx]->buf() );
-	}
-
-	pErrMsg( msg.buf() );
-    }
-
-    while ( queueids_.size() )
+    while ( !queueids_.isEmpty() )
 	removeQueue( queueids_[0], false );
 
     deepErase( threads_ );
@@ -377,7 +364,7 @@ bool Threads::WorkManager::executeQueue( int queueid )
     while ( true )
     {
 	::Threads::Work task;
-	CallBack cb(0,0);
+	CallBack cb;
 	for ( int idx=0; idx<workload_.size(); idx++ )
 	{
 	    if ( workqueueid_[idx]==queueid )
@@ -398,7 +385,7 @@ bool Threads::WorkManager::executeQueue( int queueid )
 	queueworkload_[queueidx]++;
 	lock.unLock();
 
-	if ( !task.doRun() )
+	if ( !task.execute() )
 	    success = false;
 
 	cb.doCall( 0 );
@@ -524,7 +511,7 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
 }
 
 #define mRunTask \
-    ::Threads::Work taskcopy = newtask; \
+    ::Threads::Work taskcopy( newtask ); \
     SimpleWorker sw; \
     sw.runWork( taskcopy, cb )
 
@@ -544,14 +531,14 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
     }
 
-    const CallBack thecb( cb ? *cb : CallBack(0,0) );
+    const CallBack thecb( cb ? *cb : CallBack() );
 
     Threads::MutexLocker lock(workloadcond_);
     int queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 || queueisclosing_[queueidx] )
     {
 	pErrMsg("Queue does not exist or is closing. Task rejected." );
-	::Threads::Work taskcopy = newtask;
+	::Threads::Work taskcopy( newtask );
 	taskcopy.destroy();
 	return;
     }
@@ -627,17 +614,28 @@ bool Threads::WorkManager::removeWork( const ::Threads::Work& task )
 }
 
 
-const ::Threads::Work* Threads::WorkManager::getWork(CallBacker* cb) const
+const ::Threads::Work* Threads::WorkManager::getWork( CallBacker* cb ) const
 {
     mDynamicCastGet( ::Threads::WorkThread*, wthread, cb );
     return wthread ?  wthread->getTask() : 0;
 }
 
 
-bool Threads::WorkManager::getWorkExitStatus(CallBacker* cb) const
+bool Threads::WorkManager::getWorkExitStatus( CallBacker* cb ) const
 {
     mDynamicCastGet( ::Threads::WorkThread*, wthread, cb );
     return wthread ?  wthread->getExitStatus() : false;
+}
+
+
+uiString Threads::WorkManager::uiMessage( CallBacker* cb ) const
+{
+    uiString res;
+    mDynamicCastGet( ::Threads::WorkThread*, wthread, cb );
+    if ( wthread && !wthread->getExitStatus() )
+	res = wthread->errMsg();
+
+    return res;
 }
 
 
@@ -699,7 +697,7 @@ bool Threads::WorkManager::executeWork( Threads::Work* workload,
     {
 	for ( int idx=0; idx<workloadsize; idx++ )
 	{
-	    if ( workload[idx].doRun() )
+	    if ( workload[idx].execute() )
 		continue;
 
 	    res = false;
@@ -715,7 +713,7 @@ bool Threads::WorkManager::executeWork( Threads::Work* workload,
 	for ( int idx=1; idx<workloadsize; idx++ )
 	    addWork( workload[idx], &cb, queueid, firstinline );
 
-	res = workload[0].doRun();
+	res = workload[0].execute();
 
 	resultman.rescond_.lock();
 	while ( !resultman.isFinished() )

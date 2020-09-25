@@ -22,9 +22,9 @@ namespace Threads { class ConditionVar; }
 
 
 /*!\brief Generalization of something (e.g. a computation) that needs to be
-	done in multiple steps.  */
+	done in multiple steps. */
 
-mExpClass(Basic) Task : public NamedObject
+mExpClass(Basic) Task : public NamedCallBacker
 { mODTextTranslationClass(Task);
 public:
 
@@ -33,6 +33,8 @@ public:
     virtual void	setProgressMeter(ProgressMeter*)	{}
 			//!<Must be called before execute()
 
+    virtual uiString	uiMessage() const; //!< will be message() again in 7.x
+    virtual uiString	uiNrDoneText() const; //!< will be nrDoneText() in 7.x
     virtual od_int64	nrDone() const			{ return -1; }
 			/*!<\note nrDone is only used for displaying progress
 				  and will be compared to totalNr to show
@@ -42,14 +44,13 @@ public:
     virtual od_int64	totalNr() const			{ return -1; }
 			/*!\note totalNr is only used for displaying
 				 progress. */
+    virtual uiRetVal	errorWithDetails() const { return uiRetVal(uiMessage()); }
 
-    virtual uiString	uiMessage() const; //!< will be message() again in 7.x
-    virtual uiString	uiNrDoneText() const; //!< will be nrDoneText() in 7.x
     static uiString	stdNrDoneText() { return tr("Nr Done"); }
     static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
 			//< will disappear
 
-    virtual bool	execute()			= 0;
+    virtual bool	execute()		= 0;
 
     enum Control	{ Run, Pause, Stop };
     virtual void	enableWorkControl(bool=true);

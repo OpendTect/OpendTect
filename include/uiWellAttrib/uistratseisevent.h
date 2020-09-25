@@ -43,7 +43,7 @@ public:
     bool		getFromScreen();
     void		setLevel(const char* lvlnm);
     void		putToScreen();
-    const char*		levelName() const;
+    BufferString	levelName() const;
     bool		doAllLayers() const;
     bool		hasExtrWin() const;
     bool		hasStep() const;

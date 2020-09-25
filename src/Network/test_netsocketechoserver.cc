@@ -41,7 +41,7 @@ public:
     ~EchoServer()
     {
 	detachAllNotifiers();
-	CallBack::removeFromMainThread( this );
+	CallBack::removeFromThreadCalls( this );
     }
 
     void dataArrivedCB( CallBacker* cb )

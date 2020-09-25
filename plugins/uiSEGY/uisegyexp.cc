@@ -50,17 +50,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 
-static const char* txtheadtxt =
-"Define the SEG-Y text header. Note that:"
-"\n- The Cnn line start and Rev.1 indicators will always be retained"
-"\n- You can only define 40 lines of 80 characters";
-
 class uiSEGYExpTxtHeaderDlg : public uiDialog
 { mODTextTranslationClass(uiSEGYExpTxtHeaderDlg);
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),txtheadtxt,
+    : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),uiSEGYExp::sTxtHeadTxt(),
 			mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
@@ -235,9 +230,9 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     if ( is2dline )
     {
-	morebox_ = new uiCheckBox( this,
-		    uiStrings::phrExport( "more lines from the same dataset"),
-		    mCB(this,uiSEGYExp,showSubselCB) );
+	morebox_ = new uiCheckBox( this, uiStrings::phrExport(
+				    tr("more lines from the same dataset")),
+				    mCB(this,uiSEGYExp,showSubselCB) );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
@@ -333,11 +328,11 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     newfnm += "_"; newfnm += inioobj_.name();
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
-    BufferString txt( "Output (Line name replaces '" );
-    txt += uiSEGYFileSpec::sKeyLineNmToken(); txt += "')";
+     uiString txt( tr("Output (Line name replaces '%1'")
+			.arg(uiSEGYFileSpec::sKeyLineNmToken()) );
 
     uiFileInput::Setup fisu( fp.fullPath() );
-    fisu.forread( false ).objtype( tr("SEG-Y") );
+    fisu.objtype( uiStrings::sSEGY() ).forread( false );
     fnmfld_ = new uiFileInput( this, txt, fisu );
     fnmfld_->attach( alignedBelow, lnmsfld_ );
 }

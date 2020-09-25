@@ -40,12 +40,12 @@ void SurfaceIOData::clear()
 {
     rg.init(false);
     dbinfo = "";
-    deepErase(valnames);
-    deepErase(sections);
-    deepErase(linenames);
-    deepErase(linesets);
-    geomids.erase();
-    trcranges.erase();
+    valnames.setEmpty();
+    sections.setEmpty();
+    linenames.setEmpty();
+    linesets.setEmpty();
+    geomids.setEmpty();
+    trcranges.setEmpty();
 }
 
 

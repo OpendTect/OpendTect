@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
+#include "uistrings.h"
 
 class OwnedProducerList : public ObjectSet<const IOObjProducer>
 {
@@ -301,6 +302,38 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
 	ret = dpar->findKeyFor( ky );
     delete dpar;
     return ret;
+}
+
+
+#define mQuotedName toUiString(name()).quote(true)
+
+uiString IOObj::phrCannotOpenObj() const
+{
+    return uiStrings::phrCannotOpen( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotReadObj() const
+{
+    return uiStrings::phrCannotRead( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotLoadObj() const
+{
+    return uiStrings::phrCannotLoad( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotWriteObj() const
+{
+    return uiStrings::phrCannotWrite( mQuotedName );
+}
+
+
+uiString IOObj::phrCannotWriteToDB() const
+{
+    return uiStrings::phrCannotWriteDBEntry( mQuotedName );
 }
 
 

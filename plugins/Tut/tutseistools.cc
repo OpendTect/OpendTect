@@ -6,16 +6,17 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "trckeyzsampling.h"
 #include "tutseistools.h"
-#include "seisread.h"
-#include "seiswrite.h"
+
+#include "ioobj.h"
 #include "seisioobjinfo.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "ioobj.h"
-#include "bufstring.h"
+#include "seiswrite.h"
+#include "trckeyzsampling.h"
+#include "uistrings.h"
 
 
 
@@ -65,9 +66,7 @@ void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
 
 uiString Tut::SeisTools::uiMessage() const
 {
-    static const char* acts[] = { "Scaling", "Squaring", "Smoothing",
-				  "Changing" };
-    return errmsg_.isEmpty() ? acts[action_] : errmsg_;
+    return errmsg_.isEmpty() ? uiStrings::sProcessing() : errmsg_;
 }
 
 
@@ -81,7 +80,7 @@ od_int64 Tut::SeisTools::totalNr() const
 	if ( ioobjinfo.getDefSpaceInfo(spinf) )
 	    totnr_ = spinf.expectednrtrcs;
     }
-	
+
     return totnr_ < 0 ? -1 : totnr_;
 }
 
@@ -118,7 +117,7 @@ int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
 	return createReader() ? Executor::MoreToDo()
-	    		      : Executor::ErrorOccurred();
+			      : Executor::ErrorOccurred();
 
     int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
@@ -172,7 +171,7 @@ void Tut::SeisTools::handleTrace()
 
     case Smooth: {
 	const int sgate = weaksmooth_ ? 3 : 5;
-	const int sgate2 = sgate/2; 
+	const int sgate2 = sgate/2;
 	for ( int icomp=0; icomp<trcin_.nrComponents(); icomp++ )
 	{
 	    for ( int idx=0; idx<trcin_.size(); idx++ )

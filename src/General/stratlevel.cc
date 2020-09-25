@@ -36,8 +36,7 @@ const Level& Level::undef()
 	newlvl->id_ = -1;
 	newlvl->color_ = Color::Black();
 
-	if ( !lvl.setIfNull(newlvl) )
-	    delete newlvl;
+	lvl.setIfNull(newlvl,true);
     }
     return *lvl;
 }
@@ -124,7 +123,7 @@ void setLVLS( LevelSet* ls )
 
 
 Level::Level( const char* nm, const LevelSet* ls )
-    : NamedObject(nm)
+    : NamedCallBacker(nm)
     , id_(-1)
     , lvlset_(ls)
     , pars_(*new IOPar)
@@ -135,7 +134,7 @@ Level::Level( const char* nm, const LevelSet* ls )
 
 
 Level::Level( const Level& oth )
-    : NamedObject(oth)
+    : NamedCallBacker(oth)
     , id_(-1)
     , color_(oth.color_)
     , pars_(*new IOPar(oth.pars_))
@@ -561,7 +560,7 @@ BufferString getStdFileName( const char* inpnm, const char* basenm )
 
 void LevelSet::getStdNames( BufferStringSet& nms )
 {
-    DirList dl( getStdFileName(0,0), DirList::FilesOnly, "Levels.*" );
+    DirList dl( getStdFileName(0,0), File::FilesInDir, "Levels.*" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );

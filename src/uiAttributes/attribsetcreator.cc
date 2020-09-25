@@ -132,7 +132,7 @@ void cubeSel( CallBacker* cb )
     cursel->commitInput();
     const IOObj* ioobj = cursel->ctxtIOObj().ioobj_;
     if ( !ioobj ) return;
-    int curidx = indexOf( sels, cursel );
+    int curidx = sels.indexOf( cursel );
     if ( curidx >= nrindir ) return;
 
     IOPar iopar;

@@ -56,7 +56,7 @@ public:
 				//!<Returns false if it was not added.
 
     static bool			loadTranslations();
-    				/*!<Can be called from executables to load
+				/*!<Can be called from executables to load
 				    The dGBCommon plugin, wich loads all
 				    languages. */
 

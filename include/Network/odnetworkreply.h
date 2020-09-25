@@ -53,10 +53,10 @@ protected:
 
     friend class QNetworkReplyConn;
 
-    bool			errorOccurred(CallBacker*);
-    bool			finish(CallBacker*);
-    bool			dataAvailable(CallBacker*);
-    bool			uploadStatus(CallBacker*);
+    void			errorOccurred(CallBacker*);
+    void			finish(CallBacker*);
+    void			dataAvailable(CallBacker*);
+    void			uploadStatus(CallBacker*);
 
     od_int64			bytesuploaded_;
     od_int64			totalbytestoupload_;

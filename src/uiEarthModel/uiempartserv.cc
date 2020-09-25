@@ -487,8 +487,11 @@ const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 uiString uiEMPartServer::getUiName( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject( emid );
-    if ( emobj && !emobj->uiName().isEmpty() )
-    return emobj->uiName();
+    if ( emobj )
+    {
+	const uiString uiobjnm = toUiString( emobj->name() );
+	return uiobjnm.isEmpty() ? uiString::emptyString() : uiobjnm;
+    }
 
     return uiString::emptyString();
 }

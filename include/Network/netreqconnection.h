@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 #include "networkcommon.h"
 
-#include "thread.h"
-
+class QEventLoop;
 
 namespace Network
 {
@@ -22,6 +21,7 @@ namespace Network
 class Server;
 class Socket;
 class RequestPacket;
+struct PacketSendData;
 
 
 /*\brief
@@ -52,7 +52,8 @@ public:
 
 			~RequestConnection();
 
-    bool		isOK() const;
+    bool		isOK() const;		//!< is the conn usable?
+    bool		stillTrying() const;	//!< if not OK, may it become?
     BufferString	server() const;
     PortNr_Type		port() const;
     int			ID() const		{ return id_; }
@@ -63,13 +64,13 @@ public:
 			    'multithreaded' flag was set on constructor.
 			*/
 
-    RequestPacket*	pickupPacket(od_int32 reqid,int timeout /* in ms */,
-				     int* errorcode=0);
+    RefMan<RequestPacket> pickupPacket(od_int32 reqid,int timeout /* in ms */,
+				     int* errorcode=nullptr);
 			/*!<Must be called from same thread as construcor unless
 			    'multithreaded' flag was set on constructor.
 			*/
 
-    RequestPacket*	getNextExternalPacket();
+    RefMan<RequestPacket> getNextExternalPacket();
 
     static int		cInvalidRequest()	{ return 1; }
     static int		cTimeout()		{ return 2; }
@@ -87,9 +88,6 @@ private:
 
     mutable uiString		errmsg_;
 
-    enum ThreadReadStatus	{ None, TryRead, ReadOK, ReadFail };
-    ThreadReadStatus		threadreadstatus_;
-
     TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;
 
@@ -98,23 +96,20 @@ private:
     int				timeout_;
     bool			ownssocket_;
 
-    const RequestPacket*	packettosend_;
-    bool			sendwithwait_;
-    bool			sendresult_;
-    bool			sendingfinished_;
-    bool			triggerread_;
-
     int				id_;
 
     Authority*			authority_ = nullptr;
 
-    Threads::Thread*		socketthread_;
-    void			socketThreadFunc(CallBacker*);
-    bool			stopflag_;
-    bool			readfirst_;
+    Threads::Thread*		socketthread_	= nullptr;
+    QEventLoop*			eventloop_	= nullptr;
+    Threads::ConditionVar*	eventlooplock_	= nullptr;
 
-    void			connectToHost();
-    void			flush();
+    ObjectSet<PacketSendData>	sendqueue_;
+    void			sendQueueCB(CallBacker*);
+				//Called from socketthread
+
+    void			socketThreadFunc(CallBacker*);
+    void			connectToHost( bool witheventloop );
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);
@@ -125,9 +120,11 @@ private:
     bool			readFromSocket();
     bool			writeToSocket();
 
-    Network::RequestPacket*	readConnection(int);
-    Network::RequestPacket*	getNextAlreadyRead(int);
+    RefMan<RequestPacket>	getNextAlreadyRead(int);
     void			requestEnded(od_int32);
+
+    friend struct		PacketSendData;
+    friend class		RequestConnectionSender;
 };
 
 

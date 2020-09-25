@@ -234,18 +234,27 @@ void uiVisPartServer::mouseCursorCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::setObjectName( int id, const uiString& nm )
+void uiVisPartServer::setUiObjectName( int id, const uiString& nm )
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
-    if ( obj ) obj->setName( nm );
+    if ( obj )
+	obj->setUiName( nm );
 }
 
 
-uiString uiVisPartServer::getObjectName( int id ) const
+void uiVisPartServer::setObjectName( int id, const char* nm )
+{
+    visBase::DataObject* obj = visBase::DM().getObject( id );
+    if ( obj )
+	obj->setName( nm );
+}
+
+
+uiString uiVisPartServer::getUiObjectName( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
     if ( !obj ) return uiString::emptyString();
-    return obj->name();
+    return obj->uiName();
 }
 
 
@@ -1722,7 +1731,7 @@ void uiVisPartServer::removeSelection()
 
 	uiString msg = tr("Are you sure you want to \n"
 			  "remove selected part of %1?")
-		     .arg(getObjectName( selobjectid ));
+		     .arg(getUiObjectName( selobjectid ));
 
 	if ( uiMSG().askContinue(msg) )
 	{

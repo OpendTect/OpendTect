@@ -91,7 +91,7 @@ void uiMadagascarMain::createToolBar()
     uiToolBar* toolbar = new uiToolBar( this, tr("Flow tools") );
     mAddButton( "new", newFlow, tr("Empty this flow") );
     mAddButton( "open", openFlow, tr("Open saved flow") );
-    mAddButton( "save", saveFlow, tr("Save flow") );
+    mAddButton( "save", saveFlowCB, tr("Save flow") );
     mAddButton( "export", exportFlow, uiStrings::phrExport( tr("flow")) );
 }
 
@@ -260,7 +260,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg;
+	uiString emsg;
 	deepErase( procflow_ );
 	procsfld_->setEmpty();
 	if ( !ODMadProcFlowTranslator::retrieve(procflow_,ctio_.ioobj_,emsg) )
@@ -281,7 +281,13 @@ void uiMadagascarMain::openFlow( CallBacker* )
 }
 
 
-bool uiMadagascarMain::saveFlow( CallBacker* )
+void uiMadagascarMain::saveFlowCB( CallBacker* )
+{
+    saveFlow();
+}
+
+
+bool uiMadagascarMain::saveFlow()
 {
     ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio_ );
@@ -289,7 +295,7 @@ bool uiMadagascarMain::saveFlow( CallBacker* )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    BufferString emsg;
+    uiString emsg;
     if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj_,emsg) )
 	mErrRet( emsg )
 
@@ -310,7 +316,7 @@ bool uiMadagascarMain::askSave( bool withcancel )
     if ( ret < 0 ) return false;
     if ( !ret ) return true;
 
-    const bool saved = saveFlow( 0 );
+    const bool saved = saveFlow();
     return withcancel ? saved : true;
 }
 
@@ -318,9 +324,8 @@ bool uiMadagascarMain::askSave( bool withcancel )
 void uiMadagascarMain::updateCaption()
 {
     const char* flowname = procflow_.name();
-    BufferString cptn( "Madagascar processing   [" );
-    cptn += flowname && *flowname ? flowname : "New Flow";
-    cptn += "]";
+    const uiString cptn = tr("Madagascar processing [%1]")
+        .arg( flowname && *flowname ? flowname : "New Flow" );
     setCaption( cptn );
 }
 
