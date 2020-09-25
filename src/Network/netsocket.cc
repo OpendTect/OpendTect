@@ -100,6 +100,17 @@ bool Network::Socket::connectToHost( const Authority& auth, bool wait )
 
     if ( isLocal() )
     {
+	if ( !qlocalsocket_ || !auth.isLocal() )
+	{
+	    if ( !qlocalsocket_ )
+		pErrMsg("There should be a local socket");
+	    errmsg_ = tr("Trying to connect to the local server '%1' with a TCP"
+			 " authority: %2")
+			.arg( qlocalsocket_ ? qlocalsocket_->serverName() : "" )
+			.arg( auth.toString() );
+	    return false;
+	}
+
 	const QLocalSocket::LocalSocketState state = qlocalsocket_->state();
 	if ( state != QLocalSocket::UnconnectedState )
 	{
@@ -111,6 +122,19 @@ bool Network::Socket::connectToHost( const Authority& auth, bool wait )
     }
     else
     {
+	if ( !qtcpsocket_ || auth.isLocal() )
+	{
+	    if ( !qtcpsocket_ )
+		pErrMsg("There should be a TCP socket");
+	    errmsg_ = tr("Trying to connect to the TCP server '%1:%2' with a "
+			 "local authority: %3")
+			.arg( qtcpsocket_ ? qtcpsocket_->peerName() : "" )
+			.arg( qtcpsocket_ ? qtcpsocket_->peerPort() : 0 )
+			.arg( auth.toString() );
+	    return false;
+	    return false;
+	}
+
 	const QAbstractSocket::SocketState state = qtcpsocket_->state();
 	if ( state != QAbstractSocket::UnconnectedState )
 	{
@@ -160,7 +184,7 @@ bool Network::Socket::disconnectFromHost( bool wait )
     if ( res )
 	disconnected.trigger();
     else
-	errmsg_.setFrom( getSocketErrMsg() );
+	errmsg_.appendPhrase( toUiString(getSocketErrMsg()) );
 
     return res;
 }
