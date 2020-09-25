@@ -61,7 +61,7 @@ public:
 
 bool TestRunner::testNetSocket( bool closeserver )
 {
-    Network::Socket connection( false, !noeventloop_ );
+    Network::Socket connection( authority_.isLocal(), !noeventloop_ );
     connection.setTimeout( timeout_ );
 
     const Network::Authority nonexisting( "non_existing_host",
