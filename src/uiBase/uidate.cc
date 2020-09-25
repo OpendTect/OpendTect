@@ -60,7 +60,7 @@ DateInfo uiCalendar::getDate() const
 uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     : uiGroup( p )
     , changed(this)
-    , label_( !label.isEmpty() ? new uiLabel( this, label ) : 0 )
+    , label_( !label.isEmpty() ? new uiLabel( this, label ) : nullptr )
 {
     dayfld_ = new uiComboBox( this,
 		    BufferStringSet(DateInfo::sAllDaysInMonth()), 0 );

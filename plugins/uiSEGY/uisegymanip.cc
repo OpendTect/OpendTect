@@ -195,8 +195,8 @@ void doDlg( CallBacker* )
 
 
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
-    : uiDialog(p,uiDialog::Setup(tr("Edit SEG-Y File"),
-				  tr("Edit '%1'").arg(fnm),
+    : uiDialog(p,uiDialog::Setup(tr("Manipulate SEG-Y File"),
+				  tr("Manipulate '%1'").arg(fnm),
 				  mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
     , txthdr_(*new TxtHeader)
@@ -364,13 +364,13 @@ bool uiSEGYFileManip::openInpFile()
 	{ errmsg_ = uiStrings::phrCannotOpenInpFile(); return false; }
 
     if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
-	{
+    {
 	errmsg_ = tr("Input file is too small to be a SEG-Y file:\n"
 	          "Cannot fully read the text header"); return false;
-	}
+    }
     char buf[SegyBinHeaderLength];
     if ( !strm().getBin( buf, SegyBinHeaderLength ) )
-	{
+    {
 	errmsg_ = tr("Input file is too small to be a SEG-Y file:\n"
 		  "Cannot read full binary header"); return false;
     }

@@ -301,8 +301,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 				    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
 
     uiFileSel::Setup fssu( fp.fullPath() );
-    fssu.objtype( uiStrings::sSEGY() )
-	.setForWrite();
+    fssu.objtype( uiStrings::sSEGY() ).setForWrite();
     fnmfld_ = new uiFileSel( this, txt, fssu );
     fnmfld_->attach( alignedBelow, lnmsfld_ );
 }

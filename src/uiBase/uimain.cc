@@ -248,12 +248,14 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-const uiFont* uiMain::font_ = 0;
-QApplication* uiMain::app_ = 0;
-uiMain*	uiMain::themain_ = 0;
-KeyboardEventHandler* uiMain::keyhandler_ = 0;
-KeyboardEventFilter* uiMain::keyfilter_ = 0;
-QtTabletEventFilter* uiMain::tabletfilter_ = 0;
+const uiFont* uiMain::font_ = nullptr;
+QApplication* uiMain::app_ = nullptr;
+uiMain*	uiMain::themain_ = nullptr;
+
+KeyboardEventHandler* uiMain::keyhandler_ = nullptr;
+KeyboardEventFilter* uiMain::keyfilter_ = nullptr;
+QtTabletEventFilter* uiMain::tabletfilter_ = nullptr;
+
 static const uiString dontchange( toUiString("-") );
 
 
@@ -333,7 +335,7 @@ static const char* getStyleFromSettings()
 	return "cleanlooks";
 #endif
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -554,7 +556,7 @@ int uiMain::exec()
 
 void* uiMain::thread()
 {
-    return qApp ? qApp->thread() : 0;
+    return qApp ? qApp->thread() : nullptr;
 }
 
 

@@ -62,7 +62,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, tr("Intersection with "),
-				 BoolInpSpec("true", tr("Z Slice"),
+				 BoolInpSpec(true, tr("Z Slice"),
 				 uiStrings::sHorizon()) );
     optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );

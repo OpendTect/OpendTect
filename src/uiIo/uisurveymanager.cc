@@ -164,8 +164,7 @@ static ObjectSet<uiSurveyManager::Util>& getUtils()
 		od_static_tr("getUtils","Copy Survey Information to ClipBoard"),
 		CallBack() );
 
-	if ( !utils.setIfNull(newutils,true) )
-	    delete newutils;
+	utils.setIfNull(newutils,true);
     }
 
     return *utils;

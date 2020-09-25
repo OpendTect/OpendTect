@@ -40,55 +40,6 @@ int ODGMTProcFlowTranslatorGroup::selector( const char* key )
 
 
 bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
-					BufferString& errmsg )
-{
-    if ( !ioobj )
-	{ errmsg = "Cannot find flow object in data base"; return false; }
-    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr )
-	{ errmsg = "Selected object is not a GMT flow"; return false; }
-
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-        errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(true) );
-    else
-	errmsg = mFromUiStringTodo(tr->read( pf, *conn ));
-
-    return errmsg.isEmpty();
-}
-
-
-bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
-				     const IOObj* ioobj, BufferString& errmsg )
-{
-    if ( !ioobj )
-	{ errmsg = "No object to store flow in data base"; return false; }
-    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
-		 ioobj->createTranslator());
-
-    if ( !tr )
-	{ errmsg = "Selected object is not a GMT flow"; return false; }
-
-    errmsg.setEmpty();
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-        errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(false) );
-    else
-	errmsg = mFromUiStringTodo(tr->write( pf, *conn ));
-
-    if ( !errmsg.isEmpty() )
-    {
-	if ( conn )
-	    conn->rollback();
-	return false;
-    }
-
-    return true;
-}
-
-
-bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
 					uiString& str )
 {
     if ( !ioobj ) { str = uiStrings::phrCannotFind(tr("object in data base"));

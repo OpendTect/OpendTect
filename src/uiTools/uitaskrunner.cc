@@ -87,8 +87,8 @@ uiTaskRunner::uiTaskRunner( const uiParent* prnt, bool dispmsgonerr )
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause().appendPlainText("   "))
 	.canceltext(uiStrings::sAbort()) )
-    , task_( 0 )
-    , thread_(0)
+    , task_(nullptr)
+    , thread_(nullptr)
     , tim_(*new Timer("") )
     , execnm_("")
     , statelock_(true)
@@ -121,7 +121,7 @@ uiTaskRunner::uiTaskRunner( const uiParent* prnt, bool dispmsgonerr )
 uiTaskRunner::~uiTaskRunner()
 {
     if ( thread_ )
-	{ thread_->waitForFinish(); delete thread_; thread_ = 0; }
+	{ thread_->waitForFinish(); deleteAndZeroPtr(thread_); }
     delete &tim_;
 }
 

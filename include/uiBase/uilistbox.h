@@ -159,6 +159,9 @@ public:
 				   int idx=-1,int id=-1);
     void		insertItem(const uiString&,const Color&,
 				   int idx=-1,int id=-1);
+    void		insertItem( const char* str, int idx=-1,
+				    bool marked=false, int id=-1 )
+			{ insertItem(toUiString(str),idx,marked,id); }
 
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const uiPixmap&);

@@ -6,6 +6,7 @@
 
 
 #include "notify.h"
+
 #include "thread.h"
 #include "ptrman.h"
 #include "manobjectset.h"
@@ -33,7 +34,7 @@ QCallBackEventReceiver( ThreadID threadid )
     : receiverlock_( true )
     , threadid_( threadid )
 {
-    cbers_.setNullAllowed( true );
+    cbers_.setNullAllowed();
 }
 
 bool event( QEvent* ev )
@@ -401,6 +402,16 @@ bool CallBack::operator==( const CallBack& c ) const
 }
 
 
+bool CallBack::operator!=( const CallBack& oth ) const
+{ return !(*this==oth); }
+
+
+bool CallBack::willCall() const
+{
+    return disablecount_ == 0 && ((cberobj_ && fn_) || sfn_);
+}
+
+
 void CallBack::initClass()
 {
 #ifndef OD_NO_QT
@@ -443,7 +454,7 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 
 
 bool CallBack::addToThread( ThreadID threadid, const CallBack& cb,
-			    CallBacker* cber)
+			    CallBacker* cber )
 {
     Locker locker(cb_rcvrs_lock_);
     QCallBackEventReceiver* rec = getQCBER(threadid);
@@ -488,7 +499,7 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 }
 
 
-void CallBack::removeFromThreadCalls(const CallBacker* cber)
+void CallBack::removeFromThreadCalls( const CallBacker* cber )
 {
 #ifndef OD_NO_QT
     Locker locker(cb_rcvrs_lock_);

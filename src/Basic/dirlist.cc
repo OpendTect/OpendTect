@@ -7,7 +7,6 @@
 
 #include "dirlist.h"
 
-#include "file.h"
 #include "filepath.h"
 #include "staticstring.h"
 

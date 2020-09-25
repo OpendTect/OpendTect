@@ -68,12 +68,9 @@ public:
 			CallBack( StaticCallBackFunction f )
 			    : cberobj_(0), fn_(0), sfn_(f)	{}
     bool		operator==(const CallBack&) const;
-    inline bool		operator!=( const CallBack& cb ) const
-			{ return !(*this==cb); }
+    bool		operator!=(const CallBack&) const;
 
-    inline bool		willCall() const
-			{ return disablecount_ == 0
-			      && ((cberobj_ && fn_) || sfn_); }
+    bool		willCall() const;
     void		doCall(CallBacker*) const;
     bool		isDisabled() const		{ return disablecount_;}
     void		disable(bool yn=true) const;
@@ -199,7 +196,7 @@ public:
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
     void		detachCB( const NotifierAccess* notif,
-				  const CallBack& cb) const
+				  const CallBack& cb ) const
 			{ if ( notif ) detachCB( *notif, cb ); }
 			/*!<\note Detaches only if \param notif is not null.*/
 

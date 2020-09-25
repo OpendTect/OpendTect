@@ -27,7 +27,7 @@ mFDQtclass( QTranslator );
 #define mTextTranslationClass(clss,pkgkey) \
 private: \
 static inline uiString tr( const char* text, \
-			   const char* disambiguation = nullptr,  \
+			   const char* disambiguation = nullptr, \
 			   int pluralnr=-1 ) \
 { return uiString( text, #clss, pkgkey, disambiguation, pluralnr ); } \
 
@@ -118,7 +118,7 @@ public:
 		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
 		~uiString();
-    bool	operator==( const uiString&  oth ) const
+    bool	operator==( const uiString& oth ) const
 						{ return isEqualTo(oth); }
     bool	operator!=( const uiString& oth ) const
 						{ return !isEqualTo(oth); }
@@ -131,7 +131,7 @@ public:
     uiString&	set( const uiString& s )	{ return (*this = s); }
     bool	isEmpty() const;
     void	setEmpty();
-    uiString&	toLower( bool yn=true );	//!< applied before arg subst.
+    uiString&	toLower(bool yn=true);		//!< applied before arg subst.
     uiString&	toUpper( bool yn=true )		{ return toLower(!yn); }
     bool	operator!() const		{ return isEmpty(); }
 
@@ -203,15 +203,15 @@ public:
     inline uiString&	appendIncorrect(const OD::String&,char sep=' ');
 
     // TEMP-- comment out to fix a directory at a time
-    inline uiString&	append( const uiString& s, bool nl=false)
+    inline uiString&	append( const uiString& s, bool nl=false )
 				{ return appendIncorrect(s,nl?'\n':' '); }
-    inline uiString&	append( const char* s, bool nl=false)
+    inline uiString&	append( const char* s, bool nl=false )
 				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const OD::String& s, bool nl=false )
 				{ return appendIncorrect(s,nl?'\n':' '); }
-    inline uiString&	addSpace(int =1)	{ return append(" "); }
-    inline uiString&	addTab(int =1)		{ return append("\t"); }
-    inline uiString&	addNewLine(int =1)	{ return append("\n"); }
+    inline uiString&	addSpace( int =1 )	{ return append(" "); }
+    inline uiString&	addTab( int =1 )	{ return append("\t"); }
+    inline uiString&	addNewLine( int =1 )	{ return append("\n"); }
     // End TEMP
 
     static uiString	getOrderString(int);	//!< 1st, 2nd, 3rd, ...

@@ -18,15 +18,15 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "ptrman.h"
 #include "refcount.h"
+#include "survinfo.h"
 #include "texttranslation.h"
 #include "uistrings.h"
-#include "survinfo.h"
 
 #ifndef OD_NO_QT
-# include <QString>
-# include <QTranslator>
 # include <QLocale>
 # include <QRegularExpression>
+# include <QString>
+# include <QTranslator>
 #endif
 
 #define mForceUpdate (-1)
@@ -345,7 +345,7 @@ void uiString::setEmpty()
 }
 
 
-uiString& uiString::toLower(bool yn)
+uiString& uiString::toLower( bool yn )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
@@ -709,7 +709,7 @@ uiString& uiString::embed( const char* open,const char* close )
     RefMan<uiStringData> tmpptr = data_;
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
-    if  ( isEmpty() || self.isEmpty() )
+    if ( isEmpty() || self.isEmpty() )
 	return *this;
 
     BufferString fmtstr;

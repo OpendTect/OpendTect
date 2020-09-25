@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "uistring.h"
 
 template <class T> class DataInterpreter;
+mFDQtclass(QLocalSocket)
 mFDQtclass(QObject)
 mFDQtclass(QTcpSocket)
-mFDQtclass(QLocalSocket)
 mFDQtclass(QTcpSocketComm)
 
 

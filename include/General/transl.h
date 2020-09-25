@@ -326,7 +326,7 @@ const IOObjContext& clss##TranslatorGroup::ioContext() \
     mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, = nullptr ); \
     if ( !ctxt ) \
     { \
-	ctxt = new IOObjContext( 0 ); \
+	ctxt = new IOObjContext( nullptr ); \
 	ctxt->stdseltype_ = IOObjContext::stdtyp; \
 	extra; \
     } \

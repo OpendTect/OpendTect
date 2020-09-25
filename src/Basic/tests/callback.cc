@@ -45,7 +45,7 @@ public:
 			    nrhits_--;
 			}
     void		timerHit( CallBacker* )
-			    { logStream() << "Timer hit!" << od_endl;
+			    { logStream() << "[OK] Timer hit!" << od_endl;
 			      ExitProgram( 0 ); }
 
     Threads::Atomic<int>	nrhits_;
@@ -255,7 +255,7 @@ bool testLateDetach()
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     delete notified;
 
-	logStream() << "Detaching deleted notifier - SUCCESS\n";
+    logStream() << "[OK] Detaching deleted notifier\n";
 
     return true;
 }
@@ -271,7 +271,7 @@ bool testDetachBeforeRemoval()
     delete notified;
     delete notifier;
 
-	logStream() << "Detach before removal - SUCCESS\n";
+    logStream() << "[OK] Detach before removal\n";
 
     return true;
 }
@@ -457,8 +457,8 @@ void handler(int sig)
 
 bool testMulthThreadChaos()
 {
-    od_cout() << "Multithreaded chaos:";
-    od_cout().flush();
+    logStream() << "Multithreaded chaos:";
+    logStream().flush();
 
     {
 	NotifierOwner notifierlist;
@@ -475,7 +475,7 @@ bool testMulthThreadChaos()
 	receiverslist.stop();
     } //All variables out of scope here
 
-    od_cout() << " - SUCCESS\n";
+    logStream() << " - [OK]\n";
     return true;
 }
 

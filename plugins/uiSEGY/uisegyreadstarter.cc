@@ -1067,7 +1067,7 @@ void uiSEGYReadStarter::updateSurvMap()
     {
 	Coord crd[3]; TrcKeyZSampling cs;
 	stbarmsg = scaninfos_->piDetector().getSurvInfo( cs.hsamp_, crd );
-	if ( !stbarmsg )
+	if ( stbarmsg.isEmpty() )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
 	    survinfo_->setRanges( cs );
@@ -1078,13 +1078,13 @@ void uiSEGYReadStarter::updateSurvMap()
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
 	    stbarmsg = survinfo_->set3Pts(crd, bid, cs.hsamp_.stop_.crl());
 	}
-	if ( !stbarmsg.isEmpty() )
-	    survinfo_->setName( "<Inadequate data>" );
-	else
+	if ( stbarmsg.isEmpty() )
 	{
 	    survinfook_ = true;
 	    survinfo_->setName( "Resulting survey setup" );
 	}
+	else
+	    survinfo_->setName( "<Inadequate data>" );
     }
 
     toStatusBar( stbarmsg );
