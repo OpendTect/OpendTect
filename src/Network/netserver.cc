@@ -438,8 +438,8 @@ Network::Authority& Network::Authority::setFrom(const CommandLineParser& parser,
     if ( localtcp )
     {
         BufferString servernm( defservernm );
-        parser.getKeyedInfo(Server::sKeyHostName(), servernm );
-        servernm = getAppServerName( servernm );
+	if ( !parser.getKeyedInfo(Server::sKeyHostName(),servernm) )
+	    servernm = getAppServerName( servernm );
         return localFromString( servernm );
     }
     else
@@ -538,11 +538,11 @@ bool Network::Server::listen( const char* servernm, uiRetVal& ret )
     if ( qlocalserver_ )
     {
 	const bool canlisten = qlocalserver_->listen( servernm );
-    if ( !canlisten )
-    {
-        ret.set(tr("%1 server name is already in use").arg(servernm));
-        close();
-    }
+	if ( !canlisten )
+	{
+	    ret.set(tr("%1 server name is already in use").arg(servernm));
+	    close();
+	}
 	return canlisten;
     }
 
