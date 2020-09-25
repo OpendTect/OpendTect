@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 
 #include "emposid.h"
+#include "emobject.h"
 #include "factory.h"
 #include "sets.h"
 #include "sortedlist.h"
@@ -22,8 +23,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class TrcKeyValue;
-
-namespace EM { class EMObject; }
 
 namespace MPE
 {
@@ -52,7 +51,7 @@ public:
     int				nextStep();
 
     void			extendInVolume(const BinID& bidstep,
-    					       float zstep);
+					       float zstep);
 
     const TypeSet<TrcKey>&	getAddedPositions() const;
     const TypeSet<TrcKey>&	getAddedPositionsSource() const;
@@ -66,7 +65,7 @@ public:
 
     const char*			errMsg() const;
     virtual void		fillPar(IOPar&) const {}
-    virtual bool		usePar(const IOPar&) 	{ return true; }
+    virtual bool		usePar(const IOPar&)	{ return true; }
 
     void			setUndo(bool yn)	{ setundo_ = yn; }
 

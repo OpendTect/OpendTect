@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "bufstring.h"
-#include "callback.h"
+#include "notify.h"
 #include "trckeyzsampling.h"
 #include "draw.h"
 #include "emposid.h"
@@ -155,12 +155,11 @@ public:
 */
 
 mExpClass(EarthModel) EMObject : public NamedCallBacker
+			       , public RefCount::Referenced
 {
-mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
-{ prepareForDelete(); sendDelNotif(); delete this; } );
 public:
     enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
-	Auto=(int)'2', Gridding=(int)'3' };
+				  Auto=(int)'2', Gridding=(int)'3' };
 
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
@@ -169,7 +168,7 @@ public:
     void			setMultiID(const MultiID&);
 
     virtual bool		isOK() const		{ return true; }
-    mDeprecatedDef uiString		uiName() const { return toUiString(name()); }
+    mDeprecatedDef uiString	uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
     virtual int			nrSections() const			= 0;
@@ -323,11 +322,15 @@ public:
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
+				mDeclInstanceCreatedNotifierAccess(EMObject);
+
 protected:
+				~EMObject();
 				EMObject( EMManager& );
 				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete() const;
+    virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
     const MarkerStyle3D&	preferredMarkerStyle3D() const;
     void			setPreferredMarkerStyle3D(const MarkerStyle3D&);
