@@ -28,7 +28,6 @@ int main( int argc, char ** argv )
 
     TextTranslateMgr::loadTranslations();
 
-    bool dofork = true;
     uiSEGYExamine::Setup su;
     int argidx = 1;
     while ( argc > argidx
@@ -46,8 +45,6 @@ int main( int argc, char ** argv )
 	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
 	else if ( mArgIs("swapbytes") )
 	    { argidx++; su.fp_.byteswap_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("fg") )
-	    dofork = false;
 	else
 	    { od_cout() << "Ignoring option: " << argv[argidx] << od_endl; }
 
@@ -72,9 +69,6 @@ int main( int argc, char ** argv )
 	od_cout() << ' ' << argv[idx];
     od_cout() << od_endl;
 #endif
-
-    if ( dofork )
-	ForkProcess();
 
     BufferString fnm( argv[argidx] );
     fnm.replace( "+x+", "*" );

@@ -144,7 +144,7 @@ void uiODHelpMenuMgr::showShortKeys()
 	return;
 
     const BufferString title( "Keyboard Shortcuts and Mouse Controls" );
-    OS::MachineCommand machcomm( "od_ImageViewer", "--bg", imgpath, title );
+    OS::MachineCommand machcomm( "od_ImageViewer", imgpath, title );
     OS::CommandLauncher cl( machcomm );
     if ( !cl.execute(OS::RunInBG) )
 	uiMSG().error( cl.errorMsg() );

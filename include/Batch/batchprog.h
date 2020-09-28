@@ -144,13 +144,13 @@ protected:
 
 
     bool		stillok_ = false;
-    bool		inbg_ = false;
+    bool		inbg_ = false;  //Dot NOT use, will be removed after 6.6
     od_ostream*		strm_ = nullptr;
     IOPar*		iopar_ = nullptr;
     CommandLineParser*	clparser_ = nullptr;
 
     BufferStringSet	requests_;
-    BufferString	finishmsg_;	//Dot NOT use, will be removed after 6.2
+    BufferString	finishmsg_;	//Dot NOT use, will be removed after 6.6
 
     mExp(Batch) bool	initOutput();
     mExp(Batch) void	progKilled(CallBacker*);
