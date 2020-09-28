@@ -131,7 +131,6 @@ bool Network::Socket::connectToHost( const Authority& auth, bool wait )
 			.arg( qtcpsocket_ ? qtcpsocket_->peerPort() : 0 )
 			.arg( auth.toString() );
 	    return false;
-	    return false;
 	}
 
 	const QAbstractSocket::SocketState state = qtcpsocket_->state();
