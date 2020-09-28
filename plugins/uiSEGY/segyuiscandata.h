@@ -97,6 +97,7 @@ public:
     SamplingData<int>	trcnrdef_;
     FileReadOpts::PSDefType psoffssrc_;
     SamplingData<float>	psoffsdef_;
+    bool		usenrsampsinfile_;
     bool		usezsamplinginfile_;
     bool		useformatinfile_;
 

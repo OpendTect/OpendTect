@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "segyuiscandata.h"
 #include "segyhdrkeydata.h"
 #include "segyhdr.h"
+#include "uilabel.h"
 #include "uitable.h"
 #include "uispinbox.h"
 #include "uilineedit.h"
@@ -177,6 +178,8 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     , loaddefChanged(this)
     , revChanged(this)
     , parsbeingset_(false)
+    , nrsampsrcfld_(nullptr)
+    , zsampsrcfld_(nullptr)
     , xcoordbytefld_(nullptr)
     , ycoordbytefld_(nullptr)
     , inlbytefld_(nullptr)
@@ -222,9 +225,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     setCellTxt( mItemCol, mDataFormatRow, tr("Data format") );
     setCellTxt( mUseTxtCol, mDataFormatRow, sEmpty );
     setCellTxt( mItemCol, mNrSamplesRow, tr("Number of samples") );
-    setCellTxt( mUseTxtCol, mNrSamplesRow, sEmpty );
     setCellTxt( mItemCol, mZRangeRow, tr("Z Range") );
-    setCellTxt( mUseTxtCol, mZRangeRow, tr("start / interval") );
 
     mkBasicInfoFlds();
 
@@ -264,19 +265,42 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     fmtfld_->selectionChanged.notify( parchgcb );
     mAdd2Tbl( fmtfld_, mDataFormatRow, mUseCol );
 
+    if ( !inptypfixed_ || imptype_.is2D() )
+    {
+	nrsampsrcfld_ = new uiComboBox( nullptr, "Nr samples source" );
+	nrsampsrcfld_->addItem( tr("From header") );
+	nrsampsrcfld_->addItem( tr("Use fixed") );
+	nrsampsrcfld_->selectionChanged.notify( parchgcb );
+	nrsampsrcfld_->display( false );
+	mAdd2Tbl( nrsampsrcfld_, mNrSamplesRow, mUseTxtCol );
+
+	zsampsrcfld_ = new uiComboBox( nullptr, "Z sampling source" );
+	zsampsrcfld_->addItem( tr("From header") );
+	zsampsrcfld_->addItem( tr("Use fixed") );
+	zsampsrcfld_->selectionChanged.notify( parchgcb );
+	zsampsrcfld_->display( false );
+	mAdd2Tbl( zsampsrcfld_, mZRangeRow, mUseTxtCol );
+    }
+
     nsfld_ = new uiSpinBox( nullptr, 0, "Samples" );
     nsfld_->setInterval( 1, SEGY::cMaxReasonableNrSamples(), 1 );
     nsfld_->valueChanged.notify( parchgcb );
     mAdd2Tbl( nsfld_, mNrSamplesRow, mUseCol );
 
     uiGroup* grp = new uiGroup( nullptr, "Z Range" );
+    auto lbl = new uiLabel( grp, uiStrings::sStart() );
     zstartfld_ = new uiLineEdit( grp, FloatInpSpec(0.f), "Z Start" );
     zstartfld_->setToolTip( tr("Z position of first trace sample") );
     zstartfld_->editingFinished.notify( parchgcb );
+    zstartfld_->setHSzPol( uiObject::MedVar );
+    zstartfld_->attach( rightTo, lbl );
+    lbl = new uiLabel( grp, uiStrings::sStep() );
+    lbl->attach( rightTo, zstartfld_ );
     srfld_ = new uiLineEdit( grp, FloatInpSpec(1.f,0.f), "Z Interval" );
     srfld_->setToolTip( tr("Step between samples ('sample rate')") );
     srfld_->editingFinished.notify( parchgcb );
-    srfld_->attach( rightTo, zstartfld_ );
+    srfld_->setHSzPol( uiObject::MedVar );
+    srfld_->attach( rightTo, lbl );
     tbl_->setCellGroup( RowCol(mZRangeRow,mUseCol), grp );
 }
 
@@ -580,7 +604,6 @@ void uiSEGYReadStartInfo::updateCellTexts()
 		!isvsp && isps ? offsetinfotxt_ : sEmpty );
     setCellTxt( mQSResCol, mAzimuthRow,
 		!isvsp && isps ? azimuthinfotxt_ : sEmpty );
-    setCellTxt( mUseTxtCol, mNrSamplesRow, nrtrcsusrtxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
     setCellTxt( mUseTxtCol, mXRow, xustxt );
     setCellTxt( mUseTxtCol, mYRow, yustxt );
@@ -590,11 +613,17 @@ void uiSEGYReadStartInfo::updateCellTexts()
 }
 
 
-void uiSEGYReadStartInfo::showZSamplingSetting( bool yn )
+void uiSEGYReadStartInfo::showNrSamplesSetting( bool yn )
 {
     nsfld_->display( yn );
-    zstartfld_->display( yn );
-    srfld_->display( yn );
+}
+
+
+void uiSEGYReadStartInfo::showZSamplingSetting( bool yn )
+{
+    uiGroup* zsampgrp = tbl_->getCellGroup( RowCol(mZRangeRow,mUseCol) );
+    if ( zsampgrp )
+	zsampgrp->display( yn );
 }
 
 
@@ -632,8 +661,13 @@ void uiSEGYReadStartInfo::revChg( CallBacker* )
 }
 
 
-void uiSEGYReadStartInfo::parChg( CallBacker* )
+void uiSEGYReadStartInfo::parChg( CallBacker* cb )
 {
+    if ( nrsampsrcfld_ && cb == nrsampsrcfld_ )
+	showNrSamplesSetting( nrsampsrcfld_->currentItem() );
+    else if ( zsampsrcfld_ && cb == zsampsrcfld_ )
+	showZSamplingSetting( zsampsrcfld_->currentItem() );
+
     parChanged( false );
 }
 
@@ -681,17 +715,25 @@ void uiSEGYReadStartInfo::clearInfo()
 
 void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
 {
-    tbl_->setColumnLabel( mQSResCol, sis.isFull() ? tr("Full scan result")
-						  : tr("Quick scan result") );
-
     const int nrfiles = sis.size();
-    uiString txt = nrfiles < 1	? uiString::emptyString()
-		: (nrfiles < 2	? tr( "[1 file]")
-				: tr( "[%1 files]" ).arg( nrfiles ));
-    tbl_->setTopLeftCornerLabel( txt );
+    uiString scanlabel = sis.isFull() ? tr("Full scan result")
+				      : tr("Quick scan result");
+    tbl_->setColumnLabel( mQSResCol,
+	    nrfiles <=1 ? scanlabel : tr("%1 (from 1st file)").arg(scanlabel) );
+
+    tbl_->setColumnLabel( mUseCol, nrfiles <= 1 ? tr("Actually use")
+					: tr("Actually use (for all files)") );
+
+    uiString txt = nrfiles <= 1 ? uiString::emptyString()
+				: tr( "%1 files selected" ).arg( nrfiles );
+    tbl_->setColumnLabel( mItemCol, txt );
 
     if ( nrfiles < 1 )
 	{ clearInfo(); return; }
+
+    loaddef_.usenrsampsinfile_ = nrfiles > 1;
+    if ( nrsampsrcfld_ ) nrsampsrcfld_->display( nrfiles > 1 );
+    if ( zsampsrcfld_ ) zsampsrcfld_->display( nrfiles > 1 );
 
     manNonBasicRows();
     setByteFldContents( sis.keyData() );
@@ -792,6 +834,18 @@ void uiSEGYReadStartInfo::useLoadDef()
 	}
     }
 
+    if ( nrsampsrcfld_ )
+    {
+	nrsampsrcfld_->setCurrentItem( loaddef_.usenrsampsinfile_ ? 0 : 1 );
+	showNrSamplesSetting( !loaddef_.usenrsampsinfile_ );
+    }
+
+    if ( zsampsrcfld_ )
+    {
+	zsampsrcfld_->setCurrentItem( loaddef_.usezsamplinginfile_ ? 0 : 1 );
+	showZSamplingSetting( !loaddef_.usezsamplinginfile_ );
+    }
+
     nsfld_->setValue( loaddef_.ns_ );
     zstartfld_->setValue( loaddef_.sampling_.start );
     srfld_->setValue( loaddef_.sampling_.step );
@@ -862,6 +916,11 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	loaddef_.format_ = 0;
 	loaddef_.useformatinfile_ = true;
     }
+
+    if ( nrsampsrcfld_ )
+	loaddef_.usenrsampsinfile_ = nrsampsrcfld_->currentItem() == 0;
+    if ( zsampsrcfld_ )
+	loaddef_.usezsamplinginfile_ = zsampsrcfld_->currentItem() == 0;
 
     int newns = nsfld_->getIntValue();
     if ( newns > 0 )

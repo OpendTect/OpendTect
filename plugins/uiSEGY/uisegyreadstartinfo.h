@@ -39,6 +39,7 @@ public:
 
     void		setImpTypIdx(int,bool updnow=true);
     void		setScanInfo(const SEGY::ScanInfoSet&);
+    void		showNrSamplesSetting(bool);
     void		showZSamplingSetting(bool);
 
     void		useLoadDef(); //!< when you have changed the loaddef
@@ -66,6 +67,8 @@ protected:
     uiSEGYByteNr*	offsetbytefld_;
     uiSEGYByteNr*	azimuthbytefld_;
 
+    uiComboBox*		nrsampsrcfld_;
+    uiComboBox*		zsampsrcfld_;
     uiComboBox*		trcnrsrcfld_;
     uiGroup*		trcnrgengrp_;
     uiLineEdit*		trcnrgenstartfld_;

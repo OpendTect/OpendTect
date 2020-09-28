@@ -68,7 +68,6 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , linenamefld_(nullptr)
     , useicbut_(nullptr)
     , usexybut_(nullptr)
-    , keepzsampbox_(nullptr)
     , coordscalefld_(nullptr)
     , ampldisp_(nullptr)
     , survmap_(nullptr)
@@ -234,18 +233,6 @@ void uiSEGYReadStarter::createTools()
 		"option if you do not have valid In- and Crossline numbers.") );
 	usexybut_->attach( alignedBelow, useicbut_ );
 	lowest = usexybut_;
-    }
-
-    if ( !imptypeFixed() || fixedimptype_.is2D() )
-    {
-	keepzsampbox_ = new uiCheckBox( toolgrp, tr("Use file Z's") );
-	keepzsampbox_->setToolTip(
-		tr("Use Z sampling as it appears in each SEG-Y file") );
-	keepzsampbox_->setChecked( true );
-	keepzsampbox_->activated.notify(
-			mCB(this,uiSEGYReadStarter,keepZChg) );
-	keepzsampbox_->attach( alignedBelow, lowest );
-	lowest = keepzsampbox_;
     }
 
     coordscalefld_ = new uiLineEdit( toolgrp, FloatInpSpec(),"CoordScale");
@@ -428,11 +415,6 @@ void uiSEGYReadStarter::setToolStates()
 	if ( !imptyp.is2D() && !imptyp.isPS() && loaddef_.revision_ > 0 )
 	    dodisp= false;
 	hdrentrysettsbut_->display( dodisp );
-    }
-    if ( keepzsampbox_ )
-    {
-	keepzsampbox_->display( imptyp.is2D() && ismulti );
-	keepZChg( 0 );
     }
     if ( useicbut_ )
     {
@@ -711,17 +693,6 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
     uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_ );
     if ( dlg.go() )
 	lastparname_ = dlg.parName();
-}
-
-
-void uiSEGYReadStarter::keepZChg( CallBacker* cb )
-{
-    loaddef_.usezsamplinginfile_ = keepzsampbox_ && keepzsampbox_->isChecked();
-    infofld_->showZSamplingSetting( !loaddef_.usezsamplinginfile_
-				    || filespec_.nrFiles() < 2 );
-
-    if ( cb )
-	forceRescan();
 }
 
 
@@ -1128,9 +1099,6 @@ bool uiSEGYReadStarter::commit( bool permissive )
     }
 
     loaddef_.getFilePars( filepars_ );
-    loaddef_.usezsamplinginfile_ = keepzsampbox_ && keepzsampbox_->isChecked();
-    if ( loaddef_.usezsamplinginfile_ )
-	filepars_.ns_ = 0;
 
     delete filereadopts_;
     filereadopts_ = new FileReadOpts( impType().geomType() );

@@ -315,7 +315,7 @@ void SEGY::LoadDef::getFilePars( SEGY::FilePars& fpars ) const
     BasicFileInfo::getFilePars( fpars );
     if ( coordsys_ )
       fpars.setCoordSys( coordsys_ );
-    if ( usezsamplinginfile_ )
+    if ( usenrsampsinfile_ )
 	fpars.ns_ = 0;
     if ( useformatinfile_ )
 	fpars.fmt_ = 0;
