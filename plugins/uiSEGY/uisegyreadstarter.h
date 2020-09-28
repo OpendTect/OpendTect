@@ -78,6 +78,7 @@ protected:
     uiGroup*		botgrp_;
     uiSEGYImpType*	typfld_;
     uiFileInput*	inpfld_;
+    uiSpinBox*		linenamefld_;
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
     uiSurveyMap*	survmap_;

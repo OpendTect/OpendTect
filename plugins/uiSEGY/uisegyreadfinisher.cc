@@ -98,11 +98,11 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     , transffld_(nullptr)
     , remnullfld_(nullptr)
     , lnmfld_(nullptr)
-    , batchfld_(nullptr)
     , docopyfld_(nullptr)
     , coordsfromfld_(nullptr)
-    , coordfilefld_(nullptr)
     , coordfileextfld_(nullptr)
+    , coordfilefld_(nullptr)
+    , batchfld_(nullptr)
 {
     setOkText( uiStrings::sImport() );
     objname_ = FilePath( usrspec ).baseName();
@@ -127,7 +127,7 @@ void uiSEGYReadFinisher::crSeisFields()
 
     docopyfld_ = new uiGenInput( this, tr("Copy data"),
 	    BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
-    docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
+    docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
 
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
@@ -215,8 +215,8 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 	const Coord mincoord( SI().minCoord(true) );
 	coordsfromfld_->addItem( tr("Generate straight line") );
 	coordsstartfld_ = new uiGenInput( this, tr("Start coordinate"),
-			DoubleInpSpec((double)mNINT64(mincoord.x)),
-			DoubleInpSpec((double)mNINT64(mincoord.y)) );
+			DoubleInpSpec(double(mNINT64(mincoord.x))),
+			DoubleInpSpec(double(mNINT64(mincoord.y))) );
 	coordsstartfld_->attach( alignedBelow, lcb );
 	coordsstartfld_->setElemSzPol( uiObject::Small );
 	coordsstepfld_ = new uiGenInput( this, uiStrings::sStep(),
@@ -372,7 +372,7 @@ bool uiSEGYReadFinisher::doVSP()
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth )
-	    z = wd->d2TModel()->getDah( z/1000., track );
+	    z = wd->d2TModel()->getDah( z/1000.f, track );
 	else
 	{
 	    if ( inft )
@@ -733,6 +733,12 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 }
 
 
+void uiSEGYReadFinisher::setWildcardIndexForLineName( int wcidx )
+{
+    wcidx_ = wcidx;
+}
+
+
 BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
 {
     BufferString fnm( fs_.spec_.fileName( iln ) );
@@ -743,9 +749,9 @@ BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
     while ( *pwc && *pfnm && *pwc != '*' )
 	{ pwc++; pfnm++; }
     if ( !*pwc || !*pfnm )
-	return BufferString( "_" );
+	return "_";
 
-    BufferString ret;
+    BufferStringSet wcnms;
     while ( pwc )
     {
 	char* nonwcstart = pwc + 1;
@@ -759,15 +765,34 @@ BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
 	char* subststart = pfnm;
 	pfnm = firstOcc( pfnm, nonwcstart );
 	if ( !pfnm )
-	    { pErrMsg("Huh"); if ( ret.isEmpty() ) ret.set( "_" ); return ret; }
+	{
+	    pErrMsg("Huh");
+	    if ( wcnms.isEmpty() )
+		wcnms.add( "_" );
+	    return wcnms.get(0);
+	}
 	*pfnm = '\0';
 	pfnm += FixedString(nonwcstart).size(); // to next wildcard section
 
-	if ( !ret.isEmpty() )
-	    ret.add( '_' );
-	ret.add( subststart );
+	wcnms.add( subststart );
     }
-    return ret;
+
+    if ( wcnms.validIdx(wcidx_) )
+	return wcnms.get( wcidx_ );
+
+    // fallback
+    const Survey::Geometry* geom = nullptr;
+    for ( int idx=0; idx<wcnms.size(); idx++ )
+    {
+	geom = Survey::GM().getGeometry( wcnms.get(idx).buf() );
+	if ( geom )
+	    break;
+    }
+
+    if ( geom )
+	return geom->getName();
+
+    return !wcnms.isEmpty() ? wcnms.get(0).buf() : "_";
 }
 
 

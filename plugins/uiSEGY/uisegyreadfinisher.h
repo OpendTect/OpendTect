@@ -44,13 +44,15 @@ public:
 
     void		setAsDefaultObj(); //!< call only after successful go()
     void		setCoordSystem(Coords::CoordSystem*);
+    void		setWildcardIndexForLineName(int);
 
 protected:
 
     FullSpec		fs_;
     BufferString	objname_;
     MultiID		outputid_;
-    Coords::CoordSystem* coordsys_ = nullptr;
+    Coords::CoordSystem* coordsys_ 	= nullptr;
+    int			wcidx_		= -1;
 
     uiIOObjSel*		outwllfld_;
     uiComboBox*		lognmfld_;

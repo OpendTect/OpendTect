@@ -102,8 +102,6 @@ void Execute_batch( int* pargc, char** argv )
     BP().init();
     if ( !BP().stillok_ )
 	return;
-    if ( BP().inbg_ )
-	ForkProcess();
 
     BatchProgram& bp = BP();
     bool allok = bp.initOutput();
