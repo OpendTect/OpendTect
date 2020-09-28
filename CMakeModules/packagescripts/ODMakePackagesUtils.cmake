@@ -301,6 +301,9 @@ macro( create_basepackages PACKAGE_NAME )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
 				${COPYTODATADIR}/doc/ReleaseInfo/RELEASEINFO.txt )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${COPYFROMDATADIR}/doc/Videos.od
+				${COPYTODATADIR}/doc/Videos.od )
 	foreach( LIBS ${LIBLIST} )
 	    file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
 	    foreach( DATA ${DATAFILES} )
@@ -318,6 +321,9 @@ macro( create_basepackages PACKAGE_NAME )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${COPYFROMDATADIR}/relinfo/RELEASE.dgb.txt
 				${COPYTODATADIR}/doc/ReleaseInfo/RELEASE.dgb.txt )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${COPYFROMDATADIR}/doc/Videos.dgb
+				${COPYTODATADIR}/doc/Videos.dgb )
        foreach( LIB ${LIBLIST} )
 	  if( IS_DIRECTORY "${COPYFROMDATADIR}/data/${LIB}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory

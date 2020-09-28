@@ -99,6 +99,7 @@ file( GLOB TUTCCFILES plugins/Tut/*.cc )
 set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
 install( FILES ${TUTFILES} DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample/plugins/Tut )
 install( FILES doc/Programmer/style.css DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer )
+install( FILES doc/Videos.od DESTINATION ${MISC_INSTALL_PREFIX}/doc )
 install( DIRECTORY dtect
 	 DESTINATION ${MISC_INSTALL_PREFIX}
 	 PATTERN ".svn" EXCLUDE )
