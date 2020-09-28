@@ -32,7 +32,6 @@ static void printBatchUsage()
     strm << "\t --" << File::ViewPars::sKeyMaxLines() << "\tnrlines\n";
     strm << "\t --" << File::ViewPars::sKeyStyle() << "\ttext|table|log|bin\n";
     strm << "\t --" << File::ViewPars::sKeyEdit() << "\t\tAllow file edition\n";
-    strm << "\t --" << OS::MachineCommand::sKeyFG() << "\t\tRun in foreground";
     strm << od_endl;
 }
 

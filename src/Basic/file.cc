@@ -1140,14 +1140,7 @@ bool File::launchViewer( const char* fnm, const ViewPars& vp )
     if ( vp.editable_ )
 	mc.addFlag( ViewPars::sKeyEdit() );
 
-#ifdef __mac__
-    mc.addFlag( OS::MachineCommand::sKeyFG() );
-#endif
-
-    OS::CommandLauncher cl( mc );
-    OS::CommandExecPars pars;
-    pars.launchtype_ = OS::RunInBG;
-    return cl.execute( pars );
+    return mc.execute( OS::RunInBG );
 }
 
 

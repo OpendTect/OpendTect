@@ -95,9 +95,9 @@ mGlobal(Basic) void sleepSeconds(double);
 mGlobal(Basic) const char* GetVCSVersion(void);
 		/*!< Returns Subversion revision number or git commit hash */
 
-mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
+mGlobal(Basic) const char* GetLastSystemErrorMessage(void);
 
-mGlobal( Basic ) void ForkProcess(void);
+mGlobal(Basic) mDeprecated void ForkProcess(void);
 
 inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
