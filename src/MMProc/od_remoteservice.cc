@@ -8,10 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "applicationdata.h"
-#include "commandlineparser.h"
-#include "oscommand.h"
 #include "remcommhandler.h"
+#include "applicationdata.h"
 
 #include "prog.h"
 
@@ -22,12 +20,7 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     ApplicationData app;
 
-    const bool dofork = CommandLineParser().hasKey(
-			OS::MachineCommand::sKeyBG() );
-    if ( dofork )
-	ForkProcess();
-
-    RemCommHandler* handler = new RemCommHandler(mCast(PortNr_Type,5050) );
+    auto* handler = new RemCommHandler(mCast(PortNr_Type,5050) );
     handler->listen();
     const bool res = app.exec();
 

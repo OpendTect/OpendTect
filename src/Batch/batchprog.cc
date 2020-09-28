@@ -71,8 +71,6 @@ void BatchProgram::init()
     clparser_->setKeyHasValue( sKeyDataDir() );
     clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
 
-    inbg_ = clparser_->hasKey( OS::MachineCommand::sKeyBG() );
-
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );
 

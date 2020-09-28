@@ -95,7 +95,6 @@ protected:
 
 
     bool		stillok_ = false;
-    bool		inbg_ = false;
     od_ostream*		strm_ = nullptr;
     IOPar*		iopar_ = nullptr;
     CommandLineParser*	clparser_ = nullptr;
