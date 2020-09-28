@@ -79,7 +79,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
             : uiStrings::phrManage(tr("3D Seismics")),
 				    mNoDlgTitle,mHelpID)
 				    .nrstatusflds(1).modal(false),
-		  SeisTrcTranslatorGroup::ioContext())
+		  SeisTrcTranslatorGroup::ioContext(),
+		    is2d ? "2D Seismic Data" : "Seismic Data" )
     , is2d_(is2d)
     , browsebut_(0)
     , man2dlinesbut_(0)

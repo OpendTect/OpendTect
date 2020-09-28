@@ -53,8 +53,9 @@ uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(
 		uiStrings::phrManage( uiStrings::sWell(mPlural)),mNoDlgTitle,
 				      mODHelpKey(mWellManHelpID))
-		     .nrstatusflds(1).modal(false),
-		   WellTranslatorGroup::ioContext() )
+				     .nrstatusflds(1).modal(false),
+				    WellTranslatorGroup::ioContext(),
+				    WellTranslatorGroup::sGroupName())
     , d2tbut_(0)
     , csbut_(0)
     , curiswritable_(true)
