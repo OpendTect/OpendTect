@@ -116,10 +116,11 @@ public:
     void		setContext(const IOObjContext&);
     void		setDefTranslator(const Translator*);
 
-    uiGroup*		getTopGroup()			{ return topgrp_; }
-    uiGenInput*		getNameField()			{ return nmfld_; }
-    uiLineEdit*		getFilterField()		{ return filtfld_; }
-    uiListBox*		getListField()			{ return listfld_; }
+    uiGroup*		getTopGroup()		    { return topgrp_; }
+    uiGenInput*		getNameField()		    { return nmfld_; }
+    uiLineEdit*		getFilterField()	    { return filtfld_; }
+    uiComboBox*		getCntxtFiltFld()	    { return ctxtfiltfld_;  }
+    uiListBox*		getListField()		    { return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     void		displayManipGroup(bool yn=true,bool shrink=false);
     const DBKeySet&	getIOObjIds() const		{ return ioobjids_; }

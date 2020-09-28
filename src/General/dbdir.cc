@@ -767,10 +767,18 @@ BufferStringSet DBDirEntryList::getParValuesFor( const char* parkey ) const
     BufferStringSet res;
     for ( idx_type idx=0; idx<size(); idx++ )
     {
-	const IOObj& entry = *entries_[idx];
-	const char* val = entry.pars().find( parkey );
-	if ( val )
-	    res.addIfNew( val );
+	const IOObj* ioobj = entries_[idx];
+	if ( ioobj )
+	{
+	    BufferString val;
+	    if ( ioobj->group() == parkey )
+		val = ioobj->translator();
+	    else if ( ioobj->pars().get( parkey, val ) )
+		continue;
+
+	    if ( !val.isEmpty() )
+		res.addIfNew( val );
+	}
     }
     return res;
 }

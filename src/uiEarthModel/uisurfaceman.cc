@@ -134,11 +134,16 @@ default:			return mODHelpKey(mSurfaceManHelpID);
     }
 }
 
+static BufferString getGroupName( uiSurfaceMan::Type typ )
+{
+    return getIOCtxt( typ ).trgroup_->groupName();
+}
+
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,uiStrings::sManage()),
-				    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
-				    .modal(false), getIOCtxt(typ) )
+			    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
+			    .modal(false), getIOCtxt(typ), getGroupName(typ) )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)

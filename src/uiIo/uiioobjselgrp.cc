@@ -34,10 +34,13 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uilabel.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
 static const BufferString sKeyTimeSort(
 	IOPar::compKey("dTect.Disp.Objects",sKey::TimeSort()) );
+
+static const char* dGBToDispStorageStr()    { return "OpendTect";  }
 
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
@@ -194,13 +197,20 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	const DBDirEntryList entrylist( ctio_.ctxt_ );
 	BufferStringSet valstrs = entrylist.getParValuesFor(
 						    setup_.withctxtfilter_ );
+
+	const int idx = valstrs.indexOf( mDGBKey );
+	if ( idx > -1 )
+	    valstrs.get(idx).set( dGBToDispStorageStr() );
+	//This is strictly for display purpose without changing the key
 	if ( valstrs.size()>1 )
 	{
 	    valstrs.sort();
 	    uiStringSet uistrset = valstrs.getUiStringSet();
 	    uistrset.insert( 0, tr("All %1").arg( setup_.withctxtfilter_ ) );
 	    ctxtfiltfld_ = new uiComboBox( listfld_, uistrset, "ctxtfilter" );
-	    ctxtfiltfld_->attach( leftOf, filtfld_ );
+	    auto* lbl = new uiLabel( listfld_, uiStrings::sType() );
+	    ctxtfiltfld_->attach( alignedBelow, filtfld_ );
+	    lbl->attach( leftOf, ctxtfiltfld_ );
 	    mAttachCB( ctxtfiltfld_->selectionChanged,
 		       uiIOObjSelGrp::ctxtChgCB );
 	}
@@ -221,8 +231,8 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     if ( setup_.withrefresh_ )
     {
 	refreshbut = new uiToolButton( listfld_,
-		    "refresh", tr("Refresh"), mCB(this,uiIOObjSelGrp,refreshCB) );
-	refreshbut->attach( rightAlignedAbove, listfld_->box() );
+		"refresh", tr("Refresh"), mCB(this,uiIOObjSelGrp,refreshCB) );
+	refreshbut->attach( rightBorder, listfld_->box() );
     }
 
     if ( tsortbox_ )
@@ -233,10 +243,13 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	    tsortbox_->attach( rightAlignedAbove, listfld_->box() );
 	filtfld_->attach( leftOf, tsortbox_ );
     }
-    else if ( refreshbut )
-	filtfld_->attach( leftOf, refreshbut );
+
+    if ( ctxtfiltfld_ )
+	listfld_->box()->attach( centeredBelow, ctxtfiltfld_ );
     else
-	listfld_->box()->attach( alignedBelow, filtfld_ );
+	listfld_->box()->attach( centeredBelow, filtfld_ );
+
+    topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );
     listfld_->box()->setPrefHeightInChar( 8 );
