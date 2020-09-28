@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistringset.h"
 #include "uitable.h"
 
 #include "envvars.h"
@@ -64,7 +65,7 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step, bool is2d )
     addMultiInputFld( grp );
 
     partable_ = new uiTable( grp, uiTable::Setup(5,2), "Parameter table" );
-    BufferStringSet lbls; lbls.add( "Parameter" ).add( "Value" );
+    uiStringSet lbls; lbls.add( tr("Parameter") ).add( tr("Value") );
     partable_->setColumnLabels( lbls );
     partable_->setColumnReadOnly( 0, true );
     partable_->attach( alignedBelow, multiinpfld_ );
