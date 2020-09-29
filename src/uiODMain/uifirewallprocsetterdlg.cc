@@ -38,7 +38,7 @@ uiString getDlgTitle(ProcDesc::DataEntry::ActionType typ)
 	"running of program.");
     else if ( typ == ProcDesc::DataEntry::Remove )
 	return od_static_tr("getDlgTitle",
-	   "Following rule(s) were found to added in Firewall Expception List");
+	   "Following rule(s) were found to added in Firewall Exception List");
     else
 	return od_static_tr("getDlgTitle",
 	    "Please add/remove following rule(s) before launching OpendTect "
