@@ -199,10 +199,12 @@ uiSurvSeisSelGroupCompEntry& uiSurvSeisSelGroup::getCompEntry(
 
 
 uiSurvSeisSelGroup::uiSurvSeisSelGroup( uiParent* p, const Setup& su,
-					bool ismulti, bool fixsurv )
-    : uiSurvIOObjSelGroup(p,getCtxt(su),ismulti,fixsurv)
+					bool ismulti, bool fixsurv,
+					bool withinserters )
+    : uiSurvIOObjSelGroup(p,getCtxt(su),ismulti,fixsurv,withinserters)
     , setup_(su)
 {
+
     uiListBox::Setup lbsu( ismulti ? OD::ChooseAtLeastOne
 				   : OD::ChooseOnlyOne );
     lbsu.prefnrlines( 4 ).lbl( uiStrings::sComponent() )

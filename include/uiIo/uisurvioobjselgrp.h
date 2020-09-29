@@ -30,7 +30,8 @@ public:
 
 			uiSurvIOObjSelGroup(uiParent*,const IOObjContext&,
 					    bool selmulti=false,
-					    bool fixsurv=false);
+					    bool fixsurv=false,
+					    bool withinserters=false );
     virtual		~uiSurvIOObjSelGroup();
 
     void		setSurvey(const SurveyDiskLocation&);

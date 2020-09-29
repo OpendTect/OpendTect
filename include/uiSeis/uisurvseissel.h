@@ -74,7 +74,8 @@ public:
     typedef uiSurvSeisSel::Setup	Setup;
 
 			uiSurvSeisSelGroup(uiParent*,const Setup&,
-				       bool selmulti=false,bool fixsurv=false);
+				       bool selmulti=false,bool fixsurv=false,
+				       bool withinserters=false);
 			~uiSurvSeisSelGroup();
 
     void		setSelected(const DBKey&,int compnr, bool add=false);
