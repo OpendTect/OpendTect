@@ -71,7 +71,8 @@ static int gtIdxOf( const ObjectSet<IOObj>& ioobjs, const DBKey& dbky )
 
 
 uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
-					  bool selmulti, bool fixsurv )
+					  bool selmulti, bool fixsurv,
+					  bool withinsert )
     : uiGroup(p,"Survey IOObj Sel Group")
     , ctxt_(*new IOObjContext(ctxt))
     , survsel_(0)
@@ -85,6 +86,7 @@ uiSurvIOObjSelGroup::uiSurvIOObjSelGroup( uiParent* p, const IOObjContext& ctxt,
 
     uiIOObjSelGrp::Setup lbsu( ismultisel_ ? OD::ChooseAtLeastOne
 				       : OD::ChooseOnlyOne );
+    lbsu.withinserters(withinsert);
     objfld_ = new uiIOObjSelGrp( this, ctxt, lbsu );
     objfld_->setStretch( 2, 2 );
     if ( survsel_ )
