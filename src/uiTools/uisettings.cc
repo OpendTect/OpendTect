@@ -724,7 +724,7 @@ public:
 
 uiPythonSettings(uiParent* p, const char* nm )
 	: uiDialog(p, uiDialog::Setup(toUiString(nm),
-		tr("Set Python environment"),mTODOHelpKey))
+		tr("Set Python environment"),mODHelpKey(mPythonSettingsHelpID)))
 {
     pythonsrcfld_ = new uiGenInput(this, tr("Python environment"),
 		StringListInpSpec(OD::PythonSourceDef().strings()));
