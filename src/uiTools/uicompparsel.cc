@@ -39,6 +39,10 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
 }
 
 
+uiCompoundParSel::~uiCompoundParSel()
+{}
+
+
 void uiCompoundParSel::crTextFld( const uiString& seltxt )
 {
     txtfld_ = new uiGenInput( this, seltxt, "" );
