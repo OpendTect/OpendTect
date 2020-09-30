@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifreqfilter.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
 #include "uiseparator.h"
@@ -42,6 +43,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uiwelllogdisplay.h"
 
+
+static const int cPrefwidth = 150;
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
@@ -58,14 +61,28 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
+
+int uiWellLogToolWinMgr::checkMaxLogsToDisplay()
+{
+    uiMain& uimain = uiMain::theMain();
+    const uiSize sz( uimain.getScreenSize(0,true) );
+    return sz.width()/cPrefwidth;
+}
+
+
 bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 {
     BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
+    BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
     if ( wellids.isEmpty() ) mErrRet( tr("Please select at least one well") )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
     BufferStringSet msgs;
+    int nrsellogs = lognms.size() * wellnms.size();
+    int totalnrlogs = 0;
+    const int maxlimit = checkMaxLogsToDisplay();
+    bool displogs = false;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const MultiID& wmid = wellids[idx]->buf();
@@ -76,18 +93,44 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd->logs() );
 	uiWellLogToolWin::LogData* ldata =
 	    new uiWellLogToolWin::LogData( *wls, wd->d2TModel(), &wd->track());
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
-	if ( !ldata->setSelectedLogs( lognms ) )
-	    { delete ldata; continue; }
-	ldata->wellid_ = wmid;
+	const int nrinplogs = ldata->setSelectedLogs( lognms );
+	if ( !nrinplogs )
+	{
+	    delete ldata;
+	    continue;
+	}
 
+	totalnrlogs += nrinplogs;
+	displogs = totalnrlogs <= maxlimit;
+	if ( !displogs )
+	{
+	    delete ldata;
+	    break;
+	}
+
+	ldata->wellid_ = wmid;
 	logdatas += ldata;
+    }
+
+    if ( !displogs )
+    {
+	const int ldsize = logdatas.size();
+	const int res = uiMSG().askGoOn( tr("You have selected %1 logs."
+				" Maximum %2 can be displayed on the screen."
+				"\nDo you want to display logs of "
+				"first %3 wells?")
+				.arg(nrsellogs).arg(maxlimit).arg(ldsize) );
+	if ( !res )
+	{
+	    deepErase(logdatas);
+	    return false;
+	}
     }
 
     if ( logdatas.isEmpty() )
@@ -97,6 +140,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     else if ( !msgs.isEmpty() )
 	uiMSG().warning( tr("%1\nWill process the other wells only")
 			     .arg( msgs.cat() ) );
+
 
     uiWellLogToolWin* win = new uiWellLogToolWin( this, logdatas );
     win->show();
@@ -201,7 +245,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
 	{
 	    uiWellLogDisplay::Setup su; su.samexaxisrange_ = true;
 	    uiWellLogDisplay* ld = new uiWellLogDisplay( wellgrp, su );
-	    ld->setPrefWidth( 150 ); ld->setPrefHeight( 450 );
+	    ld->setPrefWidth( cPrefwidth ); ld->setPrefHeight( 450 );
 	    zdisplayrg_.include( logdata.dahrg_ );
 	    if ( idlog ) ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
 	    ld->attach( ensureBelow, wellnm );

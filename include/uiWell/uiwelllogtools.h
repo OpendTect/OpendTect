@@ -123,6 +123,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
     void		winClosed(CallBacker*);
+    int			checkMaxLogsToDisplay();
 };
 
 
@@ -148,5 +149,6 @@ protected:
     uiTable*		table_;
 
     bool		changed_;
+
 };
 
