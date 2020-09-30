@@ -110,7 +110,6 @@ protected:
     Setup			setup_;
     ObjectSet<const UnitOfMeasure> units_;
     BufferString		tblkey_;
-    Mnemonic*			mn_;
 
     uiComboBox*			inpfld_;
     uiComboBox*			propfld_;

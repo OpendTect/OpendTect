@@ -71,6 +71,7 @@ public:
     const Interval<float>& valueRange() const		{ return range_; }
 
     const char*		mnemLabel() const;
+    const Mnemonic*	mnemonic() const;
     void		setMnemLabel( const char* );
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}

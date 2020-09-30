@@ -303,8 +303,11 @@ Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Mnemonic& mnc = *(*this)[idx];
-	if ( mnc.hasType(uom->propType()) )
-	   return new Mnemonic( mnc );
+	if ( uom )
+	{
+	    if ( mnc.hasType(uom->propType()) )
+	       return new Mnemonic( mnc );
+	}
     }
 
     return nullptr;

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "iopar.h"
 #include "idxable.h"
+#include "mnemonics.h"
 #include "unitofmeasure.h"
 
 const char* Well::Log::sKeyMnemLbl()	{ return "Mnemonic"; }
@@ -131,7 +132,7 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( loguomlbl );
 	bool isalt = false;
 	bool isok = !loguom || ptype == PropertyRef::Other
-	         || loguom->propType() == ptype;
+		 || loguom->propType() == ptype;
 	if ( !isok && altpr )
 	    isok = isalt = loguom->propType() == altpr->stdType();
 	if ( isok )
@@ -150,7 +151,24 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 
 const char* Well::Log::mnemLabel() const
 {
+    if ( mnemonic() )
+	return mnemonic()->name();
+
     return mnemlbl_;
+}
+
+
+const Mnemonic* Well::Log::mnemonic() const
+{
+    if (!mnemlbl_.isEmpty())
+	return eMNC().find( mnemlbl_ );
+    else
+    {
+	if ( unitOfMeasure()  )
+	    return eMNC().getGuessed( unitOfMeasure() );
+    }
+
+    return nullptr;
 }
 
 

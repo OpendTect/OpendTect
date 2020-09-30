@@ -83,6 +83,7 @@ void uiUnitSel::init()
 	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
     }
 
+    mnfld_ = nullptr;
     if ( setup_.selmnemtype_ )
     {
 	mnfld_ = new uiComboBox( this, "Mnemonic" );
@@ -361,6 +362,8 @@ void uiUnitSel::update()
     units_.erase();
     if ( setup_.mn_ )
 	UoMR().getRelevant( setup_.mn_->stdType(), units_ );
+    else
+	UoMR().getRelevant( setup_.ptype_, units_ );
 
     if ( setup_.withnone_ )
 	units_.insertAt( 0, 0 );
