@@ -77,7 +77,7 @@ void uiUnitSel::init()
     if ( setup_.selproptype_ )
     {
 	propfld_ = new uiComboBox( this, "Properties" );
-	BufferStringSet typnms( PropertyRef::StdTypeNames() );
+	const BufferStringSet typnms( PropertyRef::StdTypeNames() );
 	propfld_->addItems( typnms );
 	propfld_->setCurrentItem( (int)setup_.ptype_ );
 	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
