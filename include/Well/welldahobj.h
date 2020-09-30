@@ -24,17 +24,13 @@ namespace Well
 \brief Depth/Distance along hole object.
 */
 
-mExpClass(Well) DahObj : public ::NamedObject
+mExpClass(Well) DahObj : public ::NamedCallBacker
 {
 public:
 
-			DahObj( const char* nm=0 )
-			: ::NamedObject(nm)		{}
-			DahObj( const DahObj& d )
-			    : ::NamedObject(d.name())
-			    , dah_(d.dah_)		{}
-			~DahObj()
-			{ dah_.erase(); }
+			DahObj( const char* nm=0 );
+			DahObj( const DahObj& d );
+			~DahObj();
 
     inline int		size() const			{ return dah_.size(); }
     inline float	dah(int idx) const		{ return dah_[idx]; }
@@ -59,9 +55,12 @@ public:
     float*		dahArr()			{ return dah_.arr(); }
     const float*	dahArr() const			{ return dah_.arr(); }
 
+    static Notifier<DahObj>&	instanceCreated();
+
 protected:
 
     TypeSet<float>	dah_;
+    Interval<float>	dahrange_;
 
     virtual void	removeAux(int)			= 0;
     virtual void	eraseAux()			= 0;

@@ -80,6 +80,36 @@ int Well::Info::legacyLogWidthFactor()
 }
 
 
+Notifier<Well::DahObj>& Well::DahObj::instanceCreated()
+{
+    mDefineStaticLocalObject( Notifier<Well::DahObj>, theNotif, (0));
+    return theNotif;
+}
+
+
+Well::DahObj::DahObj( const char* nm )
+: NamedCallBacker(nm)
+{
+    instanceCreated().trigger( this );
+}
+
+
+Well::DahObj::DahObj( const Well::DahObj& d )
+: NamedCallBacker(d.name())
+, dah_(d.dah_)
+, dahrange_(d.dahrange_)
+{
+    instanceCreated().trigger( this );
+}
+
+
+Well::DahObj::~DahObj()
+{
+    dah_.erase();
+    sendDelNotif();
+}
+
+
 int Well::DahObj::indexOf( float dh ) const
 {
     int idx1 = -1;
