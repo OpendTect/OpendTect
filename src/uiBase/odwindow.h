@@ -93,6 +93,7 @@ protected:
     bool		event(QEvent*);
 
     void		keyPressEvent(QKeyEvent*);
+    void		resizeEvent(QResizeEvent*);
 
     void		doShow(bool minimized=false);
     void		managePopupPos();

@@ -760,6 +760,12 @@ void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
 }
 
 
+void uiMainWinBody::resizeEvent( QResizeEvent* ev )
+{
+    QMainWindow::resizeEvent( ev );
+}
+
+
 bool uiMainWinBody::event( QEvent* ev )
 {
     const QEvent::Type qtyp = ev->type();
