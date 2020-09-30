@@ -13,11 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "unitofmeasure.h"
 
+const char* Well::Log::sKeyMnemLbl()	{ return "Mnemonic"; }
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 const char* Well::Log::sKeyDahRange()	{ return "Dah range"; }
-
 
 // ---- Well::LogSet
 
@@ -147,6 +147,17 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 
 
 // ---- Well::Log
+
+const char* Well::Log::mnemLabel() const
+{
+    return mnemlbl_;
+}
+
+
+void Well::Log::setMnemLabel( const char* mnem )
+{
+    mnemlbl_ = mnem;
+}
 
 
 Well::Log& Well::Log::operator =( const Well::Log& wl )

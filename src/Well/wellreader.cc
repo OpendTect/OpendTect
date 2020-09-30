@@ -602,6 +602,8 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
     {
 	if ( astrm.hasKeyword(sKey::Name()) )
 	    newlog->setName( astrm.value() );
+	if ( astrm.hasKeyword(Well::Log::sKeyMnemLbl()) )
+	    newlog->setMnemLabel( astrm.value() );
 	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl()) )
 	    newlog->setUnitMeasLabel( astrm.value() );
 	if ( astrm.hasKeyword(Well::Log::sKeyHdrInfo()) )

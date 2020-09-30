@@ -47,7 +47,7 @@ public:
 			Log( const char* nm=0 )
 			: DahObj(nm)
 			, range_(mUdf(float),-mUdf(float))
-			, iscode_(false)			    {}
+			, iscode_(false)		{}
 			Log( const Log& t )
 			: DahObj("")			{ *this = t; }
     Log&		operator =(const Log&);
@@ -70,6 +70,9 @@ public:
     Interval<float>&	valueRange()			{ return range_; }
     const Interval<float>& valueRange() const		{ return range_; }
 
+    const char*		mnemLabel() const;
+    void		setMnemLabel( const char* );
+
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
@@ -77,6 +80,7 @@ public:
     PropertyRef::StdType propType() const;
     bool		isCode() const			{ return iscode_; }
 			//!< log values are all integers stored as floats
+    static const char*	sKeyMnemLbl();
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
@@ -93,6 +97,7 @@ protected:
     TypeSet<float>	vals_;
     Interval<float>	range_;
     BufferString	unitmeaslbl_;
+    BufferString	mnemlbl_;
     bool		iscode_;
     IOPar		pars_;
 

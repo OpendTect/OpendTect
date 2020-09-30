@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sDispNone = "-";
 
-
 uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     : uiGroup(p,"UnitSel")
     , setup_(su)
@@ -41,6 +40,17 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
 }
 
 
+uiUnitSel::uiUnitSel( uiParent* p, Mnemonic* mn )
+    : uiGroup(p,"UnitSel")
+    , setup_(mn ? mn->stdType() : PropertyRef::Dist, toUiString(""), mn )
+    , selChange(this)
+    , propSelChange(this)
+{
+    init();
+}
+
+
+
 uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
     : uiGroup(p,"UnitSel")
     , setup_(SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist,
@@ -50,6 +60,10 @@ uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
 {
     init();
 }
+
+
+uiUnitSel::~uiUnitSel()
+{}
 
 
 void uiUnitSel::init()
@@ -62,17 +76,36 @@ void uiUnitSel::init()
     propfld_ = 0;
     if ( setup_.selproptype_ )
     {
-	propfld_ = new uiComboBox( this, PropertyRef::StdTypeNames(),
-				   "Properties" );
+	propfld_ = new uiComboBox( this, "Properties" );
+	propfld_->addItems( PropertyRef::StdTypeNames() );
 	propfld_->setCurrentItem( (int)setup_.ptype_ );
 	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
+    }
+
+    if ( setup_.selmnemtype_ )
+    {
+	mnfld_ = new uiComboBox( this, "Mnemonic" );
+	mAttachCB( mnfld_->selectionChanged, uiUnitSel::mnSelChg );
+	MnemonicSet mns = eMNC();
+	BufferStringSet mnsnames;
+	mns.getNames( mnsnames );
+	mnfld_->addItems( mnsnames );
+	if ( setup_.mn_ )
+	{
+	    mnfld_->setCurrentItem( setup_.mn_->name() );
+	    if ( propfld_ )
+		mnfld_->attach( rightOf, propfld_ );
+	}
     }
 
     inpfld_ = new uiComboBox( this, "Units" );
     if ( setup_.mode_ == Setup::SymbolsOnly )
 	inpfld_->setHSzPol( uiObject::Small );
+
     inpfld_->selectionChanged.notify( mCB(this,uiUnitSel,selChg) );
-    if ( propfld_ )
+    if ( mnfld_ )
+	inpfld_->attach( rightOf, mnfld_ );
+    else if ( propfld_ )
 	inpfld_->attach( rightOf, propfld_ );
 
     uiComboBox* leftcb = propfld_ ? propfld_ : inpfld_;
@@ -94,6 +127,12 @@ void uiUnitSel::propSelChg( CallBacker* )
 {
     update();
     propSelChange.trigger();
+}
+
+
+void uiUnitSel::mnSelChg( CallBacker* )
+{
+    update();
 }
 
 
@@ -126,6 +165,19 @@ void uiUnitSel::setPropFld( PropertyRef::StdType typ )
 }
 
 
+void uiUnitSel::setMnemFld( Mnemonic* mn )
+{
+    if ( mnfld_ )
+    {
+	NotifyStopper nst( mnfld_->selectionChanged );
+	mnfld_->setCurrentItem( mn->name() );
+	setup_.mn_ = mn;
+    }
+
+    update();
+}
+
+
 void uiUnitSel::setUnFld( const UnitOfMeasure* un )
 {
     if ( !un && !setup_.withnone_ )
@@ -152,7 +204,12 @@ void uiUnitSel::setUnFld( const UnitOfMeasure* un )
 void uiUnitSel::setUnit( const UnitOfMeasure* un )
 {
     if ( un )
+    {
 	setPropFld( un->propType() );
+	if ( setup_.mn_ )
+	    setMnemFld( setup_.mn_ );
+    }
+
     setUnFld( un );
 }
 
@@ -227,6 +284,21 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 }
 
 
+Mnemonic* uiUnitSel::mnemonic() const
+{
+    return setup_.mn_;
+}
+
+
+void uiUnitSel::setMnemonic( Mnemonic& mn )
+{
+    setMnemFld( &mn );
+    const char* res = mn.disp_.unit_;
+    const UnitOfMeasure* un = UoMR().get( res );
+    setUnFld( un );
+}
+
+
 const char* uiUnitSel::tblKey() const
 {
     if ( setup_.ptype_ != PropertyRef::Other )
@@ -282,8 +354,13 @@ void uiUnitSel::update()
     if ( propfld_ )
 	setup_.ptype_ = (PropertyRef::StdType)propfld_->currentItem();
 
+    if ( mnfld_ )
+	setup_.mn_ = eMNC().find( mnfld_->text() );
+
     units_.erase();
-    UoMR().getRelevant( setup_.ptype_, units_ );
+    if ( setup_.mn_ )
+	UoMR().getRelevant( setup_.mn_->stdType(), units_ );
+
     if ( setup_.withnone_ )
 	units_.insertAt( 0, 0 );
 

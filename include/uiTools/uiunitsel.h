@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistrings.h"
 #include "propertyref.h"
+#include "mnemonics.h"
 
 class uiComboBox;
 class UnitOfMeasure;
@@ -46,24 +47,31 @@ public:
 
 				Setup( PropertyRef::StdType st,
 				       const uiString labeltxt=
-				       uiStrings::sEmptyString() )
+				       uiStrings::sEmptyString(),
+				       Mnemonic* mn = nullptr )
 				    : ptype_(st)
+				    , mn_(mn)
 				    , lbltxt_(mToUiStringTodo(labeltxt))
 				    , mode_(Full)
 				    , selproptype_(false)
+				    , selmnemtype_(mn ? true : false)
 				    , withnone_(false)	{}
 
 	mDefSetupMemb(PropertyRef::StdType,ptype)
+	mDefSetupMemb(Mnemonic*,mn)
 	mDefSetupMemb(uiString,lbltxt)
 	mDefSetupMemb(Mode,mode)
 	mDefSetupMemb(bool,selproptype)
+	mDefSetupMemb(bool,selmnemtype)
 	mDefSetupMemb(bool,withnone)
     };
 
 				uiUnitSel(uiParent*,const Setup&);
 				uiUnitSel(uiParent*,PropertyRef::StdType);
+				uiUnitSel(uiParent*,Mnemonic* mn=nullptr);
 				uiUnitSel(uiParent*,const char* lbltxt=0);
 					//!< For survey Z unit
+				~uiUnitSel();
 
     void			setUnit(const UnitOfMeasure* uom=0);
     void			setUnit(const char*);
@@ -78,6 +86,9 @@ public:
 
     PropertyRef::StdType	propType() const	{ return setup_.ptype_;}
     void			setPropType(PropertyRef::StdType);
+
+    Mnemonic*			mnemonic() const;
+    void			setMnemonic(Mnemonic&);
 
     uiComboBox*			inpFld() const	{ return inpfld_; }
 
@@ -99,13 +110,17 @@ protected:
     Setup			setup_;
     ObjectSet<const UnitOfMeasure> units_;
     BufferString		tblkey_;
+    Mnemonic*			mn_;
 
     uiComboBox*			inpfld_;
     uiComboBox*			propfld_;
+    uiComboBox*			mnfld_;
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			propSelChg(CallBacker*);
+    void			mnSelChg(CallBacker*);
     void			setPropFld(PropertyRef::StdType);
+    void			setMnemFld(Mnemonic*);
     void			setUnFld(const UnitOfMeasure*);
     void			update();
     uiString			getSelTxt(const UnitOfMeasure*) const;

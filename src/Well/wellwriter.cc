@@ -273,7 +273,10 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.put( sKey::Name(), wl.name() );
     const bool haveunits = *wl.unitMeasLabel();
+    const bool havemnemonics = wl.mnemLabel();
     const bool havepars = !wl.pars().isEmpty();
+    if ( havemnemonics )
+	astrm.put( Well::Log::sKeyMnemLbl(), wl.mnemLabel() );
     if ( haveunits )
 	astrm.put( Well::Log::sKeyUnitLbl(), wl.unitMeasLabel() );
     astrm.putYN( Well::Log::sKeyHdrInfo(), havepars );

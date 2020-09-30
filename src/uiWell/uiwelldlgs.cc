@@ -1877,15 +1877,29 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 
 	    logs_ += log;
 	    const char* curruom = log->unitMeasLabel();
-	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
+	    const char* currmnem = log->mnemLabel();
+	    Mnemonic* mn = nullptr;
+	    const UnitOfMeasure* uom;
+	    if ( currmnem )
+		mn = eMNC().find( currmnem );
 
-	    PropertyRef::StdType ptyp = PropertyRef::Other;
-	    if ( uom ) ptyp = uom->propType();
-	    uiUnitSel::Setup ussu( ptyp, uiStrings::sEmptyString() );
-	    ussu.selproptype( true );
-	    ussu.withnone_ = true;
+	    if ( mn )
+		uom = UnitOfMeasure::getGuessed( mn->disp_.unit_ );
+	    else
+	    {
+		uom = UnitOfMeasure::getGuessed( curruom );
+		if ( uom )
+		    mn = eMNC().getGuessed( uom );
+	    }
+
+	    uiUnitSel::Setup ussu( mn ? mn->stdType() : PropertyRef::Other,
+				   uiStrings::sEmptyString(), mn );
+	    ussu.selmnemtype( true );
 	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
 	    unfld->setUnit( uom );
+	    if ( mn )
+		unfld->setMnemonic( *mn );
+
 	    unflds_ += unfld;
 	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
 	    uominfotbl_->setText( RowCol(rowidx,1), lognms.get(lidx ) );
@@ -1912,7 +1926,9 @@ bool uiWellLogUOMDlg::setUoMValues()
 	    continue;
 
 	const UnitOfMeasure* newuom = unflds_[lidx]->getUnit();
+	const Mnemonic* mn =  unflds_[lidx]->mnemonic();
 	log->setUnitMeasLabel( newuom ? newuom->name().buf() : 0 );
+	log->setMnemLabel( mn ? mn->name().buf() : 0 );
     }
 
     return true;

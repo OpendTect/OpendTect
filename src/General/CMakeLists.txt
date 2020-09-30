@@ -58,6 +58,7 @@ list ( APPEND OD_MODULE_SOURCES
 	mathexpression.cc
 	mathformula.cc
 	menuhandler.cc
+	mnemonics.cc
 	mousecursor.cc
 	mouseevent.cc
 	odiconfile.cc
