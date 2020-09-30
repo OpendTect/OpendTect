@@ -11,8 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiiocommon.h"
+
+#include "uicompoundparsel.h"
 #include "uigroup.h"
 #include "surveydisklocation.h"
+
 class uiListBox;
 class uiDataRootSel;
 class uiSeparator;
@@ -70,4 +73,23 @@ protected:
     void		survParFileChg(CallBacker*);
     void		survDirAcceptCB(CallBacker*);
 
+};
+
+/*!\brief selects a survey
+
+If usemanager is true, a uiSurveyManagerDlg is launched. Otherwise a uiDialog
+  with a uiSurveySelect group.
+*/
+
+mExpClass(uiIo) uiSurvSel : public uiCompoundParSel
+{
+public:
+			uiSurvSel(uiParent*,bool showmanager);
+			~uiSurvSel();
+
+protected:
+    void		doDlg(CallBacker*);
+    uiString		getSummary() const override;
+
+    bool		showmanager_;
 };

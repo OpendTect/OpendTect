@@ -11,14 +11,18 @@ ________________________________________________________________________
 
 #include "uisurveyselect.h"
 #include "uidatarootsel.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
-#include "uimsg.h"
+#include "uisurveymanager.h"
 
+#include "dbman.h"
 #include "file.h"
-#include "filepath.h"
 #include "filemonitor.h"
+#include "filepath.h"
 #include "survinfo.h"
 
 uiSurveySelect::uiSurveySelect( uiParent* p, bool al )
@@ -234,4 +238,50 @@ void uiSurveySelect::survParFileChg( CallBacker* cb )
 	survParsChg.trigger();
 
     startFileMonitoring();
+}
+
+
+
+// uiSurvSel
+uiSurvSel::uiSurvSel( uiParent* p, bool showmanager )
+    : uiCompoundParSel(p,uiStrings::sSurvey())
+    , showmanager_(showmanager)
+{
+    txtfld_->setStretch( 2, 2 );
+    mAttachCB( butPush, uiSurvSel::doDlg );
+}
+
+
+uiSurvSel::~uiSurvSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSurvSel::doDlg( CallBacker* )
+{
+    if ( showmanager_ )
+    {
+	uiSurveyManagerDlg dlg( this, false );
+	dlg.go();
+    }
+    else
+    {
+	uiDialog dlg( this, uiDialog::Setup(
+		toUiString("Select DataRoot and Survey"),
+		mNoDlgTitle,mNoHelpKey));
+	auto* survsel = new uiSurveySelect( &dlg );
+	if ( !dlg.go() )
+	    return;
+
+	uiRetVal rv = DBM().setDataSource( survsel->getFullDirPath(), true );
+	if ( !rv.isOK() )
+	    uiMSG().error( rv );
+    }
+}
+
+
+uiString uiSurvSel::getSummary() const
+{
+    return toUiString( SI().name() );
 }
