@@ -28,6 +28,7 @@ class uiSpinBox;
 class uiLineEdit;
 class uiCheckBox;
 class uiFileInput;
+class uiPushButton;
 class uiSurveyMap;
 class uiRadioButton;
 class uiHistogramDisplay;
@@ -72,13 +73,15 @@ protected:
     SEGY::FileSpec	filespec_;
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
+    BufferStringSet	linenames_;
+    int			wcidx_		= -1;
 
     uiGroup*		topgrp_;
     uiGroup*		midgrp_;
     uiGroup*		botgrp_;
     uiSEGYImpType*	typfld_;
     uiFileInput*	inpfld_;
-    uiSpinBox*		linenamefld_;
+    uiPushButton*	multilinebut_;
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
     uiSurveyMap*	survmap_;
@@ -135,6 +138,7 @@ protected:
     void		updateSurvMap();
     void		updateICvsXYButtons();
     void		updateCoordScale();
+    bool		reviewAndEditLineNames();
 
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);
@@ -156,6 +160,7 @@ protected:
     void		initClassic(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		coordSysChangedCB(CallBacker*);
+    void		multiLineSelCB(CallBacker*);
 
     bool		commit(bool permissive=false);
 

@@ -1,4 +1,5 @@
-/*
+
+  /*
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -17,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegyimptype.h"
 #include "uisegyexamine.h"
 #include "uisegymanip.h"
+#include "uisegymultilinesel.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
 #include "uifileinput.h"
@@ -65,7 +67,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , forsurvsetup_(forsurvsetup)
     , filereadopts_(nullptr)
     , typfld_(nullptr)
-    , linenamefld_(nullptr)
+    , multilinebut_(nullptr)
     , useicbut_(nullptr)
     , usexybut_(nullptr)
     , coordscalefld_(nullptr)
@@ -115,16 +117,16 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     if ( typfld_ || fixedimptype_.is2D() )
     {
-	auto* lnmfld = new uiLabeledSpinBox( topgrp_,
-					 tr("Line name from wildcard #") );
-	linenamefld_ = lnmfld->box();
-	linenamefld_->setMinValue( 1 );
+	multilinebut_ = new uiPushButton( topgrp_, tr("Review/Edit Line names"),
+					  false );
+	mAttachCB( multilinebut_->activated, uiSEGYReadStarter::multiLineSelCB);
+	multilinebut_->display( false );
 	if ( typfld_ )
-	    lnmfld->attach( rightTo, typfld_ );
+	    multilinebut_->attach( rightTo, typfld_ );
 	else
 	{
-	    lnmfld->attach( alignedBelow, inpfld_ );
-	    attachobj = lnmfld->attachObj();
+	    multilinebut_->attach( alignedBelow, inpfld_ );
+	    attachobj = multilinebut_;
 	}
     }
 
@@ -281,6 +283,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
 
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
+    detachAllNotifiers();
     delete survinfo_;
     delete timer_;
     delete filereadopts_;
@@ -295,6 +298,7 @@ FullSpec uiSEGYReadStarter::fullSpec() const
     FullSpec ret( imptyp.geomType(), imptyp.isVSP() );
     ret.rev_ = loaddef_.revision_;
     ret.spec_ = filespec_;
+    ret.linenames_ = linenames_;
     ret.pars_ = filepars_;
     ret.zinfeet_ = zInFeet();
     if ( filereadopts_ )
@@ -329,6 +333,16 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 }
 
 
+void uiSEGYReadStarter::multiLineSelCB( CallBacker* )
+{ reviewAndEditLineNames(); }
+
+bool uiSEGYReadStarter::reviewAndEditLineNames()
+{
+    uiSEGYMultiLineSel linedlg( this, filespec_, wcidx_, linenames_ );
+    return linedlg.go();
+}
+
+
 void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 {
     delete scaninfos_; scaninfos_ = 0;
@@ -336,6 +350,9 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
     clearDisplay();
     if ( !getFileSpec() )
 	return;
+
+    if ( multilinebut_ )
+	multilinebut_->display( impType().is2D() && filespec_.nrFiles() > 1 );
 
     const SEGY::ImpType& imptyp = impType();
     scaninfos_ = new SEGY::ScanInfoSet( imptyp.is2D(), imptyp.isPS() );
@@ -506,6 +523,9 @@ void uiSEGYReadStarter::typChg( CallBacker* )
     if ( imptyp.is2D() )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
 
+    if ( multilinebut_ )
+	multilinebut_->display( imptyp.is2D() && filespec_.nrFiles() > 1 );
+
     infofld_->setImpTypIdx( imptyp.tidx_, false );
     detectrev0flds_ = true;
     forceRescan( KeepBasic );
@@ -527,6 +547,7 @@ void uiSEGYReadStarter::coordSysChangedCB( CallBacker* )
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
     detectrev0flds_ = true;
+    linenames_.setEmpty();
     handleNewInputSpec( KeepNone );
     setToolStates();
 }
@@ -603,13 +624,6 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 
     FilePath fp( newusrfnm );
     sImportFromPath = fp.pathOnly();
-
-    if ( linenamefld_ )
-    {
-	const int nrwc = userfilename_.count( '*' );
-	linenamefld_->setInterval( 1, nrwc );
-	linenamefld_->setSensitive( nrwc > 1 );
-    }
 }
 
 
@@ -1136,12 +1150,13 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 	}
 	return true;
     }
+    else if ( impType().is2D() && filespec_.nrFiles() > 1 &&
+	      linenames_.isEmpty() && !reviewAndEditLineNames() )
+	return false;
 
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
     dlg.setCoordSystem( coordsysselfld_->getCoordSystem() );
-    const int wcidx = linenamefld_ ? linenamefld_->getIntValue()-1 : -1;
-    dlg.setWildcardIndexForLineName( wcidx );
     dlg.go();
 
     return false;

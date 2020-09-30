@@ -35,6 +35,7 @@ public:
     FileSpec		spec_;
     FilePars		pars_;
     FileReadOpts	readopts_;
+    BufferStringSet	linenames_;
     bool		zinfeet_;
 
     bool		isVSP() const		{ return isvsp_; }

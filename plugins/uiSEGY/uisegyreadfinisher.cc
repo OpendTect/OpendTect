@@ -543,7 +543,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
     {
 	BufferString lnm( inplnm );
 	if ( nrlines > 1 )
-	    lnm = getWildcardSubstLineName( iln );
+	    lnm = fs_.linenames_.get( iln );
 
 	const bool morelines = iln < nrlines-1;
 	bool isnew = true;
@@ -613,7 +613,7 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
     {
 	BufferString lnm( inplnm );
 	if ( nrlines > 1 )
-	    lnm = getWildcardSubstLineName( iln );
+	    lnm = fs_.linenames_.get( iln );
 
 	const bool morelines = iln < nrlines-1;
 	bool isnew = true;
@@ -730,69 +730,6 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
     }
 
     return true;
-}
-
-
-void uiSEGYReadFinisher::setWildcardIndexForLineName( int wcidx )
-{
-    wcidx_ = wcidx;
-}
-
-
-BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
-{
-    BufferString fnm( fs_.spec_.fileName( iln ) );
-    BufferString wildcardexpr = fs_.spec_.usrStr();
-
-    char* pwc = wildcardexpr.getCStr();
-    char* pfnm = fnm.getCStr();
-    while ( *pwc && *pfnm && *pwc != '*' )
-	{ pwc++; pfnm++; }
-    if ( !*pwc || !*pfnm )
-	return "_";
-
-    BufferStringSet wcnms;
-    while ( pwc )
-    {
-	char* nonwcstart = pwc + 1;
-	if ( !*nonwcstart )
-	    break;
-
-	pwc = firstOcc( nonwcstart, '*' ); // move to next wildcard, if there
-	if ( pwc )
-	    *pwc = '\0';
-
-	char* subststart = pfnm;
-	pfnm = firstOcc( pfnm, nonwcstart );
-	if ( !pfnm )
-	{
-	    pErrMsg("Huh");
-	    if ( wcnms.isEmpty() )
-		wcnms.add( "_" );
-	    return wcnms.get(0);
-	}
-	*pfnm = '\0';
-	pfnm += FixedString(nonwcstart).size(); // to next wildcard section
-
-	wcnms.add( subststart );
-    }
-
-    if ( wcnms.validIdx(wcidx_) )
-	return wcnms.get( wcidx_ );
-
-    // fallback
-    const Survey::Geometry* geom = nullptr;
-    for ( int idx=0; idx<wcnms.size(); idx++ )
-    {
-	geom = Survey::GM().getGeometry( wcnms.get(idx).buf() );
-	if ( geom )
-	    break;
-    }
-
-    if ( geom )
-	return geom->getName();
-
-    return !wcnms.isEmpty() ? wcnms.get(0).buf() : "_";
 }
 
 

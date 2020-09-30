@@ -20,6 +20,7 @@ set(OD_MODULE_SOURCES
     uisegyimpparsdlg.cc
     uisegyimptype.cc
     uisegymanip.cc
+    uisegymultilinesel.cc
     uisegypi.cc
     uisegyread.cc
     uisegyreaddlg.cc

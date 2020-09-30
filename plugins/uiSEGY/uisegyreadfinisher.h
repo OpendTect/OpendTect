@@ -44,7 +44,6 @@ public:
 
     void		setAsDefaultObj(); //!< call only after successful go()
     void		setCoordSystem(Coords::CoordSystem*);
-    void		setWildcardIndexForLineName(int);
 
 protected:
 
@@ -52,7 +51,6 @@ protected:
     BufferString	objname_;
     MultiID		outputid_;
     Coords::CoordSystem* coordsys_ 	= nullptr;
-    int			wcidx_		= -1;
 
     uiIOObjSel*		outwllfld_;
     uiComboBox*		lognmfld_;
@@ -92,7 +90,6 @@ protected:
     bool		handleExistingGeometry(const char*,bool,bool&,bool&,
 					       bool&);
     bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
-    BufferString	getWildcardSubstLineName(int) const;
     bool		putCoordChoiceInSpec();
 
     void		initWin(CallBacker*);
