@@ -50,9 +50,12 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     osfld_ = new uiGenInput( this, tr("Operating System") );
     osfld_->setReadOnly();
     osfld_->attach( alignedBelow, hostnmfld_ );
+    productnmfld_ = new uiGenInput( this, tr("OS Product name") );
+    productnmfld_->setReadOnly();
+    productnmfld_->attach( alignedBelow, osfld_ );
     usernmfld_ = new uiGenInput( this, tr("User name") );
     usernmfld_->setReadOnly();
-    usernmfld_->attach( alignedBelow, osfld_ );
+    usernmfld_->attach( alignedBelow, productnmfld_ );
 
     BufferString hostidstext = hostids.cat( " " );
     if ( hostids.size() > 1 )
@@ -61,6 +64,7 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     hostidfld_->setText( hostidstext );
     hostnmfld_->setText( System::localHostName() );
     osfld_->setText( OD::Platform().longName() );
+    productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
 
     auto* but = new uiToolButton( this, "clipboard", tr("Copy to Clipboard"),
@@ -76,6 +80,7 @@ void uiHostIDDlg::copyCB( CallBacker* )
     txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
        .add("Host name: " ).add( hostnmfld_->text() ).addNewLine()
        .add( "Operating System: " ).add( osfld_->text() ).addNewLine()
+       .add( "Product name: " ).add( productnmfld_->text() ).addNewLine()
        .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
     uiClipboard::setText( txt.buf() );
     uiMSG().message( tr("Information copied to clipboard.\n"

@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QHostInfo>
 #include <QNetworkInterface>
 #include <QStorageInfo>
+#include <QSysInfo>
 
 #ifdef __lux__
 # include <sys/statfs.h>
@@ -319,6 +320,21 @@ const char* getFileSystemName( const char* path )
 bool getHostIDs( BufferStringSet& hostids, BufferString& errmsg )
 {
     return OD::getHostIDs( hostids, errmsg );
+}
+
+const char* productName()
+{
+    mDeclStaticString( str );
+    str = QSysInfo::prettyProductName();
+    return str.buf();
+}
+
+
+const char* kernelVersion()
+{
+    mDeclStaticString( str );
+    str = QSysInfo::kernelVersion();
+    return str.buf();
 }
 
 } // namespace System

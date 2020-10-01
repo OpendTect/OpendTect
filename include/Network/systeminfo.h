@@ -55,5 +55,8 @@ namespace System
 					    macAddressHash(). */
     mGlobal(Network) bool		getHostIDs(BufferStringSet& hostids,
 						   BufferString& errmsg);
+    mGlobal(Network) const char*	productName();
+					//!<return OS, distribution, etc.
+    mGlobal(Network) const char*	kernelVersion();
 }
 

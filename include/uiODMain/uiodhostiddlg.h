@@ -25,6 +25,7 @@ protected:
     uiGenInput*		hostidfld_;
     uiGenInput*		hostnmfld_;
     uiGenInput*		osfld_;
+    uiGenInput*		productnmfld_;
     uiGenInput*		usernmfld_;
 };
 
