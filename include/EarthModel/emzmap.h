@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include "executor.h"
 
+class UnitOfMeasure;
 template<class T> class Array2D;
 
 namespace EM
@@ -34,6 +35,7 @@ public:
     uiString		uiNrDoneText() const		{ return nrdonetxt_; }
 
     void		setCoordSystem(Coords::CoordSystem*);
+    void		setUOM(const UnitOfMeasure*);
 
     const Array2D<float>* data() const			{ return data_; }
     Array2D<float>*	data()				{ return data_; }
@@ -45,6 +47,7 @@ public:
 protected:
 
     bool		initHeader();
+    void		applyCRS();
     int			nextStep();
 
     od_int64		nrdone_		= 0;
@@ -79,6 +82,10 @@ protected:
     // derived
     double		dx_		= 0.;
     double		dy_		= 0.;
+
+    // Coords in survey's CRS
+    Coord		mincrd_;
+    Coord		maxcrd_;
 };
 
 } // namespace EM

@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
+#include "uiunitsel.h"
 
 #include "arrayndimpl.h"
 #include "array2dinterpolimpl.h"
@@ -46,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emzmap.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "horizonscanner.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -685,6 +687,8 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 }
 
 
+static HiddenParam<uiImpHorFromZMap,uiPosSubSel*> subselflds(nullptr);
+static HiddenParam<uiImpHorFromZMap,uiUnitSel*> unitselflds(nullptr);
 
 // uiImpHorFromZMap
 uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
@@ -702,20 +706,30 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 		  uiFileInput::Setup(uiFileDialog::Gen)
 		  .withexamine(true).forread(true)
 		  .defseldir(sImportFromPath) );
-    mAttachCB(inpfld_->valuechanged, uiImpHorFromZMap::inputChgd);
+    mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
 
     uiObject* attachobj = inpfld_->attachObj();
     if ( SI().getCoordSystem() && SI().getCoordSystem()->isProjection() )
     {
 	crsfld_ = new Coords::uiCoordSystemSel(this, false);
+	mAttachCB( crsfld_->changed, uiImpHorFromZMap::inputChgd );
 	crsfld_->attach(alignedBelow, inpfld_);
 	attachobj = crsfld_->attachObj();
     }
 
+    auto* subselfld = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
+    subselfld->attach( alignedBelow, attachobj );
+    subselflds.setParam( this, subselfld );
+
+    auto* unitfld = new uiUnitSel( this,
+		uiUnitSel::Setup(PropertyRef::Dist,uiStrings::sUnit()) );
+    unitfld->attach( alignedBelow, subselfld );
+    unitselflds.setParam( this, unitfld );
+
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
     ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
-    outputfld_->attach( alignedBelow, attachobj );
+    outputfld_->attach( alignedBelow, unitfld );
 }
 
 
@@ -727,14 +741,42 @@ uiImpHorFromZMap::~uiImpHorFromZMap()
 
 MultiID uiImpHorFromZMap::getSelID() const
 {
-    MultiID mid = outputfld_->key();
+    const MultiID mid = outputfld_->key();
     return mid;
+}
+
+
+static void getCoordinates( const EM::ZMapImporter& importer,
+			    TrcKeySampling& tks, Coord& mincrd, Coord& maxcrd )
+{
+    mincrd = importer.minCoord();
+    maxcrd = importer.maxCoord();
+    tks.init( false );
+    tks.include( SI().transform(mincrd) );
+    tks.include( SI().transform(maxcrd) );
+    tks.include( SI().transform(Coord(mincrd.x,maxcrd.y)) );
+    tks.include( SI().transform(Coord(maxcrd.x,mincrd.y)) );
+    tks.step_ = SI().sampling(false).hsamp_.step_;
 }
 
 
 void uiImpHorFromZMap::inputChgd( CallBacker* )
 {
-    const FilePath fnmfp( inpfld_->fileName() );
+    const FixedString horfnm = inpfld_->fileName();
+    if ( horfnm.isEmpty() )
+	return;
+
+    EM::ZMapImporter importer( horfnm );
+    if ( crsfld_ )
+	importer.setCoordSystem( crsfld_->getCoordSystem() );
+
+    TrcKeySampling tks; Coord mincrd, maxcrd;
+    getCoordinates( importer, tks, mincrd, maxcrd );
+    TrcKeyZSampling tkzs; tkzs.hsamp_ = tks;
+    subselflds.getParam(this)->setInputLimit( tkzs );
+    subselflds.getParam(this)->setInput( tkzs );
+
+    const FilePath fnmfp( horfnm );
     sImportFromPath = fnmfp.pathOnly();
     outputfld_->setInputText( fnmfp.baseName() );
 }
@@ -769,24 +811,25 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
+    const UnitOfMeasure* zuom = unitselflds.getParam(this)->getUnit();
+
     uiTaskRunner uitr( this );
     EM::ZMapImporter importer( horfnm );
+    if ( crsfld_ )
+	importer.setCoordSystem( crsfld_->getCoordSystem() );
+    importer.setUOM( zuom );
     if ( !uitr.execute(importer) )
     {
 	uiMSG().error( tr("Error reading ZMap file.") );
 	return false;
     }
 
-    const Array2D<float>* arr2d = importer.data();
-    const Coord mincrd = importer.minCoord();
-    const Coord maxcrd = importer.maxCoord();
-    TrcKeySampling tks; tks.init( false );
-    tks.include( SI().transform(mincrd) );
-    tks.include( SI().transform(maxcrd) );
-    tks.include( SI().transform(Coord(mincrd.x,maxcrd.y)) );
-    tks.include( SI().transform(Coord(maxcrd.x,mincrd.y)) );
-    tks.step_ = SI().sampling(false).hsamp_.step_;
+    TrcKeySampling tks; Coord mincrd, maxcrd;
+    getCoordinates( importer, tks, mincrd, maxcrd );
 
+    tks = subselflds.getParam(this)->envelope().hsamp_;
+
+    const Array2D<float>* arr2d = importer.data();
     Array2DFromXYConverter conv( *arr2d, mincrd, importer.step() );
     conv.setOutputSampling( tks );
     if ( !uitr.execute(conv) )

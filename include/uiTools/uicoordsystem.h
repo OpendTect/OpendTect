@@ -105,8 +105,11 @@ public:
 				bool projectiononly=true,
 				const CoordSystem* crs=SI().getCoordSystem(),
 				const uiString& seltxt=uiStrings::sCoordSys());
+			~uiCoordSystemSel();
 
     RefMan<CoordSystem>		getCoordSystem()	{ return coordsystem_; }
+
+    Notifier<uiCoordSystemSel>	changed;
 
 protected:
 

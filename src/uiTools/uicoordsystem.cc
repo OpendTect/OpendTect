@@ -242,12 +242,19 @@ uiCoordSystemSel::uiCoordSystemSel( uiParent* p,
     : uiCompoundParSel(p,seltxt)
     , orthogonalonly_(orthogonalonly)
     , projectiononly_(projectiononly)
+    , changed(this)
 {
     if ( coordsys )
 	coordsystem_ = coordsys->clone();
 
     txtfld_->setElemSzPol( uiObject::WideMax );
-    butPush.notify( mCB(this,uiCoordSystemSel,selCB) );
+    mAttachCB( butPush, uiCoordSystemSel::selCB );
+}
+
+
+uiCoordSystemSel::~uiCoordSystemSel()
+{
+    detachAllNotifiers();
 }
 
 
@@ -261,6 +268,7 @@ void uiCoordSystemSel::selCB( CallBacker* )
     {
 	coordsystem_ = dlg_->getCoordSystem();
 	updateSummary();
+	changed.trigger();
     }
 }
 

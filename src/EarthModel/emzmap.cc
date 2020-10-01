@@ -12,16 +12,19 @@ ________________________________________________________________________
 #include "emzmap.h"
 
 #include "arrayndimpl.h"
+#include "hiddenparam.h"
 #include "od_istream.h"
 #include "position.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 #include "uistrings.h"
 
 
 namespace EM
 {
+static HiddenParam<ZMapImporter,UnitOfMeasure*> uoms_(nullptr);
 
 ZMapImporter::ZMapImporter( const char* fnm )
     : Executor("Reading ZMap data")
@@ -29,11 +32,10 @@ ZMapImporter::ZMapImporter( const char* fnm )
 {
     nrdonetxt_ = tr("Positions done");
     istrm_ = new od_istream( fnm_ );
-    if ( !initHeader() )
-	return;
 
-    data_ = new Array2DImpl<float>( nrrows_, nrcols_ );
-    data_->setAll( mUdf(float) );
+    uoms_.setParam( this, nullptr );
+    initHeader();
+    applyCRS();
 }
 
 
@@ -47,6 +49,15 @@ ZMapImporter::~ZMapImporter()
 void ZMapImporter::setCoordSystem( Coords::CoordSystem* crs )
 {
     coordsystem_ = crs;
+    applyCRS();
+}
+
+
+void ZMapImporter::setUOM( const UnitOfMeasure* uom )
+{
+    uoms_.deleteAndZeroPtrParam( this );
+    if ( uom )
+	uoms_.setParam( this, new UnitOfMeasure(*uom) );
 }
 
 
@@ -88,18 +99,6 @@ bool ZMapImporter::initHeader()
     xmax_ = toDouble( ss[3] );
     ymin_ = toDouble( ss[4] );
     ymax_ = toDouble( ss[5] );
-    const Coords::CoordSystem* fromcrs = coordsystem_;
-    const Coords::CoordSystem* tocrs = SI().getCoordSystem();
-    if ( fromcrs && tocrs )
-    {
-	Coord mincrd( xmin_, ymin_ );
-	mincrd = Coords::CoordSystem::convert( mincrd, *fromcrs, *tocrs );
-	xmin_ = mincrd.x; ymin_ = mincrd.y;
-
-	Coord maxcrd( xmax_, ymax_ );
-	maxcrd = Coords::CoordSystem::convert( maxcrd, *fromcrs, *tocrs );
-	xmax_ = maxcrd.x; ymax_ = mincrd.y;
-    }
 
 //header line 4
     istrm_->getLine( ss.rep() );
@@ -108,25 +107,52 @@ bool ZMapImporter::initHeader()
     istrm_->getLine( ss.rep() );
 
     totalnr_ = nrrows_ * nrcols_;
-    dx_ = (xmax_ - xmin_) / (nrcols_-1);
-    dy_ = (ymax_ - ymin_) / (nrrows_-1);
     return true;
+}
+
+
+void ZMapImporter::applyCRS()
+{
+    mincrd_ = Coord( xmin_, ymin_ );
+    maxcrd_ = Coord( xmax_, ymax_ );
+
+    const Coords::CoordSystem* fromcrs = coordsystem_;
+    const Coords::CoordSystem* tocrs = SI().getCoordSystem();
+    if ( fromcrs && tocrs )
+    {
+	mincrd_ = Coords::CoordSystem::convert( mincrd_, *fromcrs, *tocrs );
+	maxcrd_ = Coords::CoordSystem::convert( maxcrd_, *fromcrs, *tocrs );
+    }
+
+    const Coord dcrd = maxcrd_ - mincrd_;
+    dx_ = dcrd.x / (nrcols_-1);
+    dy_ = dcrd.y / (nrrows_-1);
 }
 
 
 int ZMapImporter::nextStep()
 {
+    if ( !data_ )
+    {
+	data_ = new Array2DImpl<float>( nrrows_, nrcols_ );
+	data_->setAll( mUdf(float) );
+    }
+
     if ( nrdone_ >= totalnr_ )
 	return Finished();
 
     BufferString buf;
     istrm_->getWord( buf );
-    const float zval = toFloat( buf );
+    float zval = toFloat( buf );
     if ( mIsUdf(zval) || mIsEqual(zval,undefval_,mDefEps) )
     {
 	nrdone_++;
 	return MoreToDo();
     }
+
+    UnitOfMeasure* uom = uoms_.getParam( this );
+    if ( uom )
+	zval = uom->internalValue( zval );
 
     // From ZMap format description:
     // grid nodes are stored in column major order. The first column of
@@ -141,10 +167,10 @@ int ZMapImporter::nextStep()
 
 
 Coord ZMapImporter::minCoord() const
-{ return Coord(xmin_,ymin_); }
+{ return mincrd_; }
 
 Coord ZMapImporter::maxCoord() const
-{ return Coord(xmax_,ymax_); }
+{ return maxcrd_; }
 
 Coord ZMapImporter::step() const
 { return Coord( dx_, dy_ ); }
