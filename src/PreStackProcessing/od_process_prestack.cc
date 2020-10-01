@@ -36,16 +36,14 @@ using namespace PreStack;
 { delete procman; procman = 0; writer = 0; }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("PreStackProcessing")
 {
     PtrMan<SeisPSWriter> writer = 0;
     ProcessManager* procman = 0;
 
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
-    { mRetError(toUiString("\nCannot execute pre-3.2 par files")); }
-
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
+    { mRetError("\nCannot execute pre-3.2 par files"); }
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
@@ -61,30 +59,30 @@ bool BatchProgram::go( od_ostream& strm )
     Seis::GeomType geomtype;
     if ( !Seis::getFromPar(pars(),geomtype) )
     {
-	mRetError(toUiString("\nCannot read geometry type"));
+	mRetError("\nCannot read geometry type");
     }
 
     if ( geomtype!=Seis::VolPS && geomtype!=Seis::LinePS )
     {
-	mRetError(toUiString("\nGeometry is not prestack"));
+	mRetError("\nGeometry is not prestack");
     }
 
     DBKey setupmid;
     if ( !pars().get(ProcessManager::sKeySetup(),setupmid) )
     {
-	mRetError(toUiString("\nCannot read setup"));
+	mRetError("\nCannot read setup");
     }
 
     PtrMan<IOObj> setupioobj = setupmid.getIOObj();
     if ( !setupioobj )
     {
-	mRetError(toUiString("\nCannot create setup object"));
+	mRetError("\nCannot create setup object");
     }
 
     procman = new ProcessManager;
     if ( !procman )
     {
-	mRetError(uiStrings::phrCannotCreate(toUiString("'Process Manager'")));
+	mRetError("Cannot create 'Process Manager'");
     }
 
     uiString errmsg;
@@ -95,7 +93,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( geomtype==Seis::LinePS && linekey.isEmpty() )
     {
-	mRetError(toUiString("\nNo line Name set"));
+	mRetError("\nNo line Name set");
     }
 
     PtrMan<IOObj> inputioobj = 0;
@@ -104,26 +102,26 @@ bool BatchProgram::go( od_ostream& strm )
 	DBKey inputmid;
 	if ( !pars().get(ProcessManager::sKeyInputData(),inputmid) )
 	{
-	    mRetError(toUiString("\nCannot read input id"));
+	    mRetError("\nCannot read input id");
 	}
 
 	inputioobj = inputmid.getIOObj();
 	if ( !inputioobj )
 	{
-	    mRetError(toUiString("\nCannot create input object"));
+	    mRetError("\nCannot create input object");
 	}
     }
 
     DBKey outputmid;
     if ( !pars().get(ProcessManager::sKeyOutputData(),outputmid) )
     {
-	mRetError(toUiString("\nCannot read output id"));
+	mRetError("\nCannot read output id");
     }
 
     PtrMan<IOObj> outputioobj = outputmid.getIOObj();
     if ( !outputioobj )
     {
-	mRetError(toUiString("\nCannot create output object"));
+	mRetError("\nCannot create output object");
     }
 
     SeisPSReader* reader = 0;
@@ -177,7 +175,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !reader )
 	{
-	    mRetError(toUiString("\nCannot create input reader"));
+	    mRetError("\nCannot create input reader");
 	}
     }
     else
@@ -193,7 +191,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !writer )
     {
-	mRetError(toUiString("\nCannot create output writer"));
+	mRetError("\nCannot create output writer");
     }
 
     BinID curbid; //inl not used if 2D
@@ -209,7 +207,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	if ( !hiter.next() )
 	{
-	    mRetError(toUiString("\nNo CDP's to process"));
+	    mRetError("\nNo CDP's to process");
 	}
 
 	curbid = hiter.curBinID();
@@ -240,6 +238,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    paused = false;
 	    mSetCommState(Working);
+	    setResumed();
 	}
 
 	procman->reset( false );
@@ -247,7 +246,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !procman->prepareWork() )
 	{
-	    mRetError(toUiString("\nCannot prepare processing."));
+	    mRetError("\nCannot prepare processing.");
 	}
 
 	const BinID stepout = procman->getInputStepout();
@@ -355,7 +354,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 		    if ( !writer->put( trc ) )
 		    {
-			mRetError(toUiString("\nCannot write output"));
+			mRetError("\nCannot write output");
 		    }
 		}
 	    }

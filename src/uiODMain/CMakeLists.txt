@@ -49,7 +49,6 @@ set(OD_MODULE_SOURCES
 	uiodrandlinetreeitem.cc
 	uiodbodydisplaytreeitem.cc
 	uiodseis2dtreeitem.cc
-	uiodservicemgr.cc
 	uiodstratlayermodelmgr.cc
 	uiodusrinteractionsettings.cc
 	uiodviewer2d.cc
@@ -69,6 +68,7 @@ set(OD_MODULE_SOURCES
 	uiodvolproctreeitem.cc
 	uiodvolumetreeitem.cc
 	uiodwelltreeitem.cc
+	uiserviceclientmgr.cc
 )
 
 set( OD_MODULE_GUI_PROGS od_main.cc  )

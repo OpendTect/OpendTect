@@ -338,10 +338,19 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 				    bool waitforfinish )
 {
     if ( !pkt.isOK() )
+    {
+	if ( pkt.requestID() >= 0 )
+	    errmsg_ = tr("Network request packet ID is not incorrect");
+	if ( pkt.payloadSize() < 1 )
+	    errmsg_.append( tr("Network packet to be sent is empty") );
 	return false;
+    }
 
     if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+    {
+	errmsg_ = tr("Threading error while trying to send a network packet");
 	return false;
+    }
 
     Threads::MutexLocker locker( lock_ );
 
@@ -353,8 +362,10 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 	    ourrequestids_ += reqid;
 	else
 	{
-	    pErrMsg(
-		BufferString("Packet send requested for unknown ID: ",reqid) );
+	    const BufferString msg( "Packet send requested for unknown ID: ",
+				     reqid );
+	    errmsg_ = toUiString(msg);
+	    pErrMsg( msg );
 	    return false;
 	}
     }

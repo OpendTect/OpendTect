@@ -24,9 +24,9 @@ class uiODMain;
 class uiODMenuMgr;
 class uiODSceneMgr;
 class uiODViewer2DMgr;
+class uiServiceClientMgr;
 class uiToolBar;
 class uiVisColTabEd;
-class uiODServiceMgr;
 
 
 mGlobal(uiODMain) uiODMain* ODMainWin();
@@ -51,7 +51,7 @@ public:
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
     uiODViewer2DMgr&	viewer2DMgr()	{ return *viewer2dmgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
-    uiODServiceMgr&	serviceMgr();
+    uiServiceClientMgr& serviceMgr();
 
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
     Notifier<uiODMain>	sessionRestoreEarly; //!< Get data from pars, before vis

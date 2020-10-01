@@ -12,6 +12,7 @@ set ( QT_MOC_HEADERS
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
 set ( OD_MODULE_SOURCES
+	clientservicebase.cc
 	cvsaccess.cc
 	hostdata.cc
 	initnetwork.cc
@@ -25,9 +26,9 @@ set ( OD_MODULE_SOURCES
 	netsocket.cc
 	oddlsite.cc
 	odhttp.cc
-	odbatchservice.cc
 	odnetworkaccess.cc
-	odservicebase.cc
+	servicemgrbase.cc
+	serverservicebase.cc
 	systeminfo.cc
 	webfileaccess.cc
 )

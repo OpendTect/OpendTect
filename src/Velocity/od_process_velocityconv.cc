@@ -21,10 +21,8 @@
 
 #define mErrRet( msg ) { strm << msg; return false; }
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("Velocity")
 {
-    OD::ModDeps().ensureLoaded("Velocity");
-
     DBKey inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
 	mErrRet( "Cannot read input volume id" )
@@ -73,7 +71,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     auto uirv = outputioobj->commitChanges();
     if ( !uirv.isOK() )
-	mErrRet( toString(uirv) )
+	mErrRet( ::toString(uirv) )
 
     return true;
 }

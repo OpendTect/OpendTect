@@ -326,10 +326,9 @@ static bool createLinePS()
 }
 
 
-bool BatchProgram::go( od_ostream& )
+mLoad1Module("Seis")
 {
     mInitBatchTestProg();
-    OD::ModDeps().ensureLoaded("Seis");
 
     if ( !fillTrcBuf() )
 	return false;

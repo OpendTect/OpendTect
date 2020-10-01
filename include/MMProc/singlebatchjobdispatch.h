@@ -41,7 +41,7 @@ public:
 protected:
 
     virtual bool	init();
-    virtual bool	launch();
+    virtual bool	launch(ID*);
 
 };
 

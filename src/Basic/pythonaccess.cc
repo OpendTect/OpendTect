@@ -700,7 +700,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     msg_.setEmpty();
 
     File::Path scriptfp;
-    const bool background = execpars && execpars->launchtype_ == OS::RunInBG;
+    const bool background = execpars && execpars->launchtype_ >= OS::RunInBG;
     cl_ = getLauncher( cmd, background, activatefp, envnm, scriptfp );
     if ( !cl_.ptr() )
     {
@@ -987,12 +987,12 @@ void OD::PythonAccess::envChangeCB( CallBacker* )
 
 uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
-	if (!isUsable_(!istested_))
-	{
-		uiRetVal ret = tr("Could not detect a valid Python installation:\n%1")
-			.arg( lastOutput(true,nullptr) );
-		return ret.add( tr("Python environment not usable") );
-	}
+    if (!isUsable_(!istested_))
+    {
+	uiRetVal ret = tr("Could not detect a valid Python installation:\n%1")
+		.arg( lastOutput(true,nullptr) );
+	return ret.add( tr("Python environment not usable") );
+    }
 
     if ( !msg_.isEmpty() )
 	return uiRetVal( msg_ );

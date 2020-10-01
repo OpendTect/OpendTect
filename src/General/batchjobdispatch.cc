@@ -21,24 +21,24 @@ static const char* sKeyClArgs = "Program.Args";
 mImplClassFactory( Batch::JobDispatcher, factory )
 
 
-Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
-    : execpars_(OS::Batch)
+Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt, OS::LaunchType lt )
+    : execpars_(lt)
     , prognm_(progNameFor(pt))
 {
     execpars_.needmonitor_ = true;
 }
 
 
-Batch::JobSpec::JobSpec( const char* pnm )
-    : execpars_(OS::Batch)
+Batch::JobSpec::JobSpec( const char* pnm, OS::LaunchType lt )
+    : execpars_(lt)
     , prognm_(pnm)
 {
     execpars_.needmonitor_ = true;
 }
 
 
-Batch::JobSpec::JobSpec( const IOPar& iop )
-    : execpars_(OS::Batch)
+Batch::JobSpec::JobSpec( const IOPar& iop, OS::LaunchType lt )
+    : execpars_(lt)
 {
     usePar( iop );
     pars_.removeWithKey( sKey::Survey() );
@@ -120,21 +120,30 @@ bool Batch::JobDispatcher::canHandle( const JobSpec& js ) const
     return isSuitedFor( js.prognm_ );
 }
 
+namespace Batch
+{
 
-bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
+static Threads::Atomic<Batch::ID> curjobid( Batch::JobDispatcher::getInvalid());
+
+};
+
+bool Batch::JobDispatcher::go( const Batch::JobSpec& js, Batch::ID* jobid )
 {
     if ( !canHandle(js) )
     {
 	errmsg_ = tr("Batch job is not suited for %1 execution")
 		.arg( factoryDisplayName() );
-	return false;
+	return getInvalid();
     }
 
     jobspec_ = js;
     if ( !init() )
-	return false;
+	return getInvalid();
 
-    return launch();
+    if ( jobid )
+	*jobid = ++curjobid;
+
+    return launch( jobid );
 }
 
 
@@ -215,4 +224,11 @@ void Batch::JobDispatcher::setUserWantsResume( IOPar& iop, bool yn )
 bool Batch::JobDispatcher::userWantsResume( const IOPar& iop )
 {
     return iop.isTrue( sKeyResumeProcessing );
+}
+
+
+void Batch::JobDispatcher::addIDTo( Batch::ID batchid, OS::MachineCommand& mc )
+{
+    if ( batchid > getInvalid() )
+	mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), batchid );
 }

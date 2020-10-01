@@ -6,15 +6,17 @@
 
 #include "singlebatchjobdispatch.h"
 
+#include "clientservicebase.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "hostdata.h"
 #include "jobiomgr.h"
 #include "jobrunner.h"
+#include "keystrs.h"
+#include "netserver.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "keystrs.h"
 
 
 Batch::SingleJobDispatcher::SingleJobDispatcher()
@@ -43,7 +45,7 @@ bool Batch::SingleJobDispatcher::init()
 }
 
 
-bool Batch::SingleJobDispatcher::launch()
+bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
 {
     if ( !writeParFile() )
 	return false;
@@ -118,6 +120,8 @@ bool Batch::SingleJobDispatcher::launch()
     }
     mc.addArg( ioparfp.fullPath(pathstyle) );
     mc.addArgs( jobspec_.clargs_ );
+    if ( batchid )
+	JobDispatcher::addIDTo( *batchid, mc );
 
     if ( execlocal || !exechost->isWindows() )
 	jobspec_.execpars_.monitorfnm( logfile );
@@ -136,6 +140,11 @@ bool Batch::SingleJobDispatcher::launch()
 
 	DBG::message(msg);
     }
+
+/*    if ( jobspec_.execpars_.launchtype_ >= OS::Batch )
+      Not (yet) registering all bathc programs */
+    if ( jobspec_.execpars_.launchtype_ > OS::Batch )
+	ServiceClientMgr::addApplicationAuthority( mc );
 
     return mc.execute( jobspec_.execpars_ );
 }

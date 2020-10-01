@@ -9,18 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "iopar.h"
 #include "madprocexec.h"
 #include "moddepmgr.h"
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("AttributeEngine")
 {
-    OD::ModDeps().ensureLoaded( "AttributeEngine" );
-
     ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )
     {
-	OD::DisplayErrorMessage( toString(exec.errMsg()) );
+	OD::DisplayErrorMessage( ::toString(exec.errMsg()) );
 	return false;
     }
 

@@ -17,11 +17,8 @@
 
 #include "prog.h"
 
-
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("Seis")
 {
-    OD::ModDeps().ensureLoaded( "Seis" );
-
     PtrMan<IOPar> inpar = pars().subselect( sKey::Input() );
     if ( !inpar || inpar->isEmpty() )
 	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }

@@ -31,7 +31,8 @@ public:
     mUseType( JobSpec,	ProcType );
 
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-					ProcType pt=JobSpec::NonODBase);
+					ProcType pt=JobSpec::NonODBase,
+					OS::LaunchType type=OS::Batch);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
 						const JobSpec&);
 

@@ -21,12 +21,8 @@
 
 #define mErrRet(s) { strm << s << od_endl; return false; }
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad2Modules("Seis","Well")
 {
-    PIM().loadAuto(false);
-    OD::ModDeps().ensureLoaded("Seis");
-    OD::ModDeps().ensureLoaded("Well");
-
     DBKey inpdbky;
     if ( !pars().get(IOPar::compKey(sKey::Input(),sKey::ID()),inpdbky) )
 	mErrRet( "Cannot find input ID" )

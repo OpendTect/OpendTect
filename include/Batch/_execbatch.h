@@ -32,17 +32,18 @@ ________________________________________________________________________
 
 
 #ifdef __win__
-static void setBatchPriority( int argc, char** argv )
+static void setBatchPriority( int argc, char** argv, float priority )
 #else
-static void setBatchPriority( int argc, char** argv, int pid )
+static void setBatchPriority( int argc, char** argv, float priority, int pid )
 #endif
 {
     const CommandLineParser clp( argc, argv );
-    const auto priority = clp.keyedValue<float>( "priority" );
+    //TODO: replace by reading the IOPar
+    priority = clp.keyedValue<float>( OS::CommandExecPars::sKeyPriority() );
 #ifdef __unix__
     if ( mIsUdf(priority) )
     {
-	const auto nicelvl = clp.keyedValue<int>( "nice" );
+	const int nicelvl = clp.keyedValue<int>( "nice" );
 	if ( mIsUdf(nicelvl) )
 	    return;
 
@@ -94,32 +95,24 @@ static void setBatchPriority( int argc, char** argv, int pid )
 void Execute_batch( int* pargc, char** argv )
 {
     PIM().loadAuto( false );
-
-    BP().init();
-    if ( !BP().stillok_ )
+    if ( !BP().init() )
 	return;
 
-    BatchProgram& bp = BP();
-    bool allok = bp.initOutput();
-    if ( allok )
-    {
-	od_ostream& logstrm = bp.strm_ ? *bp.strm_ : od_cout();
-	const int pid = GetPID();
+    PIM().loadAuto( true );
 #ifdef __win__
-	setBatchPriority( *pargc, argv );
+    setBatchPriority( *pargc, argv, BP().getPriority() );
 #else
-	setBatchPriority( *pargc, argv, pid );
+    setBatchPriority( *pargc, argv, BP().getPriority(), GetPID() );
 #endif
-	logstrm << "Starting program: " << argv[0] << " " << bp.name()
-		<< od_endl;
-	logstrm << "Processing on: " << GetLocalHostName() << od_endl;
-	logstrm << "Process ID: " << pid << od_endl;
-	allok = bp.go( logstrm );
-    }
+}
 
-    bp.stillok_ = allok;
-    const int ret = allok ? 0 : 1;
-    BatchProgram::deleteInstance( ret );
+void loadModulesCB( CallBacker* )
+{
+    BP().loadModules();
+    BP().modulesLoaded();
+}
 
-    ApplicationData::exit( ret );	// never reached.
+void launchDoWorkCB( CallBacker* )
+{
+    BP().launchDoWork();
 }

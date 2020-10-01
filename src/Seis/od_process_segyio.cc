@@ -63,7 +63,7 @@ static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
 }
 
 
-bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
+static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
@@ -83,13 +83,13 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"SEG-Y importer", &iop,
-				tr("Importing traces") );
+				toUiString("Importing traces") );
     stp->setProcPars( *outpar );
     return stp->go( strm );
 }
 
 
-bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
+static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
     if ( !inppar || inppar->isEmpty() )
@@ -121,7 +121,7 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
     fp.fillPar( outioobj->pars() );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 			    "SEG-Y exporter", outpar,
-			    tr("Exporting traces"), compnr );
+			    toUiString("Exporting traces"), compnr );
     stp->setProcPars( *outpar );
     return stp->go( strm );
 }
@@ -178,10 +178,8 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("Seis")
 {
-    OD::ModDeps().ensureLoaded("Seis");
-
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();
     const bool isexport = task == SEGY::IO::sKeyExport();
