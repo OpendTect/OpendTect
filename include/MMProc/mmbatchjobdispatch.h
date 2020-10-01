@@ -56,7 +56,7 @@ public:
 protected:
 
     virtual bool	init();
-    virtual bool	launch();
+    virtual bool	launch(ID*);
 
     int			defIdx(const char* pnm=0) const;
 

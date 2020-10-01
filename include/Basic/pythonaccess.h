@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "notify.h"
 
 class Timer;
-class ODServiceBase;
+class ServiceMgrBase;
 class uiPythonSettings;
 class uiString;
 namespace OS {
@@ -158,7 +158,7 @@ namespace OD
 	void			envChangeCB(CallBacker*);
 
 	friend class ::uiPythonSettings;
-	friend class ::ODServiceBase;
+	friend class ::ServiceMgrBase;
 
 	public:
 

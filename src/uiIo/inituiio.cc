@@ -43,20 +43,20 @@ mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 		       Batch::JobSpec&,"Distributed",tr("Distributed"));
 
     virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
-    virtual bool			go(uiParent*);
+    virtual bool			go(uiParent*,Batch::ID* =nullptr);
     Batch::MMJobDispatcher		jd_;
 
 };
 
 
-bool uiMMBatchJobDispatcherLauncher::go( uiParent* p )
+bool uiMMBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* batchid )
 {
     const HostDataList hdl( false );
     const HostData* localhost = hdl.find( BufferString(GetLocalHostName()) );
     if ( !localhost )
     {
 	if ( hdl.isEmpty() )
-	    return uiBatchJobDispatcherLauncher::go( p );
+	    return uiBatchJobDispatcherLauncher::go( p, batchid );
 
 	gUiMsg(p).error( tr("Cannot find configuration for localhost") );
 	return false;
@@ -72,7 +72,7 @@ bool uiMMBatchJobDispatcherLauncher::go( uiParent* p )
 	return false;
     }
 
-    return uiBatchJobDispatcherLauncher::go( p );
+    return uiBatchJobDispatcherLauncher::go( p, batchid );
 }
 
 

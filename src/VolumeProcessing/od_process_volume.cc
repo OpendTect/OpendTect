@@ -10,12 +10,8 @@
 #include "volprocprocessor.h"
 #include "moddepmgr.h"
 
-
-bool BatchProgram::go( od_ostream& strm )
+mLoad2Modules("VolumeProcessing","Well")
 {
-    OD::ModDeps().ensureLoaded( "VolumeProcessing" );
-    OD::ModDeps().ensureLoaded( "Well" );
-
     VolProc::Processor proc( pars() );
     if ( !proc.run(strm,comm_) )
 	return false;

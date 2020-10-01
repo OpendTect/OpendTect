@@ -10,32 +10,68 @@
 
 #include "netservice.h"
 
+#include "commandlineparser.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "keystrs.h"
 #include "netserver.h"
+#include "netsocket.h"
+#include "od_ostream.h"
 #include "odjson.h"
 #include "oscommand.h"
 #include "sighndl.h"
+#include "uistrings.h"
 
 
 #define sProtocolStr "http"
 #define sUrlSepStr "://"
 
+const char* Network::Service::sKeySubID()
+{ return OS::MachineCommand::sKeyJobID(); }
 
-Network::Service::Service( PortNr_Type portid, const char* hostnm  )
-    : NamedObject()
-    , auth_(hostnm ? hostnm : GetLocalHostName(),portid)
+mDefineEnumUtils(Network::Service,ServType,"Service Type")
 {
-    setPID( GetPID() );
+    "OpendTect interface",
+    "OpendTect batch interface",
+    "OpendTect batch program",
+    "OpendTect test program",
+    "Python application",
+    "Other",
+    0
+};
+template<>
+void EnumDefImpl<Network::Service::ServType>::init()
+{
+    uistrings_ += mEnumTr("OpendTect interface",0);
+    uistrings_ += mEnumTr("OpendTect batch interface",0);
+    uistrings_ += mEnumTr("OpendTect batch program",0);
+    uistrings_ += mEnumTr("OpendTect test program",0);
+    uistrings_ += mEnumTr("Python application",0);
+    uistrings_ += uiStrings::sOther();
 }
 
 
-Network::Service::Service( const OD::JSON::Object& par, const Authority& auth )
+Network::Service::Service( PortNr_Type portid, const char* hostnm  )
+    : NamedObject()
+    , auth_(hostnm ? hostnm : Network::Socket::sKeyLocalHost(),portid)
+{
+    init();
+}
+
+
+Network::Service::Service( const Network::Authority& auth )
     : NamedObject()
     , auth_(auth)
 {
-    setPID( GetPID() );
+    init();
+}
+
+
+Network::Service::Service( const OD::JSON::Object& par )
+    : NamedObject()
+{
+    init();
     msg_ = useJSON( par );
 }
 
@@ -43,8 +79,11 @@ Network::Service::Service( const OD::JSON::Object& par, const Authority& auth )
 Network::Service::~Service()
 {
     pid_ = 0; //TODO: remove later
-    stop();
-    delete logfp_;
+    if ( !viewonly_ )
+    {
+	stop();
+	delete logfp_;
+    }
 }
 
 
@@ -53,15 +92,23 @@ bool Network::Service::operator ==( const Service& oth ) const
     if ( &oth == this )
 	return true;
 
-    return NamedObject::operator==( oth ) &&
-		auth_ == oth.auth_ &&
-		pid_ == oth.pid_;
+    return pid_ == oth.pid_ && subid_ == oth.subid_ && auth_ == oth.auth_ &&
+	   NamedObject::operator==( oth );
 }
 
 
 bool Network::Service::operator !=( const Service& oth ) const
 {
     return !(*this == oth);
+}
+
+
+void Network::Service::init()
+{
+    setPID( GetPID() );
+    CommandLineParser clp;
+    clp.setKeyHasValue( sKeySubID() );
+    clp.getKeyedInfo( sKeySubID(), subid_ );
 }
 
 
@@ -75,6 +122,7 @@ bool Network::Service::isEmpty() const
 {
     return !auth_.isUsable();
 }
+
 
 bool Network::Service::isPortValid() const
 {
@@ -95,6 +143,12 @@ bool Network::Service::isAlive() const
 Network::Service::ID Network::Service::getID() const
 {
     return PID();
+}
+
+
+bool Network::Service::isBatch() const
+{
+    return type_ == ODBatch;
 }
 
 
@@ -125,30 +179,24 @@ BufferString Network::Service::logFnm() const
 }
 
 
-bool Network::Service::fillJSON( OD::JSON::Object& jsonobj ) const
+void Network::Service::fillJSON( OD::JSON::Object& jsonobj ) const
 {
-    if ( !fillJSON( getAuthority(), jsonobj ) )
-	return false;
+    jsonobj.set( sKeyServiceType(), type_ );
+    jsonobj.set( sKeyPID(), pid_ );
+    jsonobj.set( sKeySubID(), subid_ );
+    jsonobj.set( sKeyServiceName(), name() );
+    const bool islocal = auth_.isLocal();
+    jsonobj.set( Server::sKeyLocal(), islocal );
+    if ( islocal )
+	jsonobj.set( Server::sKeyHostName(), auth_.toString() );
+    else
+    {
+	jsonobj.set( Server::sKeyHostName(), auth_.getHost() );
+	jsonobj.set( Server::sKeyPort(), auth_.getPort() );
+    }
 
     if ( logfp_ )
 	jsonobj.set( sKeyLogFile(), logfp_->fullPath() );
-
-    return true;
-}
-
-
-
-bool Network::Service::fillJSON( const Authority& auth,
-				 OD::JSON::Object& jsonobj )
-{
-    const PID_Type pid = GetPID();
-    const BufferString servnm( GetProcessNameForPID(pid) );
-    jsonobj.set( sKeyServiceName(), servnm );
-    jsonobj.set( Server::sKeyHostName(), auth.getHost() );
-    jsonobj.set( Server::sKeyPort(), auth.getPort() );
-    jsonobj.set( sKeyPID(), pid );
-
-    return true;
 }
 
 
@@ -170,26 +218,47 @@ Network::Service::ID Network::Service::getID( const OD::JSON::Object& jsonobj )
 uiRetVal Network::Service::useJSON( const OD::JSON::Object& jsonobj )
 {
     uiRetVal uirv;
-    if ( jsonobj.isPresent( sKeyServiceName() ) )
+    if ( jsonobj.isPresent(sKeyServiceName()) )
 	setName( jsonobj.getStringValue( sKeyServiceName() ) );
     else
 	uirv.add(tr("missing key: %1").arg(sKeyServiceName()));
 
-    if ( jsonobj.isPresent( Server::sKeyHostName() ) )
-	setHostName( jsonobj.getStringValue(Server::sKeyHostName()) );
-    else
-	uirv.add(tr("missing key: %1").arg(Server::sKeyHostName()));
-
-    if ( jsonobj.isPresent( Server::sKeyPort() ) )
-	setPort( jsonobj.getIntValue( Server::sKeyPort() ) );
-    else
-	uirv.add(tr("missing key: %1").arg(Server::sKeyPort()));
-
-    if ( jsonobj.isPresent( sKeyPID() ) )
+    if ( jsonobj.isPresent(sKeyPID()) )
 	pid_ = jsonobj.getIntValue( sKeyPID() );
+    if ( jsonobj.isPresent(sKeySubID()) )
+	subid_ = jsonobj.getIntValue( sKeySubID() );
 
-    if ( jsonobj.isPresent( sKeyLogFile() ) )
-	setLogFile( jsonobj.getStringValue( sKeyLogFile() ) );
+    const char* hostnmkey = Server::sKeyHostName();
+    const char* portkey = Server::sKeyPort();
+
+    BufferString hostnm;
+    if ( jsonobj.isPresent(hostnmkey) )
+    {
+	hostnm.set( jsonobj.getStringValue(hostnmkey) );
+	const bool hasportnr = jsonobj.isPresent( portkey );
+	const bool haslocal = jsonobj.isPresent( Server::sKeyLocal() );
+	if ( !hasportnr && !haslocal )
+	    uirv.add( tr("missing key to set the authority. "
+			 "Need either port number or --local flag") );
+	else
+	{
+	    if ( haslocal )
+		auth_.localFromString( hostnm );
+	    else
+	    {
+		setHostName( hostnm );
+		setPort( jsonobj.getIntValue(portkey) );
+	    }
+	}
+    }
+    else
+	uirv.add(tr("missing key: %1").arg(hostnmkey));
+
+    if ( jsonobj.isPresent(sKeyServiceType()) )
+	type_ = mCast(ServType,jsonobj.getIntValue( sKeyServiceType() ));
+
+    if ( jsonobj.isPresent(sKeyLogFile()) )
+	setLogFile( jsonobj.getStringValue(sKeyLogFile()) );
 
     return uirv;
 }
@@ -216,7 +285,7 @@ void Network::Service::setLogFile( const char* fnm )
 }
 
 
-void Network::Service::setPID( PID_Type pid )
+void Network::Service::setPID( ProcID pid )
 {
     pid_ = pid;
     setName( GetProcessNameForPID(pid_) );
@@ -232,6 +301,9 @@ void Network::Service::setPID( const OS::CommandLauncher& cl )
 
 void Network::Service::stop( bool removelog )
 {
+    if ( viewonly_ )
+	return;
+
     if ( isAlive() )
     {
 	SignalHandling::stopProcess( pid_ );
@@ -246,4 +318,19 @@ void Network::Service::stop( bool removelog )
 void Network::Service::setEmpty()
 {
     setPort( 0 );
+}
+
+
+void Network::Service::printInfo( const char* ky, od_ostream* ostrm ) const
+{
+    od_ostream& strm = ostrm ? *ostrm : od_cout();
+    strm << "Service";
+    if ( ky && *ky )
+	strm << " [" << ky << "]";
+    strm << " " << name()
+	 << " - status: " << isOK()
+	 << " - PID: " << PID()
+	 << " - ID: " << getID()
+	 << " - SubID: " << getSubID()
+	 << od_endl;
 }

@@ -67,7 +67,6 @@ set( OD_MODULE_SOURCES
 	uiobjectitemviewwin.cc
 	uiodtreeitem.cc
 	uiodprmantreeitem.cc
-	uiodservice.cc
 	uiofferinfo.cc
 	uipathsel.cc
 	uipluginman.cc
@@ -75,6 +74,7 @@ set( OD_MODULE_SOURCES
 	uipositiontable.cc
 	uipropvalfld.cc
 	uiproxydlg.cc
+	uiserviceservermgr.cc
 	uiraytrace1d.cc
 	uirgbarraycanvas.cc
 	uirockphysform.cc

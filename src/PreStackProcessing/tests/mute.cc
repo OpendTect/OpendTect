@@ -123,11 +123,9 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const DBKey& muteid )
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("PreStackProcessing")
 {
     mInitBatchTestProg();
-
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
     DBKey muteid;
     if ( !pars().get(sKeyTestMute41(),muteid) )

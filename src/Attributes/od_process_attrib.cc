@@ -39,17 +39,14 @@
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad2Modules("Attributes","PreStackProcessing")
 {
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
     {
-	errorMsg( toUiString("\nCannot execute pre-3.2 par files") );
+	errorMsg( ::toUiString("\nCannot execute pre-3.2 par files") );
 	return false;
     }
-
-    OD::ModDeps().ensureLoaded( "Attributes" );
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
     Attrib::Processor* proc = 0;
     const char* tempdir = pars().find(sKey::TmpStor());
@@ -70,12 +67,12 @@ bool BatchProgram::go( od_ostream& strm )
     int outidx = 0;
     while ( true )
     {
-	strm << od_newline;
-	strm << "Preparing processing";
-
 	PtrMan<IOPar> outpar = outputs->subselect( outidx );
 	if ( !outpar || outpar->isEmpty() )
 	    break;
+
+	strm << od_newline;
+	strm << "Preparing processing";
 
 	const char* seisid = outpar->find( "Seismic.ID" );
 	if ( !seisid )
@@ -216,7 +213,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    proc = attrengman.usePar( procpar, attribsetlocal, uirv,
 				      outidx, geomid );
 	    if ( !proc )
-		mRetJobErr( toString(uirv) );
+		mRetJobErr( ::toString(uirv) );
 
 	    progressmeter.setName( proc->name() );
 	    progressmeter.setMessage( proc->message() );
@@ -249,6 +246,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    {
 			paused = false;
 			mSetCommState(Working);
+			setResumed();
 		    }
 
 		    progressmeter.setNrDone( proc->nrDone() );
@@ -277,7 +275,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    if ( res > 0 )
 		    {
 			if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
-			    mRetHostErr( toString( comm_->errMsg() ) )
+			    mRetHostErr( ::toString( comm_->errMsg() ) )
 
 			if ( proc->nrDone()>nrdone )
 			{
@@ -290,7 +288,7 @@ bool BatchProgram::go( od_ostream& strm )
 			if ( res == -1 )
 			    mRetJobErr(
 				BufferString("Cannot reach next position:\n",
-						 toString(proc->message())) );
+						 ::toString(proc->message())) );
 			break;
 		    }
 
@@ -300,7 +298,7 @@ bool BatchProgram::go( od_ostream& strm )
 			if ( !proc->outputs_[0]->writeTrc() )
 			    mRetJobErr(
 				BufferString("Cannot write output trace:\n",
-					toString(proc->outputs_[0]->errMsg())) )
+				    ::toString(proc->outputs_[0]->errMsg())) )
 		    }
 		}
 	    }

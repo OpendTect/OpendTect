@@ -90,7 +90,7 @@ bool Batch::ClusterJobDispatcher::canResume( const Batch::JobSpec& js ) const
 }
 
 
-bool Batch::ClusterJobDispatcher::launch()
+bool Batch::ClusterJobDispatcher::launch( ID* batchid )
 {
     pErrMsg("Do not call: Launching is handled in UI dispatcher itself");
     return false;

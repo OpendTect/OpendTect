@@ -10,9 +10,8 @@
 #include "moddepmgr.h"
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("OD::ModDepMgr::sAllNonUI()")
 {
-    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     strm << "Successfully running Diagnostic program on host ";
     strm << GetLocalHostName() << od_endl;
     comm_->setState( JobCommunic::Working );

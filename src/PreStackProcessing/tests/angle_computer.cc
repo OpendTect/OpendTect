@@ -163,11 +163,9 @@ bool testAnglesForDifferentSurveys();
 static const char* vel_dbky_str = "100010.8";
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("Velocity")
 {
     mInitBatchTestProg();
-
-    OD::ModDeps().ensureLoaded( "Velocity" );
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 

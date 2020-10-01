@@ -17,14 +17,9 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "moddepmgr.h"
 
-#include <iostream>
 
-
-bool BatchProgram::go( od_ostream& strm )
+mLoad2Modules("EarthModel","Seis")
 {
-    OD::ModDeps().ensureLoaded( "EarthModel" );
-    OD::ModDeps().ensureLoaded( "Seis" );
-
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )
 	{ strm << "Incomplete parameter file" << od_endl; return false; }

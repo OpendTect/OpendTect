@@ -148,10 +148,9 @@ bool testTracesAmplitudes( od_ostream& strm,
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("Seis")
 {
     mInitBatchTestProg();
-    OD::ModDeps().ensureLoaded( "Seis" );
     VrmsRayTracer1D::initClass();
 
     // Inputs

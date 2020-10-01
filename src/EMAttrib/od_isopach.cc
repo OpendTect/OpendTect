@@ -40,10 +40,8 @@ static bool loadHorizon( const DBKey& mid, od_ostream& strm )
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("EarthModel")
 {
-    OD::ModDeps().ensureLoaded( "EarthModel" );
-
     strm << "Loading Horizons ..." << od_newline;
     DBKey mid1;
     pars().get( IsochronMaker::sKeyHorizonID(), mid1 );
@@ -105,7 +103,7 @@ bool BatchProgram::go( od_ostream& strm )
     pars().getYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite );
     if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
     {
-	strm << "Failed to save " << getIsoMapType() << " Attribute" << 
+	strm << "Failed to save " << getIsoMapType() << " Attribute" <<
 							    od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;

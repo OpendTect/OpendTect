@@ -306,11 +306,8 @@ static void interpolate( EM::Horizon3D* horizon,
     aem.setAttribSet( &localattribset ); \
     aem.setAttribSpecs( selspecs ); \
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad2Modules("Attributes","PreStackProcessing")
 {
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
-    OD::ModDeps().ensureLoaded( "Attributes" );
-
     if ( clParser().nrArgs() )
     {
 	const bool ismaxstepout = clParser().isPresent( "maxstepout" );
@@ -358,7 +355,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !emmgr.getSurfaceData(dbky,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
-	    errstr += toString( uierr );
+	    errstr += ::toString( uierr );
 	    mErrRetNoProc( errstr.buf() );
 	}
 
@@ -409,7 +406,7 @@ bool BatchProgram::go( od_ostream& strm )
     for ( int idx=0; idx<nrattribs; idx++ )
     {
 	int id;
-	if ( attribsiopar->get(toString(idx),id) )
+	if ( attribsiopar->get(::toString(idx),id) )
 	    attribids += DescID( id );
     }
 
@@ -438,7 +435,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uirv, bivs );
 	if ( !proc )
-	    mErrRet( toString(uirv) );
+	    mErrRet( ::toString(uirv) );
 
 	if ( !process( strm, proc, false ) ) return false;
 	HorizonUtils::addSurfaceData( dbkys[0], attribrefs, bivs );
@@ -523,7 +520,7 @@ bool BatchProgram::go( od_ostream& strm )
 		Processor* proc = aem.create2DVarZOutput( uirv, pars(),
 				dps, outval, zboundsset ? &zbounds : 0 );
 		if ( !proc )
-		    mErrRet( toString(uirv) );
+		    mErrRet( ::toString(uirv) );
 		if ( !process(strm,proc,is2d,&outpid,&seisoutp) )
 		    return false;
 	    }
@@ -541,7 +538,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    Processor* proc = aem.createTrcSelOutput( uirv, bivs, seisoutp,
 					outval, zboundsset ? &zbounds : 0 );
 	    if ( !proc )
-		mErrRet( toString(uirv) );
+		mErrRet( ::toString(uirv) );
 	    if ( !process( strm, proc, is2d, &outpid, &seisoutp ) )
 		return false;
 	}

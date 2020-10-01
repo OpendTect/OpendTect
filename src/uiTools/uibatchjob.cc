@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "keystrs.h"
 #include "netserver.h"
-#include "odbatchservice.h"
 #include "oddirs.h"
 #include "singlebatchjobdispatch.h"
 
@@ -37,9 +36,10 @@ static const char* sGroupName = "Batch job dispatcher selector";
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-						  const JobSpec& js )
+						  ProcType proctyp,
+						  OS::LaunchType launchtype )
     : uiGroup(p,sGroupName)
-    , jobspec_(js)
+    , jobspec_(proctyp,launchtype)
     , selectionChange(this)
     , checked(this)
 {
@@ -48,9 +48,9 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-						  ProcType proctyp )
+						  const JobSpec& js )
     : uiGroup(p,sGroupName)
-    , jobspec_(proctyp)
+    , jobspec_(js)
     , selectionChange(this)
     , checked(this)
 {
@@ -288,12 +288,9 @@ void uiBatchJobDispatcherSel::optsPush( CallBacker* )
 mImplClassFactory( uiBatchJobDispatcherLauncher, factory )
 
 
-bool uiBatchJobDispatcherLauncher::go( uiParent* p )
+bool uiBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
 {
-    ODBatchService& ODSM = ODBatchService::getMgr();
-    jobspec_.pars_.add( ODSM.sKeyODServer(),
-			ODSM.getAuthority( true ).toString() );
-    if ( !dispatcher().go(jobspec_) )
+    if ( !dispatcher().go(jobspec_,jobid) )
     {
 	uiRetVal ret( tr("Cannot start program %1").arg(jobspec_.prognm_) );
 	ret.add( dispatcher().errMsg() );
@@ -351,7 +348,7 @@ Batch::JobDispatcher& uiSingleBatchJobDispatcherLauncher::gtDsptchr()
 }
 
 
-bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p )
+bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
 {
     if ( !sjd_.remotehost_.isEmpty() )
     {

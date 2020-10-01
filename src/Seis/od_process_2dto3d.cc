@@ -40,19 +40,14 @@ ________________________________________________________________________
 	    mRetHostErr( msg ); \
 	}
 
-
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("Seis")
 {
     const int odversion = pars().odVersion();
     if ( odversion < 600 )
     {
-	errorMsg( toUiString("\nCannot execute pre-6.0 par files") );
+	errorMsg( ::toUiString("\nCannot execute pre-6.0 par files") );
 	return false;
     }
-
-    OD::ModDeps().ensureLoaded( "Algo" );
-    OD::ModDeps().ensureLoaded( "Seis" );
-
 
     Seis2DTo3D* proc = 0;
     const FixedString tempdir = pars().find(sKey::TmpStor());
@@ -162,6 +157,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    {
 		paused = false;
 		mSetCommState(Working);
+		setResumed();
 	    }
 
 	    if ( nriter == 0 )
@@ -190,7 +186,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    {
 		if ( res == -1 )
 		    mRetJobErr( BufferString("Cannot reach next position:\n",
-				toString(proc->message()) ) )
+				::toString(proc->message()) ) )
 		break;
 	    }
 

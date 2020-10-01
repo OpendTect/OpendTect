@@ -29,11 +29,8 @@ ________________________________________________________________________
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad2Modules("MPEEngine","Well")
 {
-    OD::ModDeps().ensureLoaded( "MPEEngine" );
-    OD::ModDeps().ensureLoaded( "Well" );
-
     const char* psfilenm = pars().find( sKey::FileName() );
     const BufferString workdir( GetProcFileName(nullptr) );
     if ( workdir.size() > 255 )
@@ -74,7 +71,7 @@ bool BatchProgram::go( od_ostream& strm )
 	IOPar legpar;
 	if ( par->fillLegendPar( legpar ) )
 	{
-	    legendspar.mergeComp( legpar, toString(legendidx++) );
+	    legendspar.mergeComp( legpar, ::toString(legendidx++) );
 	}
 
 	if ( idx == 0 )

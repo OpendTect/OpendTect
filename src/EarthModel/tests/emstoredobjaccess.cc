@@ -36,10 +36,9 @@ static bool initLoader( EM::StoredObjAccess& soa )
 }
 
 
-bool BatchProgram::go( od_ostream& strm )
+mLoad1Module("EarthModel")
 {
     mInitBatchTestProg();
-    OD::ModDeps().ensureLoaded( "EarthModel" );
 
     EM::StoredObjAccess soa;
     if ( !initLoader(soa) )

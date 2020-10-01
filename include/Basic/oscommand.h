@@ -22,7 +22,7 @@ class StreamProvider;
 namespace OS
 {
 
-enum LaunchType	{ Wait4Finish, RunInBG, Batch };
+enum LaunchType { Wait4Finish, RunInBG, Batch, BatchWait };
 enum KeyStyle	{ NewStyle, OldStyle };
 
 }
@@ -43,7 +43,7 @@ public:
 			    : launchtype_(lt)
 			    , createstreams_(false)
 			    , needmonitor_(false)
-			    , prioritylevel_(lt==Batch ? -1.0f : 0.0f)
+			    , prioritylevel_(lt>=Batch ? -1.0f : 0.0f)
 			    , isconsoleuiprog_(false)	    {}
 
     mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);

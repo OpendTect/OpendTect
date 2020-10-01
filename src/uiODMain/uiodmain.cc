@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiodhorattribmgr.h"
-#include "uiodservicemgr.h"
+#include "uiserviceclientmgr.h"
 
 #include "autosaver.h"
 #include "genc.h"
@@ -698,7 +698,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 
 void uiODMain::afterStartupCB( CallBacker* )
 {
-    uiODServiceMgr::setFor( *this );
+    uiServiceClientMgr::setFor( *this );
     uiCOLTAB().asParent()->display( false );
     startAutoSaved2RealObjectRestorer();
 }
@@ -948,9 +948,9 @@ void uiODMain::exit( bool doconfirm )
 }
 
 
-uiODServiceMgr& uiODMain::serviceMgr()
+uiServiceClientMgr& uiODMain::serviceMgr()
 {
-    return uiODServiceMgr::getMgr();
+    return uiServiceClientMgr::getMgr();
 }
 
 
