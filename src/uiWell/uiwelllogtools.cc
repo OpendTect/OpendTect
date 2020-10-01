@@ -121,11 +121,15 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     if ( !displogs )
     {
 	const int ldsize = logdatas.size();
-	const int res = uiMSG().askGoOn( tr("You have selected %1 logs."
-				" Maximum %2 can be displayed on the screen."
-				"\nDo you want to display logs of "
-				"first %3 wells?")
-				.arg(nrsellogs).arg(maxlimit).arg(ldsize) );
+	uiString msg = tr("You have selected %1 logs."
+			  " Maximum %2 can be displayed on the screen."
+			  "\nDo you want to display logs of first")
+			.arg(nrsellogs).arg(maxlimit);
+
+	ldsize == 1 ? msg.append( tr("well?") )
+		    : msg.append( tr("%3 wells?").arg(ldsize));
+
+	const int res = uiMSG().askGoOn( msg );
 	if ( !res )
 	{
 	    deepErase(logdatas);
