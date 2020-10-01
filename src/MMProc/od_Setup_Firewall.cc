@@ -13,6 +13,7 @@
 #include "oscommand.h"
 #include "pythonaccess.h"
 #include "settings.h"
+#include "winutils.h"
 
 static const int cProtocolNr = 1;
 
@@ -107,7 +108,9 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 	mc.addArg( "dir=in" );
 	mc.addArg( "action=allow" );
     }
-    return mc.execute( OS::LaunchType::RunInBG );
+    OS::CommandExecPars pars( OS::RunInBG );
+    pars.runasadmin( !WinUtils::IsUserAnAdmin() );
+    return mc.execute( pars );
 }
 
 
