@@ -21,7 +21,7 @@ class uiTextEdit;
 namespace Repos { class IOParSet; class IOPar; }
 
 
-mExpClass(uiSEGY) uiSEGYImpParsDlg : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYImpParsDlg : public uiDialog
 { mODTextTranslationClass(uiSEGYImpParsDlg)
 public:
 
@@ -56,7 +56,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYReadImpParsDlg : public uiSEGYImpParsDlg
+mExpClass(uiSEGYTools) uiSEGYReadImpParsDlg : public uiSEGYImpParsDlg
 { mODTextTranslationClass(uiSEGYReadImpParsDlg)
 public:
 
@@ -74,7 +74,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYStoreImpParsDlg : public uiSEGYImpParsDlg
+mExpClass(uiSEGYTools) uiSEGYStoreImpParsDlg : public uiSEGYImpParsDlg
 { mODTextTranslationClass(uiSEGYStoreImpParsDlg)
 public:
 

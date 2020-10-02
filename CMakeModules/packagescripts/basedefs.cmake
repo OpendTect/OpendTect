@@ -26,7 +26,7 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer
 set( PLUGINS VoxelConnectivityFilter uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
-	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGY uiMMPTest
+	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGYTools uiSEGY uiMMPTest
 	     uiPresentationMaker CRS uiCRS CEEMDAttrib uiCEEMDAttrib )
 if( NOT MATLAB_DIR STREQUAL "" )
     set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )

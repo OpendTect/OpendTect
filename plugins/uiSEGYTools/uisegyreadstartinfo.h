@@ -29,7 +29,7 @@ namespace SEGY
 
 /*!\brief Displays and edits info for the read start process. */
 
-mExpClass(uiSEGY) uiSEGYReadStartInfo : public uiGroup
+mExpClass(uiSEGYTools) uiSEGYReadStartInfo : public uiGroup
 { mODTextTranslationClass(uiSEGYReadStartInfo);
 public:
 

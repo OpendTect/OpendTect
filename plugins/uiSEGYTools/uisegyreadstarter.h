@@ -42,11 +42,11 @@ namespace SEGY { namespace Vintage { class Info; }}
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
 
-mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 
-    mExpClass(uiSEGY) Setup
+    mExpClass(uiSEGYTools) Setup
     {
     public:
 		Setup(bool for_survsetup, const SEGY::ImpType* type=0)

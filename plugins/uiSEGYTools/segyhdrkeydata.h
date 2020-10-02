@@ -24,7 +24,7 @@ typedef TypeSet<int>	HdrEntryRecord;
 
 /*!\brief Set of constraints on various needed header values. */
 
-mExpClass(uiSEGY) HdrEntryConstraints
+mExpClass(uiSEGYTools) HdrEntryConstraints
 {
 public:
 
@@ -51,7 +51,7 @@ public:
 
 /*!\brief Set of possibe headers for a certain key. */
 
-mExpClass(uiSEGY) HdrEntryDataSet : public TypeSet<HdrEntryRecord>
+mExpClass(uiSEGYTools) HdrEntryDataSet : public TypeSet<HdrEntryRecord>
 {
 public:
 
@@ -75,7 +75,7 @@ public:
 
 /*!\brief header key info collected by scanning SEG-Y file */
 
-mExpClass(uiSEGY) HdrEntryKeyData
+mExpClass(uiSEGYTools) HdrEntryKeyData
 {
 public:
 

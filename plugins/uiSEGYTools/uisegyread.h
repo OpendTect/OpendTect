@@ -27,7 +27,7 @@ class uiSEGYReadRev1Question;
 
 /*!\brief 'Server' for SEG-Y Reading */
 
-mExpClass(uiSEGY) uiSEGYRead : public uiVarWizard
+mExpClass(uiSEGYTools) uiSEGYRead : public uiVarWizard
 { mODTextTranslationClass(uiSEGYRead);
 public:
 
@@ -35,7 +35,7 @@ public:
     enum RevType	{ Rev0, WeakRev1, Rev1 };
     enum State		{ BasicOpts=10, SetupImport=11, SetupScan=12 };
 
-    mExpClass(uiSEGY) Setup
+    mExpClass(uiSEGYTools) Setup
     {
     public:
 			Setup( Purpose pp=Import )

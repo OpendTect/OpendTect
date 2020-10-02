@@ -21,7 +21,7 @@ class uiSEGYReadStarter;
 class uiSEGYReadFinisher;
 namespace SEGY{ namespace Vintage {class Info; }}
 
-mExpClass(uiSEGY) uiSEGYMultiVintageImporter : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYMultiVintageImporter : public uiDialog
 { mODTextTranslationClass(uiSEGYMultiVintageImporter)
 public:
 			uiSEGYMultiVintageImporter(uiParent*);

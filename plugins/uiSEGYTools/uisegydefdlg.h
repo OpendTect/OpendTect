@@ -26,11 +26,11 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-mExpClass(uiSEGY) uiSEGYDefDlg : public uiVarWizardDlg
+mExpClass(uiSEGYTools) uiSEGYDefDlg : public uiVarWizardDlg
 { mODTextTranslationClass(uiSEGYDefDlg);
 public:
 
-    mStruct(uiSEGY) Setup : public uiDialog::Setup
+    mStruct(uiSEGYTools) Setup : public uiDialog::Setup
     {
 					Setup();
 
@@ -76,7 +76,7 @@ protected:
 
 /*!\brief UI for manipulating fille names/paths for a SEGYDirect data-store */
 
-mExpClass(uiSEGY) uiEditSEGYFileDataDlg : public uiDialog
+mExpClass(uiSEGYTools) uiEditSEGYFileDataDlg : public uiDialog
 { mODTextTranslationClass(uiEditSEGYFileDataDlg)
 public:
 			uiEditSEGYFileDataDlg(uiParent* p,const IOObj&);
