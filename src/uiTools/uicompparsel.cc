@@ -15,15 +15,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
-#define mSelCB mCB(this,uiCompoundParSel,doSel)
-
 uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
 				    OD::StdActionType typ )
     : uiGroup(p,mFromUiStringTodo(seltxt))
     , butPush(this)
 {
     crTextFld( seltxt );
-    selbut_ = uiButton::getStd( this, typ, mSelCB, false );
+    selbut_ = uiButton::getStd( this, typ, mCB(this,uiCompoundParSel,doSel),
+				false );
     finishCreation( seltxt, selbut_->text() );
 }
 
@@ -34,10 +33,16 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
     , butPush(this)
 {
     crTextFld( seltxt );
-    selbut_ = new uiPushButton( this, btxt, mSelCB, false );
+    selbut_ = new uiPushButton( this, btxt, mCB(this,uiCompoundParSel,doSel),
+				false );
     if ( icid )
 	selbut_->setIcon( icid );
     finishCreation( seltxt, btxt );
+}
+
+
+uiCompoundParSel::~uiCompoundParSel()
+{
 }
 
 

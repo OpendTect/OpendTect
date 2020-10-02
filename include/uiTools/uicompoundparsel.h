@@ -30,13 +30,7 @@ class uiCheckBox;
 mExpClass(uiTools) uiCompoundParSel : public uiGroup
 {
 public:
-
-			uiCompoundParSel(uiParent*,const uiString& seltxt,
-					 OD::StdActionType t=OD::Select);
-			uiCompoundParSel(uiParent*,const uiString& seltxt,
-					 const uiString& buttxt,
-					 const char* icid=0);
-
+    virtual		~uiCompoundParSel();
 
     void		setSelText(const uiString&);
     void		setSelIcon(const char*);
@@ -45,6 +39,11 @@ public:
     Notifier<uiCompoundParSel>	butPush;
 
 protected:
+			uiCompoundParSel(uiParent*,const uiString& seltxt,
+					 OD::StdActionType t=OD::Select);
+			uiCompoundParSel(uiParent*,const uiString& seltxt,
+					 const uiString& buttxt,
+					 const char* icid=0);
 
     virtual BufferString	getSummary() const= 0;
     void			doSel(CallBacker*);
