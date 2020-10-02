@@ -121,9 +121,9 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     if ( !displogs )
     {
 	const int ldsize = logdatas.size();
-	uiString msg = tr("You have selected %1 logs."
-			  " Maximum %2 can be displayed on the screen."
-			  "\nDo you want to display logs of first")
+	uiString msg = tr("You have selected %1 logs. Unfortunately OpendTect\n"
+			  "can only display %2 logs on this screen.\n"
+			  "Do you want to display logs of the first")
 			.arg(nrsellogs).arg(maxlimit);
 
 	ldsize == 1 ? msg.append( tr("well?") )
