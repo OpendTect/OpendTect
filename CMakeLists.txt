@@ -105,6 +105,7 @@ set( OD_PLUGINS
 	uiPresentationMaker
 	uiQtApp
 	uiSEGY
+	uiSEGYTools
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter

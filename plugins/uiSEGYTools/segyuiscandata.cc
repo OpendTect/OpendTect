@@ -591,7 +591,8 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     def.getTrcInfo( thdr, ti, offscalc );
     const bool isfirst = nrinfile == idxfirstlive_;
     keydata_.add( thdr, def.hdrsswapped_, isfirst );
-    pidetector_->add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_, ti.azimuth_ );
+    pidetector_->add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_,
+		      ti.azimuth_ );
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )

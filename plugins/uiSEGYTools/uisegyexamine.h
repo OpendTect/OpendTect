@@ -1,5 +1,4 @@
-#ifndef uisegyexamine_h
-#define uisegyexamine_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -27,11 +26,11 @@ class SEGYSeisTrcTranslator;
 
 /* The dialog for examining SEG-Y files */
 
-mExpClass(uiSEGY) uiSEGYExamine : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYExamine : public uiDialog
 { mODTextTranslationClass(uiSEGYExamine);
 public:
 
-    mStruct(uiSEGY) Setup : public uiDialog::Setup
+    mStruct(uiSEGYTools) Setup : public uiDialog::Setup
     {
 				Setup(int nrtraces=-1);
 
@@ -92,6 +91,3 @@ public:
 
 #define sKeySettNrTrcExamine \
     IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
-
-
-#endif

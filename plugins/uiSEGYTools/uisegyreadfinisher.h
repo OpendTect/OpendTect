@@ -34,7 +34,7 @@ namespace SEGY { namespace Vintage {class Info; class Importer; }}
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
 
-mExpClass(uiSEGY) uiSEGYReadFinisher : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYReadFinisher : public uiDialog
 { mODTextTranslationClass(uiSEGYReadFinisher);
 public:
 
@@ -123,7 +123,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYImportResult : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYImportResult : public uiDialog
 {mODTextTranslationClass(uiSEGYImportResult)
 public:
 			uiSEGYImportResult(uiParent*);

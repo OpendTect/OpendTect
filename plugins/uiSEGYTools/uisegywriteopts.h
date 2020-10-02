@@ -17,7 +17,7 @@ class uiGenInput;
 class uiSEGYFilePars;
 
 
-mExpClass(uiSEGY) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
+mExpClass(uiSEGYTools) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiSEGYDirectVolOpts);
 public:
 
@@ -32,7 +32,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
+mExpClass(uiSEGYTools) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiSEGYDirectPS3DOpts);
 public:
 

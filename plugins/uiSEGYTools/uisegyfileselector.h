@@ -20,7 +20,7 @@ class uiComboBox;
 namespace SEGY{ class ImpType; }
 namespace File{ class Path; }
 
-mExpClass(uiSEGY) uiSEGYFileSelector : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYFileSelector : public uiDialog
 { mODTextTranslationClass(uiSEGYFileSelector)
 public:
 		uiSEGYFileSelector(uiParent*, const char* fnm,

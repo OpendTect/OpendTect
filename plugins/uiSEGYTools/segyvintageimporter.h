@@ -25,7 +25,7 @@ namespace Vintage
 
 class Info;
 
-mExpClass(uiSEGY) Importer : public ExecutorGroup
+mExpClass(uiSEGYTools) Importer : public ExecutorGroup
 { mODTextTranslationClass(SEGY::Vintage::Importer)
 public:
 
@@ -41,7 +41,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) Info
+mExpClass(uiSEGYTools) Info
 { mODTextTranslationClass(SEGY::Vintage::Info)
 public:
 

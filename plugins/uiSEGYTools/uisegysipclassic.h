@@ -17,7 +17,7 @@ namespace SEGY { class Scanner; }
 
 /* uiSurvInfoProvider taking it's source in (a) SEG-Y file(s) */
 
-mExpClass(uiSEGY) uiSEGYClassicSurvInfoProvider : public uiSurvInfoProvider
+mExpClass(uiSEGYTools) uiSEGYClassicSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(uiSEGYClassicSurvInfoProvider)
 public:
 

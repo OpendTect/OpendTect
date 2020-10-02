@@ -21,7 +21,7 @@ class uiComboBox;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSEGY) uiResortSEGYDlg : public uiDialog
+mExpClass(uiSEGYTools) uiResortSEGYDlg : public uiDialog
 { mODTextTranslationClass(uiResortSEGYDlg);
 public :
 

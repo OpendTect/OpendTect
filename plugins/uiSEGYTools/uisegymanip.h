@@ -30,7 +30,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
 
 /*!\brief UI for SEG-Y file manipulation */
 
-mExpClass(uiSEGY) uiSEGYFileManip : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYFileManip : public uiDialog
 { mODTextTranslationClass(uiSEGYFileManip);
 public:
 

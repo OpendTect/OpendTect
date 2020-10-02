@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 /* uiSurvInfoProvider taking it's source in (a) SEG-Y file(s) */
 
-mExpClass(uiSEGY) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
+mExpClass(uiSEGYTools) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(uiSEGYSurvInfoProvider)
 public:
 

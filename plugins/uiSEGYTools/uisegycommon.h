@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisegymod.h"
+#include "uisegytoolsmod.h"
 #include "segyfiledef.h"
 class uiParent;
 
@@ -18,12 +18,12 @@ class uiParent;
 namespace SEGY
 {
 
-mGlobal(uiSEGY) int cMaxReasonableNrSamples();
+mGlobal(uiSEGYTools) int cMaxReasonableNrSamples();
 	// default value is 25000 samples.
 	// Time: 50 (2ms) or 100 seconds (4ms); Depth: 25 km (1m), 100 km (4m)
 
 
-mExpClass(uiSEGY) FullSpec
+mExpClass(uiSEGYTools) FullSpec
 {
 public:
 

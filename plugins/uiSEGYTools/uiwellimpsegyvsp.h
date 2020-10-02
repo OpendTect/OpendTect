@@ -25,7 +25,7 @@ class SeisTrc;
 class CtxtIOObj;
 
 
-mExpClass(uiSEGY) uiWellImportSEGYVSP : public uiDialog
+mExpClass(uiSEGYTools) uiWellImportSEGYVSP : public uiDialog
 { mODTextTranslationClass(uiWellImportSEGYVSP);
 public:
 			uiWellImportSEGYVSP(uiParent*);

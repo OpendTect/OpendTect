@@ -6,8 +6,6 @@
 -*/
 
 
-#include "uisegycommon.h"
-
 #include "segydirecttr.h"
 #include "survinfo.h"
 #include "dbman.h"
@@ -105,8 +103,6 @@ mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 uiSEGYMgr::uiSEGYMgr()
     : uiPluginInitMgr()
 {
-    uiSEGY::initClasses();
-
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
     bdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
