@@ -112,7 +112,31 @@ void loadModulesCB( CallBacker* )
     BP().modulesLoaded();
 }
 
-void launchDoWorkCB( CallBacker* )
+
+void doWorkCB( CallBacker* )
 {
-    BP().launchDoWork();
+    BatchProgram& bp = BP();
+    bp.initWork();
+    const bool res = bp.doWork( *bp.strm_ );
+    bp.postWork( res );
 }
+
+
+void launchDoWorkCB( CallBacker* cb )
+{
+    BatchProgram& bp = BP();
+    if ( bp.canReceiveRequests() )
+    {
+        bp.startTimer();
+        Threads::Locker lckr( bp.batchprogthreadlock_ );
+        bp.thread_ = new Threads::Thread(mSCB(doWorkCB),
+                    "Batch program executor");
+    }
+    else
+    {
+        doWorkCB( cb );
+        bp.endWorkCB( cb );
+    }
+}
+
+

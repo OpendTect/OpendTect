@@ -58,14 +58,14 @@ public:
 		  Killed };
 			mDeclareEnumUtils(Status);
 
-    void		loadModules();
+    mExp(Batch) void		loadModules();
 			/*!<Must be implemented to load the basic modules
 			    required by the batch program, for example:
 			    OD::ModDeps().ensureLoaded( "Attributes" );
 			    Can only be empty if the batch program does not
 			    depend on modules above Network	 */
 
-    bool		doWork(od_ostream&);
+    mExp(Batch) bool		doWork(od_ostream&);
 			/*!< This method must be defined by user, and should
 			     contain the implementation			  */
 
@@ -123,10 +123,14 @@ private:
     ObjectSet<OD::JSON::Object> requests_;
 
     void		eventLoopStartedCB(CallBacker*);
-    void		workMonitorCB(CallBacker*);
+    void	    workMonitorCB(CallBacker*);
+    mExp(Batch) bool    canReceiveRequests() const;
+    mExp(Batch) void    initWork();
+    mExp(Batch) void    startTimer();
     void		doWorkCB(CallBacker*);
+    mExp(Batch) void    postWork(bool res);
     void		doFinalize();
-    void		endWorkCB(CallBacker*);
+    mExp(Batch) void		endWorkCB(CallBacker*);
 
     mExp(Batch) bool	init();
     bool		parseArguments();
@@ -138,7 +142,6 @@ private:
 
     mExp(Batch) void	modulesLoaded();
     bool		canStartdoWork() const;
-    mExp(Batch) void	launchDoWork();
 
     static BatchProgram* inst_;
 
@@ -146,6 +149,7 @@ private:
     friend void		Execute_batch(int*,char**);
     friend void		loadModulesCB(CallBacker*);
     friend void		launchDoWorkCB(CallBacker*);
+    friend void     doWorkCB(CallBacker*);
     friend class BatchServiceServerMgr;
 
 };
@@ -154,6 +158,8 @@ private:
 void Execute_batch(int*,char**);
 void loadModulesCB(CallBacker*);
 void launchDoWorkCB(CallBacker*);
+void doWorkCB(CallBacker*);
+void workMonitorCB(CallBacker*);
 #endif
 mGlobal(Batch) BatchProgram& BP();
 
