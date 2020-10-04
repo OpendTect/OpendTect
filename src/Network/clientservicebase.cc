@@ -48,8 +48,8 @@ ServiceClientMgr::~ServiceClientMgr()
 
 void ServiceClientMgr::init( bool islocal )
 {
-    od_cout() << name() << " listening on: "
-	      << getAuthority(islocal).toString() << od_endl;
+/*    od_cout() << name() << " listening on: "
+	      << getAuthority(islocal).toString() << od_endl;*/
 }
 
 

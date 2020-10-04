@@ -138,5 +138,3 @@ void launchDoWorkCB( CallBacker* cb )
         bp.endWorkCB( cb );
     }
 }
-
-
