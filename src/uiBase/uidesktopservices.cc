@@ -74,13 +74,11 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
     }
     else
     {
-	brcmd.replace( index, 2, qurl.toString() );
-	BufferString workstr( brcmd );
-	char* ptr = workstr.getCStr();
-	mSkipBlanks( ptr ); mSkipNonBlanks( ptr );
-	machcomm.setProgram( ptr );
-	ptr++; mSkipBlanks( ptr );
-	machcomm.addArg( ptr );
+	brcmd.replace( index, 2, "" );
+	const BufferString workstr( brcmd );
+	machcomm.setProgram( workstr.buf() );
+	const BufferString urlstr( qurl.toString() );
+	machcomm.addArg( urlstr.buf() );
     }
 
 #elif defined( __lux__ )
