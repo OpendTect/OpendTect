@@ -402,33 +402,29 @@ void BatchProgram::modulesLoaded()
 }
 
 
-void BatchProgram::launchDoWork()
+bool BatchProgram::canReceiveRequests() const
 {
-    const BatchServiceServerMgr& batchmgr = BatchServiceServerMgr::getMgr();
-    if ( batchmgr.canReceiveRequests() )
-    {
-	mAttachCB( timer_->tick, BatchProgram::workMonitorCB );
-	timer_->start( 100, true );
-	Threads::Locker lckr( batchprogthreadlock_ );
-	thread_ = new Threads::Thread( mCB(this,BatchProgram,doWorkCB),
-				       "Batch program executor" );
-    }
-    else
-    {
-	doWorkCB( nullptr );
-	endWorkCB( nullptr );
-    }
+    return BatchServiceServerMgr::getMgr().canReceiveRequests();
 }
 
 
-void BatchProgram::doWorkCB( CallBacker* )
+void BatchProgram::initWork()
 {
     Threads::Locker lckr( statelock_ );
-    status_ = BatchProgram::WorkStarted;
-    lckr.unlockNow();
-    const bool res = doWork( *strm_ );
+    status_ = WorkStarted;
+}
 
-    lckr.reLock();
+
+void BatchProgram::startTimer()
+{
+    mAttachCB( timer_->tick, BatchProgram::workMonitorCB );
+    timer_->start( 100, true );
+}
+
+
+void BatchProgram::postWork(bool res)
+{
+    Threads::Locker lckr( statelock_ );
     status_ = res ? WorkOK : WorkFail;
 }
 
