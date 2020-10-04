@@ -123,14 +123,14 @@ private:
     ObjectSet<OD::JSON::Object> requests_;
 
     void		eventLoopStartedCB(CallBacker*);
-    void	    workMonitorCB(CallBacker*);
+    void		workMonitorCB(CallBacker*);
     mExp(Batch) bool    canReceiveRequests() const;
     mExp(Batch) void    initWork();
     mExp(Batch) void    startTimer();
     void		doWorkCB(CallBacker*);
     mExp(Batch) void    postWork(bool res);
     void		doFinalize();
-    mExp(Batch) void		endWorkCB(CallBacker*);
+    mExp(Batch) void	endWorkCB(CallBacker*);
 
     mExp(Batch) bool	init();
     bool		parseArguments();
@@ -149,7 +149,7 @@ private:
     friend void		Execute_batch(int*,char**);
     friend void		loadModulesCB(CallBacker*);
     friend void		launchDoWorkCB(CallBacker*);
-    friend void     doWorkCB(CallBacker*);
+    friend void		doWorkCB(CallBacker*);
     friend class BatchServiceServerMgr;
 
 };
@@ -159,7 +159,6 @@ void Execute_batch(int*,char**);
 void loadModulesCB(CallBacker*);
 void launchDoWorkCB(CallBacker*);
 void doWorkCB(CallBacker*);
-void workMonitorCB(CallBacker*);
 #endif
 mGlobal(Batch) BatchProgram& BP();
 
