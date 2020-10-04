@@ -22,24 +22,24 @@ static const char* sKeyClArgs = "Program.Args";
 mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
 
-Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
-    : execpars_(OS::Batch)
+Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt, OS::LaunchType lt )
+    : execpars_(lt)
     , prognm_(progNameFor(pt))
 {
     execpars_.needmonitor_ = true;
 }
 
 
-Batch::JobSpec::JobSpec( const char* pnm )
-    : execpars_(OS::Batch)
+Batch::JobSpec::JobSpec( const char* pnm, OS::LaunchType lt )
+    : execpars_(lt)
     , prognm_(pnm)
 {
     execpars_.needmonitor_ = true;
 }
 
 
-Batch::JobSpec::JobSpec( const IOPar& iop )
-    : execpars_(OS::Batch)
+Batch::JobSpec::JobSpec( const IOPar& iop, OS::LaunchType lt )
+    : execpars_(lt)
 {
     usePar( iop );
     pars_.removeWithKey( sKey::Survey() );
@@ -53,6 +53,7 @@ void Batch::JobSpec::usePar( const IOPar& iop )
     pars_.removeWithKey( sKeyProgramName );
     pars_.removeWithKey( sKeyClArgs );
     execpars_.removeFromPar( pars_ );
+
     prognm_ = iop.find( sKeyProgramName );
     iop.get( sKeyClArgs, clargs_ );
     execpars_.usePar( iop );
@@ -64,7 +65,6 @@ void Batch::JobSpec::fillPar( IOPar& iop ) const
     iop = pars_;
     iop.set( sKeyProgramName, prognm_ );
     iop.set( sKeyClArgs, clargs_ );
-
     execpars_.fillPar( iop );
 }
 
@@ -121,21 +121,30 @@ bool Batch::JobDispatcher::canHandle( const JobSpec& js ) const
     return isSuitedFor( js.prognm_ );
 }
 
+namespace Batch
+{
 
-bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
+static Threads::Atomic<Batch::ID> curjobid( Batch::JobDispatcher::getInvalid());
+
+};
+
+bool Batch::JobDispatcher::go( const Batch::JobSpec& js, Batch::ID* jobid )
 {
     if ( !canHandle(js) )
     {
-	errmsg_ = tr( "Batch job is not suited for %1 executions" )
+	errmsg_ = tr("Batch job is not suited for %1 execution")
 		.arg( factoryDisplayName() );
-	return false;
+	return getInvalid();
     }
 
     jobspec_ = js;
     if ( !init() )
-	return false;
+	return getInvalid();
 
-    return launch();
+    if ( jobid )
+	*jobid = ++curjobid;
+
+    return launch( jobid );
 }
 
 
@@ -219,47 +228,8 @@ bool Batch::JobDispatcher::userWantsResume( const IOPar& iop )
 }
 
 
-
-Batch::SingleJobDispatcher::SingleJobDispatcher()
+void Batch::JobDispatcher::addIDTo( Batch::ID batchid, OS::MachineCommand& mc )
 {
-}
-
-
-uiString Batch::SingleJobDispatcher::description() const
-{
-    return tr("The job will be executed on one computer, in a single process.");
-}
-
-
-bool Batch::SingleJobDispatcher::init()
-{
-    if ( parfnm_.isEmpty() )
-	getDefParFilename( jobspec_.prognm_, parfnm_ );
-
-    FilePath fp( parfnm_ );
-    fp.setExtension( 0 );
-    BufferString logfnm( fp.fullPath() );
-    logfnm.add( "_log.txt" );
-    jobspec_.pars_.update( sKey::LogFile(), logfnm );
-
-    return true;
-}
-
-
-bool Batch::SingleJobDispatcher::launch()
-{
-    if ( !writeParFile() )
-	return false;
-
-    OS::MachineCommand mc( jobspec_.prognm_ );
-    mc.addArgs( jobspec_.clargs_ ).addArg( parfnm_ );
-    if ( !remotehost_.isEmpty() )
-	mc.setHostName( remotehost_ );
-    if ( !remoteexec_.isEmpty() )
-	mc.setRemExec( remoteexec_ );
-
-    BufferString logfile;
-    jobspec_.pars_.get( sKey::LogFile(), logfile );
-    jobspec_.execpars_.monitorfnm( logfile );
-    return mc.execute( jobspec_.execpars_ );
+    if ( batchid > getInvalid() )
+	mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), batchid );
 }

@@ -37,26 +37,14 @@ using namespace PreStack;
 { delete procman; procman = 0; writer = 0; }
 
 
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    const int odversion = pars().odVersion();
-    if ( odversion < 320 )
-    {
-	errorMsg( toUiString("\nCannot execute pre-3.2 par files") );
-	return false;
-    }
-
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad1Module("PreStackProcessing")
 {
     PtrMan<SeisPSWriter> writer = 0;
     ProcessManager* procman = 0;
 
-
+    const int odversion = pars().odVersion();
+    if ( odversion < 320 )
+    { mRetError("\nCannot execute pre-3.2 par files"); }
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
@@ -251,6 +239,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	{
 	    paused = false;
 	    mSetCommState(Working);
+	    setResumed();
 	}
 
 	procman->reset( false );
@@ -258,7 +247,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	if ( !procman->prepareWork() )
 	{
-	    mRetError(mToUiStringTodo("\nCannot prepare processing."));
+	    mRetError("\nCannot prepare processing.");
 	}
 
 	const BinID stepout = procman->getInputStepout();

@@ -11,7 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
+
 #include "batchjobdispatch.h"
+#include "factory.h"
+#include "uistring.h"
 
 
 namespace Batch
@@ -19,20 +22,27 @@ namespace Batch
 
 /*!\brief kicks off OD batch jobs in a single process. */
 
-mExpClass(MMProc) SingleJobDispatcherRemote : public SingleJobDispatcher
-{ mODTextTranslationClass(SingleJobDispatcherRemote);
+mExpClass(MMProc) SingleJobDispatcher : public JobDispatcher
+{ mODTextTranslationClass(SingleJobDispatcher);
 public:
-			SingleJobDispatcherRemote();
-    virtual		~SingleJobDispatcherRemote()	{}
 
-    mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcherRemote,
-				 "Single Process Remote",tr("Single Process"));
+			SingleJobDispatcher();
+    virtual		~SingleJobDispatcher()		{}
+
+    virtual uiString	description() const;
+    virtual bool	isSuitedFor(const char*) const	{ return true; }
+
+    mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
+				 "Single Process",tr("Single Process"));
+
+    BufferString	remotehost_;
+    BufferString	remoteexec_;
 
 protected:
 
-    virtual bool	launch();
+    virtual bool	init();
+    virtual bool	launch(ID*);
+
 };
 
 } // namespace Batch
-
-

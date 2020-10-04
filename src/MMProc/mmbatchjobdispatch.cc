@@ -109,7 +109,7 @@ bool Batch::MMJobDispatcher::init()
 }
 
 
-bool Batch::MMJobDispatcher::launch()
+bool Batch::MMJobDispatcher::launch( ID* batchid )
 {
     const int pdidx = defIdx();
     if ( pdidx < 0 )
@@ -119,8 +119,10 @@ bool Batch::MMJobDispatcher::launch()
 	return false;
 
     OS::MachineCommand mc( progdefs_[pdidx]->mmprognm_ );
-    mc.addArgs( jobspec_.clargs_ );
     mc.addArg( parfnm_ );
+    mc.addArgs( jobspec_.clargs_ );
+    if ( batchid )
+	JobDispatcher::addIDTo( *batchid, mc );
 
     OS::CommandExecPars ep( jobspec_.execpars_ );
     ep.needmonitor( false ).launchtype( OS::Batch )

@@ -21,6 +21,8 @@ ________________________________________________________________________
 namespace Batch
 {
 
+typedef int		ID;
+
 /*!\brief the data we need to specify an OD batch job. */
 
 mExpClass(General) JobSpec
@@ -30,9 +32,10 @@ public:
     enum ProcType	{ NonODBase, Attrib, AttribEM, Grid2D,
 			  PreStack, SEGY, T2D, TwoDto3D, VelConv, Vol };
 
-			JobSpec(ProcType);
-			JobSpec(const char* pnm=0);
-			JobSpec(const IOPar&);
+			JobSpec(ProcType,OS::LaunchType lt=OS::Batch);
+			JobSpec(const char* pnm=nullptr,
+				OS::LaunchType lt=OS::Batch);
+			JobSpec(const IOPar&,OS::LaunchType lt=OS::Batch);
 
     static const char*	progNameFor(ProcType);
     static ProcType	procTypeFor(const char*);
@@ -40,7 +43,6 @@ public:
     BufferString	prognm_;
     BufferStringSet	clargs_;
     IOPar		pars_;
-    OS::LaunchType	launchtype_ = OS::Batch;
     BufferString	servernm_;
     OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
 
@@ -65,12 +67,17 @@ public:
   the actual parameter file full path.
   Par files are written to, and expected to be in the 'Proc' directory. If that
   is the case, than job name <-> par file goes both ways.
+  The returned BatchID will uniquely identify any job within a session that
+  is launched using a machine command. It can be used to match the spawn
+  process with the spawn request.
 
  */
 
 mExpClass(General) JobDispatcher
 { mODTextTranslationClass(JobDispatcher);
 public:
+
+    static ID		getInvalid()	{ return 0; }
 
 			JobDispatcher()			{}
 
@@ -81,7 +88,7 @@ public:
     virtual bool	canHandle(const JobSpec&) const;
     virtual bool	canResume(const JobSpec&) const { return false; }
 
-    bool		go(const JobSpec&);
+    bool		go(const JobSpec&,ID* =nullptr);
     uiString		errMsg() const			{ return errmsg_; }
 
     mDefineFactoryInClass(JobDispatcher,factory);
@@ -101,10 +108,15 @@ public:
     JobSpec		jobspec_;
     BufferString	parfnm_;
 
+    static void		addIDTo(ID,OS::MachineCommand&);
+
 protected:
 
     virtual bool	init()				{ return true; }
-    virtual bool	launch()			= 0;
+    virtual bool	launch(ID*)			= 0;
+			/*<! A provided ID will get a unique session number,
+			     to identify the spawn command. Add it to the
+			     command line using addIDTo function	 */
 
     mutable uiString    errmsg_;
 
@@ -113,32 +125,4 @@ protected:
 };
 
 
-/*!\brief kicks off OD batch jobs in a single process. */
-
-mExpClass(General) SingleJobDispatcher : public JobDispatcher
-{ mODTextTranslationClass(SingleJobDispatcher);
-public:
-
-			SingleJobDispatcher();
-    virtual		~SingleJobDispatcher()		{}
-
-    virtual uiString	description() const;
-    virtual bool	isSuitedFor(const char*) const	{ return true; }
-
-    mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
-				 "Single Process",tr("Single Process"));
-
-    BufferString	remotehost_;
-    BufferString	remoteexec_;
-
-protected:
-
-    virtual bool	init();
-    virtual bool	launch();
-
-};
-
-
 } // namespace Batch
-
-

@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
+ Author:	Bert
  Date:		14-9-1998
  RCS:		$Id$
 ________________________________________________________________________
@@ -18,20 +18,13 @@ ________________________________________________________________________
 
 #include "applicationdata.h"
 #include "batchjobdispatch.h"
+#include "enums.h"
 #include "prog.h"
-#include "namedobj.h"
-#include "bufstringset.h"
-#include "genc.h"
-#include "file.h"
-#include "odbatchservice.h"
 
+class BatchServiceServerMgr;
 class CommandLineParser;
-class IOObj;
-class IOObjContext;
-class od_ostream;
-class MMSockCommunic;
 class JobCommunic;
-class StreamData;
+class od_ostream;
 class Timer;
 
 /*!
@@ -45,21 +38,164 @@ class Timer;
   'standard' components from the parameters, opening sockets etc.,
 
   To use the object, instead of defining a function 'main', you should define
-  the function 'BatchProgram::go'.
+  both functions:
+	 'BatchProgram::loadModules': to load the required basic modules
+	 'BatchProgram::doWork':      to perform the core work
+  Both functions have full access to a Qt event loop (required for timer,
+  networking, ...).
 
-  If you need argc and/or argv outside go(), the BP() singleton instance can
-  be accessed.
+  If you need argc and/or argv outside these two functions,
+  the BP() singleton instance can be accessed.
 */
+
+mClass(Prog) BatchProgram : public NamedCallBacker
+{ mODTextTranslationClass(BatchProgram);
+    mGlobal(Batch) friend	BatchProgram& BP();
+
+public:
+
+    enum Status { Start, ParseFail, ParseOK, CommFail, CommOK, LogFail, LogOK,
+		  WorkWait, WorkStarted, WorkFail, WorkPaused, MoreToDo, WorkOK,
+		  Killed };
+			mDeclareEnumUtils(Status);
+
+    mExp(Batch) void		loadModules();
+			/*!<Must be implemented to load the basic modules
+			    required by the batch program, for example:
+			    OD::ModDeps().ensureLoaded( "Attributes" );
+			    Can only be empty if the batch program does not
+			    depend on modules above Network	 */
+
+    mExp(Batch) bool		doWork(od_ostream&);
+			/*!< This method must be defined by user, and should
+			     contain the implementation			  */
+
+    mExp(Batch) bool	isOK() const;
+    const CommandLineParser&	clParser()	{ return *clparser_; }
+    const IOPar&	pars() const		{ return *iopar_; }
+    IOPar&		pars()			{ return *iopar_; }
+
+    mExp(Batch) bool	pauseRequested();
+			//<! pause requested (via socket) by master?
+    mExp(Batch) void	setResumed();
+
+    mExp(Batch) bool	errorMsg(const uiString&,bool cc_stderr=false);
+    mExp(Batch) bool	infoMsg(const char*,bool cc_stdout=false);
+
+    static const char*	sKeyDataDir()	{ return "datadir"; }
+    static const char*	sKeySurveyDir() { return "surveydir"; }
+    static const char*	sKeySimpleBatch()	{ return "noparfile"; }
+    static const char*	sKeyFinishMsg() { return "Finished batch processing.";}
+
+    Notifier<BatchProgram>  eventLoopStarted;
+    Notifier<BatchProgram>  startDoWork;
+    Notifier<BatchProgram>  pause;
+    Notifier<BatchProgram>  resume;
+    Notifier<BatchProgram>  killed;
+    Notifier<BatchProgram>  endWork;
+
+private:
+
+			BatchProgram();
+			~BatchProgram();
+
+    CommandLineParser*	clparser_ = nullptr;
+    IOPar*		iopar_ = nullptr;
+    od_ostream*		strm_ = nullptr;
+
+    void		progKilled(CallBacker*);
+    void		killNotify(bool yn);
+
+    JobCommunic*	mmComm()		{ return comm_; }
+    Batch::ID		jobId()			{ return jobid_; }
+    mExp(Batch) float	getPriority() const	{ return priority_; }
+
+    Status		status_ = Start;
+    Threads::Lock	statelock_;
+
+    JobCommunic*	comm_ = nullptr;
+    Batch::ID		jobid_;
+    float		priority_ = 0.f;
+    bool		strmismine_ = true;
+    Timer*		timer_;
+    Threads::Thread*	thread_ = nullptr;
+    Threads::Lock	batchprogthreadlock_;
+
+    ObjectSet<OD::JSON::Object> requests_;
+
+    void		eventLoopStartedCB(CallBacker*);
+    void		workMonitorCB(CallBacker*);
+    mExp(Batch) bool    canReceiveRequests() const;
+    mExp(Batch) void    initWork();
+    mExp(Batch) void    startTimer();
+    void		doWorkCB(CallBacker*);
+    mExp(Batch) void    postWork(bool res);
+    void		doFinalize();
+    mExp(Batch) void	endWorkCB(CallBacker*);
+
+    mExp(Batch) bool	init();
+    bool		parseArguments();
+			//<! Parses command line arguments
+    bool		initComm();
+			//<! Initializes job communication with master
+    bool		initLogging();
+			//<! Initialized logging stream
+
+    mExp(Batch) void	modulesLoaded();
+    bool		canStartdoWork() const;
+
+    static BatchProgram* inst_;
+
+    mExp(Batch) static void	deleteInstance(int retcode);
+    friend void		Execute_batch(int*,char**);
+    friend void		loadModulesCB(CallBacker*);
+    friend void		launchDoWorkCB(CallBacker*);
+    friend void		doWorkCB(CallBacker*);
+    friend class BatchServiceServerMgr;
+
+};
+
+#ifdef __unix__
+void Execute_batch(int*,char**);
+void loadModulesCB(CallBacker*);
+void launchDoWorkCB(CallBacker*);
+void doWorkCB(CallBacker*);
+#endif
+mGlobal(Batch) BatchProgram& BP();
+
+
+#define mDefLoadModules() \
+    void BatchProgram::loadModules() \
+    {
+#define mDefDoWork() \
+    } \
+    bool BatchProgram::doWork( od_ostream& strm )
+
+#define mLoad1Module(mod1nm) \
+    mDefLoadModules() \
+	OD::ModDeps().ensureLoaded( mod1nm ); \
+    mDefDoWork()
+#define mLoad2Modules(mod1nm,mod2nm) \
+    mDefLoadModules() \
+	OD::ModDeps().ensureLoaded( mod1nm ); \
+	OD::ModDeps().ensureLoaded( mod2nm ); \
+    mDefDoWork()
+#define mLoad3Modules(mod1nm,mod2nm,mod3nm) \
+    mDefLoadModules() \
+	OD::ModDeps().ensureLoaded( mod1nm ); \
+	OD::ModDeps().ensureLoaded( mod2nm ); \
+	OD::ModDeps().ensureLoaded( mod3nm ); \
+    mDefDoWork()
+
+#define mRetError(s) \
+{ errorMsg(::toUiString(s)); mDestroyWorkers; return false; }
 
 #define mRetJobErr(s) \
 {  \
-    if ( comm_ ) comm_->setState( JobCommunic::JobError ); \
+    if ( comm_ ) \
+	comm_->setState( JobCommunic::JobError ); \
     mRetError(s) \
 }
-
-
-#define mRetError(s) \
-{ errorMsg(toUiString(s)); mDestroyWorkers; return false; }
 
 #define mRetHostErr(s) \
 {  \
@@ -81,156 +217,23 @@ if ( comm_ ) \
 	mRetHostErr( comm_->errMsg() ) \
 }
 
-mClass(Prog) BatchProgram : public NamedCallBacker
-{ mODTextTranslationClass(BatchProgram);
-    mGlobal(Batch) friend	BatchProgram& BP();
-
-public:
-
-    const IOPar&		pars() const	{ return *iopar_; }
-    IOPar&			pars()		{ return *iopar_; }
-
-    const CommandLineParser&	clParser()	{ return *clparser_; }
-
-    bool		isStartDoWork() { return startdoworknow_; }
-    mExp(Batch) IOObj*	getIOObjFromPars(const char* keybase,bool mknew,
-					 const IOObjContext& ctxt,
-					 bool msgiffail=true) const;
-
-    od_ostream&		getLogStream() { return strm_ ? *strm_ : od_cout(); }
-
-			//! pause requested (via socket) by master?
-    mExp(Batch) bool	pauseRequested() const;
-
-    mExp(Batch) bool	errorMsg( const uiString& msg, bool cc_stderr=false);
-    mExp(Batch) bool	infoMsg( const char* msg, bool cc_stdout=false);
-
-    mExp(Batch) static void	deleteInstance(int retcode);
-
-    void		removeAllNotifiers() { detachAllNotifiers(); }
-
-    static const char*	sKeyMasterHost();
-    static const char*	sKeyMasterPort();
-    static const char*	sKeyBG();
-    static const char*	sKeyJobID();
-    static const char*	sKeyDataDir()		{ return "datadir"; }
-    static const char*	sKeyFinishMsg() { return "Finished batch processing."; }
-    static const char*	sKeySurveyDir() { return "surveydir"; }
-    static const char*	sKeySimpleBatch() { return "noparfile"; }
-
-    bool		isStillOK() { return stillok_; }
-    void		setStillOK( bool yn ) { stillok_ = yn; }
-    bool		initWork(od_ostream& log_stream);
-			//Implementation will be updated
-	    //! This method must be defined by user when using service manager
-    bool		doWork(od_ostream& log_stream);
-				//! This method must be defined by user
-
-    Notifier<BatchProgram>     programStarted;
-    Notifier<BatchProgram>     startDoWork;
-    Notifier<BatchProgram>     endWork;
-
-protected:
-
-    friend void		Execute_batch(int*,char**);
-
-    //friend class	JobCommunic;
-
-			BatchProgram();
-			~BatchProgram();
-
-    mExp(Batch) void	init();
-    static BatchProgram* inst_;
-
-
-    bool		stillok_ = false;
-    bool		inbg_ = false;  //Dot NOT use, will be removed after 6.6
-    od_ostream*		strm_ = nullptr;
-    IOPar*		iopar_ = nullptr;
-    CommandLineParser*	clparser_ = nullptr;
-
-    BufferStringSet	requests_;
-    BufferString	finishmsg_;	//Dot NOT use, will be removed after 6.6
-
-    mExp(Batch) bool	initOutput();
-    mExp(Batch) void	progKilled(CallBacker*);
-    mExp(Batch) void	killNotify( bool yn );
-
-    JobCommunic*	mmComm()		{ return comm_; }
-    int			jobId()			{ return jobid_; }
-
-private:
-
-    JobCommunic*		comm_ = nullptr;
-    int				jobid_;
-    bool			strmismine_ = true;
-    Timer*			timer_;
-    bool			startdoworknow_;
-    void			eventLoopStarted(CallBacker*);
-    void			doWorkCB(CallBacker*);
-    void			endWorkCB(CallBacker*);
-
-};
-
-
-void Execute_batch(int*,char**);
-mGlobal(Batch) BatchProgram& BP();
-
 #ifdef __prog__
 # ifdef __win__
 #  include "_execbatch.h"
 # endif
-
-    static void eventLoopStartedCB(CallBacker*cb)
-    {
-	if ( !BP().isStillOK() )
-	{
-	    BP().removeAllNotifiers();
-	    BatchProgram::deleteInstance( 0 );
-	    return;
-	}
-
-	if ( BP().getLogStream().isOK() && BP().initWork(BP().getLogStream())
-						&& BP().isStartDoWork() )
-	    BP().setStillOK( BP().doWork(BP().getLogStream()) );
-
-    }
-
-    static void doWorkCB( CallBacker* cb )
-    {
-	BP().setStillOK( BP().doWork(BP().getLogStream()) );
-
-	if ( BP().isStillOK() )
-	{
-	    ODBatchService& odsm = ODBatchService::getMgr();
-	    odsm.processingComplete();
-	}
-    }
-
-    static void endWorkCB( CallBacker* cb )
-    {
-	BP().removeAllNotifiers();
-	const int ret = BP().isStillOK() ? 0 : 1;
-	BatchProgram::deleteInstance( ret );
-    }
-
-
+#define mMainIsDefined
     int main( int argc, char** argv )
     {
+	OD::SetRunContext( OD::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
 	ApplicationData app;
 	Execute_batch( &argc, argv );
-	BP().programStarted.notify( mSCB(eventLoopStartedCB) );
-	if ( !BP().isStartDoWork() )
-	{
-	    BP().startDoWork.notify( mSCB(doWorkCB) );
-	    BP().endWork.notify( mSCB(endWorkCB) );
-	}
+	BP().eventLoopStarted.notify(mSCB(loadModulesCB));
+	BP().startDoWork.notify(mSCB(launchDoWorkCB));
+
 	const int ret = ApplicationData::exec();
 
 	return ExitProgram( ret );
     }
 
-
 #endif // __prog__
-

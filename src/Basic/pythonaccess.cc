@@ -744,7 +744,7 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     msg_.setEmpty();
 
     FilePath scriptfp;
-    const bool background = execpars && execpars->launchtype_ == OS::RunInBG;
+    const bool background = execpars && execpars->launchtype_ >= OS::RunInBG;
     cl_ = getLauncher( cmd, background, activatefp, envnm, scriptfp );
     if ( !cl_.ptr() )
     {

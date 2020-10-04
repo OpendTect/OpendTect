@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS
 	uiVis
 	uiVolumeProcessing
@@ -45,7 +43,6 @@ set(OD_MODULE_SOURCES
 	uiodrandlinetreeitem.cc
 	uiodbodydisplaytreeitem.cc
 	uiodseis2dtreeitem.cc
-	uiodservicemgr.cc
 	uiodviewer2d.cc
 	uiodviewer2dmgr.cc
 	uiodviewer2dposgrp.cc
@@ -65,6 +62,7 @@ set(OD_MODULE_SOURCES
 	uiodlangmenumgr.cc
 	uifirewallprocsetterdlg.cc
 	uiodhostiddlg.cc
+	uiserviceclientmgr.cc
 )
 
 set( OD_MODULE_GUI_PROGS od_main.cc  )

@@ -215,7 +215,8 @@ static const char* sKeyClusterInstDir()
 { return "dTect.Installation Dir"; }
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
-				    const char* prognm, const char* parfnm )
+				    const char* prognm, const char* parfnm,
+				    Batch::ID* batchid )
     : uiDialog(p,uiDialog::Setup(tr("Cluster job generator"),
 				 uiString::emptyString(),
 				 mODHelpKey(mClusterJobProvHelpID))
@@ -226,6 +227,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     , parfnm_(parfnm)
     , datarootfld_(nullptr)
     , instdirfld_(nullptr)
+    , batchid_( batchid ? *batchid : Batch::JobDispatcher::getInvalid() )
 {
     jobprov_ = new InlineSplitJobDescProv( iop );
 
@@ -363,6 +365,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	{
 	    OS::MachineCommand machcomm( "od_ClusterProc" );
 	    machcomm.addKeyedArg( "dosubmit", parfnm_ );
+		Batch::JobDispatcher::addIDTo( batchid_, machcomm );
 	    OS::CommandLauncher cl( machcomm );
 	    if ( !cl.execute(OS::RunInBG) )
 	    {
@@ -465,11 +468,11 @@ uiClusterJobDispatcherLauncher::~uiClusterJobDispatcherLauncher()
 Batch::JobDispatcher& uiClusterJobDispatcherLauncher::gtDsptchr()
 { return jd_; }
 
-bool uiClusterJobDispatcherLauncher::go( uiParent* p )
+bool uiClusterJobDispatcherLauncher::go( uiParent* p, Batch::ID* batchid )
 {
     jobspec_.pars_.set( sKey::DataRoot(), GetBaseDataDir() );
     jobspec_.pars_.set( sKey::Survey(), IOM().surveyName() );
     uiClusterJobProv dlg( p, jobspec_.pars_, jobspec_.prognm_,
-			  jd_.parfnm_ );
+			  jd_.parfnm_, batchid );
     return dlg.go();
 }

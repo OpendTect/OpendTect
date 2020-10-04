@@ -47,23 +47,15 @@ mDefSimpleTranslatorSelector(AttribDescSet);
 	}
 
 
-bool BatchProgram::initWork( od_ostream& strm )
+mLoad2Modules("Attributes","PreStackProcessing")
 {
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
     {
-	errorMsg(toUiString("\nCannot execute pre-3.2 par files"));
+	errorMsg( ::toUiString("\nCannot execute pre-3.2 par files") );
 	return false;
     }
 
-    OD::ModDeps().ensureLoaded( "Attributes" );
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
-{
     Attrib::Processor* proc = 0;
     const char* tempdir = pars().find(sKey::TmpStor());
     if ( tempdir && *tempdir )
@@ -84,9 +76,10 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( lnr == fms.getIValue(1) )
 	    strm << "Calculating for in-line " << lnr << '.' << od_newline;
     }
-    strm << od_newline;
 
+    strm << od_newline;
     strm << "Preparing processing";
+
     const char* seisid = pars().find( "Output.0.Seismic.ID" );
     if ( !seisid )
 	seisid = pars().find( "Output.1.Seismic ID" );
@@ -237,7 +230,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	proc = attrengman.usePar( procpar, attribsetlocal,
 				  alllinenames.get(idx), errmsg );
 	if ( !proc )
-	    mRetJobErr( BufferString(errmsg.getFullString()) );
+	    mRetJobErr( ::toString(errmsg) );
 
 	progressmeter.setName( proc->name() );
 	progressmeter.setMessage( proc->uiMessage() );
@@ -270,6 +263,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		{
 		    paused = false;
 		    mSetCommState(Working);
+			setResumed();
 		}
 
 		progressmeter.setNrDone( proc->nrDone() );
@@ -354,10 +348,10 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     mMessage( finishmsg );
 
-    if ( !comm_ ) return true;
+    if ( !comm_ )
+	return true;
 
     mMessage( "\nWriting finish status: " );
-    // It is VERY important workers are destroyed BEFORE the last sendState!!!
     comm_->setState( JobCommunic::Finished );
     bool ret = comm_->sendState();
 

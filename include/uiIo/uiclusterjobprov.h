@@ -27,7 +27,8 @@ mExpClass(uiIo) uiClusterJobProv : public uiDialog
 { mODTextTranslationClass(uiClusterJobProv);
 public:
 			uiClusterJobProv(uiParent* p,const IOPar& iop,
-					 const char* prog,const char* parfnm);
+					 const char* prog,const char* parfnm,
+					 Batch::ID* =nullptr);
 			~uiClusterJobProv();
 
     static const char*	sKeySeisOutIDKey();
@@ -41,6 +42,7 @@ protected:
     BufferString	tempstordir_;
     BufferString	scriptdir_;
     BufferString	parfnm_;
+    Batch::ID		batchid_;
 
     uiGenInput*		nrinlfld_;
     uiLabel*		nrjobsfld_;
@@ -84,7 +86,7 @@ public:
 				       "Cluster Processing",
 				       tr("Cluster Processing"));
 
-    virtual bool	go(uiParent*);
+    virtual bool	go(uiParent*,Batch::ID* =nullptr);
 
 protected:
 

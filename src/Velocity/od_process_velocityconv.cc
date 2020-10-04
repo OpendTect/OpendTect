@@ -20,20 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-#define mErrRet( msg ) \
-{ \
-    strm << msg; \
-    return false; \
-}
+#define mErrRet( msg ) { strm << msg; return false; }
 
-
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded("Velocity");
-    return true;
-}
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad1Module("Velocity")
 {
     MultiID inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )

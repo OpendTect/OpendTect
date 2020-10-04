@@ -162,17 +162,10 @@ bool compareAngles( const PreStack::Gather& angles, int zidx, bool depth,
 
 bool testAnglesForDifferentSurveys();
 
-bool BatchProgram::initWork( od_ostream& strm )
+
+mLoad1Module("Velocity")
 {
     mInitBatchTestProg();
-
-    OD::ModDeps().ensureLoaded( "Velocity" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
-{
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 

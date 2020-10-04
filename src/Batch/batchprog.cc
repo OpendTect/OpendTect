@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : 14-9-1998
  * FUNCTION : Batch Program 'driver'
 -*/
@@ -10,52 +10,60 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 
 #include "ascstream.h"
+#include "batchserviceservermgr.h"
 #include "commandlineparser.h"
-#include "ctxtioobj.h"
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
+#include "filepath.h"
 #include "genc.h"
-#include "hostdata.h"
 #include "ioman.h"
-#include "iodir.h"
 #include "iopar.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
+#include "netserver.h"
+#include "odjson.h"
 #include "oscommand.h"
 #include "plugins.h"
 #include "sighndl.h"
-#include "strmprov.h"
-#include "threadwork.h"
-#include "odservicebase.h"
+#include "od_ostream.h"
 #include "timer.h"
-#include "odbatchservice.h"
 
-
-#include "netserver.h"
-
-#ifdef __win__
-# include "winutils.h"
-#else
+#ifndef __win__
 # include "_execbatch.h"
 #endif
 
 #include "oddirs.h"
 
-const char* BatchProgram::sKeyMasterHost()
+static const char* sKeyMasterHost()
 { return OS::MachineCommand::sKeyMasterHost(); }
-const char* BatchProgram::sKeyMasterPort()
+static const char* sKeyMasterPort()
 { return OS::MachineCommand::sKeyMasterPort(); }
-const char* BatchProgram::sKeyJobID()
-{ return OS::MachineCommand::sKeyJobID(); }
+static const char* sKeyJobID()	{ return OS::MachineCommand::sKeyJobID(); }
+static const char* sKeyODServer()    { return ServiceMgrBase::sKeyODServer(); }
+static const char* sKeyPort()		{ return Network::Server::sKeyPort(); }
 
-BatchProgram* BatchProgram::inst_ = 0;
+mDefineEnumUtils(BatchProgram,Status,"Batch program status")
+{
+    "Starting", "Parsing failed", "Parsing OK",
+    "Setting job commmunication failed", "Setting job commmunication OK",
+    "Opening log stream failed", "Opening log stream OK",
+    "Waiting for instructions", "Work started", "Work error",
+    "Work paused", "More work to do", "Work finished OK",
+    "Process killed", 0
+};
+
+
+BatchProgram* BatchProgram::inst_ = nullptr;
 
 BatchProgram& BP()
 {
     if ( !BatchProgram::inst_ )
+    {
+	DisableAutoSleep();
 	BatchProgram::inst_ = new BatchProgram;
+    }
     return *BatchProgram::inst_;
 }
 
@@ -64,103 +72,88 @@ void BatchProgram::deleteInstance( int retcode )
 {
     delete BatchProgram::inst_;
     IOM().applClosing();
+    EnableAutoSleep();
     ApplicationData::exit( retcode );
 }
 
 
 BatchProgram::BatchProgram()
-    : NamedCallBacker("")
+    : NamedCallBacker("Batch Program")
     , iopar_(new IOPar)
-    , programStarted(this)
+    , timer_(new Timer("Starting"))
+    , eventLoopStarted(this)
     , startDoWork(this)
+    , pause(this)
+    , resume(this)
+    , killed(this)
     , endWork(this)
 {
-    timer_ = new Timer( "Updating" );
-    mAttachCB( timer_->tick, BatchProgram::eventLoopStarted );
-
-    ODBatchService& service = ODBatchService::getMgr();
-    mAttachCB( service.actionNotifier, BatchProgram::doWorkCB );
-    mAttachCB( service.actionNotifier, BatchProgram::endWorkCB );
-
-    if ( !timer_->isActive() )
-	timer_->start(0, true);
-#ifdef __win__
-    disableAutoSleep();
-#endif
+    mAttachCB( timer_->tick, BatchProgram::eventLoopStartedCB );
+    timer_->start(0, true);
+    //Single shot. Will only be hit after the event loop is started.
 }
 
 
-void BatchProgram::eventLoopStarted( CallBacker* cb )
+BatchProgram::~BatchProgram()
 {
-    if ( isStartDoWork() )
-	timer_->stop();
-
-    programStarted.trigger();
-
-    if ( isStartDoWork() )
-    {
-	const int ret = BP().isStillOK() ? 0 : 1;
-	BP().deleteInstance( ret );
-    }
+    delete timer_;
+    if ( strmismine_ )
+	delete strm_;
+    else
+	strm_->close();
+    deleteAndZeroPtr( clparser_ );
+    delete iopar_;
+    delete comm_;
+    deepErase( requests_ );
 }
 
 
-void BatchProgram::doWorkCB( CallBacker* cb )
+bool BatchProgram::isOK() const
 {
-    mCBCapsuleUnpack(BufferString,actstr,cb);
-
-    if ( FixedString( actstr ) != ODBatchService::sKeyTransferCmplt() )
-	return;
-
-    startDoWork.trigger();
+    return status_ != ParseFail && status_ != CommFail &&
+	   status_ != LogFail && status_ != WorkFail && status_ != Killed;
 }
 
 
-void BatchProgram::endWorkCB( CallBacker* cb )
+bool BatchProgram::init()
 {
-    mCBCapsuleUnpack(BufferString,actstr,cb);
-
-    if ( FixedString( actstr ) != ODBatchService::sKeyEndProgram() )
-	return;
-
-    endWork.trigger();
+    Threads::Locker lckr( statelock_ );
+    status_ = parseArguments() ? ParseOK : ParseFail;
+    if ( status_ == ParseOK )
+	status_ = initComm() ? CommOK : CommFail;
+    if ( status_ == CommOK )
+	status_ = initLogging() ? LogOK : LogFail;
+    return status_ == LogOK;
 }
 
 
-void BatchProgram::init()
+bool BatchProgram::parseArguments()
 {
     delete clparser_;
 
     OD::ModDeps().ensureLoaded( "Batch" );
 
+#   define mGetKeyedVal(ky,val) \
+    clparser_->setKeyHasValue( ky() ); \
+    clparser_->getVal( ky(), val )
+
     clparser_ = new CommandLineParser;
-    clparser_->setKeyHasValue( sKeyMasterHost() );
-    clparser_->setKeyHasValue( sKeyMasterPort() );
-    clparser_->setKeyHasValue( sKeyJobID() );
     clparser_->setKeyHasValue( sKeyDataDir() );
     clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
-    clparser_->setKeyHasValue(	"odserver" );
-    clparser_->setKeyHasValue( Network::Server::sKeyPort() );
+    clparser_->setKeyHasValue( sKeyODServer() );
+    clparser_->setKeyHasValue( sKeyPort() );
 
     BufferString masterhost;
-    clparser_->getVal( sKeyMasterHost(), masterhost );
-
     int masterport = -1;
-    clparser_->getVal( sKeyMasterPort(), masterport );
-
-    clparser_->getVal( sKeyJobID(), jobid_ );
-
+    mGetKeyedVal( sKeyMasterHost, masterhost );
+    mGetKeyedVal( sKeyMasterPort, masterport );
+    mGetKeyedVal( sKeyJobID, jobid_ );
     if ( masterhost.size() && masterport > 0 )  // both must be set.
 	comm_ = new JobCommunic( masterhost, masterport, jobid_ );
 
+    BufferString parfilnm;
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );
-    BufferString launchtype;
-    clparser_->getVal( sKey::LaunchType(), launchtype );
-
-    startdoworknow_ = launchtype.isEmpty() || launchtype == sKey::Batch();
-
-    BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
     {
 	const FilePath parfp( normalargs.get(idx) );
@@ -178,30 +171,29 @@ void BatchProgram::init()
     {
 	errorMsg( tr("%1: No existing parameter file name specified")
 		 .arg(clparser_->getExecutableName()) );
-	return;
+	return false;
     }
 
-    if ( !simplebatch )
+    setName( parfilnm );
+    if ( !parfilnm.isEmpty() )
     {
-	setName( parfilnm );
-	od_istream odstrm(parfilnm);
+	od_istream odstrm( parfilnm );
 	if ( !odstrm.isOK() )
 	{
-	    errorMsg( tr("%1: Cannot open parameter file: %2" )
-		.arg(clparser_->getExecutableName() )
-		.arg(parfilnm) );
-	    return;
+	    errorMsg( tr("%1: Cannot open parameter file: %2")
+			.arg( clparser_->getExecutableName() )
+			.arg( parfilnm ));
+	    return false;
 	}
 
 	ascistream aistrm( odstrm, true );
 	if ( sKey::Pars() != aistrm.fileType() )
 	{
 	    errorMsg( tr("%1: Input file %2 is not a parameter file")
-		.arg(clparser_->getExecutableName())
-		.arg(parfilnm) );
-
+			.arg( clparser_->getExecutableName() )
+			.arg( parfilnm ));
 	    od_cerr() << aistrm.fileType() << od_endl;
-	    return;
+	    return false;
 	}
 
 	iopar_->getFrom( aistrm );
@@ -210,177 +202,68 @@ void BatchProgram::init()
 
     if ( iopar_->size() == 0 && !simplebatch )
     {
-	errorMsg( tr( "%1: Invalid input file %2")
+	errorMsg( tr("%1: Invalid input file %2")
 		    .arg( clparser_->getExecutableName() )
 		    .arg( parfilnm) );
-        return;
+	return false;
     }
 
     BufferString res = iopar_->find( sKey::LogFile() );
     if ( !res )
 	iopar_->set( sKey::LogFile(), od_stream::sStdIO() );
 
-    res = iopar_->find( sKey::DataRoot() );
-    if ( !res.isEmpty() && File::exists(res) )
-	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
+#define mSetDataRootVar(str) \
+	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
 
-    if ( clparser_->getVal(sKeyDataDir(),res) && !res.isEmpty() &&
-	 File::exists(res) )
-	SetEnvVar( "DTECT_DATA", res );
-
-    res = iopar_->find( sKey::Survey() );
-
-    if ( simplebatch && clparser_->getVal(sKeySurveyDir(), res) )
-	iopar_->set( sKey::Survey(), res );
-    else if ( res.isEmpty() )
-	IOMan::newSurvey();
-    else
+    clparser_->setKeyHasValue( sKeyDataDir() );
+    clparser_->setKeyHasValue( sKeySurveyDir() );
+    if ( clparser_->getVal(sKeyDataDir(),res) && File::isDirectory(res) )
     {
-	if ( DBG::isOn(DBG_PROGSTART) )
-	{
-	    const char* oldsnm = IOM().surveyName();
-	    if ( !oldsnm ) oldsnm = "<empty>";
-	    if ( res!=oldsnm )
-	    {
-		BufferString msg( "Using survey from par file: ", res,
-				  ". was: " ); msg += oldsnm;
-		infoMsg( msg );
-	    }
-	}
-	IOMan::setSurvey( res );
+	mSetDataRootVar( res );
+	iopar_->set( sKey::DataRoot(), res );
     }
+
+    if ( simplebatch && clparser_->getVal(sKeySurveyDir(),res) )
+	iopar_->set( sKey::Survey(), res );
+    else if ( !iopar_->get(sKey::Survey(),res) )
+    {
+	errorMsg( tr("Invalid parameter file %1\nSurvey key is missing.")
+			.arg( parfilnm ) );
+	return false;
+    }
+
+    if ( res.isEmpty() || !IOM().setSurvey(res) )
+	{ errorMsg( tr("Cannot set the survey") ); return false; }
 
     killNotify( true );
-
-    stillok_ = true;
-}
-
-
-BatchProgram::~BatchProgram()
-{
-#ifdef __win__
-    enableAutoSleep();
-#endif
-    infoMsg( sKeyFinishMsg() );
-    IOM().applClosing();
-
-    if ( comm_ )
-    {
-
-	JobCommunic::State s = comm_->state();
-
-	bool isSet =  s == JobCommunic::AllDone
-	           || s == JobCommunic::JobError
-		   || s == JobCommunic::HostError;
-
-	if ( !isSet )
-	    comm_->setState( stillok_ ? JobCommunic::AllDone
-				    : JobCommunic::HostError );
-
-	bool ok = comm_->sendState( true );
-
-	if ( ok )	infoMsg( "Successfully wrote final status" );
-	else		infoMsg( "Could not write final status" );
-
-	comm_->disConnect();
-    }
-
-    killNotify( false );
-
-    strm_->close();
-    if ( strmismine_ )
-	delete strm_;
-    strm_ = nullptr;
-    deleteAndZeroPtr( clparser_ );
-
-    // Do an explicit exitProgram() here, so we are sure the program
-    // is indeed ended and we won't get stuck while cleaning up things
-    // that we don't care about.
-    ExitProgram( stillok_ ? 0 : 1 );
-
-    // These will never be reached...
-    delete iopar_;
-    delete comm_;
-}
-
-
-void BatchProgram::progKilled( CallBacker* )
-{
-    infoMsg( "BatchProgram Killed." );
-
-    if ( comm_ )
-    {
-	comm_->setState( JobCommunic::Killed );
-	comm_->sendState( true );
-    }
-
-    killNotify( false );
-
-#ifdef __debug__
-    abort();
-#endif
-}
-
-
-void BatchProgram::killNotify( bool yn )
-{
-    CallBack cb( mCB(this,BatchProgram,progKilled) );
-
-    if ( yn )
-	SignalHandling::startNotify( SignalHandling::Kill, cb );
-    else
-	SignalHandling::stopNotify( SignalHandling::Kill, cb );
-}
-
-
-bool BatchProgram::pauseRequested() const
-    { return comm_ ? comm_->pauseRequested() : false; }
-
-
-bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
-{
-    if ( strm_ && strm_->isOK() )
-	*strm_ << '\n' << msg.getFullString() << '\n' << od_endl;
-    if ( cc_stderr )
-	od_cerr() << '\n' << msg.getFullString() << '\n' << od_endl;
-
-    if ( comm_ && comm_->ok() )
-	return comm_->sendErrMsg(msg.getFullString());
-
     return true;
 }
 
 
-bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
+bool BatchProgram::initComm()
 {
-    if ( strm_ && strm_->isOK() )
-	*strm_ << '\n' << msg << '\n' << od_endl;
-    if ( cc_stdout )
-	od_cout() << '\n' << msg << '\n' << od_endl;
-
-    return true;
-}
-
-
-
-bool BatchProgram::initOutput()
-{
-    stillok_ = false;
     if ( comm_ && !comm_->sendPID(GetPID()) )
     {
 	errorMsg( tr("Could not contact master. Exiting."), true );
-	exit( 0 );
+	return false;
     }
 
+    return true;
+}
+
+
+bool BatchProgram::initLogging()
+{
     BufferString res = pars().find( sKey::LogFile() );
     if ( res == "stdout" ) res.setEmpty();
 
     if ( strmismine_ )
 	delete strm_;
 
-    bool hasviewprogress = true;
 #ifdef __cygwin__
-    hasviewprogress = false;
+    const bool hasviewprogress = false;
+#else
+    const bool hasviewprogress = true;
 #endif
 
     if ( hasviewprogress && res && res=="window" )
@@ -420,31 +303,265 @@ bool BatchProgram::initOutput()
 	    strm_ = &od_cout();
 	    strmismine_ = false;
 	}
-
     }
 
-    stillok_ = strm_ && strm_->isOK();
-    if ( comm_ && strm_ )
+    if ( !strm_ || !strm_->isOK() )
+	return false;
+
+    if ( comm_ )
 	comm_->setStream( *strm_ );
-    if ( stillok_ )
-	PIM().loadAuto( true );
-    return stillok_;
+
+    return true;
 }
 
 
-IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
-					const IOObjContext& ctxt,
-					bool msgiffail ) const
+bool BatchProgram::canStartdoWork() const
 {
-    BufferString errmsg;
-    IOObj* ioobj = IOM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
-    if ( !ioobj && msgiffail && !errmsg.isEmpty() )
+    if ( !iopar_ )
+	return true;
+
+    OS::CommandExecPars jobpars;
+    jobpars.usePar( *iopar_ );
+
+    return jobpars.launchtype_ != OS::BatchWait;
+}
+
+
+void BatchProgram::eventLoopStartedCB( CallBacker* )
+{
+    mDetachCB( timer_->tick, BatchProgram::eventLoopStartedCB );
+
+    if ( strm_ )
     {
-	if ( errmsg.isEmpty() )
-	    errmsg.set( "Error getting info from database" );
-	if ( strm_ )
-	    *strm_ << errmsg << od_endl;
+	od_ostream& logstrm = *strm_;
+	logstrm << "Starting program: " << clparser_->getExecutable()
+	    << " " << name() << od_newline
+	    << "Processing on: " << GetLocalHostName() << od_newline
+	    << "Process ID: " << GetPID() << od_endl;
+#ifdef __debug__
+	if ( clparser_->nrArgs() > 1 )
+	{
+	    logstrm << "Full command: " << clparser_->getExecutable();
+	    for ( int idx=0; idx<clparser_->nrArgs(); idx++ )
+		logstrm << " " << clparser_->getArg(idx);
+	    logstrm << od_endl;
+	}
+#endif
     }
 
-    return ioobj;
+    if ( !isOK() )
+    {
+	endWorkCB( nullptr );
+	return;
+    }
+
+    eventLoopStarted.trigger(); // Call to loadModules needs to be external
+}
+
+
+void BatchProgram::modulesLoaded()
+{
+    //Here we could register any batch program back to od_main
+    if ( canStartdoWork() )
+    {
+	startDoWork.trigger();
+	return;
+    }
+
+    //Start listening and registers
+    const BatchServiceServerMgr& batchmgr = BatchServiceServerMgr::getMgr();
+    if ( batchmgr.canReceiveRequests() )
+    {
+	*strm_ << "\nGoing in waiting mode" << od_endl;
+	Threads::Locker lckr( statelock_ );
+	status_ = WorkWait;
+    }
+    else
+    {
+	*strm_ << "\nStopping an unregistered Batch-Wait application"
+	       << od_endl;
+	endWorkCB( nullptr );
+    }
+}
+
+
+bool BatchProgram::canReceiveRequests() const
+{
+    return BatchServiceServerMgr::getMgr().canReceiveRequests();
+}
+
+
+void BatchProgram::initWork()
+{
+    Threads::Locker lckr( statelock_ );
+    status_ = WorkStarted;
+}
+
+
+void BatchProgram::startTimer()
+{
+    mAttachCB( timer_->tick, BatchProgram::workMonitorCB );
+    timer_->start( 100, true );
+}
+
+
+void BatchProgram::postWork(bool res)
+{
+    Threads::Locker lckr( statelock_ );
+    status_ = res ? WorkOK : WorkFail;
+}
+
+
+void BatchProgram::workMonitorCB( CallBacker* )
+{
+    Threads::Locker lckr( statelock_ );
+    Status state = status_;
+    lckr.unlockNow();
+    if ( state == WorkFail || state == WorkOK )
+    {
+	Threads::Locker trlckr( batchprogthreadlock_,
+				Threads::Locker::DontWaitForLock );
+	if ( trlckr.isLocked() )
+	{
+	    doFinalize();
+	    trlckr.unlockNow();
+	}
+
+	endWorkCB( nullptr );
+	return;
+    }
+
+    /* Here we can report if alive or paused
+    BatchServiceServerMgr& batchmgr = BatchServiceServerMgr::getMgr();
+    if ( state == WorkPaused )
+    {
+	*strm_ << "\nPaused" << od_endl;
+    }
+    else
+    {
+	OD::JSON::Object obj;
+	obj.set( sKey::Status(), state );
+	batchmgr.doSendRequest( sKey::Status(), &obj );
+    }
+    */
+
+    timer_->start( 5000, true );
+}
+
+
+void BatchProgram::doFinalize()
+{
+    if ( thread_ )
+    {
+	thread_->waitForFinish();
+	deleteAndZeroPtr( thread_ );
+    }
+}
+
+
+void BatchProgram::endWorkCB( CallBacker* cb )
+{
+    const bool workdoneok = status_ == WorkOK;
+    infoMsg( sKeyFinishMsg() );
+    if ( comm_ )
+    {
+	JobCommunic::State s = comm_->state();
+
+	bool isSet =  s == JobCommunic::AllDone
+	           || s == JobCommunic::JobError
+		   || s == JobCommunic::HostError;
+
+	if ( !isSet )
+	    comm_->setState( workdoneok ? JobCommunic::AllDone
+					: JobCommunic::HostError );
+
+	const bool ok = comm_->sendState( true );
+
+	if ( ok )	infoMsg( "Successfully wrote final status" );
+	else		infoMsg( "Could not write final status" );
+
+	comm_->disConnect();
+    }
+
+    killNotify( false );
+    endWork.trigger();
+    deleteInstance( workdoneok ? 0 : 1 );
+}
+
+
+void BatchProgram::progKilled( CallBacker* )
+{
+    Threads::Locker lckr( statelock_ );
+    status_ = Killed;
+    lckr.unlockNow();
+    infoMsg( "BatchProgram Killed." );
+
+    if ( comm_ )
+    {
+	comm_->setState( JobCommunic::Killed );
+	comm_->sendState( true );
+    }
+
+    killNotify( false );
+    killed.trigger(); // deregister. will it work?
+
+#ifdef __debug__
+    abort();
+#endif
+}
+
+
+void BatchProgram::killNotify( bool yn )
+{
+    CallBack cb( mCB(this,BatchProgram,progKilled) );
+
+    if ( yn )
+	SignalHandling::startNotify( SignalHandling::Kill, cb );
+    else
+	SignalHandling::stopNotify( SignalHandling::Kill, cb );
+}
+
+
+bool BatchProgram::pauseRequested()
+{
+    const bool pauserequest = comm_ && comm_->pauseRequested();
+    if ( pauserequest )
+    {
+	Threads::Locker lckr( statelock_ );
+	status_ = WorkWait;
+	lckr.unlockNow();
+	pause.trigger();
+    }
+    return pauserequest;
+}
+
+
+void BatchProgram::setResumed()
+{
+    resume.trigger();
+}
+
+
+bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
+{
+    if ( strm_ && strm_->isOK() )
+	*strm_ << '\n' << ::toString(msg) << '\n' << od_endl;
+    if ( cc_stderr )
+	od_cerr() << '\n' << ::toString(msg) << '\n' << od_endl;
+
+    if ( comm_ && comm_->ok() )
+	return comm_->sendErrMsg( ::toString(msg) );
+
+    return true;
+}
+
+
+bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
+{
+    if ( strm_ && strm_->isOK() )
+	*strm_ << '\n' << msg << '\n' << od_endl;
+    if ( cc_stdout )
+	od_cout() << '\n' << msg << '\n' << od_endl;
+
+    return true;
 }

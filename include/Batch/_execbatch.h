@@ -22,8 +22,6 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "strmprov.h"
-#include "hostdata.h"
 
 #ifdef __win__
 # include <tchar.h>
@@ -35,14 +33,14 @@ ________________________________________________________________________
 
 
 #ifdef __win__
-static void setBatchPriority( int argc, char** argv )
+static void setBatchPriority( int argc, char** argv, float priority )
 #else
-static void setBatchPriority( int argc, char** argv, int pid )
+static void setBatchPriority( int argc, char** argv, float priority, int pid )
 #endif
 {
     const CommandLineParser clp( argc, argv );
-    float priority = mUdf(float);
-    clp.getVal( "priority", priority );
+    //TODO: replace by reading the IOPar
+    clp.getVal( OS::CommandExecPars::sKeyPriority(), priority );
 #ifdef __unix__
     if ( mIsUdf(priority) )
     {
@@ -98,28 +96,46 @@ static void setBatchPriority( int argc, char** argv, int pid )
 void Execute_batch( int* pargc, char** argv )
 {
     PIM().loadAuto( false );
-
-    BP().init();
-    if ( !BP().stillok_ )
+    if ( !BP().init() )
 	return;
 
-    BatchProgram& bp = BP();
-    bool allok = bp.initOutput();
-    if ( allok )
-    {
-	od_ostream& logstrm = bp.getLogStream();
-	const int pid = GetPID();
+    PIM().loadAuto( true );
 #ifdef __win__
-	setBatchPriority( *pargc, argv );
+    setBatchPriority( *pargc, argv, BP().getPriority() );
 #else
-	setBatchPriority( *pargc, argv, pid );
+    setBatchPriority( *pargc, argv, BP().getPriority(), GetPID() );
 #endif
-	logstrm << "Starting program: " << argv[0] << " " << bp.name()
-		<< od_endl;
-	logstrm << "Processing on: " << GetLocalHostName() << od_endl;
-	logstrm << "Process ID: " << pid << od_endl;
-    }
-
-    bp.stillok_ = true;
 }
 
+void loadModulesCB( CallBacker* )
+{
+    BP().loadModules();
+    BP().modulesLoaded();
+}
+
+
+void doWorkCB( CallBacker* )
+{
+    BatchProgram& bp = BP();
+    bp.initWork();
+    const bool res = bp.doWork( *bp.strm_ );
+    bp.postWork( res );
+}
+
+
+void launchDoWorkCB( CallBacker* cb )
+{
+    BatchProgram& bp = BP();
+    if ( bp.canReceiveRequests() )
+    {
+        bp.startTimer();
+        Threads::Locker lckr( bp.batchprogthreadlock_ );
+        bp.thread_ = new Threads::Thread(mSCB(doWorkCB),
+                    "Batch program executor");
+    }
+    else
+    {
+        doWorkCB( cb );
+        bp.endWorkCB( cb );
+    }
+}

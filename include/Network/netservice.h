@@ -13,10 +13,12 @@
 
 #include "networkmod.h"
 
+#include "batchjobdispatch.h"
+#include "enums.h"
 #include "namedobj.h"
 #include "networkcommon.h"
-#include "enums.h"
 
+class od_ostream;
 class FilePath;
 
 namespace OD {
@@ -31,24 +33,28 @@ namespace OS {
 
 
 /*\brief
-    Encapsulates information and actions for an external application or service
+    Encapsulates information of an external application/service
 
 
 */
-typedef int		ProcID;
-
 namespace Network
 {
 
+typedef int		ProcID;
 
 mExpClass(Network) Service : public NamedObject
 {  mODTextTranslationClass(Service);
 public:
 
     typedef ProcID	ID;
+    typedef Batch::ID	SubID;
+
+    enum ServType	{ ODGui, ODBatchGui, ODBatch, ODTest, Python, Other };
+			mDeclareEnumUtils(ServType);
 
 			Service(PortNr_Type,const char* hostnm=nullptr);
-			Service(const OD::JSON::Object&,const Authority&);
+			Service(const Authority&);
+			Service(const OD::JSON::Object&);
 			Service(const Service&)		= delete;
 			~Service();
 
@@ -60,39 +66,53 @@ public:
     bool		isEmpty() const;
     bool		isPortValid() const;
     bool		isAlive() const;
+    bool		isBatch() const;
 
     ID			getID() const;
+    SubID		getSubID() const	{ return subid_; }
+    ProcID		PID() const		{ return pid_; }
     BufferString	url() const;
     Authority		getAuthority() const	{ return auth_; }
     BufferString	address() const;
     PortNr_Type		port() const;
-    ProcID		PID() const		{ return pid_; }
+    ServType		type() const		{ return type_; }
     BufferString	logFnm() const;
     uiRetVal		message() const		{ return msg_; }
-    bool		fillJSON(OD::JSON::Object&) const;
+    void		fillJSON(OD::JSON::Object&) const;
 
     void		setPort(PortNr_Type);
     void		setHostName(const char*);
     void		setLogFile(const char*);
     void		setPID(const OS::CommandLauncher&);
     void		setPID(ProcID);
+    void		setType( ServType typ ) { type_ = typ; }
     uiRetVal		useJSON(const OD::JSON::Object&);
     void		stop(bool removelog=true);
     void		setEmpty();
+    void		setViewOnly( bool yn=true )	{ viewonly_ = yn; }
 
-    static bool		fillJSON(const Authority&,OD::JSON::Object&);
     static BufferString getServiceName(const OD::JSON::Object&);
     static ID		getID(const OD::JSON::Object&);
 
     static const char*	sKeyServiceName()	{ return "servicename"; }
+    static const char*	sKeyServiceType()	{ return "servicetype"; }
     static const char*	sKeyPID()		{ return "pid"; }
+    static const char*	sKeySubID();
     static const char*	sKeyLogFile()		{ return "logfile"; }
+
+    void		printInfo(const char* ky=nullptr,
+				  od_ostream* =nullptr) const;
 
 private:
 
+    void		init();
+
     Authority		auth_;
     ProcID		pid_	= 0;
+    SubID		subid_	= Batch::JobDispatcher::getInvalid();
     FilePath*		logfp_	= nullptr;
+    bool		viewonly_ = false;
+    ServType		type_;
 
     mutable uiRetVal	msg_;
 

@@ -10,12 +10,18 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibatchjobdispatchersel.h"
+#include "uibatchprocdlg.h"
 #include "uibatchjobdispatcherlauncher.h"
 
+#include "batchjobdispatch.h"
+#include "errmsg.h"
+#include "file.h"
+#include "genc.h"
 #include "hostdata.h"
 #include "ioobj.h"
+#include "keystrs.h"
+#include "netserver.h"
 #include "oddirs.h"
-#include "settings.h"
 #include "singlebatchjobdispatch.h"
 
 #include "uigeninput.h"
@@ -26,34 +32,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "odbatchservice.h"
-#include "netserver.h"
+
+static const char* sGroupName = "Batch job dispatcher selector";
+
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-				    const Batch::JobSpec& js )
-    : uiGroup(p,"Batch job dispatcher selector")
-    , jobspec_(js)
-    , optsbut_(0)
-    , selfld_(0)
-    , dobatchbox_(0)
+						  ProcType proctyp,
+						  OS::LaunchType launchtype )
+    : uiGroup(p,sGroupName)
+    , jobspec_(proctyp,launchtype)
     , selectionChange(this)
     , checked(this)
-    , jobname_("batch_processing")
 {
     init( optional );
 }
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
-					Batch::JobSpec::ProcType proctyp )
-    : uiGroup(p,"Batch job dispatcher selector")
-    , jobspec_(proctyp)
-    , optsbut_(0)
-    , selfld_(0)
-    , dobatchbox_(0)
+						  const JobSpec& js )
+    : uiGroup(p,sGroupName)
+    , jobspec_(js)
     , selectionChange(this)
     , checked(this)
-    , jobname_("batch_processing")
 {
     init( optional );
 }
@@ -74,7 +74,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     }
 
     if ( uidispatchers_.isEmpty() )
-	{ pErrMsg("Huh? No dispatcher launchers at all"); return; }
+	{ pErrMsg("No batch dispatcher launchers at all"); return; }
 
     uiString optionsbuttxt = uiStrings::sOptions();
     const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
@@ -83,13 +83,11 @@ void uiBatchJobDispatcherSel::init( bool optional )
     if ( onlyonechoice )
     {
 	if ( !optional )
-	    optionsbuttxt = uiStrings::phrJoinStrings(tr("Execution"),
-					uiStrings::sOptions());
+	    optionsbuttxt = tr("Execution Options");
 	else
 	{
 	    dobatchbox_ = new uiCheckBox( this, tr("Execute in Batch") );
 	    dobatchbox_->activated.notify( fldchkcb );
-	    setHAlignObj( dobatchbox_ );
 	    attachobj = dobatchbox_;
 	}
     }
@@ -98,7 +96,6 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	selfld_ = new uiGenInput( this, tr("Batch execution"),
 				  StringListInpSpec());
 	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
-	setHAlignObj( selfld_ );
 	if ( optional )
 	{
 	    selfld_->setWithCheck( true );
@@ -113,6 +110,9 @@ void uiBatchJobDispatcherSel::init( bool optional )
 		optionsbuttxt );
     if ( attachobj )
 	optsbut_->attach( rightOf, attachobj );
+
+    if ( selfld_ )
+	setHAlignObj( selfld_ );
     else
 	setHAlignObj( optsbut_ );
 
@@ -127,7 +127,7 @@ void uiBatchJobDispatcherSel::initFlds( CallBacker* )
 }
 
 
-void uiBatchJobDispatcherSel::setJobSpec( const Batch::JobSpec& js )
+void uiBatchJobDispatcherSel::setJobSpec( const JobSpec& js )
 {
     jobspec_ = js;
     jobSpecUpdated();
@@ -151,6 +151,8 @@ void uiBatchJobDispatcherSel::jobSpecUpdated()
     selfld_->newSpec( StringListInpSpec(nms), 0 );
     if ( !oldsel.isEmpty() )
 	selfld_->setText( oldsel );
+
+    selChg( 0 );
 }
 
 
@@ -185,7 +187,7 @@ uiBatchJobDispatcherLauncher* uiBatchJobDispatcherSel::selectedLauncher()
 uiString uiBatchJobDispatcherSel::selected() const
 {
     const int selidx = selIdx();
-    return selidx < 0 ? uiString::emptyString()
+    return selidx < 0 ? uiString::empty()
 		      : uidispatchers_[selidx]->name();
 }
 
@@ -201,7 +203,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
-	if ( cursel == uidispatchers_[idx]->name().getFullString() )
+	if ( cursel == toString(uidispatchers_[idx]->name()) )
 	    return idx;
     }
 
@@ -213,7 +215,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 const uiString uiBatchJobDispatcherSel::selectedInfo() const
 {
     const int selidx = selIdx();
-    return selidx < 0 ? uiString::emptyString()
+    return selidx < 0 ? uiString::empty()
 		      : uidispatchers_[selidx]->getInfo();
 }
 
@@ -221,7 +223,11 @@ const uiString uiBatchJobDispatcherSel::selectedInfo() const
 bool uiBatchJobDispatcherSel::start()
 {
     const int selidx = selIdx();
-    if ( selidx < 0 ) return false;
+    if ( selidx < 0 )
+    {
+	uiMSG().error( tr("Please select a batch execution method") );
+	return false;
+    }
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
@@ -247,7 +253,9 @@ bool uiBatchJobDispatcherSel::saveProcPars( const IOObj& ioobj ) const
 
 
 void uiBatchJobDispatcherSel::setJobName( const char* nm )
-{ jobname_ = nm; }
+{
+    jobname_ = nm;
+}
 
 
 void uiBatchJobDispatcherSel::selChg( CallBacker* )
@@ -283,17 +291,13 @@ mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
 		   uiBatchJobDispatcherLauncher::factory)
 
 
-bool uiBatchJobDispatcherLauncher::go( uiParent* p )
+bool uiBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
 {
-    ODBatchService& ODSM = ODBatchService::getMgr();
-    jobspec_.pars_.add( ODSM.sKeyODServer(),
-			    ODSM.getAuthority( true ).getServerName() );
-
-    if ( !dispatcher().go(jobspec_) )
+    if ( !dispatcher().go(jobspec_,jobid) )
     {
-	uiString errmsg = dispatcher().errMsg();
-	uiMSG().error(
-	    errmsg.isSet() ? errmsg : tr("Cannot start required program") );
+	uiRetVal ret( tr("Cannot start program %1").arg(jobspec_.prognm_) );
+	ret.add( dispatcher().errMsg() );
+	uiMSG().error( ret );
 	return false;
     }
 
@@ -328,15 +332,15 @@ const Batch::JobDispatcher& uiBatchJobDispatcherLauncher::dispatcher() const
 uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher(
 							Batch::JobSpec& js )
     : uiBatchJobDispatcherLauncher(js)
-    , sjd_(*new Batch::SingleJobDispatcherRemote)
+    , sjd_(*new Batch::SingleJobDispatcher)
+    , hdl_(false)
 {
 #ifdef __unix__
-    const HostDataList hdl( false );
-    const int niceval = hdl.niceLevel();
+    const int niceval = hdl_.niceLevel();
     const StepInterval<int> nicerg(
-		    OS::CommandExecPars::cMachineUserPriorityRange( false ) );
+        OS::CommandExecPars::cMachineUserPriorityRange(false));
     jobspec_.execpars_.prioritylevel_ =
-				-1.f * mCast(float,niceval) / nicerg.width();
+        -1.f * mCast(float, niceval) / nicerg.width();
 #endif
 }
 
@@ -353,6 +357,34 @@ Batch::JobDispatcher& uiSingleBatchJobDispatcherLauncher::gtDsptchr()
 }
 
 
+bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
+{
+    if ( !sjd_.remotehost_.isEmpty() )
+    {
+	hdl_.refresh();
+	const HostData* localhost = hdl_.find(BufferString(GetLocalHostName()));
+	if ( !localhost )
+	{
+	    uiMSG().error( tr("Cannot find configuration for localhost") );
+	    return false;
+	}
+
+	const FilePath localbasedatadir( GetBaseDataDir() );
+	if ( localbasedatadir != localhost->getDataRoot() )
+	{
+	    uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path "
+			    "in batch processing configuration file:\n'%2'\n"
+			    "Cannot continue")
+			    .arg( localbasedatadir.fullPath() )
+			    .arg( localhost->getDataRoot().fullPath() ) );
+	    return false;
+	}
+    }
+
+    return uiBatchJobDispatcherLauncher::go( p );
+}
+
+
 
 class uiSingleBatchJobDispatcherPars : public uiDialog
 { mODTextTranslationClass(uiSingleBatchJobDispatcherPars);
@@ -363,7 +395,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 				Batch::JobSpec& js )
     : uiDialog(p,Setup(tr("Batch execution parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
-		       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
+                       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
     , sjd_(sjd)
     , execpars_(js.execpars_)
     , hdl_(hdl)
@@ -422,7 +454,7 @@ void hostChgCB( CallBacker* )
 {
     const HostData* curhost = hdl_.find( remhostfld_ && remhostfld_->isChecked()
 					 ? remhostfld_->text()
-					 : HostData::localHostName() );
+					 : GetLocalHostName() );
     if ( !curhost )
     {
 #ifdef __win__
@@ -483,7 +515,55 @@ bool acceptOK( CallBacker* )
 
 void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
 {
-    const HostDataList hdl( false );
-    uiSingleBatchJobDispatcherPars dlg( p, hdl, sjd_, jobspec_ );
+    hdl_.refresh();
+    uiSingleBatchJobDispatcherPars dlg( p, hdl_, sjd_, jobspec_ );
     dlg.go();
+}
+
+
+
+uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
+				bool optional, ProcType pt )
+    : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
+{
+    setCtrlStyle( RunAndClose );
+
+    pargrp_ = new uiGroup( this, "Parameters group" );
+
+    batchgrp_ = new uiGroup( this, "Batch group" );
+    batchgrp_->attach( alignedBelow, pargrp_ );
+    batchjobfld_ = new uiBatchJobDispatcherSel( batchgrp_, optional, pt );
+    batchgrp_->setHAlignObj( batchjobfld_ );
+}
+
+
+void uiBatchProcDlg::getJobName( BufferString& jobnm ) const
+{
+    jobnm = "Batch_processing";
+}
+
+
+bool uiBatchProcDlg::acceptOK( CallBacker* )
+{
+    if ( !prepareProcessing() )
+	return false;
+
+    IOPar& par = batchjobfld_->jobSpec().pars_;
+    par.setEmpty();
+    BufferString jobnm;
+    getJobName( jobnm );
+    batchjobfld_->setJobName( jobnm );
+    if ( !fillPar(par) )
+	return false;
+
+    if ( !batchjobfld_->start() )
+	uiMSG().error( tr("Could not start batch program") );
+
+    return false;
+}
+
+
+void uiBatchProcDlg::setProgName( const char* prognm )
+{
+    batchjobfld_->jobSpec().prognm_ = prognm;
 }

@@ -1,17 +1,15 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Multi-Machine processing
+#	Makefile :	Distributed processing
 # 	July 2008	Bert
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS Network)
 set(OD_USEQT Core)
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	jobdescprov.cc
 	jobiomgr.cc
 	jobrunner.cc
@@ -22,9 +20,10 @@ SET(OD_MODULE_SOURCES
 	mmexecproxy.cc
 	remcommhandler.cc
 	remjobexec.cc
+	singlebatchjobdispatch.cc
 )
 
-SET(OD_MODULE_PROGS
+set(OD_MODULE_PROGS
 	od_remoteservice.cc
 	od_remexec.cc
 )

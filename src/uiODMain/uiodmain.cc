@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "uiodservicemgr.h"
+#include "uiserviceclientmgr.h"
 
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
@@ -631,7 +631,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 
 void uiODMain::afterStartupCB( CallBacker* )
 {
-    uiODServiceMgr::setFor( *this );
+    uiServiceClientMgr::setFor( *this );
 }
 
 
@@ -861,9 +861,9 @@ void uiODMain::forceExit()
     uiapp_.exit(0);
 }
 
-uiODServiceMgr& uiODMain::serviceMgr()
+uiServiceClientMgr& uiODMain::serviceMgr()
 {
-    return uiODServiceMgr::getMgr();
+    return uiServiceClientMgr::getMgr();
 }
 
 

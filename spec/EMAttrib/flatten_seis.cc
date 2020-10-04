@@ -89,10 +89,27 @@ static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
 }
 
 
+static IOObj* getIOObjFromPars(  const char* bsky, bool mknew,
+				 const IOObjContext& ctxt,
+				 bool msgiffail,
+				 od_ostream& strm ) const
+{
+    uiString errmsg;
+    IOObj* ioobj = DBM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
+    if ( !ioobj && msgiffail )
+    {
+	if ( errmsg.isEmpty() )
+	    errmsg = tr("Error getting info from database");
+	strm << toString(errmsg) << od_endl;
+    }
+
+    return ioobj;
+}
+
+
 #define mErrRet(msg)	{ std::cerr << msg << std::endl; return false; }
 
-
-bool BatchProgram::go( std::ostream& strm )
+mLoad1Module("EMAttrib")
 {
     PtrMan<IOObj> inioobj = getIOObjFromPars( "Input Seismics", false,
 		SeisTrcTranslatorGroup::ioContext(), true );
@@ -102,7 +119,7 @@ bool BatchProgram::go( std::ostream& strm )
     IOObjContext ctxt = SeisTrcTranslatorGroup::ioContext();
     if ( is2d ) ctxt.deftransl = "2D";
     PtrMan<IOObj> outioobj = getIOObjFromPars( "Output Seismics", true,
-					       ctxt, true );
+					       ctxt, true, strm );
     if ( !outioobj || !inioobj )
 	mErrRet("Need input and output seismics")
 
@@ -131,3 +148,4 @@ bool BatchProgram::go( std::ostream& strm )
     exec.execute( &strm );
     return true;
 }
+

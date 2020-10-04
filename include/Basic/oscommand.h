@@ -25,7 +25,7 @@ class StreamProvider;
 namespace OS
 {
 
-enum LaunchType { Wait4Finish, RunInBG, Batch };
+enum LaunchType { Wait4Finish, RunInBG, Batch, BatchWait };
 enum KeyStyle	{ NewStyle, OldStyle };
 
 mDeprecatedObs inline bool isBatchProg( OS::LaunchType lt );
@@ -41,7 +41,7 @@ public:
 			    : launchtype_(lt)
 			    , createstreams_(false)
 			    , needmonitor_(false)
-			    , prioritylevel_(lt==Batch ? -1.0f : 0.0f)
+			    , prioritylevel_(lt>=Batch ? -1.0f : 0.0f)
 			    , isconsoleuiprog_(false)
                 , runasadmin_(false)     {}
 
@@ -81,6 +81,7 @@ public:
 
     static int		getMachinePriority(float priolevel,bool iswin);
 };
+
 
 
 class CommandLauncher;
@@ -162,8 +163,6 @@ public:
     static const char*	sKeyRemoteCmd()		{ return "cmd"; }
     static const char*	sKeyMasterHost()	{ return "masterhost"; }
     static const char*	sKeyMasterPort()	{ return "masterport"; }
-    static const char*	sKeyBG()		{ return "bg"; }
-    static const char*	sKeyFG()		{ return "fg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
 
     bool		execute(LaunchType lt=Wait4Finish,

@@ -5,10 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
-SET( OD_MODULE_DEPS uiBase MMProc )
-SET( OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiBase MMProc )
+set( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc
 	uiamplspectrum.cc
@@ -19,8 +17,7 @@ SET( OD_MODULE_SOURCES
 	uiaxisdata.cc
 	uiaxishandler.cc
 	uibasemap.cc
-	uibatchjobdispatcher.cc
-	uibatchprocdlg.cc
+	uibatchjob.cc
 	uibinidtable.cc
 	uibuildlistfromlist.cc
 	uibuttonstateedit.cc
@@ -66,7 +63,6 @@ SET( OD_MODULE_SOURCES
 	uinotsaveddlg.cc
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc
-	uiodservice.cc
 	uiofferinfo.cc
 	uipathsel.cc
 	uipluginman.cc
@@ -74,6 +70,7 @@ SET( OD_MODULE_SOURCES
 	uipositiontable.cc
 	uipropvalfld.cc
 	uiproxydlg.cc
+	uiserviceservermgr.cc
 	uiraytrace1d.cc
 	uirgbarraycanvas.cc
 	uirockphysform.cc

@@ -18,18 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "moddepmgr.h"
 
-#include <iostream>
 
-
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded( "EarthModel" );
-    OD::ModDeps().ensureLoaded( "Seis" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad2Modules("EarthModel","Seis")
 {
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )

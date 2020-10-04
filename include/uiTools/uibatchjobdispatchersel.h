@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "batchjobdispatch.h"
-#include "netservice.h"
 
 class uiBatchJobDispatcherLauncher;
 class uiButton;
@@ -29,18 +28,21 @@ mExpClass(uiTools) uiBatchJobDispatcherSel : public uiGroup
 { mODTextTranslationClass(uiBatchJobDispatcherSel)
 public:
 
+    mUseType( Batch,	JobSpec );
+    mUseType( JobSpec,	ProcType );
+
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-					Batch::JobSpec::ProcType pt
-				    =Batch::JobSpec::NonODBase);
+					ProcType pt=JobSpec::NonODBase,
+					OS::LaunchType type=OS::Batch);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
-				    const Batch::JobSpec&);
+						const JobSpec&);
 
     void		jobSpecUpdated();
-    void		setJobSpec(const Batch::JobSpec&);
+    void		setJobSpec(const JobSpec&);
     void		setJobName(const char*);
     void		setWantBatch(bool);	//! useful if isoptional
 
-    Batch::JobSpec&	jobSpec()		{ return jobspec_; }
+    JobSpec&		jobSpec()		{ return jobspec_; }
     uiString		selected() const;
     const uiString	selectedInfo() const;
     uiBatchJobDispatcherLauncher* selectedLauncher();
@@ -54,12 +56,12 @@ public:
 
 protected:
 
-    uiGenInput*		selfld_;
-    uiCheckBox*		dobatchbox_;
+    uiGenInput*		selfld_			= nullptr;
+    uiCheckBox*		dobatchbox_		= nullptr;
     uiButton*		optsbut_;
 
-    BufferString	jobname_;
-    Batch::JobSpec	jobspec_;
+    BufferString	jobname_		= "batch_processing";
+    JobSpec		jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 
     void		init(bool optional);
@@ -71,6 +73,5 @@ protected:
     void		optsPush(CallBacker*);
 
     bool		noLaunchersAvailable() const	{ return !optsbut_; }
+
 };
-
-

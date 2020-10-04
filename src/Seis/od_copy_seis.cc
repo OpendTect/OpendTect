@@ -19,15 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded( "Seis" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad1Module("Seis")
 {
     PtrMan<IOPar> inpar = pars().subselect( sKey::Input() );
     if ( !inpar || inpar->isEmpty() )

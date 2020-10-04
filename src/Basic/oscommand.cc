@@ -121,7 +121,8 @@ void OS::CommandExecPars::usePar( const IOPar& iop )
     if ( sz > 0 )
     {
 	launchtype_ = *fms[0] == 'W' ? Wait4Finish
-		    : (fms[0] == "BG" ? RunInBG : Batch );
+		    : (fms[0] == "BG" ? RunInBG
+				      : (fms[0] == "BW" ? BatchWait : Batch) );
 	isconsoleuiprog_ = *fms[0] == 'C';
     }
 
@@ -143,7 +144,9 @@ void OS::CommandExecPars::fillPar( IOPar& iop ) const
     fms += monitorfnm_;
     subiop.set( sKeyMonitor, fms );
 
-    fms = launchtype_ == Wait4Finish ? "Wait" : (RunInBG ? "BG" : "Batch");
+    fms = launchtype_ == Wait4Finish ? "Wait"
+	   : (launchtype_ == RunInBG ? "BG"
+	       : (launchtype_ == Batch ? "Batch" : "BW") );
     fms += isconsoleuiprog_ ? "ConsoleUI" : "";
     subiop.set( sKeyProgType, fms );
 

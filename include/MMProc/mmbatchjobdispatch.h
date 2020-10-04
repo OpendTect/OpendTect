@@ -53,14 +53,14 @@ public:
     virtual bool	canResume(const JobSpec&) const;
 
     mDefaultFactoryInstantiation(JobDispatcher,MMJobDispatcher,
-				 "Multi-Machine",tr("Multi-Machine"));
+				 "Distributed",tr("Distributed"));
 
     static void		addDef(MMProgDef*);
 
 protected:
 
     virtual bool	init();
-    virtual bool	launch();
+    virtual bool	launch(ID*);
 
     int			defIdx(const char* pnm=0) const;
 
@@ -68,5 +68,3 @@ protected:
 
 
 } // namespace Batch
-
-

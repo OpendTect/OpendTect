@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class FilePath;
 class Timer;
-class ODServiceBase;
+class ServiceMgrBase;
 class uiPythonSettings;
 class uiString;
 namespace OS {
@@ -163,7 +163,7 @@ namespace OD
 	void		    createFireWallExeList(ManagedObjectSet<FilePath>&);
 
 	friend class ::uiPythonSettings;
-	friend class ::ODServiceBase;
+	friend class ::ServiceMgrBase;
 
 	public:
 

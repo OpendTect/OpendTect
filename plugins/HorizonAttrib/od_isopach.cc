@@ -36,14 +36,7 @@ static bool loadHorizon( const MultiID& mid, od_ostream& strm )
 }
 
 
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded( "EarthModel" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad1Module("EarthModel")
 {
     strm << "Loading Horizons ..." << od_newline;
     MultiID mid1;

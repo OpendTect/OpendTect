@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadlock.h"
 #include "od_iostream.h"
 #include "odmemory.h"
+#include "odruncontext.h"
 #include "separstr.h"
 #include "convert.h"
 #include "iopar.h"
@@ -64,6 +65,13 @@ char** GetArgV()		{ return argv_; }
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
 				{ argc_ = argc; argv_ = argv; }
+
+static OD::RunCtxt runctxt_ = OD::UnknownCtxt;
+namespace OD
+{
+    RunCtxt GetRunContext()		{ return runctxt_; }
+    void SetRunContext( RunCtxt rm )	{ runctxt_ = rm; }
+}
 
 
 #ifdef __lux__
@@ -127,7 +135,7 @@ void* operator new( std::size_t sz )
 }
 
 
-mDefParallelCalc2Pars(MemPageMemorySetter,uiString::emptyString(),
+mDefParallelCalc2Pars(MemPageMemorySetter,uiString::empty(),
 		      unsigned char*,data,std::size_t,step)
 mDefParallelCalcBody(
 	unsigned char* ptr = data_ + start * step_;
@@ -474,7 +482,7 @@ int ExitProgram( int ret )
     is_exiting_ = true;
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
-	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
+	std::cerr << "\nExitProgram (PID: " << GetPID() << ")" << std::endl;
 #ifndef __win__
 	int dateres mUnusedVar = system( "date" );
 #endif
@@ -731,17 +739,16 @@ mExtern(Basic) const char* GetEnvVarDirListWoOD( const char* ky,
 	FilePath odinstfp( instdir );
 	odinstfp.makeCanonical();
 	BufferStringSet accepteddirs;
-	for ( int idx=0; idx<pathdirs.size(); idx++ )
+	for ( const auto pathdir : pathdirs )
 	{
-	    const BufferString& pathdir = *pathdirs[idx];
-	    FilePath pathdirfp( pathdir.buf() );
+	    FilePath pathdirfp( pathdir->buf() );
 	    pathdirfp.makeCanonical();
 	    if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
-		 pathdir.contains(instdir) )
+		 pathdir->contains(instdir) )
 		continue;
-	    if ( filter && pathdir.contains(filter) )
+	    if ( filter && pathdir->contains(filter) )
 		continue;
-	    accepteddirs.add( pathdir.buf() );
+	    accepteddirs.add( pathdir->buf() );
 	}
 	ret.set( accepteddirs.cat( BufferString().add(mEnvVarDirSep) ) );
     }
@@ -838,13 +845,16 @@ static const char* getShortPathName( const char* path )
     return path;
 #else
     char fullpath[1024];
-    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
+
     // get the fullpath to the exectuabe including the extension.
-    // Do not use argv[0] on Windows
+    // Necessary because we cannot use argv[0] on Windows
+    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
+
+	//Extract the shortname by removing spaces
     mDeclStaticString( shortpath );
     shortpath.setMinBufSize( 1025 );
     GetShortPathName( fullpath, shortpath.getCStr(), shortpath.minBufSize()-1 );
-    //Extract the shortname by removing spaces
+
     return shortpath;
 #endif
 }

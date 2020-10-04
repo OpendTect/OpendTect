@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
+
 #include "file.h"
 #include "filepath.h"
 #include "gmtpar.h"
@@ -28,14 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
     return false; \
 }
 
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded( "MPEEngine" );
-    OD::ModDeps().ensureLoaded( "Well" );
-    return true;
-}
 
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad2Modules("MPEEngine","Well")
 {
     const char* psfilenm = pars().find( sKey::FileName() );
     const BufferString workdir( GetProcFileName(nullptr) );
@@ -77,7 +72,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	IOPar legpar;
 	if ( par->fillLegendPar( legpar ) )
 	{
-	    legendspar.mergeComp( legpar, toString(legendidx++) );
+	    legendspar.mergeComp( legpar, ::toString(legendidx++) );
 	}
 
 	if ( idx == 0 )

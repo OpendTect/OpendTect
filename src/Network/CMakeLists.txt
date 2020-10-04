@@ -20,22 +20,23 @@ set ( QT_MOC_HEADERS
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
 set ( OD_MODULE_SOURCES
+	clientservicebase.cc
 	cvsaccess.cc
 	hostdata.cc
 	issuereporter.cc
 	jobcommunic.cc
 	netreqconnection.cc
 	netreqpacket.cc
+	netserver.cc
+	netservice.cc
+	netsocket.cc
 	oddlsite.cc
 	odnetworkaccess.cc
-	odbatchservice.cc
 	odnetworkreply.cc
-	odservicebase.cc
+	servicemgrbase.cc
+	serverservicebase.cc
 	svnaccess.cc
 	systeminfo.cc
-	netserver.cc
-	netsocket.cc
-	netservice.cc
 )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_MODULE_PROGS test_netreqechoserver.cc test_netsocketechoserver.cc )

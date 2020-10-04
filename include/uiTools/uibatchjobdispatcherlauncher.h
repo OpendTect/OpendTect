@@ -12,7 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
+#include "batchjobdispatch.h"
 #include "factory.h"
+#include "hostdata.h"
 #include "uistring.h"
 
 class uiBatchJobDispatcherSel;
@@ -26,8 +29,6 @@ mExpClass(uiTools) uiBatchJobDispatcherLauncher
 { mODTextTranslationClass(uiBatchJobDispatcherLauncher);
 public:
 
-				uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
-				    : jobspec_(js)		{}
     virtual			~uiBatchJobDispatcherLauncher() {}
 
     virtual bool		isSuitedFor(const char* prognm) const;
@@ -35,10 +36,10 @@ public:
     virtual bool		hasOptions() const		{ return false;}
     virtual void		editOptions(uiParent*)		{}
     virtual uiString		getInfo() const;
-    virtual bool		go(uiParent*);
+    virtual bool		go(uiParent*,Batch::ID* =nullptr);
 
     Batch::JobSpec&		jobSpec()		{ return jobspec_; }
-    const Batch::JobSpec&	jobSpec() const 	{ return jobspec_; }
+    const Batch::JobSpec&	jobSpec() const { return jobspec_; }
     Batch::JobDispatcher&	dispatcher()		{ return gtDsptchr(); }
     const Batch::JobDispatcher& dispatcher() const;
 
@@ -48,6 +49,8 @@ public:
 			Batch::JobSpec&,factory);
 
 protected:
+				uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
+				    : jobspec_(js)		{}
 
     Batch::JobSpec&	jobspec_;
 
@@ -66,8 +69,10 @@ public:
 			uiSingleBatchJobDispatcherLauncher(Batch::JobSpec&);
 			~uiSingleBatchJobDispatcherLauncher();
 
-    virtual bool	hasOptions() const			{ return true; }
-    virtual void	editOptions(uiParent*);
+    bool		hasOptions() const override	{ return true; }
+
+    void		editOptions(uiParent*) override;
+    bool		go(uiParent*,Batch::ID* =nullptr) override;
 
     mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 			    uiSingleBatchJobDispatcherLauncher,
@@ -78,7 +83,6 @@ protected:
 
     virtual Batch::JobDispatcher&	gtDsptchr();
     Batch::SingleJobDispatcher&		sjd_;
+    HostDataList			hdl_;
 
 };
-
-

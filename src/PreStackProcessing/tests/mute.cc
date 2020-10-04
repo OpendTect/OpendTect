@@ -127,17 +127,10 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 }
 
 
-bool BatchProgram::initWork( od_ostream& strm )
+mLoad1Module("PreStackProcessing")
 {
     mInitBatchTestProg();
 
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
-{
     MultiID muteid;
     if ( !pars().get(sKeyTestMute41(),muteid) )
     {

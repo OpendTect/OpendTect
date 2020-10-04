@@ -10,26 +10,17 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
-#include "iopar.h"
 #include "madprocexec.h"
 #include "moddepmgr.h"
 
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded( "AttributeEngine" );
-    return true;
-}
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad1Module("AttributeEngine")
 {
     ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )
     {
-	BufferString cmd = "od_DispMsg --err ";
-	cmd += exec.errMsg().getFullString();
-	system( cmd );
+	OD::DisplayErrorMessage( ::toString(exec.errMsg()) );
 	return false;
     }
 
     return true;
-}    
+}

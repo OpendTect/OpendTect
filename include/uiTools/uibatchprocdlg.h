@@ -16,20 +16,22 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 
 class uiBatchJobDispatcherSel;
-namespace Attrib { class DescSet; }
-class NLAModel;
+
 
 mExpClass(uiTools) uiBatchProcDlg : public uiDialog
 { mODTextTranslationClass(uiBatchProcDlg);
 public:
-			uiBatchProcDlg(uiParent*,const uiString& dlgnm,
-				       bool optional,
-				       const Batch::JobSpec::ProcType& pt);
+
+    mUseType( Batch::JobSpec,	ProcType );
+
+				uiBatchProcDlg(uiParent*,const uiString&,
+					       bool optional,ProcType);
 
 protected:
+
     virtual bool		prepareProcessing() { return true; }
-    virtual void		getJobName(BufferString& jobnm) const;
-    virtual bool		fillPar(IOPar&)		=0;
+    virtual void		getJobName(BufferString&) const;
+    virtual bool		fillPar(IOPar&)		= 0;
 
     bool			acceptOK(CallBacker*);
     void			setProgName(const char*);
@@ -37,5 +39,5 @@ protected:
     uiGroup*			pargrp_;
     uiGroup*			batchgrp_;
     uiBatchJobDispatcherSel*	batchjobfld_;
-};
 
+};

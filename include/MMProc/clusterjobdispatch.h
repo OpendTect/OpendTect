@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
-#include "batchjobdispatch.h"
+#include "singlebatchjobdispatch.h"
 
 
 namespace Batch
@@ -50,11 +50,11 @@ public:
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
 				 "Cluster Process",tr("Cluster Process"));
 
-    static void		addDef(ClusterProgDef*);
+    static void         addDef(ClusterProgDef*);
 
 protected:
 
-    virtual bool	launch();
+    virtual bool	launch(ID*);
 
     int			defIdx(const char* pnm=0) const;
 
@@ -62,5 +62,3 @@ protected:
 
 
 } // namespace Batch
-
-

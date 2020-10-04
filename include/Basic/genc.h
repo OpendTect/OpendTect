@@ -13,12 +13,10 @@ Some general utilities, that need to be accessible in many places:
 
 -*/
 
-#ifndef gendefs_h
 #include "basicmod.h"
 #include "gendefs.h"
-#endif
-
 # include "string2.h"
+
 
 extern "C" {
 
@@ -58,7 +56,7 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
-		*/
+                */
 
 mGlobal(Basic) bool IsExiting();
 		/*!<Returns if ExitProgram is called */
@@ -117,9 +115,12 @@ inline void EmptyFunction()			{}
 
 }
 
+mGlobal(Basic) void DisableAutoSleep();
+mGlobal(Basic) void EnableAutoSleep();
+
+
 mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
-				   bool require_valid_dataroot=true);
+                                   bool require_valid_dataroot=true);
 mGlobal(Basic) bool AreProgramArgsSet(void);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
-

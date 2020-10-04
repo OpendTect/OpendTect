@@ -42,24 +42,15 @@ ________________________________________________________________________
 	    mRetHostErr( msg ); \
 	}
 
-
-bool BatchProgram::initWork( od_ostream& strm )
+mLoad1Module("Seis")
 {
     const int odversion = pars().odVersion();
     if ( odversion < 500 )
     {
-	errorMsg( toUiString("\nCannot execute pre-5.0 par files") );
+	errorMsg( ::toUiString("\nCannot execute pre-5.0 par files") );
 	return false;
     }
 
-    OD::ModDeps().ensureLoaded( "Algo" );
-    OD::ModDeps().ensureLoaded( "Seis" );
-    return true;
-}
-
-
-bool BatchProgram::doWork( od_ostream& strm )
-{
     const BufferString typestr(pars().find(Seis2DTo3D::sKeyCreaterType()));
 
     if ( typestr == Seis2DTo3D::getCreatorFormat() || typestr.isEmpty() )
@@ -163,6 +154,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		{
 		    paused = false;
 		    mSetCommState(Working);
+			setResumed();
 		}
 
 		const int res = proc->nextStep();
@@ -338,13 +330,14 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    {
 		paused = false;
 		mSetCommState(Working);
+		setResumed();
 	    }
 
 	    if ( nriter == 0 )
 	    {
 		strm << od_newline << "Number of components";
 		strm << " to be processed: " << proc->totalNr() << od_newline;
-		strm << "Computing results ..." << od_endl;
+		strm << "Calculating results ..." << od_endl;
 		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 

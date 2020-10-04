@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
 #include "string2.h"
@@ -36,6 +37,28 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* cygdrvstr="/cygdrive/";
 static const int cygdrvstrlen=10;
+
+
+void DisableAutoSleep()
+{
+#ifdef __win__
+    /* Prevents the machine from sleeping
+	https://msdn.microsoft.com/en-us/library/windows/desktop/
+		aa373208(v=vs.85).aspx */
+    SetThreadExecutionState( ES_CONTINUOUS | ES_SYSTEM_REQUIRED );
+#else
+   //TODO
+#endif
+}
+
+void EnableAutoSleep()
+{
+#ifdef __win__
+   SetThreadExecutionState( ES_CONTINUOUS );
+#else
+   //TODO
+#endif
+}
 
 
 const char* getCleanUnxPath( const char* path )

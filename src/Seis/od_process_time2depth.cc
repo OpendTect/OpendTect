@@ -24,14 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 
 
-bool BatchProgram::initWork( od_ostream& strm )
-{
-    OD::ModDeps().ensureLoaded("Seis");
-    OD::ModDeps().ensureLoaded("Well");
-    return true;
-}
-
-bool BatchProgram::doWork( od_ostream& strm )
+mLoad2Modules("Seis","Well")
 {
     TrcKeyZSampling outputcs;
     if ( !outputcs.hsamp_.usePar( pars() ) )

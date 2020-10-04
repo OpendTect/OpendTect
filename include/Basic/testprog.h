@@ -19,10 +19,12 @@ ________________________________________________________________________
 -*/
 
 #include "commandlineparser.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "debug.h"
 #include "ptrman.h"
 #include "od_ostream.h"
+#include "odruncontext.h"
 
 # ifdef __win__
 #  include "winmain.h"
@@ -64,6 +66,7 @@ static inline CommandLineParser& clParser()
 
 # define mInitTestProg() mTestProgInits()
 # define mInitBatchTestProg() \
+    OD::SetRunContext( OD::TestProgCtxt ); \
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()
 
