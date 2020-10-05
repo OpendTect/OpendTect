@@ -58,7 +58,7 @@ namespace ProcDesc
 					const DataEntry::ActionType acttyp);
 	IOPar&			readPars();
 	bool			writePars(const IOPar&,bool toadd);
-	static BufferString sKeyODExecNm() { return "od_start_dtect"; }
+	static BufferString	sKeyODExecNm() { return "od_main"; }
 
     protected:
 	IOPar			pars_;
