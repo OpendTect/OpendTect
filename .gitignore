@@ -25,6 +25,7 @@ data/localizations/*.qm
 data/localizations/generated
 data/Python_envs.txt
 doc/Videos.dgb
+doc/od_userdoc
 test/
 Contents/
 plugins/lux64
