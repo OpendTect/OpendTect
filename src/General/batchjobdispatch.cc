@@ -141,8 +141,9 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js, Batch::ID* jobid )
     if ( !init() )
 	return getInvalid();
 
+    ++curjobid;
     if ( jobid )
-	*jobid = ++curjobid;
+	*jobid = curjobid;
 
     return launch( jobid );
 }

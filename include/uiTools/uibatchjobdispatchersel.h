@@ -49,6 +49,7 @@ public:
 
     bool		wantBatch() const;	//! can be false if isoptional
     bool		start();
+    bool		start(Batch::ID&);
     bool		saveProcPars(const IOObj&) const;
 
     Notifier<uiBatchJobDispatcherSel> selectionChange;
