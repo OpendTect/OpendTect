@@ -218,7 +218,7 @@ const uiString uiBatchJobDispatcherSel::selectedInfo() const
 }
 
 
-bool uiBatchJobDispatcherSel::start()
+bool uiBatchJobDispatcherSel::start( Batch::ID* batchid )
 {
     const int selidx = selIdx();
     if ( selidx < 0 )
@@ -229,7 +229,7 @@ bool uiBatchJobDispatcherSel::start()
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
-    return dl->go( this );
+    return dl->go( this, batchid );
 }
 
 
@@ -372,7 +372,7 @@ bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
 	}
     }
 
-    return uiBatchJobDispatcherLauncher::go( p );
+    return uiBatchJobDispatcherLauncher::go( p, jobid );
 }
 
 
@@ -547,7 +547,7 @@ bool uiBatchProcDlg::acceptOK()
     if ( !fillPar(par) )
 	return false;
 
-    if ( !batchjobfld_->start() )
+    if ( !batchjobfld_->start(&batchid_) )
 	uiMSG().error( tr("Could not start batch program") );
 
     return false;

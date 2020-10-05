@@ -27,6 +27,8 @@ public:
 				uiBatchProcDlg(uiParent*,const uiString&,
 					       bool optional,ProcType);
 
+    Batch::ID			getLastID() const	{ return batchid_; }
+
 protected:
 
     virtual bool		prepareProcessing() { return true; }
@@ -39,5 +41,6 @@ protected:
     uiGroup*			pargrp_;
     uiGroup*			batchgrp_;
     uiBatchJobDispatcherSel*	batchjobfld_;
+    Batch::ID			batchid_ = Batch::JobDispatcher::getInvalid();
 
 };
