@@ -22,40 +22,38 @@ class uiGenInput;
 mExpClass(uiODMain) uiFirewallProcSetter : public uiDialog
 { mODTextTranslationClass(uiFireWallProcSetter)
 public:
-   typedef ProcDesc::DataEntry PDE;
-
-
-			    uiFirewallProcSetter(uiParent*,PDE::ActionType,
-				const BufferString&path=BufferString::empty(),
-			    const BufferString&pypath = BufferString::empty());
-			    ~uiFirewallProcSetter();
+				uiFirewallProcSetter(uiParent*,
+					ProcDesc::DataEntry::ActionType,
+					const BufferString* path=nullptr,
+					const BufferString* pypath=nullptr);
+				~uiFirewallProcSetter();
 protected:
 
-    uiListBox*		    odproclistbox_;
-    uiListBox*		    pythonproclistbox_;
-    uiGenInput*		    addremfld_;
+    uiListBox*			odproclistbox_;
+    uiListBox*			pythonproclistbox_;
+    uiGenInput*			addremfld_;
 
-    BufferString	    getPythonInstDir();
-    uiStringSet		    getPythonExecList();
-    BufferStringSet	    getProcList(ProcDesc::DataEntry::Type);
-    void		    init();
-    void		    setEmpty();
+    BufferString		getPythonInstDir();
+    uiStringSet			getPythonExecList();
+    BufferStringSet		getProcList(ProcDesc::DataEntry::Type);
+    void			init();
+    void			setEmpty();
 
-    bool		    acceptOK(CallBacker*);
-    void		    statusUpdateODProcCB(CallBacker*);
-    void		    statusUpdatePyProcCB(CallBacker*);
-    void		    selectionChgCB(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    void			statusUpdateODProcCB(CallBacker*);
+    void			statusUpdatePyProcCB(CallBacker*);
+    void			selectionChgCB(CallBacker*);
 
-    bool		    toadd_;
-    BufferString	    exepath_;
-    BufferStringSet	    odv6procnms_;
-    BufferStringSet	    odv7procnms_;
-    uiStringSet		    odprocdescs_;
-    BufferStringSet	    pyprocnms_;
-    uiStringSet		    pyprocdescs_;
-    BufferString	    pypath_;
+    bool			toadd_;
+    BufferString		exepath_;
+    BufferStringSet		odv6procnms_;
+    BufferStringSet		odv7procnms_;
+    uiStringSet			odprocdescs_;
+    BufferStringSet		pyprocnms_;
+    uiStringSet			pyprocdescs_;
+    BufferString		pypath_;
 
-    uiString		    sStatusBarMsg()
-			    { return tr("Selected process path : %1"); }
+    uiString			sStatusBarMsg()
+				{ return tr("Path : %1"); }
 };
 
