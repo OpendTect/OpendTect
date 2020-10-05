@@ -27,6 +27,8 @@ public:
 				uiBatchProcDlg(uiParent*,const uiString&,
 					       bool optional,ProcType);
 
+    Batch::ID			getLastID() const;
+
 protected:
 
     virtual bool		prepareProcessing() { return true; }
