@@ -295,6 +295,7 @@ ________________________________________________________________________
 #define		mgetHorizonZAxisTransformHelpID			0x10400020
 #define		mDataPointSetPickDlgHelpID			0x10400021
 #define		mIsochronMakerBatchHelpID			0x10400022
+#define		mFromZMap					0x10400023
 // Surfaces Faults 01
 #define		mImportFaultHelpID				0x10401000
 #define		mExportFaultHelpID				0x10401001
