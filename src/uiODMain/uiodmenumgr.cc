@@ -981,9 +981,9 @@ void uiODMenuMgr::fillUtilMenu()
     insertAction( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
     insertAction( installmnu_, tr("Show HostID"), mHostIDInfoItm );
 
-    if (__iswin__)
-	insertAction( installmnu_, tr("Firewall Add/Remove Process"),
-							mFirewallProcItm );
+    if ( __iswin__ )
+	insertAction( installmnu_, m3Dots(tr("Firewall Management")),
+			mFirewallProcItm );
 
     BufferString develverstr;
     GetSpecificODVersion( "devel", develverstr );
@@ -1676,7 +1676,7 @@ void uiODMenuMgr::showLogFile()
     uiTextFileDlg* dlg = new uiTextFileDlg( &appl_,
 				od_ostream::logStream().fileName(), true );
     dlg->setDeleteOnClose( true );
-    dlg->go();
+    dlg->show();
 }
 
 
@@ -1684,9 +1684,8 @@ void uiODMenuMgr::showFirewallProcDlg()
 {
     if (__iswin__)
     {
-	PtrMan<uiFirewallProcSetter> dlg = new uiFirewallProcSetter( &appl_,
-						ePDD().getActionType() );
-	dlg->go();
+	uiFirewallProcSetter dlg( &appl_, ePDD().getActionType() );
+	dlg.go();
     }
 }
 
