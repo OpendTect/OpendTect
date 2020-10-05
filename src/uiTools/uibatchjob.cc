@@ -232,9 +232,7 @@ bool uiBatchJobDispatcherSel::start()
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
     Batch::ID batchid;
-    const bool ret = dl->go( this, &batchid );
-    pErrMsg(BufferString("Starting job: ",batchid));
-    return ret;
+    return dl->go( this, &batchid );
 }
 
 
