@@ -27,46 +27,47 @@
 
 uiString getWindowTitle()
 {
-    return od_static_tr( "getWindowTitle", "Manage Firewall Program Rule" );
+    return od_static_tr( "getWindowTitle", "Manage OpendTect Firewall Rules" );
 }
 
-uiString getDlgTitle(ProcDesc::DataEntry::ActionType typ)
+uiString getDialogTitle( ProcDesc::DataEntry::ActionType typ )
 {
     if ( typ == ProcDesc::DataEntry::Add )
 	return od_static_tr( "getDlgTitle",
-	"Please add following rule(s) before launching OpendTect for smooth "
-	"running of program.");
+	"Please allow the following apps to communicate through Firewall");
     else if ( typ == ProcDesc::DataEntry::Remove )
 	return od_static_tr("getDlgTitle",
-	   "Following rule(s) were found to added in Firewall Exception List");
+	"The following apps have been added to Firewall exception list.\n"
+	"If you remove one, it might stop working properly.");
     else
-	return od_static_tr("getDlgTitle",
-	    "Please add/remove following rule(s) before launching OpendTect "
-	    "for smooth running of program.");
+	return mNoDlgTitle;
 }
 
-//Remove the argument actiontype from the dialog, it will determine on its own
 
-uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
-			const BufferString& path, const BufferString& pypath )
-    : uiDialog(p, Setup(getWindowTitle(), getDlgTitle(acttyp),
-			    mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
+typedef ProcDesc::DataEntry PDE;
+
+uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
+			ProcDesc::DataEntry::ActionType acttyp,
+			const BufferString* path, const BufferString* pypath )
+    : uiDialog(p, Setup(getWindowTitle(),mNoDlgTitle,
+			mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
     , addremfld_(0)
     , pythonproclistbox_(0)
     , odproclistbox_(0)
 {
-    if ( path.isEmpty() )
+    setTitleText( getDialogTitle(acttyp) );
+    if ( !path || path->isEmpty() )
 	exepath_ = GetExecPlfDir();
     else
     {
-	FilePath fp( path, "bin", GetPlfSubDir(), GetBinSubDir() );
+	const FilePath fp( path->buf(), "bin", GetPlfSubDir(), GetBinSubDir() );
 	exepath_ = fp.fullPath();
     }
 
-    if ( pypath.isEmpty() )
+    if ( !pypath || pypath->isEmpty() )
 	pypath_ = getPythonInstDir();
     else
-	pypath_ = pypath;
+	pypath_ = *pypath;
 
     uiObject* attachobj(0);
     uiListBox::Setup su;
@@ -79,8 +80,16 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p, PDE::ActionType acttyp,
 	attachobj = addremfld_->attachObj();
 	toadd_ = addremfld_->getBoolValue();
     }
+    else if ( acttyp == PDE::Remove )
+    {
+	setOkText( uiStrings::sRemove() );
+	toadd_ = false;
+    }
     else
-	toadd_ = acttyp == PDE::Add;
+    {
+	setOkText( uiStrings::sAdd() );
+	toadd_ = true;
+    }
 
     init();
 
@@ -210,7 +219,7 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 
 	FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
 	odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
-						    .add( GetBinSubDir() );
+	      .add( GetBinSubDir() );
 	procnm = *odv7procnms_[selidx];
 	procnm.add( ".exe" );
 	odv7fp.add( procnm );
@@ -330,7 +339,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 {
     if ( !odproclistbox_->nrChosen() && !pythonproclistbox_->nrChosen() )
     {
-	uiMSG().error( tr("Select atleast one option") );
+	uiMSG().error( tr("Select at least one option") );
 	return false;
     }
 
@@ -339,7 +348,6 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     bool errocc = false;
     IOPar pars;
     int nrprocsprocessed = 0;
-    uiString errmsg;
     BufferStringSet failedprocnms;
 
     for ( int idx=0; idx<PDE::TypeDef().size(); idx++ )
@@ -391,20 +399,20 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
     if ( !errocc )
     {
 	if ( toadd_ )
-	    uiMSG().message( tr("Selected executables successfully added") );
+	    uiMSG().message( tr("Selected apps successfully added") );
 	else
-	    uiMSG().message( tr("Selected executables successfully removed") );
+	    uiMSG().message( tr("Selected apps successfully removed") );
     }
     else
     {
-	if ( toadd_ )
-	    errmsg = tr("Cannot add following processes: %1");
-	else
-	    errmsg = tr("Cannot remove processes: %1");
-	uiMSG().errorWithDetails(errmsg.arg( failedprocnms.getDispString() ),
-		    tr("Please make sure OpendTect is running "
-		"in administrative mode"));
+	uiString firstmsg = tr("Some modifications could not be made.\n"
+		"Please make sure you run OpendTect as Administrator.");
 
+	uiString errmsg = tr("\nThe following apps could not be %1: %2");
+	errmsg.arg( toadd_ ? tr("added") : tr("removed") )
+	      .arg( failedprocnms.getDispString() );
+
+	uiMSG().errorWithDetails( errmsg, firstmsg );
 	return true;
     }
 
