@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uitablemodel.h"
 
+#include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "perthreadrepos.h"
@@ -351,8 +352,25 @@ void keyPressEvent( QKeyEvent* ev ) override
 	clearSelection();
 	clearFocus();
     }
+    else if ( ev->matches(QKeySequence::Copy) )
+    {
+	BufferString text; 
+	QItemSelectionRange range = selectionModel()->selection().first();
+	for ( int row = range.top(); row <= range.bottom(); row++ )
+	{
+	    for ( int col = range.left(); col <= range.right(); col++ )
+	    {
+		text.add( model()->index(row,col).data().toString() );
+		text.addTab();
+	    }
+	    text.addNewLine();
+	}
 
-    QTableView::keyPressEvent( ev );
+	uiClipboard::setText( text );
+	ev->setAccepted( true );
+    }
+    else
+	QTableView::keyPressEvent( ev );
 }
 };
 
