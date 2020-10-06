@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-
+#include "uisegymod.h"
 #include "segydirecttr.h"
 #include "survinfo.h"
 #include "dbman.h"
