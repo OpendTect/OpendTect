@@ -205,7 +205,12 @@ bool ServiceMgrBase::useServer( Network::RequestServer* server, bool islocal )
     else
 	tcpserver_ = server;
 
-    if ( !isServerOK(islocal) )
+    if ( isServerOK(islocal) )
+    {
+        pFDebugMsg( DGB_SERVICES, BufferString( "Listening to: ",
+            server->getAuthority().toString() ) );
+    }
+    else
     {
 	pErrMsg( "startServer - failed" );
 	stopServer( islocal );
@@ -247,9 +252,10 @@ void ServiceMgrBase::newConnectionCB( CallBacker* )
 				     : tcpserver_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
-	BufferString err("newConnectionCB - connection error: ");
-	err += conn->errMsg();
-//	pErrMsg(err);
+	BufferString err( "newConnectionCB - connection error" );
+    if ( conn )
+        err.add( ": " ).add( conn->errMsg() );
+    pFDebugMsg( DGB_SERVICES, err );
 	return;
     }
 
@@ -280,7 +286,7 @@ void ServiceMgrBase::packetArrivedCB( CallBacker* cb )
     uiRetVal uirv = packet_->getPayload( request );
     if ( !uirv.isOK() )
     {
-//	pFreeFnErrMsg( "Failed to get packet payload" );
+    pFDebugMsg( DGB_SERVICES, "Failed to get packet payload" );
 	sendErr( uirv );
 	return;
     }
@@ -324,11 +330,14 @@ void ServiceMgrBase::connClosedCB( CallBacker* cb )
     applydata_ -= todopdata;
     if ( !todopdata->servicemgr_ )
     {
-/*	pErrMsg("Closing a connection without applying an action/request");
+    pFDebugMsg( DGB_SERVICES,
+        "Closing a connection without applying an action/request");
 	if ( !todopdata->action_.isEmpty() )
-	    pErrMsg(BufferString("Action: ",todopdata->action_));
+        pFDebugMsg( DGB_SERVICES,
+                BufferString("Action: ",todopdata->action_));
 	if ( todopdata->request_ )
-	pErrMsg(BufferString("Request: ",todopdata->request_->dumpJSon()));*/
+        pFDebugMsg( DGB_SERVICES,
+                BufferString("Request: ",todopdata->request_->dumpJSon()));
 	return;
     }
 
@@ -344,7 +353,7 @@ bool ServiceMgrBase::canDoAction( const OD::JSON::Object& actobj,
 				 packetData& pdata )
 {
     const BufferString action( actobj.getStringValue( sKeyAction()) );
-//    pFreeFnErrMsg(BufferString("Received action: ",action.buf()));
+    pFDebugMsg( DGB_SERVICES, BufferString("Received action: ",action.buf()));
     ObjectSet<ServiceMgrBase>& allservicemgrs = allServiceMgrs();
     uiRetVal& ret = pdata.msg_;
     for ( auto* servicemgr : allservicemgrs )
@@ -366,7 +375,8 @@ bool ServiceMgrBase::canDoAction( const OD::JSON::Object& actobj,
 bool ServiceMgrBase::canDoRequest( const OD::JSON::Object& request,
 				  packetData& pdata )
 {
-//    pFreeFnErrMsg(BufferString("Received request: ",request.dumpJSon()));
+    pFDebugMsg( DGB_SERVICES,
+            BufferString("Received request: ",request.dumpJSon()));
     ObjectSet<ServiceMgrBase>& allservicemgrs = allServiceMgrs();
     uiRetVal& ret = pdata.msg_;
     for ( auto* servicemgr : allservicemgrs )
@@ -598,7 +608,8 @@ void ServiceMgrBase::sendOK()
 {
     OD::JSON::Object response;
     response.set( sKeyOK(), BufferString::empty() );
-//    pErrMsg( BufferString("Returning OK: ",response.dumpJSon()) );
+    pFDebugMsg( DGB_SERVICES,
+            BufferString("Returning OK: ",response.dumpJSon()) );
     if ( packet_ )
 	packet_->setPayload( response );
     if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
