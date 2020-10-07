@@ -5,14 +5,13 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "applicationdata.h"
 #include "envvars.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "oscommand.h"
+#include "separstr.h"
 #include "testprog.h"
 #include "timer.h"
 
