@@ -12,6 +12,7 @@
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "oscommand.h"
+#include "separstr.h"
 #include "testprog.h"
 #include "timer.h"
 
