@@ -98,7 +98,7 @@ protected:
     static bool		addApplicationAuthority(bool local,OS::MachineCommand&);
     static const ServiceMgrBase* theMain();
 
-    static void		debugMsg(const char*);
+    static const char* sKeyClientAppCloseEv() { return "clientapp-closing"; }
 
 private:
 

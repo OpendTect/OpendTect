@@ -48,8 +48,6 @@ ServiceClientMgr::~ServiceClientMgr()
 
 void ServiceClientMgr::init( bool islocal )
 {
-/*    od_cout() << name() << " listening on: "
-	      << getAuthority(islocal).toString() << od_endl;*/
 }
 
 
@@ -91,8 +89,8 @@ bool ServiceClientMgr::stopService( const Network::Service::ID servid )
     {
 	if ( service->isAlive() )
 	    uirv = sendAction( servid, sKeyCloseEv() );
-	else
-	    removeService( servid );
+    else
+        removeService( servid );
 	return uirv.isOK();
     }
 
@@ -235,13 +233,14 @@ void ServiceClientMgr::addService( Network::Service& service )
 bool ServiceClientMgr::removeService( const Network::Service::ID servid )
 {
     bool found = false;
-    for ( auto* service : services_ )
+    for ( int idx = services_.size() - 1; idx >= 0; idx-- )
     {
+    Network::Service* service = services_.get( idx );
 	if ( service->getID() != servid )
 	    continue;
 
 	serviceToBeRemoved.trigger( service );
-	services_ -= service;
+	services_.removeSingle( idx );
 	delete service;
 	if ( found )
 	    { pErrMsg( "Multiple services found for the same process"); }
@@ -344,7 +343,16 @@ uiRetVal ServiceClientMgr::sendRequest( const Network::Service& service,
 void ServiceClientMgr::doAppClosing( CallBacker* cb )
 {
     detachAllNotifiers();
+    for ( int idx=services_.size()-1; idx>=0; idx-- )
+    {
+        Network::Service* service = services_.get( idx );
+        sendAction( *service, sKeyClientAppCloseEv() );
+        const Network::Service::ID servid = service->getID();
+        stopService( servid );
+        removeService( servid );
+    }
     deepErase( services_ );
+
     ServiceMgrBase::doAppClosing( cb );
 }
 
@@ -499,6 +507,5 @@ void BatchServiceClientMgr::batchServiceRemoved( CallBacker* cb )
 void BatchServiceClientMgr::doAppClosing( CallBacker* )
 {
     detachAllNotifiers();
-    //TODO: inform the batch process that od_main is closing
     ServiceClientMgr::doAppClosing( nullptr );
 }
