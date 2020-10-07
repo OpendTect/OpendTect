@@ -201,7 +201,6 @@ public:
 				    uiObject* other,int margin,bool reciprocal);
     void		provideHelp(CallBacker*);
     void		showVideo(CallBacker*);
-    void		showCredits(CallBacker*);
 
     const uiDialog::Setup& getSetup() const	{ return setup_; }
 
