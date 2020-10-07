@@ -25,7 +25,7 @@ namespace Conv
 //! template based type conversion
 template <class T, class F>
 inline void set( T& _to, const F& fr )
-    { _to = (T)fr; }
+    { _to = sCast(T,fr); }
 
 //! convenience to be able to code something like:
 //! val = Conv::to<the_type_of_val>( x );

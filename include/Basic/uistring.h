@@ -118,7 +118,7 @@ Notes:
 
 
 mExpClass(Basic) uiString
-{ mODTextTranslationClass(uiString);
+{ mODTextTranslationClass(uiString)
 public:
 
 		uiString();
@@ -295,7 +295,7 @@ public:
     static const uiString& emptyString()	{ return empty(); }
     bool	isSet() const			{ return !isEmpty(); }
 
-    const OD::String&		getFullString(BufferString* = 0) const;
+    const OD::String&		getFullString(BufferString* =nullptr) const;
 
     mDeprecated			("Use fillQString")
     const mQtclass(QString)&	getQString() const;

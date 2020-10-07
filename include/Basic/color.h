@@ -117,8 +117,8 @@ mClass(Basic) Undef<Color>
 public:
     static Color	val()			{ return Color::NoColor(); }
     static bool		hasUdf()		{ return false; }
-    static bool		isUfd(Color& col)	{ return false; }
-    static void		setUdf(Color& col)	{}
+    static bool		isUfd(Color&)		{ return false; }
+    static void		setUdf(Color&)		{}
 };
 
 }

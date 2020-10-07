@@ -25,7 +25,7 @@ namespace Threads { class ConditionVar; }
 	done in multiple steps. */
 
 mExpClass(Basic) Task : public NamedCallBacker
-{ mODTextTranslationClass(Task);
+{ mODTextTranslationClass(Task)
 public:
 
     virtual		~Task();
@@ -61,7 +61,7 @@ public:
 
 protected:
 
-				Task(const char* nm=0);
+				Task(const char* nm=nullptr);
     virtual bool		shouldContinue();
 					//!<\returns wether we should continue
     Control			control_;
@@ -70,9 +70,9 @@ protected:
 private:
 
     //In 7.0, this function will return a uiString
-    virtual const char* message() const			{ return 0; }
+    virtual const char* message() const			{ return nullptr; }
     //In 7.0, this function will return a uiString
-    virtual const char* nrDoneText() const		{ return 0; }
+    virtual const char* nrDoneText() const		{ return nullptr; }
 
 };
 
@@ -124,7 +124,7 @@ protected:
 mExpClass(Basic) SequentialTask : public Task
 {
 public:
-		SequentialTask(const char* nm=0);
+		SequentialTask(const char* nm=nullptr);
     virtual	~SequentialTask();
 
     void	setProgressMeter(ProgressMeter*);

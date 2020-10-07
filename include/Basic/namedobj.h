@@ -42,11 +42,13 @@ public:
 mExpClass(Basic) NamedObject : public ObjectWithName
 {
 public:
-			NamedObject(const char* nm=nullptr);
-			NamedObject(const NamedObject* linkedto);
-			NamedObject(const NamedObject&);
-    virtual		~NamedObject();
-    void		setLinkedTo(NamedObject*);
+
+			NamedObject( const char* nm=nullptr )
+			    : name_(nm)			{}
+			NamedObject( const NamedObject& oth )
+			    : name_(oth.getName())	{}
+    virtual		~NamedObject()			{}
+    NamedObject&	operator =(const NamedObject&);
     bool		operator ==( const NamedObject& oth ) const
 			{ return name_ == oth.getName(); }
 
