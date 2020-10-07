@@ -106,9 +106,9 @@ uiRetVal ServiceServerMgr::sendAction( const char* action,
     if ( !auth && !canReceiveRequests() )
 	return uiRetVal::OK();
 
-/*    BufferString msg("[SERVER] Sending action: '",action,"' to: ");
+    BufferString msg("[SERVER] Sending action: '",action,"' to: ");
     msg.add( auth ? auth->toString() : reportto_->toString() );
-    pErrMsg( msg );*/
+    pFDebugMsg( DGB_SERVICES, msg );
 
     const uiRetVal uirv = ServiceMgrBase::sendAction( auth ? *auth : *reportto_,
 			servicenm ? servicenm : name().buf(), action );
@@ -144,10 +144,10 @@ uiRetVal ServiceServerMgr::sendRequest( const char* reqkey,
 	    return uiRetVal::OK();
     }
 
-/*    BufferString msg("[SERVER] Sending request: '",reqkey,"' [");
+    BufferString msg("[SERVER] Sending request: '",reqkey,"' [");
     msg.add( reqobj.dumpJSon() ). add( "] to: " )
        .add( auth ? auth->toString() : reportto_->toString() );
-    pErrMsg( msg );*/
+    pFDebugMsg( DGB_SERVICES, msg );
 
     const uiRetVal uirv = ServiceMgrBase::sendRequest(auth ? *auth : *reportto_,
 			servicenm ? servicenm : name().buf(), reqkey, reqobj );
