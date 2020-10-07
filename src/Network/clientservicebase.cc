@@ -48,8 +48,6 @@ ServiceClientMgr::~ServiceClientMgr()
 
 void ServiceClientMgr::init( bool islocal )
 {
-/*    od_cout() << name() << " listening on: "
-	      << getAuthority(islocal).toString() << od_endl;*/
 }
 
 
@@ -108,7 +106,7 @@ uiRetVal ServiceClientMgr::sendAction( const Network::Service::ID servid,
     const Network::Service* service = getService( servid );
     if ( !service )
     {
-//	pErrMsg("sending action to unregistered service");
+    pFDebugMsg(DGB_SERVICES,"sending action to unregistered service");
 	return uiRetVal( tr("Service with ID %1 not registered").arg( servid ));
     }
 
@@ -123,7 +121,7 @@ uiRetVal ServiceClientMgr::sendRequest( const Network::Service::ID servid,
     const Network::Service* service = getService( servid );
     if ( !service )
     {
-//	pErrMsg("sending request to unregistered service");
+    pFDebugMsg(DGB_SERVICES,"sending request to unregistered service");
 	return uiRetVal( tr("Service with ID %1 not registered").arg( servid ));
     }
 
@@ -194,7 +192,7 @@ uiRetVal ServiceClientMgr::addService( const OD::JSON::Object& jsonobj )
 	uiRetVal uirv = service->message();
 	if ( uirv.isEmpty() )
 	    uirv.add( tr("Service registration failed") );
-//	pErrMsg( "Service registration failed" );
+    pFDebugMsg(DGB_SERVICES,"Service registration failed");
 	service->setViewOnly();
 	delete service;
 	return uirv;
@@ -213,7 +211,7 @@ uiRetVal ServiceClientMgr::removeService( const OD::JSON::Object& jsonobj )
     if ( !service.isOK() )
     {
 	uiRetVal ret = service.message();
-//	pErrMsg( "Service deregistration failed" );
+    pFDebugMsg(DGB_SERVICES,"Service deregistration failed");
 	return ret;
     }
 
@@ -304,9 +302,9 @@ void ServiceClientMgr::cleanupServices()
 uiRetVal ServiceClientMgr::sendAction( const Network::Service& service,
 				       const char* action ) const
 {
-/*    BufferString msg("[CLIENT] Sending action: '",action,"' to: ");
+    BufferString msg("[CLIENT] Sending action: '",action,"' to: ");
     msg.add( service.getAuthority().toString() );
-    pErrMsg( msg );*/
+    pFDebugMsg(DGB_SERVICES,msg);
     const BufferString servicenm( "Service ", service.name() );
     const uiRetVal uirv = ServiceMgrBase::sendAction( service.getAuthority(),
 						     servicenm, action );
@@ -324,10 +322,10 @@ uiRetVal ServiceClientMgr::sendRequest( const Network::Service& service,
 					const char* reqkey,
 					const OD::JSON::Object& reqobj ) const
 {
-/*    BufferString msg("[CLIENT] Sending request: '",reqkey,"' [");
+    BufferString msg("[CLIENT] Sending request: '",reqkey,"' [");
     msg.add( reqobj.dumpJSon() ). add( "] to: " )
        .add( service.getAuthority().toString() );
-    pErrMsg( msg );*/
+    pFDebugMsg(DGB_SERVICES,msg);
     const BufferString servicenm( "Service ", service.name() );
     const uiRetVal uirv = ServiceMgrBase::sendRequest( service.getAuthority(),
 						    servicenm, reqkey, reqobj );
