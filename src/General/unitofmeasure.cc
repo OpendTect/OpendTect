@@ -83,13 +83,13 @@ UnitOfMeasureRepository& UoMR()
     mDefineStaticLocalObject( PtrMan<UnitOfMeasureRepository>, umrepo, = 0 );
     if ( !umrepo )
     {
-	if ( DBG::isOn() ) DBG::message( "Creating UnitOfMeasureRepository" );
+	DBG::message( DBG_IO, "Creating UnitOfMeasureRepository" );
 	umrepo = new UnitOfMeasureRepository;
-	if ( DBG::isOn() )
+	if ( DBG::isOn(DBG_IO) )
 	{
 	    BufferString msg( "Total units of measure: " );
 	    msg += umrepo->all().size();
-	    DBG::message( msg );
+	    DBG::message( DBG_IO, msg );
 	}
     }
     return *umrepo;

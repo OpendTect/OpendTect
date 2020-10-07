@@ -842,7 +842,8 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	return false;
     }
 
-    DBG::message( BufferString("About to execute: ",mc.toString(&pars)) );
+    DBG::message( DBG_DBG,
+        BufferString("About to execute: ",mc.toString(&pars)) );
 
     const bool wt4finish = pars.launchtype_ == Wait4Finish;
     const bool createstreams = pars.createstreams_;
