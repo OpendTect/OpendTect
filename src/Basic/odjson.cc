@@ -5,13 +5,13 @@
 -*/
 
 #include "odjson.h"
+
+#include "arraynd.h"
+#include "gason.h"
 #include "multiid.h"
 #include "od_iostream.h"
 #include "separstr.h"
-#include "typeset.h"
-#include "arraynd.h"
 #include "uistrings.h"
-#include "gason.h"
 #include <string.h>
 
 
@@ -354,6 +354,15 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 	case String:	ret.set( val->str() );	break;
     }
     return ret;
+}
+
+FilePath OD::JSON::ValueSet::getFilePath( idx_type idx ) const
+{
+    BufferString fnm = getStringValue( idx );
+#ifdef __win__
+    fnm.replace( "/", "\\" );
+#endif
+    return FilePath( fnm );
 }
 
 
@@ -790,6 +799,15 @@ OD::JSON::Array& OD::JSON::Array::add( const uiString& val )
     return add( bs.str() );
 }
 
+OD::JSON::Array& OD::JSON::Array::add( const FilePath& fp )
+{
+    BufferString bs( fp.fullPath() );
+#ifdef __win__
+    bs.replace( "\\", "/" );
+#endif
+    return add( bs.buf() );
+}
+
 
 template<class T>
 void OD::JSON::Array::setVals( const TypeSet<T>& vals )
@@ -930,6 +948,16 @@ BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 }
 
 
+FilePath OD::JSON::Object::getFilePath( const char* ky ) const
+{
+    BufferString fnm = getStringValue( ky );
+#ifdef __win__
+    fnm.replace( "/", "\\" );
+#endif
+    return FilePath( fnm );
+}
+
+
 bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
 {
     const Array* stringsarr = getArray( ky );
@@ -1004,6 +1032,16 @@ mDefObjectSetVal( od_int64 )
 mDefObjectSetVal( float )
 mDefObjectSetVal( double )
 mDefObjectSetVal( const char* )
+
+void OD::JSON::Object::set( const char* ky, const FilePath& fp )
+{
+    BufferString fnm( fp.fullPath() );
+#ifdef __win__
+    fnm.replace( "\\", "/" );
+#endif
+    setVal( ky, fnm.buf() );
+}
+
 
 void OD::JSON::Object::set( const char* ky, const MultiID& id )
 {

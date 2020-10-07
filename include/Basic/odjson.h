@@ -9,10 +9,11 @@ ________________________________________________________________________
 
 */
 
-#include "bufstringset.h"
-#include "uistring.h"
-#include "typeset.h"
+#include "filepath.h"
 #include "od_iosfwd.h"
+#include "typeset.h"
+#include "uistring.h"
+
 
 class MultiID;
 class SeparString;
@@ -133,6 +134,7 @@ public:
     od_int64		getIntValue(idx_type) const;
     double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
+    FilePath    getFilePath(idx_type) const;
 
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
@@ -212,6 +214,7 @@ public:
     Array&		add( const OD::String& odstr )
 			{ return add( odstr.str() ); }
     Array&		add(const uiString&);
+    Array&      add(const FilePath&);
 
 			// also, only usable if valType() == Data
     void		set(const BoolTypeSet&);
@@ -268,6 +271,7 @@ public:
     od_int64		getIntValue(const char*) const;
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
+    FilePath        getFilePath(const char*) const;
     bool		getStrings(const char*,BufferStringSet&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
@@ -286,6 +290,7 @@ public:
     void		set(const char* ky,const char*);
     void		set(const char* ky,const OD::String& str)
 			{ set( ky, str.str() ); }
+    void        set(const char* ky,const FilePath&);
     void		set(const char* ky,const MultiID&);
     template <class T>
     void		set(const char* ky,const Interval<T>&);
