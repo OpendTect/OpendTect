@@ -30,7 +30,7 @@ public:
     typedef ObjectSet<BufferString>	SetType;
 
 			BufferStringSet()	{}
-    explicit		BufferStringSet(size_type n,const char* s=0);
+    explicit		BufferStringSet(size_type n,const char* s=nullptr);
     explicit		BufferStringSet(const char* arr[],size_type len=-1);
     explicit		BufferStringSet(const char*);
 			BufferStringSet(const char*,const char*);
@@ -139,7 +139,7 @@ public:
 
     virtual od_int64	nrItems() const		{ return size(); }
     virtual void	swapItems( od_int64 i1, od_int64 i2 )
-			{ swap( (idx_type)i1, (idx_type)i2 ); }
+			{ swap( idx_type(i1), idx_type(i2) ); }
     virtual void	reverse()		{ strs_.reverse(); }
 
 public:
