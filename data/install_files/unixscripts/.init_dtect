@@ -65,7 +65,8 @@ else
 	setenv LD_LIBRARY_PATH "${bindir}"
     endif
 
-    set gccmajorver = `strings /usr/lib64/libstdc++.so.6 | grep GLIBC_2.17`
+    set libstdc++ = `/sbin/ldconfig -p | grep libstdc++.so.6 | tr ' ' '\n' | grep / | head -n 1`
+    set gccmajorver = `strings "${libstdc++}" | grep GLIBC_2.17`
     if ( ${gccmajorver} == "" ) then
 	setenv LD_LIBRARY_PATH "${bindir}"/systemlibs:${LD_LIBRARY_PATH}
     endif
