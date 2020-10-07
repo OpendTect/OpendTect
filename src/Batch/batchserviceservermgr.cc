@@ -141,6 +141,7 @@ uiRetVal BatchServiceServerMgr::doHandleAction( const char* action )
     {
 	*bp_.strm_ << "Starting batch program from request" << od_endl;
 	bp_.startDoWork.trigger();
+    return uiRetVal::OK();
     }
 
     return ServiceServerMgr::doHandleAction( action );
@@ -156,6 +157,7 @@ uiRetVal BatchServiceServerMgr::doHandleRequest(
 	const OD::JSON::Object& obj =
 		    *request.getObject(BatchServiceClientMgr::sKeyStoreInfo());
 	bp_.requests_.add( obj.clone() );
+    return uiRetVal::OK();
     }
 
     return ServiceServerMgr::doHandleRequest( request );

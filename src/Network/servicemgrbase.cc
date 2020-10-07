@@ -237,10 +237,22 @@ void ServiceMgrBase::stopServer( bool islocal )
 {
     if ( serverIsMine(islocal) )
     {
-	if ( islocal )
-	    deleteAndZeroPtr( localserver_ );
-	else
-	    deleteAndZeroPtr( tcpserver_ );
+        if ( islocal )
+        {
+            if ( localserver_ )
+                pFDebugMsg( DGB_SERVICES,
+                    BufferString( "Stopping listening to: ",
+                        getAuthority( true ).toString() ) );
+            deleteAndZeroPtr( localserver_ );
+        }
+        else
+        {
+            if ( tcpserver_ )
+                pFDebugMsg( DGB_SERVICES,
+                    BufferString( "Stopping listening to: ",
+                        getAuthority( false ).toString() ) );
+            deleteAndZeroPtr( tcpserver_ );
+        }
     }
 }
 
@@ -504,9 +516,10 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 void ServiceMgrBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 {
     const OD::PythonAccess& pytha = OD::PythA();
-    sinfo.set( sKey::FileName(), pytha.activatefp_
-				? pytha.activatefp_->fullPath()
-				: BufferString::empty() );
+    if ( pytha.activatefp_ )
+        sinfo.set( sKey::FileName(), *pytha.activatefp_ );
+    else
+        sinfo.set( sKey::FileName(), BufferString::empty() );
     sinfo.set( sKey::Name(), pytha.virtenvnm_ );
 }
 
@@ -515,8 +528,8 @@ uiRetVal ServiceMgrBase::survChangedReq( const OD::JSON::Object& reqobj )
 {
     if ( reqobj.isPresent(sKey::Survey()) )
     {
-	return DBM().setDataSource(
-			reqobj.getStringValue(sKey::Survey()), true );
+        const File::Path fp = reqobj.getFilePath( sKey::Survey() );
+	return DBM().setDataSource( fp.fullPath(), true );
     }
 
     return uiRetVal::OK();
@@ -565,8 +578,10 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
     Network::RequestConnection conn( auth, false, 2000 );
     if ( !conn.isOK() )
     {
-	return uiRetVal(tr("Cannot connect to service %1 on %2")
-			    .arg(servicenm).arg(auth.toString()) );
+        const uiRetVal msg = tr("Cannot connect to service %1 on %2")
+			    .arg( servicenm ).arg( auth.toString() );
+        pFreeFDebugMsg( DGB_SERVICES, toString(msg) );
+        return msg;
     }
 
     RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
@@ -578,6 +593,7 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
 				 .arg(servicenm).arg( auth.toString() );
 	uirv.add( conn.errMsg() );
 	uirv.add( tr("Packet content: %1").arg(request.dumpJSon()) );
+    pFreeFDebugMsg( DGB_SERVICES, toString( uirv ) );
 	return uirv;
     }
 
@@ -591,13 +607,16 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
     if ( !uirv.isOK() )
     {
 	uirv.add( tr("Response: %1").arg( response.dumpJSon() ) );
+    pFreeFDebugMsg( DGB_SERVICES, toString( uirv ) );
 	return uirv;
     }
     else if ( response.isPresent(sKeyError()) )
     {
-	return uiRetVal( tr("%1 error: %2.\n%3").arg(servicenm)
+	const uiRetVal msg( tr("%1 error: %2.\n%3").arg(servicenm)
 	    .arg(response.getStringValue(sKeyError()))
 	    .arg(response.dumpJSon()) );
+    pFreeFDebugMsg( DGB_SERVICES, toString( msg ) );
+    return msg;
     }
 
     return uiRetVal::OK();

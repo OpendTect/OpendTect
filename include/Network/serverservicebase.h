@@ -68,6 +68,16 @@ protected:
 				  have a TCP/IP listening service as primary
 				  server				 */
 
+		/* Implement an action/request send from an external application, that
+		must be handled by od_main. Can be used to transfer signals
+		emitted by the external application, to make od_main aware of it */
+
+	bool		canParseAction(const char*,uiRetVal&) override;
+	bool		canParseRequest(const OD::JSON::Object&,uiRetVal&) override;
+
+	uiRetVal		doHandleAction(const char* action) override;
+	uiRetVal		doHandleRequest(const OD::JSON::Object&) override;
+
     bool		isRegistered() const;
 
     bool		isDependentApp() const;

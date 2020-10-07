@@ -185,6 +185,39 @@ uiRetVal ServiceServerMgr::doRegister_( const char* ky, bool doreg )
     return uiRetVal::OK();
 }
 
+bool ServiceServerMgr::canParseAction( const char* action, uiRetVal& uirv )
+{
+    if ( FixedString(action) == sKeyClientAppCloseEv() )
+        return true;
+
+    return ServiceMgrBase::canParseAction( action, uirv );
+}
+
+
+bool ServiceServerMgr::canParseRequest( const OD::JSON::Object& request,
+                    uiRetVal& uirv )
+{
+    return ServiceMgrBase::canParseRequest( request, uirv );
+}
+
+
+uiRetVal ServiceServerMgr::doHandleAction( const char* action )
+{
+    if ( FixedString(action) == sKeyClientAppCloseEv() )
+    {
+        registerstatus_ = Unregistered;
+        return uiRetVal::OK();
+    }
+
+    return ServiceMgrBase::doHandleAction( action );
+}
+
+
+uiRetVal ServiceServerMgr::doHandleRequest( const OD::JSON::Object& request )
+{
+    return ServiceMgrBase::doHandleRequest( request );
+}
+
 
 void ServiceServerMgr::doPyEnvChange( CallBacker* )
 {
