@@ -172,15 +172,9 @@ mGlobal(Basic) inline void swap( clss<T>& vv1, clss<T>& vv2 ) \
 
 /*!\brief Sets of (small) copyable elements.
 
-<<<<<<< HEAD
   TypeSet/LargeValVec are meant for simple types or small objects that have
   a copy constructor. The `-=' operator will only remove the first occurrence
   that matches using the `==' operator. The requirement of the presence of that
-=======
-  TypeSet is meant for simple types or small objects that have a copy
-  constructor. The `-=' operator will only remove the first occurrence that
-  matches using the `==' operator. The requirement of the presence of that
->>>>>>> 566079632c... Fixed some issues found by clang tools
   operator is actually not that bad: at least you can't forget it.
 
   Do not make TypeSet<bool> (don't worry, it won't compile). Use the
@@ -200,13 +194,9 @@ public:
 
 			BoolTypeSetType( bool v=false )
 			    : val_( v )		{}
-<<<<<<< HEAD
-    operator		bool() const		{ return (bool) val_; }
-    bool		operator=( bool v )	{ val_ = v; return v; }
-=======
+
     operator		bool() const		{ return bool(val_); }
-    bool  		operator=( bool v )	{ val_ = v; return v; }
->>>>>>> 566079632c... Fixed some issues found by clang tools
+    bool		operator=( bool v )	{ val_ = v; return v; }
 
 protected:
 
@@ -352,15 +342,9 @@ template <class T, class IT> inline
 { vec_.replace( val, newval ); }
 
 
-<<<<<<< HEAD
 template <class T, class IT> inline
 bool OD::ValVec<T,IT>::validIdx( od_int64 vidx ) const
-{ return vec_.validIdx( (IT)vidx ); }
-=======
-template <class T, class I> inline
-bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
-{ return vec_.validIdx( sCast(I,idx) ); }
->>>>>>> 566079632c... Fixed some issues found by clang tools
+{ return vec_.validIdx( sCast(IT,vidx) ); }
 
 template <class T, class IT> inline
 T& OD::ValVec<T,IT>::get( IT vidx )
@@ -394,13 +378,8 @@ template <class T, class IT> inline
 T& OD::ValVec<T,IT>::last()
 { return vec_.last(); }
 
-<<<<<<< HEAD
 template <class T, class IT> inline
 const T& OD::ValVec<T,IT>::last() const
-=======
-template <class T, class I> inline
-const T& TypeSetBase<T,I>::last() const
->>>>>>> 566079632c... Fixed some issues found by clang tools
 { return vec_.last(); }
 
 template <class T, class IT> inline
@@ -455,17 +434,11 @@ template <class T, class IT> inline
 const std::vector<T>& OD::ValVec<T,IT>::vec() const
 { return vec_.vec(); }
 
-<<<<<<< HEAD
 template <class T, class IT> inline
 T* OD::ValVec<T,IT>::gtArr() const
 {
-    return isEmpty() ? 0 : const_cast<T*>( &first() );
+    return isEmpty() ? nullptr : const_cast<T*>( &first() );
 }
-=======
-template <class T, class I> inline
-T* TypeSetBase<T,I>::gtArr() const
-{ return size()>0 ? const_cast<T*>(&(*this)[0]) : nullptr; }
->>>>>>> 566079632c... Fixed some issues found by clang tools
 
 
 template <class T, class IT> inline
@@ -482,7 +455,6 @@ void OD::ValVec<T,IT>::swap( IT idx1, IT idx2 )
 }
 
 
-<<<<<<< HEAD
 template <class T, class IT> inline
 void OD::ValVec<T,IT>::useIndexes( const idx_type* idxs )
 {
@@ -494,11 +466,6 @@ void OD::ValVec<T,IT>::useIndexes( const idx_type* idxs )
 	    get(idx) = tmp->get( idxs[idx] );
 	delete tmp;
     }
-=======
-    T tmp = vec_[I(idx0)];
-    vec_[I(idx0)] = vec_[I(idx1)];
-    vec_[I(idx1)] = tmp;
->>>>>>> 566079632c... Fixed some issues found by clang tools
 }
 
 
