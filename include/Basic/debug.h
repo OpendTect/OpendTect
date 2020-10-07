@@ -35,11 +35,11 @@ namespace DBG
     //!<Overrides the envirnonment variable
     mGlobal(Basic) bool isOn( int flag=0xffff );
     mGlobal(Basic) void message(const char*);	  //!< default: to stderr
-    mGlobal(Basic) void message(const char*,const char* cname,
+    mGlobal(Basic) void message(const char*, const char* cname,
+			        const char* fname, int linrnr);
+    mGlobal(Basic) void message(int flag, const char* msg);
+    mGlobal(Basic) void message(int flag, const char*, const char* cname,
 				const char* fname, int linrnr);
-    mGlobal(Basic) void message(int flag,const char* msg);
-    mGlobal(Basic) void message(int flag,const char*,const char* cname,
-		    const char* fname,int linrnr);
     mGlobal(Basic) void putProgInfo(int,char**);
 			//!< one line; more if isOn()
     mGlobal(Basic) void forceCrash(bool withdump);
@@ -61,14 +61,13 @@ extern "C" {
 }
 
 # define pDebugMsg(msg) \
-    DBG::message(msg,::className(*this),__FILE__,__LINE__);
+    DBG::message(msg,::className(*this),__FILE__,__LINE__)
 # define pFreeDebugMsg(msg) \
-    DBG::message(msg,__func__,__FILE__,__LINE__);
+    DBG::message(msg,__func__,__FILE__,__LINE__)
 # define pFDebugMsg(flag,msg) \
-    DBG::message(flag,msg,::className(*this),__FILE__,__LINE__);
+    DBG::message(flag,msg,::className(*this),__FILE__,__LINE__)
 # define pFreeFDebugMsg(flag,msg) \
-    DBG::message(flag,__func__,__FILE__,__LINE__);
-
+    DBG::message(flag,msg,__func__,__FILE__,__LINE__)
 
 
 #ifdef HAS_BREAKPAD
@@ -122,5 +121,4 @@ private:
 #define	DBG_SETTINGS	0x0040	// User settings
 #define	DBG_PROGSTART	0x0080	// Program start and stop
 #define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
-#define DGB_SERVICES	0x0200	// Network service managers
-
+#define	DGB_SERVICES	0x0200	// Network service managers
