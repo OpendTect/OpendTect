@@ -7,14 +7,14 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "applicationdata.h"
+#include "envvars.h"
 #include "filepath.h"
-#include "ptrman.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "oscommand.h"
-#include "separstr.h"
 #include "testprog.h"
-#include "thread.h"
+#include "timer.h"
 
 #include <iostream>
 
@@ -25,6 +25,41 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }
 
+
+class TestClass : public CallBacker
+{
+public:
+    TestClass()
+        : timer_( "starter" )
+    {
+        mAttachCB( timer_.tick, TestClass::timerTick );
+        timer_.start( 0, true );
+    }
+
+    ~TestClass()
+    {
+        detachAllNotifiers();
+        CallBack::removeFromThreadCalls( this );
+    }
+
+    void timerTick( CallBacker* )
+    {
+        if ( clParser().hasKey( "testpipes" ) )
+        {
+            testServer();
+            CallBack::addToMainThread( mCB( this, TestClass, closeTesterCB ) );
+            return;
+        }
+
+        retval_ = testCmds() && testAllPipes() && runCommandWithSpace() &&
+            runCommandWithLongOutput() ? 0 : 1;
+        CallBack::addToMainThread( mCB( this, TestClass, closeTesterCB ) );
+    }
+
+    void closeTesterCB( CallBacker* )
+    {
+        ApplicationData::exit( retval_ );
+    }
 
 static bool testCmds()
 {
@@ -160,22 +195,31 @@ static void testServer()
     }
 }
 
+Timer   timer_;
+int     retval_ = 0;
+
+};
+
+
+int testMain( int argc, char** argv )
+{
+    mInitTestProg();
+
+    // Debugging output screws up the command output, needs to be disabled:
+    UnsetOSEnvVar( "DTECT_DEBUG" );
+
+    ApplicationData app;
+
+    TestClass tester;
+
+    const int retval = app.exec();
+
+    return retval;
+}
 
 
 int main( int argc, char** argv )
 {
-    mInitTestProg();
-
-    if ( clParser().hasKey( "testpipes" ) )
-    {
-	testServer();
-
-	return 0;
-    }
-
-    if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() ||
-	 !runCommandWithLongOutput() )
-	ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    OD::SetRunContext( OD::TestProgCtxt );
+    ExitProgram( testMain( argc, argv ) );
 }
