@@ -100,6 +100,8 @@ protected:
 
     static void		debugMsg(const char*); // Not implemented
 
+    static const char* sKeyClientAppCloseEv() { return "clientapp-closing"; }
+
 private:
 
     mStruct(Network) packetData

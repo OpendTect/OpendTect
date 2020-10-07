@@ -208,8 +208,8 @@ bool ServiceMgrBase::useServer( Network::RequestServer* server, bool islocal )
 
     if ( isServerOK(islocal) )
     {
-	pFDebugMsg(DGB_SERVICES,BufferString("Listening to: ",
-		    server->getAuthority().toString()));
+        pFDebugMsg( DGB_SERVICES, BufferString( "Listening to: ",
+            server->getAuthority().toString() ) );
     }
     else
     {
@@ -238,10 +238,22 @@ void ServiceMgrBase::stopServer( bool islocal )
 {
     if ( serverIsMine(islocal) )
     {
-	if ( islocal )
-	    deleteAndZeroPtr( localserver_ );
-	else
-	    deleteAndZeroPtr( tcpserver_ );
+        if ( islocal )
+        {
+            if ( localserver_ )
+                pFDebugMsg( DGB_SERVICES,
+                    BufferString( "Stopping listening to: ",
+                        getAuthority( true ).toString() ) );
+            deleteAndZeroPtr( localserver_ );
+        }
+        else
+        {
+            if ( tcpserver_ )
+                pFDebugMsg( DGB_SERVICES,
+                    BufferString( "Stopping listening to: ",
+                        getAuthority( false ).toString() ) );
+            deleteAndZeroPtr( tcpserver_ );
+        }
     }
 }
 
@@ -253,9 +265,10 @@ void ServiceMgrBase::newConnectionCB( CallBacker* )
 				     : tcpserver_->pickupNewConnection();
     if ( !conn || !conn->isOK() )
     {
-	BufferString err("newConnectionCB - connection error: ");
-	err += conn->errMsg();
-	pFDebugMsg(DGB_SERVICES,err);
+	BufferString err( "newConnectionCB - connection error" );
+    if ( conn )
+        err.add( ": " ).add( conn->errMsg() );
+    pFDebugMsg( DGB_SERVICES, err );
 	return;
     }
 
@@ -286,7 +299,7 @@ void ServiceMgrBase::packetArrivedCB( CallBacker* cb )
     uiRetVal uirv = packet_->getPayload( request );
     if ( !uirv.isOK() )
     {
-    pFDebugMsg(DGB_SERVICES,"Failed to get packet payload" );
+    pFDebugMsg( DGB_SERVICES, "Failed to get packet payload" );
 	sendErr( uirv );
 	return;
     }
@@ -330,14 +343,14 @@ void ServiceMgrBase::connClosedCB( CallBacker* cb )
     applydata_ -= todopdata;
     if ( !todopdata->servicemgr_ )
     {
-    pFDebugMsg(DGB_SERVICES,
-	"Closing a connection without applying an action/request");
+    pFDebugMsg( DGB_SERVICES,
+        "Closing a connection without applying an action/request");
 	if ( !todopdata->action_.isEmpty() )
-	pFDebugMsg(DGB_SERVICES,
-	    BufferString("Action: ",todopdata->action_));
+        pFDebugMsg( DGB_SERVICES,
+                BufferString("Action: ",todopdata->action_));
 	if ( todopdata->request_ )
-	pFDebugMsg(DGB_SERVICES,
-	    BufferString("Request: ",todopdata->request_->dumpJSon()));
+        pFDebugMsg( DGB_SERVICES,
+                BufferString("Request: ",todopdata->request_->dumpJSon()));
 	return;
     }
 
@@ -353,7 +366,7 @@ bool ServiceMgrBase::canDoAction( const OD::JSON::Object& actobj,
 				 packetData& pdata )
 {
     const BufferString action( actobj.getStringValue( sKeyAction()) );
-    pFDebugMsg(DGB_SERVICES,BufferString("Received action: ",action.buf()));
+    pFDebugMsg( DGB_SERVICES, BufferString("Received action: ",action.buf()));
     ObjectSet<ServiceMgrBase>& allservicemgrs = allServiceMgrs();
     uiRetVal& ret = pdata.msg_;
     for ( auto* servicemgr : allservicemgrs )
@@ -375,8 +388,8 @@ bool ServiceMgrBase::canDoAction( const OD::JSON::Object& actobj,
 bool ServiceMgrBase::canDoRequest( const OD::JSON::Object& request,
 				  packetData& pdata )
 {
-    pFDebugMsg(DGB_SERVICES,
-	BufferString("Received request: ",request.dumpJSon()));
+    pFDebugMsg( DGB_SERVICES,
+            BufferString("Received request: ",request.dumpJSon()));
     ObjectSet<ServiceMgrBase>& allservicemgrs = allServiceMgrs();
     uiRetVal& ret = pdata.msg_;
     for ( auto* servicemgr : allservicemgrs )
@@ -504,16 +517,17 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 void ServiceMgrBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 {
     const OD::PythonAccess& pytha = OD::PythA();
-    sinfo.set( sKey::FileName(), pytha.activatefp_
-				? pytha.activatefp_->fullPath()
-				: BufferString::empty() );
+    if ( pytha.activatefp_ )
+        sinfo.set( sKey::FileName(), *pytha.activatefp_ );
+    else
+        sinfo.set( sKey::FileName(), BufferString::empty() );
     sinfo.set( sKey::Name(), pytha.virtenvnm_ );
 }
 
 
 uiRetVal ServiceMgrBase::survChangedReq( const OD::JSON::Object& reqobj )
 {
-    const FilePath surveydir( reqobj.getStringValue(sKey::Survey()) );
+    const FilePath surveydir = reqobj.getFilePath( sKey::Survey() );
     const bool success = IOM().setRootDir( surveydir.pathOnly() ) &&
             IOM().setSurvey( surveydir.fileName() );
     if ( !success )
@@ -565,8 +579,10 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
     Network::RequestConnection conn( auth, false, 2000 );
     if ( !conn.isOK() )
     {
-	return uiRetVal(tr("Cannot connect to service %1 on %2")
-			    .arg(servicenm).arg(auth.toString()) );
+        const uiRetVal msg = tr("Cannot connect to service %1 on %2")
+			    .arg( servicenm ).arg( auth.toString() );
+        pFreeFDebugMsg( DGB_SERVICES, toString(msg) );
+        return msg;
     }
 
     RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
@@ -578,6 +594,7 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
 				 .arg(servicenm).arg( auth.toString() );
 	uirv.add( conn.errMsg() );
 	uirv.add( tr("Packet content: %1").arg(request.dumpJSon()) );
+    pFreeFDebugMsg( DGB_SERVICES, toString( uirv ) );
 	return uirv;
     }
 
@@ -591,13 +608,16 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
     if ( !uirv.isOK() )
     {
 	uirv.add( tr("Response: %1").arg( response.dumpJSon() ) );
+    pFreeFDebugMsg( DGB_SERVICES, toString( uirv ) );
 	return uirv;
     }
     else if ( response.isPresent(sKeyError()) )
     {
-	return uiRetVal( tr("%1 error: %2.\n%3").arg(servicenm)
+	const uiRetVal msg( tr("%1 error: %2.\n%3").arg(servicenm)
 	    .arg(response.getStringValue(sKeyError()))
 	    .arg(response.dumpJSon()) );
+    pFreeFDebugMsg( DGB_SERVICES, toString( msg ) );
+    return msg;
     }
 
     return uiRetVal::OK();
@@ -608,7 +628,8 @@ void ServiceMgrBase::sendOK()
 {
     OD::JSON::Object response;
     response.set( sKeyOK(), BufferString::empty() );
-    pFDebugMsg(DGB_SERVICES,BufferString("Returning OK: ",response.dumpJSon()));
+    pFDebugMsg( DGB_SERVICES,
+            BufferString("Returning OK: ",response.dumpJSon()) );
     if ( packet_ )
 	packet_->setPayload( response );
     if ( packet_ && tcpconn_ && !tcpconn_->sendPacket(*packet_.ptr()) )
