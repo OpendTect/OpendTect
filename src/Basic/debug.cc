@@ -198,10 +198,9 @@ static int getMask()
     if ( maskgot ) return themask;
     maskgot = true;
 
-    BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
-    const char* buf = envmask.buf();
-    themask = toInt( buf );
-    if ( toBool(buf,false) ) themask = 0xffff;
+    const BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
+    themask = Conv::to<int>( envmask );
+    if ( toBool(envmask.buf(),false) ) themask = 0xffff;
 
     const char* dbglogfnm = GetEnvVar( "DTECT_DEBUG_LOGFILE" );
     if ( dbglogfnm && !themask )
@@ -261,29 +260,63 @@ void forceCrash( bool withdump )
 }
 
 
-void message( const char* inpmsg )
+static void printMessage( const char* inpmsg )
 {
-    if ( !isOn() )
-	return;
-
     BufferString msg;
-    mDefineStaticLocalObject( bool, wantpid,
-			      = GetEnvVarYN("DTECT_ADD_DBG_PID") );
-    if ( wantpid )
-	msg.add( "[" ).add( GetPID() ).add( "] " );
+    mDefineStaticLocalObject(bool, wantpid,
+	= GetEnvVarYN("DTECT_ADD_DBG_PID"));
+    if (wantpid)
+	msg.add("[").add(GetPID()).add("] ");
     msg.add( inpmsg );
 
-    if ( dbg_log_strm_ )
+    if (dbg_log_strm_)
 	*dbg_log_strm_ << msg << od_endl;
     else
 	std::cerr << msg.buf() << std::endl;
 }
 
 
+void message( const char* inpmsg )
+{
+    if ( !isOn() )
+	return;
+
+    printMessage( inpmsg );
+}
+
+
 void message( int flag, const char* msg )
 {
     if ( isOn(flag) )
-	message( msg );
+	printMessage( msg );
+}
+
+
+static BufferString getDetailedMessage( const char* inpmsg, const char* cname,
+    const char* fname, int linenr )
+{
+    BufferString msg( cname, " | " );
+    msg.add( fname ).add(":").add( linenr )
+	.add( " >> " ).add( inpmsg ).add( " <<" );
+
+    return msg;
+}
+
+
+void message( const char* inpmsg, const char* cname,
+	      const char* fname, int linenr )
+{
+    if ( !isOn() )
+	return;
+
+    printMessage( getDetailedMessage(inpmsg,cname,fname,linenr) );
+}
+
+void message( int flag,const char* inpmsg, const char* cname,
+    const char* fname, int linenr )
+{
+    if ( isOn(flag) )
+	printMessage(getDetailedMessage(inpmsg, cname, fname, linenr));
 }
 
 
@@ -452,7 +485,7 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 
 void ErrMsg( const uiString& msg )
 {
-    ErrMsg( msg.getFullString(), false );
+    ErrMsg( toString(msg), false );
 }
 
 
