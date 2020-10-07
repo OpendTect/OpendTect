@@ -199,8 +199,14 @@ static int getMask()
     maskgot = true;
 
     const BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
-    themask = Conv::to<int>( envmask );
-    if ( toBool(envmask.buf(),false) ) themask = 0xffff;
+    if ( envmask.isEmpty() )
+        themask = 0;
+    else
+    {
+        themask = Conv::to<int>( envmask );
+        if ( mIsUdf(themask) )
+            themask = GetEnvVarYN( "DTECT_DEBUG" ) ? 0xffff : 0x0000;
+    }
 
     const char* dbglogfnm = GetEnvVar( "DTECT_DEBUG_LOGFILE" );
     if ( dbglogfnm && !themask )
