@@ -13,7 +13,6 @@
 #include "od_iostream.h"
 #include "separstr.h"
 #include "stringbuilder.h"
-#include "typeset.h"
 #include "uistrings.h"
 
 #include <string.h>
@@ -362,6 +361,15 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 	case String:	ret.set( val->str() );  break;
     }
     return ret;
+}
+
+File::Path OD::JSON::ValueSet::getFilePath( idx_type idx ) const
+{
+    BufferString fnm = getStringValue( idx );
+#ifdef __win__
+    fnm.replace( "/", "\\" );
+#endif
+    return File::Path( fnm );
 }
 
 
@@ -806,6 +814,16 @@ OD::JSON::Array& OD::JSON::Array::add( const OD::String& odstr )
 }
 
 
+OD::JSON::Array& OD::JSON::Array::add( const File::Path& fp )
+{
+    BufferString bs( fp.fullPath() );
+#ifdef __win__
+    bs.replace( "\\", "/" );
+#endif
+    return add( bs.buf() );
+}
+
+
 template<class T>
 OD::JSON::Array& OD::JSON::Array::setVals( const TypeSet<T>& vals )
 {
@@ -864,6 +882,15 @@ OD::JSON::Array& OD::JSON::Array::set( const uiString& val )
 OD::JSON::Array& OD::JSON::Array::set( const OD::String& val )
 {
     return set( val.str() );
+}
+
+OD::JSON::Array& OD::JSON::Array::set( const File::Path& fp )
+{
+    BufferString val( fp.fullPath() );
+#ifdef __win__
+    val.replace( "\\", "/" );
+#endif
+    return set( BufferStringSet(val) );
 }
 
 OD::JSON::Array& OD::JSON::Array::set( bool val )
@@ -1052,6 +1079,16 @@ BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 }
 
 
+File::Path OD::JSON::Object::getFilePath( const char* ky ) const
+{
+    BufferString fnm = getStringValue( ky );
+#ifdef __win__
+    fnm.replace( "/", "\\" );
+#endif
+    return File::Path( fnm );
+}
+
+
 bool OD::JSON::Object::getGeomID( const char* ky, Pos::GeomID& gid ) const
 {
     if ( !isPresent(ky) )
@@ -1133,6 +1170,15 @@ mDefObjectSetVal( od_int64 )
 mDefObjectSetVal( float )
 mDefObjectSetVal( double )
 mDefObjectSetVal( const char* )
+
+void OD::JSON::Object::set( const char* ky, const File::Path& fp )
+{
+    BufferString fnm( fp.fullPath() );
+#ifdef __win__
+    fnm.replace( "\\", "/" );
+#endif
+    setVal( ky, fnm.buf() );
+}
 
 void OD::JSON::Object::set( const char* ky, const DBKey& id )
 {

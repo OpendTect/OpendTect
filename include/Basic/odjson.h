@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 */
 
-#include "bufstringset.h"
+#include "filepath.h"
 #include "uistringset.h"
 #include "typeset.h"
 #include "od_iosfwd.h"
@@ -141,6 +141,7 @@ public:
     od_int64		getIntValue(idx_type) const;
     double		getDoubleValue(idx_type) const;
     BufferString	getStringValue(idx_type) const;
+    File::Path    getFilePath(idx_type) const;
 
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
@@ -224,6 +225,7 @@ public:
 			mDeclJSONArrayAddAndSetFn(const DBKey&);
 			mDeclJSONArrayAddAndSetFn(const uiString&);
 			mDeclJSONArrayAddAndSetFn(const OD::String&);
+			mDeclJSONArrayAddAndSetFn(const File::Path&);
 			mDeclJSONArrayAddAndSetFn(bool);
 
 			mDeclJSONArraySetFn(const BufferStringSet&);
@@ -296,6 +298,7 @@ public:
     od_int64		getIntValue(const char*) const;
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
+    File::Path        getFilePath(const char*) const;
     bool		getStrings(const char*,BufferStringSet&) const;
     bool		getGeomID(const char*,Pos::GeomID&) const;
     template <class T>
@@ -315,6 +318,7 @@ public:
     void		set(const char* ky,const char*);
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
+    void        set(const char* ky,const File::Path&);
     void		set(const char* ky,const DBKey&);
     void		set(const char* ky,const Pos::GeomID&);
     void		set(const char* ky,const uiString&);
