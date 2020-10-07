@@ -86,6 +86,8 @@ protected:
 
     const Network::Service*	thisService() const	{ return thisservice_; }
 
+	void		setUnregistered() {	registerstatus_ = Unregistered;	}
+
 private:
 
     void		init(Network::Service::ServType,bool local);

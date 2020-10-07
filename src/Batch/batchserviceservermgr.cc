@@ -118,7 +118,8 @@ uiRetVal BatchServiceServerMgr::sendActionRequest_( const char* action,
 
 bool BatchServiceServerMgr::canParseAction( const char* action, uiRetVal& uirv )
 {
-    if ( FixedString(action) == BatchServiceClientMgr::sKeyDoWork() )
+    if ( FixedString(action) == BatchServiceClientMgr::sKeyDoWork() ||
+        FixedString(action) == sKeyClientAppCloseEv() )
 	return true;
 
     return ServiceServerMgr::canParseAction( action, uirv );
@@ -141,6 +142,12 @@ uiRetVal BatchServiceServerMgr::doHandleAction( const char* action )
     {
 	*bp_.strm_ << "Starting batch program from request" << od_endl;
 	bp_.startDoWork.trigger();
+    return uiRetVal::OK();
+    }
+    else if ( FixedString(action) == sKeyClientAppCloseEv() )
+    {
+        setUnregistered();
+        return uiRetVal::OK();
     }
 
     return ServiceServerMgr::doHandleAction( action );
@@ -156,6 +163,7 @@ uiRetVal BatchServiceServerMgr::doHandleRequest(
 	const OD::JSON::Object& obj =
 		    *request.getObject(BatchServiceClientMgr::sKeyStoreInfo());
 	bp_.requests_.add( obj.clone() );
+    return uiRetVal::OK();
     }
 
     return ServiceServerMgr::doHandleRequest( request );

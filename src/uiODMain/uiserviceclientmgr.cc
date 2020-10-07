@@ -138,7 +138,7 @@ bool uiServiceClientMgr::canClaimService( const Network::Service& service
 void uiServiceClientMgr::doSurveyChanged( CallBacker* )
 {
     OD::JSON::Object paramobj;
-    paramobj.set( sKey::Survey(), GetDataDir() );
+    paramobj.set( sKey::Survey(), FilePath(GetDataDir()) );
     for ( const auto service : services_ )
     {
 	const uiRetVal uirv = sendRequest( *service,
@@ -155,7 +155,7 @@ void uiServiceClientMgr::doPyEnvChange( CallBacker* )
     getPythEnvRequestInfo( sinfo );
     for ( const auto service : services_ )
     {
-	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(),sinfo);
+	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(), sinfo );
 	if ( !uirv.isOK() )
 	    uiMSG().error( uirv );
     }
@@ -165,8 +165,6 @@ void uiServiceClientMgr::doPyEnvChange( CallBacker* )
 void uiServiceClientMgr::doAppClosing( CallBacker* cb )
 {
     detachAllNotifiers();
-    for ( const auto service : services_ )
-	stopService( service->getID() );
     ServiceClientMgr::doAppClosing( cb );
 }
 
