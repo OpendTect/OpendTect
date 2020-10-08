@@ -140,7 +140,7 @@ mClass(Basic) Undef<bool>
 public:
     static bool		val()			{ return false; }
     static bool		hasUdf()		{ return false; }
-    static bool		isUdf( bool b )		{ return false; }
+    static bool		isUdf( bool )		{ return false; }
     static void		setUdf( bool& b )	{ b = false; }
 };
 

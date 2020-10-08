@@ -24,7 +24,7 @@ const char* ZDomain::sKeyDepth()	{ return sKey::Depth(); }
 ObjectSet<ZDomain::Def>& DEFS()
 {
     mDefineStaticLocalObject( PtrMan<ManagedObjectSet<ZDomain::Def> >,
-                              defs, (0) );
+                              defs, (nullptr) );
 
     if ( !defs )
     {

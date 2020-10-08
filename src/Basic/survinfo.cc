@@ -869,7 +869,7 @@ bool SurveyInfo::zInFeet() const
 z_type SurveyInfo::showZ2UserFactor() const
 {
     mLock4Read();
-    return (z_type)zDomain().userFactor();
+    return z_type(zDomain().userFactor());
 }
 
 

@@ -56,7 +56,7 @@ public:
 
 protected:
 
-				Task(const char* nm=0);
+				Task(const char* nm=nullptr);
     virtual bool		shouldContinue();
 					//!<\returns wether we should continue
     Control			control_;
@@ -77,7 +77,7 @@ public:
     void		getProgress(const ReportingTask&);
 
 protected:
-			ReportingTask(const char* nm=0);
+			ReportingTask(const char* nm=nullptr);
 
     virtual void	setProgressMeter(ProgressMeter*);
     ProgressMeter*	progressMeter() const	{ return progressmeter_; }
@@ -188,7 +188,7 @@ protected:
 mExpClass(Basic) SequentialTask : public ReportingTask
 {
 public:
-			SequentialTask(const char* nm=0);
+			SequentialTask(const char* nm=nullptr);
     virtual		~SequentialTask()			{}
 
     virtual int		doStep();

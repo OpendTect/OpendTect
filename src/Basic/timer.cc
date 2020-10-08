@@ -10,85 +10,65 @@ ________________________________________________________________________
 
 #include "timer.h"
 
-#ifndef OD_NO_QT
-# include "qtimercomm.h"
-#endif
+#include "qtimercomm.h"
 
 mUseQtnamespace
 
 Timer::Timer( const char* nm )
     : NamedCallBacker(nm)
     , tick(this)
-#ifndef OD_NO_QT
-    , timer_(new QTimer(0))
+    , timer_(new QTimer(nullptr))
     , comm_(new QTimerComm(timer_,this))
-#endif
     , scriptpolicy_(DefaultPolicy)
 {}
 
 
 Timer::~Timer()
 {
-#ifndef OD_NO_QT
     if ( isActive() )
 	stop();
 
     comm_->deactivate();
     delete timer_;
     delete comm_;
-#endif
 }
 
 
 bool Timer::isActive() const
 {
-#ifndef OD_NO_QT
     return timer_->isActive();
-#else
-    return false;
-#endif
 }
 
 
 bool Timer::isSingleShot() const
 {
-#ifndef OD_NO_QT
     return timer_->isSingleShot();
-#else
-    return true;
-#endif
 }
 
 
 
 void Timer::start( int msec, bool sshot )
 {
-#ifndef OD_NO_QT
     timer_->setSingleShot( sshot );
     timer_->setInterval( msec );
 
     timerStarts()->trigger( this );
     timer_->start();
-#endif
 }
 
 
 void Timer::stop()
 {
-#ifndef OD_NO_QT
     timer_->stop();
     timerStopped()->trigger( this );
-#endif
 }
 
 
 void Timer::notifyHandler()
 {
-#ifndef OD_NO_QT
     timerShoots()->trigger( this );
     tick.trigger( this );
     timerShot()->trigger( this );
-#endif
 }
 
 
@@ -121,7 +101,7 @@ bool Timer::setUserWaitFlag( bool yn )
 #define mImplStaticNotifier( func ) \
     Notifier<Timer>* Timer::func() \
     { \
-	static Notifier<Timer> func##notifier(0); \
+	static Notifier<Timer> func##notifier(nullptr); \
 	return &func##notifier; \
     }
 

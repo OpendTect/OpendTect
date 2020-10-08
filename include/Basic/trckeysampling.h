@@ -112,7 +112,7 @@ public:
     BinID		atIndex(od_int64 globalidx) const;
     TrcKey		trcKeyAt(int i0,int i1) const;
     TrcKey		trcKeyAt(od_int64 globalidx) const;
-    TrcKey		toTrcKey(const Coord&,dist_type* distance=0) const;
+    TrcKey		toTrcKey(const Coord&,dist_type* distance=nullptr) const;
     Coord		toCoord(const BinID&) const;
     TrcKey		center() const;
     int			nrLines() const;

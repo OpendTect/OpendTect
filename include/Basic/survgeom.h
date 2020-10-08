@@ -80,7 +80,7 @@ public:
     static const Geometry2D&	get2D(GeomID);
     static const Geometry2D&	get2D(const char* linename);
     static GeomID		getGeomID(const char* linenm);
-    static void			list2D(GeomIDSet&,BufferStringSet* nms=0);
+    static void			list2D(GeomIDSet&,BufferStringSet* nms=nullptr);
     static bool			isPresent(GeomID);
     static bool			isUsable(GeomID);
 
@@ -91,7 +91,7 @@ public:
 
     dist_type		distanceTo(const Coord&) const;
     void		getNearestTracePosition(const Coord&,TrcKey&,
-				dist_type* d=0) const;
+				dist_type* d=nullptr) const;
     void		getTracePosition(const Coord&,TrcKey&,
 				dist_type maxdist=mUdf(dist_type)) const;
     dist_type		averageTrcDist() const;

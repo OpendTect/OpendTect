@@ -194,7 +194,8 @@ public:
 
 			BoolTypeSetType( bool v=false )
 			    : val_( v )		{}
-    operator		bool() const		{ return (bool) val_; }
+
+    operator		bool() const		{ return bool(val_); }
     bool		operator=( bool v )	{ val_ = v; return v; }
 
 protected:
@@ -343,7 +344,7 @@ template <class T, class IT> inline
 
 template <class T, class IT> inline
 bool OD::ValVec<T,IT>::validIdx( od_int64 vidx ) const
-{ return vec_.validIdx( (IT)vidx ); }
+{ return vec_.validIdx( sCast(IT,vidx) ); }
 
 template <class T, class IT> inline
 T& OD::ValVec<T,IT>::get( IT vidx )
@@ -436,7 +437,7 @@ const std::vector<T>& OD::ValVec<T,IT>::vec() const
 template <class T, class IT> inline
 T* OD::ValVec<T,IT>::gtArr() const
 {
-    return isEmpty() ? 0 : const_cast<T*>( &first() );
+    return isEmpty() ? nullptr : const_cast<T*>( &first() );
 }
 
 

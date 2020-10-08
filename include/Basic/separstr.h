@@ -32,7 +32,8 @@ mExpClass(Basic) SeparString
 {
 public:
 
-			SeparString( const char* escapedstr=0, char separ=',' )
+			SeparString( const char* escapedstr=nullptr,
+				     char separ=',' )
 			{ initSep( separ ); initRep( escapedstr ); }
 			SeparString( const SeparString& ss )
 			: rep_(ss.rep_) { initSep( ss.sep_[0] ); }
@@ -120,7 +121,7 @@ private:
 
     const char*		getEscaped(const char* unescapedstr,char sep) const;
     const char*		getUnescaped(const char* escapedstartptr,
-				     const char* nextsep=0) const;
+				     const char* nextsep=nullptr) const;
 
     const char*		findSeparator(const char*) const;
 };
@@ -134,10 +135,10 @@ mExpClass(Basic) FileMultiString : public SeparString
 {
 public:
 
-			FileMultiString(const char* escapedstr=0)
+			FileMultiString(const char* escapedstr=nullptr)
 			    : SeparString(escapedstr, separator() )	{}
 			FileMultiString(const char* s1,const char* s2,
-					const char* s3=0,const char*s4=0);
+					const char* s3=nullptr,const char*s4=nullptr);
     template <class T>	FileMultiString( const T& t )
 			    : SeparString(t,separator())		{}
 
@@ -147,7 +148,7 @@ public:
     // class needs an exact match! Passing a derived object would make the
     // template function convert it to (const char*).
     inline FileMultiString& add( const FileMultiString& fms )
-			{ return add( (SeparString&)fms ); }
+			{ return add( fms.buf() ); }
     template <class T> inline
     FileMultiString&	operator +=( T t )		{ return add( t ); }
     inline FileMultiString& operator +=( const OD::String& ods )

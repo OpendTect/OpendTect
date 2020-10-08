@@ -25,13 +25,13 @@ mExpClass(Basic) GlobExpr
 {
 public:
 
-			GlobExpr( const char* s = 0, mODStringDefSens )
-			    : expr_(""), errmsg_(0), ci_(cs==CaseInsensitive)
+			GlobExpr( const char* s=nullptr, mODStringDefSens )
+			    : expr_(""), errmsg_(nullptr), ci_(cs==CaseInsensitive)
 				{ set(s); }
 			GlobExpr( const GlobExpr& ge )
-			    : expr_(ge.expr_), errmsg_(0), ci_(ge.ci_) {}
+			    : expr_(ge.expr_), errmsg_(nullptr), ci_(ge.ci_) {}
     GlobExpr&		operator=( const GlobExpr& ge )
-				{ expr_ = ge.expr_; errmsg_ = 0; ci_ = ge.ci_;
+				{ expr_ = ge.expr_; errmsg_ = nullptr; ci_ = ge.ci_;
 				  return *this; }
     bool		operator==( const GlobExpr& ge ) const
 				{ return expr_ == ge.expr_ && ci_ == ge.ci_; }
@@ -40,7 +40,7 @@ public:
 
     void		set(const char*);
     inline		operator const char*() const
-				{ return (const char*)expr_; }
+			{ return expr_; }
 
     inline bool		matches( const char* t ) const
 				{ return matches( expr_, t,

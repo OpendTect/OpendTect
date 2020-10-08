@@ -62,11 +62,14 @@ mExpClass(Basic) CallBack
 public:
     static void		initClass();
 			CallBack()
-			    : cberobj_(0), fn_(0), sfn_(0)	{}
+			    : cberobj_(nullptr), fn_(nullptr), sfn_(nullptr)
+			{}
 			CallBack( CallBacker* o, CallBackFunction f )
-			    : cberobj_(o), fn_(f), sfn_(0)	{}
+			    : cberobj_(o), fn_(f), sfn_(nullptr)
+			{}
 			CallBack( StaticCallBackFunction f )
-			    : cberobj_(0), fn_(0), sfn_(f)	{}
+			    : cberobj_(nullptr), fn_(nullptr), sfn_(f)
+			{}
     bool		operator==(const CallBack&) const;
     bool		operator!=(const CallBack&) const;
 
@@ -81,17 +84,17 @@ public:
     inline CallBackFunction		cbFn() const	{ return fn_; }
     inline StaticCallBackFunction	scbFn() const	{ return sfn_; }
 
-    static bool addToMainThread(const CallBack&, CallBacker* =0);
+    static bool addToMainThread(const CallBack&, CallBacker* =nullptr);
 		/*!< Unconditionally add this to main event loop.
 		     For thread safety, the removeFromThreadCalls()
 		     must be called in the destructor. */
     static bool addToThread(Threads::ThreadID,const CallBack&,
-				    CallBacker* = 0);
+				    CallBacker* = nullptr);
 		/*!< Unconditionally add this to event loop of the other thread.
 		     For thread safety, the removeFromThreadCalls()
 		     must be called in the destructor. */
 
-    static bool callInMainThread(const CallBack&, CallBacker* =0);
+    static bool callInMainThread(const CallBack&, CallBacker* =nullptr);
 		/*!<If in main thread or no event-loop is present, it
 		    will be called directly. Otherwise, it will be
 		    put on event loop.
@@ -119,7 +122,7 @@ public:
     // Usually only called from mEnsureExecutedInMainThread:
 
     static bool			queueIfNotInMainThread(CallBack,
-						CallBacker* =0);
+						CallBacker* =nullptr);
 				/*!< If not in main thread, queue it.
 				   return whether CB was queued. */
 };
@@ -158,8 +161,8 @@ public:
 		//!<\note lock lock_ before calling
     void	removeWith(StaticCallBackFunction);
 		//!<\note lock lock_ before calling
-    void	transferTo(CallBackSet& to,const CallBacker* onlyfor=0,
-					   const CallBacker* notfor=0);
+    void	transferTo(CallBackSet& to,const CallBacker* onlyfor=nullptr,
+					   const CallBacker* notfor=nullptr);
 		//!<\note lock lock_ before calling, also to's lock_
 
     mutable Threads::Lock   lock_;
