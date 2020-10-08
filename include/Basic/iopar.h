@@ -64,7 +64,7 @@ namespace OD
 mExpClass(Basic) IOPar : public NamedObject
 {
 public:
-			IOPar(const char* nm=0); //!< empty
+			IOPar(const char* nm=nullptr); //!< empty
 			IOPar(ascistream&);
 			IOPar(const IOPar&);
 			~IOPar();
@@ -320,8 +320,8 @@ public:
     void		set(const char*,const TypeSet<float>&);
     void		set(const char*,const GeomIDSet&);
 
-    void		setToDateTime(const char* ky=0);
-    void		setToUser(const char* ky=0);
+    void		setToDateTime(const char* ky=nullptr);
+    void		setToUser(const char* ky=nullptr);
     void		setStdCreationEntries();
 
 			// Do you want to use these? Probably not. Think twice!

@@ -23,9 +23,9 @@
 
 
 BufferString::BufferString( size_type minlen, bool mknull )
-    : minlen_(minlen)
+    : buf_(nullptr)
     , len_(0)
-    , buf_(0)
+    , minlen_(minlen)
 {
     if ( minlen_ < 1 )
 	return;
@@ -108,7 +108,7 @@ BufferString& BufferString::assignTo( const char* s )
     if ( buf_ == s ) return *this;
 
     if ( !s ) s = "";
-    setBufSize( (size_type)(strLength(s) + 1) );
+    setBufSize( sCast( size_type, (strLength(s) + 1) ) );
     char* ptr = buf_;
     while ( *s ) *ptr++ = *s++;
     *ptr = '\0';
@@ -503,7 +503,7 @@ void BufferString::init()
 {
     len_ = minlen_;
     if ( len_ < 1 )
-	buf_ = 0;
+	buf_ = nullptr;
     else
     {
 	mTryAlloc( buf_, char[len_] );

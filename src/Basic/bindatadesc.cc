@@ -57,7 +57,7 @@ void BinDataDesc::setFrom( unsigned char c, bool wronlittle )
 	issigned_ = bdd.b.issigned;
 	while( bdd.b.bytepow ) { bdd.b.bytepow--; nb *= 2; }
     }
-    nrbytes_ = (BinDataDesc::ByteCount)nb;
+    nrbytes_ = sCast(BinDataDesc::ByteCount,nb);
 };
 
 
@@ -102,8 +102,12 @@ void BinDataDesc::toString( BufferString& buf ) const
 
 bool BinDataDesc::convertsWellTo( const BinDataDesc& dd ) const
 {
-    if ( (int)nrbytes_ > (int)dd.nrbytes_ ) return true;
-    if ( (int)nrbytes_ < (int)dd.nrbytes_ ) return false;
+    if ( nrbytes_ > dd.nrbytes_ )
+	return true;
+
+    if ( nrbytes_ < dd.nrbytes_ )
+	return false;
+
     if ( !dd.isint_ ) return true;
     if ( !isint_ ) return false;
     return dd.issigned_ == issigned_;

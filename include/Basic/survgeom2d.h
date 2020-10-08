@@ -91,7 +91,7 @@ protected:
     mutable dist_type	avgtrcdist_			= mUdf(dist_type);
     mutable dist_type	linelength_			= mUdf(dist_type);
 
-    Geometry3D*		gtAs3D() const	override	{ return 0; }
+    Geometry3D*		gtAs3D() const	override	{ return nullptr; }
     Geometry2D*		gtAs2D() const	override
 			{ return const_cast<Geometry2D*>(this); }
 

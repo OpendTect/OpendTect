@@ -291,7 +291,7 @@ ascistream& ascistream::next()
 
     const int sz = lineread.size();
     char* keywptr = linebuf;
-    char* valptr = 0;
+    char* valptr = nullptr;
     for ( int ich=1; ich<sz; ich++ )
     {
 	if ( linebuf[ich] == mAscStrmKeyValSep && linebuf[ich-1]!='\\' )

@@ -42,7 +42,7 @@ mExpClass(Basic) NamedObject : public ObjectWithName
 {
 public:
 
-			NamedObject( const char* nm=0 )
+			NamedObject( const char* nm=nullptr )
 			    : name_(nm)			{}
 			NamedObject( const NamedObject& oth )
 			    : name_(oth.getName())	{}

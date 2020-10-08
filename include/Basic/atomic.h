@@ -204,7 +204,7 @@ Atomic<T>::Atomic( T val )
 
 template <class T> inline
 Atomic<T>::Atomic( const Atomic<T>& val )
-    : std::atomic<T>( (T) val )
+    : std::atomic<T>( sCast(T,val) )
 {}
 
 
@@ -272,7 +272,7 @@ AtomicPointer<T>& AtomicPointer<T>::operator=(T* ptr)
 template <class T> inline
 AtomicPointer<T>& AtomicPointer<T>::operator=(const AtomicPointer<T>& ptr)
 {
-    return operator=((T*)ptr);
+    return operator=( sCast(T*,ptr) );
 }
 
 } //namespace Threads

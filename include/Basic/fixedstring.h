@@ -28,7 +28,7 @@ mExpClass(Basic) FixedString : public OD::String
 {
 public:
 
-    inline		FixedString( const char* p = 0 )
+    inline		FixedString( const char* p = nullptr )
 			    : str_(p)		{}
     inline FixedString&	operator=( const FixedString& fs )
 						{ str_ = fs.str_; return *this;}
@@ -64,8 +64,10 @@ public:
 
 protected:
 
-    inline const char*	gtBuf() const	{ return str_ ? str_ : ""; }
-    inline const char*	gtStr() const	{ return !str_ || !*str_ ? 0 : str_; }
+    inline const char*	gtBuf() const
+			{ return str_ ? str_ : ""; }
+    inline const char*	gtStr() const
+			{ return !str_ || !*str_ ? nullptr : str_; }
 
     const char*	str_;
 
