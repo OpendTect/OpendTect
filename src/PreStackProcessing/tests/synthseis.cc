@@ -148,10 +148,9 @@ bool testTracesAmplitudes( od_ostream& strm,
 }
 
 
-mLoad1Module("Seis")
+mLoad1Module("PreStackProcessing")
 {
     mInitBatchTestProg();
-    VrmsRayTracer1D::initClass();
 
     // Inputs
     ElasticModelSet models;
