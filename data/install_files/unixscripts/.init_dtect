@@ -65,9 +65,15 @@ else
 	setenv LD_LIBRARY_PATH "${bindir}"
     endif
 
-    set gccmajorver = `strings /usr/lib64/libstdc++.so.6 | grep GLIBC_2.17`
-    if ( ${gccmajorver} == "" ) then
-	setenv LD_LIBRARY_PATH "${bindir}"/systemlibs:${LD_LIBRARY_PATH}
+    set ldconfig = "/sbin/ldconfig"
+    if ( -e ${ldconfig} ) then
+        set libstdc = `/sbin/ldconfig -p | grep libstdc++.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+        set gccmajorver = `strings "${libstdc}" | grep GLIBC_2.17`
+        if ( ${gccmajorver} == "" ) then
+            setenv LD_LIBRARY_PATH "${bindir}"/systemlibs:${LD_LIBRARY_PATH}
+        endif
+    else
+        setenv LD_LIBRARY_PATH "${bindir}"/systemlibs:${LD_LIBRARY_PATH}
     endif
 
     # kludge for Fedora 8
