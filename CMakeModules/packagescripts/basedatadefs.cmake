@@ -10,7 +10,8 @@ SET( DATALIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
 	     RockPhysics ModDeps.od Strat Python
 	     prodlist.txt Vendors
 	     BatchHosts_example_for_nodes_of_a_linux_server.txt
-	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts CRS )
+	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts CRS 
+	     Mnemonics )
 SET( EXECLIST  )
 SET( PACK "basedata")
 
