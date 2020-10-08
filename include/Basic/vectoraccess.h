@@ -89,7 +89,7 @@ public:
     inline void		insert( IT pos, const T& val )
 			{ v_.insert(v_.begin() + pos,val); }
     inline void		erase()
-			{ v_.clear(); }
+			{ std::vector<T>().swap(v_); }
     inline void		erase( const T& t )
 			{
 			    for ( IT i=size()-1; i!=-1; i-- )
