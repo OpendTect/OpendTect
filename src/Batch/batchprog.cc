@@ -155,6 +155,7 @@ bool BatchProgram::parseArguments()
 
     clparser_ = new CommandLineParser;
     clparser_->setKeyHasValue( sKeyDataDir() );
+    clparser_->setKeyHasValue( sKeySurveyDir() );
     clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
     clparser_->setKeyHasValue( sKeyODServer() );
     clparser_->setKeyHasValue( sKeyPort() );
@@ -231,8 +232,6 @@ bool BatchProgram::parseArguments()
 #define mSetDataRootVar(str) \
 	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
 
-    clparser_->setKeyHasValue( sKeyDataDir() );
-    clparser_->setKeyHasValue( sKeySurveyDir() );
     if ( clparser_->getKeyedInfo(sKeyDataDir(),res) && File::isDirectory(res) )
     {
 	mSetDataRootVar( res );
