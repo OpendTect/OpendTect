@@ -163,9 +163,10 @@ bool testAnglesForDifferentSurveys();
 static const char* vel_dbky_str = "100010.8";
 
 
-mLoad1Module("Velocity")
+mLoad1Module("PreStackProcessing")
 {
     mInitBatchTestProg();
+
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
