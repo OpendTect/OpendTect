@@ -43,6 +43,7 @@ ZMapImporter::~ZMapImporter()
 {
     delete istrm_;
     delete data_;
+    uoms_.removeAndDeleteParam( this );
 }
 
 
