@@ -693,8 +693,7 @@ static HiddenParam<uiImpHorFromZMap,uiUnitSel*> unitselflds(nullptr);
 // uiImpHorFromZMap
 uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Horizon from ZMap"),
-				 mNoDlgTitle,
-				 mODHelpKey(mImportHorAttribHelpID) )
+				 mNoDlgTitle,mODHelpKey(mFromZMap) )
 				 .modal(false))
     , importReady(this)
     , crsfld_(nullptr)
@@ -736,6 +735,8 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 uiImpHorFromZMap::~uiImpHorFromZMap()
 {
     detachAllNotifiers();
+    subselflds.removeParam( this );
+    unitselflds.removeParam( this );
 }
 
 

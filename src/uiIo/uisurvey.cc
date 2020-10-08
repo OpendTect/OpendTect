@@ -66,8 +66,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "systeminfo.h"
 #include "trckeyzsampling.h"
 
-static HiddenParam<uiSurvey,uiTextEdit*> logflds_( nullptr );
-
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
 #define mErrRetVoid(s)	{ if ( s.isSet() ) uiMSG().error(s); return; }
@@ -391,6 +389,7 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 
 //--- uiSurvey
 
+static HiddenParam<uiSurvey, uiTextEdit*> logflds_( nullptr );
 
 uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
