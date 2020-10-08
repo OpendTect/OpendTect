@@ -113,6 +113,7 @@ public:
     const Provider3D*	as3D() const;
 
     uiRetVal		setInput(const DBKey&);
+    uiRetVal		setInput(const IOObj&);
     uiRetVal		reset()		{ return setInput(dbKey()); }
 
     GeomType		geomType() const { return geomTypeOf(is2D(),isPS()); }
