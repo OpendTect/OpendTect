@@ -216,6 +216,12 @@ if( WIN32 )
 	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} )
     endif()
     include( InstallRequiredSystemLibraries )
+    foreach( DLL ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} )
+	get_filename_component( FILENAME ${DLL} NAME )	
+	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
+	list( APPEND MSVCDLLLIST ${FILENAME} )
+    endforeach()
+
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
