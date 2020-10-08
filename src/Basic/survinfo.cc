@@ -11,10 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "survinfo.h"
 #include "ascstream.h"
+#include "coordsystem.h"
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "coordsystem.h"
+#include "hiddenparam.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
 #include "undefval.h"
@@ -27,9 +29,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpair2coord.h"
 #include "od_istream.h"
 #include "oscommand.h"
+#include "surveydisklocation.h"
 #include "uistrings.h"
 #include <stdio.h>
 
+HiddenParam<SurveyInfo,SurveyDiskLocation*> disklocs(nullptr);
 
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
@@ -376,6 +380,8 @@ SurveyInfo::SurveyInfo()
     b2c_.setTransforms( xtr, ytr );
     tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
 
+    disklocs.setParam( this, new SurveyDiskLocation );
+
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -391,6 +397,9 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     , workRangeChg(this)
 {
     *this = si;
+
+    disklocs.setParam( this, new SurveyDiskLocation );
+
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -410,8 +419,9 @@ SurveyInfo::~SurveyInfo()
 
     old = s3dgeom_.setToNull();
     if ( old ) old->unRef();
-}
 
+    disklocs.removeAndDeleteParam( this );
+}
 
 
 SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
@@ -440,6 +450,12 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     update3DGeometry();
 
     return *this;
+}
+
+
+SurveyInfo& SurveyInfo::empty()
+{
+    return *new SurveyInfo;
 }
 
 
@@ -1373,4 +1389,41 @@ void SurveyInfo::readSavedCoordSystem() const
 		Coords::CoordSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();
+}
+
+
+const SurveyDiskLocation& SurveyInfo::diskLocation() const
+{
+    auto* sdl = disklocs.getParam( this );
+    sdl->setBasePath( datadir_ );
+    sdl->setDirName( dirname_ );
+    return *sdl;
+}
+
+
+void Survey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
+				const char* dataroot, const char* excludenm )
+{
+    BufferString basedir( dataroot );
+    if ( basedir.isEmpty() )
+	basedir = GetBaseDataDir();
+
+    const DirList dl( basedir, File::DirsInDir );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString& dirnm = dl.get( idx );
+	if ( excludenm && dirnm == excludenm )
+	    continue;
+
+	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
+	if ( File::isReadable(fp.fullPath()) )
+	{
+	    if ( addfullpath )
+		list.add( dl.fullPath(idx) );
+	    else
+		list.add( dirnm );
+	}
+    }
+
+    list.sort();
 }

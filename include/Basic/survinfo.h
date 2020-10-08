@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class ascostream;
 class LatLong2Coord;
+class SurveyDiskLocation;
 namespace Coords { class CoordSystem; }
 
 
@@ -142,6 +143,8 @@ public:
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
     RefMan<Coords::CoordSystem>	getCoordSystem();
     ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
+
+    const SurveyDiskLocation&	diskLocation() const;
 
     enum Pol2D	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
 
@@ -266,6 +269,7 @@ public:
 
 			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
+    static SurveyInfo&	empty();
 
     Pos::IdxPair2Coord&	getBinID2Coord() const
 			{ return const_cast<SurveyInfo*>(this)->b2c_; }
@@ -312,4 +316,10 @@ mGlobal(Basic) inline SurveyInfo& eSI()
 mExternC( Basic ) const char* GetSurveyName(void);
 
 
+namespace Survey {
 
+mGlobal(Basic) void getDirectoryNames(BufferStringSet&,bool fullpath,
+				      const char* dataroot=nullptr,
+				      const char* excludenm=nullptr);
+
+} // namespace Survey
