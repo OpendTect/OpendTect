@@ -518,7 +518,8 @@ const T* BaseCalc<T>::sort( idx_type* idx_of_med )
 
 	quickSort( valarr, medidxs_.arr(), nrused_ );
     }
-    else
+    else if ( nrused_<=255 || !is8BitesData(valarr,nrused_,100) ||
+	     !duplicate_sort(valarr,nrused_,256) )
 	quickSort( valarr, nrused_ );
 
     return valarr;
