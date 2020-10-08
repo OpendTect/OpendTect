@@ -107,7 +107,8 @@ SeisTrcTranslator::~SeisTrcTranslator()
 
 bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 {
-    const bool trok = *ioobj.group() == '2';
+    const BufferString geom( ioobj.pars().find( sKey::Geometry() ) );
+    const bool trok = *ioobj.group() == '2' || geom == "2D Line";
     return trok || internal_only ? trok : ioobj.pars().isTrue( sKeyIs2D() );
 }
 

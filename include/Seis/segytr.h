@@ -12,6 +12,7 @@ Translators for SEGY files traces.
 
 -*/
 
+#include "posinfo.h"
 #include "segyfiledef.h"
 #include "seistrctr.h"
 #include "tracedata.h"
@@ -21,6 +22,7 @@ Translators for SEGY files traces.
 
 class BendPoints2Coords;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
+namespace PosInfo { class LineCollData; }
 
 #define mSEGYTraceHeaderBytes	240
 
@@ -70,6 +72,7 @@ public:
 			{ return "SEGY.Text Header EBCDIC"; }
     void		setCoordSys(Coords::CoordSystem* crs)
 						    { coordsys_.set( crs ); }
+    bool		getGeometryInfo(PosInfo::LineCollData&) const override;
 
 protected:
 

@@ -136,6 +136,8 @@ bool Seis::VolFetcher::setPosition( const BinID& bid )
 
     if ( useDP(bid) )
 	{ dpbid_ = bid; return true; }
+    if ( trl_ && !trl_->supportsGoTo() )
+	return true;
     if ( trl_ && trl_->goTo(bid) )
 	return true;
 

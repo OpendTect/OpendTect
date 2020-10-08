@@ -6,6 +6,8 @@
 -*/
 
 
+#include "seisrangeseldata.h"
+#include "posinfo.h"
 #include "segytr.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
@@ -883,4 +885,13 @@ void SEGYSeisTrcTranslator::fillErrMsg( const uiString& s, bool withpos )
 bool SEGYSeisTrcTranslator::noErrMsg()
 {
     errmsg_.setEmpty(); return false;
+}
+
+
+bool SEGYSeisTrcTranslator::getGeometryInfo( PosInfo::LineCollData& lcd ) const
+{
+    PosInfo::LineCollData* lcdptr = LineCollData::create(
+			    seldata_->asRange()->fullSubSel().fullHorSubSel() );
+    lcd = *lcdptr;
+    return lcdptr ? true : false;
 }

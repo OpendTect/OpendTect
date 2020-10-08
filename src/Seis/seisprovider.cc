@@ -56,29 +56,26 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
 
 Seis::Provider* Seis::Provider::create( const IOObj& ioobj, uiRetVal* uirv )
 {
-    return create( ioobj.key(), uirv );
+    SeisIOObjInfo objinf( ioobj );
+    Provider* ret = 0;
+    if ( objinf.isOK() )
+    {
+	ret = create( objinf.geomType() );
+	uiRetVal dum; if ( !uirv ) uirv = &dum;
+	*uirv = ret->setInput( ioobj );
+	if ( !uirv->isOK() )
+	{ delete ret; ret = 0; }
+    }
+
+    return ret;
 }
 
 
 Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 {
-    SeisIOObjInfo objinf( dbky );
-    Provider* ret = 0;
-    if ( !objinf.isOK() )
-    {
-	if ( uirv )
-	    uirv->set( uiStrings::phrCannotFindDBEntry(dbky) );
-    }
-    else
-    {
-	ret = create( objinf.geomType() );
-	uiRetVal dum; if ( !uirv ) uirv = &dum;
-	*uirv = ret->setInput( dbky );
-	if ( !uirv->isOK() )
-	    { delete ret; ret = 0; }
-    }
+    PtrMan<IOObj> ioobj = getIOObj( dbky );
 
-    return ret;
+    return ioobj ? create( *ioobj, uirv ) : nullptr;
 }
 
 
@@ -291,34 +288,40 @@ const BinnedValueSet* Seis::Provider::selectedPositions( bool target ) const
 
 uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
+    uiRetVal uirv;
+    if ( !dbky.isValid() )
+    {
+	uirv = uiStrings::phrDBIDNotValid();
+	return uirv;
+    }
+    PtrMan<IOObj> ioobj = getIOObj( dbky );
+    if ( !ioobj )
+    {
+	uirv = uiStrings::phrCannotFindDBEntry( dbky );
+	return uirv;
+    }
+    return setInput( *ioobj );
+}
+
+
+uiRetVal Seis::Provider::setInput( const IOObj& inioobj )
+{
     deleteAndZeroPtr( ioobj_ );
     nrdone_ = 0;
-
+    ioobj_ = inioobj.clone();
     uiRetVal uirv;
-    ioobj_ = getIOObj( dbky );
-    if ( !ioobj_ )
-    {
-	if ( !dbky.isValid() )
-            uirv = uiStrings::phrDBIDNotValid();
-        else
-            uirv = uiStrings::phrCannotFindDBEntry( dbky );
-    }
+    possiblepositions_.setEmpty();
+    fetcher().getPossibleExtents();
+    uirv = fetcher().uirv_;
+
+    if ( !uirv.isOK() )
+	state_ = NeedInput;
+    else if ( possiblepositions_.isEmpty() )
+	uirv.set( tr("No data in input") );
     else
-    {
-	possiblepositions_.setEmpty();
-	fetcher().getPossibleExtents();
-	uirv = fetcher().uirv_;
+	state_ = NeedPrep;
 
-	if ( !uirv.isOK() )
-	    state_ = NeedInput;
-	else if ( possiblepositions_.isEmpty() )
-            uirv.set( tr("No data in input") );
-	else
-	    state_ = NeedPrep;
-
-	handleNewPositions();
-    }
-
+    handleNewPositions();
     return uirv;
 }
 
