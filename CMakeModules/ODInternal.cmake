@@ -280,6 +280,18 @@ if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
 	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
     endif()
     list( APPEND OD_THIRD_PARTY_LIBS libstdc++.so.6  libgcc_s.so.1 )
+
+    if ( EXISTS  ${_Qt5FontDatabaseSupport_RELEASE_freetype_PATH} )
+	OD_INSTALL_SYSTEM_LIBRARY( ${_Qt5FontDatabaseSupport_RELEASE_freetype_PATH} Release )
+	get_filename_component( FREETYPELIB ${_Qt5FontDatabaseSupport_RELEASE_freetype_PATH} NAME )
+	list( APPEND OD_THIRD_PARTY_LIBS ${FREETYPELIB} )
+
+	#TODO  Better to do using cmake variables.
+	if ( EXISTS /lib64/libpng15.so.15 )
+	    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libpng15.so.15 )
+	    list( APPEND OD_THIRD_PARTY_LIBS libpng15.so.15 )
+	endif()
+    endif()
 endif()
 
 OD_CURRENT_DATE( DATE )
