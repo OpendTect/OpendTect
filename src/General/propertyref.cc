@@ -7,6 +7,7 @@
 
 #include "propertyref.h"
 #include "mathproperty.h"
+#include "mnemonics.h"
 #include "unitofmeasure.h"
 #include "survinfo.h"
 #include "ascstream.h"
@@ -21,7 +22,7 @@
 #include <typeinfo>
 
 static const char* filenamebase = "Properties";
-static const char* sKeyAliases = "Aliases";
+static const char* sKeyMnemonic = "Mnemonic";
 static const char* sKeyDefaultValue = "DefaultValue";
 static const char* sKeyDefinition = "Definition";
 
@@ -90,11 +91,7 @@ public:
 
 ThicknessPropertyRef()
     : PropertyRef( sKey::Thickness(), PropertyRef::Dist )
-{
-    aliases().add( "thick" );
-    disp_.color_ = Color::Black();
-    disp_.range_ = Interval<float>( 1, 99 );
-}
+{}
 
 private:
 
@@ -129,15 +126,12 @@ PropRef_ThickRef_Man()
 
 void setDefaultVals( const PropertyRef* otherthref )
 {
-    ref_->aliases() = otherthref->aliases();
-    ref_->disp_ = otherthref->disp_;
+    ref_->defval_ = otherthref->defval_;
 }
 
 
 void setZUnit( CallBacker* cb=0 )
-{
-    ref_->disp_.unit_ = toString( UnitOfMeasure::zUnitAnnot( false, true ) );
-}
+{}
 
     ThicknessPropertyRef*	ref_;
 };
@@ -163,24 +157,12 @@ void PropertyRef::setThickness( const PropertyRef* thref )
 }
 
 
-PropertyRef::DispDefs::~DispDefs()
-{
-    delete defval_;
-}
-
-
-float PropertyRef::DispDefs::commonValue() const
+float PropertyRef::commonValue() const
 {
     if ( defval_ && defval_->isValue() )
 	return defval_->value();
 
-    const bool udf0 = mIsUdf(range_.start);
-    const bool udf1 = mIsUdf(range_.stop);
-    if ( udf0 && udf1 )
-	return 0;
-    if ( udf0 || udf1 )
-	return udf0 ? range_.stop : range_.start;
-    return range_.center();
+    return 0;
 }
 
 
@@ -190,14 +172,6 @@ const PropertyRef& PropertyRef::undef()
     if ( !udf )
     {
 	PropertyRef* newudf = new PropertyRef( "Undef" );
-	newudf->aliases().add( "" );
-	newudf->aliases().add( "undef*" );
-	newudf->aliases().add( "?undef?" );
-	newudf->aliases().add( "?undefined?" );
-	newudf->aliases().add( "udf" );
-	newudf->aliases().add( "unknown" );
-	newudf->disp_.color_ = Color::LightGrey();
-
 	udf.setIfNull(newudf,true);
     }
 
@@ -208,6 +182,7 @@ const PropertyRef& PropertyRef::undef()
 PropertyRef::~PropertyRef()
 {
     delete mathdef_;
+    delete defval_;
 }
 
 
@@ -217,8 +192,6 @@ PropertyRef& PropertyRef::operator =( const PropertyRef& pr )
     {
 	setName( pr.name() );
 	stdtype_ = pr.stdtype_;
-	aliases_ = pr.aliases_;
-	disp_ = pr.disp_;
     }
     return *this;
 }
@@ -244,50 +217,26 @@ bool PropertyRef::isKnownAs( const char* nm ) const
 
     if ( caseInsensitiveEqual(nm,name().buf(),0) )
 	return true;
-    for ( int idx=0; idx<aliases_.size(); idx++ )
-    {
-	const GlobExpr ge( aliases_.get(idx), CaseInsensitive );
-	if ( ge.matches(nm) )
-	    return true;
-    }
+
     return false;
 }
 
 
 void PropertyRef::usePar( const IOPar& iop )
 {
-    aliases_.erase();
-    FileMultiString fms( iop.find(sKeyAliases) );
-    int sz = fms.size();
-    for ( int ifms=0; ifms<sz; ifms++ )
-	aliases_.add( fms[ifms] );
-
-    iop.get( sKey::Color(), disp_.color_ );
-    fms = iop.find( sKey::Range() );
-    sz = fms.size();
-    if ( sz > 1 )
+    iop.get( sKeyMnemonic, mn_ );
+    if ( !mn_.isEmpty() )
     {
-	disp_.range_.start = fms.getFValue( 0 );
-	disp_.range_.stop = fms.getFValue( 1 );
-	if ( sz > 2 )
-	{
-	    disp_.unit_ = fms[2];
-	    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
-	    if ( uom )
-	    {
-		if ( !mIsUdf(disp_.range_.start) )
-		    disp_.range_.start = uom->getSIValue(disp_.range_.start);
-		if ( !mIsUdf(disp_.range_.stop) )
-		    disp_.range_.stop = uom->getSIValue(disp_.range_.stop);
-	    }
-	}
+	Mnemonic* mn = eMNC().find( mn_ );
+	if ( mn )
+	    aliases_.add( mn->aliases(), false );
     }
 
-    delete disp_.defval_; disp_.defval_ = 0;
-    delete mathdef_; mathdef_ = 0;
-
+    deleteAndZeroPtr( defval_ );
+    deleteAndZeroPtr( mathdef_ );
     BufferString mathdefstr;
-    fms = iop.find( sKeyDefaultValue );
+    FileMultiString fms( iop.find( sKeyDefaultValue ) );
+    int sz = 0;
     sz = fms.size();
     if ( sz > 1 )
     {
@@ -295,7 +244,7 @@ void PropertyRef::usePar( const IOPar& iop )
 	Property* prop = Property::factory().create( typ, *this );
 	mDynamicCastGet(MathProperty*,mp,prop)
 	if ( !mp )
-	    disp_.defval_ = new ValueProperty( *this, toFloat(fms[1]) );
+	    defval_ = new ValueProperty( *this, toFloat(fms[1]) );
 	else
 	{
 	    mathdef_ = mp;
@@ -307,44 +256,18 @@ void PropertyRef::usePar( const IOPar& iop )
     if ( !def.isEmpty() )
 	mathdef_ = new MathProperty( *this, def );
 
-    if ( !disp_.defval_ )
-	disp_.defval_ = new ValueProperty( *this, disp_.commonValue() );
+    if ( !defval_ )
+	defval_ = new ValueProperty( *this, commonValue() );
 }
 
 
 void PropertyRef::fillPar( IOPar& iop ) const
 {
-    if ( aliases_.isEmpty() )
-	iop.removeWithKey( sKeyAliases );
-    else
-    {
-	FileMultiString fms( aliases_.get(0) );
-	for ( int idx=1; idx<aliases_.size(); idx++ )
-	    fms += aliases_.get(idx);
-	iop.set( sKeyAliases, fms );
-    }
-
-    iop.set( sKey::Color(), disp_.color_ );
-
-    Interval<float> vintv( disp_.range_ );
-    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
-    if ( uom )
-    {
-	if ( !mIsUdf(vintv.start) )
-	    vintv.start = uom->getUserValueFromSI(vintv.start);
-	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = uom->getUserValueFromSI(vintv.stop);
-    }
-    FileMultiString fms;
-    fms += ::toString( vintv.start );
-    fms += ::toString( vintv.stop );
-    if ( !disp_.unit_.isEmpty() )
-	fms += disp_.unit_;
-    iop.set( sKey::Range(), fms );
-    if ( !disp_.defval_ )
+    iop.set( sKeyMnemonic, mn_ );
+    if ( !defval_ )
 	iop.removeWithKey( sKeyDefaultValue );
-    else
-	iop.set( sKeyDefaultValue, disp_.defval_->def() );
+     else if ( defval_->def() )
+	iop.set( sKeyDefaultValue, defval_->def() );
 
     if ( !mathdef_ )
 	iop.removeWithKey( sKeyDefinition );
@@ -395,6 +318,8 @@ void createSet()
 
     if ( !prs_ )
 	prs_ = new PropertyRefSet;
+
+    MNC();	//Creating a MnemonicSet at the same time as PropertyRefSet
 }
 
     PropertyRefSet*	prs_;
@@ -406,6 +331,7 @@ const PropertyRefSet& PROPS()
     mDefineStaticLocalObject( PropertyRefSetMgr, rsm, );
     if ( !rsm.prs_ )
 	rsm.createSet();
+
     return *rsm.prs_;
 }
 
@@ -518,10 +444,7 @@ int PropertyRefSet::ensurePresent( PropertyRef::StdType st, const char* nm1,
     }
     if ( idx < 0 )
     {
-	PropertyRef* pr = new PropertyRef( nm1, st );
-	if ( nm2 && *nm2 ) pr->aliases().add( nm2 );
-	if ( nm3 && *nm3 ) pr->aliases().add( nm3 );
-	pr->disp_.color_ = Color::stdDrawColor( (int)st );
+	auto* pr = new PropertyRef( nm1, st );
 	idx = add( pr );
     }
     return idx;

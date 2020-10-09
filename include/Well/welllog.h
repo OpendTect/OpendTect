@@ -62,6 +62,9 @@ public:
     mImplSimpleMonitoredGetSet(inline,unitMeasLabel,setUnitMeasLabel,
 				BufferString,unitmeaslbl_,cParsChange())
     mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
+    const char*		mnemLabel() const;
+    void		setMnemLabel( const char* );
+    const Mnemonic*	mnemonic() const;
     const UnitOfMeasure* unitOfMeasure() const;
     void		applyUnit(const UnitOfMeasure*);
     void		convertTo(const UnitOfMeasure*);
@@ -69,6 +72,7 @@ public:
     mImplSimpleMonitoredGet(valueRange,Interval<ValueType>,valrg_)
     mImplSimpleMonitoredGet(valsAreCodes,bool,valsarecodes_)
 
+    static const char*	sKeyMnemLbl();
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
@@ -80,6 +84,7 @@ protected:
 
     ValueSetType	vals_;
     BufferString	unitmeaslbl_;
+    BufferString	mnemlbl_;
     IOPar		pars_;
     Interval<ValueType>	valrg_;
     bool		valsarecodes_;

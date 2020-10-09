@@ -578,6 +578,8 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
 	const FixedString val = iop.getValue( idx );
 	if ( ky == sKey::Name() )
 	    newlog->setName( val );
+	if ( ky == Well::Log::sKeyMnemLbl() )
+	    newlog->setMnemLabel( val );
 	if ( ky == Well::Log::sKeyUnitLbl() )
 	    newlog->setUnitMeasLabel( val );
 	if ( ky == Well::Log::sKeyDahRange() )

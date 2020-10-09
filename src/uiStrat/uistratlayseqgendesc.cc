@@ -779,16 +779,16 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	else
 	{
 	    Property* toadd = 0;
-	    if ( pr.disp_.defval_ )
+	    if ( pr.defval_ )
 	    {
-		const BufferString typ = pr.disp_.defval_->type();
+		const BufferString typ = pr.defval_->type();
 		if ( typ == ValueProperty::typeStr()
 		  || typ == RangeProperty::typeStr() )
-		    toadd = pr.disp_.defval_->clone();
+		    toadd = pr.defval_->clone();
 	    }
 	    if ( !toadd )
 	    {
-		float defval = pr.disp_.commonValue();
+		float defval = pr.commonValue();
 		if ( nearun )
 		{
 		    const int nidxof = nearun->properties().indexOf( pr );
