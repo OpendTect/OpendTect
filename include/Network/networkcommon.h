@@ -64,6 +64,8 @@ public:
     Authority&		operator=(const Authority&);
     bool		operator==(const Authority&) const;
 
+    bool        isOK() const;
+
     bool		isLocal() const { return !servernm_.isEmpty();	}
     BufferString	getServerName() const;
     SpecAddr		serverAddress() const;
@@ -74,6 +76,7 @@ public:
     PortNr_Type		getPort() const			{ return port_; }
     bool		addressIsValid() const;
     bool		isUsable() const;
+                //<! Also checks if already in use
     bool		portIsFree(uiString* errmsg =nullptr) const;
 
     void		fromString(const char*,bool resolveipv6=false);

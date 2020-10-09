@@ -202,6 +202,12 @@ Network::SpecAddr Network::Authority::serverAddress() const
 }
 
 
+bool Network::Authority::isOK() const
+{
+    return isLocal() || (addressIsValid() && hasAssignedPort());
+}
+
+
 bool Network::Authority::isUsable() const
 {
     if ( isLocal() )

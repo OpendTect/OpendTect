@@ -89,7 +89,7 @@ bool ServiceServerMgr::canReceiveRequests() const
 
 bool ServiceServerMgr::isDependentApp() const
 {
-    return reportto_ && reportto_->isUsable();
+    return reportto_ && reportto_->isOK();
 }
 
 
