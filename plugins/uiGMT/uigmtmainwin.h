@@ -11,10 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "gmtpar.h"
+
 #include "uidialog.h"
 
+#include "netservice.h"
+
 class CtxtIOObj;
-class Timer;
 class uiBatchJobDispatcherSel;
 class uiGMTBaseMapGrp;
 class uiGMTOverlayGrp;
@@ -52,11 +54,17 @@ protected:
     ObjectSet<uiGMTOverlayGrp> overlaygrps_;
 
     ObjectSet<GMTPar>	pars_;
-    Timer*		tim_;
     bool		needsave_;
+
+    TypeSet<Batch::ID>   procids_;
+    TypeSet<Network::Service::ID>    servids_;
+    BufferStringSet     outfnms_;
     uiBatchJobDispatcherSel*	batchfld_;
 
-    void		createPush(CallBacker*);
+    void        postFinaliseCB( CallBacker* );
+    void		createPushCB(CallBacker*);
+    void        batchStartedCB(CallBacker*);
+    void        batchEndedCB(CallBacker*);
     void		viewPush(CallBacker*);
     void		butPush(CallBacker*);
     void		setButStates(CallBacker*);
@@ -65,14 +73,12 @@ protected:
     void		addCB(CallBacker*);
     void		editCB(CallBacker*);
     void		resetCB(CallBacker*);
-    void		checkFileCB(CallBacker*);
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);
     void		saveFlow(CallBacker*);
-    bool		acceptOK();
 
     bool		fillPar();
-    bool		usePar( const IOPar&);
+    bool		usePar(const IOPar&);
 
 private:
 

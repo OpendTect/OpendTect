@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uigmtmainwin.h"
 
+#include "clientservicebase.h"
 #include "file.h"
 #include "filepath.h"
 #include "gmtclip.h"
@@ -19,8 +20,6 @@ ________________________________________________________________________
 #include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "strmprov.h"
-#include "timer.h"
 
 #include "uibatchjobdispatchersel.h"
 #include "uitoolbutton.h"
@@ -44,17 +43,13 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     : uiDialog(p,uiDialog::Setup(getCaptionStr(),mNoDlgTitle,
                                  mODHelpKey(mGMTMainWinHelpID) )
 				.modal(false) )
-    , addbut_(0)
-    , editbut_(0)
     , ctio_(*mMkCtxtIOObj(ODGMTProcFlow))
-    , tim_(0)
     , needsave_(false)
 {
     setCtrlStyle( CloseOnly );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );
-    tabstack_->selChange().notify( mCB(this,uiGMTMainWin,tabSel) );
 
     uiParent* tabparent = tabstack_->tabGroup();
     basemapgrp_ = new uiGMTBaseMapGrp( tabparent );
@@ -83,6 +78,9 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     resetbut_->setToolTip( tr("Reset input fields") );
     resetbut_->attach( rightOf, editbut_ );
 
+    //Needs the buttons:
+    mAttachCB( tabstack_->selChange(), uiGMTMainWin::tabSel );
+
     uiSeparator* sep = new uiSeparator( this, "VSep", OD::Vertical );
     sep->attach( stretchedLeftTo, rightgrp );
 
@@ -90,7 +88,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Map overlays") );
     flowfld_ = new uiListBox( flowgrp_, su );
-    flowfld_->selectionChanged.notify( mCB(this,uiGMTMainWin,selChg) );
+    mAttachCB( flowfld_->selectionChanged, uiGMTMainWin::selChg );
 
     const CallBack butpushcb( mCB(this,uiGMTMainWin,butPush) );
     uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "", OD::Horizontal );
@@ -114,7 +112,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     filefld_->attach( ensureLeftOf, sep );
 
     createbut_ = new uiPushButton( this, tr("Create Map"),
-				   mCB(this,uiGMTMainWin,createPush), true );
+				   mCB(this,uiGMTMainWin,createPushCB), true );
     createbut_->attach( alignedBelow, filefld_ );
 
     viewbut_ = new uiPushButton( this, tr("View Map"),
@@ -124,7 +122,10 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowgrp_->attach( leftTo, rightgrp );
     flowgrp_->attach( ensureLeftOf, sep );
     batchfld_ = new uiBatchJobDispatcherSel( rightgrp, true,
-					     Batch::JobSpec::NonODBase );
+					     Batch::JobSpec::NonODBase,
+                          OS::BatchWait );
+    /* OS::BatchWait is only needed for now as not all 
+    batch programs are registered */
     batchfld_->jobSpec().prognm_ = "od_gmtexec";
     batchfld_->setJobName( "GMT_Proc" );
     batchfld_->display( false );
@@ -137,14 +138,20 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     toolbar->addButton( "clear", tr("Clear flow"),
 			mCB(this,uiGMTMainWin,newFlow) );
 
-    tabSel(0);
+    mAttachCB( postFinalise(), uiGMTMainWin::postFinaliseCB );
 }
 
 
 uiGMTMainWin::~uiGMTMainWin()
 {
+    detachAllNotifiers();
     deepErase( pars_ );
-    delete tim_;
+}
+
+
+void uiGMTMainWin::postFinaliseCB( CallBacker* )
+{
+    tabSel( nullptr );
 }
 
 
@@ -385,29 +392,96 @@ void uiGMTMainWin::resetCB( CallBacker* )
 }
 
 
-void uiGMTMainWin::createPush( CallBacker* )
+void uiGMTMainWin::createPushCB( CallBacker* )
 {
-    viewbut_->setSensitive( false );
-    if ( !acceptOK() )
-	return;
+    if ( !GMT::hasGMT() )
+    {
+        uiMSG().error( tr( "GMT installation not found. Cannot start." ) );
+        return;
+    }
 
-    tim_ = new Timer( "Status" );
-    tim_->tick.notify( mCB(this,uiGMTMainWin,checkFileCB) );
-    tim_->start( 100, false );
+    if ( !fillPar() )
+        return;
+
+    BatchServiceClientMgr& batchmgr = BatchServiceClientMgr::getMgr();
+    const bool firstproc = procids_.isEmpty();
+    if ( firstproc )
+        mAttachCB( batchmgr.batchStarted, uiGMTMainWin::batchStartedCB );
+
+    createbut_->setSensitive( false );
+    filefld_->setSensitive( false );
+    const bool canview = viewbut_->isSensitive();
+    viewbut_->setSensitive( false );
+    Batch::ID procid;
+    const bool submitok = batchfld_->start( &procid );
+    if ( submitok )
+        procids_ += procid;
+    else
+    {
+        if ( firstproc )
+            mDetachCB( batchmgr.batchStarted, uiGMTMainWin::batchStartedCB );
+        createbut_->setSensitive( true );
+        filefld_->setSensitive( true );
+        viewbut_->setSensitive( canview );
+    }
 }
 
 
-void uiGMTMainWin::checkFileCB( CallBacker* )
+void uiGMTMainWin::batchStartedCB( CallBacker* cb )
 {
-    File::Path fp( filefld_->fileName() );
-    fp.setExtension( "tmp" );
-    if ( !File::exists(fp.fullPath()) )
-	return;
+    if ( !cb )
+        return;
 
-    tim_->stop();
-    StreamProvider sp( fp.fullPath() );
+    BatchServiceClientMgr& batchmgr = BatchServiceClientMgr::getMgr();
+    if ( !batchmgr.isOK() )
+        return;
+
+    mCBCapsuleUnpack(Network::Service::ID,servid,cb);
+    const BufferString servicenm = batchmgr.serviceName( servid );
+    const Network::Service::SubID procid = batchmgr.serviceSubID( servid );
+    if ( !procids_.isPresent(procid) || servicenm != "od_gmtexec" )
+        return;
+
+    procids_ -= procid;
+    if ( procids_.isEmpty() )
+        mDetachCB( batchmgr.batchStarted, uiGMTMainWin::batchStartedCB );
+
+    if ( servids_.isEmpty() )
+        mAttachCB( batchmgr.batchEnded, uiGMTMainWin::batchEndedCB );
+
+    servids_ += servid;
+    outfnms_.add( filefld_->text() );
+
+    createbut_->setSensitive( true );
+    filefld_->setSensitive( true );
+
+    //Only needed for now as not all batch programs are registered:
+    batchmgr.sendAction( servid, BatchServiceClientMgr::sKeyDoWork() );
+}
+
+
+void uiGMTMainWin::batchEndedCB( CallBacker* cb )
+{
+    if ( !cb )
+        return;
+
+    mCBCapsuleUnpack(Network::Service::ID,servid,cb);
+    if ( !servids_.isPresent(servid) )
+        return;
+
+    const int idx = servids_.indexOf( servid );
+    servids_.removeSingle( idx );
+
+    if ( servids_.isEmpty() )
+    {
+        BatchServiceClientMgr& batchmgr = BatchServiceClientMgr::getMgr();
+        mDetachCB( batchmgr.batchEnded, uiGMTMainWin::batchEndedCB );
+    }
+
+    const BufferString mUnusedVar outfnm = outfnms_.get( idx );
+    outfnms_.removeSingle( idx );
+    //TODO: If outfnm is not the current on screen, propose to view it
     viewbut_->setSensitive( true );
-    sp.remove();
 }
 
 
@@ -525,18 +599,6 @@ bool uiGMTMainWin::usePar( const IOPar& par )
     }
 
     return true;
-}
-
-
-bool uiGMTMainWin::acceptOK()
-{
-    if ( !GMT::hasGMT() )
-    {
-	uiMSG().error( tr("GMT installation not found. Cannot start.") );
-	return false;
-    }
-
-    return fillPar() && batchfld_->start();
 }
 
 

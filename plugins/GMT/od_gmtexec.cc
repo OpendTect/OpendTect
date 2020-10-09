@@ -22,9 +22,6 @@ ________________________________________________________________________
 #define mErrFatalRet(msg) \
 { \
     strm << msg << od_newline; \
-    od_ostream tmpstrm( tmpfp.fullPath() ); \
-    tmpstrm << "Failed" << od_newline; \
-    tmpstrm << "Failed to create map"; \
     return false; \
 }
 
@@ -39,8 +36,6 @@ mLoad2Modules("MPEEngine","Well")
     if ( !psfilenm || !*psfilenm )
 	mErrStrmRet("Output PS file missing")
 
-    File::Path tmpfp( psfilenm );
-    tmpfp.setExtension( "tmp" );
     IOPar legendspar;
     int legendidx = 0;
     legendspar.set( ODGMT::sKeyGroupName(), "Legend" );
@@ -93,10 +88,6 @@ mLoad2Modules("MPEEngine","Well")
     par = nullptr;
 
     strm << "Map created successfully" << od_endl;
-
-    od_ostream sd( tmpfp.fullPath() );
-    sd << "Finished." << od_endl;
-    sd.close();
 
     return true;
 }
