@@ -1,0 +1,45 @@
+dTect V6.6
+Mnemonic
+Thu 24 Sep 2020, 12:32:03
+!
+GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH
+POTA: Spectral Gamma Ray`Gamma Ray`Lin`0`100`0`100`%`255`0`0` 
+THOR: Spectral Gamma Ray`Gamma Ray`Lin`0`40`0`40`ppm`255`0`0` 
+URAN: Spectral Gamma Ray`Gamma Ray`Lin`0`30`0`30`ppm`255`0`0` 
+RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`Gram/cm3`0`0`205`RHOZ`DEN`ZDEN`RHO8` 
+SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`0`SSP
+IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI
+RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL
+RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0` 
+RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0` 
+RESS: Shallow Resistivity`Resistivity`Log`0.2`2000`0.2`2000`ohmm`200`200`0` 
+DT: Sonic`Sonic travel time`Lin`40`250`50`150`Seconds/meter`0`255`255`AC`ACL`BHC`BCS
+DTS: Shear Sonic`Sonic travel time`Lin`60`425`50`150`Seconds/meter`255`20`147`DSI`FWS
+PHI: Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0` 
+PHIT: Total Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0` 
+PHIE: Effective Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0` 
+PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0` 
+PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR
+PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0` 
+NPHI: Cpmpensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL
+SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE
+VCL: Vclay`Volumetrics`Lin`0`100`0`100`%`100`200`100`VCLU`VCLC`VCLF`VSH
+VPVS: Vp/Vs`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`150`200`
+VSVP: Vs/Vp`Elastic Ratio`Lin`2`10`2`10``200`150`150`
+IMP: Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``255`150`0`
+AI: Acoustic Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``255`150`0`
+EI: Elastic Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``200`255`100`
+SI: Shear Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``100`255`100`
+VEL: Velocity`Velocity`Lin`500`4500`500`4500`m/s`0`200`0`V
+PVEL: Pwave Velocity`Velocity`Lin`1500`4500`1500`4500`m/s`0`200`0`V
+SVEL: Swave Velocity`Velocity`Lin`500`2000`500`2000`m/s`0`200`0`
+PERM: Permeability`Permeability`Log`1`500`1`500`mD`200`0`0`
+PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI
+TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0` 
+LITH: Lithology`Classification`Lin`0`7`1`5``0`255`255`
+NETP: NetPay`Classification`Lin`0`1`0`1``255`255`0`
+NMR: Nuclear Magnetic Resonance`Other`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX
+CAL: Caliper`Other`Lin`0`25`0`25`in`0`0`0`CALI
+BS: Bit Size`Other`Lin`-5`20`-5`20`in`0`0`0`BIT
+PEF: Photoeletcric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
+!

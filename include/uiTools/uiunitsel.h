@@ -14,9 +14,11 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "propertyref.h"
+#include "mnemonics.h"
 
 class uiComboBox;
 class UnitOfMeasure;
+class Mnemonic;
 
 
 /*!\brief Selector for UnitOfMeasure's
@@ -43,27 +45,34 @@ public:
 	enum Mode		{ SymbolsOnly, NamesOnly, Full };
 
 				Setup( PropertyRef::StdType st,
-				       const uiString& lbltx=uiString::empty() )
+				       const uiString& lbltx=uiString::empty(),
+				       Mnemonic* mn = nullptr )
 				    : ptype_(st)
+				    , mn_(mn)
 				    , lbltxt_(lbltx)
 				    , mode_(Full)
 				    , selproptype_(false)
+				    , selmnemtype_(mn ? true : false)
 				    , nodefsave_(false)
 				    , withnone_(false)		{}
 
 	mDefSetupMemb(PropertyRef::StdType,ptype)
 	mDefSetupMemb(uiString,lbltxt)
+	mDefSetupMemb(Mnemonic*,mn)
 	mDefSetupMemb(Mode,mode)
 	mDefSetupMemb(bool,selproptype)
+	mDefSetupMemb(bool,selmnemtype)
 	mDefSetupMemb(bool,nodefsave)
 	mDefSetupMemb(bool,withnone)
     };
 
 				uiUnitSel(uiParent*,const Setup&);
 				uiUnitSel(uiParent*,PropertyRef::StdType);
+				uiUnitSel(uiParent*,Mnemonic* mn=nullptr);
 				uiUnitSel(uiParent*,const uiString& lbltxt=
 				    uiString::empty());
 					//!< For survey Z unit
+				~uiUnitSel();
 
     void			setUnit(const UnitOfMeasure*);
     void			setUnit(const char*);
@@ -79,6 +88,9 @@ public:
 
     PropertyRef::StdType	propType() const	{ return setup_.ptype_;}
     void			setPropType(PropertyRef::StdType);
+
+    Mnemonic*			mnemonic() const;
+    void			setMnemonic(Mnemonic&);
 
     uiComboBox*			inpFld() const	{ return inpfld_; }
 
@@ -100,13 +112,17 @@ protected:
     Setup			setup_;
     ObjectSet<const UnitOfMeasure> units_;
     BufferString		tblkey_;
+    Mnemonic*			mn_;
 
     uiComboBox*			inpfld_;
     uiComboBox*			propfld_;
+    uiComboBox*			mnfld_;
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			propSelChg(CallBacker*);
+    void			mnSelChg(CallBacker*);
     void			setPropFld(PropertyRef::StdType);
+    void			setMnemFld(Mnemonic*);
     void			setUnFld(const UnitOfMeasure*);
     void			update();
     uiString			getSelTxt(const UnitOfMeasure*) const;

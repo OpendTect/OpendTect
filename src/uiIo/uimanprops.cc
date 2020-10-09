@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "mathexpression.h"
 #include "mathproperty.h"
+#include "mnemonics.h"
 #include "separstr.h"
 #include "uibuildlistfromlist.h"
 #include "uicolor.h"
@@ -94,9 +95,11 @@ public:
     bool		acceptOK();
 
     PropertyRef&	pr_;
+    Mnemonic*           mn_;
     const bool		withform_;
 
     uiGenInput*		namefld_;
+    uiGenInput*         mnemonicsfld_;
     uiGenInput*		aliasfld_;
     uiColorInput*	colfld_;
     uiGenInput*		rgfld_;
@@ -115,6 +118,7 @@ public:
     void		setDefinitionForm(CallBacker*)	{ setForm(true); }
     void		setDefaultForm(CallBacker*)	{ setForm(false); }
     void		definitionChecked(CallBacker*);
+    void                mnemonicSelCB(CallBacker*);
     void		unitSel(CallBacker*);
 
 };
@@ -135,26 +139,72 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(),
                                StringInpSpec(pr.name()) );
+    MnemonicSet& mns = eMNC();
+    BufferStringSet mnnames;
+    if ( pr_.getMnemonic().isEmpty() )
+    {
+        MnemonicSet* mnsforpr = mns.getSet( &pr_ );
+        mnsforpr->getNames( mnnames );
+        if ( mnnames.isEmpty() )
+            mns.getNames( mnnames );
+    }
+    else
+        mnnames.add( pr_.getMnemonic() );
+
+    mnemonicsfld_ = new uiGenInput( this, tr("Mnemonic"),
+                                StringListInpSpec(mnnames) );
+    mnemonicsfld_->attach( alignedBelow, namefld_ );
+    mAttachCB( mnemonicsfld_->valuechanged, uiEditPropRef::mnemonicSelCB );
+    mn_ = mns.find( mnemonicsfld_->text() );
+
     SeparString ss;
-    for ( int idx=0; idx<pr_.aliases().size(); idx++ )
-	ss += pr_.aliases().get(idx);
+    if ( mn_ )
+    {
+        for ( int idx=0; idx<mn_->aliases().size(); idx++ )
+            ss += mn_->aliases().get(idx);
+    }
+    else
+    {
+        for ( int idx=0; idx<pr_.aliases().size(); idx++ )
+            ss += pr_.aliases().get(idx);
+    }
+
     aliasfld_ = new uiGenInput( this, tr("Aliases (e.g. 'abc, uvw*xyz')"),
 				StringInpSpec(ss.buf()) );
-    aliasfld_->attach( alignedBelow, namefld_ );
+    aliasfld_->attach( alignedBelow, mnemonicsfld_ );
 
-    colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
-			.lbltxt(tr("Default Display Color")));
-    colfld_->attach( alignedBelow, aliasfld_ );
+    if ( !mn_ )
+    {
+        colfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+                            .lbltxt(tr("Default display color")) );
+        colfld_->attach( alignedBelow, aliasfld_ );
+    }
+    else
+    {
+        colfld_ = new uiColorInput( this,
+                                    uiColorInput::Setup(mn_->disp_.color_)
+                                    .lbltxt(tr("Default display color")) );
+        colfld_->attach( alignedBelow, aliasfld_ );
+    }
+
     rgfld_ = new uiGenInput( this, tr("Typical value range"),
 			     FloatInpIntervalSpec() );
     rgfld_->attach( alignedBelow, colfld_ );
-    unfld_ = new uiUnitSel( this, pr_.stdType() );
-    unfld_->setUnit( pr_.disp_.unit_ );
+    if ( !mn_ )
+        unfld_ = new uiUnitSel( this, pr_.stdType() );
+    else
+    {
+        unfld_ = new uiUnitSel( this, mn_ );
+        unfld_->setUnit( mn_->disp_.unit_ );
+    }
+
     unfld_->attach( rightOf, rgfld_ );
     unfld_->selChange.notify( mCB(this,uiEditPropRef,unitSel) );
     curunit_ = unfld_->getUnit();
 
-    Interval<float> vintv( pr_.disp_.range_ );
+    Interval<float> udfintv;
+    udfintv.setUdf();
+    Interval<float> vintv( mn_ ? mn_->disp_.typicalrange_ : udfintv );
     if ( curunit_ )
     {
 	if ( !mIsUdf(vintv.start) )
@@ -166,17 +216,17 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 
     defaultfld_ = new uiGenInput( this, tr("Default Value") );
     defaultfld_->attach( alignedBelow, rgfld_ );
-    if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
+    if ( !pr_.defval_ || pr_.defval_->isValue() )
     {
-	float val = pr_.disp_.defval_ ? pr_.disp_.defval_->value()
-				      : pr_.disp_.commonValue();
+	float val = pr_.defval_ ? pr_.defval_->value()
+				      : pr_.commonValue();
 	if ( curunit_ )
 	    val = curunit_->getUserValueFromSI( val );
 	defaultfld_->setValue( val );
     }
     else
     {
-	defaultmathprop_.setDef( pr_.disp_.defval_->def() );
+	defaultmathprop_.setDef( pr_.defval_->def() );
 	defaultfld_->setText( defaultmathprop_.formText(true) );
     }
     defaultformbut_ = new uiPushButton( this, uiStrings::sFormula(),
@@ -212,15 +262,42 @@ void uiEditPropRef::unitSel( CallBacker* )
     convValue( vintv.start, curunit_, newun );
     convValue( vintv.stop, curunit_, newun );
     rgfld_->setValue( vintv );
-    if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
+    if ( !pr_.defval_ || pr_.defval_->isValue() )
     {
-	float val = pr_.disp_.defval_ ? pr_.disp_.defval_->value()
-				      : pr_.disp_.commonValue();
+	float val = pr_.defval_ ? pr_.defval_->value()
+				      : pr_.commonValue();
 	val = newun->getUserValueFromSI( val );
 	defaultfld_->setValue( val );
     }
 
     curunit_ = newun;
+}
+
+
+void uiEditPropRef::mnemonicSelCB( CallBacker* )
+{
+    mn_ = eMNC().find( mnemonicsfld_->text() );
+    if ( mn_ )
+    {
+        SeparString ss;
+        for ( int idx=0; idx<mn_->aliases().size(); idx++ )
+            ss += mn_->aliases().get(idx);
+
+        aliasfld_->setText( ss );
+        colfld_->setColor( mn_->disp_.color_ );
+        unfld_->setMnemonic( *mn_ );
+        curunit_ = unfld_->getUnit();
+        Interval<float> vintv( mn_->disp_.typicalrange_ );
+        if ( curunit_ )
+        {
+            if ( !mIsUdf(vintv.start) )
+                vintv.start = curunit_->getUserValueFromSI( vintv.start );
+            if ( !mIsUdf(vintv.stop) )
+                vintv.stop = curunit_->getUserValueFromSI( vintv.stop );
+        }
+
+        rgfld_->setValue( vintv );
+    }
 }
 
 
@@ -258,27 +335,48 @@ bool uiEditPropRef::acceptOK()
 
     pr_.setName( newnm );
     SeparString ss( aliasfld_->text() ); const int nral = ss.size();
-    pr_.aliases().erase();
-    for ( int idx=0; idx<nral; idx++ )
-	pr_.aliases().add( ss[idx] );
-    pr_.disp_.color_ = colfld_->color();
-    Interval<float> vintv( rgfld_->getFInterval() );
-    if ( !curunit_ )
-	pr_.disp_.unit_.setEmpty();
+
+    if ( mn_ )
+    {
+        pr_.setMnemonic( mn_->name() );
+        mn_->aliases().erase();
+        for ( int idx=0; idx<nral; idx++ )
+        {
+            if ( mn_ )
+                mn_->aliases().add( ss[idx] );
+        }
+        mn_->disp_.color_ = colfld_->color();
+        Interval<float> vintv( rgfld_->getFInterval() );
+        if ( !curunit_ )
+        {
+            if ( mn_ )
+                mn_->disp_.unit_.setEmpty();
+        }
+        else
+        {
+            if ( mn_ )
+                mn_->disp_.unit_ = curunit_->name();
+
+            if ( !mIsUdf(vintv.start) )
+                vintv.start = curunit_->getSIValue( vintv.start );
+
+            if ( !mIsUdf(vintv.stop) )
+                vintv.stop = curunit_->getSIValue( vintv.stop );
+        }
+
+        mn_->disp_.typicalrange_ = vintv;
+    }
     else
     {
-	pr_.disp_.unit_ = curunit_->name();
-	if ( !mIsUdf(vintv.start) )
-	    vintv.start = curunit_->getSIValue( vintv.start );
-	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = curunit_->getSIValue( vintv.stop );
+        pr_.aliases().erase();
+        for ( int idx=0; idx<nral; idx++ )
+            pr_.aliases().add( ss[idx] );
     }
-    pr_.disp_.range_ = vintv;
 
     BufferString defaultstr( defaultfld_->text() );
     defaultstr.trimBlanks();
     if ( defaultstr.isEmpty() )
-	{ delete pr_.disp_.defval_; pr_.disp_.defval_ = 0; }
+	{ delete pr_.defval_; pr_.defval_ = 0; }
     else
     {
 	if ( !withform_ || defaultstr.isNumber() )
@@ -286,16 +384,23 @@ bool uiEditPropRef::acceptOK()
 	    float val = defaultstr.toFloat();
 	    if ( curunit_ )
 		val = curunit_->getSIValue( val );
-	    pr_.disp_.defval_ = new ValueProperty( pr_, val );
+	    pr_.defval_ = new ValueProperty( pr_, val );
 	}
 	else
-	    pr_.disp_.defval_ = new MathProperty( defaultmathprop_ );
+	    pr_.defval_ = new MathProperty( defaultmathprop_ );
     }
 
     if ( !isfund )
 	pr_.setFixedDef( 0 );
     else
 	pr_.setFixedDef( definitionmathprop_.clone() );
+
+    if ( mn_ )
+    {
+        MnemonicSet& mnc = eMNC();
+        *mnc.find( mn_->name() ) = *mn_;
+        MNC().save();
+    }
 
     return true;
 }

@@ -10,8 +10,10 @@
 #include "iopar.h"
 #include "idxable.h"
 #include "keystrs.h"
+#include "mnemonics.h"
 #include "unitofmeasure.h"
 
+const char* Well::Log::sKeyMnemLbl()	{ return "Mnemonic"; }
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
@@ -603,6 +605,35 @@ void Well::Log::setValue( idx_type idx, ValueType val )
 
     stVal( idx, val );
     mSendChgNotif( cValueChange(), ptids_[idx].getI() );
+}
+
+
+const char* Well::Log::mnemLabel() const
+{
+    if ( mnemonic() )
+	return mnemonic()->name();
+
+    return mnemlbl_;
+}
+
+
+const Mnemonic* Well::Log::mnemonic() const
+{
+    if (!mnemlbl_.isEmpty())
+	return eMNC().find( mnemlbl_ );
+    else
+    {
+	if ( unitOfMeasure()  )
+	    return eMNC().getGuessed( unitOfMeasure() );
+    }
+
+    return nullptr;
+}
+
+
+void Well::Log::setMnemLabel( const char* mnem )
+{
+    mnemlbl_ = mnem;
 }
 
 

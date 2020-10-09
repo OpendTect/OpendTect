@@ -25,6 +25,7 @@ class ascistream;
 class ascostream;
 class Property;
 class MathProperty;
+class Mnemonic;
 struct PropRef_ThickRef_Man;
 
 
@@ -51,16 +52,20 @@ public:
 
 			PropertyRef( const char* nm, StdType t=Other )
 			    : NamedObject(nm)
-			    , stdtype_(t), mathdef_(0)	{}
+			    , stdtype_(t), mathdef_(0), defval_(nullptr)
+			    ,  mn_(nullptr)	{}
 			PropertyRef( const PropertyRef& pr )
 			    : NamedObject(pr.name())
-			    , mathdef_(0)		{ *this = pr; }
+			    , mathdef_(0), defval_(nullptr)
+			    , mn_(nullptr)		{ *this = pr; }
     virtual		~PropertyRef();
     PropertyRef&	operator =(const PropertyRef&);
 			mImplSimpleEqOpers1Memb(PropertyRef,name())
 
     bool		isKnownAs(const char*) const;
     bool		hasFixedDef() const		{ return mathdef_; }
+    BufferString	getMnemonic() const		{ return mn_; }
+    void		setMnemonic(BufferString mn)	{ mn_ = mn; }
 
     inline StdType	stdType() const			{ return stdtype_; }
     inline bool		hasType( StdType t ) const
@@ -75,27 +80,11 @@ public:
     inline const BufferStringSet& aliases() const	{ return aliases_; }
     const MathProperty&	fixedDef() const		{ return *mathdef_; }
 				//!< be sure hasFixedDef() returns true!
+    float		commonValue() const;
 
     static const PropertyRef& undef();
 
-    // Defaults for display
-    mStruct(General) DispDefs
-    {
-			DispDefs()
-			: color_(Color::Black())
-			, defval_(0)
-			, range_(mUdf(float),mUdf(float))	{}
-			~DispDefs();
-
-	Color		color_;
-	Property*	defval_;
-	Interval<float>	range_;		//!< Internal units
-	BufferString	unit_;
-
-	float		commonValue() const;
-    };
-
-    DispDefs		disp_;
+    Property*		defval_;
 
     static const PropertyRef& thickness();
 		//!< use this always. It has automatic defaults from SI()
@@ -110,6 +99,7 @@ protected:
     StdType		stdtype_;
     BufferStringSet	aliases_;
     MathProperty*	mathdef_;
+    BufferString	mn_;
 
     friend class	PropertyRefSet;
     void		usePar(const IOPar&);

@@ -257,8 +257,12 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     putDepthUnit( astrm );
     astrm.put( sKey::Name(), wl.name() );
     const BufferString uomlbl = wl.unitMeasLabel();
+    const BufferString mnemlbl = wl.mnemLabel();
     const bool haveunits = !uomlbl.isEmpty();
+    const bool havemnemonics = !mnemlbl.isEmpty();
     const bool havepars = !wl.pars().isEmpty();
+    if ( havemnemonics )
+	astrm.put( Well::Log::sKeyMnemLbl(), mnemlbl );
     if ( haveunits )
 	astrm.put( Well::Log::sKeyUnitLbl(), uomlbl );
     astrm.putYN( Well::Log::sKeyHdrInfo(), havepars );

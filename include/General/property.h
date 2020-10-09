@@ -13,10 +13,11 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "propertyref.h"
+#include "mnemonics.h"
 #include "factory.h"
 
 class PropertySet;
-
+class Mnemonic;
 
 /*!\brief A (usually petrophysical) property of some object.
 
@@ -39,6 +40,7 @@ public:
     virtual bool	isValue() const			{ return false; }
 
     inline const PropertyRef& ref() const		{ return ref_; }
+    inline const Mnemonic*    mnem() const		{ return mn_; }
     const char*		name() const;
 
     virtual void	reset()			     { lastval_ = mUdf(float); }
@@ -93,6 +95,7 @@ public:
 protected:
 
     const PropertyRef&	ref_;
+    const Mnemonic*	mn_;
     mutable float	lastval_;
 
     virtual float	gtVal(EvalOpts) const		= 0;
@@ -177,7 +180,7 @@ public:
 
 			ValueProperty( const PropertyRef& pr )
 			: Property(pr)
-			, val_(pr.disp_.range_.center())	{}
+			, val_(mUdf(float))	{}
 			ValueProperty( const PropertyRef& pr, float v )
 			: Property(pr)
 			, val_(v)		{}
@@ -198,7 +201,7 @@ public:
 
 			RangeProperty( const PropertyRef& pr )
 			: Property(pr)
-			, rg_(pr.disp_.range_)		{}
+			, rg_(mnem()->disp_.range_)		{}
 			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
 			: Property(pr)
