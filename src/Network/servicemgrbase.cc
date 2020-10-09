@@ -163,7 +163,7 @@ ServiceMgrBase::~ServiceMgrBase()
 
 bool ServiceMgrBase::isOK( bool islocal ) const
 {
-    return getAuthority( islocal  ).isUsable();
+    return getAuthority( islocal  ).isOK();
 }
 
 
@@ -665,7 +665,7 @@ bool ServiceMgrBase::addApplicationAuthority( bool local,
 	return false;
 
     const Network::Authority auth = mainserv->getAuthority( local );
-    if ( !auth.isUsable() )
+    if ( !auth.isOK() )
 	return false;
 
     mc.addKeyedArg( sKeyODServer(), auth.toString() );
