@@ -452,18 +452,8 @@ bool ServiceMgrBase::canParseAction( const char* action, uiRetVal& uirv )
 bool ServiceMgrBase::canParseRequest( const OD::JSON::Object& request,
 				    uiRetVal& uirv )
 {
-    if ( request.isPresent(sKeySurveyChangeEv()) )
-    {
-	uirv = survChangedReq( *request.getObject(sKeySurveyChangeEv()) );
-	return true;
-    }
-    if ( request.isPresent(sKeyPyEnvChangeEv()) )
-    {
-	uirv = pythEnvChangedReq( *request.getObject(sKeyPyEnvChangeEv()) );
-	return true;
-    }
-
-    return false;
+    return request.isPresent( sKeySurveyChangeEv() ) ||
+        request.isPresent( sKeyPyEnvChangeEv() );
 }
 
 
@@ -475,8 +465,17 @@ uiRetVal ServiceMgrBase::doHandleAction( const char* action )
 }
 
 
-uiRetVal ServiceMgrBase::doHandleRequest( const OD::JSON::Object& )
+uiRetVal ServiceMgrBase::doHandleRequest( const OD::JSON::Object& request )
 {
+    if ( request.isPresent(sKeySurveyChangeEv()) )
+    {
+        return survChangedReq( *request.getObject( sKeySurveyChangeEv() ) );
+    }
+    if ( request.isPresent(sKeyPyEnvChangeEv()) )
+    {
+        return pythEnvChangedReq( *request.getObject( sKeyPyEnvChangeEv() ) );
+    }
+
     return uiRetVal::OK();
 }
 
@@ -490,8 +489,7 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 	if ( pytha.activatefp_ )
 	    prevactivatefp = *pytha.activatefp_;
 	const BufferString prevvirtenvnm( pytha.virtenvnm_ );
-	const File::Path activatefp(
-				reqobj.getStringValue(sKey::FileName()) );
+	const File::Path activatefp = reqobj.getFilePath( sKey::FileName() );
 	const BufferString virtenvnm( reqobj.getStringValue(sKey::Name() ) );
 	if ( prevactivatefp != activatefp || prevvirtenvnm != virtenvnm )
 	{
