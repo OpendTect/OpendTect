@@ -120,7 +120,7 @@ bool Network::Service::isOK() const
 
 bool Network::Service::isEmpty() const
 {
-    return !auth_.isUsable();
+    return !auth_.isOK();
 }
 
 
