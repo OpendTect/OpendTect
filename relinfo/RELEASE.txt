@@ -2,7 +2,7 @@ OpendTect V6.6.x : Release info
 
 
 ----
-V6.6.1rc1: October 9, 2020
+V6.6.1rc2: October 09, 2020
 * Fixed issues with services with survey change and application closing
 
 V6.6.1rc1: October 5, 2020
