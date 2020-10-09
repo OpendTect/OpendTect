@@ -285,7 +285,7 @@ if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
 
 	#TODO  Better to do using cmake variables.
 	if ( EXISTS /lib64/libpng15.so.15 )
-	    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libpng15.so.15 )
+	    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libpng15.so.15 Release )
 	    list( APPEND OD_THIRD_PARTY_LIBS libpng15.so.15 )
 	endif()
     endif()
