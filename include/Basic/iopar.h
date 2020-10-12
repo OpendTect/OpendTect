@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 #include "fixedstring.h"
+#include "multiid.h"
 #include "samplingdata.h"
 #include "od_iosfwd.h"
 
