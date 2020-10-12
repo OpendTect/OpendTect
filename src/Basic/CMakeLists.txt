@@ -59,6 +59,7 @@ set( OD_MODULE_SOURCES
 	coordsystem.cc
 	dateinfo.cc
 	datapack.cc
+	dbkey.cc
 	debug.cc
 	dirlist.cc
 	enums.cc
@@ -76,6 +77,8 @@ set( OD_MODULE_SOURCES
 	legal.cc
 	math2.cc
 	moddepmgr.cc
+	monitor.cc
+	namedmonitoredobject.cc
 	namedobj.cc
 	objdisposer.cc
 	odjson.cc

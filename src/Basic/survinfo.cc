@@ -60,6 +60,12 @@ mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
 #define mXYUnit() (mXYInFeet() ? Feet : Meter)
 
+Survey::Geometry3D& Survey::Geometry3D::current()
+{
+    return const_cast<Geometry3D&>(*Geometry::default3D().as3D());
+}
+
+
 Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 {
     return transform( BinID(linenr,tracenr) );

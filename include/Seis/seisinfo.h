@@ -49,12 +49,19 @@ public:
     inline const BinID& binID() const		{ return binid; }
     inline IdxType	inl() const		{ return binid.inl(); }
     inline IdxType	crl() const		{ return binid.crl(); }
+    inline IdxType	lineNr() const		{ return inl(); }
+    inline IdxType	trcNr() const		{ return crl(); }
+    TrcKey		trcKey() const
+			{ return TrcKey(lineNr(),trcNr()); }
+
     inline SeisTrcInfo& setBinID( const BinID& bid )
 			{ binid = bid; return *this; }
     inline SeisTrcInfo& setInl( IdxType inr )
 			{ binid.inl() = inr; return *this; }
     inline SeisTrcInfo& setCrl( IdxType inr )
 			{ binid.crl() = inr; return *this; }
+    inline void		setLineNr( int inr )	{ binid.inl() = inr; }
+    inline void		setTrcNr( int inr )	{ binid.crl() = nr = inr; }
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const

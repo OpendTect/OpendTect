@@ -74,6 +74,7 @@ SET(OD_MODULE_SOURCES
 	seisscanner.cc
 	seisselection.cc
 	seissingtrcproc.cc
+	seisstatscollector.cc
 	seisstor.cc
 	seistrc.cc
 	seistrcprop.cc

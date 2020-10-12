@@ -103,44 +103,48 @@ public:
 				GeometryManager();
 				~GeometryManager();
 
-    const Geometry*		getGeometry(Geometry::ID) const;
+    const Geometry*		getGeometry(Pos::GeomID) const;
     const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
     const Geometry3D*		getGeometry3D(Pos::SurvID) const;
 
-    int				nrGeometries() const;
+    const Geometry2D&		get2D(Pos::GeomID) const;
 
-    Geometry::ID		getGeomID(const char* linenm) const;
-    const char*			getName(Geometry::ID) const;
+    int				nrGeometries() const;
+    bool			isUsable(Pos::GeomID) const;
+
+    Pos::GeomID			getGeomID(const char* linenm) const;
+    const char*			getName(Pos::GeomID) const;
+    StepInterval<float>		zRange(Pos::GeomID) const;
 
     Coord			toCoord(const TrcKey&) const;
 
-    TrcKey			traceKey(Geometry::ID,Pos::LineID,
+    TrcKey			traceKey(Pos::GeomID,Pos::LineID,
 					 Pos::TraceID) const;
 				//!<For 3D
-    TrcKey			traceKey(Geometry::ID,Pos::TraceID) const;
+    TrcKey			traceKey(Pos::GeomID,Pos::TraceID) const;
 				//!<For 2D
 
     bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,
-					TypeSet<Geometry::ID>& ids,
+					TypeSet<Pos::GeomID>& ids,
 					bool is2d) const;
-    Geometry::ID		findRelated(const Geometry&,
+    Pos::GeomID			findRelated(const Geometry&,
 					    Geometry::RelationType&,
 					    bool usezrg) const;
 				//!<Returns cUndefGeomID() if none found
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
     TrcKey::SurvID		default3DSurvID() const;
-    static Geometry::ID		cUndefGeomID()	{ return mUdf(Geometry::ID); }
+    static Pos::GeomID		cUndefGeomID()	{ return mUdf(Pos::GeomID); }
 
 protected:
 
     void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 
-    int				indexOf(Geometry::ID) const;
+    int				indexOf(Pos::GeomID) const;
     bool			hasDuplicateLineNames();
 
     Threads::Lock		lock_;
@@ -154,13 +158,13 @@ public:
     /*! Admin functions:
       Use the following functions only when you know what you are doing. */
 
-    Geometry*			getGeometry(Geometry::ID);
+    Geometry*			getGeometry(Pos::GeomID);
     bool			write(Geometry&,uiString&);
-    Geometry::ID		addNewEntry(Geometry*,uiString&);
+    Pos::GeomID			addNewEntry(Geometry*,uiString&);
 				/*! Returns new GeomID. */
-    bool			removeGeometry(Geometry::ID);
+    bool			removeGeometry(Pos::GeomID);
 
-    Geometry::ID		getGeomID(const char* lsm,
+    Pos::GeomID			getGeomID(const char* lsm,
 					  const char* linenm) const;
 				/*!< Use only if you are converting
 				    od4 geometries to od5 geometries */
@@ -174,6 +178,10 @@ mGlobal(Basic) const GeometryManager& GM();
 inline mGlobal(Basic) GeometryManager& GMAdmin()
 { return const_cast<GeometryManager&>( Survey::GM() ); }
 
+mGlobal(Basic) bool is2DGeom(Pos::GeomID);
+mGlobal(Basic) bool is3DGeom(Pos::GeomID);
+mGlobal(Basic) Pos::GeomID default3DGeomID();
+mGlobal(Basic) bool isValidGeomID(Pos::GeomID);
 
 
 mExpClass(Basic) GeometryReader
@@ -201,12 +209,13 @@ public:
     virtual bool	write(Geometry&,uiString&,
 			      const char* crfromstr=0) const { return true; }
     virtual IOObj*	createEntry(const char*) const	{ return 0; }
-    virtual Geometry::ID createNewGeomID(const char*) const { return 0; }
+    virtual Pos::GeomID createNewGeomID(const char*) const { return 0; }
     virtual bool	removeEntry(const char*) const	{ return 0; }
 
 };
 
 } //namespace Survey
+
 
 #define mUdfGeomID		Survey::GeometryManager::cUndefGeomID()
 #define mIsUdfGeomID(geomid)	(geomid == mUdfGeomID)

@@ -122,6 +122,7 @@ public:
     //!<"Export <string>"
     static uiString phrExtract(const uiString&);
     //!<"Extract <string>"
+    static uiString phrFileDoesNotExist(const char*);
     static uiString phrGenerating(const uiString&);
     //!<"Generating <string>"
     static uiString phrImport(const uiString& string);
@@ -291,10 +292,12 @@ public:
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
     static uiString sCollapse()		{ return tr("Collapse"); }
+    static uiString sCollectingData()	{ return tr("Collecting Data"); }
     static uiString sColorTable(int num=1);
     static uiString sColor(int num=1)	{ return tr("Color",0, num); }
     static uiString sColumn(int num=1)	{ return tr("Column",0,num); }
     static uiString sComponent()	{ return tr("Component"); }
+    static uiString sConnection()	{ return tr("Connection"); }
     static uiString sConstant()		{ return tr("Constant"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
@@ -361,6 +364,7 @@ public:
     static uiString sFiltering()	    { return tr("Filtering"); }
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
+    static uiString sFull()		{ return tr("Full"); }
     static uiString sFolder(int n=1)	{ return tr("Folder", 0, n); }
     static uiString sFormat()		{ return tr("Format"); }
     static uiString sFrequency(int num=1);
@@ -474,6 +478,7 @@ public:
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPolyLine(int num=1) { return tr("PolyLine",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
+    static uiString sPositionsDone()	{ return tr("Positions Done"); }
     static uiString sPreStack()		{ return tr("Prestack"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
@@ -576,27 +581,30 @@ public:
     static uiString sTracking()		{ return tr("Tracking"); }
     static uiString sTransform()	{ return tr("Transform"); }
     static uiString sTransparency()	{ return tr("Transparency"); }
-    static uiString sTVD()              { return tr("TVD", "True Vert Dpth"); }
-    static uiString sTVDRelSRD()        { return tr("TVD rel SRD",
-                                                    "TVD relative to SRD");}
-    static uiString sTVDRelKB()         { return tr("TVD rel KB",
-                                                    "TVD relative to KB");}
-    static uiString sTVDRelGL()         { return tr("TVD rel GL",
-                                                    "TVD relative to GL");}
-    static uiString sTVDSS()            { return tr("TVDSS",
-                                            "True Vertical Depth Sub Sea"); }
+    static uiString sTVD()		{ return tr("TVD", "True Vert Dpth"); }
+    static uiString sTVDRelSRD()	{ return tr("TVD rel SRD",
+						"TVD relative to SRD");}
+    static uiString sTVDRelKB()		{ return tr("TVD rel KB",
+						"TVD relative to KB");}
+    static uiString sTVDRelGL()		{ return tr("TVD rel GL",
+						"TVD relative to GL");}
+    static uiString sTVDSS()		{ return tr("TVDSS",
+						"True Vertical Depth Sub Sea");}
     static uiString sTWT(bool abbr=true)
     { return abbr ? tr("TWT") : tr("Two Way Travel Time"); }
     static uiString sType()		{ return tr("Type"); }
     static uiString sUndefVal()		{ return tr("Undefined Value"); }
     static uiString sUndo()		{ return tr("Undo"); }
     static uiString sUnit(int num=1)	{ return tr("Unit",0,num); }
+    static uiString sUnknown()		{ return tr("Unknown"); }
     static uiString sUnlock()		{ return tr("Unlock"); }
     static uiString sUnload()		{ return tr("Unload"); }
     static uiString sUp()		{ return tr("Up"); }
     static uiString sUse()		{ return tr("Use"); }
     static uiString sUtilities()	{ return tr("Utilities"); }
     static uiString sValue(int num=1)	{ return tr("Value",0,num); }
+    static uiString sVariable( bool math )
+    { return math ? tr("Variable","in math") : tr("Variable","changing"); }
     static uiString sVelocity()		{ return tr("Velocity"); }
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sVideo()		{ return tr("Video"); }
@@ -609,6 +617,7 @@ public:
     static uiString sWaveNumber(int num=1);
     static uiString sWell(int num=1);
     static uiString sWells()		{ return sWell(mPlural); }
+    static uiString sWellsHandled()	{ return tr("Wells handled"); }
     static uiString sWellLog(int num=1);
     static uiString sWest(bool abb)	{ return abb ? tr("W"):tr("West"); }
     static uiString sWidth()		{ return tr("Width"); }

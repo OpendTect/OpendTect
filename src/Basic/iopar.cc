@@ -1000,6 +1000,27 @@ bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
 }
 
 
+bool IOPar::get( const char* keyw, TypeSet<MultiID>& keys ) const
+{
+    BufferStringSet strs;
+    if ( !get(keyw,strs) )
+	return false;
+
+    for ( auto str : strs )
+	keys.add( MultiID(str->str()) );
+    return true;
+}
+
+
+void IOPar::set( const char* keyw, const TypeSet<MultiID>& keys )
+{
+    BufferStringSet strs;
+    for ( int idx=0; idx<keys.size(); idx++ )
+	strs.add( keys[idx].buf() );
+    set( keyw, strs );
+}
+
+
 void IOPar::set( const char* keyw, const SeparString& ss )
 {
     set( keyw, ss.buf() );

@@ -982,6 +982,16 @@ bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
 }
 
 
+bool OD::JSON::Object::getGeomID( const char* ky, Pos::GeomID& geomid ) const
+{
+    if ( !isPresent(ky) )
+	return false;
+
+    geomid = int(getIntValue(ky));
+    return true;
+}
+
+
 void OD::JSON::Object::set( KeyedValue* val )
 {
     const idx_type idx = indexOf( val->key_ );

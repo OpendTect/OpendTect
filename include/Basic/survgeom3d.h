@@ -27,8 +27,9 @@ namespace Survey
 mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
-
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
+
+    static Geometry3D&	current();
 
     virtual bool	is2D() const		{ return false; }
     virtual const char*	getName() const		{ return name_; }

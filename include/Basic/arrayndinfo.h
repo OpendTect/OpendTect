@@ -38,6 +38,7 @@ public:
     virtual ArrayNDInfo* clone() const					= 0;
     virtual		~ArrayNDInfo()					{}
 
+    int			nrDims() const			{ return getNDim(); }
     virtual int		getNDim() const					= 0;
     virtual int		getSize(int dim) const				= 0;
     virtual bool	setSize(int dim,int sz);

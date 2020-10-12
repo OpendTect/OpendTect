@@ -81,6 +81,14 @@ bool TrcKeySampling::init( Pos::GeomID gid )
 }
 
 
+void TrcKeySampling::init( const TrcKey& tk )
+{
+    survid_ = tk.survID();
+    start_.lineNr() = stop_.lineNr() = tk.lineNr();
+    start_.trcNr() = stop_.trcNr() = tk.trcNr();
+}
+
+
 void TrcKeySampling::init( bool tosi )
 {
     if ( tosi )
@@ -1422,7 +1430,7 @@ bool TrcKeyZSampling::useJSON( const OD::JSON::Object& obj )
 }
 
 
-void TrcKeySampling::normalise()
+void TrcKeySampling::normalize()
 {
     if ( start_.lineNr() > stop_.lineNr() )
 	Swap(start_.lineNr(),stop_.lineNr());
@@ -1439,9 +1447,9 @@ void TrcKeySampling::normalise()
 }
 
 
-void TrcKeyZSampling::normalise()
+void TrcKeyZSampling::normalize()
 {
-    hsamp_.normalise();
+    hsamp_.normalize();
     normaliseZ( zsamp_ );
 }
 
@@ -1487,4 +1495,28 @@ bool TrcKeySamplingIterator::next( BinID& res ) const
 
     res = tks_.atIndex( mypos );
     return true;
+}
+
+
+
+namespace Pos
+{
+bool intersect( const StepInterval<int>& rg1, const StepInterval<int>& rg2,
+		StepInterval<int>& out )
+{
+    return ::intersect( rg1.start, rg1.stop, rg1.step,
+			rg2.start, rg2.stop, rg2.step,
+			out.start, out.stop, out.step );
+}
+
+
+bool intersectF( const StepInterval<float>& zsamp1,
+		 const StepInterval<float>& zsamp2,
+		 StepInterval<float>& out )
+{
+    return ::intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
+			 zsamp2.start, zsamp2.stop, zsamp2.step,
+			 out.start, out.stop, out.step );
+}
+
 }

@@ -49,6 +49,8 @@ public:
     TrcKey&		setGeomID(Pos::GeomID);
 
     bool		operator==(const TrcKey&) const;
+    bool		operator!=( const TrcKey& oth ) const
+			{ return !(*this==oth); }
 
     inline bool		isUdf() const			{ return *this==udf(); }
     static const TrcKey& udf();

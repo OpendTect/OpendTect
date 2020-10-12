@@ -106,11 +106,13 @@ public:
     void		init(bool settoSI=true);
 			//!< Sets to survey values or mUdf(int) (but step 1)
     bool		init(Pos::GeomID);
+    void		init(const TrcKey&);
 
     void		set2DDef();
 			    //!< Sets ranges to 0-maxint
-    void		normalise();
+    void		normalize();
 			    //!< Makes sure start_<stop_ and steps are non-zero
+    void		normalise() { normalize(); }
     void		getRandomSet(int nr,TypeSet<TrcKey>&) const;
 
     bool		getInterSection(const TrcKeySampling&,

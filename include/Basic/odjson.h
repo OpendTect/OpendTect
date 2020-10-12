@@ -273,6 +273,7 @@ public:
     BufferString	getStringValue(const char*) const;
     FilePath        getFilePath(const char*) const;
     bool		getStrings(const char*,BufferStringSet&) const;
+    bool		getGeomID(const char*,Pos::GeomID&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
 
