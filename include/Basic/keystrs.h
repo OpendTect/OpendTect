@@ -59,6 +59,7 @@ namespace sKey
     inline FixedString Depth()		{ return "Depth"; }
     inline FixedString DepthUnit()	{ return "Depth-Unit"; }
     inline FixedString Desc()		{ return "Description"; }
+    inline FixedString Distribution()	{ return "Distribution"; }
     inline FixedString EmptyString()	{ return ""; }
     inline FixedString Factor()		{ return "Factor"; }
     inline FixedString Fault()		{ return "Fault"; }
@@ -67,6 +68,7 @@ namespace sKey
     inline FixedString Filter()		{ return "Filter"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
+    inline FixedString GeomSystem()	{ return "GeomSystem"; }
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Histogram()	{ return "Histogram"; }
     inline FixedString Horizon()	{ return "Horizon"; }
@@ -75,9 +77,11 @@ namespace sKey
     inline FixedString Input()		{ return "Input"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
+    inline FixedString Is2D()		{ return "Is2D"; }
     inline FixedString Keys()		{ return "Keys"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
+    inline FixedString Lines()		{ return "Lines"; }
     inline FixedString LineStyle()	{ return "Line Style"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
@@ -88,6 +92,7 @@ namespace sKey
     inline FixedString MD(int n=1)      { return n<2 ? "MD" : "MDs"; }
     inline FixedString Marker()         { return "Marker"; }
     inline FixedString MarkerStyle()    { return "Marker Style"; }
+    inline FixedString Model()		{ return "Model"; }
     inline FixedString Name()		{ return "Name"; }
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
@@ -96,7 +101,9 @@ namespace sKey
     inline FixedString NrGeoms()	{ return "Nr Geometries";}
     inline FixedString NrItems()	{ return "Nr Items";}
     inline FixedString NrValues()	{ return "Nr Values"; }
+    inline FixedString Object()		{ return "Object"; }
     inline FixedString Offset()		{ return "Offset"; }
+    inline FixedString OffsetRange()	{ return "Offset Range"; }
     inline FixedString Order()		{ return "Order"; }
     inline FixedString Output()		{ return "Output"; }
     inline FixedString OutputID()	{ return "output_id"; }
@@ -109,6 +116,7 @@ namespace sKey
     inline FixedString Python()		{ return "Python"; }
     inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
+    inline FixedString RandomLine()	{ return "RandomLine"; }
     inline FixedString Range()		{ return "Range"; }
     inline FixedString Region()		{ return "Region"; }
     inline FixedString Sampling()	{ return "Sampling"; }
@@ -124,8 +132,11 @@ namespace sKey
     inline FixedString Shape()		{ return "Shape"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
+    inline FixedString SliceType()	{ return "SliceType"; }
+    inline FixedString Source()		{ return "Source"; }
     inline FixedString SpaceString()	{ return " "; }
     inline FixedString StackOrder()	{ return "Stack order"; }
+    inline FixedString Stats()		{ return "Stats"; }
     inline FixedString Status()		{ return "Status"; }
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
@@ -137,6 +148,7 @@ namespace sKey
     inline FixedString SurveyID()	{ return "Survey ID"; }
     inline FixedString Table()		{ return "Table"; }
     inline FixedString Target()		{ return "Target"; }
+    inline FixedString Targets()	{ return "Targets"; }
     inline FixedString TermEm()		{ return "Terminal Emulator"; }
     inline FixedString Time()		{ return "Time"; }
     inline FixedString TimeRange()	{ return "Time Range"; }
@@ -145,14 +157,15 @@ namespace sKey
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
     inline FixedString TVD(int n=1)     { return n<2 ? "TVD" : "TVDs"; }
-    inline FixedString TVDSS()          { return "TVDSS"; }
-    inline FixedString TWT()            { return "TWT"; }
+    inline FixedString TVDSS()		{ return "TVDSS"; }
+    inline FixedString TWT()		{ return "TWT"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString TwoD()		{ return "2D"; }
     inline FixedString Thickness()	{ return "Thickness"; }
     inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
     inline FixedString Unit()		{ return "Unit"; }
+    inline FixedString Units()		{ return "Units"; }
     inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
     inline FixedString ValueRange()	{ return "Value Range"; }
@@ -161,18 +174,22 @@ namespace sKey
     inline FixedString WaveletID()	{ return "Wavelet ID"; }
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
-    inline FixedString X()              { return "X"; }
+    inline FixedString X()		{ return "X"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
     inline FixedString XOffset()	{ return "X Offset"; }
-    inline FixedString Y()              { return "Y"; }
-    inline FixedString Y2()             { return "Y2"; }
+    inline FixedString XRange()		{ return "X range"; }
+    inline FixedString Y()		{ return "Y"; }
+    inline FixedString Y2()		{ return "Y2"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
     inline FixedString YOffset()	{ return "Y Offset"; }
+    inline FixedString YRange()		{ return "Y range"; }
     inline FixedString Yes()		{ return "Yes"; }
-    inline FixedString Z()              { return "Z"; }
+    inline FixedString Z()		{ return "Z"; }
     inline FixedString ZCoord()		{ return "Z-Coord"; }
+    inline FixedString ZDomain()	{ return "Z Domain"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
+    inline FixedString ZStep()		{ return "Z step"; }
     inline FixedString ZUnit()		{ return "Z-Unit"; }
     inline FixedString ZValue()		{ return "Z value"; }
 
@@ -198,8 +215,12 @@ namespace sKey
     inline FixedString LastCrl()	{ return "Last Cross-line"; }
     inline FixedString StepCrl()	{ return "Step Cross-line"; }
     inline FixedString StepOutCrl()	{ return "Stepout Cross-line"; }
+    inline FixedString FirstZ()		{ return "First Z"; }
+    inline FixedString LastZ()		{ return "Last Z"; }
+    inline FixedString StepZ()		{ return "Step Z"; }
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString LastTrc()	{ return "Last Trace"; }
+    inline FixedString StepTrc()	{ return "Step Trace"; }
     inline FixedString TrcRange()	{ return "Trace Range"; }
 
     // History of objects

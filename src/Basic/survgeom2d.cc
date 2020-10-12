@@ -68,6 +68,12 @@ int Survey::Geometry2D::size() const
 }
 
 
+bool Survey::Geometry2D::isEmpty() const
+{
+    return data_.isEmpty();
+}
+
+
 void Survey::Geometry2D::setEmpty()
 {
     data_.setEmpty();
@@ -132,6 +138,12 @@ Coord Survey::Geometry2D::toCoord( int, int trcnr ) const
 {
     PosInfo::Line2DPos pos;
     return data_.getPos(trcnr,pos) ? pos.coord_ : Coord::udf();
+}
+
+
+Coord Survey::Geometry2D::toCoord( int tracenr ) const
+{
+    return toCoord( -1, tracenr );
 }
 
 

@@ -768,6 +768,13 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 }
 
 
+bool IOMan::isUsable( const MultiID& key ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    return ioobj;
+}
+
+
 IOObj* IOMan::get( const char* objname, const char* tgname ) const
 {
     for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )

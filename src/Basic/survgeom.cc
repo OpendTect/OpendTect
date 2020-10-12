@@ -35,6 +35,19 @@ const GeometryManager& GM()
 }
 
 
+bool is2DGeom( Pos::GeomID geomid )
+{ return geomid >= 0; }
+
+bool is3DGeom( Pos::GeomID geomid )
+{ return geomid < 0; }
+
+Pos::GeomID deafult3DGeomID()
+{ return Geometry::default3D().getID(); }
+
+bool isValidGeomID( Pos::GeomID geomid )
+{ return geomid != -999 && !mIsUdf(geomid); }
+
+
 Geometry::Geometry()
     : id_(mUdf(ID))
 {
@@ -110,6 +123,17 @@ GeometryManager::~GeometryManager()
 int GeometryManager::nrGeometries() const
 { return geometries_.size(); }
 
+
+bool GeometryManager::isUsable( Pos::GeomID geomid ) const
+{
+    auto* geom = getGeometry( geomid );
+    if ( !geom )
+	return false;
+
+    return geom->as3D() || (geom->as2D() && !geom->as2D()->isEmpty());
+}
+
+
 void GeometryManager::ensureSIPresent() const
 {
     bool has3d = false;
@@ -164,6 +188,20 @@ const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
 }
 
 
+static Geometry2D& dummyGeom2D()
+{
+    PosInfo::Line2DData* l2d = nullptr;
+    static RefMan<Survey::Geometry2D> ret = new Survey::Geometry2D( l2d );
+    return *ret;
+}
+
+const Geometry2D& GeometryManager::get2D( Pos::GeomID geomid ) const
+{
+    const Geometry* geom = getGeometry( geomid );
+    return geom && geom->as2D() ? *geom->as2D(): dummyGeom2D();
+}
+
+
 const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
     if ( mid.nrKeys() == 2 )
@@ -214,6 +252,19 @@ const char* GeometryManager::getName( Geometry::ID geomid ) const
 {
     mGetConstGeom(geom,geomid);
     return geom ? geom->getName() : 0;
+}
+
+
+StepInterval<float> GeometryManager::zRange( Pos::GeomID geomid ) const
+{
+    const Survey::Geometry* geom = getGeometry( geomid );
+    StepInterval<float> zrg = SI().zRange();
+    if ( geom && geom->as2D() )
+	zrg = geom->as2D()->zRange();
+    else if ( geom && geom->as3D() )
+	zrg = geom->as3D()->zRange();
+
+    return zrg;
 }
 
 

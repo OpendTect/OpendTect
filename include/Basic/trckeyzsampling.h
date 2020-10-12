@@ -53,8 +53,9 @@ public:
     inline void		setEmpty()		{ init(false); }
     void		set2DDef();
 			//!< Sets to survey zrange and
-    void		normalise();
+    void		normalize();
 			//!< Makes sure start<stop and steps are non-zero
+    void		normalise() { normalize(); }
 
     TrcKeySampling	hsamp_;
     StepInterval<float> zsamp_;
@@ -168,4 +169,15 @@ inline int dimension( TrcKeyZSampling::Dir slctype,
 
 typedef TrcKeyZSampling CubeSampling;
 
+namespace Pos
+{
+
+mGlobal(Basic) bool intersect(const StepInterval<int>&,
+			      const StepInterval<int>&,
+			      StepInterval<int>&);
+mGlobal(Basic) bool intersectF(const StepInterval<float>&,
+			       const StepInterval<float>&,
+			       StepInterval<float>&);
+
+}
 

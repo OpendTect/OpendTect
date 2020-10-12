@@ -42,6 +42,9 @@ enum Pol2D3D		{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 
 namespace OD
 {
+enum GeomSystem
+    { GeomSynth=-2, Geom3D=-1, Geom2D=0 };
+
 enum DataRepType
     { AutoDataRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
 

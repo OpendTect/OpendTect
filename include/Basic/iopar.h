@@ -153,6 +153,7 @@ public:
     bool		get(const char*,TypeSet<od_uint64>&) const;
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
+    bool		get(const char*,TypeSet<MultiID>&) const;
 
     bool		get(const char*,BinID&) const;
     bool		get(const char*,TrcKey&) const;
@@ -258,6 +259,7 @@ public:
     void		set(const char*,const TypeSet<od_uint64>&);
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
+    void		set(const char*,const TypeSet<MultiID>&);
 
     void		setToDateTime(const char* ky=nullptr);
     void		setToUser(const char* ky=nullptr);

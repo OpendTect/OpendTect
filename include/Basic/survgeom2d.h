@@ -36,6 +36,7 @@ public:
     void			add(const Coord&,int trcnr,float spnr);
     void			add(double x,double y,int trcnr,float spnr);
     int				size() const;
+    bool			isEmpty() const;
     void			setEmpty();
     bool			getPosByTrcNr(int trcnr,Coord&,
 					      float& spnr) const;
@@ -45,6 +46,7 @@ public:
 					      int& trc,float& sp) const;
 
     virtual Coord		toCoord(int linenr,int tracenr) const;
+    Coord			toCoord(int tracenr) const;
     virtual TrcKey		nearestTrace(const Coord&,float* dist) const;
 
     virtual bool		includes(int linenr,int tracenr) const;

@@ -170,6 +170,8 @@ public:
     inline int		getIndex(const X&) const;
     template <class X> inline
     int			indexOnOrAfter( X x, float eps ) const;
+    template <class X>
+    bool		isPresent(const X&,float eps=1e-5f) const;
 
     template <class X>
     inline float	getfIndex(const X&) const;
@@ -701,6 +703,18 @@ template <class T> template <class X> inline
 int StepInterval<T>::indexOnOrAfter( X x, float eps ) const
 {
     return Interval<T>::indexOnOrAfter( x, step, eps );
+}
+
+
+template <class T> template <class X> inline
+bool StepInterval<T>::isPresent( const X& t, float eps ) const
+{
+    const float fidx = getfIndex( t );
+    const float snapdiff = std::abs( fidx - int(fidx) );
+    if ( snapdiff > eps )
+	return false;
+
+    return fidx > -eps && fidx <= nrSteps() + eps;
 }
 
 

@@ -56,6 +56,10 @@ public:
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
     const StepInterval<float>& zRange( bool work ) const;
+    StepInterval<int>	inlRange() const	{ return inlRange(false); }
+    StepInterval<int>	crlRange() const	{ return crlRange(false); }
+    const StepInterval<float>& zRange() const	{ return zRange(false); }
+
     int			inlStep() const;
     int			crlStep() const;
     float		zStep() const;

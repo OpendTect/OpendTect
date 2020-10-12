@@ -193,6 +193,9 @@ uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 uiString uiStrings::phrExtract( const uiString& string )
 { return toUiString(joinstring).arg(sExtract()).arg(string); }
 
+uiString uiStrings::phrFileDoesNotExist( const char* fnm )
+{ return phrDoesntExist(toUiString("%1 '%2'").arg(sFile()).arg(fnm)); }
+
 uiString uiStrings::phrGenerating( const uiString& string )
 { return toUiString(joinstring).arg(sGenerating()).arg(string); }
 
