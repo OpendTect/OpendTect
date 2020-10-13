@@ -508,6 +508,14 @@ float* SeisDataPack::getTrcData( int comp, int globaltrcidx )
 }
 
 
+bool SeisDataPack::getCopiedTrcData( int comp, int globaltrcidx,
+				     Array1D<float>& ) const
+{
+    pErrMsg("Not implemented yet");
+    return false;
+}
+
+
 void SeisDataPack::setComponentName( const char* nm, int component )
 {
     if ( componentnames_.validIdx(component) )

@@ -39,7 +39,10 @@ bool is2DGeom( Pos::GeomID geomid )
 { return geomid >= 0; }
 
 bool is3DGeom( Pos::GeomID geomid )
-{ return geomid < 0; }
+{ return geomid == -1; }
+
+bool isSynthetic( Pos::GeomID geomid )
+{ return geomid == -2; }
 
 Pos::GeomID deafult3DGeomID()
 { return Geometry::default3D().getID(); }

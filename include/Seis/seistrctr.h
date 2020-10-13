@@ -245,6 +245,8 @@ public:
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }
 
+    const LinScaler*	traceScaler() const	{ return curtrcscalebase_; }
+
 protected:
 
     Conn*		conn_;

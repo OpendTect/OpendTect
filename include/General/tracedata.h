@@ -46,6 +46,8 @@ public:
 			//!< copy all components, making an exact copy.
     void		copyFrom(const TraceData&,int comp_from,int comp_to);
 			//!< copy comp_from of argument to my comp_to
+    void		convertTo(const DataCharacteristics&,
+				  bool preserve_data=true);
     void		convertToFPs(bool preserve_data=true);
 
     inline int		nrComponents() const
@@ -75,6 +77,8 @@ public:
 				     bool cleardata=false);
     void		delComponent(int);
     void		setComponent(const DataCharacteristics&,int icomp=0);
+    void		setNrComponents(int nrcomp,
+					DataCharacteristics::UserType);
 
     void		reSize(int,int icomp=-1,bool copydata=false);
 				//!< -1 = all data buffers

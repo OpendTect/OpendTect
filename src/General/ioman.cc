@@ -798,6 +798,12 @@ IOObj* IOMan::get( const char* objname, const char* tgname ) const
 }
 
 
+IOObj* IOMan::get( const IOObjContext& ctxt, const char* objnm ) const
+{
+    return get( objnm, ctxt.trgroup_->groupName() );
+}
+
+
 bool IOMan::isPresent( const char* objname, const char* tgname ) const
 {
     PtrMan<IOObj> obj = get( objname, tgname );

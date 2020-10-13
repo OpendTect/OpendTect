@@ -86,6 +86,8 @@ public:
     void		limitTo(Interval<int> trcrg);
 
     int			indexOf(int trcnr) const;
+    bool		isPresent( int trcnr ) const
+			{ return indexOf(trcnr)>=0; }
     int			nearestIdx( const Coord& crd ) const
 						{ return gtIndex(crd); }
     int			nearestIdx(const Coord&,

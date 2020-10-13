@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 
 class BinIDValueSet;
+class TraceData;
 namespace PosInfo { class CubeData; }
 
 /*!
@@ -39,6 +40,7 @@ public:
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
+    StepInterval<float>		zRange() const	{ return sampling_.zsamp_; }
 
     void			setTrcsSampling(PosInfo::CubeData*);
 				//!<Becomes mine
@@ -69,6 +71,11 @@ public:
 				will be one less than BinIDValueSet::nrVals(),
 				as the	z-component is not used. \param nms is
 				for passing component names. */
+
+    void			fillTrace(const TrcKey&,SeisTrc&) const;
+    void			fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
+    void			fillTraceData(const TrcKey&,TraceData&) const;
+
 protected:
 
     TrcKeyZSampling		sampling_;

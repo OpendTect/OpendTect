@@ -22,9 +22,9 @@ bool RawDataArray::isZero() const
 {
     if ( !data_ || !nelem_ || !bytes_ ) return true;
 
-    register const unsigned char* ptr = data_;
-    register const int totbytes = nelem_ * bytes_;
-    for ( register int idx=0; idx<totbytes; idx++ )
+    const unsigned char* ptr = data_;
+    const int totbytes = nelem_ * bytes_;
+    for ( int idx=0; idx<totbytes; idx++ )
         if ( *ptr++ ) return false;
 
     return true;
@@ -192,6 +192,38 @@ void TraceData::copyFrom( const TraceData& td, int icfrom, int icto )
 }
 
 
+void TraceData::convertTo( const DataCharacteristics& dc, bool pres )
+{
+    bool allok = true;
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+    {
+	const TraceDataInterpreter* di = getInterpreter( icomp );
+	if ( di && di->dataChar() != dc )
+	    { allok = false; break; }
+    }
+    if ( allok )
+	return;
+
+    const int sz = size();
+    TraceData oldtd( *this );
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	setComponent( dc, icomp );
+    reSize( sz );
+
+    if ( pres )
+    {
+	for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const float val = oldtd.getValue( idx, icomp );
+		setValue( idx, val, icomp );
+	    }
+	}
+    }
+}
+
+
 void TraceData::convertToFPs( bool pres )
 {
     bool allfloat = true;
@@ -328,6 +360,45 @@ void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 
     data_[icomp]->reByte( dc.nrBytes() );
     *interp_[icomp] = dc;
+}
+
+
+void TraceData::setNrComponents( int newnrcomps,
+				 DataCharacteristics::UserType utin )
+
+{
+    const int oldnrcomps = nrComponents();
+    const bool isautodatarep = utin == DataCharacteristics::Auto;
+    if ( oldnrcomps == newnrcomps )
+    {
+	if ( isautodatarep )
+	    return;
+
+	bool isok = true;
+	for ( int icomp=0; icomp<oldnrcomps; icomp++ )
+	{
+	    DataCharacteristics::UserType ut =
+		getInterpreter(icomp)->dataChar().userType();
+	    if ( ut != utin )
+		{ isok = false; break; }
+	}
+	if ( isok )
+	    return;
+    }
+
+    const int sz = size();
+    if ( isautodatarep )
+    {
+	DataCharacteristics::UserType ut =
+			getInterpreter(0)->dataChar().userType();
+	utin = oldnrcomps > 0 ? ut : DataCharacteristics::F32;
+    }
+
+    while ( nrComponents() > 0 )
+	delComponent( 0 );
+
+    for ( int icomp=0; icomp<newnrcomps; icomp++ )
+	addComponent( sz, DataCharacteristics(utin) );
 }
 
 

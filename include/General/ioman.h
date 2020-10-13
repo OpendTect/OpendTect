@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
+#include "ctxtioobj.h"
 #include "namedobj.h"
 #include "multiid.h"
 
@@ -54,6 +55,7 @@ public:
 				   const IOObjContext&,bool mknew,
 				   BufferString& errmsg) const;
     IOObj*		get(const char* objname,const char* tgname) const;
+    IOObj*		get(const IOObjContext&,const char* objnm) const;
 
     bool		isPresent(const char*,const char* tgname=0) const;
 			/*!< Use before creating a named object
