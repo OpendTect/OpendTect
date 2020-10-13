@@ -214,7 +214,6 @@ mDefineInstanceCreatedNotifierAccess(Well::Data)
     preact info_ postact; \
     preact track_ postact; \
     preact logs_ postact; \
-    preact loginfos_ postact; \
     preact d2tmodel_ postact; \
     preact csmodel_ postact; \
     preact markers_ postact; \
@@ -227,7 +226,6 @@ mDefineInstanceCreatedNotifierAccess(Well::Data)
     , info_(*new Info(nm)) \
     , track_(*new Well::Track) \
     , logs_(*new Well::LogSet) \
-    , loginfos_(*new Well::LogInfoSet) \
     , disp2d_(*new Well::DisplayProperties2D()) \
     , disp3d_(*new Well::DisplayProperties3D()) \
     , d2tmodel_(*new D2TModel) \
@@ -283,7 +281,6 @@ void Well::Data::copyClassData( const Data& oth )
     d2tmodel_ = oth.d2tmodel_;
     markers_ = oth.markers_;
     logs_ = oth.logs_;
-    loginfos_ = oth.loginfos_;
     csmodel_ = oth.csmodel_;
     disp2d_ = oth.disp2d_;
     disp3d_ = oth.disp3d_;
@@ -298,7 +295,6 @@ Monitorable::ChangeType Well::Data::compareClassData( const Data& oth ) const
     d2tmodel_ == oth.d2tmodel_ &&
     markers_ == oth.markers_ &&
     logs_ == oth.logs_ &&
-    loginfos_ == oth.loginfos_ &&
     csmodel_ == oth.csmodel_ &&
     disp2d_ == oth.disp2d_ &&
     disp3d_ == oth.disp3d_ );
@@ -383,7 +379,6 @@ void Well::Data::setEmpty()
     csmodel_.setEmpty();
     markers_.setEmpty();
     logs_.setEmpty();
-    loginfos_.setEmpty();
     d2tmodel_.setEmpty();
     track_.setEmpty();
 }

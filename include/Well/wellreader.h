@@ -38,13 +38,13 @@ public:
 
     bool		getInfo() const;	//!< Read Info only
     bool		getTrack() const;	//!< Read Track only
-    bool		getLogs() const;	//!< Read logs only
+    bool		getLogs(bool needjustinfo=false) const;
+						//!< Read logs only
     bool		getMarkers() const;	//!< Read Markers only
     bool		getD2T() const;		//!< Read D2T model parts
     bool		getCSMdl() const;	//!< Read Checkshot model parts
     bool		getDispProps() const;	//!< Read display props only
     bool		getLog(const char* lognm) const; //!< Read this one only
-    bool		getLogInfo() const;	//!< Read log infos only
     void		getLogNames(BufferStringSet&) const;
     void		getLogInfo(ObjectSet<IOPar>&) const;
 

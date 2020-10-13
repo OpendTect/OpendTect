@@ -52,14 +52,17 @@ const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
 
-bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
+bool Well::ReadAccess::addToLogSet( Well::Log* newlog, bool needjustinfo ) const
 {
     if ( !newlog )
 	return false;
 
-    newlog->removeTopBottomUdfs();
-    if ( newlog->isEmpty() )
-	return false;
+    if ( !needjustinfo && newlog->isEmpty() )
+    {
+	newlog->removeTopBottomUdfs();
+	if ( newlog->isEmpty() )
+	    return false;
+    }
 
     wd_.logs().add( newlog );
     return true;
@@ -181,9 +184,9 @@ rettyp Well::Reader::fnnm( typ arg ) const \
 bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 
 mImplSimpleWRFn(getInfo)
-mImplSimpleWRFn(getLogs)
 mImplSimpleWRFn(getMarkers)
 mImplSimpleWRFn(getDispProps)
+mImplWRFn(bool,getLogs,bool,needjustinfo,false)
 
 bool Well::Reader::getTrack() const
 {
@@ -229,8 +232,6 @@ bool Well::Reader::getCSMdl() const
 
 
 mImplWRFn(bool,getLog,const char*,lognm,false)
-bool Well::Reader::getLogInfo() const
-{ return ra_ ? ra_->getLogInfo() : false; }
 void Well::Reader::getLogNames( BufferStringSet& lognms ) const
 { if ( ra_ ) ra_->getLogNames( lognms ); }
 void Well::Reader::getLogInfo( ObjectSet<IOPar>& iops ) const
@@ -502,34 +503,6 @@ void Well::odReader::getLogInfo( ObjectSet<IOPar>& iops ) const
 }
 
 
-bool Well::odReader::getLogInfo() const
-{
-    ChangeNotifyBlocker nb( wd_.logInfoSet() );
-
-    IOPar dumiop;
-    for ( int idx=1;  ; idx++ )
-    {
-	mGetInpStream( sExtLog(), idx, false, break );
-
-	if ( rdHdr(strm,sKeyLog()) )
-	{
-	    int bintyp = 0;
-	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1, dumiop );
-	    Well::LogInfo* loginfo= new Well::LogInfo( log->name() );
-	    loginfo->logunit_ = log->unitMeasLabel();
-	    if ( !log->dahRange().isUdf() )
-	    {
-		readLogData( *log, strm, bintyp );
-		loginfo->dahrg_ = log->dahRange();
-	    }
-
-	    wd_.logInfoSet().add( loginfo );
-	}
-    }
-    return true;
-}
-
-
 bool Well::odReader::getLog( const char* lognm ) const
 {
     BufferStringSet nms;
@@ -545,14 +518,14 @@ bool Well::odReader::getLog( const char* lognm ) const
 }
 
 
-bool Well::odReader::getLogs() const
+bool Well::odReader::getLogs( bool needjustinfo ) const
 {
     bool rv = true;
     wd_.logs().setEmpty();
     for ( int idx=1;  ; idx++ )
     {
 	mGetInpStream( sExtLog(), idx, false, break );
-	if ( !addLog(strm) )
+	if ( !addLog(strm, needjustinfo) )
 	{
 	    setStrmOperErrMsg( strm, tr("read data") );
 	    ErrMsg( errmsg_ ); errmsg_.setEmpty();
@@ -583,7 +556,10 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
 	if ( ky == Well::Log::sKeyUnitLbl() )
 	    newlog->setUnitMeasLabel( val );
 	if ( ky == Well::Log::sKeyDahRange() )
-	    newlog->dahRange().set( astrm.getFValue(0),astrm.getFValue(1) );
+	{
+	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
+	    newlog->addValue( astrm.getFValue(1), mUdf(float) );
+	}
 	if ( ky == Well::Log::sKeyStorage() )
 	    bintype = val[0] == 'B' ? 1
 		    : val[0] == 'S' ? -1 : 0;
@@ -602,7 +578,7 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
 }
 
 
-bool Well::odReader::addLog( od_istream& strm ) const
+bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 {
     if ( !rdHdr(strm,sKeyLog()) )
 	return false;
@@ -613,43 +589,50 @@ bool Well::odReader::addLog( od_istream& strm ) const
     if ( !newlog )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
-    readLogData( *newlog, strm, bintype );
-    TypeSet<float> dahvals, zvals;
-    newlog->getData( dahvals, zvals );
+    if ( !needjustinfo )
+	newlog->removeTopBottomUdfs();
 
-    if ( wd_.track().isEmpty() )
-	getTrack();
-    if ( !wd_.track().isEmpty() )
+    if ( newlog->isEmpty() )
     {
-	const Interval<float> trackdahrg = wd_.track().dahRange();
-	for ( int idx=0; idx<dahvals.size(); idx++ )
+	readLogData( *newlog, strm, bintype );
+	TypeSet<float> dahvals, zvals;
+	newlog->getData( dahvals, zvals );
+
+	if ( wd_.track().isEmpty() )
+	    getTrack();
+	if ( !wd_.track().isEmpty() )
 	{
-	    if ( !trackdahrg.includes(dahvals[idx],false) )
+	    const Interval<float> trackdahrg = wd_.track().dahRange();
+	    for ( int idx=0; idx<dahvals.size(); idx++ )
 	    {
-		dahvals.removeSingle( idx );
-		zvals.removeSingle( idx );
-		idx--;
+		if ( !trackdahrg.includes(dahvals[idx],false) )
+		{
+		    dahvals.removeSingle( idx );
+		    zvals.removeSingle( idx );
+		    idx--;
+		}
 	    }
 	}
-    }
 
-    PropertyRef::StdType proptyp =  newlog->propType();
-    if ( proptyp == PropertyRef::Son ||  proptyp == PropertyRef::Vel )
-    {
-	mGetZFac( logiop );
-	for ( int idx=0; idx<zvals.size(); idx++ )
+	PropertyRef::StdType proptyp =	newlog->propType();
+	if ( proptyp == PropertyRef::Son ||  proptyp == PropertyRef::Vel )
 	{
-	    if ( mIsUdf(zvals[idx]) )
-		continue;
-	    else if ( proptyp == PropertyRef::Son )
-		zvals[idx] /= zfac;
-	    else if ( proptyp == PropertyRef::Vel )
-		zvals[idx] *= zfac;
+	    mGetZFac( logiop );
+	    for ( int idx=0; idx<zvals.size(); idx++ )
+	    {
+		if ( mIsUdf(zvals[idx]) )
+		    continue;
+		else if ( proptyp == PropertyRef::Son )
+		    zvals[idx] /= zfac;
+		else if ( proptyp == PropertyRef::Vel )
+		    zvals[idx] *= zfac;
+	    }
 	}
+
+	newlog->setData( dahvals, zvals );
     }
 
-    newlog->setData( dahvals, zvals );
-    return addToLogSet( newlog );
+    return addToLogSet( newlog, needjustinfo );
 }
 
 

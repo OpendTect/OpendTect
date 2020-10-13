@@ -193,7 +193,7 @@ bool Well::HDF5Reader::getCSMdl() const
 }
 
 
-bool Well::HDF5Reader::getLogs() const
+bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
 {
     mEnsureFileOpen();
 

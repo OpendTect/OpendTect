@@ -22,9 +22,7 @@ class D2TModel;
 class Marker;
 class MarkerSet;
 class Log;
-class LogInfo;
 class LogSet;
-class LogInfoSet;
 class Track;
 
 #define mWellNrSubObjTypes 9
