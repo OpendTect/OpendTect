@@ -59,6 +59,8 @@ Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
 	reqs_[typ] = 1;
     if ( typ == Trck )
 	reqs_[Inf] = 1;
+    if ( typ == Logs )
+	reqs_[LogInfos] = 0;
     return *this;
 }
 
@@ -69,6 +71,8 @@ Well::LoadReqs Well::LoadReqs::All()
     ret.reqs_.set();
     if ( !SI().zIsTime() )
 	ret.reqs_[D2T] = 0;
+
+    ret.reqs_[LogInfos] = 0;
     return ret;
 }
 
@@ -83,8 +87,13 @@ Well::LoadReqs& Well::LoadReqs::forceAddD2T()
 void Well::LoadReqs::include( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
+    {
 	if ( oth.reqs_[idx] )
 	    reqs_[ idx ] = 1;
+    }
+
+    if ( reqs_[Logs] )
+	reqs_[LogInfos] = 0;
 }
 
 
@@ -173,7 +182,7 @@ bool Well::Manager::readReqData( const ObjID& id, Data& wd,
     mJustTry( D2T, d2TModel, rdr.getD2T() )
     mJustTry( Mrkrs, markers, rdr.getMarkers() )
     mJustTry( Logs, logs, rdr.getLogs() )
-    mJustTry( LogInfos, logInfoSet, rdr.getLogInfo() )
+    mJustTry( LogInfos, logs, rdr.getLogs(true) )
     mJustTry( CSMdl, checkShotModel, rdr.getCSMdl() )
     if ( lreq.includes(DispProps2D) || lreq.includes(DispProps3D) )
     {
@@ -547,7 +556,7 @@ void Well::Saver::updateLastSavedSubObjDirtyCounts( const Well::Data& wd ) const
     mSetFor( CSMdl, checkShotModel() );
     mSetFor( Mrkrs, markers() );
     mSetFor( Logs, logs() );
-    mSetFor( LogInfos, logInfoSet() );
+    mSetFor( LogInfos, logs() );
     mSetFor( DispProps2D, displayProperties2d() );
     mSetFor( DispProps3D, displayProperties3d() );
 }

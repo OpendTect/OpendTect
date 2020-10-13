@@ -66,13 +66,12 @@ public:
 
     virtual bool	getInfo() const;
     virtual bool	getTrack() const;
-    virtual bool	getLogs() const;
+    virtual bool	getLogs(bool needjustinfo=false) const;
     virtual bool	getMarkers() const;
     virtual bool	getD2T() const;
     virtual bool	getCSMdl() const;
     virtual bool	getDispProps() const;
     virtual bool	getLog(const char* lognm) const;
-    virtual bool	getLogInfo() const { return false; }
     virtual void	getLogNames(BufferStringSet&) const;
     virtual void	getLogInfo(ObjectSet<IOPar>&) const;
 
