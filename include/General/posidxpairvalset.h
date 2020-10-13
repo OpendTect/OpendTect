@@ -27,7 +27,7 @@ template <class IPT,class FT> class IdxPairValues;
 
 
 /*!\brief A sorted set of IdxPairs and associated values
- 
+
   The set is sorted on both first and second key (inl()/row()/lineNr() and
   crl()/col()/traceNr()). This has a cost when creating the set, and it will
   be slower than a normal TypeSet for small sets. Further, the order in which
@@ -43,7 +43,7 @@ template <class IPT,class FT> class IdxPairValues;
   All positioning is already done with SPos, but you can in theory still use
   \code
   const od_int64 sz = totalSize();
-  for ( od_int64 idx=0; idx<sz; idx++ ) 
+  for ( od_int64 idx=0; idx<sz; idx++ )
   {
       Pos::IdxPairValueSet::SPos pos = set.getPos( idx );
       // etc.
@@ -60,7 +60,7 @@ template <class IPT,class FT> class IdxPairValues;
 
   Note: if one of the values is Z, make it the first value. Not that this
   is enforced by the set, but it will be assumed sooner or later.
- 
+
  */
 
 
@@ -150,6 +150,11 @@ public:
     Interval<IdxType>	firstRange() const;
     Interval<IdxType>	secondRange(IdxType firsidx=-1) const;
     Interval<float>	valRange(int valnr) const;
+
+    int			firstIdx(int) const;
+    int			secondIdx(int firstidx,int) const;
+    int			firstAtIdx(int firstidx) const;
+    void		getSecondsAtIdx(int firstidx,TypeSet<int>&) const;
 
     void		remove(const SPos&);
     			//!< afterwards, SPos may be invalid

@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rowcol.h"
 #include "string2.h"
 #include "undefval.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
 #include "trckeyvalue.h"
 #include "survinfo.h" // fallback with pErrMsg only
 
@@ -373,11 +373,28 @@ Pos::GeomID TrcKey::geomID() const
 Pos::GeomID TrcKey::geomID( SurvID survid, const BinID& bid )
 { mGetGeomID( survid, bid ); }
 
+
+bool TrcKey::exists() const
+{
+    if ( isUdf() )
+	return false;
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );
+    return geom ? geom->includes( *this ) : false;
+}
+
+
 const TrcKey& TrcKey::udf()
 {
     mDefineStaticLocalObject( const TrcKey, udfkey,
 	    (mUdf(SurvID), BinID::udf() ));
     return udfkey;
+}
+
+
+void TrcKey::setUdf()
+{
+    *this = udf();
 }
 
 

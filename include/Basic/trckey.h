@@ -52,8 +52,10 @@ public:
     bool		operator!=( const TrcKey& oth ) const
 			{ return !(*this==oth); }
 
+    bool		exists() const; //!< check in geometry
     inline bool		isUdf() const			{ return *this==udf(); }
     static const TrcKey& udf();
+    void		setUdf();
     static SurvID	std2DSurvID();
     static SurvID	std3DSurvID();
     static SurvID	cUndefSurvID();

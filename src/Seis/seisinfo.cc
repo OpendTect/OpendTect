@@ -441,6 +441,14 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
 }
 
 
+void SeisTrcInfo::setTrcKey( const TrcKey& tk )
+{
+    if ( tk.is2D() )
+	nr = tk.trcNr();
+    setBinID( tk.binID() );
+}
+
+
 void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
 {
     auxinf.binid = binID();

@@ -8,6 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "posidxpairvalset.h"
 #include "posidxpairvalue.h"
+
+#include "binidvalset.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "idxable.h"
@@ -973,7 +975,7 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 }
 
 
-void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg, 
+void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg,
 				   bool removeinside )
 {
     const StepInterval<IdxType> frstrg = hrg.inlRange();
@@ -1325,4 +1327,62 @@ int Pos::IdxPairValueSet::nrDuplicateIdxPairs() const
     }
 
     return nrdupips;
+}
+
+
+int Pos::IdxPairValueSet::firstIdx( int pos ) const
+{
+    bool found = false;
+    const int idx = findIndexFor( frsts_, pos, &found );
+    return found ? idx : -1;
+}
+
+
+int Pos::IdxPairValueSet::secondIdx( int firstidx, int pos ) const
+{
+    if ( !frsts_.validIdx(firstidx) )
+	return -1;
+    bool found = false;
+    const int idx = findIndexFor( *scndsets_[firstidx], pos, &found );
+    return found ? idx : -1;
+}
+
+
+int Pos::IdxPairValueSet::firstAtIdx( int firstidx ) const
+{
+    return frsts_.validIdx(firstidx) ? frsts_[firstidx] : mUdf(int);
+}
+
+
+void Pos::IdxPairValueSet::getSecondsAtIdx( int firstidx,
+					    TypeSet<int>& seconds ) const
+{
+    seconds.setEmpty();
+    if ( !frsts_.validIdx(firstidx) )
+	return;
+
+    const TypeSet<int>& scnds = *scndsets_[firstidx];
+    const int sz = scnds.size();
+    if ( sz < 1 )
+	return;
+
+    seconds.add( scnds.get(0) );
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	const int scnd = scnds.get( idx );
+	if ( scnd != scnds.get(idx-1) )
+	    seconds.add( scnd );
+    }
+}
+
+
+void BinIDValueSet::setStepout( int trcstepout, int trcstep )
+{
+    pErrMsg("Not implemented yet");
+}
+
+
+void BinIDValueSet::setStepout( const IdxPair& stepout, const IdxPair& step )
+{
+    pErrMsg("Not implemented yet");
 }

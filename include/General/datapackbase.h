@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "valseries.h"
 
+template <class T> class Array1D;
 template <class T> class Array2D;
 template <class T> class Array3D;
 template <class T> class Array3DImpl;
@@ -219,6 +220,9 @@ public:
 
     const float*		getTrcData(int comp,int globaltrcidx) const;
     float*			getTrcData(int comp,int globaltrcidx);
+
+    bool			getCopiedTrcData(int comp,int globaltrcidx,
+						 Array1D<float>&) const;
 
     int				nrComponents() const
 				{ return arrays_.size(); }

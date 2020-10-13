@@ -42,6 +42,9 @@ public:
     inline BinID	firstBinID() const
 					{ return mkBinID(firstIdxPair()); }
 
+    void		setStepout(int trcstepout,int trcstep=1);
+    void		setStepout(const IdxPair& stepout,const IdxPair& step);
+
 protected:
 
     friend class	DataPointSet;

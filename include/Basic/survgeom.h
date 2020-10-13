@@ -180,6 +180,7 @@ inline mGlobal(Basic) GeometryManager& GMAdmin()
 
 mGlobal(Basic) bool is2DGeom(Pos::GeomID);
 mGlobal(Basic) bool is3DGeom(Pos::GeomID);
+mGlobal(Basic) bool isSynthetic(Pos::GeomID);
 mGlobal(Basic) Pos::GeomID default3DGeomID();
 mGlobal(Basic) bool isValidGeomID(Pos::GeomID);
 

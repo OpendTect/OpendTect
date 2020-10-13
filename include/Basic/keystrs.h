@@ -45,6 +45,7 @@ namespace sKey
     inline FixedString Color()		{ return "Color"; }
     inline FixedString CoordSys()	{ return "Coordinate System"; }
     inline FixedString Component()	{ return "Component"; }
+    inline FixedString Components()	{ return "Components"; }
     inline FixedString Content()	{ return "Content"; }
     inline FixedString Crossline()	{ return "Cross-line"; }
     inline FixedString Cube()		{ return "Cube"; }
@@ -89,9 +90,10 @@ namespace sKey
     inline FixedString Local()		{ return "Local"; }
     inline FixedString Log()		{ return "Log"; }
     inline FixedString LogFile()	{ return "Log file"; }
-    inline FixedString MD(int n=1)      { return n<2 ? "MD" : "MDs"; }
-    inline FixedString Marker()         { return "Marker"; }
-    inline FixedString MarkerStyle()    { return "Marker Style"; }
+    inline FixedString MD(int n=1)	{ return n<2 ? "MD" : "MDs"; }
+    inline FixedString Marker()		{ return "Marker"; }
+    inline FixedString MarkerStyle()	{ return "Marker Style"; }
+    inline FixedString Mode()		{ return "Mode"; }
     inline FixedString Model()		{ return "Model"; }
     inline FixedString Name()		{ return "Name"; }
     inline FixedString NewLine()	{ return "\n"; }

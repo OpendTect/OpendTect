@@ -353,6 +353,58 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
 }
 
 
+void RegularSeisDataPack::fillTrace( const TrcKey& tk, SeisTrc& trc ) const
+{
+    fillTraceInfo( tk, trc.info() );
+    fillTraceData( tk, trc.data() );
+}
+
+
+void RegularSeisDataPack::fillTraceInfo( const TrcKey& tk,
+					 SeisTrcInfo& sti ) const
+{
+    const auto zrg = zRange();
+    sti.sampling.start = zrg.start;
+    sti.sampling.step = zrg.step;
+    sti.setTrcKey( tk );
+    sti.coord = tk.getCoord();
+    sti.offset = 0.f;
+}
+
+
+void RegularSeisDataPack::fillTraceData( const TrcKey& tk, TraceData& td ) const
+{
+    DataCharacteristics dc;
+    if ( !scaler_ )
+	dc = DataCharacteristics( getDataDesc() );
+    td.convertTo( dc, false );
+
+    const int trcsz = zRange().nrSteps() + 1;
+    td.reSize( trcsz );
+
+    const int globidx = getGlobalIdx( tk );
+    if ( globidx < 0 )
+	{ td.zero(); return; }
+
+    Array1DImpl<float> copiedtrc( trcsz );
+    const int nrcomps = nrComponents();
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	const float* vals = getTrcData( icomp, globidx );
+	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
+	    { td.zero(); return; }
+
+	float* copiedtrcptr = copiedtrc.getData();
+	for ( int isamp=0; isamp<trcsz; isamp++ )
+	{
+	    const float val = vals ? vals[isamp] : copiedtrcptr
+						  ? copiedtrcptr[isamp]
+						  : copiedtrc.get( isamp );
+	    td.setValue( isamp, val, icomp );
+	}
+    }
+}
+
 // RandomSeisDataPack
 RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 					const BinDataDesc* bdd )
