@@ -785,7 +785,7 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    return BufferString( set_->isPolygon() ? "Polygon: " : "PointSet: ",
+    return BufferString( set_ && set_->isPolygon() ? "Polygon: " : "PointSet: ",
 			 getName() );
 }
 
