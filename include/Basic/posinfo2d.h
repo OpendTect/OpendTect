@@ -105,7 +105,7 @@ public:
     Bin2D		bin2D(idx_type) const;
     Coord		coord(idx_type) const;
     bool		isPresent( trcnr_type tnr ) const
-						{ return indexOf(tnr) < 0; }
+						{ return indexOf(tnr) >= 0; }
     idx_type		indexOf(trcnr_type) const;
     const PosSet&	positions() const	{ return posns_; }
 
