@@ -41,6 +41,9 @@ int main( int argc, char ** argv )
     BufferStringSet proctyp;
     parser.getNormalArguments( proctyp );
 
+    if ( proctyp.isEmpty() )
+	return ExitProgram( 0 );
+
     const int proctypidx =
 	    ProcDesc::DataEntry::ActionTypeDef().indexOf( proctyp[0]->buf() );
 
@@ -62,7 +65,7 @@ int main( int argc, char ** argv )
 
     ProcDesc::DataEntry::ActionType typ = ePDD().getActionType();
     if ( instlrlaunchedproc && typ == ProcDesc::DataEntry::Remove )
-	return 0;
+	return ExitProgram( 0 );
 
     BufferString pythonpath;
     if ( proctyp.size() > 4 )
@@ -74,9 +77,14 @@ int main( int argc, char ** argv )
 	    pythonpath = GetArgV()[ proctyp.size() ];
     }
 
+    ProcDesc::DataEntry::ActionType type =
+	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex( proctypidx );
+
+    if ( instlrlaunchedproc )
+	type = ProcDesc::DataEntry::Add;
+
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
-	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex(proctypidx),
-	&path, &pythonpath );
+						type, &path, &pythonpath );
 
     app.setTopLevel( dlg );
     dlg->show();
