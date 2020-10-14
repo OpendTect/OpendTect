@@ -170,7 +170,10 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
     if ( is2d )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
+    uiString lbl = uiStrings::phrOutput(
+		uiStrings::sSeisObjName( is2d, !is2d, false, false, false ));
     uiSeisSel::Setup copysu( gt );
+    copysu.seltxt( lbl );
     copysu.optionsselectable( singlevintage_ || is2d );
     copysu.enabotherdomain( singlevintage_ )
 	  .isotherdomain( istime != SI().zIsTime() );
@@ -771,9 +774,12 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     if ( !dlg.execute( *exec ) )
 	return false;
 
-    auto uirv = storer->close();
-    if ( !uirv.isOK() )
-	uiMSG().warning( uirv );
+    if ( storer )
+    {
+	auto uirv = storer->close();
+	if ( !uirv.isOK() )
+	    uiMSG().warning( uirv );
+    }
 
     if ( singlevintage_ )
 	handleWarnings( false, indexer, imp );
@@ -966,7 +972,7 @@ bool uiSEGYReadFinisher::acceptOK()
 	return doVSP();
 
     const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
-    const IOObj* outioobj = outFld(doimp)->ioobj();
+    ConstPtrMan<IOObj> outioobj = outFld(doimp)->ioobj()->clone();
     if ( !outioobj )
 	return false;
 
@@ -996,8 +1002,10 @@ bool uiSEGYReadFinisher::acceptOK()
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
     updateInIOObjPars( *inioobj, *outioobj );
 
-    return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
-		: do3D( *inioobj, *outioobj, doimp );
+    const bool res = is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
+			  : do3D( *inioobj, *outioobj, doimp );
+    inioobj->removeFromDB();
+    return res;
 }
 
 
