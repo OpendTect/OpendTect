@@ -95,7 +95,7 @@ protected:
     ObjectSet<LogData>		logdatas_;
     ObjectSet<uiWellLogDisplay> logdisps_;
     bool			needsave_;
-    bool			closeok_ = false;
+    bool			closeok_ = true;
 
     uiGroup*			createEditGroup();
     void			displayLogs();
@@ -107,7 +107,7 @@ protected:
     void			applyPushedCB(CallBacker*);
     void			acceptOK(CallBacker*);
     void			rejectOK(CallBacker*);
-    bool			closeOK()       { return closeok_; }
+    bool			closeOK();
 };
 
 
