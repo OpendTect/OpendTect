@@ -124,6 +124,8 @@ void uiSEGYMultiLineSel::initTable()
 		{
 		    if ( needwcsel )
 			tbl_->setText( RowCol(rowidx,colidx), filenm );
+		    else
+			tbl_->setText( RowCol(rowidx,linecol), filenm );
 		}
 	    }
 	    else
@@ -141,6 +143,8 @@ void uiSEGYMultiLineSel::initTable()
 
 		if ( needwcsel )
 		    tbl_->setText( RowCol(rowidx,colidx++), prevpart );
+		else if ( idy == userfnmparts.size()-1 )
+		    tbl_->setText( RowCol(rowidx,linecol), prevpart );
 	    }
 	}
 
@@ -262,5 +266,6 @@ bool uiSEGYMultiLineSel::acceptOK( CallBacker* )
     for ( int idx=1; idx<tbl_->nrRows(); idx++ )
 	linenames_.add( tbl_->text(RowCol(idx,linecol)) );
 
+    selwcidx_ = curwcidx_;
     return true;
 }
