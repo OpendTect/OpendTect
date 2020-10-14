@@ -389,6 +389,14 @@ void uiWellLogToolWin::acceptOK( CallBacker* )
 }
 
 
+bool uiWellLogToolWin::closeOK()
+{
+    const bool closeok = closeok_;
+    closeok_ = true;
+    return closeok;
+}
+
+
 bool uiWellLogToolWin::saveLogs()
 {
     const bool overwrite = !savefld_->getBoolValue();
