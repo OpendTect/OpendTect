@@ -136,12 +136,12 @@ void uiSEGYReadFinisher::crSeisFields()
 
     remnullfld_ = new uiGenInput( this, tr("Null traces"),
 		BoolInpSpec(true,uiStrings::sDiscard(),uiStrings::sPass()) );
-    remnullfld_->attach( alignedBelow, docopyfld_ );
 
     if ( is2d )
     {
 	lnmfld_ = new uiSeis2DLineNameSel( this, false );
 	lnmfld_->attach( alignedBelow, docopyfld_ );
+	remnullfld_->attach( alignedBelow, lnmfld_ );
 
 	uiSeis2DSubSel& selfld = *transffld_->selFld2D();
 	if ( !ismulti )
@@ -157,6 +157,8 @@ void uiSEGYReadFinisher::crSeisFields()
 	    lnmfld_->setSensitive( false );
 	}
     }
+    else
+	remnullfld_->attach( alignedBelow, docopyfld_ );
 
     uiGroup* attgrp = transffld_;
     if ( is2d )
@@ -483,7 +485,8 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     if ( !dlg.execute( *exec ) )
 	return false;
 
-    wrr.erase(); // closes output
+    if ( wrr )
+	wrr.erase(); // closes output
     if ( !handleWarnings(!doimp,indexer,imp) )
 	{ IOM().permRemove( outioobj.key() ); return false; }
 
