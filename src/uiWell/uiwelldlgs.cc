@@ -190,8 +190,11 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     uiPushButton* updbut = !writable_ ? 0
 		: new uiPushButton( this, tr("Update display"),
 				   mCB(this,uiWellTrackDlg,updNow), true );
-    updbut->attach( rightTo, expbut );
-    updbut->attach( rightBorder );
+    if ( updbut )
+    {
+	updbut->attach( rightTo, expbut );
+	updbut->attach( rightBorder );
+    }
 
     if ( !track_.isEmpty() )
 	origpos_ = track_.pos(0);
