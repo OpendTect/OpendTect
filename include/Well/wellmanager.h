@@ -99,6 +99,8 @@ public:
 
     void		getLogNames(const ObjID&,BufferStringSet&) const;
     void		getLogInfo(const ObjID&,ObjectSet<IOPar>&) const;
+    void		getMarkers(const ObjID&,BufferStringSet& nms,
+				   TypeSet<Color>&,TypeSet<float>&) const;
     void		getAllMarkerInfos(BufferStringSet& nms,
 					  TypeSet<Color>&,
 					  TypeSet<float>&) const;
