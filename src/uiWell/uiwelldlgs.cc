@@ -1891,8 +1891,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    else
 	    {
 		uom = UnitOfMeasure::getGuessed( curruom );
-		if ( uom )
-		    mn = eMNC().getGuessed( uom );
+		mn = eMNC().getGuessed( uom );
 	    }
 
 	    uiUnitSel::Setup ussu( mn ? mn->stdType() : PropertyRef::Other,

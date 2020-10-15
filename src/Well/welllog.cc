@@ -151,7 +151,7 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 
 const char* Well::Log::mnemLabel() const
 {
-    if ( mnemonic() )
+    if ( mnemlbl_.isEmpty() )
 	return mnemonic()->name();
 
     return mnemlbl_;
@@ -163,10 +163,8 @@ const Mnemonic* Well::Log::mnemonic() const
     if (!mnemlbl_.isEmpty())
 	return eMNC().find( mnemlbl_ );
     else
-    {
-	if ( unitOfMeasure()  )
-	    return eMNC().getGuessed( unitOfMeasure() );
-    }
+	return isCode() ? eMNC().getGuessed( propType() )
+			: eMNC().getGuessed( unitOfMeasure() );
 
     return nullptr;
 }

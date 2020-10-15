@@ -99,6 +99,8 @@ public:
     MnemonicSet*		getSet(const PropertyRef*);
     Mnemonic*			getGuessed(const UnitOfMeasure*);
 				//first match only
+    Mnemonic*			getGuessed(PropertyRef::StdType);
+				//first match only
     void			getNames(BufferStringSet&) const;
 
     int			add(Mnemonic*);
