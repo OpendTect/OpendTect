@@ -138,7 +138,7 @@ void WellServerTool::listMarkers()
     BufferStringSet nms;
     TypeSet<Color> colors;
     TypeSet<Marker::ZType> mds;
-    MGR().getAllMarkerInfos( nms, colors, mds );
+    MGR().getMarkers( wellid, nms, colors, mds );
     BufferStringSet colstrs;
     Color::convertToStr( colors, colstrs );
     set( sKey::ID(), wellid );

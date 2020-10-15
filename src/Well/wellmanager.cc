@@ -379,6 +379,25 @@ void Well::Manager::getLogInfo( const ObjID& id, ObjectSet<IOPar>& iops ) const
 }
 
 
+void Well::Manager::getMarkers( const ObjID& id, BufferStringSet& nms,
+				       TypeSet<Color>& colors,
+				       TypeSet<float>& mds ) const
+{
+    nms.setEmpty();
+    colors.setEmpty();
+    mds.setEmpty();
+    uiRetVal uirv;
+    ConstRefMan<Data> wd = fetch( id, LoadReqs( Mrkrs ), uirv );
+    if ( uirv.isOK() )
+    {
+	const MarkerSet& mrkrs = wd->markers();
+	mrkrs.getNames( nms );
+	mrkrs.getColors( colors );
+	mrkrs.getMDs( mds );
+    }
+}
+
+
 void Well::Manager::getAllMarkerInfos( BufferStringSet& nms,
 				       TypeSet<Color>& colors,
 				       TypeSet<float>& mds ) const
