@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 #include "fixedstring.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "samplingdata.h"
 #include "od_iosfwd.h"
 
@@ -155,6 +155,7 @@ public:
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
     bool		get(const char*,TypeSet<MultiID>&) const;
+    bool		get(const char*,TypeSet<DBKey>&) const;
 
     bool		get(const char*,BinID&) const;
     bool		get(const char*,TrcKey&) const;
@@ -261,6 +262,7 @@ public:
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
     void		set(const char*,const TypeSet<MultiID>&);
+    void		set(const char*,const TypeSet<DBKey>&);
 
     void		setToDateTime(const char* ky=nullptr);
     void		setToUser(const char* ky=nullptr);

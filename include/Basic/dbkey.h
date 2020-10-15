@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class SurveyDiskLocation;
+class SurveyInfo;
 
 mExpClass(Basic) DBKey : public MultiID
 {
@@ -34,6 +35,8 @@ public:
     bool		hasSurveyLocation() const { return survloc_; }
     const SurveyDiskLocation& surveyDiskLocation() const;
     void		clearSurveyDiskLocation();
+    bool		isInCurrentSurvey() const;
+    const SurveyInfo&	surveyInfo() const;
 
     BufferString	toString(bool withsurvloc) const;
 

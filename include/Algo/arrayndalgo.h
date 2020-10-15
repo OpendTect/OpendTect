@@ -257,6 +257,46 @@ inline bool hasUndefs( const Array1D<fT>& in )
 }
 
 
+template <class fT>
+inline bool hasUndefs( const ArrayND<fT>& in )
+{
+    const fT* vals = in.getData();
+    typedef ArrayNDInfo::total_size_type total_size_type;
+    const total_size_type sz = in.totalSize();
+    if ( vals )
+    {
+	for ( total_size_type idx=0; idx<sz; idx++ )
+	{
+	    if ( mIsUdf(vals[idx]) )
+		return true;
+	}
+
+	return false;
+    }
+
+    const ValueSeries<fT>* stor = in.getStorage();
+    if ( stor )
+    {
+	for ( total_size_type idx=0; idx<sz; idx++ )
+	{
+	    if ( mIsUdf(stor->value(idx)) )
+		return true;
+	}
+
+	return false;
+    }
+
+    ArrayNDIter iter( in.info() );
+    do
+    {
+	if ( mIsUdf(in.getND(iter.getPos())) )
+	    return true;
+
+    } while( iter.next() );
+
+    return false;
+}
+
 /*!
    The function interpUdf fills all the undefined values in a Array1D
    by using an inter- or extrapolation from the defined values.

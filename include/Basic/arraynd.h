@@ -143,7 +143,7 @@ public:
     virtual T			get( int p0, int p1 ) const		= 0;
     void			setND(  const int* pos, T v )
 				    { set( pos[0], pos[1], v);}
-    T		                getND( const int* pos ) const
+    T				getND( const int* pos ) const
 				    { return get( pos[0], pos[1] ); }
 
     virtual T**			get2DData()		{ return 0; }
@@ -166,7 +166,7 @@ public:
     virtual T			get( int p0, int p1, int p2 ) const	= 0;
     void			setND( const int* pos, T v )
 				    { set( pos[0], pos[1], pos[2], v);}
-    T		                getND( const int* pos ) const
+    T				getND( const int* pos ) const
 				    { return get( pos[0], pos[1], pos[2] ); }
 
     virtual T***		get3DData()		{ return 0; }
@@ -175,6 +175,27 @@ public:
     virtual const Array3DInfo&	info() const = 0;
 };
 
+
+/*!\brief 4-Dim ArrayND */
+
+template <class T>
+mClass(Basic) Array4D : public ArrayND<T>
+{
+public:
+				mTypeDefArrNDTypes;
+
+    virtual void		set(int,int,int,int,T)= 0;
+    virtual T			get(int,int,int,int) const = 0;
+    void			setND( const int* pos, T v )
+				{ set( pos[0], pos[1], pos[2], pos[3], v ); }
+    T				getND( const int* pos ) const
+				{ return get( pos[0], pos[1], pos[2], pos[3] );}
+
+    virtual T****		get4DData()		{ return 0; }
+    virtual const T****		get4DData() const	{ return 0; }
+
+    virtual const Array4DInfo&	info() const = 0;
+};
 
 /*!
 \brief Iterates through all samples in an ArrayND.
@@ -328,6 +349,17 @@ class Array3DConv : public Array3D<T>
 
 };
 
+
+template <class T, class TT>
+class Array4DConv : public Array4D<T>
+{ mDefArrayNDStdMembers(4D);
+
+    T		get( int p0, int p1, int p2, int p3 ) const
+				{ return (T)arr_->get( p0, p1, p2, p3 ); }
+    void	set( int p0, int p1, int p2, int p3, T v )
+				{ arr_->set( p0, p1, p2, p3, (TT)v ); }
+
+};
 
 // Only implementations below
 

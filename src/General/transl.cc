@@ -8,15 +8,20 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "transl.h"
-#include "preloads.h"
-#include "streamconn.h"
+
 #include "ctxtioobj.h"
+#include "debug.h"
+#include "file.h"
+#include "filepath.h"
 #include "fixedstring.h"
 #include "iostrm.h"
 #include "iopar.h"
-#include "debug.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
+#include "preloads.h"
+#include "streamconn.h"
+#include "strmprov.h"
+
 
 uiString Translator::sNoIoobjMsg()
 { return toUiString("Internal error: No object to store set in data base."); }
@@ -383,4 +388,74 @@ bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implSetReadOnly( yn );
+}
+
+
+BufferString Translator::getAssociatedFileName( const char* fnm,
+						const char* ext )
+{
+    FilePath fp( fnm );
+    fp.setExtension( ext );
+    return fp.fullPath();
+}
+
+
+BufferString Translator::getAssociatedFileName( const IOObj& ioobj,
+						const char* ext )
+{
+    return getAssociatedFileName( ioobj.mainFileName(), ext );
+}
+
+
+bool Translator::renameAssociatedFile( const char* fnm, const char* ext,
+					const char* newnm )
+{
+    if ( !newnm || !*newnm )
+	return false;
+
+    const BufferString assocoldfnm( getAssociatedFileName(fnm,ext) );
+    if ( !File::exists(assocoldfnm) )
+	return true;
+
+    FilePath fpnew( newnm );
+    fpnew.setExtension( ext );
+    if ( !fpnew.isAbsolute() )
+	fpnew.setPath( FilePath(assocoldfnm).pathOnly() );
+    const BufferString assocnewfnm( fpnew.fullPath() );
+    return File::rename( assocoldfnm, assocnewfnm );
+}
+
+
+bool Translator::renameLargeFile( const char* fnm, const char* newnm,
+				  const CallBack* cb )
+{
+    if ( !fnm || !*fnm || !newnm || !*newnm || !File::exists(fnm) )
+	return false;
+
+    const BufferString orgdir = FilePath(fnm).pathOnly();
+    StreamProvider sp( fnm );
+    StreamProvider spnew( newnm );
+    spnew.addPathIfNecessary( FilePath(fnm).pathOnly() );
+    return sp.rename( spnew.fileName(), cb );
+}
+
+
+bool Translator::removeAssociatedFile( const char* fnm, const char* ext )
+{
+    const BufferString assosfnm( getAssociatedFileName(fnm,ext) );
+    if ( !File::exists(assosfnm) )
+	return true;
+
+    return File::remove( assosfnm );
+}
+
+
+bool Translator::setPermAssociatedFile( const char* fnm, const char* ext,
+			bool setwritable )
+{
+    const BufferString assosfnm( getAssociatedFileName(fnm,ext) );
+    if ( !File::exists(assosfnm) )
+	return true;
+
+    return File::makeWritable( assosfnm, setwritable, false );
 }

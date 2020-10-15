@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpairvalue.h"
 
 #include "binidvalset.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "idxable.h"
@@ -1376,6 +1377,100 @@ void Pos::IdxPairValueSet::getSecondsAtIdx( int firstidx,
 }
 
 
+void Pos::IdxPairValueSet::updNearest( const IdxPair& ip, const SPos& spos,
+		    od_int64& mindistsq, SPos& ret ) const
+{
+    const auto curip = getIdxPair( spos );
+    const IdxPair ipdiff( curip.first-ip.first,
+			  curip.second-ip.second );
+    od_int64 distsq = ((od_int64)ipdiff.first) * ipdiff.first;
+    distsq += ((od_int64)ipdiff.second) * ipdiff.second;
+    if ( distsq < mindistsq )
+	{ ret = spos; mindistsq = distsq; }
+}
+
+
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findNearest(
+					const IdxPair& ip ) const
+{
+    SPos ret;
+    const auto nrfrst = frsts_.size();
+    if ( nrfrst < 1 )
+	return ret;
+
+    od_int64 mindistsq = mUdf( od_int64 );
+
+
+    for ( SPos spos(0); spos.i<nrfrst; spos.i++ )
+    {
+	const TypeSet<int>& scnds = *scndsets_[spos.i];
+	const auto lastj = scnds.size() - 1;
+	bool found;
+	spos.j = findIndexFor( scnds, ip.second, &found );
+	if ( found )
+	    updNearest( ip, spos, mindistsq, ret );
+	else if ( spos.j < 0 )
+	    { spos.j = 0; updNearest( ip, spos, mindistsq, ret ); }
+	else if ( spos.j > lastj )
+	    { spos.j = lastj; updNearest( ip, spos, mindistsq, ret ); }
+	else
+	{
+	    updNearest( ip, spos, mindistsq, ret );
+	    if ( spos.j < lastj )
+		{ spos.j++; updNearest( ip, spos, mindistsq, ret ); }
+	}
+    }
+
+    return ret;
+}
+
+
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findNearestOnFirst(
+					int frst, int scnd ) const
+{
+    const auto nrfrst = frsts_.size();
+    if ( nrfrst < 1 )
+	return SPos();
+
+    bool found;
+    SPos spos;
+    spos.i = findIndexFor( frsts_, frst, &found );
+    if ( !found )
+	return SPos();
+
+    const TypeSet<int>& scnds = *scndsets_[spos.i];
+    const auto lastj = scnds.size() - 1;
+    spos.j = findIndexFor( scnds, scnd, &found );
+    if ( found )
+	return spos;
+
+    if ( spos.j < 0 )
+	spos.j = 0;
+    else if ( spos.j > lastj )
+	spos.j = scnds.size() - 1;
+    else if ( spos.j < lastj )
+    {
+	auto ip = getIdxPair( spos );
+	const auto posdiff1 = std::abs( ip.second - scnd );
+	SPos spos2( spos.i, spos.j+1 );
+	ip = getIdxPair( spos2 );
+	const auto posdiff2 = std::abs( ip.second - scnd );
+	if ( posdiff2 < posdiff1 )
+	    spos = spos2;
+    }
+
+    return spos;
+}
+
+
+static HiddenParam<BinIDValueSet,char> is2ds(0);
+
+BinIDValueSet::~BinIDValueSet()
+{
+    is2ds.removeParam( this );
+}
+
+
 void BinIDValueSet::setStepout( int trcstepout, int trcstep )
 {
     pErrMsg("Not implemented yet");
@@ -1386,3 +1481,14 @@ void BinIDValueSet::setStepout( const IdxPair& stepout, const IdxPair& step )
 {
     pErrMsg("Not implemented yet");
 }
+
+
+void BinIDValueSet::init()
+{ is2ds.setParam( this, false ); }
+
+void BinIDValueSet::setIs2D( bool yn )
+{ is2ds.setParam( this, yn ); }
+
+bool BinIDValueSet::is2D() const
+{ return is2ds.getParam(this); }
+

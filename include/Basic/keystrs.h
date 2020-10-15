@@ -71,6 +71,7 @@ namespace sKey
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomSystem()	{ return "GeomSystem"; }
     inline FixedString GeomID()		{ return "GeomID"; }
+    inline FixedString GeomIDs()	{ return "GeomIDs"; }
     inline FixedString Histogram()	{ return "Histogram"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString Horizon2D()	{ return "Horizon2D"; }

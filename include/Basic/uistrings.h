@@ -29,6 +29,7 @@ public:
 //Phrases
     static uiString phrAdd(const uiString&);
     //!<"Add <string>"
+    static uiString phrAllocating(od_int64);
     static uiString phrASCII(const uiString& string);
     //!<"ASCII <string>"
     static uiString phrCalculate(const uiString&);
@@ -425,6 +426,7 @@ public:
     static uiString sMarker(int num=1);
     static uiString sMD()		{ return tr("MD","Measured Depth"); }
     static uiString sMedian()		{ return tr("Median"); }
+    static uiString sMemSizeString(od_int64);
     static uiString sMenu()		{ return tr("Menu"); }
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMerge();

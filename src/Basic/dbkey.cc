@@ -42,6 +42,12 @@ void DBKey::clearSurveyDiskLocation()
 }
 
 
+bool DBKey::isInCurrentSurvey() const
+{
+    return !survloc_ || survloc_->isCurrentSurvey();
+}
+
+
 BufferString DBKey::toString( bool withsurvloc ) const
 {
     BufferString ret = buf();
@@ -49,4 +55,10 @@ BufferString DBKey::toString( bool withsurvloc ) const
 	ret.add( "`" ).add( surveyDiskLocation().fullPath() );
 
     return ret;
+}
+
+
+const SurveyInfo& DBKey::surveyInfo() const
+{
+    return surveyDiskLocation().surveyInfo();
 }

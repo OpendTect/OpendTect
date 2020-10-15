@@ -302,6 +302,37 @@ TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::TraceID tid ) const
 }
 
 
+TrcKey GeometryManager::nearestTrace( const Coord& crd, bool is2d,
+				      float* dist ) const
+{
+    BufferStringSet nms; TypeSet<Pos::GeomID> geomids;
+    const bool res = getList( nms, geomids, is2d );
+    if ( !res )
+	return TrcKey::udf();
+
+    TrcKey tkatmin; float mindist = mUdf(float);
+    for ( int idx=0; idx<geomids.size(); idx++ )
+    {
+	const Geometry* geom = getGeometry( geomids[idx] );
+	if ( !geom )
+	    continue;
+
+	float curdist = mUdf(float);
+	TrcKey tk = geom->nearestTrace( crd, &curdist );
+	if ( curdist < mindist )
+	{
+	    mindist = curdist;
+	    tkatmin = tk;
+	}
+    }
+
+    if ( dist )
+	*dist = mindist;
+
+    return tkatmin;
+}
+
+
 void GeometryManager::addGeometry( Survey::Geometry& geom )
 {
     geom.ref();

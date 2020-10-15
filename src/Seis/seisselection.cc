@@ -142,7 +142,7 @@ void Seis::SelData::usePar( const IOPar& iop )
 
 int Seis::SelData::tracesInSI() const
 {
-    return mCast( int, TrcKeySampling(true).totalNr() );
+    return sCast( int, TrcKeySampling(true).totalNr() );
 }
 
 

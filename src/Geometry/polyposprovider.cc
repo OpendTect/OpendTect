@@ -151,6 +151,13 @@ bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 
 ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 {
+    return polyFromPar( iop, nr, nullptr );
+}
+
+
+ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr,
+						    BufferString* nm )
+{
     const char* res = iop.find( mGetPolyKey("ID") );
     ODPolygon<float>* ret = 0;
     if ( res && *res )
@@ -160,6 +167,7 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 	{
 	    BufferString msg;
 	    ret = PickSetTranslator::getPolygon(*ioobj,msg);
+	    if ( nm ) nm->set( ioobj->name() );
 	}
     }
 

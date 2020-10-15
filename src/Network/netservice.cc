@@ -85,7 +85,7 @@ bool Network::Service::operator ==( const Service& oth ) const
 	return true;
 
     return pid_ == oth.pid_ && subid_ == oth.subid_ && auth_ == oth.auth_ &&
-	   NamedObject::operator==( oth );
+	   name_ == oth.name_;
 }
 
 
@@ -247,7 +247,7 @@ uiRetVal Network::Service::useJSON( const OD::JSON::Object& jsonobj )
 	uirv.add(tr("missing key: %1").arg(hostnmkey));
 
     if ( jsonobj.isPresent(sKeyServiceType()) )
-	type_ = mCast(ServType,jsonobj.getIntValue( sKeyServiceType() ));
+	type_ = sCast(ServType,jsonobj.getIntValue( sKeyServiceType() ));
 
     if ( jsonobj.isPresent(sKeyLogFile()) )
 	setLogFile( jsonobj.getStringValue(sKeyLogFile()) );

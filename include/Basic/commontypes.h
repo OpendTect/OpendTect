@@ -85,6 +85,7 @@ typedef Index_Type	SurvID;
 typedef Index_Type	LineID;
 typedef Index_Type	TraceID;
 typedef Index_Type	GeomID;
+typedef TypeSet<GeomID>	GeomIDSet;
 
 typedef double		Ordinate_Type;
 typedef double		Distance_Type;
