@@ -298,6 +298,19 @@ MnemonicSet* MnemonicSet::getSet( const PropertyRef* pr )
 }
 
 
+Mnemonic* MnemonicSet::getGuessed( PropertyRef::StdType stdtype )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	Mnemonic& mnc = *(*this)[idx];
+	if ( mnc.hasType(stdtype) )
+	    return new Mnemonic( mnc );
+    }
+
+    return new Mnemonic( *(*this)[size()-1] );
+}
+
+
 Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -310,7 +323,7 @@ Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
 	}
     }
 
-    return nullptr;
+    return new Mnemonic( *(*this)[size()-1] );
 }
 
 
