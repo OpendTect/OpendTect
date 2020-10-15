@@ -163,10 +163,8 @@ const Mnemonic* Well::Log::mnemonic() const
     if (!mnemlbl_.isEmpty())
 	return eMNC().find( mnemlbl_ );
     else
-	return isCode() ? eMNC().getGuessed( propType() )
+	return isCode() ? eMNC().getGuessed( propType() ) 
 			: eMNC().getGuessed( unitOfMeasure() );
-
-    return nullptr;
 }
 
 
