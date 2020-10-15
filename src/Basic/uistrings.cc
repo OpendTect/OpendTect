@@ -19,6 +19,9 @@ static const char* joinstring = "%1 %2";
 uiString uiStrings::phrAdd( const uiString& string )
 { return toUiString(joinstring).arg( sAdd() ).arg( string ); }
 
+uiString uiStrings::phrAllocating( od_int64 sz )
+{ return tr("Allocating memory: %1").arg( sMemSizeString(sz) ); }
+
 uiString uiStrings::phrASCII( const uiString& string )
 { return toUiString(joinstring).arg( sASCII() ).arg( string ); }
 
@@ -486,6 +489,12 @@ uiString uiStrings::sManage()
 
 uiString uiStrings::sMarker( int num )
 { return tr("Marker", 0, num); }
+
+uiWord uiStrings::sMemSizeString( od_int64 memsz )
+{
+    NrBytesToStringCreator cr;
+    return toUiString( cr.getString(memsz) );
+}
 
 uiString uiStrings::sMerge()
 { return tr("Merge"); }

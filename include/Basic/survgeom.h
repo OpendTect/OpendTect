@@ -125,6 +125,8 @@ public:
 				//!<For 3D
     TrcKey			traceKey(Pos::GeomID,Pos::TraceID) const;
 				//!<For 2D
+    TrcKey			nearestTrace(const Coord&,bool is2d,
+					     float* dist=nullptr) const;
 
     bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,

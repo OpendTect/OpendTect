@@ -24,9 +24,13 @@ mExpClass(General) BinIDValueSet : public Pos::IdxPairValueSet
 public:
 
     			BinIDValueSet( int nrvals, bool allowdup )
-			    : Pos::IdxPairValueSet(nrvals,allowdup)	{}
+			    : Pos::IdxPairValueSet(nrvals,allowdup)
+			    { init(); }
 			BinIDValueSet( const BinIDValueSet& bvs )
-			    : Pos::IdxPairValueSet(bvs)			{}
+			    : Pos::IdxPairValueSet(bvs)
+			    { init(); setIs2D(bvs.is2D()); }
+			~BinIDValueSet();
+
     BinIDValueSet&	operator =( const BinIDValueSet& oth )
 			{ Pos::IdxPairValueSet::operator=(oth); return *this; }
 
@@ -45,6 +49,9 @@ public:
     void		setStepout(int trcstepout,int trcstep=1);
     void		setStepout(const IdxPair& stepout,const IdxPair& step);
 
+    void		setIs2D(bool yn);
+    bool		is2D() const;
+
 protected:
 
     friend class	DataPointSet;
@@ -53,6 +60,8 @@ protected:
     inline static BinID	mkBinID( const Pos::IdxPair& ip )
 			{ return BinID( ip.first, ip.second ); }
 
+private:
+    void		init();
 };
 
 

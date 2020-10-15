@@ -28,13 +28,12 @@ public:
 
     virtual const name_type&	name() const		= 0;
 
-    inline bool			hasName( const char* nm ) const
+    mDeprecatedObs inline bool	hasName( const char* nm ) const
 				{ return name() == nm; }
-    inline bool			hasName( const name_type& nm ) const
+    mDeprecatedObs inline bool	hasName( const name_type& nm ) const
 				{ return name() == nm; }
 
     void			putNameInPar(IOPar&) const;
-
 };
 
 /*!\brief object with a name. */
@@ -49,7 +48,7 @@ public:
 			    : name_(oth.getName())	{}
     virtual		~NamedObject()			{}
     NamedObject&	operator =(const NamedObject&);
-    bool		operator ==( const NamedObject& oth ) const
+    mDeprecatedObs bool	operator ==( const NamedObject& oth ) const
 			{ return name_ == oth.getName(); }
 
     virtual const name_type& name() const		{ return name_; }

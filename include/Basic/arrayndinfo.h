@@ -146,7 +146,6 @@ in what order the data is stored (if accessable via a pointer).
 mExpClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
-
     virtual int		getNDim() const			{ return 3; }
 
     virtual od_uint64	getOffset(int, int, int) const;
@@ -157,7 +156,25 @@ public:
 			{ return ArrayNDInfo::getOffset( iarr ); }
     virtual bool	validPos( const int* iarr ) const
 			{ return ArrayNDInfo::validPos( iarr ); }
+};
 
+
+/*!\brief Contains the information about the size of Array4D, and
+in what order the data is stored (if accessable via a pointer). */
+
+mExpClass(Basic) Array4DInfo : public ArrayNDInfo
+{
+public:
+    virtual int		getNDim() const			{ return 4; }
+
+    virtual od_uint64	getOffset(int,int,int,int) const;
+			/*!<Returns offset in a 'flat' array.*/
+    virtual bool	validPos(int,int,int,int) const;
+
+    virtual od_uint64	getOffset( const int* pos ) const
+			{ return ArrayNDInfo::getOffset( pos ); }
+    virtual bool	validPos( const int* pos ) const
+			{ return ArrayNDInfo::validPos( pos ); }
 };
 
 
@@ -234,11 +251,34 @@ public:
 
 protected:
 
-    int                 dimsz_[3];
+    int			dimsz_[3];
     od_uint64		cachedtotalsz_;
 
 };
 
+
+/*!\brief Implementation of Array4DInfo. */
+
+mExpClass(Basic) Array4DInfoImpl : public Array4DInfo
+{
+public:
+    virtual Array4DInfo* clone() const { return new Array4DInfoImpl(*this); }
+
+			Array4DInfoImpl(int sz0=0,int sz1=0,
+					int sz2=0,int sz3=0);
+			Array4DInfoImpl(const Array4DInfo&);
+
+    virtual int		getSize(int dim) const;
+    virtual bool	setSize(int dim,int nsz);
+    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
+    virtual od_uint64	 totalSize() const	{ return cachedtotalsz_; }
+
+protected:
+
+    int			dimsz_[4];
+    od_uint64		cachedtotalsz_;
+
+};
 
 /*!
 \brief Implementation of ArrayNDInfo.
@@ -265,7 +305,7 @@ public:
 
 protected:
 
-    int		ndim_;
+    int			ndim_;
     int*		dimsz_;
 
     od_uint64		cachedtotalsz_;
@@ -287,6 +327,12 @@ inline int Array2DInfoImpl::getSize( int dim ) const
 inline int Array3DInfoImpl::getSize( int dim ) const
 {
     return dim>2 || dim<0 ? 0 : dimsz_[dim];
+}
+
+
+inline int Array4DInfoImpl::getSize( int dim ) const
+{
+    return dim>3 || dim<0 ? 0 : dimsz_[dim];
 }
 
 

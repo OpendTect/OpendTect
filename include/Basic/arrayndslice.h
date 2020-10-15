@@ -23,14 +23,14 @@ ArrayND with higher dimensionality.
   higher dimensionality. It can be used to get Array1D through a Array3D cube.
   Use setPos(int,int) to set the fixed positions and leave out the positions
   that should vary. When all positions are set, call init().
-  
+
   To unset a position, set it to -1. If positions are unset, init has to be
   called prior to dataaccesing functions.
 */
 
 mExpClass(Basic) ArrayNDSliceBase
 {
-public:				
+public:
     virtual			~ArrayNDSliceBase();
     int				getDimSize(int dim) const;
     int				getPos(int dim) const;
@@ -105,6 +105,37 @@ protected:
 };
 
 
+/*!
+\brief Subclass of Array3D and ArrayNDSliceBase.
+*/
+
+template <class T>
+mClass(Basic) Array3DSlice : public Array3D<T>, public ArrayNDSliceBase
+{
+public:
+				mTypeDefArrNDTypes;
+
+				Array3DSlice(ArrayND<T>&);
+				Array3DSlice(const ArrayND<T>&);
+				~Array3DSlice();
+
+    T				get(idx_type,idx_type,idx_type) const;
+    void			set(idx_type,idx_type,idx_type,T);
+    const Array3DInfo&		info() const;
+    bool			isSettable() const;
+
+protected:
+
+    const ValueSeries<T>*	getStorage_() const;
+    bool			writable_;
+
+    ArrayND<T>&			source_;
+    mutable OffsetValueSeries<T>* storage_;
+
+};
+
+
+
 //Array1DSlice
 template <class T> inline
 Array1DSlice<T>::Array1DSlice( ArrayND<T>& source )
@@ -166,7 +197,7 @@ ValueSeries<T>* Array1DSlice<T>::clone() const
 }
 
 template <class T> inline
-const Array1DInfo& Array1DSlice<T>::info() const	
+const Array1DInfo& Array1DSlice<T>::info() const
 { return (const Array1DInfo&) info_; }
 
 
@@ -250,7 +281,7 @@ T Array2DSlice<T>::get( int pos0, int pos1 ) const
 
 
 template <class T> inline
-const Array2DInfo& Array2DSlice<T>::info() const	
+const Array2DInfo& Array2DSlice<T>::info() const
 { return (const Array2DInfo&) info_; }
 
 
@@ -283,4 +314,90 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
 }
 
 
+//Array3DSlice
+template <class T> inline
+Array3DSlice<T>::Array3DSlice( ArrayND<T>& source )
+    : ArrayNDSliceBase( new Array3DInfoImpl, source.info() )
+    , source_( source )
+    , storage_( 0 )
+    , writable_( true )
+{
+}
+
+
+template <class T> inline
+Array3DSlice<T>::Array3DSlice( const ArrayND<T>& source )
+    : ArrayNDSliceBase( new Array3DInfoImpl, source.info() )
+    , source_( const_cast<ArrayND<T>&>(source) )
+    , storage_( 0 )
+    , writable_( false )
+{
+}
+
+
+template <class T> inline
+Array3DSlice<T>::~Array3DSlice()
+{ delete storage_; }
+
+
+template <class T> inline
+bool Array3DSlice<T>::isSettable() const
+{ return writable_ && source_.isSettable(); }
+
+
+template <class T> inline
+void Array3DSlice<T>::set( idx_type pos0, idx_type pos1, idx_type pos2, T val )
+{
+    if ( !writable_ ) return;
+
+    const idx_type localpos[] = { pos0, pos1, pos2 };
+    mAllocVarLenArr( idx_type, srcpos, position_.size() );
+    getSourcePos( const_cast<NDPos>(localpos), srcpos );
+    source_.setND( srcpos, val );
+}
+
+
+template <class T> inline
+T Array3DSlice<T>::get( idx_type pos0, idx_type pos1, idx_type pos2 ) const
+{
+    const idx_type localpos[] = { pos0, pos1, pos2 };
+    mAllocVarLenArr( idx_type, srcpos, position_.size() );
+    getSourcePos( const_cast<NDPos>(localpos), srcpos );
+    return source_.getND( srcpos );
+}
+
+
+template <class T> inline
+const Array3DInfo& Array3DSlice<T>::info() const
+{
+    return (const Array3DInfo&)info_;
+}
+
+
+template <class T> inline
+const ValueSeries<T>* Array3DSlice<T>::getStorage_() const
+{
+    if ( offset_<0 )
+	return 0;
+
+    if ( !source_.getStorage() )
+	return 0;
+
+    if ( offset_==0 )
+    {
+	delete storage_;
+	storage_ = 0;
+	return source_.getStorage();
+    }
+
+    if ( !storage_ || &storage_->source() != source_.getStorage() )
+    {
+	delete storage_;
+	storage_ = new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+    }
+    else
+	storage_->setOffset( offset_ );
+
+    return storage_;
+}
 

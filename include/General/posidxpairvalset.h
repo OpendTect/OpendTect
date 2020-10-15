@@ -116,6 +116,8 @@ public:
     			//!< not found: j < 0.
     			//!< still, i can be >= 0 , then the inline is present
     			//!< Then, next(pos) will return the first on that inl.
+    SPos		findNearest(const IdxPair&) const;
+    SPos		findNearestOnFirst(int frst,int scnd) const;
     bool		next(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		prev(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		isValid(const IdxPair&) const;
@@ -268,6 +270,9 @@ protected:
 					{ return *valsets_[idx]; }
     inline const TypeSet<float>& getValSet( int idx ) const
 					{ return *valsets_[idx]; }
+
+    void		updNearest(const IdxPair&,const SPos&,
+				   od_int64&,SPos&) const;
 
     friend class		DataPointSet;
     friend class		PosVecDataSet;

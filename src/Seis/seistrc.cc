@@ -212,6 +212,17 @@ void SeisTrc::convertToFPs( bool pres )
 }
 
 
+void SeisTrc::setAll( float val,int compnr )
+{
+// make MT
+    const int sz = size();
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	if ( compnr == icomp || compnr < 0 )
+	    for ( int isamp=0; isamp<sz; isamp++ )
+		set( isamp, val, icomp );
+}
+
+
 void SeisTrc::setNrComponents( int newnrcomps,
 			       DataCharacteristics::UserType fprep )
 {

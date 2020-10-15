@@ -160,6 +160,19 @@ protected:
     BufferString		usrname_;
     TranslatorGroup*		group_;
 
+    static BufferString		getAssociatedFileName(const IOObj&,
+						const char* extension);
+    static BufferString		getAssociatedFileName(const char* fnm,
+						const char* extension);
+    static bool			renameAssociatedFile(const char* fnm,
+				    const char* ext,const char* newnm);
+    static bool			removeAssociatedFile(const char* fnm,
+				    const char* ext);
+    static bool			setPermAssociatedFile(const char* fnm,
+				    const char* ext,bool setwritable);
+    static bool			renameLargeFile(const char* fnm,
+				    const char* newfnm,const CallBack* cb=0);
+
 public:
 
     static uiString		sNoIoobjMsg();
@@ -349,6 +362,18 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
     mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp, \
 		ctxt->selkey_ = selky)
 
+  //! Definitions for .cc file:
+  //! Convenient when the entire Translator concept is not interesting 4 u.
+  //! defines one 'format'
+  //! Example: mDefEmptyTranslatorBundle( MyConfig, myFmt, Misc, "MyFmt",
+  //!          "My Format", MyConfigMgr::getUiConfigStr )
+#define mDefEmptyTranslatorBundle(clss,fmt,stdtyp,fmtky,usrnm,uistrfn) \
+    defineTranslatorGroup(clss,usrnm); \
+    uiString clss##TranslatorGroup::sTypeName( int num ) \
+	{ return uistrfn(); } \
+    defineTranslator(fmt,clss,fmtky); \
+    mDefSimpleTranslatorioContext(clss,stdtyp); \
+    mDefSimpleTranslatorSelector(clss)
 
 // Convenience macros when using Translator(Group)-related classes
 
