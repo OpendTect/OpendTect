@@ -44,7 +44,7 @@ bool is3DGeom( Pos::GeomID geomid )
 bool isSynthetic( Pos::GeomID geomid )
 { return geomid == -2; }
 
-Pos::GeomID deafult3DGeomID()
+Pos::GeomID default3DGeomID()
 { return Geometry::default3D().getID(); }
 
 bool isValidGeomID( Pos::GeomID geomid )

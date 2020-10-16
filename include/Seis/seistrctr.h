@@ -326,6 +326,8 @@ public:
 
     void		setIs2D( bool yn )	{ is_2d = yn; }
     void		setIsPS( bool yn )	{ is_prestack = yn; }
+    bool		readTraceData( TraceData* td=nullptr )
+			{ return readData(td); }
 };
 
 

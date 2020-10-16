@@ -186,6 +186,7 @@ public:
     //!<"Not impl in this version of OpendTect. Please use version xx or up">
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string> ...
+    static uiString phrUnexpected(const uiString&,const char* what=nullptr);
     static uiString phrWriting(const uiString&);
     //!<"Writing <string>"
     static uiString phrXcoordinate(const uiString&);
@@ -318,6 +319,7 @@ public:
     static uiString sCube(int num=1)	{ return tr("Cube",0,num); }
     static uiString sCurve()		{ return tr("Curve"); }
     static uiString sData();
+    static uiString sDataStore()	{ return tr("Data Store"); }
     static uiString sDecimal()		{ return tr("Decimal"); }
     static uiString sDefault()		{ return tr("Default"); }
     static uiString sDefine()		{ return tr("Define"); }
