@@ -48,7 +48,7 @@ public:
 
     enum ResizeMode
     {
-	Interactive, Fixed, Stretch, ResizeToContents
+	Interactive, Stretch, Fixed, ResizeToContents
     };
 
     mExpClass(uiBase) Setup
