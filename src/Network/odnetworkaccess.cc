@@ -156,6 +156,8 @@ FileDownloader::~FileDownloader()
 {
     delete qeventloop_;
     delete odnr_;
+    if ( osd_ )
+	delete osd_;
 }
 
 
@@ -250,8 +252,8 @@ bool FileDownloader::writeDataToFile(const char* buffer, int size)
 	osd_->open( saveaspaths_.get(nrfilesdownloaded_) );
 	if ( osd_->isBad() )
 	{
-	    msg_ = tr("%1 Didn't have permission to write to: %2")
-		 .arg(osd_->isBad()).arg(fp.fullPath());
+	    msg_ = tr("Didn't have permission to write to: %1")
+		  .arg(fp.fullPath());
 	    return false;
 	}
     }
