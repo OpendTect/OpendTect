@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "perthreadrepos.h"
 #include "uistrings.h"
-#include <fstream>
 
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }
 const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
@@ -26,42 +25,37 @@ const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
 mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 { "Start", "Intermediate", "Finish", 0 };
 
+#ifdef __win__
+
 /* Windows needs this approach as Madagascar binaries on Windows are not native
    Windows executables, they are Cygwin executables. */
 
-#ifdef __win__
+#include <fstream>
 
-# define mPOpen _popen
-#define mPClose _pclose
-# include "winstreambuf.h"
-# define mStdIOFileBuf std::filebuf
-#define mFPArgs fp
-
-#else
-
-# define mPOpen popen
-# define mPClose pclose
-# include <ext/stdio_filebuf.h>
-# define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
-# define mFPArgs  fp,std::ios::out
-
-#endif
-
-static od_ostream* getOStreamFromCmd( const char* comm, FILE*& fp )
+std::ostream* makeOStream( const char* comm )
 {
     BufferString cmd( comm );
 
-    fp = mPOpen( cmd, "w" );
+    FILE* fp = _popen(cmd, "w");
+    bool ispipe = true;
     std::ostream* ostrm = 0;
 
     if ( fp )
     {
-	mStdIOFileBuf* fb = new mStdIOFileBuf( mFPArgs );
-	ostrm = new std::ostream( fb );
+	std::filebuf* fb = new std::filebuf( fp );
+	ostrm = new std::ostream(fb);
     }
 
-    return new od_ostream( ostrm );
+    return ostrm;
 }
+
+#define mGetOStreamFromCmd(cmd) new od_ostream( makeOStream(cmd) )
+
+#else // UNIX
+
+#define mGetOStreamFromCmd(cmd) new od_ostream( cmd )
+
+#endif
 
 
 ODMad::ProcExec::ProcExec( const IOPar& iop, od_ostream& reportstrm )
@@ -71,8 +65,6 @@ ODMad::ProcExec::ProcExec( const IOPar& iop, od_ostream& reportstrm )
     , nrdone_(0)
     , stage_(Start)
     , madstream_(0)
-    , procfptr_(0)
-    , plotfptr_(0)
     , procstream_(0)
     , plotstream_(0)
     , progmeter_(0)
@@ -85,7 +77,6 @@ ODMad::ProcExec::ProcExec( const IOPar& iop, od_ostream& reportstrm )
 ODMad::ProcExec::~ProcExec()
 {
     delete &pars_;
-    delete procfptr_; delete plotfptr_;
     delete procstream_; delete plotstream_;
     delete madstream_; delete progmeter_;
     delete [] trc_;
@@ -141,7 +132,7 @@ bool ODMad::ProcExec::init()
 	if ( FixedString(comm) == od_stream::sStdIO() )
 	    procstream_ = new od_ostream( od_stream::sStdIO() );
 	else
-	    procstream_ = getOStreamFromCmd( comm, procfptr_ );
+	    procstream_ = mGetOStreamFromCmd( comm );
 
 	if ( !procstream_->isOK() )
 	    mErrRet(tr("Failed to create output stream"))
@@ -151,9 +142,10 @@ bool ODMad::ProcExec::init()
 
 	if ( stage_ == Intermediate )
 	{
-	    BufferString plotcomm = getPlotString();
+	    BufferString plotcomm = "@";
+	    plotcomm += getPlotString();
 	    od_cerr() << "About to plot: " << plotcomm << od_endl;
-	    plotstream_ = getOStreamFromCmd( plotcomm.buf(), plotfptr_ );
+	    plotstream_ = mGetOStreamFromCmd( plotcomm.buf() );
 	    if ( !plotstream_->isOK() )
 		mErrRet(tr("Failed to create plot output stream"))
 	    if ( !madstream_->putHeader(*plotstream_) )
@@ -189,7 +181,7 @@ const char* ODMad::ProcExec::getProcString()
 {
     const BufferString rsfroot = GetEnvVar( "RSFROOT" );
     mDeclStaticString( ret );
-    ret.setEmpty();
+    ret = "@";
     ODMad::ProcFlow procflow;
     procflow.usePar( pars_ );
     ODMad::ProcFlow::IOType outtyp = procflow.ioType( false );

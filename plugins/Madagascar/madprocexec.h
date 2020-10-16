@@ -11,7 +11,6 @@
 #include "executor.h"
 #include "od_ostream.h"
 #include "uistring.h"
-//#include <fstream>
 
 class TextStreamProgressMeter;
 
@@ -56,10 +55,6 @@ protected:
     float*		trc_;
 
     MadStream*		madstream_;
-
-    FILE*		procfptr_;
-    FILE*		plotfptr_;
-
     od_ostream*		procstream_;
     od_ostream*		plotstream_;
 
