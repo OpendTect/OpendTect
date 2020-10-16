@@ -194,7 +194,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
 
     dps_ = new DataPointSet( prov->is2D() );
     if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
-				 &taskrunner, false) )
+				 &taskrunner, true) )
     {
 	deleteAndZeroPtr( dps_ );
 	return false;
