@@ -200,24 +200,10 @@ void ProcDesc::Data::getProcsToBeAdded( BufferStringSet& nms,
 	for ( int idx=0; idx<ePDD().size(); idx++ )
 	{
 	    ProcDesc::DataEntry* pdde = ePDD()[idx];
-	    if ( pdde->type_ == type )
+	    if ( pdde->type_ == type && targetset.indexOf(pdde->execnm_) < 0 )
 	    {
-		bool toadd = true;
-		for ( int jidx=0; jidx<targetset.size(); jidx++ )
-		{
-		    BufferString nm = targetset.get(jidx);
-		    if ( pdde->execnm_ == targetset.get(jidx) )
-		    {
-			toadd = false;
-			break;
-		    }
-
-		}
-		if ( toadd )
-		{
-		    nms.add( pdde->execnm_ );
-		    descs.add( pdde->desc_ );
-		}
+		nms.add( pdde->execnm_ );
+		descs.add( pdde->desc_ );
 	    }
 	}
 
@@ -238,17 +224,10 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
     for ( int idx=0; idx<ePDD().size(); idx++ )
     {
 	ProcDesc::DataEntry* pdde = ePDD()[idx];
-	if ( pdde->type_ == type )
+	if ( pdde->type_ == type && targetset.indexOf(pdde->execnm_) >= 0 )
 	{
-	    for ( int jidx=0; jidx<targetset.size(); jidx++ )
-	    {
-		if ( pdde->execnm_ == targetset.get(jidx) )
-		{
-		    nms.add( pdde->execnm_ );
-		    descs.add( pdde->desc_ );
-		    break;
-		}
-	    }
+	    nms.add( pdde->execnm_ );
+	    descs.add( pdde->desc_ );
 	}
     }
 
@@ -258,25 +237,22 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
 ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 {
     readPars();
-
+    BufferStringSet reqexentadded;
     int alreadyadded = 0;
+
     for ( int idx=0; idx<ePDD().size(); idx++ )
     {
 	const BufferString requiredexecnm = ePDD()[idx]->execnm_;
-	for ( int jidx=0; jidx<addedprocnms_.size(); jidx++ )
-	{
-	    const BufferString addedexecnm = addedprocnms_.get(jidx);
-	    if ( requiredexecnm.isEqual(addedexecnm) )
-	    {
-		alreadyadded++;
-		continue;
-	    }
-	}
+
+	if ( addedprocnms_.indexOf(requiredexecnm,CaseInsensitive) < 0 )
+	    reqexentadded.add( requiredexecnm );
+	else
+	    alreadyadded++;
     }
 
-    if ( alreadyadded == 0 )
+    if ( alreadyadded == 0 && reqexentadded.size() > 0 )
 	return ProcDesc::DataEntry::Add;
-    else if ( alreadyadded == ePDD().size() )
+    else if ( alreadyadded == ePDD().size() && addedprocnms_.size() > size() )
 	return ProcDesc::DataEntry::Remove;
     else
 	return ProcDesc::DataEntry::AddNRemove;
