@@ -2,6 +2,17 @@ OpendTect V6.6.x : Release info
 
 
 ----
+V6.6.1rc3: October 16, 2020
+* Fix for crash while picking seeds in Unc tracker
+* Well log display window can be closed again with window closing button 'X'
+* Fix for single wildcard case Multi 2D segy import
+* Fixed crash in Manage Stratigraphy
+* Remove redundant UI element from SEG import dialog
+* Fixed  error while merging 2D lines
+* Fix for displaying empty Firewall rule window after updating   
+  the OpendTect from the installer on windows platform
+* Added Sw, NetPay, Lithology and other mnemonics
+
 V6.6.1rc2: October 09, 2020
 * Fixed issues with services with survey change and application closing
 
