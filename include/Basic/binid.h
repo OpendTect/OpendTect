@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "bufstring.h"
 #include "posidxpair.h"
 
 // The following should become separate classes with their own specific
@@ -56,6 +57,7 @@ public:
     inline const char*		toString(bool is2d=false) const;
     inline bool			fromString(const char*);
 
+    inline BufferString		usrDispStr() const;
 };
 
 
@@ -114,3 +116,10 @@ inline bool BinID::fromString( const char* str )
     return IdxPair::parseUsrStr( str, "", "/", "" );
 }
 
+
+BufferString BinID::usrDispStr() const
+{
+    BufferString ret;
+    ret.set( inl() ).add( "/" ).add( crl() );
+    return ret;
+}

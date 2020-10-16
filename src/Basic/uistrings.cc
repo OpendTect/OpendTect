@@ -263,6 +263,16 @@ uiString uiStrings::phrSetAs( const uiString& string )
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
+uiString uiStrings::phrUnexpected( const uiString& obj, const char* what )
+{
+    uiPhrase ret = tr("Unexpected %1%2").arg( obj );
+    if ( what && *what )
+	ret.arg( BufferString(": ",what) );
+    else
+	ret.arg( "" );
+    return ret;
+}
+
 uiString uiStrings::phrZIn( const uiString& string )
 { return tr( "Z in %1" ).arg( string ); }
 
