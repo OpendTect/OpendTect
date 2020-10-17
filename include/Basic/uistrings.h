@@ -560,6 +560,7 @@ public:
     static uiString sStart()		{ return tr("Start"); }
     static uiString sTable(int num=1)	{ return tr("Table",0,num); }
     static uiString sTension()		{ return tr("Tension"); }
+    static uiString sTerminate()	{ return tr("Terminate"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTitle()		{ return tr("Title"); }
