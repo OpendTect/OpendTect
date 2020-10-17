@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "multiid.h"
 
+class CommandLineParser;
 class CtxtIOObj;
 class IODir;
 class IOObj;
@@ -171,6 +172,12 @@ public:
     static void		surveyParsChanged();
 			/*! Triggers the post-survey change notifiers */
 
+    bool		setDataSource(const char* dataroot,const char* survdir,
+				      bool refresh=false);
+    bool		setDataSource(const char* fullpath,bool refresh=false);
+    bool		setDataSource(const IOPar&,bool refresh=false);
+    bool		setDataSource(const CommandLineParser&,
+				      bool refresh=false);
 };
 
 

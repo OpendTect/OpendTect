@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "convert.h"
+#include "dbkey.h"
 #include "genc.h"
 #include "bufstringset.h"
 #include "typeset.h"
@@ -77,6 +78,13 @@ public:
 				    error if key is found, but no value can be
 				    parsed. */
 
+				// following return empty string, invalid DBKey
+				// or Udf if the key is not present or
+				// carries no value
+    BufferString		keyedString(const char* ky,int argnr=0) const;
+    template <class T>
+    T				keyedValue(const char* ky,int argnr=0) const;
+
     bool			isPresent(const char*) const;
 				//!<Is string present as an argument.
 
@@ -108,8 +116,11 @@ public:
     static void			addFilePath(const char*,BufferString& cmd);
 				/*!<adds "\ and \" to protect for spaces
 				    in FilePaths */
-    static const char*		sDataRootArg()	    { return "dataroot"; }
-    static const char*		sSurveyArg()	    { return "survey"; }
+
+
+    static const char*		sDataRootArg()		{ return "dataroot"; }
+    static const char*		sSurveyArg()		{ return "survey"; }
+    BufferString		getFullSurveyPath(bool* iscursurv=0) const;
 
 private:
 
@@ -144,4 +155,21 @@ bool CommandLineParser::getVal( const char* key, T& val,
     return !mIsUdf(val);
 }
 
+
+inline BufferString CommandLineParser::keyedString( const char* ky,
+						    int argnr ) const
+{
+    BufferString ret;
+    getVal( ky, ret, false, argnr );
+    return ret;
+}
+
+
+template <class T> inline
+T CommandLineParser::keyedValue( const char* ky, int argnr ) const
+{
+    T ret = mUdf(T);
+    getVal( ky, ret, false, argnr );
+    return ret;
+}
 

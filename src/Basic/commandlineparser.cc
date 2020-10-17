@@ -9,6 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commandlineparser.h"
 
 #include "filepath.h"
+#include "oddirs.h"
+#include "surveydisklocation.h"
+#include "survinfo.h"
 #include "varlenarray.h"
 
 #include "genc.h"
@@ -274,4 +277,39 @@ void CommandLineParser::addFilePath( const char* fp, BufferString& cmd )
 	cmd.addSpace();
 
     cmd.add( "\"" ).add( fp ).add( "\"" );
+}
+
+
+BufferString CommandLineParser::getFullSurveyPath( bool* iscur ) const
+{
+    BufferString cursurvfullpath( SI().diskLocation().fullPath() );
+    if ( cursurvfullpath.isEmpty() )
+    {
+	const FilePath fp( GetBaseDataDir(), GetSurveyName() );
+	cursurvfullpath = fp.fullPath();
+    }
+
+    const bool havedataroot = hasKey( sDataRootArg() );
+    const bool havesurvey = hasKey( sSurveyArg() );
+    if ( !havedataroot && !havesurvey )
+    {
+	if ( iscur )
+	    *iscur = true;
+	return cursurvfullpath;
+    }
+
+    const FilePath orgfp( cursurvfullpath );
+    BufferString survdir( orgfp.fileName() );
+    BufferString dataroot( orgfp.pathOnly() );
+
+    if ( havesurvey )
+	survdir = keyedString( sSurveyArg() );
+    if ( havedataroot )
+	dataroot = keyedString( sDataRootArg() );
+
+    const FilePath fp( dataroot, survdir );
+    if ( iscur )
+	*iscur = fp == orgfp;
+
+    return fp.fullPath();
 }

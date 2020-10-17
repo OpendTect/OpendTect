@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 #include "ascstream.h"
+#include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
@@ -1061,4 +1062,38 @@ bool IOMan::isValidSurveyDir( const char* d )
 	return false;
 
     return true;
+}
+
+
+bool IOMan::setDataSource( const char* dataroot, const char* survdir,
+			   bool refresh )
+{
+    bool res = setRootDir( dataroot );
+    if ( res )
+	res = setSurvey( survdir );
+
+    return res;
+}
+
+
+bool IOMan::setDataSource( const char* fullpath, bool refresh )
+{
+    FilePath fp( fullpath );
+    const BufferString pathnm( fp.pathOnly() );
+    const BufferString filenm( fp.fileName() );
+    return setDataSource( pathnm, filenm, refresh );
+}
+
+
+bool IOMan::setDataSource( const IOPar& iop, bool refresh )
+{
+    return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()),
+			  refresh );
+}
+
+
+bool IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
+{
+    const BufferString newpath = clp.getFullSurveyPath();
+    return setDataSource( newpath, refresh );
 }
