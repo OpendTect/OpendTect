@@ -773,7 +773,7 @@ BufferStringSet DBDirEntryList::getParValuesFor( const char* parkey ) const
 	    BufferString val;
 	    if ( ioobj->group() == parkey )
 		val = ioobj->translator();
-	    else if ( ioobj->pars().get( parkey, val ) )
+	    else if ( !ioobj->pars().get( parkey, val ) )
 		continue;
 
 	    if ( !val.isEmpty() )
