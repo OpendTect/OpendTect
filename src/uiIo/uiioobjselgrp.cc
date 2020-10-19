@@ -1030,16 +1030,30 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 
 void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
 {
+    const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( ctxtfiltfld_ )
     {
 	const int curitm = ctxtfiltfld_->currentItem();
-	if ( curitm <= 0 )
-	    ctio_.ctxt_.toselect_.require_.removeWithKey(
-						    setup_.withctxtfilter_ );
+	if ( withctxtfilter == ctio_.ctxt_.trgroup_->groupName() )
+	{
+	    if ( curitm <= 0 )
+		ctio_.ctxt_.toselect_.allowtransls_ = BufferString::empty();
+	    else
+	    {
+		BufferString currnm = ctxtfiltfld_->itemText( curitm );
+		if ( currnm.isEqual(dGBToDispStorageStr()) )
+		    currnm = mDGBKey;
+		ctio_.ctxt_.toselect_.allowtransls_ = currnm;
+	    }
+	}
 	else
-	    ctio_.ctxt_.toselect_.require_.set( setup_.withctxtfilter_,
+	{
+	    if ( curitm <= 0 )
+		ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
+	    else
+		ctio_.ctxt_.toselect_.require_.set( withctxtfilter,
 					    ctxtfiltfld_->itemText( curitm ) );
-
+	}
 	fullUpdate( -2 );
     }
 }
