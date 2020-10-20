@@ -60,6 +60,10 @@ namespace Time
     mGlobal(Basic) const char*	getTimeString(od_int64 timeins,int precision);
 			/*! returns time as 1d:2h:35m:15s */
 
+    mGlobal(Basic) const char*	getUsrStringFromISO(const char* isostr,
+					const char* fmt=defDateTimeFmt(),
+					bool local=true);
+
 
 } // namespace Time
 

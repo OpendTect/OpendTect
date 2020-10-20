@@ -56,6 +56,7 @@ public:
     void		setInput(const MultiID&);
     void		setInput(const StepInterval<float>& zrg);
     void		setInput(const TrcKeyZSampling&);
+    void		setInputLimit(const TrcKeyZSampling&);
 
     virtual int		expectedNrSamples() const;
     virtual int		expectedNrTraces() const;

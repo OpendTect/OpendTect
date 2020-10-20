@@ -147,6 +147,12 @@ void uiSeisSubSel::setInput( const TrcKeyZSampling& cs )
 }
 
 
+void uiSeisSubSel::setInputLimit( const TrcKeyZSampling& tkzs )
+{
+    selfld_->setInputLimit( tkzs );
+}
+
+
 int uiSeisSubSel::expectedNrSamples() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
@@ -157,7 +163,7 @@ int uiSeisSubSel::expectedNrSamples() const
 int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
-    return pp ? mCast(int,pp->estNrPos()) : 0;
+    return pp ? sCast(int,pp->estNrPos()) : 0;
 }
 
 
@@ -188,9 +194,9 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiSeisSubSel(p,ss)
+	, multilnmsel_(nullptr)
+	, singlelnmsel_(nullptr)
 	, multiln_(ss.multiline_)
-	, multilnmsel_(0)
-	, singlelnmsel_(0)
 {
     if ( multiln_ )
     {

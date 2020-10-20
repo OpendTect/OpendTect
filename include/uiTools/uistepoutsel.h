@@ -48,7 +48,7 @@ public:
 			uiStepOutSel(uiParent*,const Setup&);
 			uiStepOutSel(uiParent*,bool single=false,
 				     const uiString& seltxt=tr("Stepout"));
-			~uiStepOutSel()		{}
+			~uiStepOutSel();
 
     int			val(bool dir1) const;
     void		setVal(bool dir1,int);
@@ -70,6 +70,7 @@ public:
 				StepInterval<int> crlrg);
 
     void		setFieldNames(const char* nm1,const char* nm2=0);
+    void		set3D(bool yn);
 
 protected:
 

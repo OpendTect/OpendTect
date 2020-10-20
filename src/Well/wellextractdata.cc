@@ -34,6 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "envvars.h"
 #include "binidvalue.h"
+#include "hiddenparam.h"
+#include "surveydisklocation.h"
 
 #include <math.h>
 
@@ -64,8 +66,9 @@ mDefineEnumUtils(ZRangeSelector,ZSelection,"Type of selection")
 
 }
 
-static const char* sKeyDAHColName()	    { return "<MD>"; }
+static const char* sKeyDAHColName()	{ return "<MD>"; }
 
+static HiddenParam<Well::InfoCollector,SurveyDiskLocation*> sdls_(nullptr);
 
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     : Executor("Well information extraction")
@@ -79,6 +82,8 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
     totalnr_ = direntries_->size();
     curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
+
+    sdls_.setParam( this, new SurveyDiskLocation );
 }
 
 
@@ -89,6 +94,45 @@ Well::InfoCollector::~InfoCollector()
     deepErase( logs_ );
     delete direntries_;
     delete iodir_;
+
+    sdls_.removeAndDeleteParam( this );
+}
+
+
+void Well::InfoCollector::getAllMarkerInfos( BufferStringSet& nms,
+					     TypeSet<Color>& colors ) const
+{
+    nms.setEmpty();
+    if ( markers_.isEmpty() )
+	return;
+
+    Well::MarkerSet wms( *markers_.get(0) );
+    for ( auto idx=1; idx<markers_.size(); idx++ )
+	wms.append( *markers_.get(idx) );
+
+    wms.getNames( nms );
+    wms.getColors( colors );
+}
+
+
+void Well::InfoCollector::getAllLogNames( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    for ( auto lognms : logs_ )
+	for ( auto lognm : *lognms )
+	    nms.addIfNew( *lognm );
+}
+
+
+void Well::InfoCollector::setSurvey( const SurveyDiskLocation& sdl )
+{
+    *sdls_.getParam(this) = sdl;
+}
+
+
+SurveyDiskLocation& Well::InfoCollector::survey() const
+{
+    return *sdls_.getParam( this );
 }
 
 

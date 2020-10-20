@@ -776,6 +776,13 @@ bool IOMan::isUsable( const MultiID& key ) const
 }
 
 
+bool IOMan::implExists( const MultiID& key ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    return ioobj && ioobj->implExists( true );
+}
+
+
 IOObj* IOMan::get( const char* objname, const char* tgname ) const
 {
     for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )
