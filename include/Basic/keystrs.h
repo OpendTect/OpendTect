@@ -90,12 +90,14 @@ namespace sKey
     inline FixedString LineNames()	{ return "Line names"; }
     inline FixedString Local()		{ return "Local"; }
     inline FixedString Log()		{ return "Log"; }
+    inline FixedString Logs()		{ return "Logs"; }
     inline FixedString LogFile()	{ return "Log file"; }
     inline FixedString MD(int n=1)	{ return n<2 ? "MD" : "MDs"; }
     inline FixedString Marker()		{ return "Marker"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString Mode()		{ return "Mode"; }
     inline FixedString Model()		{ return "Model"; }
+    inline FixedString Models()		{ return "Models"; }
     inline FixedString Name()		{ return "Name"; }
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }

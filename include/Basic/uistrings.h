@@ -154,6 +154,7 @@ public:
     //!<"Open <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
+    static uiString phrPlsSelectAtLeastOne(const uiString&);
     static uiString phrReading(const uiString&);
     //!<"Reading <string>"
     static uiString phrRemove(const uiString&);
@@ -290,6 +291,7 @@ public:
     static uiString sCannotZip();
     static uiString sCreateNew();
     static uiString sCreateOutput();
+    static uiString sClass()		{ return tr("Class"); }
     static uiString sClear()		{ return tr("Clear"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
@@ -301,17 +303,21 @@ public:
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConnection()	{ return tr("Connection"); }
     static uiString sConstant()		{ return tr("Constant"); }
+    static uiString sContent()		{ return tr("Content"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
     static uiString sConvert()		{ return tr("Convert"); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
     static uiString sCoordSys()		{ return tr("Coordinate System"); }
     static uiString sCopy();
+    static uiString sCrAt()		{ return tr("Created at"); }
+    static uiString sCrBy()		{ return tr("Created by"); }
+    static uiString sCreate()		{ return tr("Create"); }
+    static uiString sCrFrom()		{ return tr("Created from"); }
     static uiString sCreateGroup()	{ return tr("Create Group"); }
     static uiString sCoefficient()	{ return tr("Coefficient"); }
     static uiString sCorrelation(int num=1)  { return tr("Correlation",0,num); }
     static uiString sCorrelCoeff()	{ return tr("Correlation Coefficient");}
-    static uiString sCreate();
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sCrosslineDip()	{ return sLineDip(false); }
@@ -320,11 +326,13 @@ public:
     static uiString sCurve()		{ return tr("Curve"); }
     static uiString sData();
     static uiString sDataStore()	{ return tr("Data Store"); }
+    static uiString sDataType()		{ return tr("Data Type"); }
     static uiString sDecimal()		{ return tr("Decimal"); }
     static uiString sDefault()		{ return tr("Default"); }
     static uiString sDefine()		{ return tr("Define"); }
     static uiString sDelete();
     static uiString sDepth()		{ return tr("Depth"); }
+    static uiString sDepthRange()	{ return tr("Depth range"); }
     static uiString sDescription()	{ return tr("Description"); }
     static uiString sDip()		{ return tr("Dip"); }
     static uiString sDimension()	{ return tr("Dimension"); }
@@ -403,6 +411,7 @@ public:
     static uiString sInsert();
     static uiString sInvalid();
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
+    static uiString sLastModified()	{ return tr("Last Modified"); }
     static uiString sLat()		{ return tr("Latitude"); }
     static uiString sLayer()		{ return tr("Layer"); }
     static uiString sLevel(int n=1)	{ return tr("Level",0,n); }
@@ -419,6 +428,7 @@ public:
     static uiString sLocation(int num=1)	{ return tr("Location",0,num); }
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLog(int num=1)	{ return tr("Log",0,num); }
+    static uiString sLogName(int num=1)	{ return tr("Log Name",0,num); }
     static uiString sLogs();
     static uiString sLogFile()		{ return tr("Log File"); }
     static uiString sLongitude()	{ return tr("Longitude"); }
@@ -433,6 +443,7 @@ public:
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMerge();
     static uiString sMode()		{ return tr("Mode"); }
+    static uiString sModel(int num=1)	{ return tr("Model",0,num); }
     static uiString sModify();
     static uiString sMouse()		{ return tr("Mouse"); }
     static uiString sMove()		{ return tr("Move"); }
@@ -446,14 +457,19 @@ public:
     static uiString sNew();
     static uiString sNext()		{ return tr("Next"); }
     static uiString sNo()		{ return tr("No"); }
+    static uiString sNoInfoAvailable(){ return tr("No information available"); }
     static uiString sNorth(bool abb)	{ return abb ? tr("N") : tr("North"); }
     static uiString sNoLogSel()		{ return tr("No log selected"); }
     static uiString sNone()		{ return tr("None"); }
     static uiString sNormal()		{ return tr("Normal"); }
     static uiString sNotPresent()	{ return tr("Not Present"); }
     static uiString sNoValidData()	{ return tr("No valid data found"); }
+    static uiString sObject()		{ return tr("Object"); }
+    static uiString sObjectID()		{ return tr("Object ID"); }
+    static uiString sOff()		{ return tr("Off","not in action"); }
     static uiString sOffset()		{ return tr("Offset"); }
     static uiString sOk()		{ return tr("OK"); }
+    static uiString sOn()		{ return tr("On","in action"); }
     static uiString sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiString sOpen();
     static uiString sOperator()		{ return tr("Operator"); }
@@ -486,6 +502,8 @@ public:
     static uiString sPreStack()		{ return tr("Prestack"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
+    static uiString sProceed()		{ return tr("Proceed"); }
+    static uiString sProperty()		{ return tr("Property"); }
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProcessingPars()	{ return tr("Processing parameters"); }
     static uiString sProbDensFunc(bool abbrevation=false, int num=1);
@@ -514,6 +532,7 @@ public:
     static uiString sRockPhy()		{ return tr("Rock Physics"); }
     static uiString sRow(int num=1)	{ return tr("Row",0,num); }
     static uiString sRMS()		{ return tr("RMS"); }
+    static uiString sSampleInterval()	{ return tr("Sample interval"); }
     static uiString sSave();
     static uiString sSaveAs();
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
@@ -554,6 +573,8 @@ public:
     static uiString sSpecify();
     static uiString sSpecifyOut();
     static uiString sStatistics()	{ return tr("Statistics"); }
+    static uiString sStatus()		{ return tr("Status"); }
+    static uiString sStdDev()		{ return tr("Standard Deviation"); }
     static uiString sSteering()		{ return tr("Steering"); }
     static uiString sStep(int num=1)	{ return tr("Step",0,num); }
     static uiString sSteps()		{ return sStep(mPlural); }
