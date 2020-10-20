@@ -164,6 +164,8 @@ static const char* vel_dbky_str = "100010.8";
 
 
 mLoad1Module("PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 

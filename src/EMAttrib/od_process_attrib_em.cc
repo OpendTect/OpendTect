@@ -307,6 +307,8 @@ static void interpolate( EM::Horizon3D* horizon,
     aem.setAttribSpecs( selspecs ); \
 
 mLoad2Modules("Attributes","PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     if ( clParser().nrArgs() )
     {

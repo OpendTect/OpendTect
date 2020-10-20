@@ -11,6 +11,8 @@
 
 
 mLoad1Module("OD::ModDepMgr::sAllNonUI()")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     strm << "Successfully running Diagnostic program on host ";
     strm << GetLocalHostName() << od_endl;

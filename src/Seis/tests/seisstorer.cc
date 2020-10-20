@@ -327,6 +327,8 @@ static bool createLinePS()
 
 
 mLoad1Module("Seis")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 

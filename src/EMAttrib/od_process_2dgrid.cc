@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 
 mLoad2Modules("EarthModel","Seis")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )

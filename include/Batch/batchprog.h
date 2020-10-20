@@ -164,27 +164,21 @@ mGlobal(Batch) BatchProgram& BP();
 
 
 #define mDefLoadModules() \
-    void BatchProgram::loadModules() \
-    {
-#define mDefDoWork() \
-    } \
-    bool BatchProgram::doWork( od_ostream& strm )
+    void BatchProgram::loadModules() { 
+// bool BatchProgram::doWork( od_ostream& strm )
 
 #define mLoad1Module(mod1nm) \
     mDefLoadModules() \
-	OD::ModDeps().ensureLoaded( mod1nm ); \
-    mDefDoWork()
+	OD::ModDeps().ensureLoaded( mod1nm ); }
 #define mLoad2Modules(mod1nm,mod2nm) \
     mDefLoadModules() \
 	OD::ModDeps().ensureLoaded( mod1nm ); \
-	OD::ModDeps().ensureLoaded( mod2nm ); \
-    mDefDoWork()
+	OD::ModDeps().ensureLoaded( mod2nm ); }
 #define mLoad3Modules(mod1nm,mod2nm,mod3nm) \
     mDefLoadModules() \
 	OD::ModDeps().ensureLoaded( mod1nm ); \
 	OD::ModDeps().ensureLoaded( mod2nm ); \
-	OD::ModDeps().ensureLoaded( mod3nm ); \
-    mDefDoWork()
+	OD::ModDeps().ensureLoaded( mod3nm ); }
 
 #define mRetError(s) \
 { errorMsg(::toUiString(s)); mDestroyWorkers; return false; }

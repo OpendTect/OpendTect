@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 
 mLoad1Module("AttributeEngine")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )

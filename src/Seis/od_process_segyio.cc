@@ -179,6 +179,8 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 
 
 mLoad1Module("Seis")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();

@@ -40,6 +40,8 @@
 
 
 mLoad2Modules("Attributes","PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
     if ( odversion < 320 )

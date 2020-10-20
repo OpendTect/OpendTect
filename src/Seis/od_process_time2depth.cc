@@ -22,6 +22,8 @@
 #define mErrRet(s) { strm << s << od_endl; return false; }
 
 mLoad2Modules("Seis","Well")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     DBKey inpdbky;
     if ( !pars().get(IOPar::compKey(sKey::Input(),sKey::ID()),inpdbky) )
