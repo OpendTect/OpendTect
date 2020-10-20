@@ -64,6 +64,14 @@ IOPar::IOPar( const IOPar& iop )
 }
 
 
+IOPar::~IOPar()
+{
+    setEmpty();
+    delete &keys_;
+    delete &vals_;
+}
+
+
 IOPar& IOPar::operator =( const IOPar& iop )
 {
     if ( this != &iop )
@@ -106,11 +114,20 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 }
 
 
-IOPar::~IOPar()
+bool IOPar::includes( const IOPar& oth ) const
 {
-    setEmpty();
-    delete &keys_;
-    delete &vals_;
+    const int othsz = oth.size();
+    if ( &oth == this || othsz == 0 )
+	return true;
+
+    for ( int idx=0; idx<othsz; idx++ )
+    {
+	FixedString res = find( oth.getKey(idx) );
+	if ( res != oth.getValue(idx) )
+	    return false;
+    }
+
+    return true;
 }
 
 
