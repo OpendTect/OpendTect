@@ -44,11 +44,6 @@ else()
     endif()
 endif()
 
-if ( EXISTS ${PLUGIN_DIR} )
-    set ( EXTERNALPLUGINSUPDATE
-	COMMAND ${UPDATE_CMD} ${PLUGIN_DIR}/../ )
-endif()		
-
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
     execute_process(
 	COMMAND ${CMAKE_COMMAND}
@@ -64,9 +59,6 @@ if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
 endif()
 
 if ( EXISTS ${PLUGIN_DIR} )
-    set ( EXTERNALPLUGINSUPDATE
-	COMMAND ${UPDATE_CMD} ${PLUGIN_DIR}/../ )
-
     if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
 	execute_process( COMMAND ${CMAKE_COMMAND}
 		    -DOpendTect_DIR=${OpendTect_DIR}
@@ -83,9 +75,22 @@ if ( EXISTS ${PLUGIN_DIR} )
     endif()
 endif()
 
-add_custom_target( update ${UPDATE_CMD}
-		  ${EXTERNALPLUGINSUPDATE}
+add_custom_target( update
+       		  ${UPDATE_CMD}
 		  ${EXTERNALCMD}
-		  ${EXTERNALPLUGINSCMD}
 		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		  COMMENT "Updating from repositories" )
+
+if ( EXISTS ${PLUGIN_DIR} )
+    add_custom_target( update_dgb
+       		  ${UPDATE_CMD}
+		  WORKING_DIRECTORY ${PLUGIN_DIR}/../	
+		  COMMENT "Updating dgb from repositories" )
+
+    add_custom_target( update_all
+		  ${EXTERNALPLUGINSCMD}
+		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
+		  COMMENT "Updating dgb externals from repositories" )
+
+    add_dependencies( update_all update update_dgb )
+endif()
