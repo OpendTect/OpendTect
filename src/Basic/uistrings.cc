@@ -238,9 +238,10 @@ uiString uiStrings::phrOpen( const uiString& string )
 { return toUiString(joinstring).arg(sOpen()).arg(string); }
 
 uiString uiStrings::phrOutput( const uiString& string )
-{
-    return toUiString(joinstring).arg( sOutput() ).arg( string );
-}
+{ return toUiString(joinstring).arg( sOutput() ).arg( string ); }
+
+uiString uiStrings::phrPlsSelectAtLeastOne( const uiString& string )
+{ return tr("Please select at least one").arg(string); }
 
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
@@ -323,9 +324,6 @@ uiString uiStrings::sBatchProgramFailedStart()
 
 uiString uiStrings::sColorTable(int num)
 { return tr("ColorTable",0,num); }
-
-uiString uiStrings::sCreate()
-{ return tr("Create"); }
 
 uiString uiStrings::sCalculate()
 { return tr("Calculate"); }
