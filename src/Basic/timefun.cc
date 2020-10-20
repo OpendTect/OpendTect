@@ -189,4 +189,16 @@ const char* getTimeString( od_int64 sec, int precision )
     return ret;
 }
 
+
+const char* getUsrStringFromISO( const char* isostr,
+				 const char* fmt, bool local )
+{
+    mDeclStaticString( ret );
+    QDateTime qdt = QDateTime::fromString( QString(isostr), Qt::ISODate );
+    if ( local )
+	qdt = qdt.toLocalTime();
+    ret = qdt.toString( fmt );
+    return ret.buf();
+}
+
 } // namespace Time

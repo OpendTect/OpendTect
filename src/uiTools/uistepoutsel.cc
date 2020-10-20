@@ -11,9 +11,14 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistepoutsel.h"
+
 #include "uispinbox.h"
 #include "uilabel.h"
 #include "uistrings.h"
+#include "hiddenparam.h"
+
+
+static HiddenParam<uiStepOutSel,uiStepOutSel::Setup*> setups(nullptr);
 
 inline static uiString mkPrefx( const uiString& lbl )
 {
@@ -43,6 +48,12 @@ uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const uiString& seltxt )
     uiStepOutSel::Setup setup( single );
     setup.seltxt( seltxt );
     init( setup );
+}
+
+
+uiStepOutSel::~uiStepOutSel()
+{
+    setups.removeAndDeleteParam( this );
 }
 
 
@@ -79,6 +90,10 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
     }
 
     setHAlignObj( fld1_ );
+
+    uiStepOutSel::Setup* sosetup = new uiStepOutSel::Setup;
+    *sosetup = setup;
+    setups.setParam( this, sosetup );
 }
 
 
@@ -133,6 +148,15 @@ BinID uiStepOutSel::getBinID() const
 {
     return dir2Active() ? BinID( val(true), val(false) )
 			: BinID( 0, val(true) );
+}
+
+
+void uiStepOutSel::set3D( bool yn )
+{
+    uiStepOutSel::Setup* setup = setups.getParam( this );
+    fld1_->display( true );
+    fld1_->setPrefix( mkPrefx(setup->lbl1_) );
+    fld2_->display( yn );
 }
 
 

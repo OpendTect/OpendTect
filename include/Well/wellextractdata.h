@@ -166,6 +166,12 @@ public:
 				//!< If selected, same size as ids()
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
+    void			getAllMarkerInfos(BufferStringSet& nms,
+						TypeSet<Color>& colors) const;
+    void			getAllLogNames(BufferStringSet&) const;
+    void			setSurvey(const SurveyDiskLocation&);
+    SurveyDiskLocation&		survey() const;
+
 protected:
 
     ObjectSet<MultiID>		ids_;
@@ -304,14 +310,14 @@ public:
 					  bool extrapolate_ = false,
 					  bool stayinsidesurvey = false);
 
-    void                setSampling(const StepInterval<float>& intv)
+    void		setSampling(const StepInterval<float>& intv)
 			{ extrintv_ = intv; } //In time if d2TModel is provided
 
-    int                 nextStep();
-    od_int64            totalNr() const         { return extrintv_.nrSteps(); }
-    od_int64            nrDone() const          { return nrdone_; }
-    uiString	 uiMessage() const	   { return m3Dots(tr("Computing")); }
-    uiString	 uiNrDoneText() const	   { return tr("Points done"); }
+    int			nextStep();
+    od_int64		totalNr() const		{ return extrintv_.nrSteps(); }
+    od_int64		nrDone() const		{ return nrdone_; }
+    uiString	uiMessage() const	{ return m3Dots(tr("Computing")); }
+    uiString	uiNrDoneText() const	{ return tr("Points done"); }
 
     void		getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
     void		getCoords(TypeSet<Coord>& cs) const { cs = coords_; }
@@ -319,16 +325,16 @@ public:
 protected:
     StepInterval<float> extrintv_;
 
-    TypeSet<BinID>      bidset_;
-    TypeSet<Coord>      coords_;
+    TypeSet<BinID>	bidset_;
+    TypeSet<Coord>	coords_;
 
     bool		isinsidesurvey_;
     bool		extrapolate_;
 
-    Interval<float>     tracklimits_;
-    const Well::Track&  track_;
+    Interval<float>	tracklimits_;
+    const Well::Track&	track_;
     const Well::D2TModel* d2t_;
-    int                 nrdone_;
+    int			nrdone_;
 };
 
 

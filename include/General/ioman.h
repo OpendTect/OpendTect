@@ -43,6 +43,7 @@ public:
     const OD::String&	message() const		{ return msg_; }
 
     bool		isUsable(const MultiID&) const;
+    bool		implExists(const MultiID&) const;
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;
     IOObj*		getLocal(const char* objname,const char* tgname) const;
