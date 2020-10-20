@@ -65,6 +65,8 @@ void doWork( CallBacker* cb )
 
 
 mLoad2Modules("VolumeProcessing","Well")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     PtrMan<CommThread> commthrd = 0;
     if ( comm_ )

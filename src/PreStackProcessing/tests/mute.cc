@@ -128,6 +128,8 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 
 
 mLoad1Module("PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 

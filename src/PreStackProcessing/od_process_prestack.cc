@@ -38,6 +38,8 @@ using namespace PreStack;
 
 
 mLoad1Module("PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     PtrMan<SeisPSWriter> writer = 0;
     ProcessManager* procman = 0;

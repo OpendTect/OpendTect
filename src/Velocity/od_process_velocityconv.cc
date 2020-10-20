@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet( msg ) { strm << msg; return false; }
 
 mLoad1Module("Velocity")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     MultiID inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )

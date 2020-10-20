@@ -39,6 +39,8 @@ static bool initLoader( EM::StoredObjAccess& soa )
 
 
 mLoad1Module("EarthModel")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 
