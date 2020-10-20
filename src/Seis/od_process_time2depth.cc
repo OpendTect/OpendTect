@@ -25,6 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 mLoad2Modules("Seis","Well")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     TrcKeyZSampling outputcs;
     if ( !outputcs.hsamp_.usePar( pars() ) )

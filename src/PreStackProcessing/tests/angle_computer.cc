@@ -164,6 +164,8 @@ bool testAnglesForDifferentSurveys();
 
 
 mLoad1Module("PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 

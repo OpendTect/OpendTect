@@ -142,6 +142,8 @@ bool testTracesAmplitudes( od_ostream& strm,
 
 
 mLoad1Module("Seis")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     // Inputs
     TypeSet<ElasticModel> models;

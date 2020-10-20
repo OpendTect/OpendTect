@@ -43,6 +43,8 @@ ________________________________________________________________________
 	}
 
 mLoad1Module("Seis")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
     if ( odversion < 500 )

@@ -31,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 mLoad2Modules("MPEEngine","Well")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     const char* psfilenm = pars().find( sKey::FileName() );
     const BufferString workdir( GetProcFileName(nullptr) );
