@@ -86,6 +86,7 @@ public:
     virtual void	setBackgroundPixmap(const uiPixmap&);
     virtual void	setTextColor(const Color&);
     void		setSensitive(bool yn=true);
+    bool		isSensitive() const	{ return sensitive(); }
     bool		sensitive() const;
     bool		visible() const;
     bool		isDisplayed() const;
