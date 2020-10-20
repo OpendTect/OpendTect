@@ -33,7 +33,7 @@ mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 
 # define mPOpen _popen
 #define mPClose _pclose
-# include "winstreambuf.h"
+# include "../../src/Basic/winstreambuf.h"
 # define mStdIOFileBuf std::filebuf
 #define mFPArgs fp
 
