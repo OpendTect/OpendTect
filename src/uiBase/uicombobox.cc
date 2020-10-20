@@ -219,6 +219,22 @@ void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 }
 
 
+void uiComboBox::setColorIcon( int index, const Color& col )
+{
+    if ( index<0 || index>=body_->count() )
+	return;
+
+    if ( col == Color::NoColor() )
+	body_->setItemIcon( index, QIcon() );
+    else
+    {
+	uiPixmap pm( 15, 10 );
+	pm.fill( col );
+	setPixmap( index, pm );
+    }
+}
+
+
 void uiComboBox::setIcon( int index, const char* iconnm )
 {
     if ( index<0 || index>=body_->count() )

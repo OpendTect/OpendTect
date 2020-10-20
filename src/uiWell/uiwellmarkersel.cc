@@ -130,6 +130,22 @@ void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
 }
 
 
+void uiWellMarkerSel::setMarkerColors( const TypeSet<Color>& cols )
+{
+    TypeSet<Color> colors;
+    if ( setup_.withudf_ )
+	colors += Color::NoColor();
+
+    colors.append( cols );
+
+    for ( int idx=0; idx<colors.size(); idx++ )
+    {
+	if ( topfld_ ) topfld_->setColorIcon( idx, colors[idx] );
+	if ( botfld_ ) botfld_->setColorIcon( idx, colors[idx] );
+    }
+}
+
+
 void uiWellMarkerSel::setMarkers( uiComboBox& cb, const BufferStringSet& nms )
 {
     BufferString cur( cb.text() );
