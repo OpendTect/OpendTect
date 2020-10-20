@@ -745,7 +745,8 @@ void uiODMenuMgr::fillAnalMenu()
 		       mXplotMnuItm, "xplot_wells" );
     insertAction( xplotmnu, m3Dots(tr("Attributes vs Attributes")),
 		       mAXplotMnuItm, "xplot_attribs" );
-    insertAction( xplotmnu, m3Dots(tr("Open Cross-plot")), mOpenXplotMnuItm );
+    insertAction( xplotmnu, m3Dots(tr("Open Saved Cross-plot")),
+		  mOpenXplotMnuItm );
     analmnu_->insertItem( xplotmnu );
 
     analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
