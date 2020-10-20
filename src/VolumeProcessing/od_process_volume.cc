@@ -11,6 +11,8 @@
 #include "moddepmgr.h"
 
 mLoad2Modules("VolumeProcessing","Well")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     VolProc::Processor proc( pars() );
     if ( !proc.run(strm,comm_) )

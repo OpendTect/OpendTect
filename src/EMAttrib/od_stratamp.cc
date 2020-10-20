@@ -63,6 +63,8 @@ static EM::Horizon3D* loadHorizon( const DBKey& dbky, const TrcKeySampling& hs,
 #define mUnRef(){ tophor->unRef(); if ( bothor ) bothor->unRef(); }
 
 mLoad3Modules("Attributes","EMAttrib","PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     TrcKeySampling hs;
     if ( !getHorsampling( pars(), hs ) )

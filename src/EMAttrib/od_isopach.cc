@@ -41,6 +41,8 @@ static bool loadHorizon( const DBKey& mid, od_ostream& strm )
 
 
 mLoad1Module("EarthModel")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     strm << "Loading Horizons ..." << od_newline;
     DBKey mid1;

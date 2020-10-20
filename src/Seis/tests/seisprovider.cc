@@ -132,6 +132,8 @@ static bool testPS2D()
 
 
 mLoad1Module("Seis")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 

@@ -22,6 +22,8 @@
 #define mErrRet( msg ) { strm << msg; return false; }
 
 mLoad1Module("Velocity")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     DBKey inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )

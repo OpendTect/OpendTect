@@ -149,6 +149,8 @@ bool testTracesAmplitudes( od_ostream& strm,
 
 
 mLoad1Module("PreStackProcessing")
+
+bool BatchProgram::doWork( od_ostream& strm )
 {
     mInitBatchTestProg();
 
