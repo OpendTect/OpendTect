@@ -36,6 +36,7 @@
     { \
 	od_cout() << "Failure for offset idx " << ofsidx; \
 	od_cout() << " and zidx: " << zidx << od_newline; \
+    od_cout() << "Expected: " << val << "; Computed: " << angles.data().get(ofsidx,zidx) << od_endl; \
 	act; \
 	return false; \
     } \
@@ -186,13 +187,14 @@ bool BatchProgram::doWork( od_ostream& strm )
     fp.setRange( false, zrange );
     computer->setOutputSampling( fp );
     computer->setTrcKey( TrcKey(BinID(426,800)) );
-    if ( !computer->isOK() )
-    {
-	od_cout() << " Angle computer is not OK.\n";
-	return false;
-    }
 
     RefMan<Gather> angles = computer->computeAngles();
+    if ( !computer->isOK() )
+    {
+        od_cout() << " Angle computer is not OK.\n";
+        return false;
+    }
+
     if ( !angles )
     {
 	od_cout() << "Computer did not succeed in making angle data\n";
@@ -274,13 +276,14 @@ bool testAnglesForDifferentSurveys()
 	fp.setRange( false, zrange );
 	computer->setOutputSampling( fp );
 	computer->setTrcKey( TrcKey(BinID(426,800)) );
-	if ( !computer->isOK() )
-	{
-	    od_cout() << survnm << " : Angle computer is not OK.\n";
-	    return false;
-	}
 
 	RefMan<Gather> angles = computer->computeAngles();
+    if ( !computer->isOK() )
+    {
+        od_cout() << survnm << " : Angle computer is not OK.\n";
+        return false;
+    }
+
 	if ( !angles )
 	{
 	    od_cout() << survnm ;
