@@ -1083,13 +1083,17 @@ bool IOMan::isValidSurveyDir( const char* d )
 
 
 uiRetVal IOMan::setDataSource( const char* dataroot, const char* survdir,
-			   bool refresh )
+			       bool refresh )
 {
+    uiRetVal uirv;
     bool res = setRootDir( dataroot );
     if ( res )
 	res = setSurvey( survdir );
 
-    return uiRetVal( toUiString("Can not set DataRoot and Survey") );
+    if ( !res )
+	uirv.set( toUiString("Can not set DataRoot and Survey") );
+
+    return uirv;
 }
 
 
@@ -1111,6 +1115,7 @@ uiRetVal IOMan::setDataSource( const IOPar& iop, bool refresh )
 
 uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 {
-    const BufferString newpath = clp.getFullSurveyPath();
+    bool usecur = true;
+    const BufferString newpath = clp.getFullSurveyPath( &usecur );
     return setDataSource( newpath, refresh );
 }
