@@ -174,11 +174,11 @@ public:
     static void		surveyParsChanged();
 			/*! Triggers the post-survey change notifiers */
 
-    bool		setDataSource(const char* dataroot,const char* survdir,
+    uiRetVal		setDataSource(const char* dataroot,const char* survdir,
 				      bool refresh=false);
-    bool		setDataSource(const char* fullpath,bool refresh=false);
-    bool		setDataSource(const IOPar&,bool refresh=false);
-    bool		setDataSource(const CommandLineParser&,
+    uiRetVal		setDataSource(const char* fullpath,bool refresh=false);
+    uiRetVal		setDataSource(const IOPar&,bool refresh=false);
+    uiRetVal		setDataSource(const CommandLineParser&,
 				      bool refresh=false);
 };
 
