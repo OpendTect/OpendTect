@@ -1021,7 +1021,7 @@ void IOPar::set( const char* keyw, const TypeSet<MultiID>& keys )
 }
 
 
-bool IOPar::get( const char* keyw, TypeSet<DBKey>& keys ) const
+bool IOPar::get( const char* keyw, DBKeySet& keys ) const
 {
     BufferStringSet strs;
     if ( !get(keyw,strs) )
@@ -1033,7 +1033,7 @@ bool IOPar::get( const char* keyw, TypeSet<DBKey>& keys ) const
 }
 
 
-void IOPar::set( const char* keyw, const TypeSet<DBKey>& keys )
+void IOPar::set( const char* keyw, const DBKeySet& keys )
 {
     BufferStringSet strs;
     for ( int idx=0; idx<keys.size(); idx++ )

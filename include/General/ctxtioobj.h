@@ -118,6 +118,9 @@ public:
     void		fixTranslator( const char* trusrnm )
 			{ deftransl_ = toselect_.allowtransls_ = trusrnm; }
 
+    int			nrMatches() const;
+    inline bool		haveMatches() const { return nrMatches() > 0; }
+
     mDeprecated("Use stdseltype_")	StdSelType&		stdseltype;
     mDeprecated("Use trgroup_")		const TranslatorGroup*& trgroup;
     mDeprecated("Use newonlevel_")	int&			newonlevel;

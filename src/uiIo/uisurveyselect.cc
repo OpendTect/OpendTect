@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisurvey.h"
+#include "surveydisklocation.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -214,4 +215,21 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 	mErrRet(tr("This is not an OpendTect survey."));
 
     setInputText( fullpath );
+}
+
+
+void uiSurveySelect::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+{
+    dataroot_ = sdl.basePath();
+    surveyname_ = sdl.dirName();
+    setInputText( sdl.fullPath() );
+}
+
+
+SurveyDiskLocation uiSurveySelect::surveyDiskLocation() const
+{
+    BufferString fp;
+    getFullSurveyPath( fp );
+    SurveyDiskLocation sdl( fp );
+    return sdl;
 }

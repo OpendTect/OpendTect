@@ -115,11 +115,11 @@ public:
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
 
-    uiString                    phrCannotOpenObj() const;
-    uiString                    phrCannotReadObj() const;
-    uiString                    phrCannotLoadObj() const;
-    uiString                    phrCannotWriteObj() const;
-    uiString                    phrCannotWriteToDB() const;
+    uiString			phrCannotOpenObj() const;
+    uiString			phrCannotReadObj() const;
+    uiString			phrCannotLoadObj() const;
+    uiString			phrCannotWriteObj() const;
+    uiString			phrCannotWriteToDB() const;
 
 protected:
 

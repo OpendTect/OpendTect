@@ -769,6 +769,16 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 }
 
 
+void IOMan::removeUnusable( DBKeySet& keys )
+{
+    for ( int idx=keys.size()-1; idx>=0; idx-- )
+    {
+	if ( !isUsable(keys.get(idx)) )
+	    keys.removeSingle( idx );
+    }
+}
+
+
 bool IOMan::isUsable( const MultiID& key ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( key );

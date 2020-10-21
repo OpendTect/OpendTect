@@ -45,15 +45,15 @@ static const char* autoexecfnm = "autoexec.odcmd";
 
 
 uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
-	: applwin_(*uiMain::theMain().topLevel())
-	, cmddlg_(0)
-	, settingsautoexec_(fullodmode)
-	, surveyautoexec_(fullodmode)
-	, scriptidx_(-3)
-        , historec_(0)
-	, cmdlineparsing_(fullodmode)
-	, defaultscriptsdir_(fullodmode ? "" : GetPersonalDir())
-	, defaultlogdir_(fullodmode ? "" : GetPersonalDir())
+    : applwin_(*uiMain::theMain().topLevel())
+    , cmddlg_(0)
+    , settingsautoexec_(fullodmode)
+    , surveyautoexec_(fullodmode)
+    , scriptidx_(-3)
+    , historec_(0)
+    , cmdlineparsing_(fullodmode)
+    , defaultscriptsdir_(fullodmode ? "" : GetPersonalDir())
+    , defaultlogdir_(fullodmode ? "" : GetPersonalDir())
 {
     tim_ = new Timer();
     rec_ = new CmdRecorder( applwin_ );
@@ -92,6 +92,14 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
 	SignalHandling::stopNotify( SignalHandling::Kill,
 				    mCB(this,uiCmdDriverMgr,stopRecordingCB) );
     }
+}
+
+
+uiCmdDriverMgr& uiCmdDriverMgr::getMgr( bool fullodmode )
+{
+    mDefineStaticLocalObject( PtrMan<CmdDrive::uiCmdDriverMgr>, cmdmmgr,
+				= new CmdDrive::uiCmdDriverMgr(fullodmode) )
+    return *(cmdmmgr.ptr());
 }
 
 
