@@ -236,6 +236,7 @@ public:
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sAnd()		{ return tr("and"); }
     static uiString sApply()		{ return tr("Apply"); }
+    static uiString sArea()		{ return tr("Area"); }
     static uiString sASCII();
     static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAxis()		{ return tr("Axis"); }
@@ -321,6 +322,7 @@ public:
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sCrosslineDip()	{ return sLineDip(false); }
+    static uiString sCrosslineRange()	{ return tr("Cross-line range"); }
     static uiString sCrossPlot();
     static uiString sCube(int num=1)	{ return tr("Cube",0,num); }
     static uiString sCurve()		{ return tr("Curve"); }
@@ -402,6 +404,7 @@ public:
     static uiString sInformation()	{ return tr("Information"); }
     static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
     static uiString sInlineDip()	{ return tr("Inline Dip"); }
+    static uiString sInlineRange()	{ return tr("In-line range"); }
     static uiString sInputParamsMissing();
     static uiString sInput();
     static uiString sInputFile();
@@ -580,6 +583,7 @@ public:
     static uiString sSteps()		{ return sStep(mPlural); }
     static uiString sStepout()		{ return tr("Stepout"); }
     static uiString sStop()		{ return tr("Stop"); }
+    static uiString sStorage()		{ return tr("Storage"); }
     static uiString sStorageDir();
     static uiString sStored();
     static uiString sStratigraphy();

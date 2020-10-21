@@ -91,7 +91,7 @@ private:
 /*!\brief Info on IOObj for seismics */
 
 mExpClass(Seis) SeisIOObjInfo
-{
+{ mODTextTranslationClass(SeisIOObjInfo)
 public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
@@ -180,6 +180,9 @@ public:
     static bool		isCompatibleType(const char* omftypestr1,
 					 const char* omftypestr2);
 
+    void		getUserInfo(uiStringSet&) const;
+
+
 			mDeprecatedDef SeisIOObjInfo(const char* ioobjnm);
 protected:
 
@@ -192,6 +195,9 @@ protected:
     void		getNms(BufferStringSet&,const Opts2D&) const;
     int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
 
+    void		getCommonUserInfo(uiStringSet&) const;
+    void		getPostStackUserInfo(uiStringSet&) const;
+    void		getPreStackUserInfo(uiStringSet&) const;
 };
 
 

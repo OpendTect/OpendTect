@@ -39,6 +39,8 @@ public:
     bool		isInCurrentSurvey() const;
     const SurveyInfo&	surveyInfo() const;
 
+    DBKey		getLocal() const;
+
     BufferString	toString(bool withsurvloc) const;
 
 protected:

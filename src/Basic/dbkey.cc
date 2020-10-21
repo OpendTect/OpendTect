@@ -66,6 +66,14 @@ const SurveyInfo& DBKey::surveyInfo() const
 }
 
 
+DBKey DBKey::getLocal() const
+{
+    DBKey dbkey = *this;
+    dbkey.clearSurveyDiskLocation();
+    return dbkey;
+}
+
+
 // DBKeySet
 
 DBKeySet& DBKeySet::operator=( const TypeSet<MultiID>& mids )

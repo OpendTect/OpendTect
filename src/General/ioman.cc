@@ -1082,18 +1082,18 @@ bool IOMan::isValidSurveyDir( const char* d )
 }
 
 
-bool IOMan::setDataSource( const char* dataroot, const char* survdir,
+uiRetVal IOMan::setDataSource( const char* dataroot, const char* survdir,
 			   bool refresh )
 {
     bool res = setRootDir( dataroot );
     if ( res )
 	res = setSurvey( survdir );
 
-    return res;
+    return uiRetVal( toUiString("Can not set DataRoot and Survey") );
 }
 
 
-bool IOMan::setDataSource( const char* fullpath, bool refresh )
+uiRetVal IOMan::setDataSource( const char* fullpath, bool refresh )
 {
     FilePath fp( fullpath );
     const BufferString pathnm( fp.pathOnly() );
@@ -1102,14 +1102,14 @@ bool IOMan::setDataSource( const char* fullpath, bool refresh )
 }
 
 
-bool IOMan::setDataSource( const IOPar& iop, bool refresh )
+uiRetVal IOMan::setDataSource( const IOPar& iop, bool refresh )
 {
     return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()),
 			  refresh );
 }
 
 
-bool IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
+uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 {
     const BufferString newpath = clp.getFullSurveyPath();
     return setDataSource( newpath, refresh );
