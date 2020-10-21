@@ -296,7 +296,7 @@ void uiIOObjSelGrp::mkManipulators()
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
-					ctio_.ctxt_.toselect_.allowtransls_) )
+		ctio_.ctxt_.toselect_.allowtransls_) )
 	    continue;
 
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );

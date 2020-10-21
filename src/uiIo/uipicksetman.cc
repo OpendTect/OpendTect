@@ -46,10 +46,10 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
              uiStrings::phrManage( toUiString("%1/%2")
                 .arg( uiStrings::sPointSet(mPlural) )
                 .arg( uiStrings::sPolygon(mPlural))),
-             mNoDlgTitle,
-             mODHelpKey(mPickSetManHelpID) )
-                 .nrstatusflds(1).modal(false),
-			getIOObjContext(fixedtrkey))
+	    mNoDlgTitle,
+	    mODHelpKey(mPickSetManHelpID) )
+	    .nrstatusflds(1).modal(false),
+	    getIOObjContext(fixedtrkey), PickSetTranslatorGroup::sGroupName())
 {
     createDefaultUI();
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
