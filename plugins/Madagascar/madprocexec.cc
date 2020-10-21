@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "perthreadrepos.h"
 #include "uistrings.h"
-#include <fstream>
 
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }
 const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
@@ -38,6 +37,8 @@ mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 #define mFPArgs fp
 
 #else
+
+# include <fstream>
 
 # define mPOpen popen
 # define mPClose pclose
