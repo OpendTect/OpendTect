@@ -1303,3 +1303,17 @@ void uiGenInput::setRequired( bool yn )
     isrequired_ = yn;
     if ( labl_ ) labl_->makeRequired( yn );
 }
+
+
+void uiGenInput::setPrefix( const uiString& str, int fldnr )
+{
+    if ( !flds_.validIdx(fldnr) ) return;
+
+    const int nrelements = flds_[fldnr]->nElems();
+    for ( int idx=0; idx<nrelements; idx++ )
+    {
+	mDynamicCastGet(uiSpinBox*,uisbinp,flds_[fldnr]->element(idx))
+	if ( uisbinp )
+	    uisbinp->setPrefix( str );
+    }
+}

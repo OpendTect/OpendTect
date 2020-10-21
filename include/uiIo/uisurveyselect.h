@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiListBox;
 class uiFileInput;
+class SurveyDiskLocation;
 
 mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 { mODTextTranslationClass(uiSurveySelectDlg);
@@ -63,6 +64,8 @@ public:
     bool		isNewSurvey() const	{ return isnewsurvey_; }
     bool		getFullSurveyPath(BufferString&) const;
     void		setSurveyPath(const char*);
+    void		setSurveyDiskLocation(const SurveyDiskLocation&);
+    SurveyDiskLocation	surveyDiskLocation() const;
 
 protected:
 

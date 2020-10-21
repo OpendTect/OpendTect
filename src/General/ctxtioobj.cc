@@ -391,6 +391,17 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 }
 
 
+int IOObjContext::nrMatches() const
+{
+    if ( stdseltype_ == None )
+	return -1;
+
+    const MultiID key( getStdDirData(stdseltype_)->id_ );
+    IODir iodir( key );
+    return iodir.size();
+}
+
+
 void CtxtIOObj::fillIfOnlyOne()
 {
     ctxt_.fillTrGroup();
