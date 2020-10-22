@@ -166,7 +166,7 @@ BufferString ODDLSite::fullURL( const char* relfnm ) const
     if ( islocal_ )
 	return getFileName( relfnm );
 
-    BufferString ret( "http://" );
+    BufferString ret( issecure_ ? "https://" : "http://" );
     ret.add( host_ ).add( getFileName(relfnm) );
     return ret;
 }
