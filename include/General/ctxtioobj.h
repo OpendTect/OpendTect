@@ -105,6 +105,7 @@ public:
     static int			totalNrStdDirs();
     static const StdDirData*	getStdDirData(StdSelType);
     static BufferString		getDataDirName(StdSelType);
+    static BufferString		getDataDirName(StdSelType,bool dironly);
 				//!< Including legacy names - smart
 
     const char*		objectTypeName() const;

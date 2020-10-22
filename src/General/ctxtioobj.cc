@@ -264,25 +264,42 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 
 BufferString IOObjContext::getDataDirName( StdSelType sst )
 {
-    const IOObjContext::StdDirData* sdd = getStdDirData( sst );
-    FilePath fp( GetDataDir(), sdd->dirnm_ );
-    BufferString dirnm = fp.fullPath();
-    if ( !File::exists(dirnm) )
-    {	// Try legacy names
-	if ( sst == IOObjContext::NLA )
-	    fp.setFileName( "NNs" );
-	else if ( sst == IOObjContext::Surf )
-	    fp.setFileName( "Grids" );
-	else if ( sst == IOObjContext::Loc )
-	    fp.setFileName( "Wavelets" );
-	else if ( sst == IOObjContext::WllInf )
-	    fp.setFileName( "Logs" );
+    return getDataDirName( sst, false );
+}
 
-	BufferString altdirnm = fp.fullPath();
-	if ( File::exists(altdirnm) )
-	    dirnm = altdirnm;
+
+BufferString IOObjContext::getDataDirName( StdSelType sst, bool dirnmonly )
+{
+    const IOObjContext::StdDirData* sdd = getStdDirData( sst );
+    BufferString dirnm( sdd->dirnm_ );
+    FilePath fp( GetDataDir(), sdd->dirnm_ );
+    BufferString fulldirnm = fp.fullPath();
+    if ( !File::exists(fulldirnm) )
+    {
+	// Try legacy names
+	BufferString altdirnm;
+	if ( sst == IOObjContext::NLA )
+	    altdirnm.set( "NNs" );
+	else if ( sst == IOObjContext::Surf )
+	    altdirnm.set( "Grids" );
+	else if ( sst == IOObjContext::Loc )
+	    altdirnm.set( "Wavelets" );
+	else if ( sst == IOObjContext::WllInf )
+	    altdirnm.set( "Logs" );
+
+	if ( !altdirnm.isEmpty() )
+	{
+	    fp.setFileName( altdirnm );
+	    const BufferString fullaltdirnm = fp.fullPath();
+	    if ( File::exists(fullaltdirnm) )
+	    {
+		dirnm = altdirnm;
+		fulldirnm = fullaltdirnm;
+	    }
+	}
     }
-    return dirnm;
+
+    return dirnmonly ? dirnm : fulldirnm;
 }
 
 
