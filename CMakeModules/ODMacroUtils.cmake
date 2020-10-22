@@ -20,6 +20,8 @@
 #					  value should be either Core, Sql, Gui
 #					  or OpenGL
 # OD_USEZLIB				: Dependency on zlib is enabled if set.
+# OD_USEOPENSSL				: Dependency on libopenssl is enabled if set.
+# OD_USECRYPTO				: Dependency on libcrypto is enabled if set.
 # OD_USEOSG				: Dependency on OSG is enabled if set.
 # OD_IS_PLUGIN				: Tells if this is a plugin (if set)
 # OD_PLUGINMODULES			: A list of eventual sub-modules of
@@ -99,11 +101,42 @@ if(OD_USEQT)
 endif(OD_USEQT)
 
 #Must be after QT
-if( (UNIX OR WIN32)  AND OD_USEZLIB )
+if( (UNIX OR WIN32) AND OD_USEZLIB )
     OD_SETUP_ZLIB()
     if ( EXISTS ${ZLIB_INCLUDE_DIR} )
 	list(APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
 	list(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
+    endif()
+endif()
+
+if( UNIX AND OD_USEOPENSSL )
+    OD_SETUP_OPENSSL()
+    if ( EXISTS ${OPENSSL_SSL_LIBRARY} )
+	# No need (yet) to link against openssl, only install:
+	#list(APPEND OD_MODULE_INCLUDESYSPATH ${OPENSSL_INCLUDE_DIR} )
+	#list(APPEND OD_MODULE_EXTERNAL_LIBS OpenSSL::SSL )
+	if ( OD_INSTALL_DEPENDENT_LIBS )
+	if( "${CONFIGURATION}" STREQUAL "Debug" )
+	    install( FILES ${OPENSSL_SSL_LIBRARY} DESTINATION ${OD_LIB_INSTALL_PATH_DEBUG} CONFIGURATIONS Debug )
+	else()
+	    install( FILES ${OPENSSL_SSL_LIBRARY} DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
+	endif()
+	endif( OD_INSTALL_DEPENDENT_LIBS )
+    endif()
+endif()
+
+if( UNIX AND OD_USECRYPTO )
+    OD_SETUP_CRYPTO()
+    if ( EXISTS ${OPENSSL_CRYPTO_LIBRARY} )
+	list(APPEND OD_MODULE_INCLUDESYSPATH ${OPENSSL_INCLUDE_DIR} )
+	list(APPEND OD_MODULE_EXTERNAL_LIBS OpenSSL::Crypto )
+	if ( OD_INSTALL_DEPENDENT_LIBS )
+	if( "${CONFIGURATION}" STREQUAL "Debug" )
+	    install( FILES ${OPENSSL_CRYPTO_LIBRARY} DESTINATION ${OD_LIB_INSTALL_PATH_DEBUG} CONFIGURATIONS Debug )
+	else()
+	    install( FILES ${OPENSSL_CRYPTO_LIBRARY} DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
+	endif()
+	endif( OD_INSTALL_DEPENDENT_LIBS )
     endif()
 endif()
 

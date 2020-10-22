@@ -7,6 +7,7 @@ SET( INCLUDES
     ODPlatformUtils
     ODUtils
     ODZlibUtils
+    ODOpenSSLUtils
     ODProj4Utils
     ODBreakPadUtils
     ODMacroUtils
