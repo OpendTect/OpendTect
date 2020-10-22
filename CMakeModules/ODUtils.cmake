@@ -77,6 +77,12 @@ set ( OD_SEIS_EXECS od_copy_seis od_process_2dto3d od_process_segyio )
 set ( OD_PRESTACK_EXECS od_process_prestack )
 set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
 
+#Should not be here.
+set ( DGB_SR_EXECS od_SynthRock )
+set ( DGB_ML_EXECS od_deeplearn_apply )
+set ( DGB_SEGY_EXECS od_DeepLearning_CC )
+set ( DGB_ML_UIEXECS od_DeepLearning od_DeepLearning_CC od_DeepLearning_EM od_DeepLearning_TM od_DeepLearning_ModelImport )
+set ( DGB_PRO_UIEXECS od_LogPlot )
 
 #Macro for going through a list of modules and adding them
 macro ( OD_ADD_MODULES )
