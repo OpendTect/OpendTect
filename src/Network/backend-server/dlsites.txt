@@ -1,1 +1,1 @@
-download.opendtect.org
+https://download.opendtect.org
