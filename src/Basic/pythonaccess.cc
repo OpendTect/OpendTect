@@ -1061,7 +1061,7 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 	fp.setFileName( genericName );
 	fp.setExtension( "txt" );
 	if ( !fp.exists() )
-	    return uiRetVal( uiStrings::sFileDoesntExist() );
+	    return uiRetVal( uiStrings::phrFileDoesNotExist(fp.fullPath()) );
     }
 
     od_istream strm( fp.fullPath() );
