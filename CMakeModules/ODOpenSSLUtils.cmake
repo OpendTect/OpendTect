@@ -5,9 +5,9 @@
 #_______________________________________________________________________________
 
 MACRO( OD_SETUP_OPENSSLCOMP COMP )
-	if( NOT DEFINED OPENSSL_${COMP}_LIBRARY} )
+    if( NOT DEFINED OPENSSL_${COMP}_LIBRARY} )
 
-	if ( DEFINED QTDIR )
+    if ( DEFINED QTDIR )
 	set( OPENSSL_HINT_DIR "${QTDIR}/../../Tools/OpenSSL" )
 	if ( EXISTS ${OPENSSL_HINT_DIR} )
 		set( OPENSSL_ROOT_DIR ${OPENSSL_HINT_DIR} )
@@ -17,9 +17,9 @@ MACRO( OD_SETUP_OPENSSLCOMP COMP )
 	        set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/binary )
 	    endif( WIN32 )
 	endif()
-	endif( DEFINED QTDIR )
+    endif( DEFINED QTDIR )
 
-	find_package( OpenSSL 1.1.1 REQUIRED COMPONENTS ${COMP} )
+    find_package( OpenSSL 1.1.1 QUIET COMPONENTS ${COMP} )
 
     endif()
 ENDMACRO( OD_SETUP_OPENSSLCOMP )
