@@ -37,14 +37,14 @@ bool testPing()
 
 bool testDownloadToBuffer()
 {
-    const char* url = "http://opendtect.org/dlsites.txt";
+    const char* url = "https://opendtect.org/dlsites.txt";
     DataBuffer db( 1000, 4 );
     uiString err;
 
     mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
 	    BufferString( prefix_, "Download to buffer"), toString(err) );
 
-    mRunStandardTest( db.size()==23,
+    mRunStandardTest( db.size()==54,
 		      BufferString( prefix_, "Download to buffer size") );
 
     return true;
@@ -53,7 +53,7 @@ bool testDownloadToBuffer()
 
 bool testDownloadToFile()
 {
-    const char* url = "http://opendtect.org/dlsites.txt";
+    const char* url = "https://opendtect.org/dlsites.txt";
     uiString err;
     mRunStandardTestWithError(
 	    Network::downloadFile( url, tempfile.fullPath(), err ),
@@ -96,7 +96,7 @@ bool testQueryUpload()
 
 bool testFileSizes()
 {
-    const char* url = "http://opendtect.org/dlsites.txt";
+    const char* url = "https://opendtect.org/dlsites.txt";
     od_int64 sizeremotefile=0,sizeofuploadedfile=0;
     uiString err;
     Network::getRemoteFileSize( url, sizeremotefile, err );
