@@ -13,10 +13,34 @@
 #include "filepath.h"
 #include "iopar.h"
 #include "odnetworkaccess.h"
+#include "staticstring.h"
+#include "systeminfo.h"
 
 
 static File::Path tempfile;
 static BufferString prefix_;
+
+static BufferString intranetHost()
+{
+    mDeclStaticString(res);
+    if ( res.isEmpty() )
+    {
+	res.set( "intranet" );
+	const BufferString addr( System::hostAddress(res.buf()) );
+	if ( addr.isEmpty() )
+	    res.set( "192.168.0.245" );
+    }
+
+    return res;
+}
+
+static BufferString intranetUrl( const char* url )
+{
+    BufferString res( "http://", intranetHost(), "/" );
+    res.add( "testing/ctest/" ).add( url );
+    return res;
+}
+
 
 bool testPing()
 {
@@ -65,13 +89,12 @@ bool testDownloadToFile()
 
 bool testFileUpload()
 {
-    const char* url =
-		    "http://intranet/testing/ctest/php_do_not_delete_it.php";
-    const char* remotefn("test_file");
+    const BufferString url = intranetUrl( "php_do_not_delete_it.php" );
+    const char* remotefn( "test_file" );
     uiString err;
     IOPar postvars;
     mRunStandardTestWithError(
-	    Network::uploadFile(url, tempfile.fullPath(), remotefn, "dumpfile",
+	    Network::uploadFile(url.buf(), tempfile.fullPath(), remotefn, "dumpfile",
 				postvars, err ),
 	    BufferString( prefix_, "Upload file "), toString(err) );
 
@@ -84,8 +107,7 @@ bool testQueryUpload()
     const char* report = "This is test report";
     IOPar querypars;
     querypars.set( "report", report );
-    const char* url =
-		    "http://intranet/testing/ctest/php_do_not_delete_it_2.php";
+    const BufferString url = intranetUrl( "php_do_not_delete_it_2.php" );
     uiString err;
     mRunStandardTestWithError( Network::uploadQuery( url, querypars, err ),
 		BufferString( prefix_, "UploadQuery"), toString(err) );
@@ -101,10 +123,10 @@ bool testFileSizes()
     uiString err;
     Network::getRemoteFileSize( url, sizeremotefile, err );
     tstStream() << url << " is " << sizeremotefile << " bytes" << od_endl;
-    url = "http://intranet/testing/ctest/test_file";
-    Network::getRemoteFileSize( url, sizeremotefile, err );
-    url = "http://intranet/testing/ctest/dumpuploads/test_file";
-    Network::getRemoteFileSize( url, sizeofuploadedfile, err );
+    const BufferString url2 = intranetUrl( "test_file" );
+    Network::getRemoteFileSize( url2, sizeremotefile, err );
+    const BufferString url3 = intranetUrl( "dumpuploads/test_file" );
+    Network::getRemoteFileSize( url3, sizeofuploadedfile, err );
 
 
     mRunStandardTestWithError(
