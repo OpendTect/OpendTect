@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "uiwellsel.h"
 
@@ -175,26 +176,19 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     glfld_->attach( alignedBelow, kbelevfld_ );
     if ( !writable_ ) glfld_->setReadOnly( true );
 
-    uiButton* readbut = !writable_ ? 0
-		: new uiPushButton( this, uiStrings::sImport(),
-				    mCB(this,uiWellTrackDlg,readNew), false );
-    if ( readbut )
-	readbut->attach( leftAlignedBelow, actgrp );
-    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
-					 mCB(this,uiWellTrackDlg,exportCB),
-					 false );
-    if ( readbut )
-	expbut->attach( rightOf, readbut );
-    else
-	expbut->attach( leftAlignedBelow, actgrp );
-    uiPushButton* updbut = !writable_ ? 0
-		: new uiPushButton( this, tr("Update display"),
-				   mCB(this,uiWellTrackDlg,updNow), true );
-    if ( updbut )
-    {
-	updbut->attach( rightTo, expbut );
-	updbut->attach( rightBorder );
-    }
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "ImpExp buttons",
+					       OD::Horizontal );
+    butgrp->attach( leftAlignedBelow, actgrp );
+    if ( writable_ )
+	new uiToolButton( butgrp, "import", uiStrings::sImport(),
+			  mCB(this,uiWellTrackDlg,readNew) );
+
+    new uiToolButton( butgrp, "export", uiStrings::sExport(),
+		     mCB(this,uiWellTrackDlg,exportCB) );
+
+    if ( writable_ )
+	new uiToolButton( butgrp, "update", tr("Update display"),
+			  mCB(this,uiWellTrackDlg,updNow) );
 
     if ( !track_.isEmpty() )
 	origpos_ = track_.pos(0);
