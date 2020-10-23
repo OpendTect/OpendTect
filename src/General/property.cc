@@ -17,6 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <typeinfo>
 
 
+Property::Property( const PropertyRef& pr )
+    : ref_(pr)
+    , lastval_(mUdf(float))
+    , mn_(MNC().find(pr.getMnemonic()))
+{}
+
+
 const char* Property::name() const
 {
     return ref_.name().buf();
@@ -168,12 +175,47 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 
 //------- MathProperty ----------
 
-static const PropertyRef depthpropref( "Depth", PropertyRef::Dist );
-static const ValueProperty depthprop( depthpropref, 0 );
-static const PropertyRef reldepthpropref( "RelDepth", PropertyRef::Dist );
-static const ValueProperty reldepthprop( reldepthpropref, 0 );
-static const PropertyRef xpospropref( "XPos", PropertyRef::Volum );
-static const ValueProperty xposprop( xpospropref, 0 );
+static const PropertyRef& depthPropRef()
+{
+    mDefineStaticLocalObject( PtrMan<PropertyRef>, depthpropref,
+				= new PropertyRef("depth", PropertyRef::Dist) );
+    return *depthpropref;
+}
+
+static const ValueProperty& depthProp()
+{
+    mDefineStaticLocalObject( PtrMan<ValueProperty>, depthprop,
+				 = new ValueProperty(depthPropRef(), 0) );
+    return *depthprop;
+}
+
+static const PropertyRef& relDepthPropRef()
+{
+    mDefineStaticLocalObject( PtrMan<PropertyRef>, reldepthpropref,
+			    = new PropertyRef("RelDepth", PropertyRef::Dist) );
+    return *reldepthpropref;
+}
+
+static const ValueProperty& relDepthProp()
+{
+    mDefineStaticLocalObject( PtrMan<ValueProperty>, reldepthprop,
+				 = new ValueProperty(relDepthPropRef(), 0) );
+    return *reldepthprop;
+}
+
+static const PropertyRef& xposPropRef()
+{
+    mDefineStaticLocalObject( PtrMan<PropertyRef>, xpospropref,
+			    = new PropertyRef("XPos", PropertyRef::Volum) );
+    return *xpospropref;
+}
+
+static const ValueProperty& xposProp()
+{
+    mDefineStaticLocalObject( PtrMan<ValueProperty>, xposprop,
+				 = new ValueProperty(xposPropRef(), 0) );
+    return *xposprop;
+}
 static const FixedString sKeyMathForm( "Formula: " );
 
 
@@ -264,9 +306,9 @@ bool MathProperty::init( const PropertySet& ps ) const
 	{
 	    const int specidx = form_.specIdx(iinp);
 	    if ( specidx > 4 )
-		prop = &xposprop;
+		prop = &xposProp();
 	    else
-		prop = specidx < 2 ? &depthprop : &reldepthprop;
+		prop = specidx < 2 ? &depthProp() : &relDepthProp();
 	}
 	else if ( !form_.isConst(iinp) )
 	{
@@ -414,11 +456,11 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	    val = (float)form_.getConstVal( iinp );
 	else
 	{
-	    if ( prop == &xposprop )
+	    if ( prop == &xposProp() )
 		val = eo.relpos_;
-	    else if ( prop == &depthprop || prop == &reldepthprop )
+	    else if ( prop == &depthProp() || prop == &relDepthProp() )
 	    {
-		val = prop == &depthprop ? eo.absz_ : eo.relz_;
+		val = prop == &depthProp() ? eo.absz_ : eo.relz_;
 		if ( SI().depthsInFeet() )
 		    val *= mToFeetFactorF;
 	    }

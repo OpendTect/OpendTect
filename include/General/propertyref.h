@@ -67,7 +67,7 @@ public:
 			{ return name() != pr.name(); }
     bool		isKnownAs(const char*) const;
     bool		hasFixedDef() const		{ return mathdef_; }
-    BufferString	getMnemonic() const		   { return mn_; }
+    BufferString	getMnemonic() const;
     void		setMnemonic(BufferString mn)	{ mn_ = mn; }
 
     inline StdType	stdType() const			{ return stdtype_; }

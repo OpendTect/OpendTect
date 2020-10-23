@@ -304,10 +304,10 @@ Mnemonic* MnemonicSet::getGuessed( PropertyRef::StdType stdtype )
     {
 	Mnemonic& mnc = *(*this)[idx];
 	if ( mnc.hasType(stdtype) )
-	    return new Mnemonic( mnc );
+	    return &mnc;
     }
 
-    return new Mnemonic( *(*this)[size()-1] );
+    return find("OTH");
 }
 
 
@@ -315,15 +315,15 @@ Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Mnemonic& mnc = *(*this)[idx];
+	Mnemonic& mnc = *(*this)[idx];
 	if ( uom )
 	{
 	    if ( mnc.hasType(uom->propType()) )
-	       return new Mnemonic( mnc );
+	       return &mnc;
 	}
     }
 
-    return new Mnemonic( *(*this)[size()-1] );
+    return find("OTH");
 }
 
 
