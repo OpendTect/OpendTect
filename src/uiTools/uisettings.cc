@@ -101,14 +101,17 @@ void uiSettingsMgr::loadToolBarCmds( uiMainWin& applwin )
 	if ( !usercmdtb_ )
 	    usercmdtb_ = new uiToolBar( &applwin, tr("User Commands") );
     }
+
     if ( !usercmdmnu_ )
     {
-	uiMenu* utilmnu = applwin.menuBar()->findAction(
-					uiStrings::sUtilities())->getMenu();
-	uiAction* usercmdact = utilmnu->findAction( tr("User Commands") );
+	uiMenuBar* mb = applwin.menuBar();
+	uiMenu* utilmnu =
+	    mb ? mb->findAction( uiStrings::sUtilities())->getMenu() : nullptr;
+	uiAction* usercmdact =
+	    utilmnu ? utilmnu->findAction( tr("User Commands") ) : nullptr;
 	if ( usercmdact )
 	    usercmdmnu_ = usercmdact->getMenu();
-	if ( !usercmdmnu_ )
+	if ( utilmnu && !usercmdmnu_ )
 	{
 	    usercmdmnu_ = new uiMenu( &applwin, tr("User Commands") );
 	    utilmnu->addMenu( usercmdmnu_, utilmnu->findAction(
@@ -121,11 +124,13 @@ void uiSettingsMgr::loadToolBarCmds( uiMainWin& applwin )
 
 void uiSettingsMgr::updateUserCmdToolBar()
 {
-    if ( !usercmdtb_ || !usercmdmnu_ )
+    if ( !usercmdtb_ && !usercmdmnu_ )
 	return;
 
-    usercmdtb_->clear();
-    usercmdmnu_->clear();
+    if ( usercmdtb_ )
+	usercmdtb_->clear();
+    if ( usercmdmnu_ )
+	usercmdmnu_->clear();
     commands_.erase();
     toolbarids_.erase();
 
@@ -144,15 +149,20 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( File::findExecutable( exenm, paths ).isEmpty() )
 	    return;
 
-	int id = usercmdtb_->addButton( exenm, toUiString(exenm),
+	int id = 0;
+	if ( usercmdtb_ )
+	    id = usercmdtb_->addButton( exenm, toUiString(exenm),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( exenm );
-	uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(exenm),
-				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	usercmdmnu_->insertItem( newitm, id );
+	if ( usercmdmnu_ )
+	{
+	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(exenm),
+				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    usercmdmnu_->insertItem( newitm, id );
+	}
     }
-    else if ( idepar && idepar->get( sKey::Command(), cmd ) && !cmd.isEmpty() )
+    else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
     {
 	if ( !File::isExecutable(cmd) )
 	    return;
@@ -160,14 +170,20 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	idepar->get( sKey::Arguments(), args );
 	idepar->get( sKey::ToolTip(), tip );
 	idepar->get( sKey::IconFile(), iconfile );
-	int id = usercmdtb_->addButton( iconfile, toUiString(tip),
+	int id = 0;
+	if ( usercmdtb_ )
+	    id = usercmdtb_->addButton( iconfile, toUiString(tip),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	cmd.addSpace().add(args);
 	commands_.add( cmd );
-	uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(tip),
-				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	usercmdmnu_->insertItem( newitm, id );
+
+	if ( usercmdmnu_ )
+	{
+	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(tip),
+				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    usercmdmnu_->insertItem( newitm, id );
+	}
     }
 }
 
