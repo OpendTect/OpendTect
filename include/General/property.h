@@ -33,8 +33,7 @@ mExpClass(General) Property
 { mODTextTranslationClass(Property);
 public:
 
-			Property( const PropertyRef& pr )
-			: ref_(pr), lastval_(mUdf(float)), mn_(nullptr) {}
+			Property( const PropertyRef& pr );
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
     virtual		~Property()			{}
@@ -203,7 +202,7 @@ public:
 
 			RangeProperty( const PropertyRef& pr )
 			: Property(pr)
-			, rg_(mnem()->disp_.range_)		{}
+			, rg_(mnem()->disp_.range_)	{}
 			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
 			: Property(pr)

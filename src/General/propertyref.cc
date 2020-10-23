@@ -63,7 +63,10 @@ public:
 
 ThicknessPropertyRef()
     : PropertyRef( sKey::Thickness(), PropertyRef::Dist )
-{}
+{
+    Mnemonic* mn = eMNC().getGuessed( stdType() );
+    setMnemonic( mn->name() );
+}
 
 private:
 
@@ -197,9 +200,20 @@ bool PropertyRef::isKnownAs( const char* nm ) const
 }
 
 
+BufferString PropertyRef::getMnemonic() const
+{
+    return mn_;
+}
+
+
 void PropertyRef::usePar( const IOPar& iop )
 {
     iop.get( sKeyMnemonic, mn_ );
+    if ( mn_.isEmpty() )
+    {
+	Mnemonic* mn = eMNC().getGuessed(stdtype_);
+	mn_ = mn->name();
+    }
     if ( !mn_.isEmpty() )
     {
 	Mnemonic* mn = eMNC().find( mn_ );
@@ -212,7 +226,6 @@ void PropertyRef::usePar( const IOPar& iop )
     BufferString mathdefstr;
     FileMultiString fms( iop.find( sKeyDefaultValue ) );
     int sz = 0;
-//    int sz = fms.size();
     fms = iop.find( sKeyDefaultValue );
     sz = fms.size();
     if ( sz > 1 )
