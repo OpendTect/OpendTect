@@ -176,8 +176,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 
     if ( mnuid==0 )
     {
-	uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem(-1, getType(mnuid) );
+	auto* itm = new uiODRandomLineTreeItem(-1, getType(mnuid) );
 	addChild( itm, false );
 	itm->displayDefaultData();
     }
@@ -604,9 +603,9 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 		uiMSG().error( mToUiStringTodo(bs) );
 	    else
 	    {
-		const uiString rdlname = ioobj->uiName();
-		applMgr()->visServer()->setUiObjectName( displayID(), rdlname );
-		rtd->getRandomLine()->setName( rdlname.getFullString() );
+        const BufferString rdlname = ioobj->name();
+        applMgr()->visServer()->setObjectName( displayID(), rdlname );
+        rtd->getRandomLine()->setName( rdlname );
 
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }

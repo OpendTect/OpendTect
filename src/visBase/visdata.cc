@@ -73,14 +73,16 @@ uiString visBase::DataObject::uiName() const
 
 void visBase::DataObject::setUiName( const uiString& uinm )
 {
+    NamedCallBacker::setName( BufferString::empty() );
     uiname_ = uinm;
     if ( osgnode_ )
-        osgnode_->setName( uiname_.getFullString() );
+        osgnode_->setName( toString(uiname_) );
 }
 
 
 void visBase::DataObject::setName( const char* nm )
 {
+    uiname_.setEmpty();
     NamedCallBacker::setName( nm );
     if ( osgnode_ )
         osgnode_->setName( nm );
