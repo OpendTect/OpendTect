@@ -96,7 +96,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     }
 
     namenr_ = highestnamenr+1;
-
+    setUiName( tr( "%1 %2" ).arg( uiStrings::sRandomLine() ).arg( namenr_ ) );
+    
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
