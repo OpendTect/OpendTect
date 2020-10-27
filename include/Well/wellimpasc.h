@@ -257,5 +257,22 @@ protected:
 
 };
 
+
+mExpClass(Well) BulkDirectionalAscIO : public Table::AscIO
+{ mODTextTranslationClass(BulkDirectionalAscIO)
+public:
+				BulkDirectionalAscIO(const Table::FormatDesc&,
+						     od_istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			get(BufferString& wellnm,double& md,
+				    double& incl,double& azi) const;
+    bool			identifierIsUWI() const;
+
+protected:
+    od_istream&			strm_;
+
+};
+
 } // namespace Well
 

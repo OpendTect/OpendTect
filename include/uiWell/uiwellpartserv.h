@@ -51,6 +51,7 @@ public:
     void			bulkImportLogs();
     void			bulkImportMarkers();
     void			bulkImportD2TModel();
+    void			bulkImportDirectional();
 
     void			manageWells();
     void			launchRockPhysics();

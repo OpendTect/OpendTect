@@ -1102,9 +1102,22 @@ StringPair::StringPair( const char* compstr )
 
 const OD::String& StringPair::getCompString() const
 {
+    return getCompString( false );
+}
+
+
+const OD::String& StringPair::getCompString( bool withwhitespace ) const
+{
     mDeclStaticString( ret );
     ret = first();
     if ( !second().isEmpty() )
-	ret.add( separator() ).add( second() );
+    {
+	if ( withwhitespace )
+	    ret.addSpace();
+	ret.add( separator() );
+	if ( withwhitespace )
+	    ret.addSpace();
+	ret.add( second() );
+    }
     return ret;
 }

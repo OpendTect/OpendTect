@@ -69,6 +69,7 @@ ________________________________________________________________________
 #define mImpBulkWellLogsItm	(mFileImpMnu + 46)
 #define mImpBulkWellMarkersItm	(mFileImpMnu + 47)
 #define mImpBulkWellD2TItm	(mFileImpMnu + 48)
+#define mImpBulkDirWellItm	(mFileImpMnu + 49)
 #define mImpFaultMnuItm		(mFileImpMnu + 50)
 #define mImpFaultSSMnuItm	(mFileImpMnu + 51)
 #define mImpFaultSSAscii3DMnuItm (mFileImpMnu + 52)

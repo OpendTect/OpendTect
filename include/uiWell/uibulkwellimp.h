@@ -12,6 +12,7 @@
 
 class uiFileInput;
 class uiGenInput;
+class uiProgressBar;
 class uiTable;
 class uiTableImpDataSel;
 class BufferStringSet;
@@ -19,6 +20,7 @@ class BufferStringSet;
 namespace Table { class FormatDesc; }
 namespace Well  { class Data; class D2TModel; class MarkerSet; class Track; }
 class D2TModelData;
+class DirData;
 
 
 mExpClass(uiWell) uiBulkTrackImport : public uiDialog
@@ -98,5 +100,31 @@ protected:
     uiTableImpDataSel*	dataselfld_;
 
     Table::FormatDesc*	fd_;
+};
+
+
+mExpClass(uiWell) uiBulkDirectionalImport : public uiDialog
+{ mODTextTranslationClass(uiBulkDirectionalImport);
+public:
+			uiBulkDirectionalImport(uiParent*);
+			~uiBulkDirectionalImport();
+protected:
+
+    void		finalizeCB(CallBacker*);
+    void		reset();
+    void		fileCB(CallBacker*);
+    void		applyCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
+    bool		readFile();
+    void		fillTable();
+
+    uiFileInput*	inpfld_;
+    uiTableImpDataSel*	dataselfld_;
+    uiTable*		wellstable_;
+    uiProgressBar*	progressbar_;
+
+    Table::FormatDesc*	fd_;
+    ObjectSet<DirData>	dirdatas_;
+    bool		fromuwi_ = false;
 };
 

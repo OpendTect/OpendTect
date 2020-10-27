@@ -396,6 +396,8 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impwellbulk = new uiMenu( &appl_, tr("Bulk") );
     insertAction( impwellbulk, m3Dots(uiStrings::sTrack()),
 		 mImpBulkWellTrackItm );
+    insertAction( impwellbulk, m3Dots(tr("Directional wells")),
+		  mImpBulkDirWellItm );
     insertAction( impwellbulk, m3Dots(uiStrings::sLogs()),
 		 mImpBulkWellLogsItm );
     insertAction( impwellbulk, m3Dots(uiStrings::sMarker(mPlural)),
@@ -1434,6 +1436,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpBulkWellLogsItm:		mDoOp(Imp,Wll,6); break;
     case mImpBulkWellMarkersItm:	mDoOp(Imp,Wll,7); break;
     case mImpBulkWellD2TItm:		mDoOp(Imp,Wll,8); break;
+    case mImpBulkDirWellItm:		mDoOp(Imp,Wll,9); break;
     case mImpPickAsciiMnuItm:		mDoOp(Imp,Pick,0); break;
     case mExpPickAsciiMnuItm:		mDoOp(Exp,Pick,0); break;
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;
