@@ -176,8 +176,8 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     glfld_->attach( alignedBelow, kbelevfld_ );
     if ( !writable_ ) glfld_->setReadOnly( true );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "ImpEmp buttons",
-						 OD::Horizontal );
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "ImpExp buttons",
+					       OD::Horizontal );
     butgrp->attach( leftAlignedBelow, actgrp );
     if ( writable_ )
 	new uiToolButton( butgrp, "import", uiStrings::sImport(),
