@@ -42,12 +42,12 @@ public:
 				const char* nm="Trace processor",
 				const IOPar* iniopar=0,
 				const uiString& msg=uiStrings::sProcessing(),
-				int compnr=-1);
+				int compnr=-1, bool forceFPdata=false);
 			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj&,
 				const char* nm="Trace processor",
 				ObjectSet<IOPar>* iniopars=0,
 				const uiString& msg=uiStrings::sProcessing(),
-				int compnr=-1);
+				int compnr=-1, bool forceFPdata=false);
 			SeisSingleTraceProc(const IOObj& out,const char* nm,
 					    const uiString& msg);
 
@@ -123,6 +123,7 @@ protected:
     SeisTrc*		filltrc_;
     bool		extendtrctosi_;
     int			compnr_;
+    bool		forcefpdata_=false;
 
     void		addProv(Provider*,bool,const IOPar* iop=0);
     bool		nextReader();

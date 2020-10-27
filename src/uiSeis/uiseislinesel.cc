@@ -530,14 +530,18 @@ void uiSeis2DLineNameSel::setInputGeomID( Pos::GeomID geomid )
 void uiSeis2DLineNameSel::setInput( const char* nm )
 {
     if ( fld_->isPresent(nm) )
+    {
 	fld_->setCurrentItem( nm );
+	return;
+    }
 
     if ( !forread_ )
     {
 	nameChanged.disable();
+	fld_->setEmpty();
+	fld_->addItem( nm );
 	fld_->setCurrentItem( 0 );
 	nameChanged.enable();
-	fld_->setText( nm );
 	nameChanged.trigger();
     }
 }

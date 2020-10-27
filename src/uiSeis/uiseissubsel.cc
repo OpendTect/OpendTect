@@ -208,6 +208,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 						!ss.withoutz_, ss.withstep_ );
 	setHAlignObj( multilnmsel_ );
 	multilnmsel_->selectionChanged.notify(mCB(this,uiSeis2DSubSel,lineChg));
+	selfld_->setToAll();
     }
     else
     {
@@ -323,7 +324,16 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
     if ( multilnmsel_ )
 	multilnmsel_->setSelLine( nm );
     else
+    {
 	singlelnmsel_->setInput( nm );
+	if ( singlelnmsel_->getInputGeomID().isValid() )
+	    selfld_->setSensitive( true );
+	else
+	{
+	    selfld_->setToAll();
+	    selfld_->setSensitive( false );
+	}
+    }
 }
 
 
@@ -437,10 +447,20 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 {
     if ( singlelnmsel_ )
     {
-	const LineSubSel lss( singlelnmsel_->getInputGeomID() );
-	const TrcKeyZSampling tkzs( lss );
-	selfld_->setInputLimit( tkzs );
-	selfld_->setInput( tkzs );
+	const GeomID geomid = singlelnmsel_->getInputGeomID();
+	if ( geomid.isValid() )
+	{
+	    const LineSubSel lss( singlelnmsel_->getInputGeomID() );
+	    const TrcKeyZSampling tkzs( lss );
+	    selfld_->setInputLimit( tkzs );
+	    selfld_->setInput( tkzs );
+	    selfld_->setSensitive( true );
+	}
+	else
+	{
+	    selfld_->setToAll();
+	    selfld_->setSensitive( false );
+	}
     }
 
     selChange.trigger();

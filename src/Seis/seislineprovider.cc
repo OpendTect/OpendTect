@@ -74,8 +74,14 @@ void Seis::LineFetcher::getTrc( TraceData& td, SeisTrcInfo& ti )
 {
     if ( useDP(curb2d_) )
 	fillFromDP( curb2d_, ti, td );
-    else
+    else if ( getter_->translator()->supportsGoTo() )
 	uirv_ = getter_->get( curb2d_.trcNr(), td, &ti );
+    else
+    {
+	uirv_ = getter_->getNext( td, ti );
+	if ( uirv_.isOK() )
+	    curb2d_ = ti.bin2D();
+    }
 }
 
 
@@ -113,4 +119,18 @@ bool Seis::LineFetcher::ensureRightDataSource( GeomID geomid )
 
 
 #include "seisproviderimpldefs.h"
-mDefNonPSProvFns( 2D, Line )
+//mDefNonPSProvFns( 2D, Line )
+mDefProvStdFns( 2D, Line )
+
+void Seis::LineProvider::gtTrc( TraceData& td, SeisTrcInfo& ti,
+				uiRetVal& uirv ) const
+{
+    if ( !fetcher_.setPosition(trcpos_) )
+	uirv.set( uiStrings::phrUnexpected(uiStrings::sPosition(),
+					   trcpos_.usrDispStr()) );
+    else
+    {
+	fetcher_.getTrc( td, ti );
+	uirv = fetcher_.uirv_;
+    }
+}

@@ -370,6 +370,8 @@ uiString uiPosProvSel::getSummary() const
     uiString ret;
     if ( !prov_ )
 	ret = toUiString( "-" );
+    else if ( isAll() )
+	ret = uiStrings::sAll();
     else
     {
 	const char typabbr[] = { *prov_->type(), '\0' };
@@ -501,13 +503,14 @@ const Survey::FullSubSel& uiPosProvSel::inputSubSel() const
 
 bool uiPosProvSel::isAll() const
 {
-    if ( setup_.allownone_ )
-	return !prov_;
-
     TrcKeyZSampling cskp = tkzs_;
     setCSToAll();
     const bool ret = tkzs_ == cskp;
     tkzs_ = cskp;
+
+    if ( ! ret && setup_.allownone_ )
+	return !prov_;
+
     return ret;
 }
 

@@ -147,8 +147,10 @@ void uiSeisTransfer::updSteer( CallBacker* )
 
 Seis::SelData* uiSeisTransfer::getSelData() const
 {
+    if ( selfld->isAll() )
+	return nullptr;
     IOPar iop;
-    if ( !selfld->fillPar( iop ) ) return 0;
+    if ( !selfld->fillPar( iop ) ) return nullptr;
     return Seis::SelData::get( iop );
 }
 
@@ -156,7 +158,7 @@ Seis::SelData* uiSeisTransfer::getSelData() const
 SeisResampler* uiSeisTransfer::getResampler() const
 {
     if ( selfld->isAll() )
-	return 0;
+	return nullptr;
 
     TrcKeyZSampling cs;
     selfld->getSampling( cs.hsamp_ );

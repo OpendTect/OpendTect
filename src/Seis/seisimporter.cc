@@ -15,8 +15,6 @@
 #include "seisstorer.h"
 #include "seistrc.h"
 
-#include "thread.h"
-#include "threadwork.h"
 #include "binidsorting.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
@@ -43,12 +41,7 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, Storer& s,
 	, sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
 	, sorting_(0)
 	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
-        , lock_(*new Threads::ConditionVar)
-        , maxqueuesize_( Threads::getNrProcessors()*100 )
 {
-    queueid_ = Threads::WorkManager::twm().addQueue(
-					Threads::WorkManager::SingleThread,
-					"SeisImporter");
     if ( rdr_ )
 	storer_.setCrFrom( rdr_->implName() );
 }
@@ -56,8 +49,6 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, Storer& s,
 
 SeisImporter::~SeisImporter()
 {
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
-
     buf_.deepErase();
 
     delete rdr_;
@@ -67,7 +58,6 @@ SeisImporter::~SeisImporter()
     delete &buf_;
     delete &trc_;
     delete &prevbid_;
-    delete &lock_;
 }
 
 
@@ -127,11 +117,8 @@ int SeisImporter::nextStep()
 {
     if ( state_ == WriteBuf )
     {
-	Threads::MutexLocker lock( lock_ );
 	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
-
-	lock.unLock();
 
 	if ( buf_.isEmpty() )
 	    state_ = ReadWrite;
@@ -144,12 +131,11 @@ int SeisImporter::nextStep()
 
     if ( state_ == ReadWrite )
     {
-	Threads::MutexLocker lock( lock_ );
 	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
-	lock.unLock();
 
 	mDoRead( trc_ );
+
 	if ( !atend )
 	{
 	    const bool is2d = Seis::is2D(geomtype_);
@@ -162,14 +148,8 @@ int SeisImporter::nextStep()
 	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred();
 	}
 
-	//Wait for queue to finish writing
-	Threads::WorkManager::twm().emptyQueue( queueid_, true );
-
-	//Check for errors
-	lock.lock();
 	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
-	lock.unLock();
 
 	return Finished();
     }
@@ -178,64 +158,17 @@ int SeisImporter::nextStep()
 }
 
 
-class SeisImporterWriterTask : public Task
-{
-public:
-    SeisImporterWriterTask( SeisImporter& imp, Seis::Storer& storer,
-			    const SeisTrc& trc )
-	: importer_( imp )
-	, storer_( storer )
-	, trc_( trc )
-    {}
-
-    bool execute()
-    {
-	const auto uirv = storer_.put( trc_ );
-	importer_.reportWrite( uirv );
-	return uirv.isOK();
-    }
-
-
-protected:
-
-    SeisImporter&	importer_;
-    Seis::Storer&	storer_;
-    SeisTrc		trc_;
-};
-
-
-void SeisImporter::reportWrite( const uiString& errmsg )
-{
-    nrwritten_++;
-    Threads::MutexLocker lock( lock_ );
-    if ( !errmsg.isEmpty() )
-    {
-	errmsg_ = errmsg;
-	Threads::WorkManager::twm().emptyQueue( queueid_, false );
-	lock_.signal( true );
-	return;
-    }
-
-    if ( Threads::WorkManager::twm().queueSize( queueid_ )<maxqueuesize_ )
-	lock_.signal( true );
-}
-
-
-
 int SeisImporter::doWrite( SeisTrc& trc )
 {
-    Threads::MutexLocker lock( lock_ );
-    while ( Threads::WorkManager::twm().queueSize( queueid_ )>maxqueuesize_ )
-	lock_.wait();
-
     if ( !errmsg_.isEmpty() )
+    {
 	return Executor::ErrorOccurred();
+    }
 
-    lock.unLock();
-
-    Task* task = new SeisImporterWriterTask( *this, storer_, trc );
-    Threads::WorkManager::twm().addWork(Threads::Work(*task,true), 0, queueid_,
-				       false );
+    const auto uirv = storer_.put( trc );
+    nrwritten_++;
+    if ( !uirv.isOK() )
+	errmsg_ = uirv;
     return Executor::MoreToDo();
 }
 
@@ -245,6 +178,7 @@ int SeisImporter::readIntoBuf()
     SeisTrc* trc = new SeisTrc;
     mDoRead( *trc )
     const bool is2d = Seis::is2D(geomtype_);
+
     if ( atend )
     {
 	delete trc;
@@ -367,7 +301,8 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 
 
 SeisStdImporterReader::SeisStdImporterReader( const IOObj& ioobj,
-					      const char* nm )
+					      const char* nm,
+					      bool forceFPdata )
     : prov_(0)
     , name_(nm)
     , remnull_(false)
@@ -378,6 +313,8 @@ SeisStdImporterReader::SeisStdImporterReader( const IOObj& ioobj,
     prov_ = Seis::Provider::create( ioobj, &uirv );
     if ( !prov_ )
 	errmsg_ = uirv;
+    else if ( forceFPdata )
+	prov_->forceFPData();
 }
 
 
