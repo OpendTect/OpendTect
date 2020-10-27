@@ -301,7 +301,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 
 	    uiAction* assmnuitm = new uiAction( tr("Assign marker boundary") );
 	    uiMenu menu( parent(), uiStrings::sAction() );
-	    menu.insertItem( assmnuitm, 1 );
+	    menu.insertAction( assmnuitm, 1 );
 	    const int mnuid = menu.exec();
 	    if ( mnuid<0 )
 		return false;
@@ -321,7 +321,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	    {
 		uiAction* assmnuitm = new uiAction( tr("Add Unit") );
 		uiMenu menu( parent(), uiStrings::sAction() );
-		menu.insertItem( assmnuitm, 0 );
+		menu.insertAction( assmnuitm, 0 );
 		const int mnuid = menu.exec();
 		addunit = mnuid == 0;
 	    }

@@ -143,7 +143,7 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     const bool only2d = !IOM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
     uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
-    impseismnu->insertItem( impsgymnu );
+    impseismnu->addMenu( impsgymnu );
     uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
     uiMenu* expsgymnu = expseismnu->addMenu(
 			new uiMenu( appl_, sSEGYString(true), segyiconid_ ),
@@ -158,13 +158,13 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	uiString linepsstr = only2d ? m3Dots(tr("Prestack Data"))
 				: m3Dots(tr("Prestack 2D"));
 
-	impsgymnu->insertItem( new uiAction( linestr, muiSEGYMgrCB(imp2DCB),
+	impsgymnu->insertAction( new uiAction( linestr, muiSEGYMgrCB(imp2DCB),
 				lineicid ) );
-	impsgymnu->insertItem( new uiAction( linepsstr, muiSEGYMgrCB(imp2DPSCB),
+	impsgymnu->insertAction( new uiAction( linepsstr, muiSEGYMgrCB(imp2DPSCB),
 				linepsicid ) );
-	expsgymnu->insertItem( new uiAction( linestr, muiSEGYMgrCB(exp2DCB),
+	expsgymnu->insertAction( new uiAction( linestr, muiSEGYMgrCB(exp2DCB),
 				lineicid ) );
-	expsgymnu->insertItem( new uiAction( linepsstr, muiSEGYMgrCB(exp2DPSCB),
+	expsgymnu->insertAction( new uiAction( linepsstr, muiSEGYMgrCB(exp2DPSCB),
 				linepsicid ) );
     }
 
@@ -177,31 +177,31 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	uiString volpsstr = have2d ? m3Dots(tr("Prestack 3D"))
 				: m3Dots(tr("Prestack Volume"));
 
-	impsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
+	impsgymnu->insertAction( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
 					volicid) );
-	impsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(imp3DPSCB),
+	impsgymnu->insertAction( new uiAction(volpsstr,muiSEGYMgrCB(imp3DPSCB),
 					volpsicid) );
 
-	expsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
+	expsgymnu->insertAction( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
 					volicid) );
-	expsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(exp3DPSCB),
+	expsgymnu->insertAction( new uiAction(volpsstr,muiSEGYMgrCB(exp3DPSCB),
 					volpsicid) );
     }
 
-    mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertItem(
+    mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertAction(
 	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB),
 			"vsp0" ) );
-    mnumgr_.createSeisOutputMenu()->insertItem(
+    mnumgr_.createSeisOutputMenu()->insertAction(
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
 			muiSEGYMgrCB(reSortCB)) );
 
     uiString classicmnutitle = segyclassictoplevel_ ? tr("SEG-Y [Classic]")
 						   : tr("Classic tool");
     uiMenu* impclassmnu = new uiMenu( appl_, classicmnutitle, "launch" );
-    (segyclassictoplevel_ ? impseismnu : impsgymnu)->insertItem( impclassmnu );
-    impclassmnu->insertItem( new uiAction( uiStrings::sImport(),
+    (segyclassictoplevel_ ? impseismnu : impsgymnu)->addMenu( impclassmnu );
+    impclassmnu->insertAction( new uiAction( uiStrings::sImport(),
 		   muiSEGYMgrCB(impClassicCB), "import") );
-    impclassmnu->insertItem( new uiAction( tr("Link"),
+    impclassmnu->insertAction( new uiAction( tr("Link"),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
 
     mnumgr_.dtectTB()->addButton( segyiconid_, tr("SEG-Y import"),

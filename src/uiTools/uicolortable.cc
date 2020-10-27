@@ -405,18 +405,18 @@ void uiColorTable::canvasClick( CallBacker* )
     PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
 
     uiAction* itm = new uiAction(tr("Flipped"), mCB(this,uiColorTable,doFlip) );
-    mnu->insertItem( itm, 0 );
+    mnu->insertAction( itm, 0 );
     itm->setCheckable( true );
     itm->setChecked( mapsetup_.flipseq_ );
 
     if ( enabclipdlg_ && hasmapper )
-	mnu->insertItem( new uiAction(m3Dots(tr("Ranges/Clipping")),
+	mnu->insertAction( new uiAction(m3Dots(tr("Ranges/Clipping")),
 	    mCB(this,uiColorTable,editScaling)), 1 );
     if ( enabmanage_ && hasseq )
     {
-	mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
+	mnu->insertAction( new uiAction(m3Dots(tr("Manage")),
 	    mCB(this,uiColorTable,doManage)), 2 );
-	mnu->insertItem( new uiAction(tr("Set as default"),
+	mnu->insertAction( new uiAction(tr("Set as default"),
 	    mCB(this,uiColorTable,setAsDefault)), 3 );
     }
 

@@ -172,7 +172,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB), true );
 	uiAction* itm = new uiAction( tr("Change color"),
 		mCB(this,uiDataPointSetCrossPlotWin,changeColCB) );
-	mnu->insertItem( itm, 0 );
+	mnu->insertAction( itm, 0 );
 	maniptb_.setButtonMenu( multicolcodtbid_, mnu );
 
 	grpfld_ = new uiComboBox( 0, "Group selection" );

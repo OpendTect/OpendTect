@@ -154,23 +154,23 @@ const char* uiODRandomLineParentTreeItem::iconName() const
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("Add Default Data")), 0 );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add Stored"))), 2 );
+    mnu.insertAction( new uiAction(tr("Add Default Data")), 0 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add Stored"))), 2 );
 
     uiMenu* rgbmnu =
 	new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
-    rgbmnu->insertItem( new uiAction(tr("Empty")), 1 );
-    rgbmnu->insertItem( new uiAction( m3Dots(uiStrings::sStored()) ), 3 );
-    mnu.insertItem( rgbmnu );
+    rgbmnu->insertAction( new uiAction(tr("Empty")), 1 );
+    rgbmnu->insertAction( new uiAction( m3Dots(uiStrings::sStored()) ), 3 );
+    mnu.addMenu( rgbmnu );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->insertItem( new uiAction(m3Dots(tr("Interactive "))), 4 );
-//    newmnu->insertItem( new uiAction(m3Dots(tr("Along Contours"))), 5 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Existing"))), 6 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Polygon"))), 7 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Table"))), 8 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Wells"))), 9 );
-    mnu.insertItem( newmnu );
+    newmnu->insertAction( new uiAction(m3Dots(tr("Interactive "))), 4 );
+//    newmnu->insertAction( new uiAction(m3Dots(tr("Along Contours"))), 5 );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Existing"))), 6 );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Polygon"))), 7 );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Table"))), 8 );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Wells"))), 9 );
+    mnu.addMenu( newmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 

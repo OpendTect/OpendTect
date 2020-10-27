@@ -101,31 +101,31 @@ const char* uiODLine2DParentTreeItem::iconName() const
 #define mInsertItm( menu, name, id, enable ) \
 { \
     uiAction* itm = new uiAction( name ); \
-    menu->insertItem( itm, id ); \
+    menu->insertAction( itm, id ); \
     itm->setEnabled( enable ); \
 }
 
 #define mInsertAttrBasedItem( attritm, txt ) \
     attritm = new uiMenu( getUiParent(), tr(txt) ); \
-    mnu.insertItem( attritm ); \
+    mnu.addMenu( attritm ); \
     for ( int idx=0; idx<displayedattribs.size(); idx++ ) \
-    attritm->insertItem( \
+    attritm->insertAction( \
 	    new uiAction(mToUiStringTodo(displayedattribs.get(idx))), \
 			 varmenuid++ );
 
 bool uiODLine2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAdd );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAdd );
     if ( SI().has3D() )
     {
-	mnu.insertItem( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),
+	mnu.insertAction( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),
 			mGridFrom3D );
-	mnu.insertItem( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D );
+	mnu.insertAction( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D );
     }
 
 #ifdef __debug__
-    mnu.insertItem( new uiAction(m3Dots(tr("Generate 3D Cube"))), mTo3D );
+    mnu.insertAction( new uiAction(m3Dots(tr("Generate 3D Cube"))), mTo3D );
 #endif
 
     BufferStringSet displayedattribs;
@@ -161,7 +161,7 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     if ( !children_.isEmpty() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Add Attribute")), mAddAttr );
+	mnu.insertAction( new uiAction(tr("Add Attribute")), mAddAttr );
 	if ( !displayedattribs.isEmpty() )
 	{
 	    mInsertAttrBasedItem( replaceattritm_, "Replace Attribute" )
@@ -183,13 +183,13 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	mInsertItm( dispmnu, uiStrings::sLineName(mPlural), mDispNames, true )
 	mInsertItm( dispmnu, tr("2D Planes"), mDispPanels, true )
 	mInsertItm( dispmnu, tr("Line Geometry"), mDispPolyLines, true )
-	mnu.insertItem( dispmnu );
+	mnu.addMenu( dispmnu );
 
 	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
 	mInsertItm( hidemnu, uiStrings::sLineName(mPlural), mHideNames, true )
 	mInsertItm( hidemnu, tr("2D Planes"), mHidePanels, true )
 	mInsertItm( hidemnu, tr("Line Geometry"), mHidePolyLines, true )
-	mnu.insertItem( hidemnu );
+	mnu.addMenu( hidemnu );
     }
 
     addStandardItems( mnu );

@@ -95,7 +95,7 @@ const uiString uiDPSDemoMgr::sDPSDemo()
 void uiDPSDemoMgr::insertMenuItem( CallBacker* )
 {
     if ( SI().has3D() )
-	appl_.menuMgr().analMnu()->insertItem(
+	appl_.menuMgr().analMnu()->insertAction(
 	      new uiAction(
 	      uiStrings::phrThreeDots(sDPSDemo()),
 	      mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );

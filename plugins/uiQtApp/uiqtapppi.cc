@@ -44,7 +44,7 @@ uiQtAppMgr::uiQtAppMgr( uiODMain* a )
     , qtclss_(0)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mnumgr.utilMnu()->insertItem(
+    mnumgr.utilMnu()->insertAction(
 	new uiAction( toUiString("Qt Thing"), mCB(this,uiQtAppMgr,doStuff) ) );
 }
 

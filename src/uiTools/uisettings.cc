@@ -159,7 +159,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	{
 	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(exenm),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	    usercmdmnu_->insertItem( newitm, id );
+	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
     else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
@@ -182,7 +182,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	{
 	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(tip),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	    usercmdmnu_->insertItem( newitm, id );
+	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
 }

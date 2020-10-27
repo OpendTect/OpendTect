@@ -227,7 +227,11 @@ void uiAction::setMenu( uiMenu* menu )
 	menu_->setAction( this );
 	qaction_->setMenu( menu_->getQMenu() );
 	if ( iconfile_.isEmpty() )
-	    setIcon( menu_->getIconName() );
+	{
+	    const FixedString menuicon( menu_->getIconName() );
+	    if ( !menuicon.isEmpty() )
+		setIcon( menuicon.buf() );
+	}
     }
 }
 
@@ -606,7 +610,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
 	}
     }
 
-    insertItem( submenuitem, -1, beforeaction );
+    insertAction( submenuitem, -1, beforeaction );
     return mnu;
 }
 

@@ -135,7 +135,7 @@ void uiGMTMgr::updateMenu( CallBacker* )
     deleteAndZeroPtr( dlg_ );
     auto* act = new uiAction( m3Dots(tr("GMT Mapping Tool")),
 			      mCB(this,uiGMTMgr,createMap), "gmt_logo" );
-    appl_->menuMgr().procMnu()->insertItem( act );
+    appl_->menuMgr().procMnu()->insertAction( act );
 }
 
 

@@ -222,12 +222,12 @@ protected:
 
 public:
 
+    mDeprecated		("Use insertAction")
     int			insertItem(uiAction* a,int id=-1,
 				   const uiAction* before = 0)
 			{ return insertAction( a, id, before ); }
-			//!<Legacy
+    mDeprecated		("Use addMenu")
     int			insertItem(uiMenu* mnu);
-			/*!<Legacy. */
     void		removeItem(uiAction* a) { removeAction(a); }
 			//!<Legacy
     void		removeItem(int id) { removeAction(id); }
