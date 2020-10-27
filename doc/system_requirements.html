@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
+<!--
+  - CopyRight:	(C) dGB Earth Sciences
+  - Author:	A.H. Bril
+  - Date:	June 2007 / June 2012
+  - Contents:	OpendTect system requirements
+  - RCS:	$Id$
+ -->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>OpendTect System requirements</title>
+  <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+<body id="page_bg" class="width_fmax">
+
+<div id="all">
+        <div id="wrapper">
+                <div id="wrapper_r">
+<div id="header">
+                                <div id="header_l">
+                               
+                                        <div id="header_r">
+                                                <div id="topbanner"></div>
+                                                <div id="topmenu">
+                                                </div>
+                        <div id="leftcolumn">  
+<table id="greenborder"><tbody>
+<tr><td valign="top">
+
+  <center><br />
+   <a href="#hardware">Hardware requirements</a>
+|| <a href="#os">Operating systems</a>
+|| <a href="#recommendations">Recommendations</a>
+  </center><br />
+
+  <h1>OpendTect system requirements</h1><br />
+
+<a name="summary"></a><h2>[Summary] Supported platforms</h2>
+
+<p>OpendTect needs good hardware with up-to-date drivers - especially for 3D graphics. You can run on:</p>
+
+<ol>
+  <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (64 bits) or MS Windows (7, 8/8.1, and 10 - 32 or 64 bits)</li>
+  <li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.9) and up</li>
+</ol>
+
+  <br /><a name="hardware"></a><h2>Hardware requirements</h2>
+
+  <a name="graphics"></a><h3>Graphics:</h3>
+
+  <p>OpendTect requires a recent well-patched <a href="http://opengl.org">OpenGL</a> installation. OpenGL drivers should be updated at least every half year to ensure optimal performance and compliance.
+  <br /><br />
+  <b>Intel/AMD:</b> Recent <a href="http://www.nvidia.com">nVidia</a> and <a href="http://www.amd.com">AMD (ATI)</a> graphics cards/chipsets. Well behaved are nVidia GeForce 500, 600 and 700 series and AMD (ATI) Radeon 6xxx and 7xxx series.<br />
+  <b>Mac:</b>Similar to the Intel/AMD platform.<br />
+  <br />
+  Main stream and high-end GPUs within the series are recommended, since low-level GPUs keep showing poor performances through the generations.<br />
+Shading functionaly requires special GPU features, present in the cards listed above. Nevertheless, under Linux, only nVidia provides drivers capable of using the shading feature. If you can't see any colors on graphic elements, try disabling shading (Utilities-Look and Feel).</p>
+
+<h4>Background</h4>
+<p><font size="-1">
+OpendTect will attempt to use 'shading' - this means that some
+calculations are done on the graphics card. Unfortunately, not all cards
+behave properly. Very old cards will be no problem because they report that
+shading is not supported. Very new cards usually support it correctly (e.g.
+all nVidia-based cards and chipsets). Some older cards do give problems. These report that they support shading, but they support only part or so badly that
+the system almost stops.
+
+  There are two settings for the user to cope with this:</font></p>
+<ul>
+  <li>Do you want shading if the card reports that it is capable of it?</li>
+  <li>If so, do you also want it for volume rendering?</li>
+</ul>
+<p><font size="-1">
+Some cards (Like some ATI cards) support shading well but things go bad for
+volume rendering.
+
+  The default is:<br />
+  * Yes, use it if the card says it supports shading<br />
+  * No, do not use it for VR even if the card says it supports shading<br />
+
+  Thus:<br />
+* If users get colorless inlines, time slices etc, they need to try disabling
+  shading usage<br />
+  * If users want to try improved volume rendering, they can try enabling that.<br />
+
+The access to these options is in the user's menu 'Utilities-Settings-Look&amp;Feel'.
+</font></p>
+
+
+  <a name="mem"></a><h3>Memory</h3>
+
+<p>OpendTect needs at least have 2 GB internal (RAM) memory available.
+Therefore we would recommend machines with at least 4GB RAM, as the operating systems (especially Windows) will need their share of this, too. <br /><br />
+
+Depending on the size of the surveys we recommend 8-16 GB+. In
+special cases (big surveys or many data cubes) more memory may be required and  data processing in larger surveys may require considerably more RAM.
+  <br /><br />
+A rule of thumb is to have at least 10 times the displayed number of samples available. Thus, to be able to display 10 inlines with 2000 crosslines and 1000 samples per trace, you'll need a minimum of 200 million bytes of memory (i.e. 200 MB).</p>
+
+
+  <a name="proc"></a><h3>Processor</h3>
+
+<p>For Linux and MS Windows, a modern Intel or AMD processor is required.
+Although OpendTect will run on 2 GHz processors or even less, we
+  recommend 3+ GHz multi-core for a good working environment. Note that OpendTect heavily uses all processors if necessary.</p>
+
+  <a name="os"></a><h2>Operating systems</h2>
+
+  <a name="linux"></a><h3>Linux</h3>
+
+<p>A modern Linux distribution is required. <b>Minimum</b>:</p>
+<ul>
+  <li><a href="http://www.novell.com/linux">SuSE</a> or <a href="http://opensuse.org">OpenSuSE</a> 11.0</li>
+  <li><a href="http://www.redhat.com">Red Hat</a> Enterprise 6 (or the free <a href="http://www.centos.org">CentOS</a> counterpart)</li>
+</ul>
+<p>Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. There is documentation on <a href="http://opendtect.org/lic/doc/flexnet_installation_guide.html">installing license files for commercial plugins</a>, and there is a page with <a href="http://opendtect.org/lic/doc/flexnet_explained.html">background information</a>.</p>
+<p>
+For both SuSE and Red Hat-based distributions a 64 bits release is
+available. OpendTect is known to work under <a href="http://www.debian.org">Debian</a>, <a href="http://www.ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too. <a href="http://fedoraproject.org">Fedora</a> usage is not recommended - although it may work it's the only distro that regularly fails to work in combination with OpendTect. This is probably because the graphics vendors do not support it well in terms of drivers.
+</p>
+
+  <a name="mac"></a><h3>Mac OS X</h3>
+
+<p>Minimum is Mac OS X (10.9). A 3-button mouse is highly recomended.</p>
+
+  <a name="win"></a><h3>MS Windows</h3>
+<p> Windows 7, 8/8.1, and 10 are supported. Windows needs to be updated with the latest updates from Microsoft.<br />
+Releases are available for in both 32 and 64 bits.</p>
+
+  <a name="recommendations"></a><h2>Recommendations</h2>
+
+<p>If you have mega-surveys with Tera-bytes of data, and you want to do very advanced calculations, then you'll need the best you can get. What is best? The main idea is to minimize the bottlenecks.</p>
+
+<ol>
+  <li><b>Graphics</b><br />
+Use nVidia or maybe ATI-based cards. At least these manufacturers have 
+good drivers for all cards. For nVidia, you may want to avoid the 
+'professional' series. This can be a waste of money (but may just give 
+you that little bit extra you want, too). In doubt, buy the top gaming 
+    card(s) you can find.</li>
+
+  <li><b>CPU</b><br />
+Choose 64 bits. Many processors, high speeds. The more the better. 
+OpendTect will automatically use multiple threads in many situations. It 
+depends on the type of attribute, display, etc. but we put a lot of 
+effort in getting time-consuming tasks multi-threaded. We are well aware 
+    that the number of processors will grow steadily.</li>
+
+  <li><b>Memory</b><br />
+Buy as much memory as you can afford (and that will fit in the 
+computer). The big clients for example use nothing less than 64 GB. 
+OpendTect doesn't have a lot of tricks to minimize memory consumption; 
+we figure that memory gets cheaper by the day so we greedily use memory 
+    for our purposes (we try to not waste it, though).</li>
+
+  <li><b>Disk storage</b><br />
+This is usually under-valued, but it's very often the crucial 
+performance component. RAID can speed up disks considerably. If you can, 
+work on local disks. I've seen many examples of the total performance 
+being miserable just because the data needed to stream through 
+    (relatively) slow networks.</li>
+</ol>
+
+
+<p>It's clear that the number of variables is huge, and that it's simply 
+very difficult to predict whether a certain configuration will be good 
+enough for your specific needs.</p>
+
+    <br /><hr /><br />
+
+<a href="http://opendtect.org">OpendTect.org</a>
+
+</td></tr></tbody></table>
+</div>
+                         <div id="footer">
+                         </div>
+                         </div>
+                 </div>
+         </div>
+ </div>
+</div>
+</div>
+
+</body>
+</html>
