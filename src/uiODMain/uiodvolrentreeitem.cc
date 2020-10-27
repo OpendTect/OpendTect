@@ -95,8 +95,8 @@ bool uiODVolrenParentTreeItem::canAddVolumeToScene()
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd()), mAddIdx );
-    mnu.insertItem( new uiAction(uiStrings::sAddColBlend()), mAddCBIdx );
+    mnu.insertAction( new uiAction(uiStrings::sAdd()), mAddIdx );
+    mnu.insertAction( new uiAction(uiStrings::sAddColBlend()), mAddCBIdx );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();

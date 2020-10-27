@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mInsertItem(mnu,txt,id,icn,sc) \
 { \
     uiAction* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
-    mnu->insertItem( itm, id ); \
+    mnu->insertAction( itm, id ); \
     itm->setShortcut( sc ); \
     itm->setIcon( icn ); \
 }

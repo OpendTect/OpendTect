@@ -652,7 +652,7 @@ void uiMainWinBody::renewToolbarsMenu()
 	uiAction* itm =
 	    new uiAction( tb.getDispNm(),
 	    mCB(this,uiMainWinBody,toggleToolbar) );
-	toolbarsmnu_->insertItem( itm );
+	toolbarsmnu_->insertAction( itm );
 	tb.setToolBarMenuAction( itm );
 	itm->setCheckable( true );
 	itm->setChecked( !tb.isHidden() );
@@ -1148,7 +1148,7 @@ uiObject* uiDialogBody::createChildren()
 	    {
 		const HelpKey& curkey = videokeys_[idx];
 		uiString txt = HelpProvider::description( curkey );
-		menu->insertItem( new uiAction(txt,cb), idx );
+		menu->insertAction( new uiAction(txt,cb), idx );
 	    }
 	    mDynamicCastGet(uiToolButton*,vb,videobut_)
 	    if ( vb )

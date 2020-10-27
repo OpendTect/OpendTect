@@ -102,7 +102,7 @@ void uiMadagascarLink::updateMenu( CallBacker* )
     uiAction* newitem = new uiAction( m3Dots(tr("Madagascar")),
 					  mCB(this,uiMadagascarLink,doMain),
 					  "madagascar" );
-    mnumgr.procMnu()->insertItem( newitem );
+    mnumgr.procMnu()->insertAction( newitem );
 }
 
 

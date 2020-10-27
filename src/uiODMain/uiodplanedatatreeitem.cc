@@ -83,14 +83,14 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 
 #define mParentShowSubMenu( treeitm, fromwell ) \
     uiMenu mnu( getUiParent(), uiStrings::sAction() ); \
-    mnu.insertItem( \
+    mnu.insertAction( \
 	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 0 ); \
-    mnu.insertItem( \
+    mnu.insertAction( \
 	new uiAction(uiODPlaneDataTreeItem::sAddAndSelectData()), 1 );\
     if ( fromwell ) \
-	mnu.insertItem( \
+	mnu.insertAction( \
 	    new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 2 ); \
-    mnu.insertItem( \
+    mnu.insertAction( \
 	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 3 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \

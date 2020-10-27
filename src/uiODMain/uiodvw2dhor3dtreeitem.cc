@@ -82,7 +82,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 	!viewer2D()->hasZAxisTransform() && viewer2D()->isVertical();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( createAddMenu() );
+    mnu.addMenu( createAddMenu() );
 
     TypeSet<EM::ObjectID> emids;
     getNonLoadedTrackedHor3Ds( emids );
@@ -90,24 +90,24 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
     {
 	uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
 	newmenu->setEnabled( cantrack );
-	mnu.insertItem( newmenu, mNewIdx );
+	mnu.insertAction( newmenu, mNewIdx );
     }
     else
     {
 	uiMenu* trackmenu = new uiMenu( tr("Track") );
 	uiAction* newmenu = new uiAction( uiStrings::sNew() );
 	newmenu->setEnabled( cantrack );
-	trackmenu->insertItem( newmenu, mNewIdx );
+	trackmenu->insertAction( newmenu, mNewIdx );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
 	    uiAction* trackexistingmnu =
 				new uiAction( toUiString(emobject->name()) );
 	    trackexistingmnu->setEnabled( cantrack );
-	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
+	    trackmenu->insertAction( trackexistingmnu, mNewIdx + idx + 1 );
 	}
 
-	mnu.insertItem( trackmenu );
+	mnu.addMenu( trackmenu );
     }
 
     insertStdSubMenu( mnu );

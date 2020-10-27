@@ -42,7 +42,7 @@ uiCrashMgr::uiCrashMgr( uiODMain& a )
 {
     uiAction* newitem = new uiAction( toUiString("Force Crash!"),
 					  mCB(this,uiCrashMgr,crashCB) );
-    appl.menuMgr().utilMnu()->insertItem( newitem );
+    appl.menuMgr().utilMnu()->insertAction( newitem );
 }
 
 

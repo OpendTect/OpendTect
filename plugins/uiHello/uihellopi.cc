@@ -57,7 +57,7 @@ uiHelloMgr::uiHelloMgr( uiODMain& a )
 {
     uiAction* newitem = new uiAction( m3Dots(tr("Display Hello Message")),
 					  mCB(this,uiHelloMgr,dispMsg) );
-    appl_.menuMgr().utilMnu()->insertItem( newitem );
+    appl_.menuMgr().utilMnu()->insertAction( newitem );
 }
 
 

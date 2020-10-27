@@ -194,7 +194,7 @@ void uiMenu::addItems( const ObjectSet<MenuItem>& subitms )
 	    uiMenu* submenu = new uiMenu( subitm );
 	    if ( submenu )
 	    {
-		insertItem( submenu );
+		addMenu( submenu );
 		submenu->setEnabled( subitm.enabled );
 		submenu->setCheckable( subitm.checkable );
 		submenu->setChecked( subitm.checked );
@@ -203,7 +203,7 @@ void uiMenu::addItems( const ObjectSet<MenuItem>& subitms )
 	else
 	{
 	    uiAction* mnuitem = new uiAction(subitm.text);
-	    insertItem( mnuitem, subitm.id );
+	    insertAction( mnuitem, subitm.id );
 	    mnuitem->setEnabled( subitm.enabled );
 	    mnuitem->setCheckable( subitm.checkable );
 	    mnuitem->setChecked( subitm.checked );

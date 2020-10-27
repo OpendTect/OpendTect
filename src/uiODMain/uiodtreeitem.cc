@@ -171,13 +171,13 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
     mnu.insertSeparator();
     uiAction* action = new uiAction( tr("Show All Items") );
     action->setEnabled( !allChildrenChecked() );
-    mnu.insertItem( action, 101 );
+    mnu.insertAction( action, 101 );
 
     action = new uiAction( tr("Hide All Items") );
     action->setEnabled( !allChildrenUnchecked() );
-    mnu.insertItem( action, 102 );
+    mnu.insertAction( action, 102 );
 
-    mnu.insertItem( new uiAction(tr("Remove All Items from Tree")), 103 );
+    mnu.insertAction( new uiAction(tr("Remove All Items from Tree")), 103 );
 
     mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
     if ( !itm || itm->nrChildren()==0 )
@@ -186,11 +186,11 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
     mnu.insertSeparator();
     action = new uiAction( tr("Expand All Items") );
     action->setEnabled( !allChildrenExpanded() );
-    mnu.insertItem( action, 104 );
+    mnu.insertAction( action, 104 );
 
     action = new uiAction( tr("Collapse All Items") );
     action->setEnabled( !allChildrenCollapsed() );
-    mnu.insertItem( action, 105 );
+    mnu.insertAction( action, 105 );
 }
 
 

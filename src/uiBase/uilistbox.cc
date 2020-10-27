@@ -666,18 +666,19 @@ void uiListBox::menuCB( CallBacker* )
 
     const int nrchecked = nrChecked();
     if ( nrchecked < sz )
-	rightclickmnu_.insertItem( new uiAction(tr("Check all (Ctrl-A)")), 0 );
+	rightclickmnu_.insertAction( new uiAction(tr("Check all (Ctrl-A)")), 0);
     if ( nrchecked > 0 )
-	rightclickmnu_.insertItem(new uiAction(tr("Uncheck all (Ctrl-Z)")), 1);
-    rightclickmnu_.insertItem( new uiAction(tr("Invert selection")), 2 );
+	rightclickmnu_.insertAction(new uiAction(tr("Uncheck all (Ctrl-Z)")),1);
+    rightclickmnu_.insertAction( new uiAction(tr("Invert selection")), 2 );
 
     if ( nrchecked > 0 )
     {
 	rightclickmnu_.insertSeparator();
 	if ( allshown_ )
-	    rightclickmnu_.insertItem(new uiAction(tr("Show checked only")), 5);
+	    rightclickmnu_.insertAction(
+		    new uiAction(tr("Show checked only")), 5 );
 	else
-	    rightclickmnu_.insertItem(new uiAction(tr("Show all")), 6);
+	    rightclickmnu_.insertAction(new uiAction(tr("Show all")), 6);
     }
 
     const bool needretrieve = retrievecb_.willCall();
@@ -686,9 +687,9 @@ void uiListBox::menuCB( CallBacker* )
     {
 	rightclickmnu_.insertSeparator();
 	if ( needretrieve )
-	    rightclickmnu_.insertItem( new uiAction(tr("Read selection")), 3 );
+	    rightclickmnu_.insertAction( new uiAction(tr("Read selection")), 3);
 	if ( needsave )
-	    rightclickmnu_.insertItem( new uiAction(tr("Save selection")), 4 );
+	    rightclickmnu_.insertAction( new uiAction(tr("Save selection")), 4);
     }
 
     const int res = rightclickmnu_.exec();
