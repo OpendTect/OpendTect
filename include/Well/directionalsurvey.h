@@ -14,12 +14,13 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "typeset.h"
 #include "coord.h"
+#include "uistring.h"
 
 namespace Well
 {
 
-class DirectionalSurvey
-{
+mExpClass(Well) DirectionalSurvey
+{ mODTextTranslationClass(Well::DirectionalSurvey);
 public:
     enum Method		{ MinCurv, Tangential };
 			DirectionalSurvey(const Coord& surfacecrd,double kb=0);
