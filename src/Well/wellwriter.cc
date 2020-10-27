@@ -67,13 +67,13 @@ void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
 {
     if ( ioobj.group() != mTranslGroupName(Well) )
 	errmsg_ = tr("%1 is for a %2- not for a Well")
-                        .arg(ioobj.name()).arg(ioobj.group());
+			.arg(ioobj.name()).arg(ioobj.group());
     else
     {
 	wa_ = WDIOPF().getWriteAccess( ioobj, wd, errmsg_ );
 	if ( !wa_ )
 	    errmsg_ = uiStrings::phrCannotCreate(tr("writer of type %1"))
-                   .arg(ioobj.translator());
+		   .arg(ioobj.translator());
     }
 }
 
@@ -138,7 +138,7 @@ void Well::odWriter::init()
 
 
 void Well::odWriter::setStrmErrMsg( od_stream& strm,
-                                    const uiString& oper ) const
+				    const uiString& oper ) const
 {
     errmsg_ = tr("Cannot %1 for %2").arg( oper ).arg( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
@@ -444,7 +444,9 @@ MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds )
     , wds_(wds)
     , nrwells_(wds.size())
     , nrdone_(0)
-{}
+{
+    msg_ = tr("Writing Wells");
+}
 
 
 od_int64 MultiWellWriter::totalNr() const
@@ -454,7 +456,7 @@ od_int64 MultiWellWriter::nrDone() const
 { return nrdone_; }
 
 uiString MultiWellWriter::uiMessage() const
-{ return tr("Reading well info"); }
+{ return msg_; }
 
 uiString MultiWellWriter::uiNrDoneText() const
 { return tr("Wells read"); }
@@ -463,21 +465,23 @@ uiString MultiWellWriter::uiNrDoneText() const
 int MultiWellWriter::nextStep()
 {
     if ( nrdone_ >= totalNr() )
-	return failedwells_.isEmpty() ? Executor::Finished()
-				      : Executor::ErrorOccurred();
+    {
+	if ( wds_.size() == 0 )
+	{
+	    msg_ = tr( "No wells to be written" );
+	    return ErrorOccurred();
+	}
+
+	return Finished();
+    }
 
     ConstRefMan<Well::Data> wd = wds_[nrdone_];
-    BufferString wellname = wd->name();
+    const BufferString wellname = wd->name();
     Well::Writer wrtr( wd->multiID(), *wd );
     if ( !wrtr.putInfoAndTrack() )
-	failedwells_.addIfNew( wellname );
+	allwellswritten_ = false;
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
-
-const BufferStringSet& MultiWellWriter::failedWells() const
-{
-    return failedwells_;
-}

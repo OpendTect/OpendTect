@@ -76,19 +76,21 @@ private:
 mExpClass(Well) MultiWellWriter : public Executor
 { mODTextTranslationClass(MultiWellWriter)
 public:
-				MultiWellWriter(const ObjectSet<Well::Data>&);
+			MultiWellWriter(const ObjectSet<Well::Data>&);
 
     int				nextStep();
     od_int64			totalNr() const;
     od_int64			nrDone() const;
     uiString			uiMessage() const;
     uiString			uiNrDoneText() const;
-    const BufferStringSet&	failedWells() const;
+    bool		allWellsWritten() const { return allwellswritten_; }
+				//Can then be used to launch a warning locally
 
 protected:
     const ObjectSet<Well::Data>&	wds_;
     od_int64				nrwells_;
     od_int64				nrdone_;
-    BufferStringSet			failedwells_;
+    uiString				msg_;
+    bool				allwellswritten_ = true;
 };
 
