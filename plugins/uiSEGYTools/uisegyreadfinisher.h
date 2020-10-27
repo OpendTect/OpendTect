@@ -97,7 +97,8 @@ protected:
     bool		doMultiVintage(const char* attr2dnm=0);
     void		updateResultDlg(const SEGY::Vintage::Importer&,
 					uiSEGYImportResult*);
-    void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
+    void		updateInIOObjPars(IOObj&,const IOObj& outioobj,
+					  const char* lnm=nullptr);
     SeisStdImporterReader* getImpReader(const IOObj&,Seis::Storer&,
 					Pos::GeomID);
     bool		exec2Dimp(const IOObj&,const IOObj&,bool,const char*,

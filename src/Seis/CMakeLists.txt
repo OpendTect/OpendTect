@@ -20,6 +20,7 @@ set(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
 	prestackgather.cc
+	segy2d.cc
 	segydirect.cc
 	segydirect2d.cc
 	segydirecttr.cc

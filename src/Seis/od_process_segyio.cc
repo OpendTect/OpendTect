@@ -67,10 +67,10 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
-	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
+	{ strm << "Batch parameters 'Output' empty" << od_endl; return false; }
 
     SEGY::FileSpec fs; fs.usePar( iop );
-    IOObj* inioobj = fs.getIOObj( true );
+    ConstPtrMan<IOObj> inioobj = fs.getIOObj( true );
     if ( !inioobj )
 	{ strm << "Input file spec is not OK" << od_endl; return false; }
     const DBKey dbky( outpar->find(sKey::ID()) );
@@ -81,9 +81,12 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     outpar->removeWithKey( sKey::ID() );
 	// important! otherwise reader will try to read output ID ...
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"SEG-Y importer", &iop,
-				toUiString("Importing traces") );
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
+							       *outioobj,
+							       "SEG-Y importer",
+							       &iop,
+						toUiString("Importing traces"),
+							       -1, true );
     stp->setProcPars( *outpar );
     return stp->go( strm );
 }
@@ -119,9 +122,11 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     SEGY::FilePars fp; fp.usePar( *outpar );
     fp.fillPar( outioobj->pars() );
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-			    "SEG-Y exporter", outpar,
-			    toUiString("Exporting traces"), compnr );
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
+							       *outioobj,
+							       "SEG-Y exporter",
+							       outpar,
+				    toUiString("Exporting traces"), compnr );
     stp->setProcPars( *outpar );
     return stp->go( strm );
 }

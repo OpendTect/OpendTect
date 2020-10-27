@@ -76,9 +76,6 @@ protected:
 
     Reader*			rdr_;
     Storer&			storer_;
-    int				queueid_;
-    int				maxqueuesize_;
-    Threads::ConditionVar&	lock_;
     SeisTrcBuf&			buf_;
     SeisTrc&			trc_;
     BinID&			prevbid_;
@@ -95,9 +92,6 @@ protected:
     int				doWrite(SeisTrc&);
     int				readIntoBuf();
 
-    friend			class SeisImporterWriterTask;
-    void			reportWrite(const uiString&);
-
     mutable uiString		errmsg_;
     mutable uiString	        hndlmsg_;
 };
@@ -110,7 +104,8 @@ public:
     mUseType( Seis,	Provider );
     mUseType( Seis,	SelData );
 
-			SeisStdImporterReader(const IOObj&,const char* nm);
+			SeisStdImporterReader(const IOObj&,const char* nm,
+					      bool forceFPdata=false );
 			~SeisStdImporterReader();
 
     Provider*		provider()		{ return prov_; }

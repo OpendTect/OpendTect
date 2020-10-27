@@ -43,7 +43,7 @@ void SeisResampler::init( const value_rg_type* vrg )
 SeisResampler::SeisResampler( const RangeSelData& rsd,
 			      const value_rg_type* vrg )
     : worktrc_(*new SeisTrc)
-    , rsd_(rsd.isAll() ? *new RangeSelData : *new RangeSelData(rsd))
+    , rsd_(*new RangeSelData(rsd))
 {
     init( vrg );
 }

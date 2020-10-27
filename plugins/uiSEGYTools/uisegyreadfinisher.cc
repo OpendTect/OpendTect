@@ -144,6 +144,7 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
 
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
+    trsu.multiline( is2d ? ismulti : false );
     transffld_ = new uiSeisTransfer( this, trsu );
     transffld_->attach( alignedBelow, docopyfld_ );
     if ( is2d )
@@ -405,12 +406,15 @@ bool uiSEGYReadFinisher::doVSP()
 
 
 void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
-					    const IOObj& outioobj )
+					    const IOObj& outioobj,
+					    const char* lnm )
 {
     fs_.fillPar( inioobj.pars() );
     const bool outissidom = ZDomain::isSI( outioobj.pars() );
     if ( !outissidom )
 	ZDomain::Def::get(outioobj.pars()).set( inioobj.pars() );
+    if ( lnm )
+	inioobj.pars().set( sKey::LineName(), lnm );
     inioobj.commitChanges();
 }
 
@@ -418,7 +422,8 @@ void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 			    Seis::Storer& storer, Pos::GeomID geomid )
 {
-    SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y" );
+    SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y",
+							    true );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );
@@ -752,7 +757,7 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     if ( doimp )
     {
 	iniostrm = static_cast<IOStream*>( fspec.getIOObj( true ) );
-	updateInIOObjPars( *iniostrm, outioobj );
+	updateInIOObjPars( *iniostrm, outioobj, lnm );
 	storer = new Seis::Storer( outioobj );
 	imp = new SeisImporter( getImpReader(*iniostrm,*storer,geomid),
 				*storer, gt );
@@ -772,8 +777,11 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     if ( !dlg.execute( *exec ) )
+    {
+	if ( iniostrm )
+	    iniostrm->removeFromDB();
 	return false;
-
+    }
     if ( storer )
     {
 	auto uirv = storer->close();
@@ -783,6 +791,9 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( singlevintage_ )
 	handleWarnings( false, indexer, imp );
+
+    if ( iniostrm )
+	iniostrm->removeFromDB();
 
     return true;
 }
@@ -832,6 +843,8 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
     {
 	const auto& geom2d = SurvGeom::get2D( geomid );
 	geom2d.setEmpty();
+	uiString errmsg;
+	Survey::GMAdmin().save(geom2d,errmsg);
     }
 
     return true;
@@ -983,8 +996,11 @@ bool uiSEGYReadFinisher::acceptOK()
     {
 	lnm = doimp ? transffld_->selFld2D()->selectedLine()
 		    : lnmfld_->getInput();
-	if ( lnm.isEmpty() )
+	if ( lnm.isEmpty() && fs_.spec_.nrFiles()==1 )
+	{
 	    mErrRet( uiStrings::phrEnter(tr("a line name")) )
+	    return false;
+	}
 	if ( !putCoordChoiceInSpec() )
 	    return false;
     }
@@ -1000,7 +1016,7 @@ bool uiSEGYReadFinisher::acceptOK()
 	return is2d ? doBatch2D( doimp, lnm ) : doBatch( doimp );
 
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
-    updateInIOObjPars( *inioobj, *outioobj );
+    updateInIOObjPars( *inioobj, *outioobj, lnm );
 
     const bool res = is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
 			  : do3D( *inioobj, *outioobj, doimp );

@@ -69,6 +69,7 @@ public:
     uiRetVal		get(TrcNrType,SeisTrc&) const;
     uiRetVal		get(TrcNrType,TraceData&,SeisTrcInfo*) const;
     uiRetVal		getNext(SeisTrc&) const;
+    uiRetVal		getNext(TraceData&,SeisTrcInfo&) const;
 
     bool		getComponentInfo(BufferStringSet&) const;
     bool		ensureTranslator() const;

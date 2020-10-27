@@ -136,6 +136,22 @@ uiRetVal Seis2DTraceGetter::doGet( TrcNrType tnr, SeisTrc* trc, TraceData& data,
 }
 
 
+uiRetVal Seis2DTraceGetter::getNext( TraceData& data,
+				     SeisTrcInfo& trcinfo ) const
+{
+    uiRetVal uirv;
+    if ( !tr_->readInfo(trcinfo) || !tr_->readData(&data) )
+    {
+	uirv.set( tr_->errMsg() );
+	if ( uirv.isEmpty() )
+	    uirv.set( uiStrings::sFinished() );
+    }
+    else if ( !seldata_ || seldata_->isOK(Bin2D(geomID(),trcinfo.trcNr())) )
+	ensureCorrectTrcKey( trcinfo );
+
+    return uirv;
+}
+
 uiRetVal Seis2DTraceGetter::getNext( SeisTrc& trc ) const
 {
     if ( !ensureTranslator() )
@@ -151,7 +167,7 @@ uiRetVal Seis2DTraceGetter::getNext( SeisTrc& trc ) const
 		uirv.set( uiStrings::sFinished() );
 	    break;
 	}else
-	if ( !seldata_ || seldata_->isOK(BinID(lineNr(),trc.info().trcNr())) )
+	if ( !seldata_ || seldata_->isOK(Bin2D(geomID(),trc.info().trcNr())) )
 	{
 	    ensureCorrectTrcKey( trc.info() );
 	    break;

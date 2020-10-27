@@ -6,6 +6,7 @@
 
 
 #include "seissingtrcproc.h"
+#include "seisinfo.h"
 #include "seisstorer.h"
 #include "seispsioprov.h"
 #include "seispswrite.h"
@@ -13,6 +14,7 @@
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisprovider.h"
+#include "seisrangeseldata.h"
 #include "seisseldata.h"
 #include "seisresampler.h"
 #include "cubedata.h"
@@ -68,13 +70,15 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 					  const char* nm, const IOPar* iop,
-					  const uiString& msg, int compnr )
+					  const uiString& msg, int compnr,
+					  bool forceFPdata )
     : mInitMembers(nm)
     , storer_(*new Seis::Storer(out))
 {
     worktrc_ = &intrc_;
     curmsg_ = msg;
     compnr_ = compnr;
+    forcefpdata_ = forceFPdata;
 
     setInput( in, out, nm, iop, msg );
 }
@@ -83,13 +87,15 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj& out, const char* nm,
 					  ObjectSet<IOPar>* iopset,
-					  const uiString& msg, int compnr )
+					  const uiString& msg, int compnr,
+					  bool forceFPdata )
     : mInitMembers(nm)
     , storer_(*new Seis::Storer(out))
 {
     worktrc_ = &intrc_;
     curmsg_ = msg;
     compnr_ = compnr;
+    forcefpdata_ = forceFPdata;
 
     if ( objset.isEmpty() )
 	{ curmsg_ = tr("No input specified"); return; }
@@ -180,6 +186,9 @@ void SeisSingleTraceProc::addProv( Provider* prov, bool szdone,
 bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 {
     uiRetVal uirv;
+    if ( ioobj.pars().isEmpty() )
+	ioobj.pars() = *iop;
+
     Seis::Provider* prov = Seis::Provider::create( ioobj, &uirv );
     if ( !prov )
 	{ curmsg_ = uirv; delete prov; return false; }
@@ -213,6 +222,9 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 	}
     }
 
+    if ( forcefpdata_ )
+	prov->forceFPData();
+
     addProv( prov, szdone, iop );
 
     return true;
@@ -224,6 +236,7 @@ bool SeisSingleTraceProc::nextReader()
     curprovidx_++;
     if ( mPastLastReader() )
 	{ wrapUp(); return false; }
+
     return true;
 }
 
@@ -248,14 +261,23 @@ void SeisSingleTraceProc::setProcPars( const IOPar& iop )
     Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
     const int nulltrcpol = toInt( iop.find("Null trace policy") );
     const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
-    CubeSubSel css; css.usePar( iop );
-    SeisResampler* resmplr = new SeisResampler( css );
+    if ( is3d_ )
+    {
+	CubeSubSel css; css.usePar( iop );
+	setResampler( new SeisResampler( css ) );
+    }
+    else
+    {
+	auto* sd = new Seis::RangeSelData();
+	sd->setForceIsAll( true );
+	setResampler( new SeisResampler( *sd ) );
+	delete sd;
+    }
 
     setScaler( sclr );
     skipNullTraces( nulltrcpol < 1 );
     fillNullTraces( nulltrcpol == 2 );
     setExtTrcToSI( exttrcs );
-    setResampler( resmplr );
 }
 
 
