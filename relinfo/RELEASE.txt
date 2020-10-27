@@ -2,6 +2,11 @@ OpendTect V6.6.x : Release info
 
 
 ----
+V6.6.1rc4: October 27, 2020
+* Fixed crossplot data extraction inside 3D bodies with random subselection
+* Support bulk import of directional wells
+* Renamed "Open Cross-plot" menu option to "Open Saved Cross-plot"
+
 V6.6.1rc3: October 16, 2020
 * Fix for crash while picking seeds in Unc tracker
 * Well log display window can be closed again with window closing button 'X'
