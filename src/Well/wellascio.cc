@@ -712,4 +712,48 @@ bool DirectionalAscIO::getData( Data& wd, float kb ) const
     return !wd.track().isEmpty();
 }
 
+
+// BulkDirectionalAscIO
+BulkDirectionalAscIO::BulkDirectionalAscIO( const Table::FormatDesc& fd,
+					    od_istream& strm )
+    : Table::AscIO(fd)
+    , strm_(strm)
+{}
+
+
+Table::FormatDesc* BulkDirectionalAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Bulk Directional Survey" );
+    fd->bodyinfos_ += gtWellNameTI();
+    Table::TargetInfo* ti = new Table::TargetInfo( "MD", DoubleInpSpec(),
+						   Table::Required );
+    ti->setPropertyType( PropertyRef::Dist );
+    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+    fd->bodyinfos_ += ti;
+
+    fd->bodyinfos_ += new Table::TargetInfo( "Inclination", DoubleInpSpec(),
+					     Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Azimuth", DoubleInpSpec(),
+					     Table::Required );
+    return fd;
+}
+
+
+bool BulkDirectionalAscIO::get( BufferString& wellnm, double& md,
+				double& incl, double& azi ) const
+{
+    const int ret = getNextBodyVals( strm_ );
+    if ( ret <= 0 ) return false;
+
+    wellnm = getText( 0 );
+    md = getDValue( 1 );
+    incl = getDValue( 2 );
+    azi = getDValue( 3 );
+    return true;
+}
+
+
+bool BulkDirectionalAscIO::identifierIsUWI() const
+{ return formOf( false, 0 ) == 1; }
+
 } // namespace Well

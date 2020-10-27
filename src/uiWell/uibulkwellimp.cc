@@ -13,6 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibulkwellimp.h"
 
 #include "ctxtioobj.h"
+#include "directionalsurvey.h"
+#include "globexpr.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -38,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include "uiprogressbar.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
@@ -188,7 +191,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 		track.addPoint( crd, md );
 	    else if ( md < track.dah(track.size()-1) + mDefEpsZ )
 	    {
-		const bool inserted = track.insertAtDah( md, (float) crd.z );
+		const bool inserted = track.insertAtDah( md, float(crd.z) );
 		if ( inserted )
 		{
 		    const int idx = track.indexOf( md );
@@ -390,13 +393,28 @@ uiBulkLogImport::~uiBulkLogImport()
 }
 
 
-static void getWellNames( BufferStringSet& wellnms )
+static void getWellNames( BufferStringSet& wellnms, bool withuwi )
 {
     const IOObjContext ctxt = mIOObjContext( Well );
     const IODir iodir( ctxt.getSelKey() );
     IODirEntryList list( iodir, ctxt );
     list.sort();
-    list.getIOObjNames( wellnms );
+    if ( !withuwi )
+    {
+	list.getIOObjNames( wellnms );
+	return;
+    }
+
+    for ( int idx=0; idx<list.size(); idx++ )
+    {
+	const IOObj* ioobj = list[idx]->ioobj_;
+	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), Well::Inf );
+	if ( wd )
+	{
+	    const StringPair sp( wd->name(), wd->info().uwid );
+	    wellnms.add( sp.getCompString(true) );
+	}
+    }
 }
 
 
@@ -408,7 +426,7 @@ void uiBulkLogImport::lasSel( CallBacker* )
 
     BufferStringSet wellnms;
     wellnms.add( "-- (Do not import)" );
-    getWellNames( wellnms );
+    getWellNames( wellnms, true );
     const bool useuwiasnm = welluwinmfld_->getBoolValue();
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
@@ -473,7 +491,7 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
     if ( !mIsUdf(info.kbelev_) )
 	wellhead.z = -1. * info.kbelev_;
     Coord3 welltd( wellhead );
-    welltd.z = info.zrg.stop - welltd.z;
+    welltd.z = double(info.zrg.stop) - welltd.z;
 
     track.addPoint( wellhead, 0.f );
     track.addPoint( welltd, info.zrg.stop );
@@ -874,4 +892,243 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 	d2t->tvds_ += mCast(double,tvd);
 	d2t->twts_ += mCast(double,twt);
     }
+}
+
+
+// uiBulkDirectionalImport
+class DirData
+{
+public:
+DirData( const char* wellnm )
+    : wellnm_(wellnm)	{}
+
+    BufferString	wellnm_; // can be UWI as well
+    TypeSet<double>	mds_;
+    TypeSet<double>	azis_;
+    TypeSet<double>	incls_;
+};
+
+
+uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Directional Surveys"),
+				 mNoDlgTitle,mTODOHelpKey)
+				// mODHelpKey(mBulkDirectionalImportHelpID))
+			.modal(false))
+    , fd_(BulkDirectionalAscIO::getDesc())
+{
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
+			uiFileInput::Setup().withexamine(true)
+					    .examstyle(File::Table) );
+    mAttachCB( inpfld_->valuechanged, uiBulkDirectionalImport::fileCB );
+
+    dataselfld_ = new uiTableImpDataSel( this, *fd_,
+				mODHelpKey(mTableImpDataSelwellsHelpID) );
+    dataselfld_->attach( alignedBelow, inpfld_ );
+
+    uiPushButton* applybut =
+	new uiPushButton( this, uiStrings::sApply(), true );
+    applybut->setIcon( "apply" );
+    applybut->attach( alignedBelow, dataselfld_ );
+    mAttachCB( applybut->activated, uiBulkDirectionalImport::applyCB );
+
+    wellstable_ = new uiTable( this, uiTable::Setup(5,2), "Wells" );
+    wellstable_->setColumnLabel( 0, uiStrings::sEmptyString() );
+    wellstable_->setColumnLabel( 1, tr("Well name | UWI in OpendTect") );
+    wellstable_->setColumnReadOnly( 0, true );
+    wellstable_->attach( ensureBelow, applybut );
+
+    mAttachCB( postFinalise(), uiBulkDirectionalImport::finalizeCB );
+}
+
+
+uiBulkDirectionalImport::~uiBulkDirectionalImport()
+{
+    detachAllNotifiers();
+    deepErase( dirdatas_ );
+}
+
+
+void uiBulkDirectionalImport::finalizeCB( CallBacker* )
+{
+    uiButton* okbut = button(uiDialog::OK);
+    progressbar_ = new uiProgressBar( okbut->parent(), "Importing Data" );
+    progressbar_->setStretch( 2, 0 );
+    progressbar_->attach( leftOf, okbut );
+}
+
+
+void uiBulkDirectionalImport::reset()
+{
+    deepErase( dirdatas_ );
+    wellstable_->clearTable();
+    wellstable_->setNrRows( 5 );
+    progressbar_->setProgress( 0 );
+}
+
+
+void uiBulkDirectionalImport::fileCB( CallBacker* )
+{
+    reset();
+}
+
+
+void uiBulkDirectionalImport::applyCB( CallBacker* )
+{
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    readFile();
+    fillTable();
+}
+
+
+bool uiBulkDirectionalImport::acceptOK( CallBacker* )
+{
+    if ( dirdatas_.isEmpty() )
+    {
+	uiString msg = tr("No data available to import.\n"
+		"Please select file and press Apply");
+	return false;
+    }
+
+    progressbar_->setTotalSteps( dirdatas_.size() );
+    uiStringSet errors;
+    for ( int idx=0; idx<dirdatas_.size(); idx++ )
+    {
+	progressbar_->setProgress( idx+1 );
+
+	const DirData* dd = dirdatas_[idx];
+	const uiObject* uiobj = wellstable_->getCellObject( RowCol(idx,1) );
+	mDynamicCastGet(const uiComboBox*,cb,uiobj)
+	if ( !cb || cb->currentItem()==0 )
+	    continue;
+
+	const StringPair cbtxt( cb->text() );
+	BufferString wellnm = cbtxt.first(); wellnm.trimBlanks();
+	BufferString uwi = cbtxt.second(); uwi.trimBlanks();
+	const PtrMan<IOObj> ioobj =
+		findIOObj( wellnm, uwi.isEmpty() ? wellnm : uwi );
+	if ( !ioobj )
+	{
+	    errors.add( tr("Cannot find %1 in database").arg(wellnm) );
+	    continue;
+	}
+
+	RefMan<Well::Data> wd = MGR().get( ioobj->key(), Well::Trck );
+	if ( !wd )
+	{
+	    errors.add(tr("%1: Cannot load well").arg(wellnm));
+	    continue;
+	}
+
+	TypeSet<Coord3> track;
+	const float kb = wd->track().getKbElev();
+	Well::DirectionalSurvey dirsurvey( wd->info().surfacecoord, kb );
+	dirsurvey.calcTrack( dd->mds_, dd->incls_, dd->azis_, track );
+
+	wd->track().setEmpty();
+	for ( int idz=0; idz<dd->mds_.size(); idz++ )
+	    wd->track().addPoint( track[idz], mCast(float,dd->mds_[idz]) );
+
+	Well::Writer ww( *ioobj, *wd );
+	if ( !ww.putInfoAndTrack() )
+	    errors.add( ww.errMsg() );
+    }
+
+    if ( errors.isEmpty() )
+    {
+	uiMSG().message( tr("All surveys imported succesfully") );
+	return false;
+    }
+
+    uiMSG().errorWithDetails( errors,
+		tr("Could not import all surveys (See details)") );
+    return false;
+}
+
+
+static int getIndex( const ObjectSet<DirData>& data,
+		     const BufferString& wellnm )
+{
+    if ( wellnm.isEmpty() ) return -1;
+
+    for ( int idx=0; idx<data.size(); idx++ )
+	if ( data[idx]->wellnm_ == wellnm )
+	    return idx;
+
+    return -1;
+}
+
+
+bool uiBulkDirectionalImport::readFile()
+{
+    reset();
+
+    const BufferString fnm( inpfld_->fileName() );
+    if ( fnm.isEmpty() )
+	mErrRet( uiStrings::phrEnter(mJoinUiStrs(sInputFile(),sName())))
+
+    od_istream istrm( fnm );
+    if ( !istrm.isOK() )
+	mErrRet( uiStrings::sCantOpenInpFile() )
+
+    if ( !dataselfld_->commit() )
+	return false;
+
+    BulkDirectionalAscIO aio( *fd_, istrm );
+    BufferString wellnm;
+    double md = mUdf(double);
+    double incl = mUdf(double);
+    double azi = mUdf(double);
+    while ( aio.get(wellnm,md,incl,azi) )
+    {
+	if ( wellnm.isEmpty() )
+	    continue;
+
+	DirData* dd = nullptr;
+	const int wellidx = getIndex( dirdatas_, wellnm );
+	if ( wellidx<0 )
+	{
+	    dd = new DirData( wellnm );
+	    dirdatas_ += dd;
+	}
+	else
+	    dd = dirdatas_[wellidx];
+
+	dd->mds_ += md;
+	dd->incls_ += incl;
+	dd->azis_ += azi;
+    }
+
+    fromuwi_ = aio.identifierIsUWI();
+    BufferString lbl = fromuwi_ ? "UWI" : "Well name";
+    lbl.add( " in file" );
+    wellstable_->setColumnLabel( 0, toUiString(lbl) );
+
+    return true;
+}
+
+
+void uiBulkDirectionalImport::fillTable()
+{
+    BufferStringSet wellnms;
+    wellnms.add( "-- (Do not import)" );
+    getWellNames( wellnms, true );
+
+    wellstable_->setNrRows( dirdatas_.size() );
+    for ( int idx=0; idx<dirdatas_.size(); idx++ )
+    {
+	const BufferString& wellnm = dirdatas_[idx]->wellnm_;
+	wellstable_->setText( RowCol(idx,0), wellnm );
+
+	uiComboBox* wellsbox = new uiComboBox( 0, "Select Well" );
+	wellsbox->addItems( wellnms );
+	wellstable_->setCellObject( RowCol(idx,1), wellsbox );
+
+	GlobExpr ge( BufferString("*",wellnm,"*").buf() );
+	const int selidx = wellnms.indexOf( ge );
+	wellsbox->setCurrentItem( selidx<0 ? 0 : selidx );
+    }
+
+    wellstable_->resizeColumnToContents( 0 );
 }

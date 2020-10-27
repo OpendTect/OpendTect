@@ -46,12 +46,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
+static HiddenParam<uiWellPartServer,uiBulkDirectionalImport*>
+							bulkdirdlgs(nullptr);
 
 int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
 int uiWellPartServer::evCleanPreview()		    { return 1; }
@@ -74,6 +77,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , impbulkd2tdlg_(0)
 {
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
+    bulkdirdlgs.setParam( this, nullptr );
 }
 
 
@@ -81,6 +85,7 @@ uiWellPartServer::~uiWellPartServer()
 {
     detachAllNotifiers();
     cleanup();
+    bulkdirdlgs.removeParam( this );
 }
 
 
@@ -100,6 +105,8 @@ void uiWellPartServer::cleanup()
     deleteAndZeroPtr( impbulkd2tdlg_ );
     deleteAndZeroPtr( rdmlinedlg_ );
     deepErase( wellpropdlgs_ );
+
+    bulkdirdlgs.deleteAndZeroPtrParam( this );
 
     Well::MGR().cleanup();
 }
@@ -137,6 +144,19 @@ void uiWellPartServer::bulkImportD2TModel()
 	impbulkd2tdlg_ = new uiBulkD2TModelImport( parent() );
 
     impbulkd2tdlg_->show();
+}
+
+
+void uiWellPartServer::bulkImportDirectional()
+{
+    uiBulkDirectionalImport* dlg = bulkdirdlgs.getParam( this );
+    if ( !dlg )
+    {
+	dlg = new uiBulkDirectionalImport( parent() );
+	bulkdirdlgs.setParam( this, dlg );
+    }
+
+    dlg->show();
 }
 
 

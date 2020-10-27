@@ -281,6 +281,7 @@ public:
     BufferString&	second()	{ return second_; }
 
     const OD::String&	getCompString() const;
+    const OD::String&	getCompString(bool withwhitespace) const;
 
 protected:
 
