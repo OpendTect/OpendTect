@@ -88,6 +88,10 @@ static const int cMaxMenuSize = 150;
 const char* uiAttribPartServer::sKeyUserSettingAttrErrMsg()
 { return "dTect.Display attribute positioning error messages"; }
 
+uiAttribPartServer* uiAttribPartServer::theinst_ = 0;
+
+uiAttribPartServer* uiAttribPartServer::getInst()
+{ return theinst_; }
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -108,6 +112,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , multiattrdlg_(0)
     , dataattrdlg_(0)
 {
+    theinst_ = this;
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
 
@@ -135,6 +140,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 uiAttribPartServer::~uiAttribPartServer()
 {
     detachAllNotifiers();
+    if ( theinst_ == this )
+	theinst_ = 0;
 
     delete attrsetdlg_;
 

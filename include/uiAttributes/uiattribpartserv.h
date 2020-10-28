@@ -267,10 +267,15 @@ protected:
 
 private:
 
+    static uiAttribPartServer*	theinst_;
+
     DataPack::ID		create2DOutput(const TrcKeyZSampling&,
 					       const Pos::GeomID&,TaskRunner&);
 				//!< Use createOutput() instead.
 public:
+
+    static uiAttribPartServer*	getInst();
+
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    int rdlidx);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
