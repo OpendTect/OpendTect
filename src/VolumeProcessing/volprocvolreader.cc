@@ -218,7 +218,10 @@ bool VolumeReader::setVolumeID( const MultiID& mid )
     mid_ = mid;
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !ioobj )
+    {
+	errmsg_ = uiStrings::phrCannotFindDBEntry( mid_ );
 	return false;
+    }
 
     int nrcomps = components_.size();
     if ( nrcomps == 0 )

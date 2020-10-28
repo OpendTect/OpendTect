@@ -116,7 +116,7 @@ public:
        input datapack(s) */
 
     virtual uiString		errMsg() const
-				{ return uiString::emptyString(); }
+				{ return errmsg_; }
 
 protected:
 
