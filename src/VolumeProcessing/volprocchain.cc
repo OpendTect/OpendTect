@@ -366,7 +366,11 @@ bool VolProc::Chain::usePar( const IOPar& par )
 
 	if ( !step->usePar( *steppar ) )
 	{
-	    errmsg_ = tr("Cannot parse Volume Processing's parameters: %1")
+	    errmsg_ = tr("Cannot parse Volume Processing's parameters.\n"
+	    		 "Processing step: %1\n"
+	    		 "of type: %2\n\n"
+			 "%3")
+			.arg(step->userName()).arg(step->factoryDisplayName())
 			.arg( step->errMsg() );
 	    delete step;
 	    return false;
