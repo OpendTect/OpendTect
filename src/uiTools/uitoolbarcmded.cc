@@ -37,15 +37,15 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     uiLabeledComboBox* lblcb = nullptr;
     if ( !exenms.isEmpty() )
     {
-	BufferStringSet found = createUiList( paths, exenms );
-	found.add( "Other" );
+	uiStringSet found = createUiStrSet( paths, exenms );
 	lblcb = new uiLabeledComboBox( this, found, seltxt );
 	lblcb->setStretch( 2, 1 );
 	exeselfld_ = lblcb->box();
     }
 
     uiFileInput::Setup su;
-    su.defseldir( paths.get(0) ).forread(true);
+    su.defseldir( paths.isEmpty() ? GetSoftwareDir(true) :
+				    (const char*) paths.get(0) ).forread(true);
 #ifdef __win__
     su.filter("*.exe");
 #endif
@@ -124,14 +124,44 @@ BufferStringSet uiToolBarCommandEditor::createUiList(
 		const BufferStringSet& paths, const BufferStringSet& exenms )
 {
     BufferStringSet res;
+    const bool usesyspath = paths.isEmpty();
     for ( int idx=0; idx<exenms.size(); idx++ )
     {
-	BufferString tmp = File::findExecutable( exenms.get(idx), paths );
+	const BufferString tmp = File::findExecutable( exenms.get(idx), paths,
+						       usesyspath );
 	if ( !tmp.isEmpty() )
 	    res.add( exenms.get(idx) );
     }
 
     return res;
+}
+
+
+uiStringSet uiToolBarCommandEditor::createUiStrSet(
+		const BufferStringSet& paths, const BufferStringSet& exenms )
+{
+    const BufferStringSet res = createUiList( paths, exenms );
+    uiStringSet uires;
+    for ( int idx=0; idx<res.size(); idx++ )
+	uires.add( toUiString( res.get(idx) ) );
+
+    return uires;
+}
+
+
+void uiToolBarCommandEditor::updateCmdList( const BufferStringSet& paths,
+					    const BufferStringSet& exenms )
+{
+    if ( exeselfld_ )
+    {
+	uiStringSet res = createUiStrSet( paths, exenms );
+	res.add( tr("Other") );
+	NotifyStopper stopselchg( exeselfld_->selectionChanged );
+	NotifyStopper stopchg( changed );
+	exeselfld_->setEmpty();
+	exeselfld_->addItems( res );
+	exeSelChgCB( nullptr );
+    }
 }
 
 
