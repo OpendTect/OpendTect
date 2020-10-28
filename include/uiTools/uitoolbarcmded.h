@@ -43,6 +43,11 @@ public:
     bool		isChecked() const;
     BufferStringSet	createUiList( const BufferStringSet& paths,
 				      const BufferStringSet& exenms );
+    uiStringSet		createUiStrSet( const BufferStringSet& paths,
+				      const BufferStringSet& exenms );
+
+    void		updateCmdList( const BufferStringSet& paths,
+				       const BufferStringSet& exenms );
     void		clear();
     BufferString	getCommand() const;
     BufferString	getArguments() const;

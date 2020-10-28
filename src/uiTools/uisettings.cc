@@ -724,6 +724,7 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 static const char* IDENames[] =
 {
     "jupyter-lab",
+    "jupyter-notebook",
     "spyder",
 #ifdef __win__
     "idle",
@@ -771,14 +772,11 @@ uiPythonSettings(uiParent* p, const char* nm )
     uiSeparator* sep2 = new uiSeparator( this );
     sep2->attach( stretchedBelow, custompathfld_ );
 
-    FilePath pybinpath;
-    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
-    BufferStringSet paths;
-    paths.add( pybinpath.fullPath() );
     BufferStringSet exenms( IDENames );
     pyidefld_ = new uiToolBarCommandEditor( this,
 					    tr("Python IDE Command"),
-					    paths, exenms, true, false );
+					    BufferStringSet(), exenms,
+					    true, false );
     pyidefld_->attach( alignedBelow, custompathfld_ );
     pyidefld_->attach( stretchedBelow, sep2 );
     pyidefld_->setChecked( false );
@@ -808,10 +806,12 @@ void initDlg(CallBacker*)
     usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
     sourceChgCB(0);
+    updateIDEfld();
 
     mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
     if ( internalloc_ )
-	mAttachCB( internalloc_->valuechanged, uiPythonSettings::parChgCB );
+	mAttachCB( internalloc_->valuechanged,
+		   uiPythonSettings::internalLocChgCB );
     mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
@@ -970,12 +970,21 @@ void sourceChgCB( CallBacker* )
 
     customloc_->display( source == OD::Custom );
     customenvnmfld_->display( source == OD::Custom );
+    updateIDEfld();
     parChgCB( nullptr );
 }
 
 void customEnvChgCB( CallBacker* )
 {
     setCustomEnvironmentNames();
+    updateIDEfld();
+    parChgCB( nullptr );
+}
+
+
+void internalLocChgCB( CallBacker* )
+{
+    updateIDEfld();
     parChgCB( nullptr );
 }
 
@@ -1070,6 +1079,57 @@ void promptCB( CallBacker* )
 	uiMSG().error( uirv );
 	return;
     }
+}
+
+
+bool getPythonEnvBinPath( BufferString& pybinpath ) const
+{
+    pybinpath.setEmpty();
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+    OD::PythonSourceDef().getEnumForIndex(sourceidx);
+    FilePath pypath;
+    if ( source == OD::Internal )
+    {
+	if ( OD::PythonAccess::hasInternalEnvironment(false) )
+	    OD::PythonAccess::GetPythonEnvPath( pypath );
+	else if ( internalloc_ )
+	{
+	    pypath = FilePath( internalloc_->fileName() );
+	}
+    }
+    else if ( source == OD::Custom )
+    {
+	pypath = FilePath( customloc_->fileName() );
+	pypath.add( "envs" ).add( customenvnmfld_->text() );
+    }
+
+    if ( !pypath.isEmpty() )
+    {
+	#ifdef __win__
+	pypath.add("Scripts");
+	#else
+	pypath.add("bin");
+	#endif
+	pybinpath = pypath.fullPath();
+	if ( !File::exists( pybinpath ) || !File::isDirectory( pybinpath ) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+void updateIDEfld()
+{
+    BufferString pybinpath;
+    getPythonEnvBinPath( pybinpath );
+
+    BufferStringSet paths;
+    if ( !pybinpath.isEmpty() )
+	paths.add( pybinpath );
+    BufferStringSet exenms( IDENames );
+    pyidefld_->updateCmdList( paths, exenms );
 }
 
 
