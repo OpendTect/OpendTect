@@ -55,7 +55,7 @@ public:
 			//!< Sets to survey zrange and
     void		normalize();
 			//!< Makes sure start<stop and steps are non-zero
-    void		normalise() { normalize(); }
+    void		normalise();
 
     TrcKeySampling	hsamp_;
     StepInterval<float> zsamp_;

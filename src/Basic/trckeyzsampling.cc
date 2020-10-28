@@ -1430,6 +1430,9 @@ bool TrcKeyZSampling::useJSON( const OD::JSON::Object& obj )
 }
 
 
+void TrcKeySampling::normalise()
+{ normalize(); }
+
 void TrcKeySampling::normalize()
 {
     if ( start_.lineNr() > stop_.lineNr() )
@@ -1446,6 +1449,9 @@ void TrcKeySampling::normalize()
 	step_.trcNr() = SI().crlStep();
 }
 
+
+void TrcKeyZSampling::normalise()
+{ normalize(); }
 
 void TrcKeyZSampling::normalize()
 {
