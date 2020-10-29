@@ -36,15 +36,15 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     uiLabeledComboBox* lblcb = nullptr;
     if ( !exenms.isEmpty() )
     {
-	BufferStringSet found = createUiList( paths, exenms );
-	found.add( "Other" );
+	uiStringSet found = createUiStrSet( paths, exenms );
 	lblcb = new uiLabeledComboBox( this, found, seltxt );
 	lblcb->setStretch( 2, 1 );
 	exeselfld_ = lblcb->box();
     }
     uiFileSel::Setup su;
-    su.setForWrite()
-      .initialselectiondir( paths.get(0) );
+    su.setForWrite().initialselectiondir( paths.isEmpty() ?
+					  GetSoftwareDir(true) :
+					  (const char*) paths.get(0) );
 #ifdef __win__
     su.setFormat( File::Format("exe") )
       .allowallextensions( false );
@@ -115,10 +115,7 @@ void uiToolBarCommandEditor::setChecked( bool yn )
 
 bool uiToolBarCommandEditor::isChecked() const
 {
-    if ( checkbox_ )
-	return checkbox_->isChecked();
-    else
-	return true;
+    return checkbox_ ? checkbox_->isChecked() : true;
 }
 
 
@@ -126,14 +123,44 @@ BufferStringSet uiToolBarCommandEditor::createUiList(
 		const BufferStringSet& paths, const BufferStringSet& exenms )
 {
     BufferStringSet res;
+    const bool usesyspath = paths.isEmpty();
     for ( const auto exenm : exenms )
     {
-	BufferString tmp = File::findExecutable( *exenm, paths );
+	BufferString tmp = File::findExecutable( *exenm, paths, usesyspath );
 	if ( !tmp.isEmpty() )
 	    res.add( *exenm );
     }
     return res;
 }
+
+
+uiStringSet uiToolBarCommandEditor::createUiStrSet(
+		const BufferStringSet& paths, const BufferStringSet& exenms )
+{
+    const BufferStringSet results = createUiList( paths, exenms );
+    uiStringSet uires;
+    for ( const auto res : results )
+	uires.add( toUiString( *res ) );
+
+    return uires;
+}
+
+
+void uiToolBarCommandEditor::updateCmdList( const BufferStringSet& paths,
+					    const BufferStringSet& exenms )
+{
+    if ( exeselfld_ )
+    {
+	uiStringSet res = createUiStrSet( paths, exenms );
+	res.add( tr("Other") );
+	NotifyStopper stopselchg( exeselfld_->selectionChanged );
+	NotifyStopper stopchg( changed );
+	exeselfld_->setEmpty();
+	exeselfld_->addItems( res );
+	exeSelChgCB( nullptr );
+    }
+}
+
 
 void uiToolBarCommandEditor::clear()
 {
