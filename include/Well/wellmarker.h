@@ -103,6 +103,8 @@ public:
 
     void		getNames(BufferStringSet&) const;
     void		getColors(TypeSet<Color>&) const;
+    void		getNamesColorsMDs(BufferStringSet&,TypeSet<Color>&,
+					  TypeSet<float>& mds) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 

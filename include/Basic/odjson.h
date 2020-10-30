@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 
+class DBKeySet;
 class MultiID;
 class SeparString;
 namespace Gason { struct JsonNode; }
@@ -214,7 +215,7 @@ public:
     Array&		add( const OD::String& odstr )
 			{ return add( odstr.str() ); }
     Array&		add(const uiString&);
-    Array&      add(const FilePath&);
+    Array&		add(const FilePath&);
 
 			// also, only usable if valType() == Data
     void		set(const BoolTypeSet&);
@@ -227,6 +228,7 @@ public:
     void		set(const TypeSet<double>&);
     void		set(const BufferStringSet&);
     void		set(const uiStringSet&);
+    void		set(const DBKeySet&);
 
 protected:
 

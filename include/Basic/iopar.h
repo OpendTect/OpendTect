@@ -131,6 +131,8 @@ public:
     bool		get(const char*,type&,type&,type&) const; \
     bool		get(const char*,type&,type&,type&,type&) const
 
+			mIOParDeclFns(od_int16);
+			mIOParDeclFns(od_uint16);
 			mIOParDeclFns(int);
 			mIOParDeclFns(od_uint32);
 			mIOParDeclFns(od_int64);
@@ -149,6 +151,9 @@ public:
 
     bool		get(const char*,int&,int&,float&) const;
 
+    bool		get(const char*,BoolTypeSet&) const;
+    bool		get(const char*,TypeSet<od_int16>&) const;
+    bool		get(const char*,TypeSet<od_uint16>&) const;
     bool		get(const char*,TypeSet<int>&) const;
     bool		get(const char*,TypeSet<od_uint32>&) const;
     bool		get(const char*,TypeSet<od_int64>&) const;
@@ -209,12 +214,17 @@ public:
     void		fnnm(const char*,type,type,type); \
     void		fnnm(const char*,type,type,type,type)
 
+			mIOParDeclFns(set,od_int16);
+			mIOParDeclFns(set,od_uint16);
 			mIOParDeclFns(set,int);
 			mIOParDeclFns(set,od_uint32);
 			mIOParDeclFns(set,od_int64);
 			mIOParDeclFns(set,od_uint64);
 			mIOParDeclFns(set,float);
 			mIOParDeclFns(set,double);
+
+			mIOParDeclFns(add,od_int16);
+			mIOParDeclFns(add,od_uint16);
 			mIOParDeclFns(add,int);
 			mIOParDeclFns(add,od_uint32);
 			mIOParDeclFns(add,od_int64);
@@ -256,6 +266,9 @@ public:
     template <class T>
     void		set(const char*,const SamplingData<T>&);
 
+    void		set(const char*,const BoolTypeSet&);
+    void		set(const char*,const TypeSet<od_int16>&);
+    void		set(const char*,const TypeSet<od_uint16>&);
     void		set(const char*,const TypeSet<int>&);
     void		set(const char*,const TypeSet<od_uint32>&);
     void		set(const char*,const TypeSet<od_int64>&);

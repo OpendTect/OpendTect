@@ -362,3 +362,24 @@ bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     return res;
 }
+
+
+Pick::Set* Pick::getSet( const MultiID& mid, BufferString& errmsg )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    const int setidx = Pick::Mgr().indexOf( mid );
+    if ( setidx<0 )
+    {
+	Pick::Set* ps = new Pick::Set;
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	{
+	    Pick::Mgr().set( mid, ps );
+	    return ps;
+	}
+
+	delete ps;
+	return nullptr;
+    }
+
+    return &(Pick::Mgr().get(setidx));
+}

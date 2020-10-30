@@ -68,6 +68,7 @@ namespace sKey
     inline FixedString FileName()	{ return "File name"; }
     inline FixedString Filter()		{ return "Filter"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
+    inline FixedString Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomSystem()	{ return "GeomSystem"; }
     inline FixedString GeomID()		{ return "GeomID"; }
@@ -76,6 +77,7 @@ namespace sKey
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString Horizon2D()	{ return "Horizon2D"; }
     inline FixedString ID()		{ return "ID"; }
+    inline FixedString IDs()		{ return "IDs"; }
     inline FixedString Input()		{ return "Input"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
@@ -99,6 +101,7 @@ namespace sKey
     inline FixedString Model()		{ return "Model"; }
     inline FixedString Models()		{ return "Models"; }
     inline FixedString Name()		{ return "Name"; }
+    inline FixedString Names()		{ return "Names"; }
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
     inline FixedString None()		{ return "None"; }
@@ -165,6 +168,7 @@ namespace sKey
     inline FixedString TVDSS()		{ return "TVDSS"; }
     inline FixedString TWT()		{ return "TWT"; }
     inline FixedString Type()		{ return "Type"; }
+    inline FixedString Types()		{ return "Types"; }
     inline FixedString TwoD()		{ return "2D"; }
     inline FixedString Thickness()	{ return "Thickness"; }
     inline FixedString ThreeD()		{ return "3D"; }
@@ -173,6 +177,7 @@ namespace sKey
     inline FixedString Units()		{ return "Units"; }
     inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
+    inline FixedString Values()		{ return "Values"; }
     inline FixedString ValueRange()	{ return "Value Range"; }
     inline FixedString Version()	{ return "Version"; }
     inline FixedString Volume()		{ return "Volume"; }
@@ -181,11 +186,13 @@ namespace sKey
     inline FixedString Well()		{ return "Well"; }
     inline FixedString X()		{ return "X"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
+    inline FixedString XCoords()	{ return "X-Coords"; }
     inline FixedString XOffset()	{ return "X Offset"; }
     inline FixedString XRange()		{ return "X range"; }
     inline FixedString Y()		{ return "Y"; }
     inline FixedString Y2()		{ return "Y2"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
+    inline FixedString YCoords()	{ return "Y-Coords"; }
     inline FixedString YOffset()	{ return "Y Offset"; }
     inline FixedString YRange()		{ return "Y range"; }
     inline FixedString Yes()		{ return "Yes"; }

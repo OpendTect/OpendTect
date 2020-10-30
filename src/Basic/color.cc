@@ -144,7 +144,7 @@ Color Color::interpolate( const Color& col1, const Color& col2, float frac )
     return Color( getUChar((col2.r() - col1.r())*frac + col1.r()),
 	    	  getUChar((col2.g() - col1.g())*frac + col1.g()),
 		  getUChar((col2.b() - col1.b())*frac + col1.b()),
-		  getUChar((col2.t() - col1.t())*frac + col1.t()) ); 
+		  getUChar((col2.t() - col1.t())*frac + col1.t()) );
 }
 
 
@@ -361,6 +361,24 @@ const char* Color::getStdStr( bool withhash, int transpopt ) const
     if ( !isrev ) addTranspToStr( buf, t(), transpopt, curidx );
     buf[curidx] = '\0';
     return buf;
+}
+
+
+void Color::convertToStr( const TypeSet<Color>& cols, BufferStringSet& strs )
+{
+    for ( int idx=0; idx<cols.size(); idx++ )
+	strs.add( cols[idx].getStdStr() );
+}
+
+
+void Color::convertFromStr( const BufferStringSet& strs, TypeSet<Color>& cols )
+{
+    Color col;
+    for ( int idx=0; idx<strs.size(); idx++ )
+    {
+	col.setStdStr( strs.get(idx) );
+	cols += col;
+    }
 }
 
 

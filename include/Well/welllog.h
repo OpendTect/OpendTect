@@ -57,14 +57,14 @@ public:
     float		value( int idx ) const		{ return vals_[idx]; }
     void		setValue(int idx,float val);
 
-    float		getValue(float,bool noudfs=false) const;
-    void		addValue(float dh,float val);
+    float		getValue(float md,bool noudfs=false) const;
+    void		addValue(float md,float val);
 			//!< addition must always ascend or descend
     void		updateAfterValueChanges();
 			//!< call it upon any change of value(s)
     void		ensureAscZ();
 			// Do this after adding values when Z may be reversed
-    bool		insertAtDah(float dh,float val);
+    bool		insertAtDah(float md,float val);
     void		removeTopBottomUdfs();
 
     Interval<float>&	valueRange()			{ return range_; }
@@ -81,6 +81,7 @@ public:
     PropertyRef::StdType propType() const;
     bool		isCode() const			{ return iscode_; }
 			//!< log values are all integers stored as floats
+
     static const char*	sKeyMnemLbl();
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();

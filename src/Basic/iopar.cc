@@ -248,7 +248,7 @@ void IOPar::addFrom( const IOPar& iopar )
 const char* IOPar::compKey( const char* key1, int k2 )
 {
     BufferString intstr = ""; intstr += k2;
-    return compKey( key1, (const char*)intstr );
+    return compKey( key1, intstr.buf() );
 }
 
 
@@ -499,6 +499,10 @@ void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
     add( keyw, fms ); \
 }
 
+mDefSet1Val(od_int16)	mDefSet2Val(od_int16)
+mDefSet3Val(od_int16)	mDefSet4Val(od_int16)
+mDefSet1Val(od_uint16)	mDefSet2Val(od_uint16)
+mDefSet3Val(od_uint16)	mDefSet4Val(od_uint16)
 mDefSet1Val(int)	mDefSet2Val(int)
 mDefSet3Val(int)	mDefSet4Val(int)
 mDefSet1Val(od_uint32)	mDefSet2Val(od_uint32)
@@ -512,6 +516,10 @@ mDefSet3Val(float)	mDefSet4Val(float)
 mDefSet1Val(double)	mDefSet2Val(double)
 mDefSet3Val(double)	mDefSet4Val(double)
 
+mDefAdd1Val(od_int16)	mDefAdd2Val(od_int16)
+mDefAdd3Val(od_int16)	mDefAdd4Val(od_int16)
+mDefAdd1Val(od_uint16)	mDefAdd2Val(od_uint16)
+mDefAdd3Val(od_uint16)	mDefAdd4Val(od_uint16)
 mDefAdd1Val(int)	mDefAdd2Val(int)
 mDefAdd3Val(int)	mDefAdd4Val(int)
 mDefAdd1Val(od_uint32)	mDefAdd2Val(od_uint32)
@@ -624,22 +632,18 @@ bool IOPar::get( const char* keyw, type& v1,type& v2,type& v3,type& v4 ) const \
     return true; \
 }
 
-mDefGetI1Val(int,strtol(pval, &endptr, 0));
-mDefGetI2Val(int,strtol(pval, &endptr, 0));
-mDefGetI3Val(int,strtol(pval, &endptr, 0));
-mDefGetI4Val(int,strtol(pval, &endptr, 0));
-mDefGetI1Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI2Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI3Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI4Val(od_uint32,strtoul(pval, &endptr, 0));
-mDefGetI1Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI2Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI3Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI4Val(od_int64,strtoll(pval, &endptr, 0));
-mDefGetI1Val(od_uint64,strtoull(pval, &endptr, 0));
-mDefGetI2Val(od_uint64,strtoull(pval, &endptr, 0));
-mDefGetI3Val(od_uint64,strtoull(pval, &endptr, 0));
-mDefGetI4Val(od_uint64,strtoull(pval, &endptr, 0));
+#define mDefGetIVal( tp, fn ) \
+mDefGetI1Val( tp, fn ); \
+mDefGetI2Val( tp, fn ); \
+mDefGetI3Val( tp, fn ); \
+mDefGetI4Val( tp, fn );
+
+mDefGetIVal(od_int16,strtol(pval, &endptr, 0));
+mDefGetIVal(od_uint16,strtoul(pval, &endptr, 0));
+mDefGetIVal(int,strtol(pval, &endptr, 0));
+mDefGetIVal(od_uint32,strtoul(pval, &endptr, 0));
+mDefGetIVal(od_int64,strtoll(pval, &endptr, 0));
+mDefGetIVal(od_uint64,strtoull(pval, &endptr, 0));
 
 
 #define mDefGetFVals(typ) \
@@ -720,6 +724,8 @@ void IOPar::set( const char* keyw, const TypeSet<typ>& vals ) \
     iopset_typeset( *this, keyw, vals ); \
 }
 
+mDefTSFns(od_int16)
+mDefTSFns(od_uint16)
 mDefTSFns(int)
 mDefTSFns(od_uint32)
 mDefTSFns(od_int64)
@@ -1000,6 +1006,18 @@ bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
 }
 
 
+bool IOPar::get( const char* keyw, BoolTypeSet& bools ) const
+{
+    mGetStartAllowEmpty(pval);
+    bools.erase();
+    FileMultiString fms( pval );
+    const int sz = fms.size();
+    for ( int idx=0; idx<sz; idx++ )
+	bools.add( yesNoFromString(fms[idx]) );
+    return true;
+}
+
+
 bool IOPar::get( const char* keyw, TypeSet<MultiID>& keys ) const
 {
     BufferStringSet strs;
@@ -1074,6 +1092,15 @@ void IOPar::set( const char* keyw, const OD::String& fs1,
 				   const OD::String& fs3 )
 {
     set( keyw, fs1.buf(), fs2.buf(), fs3.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const BoolTypeSet& bools )
+{
+    FileMultiString fms;
+    for ( int idx=0; idx<bools.size(); idx++ )
+	fms += bools.get( idx ) ? "Y" : "N";
+    set( keyw, fms.buf() );
 }
 
 

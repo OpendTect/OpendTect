@@ -140,7 +140,10 @@ void OD::PythonAccess::updatePythonPath() const
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
-    const FilePath pythonmodsfp( GetSoftwareDir(true), "v7", "bin", "python" );
+    FilePath pythonmodsfp( GetSoftwareDir(true), "bin", "python" );
+    if ( !pythonmodsfp.exists() )
+	pythonmodsfp = FilePath( GetSoftwareDir(true), "v7", "bin", "python" );
+
     PythA().addBasePath( pythonmodsfp );
 
 #ifdef __win__
@@ -222,24 +225,18 @@ uiString OD::PythonAccess::pySummary() const
     if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source))
 	source = System;
 
-    uiStringSet result;
-    result += tr("Using");
-    result += uiString(tr("%1 %2").arg(source).arg(pyVersion()));
-
+    uiString result = tr("Using %1 %2").arg(source).arg(pyVersion());
     if ( source == Custom )
     {
 	BufferString virtenvloc;
 	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
 	{
-	    if ( virtenvnm_.isEmpty() )
-		result += uiString(tr("from %1").arg(virtenvloc));
-	    else
-		result += uiString(tr("environment %1 in %2").arg(virtenvnm_)
-							    .arg(virtenvloc));
+	    if ( !virtenvnm_.isEmpty() )
+		result.append( tr("environment %1").arg(virtenvnm_) );
 	}
     }
 
-    return result.cat( " " );
+    return result;
 }
 
 

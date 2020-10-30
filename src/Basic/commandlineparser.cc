@@ -257,6 +257,16 @@ bool CommandLineParser::getVal( const char* key, BufferString& val,
 }
 
 
+bool CommandLineParser::getVal( const char* key, DBKey& dbkey,
+				bool acceptnone, int valnr ) const
+{
+    BufferString str;
+    const bool res = getVal( key, str, acceptnone, valnr );
+    dbkey = res ? DBKey( str.buf() ) : DBKey::udf();
+    return res;
+}
+
+
 void CommandLineParser::addKey( const char* key, BufferString& cmd,
 				const char* valstr )
 {
@@ -277,6 +287,15 @@ void CommandLineParser::addFilePath( const char* fp, BufferString& cmd )
 	cmd.addSpace();
 
     cmd.add( "\"" ).add( fp ).add( "\"" );
+}
+
+
+BufferString CommandLineParser::envVarBase() const
+{
+    FilePath fp( executable_ );
+    BufferString envvarbase( fp.fileName() );
+    envvarbase.replace( ' ', '_' );
+    return envvarbase;
 }
 
 

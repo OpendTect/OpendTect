@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seismod.h"
 
 #include "datachar.h"
+#include "datadistribution.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
@@ -139,6 +140,15 @@ public:
 					  Pos::GeomID geomid=
 					  Survey::GM().cUndefGeomID()) const;
     bool		getDisplayPars(IOPar&) const;
+
+    bool		haveAux(const char* ext) const;
+    bool		getAux(const char* ext,const char* ftyp,IOPar&) const;
+    bool		havePars() const;
+    bool		getPars(IOPar&) const;
+    bool		haveStats() const;
+    bool		getStats(IOPar&) const;
+    RefMan<FloatDistrib> getDataDistribution() const;
+			//this may take some time, use uiUserShowWait or alike
 
     mStruct(Seis) Opts2D
     {

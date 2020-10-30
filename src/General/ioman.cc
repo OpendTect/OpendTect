@@ -1119,3 +1119,64 @@ uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
     const BufferString newpath = clp.getFullSurveyPath( &usecur );
     return setDataSource( newpath, refresh );
 }
+
+
+BufferString IOMan::fullSurveyPath() const
+{
+    FilePath fp( rootDir(), surveyName() );
+    return fp.fullPath();
+}
+
+
+IODir* IOMan::getDir( const char* trlgrpnm ) const
+{
+    const int nrstddirdds = IOObjContext::totalNrStdDirs();
+    for ( int idx=0; idx<nrstddirdds; idx++ )
+    {
+	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
+	const IOObjContext::StdDirData* dd =
+			IOObjContext::getStdDirData( stdseltyp );
+	const FilePath fp( rootDir(), dd->dirnm_ );
+	if ( !fp.exists() )
+	    continue;
+
+	IODir* iodir = new IODir( fp.fullPath() );
+	if ( iodir->hasObjectsWithGroup(trlgrpnm) )
+	    return iodir;
+
+	delete iodir;
+    }
+
+    return nullptr;
+}
+
+
+IODir* IOMan::getDir( IOObjContext::StdSelType seltype ) const
+{
+    const IOObjContext::StdDirData* dd =
+		IOObjContext::getStdDirData( seltype );
+    if ( !dd )
+	return nullptr;
+
+    const FilePath fp( rootDir(), dd->dirnm_ );
+    return fp.exists() ? new IODir( fp.fullPath() ) : nullptr;
+}
+
+
+IODir* IOMan::getDir( const MultiID& mid ) const
+{
+    const int nrstddirdds = IOObjContext::totalNrStdDirs();
+    for ( int idx=0; idx<nrstddirdds; idx++ )
+    {
+	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
+	const IOObjContext::StdDirData* dd =
+			IOObjContext::getStdDirData( stdseltyp );
+	if ( mid.key(0) == dd->id_ )
+	{
+	    const FilePath fp( rootDir(), dd->dirnm_ );
+	    return fp.exists() ? new IODir( fp.fullPath() ) : nullptr;
+	}
+    }
+
+    return nullptr;
+}

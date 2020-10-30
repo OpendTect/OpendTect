@@ -180,6 +180,10 @@ public:
     uiRetVal		setDataSource(const IOPar&,bool refresh=false);
     uiRetVal		setDataSource(const CommandLineParser&,
 				      bool refresh=false);
+    BufferString	fullSurveyPath() const;
+    IODir*		getDir(const char* trlgrpnm) const;
+    IODir*		getDir(IOObjContext::StdSelType) const;
+    IODir*		getDir(const MultiID&) const;
 };
 
 

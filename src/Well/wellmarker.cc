@@ -408,6 +408,18 @@ void Well::MarkerSet::getColors( TypeSet<Color>& cols ) const
 }
 
 
+void Well::MarkerSet::getNamesColorsMDs( BufferStringSet& nms,
+			TypeSet<Color>& cols, TypeSet<float>& mds) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	nms.add( (*this)[idx]->name() );
+	cols += (*this)[idx]->color();
+	mds += (*this)[idx]->dah();
+    }
+}
+
+
 void Well::MarkerSet::fillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<size(); idx++ )

@@ -70,6 +70,7 @@ public:
 protected:
 
     void		selectCB(CallBacker*);
+    void		updateList();
     bool		isnewsurvey_;
     BufferString	dataroot_;
     BufferString	surveyname_;

@@ -71,6 +71,8 @@ public:
     bool			hasKey(const char*) const;
     bool			getVal(const char* key,BufferString&,
 				       bool acceptnone=false,int valnr=1) const;
+    bool			getVal(const char* key,DBKey&,
+				       bool acceptnone=false,int valnr=1) const;
     template <class T> bool	getVal(const char* key,T&,
 				       bool acceptnone=false,int valnr=1) const;
 				/*!<Will parse argument valnr following key.
@@ -120,6 +122,7 @@ public:
 
     static const char*		sDataRootArg()		{ return "dataroot"; }
     static const char*		sSurveyArg()		{ return "survey"; }
+    BufferString		envVarBase() const;
     BufferString		getFullSurveyPath(bool* iscursurv=0) const;
 
 private:

@@ -62,6 +62,7 @@ protected:
 
 private:
     void		init();
+    void		addHorPosIfNeeded(const Pos::IdxPair&);
 };
 
 

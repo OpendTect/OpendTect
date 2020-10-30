@@ -73,10 +73,10 @@ public:
 			~Man();
 
     void		cleanup();
-    void		removeObject( const Well::Data* );
+    void		removeObject(const Data*);
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);
-    bool		readReqData(const MultiID&, Well::Data*, LoadReqs);
+    bool		readReqData(const MultiID&,Data*,LoadReqs);
     mDeprecated("Use get instead") void add(const MultiID&,Data*);
 			//!< Data becomes mine
     mDeprecated("Use removeObject instead") Data* release(const MultiID&);
@@ -87,6 +87,8 @@ public:
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
+    static bool		getWellKeys(TypeSet<MultiID>&,bool onlyloaded=false);
+    static bool		getWellNames(BufferStringSet&,bool onlyloaded=false);
     static bool		getLogNames(const MultiID&,BufferStringSet&,
 				    bool forceLoad=false);
     static bool		getMarkerNames(BufferStringSet&);
