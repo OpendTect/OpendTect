@@ -46,13 +46,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 Seis::ObjectSummary::ObjectSummary( const MultiID& mid )
-    : ioobjinfo_(*new SeisIOObjInfo(mid))		{ init(); }
+    : ioobjinfo_(*new SeisIOObjInfo(mid))
+{ init(); }
+
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj )
-    : ioobjinfo_(*new SeisIOObjInfo(ioobj))		{ init(); }
+    : ioobjinfo_(*new SeisIOObjInfo(ioobj))
+{ init(); }
+
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
-    : ioobjinfo_(*new SeisIOObjInfo(ioobj))		{ init2D(geomid); }
+    : ioobjinfo_(*new SeisIOObjInfo(ioobj))
+{
+    ioobjinfo_.is2D() ? init2D(geomid) : init();
+}
+
+
 Seis::ObjectSummary::ObjectSummary( const Seis::ObjectSummary& oth )
-    : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))	{ init(); }
+    : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))
+{ init(); }
 
 Seis::ObjectSummary::~ObjectSummary()
 {
