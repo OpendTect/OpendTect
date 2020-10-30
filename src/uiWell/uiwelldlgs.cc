@@ -1880,22 +1880,20 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    if ( currmnem )
 		mn = eMNC().find( currmnem );
 
-	    if ( mn )
-		uom = UnitOfMeasure::getGuessed( mn->disp_.unit_ );
-	    else
-	    {
+	    if ( curruom )
 		uom = UnitOfMeasure::getGuessed( curruom );
+
+	    if ( !mn )
 		mn = eMNC().getGuessed( uom );
-	    }
 
 	    uiUnitSel::Setup ussu( mn ? mn->stdType() : PropertyRef::Other,
 				   uiStrings::sEmptyString(), mn );
 	    ussu.selmnemtype( true );
 	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
-	    unfld->setUnit( uom );
 	    if ( mn )
 		unfld->setMnemonic( *mn );
 
+	    unfld->setUnit( uom );
 	    unflds_ += unfld;
 	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
 	    uominfotbl_->setText( RowCol(rowidx,1), lognms.get(lidx ) );
