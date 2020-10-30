@@ -112,6 +112,7 @@ public:
     int			nrLabels() const		{ return lbls_.size(); }
     uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
     void		setLabelText(const uiString&,int nr=0);
+    void		addLabel(const uiString&,LblPos);
 
     inline OD::ChoiceMode choiceMode() const	{ return choicemode_; }
     inline bool		isMultiChoice() const

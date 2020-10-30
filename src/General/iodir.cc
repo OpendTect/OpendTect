@@ -453,10 +453,28 @@ bool IODir::doWrite() const
 }
 
 
+MultiID IODir::getNewKey() const
+{
+    return newKey();
+}
+
+
 MultiID IODir::newKey() const
 {
     MultiID id = key_;
     const_cast<IODir*>(this)->curid_++;
     id += toString( curid_ );
     return id;
+}
+
+
+bool IODir::hasObjectsWithGroup( const char* trgrpnm ) const
+{
+    for ( int idx=0; idx<objs_.size(); idx++ )
+    {
+	if ( objs_[idx]->group() == trgrpnm )
+	    return true;
+    }
+
+    return false;
 }

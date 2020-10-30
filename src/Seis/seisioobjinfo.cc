@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
+#include "datadistributiontools.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
@@ -32,8 +33,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
+#include "seisstatscollector.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "statrand.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -466,6 +469,108 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 
     dc = comps.first()->org.datachar;
     return true;
+}
+
+
+bool SeisIOObjInfo::haveAux( const char* ext ) const
+{
+    mChk(false);
+    FilePath fp( ioobj_->mainFileName() );
+    fp.setExtension( ext );
+    return File::exists( fp.fullPath() );
+}
+
+
+bool SeisIOObjInfo::havePars() const
+{ return haveAux( sParFileExtension() ); }
+
+bool SeisIOObjInfo::haveStats() const
+{ return haveAux( sStatsFileExtension() ); }
+
+
+bool SeisIOObjInfo::getAux( const char* ext, const char* filetyp,
+			    IOPar& iop ) const
+{
+    mChk(false);
+    FilePath fp( ioobj_->mainFileName() );
+    fp.setExtension( ext );
+    return iop.read( fp.fullPath(), filetyp );
+}
+
+
+bool SeisIOObjInfo::getPars( IOPar& iop ) const
+{ return getAux( sParFileExtension(), sKey::Pars(), iop ); }
+
+bool SeisIOObjInfo::getStats( IOPar& iop ) const
+{ return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
+
+
+RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
+{
+    mChk(nullptr);
+    IOPar iop;
+    RefMan<FloatDistrib> ret;
+    if ( haveStats() && getStats(iop) )
+    {
+	PtrMan<IOPar> dpar = iop.subselect( sKey::Distribution() );
+	if ( dpar && !dpar->isEmpty() )
+	{
+	    ret = new FloatDistrib;
+	    DataDistributionChanger<float> chgr( *ret );
+	    chgr.usePar( *dpar );
+	    return ret;
+	}
+    }
+
+    // No .stats file. Extract stats right now
+    SeisTrcReader rdr( ioobj_ );
+    rdr.prepareWork();
+    SeisTrcTranslator* trl = rdr.seisTranslator();
+    if ( !trl )
+	return nullptr;
+
+    PosInfo::CubeData cd;
+    trl->getGeometryInfo( cd );
+
+    Seis::StatsCollector ssc;
+    Stats::RandGen randgen;
+    PosInfo::CubeDataPos cdp;
+    while ( true )
+    {
+	cdp.lidx_ = randgen.getIndex( cd.size() );
+	const auto& segs = cd.get( cdp.lidx_ )->segments_;
+	cdp.segnr_ = randgen.getIndex( segs.size() );
+	cdp.sidx_ = randgen.getIndex( segs.get(cdp.segnr_).nrSteps()+1 );
+
+	const BinID bid = cd.binID( cdp );
+	bool res = true;
+	if ( trl->supportsGoTo() )
+	    res = trl->goTo( bid );
+
+	if ( !res )
+	    continue;
+
+	SeisTrc trc;
+	res = rdr.get( trc );
+	if ( !res || trc.isNull() )
+	    continue;
+
+	ssc.useTrace( trc );
+	if ( ssc.nrSamplesUsed() > 100000 )
+	    break;
+    }
+
+    ret = &ssc.distribution();
+    if ( !ret->isEmpty() )
+    {
+	iop.set( sKey::Source(), "Partial Scan" );
+	ssc.fillPar( iop );
+	FilePath fp( ioobj_->mainFileName() );
+	fp.setExtension( sStatsFileExtension() );
+	iop.write( fp.fullPath(), sKey::Stats() );
+    }
+
+    return ret;
 }
 
 

@@ -7,6 +7,7 @@
 #include "odjson.h"
 
 #include "arraynd.h"
+#include "dbkey.h"
 #include "gason.h"
 #include "multiid.h"
 #include "od_iostream.h"
@@ -874,6 +875,14 @@ void OD::JSON::Array::set( const uiStringSet& vals )
     }
     set( bss );
 }
+
+void OD::JSON::Array::set( const DBKeySet& vals )
+{
+    BufferStringSet bss;
+    vals.addTo( bss );
+    set( bss );
+}
+
 
 
 //--------- Object

@@ -464,6 +464,12 @@ void uiListBox::setLabelText( const uiString& txt, int nr )
 }
 
 
+void uiListBox::addLabel( const uiString& txt, LblPos pos )
+{
+    mkLabel( txt, pos );
+}
+
+
 void uiListBox::mkCheckGroup()
 {
     checkgrp_ = new uiGroup( this, "CheckGroup" );

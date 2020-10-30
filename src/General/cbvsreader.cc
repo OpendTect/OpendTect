@@ -643,8 +643,8 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 }
 
 
-bool CBVSReader::fetch( TraceData& bufs, const bool* comps,
-			const Interval<int>* samps, int offs )
+bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
+			const Interval<int>* samprg, int offs )
 {
     if ( !hinfofetched_ && auxnrbytes_ )
     {
@@ -652,28 +652,47 @@ bool CBVSReader::fetch( TraceData& bufs, const bool* comps,
 	if ( !getAuxInfo(dum) ) return false;
     }
 
-    if ( !samps ) samps = &samprg_;
+    if ( !samprg )
+	samprg = &samprg_;
 
     int iselc = -1;
+    int nrcompsselected = nrcomps_;
+    if ( comps )
+    {
+	for ( int icomp=0; icomp<nrcomps_; icomp++ )
+	{
+	    if ( !comps[icomp] )
+		nrcompsselected--;
+	}
+    }
+
+    if ( tdtofill.nrComponents() != nrcompsselected )
+	tdtofill.setNrComponents( nrcompsselected, DataCharacteristics::Auto );
+
+    tdtofill.convertTo( info_.compinfo_[0]->datachar );
+    const int outnrsamps = samprg->stop - samprg->start + 1;
+    if ( tdtofill.size(0) < outnrsamps )
+	tdtofill.reSize( outnrsamps );
+
+    const int nrsamps2skip = samprg->start;
+    const int nrsamps2read = samprg->stop - samprg->start + 1;
+    const int nrsampsleftatend = info_.nrsamples_ - samprg->stop - 1;
+    const int bps = info_.compinfo_[0]->datachar.nrBytes();
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	if ( comps && !comps[icomp] )
-	{
-	    strm_.ignore( cnrbytes_[icomp] );
-	    continue;
-	}
+	    { strm_.ignore( cnrbytes_[icomp] ); continue; }
 	iselc++;
 
-	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
-	int bps = compinfo->datachar.nrBytes();
-	if ( samps->start )
-	    strm_.ignore( samps->start*bps );
-	if ( !strm_.getBin(((char*)bufs.getComponent(iselc)->data()) + offs*bps,
-				   (samps->stop-samps->start+1) * bps ) )
+	if ( nrsamps2skip > 0 )
+	    strm_.ignore( nrsamps2skip*bps );
+
+	char* bufptr = (char*)tdtofill.getComponent(iselc)->data();
+	if ( !strm_.getBin(bufptr+offs*bps,nrsamps2read*bps) )
 	    break;
 
-	if ( samps->stop < info_.nrsamples_-1 )
-	    strm_.ignore((info_.nrsamples_-samps->stop-1)*bps );
+	if ( nrsampsleftatend > 0 )
+	    strm_.ignore( nrsampsleftatend*bps );
     }
 
     hinfofetched_ = false;

@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpairvalset.h"
 #include "posidxpairvalue.h"
 
+#include "arrayndimpl.h"
 #include "binidvalset.h"
 #include "hiddenparam.h"
 #include "iopar.h"
@@ -1479,7 +1480,60 @@ void BinIDValueSet::setStepout( int trcstepout, int trcstep )
 
 void BinIDValueSet::setStepout( const IdxPair& stepout, const IdxPair& step )
 {
-    pErrMsg("Not implemented yet");
+    if ( isEmpty() ||
+	 (!stepout.first && !stepout.second) ||
+	 (!step.first && !step.second) )
+	return;
+
+    Interval<int> inlrg = inlRange();
+    inlrg.widen( stepout.first * step.first );
+    Interval<int> crlrg = crlRange();
+    crlrg.widen( stepout.second * step.second );
+
+    const StepInterval<int> inldef( inlrg.start, inlrg.stop, step.first );
+    const StepInterval<int> crldef( crlrg.start, crlrg.stop, step.second );
+    TrcKeySampling subsel;
+    subsel.set( inldef, crldef );
+    Array2DImpl<bool> needed( subsel.nrInl(), subsel.nrCrl() );
+    needed.setAll( false );
+
+    SPos spos;
+    while ( next(spos) )
+    {
+	const Pos::IdxPair centralip = getIdxPair( spos );
+	for ( int ifrstoffs=-stepout.first; ifrstoffs<=stepout.first;
+					    ifrstoffs++ )
+	{
+	    const int first = centralip.first + ifrstoffs * step.first;
+	    for ( int iscndoffs=-stepout.second; iscndoffs<=stepout.second;
+		    iscndoffs++ )
+	    {
+		const int scnd = centralip.second
+				+ iscndoffs * step.second;
+		needed.set( subsel.inlIdx(first), subsel.crlIdx(scnd), true );
+	    }
+	}
+    }
+
+    TrcKeySamplingIterator it( subsel );
+    TrcKey tk;
+    while ( it.next(tk) )
+    {
+	if ( needed.getData()[it.curIdx()] )
+	    addHorPosIfNeeded( tk.binID() );
+    }
+}
+
+
+void BinIDValueSet::addHorPosIfNeeded( const Pos::IdxPair& ip )
+{
+    SPos spos = find( ip );
+    if ( !spos.isValid() )
+    {
+	spos = add( ip ); // just use an existing obj
+	if ( !spos.isValid() )
+	    { setEmpty(); return; }
+    }
 }
 
 

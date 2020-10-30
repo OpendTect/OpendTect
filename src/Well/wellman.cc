@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
 #include "iodirentry.h"
+#include "ioman.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -259,6 +260,45 @@ int Well::Man::gtByKey( const MultiID& key ) const
 	    return idx;
     }
     return -1;
+}
+
+
+bool Well::Man::getWellKeys( TypeSet<MultiID>& ids, bool onlyloaded )
+{
+    if ( !onlyloaded )
+    {
+	const IOObjContext ctxt = mIOObjContext(Well);
+	const IODir iodir( ctxt.getSelKey() );
+	const IODirEntryList list( iodir, ctxt );
+	for ( int idx=0; idx<list.size(); idx++ )
+	{
+	    const IOObj* ioobj = list.get(idx)->ioobj_;
+	    if ( ioobj )
+		ids += ioobj->key();
+	}
+    }
+    else
+    {
+	ObjectSet<Data>& wells = MGR().wells();
+	for ( int idx=0; idx<wells.size(); idx++ )
+	{
+	    if ( wells[idx] )
+		ids += wells[idx]->multiID();
+	}
+    }
+
+    return !ids.isEmpty();
+}
+
+
+bool Well::Man::getWellNames( BufferStringSet& wellnms, bool onlyloaded )
+{
+    TypeSet<MultiID> ids;
+    getWellKeys( ids );
+    for ( int idx=0; idx<ids.size(); idx++ )
+	wellnms.add( IOM().nameOf(ids[idx]) );
+
+    return !wellnms.isEmpty();
 }
 
 

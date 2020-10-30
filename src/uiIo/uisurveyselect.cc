@@ -153,7 +153,9 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool forread,
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
     , surveyname_(0)
-{}
+{
+    setReadOnly( forread );
+}
 
 
 uiSurveySelect::~uiSurveySelect()
@@ -169,8 +171,17 @@ void uiSurveySelect::selectCB( CallBacker* )
     isnewsurvey_ = dlg.isNewSurvey();
     surveyname_ = dlg.getSurveyName();
     dataroot_ = dlg.getDataRoot();
+    updateList();
     setInputText( surveyname_ );
     selok_ = true;
+}
+
+
+void uiSurveySelect::updateList()
+{
+    BufferStringSet surveylist;
+    uiSurvey::getSurveyList( surveylist, dataroot_ );
+    setEntries( surveylist, surveylist );
 }
 
 
@@ -214,7 +225,8 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 		FilePath(fullpath,SurveyInfo::sKeySetupFileName()).fullPath()) )
 	mErrRet(tr("This is not an OpendTect survey."));
 
-    setInputText( fullpath );
+    SurveyDiskLocation sdl( fullpath );
+    setSurveyDiskLocation( sdl );
 }
 
 
@@ -222,14 +234,16 @@ void uiSurveySelect::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
 {
     dataroot_ = sdl.basePath();
     surveyname_ = sdl.dirName();
-    setInputText( sdl.fullPath() );
+    updateList();
+    setInputText( surveyname_ );
 }
 
 
 SurveyDiskLocation uiSurveySelect::surveyDiskLocation() const
 {
-    BufferString fp;
-    getFullSurveyPath( fp );
+    BufferString fpstr;
+    getFullSurveyPath( fpstr );
+    const FilePath fp( fpstr );
     SurveyDiskLocation sdl( fp );
     return sdl;
 }

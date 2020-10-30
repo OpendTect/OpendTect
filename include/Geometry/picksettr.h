@@ -80,3 +80,9 @@ public:
 };
 
 
+namespace Pick
+{
+mGlobal(Geometry) Pick::Set*	getSet(const MultiID&,BufferString&);
+}
+
+

@@ -70,6 +70,9 @@ public:
 			// Therefore, only in special-purpose programs
     bool		doWrite() const;
 
+    bool		hasObjectsWithGroup(const char* trgrpnm) const;
+    MultiID		getNewKey() const;
+
 private:
 
     ObjectSet<IOObj>	objs_;
