@@ -77,6 +77,7 @@ SET(OD_MODULE_SOURCES
 	uiprogressbar.cc
 	uirgbarray.cc
 	uirubberband.cc
+	uiscrollarea.cc
 	uiseparator.cc
 	uishortcutsmgr.cc
 	uislider.cc
