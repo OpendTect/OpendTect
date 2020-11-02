@@ -64,12 +64,12 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 
     if ( d2tmodels_.isEmpty() )
     {
-	const uiWorldRect& masterbbox = activevwr->boundingBox();
+	const uiWorldRect& mainbbox = activevwr->boundingBox();
 	const uiWorldRect bbox = vwrs_[curvwridx]->boundingBox();
-	LinScaler sclr( masterbbox.left(), bbox.left(),
-			masterbbox.right(), bbox.right() );
-	LinScaler sctb( masterbbox.top(), bbox.top(),
-			masterbbox.bottom(), bbox.bottom() );
+	LinScaler sclr( mainbbox.left(), bbox.left(),
+			mainbbox.right(), bbox.right() );
+	LinScaler sctb( mainbbox.top(), bbox.top(),
+			mainbbox.bottom(), bbox.bottom() );
 	viewwr = uiWorldRect( sclr.scale(wr.left()), sctb.scale(wr.top()),
 			      sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
     }
@@ -148,8 +148,8 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
     , iszoomcoupled_(true)
-    , drawzoomboxes_(false)			  
-    , activevwr_(&vwr)  
+    , drawzoomboxes_(false)
+    , activevwr_(&vwr)
 {
     setViewerType( &vwr, true );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
@@ -162,10 +162,10 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     detachAllNotifiers();
-    
+
     for ( int idx=0; idx<zoomboxes_.size(); idx++ )
 	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
-    
+
     deepErase( zoomboxes_ );
 }
 
@@ -198,7 +198,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     uiFlatViewer& vwr = *vwrs_[ivwr];
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
-    
+
     toolbars_ += new uiToolBar(mainwin(),tr("Flat Viewer Tools"),
 			       tb_->prefArea());
 
@@ -297,7 +297,7 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
     const Geom::Size2D<double> cursz = activevwr_->curView().size();
 
     const float scalefac = gevent->scale();
-    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
+    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac),
 				cursz.height() * (1/scalefac) );
     Geom::Point2D<double> pos =
 	activevwr_->getWorld2Ui().transform( gevent->pos() );
@@ -341,7 +341,7 @@ bool uiMultiFlatViewControl::handleUserClick( int vwridx )
 void uiMultiFlatViewControl::parsCB( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb);
-    const int idx = parsbuts_.indexOf( but ); 
+    const int idx = parsbuts_.indexOf( but );
     if ( idx >= 0 )
 	doPropertiesDialog( idx );
 }
@@ -354,12 +354,12 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 
     zoomboxes_.erase();
 
-    if ( iszoomcoupled_ || !drawzoomboxes_ ) 
+    if ( iszoomcoupled_ || !drawzoomboxes_ )
 	return;
 
-    const uiWorldRect& masterbbox = activeVwr()->boundingBox();
+    const uiWorldRect& mainbbox = activeVwr()->boundingBox();
     const uiWorldRect& wr = activeVwr()->curView();
-    if ( wr == masterbbox )
+    if ( wr == mainbbox )
 	return;
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
@@ -375,12 +375,12 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	uiWorldRect newwr;
        	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
 	    continue;
-	ad->poly_ += newwr.topLeft(); 
+	ad->poly_ += newwr.topLeft();
 	ad->poly_ += newwr.topRight();
 	ad->poly_ += newwr.bottomRight();
-	ad->poly_ += newwr.bottomLeft(); 
-	ad->poly_ += newwr.topLeft(); 
-	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata ); 
+	ad->poly_ += newwr.bottomLeft();
+	ad->poly_ += newwr.topLeft();
+	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata );
     }
 }
 

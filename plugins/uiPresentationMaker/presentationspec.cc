@@ -262,7 +262,7 @@ void PresentationSpec::setEmpty()
     deepErase( slides_ );
     title_.setEmpty();
     outputfilename_.setEmpty();
-    masterfilename_.setEmpty();
+    templatefilename_.setEmpty();
 }
 
 
@@ -296,8 +296,8 @@ void PresentationSpec::setSlideTitle( int idx, const char* title )
 void PresentationSpec::setOutputFilename( const char* fnm )
 { outputfilename_ = fnm; }
 
-void PresentationSpec::setMasterFilename( const char* fnm )
-{ masterfilename_ = fnm; }
+void PresentationSpec::setTemplateFilename( const char* fnm )
+{ templatefilename_ = fnm; }
 
 void PresentationSpec::setLogFilename( const char* fnm )
 { logfilename_ = fnm; }
@@ -331,16 +331,16 @@ static void init( BufferString& script, const char* fnm, const char* lgfnm )
 	"from pptx.util import Inches, Cm\n"
 	"import os.path\n\n" );
 
-    BufferString masterfnm = fnm;
-    if ( masterfnm.isEmpty() )
+    BufferString templatefnm = fnm;
+    if ( templatefnm.isEmpty() )
 	script.add( "prs = Presentation()" );
     else
     {
 #ifdef __win__
-	masterfnm.replace( "\\", "/" );
+	templatefnm.replace( "\\", "/" );
 #endif
 	script.add( "inputname = os.path.normpath('" )
-	      .add( masterfnm ).add( "')\n" );
+	      .add( templatefnm ).add( "')\n" );
 	script.add( "prs = Presentation(inputname)" );
     }
 
@@ -414,8 +414,8 @@ static void close( BufferString& script )
 void PresentationSpec::getPythonScript( BufferString& script )
 {
     script.setEmpty();
-    init( script, masterfilename_, logfilename_ );
-    const bool isblankpres = masterfilename_.isEmpty();
+    init( script, templatefilename_, logfilename_ );
+    const bool isblankpres = templatefilename_.isEmpty();
     if ( isblankpres )
     {
 	slidelayout_.forBlankPresentation();

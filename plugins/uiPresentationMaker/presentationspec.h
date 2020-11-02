@@ -81,7 +81,7 @@ public:
     void		setSlideTitle(int,const char*);
 
     void		setOutputFilename(const char*);
-    void		setMasterFilename(const char*);
+    void		setTemplateFilename(const char*);
     void		setLogFilename(const char*);
 
     void		getPythonScript(BufferString&);
@@ -97,7 +97,7 @@ protected:
     BufferString		title_;
     bool			addtitleslide_;
 
-    BufferString		masterfilename_;
+    BufferString		templatefilename_;
     BufferString		outputfilename_;
     BufferString		logfilename_;
 

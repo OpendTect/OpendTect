@@ -27,7 +27,7 @@ namespace visBase
 
 Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
 {
-    mDefineStaticLocalObject( Notifier<PolygonSelection>, 
+    mDefineStaticLocalObject( Notifier<PolygonSelection>,
 			      polygonfinished, (0) );
     return &polygonfinished;
 }
@@ -140,7 +140,7 @@ PolygonSelection::SelectionType PolygonSelection::getSelectionType() const
 }
 
 
-void PolygonSelection::setMasterCamera( Camera* maincam )
+void PolygonSelection::setPrimaryCamera( Camera* maincam )
 {
     mastercamera_ = maincam;
     mastercamera_->ref();
@@ -150,6 +150,10 @@ void PolygonSelection::setMasterCamera( Camera* maincam )
 	pErrMsg( "Need access to camera view and scene data" );
     }
 }
+
+
+void PolygonSelection::setMasterCamera( Camera* camera )
+{ setPrimaryCamera( camera ); }
 
 
 void PolygonSelection::setHUDCamera( Camera* hudcam )
@@ -314,7 +318,7 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 
     polygonlock_.readUnLock();
 
-    return res; 
+    return res;
 }
 
 
