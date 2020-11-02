@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiobj.h"
 
-mFDQtclass(QScrollrea)
-
+class ODScrollArea;
 
 mExpClass(uiBase) uiScrollArea : public uiObject
 {
