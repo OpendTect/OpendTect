@@ -1876,7 +1876,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    const char* curruom = log->unitMeasLabel();
 	    const char* currmnem = log->mnemLabel();
 	    Mnemonic* mn = nullptr;
-	    const UnitOfMeasure* uom;
+	    const UnitOfMeasure* uom = nullptr;
 	    if ( currmnem )
 		mn = eMNC().find( currmnem );
 
