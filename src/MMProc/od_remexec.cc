@@ -36,7 +36,7 @@ static void printBatchUsage()
     strm << "Optional arguments:\n";
     strm << "\t --" << OS::MachineCommand::sKeyMasterHost() << "\t";
     strm <<  Network::Socket::sKeyLocalHost() << od_newline;
-    strm << "\t --" << OS::MachineCommand::sKeyMasterHost() << "\t";
+    strm << "\t --" << OS::MachineCommand::sKeyMasterPort() << "\t";
     strm << Network::Server::sKeyPort() << od_newline;
     strm << "\t --" << OS::MachineCommand::sKeyJobID() << "\tjobid\n" ;
     strm << od_newline;
