@@ -21,7 +21,7 @@ namespace visBase
 {
 
 class Camera;
-    
+
 mExpClass(visBase) Axes : public DataObject
 {
 public:
@@ -36,7 +36,7 @@ public:
     void			setAnnotationColor(const Color&);
     void			setAnnotationTextSize(int);
     void			setAnnotationFont(const FontData&);
-    void			setMasterCamera(visBase::Camera*);
+    void			setPrimaryCamera(visBase::Camera*);
 
     virtual void		setPixelDensity(float dpi);
 
@@ -44,10 +44,16 @@ protected:
     				~Axes();
 
     osgGeo::AxesNode*		axesnode_;
+    // TODO: rename to primarycamera_
     Camera*			mastercamera_;
     bool			ison_;
     float			pixeldensity_;
     int				annottextsize_;
+
+public:
+    mDeprecated("Use setPrimaryCamera")
+    void			setMasterCamera(visBase::Camera*);
+
 };
 
 } // namespace visBase

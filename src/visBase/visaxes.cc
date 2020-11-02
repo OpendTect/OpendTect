@@ -79,7 +79,7 @@ void Axes::setSize( float rad, float len )
 
 void Axes::setAnnotationColor( const Color& annotcolor )
 {
-#define mColTof(c) ((float) ( c / 255.0f )) \
+#define mColTof(c) float( c/255.0f )
 
     osg::Vec4 anncol( mColTof(annotcolor.r()),
 		      mColTof(annotcolor.g()),
@@ -105,23 +105,26 @@ void Axes::setAnnotationFont( const FontData& fd )
 }
 
 
-void Axes::setPixelDensity(float dpi)
+void Axes::setPixelDensity( float dpi )
 {
     if ( dpi==pixeldensity_ )
 	return;
 
     DataObject::setPixelDensity( dpi );
-
     pixeldensity_ = dpi;
     setAnnotationTextSize( annottextsize_ );
 }
 
 
-void Axes::setMasterCamera( visBase::Camera* camera )
+void Axes::setPrimaryCamera( visBase::Camera* camera )
 {
     mastercamera_ = camera;
     mastercamera_->ref();
-    axesnode_->setMasterCamera( mastercamera_->osgCamera() );
+    axesnode_->setPrimaryCamera( mastercamera_->osgCamera() );
 }
+
+
+void Axes::setMasterCamera( visBase::Camera* camera )
+{ setPrimaryCamera( camera ); }
 
 } //namespace visBase

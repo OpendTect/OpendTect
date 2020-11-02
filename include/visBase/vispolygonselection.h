@@ -77,10 +77,10 @@ public:
     bool			rayPickThrough(const Coord3& worldpos,
 					       TypeSet<int>& pickedobjids,
 					       int depthidx=0) const;
-    void			setMasterCamera(Camera*);
+    void			setPrimaryCamera(Camera*);
     void			setHUDCamera(Camera*);
     PolygonSelection*		copy() const;
-    
+
 protected:
 				PolygonSelection(
 				    const osgGeo::PolygonSelection*);
@@ -97,8 +97,13 @@ protected:
 
 
     osgGeo::PolygonSelection*		selector_;
+    // TODO: rename to primarycamera_
     Camera*				mastercamera_;
     SelectionCallBack*			selectorcb_;
+
+public:
+    mDeprecated("Use setPrimaryCamera")
+    void			setMasterCamera(Camera*);
 };
 
 

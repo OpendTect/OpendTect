@@ -47,11 +47,11 @@ public:
 
    ReplacePolicy		replacePolicy() const	{ return replacepol_; }
 
-   int 				masterDPID() const	{ return masterdpsid_;}
-   int 				slaveDPID() const	{ return slavedpsid_; }
+   int				primaryDPID() const;
+   int				secondaryDPID() const;
+   const TypeSet<int>&		primaryColIDs() const;
+   const TypeSet<int>&		secondaryColIDs() const;
    const MultiID&		newDPSID() const	{ return newdpsid_; }
-   const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
-   const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
 
    float 			maxAllowedHorDist() const
 				{ return maxhordist_; }
@@ -72,13 +72,27 @@ protected:
    ReplacePolicy		replacepol_;
 
    bool				dooverwriteundef_;
+   // TODO: rename to primarydpsid_;
    int 				masterdpsid_;
+   // TODO: rename to secondarydpsid_;
    int 				slavedpsid_;
+   // TODO: rename to primarycolids_;
    TypeSet<int>			mastercolids_;
+   // TODO: rename to secondarycolids_;
    TypeSet<int>			slavecolids_;
    MultiID			newdpsid_;
    float			maxhordist_;
    float			maxz_;
+
+public:
+   mDeprecated("Use primaryDPID()")
+   int 				masterDPID() const	{ return masterdpsid_;}
+   mDeprecated("Use secondaryDPID()")
+   int 				slaveDPID() const	{ return slavedpsid_; }
+   mDeprecated("Use primaryColIDs()")
+   const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
+   mDeprecated("Use secondaryColIDs()")
+   const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
 };
 
 
@@ -94,6 +108,7 @@ public:
 				{return uiStrings::phrJoinStrings(
 				uiStrings::sPosition(mPlural),tr("processed"));}
     DataPointSet*		getNewDPS()		{ return newdps_; }
+
 protected:
     DPSMergerProp		prop_;
     DataPointSet*		mdps_;
@@ -103,6 +118,8 @@ protected:
 
     int 			nextStep();
 
+    int 			getSecondaryColID(int mcolid);
+    mDeprecated("Use getSecondaryColID")
     int 			getSlaveColID(int mcolid);
     DataPointSet::DataRow 	getDataRow(int,int);
     DataPointSet::DataRow 	getNewDataRow(int);
