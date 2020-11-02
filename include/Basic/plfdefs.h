@@ -212,7 +212,7 @@ Always defined:
 
 //C++14 fully supports the 'deprecated' tag along with a message
 
-#define mDeprecated(msg) [[deprecated]]
+#define mDeprecated(msg) [[deprecated(msg)]]
 #define mDeprecatedDef	mDeprecated("See header file for alternatives")
 #define mDeprecatedObs	mDeprecated("This is obsolete now")
 
