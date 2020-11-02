@@ -15,32 +15,58 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "q_uiimpl.h"
 
 #include <QScrollArea>
+#include <QScrollBar>
 
 mUseQtnamespace
 
-class uiScrollAreaBody : public uiObjBodyImpl<uiScrollArea,QScrollArea>
+class ODScrollArea : public uiObjBodyImpl<uiScrollArea,QScrollArea>
 {
 public:
-			uiScrollAreaBody(uiScrollArea&,uiParent*,const char*);
-			~uiScrollAreaBody();
+			ODScrollArea(uiScrollArea&,uiParent*,const char*);
+			~ODScrollArea();
+
+    QSize		sizeHint() const override;
 
 protected:
 
-    void		resizeEvent(QResizeEvent*);
+    void		resizeEvent(QResizeEvent*) override;
 };
 
 
-uiScrollAreaBody::uiScrollAreaBody( uiScrollArea& hndle, uiParent* p, const char* nm )
+ODScrollArea::ODScrollArea( uiScrollArea& hndle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiScrollArea,QScrollArea>(hndle,p,nm)
 {}
 
-uiScrollAreaBody::~uiScrollAreaBody()
+ODScrollArea::~ODScrollArea()
 {}
 
 
-void uiScrollAreaBody::resizeEvent( QResizeEvent* ev )
+QSize ODScrollArea::sizeHint() const
 {
-    // TODO: Resize subwindows
+    QSize qsz;
+    if ( handle_.object_ )
+    {
+	if ( handle_.limitheight_ )
+	{
+	    const QScrollBar* hsb = horizontalScrollBar();
+	    const int barheight = hsb ? hsb->height() : 0;
+	    qsz.setHeight( handle_.object_->height()+barheight );
+	}
+
+	if ( handle_.limitwidth_ )
+	{
+	    const QScrollBar* vsb = verticalScrollBar();
+	    const int barwidth = vsb ? vsb->height() : 0;
+	    qsz.setWidth( handle_.object_->width()+barwidth );
+	}
+    }
+
+    return qsz;
+}
+
+
+void ODScrollArea::resizeEvent( QResizeEvent* ev )
+{
     QScrollArea::resizeEvent( ev );
 }
 
@@ -52,9 +78,9 @@ uiScrollArea::uiScrollArea( uiParent* p, const char* nm )
 }
 
 
-uiScrollAreaBody& uiScrollArea::mkbody( uiParent* p, const char* nm )
+ODScrollArea& uiScrollArea::mkbody( uiParent* p, const char* nm )
 {
-    body_ = new uiScrollAreaBody( *this, p, nm );
+    body_ = new ODScrollArea( *this, p, nm );
     return *body_;
 }
 
