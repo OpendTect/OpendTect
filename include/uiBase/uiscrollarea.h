@@ -19,7 +19,7 @@ mFDQtclass(QScrollrea)
 
 mExpClass(uiBase) uiScrollArea : public uiObject
 {
-friend class		uiScrollAreaBody;
+friend class		ODScrollArea;
 public:
 			uiScrollArea(uiParent*,const char* nm="uiScrollArea");
 			~uiScrollArea();
@@ -27,10 +27,15 @@ public:
     void		setObject(uiObject*);
     uiObject*		getObject();
 
+    void		limitHeight( bool yn )		{ limitheight_ = yn; }
+    void		limitWidth( bool yn )		{ limitwidth_ = yn; }
+
 protected:
 
-    uiScrollAreaBody&	mkbody(uiParent*,const char*);
-    uiScrollAreaBody*	body_;
+    ODScrollArea&	mkbody(uiParent*,const char*);
+    ODScrollArea*	body_;
 
-    uiObject*		object_;
+    bool		limitheight_	= false;
+    bool		limitwidth_	= false;
+    uiObject*		object_		= nullptr;
 };
