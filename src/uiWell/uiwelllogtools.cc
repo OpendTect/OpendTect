@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "color.h"
 #include "dataclipper.h"
+#include "envvars.h"
 #include "fftfilter.h"
 #include "fourier.h"
 #include "od_helpids.h"
@@ -37,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
+#include "uiscrollarea.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
 #include "uitable.h"
@@ -44,7 +46,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelllogdisplay.h"
 
 
-static const int cPrefwidth = 150;
+static const int cPrefWidth = 150;
+static const int cPrefHeight = 450;
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
@@ -64,9 +67,15 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 
 int uiWellLogToolWinMgr::checkMaxLogsToDisplay()
 {
-    uiMain& uimain = uiMain::theMain();
-    const uiSize sz( uimain.getScreenSize(0,true) );
-    return sz.width()/cPrefwidth;
+    const bool limitbyscreensz = GetEnvVarYN( "OD_MAX_LOGS_SCREEN", false );
+    if ( limitbyscreensz )
+    {
+	uiMain& uimain = uiMain::theMain();
+	const uiSize sz( uimain.getScreenSize(0,true) );
+	return sz.width()/cPrefWidth;
+    }
+
+    return 999;
 }
 
 
@@ -233,8 +242,11 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     , logdatas_(logs)
     , needsave_(false)
 {
-    uiGroup* displaygrp = new uiGroup( this, "Well display group" );
+    auto* sa = new uiScrollArea( this );
+    sa->limitHeight(true);
+    uiGroup* displaygrp = new uiGroup( nullptr, "Well display group" );
     displaygrp->setHSpacing( 0 );
+
     zdisplayrg_ = logdatas_[0]->dahrg_;
     uiGroup* wellgrp; uiGroup* prevgrp = nullptr; uiLabel* wellnm;
     for ( int idx=0; idx<logdatas_.size(); idx++ )
@@ -249,7 +261,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
 	{
 	    uiWellLogDisplay::Setup su; su.samexaxisrange_ = true;
 	    uiWellLogDisplay* ld = new uiWellLogDisplay( wellgrp, su );
-	    ld->setPrefWidth( cPrefwidth ); ld->setPrefHeight( 450 );
+	    ld->setPrefWidth( cPrefWidth ); ld->setPrefHeight( cPrefHeight );
 	    zdisplayrg_.include( logdata.dahrg_ );
 	    if ( idlog ) ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
 	    ld->attach( ensureBelow, wellnm );
@@ -259,12 +271,13 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     }
     zdisplayrg_.sort();
 
+    sa->setObject( displaygrp->attachObj() );
     uiGroup* editgrp = withedit ? createEditGroup() : nullptr;
     if ( editgrp )
-	editgrp->attach( ensureBelow, displaygrp );
+	editgrp->attach( ensureBelow, sa );
 
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, editgrp ? editgrp : displaygrp );
+    horSepar->attach( stretchedBelow, editgrp ? editgrp->attachObj() : sa );
 
     okbut_ = uiButton::getStd( this, OD::Ok,
 				mCB(this,uiWellLogToolWin,acceptOK), true );
