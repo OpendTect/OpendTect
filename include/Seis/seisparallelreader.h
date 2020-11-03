@@ -264,6 +264,8 @@ public:
 
     void		set(int idx,float val,int pos,int comp);
     void		setPositions(const TypeSet<TrcKey>&); //Becomes mine
+    void		setTrcScaler(int pos,const Scaler*);
+    const Scaler*	getTrcScaler(int pos) const;
     void		copyFrom(const SeisTrc&,int* ipos=0);
     void		copyFrom(const SeisTrcBuf&)		{}
 
@@ -326,4 +328,3 @@ private:
 };
 
 } // namespace Seis
-
