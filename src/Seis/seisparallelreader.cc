@@ -1341,9 +1341,9 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     , nrpos_(nrpos)
     , intpol_(nullptr)
 {
-    ObjectSet<Scaler>* scaler = new ObjectSet<Scaler>;
-    trcscalers.setParam( this, scaler );
-    scaler->setNullAllowed( true );
+    ObjectSet<Scaler>* scalers = new ObjectSet<Scaler>;
+    trcscalers.setParam( this, scalers );
+    scalers->setNullAllowed( true );
     TraceData td;
     for ( int icomp=0; icomp<info.compnms_.size(); icomp++ )
 	td.addComponent( info.nrsamppertrc_, info.getDataChar() );
@@ -1361,7 +1361,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
 	}
 
 	data_ += newtd;
-	scaler->add( nullptr );
+	scalers->add( nullptr );
     }
 }
 
