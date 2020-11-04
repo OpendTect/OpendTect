@@ -320,31 +320,3 @@ function(create_generic_launcher _launchername)
 		"${_launchername}"
 		@ONLY)
 endfunction()
-
-function(guess_runtime_library_dirs _var)
-	# Start off with the link directories of the calling listfile's directory
-	get_directory_property(_libdirs LINK_DIRECTORIES)
-
-	# Add additional libraries passed to the function
-	foreach(_lib ${ARGN})
-		get_filename_component(_libdir "${_lib}" PATH)
-		list(APPEND _libdirs "${_libdir}")
-	endforeach()
-
-	# Now, build a list of potential dll directories
-	set(_dlldirs)
-	foreach(_libdir ${_libdirs})
-		# Add the libdir itself
-		list(APPEND _dlldirs "${_libdir}")
-
-		# Look also in libdir/../bin since the dll might not be with the lib
-		get_filename_component(_libdir "${_libdir}/../bin" ABSOLUTE)
-		list(APPEND _dlldirs "${_libdir}")
-	endforeach()
-
-	# Only keep the valid, unique directories
-	clean_directory_list(_dlldirs)
-
-	# Return _dlldirs
-	set(${_var} "${_dlldirs}" PARENT_SCOPE)
-endfunction()
