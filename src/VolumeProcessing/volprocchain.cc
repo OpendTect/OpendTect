@@ -337,6 +337,7 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	return false;
     }
 
+    int highestid = -1;
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	PtrMan<IOPar> steppar = par.subselect( toString(idx) );
@@ -347,7 +348,7 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	}
 
 	BufferString type;
-	if ( !steppar->get( sKeyStepType(), type ) )
+	if ( !steppar->get(sKeyStepType(),type) )
 	{
 	    errmsg_ = parseerror;
 	    return false;
@@ -371,8 +372,14 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	    return false;
 	}
 
+	if ( step->id_ > highestid )
+	    highestid = step->id_;
+
 	addStep( step );
     }
+
+    if ( highestid > freeid_ )
+	freeid_ = highestid+1;
 
     int nrconns;
     if ( par.get(sKeyNrConnections(),nrconns) )
