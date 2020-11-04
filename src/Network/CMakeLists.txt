@@ -6,6 +6,7 @@
 
 set ( OD_USEQT Network )
 set ( OD_USEOPENSSL Yes )
+set ( OD_USECRYPTO Yes )
 set ( OD_MODULE_DEPS General )
 
 set ( QT_MOC_HEADERS

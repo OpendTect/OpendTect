@@ -17,12 +17,30 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "od_ostream.h"
 #include "od_istream.h"
+#include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
+#include "sharedlibs.h"
 #include "uistrings.h"
 
 # include <QByteArray>
 # include <QNetworkProxy>
+
+
+static void loadOpenSSL()
+{
+    //Load first crypto, then ssl
+#ifdef __OpenSSL_Crypto_LIBRARY__
+    mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
+	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__) );
+# ifdef __OpenSSL_SSL_LIBRARY__
+    mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,sslsha,
+	    = cryptosha && cryptosha->isOK()
+	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__) : nullptr );
+# endif
+#endif
+}
+
 
 
 bool Network::exists( const char* url )
@@ -134,7 +152,10 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , databuffer_(0)
     , saveaspaths_( outputpaths )
     , urls_( urls )
-{ totalnr_ = getDownloadSize(); }
+{
+    totalnr_ = getDownloadSize();
+    loadOpenSSL();
+}
 
 
 FileDownloader::FileDownloader( const char* url, DataBuffer& db )
@@ -148,6 +169,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
 {
     urls_.add(url);
     totalnr_ = getDownloadSize();
+    loadOpenSSL();
 }
 
 
@@ -160,7 +182,10 @@ FileDownloader::FileDownloader( const char* url )
     , totalnr_(0)
     , osd_(new od_ostream())
     , databuffer_(0)
-{ urls_.add(url); }
+{
+    urls_.add(url);
+    loadOpenSSL();
+}
 
 
 FileDownloader::~FileDownloader()
@@ -415,7 +440,9 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , url_(url)
     , header_(header)
     , init_(true)
-{}
+{
+    loadOpenSSL();
+}
 
 
 DataUploader::~DataUploader()

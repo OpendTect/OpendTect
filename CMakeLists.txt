@@ -50,10 +50,6 @@ option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
 
 include( OD_SetupOD )
 
-if ( NOT OD_NO_OSG )
-    OD_ADD_OSGGEO()
-endif()
-
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
@@ -70,7 +66,7 @@ set( OD_MODULES
 )
 
 if ( NOT OD_NO_OSG )
-    set( OD_MODULES ${OD_MODULES}
+    list( APPEND OD_MODULES
 	    visBase visSurvey uiOSG uiVis
 	    uiODMain
     )
@@ -114,7 +110,7 @@ set( OD_PLUGINS
 )
 
 if ( NOT OD_NO_OSG )
-    set( OD_PLUGINS ${OD_PLUGINS} uiPreStackViewer )
+    list( APPEND OD_PLUGINS uiPreStackViewer )
 endif()
 
 set( OD_SPECPROGS ODSeis visBase )

@@ -103,9 +103,15 @@ find_package( Qt5WebEngineWidgets QUIET )
 if ( Qt5WebEngineWidgets_FOUND )
     option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets support" ON )
     if ( USE_QtWebEngine )
-      
-        set(OD_USEQT ${OD_USEQT} Positioning Quick QuickWidgets Qml
-			       WebChannel WebEngineCore WebEngineWidgets )
+
+	list( APPEND OD_USEQT
+		WebEngineCore
+		WebEngineWidgets )
+	list( APPEND QT_INSTLIBS
+		   Positioning
+		   Quick
+		   QuickWidgets
+		   WebChannel )
         set(QT_MOC_HEADERS ${QT_MOC_HEADERS}  
 	    i_qwebengineview.h
         )
@@ -130,11 +136,11 @@ if ( Qt5WebEngineWidgets_FOUND )
 	    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 		set( QTPOSTFIX "d" )
 	    endif()
-	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe ${CMAKE_BUILD_TYPE} )
-	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict.exe ${CMAKE_BUILD_TYPE} )
+	    OD_INSTALL_PROGRAM( ${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe )
+	    OD_INSTALL_PROGRAM( ${QTDIR}/bin/qwebengine_convert_dict.exe )
 	else()
-	    OD_INSTALL_LIBRARY( ${QTDIR}/libexec/QtWebEngineProcess ${CMAKE_BUILD_TYPE} )
-	    OD_INSTALL_LIBRARY( ${QTDIR}/bin/qwebengine_convert_dict ${CMAKE_BUILD_TYPE} )
+	    OD_INSTALL_PROGRAM( ${QTDIR}/libexec/QtWebEngineProcess )
+	    OD_INSTALL_PROGRAM( ${QTDIR}/bin/qwebengine_convert_dict )
 	endif()
     endif( USE_QtWebEngine )
 endif( Qt5WebEngineWidgets_FOUND )

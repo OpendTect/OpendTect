@@ -53,3 +53,25 @@ protected:
     BufferString	errmsg_;
 
 };
+
+
+/*!
+\brief Gives access to any runtime library (DLL/so),
+ from a full filepath.
+ The library does thus no need to be inside the current path.
+ This library stays loaded until the object is destroyed.
+*/
+
+mExpClass(Basic) RuntimeLibLoader
+{
+public:
+		    RuntimeLibLoader(const char* libfilenm);
+		    ~RuntimeLibLoader();
+
+    bool	    isOK() const;
+
+private:
+
+    SharedLibAccess* sha_ = nullptr;
+
+};

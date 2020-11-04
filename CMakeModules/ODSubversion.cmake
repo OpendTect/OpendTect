@@ -59,13 +59,19 @@ else()
     endif()
 endif()
 
-if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
     execute_process(
 	COMMAND ${CMAKE_COMMAND}
+	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 	    -DOpendTect_DIR=${OpendTect_DIR}
 	    -DUPDATE=No
-	    -P external/Externals.cmake
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+	    -P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	ERROR_VARIABLE ERROUTPUT
+	RESULT_VARIABLE STATUS )
+    if ( NOT ${STATUS} EQUAL 0 )
+	message( FATAL_ERROR "${ERROUTPUT}" )
+    endif()
 
     set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
@@ -76,11 +82,17 @@ endif()
 if ( EXISTS ${PLUGIN_DIR} )
     if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
 	execute_process( COMMAND ${CMAKE_COMMAND}
+		    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		    -DOpendTect_DIR=${OpendTect_DIR}
 		    -DPLUGIN_DIR=${PLUGIN_DIR}
 		    -DUPDATE=No
 		    -P ${PLUGIN_DIR}/../external/Externals.cmake
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		ERROR_VARIABLE ERROUTPUT
+		RESULT_VARIABLE STATUS )
+	if ( NOT ${STATUS} EQUAL 0 )
+	    message( FATAL_ERROR "${ERROUTPUT}" )
+	endif()
 
 	set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
 		    -DOpendTect_DIR=${OpendTect_DIR}
