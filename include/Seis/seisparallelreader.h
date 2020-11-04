@@ -244,7 +244,7 @@ private:
 	  Can contain traces for several positions. */
 
 
-mClass(Seis) RawTrcsSequence
+mExpClass(Seis) RawTrcsSequence
 { mODTextTranslationClass(Seis::RawTrcsSequence);
 public:
 			RawTrcsSequence(const ObjectSummary&,int nrpos);
@@ -302,7 +302,7 @@ public:
 */
 
 
-mClass(Seis) RawTrcsSequenceValueSeries : public ValueSeries<float>
+mExpClass(Seis) RawTrcsSequenceValueSeries : public ValueSeries<float>
 {
 public:
 			RawTrcsSequenceValueSeries(const RawTrcsSequence&,
