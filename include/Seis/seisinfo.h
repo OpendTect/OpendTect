@@ -50,9 +50,12 @@ public:
     inline IdxType	inl() const		{ return binid.inl(); }
     inline IdxType	crl() const		{ return binid.crl(); }
     inline IdxType	lineNr() const		{ return inl(); }
-    inline IdxType	trcNr() const		{ return crl(); }
+    inline IdxType	trcNr() const		{ return nr>0 ? nr : crl(); }
     TrcKey		trcKey() const
-			{ return TrcKey(lineNr(),trcNr()); }
+			{
+			    return nr>0 ? TrcKey(lineNr(),nr)
+					: TrcKey(binid);
+			}
     void		setTrcKey(const TrcKey&);
 
     inline SeisTrcInfo& setBinID( const BinID& bid )
