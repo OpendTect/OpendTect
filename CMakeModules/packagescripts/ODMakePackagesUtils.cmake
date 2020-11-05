@@ -33,7 +33,9 @@ macro ( create_package PACKAGE_NAME )
 	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
 	    copy_unix_systemlibs()
 	    unset( SYSTEMLIBS )
-        endif()
+	elseif ( APPLE )
+	    copy_mac_systemlibs()
+	endif()
     endif()
 
     message( "Copying ${OD_PLFSUBDIR} libraries" )
@@ -55,6 +57,7 @@ macro ( create_package PACKAGE_NAME )
 	if( WIN64 )
 	    #Stripping not required on windows
 	elseif( APPLE )
+	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript_final ${COPYFROMLIBDIR}/${LIB} )
 	    #Not using breakpad on MAC
 	else()
 	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
@@ -218,6 +221,10 @@ macro( copy_thirdpartylibs )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB}
 			     ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
 	else()
+	    if (APPLE )
+		execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript_final ${COPYFROMLIBDIR}/${LIB} )
+	    endif()
+
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
 	endif()
 
@@ -289,6 +296,17 @@ macro( copy_unix_systemlibs )
 	endforeach()
     endif()
 endmacro()
+
+macro( copy_mac_systemlibs )
+    message( "Copying ${OD_PLFSUBDIR} system libraries" )
+    if( APPLE )
+	foreach( SYSLIB ${SYSTEMLIBS} )
+	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript_final ${COPYFROMLIBDIR}/${SYSLIB} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR} )
+	endforeach()
+    endif()
+endmacro()
+
 
 macro( create_basepackages PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
