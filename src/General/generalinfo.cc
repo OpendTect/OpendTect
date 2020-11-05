@@ -27,12 +27,18 @@ bool	getHostIDs( BufferStringSet& hostids,
     hostids.setEmpty();
     errmsg.setEmpty();
 
-#ifndef __mac__
-    File::Path lmutilfp( GetSoftwareDir(false), "bin", GetPlfSubDir() );
-#else
+#ifdef  __mac__
     File::Path lmutilfp( GetSoftwareDir(false), "Resources", "bin",
 	    	         GetPlfSubDir() );
+#else
+    File::Path lmutilfp( GetSoftwareDir(false), "bin", GetPlfSubDir() );
 #endif
+
+    lmutilfp.add( "lm.dgb" ).add( "lmutil" );
+
+#ifdef __win__
+    hostids.setEmpty();
+    errmsg.setEmpty();
 
     lmutilfp.add( "lm.dgb" ).add( "lmutil" );
 
