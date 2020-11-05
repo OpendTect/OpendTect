@@ -105,12 +105,12 @@ if ( Qt5WebEngineWidgets_FOUND )
     if ( USE_QtWebEngine )
 
 	list( APPEND OD_USEQT
-		WebEngineCore
-		WebEngineWidgets )
+		   WebEngineWidgets )
 	list( APPEND QT_INSTLIBS
 		   Positioning
 		   Quick
 		   QuickWidgets
+		   WebEngineCore
 		   WebChannel )
         set(QT_MOC_HEADERS ${QT_MOC_HEADERS}  
 	    i_qwebengineview.h
