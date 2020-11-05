@@ -67,4 +67,8 @@ if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
     set( SYSTEMLIBS libstdc++.so.6 libgcc_s.so.1 )
 endif()
 
+if ( APPLE )
+    set( SYSTEMLIBS libfontconfig.1.dylib libfreetype.6.dylib libpng16.16.dylib )
+endif()
+
 set( PACK "base" )
