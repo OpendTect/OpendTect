@@ -55,7 +55,7 @@ else()
 	    set ( VCS_BRANCH_DEF "#define mVCS_STABLE" )
 	endif()
 
-	set ( UPDATE_CMD ${GIT_EXECUTABLE} pull --rebase )
+	set ( UPDATE_CMD ${GIT_EXECUTABLE} pull )
     endif()
 endif()
 
@@ -64,6 +64,7 @@ if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
 	COMMAND ${CMAKE_COMMAND}
 	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 	    -DOpendTect_DIR=${OpendTect_DIR}
+	    -DOD_NO_OSG=${OD_NO_OSG}
 	    -DUPDATE=No
 	    -P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -75,6 +76,7 @@ if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
 
     set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
+		-DOD_NO_OSG=${OD_NO_OSG}
 		-DUPDATE=Yes
 		-P external/Externals.cmake )
 endif()
