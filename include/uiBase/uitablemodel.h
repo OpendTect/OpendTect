@@ -85,7 +85,10 @@ public:
 				~uiTableView();
 
     void			setModel(uiTableModel*);
+    void			resetHorHeader();
+    void			saveState();
 
+    void			setSectionsMovable(bool);
     void			setSortingEnabled(bool);
     bool			isSortingEnabled() const;
     void			sortByColumn(int col,bool asc=true);

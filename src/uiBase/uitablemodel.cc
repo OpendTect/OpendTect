@@ -14,13 +14,16 @@ ________________________________________________________________________
 #include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
+#include "hiddenparam.h"
 #include "perthreadrepos.h"
 
 #include "q_uiimpl.h"
 
 #include <QAbstractTableModel>
 #include <QApplication>
+#include <QByteArray>
 #include <QCheckBox>
+#include <QHeaderView>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPainter>
@@ -29,6 +32,9 @@ ________________________________________________________________________
 #include <QStyledItemDelegate>
 #include <QStringList>
 #include <QTableView>
+
+
+static HiddenParam<uiTableView,QVariant*> initstate_(nullptr);
 
 
 class ODStyledItemDelegate : public QStyledItemDelegate
@@ -380,11 +386,13 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
     , tablemodel_(nullptr)
     , qproxymodel_(nullptr)
 {
+    initstate_.setParam( this, nullptr );
 }
 
 
 uiTableView::~uiTableView()
 {
+    initstate_.removeAndDeleteParam( this );
 }
 
 
@@ -402,11 +410,30 @@ void uiTableView::setModel( uiTableModel* mdl )
 	return;
 
     delete qproxymodel_;
+    initstate_.deleteAndZeroPtrParam( this );
     qproxymodel_ = new QSortFilterProxyModel();
     qproxymodel_->setSourceModel(  tablemodel_->getAbstractModel() );
     odtableview_->setModel( qproxymodel_ );
 }
 
+void uiTableView::saveState()
+{
+    initstate_.deleteAndZeroPtrParam( this );
+    QVariant* initialstate = new QVariant(
+				odtableview_->horizontalHeader()->saveState());
+    initstate_.setParam( this, initialstate );
+}
+
+void uiTableView::resetHorHeader()
+{
+    odtableview_->horizontalHeader()->restoreState(
+				    initstate_.getParam(this)->toByteArray());
+    odtableview_->clearSelection();
+    odtableview_->clearFocus();
+}
+
+void uiTableView::setSectionsMovable( bool yn )
+{ odtableview_->horizontalHeader()->setSectionsMovable( yn ); }
 
 void uiTableView::setSortingEnabled( bool yn )
 { odtableview_->setSortingEnabled( yn ); }
