@@ -38,7 +38,7 @@ mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 { mODTextTranslationClass(HorizonDisplay)
 
     friend class HorizonPathIntersector;
-
+    struct IntersectionData;
 public:
 				HorizonDisplay();
 				mDefaultFactoryInstantiation(
@@ -182,7 +182,10 @@ public:
 				    attrib. */
 
     const ObjectSet<visBase::VertexShape>& getIntersectionLines() const;
-
+					/*!<This function will be deleted*/
+    int				getIntersectionDataSize()
+				{ return intersectiondata_.size(); }
+    const visBase::VertexShape* getLine(int) const;
     void			displayIntersectionLines(bool);
     bool			displaysIntersectionLines() const;
     const visBase::HorizonSection*	getSection(int id) const;

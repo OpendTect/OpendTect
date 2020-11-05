@@ -439,6 +439,15 @@ bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* trans )
 }
 
 
+const visBase::VertexShape* HorizonDisplay::getLine( int idx ) const
+{
+    if ( idx >= intersectiondata_.size() )
+	return nullptr;
+
+    return intersectiondata_[idx]->line_;
+}
+
+
 bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
