@@ -1,32 +1,29 @@
 #!/bin/csh -f
 
 #Changing the dependency path of the libraries on MAC platform.
-if ( $#argv < 2 ) then
-   echo "Usage : $0 fromdir installdir"
+if ( $#argv < 1 ) then
+   echo "Usage : $0 Library name to change the dependency"
    exit 1
 endif
 
-set workdir=$1
-set binpath=$2
-echo "workdir: $workdir"
-echo "binpath: $binpath"
-cp -pf $workdir/* $binpath/.
-echo "Changing the dependency path in : $binpath"
-foreach bnry ( ${binpath}/* )
-    if ( -f ${bnry} ) then
-	echo ${bnry}
-	set filenm=`basename $bnry`
-	echo ${filenm}
+set bnry=$1
+echo "Changing the dependency path in : $bnry"
+if ( -f ${bnry} ) then
 	set deplist=`otool -L ${bnry} | sed 's/ .*//'`
 	foreach dep ( ${deplist} )
-	    if ( -e ${dep} ) then
-		echo "Dep: ${dep}"
 		set libnm=`basename ${dep}`
 		set rootdir=`echo ${dep} | cut -c 2-4`
-		if ( $rootdir != "Sys" && $rootdir != "usr" ) then
-		install_name_tool -change ${dep} @executable_path/${libnm} ${bnry}
+		set insttest="${dep}"
+		set depmodified=`echo "${dep}" | sed 's/\//_/g'`
+		set test=`echo "${depmodified}" | awk '{n=split($0,a,"_"); print a[n]}'`
+		set chgdep=false
+
+		if ( ${test} == "libfontconfig.1.dylib" || ${test} == "libfreetype.6.dylib" || ${test} == "libcrypto.1.1.dylib" || ${test} == "libshp.1.dylib" || ${test} == "libproj.14.dylib" || ${test} == "libpng16.16.dylib" ) then
+		    set chgdep=true
 		endif
-	    endif
+
+		if ( $rootdir != "Sys" && ${chgdep} == "true" ) then
+		    install_name_tool -change ${dep} @executable_path/../Frameworks/${libnm} ${bnry}
+		endif
 	end
-    endif
-end
+endif
