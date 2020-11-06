@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datachar.h"
 #include "scaler.h"
 #include "odmemory.h"
+#include <limits.h>
 #ifdef __mac__
 #include <malloc/malloc.h>
 #else
