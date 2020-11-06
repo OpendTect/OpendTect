@@ -108,7 +108,7 @@ void uiMathExpressionVariable::updateInpNms( bool sub )
     inpfld->addItems( nms );
     inpfld->setCurrentItem( curseltxt );
     if ( sub )
-	inpfld->display( !nms.isEmpty() && !isconst_ && isactive_ );
+	inpfld->display( !isconst_ && isactive_ );
 }
 
 
@@ -243,7 +243,9 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
 void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 {
     if ( !inpnm ) inpnm = "";
-    if ( inpfld_->isEmpty() )
+    const Math::Expression::VarType vartp =
+		Math::ExpressionParser::varTypeOf( inpnm );
+    if ( inpfld_->isEmpty() && vartp==Math::Expression::Constant )
     {
 	isconst_ = true;
 	updateDisp();
@@ -262,7 +264,8 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     {
 	BufferStringSet avnms; inpfld_->getItems( avnms );
 	const int nearidx = avnms.nearestMatch( varnm );
-	varnm = avnms.get( nearidx );
+	if ( avnms.validIdx(nearidx) )
+	    varnm = avnms.get( nearidx );
     }
 
     inpfld_->setCurrentItem( varnm );
