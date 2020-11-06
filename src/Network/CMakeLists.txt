@@ -1,8 +1,7 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Basic utilities
-# 	July 1995	A.H. Bril
-#	RCS :		$Id$
+#	Makefile : 	Network utilities
+# 	July 1995	Bert
 #_______________________________________________________________________________
 
 if ( UNIX )
@@ -10,10 +9,10 @@ if ( UNIX )
 		    ${CMAKE_BINARY_DIR}/dtect/backend-server-upload.sh @ONLY )
 endif( UNIX )
 
-add_definitions( -DmNoAutoUiString )
-
-set ( OD_USEQT Network)
-set ( OD_MODULE_DEPS General)
+set ( OD_USEQT Network )
+set ( OD_USEOPENSSL Yes )
+set ( OD_USECRYPTO Yes )
+set ( OD_MODULE_DEPS General )
 
 set ( QT_MOC_HEADERS
 	qnetworkaccessconn.h

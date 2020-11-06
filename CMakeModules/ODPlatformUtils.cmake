@@ -20,6 +20,7 @@ endif()
 
 set ( SET_SYMBOLS -D__hassymbols__ )
 set ( SET_DEBUG -D__debug__ )
+set ( SHLIB_EXTENSION dll )
 
 set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
@@ -34,6 +35,7 @@ if(UNIX) #Apple an Linux
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14" )
 
     if(APPLE)
+	set ( SHLIB_EXTENSION dylib )
 	option( AVOID_CLANG_ERROR "Avoid CLang error" OFF )
 	if ( AVOID_CLANG_ERROR )
 	    set ( CMAKE_CXX_FLAGS
@@ -71,6 +73,8 @@ if(UNIX) #Apple an Linux
 	#Not on most platforms, but for the few that does, it's better
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 
+	set ( SHLIB_EXTENSION so )
+
 	if ( OD_64BIT )
 	    set ( OD_PLFSUBDIR "lux64" )
 	    set ( OD_EXECUTABLE_COMPILE_FLAGS "-fPIC" )
@@ -84,7 +88,17 @@ if(UNIX) #Apple an Linux
 		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
 	    endif()
 
-	    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
+	    #Compile time optimization
+	    if ( GCC_VERSION VERSION_LESS 4.8 )
+		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=nocona" )
+		if ( GCC_VERSION VERSION_LESS 4.3 )
+		    set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -ftree-vectorize" )
+		endif()
+	    else()
+		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=core-avx2" )
+	    endif()
+
+
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
     endif()

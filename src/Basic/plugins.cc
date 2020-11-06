@@ -162,6 +162,31 @@ void SharedLibAccess::getLibName( const char* modnm, char* out )
 }
 
 
+
+RuntimeLibLoader::RuntimeLibLoader( const char* filenm )
+{
+    const FilePath libfp( filenm );
+    const FilePath relfp( GetExecPlfDir(), libfp.fileName() );
+    if ( relfp.exists() )
+	sha_ = new SharedLibAccess( relfp.fullPath() );
+    else if ( libfp.exists() )
+	sha_ = new SharedLibAccess( libfp.fullPath() );
+}
+
+RuntimeLibLoader::~RuntimeLibLoader()
+{
+    if ( sha_ )
+	sha_->close();
+    delete sha_;
+}
+
+bool RuntimeLibLoader::isOK() const
+{
+    return sha_ && sha_->isOK();
+}
+
+
+
 PluginManager::PluginManager()
 {
     if ( !AreProgramArgsSet() )

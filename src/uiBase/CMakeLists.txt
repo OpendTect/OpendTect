@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS Network )
 set(OD_USEQT Widgets PrintSupport)
 set(OD_TEST_PROGS )
@@ -29,7 +27,7 @@ set(QT_MOC_HEADERS
 	i_qtreeview.h
 )
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	i_layout.cc
 	i_layoutitem.cc
 	inituibase.cc

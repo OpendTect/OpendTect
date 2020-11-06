@@ -5,7 +5,9 @@
 #_______________________________________________________________________________
 
 list( APPEND OD_MODULE_INCLUDESYSPATH ${HDF5_INCLUDE_DIR} )
-list( APPEND OD_MODULE_EXTERNAL_LIBS ${HDF5_LIBRARIES} )
+list( APPEND OD_MODULE_EXTERNAL_LIBS
+	${HDF5_C_SHARED_LIBRARY}
+	${HDF5_CXX_SHARED_LIBRARY} )
 
 if ( WIN32 )
   GETHDF5COMPDEF()

@@ -2,86 +2,104 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
-macro( OD_ADD_OSG )
+macro( OD_FIND_OSG )
     if ( NOT DEFINED OSG_DIR )
-	set( OSG_DIR "" CACHE PATH "OSG Location" )
 	if ( DEFINED OSG_LIBRARY )
 	    get_filename_component( OSG_DIR ${OSG_LIBRARY} DIRECTORY )
-	    get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
 	elseif ( DEFINED OSG_LIBRARY_RELEASE )
 	    get_filename_component( OSG_DIR ${OSG_LIBRARY_RELEASE} DIRECTORY )
-	    get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
 	elseif ( DEFINED OSG_LIBRARY_DEBUG )
 	    get_filename_component( OSG_DIR ${OSG_LIBRARY_DEBUG} DIRECTORY )
-	    get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
 	else()
+	    set( OSG_DIR "" CACHE PATH "OSG Location" )
 	    message( FATAL_ERROR "OSG_DIR is not defined" )
 	endif()
+	get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
+    endif()
+endmacro(OD_FIND_OSG)
+
+macro( OD_CONF_OSGGEO )
+    if ( NOT EXISTS "${OSGGEO_DIR}" )
+	file(MAKE_DIRECTORY "${OSGGEO_DIR}")
+    endif()
+    execute_process(
+	COMMAND "${CMAKE_COMMAND}"
+	--config ${CMAKE_BUILD_TYPE}
+	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+	-DQTDIR=${QTDIR}
+	-DOSG_DIR=${OSG_DIR}
+	-DOSGGEO_LIB_POSTFIX=
+	-DOSGGEO_USE_DEBUG_OSG=ON
+	-DBUILD_EXAMPLES=OFF
+	-DCMAKE_INSTALL_PREFIX=${OSGGEO_DIR}/inst
+	-DCMAKE_SKIP_INSTALL_RPATH=ON
+	"${CMAKE_SOURCE_DIR}/external/osgGeo"
+	WORKING_DIRECTORY "${OSGGEO_DIR}"
+	ERROR_VARIABLE ERROUTPUT
+	RESULT_VARIABLE STATUS )
+    if ( NOT ${STATUS} EQUAL 0 )
+	message( SEND_ERROR "${ERROUTPUT}" )
+    endif()
+endmacro(OD_CONF_OSGGEO)
+
+macro( OD_BUILD_OSGGEO )
+    execute_process(
+	COMMAND "${CMAKE_COMMAND}"
+	--build "${OSGGEO_DIR}"
+	--config ${CMAKE_BUILD_TYPE}
+	--clean-first
+	--target install
+	WORKING_DIRECTORY "${OSGGEO_DIR}"
+	ERROR_VARIABLE ERROUTPUT
+	RESULT_VARIABLE STATUS )
+    if ( NOT ${STATUS} EQUAL 0 )
+	message( SEND_ERROR "${ERROUTPUT}" )
+    endif()
+endmacro(OD_BUILD_OSGGEO)
+
+macro( OD_ADD_OSG )
+
+    OD_FIND_OSG()
+    set( OSGGEO_DIR "${CMAKE_BINARY_DIR}/external/osgGeo" )
+    if ( NOT EXISTS "${OSGGEO_DIR}/CMakeCache.txt" )
+	OD_CONF_OSGGEO()
+	OD_BUILD_OSGGEO()
+    elseif ( NOT EXISTS "${OSGGEO_DIR}/inst" )
+	OD_BUILD_OSGGEO()
     endif()
 
-    set(ENV{OSG_DIR} ${OSG_DIR})
-
-    #SET DEBUG POSTFIX
-    set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
-    set (CMAKE_DEBUG_POSTFIX d)
-
-    find_package( OpenSceneGraph REQUIRED osgDB osgGA osgUtil osgManipulator osgWidget osgViewer osgVolume osgText osgSim )
-
-    #RESTORE DEBUG POSTFIX
-    set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
-    if ( (NOT DEFINED OSG_FOUND) )
-       message( FATAL_ERROR "Cannot find/use the OSG installation" )
+    set(ENV{OSG_DIR} "${OSG_DIR}")
+    set( OSGGEO_DIR "${OSGGEO_DIR}/inst" )
+    set( OSGGEO_INCLUDE_DIR "${OSGGEO_DIR}/include" )
+    list( APPEND CMAKE_MODULE_PATH "${OSGGEO_DIR}/share/CMakeModules" )
+    if(POLICY CMP0011)
+	cmake_policy(SET CMP0011 NEW)
     endif()
+    if(POLICY CMP0017)
+	cmake_policy(SET CMP0017 NEW)
+    endif()
+
+    find_package( OpenSceneGraph QUIET COMPONENTS osgDB osgGA osgUtil osgManipulator osgWidget osgViewer osgVolume osgText osgSim osgGeo )
+
+    if ( NOT OSG_FOUND )
+	message( FATAL_ERROR "Cannot find/use the OSG installation" )
+    elseif( NOT OSGGEO_FOUND )
+	message( FATAL_ERROR "OpenSceneGraph-osgGeo not found" )
+    endif()
+
     unset( OSG_DIR CACHE )
 
-endmacro()
-
-macro( OD_ADD_OSGGEO )
-
-    if ( (NOT DEFINED OSG_FOUND) )
-	OD_ADD_OSG()
-	if ( (NOT DEFINED OSG_FOUND) )
-	    MESSAGE( FATAL_ERROR "OSG_DIR not set" )
-	endif()
-    endif()
-
-    list(APPEND CMAKE_MODULE_PATH
-	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
-
-    #SET DEBUG POSTFIX
-    set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
-    set (CMAKE_DEBUG_POSTFIX d)
-
-    set ( OSGGEO_INSTDIR_LIB_DEBUG ${OD_LIB_INSTALL_PATH_DEBUG} )
-    set ( OSGGEO_INSTDIR_LIB_RELEASE ${OD_LIB_INSTALL_PATH_RELEASE} )
-
-    add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
-		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
-
-    #RESTORE DEBUG POSTFIX
-
-    set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
-
-    set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src
-			     ${CMAKE_BINARY_DIR}/external/osgGeo/src )
-    set ( OSGGEO_LIBRARY_PATH
-	${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo/${CMAKE_BUILD_TYPE} )
-endmacro()
+endmacro(OD_ADD_OSG)
 
 macro(OD_SETUP_OSG)
 
-    if ( (NOT DEFINED OSG_FOUND) )
+    if( OD_USEOSG )
 	OD_ADD_OSG()
-    endif()
-
-    if(OD_USEOSG)
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 		${OSGGEO_INCLUDE_DIR}
 		${OSG_INCLUDE_DIR} )
-	list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
 
 	if ( OD_EXTRA_OSGFLAGS )
 	    add_definitions( ${OD_EXTRA_OSGFLAGS} )
@@ -98,12 +116,13 @@ macro(OD_SETUP_OSG)
 		OSGVOLUME
 		OPENTHREADS
 		OSGTEXT
-		OSGSIM )
+		OSGSIM
+		OSGGEO )
 
 	foreach( OSGMODULE ${OSGMODULES} )
 	    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-		if ( ${OSGMODULE}_LIBRARY )
-		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY} )
+		if ( ${OSGMODULE}_LIBRARY_RELEASE )
+		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_RELEASE} )
 		elseif ( ${OSGMODULE}_LIBRARY_DEBUG )
 		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_DEBUG} )
 		else()
@@ -120,61 +139,8 @@ macro(OD_SETUP_OSG)
 	    endif()
 	endforeach()
 
-	list ( APPEND OD_OSG_LIBS osgGeo )
-	list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OSGGEO_LIBRARY_PATH} )
-
-	if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
-	    foreach ( BUILD_TYPE Debug Release )
-
-		set( OARGS  ${OD_OSG_LIBS} )
-		unset ( ARGS )
-
-		OD_FILTER_LIBRARIES( OARGS ${BUILD_TYPE} )
-
-		foreach( LIB ${OARGS} )
-		    get_filename_component( OSGLIBNAME ${LIB} NAME_WE )
-		    get_filename_component( OSGLIBLOC ${LIB} DIRECTORY )
-		    string( FIND ${OSGLIBNAME} "osgGeo" ISOSGGEO )
-		    if( UNIX OR APPLE )
-			if( NOT ${ISOSGGEO} EQUAL -1 )
-			    set( ALLLIBS ${LIB} )
-			elseif( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-			    #installing linux osgfiles(like libosgDB.so.100 etc. )
-			    file( GLOB ALLLIBS "${OSGLIBLOC}/${OSGLIBNAME}.so.[0-9][0-9]*" )
-			elseif( APPLE )
-			    #installing Mac osgfiles(like libosgDB.80.dylib etc. )
-			    file( GLOB ALLLIBS "${OSGLIBLOC}/${OSGLIBNAME}.[0-9][0-9]*.dylib" )
-			endif()
-			list( APPEND ARGS ${ALLLIBS} )
-			list( LENGTH ARGS LEN )
-			if( "${LEN}" EQUAL "0" )
-			    get_filename_component( OSGLIBNAME ${LIB} NAME )
-			    list( APPEND ARGS ${OSGLIBLOC}/${OSGLIBNAME} )
-			endif()
-			list( GET ARGS 0 FILENM )
-			if( ${ISOSGGEO} EQUAL -1 )
-			    OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
-			endif()
-			list( REMOVE_ITEM ARGS ${ARGS} )
-			set( ALLLIBS "" )
-		    elseif( WIN32 AND (${ISOSGGEO} EQUAL -1) )
-			get_filename_component( OSG_BASEPATH ${LIB} DIRECTORY )
-		        get_filename_component( OSG_BASEPATH ${OSG_BASEPATH} DIRECTORY )
-		        file ( GLOB DLLFILE "${OSG_BASEPATH}/bin/o*${OSGLIBNAME}.dll" )
-		        file ( GLOB PDBFILE "${OSG_BASEPATH}/bin/o*${OSGLIBNAME}.pdb" )
-			if ( EXISTS ${DLLFILE} )
-			    OD_INSTALL_LIBRARY( ${DLLFILE} ${BUILD_TYPE} )
-			endif()
-			if ( EXISTS ${PDBFILE} )
-			    OD_INSTALL_LIBRARY( ${PDBFILE} ${BUILD_TYPE} )
-			endif()
-		    endif()
-		endforeach()
-
-	    endforeach()
-	endif()
+	list ( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
     endif()
 
-    list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
 
 endmacro(OD_SETUP_OSG)

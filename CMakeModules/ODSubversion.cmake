@@ -49,7 +49,7 @@ else()
 	  OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 
-	if ( VCS_BRANCH STREQUAL "main" )
+	if ( VCS_BRANCH STREQUAL "master" )
 	    set ( VCS_BRANCH_DEF "#define mVCS_DEVEL" )
 	else()
 	    set ( VCS_BRANCH_DEF "#define mVCS_STABLE" )
@@ -59,16 +59,24 @@ else()
     endif()
 endif()
 
-if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
     execute_process(
 	COMMAND ${CMAKE_COMMAND}
+	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 	    -DOpendTect_DIR=${OpendTect_DIR}
+	    -DOD_NO_OSG=${OD_NO_OSG}
 	    -DUPDATE=No
-	    -P external/Externals.cmake
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+	    -P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	ERROR_VARIABLE ERROUTPUT
+	RESULT_VARIABLE STATUS )
+    if ( NOT ${STATUS} EQUAL 0 )
+	message( FATAL_ERROR "${ERROUTPUT}" )
+    endif()
 
     set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
+		-DOD_NO_OSG=${OD_NO_OSG}
 		-DUPDATE=Yes
 		-P external/Externals.cmake )
 endif()
@@ -76,11 +84,17 @@ endif()
 if ( EXISTS ${PLUGIN_DIR} )
     if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
 	execute_process( COMMAND ${CMAKE_COMMAND}
+		    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		    -DOpendTect_DIR=${OpendTect_DIR}
 		    -DPLUGIN_DIR=${PLUGIN_DIR}
 		    -DUPDATE=No
 		    -P ${PLUGIN_DIR}/../external/Externals.cmake
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		ERROR_VARIABLE ERROUTPUT
+		RESULT_VARIABLE STATUS )
+	if ( NOT ${STATUS} EQUAL 0 )
+	    message( FATAL_ERROR "${ERROUTPUT}" )
+	endif()
 
 	set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
 		    -DOpendTect_DIR=${OpendTect_DIR}

@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 #Configure odversion.h
@@ -154,6 +153,17 @@ else()
     install ( FILES ${RELINFOFILES} DESTINATION ./relinfo )
 endif()
 
+#Install python module
+if ( APPLE )
+    install ( DIRECTORY "bin/python"
+	      DESTINATION Contents/Resources/bin
+	      PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+else()
+    install ( DIRECTORY "bin/python"
+	      DESTINATION "bin"
+	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+endif()
+
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
 if( WIN32 )
@@ -193,20 +203,9 @@ if( APPLE )
     install( FILES ${CMAKE_BINARY_DIR}/${INFOFILE} DESTINATION "Contents" )
 endif( APPLE )
 
-if ( QT_QJPEG_PLUGIN_RELEASE )
-    set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
-endif()
-
-set( LMUTIL lmutil )
 if( WIN32 )
-    if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-	set( QJPEG ${QTDIR}/plugins/imageformats/qjpegd.dll )
-        set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} )
-    elseif ( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
-	set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg.dll )
-	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} )
-    endif()
     include( InstallRequiredSystemLibraries )
+
     foreach( DLL ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} )
 	get_filename_component( FILENAME ${DLL} NAME )	
 	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
@@ -219,23 +218,29 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Debug
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_RELEASE}
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Release
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
-    set( LMUTIL ${LMUTIL}.exe )
+elseif ( NOT APPLE )
+    get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
+    get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
+    set( LIBSEARCHPATHS "${CXXPATH}" )
+    od_find_library( LIBSTDLOC libstdc++.so.6 )
+    if ( LIBSTDLOC )
+	OD_INSTALL_SYSTEM_LIBRARY( "${LIBSTDLOC}" )
+	list( APPEND OD_THIRD_PARTY_LIBS "${LIBSTDLOC}" )
+    else()
+	message( SEND_ERROR "Required system library not found: libstdc++" )
+    endif()
+    od_find_library( LIBGCCLOC libgcc_s.so.1 )
+    if ( LIBGCCLOC )
+	OD_INSTALL_SYSTEM_LIBRARY( "${LIBGCCLOC}" )
+	list( APPEND OD_THIRD_PARTY_LIBS "${LIBGCCLOC}" )
+    else()
+	message( SEND_ERROR "Required system library not found: libgcc_s" )
+    endif()
 endif()
 
-install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
+set( LMUTIL lmutil )
 if ( WIN32 )
+    set( LMUTIL ${LMUTIL}.exe )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
 	     DESTINATION ${MISC_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm.dgb )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
@@ -264,35 +269,6 @@ if( UNIX )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/init_dtect_GL DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 endif()
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
-
-#Installing unix syatem libraries
-if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-    get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
-    get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
-    if ( EXISTS ${CXXPATH}/lib64/libstdc++.so.6 )
-	OD_INSTALL_SYSTEM_LIBRARY( ${CXXPATH}/lib64/libstdc++.so.6 Release )
-    else()
-	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
-    endif()
-    if ( EXISTS ${CXXPATH}/lib64/libgcc_s.so.1 )
-	OD_INSTALL_SYSTEM_LIBRARY( ${CXXPATH}/lib64/libgcc_s.so.1 Release )
-    else()
-	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
-    endif()
-    list( APPEND OD_THIRD_PARTY_LIBS libstdc++.so.6  libgcc_s.so.1 )
-
-    if ( EXISTS  ${_Qt5FontDatabaseSupport_RELEASE_freetype_PATH} )
-	OD_INSTALL_SYSTEM_LIBRARY( ${_Qt5FontDatabaseSupport_RELEASE_freetype_PATH} Release )
-	get_filename_component( FREETYPELIB ${_Qt5FontDatabaseSupport_RELEASE_freetype_PATH} NAME )
-	list( APPEND OD_THIRD_PARTY_LIBS ${FREETYPELIB} )
-
-	#TODO  Better to do using cmake variables.
-	if ( EXISTS /lib64/libpng15.so.15 )
-	    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libpng15.so.15 Release )
-	    list( APPEND OD_THIRD_PARTY_LIBS libpng15.so.15 )
-	endif()
-    endif()
-endif()
 
 OD_CURRENT_DATE( DATE )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
