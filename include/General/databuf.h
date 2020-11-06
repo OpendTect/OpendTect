@@ -32,6 +32,8 @@ public:
     void		reSize(int,bool copydata=true);
     void		reByte(int,bool copydata=true);
     void		zero();
+
+    bool		fitsInString() const;
     BufferString	getString() const;
 
 };

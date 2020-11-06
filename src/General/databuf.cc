@@ -123,10 +123,17 @@ void DataBuffer::zero()
 }
 
 
+bool DataBuffer::fitsInString() const
+{
+    od_int64 sz = nelem_; sz *= bytes_;
+    return sz < INT_MAX;
+}
+
+
 BufferString DataBuffer::getString() const
 {
     BufferString ret;
-    if ( data_ )
+    if ( data_ && fitsInString() )
     {
 	const size_t totsz = (size_t)( nelem_ * bytes_ + 1 );
 	ret.setBufSize( totsz );
@@ -282,7 +289,7 @@ void TraceData::setValue( int isamp, float v, int icomp )
 {
 #ifdef __debug__
     if ( !isValidComp(icomp) )
-	{ pErrMsg("Component does not exist"); }
+	{ pErrMsg( BufferString("Invalid comp: ",icomp) ); }
     else
 #endif
 	interp_[icomp]->put( data_[icomp]->data(), isamp, v );
