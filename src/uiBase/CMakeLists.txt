@@ -112,11 +112,11 @@ if ( Qt5WebEngineWidgets_FOUND )
 		   QuickWidgets
 		   WebEngineCore
 		   WebChannel )
-        set(QT_MOC_HEADERS ${QT_MOC_HEADERS}  
-	    i_qwebengineview.h
+	list( APPEND QT_MOC_HEADERS
+		i_qwebengineview.h
         )
-        set(OD_MODULE_SOURCES ${OD_MODULE_SOURCES}
-	  uiwebengine.cc
+	list( APPEND OD_MODULE_SOURCES
+		uiwebengine.cc
         )
         add_definitions( -D__withqtwebengine__ )
 
