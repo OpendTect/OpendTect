@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id$: 
+ RCS:           $Id$:
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
     : uiDialog( p.parent(), uiDialog::Setup(uiStrings::phrJoinStrings(
 				     uiStrings::sSelection(),tr("Settings")),
-				     uiStrings::sEmptyString(), 
-                                     mODHelpKey(mSelectionSettDlgHelpID) )
+				     uiStrings::sEmptyString(),
+				     mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
 				    .savetext(uiStrings::phrSelect(tr("on OK")))
 				    .modal(false) )
@@ -56,27 +56,27 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     }
 
     curselgrp_ = tbl_->currentRow() < 0 ? 0 : tbl_->currentRow();
-    uiPushButton* addgrpbut = new uiPushButton( this, tr("Add group"), 
+    uiPushButton* addgrpbut = new uiPushButton( this, tr("Add group"),
 	    mCB(this,uiDPSSelGrpDlg,addSelGrp), true );
     addgrpbut->attach( alignedBelow, tbl_ );
-    
-    uiPushButton* remgrpbut = new uiPushButton( this, tr("Remove group"), 
+
+    uiPushButton* remgrpbut = new uiPushButton( this, tr("Remove group"),
 	    mCB(this,uiDPSSelGrpDlg,remSelGrp), true );
     remgrpbut->attach( rightTo, addgrpbut );
-    
-    uiPushButton* expgrpbut = new uiPushButton( this, tr("Save groups"), 
+
+    uiPushButton* expgrpbut = new uiPushButton( this, tr("Save groups"),
 	    mCB(this,uiDPSSelGrpDlg,exportSelectionGrps), true );
     expgrpbut->attach( rightTo, remgrpbut );
-    
-    uiPushButton* impgrpbut = new uiPushButton( this, tr("Open groups"), 
+
+    uiPushButton* impgrpbut = new uiPushButton( this, tr("Open groups"),
 	    mCB(this,uiDPSSelGrpDlg,importSelectionGrps), true );
     impgrpbut->attach( rightTo, expgrpbut );
-    
+
     uiPushButton* scalesgbut =
 	new uiPushButton( this, m3Dots(tr("Selectedness")),
 			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), true );
     scalesgbut->attach( rightTo, impgrpbut );
-    
+
     tbl_->setSelected( RowCol(0,0), true );
     tbl_->setCurrentCell( RowCol(0,0), true );
 }
@@ -169,7 +169,7 @@ void uiDPSSelGrpDlg::remSelGrp( CallBacker* )
 
     selgrps_.removeSingle( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
-    
+
     setCurSelGrp(0);
     plotter_.reDrawSelections();
 }

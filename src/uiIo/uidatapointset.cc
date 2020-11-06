@@ -517,8 +517,8 @@ void uiDataPointSet::fillPos( TRowID tid )
     const DRowID drid = dRowID(tid);
     const DataPointSet::Pos pos( dps_.pos(drid) );
     RowCol rc( tid, 0 );
-    tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid) ); rc.col()++;
-    tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid) ); rc.col()++;
+    tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 ); rc.col()++;
+    tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 2 ); rc.col()++;
     if ( mIsUdf(pos.z_) )
 	tbl_->setText( rc, "" );
     else
