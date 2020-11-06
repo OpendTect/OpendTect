@@ -39,17 +39,17 @@ public:
     virtual void	setVariableValue(int,double);
 
 			// recursive "out" or "this" excluded
-    int	nrUniqueVarNames() const
+    int			nrUniqueVarNames() const
 			{ return varnms_.size(); }
-    const char* uniqueVarName( int idx ) const
+    const char*		uniqueVarName( int idx ) const
 			{ return varnms_.get(idx).buf(); }
-    int	indexOfUnVarName( const char* nm ) const
+    int			indexOfUnVarName( const char* nm ) const
 			{ return varnms_.indexOf( nm ); }
-    int	firstOccurVarName(const char*) const;
+    int			firstOccurVarName(const char*) const;
 
     enum VarType	{ Variable, Constant, Recursive };
     VarType		getType(int varidx) const;
-    int	getConstIdx(int varidx) const;
+    int			getConstIdx(int varidx) const;
 
     bool		isRecursive() const
 			{ return isrecursive_; }
@@ -58,14 +58,14 @@ public:
 
     virtual		~Expression();
 
-    const char* type() const;
+    const char*		type() const;
     void		dump( BufferString& str ) const { doDump(str,0); }
 
 protected:
 
 			Expression(int nrinputs);
 
-    int	nrInputs() const { return inputs_.size(); }
+    int			nrInputs() const { return inputs_.size(); }
     bool		setInput( int, Expression* );
     void		copyInput( Expression* target ) const;
 
@@ -184,4 +184,3 @@ public:
 };
 
 } // namespace Math
-

@@ -25,53 +25,53 @@ static const char* rcsID mUsedVar = "";
 uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrAdd(tr("Column")),
 				 mNoDlgTitle, mNoHelpKey))
-    , mathobj_(0)
+    , mathobj_(nullptr)
+    , inpfld_(nullptr)
+    , setbut_(nullptr)
+    , vartable_(nullptr)
     , withmathop_(withmathop)
-    , inpfld_(0)
-    , setbut_(0)
-    , vartable_(0)
 {
-    nmfld_ = new uiGenInput( this, tr("Column Name") );
+    nmfld_ = new uiGenInput( this, tr("Column name") );
+    nmfld_->setStretch( 2, 0 );
 
-    if ( withmathop )
-    {
-	uiLabel* label = new uiLabel( this,
-                                      tr("Define Mathematical Operation") );
-	label->attach( alignedBelow, nmfld_ );
+    if ( !withmathop )
+	return;
 
-	inpfld_ = new uiGenInput( this, tr("Define Math Operation") );
-	inpfld_->setElemSzPol( uiObject::WideMax );
-	inpfld_->updateRequested.notify(
-		mCB(this,uiDPSAddColumnDlg,parsePush) );
-	inpfld_->valuechanging.notify(
-		mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
-	inpfld_->attach( alignedBelow, label );
+    uiLabel* label = new uiLabel( this,
+	    tr("Define Mathematical expression to compute new column") );
+    label->attach( alignedBelow, nmfld_ );
 
-	setbut_ = new uiPushButton( this, tr("Set"), true );
-	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
-	setbut_->attach( rightTo, inpfld_ );
+    inpfld_ = new uiGenInput( this, tr("Formula") );
+    inpfld_->setElemSzPol( uiObject::WideMax );
+    inpfld_->updateRequested.notify(
+	    mCB(this,uiDPSAddColumnDlg,parsePush) );
+    inpfld_->valuechanging.notify(
+	    mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
+    inpfld_->attach( alignedBelow, label );
 
-	uiGroup* tblgrp = new uiGroup( this );
-	tblgrp->attach( alignedBelow, inpfld_ );
-	vartable_ = new uiTable( tblgrp,uiTable::Setup()
-					.rowdesc(uiStrings::sX())
-					.minrowhgt(1.5) .maxrowhgt(2)
-					.mincolwdt(3.0f*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
-					.defrowlbl("") .fillcol(true)
-					.fillrow(true) .defrowstartidx(0),
-					"Variable X attribute table" );
-	vartable_->setColumnLabel( 0, uiStrings::sInput() );
-	vartable_->setNrRows( 2 );
-	vartable_->display( false );
-    }
+    setbut_ = new uiPushButton( this, tr("Set"), true );
+    setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
+    setbut_->attach( rightTo, inpfld_ );
+
+    uiGroup* tblgrp = new uiGroup( this );
+    tblgrp->attach( alignedBelow, inpfld_ );
+    vartable_ = new uiTable( tblgrp,uiTable::Setup(2,1)
+				.rowdesc(uiStrings::sX())
+				.minrowhgt(1.5) .maxrowhgt(2)
+				.mincolwdt(3.0f*uiObject::baseFldSize())
+				.maxcolwdt(3.5f*uiObject::baseFldSize())
+				.defrowlbl("").fillcol(true)
+				.fillrow(true).defrowstartidx(0),
+			     "Variable X attribute table" );
+    vartable_->setColumnLabel( 0, uiStrings::sInput() );
 }
 
 
 void uiDPSAddColumnDlg::setColInfos( const BufferStringSet& colnames,
 				     const TypeSet<int>& colids )
 {
-    if ( !withmathop_ ) return;
+    if ( !withmathop_ )
+	return;
 
     colnames_ = colnames;
     colids_ = colids;
@@ -81,7 +81,8 @@ void uiDPSAddColumnDlg::setColInfos( const BufferStringSet& colnames,
 
 void uiDPSAddColumnDlg::checkMathExpr( CallBacker* )
 {
-    if ( !withmathop_ ) return;
+    if ( !withmathop_ )
+	return;
 
     if ( mathexprstring_ != inpfld_->text() )
 	setbut_->setSensitive( true );
@@ -92,15 +93,16 @@ void uiDPSAddColumnDlg::checkMathExpr( CallBacker* )
 
 void uiDPSAddColumnDlg::parsePush( CallBacker* )
 {
-    if ( !withmathop_ ) return;
+    if ( !withmathop_ )
+	return;
 
     mathexprstring_ = inpfld_->text();
     Math::ExpressionParser mep( mathexprstring_ );
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
-	if ( mep.errMsg() ) uiMSG().error( mToUiStringTodo(mep.errMsg()) );
-	vartable_->display( false );
+	if ( mep.errMsg() )
+	    uiMSG().error( mToUiStringTodo(mep.errMsg()) );
 	return;
     }
 
@@ -111,9 +113,10 @@ void uiDPSAddColumnDlg::parsePush( CallBacker* )
 
 void uiDPSAddColumnDlg::updateDisplay()
 {
-    if ( !withmathop_ || !mathobj_ ) return;
+    if ( !withmathop_ || !mathobj_ )
+	return;
 
-    const int nrvars = mathobj_->nrVariables();
+    const int nrvars = mathobj_->nrUniqueVarNames();
     vartable_->setNrRows( nrvars );
     for ( int idx=0; idx<nrvars; idx++ )
     {
@@ -121,8 +124,6 @@ void uiDPSAddColumnDlg::updateDisplay()
 	vartable_->setRowLabel( idx, toUiString(mathobj_->uniqueVarName(idx)) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }
-
-    vartable_->display( true );
 }
 
 
@@ -131,9 +132,16 @@ bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
     if ( !withmathop_ || (withmathop_ && !mathobj_) )
 	return true;
 
+    const FixedString attrnm = newAttribName();
+    if ( attrnm.isEmpty() )
+    {
+	uiMSG().error( tr("Please provide a Column name") );
+	return false;
+    }
+
     usedcolids_.erase();
 
-    int nrvars = mathobj_->nrVariables();
+    const int nrvars = mathobj_->nrUniqueVarNames();
     for ( int idx=0; idx<nrvars; idx++ )
     {
 	uiObject* obj = vartable_->getCellObject( RowCol(idx,0) );
@@ -149,4 +157,6 @@ bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
 
 
 const char* uiDPSAddColumnDlg::newAttribName() const
-{ return nmfld_->text(); }
+{
+    return nmfld_->text();
+}
