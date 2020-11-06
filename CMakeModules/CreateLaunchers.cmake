@@ -40,7 +40,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 if(POLICY CMP0026)
-    cmake_policy(SET CMP0026 OLD)
+	cmake_policy(SET CMP0026 OLD)
 endif()
 
 if(POLICY CMP0053)
@@ -77,7 +77,7 @@ macro(_launcher_system_settings)
 		set(USERFILE_EXTENSION ${SYSTEM_NAME}.${USER_NAME}.user)
 		set(LAUNCHER_LINESEP "&#x0A;")
 
-		if(MSVC14) # officially not supported yet in 6.2
+		if(MSVC14)
 			set(LAUNCHER_LINESEP "\n")
 			set(USERFILE_VC_VERSION 14.00)
 			set(USERFILE_EXTENSION user)
@@ -319,32 +319,4 @@ function(create_generic_launcher _launchername)
 	configure_file("${_launchermoddir}/genericlauncher.${_suffix}.in"
 		"${_launchername}"
 		@ONLY)
-endfunction()
-
-function(guess_runtime_library_dirs _var)
-	# Start off with the link directories of the calling listfile's directory
-	get_directory_property(_libdirs LINK_DIRECTORIES)
-
-	# Add additional libraries passed to the function
-	foreach(_lib ${ARGN})
-		get_filename_component(_libdir "${_lib}" PATH)
-		list(APPEND _libdirs "${_libdir}")
-	endforeach()
-
-	# Now, build a list of potential dll directories
-	set(_dlldirs)
-	foreach(_libdir ${_libdirs})
-		# Add the libdir itself
-		list(APPEND _dlldirs "${_libdir}")
-
-		# Look also in libdir/../bin since the dll might not be with the lib
-		get_filename_component(_libdir "${_libdir}/../bin" ABSOLUTE)
-		list(APPEND _dlldirs "${_libdir}")
-	endforeach()
-
-	# Only keep the valid, unique directories
-	clean_directory_list(_dlldirs)
-
-	# Return _dlldirs
-	set(${_var} "${_dlldirs}" PARENT_SCOPE)
 endfunction()

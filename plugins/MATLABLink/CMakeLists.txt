@@ -21,12 +21,12 @@ if ( NOT MATLAB_DIR STREQUAL "" )
     list( APPEND OD_MODULE_INCLUDESYSPATH ${MATLAB_DIR}/extern/include )
     if ( APPLE )
     elseif ( WIN32 )
-        list( APPEND OD_MODULE_EXTERNAL_LIBS
+	list( APPEND OD_MODULE_EXTERNAL_SYSLIBS
 	        ${MATLAB_DIR}/extern/lib/win64/microsoft/libmx.lib
 		${MATLAB_DIR}/extern/lib/win64/microsoft/mclbase.lib
 		${MATLAB_DIR}/extern/lib/win64/microsoft/mclmcr.lib )
     else()
-        list( APPEND OD_MODULE_EXTERNAL_LIBS
+	list( APPEND OD_MODULE_EXTERNAL_SYSLIBS
 	    ${MATLAB_DIR}/bin/glnxa64/libmx.so
 	    ${MATLAB_DIR}/bin/glnxa64/libmwmclmcr.so )
     endif()
@@ -85,3 +85,4 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 		 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
     endif()
 endif()
+

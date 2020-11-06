@@ -2,7 +2,6 @@
 #
 # Copyright (C): dGB Beheer B. V. 
 #
-# $Id$
 #
 
 #Set OpendTect version
@@ -11,8 +10,13 @@ set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )
 set( OpendTect_VERSION_PATCH @OpendTect_VERSION_PATCH@ )
 set( OpendTect_FULL_VERSION "@OpendTect_FULL_VERSION@" )
 
+if ( NOT DEFINED CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" )
+endif()
+
 set( QTDIR @QTDIR@ )
 set( QT_VERSION_MAJOR @QT_VERSION_MAJOR@ )
+set( USE_QtWebEngine @USE_QtWebEngine@ )
 #Setup OpendTect's binary location (if not done)
 if ( NOT DEFINED OD_BINARY_BASEDIR )
     if ( APPLE )
@@ -47,4 +51,3 @@ set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
 @MODULE_DEPS@
 
 set( OD_THIRD_PARTY_LIBS @OD_THIRD_PARTY_LIBS@ )
-set( MSVCDLLLIST @MSVCDLLLIST@ )

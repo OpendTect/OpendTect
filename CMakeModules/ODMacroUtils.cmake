@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 # OD_INIT_MODULE - Macro that setups a number of variables for compiling
@@ -16,16 +15,27 @@
 #					  module is dependent on.
 # OD_MODULE_SOURCES			: Sources that should go into the library
 # OD_USEBATCH				: Whether to include include/Batch 
-# OD_USECOIN				: Dependency on Coin is enabled if set.
 # OD_USEQT				: Dependency on Qt is enabled if set.
+
 #					  value should be either Core, Sql, Gui
 #					  or OpenGL
-# OD_USEZLIB				: Dependency on zlib is enabled if set.
 # OD_USEOSG				: Dependency on OSG is enabled if set.
+# OD_USEZLIB				: Dependency on zlib is enabled if set.
+# OD_USEOPENSSL				: Runtime availability on libopenssl is enabled if set.
+# OD_USECRYPTO				: Runtime availability on libcrypto is enabled if set.
+# OD_LINKCRYPTO				: Dependency on libcrypto is enabled if set.
 # OD_IS_PLUGIN				: Tells if this is a plugin (if set)
 # OD_PLUGINMODULES			: A list of eventual sub-modules of
 #					  a plugin. Each submodule must have an
 #					  plugins/{OD_MODULE_NAME}/src/${PLUGINMODULE}/CMakeFile.txt
+# OD_MODULE_INCLUDESYSPATH		: The system includepath needed to compile the
+#					  source- files of the module.
+# OD_MODULE_EXTERNAL_LIBS		: External libraries needed for the module
+#					  to link against.
+# OD_MODULE_EXTERNAL_SYSLIBS		: System libraries needed for the module to link against.
+#					  Will not be installed with the project.
+# OD_MODULE_EXTERNAL_RUNTIME_LIBS	: External libraries needed for the module
+#					  at runtime (the module will not depend on them)
 #####################################
 #
 # Output variables:
@@ -35,12 +45,9 @@
 #					  may have multiple paths in plugins.
 # OD_${OD_MODULE_NAME}_DEPS		: The modules this module is dependent
 #					  on.
-# OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library, 
+# OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library,
 #					  and all external libraries it is
 #					  dependent on.
-# OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL : List of external DLLs that are 
-#					  required by the plugin at runtime.
-#					  Will be copied into the binaries dir
 # OD_MODULE_NAMES_${OD_SUBSYSTEM}	: A list of all modules
 # OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}  : A list of all non-plugin modules
 #####################################
@@ -49,11 +56,13 @@
 #
 # OD_MODULE_INCLUDEPATH		: The includepath needed to compile the source-
 #				  files of the module.
-# OD_MODULE_INCLUDESYSPATH	: The system includepath needed to compile the
-#				  source- files of the module.
 # OD_MODULE_RUNTIMEPATH		: All directories that are needed at runtime
 # OD_MODULE_INTERNAL_LIBS	: All OD libraries needed for the module
-# OD_MODULE_EXTERNAL_LIBS	: All external libraries needed for the module
+# OD_MODULE_ALL_EXTERNAL_LIBS	: All external libraries needed for the module
+# OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL : List of external DLLs that are
+#					required by the plugin at runtime.
+#					Will be copied into the binaries dir
+
 
 macro( OD_INIT_MODULE )
 
@@ -80,40 +89,42 @@ if( OD_MODULE_DEPS )
     OD_GET_ALL_DEPS( ${OD_MODULE_NAME} OD_MODULE_INTERNAL_LIBS )
     foreach ( DEP ${OD_MODULE_INTERNAL_LIBS} )
 	#Add dependencies to include-path
-	if( WIN32 )
-	    if ( ${DEP} MATCHES dGBCommon )
-		set( OD_MODULE_LINK_OPTIONS /NODEFAULTLIB:\"libcmt.lib\" )
-	    endif()
-	endif()
 	list(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 	list(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
     endforeach()
 endif()
 
-if( OD_USEOSG )
+if(OD_USEOSG)
     OD_SETUP_OSG()
 endif()
 
 #Add Qt-stuff
-if( OD_USEQT )
+if(OD_USEQT)
    OD_SETUP_QT()
 endif(OD_USEQT)
 
 #Must be after QT
-if( (UNIX OR WIN32)  AND OD_USEZLIB )
+if( (UNIX OR WIN32) AND OD_USEZLIB )
     OD_SETUP_ZLIB()
-    list(APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
-    list(APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
 endif()
 
-if(OD_USEPROJ4)
-    OD_SETUP_PROJ4()
+if( OD_USEOPENSSL )
+    OD_SETUP_OPENSSL()
+endif(OD_USEOPENSSL)
+
+if( OD_USECRYPTO OR OD_LINKCRYPTO )
+    OD_SETUP_CRYPTO()
 endif()
+
+if( OD_USEPROJ4 )
+    OD_SETUP_PROJ4()
+endif(OD_USEPROJ4)
 
 #Add current module to include-path
 set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
 if ( OD_MODULE_HAS_LIBRARY )
     if (OD_IS_PLUGIN)
+
         set( PLUGINDIR ${CMAKE_CURRENT_SOURCE_DIR} )
 	list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH ${PLUGINDIR} ${INITHEADER_DIR} )
 	foreach ( OD_PLUGINSUBDIR ${OD_PLUGINMODULES} )
@@ -128,6 +139,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    OD_ADD_ALO_ENTRIES( ${OD_PLUGIN_ALO_EXEC} )
 	endif()
     else()
+
 	set( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}
 	     ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}}
 		${OD_MODULE_NAME} PARENT_SCOPE )
@@ -135,12 +147,12 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ${INITHEADER_DIR} )
 
 	if ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
+	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH 
 		${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
 	endif()
 
 	if ( EXISTS ${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
+	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH 
 		${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
 	endif()
     endif(OD_IS_PLUGIN)
@@ -164,17 +176,22 @@ if ( OD_MODULE_HAS_LIBRARY )
 
 endif ( OD_MODULE_HAS_LIBRARY )
 
-list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OD_LIB_OUTPUT_PATH} )
-guess_runtime_library_dirs( EXTERNAL_RUNTIMEPATH ${OD_MODULE_EXTERNAL_LIBS} )
-list( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${EXTERNAL_RUNTIMEPATH} )
 list( APPEND OD_MODULE_INCLUDEPATH ${OD_${OD_MODULE_NAME}_INCLUDEPATH} )
-list( APPEND OD_MODULE_RUNTIMEPATH ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} )
+
+list( APPEND OD_MODULE_ALL_EXTERNAL_LIBS ${OD_MODULE_EXTERNAL_LIBS} )
+list( APPEND OD_MODULE_ALL_EXTERNAL_LIBS ${OD_MODULE_EXTERNAL_RUNTIME_LIBS} )
+
+guess_runtime_library_dirs( EXTERNAL_RUNTIMEPATH ${OD_MODULE_EXTERNAL_LIBS} )
+guess_extruntime_library_dirs( EXTERNAL_EXTRUNTIMEPATH ${OD_MODULE_EXTERNAL_RUNTIME_LIBS} )
+list( APPEND EXTERNAL_RUNTIMEPATH ${EXTERNAL_EXTRUNTIMEPATH} )
+list( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${EXTERNAL_RUNTIMEPATH} )
 list( REMOVE_DUPLICATES OD_${OD_MODULE_NAME}_RUNTIMEPATH )
+list( APPEND OD_MODULE_RUNTIMEPATH ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} )
 
 #Clean up the lists
 list( REMOVE_DUPLICATES OD_MODULE_INCLUDEPATH )
-if( OD_MODULE_RUNTIMEPATH )
-    list( REMOVE_DUPLICATES OD_MODULE_RUNTIMEPATH)
+if ( OD_MODULE_RUNTIMEPATH )
+    list( REMOVE_DUPLICATES OD_MODULE_RUNTIMEPATH )
 endif()
 
 if ( OD_MODULE_HAS_LIBRARY )
@@ -230,7 +247,7 @@ foreach( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
 endforeach()
 
 #Setup library & its deps
-if( OD_MODULE_HAS_LIBRARY AND OD_LIB_LINKER_NEEDS_ALL_LIBS )
+if ( OD_MODULE_HAS_LIBRARY )
     set( OD_LIB_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_DEPS} )
     if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	list( APPEND OD_LIB_DEP_LIBS ${OD_MODULE_INTERNAL_LIBS} )
@@ -248,7 +265,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ${OD_MODULE_NAME}
 	    ${OD_LIB_DEP_LIBS}
 	    ${OD_MODULE_EXTERNAL_LIBS}
-	 )
+	    ${OD_MODULE_EXTERNAL_SYSLIBS} )
 
     set ( TARGET_PROPERTIES ${OD_MODULE_NAME}
 	    PROPERTIES 
@@ -265,7 +282,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OD_LIB_OUTPUT_RELPATH}" )
 
     if ( OD_SET_TARGET_PROPERTIES )
-	list ( APPEND TARGET_PROPERTIES 
+	list ( APPEND TARGET_PROPERTIES
 	    VERSION ${OD_BUILD_VERSION}
 	    SOVERSION ${OD_API_VERSION} )
     endif( OD_SET_TARGET_PROPERTIES )
@@ -302,6 +319,11 @@ if ( OD_MODULE_HAS_LIBRARY )
 		    CONFIGURATIONS Release )
     endif()
 
+    if ( OD_INSTALL_DEPENDENT_LIBS AND DEFINED OD_MODULE_ALL_EXTERNAL_LIBS )
+	foreach( LIBNM ${OD_MODULE_ALL_EXTERNAL_LIBS} )
+	    OD_INSTALL_LIBRARY( ${LIBNM} )
+	endforeach()
+    endif()
 
     #Add to list of all files
     OD_ADD_SOURCE_FILES( ${OD_MODULE_SOURCES} ${OD_MODULE_INCFILES} ${SRCHEADERFILES} )
@@ -435,7 +457,7 @@ if(OD_MODULE_BATCHPROGS)
 	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OD_EXEC_OUTPUT_RELPATH}" )
 
 	if ( OD_SET_TARGET_PROPERTIES )
-	    list ( APPEND TARGET_PROPERTIES 
+	    list ( APPEND TARGET_PROPERTIES
 		VERSION ${OD_BUILD_VERSION} )
 	endif( OD_SET_TARGET_PROPERTIES )
 
@@ -503,18 +525,20 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
 				 ${OD_EXECUTABLE_COMPILE_FLAGS} )
     endif( OD_EXECUTABLE_COMPILE_FLAGS )
     OD_ADD_SOURCE_FILES( tests/${TEST_FILE} )
-
     set_target_properties( ${TEST_NAME}
 	    PROPERTIES 
 	    ${EXTRA_TARGET_PROP}
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
 	    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG}"
-	    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE}" )
+	    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE}"
+	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OD_EXEC_OUTPUT_RELPATH}" )
+
     target_link_libraries(
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
 	    ${PROGRAM_RUNTIMELIBS} )
+
     if( OD_CREATE_LAUNCHERS )
 	    create_target_launcher( ${TEST_NAME}
 		RUNTIME_LIBRARY_DIRS
@@ -573,7 +597,6 @@ macro( OD_GET_ALL_DEPS_ADD DEP DEPLIST )
             OD_GET_ALL_DEPS_ADD( ${DEPLIB} ${DEPLIST} )
         endforeach()
     endif()
-
 endmacro ( OD_GET_ALL_DEPS_ADD )
 
 

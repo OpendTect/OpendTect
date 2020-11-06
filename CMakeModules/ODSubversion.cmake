@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 if ( EXISTS ${CMAKE_SOURCE_DIR}/.svn )
@@ -21,8 +20,11 @@ if ( OD_FROM_SVN )
     include(FindSubversion)
 endif() # OD_FROM_SVN
 
-# extract working copy information for SOURCE_DIR into MY_XXX variables
+set ( VCS_BRANCH "unknown" )
+set ( VCS_BRANCH_DEF )
+
 if ( Subversion_FOUND AND OD_FROM_SVN )
+    # extract working copy information for SOURCE_DIR into MY_XXX variables
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
     set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
     set ( VCS_VERSION ${MY_WC_REVISION} )
@@ -40,20 +42,41 @@ else()
 	  OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 
-	set ( UPDATE_CMD ${GIT_EXECUTABLE} pull --rebase )
+	execute_process(
+	  COMMAND git rev-parse --abbrev-ref HEAD
+	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	  OUTPUT_VARIABLE VCS_BRANCH
+	  OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	if ( VCS_BRANCH STREQUAL "master" )
+	    set ( VCS_BRANCH_DEF "#define mVCS_DEVEL" )
+	else()
+	    set ( VCS_BRANCH_DEF "#define mVCS_STABLE" )
+	endif()
+
+	set ( UPDATE_CMD ${GIT_EXECUTABLE} pull )
     endif()
 endif()
 
-if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
     execute_process(
 	COMMAND ${CMAKE_COMMAND}
+	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 	    -DOpendTect_DIR=${OpendTect_DIR}
+	    -DOD_NO_OSG=${OD_NO_OSG}
 	    -DUPDATE=No
-	    -P external/Externals.cmake
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+	    -P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	ERROR_VARIABLE ERROUTPUT
+	RESULT_VARIABLE STATUS )
+    if ( NOT ${STATUS} EQUAL 0 )
+	message( FATAL_ERROR "${ERROUTPUT}" )
+    endif()
 
     set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
+		-DOD_NO_OSG=${OD_NO_OSG}
 		-DUPDATE=Yes
 		-P external/Externals.cmake )
 endif()
@@ -61,11 +84,17 @@ endif()
 if ( EXISTS ${PLUGIN_DIR} )
     if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
 	execute_process( COMMAND ${CMAKE_COMMAND}
+		    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		    -DOpendTect_DIR=${OpendTect_DIR}
 		    -DPLUGIN_DIR=${PLUGIN_DIR}
 		    -DUPDATE=No
 		    -P ${PLUGIN_DIR}/../external/Externals.cmake
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		ERROR_VARIABLE ERROUTPUT
+		RESULT_VARIABLE STATUS )
+	if ( NOT ${STATUS} EQUAL 0 )
+	    message( FATAL_ERROR "${ERROUTPUT}" )
+	endif()
 
 	set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
 		    -DOpendTect_DIR=${OpendTect_DIR}

@@ -46,26 +46,31 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
 set( OD_SUBSYSTEM "od" )
 
+option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
+
 include( OD_SetupOD )
 
-#Add osgGeo
-OD_ADD_OSGGEO()
-
-
+# Note: the order of these modules *IS* important!
+# Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
 	Basic CRS Algo General
 	Strat Network Batch
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
 	VolumeProcessing PreStackProcessing Attributes
-	EMAttrib MPEEngine WellAttrib
+	MPEEngine EMAttrib WellAttrib
 	uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiPreStackProcessing uiAttributes
 	uiVolumeProcessing uiEMAttrib uiMPE uiViewer2D uiWellAttrib
-	visBase visSurvey uiOSG uiVis
-	uiODMain
 )
+
+if ( NOT OD_NO_OSG )
+    list( APPEND OD_MODULES
+	    visBase visSurvey uiOSG uiVis
+	    uiODMain
+    )
+endif()
 
 set( OD_PLUGINS
 	CEEMDAttrib
@@ -98,12 +103,14 @@ set( OD_PLUGINS
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
-	uiPreStackViewer
 	CmdDriver
 	uiCOLOP
 	uiCrashMe
 )
 
+if ( NOT OD_NO_OSG )
+    list( APPEND OD_PLUGINS uiPreStackViewer )
+endif()
 
 set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
@@ -128,12 +135,12 @@ else()
     OD_WRITE_ALOFILES( ${CMAKE_BINARY_DIR}/plugins/${OD_PLFSUBDIR} )
 endif()
 
+
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )
 OD_ADD_KEYWORD_TEST( "atan2(" atan2 "Use Math::Atan2() instead of atan2" )
 OD_ADD_REGEXP_TEST( "ArrPtrMan[^;]+=[^?;]*new\\\\\\\\s+" mAllocLargeVarLenArr
 		     "ArrPtrMan<Type> var = new is not allowed. Use mAllocLargeVarLenArr instead." )
-OD_ADD_LOCAL_STATIC_TEST()
 OD_ADD_LINEEND_TEST()
 OD_ADD_EXIT_PROGRAM_TEST()
 
@@ -153,4 +160,5 @@ OD_ADD_PACKAGES_TARGET()
 
 #Avoid warnings if specified on command line
 set ( DUMMY ${ISTAG} ${BRANCH} ${CMAKE_PDB_OUTPUT_DIRECTORY} ${OD_RUN_LMSTRIP}
-	    ${COINDIR} ${BUILD_dGBPDF3D} ${PDF3D_ROOT} )
+	    ${COINDIR} ${BUILD_dGBPDF3D} ${PDF3D_ROOT} ${HDF5_ROOT} )
+
