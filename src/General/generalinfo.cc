@@ -37,12 +37,6 @@ bool	getHostIDs( BufferStringSet& hostids,
     lmutilfp.add( "lm.dgb" ).add( "lmutil" );
 
 #ifdef __win__
-    hostids.setEmpty();
-    errmsg.setEmpty();
-
-    lmutilfp.add( "lm.dgb" ).add( "lmutil" );
-
-#ifdef __win__
     lmutilfp.setExtension( "exe" );
 #endif
 

@@ -73,20 +73,22 @@ macro(OD_SETUP_QT)
 	#Setup Qt5
 	if ( Qt5Core_FOUND )
 	    set(QT_VERSION_MAJOR ${Qt5Core_VERSION_MAJOR} PARENT_SCOPE)
-	    list( APPEND QT_INSTLIBS Svg Xml )
-	    set( NEED_XCBQPA_SETUP False )
-	    if ( UNIX )
-		list( APPEND QT_INSTLIBS DBus )
-		if ( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-		    if ( Qt5Core_VERSION_MINOR GREATER 12 )
-			list( APPEND QT_INSTLIBS XcbQpa )
-		    else() #No cmake support prior to Qt5.13
-			set( NEED_XCBQPA_SETUP True )
+	    if ( "${OD_MODULE_NAME}" STREQUAL "Basic" )
+		list( APPEND QT_INSTLIBS Svg Xml )
+		set( NEED_XCBQPA_SETUP False )
+		if ( UNIX )
+		    list( APPEND QT_INSTLIBS DBus )
+		    if ( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+			if ( Qt5Core_VERSION_MINOR GREATER 12 )
+			    list( APPEND QT_INSTLIBS XcbQpa )
+			else() #No cmake support prior to Qt5.13
+			    set( NEED_XCBQPA_SETUP True )
+			endif()
 		    endif()
 		endif()
-	    endif()
-	    if ( Qt5Core_VERSION_MINOR GREATER 13 )
-		list( APPEND QT_INSTLIBS Qml QmlModels )
+		if ( Qt5Core_VERSION_MINOR GREATER 13 )
+		    list( APPEND QT_INSTLIBS Qml QmlModels )
+		endif()
 	    endif()
 	    set( OD_QTALLLIBS ${OD_USEQT} )
 	    list( APPEND OD_QTALLLIBS ${QT_INSTLIBS} )
@@ -129,60 +131,70 @@ macro(OD_SETUP_QT)
 	    endforeach()
 
 	    #Install only, no direct cmake support
-	    OD_INSTALL_RESSOURCE( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
-	    install( DIRECTORY ${QTDIR}/translations
-		     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
-		     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		     USE_SOURCE_PERMISSIONS
-		     FILES_MATCHING
-		     PATTERN "qt_*.qm"
-		     PATTERN "qtbase_*.qm" )
-
-	    if ( WIN32 )
-		set( QTPOSTFIX "" )
-		if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-		    set( QTPOSTFIX "d" )
-		endif()
-		list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS
-			"${QTDIR}/bin/libEGL${QTPOSTFIX}.dll"
-			"${QTDIR}/bin/libGLESv2${QTPOSTFIX}.dll"
-			"${QTDIR}/bin/opengl32sw.dll" )
-	    endif()
-
-	    set( QT_REQ_PLUGINS iconengines imageformats platforms )
-	    if ( UNIX )
-		if ( ${NEED_XCBQPA_SETUP} )
-		    set ( xcpalibnm "${QTDIR}/lib/libQt${QT_VERSION_MAJOR}XcbQpa.so.${QT_VERSION_MAJOR}" )
-		    if ( EXISTS "${xcpalibnm}" )
-			list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${xcpalibnm}" )
-		    endif()
-		endif()
-		if( NOT APPLE )
-		    list( APPEND QT_REQ_PLUGINS xcbglintegrations )
-		    set( ICU_VERSION_MAJOR "56" )
-		    set( LIBNMS i18n data uc )
-		    foreach( LIBNM ${LIBNMS} )
-			set( FILENM "${QTDIR}/lib/libicu${LIBNM}.so.${ICU_VERSION_MAJOR}" )
-			if ( EXISTS "${FILENM}" )
-			    list ( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${FILENM}" )
-			endif()
-		    endforeach()
-		endif()
-	    else()
-		list( APPEND QT_REQ_PLUGINS styles )
-	    endif()
-	    foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
-		install( DIRECTORY ${QTDIR}/plugins/${QTPLUGIN}
-			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+	    if ( "${OD_MODULE_NAME}" STREQUAL "Basic" )
+		OD_INSTALL_RESSOURCE( ${QTDIR}/bin/qt.conf ${CMAKE_BUILD_TYPE} )
+		install( DIRECTORY ${QTDIR}/translations
+			 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
 			 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-			 USE_SOURCE_PERMISSIONS 
+			 USE_SOURCE_PERMISSIONS
 			 FILES_MATCHING
-			 PATTERN "*.so"
-			 PATTERN "*.dll"
-			 PATTERN "*d.dll" EXCLUDE
-			 PATTERN "*.pdb" EXCLUDE
-			 PATTERN "*.so.debug" EXCLUDE )
-	    endforeach()
+			 PATTERN "qt_*.qm"
+			 PATTERN "qtbase_*.qm" )
+
+		if ( WIN32 )
+		    set( QTPOSTFIX "" )
+		    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+			set( QTPOSTFIX "d" )
+		    endif()
+		    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS
+			    "${QTDIR}/bin/libEGL${QTPOSTFIX}.dll"
+			    "${QTDIR}/bin/libGLESv2${QTPOSTFIX}.dll"
+			    "${QTDIR}/bin/opengl32sw.dll" )
+		endif()
+
+		set( QT_REQ_PLUGINS iconengines imageformats platforms )
+		if ( UNIX )
+		    if ( ${NEED_XCBQPA_SETUP} )
+			set ( xcpalibnm "${QTDIR}/lib/libQt${QT_VERSION_MAJOR}XcbQpa.so.${QT_VERSION_MAJOR}" )
+			if ( EXISTS "${xcpalibnm}" )
+			    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${xcpalibnm}" )
+			endif()
+		    endif()
+		    if( NOT APPLE )
+			list( APPEND QT_REQ_PLUGINS xcbglintegrations )
+			set( ICU_VERSION_MAJOR "56" )
+			set( LIBNMS i18n data uc )
+			foreach( LIBNM ${LIBNMS} )
+			    set( FILENM "${QTDIR}/lib/libicu${LIBNM}.so.${ICU_VERSION_MAJOR}" )
+			    if ( EXISTS "${FILENM}" )
+				list ( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${FILENM}" )
+			    endif()
+			endforeach()
+		    endif()
+		else()
+		    list( APPEND QT_REQ_PLUGINS styles )
+		endif()
+		foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
+		    if ( APPLE )
+			set ( DESTDIR ${CMAKE_INSTALL_PREFIX}/Contents/Plugins )
+		    else()
+			set ( DESTDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+		    endif()
+		    install( DIRECTORY ${QTDIR}/plugins/${QTPLUGIN}
+			     DESTINATION ${DESTDIR}
+			     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+			     USE_SOURCE_PERMISSIONS 
+			     FILES_MATCHING
+			     PATTERN "*.so"
+			     PATTERN "*.dll"
+			     PATTERN "*.dylib"
+			     PATTERN "*d.dll" EXCLUDE
+			     PATTERN "*.pdb" EXCLUDE
+			     PATTERN "*.so.debug" EXCLUDE
+			     PATTERN "*_debug*" EXCLUDE
+			     PATTERN "*.dSYM" EXCLUDE )
+		endforeach()
+	    endif()
 
 	    if ( WIN32 )
 		set ( CMAKE_CXX_FLAGS "/wd4481 ${CMAKE_CXX_FLAGS}" )
