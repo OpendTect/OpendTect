@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
+#include "sharedlibs.h"
 #include "uistrings.h"
 
 # include "qnetworkaccessconn.h"
@@ -30,12 +31,50 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <QNetworkProxy>
 
 
+static void loadOpenSSL()
+{
+    //Load first crypto, then ssl
+#ifdef __OpenSSL_Crypto_LIBRARY__
+    mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
+	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__) );
+# ifdef __OpenSSL_SSL_LIBRARY__
+    mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,sslsha,
+	    = cryptosha && cryptosha->isOK()
+	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__) : nullptr );
+# endif
+#endif
+}
+
+
+
+bool Network::exists( const char* url )
+{
+    od_int64 dum; uiString msg;
+    return getRemoteFileSize( url, dum, msg );
+}
+
+od_int64 Network::getFileSize( const char* url )
+{
+    od_int64 ret; uiString msg;
+    return getRemoteFileSize( url, ret, msg ) ? ret : 0;
+}
+
+bool Network::getContent( const char* url, BufferString& bs )
+{
+    uiString msg; DataBuffer dbuf(0,1);
+    if ( !downloadToBuffer(url,&dbuf,msg) || !dbuf.fitsInString() )
+	return false;
+    bs = dbuf.getString();
+    return true;
+}
+
+
 bool Network::downloadFile( const char* url, const char* path,
 			    uiString& errmsg, TaskRunner* taskr )
 {
     BufferStringSet urls; urls.add( url );
     BufferStringSet outputpath; outputpath.add( path );
-    return Network::downloadFiles( urls, outputpath, errmsg, taskr );
+    return downloadFiles( urls, outputpath, errmsg, taskr );
 }
 
 
@@ -55,7 +94,7 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 	outputpaths.add( destpath.fullPath() );
     }
 
-    return Network::downloadFiles( urls, outputpaths, errmsg, taskr );
+    return downloadFiles( urls, outputpaths, errmsg, taskr );
 }
 
 
@@ -87,6 +126,9 @@ bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
 bool Network::getRemoteFileSize( const char* url, od_int64& size,
 				 uiString& errmsg )
 {
+    if ( !url || !*url )
+	{ size = -1; return false; }
+
     FileDownloader dl( url );
     size = dl.getDownloadSize();
     if ( size < 0 )
@@ -102,7 +144,7 @@ bool Network::getRemoteFileSize( const char* url, od_int64& size,
 bool Network::ping( const char* url, uiString& msg )
 {
     od_int64 pseudosize;
-    return Network::getRemoteFileSize( url, pseudosize, msg );
+    return getRemoteFileSize( url, pseudosize, msg );
 }
 
 
@@ -112,14 +154,17 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
-    , msg_(uiString::emptyString())
+    , msg_(uiString::empty())
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , osd_(new od_ostream())
     , databuffer_(0)
     , saveaspaths_( outputpaths )
     , urls_( urls )
-{ totalnr_ = getDownloadSize(); }
+{
+    totalnr_ = getDownloadSize();
+    loadOpenSSL();
+}
 
 
 FileDownloader::FileDownloader( const char* url, DataBuffer* db )
@@ -127,7 +172,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
     , qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
-    , msg_(uiString::emptyString())
+    , msg_(uiString::empty())
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , osd_(0)
@@ -135,6 +180,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
 {
     urls_.add(url);
     totalnr_ = getDownloadSize();
+    loadOpenSSL();
 }
 
 
@@ -143,13 +189,16 @@ FileDownloader::FileDownloader( const char* url )
     , qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
-    , msg_(uiString::emptyString())
+    , msg_(uiString::empty())
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , totalnr_(0)
     , osd_(new od_ostream())
     , databuffer_(0)
-{ urls_.add(url); }
+{
+    urls_.add(url);
+    loadOpenSSL();
+}
 
 
 FileDownloader::~FileDownloader()
@@ -369,7 +418,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 			   uiString* retmsg)
 {
     BufferString data;
-    addPars( data, querypars);
+    addPars( data, querypars );
     DataBuffer db( data.size(), 1 );
     OD::memCopy( db.data(), data.buf(), data.size() );
     BufferString header( "multipart/form-data; boundary=", mBoundary );
@@ -390,11 +439,13 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , nrdone_(0)
     , totalnr_(0)
     , odnr_(0)
-    , msg_(uiString::emptyString())
+    , msg_(uiString::empty())
     , url_(url)
     , header_(header)
     , init_(true)
-{}
+{
+    loadOpenSSL();
+}
 
 
 DataUploader::~DataUploader()
@@ -534,7 +585,7 @@ void Network::setHttpProxyFromIOPar( const IOPar& pars )
 	{
 	    uiString str;
 	    str.setFromHexEncoded( password );
-	    password = str.getFullString();
+	    password = toString( str );
 	}
 
 	Network::setHttpProxy( host, port, auth, username, password );

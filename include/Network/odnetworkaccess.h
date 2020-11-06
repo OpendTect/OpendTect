@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Salil Agarwal
  Date:		Oct 2012
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -23,7 +22,6 @@ class QNetworkAccessManager;
 class ODNetworkReply;
 class DataBuffer;
 class od_ostream;
-
 
 namespace Network
 {
@@ -43,7 +41,7 @@ namespace Network
 					  uiString& errmsg,
 					  TaskRunner* taskr=0);
 
-    mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer* db,
+    mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer*,
 					     uiString& errmsg,
 					     TaskRunner* taskr=0);
 
@@ -84,6 +82,11 @@ namespace Network
 					    { return "Http Proxy Password"; }
     inline const char*	    sKeyCryptProxyPassword()
 					{ return "Http Crypt Proxy Password"; }
+
+				// File:: counterparts
+    mGlobal(Network) bool	exists(const char*);
+    mGlobal(Network) od_int64	getFileSize(const char*);
+    mGlobal(Network) bool	getContent(const char*,BufferString&);
 
 }
 
