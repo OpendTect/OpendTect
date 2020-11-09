@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
@@ -147,13 +146,16 @@ if( UNIX ) #Apple and Linux
 endif(UNIX)
 
 if(WIN32)
+    if ( OD_64BIT )
+        set ( OD_PLFSUBDIR "win64" )
+    else()
+        set ( OD_PLFSUBDIR "win32" )
+    endif()
     #Create Launchers on Windows
     set ( OD_CREATE_LAUNCHERS 1 )
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
     set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
-    set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
-
     #Setting Stack Reserve size for Executables only
     if ( NOT DEFINED STACK_RESERVE_SIZE )
 	MATH ( EXPR STACK_RESERVE_SIZE "8 * 1024 * 1024" ) #Setting default stack size to 8MB
@@ -162,6 +164,10 @@ if(WIN32)
 	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
+
+    if ( "${OD_PLFSUBIR}" STREQUAL "win32" )
+	set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
+    endif()
 
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
@@ -228,10 +234,7 @@ if(WIN32)
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
-    if ( OD_64BIT )
-        set ( OD_PLFSUBDIR "win64" )
-    else()
-        set ( OD_PLFSUBDIR "win32" )
+    if ( "${OD_PLFSUBIR}" STREQUAL "win32" )
 	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
     endif()
     if ( MSVC14 )
