@@ -35,8 +35,6 @@ if( UNIX ) #Apple and Linux
 
     endif(CMAKE_COMPILER_IS_GNUCC)
 
-    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14" )
-
     if(APPLE)
 	set ( SHLIB_EXTENSION dylib )
 	option( AVOID_CLANG_ERROR "Avoid CLang error" OFF )
