@@ -32,8 +32,8 @@ DPSMerger::DPSMerger( const DPSMergerProp& prop )
     , prop_(prop)
 {
     auto& dpm = DPM( DataPackMgr::PointID() );
-    mdps_ = dpm.get<DataPointSet>( prop.masterDPID() );
-    sdps_ = dpm.get<DataPointSet>( prop.slaveDPID() );
+    mdps_ = dpm.get<DataPointSet>( prop.primaryDPID() );
+    sdps_ = dpm.get<DataPointSet>( prop.secondaryDPID() );
     newdps_ = new DataPointSet( *mdps_ );
 }
 
@@ -88,28 +88,28 @@ int DPSMerger::findMatchingMrowID( int srowid )
 
 DataPointSet::DataRow DPSMerger::getNewDataRow( int srowid )
 {
-    TypeSet<int> mastercolids = prop_.masterColIDs();
-    TypeSet<int> slavecolids = prop_.slaveColIDs();
+    TypeSet<int> primarycolids = prop_.primaryColIDs();
+    TypeSet<int> secondarycolids = prop_.secondaryColIDs();
     DataPointSet::DataRow mdr = mdps_->dataRow( 0 );
     DataPointSet::DataRow sdr = sdps_->dataRow( srowid );
     TypeSet<float> rowdata = mdr.data();
     for ( int mcolid=0; mcolid<rowdata.size(); mcolid++ )
     {
-	if ( !mastercolids.isPresent(mcolid) )
+	if ( !primarycolids.isPresent(mcolid) )
 	    rowdata[mcolid] = mUdf(float);
 	else
 	{
-	    const int slaveidx = getSlaveColID( mcolid );
-	    if ( slaveidx < 0 )
+	    const int secondaryidx = getSecondaryColID( mcolid );
+	    if ( secondaryidx < 0 )
 		continue;
-	    rowdata[mcolid] = sdr.data()[slaveidx];
+	    rowdata[mcolid] = sdr.data()[secondaryidx];
 	}
     }
-    for ( int scolidx=0; scolidx<slavecolids.size(); scolidx++ )
+    for ( int scolidx=0; scolidx<secondarycolids.size(); scolidx++ )
     {
-	if ( mastercolids.validIdx(scolidx) &&
-	     mastercolids[scolidx]>mdr.data().size()-1 )
-	    rowdata += sdr.data()[slavecolids[scolidx]];
+	if ( primarycolids.validIdx(scolidx) &&
+	     primarycolids[scolidx]>mdr.data().size()-1 )
+	    rowdata += sdr.data()[secondarycolids[scolidx]];
     }
 
     mdr.pos_ = sdr.pos_;
@@ -118,39 +118,39 @@ DataPointSet::DataRow DPSMerger::getNewDataRow( int srowid )
 }
 
 
-int DPSMerger::getSlaveColID( int mcolid )
+int DPSMerger::getSecondaryColID( int mcolid )
 {
-    const int idx = prop_.masterColIDs().indexOf( mcolid );
+    const int idx = prop_.primaryColIDs().indexOf( mcolid );
     if ( idx<0 )
 	return -1;
-    return prop_.slaveColIDs()[idx];
+    return prop_.secondaryColIDs()[idx];
 }
 
 
 DataPointSet::DataRow DPSMerger::getDataRow( int srowid, int mrowid )
 {
-    TypeSet<int> slavecolids = prop_.slaveColIDs();
-    TypeSet<int> mastercolids = prop_.masterColIDs();
+    TypeSet<int> secondarycolids = prop_.secondaryColIDs();
+    TypeSet<int> primarycolids = prop_.primaryColIDs();
     DataPointSet::DataRow sdr = sdps_->dataRow( srowid );
     DataPointSet::DataRow mdr = mdps_->dataRow( mrowid );
-    for ( int col=0; col<mastercolids.size(); col++ )
+    for ( int col=0; col<primarycolids.size(); col++ )
     {
-	int mastercolid = mastercolids[col];
-	if ( mastercolid>mdr.data().size()-1 )
-	    mdr.data_ += sdr.data()[slavecolids[col]];
+	int primarycolid = primarycolids[col];
+	if ( primarycolid>mdr.data().size()-1 )
+	    mdr.data_ += sdr.data()[secondarycolids[col]];
 
-	const float masterval = mdr.data_[mastercolid];
-	const float slaveval = sdr.data()[slavecolids[col]];
-	if ( prop_.overWriteUndef() && (mIsUdf(masterval) || mIsUdf(slaveval)))
+	const float primaryval = mdr.data_[primarycolid];
+	const float secondaryval = sdr.data()[secondarycolids[col]];
+	if ( prop_.overWriteUndef() && (mIsUdf(primaryval) || mIsUdf(secondaryval)))
 	{
-	    if ( mIsUdf(masterval) )
-		mdr.data_[mastercolid] = slaveval;
+	    if ( mIsUdf(primaryval) )
+		mdr.data_[primarycolid] = secondaryval;
 	}
 	else if ( prop_.replacePolicy()!=DPSMergerProp::No )
 	{
-	    mdr.data_[mastercolid] =
+	    mdr.data_[primarycolid] =
 		prop_.replacePolicy()==DPSMergerProp::Average
-		    ? (slaveval+ masterval)/(float)2 : slaveval;
+		    ? (secondaryval+ primaryval)/(float)2 : secondaryval;
 	}
     }
 
@@ -158,17 +158,17 @@ DataPointSet::DataRow DPSMerger::getDataRow( int srowid, int mrowid )
 }
 
 
-void DPSMergerProp::setColid( int mastercolid, int slavecolid )
+void DPSMergerProp::setColid( int primarycolid, int secondarycolid )
 {
-    if ( !mastercolids_.isPresent(mastercolid) )
+    if ( !primarycolids_.isPresent(primarycolid) )
     {
-	mastercolids_ += mastercolid;
-	slavecolids_ += slavecolid;
+	primarycolids_ += primarycolid;
+	secondarycolids_ += secondarycolid;
     }
     else
     {
-	const int idx = mastercolids_.indexOf( mastercolid );
-	slavecolids_[idx] = slavecolid;
+	const int idx = primarycolids_.indexOf( primarycolid );
+	secondarycolids_[idx] = secondarycolid;
     }
 }
 

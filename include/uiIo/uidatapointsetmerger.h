@@ -35,12 +35,12 @@ public:
 
 				DPSMergerProp( const DBKey& id, PackID mid,
 					       PackID sid )
-				    : masterdpsid_(mid), slavedpsid_(sid)
+				    : primarydpsid_(mid), secondarydpsid_(sid)
 				    , newdpsid_(id), maxz_(mUdf(float))
 				    , maxhordist_(mUdf(float))
 				    , dooverwriteundef_(false)	{}
 
-   void				setColid(int masterid,int slaveid);
+   void				setColid(int primaryid,int secondaryid);
 
    enum	MatchPolicy		{ Exact, Nearest, NoMatch };
    void				setMatchPolicy( MatchPolicy pol )
@@ -53,11 +53,13 @@ public:
 
    ReplacePolicy		replacePolicy() const	{ return replacepol_; }
 
-   PackID			masterDPID() const	{ return masterdpsid_;}
-   PackID			slaveDPID() const	{ return slavedpsid_; }
+   PackID			primaryDPID() const	{ return primarydpsid_;}
+   PackID			secondaryDPID() const
+				{ return secondarydpsid_; }
+   const TypeSet<int>&		primaryColIDs() const	{return primarycolids_;}
+   const TypeSet<int>&		secondaryColIDs() const
+				{ return secondarycolids_; }
    DBKey			newDPSID() const	{ return newdpsid_; }
-   const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
-   const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
 
    float			maxAllowedHorDist() const
 				{ return maxhordist_; }
@@ -78,10 +80,10 @@ protected:
    ReplacePolicy		replacepol_;
 
    bool				dooverwriteundef_;
-   PackID			masterdpsid_;
-   PackID			slavedpsid_;
-   TypeSet<int>			mastercolids_;
-   TypeSet<int>			slavecolids_;
+   PackID			primarydpsid_;
+   PackID			secondarydpsid_;
+   TypeSet<int>			primarycolids_;
+   TypeSet<int>			secondarycolids_;
    DBKey			newdpsid_;
    float			maxhordist_;
    float			maxz_;
@@ -111,7 +113,7 @@ protected:
 
     int				nextStep();
 
-    int				getSlaveColID(int mcolid);
+    int				getSecondaryColID(int mcolid);
     DataPointSet::DataRow	getDataRow(int,int);
     DataPointSet::DataRow	getNewDataRow(int);
     int				findMatchingMrowID(int);

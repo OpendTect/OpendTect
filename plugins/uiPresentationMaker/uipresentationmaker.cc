@@ -197,13 +197,13 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 
     uiFileSel::Setup fssu;
     fssu.setFormat( tr("PowerPoint"), "pptx" ).defaultextension( "pptx" );
-    masterfld_ = new uiFileSel( this, tr("Template pptx"), fssu );
-    masterfld_->setFileName( templfnm );
-    masterfld_->attach( alignedBelow, templatefld_ );
+    pptxfld_ = new uiFileSel( this, tr("Template pptx"), fssu );
+    pptxfld_->setFileName( templfnm );
+    pptxfld_->attach( alignedBelow, templatefld_ );
 
     fssu.setForWrite( true );
     outputfld_ = new uiFileSel( this, tr("Output pptx"), fssu );
-    outputfld_->attach( alignedBelow, masterfld_ );
+    outputfld_->attach( alignedBelow, pptxfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
     sep->attach( stretchedBelow, outputfld_ );
@@ -339,7 +339,7 @@ void uiPresentationMakerDlg::updateScreenList()
 void uiPresentationMakerDlg::templateCB( CallBacker* )
 {
     const bool isblank = templatefld_->getBoolValue();
-    masterfld_->display( !isblank );
+    pptxfld_->display( !isblank );
 }
 
 
@@ -524,9 +524,9 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     specs_.setOutputFilename( outputfnm );
 
     const bool isblankpres = templatefld_->getBoolValue();
-    const BufferString templfnm = !isblankpres ? masterfld_->fileName() : "";
+    const BufferString templfnm = !isblankpres ? pptxfld_->fileName() : "";
     // TODO: merge 2 calls below
-    specs_.setMasterFilename( templfnm.buf() );
+    specs_.setTemplateFilename( templfnm.buf() );
     PresentationSpec::setTemplate( templfnm.buf() );
     if ( !isblankpres && !File::exists(templfnm.buf()) )
     {

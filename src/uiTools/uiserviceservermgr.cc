@@ -75,7 +75,7 @@ uiRetVal uiServiceServerMgr::doHandleRequest( const OD::JSON::Object& request )
 bool uiServiceServerMgr::reportingAppIsAlive() const
 {
     uiUserShowWait uisv( uiMain::theMain().topLevel(),
-			 tr("Checking status of Master application") );
+			 tr("Checking status of Main application") );
     return ServiceServerMgr::reportingAppIsAlive();
 }
 

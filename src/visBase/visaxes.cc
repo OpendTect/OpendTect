@@ -26,7 +26,7 @@ namespace visBase
 
 Axes::Axes()
     : axesnode_(new osgGeo::AxesNode)
-    , mastercamera_(0)
+    , primarycamera_(0)
     , pixeldensity_( getDefaultPixelDensity() )
     , annottextsize_(18)
 {
@@ -36,7 +36,7 @@ Axes::Axes()
 
 Axes::~Axes()
 {
-   unRefPtr( mastercamera_ );
+   unRefPtr( primarycamera_ );
 }
 
 
@@ -78,7 +78,7 @@ void Axes::setSize( float rad, float len )
 
 void Axes::setAnnotationColor( const Color& annotcolor )
 {
-#define mColTof(c) ((float) ( c / 255.0f )) \
+#define mColTof(c) float( c/255.0f )
 
     osg::Vec4 anncol( mColTof(annotcolor.r()),
 		      mColTof(annotcolor.g()),
@@ -93,8 +93,8 @@ void Axes::setAnnotationTextSize( int size )
     axesnode_->setAnnotationTextSize(size*sizefactor);
     annottextsize_ = size;
 }
-    
-    
+
+
 void Axes::setAnnotationText( int dim, const uiString& str )
 {
     ArrPtrMan<wchar_t> wchar = str.createWCharString();
@@ -111,7 +111,7 @@ void Axes::setAnnotationFont( const FontData& fd )
 }
 
 
-void Axes::setPixelDensity(float dpi)
+void Axes::setPixelDensity( float dpi )
 {
     if ( dpi==pixeldensity_ )
 	return;
@@ -123,11 +123,11 @@ void Axes::setPixelDensity(float dpi)
 }
 
 
-void Axes::setMasterCamera( visBase::Camera* camera )
+void Axes::setPrimaryCamera( visBase::Camera* camera )
 {
-    mastercamera_ = camera;
-    mastercamera_->ref();
-    axesnode_->setMasterCamera( mastercamera_->osgCamera() );
+    primarycamera_ = camera;
+    primarycamera_->ref();
+    axesnode_->setPrimaryCamera( primarycamera_->osgCamera() );
 }
 
 } //namespace visBase
