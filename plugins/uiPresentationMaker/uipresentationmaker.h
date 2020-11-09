@@ -63,6 +63,6 @@ protected:
     uiComboBox*		scenefld_;
     uiComboBox*		screenfld_;
     uiTable*		slidestbl_;
-    uiFileSel*		masterfld_;
+    uiFileSel*		pptxfld_;
     uiFileSel*		outputfld_;
 };

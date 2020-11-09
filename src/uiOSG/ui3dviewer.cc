@@ -348,7 +348,7 @@ void ui3DViewerBody::setupHUD()
 	axes_->setAnnotationFont( annotfontdata );
 	hudscene_->addObject( axes_ );
 	if ( camera_ )
-	    axes_->setMasterCamera( camera_ );
+	    axes_->setPrimaryCamera( camera_ );
 
     }
 
@@ -444,7 +444,7 @@ void ui3DViewerBody::setupView()
     mAttachCB( camera_->preDraw, ui3DViewerBody::glInfoCB );
 
     if ( axes_ )
-	axes_->setMasterCamera( camera_ );
+	axes_->setPrimaryCamera( camera_ );
 
     if ( scene_ )
         scene_->setCamera( camera_ );
@@ -499,7 +499,7 @@ void ui3DViewerBody::setupView()
     manip->setMinimumDistance( 0 );
 
     if ( polygonselection_ )
-	polygonselection_->setMasterCamera( camera_ );
+	polygonselection_->setPrimaryCamera( camera_ );
 
     view_->getSceneData()->addEventCallback(new osgGeo::ThumbWheelEventHandler);
     enableThumbWheelHandling( true );

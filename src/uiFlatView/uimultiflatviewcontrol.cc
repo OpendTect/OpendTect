@@ -63,12 +63,12 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 
     if ( d2tmodels_.isEmpty() )
     {
-	const uiWorldRect& masterbbox = activevwr->boundingBox();
+	const uiWorldRect& mainbbox = activevwr->boundingBox();
 	const uiWorldRect bbox = vwrs_[curvwridx]->boundingBox();
-	LinScaler sclr( masterbbox.left(), bbox.left(),
-			masterbbox.right(), bbox.right() );
-	LinScaler sctb( masterbbox.top(), bbox.top(),
-			masterbbox.bottom(), bbox.bottom() );
+	LinScaler sclr( mainbbox.left(), bbox.left(),
+			mainbbox.right(), bbox.right() );
+	LinScaler sctb( mainbbox.top(), bbox.top(),
+			mainbbox.bottom(), bbox.bottom() );
 	viewwr = uiWorldRect( sclr.scale(wr.left()), sctb.scale(wr.top()),
 			      sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
     }
@@ -348,9 +348,9 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
     if ( iszoomcoupled_ || !drawzoomboxes_ )
 	return;
 
-    const uiWorldRect& masterbbox = activeVwr()->boundingBox();
+    const uiWorldRect& mainbbox = activeVwr()->boundingBox();
     const uiWorldRect& wr = activeVwr()->curView();
-    if ( wr == masterbbox )
+    if ( wr == mainbbox )
 	return;
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {

@@ -26,7 +26,7 @@ namespace visBase
 
 Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
 {
-    mDefineStaticLocalObject( Notifier<PolygonSelection>, 
+    mDefineStaticLocalObject( Notifier<PolygonSelection>,
 			      polygonfinished, (0) );
     return &polygonfinished;
 }
@@ -45,7 +45,7 @@ public:
 			}
 		    }
 protected:
-    		    ~SelectionCallBack(){}
+		    ~SelectionCallBack(){}
 		    RefMan<PolygonSelection> polysel_;
 };
 
@@ -55,7 +55,7 @@ PolygonSelection::PolygonSelection()
     , selector_( new osgGeo::PolygonSelection )
     , drawstyle_( new DrawStyle )
     , polygon_( 0 )
-    , mastercamera_( 0 )
+    , primarycamera_( 0 )
     , selectorcb_( 0 )
 {
     drawstyle_->ref();
@@ -75,7 +75,7 @@ PolygonSelection::PolygonSelection( const osgGeo::PolygonSelection* selector)
     , selector_( new osgGeo::PolygonSelection(*selector) )
     , drawstyle_( new DrawStyle )
     , polygon_( 0 )
-    , mastercamera_( 0 )
+    , primarycamera_( 0 )
     , selectorcb_( 0 )
 
 {
@@ -96,7 +96,7 @@ PolygonSelection::~PolygonSelection()
     detachAllNotifiers();
     unRefPtr( utm2disptransform_ );
     unRefPtr( drawstyle_ );
-    unRefPtr( mastercamera_ );
+    unRefPtr( primarycamera_ );
     selector_->removeCallBack( selectorcb_ );
     selectorcb_->unref();
     selector_->unref();
@@ -140,12 +140,12 @@ PolygonSelection::SelectionType PolygonSelection::getSelectionType() const
 }
 
 
-void PolygonSelection::setMasterCamera( Camera* maincam )
+void PolygonSelection::setPrimaryCamera( Camera* maincam )
 {
-    mastercamera_ = maincam;
-    mastercamera_->ref();
+    primarycamera_ = maincam;
+    primarycamera_->ref();
 
-    if ( !selector_->setEventHandlerCamera(mastercamera_->osgCamera(),false) )
+    if ( !selector_->setEventHandlerCamera(primarycamera_->osgCamera(),false) )
     {
 	pErrMsg( "Need access to camera view and scene data" );
     }
@@ -216,7 +216,7 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
     if ( !displayspace && utm2disptransform_ )
 	utm2disptransform_->transform( checkcoord3d );
 
-    const osg::Vec3 coord3d = Conv::to<osg::Vec3>( checkcoord3d ); 
+    const osg::Vec3 coord3d = Conv::to<osg::Vec3>( checkcoord3d );
     osg::Vec2 coord2d( mUdf(float), mUdf(float) );
     if ( !selector_->projectPointToScreen(coord3d,coord2d) )
 	return false;
@@ -310,7 +310,7 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 
     polygonlock_.readUnLock();
 
-    return res; 
+    return res;
 }
 
 

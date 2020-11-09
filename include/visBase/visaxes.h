@@ -20,12 +20,12 @@ namespace visBase
 {
 
 class Camera;
-    
+
 mExpClass(visBase) Axes : public DataObject
 {
 public:
     static Axes*		create()
-    				mCreateDataObj(Axes);
+				mCreateDataObj(Axes);
     void			setRadius(float);
     float			getRadius() const;
     void			setLength(float);
@@ -36,16 +36,16 @@ public:
     void			setAnnotationText(int dim,const uiString&);
     void			setAnnotationTextSize(int);
     void			setAnnotationFont(const FontData&);
-    
-    void			setMasterCamera(visBase::Camera*);
+
+    void			setPrimaryCamera(visBase::Camera*);
 
     virtual void		setPixelDensity(float dpi);
 
 protected:
-    				~Axes();
+				~Axes();
 
     osgGeo::AxesNode*		axesnode_;
-    Camera*			mastercamera_;
+    Camera*			primarycamera_;
     bool			ison_;
     float			pixeldensity_;
     int				annottextsize_;
