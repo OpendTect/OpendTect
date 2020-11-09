@@ -151,6 +151,11 @@ if( UNIX ) #Apple and Linux
 endif(UNIX)
 
 if(WIN32)
+    if ( OD_64BIT )
+        set ( OD_PLFSUBDIR "win64" )
+    else()
+        set ( OD_PLFSUBDIR "win32" )
+    endif()
     #Create Launchers on Windows
     set ( OD_CREATE_LAUNCHERS 1 )
     set ( OD_SET_TARGET_PROPERTIES 1 )
@@ -164,7 +169,9 @@ if(WIN32)
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
-    set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
+    if ( "${OD_PLFSUBIR}" STREQUAL "win32" )
+	set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
+    endif()
 
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
 		#/MP for parallel building
@@ -228,11 +235,6 @@ if(WIN32)
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
-    if ( OD_64BIT )
-        set  ( OD_PLFSUBDIR "win64" )
-    else()
-        set  ( OD_PLFSUBDIR "win32" )
-    endif()
     if ( (${MSVC_VERSION} GREATER 1800) OR (${OD_PLFSUBDIR} STREQUAL "win32") ) #Adding this flag if VS version is greater than 12 on win64 platform
 	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
     endif()
