@@ -35,6 +35,9 @@ endif()
 
 include( CTest )
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 set( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
