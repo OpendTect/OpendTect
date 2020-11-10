@@ -621,7 +621,7 @@ int mTestMainFnName( int argc, char** argv )
     if ( !HDF5::isAvailable() )
     {
 	tstStream( true ) << "HDF5 not available" << od_endl;
-	return 0;
+	return 1;
     }
 
     filename_.set( File::Path(File::getTempPath(),"test.h5").fullPath() );
