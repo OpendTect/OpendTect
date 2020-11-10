@@ -6,6 +6,7 @@ REM
 
 setlocal
 set args=
+set "pathdirs="
 set expret=0
 
 :parse_args
@@ -32,8 +33,12 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--datadir" (
     set args=%args% --datadir %2
     shift
-) ELSE IF "%1"=="--qtdir" (
-    set qtdir=%2
+) ELSE IF "%1"=="--pathdirs" (
+    IF "%pathdirs%" == "" (
+        set "pathdirs=%~2"
+    ) ELSE (
+        set "pathdirs=%pathdirs%;%~2"
+    )
     shift
 ) ELSE ( goto do_it )
 
@@ -41,8 +46,8 @@ shift
 goto parse_args
 
 :syntax
-echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir --datadir datadir --parfile parfile --expected-return expected-return
-exit 1
+echo run_test --command cmd --wdir workdir --plf platform --config config --pathdirs dirs --datadir datadir --parfile parfile --expected-return expected-return
+exit /b 1
 
 :do_it
 
@@ -54,25 +59,23 @@ IF NOT DEFINED config ( echo --config not specified.
 			goto syntax )
 IF NOT DEFINED wdir ( echo --wdir not specified.
 			goto syntax )
-IF NOT DEFINED qtdir ( echo --qtdir not specified.
-			goto syntax )
 
-set qtdir=%qtdir:/=\%
+set pathdirs=%pathdirs:/=\%
 set bindir=%wdir%/bin/%plf%/%config%
 set bindir=%bindir:/=\%
 
 if NOT EXIST "%bindir%" ( 
     echo %bindir% does not exist!
-    exit 1
+    exit /b 1
 )
 
-set fullcommand=%bindir%\%cmd%
+set fullcommand=%bindir%\%cmd%.exe
 if NOT EXIST "%fullcommand%" ( 
     echo %fullcommand% does not exist!
-    exit 1
+    exit /b 1
 )
 
-set PATH=%bindir%;%qtdir%/bin;%PATH%
+set PATH=%bindir%;%pathdirs%;%PATH%
 
 "%fullcommand%" %args%
 
