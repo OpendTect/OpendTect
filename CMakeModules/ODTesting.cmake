@@ -40,9 +40,23 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
 
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
-		    --qtdir ${QTDIR}
 		    --oddir ${OD_BINARY_BASEDIR}
 		    --quiet )
+    if ( WIN32 )
+	list ( APPEND TEST_ARGS --qtdir ${QTDIR} )
+    elseif ( NOT APPLE )
+	get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
+	get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
+	set( LIBSEARCHPATHS "${CXXPATH}" )
+	od_find_library( LIBSTDLOC libstdc++.so.6 )
+	if ( LIBSTDLOC )
+	    get_filename_component( CXXPATH ${LIBSTDLOC} DIRECTORY )
+	    if ( (NOT "${CXXPATH}" STREQUAL "/usr/lib") AND 
+		 (NOT "${CXXPATH}" STREQUAL "/usr/lib64") )
+		list ( APPEND TEST_ARGS --pathdir ${CXXPATH} )
+	    endif()
+	endif()
+    endif()
 
     if ( EXISTS ${PARAMETER_FILE} )
 	list( APPEND TEST_ARGS --parfile ${PARAMETER_FILE} )
