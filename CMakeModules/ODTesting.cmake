@@ -59,12 +59,15 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
 
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
-		    --oddir ${OD_BINARY_BASEDIR}
 		    --quiet )
     if ( WIN32 )
 	ADD_RUNTIME_PATHS()
-    elseif ( NOT APPLE )
-	ADD_CXX_LD_LIBRARY_PATH()
+    else()
+	list ( APPEND TEST_ARGS
+		    --oddir ${OD_BINARY_BASEDIR} )
+	if ( NOT APPLE )
+	    ADD_CXX_LD_LIBRARY_PATH()
+	endif()
     endif()
 
     if ( EXISTS ${PARAMETER_FILE} )
@@ -163,13 +166,16 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
 
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
-		    --oddir ${OD_BINARY_BASEDIR}
 		    --expected-result 1
 		    --quiet )
     if ( WIN32 )
 	ADD_RUNTIME_PATHS()
-    elseif ( NOT APPLE )
-	ADD_CXX_LD_LIBRARY_PATH()
+    else()
+	list ( APPEND TEST_ARGS
+		    --oddir ${OD_BINARY_BASEDIR} )
+	if ( NOT APPLE )
+	    ADD_CXX_LD_LIBRARY_PATH()
+	endif()
     endif()
 
     add_test( test_exit_program "${TEST_COMMAND}" ${TEST_ARGS}  )
