@@ -29,6 +29,20 @@ macro ( OD_SETUP_TEST_FILTER )
 	${CMAKE_SOURCE_DIR}/CTestCustom.cmake @ONLY )
 endmacro()
 
+macro( ADD_CXX_LD_LIBRARY_PATH )
+    get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
+    get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
+    set( LIBSEARCHPATHS "${CXXPATH}" )
+    od_find_library( LIBSTDLOC libstdc++.so.6 )
+    if ( LIBSTDLOC )
+	get_filename_component( CXXPATH ${LIBSTDLOC} DIRECTORY )
+	if ( (NOT "${CXXPATH}" STREQUAL "/usr/lib") AND 
+	     (NOT "${CXXPATH}" STREQUAL "/usr/lib64") )
+	    list ( APPEND TEST_ARGS --pathdir ${CXXPATH} )
+	endif()
+    endif()
+endmacro( ADD_CXX_LD_LIBRARY_PATH )
+
 macro ( ADD_TEST_PROGRAM TEST_NAME )
     if ( WIN32 )
 	set ( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.cmd" )
@@ -45,17 +59,7 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     if ( WIN32 )
 	list ( APPEND TEST_ARGS --qtdir ${QTDIR} )
     elseif ( NOT APPLE )
-	get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
-	get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
-	set( LIBSEARCHPATHS "${CXXPATH}" )
-	od_find_library( LIBSTDLOC libstdc++.so.6 )
-	if ( LIBSTDLOC )
-	    get_filename_component( CXXPATH ${LIBSTDLOC} DIRECTORY )
-	    if ( (NOT "${CXXPATH}" STREQUAL "/usr/lib") AND 
-		 (NOT "${CXXPATH}" STREQUAL "/usr/lib64") )
-		list ( APPEND TEST_ARGS --pathdir ${CXXPATH} )
-	    endif()
-	endif()
+	ADD_CXX_LD_LIBRARY_PATH()
     endif()
 
     if ( EXISTS ${PARAMETER_FILE} )
@@ -150,11 +154,13 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
     else()
 	set( CMD "${OpendTect_DIR}/testscripts/run_test.csh" )
 	list ( APPEND CMD --command test_exit_program )
+	if ( NOT APPLE )
+	    ADD_CXX_LD_LIBRARY_PATH()
+	endif()
     endif()
 
     list ( APPEND CMD --wdir ${CMAKE_BINARY_DIR}
                     --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
-                    --qtdir ${QTDIR}
 		    --expected-result 1
                     --quiet )
 
