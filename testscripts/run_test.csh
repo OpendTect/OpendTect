@@ -12,7 +12,7 @@ set plf = ""
 set config = ""
 set cmd = ""
 set args = ""
-set qtdir = ""
+set ldpathdir = ""
 set expret = 0
 set valgrind = ""
 set gensuppressions="all"
@@ -50,13 +50,13 @@ else if ( "$1" == "--config" ) then
 else if ( "$1" == "--parfile" ) then
     set args="${args} $2"
     shift
-else if ( "$1" == "--qtdir" ) then
-    set qtdir=$2
+else if ( "$1" == "--ldpathdir" ) then
+    set ldpathdir=$2
     shift
 else if ( "$1" == "--help" ) then
-    echo "Usage: run_tst [option]"
+    echo "Usage: run_test [option]"
     echo " --command cmd"
-    echo " --ldpath ldpath"
+    echo " --ldpathdir ldpath"
     echo " --datadir datadir"
     echo " [--parfile parfile]"
     exit 0
@@ -100,17 +100,17 @@ else
     set libdir="${bindir}"
 endif
 
-
-if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${libdir}:${LD_LIBRARY_PATH}
-else
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${libdir}
-endif
-
-if ( $?DYLD_LIBRARY_PATH ) then
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${libdir}:${DYLD_LIBRARY_PATH}
-else
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${libdir}
+if ( "$ldpathdir" != "" ) then
+    if ( $?LD_LIBRARY_PATH ) then
+	setenv LD_LIBRARY_PATH ${ldpathdir}:${LD_LIBRARY_PATH}
+    else
+	setenv LD_LIBRARY_PATH ${ldpathdir}
+    endif
+    if ( $?DYLD_LIBRARY_PATH ) then
+	setenv DYLD_LIBRARY_PATH ${ldpathdir}:${DYLD_LIBRARY_PATH}
+    else
+	setenv DYLD_LIBRARY_PATH ${ldpathdir}
+    endif
 endif
 
 if ( "$datadir" != "" ) then
