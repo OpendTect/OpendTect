@@ -12,7 +12,7 @@ set plf = ""
 set config = ""
 set cmd = ""
 set args = ""
-set qtdir = ""
+set ldpathdir = ""
 set expret = 0
 set valgrind = ""
 set gensuppressions="all"
@@ -27,6 +27,9 @@ else if ( "$1" == "--datadir" ) then
     shift
 else if ( "$1" == "--plf" ) then
     set plf=$2
+    shift
+else if ( "$1" == "--oddir" ) then
+    set args="${args} --oddir $2"
     shift
 else if ( "$1" == "--quiet" ) then
     set args="${args} --quiet"
@@ -47,13 +50,13 @@ else if ( "$1" == "--config" ) then
 else if ( "$1" == "--parfile" ) then
     set args="${args} $2"
     shift
-else if ( "$1" == "--qtdir" ) then
-    set qtdir=$2
+else if ( "$1" == "--ldpathdir" ) then
+    set ldpathdir=$2
     shift
 else if ( "$1" == "--help" ) then
-    echo "Usage: run_tst [option]"
+    echo "Usage: run_test [option]"
     echo " --command cmd"
-    echo " --ldpath ldpath"
+    echo " --ldpathdir ldpath"
     echo " --datadir datadir"
     echo " [--parfile parfile]"
     exit 0
@@ -86,18 +89,27 @@ if ( "$config" == "" ) then
     exit 1
 endif
 
-if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}:${LD_LIBRARY_PATH}
+#Figure out libdir
+set kernel=`uname -a | awk '{print $1}'`
+
+if ( "${kernel}" == "Darwin" ) then
+    set bindir="${wdir}/Contents/MacOS"
 else
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
+    set bindir="${wdir}/bin/${plf}/${config}"
 endif
 
-if ( $?DYLD_LIBRARY_PATH ) then
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}:${DYLD_LIBRARY_PATH}
-else
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
+if ( "$ldpathdir" != "" ) then
+    if ( $?LD_LIBRARY_PATH ) then
+	setenv LD_LIBRARY_PATH ${ldpathdir}:${LD_LIBRARY_PATH}
+    else
+	setenv LD_LIBRARY_PATH ${ldpathdir}
+    endif
+    if ( $?DYLD_LIBRARY_PATH ) then
+	setenv DYLD_LIBRARY_PATH ${ldpathdir}:${DYLD_LIBRARY_PATH}
+    else
+	setenv DYLD_LIBRARY_PATH ${ldpathdir}
+    endif
 endif
-
 
 if ( "$datadir" != "" ) then
     set args = "${args} --datadir ${datadir}"
@@ -117,14 +129,14 @@ if ( "${valgrind}" != "" ) then
 	"--num-callers=50" \
 	"--track-origins=yes" \
 	"--error-exitcode=1" \
-	"${wdir}/bin/${plf}/${config}/${cmd}" ${args} --quiet
+	"${bindir}/${cmd}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} failed memory test".
 	exit 1
     endif
 else
-    "${wdir}/bin/${plf}/${config}/${cmd}" ${args}
+    "${bindir}/${cmd}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
