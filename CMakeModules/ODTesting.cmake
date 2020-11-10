@@ -31,7 +31,8 @@ endmacro()
 
 macro( ADD_RUNTIME_PATHS )
     if ( NOT "${OD_MODULE_RUNTIMEPATH}" STREQUAL "" )
-	list ( APPEND TEST_ARGS --pathdirs "${OD_MODULE_RUNTIMEPATH}" )
+        list( JOIN OD_MODULE_RUNTIMEPATH ";" OD_TEST_RUNTIMEPATHS )
+	list ( APPEND TEST_ARGS --pathdirs "${OD_TEST_RUNTIMEPATHS}" )
     endif()
 endmacro( ADD_RUNTIME_PATHS )
 
