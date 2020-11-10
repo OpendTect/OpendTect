@@ -159,6 +159,7 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
     else()
 	set( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.csh" )
     endif()
+    set ( TEST_ARGS --command test_exit_program )
 
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
