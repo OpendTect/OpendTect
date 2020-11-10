@@ -31,8 +31,9 @@ endmacro()
 
 macro( ADD_RUNTIME_PATHS )
     if ( NOT "${OD_MODULE_RUNTIMEPATH}" STREQUAL "" )
-        list( JOIN OD_MODULE_RUNTIMEPATH ";" OD_TEST_RUNTIMEPATHS )
-	list ( APPEND TEST_ARGS --pathdirs "${OD_TEST_RUNTIMEPATHS}" )
+	foreach ( TEST_RUNTIMEPATH ${OD_MODULE_RUNTIMEPATH} )
+	    list ( APPEND TEST_ARGS --pathdirs "${TEST_RUNTIMEPATH}" )
+	endforeach()
     endif()
 endmacro( ADD_RUNTIME_PATHS )
 
@@ -169,6 +170,7 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
 		    --expected-result 1
 		    --quiet )
+    set( OD_MODULE_RUNTIMEPATH "${QTDIR}/bin" )
     if ( WIN32 )
 	ADD_RUNTIME_PATHS()
     else()

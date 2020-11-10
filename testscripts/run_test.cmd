@@ -6,6 +6,7 @@ REM
 
 setlocal
 set args=
+set "pathdirs="
 set expret=0
 
 :parse_args
@@ -33,7 +34,11 @@ IF "%1"=="--command" (
     set args=%args% --datadir %2
     shift
 ) ELSE IF "%1"=="--pathdirs" (
-    set pathdirs=%~2
+    IF "%pathdirs%" == "" (
+        set "pathdirs=%~2"
+    ) ELSE (
+        set "pathdirs=%pathdirs%;%~2"
+    )
     shift
 ) ELSE ( goto do_it )
 
