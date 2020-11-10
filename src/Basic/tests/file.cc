@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "filepath.h"
 #include "od_istream.h"
+#include "od_ostream.h"
 
 #define mTest( testname, test ) \
 if ( !(test) ) \
@@ -38,12 +39,15 @@ bool testReadContent()
     FilePath nofile( basedir.buf(), "src", "Basic", "tests","NonExistingFile");
     mRunTest(!File::getContent(nofile.fullPath(),buf) && buf.isEmpty());
 
+    //Create empty file
+
     //Read empty file - should work fine.
     buf.setEmpty();
     FilePath emptyfile( basedir.buf(), "emptyfile.txt");
     od_ostream stream(emptyfile.fullPath());
     stream.close();
     mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
+
     File::remove( emptyfile.fullPath() );
 
     //Read non empty file - should work fine.
@@ -81,35 +85,95 @@ bool testIStream( const char* file )
 }
 
 
+bool testFilePath( const char* inputpath,
+		   const char* filename,
+		   const char* domain,
+		   const char* extension,
+		   const char* postfix,
+		   int nrlevels,
+		   bool absolute )
+{
+    const FilePath path( inputpath );
+
+    mRunStandardTest( path.isAbsolute()==absolute,
+	    BufferString( inputpath, " detects absolute status" ) );
+
+    mRunStandardTest( path.fileName()==filename,
+	    BufferString( inputpath, " detects filename" ) );
+
+/*    mRunStandardTest( FixedString(path.domain())==domain,
+	    BufferString( inputpath, " detects domain" ) ); */
+
+    mRunStandardTest( FixedString(path.extension())==extension,
+	    BufferString( inputpath, " detects extension" ) );
+
+/*    mRunStandardTest( FixedString(path.postfix())==postfix,
+	    BufferString( inputpath, " detects postfix" ) );*/
+
+    mRunStandardTest( path.nrLevels()==nrlevels,
+	    BufferString( inputpath, " detects nrLevels" ) );
+
+    return true;
+}
+
+
 bool testFilePathParsing()
 {
-    FilePath winstyle( "C:\\Program Files\\OpendTect 5.0.0\\file.txt" );
-    if ( winstyle.fileName() != "file.txt" )
+    if ( !testFilePath( "C:\\path\\to\\me.txt",
+			"me.txt",	//filename
+			"",		//domain
+			"txt",		//extension
+			"",		//postfix
+			3,		//nrlevels
+			true ))	//absolute
     {
-	od_cout() << "Failed to parse Windows style file path" << od_endl;
-	od_cout() << "Actual result: " << winstyle.fileName() << od_endl;
-	od_cout() << "Expected result: file.txt" << od_endl;
 	return false;
     }
 
-    FilePath unixstyle( "/data/apps/OpendTect 5.0.0/file.txt" );
-    if ( unixstyle.fileName() != "file.txt" )
+    if ( !testFilePath( "/data/apps/OpendTect 5.0.0/file.txt",
+			"file.txt",	//filename
+			"",		//domain
+			"txt",		//extension
+			"",		//postfix
+			4,		//nrlevels
+			true ))	//absolute
     {
-	od_cout() << "Failed to parse Unix style file path" << od_endl;
-	od_cout() << "Actual result: " << unixstyle.fileName() << od_endl;
-	od_cout() << "Expected result: file.txt" << od_endl;
 	return false;
     }
 
-    FilePath mixedstyle( "C:\\Program Files/OpendTect\\5.0.0/file.txt" );
-    if ( mixedstyle.fileName() != "file.txt" )
+    if ( !testFilePath( "C:\\Program Files/OpendTect\\5.0.0/file.txt",
+			"file.txt",	//filename
+			"",		//domain
+			"txt",		//extension
+			"",		//postfix
+			4,		//nrlevels
+			true ))	//absolute
     {
-	od_cout() << "Failed to parse Windows-Unix mixed file path" << od_endl;
-	od_cout() << "Actual result: " << mixedstyle.fileName() << od_endl;
-	od_cout() << "Expected result: file.txt" << od_endl;
+	return false;
+    }
+/*
+    if ( !testFilePath( "https://dgbes.com/surveys/aap/noot?x=y&&a=b",
+			"noot",		//filename
+			"dgbes.com",	//domain
+			"",		//extension
+			"x=y&&a=b",	//postfix
+			3,		//nrlevels
+			true ))	//absolute
+    {
 	return false;
     }
 
+    if ( !testFilePath( "https://dgbes.amazon.com/surveys/F3 Demo/Seismics/median_filtered.cbvs",
+			"median_filtered.cbvs",	//filename
+			"dgbes.amazon.com",	//domain
+			"cbvs",		//extension
+			"",		//postfix
+			4,		//nrlevels
+			true ))		//absolute
+    {
+	return false;
+    }
+*/
     return true;
 }
 
@@ -118,14 +182,13 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    BufferStringSet normalargs;
-    clParser().getNormalArguments(normalargs);
+    FilePath fp( __FILE__ );
+    fp.setExtension( "par" );
+    if ( !fp.exists() )
+	{ errStream() << "Input file not found"; ExitProgram( 1 ); }
 
-    if ( normalargs.isEmpty() )
-	{ od_cout() << "No input file specified"; ExitProgram( 1 ); }
-
-    if ( !testReadContent()
-      || !testIStream( normalargs.get(0).buf() ) )
+    const BufferString parfile( fp.fullPath() );
+    if ( !testReadContent() || !testIStream( parfile.buf() ) )
 	ExitProgram( 1 );
 
     if ( !testFilePathParsing() )
