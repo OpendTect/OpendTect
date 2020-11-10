@@ -94,10 +94,8 @@ set kernel=`uname -a | awk '{print $1}'`
 
 if ( "${kernel}" == "Darwin" ) then
     set bindir="${wdir}/Contents/MacOS"
-    set libdir="${wdir}/Contents/Frameworks"
 else
     set bindir="${wdir}/bin/${plf}/${config}"
-    set libdir="${bindir}"
 endif
 
 if ( "$ldpathdir" != "" ) then
