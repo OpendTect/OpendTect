@@ -29,6 +29,12 @@ macro ( OD_SETUP_TEST_FILTER )
 	${CMAKE_SOURCE_DIR}/CTestCustom.cmake @ONLY )
 endmacro()
 
+macro( ADD_RUNTIME_PATHS )
+    if ( NOT "${OD_MODULE_RUNTIMEPATH}" STREQUAL "" )
+	list ( APPEND TEST_ARGS --pathdirs "${OD_MODULE_RUNTIMEPATH}" )
+    endif()
+endmacro( ADD_RUNTIME_PATHS )
+
 macro( ADD_CXX_LD_LIBRARY_PATH )
     get_filename_component( CXXPATH ${CMAKE_CXX_COMPILER} DIRECTORY )
     get_filename_component( CXXPATH ${CXXPATH} DIRECTORY )
@@ -38,7 +44,7 @@ macro( ADD_CXX_LD_LIBRARY_PATH )
 	get_filename_component( CXXPATH ${LIBSTDLOC} DIRECTORY )
 	if ( (NOT "${CXXPATH}" STREQUAL "/usr/lib") AND 
 	     (NOT "${CXXPATH}" STREQUAL "/usr/lib64") )
-	    list ( APPEND TEST_ARGS --pathdir ${CXXPATH} )
+	    list ( APPEND TEST_ARGS --ldpathdir ${CXXPATH} )
 	endif()
     endif()
 endmacro( ADD_CXX_LD_LIBRARY_PATH )
@@ -46,18 +52,17 @@ endmacro( ADD_CXX_LD_LIBRARY_PATH )
 macro ( ADD_TEST_PROGRAM TEST_NAME )
     if ( WIN32 )
 	set ( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.cmd" )
-	set ( TEST_ARGS --command ${TEST_NAME}.exe )
     else()
 	set ( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.csh" )
-	set ( TEST_ARGS --command ${TEST_NAME} )
     endif()
+    set ( TEST_ARGS --command ${TEST_NAME} )
 
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
 		    --oddir ${OD_BINARY_BASEDIR}
 		    --quiet )
     if ( WIN32 )
-	list ( APPEND TEST_ARGS --qtdir ${QTDIR} )
+	ADD_RUNTIME_PATHS()
     elseif ( NOT APPLE )
 	ADD_CXX_LD_LIBRARY_PATH()
     endif()
@@ -148,23 +153,25 @@ endmacro()
 
 
 macro ( OD_ADD_EXIT_PROGRAM_TEST )
+    set ( APPEND TEST_ARGS --command test_exit_program )
     if ( WIN32 )
-	set( CMD "${OpendTect_DIR}/testscripts/run_test.cmd" )
-	list ( APPEND CMD --command test_exit_program.exe )
+	set( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.cmd" )
     else()
-	set( CMD "${OpendTect_DIR}/testscripts/run_test.csh" )
-	list ( APPEND CMD --command test_exit_program )
-	if ( NOT APPLE )
-	    ADD_CXX_LD_LIBRARY_PATH()
-	endif()
+	set( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.csh" )
     endif()
 
-    list ( APPEND CMD --wdir ${CMAKE_BINARY_DIR}
-                    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
+    list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
+		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
+		    --oddir ${OD_BINARY_BASEDIR}
 		    --expected-result 1
-                    --quiet )
+		    --quiet )
+    if ( WIN32 )
+	ADD_RUNTIME_PATHS()
+    elseif ( NOT APPLE )
+	ADD_CXX_LD_LIBRARY_PATH()
+    endif()
 
-    add_test( test_exit_program ${CMD} )
+    add_test( test_exit_program "${TEST_COMMAND}" ${TEST_ARGS}  )
 endmacro()
 
 macro ( OD_ADD_LINT_TEST )
