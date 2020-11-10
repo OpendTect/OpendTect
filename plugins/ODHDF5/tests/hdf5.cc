@@ -618,7 +618,7 @@ int main( int argc, char** argv )
     if ( !HDF5::isAvailable() )
     {
 	tstStream( true ) << "HDF5 not available" << od_endl;
-	return ExitProgram(0);
+	return ExitProgram(1);
     }
 
     filename_.set( FilePath(File::getTempPath(),"test.h5").fullPath() );
