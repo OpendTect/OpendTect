@@ -526,7 +526,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     CmdRecEvent ev;
     mCBCapsuleUnpackWithCaller( const char*, msg, caller, cb );
 
-    const char* msgnext = getNextWord( msg, ev.idstr_.getCStr() );
+    const char* msgnext = getNextNonBlanks( msg, ev.idstr_.getCStr() );
     mSkipBlanks ( msgnext );
 
     const bool iscarrieronly = ev.idstr_.isNumber( true );
@@ -541,7 +541,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     }
 
     BufferString beginendword;
-    const char* msgnexxt = getNextWord( msgnext, beginendword.getCStr() );
+    const char* msgnexxt = getNextNonBlanks( msgnext, beginendword.getCStr() );
 
     if ( mMatchCI(beginendword,"Begin") )
 	ev.begin_ = true;
@@ -556,7 +556,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     ev.msg_ = msgnexxxt;
 
     BufferString keyword;
-    const char* msgtail = getNextWord( msgnexxxt, keyword.getCStr() );
+    const char* msgtail = getNextNonBlanks( msgnexxxt, keyword.getCStr() );
     mSkipBlanks ( msgtail );
 
     BufferString fackey;
