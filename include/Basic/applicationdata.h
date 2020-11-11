@@ -49,6 +49,7 @@ public:
     static void		setOrganizationName(const char*);
     static void		setOrganizationDomain(const char*);
     static void		setApplicationName(const char*);
+    static BufferString	applicationName();
 protected:
 
     mQtclass(QCoreApplication)* application_;
