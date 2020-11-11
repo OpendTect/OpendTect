@@ -71,6 +71,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     char section = '-';
     lfi.depthcolnr = -1;
     int colnr = 0;
+    LatLong ll;
 
     while ( strm.isOK() )
     {
@@ -172,7 +173,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    unitmeasstrs_.add( val1 );
 
 	break;
-	case 'W':
+	case 'W':	// ~Well Information Block
+	case 'P':	// ~Parameter Information Block
 	    if ( mIsKey("STRT") )
 		lfi.zrg.start = toFloat(val2);
 	    if ( mIsKey("STOP") )
@@ -193,6 +195,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		lfi.kbelev_ = toDouble(val2);
 	    if ( mIsKey("EGL") )
 		lfi.glelev_ = toDouble(val2);
+	    // TODO: Country and State are two different things. Need to split
 	    if ( (mIsKey("CTRY") || mIsKey("STAT")) && lfi.state_.isEmpty() &&
 		 (val1 && *val1) )
 	    {
@@ -203,7 +206,10 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		 (val1 && *val1) )
 	    {
 		lfi.county_ = val1;
-		if ( val2 && *val2 ) { lfi.county_ += " "; lfi.county_ += val2; }
+		if ( val2 && *val2 )
+		{
+		    lfi.county_ += " "; lfi.county_ += val2;
+		}
 	    }
 	    if ( mIsKey("LOC") )
 		parseLocation( val1, val2, lfi.loc_ );
@@ -219,10 +225,35 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		lfi.srvc_ = val1;
 		if ( val2 && *val2 ) { lfi.srvc_ += " "; lfi.srvc_ += val2; }
 	    }
+	    if ( mIsKey("XCOORD") || mIsKey("XWELL") || mIsKey("X") )
+	    {
+		// TODO: use UOM
+		lfi.loc_.x = toDouble( val2, mUdf(double) );
+	    }
+	    if ( mIsKey("YCOORD") || mIsKey("YWELL") || mIsKey("Y") )
+	    {
+		// TODO: use UOM
+		lfi.loc_.y = toDouble( val2, mUdf(double) );
+	    }
+	    if ( mIsKey("LATI") )
+	    {
+		// TODO: use UOM
+		ll.setFromString( val2, true );
+	    }
+	    if ( mIsKey("LONG") )
+	    {
+		// TODO: use UOM
+		ll.setFromString( val2, false );
+	    }
 	break;
 	default:
 	break;
 	}
+    }
+
+    if ( lfi.loc_.isUdf() && ll.isDefined() )
+    {
+	lfi.loc_ = LatLong::transform( ll );
     }
 
     if ( convs_.isEmpty() )
@@ -288,7 +319,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
 				       const char* startptr2, Coord& ret )
 {
     const BufferString locstr( startptr1, startptr2 );
-    if ( locstr.isEmpty() )
+    if ( locstr.isEmpty() || locstr.contains("UNKNOWN") )
 	return;
 
     const char* startptr = locstr.str();
@@ -296,7 +327,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
     while ( *startptr && !( (*startptr >= '0' && *startptr <= '9') ||
 			     *startptr == '-' || *startptr == '+' ||
 			     *startptr == 'E' || *startptr == 'N' ||
-	                     *startptr == '\'' || *startptr == '"' ) )
+			     *startptr == '\'' || *startptr == '"' ) )
     {
 	startptr++;
 	mSkipBlanks(startptr)
@@ -328,7 +359,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
     while ( *startptr && !( (*startptr >= '0' && *startptr <= '9') ||
 			     *startptr == '-' || *startptr == '+' ||
 			     *startptr == 'E' || *startptr == 'N' ||
-	                     *startptr == '\'' || *startptr == '"' ) )
+			     *startptr == '\'' || *startptr == '"' ) )
     {
 	startptr++;
 	mSkipBlanks(startptr)

@@ -136,6 +136,8 @@ bool LatLong::setFromString( const char* str, bool lat )
 	buf.setEmpty();
 	parsesz = 2;
 	offset += parsesz;
+	if ( parsesz <= 0 )
+	    return false;
 	strncpy(buf.getCStr(),llstr.buf()+(len-offset),parsesz);
 	buf[parsesz] = '\0';
 	int mins = toInt( buf );
@@ -143,6 +145,8 @@ bool LatLong::setFromString( const char* str, bool lat )
 	// parse degrees
 	buf.setEmpty();
 	parsesz = len - offset;
+	if ( parsesz <= 0 )
+	    return false;
 	strncpy(buf.getCStr(),llstr.buf(),parsesz);
 	buf[parsesz] = '\0';
 	int degs = toInt( buf );
