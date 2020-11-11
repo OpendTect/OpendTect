@@ -42,6 +42,8 @@ public:
 			//!< checks whether given type has support
 			//!< returns whether user wants to continue
 
+    static bool		ensureValidDataRoot();
+
     /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
     struct Util
     {

@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui2dsip.h"
 
 #include "angles.h"
+#include "applicationdata.h"
 #include "ctxtioobj.h"
 #include "dirlist.h"
 #include "envvars.h"
@@ -696,6 +697,28 @@ bool uiSurvey::survTypeOKForUser( bool is2d )
 			    : tr("2-D only'.\nTo be able to actually use 3-D"));
 
     return uiMSG().askContinue( warnmsg );
+}
+
+
+bool uiSurvey::ensureValidDataRoot()
+{
+    while ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
+    {
+	uiSetDataDir dlg( nullptr );
+	dlg.setModal( true );
+	if ( !dlg.go() )
+	{
+	    const BufferString appnm = ApplicationData::applicationName();
+	    if ( uiMSG().askGoOn( tr("Without a valid Survey Data Root,\n"
+				     "'%1' cannot start.\nDo you wish to exit?")
+					.arg(appnm) ) )
+		return false;
+	}
+	else if ( uiSetDataDir::setRootDataDir(nullptr,dlg.selectedDir()) )
+	    break;
+    }
+
+    return true;
 }
 
 
