@@ -197,7 +197,8 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
 \
     bool pathcol = false; \
     BufferString tagstr; \
-    const char* mUnusedVar parnext = getNextWord( parstr, tagstr.getCStr() ); \
+    const char* mUnusedVar parnext = \
+			getNextNonBlanks( parstr, tagstr.getCStr() ); \
 \
     if ( mMatchCI(tagstr,"PathCol") ) \
 	pathcol = true; \
@@ -1066,7 +1067,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
 	if ( ev.nraccepts_ )
 	    return true;
 
-	getNextWord( ev.msg_, notifiername.getCStr() );
+	getNextNonBlanks( ev.msg_, notifiername.getCStr() );
 
 	if ( mMatchCI(notifiername, "itemEntered") && !ev.begin_ )
 	{
