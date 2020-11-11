@@ -61,3 +61,9 @@ void ApplicationData::setOrganizationDomain( const char* domain )
 
 void ApplicationData::setApplicationName( const char* nm )
 { QCoreApplication::setApplicationName( nm ); }
+
+BufferString ApplicationData::applicationName()
+{
+    QString qstr = QCoreApplication::applicationName();
+    return qstr;
+}
