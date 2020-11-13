@@ -170,8 +170,7 @@ bool uiExport2DHorizon::doExport()
 	{
 	    linenmfld_->getChosen( linenms );
 	    if ( !linenms.size() )
-		mErrRet( uiStrings::phrSelect(tr("at least one line to "
-								"proceed")) )
+		mErrRet( tr("Select at least one line to proceed") )
 	}
 	else
 	{
@@ -250,15 +249,15 @@ bool uiExport2DHorizon::doExport()
 		    }
 		    else
 		    {
-			controlstr += "%16.2lf%16.2lf%8d%8d%16s";
+			controlstr += "%16.2lf%16.2lf%8.2lf%8d%16s";
 			if ( isbulk_ )
 			    sprintf( line.getCStr(), controlstr.buf(),
-				   horname.buf(), linename.buf(), crd.x, crd.y,
-				   spnr, trcnr, undefstr.buf() );
+				horname.buf(), linename.buf(), crd.x, crd.y,
+				spnr, trcnr, undefstr.buf() );
 			else
 			    sprintf( line.getCStr(), controlstr.buf(),
-				   linename.buf(), crd.x, crd.y, spnr, trcnr,
-				   undefstr.buf() );
+				linename.buf(), crd.x, crd.y, spnr, trcnr,
+				undefstr.buf() );
 		    }
 		}
 		else
@@ -266,11 +265,11 @@ bool uiExport2DHorizon::doExport()
 		    const float scaledz = z * zfac;
 		    if ( wrlnms )
 		    {
-			controlstr += "%16.2lf%16.2lf%8d%8d%16.4lf";
+			controlstr += "%16.2lf%16.2lf%8.2lf%8d%16.4lf";
 			if ( isbulk_ )
 			      sprintf( line.getCStr(), controlstr.buf(),
-			      horname.buf(), linename.buf(), crd.x, crd.y,spnr,
-			      trcnr, scaledz );
+				horname.buf(), linename.buf(), crd.x, crd.y,spnr,
+				trcnr, scaledz );
 			else
 			{
 			    sprintf( line.getCStr(), controlstr.buf(),

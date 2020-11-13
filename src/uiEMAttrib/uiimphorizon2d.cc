@@ -239,7 +239,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     sep->attach( stretchedBelow, scanbut_ );
 
     BufferStringSet udftreatments;
-    udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
+    udftreatments.add( "Skip" ).add( "Pass" ).add( "Interpolate" );
     udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
 				   StringListInpSpec(udftreatments) );
     udftreatfld_->attach( alignedBelow, scanbut_ );
@@ -256,14 +256,14 @@ uiImportHorizon2D::~uiImportHorizon2D()
 }
 
 
-void uiImportHorizon2D::descChg( CallBacker* cb )
+void uiImportHorizon2D::descChg( CallBacker* )
 {
     delete scanner_;
     scanner_ = 0;
 }
 
 
-void uiImportHorizon2D::formatSel( CallBacker* cb )
+void uiImportHorizon2D::formatSel( CallBacker* )
 {
     BufferStringSet hornms;
     horselfld_->getChosen( hornms );
@@ -355,9 +355,15 @@ bool uiImportHorizon2D::doImport()
 	return false;
     }
 
-    bool hasgaps = scanner_->hasGaps();
-    if ( hasgaps )
-	udftreatfld_->setValue( 2 );
+    const int udfchoice = udftreatfld_->getIntValue();
+    if ( scanner_->hasGaps() && udfchoice==0 )
+    {
+	const int res = uiMSG().askGoOn(
+		tr("Horizon has gaps, but interpolation is turned off.\n"
+		   "Continue?") );
+	if ( res==0 )
+	    return false;
+    }
 
     BufferStringSet linenms;
     scanner_->getLineNames( linenms );
