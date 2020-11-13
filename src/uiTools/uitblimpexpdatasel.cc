@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tableascio.h"
 #include "unitofmeasure.h"
 
-#define mChoiceBoxWidth 10
+#define mChoiceBoxWidth 12
 
 
 class uiTableTargetInfoEd : public uiGroup
@@ -121,7 +121,10 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     {
 	crsfld_ = new Coords::uiCoordSystemSel( this, true, true,
 						tinf_.selection_.coordsys_ );
-	crsfld_->attach( stretchedBelow, rightmostfld_ );
+	if ( !colboxes_.isEmpty() && !colboxes_[0]->isEmpty() )
+	    crsfld_->attach( alignedBelow, (*colboxes_[0])[0] );
+	else
+	    crsfld_->attach( alignedBelow, rightmostfld_ );
     }
 
     postFinalise().notify( boxcb );
