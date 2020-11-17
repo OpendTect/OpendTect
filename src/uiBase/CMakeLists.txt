@@ -4,8 +4,8 @@
 # 	July 1995	Bert
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS Network )
-set(OD_USEQT Widgets PrintSupport)
+set(OD_MODULE_DEPS General )
+set(OD_USEQT PrintSupport)
 #set(OD_TEST_PROGS uigraphicsview.cc)
 set(OD_TEST_PROGS )
 set(QT_MOC_HEADERS
@@ -96,53 +96,6 @@ set(OD_MODULE_SOURCES
 )
 
 
-set(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
+SET(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
 OD_ADD_SOURCE_FILES( uimainicon.xpm )
-
-find_package( Qt5WebEngineWidgets QUIET )
-if ( Qt5WebEngineWidgets_FOUND )
-    option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets support" ON )
-    if ( USE_QtWebEngine )
-
-	list( APPEND OD_USEQT
-		   WebEngineWidgets )
-	list( APPEND QT_INSTLIBS
-		   Positioning
-		   Quick
-		   QuickWidgets
-		   WebEngineCore
-		   WebChannel )
-	list( APPEND QT_MOC_HEADERS
-		i_qwebengineview.h
-        )
-	list( APPEND OD_MODULE_SOURCES
-		uiwebengine.cc
-        )
-        add_definitions( -D__withqtwebengine__ )
-
-        install( DIRECTORY ${QTDIR}/resources
-	         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
-	         CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-	         USE_SOURCE_PERMISSIONS )
-	install( DIRECTORY ${QTDIR}/translations
-                 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
-                 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-                 USE_SOURCE_PERMISSIONS
-                 FILES_MATCHING
-                 PATTERN "qtwebengine_*.qm"
-                 PATTERN "qtwebengine_locales/*.pak" )
-	if ( WIN32 )
-	    set( QTPOSTFIX "" )
-	    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-		set( QTPOSTFIX "d" )
-	    endif()
-	    OD_INSTALL_PROGRAM( ${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe )
-	    OD_INSTALL_PROGRAM( ${QTDIR}/bin/qwebengine_convert_dict.exe )
-	else()
-	    OD_INSTALL_PROGRAM( ${QTDIR}/libexec/QtWebEngineProcess )
-	    OD_INSTALL_PROGRAM( ${QTDIR}/bin/qwebengine_convert_dict )
-	endif()
-    endif( USE_QtWebEngine )
-endif( Qt5WebEngineWidgets_FOUND )
-
 OD_INIT_MODULE()

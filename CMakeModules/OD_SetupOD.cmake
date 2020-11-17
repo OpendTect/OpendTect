@@ -3,12 +3,14 @@ SET( OD_CORE_SUBSYSTEM "od" )
 SET( INCLUDES
     ODOpenCL
     ODSubversion
-    ODQtUtils
     ODPlatformUtils
     ODUtils
+    ODQtUtils
+    ODOsgUtils
     ODZlibUtils
-    ODOpenSSLUtils
     ODProj4Utils
+    ODOpenSSLUtils
+    ODHDF5Utils
     ODBreakPadUtils
     ODMacroUtils
     ODModDeps
@@ -21,10 +23,6 @@ SET( INCLUDES
     ODTranslation
     ODIttNotifyUtils
 )
-
-if ( NOT OD_NO_OSG )
-    SET( INCLUDES ${INCLUDES} ODOsgUtils )
-endif()
 
 FOREACH( INC ${INCLUDES} )
     INCLUDE( ${OpendTect_DIR}/CMakeModules/${INC}.cmake )

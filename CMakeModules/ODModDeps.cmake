@@ -77,6 +77,23 @@ foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set ( MODULE_INCLUDES 
 	   "${MODULE_INCLUDES}set( OD_${MODULE}_INCLUDEPATH ${PRINTPATH} )${OD_LINESEP}" )
     endif()
+
+    if ( OD_${MODULE}_EXTERNAL_LIBS )
+	set ( MODULE_EXTERNAL_LIBS 
+	    "${MODULE_EXTERNAL_LIBS}set( OD_${MODULE}_EXTERNAL_LIBS ${OD_${MODULE}_EXTERNAL_LIBS} )${OD_LINESEP}" )
+    endif()
+
+    if ( OD_${MODULE}_EXTERNAL_RUNTIME_LIBS )
+	set ( MODULE_EXTERNAL_RUNTIME_LIBS 
+	    "${MODULE_EXTERNAL_RUNTIME_LIBS}set( OD_${MODULE}_EXTERNAL_RUNTIME_LIBS ${OD_${MODULE}_EXTERNAL_RUNTIME_LIBS} )${OD_LINESEP}" )
+    endif()
+
+    foreach ( SETUPNM ${SETUPNMS} )
+	if ( OD_${MODULE}_SETUP_${SETUPNM} )
+	    set( MODULES_SETUP
+		"${MODULES_SETUP}set( OD_${MODULE}_${SETUPNM} ${OD_${MODULE}_SETUP_${SETUPNM}} )${OD_LINESEP}" )
+	endif()
+    endforeach()
 endforeach()
 
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/FindOpendTect.cmake.in

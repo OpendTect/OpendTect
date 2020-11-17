@@ -6,9 +6,9 @@
 
 set(OD_MODULE_DEPS visSurvey uiTools )
 set(OD_USEQT OpenGL)
-set(OD_USEOSG 1)
+set(OD_USEOSG Yes)
 
-set(OD_MODULE_SOURCES
+SET(OD_MODULE_SOURCES
 	inituiosg.cc
 	keybindings.cc
 	odfontimplementation.cc
@@ -21,5 +21,5 @@ set(OD_MODULE_SOURCES
 	uistereodlg.cc 
 )
 
-set(OD_MODULE_PROGS od_osgfileviewer.cc )
+SET(OD_MODULE_PROGS od_osgfileviewer.cc )
 OD_INIT_MODULE()
