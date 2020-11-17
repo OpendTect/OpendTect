@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Geometry)
-set(OD_USEOSG 1)
+set(OD_USEOSG Yes)
 
 set(OD_MODULE_SOURCES
 	   initvisbase.cc

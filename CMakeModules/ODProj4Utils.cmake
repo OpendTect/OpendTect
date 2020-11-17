@@ -28,7 +28,7 @@ macro( OD_CONF_PROJ4 )
 	-DBUILD_GIE=OFF
 	-DBUILD_NAD2BIN=OFF
 	-DPROJ_TESTS=OFF
-	"${CMAKE_SOURCE_DIR}/external/proj4"
+	"${OpendTect_DIR}/external/proj4"
 	WORKING_DIRECTORY "${PROJ4_DIR}"
 	ERROR_VARIABLE ERROUTPUT
 	RESULT_VARIABLE STATUS )
@@ -54,7 +54,7 @@ endmacro(OD_BUILD_PROJ4)
 
 macro( OD_ADD_PROJ4 )
 
-    set ( PROJ4_DIR "${CMAKE_BINARY_DIR}/external/proj4" )
+    set ( PROJ4_DIR "${OD_BINARY_BASEDIR}/external/proj4" )
     if ( NOT EXISTS "${PROJ4_DIR}/CMakeCache.txt" )
 	OD_CONF_PROJ4()
 	OD_BUILD_PROJ4()
@@ -67,7 +67,9 @@ macro( OD_ADD_PROJ4 )
 	set ( PROJ4_DIR "${PROJ4_DIR}/local" )
     endif()
     set ( PROJ4_DIR "${PROJ4_DIR}/lib/cmake/proj4" )
+
     find_package( PROJ4 QUIET )
+
     if ( NOT PROJ4_FOUND )
 	message( FATAL_ERROR "Proj4 external not found" )
     endif()
@@ -77,10 +79,11 @@ endmacro(OD_ADD_PROJ4)
 macro(OD_SETUP_PROJ4)
 
     if ( OD_USEPROJ4 )
-	OD_ADD_PROJ4()
-	list(APPEND OD_MODULE_INCLUDESYSPATH
-		${PROJ4_INCLUDE_DIRS} )
-	list( APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_LIBRARIES} )
+	if ( EXISTS "${PROJ4_INCLUDE_DIRS}" )
+	    list( APPEND OD_MODULE_INCLUDESYSPATH
+		    ${PROJ4_INCLUDE_DIRS} )
+	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_LIBRARIES} )
+	endif()
     endif( OD_USEPROJ4 )
 
 endmacro(OD_SETUP_PROJ4)

@@ -6,7 +6,6 @@
 
 
 set(OD_MODULE_DEPS Network)
-set(OD_USEQT Core)
 
 set(OD_MODULE_SOURCES
 	jobdescprov.cc

@@ -4,8 +4,6 @@
 #       July 2018	Bert/Arnaud
 #_______________________________________________________________________________
 
-cmake_policy( SET CMP0057 NEW )
-
 macro( HDF5CLEANUP )
   unset( HDF5_DIFF_EXECUTABLE CACHE )
   unset( HDF5_DIR CACHE )
@@ -74,7 +72,7 @@ macro( SETHDF5DIR )
   endif()
 endmacro()
 
-macro( OD_SETUP_HDF5 )
+macro( OD_FIND_HDF5 )
 
   if ( NOT DEFINED HDF5_ROOT )
     set( HDF5_ROOT "" CACHE PATH "HDF5 Location" )
@@ -117,5 +115,36 @@ macro( OD_SETUP_HDF5 )
       unset( HDF5_DIR CACHE )
     endif()
   endif()
+
+endmacro( OD_FIND_HDF5 )
+
+macro( OD_GET_LINKLIBS )
+    if( NOT HDF5_CXX_SHARED_LIBRARY AND HDF5_CXX_LIBRARY_hdf5_cpp )
+	set( HDF5_CXX_SHARED_LIBRARY ${HDF5_CXX_LIBRARY_hdf5_cpp} )
+    endif()
+    if( NOT HDF5_C_SHARED_LIBRARY AND HDF5_CXX_LIBRARY_hdf5 )
+	set( HDF5_C_SHARED_LIBRARY ${HDF5_CXX_LIBRARY_hdf5} )
+    endif()
+endmacro(OD_GET_LINKLIBS)
+
+macro( OD_SETUP_HDF5 )
+
+    if ( OD_USEHDF5 )
+	if ( DEFINED HDF5_INCLUDE_DIR )
+	    list ( APPEND OD_MODULE_INCLUDESYSPATH ${HDF5_INCLUDE_DIR} )
+	    OD_GET_LINKLIBS()
+	    list ( APPEND OD_MODULE_EXTERNAL_LIBS
+		    ${HDF5_C_SHARED_LIBRARY}
+		    ${HDF5_CXX_SHARED_LIBRARY} )
+
+	    if ( WIN32 )
+	        GETHDF5COMPDEF()
+	        add_definitions( -D${HDF5_COMPILEDEF} )
+	        if ( HDF5_VERSION VERSION_GREATER_EQUAL 1.12 )
+		    set( CMAKE_CXX_FLAGS "/wd4268 ${CMAKE_CXX_FLAGS}" )
+	        endif()
+	    endif()
+	endif()
+    endif( OD_USEHDF5 )
 
 endmacro( OD_SETUP_HDF5 )
