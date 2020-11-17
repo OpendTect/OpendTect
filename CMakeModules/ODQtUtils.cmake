@@ -287,11 +287,7 @@ macro( OD_SETUP_QT )
     endforeach()
 
     if( QT_MOC_HEADERS )
-	set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME} )
-	if ( NOT EXISTS "${OD_MODULE_DIR}" ) # Allow plugins
-	    set ( OD_MODULE_DIR ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
-	endif()
-
+	set ( OD_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 	foreach( HEADER ${QT_MOC_HEADERS} )
 	    list( APPEND QT_MOC_INPUT ${OD_MODULE_DIR}/${HEADER} )
 	endforeach()
