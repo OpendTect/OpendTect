@@ -34,9 +34,9 @@ static void printBatchUsage()
     strm << "\t --" << OS::MachineCommand::sKeyRemoteHost() <<"\tremote_host\n";
     strm << "\t --" << OS::MachineCommand::sKeyRemoteCmd() << "\t\tod_cmd\n\n";
     strm << "Optional arguments:\n";
-    strm << "\t --" << OS::MachineCommand::sKeyMasterHost() << "\t";
+    strm << "\t --" << OS::MachineCommand::sKeyPrimaryHost() << "\t";
     strm <<  Network::Socket::sKeyLocalHost() << od_newline;
-    strm << "\t --" << OS::MachineCommand::sKeyMasterPort() << "\t";
+    strm << "\t --" << OS::MachineCommand::sKeyPrimaryPort() << "\t";
     strm << Network::Server::sKeyPort() << od_newline;
     strm << "\t --" << OS::MachineCommand::sKeyJobID() << "\tjobid\n" ;
     strm << od_newline;
@@ -58,8 +58,8 @@ int main( int argc, char** argv )
 
     clp.setKeyHasValue( OS::MachineCommand::sKeyRemoteHost() );
     clp.setKeyHasValue( OS::MachineCommand::sKeyRemoteCmd() );
-    clp.setKeyHasValue( OS::MachineCommand::sKeyMasterHost() );
-    clp.setKeyHasValue( OS::MachineCommand::sKeyMasterPort() );
+    clp.setKeyHasValue( OS::MachineCommand::sKeyPrimaryHost() );
+    clp.setKeyHasValue( OS::MachineCommand::sKeyPrimaryPort() );
     clp.setKeyHasValue( OS::MachineCommand::sKeyJobID() );
 
     BufferString machine, remotecmd;
@@ -83,24 +83,24 @@ int main( int argc, char** argv )
     IOPar par;
     par.set( "Proc Name", remotecmd.str() );
 
-    BufferString masterhost;
-    int masterport, jobid;
-    const bool hasmasterhost =
-	       clp.getVal( OS::MachineCommand::sKeyMasterHost(), masterhost );
-    const bool hasmasterport =
-	       clp.getVal( OS::MachineCommand::sKeyMasterPort(), masterport );
+    BufferString primaryhost;
+    int primaryport, jobid;
+    const bool hasprimaryhost =
+	       clp.getVal( OS::MachineCommand::sKeyPrimaryHost(), primaryhost );
+    const bool hasprimaryport =
+	       clp.getVal( OS::MachineCommand::sKeyPrimaryPort(), primaryport );
     const bool hasjobid = clp.getVal( OS::MachineCommand::sKeyJobID(), jobid );
-    if ( hasmasterhost && hasmasterport && hasjobid )
+    if ( hasprimaryhost && hasprimaryport && hasjobid )
     {
-	par.set( "Host Name", masterhost );
-	par.set( "Port Name", masterport );
+	par.set( "Host Name", primaryhost );
+	par.set( "Port Name", primaryport );
 	par.set( "Job ID", jobid );
     }
-    else if ( hasmasterhost || hasmasterport || hasjobid )
+    else if ( hasprimaryhost || hasprimaryport || hasjobid )
     {
 	od_ostream& strm = od_ostream::logStream();
-	strm << "Error: --" << OS::MachineCommand::sKeyMasterHost() << ", --";
-	strm << OS::MachineCommand::sKeyMasterPort() << ", --";
+	strm << "Error: --" << OS::MachineCommand::sKeyPrimaryHost() << ", --";
+	strm << OS::MachineCommand::sKeyPrimaryPort() << ", --";
 	strm << OS::MachineCommand::sKeyJobID();
 	strm << " arguments must be set together\n\n";
 	mErrRet()

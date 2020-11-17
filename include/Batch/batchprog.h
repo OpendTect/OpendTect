@@ -76,7 +76,7 @@ public:
     IOPar&		pars()			{ return *iopar_; }
 
     mExp(Batch) bool	pauseRequested();
-			//<! pause requested (via socket) by master?
+			//<! pause requested (via socket) by primary host?
     mExp(Batch) void	setResumed();
 
     mExp(Batch) bool	errorMsg(const uiString&,bool cc_stderr=false);
@@ -137,7 +137,7 @@ private:
     bool		parseArguments();
 			//<! Parses command line arguments
     bool		initComm();
-			//<! Initializes job communication with master
+			//<! Initializes job communication with primary host
     bool		initLogging();
 			//<! Initialized logging stream
 

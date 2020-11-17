@@ -26,8 +26,8 @@ template <class T> class ObjQueue;
 /*!
 \brief Encapsulates status message from a running client.
 
- * Running clients report back to the master on a regular basis.
- * Whenever a client contacts the master, whatever it has
+ * Running clients report back to the primary host on a regular basis.
+ * Whenever a client contacts the primary host, whatever it has
  * to say is put into a StatusInfo structure.
  * These are put in a mutexed queue in order to keep a strict separation
  * between the communication thread and the GUI/manager thread.

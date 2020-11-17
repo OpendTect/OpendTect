@@ -26,11 +26,11 @@ bool testStringParsing()
     }
     {
 	const char* string =
-	    "'/dsk/d20/raman singh/dev/od-git/bin/od_exec'  --nice 19 --inbg "
-	    "od_proc"
-	    "ess_attrib -masterhost 192.168.4.20 -masterport 37500 -jobid 0 '/"
-	    "d20/raman/surveys/F3_Demo_2012/Proc/dgbindia20_3706_1/dgbindia20_"
-	    "0.par'";
+	   "'/dsk/d20/raman singh/dev/od-git/bin/od_exec'  --nice 19 --inbg "
+	   "od_proc"
+	   "ess_attrib -primaryhost 192.168.4.20 -primaryport 37500 -jobid 0 '/"
+	   "d20/raman/surveys/F3_Demo_2012/Proc/dgbindia20_3706_1/dgbindia20_"
+	   "0.par'";
 
 	CommandLineParser parser( string );
 	mRunStandardTest( parser.nrArgs()==11,
