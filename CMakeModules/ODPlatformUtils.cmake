@@ -98,16 +98,13 @@ if( UNIX ) #Apple and Linux
 
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
-	#Make all targets look for dependent libraries in the same location as they are in
-	set( CMAKE_INSTALL_RPATH "\$ORIGIN")
-	set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
     endif()
 
     set ( OD_LINESEP "\n" )
     set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
     set ( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
+    add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
     if ( OD_GCC_COMPILER )
 
@@ -123,7 +120,7 @@ if( UNIX ) #Apple and Linux
 
 	#use below and you'll be flooded with warnings:
 	#set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align -Wconversion ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wno-cast-align ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align ${CMAKE_CXX_FLAGS}" )
 
 
 	set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )
@@ -143,9 +140,8 @@ if( UNIX ) #Apple and Linux
 	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 
     else() # Intel compiler
-
+	set ( CMAKE_SKIP_RPATH TRUE )
 	set ( EXTRA_LIBS "imf" "m" ) #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
-
     endif( OD_GCC_COMPILER )
 
 endif(UNIX)
@@ -169,8 +165,6 @@ if(WIN32)
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
-    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
-		#/MP for parallel building
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
 	#/debug will enable the generation of pdb-files.
@@ -179,11 +173,11 @@ if(WIN32)
     endif()
 
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
-    #set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "-DmUnusedVar= ${CMAKE_CXX_FLAGS}")
-    set ( CMAKE_CXX_FLAGS   "-D_CRT_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUnusedVar= ${CMAKE_C_FLAGS}")
+    set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
 
@@ -200,6 +194,7 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4251 ${CMAKE_CXX_FLAGS}" ) # 'identifier' : dll-interface
     set ( CMAKE_CXX_FLAGS  "/wd4275 ${CMAKE_CXX_FLAGS}" ) # 'identifier' : dll-interface
     set ( CMAKE_CXX_FLAGS  "/wd4273 ${CMAKE_CXX_FLAGS}" ) # inconsistent dll linkage
+    set ( CMAKE_CXX_FLAGS  "/wd4996 ${CMAKE_CXX_FLAGS}" ) # function': was declared deprecated
     set ( CMAKE_CXX_FLAGS  "/wd4101 ${CMAKE_CXX_FLAGS}" ) # The local variable is never used (disable only for Windows)
     set ( CMAKE_CXX_FLAGS  "/wd4267 ${CMAKE_CXX_FLAGS}" ) # conversion from 'size_t' to 'type', possible loss of data
     set ( CMAKE_CXX_FLAGS  "/wd4267 ${CMAKE_CXX_FLAGS}" ) # conversion from 'size_t' to 'type', possible loss of data
@@ -211,7 +206,7 @@ if(WIN32)
 	set ( CMAKE_CXX_FLAGS_DEBUG  "/WX ${CMAKE_CXX_FLAGS_DEBUG}" ) # Treat warnings as errors
     endif()
     if ( MSVC_VERSION VERSION_GREATER 1800 ) #Adding this flag if VS version is greater than 12 on win64 platform
-	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
+	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int )
     endif()
     set ( CMAKE_CXX_FLAGS "/wd4714 ${CMAKE_CXX_FLAGS}" ) # _forceinline function not inlined
     set ( CMAKE_CXX_FLAGS "/wd4589 ${CMAKE_CXX_FLAGS}" ) # ignore initializer for abstract base classes
