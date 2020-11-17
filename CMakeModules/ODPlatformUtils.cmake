@@ -169,10 +169,6 @@ if(WIN32)
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
-    if ( "${OD_PLFSUBIR}" STREQUAL "win32" )
-	set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
-    endif()
-
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
 		#/MP for parallel building
     if ( CTEST_MODEL STREQUAL "Experimental" )
@@ -180,11 +176,6 @@ if(WIN32)
 	#/debug will enable the generation of pdb-files.
 	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" )
 		#/Zi for additional debug info to the .pdb file. 
-    endif()
-
-    #If Qt4, we use wchar_t-
-    if ( NOT Qt5Core_FOUND )
-	set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
     endif()
 
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
@@ -216,8 +207,11 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4127 ${CMAKE_CXX_FLAGS}" ) # conditional expression is constant, e.g. while ( true )
     set ( CMAKE_CXX_FLAGS  "/wd4189 ${CMAKE_CXX_FLAGS}" ) # local variable is initialized but not referenced
     set ( CMAKE_CXX_FLAGS  "/wd4305 ${CMAKE_CXX_FLAGS}" ) # truncation from dowble to float
-    if ( ${MSVC_VERSION} LESS 1900 ) #Adding these flags if VS version is less than 12
+    if ( MSVC_VERSION VERSION_LESS 1900 ) #Adding these flags if VS version is less than 12
 	set ( CMAKE_CXX_FLAGS_DEBUG  "/WX ${CMAKE_CXX_FLAGS_DEBUG}" ) # Treat warnings as errors
+    endif()
+    if ( MSVC_VERSION VERSION_GREATER 1800 ) #Adding this flag if VS version is greater than 12 on win64 platform
+	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
     endif()
     set ( CMAKE_CXX_FLAGS "/wd4714 ${CMAKE_CXX_FLAGS}" ) # _forceinline function not inlined
     set ( CMAKE_CXX_FLAGS "/wd4589 ${CMAKE_CXX_FLAGS}" ) # ignore initializer for abstract base classes
@@ -235,9 +229,6 @@ if(WIN32)
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
-    if ( (${MSVC_VERSION} GREATER 1800) OR (${OD_PLFSUBDIR} STREQUAL "win32") ) #Adding this flag if VS version is greater than 12 on win64 platform
-	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
-    endif()
 
     set ( OD_GUI_SYSTEM "WIN32" )
     set ( OD_LINESEP "\n" ) #Will be converted to \r\n when written to files by cmake
