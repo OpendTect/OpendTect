@@ -517,8 +517,14 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 
 	// Read log
 	const FilePath fplog( survdir, sKeyLogFile );
-	si->getLogPars().read( fplog.fullPath(), sKeySurvLog, true );
-	si->getLogPars().setName( sKeySurvLog );
+	IOPar& logpars = si->getLogPars();
+	logpars.read( fplog.fullPath(), sKeySurvLog, true );
+	logpars.setName( sKeySurvLog );
+	if ( logpars.isEmpty() )
+	{
+	    logpars.set( sKey::Version(), astream.version() );
+	    logpars.set( sKey::ModAt(), astream.timeStamp() );
+	}
     }
 
     BufferString keyw = astream.keyWord();

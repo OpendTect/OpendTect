@@ -24,11 +24,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitblimpexpdatasel.h"
 
 #include "file.h"
-#include "tabledef.h"
+#include "hiddenparam.h"
 #include "od_helpids.h"
 #include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "tabledef.h"
 #include "trckeyzsampling.h"
 #include "unitofmeasure.h"
 
@@ -255,7 +256,8 @@ bool fillGeom2D( ObjectSet<Survey::Geometry2D>& geoms )
 
 bool acceptOK( CallBacker* )
 {
-    if ( File::isEmpty(fnmfld_->fileName()) )
+    fname_ = fnmfld_->fileName();
+    if ( !File::exists(fname_) || File::isEmpty(fname_) )
     { uiMSG().error(uiStrings::sInvInpFile()); return false; }
 
     const bool isll = geomfd_->bodyinfos_.last()->selection_.form_ == 1;
@@ -269,17 +271,23 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-Coords::uiCoordSystemSel*	crssel_;
+    BufferString		fname_;
+    Coords::uiCoordSystemSel*	crssel_;
 
 };
 
 
+static HiddenParam<uiNavSurvInfoProvider,BufferString> filenames_("");
+
 uiNavSurvInfoProvider::uiNavSurvInfoProvider()
-{}
+{
+    filenames_.setParam( this, "" );
+}
 
 
 uiNavSurvInfoProvider::~uiNavSurvInfoProvider()
 {
+    filenames_.removeParam( this );
     deepUnRef( geoms_ );
 }
 
@@ -304,6 +312,7 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     if ( !navdlg )
 	return false;
 
+    filenames_.setParam( this, navdlg->fname_ );
     coordsystem_ = navdlg->crssel_->getCoordSystem();
 
     deepUnRef( geoms_ );
@@ -333,7 +342,7 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 void uiNavSurvInfoProvider::fillLogPars( IOPar& par ) const
 {
     uiSurvInfoProvider::fillLogPars( par );
-    par.set( sKey::CrFrom(), "Navigation Data" );
+    par.set( sKey::CrFrom(), filenames_.getParam(this) );
 }
 
 

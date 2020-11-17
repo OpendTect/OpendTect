@@ -1306,6 +1306,8 @@ static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
     if ( keyidx>=0 ) par.setKey( keyidx, "Created by" );
     keyidx = par.indexOf( sKey::CrFrom() );
     if ( keyidx>=0 ) par.setKey( keyidx, "Created from" );
+    keyidx = par.indexOf( sKey::ModAt() );
+    if ( keyidx>=0 ) par.setKey( keyidx, "Last Modified at" );
 
     par.dumpPretty( txt );
 }
