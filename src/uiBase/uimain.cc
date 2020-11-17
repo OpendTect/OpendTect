@@ -376,9 +376,10 @@ void uiMain::cleanQtOSEnv()
 void uiMain::preInit()
 {
     QApplication::setDesktopSettingsAware( true );
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
 #if QT_VERSION >= 0x050400
     // Attributes added with Qt5.3 and Qt5.4
+    QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
     if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
 	 QApplication::testAttribute(Qt::AA_UseOpenGLES) ||
 	 QApplication::testAttribute(Qt::AA_UseSoftwareOpenGL) )
