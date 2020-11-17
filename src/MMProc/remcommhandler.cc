@@ -66,9 +66,11 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 
     OS::MachineCommand machcomm( procnm );
     if ( !hostnm.isEmpty() )
-	machcomm.addKeyedArg( "masterhost", hostnm, OS::OldStyle );
+	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
+			      hostnm, OS::OldStyle );
     if ( !portnm.isEmpty() )
-	machcomm.addKeyedArg( "masterport", portnm, OS::OldStyle );
+	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(),
+			      portnm, OS::OldStyle );
     if ( !jobid.isEmpty() )
 	machcomm.addKeyedArg( "jobid", jobid, OS::OldStyle );
     machcomm.addArg( parfile );

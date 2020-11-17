@@ -24,7 +24,7 @@ namespace Network { class Socket; }
     if ( ret ) { nrattempts_ = 0; return true; } \
     if ( nrattempts_++ < maxtries_ ) return true; \
     stillok_ = false; \
-    directMsg("Lost connection with master[1]. Exiting."); \
+    directMsg("Lost connection with primary host[1]. Exiting."); \
     ExitProgram( -1 ); return false; \
 }
 
@@ -36,13 +36,13 @@ namespace Network { class Socket; }
 	sleepSeconds(1); \
     } \
     stillok_ = false; \
-    directMsg("Lost connection with master[2]. Exiting."); \
+    directMsg("Lost connection with primary host[2]. Exiting."); \
     ExitProgram( -1 ); return false; \
 }
 
 
 /*! \brief Multi-machine socket communicator
- *  Handles the communication between a client and the master, from
+ *  Handles the communication between a client and the primary host, from
  *  the client's point of view.
  */
 mExpClass(Network) JobCommunic : public CallBacker
@@ -86,12 +86,13 @@ public:
     bool		sendPID( int pid )
 			    { mTryMaxtries( sendPID_(pid) ) }
 
-    bool                pauseRequested() const
+    bool		pauseRequested() const
 			    { return pausereq_; }
     void		disConnect();
 
 protected:
 
+// TODO: Rename to primaryauth_;
     Network::Authority	masterauth_;
     bool		stillok_;
     State		stat_;
@@ -120,7 +121,8 @@ private:
 
     void		setErrMsg(const char*);
 
-    void		checkMasterTimeout();
+    Network::Authority& primaryAuthority();
+    void		checkPrimaryHostTimeout();
 
     int			timestamp_;
     int			nrattempts_;
@@ -137,6 +139,8 @@ private:
     od_ostream*		createLogStream();
     void		dumpSystemInfo();
 
+    mDeprecated("Use checkPrimaryHostTimeout()")
+    void		checkMasterTimeout();
 };
 
 #undef mReturn

@@ -161,8 +161,8 @@ public:
     static const char*	odRemExecCmd()		{ return "od_remexec"; }
     static const char*	sKeyRemoteHost()	{ return "machine"; }
     static const char*	sKeyRemoteCmd()		{ return "cmd"; }
-    static const char*	sKeyMasterHost()	{ return "masterhost"; }
-    static const char*	sKeyMasterPort()	{ return "masterport"; }
+    static const char*	sKeyPrimaryHost()	{ return "primaryhost"; }
+    static const char*	sKeyPrimaryPort()	{ return "primaryport"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
 
     bool		execute(LaunchType lt=Wait4Finish,
@@ -200,6 +200,10 @@ private:
 public:
 
     mDeprecatedDef BufferString getSingleStringRep(bool noremote=false) const;
+    mDeprecated("Use sKeyPrimaryHost()")
+    static const char*	sKeyMasterHost()	{ return "primaryhost"; }
+    mDeprecated("Use sKeyPrimaryPort()")
+    static const char*	sKeyMasterPort()	{ return "primaryport"; }
 
 };
 

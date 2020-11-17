@@ -45,9 +45,10 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     socket_ = new Network::Socket( false, false );
     socket_->setTimeout( socktimeout_ );
 
-    const bool ret = socket_->connectToHost( masterauth_ );
-    BufferString logmsg( "Connection to", masterauth_.getHost(), " port " );
-    logmsg.add( masterauth_.getPort() ).add( " : " );
+    const bool ret = socket_->connectToHost( primaryAuthority() );
+    BufferString logmsg( "Connection to", primaryAuthority().getHost(),
+			 " port " );
+    logmsg.add( primaryAuthority().getPort() ).add( " : " );
     logMsg( ret, logmsg, !ret ? "" :socket_->errMsg().getFullString() );
 }
 
@@ -74,9 +75,10 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
     socket_ = new Network::Socket( false, false );
     socket_->setTimeout( socktimeout_ );
 
-    const bool ret = socket_->connectToHost( masterauth_ );
-    BufferString logmsg( "Connection to", masterauth_.getHost(), " port " );
-    logmsg.add( masterauth_.getPort() ).add( " : " );
+    const bool ret = socket_->connectToHost( primaryAuthority() );
+    BufferString logmsg( "Connection to", primaryAuthority().getHost(),
+			 " port " );
+    logmsg.add( primaryAuthority().getPort() ).add( " : " );
     logMsg( ret, logmsg, !ret ? "" :socket_->errMsg().getFullString() );
 }
 
@@ -153,7 +155,7 @@ bool JobCommunic::updateMsg( char tag , int status, const char* msg )
         UsrMsg( "System clock skew detected (Ignored)." );
     else if ( elapsed_succ < min_time_between_update_ || elapsed_atmpt < 500 )
     {
-        checkMasterTimeout();
+        checkPrimaryHostTimeout();
         return true;
     }
 
@@ -199,40 +201,40 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 
-    char masterinfo;
+    char primaryhostinfo;
     BufferString inp;
     const bool readstat = socket_->read( inp );
     logMsg( readstat, "Reading from socket", inp );
 
-    masterinfo = inp[0];
+    primaryhostinfo = inp[0];
     bool ret = !inp.isEmpty();
     if ( !ret )
     {
-	BufferString emsg( "Error reading from Master: ",
+	BufferString emsg( "Error reading from Primary Host: ",
 			    socket_->errMsg().getFullString() );
 	setErrMsg( emsg );
     }
 
-    else if ( masterinfo == mRSP_WORK )
+    else if ( primaryhostinfo == mRSP_WORK )
 	pausereq_ = false;
 
-    else if ( masterinfo == mRSP_PAUSE )
+    else if ( primaryhostinfo == mRSP_PAUSE )
 	pausereq_ = true;
 
-    else if ( masterinfo == mRSP_STOP )
+    else if ( primaryhostinfo == mRSP_STOP )
     {
 	buf = buildString( tag , mSTAT_KILLED, msg );
 	writestat = socket_->write( buf );
 	logmsg = "Writing to socket "; logmsg += buf;
 	logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
-	directMsg( "Exiting on request of Master." );
+	directMsg( "Exiting on request of Primary Host." );
 	ExitProgram( -1 );
     }
     else
     {
-	BufferString emsg( "Master sent an unkown response code: '" );
-	emsg.add( masterinfo ).add( "', " )
+	BufferString emsg( "Primary Host sent an unkown response code: '" );
+	emsg.add( primaryhostinfo ).add( "', " )
 	    .add( socket_->errMsg().getFullString() );
 	setErrMsg( emsg );
 	ret = false;
@@ -244,11 +246,23 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
 void JobCommunic::checkMasterTimeout()
 {
+    checkPrimaryHostTimeout();
+}
+
+
+Network::Authority& JobCommunic::primaryAuthority()
+{
+    return masterauth_;
+}
+
+
+void JobCommunic::checkPrimaryHostTimeout()
+{
     const int elapsed = Time::passedSince( lastsucces_ );
 
     if ( elapsed>0 && elapsed>failtimeout_ )
     {
-	BufferString msg( "Time-out contacting master. Last contact " );
+	BufferString msg( "Time-out contacting Primary Host. Last contact " );
 	msg.add( elapsed/1000 ).add( " sec ago. Exiting." );
 	directMsg( msg );
 	ExitProgram( -1 );
@@ -290,7 +304,7 @@ od_ostream* JobCommunic::createLogStream()
     if ( !DBG::isOn() )
 	return 0;
 
-    BufferString fnm( "od_mmproc_", masterauth_.getHost(), "_" );
+    BufferString fnm( "od_mmproc_", primaryAuthority().getHost(), "_" );
     fnm.add( jobid_ ).replace( '.', '_' );
     FilePath logfp( FilePath::getTempDir(), fnm );
     logfp.setExtension( ".log" );
@@ -314,10 +328,11 @@ void JobCommunic::dumpSystemInfo()
     if ( !logstream_ )
 	return;
 
-    *logstream_ << "----------------------------------------------"  <<od_endl;
-    *logstream_ << "Local Host Name    : " << System::localHostName()<<od_endl;
-    *logstream_ << "Local Host Address : " << System::localAddress() <<od_endl;
-    *logstream_ << "Server Address     : " << masterauth_.getHost()  <<od_endl;
-    *logstream_ << "Server Port        : " << masterauth_.getPort()  <<od_endl;
-    *logstream_ << "-----------------------------------------------" <<od_endl;
+    *logstream_ << "----------------------------------------------";
+    *logstream_ << "\nLocal Host Name    : " << System::localHostName();
+    *logstream_ << "\nLocal Host Address : " << System::localAddress();
+    *logstream_ << "\nServer Address     : " << primaryAuthority().getHost();
+    *logstream_ << "\nServer Port        : " << primaryAuthority().getPort();
+    *logstream_ << "\n-----------------------------------------------"
+		<< od_endl;
 }

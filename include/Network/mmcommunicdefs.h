@@ -37,7 +37,7 @@ Defines for MM job communication status tags and codes
 #define mIsError( stat )	( stat < 0 || stat > mSTAT_PAUSED  )
 
 
-// Master Control tag
+// Primary Host Control tag
 #define mRSP_WORK	'W'
 #define mRSP_STOP	'S'
 #define mRSP_PAUSE	'P'

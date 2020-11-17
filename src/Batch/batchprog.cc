@@ -36,10 +36,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "oddirs.h"
 
-static const char* sKeyMasterHost()
-{ return OS::MachineCommand::sKeyMasterHost(); }
-static const char* sKeyMasterPort()
-{ return OS::MachineCommand::sKeyMasterPort(); }
+static const char* sKeyPrimaryHost()
+{ return OS::MachineCommand::sKeyPrimaryHost(); }
+static const char* sKeyPrimaryPort()
+{ return OS::MachineCommand::sKeyPrimaryPort(); }
 static const char* sKeyJobID()	{ return OS::MachineCommand::sKeyJobID(); }
 static const char* sKeyODServer()    { return ServiceMgrBase::sKeyODServer(); }
 static const char* sKeyPort()		{ return Network::Server::sKeyPort(); }
@@ -144,13 +144,13 @@ bool BatchProgram::parseArguments()
     clparser_->setKeyHasValue( sKeyODServer() );
     clparser_->setKeyHasValue( sKeyPort() );
 
-    BufferString masterhost;
-    int masterport = -1;
-    mGetKeyedVal( sKeyMasterHost, masterhost );
-    mGetKeyedVal( sKeyMasterPort, masterport );
+    BufferString primaryhost;
+    int primaryport = -1;
+    mGetKeyedVal( sKeyPrimaryHost, primaryhost );
+    mGetKeyedVal( sKeyPrimaryPort, primaryport );
     mGetKeyedVal( sKeyJobID, jobid_ );
-    if ( masterhost.size() && masterport > 0 )  // both must be set.
-	comm_ = new JobCommunic( masterhost, masterport, jobid_ );
+    if ( primaryhost.size() && primaryport > 0 )  // both must be set.
+	comm_ = new JobCommunic( primaryhost, primaryport, jobid_ );
 
     BufferString parfilnm;
     BufferStringSet normalargs;
@@ -243,7 +243,7 @@ bool BatchProgram::initComm()
 {
     if ( comm_ && !comm_->sendPID(GetPID()) )
     {
-	errorMsg( tr("Could not contact master. Exiting."), true );
+	errorMsg( tr("Could not contact primary host. Exiting."), true );
 	return false;
     }
 

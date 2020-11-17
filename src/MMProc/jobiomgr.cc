@@ -682,9 +682,9 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
     else
 	mc.setProgram( progname );
 
-    mc.addKeyedArg( OS::MachineCommand::sKeyMasterHost(),
+    mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
 		    System::localAddress() );
-    mc.addKeyedArg( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(), iohdlr_.port() );
     mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
     mc.addArg( iopfp.fullPath(machine.pathStyle()) );
 }

@@ -270,8 +270,6 @@ bool uiSeisMMProc::prepareCurrentJob()
     if ( !is2d_ )
 	return true;
 
-    // Put a copy of the .2ds file in the proc directory
-    // Makes sure 2D changes are only done on master
     if ( !lsfileemitted_ )
     {
 	const BufferString lsfnm =
