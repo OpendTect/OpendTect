@@ -14,6 +14,8 @@ macro( OD_FIND_QTDIR )
 	    set( QTDIR "" CACHE PATH "QT Location" )
 	    message( FATAL_ERROR "QTDIR is not defined" )
 	endif()
+    elseif ( WIN32 )
+        get_filename_component(QTDIR ${QTDIR} ABSOLUTE)
     endif()
 endmacro(OD_FIND_QTDIR)
 
