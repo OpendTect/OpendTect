@@ -317,6 +317,7 @@ public:
     void			setZStretch();
     void			setDirectionalLight();
     bool			setWorkingArea();
+    bool			setWorkingArea(const TrcKeyZSampling&);
     void			setOnlyAtSectionsDisplay(int id,bool);
     bool			displayedOnlyAtSections(int id) const;
     static int			evViewModeChange();

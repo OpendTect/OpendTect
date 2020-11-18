@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 template <class T> class ODPolygon;
 
+class TrcKeyZSampling;
 class uiComboBox;
 
 
@@ -77,6 +78,7 @@ public:
     LocID		find(const TrcKey&) const;
     LocID		nearestLocation(const Coord&) const;
     LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
+    void		getBoundingBox(TrcKeyZSampling&) const;
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
     static const char*	sKeyFillColor()		{ return "Surface Color"; }

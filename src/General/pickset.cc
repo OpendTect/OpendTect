@@ -642,6 +642,14 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 }
 
 
+void Pick::Set::getBoundingBox( TrcKeyZSampling& tkzs ) const
+{
+    tkzs.setEmpty();
+    for ( int idx=0; idx<size(); idx++ )
+	tkzs.include( get(idx).trcKey().binID(), get(idx).z() );
+}
+
+
 void Set::fillPar( IOPar& par ) const
 {
     par.set( sKeyStartIdx(), startidxs_ );
