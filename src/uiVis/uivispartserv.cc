@@ -1399,10 +1399,16 @@ void uiVisPartServer::toHome( CallBacker* )
 
 bool uiVisPartServer::setWorkingArea()
 {
+    return setWorkingArea( SI().sampling(true) );
+}
+
+
+bool uiVisPartServer::setWorkingArea( const TrcKeyZSampling& newworkarea )
+{
     uiPosProvider::Setup su( false, false, true );
     su.useworkarea(false);
     uiPosProvDlg dlg( parent(), su, tr("Set Work Area") );
-    dlg.setSampling( SI().sampling(true) );
+    dlg.setSampling( newworkarea );
     dlg.setHelpKey( mODHelpKey(mWorkAreaDlgHelpID) );
     if ( !dlg.go() ) return false;
 

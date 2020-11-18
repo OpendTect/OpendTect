@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emmanager.h"
 #include "emrandomposbody.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "pickset.h"
@@ -599,6 +600,9 @@ uiTreeItem*
 }
 
 
+// uiODPolygonTreeItem
+static HiddenParam<uiODPolygonTreeItem,MenuItem*> useasworkareaitm(nullptr);
+
 uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(uiStrings::sSave())
@@ -615,12 +619,16 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
+
+    auto* mnuitm = new MenuItem( m3Dots(tr("Set as Work Area")) );
+    useasworkareaitm.setParam( this, mnuitm );
 }
 
 
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     Pick::Mgr().removeCBs( this );
+    useasworkareaitm.removeAndDeleteParam( this );
 }
 
 
@@ -721,6 +729,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     mAddMenuItem( menu, &storemnuitem_, changed, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
+    mAddMenuItem( menu, useasworkareaitm.getParam(this), true, false );
 
     const bool islocked = visserv_->isLocked( displayID() );
     mAddMenuItem( menu, &changezmnuitem_, !islocked, false );
@@ -784,6 +793,12 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 
 	uiPolygonZChanger dlg( getUiParent(), set_ );
 	dlg.go();
+    }
+    else if ( mnuid == useasworkareaitm.getParam(this)->id )
+    {
+	TrcKeyZSampling tkzs;
+	set_.getBoundingBox( tkzs );
+	visserv_->setWorkingArea( tkzs );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
