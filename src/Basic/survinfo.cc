@@ -780,6 +780,14 @@ int SurveyInfo::nrZDecimals() const
 }
 
 
+int SurveyInfo::nrXYDecimals() const
+{
+    int nrdec = 2;
+    getPars().get( "Nr XY decimals", nrdec );
+    return nrdec;
+}
+
+
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 {
     return get3DGeometry(false)->oneStepTranslation( planenormal );

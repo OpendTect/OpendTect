@@ -422,12 +422,13 @@ void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
     const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
     const TypeSet<float>& spnrs = geom2d.spnrs();
     table_->setNrRows( positions.size() );
+    const int nrdec = SI().nrXYDecimals();
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
 	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1);
-	table_->setValue( RowCol(idx,2), positions[idx].coord_.x );
-	table_->setValue( RowCol(idx,3), positions[idx].coord_.y );
+	table_->setValue( RowCol(idx,2), positions[idx].coord_.x, nrdec );
+	table_->setValue( RowCol(idx,3), positions[idx].coord_.y, nrdec );
     }
 }
 

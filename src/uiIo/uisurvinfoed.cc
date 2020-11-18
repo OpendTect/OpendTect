@@ -445,10 +445,11 @@ void uiSurveyInfoEditor::setValues()
 	xy1fld_->setValue( c[2] );
 	xy2fld_->setValue( c[1] );
 	xy3fld_->setValue( c4 );
-	xy0fld_->setNrDecimals( 2, 0 ); xy0fld_->setNrDecimals( 2, 1 );
-	xy1fld_->setNrDecimals( 2, 0 ); xy1fld_->setNrDecimals( 2, 1 );
-	xy2fld_->setNrDecimals( 2, 0 ); xy2fld_->setNrDecimals( 2, 1 );
-	xy3fld_->setNrDecimals( 2, 0 ); xy3fld_->setNrDecimals( 2, 1 );
+	const int nrdec = si_.nrXYDecimals();
+	xy0fld_->setNrDecimals( nrdec, 0 ); xy0fld_->setNrDecimals( nrdec, 1 );
+	xy1fld_->setNrDecimals( nrdec, 0 ); xy1fld_->setNrDecimals( nrdec, 1 );
+	xy2fld_->setNrDecimals( nrdec, 0 ); xy2fld_->setNrDecimals( nrdec, 1 );
+	xy3fld_->setNrDecimals( nrdec, 0 ); xy3fld_->setNrDecimals( nrdec, 1 );
     }
 
     const bool zistime = si_.zDomain().isTime();

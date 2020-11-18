@@ -220,12 +220,12 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     tbl_->setPrefHeightInRows( nrrows_ );
     tbl_->setTableReadOnly( true );
     tbl_->setLeftHeaderHidden( true );
-    setCellTxt( mItemCol, mRevRow, tr("SEG-Y Revision") );
+    setCellTxt( mItemCol, mRevRow, tr("SEG-Y revision") );
     setCellTxt( mUseTxtCol, mRevRow, sEmpty );
     setCellTxt( mItemCol, mDataFormatRow, tr("Data format") );
     setCellTxt( mUseTxtCol, mDataFormatRow, sEmpty );
     setCellTxt( mItemCol, mNrSamplesRow, tr("Number of samples") );
-    setCellTxt( mItemCol, mZRangeRow, tr("Z Range") );
+    setCellTxt( mItemCol, mZRangeRow, tr("Z range") );
 
     mkBasicInfoFlds();
 
@@ -788,8 +788,11 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     inlinfotxt_.set( rgstr ).arg( rgs.inls_.start ).arg( rgs.inls_.stop );
     crlinfotxt_.set( rgstr ).arg( rgs.crls_.start ).arg( rgs.crls_.stop );
     trcnrinfotxt_.set( rgstr ).arg( rgs.trcnrs_.start ).arg( rgs.trcnrs_.stop );
-    xinfotxt_.set( rgstr ).arg( rgs.xrg_.start ).arg( rgs.xrg_.stop );
-    yinfotxt_.set( rgstr ).arg( rgs.yrg_.start ).arg( rgs.yrg_.stop );
+    const int nrdec = SI().nrXYDecimals();
+    xinfotxt_.set( rgstr ).arg( rgs.xrg_.start, nrdec )
+			  .arg( rgs.xrg_.stop, nrdec );
+    yinfotxt_.set( rgstr ).arg( rgs.yrg_.start, nrdec )
+			  .arg( rgs.yrg_.stop, nrdec );
     offsetinfotxt_.set( rgstr ).arg( rgs.offs_.start ).arg( rgs.offs_.stop );
     azimuthinfotxt_.set( rgstr ).arg( rgs.azims_.start*360/M_PI )
 				.arg( rgs.azims_.stop*360/M_PI );

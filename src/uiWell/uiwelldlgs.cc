@@ -324,13 +324,13 @@ float uiWellTrackDlg::getMD( int row ) const
 
 void uiWellTrackDlg::setX( int row, double x )
 {
-    tbl_->setValue( RowCol(row,cXCol), x, 2 );
+    tbl_->setValue( RowCol(row,cXCol), x, SI().nrXYDecimals() );
 }
 
 
 void uiWellTrackDlg::setY( int row, double y )
 {
-    tbl_->setValue( RowCol(row,cYCol), y, 2 );
+    tbl_->setValue( RowCol(row,cYCol), y, SI().nrXYDecimals() );
 }
 
 

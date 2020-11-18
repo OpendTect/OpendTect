@@ -33,17 +33,19 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uisplitter.h"
+
+#include "dataclipper.h"
+#include "dirlist.h"
+#include "envvars.h"
+#include "filepath.h"
+#include "oddirs.h"
+#include "od_istream.h"
+#include "posinfodetector.h"
 #include "segyhdr.h"
 #include "segyhdrkeydata.h"
 #include "seisinfo.h"
-#include "posinfodetector.h"
-#include "dataclipper.h"
-#include "filepath.h"
-#include "dirlist.h"
-#include "oddirs.h"
-#include "survinfo.h"
-#include "od_istream.h"
 #include "settings.h"
+#include "survinfo.h"
 #include "timer.h"
 
 
@@ -480,19 +482,23 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     if ( forsurvsetup_ || (imptypeFixed() && fixedimptype_.isVSP()) )
 	return;
 
-    uiButton* okbut = button( OK );
-    const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
-    const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
-    uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
-					tr("'Classic'"), impcb, false );
-    execoldbut->setIcon( "launch" );
-    execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
-    execoldbut->attach( leftTo, okbut );
-    execoldbut->attach( leftBorder );
-    uiMenu* mnu = new uiMenu;
-    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
-    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
-    execoldbut->setMenu( mnu );
+    const bool showclassic = GetEnvVarYN( "OD_SEGY_IMPORT_CLASSIC", false );
+    if ( showclassic )
+    {
+	uiButton* okbut = button( OK );
+	const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
+	const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
+	uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
+					    tr("'Classic'"), impcb, false );
+	execoldbut->setIcon( "launch" );
+	execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
+	execoldbut->attach( leftTo, okbut );
+	execoldbut->attach( leftBorder );
+	uiMenu* mnu = new uiMenu;
+	mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
+	mnu->insertAction( new uiAction(tr("Link"),linkcb) );
+	execoldbut->setMenu( mnu );
+    }
 }
 
 
