@@ -96,6 +96,7 @@ foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     endforeach()
 endforeach()
 
+OD_FIND_OSGDIR()
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/FindOpendTect.cmake.in
 		${OD_FIND_OD_FILE}
 		@ONLY )
