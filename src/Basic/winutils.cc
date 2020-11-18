@@ -613,12 +613,13 @@ bool hasAppLocker()
 
 bool execShellCmd( const char* comm, const char* parm, const char* runin )
 {
-   int res = (int) ShellExecute( NULL, "runas",
+    const HINSTANCE res = ShellExecute( NULL, "runas",
 				 comm,
 				 parm,    // params
 				 runin, // directory
 				 SW_SHOW );
-    return res > 32;
+    return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
+			    HINSTANCE_ERROR;;
 }
 
 
