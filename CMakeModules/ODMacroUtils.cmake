@@ -16,14 +16,16 @@
 # OD_MODULE_SOURCES			: Sources that should go into the library
 # OD_USEBATCH				: Whether to include include/Batch 
 # OD_USEQT				: Dependency on Qt is enabled if set.
-
-#					  value should be either Core, Sql, Gui
-#					  or OpenGL
+# OD_INSTQT				: Runtime libraries from Qt are required.
+#					  value should be a valid Qt component like
+#					  Core, Sql, Network, Gui
 # OD_USEOSG				: Dependency on OSG is enabled if set.
-# OD_USEZLIB				: Dependency on zlib is enabled if set.
-# OD_USEOPENSSL				: Runtime availability on libopenssl is enabled if set.
-# OD_USECRYPTO				: Runtime availability on libcrypto is enabled if set.
-# OD_LINKCRYPTO				: Dependency on libcrypto is enabled if set.
+# OD_USEZLIB				: Dependency on ZLib is enabled if set.
+# OD_USEOPENSSL				: Runtime availability on OpenSSL::SSL is enabled if set.
+# OD_USECRYPTO				: Runtime availability on OpenSSL::Crypto is enabled if set.
+# OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
+# OD_LINKCRYPTO				: Dependency on OpenSSL::Crypto is enabled if set.
+# OD_USEHDF5				: Dependency on HDF5 is enabled if set.
 # OD_IS_PLUGIN				: Tells if this is a plugin (if set)
 # OD_PLUGINMODULES			: A list of eventual sub-modules of
 #					  a plugin. Each submodule must have an
@@ -63,6 +65,18 @@
 #					required by the plugin at runtime.
 #					Will be copied into the binaries dir
 
+list( APPEND SETUPNMS
+       USEQT
+       INSTQT
+       USEOSG
+       USEZLIB
+       USEOPENSSL
+       USECRYPTO
+       LINKOPENSSL
+       LINKCRYPTO
+       USEPROJ4
+       USEHDF5
+)
 
 macro( OD_INIT_MODULE )
 
@@ -91,6 +105,25 @@ if( OD_MODULE_DEPS )
 	#Add dependencies to include-path
 	list(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 	list(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
+	if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+	    set( NEEDSSETUP FALSE )
+	    foreach( USENM ${SETUPNMS} )
+		if ( OD_${DEP}_${USENM} )
+		    list( APPEND OD_${USENM} ${OD_${DEP}_${USENM}} )
+	            set( NEEDSSETUP TRUE )
+		    unset( OD_${DEP}_${USENM} PARENT_SCOPE )
+		endif()
+	    endforeach()
+	    if ( NEEDSETUP )
+	        list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_${DEP}_EXTERNAL_LIBS} )
+	        list(APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS ${OD_${DEP}_EXTERNAL_RUNTIME_LIBS} )
+	    endif()
+	endif()
+    endforeach()
+    foreach( USENM ${SETUPNMS} )
+	if ( OD_${USENM} )
+	    list( REMOVE_DUPLICATES OD_${USENM} )
+	endif()
     endforeach()
 endif()
 
@@ -99,18 +132,18 @@ if(OD_USEOSG)
 endif()
 
 #Add Qt-stuff
-if(OD_USEQT)
+if(OD_USEQT OR OD_INSTQT)
    OD_SETUP_QT()
-endif(OD_USEQT)
+endif()
 
 #Must be after QT
 if( (UNIX OR WIN32) AND OD_USEZLIB )
     OD_SETUP_ZLIB()
 endif()
 
-if( OD_USEOPENSSL )
+if( OD_USEOPENSSL OR OD_LINKOPENSSL )
     OD_SETUP_OPENSSL()
-endif(OD_USEOPENSSL)
+endif()
 
 if( OD_USECRYPTO OR OD_LINKCRYPTO )
     OD_SETUP_CRYPTO()
@@ -119,6 +152,10 @@ endif()
 if( OD_USEPROJ4 )
     OD_SETUP_PROJ4()
 endif(OD_USEPROJ4)
+
+if( OD_USEHDF5 )
+    OD_SETUP_HDF5()
+endif()
 
 #Add current module to include-path
 set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
@@ -184,8 +221,20 @@ list( APPEND OD_MODULE_ALL_EXTERNAL_LIBS ${OD_MODULE_EXTERNAL_RUNTIME_LIBS} )
 guess_runtime_library_dirs( EXTERNAL_RUNTIMEPATH ${OD_MODULE_EXTERNAL_LIBS} )
 guess_extruntime_library_dirs( EXTERNAL_EXTRUNTIMEPATH ${OD_MODULE_EXTERNAL_RUNTIME_LIBS} )
 list( APPEND EXTERNAL_RUNTIMEPATH ${EXTERNAL_EXTRUNTIMEPATH} )
+if ( OD_MODULE_EXTERNAL_LIBS )
+    set( OD_${OD_MODULE_NAME}_EXTERNAL_LIBS "${OD_MODULE_EXTERNAL_LIBS}" )
+    if( OD_${OD_MODULE_NAME}_EXTERNAL_LIBS )
+	list( REMOVE_DUPLICATES OD_${OD_MODULE_NAME}_EXTERNAL_LIBS )
+    endif()
+endif()
+if ( OD_MODULE_EXTERNAL_RUNTIME_LIBS )
+    set( OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS "${OD_MODULE_EXTERNAL_RUNTIME_LIBS}" )
+    if( OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS )
+	list( REMOVE_DUPLICATES OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS )
+    endif()
+endif()
 list( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${EXTERNAL_RUNTIMEPATH} )
-if ( NOT "${OD_${OD_MODULE_NAME}_RUNTIMEPATH}" STREQUAL "" )
+if ( OD_${OD_MODULE_NAME}_RUNTIMEPATH )
     list( REMOVE_DUPLICATES OD_${OD_MODULE_NAME}_RUNTIMEPATH )
 endif()
 list( APPEND OD_MODULE_RUNTIMEPATH ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} )
@@ -198,11 +247,18 @@ endif()
 
 if ( OD_MODULE_HAS_LIBRARY )
     #Export dependencies
+    if ( ${OD_SUBSYSTEM} MATCHES ${OD_CORE_SUBSYSTEM} )
+        OD_EXPORT_SETUP()
+    endif()
     set( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} PARENT_SCOPE )
     set( OD_${OD_MODULE_NAME}_INCLUDEPATH
-	 ${OD_${OD_MODULE_NAME}_INCLUDEPATH} PARENT_SCOPE)
+	 ${OD_${OD_MODULE_NAME}_INCLUDEPATH} PARENT_SCOPE )
+    set( OD_${OD_MODULE_NAME}_EXTERNAL_LIBS
+	 ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS} PARENT_SCOPE )
+    set( OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS
+	 ${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS} PARENT_SCOPE )
     set( OD_${OD_MODULE_NAME}_RUNTIMEPATH
-	 ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} PARENT_SCOPE)
+	 ${OD_${OD_MODULE_NAME}_RUNTIMEPATH} PARENT_SCOPE )
 endif( OD_MODULE_HAS_LIBRARY )
 
 #Extract static libraries
@@ -253,6 +309,7 @@ if ( OD_MODULE_HAS_LIBRARY )
     set( OD_LIB_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_DEPS} )
     if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	list( APPEND OD_LIB_DEP_LIBS ${OD_MODULE_INTERNAL_LIBS} )
+	list( REMOVE_DUPLICATES OD_LIB_DEP_LIBS )
     endif()
 else()
     set( OD_EXEC_DEP_LIBS ${EXTRA_LIBS} ${OD_MODULE_INTERNAL_LIBS} )
@@ -701,4 +758,16 @@ macro( FIND_OD_PLUGIN NAME )
   if ( NOT ${_index} EQUAL -1 )
     set( ${NAME}_FOUND TRUE )
   endif()
+endmacro()
+
+macro( OD_EXPORT_SETUP )
+   foreach( SETUPNM ${SETUPNMS} )
+	if( DEFINED OD_${SETUPNM} )
+	    set( OD_${OD_MODULE_NAME}_SETUP_${SETUPNM}
+		    ${OD_${SETUPNM}} PARENT_SCOPE )
+	elseif ( ${OD_${SETUPNM}} )
+	    set( OD_${OD_MODULE_NAME}_SETUP_${SETUPNM}
+		    ${OD_${SETUPNM}} PARENT_SCOPE )
+	endif()
+   endforeach()
 endmacro()

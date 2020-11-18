@@ -44,15 +44,13 @@ if( UNIX ) #Apple and Linux
 	set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
 	set ( OD_GCC_COMPILER 1 )
 	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
-	    set ( OD_EXTRA_OSGFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
-	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
+	    set( OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS yes )
 	endif()
 
 	#For some versions of XCode
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
 	set ( CMAKE_FIND_LIBRARY_SUFFIXES .dylib )
 
-	set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1 )
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
         add_definitions("-arch x86_64")
         find_library( APP_SERVICES_LIBRARY ApplicationServices
@@ -68,9 +66,7 @@ if( UNIX ) #Apple and Linux
 	    set ( CMAKE_CXX_FLAGS "-Wdelete-non-virtual-dtor ${CMAKE_CXX_FLAGS}" )
 	endif()
 
-    else() #Linux
-	#Not on most platforms, but for the few that does, it's better
-	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
+    else() # Not Apple
 
 	set ( SHLIB_EXTENSION so )
 
@@ -109,10 +105,13 @@ if( UNIX ) #Apple and Linux
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
     if ( OD_GCC_COMPILER )
-	set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wno-reorder ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wshadow -Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
+
+	if ( NOT DEFINED OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS )
+	    set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wshadow -Wunused ${CMAKE_CXX_FLAGS}" )
+	endif()
+	set ( CMAKE_CXX_FLAGS "-Wno-reorder -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wformat -Wmissing-field-initializers ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wreturn-type -Winit-self -Wno-char-subscripts ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wstrict-aliasing ${CMAKE_CXX_FLAGS}" )
@@ -140,7 +139,7 @@ if( UNIX ) #Apple and Linux
 
     else() # Intel compiler
 	set ( CMAKE_SKIP_RPATH TRUE )
-	set (EXTRA_LIBS "imf" "m") #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
+	set ( EXTRA_LIBS "imf" "m" ) #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
     endif( OD_GCC_COMPILER )
 
 endif(UNIX)
@@ -155,28 +154,23 @@ if(WIN32)
     set ( OD_CREATE_LAUNCHERS 1 )
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
-    set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     #Setting Stack Reserve size for Executables only
     if ( NOT DEFINED STACK_RESERVE_SIZE )
-	MATH ( EXPR STACK_RESERVE_SIZE "8 * 1024 * 1024" ) #Setting default stack size to 8MB
+        MATH ( EXPR STACK_RESERVE_SIZE "8 * 1024 * 1024" ) #Setting default stack size to 8MB
 	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
     else()
 	set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${STACK_RESERVE_SIZE}" )
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
-    if ( "${OD_PLFSUBIR}" STREQUAL "win32" )
-	set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
-    endif()
-
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
 	#/debug will enable the generation of pdb-files.
-	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
+	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" )
+		#/Zi for additional debug info to the .pdb file. 
     endif()
 
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
-    #set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "-DmUnusedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
@@ -184,12 +178,6 @@ if(WIN32)
     set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
-    if ( DEFINED ${QTDIR} )
-        if ( NOT DEFINED Qt5Core_DIR OR  Qt5Core_DIR STREQUAL "" )
-	    message( "Info: Using Qt4 that does NOT treat wchar as built in type" )
-	    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
-        endif()
-    endif()
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
     set ( CMAKE_CXX_FLAGS  "/wd4458 ${CMAKE_CXX_FLAGS}" ) # warnings for Microsoft's GDI+ headers
@@ -212,14 +200,14 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4127 ${CMAKE_CXX_FLAGS}" ) # conditional expression is constant, e.g. while ( true )
     set ( CMAKE_CXX_FLAGS  "/wd4189 ${CMAKE_CXX_FLAGS}" ) # local variable is initialized but not referenced
     set ( CMAKE_CXX_FLAGS  "/wd4305 ${CMAKE_CXX_FLAGS}" ) # truncation from dowble to float
-    if ( NOT MSVC14 )
+    if ( MSVC_VERSION VERSION_LESS 1900 ) #Adding these flags if VS version is less than 12
 	set ( CMAKE_CXX_FLAGS_DEBUG  "/WX ${CMAKE_CXX_FLAGS_DEBUG}" ) # Treat warnings as errors
-    else()
-	set ( CMAKE_CXX_FLAGS  "/wd4311 ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS  "/wd4302 ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS  "/wd4714 ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS  "/wd4838 ${CMAKE_CXX_FLAGS}" )
     endif()
+    if ( MSVC_VERSION VERSION_GREATER 1800 ) #Adding this flag if VS version is greater than 12 on win64 platform
+	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int )
+    endif()
+    set ( CMAKE_CXX_FLAGS "/wd4714 ${CMAKE_CXX_FLAGS}" ) # _forceinline function not inlined
+    set ( CMAKE_CXX_FLAGS "/wd4589 ${CMAKE_CXX_FLAGS}" ) # ignore initializer for abstract base classes
 
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
@@ -234,12 +222,6 @@ if(WIN32)
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
-    if ( "${OD_PLFSUBIR}" STREQUAL "win32" )
-	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
-    endif()
-    if ( MSVC14 )
-	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" )
-    endif()
 
     set ( OD_GUI_SYSTEM "WIN32" )
     set ( OD_LINESEP "\n" ) #Will be converted to \r\n when written to files by cmake
