@@ -14,9 +14,11 @@ if ( NOT DEFINED CMAKE_BUILD_TYPE )
   set( CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" )
 endif()
 
-set( QTDIR @QTDIR@ )
+set( Qt5_DIR @Qt5_DIR@ )
 set( QT_VERSION_MAJOR @QT_VERSION_MAJOR@ )
 set( USE_QtWebEngine @USE_QtWebEngine@ )
+set( OSG_DIR @OSG_DIR@ )
+set( HDF5_ROOT @HDF5_ROOT@ )
 #Setup OpendTect's binary location (if not done)
 if ( NOT DEFINED OD_BINARY_BASEDIR )
     if ( APPLE )
@@ -49,5 +51,14 @@ set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
 
 #Dependencies of all modules
 @MODULE_DEPS@
+
+#External dependencies of some modules
+@MODULE_EXTERNAL_LIBS@
+
+#External runtime libraries of some modules
+@MODULE_EXTERNAL_RUNTIME_LIBS@
+
+#Externals setup for all modules
+@MODULES_SETUP@
 
 set( OD_THIRD_PARTY_LIBS @OD_THIRD_PARTY_LIBS@ )

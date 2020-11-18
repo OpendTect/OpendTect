@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( OD_USEPROJ4 1 )
+set( OD_USEPROJ4 Yes )
 set( OD_MODULE_DEPS Basic )
 set( OD_MODULE_SOURCES 
 	    crsproj.cc

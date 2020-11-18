@@ -1,14 +1,11 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Coin Wrapper classes
-# 	July 1995	A.H. Bril
-#	RCS :		$Id$
+#	Makefile : 	visualisation: encapsulate OSG
+# 	July 1995	Kris
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Geometry)
-SET(OD_USEOSG 1)
-
-add_definitions( -DmNoAutoUiString )
+set(OD_MODULE_DEPS Geometry)
+set(OD_USEOSG Yes)
 
 set(OD_MODULE_SOURCES
 	   initvisbase.cc

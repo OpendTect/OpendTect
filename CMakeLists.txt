@@ -20,17 +20,25 @@ if ( NOT DEFINED OpendTect_FULL_VERSION )
 	 ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
 
-if ( CMAKE_VERSION VERSION_LESS 3.0.0 )
-    project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
-else()
-    cmake_policy( SET CMP0042 OLD )
+if ( POLICY CMP0048 )
     cmake_policy( SET CMP0048 NEW )
-    project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}"
-	    VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
+project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}"
+    VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 
-if( POLICY CMP0074 )
-    cmake_policy(SET CMP0074 NEW)
+if ( POLICY CMP0011 )
+    cmake_policy( SET CMP0011 NEW )
+endif()
+if( APPLE )
+    if ( POLICY CMP0042 )
+	cmake_policy( SET CMP0042 OLD )
+    endif()
+endif()
+if ( POLICY CMP0057 )
+    cmake_policy( SET CMP0057 NEW )
+endif()
+if ( POLICY CMP0074 )
+    cmake_policy( SET CMP0074 NEW)
 endif()
 
 include( CTest )
@@ -49,6 +57,7 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
 set( OD_SUBSYSTEM "od" )
 
+option ( OD_NO_QT "Turn off all QT" OFF )
 option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
 
 include( OD_SetupOD )
@@ -118,6 +127,7 @@ endif()
 set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
 
+OD_ADD_EXTERNALS() # Once, in main scope
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )

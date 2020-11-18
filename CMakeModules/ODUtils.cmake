@@ -84,13 +84,12 @@ set ( DGB_ML_UIEXECS od_DeepLearning od_DeepLearning_CC od_DeepLearning_EM od_De
 set ( DGB_PRO_UIEXECS od_LogPlot )
 
 set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT OFF )
-if ( OSG_DIR )
-    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
-endif( OSG_DIR )
-
 if ( QTDIR )
     set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
 endif( QTDIR )
+if ( OSG_DIR )
+    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
+endif( OSG_DIR )
 
 
 # This option does two things
@@ -103,21 +102,29 @@ endif( QTDIR )
 #    This is as the build environment should be as similar to the runtime environment as
 #    possible
 #
-# Default is to have it OFF when QTDIR and OSGDIR are not set
+# Default is to have it OFF when QTDIR and OSG_DIR are not set
 
 option( OD_INSTALL_DEPENDENT_LIBS "Install dependent libs" ${OD_INSTALL_DEPENDENT_LIBS_DEFAULT} )
+
+macro( OD_ADD_EXTERNALS )
+    OD_ADD_QT()
+    OD_ADD_PROJ4()
+    OD_ADD_OSG()
+    OD_ADD_ZLIB()
+    OD_FIND_HDF5()
+    OD_FIND_OPENSSL()
+endmacro(OD_ADD_EXTERNALS)
 
 #Macro for going through a list of modules and adding them
 macro ( OD_ADD_MODULES )
     set( DIR ${ARGV0} )
-
     foreach( OD_MODULE_NAME ${ARGV} )
 	if ( NOT ${OD_MODULE_NAME} STREQUAL ${DIR} )
 	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} 
 		    	      ${DIR}/${OD_MODULE_NAME} )
 	endif()
     endforeach()
-endmacro()
+endmacro(OD_ADD_MODULES)
 
 # Macro for going through a list of modules and adding them
 # as optional targets
@@ -130,6 +137,38 @@ macro ( OD_ADD_OPTIONAL_MODULES )
 	endif()
     endforeach()
 endmacro()
+
+
+function( get_link_libraries OUTPUT_LIST TARGET )
+
+    get_target_property( LIBTYPE ${TARGET} TYPE )
+    if ( ${LIBTYPE} STREQUAL "SHARED_LIBRARY" )
+	
+	get_target_property(IMPORTED ${TARGET} IMPORTED)
+	list ( APPEND VISITED_TARGETS ${TARGET} )
+	if ( IMPORTED )
+	    get_target_property( LIBS ${TARGET} INTERFACE_LINK_LIBRARIES )
+	else()
+	    get_target_property( LIBS ${TARGET} LINK_LIBRARIES )
+	endif()
+	set( LIB_LIST "" )
+	foreach( LIB ${LIBS} )
+	    if ( TARGET ${LIB} )
+		list ( FIND VISITED_TARGETS ${LIB} VISITED )
+		if ( ${VISITED} EQUAL -1 )
+		    get_target_property( DEPLIBTYPE ${LIB} TYPE )
+		    if ( ${DEPLIBTYPE} STREQUAL "SHARED_LIBRARY" )
+			get_link_libraries( LINK_LIB_LIST ${LIB} )
+			list ( APPEND LIB_LIST ${LIB} ${LINK_LIB_LIST} )
+		    endif()
+		endif()
+	    endif()
+	endforeach()
+	set( VISISTED_TARGETS ${VISITED_TARGETS} PARENT_SCOPE )
+	set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE ) 
+    endif()
+
+endfunction()
 
 function(guess_runtime_library_dirs _var)
     # Start off with the link directories of the calling listfile's directory
@@ -174,7 +213,10 @@ function(guess_extruntime_library_dirs _var)
 	if ( EXISTS "${_lib}" )
 	    set( LIBLOC ${_lib} )
 	else()
-	    get_target_property( LIBLOC ${_lib} IMPORTED_LOCATION )
+	    get_target_property( LIBTYPE ${_lib} TYPE )
+	    if ( NOT "${LIBTYPE}" STREQUAL "INTERFACE_LIBRARY" )
+		get_target_property( LIBLOC ${_lib} IMPORTED_LOCATION )
+	    endif()
 	endif()
 	if ( EXISTS "${LIBLOC}" )
 	    get_filename_component( LIBDIR ${LIBLOC} DIRECTORY )
@@ -222,7 +264,10 @@ macro( OD_READ_TARGETINFO TARGETNM )
 	set( IMPORTED_LOC_KEYWORD IMPORTED_LOCATION )
 	set( IMPORTED_SONAME_KEYWORD IMPORTED_SONAME )
     endif()
-    get_target_property( LIBLOC ${TARGETNM} ${IMPORTED_LOC_KEYWORD} )
+    get_target_property( LIBTYPE ${TARGETNM} TYPE )
+    if ( NOT "${LIBTYPE}" STREQUAL "INTERFACE_LIBRARY" )
+	get_target_property( LIBLOC ${TARGETNM} ${IMPORTED_LOC_KEYWORD} )
+    endif()
     if ( NOT LIBLOC )
 	get_target_property( LIBLOC ${TARGETNM} LOCATION )
 	if ( NOT EXISTS "${LIBLOC}" )
@@ -237,7 +282,7 @@ macro( OD_READ_TARGETINFO TARGETNM )
 	    endif()
 	endif()
     endif()
-    if ( UNIX )
+    if ( UNIX AND NOT "${LIBTYPE}" STREQUAL "INTERFACE_LIBRARY" )
 	get_target_property( LIBSONAME ${TARGETNM} ${IMPORTED_SONAME_KEYWORD} )
     endif()
     get_filename_component( LIBDIR ${LIBLOC} DIRECTORY )
@@ -384,7 +429,7 @@ macro ( OD_INSTALL_PROGRAM SOURCE )
 endmacro( OD_INSTALL_PROGRAM )
 
 #Takes a library variable with both _RELEASE and _DEBUG variants, and constructs
-# a variable that combinse both
+# a variable that combines both
 
 macro ( OD_MERGE_LIBVAR VARNAME )
     if ( ${${VARNAME}_RELEASE} STREQUAL "${VARNAME}_RELEASE-NOTFOUND" )
@@ -451,7 +496,10 @@ endmacro()
 function( od_find_library _var)
     foreach( _lib ${ARGN} )
 	if ( DEFINED LIBSEARCHPATHS )
-	    find_library( ODLIBLOC ${_lib} PATHS ${LIBSEARCHPATHS} REQUIRED )
+	    find_library( ODLIBLOC ${_lib} PATHS ${LIBSEARCHPATHS} REQUIRED NO_DEFAULT_PATH )
+	    if ( NOT ODLIBLOC )
+		find_library( ODLIBLOC ${_lib} PATHS ${LIBSEARCHPATHS} REQUIRED )
+	    endif()
 	else()
 	    find_library( ODLIBLOC ${_lib} REQUIRED )
 	endif()
