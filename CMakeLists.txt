@@ -22,12 +22,10 @@ endif()
 
 if ( POLICY CMP0048 )
     cmake_policy( SET CMP0048 NEW )
-
 endif()
 project( "OpendTect"
     VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 
-endif()
 if ( POLICY CMP0011 )
     cmake_policy( SET CMP0011 NEW )
 endif()
