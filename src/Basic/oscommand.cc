@@ -831,7 +831,8 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
         }
         const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
             argsstr, pars.workingdir_, SW_SHOW );
-        return (int)res > HINSTANCE_ERROR;
+        return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
+							    HINSTANCE_ERROR;
     }
 #endif
 
