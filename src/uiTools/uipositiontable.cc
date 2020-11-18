@@ -36,7 +36,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     if ( withxy_ ) infotxt = tr("Enter X/Y positions");
     if ( withxy_ && withic_ ) infotxt = tr("Enter X/y or Inl/Crl positions");
     if ( withic_ ) infotxt = tr("Enter Inl/Crl positions");
-    
+
     uiLabel* lbl = new uiLabel( this, infotxt );
 
     uiLabel* pmlvl =  new uiLabel( this, uiStrings::sEmptyString() );
@@ -59,8 +59,8 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     attachObj()->setMinimumWidth( withxy_ && withic_ ? 400 : 200 );
 
     table_->setColumnLabel(0, withxy_ ? uiStrings::sX() : uiStrings::sInline());
-    table_->setColumnLabel(1, withxy_ ? uiStrings::sY() : 
-						       uiStrings::sCrossline());
+    table_->setColumnLabel(1, withxy_ ? uiStrings::sY()
+				      : uiStrings::sCrossline());
     if ( withxy_ && withic_ )
     {
 	table_->setColumnLabel( 2, uiStrings::sInline() );
@@ -72,7 +72,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 	uiSeparator* hsep = new uiSeparator( this, "Separator" );
 	hsep->attach( stretchedBelow, table_ );
 
-	uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(), 
+	uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
 			SI().getUiZUnitString());
 	zfld_ = new uiGenInput( this, zlbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
@@ -116,10 +116,11 @@ void uiPositionTable::posChgCB( CallBacker* )
 	bid = BinID( table_->getIntValue(RowCol(rc.row(),2)),
 		     table_->getIntValue(RowCol(rc.row(),3)) );
 	Coord coord = SI().transform( bid );
+	const int nrdec = SI().nrXYDecimals();
 	if ( withxy_ )
 	{
-	    table_->setValue( RowCol(rc.row(),0), coord.x );
-	    table_->setValue( RowCol(rc.row(),1), coord.y );
+	    table_->setValue( RowCol(rc.row(),0), coord.x, nrdec );
+	    table_->setValue( RowCol(rc.row(),1), coord.y, nrdec );
 	}
     }
 
@@ -131,13 +132,14 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 {
     const int sz = coords.size();
     table_->setNrRows( sz+5 );
+    const int nrdec = SI().nrXYDecimals();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const Coord& crd = coords[idx];
 	if ( withxy_ )
 	{
-	    table_->setValue( RowCol(idx,getXCol()), crd.x );
-	    table_->setValue( RowCol(idx,getYCol()), crd.y );
+	    table_->setValue( RowCol(idx,getXCol()), crd.x, nrdec );
+	    table_->setValue( RowCol(idx,getYCol()), crd.y, nrdec );
 	}
 
 	const BinID bid = SI().transform( crd );
@@ -162,14 +164,15 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 {
     const int sz = binids.size();
     table_->setNrRows( sz+5 );
+    const int nrdec = SI().nrXYDecimals();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const BinID& bid = binids[idx];
 	if ( withxy_ )
 	{
 	    const Coord crd = SI().transform( bid );
-	    table_->setValue( RowCol(idx,getXCol()), crd.x );
-	    table_->setValue( RowCol(idx,getYCol()), crd.y );
+	    table_->setValue( RowCol(idx,getXCol()), crd.x, nrdec );
+	    table_->setValue( RowCol(idx,getYCol()), crd.y, nrdec );
 	}
 
 	if ( withic_ )

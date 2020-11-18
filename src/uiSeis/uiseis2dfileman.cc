@@ -158,13 +158,14 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    txt += "Details for line: "; txt += linenms.get(idx);
 	    txt += "\nNumber of traces: "; txt += sz;
 	    txt += "\nFirst trace: ";
+	    const int nrdec = SI().nrXYDecimals();
 	    if ( l2dd.getPos(trcrg.start,firstpos) )
 		txt.add( firstpos.nr_ )
-		   .add( " " ).add( firstpos.coord_.toString() );
+		   .add( " " ).add( firstpos.coord_.toPrettyString(nrdec) );
 	    txt += "\nLast trace: ";
 	    if ( l2dd.getPos(trcrg.stop,lastpos) )
 		txt.add( lastpos.nr_ )
-		   .add( " " ).add( lastpos.coord_.toString() );
+		   .add( " " ).add( lastpos.coord_.toPrettyString(nrdec) );
 
 #define mAddZRangeTxt(memb) txt += \
 				zistm ? SI().zDomain().userFactor()*memb : memb

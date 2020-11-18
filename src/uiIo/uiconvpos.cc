@@ -300,8 +300,8 @@ void uiManualConvGroup::convButPushCB( CallBacker* )
     else
 	convFromXY();
 
-    xyoutfld_->setNrDecimals( 1, 0 );
-    xyoutfld_->setNrDecimals( 1, 1 );
+    xyoutfld_->setNrDecimals( SI().nrXYDecimals(), 0 );
+    xyoutfld_->setNrDecimals( SI().nrXYDecimals(), 1 );
 }
 
 

@@ -64,6 +64,7 @@ public:
     int			crlStep() const;
     float		zStep() const;
     int			nrZDecimals() const;
+    int			nrXYDecimals() const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
     float		getArea(const Interval<int>& inl,

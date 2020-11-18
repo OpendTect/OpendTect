@@ -96,10 +96,11 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 void finalisedCB( CallBacker* )
 {
     fillCurrent();
-    tlfld_->setNrDecimals( 2, 0 );
-    tlfld_->setNrDecimals( 2, 1 );
-    brfld_->setNrDecimals( 2, 0 );
-    brfld_->setNrDecimals( 2, 1 );
+    const int nrdec = SI().nrXYDecimals();
+    tlfld_->setNrDecimals( nrdec, 0 );
+    tlfld_->setNrDecimals( nrdec, 1 );
+    brfld_->setNrDecimals( nrdec, 0 );
+    brfld_->setNrDecimals( nrdec, 1 );
 }
 
 void fillCurrent()
