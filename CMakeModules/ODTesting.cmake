@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 
-set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
+set ( OD_TESTDATA_DIR "" CACHE PATH "Test data location" )
 
 
 if ( UNIX )
