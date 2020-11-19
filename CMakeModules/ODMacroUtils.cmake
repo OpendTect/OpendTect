@@ -61,9 +61,6 @@
 # OD_MODULE_RUNTIMEPATH		: All directories that are needed at runtime
 # OD_MODULE_INTERNAL_LIBS	: All OD libraries needed for the module
 # OD_MODULE_ALL_EXTERNAL_LIBS	: All external libraries needed for the module
-# OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL : List of external DLLs that are
-#					required by the plugin at runtime.
-#					Will be copied into the binaries dir
 
 list( APPEND SETUPNMS
        USEQT
@@ -612,16 +609,29 @@ endif( OD_USEBATCH )
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
 
-if ( WIN32 AND OD_IS_PLUGIN )
-    list( LENGTH OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL NRDLLS )
-    if ( ${NRDLLS} GREATER 0 )
-        string( TOUPPER ${CMAKE_BUILD_TYPE} OD_BUILD_TYPE )
-        get_target_property( ODEXECPATH ${OD_MODULE_NAME} RUNTIME_OUTPUT_DIRECTORY_${OD_BUILD_TYPE} )
-	if ( ODEXECPATH AND EXISTS ${ODEXECPATH} )
+if ( WIN32 AND OD_IS_PLUGIN AND OD_${OD_MODULE_NAME}_EXTERNAL_LIBS )
+    foreach( LIBNM ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS} )
+	if ( "${LIBNM}" MATCHES ".*Qt5.*" )
+	    continue()
+	endif()
+	if ( TARGET ${LIBNM} )
+	    OD_READ_TARGETINFO( ${LIBNM} )
+	    set( LIBNM ${SOURCEFILE} )
+        endif()
+	if ( EXISTS "${LIBNM}" )
+	    get_filename_component( LIBFILEEXT ${LIBNM} EXT )
+	    if ( "${LIBFILEEXT}" STREQUAL ".dll" OR "${LIBFILEEXT}" STREQUAL ".DLL" )
+		list ( APPEND EXTERNAL_DLLS ${LIBNM} )
+	    endif()
+	endif()
+    endforeach()
+    if ( EXTERNAL_DLLS )
+	string( TOUPPER ${CMAKE_BUILD_TYPE} OD_BUILD_TYPE )
+	get_target_property( ODEXECPATH ${OD_MODULE_NAME} RUNTIME_OUTPUT_DIRECTORY_${OD_BUILD_TYPE} )
+	if ( ODEXECPATH AND EXISTS "${ODEXECPATH}" )
 	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
-	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OD_${OD_MODULE_NAME}_PLUGIN_EXTERNAL_DLL} ${ODEXECPATH}
-	        COMMENT "Copying external DLLs for ${OD_MODULE_NAME}" 
-	    )
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTERNAL_DLLS} ${ODEXECPATH}
+    	        COMMENT "Copying external DLLs for ${OD_MODULE_NAME}" )
 	endif()
     endif()
 endif()
