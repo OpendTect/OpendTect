@@ -52,9 +52,9 @@ endif()
 
 #Create symbols, store them in SYMBOL STRING
 execute_process( COMMAND ${SYM_DUMP_EXECUTABLE} ${LIBRARY}
-                RESULT_VARIABLE RESULT
-                OUTPUT_VARIABLE SYMBOL_STRING
-                ERROR_VARIABLE ERRORS )
+		RESULT_VARIABLE RESULT
+		OUTPUT_VARIABLE SYMBOL_STRING
+		ERROR_VARIABLE ERRORS )
 
 if ( NOT (${RESULT} EQUAL 0) )
     message( FATAL_ERROR "Error while running ${SYM_DUMP_EXECUTABLE} ${LIBRARY}"
@@ -64,13 +64,12 @@ endif()
 #Convert symbols to a list and check for sanity and 
 #checksum
 string ( REPLACE " " ";" SYMBOL_LIST ${SYMBOL_STRING} )
-set ( WORDS ${SYMBOL_LIST} )
-list ( GET WORDS 0 MODULE_STRING )
+list ( GET SYMBOL_LIST 0 MODULE_STRING )
 if ( NOT (${MODULE_STRING} STREQUAL "MODULE" ) )
     message( FATAL_ERROR "Invalid output from ${LIBRARY}" )
 endif()
 
-list ( GET WORDS 3 CHECKSUM )
+list ( GET SYMBOL_LIST 3 CHECKSUM )
 
 set ( DIRNAME ${OUTDIR}/${LIBNAME} )
 if ( WIN32 )
@@ -82,5 +81,5 @@ if ( EXISTS ${DIRNAME} )
     file( REMOVE_RECURSE ${DIRNAME} )
 endif()
 
-#Write out new symbols
+#Write out new symbols to correct location
 file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )

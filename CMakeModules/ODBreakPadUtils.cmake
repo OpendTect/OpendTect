@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Dec 2012	Aneesh
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 
@@ -66,3 +65,16 @@ if(OD_ENABLE_BREAKPAD)
     endif()
 
 endif(OD_ENABLE_BREAKPAD)
+
+macro ( OD_GENERATE_SYMBOLS TRGT )
+    if ( BREAKPAD_DUMPSYMS_EXECUTABLE )
+	#Method to create timestamp file (and symbols). Will only trigger if out of date
+	add_custom_command( TARGET ${TRGT} POST_BUILD 
+		COMMAND ${CMAKE_COMMAND} -DLIBRARY=$<TARGET_FILE:${TRGT}>
+					 -DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+					 -P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+		DEPENDS ${TRGT}
+		COMMENT "Generating symbols for ${TRGT}" )
+
+    endif( BREAKPAD_DUMPSYMS_EXECUTABLE )
+endmacro()
