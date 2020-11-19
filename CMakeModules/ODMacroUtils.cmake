@@ -599,8 +599,8 @@ endforeach()
 
 if( OD_USEBATCH )
     list(APPEND OD_MODULE_INCLUDEPATH
-		${OpendTect_DIR}/include/Batch
-        ${OpendTect_DIR}/include/Network
+		${OD_Batch_INCLUDEPATH}
+		${OD_Network_INCLUDEPATH}
 		${CMAKE_BINARY_DIR}/include/Batch
 		${CMAKE_BINARY_DIR}/include/Network)
 endif( OD_USEBATCH )
