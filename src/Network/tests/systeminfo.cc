@@ -5,31 +5,73 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
+#include "applicationdata.h"
 #include "systeminfo.h"
+#include "timer.h"
 
 #include "testprog.h"
 
 
-bool testSystemInfo()
+class TestClass : public CallBacker
 {
-    //Dummy test in a sense, as we cannot check the result
-    mRunStandardTest( System::macAddressHash(),
-		     "macAddressHash" );
-    const BufferString localaddress = System::localAddress();
-    mRunStandardTest( !localaddress.isEmpty(),
-		     "Local address" );
+public:
+    TestClass()
+        : timer_( "starter" )
+    {
+        mAttachCB( timer_.tick, TestClass::timerTick );
+        timer_.start( 0, true );
+    }
 
-    return true;
-}
+    ~TestClass()
+    {
+        detachAllNotifiers();
+        CallBack::removeFromThreadCalls( this );
+    }
 
-int main( int argc, char** argv )
+    void timerTick( CallBacker* )
+    {
+        retval_ = testSystemInfo() ? 0 : 1;
+        CallBack::addToMainThread( mCB( this, TestClass, closeTesterCB ) );
+    }
+
+    void closeTesterCB( CallBacker* )
+    {
+        ApplicationData::exit( retval_ );
+    }
+
+    bool testSystemInfo()
+    {
+        //Dummy test in a sense, as we cannot check the result
+        mRunStandardTest( System::macAddressHash(),
+            "macAddressHash" );
+        const BufferString localaddress = System::localAddress();
+        mRunStandardTest( !localaddress.isEmpty(),
+            "Local address" );
+
+        return true;
+    }
+
+    Timer   timer_;
+    int     retval_ = 0;
+
+};
+
+
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testSystemInfo() )
-	ExitProgram( 1 );
+    ApplicationData app;
+    TestClass tester;
 
-    return ExitProgram( 0 );
+    return app.exec();
+}
+
+
+
+int main( int argc, char** argv )
+{
+    OD::SetRunContext( OD::TestProgCtxt );
+    return ExitProgram( testMain(argc,argv) );
 }
