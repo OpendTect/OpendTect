@@ -156,6 +156,7 @@ OD_ADD_REGEXP_TEST( "ArrPtrMan[^;]+=[^?;]*new\\\\\\\\s+" mAllocLargeVarLenArr
 		     "ArrPtrMan<Type> var = new is not allowed. Use mAllocLargeVarLenArr instead." )
 OD_ADD_LINEEND_TEST()
 OD_ADD_EXIT_PROGRAM_TEST()
+OD_ADD_LINT_TEST()
 
 if ( UNIX )
     add_test( "PNGCompression" ${CMAKE_SOURCE_DIR}/dtect/FindCompactablePNGs.csh )
