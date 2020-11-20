@@ -690,8 +690,8 @@ bool executeWinProg( const char* comm, const char* parm, const char* runin )
 }
 
 
-static bool getDefaultApplication( const char* filetype,
-				   BufferString& cmd, BufferString& errmsg )
+bool getDefaultApplication( const char* filetype,
+			    BufferString& cmd, BufferString& errmsg )
 {
     cmd = errmsg = "";
 
@@ -710,7 +710,9 @@ static bool getDefaultApplication( const char* filetype,
     res = RegQueryValueEx( handle, NULL, NULL, NULL, (LPBYTE)value, &bufsz );
     if ( res != ERROR_SUCCESS )
     {
-	errmsg =  "Cannot query registry for default browser";
+	errmsg =  "Cannot query registry for default application";
+		  " with file type ";
+	errmsg.add( filetype );
 	return false;
     }
 
@@ -721,7 +723,26 @@ static bool getDefaultApplication( const char* filetype,
 
 
 bool getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
-{ return getDefaultApplication( "HTTP", cmd, errmsg ); }
+{
+    BufferString appkey = "HTTP";
+    HKEY handle;
+    LONG res = 0;
+    const BufferString subkey = "SOFTWARE\\Microsoft\\Windows\\Shell\\"
+		"Associations\\UrlAssociations\\http\\UserChoice";
+    res = RegOpenKeyEx( HKEY_CURRENT_USER, subkey.buf(), 0, KEY_READ, &handle );
+    if ( res == ERROR_SUCCESS )
+    {
+	CHAR value[512];
+	DWORD bufsz = sizeof( value );
+	res = RegQueryValueEx( handle, "ProgId", NULL, NULL,
+			       (LPBYTE)value, &bufsz );
+	if ( res == ERROR_SUCCESS )
+	    appkey = value;
+	RegCloseKey( handle );
+    }
+
+    return getDefaultApplication( appkey, cmd, errmsg );
+}
 
 
 bool setRegKeyVal( const char* ky, const char* vanrnm, const char *val )

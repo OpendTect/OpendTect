@@ -75,6 +75,9 @@ mGlobal(Basic) bool		hasAppLocker();
 mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
 						  BufferString& errmsg);
+mGlobal(Basic) bool		getDefaultApplication( const char* scheme,
+                                        BufferString& cmd,
+					BufferString& errmsg);
 
 mGlobal(Basic)	bool		setRegKeyVal(const char* ky, const char* vanrnm,
 					     const char *val);
