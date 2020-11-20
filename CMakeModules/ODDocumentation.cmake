@@ -19,26 +19,22 @@ macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
 
-    file ( GLOB DOXYGEN_PROGDOC_FILES "${CMAKE_SOURCE_DIR}/doc/Programmer/*.dox" )
-    foreach ( OD_DOXYGEN_PROGDOC_FILE ${DOXYGEN_PROGDOC_FILES} )
-	set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${OD_DOXYGEN_PROGDOC_FILE}" )
-    endforeach()
-
     foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
-	string(TOLOWER ${OD_DOXYGEN_MODULE} OD_DOXYGEN_MODULE_lower )
 	if ( EXISTS ${INCLUDE_DIR} )
 	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${INCLUDE_DIR}" )
-	    set( DOX_FILE ${INCLUDE_DIR}/${OD_DOXYGEN_MODULE_lower}.dox )
-	    if ( EXISTS ${DOX_FILE} )
-		OD_ADD_SOURCE_FILES( ${DOX_FILE} )
-		set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${DOX_FILE}" )
-	    endif()
+	    file ( GLOB DOXFILES ${INCLUDE_DIR}/*.dox )
+	    foreach ( DOX_FILE ${DOXFILES} )
+		if ( EXISTS ${DOX_FILE} )
+		    OD_ADD_SOURCE_FILES( ${DOX_FILE} )
+		    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${DOX_FILE}" )
+		endif()
+	    endforeach()
 	endif()
 	set( SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
 	if( EXISTS ${SOURCE_DIR} )
-		set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
-	    endif()
+	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
+	endif()
     endforeach()
 
     set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
@@ -54,22 +50,10 @@ macro( OD_BUILD_DOCUMENTATION )
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
-    set( OD_PROGDOC_URLPREFIX "http://doc.opendtect.org/${OpendTect_VERSION_MAJOR}${OpendTect_VERSION_MINOR}${OpendTect_VERSION_PATCH}/doc/Programmer"
-	CACHE STRING "Online documentation prefix" )
-
-    if ( UNIX AND OD_PROGDOC_URLPREFIX )
-	set ( MAKE_SITEMAP_COMMAND
-	    COMMAND ${OpendTect_DIR}/dtect/generate_progdoc_sitemap.sh
-		    ${CMAKE_BINARY_DIR}/doc/Programmer/ ${OD_PROGDOC_URLPREFIX} )
-    endif()
-
     add_custom_target ( doc
-			${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
-			${MAKE_SITEMAP_COMMAND}
+			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-
-    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION
-	                ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
@@ -77,11 +61,6 @@ IF ( BUILD_DOCUMENTATION )
   if ( NOT DOXYGEN_FOUND )
     message( FATAL_ERROR 
       "Doxygen is needed to build the documentation. Please install it correctly")
-  endif()
-
-  if ( NOT DOXYGEN_DOT_FOUND )
-    message( WARNING 
-      "Dot is not found, but is needed to make the documentation graphs. Please install it correctly")
   endif()
 endif()
 
@@ -92,10 +71,9 @@ endif()
 if ( BUILD_USERDOC )
     if ( WIN32 )
         set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
-	set( USERDOC_TARGET "HTML5" CACHE STRING "Documentation target" )
+	set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
 	find_program( MADCAP_FLARE_EXEC madbuild.exe
-		  HINTS "C:/Program Files/MadCap Software/MadCap Flare 16/Flare.app"
-			"E:/Program Files/MadCap Software/MadCap Flare 16/Flare.app"
+		  HINTS "E:/Program Files/MadCap Software/MadCap Flare 16/Flare.app"
 		  DOC "Madcap Flare Executable"
              	  NO_DEFAULT_PATH )
 
