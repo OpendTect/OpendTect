@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
@@ -19,6 +18,8 @@ endforeach()
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
+    set( OD_DOXYGEN_ODPY_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/odpy/Generated )
+    set( OD_DOXYGEN_ODPY_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile_odpy )
 
     foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
@@ -35,15 +36,19 @@ macro( OD_BUILD_DOCUMENTATION )
 	set( SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
 	if( EXISTS ${SOURCE_DIR} )
 	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
+	    set ( OD_DOXYGEN_ODPY_INPUT ${CMAKE_SOURCE_DIR}/bin/python/odpy )
 	endif()
     endforeach()
 
     set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
+    set( TEMPLATE_ODPY ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile_odpy.in )
     set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
 
 	
     configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
+    configure_file( ${TEMPLATE_ODPY}
+		 ${OD_DOXYGEN_ODPY_FILE} @ONLY IMMEDIATE)
     OD_CURRENT_YEAR( YEAR )
     configure_file( ${FOOTER}
 		${PROJECT_BINARY_DIR}/CMakeFiles/doxygenfooter.html @ONLY
@@ -54,7 +59,16 @@ macro( OD_BUILD_DOCUMENTATION )
     add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
+    add_custom_target ( doc_odpy
+                        ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_ODPY_FILE}
+                        ${MAKE_SITEMAP_COMMAND}
+                        COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
+                        SOURCES ${OD_DOXYGEN_ODPY_FILE} )
+
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html
+	      DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/odpy/Generated/html
+	      DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/odpy/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
