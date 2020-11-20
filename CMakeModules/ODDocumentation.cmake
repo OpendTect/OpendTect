@@ -36,6 +36,7 @@ macro( OD_BUILD_DOCUMENTATION )
 	set( SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
 	if( EXISTS ${SOURCE_DIR} )
 	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
+	    set ( OD_DOXYGEN_ODPY_INPUT ${CMAKE_SOURCE_DIR}/bin/python/odpy )
 	endif()
     endforeach()
 
@@ -63,6 +64,7 @@ macro( OD_BUILD_DOCUMENTATION )
                         ${MAKE_SITEMAP_COMMAND}
                         COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
                         SOURCES ${OD_DOXYGEN_ODPY_FILE} )
+
     install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html
 	      DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
     install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/odpy/Generated/html
