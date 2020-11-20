@@ -559,7 +559,7 @@ bool PickSetDisplay::setBodyDisplay()
 
     setColor(set_->disp_.fillcolor_);
 
-    return  bodydisplay_->setPoints( picks );
+    return bodydisplay_->setPoints( picks, set_->isPolygon() );
 }
 
 
