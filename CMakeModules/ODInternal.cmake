@@ -97,7 +97,6 @@ file( GLOB TUTHFILES plugins/Tut/*.h )
 file( GLOB TUTCCFILES plugins/Tut/*.cc )
 set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
 install( FILES ${TUTFILES} DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample/plugins/Tut )
-install( FILES doc/Programmer/style.css DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer )
 install( DIRECTORY dtect
 	 DESTINATION ${MISC_INSTALL_PREFIX}
 	 PATTERN ".svn" EXCLUDE )
@@ -111,10 +110,6 @@ install( FILES doc/Programmer/pluginexample/CMakeLists.txt
 
 install( DIRECTORY doc/Programmer/batchprogexample
 	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer
-	 PATTERN ".svn" EXCLUDE )
-
-install( DIRECTORY doc/Credits/base
-	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Credits
 	 PATTERN ".svn" EXCLUDE )
 
 OD_CURRENT_MONTH( MONTH )
