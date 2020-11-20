@@ -63,9 +63,10 @@ macro( OD_BUILD_DOCUMENTATION )
                         ${MAKE_SITEMAP_COMMAND}
                         COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
                         SOURCES ${OD_DOXYGEN_ODPY_FILE} )
-    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION
-	                ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/odpy/Generated/html DESTINATION
-			{MISC_INSTALL_PREFIX}/doc/Programmer/odpy/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html
+	      DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/odpy/Generated/html
+	      DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/odpy/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
