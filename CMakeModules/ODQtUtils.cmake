@@ -111,7 +111,7 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
 macro( QT_SETUP_XCBQPA_EXTERNALS )
-    od_find_library( LIBPNGLOC libpng16.so libpng15.so )
+    od_find_library( LIBPNGLOC libpng16.so.16 libpng15.so.15 libpng12.so.0 )
     if ( LIBPNGLOC )
 	list ( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${LIBPNGLOC}" )
     else()
