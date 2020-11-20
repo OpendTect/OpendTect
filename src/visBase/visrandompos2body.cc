@@ -59,6 +59,12 @@ void RandomPos2Body::setRenderMode( RenderMode mode )
 
 bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 {
+    return setPoints( pts, false );
+}
+
+
+bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts, bool ispoly )
+{
     picks_.erase();
     picks_.copy( pts );
 
@@ -70,19 +76,22 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
     bool oninline = true, oncrossline = true, onzslice = true;
     int inl=-1, crl=-1;
     float z=-1;
-    const float zeps = SI().zStep()/2.0;
+    const float zeps = SI().zStep()/2.f;
 
+    TrcKeyZSampling bbox; // TODO: Use a plane fitter
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	vtxshape_->getCoordinates()->setPos( idx, pts[idx] );
 	picks += Coord3(pts[idx].coord(), pts[idx].z*zscale);
 
-	BinID bid = SI().transform( pts[idx] );
+	const BinID bid = SI().transform( pts[idx] );
 	if ( idx==0 )
 	{
 	    inl = bid.inl();
 	    crl = bid.crl();
 	    z = pts[idx].z;
+	    bbox.hsamp_.init( bid );
+	    bbox.zsamp_.set( pts[idx].z, pts[idx].z, SI().zStep() );
 	}
 	else
 	{
@@ -94,17 +103,28 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 
 	    if ( onzslice && !mIsEqual(z,pts[idx].z,zeps) )
 		onzslice = false;
+	    bbox.include( bid, pts[idx].z );
 	}
     }
 
     vtxshape_->getCoordinates()->removeAfter( pts.size()-1 );
+    if ( ispoly )
+    {
+	const int nrinl = bbox.nrInl();
+	const int nrcrl = bbox.nrCrl();
+	const int nrz = bbox.nrZ();
+
+	oninline = nrinl<=nrcrl && nrinl<=nrz;
+	oncrossline = nrcrl<=nrinl && nrcrl<=nrz;
+	onzslice = nrz<=nrcrl && nrz<=nrinl;
+    }
 
     TypeSet<int> result;
     if ( !oninline && !oncrossline && !onzslice )
     {
 	DAGTetrahedraTree tree;
 	tree.setCoordList( picks, false );
-	
+
 	ParallelDTetrahedralator pdtri( tree );
 	if ( !pdtri.execute() )
 	    return false;
@@ -143,7 +163,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
     primitiveset->unRef();
 
     vtxshape_->dirtyCoordinates();
-    
+
     return true;
 
 }
@@ -154,7 +174,7 @@ void RandomPos2Body::setDisplayTransformation( const mVisTrans*  nt )
     if ( transformation_ ) transformation_->unRef();
 
     transformation_ = nt;
-    if ( transformation_ ) 
+    if ( transformation_ )
     {
 	transformation_->ref();
 	if ( vtxshape_ )
