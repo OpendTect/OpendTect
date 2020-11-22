@@ -1,10 +1,10 @@
+#pragma once
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		June 2014
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,12 @@ ________________________________________________________________________
 
 #ifndef mVCS_VERSION
 # define mVCS_VERSION "@VCS_VERSION@"
+#endif
+
+@VCS_BRANCH_DEF@
+
+#ifndef mVCS_BRANCH
+# define mVCS_BRANCH "@VCS_BRANCH@"
 #endif
 
 #ifndef mBUILD_DATE
