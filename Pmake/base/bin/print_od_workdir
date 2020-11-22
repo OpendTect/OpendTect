@@ -1,3 +1,0 @@
-#!/bin/csh -f
-#Prints the what the OD_WORKDIR should be. Used to set OD_WORKDIR in wdir
-echo $WORK:t

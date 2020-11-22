@@ -1,8 +1,0 @@
-#!/bin/sh
-
-ARGS=`echo "$*" | awk -f $PMAKE/bin/win/conv_args.awk`
-export ARGS
-
-# echo "Executing: " $ARGS >> /tmp/wrapit.log
-
-$ARGS
