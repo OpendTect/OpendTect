@@ -1,5 +1,4 @@
-#ifndef @OD_MODULE_NAME_LOWER@deps_h
-#define @OD_MODULE_NAME_LOWER@deps_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,7 +31,5 @@ ________________________________________________________________________
 #  pragma message ( "Should never come here." )
 // Don't include this file from it's own module.
 # endif
-
-#endif
 
 #endif
