@@ -7,7 +7,7 @@
 
 cmake_minimum_required ( VERSION 3.14.7 )
 
-set( MAIN_GIT_BRANCH master )
+set( MAIN_GIT_BRANCH od6.7 )
 
 set( OpendTect_VERSION_MAJOR 6 )
 set( OpendTect_VERSION_MINOR 7 )
@@ -23,7 +23,7 @@ endif()
 if ( POLICY CMP0048 )
     cmake_policy( SET CMP0048 NEW )
 endif()
-project( "OpendTect"
+project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}"
     VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 
 if ( POLICY CMP0011 )
