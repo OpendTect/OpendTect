@@ -49,7 +49,7 @@ else()
 	  OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 
-	if ( VCS_BRANCH STREQUAL "master" )
+	if ( VCS_BRANCH STREQUAL "main" )
 	    set ( VCS_BRANCH_DEF "#define mVCS_DEVEL" )
 	else()
 	    set ( VCS_BRANCH_DEF "#define mVCS_STABLE" )
