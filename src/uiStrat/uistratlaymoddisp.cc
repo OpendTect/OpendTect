@@ -105,8 +105,12 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 #   define mSetCB(notifnm) tools_.notifnm.notify( \
 	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
 
-    mSetCB( selPropChg ); mSetCB( dispLithChg ); mSetCB( selContentChg );
-    mSetCB( selLevelChg ); mSetCB( dispEachChg ); mSetCB( dispZoomedChg );
+    mAttachCB( tools_.selPropChg, uiStratLayerModelDisp::selPropChgCB );
+    mAttachCB( tools_.dispLithChg, uiStratLayerModelDisp::dispLithChgCB );
+    mAttachCB( tools_.selContentChg, uiStratLayerModelDisp::selContentChgCB );
+    mAttachCB( tools_.selLevelChg, uiStratLayerModelDisp::selLevelChgCB );
+    mAttachCB( tools_.dispEachChg, uiStratLayerModelDisp::dispEachChgCB );
+    mAttachCB( tools_.dispZoomedChg, uiStratLayerModelDisp::dispZoomedChgCB );
 }
 
 
