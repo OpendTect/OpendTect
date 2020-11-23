@@ -19,7 +19,7 @@ if ( !(test) ) \
     handleTestResult( false, testname ); \
     return false; \
 } \
-else \
+else\
 { \
     handleTestResult( true, testname ); \
 }
@@ -182,9 +182,16 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     File::Path fp( __FILE__ );
-    fp.setExtension( "par" );
+    fp.setExtension( "txt" );
     if ( !fp.exists() )
-	{ errStream() << "Input file not found"; return 1; }
+    {
+	fp.set( GetSoftwareDir(false) ).add( __FILE__ ).setExtension( "txt" );
+	if ( !fp.exists() )
+	{
+	    errStream() << "Input file not found\n";
+	    return 1;
+	}
+    }
 
     const BufferString parfile( fp.fullPath() );
     if ( !testReadContent() || !testIStream( parfile.buf() ) )

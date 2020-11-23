@@ -10,6 +10,8 @@
 
 #include "testprog.h"
 #include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
 
 #include "od_iostream.h"
 
@@ -48,12 +50,6 @@ static bool testCoordList3D()
 
 static bool testReadBendPointFile( const char* file )
 {
-    if ( !File::exists( file ) )
-    {
-	od_ostream::logStream() << "Input file " << file << " does not exist";
-	return false;
-    }
-
     od_istream stream( file );
     if ( !stream.isOK() )
     {
@@ -74,21 +70,25 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    BufferStringSet normalargs;
-    clParser().getNormalArguments(normalargs);
+    File::Path fp( __FILE__ );
+    fp.setExtension( "txt" );
+    if ( !fp.exists() )
+    {
+	fp.set( GetSoftwareDir(false) ).add( __FILE__ ).setExtension( "txt" );
+	if ( !fp.exists() )
+	{
+	    errStream() << "Input file not found\n";
+	    ExitProgram( 1 );
+	}
+    }
 
     if ( !testCoordList2D() )
 	return 1;
     if ( !testCoordList3D() )
 	return 1;
 
-    if ( normalargs.isEmpty() )
-    {
-	od_ostream::logStream() << "No input file specified";
-	return 1;
-    }
-
-    if ( !testReadBendPointFile( normalargs.get(0) ) )
+    const BufferString parfile( fp.fullPath() );
+    if ( !testReadBendPointFile(parfile) )
 	return 1;
 
     return 0;
