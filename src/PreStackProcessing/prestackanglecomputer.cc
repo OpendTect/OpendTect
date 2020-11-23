@@ -321,7 +321,6 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	}
     }
 
-    const bool zinfeet	= SI().zInFeet();
     TypeSet<float> offsets;
     outputsampling_.getPositions( true, offsets );
     const int offsetsize = outputsampling_.nrPts( true );
@@ -361,8 +360,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const double layerz = outputzrg.atIndex( zidx );
-	    const float zval = mCast(float, zinfeet ? layerz * mFromFeetFactorD
-						    : layerz );
+	    const float zval = mCast(float, layerz );
 	    const float sinangle = sinanglevals.getValue( zval );
 	    float angle = asin( sinangle );
 	    if ( mIsUdf(sinangle) || !Math::IsNormalNumber(angle) )
