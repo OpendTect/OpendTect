@@ -183,9 +183,16 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     FilePath fp( __FILE__ );
-    fp.setExtension( "par" );
+    fp.setExtension( "txt" );
     if ( !fp.exists() )
-	{ errStream() << "Input file not found"; ExitProgram( 1 ); }
+    {
+	fp.set( GetSoftwareDir(false) ).add( __FILE__ ).setExtension( "txt" );
+	if ( !fp.exists() )
+	{
+	    errStream() << "Input file not found\n";
+	    ExitProgram( 1 );
+	}
+    }
 
     const BufferString parfile( fp.fullPath() );
     if ( !testReadContent() || !testIStream( parfile.buf() ) )
