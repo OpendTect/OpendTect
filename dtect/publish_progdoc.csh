@@ -21,7 +21,7 @@ if ( ! -e ${sendappl} ) then
 endif
 
 set host=doc.opendtect.org
-set serversubdir=nightlyprogdoc/${1}
+set serversubdir=progdoc/${1}
 set docdir=${2}
 
 if ( "${docdir}" == "" ) then
