@@ -100,6 +100,8 @@ bool isFFTAngleOK( const Gather& angles )
 }
 
 // Analytically computed values, not an approximation
+static const float anglezeroidx[] = { 0.f, M_PI_2f, M_PI_2f,
+					M_PI_2f, M_PI_2f, M_PI_2f };
 static const float anglestimesurvlastidx[] = { 0.f, 0.211425903f, 0.405479412f,
 					0.572076f, 0.70942786f, 0.82067632f };
 static const float anglestimesurvmididx[] = { 0.f, 0.43568076f, 0.7496963f,
@@ -134,9 +136,7 @@ bool compareAngles( const Gather& angles, int zidx, bool depth, bool feet )
     if ( !targetvals )
 	return false;
 
-    TypeSet<float> zerovals( nroffset, M_PI_2f );
-    zerovals[0] = 0.f;
-    targetvals[0] = zerovals.arr();
+    targetvals[0] = anglezeroidx;
     targetvals[1] = depth
 		  ? (feet ? anglesdepthftsurvlastidx : anglesdepthmsurvlastidx)
 		  : anglestimesurvlastidx;
@@ -154,6 +154,8 @@ bool compareAngles( const Gather& angles, int zidx, bool depth, bool feet )
 		       delete [] targetvals );
 	}
     }
+
+    delete [] targetvals;
 
     return true;
 }
@@ -191,8 +193,8 @@ bool BatchProgram::doWork( od_ostream& strm )
     RefMan<Gather> angles = computer->computeAngles();
     if ( !computer->isOK() )
     {
-        od_cout() << " Angle computer is not OK.\n";
-        return false;
+	od_cout() << " Angle computer is not OK.\n";
+	return false;
     }
 
     if ( !angles )
@@ -253,7 +255,7 @@ bool testAnglesForDifferentSurveys()
     //TWT=933ms, Z~=965m, Z~=3165ft
     const int zids [] = { 233, 193, 211 };
 
-    for ( int idx = 0; idx < nrsurveys; idx++ )
+    for ( int idx=0; idx<nrsurveys; idx++ )
     {
 	const BufferString& survnm = survnames.get( idx );
 	IOPar surviop; surviop.set( sKey::Survey(), survnm );
