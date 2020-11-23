@@ -75,13 +75,6 @@ end
 echo "Compressing Documentation"
 cat ${listfile} | xargs -P8 ${dtectdir}/compress_doc.csh ${compdir}
 
-set awkprog = /tmp/awkcmd.awk
-echo '{ print "http://static.opendtect.org/'"${serversubdir}"'/"$1 }' > $awkprog
-
-find . -name "*.html" | sed 's/\.\///g' | awk -f ${awkprog} | gzip > ${compdir}/sitemap.txt
-
-rm -rf ${awkprog}
-
 cd ${prevdir}
 
 #First, run to upload svg files, as they need special mime treatment
