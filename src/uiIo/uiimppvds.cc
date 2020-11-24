@@ -59,13 +59,12 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, tr("First row contains"),
-				BoolInpSpec(false,tr("Data","Column names")) );
+			BoolInpSpec(false,tr("Data"),tr("Column names")) );
     row1isdatafld_->attach( alignedBelow, dataselfld_ );
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
     ctxt.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
-					uiStrings::phrData(uiStrings::sSet())));
+    outfld_ = new uiIOObjSel( this, ctxt, tr("Output Cross-plot data") );
     outfld_->attach( alignedBelow, row1isdatafld_ );
 }
 
@@ -106,8 +105,14 @@ bool uiImpPVDS::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     bool rv = getData( strm, fd_, dps );
     MouseCursorManager::restoreOverride();
+    if ( !rv || !writeData(dps,*ioobj) )
+	return false;
 
-    return rv ? writeData( dps, *ioobj ) : false;
+    uiString msg = tr("Cross-plot Data successfully imported."
+		      "\n\nDo you want to import more data?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 
@@ -128,6 +133,13 @@ uiImpPVDSAscio( const Table::FormatDesc& fd, od_istream& strm )
     zgen_.start = SI().zRange(true).start;
     zgen_.step = SI().zRange(true).stop - zgen_.start;
 }
+
+bool isXY() const
+{
+    const Table::TargetInfo* posinfo = fd_.bodyinfos_[0];
+    return !posinfo || posinfo->selection_.form_ == 0;
+}
+
 
 bool getLine()
 {
@@ -158,19 +170,26 @@ bool getLine()
 	    return getLine();
     }
 
-    if ( fd_.bodyinfos_[0]->selection_.isInFile(0)
-      && fd_.bodyinfos_[0]->selection_.isInFile(1))
-	coord_ = getPos( 0 , 1 );
+    if ( fd_.bodyinfos_[0]->selection_.isInFile(0) &&
+	 fd_.bodyinfos_[0]->selection_.isInFile(1) )
+    {
+	if ( isXY() )
+	    coord_ = getPos( 0, 1 );
+	else
+	    coord_ = SI().transform( getBinID(0,1) );
+    }
     else
     {
 	double finl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
 	double fcrl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
+
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getFValue( 2 );
     else
 	z_ = (float) ( zgen_.start + Stats::randGen().get() * zgen_.step );
+
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );
     else
@@ -221,8 +240,10 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
     if ( !aio.getLine() )
 	mErrRet(tr("No data found in file"));
 
+    TypeSet<int> colidxs;
     for ( int idx=0; idx<aio.datacolnms_.size(); idx++ )
-	dps.dataSet().add( new DataColDef(aio.datacolnms_.get(idx)) );
+	colidxs +=
+	    dps.dataSet().add( new DataColDef(aio.datacolnms_.get(idx)) );
 
     while ( true )
     {
@@ -237,6 +258,19 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
 
 	if ( !aio.getLine() )
 	    break;
+    }
+
+    BufferStringSet colnms;
+    colnms.add( sKey::Inline() ).add( sKey::Crossline() )
+	  .add( sKey::XCoord() ).add( sKey::YCoord() );
+    for ( int idx=0; idx<dps.dataSet().nrCols(); idx++ )
+    {
+	const BufferString& cdnm = dps.dataSet().colDef(idx).name_;
+	if ( !colnms.isPresent(cdnm.buf(),CaseInsensitive) )
+	    continue;
+
+	dps.dataSet().removeColumn( idx );
+	idx--;
     }
 
     dps.dataChanged();
