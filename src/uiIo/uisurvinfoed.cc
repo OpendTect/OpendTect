@@ -77,7 +77,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					.nrstatusflds(1))
 	, survParChanged(this)
 	, si_(si)
-	, orgdirname_(si_.dirname_.buf())
+	, orgdirname_(si_.getDirName().buf())
 	, rootdir_(GetBaseDataDir())
 	, isnew_(isnew)
 	, impiop_(nullptr)
@@ -89,7 +89,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 	, xyinftfld_(nullptr)
 	, dirnamechanged(false)
 {
-    orgstorepath_ = si_.datadir_.buf();
+    orgstorepath_ = si_.getDataDirName().buf();
 
     BufferString fulldirpath;
     if ( isnew_ )
@@ -692,7 +692,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	}
     }
 
-    si_.dirname_ = newdirnm;
+    si_.disklocation_.setDirName( newdirnm );
     si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
     if ( mUseAdvanced() )
 	si_.get3Pts( si_.set3coords_, si_.set3binids_,

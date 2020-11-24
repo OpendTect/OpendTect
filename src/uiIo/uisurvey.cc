@@ -853,7 +853,7 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
     if ( !cursurvinfo_ )
 	return;
 
-    FilePath fp( cursurvinfo_->datadir_, cursurvinfo_->dirname_ );
+    FilePath fp( cursurvinfo_->diskLocation().fullPath() );
     const bool haverem = File::removeDir( fp.fullPath() );
     setCurrentSurvInfo( 0, false );
     readSurvInfoFromFile();
@@ -904,7 +904,7 @@ void uiSurvey::newButPushed( CallBacker* )
 
     setCurrentSurvInfo( newsurvinfo, false );
 
-    cursurvinfo_->datadir_ = dataroot_;
+    cursurvinfo_->disklocation_.setBasePath( dataroot_ );
     File::setSystemFileAttrib( storagedir, true );
     if ( !File::makeWritable(storagedir,true,true) )
 	mRetRollBackNewSurvey( tr("Cannot set the permissions "
@@ -1393,7 +1393,7 @@ void uiSurvey::putToScreen()
 
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
-    FilePath fp( si.datadir_, si.dirname_ );
+    FilePath fp( si.diskLocation().fullPath() );
     fp.makeCanonical();
     locinfo.add( fp.fullPath() );
 

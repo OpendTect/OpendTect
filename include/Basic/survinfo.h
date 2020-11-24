@@ -17,13 +17,12 @@ ________________________________________________________________________
 #include "enums.h"
 #include "zdomain.h"
 #include "atomic.h"
+#include "surveydisklocation.h"
 #include "survgeom3d.h"
 
 class ascostream;
 class LatLong2Coord;
-class SurveyDiskLocation;
 namespace Coords { class CoordSystem; }
-
 
 
 /*!
@@ -160,8 +159,7 @@ protected:
 
 			SurveyInfo();
 
-    BufferString	datadir_;
-    BufferString	dirname_;
+    SurveyDiskLocation	disklocation_;
 
     ZDomain::Def&	zdef_;
     bool		xyinfeet_;
@@ -255,8 +253,8 @@ public:
     static const char*	sKeySetupFileName()		{ return ".survey"; }
     static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
 
-    BufferString	getDirName() const	{ return dirname_; }
-    BufferString	getDataDirName() const	{ return datadir_; }
+    BufferString	getDirName() const;
+    BufferString	getDataDirName() const;
     void		updateDirName(); //!< May be used after setName()
 
 			mDeclareEnumUtils(Pol2D)

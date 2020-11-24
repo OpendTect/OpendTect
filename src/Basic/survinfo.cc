@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "hiddenparam.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
 #include "undefval.h"
@@ -32,8 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surveydisklocation.h"
 #include "uistrings.h"
 #include <stdio.h>
-
-HiddenParam<SurveyInfo,SurveyDiskLocation*> disklocs(nullptr);
 
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
@@ -386,8 +383,6 @@ SurveyInfo::SurveyInfo()
     b2c_.setTransforms( xtr, ytr );
     tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
 
-    disklocs.setParam( this, new SurveyDiskLocation );
-
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -403,8 +398,6 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     , workRangeChg(this)
 {
     *this = si;
-
-    disklocs.setParam( this, new SurveyDiskLocation );
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -425,8 +418,6 @@ SurveyInfo::~SurveyInfo()
 
     old = s3dgeom_.setToNull();
     if ( old ) old->unRef();
-
-    disklocs.removeAndDeleteParam( this );
 }
 
 
@@ -436,8 +427,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 
     setName( si.name() );
     zdef_ = si.zdef_;
-    datadir_ = si.datadir_;
-    dirname_ = si.dirname_;
+    disklocation_ = si.disklocation_;
     coordsystem_ = si.coordsystem_;
     xyinfeet_ = si.xyinfeet_;
     depthsinfeet_ = si.depthsinfeet_;
@@ -500,12 +490,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
     if ( !isfile )
     {
 	FilePath fpsurvdir( survdir );
-	si->dirname_ = fpsurvdir.fileName();
-	si->datadir_ = fpsurvdir.pathOnly();
-	if ( !survdir || si->dirname_.isEmpty() )
+	si->disklocation_ = SurveyDiskLocation( fpsurvdir );
+	if ( !survdir || si->disklocation_.isEmpty() )
 	    return si;
 
-	si->setName( si->dirname_ ); // good default
+	si->setName( si->disklocation_.dirName() ); // good default
 
 	//Read params here, so we can look at the pars below
 	const FilePath fpdef( survdir, sKeyDefsFile );
@@ -683,8 +672,9 @@ void SurveyInfo::updateDirName()
     if ( name_.isEmpty() )
 	return;
 
-    dirname_ = name();
-    dirname_.clean( BufferString::AllowDots );
+    BufferString dirnm( name() );
+    dirnm.clean( BufferString::AllowDots );
+    disklocation_.setDirName( dirnm );
 }
 
 
@@ -1129,7 +1119,7 @@ bool SurveyInfo::write( const char* basedir ) const
 {
     if ( !basedir ) basedir = GetBaseDataDir();
 
-    FilePath fp( basedir, dirname_, sKeySetupFileName() );
+    FilePath fp( basedir, disklocation_.dirName(), sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(false) )
     {
@@ -1202,7 +1192,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    fp.set( basedir ); fp.add( dirname_ );
+    fp.set( basedir ); fp.add( disklocation_.dirName() );
     savePars( fp.fullPath() );
     saveLog( fp.fullPath() );
     return true;
@@ -1257,7 +1247,7 @@ void SurveyInfo::savePars( const char* basedir ) const
     BufferString surveypath;
     if ( !basedir || !*basedir )
     {
-	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
+	const BufferString storepath = disklocation_.fullPath();
 	surveypath = File::exists(storepath) ? storepath.buf() : GetDataDir();
     }
     else
@@ -1279,7 +1269,7 @@ void SurveyInfo::saveLog( const char* basedir ) const
     BufferString surveypath;
     if ( !basedir || !*basedir )
     {
-	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
+	const BufferString storepath = disklocation_.fullPath();
 	surveypath = File::exists(storepath) ? storepath.buf() : GetDataDir();
     }
     else
@@ -1389,7 +1379,7 @@ bool SurveyInfo::setCoordSystem( Coords::CoordSystem* system )
 
 void SurveyInfo::readSavedCoordSystem() const
 {
-    FilePath fp( datadir_, dirname_, sKeySetupFileName() );
+    const FilePath fp( disklocation_.fullPath(), sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
 	return;
@@ -1412,12 +1402,21 @@ void SurveyInfo::readSavedCoordSystem() const
 }
 
 
+BufferString SurveyInfo::getDirName() const
+{
+    return disklocation_.dirName();
+}
+
+
+BufferString SurveyInfo::getDataDirName() const
+{
+    return disklocation_.basePath();
+}
+
+
 const SurveyDiskLocation& SurveyInfo::diskLocation() const
 {
-    auto* sdl = disklocs.getParam( this );
-    sdl->setBasePath( datadir_ );
-    sdl->setDirName( dirname_ );
-    return *sdl;
+    return disklocation_;
 }
 
 
