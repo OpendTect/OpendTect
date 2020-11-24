@@ -240,10 +240,8 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
     if ( !aio.getLine() )
 	mErrRet(tr("No data found in file"));
 
-    TypeSet<int> colidxs;
     for ( int idx=0; idx<aio.datacolnms_.size(); idx++ )
-	colidxs +=
-	    dps.dataSet().add( new DataColDef(aio.datacolnms_.get(idx)) );
+	dps.dataSet().add( new DataColDef(aio.datacolnms_.get(idx)) );
 
     while ( true )
     {
