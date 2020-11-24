@@ -11,6 +11,7 @@
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
+#include "wellreader.h"
 #include "welltrack.h"
 
 #include "commandlineparser.h"
@@ -183,16 +184,23 @@ void WellServerTool::getTrack()
 void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 			      bool notvd )
 {
-    ConstRefMan<Data> wd = MGR().get( wellid, Logs );
-    const Log* wl = wd ? wd->logs().getLog( lognm ) : nullptr;
+    getWD( wellid, LoadReqs(Inf, Trck) );
+    if ( !wd_ )
+	respondError( "Not able to get well data" );
+
+    if ( !wd_->logs().isPresent( lognm ) )
+    {
+	Data& wdr = const_cast<Data&>(*wd_);
+	Reader rdr( wellid, wdr );
+	rdr.getLog( lognm );
+    }
+
+    const Log* wl = wd_->logs().getLog( lognm );
     if ( !wl )
 	respondError( "Log not found" );
 
-    if ( !notvd )
-	getWD( wellid, LoadReqs(Inf,Trck) );
-
     const auto sz = wl->size();
-    set( sKey::Well(), wd->name() );
+    set( sKey::Well(), wd_->name() );
     set( sKey::Name(), wl->name() );
     set( sKey::Size(), wl->size() );
     const auto* uom = wl->unitOfMeasure();
@@ -256,7 +264,7 @@ int main( int argc, char** argv )
 	DBKey wellid;
 	clp.getVal( sReadLogCmd, wellid );
 	BufferString lognm;
-	clp.getVal( sReadLogCmd, lognm, false, 1 );
+	clp.getVal( sReadLogCmd, lognm, false, 2 );
 	const bool notvd = clp.hasKey( sNoTVDArg );
 	st.readLog( wellid, lognm, notvd );
     }
