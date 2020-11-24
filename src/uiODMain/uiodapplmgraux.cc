@@ -551,7 +551,7 @@ void uiODApplMgrDispatcher::openXPlot()
     DPM(DataPackMgr::PointID()).addAndObtain( newdps );
     uiDataPointSet* uidps =
 	new uiDataPointSet( ODMainWin(), *newdps,
-	uiDataPointSet::Setup(tr("CrossPlot from saved data")),
+	uiDataPointSet::Setup(tr("Cross-plot Data: %1").arg(newdps->name())),
 	ODMainWin()->applMgr().visDPSDispMgr() );
     uidps->go();
     uidpsset_ += uidps;
