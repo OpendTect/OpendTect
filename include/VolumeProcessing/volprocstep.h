@@ -172,7 +172,6 @@ private:
     StepInterval<float>		getInputZSamp(const StepInterval<float>&) const;
 
 
-    //For 6.2 only (HiddenParam set):
 public:
 
     mDeprecatedDef virtual od_int64 getOuputMemSize(int) const;

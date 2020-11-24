@@ -46,38 +46,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
-static HiddenParam<uiWellPartServer,uiBulkDirectionalImport*>
-							bulkdirdlgs(nullptr);
 
-int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
-int uiWellPartServer::evCleanPreview()		    { return 1; }
-int uiWellPartServer::evDisplayWell()		    { return 2; }
+int uiWellPartServer::evPreviewRdmLine()	{ return 0; }
+int uiWellPartServer::evCleanPreview()		{ return 1; }
+int uiWellPartServer::evDisplayWell()		{ return 2; }
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , rdmlinedlg_(0)
-    , uiwellimpdlg_(0)
     , disponcreation_(false)
     , multiid_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
-    , manwelldlg_(0)
-    , impsimpledlg_(0)
-    , impbulktrackdlg_(0)
-    , impbulklogdlg_(0)
-    , impbulkmrkrdlg_(0)
-    , impbulkd2tdlg_(0)
 {
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
-    bulkdirdlgs.setParam( this, nullptr );
 }
 
 
@@ -85,7 +73,6 @@ uiWellPartServer::~uiWellPartServer()
 {
     detachAllNotifiers();
     cleanup();
-    bulkdirdlgs.removeParam( this );
 }
 
 
@@ -100,13 +87,12 @@ void uiWellPartServer::cleanup()
     deleteAndZeroPtr( manwelldlg_ );
     deleteAndZeroPtr( impsimpledlg_ );
     deleteAndZeroPtr( impbulktrackdlg_ );
+    deleteAndZeroPtr( impbulkdirwelldlg_ );
     deleteAndZeroPtr( impbulklogdlg_ );
     deleteAndZeroPtr( impbulkmrkrdlg_ );
     deleteAndZeroPtr( impbulkd2tdlg_ );
     deleteAndZeroPtr( rdmlinedlg_ );
     deepErase( wellpropdlgs_ );
-
-    bulkdirdlgs.deleteAndZeroPtrParam( this );
 
     Well::MGR().cleanup();
 }
@@ -149,14 +135,10 @@ void uiWellPartServer::bulkImportD2TModel()
 
 void uiWellPartServer::bulkImportDirectional()
 {
-    uiBulkDirectionalImport* dlg = bulkdirdlgs.getParam( this );
-    if ( !dlg )
-    {
-	dlg = new uiBulkDirectionalImport( parent() );
-	bulkdirdlgs.setParam( this, dlg );
-    }
+    if ( !impbulkdirwelldlg_ )
+	impbulkdirwelldlg_ = new uiBulkDirectionalImport( parent() );
 
-    dlg->show();
+    impbulkdirwelldlg_->show();
 }
 
 

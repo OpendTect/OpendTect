@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 namespace Well { class Data; class LogDisplayParSet; }
 
+class uiBulkDirectionalImport;
 class uiBulkD2TModelImport;
 class uiBulkLogImport;
 class uiBulkMarkerImport;
@@ -93,17 +94,19 @@ public:
 
 protected:
 
-    uiWellImportAsc*		uiwellimpdlg_;
-    uiWell2RandomLineDlg*	rdmlinedlg_;
+    uiWellImportAsc*		uiwellimpdlg_		= nullptr;
+    uiWell2RandomLineDlg*	rdmlinedlg_		= nullptr;
     ObjectSet<uiWellDispPropDlg> wellpropdlgs_;
-    uiD2TModelGen*		uid2tmgen_;
-    uiD2TMLogSelDlg*		uid2tmlogseldlg_;
-    uiSimpleMultiWellCreate*	impsimpledlg_;
-    uiBulkTrackImport*		impbulktrackdlg_;
-    uiBulkLogImport*		impbulklogdlg_;
-    uiBulkMarkerImport*		impbulkmrkrdlg_;
-    uiBulkD2TModelImport*	impbulkd2tdlg_;
-    uiWellMan*			manwelldlg_;
+    uiD2TModelGen*		uid2tmgen_		= nullptr;
+    uiD2TMLogSelDlg*		uid2tmlogseldlg_	= nullptr;
+    uiSimpleMultiWellCreate*	impsimpledlg_		= nullptr;
+
+    uiBulkTrackImport*		impbulktrackdlg_	= nullptr;
+    uiBulkDirectionalImport*	impbulkdirwelldlg_	= nullptr;
+    uiBulkLogImport*		impbulklogdlg_		= nullptr;
+    uiBulkMarkerImport*		impbulkmrkrdlg_		= nullptr;
+    uiBulkD2TModelImport*	impbulkd2tdlg_		= nullptr;
+    uiWellMan*			manwelldlg_		= nullptr;
     TypeSet<int>		previewids_;
 
     BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
