@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2008
+ Author:	Bert
+ Date:		Feb 2008
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
     : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
 				    uiStrings::sEmptyString(),
-                                    mNoHelpKey).modal(false))
+				    mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
@@ -140,7 +140,7 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
     : uiDialog::Setup( wintitl.isSet() ? wintitl : tr("Extracted data"),
-                       mNoDlgTitle, mODHelpKey(mDataPointSetHelpID) )
+		       mNoDlgTitle, mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)
@@ -193,21 +193,10 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     const int nrcols = initVars();
     mkToolBars();
 
-    BufferString dpsnm = dps.name();
-    uiLabel* titllbl = 0;
-    if ( *dpsnm != '<' )
-    {
-	truncateString( dpsnm.getCStr(), 130 );
-	titllbl = new uiLabel( this, toUiString(dpsnm) );
-	titllbl->attach( hCentered );
-    }
-
     tbl_ = new uiTable( this, uiTable::Setup(size() ? size() : 10,nrcols)
 			  .rowgrow( setup_.canaddrow_ ).removerowallowed(false)
 			  .selmode( uiTable::Multi )
 			  .manualresize( true ), "Data Table" );
-    if ( titllbl )
-	tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowClicked) );
     tbl_->rowInserted.notify( mCB(this,uiDataPointSet,rowAddedCB) );
@@ -350,7 +339,7 @@ void uiDataPointSet::mkToolBars()
     dispxytbid_ = mAddButton( "toggxy", toggleXYZ,
 			      tr("Toggle show X and Y columns"), true );
     dispztbid_ = mAddButton( "toggz", toggleXYZ,
-                              tr("Toggle show Z column"), true );
+			     tr("Toggle show Z column"), true );
 
     if ( !is2D() )
     {
@@ -666,7 +655,7 @@ void uiDataPointSet::unSelYCol( CallBacker* )
     const TColID tid = tColID(); if ( tid < 0 ) return;
 
     if ( tid == ycol_ )
-        { ycol_ = y2col_; y2col_ = -1; }
+	{ ycol_ = y2col_; y2col_ = -1; }
     else if ( tid == y2col_ )
 	y2col_ = -1;
     else
@@ -719,7 +708,7 @@ class uiSelectPosDlg : public uiDialog
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     : uiDialog( p, uiDialog::Setup(uiStrings::phrSelectPos(tr("for new row")),
-                                   uiStrings::sEmptyString(), mNoHelpKey) )
+				   mNoDlgTitle,mNoHelpKey) )
     , grpfld_(0)
 {
     seltypefld_ = new uiGenInput( this, mJoinUiStrs(sPosition(), sType()),
@@ -729,12 +718,12 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 
     posinpfld_ = new uiGenInput( this,
 				uiStrings::phrInput(uiStrings::sPosition()),
-			        PositionInpSpec(PositionInpSpec::Setup(true)) );
+				PositionInpSpec(PositionInpSpec::Setup(true)) );
     posinpfld_->attach( leftAlignedBelow, seltypefld_ );
 
     uiString zinptxt = tr("%1 in %2").arg(uiStrings::sZValue()).arg(
-		       SI().zIsTime() ? uiStrings::sSec() : toUiString("%3/%4")
-		       .arg(uiStrings::sMeter()).arg(uiStrings::sFeet()));
+		SI().zIsTime() ? uiStrings::sSec() : toUiString("%3/%4")
+			.arg(uiStrings::sMeter()).arg(uiStrings::sFeet()));
     zinpfld_ = new uiGenInput( this, zinptxt, FloatInpSpec() );
     zinpfld_->attach( leftAlignedBelow, posinpfld_ );
 
@@ -1350,13 +1339,11 @@ void uiDataPointSet::retrieve( CallBacker* )
     ctio.ctxt_.forread_ = true;
     ctio.ctxt_.setName( "Cross-plot Data" );
     uiIOObjSelDlg seldlg( this, ctio );
-    seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-		uiStrings::phrManage(mJoinUiStrs(sCrossPlot(),sData())),
-		mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();
     curseldlg_ = 0;
-    if ( !selok ) return;
+    if ( !selok )
+	return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PosVecDataSet pvds;
@@ -1364,16 +1351,28 @@ void uiDataPointSet::retrieve( CallBacker* )
     bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     MouseCursorManager::restoreOverride();
     if ( !rv )
-	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
+    {
+	uiMSG().error( mToUiStringTodo(errmsg) );
+	return;
+    }
+
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+    {
+	uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty());
+	return;
+    }
+
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
     if ( newdps->isEmpty() )
-	{ delete newdps; uiMSG().error(tr("Data set is not suitable"));return; }
+    {
+	delete newdps;
+	uiMSG().error( tr("Data set is not suitable") );
+	return;
+    }
 
-    setCaption( seldlg.ioObj()->uiName() );
+    setCaption( tr("Cross-plot Data: %1").arg(seldlg.ioObj()->uiName()) );
     removeSelPts( 0 );
     tbl_->clearTable();
     dps_ = *newdps;
@@ -1397,9 +1396,9 @@ class uiDataPointSetSave : public uiDialog
 public:
 
 uiDataPointSetSave( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sCreateOutput(),
-				 uiStrings::sSpecifyOut(),
-                                 mODHelpKey(mdataPointSetSaveHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("Save Cross-plot Data"),
+				 mNoDlgTitle,
+				 mODHelpKey(mdataPointSetSaveHelpID) ))
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
     , type_(typ)
 {
@@ -1408,12 +1407,12 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
-    tabfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-		  uiStrings::sOutput(),tr("to")),
-		  BoolInpSpec(false,tr("Text file"),tr("OpendTect object")) );
+    tabfld_ = new uiGenInput( this, tr("Output to"),
+		BoolInpSpec(false,tr("Text file"),
+			    tr("OpendTect Cross-plot Data")) );
     tabfld_->valuechanged.notify( tccb );
     uiFileInput::Setup su;
-    su.defseldir(GetDataDir()).forread(false).filter("*.txt");
+    su.defseldir(GetSurveyExportDir()).forread(false).filter("*.dat");
     txtfld_ = new uiFileInput( this, uiStrings::sOutputFile(), su );
     txtfld_->attach( alignedBelow, tabfld_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
@@ -1488,11 +1487,13 @@ bool uiDataPointSet::doSave()
     savedps.dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
 	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
+
     savedps.purgeInactive();
     BufferString errmsg;
-    const bool ret = savedps.dataSet().
-			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
+    const bool ret =
+	savedps.dataSet().putTo( uidpss.fname_, errmsg, uidpss.istab_ );
     MouseCursorManager::restoreOverride();
+    uiMainWin* mw = uiMSG().setMainWin( this );
     if ( !ret )
 	uiMSG().error( mToUiStringTodo(errmsg) );
     else
@@ -1503,6 +1504,7 @@ bool uiDataPointSet::doSave()
 
 	uiMSG().message( tr("Cross-plot Data successfully saved") );
     }
+    uiMSG().setMainWin( mw );
 
     return ret;
 }
@@ -1612,8 +1614,8 @@ void uiDataPointSet::delSelRows( CallBacker* )
 		    tr("Do you want to remove rows which fall in the same "
 			"range but are not selected or displayed?\n(only a "
 			"certain percentage of data is displayed!)"),
-				 uiStrings::sCancel(), tr("Delete all"),
-                                 tr("Delete only selected") );
+				uiStrings::sCancel(), tr("Delete all"),
+				tr("Delete only selected") );
 	    if ( rep == 1 )
 		removeHiddenRows();
 	    if ( rep != 0 )
@@ -1642,10 +1644,10 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	dps_.dataChanged();
     if ( nrrem < 1 )
     {
-       uiMSG().message(tr("Please select the row(s) you want to remove."
-			  "\nby clicking on the row label(s)."
-			  "\nYou can select multiple rows by dragging,"
-			  "\nor by holding down the shift key when clicking."));
+	uiMSG().message(tr("Please select the row(s) you want to remove."
+			"\nby clicking on the row label(s)."
+			"\nYou can select multiple rows by dragging,"
+			"\nor by holding down the shift key when clicking."));
 	return;
     }
 
@@ -1761,8 +1763,8 @@ void uiDataPointSet::addColumn( CallBacker* )
 
 	unsavedchgs_ = true;
 	dps_.dataChanged();
-	tbl_->setColumnLabel( tbl_->nrCols()-1,
-					      toUiString(dlg.newAttribName()) );
+	tbl_->setColumnLabel(
+		tbl_->nrCols()-1, toUiString(dlg.newAttribName()) );
 	reDoTable();
     }
 }

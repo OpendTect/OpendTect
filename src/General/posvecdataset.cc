@@ -130,7 +130,7 @@ void PosVecDataSet::setEmpty()
 {
     deepErase(coldefs_);
     data_.setNrVals( 1 );
-    coldefs_ += new DataColDef( "Z" );
+    coldefs_ += new DataColDef( sKey::Z() );
 }
 
 
@@ -390,9 +390,11 @@ bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
 	BufferString buf; strm.getLine( buf );
 	SeparString ss( buf, '\t' );
 	const int nrcols = ss.size();
-	const BufferString xcolnm( ss[2] ); const BufferString ycolnm( ss[3] );
-	if ( xcolnm=="X-coord" && ycolnm=="Y-corrd" )
+	const BufferString xcolnm( ss[2] );
+	const BufferString ycolnm( ss[3] );
+	if ( xcolnm==sKey::XCoord() && ycolnm==sKey::YCoord() )
 	    valstartcol = 4;
+
 	for ( int idx=valstartcol; idx<nrcols; idx++ )
 	{
 	    BufferString nm;
@@ -411,7 +413,7 @@ bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
 	    {
 		DataColDef* cd = new DataColDef( "" );
 		cd->getFrom( astrm.keyWord() );
-		if ( cd->name_ != "Z" )
+		if ( cd->name_ != sKey::Z() )
 		    add( cd );
 		else
 		{
@@ -429,7 +431,7 @@ bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
     const int nrvals = nrCols();
     if ( nrvals < 1 )
     {
-	add( new DataColDef("Z") );
+	add( new DataColDef(sKey::Z()) );
 	data().setNrVals(1);
 	return true;
     }
@@ -471,6 +473,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     return ret;
 }
 
+
 bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 			   bool tabstyle ) const
 {
@@ -481,13 +484,23 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 	return false;
     }
 
+    int xoffsetidx = -1;
+    int yoffsetidx = -1;
+    int statusidx = -1;
     BufferString str;
     if ( tabstyle )
     {
-	strm << "\"In-line\"\t\"X-line\"\t\"X-coord\"\t\"Y-Coord\"";
+	strm << "\"In-line\"\t\"Cross-line\"\t\"X-Coord\"\t\"Y-Coord\"";
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{
 	    const DataColDef& cd = colDef(idx);
+	    if ( cd.name_==sKey::XOffset() )
+	    { xoffsetidx = idx; continue; }
+	    if ( cd.name_==sKey::YOffset() )
+	    { yoffsetidx = idx; continue; }
+	    if ( cd.name_==sKey::SelectionStatus() )
+	    { statusidx = idx; continue; }
+
 	    strm << "\t\"" << cd.name_;
 	    if ( cd.unit_ )
 		strm << " (" << cd.unit_->symbol() << ")";
@@ -524,23 +537,28 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
     while ( data().next(pos) )
     {
 	data().get( pos, bid, vals );
-	strm << bid.inl() << '\t' << bid.crl();
 	if ( tabstyle )
 	{
 	    Coord crd = SI().transform( bid );
-	    if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
-					  && colDef(1).name_=="Y Offset" )
+	    if ( xoffsetidx>=0 && yoffsetidx>=0 )
 	    {
-		crd.x += vals[0];
-		crd.y += vals[1];
+		crd.x += vals[xoffsetidx];
+		crd.y += vals[yoffsetidx];
 	    }
-
-	    strm << '\t' << toString(crd.x);
-	    strm << '\t' << toString(crd.y);
+	    const char* format = "%8d%8d%16.2lf%16.2lf";
+	    BufferString line( 80, false );
+	    sprintf( line.getCStr(), format, bid.inl(), bid.crl(),
+		     crd.x, crd.y );
+	    strm << line;
 	}
+	else
+	    strm << bid.inl() << '\t' << bid.crl();
 
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
+	    if ( idx==xoffsetidx || idx==yoffsetidx || idx==statusidx )
+		continue;
+
 	    str = vals[idx];
 	    strm << '\t' << str;
 	}
