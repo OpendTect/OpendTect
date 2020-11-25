@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "executor.h"
+#include "wellman.h"
 class IOObj;
 
 namespace Well
@@ -76,13 +77,18 @@ private:
 mExpClass(Well) MultiWellWriter : public Executor
 { mODTextTranslationClass(MultiWellWriter)
 public:
-			MultiWellWriter(const ObjectSet<Well::Data>&);
+    typedef Well::LoadReqs	StoreReqs;
 
-    int				nextStep();
-    od_int64			totalNr() const;
-    od_int64			nrDone() const;
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const;
+			MultiWellWriter(const ObjectSet<Well::Data>&);
+			MultiWellWriter(const ObjectSet<Well::Data>&,
+					const ObjectSet<StoreReqs>&);
+			~MultiWellWriter();
+
+    int			nextStep();
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
+    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const;
     bool		allWellsWritten() const { return allwellswritten_; }
 				//Can then be used to launch a warning locally
 
@@ -92,5 +98,8 @@ protected:
     od_int64				nrdone_;
     uiString				msg_;
     bool				allwellswritten_ = true;
+
+    bool		store(const MultiID&, const Well::Data&,
+					      const StoreReqs);
 };
 

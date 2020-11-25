@@ -19,13 +19,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellmarker.h"
 #include "welldisp.h"
 #include "ascstream.h"
+#include "hiddenparam.h"
 #include "od_ostream.h"
+#include "od_istream.h"
 #include "keystrs.h"
 #include "envvars.h"
 #include "settings.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "file.h"
+#include "databuf.h"
 
+static HiddenParam<MultiWellWriter,
+	   const ObjectSet<MultiWellWriter::StoreReqs>*> storereqs_(nullptr);
 
 bool Well::Writer::isFunctional( const MultiID& ky )
 {
@@ -231,14 +237,13 @@ bool Well::odWriter::putTrack() const
 
 bool Well::odWriter::putLogs() const
 {
-    removeAll( sExtLog() );
     for ( int idx=0; idx<wd_.logs().size(); idx++ )
     {
-	mGetOutStream( sExtLog(), idx+1, return false )
-
+	BufferString fnm( getFileName(sExtLog(), idx+1) );
+	errmsg_.setEmpty();
 	const Well::Log& wl = wd_.logs().getLog(idx);
-	if ( !putLog(strm,wl) )
-	    mErrRetStrmOper(tr("write log"))
+	if ( !putLog(fnm,wl) )
+	    return false;
     }
 
     return true;
@@ -254,11 +259,51 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 	return false;
     }
 
-    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
-    od_ostream strm( logfnm );
-    if ( !putLog(strm,wl) )
+    BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
+    if ( !putLog(logfnm,wl) )
 	return false;
 
+    return true;
+}
+
+
+bool Well::odWriter::putLog( const BufferString& fnm,
+			     const Well::Log& wl ) const
+{
+    DataBuffer* databuf = nullptr;
+    if ( !wl.isLoaded() )
+    {
+	od_istream istrm( fnm );
+	if ( !istrm.isOK() )
+	    return false;
+
+	ascistream asistrm( istrm, true );
+	while ( !atEndOfSection(asistrm.next()) )
+	{}
+
+	if ( istrm.isOK() )
+	{
+	    int size = File::getFileSize(fnm) - istrm.position();
+	    databuf = new DataBuffer( size, 1 );
+	    istrm.getBin( databuf->data(), size );
+	}
+    }
+
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	mErrStrmOper( startWriteStr(), return false )
+
+    if ( !wrHdr(strm,sKeyLog()) )
+	mErrRetStrmOper(tr("write header (log)"))
+
+    ascostream astrm( strm );
+    wrLogHdr( astrm, wl );
+    wrLogData( astrm, wl, databuf );
+
+    if ( !strm.isOK() )
+	mErrRetStrmOper(tr("write log data"))
+
+    delete databuf;
     return true;
 }
 
@@ -269,6 +314,18 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 	mErrRetStrmOper(tr("write header (log)"))
 
     ascostream astrm( strm );
+    wrLogHdr( astrm, wl );
+    wrLogData( astrm, wl );
+
+    if ( !strm.isOK() )
+	mErrRetStrmOper(tr("write log data"))
+
+    return true;
+}
+
+
+void Well::odWriter::wrLogHdr( ascostream& astrm, const Well::Log& wl ) const
+{
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.put( sKey::Name(), wl.name() );
@@ -288,18 +345,31 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     astrm.newParagraph();
     if ( havepars )
 	wl.pars().putTo( astrm );
+}
+
+
+void Well::odWriter::wrLogData( ascostream& astrm, const Well::Log& wl,
+					   const DataBuffer* databuf ) const
+{
+    if ( !wl.isLoaded() && databuf )
+    {
+	astrm.stream().addBin( databuf->data(), databuf->size() );
+	return;
+    }
 
     Interval<int> wrintv( 0, wl.size()-1 );
     float dah, val;
     for ( ; wrintv.start<wl.size(); wrintv.start++ )
     {
-	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
+	dah = wl.dah(wrintv.start);
+	val = wl.value(wrintv.start);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
     for ( ; wrintv.stop>=0; wrintv.stop-- )
     {
-	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
+	dah = wl.dah(wrintv.stop);
+	val = wl.value(wrintv.stop);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
@@ -313,22 +383,18 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 
 	v[1] = wl.value( idx );
 	if ( binwrlogs_ )
-	    strm.addBin( v );
+	    astrm.stream().addBin( v );
 	else
 	{
-	    strm << v[0] << od_tab;
+	    astrm.stream() << v[0] << od_tab;
 	    if ( mIsUdf(v[1]) )
-		strm << sKey::FloatUdf();
+		astrm.stream() << sKey::FloatUdf();
 	    else
-		strm << v[1];
+		astrm.stream() << v[1];
 
-	    strm << od_newline;
+	    astrm.stream() << od_newline;
 	}
     }
-
-    if ( !strm.isOK() )
-	mErrRetStrmOper(tr("write log data"))
-    return true;
 }
 
 
@@ -445,7 +511,26 @@ MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds )
     , nrwells_(wds.size())
     , nrdone_(0)
 {
+    storereqs_.setParam( this, nullptr );
     msg_ = tr("Writing Wells");
+}
+
+
+MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds,
+				  const ObjectSet<StoreReqs>& reqs )
+    : Executor("Saving Wells")
+    , wds_(wds)
+    , nrwells_(wds.size())
+    , nrdone_(0)
+{
+    storereqs_.setParam( this, &reqs );
+    msg_ = tr("Writing Wells");
+}
+
+
+MultiWellWriter::~MultiWellWriter()
+{
+    storereqs_.removeParam( this );
 }
 
 
@@ -476,12 +561,39 @@ int MultiWellWriter::nextStep()
     }
 
     ConstRefMan<Well::Data> wd = wds_[nrdone_];
-    const BufferString wellname = wd->name();
-    Well::Writer wrtr( wd->multiID(), *wd );
-    if ( !wrtr.putInfoAndTrack() )
+    StoreReqs reqs;
+    if ( storereqs_.getParam(this) )
+	reqs = *storereqs_.getParam(this)->get(nrdone_);
+
+    if ( !store(wd->multiID(),*wd,reqs) )
 	allwellswritten_ = false;
 
     nrdone_++;
     return MoreToDo();
 }
 
+
+bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
+						 const StoreReqs reqs )
+{
+    if ( !&wd )
+	return false;
+
+    Well::Writer wrtr( key, wd );
+    if ( reqs.includes(Well::Inf) || reqs.includes(Well::Trck) )
+	wrtr.putInfoAndTrack();
+    if ( reqs.includes(Well::D2T) )
+	wrtr.putD2T();
+    if ( reqs.includes(Well::Mrkrs) )
+	wrtr.putMarkers();
+    if ( reqs.includes(Well::Logs) )
+	wrtr.putLogs();
+    if ( reqs.includes(Well::LogInfos) )
+	wrtr.putLogs();
+    if ( reqs.includes(Well::CSMdl) )
+	wrtr.putCSMdl();
+    if ( reqs.includes(Well::DispProps2D) || reqs.includes(Well::DispProps3D) )
+	wrtr.putDispProps();
+
+    return true;
+}

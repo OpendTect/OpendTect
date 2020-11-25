@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "wellreader.h"
+#include "wellwriter.h"
 #include "welltrack.h"
 #include "welltransl.h"
 
