@@ -12,6 +12,8 @@ endmacro()
 
 
 macro( OD_ADD_PACKAGES_TARGET )
+set ( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} libosgQt.dylib )
+message( "OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS}")
     if ( NOT DEFINED PACKAGE_DIR )
 	set( PACKAGE_DIR ${CMAKE_SOURCE_DIR}/packages )
     endif()
