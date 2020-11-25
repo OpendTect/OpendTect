@@ -1,15 +1,16 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
+ * AUTHOR   : Bert
  * DATE     : 11-4-1994
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "separstr.h"
-#include "keystrs.h"
+
 #include "bufstringset.h"
+#include "dbkey.h"
+#include "keystrs.h"
 #include <string.h>
 
 
@@ -26,27 +27,27 @@ SeparString& SeparString::operator =( const SeparString& ss )
 
 SeparString& SeparString::operator =( const char* s )
 {
-    if ( s != rep_.buf() )
+    if ( s != rep_.result() )
 	initRep( s );
 
     return *this;
 }
 
 
-const char* SeparString::getEscaped( const char* str, char sep ) const
+const char* SeparString::getEscaped( const char* string, char sep ) const
 {
-    if ( !str )
+    if ( !string )
 	return 0;
 
-    retstr_.setBufSize( 2*strlen(str) + 1 );
+    retstr_.setBufSize( 2*strlen(string) + 1 );
 
     char* writeptr = retstr_.getCStr();
-    while ( *str )
+    while ( *string )
     {
-	if ( *str=='\\' || *str==sep )
+	if ( *string=='\\' || *string==sep )
 	    *writeptr++ = '\\';
 
-	*writeptr++ = *str++;
+	*writeptr++ = *string++;
     }
     *writeptr = '\0';
     return retstr_.buf();
@@ -96,7 +97,7 @@ const char* SeparString::findSeparator( const char* startptr ) const
 	return 0;
 
     const char* ptr = firstOcc( startptr, sep_[0] );
-    if ( ptr && isEscapedChar(rep_.buf(), ptr)  )
+    if ( ptr && isEscapedChar(rep_.result(), ptr)  )
 	return findSeparator( ptr+1 );
 
     return ptr;
@@ -121,26 +122,26 @@ static bool isSurelyUnescaped( const char* str, char sep )
 }
 
 
-void SeparString::initRep( const char* str )
+void SeparString::initRep( const char* string )
 {
     /*  Escape backslashes if str contains old-format separ-string read from
 	file. Detection only fails if all backslashes in the old-format string
 	are pairwise or precede a separation character (highly unlikely).
 	New code should not rely on this!
      */
-    if ( isSurelyUnescaped(str, sep_[0]) )
+    if ( isSurelyUnescaped(string, sep_[0]) )
     {
-	rep_ = getEscaped( str, '\0' );
+	rep_ = getEscaped( string, '\0' );
 	return;
     }
 
-    rep_ = str;
+    rep_ = string;
 }
 
 
 int SeparString::size() const
 {
-    const char* ptr = rep_.buf();
+    const char* ptr = rep_.result();
     if ( !*ptr )
 	return 0;
 
@@ -161,7 +162,7 @@ FixedString SeparString::operator[]( int elemnr ) const
     if ( elemnr < 0 )
 	return sKey::EmptyString();
 
-    const char* startptr = rep_.buf();
+    const char* startptr = rep_.result();
     while ( *startptr )
     {
 	const char* nextsep = findSeparator( startptr );
@@ -182,7 +183,7 @@ FixedString SeparString::operator[]( int elemnr ) const
 
 FixedString SeparString::from( int idx ) const
 {
-    const char* ptr = rep_.buf();
+    const char* ptr = rep_.result();
     for ( ; idx!=0; idx-- )
     {
 	ptr = findSeparator( ptr );
@@ -208,12 +209,20 @@ SeparString& SeparString::add( const SeparString& ss )
 }
 
 
-SeparString& SeparString::add( const char* str )
+SeparString& SeparString::add( const char* string )
 {
-    if ( *rep_.buf() ) rep_ += sep_;
-    if ( !str || !*str ) str = " ";
-    rep_ += getEscaped( str , sep_[0] );
+    if ( *rep_.result() )
+	rep_.add( sep_ );
+    if ( !string || !*string )
+	string = " ";
+    rep_.add( getEscaped(string ,sep_[0]) );
     return *this;
+}
+
+
+SeparString& SeparString::add( const DBKey& dbky, bool withsurvloc )
+{
+    return add( dbky.toString(withsurvloc) );
 }
 
 
@@ -222,7 +231,9 @@ typ SeparString::fn( int idx ) const \
 { \
     return Conv::to<typ>( (*this)[idx] ); \
 }
-mDeclGetFn(int,getIValue)
+mDeclGetFn(od_int16,getI16Value)
+mDeclGetFn(od_uint16,getUI16Value)
+mDeclGetFn(od_int32,getIValue)
 mDeclGetFn(od_uint32,getUIValue)
 mDeclGetFn(od_int64,getI64Value)
 mDeclGetFn(od_uint64,getUI64Value)
@@ -231,18 +242,18 @@ mDeclGetFn(double,getDValue)
 mDeclGetFn(bool,getYN)
 
 
-int SeparString::indexOf( const char* str ) const
+int SeparString::indexOf( const char* string ) const
 {
-    if ( !str ) return -1;
+    if ( !string ) return -1;
 
-    const char* startptr = rep_.buf();
+    const char* startptr = rep_.result();
     int elemnr = 0;
     while ( *startptr )
     {
 	const char* nextsep = findSeparator( startptr );
 	FixedString elemstr = getUnescaped( startptr, nextsep );
 
-	if ( elemstr == str )
+	if ( elemstr == string )
 	    return elemnr;
 
 	if ( !nextsep )
@@ -263,4 +274,17 @@ void SeparString::setSepChar( char newchar )
     for ( int idx=0; idx<sz; idx++ )
 	ss.add( (*this)[idx] );
     *this = ss;
+}
+
+
+FileMultiString::FileMultiString( const char* s1, const char* s2,
+				  const char* s3, const char* s4 )
+    : SeparString(s1, separator() )
+{
+    if ( s2 )
+	*this += s2;
+    if ( s3 )
+	*this += s3;
+    if ( s4 )
+	*this += s4;
 }

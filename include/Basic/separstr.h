@@ -4,20 +4,20 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
 
 #include "basicmod.h"
-#include "bufstring.h"
+#include "stringbuilder.h"
 #include "fixedstring.h"
 #include "convert.h"
 
 class BufferStringSet;
+class DBKey;
 
 /*!
 \brief %List encoded in a string.
@@ -49,7 +49,9 @@ public:
     FixedString		operator[](int) const;		//!< Output unescaped
     FixedString		from(int) const;		//!< Output escaped
 
-    int			getIValue(int) const;
+    od_int16		getI16Value(int) const;
+    od_uint16		getUI16Value(int) const;
+    od_int32		getIValue(int) const;
     od_uint32		getUIValue(int) const;
     od_int64		getI64Value(int) const;
     od_uint64		getUI64Value(int) const;
@@ -61,12 +63,25 @@ public:
 
     SeparString&	add(const BufferStringSet&);	//!< Concatenation
     SeparString&	add(const SeparString&);	//!< Concatenation
+    SeparString&	add(const DBKey&,bool withsurvloc=true);
     SeparString&	add(const char* unescapedstr);
     inline SeparString&	add( const OD::String& ods )
 			{ return add( ods.buf() ); }
     template <class T>
     inline SeparString&	add( T t )
 			{ return add( toString(t) ); }
+
+    SeparString&	set( const BufferStringSet& bss )
+			{ setEmpty(); return add( bss ); }
+    SeparString&	set( const SeparString& s )
+			{ setEmpty(); return add( s ); }
+    SeparString&	set( const char* unescapedstr )
+			{ setEmpty(); return add( unescapedstr ); }
+    inline SeparString&	set( const OD::String& ods )
+			{ return set( ods.buf() ); }
+    template <class T>
+    inline SeparString&	set( T t )
+			{ setEmpty(); return add( t ); }
 
     template <class T>
     inline SeparString&	operator +=( T t )	{ return add( t ); }
@@ -77,13 +92,14 @@ public:
     inline		operator const char*() const
 						{ return buf(); }
 
-    inline char*	getCStr()		{ return rep_.getCStr(); }
+    inline char*	getCStr()		{ return rep_.getCStr(256); }
 							//!< Output escaped
-    inline const char*	buf() const		{ return rep_.buf(); }
+    inline const char*	str() const		{ return rep_.result(); }
 							//!< Output escaped
-    BufferString&	rep()			{ return rep_; }
+    inline const char*	buf() const
+    { const char* ret = str(); if ( !ret ) ret = ""; return ret; }
 							//!< Output escaped
-    const OD::String&	rep() const		{ return rep_; }
+    StringBuilder&	rep()			{ return rep_; }
 							//!< Output escaped
 
     inline const char*	unescapedStr() const	{ return getUnescaped(buf()); }
@@ -97,7 +113,7 @@ public:
 private:
 
     char		sep_[2];
-    BufferString	rep_;
+    StringBuilder	rep_;
 
     void		initRep(const char*);
     inline void		initSep( char s )	{ sep_[0] = s; sep_[1] = '\0'; }
@@ -122,6 +138,8 @@ public:
 
 			FileMultiString(const char* escapedstr=nullptr)
 			    : SeparString(escapedstr, separator() )	{}
+			FileMultiString(const char* s1,const char* s2,
+					const char* s3=nullptr,const char*s4=nullptr);
     template <class T>	FileMultiString( const T& t )
 			    : SeparString(t,separator())		{}
 
@@ -131,7 +149,7 @@ public:
     // class needs an exact match! Passing a derived object would make the
     // template function convert it to (const char*).
     inline FileMultiString& add( const FileMultiString& fms )
-			{ return add( (SeparString&)fms ); }
+			{ return add( fms.buf() ); }
     template <class T> inline
     FileMultiString&	operator +=( T t )		{ return add( t ); }
     inline FileMultiString& operator +=( const OD::String& ods )
@@ -144,4 +162,3 @@ public:
 			{ return add( ods.buf() ); }
 
 };
-

@@ -12,12 +12,13 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "od_iosfwd.h"
 #include "typeset.h"
-#include "uistring.h"
-
+#include "uistringset.h"
 
 class DBKeySet;
+class DBKey;
 class MultiID;
 class SeparString;
+class StringBuilder;
 namespace Gason { struct JsonNode; }
 
 
@@ -42,7 +43,7 @@ enum DataType
 typedef double NumberType;
 
 
-    /*! holds 'flat' value sets of each of the DataType's */
+/*! holds 'flat' value sets of each of the DataType's */
 
 mExpClass(Basic) ValArr
 {
@@ -54,15 +55,15 @@ public:
     typedef TypeSet<NumberType>		NSet;
     typedef BufferStringSet		SSet;
 
-    ValArr( DataType );
-    ValArr( const ValArr& );
-    ~ValArr()		{ delete set_; }
+			ValArr(DataType);
+			ValArr(const ValArr&);
+			~ValArr()		{ delete set_; }
     DataType		dataType() const	{ return type_; }
 
     size_type		size() const
 			{ return (size_type)set_->nrItems(); }
     bool		validIdx( idx_type idx ) const
-			{ return set_->validIdx( idx ); }
+			{ return set_->validIdx(idx); }
     bool		isEmpty() const		{ return set_->isEmpty(); }
     void		setEmpty()		{ set_->setEmpty(); }
 
@@ -75,13 +76,18 @@ public:
     SSet&		strings()		{ return *((SSet*)set_); }
     const SSet&		strings() const		{ return *((SSet*)set_); }
 
-    void		dumpJSon( BufferString& ) const;
+    void		dumpJSon(BufferString&) const;
+    void		dumpJSon(StringBuilder&) const;
     BufferString	dumpJSon() const;
 
 protected:
 
-    DataType		type_;
-    OD::Set*		set_;
+    DataType		type_ = Boolean;
+    OD::Set*		set_ = nullptr;
+
+private:
+
+			ValArr()	 = delete;
 
 };
 
@@ -90,8 +96,7 @@ protected:
 	    Is base class for either Array or Object. */
 
 mExpClass(Basic) ValueSet
-{
-    mODTextTranslationClass(OD::JSON::ValueSet)
+{ mODTextTranslationClass(OD::JSON::ValueSet)
 public:
 
     typedef ValArr::size_type	size_type;
@@ -99,16 +104,18 @@ public:
     enum ValueType		{ Data, SubArray, SubObject };
     typedef Gason::JsonNode	GasonNode;
 
-    virtual ValueSet*	clone() const = 0;
+    virtual ValueSet*	clone() const			= 0;
     virtual		~ValueSet()			{ setEmpty(); }
-    virtual bool	isArray() const = 0;
+    virtual bool	isArray() const			 = 0;
     inline Array&	asArray();
-    inline const Array& asArray() const;
+    inline const Array&	asArray() const;
     inline Object&	asObject();
     inline const Object& asObject() const;
 
-    virtual size_type	size() const { return (size_type)values_.size(); }
-    virtual bool	isEmpty() const { return values_.isEmpty(); }
+    virtual size_type	size() const
+			{ return (size_type)values_.size(); }
+    virtual bool	isEmpty() const
+			{ return values_.isEmpty(); }
     virtual void	setEmpty();
 
     virtual ValueType	valueType(idx_type) const;
@@ -123,13 +130,13 @@ public:
     ValueSet*		top();
     const ValueSet*	top() const;
 
-#define mMkGetFns(typ,getfn,implfn) \
+#   define		mMkGetFns(typ,getfn,implfn) \
     inline typ&		getfn( idx_type i )		{ return *implfn(i); } \
     inline const typ&	getfn( idx_type i ) const	{ return *implfn(i); }
-    mMkGetFns( ValueSet, child, gtChildByIdx )
-    mMkGetFns( Array, array, gtArrayByIdx )
-    mMkGetFns( Object, object, gtObjectByIdx )
-#undef mMkSubFn
+    mMkGetFns(ValueSet,	child, gtChildByIdx )
+    mMkGetFns(Array,	array, gtArrayByIdx )
+    mMkGetFns(Object,	object, gtObjectByIdx )
+#   undef		mMkSubFn
 
     bool		getBoolValue(idx_type) const;
     od_int64		getIntValue(idx_type) const;
@@ -140,6 +147,7 @@ public:
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
     void		dumpJSon(BufferString&) const;
+    void		dumpJSon(StringBuilder&) const;
     BufferString	dumpJSon() const;
 
     uiRetVal		read(od_istream&);
@@ -148,14 +156,14 @@ public:
 
 protected:
 
-			ValueSet(ValueSet* p)
+			ValueSet( ValueSet* p )
 			    : parent_(p)	{}
 			ValueSet(const ValueSet&);
 
     ValueSet*		parent_;
     ObjectSet<Value>	values_;
 
-    void		setParent(ValueSet* p)	{ parent_ = p; }
+    void		setParent( ValueSet* p )	{ parent_ = p; }
 
     ValueSet*		gtChildByIdx(idx_type) const;
     Array*		gtArrayByIdx(idx_type) const;
@@ -167,17 +175,16 @@ protected:
     friend class	Array;
     friend class	Object;
     friend class	Value;
-    static const char* gtvalnotplaindatastr()
-				{ return "ValueSet at idx is not plain data"; }
+
 };
 
 
 /*!\brief ValueSet where the values and subsets have no key.
 
-    If it holds plain data (valType()==Data), then you can only add
-    plain values or set all at once. Otherwise, you can only add ValueSet's of
-    the same type (either Array or Object).
-    */
+  If it holds plain data (valType()==Data), then you can only add
+  plain values or set all at once. Otherwise, you can only add ValueSet's of
+  the same type (either Array or Object).
+ */
 
 mExpClass(Basic) Array : public ValueSet
 {
@@ -203,32 +210,38 @@ public:
     Object*		add(Object*);
 
 			// only usable if valType() == Data
-    Array&		add(bool);
-    Array&		add(od_int16);
-    Array&		add(od_uint16);
-    Array&		add(od_int32);
-    Array&		add(od_uint32);
-    Array&		add(od_int64);
-    Array&		add(float);
-    Array&		add(double);
-    Array&		add(const char*);
-    Array&		add( const OD::String& odstr )
-			{ return add( odstr.str() ); }
-    Array&		add(const uiString&);
-    Array&		add(const FilePath&);
+#   define		mDeclJSONArraySetFn( typ ) \
+    Array&		set(typ)
 
-			// also, only usable if valType() == Data
-    void		set(const BoolTypeSet&);
-    void		set(const TypeSet<od_int16>&);
-    void		set(const TypeSet<od_uint16>&);
-    void		set(const TypeSet<od_int32>&);
-    void		set(const TypeSet<od_uint32>&);
-    void		set(const TypeSet<od_int64>&);
-    void		set(const TypeSet<float>&);
-    void		set(const TypeSet<double>&);
-    void		set(const BufferStringSet&);
-    void		set(const uiStringSet&);
-    void		set(const DBKeySet&);
+#   define		mDeclJSONArrayAddAndSetFn( typ ) \
+    Array&		add(typ); \
+			mDeclJSONArraySetFn(typ)
+
+#   define		mDeclJSONArraySetFns( typ ) \
+			mDeclJSONArrayAddAndSetFn(typ); \
+    Array&		set(const typ*,size_type); \
+    Array&		set(const TypeSet<typ>&)
+
+			mDeclJSONArrayAddAndSetFn(const char*);
+			mDeclJSONArrayAddAndSetFn(const DBKey&);
+			mDeclJSONArrayAddAndSetFn(const MultiID&);
+			mDeclJSONArrayAddAndSetFn(const uiString&);
+			mDeclJSONArrayAddAndSetFn(const OD::String&);
+			mDeclJSONArrayAddAndSetFn(const FilePath&);
+			mDeclJSONArrayAddAndSetFn(bool);
+
+			mDeclJSONArraySetFn(const BufferStringSet&);
+			mDeclJSONArraySetFn(const DBKeySet&);
+			mDeclJSONArraySetFn(const uiStringSet&);
+			mDeclJSONArraySetFn(const BoolTypeSet&);
+    Array&		set(const bool*,size_type);
+			mDeclJSONArraySetFns(od_int16);
+			mDeclJSONArraySetFns(od_uint16);
+			mDeclJSONArraySetFns(od_int32);
+			mDeclJSONArraySetFns(od_uint32);
+			mDeclJSONArraySetFns(od_int64);
+			mDeclJSONArraySetFns(float);
+			mDeclJSONArraySetFns(double);
 
 protected:
 
@@ -236,12 +249,13 @@ protected:
     ValArr*		valarr_;
 
     template <class T>
-    void		setVals(const TypeSet<T>&);
+    Array&		setVals(const TypeSet<T>&);
+    template <class T>
+    Array&		setVals(const T*,size_type);
     void		addVS(ValueSet*);
 
     friend class	ValueSet;
-    static const char* addarrnonvalstr()
-				    { return "add value to non-value Array"; }
+
 };
 
 
@@ -251,7 +265,7 @@ mExpClass(Basic) Object : public ValueSet
 {
 public:
 
-			Object(ValueSet* p=0)
+			Object( ValueSet* p=0 )
 			    : ValueSet(p)	{}
 			Object(const Object&);
     virtual Object*	clone() const		{ return new Object(*this); }
@@ -259,15 +273,28 @@ public:
 
     idx_type		indexOf(const char*) const;
     bool		isPresent( const char* ky ) const
-						{ return indexOf( ky ) >= 0; }
+						{ return indexOf(ky) >= 0; }
 
-# define mMkGetFn(typ,getfn,implfn) \
+#   define		mMkGetFn(typ,getfn,implfn) \
     inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
     inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
-    mMkGetFn( ValueSet, getChild, gtChildByKey )
-    mMkGetFn( Array, getArray, gtArrayByKey )
-    mMkGetFn( Object, getObject, gtObjectByKey )
-#undef	mMkGetFn
+    mMkGetFn(ValueSet,	getChild, gtChildByKey )
+    mMkGetFn(Array,	getArray, gtArrayByKey )
+    mMkGetFn(Object,	getObject, gtObjectByKey )
+#   undef		mMkGetFn
+    void		getSubObjKeys(BufferStringSet&) const;
+    inline ValueSet*	getChild( const BufferStringSet& bskey )
+					    { return gtChildByKeys( bskey ); }
+    inline const ValueSet*	getChild( const BufferStringSet& bskey ) const
+					    { return gtChildByKeys( bskey ); }
+    inline Array*	getArray( const BufferStringSet& bskey )
+					    { return gtArrayByKeys( bskey ); }
+    inline const Array* getArray( const BufferStringSet& bskey ) const
+					    { return gtArrayByKeys( bskey ); }
+    inline Object*	getObject( const BufferStringSet& bskey )
+					    { return gtObjectByKeys( bskey ); }
+    inline const Object*	getObject( const BufferStringSet& bskey ) const
+					    { return gtObjectByKeys( bskey ); }
 
     bool		getBoolValue(const char*) const;
     od_int64		getIntValue(const char*) const;
@@ -291,20 +318,25 @@ public:
     void		set(const char* ky,float);
     void		set(const char* ky,double);
     void		set(const char* ky,const char*);
-    void		set(const char* ky,const OD::String& str)
+    void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
     void        set(const char* ky,const FilePath&);
+    void		set(const char* ky,const DBKey&);
     void		set(const char* ky,const MultiID&);
+    void		set(const char* ky,const uiString&);
     template <class T>
     void		set(const char* ky,const Interval<T>&);
 
-    void		remove( const char* );
+    void		remove(const char*);
 
 protected:
 
     ValueSet*		gtChildByKey(const char*) const;
     Array*		gtArrayByKey(const char*) const;
     Object*		gtObjectByKey(const char*) const;
+    ValueSet*		gtChildByKeys(const BufferStringSet&) const;
+    Array*		gtArrayByKeys(const BufferStringSet&) const;
+    Object*		gtObjectByKeys(const BufferStringSet&) const;
 
     void		set(KeyedValue*);
     void		setVS(const char*,ValueSet*);
@@ -313,27 +345,17 @@ protected:
 
     friend class	ValueSet;
 
-    static const char* errnoemptykey()
-				{ return "Empty key not allowed for Object's"; }
 };
 
 
 inline Array& ValueSet::asArray()
-{
-    return *static_cast<Array*>(this);
-}
+{ return *static_cast<Array*>( this ); }
 inline const Array& ValueSet::asArray() const
-{
-    return *static_cast<const Array*>(this);
-}
+{ return *static_cast<const Array*>( this ); }
 inline Object& ValueSet::asObject()
-{
-    return *static_cast<Object*>(this);
-}
+{ return *static_cast<Object*>( this ); }
 inline const Object& ValueSet::asObject() const
-{
-    return *static_cast<const Object*>(this);
-}
+{ return *static_cast<const Object*>( this ); }
 
 template <class T>
 inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const

@@ -306,7 +306,7 @@ bool uiPluginSel::acceptOK( CallBacker* )
     }
 
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
-    Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
+    Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist );
     Settings::common().write();
 
     return true;
