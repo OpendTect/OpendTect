@@ -164,7 +164,7 @@ function( get_link_libraries OUTPUT_LIST TARGET )
 	endif()
     endforeach()
     set( VISISTED_TARGETS ${VISITED_TARGETS} PARENT_SCOPE )
-    set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE ) 
+    set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE )
 
 endfunction()
 

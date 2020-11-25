@@ -1,14 +1,19 @@
 #_______________________CMake___________________________________________________
 #
-#	Makefile : 	Basic utilities
-# 	July 1995	A.H. Bril
-#	RCS :		$Id$
+#	Makefile :	Basic
+#	July 1995	Bert
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set( OD_USEQT Core )
+
+if ( UNIX )
+    option ( OD_ENABLE_MEMDEBUGGER_CODE
+	    "Enable code that gives less false memory violation positives" OFF )
+    if ( OD_ENABLE_MEMDEBUGGER_CODE )
+	add_definitions("-DmMEM_DEBUGGER")
+    endif()
+endif( UNIX )
 
 if ( OD_ENABLE_BREAKPAD )
     list(APPEND OD_MODULE_INCLUDESYSPATH ${BREAKPAD_DIR}/include/breakpad )
@@ -43,6 +48,10 @@ set( OD_TEST_PROGS
 	uistring.cc
 	various_basic.cc
 )
+
+if ( NOT WIN32 )
+    set( OD_TEST_PROGS ${OD_TEST_PROGS} gason.cc )
+endif()
 
 set( OD_MODULE_SOURCES
 	applicationdata.cc
@@ -81,11 +90,11 @@ set( OD_MODULE_SOURCES
 	namedmonitoredobject.cc
 	namedobj.cc
 	objdisposer.cc
-	odjson.cc
 	od_iostream.cc
 	oddirs.cc
 	odimage.cc
 	odinst.cc
+	odjson.cc
 	odmemory.cc
 	odstring.cc
 	odver.cc
@@ -99,8 +108,8 @@ set( OD_MODULE_SOURCES
 	procdescdata.cc
 	pythonaccess.cc
 	qstreambuf.cc
-	repos.cc
 	refcount.cc
+	repos.cc
 	rowcol.cc
 	safefileio.cc
 	separstr.cc
@@ -108,6 +117,7 @@ set( OD_MODULE_SOURCES
 	settingsaccess.cc
 	sighndl.cc
 	string2.cc
+	stringbuilder.cc
 	strmoper.cc
 	strmprov.cc
 	surveydisklocation.cc
@@ -167,7 +177,6 @@ if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		    "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
 		    "${PROJECT_BINARY_DIR}/bin/od_external.${FILEEXT}" )
-
 endif()
 
 OD_INIT_MODULE()
