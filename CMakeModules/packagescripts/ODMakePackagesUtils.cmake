@@ -28,11 +28,10 @@ macro ( create_package PACKAGE_NAME )
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
-    if ( SYSTEMLIBS )
-        if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-            copy_unix_systemlibs()
-            unset( SYSTEMLIBS )
-        endif()
+    #TODO Need to check whether we need to use this macro on MAC.
+    if ( APPLE AND SYSTEMLIBS )
+	    copy_mac_systemlibs()
+	    unset( SYSTEMLIBS )
     endif()
     if ( PYTHONDIR )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -229,16 +228,29 @@ macro( copy_thirdpartylibs )
 
 
 	string( FIND ${LIB} "Qt" ISQTLIB )
-	string( FIND ${LIB} "osg" ISOSGLIB )
-	#Checking ISOSGLIB value to avoid OSG library libosgQt.ylib
-	if ( ${QT_VERSION_MAJOR} STREQUAL "${QT_VERSION_MAJOR}" AND APPLE
-	     AND NOT ${ISQTLIB} EQUAL -1  AND ${ISOSGLIB} EQUAL -1 )
+	if (  APPLE  AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB}
 			     ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
 	else()
+	    if ( WIN32 )
+		#Nothing to do
+	    elseif ( APPLE )
+		execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
+	    else()
+		if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
+			file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
+		endif()
+		list( FIND SYSLIBS "${LIB}" ITEMIDX )
+		if ( NOT ${ITEMIDX} EQUAL -1 )
+		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/systemlibs/${LIB} )
+		    continue()
+		endif()
+	    endif()
+
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
 	endif()
 
@@ -294,16 +306,6 @@ macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
     endif()
 endmacro()
 
-
-macro( copy_unix_systemlibs )
-    message( "Copying ${OD_PLFSUBDIR} system libraries" )
-    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
-    if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-	foreach( SYSLIB ${SYSTEMLIBS} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR}/systemlibs/ )
-	endforeach()
-    endif()
-endmacro()
 
 macro( create_basepackages PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "basedata" OR ${PACKAGE_NAME} STREQUAL "v7basedatadefs" )
