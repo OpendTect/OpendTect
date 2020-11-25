@@ -34,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "envvars.h"
 #include "binidvalue.h"
-#include "hiddenparam.h"
 #include "surveydisklocation.h"
 
 #include <math.h>
@@ -68,22 +67,19 @@ mDefineEnumUtils(ZRangeSelector,ZSelection,"Type of selection")
 
 static const char* sKeyDAHColName()	{ return "<MD>"; }
 
-static HiddenParam<Well::InfoCollector,SurveyDiskLocation*> sdls_(nullptr);
-
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     : Executor("Well information extraction")
     , domrkrs_(domarkers)
     , dologs_(dologs)
     , dotracks_(dotracks)
     , curidx_(0)
+    , survloc_(*new SurveyDiskLocation)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     iodir_ = new IODir( ctio->ctxt_.getSelKey() );
     direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
     totalnr_ = direntries_->size();
     curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
-
-    sdls_.setParam( this, new SurveyDiskLocation );
 }
 
 
@@ -94,8 +90,7 @@ Well::InfoCollector::~InfoCollector()
     deepErase( logs_ );
     delete direntries_;
     delete iodir_;
-
-    sdls_.removeAndDeleteParam( this );
+    delete &survloc_;
 }
 
 
@@ -126,13 +121,13 @@ void Well::InfoCollector::getAllLogNames( BufferStringSet& nms ) const
 
 void Well::InfoCollector::setSurvey( const SurveyDiskLocation& sdl )
 {
-    *sdls_.getParam(this) = sdl;
+    survloc_ = sdl;
 }
 
 
 SurveyDiskLocation& Well::InfoCollector::survey() const
 {
-    return *sdls_.getParam( this );
+    return survloc_;
 }
 
 

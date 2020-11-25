@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "emzmap.h"
 
 #include "arrayndimpl.h"
-#include "hiddenparam.h"
 #include "od_istream.h"
 #include "position.h"
 #include "separstr.h"
@@ -24,7 +23,6 @@ ________________________________________________________________________
 
 namespace EM
 {
-static HiddenParam<ZMapImporter,UnitOfMeasure*> uoms_(nullptr);
 
 ZMapImporter::ZMapImporter( const char* fnm )
     : Executor("Reading ZMap data")
@@ -33,7 +31,6 @@ ZMapImporter::ZMapImporter( const char* fnm )
     nrdonetxt_ = tr("Positions done");
     istrm_ = new od_istream( fnm_ );
 
-    uoms_.setParam( this, nullptr );
     initHeader();
     applyCRS();
 }
@@ -43,7 +40,7 @@ ZMapImporter::~ZMapImporter()
 {
     delete istrm_;
     delete data_;
-    uoms_.removeAndDeleteParam( this );
+    delete uom_;
 }
 
 
@@ -56,9 +53,9 @@ void ZMapImporter::setCoordSystem( Coords::CoordSystem* crs )
 
 void ZMapImporter::setUOM( const UnitOfMeasure* uom )
 {
-    uoms_.deleteAndZeroPtrParam( this );
+    deleteAndZeroPtr( uom_ );
     if ( uom )
-	uoms_.setParam( this, new UnitOfMeasure(*uom) );
+	uom_ = new UnitOfMeasure( *uom );
 }
 
 
@@ -151,9 +148,8 @@ int ZMapImporter::nextStep()
 	return MoreToDo();
     }
 
-    UnitOfMeasure* uom = uoms_.getParam( this );
-    if ( uom )
-	zval = uom->internalValue( zval );
+    if ( uom_ )
+	zval = uom_->internalValue( zval );
 
     // From ZMap format description:
     // grid nodes are stored in column major order. The first column of

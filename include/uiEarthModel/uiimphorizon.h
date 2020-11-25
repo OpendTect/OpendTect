@@ -31,6 +31,7 @@ class uiPushButton;
 class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
+class uiUnitSel;
 namespace Coords { class uiCoordSystemSel; }
 namespace EM { class Horizon3D; }
 namespace Table { class FormatDesc; }
@@ -105,6 +106,8 @@ protected:
 
     uiFileInput*		inpfld_;
     Coords::uiCoordSystemSel*	crsfld_;
+    uiPosSubSel*		subselfld_;
+    uiUnitSel*			unitfld_;
     uiIOObjSel*			outputfld_;
 
     virtual bool		acceptOK(CallBacker*);

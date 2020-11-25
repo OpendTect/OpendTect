@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitblimpexpdatasel.h"
 
 #include "file.h"
-#include "hiddenparam.h"
 #include "od_helpids.h"
 #include "posinfo2d.h"
 #include "survgeom2d.h"
@@ -277,17 +276,13 @@ bool acceptOK( CallBacker* )
 };
 
 
-static HiddenParam<uiNavSurvInfoProvider,BufferString> filenames_("");
-
 uiNavSurvInfoProvider::uiNavSurvInfoProvider()
 {
-    filenames_.setParam( this, "" );
 }
 
 
 uiNavSurvInfoProvider::~uiNavSurvInfoProvider()
 {
-    filenames_.removeParam( this );
     deepUnRef( geoms_ );
 }
 
@@ -308,11 +303,12 @@ uiDialog* uiNavSurvInfoProvider::dialog( uiParent* p )
 bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 				     Coord crd[3] )
 {
+    filename_.setEmpty();
     mDynamicCastGet(uiNavReadDlg*,navdlg,dlg)
     if ( !navdlg )
 	return false;
 
-    filenames_.setParam( this, navdlg->fname_ );
+    filename_ = navdlg->fname_;
     coordsystem_ = navdlg->crssel_->getCoordSystem();
 
     deepUnRef( geoms_ );
@@ -342,7 +338,8 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 void uiNavSurvInfoProvider::fillLogPars( IOPar& par ) const
 {
     uiSurvInfoProvider::fillLogPars( par );
-    par.set( sKey::CrFrom(), filenames_.getParam(this) );
+    if ( !filename_.isEmpty() )
+	par.set( sKey::CrFrom(), filename_ );
 }
 
 

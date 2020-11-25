@@ -136,6 +136,7 @@ protected:
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
     MenuItem		changezmnuitem_;
+    MenuItem		workareaitem_;
 
     void		selChangedCB(CallBacker*);
 };

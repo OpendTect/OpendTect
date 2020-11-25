@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strattreetransl.h"
 #include "stratunitrefiter.h"
 #include "ascstream.h"
-#include "hiddenparam.h"
 #include "separstr.h"
 
 mDefSimpleTranslators(StratTree,"Stratigraphic Tree",od,Mdl)
@@ -21,8 +20,6 @@ static const char* sKeyLith =		"Lithology";
 static const char* sKeyContents =	"Contents";
 static const char* sKeyUnits =		"Units";
 static const char* sKeyAppearance =	"Appearance";
-
-static HiddenParam<Strat::RefTree,char> beingdeleted(0);
 
 namespace Strat
 {
@@ -36,7 +33,6 @@ RefTree::RefTree()
     , notifun_(0)
     , udfleaf_(*new LeafUnitRef(this,-1,"Undef unit"))
 {
-    beingdeleted.setParam( this, 0 );
     udfleaf_.setColor( Color::LightGrey() );
     initTree();
 }
@@ -52,7 +48,7 @@ void RefTree::initTree()
 
 RefTree::~RefTree()
 {
-    beingdeleted.setParam( this, 1 );
+    beingdeleted_ = true;
     udfleaf_.toBeDeleted.disable();
     Strat::eLVLS().levelToBeRemoved.remove(
 	    mCB(this,Strat::RefTree,levelToBeRemoved) );
@@ -62,7 +58,7 @@ RefTree::~RefTree()
 
 void RefTree::reportChange( const UnitRef* un, bool isrem )
 {
-    const bool dotrigger = beingdeleted.getParam(this) == 0;
+    const bool dotrigger = !beingdeleted_;
     notifun_ = un;
     if ( un && dotrigger )
     {

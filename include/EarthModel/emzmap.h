@@ -60,6 +60,7 @@ protected:
     bool		initdone_	= false;
     od_istream*		istrm_		= nullptr;
     RefMan<Coords::CoordSystem>	coordsystem_;
+    UnitOfMeasure*	uom_		= nullptr;
 
     // header line 1
     int			nrnodesperline_	= 0;

@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emmanager.h"
 #include "emrandomposbody.h"
-#include "hiddenparam.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "pickset.h"
@@ -601,8 +600,6 @@ uiTreeItem*
 
 
 // uiODPolygonTreeItem
-static HiddenParam<uiODPolygonTreeItem,MenuItem*> useasworkareaitm(nullptr);
-
 uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(uiStrings::sSave())
@@ -610,7 +607,8 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties()))
     , closepolyitem_(tr("Close Polygon"))
-    , changezmnuitem_(tr("Change Z values"))
+    , changezmnuitem_(m3Dots(tr("Change Z values")))
+    , workareaitem_(m3Dots(tr("Set as Work Area")))
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
@@ -619,16 +617,12 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
-
-    auto* mnuitm = new MenuItem( m3Dots(tr("Set as Work Area")) );
-    useasworkareaitm.setParam( this, mnuitm );
 }
 
 
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     Pick::Mgr().removeCBs( this );
-    useasworkareaitm.removeAndDeleteParam( this );
 }
 
 
@@ -729,7 +723,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     mAddMenuItem( menu, &storemnuitem_, changed, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
-    mAddMenuItem( menu, useasworkareaitm.getParam(this), true, false );
+    mAddMenuItem( menu, &workareaitem_, true, false );
 
     const bool islocked = visserv_->isLocked( displayID() );
     mAddMenuItem( menu, &changezmnuitem_, !islocked, false );
@@ -794,7 +788,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	uiPolygonZChanger dlg( getUiParent(), set_ );
 	dlg.go();
     }
-    else if ( mnuid == useasworkareaitm.getParam(this)->id )
+    else if ( mnuid == workareaitem_.id )
     {
 	TrcKeyZSampling tkzs;
 	set_.getBoundingBox( tkzs );

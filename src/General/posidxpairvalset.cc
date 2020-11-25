@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "idxable.h"
@@ -1464,11 +1463,8 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findNearestOnFirst(
 }
 
 
-static HiddenParam<BinIDValueSet,char> is2ds(0);
-
 BinIDValueSet::~BinIDValueSet()
 {
-    is2ds.removeParam( this );
 }
 
 
@@ -1537,12 +1533,9 @@ void BinIDValueSet::addHorPosIfNeeded( const Pos::IdxPair& ip )
 }
 
 
-void BinIDValueSet::init()
-{ is2ds.setParam( this, false ); }
-
 void BinIDValueSet::setIs2D( bool yn )
-{ is2ds.setParam( this, yn ); }
+{ is2d_ = yn; }
 
 bool BinIDValueSet::is2D() const
-{ return is2ds.getParam(this); }
+{ return is2d_; }
 

@@ -87,6 +87,7 @@ protected:
     ObjectSet<uiButton>	utilbuts_;
     uiTextEdit*		infofld_;
     uiTextEdit*		notesfld_;
+    uiTextEdit*		logfld_;
     IOPar		infopars_;
 
     bool		parschanged_; //!< of initial survey only

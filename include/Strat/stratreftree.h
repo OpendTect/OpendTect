@@ -72,6 +72,7 @@ protected:
     ContentSet		contents_;
     const UnitRef*	notifun_;
     LeafUnitRef&	udfleaf_;
+    bool		beingdeleted_ = false;
 
     void 		levelToBeRemoved(CallBacker*);
 

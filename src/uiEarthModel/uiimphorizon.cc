@@ -47,7 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emzmap.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "horizonscanner.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -687,9 +686,6 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 }
 
 
-static HiddenParam<uiImpHorFromZMap,uiPosSubSel*> subselflds(nullptr);
-static HiddenParam<uiImpHorFromZMap,uiUnitSel*> unitselflds(nullptr);
-
 // uiImpHorFromZMap
 uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Horizon from ZMap"),
@@ -716,27 +712,23 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 	attachobj = crsfld_->attachObj();
     }
 
-    auto* subselfld = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
-    subselfld->attach( alignedBelow, attachobj );
-    subselflds.setParam( this, subselfld );
+    subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
+    subselfld_->attach( alignedBelow, attachobj );
 
-    auto* unitfld = new uiUnitSel( this,
+    unitfld_ = new uiUnitSel( this,
 		uiUnitSel::Setup(PropertyRef::Dist,uiStrings::sUnit()) );
-    unitfld->attach( alignedBelow, subselfld );
-    unitselflds.setParam( this, unitfld );
+    unitfld_->attach( alignedBelow, subselfld_ );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
     ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
-    outputfld_->attach( alignedBelow, unitfld );
+    outputfld_->attach( alignedBelow, unitfld_ );
 }
 
 
 uiImpHorFromZMap::~uiImpHorFromZMap()
 {
     detachAllNotifiers();
-    subselflds.removeParam( this );
-    unitselflds.removeParam( this );
 }
 
 
@@ -774,8 +766,8 @@ void uiImpHorFromZMap::inputChgd( CallBacker* )
     TrcKeySampling tks; Coord mincrd, maxcrd;
     getCoordinates( importer, tks, mincrd, maxcrd );
     TrcKeyZSampling tkzs; tkzs.hsamp_ = tks;
-    subselflds.getParam(this)->setInputLimit( tkzs );
-    subselflds.getParam(this)->setInput( tkzs );
+    subselfld_->setInputLimit( tkzs );
+    subselfld_->setInput( tkzs );
 
     const FilePath fnmfp( horfnm );
     sImportFromPath = fnmfp.pathOnly();
@@ -812,7 +804,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
-    const UnitOfMeasure* zuom = unitselflds.getParam(this)->getUnit();
+    const UnitOfMeasure* zuom = unitfld_->getUnit();
 
     uiTaskRunner uitr( this );
     EM::ZMapImporter importer( horfnm );
@@ -828,7 +820,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     TrcKeySampling tks; Coord mincrd, maxcrd;
     getCoordinates( importer, tks, mincrd, maxcrd );
 
-    tks = subselflds.getParam(this)->envelope().hsamp_;
+    tks = subselfld_->envelope().hsamp_;
 
     const Array2D<float>* arr2d = importer.data();
     Array2DFromXYConverter conv( *arr2d, mincrd, importer.step() );

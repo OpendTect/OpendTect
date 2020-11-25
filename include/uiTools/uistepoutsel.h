@@ -83,6 +83,7 @@ protected:
 private:
 
     void		init(const Setup&);
+    uiStepOutSel::Setup	sosetup_;
 
 };
 

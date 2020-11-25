@@ -279,6 +279,7 @@ private:
     const ValueSeriesInterpolator<float>&	interpolator() const;
 
     ObjectSet<TraceData>	data_;
+    ObjectSet<Scaler>		trcscalers_;
     const ObjectSummary&	info_;
     const TypeSet<TrcKey>*	tks_;
     const int			nrpos_;

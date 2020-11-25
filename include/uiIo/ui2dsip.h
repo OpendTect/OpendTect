@@ -60,5 +60,6 @@ public:
 protected:
     RefMan<Coords::CoordSystem>		coordsystem_;
     ObjectSet<Survey::Geometry2D>	geoms_;
+    BufferString			filename_;
 };
 

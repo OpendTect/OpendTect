@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cbvsreadmgr.h"
 #include "convmemvalseries.h"
 #include "datapackbase.h"
-#include "hiddenparam.h"
 #include "ioobj.h"
 #include "nrbytes2string.h"
 #include "od_ostream.h"
@@ -1333,17 +1332,14 @@ void Seis::SequentialReader::submitUdfWriterTasks()
 }
 
 
-static HiddenParam<Seis::RawTrcsSequence,ObjectSet<Scaler>*>trcscalers(nullptr);
-
+// Seis::RawTrcsSequence
 Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     : info_(info)
     , tks_(nullptr)
     , nrpos_(nrpos)
     , intpol_(nullptr)
 {
-    ObjectSet<Scaler>* scalers = new ObjectSet<Scaler>;
-    trcscalers.setParam( this, scalers );
-    scalers->setNullAllowed( true );
+    trcscalers_.setNullAllowed( true );
     TraceData td;
     for ( int icomp=0; icomp<info.compnms_.size(); icomp++ )
 	td.addComponent( info.nrsamppertrc_, info.getDataChar() );
@@ -1361,7 +1357,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
 	}
 
 	data_ += newtd;
-	scalers->add( nullptr );
+	trcscalers_ += nullptr;
     }
 }
 
@@ -1372,11 +1368,9 @@ Seis::RawTrcsSequence::RawTrcsSequence( const Seis::RawTrcsSequence& oth )
     , nrpos_(oth.nrpos_)
     , intpol_(nullptr)
 {
-    ObjectSet<Scaler>* scalers = new ObjectSet<Scaler>;
-    trcscalers.setParam( this, scalers );
-    scalers->setNullAllowed( true );
+    trcscalers_.setNullAllowed( true );
     for ( int idx=0; idx<oth.nrpos_; idx++ )
-	scalers->add( nullptr );
+	trcscalers_ += nullptr;
 
     *this = oth;
 }
@@ -1385,10 +1379,8 @@ Seis::RawTrcsSequence::RawTrcsSequence( const Seis::RawTrcsSequence& oth )
 Seis::RawTrcsSequence::~RawTrcsSequence()
 {
     deepErase( data_ );
+    deepErase( trcscalers_ );
     delete tks_;
-    ObjectSet<Scaler>* scalers = trcscalers.getParam( this );
-    deepErase( *scalers );
-    trcscalers.removeAndDeleteParam( this );
 }
 
 
@@ -1399,10 +1391,8 @@ Seis::RawTrcsSequence& Seis::RawTrcsSequence::operator=(
 
     Seis::RawTrcsSequence& thisseq = const_cast<Seis::RawTrcsSequence&>(*this);
 
-    ObjectSet<Scaler>* scalers = trcscalers.getParam( this );
-    deepErase( *scalers );
-
     deepErase( data_ );
+    deepErase( trcscalers_ );
     deleteAndZeroPtr( thisseq.tks_ );
     const int& thisnrpos = nrpos_;
     const_cast<int&>( thisnrpos ) = oth.nrpos_;
@@ -1410,7 +1400,7 @@ Seis::RawTrcsSequence& Seis::RawTrcsSequence::operator=(
     for ( int ipos=0; ipos<nrpos_; ipos++ )
     {
 	data_ += new TraceData( *oth.data_[ipos] );
-	scalers->add( nullptr );
+	trcscalers_ += nullptr;
 	setTrcScaler( ipos, oth.getTrcScaler(ipos) );
 	*tks += TrcKey( (*oth.tks_)[ipos] );
     }
@@ -1481,21 +1471,19 @@ void Seis::RawTrcsSequence::setPositions( const TypeSet<TrcKey>& tks )
 
 void Seis::RawTrcsSequence::setTrcScaler( int pos, const Scaler* newscaler )
 {
-    ObjectSet<Scaler>* scalers = trcscalers.getParam( this );
-    if ( !scalers || !scalers->validIdx(pos) )
+    if ( !trcscalers_.validIdx(pos) )
 	return;
 
-    delete scalers->replace( pos, newscaler ? newscaler->clone() : 0 );
+    delete trcscalers_.replace( pos, newscaler ? newscaler->clone() : 0 );
 }
 
 
 const Scaler* Seis::RawTrcsSequence::getTrcScaler( int pos ) const
 {
-    ObjectSet<Scaler>* scalers = trcscalers.getParam( this );
-    if ( !scalers || !scalers->validIdx(pos) )
+    if ( !trcscalers_.validIdx(pos) )
 	return nullptr;
 
-    return scalers->get( pos );
+    return trcscalers_.get( pos );
 }
 
 

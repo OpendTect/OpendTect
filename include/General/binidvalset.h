@@ -25,10 +25,10 @@ public:
 
     			BinIDValueSet( int nrvals, bool allowdup )
 			    : Pos::IdxPairValueSet(nrvals,allowdup)
-			    { init(); }
+			{}
 			BinIDValueSet( const BinIDValueSet& bvs )
 			    : Pos::IdxPairValueSet(bvs)
-			    { init(); setIs2D(bvs.is2D()); }
+			{ setIs2D(bvs.is2D()); }
 			~BinIDValueSet();
 
     BinIDValueSet&	operator =( const BinIDValueSet& oth )
@@ -61,8 +61,6 @@ protected:
 			{ return BinID( ip.first, ip.second ); }
 
 private:
-    void		init();
     void		addHorPosIfNeeded(const Pos::IdxPair&);
+    bool		is2d_		= false;
 };
-
-

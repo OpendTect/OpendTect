@@ -174,6 +174,7 @@ public:
 
 protected:
 
+    SurveyDiskLocation&		survloc_;
     ObjectSet<MultiID>		ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;

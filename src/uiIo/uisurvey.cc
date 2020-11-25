@@ -50,7 +50,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -390,8 +389,6 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 
 //--- uiSurvey
 
-static HiddenParam<uiSurvey, uiTextEdit*> logflds_( nullptr );
-
 uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
@@ -480,10 +477,9 @@ uiSurvey::uiSurvey( uiParent* p )
     tabs->setTabIcon( 1, "notes" );
 
     uiGroup* loggrp = new uiGroup( tabs->tabGroup(), "Log Group" );
-    auto* logfld = new uiTextEdit( loggrp, "Survey Log", true );
-    logflds_.setParam( this, logfld );
-    logfld->setPrefHeightInChar( 10 );
-    logfld->setStretch( 2, 2 );
+    logfld_ = new uiTextEdit( loggrp, "Survey Log", true );
+    logfld_->setPrefHeightInChar( 10 );
+    logfld_->setStretch( 2, 2 );
     tabs->addTab( loggrp, tr("Log") );
     tabs->setTabIcon( 2, "logfile" );
 
@@ -500,8 +496,6 @@ uiSurvey::uiSurvey( uiParent* p )
 
 uiSurvey::~uiSurvey()
 {
-    logflds_.removeParam( this );
-
     ObjectSet<uiSurvInfoProvider>& survprovs =
 					uiSurveyInfoEditor::survInfoProvs();
     for ( int idx=0; idx<survprovs.size(); idx++ )
@@ -1328,7 +1322,7 @@ void uiSurvey::putToScreen()
     {
 	notesfld_->setText( uiString::emptyString() );
 	infofld_->setText( uiString::emptyString() );
-	logflds_.getParam(this)->setText( uiString::emptyString() );
+	logfld_->setText( uiString::emptyString() );
 	return;
     }
 
@@ -1356,7 +1350,7 @@ void uiSurvey::putToScreen()
     else
 	logtxt.set( "No log available" );
 
-    logflds_.getParam(this)->setText( logtxt );
+    logfld_->setText( logtxt );
 
     zkey.set( "Z range (" )
 	.add( si.zIsTime() ? ZDomain::Time().unitStr()
