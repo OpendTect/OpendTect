@@ -29,13 +29,10 @@ macro ( create_package PACKAGE_NAME )
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
-    if ( SYSTEMLIBS )
-	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-	    copy_unix_systemlibs()
-	    unset( SYSTEMLIBS )
-	elseif ( APPLE )
+    #TODO Need to check whether we need to use this macro on MAC.
+    if ( APPLE AND SYSTEMLIBS ) #TODO Need to check whether we  need to use this macro on MAC.
 	    copy_mac_systemlibs()
-	endif()
+	    unset( SYSTEMLIBS )
     endif()
 
     message( "Copying ${OD_PLFSUBDIR} libraries" )
@@ -57,7 +54,7 @@ macro ( create_package PACKAGE_NAME )
 	if( WIN64 )
 	    #Stripping not required on windows
 	elseif( APPLE )
-	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript_final ${COPYFROMLIBDIR}/${LIB} )
+	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
 	    #Not using breakpad on MAC
 	else()
 	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
@@ -211,10 +208,7 @@ macro( copy_thirdpartylibs )
 
 
 	string( FIND ${LIB} "Qt" ISQTLIB )
-	string( FIND ${LIB} "osg" ISOSGLIB )
-	#Checking ISOSGLIB value to avoid OSG library libosgQt.ylib
-	if ( ${QT_VERSION_MAJOR} STREQUAL "${QT_VERSION_MAJOR}" AND APPLE
-	     AND NOT ${ISQTLIB} EQUAL -1  AND ${ISOSGLIB} EQUAL -1 )
+	if (  APPLE  AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
@@ -222,7 +216,7 @@ macro( copy_thirdpartylibs )
 			     ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
 	else()
 	    if (APPLE )
-		execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript_final ${COPYFROMLIBDIR}/${LIB} )
+		execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
 	    endif()
 
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
@@ -301,7 +295,7 @@ macro( copy_mac_systemlibs )
     message( "Copying ${OD_PLFSUBDIR} system libraries" )
     if( APPLE )
 	foreach( SYSLIB ${SYSTEMLIBS} )
-	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript_final ${COPYFROMLIBDIR}/${SYSLIB} )
+	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${SYSLIB} )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR} )
 	endforeach()
     endif()
