@@ -96,6 +96,9 @@ if( UNIX ) #Apple and Linux
 
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
+	#Make all targets look for dependent libraries in the same location as they are in
+	set( CMAKE_INSTALL_RPATH "\$ORIGIN")
+
     endif()
 
     set ( OD_LINESEP "\n" )
