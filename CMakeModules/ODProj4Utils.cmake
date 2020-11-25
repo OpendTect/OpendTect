@@ -6,7 +6,7 @@
 
 macro( OD_CONF_PROJ4 )
     if( WIN32 )
-	SET( CMAKE_C_FLAGS "/W0 /WX-" )
+	SET( CMAKE_C_FLAGS "/WX-" )
     elseif ( UNIX )
 	SET( CMAKE_C_FLAGS "-w" )
     endif()
