@@ -271,9 +271,11 @@ macro( OD_ADD_QTMODS )
     endif()
 
     if ( LINKMODS )
+	get_shared_link_libraries( LINKMODS "${LINKMODS}" )
 	list( APPEND OD_ALLQTCOMPS ${LINKMODS} )
     endif()
     if ( INSTMODS )
+	get_shared_link_libraries( INSTMODS "${INSTMODS}" )
 	list( APPEND OD_ALLQTCOMPS ${INSTMODS} )
     endif()
 
