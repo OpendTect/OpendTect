@@ -5,17 +5,56 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "nrbytes2string.h"
 #include "testprog.h"
 #include "bufstringset.h"
+#include "stringbuilder.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 #undef mRunTest
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
+
+static bool testWords()
+{
+    const char* inp = "The sentence 'this one' is not \"that one\"";
+    BufferStringSet words;
+    words.addWordsFrom( inp );
+    mRunStandardTest( words.size()==6, "addWordsFrom size" );
+    mRunStandardTest( words.get(2)=="this one", "addWordsFrom part 1" );
+    mRunStandardTest( words.get(5)=="that one", "addWordsFrom part 2" );
+    words.setEmpty();
+    words.addWordsFrom( nullptr );
+    mRunStandardTest( words.isEmpty(), "addWordsFrom null string" );
+    words.addWordsFrom( "" );
+    mRunStandardTest( words.isEmpty(), "addWordsFrom empty string" );
+    words.addWordsFrom( "    " );
+    mRunStandardTest( words.isEmpty(), "addWordsFrom blanks string" );
+    words.addWordsFrom( "''" );
+    mRunStandardTest( words.size()==1, "addWordsFrom empty word size" );
+    mRunStandardTest( words.get(0)=="", "addWordsFrom empty word content" );
+
+    return true;
+}
+
+static bool testBuilder()
+{
+    StringBuilder sb;
+    sb.set( "Apenoot" ).addSpace( 3 ).add( "Yo" );
+    BufferString res( sb.result() );
+    mRunStandardTest( res=="Apenoot   Yo", "StringBuilder result (1)" );
+
+    sb.addNewLine( 300 ).add( "X" );
+    res = sb.result();
+    mRunStandardTest( res[11]=='o' && res[12]=='\n'
+		      && res[300+11]=='\n' && res[301+11]=='X',
+			"StringBuilder result (2)" );
+
+    return true;
+}
+
 
 static bool testTruncate()
 {
@@ -260,8 +299,6 @@ static bool testEmptyStringComparison()
     mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
     FixedString fxdstr;
     mRunStandardTest( fxdstr=="", "Empty string comparison - FixedString");
-    MultiID mid;
-    mRunStandardTest( mid=="", "Empty string comparison - MultiID");
 
     return true;
 }
@@ -305,7 +342,9 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testBytes2String()
+    if ( !testBuilder()
+      || !testWords()
+      || !testBytes2String()
       || !testStringPrecisionInAscII()
       || !testTruncate()
       || !testBufferStringFns()
@@ -313,7 +352,7 @@ int main( int argc, char** argv )
       || !testLimFToStringFns()
       || !testEmptyStringComparison()
       || !testGetFromString() )
-	ExitProgram( 1 );
+	return ExitProgram( 1 );
 
     BufferStringSet strs;
     strs.add( "Str pos 0" );
