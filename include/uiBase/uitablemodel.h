@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class ODAbstractTableModel;
 class ODTableView;
+class QByteArray;
 class QSortFilterProxyModel;
 class QVariant;
 
@@ -85,8 +86,8 @@ public:
 				~uiTableView();
 
     void			setModel(uiTableModel*);
-    void			resetHorHeader();
-    void			saveState();
+    void			saveHorizontalHeaderState();
+    void			resetHorizontalHeader();
 
     void			setSectionsMovable(bool);
     void			setSortingEnabled(bool);
@@ -115,7 +116,8 @@ protected:
 
     ODTableView&		mkView(uiParent*,const char*);
 
-    uiTableModel*		tablemodel_;
-    ODTableView*		odtableview_;
-    QSortFilterProxyModel*	qproxymodel_;
+    uiTableModel*		tablemodel_	= nullptr;
+    ODTableView*		odtableview_	= nullptr;
+    QSortFilterProxyModel*	qproxymodel_	= nullptr;
+    QByteArray*			horizontalheaderstate_	= nullptr;
 };

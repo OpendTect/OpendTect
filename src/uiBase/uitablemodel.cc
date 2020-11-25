@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
-#include "hiddenparam.h"
 #include "perthreadrepos.h"
 
 #include "q_uiimpl.h"
@@ -32,9 +31,6 @@ ________________________________________________________________________
 #include <QStyledItemDelegate>
 #include <QStringList>
 #include <QTableView>
-
-
-static HiddenParam<uiTableView,QVariant*> initstate_(nullptr);
 
 
 class ODStyledItemDelegate : public QStyledItemDelegate
@@ -360,7 +356,7 @@ void keyPressEvent( QKeyEvent* ev ) override
     }
     else if ( ev->matches(QKeySequence::Copy) )
     {
-	BufferString text; 
+	BufferString text;
 	QItemSelectionRange range = selectionModel()->selection().first();
 	for ( int row = range.top(); row <= range.bottom(); row++ )
 	{
@@ -383,16 +379,13 @@ void keyPressEvent( QKeyEvent* ev ) override
 
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
-    , tablemodel_(nullptr)
-    , qproxymodel_(nullptr)
 {
-    initstate_.setParam( this, nullptr );
 }
 
 
 uiTableView::~uiTableView()
 {
-    initstate_.removeAndDeleteParam( this );
+    delete horizontalheaderstate_;
 }
 
 
@@ -409,37 +402,53 @@ void uiTableView::setModel( uiTableModel* mdl )
     if ( !tablemodel_ )
 	return;
 
+    deleteAndZeroPtr( horizontalheaderstate_ );
     delete qproxymodel_;
-    initstate_.deleteAndZeroPtrParam( this );
     qproxymodel_ = new QSortFilterProxyModel();
     qproxymodel_->setSourceModel(  tablemodel_->getAbstractModel() );
     odtableview_->setModel( qproxymodel_ );
 }
 
-void uiTableView::saveState()
+
+void uiTableView::saveHorizontalHeaderState()
 {
-    initstate_.deleteAndZeroPtrParam( this );
-    QVariant* initialstate = new QVariant(
-				odtableview_->horizontalHeader()->saveState());
-    initstate_.setParam( this, initialstate );
+    deleteAndZeroPtr( horizontalheaderstate_ );
+    QHeaderView* horhdr = odtableview_->horizontalHeader();
+    if ( horhdr )
+	horizontalheaderstate_ = new QByteArray( horhdr->saveState() );
 }
 
-void uiTableView::resetHorHeader()
+
+void uiTableView::resetHorizontalHeader()
 {
-    odtableview_->horizontalHeader()->restoreState(
-				    initstate_.getParam(this)->toByteArray());
+    if ( !horizontalheaderstate_ )
+	return;
+
+    QHeaderView* horhdr = odtableview_->horizontalHeader();
+    if ( horhdr )
+	horhdr->restoreState( *horizontalheaderstate_ );
+
     odtableview_->clearSelection();
     odtableview_->clearFocus();
 }
 
+
 void uiTableView::setSectionsMovable( bool yn )
-{ odtableview_->horizontalHeader()->setSectionsMovable( yn ); }
+{
+    odtableview_->horizontalHeader()->setSectionsMovable( yn );
+}
+
 
 void uiTableView::setSortingEnabled( bool yn )
-{ odtableview_->setSortingEnabled( yn ); }
+{
+    odtableview_->setSortingEnabled( yn );
+}
+
 
 bool uiTableView::isSortingEnabled() const
-{ return odtableview_->isSortingEnabled(); }
+{
+    return odtableview_->isSortingEnabled();
+}
 
 
 void uiTableView::sortByColumn( int col, bool asc )
