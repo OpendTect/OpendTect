@@ -472,7 +472,7 @@ bool OD::PythonAccess::executeScript( const char* scriptstr,
     OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
 					      : OS::RunInBG );
     execpars.createstreams( true );
-    return mc.execute( execpars );
+    return execute( mc, execpars );
 }
 
 
