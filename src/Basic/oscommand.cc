@@ -574,14 +574,21 @@ OS::CommandLauncher::~CommandLauncher()
 PID_Type OS::CommandLauncher::processID() const
 {
 #ifndef OD_NO_QT
+
     if ( !process_ )
 	return pid_;
+#if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
+    const qint64 pid = process_->processId();
+    return mCast( PID_Type, pid );
+#else
 # ifdef __win__
     const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();
     return pi->dwProcessId;
 # else
     return process_->pid();
 # endif
+#endif
+
 #else
     return 0;
 #endif
