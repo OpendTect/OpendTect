@@ -582,9 +582,6 @@ int MultiWellWriter::nextStep()
 bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
 						 const StoreReqs reqs )
 {
-    if ( !&wd )
-	return false;
-
     Well::Writer wrtr( key, wd );
     if ( reqs.includes(Well::Inf) || reqs.includes(Well::Trck) )
 	wrtr.putInfoAndTrack();
