@@ -67,7 +67,7 @@ protected:
     mDeprecated		("Use the one with filename instead")
     bool		putLog(od_ostream&, const Log&) const;
 
-    bool		putLog(const BufferString& filename, const Log&) const;
+    bool		putLog(const char* filename, const Log&) const;
     void		wrLogHdr(ascostream&,const Log&) const;
     void		wrLogData(ascostream&,const Log&,
 				  const DataBuffer* databuf=nullptr) const;
