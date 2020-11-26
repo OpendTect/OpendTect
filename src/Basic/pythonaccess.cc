@@ -293,7 +293,17 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     {
 	BufferString virtenvloc;
 	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	{
+	    if ( !File::exists(virtenvloc) || !File::isDirectory(virtenvloc) )
+	    {
+		msg_ = tr("Selected custom python environment does "
+			  "not exist:\n'%1'").arg( virtenvloc );
+		return false;
+	    }
+
 	    externalroot = new FilePath( virtenvloc );
+	}
+
 	virtenvnm = new BufferString();
 	pythonsetts.get( sKey::Name(), *virtenvnm );
     }
@@ -302,7 +312,13 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     BufferStringSet envnms;
     if ( !getSortedVirtualEnvironmentLoc(pythonenvsfp,envnms,virtenvnm,
 					 externalroot) )
+    {
+	msg_ = source == Custom
+	     ? tr("Custom environment [%1] does not exist")
+		    .arg( virtenvnm->isEmpty() ? "base" : virtenvnm->buf() )
+	     : tr("Internal environments are not usable");
 	return false;
+    }
 
     for ( int idx=0; idx<pythonenvsfp.size(); idx++ )
     {
@@ -311,6 +327,8 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 	if ( isEnvUsable(pythonenvfp,envnm.buf(),scriptstr,scriptexpectedout) )
 	    return true;
     }
+
+    msg_ = tr("Internal environments are not usable");
 
     return false;
 }
@@ -354,11 +372,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
     OS::MachineCommand cmd( sPythonExecNm(true) );
     const bool doscript = scriptstr && *scriptstr;
     if ( doscript )
-    {
-	BufferString script( scriptstr );
-	script.quote( '\"' );
-	cmd.addArg( "-c" ).addArg( script );
-    }
+	cmd.addArg( "-c" ).addArg( scriptstr );
     else
 	cmd.addFlag( "version" );
 
@@ -454,10 +468,11 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 bool OD::PythonAccess::executeScript( const char* scriptstr,
 				      bool wait4finish ) const
 {
-    BufferString script( scriptstr );
-    script.quote( '\"' );
-    OS::MachineCommand mc( sPythonExecNm(), "-c", script );
-    return execute( mc, wait4finish );
+    OS::MachineCommand mc( sPythonExecNm(true), "-c", scriptstr );
+    OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
+					      : OS::RunInBG );
+    execpars.createstreams( true );
+    return mc.execute( execpars );
 }
 
 
@@ -904,17 +919,19 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
     if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
 	source = System;
 
-    if ( source == Custom ) {
+    if ( source == Custom )
+    {
 	BufferString virtenvloc, virtenvnm;
 	pythonsetts.get(sKeyEnviron(),virtenvloc);
 	pythonsetts.get(sKey::Name(),virtenvnm);
-	#ifdef __win__
+#ifdef __win__
 	fp = FilePath( virtenvloc, "envs", virtenvnm );
-	#else
+#else
 	fp = FilePath( "/", virtenvloc, "envs", virtenvnm );
-	#endif
+#endif
     }
-    else if (source == Internal) {
+    else if (source == Internal)
+    {
 	ManagedObjectSet<FilePath> fps;
 	BufferStringSet envnms;
 	getSortedVirtualEnvironmentLoc( fps, envnms );
@@ -1212,6 +1229,9 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 	    continue;
 	moduleinfos_.add( new ModuleInfo( modstr.trimBlanks().toLower() ) );
     }
+
+    laststdout_.setEmpty();
+    laststderr_.setEmpty();
 
     return uiRetVal::OK();
 }

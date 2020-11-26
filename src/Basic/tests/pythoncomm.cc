@@ -35,27 +35,48 @@ BufferString createTestDir()
     return fp.fullPath();
 }
 
-bool testRemoveDir( const BufferString& path, bool expectedres )
-{
-    bool ret = OD::pythonRemoveDir( path, true ).isOK();
-    if ( ret )
-    {
-	const DirList dl( FilePath::getTempDir(), File::DirsInDir );
 
+bool testRemoveDir( const char* path, bool expectedres )
+{
+    const uiRetVal uirv = OD::pythonRemoveDir( path, true );
+    BufferString err = toString(uirv);
+
+    const FilePath fp( path );
+    const BufferString dirnm = fp.dir();
+    const DirList dl( FilePath::getTempDir(), File::DirsInDir );
+    if ( expectedres )
+    {
+	bool missing = true;
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
-	    FilePath fp = dl.fullPath(idx);
-
-	    const BufferString dirnm = fp.dir();
-
-	    if ( dirnm.isEqual(mTestDirNm) )
-		ret = false;
+	    if ( dl.get(idx) == dirnm )
+	    {
+		missing = false;
+		break;
+	    }
 	}
+	if ( !missing )
+	    err += "Folder reported deleted but still present";
+    }
+    else
+    {
+	bool present = false;
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    if ( dl.get(idx) == dirnm )
+	    {
+		present = true;
+		break;
+	    }
+	}
+	if ( present )
+	    err += "Folder to be tested is missing";
     }
 
-    const BufferString desc = expectedres ? "Writable folder deleted"
-					  : "Read-only folder not deleted";
-    mRunStandardTest( ret == expectedres, desc )
+    const bool ret = uirv.isOK() && err.isEmpty();
+    const BufferString desc = expectedres ? "Delete writable folder"
+					  : "Don't delete read-only folder";
+    mRunStandardTestWithError( ret == expectedres, desc, err );
 
     return ret;
 }
@@ -64,9 +85,11 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !OD::PythA().isUsable().isOK() )
+    const uiRetVal uirv = OD::PythA().isUsable();
+    if ( !uirv.isOK() )
     {
-	logStream() << "Python link is not usable" << od_endl;
+	logStream() << "Python link is not usable" << od_newline;
+	logStream() << toString(uirv) << od_endl;
 	return 1;
     }
 
