@@ -609,8 +609,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	return nullptr;
     }
 
-    FilePath* ret = new FilePath(
-			FilePath::getTempFullPath("runpython",nullptr) );
+    auto* ret = new FilePath( FilePath::getTempFullPath("runpython",nullptr) );
     if ( !ret )
 	return nullptr;
 #ifdef __win__
@@ -625,15 +624,15 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	return nullptr;
     }
 
-	BufferString temppath( File::getTempPath() );
-	if ( temppath.find(' ') )
-		temppath.quote();
+    BufferString temppath( File::getTempPath() );
+    if ( temppath.find(' ') )
+	temppath.quote();
 
 #ifdef __win__
     strm.add( "@SETLOCAL" ).add( od_newline );
     strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
 
-	strm.add( "SET TMPDIR=" ).add( temppath ).add( od_newline );
+    strm.add( "SET TMPDIR=" ).add( temppath ).add( od_newline );
     if ( background )
     {
 	strm.add( "SET procnm=%~n0" ).add( od_newline );
@@ -643,9 +642,9 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     }
     strm.add( "@CALL \"" );
 #else
-    strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline );
-	strm.add( "export TMPDIR=" ).add( temppath ).add( od_newline );
-    strm.add( "source " );
+    strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline )
+	.add( "export TMPDIR=" ).add( temppath ).add( od_newline )
+	.add( "source " );
 #endif
     strm.add( activatefp->fullPath() );
 #ifdef __win__
@@ -659,6 +658,9 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #endif
     strm.add( cmd.program() ).add( " " );
     BufferStringSet args( cmd.args() );
+#ifdef __unix
+    const bool isscript = args.size() > 1 && args.get(0) == "-c";
+#endif
     for ( int idx=0; idx<args.size(); idx++ )
     {
 	auto* arg = args[idx];
@@ -667,7 +669,12 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #ifdef __win__
 	    arg->quote('\"');
 #else
-	    arg->quote();
+	{
+	    if ( isscript && idx > 0 )
+		arg->quote('\"');
+	    else
+		arg->quote();
+	}
 #endif
     }
     strm.add( args.cat(" ") );
