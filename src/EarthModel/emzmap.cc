@@ -75,13 +75,13 @@ bool ZMapImporter::initHeader()
     }
 
 // header line 1
-    SeparString ss( buf, ',' );
+    SeparStringSB ss( buf, ',' );
     if ( ss.size() != 3 )
 	return false;
     nrnodesperline_ = toInt( ss[2] );
 
 //header line 2
-    istrm_->getLine( ss.rep() );
+    istrm_->getLine( buf ); ss.set( buf );
     if ( ss.size() != 5 )
 	return false;
     nrchars_ = toInt( ss[0] );
@@ -91,7 +91,7 @@ bool ZMapImporter::initHeader()
     firstcol_ = toInt( ss[4] );
 
 //header line 3
-    istrm_->getLine( ss.rep() );
+    istrm_->getLine( buf ); ss.set( buf );
     if ( ss.size() != 6 )
 	return false;
     nrrows_ = toInt( ss[0] );
@@ -102,10 +102,10 @@ bool ZMapImporter::initHeader()
     ymax_ = toDouble( ss[5] );
 
 //header line 4
-    istrm_->getLine( ss.rep() );
+    istrm_->getLine( buf );
 
 // end
-    istrm_->getLine( ss.rep() );
+    istrm_->getLine( buf );
 
     totalnr_ = nrrows_ * nrcols_;
     return true;
