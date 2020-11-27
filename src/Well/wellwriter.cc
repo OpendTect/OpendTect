@@ -267,7 +267,8 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 }
 
 
-bool Well::odWriter::putLog( const char* fnm, const Well::Log& wl ) const
+bool Well::odWriter::putLog( const BufferString& fnm,
+			     const Well::Log& wl ) const
 {
     DataBuffer* databuf = nullptr;
     if ( !wl.isLoaded() )
@@ -287,7 +288,7 @@ bool Well::odWriter::putLog( const char* fnm, const Well::Log& wl ) const
 	    istrm.getBin( databuf->data(), size );
 	}
     }
-   
+
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	mErrStrmOper( startWriteStr(), return false )
@@ -298,7 +299,7 @@ bool Well::odWriter::putLog( const char* fnm, const Well::Log& wl ) const
     ascostream astrm( strm );
     wrLogHdr( astrm, wl );
     wrLogData( astrm, wl, databuf );
-    
+
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write log data"))
 
@@ -315,7 +316,7 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     ascostream astrm( strm );
     wrLogHdr( astrm, wl );
     wrLogData( astrm, wl );
-    
+
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write log data"))
 
@@ -349,7 +350,7 @@ void Well::odWriter::wrLogHdr( ascostream& astrm, const Well::Log& wl ) const
 
 void Well::odWriter::wrLogData( ascostream& astrm, const Well::Log& wl,
 					   const DataBuffer* databuf ) const
-{ 
+{
     if ( !wl.isLoaded() && databuf )
     {
 	astrm.stream().addBin( databuf->data(), databuf->size() );
@@ -560,13 +561,6 @@ int MultiWellWriter::nextStep()
     }
 
     ConstRefMan<Well::Data> wd = wds_[nrdone_];
-    if ( !wd )
-    {
-	allwellswritten_ = false;
-	nrdone_++;
-	return MoreToDo();
-    }
-
     StoreReqs reqs;
     if ( storereqs_.getParam(this) )
 	reqs = *storereqs_.getParam(this)->get(nrdone_);
