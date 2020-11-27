@@ -700,5 +700,9 @@ RefMan<T> WeakPtrSet<T>::operator[]( int idx )
 template <class T> inline
 ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
 {
-    return mSelf().get( idx );
+    lock_.lock();
+    ConstRefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() :
+					       ConstRefMan<T>( 0 );
+    lock_.unLock();
+    return res;
 }
