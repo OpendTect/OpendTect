@@ -79,19 +79,6 @@ install ( DIRECTORY CMakeModules DESTINATION ${MISC_INSTALL_PREFIX}
 	  PATTERN "*.cmake~" EXCLUDE
 	  PATTERN "sourcefiles*.txt*" EXCLUDE)
 
-#install breakpad
-install( PROGRAMS ${BREAKPAD_STACKWALK_EXECUTABLE}
-             DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE}
-             CONFIGURATIONS Release )
-#Adding breakpad related libs/exe to OD_THIRD_PARTY_LIBS
-if ( OD_ENABLE_BREAKPAD )
-    get_filename_component( STACKWALK_EXECUTABLE ${BREAKPAD_STACKWALK_EXECUTABLE} NAME )
-    list( APPEND OD_THIRD_PARTY_LIBS ${STACKWALK_EXECUTABLE} )
-    if ( WIN32 )
-	list( APPEND OD_THIRD_PARTY_LIBS ${OD_BREAKPADBINS} )
-    endif()
-endif()
-
 #install doc stuff
 file( GLOB TUTHFILES plugins/Tut/*.h )
 file( GLOB TUTCCFILES plugins/Tut/*.cc )
@@ -289,6 +276,3 @@ if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
 			    PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
 endif()
 
-if ( UNIX )
-    list( APPEND OD_THIRD_PARTY_LIBS ${PROJ4LIB} )
-endif()

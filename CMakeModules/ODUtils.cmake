@@ -115,6 +115,7 @@ macro( OD_ADD_EXTERNALS )
     OD_ADD_PROJ4()
     OD_ADD_OSG()
     OD_ADD_ZLIB()
+    OD_ADD_BREAKPAD()
     OD_FIND_HDF5()
     OD_FIND_OPENSSL()
     unset( NINJA_BIN CACHE )
@@ -164,7 +165,7 @@ function( get_link_libraries OUTPUT_LIST TARGET )
 	endif()
     endforeach()
     set( VISISTED_TARGETS ${VISITED_TARGETS} PARENT_SCOPE )
-    set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE ) 
+    set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE )
 
 endfunction()
 
@@ -420,83 +421,20 @@ macro ( OD_INSTALL_LIBRARY SOURCE )
 endmacro( OD_INSTALL_LIBRARY )
 
 macro ( OD_INSTALL_RESSOURCE SOURCE )
-    install( FILES ${SOURCE} DESTINATION ${OD_LIB_INSTALL_PATH_DEBUG}
+    install( FILES "${SOURCE}" DESTINATION "${OD_LIB_INSTALL_PATH_DEBUG}"
 	     CONFIGURATIONS Debug )
-    install( FILES ${SOURCE} DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE}
+    install( FILES "${SOURCE}" DESTINATION "${OD_LIB_INSTALL_PATH_RELEASE}"
 	     CONFIGURATIONS Release )
 endmacro( OD_INSTALL_RESSOURCE )
 
 macro ( OD_INSTALL_PROGRAM SOURCE )
-    install( PROGRAMS ${SOURCE} DESTINATION ${OD_LIB_INSTALL_PATH_DEBUG}
+    install( PROGRAMS "${SOURCE}" DESTINATION "${OD_LIB_INSTALL_PATH_DEBUG}"
 	     CONFIGURATIONS Debug )
-    install( PROGRAMS ${SOURCE} DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE}
+    install( PROGRAMS "${SOURCE}" DESTINATION "${OD_LIB_INSTALL_PATH_RELEASE}"
 	     CONFIGURATIONS Release )
+    get_filename_component( PROGEXECNM "${SOURCE}" NAME )
+    list( APPEND OD_THIRD_PARTY_LIBS ${PROGEXECNM} )
 endmacro( OD_INSTALL_PROGRAM )
-
-#Takes a library variable with both _RELEASE and _DEBUG variants, and constructs
-# a variable that combines both
-
-macro ( OD_MERGE_LIBVAR VARNAME )
-    if ( ${${VARNAME}_RELEASE} STREQUAL "${VARNAME}_RELEASE-NOTFOUND" )
-	set( RELNOTFOUND 1 )
-    endif()
-    if ( ${${VARNAME}_DEBUG} STREQUAL "${VARNAME}_DEBUG-NOTFOUND" )
-	set( DEBNOTFOUND 1 )
-    endif()
-
-    if ( DEFINED RELNOTFOUND AND DEFINED DEBNOTFOUND )
-	message( FATAL_ERROR "${VARNAME} not found" )
-    endif()
-
-    if ( (NOT DEFINED RELNOTFOUND) )
-	if ( NOT DEFINED DEBNOTFOUND )
-	    set ( ${VARNAME} "optimized" ${${VARNAME}_RELEASE} "debug" ${${VARNAME}_DEBUG}  )
-	else()
-	    set ( ${VARNAME} ${${VARNAME}_RELEASE} )
-	endif()
-    else()
-	set ( ${VARNAME} ${${VARNAME}_DEBUG} )
-    endif()
-
-    unset( RELNOTFOUND )
-    unset( DEBNOTFOUND )
-endmacro()
-
-
-#Takes a list with both optimized and debug libraries, and removes one of them
-#According to BUILD_TYPE
-
-macro ( OD_FILTER_LIBRARIES INPUTLIST BUILD_TYPE )
-    unset( OUTPUT )
-    foreach ( LISTITEM ${${INPUTLIST}} )
-	if ( DEFINED USENEXT )
-	    if ( USENEXT STREQUAL "yes" )
-		list ( APPEND OUTPUT ${LISTITEM} )
-	    endif()
-	    unset( USENEXT )
-	else()
-	    if ( LISTITEM STREQUAL "debug" )
-		if ( "${BUILD_TYPE}" STREQUAL "Debug" )
-		    set ( USENEXT "yes" )
-		else()
-		    set ( USENEXT "no" )
-		endif()
-	    else()
-		if ( LISTITEM STREQUAL "optimized" )
-		    if ( "${BUILD_TYPE}" STREQUAL "Release" )
-			set ( USENEXT "yes" )
-		    else()
-			set ( USENEXT "no" )
-		    endif()
-		else()
-		    list ( APPEND OUTPUT ${LISTITEM} )
-		endif()
-	    endif()
-	endif()
-    endforeach()
-
-    set ( ${INPUTLIST} ${OUTPUT} )
-endmacro()
 
 function( od_find_library _var)
     foreach( _lib ${ARGN} )

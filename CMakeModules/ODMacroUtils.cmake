@@ -21,6 +21,7 @@
 #					  Core, Sql, Network, Gui
 # OD_USEOSG				: Dependency on OSG is enabled if set.
 # OD_USEZLIB				: Dependency on ZLib is enabled if set.
+# OD_USEBREAKPAD			: Runtime availability on breakpad is enabled if set
 # OD_USEOPENSSL				: Runtime availability on OpenSSL::SSL is enabled if set.
 # OD_USECRYPTO				: Runtime availability on OpenSSL::Crypto is enabled if set.
 # OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
@@ -67,6 +68,7 @@ list( APPEND SETUPNMS
        INSTQT
        USEOSG
        USEZLIB
+       USEBREAKPAD
        USEOPENSSL
        USECRYPTO
        LINKOPENSSL
@@ -136,6 +138,10 @@ endif()
 #Must be after QT
 if( (UNIX OR WIN32) AND OD_USEZLIB )
     OD_SETUP_ZLIB()
+endif()
+
+if ( OD_USEBREAKPAD )
+    OD_SETUP_BREAKPAD()
 endif()
 
 if( OD_USEOPENSSL OR OD_LINKOPENSSL )

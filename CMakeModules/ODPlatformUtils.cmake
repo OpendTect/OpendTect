@@ -126,10 +126,8 @@ if( UNIX ) #Apple and Linux
 
 	set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )
 	if ( UNIX )
-	    if( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
-		if ( DEFINED BREAKPAD_DIR AND EXISTS ${BREAKPAD_DIR} )
-		    set ( CMAKE_CXX_FLAGS_RELEASE "-g ${CMAKE_CXX_FLAGS_RELEASE}" )
-		endif()
+	    if( OD_ENABLE_BREAKPAD AND DEFINED BREAKPAD_DIR AND EXISTS ${BREAKPAD_DIR} )
+		set ( CMAKE_CXX_FLAGS_RELEASE "-g ${CMAKE_CXX_FLAGS_RELEASE}" )
 	    endif()
 	endif()
 
