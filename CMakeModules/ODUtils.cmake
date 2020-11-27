@@ -76,6 +76,8 @@ set ( OD_SEIS_EXECS od_copy_seis od_process_2dto3d od_process_segyio )
 set ( OD_PRESTACK_EXECS od_process_prestack )
 set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
 set ( OD_SURVEY_EXECS od_Edit_Survey od_Manage_Surveys )
+
+#Should not be here.
 set ( DGB_SR_EXECS od_SynthRock )
 set ( DGB_ML_EXECS od_deeplearn_apply )
 set ( DGB_SEGY_EXECS od_DeepLearning_CC )
@@ -163,7 +165,7 @@ function( get_link_libraries OUTPUT_LIST TARGET )
 	endif()
     endforeach()
     set( VISISTED_TARGETS ${VISITED_TARGETS} PARENT_SCOPE )
-    set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE ) 
+    set( ${OUTPUT_LIST} ${LIB_LIST} PARENT_SCOPE )
 
 endfunction()
 
