@@ -117,7 +117,7 @@ protected:
     ODTableView&		mkView(uiParent*,const char*);
 
     uiTableModel*		tablemodel_	= nullptr;
-    ODTableView*		odtableview_	= nullptr;
+    ODTableView*		odtableview_;
     QSortFilterProxyModel*	qproxymodel_	= nullptr;
     QByteArray*			horizontalheaderstate_	= nullptr;
 };
