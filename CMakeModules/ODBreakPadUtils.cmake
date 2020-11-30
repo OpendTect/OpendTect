@@ -47,8 +47,9 @@ macro( OD_ADD_BREAKPAD )
 			message( FATAL_ERROR "BREAKPAD${MOD} is missing" )
 		    endif()
 		endif()
+		unset( BREAKPAD${MOD}_DEBUG CACHE )
+		unset( BREAKPAD${MOD}_RELEASE CACHE )
 	    endforeach()
-	    set(OD_BREAKPADBINS cyggcc_s-1.dll cygstdc++-6.dll cygwin1.dll )
 	elseif( APPLE )
 	    #TODO
 	else() # Linux
@@ -60,14 +61,19 @@ macro( OD_ADD_BREAKPAD )
 		      PATHS ${BREAKPAD_DIR}/lib
 		      REQUIRED )
 	    list(APPEND OD_BREAKPADLIBS ${BREAKPADLIBS} ${BREAKPADCLIENTLIB} )
+	    unset( BREAKPADLIBS CACHE )
+	    unset( BREAKPADCLIENTLIB CACHE )
 	endif()
 
 	find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms 
 		  PATHS ${BREAKPAD_DIR}/bin )
-	find_program( BREAKPAD_STACKWALK_EXECUTABLE NAMES minidump_stackwalk 
-		  PATHS ${BREAKPAD_DIR}/bin )
 
-	OD_INSTALL_PROGRAM( "${BREAKPAD_STACKWALK_EXECUTABLE}" )
+	if ( UNIX )
+	    find_program( BREAKPAD_STACKWALK_EXECUTABLE NAMES minidump_stackwalk 
+		  PATHS ${BREAKPAD_DIR}/bin )
+	    OD_INSTALL_PROGRAM( "${BREAKPAD_STACKWALK_EXECUTABLE}" )
+	endif( UNIX )
+	
 	install( DIRECTORY "${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}/symbols"
 		 DESTINATION "${OD_LIB_INSTALL_PATH_DEBUG}"
 		 CONFIGURATIONS Debug )
@@ -84,13 +90,7 @@ macro( OD_SETUP_BREAKPAD )
 
 	list(APPEND OD_MODULE_INCLUDESYSPATH
 		    "${BREAKPAD_DIR}/include/breakpad" )
-
 	list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
-	if ( WIN32 )
-	    foreach( BPDLL ${OD_BREAKPADBINS} )
-		list(APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${BREAKPAD_DIR}/bin/${BPDLL}" )
-	    endforeach()
-	endif()
 
 	add_definitions( -DHAS_BREAKPAD )
 
