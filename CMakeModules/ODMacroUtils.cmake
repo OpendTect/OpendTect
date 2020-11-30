@@ -160,6 +160,15 @@ if( OD_USEHDF5 )
     OD_SETUP_HDF5()
 endif()
 
+if ( OD_ENABLE_BREAKPAD )
+    if ( WIN32 )
+	string( REPLACE "/DNDEBUG" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}" )
+	set( OD_MODULE_LINK_OPTIONS "${OD_MODULE_LINK_OPTIONS} /debug" )
+    else()
+	set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g" )
+    endif()
+endif()
+
 #Add current module to include-path
 set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
 if ( OD_MODULE_HAS_LIBRARY )
