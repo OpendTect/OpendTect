@@ -63,9 +63,11 @@ endif()
 
 #Convert symbols to a list and check for sanity and 
 #checksum
-string ( REPLACE " " ";" SYMBOL_LIST ${SYMBOL_STRING} )
+string (FIND "${SYMBOL_STRING}" "\n" FIRSTLINELEN )
+string (SUBSTRING "${SYMBOL_STRING}" 0 ${FIRSTLINELEN} SYMBOL_FIRSTLINE )
+string (REGEX REPLACE " " ";" SYMBOL_LIST "${SYMBOL_FIRSTLINE}" )
 list ( GET SYMBOL_LIST 0 MODULE_STRING )
-if ( NOT (${MODULE_STRING} STREQUAL "MODULE" ) )
+if ( NOT "${MODULE_STRING}" STREQUAL "MODULE" )
     message( FATAL_ERROR "Invalid output from ${LIBRARY}" )
 endif()
 
