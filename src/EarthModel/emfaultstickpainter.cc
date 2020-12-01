@@ -27,7 +27,6 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 				      const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
-    , markerlinestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
     , markerstyle_( MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( -1 )
     , is2d_( false )
@@ -124,7 +123,7 @@ bool FaultStickPainter::addPolyLine()
 	    stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
 						 : MouseCursor::Arrow;
 	    stickauxdata->poly_.erase();
-	    stickauxdata->linestyle_ = markerlinestyle_;
+	    stickauxdata->linestyle_ = emfss->preferredLineStyle();
 	    if ( rc.row() == activestickid_ )
 		stickauxdata->linestyle_.width_ *= 2;
 
@@ -399,11 +398,14 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 		    {
 			if ( !stmkrinfos[iidx] ) continue;
 
+			stmkrinfos[iidx]->marker_->linestyle_ =
+						emfss->preferredLineStyle();
 			stmkrinfos[iidx]->marker_->linestyle_.color_ =
 							emfss->preferredColor();
-			viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
 		    }
 		}
+		
+		viewer_.handleChange( FlatView::Viewer::Auxdata );
 		break;
 	    }
 	case EM::EMObjectCallbackData::PositionChange:
@@ -460,15 +462,19 @@ void FaultStickPainter::setActiveStick( EM::PosID& pid )
 
     if ( pid.getRowCol().row() == activestickid_ ) return;
 
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
+    if ( !emobject ) return;
+
+    const OD::LineStyle& emls = emobject->preferredLineStyle();
     for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )
     {
 	OD::LineStyle& linestyle =
 	    (*sectionmarkerlines_[0])[stkidx]->marker_->linestyle_;
 	if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==activestickid_ )
-	    linestyle.width_ = markerlinestyle_.width_;
+	    linestyle.width_ = emls.width_;
 	else if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==
 		  pid.getRowCol().row() )
-	    linestyle.width_ = markerlinestyle_.width_ * 2;
+	    linestyle.width_ = emls.width_ * 2;
     }
 
     activestickid_ = pid.getRowCol().row();

@@ -115,7 +115,6 @@ protected:
 
     FlatView::Viewer&	viewer_;
 
-    OD::LineStyle	markerlinestyle_;
     MarkerStyle2D	markerstyle_;
 
     EM::ObjectID        emid_;

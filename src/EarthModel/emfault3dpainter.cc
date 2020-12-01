@@ -29,7 +29,6 @@ namespace EM
 Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
-    , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
     , markerstyle_(MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( mUdf(int) )
     , path_(0)
@@ -152,7 +151,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
 					     : MouseCursor::Arrow;
 	stickauxdata->poly_.erase();
-	stickauxdata->linestyle_ = markerlinestyle_;
+	stickauxdata->linestyle_ = f3d.preferredLineStyle();
 	if ( rc.row() == activestickid_ )
 	    stickauxdata->linestyle_.width_ *= 2;
 
@@ -461,8 +460,8 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	intsecauxdat->poly_.erase();
 	intsecauxdat->cursor_ = knotenabled_ ? MouseCursor::Cross
 					     : MouseCursor::Arrow;
-	intsecauxdat->linestyle_ = markerlinestyle_;
-	intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
+	intsecauxdat->linestyle_ = f3d.preferredLineStyle();
+	intsecauxdat->linestyle_.width_ = f3d.preferredLineStyle().width_ / 2;
 	intsecauxdat->linestyle_.color_ = f3d.preferredColor();
 	intsecauxdat->enabled_ = linenabled_;
 	intsecauxdat->poly_ += auxpos1;
@@ -554,15 +553,19 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 
     if ( pid.getRowCol().row() == activestickid_ ) return;
 
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
+    if ( !emobject ) return;
+
+    const OD::LineStyle& fltlinestyle = emobject->preferredLineStyle();
     for ( int auxdid=0; auxdid<f3dmarkers_[0]->stickmarker_.size(); auxdid++ )
     {
 	OD::LineStyle& linestyle =
 	    f3dmarkers_[0]->stickmarker_[auxdid]->marker_->linestyle_;
 	if ( f3dmarkers_[0]->stickmarker_[auxdid]->stickid_== activestickid_ )
-	    linestyle.width_ = markerlinestyle_.width_;
+	    linestyle.width_ = fltlinestyle.width_;
 	else if ( f3dmarkers_[0]->stickmarker_[auxdid]->stickid_ ==
 		  pid.getRowCol().row() )
-	    linestyle.width_ = markerlinestyle_.width_ * 2;
+	    linestyle.width_ = fltlinestyle.width_ * 2;
     }
 
     activestickid_ = pid.getRowCol().row();
@@ -662,21 +665,24 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 		    {
 			if ( !mrks.stickmarker_[stid] ) continue;
 
+			mrks.stickmarker_[stid]->marker_->linestyle_ =
+						emf3d->preferredLineStyle();
 			mrks.stickmarker_[stid]->marker_->linestyle_.color_ =
 							emf3d->preferredColor();
-			viewer_.updateProperties(
-					*mrks.stickmarker_[stid]->marker_ );
 		    }
 
 		    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
 		    {
 			if ( !mrks.intsecmarker_[itid] ) continue;
 
+			mrks.intsecmarker_[itid]->linestyle_ =
+						emf3d->preferredLineStyle();
 			mrks.intsecmarker_[itid]->linestyle_.color_ =
 							emf3d->preferredColor();
-			viewer_.updateProperties( *mrks.intsecmarker_[itid] );
 		    }
 		}
+    
+		viewer_.handleChange( FlatView::Viewer::Auxdata );
 		break;
 	    }
 	case EM::EMObjectCallbackData::PositionChange:
