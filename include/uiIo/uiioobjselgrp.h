@@ -57,8 +57,7 @@ public:
 			, allowsetdefault_(false)
 			, withinserters_(true)
 			, withwriteopts_(true)
-			, confirmoverwrite_(true)
-			, withctxtfilter_(BufferString()) {}
+			, confirmoverwrite_(true) {}
 
 	mDefSetupMemb(OD::ChoiceMode,choicemode);
 	mDefSetupMemb(bool,allowreloc);

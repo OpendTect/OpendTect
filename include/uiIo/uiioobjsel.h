@@ -46,12 +46,13 @@ public:
 			    , confirmoverwr_(true)
 			    , withinserters_(true)
 			    , withwriteopts_(true)
-			    , filldef_(true)		{}
+			    , filldef_(true) {}
 
 	mDefSetupMemb(bool,confirmoverwr)
 	mDefSetupMemb(bool,withinserters) //!< only if forread
 	mDefSetupMemb(bool,withwriteopts) //!< only if !forread
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
+	mDefSetupMemb(BufferString, withctxtfilter);
 
 	mDeprecated	("Use uiString" )
 			Setup( const char * txt )

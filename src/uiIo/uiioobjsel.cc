@@ -75,7 +75,8 @@ bool uiIOObjInserter::isDisabled() const
 void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 					 CtxtIOObj& ctio,
 					 ObjectSet<uiIOObjInserter>& insertset,
-					 ObjectSet<uiButton>& buttonset )
+					 ObjectSet<uiButton>& buttonset,
+					 const char* trtoavoid )
 {
     if ( uiIOObjInserter::allDisabled() )
 	return;
@@ -85,7 +86,9 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	if ( !inserter || inserter->isDisabled() )
+	const BufferString trgrpnm = tpls[idx]->typeName();
+	if ( !inserter || inserter->isDisabled() ||
+						trgrpnm.isEqual(trtoavoid) )
 	    continue;
 
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
@@ -263,7 +266,7 @@ void uiIOObjSel::init()
     if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-					    extselbuts_ );
+					extselbuts_, setup_.withctxtfilter_ );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );

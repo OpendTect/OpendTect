@@ -295,8 +295,11 @@ void uiIOObjSelGrp::mkManipulators()
     const ObjectSet<const Translator>& tpls = ctio_.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
+	const BufferString trnm = tpls[idx]->typeName();
+
 	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
-		ctio_.ctxt_.toselect_.allowtransls_) )
+	    ctio_.ctxt_.toselect_.allowtransls_)
+				|| trnm.isEqual(setup_.withctxtfilter_) )
 	    continue;
 
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
