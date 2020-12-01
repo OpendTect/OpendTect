@@ -21,7 +21,7 @@ if %nrargs% LSS 1 (
 
 REM run script elevated if it is not
 set winSysFolder=System32
-NET file 1>nul 2>nul && goto :createtxtfile || powershell -ex unrestricted -Command "Start-Process -Verb RunAs -FilePath '%SystemRoot%\%winSysFolder%\cmd.exe' -ArgumentList '/c %~fnx0 %~s1'"
+NET file 1>nul 2>nul && goto :createtxtfile || powershell -ex unrestricted -Command "Start-Process -Verb RunAs -FilePath '%SystemRoot%\%winSysFolder%\cmd.exe' -ArgumentList '/c %~sfnx0 %~s1'"
 goto :eof
 
 :createtxtfile
@@ -38,7 +38,7 @@ if not exist %odinstdir%\data (
 
 REM Create Python_envs.txt file
 set fil=%odinstdir%\data\Python_envs.txt
-echo dTect V6.4 > %fil%
+echo dTect V6.6 > %fil%
 echo Python >> %fil%
 echo %DATE% %TIME% >> %fil%
 echo ! >> %fil%
