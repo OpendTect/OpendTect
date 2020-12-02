@@ -344,6 +344,8 @@ ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
 {
     setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
 		   "selection-color: black;" );
+    if ( horizontalHeader() )
+	horizontalHeader()->setDefaultAlignment( Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap );
 }
 
 protected:
@@ -360,7 +362,7 @@ void keyPressEvent( QKeyEvent* ev ) override
     }
     else if ( ev->matches(QKeySequence::Copy) )
     {
-	BufferString text; 
+	BufferString text;
 	QItemSelectionRange range = selectionModel()->selection().first();
 	for ( int row = range.top(); row <= range.bottom(); row++ )
 	{
@@ -432,14 +434,23 @@ void uiTableView::resetHorHeader()
     odtableview_->clearFocus();
 }
 
+
 void uiTableView::setSectionsMovable( bool yn )
-{ odtableview_->horizontalHeader()->setSectionsMovable( yn ); }
+{
+    odtableview_->horizontalHeader()->setSectionsMovable( yn );
+}
+
 
 void uiTableView::setSortingEnabled( bool yn )
-{ odtableview_->setSortingEnabled( yn ); }
+{
+    odtableview_->setSortingEnabled( yn );
+}
+
 
 bool uiTableView::isSortingEnabled() const
-{ return odtableview_->isSortingEnabled(); }
+{
+    return odtableview_->isSortingEnabled();
+}
 
 
 void uiTableView::sortByColumn( int col, bool asc )
