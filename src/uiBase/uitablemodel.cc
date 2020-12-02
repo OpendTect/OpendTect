@@ -345,7 +345,8 @@ ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
 		   "selection-color: black;" );
     if ( horizontalHeader() )
-	horizontalHeader()->setDefaultAlignment( Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap );
+	horizontalHeader()->setDefaultAlignment(
+		Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap );
 }
 
 protected:
