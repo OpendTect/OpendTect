@@ -37,7 +37,7 @@ macro( QT_INSTALL_PLUGINS )
     foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
 	install( DIRECTORY "${QTDIR}/plugins/${QTPLUGIN}"
 	     DESTINATION ${DESTDIR}
-	     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+	     CONFIGURATIONS Release
 	     USE_SOURCE_PERMISSIONS 
 	     FILES_MATCHING
 	     PATTERN "*.so"
@@ -48,6 +48,14 @@ macro( QT_INSTALL_PLUGINS )
 	     PATTERN "*.so.debug" EXCLUDE
 	     PATTERN "*_debug*" EXCLUDE
 	     PATTERN "*.dSYM" EXCLUDE )
+	install( DIRECTORY "${QTDIR}/plugins/${QTPLUGIN}"
+	     DESTINATION ${DESTDIR}
+	     CONFIGURATIONS Debug
+	     USE_SOURCE_PERMISSIONS 
+	     FILES_MATCHING
+	     PATTERN "*.so"
+	     PATTERN "*.dll"
+	     PATTERN "*.dylib" )
     endforeach()
 endmacro(QT_INSTALL_PLUGINS)
 
