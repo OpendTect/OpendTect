@@ -498,7 +498,7 @@ void uiTableView::setSelectionBehavior( SelectionBehavior sb )
 void uiTableView::setSelectionMode( SelectionMode sm )
 {
     odtableview_->setSelectionMode(
-		sCast(QAbstractItemView::SelectionMode,sCast(int,sm)) );
+		    sCast(QAbstractItemView::SelectionMode,sCast(int,sm)) );
 }
 
 
