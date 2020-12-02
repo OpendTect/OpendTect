@@ -23,6 +23,9 @@ endif()
 if ( POLICY CMP0048 )
     cmake_policy( SET CMP0048 NEW )
 endif()
+if ( POLICY CMP0091 )
+    cmake_policy( SET CMP0091 NEW )
+endif()
 project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}_rel"
     VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 
@@ -59,6 +62,7 @@ set( OD_SUBSYSTEM "od" )
 
 option ( OD_NO_QT "Turn off all QT" OFF )
 option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
+option ( OD_ENABLE_BREAKPAD "Use breakpad" OFF )
 
 include( OD_SetupOD )
 
