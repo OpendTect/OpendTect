@@ -545,14 +545,20 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 				    int w, int h, int res )
 {
     QString fileName( filename );
-    QPrinter* pdfprinter = new QPrinter();
+    auto* pdfprinter = new QPrinter();
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     pdfprinter->setOutputFormat( QPrinter::PdfFormat );
-    pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
+#else
+    pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
+				       : QPrinter::PostScriptFormat );
+#endif
+    const QPageSize pgsz( QSizeF(w,h), QPageSize::Point );
+    pdfprinter->setPageSize( pgsz );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
     pdfprinter->setResolution( res );
 
-    QPainter* pdfpainter = new QPainter();
+    auto* pdfpainter = new QPainter();
     pdfpainter->begin( pdfprinter );
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
