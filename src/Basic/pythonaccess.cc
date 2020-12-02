@@ -859,6 +859,8 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	    const FilePath virtenvpath( dl.fullPath(idx) );
 	    envnms.add( virtenvpath.baseName() );
 	}
+	pythonenvfp.add( new FilePath(envsfp) );
+	envnms.add( BufferString::empty() ); //Add base environment
     }
     else
     {
@@ -914,7 +916,13 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 	    return true;
     }
 
-    return false;
+    FilePath baseenvfp( fp );
+#ifdef __unix__
+    baseenvfp.add( "bin" );
+#endif
+    baseenvfp.add( sPythonExecNm() );
+
+    return baseenvfp.exists();
 }
 
 
