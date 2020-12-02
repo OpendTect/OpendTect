@@ -21,6 +21,7 @@
 #					  Core, Sql, Network, Gui
 # OD_USEOSG				: Dependency on OSG is enabled if set.
 # OD_USEZLIB				: Dependency on ZLib is enabled if set.
+# OD_USEBREAKPAD			: Runtime availability on breakpad is enabled if set
 # OD_USEOPENSSL				: Runtime availability on OpenSSL::SSL is enabled if set.
 # OD_USECRYPTO				: Runtime availability on OpenSSL::Crypto is enabled if set.
 # OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
@@ -67,6 +68,7 @@ list( APPEND SETUPNMS
        INSTQT
        USEOSG
        USEZLIB
+       USEBREAKPAD
        USEOPENSSL
        USECRYPTO
        LINKOPENSSL
@@ -138,6 +140,10 @@ if( (UNIX OR WIN32) AND OD_USEZLIB )
     OD_SETUP_ZLIB()
 endif()
 
+if ( OD_USEBREAKPAD )
+    OD_SETUP_BREAKPAD()
+endif()
+
 if( OD_USEOPENSSL OR OD_LINKOPENSSL )
     OD_SETUP_OPENSSL()
 endif()
@@ -152,6 +158,15 @@ endif(OD_USEPROJ4)
 
 if( OD_USEHDF5 )
     OD_SETUP_HDF5()
+endif()
+
+if ( OD_ENABLE_BREAKPAD )
+    if ( WIN32 )
+	string( REPLACE "/DNDEBUG" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}" )
+	set( OD_MODULE_LINK_OPTIONS "${OD_MODULE_LINK_OPTIONS} /debug" )
+    else()
+	set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g" )
+    endif()
 endif()
 
 #Add current module to include-path

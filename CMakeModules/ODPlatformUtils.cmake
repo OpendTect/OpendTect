@@ -131,14 +131,6 @@ if( UNIX ) #Apple and Linux
 
 
 	set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )
-	if ( UNIX )
-	    if( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
-		if ( DEFINED BREAKPAD_DIR AND EXISTS ${BREAKPAD_DIR} )
-		    set ( CMAKE_CXX_FLAGS_RELEASE "-g ${CMAKE_CXX_FLAGS_RELEASE}" )
-		endif()
-	    endif()
-	endif()
-
 	set ( CMAKE_C_FLAGS "-Wmissing-declarations -Wunused -Wimplicit-int ${CMAKE_C_FLAGS}" )
 	set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign ${CMAKE_C_FLAGS}" )
 	set ( CMAKE_C_FLAGS "-Wstrict-aliasing -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
@@ -172,15 +164,8 @@ if(WIN32)
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
-    if ( CTEST_MODEL STREQUAL "Experimental" )
-	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
-	#/debug will enable the generation of pdb-files.
-	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" )
-		#/Zi for additional debug info to the .pdb file. 
-    endif()
-
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
-    set (EXTRA_LIBS "ws2_32" "shlwapi")
+    set ( EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "-DmUnusedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUnusedVar= ${CMAKE_C_FLAGS}")

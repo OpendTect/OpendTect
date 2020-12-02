@@ -79,19 +79,6 @@ install ( DIRECTORY CMakeModules DESTINATION ${MISC_INSTALL_PREFIX}
 	  PATTERN "*.cmake~" EXCLUDE
 	  PATTERN "sourcefiles*.txt*" EXCLUDE)
 
-#install breakpad
-install( PROGRAMS ${BREAKPAD_STACKWALK_EXECUTABLE}
-             DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE}
-             CONFIGURATIONS Release )
-#Adding breakpad related libs/exe to OD_THIRD_PARTY_LIBS
-if ( OD_ENABLE_BREAKPAD )
-    get_filename_component( STACKWALK_EXECUTABLE ${BREAKPAD_STACKWALK_EXECUTABLE} NAME )
-    list( APPEND OD_THIRD_PARTY_LIBS ${STACKWALK_EXECUTABLE} )
-    if ( WIN32 )
-	list( APPEND OD_THIRD_PARTY_LIBS ${OD_BREAKPADBINS} )
-    endif()
-endif()
-
 #install doc stuff
 file( GLOB TUTHFILES plugins/Tut/*.h )
 file( GLOB TUTCCFILES plugins/Tut/*.cc )
@@ -198,6 +185,13 @@ if( APPLE )
 endif( APPLE )
 
 if( WIN32 )
+    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
+	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_LIB_RELPATH_RELEASE} )
+    elseif ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_LIB_RELPATH_DEBUG} )
+    else()
+	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${OD_LIB_OUTPUT_RELPATH} )
+    endif()
     include( InstallRequiredSystemLibraries )
 
     foreach( DLL ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} )
@@ -270,7 +264,8 @@ configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
 
 #Installing source
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include
-		   ${CMAKE_SOURCE_DIR}/plugins DESTINATION ${MISC_INSTALL_PREFIX}/
+		   ${CMAKE_SOURCE_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
+	 DESTINATION ${MISC_INSTALL_PREFIX}/
 	 FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 	 FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 			PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
@@ -279,13 +274,11 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include
 #Installing cmake genetated files from CMAKE_BINARY_DIR directory
 if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
     install( DIRECTORY ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR}/include
-		       ${CMAKE_BINARY_DIR}/plugins DESTINATION ${MISC_INSTALL_PREFIX}/
+		       ${CMAKE_BINARY_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
+	     DESTINATION ${MISC_INSTALL_PREFIX}/
 	     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 	     FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
 			    PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
 endif()
 
-if ( UNIX )
-    list( APPEND OD_THIRD_PARTY_LIBS ${PROJ4LIB} )
-endif()
