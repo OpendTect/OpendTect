@@ -783,21 +783,24 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 }
 
 
-void uiMainWin::saveAsPDF_PS( const char* filename, bool aspdf, int w,
+void uiMainWin::saveAsPDF_PS( const char* filename, bool, int w,
 				    int h, int res )
 {
     QString fileName( filename );
-    QPrinter* pdfprinter = new QPrinter();
+    auto* pdfprinter = new QPrinter();
     pdfprinter->setOutputFormat( QPrinter::PdfFormat );
-    pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
+    const QPageSize pgsz( QSizeF(w,h), QPageSize::Point );
+    pdfprinter->setPageSize( pgsz );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
     pdfprinter->setResolution( res );
 
-    QPainter* pdfpainter = new QPainter();
+    auto* pdfpainter = new QPainter();
     pdfpainter->begin( pdfprinter );
     QWidget* qwin = getWidget(0);
-    qwin->render( pdfpainter, pdfprinter->pageRect().topLeft(), qwin->rect() );
+    const QRect qrec =
+	pdfprinter->pageLayout().paintRectPixels( pdfprinter->resolution() );
+    qwin->render( pdfpainter, qrec.topLeft(), qwin->rect() );
     pdfpainter->end();
     delete pdfpainter;
     delete pdfprinter;
