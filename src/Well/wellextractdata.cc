@@ -900,13 +900,11 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 
 
 float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
-				   float winsz, Stats::UpscaleType samppol )
+				   float winsz, Stats::UpscaleType samppol,
+				   float maxholesz )
 {
     if ( samppol == Stats::TakeNearest )
-    {
-	Well::DahObj::PointID pid = wl.nearestID( dah );
-	return wl.value( pid );
-    }
+	return wl.valueAt( dah, true );
 
     const bool logisvel = wl.propType() == PropertyRef::Vel;
 
@@ -920,7 +918,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	const float curdah = wl.dahByIdx( idx );
 	if ( rg.includes(curdah,false) )
 	{
-	    const float val = wl.valueByIdx(idx);
+	    const float val = wl.valueByIdx( idx );
 	    if ( !mIsUdf(val) )
 	    {
 		if ( logisvel && val > 1e-5f )
@@ -936,7 +934,26 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     const bool iscode = wl.valsAreCodes();
     const int sz = vals.size();
     if ( sz < 1 )
-	return iscode ? wl.valueAt( dah ) : mUdf(float);
+    {
+	if ( iscode )
+	    return wl.valueAt( dah, true );
+	if ( mIsUdf(maxholesz) )
+	    return mUdf(float);
+
+	const float dahdiffbefore = Math::Abs( dah - wl.dahByIdx(startidx) );
+	int stopidx = startidx+1;
+	if ( stopidx >= wl.size() )
+	    stopidx = wl.size() > 1 ? wl.size()-1 : 0;
+	else if ( stopidx < 0 )
+	    stopidx = 0;
+	const float dahdiffafter = Math::Abs( wl.dahByIdx(stopidx) - dah );
+	float val = mUdf(float);
+	if ( dahdiffbefore < maxholesz && dahdiffbefore < dahdiffafter )
+	    val =  wl.valueByIdx( startidx );
+	if ( dahdiffafter < maxholesz && dahdiffafter < dahdiffbefore )
+	    val =  wl.valueByIdx( stopidx );
+	return !mIsUdf(val) && logisvel && val > 1e-5f ? val = 1.f / val : val;
+    }
     if ( sz == 1 )
 	return logisvel ? 1.f / vals[0] : vals[0];
     if ( sz == 2 )
@@ -1108,7 +1125,6 @@ Well::LogSampler::LogSampler( const Well::D2TModel* d2t,
 }
 
 
-
 void Well::LogSampler::init( const Well::D2TModel* d2t,
 			const Interval<float>& zrg, bool zrgisintime,
 			float zstep, bool extrintime,
@@ -1233,19 +1249,14 @@ bool Well::LogSampler::doLog( int logidx )
     if ( !log || log->isEmpty() ) return false;
 
     const int winszidx = data_->getSize(0)-1;
-
+    const bool nearestinterp = samppol_ == Stats::TakeNearest;
     for ( int idz=0; idz<data_->getSize(1); idz++ )
     {
-	float dah = data_->get( 0, idz );
+	const float dah = data_->get( 0, idz );
 	float lval = mUdf(float);
 
-	if ( samppol_ == Stats::TakeNearest )
-	    lval = log->valueAt(dah,true);
-	else
-	{
-	    const float winsz = data_->get( winszidx, idz );
-	    lval = LogDataExtracter::calcVal(*log,dah,winsz,samppol_);
-	}
+	const float winsz = nearestinterp ? 0.f : data_->get( winszidx, idz );
+	lval = LogDataExtracter::calcVal(*log,dah,winsz,samppol_,maxholesz_);
 	data_->set( logidx+1, idz, lval );
     }
 
