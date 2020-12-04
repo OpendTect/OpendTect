@@ -1388,7 +1388,7 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 
     if ( curwvasynthnm == curvdsynthnm )
     {
-	vddatalist_->setCurrentItem( currentwvasynthetic_->name() );
+	vddatalist_->setCurrentItem( curwvasynthnm );
 	setCurrentSynthetic( false );
     }
 
