@@ -356,7 +356,6 @@ bool Well::odReader::getInfo() const
 
 void Well::odReader::setInpStrmOpenErrMsg( od_istream& strm ) const
 {
-    errmsg_ = uiStrings::phrCannotOpenForRead( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
 }
 
@@ -844,7 +843,7 @@ od_int64 MultiWellReader::nrDone() const
 { return nrdone_; }
 
 uiString MultiWellReader::uiMessage() const
-{ return errmsg_; }
+{ return uiStrings::sEmptyString(); }
 
 uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
@@ -867,6 +866,10 @@ int MultiWellReader::nextStep()
 
     const MultiID wmid = keys_[sCast(int,nrdone_)];
     nrdone_++;
-    wds_ += Well::MGR().get( wmid, reqs_ );
+    Well::Data* wd = Well::MGR().get( wmid, reqs_ );;
+    if ( !wd )
+	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
+
+    wds_ += wd;
     return Executor::MoreToDo();
 }

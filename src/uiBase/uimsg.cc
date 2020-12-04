@@ -37,11 +37,41 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QLayout>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTextEdit>
 
 #include "odlogo128x128.xpm"
 static const char** sODLogo = od_logo_128x128;
 
 mUseQtnamespace
+
+class ODMessageBox : public QMessageBox
+{
+public:
+ODMessageBox( QWidget* parent )
+    : QMessageBox(parent)
+{
+}
+
+protected:
+bool event( QEvent* event )
+{
+    const bool res = QMessageBox::event( event );
+    QTextEdit* textedit = findChild<QTextEdit*>();
+    if ( textedit && textedit->isVisible() )
+    {
+	const QSizePolicy::Policy szpol = QSizePolicy::Expanding;
+	const int maxsz = QWIDGETSIZE_MAX;
+	textedit->setMaximumSize( maxsz, maxsz );
+	textedit->setSizePolicy( szpol, szpol );
+	setMaximumSize( maxsz, maxsz );
+	setSizePolicy( szpol, szpol );
+    }
+
+    return res;
+}
+
+};
+
 
 uiMsg* uiMsg::theinst_ = 0;
 uiMsg& uiMSG()
@@ -185,7 +215,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
         QCheckBox** notagain )
 {
 
-    QMessageBox* mb = new QMessageBox( parent );
+    ODMessageBox* mb = new ODMessageBox( parent );
     mb->setIcon( (QMessageBox::Icon)icon );
     mb->setWindowTitle( toQString(title) );
     mb->setText( toQString(txt) );
@@ -409,17 +439,11 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 					       uiString::emptyString(),
 					       oktxt, wintitle, 0 );
     mb->setDefaultButton( QMessageBox::Abort );
+    mb->setSizeGripEnabled( true );
 
     if ( strings.size()>1 )
     {
-	uiString detailed = strings[0];
-
-	for ( int idx=1; idx<strings.size(); idx++ )
-	{
-	    uiString old = detailed;
-	    detailed = tr( "%1\n%2" ).arg( old ).arg( strings[idx] );
-	}
-
+	uiString detailed = strings.cat();
 	mb->setDetailedText( toQString(detailed) );
     }
 
