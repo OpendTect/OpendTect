@@ -829,6 +829,13 @@ void uiDialogBody::accept( CallBacker* )
 }
 
 
+void uiDialogBody::applyCB( CallBacker* cb )
+{
+    if ( mHandle.applyOK() )
+	uiSetResult(2);
+}
+
+
 void uiDialogBody::done( int res )
 {
     _done( res );
@@ -1192,13 +1199,6 @@ void uiDialogBody::showVideo( CallBacker* cb )
 	videoidx = action->getID();
 
     HelpProvider::provideHelp( videoKey(videoidx) );
-}
-
-
-void uiDialogBody::applyCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiDialog&,dlg,handle_);
-    dlg.applyPushed.trigger( cb );
 }
 
 

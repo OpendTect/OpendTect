@@ -19,7 +19,6 @@ mUseQtnamespace
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     : uiMainWin( s.wintitle_, p )
-    , applyPushed(this)
     , cancelpushed_(false)
     , ctrlstyle_(OkAndCancel)
 {

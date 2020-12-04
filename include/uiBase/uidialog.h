@@ -109,7 +109,7 @@ public:
 
     void		reject(CallBacker* cb=0);
     void		accept(CallBacker* cb=0);
-    enum DoneResult	{ Rejected=0, Accepted=1 };
+    enum DoneResult	{ Rejected=0, Accepted=1, Applied=2 };
     void		done(DoneResult);
 
     void		setHSpacing(int);
@@ -156,8 +156,6 @@ public:
     enum TitlePos	{ LeftSide, CenterWin, RightSide };
     static TitlePos	titlePos();
     static void		setTitlePos(TitlePos);
-
-    Notifier<uiDialog>	applyPushed;
 
     void		applyOKCB( CallBacker* cb )	{ applyOK(); }
     void		acceptOKCB( CallBacker* cb )	{ acceptOK(); }
