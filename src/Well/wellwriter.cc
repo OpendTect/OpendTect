@@ -19,13 +19,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellmarker.h"
 #include "welldisp.h"
 #include "ascstream.h"
+#include "hiddenparam.h"
 #include "od_ostream.h"
+#include "od_istream.h"
 #include "keystrs.h"
 #include "envvars.h"
 #include "settings.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "file.h"
+#include "databuf.h"
 
+static HiddenParam<MultiWellWriter,
+	   const ObjectSet<MultiWellWriter::StoreReqs>*> storereqs_(nullptr);
 
 bool Well::Writer::isFunctional( const MultiID& ky )
 {
@@ -229,16 +235,53 @@ bool Well::odWriter::putTrack() const
 }
 
 
+DataBuffer* Well::odWriter::getLogBuffer( od_istream& istrm ) const
+{
+    ascistream asistrm( istrm, true );
+    while ( !atEndOfSection(asistrm.next()) )
+    {}
+
+    if ( istrm.isOK() )
+    {
+	int size = File::getFileSize(istrm.fileName()) - istrm.position();
+	auto* databuf = new DataBuffer( size, 1 );
+	istrm.getBin( databuf->data(), size );
+	return databuf;
+    }
+
+    return nullptr;
+}
+
+
 bool Well::odWriter::putLogs() const
 {
+    ManagedObjectSet<DataBuffer> databufset;
+    for ( int idx=0; idx<wd_.logs().size(); idx++ )
+    {
+	BufferString fnm( getFileName(sExtLog(), idx+1) );
+	od_istream istrm( fnm );
+	if ( !istrm.isOK() )
+	    continue;
+
+	const Well::Log& wl = wd_.logs().getLog(idx);
+	if ( !wl.isLoaded() )
+	    continue;
+
+	databufset.add( getLogBuffer(istrm) );
+    }
+
     removeAll( sExtLog() );
+    int idy = 0;
     for ( int idx=0; idx<wd_.logs().size(); idx++ )
     {
 	mGetOutStream( sExtLog(), idx+1, return false )
 
+	errmsg_.setEmpty();
 	const Well::Log& wl = wd_.logs().getLog(idx);
-	if ( !putLog(strm,wl) )
-	    mErrRetStrmOper(tr("write log"))
+	const DataBuffer* dbuf = wl.isLoaded() ? nullptr
+					       : databufset.get(idy++);
+	if ( !writeLog(strm,wl,dbuf) )
+	    return false;
     }
 
     return true;
@@ -254,10 +297,30 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 	return false;
     }
 
-    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
+    BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
+    od_istream istrm( logfnm );
+    const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer(istrm);
+    istrm.close();
     od_ostream strm( logfnm );
-    if ( !putLog(strm,wl) )
+    if ( !writeLog(strm,wl,dbuf) )
+    {
+	delete dbuf;
 	return false;
+    }
+
+    delete dbuf;
+    return true;
+}
+
+
+bool Well::odWriter::writeLog( od_ostream& strm, const Well::Log& wl,
+					   const DataBuffer* databuf ) const
+{
+    if ( !wrHdr(strm,sKeyLog()) )
+	mErrRetStrmOper(tr("write header (log)"))
+
+    if ( !wrLogHdr(strm, wl) || !wrLogData(strm, wl, databuf) )
+	mErrRetStrmOper(tr("write log data"))	 
 
     return true;
 }
@@ -265,8 +328,17 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 
 bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 {
-    if ( !wrHdr(strm,sKeyLog()) )
-	mErrRetStrmOper(tr("write header (log)"))
+    if ( !writeLog(strm,wl) )
+	return false;
+
+    return true;
+}
+
+
+bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
+{
+    if ( !strm.isOK() )
+	return false;
 
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
@@ -289,17 +361,35 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     if ( havepars )
 	wl.pars().putTo( astrm );
 
+    return strm.isOK();
+}
+
+
+bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
+					   const DataBuffer* databuf ) const
+{
+    if ( !strm.isOK() )
+	return false;
+
+    if ( databuf )
+    {
+	strm.addBin( databuf->data(), databuf->size() );
+	return true;
+    }
+
     Interval<int> wrintv( 0, wl.size()-1 );
     float dah, val;
     for ( ; wrintv.start<wl.size(); wrintv.start++ )
     {
-	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
+	dah = wl.dah(wrintv.start);
+	val = wl.value(wrintv.start);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
     for ( ; wrintv.stop>=0; wrintv.stop-- )
     {
-	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
+	dah = wl.dah(wrintv.stop);
+	val = wl.value(wrintv.stop);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
@@ -328,6 +418,7 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write log data"))
+
     return true;
 }
 
@@ -445,7 +536,26 @@ MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds )
     , nrwells_(wds.size())
     , nrdone_(0)
 {
+    storereqs_.setParam( this, nullptr );
     msg_ = tr("Writing Wells");
+}
+
+
+MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds,
+				  const ObjectSet<StoreReqs>& reqs )
+    : Executor("Saving Wells")
+    , wds_(wds)
+    , nrwells_(wds.size())
+    , nrdone_(0)
+{
+    storereqs_.setParam( this, &reqs );
+    msg_ = tr("Writing Wells");
+}
+
+
+MultiWellWriter::~MultiWellWriter()
+{
+    storereqs_.removeParam( this );
 }
 
 
@@ -476,12 +586,44 @@ int MultiWellWriter::nextStep()
     }
 
     ConstRefMan<Well::Data> wd = wds_[nrdone_];
-    const BufferString wellname = wd->name();
-    Well::Writer wrtr( wd->multiID(), *wd );
-    if ( !wrtr.putInfoAndTrack() )
+    if ( !wd )
+    {
+	allwellswritten_ = false;
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    StoreReqs reqs;
+    if ( storereqs_.getParam(this)
+	    && storereqs_.getParam(this)->validIdx(nrdone_) )
+	reqs = *storereqs_.getParam(this)->get(nrdone_);
+
+    if ( !store(wd->multiID(),*wd,reqs) )
 	allwellswritten_ = false;
 
     nrdone_++;
     return MoreToDo();
 }
 
+
+bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
+						 const StoreReqs reqs )
+{
+    Well::Writer wrtr( key, wd );
+    if ( reqs.includes(Well::Inf) || reqs.includes(Well::Trck) )
+	wrtr.putInfoAndTrack();
+    if ( reqs.includes(Well::D2T) )
+	wrtr.putD2T();
+    if ( reqs.includes(Well::Mrkrs) )
+	wrtr.putMarkers();
+    if ( reqs.includes(Well::Logs) )
+	wrtr.putLogs();
+    if ( reqs.includes(Well::LogInfos) )
+	wrtr.putLogs();
+    if ( reqs.includes(Well::CSMdl) )
+	wrtr.putCSMdl();
+    if ( reqs.includes(Well::DispProps2D) || reqs.includes(Well::DispProps3D) )
+	wrtr.putDispProps();
+
+    return true;
+}
