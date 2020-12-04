@@ -778,13 +778,12 @@ int VolProc::ChainExecutor::nextStep()
 
     curepoch_ = epochs_.pop();
 
-    if ( !curepoch_->doPrepare(nullptr) )
+    if ( !curepoch_->doPrepare(progressMeter()) )
 	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
     mDynamicCastGet(ReportingTask*,curreptask,&curtask);
-    if ( curreptask )
-	curreptask->getProgress( *this );
+    curreptask->getProgress( *this );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
 	mCleanUpAndRet( false )

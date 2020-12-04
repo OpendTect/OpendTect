@@ -139,7 +139,7 @@ void VolProc::ChainOutput::createNewChainExec()
 
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
     chainexec_->enableWorkControl( workControlEnabled() );
-    chainexec_->setProgressMeter( progresskeeper_.forwardTo() );
+    ((Task*)chainexec_)->setProgressMeter( progresskeeper_.forwardTo() );
     chainexec_->setJobCommunicator( jobcomm_ );
 }
 
@@ -188,8 +188,8 @@ int VolProc::ChainOutput::nextStep()
 
     if ( nrexecs_<0 )
     {
-    tkscalcscope_ = cs_.hsamp_;
-    tkscalcdone_.init(false);
+	tkscalcscope_ = cs_.hsamp_;
+	tkscalcdone_.init(false);
 	return setupChunking();
     }
     else if ( neednextchunk_ )
