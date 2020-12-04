@@ -98,26 +98,6 @@ public:
 			//!< Makes sure you cannot use '0' for help ID.
 			//!< Use mTODOHelpKey or mNoHelpKey instead
 
-	public:
-	mDeprecated	("Use uiString")
-			Setup( const char* window_title,
-			       const char* dialog_title,
-			       const HelpKey& help_key )
-			  : Setup(toUiString(window_title),
-				  toUiString(dialog_title),help_key)	{}
-	mDeprecated	("Use uiString")
-			Setup( const char* window_title,
-			       const uiString& dialog_title,
-			       const HelpKey& help_key )
-			  : Setup(toUiString(window_title),dialog_title,
-				  help_key)				{}
-	mDeprecated	("Use uiString")
-			Setup( const uiString& window_title,
-			       const char* dialog_title,
-			       const HelpKey& help_key )
-			  : Setup(window_title,toUiString(dialog_title),
-				  help_key)				{}
-
     };
 
     enum		Button { OK, CANCEL, APPLY, HELP, CREDITS, SAVE };
@@ -190,26 +170,5 @@ protected:
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
     static TitlePos	titlepos_;
-
-public:
-    mDeprecated		("Use uiString")
-    void		setTitleText( const char* txt )
-			{ setTitleText(toUiString(txt)); }
-    mDeprecated		("Use uiString")
-    void		setOkCancelText( const char* ok,const char* cnl )
-			{ setOkCancelText(toUiString(ok),toUiString(cnl)); }
-    mDeprecated		("Use uiString")
-    void		setOkText( const char* txt )
-			{ setOkText(toUiString(txt)); }
-    mDeprecated		("Use uiString")
-    void		setCancelText( const char* txt )
-			{ setCancelText(toUiString(txt)); }
-    mDeprecated		("Use with argument")
-    void		done()			{ done( Rejected ); }
-    mDeprecated		("Use with enum")
-    void		done( int i )		{ done( DoneResult(i) ); }
-    mDeprecated		("Use with enum")
-    static void		setTitlePos( int i )
-			{ setTitlePos( TitlePos(i+1) ); }
 
 };

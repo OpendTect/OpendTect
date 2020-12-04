@@ -781,11 +781,6 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , isrequired_(false)
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
-			const char* inputStr)
-    : uiGenInput(p,toUiString(disptxt),inputStr)
-{}
-
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const char* inputStr)
     mInitStdMembs
@@ -796,11 +791,6 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
-
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
-			const DataInpSpec& inp1 )
-    : uiGenInput(p,toUiString(disptxt),inp1)
-{}
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1 )
@@ -814,11 +804,6 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 }
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
-			const DataInpSpec& inp1, const DataInpSpec& inp2 )
-    : uiGenInput(p,toUiString(disptxt),inp1,inp2)
-{}
-
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1, const DataInpSpec& inp2 )
     mInitStdMembs
@@ -828,12 +813,6 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
-
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
-			const DataInpSpec& inp1, const DataInpSpec& inp2,
-			const DataInpSpec& inp3 )
-    : uiGenInput(p,toUiString(disptxt),inp1,inp2,inp3)
-{}
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1, const DataInpSpec& inp2,

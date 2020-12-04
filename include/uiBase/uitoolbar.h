@@ -142,11 +142,5 @@ public:
     void		addButton(uiButton*);
 			//!<Legacy, use addObject instead
 
-    mDeprecated		("Use uiString")
-    int			addButton( const char* fnm,const char* tooltip,
-				   const CallBack& cb =CallBack(),
-				   bool toggle=false, int id=-1 )
-			{ return addButton(fnm,toUiString(tooltip),
-					   cb,toggle,id); }
 };
 

@@ -172,10 +172,5 @@ private:
     mutable BufferString result_;
     int			nrdecimals_;
 
-public:
-    mDeprecated		("Use uiString")
-    void		setToolTip( const char* tt )
-			{ uiObject::setToolTip(toUiString(tt)); }
-
 };
 

@@ -37,31 +37,12 @@ const WellDataIOProvider* WellDataIOProviderFactory::provider(
 
 
 Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
-	    Well::Data& wd, BufferString& e ) const
-{
-    uiString errmsg;
-    Well::ReadAccess* ret = getReadAccess( ioobj, wd, errmsg );
-    errmsg.getFullString( &e );
-    return ret;
-}
-
-
-Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
 	    Well::Data& wd, uiString& errmsg ) const
 {
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
     return prov ? prov->makeReadAccess(ioobj,wd,errmsg) : 0;
 }
 
-
-Well::WriteAccess* WellDataIOProviderFactory::getWriteAccess(
-	    const IOObj& ioobj, const Well::Data& wd, BufferString& e ) const
-{
-    uiString errmsg;
-    Well::WriteAccess* ret = getWriteAccess( ioobj, wd, errmsg );
-    errmsg.getFullString( &e );
-    return ret;
-}
 
 Well::WriteAccess* WellDataIOProviderFactory::getWriteAccess(
 	    const IOObj& ioobj, const Well::Data& wd, uiString& errmsg ) const

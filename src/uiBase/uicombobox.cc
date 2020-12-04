@@ -408,13 +408,6 @@ void uiComboBox::addItems( const BufferStringSet& bss )
 }
 
 
-void uiComboBox::addItems( const char* arr[] )
-{
-    const BufferStringSet bss( arr );
-    addItems( bss );
-}
-
-
 void uiComboBox::addItems( const uiStringSet& items )
 {
     for ( int idx=0; idx<items.size(); idx++ )

@@ -57,11 +57,6 @@ uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
 }
 
 
-uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
-    : uiFileInput(p,toUiString(txt),setup)
-{}
-
-
 uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
     , forread_(setup.forread_)

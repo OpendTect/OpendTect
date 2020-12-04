@@ -329,16 +329,6 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 }
 
 
-const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
-					    Coord crd[3] ) const
-{
-    mDeclStaticString( ret );
-    const uiString msg = getSurvInfoWithMsg( hs, crd );
-    ret.set( toString(msg) );
-    return ret.buf();
-}
-
-
 uiString PosInfo::Detector::getSurvInfoWithMsg( TrcKeySampling& hs,
 					        Coord crd[3] ) const
 {

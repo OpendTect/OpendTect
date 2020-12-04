@@ -54,9 +54,6 @@ public:
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
 	mDefSetupMemb(BufferString, withctxtfilter);
 
-	mDeprecated	("Use uiString" )
-			Setup( const char * txt )
-			  : Setup(toUiString(txt))		{}
     };
 
 			uiIOObjSel(uiParent*,const IOObjContext&,

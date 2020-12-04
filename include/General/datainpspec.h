@@ -678,16 +678,6 @@ protected:
     bool		defaultyn_;
     bool		isset_;
 
-public:
-    mDeprecated		("Use uiString")
-			BoolInpSpec( bool yesno, const char* truetxt,
-				     const char* falsetxt, bool isset=true )
-			  : BoolInpSpec(yesno,toUiString(truetxt),
-					toUiString(falsetxt),isset)	{}
-    mDeprecated		("Use uiString")
-    void		setTrueFalseTxt( bool yn, const char* txt )
-			{ setTrueFalseTxt( yn, toUiString(txt) ); }
-
 };
 
 

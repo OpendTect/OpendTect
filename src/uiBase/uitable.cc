@@ -1154,19 +1154,6 @@ void uiTable::setLabelBGColor( int rc, Color c, bool isrow )
 }
 
 
-void uiTable::setRowLabels( const char** labels )
-{
-    const BufferStringSet lbls( labels );
-    setRowLabels( lbls.getUiStringSet() );
-}
-
-
-void uiTable::setRowLabels( const BufferStringSet& labels )
-{
-    setRowLabels( labels.getUiStringSet() );
-}
-
-
 void uiTable::setRowLabels( const uiStringSet& lblset )
 {
     body_->setNrLines( lblset.size() );
@@ -1209,13 +1196,6 @@ void uiTable::setColumnLabels( const uiStringSet& lblset )
 
     for ( int i=0; i<lblset.size(); i++ )
 	setColumnLabel( i, lblset.get(i) );
-}
-
-
-void uiTable::setColumnLabels( const char** lbls )
-{
-    const BufferStringSet lblset( lbls );
-    setColumnLabels( lblset.getUiStringSet() );
 }
 
 

@@ -173,43 +173,6 @@ private:
 
     uiMainWin*		uimainwin_;
 
-public:
-    mDeprecated		("Use uiString")
-    void		message( const char* txt,const char* part2=nullptr,
-			         const char* part3=nullptr )
-			{ message(toUiString(txt),toUiString(part2),
-				  toUiString(part3)); }
-    mDeprecated		("Use uiString")
-    void		warning( const char* txt,const char* part2=nullptr,
-			         const char* part3=nullptr )
-			{ warning(toUiString(txt),toUiString(part2),
-				  toUiString(part3)); }
-    mDeprecated		("Use uiString")
-    void		error( const char* txt,const char* part2=nullptr,
-			       const char* part3=nullptr )
-			{ error(toUiString(txt),toUiString(part2),
-				toUiString(part3)); }
-
-    mDeprecated		("Use uiString")
-    int			askSave( const char* msg, bool cancelbut=true )
-			{ return askSave(toUiString(msg),cancelbut); }
-    mDeprecated		("Use uiString")
-    int			askRemove( const char* msg, bool cancelbut=false )
-			{ return askRemove(toUiString(msg),cancelbut); }
-    mDeprecated		("Use uiString")
-    int			askContinue( const char* msg )
-			{ return askContinue(toUiString(msg)); }
-    mDeprecated		("Use uiString")
-    int			askOverwrite( const char* msg )
-			{ return askOverwrite(toUiString(msg)); }
-    mDeprecated		("Use uiString")
-    bool		askGoOn( const char* msg, bool withyesno=true )
-			{ return askGoOn(toUiString(msg),withyesno); }
-    mDeprecated		("Use uiString")
-    bool		askGoOn( const char* msg, const char* textyes,
-				 const char* textno )
-			{ return askGoOn(toUiString(msg),toUiString(textyes),
-					 toUiString(textno)); }
 };
 
 mGlobal(uiBase) uiMsg& uiMSG();

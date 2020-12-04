@@ -170,10 +170,6 @@ protected:
     CrdBidOffs		workCBO(const CrdBidOffs&) const;
     CrdBidOffs		userCBO(const CrdBidOffs&) const;
 
-public:
-    mDeprecated		("Use uiString")
-    const char*		getSurvInfo(TrcKeySampling&,Coord crd[3]) const;
-
 };
 
 

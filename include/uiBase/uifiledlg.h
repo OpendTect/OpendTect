@@ -114,22 +114,5 @@ private:
     int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr, bool ok);
 
-public:
-    mDeprecated		("Use uiString")
-                        uiFileDialog( uiParent* p, bool forread,
-				      const char* fname, const char* filter,
-				      const char* caption )
-			  : uiFileDialog(p,forread,fname,filter,
-					 toUiString(caption))	{}
-    mDeprecated		("Use uiString")
-                        uiFileDialog( uiParent* p, Mode mode,
-				      const char* fname, const char* filter,
-				      const char* caption )
-			  : uiFileDialog(p,mode,fname,filter,
-					 toUiString(caption))	{}
-    mDeprecated		("Use uiString")
-                        uiFileDialog( uiParent* p, Type typ, const char* fname,
-				      const char* caption )
-			  : uiFileDialog(p,typ,fname,toUiString(caption))  {}
 };
 

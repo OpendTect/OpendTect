@@ -68,8 +68,6 @@ public:
     void		addItem(const uiString&,int id);
     void		addItems(const uiStringSet&);
     void		addItems(const BufferStringSet&);
-    mDeprecated		("use BufferStringSet")
-    void		addItems(const char* arr[]);
     void		addSeparator();
     void		insertItem(const uiString&,int index=-1,int id=-1);
     void		insertItem(const uiPixmap&,const uiString&,
@@ -163,28 +161,6 @@ protected:
 
     uiComboBox*	cb_;
     uiLabel*	labl_;
-
-public:
-    mDeprecated	("Use uiString")
-		uiLabeledComboBox( uiParent* p, const char* lbl,
-				   const char* nm=0 )
-		  : uiLabeledComboBox(p,toUiString(lbl),nm)		{}
-    mDeprecated	("Use uiString")
-		uiLabeledComboBox( uiParent* p,const BufferStringSet& lbls,
-				   const char* lbl, const char* nm=0 )
-		  : uiLabeledComboBox(p,lbls,toUiString(lbl),nm)	{}
-    mDeprecated	("Use uiString")
-		uiLabeledComboBox( uiParent* p, const char** lbls,
-				   const char* lbl, const char* nm=0 )
-		  : uiLabeledComboBox(p,lbls,toUiString(lbl),nm)	{}
-    mDeprecated	("Use uiString")
-		uiLabeledComboBox( uiParent* p, const uiStringSet& lbls,
-				   const char* lbl, const char* nm=0 )
-		  : uiLabeledComboBox(p,lbls,toUiString(lbl),nm)	{}
-    mDeprecated	("Use uiString")
-		uiLabeledComboBox( uiParent* p, const EnumDef& def,
-				   const char* lbl, const char* nm=0 )
-		  : uiLabeledComboBox(p,def,toUiString(lbl),nm)	{}
 
 };
 

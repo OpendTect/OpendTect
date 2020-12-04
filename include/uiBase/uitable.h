@@ -379,26 +379,6 @@ public:
     float		getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
 
-    mDeprecated		("Use uiString")
-    void		setRowLabel( int idx, const char* lbl )
-			{ setRowLabel(idx,toUiString(lbl)); }
-    mDeprecated		("Use uiString")
-    void		setRowLabels(const BufferStringSet&);
-    mDeprecated		("Use uiString")
-    void		setRowLabel( const RowCol& rc, const char* lbl )
-			    { setRowLabel( rc.row(), toUiString(lbl) ); }
-    mDeprecated		("Use uiString")
-    void		setRowToolTip( int idx, const char* tt )
-			{ setRowToolTip(idx,toUiString(tt)); }
-
-    mDeprecated		("Use uiString")
-    void		setColumnLabel( int idx, const char* lbl )
-			{ setColumnLabel(idx,toUiString(lbl)); }
-    mDeprecated		("Use uiString")
-    void		setColumnLabels(const char**);
-    mDeprecated		("Use uiString")
-    void		setColumnLabels(const BufferStringSet&);
-
     void	       setPrefWidthInChars(int);
 };
 

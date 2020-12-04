@@ -71,11 +71,6 @@ protected:
     virtual void	translateText();
     virtual void	setPM(const uiPixmap&);
 
-public:
-    mDeprecated		("Use uiString")
-    void		setText( const char* txt )
-			{ setText(toUiString(txt)); }
-
 };
 
 
@@ -113,24 +108,6 @@ private:
     uiPushButtonBody*	pbbody_;
     uiPushButtonBody&	mkbody(uiParent*,const uiString&);
 
-public:
-    mDeprecated		("use uiString")
-			uiPushButton( uiParent* p, const char* txt,
-				      bool immediate )
-			  : uiPushButton(p,toUiString(txt),immediate) {}
-    mDeprecated		("use uiString")
-			uiPushButton( uiParent* p, const char* txt,
-				      const CallBack& cb, bool immediate )
-			  : uiPushButton(p,toUiString(txt),cb,immediate) {}
-    mDeprecated		("use uiString")
-			uiPushButton( uiParent* p, const char* txt,
-				      const uiPixmap& pm, bool immediate )
-			  : uiPushButton(p,toUiString(txt),pm,immediate) {}
-    mDeprecated		("use uiString")
-			uiPushButton( uiParent* p, const char* txt,
-				      const uiPixmap& pm, const CallBack& cb,
-				      bool immediate )
-			  : uiPushButton(p,toUiString(txt),pm,cb,immediate) {}
 };
 
 
@@ -150,15 +127,6 @@ private:
 
     uiRadioButtonBody*	rbbody_;
     uiRadioButtonBody&	mkbody(uiParent*,const uiString&);
-
-public:
-    mDeprecated		("use uiString")
-			uiRadioButton( uiParent* p, const char* txt )
-			  : uiRadioButton(p,toUiString(txt))	{}
-    mDeprecated		("use uiString")
-			uiRadioButton( uiParent* p, const char* txt,
-				       const CallBack& cb )
-			  : uiRadioButton(p,toUiString(txt),cb)	{}
 
 };
 
@@ -183,15 +151,6 @@ private:
 
     uiCheckBoxBody*	cbbody_;
     uiCheckBoxBody&	mkbody(uiParent*,const uiString&);
-
-public:
-    mDeprecated		("use uiString")
-			uiCheckBox( uiParent* p, const char* txt )
-			  : uiCheckBox(p,toUiString(txt))	{}
-    mDeprecated		("use uiString")
-			uiCheckBox( uiParent* p, const char* txt,
-				    const CallBack& cb )
-			  : uiCheckBox(p,toUiString(txt),cb)	{}
 
 };
 

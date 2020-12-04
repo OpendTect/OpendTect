@@ -71,15 +71,6 @@ protected:
 
     ManagedObjectSet<WellDataIOProvider> provs_;
 
-public:
-    mDeprecated			("Use uiString")
-    Well::ReadAccess*		getReadAccess(const IOObj&,Well::Data&,
-						BufferString&) const;
-
-    mDeprecated			("Use uiString")
-    Well::WriteAccess*		getWriteAccess(const IOObj&,const Well::Data&,
-						BufferString&) const;
-
 };
 
 mGlobal(Well) WellDataIOProviderFactory& WDIOPF();

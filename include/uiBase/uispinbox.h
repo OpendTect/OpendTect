@@ -149,11 +149,5 @@ protected:
     uiSpinBox*		sb_;
     uiLabel*		lbl_;
 
-public:
-    mDeprecated		("use uiString")
-			uiLabeledSpinBox( uiParent* p, const char* lbl,
-					  int nrdecimals=0, const char* nm=0 )
-			  : uiLabeledSpinBox(p,toUiString(lbl),
-					     nrdecimals,nm)		{}
 };
 

@@ -275,24 +275,6 @@ private:
     DataInpSpec*	getInputSpecAndIndex(const int,int&) const;
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
 
-public:
-    mDeprecated		("Use uiString")
-			uiGenInput(uiParent* p,const char* disptxt,
-				   const char* inputStr=nullptr);
-
-    mDeprecated		("Use uiString")
-			uiGenInput(uiParent* p,const char* disptxt,
-				   const DataInpSpec&);
-
-    mDeprecated		("Use uiString")
-			uiGenInput(uiParent* p,const char* disptxt,
-				   const DataInpSpec&,const DataInpSpec&);
-
-    mDeprecated		("Use uiString")
-			uiGenInput(uiParent* p,const char* disptxt,
-				   const DataInpSpec&,const DataInpSpec&,
-				   const DataInpSpec& );
-
     mDeprecated		("Use getDValue")
     double		getdValue( int nr=0, double uv=mUdf(double) ) const
 			    { return getDValue( nr, uv ); }

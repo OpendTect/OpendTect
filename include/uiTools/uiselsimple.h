@@ -44,15 +44,6 @@ public:
 
 	uiStringSet	items_;
 
-    public:
-    mDeprecated		("Use uiString")
-			Setup( const char* wintitl, const char* its )
-			  : Setup(toUiString(wintitl),toUiString(its))   {}
-    mDeprecated		("Use uiString")
-			Setup( const char* wintitl,
-			       const BufferStringSet& its )
-			  : Setup(toUiString(wintitl),its)		 {}
-
     };
 
 			uiSelectFromList(uiParent*,const Setup&);
@@ -101,16 +92,6 @@ public:
 	mDefSetupMemb(uiString,inptxt);
 
 	const BufferStringSet&	items_;
-
-    public:
-	mDeprecated	("Use uiString")
-			Setup( const char* wintitl,
-			       const BufferStringSet& its )
-			  : Setup(toUiString(wintitl),its)	{}
-	mDeprecated	("Use uiString")
-	Setup&		inptxt( const char* txt )
-			{ return inptxt( toUiString(txt) ); }
-
 
     };
 
