@@ -280,7 +280,8 @@ public:
     const DBKeySet&	ioObjIds() const	{ return ids_; }
 
     static float	calcVal(const Log&,float dah,float winsz,
-					Stats::UpscaleType samppol);
+					Stats::UpscaleType samppol,
+					float maxholesz=mUdf(float));
 
 protected:
 
@@ -369,7 +370,11 @@ public:
 
 			~LogSampler();
 
-    //avalaible after execution
+    void		setMaxHoleSize( float sz )	{ maxholesz_ = sz; }
+			/*!< Maximum size away from depth gate to fetch
+				log dat */
+
+    //available after execution
     float		getDah(int idz) const;
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(const char* lognm,int idx) const;
@@ -380,7 +385,7 @@ public:
 			{ return errmsg_.isEmpty() ? uiString::empty()
 						   : errmsg_; }
 
-    int		nrZSamples() const;
+    int			nrZSamples() const;
     Interval<float>	zRange() const	{ return zrg_; } //can be in time
 
 protected:
@@ -388,11 +393,11 @@ protected:
 			    bool zrgintime,float zstep, bool extractintime,
 			    Stats::UpscaleType samppol);
 
-    od_int64	nrIterations() const;
+    od_int64		nrIterations() const override;
 
-    bool			doLog(int logidx);
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
+    bool		doLog(int logidx);
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
 
     const Well::D2TModel*	d2t_;
     const Well::Track&		track_;
@@ -400,6 +405,7 @@ protected:
     float			zstep_;
     bool			extrintime_;
     bool			zrgisintime_;
+    float			maxholesz_ = mUdf(float);
     ObjectSet<const Well::Log>	logset_;
     Array2DImpl<float>*		data_;
     uiString			errmsg_;
