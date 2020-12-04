@@ -697,15 +697,15 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 }
 
 
-bool Strat::LayerModel::read( od_istream& strm )
+bool Strat::LayerModel::readHeader( od_istream& strm,
+		PropertyRefSelection& props, int& nrseqs, bool& mathpreserve )
 {
-    deepErase( seqs_ );
     BufferString word;
     strm.getWord( word, false );
     if ( word[0] != '#' || word[1] != 'M' )
 	{ ErrMsg( "File needs to start with '#M'" ); return false; }
 
-    int nrseqs, nrprops;
+    int nrprops = 0;
     strm >> nrprops >> nrseqs;
     if ( nrprops < 1 )
 	{ ErrMsg( "No properties found in file" ); return false; }
@@ -713,11 +713,10 @@ bool Strat::LayerModel::read( od_istream& strm )
 
     BufferString keyw;
     strm.getWord( keyw );
-    const bool mathpreserve = keyw == "#MATH";
+    mathpreserve = keyw == "#MATH";
     if ( mathpreserve )
 	{ strm.skipLine(); strm.skipWord(); }
 
-    PropertyRefSelection newprops;
     for ( int iprop=0; iprop<nrprops; iprop++ )
     {
 	if ( iprop )
@@ -732,13 +731,31 @@ bool Strat::LayerModel::read( od_istream& strm )
 		ErrMsg( BufferString("Property not found: ",propnm) );
 		return false;
 	    }
-	    newprops += p;
+
+	    props += p;
 	}
     }
+
     if ( !strm.isOK() )
 	{ ErrMsg("No sequences found"); return false; }
 
+    return true;
+}
+
+
+bool Strat::LayerModel::read( od_istream& strm )
+{
+    deepErase( seqs_ );
+    int nrseqs = 0;
+    bool mathpreserve = false;
+    PropertyRefSelection newprops;
+    if ( !readHeader(strm,newprops,nrseqs,mathpreserve) )
+	return false;
+
+    const int nrprops = newprops.size();
     proprefs_ = newprops;
+
+    BufferString word;
     const RefTree& rt = RT();
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )

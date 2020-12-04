@@ -64,6 +64,8 @@ public:
 
     const RefTree&		refTree() const;
 
+    bool			readHeader(od_istream&,PropertyRefSelection&,
+					   int& nrseq,bool& mathpreserve);
     bool			read(od_istream&);
     bool			write(od_ostream&,int modnr=0,
 	    				bool mathpreserve=false) const;
