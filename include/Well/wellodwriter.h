@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "wellio.h"
 #include "od_iosfwd.h"
 class IOObj;
+class DataBuffer;
+class ascostream;
 
 namespace Well
 {
@@ -62,7 +64,13 @@ protected:
 
     virtual bool	isFunctional() const;
 
-    bool		putLog(od_ostream&,const Log&) const;
+    bool		putLog(od_ostream&, const Log&) const;
+    bool		writeLog(od_ostream&, const Log&,
+				  const DataBuffer* = nullptr) const;
+    bool		wrLogHdr(od_ostream&,const Log&) const;
+    bool		wrLogData(od_ostream&,const Log&,
+				  const DataBuffer* databuf=nullptr) const;
+    DataBuffer*		getLogBuffer(od_istream&) const;
     bool		wrHdr(od_ostream&,const char*) const;
     bool		putTrack(od_ostream&) const;
     bool		doPutD2T(bool) const;
