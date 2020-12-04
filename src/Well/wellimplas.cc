@@ -228,22 +228,26 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("XCOORD") || mIsKey("XWELL") || mIsKey("X") )
 	    {
 		// TODO: use UOM
-		lfi.loc_.x = toDouble( val2, mUdf(double) );
+		BufferString locx = val2 && *val2 ? val2 : val1;
+		lfi.loc_.x = toDouble( locx, mUdf(double) );
 	    }
 	    if ( mIsKey("YCOORD") || mIsKey("YWELL") || mIsKey("Y") )
 	    {
 		// TODO: use UOM
-		lfi.loc_.y = toDouble( val2, mUdf(double) );
+		BufferString locy = val2 && *val2 ? val2 : val1;
+		lfi.loc_.y = toDouble( locy, mUdf(double) );
 	    }
-	    if ( mIsKey("LATI") )
+	    if ( mIsKey("LATI") || mIsKey("LAT") )
 	    {
 		// TODO: use UOM
-		ll.setFromString( val2, true );
+		BufferString lat = val2 && *val2 ? val2 : val1;
+		ll.setFromString( lat, true );
 	    }
-	    if ( mIsKey("LONG") )
+	    if ( mIsKey("LONG") || mIsKey("LON") )
 	    {
 		// TODO: use UOM
-		ll.setFromString( val2, false );
+		BufferString lon = val2 && *val2 ? val2 : val1;
+		ll.setFromString( lon, false );
 	    }
 	break;
 	default:
