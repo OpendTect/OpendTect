@@ -4,9 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
+ Author:	Bert
  Date:		May 2004
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -279,6 +278,9 @@ public:
 
     static float	calcVal(const Log&,float dah,float winsz,
 					Stats::UpscaleType samppol);
+    static float	calcValWH(const Log&,float dah,float winsz,
+					Stats::UpscaleType samppol,
+					float maxholesz=mUdf(float));
 
 protected:
 
@@ -364,6 +366,10 @@ public:
 				const ObjectSet<const Well::Log>& logs);
 
 			~LogSampler();
+
+    void		setMaxHoleSize(float sz);
+			/*!< Maximum size away from depth gate to fetch
+				log dat (default undefined) */
 
     //available after execution
     float		getDah(int idz) const;
