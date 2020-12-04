@@ -49,7 +49,7 @@ static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 			float& x1pospercm, float& x2pospercm, bool isvertical )
     : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiString::empty(),
-				 mNoHelpKey))
+				 mNoHelpKey).applybutton(true) )
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)
     , x2fld_(0)
@@ -72,12 +72,14 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     saveglobalfld_ = new uiCheckBox( this, tr("Save globally") );
     saveglobalfld_->attach( leftAlignedBelow , isvertical ? x2fld_ : x1fld_ );
 
-    CallBack cb( mCB( this, uiFlatViewZoomLevelDlg, applyPushedCB ) );
-    applybut_ = uiButton::getStd( this, OD::Apply, cb, true );
-    applybut_->attach( rightOf, saveglobalfld_ );
-
     unitChgCB(0);
-    postFinalise().notify( mCB(this,uiFlatViewZoomLevelDlg,finalizeDoneCB) );
+    mAttachCB( postFinalise(), uiFlatViewZoomLevelDlg::finalizeDoneCB );
+}
+
+
+uiFlatViewZoomLevelDlg::~uiFlatViewZoomLevelDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -89,11 +91,12 @@ void uiFlatViewZoomLevelDlg::finalizeDoneCB(CallBacker*)
 }
 
 
-void uiFlatViewZoomLevelDlg::applyPushedCB( CallBacker* )
+bool uiFlatViewZoomLevelDlg::applyOK()
 {
     x1pospercm_ = x1fld_->getFValue();
     x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;
     zoomChanged.trigger();
+    return true;
 }
 
 

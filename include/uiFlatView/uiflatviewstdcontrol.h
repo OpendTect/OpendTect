@@ -28,7 +28,10 @@ mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
 public:
 			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
 					float& x2pospercm,bool isvertical);
+			~uiFlatViewZoomLevelDlg();
+
     Notifier<uiFlatViewZoomLevelDlg> zoomChanged;
+
     void		getPosPerCm(float& x1,float& x2)
 			{ x1 = x1pospercm_; x2 = x2pospercm_;}
 
@@ -42,12 +45,10 @@ protected:
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
 
-    uiButton*		applybut_;
-
     void		finalizeDoneCB(CallBacker*);
     void		unitChgCB(CallBacker*);
-    void		applyPushedCB(CallBacker*);
-    bool		acceptOK();
+    bool		applyOK() override;
+    bool		acceptOK() override;
 };
 
 

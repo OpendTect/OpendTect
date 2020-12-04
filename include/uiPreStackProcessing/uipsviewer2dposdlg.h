@@ -80,7 +80,6 @@ protected:
     void			reDoTable();
 
     void			posChged(CallBacker*);
-    void			applyPushed(CallBacker*);
     void			gatherChecked(CallBacker*);
     void			gatherPosChanged(CallBacker*);
     void			updatePosTable(CallBacker*);

@@ -59,9 +59,8 @@ protected:
     void			rmCB(CallBacker*);
     void			selChgCB(CallBacker*);
     void			nmChgCB(CallBacker*);
-    void			applyReqCB(CallBacker*) { applyReq.trigger(); }
 
-    virtual bool		applyOK();
-    virtual bool		rejectOK();
+    bool			applyOK() override;
+    bool			rejectOK() override;
 
 };

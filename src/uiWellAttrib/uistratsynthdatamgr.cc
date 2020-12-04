@@ -79,7 +79,6 @@ void uiStratSynthDataMgr::initWin( CallBacker* )
 {
     updUi();
 
-    mAttachCB( applyPushed, uiStratSynthDataMgr::applyReqCB );
     mAttachCB( mSelNotif, uiStratSynthDataMgr::selChgCB );
     mAttachCB( gpfld_->nameChanged, uiStratSynthDataMgr::nmChgCB );
 }
@@ -138,6 +137,7 @@ const SynthSeis::GenParams& uiStratSynthDataMgr::curGenPars() const
 bool uiStratSynthDataMgr::applyOK()
 {
     commitEntry( selfld_->currentItem() );
+    applyReq.trigger();
     return mgr_.nrTraces() > 0;
 }
 
@@ -217,7 +217,6 @@ void uiStratSynthDataMgr::addAsNewCB( CallBacker* )
 
 bool uiStratSynthDataMgr::rejectOK()
 {
-    if ( applyOK() )
-	applyPushed.trigger();
+    applyOK();
     return true;
 }
