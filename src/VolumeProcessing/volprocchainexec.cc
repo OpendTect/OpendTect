@@ -400,7 +400,7 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
     if ( !checkAndSplit(nrbytes,freemem,nrexecs) )
 	return 0;
 
-    if ( nrexecs == 1 )	
+    if ( nrexecs == 1 )
 	return 1;
 
     int halfnrlinesperchunk = mNINT32( Math::Ceil( mCast(double,tks.nrLines()) /
@@ -778,11 +778,13 @@ int VolProc::ChainExecutor::nextStep()
 
     curepoch_ = epochs_.pop();
 
-    if ( !curepoch_->doPrepare(progressmeter_) )
+    if ( !curepoch_->doPrepare(nullptr) )
 	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
-    curtask.setProgressMeter( progressmeter_ );
+    mDynamicCastGet(ReportingTask*,curreptask,&curtask);
+    if ( curreptask )
+	curreptask->getProgress( *this );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
 	mCleanUpAndRet( false )
@@ -811,8 +813,6 @@ int VolProc::ChainExecutor::nextStep()
     //Everyone who wants my data has it. I can release it.
     curepoch_->releaseData();
     deleteAndZeroPtr( curepoch_ );
-    if ( finished )
-	progressmeter_ = 0;
 
     return finished ? Finished() : MoreToDo();
 }

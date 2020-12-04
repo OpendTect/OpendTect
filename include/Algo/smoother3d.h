@@ -23,7 +23,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass(Algo) Smoother3D : public Task
+mClass(Algo) Smoother3D : public ReportingTask
 {
 public:
 
@@ -31,9 +31,9 @@ public:
 
     void			setInput(const Array3D<T>&);
     void			setOutput(Array3D<T>&);
-   		 		/*!Must be at least the size of input.*/
+		 		/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
-	    				  int sz0,int sz1,int sz2);
+					  int sz0,int sz1,int sz2);
     int				getWindowSize(int dim) const;
     const char*			getWindowName() const;
     float			getWindowParam() const;
@@ -41,7 +41,6 @@ public:
     inline void			fillPar(IOPar&) const;
     inline bool			usePar(const IOPar&);
 
-    inline void			setProgressMeter( ProgressMeter* pm );
     inline bool			execute();
     inline void			enableWorkControl(bool);
     inline void			controlWork(Task::Control);
@@ -132,7 +131,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 	    {
 		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
-		window_.set( idx0, idx1, idx2, 
+		window_.set( idx0, idx1, idx2,
 				    wf->getValue( (float) pos.abs() ) );
 	    }
 	}
@@ -177,7 +176,6 @@ bool Smoother3D<T>::usePar( const IOPar& par )
 template <class T> inline void Smoother3D<T>::func( vartype var ) \
 { convolver_.func( var ); }
 
-mImplSetFunc( setProgressMeter, ProgressMeter* );
 mImplSetFunc( enableWorkControl, bool);
 mImplSetFunc( controlWork, Task::Control);
 

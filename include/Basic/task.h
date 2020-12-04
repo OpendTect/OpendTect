@@ -4,9 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril/K.Tingdahl
+ Author:	Bert/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -77,13 +76,45 @@ private:
 };
 
 
+
+/*!\brief Helper class for all task implementations which need a progress meter.
+*/
+
+mExpClass(Basic) ReportingTask : public Task
+{
+public:
+    virtual		~ReportingTask();
+
+    void		getProgress(const ReportingTask&);
+
+protected:
+			ReportingTask(const char* nm=nullptr);
+
+    virtual void	setProgressMeter(ProgressMeter*);
+    ProgressMeter*	progressMeter() const	{ return progressmeter_; }
+
+    void		reportProgressStarted();
+    void		updateReportedName();
+    void		updateProgressMeter(bool forced=false,
+					    od_int64* totalnr=0);
+    void		incrementProgress();
+    void		resetProgress();
+    void		reportProgressFinished();
+
+private:
+
+    ProgressMeter*	progressmeter_;
+    int			lastupdate_;
+};
+
+
 /*!\brief A collection of tasks, that behave as a single task.  */
 
-mExpClass(Basic) TaskGroup : public Task
+mExpClass(Basic) TaskGroup : public ReportingTask
 {
 public:
 			TaskGroup();
-            ~TaskGroup();
+    virtual		~TaskGroup();
 
     void		addTask( Task* );
 			//Becomes mine
@@ -93,9 +124,8 @@ public:
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
-    void		setProgressMeter(ProgressMeter*);
-    virtual od_int64	nrDone() const;
-    virtual od_int64	totalNr() const;
+    od_int64	nrDone() const;
+    od_int64	totalNr() const;
 
     uiString		uiMessage() const;
     uiString		uiNrDoneText() const;
@@ -117,19 +147,18 @@ protected:
 };
 
 
+
+
+
 /*!\brief The generalization of something (e.g. a computation) where the steps
   must be done in sequence, i.e. not in parallel.
 */
 
-mExpClass(Basic) SequentialTask : public Task
+mExpClass(Basic) SequentialTask : public ReportingTask
 {
 public:
 		SequentialTask(const char* nm=nullptr);
     virtual	~SequentialTask();
-
-    void	setProgressMeter(ProgressMeter*);
-    ProgressMeter* progressMeter()		{ return progressmeter_; }
-    const ProgressMeter* progressMeter() const	{ return progressmeter_; }
 
     virtual int	doStep();
 		/*!<\retval MoreToDo()		Not finished. Call me again.
@@ -154,7 +183,6 @@ protected:
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
-    ProgressMeter* progressmeter_;
     int			lastupdate_;
 };
 

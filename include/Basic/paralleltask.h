@@ -4,9 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril/K.Tingdahl
+ Author:	Bert/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -62,12 +61,14 @@ class ParallelTaskRunner;
   \endcode
 */
 
-mExpClass(Basic) ParallelTask : public Task
+mExpClass(Basic) ParallelTask : public ReportingTask
 { mODTextTranslationClass(ParallelTask);
 public:
     virtual		~ParallelTask();
 
-    bool		execute() { return executeParallel(true); }
+    void		doParallel(bool yn)	{ parallel_ = yn; }
+
+    bool		execute() { return executeParallel(parallel_); }
 			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
 			    same number as there are processors on the machine),
@@ -80,7 +81,6 @@ public:
 			    and these static threads will be shared by all
 			    instances of ParallelTask::execute. */
 
-    void		setProgressMeter(ProgressMeter*);
     od_int64		nrDone() const;
 			//!<May be -1, i.e. class does not report nrdone.
 
@@ -135,16 +135,16 @@ private:
     virtual bool	doFinish(bool success)		{ return success; }
 			/*!<Called after all doWork have finished.
 			    \param success indicates whether all doWork returned
-				   true. */
+			           true. */
 
     friend class			ParallelTaskRunner;
-    ProgressMeter*			progressmeter_;
     Threads::Atomic<od_int64>		nrdone_;
 
 private:
 
     od_int64				totalnrcache_;
     od_int64				nrdonebigchunksz_;
+    bool				parallel_ = true;
 
 };
 

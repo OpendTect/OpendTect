@@ -38,7 +38,7 @@ VolProc::ChainOutput::ChainOutput()
     , jobcomm_(0)
     , tkscalcscope_(cs_.hsamp_)
 {
-    progressmeter_ = &progresskeeper_;
+    setProgressMeter( &progresskeeper_ );
 }
 
 
@@ -216,7 +216,7 @@ int VolProc::ChainOutput::nextStep()
 	    startWriteChunk();
 	    if ( !neednextchunk_ )
 	    {	//We just did the last step of the last chunk
-		progressmeter_ = 0;
+		setProgressMeter( nullptr );
 		deleteAndZeroPtr( chainexec_ );
 	    }
 	}
@@ -233,7 +233,7 @@ int VolProc::ChainOutput::nextStep()
     }
 
     // no calculations going on, no storers left ...
-    progressmeter_ = &progresskeeper_;
+    setProgressMeter( &progresskeeper_ );
     setName( "Volume builder processing" );
 
     return Finished();
@@ -455,7 +455,7 @@ void startWork()
     CallBack finishedcb( mCB(this,VolProc::ChainOutputStorer,workFinished) );
     Threads::WorkManager::twm().addWork( *work_, &finishedcb );*/
 
-    wrr.setProgressMeter( co_.progresskeeper_.forwardTo() );
+    ((Task&)wrr).setProgressMeter( co_.progresskeeper_.forwardTo() );
     wrr.execute();
     co_.reportFinished( *this );
 }

@@ -155,13 +155,6 @@ void TaskGroup::addTask( Task* t )
 { tasks_ += t; }
 
 
-void TaskGroup::setProgressMeter( ProgressMeter* p )
-{
-    for ( int idx=0; idx<tasks_.size(); idx++ )
-	tasks_[idx]->setProgressMeter( p );
-}
-
-
 void TaskGroup::setEmpty()
 {
     deepErase( tasks_ );
@@ -186,6 +179,7 @@ od_int64 TaskGroup::nrDone() const
     od_int64 res = 0;
     for ( int idx=0; idx<tasks_.size(); idx++ )
 	res += tasks_[idx]->nrDone();
+
     return res;
 }
 
@@ -199,6 +193,7 @@ od_int64 TaskGroup::totalNr() const
     od_int64 res = 0;
     for ( int idx=0; idx<tasks_.size(); idx++ )
 	res += tasks_[idx]->totalNr();
+
     return res;
 }
 
@@ -228,6 +223,7 @@ bool TaskGroup::execute()
     for ( curtask_=0; curtask_<tasks_.size(); curtask_++ )
     {
 	Task* toexec = tasks_[curtask_];
+	toexec->setProgressMeter( progressMeter() );
 
 	locker.unlockNow();
 	if ( !toexec->execute() )
@@ -266,12 +262,89 @@ void TaskGroup::setParallel(bool)
     pErrMsg("'No No, Not Me!'");
 }
 
-#define mDefaultTimeLimit 250
 
-SequentialTask::SequentialTask( const char* nm )
+
+ReportingTask::ReportingTask( const char* nm )
     : Task(nm)
     , progressmeter_(0)
     , lastupdate_(Time::getMilliSeconds())
+{
+}
+
+
+ReportingTask::~ReportingTask()
+{
+}
+
+
+void ReportingTask::setProgressMeter( ProgressMeter* pm )
+{
+    progressmeter_ = pm;
+    updateReportedName();
+    updateProgressMeter( true );
+}
+
+
+void ReportingTask::getProgress( const ReportingTask& oth )
+{
+    setProgressMeter( oth.progressmeter_ );
+}
+
+
+void ReportingTask::reportProgressStarted()
+{
+    if ( progressmeter_ )
+	progressmeter_->setStarted();
+}
+
+
+void ReportingTask::updateReportedName()
+{
+    if ( progressmeter_ )
+	progressmeter_->setName( name() );
+}
+
+
+#define mDefaultTimeLimit 250
+void ReportingTask::updateProgressMeter( bool forced, od_int64* totalnrcache )
+{
+    if ( !progressmeter_ ||
+	 (Time::passedSince(lastupdate_) < mDefaultTimeLimit && !forced ) )
+	return;
+
+    progressmeter_->setNrDone( nrDone() );
+    progressmeter_->setTotalNr( totalnrcache ? *totalnrcache : totalNr() );
+    progressmeter_->setNrDoneText( uiNrDoneText() );
+    progressmeter_->setMessage( uiMessage() );
+    lastupdate_ = Time::getMilliSeconds();
+}
+
+
+void ReportingTask::incrementProgress()
+{
+    if ( progressmeter_ )
+	++(*progressmeter_);
+}
+
+
+void ReportingTask::resetProgress()
+{
+    if ( progressmeter_ )
+	progressmeter_->setNrDone( -1 );
+}
+
+
+void ReportingTask::reportProgressFinished()
+{
+    updateProgressMeter( true );
+    if ( progressmeter_ )
+	progressmeter_->setFinished();
+}
+
+
+
+SequentialTask::SequentialTask( const char* nm )
+    : ReportingTask(nm)
 {
 }
 
@@ -281,42 +354,10 @@ SequentialTask::~SequentialTask()
 }
 
 
-#define mUpdateProgressMeter \
-{ \
-	progressmeter_->setName( name() ); \
-	progressmeter_->setNrDone( nrDone() ); \
-	progressmeter_->setTotalNr( totalNr() ); \
-	progressmeter_->setNrDoneText( uiNrDoneText() ); \
-	progressmeter_->setMessage( uiMessage() ); \
-}
-
-void SequentialTask::setProgressMeter( ProgressMeter* pm )
-{
-    progressmeter_ = pm;
-    if ( progressmeter_ )
-	mUpdateProgressMeter
-}
-
-
 int SequentialTask::doStep()
 {
-    if ( progressmeter_ ) progressmeter_->setStarted();
-
     const int res = nextStep();
-    if ( progressmeter_ )
-    {
-	const bool doupdate = Time::passedSince(lastupdate_) >mDefaultTimeLimit;
-	if ( doupdate )
-	    mUpdateProgressMeter
-
-	if ( res<1 )
-	{
-	    mUpdateProgressMeter
-	    progressmeter_->setFinished();
-	}
-	if ( doupdate )
-	    lastupdate_ = Time::getMilliSeconds();
-    }
+    updateProgressMeter();
 
     return res;
 }
@@ -327,14 +368,17 @@ bool SequentialTask::execute()
 {
     control_ = Task::Run;
 
+    reportProgressStarted();
+    bool success = false;
     do
     {
 	int res = doStep();
-	if ( !res )     return true;
-	if ( res < 0 )  break;
+	success = !res;
+	if ( success || res < 0 ) break;
     } while ( shouldContinue() );
+    reportProgressFinished();
 
-    return false;
+    return success;
 }
 
 
@@ -373,31 +417,21 @@ protected:
 
 
 ParallelTask::ParallelTask( const char* nm )
-    : Task( nm )
-    , progressmeter_( 0 )
+    : ReportingTask( nm )
     , nrdone_( -1 )
     , totalnrcache_( -1 )
-{ }
+{}
 
 
 ParallelTask::ParallelTask( const ParallelTask& t )
-    : Task( t.name() )
-    , progressmeter_( 0 )
+    : ReportingTask( t.name() )
     , nrdone_( -1 )
     , totalnrcache_( -1 )
-{ }
+{}
 
 
 ParallelTask::~ParallelTask()
 {}
-
-
-void ParallelTask::setProgressMeter( ProgressMeter* pm )
-{
-    progressmeter_ = pm;
-    if ( progressmeter_ )
-	mUpdateProgressMeter
-}
 
 
 void ParallelTask::addToNrDone( od_int64 nr )
@@ -405,13 +439,7 @@ void ParallelTask::addToNrDone( od_int64 nr )
     if ( nrdone_.load()!=-1 || !nrdone_.setIfValueIs( -1,  nr, 0 ) )
 	nrdone_ += nr;
 
-    if ( progressmeter_ )
-    {
-	progressmeter_->setTotalNr( totalnrcache_ );
-	progressmeter_->setNrDoneText( uiNrDoneText() );
-	progressmeter_->setMessage( uiMessage() );
-	progressmeter_->setNrDone( nrDone() );
-    }
+    updateProgressMeter( false, &totalnrcache_ );
 }
 
 
@@ -427,8 +455,7 @@ void ParallelTask::quickAddToNrDone( od_int64 idx )
 void ParallelTask::resetNrDone()
 {
     nrdone_ = -1;
-    if ( progressmeter_ )
-	progressmeter_->setNrDone( -1 );
+    resetProgress();
 }
 
 
@@ -450,13 +477,9 @@ bool ParallelTask::executeParallel( bool parallel )
     if ( totalnrcache_<=0 )
 	return true;
 
-    if ( progressmeter_ )
-    {
-	progressmeter_->setName( name() );
-	progressmeter_->setMessage( uiMessage() );
-	progressmeter_->setTotalNr( totalnrcache_ );
-	progressmeter_->setStarted();
-    }
+    updateReportedName();
+    updateProgressMeter( true, &totalnrcache_ );
+    reportProgressStarted();
 
     nrdone_ = -1;
     nrdonebigchunksz_ = nriterations >= cBigChunkSz ? cBigChunkSz
@@ -476,7 +499,7 @@ bool ParallelTask::executeParallel( bool parallel )
 	if ( !doPrepare( 1 ) ) return false;
 	bool res = doFinish( doWork( 0, nriterations-1, 0 ) );
 	if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
-	if ( progressmeter_ ) progressmeter_->setFinished();
+	reportProgressFinished();
 	return res;
     }
 
@@ -523,7 +546,7 @@ bool ParallelTask::executeParallel( bool parallel )
 
     res = doFinish( res );
     if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
-    if ( progressmeter_ ) progressmeter_->setFinished();
+    reportProgressFinished();
     return res;
 }
 
@@ -532,14 +555,14 @@ int ParallelTask::maxNrThreads() const
 {
     const od_int64 res = nrIterations();
     if ( res>INT_MAX )
-	return INT_MAX;
+        return INT_MAX;
 
     return (int) res;
 }
 
 
 od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
-					    int idx ) const
+				            int idx ) const
 {
     if ( nrthreads==1 ) return totalnr;
 

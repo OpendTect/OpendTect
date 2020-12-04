@@ -57,7 +57,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     Vel::VolumeConverter conv( *inputioobj, *outputioobj, hrg, veldesc );
     TextStreamProgressMeter progressmeter( strm );
-    conv.setProgressMeter( &progressmeter );
+    ((Task&)conv).setProgressMeter( &progressmeter );
 
     if ( !conv.execute() )
     {

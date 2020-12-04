@@ -180,6 +180,6 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     TextStreamProgressMeter progressmeter( strm );
-    taskgrp.setProgressMeter( &progressmeter );
+    ((Task&)taskgrp).setProgressMeter( &progressmeter );
     return taskgrp.execute();
 }
