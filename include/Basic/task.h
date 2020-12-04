@@ -183,7 +183,6 @@ protected:
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
-    int			lastupdate_;
 };
 
 
