@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS uiIo Seis Velocity)
 set(OD_MODULE_SOURCES
 	inituiseis.cc

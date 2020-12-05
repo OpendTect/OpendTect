@@ -5,9 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-
-add_definitions( -DmNoAutoUiString )
-
 SET(OD_MODULE_DEPS Geometry MMProc )
 
 set ( OD_TEST_PROGS seisbuf.cc )

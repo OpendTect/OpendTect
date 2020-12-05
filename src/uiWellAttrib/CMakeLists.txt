@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set( OD_MODULE_DEPS uiWell uiAttributes WellAttrib )
 set( OD_MODULE_SOURCES
 	uicreateattriblogdlg.cc
