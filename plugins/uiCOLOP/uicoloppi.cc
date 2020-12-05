@@ -83,9 +83,10 @@ void uiColopLink::updateWaveletMan( CallBacker* cb )
     mDynamicCastGet(uiSeisWvltMan*,swm,cb)
     if ( !swm ) return;
 
-    new uiToolButton( swm->selGroup()->getManipGroup(), "COLOP",
-				"COLOP",
-				mCB(this,uiColopLink,doColop) );
+    const uiString colopstr = toUiString("COLOP");
+    new uiToolButton( swm->selGroup()->getManipGroup(),
+		       colopstr, colopstr,
+		       mCB(this,uiColopLink,doColop) );
 }
 
 
