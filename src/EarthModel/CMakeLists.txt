@@ -5,9 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
-
 SET(OD_MODULE_DEPS Geometry)
 SET(OD_BATCH_TEST_PROGS
 	emstoredobjaccess.cc
