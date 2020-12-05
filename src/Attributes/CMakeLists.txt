@@ -5,9 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS AttributeEngine PreStackProcessing)
 set(OD_MODULE_SOURCES
 	initattributes.cc

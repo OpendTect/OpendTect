@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 SET(OD_MODULE_DEPS AttributeEngine EarthModel )
 SET(OD_MODULE_SOURCES
 		initvelocity.cc

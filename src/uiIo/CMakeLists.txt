@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set( OD_MODULE_DEPS uiTools uiFlatView Geometry )
 set( OD_MODULE_SOURCES
 	dpsdensitycalc.cc
