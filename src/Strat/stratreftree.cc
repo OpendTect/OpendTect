@@ -57,6 +57,7 @@ RefTree::~RefTree()
     Strat::eLVLS().levelToBeRemoved.remove(
 	    mCB(this,Strat::RefTree,levelToBeRemoved) );
     deleteNotif.trigger();
+    beingdeleted.removeParam( this );
 }
 
 
