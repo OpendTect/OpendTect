@@ -207,7 +207,11 @@ void Strat::UnitRef::setColor( Color c )
 
 void Strat::UnitRef::notifChange( bool isrem )
 {
-    (isrem ? toBeDeleted : changed).trigger();
+    Notifier<UnitRef>& na = isrem ? toBeDeleted : changed;
+    na.trigger();
+    if ( na.isEmpty() )
+	return;
+
     RefTree& rt = refTree();
     if ( &rt != this )
 	rt.reportChange( *this, isrem );
