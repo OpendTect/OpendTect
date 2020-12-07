@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "cvsaccess.h"
 #include "filepath.h"
@@ -25,7 +24,6 @@ static void addRedirect( OS::MachineCommand& mc )
 #endif
 }
 
-#define mGetReqFnm() const BufferString reqfnm( FilePath(dir_,fnm).fullPath() )
 #define mExecCmd( stmt, machcomm ) \
     addRedirect( machcomm ); \
     OS::CommandExecPars pars( OS::Wait4Finish ); \
@@ -97,7 +95,9 @@ bool CVSAccess::hostOK() const
 
 bool CVSAccess::isInCVS( const char* fnm ) const
 {
-    if ( !fnm || !*fnm || !isOK() ) return false;
+    if ( !fnm || !*fnm || !isOK() )
+	return false;
+
     FilePath fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     BufferStringSet entries; getEntries( dirnm, entries );
@@ -109,7 +109,11 @@ void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
 
-    od_istream strm( FilePath(dir,"CVS","Entries") );
+    FilePath fp( dir, "CVS", "Entries" );
+    if ( !fp.isAbsolute() )
+	fp = FilePath( dir_, fp.fullPath() );
+
+    od_istream strm( fp );
     if ( !strm.isOK() )
 	return;
 
@@ -131,8 +135,7 @@ bool CVSAccess::update( const char* fnm )
     if ( !isOK() )
 	return true;
 
-    mGetReqFnm();
-    OS::MachineCommand machcomm( "cvs", "update", reqfnm );
+    OS::MachineCommand machcomm( "cvs", "update", fnm );
     mRetExecCmd( machcomm );
 }
 
@@ -153,8 +156,7 @@ bool CVSAccess::edit( const BufferStringSet& fnms )
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
-	mGetReqFnm();
-	machcomm.addArg( reqfnm );
+	machcomm.addArg( fnm );
     }
 
     mRetExecCmd( machcomm );
@@ -181,8 +183,7 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
-	mGetReqFnm();
-	machcomm.addArg( reqfnm );
+	machcomm.addArg( fnm );
     }
 
     mRetExecCmd( machcomm );
@@ -212,10 +213,7 @@ bool CVSAccess::remove( const BufferStringSet& fnms )
 	if ( !isok )
 	    File::remove( fnm );
 	else
-	{
-	    mGetReqFnm();
-	    machcomm.addArg( reqfnm );
-	}
+	    machcomm.addArg( fnm );
     }
     if ( !isok )
 	return true;
@@ -256,10 +254,7 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
     {
 	const char* fnm = fnms.get(idx).buf();
 	if ( fnm && *fnm )
-	{
-	    mGetReqFnm();
-	    machcomm.addArg( reqfnm );
-	}
+	    machcomm.addArg( fnm );
     }
 
     mExecCmd( const bool res =, machcomm );
@@ -320,14 +315,12 @@ void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
     if ( !isOK() )
 	return;
 
-    mGetReqFnm();
-
 #ifdef __win__
     return; //TODO
 #else
 
     mGetTmpFnm("cvseditors",fnm);
-    OS::MachineCommand machcomm( "cvs", "editors", reqfnm );
+    OS::MachineCommand machcomm( "cvs", "editors", fnm );
     machcomm.addFileRedirect( tmpfnm )
 	    .addFileRedirect( "/dev/null", 2 );
     mExecCmd( const bool res =, machcomm );
@@ -354,14 +347,12 @@ void CVSAccess::diff( const char* fnm, BufferString& res ) const
     if ( !isOK() )
 	return;
 
-    mGetReqFnm();
-
 #ifdef __win__
     return; //TODO
 #else
 
     mGetTmpFnm("cvsdiff",fnm);
-    OS::MachineCommand machcomm( "cvs", "diff", reqfnm );
+    OS::MachineCommand machcomm( "cvs", "diff", fnm );
     machcomm.addFileRedirect( tmpfnm )
 	    .addFileRedirect( "/dev/null", 2 );
     mExecCmd( const bool commres =, machcomm );
