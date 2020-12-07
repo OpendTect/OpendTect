@@ -59,7 +59,7 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     lv_->rightButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
 
     tree_ = 0;
-    setTree( Strat::eRT() );
+    setTree( eRT() );
 }
 
 
@@ -70,11 +70,11 @@ uiStratRefTree::~uiStratRefTree()
 
 void uiStratRefTree::setTree()
 {
-    setTree( Strat::eRT(), true );
+    setTree( eRT(), true );
 }
 
 
-void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
+void uiStratRefTree::setTree( RefTree& rt, bool force )
 {
     if ( !force && &rt == tree_ ) return;
 
@@ -193,13 +193,13 @@ void uiStratRefTree::rClickCB( CallBacker* )
 
 void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 {
-    if ( FixedString(lvit->text()) == Strat::RefTree::sKeyNoCode() )
+    if ( FixedString(lvit->text()) == RefTree::sKeyNoCode() )
 	{ updateUnitProperties( lvit ); return; }
 
     uiMenu mnu( lv_->parent(), uiStrings::sAction() );
 
     bool caninsertsubitem = true;
-    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
+    const UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
 				    : 0;
     if ( !(lvit && ( !un || un->isLeaf() )) )
     {
@@ -241,8 +241,8 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 
 void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 {
-    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
-				    : 0;
+    const UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
+		      : nullptr;
     if ( lvit && ( !un || un->isLeaf() ) ) return;
 
     NodeUnitRef* parun = lvit ? (NodeUnitRef*)un : tree_;
@@ -254,52 +254,55 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 
     if ( parun->isLeaved() )
     {
-	const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
+	const LeavedUnitRef& lvdun = (LeavedUnitRef&)(*parun);
 	tmpun.setLevelID( lvdun.levelID() );
 	for ( int iref = 0; iref<lvdun.nrRefs(); iref++ )
 	{
-	    int id = ((Strat::LeafUnitRef&)(lvdun.ref(iref))).lithology();
-	    LeafUnitRef* lur = new LeafUnitRef( &tmpun, id );
+	    int id = ((LeafUnitRef&)(lvdun.ref(iref))).lithology();
+	    auto* lur = new LeafUnitRef( &tmpun, id );
 	    tmpun.add( lur );
 	}
     }
 
     uiStratUnitEditDlg newurdlg( lv_->parent(), tmpun );
-    if ( newurdlg.go() )
+    if ( !newurdlg.go() )
+	return;
+
+    if ( parun->isLeaved() )
     {
-	if ( parun->isLeaved() )
-	{
-	    for ( int iref=parun->nrRefs()-1; iref>=0; iref-- )
-		removeUnit( lvit->getChild( iref ) );
-	    parun = replaceUnit( *parun, false );
-	    tmpun.setUpNode( 0 );
-	}
-	if ( parun )
-	{
-	    Strat::LeavedUnitRef* newun =
-				new Strat::LeavedUnitRef( parun, tmpun.code());
-	    newun->setColor( tmpun.color() );
-	    newun->setTimeRange( tmpun.timeRange() );
-	    newun->setLevelID( tmpun.levelID() );
-	    newun->setDescription( tmpun.description() );
-	    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
-	    if ( posidx < parun->nrRefs() )
-		parun->insert( newun, posidx );
-	    else
-		parun->add( newun );
-	    ensureUnitTimeOK( *newun );
-	    insertUnitInLVIT( lvit, posidx, *newun );
-	    addLithologies( *newun, newurdlg.getLithologies() );
-	    tree_->unitAdded.trigger();
-	    anychange_ = true;
-	}
-	else
-	    uiMSG().error( tr("Cannot add unit") );
+	for ( int iref=parun->nrRefs()-1; iref>=0; iref-- )
+	    removeUnit( lvit->getChild( iref ) );
+	parun = replaceUnit( *parun, false );
+	tmpun.setUpNode( nullptr );
     }
+
+    if ( !parun )
+    {
+	uiMSG().error( tr("Cannot add unit") );
+	return;
+    }
+
+    auto* newun = new LeavedUnitRef( parun, tmpun.code());
+    newun->setColor( tmpun.color() );
+    newun->setTimeRange( tmpun.timeRange() );
+    newun->setLevelID( tmpun.levelID() );
+    newun->setDescription( tmpun.description() );
+
+    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
+    if ( posidx < parun->nrRefs() )
+	parun->insert( newun, posidx );
+    else
+	parun->add( newun );
+
+    ensureUnitTimeOK( *newun );
+    insertUnitInLVIT( lvit, posidx, *newun );
+    addLithologies( *newun, newurdlg.getLithologies() );
+    tree_->unitAdded.trigger();
+    anychange_ = true;
 }
 
 
-void uiStratRefTree::addLithologies( Strat::LeavedUnitRef& un,
+void uiStratRefTree::addLithologies( LeavedUnitRef& un,
 					const TypeSet<int>& ids )
 {
     uiTreeViewItem* lvit = getLVItFromFullCode( un.fullCode() );
@@ -313,7 +316,7 @@ void uiStratRefTree::addLithologies( Strat::LeavedUnitRef& un,
 }
 
 
-Strat::NodeUnitRef* uiStratRefTree::replaceUnit( NodeUnitRef& un, bool byleaved)
+NodeUnitRef* uiStratRefTree::replaceUnit( NodeUnitRef& un, bool byleaved)
 {
     NodeUnitRef* upnode = un.upNode();
     if ( !upnode ) return 0;
@@ -338,12 +341,12 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 {
     if ( !lvit ) return;
 
-    Strat::UnitRef* startunit = tree_->find( getFullCodeFromLVIt( lvit ) );
+    UnitRef* startunit = tree_->find( getFullCodeFromLVIt( lvit ) );
     if ( !startunit || !startunit->isLeaved() )
 	return;
     LeavedUnitRef& ldur = (LeavedUnitRef&)(*startunit);
 
-    Strat::NodeUnitRef* parnode = startunit->upNode();
+    NodeUnitRef* parnode = startunit->upNode();
     if ( !parnode ) return;
 
     int curidx = 0;
@@ -355,12 +358,12 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
     uiStratUnitDivideDlg dlg( lv_->parent(), ldur );
     if ( dlg.go() )
     {
-	ObjectSet<Strat::LeavedUnitRef> units;
+	ObjectSet<LeavedUnitRef> units;
 	dlg.gatherUnits( units );
 
 	TypeSet<int> lithids;
 	for ( int idx=0; idx<ldur.nrRefs(); idx++ )
-	    lithids += ((Strat::LeafUnitRef&)(ldur.ref(idx))).lithology();
+	    lithids += ((LeafUnitRef&)(ldur.ref(idx))).lithology();
 	for ( int idx=0; idx<units.size(); idx++ )
 	{
 	    LeavedUnitRef& ur = *units[idx];
@@ -385,7 +388,7 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 
 
 void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
-					const Strat::UnitRef& unit ) const
+					const UnitRef& unit ) const
 {
     uiTreeViewItem::Setup setup = uiTreeViewItem::Setup().label( toUiString(
 								unit.code()) );
@@ -414,17 +417,17 @@ void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
 void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
 {
     if ( !lvit ) return;
-    Strat::UnitRef* un = tree_->find( getFullCodeFromLVIt( lvit ) );
+    UnitRef* un = tree_->find( getFullCodeFromLVIt( lvit ) );
     if ( !un ) return;
-    Strat::NodeUnitRef* upnode = un->upNode();
+    NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
 
     TypeSet<int> lithids; int lvlid = -1;
     if ( un->isLeaved() )
     {
-	const Strat::LeavedUnitRef& lvedun = (Strat::LeavedUnitRef&)(*un);
+	const LeavedUnitRef& lvedun = (LeavedUnitRef&)(*un);
 	for ( int idx=0; idx<lvedun.nrRefs(); idx++ )
-	    lithids += ((Strat::LeafUnitRef&)(lvedun.ref(idx))).lithology();
+	    lithids += ((LeafUnitRef&)(lvedun.ref(idx))).lithology();
 	lvlid = lvedun.levelID();
     }
     upnode->remove( un );
@@ -455,7 +458,7 @@ void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
     unitref->setCode( lvit->text(cUnitsCol) );
     unitref->setDescription( lvit->text(cDescCol) );
 
-    Strat::NodeUnitRef& nur = (Strat::NodeUnitRef&)(*unitref);
+    NodeUnitRef& nur = (NodeUnitRef&)(*unitref);
     uiStratUnitEditDlg urdlg( lv_->parent(), nur );
     if ( urdlg.go() )
     {
@@ -541,7 +544,7 @@ BufferString uiStratRefTree::getFullCodeFromLVIt( const uiTreeViewItem* item )
 
 void uiStratRefTree::updateUnitsPixmaps()
 {
-    Strat::UnitRefIter it( *tree_ );
+    UnitRefIter it( *tree_ );
     const UnitRef* firstun = it.unit();
     if ( !firstun ) return;
     uiTreeViewItem* lvit = lv_->findItem( firstun->code().buf(), 0, false);
@@ -582,10 +585,10 @@ void uiStratRefTree::moveUnit( bool up )
     curit->setOpen( isexpanded );
     lv_->setCurrentItem(curit);
 
-    Strat::UnitRef* curun = tree_->find( getFullCodeFromLVIt(curit) );
-    Strat::UnitRef* targetun = tree_->find( getFullCodeFromLVIt(targetit) );
+    UnitRef* curun = tree_->find( getFullCodeFromLVIt(curit) );
+    UnitRef* targetun = tree_->find( getFullCodeFromLVIt(targetit) );
     if ( !curun || !targetun ) return;
-    Strat::NodeUnitRef* upnode = curun->upNode();
+    NodeUnitRef* upnode = curun->upNode();
     if ( !upnode ) return;
 
     upnode->swapChildren( upnode->indexOf(curun), upnode->indexOf(targetun) );
@@ -613,7 +616,7 @@ bool uiStratRefTree::canMoveUnit( bool up )
 
 bool uiStratRefTree::isLeaved( uiTreeViewItem* lvit ) const
 {
-    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
+    const UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
 				    : 0;
     return ( un && un->isLeaved() );
 }
@@ -629,7 +632,7 @@ void uiStratRefTree::assignLevelBoundary( uiTreeViewItem* lvit )
 void uiStratRefTree::setUnitLvl( const char* code )
 {
     UnitRef* unitref = tree_->find( code );
-    mDynamicCastGet(Strat::LeavedUnitRef*,ldun,unitref)
+    mDynamicCastGet(LeavedUnitRef*,ldun,unitref)
     if ( !ldun )
 	return;
 
@@ -653,10 +656,10 @@ void uiStratRefTree::setEntranceDefaultTimes()
 }
 
 
-void uiStratRefTree::setNodesDefaultTimes( const Strat::NodeUnitRef& startnode )
+void uiStratRefTree::setNodesDefaultTimes( const NodeUnitRef& startnode )
 {
-    Strat::UnitRefIter it( startnode, UnitRefIter::AllNodes );
-    NodeUnitRef* un = const_cast<Strat::NodeUnitRef*>( &startnode );
+    UnitRefIter it( startnode, UnitRefIter::AllNodes );
+    NodeUnitRef* un = const_cast<NodeUnitRef*>( &startnode );
     while ( un )
     {
 	if ( !un->isLeaved() )
@@ -688,26 +691,25 @@ bool uiStratRefTree::haveTimes() const
 }
 
 
-void uiStratRefTree::getAvailableTime( const Strat::NodeUnitRef& unit,
+void uiStratRefTree::getAvailableTime( const NodeUnitRef& unit,
 					Interval<float>& timerg ) const
 {
     timerg = unit.timeRange();
     if ( !unit.nrRefs() || unit.isLeaved() )
 	return;
 
-    const Strat::NodeUnitRef& firstun = (Strat::NodeUnitRef&)unit.ref(0);
+    const NodeUnitRef& firstun = (NodeUnitRef&)unit.ref(0);
     if ( timerg.start < firstun.timeRange().start )
 	{ timerg.stop = firstun.timeRange().start; return; }
-    const Strat::NodeUnitRef& lastun =
-			    (Strat::NodeUnitRef&)unit.ref( unit.nrRefs()-1 );
+    const NodeUnitRef& lastun = (NodeUnitRef&)unit.ref( unit.nrRefs()-1 );
     if ( timerg.stop > lastun.timeRange().stop )
 	{ timerg.start = lastun.timeRange().stop; return; }
 
     Interval<float> trg( 0, 0 );
     for ( int idx=0; idx<unit.nrRefs()-1; idx++ )
     {
-	const Strat::NodeUnitRef& cldun = (Strat::NodeUnitRef&)unit.ref(idx);
-	const Strat::NodeUnitRef& nldun = (Strat::NodeUnitRef&)unit.ref(idx +1);
+	const NodeUnitRef& cldun = (NodeUnitRef&)unit.ref(idx);
+	const NodeUnitRef& nldun = (NodeUnitRef&)unit.ref(idx +1);
 	timerg = nldun.timeRange();
 	trg.set( cldun.timeRange().stop, nldun.timeRange().start );
 	if ( trg.width() > 0 )
@@ -717,9 +719,9 @@ void uiStratRefTree::getAvailableTime( const Strat::NodeUnitRef& unit,
 }
 
 
-void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
+void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 {
-    const Strat::NodeUnitRef* par = unit.upNode();
+    const NodeUnitRef* par = unit.upNode();
     if ( !par ) return;
 
     Interval<float> mytimerg( unit.timeRange() );
@@ -729,7 +731,7 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
     const int posidx = getChildIdxFromTime( *par, mytimerg.start )-1;
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
-	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)par->ref(idx);
+	NodeUnitRef& ref = (NodeUnitRef&)par->ref(idx);
 	Interval<float> timerg = ref.timeRange();
 	if ( &ref == &unit ) continue;
 	if ( posidx-1 == idx && mytimerg.start < timerg.start )
@@ -740,7 +742,7 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
 
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
-	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)par->ref(idx);
+	NodeUnitRef& ref = (NodeUnitRef&)par->ref(idx);
 	if ( &ref == &unit ) continue;
 	Interval<float> timerg = ref.timeRange();
 	if ( timerg.overlaps( mytimerg ) )
@@ -760,7 +762,7 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
 
     for ( int idx=0; idx<unit.nrRefs(); idx++ )
     {
-	Strat::NodeUnitRef& ref = (Strat::NodeUnitRef&)unit.ref(idx);
+	NodeUnitRef& ref = (NodeUnitRef&)unit.ref(idx);
 	Interval<float> timerg = ref.timeRange();
 	if ( timerg.start < mytimerg.start || timerg.stop > mytimerg.stop )
 	    { setNodesDefaultTimes( unit ); break; }
@@ -768,13 +770,13 @@ void uiStratRefTree::ensureUnitTimeOK( Strat::NodeUnitRef& unit )
 }
 
 
-int uiStratRefTree::getChildIdxFromTime( const Strat::NodeUnitRef& nur,
+int uiStratRefTree::getChildIdxFromTime( const NodeUnitRef& nur,
 						float pos ) const
 {
     if ( nur.isLeaved() ) return -1;
     for ( int idx=0; idx<nur.nrRefs(); idx++ )
     {
-	Strat::NodeUnitRef& cnur = (Strat::NodeUnitRef& )(nur.ref(idx));
+	NodeUnitRef& cnur = (NodeUnitRef& )(nur.ref(idx));
 	if ( cnur.timeRange().start > pos )
 	    return idx;
     }

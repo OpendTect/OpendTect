@@ -166,11 +166,10 @@ public:
 			{ delete refs_.removeSingle(uridx); }
     void		remove( const UnitRef* ur )
 			{ remove( indexOf( ur ) ); }
-    void		removeAllChildren()
-			{ deepErase( refs_ ); }
 
     virtual void	getPropsFrom(const IOPar&);
     virtual void	putPropsTo(IOPar&) const;
+
 protected:
     void		changeTimeRange(float dtime);
 
