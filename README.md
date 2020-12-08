@@ -31,7 +31,7 @@ The development branches are:
 
 | BRANCH | DESCRIPTION |
 | -------------| ----------------- |
-| [master](https://github.com/OpendTect/OpendTect/tree/master) | This is the bleeding edge where migration of OpendTect to new versions of its major dependencies, Qt and OpenSceneGraph, is tested and major new functionality is added.  |
+| [main](https://github.com/OpendTect/OpendTect/tree/main) | This is the bleeding edge where migration of OpendTect to new versions of its major dependencies, Qt and OpenSceneGraph, is tested and major new functionality is added.  |
 | [od6.6](https://github.com/OpendTect/OpendTect/tree/od6.6)  | This is the main development branch for the next stable release series 6.6. No new features are currently being added to this branch as it is being prepared for release. |
 | [od6.4](https://github.com/OpendTect/OpendTect/tree/od6.4)  |  This branch is the main stable branch. Only critical fixes may be applied.  |
 
@@ -53,7 +53,7 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| master | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6.0, od6.6 | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.4.5, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
