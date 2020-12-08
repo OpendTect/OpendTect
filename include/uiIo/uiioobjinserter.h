@@ -51,7 +51,7 @@ public:
     static void         addInsertersToDlg(uiParent*,CtxtIOObj&,
 					  ObjectSet<uiIOObjInserter>&,
 					  ObjectSet<uiButton>&,
-					  const char* trtoavoid=nullptr);
+					  const BufferStringSet&);
     static uiIOObjInserter* create( const Translator& t )
 			{ return factory().create(t.getDisplayName()); }
 

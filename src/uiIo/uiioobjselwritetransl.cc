@@ -37,7 +37,8 @@ uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
 
 
 uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
-				const CtxtIOObj& ctio, bool withopts )
+				const CtxtIOObj& ctio,
+			const BufferStringSet& transltoavoid, bool withopts )
     : uiGroup(p,"Write Translator selector")
     , ctxt_(*new IOObjContext(ctio.ctxt_))
     , selfld_(0)
@@ -50,7 +51,9 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     for ( int idx=0; idx<alltrs.size(); idx++ )
     {
 	const Translator* trl = alltrs[idx];
-	if ( IOObjSelConstraints::isAllowedTranslator(
+	if ( transltoavoid.indexOf(trl->typeName()) >= 0 )
+	    continue;
+	else if ( IOObjSelConstraints::isAllowedTranslator(
 		    trl->userName(),ctio.ctxt_.toselect_.allowtransls_)
 	  && trl->isUserSelectable( false ) )
 	    trs_ += trl;

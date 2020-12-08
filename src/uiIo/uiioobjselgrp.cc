@@ -243,7 +243,8 @@ void uiIOObjSelGrp::mkWriteFlds()
     wrtrselfld_ = 0;
     if ( setup_.withwriteopts_ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_, true );
+	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_,
+						setup_.trsnotallwed_, true );
 	wrtrselfld_->suggestedNameAvailble.notify(
 				mCB(this,uiIOObjSelGrp,nameAvCB) );
     }
@@ -299,7 +300,7 @@ void uiIOObjSelGrp::mkManipulators()
 
 	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
 	    ctio_.ctxt_.toselect_.allowtransls_)
-				|| trnm.isEqual(setup_.withctxtfilter_) )
+				|| (setup_.trsnotallwed_.indexOf(trnm)>=0) )
 	    continue;
 
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
@@ -903,7 +904,8 @@ void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
     {
 	if ( curioobj && wrtrselfld_->hasWriteOpts() )
 	{
-	    uiIOObjSelWriteTranslator currentwrtselfld(this,ctio_.ctxt_,true);
+	    uiIOObjSelWriteTranslator currentwrtselfld( this, ctio_.ctxt_,
+				    setup_.trsnotallwed_, true );
 	    currentwrtselfld.use( *curioobj );
 	    if ( wrtrselfld_->hasSameWriteOpts(currentwrtselfld) )
 		wrtrselfld_->resetPars();

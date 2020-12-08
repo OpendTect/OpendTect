@@ -62,7 +62,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
-    sgsu.withctxtfilter( ctxtfilter_ );
+    sgsu.withctxtfilter_.add( ctxtfilter_ );
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(),
 									sgsu );

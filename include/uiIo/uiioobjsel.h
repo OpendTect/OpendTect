@@ -52,7 +52,8 @@ public:
 	mDefSetupMemb(bool,withinserters) //!< only if forread
 	mDefSetupMemb(bool,withwriteopts) //!< only if !forread
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
-	mDefSetupMemb(BufferString, withctxtfilter);
+	mDefSetupMemb(BufferString,withctxtfilter);
+	mDefSetupMemb(BufferStringSet,trsnotallwed);
 
     };
 

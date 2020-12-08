@@ -176,8 +176,9 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     {
 	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
 						   OD::Vertical );
+	const BufferStringSet nms;
 	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
-					    extselbuts_ );
+					    extselbuts_, nms );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	{
 	    inserters_[idx]->objectInserted.notify(

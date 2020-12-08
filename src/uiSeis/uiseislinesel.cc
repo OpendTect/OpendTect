@@ -66,8 +66,9 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     {
 	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
 						   OD::Vertical );
+	const BufferStringSet nms;
 	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
-					    insertbuts_ );
+					    insertbuts_, nms );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	{
 	    inserters_[idx]->objectInserted.notify(

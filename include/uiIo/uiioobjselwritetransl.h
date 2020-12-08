@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          April 2001
- RCS:           $Id$
+ Author:	A.H. Bril
+ Date:		April 2001
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,12 @@ public:
 
     virtual void	use(const IOPar&)	= 0;
     virtual bool	fill(IOPar&) const	= 0;
-    virtual const char*	errMsg() const		{ return errmsg_; }
+    virtual const char* errMsg() const		{ return errmsg_; }
 
     const Translator&	translator() const	{ return transl_; }
 
     Notifier<uiIOObjTranslatorWriteOpts> suggestedNameAvailble;
-    virtual const char*	suggestedName() const	{ return ""; }
+    virtual const char* suggestedName() const	{ return ""; }
 
 protected:
 
@@ -80,7 +80,8 @@ mExpClass(uiIo) uiIOObjSelWriteTranslator : public uiGroup
 { mODTextTranslationClass(uiIOObjSelWriteTranslator)
 public:
 			uiIOObjSelWriteTranslator(uiParent*,const CtxtIOObj&,
-					    bool withopts=false);
+				const BufferStringSet& transltoavoid,
+				bool withopts=false);
 			~uiIOObjSelWriteTranslator();
 
     bool		isEmpty() const;
@@ -98,7 +99,7 @@ public:
     bool		hasSelectedTranslator(const IOObj&) const;
 
     Notifier<uiIOObjSelWriteTranslator> suggestedNameAvailble;
-    virtual const char*	suggestedName() const;
+    virtual const char* suggestedName() const;
 
 protected:
 

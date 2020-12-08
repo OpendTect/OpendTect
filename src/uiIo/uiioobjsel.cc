@@ -76,7 +76,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 					 CtxtIOObj& ctio,
 					 ObjectSet<uiIOObjInserter>& insertset,
 					 ObjectSet<uiButton>& buttonset,
-					 const char* trtoavoid )
+					 const BufferStringSet& transltoavoid )
 {
     if ( uiIOObjInserter::allDisabled() )
 	return;
@@ -88,7 +88,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
 	const BufferString trgrpnm = tpls[idx]->typeName();
 	if ( !inserter || inserter->isDisabled() ||
-						trgrpnm.isEqual(trtoavoid) )
+				(transltoavoid.indexOf(trgrpnm)>=0) )
 	    continue;
 
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
@@ -266,14 +266,15 @@ void uiIOObjSel::init()
     if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-					extselbuts_, setup_.withctxtfilter_ );
+					extselbuts_, setup_.trsnotallwed_ );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );
     }
     else if ( setup_.withwriteopts_ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
+	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_,
+					    setup_.trsnotallwed_, false );
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );

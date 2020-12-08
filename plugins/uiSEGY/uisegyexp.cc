@@ -193,7 +193,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
     sssu.selectcomp(true);
-    sssu.withctxtfilter_ = mSEGYDirectTranslNm;
+    sssu.trsnotallwed_.add( mSEGYDirectTranslNm );
     seissel_ = new uiSeisSel( this, ctxt, sssu );
     seissel_->selectionDone.notify( inpselcb );
 
