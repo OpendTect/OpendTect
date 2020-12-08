@@ -45,7 +45,7 @@ OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gp
 	- Windows: msvc2019 64 bit (>= v16.7.5). The free community edition is sufficient.
 	- macOS: SDK 10.14
 	- Linux: gcc 64 bit version 5.4.0 or higher
-- CMake version 2.8 or higher
+- CMake version 3.14 or higher
 - The c++14 version is enabled by default on all platforms.
 
 ### Dependencies
