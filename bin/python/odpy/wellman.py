@@ -45,6 +45,21 @@ def getLog( wllnm, lognm, reload=False, args=None ):
   ret = oddbman.getDBDict( cmd )
   return (ret['MDs'], ret['Values'])
 
+def getLogs( wllnm, logidxlst, zstep=0.5, reload=False, args=None ):
+  dbkey = getDBKey( wllnm, reload=reload, args=args )
+  cmd = getODCommand(wellmanexe,args)
+  cmd.append( '--read-logs' )
+  cmd.append( dbkey )
+  cmd.append( logidxlst )
+  cmd.append( '--zstep' )
+  cmd.append( str(zstep) )
+  ret = oddbman.getDBDict( cmd )
+  nlogs = len(ret['Names'])
+  result = { 'depth': ret['MDs'] }
+  for n in range(nlogs):
+    result[ret['Names'][n]] = ret[f'Log_{n}']
+  return result
+
 def getDBKey( wllnm, reload=False, args=None ):
   global dblist
   dblist = getWellDBList(reload,args)
