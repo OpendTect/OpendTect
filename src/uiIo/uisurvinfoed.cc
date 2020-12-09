@@ -606,7 +606,8 @@ void uiSurveyInfoEditor::doFinalize( CallBacker* )
     ic3fld_->setReadOnly( true );
     xy3fld_->setReadOnly( true );
 
-    sipCB(0);
+    sipCB(nullptr);
+    updZUnit(nullptr);
 }
 
 
