@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "genc.h"
 #include "file.h"
+#include "moddepmgr.h"
 
 
 uiODSysAdm& ODSysAdmMainWin()
@@ -41,6 +42,7 @@ int ODSysAdmMain( int argc, char** argv )
     uiMain app( argc, argv );
     uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs
     PIM().loadAuto( true );
+    OD::ModDeps().ensureLoaded( "uiSysAdm" );
 
     app.setTopLevel( &odsa );
     uiMSG().setMainWin( &odsa );
