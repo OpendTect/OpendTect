@@ -3,7 +3,6 @@
 # Copyright (C): dGB Beheer B. V. 
 #
 #
-
 #Set OpendTect version
 set( OpendTect_VERSION_MAJOR @OpendTect_VERSION_MAJOR@ )
 set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )
@@ -61,4 +60,6 @@ set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
 #Externals setup for all modules
 @MODULES_SETUP@
 
-set( OD_THIRD_PARTY_LIBS @OD_THIRD_PARTY_LIBS@ )
+set( OD_THIRD_PARTY_FILES @OD_THIRD_PARTY_FILES@ )
+set( OD_QTPLUGINS @OD_QTPLUGINS@ )
+set( OD_QT_TRANSLATION_FILES @OD_QT_TRANSLATION_FILES@ )

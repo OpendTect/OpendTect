@@ -57,6 +57,11 @@ macro( QT_INSTALL_PLUGINS )
 	     PATTERN "*.dll"
 	     PATTERN "*.dylib" )
     endforeach()
+
+    list( APPEND OD_QTPLUGINS ${QT_REQ_PLUGINS}  )
+    list( REMOVE_DUPLICATES OD_QTPLUGINS )
+
+    set( OD_QTPLUGINS ${OD_QTPLUGINS}  PARENT_SCOPE )
 endmacro(QT_INSTALL_PLUGINS)
 
 macro( QT_SETUP_CORE_INTERNALS )
@@ -71,7 +76,11 @@ macro( QT_SETUP_CORE_INTERNALS )
 		 PATTERN "qt_*.qm"
 		 PATTERN "qtbase_*.qm" )
 
-    QT_INSTALL_PLUGINS()
+    file( GLOB TRANSLATION_FILES  ${QTDIR}/translations/qt_*.qm ${QTDIR}/translations/qtbase_*.qm)
+    foreach( TRANSLATIONFILE ${TRANSLATION_FILES} )
+	get_filename_component( FILENM ${TRANSLATIONFILE} NAME )
+	list( APPEND OD_QT_TRANSLATION_FILES ${FILENM} )
+    endforeach()
 
 endmacro(QT_SETUP_CORE_INTERNALS)
 
@@ -104,6 +113,14 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 	    FILES_MATCHING
 	    PATTERN "qtwebengine_*.qm"
 	    PATTERN "qtwebengine_locales/*.pak" )
+    file( GLOB WEBENGINE_TRANSLATION_FILES  ${QTDIR}/translations/qtwebengine_*.qm ${QTDIR}/translations/qtwebengine_locales/*.pak )
+
+    foreach( WEBTRANSLATIONFILE ${WEBENGINE_TRANSLATION_FILES} )
+	get_filename_component( FILENM ${WEBTRANSLATIONFILE} NAME )
+	list( APPEND OD_QT_TRANSLATION_FILES ${FILENM} )
+    endforeach()
+    set( OD_QT_TRANSLATION_FILES ${OD_QT_TRANSLATION_FILES} PARENT_SCOPE )
+
     if ( WIN32 )
 	set( QTPOSTFIX "" )
 	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
@@ -116,6 +133,8 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 	OD_INSTALL_PROGRAM( "${QTDIR}/bin/qwebengine_convert_dict" )
     endif()
 
+    list( APPEND  OD_QWEBENGINE_PLUGINS resources translations )
+    set( OD_QWEBENGINE_PLUGINS ${OD_QWEBENGINE_PLUGINS} PARENT_SCOPE )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
 macro( QT_SETUP_XCBQPA_EXTERNALS )
