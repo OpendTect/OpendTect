@@ -12,14 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uibatchhostsdlg.h"
 
+#include "moddepmgr.h"
 #include "prog.h"
 
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiIo" );
 
-    uiBatchHostsDlg* dlg = new uiBatchHostsDlg( 0 );
+    auto* dlg = new uiBatchHostsDlg( nullptr );
     dlg->showAlwaysOnTop();
     app.setTopLevel( dlg );
     dlg->show();

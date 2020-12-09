@@ -11,10 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "prog.h"
+
 #include "uimsg.h"
 #include "uimain.h"
 #include "uistrings.h"
+
 #include "commandlineparser.h"
+#include "moddepmgr.h"
 #include "texttranslator.h"
 
 #ifdef __msvc__
@@ -58,6 +61,7 @@ int main( int argc, char** argv )
 		       : od_static_tr("main", "Your answer:"));
 
     uiMain app( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiBase" );
     if ( typ == 0 )
 	uiMSG().message( msg );
     else if ( typ == 1 )
