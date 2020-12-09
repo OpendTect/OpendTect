@@ -68,7 +68,7 @@ For the Qt install the following components must be selected depending on your b
 Configure using CMake, compile and install. 
 
 ### HDF5 Install
-The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 1.12 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developpers however need to recompile the sources since no debug binary libraries can be downloaded.
+The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 1.12 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developers however need to recompile the sources since no debug binary libraries can be downloaded.
 
 ### Windows
 Configure CMake ensuring to set the following variables:
