@@ -55,8 +55,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 static const char* sKeyClipRatio = "Amplitudes.Clip Ratio";
 static const char* sKeyIncludeZeros = "Amplitudes.Include Zeros";
-static BufferString sImportFromPath = GetDataDir();
-
+static BufferString sImportFromPath;
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
@@ -92,6 +91,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	setOkText( tr("Next >>") );
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
+
+    if ( sImportFromPath.isEmpty() )
+	sImportFromPath = GetDataDir();
 
     topgrp_ = new uiGroup( this, "Top group" );
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
