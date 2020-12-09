@@ -226,10 +226,10 @@ macro(_launcher_produce_vcproj_user)
 			_perconfig)
 		set(USERFILE_CONFIGSECTIONS)
 		foreach(USERFILE_CONFIGNAME ${CMAKE_CONFIGURATION_TYPES})
-			set( USERFILE_${USERFILE_CONFIGNAME}_COMMAND "${OpendTect_DIR}/bin/${OD_PLFSUBDIR}/${USERFILE_CONFIGNAME}/${_targetname}.exe" )
-			file(TO_NATIVE_PATH
-				"${USERFILE_${USERFILE_CONFIGNAME}_COMMAND}"
-				USERFILE_${USERFILE_CONFIGNAME}_COMMAND)
+			set(_temp
+                "$<IF:$<CONFIG:${USERFILE_CONFIGNAME}>,\n${_temp},$<TARGET_PROPERTY:${_targetname},LAUNCHER_USER_ELSE_${USERFILE_CONFIGNAME}>>\n"
+            )
+			file(TO_NATIVE_PATH "${_temp}" _temp)
 			string(CONFIGURE "${_perconfig}" _temp @ONLY ESCAPE_QUOTES)
 			string(CONFIGURE
 				"${USERFILE_CONFIGSECTIONS}${_temp}"
