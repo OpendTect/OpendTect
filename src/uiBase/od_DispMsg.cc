@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uistrings.h"
 #include "commandlineparser.h"
+#include "moddepmgr.h"
 
 #ifdef __msvc__
 #include "winmain.h"
@@ -61,6 +62,7 @@ int main( int argc, char** argv )
     }
 
     uiMsg& uimsg = gUiMsg();
+    OD::ModDeps().ensureLoaded( "uiBase" );
     if ( typ == 0 )
 	uimsg.message( msg );
     else if ( typ == 1 )
