@@ -298,17 +298,18 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 File::Path* OD::PythonAccess::getActivateScript( const File::Path& rootfp )
 {
     File::Path ret( rootfp.fullPath(), "bin" );
-    if ( !ret.exists() )
-    {
-	ret.set( rootfp.fullPath() ).add( "condabin" );
-	if ( !ret.exists() )
-	    return nullptr;
-    }
-    ret.add( "activate" );
+	ret.add( "activate" );
 #ifdef __win__
-    ret.setExtension( "bat" );
+	ret.setExtension( "bat" );
 #endif
-
+	if (!ret.exists())
+	{
+	ret.set(rootfp.fullPath()).add("condabin");
+	ret.add("activate");
+#ifdef __win__
+	ret.setExtension("bat");
+#endif
+	}
     return ret.exists() ? new File::Path( ret ) : nullptr;
 }
 
