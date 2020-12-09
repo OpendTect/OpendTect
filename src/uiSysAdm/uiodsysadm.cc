@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "genc.h"
 #include "file.h"
+#include "moddepmgr.h"
 
 
 uiODSysAdm& ODSysAdmMainWin()
@@ -36,6 +37,7 @@ int ODSysAdmMain( int argc, char** argv )
     uiMain app;
     PIM().loadAuto( false );
     uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs
+    OD::ModDeps().ensureLoaded( "uiSysAdm" );
     PIM().loadAuto( true );
 
     app.setTopLevel( &odsa );
