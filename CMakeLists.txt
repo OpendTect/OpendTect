@@ -177,7 +177,7 @@ endif()
 OD_ADD_PACKAGES_TARGET()
 
 if ( OD_BINARY_DEBUG_BASEDIR AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-   set( OD_BINARY_DEBUG_BASEDIR ${OD_BINARY_DEBUG_BASEDIR} CACHE PATH "Binary
+   set( OD_BINARY_DEBUG_BASEDIR "${OD_BINARY_DEBUG_BASEDIR}" CACHE PATH "Binary
 project in Debug mode" INTERNAL )
 endif()
 #Avoid warnings if specified on command line

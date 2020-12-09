@@ -195,7 +195,7 @@ if( WIN32 )
     endif()
     include( InstallRequiredSystemLibraries )
 
-#Required for the pckaging
+#Required for the packaging
     foreach( DLL ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} )
 	OD_INSTALL_SYSTEM_LIBRARY( "${DLL}" )
     endforeach()
